@@ -1,0 +1,66 @@
+Memory Management for Crown
+(mostly based on "Building your own memory manager for C/C++ projects" by IBM)
+
+=== Why ===
+
+	* Improves application performance
+	* Allows to avoid memory leaks
+	* Can take care of memory corruption and other kind of errors hard to be detected in normal circumstances
+	* Allows memory tracking (profiling and statistics)
+
+=== Goals ===
+
+	* Speed
+		* Must be faster than the compiler-provided allocators
+		* Must provide optimized allocators for allocation patterns that occur frequently in the code
+
+	* Robustness
+		* Must return all the memory it requested to the system
+		* Must handle erroneus cases and bail out gracefully
+
+	* Fragmentation control
+		* Must provide effective ways to reduce fragmentation at minimum
+
+	* Debugging support
+		* Must provide some debuggin informations and corruption checking system
+		* Must be able to track memory usage and collect statistics
+
+=== Implementation details ===
+
+	* Free-lists based memory manager with allocators based on common strategies
+
+=== Development log ===
+
+	* Tue Jan 18 - First attempt
+		* I spent the last 4 hours trying to build a very simple memory manager based on the so called 'free-lists'.
+		* Only an advice: DO NOT TRY TO MANAGE THE LISTS WITH A List. :D
+		* I replaced List with the STL's list (doubly-linked list) and now it works decently. I've figured out
+		* that it's all about free-lists management. We need a fast management method based on fast data structures.
+		* The current implementation performs as follow:
+		*
+		* === Default memory management ===
+		* (De)alloc count: 10000000
+		*            Time: 916ms
+		* === Custom memory management ===
+		* (De)alloc count: 10000000
+		*            Time: 1290ms
+		*
+		* Which is pretty crappy, about 1.4x slower despite needing only 2 context switches versus approx 10000000... :|
+		* There's clearly something wrong.
+		*
+		* !!! UPDATE !!!
+		*
+		* Seems that using std::list to emulate what std::stack is designed for has not been a great idea. The same
+		* code running with the latter is much (6.2x) quicker:
+		*
+		* === Default memory management ===
+		* (De)alloc count: 10000000
+		*            Time: 973ms
+		* === Custom memory management ===
+		* (De)alloc count: 10000000
+		*            Time: 208ms
+		*
+		* Haha! Now we are "faster than a fucking tornado." (cit.) but unfortunately it's only the beginning, there's
+		* a ton of work to be accomplished. Anyway, nice to see some progress!
+		*
+

@@ -1,0 +1,96 @@
+ == Crown TODO List ==
+
+ - Generic tasks
+  > Complete the basic windowing and openGl setup.
+   . Let's do it!
+     [Descr]: Once decided the structure and interfaces, implement them in both
+              linux and windows.
+     [State]: Work in progress.
+
+  > Implement basic data structures.
+   . List<T>
+     [Descr]: A class that wraps a typed array, and exposes an interface to man
+              ipulate it.
+     [State]: Completed.
+
+   . String
+     [Descr]: Handles a character array and exposes it as a string with methods
+              to manipulate it as a string and not a char array.
+     [Note]: An useful feature would be Copy On Write (COW) behaviour. Also usi
+             ng a StringPool as data allocator could be convenient for memory a
+             nd speed reasons.
+     [State]: Basic implementation completed.
+
+   . Dictionary<TKey, TValue>
+     [Descr]: A class to build dictionaries.
+              Required specifications are O(log(n)) speed for frequent function
+              s, such as:
+              - insert(TKey, TValue)
+              - remove(TKey)
+              - find(TKey)
+              - contains(TKey)
+     [State]: Completed.
+
+  > Enumerators. (See Enumerators.txt for further info)
+   . Implementation
+     [Descr]: Implement enumeration capabilites for structures that can expose 
+              them.
+     [State]: Supported containers:
+              - List<T>: Forward and Backward enumeration.
+              - Dictionary<Tkey, TValue>: Forward and Backward enumeration.
+
+  > Memory management.
+   . ManagedObject
+     [Descr]: Object base for objects whose memory should be tracked.
+     [State]: Functionality present, but to be optimized. (This far, it has a l
+              ot of overhead)
+   . GarbageBin
+     [Descr]: A Garbage collector that receives objects that must be deleted at
+              the end of the frame.
+     [State]: Completed.
+
+   . WeakPointer<T>
+     [Descr]: A pointer wrapper that becomes NULL automatically when the pointe
+              d objects gets destroyed.
+     [State]: To be implemented.
+
+  > Gui Subsystem. (See Gui.txt for info)
+   . Widget Skeleton
+     [Descr]: A solid base Widget that allows to build a tree representation of
+              Gui Objects.
+     [State]: Expanding methods as needed
+
+   . Window
+     [Descr]: A Window Widget with common functionalities and quick gestures.
+     [State]: Work in progress.
+
+   . WindowsManager
+     [Descr]: A Windows manager that handles windows and generates mouse and ke
+              yboards events for them.
+     [State]: Event system defined, introducing new events as needed
+		 					- Replace OnEvents params with proper structures
+
+   . Default Widgets
+     [Descr]: A set of ready to use widgets that offer the most common function
+              alities.
+     [State]: Work in progress.
+							-In Progress-
+              . ListView
+								- Multiple selection
+              . TextBox
+								- Selection
+								- Copy-Paste
+								- Blinking caret
+              -Completed-
+              . Button
+              . DragArea
+              . ThemeSpriteWidget
+              . Label
+              -Todo-
+				      . ScrollBar
+              . ScrollArea
+              . Checkbox
+              . Menu
+              . ContextualMenu
+              . TabView
+              . TreeView

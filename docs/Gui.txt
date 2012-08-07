@@ -1,0 +1,96 @@
+==Gui Subsystem==
+-------------------------------------------------------------------------------
+ - Description
+  The Gui subsystem provides an easy way to create in-game windows and populate
+  them with widgets.
+
+ - The basic Widget:
+  Each widget, wether a simple button or a whole complex window, inherit from a
+  generic Widget. This class provides the skeleton for the Gui subsystem. It re
+  presents a generic 'Gui object' that has a dimension and can be displayed on 
+  screen. Its functionalities are common to all the derived types and are:
+  - Children handling and displaying:
+		Each widget contains a list of children widgets, representing a tree as a w
+		hole. A widgets belongs to his parent, that can be specified only in the wi
+		dget's constructor or by attaching later the widget to a parent if null was
+		specified in the constructor, and once set it can't change.
+		If no custom method is specified, the drawing of children is performed auto
+		matically, otherwise DrawChildren must be called when defining the OnDraw() 
+		method (usually at the end).
+
+  - Mouse interaction:
+		Mouse events are received through the On[Preview]Mouse???() method (where  
+		??? varies depending on the event being notified). Each mouse event is rece
+		ived only if the corresponding action was done inside the widget or one of 
+		its children. An exception to this is when the widget explicitly captures t
+		he mouse: in this case, the widget will receive the mouse events regadrless
+		of the fact that they occoured inside or outside the widget itself or one o
+		f its children. Of course in this case MouseIn and MouseOut occour only whe
+		n the mouse enters or exits the widget that captures the mouse, otherwise t
+		hey would not make sense.
+
+  - Position and dimension:
+		Size and position of widgets can be selected using SetDesiredSize() and Set
+		DesiredPosition() methods. Actual values may vary depending on the layout b
+		eing used. If values of -1 are specified for the desired size, the layout s
+		ystem will interpret it as 'i don't care, you choose', which for default la
+		yout means expand the widget as much as possible. Margins, Horizontal and V
+		ertical alignment provide a convenient way to handle how widgets are displa
+		yed.
+
+ - Events:
+	Each interaction with the Gui can create an event for the application to resp
+	ond.
+	There are two kinds of events: OnEvents, and Signals.
+		- OnEvents:
+			The OnEvents are used by the Gui elements to handle specific behaviours o
+			f the elements themselves: for example, a ListView can use the OnPreviewM
+			ouseUp (covered later) to detect the selection of a child item. The Progr
+			ammer should use these events only when defining custom widgets.
+			Some(All?) OnEvents follow the Tunneling-Bubbling pattern:
+			When an OnEvent fires, for example an OnMouseMove event, the following pr
+			ocedure is followed:
+			1) The element on which the event occours is determined (called Target).
+			2) From the Root Ancestor of the Target, traversing the Widget Tree down
+				 the branch that leads to the Target, OnPreviewMouseMove is called on e
+				 ach widget encountered until some of them sets stopPropagation or the 
+				 Target is reached.
+			3) The same procedure is followed, from the Target to the Root Ancestor, 
+				 but this time calling OnMouseMove.
+			This mechanism allows parent widgets to be notified of events before the
+			Target can know it, allowing them to react accordingly: for example, a Li
+			stViewItems listen for OnPreviewMouseUp to detect when they are selected.
+			Note: Stopping a Preview event via stopPropagation does not block the cor
+						responding Bubbling event to be performed.
+
+		- Signals:
+			Signals expose a set of events that a Programmer can hook onto to detect 
+			when a particular User action occours. Each widget has its signals: a Lis
+			tView for example, has the SelectionChangedSignal that fires whenever the
+			selection changes to another item.
+			To attach to a signal, simply define a Slot with the same signature and a
+			n handler method and connect it to the desidered signal.
+
+ - Layout:
+	Its purpose is to give widgets a size and position. It's performed automati
+	cally when needed, by means of the OnUpdateLayout event.
+	By default, widgets accomodate desired sizes and position requested by the 
+	children. If a different placement is desired, custom Layout widgets must b
+	e used. For example to place a series of button vertically, it's sufficient
+	to create a StackLayout widget as child of the container widget, and put th
+	e buttons inside it.
+
+ - WindowsManager
+ 	The WindowsManager offers an interface between the Crown Entity model and win
+ 	dows. It is the container of all the windows, and is responsible of receiving
+ 	keyboard and mouse events and propagate them in the windows hierarchy.
+ 	Usually the user doesn't need to interface to it except for creation and wind
+ 	dows assignment.
+
+ - Window
+	It's a specialized Widget that has a title bar, a close button and a client a
+	rea where children Widgets are displayed. It is the basic host of all the wid
+	gets. This means that non-Window widgets can only exist inside the Widget tre
+  e of a Window.
+  To insert a widget in the Window client area, just pass them as parent the wi
+	dget returned by calling GetClientArea() on the window.

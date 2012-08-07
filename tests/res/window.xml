@@ -1,0 +1,12 @@
+<Window Name="mainWindow" Title="A Window">
+  <StackLayout Margins="2, 0, 2, 0">
+    <Button Name="btnQuit" OnClick="{Action QuitApplication}" DesiredSize="35, 15">
+	  <Label Name="lblCaption" Text="Close" />
+	</Button>
+    <Button Name="btnNew" OnClick="{Action NewLibrary}" Margins="0, 15, 0, 0" DesiredSize="70, 20">
+	  <Label Name="lblCaption" Text="New Library" />
+	</Button>
+  </StackLayout>
+</Window>
+
+

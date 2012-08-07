@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\tests\chainsawbuffet\entities\Background.h" />
+    <ClInclude Include="..\..\..\src\tests\chainsawbuffet\entities\Bullet.h" />
+    <ClInclude Include="..\..\..\src\tests\chainsawbuffet\entities\Joystick.h" />
+    <ClInclude Include="..\..\..\src\tests\chainsawbuffet\entities\Pg.h" />
+    <ClInclude Include="..\..\..\src\tests\chainsawbuffet\entities\SolidSceneNode.h" />
+    <ClInclude Include="..\..\..\src\tests\chainsawbuffet\entities\Wall.h" />
+    <ClInclude Include="..\..\..\src\tests\chainsawbuffet\entities\Zombie.h" />
+    <ClInclude Include="..\..\..\src\tests\chainsawbuffet\Globals.h" />
+    <ClInclude Include="..\..\..\src\tests\chainsawbuffet\scenes\ArenaScene.h" />
+    <ClInclude Include="..\..\..\src\tests\TestApp.h" />
+    <ClInclude Include="..\..\..\src\tests\TestScene.h" />
+    <ClInclude Include="..\crown\resources.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\tests\chainsawbuffet\entities\Background.cpp" />
+    <ClCompile Include="..\..\..\src\tests\chainsawbuffet\entities\Bullet.cpp" />
+    <ClCompile Include="..\..\..\src\tests\chainsawbuffet\entities\Joystick.cpp" />
+    <ClCompile Include="..\..\..\src\tests\chainsawbuffet\entities\Pg.cpp" />
+    <ClCompile Include="..\..\..\src\tests\chainsawbuffet\entities\SolidSceneNode.cpp" />
+    <ClCompile Include="..\..\..\src\tests\chainsawbuffet\entities\Wall.cpp" />
+    <ClCompile Include="..\..\..\src\tests\chainsawbuffet\entities\Zombie.cpp" />
+    <ClCompile Include="..\..\..\src\tests\chainsawbuffet\Globals.cpp" />
+    <ClCompile Include="..\..\..\src\tests\chainsawbuffet\main.cpp" />
+    <ClCompile Include="..\..\..\src\tests\chainsawbuffet\scenes\ArenaScene.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\crown\crown.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\res\napoleon.ico" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0FF7A88C-EF41-463B-A1C8-E4C259363B10}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>tests</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\..\..\src\tests\chainsawbuffet;..\..\..\src\tests\chainsawbuffet\entities;..\..\..\src\tests\chainsawbuffet\scenes;..\..\..\src\input\win;..\..\..\src\input;..\..\..\src\tests;..\..\..\src\filesystem;..\..\..\src\windowing\toolbox;..\..\..\src\loaders;..\..\..\src\windowing\templates;..\..\..\src\core\streams;..\..\..\src\windowing\layouts;$(VCInstallDir)include\freetype2;..\..\..\src\windowing\themes;..\..\..\src\windowing;..\..\..\src\renderers\gl\glx;..\..\..\src\renderers\gl\wgl;..\..\..\src\renderers\gl;..\..\..\src\core\math;..\..\..\src\core\mem;..\..\..\src\core\containers;..\..\..\src\core\bv;..\..\..\src\core;..\..\..\src;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>winmm.lib;..\Debug\crown.lib;opengl32.lib;glew32.lib;glu32.lib;freetype.lib;zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\..\..\src\tests\chainsawbuffet;..\..\..\src\tests\chainsawbuffet\entities;..\..\..\src\tests\chainsawbuffet\scenes;..\..\..\src\input\win;..\..\..\src\input;..\..\..\src\tests;..\..\..\src\filesystem;..\..\..\src\windowing\toolbox;..\..\..\src\loaders;..\..\..\src\core\streams;..\..\..\src\windowing\templates;..\..\..\src\windowing\layouts;$(VCInstallDir)include\freetype2;..\..\..\src\windowing\themes;..\..\..\src\windowing;..\..\..\src\renderers\gl\glx;..\..\..\src\renderers\gl\wgl;..\..\..\src\renderers\gl;..\..\..\src\core\math;..\..\..\src\core\mem;..\..\..\src\core\containers;..\..\..\src\core\bv;..\..\..\src\core;..\..\..\src;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>winmm.lib;..\Release\crown.lib;opengl32.lib;glew32.lib;freetype.lib;glu32.lib;zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,2 @@
+=== RTree implementation ===
+During a research I found a nice implementation by idSoftware. Source included in this folder.

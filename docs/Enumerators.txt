@@ -1,0 +1,54 @@
+==Enumerators==
+-------------------------------------------------------------------------------
+ - Description
+  Enumerators provide generic support to enumerating a data structure. They imp
+  lement the same concept of stl iterators.
+
+ - How they work
+  Once one gets an enumerator from a structure implementing IEnumerable (for ex
+  ample), the object obtained represents tipically a reference to an unexisting
+  element placed before the first one.
+  Ex:
+   IEnumerator e = list.getBegin();
+   // Visual representation of e:
+   //  | |a|b|c| |
+   //   ^
+  By using the next() method the iterator moves forward, and returns true if it
+  points to a valid element, and false if it has reached the end.
+  Ex:
+   while (e.next())
+   {
+     //...process e.current()...
+   }
+  Once e.next() returns false, the representation of e is the following:
+  Ex:
+   // Visual representation of e when at the end:
+   //  | |a|b|c| |
+   //           ^
+
+ - Classes
+  . Enumerator interfaces.
+    - IEnumerator<T>: Describes the interface that must be implemented in an en
+      umerator that exposes forward and/or backward capabilities. If one of bot
+      h are not implemented, they must always act as if the iteration is comple
+      ted (by returning false in the respective method)
+    - EnumeratorHelper<T>: A wrapper around other enumerators that automaticall
+      y deletes them when it goes out of scope. Must be instantiated as value, 
+      that is, in the stack and not in the heap. (It's actually more like an ad
+      vice than a restrictive need, because it's useless if it must be deleted 
+      manually).
+      Ex:
+      /* Normal usage */
+      IEnumerator<T>* e = list.getBegin();
+      //...use e...
+      delete e;
+      
+      /* EnumeratorHelper<T> usage */
+      EnumeratorHelper<T> e = list.getBegin();
+      //...use e...
+      //no need to delete it.
+      As Type complexity may vary, it's better to use the Enumerator type defin
+      ition that each data structure should contain, to declare the enumerator 
+      helper.
+      Ex:
+      List<int>::Enumerator e = list.getBegin();
