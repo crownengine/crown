@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Config.h"
 #include "Str.h"
 #include "List.h"
 
@@ -34,42 +35,67 @@ namespace Crown
 /**
 	OS-specific functions and parameters.
 */
-class OS
+namespace OS
 {
 
-public:
+//-----------------------------------------------------------------------------
+#ifdef LINUX
+const char		PATH_SEPARATOR = '/';
+#endif
 
-	static void			Printf(const char* string, ...);				//!< Printf wrapper
-	static void			Vprintf(const char* string, va_list arg);		//!< VPrintf wrapper
+#ifdef WINDOWS
+const char		PATH_SEPARATOR = '\\';
+#endif
 
-	static void			LogDebug(const char* string, va_list arg);		//!< Print debug message
-	static void			LogError(const char* string, va_list arg);		//!< Print error message
-	static void			LogWarning(const char* string, va_list arg);	//!< Print warning message
-	static void			LogInfo(const char* string, va_list arg);		//!< Print info message
+void			Printf(const char* string, ...);				//!< Printf wrapper
+void			Vprintf(const char* string, va_list arg);		//!< VPrintf wrapper
 
-	static bool			Exists(const char* path);		//!< Returns whether the path is a file or directory on the disk
+void			LogDebug(const char* string, va_list arg);		//!< Print debug message
+void			LogError(const char* string, va_list arg);		//!< Print error message
+void			LogWarning(const char* string, va_list arg);	//!< Print warning message
+void			LogInfo(const char* string, va_list arg);		//!< Print info message
 
-	static bool			IsDir(const char* path);		//!< Returns whether the path is a directory. (May not resolve symlinks.)
-	static bool			IsReg(const char* path);		//!< Returns whether the path is a regular file. (May not resolve symlinks.)
+bool			Exists(const char* path);		//!< Returns whether the path is a file or directory on the disk
 
-	static bool			Mknod(const char* path);		//! Creates a regular file. Returns true if success, false if not
-	static bool			Unlink(const char* path);		//! Deletes a regular file. Returns true if success, false if not
-	static bool			Mkdir(const char* path);		//! Creates a directory. Returns true if success, false if not
-	static bool			Rmdir(const char* path);		//! Deletes a directory. Returns true if success, false if not
+bool			IsDir(const char* path);		//!< Returns whether the path is a directory. (May not resolve symlinks.)
+bool			IsReg(const char* path);		//!< Returns whether the path is a regular file. (May not resolve symlinks.)
 
-	static const char*	GetCWD();						//! Fills ret with the path of the current working directory. Returns true if success, false if not 
-	static const char*	GetHome();						//! Fills ret with the path of the user home directory
-	static const char*	GetEnv(const char* env);		//! Returns the content of the 'env' environment variable or the empty string
+bool			Mknod(const char* path);		//! Creates a regular file. Returns true if success, false if not
+bool			Unlink(const char* path);		//! Deletes a regular file. Returns true if success, false if not
+bool			Mkdir(const char* path);		//! Creates a directory. Returns true if success, false if not
+bool			Rmdir(const char* path);		//! Deletes a directory. Returns true if success, false if not
 
-	static bool			Ls(const char* path, List<Str>& fileList);	//! Returns the list of filenames in a directory.
+const char*		GetCWD();						//! Fills ret with the path of the current working directory. Returns true if success, false if not 
+const char*		GetHome();						//! Fills ret with the path of the user home directory
+const char*		GetEnv(const char* env);		//! Returns the content of the 'env' environment variable or the empty string
 
-	static const char	PATH_SEPARATOR;							//! OS-specific path separator
+bool			Ls(const char* path, List<Str>& fileList);	//! Returns the list of filenames in a directory.
 
-private:
-
-	// Disable construction
-	OS();
+//-----------------------------------------------------------------------------
+enum OSEventType
+{
+	OSET_NONE		= 0,
+	OSET_KEYBOARD	= 1,
+	OSET_MOUSE		= 2,
+	OSET_TOUCH		= 3
 };
+
+struct OSEvent
+{
+	OSEventType		type;
+	int				data_a;
+	int				data_b;
+	int				data_c;
+	int				data_d;
+};
+
+//! Pushes @a event into @a event_queue
+void				push_event(OSEventType type, int data_a, int data_b, int data_c, int data_d);
+
+//! Returns the event on top of the @a event_queue	
+OSEvent&			pop_event();
+
+} // namespace OS
 
 } // namespace Crown
 

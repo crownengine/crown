@@ -34,8 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace Crown
 {
 
-const char OS::PATH_SEPARATOR = '/';
-
 //-----------------------------------------------------------------------------
 void OS::Printf(const char* string, ...)
 {

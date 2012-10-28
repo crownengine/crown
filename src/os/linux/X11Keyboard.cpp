@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Exceptions.h"
 #include "X11InputManager.h"
 #include "Log.h"
+#include "OS.h"
 
 namespace Crown
 {
@@ -159,6 +160,16 @@ void X11Keyboard::EventLoop()
 						mListener->KeyReleased(keyboardEvent);
 					}
 				}
+
+				if (event.type == KeyPress)
+				{
+				push_event(OS::OSET_KEYBOARD, 1, 2, 3, 4);
+				}
+				else if (event.type == KeyRelease)
+				{
+				push_event(OS::OSET_KEYBOARD, 55, 2, 3, 4);
+				}
+
 
 				// Text input part
 				if (event.type == KeyPress && len > 0)
