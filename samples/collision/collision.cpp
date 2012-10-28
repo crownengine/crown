@@ -76,7 +76,7 @@ public:
 
 		}
 
-		grass = GetTextureManager()->Load("res/texturewhichdoesnotexists.ctex");
+		grass = GetTextureManager()->Load("res/test_texture1.tga");
 
 		dplane = GetMeshManager()->LoadPlane("3dplane", 128.0f, 128.0f);
 
@@ -274,18 +274,10 @@ private:
 
 int main(int argc, char** argv)
 {
-	int wndW = 1000;
-	int wndH = 625;
-
-	if (argc == 3)
-	{
-		wndW = atoi(argv[1]);
-		wndH = atoi(argv[2]);
-	}
-
 	Device* mDevice = GetDevice();
+	EventLoop loop;
 
-	if (!mDevice->Init(wndW, wndH, 32, false))
+	if (!mDevice->Init(argc, argv))
 	{
 		return 0;
 	}
