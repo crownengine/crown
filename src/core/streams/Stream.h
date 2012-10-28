@@ -238,7 +238,7 @@ public:
 	void				WriteDouble(double);
 	void				WriteFloat(float);
 
-	void				InsertByte(uchar val, uint offset);
+	void				InsertByte(uchar val, size_t offset);
 
 	inline Stream*		GetStream() { return mStream; }
 	inline void			SetStream(Stream* stream) { mStream = stream; }
