@@ -1,0 +1,18 @@
+//-----------------------------------------------------------------------------
+How to build Crown:
+
+1. Create a folder named "build" in this directory.
+2. $ cd build
+3. $ cmake ..
+4. make
+
+//-----------------------------------------------------------------------------
+In order to select different build configurations you have to do the following:
+
+1. Create a folder named "build" in this directory.
+2. $ cd build
+3. $ cmake-gui ..
+
+//-----------------------------------------------------------------------------
+Enjoy!
+
