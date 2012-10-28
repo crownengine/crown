@@ -1,0 +1,33 @@
+<Window Name="loaderWindow" Title="Load a XWML file" DesiredSize="200, 176">
+  <StackLayout Margins="2, 2, 2, 2">
+	<Label Text="Insert the XWML file:" />
+    <TextBox Name="tbXWMLFilepath" Text="<insert xwml filename>" />
+    <Button Name="btnLoad" OnClick="{Action LoadXWMLFromFilepath}" Margins="0, 4, 0, 0">
+	  <Label Name="lblCaption" Text="Load XWML" HorizontalTextAlign="Center" />
+	</Button>
+	<Label Text="Examples:" Margins="0, 5, 0, 0" />
+	<StackLayout Orientation="Horizontal" FitToChildren="Both">
+	  <Label Name="lblExample1" Text="res/window.xml" />
+	  <Button DesiredSize="10, 10" Margins="3,0,0,0" OnClick="{Action CopyProperty('lblExample1.Text','tbXWMLFilepath.Text')}">
+	    <Label Text="+" />
+	  </Button>
+	</StackLayout>
+	<StackLayout Orientation="Horizontal" FitToChildren="Both">
+	  <Label Name="lblExample2" Text="res/window_listview.xml" />
+	  <Button DesiredSize="10, 10" Margins="3,0,0,0" OnClick="{Action CopyProperty('lblExample2.Text','tbXWMLFilepath.Text')}">
+	    <Label Text="+" />
+	  </Button>
+	</StackLayout>
+	<StackLayout Orientation="Horizontal" FitToChildren="Both">
+	  <Label Name="lblExample3" Text="res/window_loader.xml" />
+	  <Button DesiredSize="10, 10" Margins="3,0,0,0" OnClick="{Action CopyProperty('lblExample3.Text','tbXWMLFilepath.Text')}">
+	    <Label Text="+" />
+	  </Button>
+	</StackLayout>
+	<Button OnClick="{Action QuitApplication}">
+	  <Label Text="Quit" HorizontalTextAlign="Center" />
+	</Button>
+  </StackLayout>
+</Window>
+
+
