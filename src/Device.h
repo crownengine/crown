@@ -28,6 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Config.h"
 #include "Timer.h"
+#include "Str.h"
+#include "EventLoop.h"
 
 namespace Crown
 {
@@ -64,9 +66,17 @@ public:
 
 private:
 
+	bool					ParseCommandLine(int argc, char** argv);
+
 	static const ushort		CROWN_MAJOR;
 	static const ushort		CROWN_MINOR;
 	static const ushort		CROWN_MICRO;
+
+	int						mPreferredWindowWidth;
+	int						mPreferredWindowHeight;
+	bool					mPreferredWindowFullscreen;
+	Str						mPreferredRootPath;
+	Str						mPreferredUserPath;
 
 	bool					mIsInit		: 1;
 	bool					mIsRunning	: 1;
@@ -77,6 +87,8 @@ private:
 
 	GarbageBin*				mGarbageBin;
 	Timer					mTimer;
+
+	EventLoop				_event_loop;
 
 	// Disable copying
 	Device(const Device&);

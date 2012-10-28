@@ -55,7 +55,7 @@ void Filesystem::Init(const char* rootPath, const char* userPath)
 {
 	assert(!mIsInit);
 
-	if (rootPath == Str::EMPTY)
+	if (Str::StrCmp(rootPath, Str::EMPTY) == 0)
 	{
 		// Set working paths
 		const char* envRootPath = OS::GetEnv("CROWN_ROOT_PATH");

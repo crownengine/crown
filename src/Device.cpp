@@ -46,7 +46,13 @@ const ushort Device::CROWN_MAJOR = 0;
 const ushort Device::CROWN_MINOR = 1;
 const ushort Device::CROWN_MICRO = 0;
 
+//-----------------------------------------------------------------------------
 Device::Device() :
+	mPreferredWindowWidth(1000),
+	mPreferredWindowHeight(625),
+	mPreferredWindowFullscreen(false),
+	mPreferredRootPath(Str::EMPTY),
+	mPreferredUserPath(Str::EMPTY),
 	mIsInit(false),
 	mIsRunning(false),
 	mMainWindow(NULL),
@@ -56,72 +62,17 @@ Device::Device() :
 {
 }
 
+//-----------------------------------------------------------------------------
 Device::~Device()
 {
 }
 
+//-----------------------------------------------------------------------------
 bool Device::Init(int argc, char** argv)
 {
-	const char* cmdRootPath = Str::EMPTY;
-	uint width = 1000;
-	uint height = 625;
-	uint depth = false;
-	bool full = false;
-
-	if (argc == 2 && Str::StrCmp(argv[1], "-h") == 0)
+	if (ParseCommandLine(argc, argv) == false)
 	{
-		OS::Printf("Usage: %s [options]\n", argv[0]);
-		OS::Printf("Options:\n\n");
-		OS::Printf("All of the following options take precedence over\nenvironment variables and configuration files.\n\n");
-		// Print options
-		OS::Printf("  -root-path <path>\t\t\tUse <path> as the filesystem root path\n");
-		OS::Printf("  -metrics <width> <height>\t\tSet the <width> and <height> of the render window\n");
-		OS::Printf("  -fullscreen\t\t\t\tStart in fullscreen\n");
 		return false;
-	}
-
-	// Parse command line arguments
-	int i = 1;
-	while (i < argc)
-	{
-		if (Str::StrCmp(argv[i], "-root-path") == 0)
-		{
-			if (argc < i + 2)
-			{
-				OS::Printf("%s: error: missing absolute path after `-root-path`\n", argv[0]);
-				return false;
-			}
-			cmdRootPath = argv[i + 1];
-			// Two arguments crunched
-			i++;
-			i++;
-			continue;
-		}
-		if (Str::StrCmp(argv[i], "-metrics") == 0)
-		{
-			if (argc < i + 3)
-			{
-				OS::Printf("%s: error: wrong number of arguments after `-metrics`\n", argv[0]);
-				return false;
-			}
-			width = atoi(argv[i + 1]);
-			height = atoi(argv[i + 2]);
-			// Three arguments crunched
-			i++;
-			i++;
-			i++;
-			continue;
-		}
-		if (Str::StrCmp(argv[i], "-fullscreen") == 0)
-		{
-			full = true;
-			// One argument crunched
-			i++;
-			continue;
-		}
-
-		// Next argument
-		i++;
 	}
 
 	// Initialize
@@ -134,17 +85,16 @@ bool Device::Init(int argc, char** argv)
 	}
 
 	// Sets the root path
-	GetFilesystem()->Init(cmdRootPath, Str::EMPTY);
+	GetFilesystem()->Init(mPreferredRootPath.c_str(), mPreferredUserPath.c_str());
 
-	mGarbageBin = new GarbageBin();
-
-	if (!(mMainWindow = RenderWindow::CreateWindow(0, 0, width, height, depth, full)))
+	if (!(mMainWindow = RenderWindow::CreateWindow(0, 0, mPreferredWindowWidth, mPreferredWindowHeight, 32, mPreferredWindowFullscreen)))
 	{
 		Log::E("Unuble to create the main window.");
 		return false;
 	}
 
-	mMainWindow->_SetMain(true);
+	mGarbageBin = new GarbageBin();
+
 	Log::D("Window created.");
 
 	if (!mRenderer)
@@ -190,11 +140,13 @@ bool Device::Init(int argc, char** argv)
 	return true;
 }
 
+//-----------------------------------------------------------------------------
 InputManager* Device::GetInputManager()
 {
 	return mInputManager;
 }
 
+//-----------------------------------------------------------------------------
 void Device::Shutdown()
 {
 	if (!IsInit())
@@ -234,26 +186,31 @@ void Device::Shutdown()
 	mIsInit = false;
 }
 
+//-----------------------------------------------------------------------------
 bool Device::IsInit()
 {
 	return mIsInit;
 }
 
+//-----------------------------------------------------------------------------
 Renderer* Device::GetRenderer()
 {
 	return mRenderer;
 }
 
+//-----------------------------------------------------------------------------
 RenderWindow* Device::GetMainWindow()
 {
 	return mMainWindow;
 }
 
+//-----------------------------------------------------------------------------
 GarbageBin* Device::GetGarbageBin()
 {
 	return mGarbageBin;
 }
 
+//-----------------------------------------------------------------------------
 void Device::StartRunning()
 {
 	if (!IsInit())
@@ -264,6 +221,7 @@ void Device::StartRunning()
 	mIsRunning = true;
 }
 
+//-----------------------------------------------------------------------------
 void Device::StopRunning()
 {
 	if (!IsInit())
@@ -274,12 +232,13 @@ void Device::StopRunning()
 	mIsRunning = false;
 }
 
+//-----------------------------------------------------------------------------
 bool Device::IsRunning() const
 {
 	return mIsRunning;
 }
 
-// TODO
+//-----------------------------------------------------------------------------
 void Device::Frame()
 {
 	// TODO Replace this mess
@@ -310,6 +269,80 @@ void Device::Frame()
 	mMainWindow->Update();
 
 	mGarbageBin->Empty();
+}
+
+//-----------------------------------------------------------------------------
+bool Device::ParseCommandLine(int argc, char** argv)
+{
+	if (argc == 2 && Str::StrCmp(argv[1], "-help") == 0)
+	{
+		OS::Printf("Usage: %s [options]\n", argv[0]);
+		OS::Printf("Options:\n\n");
+		OS::Printf("All of the following options take precedence over\nenvironment variables and configuration files.\n\n");
+		// Print options
+		OS::Printf("  -help\t\t\t\t\tShow this help\n");
+		OS::Printf("  -root-path <path>\t\t\tUse <path> as the filesystem root path\n");
+		OS::Printf("  -user-path <path>\t\t\tUse <path> as the filesystem user path\n");
+		OS::Printf("  -metrics <width> <height>\t\tSet the <width> and <height> of the render window\n");
+		OS::Printf("  -fullscreen\t\t\t\tStart in fullscreen\n");
+
+		return false;
+	}
+
+	// Parse command line arguments
+	int i = 1;
+	while (i < argc)
+	{
+		if (Str::StrCmp(argv[i], "-root-path") == 0)
+		{
+			if (argc < i + 2)
+			{
+				OS::Printf("%s: error: missing absolute path after `-root-path`\n", argv[0]);
+				return false;
+			}
+			mPreferredRootPath = argv[i + 1];
+			// Two arguments crunched
+			i += 2;
+			continue;
+		}
+		if (Str::StrCmp(argv[i], "-user-path") == 0)
+		{
+			if (argc < i + 2)
+			{
+				OS::Printf("%s: error: missing absolute path after `-user-path`\n", argv[0]);
+				return false;
+			}
+			mPreferredUserPath = argv[i + 1];
+			// Two arguments crunched
+			i += 2;
+			continue;
+		}
+		if (Str::StrCmp(argv[i], "-metrics") == 0)
+		{
+			if (argc < i + 3)
+			{
+				OS::Printf("%s: error: wrong number of arguments after `-metrics`\n", argv[0]);
+				return false;
+			}
+			mPreferredWindowWidth = atoi(argv[i + 1]);
+			mPreferredWindowHeight = atoi(argv[i + 2]);
+			// Three arguments crunched
+			i += 3;
+			continue;
+		}
+		if (Str::StrCmp(argv[i], "-fullscreen") == 0)
+		{
+			mPreferredWindowFullscreen = true;
+			// One argument crunched
+			i++;
+			continue;
+		}
+
+		// Next argument
+		i++;
+	}
+
+	return true;
 }
 
 Device device;
