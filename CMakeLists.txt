@@ -5,7 +5,7 @@ project(crown)
 option (CROWN_USE_FLOAT "Whether to use float or double for representing real numbers." ON)
 option (CROWN_BUILD_OPENGL "Whether to build the OpenGL renderer or not." ON)
 option (CROWN_BUILD_OPENGLES "Whether to build the OpenGL|ES 1.0 renderer or not." OFF)
-option (CROWN_BUILD_TESTS "Whether to build the tests" ON)
+option (CROWN_BUILD_SAMPLES "Whether to build the samples" ON)
 option (CROWN_BUILD_TOOLS "Whether to build the tools" ON)
 
 set (INCLUDES
@@ -39,7 +39,7 @@ if (CROWN_BUILD_TOOLS)
 add_subdirectory(tools)
 endif (CROWN_BUILD_TOOLS)
 
-if (CROWN_BUILD_TESTS)
-add_subdirectory(tests)
-endif (CROWN_BUILD_TESTS)
-
+if (CROWN_BUILD_SAMPLES)
+add_subdirectory(samples)
+endif (CROWN_BUILD_SAMPLES)
+ 
