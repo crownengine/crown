@@ -2,6 +2,7 @@ set (SRC
 	Camera.cpp
 	Device.cpp
 	EventBuffer.cpp
+	EventLoop.cpp
 	Filesystem.cpp
 	Font.cpp
 	FontManager.cpp
@@ -38,6 +39,7 @@ set (HEADERS
 	Data.h
 	Device.h
 	EventBuffer.h
+	EventLoop.h
 	Filesystem.h
 	Font.h
 	FontManager.h
@@ -239,6 +241,10 @@ set (OS_HEADERS
 	os/OS.h
 )
 
+set (OS_SRC
+	os/OS.cpp
+)
+
 set (LINUX_SRC
 #	EGLRenderWindow.cpp
 	os/linux/GLXRenderWindow.cpp
@@ -278,6 +284,7 @@ set (SOURCES
 	${LOADERS_SRC}
 	${LOADERS_HEADERS}
 
+	${OS_SRC}
 	${OS_HEADERS}
 	${LINUX_SRC}
 	${LINUX_HEADERS}
