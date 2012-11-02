@@ -65,7 +65,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Containers
 #include "Array.h"
 #include "Dictionary.h"
-#include "IEnumerable.h"
 #include "RBTree.h"
 #include "Str.h"
 #include "List.h"
@@ -120,7 +119,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Engine/Loaders
 #include "BMPImageLoader.h"
 #include "TGAImageLoader.h"
-#include "XMLReader.h"
 //#include "XWMLReader.h"
 
 // Engine/Input
