@@ -26,15 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "IEnumerable.h"
-#include "Exceptions.h"
 #include <cassert>
 
 namespace Crown
 {
-
-template <typename T>
-class ListEnumerator;
 
 /**
 	Dynamic array.
@@ -45,13 +40,10 @@ class List
 
 public:
 
-	typedef EnumeratorHelper<T> Enumerator;
-
-
 						List();
 						List(int capacity);
 						List(const List<T>& list);
-	virtual				~List();
+						~List();
 
 	T&					operator[](int index);
 	const T&			operator[](int index) const;
@@ -60,6 +52,7 @@ public:
 	int					GetSize() const;
 	int					GetCapacity() const;
 	void				SetCapacity(int capacity);
+	void				Grow();
 
 	void				Condense();
 
@@ -69,115 +62,19 @@ public:
 	void				Clear();
 
 	int					Find(const T& element) const;
-	const T&			GetElement(int index) const;
 
 	const List<T>&		operator=(const List<T>& other);
 
-	IEnumerator<T>*		getBegin() const;							//!< See IEnumerable<T>
-	IEnumerator<T>*		getEnd() const;								//!< See IEnumerable<T>
-
-	inline const T*		GetData() const { return mArray; }
+	T*					GetBegin();
+	const T*			GetBegin() const;
+	T*					GetEnd();
+	const T*			GetEnd() const;
 
 private:
 
 	int					mCapacity;
 	int					mSize;
 	T*					mArray;
-};
-
-template <typename T>
-class ListEnumerator: public IEnumerator<T>
-{
-public:
-	ListEnumerator(const List<T>& l, eEnumeratorState state):
-		IEnumerator<T>(state), mList(l), mCurrent(0)
-	{ }
-
-	//! Returns the current item.
-	const T& current() const
-	{
-		if (mState != ES_Iterating) { } // Removes a plethora of warnings
-
-		//  ; //Should throw, for now ignore it (could cause errors)
-		return mList[mCurrent];
-	}
-
-	//! Move the iterator to the next item.
-	bool next()
-	{
-		switch (mState)
-		{
-			case ES_Begin:
-
-				if (mList.GetSize() == 0)
-				{
-					mState = ES_End;
-					return false;
-				}
-
-				mCurrent = 0;
-				mState = ES_Iterating;
-				break;
-			case ES_Iterating:
-				mCurrent++;
-
-				if (mCurrent == mList.GetSize())
-				{
-					mCurrent = mList.GetSize();
-					mState = ES_End;
-					return false;
-				}
-
-				break;
-			case ES_End:
-				return false;
-				break;
-		}
-
-		return true;
-	}
-
-	//! Move the iterator to the previous item.
-	bool prev()
-	{
-		switch (mState)
-		{
-			case ES_End:
-
-				if (mList.GetSize() == 0)
-				{
-					mState = ES_Begin;
-					return false;
-				}
-
-				mCurrent = mList.GetSize()-1;
-				mState = ES_Iterating;
-				break;
-			case ES_Iterating:
-				mCurrent--;
-
-				if (mCurrent == -1)
-				{
-					mCurrent = 0;
-					mState = ES_Begin;
-					return false;
-				}
-
-				break;
-			case ES_Begin:
-				return false;
-				break;
-		}
-
-		return true;
-	}
-
-private:
-
-	const List<T>& mList;
-	int mCurrent;
-
-	using IEnumerator<T>::mState;
 };
 
 /**
@@ -340,6 +237,12 @@ inline void List<T>::SetCapacity(int capacity)
 	}
 }
 
+template <typename T>
+inline void List<T>::Grow()
+{
+	SetCapacity(mCapacity * 2 + 16);
+}
+
 /**
 	Condenses the array so the capacity matches the actual number
 	of elements in the array.
@@ -362,7 +265,7 @@ int List<T>::Append(const T& element)
 {
 	if (mCapacity == mSize)
 	{
-		SetCapacity(1 + (mCapacity * 2));
+		Grow();
 	}
 
 	mArray[mSize] = element;
@@ -390,7 +293,7 @@ int List<T>::Insert(int index, const T& element)
 
 	if (mCapacity == mSize)
 	{
-		SetCapacity(1 + (mCapacity * 2));
+		Grow();
 	}
 
 	for (int i = mSize; i > index; i--)
@@ -419,7 +322,7 @@ void List<T>::Remove(int index)
 
 	for (int i = index; i < mSize; i++)
 	{
-		mArray[i] = mArray[i+1];
+		mArray[i] = mArray[i + 1];
 	}
 }
 
@@ -455,24 +358,6 @@ int List<T>::Find(const T& element) const
 }
 
 /**
-	Random access.
-@note
-	The index has to be smaller than GetSize()
-@param index
-	The index
-@return
-	The element at the given index
-*/
-template <typename T>
-const T& List<T>::GetElement(int index) const
-{
-	assert(index >= 0);
-	assert(index < mSize);
-
-	return mArray[index];
-}
-
-/**
 	Copies the content of the other list into this.
 @return
 	The reference to list after copying
@@ -503,16 +388,30 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-IEnumerator<T>* List<T>::getBegin() const
+inline const T* List<T>::GetBegin() const
 {
-	return new ListEnumerator<T>(*this, ES_Begin);
+	return mArray;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-IEnumerator<T>* List<T>::getEnd() const
+inline T* List<T>::GetBegin()
 {
-	return new ListEnumerator<T>(*this, ES_End);
+	return mArray;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline const T* List<T>::GetEnd() const
+{
+	return mArray + (mSize - 1);
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline T* List<T>::GetEnd()
+{
+	return mArray + (mSize - 1);
 }
 
 } // namespace Crown
