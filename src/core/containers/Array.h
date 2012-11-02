@@ -56,9 +56,13 @@ public:
 	void					Clear();
 
 	int						Find(const T& element) const;
-	const T&				GetElement(int index) const;
 
 	const Array<T, size>&	operator=(const Array<T, size>& b);
+
+	T*						GetBegin();
+	const T*				GetBegin() const;
+	T*						GetEnd();
+	const T*				GetEnd() const;
 
 private:
 
@@ -274,24 +278,6 @@ inline int Array<T, size>::Find(const T& element) const
 }
 
 /**
-	Random access.
-@note
-	The index has to be smaller than GetSize()
-@param index
-	The index
-@return
-	The element at the given index
-*/
-template <typename T, int size>
-inline const T& Array<T, size>::GetElement(int index) const
-{
-	assert(index >= 0);
-	assert(index < mCount);
-
-	return mArray[index];
-}
-
-/**
 	Copies the content of the other list into this.
 @return
 	The reference to list after copying
@@ -307,5 +293,33 @@ inline const Array<T, size>& Array<T, size>::operator=(const Array<T, size>& b)
 	mCount = b.mCount;
 
 	return *this;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T, int size>
+inline const T* Array<T, size>::GetBegin() const
+{
+	return mArray;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T, int size>
+inline T* Array<T, size>::GetBegin()
+{
+	return mArray;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T, int size>
+inline const T* Array<T, size>::GetEnd() const
+{
+	return mArray + (mCount - 1);
+}
+
+//-----------------------------------------------------------------------------
+template <typename T, int size>
+inline T* Array<T, size>::GetEnd()
+{
+	return mArray + (mCount - 1);
 }
 
