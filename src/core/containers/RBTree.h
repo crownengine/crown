@@ -25,9 +25,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <stdlib.h>
-#include <assert.h>
-#include "IEnumerable.h"
+#include <cstdlib>
+#include <cassert>
 #include "Types.h"
 
 namespace Crown
@@ -71,7 +70,7 @@ struct RBTreeNode
 };
 
 template<typename TKey, typename TValue>
-class RBTree: public IEnumerable<RBTreePair<TKey, TValue> >
+class RBTree
 {
 protected:
 	typedef RBTreeNode<TKey, TValue> Node;
@@ -79,26 +78,17 @@ protected:
 
 public:
 	RBTree();
-	virtual ~RBTree();
-
-	typedef EnumeratorHelper<Pair> Enumerator;
+	~RBTree();
 
 	Pair& Add(const TKey& key, const TValue& value);
 	void Remove(const TKey& key);
 	bool Contains(const TKey& key) const;
-	IEnumerator<Pair>* Find(const TKey& key) const;
 	void Clear();
 
 	inline int GetSize() const
 	{
 		return mSize;
 	}
-
-	//! See IEnumerable<T>
-	IEnumerator<Pair>* getBegin() const;
-
-	//! See IEnumerable<T>
-	IEnumerator<Pair>* getEnd() const;
 
 protected:
 
@@ -120,110 +110,9 @@ private:
 	void AddFixup(Node* n);
 	void InnerClear(Node* n);
 
-	template<typename TKey1, typename TValue1>
-	friend class RBTreeEnumerator;
-
 #ifdef RBTREE_VERIFY
 	int dbgVerify(Node* n) const;
 #endif
-};
-
-template<typename TKey, typename TValue>
-class RBTreeEnumerator: public IEnumerator<RBTreePair<TKey, TValue> >
-{
-public:
-	//! Returns the current item.
-	const RBTreePair<TKey, TValue>& current() const
-	{
-		if (mState != ES_Iterating) { } // Removes a plethora of warnings
-
-		//  ; //Should throw, for now ignore it (could cause errors)
-		return mCurrent->item;
-	}
-
-	//! Move the iterator to the next item.
-	bool next()
-	{
-		switch (mState)
-		{
-			case ES_Begin:
-
-				if (mTree.GetSize() == 0)
-				{
-					mState = ES_End;
-					return false;
-				}
-
-				mCurrent = mTree.GetMin(mTree.mRoot);
-				mState = ES_Iterating;
-				break;
-			case ES_Iterating:
-				mCurrent = mTree.GetSuccessor(mCurrent);
-
-				if (mCurrent == NULL)
-				{
-					mState = ES_End;
-					return false;
-				}
-
-				break;
-			case ES_End:
-				return false;
-				break;
-		}
-
-		return true;
-	}
-
-	//! Move the iterator to the previous item.
-	bool prev()
-	{
-		switch (mState)
-		{
-			case ES_Begin:
-				return false;
-				break;
-			case ES_Iterating:
-				mCurrent = mTree.GetPredecessor(mCurrent);
-
-				if (mCurrent == NULL)
-				{
-					mState = ES_Begin;
-					return false;
-				}
-
-				break;
-			case ES_End:
-
-				if (mTree.GetSize() == 0)
-				{
-					mState = ES_Begin;
-					return false;
-				}
-
-				mCurrent = mTree.GetMax(mTree.mRoot);
-				mState = ES_Iterating;
-				break;
-		}
-
-		return true;
-	}
-
-private:
-	const RBTree<TKey, TValue>& mTree;
-	RBTreeNode<TKey, TValue>* mCurrent;
-
-	RBTreeEnumerator(const RBTree<TKey, TValue>& tree, eEnumeratorState state):
-		IEnumerator<RBTreePair<TKey, TValue> >(state), mTree(tree), mCurrent(NULL)
-	{ }
-
-	RBTreeEnumerator(const RBTree<TKey, TValue>& tree, RBTreeNode<TKey, TValue>* n):
-		IEnumerator<RBTreePair<TKey, TValue> >(ES_Iterating), mTree(tree), mCurrent(n)
-	{ }
-
-	using IEnumerator<RBTreePair<TKey, TValue> >::mState;
-	template<typename TKey1, typename TValue1>
-	friend class RBTree;
 };
 
 template<typename TKey, typename TValue>
@@ -432,19 +321,6 @@ void RBTree<TKey, TValue>::Remove(const TKey& key)
 #ifdef RBTREE_VERIFY
 	dbgVerify(mRoot);
 #endif
-}
-
-template<typename TKey, typename TValue>
-IEnumerator<RBTreePair<TKey, TValue> >* RBTree<TKey, TValue>::Find(const TKey& key) const
-{
-	Node* n = InnerFind(key);
-
-	if (n == mSentinel || !(n->item.key == key))
-	{
-		return new RBTreeEnumerator<TKey, TValue>(*this, ES_End);
-	}
-
-	return new RBTreeEnumerator<TKey, TValue>(*this, n);
 }
 
 template<typename TKey, typename TValue>
@@ -767,18 +643,6 @@ inline void RBTree<TKey, TValue>::RotateRight(Node* x)
 
 	y->right = x;
 	x->parent = y;
-}
-
-template <typename TKey, typename TValue>
-IEnumerator<RBTreePair<TKey, TValue> >* RBTree<TKey, TValue>::getBegin() const
-{
-	return new RBTreeEnumerator<TKey, TValue>(*this, ES_Begin);
-}
-
-template <typename TKey, typename TValue>
-IEnumerator<RBTreePair<TKey, TValue> >* RBTree<TKey, TValue>::getEnd() const
-{
-	return new RBTreeEnumerator<TKey, TValue>(*this, ES_End);
 }
 
 #ifdef RBTREE_VERIFY
