@@ -26,7 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <cassert>
-#include <stdio.h>
+#include <cstdio>
+#include <cstring>
 #include "List.h"
 #include "Types.h"
 
@@ -711,7 +712,7 @@ inline void Str::Replace(const Str& toFind, const Str& toReplace)
 		i++;
 	}
 
-	*this = tmp.GetData();
+	*this = tmp.GetBegin();
 }
 
 inline void Str::Split(char ch, List<Str>& split) const

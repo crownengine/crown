@@ -24,6 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "SpriteAnimator.h"
+#include <cstdlib>
 
 namespace Crown
 {

@@ -121,7 +121,7 @@ void Mesh::RecompileMesh()
 	for(int i=0; i<mMeshChunkList.GetSize(); i++)
 	{
 		uint size = mMeshChunkList[i]->mVertexList.GetSize() * sizeof(VertexData);
-		mVertexBuffer->SetVertexSubData((float*) mMeshChunkList[i]->mVertexList.GetData(), offset, mMeshChunkList[i]->mVertexList.GetSize());
+		mVertexBuffer->SetVertexSubData((float*) mMeshChunkList[i]->mVertexList.GetBegin(), offset, mMeshChunkList[i]->mVertexList.GetSize());
 
 		offset += size;
 	}
@@ -139,7 +139,7 @@ void Mesh::RecompileMesh()
 	for(int i=0; i<mMeshChunkList.GetSize(); i++)
 	{
 		uint size = mMeshChunkList[i]->mFaceList.GetSize() * sizeof(ushort) * 3;
-		mIndexBuffer->SetIndexSubData((ushort*) mMeshChunkList[i]->mFaceList.GetData(), offset, mMeshChunkList[i]->mFaceList.GetSize() * 3);
+		mIndexBuffer->SetIndexSubData((ushort*) mMeshChunkList[i]->mFaceList.GetBegin(), offset, mMeshChunkList[i]->mFaceList.GetSize() * 3);
 
 		offset += size;
 	}

@@ -36,12 +36,6 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager()
 {
-	NameToResourceDict::Enumerator e = mNameToResourceDict.getBegin();
-	while (e.next())
-	{
-		e.current().value->Unload(NULL, false);
-		delete e.current().value;
-	}
 }
 
 Resource* ResourceManager::Create(const char* name, bool& created)
