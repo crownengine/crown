@@ -68,7 +68,7 @@ void TextRenderer::Draw(const Str& string, int x, int y, Font* font)
 	uint mLineSpacing = 0;
 	
 
-	glColor4fv(mColor.ToFloatPtr());
+	glColor4fv(mColor.to_float_ptr());
     glPushMatrix();
     glTranslatef((float)x, (float)y, 0.0f);
   
