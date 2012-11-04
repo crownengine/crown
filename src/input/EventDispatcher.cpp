@@ -36,7 +36,7 @@ void EventDispatcher::AddMouseListener(MouseListener* listener)
 		throw ArgumentException("EventDispatcher::AddMouseListener: listener == NULL.");
 	}
 
-	mMouseListenerList.Append(listener);
+	mMouseListenerList.push_back(listener);
 }
 
 void EventDispatcher::AddKeyboardListener(KeyboardListener* listener)
@@ -46,7 +46,7 @@ void EventDispatcher::AddKeyboardListener(KeyboardListener* listener)
 		throw ArgumentException("EventDispatcher::AddKeyboardListener: listener == NULL.");
 	}
 
-	mKeyboardListenerList.Append(listener);
+	mKeyboardListenerList.push_back(listener);
 }
 
 void EventDispatcher::AddTouchListener(TouchListener* listener)
@@ -56,12 +56,12 @@ void EventDispatcher::AddTouchListener(TouchListener* listener)
 		throw ArgumentException("EventDispatcher::AddTouchListener: listener == NULL.");
 	}
 
-	mTouchListenerList.Append(listener);
+	mTouchListenerList.push_back(listener);
 }
 
 void EventDispatcher::ButtonPressed(const MouseEvent& event)
 {
-	for (int i = 0; i < mMouseListenerList.GetSize(); i++)
+	for (uint i = 0; i < mMouseListenerList.size(); i++)
 	{
 		mMouseListenerList[i]->ButtonPressed(event);
 	}
@@ -69,7 +69,7 @@ void EventDispatcher::ButtonPressed(const MouseEvent& event)
 
 void EventDispatcher::ButtonReleased(const MouseEvent& event)
 {
-	for (int i = 0; i < mMouseListenerList.GetSize(); i++)
+	for (uint i = 0; i < mMouseListenerList.size(); i++)
 	{
 		mMouseListenerList[i]->ButtonReleased(event);
 	}
@@ -77,7 +77,7 @@ void EventDispatcher::ButtonReleased(const MouseEvent& event)
 
 void EventDispatcher::CursorMoved(const MouseEvent& event)
 {
-	for (int i = 0; i < mMouseListenerList.GetSize(); i++)
+	for (uint i = 0; i < mMouseListenerList.size(); i++)
 	{
 		mMouseListenerList[i]->CursorMoved(event);
 	}
@@ -85,7 +85,7 @@ void EventDispatcher::CursorMoved(const MouseEvent& event)
 
 void EventDispatcher::KeyPressed(const KeyboardEvent& event)
 {
-	for (int i = 0; i < mKeyboardListenerList.GetSize(); i++)
+	for (uint i = 0; i < mKeyboardListenerList.size(); i++)
 	{
 		mKeyboardListenerList[i]->KeyPressed(event);
 	}
@@ -93,7 +93,7 @@ void EventDispatcher::KeyPressed(const KeyboardEvent& event)
 
 void EventDispatcher::KeyReleased(const KeyboardEvent& event)
 {
-	for (int i = 0; i < mKeyboardListenerList.GetSize(); i++)
+	for (uint i = 0; i < mKeyboardListenerList.size(); i++)
 	{
 		mKeyboardListenerList[i]->KeyReleased(event);
 	}
@@ -101,7 +101,7 @@ void EventDispatcher::KeyReleased(const KeyboardEvent& event)
 
 void EventDispatcher::TextInput(const KeyboardEvent& event)
 {
-	for (int i = 0; i < mKeyboardListenerList.GetSize(); i++)
+	for (uint i = 0; i < mKeyboardListenerList.size(); i++)
 	{
 		mKeyboardListenerList[i]->TextInput(event);
 	}
@@ -109,7 +109,7 @@ void EventDispatcher::TextInput(const KeyboardEvent& event)
 
 void EventDispatcher::TouchDown(const TouchEvent& event)
 {
-	for (int i = 0; i < mTouchListenerList.GetSize(); i++)
+	for (uint i = 0; i < mTouchListenerList.size(); i++)
 	{
 		mTouchListenerList[i]->TouchDown(event);
 	}
@@ -117,7 +117,7 @@ void EventDispatcher::TouchDown(const TouchEvent& event)
 
 void EventDispatcher::TouchUp(const TouchEvent& event)
 {
-	for (int i = 0; i < mTouchListenerList.GetSize(); i++)
+	for (uint i = 0; i < mTouchListenerList.size(); i++)
 	{
 		mTouchListenerList[i]->TouchUp(event);
 	}
@@ -125,7 +125,7 @@ void EventDispatcher::TouchUp(const TouchEvent& event)
 
 void EventDispatcher::TouchMove(const TouchEvent& event)
 {
-	for (int i = 0; i < mTouchListenerList.GetSize(); i++)
+	for (uint i = 0; i < mTouchListenerList.size(); i++)
 	{
 		mTouchListenerList[i]->TouchMove(event);
 	}
@@ -133,7 +133,7 @@ void EventDispatcher::TouchMove(const TouchEvent& event)
 
 void EventDispatcher::TouchCancel(const TouchEvent& event)
 {
-	for (int i = 0; i < mTouchListenerList.GetSize(); i++)
+	for (uint i = 0; i < mTouchListenerList.size(); i++)
 	{
 		mTouchListenerList[i]->TouchCancel(event);
 	}
