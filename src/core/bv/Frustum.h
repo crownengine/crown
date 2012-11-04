@@ -57,12 +57,12 @@ public:
 				Frustum(const Frustum& frustum);		//!< Copy constructor
 				~Frustum();								//!< Destructor
 
-	bool		ContainsPoint(const Vec3& point) const;	//!< Returns true if point intersects the frustum
-	Vec3		GetVertex(uint index) const;			//!< Returns one of the eight frustum's corners
+	bool		contains_point(const Vec3& point) const;	//!< Returns true if point intersects the frustum
+	Vec3		get_vertex(uint index) const;			//!< Returns one of the eight frustum's corners
 
-	void		FromMatrix(const Mat4& m);				//!< Builds the view frustum according to the matrix m
+	void		from_matrix(const Mat4& m);				//!< Builds the view frustum according to the matrix m
 
-	Box			ToBox() const;							//!< Returns a Box containing the frustum volume
+	Box			to_box() const;							//!< Returns a Box containing the frustum volume
 };
 
 } // namespace Crown

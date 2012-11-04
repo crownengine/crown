@@ -58,20 +58,20 @@ Frustum::~Frustum()
 }
 
 //-----------------------------------------------------------------------------
-bool Frustum::ContainsPoint(const Vec3& point) const
+bool Frustum::contains_point(const Vec3& point) const
 {
-	if (mPlane[FP_LEFT].GetDistanceToPoint(point) < 0.0) return false;
-	if (mPlane[FP_RIGHT].GetDistanceToPoint(point) < 0.0) return false;
-	if (mPlane[FP_BOTTOM].GetDistanceToPoint(point) < 0.0) return false;
-	if (mPlane[FP_TOP].GetDistanceToPoint(point) < 0.0) return false;
-	if (mPlane[FP_NEAR].GetDistanceToPoint(point) < 0.0) return false;
-	if (mPlane[FP_FAR].GetDistanceToPoint(point) < 0.0) return false;
+	if (mPlane[FP_LEFT].get_distance_to_point(point) < 0.0) return false;
+	if (mPlane[FP_RIGHT].get_distance_to_point(point) < 0.0) return false;
+	if (mPlane[FP_BOTTOM].get_distance_to_point(point) < 0.0) return false;
+	if (mPlane[FP_TOP].get_distance_to_point(point) < 0.0) return false;
+	if (mPlane[FP_NEAR].get_distance_to_point(point) < 0.0) return false;
+	if (mPlane[FP_FAR].get_distance_to_point(point) < 0.0) return false;
 
 	return true;
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Frustum::GetVertex(uint index) const
+Vec3 Frustum::get_vertex(uint index) const
 {
 	// 0 = Near bottom left
 	// 1 = Near bottom right
@@ -110,7 +110,7 @@ Vec3 Frustum::GetVertex(uint index) const
 }
 
 //-----------------------------------------------------------------------------
-void Frustum::FromMatrix(const Mat4& m)
+void Frustum::from_matrix(const Mat4& m)
 {
 	// Left plane
 	mPlane[FP_LEFT].n.x		= m.m[3] + m.m[0];
@@ -148,28 +148,28 @@ void Frustum::FromMatrix(const Mat4& m)
 	mPlane[FP_FAR].n.z		= m.m[11] - m.m[10];
 	mPlane[FP_FAR].d		= m.m[15] - m.m[14];
 
-	mPlane[FP_LEFT].Normalize();
-	mPlane[FP_RIGHT].Normalize();
-	mPlane[FP_BOTTOM].Normalize();
-	mPlane[FP_TOP].Normalize();
-	mPlane[FP_NEAR].Normalize();
-	mPlane[FP_FAR].Normalize();
+	mPlane[FP_LEFT].normalize();
+	mPlane[FP_RIGHT].normalize();
+	mPlane[FP_BOTTOM].normalize();
+	mPlane[FP_TOP].normalize();
+	mPlane[FP_NEAR].normalize();
+	mPlane[FP_FAR].normalize();
 }
 
 //-----------------------------------------------------------------------------
-Box Frustum::ToBox() const
+Box Frustum::to_box() const
 {
 	Box tmp;
-	tmp.Zero();
+	tmp.zero();
 
-	tmp.AddPoint(this->GetVertex(0));
-	tmp.AddPoint(this->GetVertex(1));
-	tmp.AddPoint(this->GetVertex(2));
-	tmp.AddPoint(this->GetVertex(3));
-	tmp.AddPoint(this->GetVertex(4));
-	tmp.AddPoint(this->GetVertex(5));
-	tmp.AddPoint(this->GetVertex(6));
-	tmp.AddPoint(this->GetVertex(7));
+	tmp.add_point(this->get_vertex(0));
+	tmp.add_point(this->get_vertex(1));
+	tmp.add_point(this->get_vertex(2));
+	tmp.add_point(this->get_vertex(3));
+	tmp.add_point(this->get_vertex(4));
+	tmp.add_point(this->get_vertex(5));
+	tmp.add_point(this->get_vertex(6));
+	tmp.add_point(this->get_vertex(7));
 
 	return tmp;
 }

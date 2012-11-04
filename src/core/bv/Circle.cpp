@@ -29,11 +29,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace Crown
 {
 
-Rect Circle::ToRect() const
+Rect Circle::to_rect() const
 {
 	Rect b;
 
-	b.SetFromCenterAndDimensions(c, r * 2.0, r * 2.0);
+	b.set_from_center_and_dimensions(c, r * 2.0, r * 2.0);
 
 	return b;
 }

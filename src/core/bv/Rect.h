@@ -53,25 +53,25 @@ public:
 					Rect(const Rect& rect);					//!< Copy construcor
 					~Rect();								//!< Destructor
 
-	const Vec2&		GetMin() const;							//!< Returns the "min" corner
-	const Vec2&		GetMax() const;							//!< Returns the "max" corner
-	void			SetMin(const Vec2& min);				//!< Sets the "min" corner
-	void			SetMax(const Vec2& max);				//!< Sets the "max" corner
+	const Vec2&		get_min() const;						//!< Returns the "min" corner
+	const Vec2&		get_max() const;						//!< Returns the "max" corner
+	void			set_min(const Vec2& min);				//!< Sets the "min" corner
+	void			set_max(const Vec2& max);				//!< Sets the "max" corner
 
-	Vec2			GetCenter() const;						//!< Returns the center
-	real			GetRadius() const;						//!< Returns the radius 
-	real			GetArea() const;						//!< Returns the area
-	Vec2			GetSize() const;						//!< Returns the diagonal
+	Vec2			get_center() const;						//!< Returns the center
+	real			get_radius() const;						//!< Returns the radius 
+	real			get_area() const;						//!< Returns the area
+	Vec2			get_size() const;						//!< Returns the diagonal
 
-	bool			ContainsPoint(const Vec2& point) const;	//!< Returns whether "point" is contained
-	bool			IntersectsRect(const Rect& r) const;	//!< Returns whether intersects "r"
-	void			SetFromCenterAndDimensions(Vec2 center, real width, real height);	//!< Sets the Rect from a center and a width - height
-	void			GetVertices(Vec2 v[4]) const;			//!< Returns the four rect's vertices
-	Vec2			GetVertext(uint index) const;			//!< Returns a rect's vertex
+	bool			contains_point(const Vec2& point) const;//!< Returns whether "point" is contained
+	bool			intersects_rect(const Rect& r) const;	//!< Returns whether intersects "r"
+	void			set_from_center_and_dimensions(Vec2 center, real width, real height);	//!< Sets the Rect from a center and a width - height
+	void			get_vertices(Vec2 v[4]) const;			//!< Returns the four rect's vertices
+	Vec2			get_vertex(uint index) const;			//!< Returns a rect's vertex
 
-	Circle			ToCircle() const;						//!< Returns the equivalent circle
+	Circle			to_circle() const;						//!< Returns the equivalent circle
 
-	void			Fix();									//!< Ensures that min and max aren't swapped
+	void			fix();									//!< Ensures that min and max aren't swapped
 };
 
 //-----------------------------------------------------------------------------
@@ -95,25 +95,25 @@ inline Rect::~Rect()
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec2& Rect::GetMin() const
+inline const Vec2& Rect::get_min() const
 {
 	return min;
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec2& Rect::GetMax() const
+inline const Vec2& Rect::get_max() const
 {
 	return max;
 }
 
 //-----------------------------------------------------------------------------
-inline void Rect::SetMin(const Vec2& min)
+inline void Rect::set_min(const Vec2& min)
 {
 	this->min = min;
 }
 
 //-----------------------------------------------------------------------------
-inline void Rect::SetMax(const Vec2& max)
+inline void Rect::set_max(const Vec2& max)
 {
 	this->max = max;
 }

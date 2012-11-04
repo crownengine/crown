@@ -50,17 +50,17 @@ public:
 					Sphere(const Sphere& a);					//!< Copy constructor
 					~Sphere();									//!< Destructor
 
-	const Vec3&		GetCenter() const;							//!< Returns the center
-	real			GetRadius() const;							//!< Returns the radius
-	real			GetVolume() const;							//!< Returns the volume
+	const Vec3&		get_center() const;							//!< Returns the center
+	real			get_radius() const;							//!< Returns the radius
+	real			get_volume() const;							//!< Returns the volume
 
-	void			SetCenter(const Vec3& center);				//!< Sets the center
-	void			SetRadius(real radius);					//!< Sets the radius
+	void			set_center(const Vec3& center);				//!< Sets the center
+	void			set_radius(real radius);					//!< Sets the radius
 
-	void			AddPoint(const Vec3& p);					//!< Adds a point to the Sphere
-	void			AddSphere(const Sphere& s);					//!< Adds a Sphere to the Sphere
+	void			add_point(const Vec3& p);					//!< Adds a point to the Sphere
+	void			add_sphere(const Sphere& s);				//!< Adds a Sphere to the Sphere
 
-	bool			ContainsPoint(const Vec3& p) const;			//!< Returns whether point "p" is contained
+	bool			contains_point(const Vec3& p) const;		//!< Returns whether point "p" is contained
 };
 
 //-----------------------------------------------------------------------------
@@ -84,64 +84,64 @@ inline Sphere::~Sphere()
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec3& Sphere::GetCenter() const
+inline const Vec3& Sphere::get_center() const
 {
 	return c;
 }
 
 //-----------------------------------------------------------------------------
-inline real Sphere::GetRadius() const
+inline real Sphere::get_radius() const
 {
 	return r;
 }
 
 //-----------------------------------------------------------------------------
-inline real Sphere::GetVolume() const
+inline real Sphere::get_volume() const
 {
-	return Math::FOUR_OVER_THREE_TIMES_PI * r * r * r;
+	return math::FOUR_OVER_THREE_TIMES_PI * r * r * r;
 }
 
 //-----------------------------------------------------------------------------
-inline void Sphere::SetCenter(const Vec3& center)
+inline void Sphere::set_center(const Vec3& center)
 {
 	c = center;
 }
 
 //-----------------------------------------------------------------------------
-inline void Sphere::SetRadius(real radius)
+inline void Sphere::set_radius(real radius)
 {
 	this->r = radius;
 }
 
 //-----------------------------------------------------------------------------
-inline void Sphere::AddPoint(const Vec3& p)
+inline void Sphere::add_point(const Vec3& p)
 {
-	real dist = (p - c).GetSquaredLength();
+	real dist = (p - c).squared_length();
 
 	if (dist < r * r)
 	{
 		return;
 	}
 
-	r = Math::Sqrt(dist);
+	r = math::sqrt(dist);
 }
 
 //-----------------------------------------------------------------------------
-inline void Sphere::AddSphere(const Sphere& s)
+inline void Sphere::add_sphere(const Sphere& s)
 {
-	real dist = (s.c - c).GetSquaredLength();
+	real dist = (s.c - c).squared_length();
 
 	if (dist < (s.r + r) * (s.r + r))
 		if (s.r * s.r > r * r)
 		{
-			r = Math::Sqrt(dist + s.r * s.r);
+			r = math::sqrt(dist + s.r * s.r);
 		}
 }
 
 //-----------------------------------------------------------------------------
-inline bool Sphere::ContainsPoint(const Vec3& p) const
+inline bool Sphere::contains_point(const Vec3& p) const
 {
-	real dist = (p - c).GetSquaredLength();
+	real dist = (p - c).squared_length();
 	return (dist < r * r);
 }
 

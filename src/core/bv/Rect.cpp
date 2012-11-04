@@ -30,23 +30,23 @@ namespace Crown
 {
 
 //-----------------------------------------------------------------------------
-bool Rect::ContainsPoint(const Vec2& point) const
+bool Rect::contains_point(const Vec2& point) const
 {
 	return (point.x >= min.x && point.y >= min.y &&
 			point.x <= max.x && point.y <= max.y);
 }
 
 //-----------------------------------------------------------------------------
-bool Rect::IntersectsRect(const Rect& Rect) const
+bool Rect::intersects_rect(const Rect& Rect) const
 {
-	//return (ContainsPoint(Rect.min) || ContainsPoint(Rect.max));
+	//return (contains_point(Rect.min) || contains_point(Rect.max));
 	if (Rect.min.x > max.x || Rect.max.x < min.x || Rect.min.y > max.y || Rect.max.y < min.y)
 		return false;
 	return true;
 }
 
 //-----------------------------------------------------------------------------
-void Rect::SetFromCenterAndDimensions(Vec2 center, real width, real height)
+void Rect::set_from_center_and_dimensions(Vec2 center, real width, real height)
 {
 	min.x = (real)(center.x - width  / 2.0);
 	min.y = (real)(center.y - height / 2.0);
@@ -55,7 +55,7 @@ void Rect::SetFromCenterAndDimensions(Vec2 center, real width, real height)
 }
 
 //-----------------------------------------------------------------------------
-void Rect::GetVertices(Vec2 v[4]) const
+void Rect::get_vertices(Vec2 v[4]) const
 {
 	// 3 ---- 2
 	// |      |
@@ -72,7 +72,7 @@ void Rect::GetVertices(Vec2 v[4]) const
 }
 
 //-----------------------------------------------------------------------------
-Vec2 Rect::GetVertext(uint index) const
+Vec2 Rect::get_vertex(uint index) const
 {
 	assert(index < 4);
 
@@ -92,31 +92,31 @@ Vec2 Rect::GetVertext(uint index) const
 }
 
 //-----------------------------------------------------------------------------
-Vec2 Rect::GetCenter() const
+Vec2 Rect::get_center() const
 {
 	return (min + max) * 0.5;
 }
 
 //-----------------------------------------------------------------------------
-real Rect::GetRadius() const
+real Rect::get_radius() const
 {
-	return (max - (min + max) * 0.5).GetLength();
+	return (max - (min + max) * 0.5).length();
 }
 
 //-----------------------------------------------------------------------------
-real Rect::GetArea() const
+real Rect::get_area() const
 {
 	return (max.x - min.x) * (max.y - min.y);
 }
 
 //-----------------------------------------------------------------------------
-Vec2 Rect::GetSize() const
+Vec2 Rect::get_size() const
 {
 	return (max - min);
 }
 
 //-----------------------------------------------------------------------------
-void Rect::Fix()
+void Rect::fix()
 {
 	if (min.x > max.x)
 	{
@@ -134,9 +134,9 @@ void Rect::Fix()
 }
 
 //-----------------------------------------------------------------------------
-Circle Rect::ToCircle() const
+Circle Rect::to_circle() const
 {
-	return Circle(GetCenter(), GetRadius());
+	return Circle(get_center(), get_radius());
 }
 
 } // namespace Crown

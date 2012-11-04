@@ -52,14 +52,14 @@ public:
 					Circle(const Circle& circle);				//!< Copy constructor
 					~Circle();									//!< Destructor
 
-	const Vec2&		GetCenter() const;							//!< Returns the center
-	real			GetRadius() const;							//!< Returns the radius
-	void			SetCenter(const Vec2& center);				//!< Sets the center
-	void			SetRadius(real radius);						//!< Sets the radius
+	const Vec2&		get_center() const;							//!< Returns the center
+	real			get_radius() const;							//!< Returns the radius
+	void			set_center(const Vec2& center);				//!< Sets the center
+	void			set_radius(real radius);					//!< Sets the radius
 
-	real			GetArea() const;							//!< Returns the area
+	real			get_area() const;							//!< Returns the area
 
-	Rect			ToRect() const;								//!< Returns the equivalent rect
+	Rect			to_rect() const;							//!< Returns the equivalent rect
 };
 
 //-----------------------------------------------------------------------------
@@ -83,33 +83,33 @@ inline Circle::~Circle()
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec2& Circle::GetCenter() const
+inline const Vec2& Circle::get_center() const
 {
 	return c;
 }
 
 //-----------------------------------------------------------------------------
-inline real Circle::GetRadius() const
+inline real Circle::get_radius() const
 {
 	return r;
 }
 
 //-----------------------------------------------------------------------------
-inline void Circle::SetCenter(const Vec2& center)
+inline void Circle::set_center(const Vec2& center)
 {
 	c = center;
 }
 
 //-----------------------------------------------------------------------------
-inline void Circle::SetRadius(real radius)
+inline void Circle::set_radius(real radius)
 {
 	r = radius;
 }
 
 //-----------------------------------------------------------------------------
-inline real Circle::GetArea() const
+inline real Circle::get_area() const
 {
-	return r * r * Math::PI;
+	return r * r * math::PI;
 }
 
 } // namespace Crown

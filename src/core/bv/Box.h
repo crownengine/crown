@@ -53,27 +53,27 @@ public:
 					Box(const Box& box);									//!< Copy constructor
 					~Box();													//!< Destructor
 
-	const Vec3&		GetMin() const;											//!< Returns the "min" corner
-	const Vec3&		GetMax() const;											//!< Returns the "max" corner
-	void			SetMin(const Vec3& min);								//!< Sets the "min" corner
-	void			SetMax(const Vec3& max);								//!< Sets the "max" corner
+	const Vec3&		get_min() const;										//!< Returns the "min" corner
+	const Vec3&		get_max() const;										//!< Returns the "max" corner
+	void			set_min(const Vec3& min);								//!< Sets the "min" corner
+	void			set_max(const Vec3& max);								//!< Sets the "max" corner
 
-	Vec3			GetCenter() const;										//!< Returns the center
-	real			GetRadius() const;										//!< Returns the radius
-	real			GetVolume() const;										//!< Returns the volume
+	Vec3			get_center() const;										//!< Returns the center
+	real			get_radius() const;										//!< Returns the radius
+	real			get_volume() const;										//!< Returns the volume
 
-	void			AddPoint(const Vec3& p);								//!< Adds a point to the aabb
-	void			AddBox(const Box& box);									//!< Adds a Box to the aabb
+	void			add_point(const Vec3& p);								//!< Adds a point to the aabb
+	void			add_box(const Box& box);								//!< Adds a Box to the aabb
 
-	bool			ContainsPoint(const Vec3& p) const;						//!< Returns whether point "p" is contained
+	bool			contains_point(const Vec3& p) const;					//!< Returns whether point "p" is contained
 
-	Vec3			GetVertex(uint index) const;							//!< Returns a box's vertex
-	void			GetTransformed(const Mat4& mat, Box& result) const;		//!< Returns the box trasformed according to "mat" matrix
+	Vec3			get_vertex(uint index) const;							//!< Returns a box's vertex
+	void			get_transformed(const Mat4& mat, Box& result) const;	//!< Returns the box trasformed according to "mat" matrix
 
-	void			ToVertices(Vec3 v[8]) const;							//!< Returns the eight box's vertices
-	Sphere			ToSphere() const;										//!< Returns as a sphere
+	void			to_vertices(Vec3 v[8]) const;							//!< Returns the eight box's vertices
+	Sphere			to_sphere() const;										//!< Returns as a sphere
 
-	void			Zero();													//!< Sets min and max to zero
+	void			zero();													//!< Sets min and max to zero
 };
 
 //-----------------------------------------------------------------------------
@@ -97,31 +97,31 @@ inline Box::~Box()
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec3& Box::GetMin() const
+inline const Vec3& Box::get_min() const
 {
 	return min;
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::SetMin(const Vec3& min)
+inline void Box::set_min(const Vec3& min)
 {
 	this->min = min;
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec3& Box::GetMax() const
+inline const Vec3& Box::get_max() const
 {
 	return max;
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::SetMax(const Vec3& max)
+inline void Box::set_max(const Vec3& max)
 {
 	this->max = max;
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::AddPoint(const Vec3& p)
+inline void Box::add_point(const Vec3& p)
 {
 	if (p.x < min.x)
 	{
@@ -155,7 +155,7 @@ inline void Box::AddPoint(const Vec3& p)
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::AddBox(const Box& box)
+inline void Box::add_box(const Box& box)
 {
 	if (box.min.x < min.x)
 	{
@@ -189,26 +189,26 @@ inline void Box::AddBox(const Box& box)
 }
 
 //-----------------------------------------------------------------------------
-inline bool Box::ContainsPoint(const Vec3& p) const
+inline bool Box::contains_point(const Vec3& p) const
 {
 	return (p.x > min.x && p.y > min.y && p.z > min.z &&
 		p.x < max.x && p.y < max.y && p.z < max.z);
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Box::GetCenter() const
+inline Vec3 Box::get_center() const
 {
 	return (min + max) * 0.5;
 }
 
 //-----------------------------------------------------------------------------
-inline real Box::GetRadius() const
+inline real Box::get_radius() const
 {
-	return (max - (min + max) * 0.5).GetLength();
+	return (max - (min + max) * 0.5).length();
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::ToVertices(Vec3 v[8]) const
+inline void Box::to_vertices(Vec3 v[8]) const
 {
 	// 7 ---- 6
 	// |      |
@@ -253,7 +253,7 @@ inline void Box::ToVertices(Vec3 v[8]) const
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Box::GetVertex(uint index) const
+inline Vec3 Box::get_vertex(uint index) const
 {
 	assert(index < 8);
 
@@ -279,38 +279,38 @@ inline Vec3 Box::GetVertex(uint index) const
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::GetTransformed(const Mat4& mat, Box& result) const
+inline void Box::get_transformed(const Mat4& mat, Box& result) const
 {
 	Vec3 vertices[8];
 
-	ToVertices(vertices);
+	to_vertices(vertices);
 
 	result.min = result.max = mat * vertices[0];
 
 	for (uint i = 1; i < 8; i++)
 	{
 		vertices[i] = mat * vertices[i];
-		result.AddPoint(vertices[i]);
+		result.add_point(vertices[i]);
 	}
 }
 
 //-----------------------------------------------------------------------------
-inline real Box::GetVolume() const
+inline real Box::get_volume() const
 {
 	return (max.x - min.x) * (max.y - min.y) * (max.z - min.z);
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::Zero()
+inline void Box::zero()
 {
-	min.Zero();
-	max.Zero();
+	min.zero();
+	max.zero();
 }
 
 //-----------------------------------------------------------------------------
-inline Sphere Box::ToSphere() const
+inline Sphere Box::to_sphere() const
 {
-	return Sphere(GetCenter(), GetRadius());
+	return Sphere(get_center(), get_radius());
 }
 
 } // namespace Crown
