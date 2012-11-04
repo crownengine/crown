@@ -56,7 +56,7 @@ Mesh* MeshManager::LoadCube(const char* name, float size)
 	{
 		MeshChunk* chunk = new MeshChunk();
 
-		float actual = Math::Abs(size) * 0.5f;
+		float actual = math::abs(size) * 0.5f;
 
 		/**
 
@@ -80,59 +80,59 @@ Mesh* MeshManager::LoadCube(const char* name, float size)
 		// 6 faces, with pos, normal and uv
 		// Face ================================================================================================== Index
 		// Front
-		chunk->mVertexList.Append(VertexData(Vec3(-actual, -actual,  actual),  Vec3::ZAXIS, Vec2(0.0f, 0.0f))); // 0
-		chunk->mVertexList.Append(VertexData(Vec3( actual, -actual,  actual),  Vec3::ZAXIS, Vec2(1.0f, 0.0f))); // 1
-		chunk->mVertexList.Append(VertexData(Vec3( actual,  actual,  actual),  Vec3::ZAXIS, Vec2(1.0f, 1.0f))); // 2
-		chunk->mVertexList.Append(VertexData(Vec3(-actual,  actual,  actual),  Vec3::ZAXIS, Vec2(0.0f, 1.0f))); // 3
+		chunk->mVertexList.push_back(VertexData(Vec3(-actual, -actual,  actual),  Vec3::ZAXIS, Vec2(0.0f, 0.0f))); // 0
+		chunk->mVertexList.push_back(VertexData(Vec3( actual, -actual,  actual),  Vec3::ZAXIS, Vec2(1.0f, 0.0f))); // 1
+		chunk->mVertexList.push_back(VertexData(Vec3( actual,  actual,  actual),  Vec3::ZAXIS, Vec2(1.0f, 1.0f))); // 2
+		chunk->mVertexList.push_back(VertexData(Vec3(-actual,  actual,  actual),  Vec3::ZAXIS, Vec2(0.0f, 1.0f))); // 3
 
 		// Back
-		chunk->mVertexList.Append(VertexData(Vec3( actual, -actual, -actual), -Vec3::ZAXIS, Vec2(0.0f, 0.0f))); // 4
-		chunk->mVertexList.Append(VertexData(Vec3(-actual, -actual, -actual), -Vec3::ZAXIS, Vec2(1.0f, 0.0f))); // 5
-		chunk->mVertexList.Append(VertexData(Vec3(-actual,  actual, -actual), -Vec3::ZAXIS, Vec2(1.0f, 1.0f))); // 6
-		chunk->mVertexList.Append(VertexData(Vec3( actual,  actual, -actual), -Vec3::ZAXIS, Vec2(0.0f, 1.0f))); // 7
+		chunk->mVertexList.push_back(VertexData(Vec3( actual, -actual, -actual), -Vec3::ZAXIS, Vec2(0.0f, 0.0f))); // 4
+		chunk->mVertexList.push_back(VertexData(Vec3(-actual, -actual, -actual), -Vec3::ZAXIS, Vec2(1.0f, 0.0f))); // 5
+		chunk->mVertexList.push_back(VertexData(Vec3(-actual,  actual, -actual), -Vec3::ZAXIS, Vec2(1.0f, 1.0f))); // 6
+		chunk->mVertexList.push_back(VertexData(Vec3( actual,  actual, -actual), -Vec3::ZAXIS, Vec2(0.0f, 1.0f))); // 7
 
 		// Right
-		chunk->mVertexList.Append(VertexData(Vec3( actual, -actual,  actual),  Vec3::XAXIS, Vec2(0.0f, 0.0f))); // 8
-		chunk->mVertexList.Append(VertexData(Vec3( actual, -actual, -actual),  Vec3::XAXIS, Vec2(1.0f, 0.0f))); // 9
-		chunk->mVertexList.Append(VertexData(Vec3( actual,  actual, -actual),  Vec3::XAXIS, Vec2(1.0f, 1.0f))); // 10
-		chunk->mVertexList.Append(VertexData(Vec3( actual,  actual,  actual),  Vec3::XAXIS, Vec2(0.0f, 1.0f))); // 11
+		chunk->mVertexList.push_back(VertexData(Vec3( actual, -actual,  actual),  Vec3::XAXIS, Vec2(0.0f, 0.0f))); // 8
+		chunk->mVertexList.push_back(VertexData(Vec3( actual, -actual, -actual),  Vec3::XAXIS, Vec2(1.0f, 0.0f))); // 9
+		chunk->mVertexList.push_back(VertexData(Vec3( actual,  actual, -actual),  Vec3::XAXIS, Vec2(1.0f, 1.0f))); // 10
+		chunk->mVertexList.push_back(VertexData(Vec3( actual,  actual,  actual),  Vec3::XAXIS, Vec2(0.0f, 1.0f))); // 11
 
 		// Left
-		chunk->mVertexList.Append(VertexData(Vec3(-actual, -actual, -actual), -Vec3::XAXIS, Vec2(0.0f, 0.0f))); // 12
-		chunk->mVertexList.Append(VertexData(Vec3(-actual, -actual,  actual), -Vec3::XAXIS, Vec2(1.0f, 0.0f))); // 13
-		chunk->mVertexList.Append(VertexData(Vec3(-actual,  actual,  actual), -Vec3::XAXIS, Vec2(1.0f, 1.0f))); // 14
-		chunk->mVertexList.Append(VertexData(Vec3(-actual,  actual, -actual), -Vec3::XAXIS, Vec2(0.0f, 1.0f))); // 15
+		chunk->mVertexList.push_back(VertexData(Vec3(-actual, -actual, -actual), -Vec3::XAXIS, Vec2(0.0f, 0.0f))); // 12
+		chunk->mVertexList.push_back(VertexData(Vec3(-actual, -actual,  actual), -Vec3::XAXIS, Vec2(1.0f, 0.0f))); // 13
+		chunk->mVertexList.push_back(VertexData(Vec3(-actual,  actual,  actual), -Vec3::XAXIS, Vec2(1.0f, 1.0f))); // 14
+		chunk->mVertexList.push_back(VertexData(Vec3(-actual,  actual, -actual), -Vec3::XAXIS, Vec2(0.0f, 1.0f))); // 15
 
 		// Top
-		chunk->mVertexList.Append(VertexData(Vec3(-actual,  actual,  actual),  Vec3::YAXIS, Vec2(0.0f, 0.0f))); // 16
-		chunk->mVertexList.Append(VertexData(Vec3( actual,  actual,  actual),  Vec3::YAXIS, Vec2(1.0f, 0.0f))); // 17
-		chunk->mVertexList.Append(VertexData(Vec3( actual,  actual, -actual),  Vec3::YAXIS, Vec2(1.0f, 1.0f))); // 18
-		chunk->mVertexList.Append(VertexData(Vec3(-actual,  actual, -actual),  Vec3::YAXIS, Vec2(0.0f, 1.0f))); // 19
+		chunk->mVertexList.push_back(VertexData(Vec3(-actual,  actual,  actual),  Vec3::YAXIS, Vec2(0.0f, 0.0f))); // 16
+		chunk->mVertexList.push_back(VertexData(Vec3( actual,  actual,  actual),  Vec3::YAXIS, Vec2(1.0f, 0.0f))); // 17
+		chunk->mVertexList.push_back(VertexData(Vec3( actual,  actual, -actual),  Vec3::YAXIS, Vec2(1.0f, 1.0f))); // 18
+		chunk->mVertexList.push_back(VertexData(Vec3(-actual,  actual, -actual),  Vec3::YAXIS, Vec2(0.0f, 1.0f))); // 19
 
 		// Bottom
-		chunk->mVertexList.Append(VertexData(Vec3(-actual, -actual, -actual), -Vec3::YAXIS, Vec2(0.0f, 0.0f))); // 20
-		chunk->mVertexList.Append(VertexData(Vec3( actual, -actual, -actual), -Vec3::YAXIS, Vec2(1.0f, 0.0f))); // 21
-		chunk->mVertexList.Append(VertexData(Vec3( actual, -actual,  actual), -Vec3::YAXIS, Vec2(1.0f, 1.0f))); // 22
-		chunk->mVertexList.Append(VertexData(Vec3(-actual, -actual,  actual), -Vec3::YAXIS, Vec2(0.0f, 1.0f))); // 23
+		chunk->mVertexList.push_back(VertexData(Vec3(-actual, -actual, -actual), -Vec3::YAXIS, Vec2(0.0f, 0.0f))); // 20
+		chunk->mVertexList.push_back(VertexData(Vec3( actual, -actual, -actual), -Vec3::YAXIS, Vec2(1.0f, 0.0f))); // 21
+		chunk->mVertexList.push_back(VertexData(Vec3( actual, -actual,  actual), -Vec3::YAXIS, Vec2(1.0f, 1.0f))); // 22
+		chunk->mVertexList.push_back(VertexData(Vec3(-actual, -actual,  actual), -Vec3::YAXIS, Vec2(0.0f, 1.0f))); // 23
 
 		// 12 triangles, CCW order
-		chunk->mFaceList.Append(FaceData(0, 1, 2));
-		chunk->mFaceList.Append(FaceData(0, 2, 3));
+		chunk->mFaceList.push_back(FaceData(0, 1, 2));
+		chunk->mFaceList.push_back(FaceData(0, 2, 3));
 
-		chunk->mFaceList.Append(FaceData(4, 5, 6));
-		chunk->mFaceList.Append(FaceData(4, 6, 7));
+		chunk->mFaceList.push_back(FaceData(4, 5, 6));
+		chunk->mFaceList.push_back(FaceData(4, 6, 7));
 
-		chunk->mFaceList.Append(FaceData(8, 9, 10));
-		chunk->mFaceList.Append(FaceData(8, 10, 11));
+		chunk->mFaceList.push_back(FaceData(8, 9, 10));
+		chunk->mFaceList.push_back(FaceData(8, 10, 11));
 
-		chunk->mFaceList.Append(FaceData(12, 13, 14));
-		chunk->mFaceList.Append(FaceData(12, 14, 15));
+		chunk->mFaceList.push_back(FaceData(12, 13, 14));
+		chunk->mFaceList.push_back(FaceData(12, 14, 15));
 
-		chunk->mFaceList.Append(FaceData(16, 17, 18));
-		chunk->mFaceList.Append(FaceData(16, 18, 19));
+		chunk->mFaceList.push_back(FaceData(16, 17, 18));
+		chunk->mFaceList.push_back(FaceData(16, 18, 19));
 
-		chunk->mFaceList.Append(FaceData(20, 21, 22));
-		chunk->mFaceList.Append(FaceData(20, 22, 23));
+		chunk->mFaceList.push_back(FaceData(20, 21, 22));
+		chunk->mFaceList.push_back(FaceData(20, 22, 23));
 
 		mesh->AddMeshChunk(chunk);
 		mesh->UpdateBoundingBox();
@@ -151,8 +151,8 @@ Mesh* MeshManager::LoadPlane(const char* name, float width, float height)
 	{
 		MeshChunk* chunk = new MeshChunk();
 
-		float actualWidth = Math::Abs(width) * 0.5f;
-		float actualHeight = Math::Abs(height) * 0.5f;
+		float actualWidth = math::abs(width) * 0.5f;
+		float actualHeight = math::abs(height) * 0.5f;
 
 		/**
 
@@ -169,14 +169,14 @@ Mesh* MeshManager::LoadPlane(const char* name, float width, float height)
 		*/
 
 		// Only a face, with pos, normal and UVs
-		chunk->mVertexList.Append(VertexData(Vec3(-actualWidth, -actualHeight,  0.0f),  Vec3::ZAXIS, Vec2(0.0f, 0.0f)));
-		chunk->mVertexList.Append(VertexData(Vec3( actualWidth, -actualHeight,  0.0f),  Vec3::ZAXIS, Vec2(1.0f, 0.0f)));
-		chunk->mVertexList.Append(VertexData(Vec3( actualWidth,  actualHeight,  0.0f),  Vec3::ZAXIS, Vec2(1.0f, 1.0f)));
-		chunk->mVertexList.Append(VertexData(Vec3(-actualWidth,  actualHeight,  0.0f),  Vec3::ZAXIS, Vec2(0.0f, 1.0f)));
+		chunk->mVertexList.push_back(VertexData(Vec3(-actualWidth, -actualHeight,  0.0f),  Vec3::ZAXIS, Vec2(0.0f, 0.0f)));
+		chunk->mVertexList.push_back(VertexData(Vec3( actualWidth, -actualHeight,  0.0f),  Vec3::ZAXIS, Vec2(1.0f, 0.0f)));
+		chunk->mVertexList.push_back(VertexData(Vec3( actualWidth,  actualHeight,  0.0f),  Vec3::ZAXIS, Vec2(1.0f, 1.0f)));
+		chunk->mVertexList.push_back(VertexData(Vec3(-actualWidth,  actualHeight,  0.0f),  Vec3::ZAXIS, Vec2(0.0f, 1.0f)));
 
 		// 2 triangles, CCW order
-		chunk->mFaceList.Append(FaceData(0, 1, 2));
-		chunk->mFaceList.Append(FaceData(0, 2, 3));
+		chunk->mFaceList.push_back(FaceData(0, 1, 2));
+		chunk->mFaceList.push_back(FaceData(0, 2, 3));
 
 		mesh->AddMeshChunk(chunk);
 		mesh->UpdateBoundingBox();
@@ -225,7 +225,7 @@ Mesh* MeshManager::LoadGrid(const char* name, uint size, float tileSize)
 			float xPos = -actual;
 			for (uint w = 0; w <= size; w++)
 			{
-				chunk->mVertexList.Append(VertexData(Vec3(xPos, 0.0f, zPos), Vec3::YAXIS, Vec2(uCoord, vCoord)));
+				chunk->mVertexList.push_back(VertexData(Vec3(xPos, 0.0f, zPos), Vec3::YAXIS, Vec2(uCoord, vCoord)));
 				xPos += tileSize;
 				uCoord += 1.0f;// / ((float)size + 1.0f);
 			}
@@ -240,8 +240,8 @@ Mesh* MeshManager::LoadGrid(const char* name, uint size, float tileSize)
 			{
 				uint firstRow = (h * (size + 1)) + w;
 				uint secondRow = ((h + 1) * (size + 1)) + w;
-				chunk->mFaceList.Append(FaceData(firstRow, firstRow + 1, secondRow + 1));
-				chunk->mFaceList.Append(FaceData(firstRow, secondRow + 1, secondRow));
+				chunk->mFaceList.push_back(FaceData(firstRow, firstRow + 1, secondRow + 1));
+				chunk->mFaceList.push_back(FaceData(firstRow, secondRow + 1, secondRow));
 			}
 		}
 
