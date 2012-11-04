@@ -53,10 +53,10 @@ public:
 							Angles(real h, real p, real b);	//!< Construct from three values
 
 
-	Str						ToStr() const;					//!< Returns a Str containing the angles' components
-	Mat3					ToMat3() const;					//!< Returns an equivalent Mat3 representation.
-	Mat4					ToMat4() const;					//!< Returns an equivalent Mat4 representation.
-	Quat					ToQuat() const;					//!< Returns an equivalent Quat representation.
+	Str						to_str() const;					//!< Returns a Str containing the angles' components
+	Mat3					to_mat3() const;					//!< Returns an equivalent Mat3 representation.
+	Mat4					to_mat4() const;					//!< Returns an equivalent Mat4 representation.
+	Quat					to_quat() const;					//!< Returns an equivalent Quat representation.
 
 	static const Angles		ZERO;
 };

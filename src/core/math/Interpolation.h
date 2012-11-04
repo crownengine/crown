@@ -37,7 +37,7 @@ class Interpolation
 public:
 
 							/**
-								Linear interpolation between a pair of values.
+								linear interpolation between a pair of values.
 							@param start
 								The start value
 							@param end
@@ -48,10 +48,10 @@ public:
 								The interpolated value
 							*/
 	template <typename T>
-	static T				Linear(const T& p0, const T& p1, real t);
+	static T				linear(const T& p0, const T& p1, real t);
 
 							/**
-								Cosine interpolation between a pair of values.
+								cosine interpolation between a pair of values.
 							@param start
 								The start value
 							@param end
@@ -62,10 +62,10 @@ public:
 								The interpolated value
 							*/
 	template <typename T>
-	static T				Cosine(const T& p0, const T& p1, real t);
+	static T				cosine(const T& p0, const T& p1, real t);
 
 							/**
-								Cubic interpolation between a pair of values.
+								cubic interpolation between a pair of values.
 							@param start
 								The start value
 							@param end
@@ -76,19 +76,19 @@ public:
 								The interpolated value
 							*/
 	template <typename T>
-	static T				Cubic(const T& p0, const T& p1, real t);
+	static T				cubic(const T& p0, const T& p1, real t);
 
 							/**
-								Bezier interpolation.
+								bezier interpolation.
 							*/
 	template <typename T>
-	static T				Bezier(const T& p1, const T& p2, const T& p3, const T& p4, real t);
+	static T				bezier(const T& p1, const T& p2, const T& p3, const T& p4, real t);
 
 							/**
 								Catmull-Rom spline interpolation.
 							*/
 	template <typename T>
-	static T				CatmullRom(const T& p0, const T& p1, const T& p2, const T& p3, real t);
+	static T				catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, real t);
 
 private:
 
@@ -98,24 +98,24 @@ private:
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T Interpolation::Linear(const T& p0, const T& p1, real t)
+inline T Interpolation::linear(const T& p0, const T& p1, real t)
 {
 	return p0 + (t * (p1 - p0));
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T Interpolation::Cosine(const T& p0, const T& p1, real t)
+inline T Interpolation::cosine(const T& p0, const T& p1, real t)
 {
-	real f = t * Math::PI;
-	real g = (1.0 - Math::Cos(f)) * 0.5;
+	real f = t * math::PI;
+	real g = (1.0 - math::cos(f)) * 0.5;
 
 	return p0 + (g * (p1 - p0));
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T Interpolation::Cubic(const T& p0, const T& p1, real t)
+inline T Interpolation::cubic(const T& p0, const T& p1, real t)
 {
 	real tt = t * t;
 	real ttt = tt * t;
@@ -125,7 +125,7 @@ inline T Interpolation::Cubic(const T& p0, const T& p1, real t)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T Interpolation::Bezier(const T& p0, const T& p1, const T& p2, const T& p3, real t)
+inline T Interpolation::bezier(const T& p0, const T& p1, const T& p2, const T& p3, real t)
 {
 	real u = 1.0 - t;
 	real tt = t * t ;
@@ -143,7 +143,7 @@ inline T Interpolation::Bezier(const T& p0, const T& p1, const T& p2, const T& p
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T Interpolation::CatmullRom(const T& p0, const T& p1, const T& p2, const T& p3, real t)
+inline T Interpolation::catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, real t)
 {
 	real tt = t * t;
 	real ttt = tt * t;

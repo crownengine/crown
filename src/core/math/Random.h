@@ -35,14 +35,13 @@ namespace Crown
 */ 
 class Random
 {
-
 public:
 
 			Random(int seed);	//!< Constructor
 
-	int		GetInt();			//!< Returns a pseudo-random integer in the range [0, 32767]
-	int		GetInt(int max);	//!< Returns a pseudo-random integer in the range [0, max)
-	float	GetUnitFloat();		//!< Returns a pseudo-random unit float in the range [0.0, 1.0].
+	int		get_int();			//!< Returns a pseudo-random integer in the range [0, 32767]
+	int		get_int(int max);	//!< Returns a pseudo-random integer in the range [0, max)
+	float	get_unit_float();	//!< Returns a pseudo-random float in the range [0.0, 1.0].
 
 private:
 
@@ -55,7 +54,7 @@ inline Random::Random(int seed) : mSeed(seed)
 }
 
 //-----------------------------------------------------------------------------
-inline int Random::GetInt()
+inline int Random::get_int()
 {
 	mSeed = 214013 * mSeed + 13737667;
 
@@ -63,15 +62,15 @@ inline int Random::GetInt()
 }
 
 //-----------------------------------------------------------------------------
-inline int Random::GetInt(int max)
+inline int Random::get_int(int max)
 {
-	return (max == 0) ? 0 : GetInt() % max;
+	return (max == 0) ? 0 : get_int() % max;
 }
 
 //-----------------------------------------------------------------------------
-inline float Random::GetUnitFloat()
+inline float Random::get_unit_float()
 {
-	return GetInt() / (float) 0x7FFF;
+	return get_int() / (float) 0x7FFF;
 }
 
 } // namespace Crown

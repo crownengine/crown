@@ -56,11 +56,11 @@ Plane::~Plane()
 }
 
 //-----------------------------------------------------------------------------
-Plane& Plane::Normalize()
+Plane& Plane::normalize()
 {
-	real len = n.GetLength();
+	real len = n.length();
 
-	if (Math::Equals(len, (real)0.0))
+	if (math::equals(len, (real)0.0))
 	{
 		return *this;
 	}
@@ -74,15 +74,15 @@ Plane& Plane::Normalize()
 }
 
 //-----------------------------------------------------------------------------
-real Plane::GetDistanceToPoint(const Vec3& p) const
+real Plane::get_distance_to_point(const Vec3& p) const
 {
-	return n.Dot(p) + d;
+	return n.dot(p) + d;
 }
 
 //-----------------------------------------------------------------------------
-bool Plane::ContainsPoint(const Vec3& p) const
+bool Plane::contains_point(const Vec3& p) const
 {
-	return Math::Equals(n.Dot(p) + d, (real)0.0);
+	return math::equals(n.dot(p) + d, (real)0.0);
 }
 
 } // namespace Crown

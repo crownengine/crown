@@ -37,7 +37,7 @@ Shape::~Shape()
 {
 }
 
-ShapeType Shape::GetShapeType()
+ShapeType Shape::get_shape_type()
 {
 	return mType;
 }

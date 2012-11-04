@@ -40,7 +40,6 @@ namespace Crown
 */
 class Plane
 {
-
 public:
 
 	Vec3				n;
@@ -51,10 +50,10 @@ public:
 						Plane(const Vec3& normal, real dist);		//!< Constructs from a normal and distance factor
 						~Plane();									//!< Destructor
 
-	Plane&				Normalize();								//!< Normalizes the plane
+	Plane&				normalize();								//!< Normalizes the plane
 
-	real				GetDistanceToPoint(const Vec3& p) const;	//!< Returns the signed distance between point "p" and the plane
-	bool				ContainsPoint(const Vec3& p) const;			//!< Returns whether the plane contains the point
+	real				get_distance_to_point(const Vec3& p) const;	//!< Returns the signed distance between point "p" and the plane
+	bool				contains_point(const Vec3& p) const;		//!< Returns whether the plane contains the point
 
 	static const Plane	ZERO;
 	static const Plane	XAXIS;

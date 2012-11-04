@@ -93,28 +93,28 @@ public:
 
 	friend Mat3			operator*(real k, const Mat3& a);			//!< For simmetry
 
-	void				BuildRotationX(real radians);				//!< Builds a rotation matrix about the X axis of "radians" radians
-	void				BuildRotationY(real radians);				//!< Builds a rotation matrix about the Y axis of "radians" radians
-	void				BuildRotationZ(real radians);				//!< Builds a rotation matrix about the Z axis of "radians" radians
-	void				BuildRotation(const Vec3& n, real radians);	//!< Builds a rotation matrix about an arbitrary axis of "radians" radians
+	void				build_rotation_x(real radians);				//!< Builds a rotation matrix about the X axis of "radians" radians
+	void				build_rotation_y(real radians);				//!< Builds a rotation matrix about the Y axis of "radians" radians
+	void				build_rotation_z(real radians);				//!< Builds a rotation matrix about the Z axis of "radians" radians
+	void				build_rotation(const Vec3& n, real radians);//!< Builds a rotation matrix about an arbitrary axis of "radians" radians
 
-	Mat3&				Transpose();								//!< Transposes the matrix
-	Mat3				GetTransposed() const;						//!< Returns the transposed of the matrix
-	real				GetDeterminant() const;						//!< Returns the matrix's determinant
-	Mat3&				Invert();									//!< Builds the inverse of the matrix
-	Mat3				GetInverted() const;						//!< Returns the inverse of the matrix
+	Mat3&				transpose();								//!< Transposes the matrix
+	Mat3				get_transposed() const;						//!< Returns the transposed of the matrix
+	real				get_determinant() const;					//!< Returns the matrix's determinant
+	Mat3&				invert();									//!< Builds the inverse of the matrix
+	Mat3				get_inverted() const;						//!< Returns the inverse of the matrix
 
-	void				LoadIdentity();								//!< Builds the identity matrix
+	void				load_identity();							//!< Builds the identity matrix
 
-	Vec3				GetScale() const;							//!< Returns a Vec3 containing the matrix's scale portion
-	void				SetScale(const Vec3& scale);				//!< Fills the matrix's scale portion with the values contained in "scale"
+	Vec3				get_scale() const;							//!< Returns a Vec3 containing the matrix's scale portion
+	void				set_scale(const Vec3& scale);				//!< Fills the matrix's scale portion with the values contained in "scale"
 
-	real*				ToFloatPtr();								//!< Returns the pointer to the matrix's data
-	const real*			ToFloatPtr() const;							//!< Returns the pointer to the matrix's data
-	Str					ToStr() const;								//!< Returns a Str containing the matrix's components
-	Angles				ToAngles() const;							//!< Returns an angles according to the matrix's rotation portion
-	Mat4				ToMat4() const;								//!< Returns a 4x4 matrix according to the matrix's rotation portion
-	Quat				ToQuat() const;								//!< Returns a quaternion according to the matrix's rotation portion
+	real*				to_float_ptr();								//!< Returns the pointer to the matrix's data
+	const real*			to_float_ptr() const;						//!< Returns the pointer to the matrix's data
+	Str					to_str() const;								//!< Returns a Str containing the matrix's components
+	Angles				to_angles() const;							//!< Returns an angles according to the matrix's rotation portion
+	Mat4				to_mat4() const;							//!< Returns a 4x4 matrix according to the matrix's rotation portion
+	Quat				to_quat() const;							//!< Returns a quaternion according to the matrix's rotation portion
 
 	static const Mat3	IDENTITY;
 };

@@ -332,41 +332,41 @@ Mat3 operator*(real k, const Mat3& a)
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::BuildRotationX(real radians)
+void Mat3::build_rotation_x(real radians)
 {
 	m[0] = 1.0;
 	m[1] = 0.0;
 	m[2] = 0.0;
 	m[3] = 0.0;
-	m[4] = Math::Cos(radians);
-	m[5] = Math::Sin(radians);
+	m[4] = math::cos(radians);
+	m[5] = math::sin(radians);
 	m[6] = 0.0;
-	m[7] = -Math::Sin(radians);
-	m[8] = Math::Cos(radians);
+	m[7] = -math::sin(radians);
+	m[8] = math::cos(radians);
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::BuildRotationY(real radians)
+void Mat3::build_rotation_y(real radians)
 {
-	m[0] = Math::Cos(radians);
+	m[0] = math::cos(radians);
 	m[1] = 0.0;
-	m[2] = -Math::Sin(radians);
+	m[2] = -math::sin(radians);
 	m[3] = 0.0;
 	m[4] = 1.0;
 	m[5] = 0.0;
-	m[6] = Math::Sin(radians);
+	m[6] = math::sin(radians);
 	m[7] = 0.0;
-	m[8] = Math::Cos(radians);
+	m[8] = math::cos(radians);
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::BuildRotationZ(real radians)
+void Mat3::build_rotation_z(real radians)
 {
-	m[0] = Math::Cos(radians);
-	m[1] = Math::Sin(radians);
+	m[0] = math::cos(radians);
+	m[1] = math::sin(radians);
 	m[2] = 0.0;
-	m[3] = -Math::Sin(radians);
-	m[4] = Math::Cos(radians);
+	m[3] = -math::sin(radians);
+	m[4] = math::cos(radians);
 	m[5] = 0.0;
 	m[6] = 0.0;
 	m[7] = 0.0;
@@ -374,11 +374,11 @@ void Mat3::BuildRotationZ(real radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::BuildRotation(const Vec3& n, real radians)
+void Mat3::build_rotation(const Vec3& n, real radians)
 {
-	real a = (real)1.0 - Math::Cos(radians);
-	real sin_a = Math::Sin(radians);
-	real cos_a = Math::Cos(radians);
+	real a = (real)1.0 - math::cos(radians);
+	real sin_a = math::sin(radians);
+	real cos_a = math::cos(radians);
 
 	m[0] = n.x * n.x * a + cos_a;
 	m[1] = n.x * n.y * a + n.z * sin_a;
@@ -392,7 +392,7 @@ void Mat3::BuildRotation(const Vec3& n, real radians)
 }
 
 //-----------------------------------------------------------------------------
-Mat3& Mat3::Transpose()
+Mat3& Mat3::transpose()
 {
 	real tmp;
 
@@ -412,7 +412,7 @@ Mat3& Mat3::Transpose()
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Mat3::GetTransposed() const
+Mat3 Mat3::get_transposed() const
 {
 	Mat3 tmp;
 
@@ -430,7 +430,7 @@ Mat3 Mat3::GetTransposed() const
 }
 
 //-----------------------------------------------------------------------------
-real Mat3::GetDeterminant() const
+real Mat3::get_determinant() const
 {
 	real det;
 
@@ -442,7 +442,7 @@ real Mat3::GetDeterminant() const
 }
 
 //-----------------------------------------------------------------------------
-Mat3& Mat3::Invert()
+Mat3& Mat3::invert()
 {
 	Mat3 mat;
 	real det;
@@ -475,22 +475,22 @@ Mat3& Mat3::Invert()
 }
 
 //-----------------------------------------------------------------------------
-inline Mat3 Mat3::GetInverted() const
+inline Mat3 Mat3::get_inverted() const
 {
 	Mat3 tmp(*this);
 
-	return tmp.Invert();
+	return tmp.invert();
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::LoadIdentity()
+void Mat3::load_identity()
 {
 	m[0] = m[4] = m[8] = 1.0;
 	m[1] = m[2] = m[3] = m[5] = m[6] = m[7] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat3::GetScale() const
+Vec3 Mat3::get_scale() const
 {
 	Vec3 tmp;
 
@@ -502,7 +502,7 @@ Vec3 Mat3::GetScale() const
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::SetScale(const Vec3& scale)
+void Mat3::set_scale(const Vec3& scale)
 {
 	m[0] = scale.x;
 	m[4] = scale.y;
@@ -510,52 +510,52 @@ void Mat3::SetScale(const Vec3& scale)
 }
 
 //-----------------------------------------------------------------------------
-real* Mat3::ToFloatPtr()
+real* Mat3::to_float_ptr()
 {
 	return &m[0];
 }
 
 //-----------------------------------------------------------------------------
-const real* Mat3::ToFloatPtr() const
+const real* Mat3::to_float_ptr() const
 {
 	return &m[0];
 }
 
 //-----------------------------------------------------------------------------
-Angles Mat3::ToAngles() const
+Angles Mat3::to_angles() const
 {
 	Angles tmp;
 	real sp = -m[7];
 
 	if (sp <= -1.0)
 	{
-		tmp.pitch = -Math::HALF_PI;
+		tmp.pitch = -math::HALF_PI;
 	}
 	else if (sp >= 1.0)
 	{
-		tmp.pitch = Math::HALF_PI;
+		tmp.pitch = math::HALF_PI;
 	}
 	else
 	{
-		tmp.pitch = Math::Asin(-m[8]);
+		tmp.pitch = math::asin(-m[8]);
 	}
 
 	if (sp > 0.9999)
 	{
 		tmp.bank = 0.0;
-		tmp.heading = Math::Atan2(-m[2], m[0]);
+		tmp.heading = math::atan2(-m[2], m[0]);
 	}
 	else
 	{
-		tmp.heading = Math::Atan2(m[6], m[8]);
-		tmp.bank = Math::Atan2(m[1], m[4]);
+		tmp.heading = math::atan2(m[6], m[8]);
+		tmp.bank = math::atan2(m[1], m[4]);
 	}
 
 	return tmp;
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mat3::ToMat4() const
+Mat4 Mat3::to_mat4() const
 {
 	Mat4 tmp;
 
@@ -580,7 +580,7 @@ Mat4 Mat3::ToMat4() const
 }
 
 //-----------------------------------------------------------------------------
-Quat Mat3::ToQuat() const
+Quat Mat3::to_quat() const
 {
 	Quat tmp;
 
@@ -609,7 +609,7 @@ Quat Mat3::ToQuat() const
 		index = 3;
 	}
 
-	real biggest = Math::Sqrt(fourMaxSquaredMinusOne + (real)1.0) * (real)0.5;
+	real biggest = math::sqrt(fourMaxSquaredMinusOne + (real)1.0) * (real)0.5;
 	real mult = (real)0.25 / biggest;
 
 	switch (index)
@@ -644,7 +644,7 @@ Quat Mat3::ToQuat() const
 }
 
 //-----------------------------------------------------------------------------
-Str Mat3::ToStr() const
+Str Mat3::to_str() const
 {
 	Str tmp;
 

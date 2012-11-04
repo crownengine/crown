@@ -29,22 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace Crown
 {
 
-const real		Math::PI						= (real)3.1415926535897932;
-const real		Math::TWO_PI					= PI * (real)2.0;
-const real		Math::HALF_PI					= PI * (real)0.5;
-const real		Math::ONEFOURTH_PI				= PI * (real)0.25;
-
-const real		Math::DEG_TO_RAD				= PI / (real)180.0;
-const real		Math::RAD_TO_DEG				= (real)1.0 / DEG_TO_RAD;
-
-const real		Math::FOUR_OVER_THREE			= (real)(4.0 / 3.0);
-const real		Math::FOUR_OVER_THREE_TIMES_PI	= FOUR_OVER_THREE * PI;
-
-const real		Math::ONE_OVER_THREE			= (real)(1.0 / 3.0);
-const real		Math::ONE_OVER_255				= (real)(1.0 / 255.0);
-
-const float		Math::FLOAT_PRECISION			= (real)1.0e-7f;
-const double	Math::DOUBLE_PRECISION			= (real)1.0e-9;
 
 } // namespace Crown
 

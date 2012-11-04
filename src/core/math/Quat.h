@@ -50,7 +50,6 @@ class Mat4;
 */
 class Quat
 {
-
 public:
 
 	Vec3		v;
@@ -60,23 +59,23 @@ public:
 				Quat(real angle, const Vec3& v);	//!< Builds the quaternion from an angle and a vector
 				~Quat();							//!< Destructor
 
-	void		Negate();							//!< Negates the quaternion
-	void		LoadIdentity();						//!< Builds the identity quaternion
-	real		GetLength() const;					//!< Returns the quaternion's length
-	void		Conjugate();						//!< Conjugates the quaternion
-	Quat		GetConjugate() const;				//!< Returns the quaternion's conjugate
-	Quat		GetInverse() const;					//!< Quaternion's inverse
+	void		negate();							//!< Negates the quaternion
+	void		load_identity();					//!< Builds the identity quaternion
+	real		length() const;						//!< Returns the quaternion's length
+	void		conjugate();						//!< Conjugates the quaternion
+	Quat		get_conjugate() const;				//!< Returns the quaternion's conjugate
+	Quat		get_inverse() const;				//!< Quaternion's inverse
 
-	Angles		ToAngles() const;
-	Mat3		ToMat3() const;
-	Mat4		ToMat4() const;
+	Angles		to_angles() const;
+	Mat3		to_mat3() const;
+	Mat4		to_mat4() const;
 
 	Quat		operator*(const Quat& b) const;		//!< Cross product
 	Quat		operator*(const real& k) const;		//!< Multiplication by a scalar
 
-	Quat		Power(real exp);
+	Quat		power(real exp);
 
-	Str			ToStr() const;						//!< Returns a Str containing the quaternion's components
+	Str			to_str() const;						//!< Returns a Str containing the quaternion's components
 };
 
 } // namespace Crown

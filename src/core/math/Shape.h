@@ -53,7 +53,7 @@ public:
 					Shape(ShapeType type);
 					~Shape();
 
-	ShapeType		GetShapeType();
+	ShapeType		get_shape_type();
 
 private:
 

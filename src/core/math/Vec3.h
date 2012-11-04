@@ -34,10 +34,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace Crown
 {
 
-//!< 3D column vector
+/**
+	3D column vector.
+*/
 class Vec3
 {
-
 public:
 
 	real				x, y, z;
@@ -60,8 +61,8 @@ public:
 	Vec3&				operator*=(real k);						//!< Multiplication by scalar
 	Vec3				operator/(real k) const;				//!< Division by scalar
 	Vec3&				operator/=(real k);						//!< Division by scalar
-	real				Dot(const Vec3& a) const;				//!< Dot product
-	Vec3				Cross(const Vec3& a) const;				//!< Cross product
+	real				dot(const Vec3& a) const;				//!< dot product
+	Vec3				cross(const Vec3& a) const;				//!< cross product
 
 	friend Vec3			operator*(real k, const Vec3& a);		//!< For simmetry
 
@@ -70,23 +71,23 @@ public:
 	bool				operator<(const Vec3& other) const;		//!< Returns whether all the components of this vector are smaller than all of the "other" vector
 	bool				operator>(const Vec3& other) const;		//!< Returns whether all the components of this vector are greater than all of the "other" vector
 
-	real				GetLength() const;						//!< Returns the vector's length
-	real				GetSquaredLength() const;				//!< Returns the vector's squared length
-	void				SetLength(real len);					//!< Sets the vector's length
-	Vec3&				Normalize();							//!< Normalizes the vector
-	Vec3				GetNormalized() const;					//!< Returns the normalized vector
-	Vec3&				Negate();								//!< Negates the vector (i.e. builds the inverse)
+	real				length() const;							//!< Returns the vector's length
+	real				squared_length() const;					//!< Returns the vector's squared length
+	void				set_length(real len);					//!< Sets the vector's length
+	Vec3&				normalize();							//!< Normalizes the vector
+	Vec3				get_normalized() const;					//!< Returns the normalized vector
+	Vec3&				negate();								//!< Negates the vector (i.e. builds the inverse)
 	Vec3				operator-() const;						//!< Negates the vector (i.e. builds the inverse)
 
-	real				GetDistanceTo(const Vec3& a) const;		//!< Returns the distance
-	real				GetAngleBetween(const Vec3& a) const;	//!< Returns the angle in radians
+	real				get_distance_to(const Vec3& a) const;	//!< Returns the distance
+	real				get_angle_between(const Vec3& a) const;	//!< Returns the angle in radians
 
-	void				Zero();									//!< Builds the zero vector
+	void				zero();									//!< Builds the zero vector
 
-	real*				ToFloatPtr();							//!< Returns the pointer to the vector's data
-	const real*			ToFloatPtr() const;						//!< Returns the pointer to the vector's data
-	Vec2				ToVec2() const;							//!< Returns a Vec2 with only x and y coordinates
-	Str					ToStr() const;							//!< Returns a Str containing the vector's components
+	real*				to_float_ptr();							//!< Returns the pointer to the vector's data
+	const real*			to_float_ptr() const;					//!< Returns the pointer to the vector's data
+	Vec2				to_vec2() const;						//!< Returns a Vec2 with only x and y coordinates
+	Str					to_str() const;							//!< Returns a Str containing the vector's components
 
 	static const Vec3	ZERO;
 	static const Vec3	ONE;
@@ -214,13 +215,13 @@ inline Vec3& Vec3::operator/=(real k)
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec3::Dot(const Vec3& a) const
+inline real Vec3::dot(const Vec3& a) const
 {
 	return x * a.x + y * a.y + z * a.z;
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Vec3::Cross(const Vec3& a) const
+inline Vec3 Vec3::cross(const Vec3& a) const
 {
 	return Vec3(y * a.z - z * a.y, z * a.x - x * a.z, x * a.y - y * a.x);
 }
@@ -234,13 +235,13 @@ inline Vec3 operator*(real k, const Vec3& a)
 //-----------------------------------------------------------------------------
 inline bool Vec3::operator==(const Vec3& other) const
 {
-	return Math::Equals(x, other.x) && Math::Equals(y, other.y) && Math::Equals(z, other.z);
+	return math::equals(x, other.x) && math::equals(y, other.y) && math::equals(z, other.z);
 }
 
 //-----------------------------------------------------------------------------
 inline bool Vec3::operator!=(const Vec3& other) const
 {
-	return !Math::Equals(x, other.x) || !Math::Equals(y, other.y) || !Math::Equals(z, other.z);
+	return !math::equals(x, other.x) || !math::equals(y, other.y) || !math::equals(z, other.z);
 }
 
 //-----------------------------------------------------------------------------
@@ -256,21 +257,21 @@ inline bool Vec3::operator>(const Vec3& other) const
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec3::GetLength() const
+inline real Vec3::length() const
 {
-	return Math::Sqrt(x * x + y * y + z * z);
+	return math::sqrt(x * x + y * y + z * z);
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec3::GetSquaredLength() const
+inline real Vec3::squared_length() const
 {
 	return x * x + y * y + z * z;
 }
 
 //-----------------------------------------------------------------------------
-inline void Vec3::SetLength(real len)
+inline void Vec3::set_length(real len)
 {
-	Normalize();
+	normalize();
 
 	x *= len;
 	y *= len;
@@ -278,34 +279,34 @@ inline void Vec3::SetLength(real len)
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3& Vec3::Normalize()
+inline Vec3& Vec3::normalize()
 {
-	real length = GetLength();
+	real len = length();
 
-	if (Math::Equals(length, (real)0.0))
+	if (math::equals(len, (real)0.0))
 	{
 		return *this;
 	}
 
-	length = (real)(1.0 / length); 
+	len = (real)(1.0 / len); 
 
-	x *= length;
-	y *= length;
-	z *= length;
+	x *= len;
+	y *= len;
+	z *= len;
 
 	return *this;
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Vec3::GetNormalized() const
+inline Vec3 Vec3::get_normalized() const
 {
 	Vec3 tmp(x, y, z);
 
-	return tmp.Normalize();
+	return tmp.normalize();
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3& Vec3::Negate()
+inline Vec3& Vec3::negate()
 {
 	x = -x;
 	y = -y;
@@ -321,19 +322,19 @@ inline Vec3 Vec3::operator-() const
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec3::GetDistanceTo(const Vec3& a) const
+inline real Vec3::get_distance_to(const Vec3& a) const
 {
-	return (*this - a).GetLength();
+	return (*this - a).length();
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec3::GetAngleBetween(const Vec3& a) const
+inline real Vec3::get_angle_between(const Vec3& a) const
 {
-	return Math::Acos(this->Dot(a) / (this->GetLength() * a.GetLength()));
+	return math::acos(this->dot(a) / (this->length() * a.length()));
 }
 
 //-----------------------------------------------------------------------------
-inline void Vec3::Zero()
+inline void Vec3::zero()
 {
 	x = 0.0;
 	y = 0.0;
@@ -341,25 +342,25 @@ inline void Vec3::Zero()
 }
 
 //-----------------------------------------------------------------------------
-inline real* Vec3::ToFloatPtr()
+inline real* Vec3::to_float_ptr()
 {
 	return &x;
 }
 
 //-----------------------------------------------------------------------------
-inline const real* Vec3::ToFloatPtr() const
+inline const real* Vec3::to_float_ptr() const
 {
 	return &x;
 }
 
 //-----------------------------------------------------------------------------
-inline Vec2 Vec3::ToVec2() const
+inline Vec2 Vec3::to_vec2() const
 {
 	return Vec2(x, y);
 }
 
 //-----------------------------------------------------------------------------
-inline Str Vec3::ToStr() const
+inline Str Vec3::to_str() const
 {
 	Str tmp;
 
@@ -370,20 +371,20 @@ inline Str Vec3::ToStr() const
 
 //-----------------------------------------------------------------------------
 //!< Returns the parallel portion of "v" projected onto "n"
-inline Vec3 GetProjectedParallel(const Vec3& v, const Vec3& n)
+inline Vec3 get_projected_parallel(const Vec3& v, const Vec3& n)
 {
 	real n_len_q;
-	n_len_q = n.GetLength();
+	n_len_q = n.length();
 	n_len_q = n_len_q * n_len_q;
 
-	return n * (v.Dot(n) / n_len_q);
+	return n * (v.dot(n) / n_len_q);
 }
 
 //-----------------------------------------------------------------------------
 //!< Returns the perpendicular portion of "v" projected onto "n"
-inline Vec3 GetProjectedPerpendicular(const Vec3& v, const Vec3& n)
+inline Vec3 get_projected_perpendicular(const Vec3& v, const Vec3& n)
 {
-	return v - GetProjectedParallel(v, n);
+	return v - get_projected_parallel(v, n);
 }
 
 } // namespace Crown

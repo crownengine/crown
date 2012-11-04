@@ -41,7 +41,6 @@ namespace Crown
 */
 class Ray
 {
-
 public:
 
 	Vec3	origin;

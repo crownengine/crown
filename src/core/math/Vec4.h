@@ -33,10 +33,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace Crown
 {
 
-//!< 4D column vector
+/**
+	4D column vector.
+*/
 class Vec4
 {
-
 public:
 
 	real				x, y, z, w;
@@ -59,7 +60,7 @@ public:
 	Vec4&				operator*=(real k);							//!< Multiplication by scalar
 	Vec4				operator/(real k) const;					//!< Division by scalar
 	Vec4&				operator/=(real k);							//!< Division by scalar
-	real				Dot(const Vec4& a) const;					//!< Dot product
+	real				dot(const Vec4& a) const;					//!< dot product
 
 	friend Vec4			operator*(real k, const Vec4& a);			//!< For simmetry
 
@@ -68,22 +69,22 @@ public:
 	bool				operator<(const Vec4& other) const;			//!< Returns whether all the components of this vector are smaller than all of the "other" vector
 	bool				operator>(const Vec4& other) const;			//!< Returns whether all the components of this vector are greater than all of the "other" vector
 
-	real				GetLength() const;							//!< Returns the vector's length
-	real				GetSquaredLength() const;					//!< Returns the vector's squared length
-	void				SetLength(real len);						//!< Sets the vector's length
-	Vec4&				Normalize();								//!< Normalizes the vector
-	Vec4				GetNormalized() const;						//!< Returns the normalized vector
-	Vec4&				Negate();									//!< Negates the vector (i.e. builds the inverse)
+	real				length() const;								//!< Returns the vector's length
+	real				squared_length() const;						//!< Returns the vector's squared length
+	void				set_length(real len);						//!< Sets the vector's length
+	Vec4&				normalize();								//!< Normalizes the vector
+	Vec4				get_normalized() const;						//!< Returns the normalized vector
+	Vec4&				negate();									//!< Negates the vector (i.e. builds the inverse)
 	Vec4				operator-() const;							//!< Negates the vector (i.e. builds the inverse)
 
-	real				GetDistanceTo(const Vec4& a) const;			//!< Returns the distance
-	real				GetAngleBetween(const Vec4& a) const;		//!< Returns the angle in radians
+	real				get_distance_to(const Vec4& a) const;		//!< Returns the distance
+	real				get_angle_between(const Vec4& a) const;		//!< Returns the angle in radians
 
-	void				Zero();										//!< Builds the zero vector
+	void				zero();										//!< Builds the zero vector
 
-	real*				ToFloatPtr();								//!< Returns the pointer to the vector's data
-	const real*			ToFloatPtr() const;							//!< Returns the pointer to the vector's data
-	Str					ToStr() const;								//!< Returns a Str containing the vector's components
+	real*				to_float_ptr();								//!< Returns the pointer to the vector's data
+	const real*			to_float_ptr() const;							//!< Returns the pointer to the vector's data
+	Str					to_str() const;								//!< Returns a Str containing the vector's components
 
 	static const Vec4	ZERO;
 	static const Vec4	ONE;
@@ -216,7 +217,7 @@ inline Vec4& Vec4::operator/=(real k)
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec4::Dot(const Vec4& a) const
+inline real Vec4::dot(const Vec4& a) const
 {
 	return x * a.x + y * a.y + z * a.z + w * a.w;
 }
@@ -230,13 +231,13 @@ inline Vec4 operator*(real k, const Vec4& a)
 //-----------------------------------------------------------------------------
 inline bool Vec4::operator==(const Vec4& other) const
 {
-	return Math::Equals(x, other.x) && Math::Equals(y, other.y) && Math::Equals(z, other.z) && Math::Equals(w, other.w);
+	return math::equals(x, other.x) && math::equals(y, other.y) && math::equals(z, other.z) && math::equals(w, other.w);
 }
 
 //-----------------------------------------------------------------------------
 inline bool Vec4::operator!=(const Vec4& other) const
 {
-	return !Math::Equals(x, other.x) || !Math::Equals(y, other.y) || !Math::Equals(z, other.z) || !Math::Equals(w, other.w);
+	return !math::equals(x, other.x) || !math::equals(y, other.y) || !math::equals(z, other.z) || !math::equals(w, other.w);
 }
 
 //-----------------------------------------------------------------------------
@@ -252,47 +253,47 @@ inline bool Vec4::operator>(const Vec4& other) const
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec4::GetLength() const
+inline real Vec4::length() const
 {
-	return Math::Sqrt(x * x + y * y + z * z + w * w);
+	return math::sqrt(x * x + y * y + z * z + w * w);
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec4::GetSquaredLength() const
+inline real Vec4::squared_length() const
 {
 	return x * x + y * y + z * z + w * w;
 }
 
 //-----------------------------------------------------------------------------
-inline Vec4& Vec4::Normalize()
+inline Vec4& Vec4::normalize()
 {
-	real length = GetLength();
+	real len = length();
 
-	if (Math::Equals(length, (real)0.0))
+	if (math::equals(len, (real)0.0))
 	{
 		return *this;
 	}
 
-	length = (real)(1.0 / length);
+	len = (real)(1.0 / len);
 
-	x *= length;
-	y *= length;
-	z *= length;
-	w *= length;
+	x *= len;
+	y *= len;
+	z *= len;
+	w *= len;
 
 	return *this;
 }
 
 //-----------------------------------------------------------------------------
-inline Vec4 Vec4::GetNormalized() const
+inline Vec4 Vec4::get_normalized() const
 {
 	Vec4 tmp(x, y, z, w);
 
-	return tmp.Normalize();
+	return tmp.normalize();
 }
 
 //-----------------------------------------------------------------------------
-inline Vec4& Vec4::Negate()
+inline Vec4& Vec4::negate()
 {
 	x = -x;
 	y = -y;
@@ -309,19 +310,19 @@ inline Vec4 Vec4::operator-() const
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec4::GetDistanceTo(const Vec4& a) const
+inline real Vec4::get_distance_to(const Vec4& a) const
 {
-	return (*this - a).GetLength();
+	return (*this - a).length();
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec4::GetAngleBetween(const Vec4& a) const
+inline real Vec4::get_angle_between(const Vec4& a) const
 {
-	return Math::Acos(this->Dot(a) / (this->GetLength() * a.GetLength()));
+	return math::acos(this->dot(a) / (this->length() * a.length()));
 }
 
 //-----------------------------------------------------------------------------
-inline void Vec4::Zero()
+inline void Vec4::zero()
 {
 	x = 0.0;
 	y = 0.0;
@@ -330,19 +331,19 @@ inline void Vec4::Zero()
 }
 
 //-----------------------------------------------------------------------------
-inline real* Vec4::ToFloatPtr()
+inline real* Vec4::to_float_ptr()
 {
 	return &x;
 }
 
 //-----------------------------------------------------------------------------
-inline const real* Vec4::ToFloatPtr() const
+inline const real* Vec4::to_float_ptr() const
 {
 	return &x;
 }
 
 //-----------------------------------------------------------------------------
-inline Str Vec4::ToStr() const
+inline Str Vec4::to_str() const
 {
 	Str tmp;
 

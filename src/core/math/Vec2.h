@@ -36,7 +36,6 @@ namespace Crown
 //!< 2D column vector
 class Vec2
 {
-
 public:
 
 	real				x, y;
@@ -59,7 +58,7 @@ public:
 	Vec2&				operator*=(real k);						//!< Multiplication by scalar
 	Vec2				operator/(real k) const;				//!< Division by scalar
 	Vec2&				operator/=(real k);						//!< Division by scalar
-	real				Dot(const Vec2& a) const;				//!< Dot product
+	real				dot(const Vec2& a) const;				//!< dot product
 
 	friend Vec2			operator*(real k, const Vec2& a);		//!< For simmetry
 
@@ -68,24 +67,24 @@ public:
 	bool				operator<(const Vec2& other) const;		//!< Returns whether all the components of this vector are smaller than all of the "other" vector
 	bool				operator>(const Vec2& other) const;		//!< Returns whether all the components of this vector are greater than all of the "other" vector
 
-	real				GetLength() const;						//!< Returns the vector's length
-	real				GetSquaredLength() const;				//!< Returns the vector's squared length
-	void				SetLength(real len);					//!< Sets the vector's length
-	real				GetAngle() const;
-	real				GetAngle2d() const;
-	Vec2&				Normalize();							//!< Normalizes the vector
-	Vec2				GetNormalized() const;					//!< Returns the normalized vector
-	Vec2&				Negate();								//!< Negates the vector (i.e. builds the inverse)
+	real				length() const;						//!< Returns the vector's length
+	real				squared_length() const;				//!< Returns the vector's squared length
+	void				set_length(real len);					//!< Sets the vector's length
+	real				get_angle() const;
+	real				get_angle_2d() const;
+	Vec2&				normalize();							//!< Normalizes the vector
+	Vec2				get_normalized() const;					//!< Returns the normalized vector
+	Vec2&				negate();								//!< Negates the vector (i.e. builds the inverse)
 	Vec2				operator-() const;						//!< Negates the vector (i.e. builds the inverse)
 
-	real				GetDistanceTo(const Vec2& a) const;		//!< Returns the distance
-	real				GetAngleBetween(const Vec2& a) const;	//!< Returns the angle in radians
+	real				get_distance_to(const Vec2& a) const;		//!< Returns the distance
+	real				get_angle_between(const Vec2& a) const;	//!< Returns the angle in radians
 
-	void				Zero();									//!< Builds the zero vector
+	void				zero();									//!< Builds the zero vector
 
-	real*				ToFloatPtr();							//!< Returns the pointer to the vector's data
-	const real*			ToFloatPtr() const;						//!< Returns the pointer to the vector's data
-	Str					ToStr() const;							//!< Returns a Str containing the vector's components
+	real*				to_float_ptr();							//!< Returns the pointer to the vector's data
+	const real*			to_float_ptr() const;						//!< Returns the pointer to the vector's data
+	Str					to_str() const;							//!< Returns a Str containing the vector's components
 
 	static const Vec2	ZERO;
 	static const Vec2	ONE;
@@ -208,7 +207,7 @@ inline Vec2& Vec2::operator/=(real k)
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec2::Dot(const Vec2& a) const
+inline real Vec2::dot(const Vec2& a) const
 {
 	return x * a.x + y * a.y;
 }
@@ -216,13 +215,13 @@ inline real Vec2::Dot(const Vec2& a) const
 //-----------------------------------------------------------------------------
 inline bool Vec2::operator==(const Vec2& other) const
 {
-	return Math::Equals(x, other.x) && Math::Equals(y, other.y);
+	return math::equals(x, other.x) && math::equals(y, other.y);
 }
 
 //-----------------------------------------------------------------------------
 inline bool Vec2::operator!=(const Vec2& other) const
 {
-	return !Math::Equals(x, other.x) || !Math::Equals(y, other.y);
+	return !math::equals(x, other.x) || !math::equals(y, other.y);
 }
 
 //-----------------------------------------------------------------------------
@@ -238,64 +237,64 @@ inline bool Vec2::operator>(const Vec2& other) const
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec2::GetLength() const
+inline real Vec2::length() const
 {
-	return Math::Sqrt(x * x + y * y);
+	return math::sqrt(x * x + y * y);
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec2::GetSquaredLength() const
+inline real Vec2::squared_length() const
 {
 	return x * x + y * y;
 }
 
 //-----------------------------------------------------------------------------
-inline void Vec2::SetLength(real len)
+inline void Vec2::set_length(real len)
 {
-	Normalize();
+	normalize();
 
 	x *= len;
 	y *= len;
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec2::GetAngle() const
+inline real Vec2::get_angle() const
 {
-	return Math::Atan2(y, x);
+	return math::atan2(y, x);
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec2::GetAngle2d() const
+inline real Vec2::get_angle_2d() const
 {
-	return Math::Atan2(-y, x);
+	return math::atan2(-y, x);
 }
 
 //-----------------------------------------------------------------------------
-inline Vec2& Vec2::Normalize()
+inline Vec2& Vec2::normalize()
 {
-	real length = GetLength();
+	real len = length();
 
-	if (Math::Equals(length, (real)0.0))
+	if (math::equals(len, (real)0.0))
 	{
 		return *this;
 	}
 
-	x /= length;
-	y /= length;
+	x /= len;
+	y /= len;
 
 	return *this;
 }
 
 //-----------------------------------------------------------------------------
-inline Vec2 Vec2::GetNormalized() const
+inline Vec2 Vec2::get_normalized() const
 {
 	Vec2 tmp(x, y);
 
-	return tmp.Normalize();
+	return tmp.normalize();
 }
 
 //-----------------------------------------------------------------------------
-inline Vec2& Vec2::Negate()
+inline Vec2& Vec2::negate()
 {
 	x = -x;
 	y = -y;
@@ -310,38 +309,38 @@ inline Vec2 Vec2::operator-() const
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec2::GetDistanceTo(const Vec2& a) const
+inline real Vec2::get_distance_to(const Vec2& a) const
 {
-	return (*this - a).GetLength();
+	return (*this - a).length();
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec2::GetAngleBetween(const Vec2& a) const
+inline real Vec2::get_angle_between(const Vec2& a) const
 {
-	return Math::Acos(this->Dot(a) / (this->GetLength() * a.GetLength()));
+	return math::acos(this->dot(a) / (this->length() * a.length()));
 }
 
 //-----------------------------------------------------------------------------
-inline void Vec2::Zero()
+inline void Vec2::zero()
 {
 	x = 0.0;
 	y = 0.0;
 }
 
 //-----------------------------------------------------------------------------
-inline real* Vec2::ToFloatPtr()
+inline real* Vec2::to_float_ptr()
 {
 	return &x;
 }
 
 //-----------------------------------------------------------------------------
-inline const real* Vec2::ToFloatPtr() const
+inline const real* Vec2::to_float_ptr() const
 {
 	return &x;
 }
 
 //-----------------------------------------------------------------------------
-inline Str Vec2::ToStr() const
+inline Str Vec2::to_str() const
 {
 	Str tmp;
 
@@ -351,48 +350,25 @@ inline Str Vec2::ToStr() const
 }
 
 //-----------------------------------------------------------------------------
-inline Vec2 GetProjectedParallel(const Vec2& v, const Vec2& n)
+inline Vec2 get_projected_parallel(const Vec2& v, const Vec2& n)
 {
 	real n_len_q;
-	n_len_q = n.GetLength();
+	n_len_q = n.length();
 	n_len_q = n_len_q * n_len_q;
 
-	return n * (v.Dot(n) / n_len_q);
+	return n * (v.dot(n) / n_len_q);
 }
 
 //-----------------------------------------------------------------------------
-inline Vec2 GetProjectedPerpendicular(const Vec2& v, const Vec2& n)
+inline Vec2 get_projected_perpendicular(const Vec2& v, const Vec2& n)
 {
-	return v - GetProjectedParallel(v, n);
+	return v - get_projected_parallel(v, n);
 }
 
 //-----------------------------------------------------------------------------
 inline Vec2 operator*(real k, const Vec2& a)
 {
 	return a * k;
-}
-
-//-----------------------------------------------------------------------------
-inline bool DeserializeFromStr(Vec2& out, Str& input)
-{
-	List<Str> coords;
-	input.Split(',', coords);
-
-	if (coords.GetSize() != 2)
-		return false;
-
-	if (!coords[0].ParseFloat(&out.x))
-		return false;
-	if (!coords[1].ParseFloat(&out.y))
-		return false;
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-inline Str SerializeToStr(const Vec2& in)
-{
-	return Str(in.x) + ", " + Str(in.y);
 }
 
 } // namespace Crown

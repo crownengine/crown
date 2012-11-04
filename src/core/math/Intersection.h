@@ -121,8 +121,8 @@ private:
 //-----------------------------------------------------------------------------
 inline bool Intersection::TestRayPlane(const Ray& r, const Plane& p, real& distance, Vec3& intersectionPoint)
 {
-	real nd = r.direction.Dot(p.n);
-	real orpn = r.origin.Dot(p.n);
+	real nd = r.direction.dot(p.n);
+	real orpn = r.origin.dot(p.n);
 
 	if (nd < 0.0)
 	{
@@ -142,15 +142,15 @@ inline bool Intersection::TestRayPlane(const Ray& r, const Plane& p, real& dista
 inline bool Intersection::TestRaySphere(const Ray& r, const Sphere& s, real& distance, Vec3& intersectionPoint)
 {
 	Vec3 v = s.c - r.origin;
-	real b = v.Dot(r.direction);
-	real det = (s.r * s.r) - v.Dot(v) + (b * b);
+	real b = v.dot(r.direction);
+	real det = (s.r * s.r) - v.dot(v) + (b * b);
 
 	if (det < 0.0 || b < s.r)
 	{
 		return false;
 	}
 
-	distance = b - Math::Sqrt(det);
+	distance = b - math::sqrt(det);
 	intersectionPoint = r.origin + r.direction * distance;
 
 	return true;
@@ -216,9 +216,9 @@ inline bool Intersection::TestRayBox(const Ray& r, const Box& b, real& distance,
 //-----------------------------------------------------------------------------
 inline bool Intersection::TestRayTriangle(const Ray& r, const Triangle& t, real& distance, Vec3& intersectionPoint)
 {
-	if (Intersection::TestRayPlane(r, t.ToPlane(), distance, intersectionPoint))
+	if (Intersection::TestRayPlane(r, t.to_plane(), distance, intersectionPoint))
 	{
-		if (t.ContainsPoint(intersectionPoint))
+		if (t.contains_point(intersectionPoint))
 		{
 			return true;
 		}
@@ -234,14 +234,14 @@ inline bool Intersection::TestPlane3(const Plane& p1, const Plane& p2, const Pla
 	const Vec3& n2 = p2.n;
 	const Vec3& n3 = p3.n;
 
-	real den = -n1.Cross(n2).Dot(n3);
+	real den = -n1.cross(n2).dot(n3);
 
-	if (Math::Equals(den, (real)0.0))
+	if (math::equals(den, (real)0.0))
 	{
 		return false;
 	}
 
-	Vec3 res = p1.d * n2.Cross(n3) + p2.d * n3.Cross(n1) + p3.d * n1.Cross(n2);
+	Vec3 res = p1.d * n2.cross(n3) + p2.d * n3.cross(n1) + p3.d * n1.cross(n2);
 	ip = res / den;
 
 	return true;
@@ -250,7 +250,7 @@ inline bool Intersection::TestPlane3(const Plane& p1, const Plane& p2, const Pla
 //-----------------------------------------------------------------------------
 inline bool Intersection::TestStaticSpherePlane(const Sphere& s, const Plane& p)
 {
-	if (Math::Abs(p.GetDistanceToPoint(s.c)) < s.r)
+	if (math::abs(p.get_distance_to_point(s.c)) < s.r)
 	{
 		return true;
 	}
@@ -261,7 +261,7 @@ inline bool Intersection::TestStaticSpherePlane(const Sphere& s, const Plane& p)
 //-----------------------------------------------------------------------------
 inline bool Intersection::TestStaticSphereSphere(const Sphere& a, const Sphere& b)
 {
-	real dist = (b.c - a.c).GetSquaredLength();
+	real dist = (b.c - a.c).squared_length();
 	return (dist < (b.r + a.r) * (b.r + a.r));
 }
 
@@ -274,8 +274,8 @@ inline bool Intersection::TestDynamicSpherePlane(const Sphere& s, const Vec3& d,
 	real t0;	// Time at which the sphere intersects the plane remaining at the front side of the plane
 	real t1;	// Time at which the sphere intersects the plane remaining at the back side of the plane
 
-	real sphereToPlaneDistance = p.GetDistanceToPoint(sphereCenter);
-	real planeNormalDotVelocity = p.n.Dot(d);
+	real sphereToPlaneDistance = p.get_distance_to_point(sphereCenter);
+	real planeNormalDotVelocity = p.n.dot(d);
 
 	if (planeNormalDotVelocity > 0.0)
 	{
@@ -286,7 +286,7 @@ inline bool Intersection::TestDynamicSpherePlane(const Sphere& s, const Vec3& d,
 	if (planeNormalDotVelocity == 0.0)
 	{
 		// If the sphere is embedded in the plane
-		if (Math::Abs(sphereToPlaneDistance) < sphereRadius)
+		if (math::abs(sphereToPlaneDistance) < sphereRadius)
 		{
 			t0 = 0.0;
 			t1 = 1.0;
@@ -305,7 +305,7 @@ inline bool Intersection::TestDynamicSpherePlane(const Sphere& s, const Vec3& d,
 	// If _both_ t0 and t1 are outside [0,1] then collision can never happen
 	if (t0 >= 0.0 && t0 <= 1.0)
 	{
-		it = Math::Min(t0, t1);
+		it = math::min(t0, t1);
 		intersectionPoint = s.c - p.n * s.r + (d * it);
 		return true;
 	}
@@ -316,7 +316,7 @@ inline bool Intersection::TestDynamicSpherePlane(const Sphere& s, const Vec3& d,
 //-----------------------------------------------------------------------------
 inline bool Intersection::TestDynamicSphereTriangle(const Sphere& s, const Vec3& d, const Triangle& tri, real& it, Vec3& intersectionPoint)
 {
-	Plane triPlane = tri.ToPlane();
+	Plane triPlane = tri.to_plane();
 
 	// Test against the plane containing the triangle
 	real spherePlaneIt;
@@ -326,7 +326,7 @@ inline bool Intersection::TestDynamicSphereTriangle(const Sphere& s, const Vec3&
 	}
 
 	// Check if the intersection point lies inside the triangle
-	if (tri.ContainsPoint(intersectionPoint))
+	if (tri.contains_point(intersectionPoint))
 	{
 		it = spherePlaneIt;
 		// intersectionPoint is already returned by the above call to TestDynamicSpherePlane
@@ -342,35 +342,35 @@ inline bool Intersection::TestDynamicSphereTriangle(const Sphere& s, const Vec3&
 	real x1, x2;
 
 	// v1
-	a = d.Dot(d);
-	b = 2.0 * (d.Dot(s.c - tri.v1));
-	c = (tri.v1 - s.c).Dot(tri.v1 - s.c) - (s.r * s.r);
+	a = d.dot(d);
+	b = 2.0 * (d.dot(s.c - tri.v1));
+	c = (tri.v1 - s.c).dot(tri.v1 - s.c) - (s.r * s.r);
 
-	if (Math::SolveQuadraticEquation(a, b, c, x1, x2))
+	if (math::solve_quadratic_equation(a, b, c, x1, x2))
 	{
-		it = Math::Min(x1, it);
+		it = math::min(x1, it);
 		intersectionPoint = tri.v1;
 		collisionFound = true;
 	}
 
 	// v2
-	b = 2.0 * (d.Dot(s.c - tri.v2));
-	c = (tri.v2 - s.c).Dot(tri.v2 - s.c) - (s.r * s.r);
+	b = 2.0 * (d.dot(s.c - tri.v2));
+	c = (tri.v2 - s.c).dot(tri.v2 - s.c) - (s.r * s.r);
 
-	if (Math::SolveQuadraticEquation(a, b, c, x1, x2))
+	if (math::solve_quadratic_equation(a, b, c, x1, x2))
 	{
-		it = Math::Min(x1, it);
+		it = math::min(x1, it);
 		intersectionPoint = tri.v2;
 		collisionFound = true;
 	}
 
 	// v3
-	b = 2.0 * (d.Dot(s.c - tri.v3));
-	c = (tri.v3 - s.c).Dot(tri.v3 - s.c) - (s.r * s.r);
+	b = 2.0 * (d.dot(s.c - tri.v3));
+	c = (tri.v3 - s.c).dot(tri.v3 - s.c) - (s.r * s.r);
 
-	if (Math::SolveQuadraticEquation(a, b, c, x1, x2))
+	if (math::solve_quadratic_equation(a, b, c, x1, x2))
 	{
-		it = Math::Min(x1, it);
+		it = math::min(x1, it);
 		intersectionPoint = tri.v3;
 		collisionFound = true;
 	}
@@ -383,28 +383,28 @@ inline bool Intersection::TestDynamicSphereTriangle(const Sphere& s, const Vec3&
 	real edgeSquaredLength;
 	real velocitySquaredLength;
 
-	velocitySquaredLength = d.GetSquaredLength();
+	velocitySquaredLength = d.squared_length();
 
 	// e1
 	edge = tri.v2 - tri.v1;
 	centerToVertex = tri.v1 - s.c;
-	edgeDotVelocity = edge.Dot(d);
-	edgeDotCenterToVertex = edge.Dot(centerToVertex);
-	edgeSquaredLength = edge.GetSquaredLength();
+	edgeDotVelocity = edge.dot(d);
+	edgeDotCenterToVertex = edge.dot(centerToVertex);
+	edgeSquaredLength = edge.squared_length();
 
 
 	a = edgeSquaredLength * -velocitySquaredLength + edgeDotVelocity * edgeDotVelocity;
-	b = edgeSquaredLength * (2.0 * d.Dot(centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
+	b = edgeSquaredLength * (2.0 * d.dot(centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
 
-	c = edgeSquaredLength * ((s.r * s.r) - centerToVertex.GetSquaredLength()) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
+	c = edgeSquaredLength * ((s.r * s.r) - centerToVertex.squared_length()) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
 
-	if (Math::SolveQuadraticEquation(a, b, c, x1, x2))
+	if (math::solve_quadratic_equation(a, b, c, x1, x2))
 	{
 		real f0 = (edgeDotVelocity * x1 - edgeDotCenterToVertex) / edgeSquaredLength;
 
 		if (f0 >= 0.0 && f0 <= 1.0)
 		{
-			it = Math::Min(x1, it);
+			it = math::min(x1, it);
 			intersectionPoint = tri.v1 + f0 * edge;
 			collisionFound = true;
 		}
@@ -413,23 +413,23 @@ inline bool Intersection::TestDynamicSphereTriangle(const Sphere& s, const Vec3&
 	// e2
 	edge = tri.v3 - tri.v2;
 	centerToVertex = tri.v2 - s.c;
-	edgeDotVelocity = edge.Dot(d);
-	edgeDotCenterToVertex = edge.Dot(centerToVertex);
-	edgeSquaredLength = edge.GetSquaredLength();
+	edgeDotVelocity = edge.dot(d);
+	edgeDotCenterToVertex = edge.dot(centerToVertex);
+	edgeSquaredLength = edge.squared_length();
 
 
 	a = edgeSquaredLength * -velocitySquaredLength + edgeDotVelocity * edgeDotVelocity;
-	b = edgeSquaredLength * (2.0 * d.Dot(centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
+	b = edgeSquaredLength * (2.0 * d.dot(centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
 
-	c = edgeSquaredLength * ((s.r * s.r) - centerToVertex.GetSquaredLength()) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
+	c = edgeSquaredLength * ((s.r * s.r) - centerToVertex.squared_length()) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
 
-	if (Math::SolveQuadraticEquation(a, b, c, x1, x2))
+	if (math::solve_quadratic_equation(a, b, c, x1, x2))
 	{
 		real f0 = (edgeDotVelocity * x1 - edgeDotCenterToVertex) / edgeSquaredLength;
 
 		if (f0 >= 0.0 && f0 <= 1.0)
 		{
-			it = Math::Min(x1, it);
+			it = math::min(x1, it);
 			intersectionPoint = tri.v2 + f0 * edge;
 			collisionFound = true;
 		}
@@ -438,23 +438,23 @@ inline bool Intersection::TestDynamicSphereTriangle(const Sphere& s, const Vec3&
 	// e3
 	edge = tri.v1 - tri.v3;
 	centerToVertex = tri.v3 - s.c;
-	edgeDotVelocity = edge.Dot(d);
-	edgeDotCenterToVertex = edge.Dot(centerToVertex);
-	edgeSquaredLength = edge.GetSquaredLength();
+	edgeDotVelocity = edge.dot(d);
+	edgeDotCenterToVertex = edge.dot(centerToVertex);
+	edgeSquaredLength = edge.squared_length();
 
 
 	a = edgeSquaredLength * -velocitySquaredLength + edgeDotVelocity * edgeDotVelocity;
-	b = edgeSquaredLength * (2.0 * d.Dot(centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
+	b = edgeSquaredLength * (2.0 * d.dot(centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
 
-	c = edgeSquaredLength * ((s.r * s.r) - centerToVertex.GetSquaredLength()) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
+	c = edgeSquaredLength * ((s.r * s.r) - centerToVertex.squared_length()) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
 
-	if (Math::SolveQuadraticEquation(a, b, c, x1, x2))
+	if (math::solve_quadratic_equation(a, b, c, x1, x2))
 	{
 		real f0 = (edgeDotVelocity * x1 - edgeDotCenterToVertex) / edgeSquaredLength;
 
 		if (f0 >= 0.0 && f0 <= 1.0)
 		{
-			it = Math::Min(x1, it);
+			it = math::min(x1, it);
 			intersectionPoint = tri.v3 + f0 * edge;
 			collisionFound = true;
 		}
@@ -469,7 +469,7 @@ inline bool Intersection::TestDynamicSphereSphere(const Sphere& s1, const Vec3& 
 	// s1 == static sphere
 	// s2 == moving sphere
 	Vec3 d = d2 - d1;
-	d.Normalize();
+	d.normalize();
 
 	const Vec3& cs = s1.c;
 	const Vec3& cm = s2.c;
@@ -478,15 +478,15 @@ inline bool Intersection::TestDynamicSphereSphere(const Sphere& s1, const Vec3& 
 	real r = s1.r + s2.r;
 
 	// If ||e|| < r, intersection occurs at t = 0
-	if (e.GetLength() < r)
+	if (e.length() < r)
 	{
 		it = 0.0;
 		return true;
 	}
 
 	// it == Intersection Time
-	real ed = e.Dot(d);
-	real squared = (ed * ed) + (r * r) - e.Dot(e);
+	real ed = e.dot(d);
+	real squared = (ed * ed) + (r * r) - e.dot(e);
 
 	// If the value inside the square root is neg, then no intersection
 	if (squared < 0.0)
@@ -494,8 +494,8 @@ inline bool Intersection::TestDynamicSphereSphere(const Sphere& s1, const Vec3& 
 		return false;
 	}
 
-	real t = ed - Math::Sqrt(squared);
-	real l = (d2 - d1).GetLength();
+	real t = ed - math::sqrt(squared);
+	real l = (d2 - d1).length();
 
 	// If t < 0 || t > l, then non intersection in the considered period of time
 	if (t < 0.0 || t > l)
@@ -541,7 +541,7 @@ inline bool Intersection::TestDynamicBoxBox(const Box& b1, const Vec3& v1, const
 	Vec3 tLeaveXYZ(1.0, 1.0, 1.0);
 
 	// If the resulting displacement equals zero, then fallback to static intersection test
-	if (Math::Equals(d.x, (real)0.0))
+	if (math::equals(d.x, (real)0.0))
 	{
 		if (b1.min.x > b2.max.x || b1.max.x < b2.min.x)
 		{
@@ -549,7 +549,7 @@ inline bool Intersection::TestDynamicBoxBox(const Box& b1, const Vec3& v1, const
 		}
 	}
 
-	if (Math::Equals(d.y, (real)0.0))
+	if (math::equals(d.y, (real)0.0))
 	{
 		if (b1.min.y > b2.max.y || b1.max.y < b2.min.y)
 		{
@@ -557,7 +557,7 @@ inline bool Intersection::TestDynamicBoxBox(const Box& b1, const Vec3& v1, const
 		}
 	}
 
-	if (Math::Equals(d.z, (real)0.0))
+	if (math::equals(d.z, (real)0.0))
 	{
 		if (b1.min.z > b2.max.z || b1.max.z < b2.min.z)
 		{
@@ -581,21 +581,21 @@ inline bool Intersection::TestDynamicBoxBox(const Box& b1, const Vec3& v1, const
 	// We must ensure that enter time < leave time
 	if (tLeaveXYZ.x < tEnterXYZ.x)
 	{
-		Math::Swap(tLeaveXYZ.x, tEnterXYZ.x);
+		math::swap(tLeaveXYZ.x, tEnterXYZ.x);
 	}
 
 	if (tLeaveXYZ.y < tEnterXYZ.y)
 	{
-		Math::Swap(tLeaveXYZ.y, tEnterXYZ.y);
+		math::swap(tLeaveXYZ.y, tEnterXYZ.y);
 	}
 
 	if (tLeaveXYZ.z < tEnterXYZ.z)
 	{
-		Math::Swap(tLeaveXYZ.z, tEnterXYZ.z);
+		math::swap(tLeaveXYZ.z, tEnterXYZ.z);
 	}
 
-	real tEnter = Math::Max(tEnterXYZ.x, Math::Max(tEnterXYZ.y, tEnterXYZ.z));
-	real tLeave = Math::Min(tLeaveXYZ.x, Math::Min(tLeaveXYZ.y, tLeaveXYZ.z));
+	real tEnter = math::max(tEnterXYZ.x, math::max(tEnterXYZ.y, tEnterXYZ.z));
+	real tLeave = math::min(tLeaveXYZ.x, math::min(tLeaveXYZ.y, tLeaveXYZ.z));
 
 	// If tEnter > 1, then there is no intersection in the period
 	// of time cosidered
@@ -612,17 +612,17 @@ inline bool Intersection::TestDynamicBoxBox(const Box& b1, const Vec3& v1, const
 //-----------------------------------------------------------------------------
 inline bool Intersection::TestFrustumSphere(const Frustum& f, const Sphere& s)
 {
-	if (f.mPlane[0].GetDistanceToPoint(s.c) < -s.r || f.mPlane[1].GetDistanceToPoint(s.c) < -s.r)
+	if (f.mPlane[0].get_distance_to_point(s.c) < -s.r || f.mPlane[1].get_distance_to_point(s.c) < -s.r)
 	{
 		return false;
 	}
 
-	if (f.mPlane[2].GetDistanceToPoint(s.c) < -s.r || f.mPlane[3].GetDistanceToPoint(s.c) < -s.r)
+	if (f.mPlane[2].get_distance_to_point(s.c) < -s.r || f.mPlane[3].get_distance_to_point(s.c) < -s.r)
 	{
 		return false;
 	}
 
-	if (f.mPlane[4].GetDistanceToPoint(s.c) < -s.r || f.mPlane[5].GetDistanceToPoint(s.c) < -s.r)
+	if (f.mPlane[4].get_distance_to_point(s.c) < -s.r || f.mPlane[5].get_distance_to_point(s.c) < -s.r)
 	{
 		return false;
 	}
@@ -641,7 +641,7 @@ inline bool Intersection::TestFrustumBox(const Frustum& f, const Box& b)
 
 		for (uint j = 0; j < 8; j++)
 		{
-			if (f.mPlane[i].GetDistanceToPoint(b.GetVertex(j)) < 0.0)
+			if (f.mPlane[i].get_distance_to_point(b.get_vertex(j)) < 0.0)
 			{
 				vertexOutCount++;
 			}
@@ -662,7 +662,7 @@ inline bool Intersection::TestFrustumBox(const Frustum& f, const Box& b)
 inline bool Intersection::TestCircleCircle(const Circle& c1, const Circle& c2, Vec2& penetration)
 {
 	Vec2 distance = c1.c - c2.c;
-	real distanceLen2 = distance.GetSquaredLength();
+	real distanceLen2 = distance.squared_length();
 	real radiusSum = c1.r + c2.r;
 	if (distanceLen2 > radiusSum*radiusSum)
 	{
@@ -675,7 +675,7 @@ inline bool Intersection::TestCircleCircle(const Circle& c1, const Circle& c2, V
 	}
 	else
 	{
-	  distanceLen2 = Math::Sqrt(distanceLen2);
+	  distanceLen2 = math::sqrt(distanceLen2);
 		penetration = distance * ((radiusSum - distanceLen2) / distanceLen2);
 	}
 	return true;
@@ -687,7 +687,7 @@ inline bool Intersection::TestDynamicCircleCircle(const Circle& c1, const Vec2& 
 	// c1 == static circle
 	// c2 == moving circle
 	Vec2 d = d2 - d1;
-	d.Normalize();
+	d.normalize();
 
 	const Vec2& cs = c1.c;
 	const Vec2& cm = c2.c;
@@ -696,15 +696,15 @@ inline bool Intersection::TestDynamicCircleCircle(const Circle& c1, const Vec2& 
 	real r = c1.r + c2.r;
 
 	// If ||e|| < r, intersection occurs at t = 0
-	if (e.GetLength() < r)
+	if (e.length() < r)
 	{
 		it = 0.0;
 		return true;
 	}
 
 	// it == Intersection Time
-	real ed = e.Dot(d);
-	real squared = (ed * ed) + (r * r) - e.Dot(e);
+	real ed = e.dot(d);
+	real squared = (ed * ed) + (r * r) - e.dot(e);
 
 	// If the value inside the square root is neg, then no intersection
 	if (squared < 0.0)
@@ -712,8 +712,8 @@ inline bool Intersection::TestDynamicCircleCircle(const Circle& c1, const Vec2& 
 		return false;
 	}
 
-	real t = ed - Math::Sqrt(squared);
-	real l = (d2 - d1).GetLength();
+	real t = ed - math::sqrt(squared);
+	real l = (d2 - d1).length();
 
 	// If t < 0 || t > l, then non intersection in the considered period of time
 	if (t < 0.0 || t > l)
@@ -770,7 +770,7 @@ inline bool Intersection::TestRectRect(const Rect& r1, const Rect& r2, Vec2& pen
 		penetration.y = min2MinusMax1;
 	}
 
-	if (Math::Abs(penetration.x) < Math::Abs(penetration.y))
+	if (math::abs(penetration.x) < math::abs(penetration.y))
 	{
 		penetration.y = 0.0;
 	}
@@ -835,7 +835,7 @@ inline bool Intersection::TestCircleRect(const Circle& c1, const Rect& r2, Vec2&
 	else
 	{
 		penetration += Vec2(c1.r, c1.r);
-		real len = Math::Sqrt(penetration.GetSquaredLength());
+		real len = math::sqrt(penetration.squared_length());
 		if (len > c1.r)
 		{
 			return false;

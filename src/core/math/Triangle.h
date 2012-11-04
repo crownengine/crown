@@ -39,7 +39,6 @@ namespace Crown
 */
 class Triangle
 {
-
 public:
 
 	Vec3		v1, v2, v3;				//!< Vertices, CCW order
@@ -48,13 +47,13 @@ public:
 				Triangle(const Vec3& nv1, const Vec3& nv2, const Vec3& nv3);	//!< Constructor
 				~Triangle();			//!< Destructor
 
-	real		GetArea() const;		//!< Returns the area
-	Vec3		GetCentroid() const;	//!< Returns the center of gravity (a.k.a. centroid.)
-	Vec3		GetBarycentricCoords(const Vec3& p) const;	//!< Returns the barycentric coordinates of point "p"
+	real		get_area() const;		//!< Returns the area
+	Vec3		get_centroid() const;	//!< Returns the center of gravity (a.k.a. centroid.)
+	Vec3		get_barycentric_coords(const Vec3& p) const;	//!< Returns the barycentric coordinates of point "p"
 
-	bool		ContainsPoint(const Vec3& p) const;		//!< Returns whether the triangle contains the "p" point
+	bool		contains_point(const Vec3& p) const;		//!< Returns whether the triangle contains the "p" point
 
-	Plane		ToPlane() const;		//!< Returns the plane containing the triangle
+	Plane		to_plane() const;		//!< Returns the plane containing the triangle
 };
 
 //-----------------------------------------------------------------------------
@@ -73,19 +72,19 @@ inline Triangle::~Triangle()
 }
 
 //-----------------------------------------------------------------------------
-inline real Triangle::GetArea() const
+inline real Triangle::get_area() const
 {
-	return ((v2 - v1).Cross(v3 - v1)).GetLength() * (real)0.5;
+	return ((v2 - v1).cross(v3 - v1)).length() * (real)0.5;
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Triangle::GetCentroid() const
+inline Vec3 Triangle::get_centroid() const
 {
-	return (v1 + v2 + v3) * Math::ONE_OVER_THREE;
+	return (v1 + v2 + v3) * math::ONE_OVER_THREE;
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Triangle::GetBarycentricCoords(const Vec3& p) const
+inline Vec3 Triangle::get_barycentric_coords(const Vec3& p) const
 {
 //	Vec3 e1 = v1 - v3;
 //	Vec3 e2 = v2 - v1;
@@ -99,14 +98,14 @@ inline Vec3 Triangle::GetBarycentricCoords(const Vec3& p) const
 	Vec3 d2 = p - v2;
 	Vec3 d3 = p - v3;
 
-	Vec3 n = e1.Cross(e2) / e1.Cross(e2).GetLength();
+	Vec3 n = e1.cross(e2) / e1.cross(e2).length();
 
 	// Signed areas
-	real at = (real)(e1.Cross(e2).Dot(n) * 0.5);
+	real at = (real)(e1.cross(e2).dot(n) * 0.5);
 
-	real at1 = (real)(e1.Cross(d3).Dot(n) * 0.5);
-	real at2 = (real)(e2.Cross(d1).Dot(n) * 0.5);
-	real at3 = (real)(e3.Cross(d2).Dot(n) * 0.5);
+	real at1 = (real)(e1.cross(d3).dot(n) * 0.5);
+	real at2 = (real)(e2.cross(d1).dot(n) * 0.5);
+	real at3 = (real)(e3.cross(d2).dot(n) * 0.5);
 
 	real oneOverAt = (real)(1.0 / at);
 
@@ -114,9 +113,9 @@ inline Vec3 Triangle::GetBarycentricCoords(const Vec3& p) const
 }
 
 //-----------------------------------------------------------------------------
-inline bool Triangle::ContainsPoint(const Vec3& p) const
+inline bool Triangle::contains_point(const Vec3& p) const
 {
-	Vec3 bc = GetBarycentricCoords(p);
+	Vec3 bc = get_barycentric_coords(p);
 
 	if (bc.x < 0.0 || bc.y < 0.0 || bc.z < 0.0)
 	{
@@ -127,13 +126,13 @@ inline bool Triangle::ContainsPoint(const Vec3& p) const
 }
 
 //-----------------------------------------------------------------------------
-inline Plane Triangle::ToPlane() const
+inline Plane Triangle::to_plane() const
 {
 	Vec3 e1 = v3 - v2;
 	Vec3 e2 = v2 - v1;
 
-	Vec3 n = e2.Cross(e1).Normalize();
-	real d = -n.Dot(v1);
+	Vec3 n = e2.cross(e1).normalize();
+	real d = -n.dot(v1);
 
 	return Plane(n, d);
 }

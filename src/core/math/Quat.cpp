@@ -40,15 +40,15 @@ Quat::Quat()
 
 Quat::Quat(real angle, const Vec3& v)
 {
-	this->w = Math::Cos((real)(angle * 0.5));
-	this->v = v * Math::Sin((real)(angle * 0.5));
+	this->w = math::cos((real)(angle * 0.5));
+	this->v = v * math::sin((real)(angle * 0.5));
 }
 
 Quat::~Quat()
 {
 }
 
-Str Quat::ToStr() const
+Str Quat::to_str() const
 {
 	Str tmp;
 
@@ -57,13 +57,13 @@ Str Quat::ToStr() const
 	return tmp;
 }
 
-void Quat::Negate()
+void Quat::negate()
 {
 	w = -w;
-	v.Negate();
+	v.negate();
 }
 
-void Quat::LoadIdentity()
+void Quat::load_identity()
 {
 	w = 1.0;
 	v.x = 0.0;
@@ -71,32 +71,32 @@ void Quat::LoadIdentity()
 	v.z = 0.0;
 }
 
-real Quat::GetLength() const
+real Quat::length() const
 {
-	return Math::Sqrt(w * w + v.x * v.x + v.y * v.y + v.z * v.z);
+	return math::sqrt(w * w + v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
-void Quat::Conjugate()
+void Quat::conjugate()
 {
 	v = -v;
 }
 
-Quat Quat::GetConjugate() const
+Quat Quat::get_conjugate() const
 {
 	return Quat(w, -v);
 }
 
-Quat Quat::GetInverse() const
+Quat Quat::get_inverse() const
 {
-	return GetConjugate() * ((real)(1.0 / GetLength()));
+	return get_conjugate() * ((real)(1.0 / length()));
 }
 
-Angles Quat::ToAngles() const
+Angles Quat::to_angles() const
 {
-	return ToMat4().ToAngles();
+	return to_mat4().to_angles();
 }
 
-Mat3 Quat::ToMat3() const
+Mat3 Quat::to_mat3() const
 {
 	Mat3 tmp;
 	real x = v.x;
@@ -116,7 +116,7 @@ Mat3 Quat::ToMat3() const
 	return tmp;
 }
 
-Mat4 Quat::ToMat4() const
+Mat4 Quat::to_mat4() const
 {
 	Mat4 tmp;
 	real x = v.x;
@@ -143,13 +143,13 @@ Mat4 Quat::ToMat4() const
 	return tmp;
 }
 
-// Cross product
+// cross product
 Quat Quat::operator*(const Quat& b) const
 {
 	Quat tmp;
 
-	tmp.w = w * b.w - v.Dot(b.v);
-	tmp.v = w * b.v + b.w * v + b.v.Cross(v);
+	tmp.w = w * b.w - v.dot(b.v);
+	tmp.v = w * b.v + b.w * v + b.v.cross(v);
 
 	return tmp;
 }
@@ -165,16 +165,16 @@ Quat Quat::operator*(const real& k) const
 	return tmp;
 }
 
-Quat Quat::Power(real exp)
+Quat Quat::power(real exp)
 {
 	Quat tmp;
 
-	if (Math::Abs(w) < 0.9999)
+	if (math::abs(w) < 0.9999)
 	{
-		real alpha = Math::Acos(w); // alpha = theta/2
+		real alpha = math::acos(w); // alpha = theta/2
 		real newAlpha = alpha * exp;
-		tmp.w = Math::Cos(newAlpha);
-		real mult = Math::Sin(newAlpha) / Math::Sin(alpha);
+		tmp.w = math::cos(newAlpha);
+		real mult = math::sin(newAlpha) / math::sin(alpha);
 		tmp.v.x = v.x * mult;
 		tmp.v.y = v.y * mult;
 		tmp.v.z = v.z * mult;
@@ -192,16 +192,16 @@ The geometric interpretation of the Quat dot product is similar to the interpret
 the vector dot product; the larger the absolute value of the Quat dot product axb, the more
 "similar" the angular displacements represented by a and b.
 */
-real Dot(const Quat& a, const Quat& b)
+real dot(const Quat& a, const Quat& b)
 {
-	return a.w * b.w + a.v.Dot(b.v);
+	return a.w * b.w + a.v.dot(b.v);
 }
 
 // Spherical Linear intERPolation
-Quat Slerp(const Quat& start, const Quat& end, real t)
+Quat slerp(const Quat& start, const Quat& end, real t)
 {
-	Quat delta = end * start.GetInverse();
-	delta = delta.Power(t);
+	Quat delta = end * start.get_inverse();
+	delta = delta.power(t);
 
 	return delta * start;
 }

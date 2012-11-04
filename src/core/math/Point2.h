@@ -40,7 +40,6 @@ namespace Crown
 */
 class Point2
 {
-
 public:
 
 	int						x, y;
@@ -62,7 +61,7 @@ public:
 	Point2&					operator*=(int k);					//! Multiplication by scalar
 	Point2					operator/(int k) const;				//! Division by scalar
 	Point2&					operator/=(int k);					//! Division by scalar
-	int						Dot(const Point2& a);				//! Dot product
+	int						dot(const Point2& a);				//! dot product
 
 	friend Point2			operator*(int k, const Point2& a);	//! For simmetry
 
@@ -71,22 +70,22 @@ public:
 	bool					operator<(const Point2& other) const;	//! Returns whether all the components of this point are smaller than all of the "other" point
 	bool					operator>(const Point2& other) const;	//! Returns whether all the components of this point are greater than all of the "other" point
 
-	real					GetLength() const;					//! Returns the point's length
-	int						GetSquaredLength() const;			//! Returns the point's squared length
-	void					Negate();							//! Negates the point (i.e. builds the inverse)
+	real					length() const;						//! Returns the point's length
+	int						squared_length() const;				//! Returns the point's squared length
+	void					negate();							//! Negates the point (i.e. builds the inverse)
 
-	real					GetDistanceTo(const Point2& a);		//!< Returns the distance
-	real					GetAngleBetween(const Point2& a);	//!< Returns the angle in radians
+	real					get_distance_to(const Point2& a);	//!< Returns the distance
+	real					get_angle_between(const Point2& a);	//!< Returns the angle in radians
 
 	Point2					operator-() const;					//! Negates the point (i.e. builds the inverse)
 
-	void					Zero();								//! Builds the zero point
+	void					zero();								//! Builds the zero point
 
-	int*					ToIntPtr();	//! Returns the pointer to the point's data
-	const int*				ToIntPtr() const;	//! Returns the pointer to the point's data
-	Vec2					ToVec2() const;	//! Returns a vector from this point
-	Vec3					ToVec3() const;	//! Returns a vector from this point
-	Str						ToStr() const;	//! Returns a Str containing the point's components
+	int*					to_int_ptr();		//! Returns the pointer to the point's data
+	const int*				to_int_ptr() const;	//! Returns the pointer to the point's data
+	Vec2					to_vec2() const;	//! Returns a vector from this point
+	Vec3					to_vec3() const;	//! Returns a vector from this point
+	Str						to_str() const;		//! Returns a Str containing the point's components
 
 	static const Point2		ZERO;
 	static const Point2		ONE;
@@ -200,7 +199,7 @@ inline Point2& Point2::operator/=(int k)
 }
 
 //-----------------------------------------------------------------------------
-inline int Point2::Dot(const Point2& a)
+inline int Point2::dot(const Point2& a)
 {
 	return x * a.x + y * a.y;
 }
@@ -237,34 +236,34 @@ inline bool Point2::operator>(const Point2& other) const
 }
 
 //-----------------------------------------------------------------------------
-inline real Point2::GetLength() const
+inline real Point2::length() const
 {
-	return Math::Sqrt((real)(x * x + y * y));
+	return math::acos((real)(x * x + y * y));
 }
 
 //-----------------------------------------------------------------------------
-inline int Point2::GetSquaredLength() const
+inline int Point2::squared_length() const
 {
 	return x * x + y * y;
 }
 
 //-----------------------------------------------------------------------------
-inline void Point2::Negate()
+inline void Point2::negate()
 {
 	x = -x;
 	y = -y;
 }
 
 //-----------------------------------------------------------------------------
-inline real Point2::GetDistanceTo(const Point2& a)
+inline real Point2::get_distance_to(const Point2& a)
 {
-	return (*this - a).GetLength();
+	return (*this - a).length();
 }
 
 //-----------------------------------------------------------------------------
-inline real Point2::GetAngleBetween(const Point2& a)
+inline real Point2::get_angle_between(const Point2& a)
 {
-	return Math::Acos(this->Dot(a) / (this->GetLength() * a.GetLength()));
+	return math::acos(this->dot(a) / (this->length() * a.length()));
 }
 
 //-----------------------------------------------------------------------------
@@ -274,66 +273,43 @@ inline Point2 Point2::operator-() const
 }
 
 //-----------------------------------------------------------------------------
-inline void Point2::Zero()
+inline void Point2::zero()
 {
 	x = y = 0;
 }
 
 //-----------------------------------------------------------------------------
-inline int* Point2::ToIntPtr()
+inline int* Point2::to_int_ptr()
 {
 	return &x;
 }
 
 //-----------------------------------------------------------------------------
-inline const int* Point2::ToIntPtr() const
+inline const int* Point2::to_int_ptr() const
 {
 	return &x;
 }
 
 //-----------------------------------------------------------------------------
-inline Vec2 Point2::ToVec2() const
+inline Vec2 Point2::to_vec2() const
 {
 	return Vec2((real)x, (real)y);
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Point2::ToVec3() const
+inline Vec3 Point2::to_vec3() const
 {
 	return Vec3((real)x, (real)y, 0.0);
 }
 
 //-----------------------------------------------------------------------------
-inline Str Point2::ToStr() const
+inline Str Point2::to_str() const
 {
 	Str tmp;
 
 	tmp = Str("[ x: ") + x + Str(" y: ") + y + Str(" ]\n");
 
 	return tmp;
-}
-
-//-----------------------------------------------------------------------------
-inline bool DeserializeFromStr(Point2& out, Str& input)
-{
-	List<Str> coords;
-	input.Split(',', coords);
-
-	if (coords.GetSize() != 2)
-		return false;
-
-	if (!coords[0].ParseInt(&out.x))
-		return false;
-	if (!coords[1].ParseInt(&out.y))
-		return false;
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-inline Str SerializeToStr(const Point2& in)
-{
-	return Str(in.x) + ", " + Str(in.y);
 }
 
 } // namespace Crown

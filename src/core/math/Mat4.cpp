@@ -445,19 +445,19 @@ Mat4 operator*(real k, const Mat4& a)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildRotationX(real radians)
+void Mat4::build_rotation_x(real radians)
 {
 	m[0] = 1.0;
 	m[1] = 0.0;
 	m[2] = 0.0;
 	m[3] = 0.0;
 	m[4] = 0.0;
-	m[5] = Math::Cos(radians);
-	m[6] = Math::Sin(radians);
+	m[5] = math::cos(radians);
+	m[6] = math::sin(radians);
 	m[7] = 0.0;
 	m[8] = 0.0;
-	m[9] = -Math::Sin(radians);
-	m[10] = Math::Cos(radians);
+	m[9] = -math::sin(radians);
+	m[10] = math::cos(radians);
 	m[11] = 0.0;
 	m[12] = 0.0;
 	m[13] = 0.0;
@@ -466,19 +466,19 @@ void Mat4::BuildRotationX(real radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildRotationY(real radians)
+void Mat4::build_rotation_y(real radians)
 {
-	m[0] = Math::Cos(radians);
+	m[0] = math::cos(radians);
 	m[1] = 0.0;
-	m[2] = -Math::Sin(radians);
+	m[2] = -math::sin(radians);
 	m[3] = 0.0;
 	m[4] = 0.0;
 	m[5] = 1.0;
 	m[6] = 0.0;
 	m[7] = 0.0;
-	m[8] = Math::Sin(radians);
+	m[8] = math::sin(radians);
 	m[9] = 0.0;
-	m[10] = Math::Cos(radians);
+	m[10] = math::cos(radians);
 	m[11] = 0.0;
 	m[12] = 0.0;
 	m[13] = 0.0;
@@ -487,14 +487,14 @@ void Mat4::BuildRotationY(real radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildRotationZ(real radians)
+void Mat4::build_rotation_z(real radians)
 {
-	m[0] = Math::Cos(radians);
-	m[1] = Math::Sin(radians);
+	m[0] = math::cos(radians);
+	m[1] = math::sin(radians);
 	m[2] = 0.0;
 	m[3] = 0.0;
-	m[4] = -Math::Sin(radians);
-	m[5] = Math::Cos(radians);
+	m[4] = -math::sin(radians);
+	m[5] = math::cos(radians);
 	m[6] = 0.0;
 	m[7] = 0.0;
 	m[8] = 0.0;
@@ -508,11 +508,11 @@ void Mat4::BuildRotationZ(real radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildRotation(const Vec3& n, real radians)
+void Mat4::build_rotation(const Vec3& n, real radians)
 {
-	real a = (real)1.0 - Math::Cos(radians);
-	real sin_a = Math::Sin(radians);
-	real cos_a = Math::Cos(radians);
+	real a = (real)1.0 - math::cos(radians);
+	real sin_a = math::sin(radians);
+	real cos_a = math::cos(radians);
 
 	m[0] = n.x * n.x * a + cos_a;
 	m[1] = n.x * n.y * a + n.z * sin_a;
@@ -533,11 +533,11 @@ void Mat4::BuildRotation(const Vec3& n, real radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildProjectionPerspectiveRH(real fovy, real aspect, real near, real far)
+void Mat4::build_projection_perspective_rh(real fovy, real aspect, real near, real far)
 {
 	double top, right;
 
-	top = Math::Tan((real)((double)fovy / 360.0 * Math::PI)) * (double)near;
+	top = math::tan((real)((double)fovy / 360.0 * math::PI)) * (double)near;
 	right = top * aspect;
 
 	m[0] = (real)(near / right);
@@ -559,11 +559,11 @@ void Mat4::BuildProjectionPerspectiveRH(real fovy, real aspect, real near, real 
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildProjectionPerspectiveLH(real fovy, real aspect, real near, real far)
+void Mat4::build_projection_perspective_lh(real fovy, real aspect, real near, real far)
 {
 	double top, right;
 
-	top = Math::Tan((real)((double)fovy / 360.0 * Math::PI)) * (double)near;
+	top = math::tan((real)((double)fovy / 360.0 * math::PI)) * (double)near;
 	right = top * aspect;
 
 	m[0] = (real)(near / right);
@@ -585,7 +585,7 @@ void Mat4::BuildProjectionPerspectiveLH(real fovy, real aspect, real near, real 
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildProjectionOrthoRH(real width, real height, real near, real far)
+void Mat4::build_projection_ortho_rh(real width, real height, real near, real far)
 {
 	m[0] = (real)2.0 / width;
 	m[1] = 0.0;
@@ -606,7 +606,7 @@ void Mat4::BuildProjectionOrthoRH(real width, real height, real near, real far)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildProjectionOrthoLH(real width, real height, real near, real far)
+void Mat4::build_projection_ortho_lh(real width, real height, real near, real far)
 {
 	m[0] = (real)2.0 / width;
 	m[1] = 0.0;
@@ -627,7 +627,7 @@ void Mat4::BuildProjectionOrthoLH(real width, real height, real near, real far)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildProjectionOrtho2dRH(real width, real height, real near, real far)
+void Mat4::build_projection_ortho_2d_rh(real width, real height, real near, real far)
 {
 	m[0] = (real)2.0 / width;
 	m[1] = 0.0;
@@ -648,7 +648,7 @@ void Mat4::BuildProjectionOrtho2dRH(real width, real height, real near, real far
 }
 
 //-----------------------------------------------------------------------------
-Mat4& Mat4::Transpose()
+Mat4& Mat4::transpose()
 {
 	real tmp;
 
@@ -680,7 +680,7 @@ Mat4& Mat4::Transpose()
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mat4::GetTransposed() const
+Mat4 Mat4::get_transposed() const
 {
 	Mat4 tmp;
 
@@ -705,13 +705,13 @@ Mat4 Mat4::GetTransposed() const
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildLookAtRH(const Vec3& pos, const Vec3& target, const Vec3& up)
+void Mat4::build_look_at_rh(const Vec3& pos, const Vec3& target, const Vec3& up)
 {
 	Vec3 zAxis =  pos - target;
-	zAxis.Normalize();
+	zAxis.normalize();
 
-	Vec3 xAxis = up.Cross(zAxis);
-	Vec3 yAxis = zAxis.Cross(xAxis);
+	Vec3 xAxis = up.cross(zAxis);
+	Vec3 yAxis = zAxis.cross(xAxis);
 
 	m[0] = xAxis.x;
 	m[1] = yAxis.x;
@@ -725,20 +725,20 @@ void Mat4::BuildLookAtRH(const Vec3& pos, const Vec3& target, const Vec3& up)
 	m[9] = yAxis.z;
 	m[10] = zAxis.z;
 	m[11] = 0.0;
-	m[12] = -pos.Dot(xAxis);
-	m[13] = -pos.Dot(yAxis);
-	m[14] = -pos.Dot(zAxis);
+	m[12] = -pos.dot(xAxis);
+	m[13] = -pos.dot(yAxis);
+	m[14] = -pos.dot(zAxis);
 	m[15] = 1.0;
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildLookAtLH(const Vec3& pos, const Vec3& target, const Vec3& up)
+void Mat4::build_look_at_lh(const Vec3& pos, const Vec3& target, const Vec3& up)
 {
 	Vec3 zAxis =  target - pos;
-	zAxis.Normalize();
+	zAxis.normalize();
 
-	Vec3 xAxis = up.Cross(zAxis);
-	Vec3 yAxis = zAxis.Cross(xAxis);
+	Vec3 xAxis = up.cross(zAxis);
+	Vec3 yAxis = zAxis.cross(xAxis);
 
 	m[0] = xAxis.x;
 	m[1] = yAxis.x;
@@ -752,20 +752,20 @@ void Mat4::BuildLookAtLH(const Vec3& pos, const Vec3& target, const Vec3& up)
 	m[9] = yAxis.z;
 	m[10] = zAxis.z;
 	m[11] = 0.0;
-	m[12] = -pos.Dot(xAxis);
-	m[13] = -pos.Dot(yAxis);
-	m[14] = -pos.Dot(zAxis);
+	m[12] = -pos.dot(xAxis);
+	m[13] = -pos.dot(yAxis);
+	m[14] = -pos.dot(zAxis);
 	m[15] = 1.0;
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildViewpointBillboard(const Vec3& pos, const Vec3& target, const Vec3& up)
+void Mat4::build_viewpoint_billboard(const Vec3& pos, const Vec3& target, const Vec3& up)
 {
 	Vec3 zAxis = target - pos;
-	zAxis.Normalize();
+	zAxis.normalize();
 
-	Vec3 xAxis = up.Cross(zAxis).Normalize();
-	Vec3 yAxis = zAxis.Cross(xAxis).Normalize();
+	Vec3 xAxis = up.cross(zAxis).normalize();
+	Vec3 yAxis = zAxis.cross(xAxis).normalize();
 
 	m[0] = xAxis.x;
 	m[1] = xAxis.y;
@@ -786,12 +786,12 @@ void Mat4::BuildViewpointBillboard(const Vec3& pos, const Vec3& target, const Ve
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::BuildAxisBillboard(const Vec3& pos, const Vec3& target, const Vec3& axis)
+void Mat4::build_axis_billboard(const Vec3& pos, const Vec3& target, const Vec3& axis)
 {
 	Vec3 zAxis = target - pos;
 
-	Vec3 xAxis = axis.Cross(zAxis).Normalize();
-	zAxis = axis.Cross(xAxis).Normalize();
+	Vec3 xAxis = axis.cross(zAxis).normalize();
+	zAxis = axis.cross(xAxis).normalize();
 	const Vec3& yAxis = axis;
 
 	m[0] = xAxis.x;
@@ -813,7 +813,7 @@ void Mat4::BuildAxisBillboard(const Vec3& pos, const Vec3& target, const Vec3& a
 }
 
 //-----------------------------------------------------------------------------
-real Mat4::GetDeterminant() const
+real Mat4::get_determinant() const
 {
 	real det;
 
@@ -833,7 +833,7 @@ real Mat4::GetDeterminant() const
 }
 
 //-----------------------------------------------------------------------------
-Mat4& Mat4::Invert()
+Mat4& Mat4::invert()
 {
 	Mat4 mat;
 	real det;
@@ -899,22 +899,22 @@ Mat4& Mat4::Invert()
 }
 
 //-----------------------------------------------------------------------------
-inline Mat4 Mat4::GetInverted() const
+inline Mat4 Mat4::get_inverted() const
 {
 	Mat4 tmp(*this);
 
-	return tmp.Invert();
+	return tmp.invert();
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::LoadIdentity()
+void Mat4::load_identity()
 {
 	m[0] = m[5] = m[10] = m[15] = 1.0;
 	m[1] = m[2] = m[3] = m[4] = m[6] = m[7] = m[8] = m[9] = m[11] = m[12] = m[13] = m[14] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat4::GetTranslation() const
+Vec3 Mat4::get_translation() const
 {
 	Vec3 tmp;
 
@@ -926,7 +926,7 @@ Vec3 Mat4::GetTranslation() const
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::SetTranslation(const Vec3& trans)
+void Mat4::set_translation(const Vec3& trans)
 {
 	m[12] = trans.x;
 	m[13] = trans.y;
@@ -934,7 +934,7 @@ void Mat4::SetTranslation(const Vec3& trans)
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat4::GetScale() const
+Vec3 Mat4::get_scale() const
 {
 	Vec3 tmp;
 
@@ -946,7 +946,7 @@ Vec3 Mat4::GetScale() const
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::SetScale(const Vec3& scale)
+void Mat4::set_scale(const Vec3& scale)
 {
 	m[0] = scale.x;
 	m[5] = scale.y;
@@ -954,52 +954,52 @@ void Mat4::SetScale(const Vec3& scale)
 }
 
 //-----------------------------------------------------------------------------
-real* Mat4::ToFloatPtr()
+real* Mat4::to_float_ptr()
 {
 	return &m[0];
 }
 
 //-----------------------------------------------------------------------------
-const real* Mat4::ToFloatPtr() const
+const real* Mat4::to_float_ptr() const
 {
 	return &m[0];
 }
 
 //-----------------------------------------------------------------------------
-Angles Mat4::ToAngles() const
+Angles Mat4::to_angles() const
 {
 	Angles tmp;
 	real sp = -m[9];
 
 	if (sp <= -1.0)
 	{
-		tmp.pitch = -Math::HALF_PI;
+		tmp.pitch = -math::HALF_PI;
 	}
 	else if (sp >= 1.0)
 	{
-		tmp.pitch = Math::HALF_PI;
+		tmp.pitch = math::HALF_PI;
 	}
 	else
 	{
-		tmp.pitch = Math::Asin(-m[9]);
+		tmp.pitch = math::asin(-m[9]);
 	}
 
 	if (sp > 0.9999)
 	{
 		tmp.bank = 0.0;
-		tmp.heading = Math::Atan2(-m[2], m[0]);
+		tmp.heading = math::atan2(-m[2], m[0]);
 	}
 	else
 	{
-		tmp.heading = Math::Atan2(m[8], m[10]);
-		tmp.bank = Math::Atan2(m[1], m[5]);
+		tmp.heading = math::atan2(m[8], m[10]);
+		tmp.bank = math::atan2(m[1], m[5]);
 	}
 
 	return tmp;
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Mat4::ToMat3() const
+Mat3 Mat4::to_mat3() const
 {
 	Mat3 tmp;
 
@@ -1017,7 +1017,7 @@ Mat3 Mat4::ToMat3() const
 }
 
 //-----------------------------------------------------------------------------
-Quat Mat4::ToQuat() const
+Quat Mat4::to_quat() const
 {
 	Quat tmp;
 	real fourWSquaredMinusOne = m[0] + m[5] + m[10];
@@ -1045,7 +1045,7 @@ Quat Mat4::ToQuat() const
 		index = 3;
 	}
 
-	real biggest = Math::Sqrt(fourMaxSquaredMinusOne + (real)1.0) * (real)0.5;
+	real biggest = math::sqrt(fourMaxSquaredMinusOne + (real)1.0) * (real)0.5;
 	real mult = (real)0.25 / biggest;
 
 	switch (index)
@@ -1080,7 +1080,7 @@ Quat Mat4::ToQuat() const
 }
 
 //-----------------------------------------------------------------------------
-Str Mat4::ToStr() const
+Str Mat4::to_str() const
 {
 	Str tmp;
 

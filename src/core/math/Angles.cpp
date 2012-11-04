@@ -53,7 +53,7 @@ Angles::Angles(real h, real p, real b) : heading(h), pitch(p), bank(b)
 }
 
 //-----------------------------------------------------------------------------
-Str Angles::ToStr() const
+Str Angles::to_str() const
 {
 	Str tmp;
 
@@ -63,16 +63,16 @@ Str Angles::ToStr() const
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Angles::ToMat3() const
+Mat3 Angles::to_mat3() const
 {
 	Mat3 tmp;
 
-	real sh = Math::Sin(heading);
-	real ch = Math::Cos(heading);
-	real sp = Math::Sin(pitch);
-	real cp = Math::Cos(pitch);
-	real sb = Math::Sin(bank);
-	real cb = Math::Cos(bank);
+	real sh = math::sin(heading);
+	real ch = math::cos(heading);
+	real sp = math::sin(pitch);
+	real cp = math::cos(pitch);
+	real sb = math::sin(bank);
+	real cb = math::cos(bank);
 
 	tmp.m[0] = ch * cb + sh * sp * sb;
 	tmp.m[1] = sb * cp;
@@ -88,16 +88,16 @@ Mat3 Angles::ToMat3() const
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Angles::ToMat4() const
+Mat4 Angles::to_mat4() const
 {
 	Mat4 tmp;
 
-	real sh = Math::Sin(heading);
-	real ch = Math::Cos(heading);
-	real sp = Math::Sin(pitch);
-	real cp = Math::Cos(pitch);
-	real sb = Math::Sin(bank);
-	real cb = Math::Cos(bank);
+	real sh = math::sin(heading);
+	real ch = math::cos(heading);
+	real sp = math::sin(pitch);
+	real cp = math::cos(pitch);
+	real sb = math::sin(bank);
+	real cb = math::cos(bank);
 
 	tmp.m[0] = ch * cb + sh * sp * sb;
 	tmp.m[1] = sb * cp;
@@ -120,7 +120,7 @@ Mat4 Angles::ToMat4() const
 }
 
 //-----------------------------------------------------------------------------
-Quat Angles::ToQuat() const
+Quat Angles::to_quat() const
 {
 	Quat h(heading, Vec3(0.0, 1.0, 0.0));
 	Quat p(pitch, Vec3(1.0, 0.0, 0.0));

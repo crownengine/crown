@@ -60,10 +60,10 @@ public:
 	explicit				Color4(float c[4]);							//!< Construct from four values
 	explicit				Color4(uint rgba);							//!< Construct from 32-bit integer (red at MSB, alpha at LSB)
 
-	uint					GetAsRGB() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order, alpha assumed = 255)
-	uint					GetAsBGR() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order, alpha assumed = 255)
-	uint					GetAsRGBA() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order)
-	uint					GetAsABGR() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order)
+	uint					get_as_rgb() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order, alpha assumed = 255)
+	uint					get_as_bgr() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order, alpha assumed = 255)
+	uint					get_as_rgba() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order)
+	uint					get_as_abgr() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order)
 
 	float					operator[](uint i) const;					//!< Random access by index
 	float&					operator[](uint i);							//!< Random access by index
@@ -80,9 +80,9 @@ public:
 	bool					operator==(const Color4& other) const;		//!< Equality operator
 	bool					operator!=(const Color4& other) const;		//!< Disequality operator
 
-	float*					ToFloatPtr();								//!< Returns the pointer to the color's data.
-	const float*			ToFloatPtr() const;							//!< Returns the pointer to the color's data.
-	Str						ToStr() const;								//!< Returns a Str containing the colors' components.
+	float*					to_float_ptr();								//!< Returns the pointer to the color's data.
+	const float*			to_float_ptr() const;							//!< Returns the pointer to the color's data.
+	Str						to_str() const;								//!< Returns a Str containing the colors' components.
 
 	// SVG 1.0 color names
 	static const Color4		ALICEBLUE;
@@ -261,9 +261,9 @@ inline Color4::Color4(float r, float g, float b)
 //-----------------------------------------------------------------------------
 inline Color4::Color4(int r, int g, int b)
 {
-	this->r = r * Math::ONE_OVER_255;
-	this->g = g * Math::ONE_OVER_255;
-	this->b = b * Math::ONE_OVER_255;
+	this->r = r * math::ONE_OVER_255;
+	this->g = g * math::ONE_OVER_255;
+	this->b = b * math::ONE_OVER_255;
 	this->a = 1.0f;
 }
 
@@ -279,10 +279,10 @@ inline Color4::Color4(float r, float g, float b, float a)
 //-----------------------------------------------------------------------------
 inline Color4::Color4(int r, int g, int b, int a)
 {
-	this->r = r * Math::ONE_OVER_255;
-	this->g = g * Math::ONE_OVER_255;
-	this->b = b * Math::ONE_OVER_255;
-	this->a = a * Math::ONE_OVER_255;
+	this->r = r * math::ONE_OVER_255;
+	this->g = g * math::ONE_OVER_255;
+	this->b = b * math::ONE_OVER_255;
+	this->a = a * math::ONE_OVER_255;
 }
 
 //-----------------------------------------------------------------------------
@@ -297,26 +297,26 @@ inline Color4::Color4(float c[4])
 //-----------------------------------------------------------------------------
 inline Color4::Color4(uint rgba)
 {
-	r = Math::ONE_OVER_255 * ((rgba & 0xFF000000) >> 24);
-	g = Math::ONE_OVER_255 * ((rgba & 0x00FF0000) >> 16);
-	b = Math::ONE_OVER_255 * ((rgba & 0x0000FF00) >> 8);
-	a = Math::ONE_OVER_255 * (rgba & 0x000000FF);
+	r = math::ONE_OVER_255 * ((rgba & 0xFF000000) >> 24);
+	g = math::ONE_OVER_255 * ((rgba & 0x00FF0000) >> 16);
+	b = math::ONE_OVER_255 * ((rgba & 0x0000FF00) >> 8);
+	a = math::ONE_OVER_255 * (rgba & 0x000000FF);
 }
 
 //-----------------------------------------------------------------------------
-inline float* Color4::ToFloatPtr()
+inline float* Color4::to_float_ptr()
 {
 	return &r;
 }
 
 //-----------------------------------------------------------------------------
-inline const float* Color4::ToFloatPtr() const
+inline const float* Color4::to_float_ptr() const
 {
 	return &r;
 }
 
 //-----------------------------------------------------------------------------
-inline Str Color4::ToStr() const
+inline Str Color4::to_str() const
 {
 	Str tmp;
 
@@ -326,7 +326,7 @@ inline Str Color4::ToStr() const
 }
 
 //-----------------------------------------------------------------------------
-inline uint Color4::GetAsRGB() const
+inline uint Color4::get_as_rgb() const
 {
 	uint rgba;
 
@@ -339,7 +339,7 @@ inline uint Color4::GetAsRGB() const
 }
 
 //-----------------------------------------------------------------------------
-inline uint Color4::GetAsBGR() const
+inline uint Color4::get_as_bgr() const
 {
 	uint abgr;
 
@@ -352,7 +352,7 @@ inline uint Color4::GetAsBGR() const
 }
 
 //-----------------------------------------------------------------------------
-inline uint Color4::GetAsRGBA() const
+inline uint Color4::get_as_rgba() const
 {
 	uint rgba;
 
@@ -365,7 +365,7 @@ inline uint Color4::GetAsRGBA() const
 }
 
 //-----------------------------------------------------------------------------
-inline uint Color4::GetAsABGR() const
+inline uint Color4::get_as_abgr() const
 {
 	uint abgr;
 
