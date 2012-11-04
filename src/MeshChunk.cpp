@@ -40,12 +40,12 @@ MeshChunk::~MeshChunk()
 
 int MeshChunk::GetVertexCount() const
 {
-	return mVertexList.GetSize();
+	return mVertexList.size();
 }
 
 int MeshChunk::GetFaceCount() const
 {
-	return mFaceList.GetSize();
+	return mFaceList.size();
 }
 
 const Box& MeshChunk::GetBoundingBox() const
@@ -55,17 +55,17 @@ const Box& MeshChunk::GetBoundingBox() const
 
 void MeshChunk::UpdateBoundingBox()
 {
-	mBoundingBox.Zero();
+	mBoundingBox.zero();
 
-	for (int i = 0; i < mVertexList.GetSize(); i++)
+	for (uint i = 0; i < mVertexList.size(); i++)
 	{
-		mBoundingBox.AddPoint(mVertexList[i].position);
+		mBoundingBox.add_point(mVertexList[i].position);
 	}
 }
 
 void MeshChunk::UpdateNormals()
 {
-	for (int i = 0; i < mFaceList.GetSize(); i++)
+	for (uint i = 0; i < mFaceList.size(); i++)
 	{
 		Vec3 normal;
 		Vec3 v1;
@@ -74,7 +74,7 @@ void MeshChunk::UpdateNormals()
 		v1 = mVertexList[mFaceList[i].vertex[0]].position - mVertexList[mFaceList[i].vertex[1]].position;
 		v2 = mVertexList[mFaceList[i].vertex[2]].position - mVertexList[mFaceList[i].vertex[1]].position;
 		
-		normal = v2.Cross(v1).Normalize();
+		normal = v2.cross(v1).normalize();
 
 		mVertexList[mFaceList[i].vertex[0]].normal = normal;
 		mVertexList[mFaceList[i].vertex[1]].normal = normal;

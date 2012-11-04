@@ -43,7 +43,7 @@ Mesh::Mesh() :
 
 Mesh::~Mesh()
 {
-	for (int i = 0; i < mMeshChunkList.GetSize(); i++)
+	for (int i = 0; i < mMeshChunkList.size(); i++)
 	{
 		delete mMeshChunkList[i];
 	}
@@ -51,7 +51,7 @@ Mesh::~Mesh()
 
 uint Mesh::GetMeshChunkCount() const
 {
-	return mMeshChunkList.GetSize();
+	return mMeshChunkList.size();
 }
 
 MeshChunk* Mesh::GetMeshChunk(uint index) const
@@ -66,20 +66,13 @@ void Mesh::AddMeshChunk(MeshChunk* chunk)
 		return;
 	}
 
-	mBoundingBox.AddBox(chunk->GetBoundingBox());
-	mMeshChunkList.Append(chunk);
+	mBoundingBox.add_box(chunk->GetBoundingBox());
+	mMeshChunkList.push_back(chunk);
 }
 
 void Mesh::RemoveMeshChunk(MeshChunk* chunk)
 {
-	for (int i = 0; i < mMeshChunkList.GetSize(); i++)
-	{
-		if (mMeshChunkList[i] == chunk)
-		{
-			mMeshChunkList.Remove(i);
-			UpdateBoundingBox();
-		}
-	}
+
 }
 
 const Box& Mesh::GetBoundingBox() const
@@ -89,12 +82,12 @@ const Box& Mesh::GetBoundingBox() const
 
 void Mesh::UpdateBoundingBox()
 {
-	mBoundingBox.Zero();
+	mBoundingBox.zero();
 
-	for (int i = 0; i < mMeshChunkList.GetSize(); i++)
+	for (uint i = 0; i < mMeshChunkList.size(); i++)
 	{
 		mMeshChunkList[i]->UpdateBoundingBox();
-		mBoundingBox.AddBox(mMeshChunkList[i]->GetBoundingBox());
+		mBoundingBox.add_box(mMeshChunkList[i]->GetBoundingBox());
 	}
 }
 
@@ -109,37 +102,37 @@ void Mesh::RecompileMesh()
 		mIndexBuffer = GetDevice()->GetRenderer()->CreateIndexBuffer();
 
 	count = 0;
-	for(int i=0; i<mMeshChunkList.GetSize(); i++)
+	for(uint i=0; i<mMeshChunkList.size(); i++)
 	{
 		mMeshChunkList[i]->UpdateNormals();
-		count += mMeshChunkList[i]->mVertexList.GetSize();
+		count += mMeshChunkList[i]->mVertexList.size();
 	}
 
 	mVertexBuffer->SetVertexData((VertexBufferMode) (VBM_NORMAL_COORDS | VBM_TEXTURE_COORDS | VBM_COLOR_COORDS), NULL, count);
 	
 	offset = 0;
-	for(int i=0; i<mMeshChunkList.GetSize(); i++)
+	for(uint i=0; i<mMeshChunkList.size(); i++)
 	{
-		uint size = mMeshChunkList[i]->mVertexList.GetSize() * sizeof(VertexData);
-		mVertexBuffer->SetVertexSubData((float*) mMeshChunkList[i]->mVertexList.GetBegin(), offset, mMeshChunkList[i]->mVertexList.GetSize());
+		uint size = mMeshChunkList[i]->mVertexList.size() * sizeof(VertexData);
+		mVertexBuffer->SetVertexSubData((float*) mMeshChunkList[i]->mVertexList.begin(), offset, mMeshChunkList[i]->mVertexList.size());
 
 		offset += size;
 	}
 
 	//Index buffer
 	count = 0;
-	for(int i=0; i<mMeshChunkList.GetSize(); i++)
+	for(uint i=0; i<mMeshChunkList.size(); i++)
 	{
-		count += mMeshChunkList[i]->mFaceList.GetSize() * 3;
+		count += mMeshChunkList[i]->mFaceList.size() * 3;
 	}
 
 	mIndexBuffer->SetIndexData(NULL, count);
 	
 	offset = 0;
-	for(int i=0; i<mMeshChunkList.GetSize(); i++)
+	for(uint i=0; i<mMeshChunkList.size(); i++)
 	{
-		uint size = mMeshChunkList[i]->mFaceList.GetSize() * sizeof(ushort) * 3;
-		mIndexBuffer->SetIndexSubData((ushort*) mMeshChunkList[i]->mFaceList.GetBegin(), offset, mMeshChunkList[i]->mFaceList.GetSize() * 3);
+		uint size = mMeshChunkList[i]->mFaceList.size() * sizeof(ushort) * 3;
+		mIndexBuffer->SetIndexSubData((ushort*) mMeshChunkList[i]->mFaceList.begin(), offset, mMeshChunkList[i]->mFaceList.size() * 3);
 
 		offset += size;
 	}
