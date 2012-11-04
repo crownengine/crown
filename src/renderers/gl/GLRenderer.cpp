@@ -24,11 +24,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <GL/glew.h>
+#include <cassert>
 #include "Types.h"
 #include "GLIndexBuffer.h"
 #include "GLOcclusionQuery.h"
 #include "GLRenderer.h"
-#include "GLSupport.h"
 #include "GLTexture.h"
 #include "GLTextureManager.h"
 #include "GLUtils.h"
@@ -53,8 +53,6 @@ namespace Crown
 
 //-----------------------------------------------------------------------------
 GLRenderer::GLRenderer() :
-	mGLSupport(NULL),
-
 	mModelMatrixStackIndex(0),
 
 	mMaxLights(0),
@@ -83,18 +81,12 @@ GLRenderer::GLRenderer() :
 	// This code snippet initializes the matrices
 	for (uint i = 0; i < MT_COUNT; i++)
 	{
-		mMatrix[i].LoadIdentity();
+		mMatrix[i].load_identity();
 	}
-
-	mGLSupport = GetGLSupport();
-
-	mGLSupport->BuildExtensionList();
 
 	GLenum err = glewInit();
-	if (err != GLEW_OK)
-	{
-		throw Exception("GLRenderer::GLRenderer: Error during GLEW initialization.");
-	}
+
+	assert(err == GLEW_OK);
 
 	Log::I("GLEW initialized.");
 
@@ -113,9 +105,13 @@ GLRenderer::GLRenderer() :
 	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &mMinMaxPointSize[0]);
 	glGetFloatv(GL_LINE_WIDTH_RANGE, &mMinMaxLineWidth[0]);
 
-	Log::I("OpenGL Vendor\t: %s", mGLSupport->GetVendor().c_str());
-	Log::I("OpenGL Renderer\t: %s", mGLSupport->GetRenderer().c_str());
-	Log::I("OpenGL Version\t: %s", mGLSupport->GetVersion().c_str());
+	const uchar* gl_vendor = glGetString(GL_VENDOR);
+	const uchar* gl_renderer = glGetString(GL_RENDERER);
+	const uchar* gl_version = glGetString(GL_VERSION);
+
+	Log::I("OpenGL Vendor\t: %s", gl_vendor);
+	Log::I("OpenGL Renderer\t: %s", gl_renderer);
+	Log::I("OpenGL Version\t: %s", gl_version);
 	Log::I("Min Point Size\t: %f", mMinMaxPointSize[0]);
 	Log::I("Max Point Size\t: %f", mMinMaxPointSize[1]);
 	Log::I("Min Line Width\t: %f", mMinMaxLineWidth[0]);
@@ -178,17 +174,17 @@ GLRenderer::GLRenderer() :
 //-----------------------------------------------------------------------------
 GLRenderer::~GLRenderer()
 {
-	for (int i = 0; i < mOcclusionQueryList.GetSize(); i++)
+	for (uint i = 0; i < mOcclusionQueryList.size(); i++)
 	{
 		delete mOcclusionQueryList[i];
 	}
 
-	for (int i = 0; i < mVertexBufferList.GetSize(); i++)
+	for (uint i = 0; i < mVertexBufferList.size(); i++)
 	{
 		delete mVertexBufferList[i];
 	}
 
-	for (int i = 0; i < mIndexBufferList.GetSize(); i++)
+	for (uint i = 0; i < mIndexBufferList.size(); i++)
 	{
 		delete mIndexBufferList[i];
 	}
@@ -221,7 +217,7 @@ void GLRenderer::_SetMaterialParams(const Color4& ambient, const Color4& diffuse
 //-----------------------------------------------------------------------------
 void GLRenderer::_SetAmbientLight(const Color4& color)
 {
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color.ToFloatPtr());
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color.to_float_ptr());
 }
 
 //-----------------------------------------------------------------------------
@@ -582,19 +578,19 @@ void GLRenderer::SetMatrix(MatrixType type, const Mat4& matrix)
 		case MT_MODEL:
 			glMatrixMode(GL_MODELVIEW);
 			// Transformations must be listed in reverse order
-			glLoadMatrixf((mMatrix[MT_VIEW] * mMatrix[MT_MODEL]).ToFloatPtr());
+			glLoadMatrixf((mMatrix[MT_VIEW] * mMatrix[MT_MODEL]).to_float_ptr());
 			break;
 		case MT_PROJECTION:
 			glMatrixMode(GL_PROJECTION);
-			glLoadMatrixf(mMatrix[MT_PROJECTION].ToFloatPtr());
+			glLoadMatrixf(mMatrix[MT_PROJECTION].to_float_ptr());
 			break;
 		case MT_TEXTURE:
 			glMatrixMode(GL_TEXTURE);
-			glLoadMatrixf(mMatrix[MT_TEXTURE].ToFloatPtr());
+			glLoadMatrixf(mMatrix[MT_TEXTURE].to_float_ptr());
 			break;
 		case MT_COLOR:
 			//glMatrixMode(GL_COLOR);
-			//glLoadMatrixf(mMatrix[MT_COLOR].ToFloatPtr());
+			//glLoadMatrixf(mMatrix[MT_COLOR].to_float_ptr());
 			break;
 		default:
 			break;
@@ -604,12 +600,10 @@ void GLRenderer::SetMatrix(MatrixType type, const Mat4& matrix)
 //-----------------------------------------------------------------------------
 void GLRenderer::PushMatrix()
 {
-	if (mModelMatrixStackIndex == MAX_MODEL_MATRIX_STACK_DEPTH)
-	{
-		throw InvalidOperationException("Model Matrix stack overflow");
-	}
+	assert(mModelMatrixStackIndex != MAX_MODEL_MATRIX_STACK_DEPTH);
+
 	//Copy the current matrix into the stack, and move to the next location
-	glGetFloatv(GL_MODELVIEW_MATRIX, mModelMatrixStack[mModelMatrixStackIndex].ToFloatPtr());
+	glGetFloatv(GL_MODELVIEW_MATRIX, mModelMatrixStack[mModelMatrixStackIndex].to_float_ptr());
 	mModelMatrixStackIndex++;
 }
 
@@ -618,10 +612,8 @@ void GLRenderer::PopMatrix()
 {
 	// Note: Is checking for push-pop count necessary? Maybe it should signal matrix stack underflow.
 	//glPopMatrix();
-	if (mModelMatrixStackIndex == 0)
-	{
-		throw InvalidOperationException("Model Matrix stack underflow");
-	}
+	assert(mModelMatrixStackIndex > 0);
+
 	mModelMatrixStackIndex--;
 	SetMatrix(MT_MODEL, mModelMatrixStack[mModelMatrixStackIndex]);
 }
@@ -698,7 +690,7 @@ OcclusionQuery* GLRenderer::CreateOcclusionQuery()
 	if (!oc)
 		return 0;
 
-	mOcclusionQueryList.Append(oc);
+	mOcclusionQueryList.push_back(oc);
 	return oc;
 }
 
@@ -710,7 +702,7 @@ VertexBuffer*  GLRenderer::CreateVertexBuffer()
 	if (!vb)
 		return 0;
 
-	mVertexBufferList.Append(vb);
+	mVertexBufferList.push_back(vb);
 	return vb;
 }
 
@@ -722,7 +714,7 @@ IndexBuffer*  GLRenderer::CreateIndexBuffer()
 	if (!ib)
 		return 0;
 
-	mIndexBufferList.Append(ib);
+	mIndexBufferList.push_back(ib);
 	return ib;
 }
 
@@ -849,9 +841,9 @@ void GLRenderer::_SetLightParams(uint light, LightType type, const Vec3& positio
 //-----------------------------------------------------------------------------
 void GLRenderer::_SetLightColor(uint light, const Color4& ambient, const Color4& diffuse, const Color4& specular)
 {
-	glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient.ToFloatPtr());
-	glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse.ToFloatPtr());
-	glLightfv(GL_LIGHT0 + light, GL_SPECULAR, specular.ToFloatPtr());
+	glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient.to_float_ptr());
+	glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse.to_float_ptr());
+	glLightfv(GL_LIGHT0 + light, GL_SPECULAR, specular.to_float_ptr());
 }
 
 //-----------------------------------------------------------------------------
