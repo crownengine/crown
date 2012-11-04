@@ -178,7 +178,7 @@ void Terrain::UpdateVertexBuffer(bool recomputeNormals)
 			v1 = mVertices[mIndices[i + 0]] - mVertices[mIndices[i + 1]];
 			v2 = mVertices[mIndices[i + 2]] - mVertices[mIndices[i + 1]];
 		
-			normal = v2.Cross(v1).Normalize();
+			normal = v2.cross(v1).normalize();
 
 			mNormals[mIndices[i + 0]] = normal;
 			mNormals[mIndices[i + 1]] = normal;
@@ -210,7 +210,7 @@ void Terrain::SetHeightAt(uint x, uint z, float height)
 	if (z >= mVerticesInSizeZ) return;
 
 	mHeights[z * mVerticesInSizeX + x] += height;
-	mHeights[z * mVerticesInSizeX + x] = Math::ClampToRange(mMinHeight, mMaxHeight, mHeights[z * mVerticesInSizeX + x]);
+	mHeights[z * mVerticesInSizeX + x] = math::clamp_to_range(mMinHeight, mMaxHeight, mHeights[z * mVerticesInSizeX + x]);
 }
 
 void Terrain::SetHeightAt(const Vec3& xyz, float height)
@@ -273,10 +273,10 @@ uint Terrain::SnapToGrid(const Vec3& vertex)
 		Vec3 vertex2 = vertex;
 		tmp.y = vertex2.y = 0.0f;
 
-		if (tmp.GetDistanceTo(vertex2) < minDist)
+		if (tmp.get_distance_to(vertex2) < minDist)
 		{
 			indexToSnapped = i;
-			minDist = tmp.GetDistanceTo(vertex2);
+			minDist = tmp.get_distance_to(vertex2);
 		}
 	}
 
@@ -326,7 +326,7 @@ void Terrain::Render()
 
 float Terrain::GaussDist(float x, float y, float sigma)
 {
-	float gauss =  1.0f / Math::TWO_PI * (sigma * sigma);
+	float gauss =  1.0f / math::TWO_PI * (sigma * sigma);
 	float e = 2.71828183f;
 
 	float exponent = ((x * x) + (y * y)) / (2.0f * (sigma * sigma));
@@ -374,19 +374,19 @@ void Terrain::PlotCircle(int xx, int yy, int radius, int i)
     for (x = -radius; x <= radius; x++)
       if ((x * x) + (y * y) <= (radius * radius))
 		{
-			float rDist = 1.0 - Math::Sqrt(x * x + y * y) / radius;
+			float rDist = 1.0 - math::sqrt(x * x + y * y) / radius;
 
 			if (i == 0)
 			{
-				mBrush[(y + yy) * MAX_BRUSH_SIZE + (x + xx)] = Interpolation::Linear(0.0f, 1.0f, rDist);
+				mBrush[(y + yy) * MAX_BRUSH_SIZE + (x + xx)] = Interpolation::linear(0.0f, 1.0f, rDist);
 			}
 			else if (i == 1)
 			{
-				mBrush[(y + yy) * MAX_BRUSH_SIZE + (x + xx)] = Interpolation::Cosine(0.0f, 1.0f, rDist);
+				mBrush[(y + yy) * MAX_BRUSH_SIZE + (x + xx)] = Interpolation::cosine(0.0f, 1.0f, rDist);
 			}
 			else if (i == 2)
 			{
-				mBrush[(y + yy) * MAX_BRUSH_SIZE + (x + xx)] = Interpolation::Cubic(0.0f, 1.0f, rDist);
+				mBrush[(y + yy) * MAX_BRUSH_SIZE + (x + xx)] = Interpolation::cubic(0.0f, 1.0f, rDist);
 			}
 		}
 }
