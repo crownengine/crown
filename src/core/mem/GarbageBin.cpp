@@ -46,20 +46,17 @@ GarbageBin::~GarbageBin()
 
 void GarbageBin::Trash(IGarbageable* object)
 {
-	if (mGarbage.Find(object) == -1)
-	{
-		mGarbage.Append(object);
-	}
+
 }
 
 void GarbageBin::Empty()
 {
-	for (int i=0; i<mGarbage.GetSize(); i++)
+	for (uint i = 0; i < mGarbage.size(); i++)
 	{
 		delete mGarbage[i];
 	}
 
-	mGarbage.Clear();
+	mGarbage.clear();
 }
 
 } //namespace Crown
