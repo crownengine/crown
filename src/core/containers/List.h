@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include <cassert>
+#include <cstring>
 
 namespace Crown
 {
@@ -41,39 +42,36 @@ class List
 public:
 
 						List();
-						List(int capacity);
+						List(uint capacity);
 						List(const List<T>& list);
 						~List();
 
-	T&					operator[](int index);
-	const T&			operator[](int index) const;
+	T&					operator[](uint index);
+	const T&			operator[](uint index) const;
 
-	bool				IsEmpty() const;
-	int					GetSize() const;
-	int					GetCapacity() const;
-	void				SetCapacity(int capacity);
-	void				Grow();
+	bool				empty() const;
+	uint				size() const;
+	uint				capacity() const;
+	void				set_capacity(uint capacity);
+	void				grow();
 
-	void				Condense();
+	void				condense();
 
-	int					Append(const T& element);
-	int					Insert(int index, const T& element);
-	void				Remove(int index);
-	void				Clear();
-
-	int					Find(const T& element) const;
+	uint				push_back(const T& element);
+	void				pop_back();
+	void				clear();
 
 	const List<T>&		operator=(const List<T>& other);
 
-	T*					GetBegin();
-	const T*			GetBegin() const;
-	T*					GetEnd();
-	const T*			GetEnd() const;
+	T*					begin();
+	const T*			begin() const;
+	T*					end();
+	const T*			end() const;
 
 private:
 
-	int					mCapacity;
-	int					mSize;
+	uint				mCapacity;
+	uint				mSize;
 	T*					mArray;
 };
 
@@ -96,12 +94,12 @@ inline List<T>::List() :
 	Allocates capacity * sizeof(T) bytes.
 */
 template <typename T>
-inline List<T>::List(int capacity) :
+inline List<T>::List(uint capacity) :
 	mCapacity(0),
 	mSize(0),
 	mArray(0)
 {
-	SetCapacity(capacity);
+	set_capacity(capacity);
 }
 
 /**
@@ -131,16 +129,15 @@ inline List<T>::~List()
 /**
 	Random access.
 @note
-	The index has to be smaller than GetSize()
+	The index has to be smaller than size()
 @param index
 	The index
 @return
 	The element at the given index
 */
 template <typename T>
-inline T& List<T>::operator[](int index)
+inline T& List<T>::operator[](uint index)
 {
-	assert(index >= 0);
 	assert(index < mSize);
 
 	return mArray[index];
@@ -149,16 +146,15 @@ inline T& List<T>::operator[](int index)
 /**
 	Random access.
 @note
-	The index has to be smaller than GetSize()
+	The index has to be smaller than size()
 @param index
 	The index
 @return
 	The element at the given index
 */
 template <typename T>
-inline const T& List<T>::operator[](int index) const
+inline const T& List<T>::operator[](uint index) const
 {
-	assert(index >= 0);
 	assert(index < mSize);
 
 	return mArray[index];
@@ -170,7 +166,7 @@ inline const T& List<T>::operator[](int index) const
 	True if empty, false otherwise
 */
 template <typename T>
-bool List<T>::IsEmpty() const
+inline bool List<T>::empty() const
 {
 	return mSize == 0;
 }
@@ -181,7 +177,7 @@ bool List<T>::IsEmpty() const
 	The number of elements
 */
 template <typename T>
-int List<T>::GetSize() const
+inline uint List<T>::size() const
 {
 	return mSize;
 }
@@ -192,7 +188,7 @@ int List<T>::GetSize() const
 	The maximum number of elements
 */
 template <typename T>
-inline int List<T>::GetCapacity() const
+inline uint List<T>::capacity() const
 {
 	return mCapacity;
 }
@@ -207,7 +203,7 @@ inline int List<T>::GetCapacity() const
 	The new capacity
 */
 template <typename T>
-inline void List<T>::SetCapacity(int capacity)
+inline void List<T>::set_capacity(uint capacity)
 {
 	assert(capacity > 0);
 
@@ -216,8 +212,7 @@ inline void List<T>::SetCapacity(int capacity)
 		return;
 	}
 
-	T* tmp;
-	tmp = mArray;
+	T* tmp = mArray;
 	mCapacity = capacity;
 
 	if (capacity < mSize)
@@ -226,10 +221,8 @@ inline void List<T>::SetCapacity(int capacity)
 	}
 
 	mArray = new T[capacity];
-	for (int i = 0; i < mSize; i++)
-	{
-		mArray[i] = tmp[i];
-	}
+
+	memcpy(mArray, tmp, sizeof(T) * mSize);
 
 	if (tmp)
 	{
@@ -238,9 +231,9 @@ inline void List<T>::SetCapacity(int capacity)
 }
 
 template <typename T>
-inline void List<T>::Grow()
+inline void List<T>::grow()
 {
-	SetCapacity(mCapacity * 2 + 16);
+	set_capacity(mCapacity * 2 + 16);
 }
 
 /**
@@ -248,9 +241,9 @@ inline void List<T>::Grow()
 	of elements in the array.
 */
 template <typename T>
-inline void List<T>::Condense()
+inline void List<T>::condense()
 {
-	SetCapacity(mSize);
+	set_capacity(mSize);
 }
 
 /**
@@ -261,11 +254,11 @@ inline void List<T>::Condense()
 	The index of the element or -1 if full
 */
 template <typename T>
-int List<T>::Append(const T& element)
+inline uint List<T>::push_back(const T& element)
 {
 	if (mCapacity == mSize)
 	{
-		Grow();
+		grow();
 	}
 
 	mArray[mSize] = element;
@@ -274,56 +267,16 @@ int List<T>::Append(const T& element)
 }
 
 /**
-	Inserts an element in the array at a given index.
-	Returns a value equal to index if success or -1 if full.
-@note
-	Insert operation involves data moving.
-@param index
-	The index where to insert the element
-@param element
-	The element
-@return
-	A value equal to index if success or -1 if full
-*/
-template <typename T>
-int List<T>::Insert(int index, const T& element)
-{
-	assert(index >= 0);
-	assert(index <= mSize);
-
-	if (mCapacity == mSize)
-	{
-		Grow();
-	}
-
-	for (int i = mSize; i > index; i--)
-	{
-		mArray[i] = mArray[i-1];
-	}
-
-	mArray[index] = element;
-	mSize++;
-
-	return index;
-}
-
-/**
 	Removes the element at the given index.
 @param index
 	The index of the element to remove
 */
 template <typename T>
-void List<T>::Remove(int index)
+inline void List<T>::pop_back()
 {
-	assert(index >= 0);
-	assert(index < mSize);
+	assert(mSize > 0);
 
 	mSize--;
-
-	for (int i = index; i < mSize; i++)
-	{
-		mArray[i] = mArray[i + 1];
-	}
 }
 
 /**
@@ -333,28 +286,9 @@ void List<T>::Remove(int index)
 	the number of elements in the array.
 */
 template <typename T>
-void List<T>::Clear()
+inline void List<T>::clear()
 {
 	mSize = 0;
-}
-
-/**
-	Returns the index of a given element or -1 if not found.
-@return
-	The index of the element of -1 if not found.
-*/
-template <typename T>
-int List<T>::Find(const T& element) const
-{
-	for (int i = 0; i < mSize; i++)
-	{
-		if (mArray[i] == element)
-		{
-			return i;
-		}
-	}
-
-	return -1;
 }
 
 /**
@@ -377,10 +311,7 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 	{
 		mArray = new T[mCapacity];
 
-		for (int i = 0; i < mSize; i++)
-		{
-			mArray[i] = other[i];
-		}
+		memcpy(mArray, other.mArray, mSize);
 	}
 
 	return *this;
@@ -388,28 +319,28 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline const T* List<T>::GetBegin() const
+inline const T* List<T>::begin() const
 {
 	return mArray;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T* List<T>::GetBegin()
+inline T* List<T>::begin()
 {
 	return mArray;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline const T* List<T>::GetEnd() const
+inline const T* List<T>::end() const
 {
 	return mArray + (mSize - 1);
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T* List<T>::GetEnd()
+inline T* List<T>::end()
 {
 	return mArray + (mSize - 1);
 }
