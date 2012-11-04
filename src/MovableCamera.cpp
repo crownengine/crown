@@ -191,15 +191,15 @@ void MovableCamera::MoveBackward()
 
 void MovableCamera::StrafeLeft()
 {
-	Vec3 left = mUp.Cross(mLookAt);
-	left.Normalize();
+	Vec3 left = mUp.cross(mLookAt);
+	left.normalize();
 	mPosition += left * mSpeed;
 }
 
 void MovableCamera::StrafeRight()
 {
-	Vec3 left = mUp.Cross(mLookAt);
-	left.Normalize();
+	Vec3 left = mUp.cross(mLookAt);
+	left.normalize();
 	mPosition -= left * mSpeed;
 }
 
@@ -224,21 +224,21 @@ void MovableCamera::SetViewByMouse()
 	mAngleX += delta.y * mMouseSensibility;
 	mAngleY += delta.x * mMouseSensibility;
 
-	mAngleX = Math::ClampToRange(-89.999f * Math::DEG_TO_RAD, 89.999f * Math::DEG_TO_RAD, mAngleX);
-	mAngleY = Math::FMod(mAngleY, Math::TWO_PI);
+	mAngleX = math::clamp_to_range(-89.999f * math::DEG_TO_RAD, 89.999f * math::DEG_TO_RAD, mAngleX);
+	mAngleY = math::fmod(mAngleY, math::TWO_PI);
 
 	Vec3 right(1, 0, 0);
 	Vec3 look;
 
 	look.x = 0.0f;
-	look.y = Math::Sin(mAngleX);
-	look.z = -Math::Cos(mAngleX);
+	look.y = math::sin(mAngleX);
+	look.z = -math::cos(mAngleX);
 
-	Vec3 up = right.Cross(look);
-	up.Normalize();
+	Vec3 up = right.cross(look);
+	up.normalize();
 
 	Mat3 m;
-	m.BuildRotationY(mAngleY);
+	m.build_rotation_y(mAngleY);
 	look = m * look;
 	mUp = m * up;
 

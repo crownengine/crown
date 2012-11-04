@@ -160,17 +160,17 @@ void Camera::Render()
 
 void Camera::UpdateProjectionMatrix()
 {
-	mProjection.BuildProjectionPerspectiveRH(mFOV, mAspect, mNear, mFar);
+	mProjection.build_projection_perspective_rh(mFOV, mAspect, mNear, mFar);
 }
 
 void Camera::UpdateViewMatrix()
 {
-	mView.BuildLookAtRH(mPosition, mPosition + mLookAt, mUp);
+	mView.build_look_at_rh(mPosition, mPosition + mLookAt, mUp);
 }
 
 void Camera::UpdateFrustum()
 {
-	mFrustum.FromMatrix(mProjection * mView);
+	mFrustum.from_matrix(mProjection * mView);
 }
 
 } // namespace Crown
