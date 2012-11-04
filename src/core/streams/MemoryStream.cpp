@@ -171,7 +171,7 @@ void MemoryStream::ReadDataBlock(void* buffer, size_t size)
 bool MemoryStream::CopyTo(Stream* stream, size_t size)
 {
 	CheckValid();
-	stream->WriteDataBlock(&(mMem->GetData()[mMemOffset]), Math::Min(mMem->GetSize()-mMemOffset, size));
+	stream->WriteDataBlock(&(mMem->GetData()[mMemOffset]), math::min(mMem->GetSize()-mMemOffset, size));
 	return true;
 }
 

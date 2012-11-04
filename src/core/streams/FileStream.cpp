@@ -38,9 +38,9 @@ FileStream::FileStream(StreamOpenMode openMode, const Str& filename) :
 	//Takes ownership
 	FileOpenMode fileOpenMode = (FileOpenMode)0;
 
-	if (Math::TestBitmask(openMode, SOM_READ))
+	if (math::test_bitmask(openMode, SOM_READ))
 		fileOpenMode = (FileOpenMode)(fileOpenMode | FOM_READ);
-	if (Math::TestBitmask(openMode, SOM_WRITE))
+	if (math::test_bitmask(openMode, SOM_WRITE))
 		fileOpenMode = (FileOpenMode)(fileOpenMode | FOM_WRITE);
 
 	mFile = File::Open(filename.c_str(), fileOpenMode);
@@ -108,7 +108,7 @@ bool FileStream::CopyTo(Stream* stream, size_t size)
 	while (totReadBytes < size)
 	{
 		int readBytes;
-		int expectedReadBytes = Math::Min(size - totReadBytes, chunksize);
+		int expectedReadBytes = math::min(size - totReadBytes, chunksize);
 		readBytes = fread(buff, 1, expectedReadBytes, mFile->GetHandle());
 
 		if (readBytes < expectedReadBytes)

@@ -69,8 +69,8 @@ File* File::Open(const char* path, FileOpenMode mode)
 				(TestFlag(mode, FOM_CREATENEW) ? "wb+" : "rb+") : "rb") : (TestFlag(mode, FOM_WRITE) ? "wb" : "rb"));
 	*/
 
-	Math::TestBitmask(mode, FOM_READ) ?
-		(Math::TestBitmask(mode, FOM_WRITE) ? "rb+" : "rb") : (Math::TestBitmask(mode, FOM_WRITE) ? "wb" : "rb")); 
+	math::test_bitmask(mode, FOM_READ) ?
+		(math::test_bitmask(mode, FOM_WRITE) ? "rb+" : "rb") : (math::test_bitmask(mode, FOM_WRITE) ? "wb" : "rb")); 
 
 	if (f->mFileHandle == 0)
 	{

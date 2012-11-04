@@ -175,13 +175,13 @@ public:
 						@return
 							True if readable, false otherwise
 						*/
-	virtual inline bool	CanRead() const { return Math::TestBitmask(mOpenMode, SOM_READ); }
+	virtual inline bool	CanRead() const { return math::test_bitmask(mOpenMode, SOM_READ); }
 						/**
 							Returns whether the stream can be wrote.
 						@return
 							True if writeable, false otherwise
 						*/
-	virtual inline bool	CanWrite() const { return Math::TestBitmask(mOpenMode, SOM_WRITE); }
+	virtual inline bool	CanWrite() const { return math::test_bitmask(mOpenMode, SOM_WRITE); }
 						/**
 							Returns whether the stream can be sought.
 						@returns

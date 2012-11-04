@@ -50,7 +50,7 @@ bool Stream::ZipTo(Stream* stream, size_t size, size_t& zippedSize)
 	size_t bytes_read = 0;
 	do
 	{
-		size_t this_step_bytes = Math::Min(CHUNK_SIZE, size - bytes_read);
+		size_t this_step_bytes = math::min(CHUNK_SIZE, size - bytes_read);
 		ReadDataBlock(in, this_step_bytes);
 
 		strm.avail_in = this_step_bytes;
@@ -109,7 +109,7 @@ bool Stream::UnzipTo(Stream* stream, size_t& /*unzippedSize*/)
 	/* decompress until deflate stream ends or end of file */
 	do
 	{
-		size_t this_step_bytes = Math::Min(CHUNK_SIZE, size - bytes_read);
+		size_t this_step_bytes = math::min(CHUNK_SIZE, size - bytes_read);
 		ReadDataBlock(in, this_step_bytes);
 
 		strm.avail_in = this_step_bytes;
