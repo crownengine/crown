@@ -135,11 +135,11 @@ void Skybox::Render()
 
 //	Camera* camera = mCreator->GetCurrentCamera();
 	Mat4 mat;// = camera->GetAbsoluteTransformation();
-	mat.LoadIdentity();
+	mat.load_identity();
 	Mat4 mat2;
 
-	mat2.LoadIdentity();
-	mat2.SetTranslation(mat.GetTranslation());
+	mat2.load_identity();
+	mat2.set_translation(mat.get_translation());
 
 	float near;
 	float far;
@@ -149,7 +149,7 @@ void Skybox::Render()
 	far = 100.0f;//camera->GetFarClipDistance();
 	scale = (near + far) * 0.5f;
 
-	mat2.SetScale(Vec3(scale, scale, scale));
+	mat2.set_scale(Vec3(scale, scale, scale));
 
 	renderer->_SetDepthTest(false);
 	renderer->_SetDepthWrite(false);
