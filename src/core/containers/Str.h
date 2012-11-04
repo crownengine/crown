@@ -699,20 +699,20 @@ inline void Str::Replace(const Str& toFind, const Str& toReplace)
 		if (found)
 		{
 			for(uint j = 0; j < toReplace.mLength; j++)
-				tmp.Append(toReplace.mText[j]);
+				tmp.push_back(toReplace.mText[j]);
 			i += toFind.mLength-1;
 		}
 		else
-			tmp.Append(mText[i]);
+			tmp.push_back(mText[i]);
 	}
 
 	while(i <= mLength)
 	{
-		tmp.Append(mText[i]);
+		tmp.push_back(mText[i]);
 		i++;
 	}
 
-	*this = tmp.GetBegin();
+	*this = tmp.begin();
 }
 
 inline void Str::Split(char ch, List<Str>& split) const
@@ -733,7 +733,7 @@ inline void Str::Split(char ch, List<Str>& split) const
 
 		if (charCount > 0)
 		{
-			split.Append(this->GetSubstring(lastChar, lastChar + charCount));
+			split.push_back(this->GetSubstring(lastChar, lastChar + charCount));
 		}
 
 		charCount = 0;
