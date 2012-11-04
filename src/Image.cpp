@@ -137,11 +137,7 @@ const uchar* Image::GetBuffer() const
 
 void Image::ApplyColorKeying(const Color4& color)
 {
-	if (mPixelFormat != PF_RGBA_8)
-	{
-		Log::E("Image::ApplyColorKeying: Can apply color-keying only on RGBA8 pixel formats.");
-		return;
-	}
+	assert(mPixelFormat == PF_RGBA_8);
 
 	for (ulong i = 0; i < mWidth * mHeight * 4; i += 4)
 	{
@@ -208,10 +204,7 @@ void Image::CreateBuffer()
 
 void Image::AssertRGB8()
 {
-	if (mPixelFormat != PF_RGB_8)
-	{
-		throw InvalidOperationException("Operation supported only on RGB8 Images");
-	}
+	assert(mPixelFormat == PF_RGB_8);
 }
 
 void Image::SetPixel(uint x, uint y, Color4 color)
