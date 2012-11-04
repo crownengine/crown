@@ -6,7 +6,6 @@ set (SRC
 	Filesystem.cpp
 	Font.cpp
 	FontManager.cpp
-	Frame.cpp
 	Image.cpp
 	ImageLoader.cpp
 	Log.cpp
@@ -16,17 +15,11 @@ set (SRC
 	Mesh.cpp
 	MeshManager.cpp
 	MovableCamera.cpp
-#	ParticleEmitter.cpp
-#	ParticleManager.cpp
-#	PhysicNode.cpp
-#	PhysicsManager.cpp
 	Pixel.cpp
 	Renderer.cpp
 	RenderWindow.cpp
 	ResourceManager.cpp
 	Skybox.cpp
-	SpriteAnimator.cpp
-	Sprite.cpp
 	Terrain.cpp
 	TextRenderer.cpp
 	World.cpp
@@ -43,7 +36,6 @@ set (HEADERS
 	Filesystem.h
 	Font.h
 	FontManager.h
-	Frame.h
 	Glyph.h
 	Image.h
 	ImageLoader.h
@@ -57,18 +49,12 @@ set (HEADERS
 	MeshManager.h
 	MovableCamera.h
 	OcclusionQuery.h
-#	ParticleEmitter.h
-#	ParticleManager.h
-#	PhysicNode.h
-#	PhysicsManager.h
 	Pixel.h
 	Renderer.h
 	RenderWindow.h
 	Resource.h
 	ResourceManager.h
 	Skybox.h
-	SpriteAnimator.h
-	Sprite.h
 	Terrain.h
 	TextRenderer.h
 	Texture.h
@@ -79,7 +65,6 @@ set (HEADERS
 )
 
 set (CORE_SRC
-	core/Observable.cpp
 	core/Weak.cpp
 )
 
@@ -87,7 +72,6 @@ set (CORE_HEADERS
 	core/CoreEventArgs.h
 	core/Delegate.h
 	core/Exceptions.h
-	core/Observable.h
 	core/SignalSlot.h
 	core/Singleton.h
 	core/Types.h
@@ -119,7 +103,6 @@ set (CONTAINERS_HEADERS
 	core/containers/Array.h
 	core/containers/Dictionary.h
 	core/containers/Generic.h
-	core/containers/IEnumerable.h
 	core/containers/List.h
 	core/containers/RBTree.h
 	core/containers/Str.h
@@ -204,22 +187,17 @@ set (INPUT_HEADERS
 set (LOADERS_SRC
 	loaders/BMPImageLoader.cpp
 	loaders/TGAImageLoader.cpp
-#	loaders/XMLReader.cpp
-#	loaders/XWMLReader.cpp
 )
 
 set (LOADERS_HEADERS
 	loaders/BMPImageLoader.h
 	loaders/TGAImageLoader.h
-	loaders/XMLReader.h
-	loaders/XWMLReader.h
 )
 
 set (GL_SRC
 	renderers/gl/GLIndexBuffer.cpp
 	renderers/gl/GLOcclusionQuery.cpp
 	renderers/gl/GLRenderer.cpp
-	renderers/gl/GLSupport.cpp
 	renderers/gl/GLTexture.cpp
 	renderers/gl/GLTextureManager.cpp
 	renderers/gl/GLUtils.cpp
@@ -230,7 +208,6 @@ set (GL_HEADERS
 	renderers/gl/GLIndexBuffer.h
 	renderers/gl/GLOcclusionQuery.h
 	renderers/gl/GLRenderer.h
-	renderers/gl/GLSupport.h
 	renderers/gl/GLTexture.h
 	renderers/gl/GLTextureManager.h
 	renderers/gl/GLUtils.h
