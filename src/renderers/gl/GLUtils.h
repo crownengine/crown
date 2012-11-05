@@ -37,7 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#define GL_TEXTURE_CUBE_MAP				0x8513
 #endif
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -188,5 +188,5 @@ inline PixelFormat GL::GetPixelFormatFromGLFormat(GLenum format)
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

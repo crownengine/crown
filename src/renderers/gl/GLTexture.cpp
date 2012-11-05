@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GLUtils.h"
 #include <GL/glew.h>
 
-namespace Crown
+namespace crown
 {
 
 GLTexture::GLTexture() :
@@ -188,5 +188,5 @@ PixelFormat GLTexture::GetTextureFormat() const
 	return GL::GetPixelFormatFromGLFormat(GetGLTextureFormat());
 }
 
-} // namespace Crown
+} // namespace crown
 

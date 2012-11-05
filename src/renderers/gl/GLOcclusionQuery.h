@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "OcclusionQuery.h"
 
-namespace Crown
+namespace crown
 {
 
 class GLOcclusionQuery : public OcclusionQuery
@@ -58,5 +58,5 @@ private:
 	GLuint mQueryObject;
 };
 
-} // namespace Crown
+} // namespace crown
 

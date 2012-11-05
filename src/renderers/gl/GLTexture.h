@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Texture.h"
 
-namespace Crown
+namespace crown
 {
 
 class GLTexture : public Texture
@@ -62,5 +62,5 @@ private:
 	GLuint			mTextureObject;
 };
 
-} // namespace Crown
+} // namespace crown
 

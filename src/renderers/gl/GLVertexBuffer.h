@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexBuffer.h"
 #include <GL/glew.h>
 
-namespace Crown
+namespace crown
 {
 
 class GLVertexBuffer: public VertexBuffer

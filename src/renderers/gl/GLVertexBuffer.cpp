@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GLVertexBuffer.h"
 #include <GL/glew.h>
 
-namespace Crown
+namespace crown
 {
 
 //!Constructor

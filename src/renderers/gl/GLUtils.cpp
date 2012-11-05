@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "GLUtils.h"
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -135,5 +135,5 @@ const GLenum GL::POLYGON_MODE_TABLE[PM_COUNT] =
 	GL_FILL
 };
 
-} // namespace Crown
+} // namespace crown
 

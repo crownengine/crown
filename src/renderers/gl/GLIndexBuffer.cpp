@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <GL/glew.h>
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 GLIndexBuffer::GLIndexBuffer()

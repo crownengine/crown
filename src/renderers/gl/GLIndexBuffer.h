@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IndexBuffer.h"
 #include <GL/glew.h>
 
-namespace Crown
+namespace crown
 {
 
 class GLIndexBuffer: public IndexBuffer

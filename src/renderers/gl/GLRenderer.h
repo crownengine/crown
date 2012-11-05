@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define MAX_TEXTURE_UNITS 8
 #define MAX_MODEL_MATRIX_STACK_DEPTH 100
 
-namespace Crown
+namespace crown
 {
 
 class GLSupport;
@@ -173,5 +173,5 @@ private:
 	DebugLinesData		mLinesData[1024];
 };
 
-} // namespace Crown
+} // namespace crown
 

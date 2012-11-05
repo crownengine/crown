@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GLTextureManager.h"
 #include "GLTexture.h"
 
-namespace Crown
+namespace crown
 {
 
 Texture* GLTextureManager::Create(const char* name, bool& created)
@@ -95,5 +95,5 @@ TextureManager* GetTextureManager()
 	return &textureMgr;
 }
 
-} // namespace Crown
+} // namespace crown
 

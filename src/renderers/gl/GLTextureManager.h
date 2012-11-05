@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextureManager.h"
 #include "GLTexture.h"
 
-namespace Crown
+namespace crown
 {
 
 class GLTextureManager : public TextureManager
@@ -78,5 +78,5 @@ private:
 	GLTextureManager& operator=(const GLTextureManager&);
 };
 
-} // namespace Crown
+} // namespace crown
 

@@ -48,7 +48,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#define GL_GENERATE_MIPMAP				0x8191
 #endif
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -920,5 +920,5 @@ void GLRenderer::DrawDebugLines()
 	mLinesCount = 0;
 }
 
-} // namespace Crown
+} // namespace crown
 

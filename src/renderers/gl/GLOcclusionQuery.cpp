@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <GL/glew.h>
 #include "GLOcclusionQuery.h"
 
-namespace Crown
+namespace crown
 {
 
 GLOcclusionQuery::GLOcclusionQuery() :
@@ -68,5 +68,5 @@ bool GLOcclusionQuery::IsResultAvailable()
 	return available != 0;
 }
 
-} // namespace Crown
+} // namespace crown
 
