@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Keyboard.h"
 #include "Touch.h"
 
-namespace Crown
+namespace crown
 {
 
 class EventDispatcher : public MouseListener, public KeyboardListener, public TouchListener
@@ -92,5 +92,5 @@ private:
 	TouchListenerList mTouchListenerList;
 };
 
-} // namespace Crown
+} // namespace crown
 

@@ -27,16 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "EventDispatcher.h"
 
-struct android_app;
-
-namespace Crown
+namespace crown
 {
-
-union EventSource
-{
-	unsigned long WindowHandle;
-	android_app* AndroidApp;
-};
 
 class Mouse;
 class Keyboard;
@@ -44,51 +36,49 @@ class Touch;
 class MouseListener;
 class KeyboardListener;
 class TouchListener;
-class RenderWindow;
 
 class InputManager
 {
 
 public:
 
-	static InputManager* CreateInputManager(RenderWindow* window);
-	static void DestroyInputManager(InputManager* manager);
-
 	/**
 		Constructor.
 	*/
-	InputManager() : mMouse(NULL), mKeyboard(NULL), mTouch(NULL) {}
+	InputManager() : mMouse(NULL), mKeyboard(NULL), mTouch(NULL)
+	{
+	}
 
 	/**
 		Destructor.
 	*/
-	virtual ~InputManager() {}
+	~InputManager() {}
 
 	/**
 		Initializes the input manager.
 	*/
-	virtual void Init(const EventSource& source) = 0;
+	void Init();
 
 	/**
 		Returns whether the mouse is available.
 	@return
 		True if available, false otherwise
 	*/
-	virtual bool IsMouseAvailable() = 0;
+	bool IsMouseAvailable() {}
 
 	/**
 		Returns whether the keyboard is available.
 	@return
 		True if available, false otherwise
 	*/
-	virtual bool IsKeyboardAvailable() = 0;
+	bool IsKeyboardAvailable() {}
 
 	/**
 		Returns whether the touch is available.
 	@return
 		True if available, false otherwise
 	*/
-	virtual bool IsTouchAvailable() = 0;
+	bool IsTouchAvailable() {}
 
 	/**
 		Returns the handle to the mouse input device.
@@ -122,17 +112,17 @@ public:
 
 	inline void RegisterMouseListener(MouseListener* listener)
 	{
-		mEventDispatcher.AddMouseListener(listener);
+		//mEventDispatcher.AddMouseListener(listener);
 	}
 
 	inline void RegisterKeyboardListener(KeyboardListener* listener)
 	{
-		mEventDispatcher.AddKeyboardListener(listener);
+		//mEventDispatcher.AddKeyboardListener(listener);
 	}
 
 	inline void RegisterTouchListener(TouchListener* listener)
 	{
-		mEventDispatcher.AddTouchListener(listener);
+		//mEventDispatcher.AddTouchListener(listener);
 	}
 
 	inline EventDispatcher* GetEventDispatcher()
@@ -140,13 +130,18 @@ public:
 		return &mEventDispatcher;
 	}
 
+	void EventLoop();
+
 protected:
 
-	EventDispatcher mEventDispatcher;
-	Mouse* mMouse;
-	Keyboard* mKeyboard;
-	Touch* mTouch;
+	EventDispatcher		mEventDispatcher;
+
+	Mouse*				mMouse;
+	Keyboard*			mKeyboard;
+	Touch*				mTouch;
 };
 
-} // namespace Crown
+InputManager* GetInputManager();
+
+} // namespace crown
 

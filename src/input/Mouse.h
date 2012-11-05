@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Point2.h"
 #include "Vec2.h"
 
-namespace Crown
+namespace crown
 {
 
 class InputManager;
@@ -164,5 +164,5 @@ protected:
 	MouseListener* mListener;
 };
 
-} // namespace Crown
+} // namespace crown
 

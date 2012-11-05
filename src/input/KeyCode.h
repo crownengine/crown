@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -96,5 +96,5 @@ enum KeyCode
 
 typedef uchar Key;
 
-} // namespace Crown
+} // namespace crown
 

@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define MAX_KEYCODES 256
 
-namespace Crown
+namespace crown
 {
 
 class InputManager;
@@ -129,5 +129,5 @@ protected:
 	KeyboardListener* mListener;
 };
 
-} // namespace Crown
+} // namespace crown
 

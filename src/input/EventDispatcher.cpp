@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "EventDispatcher.h"
 #include "Exceptions.h"
 
-namespace Crown
+namespace crown
 {
 
 void EventDispatcher::AddMouseListener(MouseListener* listener)
@@ -139,5 +139,5 @@ void EventDispatcher::TouchCancel(const TouchEvent& event)
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

@@ -24,72 +24,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "InputManager.h"
-#include "Config.h"
-#include "Exceptions.h"
-#include "Device.h"
+#include "OS.h"
 
-#if defined(LINUX)
-	#include "X11InputManager.h"
-	#if defined (CROWN_USE_OPENGL)
-		#include "GLXRenderWindow.h"
-	#elif defined(CROWN_USE_OPENGLES)
-		#include "EGLRenderWindow.h"
-	#endif
-#elif defined(WINDOWS) && defined(CROWN_USE_OPENGL)
-	#include "WinInputManager.h"
-	#include "WGLRenderWindow.h"
-#elif defined(CROWN_OS_ANDROID)
-	#include "AndroidInputManager.h"
-	#include "EGLRenderWindow.h"
-#endif
-
-namespace Crown
+namespace crown
 {
 
-InputManager* InputManager::CreateInputManager(RenderWindow* window)
+void InputManager::EventLoop()
 {
-	InputManager* manager = NULL;
-	EventSource source;
-
-	if (window == NULL)
-	{
-		throw NullPointerException("InputManager::CreateInputManager: window == NULL");
-	}
-
-	#if defined(LINUX)
-		manager = new X11InputManager;
-		#if defined(CROWN_USE_OPENGL)
-			source.WindowHandle = static_cast<GLXRenderWindow*>(window)->GetXWindow();
-		#elif defined(CROWN_USE_OPENGLES)
-			source.WindowHandle = static_cast<EGLRenderWindow*>(window)->GetXWindow();
-		#endif
-	#elif defined(WINDOWS) && defined(CROWN_USE_OPENGL)
-		manager = new WinInputManager;
-		source.WindowHandle = (unsigned long)(static_cast<WGLRenderWindow*>(window)->GetWindowHandle());
-	#elif defined(CROWN_OS_ANDROID)
-		manager = new AndroidInputManager;
-		source.AndroidApp = GetDevice()->_GetAndroidApp();
-	#else
-		#error "No operating system selected."
-	#endif
-
-	if (manager)
-	{
-		manager->Init(source);
-	}
-
-	return manager;
+	//TODO do the hard job here...
 }
 
-void InputManager::DestroyInputManager(InputManager* manager)
+InputManager inputManager;
+InputManager* GetInputManager()
 {
-	if (manager == NULL)
-	{
-		throw NullPointerException("InputManager::DestroyInputManager: manager == NULL");
-	}
-
-	delete manager;
+	return &inputManager;
 }
 
-} // namespace Crown
+} // namespace crown
 
