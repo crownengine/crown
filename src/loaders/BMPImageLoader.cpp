@@ -33,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Exceptions.h"
 #include "Filesystem.h"
 
-namespace Crown
+namespace crown
 {
 
 #pragma pack(2)
@@ -285,5 +285,5 @@ void BMPImageLoader::SaveFile(const Image* image, const char* relativePath)
 		fclose(fp);
 }
 
-} // namespace Crown
+} // namespace crown
 

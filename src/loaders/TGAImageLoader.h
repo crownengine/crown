@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ImageLoader.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 class Image;
@@ -69,5 +69,5 @@ private:
 	TGAHeader_t mTGAHeader;
 };
 
-} // namespace Crown
+} // namespace crown
 

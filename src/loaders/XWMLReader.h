@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "WindowsManager.h"
 #include "XMLReader.h"
 
-namespace Crown
+namespace crown
 {
 
 class WindowContext;
@@ -52,5 +52,5 @@ private:
 	static Widget* CreateWidgetByName(Str name, Widget* parent);
 };
 
-} // namespace Crown
+} // namespace crown
 

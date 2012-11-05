@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "ImageLoader.h"
 
-namespace Crown
+namespace crown
 {
 
 class Image;
@@ -47,5 +47,5 @@ public:
 private:
 };
 
-} // namespace Crown
+} // namespace crown
 

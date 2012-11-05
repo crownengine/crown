@@ -35,7 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TreeView.h"
 #include "ImageWidget.h"
 
-namespace Crown
+namespace crown
 {
 
 XWMLReader::XWMLReader()
@@ -292,5 +292,5 @@ Widget* XWMLReader::CreateWidgetByName(Str name, Widget* parent)
 	return NULL;
 }
 
-} // namespace Crown
+} // namespace crown
 

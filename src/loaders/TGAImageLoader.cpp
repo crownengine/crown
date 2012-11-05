@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TGAImageLoader.h"
 #include "Filesystem.h"
 
-namespace Crown
+namespace crown
 {
 
 TGAImageLoader::TGAImageLoader()
@@ -237,5 +237,5 @@ void TGAImageLoader::SaveFile(const Image* image, const char* relativePath)
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 
