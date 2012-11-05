@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexBuffer.h"
 #include <GLES/gl.h>
 
-namespace Crown
+namespace crown
 {
 
 class GLESVertexBuffer: public VertexBuffer

@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include <GLES/gl.h>
 
-namespace Crown
+namespace crown
 {
 
 class GLESIndexBuffer: public IndexBuffer

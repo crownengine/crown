@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GLESVertexBuffer.h"
 #include <GLES/gl.h>
 
-namespace Crown
+namespace crown
 {
 
 GLESVertexBuffer::GLESVertexBuffer():

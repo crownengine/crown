@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "GLESIndexBuffer.h"
 
-namespace Crown
+namespace crown
 {
 
 //!Constructor

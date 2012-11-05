@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Material.h"
 #include "Pixel.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -150,5 +150,5 @@ inline PixelFormat GLES::GetPixelFormatFromGLFormat(GLenum format)
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

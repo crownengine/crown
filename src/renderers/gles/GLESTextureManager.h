@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextureManager.h"
 #include "GLESTexture.h"
 
-namespace Crown
+namespace crown
 {
 
 class GLESTextureManager : public TextureManager
@@ -78,5 +78,5 @@ private:
 	GLESTextureManager& operator=(const GLESTextureManager&);
 };
 
-} // namespace Crown
+} // namespace crown
 

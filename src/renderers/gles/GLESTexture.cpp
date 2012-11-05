@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GLESTextureManager.h"
 #include "ImageLoader.h"
 
-namespace Crown
+namespace crown
 {
 
 GLESTexture::GLESTexture() :
@@ -179,5 +179,5 @@ PixelFormat GLESTexture::GetTextureFormat() const
 	return GLES::GetPixelFormatFromGLFormat(GetGLTextureFormat());
 }
 
-} // namespace Crown
+} // namespace crown
 

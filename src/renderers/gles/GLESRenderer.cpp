@@ -37,7 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Rect.h"
 #include <GLES/gl.h>
 
-namespace Crown
+namespace crown
 {
 
 GLESRenderer::GLESRenderer() :
@@ -736,5 +736,5 @@ void GLESRenderer::CheckGLErrors()
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "GLESUtils.h"
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -108,5 +108,5 @@ const GLenum GLES::FOG_MODE_TABLE[FM_COUNT] =
 	GL_EXP2
 };
 
-} // namespace Crown
+} // namespace crown
 

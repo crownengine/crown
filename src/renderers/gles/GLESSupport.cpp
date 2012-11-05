@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Str.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 GLESSupport::GLESSupport()
@@ -82,5 +82,5 @@ GLESSupport* GetGLESSupport()
 	return new GLESSupport();
 }
 
-} // namespace Crown
+} // namespace crown
 

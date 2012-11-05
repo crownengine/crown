@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Str.h"
 
-namespace Crown
+namespace crown
 {
 
 class RenderWindow;
@@ -74,5 +74,5 @@ protected:
 
 GLESSupport* GetGLESSupport();
 
-} // namespace Crown
+} // namespace crown
 

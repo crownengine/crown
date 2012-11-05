@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define MAX_TEXTURE_UNITS 8
 
-namespace Crown
+namespace crown
 {
 
 class GLESSupport;
@@ -159,5 +159,5 @@ private:
 	GLenum				mTextureUnitTarget[MAX_TEXTURE_UNITS];
 };
 
-} // namespace Crown
+} // namespace crown
 
