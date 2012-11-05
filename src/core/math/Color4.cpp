@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Color4.h"
 
-namespace Crown
+namespace crown
 {
 
 const Color4 Color4::ALICEBLUE				= Color4(0XF0F8FFFF);
@@ -176,5 +176,5 @@ const Color4 Color4::WHITESMOKE				= Color4(0XF5F5F5FF);
 const Color4 Color4::YELLOW					= Color4(0XFFFF00FF);
 const Color4 Color4::YELLOWGREEN			= Color4(0X9ACD32FF);
 
-} //namespace Crown
+} //namespace crown
 

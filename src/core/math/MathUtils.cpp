@@ -26,9 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MathUtils.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 
-} // namespace Crown
+} // namespace crown
 

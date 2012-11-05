@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Stream.h"
 #include "Exceptions.h"
 
-namespace Crown
+namespace crown
 {
 
 class MemoryBuffer

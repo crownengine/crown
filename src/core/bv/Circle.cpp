@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Circle.h"
 #include "Rect.h"
 
-namespace Crown
+namespace crown
 {
 
 Rect Circle::to_rect() const

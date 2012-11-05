@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "MathUtils.h"
 
-namespace Crown
+namespace crown
 {
 
 FileStream::FileStream(StreamOpenMode openMode, const Str& filename) :

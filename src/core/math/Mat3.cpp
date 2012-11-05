@@ -33,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Str.h"
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 const Mat3 Mat3::IDENTITY = Mat3(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
@@ -655,5 +655,5 @@ Str Mat3::to_str() const
 	return tmp;
 }
 
-} // namespace Crown
+} // namespace crown
 

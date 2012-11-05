@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "MathUtils.h"
 
-namespace Crown
+namespace crown
 {
 
 enum SeekMode
@@ -304,5 +304,5 @@ private:
 	Stream*				mStream;
 };
 
-} // namespace Crown
+} // namespace crown
 

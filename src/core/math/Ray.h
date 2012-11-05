@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Sphere.h"
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -66,5 +66,5 @@ inline Ray::~Ray()
 {
 }
 
-} // namespace Crown
+} // namespace crown
 

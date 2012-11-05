@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 class ReferenceCount
@@ -269,5 +269,5 @@ inline uint Shared<T>::GetReferenceCount()
 	return mReferenceCount.GetReferenceCount();
 }
 
-} // namespace Crown
+} // namespace crown
 

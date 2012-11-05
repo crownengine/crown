@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MathUtils.h"
 #include "Str.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -480,5 +480,5 @@ inline Color4 operator*(float scalar, const Color4& color)
 	return Color4(color.r * scalar, color.g * scalar, color.b * scalar, color.a * scalar);
 }
 
-} // namespace Crown
+} // namespace crown
 

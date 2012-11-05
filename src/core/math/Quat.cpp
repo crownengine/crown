@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Quat.h"
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 Quat::Quat()
@@ -206,5 +206,5 @@ Quat slerp(const Quat& start, const Quat& end, real t)
 	return delta * start;
 }
 
-} // namespace Crown
+} // namespace crown
 

@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 class Str
@@ -985,5 +985,5 @@ inline int Str::FindLast(const char* str, char c)
 	return -1;
 }
 
-} // namespace Crown
+} // namespace crown
 

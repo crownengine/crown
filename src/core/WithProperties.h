@@ -33,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "Weak.h"
 
-namespace Crown
+namespace crown
 {
 
 class StrSerializable

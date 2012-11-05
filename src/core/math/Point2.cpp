@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Point2.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 const Point2 Point2::ZERO	= Point2(0, 0);
@@ -34,4 +34,4 @@ const Point2 Point2::ONE	= Point2(1, 1);
 const Point2 Point2::XAXIS	= Point2(1, 0);
 const Point2 Point2::YAXIS	= Point2(0, 1);
 
-} // namespace Crown
+} // namespace crown

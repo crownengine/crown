@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Intersection.h"
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -174,5 +174,5 @@ Box Frustum::to_box() const
 	return tmp;
 }
 
-} // namespace Crown
+} // namespace crown
 

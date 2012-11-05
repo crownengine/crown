@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Delegate.h"
 
-namespace Crown
+namespace crown
 {
 
 /*
@@ -96,4 +96,4 @@ void MulticastEvent<TSource, TArg1>::operator+=(HandlerType* handler)
 		mHandlers.Append(handler);
 }
 
-} //namespace Crown
+} //namespace crown

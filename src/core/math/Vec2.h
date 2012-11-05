@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MathUtils.h"
 #include "Str.h"
 
-namespace Crown
+namespace crown
 {
 
 //!< 2D column vector
@@ -371,5 +371,5 @@ inline Vec2 operator*(real k, const Vec2& a)
 	return a * k;
 }
 
-} // namespace Crown
+} // namespace crown
 

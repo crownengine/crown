@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "MathUtils.h"
 
-namespace Crown
+namespace crown
 {
 
 File::File() :
@@ -93,5 +93,5 @@ size_t File::GetSize()
 	return size;
 }
 
-} // namespace Crown
+} // namespace crown
 

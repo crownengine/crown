@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vec2.h"
 
 
-namespace Crown
+namespace crown
 {
 
 class Circle;
@@ -118,5 +118,5 @@ inline void Rect::set_max(const Vec2& max)
 	this->max = max;
 }
 
-} // namespace Crown
+} // namespace crown
 

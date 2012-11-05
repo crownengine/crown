@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -73,5 +73,5 @@ inline float Random::get_unit_float()
 	return get_int() / (float) 0x7FFF;
 }
 
-} // namespace Crown
+} // namespace crown
 

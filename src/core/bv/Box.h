@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vec3.h"
 #include "Sphere.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -313,5 +313,5 @@ inline Sphere Box::to_sphere() const
 	return Sphere(get_center(), get_radius());
 }
 
-} // namespace Crown
+} // namespace crown
 

@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vec4.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 const Vec4 Vec4::ZERO	= Vec4(0.0, 0.0, 0.0, 0.0);
@@ -36,5 +36,5 @@ const Vec4 Vec4::YAXIS	= Vec4(0.0, 1.0, 0.0, 0.0);
 const Vec4 Vec4::ZAXIS	= Vec4(0.0, 0.0, 1.0, 0.0);
 const Vec4 Vec4::WAXIS	= Vec4(0.0, 0.0, 0.0, 1.0);
 
-} // namespace Crown
+} // namespace crown
 

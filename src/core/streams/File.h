@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdio>
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -66,5 +66,5 @@ private:
 						File();
 };
 
-} // namespace Crown
+} // namespace crown
 

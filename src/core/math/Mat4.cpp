@@ -34,7 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vec3.h"
 #include "Vec4.h"
 
-namespace Crown
+namespace crown
 {
 
 const Mat4 Mat4::IDENTITY = Mat4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
@@ -1092,5 +1092,5 @@ Str Mat4::to_str() const
 	return tmp;
 }
 
-} // namespace Crown
+} // namespace crown
 

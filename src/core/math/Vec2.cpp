@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Vec2.h"
 
-namespace Crown
+namespace crown
 {
 
 const Vec2 Vec2::ZERO	= Vec2(0.0, 0.0);
@@ -33,5 +33,5 @@ const Vec2 Vec2::ONE	= Vec2(1.0, 1.0);
 const Vec2 Vec2::XAXIS	= Vec2(1.0, 0.0);
 const Vec2 Vec2::YAXIS	= Vec2(0.0, 1.0);
 
-} // namespace Crown
+} // namespace crown
 

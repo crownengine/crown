@@ -26,12 +26,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Str.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 const char* Str::EMPTY = "";
 
 Str Str::mEmpty("");
 
-} // namespace Crown
+} // namespace crown
 

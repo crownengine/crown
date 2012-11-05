@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cassert>
 #include <cstring>
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -345,5 +345,5 @@ inline T* List<T>::end()
 	return mArray + (mSize - 1);
 }
 
-} // namespace Crown
+} // namespace crown
 

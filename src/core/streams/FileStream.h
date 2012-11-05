@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "File.h"
 #include "Str.h"
 
-namespace Crown
+namespace crown
 {
 
 /**

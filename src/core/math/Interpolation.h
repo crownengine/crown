@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -156,5 +156,5 @@ inline T Interpolation::catmull_rom(const T& p0, const T& p1, const T& p2, const
 	return tmp * 0.5;
 }
 
-} // namespace Crown
+} // namespace crown
 

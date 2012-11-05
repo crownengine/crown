@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Str.h"
 #include "Vec2.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -387,5 +387,5 @@ inline Vec3 get_projected_perpendicular(const Vec3& v, const Vec3& n)
 	return v - get_projected_parallel(v, n);
 }
 
-} // namespace Crown
+} // namespace crown
 

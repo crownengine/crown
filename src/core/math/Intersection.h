@@ -35,7 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Circle.h"
 #include "Rect.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -857,5 +857,5 @@ inline bool Intersection::TestCircleRect(const Circle& c1, const Rect& r2, Vec2&
 	return true;
 }
 
-} // namespace Crown
+} // namespace crown
 

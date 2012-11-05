@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Sphere.h"
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 enum FrustumPlane
@@ -65,5 +65,5 @@ public:
 	Box			to_box() const;							//!< Returns a Box containing the frustum volume
 };
 
-} // namespace Crown
+} // namespace crown
 

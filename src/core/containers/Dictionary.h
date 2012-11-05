@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "RBTree.h"
 
-namespace Crown
+namespace crown
 {
 
 //Note: TKey must implement operators < and ==
@@ -48,4 +48,4 @@ public:
 	}
 };
 
-} // namespace Crown
+} // namespace crown

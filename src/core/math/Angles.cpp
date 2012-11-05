@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Str.h"
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 const Angles Angles::ZERO = Angles(0.0, 0.0, 0.0);
@@ -129,5 +129,5 @@ Quat Angles::to_quat() const
 	return b * p * h;
 }
 
-} // namespace Crown
+} // namespace crown
 

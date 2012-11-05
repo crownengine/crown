@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vec2.h"
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -312,5 +312,5 @@ inline Str Point2::to_str() const
 	return tmp;
 }
 
-} // namespace Crown
+} // namespace crown
 

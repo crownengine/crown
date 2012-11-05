@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 class Angles;
@@ -119,5 +119,5 @@ public:
 	static const Mat3	IDENTITY;
 };
 
-} // namespace Crown
+} // namespace crown
 

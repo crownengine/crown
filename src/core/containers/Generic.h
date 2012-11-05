@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Shared.h"
 
-namespace Crown
+namespace crown
 {
 
 class Str;
@@ -145,5 +145,5 @@ T* Generic::asType() const
 	return NULL;
 }
 
-} //namespace Crown
+} //namespace crown
 

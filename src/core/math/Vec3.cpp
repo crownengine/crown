@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 const Vec3 Vec3::ZERO	= Vec3(0.0, 0.0, 0.0);
@@ -34,5 +34,5 @@ const Vec3 Vec3::XAXIS	= Vec3(1.0, 0.0, 0.0);
 const Vec3 Vec3::YAXIS	= Vec3(0.0, 1.0, 0.0);
 const Vec3 Vec3::ZAXIS	= Vec3(0.0, 0.0, 1.0);
 
-} // namespace Crown
+} // namespace crown
 

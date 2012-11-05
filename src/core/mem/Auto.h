@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include <cassert>
 
-namespace Crown
+namespace crown
 {
 
 template <typename T>
@@ -187,5 +187,5 @@ inline const T* Auto<T>::GetPointer() const
 	return mPtr;
 }
 
-} // namespace Crown
+} // namespace crown
 

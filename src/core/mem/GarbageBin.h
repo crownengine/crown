@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "List.h"
 
-namespace Crown
+namespace crown
 {
 
 class IGarbageable
@@ -52,4 +52,4 @@ private:
 	List<IGarbageable*> mGarbage;
 };
 
-} //namespace Crown
+} //namespace crown

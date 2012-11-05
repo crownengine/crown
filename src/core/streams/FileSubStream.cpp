@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Log.h"
 
-namespace Crown
+namespace crown
 {
 
 FileSubStream::FileSubStream(StreamOpenMode openMode, const Str& filename, size_t position, size_t length) :

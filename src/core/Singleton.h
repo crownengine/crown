@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cstdlib>
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -79,5 +79,5 @@ void Singleton<T>::CleanUp()
 	mInstance = 0;
 }
 
-} // namespace Crown
+} // namespace crown
 

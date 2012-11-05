@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vec2.h"
 #include "Color4.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -46,5 +46,5 @@ public:
 	Color4 color;
 };
 
-} // namespace Crown
+} // namespace crown
 

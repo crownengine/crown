@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Plane.h"
 #include "MathUtils.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -137,5 +137,5 @@ inline Plane Triangle::to_plane() const
 	return Plane(n, d);
 }
 
-} // namespace Crown
+} // namespace crown
 

@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 void IGarbageable::Trash()
@@ -59,4 +59,4 @@ void GarbageBin::Empty()
 	mGarbage.clear();
 }
 
-} //namespace Crown
+} //namespace crown

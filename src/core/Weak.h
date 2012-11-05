@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Exceptions.h"
 
-namespace Crown
+namespace crown
 {
 
 class WeakReferenced
@@ -161,5 +161,5 @@ private:
 	}
 };
 
-} // namespace Crown
+} // namespace crown
 

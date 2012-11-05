@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Log.h"
 
-namespace Crown
+namespace crown
 {
 
 typedef List<WeakReferenced**> ObjectPPList;

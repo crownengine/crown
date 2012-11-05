@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MathUtils.h"
 #include "Str.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -352,5 +352,5 @@ inline Str Vec4::to_str() const
 	return tmp;
 }
 
-} // namespace Crown
+} // namespace crown
 

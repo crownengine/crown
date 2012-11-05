@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 #include <cstddef>
 
-namespace Crown
+namespace crown
 {
 
 typedef unsigned char			uchar;		// 8-bit
@@ -53,5 +53,5 @@ typedef ulong					StrId64;	// 64-bit string hash
 #endif
 #endif
 
-} // namespace Crown
+} // namespace crown
 

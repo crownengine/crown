@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Shape.h"
 
-namespace Crown
+namespace crown
 {
 
 Shape::Shape(ShapeType type):

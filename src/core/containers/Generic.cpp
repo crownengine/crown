@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------

@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 class Angles;
@@ -78,5 +78,5 @@ public:
 	Str			to_str() const;						//!< Returns a Str containing the quaternion's components
 };
 
-} // namespace Crown
+} // namespace crown
 

@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cassert>
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 enum RBTreeNodeColor { RED, BLACK };
@@ -686,5 +686,5 @@ int RBTree<TKey, TValue>::dbgVerify(Node* n) const
 }
 #endif
 
-} // namespace Crown
+} // namespace crown
 

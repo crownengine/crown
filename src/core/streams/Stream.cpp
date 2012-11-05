@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "zlib.h"
 #include "MathUtils.h"
 
-namespace Crown
+namespace crown
 {
 
 bool Stream::ZipTo(Stream* stream, size_t size, size_t& zippedSize)
@@ -340,5 +340,5 @@ void TextWriter::WriteString(const char* string)
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

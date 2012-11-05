@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Rect.h"
 #include "Circle.h"
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -139,5 +139,5 @@ Circle Rect::to_circle() const
 	return Circle(get_center(), get_radius());
 }
 
-} // namespace Crown
+} // namespace crown
 

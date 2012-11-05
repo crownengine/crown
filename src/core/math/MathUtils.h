@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define BIT(i) (1 << i)
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -300,5 +300,5 @@ inline bool solve_quadratic_equation(real a, real b, real c, real& x1, real& x2)
 }
 
 } // namespace math
-} // namespace Crown
+} // namespace crown
 

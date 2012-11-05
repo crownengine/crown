@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 MemoryBuffer::MemoryBuffer()

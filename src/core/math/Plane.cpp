@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Plane.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 const Plane Plane::ZERO = Plane(Vec3::ZERO, 0.0);
@@ -85,5 +85,5 @@ bool Plane::contains_point(const Vec3& p) const
 	return math::equals(n.dot(p) + d, (real)0.0);
 }
 
-} // namespace Crown
+} // namespace crown
 

@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "FileStream.h"
 
-namespace Crown
+namespace crown
 {
 
 class FileSubStream: public Stream

@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Box.h"
 #include "Ray.h"
 
-namespace Crown
+namespace crown
 {
 
 enum ShapeType

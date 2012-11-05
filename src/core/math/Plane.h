@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Sphere.h"
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -61,5 +61,5 @@ public:
 	static const Plane	ZAXIS;
 };
 
-} // namespace Crown
+} // namespace crown
 

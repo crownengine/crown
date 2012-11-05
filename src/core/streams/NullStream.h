@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Stream.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -121,5 +121,5 @@ public:
 	bool		CanSeek() { return true; }
 };
 
-} // namespace Crown
+} // namespace crown
 

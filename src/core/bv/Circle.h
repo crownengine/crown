@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vec2.h"
 #include "MathUtils.h"
 
-namespace Crown
+namespace crown
 {
 
 class Rect;
@@ -112,5 +112,5 @@ inline real Circle::get_area() const
 	return r * r * math::PI;
 }
 
-} // namespace Crown
+} // namespace crown
 

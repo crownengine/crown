@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Weak.h"
 #include "GarbageBin.h"
 
-namespace Crown
+namespace crown
 {
 
 /* Delegate with 0 arguments */
@@ -489,4 +489,4 @@ static IDelegate4<TResult, TArg0, TArg1, TArg2, TArg3>* CreateDelegate(TClass* o
 }
 
 
-} //namespace Crown
+} //namespace crown

@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MathUtils.h"
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -145,5 +145,5 @@ inline bool Sphere::contains_point(const Vec3& p) const
 	return (dist < r * r);
 }
 
-} // namespace Crown
+} // namespace crown
 
