@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mat4.h"
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 class Camera
@@ -131,5 +131,5 @@ protected:
 	bool mAutoAspect	: 1;
 };
 
-} // namespace Crown
+} // namespace crown
 

@@ -100,7 +100,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PhysicsManager.h"
 #include "PhysicNode.h"
 #include "Pixel.h"
-#include "RenderWindow.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include "Skybox.h"

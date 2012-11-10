@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "MathUtils.h"
 
-namespace Crown
+namespace crown
 {
 
 MeshManager::MeshManager()
@@ -264,5 +264,5 @@ MeshManager* GetMeshManager()
 	return &meshMgr;
 }
 
-} // namespace Crown
+} // namespace crown
 

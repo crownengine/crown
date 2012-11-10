@@ -17,7 +17,6 @@ set (SRC
 	MovableCamera.cpp
 	Pixel.cpp
 	Renderer.cpp
-	RenderWindow.cpp
 	ResourceManager.cpp
 	Skybox.cpp
 	Terrain.cpp
@@ -51,7 +50,6 @@ set (HEADERS
 	OcclusionQuery.h
 	Pixel.h
 	Renderer.h
-	RenderWindow.h
 	Resource.h
 	ResourceManager.h
 	Skybox.h
@@ -227,16 +225,13 @@ set (LINUX_SRC
 	os/linux/GLXRenderWindow.cpp
 	os/linux/LinuxOS.cpp
 	os/linux/LinuxTimer.cpp
-	os/linux/X11InputManager.cpp
 	os/linux/X11Keyboard.cpp
 	os/linux/X11Mouse.cpp
 )
 
 set (LINUX_HEADERS
 #	os/linux/EGLRenderWindow.h
-	os/linux/GLXRenderWindow.h
 	os/linux/LinuxTimer.h
-	os/linux/X11InputManager.h
 	os/linux/X11Keyboard.h
 	os/linux/X11Mouse.h
 )

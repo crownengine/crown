@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define MAX_EVENT_QUEUE_SIZE 64 * 1024
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -62,5 +62,5 @@ public:
 	char		mBuffer[MAX_EVENT_QUEUE_SIZE];
 };
 
-} // namespace Crown
+} // namespace crown
 

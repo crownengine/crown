@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mouse.h"
 #include <windows.h>
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -74,5 +74,5 @@ private:
 	HWND mWindowHandle;
 };
 
-} // namespace Crown
+} // namespace crown
 

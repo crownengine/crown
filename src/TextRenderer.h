@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Font.h"
 #include "Point2.h"
 
-namespace Crown
+namespace crown
 {
 
 enum TextAlignment
@@ -77,5 +77,5 @@ private:
 	
 };
 
-} // namespace Crown
+} // namespace crown
 

@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MaterialManager.h"
 #include "Log.h"
 
-namespace Crown
+namespace crown
 {
 
 Material* MaterialManager::Create(const char* name, bool& created)
@@ -47,5 +47,5 @@ Material* MaterialManager::CreateSpecific(const char* name)
 	return new Material();
 }
 
-} // namespace Crown
+} // namespace crown
 

@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Image.h"
 #include "Pixel.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -101,5 +101,5 @@ public:
 
 TextureManager* GetTextureManager();
 
-} // namespace Crown
+} // namespace crown
 

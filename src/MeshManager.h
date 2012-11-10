@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceManager.h"
 #include "Mesh.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -105,5 +105,5 @@ private:
 
 MeshManager* GetMeshManager();
 
-} // namespace Crown
+} // namespace crown
 

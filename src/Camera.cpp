@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Renderer.h"
 
-namespace Crown
+namespace crown
 {
 
 Camera::Camera(const Vec3& position, const Angles& axis,
@@ -173,5 +173,5 @@ void Camera::UpdateFrustum()
 	mFrustum.from_matrix(mProjection * mView);
 }
 
-} // namespace Crown
+} // namespace crown
 

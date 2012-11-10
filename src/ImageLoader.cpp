@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Image.h"
 #include "Str.h"
 
-namespace Crown
+namespace crown
 {
 
 Image* ImageLoader::Load(const char* relativePath)

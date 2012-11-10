@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "RenderWindow.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 class WGLRenderWindow : public RenderWindow
@@ -99,5 +99,5 @@ private:
 	void EventLoopDo(unsigned int minMsg, unsigned int maxMsg);
 };
 
-} // namespace Crown
+} // namespace crown
 

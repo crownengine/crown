@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "AndroidInputManager.h"
 #include "AndroidTouch.h"
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -66,5 +66,5 @@ void AndroidInputManager::Init(const EventSource& source)
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

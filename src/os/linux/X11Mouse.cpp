@@ -27,9 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include "Exceptions.h"
-#include "X11InputManager.h"
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -40,61 +39,61 @@ X11Mouse::X11Mouse(InputManager* creator) :
 	mXWindow(0),
 	mHiddenCursor(0)
 {
-	// Connect to the X Server
-	mDisplay = XOpenDisplay(NULL);
+//	// Connect to the X Server
+//	mDisplay = XOpenDisplay(NULL);
 
-	if (!mDisplay)
-	{
-		throw InvalidOperationException("X11Mouse::X11Mouse: Unable to connect to the X Server.");
-	}
+//	if (!mDisplay)
+//	{
+//		throw InvalidOperationException("X11Mouse::X11Mouse: Unable to connect to the X Server.");
+//	}
 
-	if (mCreator)
-	{
-		mXWindow = static_cast<X11InputManager*>(mCreator)->GetXWindow();
-	}
+//	if (mCreator)
+//	{
+//		mXWindow = static_cast<X11InputManager*>(mCreator)->GetXWindow();
+//	}
 
-	// We want to track motion and button pressed/released events
-	if (XSelectInput(mDisplay, mXWindow, ButtonPressMask | ButtonReleaseMask | PointerMotionMask) == BadWindow)
-	{
-		throw InvalidOperationException("X11Mouse::X11Mouse: Unable to select input, bad window.");
-	}
+//	// We want to track motion and button pressed/released events
+//	if (XSelectInput(mDisplay, mXWindow, ButtonPressMask | ButtonReleaseMask | PointerMotionMask) == BadWindow)
+//	{
+//		throw InvalidOperationException("X11Mouse::X11Mouse: Unable to select input, bad window.");
+//	}
 
-	// Build hidden cursor
-	Pixmap bm_no;
-	XColor black, dummy;
-	Colormap colormap;
-	static char no_data[] = { 0,0,0,0,0,0,0,0 };
+//	// Build hidden cursor
+//	Pixmap bm_no;
+//	XColor black, dummy;
+//	Colormap colormap;
+//	static char no_data[] = { 0,0,0,0,0,0,0,0 };
 
-	colormap = DefaultColormap(mDisplay, DefaultScreen(mDisplay));
-	XAllocNamedColor(mDisplay, colormap, "black", &black, &dummy);
-	bm_no = XCreateBitmapFromData(mDisplay, mXWindow, no_data, 8, 8);
-	mHiddenCursor = XCreatePixmapCursor(mDisplay, bm_no, bm_no, &black, &black, 0, 0);
+//	colormap = DefaultColormap(mDisplay, DefaultScreen(mDisplay));
+//	XAllocNamedColor(mDisplay, colormap, "black", &black, &dummy);
+//	bm_no = XCreateBitmapFromData(mDisplay, mXWindow, no_data, 8, 8);
+//	mHiddenCursor = XCreatePixmapCursor(mDisplay, bm_no, bm_no, &black, &black, 0, 0);
 
-	static_cast<X11InputManager*>(mCreator)->SetMouseAvailable(true);
+//	static_cast<X11InputManager*>(mCreator)->SetMouseAvailable(true);
 }
 
 //-----------------------------------------------------------------------------
 X11Mouse::~X11Mouse()
 {
-	if (mCreator)
-	{
-		static_cast<X11InputManager*>(mCreator)->SetMouseAvailable(false);
-	}
+//	if (mCreator)
+//	{
+//		static_cast<X11InputManager*>(mCreator)->SetMouseAvailable(false);
+//	}
 
-	if (!IsCursorVisible())
-	{
-		SetCursorVisible(true);
-	}
+//	if (!IsCursorVisible())
+//	{
+//		SetCursorVisible(true);
+//	}
 
-	if (mHiddenCursor)
-	{
-		XFreeCursor(mDisplay, mHiddenCursor);
-	}
+//	if (mHiddenCursor)
+//	{
+//		XFreeCursor(mDisplay, mHiddenCursor);
+//	}
 
-	if (mDisplay)
-	{
-		XCloseDisplay(mDisplay);
-	}
+//	if (mDisplay)
+//	{
+//		XCloseDisplay(mDisplay);
+//	}
 }
 
 //-----------------------------------------------------------------------------
@@ -147,7 +146,7 @@ Vec2 X11Mouse::GetCursorRelativeXY() const
 	XWindowAttributes attribs;
 	XGetWindowAttributes(mDisplay, mXWindow, &attribs);
 
-	Vec2 pos = GetCursorXY().ToVec2();
+	Vec2 pos = GetCursorXY().to_vec2();
 
 	pos.x = pos.x / (float) attribs.width;
 	pos.y = pos.y / (float) attribs.height;
@@ -164,72 +163,5 @@ void X11Mouse::SetCursorRelativeXY(const Vec2& position)
 	SetCursorXY(Point2((int)(position.x * (float) attribs.width), (int)(position.y * (float) attribs.height)));
 }
 
-//-----------------------------------------------------------------------------
-void X11Mouse::EventLoop()
-{
-	XEvent event;
-	MouseEvent mouseEvent;
-
-	while (XPending(mDisplay))
-	{
-		XNextEvent(mDisplay, &event);
-
-		switch (event.type)
-		{
-			case ButtonPress:
-			case ButtonRelease:
-			{
-				switch (event.xbutton.button)
-				{
-					case Button1:
-					{
-						mouseEvent.button = MB_LEFT;
-						break;
-					}
-					case Button2:
-					{
-						mouseEvent.button = MB_MIDDLE;
-						break;
-					}
-					case Button3:
-					{
-						mouseEvent.button = MB_RIGHT;
-						break;
-					}
-				}
-
-				mouseEvent.x = event.xbutton.x;
-				mouseEvent.y = event.xbutton.y;
-
-				if (mListener)
-				{
-					if (event.type == ButtonPress)
-					{
-						mListener->ButtonPressed(mouseEvent);
-					}
-					else if (event.type == ButtonRelease)
-					{
-						mListener->ButtonReleased(mouseEvent);
-					}
-				}
-
-				break;
-			}
-			case MotionNotify:
-			{
-				mouseEvent.x = event.xbutton.x;
-				mouseEvent.y = event.xbutton.y;
-
-				if (mListener)
-				{
-					mListener->CursorMoved(mouseEvent);
-				}
-
-				break;
-			}
-		}
-	}
-}
-
-} // namespace Crown
+} // namespace crown
 

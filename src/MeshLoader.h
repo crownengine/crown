@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 class Mesh;
@@ -47,5 +47,5 @@ public:
 	virtual Mesh* LoadFile(const char* name) = 0;
 };
 
-} // namespace Crown
+} // namespace crown
 

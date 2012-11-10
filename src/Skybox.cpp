@@ -34,7 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IndexBuffer.h"
 #include "Renderer.h"
 
-namespace Crown
+namespace crown
 {
 
 Skybox::Skybox(const Vec3& position, const Angles& axis, bool visible)
@@ -182,5 +182,5 @@ void Skybox::Render()
 	renderer->_SetTexturing(0, false);
 }
 
-} // namespace Crown
+} // namespace crown
 

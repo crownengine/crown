@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Str.h"
 
-namespace Crown
+namespace crown
 {
 
 class Image;
@@ -50,5 +50,5 @@ public:
 	static Image* Load(const char* relativePath);
 };
 
-} // namespace Crown
+} // namespace crown
 

@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vec3.h"
 #include "Angles.h"
 
-namespace Crown
+namespace crown
 {
 
 class PhysicNode

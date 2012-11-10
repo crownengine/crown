@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #undef MK_SHIFT
 #undef MK_ALT
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -198,5 +198,5 @@ Key WinKeyboard::TranslateKey(int winKey)
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

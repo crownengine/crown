@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Stream.h"
 #include "Log.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -168,5 +168,5 @@ private:
 
 Filesystem* GetFilesystem();
 
-} // namespace Crown
+} // namespace crown
 

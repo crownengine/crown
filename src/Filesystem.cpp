@@ -34,7 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #undef CreateDirectory
 #endif
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -58,11 +58,11 @@ void Filesystem::Init(const char* rootPath, const char* userPath)
 	if (Str::StrCmp(rootPath, Str::EMPTY) == 0)
 	{
 		// Set working paths
-		const char* envRootPath = OS::GetEnv("CROWN_ROOT_PATH");
+		const char* envRootPath = os::get_env("CROWN_ROOT_PATH");
 
 		if (envRootPath == Str::EMPTY)
 		{
-			mRootPath = OS::GetCWD();
+			mRootPath = os::get_cwd();
 		}
 		else
 		{
@@ -76,7 +76,7 @@ void Filesystem::Init(const char* rootPath, const char* userPath)
 
 	if (userPath == Str::EMPTY)
 	{
-		mUserPath = OS::GetHome();
+		mUserPath = os::get_home();
 	}
 	else
 	{
@@ -136,7 +136,7 @@ const char* Filesystem::BuildOSPath(const char* basePath, const char* relativePa
 	{
 		if (osPath[j] == '/')
 		{
-			osPath[j] = OS::PATH_SEPARATOR;
+			osPath[j] = os::PATH_SEPARATOR;
 		}
 	}
 
@@ -151,7 +151,7 @@ bool Filesystem::GetInfo(const char* basePath, const char* relativePath, Filesys
 
 	const char* osPath = BuildOSPath(basePath, relativePath);
 
-	if (OS::IsReg(osPath))
+	if (os::is_reg(osPath))
 	{
 		info.type			= FET_FILE;
 		info.osPath			= osPath;
@@ -159,7 +159,7 @@ bool Filesystem::GetInfo(const char* basePath, const char* relativePath, Filesys
 		return true;
 	}
 
-	if (OS::IsDir(osPath))
+	if (os::is_dir(osPath))
 	{
 		info.type			= FET_DIR;
 		info.osPath			= osPath;
@@ -209,7 +209,7 @@ bool Filesystem::CreateFile(const char* relativePath)
 {
 	const char* osPath = BuildOSPath(mRootPath.c_str(), relativePath);
 
-	return OS::Mknod(osPath);
+	return os::mknod(osPath);
 }
 
 //-----------------------------------------------------------------------------
@@ -217,7 +217,7 @@ bool Filesystem::CreateDir(const char* relativePath)
 {
 	const char* osPath = BuildOSPath(mRootPath.c_str(), relativePath);
 
-	return OS::Mkdir(osPath);
+	return os::mkdir(osPath);
 }
 
 //-----------------------------------------------------------------------------
@@ -225,7 +225,7 @@ bool Filesystem::DeleteFile(const char* relativePath)
 {
 	const char* osPath = BuildOSPath(mRootPath.c_str(), relativePath);
 
-	return OS::Unlink(osPath);
+	return os::unlink(osPath);
 }
 
 //-----------------------------------------------------------------------------
@@ -233,7 +233,7 @@ bool Filesystem::DeleteDir(const char* relativePath)
 {
 	const char* osPath = BuildOSPath(mRootPath.c_str(), relativePath);
 
-	return OS::Rmdir(osPath);
+	return os::rmdir(osPath);
 }
 
 //-----------------------------------------------------------------------------
@@ -420,7 +420,7 @@ void Filesystem::PrintReport()
 //		return false;
 //	}
 
-//	if (Str::IsAlpha(path[0]) && path[1] == ':' && path[2] == OS::PATH_SEPARATOR)
+//	if (Str::IsAlpha(path[0]) && path[1] == ':' && path[2] == os::PATH_SEPARATOR)
 //	{
 //		return true;
 //	}
@@ -634,5 +634,5 @@ Filesystem* GetFilesystem()
 	return &filesystem;
 }
 
-} // namespace Crown
+} // namespace crown
 

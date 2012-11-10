@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SpriteAnimator.h"
 #include <cstdlib>
 
-namespace Crown
+namespace crown
 {
 
 SpriteAnimator::SpriteAnimator():
@@ -107,4 +107,4 @@ void SpriteAnimator::Render()
 	}
 }
 
-} //namespace Crown
+} //namespace crown

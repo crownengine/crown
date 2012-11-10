@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PhysicNode.h"
 #include "PhysicsManager.h"
 
-namespace Crown
+namespace crown
 {
 
 PhysicNode::PhysicNode(const Vec3& position, const Angles& axis, bool visible, int collisionGroupId) :

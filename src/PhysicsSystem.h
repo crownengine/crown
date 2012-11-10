@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Shape.h"
 
-namespace Crown
+namespace crown
 {
 
 struct PhysicBody
@@ -53,5 +53,5 @@ private:
 
 };
 
-} // namespace Crown
+} // namespace crown
 

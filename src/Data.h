@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vec3.h"
 #include "Color4.h"
 
-namespace Crown
+namespace crown
 {
 
 struct VertexData
@@ -74,5 +74,5 @@ struct FaceData
 	ushort vertex[3];
 };
 
-} // namespace Crown
+} // namespace crown
 

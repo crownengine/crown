@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Keyboard.h"
 #include <windows.h>
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -76,5 +76,5 @@ private:
 	HWND mWindowHandle;
 };
 
-} // namespace Crown
+} // namespace crown
 

@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdio>
 #include <cstdarg>
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -171,5 +171,5 @@ bool OS::Ls(const char* path, List<Str>& fileList)
 	return false; // TODO
 }
 
-} // namespace Crown
+} // namespace crown
 

@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "PhysicsManager.h"
 
-namespace Crown
+namespace crown
 {
 
 //PhysicsManager::PhysicsManager()

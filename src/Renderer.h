@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Point2.h"
 #include "Material.h"
 
-namespace Crown
+namespace crown
 {
 
 class Image;
@@ -362,5 +362,5 @@ public:
 	virtual void DrawDebugLines() = 0;
 };
 
-} // namespace Crown
+} // namespace crown
 

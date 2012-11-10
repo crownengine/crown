@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 class Glyph
@@ -113,5 +113,5 @@ private:
 	float mBaseline;
 };
 
-} // namespace Crown
+} // namespace crown
 

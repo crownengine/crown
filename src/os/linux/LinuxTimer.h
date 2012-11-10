@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <time.h>
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 class Timer
@@ -69,5 +69,5 @@ private:
 	timespec mStartTime;		// Time at Start* call
 };
 
-} // namespace Crown
+} // namespace crown
 

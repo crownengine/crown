@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Timer.h"
 #include <GL/glew.h> // FIXME
 
-namespace Crown
+namespace crown
 {
 
 Random ParticleEmitterRandom(Timer().GetMicroseconds());
@@ -174,4 +174,4 @@ void ParticleEmitter::Render()
 	////GetDevice()->GetRenderer()->RenderPointBuffer(mVertexBuffer);
 }
 
-} //namespace Crown
+} //namespace crown

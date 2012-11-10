@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Str.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -65,5 +65,5 @@ private:
 	static int			mIndentCount;
 };
 
-} // namespace Crown
+} // namespace crown
 

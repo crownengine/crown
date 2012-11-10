@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "Image.h"
 
-namespace Crown
+namespace crown
 {
 
 class Image;
@@ -76,5 +76,5 @@ private:
 	Texture*				mTexture;
 };
 
-} // namespace Crown
+} // namespace crown
 

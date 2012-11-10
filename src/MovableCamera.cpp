@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MovableCamera.h"
 #include "InputManager.h"
 
-namespace Crown
+namespace crown
 {
 
 MovableCamera::MovableCamera(const Vec3& position, const Angles& axis,
@@ -48,7 +48,7 @@ MovableCamera::MovableCamera(const Vec3& position, const Angles& axis,
 	mAngleX = 0.0f;
 	mAngleY = 0.0f;
 
-	GetDevice()->GetInputManager()->GetMouse()->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
+	//GetDevice()->GetInputManager()->GetMouse()->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
 }
 
 MovableCamera::~MovableCamera()
@@ -63,7 +63,7 @@ float MovableCamera::GetMouseSensibility() const
 void MovableCamera::SetActive(bool active)
 {
 	Camera::SetActive(active);
-	GetDevice()->GetInputManager()->GetMouse()->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
+	//GetDevice()->GetInputManager()->GetMouse()->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
 }
 
 void MovableCamera::SetMouseSensibility(float sensibility)
@@ -205,11 +205,11 @@ void MovableCamera::StrafeRight()
 
 void MovableCamera::SetViewByMouse()
 {
-	Mouse* mouse = GetDevice()->GetInputManager()->GetMouse();
+	//Mouse* mouse = GetDevice()->GetInputManager()->GetMouse();
 
-	static Vec2 lastPos = mouse->GetCursorRelativeXY();
-	Vec2 currentPos = mouse->GetCursorRelativeXY();
-	mouse->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
+	static Vec2 lastPos = Vec2::ZERO;//mouse->GetCursorRelativeXY();
+	Vec2 currentPos = Vec2::ZERO;//mouse->GetCursorRelativeXY();
+	//mouse->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
 
 	if (lastPos == currentPos)
 	{
@@ -218,8 +218,8 @@ void MovableCamera::SetViewByMouse()
 
 	Vec2 delta = lastPos - currentPos;
 
-	mouse->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
-	lastPos = mouse->GetCursorRelativeXY();
+	//mouse->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
+	lastPos = Vec2::ZERO;//mouse->GetCursorRelativeXY();
 
 	mAngleX += delta.y * mMouseSensibility;
 	mAngleY += delta.x * mMouseSensibility;
@@ -245,5 +245,5 @@ void MovableCamera::SetViewByMouse()
 	Camera::SetLookAt(look);
 }
 
-} // namespace Crown
+} // namespace crown
 

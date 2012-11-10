@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 #include <android_native_app_glue.h>
 
-namespace Crown
+namespace crown
 {
 
 AndroidRenderWindow::AndroidRenderWindow() :
@@ -212,5 +212,5 @@ void AndroidRenderWindow::_SetTitleAndAdditionalTextToWindow()
 {
 }
 
-} // namespace Crown
+} // namespace crown
 

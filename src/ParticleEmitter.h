@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexBuffer.h"
 #include "Texture.h"
 
-namespace Crown
+namespace crown
 {
 
 class ParticleManager;
@@ -74,4 +74,4 @@ private:
 	friend class ParticleManager;
 };
 
-} //namespace Crown
+} //namespace crown

@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IndexBuffer.h"
 #include "Renderer.h"
 
-namespace Crown
+namespace crown
 {
 
 Mesh::Mesh() :
@@ -141,5 +141,5 @@ void Mesh::RecompileMesh()
 
 }
 
-} // namespace Crown
+} // namespace crown
 

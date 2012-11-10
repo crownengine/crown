@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Angles.h"
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 class Texture;
@@ -75,5 +75,5 @@ private:
 	Texture* mSkyboxFace[6];
 };
 
-} // namespace Crown
+} // namespace crown
 

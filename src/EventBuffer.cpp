@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstring>
 #include <stdio.h>
 
-namespace Crown
+namespace crown
 {
 
 EventBuffer::EventBuffer() : mBufferCount(0)
@@ -109,5 +109,5 @@ char* EventBuffer::GetBuffer()
 	return mBuffer;
 }
 
-} // namespace Crown
+} // namespace crown
 

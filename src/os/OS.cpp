@@ -1,12 +1,13 @@
 #include "OS.h"
 
-namespace Crown
+namespace crown
 {
 
-namespace OS
+namespace os
 {
 
 #define				MAX_OS_EVENTS 256
+
 static int			event_queue_count = 0;
 static OSEvent		event_queue[MAX_OS_EVENTS];
 
@@ -43,7 +44,7 @@ OSEvent& pop_event()
 	return event;
 }
 
-} // namespace OS
+} // namespace os
 
-} // namespace Crown
+} // namespace crown
 

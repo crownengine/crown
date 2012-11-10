@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MeshChunk.h"
 #include "Resource.h"
 
-namespace Crown
+namespace crown
 {
 
 class VertexBuffer;
@@ -83,5 +83,5 @@ private:
 	uint					mGlobalVertexCount;
 };
 
-} // namespace Crown
+} // namespace crown
 

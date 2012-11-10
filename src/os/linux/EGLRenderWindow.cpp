@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-namespace Crown
+namespace crown
 {
 
 EGLRenderWindow::EGLRenderWindow() :
@@ -304,5 +304,5 @@ void EGLRenderWindow::_SetTitleAndAdditionalTextToWindow()
 	XFree(textProperty.value);
 }
 
-} // namespace Crown
+} // namespace crown
 

@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "FontManager.h"
 #include "Log.h"
 
-namespace Crown
+namespace crown
 {
 
 FontManager::FontManager()
@@ -65,5 +65,5 @@ FontManager* GetFontManager()
 	return &fontMgr;
 }
 
-} // namespace Crown
+} // namespace crown
 

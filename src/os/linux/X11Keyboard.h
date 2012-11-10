@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 struct _XDisplay;
 typedef struct _XDisplay Display;
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -56,9 +56,6 @@ public:
 	/** @copydoc Keyboard::IsKeyReleased() */
 	virtual bool IsKeyReleased(KeyCode key) const;
 
-	/** @copydoc Keyboard::EventLoop() */
-	virtual void EventLoop();
-
 	/**
 		Returns whether DetectableAutoRepeat is set.
 	@return
@@ -79,5 +76,5 @@ private:
 	bool mDetectableAutoRepeat;
 };
 
-} // namespace Crown
+} // namespace crown
 

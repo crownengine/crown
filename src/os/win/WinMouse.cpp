@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Undef functions to avoid conflicts
 #undef MB_RIGHT
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -215,5 +215,5 @@ void WinMouse::EventLoop()
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

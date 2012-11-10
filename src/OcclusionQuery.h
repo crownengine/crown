@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 class OcclusionQuery
@@ -54,5 +54,5 @@ public:
 	virtual bool IsResultAvailable() = 0;
 };
 
-} // namespace Crown
+} // namespace crown
 

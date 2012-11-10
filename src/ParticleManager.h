@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "ParticleEmitter.h"
 
-namespace Crown
+namespace crown
 {
 
 class ParticleManager
@@ -53,4 +53,4 @@ private:
 	List<ParticleEmitter*> mEmitters;
 };
 
-} //namespace Crown
+} //namespace crown

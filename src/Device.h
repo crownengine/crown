@@ -31,11 +31,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Str.h"
 #include "EventLoop.h"
 
-namespace Crown
+namespace crown
 {
 
 class Renderer;
-class RenderWindow;
 class InputManager;
 class GarbageBin;
 
@@ -50,7 +49,6 @@ public:
 							Device();
 							~Device();
 
-	RenderWindow*			GetMainWindow();
 	InputManager*			GetInputManager();
 	Renderer*				GetRenderer();
 	GarbageBin*				GetGarbageBin();
@@ -81,7 +79,6 @@ private:
 	bool					mIsInit		: 1;
 	bool					mIsRunning	: 1;
 
-	RenderWindow*			mMainWindow;
 	InputManager*			mInputManager;
 	Renderer*				mRenderer;
 
@@ -97,5 +94,5 @@ private:
 
 Device* GetDevice();
 
-} // namespace Crown
+} // namespace crown
 

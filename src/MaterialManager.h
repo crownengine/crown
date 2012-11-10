@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceManager.h"
 #include "Material.h"
 
-namespace Crown
+namespace crown
 {
 
 class MaterialManager : public ResourceManager
@@ -70,5 +70,5 @@ private:
 	MaterialManager& operator=(const MaterialManager&);
 };
 
-} // namespace Crown
+} // namespace crown
 

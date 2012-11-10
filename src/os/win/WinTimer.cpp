@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <windows.h>
 #include "Timer.h"
 
-namespace Crown
+namespace crown
 {
 
 Timer::Timer()
@@ -155,5 +155,5 @@ ulong Timer::StopMicroseconds() const
 	return (ulong)((currentTime - mStartTime) / (mFrequency/1000000.0));
 }
 
-} // namespace Crown
+} // namespace crown
 

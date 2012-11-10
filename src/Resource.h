@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -105,5 +105,5 @@ protected:
 	size_t				mSize;			//!< The size in bytes
 };
 
-} // namespace Crown
+} // namespace crown
 

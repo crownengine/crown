@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 //#include "PhysicNode.h"
 //#include "Dictionary.h"
 
-//namespace Crown
+//namespace crown
 //{
 
 //class Scene;

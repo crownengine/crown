@@ -36,7 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "BMPImageLoader.h"
 #include <cmath>
 
-namespace Crown
+namespace crown
 {
 
 Terrain::Terrain() :
@@ -413,5 +413,5 @@ void Terrain::ApplyBrush(const Vec3& xyz, float scale)
 	ApplyBrush(x, z, scale);
 }
 
-} // namespace Crown
+} // namespace crown
 

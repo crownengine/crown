@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <android_native_app_glue.h>
 #include "Touch.h"
 
-namespace Crown
+namespace crown
 {
 
 class AndroidTouch : public Touch

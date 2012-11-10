@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Stream.h"
 
-namespace Crown
+namespace crown
 {
 
 Image::Image() :
@@ -257,5 +257,5 @@ void Image::ConvertToRGBA8()
 	mPixelFormat = PF_RGBA_8;
 }
 
-} // namespace Crown
+} // namespace crown
 

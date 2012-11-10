@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include <EGL/egl.h>
 
-namespace Crown
+namespace crown
 {
 
 class EGLRenderWindow : public RenderWindow
@@ -97,5 +97,5 @@ private:
 	EGLSurface mEGLWindow;
 };
 
-} // namespace Crown
+} // namespace crown
 

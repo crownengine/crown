@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 // [0 - 2]		-> 8-bit
@@ -116,5 +116,5 @@ private:
 	Pixel();
 };
 
-} // namespace Crown
+} // namespace crown
 

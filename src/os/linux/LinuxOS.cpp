@@ -30,67 +30,70 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <unistd.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <cstdlib>
 
-namespace Crown
+namespace crown
+{
+namespace os
 {
 
 //-----------------------------------------------------------------------------
-void OS::Printf(const char* string, ...)
+void printf(const char* string, ...)
 {
 	va_list args;
 
 	va_start(args, string);
-	vprintf(string, args);
+	::vprintf(string, args);
 	va_end(args);
 }
 
 //-----------------------------------------------------------------------------
-void OS::Vprintf(const char* string, va_list arg)
+void vprintf(const char* string, va_list arg)
 {
+	::vprintf(string, arg);
+}
+
+//-----------------------------------------------------------------------------
+void log_debug(const char* string, va_list arg)
+{
+	printf("D: ");
 	vprintf(string, arg);
+	printf("\n");
 }
 
 //-----------------------------------------------------------------------------
-void OS::LogDebug(const char* string, va_list arg)
+void log_error(const char* string, va_list arg)
 {
-	Printf("D: ");
-	Vprintf(string, arg);
-	Printf("\n");
+	printf("E: ");
+	vprintf(string, arg);
+	printf("\n");
 }
 
 //-----------------------------------------------------------------------------
-void OS::LogError(const char* string, va_list arg)
+void log_warning(const char* string, va_list arg)
 {
-	Printf("E: ");
-	Vprintf(string, arg);
-	Printf("\n");
+	printf("W: ");
+	vprintf(string, arg);
+	printf("\n");
 }
 
 //-----------------------------------------------------------------------------
-void OS::LogWarning(const char* string, va_list arg)
+void log_info(const char* string, va_list arg)
 {
-	Printf("W: ");
-	Vprintf(string, arg);
-	Printf("\n");
+	printf("I: ");
+	vprintf(string, arg);
+	printf("\n");
 }
 
 //-----------------------------------------------------------------------------
-void OS::LogInfo(const char* string, va_list arg)
-{
-	Printf("I: ");
-	Vprintf(string, arg);
-	Printf("\n");
-}
-
-//-----------------------------------------------------------------------------
-bool OS::Exists(const char* path)
+bool exists(const char* path)
 {
 	struct stat dummy;
 	return (stat(path, &dummy) == 0);
 }
 
 //-----------------------------------------------------------------------------
-bool OS::IsDir(const char* path)
+bool is_dir(const char* path)
 {
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
@@ -99,7 +102,7 @@ bool OS::IsDir(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool OS::IsReg(const char* path)
+bool is_reg(const char* path)
 {
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
@@ -108,36 +111,36 @@ bool OS::IsReg(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool OS::Mknod(const char* path)
+bool mknod(const char* path)
 {
 	// Permission mask: rw-r--r--
-	return mknod(path, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 0) == 0;
+	return ::mknod(path, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 0) == 0;
 }
 
 //-----------------------------------------------------------------------------
-bool OS::Unlink(const char* path)
+bool unlink(const char* path)
 {
-	return (unlink(path) == 0);
+	return (::unlink(path) == 0);
 }
 
 //-----------------------------------------------------------------------------
-bool OS::Mkdir(const char* path)
+bool mkdir(const char* path)
 {
 	// rwxr-xr-x permission mask
-	return (mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0);
+	return (::mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0);
 }
 
 //-----------------------------------------------------------------------------
-bool OS::Rmdir(const char* path)
+bool rmdir(const char* path)
 {
-	return (rmdir(path) == 0);
+	return (::rmdir(path) == 0);
 }
 
 //-----------------------------------------------------------------------------
-const char* OS::GetCWD()
+const char* get_cwd()
 {
-	static char cwdBuf[1024];
-	if (getcwd(cwdBuf, 1024) == NULL)
+	static char cwdBuf[MAX_OS_PATH_LENGTH];
+	if (getcwd(cwdBuf, MAX_OS_PATH_LENGTH) == NULL)
 	{
 		return Str::EMPTY;
 	}
@@ -146,7 +149,7 @@ const char* OS::GetCWD()
 }
 
 //-----------------------------------------------------------------------------
-const char* OS::GetHome()
+const char* get_home()
 {
 	char* envHome = NULL;
 	envHome = getenv("HOME");
@@ -160,7 +163,7 @@ const char* OS::GetHome()
 }
 
 //-----------------------------------------------------------------------------
-const char* OS::GetEnv(const char* env)
+const char* get_env(const char* env)
 {
 	char* envDevel = NULL;
 	envDevel = getenv(env);
@@ -174,7 +177,7 @@ const char* OS::GetEnv(const char* env)
 }
 
 //-----------------------------------------------------------------------------
-bool OS::Ls(const char* path, List<Str>& fileList)
+bool ls(const char* path, List<Str>& fileList)
 {
 	DIR *dir;
 	struct dirent *ent;
@@ -188,7 +191,7 @@ bool OS::Ls(const char* path, List<Str>& fileList)
 
 	while ((ent = readdir (dir)) != NULL)
 	{
-		fileList.Append(Str(ent->d_name));
+		fileList.push_back(Str(ent->d_name));
 	}
 
 	closedir (dir);
@@ -196,5 +199,12 @@ bool OS::Ls(const char* path, List<Str>& fileList)
 	return true;
 }
 
-} // namespace Crown
+//-----------------------------------------------------------------------------
+void init_os()
+{
+
+}
+
+} // namespace os
+} // namespace crown
 

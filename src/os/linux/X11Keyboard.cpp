@@ -29,11 +29,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <X11/keysymdef.h>
 #include <X11/XKBlib.h>
 #include "Exceptions.h"
-#include "X11InputManager.h"
 #include "Log.h"
 #include "OS.h"
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -49,46 +48,46 @@ X11Keyboard::X11Keyboard(InputManager* creator) :
 		mKeyState[i] = false;
 	}
 
-	// Connect to the X Server
-	mDisplay = XOpenDisplay(NULL);
+//	// Connect to the X Server
+//	mDisplay = XOpenDisplay(NULL);
 
-	if (!mDisplay)
-	{
-		throw InvalidOperationException("X11Keyboard::X11Keyboard: Unable to connect to the X Server.");
-	}
+//	if (!mDisplay)
+//	{
+//		throw InvalidOperationException("X11Keyboard::X11Keyboard: Unable to connect to the X Server.");
+//	}
 
-	if (mCreator)
-	{
-		mXWindow = static_cast<X11InputManager*>(mCreator)->GetXWindow();
-	}
+//	if (mCreator)
+//	{
+//		mXWindow = static_cast<X11InputManager*>(mCreator)->GetXWindow();
+//	}
 
-	// We want to track motion and button pressed/released events
-	if (XSelectInput(mDisplay, mXWindow, KeyPressMask | KeyReleaseMask) == BadWindow)
-	{
-		throw InvalidOperationException("X11Keyboard::X11Keyboard: Unable to select input, bad window.");
-	}
+//	// We want to track motion and button pressed/released events
+//	if (XSelectInput(mDisplay, mXWindow, KeyPressMask | KeyReleaseMask) == BadWindow)
+//	{
+//		throw InvalidOperationException("X11Keyboard::X11Keyboard: Unable to select input, bad window.");
+//	}
 
-	Bool detectable;
-	if ((mDetectableAutoRepeat = (bool) XkbSetDetectableAutoRepeat(mDisplay, true, &detectable)) == False)
-	{
-		Log::I("X11Keyboard::X11Keyboard: Detectable auto-repeat not supported.");
-	}
+//	Bool detectable;
+//	if ((mDetectableAutoRepeat = (bool) XkbSetDetectableAutoRepeat(mDisplay, true, &detectable)) == False)
+//	{
+//		Log::I("X11Keyboard::X11Keyboard: Detectable auto-repeat not supported.");
+//	}
 
-	static_cast<X11InputManager*>(mCreator)->SetKeyboardAvailable(true);
+//	static_cast<X11InputManager*>(mCreator)->SetKeyboardAvailable(true);
 }
 
 //-----------------------------------------------------------------------------
 X11Keyboard::~X11Keyboard()
 {
-	if (mCreator)
-	{
-		static_cast<X11InputManager*>(mCreator)->SetKeyboardAvailable(false);
-	}
+//	if (mCreator)
+//	{
+//		static_cast<X11InputManager*>(mCreator)->SetKeyboardAvailable(false);
+//	}
 
-	if (mDisplay)
-	{
-		XCloseDisplay(mDisplay);
-	}
+//	if (mDisplay)
+//	{
+//		XCloseDisplay(mDisplay);
+//	}
 }
 
 //-----------------------------------------------------------------------------
@@ -107,93 +106,6 @@ bool X11Keyboard::IsKeyPressed(KeyCode key) const
 bool X11Keyboard::IsKeyReleased(KeyCode key) const
 {
 	return mKeyState[key] == false;
-}
-
-//-----------------------------------------------------------------------------
-void X11Keyboard::EventLoop()
-{
-	XEvent event;
-	KeyboardEvent keyboardEvent;
-
-	while (XPending(mDisplay))
-	{
-		XNextEvent(mDisplay, &event);
-
-		switch (event.type)
-		{
-			case KeyPress:
-			case KeyRelease:
-			{
-				char string[4] = {0, 0, 0, 0};
-				int len = -1;
-				KeySym key;
-
-				len = XLookupString(&event.xkey, string, 4, &key, NULL);
-
-				Key kc = TranslateKey(key);
-
-				// Check if any modifier key is pressed or released
-				if (kc == KC_LSHIFT || kc == KC_RSHIFT)
-				{
-					(event.type == KeyPress) ? mModifierMask |= MK_SHIFT : mModifierMask &= ~MK_SHIFT;
-				}
-				else if (kc == KC_LCONTROL || kc == KC_RCONTROL)
-				{
-					(event.type == KeyPress) ? mModifierMask |= MK_CTRL : mModifierMask &= ~MK_CTRL;
-				}
-				else if (kc == KC_LALT || kc == KC_RALT)
-				{
-					(event.type == KeyPress) ? mModifierMask |= MK_ALT : mModifierMask &= ~MK_ALT;
-				}
-
-				mKeyState[kc] = (event.type == KeyPress) ? true : false;
-				keyboardEvent.key = kc;
-
-				if (mListener)
-				{
-					if (event.type == KeyPress)
-					{
-						mListener->KeyPressed(keyboardEvent);
-					}
-					else if (event.type == KeyRelease)
-					{
-						mListener->KeyReleased(keyboardEvent);
-					}
-				}
-
-				if (event.type == KeyPress)
-				{
-				push_event(OS::OSET_KEYBOARD, 1, 2, 3, 4);
-				}
-				else if (event.type == KeyRelease)
-				{
-				push_event(OS::OSET_KEYBOARD, 55, 2, 3, 4);
-				}
-
-
-				// Text input part
-				if (event.type == KeyPress && len > 0)
-				{
-					//crownEvent.event_type = ET_TEXT;
-					//crownEvent.text.type = TET_TEXT_INPUT;
-					strncpy(keyboardEvent.text, string, 4);
-
-					if (mListener)
-					{
-						mListener->TextInput(keyboardEvent);
-					}
-				}
-
-				break;
-			}
-			case KeymapNotify:
-			{
-				XRefreshKeyboardMapping(&event.xmapping);
-
-				break;
-			}
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -253,5 +165,5 @@ Key X11Keyboard::TranslateKey(int x11Key)
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

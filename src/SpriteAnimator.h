@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Sprite.h"
 
-namespace Crown
+namespace crown
 {
 
 class SpriteAnimator
@@ -59,4 +59,4 @@ private:
 	real mScaleY;
 };
 
-} //namespace Crown
+} //namespace crown

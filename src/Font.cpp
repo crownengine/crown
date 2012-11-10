@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Filesystem.h"
 #include "TextureManager.h"
 
-namespace Crown
+namespace crown
 {
 
 Font::Font() :
@@ -109,5 +109,5 @@ void Font::SetCodeGlyphMetrics(uint code, float left, float right, float bottom,
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

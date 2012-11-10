@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "AndroidInputManager.h"
 
-namespace Crown
+namespace crown
 {
 
 AndroidTouch::AndroidTouch(InputManager* creator) :
@@ -151,5 +151,5 @@ int32_t AndroidTouch::HandleTouchEvent(struct android_app* app, AInputEvent* eve
 	return 0;
 }
 
-} // namespace Crown
+} // namespace crown
 

@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Color4.h"
 #include "Pixel.h"
 
-namespace Crown
+namespace crown
 {
 
 //! Holds an image
@@ -114,5 +114,5 @@ private:
 	Image& operator=(const Image&);
 };
 
-} // namespace Crown
+} // namespace crown
 

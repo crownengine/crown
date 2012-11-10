@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "WinMouse.h"
 #include "WinKeyboard.h"
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -68,5 +68,5 @@ void WinInputManager::Init(const EventSource& source)
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

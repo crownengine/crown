@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceManager.h"
 #include "Str.h"
 
-namespace Crown
+namespace crown
 {
 
 ResourceManager::ResourceManager()
@@ -110,5 +110,5 @@ void ResourceManager::DestroySpecific(const char* name)
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

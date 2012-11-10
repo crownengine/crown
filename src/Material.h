@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Texture.h"
 #include "Vec3.h"
 
-namespace Crown
+namespace crown
 {
 
 //! Max texture layers supported by the material.
@@ -403,5 +403,5 @@ public:
 	Texture* mTextureLayer[MAX_TEXTURE_LAYERS];
 };
 
-} // namespace Crown
+} // namespace crown
 

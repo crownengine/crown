@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mouse.h"
 #include "Keyboard.h"
 
-namespace Crown
+namespace crown
 {
 
 class MovableCamera : public Camera, public MouseListener, public KeyboardListener
@@ -87,5 +87,5 @@ protected:
 	bool mLeftPressed : 1;
 };
 
-} // namespace Crown
+} // namespace crown
 

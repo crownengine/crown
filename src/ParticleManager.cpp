@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "ParticleManager.h"
 
-namespace Crown
+namespace crown
 {
 
 ParticleManager::ParticleManager()
@@ -73,4 +73,4 @@ void ParticleManager::Render()
 	}
 }
 
-} //namespace Crown
+} //namespace crown

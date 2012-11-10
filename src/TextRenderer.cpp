@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Renderer.h"
 #include "Device.h"
 
-namespace Crown
+namespace crown
 {
 
 //-----------------------------------------------------------------------------
@@ -181,5 +181,5 @@ int TextRenderer::GetMaxTextHeight()
 //	return mFont->_GetMaxTextHeight();
 }
 
-} // namespace Crown
+} // namespace crown
 

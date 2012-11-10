@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Str.h"
 #include "Image.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -212,5 +212,5 @@ protected:
 	Color4 mBlendColor;
 };
 
-} // namespace Crown
+} // namespace crown
 

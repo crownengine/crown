@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "resources.h"
 
-namespace Crown
+namespace crown
 {
 
 char WGLRenderWindow::mWindowClassName[20] = "";
@@ -255,5 +255,5 @@ void WGLRenderWindow::Update()
 	SwapBuffers(mDC);
 }
 
-} // namespace Crown
+} // namespace crown
 

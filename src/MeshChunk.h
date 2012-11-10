@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Data.h"
 #include "List.h"
 
-namespace Crown
+namespace crown
 {
 
 class MeshChunk
@@ -70,5 +70,5 @@ public:
 	Box mBoundingBox;
 };
 
-} // namespace Crown
+} // namespace crown
 

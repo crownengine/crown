@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "InputManager.h"
 
-namespace Crown
+namespace crown
 {
 
 class AndroidInputManager : public InputManager
@@ -84,5 +84,5 @@ private:
 	struct android_app* mAndroidApp;
 };
 
-} // namespace Crown
+} // namespace crown
 

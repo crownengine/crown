@@ -33,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define MAX_BRUSH_SIZE 256
 
-namespace Crown
+namespace crown
 {
 
 class Terrain
@@ -105,5 +105,5 @@ private:
 	float		mBrush[MAX_BRUSH_SIZE * MAX_BRUSH_SIZE];
 };
 
-} // namespace Crown
+} // namespace crown
 

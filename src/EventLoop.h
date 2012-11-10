@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -13,5 +13,5 @@ public:
 	void	consume_events();
 };
 
-} // namespace Crown
+} // namespace crown
 

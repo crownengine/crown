@@ -1,28 +1,28 @@
 #include "EventLoop.h"
 #include "OS.h"
 
-namespace Crown
+namespace crown
 {
 
 void EventLoop::consume_events()
 {
 	while (1)
 	{
-		OS::OSEvent event;
+		os::OSEvent event;
 
-		event = OS::pop_event();
+		event = os::pop_event();
 
-		if (event.type == OS::OSET_NONE)
+		if (event.type == os::OSET_NONE)
 		{
 			break;
 		}
 
-		if (event.type == OS::OSET_KEYBOARD)
+		if (event.type == os::OSET_KEYBOARD)
 		{
 
 		}
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

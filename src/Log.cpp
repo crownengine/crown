@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include <cstdarg>
 
-namespace Crown
+namespace crown
 {
 
 LogLevel Log::mThreshold = LL_DEBUG;
@@ -53,16 +53,16 @@ void Log::LogMessage(LogLevel level, const char* message, va_list arg)
 	switch (level)
 	{
 		case LL_DEBUG:
-			OS::LogInfo(message, arg);
+			os::log_info(message, arg);
 			break;
 		case LL_ERROR:
-			OS::LogError(message, arg);
+			os::log_error(message, arg);
 			break;
 		case LL_WARN:
-			OS::LogWarning(message, arg);
+			os::log_warning(message, arg);
 			break;
 		case LL_INFO:
-			OS::LogInfo(message, arg);
+			os::log_info(message, arg);
 			break;
 		default:
 			break;
@@ -114,5 +114,5 @@ void Log::IndentOut()
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

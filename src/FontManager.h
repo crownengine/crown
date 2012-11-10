@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceManager.h"
 #include "Font.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -75,5 +75,5 @@ private:
 
 FontManager* GetFontManager();
 
-} // namespace Crown
+} // namespace crown
 

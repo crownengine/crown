@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MeshChunk.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 MeshChunk::MeshChunk()
@@ -82,5 +82,5 @@ void MeshChunk::UpdateNormals()
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

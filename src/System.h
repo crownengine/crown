@@ -37,7 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Random.h"
 #include <ctime>
 
-namespace Crown
+namespace crown
 {
 
 struct EntityId
@@ -165,5 +165,5 @@ void System::Update(uint dt)
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

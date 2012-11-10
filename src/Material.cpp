@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Material.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 Material::Material() :
@@ -476,5 +476,5 @@ void Material::SetTextureWrap(TextureWrap wrap)
 	}
 }
 
-} // namespace Crown
+} // namespace crown
 

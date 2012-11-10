@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Pixel.h"
 #include "Types.h"
 
-namespace Crown
+namespace crown
 {
 
 uint Pixel::GetBitsPerPixel(PixelFormat format)
@@ -113,5 +113,5 @@ uint Pixel::GetBytesPerPixel(PixelFormat format)
 	return GetBitsPerPixel(format) / 8;
 }
 
-} // namespace Crown
+} // namespace crown
 

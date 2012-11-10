@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "InputManager.h"
 #include <windows.h>
 
-namespace Crown
+namespace crown
 {
 
 class WinInputManager : public InputManager
@@ -88,5 +88,5 @@ private:
 	HWND mWindowHandle;
 };
 
-} // namespace Crown
+} // namespace crown
 

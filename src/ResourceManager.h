@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Dictionary.h"
 #include "Resource.h"
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -115,5 +115,5 @@ protected:
 	NameToResourceDict	mNameToResourceDict;
 };
 
-} // namespace Crown
+} // namespace crown
 

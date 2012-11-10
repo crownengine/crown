@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Timer.h"
 #include <sys/time.h>
 
-namespace Crown
+namespace crown
 {
 
 Timer::Timer()
@@ -83,5 +83,5 @@ ulong Timer::StopMicroseconds() const
 	return (tmp.tv_sec - mStartTime.tv_sec) * 1000000 + (tmp.tv_nsec - mStartTime.tv_nsec) / 1000;
 }
 
-} // namespace Crown
+} // namespace crown
 

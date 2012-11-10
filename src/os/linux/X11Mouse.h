@@ -32,7 +32,7 @@ typedef struct _XDisplay Display;
 typedef unsigned long XID;
 typedef XID Cursor;
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -67,9 +67,6 @@ public:
 	/** @copydoc Mouse::SetCursorRelativeXY() */
 	virtual void SetCursorRelativeXY(const Vec2& position);
 
-	/** @copydoc Mouse::EventLoop() */
-	virtual void EventLoop();
-
 private:
 
 	bool mIsCursorVisible;
@@ -80,5 +77,5 @@ private:
 	Cursor mHiddenCursor;
 };
 
-} // namespace Crown
+} // namespace crown
 

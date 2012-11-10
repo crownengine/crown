@@ -25,57 +25,31 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
-#include "GLXRenderWindow.h"
+#include <X11/Xlib.h>
+#include <GL/glx.h>
+#include "Types.h"
 #include "Log.h"
+#include "OS.h"
 
-namespace Crown
+namespace crown
 {
+
+namespace os
+{
+
+Display*		mXDisplay = NULL;
+Window			mXWindow = None;
+GLXContext		mGLXContext = NULL;
+GLXDrawable		mGLXWindow = None;
 
 //-----------------------------------------------------------------------------
-GLXRenderWindow::GLXRenderWindow() :
-	mXDisplay(NULL),
-	mXWindow(None),
-	mGLXContext(NULL),
-	mGLXWindow(None)
+bool create_render_window(uint x, uint y, uint width, uint height, bool fullscreen)
 {
+	assert(width != 0 && height != 0);
+
 	mXDisplay = XOpenDisplay(NULL);
-}
 
-//-----------------------------------------------------------------------------
-GLXRenderWindow::~GLXRenderWindow()
-{
-	if (mXDisplay)
-	{
-		if (mGLXWindow)
-		{
-			glXDestroyWindow(mXDisplay, mGLXWindow);
-		}
-
-		if (mGLXContext)
-		{
-			glXMakeContextCurrent(mXDisplay, None, None, NULL);
-			glXDestroyContext(mXDisplay, mGLXContext);
-		}
-
-		if (mXWindow)
-		{
-			XDestroyWindow(mXDisplay, mXWindow);
-		}
-
-		XCloseDisplay(mXDisplay);
-	}
-}
-
-//-----------------------------------------------------------------------------
-bool GLXRenderWindow::Create(uint x, uint y, uint width, uint height, uint depth, bool /*fullscreen*/)
-{
-	if (!width || !height)
-	{
-		Log::E("Width and height must differ from 0.");
-		return false;
-	}
-
-	if (!mXDisplay)
+	if (mXDisplay == NULL)
 	{
 		Log::E("Unable to open a display");
 		return false;
@@ -87,10 +61,10 @@ bool GLXRenderWindow::Create(uint x, uint y, uint width, uint height, uint depth
 	int fbAttribs[] =
 	{
 		GLX_DOUBLEBUFFER,		True,			// Only double-buffered
-		GLX_RED_SIZE,			(int)depth / 4,
-		GLX_GREEN_SIZE,			(int)depth / 4,
-		GLX_BLUE_SIZE,			(int)depth / 4,
-		GLX_ALPHA_SIZE,			(int)depth / 4,
+		GLX_RED_SIZE,			8,
+		GLX_GREEN_SIZE,			8,
+		GLX_BLUE_SIZE,			8,
+		GLX_ALPHA_SIZE,			8,
 		GLX_DEPTH_SIZE,			24,				// Depth buffer size
 		GLX_STENCIL_SIZE,		0,				// Stencil buffer size
 		GLX_ACCUM_RED_SIZE,		0,
@@ -159,126 +133,36 @@ bool GLXRenderWindow::Create(uint x, uint y, uint width, uint height, uint depth
 	XFree(fbConfig);
 	XFlush(mXDisplay);
 
-	mX = x;
-	mY = y;
-	mWidth = width;
-	mHeight = height;
-	mCreated = true;
-
 	return true;
 }
 
 //-----------------------------------------------------------------------------
-void GLXRenderWindow::Destroy()
+bool destroy_render_window()
 {
-	// Main window can not be destroyed
-	if (!mCreated || mMain)
+	if (mXDisplay)
 	{
-		return;
-	}
+		if (mGLXWindow)
+		{
+			glXDestroyWindow(mXDisplay, mGLXWindow);
+		}
 
-	if (mFull)
-	{
-		SetFullscreen(false);
-	}
+		if (mGLXContext)
+		{
+			glXMakeContextCurrent(mXDisplay, None, None, NULL);
+			glXDestroyContext(mXDisplay, mGLXContext);
+		}
 
-	mCreated = false;
-}
+		if (mXWindow)
+		{
+			XDestroyWindow(mXDisplay, mXWindow);
+		}
 
-//-----------------------------------------------------------------------------
-void GLXRenderWindow::SetVisible(bool visible)
-{
-	mVisible = visible;
-}
-
-//-----------------------------------------------------------------------------
-void GLXRenderWindow::Move(uint x, uint y)
-{
-	if (x == mX && y == mY)
-	{
-		return;
-	}
-
-	XMoveWindow(mXDisplay, mXWindow, x, y);
-}
-
-//-----------------------------------------------------------------------------
-void GLXRenderWindow::Resize(uint width, uint height)
-{
-	if (!width || !height)
-	{
-		return;
-	}
-
-	if (width == mWidth && height == mHeight)
-	{
-		return;
-	}
-
-	XResizeWindow(mXDisplay, mXWindow, width, height);
-}
-
-//-----------------------------------------------------------------------------
-void GLXRenderWindow::SetFullscreen(bool full)
-{
-	mFull = full;
-	XEvent xEvent;
-	Atom wmState = XInternAtom(mXDisplay, "_NET_WM_STATE", False);
-	Atom fullscreen = XInternAtom(mXDisplay, "_NET_WM_STATE_FULLSCREEN", False);
-	xEvent.type = ClientMessage;
-	xEvent.xclient.window = mXWindow;
-	xEvent.xclient.message_type = wmState;
-	xEvent.xclient.format = 32;
-	xEvent.xclient.data.l[0] = (mFull ? 1 : 0);
-	xEvent.xclient.data.l[1] = fullscreen;
-	xEvent.xclient.data.l[2] = 0;
-	XSendEvent(mXDisplay, DefaultRootWindow(mXDisplay), False, SubstructureNotifyMask, &xEvent);
-}
-
-//-----------------------------------------------------------------------------
-void GLXRenderWindow::Bind()
-{
-	glXMakeContextCurrent(mXDisplay, mGLXWindow, mGLXWindow, mGLXContext);
-}
-
-//-----------------------------------------------------------------------------
-void GLXRenderWindow::Unbind()
-{
-	glXMakeContextCurrent(mXDisplay, None, None, NULL);
-}
-
-//-----------------------------------------------------------------------------
-void GLXRenderWindow::Update()
-{
-	glXSwapBuffers(mXDisplay, mGLXWindow);
-}
-
-//-----------------------------------------------------------------------------
-void GLXRenderWindow::_NotifyMetricsChange(uint x, uint y, uint width, uint height)
-{
-	if (x == mX && y == mY && width == mWidth && height == mHeight)
-	{
-		return;
-	}
-
-	XWindowAttributes attribs;
-	XGetWindowAttributes(mXDisplay, mXWindow, &attribs);
-
-	if (attribs.x == (int)x && attribs.y == (int)y)
-	{
-		mX = x;
-		mY = y;
-	}
-
-	if (attribs.width == (int)width && attribs.height == (int)height)
-	{
-		mWidth = width;
-		mHeight = height;
+		XCloseDisplay(mXDisplay);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void GLXRenderWindow::EventLoop()
+void event_loop()
 {
 	XEvent event;
 
@@ -288,10 +172,130 @@ void GLXRenderWindow::EventLoop()
 
 		switch (event.type)
 		{
-			case ConfigureNotify:
+//			case ConfigureNotify:
+//			{
+//				_NotifyMetricsChange(event.xconfigure.x, event.xconfigure.y,
+//										event.xconfigure.width, event.xconfigure.height);
+//				break;
+//			}
+			case ButtonPress:
 			{
-				_NotifyMetricsChange(event.xconfigure.x, event.xconfigure.y,
-										event.xconfigure.width, event.xconfigure.height);
+				switch (event.xbutton.button)
+				{
+					case Button1:
+					{
+						push_event(os::OSET_MOUSE, os::OSMET_LEFT_PRESSED, event.xbutton.x, event.xbutton.y, 0);
+						break;
+					}
+					case Button2:
+					{
+						push_event(os::OSET_MOUSE, os::OSMET_MIDDLE_PRESSED, event.xbutton.x, event.xbutton.y, 0);
+						break;
+					}
+					case Button3:
+					{
+						push_event(os::OSET_MOUSE, os::OSMET_RIGHT_PRESSED, event.xbutton.x, event.xbutton.y, 0);
+						break;
+					}
+				}
+
+				break;
+			}
+			case ButtonRelease:
+			{
+				switch (event.xbutton.button)
+				{
+					case Button1:
+					{
+						push_event(os::OSET_MOUSE, os::OSMET_LEFT_PRESSED, event.xbutton.x, event.xbutton.y, 0);
+						break;
+					}
+					case Button2:
+					{
+						push_event(os::OSET_MOUSE, os::OSMET_MIDDLE_PRESSED, event.xbutton.x, event.xbutton.y, 0);
+						break;
+					}
+					case Button3:
+					{
+						push_event(os::OSET_MOUSE, os::OSMET_RIGHT_PRESSED, event.xbutton.x, event.xbutton.y, 0);
+						break;
+					}
+				}
+
+				break;
+			}
+			case MotionNotify:
+			{
+				push_event(os::OSET_MOUSE, os::OSMET_CURSOR_MOVED, event.xbutton.x, event.xbutton.y, 0);
+				break;
+			}
+//			case KeyPress:
+//			case KeyRelease:
+//			{
+//				char string[4] = {0, 0, 0, 0};
+//				int len = -1;
+//				KeySym key;
+
+//				len = XLookupString(&event.xkey, string, 4, &key, NULL);
+
+//				Key kc = TranslateKey(key);
+
+//				// Check if any modifier key is pressed or released
+//				if (kc == KC_LSHIFT || kc == KC_RSHIFT)
+//				{
+//					(event.type == KeyPress) ? mModifierMask |= MK_SHIFT : mModifierMask &= ~MK_SHIFT;
+//				}
+//				else if (kc == KC_LCONTROL || kc == KC_RCONTROL)
+//				{
+//					(event.type == KeyPress) ? mModifierMask |= MK_CTRL : mModifierMask &= ~MK_CTRL;
+//				}
+//				else if (kc == KC_LALT || kc == KC_RALT)
+//				{
+//					(event.type == KeyPress) ? mModifierMask |= MK_ALT : mModifierMask &= ~MK_ALT;
+//				}
+
+//				mKeyState[kc] = (event.type == KeyPress) ? true : false;
+//				keyboardEvent.key = kc;
+
+//				if (mListener)
+//				{
+//					if (event.type == KeyPress)
+//					{
+//						mListener->KeyPressed(keyboardEvent);
+//					}
+//					else if (event.type == KeyRelease)
+//					{
+//						mListener->KeyReleased(keyboardEvent);
+//					}
+//				}
+
+//				if (event.type == KeyPress)
+//				{
+//					push_event(os::OSET_KEYBOARD, 1, 2, 3, 4);
+//				}
+//				else if (event.type == KeyRelease)
+//				{
+//					push_event(os::OSET_KEYBOARD, 55, 2, 3, 4);
+//				}
+
+//				// Text input part
+//				if (event.type == KeyPress && len > 0)
+//				{
+//					//crownEvent.event_type = ET_TEXT;
+//					//crownEvent.text.type = TET_TEXT_INPUT;
+//					strncpy(keyboardEvent.text, string, 4);
+
+//					if (mListener)
+//					{
+//						mListener->TextInput(keyboardEvent);
+//					}
+//				}
+
+//				break;
+//			}
+			case KeymapNotify:
+			{
+				XRefreshKeyboardMapping(&event.xmapping);
 				break;
 			}
 			default:
@@ -303,15 +307,56 @@ void GLXRenderWindow::EventLoop()
 }
 
 //-----------------------------------------------------------------------------
-void GLXRenderWindow::_SetTitleAndAdditionalTextToWindow()
+void swap_buffers()
 {
-	Str tmp = GetDisplayedTitle();
-	const char* ctitle = tmp.c_str();
-	XTextProperty textProperty;
-	XStringListToTextProperty((char**)&ctitle, 1, &textProperty);
-	XSetWMName(mXDisplay, mXWindow, &textProperty);
-	XFree(textProperty.value);
+	glXSwapBuffers(mXDisplay, mGLXWindow);
 }
 
-} // namespace Crown
+////-----------------------------------------------------------------------------
+//void GLXRenderWindow::Move(uint x, uint y)
+//{
+//	if (x == mX && y == mY)
+//	{
+//		return;
+//	}
+
+//	XMoveWindow(mXDisplay, mXWindow, x, y);
+//}
+
+////-----------------------------------------------------------------------------
+//void GLXRenderWindow::Resize(uint width, uint height)
+//{
+//	if (!width || !height)
+//	{
+//		return;
+//	}
+
+//	if (width == mWidth && height == mHeight)
+//	{
+//		return;
+//	}
+
+//	XResizeWindow(mXDisplay, mXWindow, width, height);
+//}
+
+////-----------------------------------------------------------------------------
+//void GLXRenderWindow::SetFullscreen(bool full)
+//{
+//	mFull = full;
+//	XEvent xEvent;
+//	Atom wmState = XInternAtom(mXDisplay, "_NET_WM_STATE", False);
+//	Atom fullscreen = XInternAtom(mXDisplay, "_NET_WM_STATE_FULLSCREEN", False);
+//	xEvent.type = ClientMessage;
+//	xEvent.xclient.window = mXWindow;
+//	xEvent.xclient.message_type = wmState;
+//	xEvent.xclient.format = 32;
+//	xEvent.xclient.data.l[0] = (mFull ? 1 : 0);
+//	xEvent.xclient.data.l[1] = fullscreen;
+//	xEvent.xclient.data.l[2] = 0;
+//	XSendEvent(mXDisplay, DefaultRootWindow(mXDisplay), False, SubstructureNotifyMask, &xEvent);
+//}
+
+} // namespace os
+
+} // namespace crown
 

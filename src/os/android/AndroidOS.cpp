@@ -33,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, "crown", __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "crown", __VA_ARGS__))
 
-namespace Crown
+namespace crown
 {
 
 void OS::Printf(const char* string, ...)
@@ -115,5 +115,5 @@ bool OS::GetCWD(Str& ret)
 	return true;
 }
 
-} // namespace Crown
+} // namespace crown
 

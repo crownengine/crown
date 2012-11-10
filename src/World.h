@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-namespace Crown
+namespace crown
 {
 
 /**
@@ -58,5 +58,5 @@ private:
 	Skybox		mSkybox;			// The skybox
 };
 
-} // namespace Crown
+} // namespace crown
 

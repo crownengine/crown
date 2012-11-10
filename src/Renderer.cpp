@@ -33,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#include "GLESRenderer.h"
 #endif
 
-namespace Crown
+namespace crown
 {
 
 Renderer* Renderer::CreateRenderer()
@@ -59,5 +59,5 @@ void Renderer::DestroyRenderer(Renderer* renderer)
 	delete renderer;
 }
 
-} // namespace Crown
+} // namespace crown
 

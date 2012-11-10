@@ -31,15 +31,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "InputManager.h"
 #include "Log.h"
 #include "Renderer.h"
-#include "RenderWindow.h"
 #include "GarbageBin.h"
-#include "RenderWindow.h"
 #include "Config.h"
 #include "Filesystem.h"
 #include "Timer.h"
 #include "OS.h"
+#include <cstdlib>
 
-namespace Crown
+namespace crown
 {
 
 const ushort Device::CROWN_MAJOR = 0;
@@ -55,7 +54,6 @@ Device::Device() :
 	mPreferredUserPath(Str::EMPTY),
 	mIsInit(false),
 	mIsRunning(false),
-	mMainWindow(NULL),
 	mInputManager(NULL),
 	mRenderer(NULL),
 	mGarbageBin(NULL)
@@ -76,7 +74,7 @@ bool Device::Init(int argc, char** argv)
 	}
 
 	// Initialize
-	Log::D("Device::Init() called.");
+	Log::D("Initializing Device...");
 
 	if (IsInit())
 	{
@@ -87,48 +85,52 @@ bool Device::Init(int argc, char** argv)
 	// Sets the root path
 	GetFilesystem()->Init(mPreferredRootPath.c_str(), mPreferredUserPath.c_str());
 
-	if (!(mMainWindow = RenderWindow::CreateWindow(0, 0, mPreferredWindowWidth, mPreferredWindowHeight, 32, mPreferredWindowFullscreen)))
+	// Creates the main window
+	if (!os::create_render_window(0, 0, mPreferredWindowWidth, mPreferredWindowHeight, mPreferredWindowFullscreen))
 	{
 		Log::E("Unuble to create the main window.");
 		return false;
 	}
-
-	mGarbageBin = new GarbageBin();
-
 	Log::D("Window created.");
 
+	// Creates the garbage bin
+	mGarbageBin = new GarbageBin();
+
+	// Creates the renderer
 	if (!mRenderer)
 	{
 		mRenderer = Renderer::CreateRenderer();
 	}
 	Log::D("Renderer created.");
 
-	mInputManager = InputManager::CreateInputManager(mMainWindow);
+	
+//	// Creates the input manager
+//	mInputManager = GetInputManager();
 
-	Mouse* mouse = NULL;
-	Keyboard* keyboard = NULL;
-	Touch* touch = NULL;
+//	Mouse* mouse = NULL;
+//	Keyboard* keyboard = NULL;
+//	Touch* touch = NULL;
 
-	if (mInputManager)
-	{
-		keyboard = mInputManager->GetKeyboard();
-		mouse = mInputManager->GetMouse();
-		touch = mInputManager->GetTouch();
-	}
+//	if (mInputManager)
+//	{
+//		keyboard = mInputManager->GetKeyboard();
+//		mouse = mInputManager->GetMouse();
+//		touch = mInputManager->GetTouch();
+//	}
 
-	if (mouse)
-	{
-		mouse->SetListener(mInputManager->GetEventDispatcher());
-	}
-	if (keyboard)
-	{
-		keyboard->SetListener(mInputManager->GetEventDispatcher());
-	}
-	if (touch)
-	{
-		touch->SetListener(mInputManager->GetEventDispatcher());
-	}
-	Log::D("Input created.");
+//	if (mouse)
+//	{
+//		mouse->SetListener(mInputManager->GetEventDispatcher());
+//	}
+//	if (keyboard)
+//	{
+//		keyboard->SetListener(mInputManager->GetEventDispatcher());
+//	}
+//	if (touch)
+//	{
+//		touch->SetListener(mInputManager->GetEventDispatcher());
+//	}
+	Log::D("InputManager created.");
 
 	mIsInit = true;
 
@@ -172,16 +174,11 @@ void Device::Shutdown()
 	Log::I("Releasing InputManager...");
 	if (mInputManager)
 	{
-		InputManager::DestroyInputManager(mInputManager);
+		// do nothing
 	}
 
-	Log::I("Releasing Main Window...");
-
-	if (mMainWindow)
-	{
-		mMainWindow->_SetMain(false);
-		RenderWindow::DestroyWindow(mMainWindow);
-	}
+	Log::I("Releasing Render Window...");
+	os::destroy_render_window();
 
 	mIsInit = false;
 }
@@ -196,12 +193,6 @@ bool Device::IsInit()
 Renderer* Device::GetRenderer()
 {
 	return mRenderer;
-}
-
-//-----------------------------------------------------------------------------
-RenderWindow* Device::GetMainWindow()
-{
-	return mMainWindow;
 }
 
 //-----------------------------------------------------------------------------
@@ -241,32 +232,14 @@ bool Device::IsRunning() const
 //-----------------------------------------------------------------------------
 void Device::Frame()
 {
-	// TODO Replace this mess
-	if (mInputManager)
-	{
-		if (mInputManager->IsMouseAvailable())
-		{
-			if (mInputManager->IsMouseAvailable())
-			{
-				mInputManager->GetMouse()->EventLoop();
-			}
-			if (mInputManager->IsKeyboardAvailable())
-			{
-				mInputManager->GetKeyboard()->EventLoop();
-			}
-			if (mInputManager->IsTouchAvailable())
-			{
-				mInputManager->GetTouch()->EventLoop();
-			}
-		}
-	}
+	os::event_loop();
 
-	mMainWindow->EventLoop();
+	mInputManager->EventLoop();
 
-	mRenderer->_BeginFrame();
-	mRenderer->_EndFrame();
+		mRenderer->_BeginFrame();
+		mRenderer->_EndFrame();
 
-	mMainWindow->Update();
+	os::swap_buffers();
 
 	mGarbageBin->Empty();
 }
@@ -276,15 +249,15 @@ bool Device::ParseCommandLine(int argc, char** argv)
 {
 	if (argc == 2 && Str::StrCmp(argv[1], "-help") == 0)
 	{
-		OS::Printf("Usage: %s [options]\n", argv[0]);
-		OS::Printf("Options:\n\n");
-		OS::Printf("All of the following options take precedence over\nenvironment variables and configuration files.\n\n");
+		os::printf("Usage: %s [options]\n", argv[0]);
+		os::printf("Options:\n\n");
+		os::printf("All of the following options take precedence over\nenvironment variables and configuration files.\n\n");
 		// Print options
-		OS::Printf("  -help\t\t\t\t\tShow this help\n");
-		OS::Printf("  -root-path <path>\t\t\tUse <path> as the filesystem root path\n");
-		OS::Printf("  -user-path <path>\t\t\tUse <path> as the filesystem user path\n");
-		OS::Printf("  -metrics <width> <height>\t\tSet the <width> and <height> of the render window\n");
-		OS::Printf("  -fullscreen\t\t\t\tStart in fullscreen\n");
+		os::printf("  -help\t\t\t\t\tShow this help\n");
+		os::printf("  -root-path <path>\t\t\tUse <path> as the filesystem root path\n");
+		os::printf("  -user-path <path>\t\t\tUse <path> as the filesystem user path\n");
+		os::printf("  -metrics <width> <height>\t\tSet the <width> and <height> of the render window\n");
+		os::printf("  -fullscreen\t\t\t\tStart in fullscreen\n");
 
 		return false;
 	}
@@ -297,7 +270,7 @@ bool Device::ParseCommandLine(int argc, char** argv)
 		{
 			if (argc < i + 2)
 			{
-				OS::Printf("%s: error: missing absolute path after `-root-path`\n", argv[0]);
+				os::printf("%s: error: missing absolute path after `-root-path`\n", argv[0]);
 				return false;
 			}
 			mPreferredRootPath = argv[i + 1];
@@ -309,7 +282,7 @@ bool Device::ParseCommandLine(int argc, char** argv)
 		{
 			if (argc < i + 2)
 			{
-				OS::Printf("%s: error: missing absolute path after `-user-path`\n", argv[0]);
+				os::printf("%s: error: missing absolute path after `-user-path`\n", argv[0]);
 				return false;
 			}
 			mPreferredUserPath = argv[i + 1];
@@ -321,7 +294,7 @@ bool Device::ParseCommandLine(int argc, char** argv)
 		{
 			if (argc < i + 3)
 			{
-				OS::Printf("%s: error: wrong number of arguments after `-metrics`\n", argv[0]);
+				os::printf("%s: error: wrong number of arguments after `-metrics`\n", argv[0]);
 				return false;
 			}
 			mPreferredWindowWidth = atoi(argv[i + 1]);
@@ -351,5 +324,5 @@ Device* GetDevice()
 	return &device;
 }
 
-} // namespace Crown
+} // namespace crown
 
