@@ -97,8 +97,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OcclusionQuery.h"
 #include "ParticleEmitter.h"
 #include "ParticleManager.h"
-#include "PhysicsManager.h"
-#include "PhysicNode.h"
 #include "Pixel.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
