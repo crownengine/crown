@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Types.h"
 #include <cassert>
 
 /**
@@ -36,7 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 template <typename T, uint SIZE>
 class Array
 {
-
 public:
 
 							Array();
