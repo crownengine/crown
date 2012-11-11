@@ -28,6 +28,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include <cassert>
 
+namespace crown
+{
+
 /**
 	Fixed-size array.
 
@@ -256,4 +259,6 @@ inline T* Array<T, SIZE>::end()
 {
 	return mArray + (mCount - 1);
 }
+
+} // namespace crown
 
