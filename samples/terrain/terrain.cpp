@@ -4,8 +4,9 @@
 #include <GL/glew.h>
 #include <GL/glu.h>
 #include "EventLoop.h"
+#include "OS.h"
 
-using namespace Crown;
+using namespace crown;
 
 class WndCtrl: public KeyboardListener
 {
@@ -13,7 +14,7 @@ public:
 
 	WndCtrl()
 	{
-		GetDevice()->GetInputManager()->RegisterKeyboardListener(this);
+		GetInputManager()->RegisterKeyboardListener(this);
 	}
 
 	void KeyReleased(const KeyboardEvent& event)
@@ -37,8 +38,8 @@ public:
 		optShowCrate(true),
 		optShowTerrain(true)
 	{
-		GetDevice()->GetInputManager()->RegisterKeyboardListener(this);
-		GetDevice()->GetInputManager()->RegisterMouseListener(this);
+		//GetDevice()->GetInputManager()->RegisterKeyboardListener(this);
+		//GetDevice()->GetInputManager()->RegisterMouseListener(this);
 		mouseRightPressed = false;
 		mouseLeftPressed = false;
 	}
@@ -105,7 +106,7 @@ public:
 
 			Vec3 dir = Vec3(eX, eY, eZ) - Vec3(sX, sY, sZ);
 
-			dir.Normalize();
+			dir.normalize();
 
 			//ray.origin = cam->GetPosition();
 			ray.direction = dir;
@@ -137,11 +138,11 @@ public:
 
 	void OnLoad()
 	{
-		Crown::Renderer* renderer = Crown::GetDevice()->GetRenderer();
+		crown::Renderer* renderer = crown::GetDevice()->GetRenderer();
 		renderer->SetClearColor(Color4::LIGHTBLUE);
 
 		// Add a movable camera
-		cam = new MovableCamera(Vec3::ZERO, Angles::ZERO, true, 90.0f, 1.6f, true, 0.1, 2.5);
+		cam = new MovableCamera(Vec3(0, 2.5, 0), Angles::ZERO, true, 90.0f, 1.6f, true, 0.1, 2.5);
 
 		if (cam)
 		{
@@ -265,40 +266,17 @@ int main(int argc, char** argv)
 	MainScene mainScene;
 	mainScene.OnLoad();
 
-	mDevice->GetMainWindow()->SetTitle("Crown Engine v0.1 - Terrain Test");
-
 	while (mDevice->IsRunning())
 	{
-		InputManager* mInputManager = GetDevice()->GetInputManager();
+		os::event_loop();
 
-		if (mInputManager)
-		{
-			if (mInputManager->IsMouseAvailable())
-			{
-				if (mInputManager->IsMouseAvailable())
-				{
-					mInputManager->GetMouse()->EventLoop();
-				}
-				if (mInputManager->IsKeyboardAvailable())
-				{
-					mInputManager->GetKeyboard()->EventLoop();
-				}
-				if (mInputManager->IsTouchAvailable())
-				{
-					mInputManager->GetTouch()->EventLoop();
-				}
-			}
-		}
-
-		mDevice->GetMainWindow()->EventLoop();
-
-		loop.consume_events();
+		GetInputManager()->EventLoop();
 
 		GetDevice()->GetRenderer()->_BeginFrame();
-		mainScene.RenderScene();
+			mainScene.RenderScene();
 		GetDevice()->GetRenderer()->_EndFrame();
 
-		mDevice->GetMainWindow()->Update();
+		os::swap_buffers();
 	}
 
 	mDevice->Shutdown();
