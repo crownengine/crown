@@ -29,11 +29,83 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-void InputManager::EventLoop()
+//-----------------------------------------------------------------------------
+InputManager::InputManager()
 {
-	//TODO do the hard job here...
+//	mMouse = new Mouse();
+//	mKeyboard = new Keyboard();
+//	mTouch = new Touch();
 }
 
+//-----------------------------------------------------------------------------
+InputManager::~InputManager()
+{
+}
+
+//-----------------------------------------------------------------------------
+void InputManager::EventLoop()
+{
+	os::OSEvent event;
+
+	while (1)
+	{
+		event = os::pop_event();
+
+		if (event.type == os::OSET_NONE)
+		{
+			return;
+		}
+
+		os::printf("OS Event: %d, %d, %d, %d, %d\n", event.type, event.data_a, event.data_b, event.data_c, event.data_d);
+
+		switch (event.type)
+		{
+			case os::OSET_BUTTON_PRESS:
+			case os::OSET_BUTTON_RELEASE:
+			{
+				MouseEvent mouse_event;
+				mouse_event.x = event.data_a;
+				mouse_event.y = event.data_b;
+				mouse_event.button = event.data_c == 0 ? MB_LEFT : event.data_c == 1 ? MB_MIDDLE : MB_RIGHT;
+				mouse_event.wheel = 0.0f;
+
+				if (event.type == os::OSET_BUTTON_PRESS)
+				{
+					mEventDispatcher.ButtonPressed(mouse_event);
+				}
+				else
+				{
+					mEventDispatcher.ButtonReleased(mouse_event);
+				}
+
+				break;
+			}
+			case os::OSET_KEY_PRESS:
+			case os::OSET_KEY_RELEASE:
+			{
+				KeyboardEvent keyboard_event;
+				keyboard_event.key = event.data_a;
+
+				if (event.type == os::OSET_KEY_PRESS)
+				{
+					mEventDispatcher.KeyPressed(keyboard_event);
+				}
+				else
+				{
+					mEventDispatcher.KeyReleased(keyboard_event);
+				}
+
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 InputManager inputManager;
 InputManager* GetInputManager()
 {

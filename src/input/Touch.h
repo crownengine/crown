@@ -59,17 +59,12 @@ public:
 	/**
 		Constructor.
 	*/
-	Touch(InputManager* creator) : mCreator(creator), mListener(0) {}
+	Touch() : mListener(NULL) {}
 
 	/**
 		Destructor.
 	*/
 	virtual ~Touch() {}
-
-	/**
-		Captures and reports touch-related events.
-	*/
-	virtual void EventLoop() = 0;
 
 	/**
 		Sets the listener for this device.
@@ -80,8 +75,6 @@ public:
 
 protected:
 
-	// The InputManager which created the istance
-	InputManager* mCreator;
 	TouchListener* mListener;
 };
 

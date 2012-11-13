@@ -42,11 +42,15 @@ namespace os
 #ifdef LINUX
 const size_t	MAX_OS_PATH_LENGTH = 1024;
 const char		PATH_SEPARATOR = '/';
+
+const size_t	MAX_OS_EVENTS = 512;
 #endif
 
 #ifdef WINDOWS
 const size_t	MAX_OS_PATH_LENGTH = 1024;
 const char		PATH_SEPARATOR = '\\';
+
+const size_t	MAX_OS_EVENTS = 512;
 #endif
 
 //-----------------------------------------------------------------------------
@@ -83,9 +87,7 @@ void			swap_buffers();
 
 void			event_loop();
 
-void			init_keyboard();
-void			init_mouse();
-void			init_touch();
+void			init_input();
 
 void			hide_cursor();
 void			show_cursor();
@@ -93,21 +95,14 @@ void			show_cursor();
 //-----------------------------------------------------------------------------
 enum OSEventType
 {
-	OSET_NONE		= 0,
-	OSET_KEYBOARD	= 1,
-	OSET_MOUSE		= 2,
-	OSET_TOUCH		= 3
-};
+	OSET_NONE				= 0,
 
-enum OSMouseEventType
-{
-	OSMET_LEFT_PRESSED		= 0,
-	OSMET_MIDDLE_PRESSED	= 1,
-	OSMET_RIGHT_PRESSED		= 2,
-	OSMET_LEFT_RELEASED		= 3,
-	OSMET_MIDDLE_RELEASED	= 4,
-	OSMET_RIGHT_RELEASED	= 5,
-	OSMET_CURSOR_MOVED		= 6
+	OSET_KEY_PRESS			= 1,
+	OSET_KEY_RELEASE		= 2,
+
+	OSET_BUTTON_PRESS		= 3,
+	OSET_BUTTON_RELEASE		= 4,
+	OSET_MOTION_NOTIFY		= 5,
 };
 
 struct OSEvent

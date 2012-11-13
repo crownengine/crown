@@ -37,6 +37,7 @@ class MouseListener;
 class KeyboardListener;
 class TouchListener;
 
+
 class InputManager
 {
 
@@ -45,14 +46,12 @@ public:
 	/**
 		Constructor.
 	*/
-	InputManager() : mMouse(NULL), mKeyboard(NULL), mTouch(NULL)
-	{
-	}
+	InputManager();
 
 	/**
 		Destructor.
 	*/
-	~InputManager() {}
+	~InputManager();
 
 	/**
 		Initializes the input manager.
@@ -61,68 +60,56 @@ public:
 
 	/**
 		Returns whether the mouse is available.
-	@return
-		True if available, false otherwise
 	*/
 	bool IsMouseAvailable() {}
 
 	/**
 		Returns whether the keyboard is available.
-	@return
-		True if available, false otherwise
 	*/
 	bool IsKeyboardAvailable() {}
 
 	/**
 		Returns whether the touch is available.
-	@return
-		True if available, false otherwise
 	*/
 	bool IsTouchAvailable() {}
 
 	/**
 		Returns the handle to the mouse input device.
-	@return
-		The mouse input device or NULL
 	*/
 	inline Mouse* GetMouse()
 	{
-		return mMouse;
+		//return mMouse;
 	}
 
 	/**
 		Returns the handle to the keyboard input device.
-	@return
-		The keyboard input device or NULL
 	*/
 	inline Keyboard* GetKeyboard()
 	{
-		return mKeyboard;
+		//return mKeyboard;
 	}
 
 	/**
 		Return the handle to the touch input device.
-	@return
-		The touch input device or NULL
 	*/
 	inline Touch* GetTouch()
 	{
-		return mTouch;
+		//return mTouch;
 	}
 
 	inline void RegisterMouseListener(MouseListener* listener)
 	{
-		//mEventDispatcher.AddMouseListener(listener);
+		mEventDispatcher.AddMouseListener(listener);
 	}
 
 	inline void RegisterKeyboardListener(KeyboardListener* listener)
 	{
-		//mEventDispatcher.AddKeyboardListener(listener);
+		mEventDispatcher.AddKeyboardListener(listener);
 	}
 
 	inline void RegisterTouchListener(TouchListener* listener)
 	{
-		//mEventDispatcher.AddTouchListener(listener);
+		mEventDispatcher.AddTouchListener(listener);
 	}
 
 	inline EventDispatcher* GetEventDispatcher()
@@ -136,9 +123,9 @@ protected:
 
 	EventDispatcher		mEventDispatcher;
 
-	Mouse*				mMouse;
-	Keyboard*			mKeyboard;
-	Touch*				mTouch;
+//	Mouse*				mMouse;
+//	Keyboard*			mKeyboard;
+//	Touch*				mTouch;
 };
 
 InputManager* GetInputManager();

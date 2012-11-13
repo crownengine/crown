@@ -42,13 +42,13 @@ MovableCamera::MovableCamera(const Vec3& position, const Angles& axis,
 	mDownPressed(false),
 	mLeftPressed(false)
 {
-	GetDevice()->GetInputManager()->RegisterKeyboardListener(this);
+	GetInputManager()->RegisterKeyboardListener(this);
 
 	mRotFactor = Vec2(0.0f, 0.0f);
 	mAngleX = 0.0f;
 	mAngleY = 0.0f;
 
-	//GetDevice()->GetInputManager()->GetMouse()->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
+	//GetInputManager()->GetMouse()->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
 }
 
 MovableCamera::~MovableCamera()
@@ -63,7 +63,7 @@ float MovableCamera::GetMouseSensibility() const
 void MovableCamera::SetActive(bool active)
 {
 	Camera::SetActive(active);
-	//GetDevice()->GetInputManager()->GetMouse()->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
+	//GetInputManager()->GetMouse()->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
 }
 
 void MovableCamera::SetMouseSensibility(float sensibility)
@@ -205,7 +205,7 @@ void MovableCamera::StrafeRight()
 
 void MovableCamera::SetViewByMouse()
 {
-	//Mouse* mouse = GetDevice()->GetInputManager()->GetMouse();
+	//Mouse* mouse = GetInputManager()->GetMouse();
 
 	static Vec2 lastPos = Vec2::ZERO;//mouse->GetCursorRelativeXY();
 	Vec2 currentPos = Vec2::ZERO;//mouse->GetCursorRelativeXY();

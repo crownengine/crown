@@ -37,25 +37,25 @@ namespace crown
 namespace os
 {
 
-Display*		mXDisplay = NULL;
-Window			mXWindow = None;
-GLXContext		mGLXContext = NULL;
-GLXDrawable		mGLXWindow = None;
+Display*		display = NULL;
+Window			window = None;
+GLXContext		glx_context = NULL;
+GLXDrawable		glx_window = None;
 
 //-----------------------------------------------------------------------------
 bool create_render_window(uint x, uint y, uint width, uint height, bool fullscreen)
 {
 	assert(width != 0 && height != 0);
 
-	mXDisplay = XOpenDisplay(NULL);
+	display = XOpenDisplay(NULL);
 
-	if (mXDisplay == NULL)
+	if (display == NULL)
 	{
 		Log::E("Unable to open a display");
 		return false;
 	}
 
-	Window defRoot = DefaultRootWindow(mXDisplay);
+	Window defRoot = DefaultRootWindow(display);
 
 	// Color index buffer not supported - deprecated
 	int fbAttribs[] =
@@ -80,7 +80,7 @@ bool create_render_window(uint x, uint y, uint width, uint height, bool fullscre
 	};
 
 	int fbCount;
-	GLXFBConfig* fbConfig = glXChooseFBConfig(mXDisplay, XDefaultScreen(mXDisplay), fbAttribs, &fbCount);
+	GLXFBConfig* fbConfig = glXChooseFBConfig(display, XDefaultScreen(display), fbAttribs, &fbCount);
 
 	if (!fbConfig)
 	{
@@ -88,7 +88,7 @@ bool create_render_window(uint x, uint y, uint width, uint height, bool fullscre
 		return false;
 	}
 
-	XVisualInfo* visualInfo = glXGetVisualFromFBConfig(mXDisplay, fbConfig[0]);
+	XVisualInfo* visualInfo = glXGetVisualFromFBConfig(display, fbConfig[0]);
 
 	if (!visualInfo)
 	{
@@ -98,13 +98,13 @@ bool create_render_window(uint x, uint y, uint width, uint height, bool fullscre
 	}
 
 	Colormap cmap;
-	cmap = XCreateColormap(mXDisplay, defRoot, visualInfo->visual, AllocNone);
+	cmap = XCreateColormap(display, defRoot, visualInfo->visual, AllocNone);
 	XSetWindowAttributes winAttribs;
 	winAttribs.colormap = cmap;
 	winAttribs.event_mask = FocusChangeMask | StructureNotifyMask;
 
-	mXWindow = XCreateWindow(
-				   mXDisplay,
+	window = XCreateWindow(
+				   display,
 				   defRoot,
 				   x, y,
 				   width, height,
@@ -116,22 +116,22 @@ bool create_render_window(uint x, uint y, uint width, uint height, bool fullscre
 				   &winAttribs
 			   );
 
-	if (!mXWindow)
+	if (!window)
 	{
 		Log::E("Unable to create the X Window.");
 		return false;
 	}
 
-	XMapRaised(mXDisplay, mXWindow);
-	mGLXWindow = glXCreateWindow(mXDisplay, fbConfig[0], mXWindow, 0);
+	XMapRaised(display, window);
+	glx_window = glXCreateWindow(display, fbConfig[0], window, 0);
 
-	mGLXContext = glXCreateNewContext(mXDisplay, fbConfig[0], GLX_RGBA_TYPE, NULL, True);
-	glXMakeContextCurrent(mXDisplay, mGLXWindow, mGLXWindow, mGLXContext);
+	glx_context = glXCreateNewContext(display, fbConfig[0], GLX_RGBA_TYPE, NULL, True);
+	glXMakeContextCurrent(display, glx_window, glx_window, glx_context);
 
-	XFreeColormap(mXDisplay, cmap);
+	XFreeColormap(display, cmap);
 	XFree(visualInfo);
 	XFree(fbConfig);
-	XFlush(mXDisplay);
+	XFlush(display);
 
 	return true;
 }
@@ -139,177 +139,32 @@ bool create_render_window(uint x, uint y, uint width, uint height, bool fullscre
 //-----------------------------------------------------------------------------
 bool destroy_render_window()
 {
-	if (mXDisplay)
+	if (display)
 	{
-		if (mGLXWindow)
+		if (glx_window)
 		{
-			glXDestroyWindow(mXDisplay, mGLXWindow);
+			glXDestroyWindow(display, glx_window);
 		}
 
-		if (mGLXContext)
+		if (glx_context)
 		{
-			glXMakeContextCurrent(mXDisplay, None, None, NULL);
-			glXDestroyContext(mXDisplay, mGLXContext);
+			glXMakeContextCurrent(display, None, None, NULL);
+			glXDestroyContext(display, glx_context);
 		}
 
-		if (mXWindow)
+		if (window)
 		{
-			XDestroyWindow(mXDisplay, mXWindow);
+			XDestroyWindow(display, window);
 		}
 
-		XCloseDisplay(mXDisplay);
-	}
-}
-
-//-----------------------------------------------------------------------------
-void event_loop()
-{
-	XEvent event;
-
-	while (XPending(mXDisplay))
-	{
-		XNextEvent(mXDisplay, &event);
-
-		switch (event.type)
-		{
-//			case ConfigureNotify:
-//			{
-//				_NotifyMetricsChange(event.xconfigure.x, event.xconfigure.y,
-//										event.xconfigure.width, event.xconfigure.height);
-//				break;
-//			}
-			case ButtonPress:
-			{
-				switch (event.xbutton.button)
-				{
-					case Button1:
-					{
-						push_event(os::OSET_MOUSE, os::OSMET_LEFT_PRESSED, event.xbutton.x, event.xbutton.y, 0);
-						break;
-					}
-					case Button2:
-					{
-						push_event(os::OSET_MOUSE, os::OSMET_MIDDLE_PRESSED, event.xbutton.x, event.xbutton.y, 0);
-						break;
-					}
-					case Button3:
-					{
-						push_event(os::OSET_MOUSE, os::OSMET_RIGHT_PRESSED, event.xbutton.x, event.xbutton.y, 0);
-						break;
-					}
-				}
-
-				break;
-			}
-			case ButtonRelease:
-			{
-				switch (event.xbutton.button)
-				{
-					case Button1:
-					{
-						push_event(os::OSET_MOUSE, os::OSMET_LEFT_PRESSED, event.xbutton.x, event.xbutton.y, 0);
-						break;
-					}
-					case Button2:
-					{
-						push_event(os::OSET_MOUSE, os::OSMET_MIDDLE_PRESSED, event.xbutton.x, event.xbutton.y, 0);
-						break;
-					}
-					case Button3:
-					{
-						push_event(os::OSET_MOUSE, os::OSMET_RIGHT_PRESSED, event.xbutton.x, event.xbutton.y, 0);
-						break;
-					}
-				}
-
-				break;
-			}
-			case MotionNotify:
-			{
-				push_event(os::OSET_MOUSE, os::OSMET_CURSOR_MOVED, event.xbutton.x, event.xbutton.y, 0);
-				break;
-			}
-//			case KeyPress:
-//			case KeyRelease:
-//			{
-//				char string[4] = {0, 0, 0, 0};
-//				int len = -1;
-//				KeySym key;
-
-//				len = XLookupString(&event.xkey, string, 4, &key, NULL);
-
-//				Key kc = TranslateKey(key);
-
-//				// Check if any modifier key is pressed or released
-//				if (kc == KC_LSHIFT || kc == KC_RSHIFT)
-//				{
-//					(event.type == KeyPress) ? mModifierMask |= MK_SHIFT : mModifierMask &= ~MK_SHIFT;
-//				}
-//				else if (kc == KC_LCONTROL || kc == KC_RCONTROL)
-//				{
-//					(event.type == KeyPress) ? mModifierMask |= MK_CTRL : mModifierMask &= ~MK_CTRL;
-//				}
-//				else if (kc == KC_LALT || kc == KC_RALT)
-//				{
-//					(event.type == KeyPress) ? mModifierMask |= MK_ALT : mModifierMask &= ~MK_ALT;
-//				}
-
-//				mKeyState[kc] = (event.type == KeyPress) ? true : false;
-//				keyboardEvent.key = kc;
-
-//				if (mListener)
-//				{
-//					if (event.type == KeyPress)
-//					{
-//						mListener->KeyPressed(keyboardEvent);
-//					}
-//					else if (event.type == KeyRelease)
-//					{
-//						mListener->KeyReleased(keyboardEvent);
-//					}
-//				}
-
-//				if (event.type == KeyPress)
-//				{
-//					push_event(os::OSET_KEYBOARD, 1, 2, 3, 4);
-//				}
-//				else if (event.type == KeyRelease)
-//				{
-//					push_event(os::OSET_KEYBOARD, 55, 2, 3, 4);
-//				}
-
-//				// Text input part
-//				if (event.type == KeyPress && len > 0)
-//				{
-//					//crownEvent.event_type = ET_TEXT;
-//					//crownEvent.text.type = TET_TEXT_INPUT;
-//					strncpy(keyboardEvent.text, string, 4);
-
-//					if (mListener)
-//					{
-//						mListener->TextInput(keyboardEvent);
-//					}
-//				}
-
-//				break;
-//			}
-			case KeymapNotify:
-			{
-				XRefreshKeyboardMapping(&event.xmapping);
-				break;
-			}
-			default:
-			{
-				break;
-			}
-		}
+		XCloseDisplay(display);
 	}
 }
 
 //-----------------------------------------------------------------------------
 void swap_buffers()
 {
-	glXSwapBuffers(mXDisplay, mGLXWindow);
+	glXSwapBuffers(display, glx_window);
 }
 
 ////-----------------------------------------------------------------------------
@@ -320,7 +175,7 @@ void swap_buffers()
 //		return;
 //	}
 
-//	XMoveWindow(mXDisplay, mXWindow, x, y);
+//	XMoveWindow(display, window, x, y);
 //}
 
 ////-----------------------------------------------------------------------------
@@ -336,7 +191,7 @@ void swap_buffers()
 //		return;
 //	}
 
-//	XResizeWindow(mXDisplay, mXWindow, width, height);
+//	XResizeWindow(display, window, width, height);
 //}
 
 ////-----------------------------------------------------------------------------
@@ -344,16 +199,16 @@ void swap_buffers()
 //{
 //	mFull = full;
 //	XEvent xEvent;
-//	Atom wmState = XInternAtom(mXDisplay, "_NET_WM_STATE", False);
-//	Atom fullscreen = XInternAtom(mXDisplay, "_NET_WM_STATE_FULLSCREEN", False);
+//	Atom wmState = XInternAtom(display, "_NET_WM_STATE", False);
+//	Atom fullscreen = XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", False);
 //	xEvent.type = ClientMessage;
-//	xEvent.xclient.window = mXWindow;
+//	xEvent.xclient.window = window;
 //	xEvent.xclient.message_type = wmState;
 //	xEvent.xclient.format = 32;
 //	xEvent.xclient.data.l[0] = (mFull ? 1 : 0);
 //	xEvent.xclient.data.l[1] = fullscreen;
 //	xEvent.xclient.data.l[2] = 0;
-//	XSendEvent(mXDisplay, DefaultRootWindow(mXDisplay), False, SubstructureNotifyMask, &xEvent);
+//	XSendEvent(display, DefaultRootWindow(display), False, SubstructureNotifyMask, &xEvent);
 //}
 
 } // namespace os

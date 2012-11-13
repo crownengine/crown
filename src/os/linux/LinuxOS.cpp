@@ -202,7 +202,6 @@ bool ls(const char* path, List<Str>& fileList)
 //-----------------------------------------------------------------------------
 void init_os()
 {
-
 }
 
 } // namespace os

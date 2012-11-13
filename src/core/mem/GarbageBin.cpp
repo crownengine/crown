@@ -32,7 +32,7 @@ namespace crown
 
 void IGarbageable::Trash()
 {
-	GetDevice()->GetGarbageBin()->Trash(this);
+	//GetDevice()->GetGarbageBin()->Trash(this);
 }
 
 GarbageBin::GarbageBin()

@@ -33,63 +33,39 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class EventDispatcher : public MouseListener, public KeyboardListener, public TouchListener
+class EventDispatcher
 {
-	typedef List<MouseListener*> MouseListenerList;
-	typedef List<KeyboardListener*> KeyboardListenerList;
-	typedef List<TouchListener*> TouchListenerList;
+	typedef List<MouseListener*>		MouseListenerList;
+	typedef List<KeyboardListener*>		KeyboardListenerList;
+	typedef List<TouchListener*>		TouchListenerList;
 
 public:
 
-	/**
-		Constructor.
-	*/
 	EventDispatcher() {}
-
-	/**
-		Destructor.	
-	*/
 	~EventDispatcher() {}
 
-	/**
-		Adds a MouseListener.
-	@param listener
-		The listener
-	*/
 	void AddMouseListener(MouseListener* listener);
-
-	/**
-		Adds a KeyboardListener.
-	@param listener
-		The listener
-	*/
 	void AddKeyboardListener(KeyboardListener* listener);
-
-	/**
-		Adds a TouchListener.
-	@param listener
-		The listener
-	*/
 	void AddTouchListener(TouchListener* listener);
 
-	virtual void ButtonPressed(const MouseEvent&);
-	virtual void ButtonReleased(const MouseEvent&);
-	virtual void CursorMoved(const MouseEvent&);
+	void ButtonPressed(const MouseEvent&);
+	void ButtonReleased(const MouseEvent&);
+	void CursorMoved(const MouseEvent&);
 
-	virtual void KeyPressed(const KeyboardEvent&);
-	virtual void KeyReleased(const KeyboardEvent&);
-	virtual void TextInput(const KeyboardEvent&);
+	void KeyPressed(const KeyboardEvent&);
+	void KeyReleased(const KeyboardEvent&);
+	void TextInput(const KeyboardEvent&);
 
-	virtual void TouchDown(const TouchEvent& event);
-	virtual void TouchUp(const TouchEvent& event);
-	virtual void TouchMove(const TouchEvent& event);
-	virtual void TouchCancel(const TouchEvent& event);
+	void TouchDown(const TouchEvent& event);
+	void TouchUp(const TouchEvent& event);
+	void TouchMove(const TouchEvent& event);
+	void TouchCancel(const TouchEvent& event);
 
 private:
 
-	MouseListenerList mMouseListenerList;
-	KeyboardListenerList mKeyboardListenerList;
-	TouchListenerList mTouchListenerList;
+	MouseListenerList		mMouseListenerList;
+	KeyboardListenerList	mKeyboardListenerList;
+	TouchListenerList		mTouchListenerList;
 };
 
 } // namespace crown

@@ -6,18 +6,21 @@ namespace crown
 namespace os
 {
 
-#define				MAX_OS_EVENTS 256
-
-static int			event_queue_count = 0;
 static OSEvent		event_queue[MAX_OS_EVENTS];
+static int			event_queue_head = 0;
+static int			event_queue_tail = 0;
 
 //-----------------------------------------------------------------------------
 void push_event(OSEventType type, int data_a, int data_b, int data_c, int data_d)
 {
-	// The queue wraps silently when MAX_OS_EVENTS reached
-	OSEvent* event = &event_queue[event_queue_count % MAX_OS_EVENTS];
+	if ((event_queue_tail + 1) % MAX_OS_EVENTS == event_queue_head)
+	{
+		os::printf("OS event queue full!\n");
+		return;
+	}
 
-	event_queue_count++;
+	OSEvent* event = &event_queue[event_queue_tail];
+	event_queue_tail = (event_queue_tail + 1) % MAX_OS_EVENTS;
 
 	event->type = type;
 	event->data_a = data_a;
@@ -29,17 +32,16 @@ void push_event(OSEventType type, int data_a, int data_b, int data_c, int data_d
 //-----------------------------------------------------------------------------
 OSEvent& pop_event()
 {
-	OSEvent event;
+	static OSEvent event;
 
-	if (event_queue_count > 0)
+	if (event_queue_head == event_queue_tail)
 	{
-		event = event_queue[event_queue_count - 1 % MAX_OS_EVENTS];
-		event_queue_count--;
-
+		event.type = OSET_NONE;
 		return event;
 	}
 
-	event.type = OSET_NONE;
+	event = event_queue[event_queue_head];
+	event_queue_head = (event_queue_head + 1) % MAX_OS_EVENTS;
 
 	return event;
 }

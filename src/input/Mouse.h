@@ -72,7 +72,7 @@ public:
 	/**
 		Constructor.
 	*/
-	Mouse(InputManager* creator) : mCreator(creator), mListener(0) {}
+	Mouse() : mListener(NULL) {}
 
 	/**
 		Destructor.
@@ -81,15 +81,11 @@ public:
 
 	/**
 		Returns whether the cursor is visible.
-	@return
-		True if visible, false otherwise
 	*/
 	virtual bool IsCursorVisible() const = 0;
 
 	/**
 		Sets whether the cursor is visible.
-	@param visible
-		Whether the cursor is visible
 	*/
 	virtual void SetCursorVisible(bool visible) = 0;
 
@@ -99,8 +95,6 @@ public:
 		Coordinates in window space have the origin at the
 		upper-left corner of the window. +X extends from left
 		to right and +Y extends from top to bottom.
-	@return
-		The position of the cursor in window space
 	*/
 	virtual Point2 GetCursorXY() const = 0;
 
@@ -110,8 +104,6 @@ public:
 		Coordinates in window space have the origin at the
 		upper-left corner of the window. +X extends from left
 		to right and +Y extends from top to bottom.
-	@param position
-		The position of the cursor in window space
 	*/
 	virtual void SetCursorXY(const Point2& position) = 0;
 
@@ -125,8 +117,6 @@ public:
 		Relative coordinates are mapped to a real varying
 		from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
 		maximum extent of the cosidered axis.
-	@return
-		The relative position of the cursor in window space
 	*/
 	virtual Vec2 GetCursorRelativeXY() const = 0;
 
@@ -140,27 +130,16 @@ public:
 		Relative coordinates are mapped to a real varying
 		from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
 		maximum extent of the cosidered axis.
-	@param position
-		The relative position of the cursor in window space
 	*/
 	virtual void SetCursorRelativeXY(const Vec2& position) = 0;
 
 	/**
-		Captures and reports mouse-related events.
-	*/
-	virtual void EventLoop() = 0;
-
-	/**
 		Sets the listener for this device.
-	@param listener
-		The listener
 	*/
 	inline void SetListener(MouseListener* listener) { mListener = listener; }
 
 protected:
 
-	// The InputManager which created the istance
-	InputManager* mCreator;
 	MouseListener* mListener;
 };
 

@@ -2,7 +2,6 @@ set (SRC
 	Camera.cpp
 	Device.cpp
 	EventBuffer.cpp
-	EventLoop.cpp
 	Filesystem.cpp
 	Font.cpp
 	FontManager.cpp
@@ -31,7 +30,6 @@ set (HEADERS
 	Data.h
 	Device.h
 	EventBuffer.h
-	EventLoop.h
 	Filesystem.h
 	Font.h
 	FontManager.h
@@ -160,12 +158,15 @@ set (STREAMS_HEADERS
 
 set (MEM_SRC
 	core/mem/GarbageBin.cpp
+	#core/mem/MallocAllocator.cpp
 )
 
 set (MEM_HEADERS
 	core/mem/Auto.h
 	core/mem/GarbageBin.h
 	core/mem/Shared.h
+	#core/mem/Allocator.h
+	#core/mem/MallocAllocator.h
 )
 
 set (INPUT_SRC
@@ -225,15 +226,12 @@ set (LINUX_SRC
 	os/linux/GLXRenderWindow.cpp
 	os/linux/LinuxOS.cpp
 	os/linux/LinuxTimer.cpp
-	os/linux/X11Keyboard.cpp
-	os/linux/X11Mouse.cpp
+	os/linux/Input.cpp
 )
 
 set (LINUX_HEADERS
 #	os/linux/EGLRenderWindow.h
 	os/linux/LinuxTimer.h
-	os/linux/X11Keyboard.h
-	os/linux/X11Mouse.h
 )
 
 set (SOURCES

@@ -72,7 +72,7 @@ public:
 	/**
 		Constructor.
 	*/
-	Keyboard(InputManager* creator) : mCreator(creator), mListener(0) {}
+	Keyboard() : mListener(NULL) {}
 
 	/**
 		Destructor.
@@ -84,48 +84,27 @@ public:
 	@note
 		A modifier is a special key that modifies the normal action
 		of another key when the two are pressed in combination. (Thanks wikipedia.)
-	@note
 		Crown currently supports three different modifier keys: Shift, Ctrl and Alt.
-	@param modifier
-		The modifier
-	@return True if pressed, false otherwise
 	*/
 	virtual bool IsModifierPressed(ModifierKey modifier) const = 0;
 
 	/**
 		Returns whether the specified key is pressed.
-	@param key
-		The key
-	@return
-		True if pressed, false otherwise
 	*/
 	virtual bool IsKeyPressed(KeyCode key) const = 0;
 
 	/**
 		Returns whether the specified key is released.
-	@param key
-		The key
-	@return
-		True if released, false otherwise
 	*/
 	virtual bool IsKeyReleased(KeyCode key) const = 0;
 
 	/**
-		Captures and reports keyboard-related events.
-	*/
-	virtual void EventLoop() = 0;
-
-	/**
 		Sets the listener for this device.
-	@param listener
-		The listener
 	*/
 	inline void SetListener(KeyboardListener* listener) { mListener = listener; }
 
 protected:
 
-	// The InputManager which created the istance
-	InputManager* mCreator;
 	KeyboardListener* mListener;
 };
 

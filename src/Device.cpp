@@ -54,9 +54,7 @@ Device::Device() :
 	mPreferredUserPath(Str::EMPTY),
 	mIsInit(false),
 	mIsRunning(false),
-	mInputManager(NULL),
-	mRenderer(NULL),
-	mGarbageBin(NULL)
+	mRenderer(NULL)
 {
 }
 
@@ -93,9 +91,6 @@ bool Device::Init(int argc, char** argv)
 	}
 	Log::D("Window created.");
 
-	// Creates the garbage bin
-	mGarbageBin = new GarbageBin();
-
 	// Creates the renderer
 	if (!mRenderer)
 	{
@@ -103,34 +98,7 @@ bool Device::Init(int argc, char** argv)
 	}
 	Log::D("Renderer created.");
 
-	
-//	// Creates the input manager
-//	mInputManager = GetInputManager();
-
-//	Mouse* mouse = NULL;
-//	Keyboard* keyboard = NULL;
-//	Touch* touch = NULL;
-
-//	if (mInputManager)
-//	{
-//		keyboard = mInputManager->GetKeyboard();
-//		mouse = mInputManager->GetMouse();
-//		touch = mInputManager->GetTouch();
-//	}
-
-//	if (mouse)
-//	{
-//		mouse->SetListener(mInputManager->GetEventDispatcher());
-//	}
-//	if (keyboard)
-//	{
-//		keyboard->SetListener(mInputManager->GetEventDispatcher());
-//	}
-//	if (touch)
-//	{
-//		touch->SetListener(mInputManager->GetEventDispatcher());
-//	}
-	Log::D("InputManager created.");
+	os::init_input();
 
 	mIsInit = true;
 
@@ -143,12 +111,6 @@ bool Device::Init(int argc, char** argv)
 }
 
 //-----------------------------------------------------------------------------
-InputManager* Device::GetInputManager()
-{
-	return mInputManager;
-}
-
-//-----------------------------------------------------------------------------
 void Device::Shutdown()
 {
 	if (!IsInit())
@@ -157,24 +119,11 @@ void Device::Shutdown()
 		return;
 	}
 
-	Log::I("Releasing GarbageBin...");
-
-	if (mGarbageBin)
-	{
-		delete mGarbageBin;
-	}
-
 	Log::I("Releasing Renderer...");
 
 	if (mRenderer)
 	{
 		Renderer::DestroyRenderer(mRenderer);
-	}
-
-	Log::I("Releasing InputManager...");
-	if (mInputManager)
-	{
-		// do nothing
 	}
 
 	Log::I("Releasing Render Window...");
@@ -193,12 +142,6 @@ bool Device::IsInit()
 Renderer* Device::GetRenderer()
 {
 	return mRenderer;
-}
-
-//-----------------------------------------------------------------------------
-GarbageBin* Device::GetGarbageBin()
-{
-	return mGarbageBin;
 }
 
 //-----------------------------------------------------------------------------
@@ -234,14 +177,12 @@ void Device::Frame()
 {
 	os::event_loop();
 
-	mInputManager->EventLoop();
+	GetInputManager()->EventLoop();
 
 		mRenderer->_BeginFrame();
 		mRenderer->_EndFrame();
 
 	os::swap_buffers();
-
-	mGarbageBin->Empty();
 }
 
 //-----------------------------------------------------------------------------

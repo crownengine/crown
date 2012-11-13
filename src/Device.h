@@ -36,7 +36,6 @@ namespace crown
 
 class Renderer;
 class InputManager;
-class GarbageBin;
 
 /**
 	Device.
@@ -49,9 +48,7 @@ public:
 							Device();
 							~Device();
 
-	InputManager*			GetInputManager();
 	Renderer*				GetRenderer();
-	GarbageBin*				GetGarbageBin();
 
 	void					StartRunning();
 	void					StopRunning();
@@ -79,13 +76,8 @@ private:
 	bool					mIsInit		: 1;
 	bool					mIsRunning	: 1;
 
-	InputManager*			mInputManager;
 	Renderer*				mRenderer;
-
-	GarbageBin*				mGarbageBin;
 	Timer					mTimer;
-
-	EventLoop				_event_loop;
 
 	// Disable copying
 	Device(const Device&);

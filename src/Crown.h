@@ -95,8 +95,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MeshManager.h"
 #include "MovableCamera.h"
 #include "OcclusionQuery.h"
-#include "ParticleEmitter.h"
-#include "ParticleManager.h"
 #include "Pixel.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
