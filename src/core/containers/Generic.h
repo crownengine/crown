@@ -26,12 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Shared.h"
 
 namespace crown
 {
-
-class Str;
 
 class Generic
 {
@@ -39,66 +36,48 @@ public:
 
 	enum Type
 	{
-		GT_Undefined = 0,
-		/* -- Basic types -- */
-		GT_Int,
-		GT_UInt,
-		GT_UShort,
-		GT_Float,
-		GT_Bool,
+		GT_UNDEFINED	= 0,
 
-		/* -- Container types -- */
-		GT_Str
-//		GT_List,
-//		GT_Object
+		// Basic types
+		GT_INT			= 1,
+		GT_UINT			= 2,
+		GT_USHORT		= 3,
+		GT_FLOAT		= 4,
+		GT_BOOL			= 5
 	};
 
 					Generic();
 					Generic(const Generic& other);
-	virtual			~Generic();
+					~Generic();
 
-					Generic(int value);
-					Generic(uint value);
-					Generic(ushort value);
-					Generic(float value);
-					Generic(bool value);
-					Generic(const char* value);
-					Generic(const Str& value);
-//					Generic(IList<Generic>* value);
-//					Generic(Object* value);
+	explicit		Generic(int value);
+	explicit		Generic(uint value);
+	explicit		Generic(ushort value);
+	explicit		Generic(float value);
+	explicit		Generic(bool value);
+	explicit		Generic(const char* value);
 
-	inline Type		GetType() const
-	{
-		return mType;
-	}
+	inline Type		get_type() const { return m_type; }
 
-	bool			asInt(int& out) const;
-	int				asInt() const;
+	bool			as_int(int& out) const;
+	int				as_int() const;
 
-	bool			asUInt(uint& out) const;
-	uint			asUInt() const;
+	bool			as_uint(uint& out) const;
+	uint			as_uint() const;
 
-	bool			asUShort(ushort& out) const;
-	ushort			asUShort() const;
+	bool			as_ushort(ushort& out) const;
+	ushort			as_ushort() const;
 
-	bool			asFloat(float& out) const;
-	float			asFloat() const;
+	bool			as_float(float& out) const;
+	float			as_float() const;
 
-	bool			asBool(bool& out) const;
-	bool			asBool() const;
-
-	bool			asStr(Str& out) const;
-	Str				asStr() const;
-
-//	bool			asList(Shared<IList<Generic> >& out) const;
-
-//	bool			asObject(Object** out) const;
-//	Object*			asObject() const;
+	bool			as_bool(bool& out) const;
+	bool			as_bool() const;
 
 	template <typename T>
-	bool			asType(T* out) const;
+	bool			as_type(T* out) const;
 	template <typename T>
-	T*				asType() const;
+	T*				as_type() const;
 
 	const Generic&	operator=(const Generic& other);
 
@@ -108,38 +87,35 @@ private:
 
 	union Data
 	{
-		int			intValue;
-		uint		uintValue;
-		ushort		ushortValue;
-		float		floatValue;
-		bool		boolValue;
-		Str*		stringValue;
-//		Shared<IList<Generic> >* listValue;
-//		Object* objectValue;
+		int			int_value;
+		uint		uint_value;
+		ushort		ushort_value;
+		float		float_value;
+		bool		bool_value;
 	};
 
-	Type			mType;
-	Data			mData;
+	Type			m_type;
+	Data			m_data;
 };
 
 template <typename T>
-bool Generic::asType(T* out) const
+bool Generic::as_type(T* out) const
 {
 //	if (mType == GT_Object)
 //	{
-//		*out = dynamic_cast<T>(mData.objectValue);
-//		return *out != NULL || mData.objectValue == NULL;
+//		*out = dynamic_cas_t<T>(mData.object_value);
+//		return *out != NULL || mData.object_value == NULL;
 //	}
 
 	return false;
 }
 
 template <typename T>
-T* Generic::asType() const
+T* Generic::as_type() const
 {
 //	if (mType == GT_Object)
 //	{
-//		return dynamic_cast<T*>(mData.objectValue);
+//		return dynamic_cast<T*>(mData.object_value);
 //	}
 
 	return NULL;

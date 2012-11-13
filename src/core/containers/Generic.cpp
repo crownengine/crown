@@ -24,18 +24,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Generic.h"
-#include "Str.h"
-#include "List.h"
 #include "Types.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Generic::Generic():
-	mType(GT_Undefined)
+Generic::Generic() : m_type(GT_UNDEFINED)
 {
-	mData.intValue = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -47,218 +43,156 @@ Generic::Generic(const Generic& other)
 //-----------------------------------------------------------------------------
 Generic::~Generic()
 {
-	if (mType == GT_Str)
+}
+
+//-----------------------------------------------------------------------------
+Generic::Generic(int value) : m_type(GT_INT)
+{
+	m_data.int_value = value;
+}
+
+//-----------------------------------------------------------------------------
+Generic::Generic(uint value) : m_type(GT_UINT)
+{
+	m_data.uint_value = value;
+}
+
+//-----------------------------------------------------------------------------
+Generic::Generic(ushort value) : m_type(GT_USHORT)
+{
+	m_data.ushort_value = value;
+}
+
+//-----------------------------------------------------------------------------
+Generic::Generic(float value) : m_type(GT_FLOAT)
+{
+	m_data.float_value = value;
+}
+
+//-----------------------------------------------------------------------------
+Generic::Generic(bool value) : m_type(GT_BOOL)
+{
+	m_data.bool_value = value;
+}
+
+//-----------------------------------------------------------------------------
+bool Generic::as_int(int& out) const
+{
+	if (m_type == GT_INT)
 	{
-		delete mData.stringValue;
-	}
-//	else if (mType == GT_List)
-//	{
-//		delete mData.listValue;
-//	}
-}
-
-//-----------------------------------------------------------------------------
-Generic::Generic(int value):
-	mType(GT_Int)
-{
-	mData.intValue = value;
-}
-
-//-----------------------------------------------------------------------------
-Generic::Generic(uint value):
-	mType(GT_UInt)
-{
-	mData.uintValue = value;
-}
-
-//-----------------------------------------------------------------------------
-Generic::Generic(ushort value):
-	mType(GT_UShort)
-{
-	mData.ushortValue = value;
-}
-
-//-----------------------------------------------------------------------------
-Generic::Generic(float value):
-	mType(GT_Float)
-{
-	mData.floatValue = value;
-}
-
-//-----------------------------------------------------------------------------
-Generic::Generic(bool value):
-	mType(GT_Bool)
-{
-	mData.boolValue = value;
-}
-
-//-----------------------------------------------------------------------------
-Generic::Generic(const Str& value):
-	mType(GT_Str)
-{
-	mData.stringValue = new Str(value);
-}
-
-//-----------------------------------------------------------------------------
-Generic::Generic(const char* value):
-	mType(GT_Str)
-{
-	mData.stringValue = new Str(value);
-}
-
-////-----------------------------------------------------------------------------
-//Generic::Generic(IList<Generic>* value):
-//	mType(GT_List)
-//{
-//	mData.listValue = new Shared<IList<Generic> >(value);
-//}
-
-////-----------------------------------------------------------------------------
-//Generic::Generic(Object* value):
-//	mType(GT_Object)
-//{
-//	mData.objectValue = value;
-//}
-
-//-----------------------------------------------------------------------------
-bool Generic::asInt(int& out) const
-{
-	if (mType == GT_Int)
-	{
-		out = mData.intValue;
+		out = m_data.int_value;
 		return true;
 	}
 
-	if (mType == GT_UInt)
+	if (m_type == GT_UINT)
 	{
-		out = (int)mData.uintValue;
+		out = (int)m_data.uint_value;
 		return true;
 	}
 
-	if (mType == GT_UShort)
+	if (m_type == GT_USHORT)
 	{
-		out = (int)mData.ushortValue;
+		out = (int)m_data.ushort_value;
 		return true;
 	}
 
-	if (mType == GT_Float)
+	if (m_type == GT_FLOAT)
 	{
-		out = (int)mData.floatValue;
+		out = (int)m_data.float_value;
 		return true;
 	}
 
-	if (mType == GT_Bool)
+	if (m_type == GT_BOOL)
 	{
-		out = mData.boolValue?1:0;
+		out = m_data.bool_value ? 1 : 0;
 		return true;
-	}
-
-	if (mType == GT_Str)
-	{
-		return mData.stringValue->ParseInt(&out);
 	}
 
 	return false;
 }
 
 //-----------------------------------------------------------------------------
-int Generic::asInt() const
+int Generic::as_int() const
 {
 	int value = 0;
-	asInt(value);
+	as_int(value);
 	return value;
 }
 
 //-----------------------------------------------------------------------------
-bool Generic::asUInt(uint& out) const
+bool Generic::as_uint(uint& out) const
 {
-	if (mType == GT_Int)
+	if (m_type == GT_INT)
 	{
-		out = (uint)mData.intValue;
+		out = (uint)m_data.int_value;
 		return true;
 	}
 
-	if (mType == GT_UInt)
+	if (m_type == GT_UINT)
 	{
-		out = mData.uintValue;
+		out = m_data.uint_value;
 		return true;
 	}
 
-	if (mType == GT_UShort)
+	if (m_type == GT_USHORT)
 	{
-		out = (uint)mData.ushortValue;
+		out = (uint)m_data.ushort_value;
 		return true;
 	}
 
-	if (mType == GT_Float)
+	if (m_type == GT_FLOAT)
 	{
-		out = (uint)mData.floatValue;
+		out = (uint)m_data.float_value;
 		return true;
 	}
 
-	if (mType == GT_Bool)
+	if (m_type == GT_BOOL)
 	{
-		out = mData.boolValue?1:0;
+		out = m_data.bool_value?1:0;
 		return true;
-	}
-
-	if (mType == GT_Str)
-	{
-		return mData.stringValue->ParseUInt(&out);
 	}
 
 	return false;
 }
 
 //-----------------------------------------------------------------------------
-uint Generic::asUInt() const
+uint Generic::as_uint() const
 {
 	uint value = 0;
-	asUInt(value);
+	as_uint(value);
 	return value;
 }
 
 //-----------------------------------------------------------------------------
-bool Generic::asUShort(ushort& out) const
+bool Generic::as_ushort(ushort& out) const
 {
-	if (mType == GT_Int)
+	if (m_type == GT_INT)
 	{
-		out = (ushort)mData.intValue;
+		out = (ushort)m_data.int_value;
 		return true;
 	}
 
-	if (mType == GT_UInt)
+	if (m_type == GT_UINT)
 	{
-		out = (ushort)mData.uintValue;
+		out = (ushort)m_data.uint_value;
 		return true;
 	}
 
-	if (mType == GT_UShort)
+	if (m_type == GT_USHORT)
 	{
-		out = mData.ushortValue;
+		out = m_data.ushort_value;
 		return true;
 	}
 
-	if (mType == GT_Float)
+	if (m_type == GT_FLOAT)
 	{
-		out = (ushort)mData.floatValue;
+		out = (ushort)m_data.float_value;
 		return true;
 	}
 
-	if (mType == GT_Bool)
+	if (m_type == GT_BOOL)
 	{
-		out = mData.boolValue?1:0;
-		return true;
-	}
-
-	if (mType == GT_Str)
-	{
-		uint tmp;
-		if (!mData.stringValue->ParseUInt(&tmp))
-		{
-			return false;
-		}
-		out = (ushort)tmp;
+		out = m_data.bool_value?1:0;
 		return true;
 	}
 
@@ -266,265 +200,128 @@ bool Generic::asUShort(ushort& out) const
 }
 
 //-----------------------------------------------------------------------------
-ushort Generic::asUShort() const
+ushort Generic::as_ushort() const
 {
 	ushort value = 0;
-	asUShort(value);
+	as_ushort(value);
 	return value;
 }
 
 //-----------------------------------------------------------------------------
-bool Generic::asFloat(float& out) const
+bool Generic::as_float(float& out) const
 {
-	if (mType == GT_Int)
+	if (m_type == GT_INT)
 	{
-		out = (float)mData.intValue;
+		out = (float)m_data.int_value;
 		return true;
 	}
 
-	if (mType == GT_UInt)
+	if (m_type == GT_UINT)
 	{
-		out = (float)mData.uintValue;
+		out = (float)m_data.uint_value;
 		return true;
 	}
 
-	if (mType == GT_UShort)
+	if (m_type == GT_USHORT)
 	{
-		out = (float)mData.ushortValue;
+		out = (float)m_data.ushort_value;
 		return true;
 	}
 
-	if (mType == GT_Float)
+	if (m_type == GT_FLOAT)
 	{
-		out = mData.floatValue;
+		out = m_data.float_value;
 		return true;
 	}
 
-	if (mType == GT_Bool)
+	if (m_type == GT_BOOL)
 	{
-		out = mData.boolValue?1.0f:0.0f;
+		out = m_data.bool_value?1.0f:0.0f;
 		return true;
-	}
-
-	if (mType == GT_Str)
-	{
-		return mData.stringValue->ParseFloat(&out);
 	}
 
 	return false;
 }
 
 //-----------------------------------------------------------------------------
-float Generic::asFloat() const
+float Generic::as_float() const
 {
 	float value = 0.0f;
-	asFloat(value);
+	as_float(value);
 	return value;
 }
 
 //-----------------------------------------------------------------------------
-bool Generic::asBool(bool& out) const
+bool Generic::as_bool(bool& out) const
 {
-	if (mType == GT_Int)
+	if (m_type == GT_INT)
 	{
-		out = mData.intValue==0?false:true;
+		out = m_data.int_value==0?false:true;
 		return true;
 	}
 
-	if (mType == GT_UInt)
+	if (m_type == GT_UINT)
 	{
-		out = mData.uintValue==0?false:true;
+		out = m_data.uint_value==0?false:true;
 		return true;
 	}
 
-	if (mType == GT_UShort)
+	if (m_type == GT_USHORT)
 	{
-		out = mData.ushortValue==0?false:true;
+		out = m_data.ushort_value==0?false:true;
 		return true;
 	}
 
-	if (mType == GT_Float)
+	if (m_type == GT_FLOAT)
 	{
-		//Does it make sense? xD
-		out = mData.floatValue==0.0f?false:true;
+		//Does it make sense?
+		out = m_data.float_value==0.0f?false:true;
 		return true;
 	}
 
-	if (mType == GT_Bool)
+	if (m_type == GT_BOOL)
 	{
-		out = mData.boolValue;
+		out = m_data.bool_value;
 		return true;
-	}
-
-	if (mType == GT_Str)
-	{
-		if (*mData.stringValue == "True" || *mData.stringValue == "true")
-		{
-			out = true;
-			return true;
-		}
-
-		if (*mData.stringValue == "False" || *mData.stringValue == "false")
-		{
-			out = false;
-			return true;
-		}
-
-		return false;
 	}
 
 	return false;
 }
 
 //-----------------------------------------------------------------------------
-bool Generic::asBool() const
+bool Generic::as_bool() const
 {
 	bool value = false;
-	asBool(value);
+	as_bool(value);
 	return value;
 }
-
-//-----------------------------------------------------------------------------
-bool Generic::asStr(Str& out) const
-{
-	if (mType == GT_Int)
-	{
-		out = mData.intValue;
-		return true;
-	}
-
-	if (mType == GT_UInt)
-	{
-		out = mData.uintValue;
-		return true;
-	}
-
-	if (mType == GT_UShort)
-	{
-		out = mData.ushortValue;
-		return true;
-	}
-
-	if (mType == GT_Float)
-	{
-		out = mData.floatValue;
-		return true;
-	}
-
-	if (mType == GT_Bool)
-	{
-		if (mData.boolValue)
-		{
-			out = "True";
-		}
-		else
-		{
-			out = "False";
-		}
-
-		return true;
-	}
-
-	if (mType == GT_Str)
-	{
-		out = *mData.stringValue;
-		return true;
-	}
-
-//	if (mType == GT_List)
-//	{
-//		out = (*mData.listValue)->ToStr();
-//		return true;
-//	}
-
-//	if (mType == GT_Object)
-//	{
-//		out = mData.objectValue->ToStr();
-//		return true;
-//	}
-
-	return false;
-}
-
-//-----------------------------------------------------------------------------
-Str Generic::asStr() const
-{
-	Str value;
-	asStr(value);
-	return value;
-}
-
-////-----------------------------------------------------------------------------
-//bool Generic::asList(Shared<IList<Generic> >& out) const
-//{
-//	if (mType == GT_List)
-//	{
-//		out = *mData.listValue;
-//		return true;
-//	}
-
-//	return false;
-//}
-
-////-----------------------------------------------------------------------------
-//bool Generic::asObject(Object** out) const
-//{
-//	if (mType == GT_Object)
-//	{
-//		*out = mData.objectValue;
-//		return true;
-//	}
-
-//	*out = NULL;
-//	return false;
-//}
-
-////-----------------------------------------------------------------------------
-//Object* Generic::asObject() const
-//{
-//	if (mType == GT_Object)
-//	{
-//		return mData.objectValue;
-//	}
-
-//	return NULL;
-//}
 
 //-----------------------------------------------------------------------------
 bool Generic::operator==(const Generic& other)
 {
-	if (mType != other.mType)
+	if (m_type != other.m_type)
 	{
 		return false;
 	}
 
-	switch (mType)
+	switch (m_type)
 	{
-		case GT_Int:
-			return mData.intValue == other.mData.intValue;
+		case GT_INT:
+			return m_data.int_value == other.m_data.int_value;
 			break;
-		case GT_UInt:
-			return mData.uintValue == other.mData.uintValue;
+		case GT_UINT:
+			return m_data.uint_value == other.m_data.uint_value;
 			break;
-		case GT_UShort:
-			return mData.ushortValue == other.mData.ushortValue;
+		case GT_USHORT:
+			return m_data.ushort_value == other.m_data.ushort_value;
 			break;
-		case GT_Float:
-			return mData.floatValue == other.mData.floatValue;
+		case GT_FLOAT:
+			return m_data.float_value == other.m_data.float_value;
 			break;
-		case GT_Bool:
-			return mData.boolValue == other.mData.boolValue;
+		case GT_BOOL:
+			return m_data.bool_value == other.m_data.bool_value;
 			break;
-		case GT_Str:
-			return mData.stringValue == other.mData.stringValue;
-			break;
-//		case GT_List:
-//			return *mData.listValue == *other.mData.listValue;
-//			break;
-//		case GT_Object:
-//			return mData.objectValue == other.mData.objectValue;
-//			break;
-		case GT_Undefined:
+		case GT_UNDEFINED:
 			return true;
 			break;
 	}
@@ -535,35 +332,26 @@ bool Generic::operator==(const Generic& other)
 //-----------------------------------------------------------------------------
 const Generic& Generic::operator=(const Generic& other)
 {
-	mType = other.mType;
+	m_type = other.m_type;
 
-	switch (mType)
+	switch (m_type)
 	{
-		case GT_Int:
-			mData.intValue = other.mData.intValue;
+		case GT_INT:
+			m_data.int_value = other.m_data.int_value;
 			break;
-		case GT_UInt:
-			mData.uintValue = other.mData.uintValue;
+		case GT_UINT:
+			m_data.uint_value = other.m_data.uint_value;
 			break;
-		case GT_UShort:
-			mData.ushortValue = other.mData.ushortValue;
+		case GT_USHORT:
+			m_data.ushort_value = other.m_data.ushort_value;
 			break;
-		case GT_Float:
-			mData.floatValue = other.mData.floatValue;
+		case GT_FLOAT:
+			m_data.float_value = other.m_data.float_value;
 			break;
-		case GT_Bool:
-			mData.boolValue = other.mData.boolValue;
+		case GT_BOOL:
+			m_data.bool_value = other.m_data.bool_value;
 			break;
-		case GT_Str:
-			mData.stringValue = new Str(*other.mData.stringValue);
-			break;
-//		case GT_List:
-//			mData.listValue = new Shared<IList<Generic> >(*other.mData.listValue);
-//			break;
-//		case GT_Object:
-//			mData.objectValue = other.mData.objectValue;
-//			break;
-		case GT_Undefined:
+		case GT_UNDEFINED:
 			//Copy nothing
 			break;
 	}
@@ -571,26 +359,5 @@ const Generic& Generic::operator=(const Generic& other)
 	return other;
 }
 
-////-----------------------------------------------------------------------------
-//Str GenericList::ToStr() const
-//{
-//	Str out;
-//	out = "[";
-//	List<Generic>::Enumerator en = getBegin();
-//	bool first = true;
+} // namespace crown
 
-//	while (en.next())
-//	{
-//		if (!first)
-//		{
-//			out += ",";
-//		}
-
-//		first = false;
-//		out += en.current().asStr();
-//	}
-
-//	return out + "]";
-//}
-
-}
