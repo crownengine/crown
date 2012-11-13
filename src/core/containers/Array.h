@@ -53,7 +53,7 @@ public:
 	uint					size() const;
 	uint					get_capacity() const;
 
-	uint					push_back(const T& element);
+	uint					push_back(const T& item);
 	void					pop_back();
 
 	void					clear();
@@ -67,8 +67,8 @@ public:
 
 private:
 
-	uint					mCount;			// The number of elements
-	T						mArray[SIZE];
+	uint					m_count;			// The number of items
+	T						m_array[SIZE];
 };
 
 /**
@@ -77,11 +77,9 @@ private:
 	Does not initialize array memory.
 */
 template <typename T, uint SIZE>
-inline Array<T, SIZE>::Array()
+inline Array<T, SIZE>::Array() : m_count(0)
 {
 	assert(SIZE > 0);
-
-	mCount = 0;
 
 	// Do not initialize for efficiency
 }
@@ -107,64 +105,50 @@ inline Array<T, SIZE>::~Array()
 	Random access.
 @note
 	The index has to be smaller than size()
-@param index
-	The index
-@return
-	The element at the given index
 */
 template <typename T, uint SIZE>
 inline T& Array<T, SIZE>::operator[](uint index)
 {
 	assert(index >= 0);
-	assert(index < mCount);
+	assert(index < m_count);
 
-	return mArray[index];
+	return m_array[index];
 }
 
 /**
 	Random access.
 @note
 	The index has to be smaller than size()
-@param index
-	The index
-@return
-	The element at the given index
 */
 template <typename T, uint SIZE>
 inline const T& Array<T, SIZE>::operator[](uint index) const
 {
 	assert(index >= 0);
-	assert(index < mCount);
+	assert(index < m_count);
 
-	return mArray[index];
+	return m_array[index];
 }
 
 /**
 	Returns whether the array is empty.
-@return
-	True if empty, false otherwise
 */
 template <typename T, uint SIZE>
 inline bool Array<T, SIZE>::empty() const
 {
-	return mCount == 0;
+	return m_count == 0;
 }
 
 /**
-	Returns the number of elements in the array.
-@return
-	The number of elements
+	Returns the number of items in the array.
 */
 template <typename T, uint SIZE>
 inline uint Array<T, SIZE>::size() const
 {
-	return mCount;
+	return m_count;
 }
 
 /**
-	Returns the maximum number of elements the array can hold.
-@return
-	The maximum number of elements
+	Returns the maximum number of items the array can hold.
 */
 template <typename T, uint SIZE>
 inline uint Array<T, SIZE>::get_capacity() const
@@ -173,61 +157,53 @@ inline uint Array<T, SIZE>::get_capacity() const
 }
 
 /**
-	Appends an element to the array and returns its index or -1 if full.
-@param element
-	The element to append
-@return
-	The index of the element or -1 if full
+	Appends an item to the array and returns its index.
 */
 template <typename T, uint SIZE>
-inline uint Array<T, SIZE>::push_back(const T& element)
+inline uint Array<T, SIZE>::push_back(const T& item)
 {
-	assert(mCount < SIZE);
+	assert(m_count < SIZE);
 
-	mArray[mCount] = element;
+	m_array[m_count] = item;
 
-	return mCount++;
+	return m_count++;
 }
 
 /**
-	Removes the element at the given index.
-@param index
-	The index of the element to remove
+	Removes the item at the given index.
 */
 template <typename T, uint SIZE>
 inline void Array<T, SIZE>::pop_back()
 {
-	assert(mCount > 0);
+	assert(m_count > 0);
 
-	mCount--;
+	m_count--;
 }
 
 /**
 	Clears the content of the array.
 @note
 	Does not free memory, it only zeroes
-	the number of elements in the array.
+	the number of items in the array.
 */
 template <typename T, uint SIZE>
 inline void Array<T, SIZE>::clear()
 {
-	mCount = 0;
+	m_count = 0;
 }
 
 /**
-	Copies the content of the other list into this.
-@return
-	The reference to list after copying
+	Copies the content of other list into this.
 */
 template <typename T, uint SIZE>
 inline const Array<T, SIZE>& Array<T, SIZE>::operator=(const Array<T, SIZE>& b)
 {
-	for (uint i = 0; i < b.mCount; i++)
+	for (uint i = 0; i < b.m_count; i++)
 	{
-		mArray[i] = b.mArray[i];
+		m_array[i] = b.m_array[i];
 	}
 
-	mCount = b.mCount;
+	m_count = b.m_count;
 
 	return *this;
 }
@@ -236,28 +212,28 @@ inline const Array<T, SIZE>& Array<T, SIZE>::operator=(const Array<T, SIZE>& b)
 template <typename T, uint SIZE>
 inline const T* Array<T, SIZE>::begin() const
 {
-	return mArray;
+	return m_array;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T, uint SIZE>
 inline T* Array<T, SIZE>::begin()
 {
-	return mArray;
+	return m_array;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T, uint SIZE>
 inline const T* Array<T, SIZE>::end() const
 {
-	return mArray + (mCount - 1);
+	return m_array + (m_count - 1);
 }
 
 //-----------------------------------------------------------------------------
 template <typename T, uint SIZE>
 inline T* Array<T, SIZE>::end()
 {
-	return mArray + (mCount - 1);
+	return m_array + (m_count - 1);
 }
 
 } // namespace crown

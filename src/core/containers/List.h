@@ -57,7 +57,7 @@ public:
 
 	void				condense();
 
-	uint				push_back(const T& element);
+	uint				push_back(const T& item);
 	void				pop_back();
 	void				clear();
 
@@ -70,9 +70,9 @@ public:
 
 private:
 
-	uint				mCapacity;
-	uint				mSize;
-	T*					mArray;
+	uint				m_capacity;
+	uint				m_size;
+	T*					m_array;
 };
 
 /**
@@ -82,9 +82,9 @@ private:
 */
 template <typename T>
 inline List<T>::List() :
-	mCapacity(0),
-	mSize(0),
-	mArray(0)
+	m_capacity(0),
+	m_size(0),
+	m_array(0)
 {
 }
 
@@ -95,9 +95,9 @@ inline List<T>::List() :
 */
 template <typename T>
 inline List<T>::List(uint capacity) :
-	mCapacity(0),
-	mSize(0),
-	mArray(0)
+	m_capacity(0),
+	m_size(0),
+	m_array(0)
 {
 	set_capacity(capacity);
 }
@@ -107,9 +107,9 @@ inline List<T>::List(uint capacity) :
 */
 template <typename T>
 inline List<T>::List(const List<T>& list) :
-	mCapacity(0),
-	mSize(0),
-	mArray(0)
+	m_capacity(0),
+	m_size(0),
+	m_array(0)
 {
 	*this = list;
 }
@@ -120,9 +120,9 @@ inline List<T>::List(const List<T>& list) :
 template <typename T>
 inline List<T>::~List()
 {
-	if (mArray)
+	if (m_array)
 	{
-		delete[] mArray;
+		delete[] m_array;
 	}
 }
 
@@ -130,99 +130,83 @@ inline List<T>::~List()
 	Random access.
 @note
 	The index has to be smaller than size()
-@param index
-	The index
-@return
-	The element at the given index
 */
 template <typename T>
 inline T& List<T>::operator[](uint index)
 {
-	assert(index < mSize);
+	assert(index < m_size);
 
-	return mArray[index];
+	return m_array[index];
 }
 
 /**
 	Random access.
 @note
 	The index has to be smaller than size()
-@param index
-	The index
-@return
-	The element at the given index
 */
 template <typename T>
 inline const T& List<T>::operator[](uint index) const
 {
-	assert(index < mSize);
+	assert(index < m_size);
 
-	return mArray[index];
+	return m_array[index];
 }
 
 /**
 	Returns whether the array is empty.
-@return
-	True if empty, false otherwise
 */
 template <typename T>
 inline bool List<T>::empty() const
 {
-	return mSize == 0;
+	return m_size == 0;
 }
 
 /**
-	Returns the number of elements in the array.
-@return
-	The number of elements
+	Returns the number of items in the array.
 */
 template <typename T>
 inline uint List<T>::size() const
 {
-	return mSize;
+	return m_size;
 }
 
 /**
-	Returns the maximum number of elements the array can hold.
-@return
-	The maximum number of elements
+	Returns the maximum number of items the array can hold.
 */
 template <typename T>
 inline uint List<T>::capacity() const
 {
-	return mCapacity;
+	return m_capacity;
 }
 
 /**
 	Resizes the array to the given capacity.
 @note
-	Old elements will be copied to the newly created array.
+	Old items will be copied to the newly created array.
 	If the new capacity is smaller than the previous one, the
 	previous array will be truncated.
-@param capatity
-	The new capacity
 */
 template <typename T>
 inline void List<T>::set_capacity(uint capacity)
 {
 	assert(capacity > 0);
 
-	if (mCapacity == capacity)
+	if (m_capacity == capacity)
 	{
 		return;
 	}
 
-	T* tmp = mArray;
-	mCapacity = capacity;
+	T* tmp = m_array;
+	m_capacity = capacity;
 
-	if (capacity < mSize)
+	if (capacity < m_size)
 	{
-		mSize = capacity;
+		m_size = capacity;
 	}
 
-	mArray = new T[capacity];
+	m_array = new T[capacity];
 
-	memcpy(mArray, tmp, sizeof(T) * mSize);
+	memcpy(m_array, tmp, sizeof(T) * m_size);
 
 	if (tmp)
 	{
@@ -233,85 +217,77 @@ inline void List<T>::set_capacity(uint capacity)
 template <typename T>
 inline void List<T>::grow()
 {
-	set_capacity(mCapacity * 2 + 16);
+	set_capacity(m_capacity * 2 + 16);
 }
 
 /**
 	Condenses the array so the capacity matches the actual number
-	of elements in the array.
+	of items in the array.
 */
 template <typename T>
 inline void List<T>::condense()
 {
-	set_capacity(mSize);
+	set_capacity(m_size);
 }
 
 /**
-	Appends an element to the array and returns its index or -1 if full.
-@param element
-	The element to append
-@return
-	The index of the element or -1 if full
+	Appends an item to the array and returns its index or -1 if full.
 */
 template <typename T>
-inline uint List<T>::push_back(const T& element)
+inline uint List<T>::push_back(const T& item)
 {
-	if (mCapacity == mSize)
+	if (m_capacity == m_size)
 	{
 		grow();
 	}
 
-	mArray[mSize] = element;
+	m_array[m_size] = item;
 
-	return 	mSize++;
+	return 	m_size++;
 }
 
 /**
-	Removes the element at the given index.
-@param index
-	The index of the element to remove
+	Removes the item at the given index.
 */
 template <typename T>
 inline void List<T>::pop_back()
 {
-	assert(mSize > 0);
+	assert(m_size > 0);
 
-	mSize--;
+	m_size--;
 }
 
 /**
 	Clears the content of the array.
 @note
 	Does not free memory, it only zeroes
-	the number of elements in the array.
+	the number of items in the array.
 */
 template <typename T>
 inline void List<T>::clear()
 {
-	mSize = 0;
+	m_size = 0;
 }
 
 /**
 	Copies the content of the other list into this.
-@return
-	The reference to list after copying
 */
 template <typename T>
 inline const List<T>& List<T>::operator=(const List<T>& other)
 {
-	if (mArray)
+	if (m_array)
 	{
-		delete[] mArray;
+		delete[] m_array;
 	}
 
-	mSize = other.mSize;
-	mCapacity = other.mCapacity;
+	m_size = other.m_size;
+	m_capacity = other.m_capacity;
 
-	if (mCapacity)
+	if (m_capacity)
 	{
-		mArray = new T[mCapacity];
+		m_array = new T[m_capacity];
 
-		memcpy(mArray, other.mArray, mSize);
+		memcpy(m_array, other.m_array, m_size);
 	}
 
 	return *this;
@@ -321,28 +297,28 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 template <typename T>
 inline const T* List<T>::begin() const
 {
-	return mArray;
+	return m_array;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline T* List<T>::begin()
 {
-	return mArray;
+	return m_array;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline const T* List<T>::end() const
 {
-	return mArray + (mSize - 1);
+	return m_array + (m_size - 1);
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline T* List<T>::end()
 {
-	return mArray + (mSize - 1);
+	return m_array + (m_size - 1);
 }
 
 } // namespace crown
