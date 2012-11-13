@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 #include "Timer.h"
 #include "Str.h"
-#include "EventLoop.h"
 
 namespace crown
 {

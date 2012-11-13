@@ -24,41 +24,35 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "EventDispatcher.h"
-#include "Exceptions.h"
 
 namespace crown
 {
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::AddMouseListener(MouseListener* listener)
 {
-	if (listener == 0)
-	{
-		throw ArgumentException("EventDispatcher::AddMouseListener: listener == NULL.");
-	}
+	assert(listener != NULL);
 
 	mMouseListenerList.push_back(listener);
 }
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::AddKeyboardListener(KeyboardListener* listener)
 {
-	if (listener == 0)
-	{
-		throw ArgumentException("EventDispatcher::AddKeyboardListener: listener == NULL.");
-	}
+	assert(listener != NULL);
 
 	mKeyboardListenerList.push_back(listener);
 }
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::AddTouchListener(TouchListener* listener)
 {
-	if (listener == 0)
-	{
-		throw ArgumentException("EventDispatcher::AddTouchListener: listener == NULL.");
-	}
+	assert(listener != NULL);
 
 	mTouchListenerList.push_back(listener);
 }
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::ButtonPressed(const MouseEvent& event)
 {
 	for (uint i = 0; i < mMouseListenerList.size(); i++)
@@ -67,6 +61,7 @@ void EventDispatcher::ButtonPressed(const MouseEvent& event)
 	}
 }
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::ButtonReleased(const MouseEvent& event)
 {
 	for (uint i = 0; i < mMouseListenerList.size(); i++)
@@ -75,6 +70,7 @@ void EventDispatcher::ButtonReleased(const MouseEvent& event)
 	}
 }
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::CursorMoved(const MouseEvent& event)
 {
 	for (uint i = 0; i < mMouseListenerList.size(); i++)
@@ -83,6 +79,7 @@ void EventDispatcher::CursorMoved(const MouseEvent& event)
 	}
 }
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::KeyPressed(const KeyboardEvent& event)
 {
 	for (uint i = 0; i < mKeyboardListenerList.size(); i++)
@@ -91,6 +88,7 @@ void EventDispatcher::KeyPressed(const KeyboardEvent& event)
 	}
 }
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::KeyReleased(const KeyboardEvent& event)
 {
 	for (uint i = 0; i < mKeyboardListenerList.size(); i++)
@@ -99,6 +97,7 @@ void EventDispatcher::KeyReleased(const KeyboardEvent& event)
 	}
 }
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::TextInput(const KeyboardEvent& event)
 {
 	for (uint i = 0; i < mKeyboardListenerList.size(); i++)
@@ -107,6 +106,7 @@ void EventDispatcher::TextInput(const KeyboardEvent& event)
 	}
 }
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::TouchDown(const TouchEvent& event)
 {
 	for (uint i = 0; i < mTouchListenerList.size(); i++)
@@ -115,6 +115,7 @@ void EventDispatcher::TouchDown(const TouchEvent& event)
 	}
 }
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::TouchUp(const TouchEvent& event)
 {
 	for (uint i = 0; i < mTouchListenerList.size(); i++)
@@ -123,6 +124,7 @@ void EventDispatcher::TouchUp(const TouchEvent& event)
 	}
 }
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::TouchMove(const TouchEvent& event)
 {
 	for (uint i = 0; i < mTouchListenerList.size(); i++)
@@ -131,6 +133,7 @@ void EventDispatcher::TouchMove(const TouchEvent& event)
 	}
 }
 
+//-----------------------------------------------------------------------------
 void EventDispatcher::TouchCancel(const TouchEvent& event)
 {
 	for (uint i = 0; i < mTouchListenerList.size(); i++)

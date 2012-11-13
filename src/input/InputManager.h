@@ -26,76 +26,31 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "EventDispatcher.h"
+#include "Point2.h"
+#include "Vec2.h"
 
 namespace crown
 {
 
-class Mouse;
-class Keyboard;
-class Touch;
 class MouseListener;
 class KeyboardListener;
 class TouchListener;
-
 
 class InputManager
 {
 
 public:
 
-	/**
-		Constructor.
-	*/
 	InputManager();
-
-	/**
-		Destructor.
-	*/
 	~InputManager();
 
-	/**
-		Initializes the input manager.
-	*/
+	//! Initializes the input manager.
 	void Init();
 
-	/**
-		Returns whether the mouse is available.
-	*/
 	bool IsMouseAvailable() {}
-
-	/**
-		Returns whether the keyboard is available.
-	*/
 	bool IsKeyboardAvailable() {}
-
-	/**
-		Returns whether the touch is available.
-	*/
 	bool IsTouchAvailable() {}
 
-	/**
-		Returns the handle to the mouse input device.
-	*/
-	inline Mouse* GetMouse()
-	{
-		//return mMouse;
-	}
-
-	/**
-		Returns the handle to the keyboard input device.
-	*/
-	inline Keyboard* GetKeyboard()
-	{
-		//return mKeyboard;
-	}
-
-	/**
-		Return the handle to the touch input device.
-	*/
-	inline Touch* GetTouch()
-	{
-		//return mTouch;
-	}
 
 	inline void RegisterMouseListener(MouseListener* listener)
 	{
@@ -119,13 +74,61 @@ public:
 
 	void EventLoop();
 
-protected:
+	//! Returns whether the cursor is visible.
+	bool is_cursor_visible() const;
+
+	//! Sets whether the cursor is visible.
+	void set_cursor_visible(bool visible);
+
+	/**
+		Returns the position of the cursor in window space.
+	@note
+		Coordinates in window space have the origin at the
+		upper-left corner of the window. +X extends from left
+		to right and +Y extends from top to bottom.
+	*/
+	Point2 get_cursor_xy() const;
+
+	/**
+		Sets the position of the cursor in window space.
+	@note
+		Coordinates in window space have the origin at the
+		upper-left corner of the window. +X extends from left
+		to right and +Y extends from top to bottom.
+	*/
+	void set_cursor_xy(const Point2& position);
+
+	/**
+		Returns the relative position of the cursor in window space.
+	@note
+		Coordinates in window space have the origin at the
+		upper-left corner of the window. +X extends from left
+		to right and +Y extends from top to bottom.
+	@note
+		Relative coordinates are mapped to a real varying
+		from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
+		maximum extent of the cosidered axis.
+	*/
+	Vec2 get_cursor_relative_xy() const;
+
+	/**
+		Sets the relative position of the cursor in window space.
+	@note
+		Coordinates in window space have the origin at the
+		upper-left corner of the window. +X extends from left
+		to right and +Y extends from top to bottom.
+	@note
+		Relative coordinates are mapped to a real varying
+		from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
+		maximum extent of the cosidered axis.
+	*/
+	void set_cursor_relative_xy(const Vec2& position);
+
+private:
 
 	EventDispatcher		mEventDispatcher;
 
-//	Mouse*				mMouse;
-//	Keyboard*			mKeyboard;
-//	Touch*				mTouch;
+	bool				m_cursor_visible;
 };
 
 InputManager* GetInputManager();

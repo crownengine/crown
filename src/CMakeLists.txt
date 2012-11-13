@@ -157,13 +157,11 @@ set (STREAMS_HEADERS
 )
 
 set (MEM_SRC
-	core/mem/GarbageBin.cpp
 	#core/mem/MallocAllocator.cpp
 )
 
 set (MEM_HEADERS
 	core/mem/Auto.h
-	core/mem/GarbageBin.h
 	core/mem/Shared.h
 	#core/mem/Allocator.h
 	#core/mem/MallocAllocator.h

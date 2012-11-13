@@ -83,11 +83,14 @@ void			init_os();
 
 bool			create_render_window(uint x, uint y, uint width, uint height, bool fullscreen);
 bool			destroy_render_window();
+void			get_render_window_metrics(uint& width, uint& height);
 void			swap_buffers();
 
 void			event_loop();
 
 void			init_input();
+void			get_cursor_xy(int& x, int& y);
+void			set_cursor_xy(int x, int y);
 
 void			hide_cursor();
 void			show_cursor();
@@ -102,7 +105,7 @@ enum OSEventType
 
 	OSET_BUTTON_PRESS		= 3,
 	OSET_BUTTON_RELEASE		= 4,
-	OSET_MOTION_NOTIFY		= 5,
+	OSET_MOTION_NOTIFY		= 5
 };
 
 struct OSEvent

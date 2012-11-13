@@ -25,9 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-//#include "GarbageBin.h"
 #include "Weak.h"
-#include "GarbageBin.h"
 
 namespace crown
 {
@@ -35,7 +33,7 @@ namespace crown
 /* Delegate with 0 arguments */
 
 template<typename TResult>
-class IDelegate: public virtual IGarbageable
+class IDelegate
 {
 public:
 	virtual TResult Invoke() = 0;
@@ -44,7 +42,7 @@ public:
 };
 
 template<typename TClass, typename TResult>
-class Delegate: public IDelegate<TResult>, public virtual IGarbageable
+class Delegate : public IDelegate<TResult>
 {
 public:
 	Delegate(TClass* object):

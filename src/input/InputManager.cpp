@@ -25,16 +25,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "InputManager.h"
 #include "OS.h"
+#include "Log.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-InputManager::InputManager()
+InputManager::InputManager() :
+	m_cursor_visible(true)
 {
-//	mMouse = new Mouse();
-//	mKeyboard = new Keyboard();
-//	mTouch = new Touch();
 }
 
 //-----------------------------------------------------------------------------
@@ -51,15 +50,12 @@ void InputManager::EventLoop()
 	{
 		event = os::pop_event();
 
-		if (event.type == os::OSET_NONE)
-		{
-			return;
-		}
-
-		os::printf("OS Event: %d, %d, %d, %d, %d\n", event.type, event.data_a, event.data_b, event.data_c, event.data_d);
-
 		switch (event.type)
 		{
+			case os::OSET_NONE:
+			{
+				return;
+			}
 			case os::OSET_BUTTON_PRESS:
 			case os::OSET_BUTTON_RELEASE:
 			{
@@ -103,6 +99,70 @@ void InputManager::EventLoop()
 			}
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+bool InputManager::is_cursor_visible() const
+{
+	return m_cursor_visible;
+}
+
+//-----------------------------------------------------------------------------
+void InputManager::set_cursor_visible(bool visible)
+{
+	if (visible)
+	{
+		os::hide_cursor();
+	}
+	else
+	{
+		os::show_cursor();
+	}
+
+	m_cursor_visible = visible;
+}
+
+//-----------------------------------------------------------------------------
+Point2 InputManager::get_cursor_xy() const
+{
+	Point2 xy;
+
+	os::get_cursor_xy(xy.x, xy.y);
+
+	return xy;
+}
+
+//-----------------------------------------------------------------------------
+void InputManager::set_cursor_xy(const Point2& position)
+{
+	os::set_cursor_xy(position.x, position.y);
+}
+
+//-----------------------------------------------------------------------------
+Vec2 InputManager::get_cursor_relative_xy() const
+{
+	uint window_width;
+	uint window_height;
+
+	os::get_render_window_metrics(window_width, window_height);
+
+	Vec2 pos = get_cursor_xy().to_vec2();
+
+	pos.x = pos.x / (float) window_width;
+	pos.y = pos.y / (float) window_height;
+
+	return pos;
+}
+
+//-----------------------------------------------------------------------------
+void InputManager::set_cursor_relative_xy(const Vec2& position)
+{
+	uint window_width;
+	uint window_height;
+
+	os::get_render_window_metrics(window_width, window_height);
+
+	set_cursor_xy(Point2((int)(position.x * (float) window_width), (int)(position.y * (float) window_height)));
 }
 
 //-----------------------------------------------------------------------------

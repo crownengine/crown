@@ -167,6 +167,18 @@ void swap_buffers()
 	glXSwapBuffers(display, glx_window);
 }
 
+//-----------------------------------------------------------------------------
+void get_render_window_metrics(uint& width, uint& height)
+{
+	XWindowAttributes attribs;
+	XGetWindowAttributes(display, window, &attribs);
+
+	XFlush(display);
+
+	width = attribs.width;
+	height = attribs.height;
+}
+
 ////-----------------------------------------------------------------------------
 //void GLXRenderWindow::Move(uint x, uint y)
 //{

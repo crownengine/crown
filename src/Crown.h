@@ -70,7 +70,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Generic.h"
 
 // Core/Mem
-#include "GarbageBin.h"
 
 // Core/Streams
 #include "Stream.h"

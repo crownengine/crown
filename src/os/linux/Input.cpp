@@ -128,6 +128,42 @@ void init_input()
 }
 
 //-----------------------------------------------------------------------------
+void get_cursor_xy(int& x, int& y)
+{
+	Window unused;
+	int pointer_x, pointer_y, dummy;
+	uint dummy2;
+
+	XQueryPointer(display, window, &unused, &unused, &dummy, &dummy, &pointer_x, &pointer_y, &dummy2);
+
+	x = pointer_x;
+	y = pointer_y;
+}
+
+//-----------------------------------------------------------------------------
+void set_cursor_xy(int x, int y)
+{
+	uint width;
+	uint height;
+
+	get_render_window_metrics(width, height);
+
+	XWarpPointer(display, None, window, 0, 0, width, height, x, y);
+
+	XFlush(display);
+}
+
+//-----------------------------------------------------------------------------
+void hide_cursor()
+{
+}
+
+//-----------------------------------------------------------------------------
+void show_cursor()
+{
+}
+
+//-----------------------------------------------------------------------------
 void event_loop()
 {
 	XEvent event;

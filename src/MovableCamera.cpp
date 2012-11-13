@@ -48,7 +48,7 @@ MovableCamera::MovableCamera(const Vec3& position, const Angles& axis,
 	mAngleX = 0.0f;
 	mAngleY = 0.0f;
 
-	//GetInputManager()->GetMouse()->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
+	GetInputManager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 }
 
 MovableCamera::~MovableCamera()
@@ -63,7 +63,7 @@ float MovableCamera::GetMouseSensibility() const
 void MovableCamera::SetActive(bool active)
 {
 	Camera::SetActive(active);
-	//GetInputManager()->GetMouse()->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
+	GetInputManager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 }
 
 void MovableCamera::SetMouseSensibility(float sensibility)
@@ -205,11 +205,9 @@ void MovableCamera::StrafeRight()
 
 void MovableCamera::SetViewByMouse()
 {
-	//Mouse* mouse = GetInputManager()->GetMouse();
-
-	static Vec2 lastPos = Vec2::ZERO;//mouse->GetCursorRelativeXY();
-	Vec2 currentPos = Vec2::ZERO;//mouse->GetCursorRelativeXY();
-	//mouse->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
+	static Vec2 lastPos = GetInputManager()->get_cursor_relative_xy();
+	Vec2 currentPos = GetInputManager()->get_cursor_relative_xy();
+	GetInputManager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 
 	if (lastPos == currentPos)
 	{
@@ -218,8 +216,8 @@ void MovableCamera::SetViewByMouse()
 
 	Vec2 delta = lastPos - currentPos;
 
-	//mouse->SetCursorRelativeXY(Vec2(0.5f, 0.5f));
-	lastPos = Vec2::ZERO;//mouse->GetCursorRelativeXY();
+	GetInputManager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
+	lastPos = GetInputManager()->get_cursor_relative_xy();
 
 	mAngleX += delta.y * mMouseSensibility;
 	mAngleY += delta.x * mMouseSensibility;

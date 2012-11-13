@@ -23,19 +23,15 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Types.h"
 #include "Config.h"
 #include "Device.h"
 #include "Filesystem.h"
-#include "GarbageBin.h"
 #include "InputManager.h"
 #include "Log.h"
-#include "Renderer.h"
-#include "GarbageBin.h"
-#include "Config.h"
-#include "Filesystem.h"
-#include "Timer.h"
 #include "OS.h"
+#include "Renderer.h"
+#include "Timer.h"
+#include "Types.h"
 #include <cstdlib>
 
 namespace crown
