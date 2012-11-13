@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <GL/glew.h>
 #include <GL/glu.h>
-#include "EventLoop.h"
 #include "OS.h"
 
 using namespace crown;
@@ -38,8 +37,8 @@ public:
 		optShowCrate(true),
 		optShowTerrain(true)
 	{
-		//GetDevice()->GetInputManager()->RegisterKeyboardListener(this);
-		//GetDevice()->GetInputManager()->RegisterMouseListener(this);
+		GetInputManager()->RegisterKeyboardListener(this);
+		GetInputManager()->RegisterMouseListener(this);
 		mouseRightPressed = false;
 		mouseLeftPressed = false;
 	}
@@ -142,7 +141,7 @@ public:
 		renderer->SetClearColor(Color4::LIGHTBLUE);
 
 		// Add a movable camera
-		cam = new MovableCamera(Vec3(0, 2.5, 0), Angles::ZERO, true, 90.0f, 1.6f, true, 0.1, 2.5);
+		cam = new MovableCamera(Vec3::ZERO, Angles::ZERO, true, 90.0f, 1.6f, true, 0.1, 2.5);
 
 		if (cam)
 		{
@@ -255,7 +254,6 @@ private:
 int main(int argc, char** argv)
 {
 	Device* mDevice = GetDevice();
-	EventLoop loop;
 
 	if (!mDevice->Init(argc, argv))
 	{
