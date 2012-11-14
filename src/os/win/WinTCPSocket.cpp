@@ -2,7 +2,7 @@
 #include <winsock2.h>
 #pragma comment(lib, "wsock32.lib")
 
-
+#include "Types.h"
 #include "OS.h"
 
 namespace crown

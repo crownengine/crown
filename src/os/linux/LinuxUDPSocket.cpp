@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <cassert>
 
+#include "Types.h"
 #include "OS.h"
 
 namespace crown
