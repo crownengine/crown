@@ -48,12 +48,12 @@ public:
 
 	real					heading, pitch, bank;
 
-							Angles();						//!< Constructor, does nothing for efficiency
-							~Angles();						//!< Destructor
-							Angles(real h, real p, real b);	//!< Construct from three values
+							Angles();							//!< Constructor, does nothing for efficiency
+							~Angles();							//!< Destructor
+							Angles(real h, real p, real b);		//!< Construct from three values
 
 
-	Str						to_str() const;					//!< Returns a Str containing the angles' components
+	Str						to_str() const;						//!< Returns a Str containing the angles' components
 	Mat3					to_mat3() const;					//!< Returns an equivalent Mat3 representation.
 	Mat4					to_mat4() const;					//!< Returns an equivalent Mat4 representation.
 	Quat					to_quat() const;					//!< Returns an equivalent Quat representation.

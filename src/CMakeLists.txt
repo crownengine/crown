@@ -225,6 +225,8 @@ set (LINUX_SRC
 	os/linux/LinuxOS.cpp
 	os/linux/LinuxTimer.cpp
 	os/linux/Input.cpp
+	os/linux/TCPSocket.cpp
+	os/linux/UDPSocket.cpp	
 )
 
 set (LINUX_HEADERS
