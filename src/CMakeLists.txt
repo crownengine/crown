@@ -234,6 +234,11 @@ set (LINUX_HEADERS
 	os/linux/LinuxTimer.h
 )
 
+set (WIN_SRC
+#	os/win/WinTCPSocket.cpp
+#	os/win/WinUDPSocket.cpp
+)
+
 set (SOURCES
 	${SRC}
 	${INCLUDES}
@@ -258,6 +263,7 @@ set (SOURCES
 	${OS_HEADERS}
 	${LINUX_SRC}
 	${LINUX_HEADERS}
+	${WIN_SRC}
 
 	${GL_SRC}
 	${GL_HEADERS}
