@@ -100,6 +100,12 @@ int	TCPSocket::close()
 		::close(asd);
 		set_active_socket_id(0);  
 	}
+	int sd = get_socket_id();
+	if (sd != 0)
+	{
+		::close(sd);
+		set_socket_id(0);
+	}
 }
 
 bool TCPSocket::send(const void* data, int size)
