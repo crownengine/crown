@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstring>
 #include "List.h"
 #include "Types.h"
+#include "Allocator.h"
 
 namespace crown
 {
@@ -684,7 +685,7 @@ inline void Str::Replace(const Str& toFind, const Str& toReplace)
 	if (mLength < toReplace.mLength)
 		return;
 
-	List<char> tmp;
+	List<char> tmp(get_default_allocator());
 
 	uint i;
 	for (i = 0; i < mLength - (toFind.mLength - 1); i++)

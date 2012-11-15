@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Allocator.h"
 #include "Types.h"
 #include <cassert>
 #include <cstring>
@@ -33,16 +34,17 @@ namespace crown
 {
 
 /**
-	Dynamic array.
+	Dynamic array of POD items.
+@note
+	Does not call constructors/destructors so it is not very suitable for non-POD items.
 */
 template <typename T>
 class List
 {
-
 public:
 
-						List();
-						List(uint capacity);
+						List(Allocator& allocator);
+						List(Allocator& allocator, uint capacity);
 						List(const List<T>& list);
 						~List();
 
@@ -70,6 +72,7 @@ public:
 
 private:
 
+	Allocator*			m_allocator;
 	uint				m_capacity;
 	uint				m_size;
 	T*					m_array;
@@ -81,10 +84,11 @@ private:
 	Does not allocate memory.
 */
 template <typename T>
-inline List<T>::List() :
+inline List<T>::List(Allocator& allocator) :
+	m_allocator(&allocator),
 	m_capacity(0),
 	m_size(0),
-	m_array(0)
+	m_array(NULL)
 {
 }
 
@@ -94,10 +98,11 @@ inline List<T>::List() :
 	Allocates capacity * sizeof(T) bytes.
 */
 template <typename T>
-inline List<T>::List(uint capacity) :
+inline List<T>::List(Allocator& allocator, uint capacity) :
+	m_allocator(&allocator),
 	m_capacity(0),
 	m_size(0),
-	m_array(0)
+	m_array(NULL)
 {
 	set_capacity(capacity);
 }
@@ -109,7 +114,7 @@ template <typename T>
 inline List<T>::List(const List<T>& list) :
 	m_capacity(0),
 	m_size(0),
-	m_array(0)
+	m_array(NULL)
 {
 	*this = list;
 }
@@ -122,7 +127,7 @@ inline List<T>::~List()
 {
 	if (m_array)
 	{
-		delete[] m_array;
+		m_allocator->deallocate(m_array);
 	}
 }
 
@@ -204,13 +209,13 @@ inline void List<T>::set_capacity(uint capacity)
 		m_size = capacity;
 	}
 
-	m_array = new T[capacity];
+	m_array = (T*)m_allocator->allocate(capacity * sizeof(T));
 
-	memcpy(m_array, tmp, sizeof(T) * m_size);
+	memcpy(m_array, tmp, m_size * sizeof(T));
 
 	if (tmp)
 	{
-		delete[] tmp;
+		m_allocator->deallocate(tmp);
 	}
 }
 
@@ -277,7 +282,7 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 {
 	if (m_array)
 	{
-		delete[] m_array;
+		m_allocator->deallocate(m_array);
 	}
 
 	m_size = other.m_size;
@@ -285,9 +290,9 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 
 	if (m_capacity)
 	{
-		m_array = new T[m_capacity];
+		m_array = (T*)m_allocator->allocate(m_capacity * sizeof(T));
 
-		memcpy(m_array, other.m_array, m_size);
+		memcpy(m_array, other.m_array, m_size * sizeof(T));
 	}
 
 	return *this;

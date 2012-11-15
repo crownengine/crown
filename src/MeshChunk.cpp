@@ -25,11 +25,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "MeshChunk.h"
 #include "Types.h"
+#include "Allocator.h"
 
 namespace crown
 {
 
-MeshChunk::MeshChunk()
+MeshChunk::MeshChunk() :
+	mVertexList(get_default_allocator()),
+	mFaceList(get_default_allocator())
 {
 }
 
