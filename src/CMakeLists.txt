@@ -61,7 +61,6 @@ set (HEADERS
 )
 
 set (CORE_SRC
-	core/Weak.cpp
 )
 
 set (CORE_HEADERS
@@ -72,7 +71,6 @@ set (CORE_HEADERS
 	core/Singleton.h
 	core/Types.h
 	core/VertexData.h
-	core/Weak.h
 	core/WithProperties.h
 )
 
@@ -157,14 +155,13 @@ set (STREAMS_HEADERS
 )
 
 set (MEM_SRC
-	#core/mem/MallocAllocator.cpp
+	core/mem/MallocAllocator.cpp
 )
 
 set (MEM_HEADERS
-	core/mem/Auto.h
-	core/mem/Shared.h
-	#core/mem/Allocator.h
-	#core/mem/MallocAllocator.h
+	core/mem/Memory.h
+	core/mem/Allocator.h
+	core/mem/MallocAllocator.h
 )
 
 set (INPUT_SRC
