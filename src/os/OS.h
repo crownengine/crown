@@ -159,6 +159,8 @@ struct IPv4Address
 	}
 };
 
+//-----------------------------------------------------------------------------
+
 class UDPSocket
 {
 	public:
@@ -182,6 +184,7 @@ class UDPSocket
 					// Socket descriptor
 		int 		m_socket;  
 };
+//-----------------------------------------------------------------------------
 
 class TCPSocket
 {

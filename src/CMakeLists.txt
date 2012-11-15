@@ -239,6 +239,14 @@ set (WIN_SRC
 #	os/win/WinUDPSocket.cpp
 )
 
+set (NETWORK_SRC
+	network/Message.h
+)
+
+set (NETWORK_HEADERS
+	network/Message.cpp
+)
+
 set (SOURCES
 	${SRC}
 	${INCLUDES}
@@ -264,6 +272,8 @@ set (SOURCES
 	${LINUX_SRC}
 	${LINUX_HEADERS}
 	${WIN_SRC}
+	${NETWORK_SRC}
+	${NETWORK_HEADERS}
 
 	${GL_SRC}
 	${GL_HEADERS}
