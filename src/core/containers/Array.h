@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "Allocator.h"
 #include <cassert>
 
 namespace crown
@@ -33,16 +34,16 @@ namespace crown
 
 /**
 	Fixed-size array.
-
+@note
 	Does not grow in size.
-	Does not initialize memory.
+	Does not call constructors/destructors so it is not very suitable for non-POD items.
 */
 template <typename T, uint SIZE>
 class Array
 {
 public:
 
-							Array();
+							Array(Allocator& allocator);
 							Array(const Array<T, SIZE>& array);
 							~Array();
 
@@ -67,6 +68,7 @@ public:
 
 private:
 
+	Allocator*				m_allocator;
 	uint					m_count;			// The number of items
 	T						m_array[SIZE];
 };
@@ -77,7 +79,7 @@ private:
 	Does not initialize array memory.
 */
 template <typename T, uint SIZE>
-inline Array<T, SIZE>::Array() : m_count(0)
+inline Array<T, SIZE>::Array(Allocator& allocator) : m_allocator(&allocator), m_count(0)
 {
 	assert(SIZE > 0);
 

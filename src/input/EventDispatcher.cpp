@@ -24,9 +24,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "EventDispatcher.h"
+#include "Allocator.h"
 
 namespace crown
 {
+
+//-----------------------------------------------------------------------------
+EventDispatcher::EventDispatcher() :
+	mMouseListenerList(get_default_allocator()),
+	mKeyboardListenerList(get_default_allocator()),
+	mTouchListenerList(get_default_allocator())
+{
+}
+
+//-----------------------------------------------------------------------------
+EventDispatcher::~EventDispatcher()
+{
+}
 
 //-----------------------------------------------------------------------------
 void EventDispatcher::AddMouseListener(MouseListener* listener)

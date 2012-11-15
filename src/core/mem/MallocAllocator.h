@@ -23,67 +23,41 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "MeshChunk.h"
-#include "Types.h"
+#pragma once
+
 #include "Allocator.h"
 
 namespace crown
 {
 
-MeshChunk::MeshChunk() :
-	mVertexList(get_default_allocator()),
-	mFaceList(get_default_allocator())
+class MallocAllocator : public Allocator
 {
-}
+public:
 
-MeshChunk::~MeshChunk()
-{
+				MallocAllocator();
+				~MallocAllocator();
 
-}
+	void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
+	void		deallocate(void* data);
 
-int MeshChunk::GetVertexCount() const
-{
-	return mVertexList.size();
-}
+	size_t		allocated_size();
+	size_t		get_size(void* data);
 
-int MeshChunk::GetFaceCount() const
-{
-	return mFaceList.size();
-}
+private:
 
-const Box& MeshChunk::GetBoundingBox() const
-{
-	return mBoundingBox;
-}
-
-void MeshChunk::UpdateBoundingBox()
-{
-	mBoundingBox.zero();
-
-	for (uint i = 0; i < mVertexList.size(); i++)
+	//! Holds the number of bytes of an allocation
+	struct Header
 	{
-		mBoundingBox.add_point(mVertexList[i].position);
-	}
-}
+		size_t	size;
+	};
 
-void MeshChunk::UpdateNormals()
-{
-	for (uint i = 0; i < mFaceList.size(); i++)
-	{
-		Vec3 normal;
-		Vec3 v1;
-		Vec3 v2;
+	size_t		actual_allocation_size(size_t size, size_t align);
+	Header*		header(void* data);
+	void*		data(Header* header, size_t align);
+	void		pad(Header* header, void* data);
 
-		v1 = mVertexList[mFaceList[i].vertex[0]].position - mVertexList[mFaceList[i].vertex[1]].position;
-		v2 = mVertexList[mFaceList[i].vertex[2]].position - mVertexList[mFaceList[i].vertex[1]].position;
-		
-		normal = v2.cross(v1).normalize();
-
-		mVertexList[mFaceList[i].vertex[0]].normal = normal;
-		mVertexList[mFaceList[i].vertex[1]].normal = normal;
-		mVertexList[mFaceList[i].vertex[2]].normal = normal;
-	}
-}
+	size_t		m_allocated_size;
+};
 
 } // namespace crown
 

@@ -165,11 +165,11 @@ class UDPSocket
 {
 	public:
 
-					// Constructor
-					UDPSocket();
-					// Destructor
-					~UDPSocket();
-					// Open connection
+				// Constructor
+				UDPSocket();
+				// Destructor
+				~UDPSocket();
+				// Open connection
 		bool 		open(ushort port);
 					 // Send data through socket
 		bool 		send(IPv4Address &receiver, const void* data, int size );
@@ -190,10 +190,10 @@ class TCPSocket
 {
 	public:
 
-					// Constructor
-					TCPSocket();
-					// Destructor
-					~TCPSocket();
+				// Constructor
+				TCPSocket();
+				// Destructor
+				~TCPSocket();
 					// Open connection (server side)
 		bool 		open(ushort port);
 					// Connect (client side)

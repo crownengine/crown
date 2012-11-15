@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Color4.h"
 #include "Resource.h"
-#include "Shared.h"
 #include "Str.h"
 #include "Image.h"
 

@@ -30,11 +30,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Renderer.h"
+#include "Allocator.h"
 
 namespace crown
 {
 
 Mesh::Mesh() :
+	mMeshChunkList(get_default_allocator()),
 	mVertexBuffer(NULL),
 	mIndexBuffer(NULL),
 	mGlobalVertexCount(0)

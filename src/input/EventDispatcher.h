@@ -41,8 +41,8 @@ class EventDispatcher
 
 public:
 
-	EventDispatcher() {}
-	~EventDispatcher() {}
+	EventDispatcher();
+	~EventDispatcher();
 
 	void AddMouseListener(MouseListener* listener);
 	void AddKeyboardListener(KeyboardListener* listener);

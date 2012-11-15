@@ -36,6 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "Material.h"
 #include "Rect.h"
+#include "Allocator.h"
 
 #include "Config.h"
 #if defined(WINDOWS)
@@ -60,6 +61,10 @@ GLRenderer::GLRenderer() :
 	mMaxTextureUnits(0),
 	mMaxVertexIndices(0),
 	mMaxVertexVertices(0),
+
+	mOcclusionQueryList(get_default_allocator()),
+	mVertexBufferList(get_default_allocator()),
+	mIndexBufferList(get_default_allocator()),
 
 	mMaxAnisotropy(0.0f),
 

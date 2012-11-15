@@ -25,8 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Weak.h"
-
 namespace crown
 {
 
@@ -59,7 +57,7 @@ public:
 	 { return new Delegate(mObject.GetPointer()); }
 
 protected:
-	Weak<TClass> mObject;
+	TClass* mObject;
 };
 
 /* Delegate with 1 argument */
@@ -102,7 +100,7 @@ public:
 	TArg0 GetDefaultArg0() const;
 
 protected:
-	Weak<TClass> mObject;
+	TClass* mObject;
 	MethodType mMethod;
 	TArg0 mDefaultArg0;
 };
@@ -173,7 +171,7 @@ public:
 	TArg1 GetDefaultArg1() const;
 
 protected:
-	Weak<TClass> mObject;
+	TClass* mObject;
 	MethodType mMethod;
 	TArg0 mDefaultArg0;
 	TArg1 mDefaultArg1;
@@ -259,7 +257,7 @@ public:
 	TArg2 GetDefaultArg2() const;
 
 protected:
-	Weak<TClass> mObject;
+	TClass* mObject;
 	MethodType mMethod;
 	TArg0 mDefaultArg0;
 	TArg1 mDefaultArg1;
@@ -362,7 +360,7 @@ public:
 	TArg3 GetDefaultArg3() const;
 
 protected:
-	Weak<TClass> mObject;
+	TClass* mObject;
 	MethodType mMethod;
 	TArg0 mDefaultArg0;
 	TArg1 mDefaultArg1;

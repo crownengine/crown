@@ -23,67 +23,29 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "MeshChunk.h"
+#pragma once
+
+#include <stdint.h>
+#include <cassert>
+#include <cstdio>
 #include "Types.h"
-#include "Allocator.h"
 
 namespace crown
 {
-
-MeshChunk::MeshChunk() :
-	mVertexList(get_default_allocator()),
-	mFaceList(get_default_allocator())
-{
-}
-
-MeshChunk::~MeshChunk()
+namespace memory
 {
 
-}
+const uint		PADDING_VALUE	= 0xFFFFFFFFu;	//!< Value used to fill unused memory
+const size_t	DEFAULT_ALIGN	= 4;			//!< Default memory alignment in bytes
 
-int MeshChunk::GetVertexCount() const
+//! Returns the pointer p aligned to the desired align
+inline void* align(void* p, size_t align)
 {
-	return mVertexList.size();
+	uintptr_t ptr = (uintptr_t)p;
+
+	return (void*)(ptr + (align - ptr % align));
 }
 
-int MeshChunk::GetFaceCount() const
-{
-	return mFaceList.size();
-}
-
-const Box& MeshChunk::GetBoundingBox() const
-{
-	return mBoundingBox;
-}
-
-void MeshChunk::UpdateBoundingBox()
-{
-	mBoundingBox.zero();
-
-	for (uint i = 0; i < mVertexList.size(); i++)
-	{
-		mBoundingBox.add_point(mVertexList[i].position);
-	}
-}
-
-void MeshChunk::UpdateNormals()
-{
-	for (uint i = 0; i < mFaceList.size(); i++)
-	{
-		Vec3 normal;
-		Vec3 v1;
-		Vec3 v2;
-
-		v1 = mVertexList[mFaceList[i].vertex[0]].position - mVertexList[mFaceList[i].vertex[1]].position;
-		v2 = mVertexList[mFaceList[i].vertex[2]].position - mVertexList[mFaceList[i].vertex[1]].position;
-		
-		normal = v2.cross(v1).normalize();
-
-		mVertexList[mFaceList[i].vertex[0]].normal = normal;
-		mVertexList[mFaceList[i].vertex[1]].normal = normal;
-		mVertexList[mFaceList[i].vertex[2]].normal = normal;
-	}
-}
-
+} // namespace memory
 } // namespace crown
 

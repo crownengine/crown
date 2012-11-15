@@ -26,13 +26,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 // Core
-#include "Auto.h"
 #include "Exceptions.h"
 #include "SignalSlot.h"
 #include "Types.h"
 #include "CoreEventArgs.h"
 //#include "WithProperties.h"
-#include "Shared.h"
 #include "Singleton.h"
 
 // Core/Math
@@ -70,6 +68,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Generic.h"
 
 // Core/Mem
+#include "Memory.h"
+#include "Allocator.h"
+#include "MallocAllocator.h"
 
 // Core/Streams
 #include "Stream.h"
