@@ -222,11 +222,18 @@ set (LINUX_SRC
 	os/linux/LinuxOS.cpp
 	os/linux/LinuxTimer.cpp
 	os/linux/Input.cpp
+	os/linux/LinuxTCPSocket.cpp
+	os/linux/LinuxUDPSocket.cpp	
 )
 
 set (LINUX_HEADERS
 #	os/linux/EGLRenderWindow.h
 	os/linux/LinuxTimer.h
+)
+
+set (WIN_SRC
+#	os/win/WinTCPSocket.cpp
+#	os/win/WinUDPSocket.cpp
 )
 
 set (SOURCES
@@ -253,6 +260,7 @@ set (SOURCES
 	${OS_HEADERS}
 	${LINUX_SRC}
 	${LINUX_HEADERS}
+	${WIN_SRC}
 
 	${GL_SRC}
 	${GL_HEADERS}
