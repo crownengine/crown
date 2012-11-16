@@ -159,6 +159,8 @@ struct IPv4Address
 	}
 };
 
+//-----------------------------------------------------------------------------
+
 class UDPSocket
 {
 	public:
@@ -182,15 +184,16 @@ class UDPSocket
 					// Socket descriptor
 		int 		m_socket;  
 };
+//-----------------------------------------------------------------------------
 
 class TCPSocket
 {
 	public:
 
-					// Constructor
-					TCPSocket();
-					// Destructor
-					~TCPSocket();
+				// Constructor
+				TCPSocket();
+				// Destructor
+				~TCPSocket();
 					// Open connection (server side)
 		bool 		open(uint16_t port);
 					// Connect (client side)
