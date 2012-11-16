@@ -1,5 +1,6 @@
 #include <cassert>
 
+#include "MathUtils.h"
 #include "Message.h"
 
 namespace crown
@@ -325,14 +326,9 @@ void Message::write_real(real f, int32_t exp_bits, int32_t mant_bits)
 	//TODO:need to implement floatToBits function
 }
 
-void Message::write_angle(real f)
-{
-	// needs to be implemented
-}
-
 void Message::write_vec3(const Vec3& v, int32_t num_bits)
 {
-	
+	write_bits(vec3_to_bits(v, num_bits), num_bits);
 }
 
 void Message::write_string(const char* s, int32_t max_len, bool make7Bit)
@@ -469,11 +465,6 @@ real Message::read_real(int32_t exp_bits, int32_t mant_bits) const
   
 }
 
-real Message::read_angle() const
-{
-  
-}
-
 Vec3 Message::read_vec3(int32_t num_bits) const
 {
   
@@ -494,7 +485,49 @@ void Message::read_ipv4addr(os::IPv4Address* addr) const
   
 }
 
-// static int32_t		vec3_to_bits(const Vec3& v, int32_t num_bits);
-// static Vec3		bits_to_vec3(int32_t bits, int32_t num_bits);
+int32_t Message::vec3_to_bits(const Vec3& v, int32_t num_bits)
+{
+	assert(num_bits >= 6 && num_bits <= 32);
+	assert(v.squared_length() - 1.0f < 0.01f);
+  
+	int32_t max; 
+	int32_t bits;
+	float bias;
+
+	num_bits /= 3;
+	max = (1 << (num_bits - 1)) - 1;
+	bias = 0.5f / max;
+
+	bits = FLOATSIGNBITSET(v.x) << (num_bits * 3 - 1);
+	bits |= ((int32_t)((math::abs(v.x) + bias) * max)) << (num_bits * 2);
+	bits |= FLOATSIGNBITSET(v.y) << (num_bits * 2 - 1);
+	bits |= ((int32_t)((math::abs(v.y) + bias) * max)) << (num_bits * 1);
+	bits |= FLOATSIGNBITSET(v.z) << (num_bits * 1 - 1);
+	bits |= ((int32_t)((math::abs(v.z) + bias) * max)) << (num_bits * 0);
+	
+	return bits;  
+}
+
+Vec3 Message::bits_to_vec3(int32_t bits, int32_t num_bits)
+{
+	assert(num_bits >= 6 && num_bits <= 32);
+  
+	static float sign[2] = {1.0f, -1.0f};
+	int max;
+	float inv_max;
+	Vec3 v;
+
+	num_bits /= 3;
+	max = (1 << (num_bits - 1)) - 1;
+	inv_max = 1.0f / max;
+
+	v.x = sign[(bits >> (num_bits * 3 - 1)) & 1] * ((bits >> (num_bits * 2)) & max) * inv_max;
+	v.y = sign[(bits >> (num_bits * 2 - 1)) & 1] * ((bits >> (num_bits * 1)) & max) * inv_max;
+	v.z = sign[(bits >> (num_bits * 1 - 1)) & 1] * ((bits >> (num_bits * 0)) & max) * inv_max;
+	v.normalize();
+	
+	return v;
+}
+
 }
 }
