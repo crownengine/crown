@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstring>
 
 #include "MathUtils.h"
 #include "Message.h"
@@ -338,7 +339,7 @@ void Message::write_string(const char* s, int32_t max_len, bool make7Bit)
 
 void Message::write_data(const void* data, int32_t length)
 {
-
+	memcpy(get_byte_space(length), data, length);
 }
 
 void Message::write_ipv4addr(const os::IPv4Address addr)
