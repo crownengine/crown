@@ -39,7 +39,7 @@ class Camera
 public:
 
 	//! Constructor
-	Camera(const Vec3& position, const Angles& axis, bool visible, float fov, float aspect, bool active);
+	Camera(const Vec3& position, bool visible, float fov, float aspect, bool active);
 
 	//! Destructor
 	virtual ~Camera();

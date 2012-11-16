@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Angles;
 class Mat3;
 class Mat4;
 
@@ -66,7 +65,6 @@ public:
 	Quat		get_conjugate() const;				//!< Returns the quaternion's conjugate
 	Quat		get_inverse() const;				//!< Quaternion's inverse
 
-	Angles		to_angles() const;
 	Mat3		to_mat3() const;
 	Mat4		to_mat4() const;
 

@@ -32,9 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-MovableCamera::MovableCamera(const Vec3& position, const Angles& axis,
-				bool visible, float fov, float aspect, bool active, float speed, float sensibility) :
-	Camera(position, axis, visible, fov, aspect, active),
+MovableCamera::MovableCamera(const Vec3& position, bool visible, float fov, float aspect, bool active, float speed, float sensibility) :
+	Camera(position, visible, fov, aspect, active),
 	mSpeed(speed),
 	mMouseSensibility(sensibility),
 	mUpPressed(false),

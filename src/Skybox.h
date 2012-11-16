@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Data.h"
 #include "Texture.h"
-#include "Angles.h"
 #include "Vec3.h"
 
 namespace crown
@@ -55,7 +54,7 @@ class Skybox
 public:
 
 	//! Constructor
-	Skybox(const Vec3& position, const Angles& axis, bool visible);
+	Skybox(const Vec3& position, bool visible);
 
 	//! Destructor
 	~Skybox();

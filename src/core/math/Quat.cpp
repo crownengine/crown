@@ -23,7 +23,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Angles.h"
 #include "Mat3.h"
 #include "Mat4.h"
 #include "Types.h"
@@ -34,20 +33,24 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+//-----------------------------------------------------------------------------
 Quat::Quat()
 {
 }
 
+//-----------------------------------------------------------------------------
 Quat::Quat(real angle, const Vec3& v)
 {
 	this->w = math::cos((real)(angle * 0.5));
 	this->v = v * math::sin((real)(angle * 0.5));
 }
 
+//-----------------------------------------------------------------------------
 Quat::~Quat()
 {
 }
 
+//-----------------------------------------------------------------------------
 Str Quat::to_str() const
 {
 	Str tmp;
@@ -57,12 +60,14 @@ Str Quat::to_str() const
 	return tmp;
 }
 
+//-----------------------------------------------------------------------------
 void Quat::negate()
 {
 	w = -w;
 	v.negate();
 }
 
+//-----------------------------------------------------------------------------
 void Quat::load_identity()
 {
 	w = 1.0;
@@ -71,31 +76,31 @@ void Quat::load_identity()
 	v.z = 0.0;
 }
 
+//-----------------------------------------------------------------------------
 real Quat::length() const
 {
 	return math::sqrt(w * w + v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
+//-----------------------------------------------------------------------------
 void Quat::conjugate()
 {
 	v = -v;
 }
 
+//-----------------------------------------------------------------------------
 Quat Quat::get_conjugate() const
 {
 	return Quat(w, -v);
 }
 
+//-----------------------------------------------------------------------------
 Quat Quat::get_inverse() const
 {
 	return get_conjugate() * ((real)(1.0 / length()));
 }
 
-Angles Quat::to_angles() const
-{
-	return to_mat4().to_angles();
-}
-
+//-----------------------------------------------------------------------------
 Mat3 Quat::to_mat3() const
 {
 	Mat3 tmp;
@@ -116,6 +121,7 @@ Mat3 Quat::to_mat3() const
 	return tmp;
 }
 
+//-----------------------------------------------------------------------------
 Mat4 Quat::to_mat4() const
 {
 	Mat4 tmp;
@@ -143,7 +149,7 @@ Mat4 Quat::to_mat4() const
 	return tmp;
 }
 
-// cross product
+//-----------------------------------------------------------------------------
 Quat Quat::operator*(const Quat& b) const
 {
 	Quat tmp;
@@ -154,7 +160,7 @@ Quat Quat::operator*(const Quat& b) const
 	return tmp;
 }
 
-// Multiplication by a scalar
+//-----------------------------------------------------------------------------
 Quat Quat::operator*(const real& k) const
 {
 	Quat tmp;
@@ -165,6 +171,7 @@ Quat Quat::operator*(const real& k) const
 	return tmp;
 }
 
+//-----------------------------------------------------------------------------
 Quat Quat::power(real exp)
 {
 	Quat tmp;
@@ -188,16 +195,18 @@ Quat Quat::power(real exp)
 }
 
 /*
-The geometric int32_terpretation of the Quat dot product is similar to the int32_terpretation of
+The geometric interpretation of the Quat dot product is similar to the int32_terpretation of
 the vector dot product; the larger the absolute value of the Quat dot product axb, the more
 "similar" the angular displacements represented by a and b.
 */
+//-----------------------------------------------------------------------------
 real dot(const Quat& a, const Quat& b)
 {
 	return a.w * b.w + a.v.dot(b.v);
 }
 
-// Spherical Linear int32_tERPolation
+// Spherical Linear intERPolation
+//-----------------------------------------------------------------------------
 Quat slerp(const Quat& start, const Quat& end, real t)
 {
 	Quat delta = end * start.get_inverse();

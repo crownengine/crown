@@ -24,7 +24,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <cassert>
-#include "Angles.h"
 #include "Mat3.h"
 #include "Types.h"
 #include "Mat4.h"
@@ -963,39 +962,6 @@ real* Mat4::to_float_ptr()
 const real* Mat4::to_float_ptr() const
 {
 	return &m[0];
-}
-
-//-----------------------------------------------------------------------------
-Angles Mat4::to_angles() const
-{
-	Angles tmp;
-	real sp = -m[9];
-
-	if (sp <= -1.0)
-	{
-		tmp.pitch = -math::HALF_PI;
-	}
-	else if (sp >= 1.0)
-	{
-		tmp.pitch = math::HALF_PI;
-	}
-	else
-	{
-		tmp.pitch = math::asin(-m[9]);
-	}
-
-	if (sp > 0.9999)
-	{
-		tmp.bank = 0.0;
-		tmp.heading = math::atan2(-m[2], m[0]);
-	}
-	else
-	{
-		tmp.heading = math::atan2(m[8], m[10]);
-		tmp.bank = math::atan2(m[1], m[5]);
-	}
-
-	return tmp;
 }
 
 //-----------------------------------------------------------------------------

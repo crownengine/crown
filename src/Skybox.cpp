@@ -37,7 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-Skybox::Skybox(const Vec3& position, const Angles& axis, bool visible)
+Skybox::Skybox(const Vec3& position, bool visible)
 {
 	// Setup bounding box
 //	mBoundingBox.SetMin(Vec3(0.0f, 0.0f, 0.0f));

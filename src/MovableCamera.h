@@ -40,7 +40,7 @@ class MovableCamera : public Camera, public MouseListener, public KeyboardListen
 public:
 
 	//! Constructor
-	MovableCamera(const Vec3& position, const Angles& axis, bool visible, float fov, float aspect,
+	MovableCamera(const Vec3& position, bool visible, float fov, float aspect,
 					bool active, float speed, float sensibility);
 
 	//! Destructor

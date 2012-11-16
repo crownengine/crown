@@ -103,7 +103,6 @@ set (CONTAINERS_HEADERS
 )
 
 set (MATH_SRC
-	core/math/Angles.cpp
 	core/math/Color4.cpp
 	core/math/Mat3.cpp
 	core/math/Mat4.cpp
@@ -118,7 +117,6 @@ set (MATH_SRC
 )
 
 set (MATH_HEADERS
-	core/math/Angles.h
 	core/math/Color4.h
 	core/math/Interpolation.h
 	core/math/Intersection.h

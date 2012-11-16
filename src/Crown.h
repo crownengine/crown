@@ -34,7 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Singleton.h"
 
 // Core/Math
-#include "Angles.h"
 #include "Color4.h"
 #include "Interpolation.h"
 #include "Intersection.h"
