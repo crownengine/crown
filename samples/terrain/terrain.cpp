@@ -141,7 +141,7 @@ public:
 		renderer->SetClearColor(Color4::LIGHTBLUE);
 
 		// Add a movable camera
-		cam = new MovableCamera(Vec3::ZERO, Angles::ZERO, true, 90.0f, 1.6f, true, 0.1, 2.5);
+		cam = new MovableCamera(Vec3::ZERO, true, 90.0f, 1.6f, true, 0.1, 2.5);
 
 		if (cam)
 		{
@@ -151,7 +151,7 @@ public:
 		}
 
 		// Add a skybox
-		skybox = new Skybox(Vec3::ZERO, Angles::ZERO, true);
+		skybox = new Skybox(Vec3::ZERO, true);
 
 		if (skybox)
 		{
