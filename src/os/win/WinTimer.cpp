@@ -62,9 +62,9 @@ void Timer::Reset()
 	}
 }
 
-ulong Timer::GetMilliseconds() const
+uint64_t Timer::GetMilliseconds() const
 {
-	ulong currentTime;
+	uint64_t currentTime;
 
 	if (mPreciseTimer)
 	{
@@ -75,12 +75,12 @@ ulong Timer::GetMilliseconds() const
 		currentTime = timeGetTime();
 	}
 
-	return (ulong) ((currentTime - mCreationTime) / (mFrequency / 1000));
+	return (uint64_t) ((currentTime - mCreationTime) / (mFrequency / 1000));
 }
 
-ulong Timer::GetMicroseconds() const
+uint64_t Timer::GetMicroseconds() const
 {
-	ulong currentTime;
+	uint64_t currentTime;
 
 	if (mPreciseTimer)
 	{
@@ -93,7 +93,7 @@ ulong Timer::GetMicroseconds() const
 
 	//I'm using doubles here because if the timer isn't precise, it's always going to say
 	//0us because of the integer calculus.
-	return (ulong)((currentTime - mCreationTime) / (mFrequency/1000000.0));
+	return (uint64_t)((currentTime - mCreationTime) / (mFrequency/1000000.0));
 }
 
 
@@ -109,9 +109,9 @@ void Timer::StartMilliseconds()
 	}
 }
 
-ulong Timer::StopMilliseconds() const
+uint64_t Timer::StopMilliseconds() const
 {
-	ulong currentTime;
+	uint64_t currentTime;
 
 	if (mPreciseTimer)
 	{
@@ -122,7 +122,7 @@ ulong Timer::StopMilliseconds() const
 		currentTime = timeGetTime();
 	}
 
-	return (ulong) ((currentTime - mStartTime) / (mFrequency / 1000));
+	return (uint64_t) ((currentTime - mStartTime) / (mFrequency / 1000));
 }
 
 void Timer::StartMicroseconds()
@@ -137,9 +137,9 @@ void Timer::StartMicroseconds()
 	}
 }
 
-ulong Timer::StopMicroseconds() const
+uint64_t Timer::StopMicroseconds() const
 {
-	ulong currentTime;
+	uint64_t currentTime;
 
 	if (mPreciseTimer)
 	{
@@ -152,7 +152,7 @@ ulong Timer::StopMicroseconds() const
 
 	//I'm using doubles here because if the timer isn't precise, it's always going to say
 	//0us because of the integer calculus.
-	return (ulong)((currentTime - mStartTime) / (mFrequency/1000000.0));
+	return (uint64_t)((currentTime - mStartTime) / (mFrequency/1000000.0));
 }
 
 } // namespace crown

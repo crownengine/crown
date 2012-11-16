@@ -132,7 +132,7 @@ void get_cursor_xy(int& x, int& y)
 {
 	Window unused;
 	int pointer_x, pointer_y, dummy;
-	uint dummy2;
+	uint32_t dummy2;
 
 	XQueryPointer(display, window, &unused, &unused, &dummy, &dummy, &pointer_x, &pointer_y, &dummy2);
 
@@ -143,8 +143,8 @@ void get_cursor_xy(int& x, int& y)
 //-----------------------------------------------------------------------------
 void set_cursor_xy(int x, int y)
 {
-	uint width;
-	uint height;
+	uint32_t width;
+	uint32_t height;
 
 	get_render_window_metrics(width, height);
 

@@ -59,7 +59,7 @@ struct FaceData
 {
 	FaceData() {}
 
-	FaceData(ushort v1, ushort v2, ushort v3)
+	FaceData(uint16_t v1, uint16_t v2, uint16_t v3)
 	{
 		vertex[0] = (v1);
 		vertex[1] = (v2);
@@ -71,7 +71,7 @@ struct FaceData
 		return vertex[0] == other.vertex[0] && vertex[1] == other.vertex[1] && vertex[2] == other.vertex[2];
 	}
 
-	ushort vertex[3];
+	uint16_t vertex[3];
 };
 
 } // namespace crown

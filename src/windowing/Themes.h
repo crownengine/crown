@@ -66,7 +66,7 @@ public:
 
 	static void LoadTheme(ITheme* theme);
 	static void Draw(ThemesFunctions functionId, const Point2& size);
-	static void Draw(ThemesSprites spriteId, uint frameNumber);
+	static void Draw(ThemesSprites spriteId, uint32_t frameNumber);
 	static Sprite* GetSprite(ThemesSprites spriteId);
 
 private:

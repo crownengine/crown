@@ -43,22 +43,22 @@ public:
 	~Timer();
 
 	//! Returns the time (in milliseconds) elapsed since the instantiation of this class
-	ulong GetMilliseconds() const;
+	uint64_t GetMilliseconds() const;
 
 	//! Returns the time (in microseconds) elapsed since the instantiation of this class
-	ulong GetMicroseconds() const;
+	uint64_t GetMicroseconds() const;
 
 	//! Records the current time
 	void StartMilliseconds();
 
 	//! Returns the time (in milliseconds) elapsed since the last call to StartMilliseconds()
-	ulong StopMilliseconds() const;
+	uint64_t StopMilliseconds() const;
 
 	//! Records the current time
 	void StartMicroseconds();
 
 	//! Returns the time (in microseconds) elapsed since the last call to StartMicroseconds()
-	ulong StopMicroseconds() const;
+	uint64_t StopMicroseconds() const;
 
 private:
 

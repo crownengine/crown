@@ -24,7 +24,7 @@ TCPSocket::~TCPSocket()
 	close();
 }
 
-bool TCPSocket::open(ushort port)
+bool TCPSocket::open(uint16_t port)
 {
 	int sd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -54,7 +54,7 @@ bool TCPSocket::open(ushort port)
 	os::printf("listening on port %d\n", port);
 
 	sockaddr_in client;
-	uint client_length = sizeof(client);
+	uint32_t client_length = sizeof(client);
 
 	int asd = accept(sd, (sockaddr*)&client, &client_length);
 	if (asd < 0)

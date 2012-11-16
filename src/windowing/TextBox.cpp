@@ -120,7 +120,7 @@ void TextBox::ScrollCaretIntoView()
 void TextBox::UpdateDisplayedText()
 {
 	mTextRenderer->SetFont(mFont);
-	uint mEndIndex;
+	uint32_t mEndIndex;
 
 	mEndIndex = mTextRenderer->GetStrIndexFromDimensions(mText, mDisplayedTextIndex, Point2((int)GetSize().x, (int)GetSize().y) + Point2(mDisplayedTextOffset, 0), mDisplayedTextDimensions);
 	if (mEndIndex < mText.GetLength())

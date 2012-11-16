@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-uint Pixel::GetBitsPerPixel(PixelFormat format)
+uint32_t Pixel::GetBitsPerPixel(PixelFormat format)
 {
 	switch (format)
 	{
@@ -108,7 +108,7 @@ uint Pixel::GetBitsPerPixel(PixelFormat format)
 	}
 }
 
-uint Pixel::GetBytesPerPixel(PixelFormat format)
+uint32_t Pixel::GetBytesPerPixel(PixelFormat format)
 {
 	return GetBitsPerPixel(format) / 8;
 }

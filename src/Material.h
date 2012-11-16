@@ -35,7 +35,7 @@ namespace crown
 //! Max texture layers supported by the material.
 //! Note that the maximum number of usable layers
 //! depends on the graphic card.
-const uint MAX_TEXTURE_LAYERS = 8;
+const uint32_t MAX_TEXTURE_LAYERS = 8;
 
 enum FogMode
 {
@@ -336,10 +336,10 @@ public:
 
 	//! Sets "texture" to layer "layer"
 	//! Returns true if success
-	bool SetTextureLayer(uint layer, Texture* texture);
+	bool SetTextureLayer(uint32_t layer, Texture* texture);
 
 	//! Returns the texture at layer "layer"
-	Texture* GetTextureLayer(uint layer) const;
+	Texture* GetTextureLayer(uint32_t layer) const;
 
 	//! Sets the texture mode for all layers
 	void SetTextureMode(TextureMode mode);

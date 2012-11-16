@@ -89,7 +89,7 @@ Point2 WinMouse::GetCursorXY() const
 //-----------------------------------------------------------------------------
 void WinMouse::SetCursorXY(const Point2& position)
 {
-	uint width, height;
+	uint32_t width, height;
 	RECT windowRect;
 	GetWindowRect(mWindowHandle, &windowRect);
 
@@ -123,7 +123,7 @@ void WinMouse::SetCursorXY(const Point2& position)
 //-----------------------------------------------------------------------------
 Vec2 WinMouse::GetCursorRelativeXY() const
 {
-	uint width, height;
+	uint32_t width, height;
 	RECT windowRect;
 	GetWindowRect(mWindowHandle, &windowRect);
 
@@ -141,7 +141,7 @@ Vec2 WinMouse::GetCursorRelativeXY() const
 //-----------------------------------------------------------------------------
 void WinMouse::SetCursorRelativeXY(const Vec2& position)
 {
-	uint width, height;
+	uint32_t width, height;
 	RECT windowRect;
 	GetWindowRect(mWindowHandle, &windowRect);
 

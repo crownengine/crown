@@ -52,7 +52,7 @@ FileStream::~FileStream()
 	mFile = 0;
 }
 
-uchar FileStream::ReadByte()
+uint8_t FileStream::ReadByte()
 {
 	CheckValid();
 
@@ -62,7 +62,7 @@ uchar FileStream::ReadByte()
 		fseek(mFile->GetHandle(), 0, SEEK_CUR);
 	}
 
-	uchar buffer;
+	uint8_t buffer;
 
 	if (fread(&buffer, 1, 1, mFile->GetHandle()) != 1)
 	{
@@ -139,7 +139,7 @@ bool FileStream::EndOfStream() const
 	return GetPosition() == GetSize();
 }
 
-void FileStream::WriteByte(uchar val)
+void FileStream::WriteByte(uint8_t val)
 {
 	CheckValid();
 

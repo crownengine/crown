@@ -35,7 +35,7 @@ namespace Crown
 class ThemeSpriteWidget: public Widget
 {
 public:
-	ThemeSpriteWidget(Widget* p, ThemesSprites spriteId, uint frameNumber):
+	ThemeSpriteWidget(Widget* p, ThemesSprites spriteId, uint32_t frameNumber):
 		Widget(p), mSpriteId(spriteId), mFrameNumber(frameNumber)
 	{
 		Sprite* spr = Themes::GetSprite(spriteId);
@@ -62,7 +62,7 @@ public:
 
 private:
 	ThemesSprites mSpriteId;
-	uint mFrameNumber;
+	uint32_t mFrameNumber;
 };
 
 } //namespace Crown

@@ -633,13 +633,13 @@ inline bool Intersection::TestFrustumSphere(const Frustum& f, const Sphere& s)
 //-----------------------------------------------------------------------------
 inline bool Intersection::TestFrustumBox(const Frustum& f, const Box& b)
 {
-	uint vertexOutCount;
+	uint32_t vertexOutCount;
 
-	for (uint i = 0; i < 6; i++)
+	for (uint32_t i = 0; i < 6; i++)
 	{
 		vertexOutCount = 0;
 
-		for (uint j = 0; j < 8; j++)
+		for (uint32_t j = 0; j < 8; j++)
 		{
 			if (f.mPlane[i].get_distance_to_point(b.get_vertex(j)) < 0.0)
 			{

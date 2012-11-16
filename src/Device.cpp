@@ -37,9 +37,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-const ushort Device::CROWN_MAJOR = 0;
-const ushort Device::CROWN_MINOR = 1;
-const ushort Device::CROWN_MICRO = 0;
+const uint16_t Device::CROWN_MAJOR = 0;
+const uint16_t Device::CROWN_MINOR = 1;
+const uint16_t Device::CROWN_MICRO = 0;
 
 //-----------------------------------------------------------------------------
 Device::Device() :

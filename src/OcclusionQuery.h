@@ -48,7 +48,7 @@ public:
 	virtual void EndQuery() = 0;
 
 	//! Returns the number of fragments visible from the last query operation
-	virtual uint GetQueryResult() = 0;
+	virtual uint32_t GetQueryResult() = 0;
 
 	//! Returns whether result for this query is available
 	virtual bool IsResultAvailable() = 0;

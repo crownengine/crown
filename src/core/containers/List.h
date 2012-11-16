@@ -44,22 +44,22 @@ class List
 public:
 
 						List(Allocator& allocator);
-						List(Allocator& allocator, uint capacity);
+						List(Allocator& allocator, uint32_t capacity);
 						List(const List<T>& list);
 						~List();
 
-	T&					operator[](uint index);
-	const T&			operator[](uint index) const;
+	T&					operator[](uint32_t index);
+	const T&			operator[](uint32_t index) const;
 
 	bool				empty() const;
-	uint				size() const;
-	uint				capacity() const;
-	void				set_capacity(uint capacity);
+	uint32_t				size() const;
+	uint32_t				capacity() const;
+	void				set_capacity(uint32_t capacity);
 	void				grow();
 
 	void				condense();
 
-	uint				push_back(const T& item);
+	uint32_t				push_back(const T& item);
 	void				pop_back();
 	void				clear();
 
@@ -73,8 +73,8 @@ public:
 private:
 
 	Allocator*			m_allocator;
-	uint				m_capacity;
-	uint				m_size;
+	uint32_t				m_capacity;
+	uint32_t				m_size;
 	T*					m_array;
 };
 
@@ -98,7 +98,7 @@ inline List<T>::List(Allocator& allocator) :
 	Allocates capacity * sizeof(T) bytes.
 */
 template <typename T>
-inline List<T>::List(Allocator& allocator, uint capacity) :
+inline List<T>::List(Allocator& allocator, uint32_t capacity) :
 	m_allocator(&allocator),
 	m_capacity(0),
 	m_size(0),
@@ -137,7 +137,7 @@ inline List<T>::~List()
 	The index has to be smaller than size()
 */
 template <typename T>
-inline T& List<T>::operator[](uint index)
+inline T& List<T>::operator[](uint32_t index)
 {
 	assert(index < m_size);
 
@@ -150,7 +150,7 @@ inline T& List<T>::operator[](uint index)
 	The index has to be smaller than size()
 */
 template <typename T>
-inline const T& List<T>::operator[](uint index) const
+inline const T& List<T>::operator[](uint32_t index) const
 {
 	assert(index < m_size);
 
@@ -170,7 +170,7 @@ inline bool List<T>::empty() const
 	Returns the number of items in the array.
 */
 template <typename T>
-inline uint List<T>::size() const
+inline uint32_t List<T>::size() const
 {
 	return m_size;
 }
@@ -179,7 +179,7 @@ inline uint List<T>::size() const
 	Returns the maximum number of items the array can hold.
 */
 template <typename T>
-inline uint List<T>::capacity() const
+inline uint32_t List<T>::capacity() const
 {
 	return m_capacity;
 }
@@ -192,7 +192,7 @@ inline uint List<T>::capacity() const
 	previous array will be truncated.
 */
 template <typename T>
-inline void List<T>::set_capacity(uint capacity)
+inline void List<T>::set_capacity(uint32_t capacity)
 {
 	assert(capacity > 0);
 
@@ -239,7 +239,7 @@ inline void List<T>::condense()
 	Appends an item to the array and returns its index or -1 if full.
 */
 template <typename T>
-inline uint List<T>::push_back(const T& item)
+inline uint32_t List<T>::push_back(const T& item)
 {
 	if (m_capacity == m_size)
 	{

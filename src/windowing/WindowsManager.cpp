@@ -82,7 +82,7 @@ bool WindowsManager::DoModalWindow(Window* window)
 	RenderWindow* renderWindow = GetDevice()->GetMainWindow();
 	window->_PerformLayout();
 
-	uint rwWidth, rwHeight;
+	uint32_t rwWidth, rwHeight;
 	renderWindow->GetMetrics(rwWidth, rwHeight);
 	window->SetDesiredPosition((int)Math::Floor(((float)rwWidth  - window->GetSize().x)/2.0f),
 														 (int)Math::Floor(((float)rwHeight - window->GetSize().y)/2.0f));
@@ -481,7 +481,7 @@ void WindowsManager::Render()
 	Renderer* renderer = GetDevice()->GetRenderer();
 	Mat4 ortho;
 	RenderWindow* rWindow = GetDevice()->GetMainWindow();
-	uint rwWidth, rwHeight;
+	uint32_t rwWidth, rwHeight;
 	rWindow->GetMetrics(rwWidth, rwHeight);
 	ortho.BuildProjectionOrtho2dRH((float)rwWidth, (float)rwHeight, -1.0f, 1.0f);
 	renderer->SetMatrix(MT_PROJECTION, ortho);

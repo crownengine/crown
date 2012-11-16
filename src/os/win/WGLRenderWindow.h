@@ -44,8 +44,8 @@ public:
 	~WGLRenderWindow();
 
 	//! Creates the window
-	virtual bool Create(uint x, uint y, uint width, uint height,
-						uint depth, bool fullscreen);
+	virtual bool Create(uint32_t x, uint32_t y, uint32_t width, uint32_t height,
+						uint32_t depth, bool fullscreen);
 
 	//! Destroys the window
 	virtual void Destroy();
@@ -54,10 +54,10 @@ public:
 	virtual void SetVisible(bool visible);
 
 	//! Sets the window's position
-	virtual void Move(uint x, uint y);
+	virtual void Move(uint32_t x, uint32_t y);
 
 	//! Sets the window's width and height
-	virtual void Resize(uint width, uint height);
+	virtual void Resize(uint32_t width, uint32_t height);
 
 	//! Sets whether the window is in fullscreen mode
 	virtual void SetFullscreen(bool full);

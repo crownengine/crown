@@ -51,8 +51,8 @@ public:
 					~Generic();
 
 	explicit		Generic(int value);
-	explicit		Generic(uint value);
-	explicit		Generic(ushort value);
+	explicit		Generic(uint32_t value);
+	explicit		Generic(uint16_t value);
 	explicit		Generic(float value);
 	explicit		Generic(bool value);
 	explicit		Generic(const char* value);
@@ -62,11 +62,11 @@ public:
 	bool			as_int(int& out) const;
 	int				as_int() const;
 
-	bool			as_uint(uint& out) const;
-	uint			as_uint() const;
+	bool			as_uint32_t(uint32_t& out) const;
+	uint32_t			as_uint32_t() const;
 
-	bool			as_ushort(ushort& out) const;
-	ushort			as_ushort() const;
+	bool			as_uint16_t(uint16_t& out) const;
+	uint16_t			as_uint16_t() const;
 
 	bool			as_float(float& out) const;
 	float			as_float() const;
@@ -88,8 +88,8 @@ private:
 	union Data
 	{
 		int			int_value;
-		uint		uint_value;
-		ushort		ushort_value;
+		uint32_t		uint32_t_value;
+		uint16_t		uint16_t_value;
 		float		float_value;
 		bool		bool_value;
 	};

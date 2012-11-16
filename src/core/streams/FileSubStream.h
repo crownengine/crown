@@ -53,7 +53,7 @@ public:
 	void Seek(int newPos, SeekMode mode);
 
 	/** @copydoc Stream::ReadByte() */
-	uchar ReadByte();
+	uint8_t ReadByte();
 
 	/** @copydoc Stream::ReadDataBlock() */
 	void ReadDataBlock(void* buffer, size_t size);
@@ -62,7 +62,7 @@ public:
 	bool CopyTo(Stream* stream, size_t size = 0);
 
 	/** @copydoc Stream::WriteByte() */
-	void WriteByte(uchar val);
+	void WriteByte(uint8_t val);
 
 	/** @copydoc Stream::WriteDataBlock() */
 	void WriteDataBlock(const void* buffer, size_t size);

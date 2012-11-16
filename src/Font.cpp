@@ -86,7 +86,7 @@ void Font::Unload(const char* name, bool reload)
 {
 }
 
-Glyph& Font::GetGlyph(uint code)
+Glyph& Font::GetGlyph(uint32_t code)
 {
 	if (mCodeGlyphDict.Contains(code))
 	{
@@ -97,7 +97,7 @@ Glyph& Font::GetGlyph(uint code)
 	return nullGlyph;
 }
 
-void Font::SetCodeGlyphMetrics(uint code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline)
+void Font::SetCodeGlyphMetrics(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline)
 {
 	if (mCodeGlyphDict.Contains(code))
 	{

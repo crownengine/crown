@@ -92,7 +92,7 @@ public:
 	 * @param tileSize The size of a tile in units
 	 * @return A pointer to the loaded resource
 	 */
-	Mesh* LoadGrid(const char* name, uint size = 20, float tileSize = 1.0f);
+	Mesh* LoadGrid(const char* name, uint32_t size = 20, float tileSize = 1.0f);
 
 	virtual Mesh* CreateSpecific(const char* name);
 

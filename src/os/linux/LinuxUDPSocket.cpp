@@ -22,7 +22,7 @@ UDPSocket::~UDPSocket()
 	close();
 }
 
-bool UDPSocket::open(ushort port)
+bool UDPSocket::open(uint16_t port)
 {
   		assert(!is_open());
 
@@ -101,8 +101,8 @@ int UDPSocket::receive(IPv4Address &sender, void* data, int size)
 			return 0;
 	}
 
-	uint address = ntohl(from.sin_addr.s_addr);
-	ushort port = ntohs(from.sin_port);
+	uint32_t address = ntohl(from.sin_addr.s_addr);
+	uint16_t port = ntohs(from.sin_port);
 
 	sender.set(address, port);
 

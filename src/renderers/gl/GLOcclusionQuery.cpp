@@ -50,9 +50,9 @@ void GLOcclusionQuery::EndQuery()
 	glEndQuery(GL_SAMPLES_PASSED);
 }
 
-uint GLOcclusionQuery::GetQueryResult()
+uint32_t GLOcclusionQuery::GetQueryResult()
 {
-	uint passedCount;
+	uint32_t passedCount;
 
 	glGetQueryObjectuiv(mQueryObject, GL_QUERY_RESULT, &passedCount);
 
@@ -61,7 +61,7 @@ uint GLOcclusionQuery::GetQueryResult()
 
 bool GLOcclusionQuery::IsResultAvailable()
 {
-	uint available;
+	uint32_t available;
 
 	glGetQueryObjectuiv(mQueryObject, GL_QUERY_RESULT_AVAILABLE, &available);
 

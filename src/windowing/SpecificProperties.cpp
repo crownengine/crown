@@ -80,7 +80,7 @@ void IntProperty::SetValue(const Generic& value)
 	}
 }
 
-UIntProperty::UIntProperty(const Str& name, uint* valuePtr):
+UIntProperty::UIntProperty(const Str& name, uint32_t* valuePtr):
 	Property(name), mValuePtr(valuePtr)
 {
 
@@ -104,7 +104,7 @@ void UIntProperty::SetValue(const Generic& value)
 	}
 }
 
-UShortProperty::UShortProperty(const Str& name, ushort* valuePtr):
+UShortProperty::UShortProperty(const Str& name, uint16_t* valuePtr):
 	Property(name), mValuePtr(valuePtr)
 {
 

@@ -46,13 +46,13 @@ public:
 				/** @copydoc Stream::~Stream() */
 	virtual		~NullStream() {}
 				/** @copydoc Stream::Seek() */
-	void		Seek(int /*newPos*/, uchar /*mode*/) {}
+	void		Seek(int /*newPos*/, uint8_t /*mode*/) {}
 				/**
 				@copydoc Stream::ReadByte()
 				@note
 					Returns always zero
 				*/
-	uchar		ReadByte() { return 0; }
+	uint8_t		ReadByte() { return 0; }
 				/**
 				@copydoc Stream::ReadDataBlock()
 				@note
@@ -62,7 +62,7 @@ public:
 				{
 					for (size_t i = 0; i < size; i++)
 					{
-						((uchar*)buffer)[i] = 0;
+						((uint8_t*)buffer)[i] = 0;
 					}
 				}
 				/**
@@ -72,7 +72,7 @@ public:
 				*/
 	bool		CopyTo(Stream* /*stream*/, size_t /*size = 0*/) { return false; }
 				/** @copydoc Stream::WriteByte() */
-	void		WriteByte(uchar /*val*/) {};
+	void		WriteByte(uint8_t /*val*/) {};
 				/** @copydoc Stream::WriteDataBlock() */
 	void		WriteDataBlock(const void* /*buffer*/, size_t /*size*/) {};
 				/** @copydoc Stream::Flush() */

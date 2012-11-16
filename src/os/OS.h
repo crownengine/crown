@@ -82,9 +82,9 @@ bool			ls(const char* path, List<Str>& fileList);	//! Returns the list of filena
 //-----------------------------------------------------------------------------
 void			init_os();
 
-bool			create_render_window(uint x, uint y, uint width, uint height, bool fullscreen);
+bool			create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen);
 bool			destroy_render_window();
-void			get_render_window_metrics(uint& width, uint& height);
+void			get_render_window_metrics(uint32_t& width, uint32_t& height);
 void			swap_buffers();
 
 void			event_loop();
@@ -133,27 +133,27 @@ OSEvent&			pop_event();
 
 struct IPv4Address
 {
-	uchar 	address[4];
-	ushort 	port;
+	uint8_t 	address[4];
+	uint16_t 	port;
 	
-	uint get_address()
+	uint32_t get_address()
 	{
-		uint addr = address[0] << 24 | address[1] << 16 | address[2] << 8 | address[3];
+		uint32_t addr = address[0] << 24 | address[1] << 16 | address[2] << 8 | address[3];
 		
 		return addr;
 	}
 	
-	ushort get_port()
+	uint16_t get_port()
 	{
 		return port;
 	}
 	
-	void set(uint a, ushort p)
+	void set(uint32_t a, uint16_t p)
 	{
-		address[0] = (uchar) a >> 24;
-		address[1] = (uchar) a >> 16;
-		address[2] = (uchar) a >> 8;
-		address[3] = (uchar) a;
+		address[0] = (uint8_t) a >> 24;
+		address[1] = (uint8_t) a >> 16;
+		address[2] = (uint8_t) a >> 8;
+		address[3] = (uint8_t) a;
 
 		port = p;
 	}
@@ -168,7 +168,7 @@ class UDPSocket
 					// Destructor
 					~UDPSocket();
 					// Open connection
-		bool 		open(ushort port);
+		bool 		open(uint16_t port);
 					 // Send data through socket
 		bool 		send(IPv4Address &receiver, const void* data, int size );
 					// Receive data through socket
@@ -192,7 +192,7 @@ class TCPSocket
 					// Destructor
 					~TCPSocket();
 					// Open connection (server side)
-		bool 		open(ushort port);
+		bool 		open(uint16_t port);
 					// Connect (client side)
 		bool		connect(IPv4Address& destination);
 					// Close connection

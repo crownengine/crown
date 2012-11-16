@@ -75,8 +75,8 @@ template <typename T> void	swap(T& a, T& b);				//!< Swaps @a and @b
 
 real			deg_to_rad(real deg);			//!< Returns "deg" in radians
 real			rad_to_deg(real rad);			//!< Returns "rad" in degrees
-uint			next_pow_2(uint x);				//!< Returns the nearest power of two to @x
-bool			is_pow_2(uint x);				//!< Returns whether @x is power of two
+uint32_t			next_pow_2(uint32_t x);				//!< Returns the nearest power of two to @x
+bool			is_pow_2(uint32_t x);				//!< Returns whether @x is power of two
 real			ceil(real x);					//!< Returns the smallest integral value that is not less than x
 real			floor(real x);					//!< Returns the largest integral value that is not greater than x
 real			sqrt(real x);					//!< Returns the square root of @x
@@ -186,7 +186,7 @@ inline real rad_to_deg(real rad)
 }
 
 //-----------------------------------------------------------------------------
-inline uint next_pow_2(uint x)
+inline uint32_t next_pow_2(uint32_t x)
 {
 	x--;
 
@@ -200,7 +200,7 @@ inline uint next_pow_2(uint x)
 }
 
 //-----------------------------------------------------------------------------
-inline bool is_pow_2(uint x)
+inline bool is_pow_2(uint32_t x)
 {
 	return !(x & (x - 1)) && x;
 }

@@ -64,8 +64,8 @@ void TextRenderer::Draw(const Str& string, int x, int y, Font* font)
 	renderer->_SetTextureFilter(0, tex->GetFilter());
 
 	Color4 mColor = Color4::BLACK;
-	uint mCharSpacing = 0;
-	uint mLineSpacing = 0;
+	uint32_t mCharSpacing = 0;
+	uint32_t mLineSpacing = 0;
 	
 
 	glColor4fv(mColor.to_float_ptr());
@@ -75,17 +75,17 @@ void TextRenderer::Draw(const Str& string, int x, int y, Font* font)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   
-    for (uint i = 0; i < string.GetLength(); i++)
+    for (uint32_t i = 0; i < string.GetLength(); i++)
     {
         Glyph glyph;
         float left, right, bottom, top, advance, dummy;
-        uint ttSizeX, ttSizeY;
+        uint32_t ttSizeX, ttSizeY;
   
         glyph = mFont->GetGlyph(string[i]);
   
         glyph.GetMetrics(left, right, bottom, top, dummy, dummy, advance, dummy);
-        ttSizeX = (uint)((right - left) * tex->GetWidth());
-        ttSizeY = (uint)((top - bottom) * tex->GetHeight());
+        ttSizeX = (uint32_t)((right - left) * tex->GetWidth());
+        ttSizeY = (uint32_t)((top - bottom) * tex->GetHeight());
 
         glBegin(GL_QUADS);
         glTexCoord2f(left, top);
@@ -107,7 +107,7 @@ void TextRenderer::Draw(const Str& string, int x, int y, Font* font)
 }
 
 //-----------------------------------------------------------------------------
-void TextRenderer::GetStrDimensions(const Str& string, uint start, uint end, int& width, int& height)
+void TextRenderer::GetStrDimensions(const Str& string, uint32_t start, uint32_t end, int& width, int& height)
 {
 //	if (mFont != NULL)
 //	{
@@ -119,9 +119,9 @@ void TextRenderer::GetStrDimensions(const Str& string, uint start, uint end, int
 
 //	//TODO: Should take baseline into account
 
-//	if (end == (uint)-1)
+//	if (end == (uint32_t)-1)
 //		end = string.GetLength();
-//	for (uint i = start; i < end; i++)
+//	for (uint32_t i = start; i < end; i++)
 //	{
 //		Glyph glyph;
 //		float gheight, gwidth, dummy, advance, baseline;
@@ -141,7 +141,7 @@ void TextRenderer::GetStrDimensions(const Str& string, uint start, uint end, int
 }
 
 //-----------------------------------------------------------------------------
-int TextRenderer::GetStrIndexFromDimensions(const Str& string, uint start, const Point2& position, Point2& charPosition)
+int TextRenderer::GetStrIndexFromDimensions(const Str& string, uint32_t start, const Point2& position, Point2& charPosition)
 {
 //	if (mFont == NULL)
 //	{
@@ -150,7 +150,7 @@ int TextRenderer::GetStrIndexFromDimensions(const Str& string, uint start, const
 
 //	int width = 0;
 
-//	for (uint i = start; i < string.GetLength(); i++)
+//	for (uint32_t i = start; i < string.GetLength(); i++)
 //	{
 //		Glyph glyph;
 //		float gheight, gwidth, dummy, advance;

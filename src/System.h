@@ -42,8 +42,8 @@ namespace crown
 
 struct EntityId
 {
-	uint		innerId;
-	uint		index;
+	uint32_t		innerId;
+	uint32_t		index;
 };
 
 struct Entity
@@ -74,13 +74,13 @@ public:
 	void		DestroyEntity(EntityId id);
 	Entity&		GetEntity(EntityId id);
 
-	void		Update(uint dt);
+	void		Update(uint32_t dt);
 
 private:
 
-	uint		mNextId;					// Next available Id
-	uint		mLastIndex;					// Count of entities
-	uint		mFreelist;					// Start index of the freelist
+	uint32_t		mNextId;					// Next available Id
+	uint32_t		mLastIndex;					// Count of entities
+	uint32_t		mFreelist;					// Start index of the freelist
 	Entity		mEntities[MAX_ENTITIES];	// Entities
 
 	VertexData		mVertices[4];
@@ -148,9 +148,9 @@ inline Entity& System::GetEntity(EntityId id)
 	return mEntities[id.index];
 }
 
-void System::Update(uint dt)
+void System::Update(uint32_t dt)
 {
-	for (uint i = 0; i < mLastIndex; i++)
+	for (uint32_t i = 0; i < mLastIndex; i++)
 	{
 		if (mEntities[i].mId.innerId == MAX_ENTITIES)
 		{

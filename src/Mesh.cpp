@@ -51,12 +51,12 @@ Mesh::~Mesh()
 	}
 }
 
-uint Mesh::GetMeshChunkCount() const
+uint32_t Mesh::GetMeshChunkCount() const
 {
 	return mMeshChunkList.size();
 }
 
-MeshChunk* Mesh::GetMeshChunk(uint index) const
+MeshChunk* Mesh::GetMeshChunk(uint32_t index) const
 {
 	return mMeshChunkList[index];
 }
@@ -86,7 +86,7 @@ void Mesh::UpdateBoundingBox()
 {
 	mBoundingBox.zero();
 
-	for (uint i = 0; i < mMeshChunkList.size(); i++)
+	for (uint32_t i = 0; i < mMeshChunkList.size(); i++)
 	{
 		mMeshChunkList[i]->UpdateBoundingBox();
 		mBoundingBox.add_box(mMeshChunkList[i]->GetBoundingBox());
@@ -95,8 +95,8 @@ void Mesh::UpdateBoundingBox()
 
 void Mesh::RecompileMesh()
 {
-	uint count = 0;
-	uint offset = 0;
+	uint32_t count = 0;
+	uint32_t offset = 0;
 
 	if (!mVertexBuffer)
 		mVertexBuffer = GetDevice()->GetRenderer()->CreateVertexBuffer();
@@ -104,7 +104,7 @@ void Mesh::RecompileMesh()
 		mIndexBuffer = GetDevice()->GetRenderer()->CreateIndexBuffer();
 
 	count = 0;
-	for(uint i=0; i<mMeshChunkList.size(); i++)
+	for(uint32_t i=0; i<mMeshChunkList.size(); i++)
 	{
 		mMeshChunkList[i]->UpdateNormals();
 		count += mMeshChunkList[i]->mVertexList.size();
@@ -113,9 +113,9 @@ void Mesh::RecompileMesh()
 	mVertexBuffer->SetVertexData((VertexBufferMode) (VBM_NORMAL_COORDS | VBM_TEXTURE_COORDS | VBM_COLOR_COORDS), NULL, count);
 	
 	offset = 0;
-	for(uint i=0; i<mMeshChunkList.size(); i++)
+	for(uint32_t i=0; i<mMeshChunkList.size(); i++)
 	{
-		uint size = mMeshChunkList[i]->mVertexList.size() * sizeof(VertexData);
+		uint32_t size = mMeshChunkList[i]->mVertexList.size() * sizeof(VertexData);
 		mVertexBuffer->SetVertexSubData((float*) mMeshChunkList[i]->mVertexList.begin(), offset, mMeshChunkList[i]->mVertexList.size());
 
 		offset += size;
@@ -123,7 +123,7 @@ void Mesh::RecompileMesh()
 
 	//Index buffer
 	count = 0;
-	for(uint i=0; i<mMeshChunkList.size(); i++)
+	for(uint32_t i=0; i<mMeshChunkList.size(); i++)
 	{
 		count += mMeshChunkList[i]->mFaceList.size() * 3;
 	}
@@ -131,10 +131,10 @@ void Mesh::RecompileMesh()
 	mIndexBuffer->SetIndexData(NULL, count);
 	
 	offset = 0;
-	for(uint i=0; i<mMeshChunkList.size(); i++)
+	for(uint32_t i=0; i<mMeshChunkList.size(); i++)
 	{
-		uint size = mMeshChunkList[i]->mFaceList.size() * sizeof(ushort) * 3;
-		mIndexBuffer->SetIndexSubData((ushort*) mMeshChunkList[i]->mFaceList.begin(), offset, mMeshChunkList[i]->mFaceList.size() * 3);
+		uint32_t size = mMeshChunkList[i]->mFaceList.size() * sizeof(uint16_t) * 3;
+		mIndexBuffer->SetIndexSubData((uint16_t*) mMeshChunkList[i]->mFaceList.begin(), offset, mMeshChunkList[i]->mFaceList.size() * 3);
 
 		offset += size;
 	}

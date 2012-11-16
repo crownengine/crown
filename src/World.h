@@ -42,15 +42,15 @@ public:
 				World();
 				~World();
 
-	void		SetTimeOfDay(ushort seconds);		//!< Sets the time of day in seconds
-	ushort		GetTimeOfDay() const;				//!< Returns the time of day in seconds
+	void		SetTimeOfDay(uint16_t seconds);		//!< Sets the time of day in seconds
+	uint16_t		GetTimeOfDay() const;				//!< Returns the time of day in seconds
 
-	void		Update(uint dt);
+	void		Update(uint32_t dt);
 
 private:
 
-	ushort		mTimeOfDay;			// Time of day in seconds. (60 * 60 * 24 secs)
-	ushort		mTimeOfDaySpeed;	// Speed of seconds in 1/100 of seconds. (100 = 1 game second equals 1 real second)
+	uint16_t		mTimeOfDay;			// Time of day in seconds. (60 * 60 * 24 secs)
+	uint16_t		mTimeOfDaySpeed;	// Speed of seconds in 1/100 of seconds. (100 = 1 game second equals 1 real second)
 
 	float		mGravity;			// Gravity of the world in meters/seconds
 

@@ -54,8 +54,8 @@ public:
 							~Mesh();	//! Destructor
 
 
-	uint					GetMeshChunkCount() const;	//! Returns the MeshChunks contained in this mesh
-	MeshChunk*				GetMeshChunk(uint index) const;
+	uint32_t					GetMeshChunkCount() const;	//! Returns the MeshChunks contained in this mesh
+	MeshChunk*				GetMeshChunk(uint32_t index) const;
 	void					AddMeshChunk(MeshChunk* chunk);	//! Adds a MeshChunk to the mesh
 	void					RemoveMeshChunk(MeshChunk* chunk);	//! Remove a MeshChunk from the mesh
 
@@ -65,7 +65,7 @@ public:
 	inline VertexBuffer*	GetVertexBuffer() const { return mVertexBuffer; }
 	inline IndexBuffer*		GetIndexBuffer() const { return mIndexBuffer; }
 
-	inline uint				GetGlobalVertexCount() const { return mGlobalVertexCount; }
+	inline uint32_t				GetGlobalVertexCount() const { return mGlobalVertexCount; }
 
 	void					RecompileMesh();
 
@@ -80,7 +80,7 @@ private:
 
 	VertexBuffer*			mVertexBuffer;
 	IndexBuffer*			mIndexBuffer;
-	uint					mGlobalVertexCount;
+	uint32_t					mGlobalVertexCount;
 };
 
 } // namespace crown

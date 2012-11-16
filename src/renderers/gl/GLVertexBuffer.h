@@ -39,20 +39,20 @@ public:
 				GLVertexBuffer();
 				~GLVertexBuffer();
 
-	void		SetVertexData(VertexBufferMode mode, const void* vertexData, uint vertexCount);
-	void		SetVertexSubData(const void* vertexData, uint vertexOffset, uint vertexCount);
+	void		SetVertexData(VertexBufferMode mode, const void* vertexData, uint32_t vertexCount);
+	void		SetVertexSubData(const void* vertexData, uint32_t vertexOffset, uint32_t vertexCount);
 
-	uint		GetSize() const;
-	uint		GetVertexCount() const;
+	uint32_t		GetSize() const;
+	uint32_t		GetVertexCount() const;
 
 	void		Bind() const;
 	void		Unbind() const;
 
 private:
 	
-	GLuint		mBufferID;
-	uint		mSize;
-	uint		mVertexCount;
+	GLuint			mBufferID;
+	uint32_t		mSize;
+	uint32_t		mVertexCount;
 };
 
 }

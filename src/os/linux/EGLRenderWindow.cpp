@@ -75,7 +75,7 @@ EGLRenderWindow::~EGLRenderWindow()
 	}
 }
 
-bool EGLRenderWindow::Create(uint x, uint y, uint width, uint height, uint depth, bool /*fullscreen*/)
+bool EGLRenderWindow::Create(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t depth, bool /*fullscreen*/)
 {
 	Log::D("EGLRenderWindow::Create: Creating window...");
 	if (!width || !height)
@@ -119,7 +119,7 @@ bool EGLRenderWindow::Create(uint x, uint y, uint width, uint height, uint depth
 	XMapRaised(mXDisplay, mXWindow);
 	XStoreName (mXDisplay, mXWindow, "GL test" );
 
-	uint bpp			= depth / 4;
+	uint32_t bpp			= depth / 4;
 
 	const EGLint attribs[] =
 	{
@@ -202,7 +202,7 @@ void EGLRenderWindow::SetVisible(bool visible)
 	mVisible = visible;
 }
 
-void EGLRenderWindow::Move(uint x, uint y)
+void EGLRenderWindow::Move(uint32_t x, uint32_t y)
 {
 	if (x == mX && y == mY)
 	{
@@ -212,7 +212,7 @@ void EGLRenderWindow::Move(uint x, uint y)
 	XMoveWindow(mXDisplay, mXWindow, x, y);
 }
 
-void EGLRenderWindow::Resize(uint width, uint height)
+void EGLRenderWindow::Resize(uint32_t width, uint32_t height)
 {
 	if (!width || !height)
 	{
@@ -271,7 +271,7 @@ void EGLRenderWindow::EventLoop()
 	}
 }
 
-void EGLRenderWindow::_NotifyMetricsChange(uint x, uint y, uint width, uint height)
+void EGLRenderWindow::_NotifyMetricsChange(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
 	if (x == mX && y == mY && width == mWidth && height == mHeight)
 	{

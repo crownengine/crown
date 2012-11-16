@@ -165,7 +165,7 @@ Image* GLESTexture::GetImage() const
 //	PixelFormat format = GetTextureFormat();
 //	int bytesPerPixel = Pixel::GetBytesPerPixel(format);
 
-//	uchar* texData = new uchar[GetWidth() * GetHeight() * bytesPerPixel];
+//	uint8_t* texData = new uint8_t[GetWidth() * GetHeight() * bytesPerPixel];
 
 //	glGetTexImage(target, 0, glFormat, GL_UNSIGNED_BYTE, texData);
 

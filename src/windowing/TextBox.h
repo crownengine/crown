@@ -61,14 +61,14 @@ protected:
 private:
 	Str mText;
 	Str mDisplayedText;
-	uint mDisplayedTextIndex; //< Index in mText of the first character of the displayed text
+	uint32_t mDisplayedTextIndex; //< Index in mText of the first character of the displayed text
 
 	int mDisplayedTextX;
 	Point2 mDisplayedTextDimensions;
 	int mDisplayedTextOffset;
 
 	
-	uint mCaretIndex;
+	uint32_t mCaretIndex;
 	Point2 mCaretCharPosition;
 
 	TextRenderer* mTextRenderer;

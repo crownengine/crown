@@ -40,16 +40,16 @@ class TGAImageLoader : public ImageLoader
 	struct TGAHeader_t
 	{
 
-		uchar id_length;        /* 00h  Size of Image ID field */
-		uchar color_map_type;   /* 01h  Color map type */
-		uchar image_type;       /* 02h  Image type code */
-		uchar c_map_spec[5];    /* 03h  Color map origin 05h Color map length 07h Depth of color map entries */
-		ushort x_offset;        /* 08h  X origin of image */
-		ushort y_offset;        /* 0Ah  Y origin of image */
-		ushort width;           /* 0Ch  Width of image */
-		ushort height;          /* 0Eh  Height of image */
-		uchar pixel_depth;      /* 10h  Image pixel size */
-		uchar image_descriptor; /* 11h  Image descriptor byte */
+		uint8_t id_length;        /* 00h  Size of Image ID field */
+		uint8_t color_map_type;   /* 01h  Color map type */
+		uint8_t image_type;       /* 02h  Image type code */
+		uint8_t c_map_spec[5];    /* 03h  Color map origin 05h Color map length 07h Depth of color map entries */
+		uint16_t x_offset;        /* 08h  X origin of image */
+		uint16_t y_offset;        /* 0Ah  Y origin of image */
+		uint16_t width;           /* 0Ch  Width of image */
+		uint16_t height;          /* 0Eh  Height of image */
+		uint8_t pixel_depth;      /* 10h  Image pixel size */
+		uint8_t image_descriptor; /* 11h  Image descriptor byte */
 	};
 
 public:
@@ -64,7 +64,7 @@ private:
 
 	Image* LoadUncompressedData(Stream* file);
 	Image* LoadCompressedData(Stream* file);
-	void SwapRedBlue(uchar* data, ulong size, uint channels);
+	void SwapRedBlue(uint8_t* data, uint64_t size, uint32_t channels);
 
 	TGAHeader_t mTGAHeader;
 };

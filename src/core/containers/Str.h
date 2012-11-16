@@ -53,13 +53,13 @@ public:
 	explicit Str(int n);
 
 	//! Constructor
-	explicit Str(uint n);
+	explicit Str(uint32_t n);
 
 	//! Constructor
 	explicit Str(float n);
 
 	//! Constructor
-	Str(uint count, char c);
+	Str(uint32_t count, char c);
 
 	//! Destructor
 	~Str();
@@ -68,28 +68,28 @@ public:
 	Str(const Str& Str);
 
 	//! Returns the Str's length
-	uint GetLength() const;
+	uint32_t GetLength() const;
 
 	//! Provides an interface for accessing Str's elements through an index
-	char operator[](uint index) const;
+	char operator[](uint32_t index) const;
 
 	Str& operator=(const Str& Str);
 	Str& operator=(char c);
 	Str& operator=(const char* str);
 	Str& operator=(int n);
-	Str& operator=(uint n);
+	Str& operator=(uint32_t n);
 	Str& operator=(float n);
 
 	Str operator+(const Str& b) const;
 	Str operator+(const char* str) const;
 	Str operator+(int n) const;
-	Str operator+(uint n) const;
+	Str operator+(uint32_t n) const;
 	Str operator+(float n) const;
 
 	Str& operator+=(const Str& b);
 	Str& operator+=(const char* str);
 	Str& operator+=(int n);
-	Str& operator+=(uint n);
+	Str& operator+=(uint32_t n);
 	Str& operator+=(float n);
 
 	friend Str operator+(const char* str, const Str& string);
@@ -128,10 +128,10 @@ public:
 	int Find(const Str& Str) const;
 
 	//! Returns the subStr of this Str starting at position 'start' and ending at position 'end - 1'
-	Str GetSubstring(uint start, uint end) const;
+	Str GetSubstring(uint32_t start, uint32_t end) const;
 
 	//! Returns the Str with the subStr from position 'start' to position 'end - 1' removed
-	void Remove(uint start, uint end);
+	void Remove(uint32_t start, uint32_t end);
 
 	//! Replaces all the occurencies of the given character with the new one
 	void Replace(char toFind, char toReplace);
@@ -175,14 +175,14 @@ public:
 	static int				FindLast(const char* str, char c);
 
 	bool					ParseInt(int* value) const;
-	bool					ParseUInt(uint* value) const;
+	bool					ParseUInt(uint32_t* value) const;
 	bool					ParseFloat(float* value) const;
 
 	static const char*		EMPTY;
 
 private:
 
-	uint mLength;
+	uint32_t mLength;
 	char* mText;
 
 	static Str mEmpty;
@@ -208,7 +208,7 @@ inline Str::Str(int n) : mLength(0), mText(0)
 	*this = n;
 }
 
-inline Str::Str(uint n) : mLength(0), mText(0)
+inline Str::Str(uint32_t n) : mLength(0), mText(0)
 {
 	*this = n;
 }
@@ -218,10 +218,10 @@ inline Str::Str(float n) : mLength(0), mText(0)
 	*this = n;
 }
 
-inline Str::Str(uint count, char c) : mLength(0), mText(0)
+inline Str::Str(uint32_t count, char c) : mLength(0), mText(0)
 {
 	mText = new char[count + 1];
-	uint i = 0;
+	uint32_t i = 0;
 
 	while (i < count)
 	{
@@ -245,11 +245,11 @@ inline Str::Str(const Str& Str) : mLength(0), mText(0)
 	*this = Str;
 }
 
-inline uint Str::GetLength() const
+inline uint32_t Str::GetLength() const
 {
-	uint chars = 0;
+	uint32_t chars = 0;
 
-	for (uint i = 0; i < mLength; i++)
+	for (uint32_t i = 0; i < mLength; i++)
 	{
 		if ((mText[i] & 0xC0) != 0x80)
 		{
@@ -260,7 +260,7 @@ inline uint Str::GetLength() const
 	return chars;
 }
 
-inline char Str::operator[](uint index) const
+inline char Str::operator[](uint32_t index) const
 {
 	assert(index < mLength);
 	return mText[index];
@@ -281,7 +281,7 @@ inline Str& Str::operator=(const Str& Str)
 	mLength = Str.mLength;
 	mText = new char[mLength + 1];
 
-	for (uint i = 0; i < mLength; i++)
+	for (uint32_t i = 0; i < mLength; i++)
 	{
 		mText[i] = Str.mText[i];
 	}
@@ -316,14 +316,14 @@ inline Str& Str::operator=(const char* str)
 		delete[] mText;
 	}
 
-	uint len = 0;
+	uint32_t len = 0;
 
 	while (str[len++]) ;
 
 	mLength = len - 1;
 	mText = new char[len];
 
-	for (uint i = 0; i < len; i++)
+	for (uint32_t i = 0; i < len; i++)
 	{
 		mText[i] = str[i];
 	}
@@ -335,7 +335,7 @@ inline Str& Str::operator=(int n)
 {
 	char tmp[12] = {0};
 	bool negative = false;
-	uint i = 10;
+	uint32_t i = 10;
 
 	if (n < 0)
 	{
@@ -359,10 +359,10 @@ inline Str& Str::operator=(int n)
 	return *this;
 }
 
-inline Str& Str::operator=(uint n)
+inline Str& Str::operator=(uint32_t n)
 {
 	char tmp[11] = {0};
-	uint i = 9;
+	uint32_t i = 9;
 
 	do
 	{
@@ -391,17 +391,17 @@ inline Str Str::operator+(const Str& b) const
 	}
 
 	Str tmp;
-	uint len = mLength + b.mLength;
+	uint32_t len = mLength + b.mLength;
 	tmp.mLength = len;
 	delete[] tmp.mText;
 	tmp.mText = new char[len + 1];
 
-	for (uint i = 0; i < mLength; i++)
+	for (uint32_t i = 0; i < mLength; i++)
 	{
 		tmp.mText[i] = mText[i];
 	}
 
-	for (uint i = 0; i < b.mLength; i++)
+	for (uint32_t i = 0; i < b.mLength; i++)
 	{
 		tmp.mText[i + mLength] = b.mText[i];
 	}
@@ -420,7 +420,7 @@ inline Str Str::operator+(int n) const
 	return *this + Str(n);
 }
 
-inline Str Str::operator+(uint n) const
+inline Str Str::operator+(uint32_t n) const
 {
 	return *this + Str(n);
 }
@@ -448,7 +448,7 @@ inline Str& Str::operator+=(int n)
 	return *this;
 }
 
-inline Str& Str::operator+=(uint n)
+inline Str& Str::operator+=(uint32_t n)
 {
 	*this = *this + n;
 	return *this;
@@ -467,7 +467,7 @@ inline bool Str::operator==(const Str& b) const
 		return false;
 	}
 
-	for (uint i = 0; i < mLength; i++)
+	for (uint32_t i = 0; i < mLength; i++)
 		if (mText[i] != b.mText[i])
 		{
 			return false;
@@ -479,12 +479,12 @@ inline bool Str::operator==(const Str& b) const
 inline bool Str::operator==(const char* str) const
 {
 	size_t strLength = Str::StrLen(str);
-	if (mLength != (uint)strLength)
+	if (mLength != (uint32_t)strLength)
 	{
 		return false;
 	}
 
-	for (uint i = 0; i < mLength; i++)
+	for (uint32_t i = 0; i < mLength; i++)
 		if (mText[i] != str[i])
 		{
 			return false;
@@ -520,7 +520,7 @@ inline bool Str::operator<=(const Str& b) const
 
 inline void Str::MakeLower()
 {
-	for (uint i = 0; i < mLength; i++)
+	for (uint32_t i = 0; i < mLength; i++)
 	{
 		if (Str::IsUpper(mText[i]))
 		{
@@ -531,7 +531,7 @@ inline void Str::MakeLower()
 
 inline void Str::MakeUpper()
 {
-	for (uint i = 0; i < mLength; i++)
+	for (uint32_t i = 0; i < mLength; i++)
 	{
 		if (Str::IsLower(mText[i]))
 		{
@@ -545,7 +545,7 @@ inline bool Str::StartsWith(const Str& begin) const
 	if (mLength < begin.mLength)
 		return false;
 
-	for (uint i = 0; i < begin.mLength; i++)
+	for (uint32_t i = 0; i < begin.mLength; i++)
 	{
 		if (mText[i] != begin.mText[i])
 			return false;
@@ -559,8 +559,8 @@ inline bool Str::EndsWith(const Str& end) const
 	if (mLength < end.mLength)
 		return false;
 
-	uint beginIndex = mLength - end.mLength;
-	for (uint i = beginIndex; i < mLength; i++)
+	uint32_t beginIndex = mLength - end.mLength;
+	for (uint32_t i = beginIndex; i < mLength; i++)
 	{
 		if (mText[i] != end.mText[i - beginIndex])
 			return false;
@@ -571,7 +571,7 @@ inline bool Str::EndsWith(const Str& end) const
 
 inline int Str::FindFirst(char ch) const
 {
-	for (uint i = 0; i < mLength; i++)
+	for (uint32_t i = 0; i < mLength; i++)
 	{
 		if (mText[i] == ch)
 		{
@@ -584,7 +584,7 @@ inline int Str::FindFirst(char ch) const
 
 inline int Str::FindLast(char ch) const
 {
-	for (uint i = mLength; i > 0; i--)
+	for (uint32_t i = mLength; i > 0; i--)
 	{
 		if (mText[i - 1] == ch)
 		{
@@ -599,14 +599,14 @@ inline int Str::Find(const Str& Str) const
 {
 	bool found = true;
 
-	for (uint i = 0; i < mLength; i++)
+	for (uint32_t i = 0; i < mLength; i++)
 	{
 		if (mLength - i < Str.mLength)
 		{
 			return -1;
 		}
 
-		for (uint j = 0; j < Str.mLength; j++)
+		for (uint32_t j = 0; j < Str.mLength; j++)
 		{
 			if (mText[i + j] != Str.mText[j])
 			{
@@ -625,15 +625,15 @@ inline int Str::Find(const Str& Str) const
 	return -1;
 }
 
-inline Str Str::GetSubstring(uint start, uint end) const
+inline Str Str::GetSubstring(uint32_t start, uint32_t end) const
 {
 	assert(start <= mLength);
 	assert(end <= mLength);
 	assert(start <= end);
-	uint len = end - start;
+	uint32_t len = end - start;
 	char* tmp = new char[len + 1];
 
-	for (uint i = 0; i < len; i++)
+	for (uint32_t i = 0; i < len; i++)
 	{
 		tmp[i] = mText[i + start];
 	}
@@ -644,15 +644,15 @@ inline Str Str::GetSubstring(uint start, uint end) const
 	return ret;
 }
 
-inline void Str::Remove(uint start, uint end)
+inline void Str::Remove(uint32_t start, uint32_t end)
 {
 	assert(start <= mLength);
 	assert(end <= mLength);
 	assert(start <= end);
-	uint len = end - start;
+	uint32_t len = end - start;
 	char* tmp = new char[mLength - len + 1];
 
-	uint i;
+	uint32_t i;
 	for (i = 0; i < start; i++)
 	{
 		tmp[i] = mText[i];
@@ -671,7 +671,7 @@ inline void Str::Remove(uint start, uint end)
 //! Replaces all the occurencies of the given character with the new one
 inline void Str::Replace(char toFind, char toReplace)
 {
-	for (uint i = 0; i < mLength; i++)
+	for (uint32_t i = 0; i < mLength; i++)
 	{
 		if (mText[i] == toFind)
 			mText[i] = toReplace;
@@ -687,11 +687,11 @@ inline void Str::Replace(const Str& toFind, const Str& toReplace)
 
 	List<char> tmp(get_default_allocator());
 
-	uint i;
+	uint32_t i;
 	for (i = 0; i < mLength - (toFind.mLength - 1); i++)
 	{
 		bool found = true;
-		for(uint j = 0; j < toFind.mLength; j++)
+		for(uint32_t j = 0; j < toFind.mLength; j++)
 			if (mText[i + j] != toFind.mText[j])
 			{
 				found = false;
@@ -699,7 +699,7 @@ inline void Str::Replace(const Str& toFind, const Str& toReplace)
 			}
 		if (found)
 		{
-			for(uint j = 0; j < toReplace.mLength; j++)
+			for(uint32_t j = 0; j < toReplace.mLength; j++)
 				tmp.push_back(toReplace.mText[j]);
 			i += toFind.mLength-1;
 		}
@@ -718,9 +718,9 @@ inline void Str::Replace(const Str& toFind, const Str& toReplace)
 
 inline void Str::Split(char ch, List<Str>& split) const
 {
-	uint lastChar = 0;
-	uint strPtr = 0;
-	uint charCount = 0;
+	uint32_t lastChar = 0;
+	uint32_t strPtr = 0;
+	uint32_t charCount = 0;
 
 	while (strPtr <= mLength)
 	{
@@ -764,7 +764,7 @@ inline int Str::GetOccurrenceCount(char ch) const
 {
 	int count = 0;
 
-	for (uint i = 0; i < mLength; i++)
+	for (uint32_t i = 0; i < mLength; i++)
 	{
 		if (mText[i] == ch)
 		{
@@ -795,7 +795,7 @@ inline bool Str::ParseInt(int* value) const
 	return true;
 }
 
-inline bool Str::ParseUInt(uint* value) const
+inline bool Str::ParseUInt(uint32_t* value) const
 {
 	if (sscanf(mText, "%u", value) != 1)
 	{
@@ -851,7 +851,7 @@ inline StrId32 Str::Hash32(const char* str)
 	assert(str != NULL);
 
 	// FNV-1a
-	uint hash = 2166136261u;
+	uint32_t hash = 2166136261u;
 
 	for (size_t i = 0; str[i] != '\0'; i++)
 	{
@@ -869,7 +869,7 @@ inline StrId32 Str::Hash32(const char* str, size_t len)
 	assert(len <= Str::StrLen(str));
 
 	// FNV-1a
-	uint hash = 2166136261u;
+	uint32_t hash = 2166136261u;
 
 	for (size_t i = 0; i < len; i++)
 	{
@@ -886,7 +886,7 @@ inline StrId64 Str::Hash64(const char* str)
 	assert(str != NULL);
 
 	// FNV-1a
-	ulong hash = 14695981039346656037u;
+	uint64_t hash = 14695981039346656037u;
 
 	for (size_t i = 0; str[i] != '\0'; i++)
 	{
@@ -904,7 +904,7 @@ inline StrId64 Str::Hash64(const char* str, size_t len)
 	assert(len <= Str::StrLen(str));
 
 	// FNV-1a
-	ulong hash = 14695981039346656037u;
+	uint64_t hash = 14695981039346656037u;
 
 	for (size_t i = 0; i < len; i++)
 	{

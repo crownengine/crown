@@ -40,18 +40,18 @@ public:
 				GLIndexBuffer();
 				~GLIndexBuffer();
 
-	void		SetIndexData(const ushort* indexData, uint indexCount);
-	void		SetIndexSubData(const ushort* indexData, uint indexOffset, uint indexCount);
+	void		SetIndexData(const uint16_t* indexData, uint32_t indexCount);
+	void		SetIndexSubData(const uint16_t* indexData, uint32_t indexOffset, uint32_t indexCount);
 
-	uint		GetIndexCount() const { return mCount; }
+	uint32_t	GetIndexCount() const { return mCount; }
 
 	void		Bind() const;
 	void		Unbind() const;
 
 private:
 	
-	GLuint		mBufferID;
-	uint		mCount;
+	GLuint			mBufferID;
+	uint32_t		mCount;
 };
 
 }

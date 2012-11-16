@@ -154,7 +154,7 @@ public:
 	@param texturing
 		Whether texturing is enabled or not
 	*/
-	virtual void _SetTexturing(uint unit, bool texturing) = 0;
+	virtual void _SetTexturing(uint32_t unit, bool texturing) = 0;
 
 	/**
 		Sets a texture for the given texture unit.
@@ -163,7 +163,7 @@ public:
 	@param texture
 		The texture
 	*/
-	virtual void _SetTexture(uint unit, Texture* texture) = 0;
+	virtual void _SetTexture(uint32_t unit, Texture* texture) = 0;
 
 	/**
 		Sets the texture mode for the given texture unit.
@@ -179,7 +179,7 @@ public:
 		The blend color. This parameter means only when
 		mode == TM_BLEND
 	*/
-	virtual void _SetTextureMode(uint unit, TextureMode mode, const Color4& blendColor) = 0;
+	virtual void _SetTextureMode(uint32_t unit, TextureMode mode, const Color4& blendColor) = 0;
 
 	/**
 		Sets the texture wrap parameter for the given texture unit.
@@ -188,7 +188,7 @@ public:
 	@param wrap
 		The wrap parameter
 	*/
-	virtual void _SetTextureWrap(uint unit, TextureWrap wrap) = 0;
+	virtual void _SetTextureWrap(uint32_t unit, TextureWrap wrap) = 0;
 
 	/**
 		Sets the filter for the given texture unit.
@@ -197,12 +197,12 @@ public:
 	@filter
 		The filter
 	*/
-	virtual void _SetTextureFilter(uint unit, TextureFilter filter) = 0;
+	virtual void _SetTextureFilter(uint32_t unit, TextureFilter filter) = 0;
 
-	virtual void				_SetLight(uint light, bool active) = 0;
-	virtual void				_SetLightParams(uint light, LightType type, const Vec3& position) = 0;
-	virtual void				_SetLightColor(uint light, const Color4& ambient, const Color4& diffuse, const Color4& specular) = 0;
-	virtual void				_SetLightAttenuation(uint light, float constant, float linear, float quadratic) = 0;
+	virtual void				_SetLight(uint32_t light, bool active) = 0;
+	virtual void				_SetLightParams(uint32_t light, LightType type, const Vec3& position) = 0;
+	virtual void				_SetLightColor(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular) = 0;
+	virtual void				_SetLightAttenuation(uint32_t light, float constant, float linear, float quadratic) = 0;
 
 	/**
 		Sets whether backface-culling is enabled.
@@ -327,7 +327,7 @@ public:
 	virtual IndexBuffer* CreateIndexBuffer() = 0;
 
 	//! Sets the texture to use in the specified layer
-	virtual void SetTexture(uint layer, Texture* texture) = 0;
+	virtual void SetTexture(uint32_t layer, Texture* texture) = 0;
 
 	//! Returns the current matrix
 	virtual Mat4 GetMatrix(MatrixType type) const = 0;
@@ -345,10 +345,10 @@ public:
 	virtual void SelectMatrix(MatrixType type) = 0;
 
 	//! Sets the scissor box
-	virtual void SetScissorBox(uint x, uint y, uint width, uint height) = 0;
+	virtual void SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
 
 	//! Gets the scissor box params
-	virtual void GetScissorBox(uint& x, uint& y, uint& width, uint& height) = 0;
+	virtual void GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height) = 0;
 
 	virtual void RenderVertexIndexBuffer(const VertexBuffer* vertices, const IndexBuffer* indices) = 0;
 

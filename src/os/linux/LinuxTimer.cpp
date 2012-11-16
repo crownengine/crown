@@ -44,14 +44,14 @@ void Timer::Reset()
 	clock_gettime(CLOCK_MONOTONIC, &mCreationTime);
 }
 
-ulong Timer::GetMilliseconds() const
+uint64_t Timer::GetMilliseconds() const
 {
 	timespec tmp;
 	clock_gettime(CLOCK_MONOTONIC, &tmp);
 	return (tmp.tv_sec - mCreationTime.tv_sec) * 1000 + (tmp.tv_nsec - mCreationTime.tv_nsec) / 1000000;
 }
 
-ulong Timer::GetMicroseconds() const
+uint64_t Timer::GetMicroseconds() const
 {
 	timespec tmp;
 	clock_gettime(CLOCK_MONOTONIC, &tmp);
@@ -64,7 +64,7 @@ void Timer::StartMilliseconds()
 	clock_gettime(CLOCK_MONOTONIC, &mStartTime);
 }
 
-ulong Timer::StopMilliseconds() const
+uint64_t Timer::StopMilliseconds() const
 {
 	timespec tmp;
 	clock_gettime(CLOCK_MONOTONIC, &tmp);
@@ -76,7 +76,7 @@ void Timer::StartMicroseconds()
 	clock_gettime(CLOCK_MONOTONIC, &mStartTime);
 }
 
-ulong Timer::StopMicroseconds() const
+uint64_t Timer::StopMicroseconds() const
 {
 	timespec tmp;
 	clock_gettime(CLOCK_MONOTONIC, &tmp);

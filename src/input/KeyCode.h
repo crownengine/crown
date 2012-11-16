@@ -94,7 +94,7 @@ enum KeyCode
 	KC_COUNT		= 0xFF		// The last key must be <= 0xFF
 };
 
-typedef uchar Key;
+typedef uint8_t Key;
 
 } // namespace crown
 

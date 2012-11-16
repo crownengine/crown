@@ -82,7 +82,7 @@ private:
 	Str mSourceProperty;
 	Str mDestinationProperty;
 	Converter* mConverter;
-	ushort mFlags;
+	uint16_t mFlags;
 };
 
 }

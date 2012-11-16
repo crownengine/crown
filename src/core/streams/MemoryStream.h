@@ -45,9 +45,9 @@ public:
 
 	virtual bool		IsValid() = 0;
 	virtual size_t		GetSize() = 0;
-	virtual uchar*		GetData() = 0;
+	virtual uint8_t*		GetData() = 0;
 
-	virtual void		Write(uchar* src, size_t offset, size_t size) = 0;
+	virtual void		Write(uint8_t* src, size_t offset, size_t size) = 0;
 };
 
 class DynamicMemoryBuffer: public MemoryBuffer
@@ -64,16 +64,16 @@ public:
 	inline bool		IsValid() { return mBuff != 0; }
 
 	void			CheckSpace(size_t offset, size_t space);
-	void			Write(uchar* src, size_t offset, size_t size);
+	void			Write(uint8_t* src, size_t offset, size_t size);
 
 	inline size_t	GetSize() { return mSize; }
 	inline size_t	GetCapacity() { return mCapacity; }
 
-	inline uchar*	GetData() { return mBuff; }
+	inline uint8_t*	GetData() { return mBuff; }
 
 protected:
 
-	uchar*			mBuff;
+	uint8_t*			mBuff;
 	size_t			mCapacity;
 	size_t			mSize;
 };
@@ -93,11 +93,11 @@ public:
 
 	void				Seek(int newPos, SeekMode mode);
 
-	uchar				ReadByte();
+	uint8_t				ReadByte();
 	void				ReadDataBlock(void* buffer, size_t size);
 	bool				CopyTo(Stream* stream, size_t size = 0);
 
-	void				WriteByte(uchar val);
+	void				WriteByte(uint8_t val);
 	void				WriteDataBlock(const void* buffer, size_t size);
 	void				Flush();
 

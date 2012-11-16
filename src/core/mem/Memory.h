@@ -35,7 +35,7 @@ namespace crown
 namespace memory
 {
 
-const uint		PADDING_VALUE	= 0xFFFFFFFFu;	//!< Value used to fill unused memory
+const uint32_t	PADDING_VALUE	= 0xFFFFFFFFu;	//!< Value used to fill unused memory
 const size_t	DEFAULT_ALIGN	= 4;			//!< Default memory alignment in bytes
 
 //! Returns the pointer p aligned to the desired align

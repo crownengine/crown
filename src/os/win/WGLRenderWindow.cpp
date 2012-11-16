@@ -55,8 +55,8 @@ WGLRenderWindow::~WGLRenderWindow()
 	}
 }
 
-bool WGLRenderWindow::Create(uint x, uint y, uint width, uint height,
-							 uint depth, bool fullscreen)
+bool WGLRenderWindow::Create(uint32_t x, uint32_t y, uint32_t width, uint32_t height,
+							 uint32_t depth, bool fullscreen)
 {
 	if (!width || !height)
 	{
@@ -200,12 +200,12 @@ void WGLRenderWindow::SetVisible(bool visible)
 	}
 }
 
-void WGLRenderWindow::Move(uint x, uint y)
+void WGLRenderWindow::Move(uint32_t x, uint32_t y)
 {
 	SetWindowPos(mWindowHandle, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 
-void WGLRenderWindow::Resize(uint width, uint height)
+void WGLRenderWindow::Resize(uint32_t width, uint32_t height)
 {
 	SetWindowPos(mWindowHandle, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
 }

@@ -59,7 +59,7 @@ void Themes::Draw(ThemesFunctions functionId, const Point2& size)
 	}
 }
 
-void Themes::Draw(ThemesSprites spriteId, uint frameNumber)
+void Themes::Draw(ThemesSprites spriteId, uint32_t frameNumber)
 {
 	Sprite* spr = mCurrentTheme->GetSprite(spriteId);
 

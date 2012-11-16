@@ -54,12 +54,12 @@ public:
 	inline bool			HasColorCoords() const { return (mMode & VBM_COLOR_COORDS) != 0; }
 
 						//! Set the vertex data, the order of coordinates is Vertex, [Normals], [Texture], [Color]
-	virtual void		SetVertexData(VertexBufferMode mode, const void* vertexData, uint vertexCount) = 0;
+	virtual void		SetVertexData(VertexBufferMode mode, const void* vertexData, uint32_t vertexCount) = 0;
 						//! Replaces a subset of the vertex data, the order of coordinates is Vertex, [Normals], [Texture], [Color]
-	virtual void		SetVertexSubData(const void* vertexData, uint vertexOffset, uint vertexCount) = 0;
+	virtual void		SetVertexSubData(const void* vertexData, uint32_t vertexOffset, uint32_t vertexCount) = 0;
 
-	virtual uint		GetSize() const = 0;			//!< Returns the size of the buffer
-	virtual uint		GetVertexCount() const = 0;		//!< Returns the number of vertices in the buffer
+	virtual uint32_t		GetSize() const = 0;			//!< Returns the size of the buffer
+	virtual uint32_t		GetVertexCount() const = 0;		//!< Returns the number of vertices in the buffer
 
 	virtual void		Bind() const = 0;
 	virtual void		Unbind() const = 0;

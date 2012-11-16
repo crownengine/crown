@@ -90,7 +90,7 @@ void ResourceManager::Destroy(const char* name)
 
 Resource* ResourceManager::GetByName(const char* name)
 {
-	ulong nameHash = Str::Hash64(name);
+	uint64_t nameHash = Str::Hash64(name);
 
 	if (mNameToResourceDict.Contains(nameHash))
 	{

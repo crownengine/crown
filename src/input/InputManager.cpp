@@ -141,8 +141,8 @@ void InputManager::set_cursor_xy(const Point2& position)
 //-----------------------------------------------------------------------------
 Vec2 InputManager::get_cursor_relative_xy() const
 {
-	uint window_width;
-	uint window_height;
+	uint32_t window_width;
+	uint32_t window_height;
 
 	os::get_render_window_metrics(window_width, window_height);
 
@@ -157,8 +157,8 @@ Vec2 InputManager::get_cursor_relative_xy() const
 //-----------------------------------------------------------------------------
 void InputManager::set_cursor_relative_xy(const Vec2& position)
 {
-	uint window_width;
-	uint window_height;
+	uint32_t window_width;
+	uint32_t window_height;
 
 	os::get_render_window_metrics(window_width, window_height);
 

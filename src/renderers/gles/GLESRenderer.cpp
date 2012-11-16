@@ -56,14 +56,14 @@ GLESRenderer::GLESRenderer() :
 	mMinMaxPointSize[0] = 0.0f;
 	mMinMaxPointSize[1] = 0.0f;
 
-	for (uint i = 0; i < MAX_TEXTURE_UNITS; i++)
+	for (uint32_t i = 0; i < MAX_TEXTURE_UNITS; i++)
 	{
 		mTextureUnit[i] = 0;
 		mTextureUnitTarget[i] = GL_TEXTURE_2D;
 	}
 
 	// This code snippet initializes the matrices
-	for (uint i = 0; i < MT_COUNT; i++)
+	for (uint32_t i = 0; i < MT_COUNT; i++)
 	{
 		mMatrix[i].LoadIdentity();
 	}
@@ -187,7 +187,7 @@ void GLESRenderer::_SetAmbientLight(const Color4& color)
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color.ToFloatPtr());
 }
 
-void GLESRenderer::_SetTexturing(uint unit, bool texturing)
+void GLESRenderer::_SetTexturing(uint32_t unit, bool texturing)
 {
 	if (!ActivateTextureUnit(unit))
 		return;
@@ -202,7 +202,7 @@ void GLESRenderer::_SetTexturing(uint unit, bool texturing)
 	}
 }
 
-void GLESRenderer::_SetTexture(uint unit, Texture* texture)
+void GLESRenderer::_SetTexture(uint32_t unit, Texture* texture)
 {
 	if (!ActivateTextureUnit(unit))
 		return;
@@ -217,7 +217,7 @@ void GLESRenderer::_SetTexture(uint unit, Texture* texture)
 	}
 }
 
-void GLESRenderer::_SetTextureMode(uint unit, TextureMode mode, const Color4& /* blendColor */)
+void GLESRenderer::_SetTextureMode(uint32_t unit, TextureMode mode, const Color4& /* blendColor */)
 {
 	/* No support for blend color, params will be ignored */
 	if (!ActivateTextureUnit(unit))
@@ -228,7 +228,7 @@ void GLESRenderer::_SetTextureMode(uint unit, TextureMode mode, const Color4& /*
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, envMode);
 }
 
-void GLESRenderer::_SetTextureWrap(uint unit, TextureWrap wrap)
+void GLESRenderer::_SetTextureWrap(uint32_t unit, TextureWrap wrap)
 {
 	GLenum glWrap = GLES::GetTextureWrap(wrap);
 
@@ -236,7 +236,7 @@ void GLESRenderer::_SetTextureWrap(uint unit, TextureWrap wrap)
 	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_T, glWrap);
 }
 
-void GLESRenderer::_SetTextureFilter(uint unit, TextureFilter filter)
+void GLESRenderer::_SetTextureFilter(uint32_t unit, TextureFilter filter)
 {
 	if (!ActivateTextureUnit(unit))
 		return;
@@ -605,7 +605,7 @@ IndexBuffer*  GLESRenderer::CreateIndexBuffer()
 	return ib;
 }
 
-void GLESRenderer::SetTexture(uint layer, Texture* texture)
+void GLESRenderer::SetTexture(uint32_t layer, Texture* texture)
 {
 	if (texture == NULL)
 		return;
@@ -617,14 +617,14 @@ void GLESRenderer::SetTexture(uint layer, Texture* texture)
 	_SetTextureFilter(layer, texture->GetFilter());
 }
 
-void GLESRenderer::SetScissorBox(uint x, uint y, uint width, uint height)
+void GLESRenderer::SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
 	int vals[4];
 	glGetIntegerv(GL_VIEWPORT, vals);
 	glScissor(x, vals[3] - y - height, width, height);
 }
 
-void GLESRenderer::GetScissorBox(uint& x, uint& y, uint& width, uint& height)
+void GLESRenderer::GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height)
 {
 	int vals[4];
 	glGetIntegerv(GL_SCISSOR_BOX, vals);
@@ -642,9 +642,9 @@ void GLESRenderer::DrawRectangle(const Point2& position, const Point2& dimension
 
 }
 
-bool GLESRenderer::ActivateTextureUnit(uint unit)
+bool GLESRenderer::ActivateTextureUnit(uint32_t unit)
 {
-	if (unit >= (uint) mMaxTextureUnits)
+	if (unit >= (uint32_t) mMaxTextureUnits)
 		return false;
 
 	glActiveTexture(GL_TEXTURE0 + unit);
@@ -653,9 +653,9 @@ bool GLESRenderer::ActivateTextureUnit(uint unit)
 }
 
 //-----------------------------------------------------------------------------
-void GLESRenderer::_SetLight(uint light, bool active)
+void GLESRenderer::_SetLight(uint32_t light, bool active)
 {
-	if (light >= (uint) mMaxLights)
+	if (light >= (uint32_t) mMaxLights)
 	{
 		return;
 	}
@@ -671,7 +671,7 @@ void GLESRenderer::_SetLight(uint light, bool active)
 }
 
 //-----------------------------------------------------------------------------
-void GLESRenderer::_SetLightParams(uint light, LightType type, const Vec3& position)
+void GLESRenderer::_SetLightParams(uint32_t light, LightType type, const Vec3& position)
 {
 	static float pos[4] =
 	{
@@ -690,7 +690,7 @@ void GLESRenderer::_SetLightParams(uint light, LightType type, const Vec3& posit
 }
 
 //-----------------------------------------------------------------------------
-void GLESRenderer::_SetLightColor(uint light, const Color4& ambient, const Color4& diffuse, const Color4& specular)
+void GLESRenderer::_SetLightColor(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular)
 {
 	glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient.ToFloatPtr());
 	glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse.ToFloatPtr());
@@ -698,7 +698,7 @@ void GLESRenderer::_SetLightColor(uint light, const Color4& ambient, const Color
 }
 
 //-----------------------------------------------------------------------------
-void GLESRenderer::_SetLightAttenuation(uint light, float constant, float linear, float quadratic)
+void GLESRenderer::_SetLightAttenuation(uint32_t light, float constant, float linear, float quadratic)
 {
 	glLightf(GL_LIGHT0 + light, GL_CONSTANT_ATTENUATION, constant);
 	glLightf(GL_LIGHT0 + light, GL_LINEAR_ATTENUATION, linear);

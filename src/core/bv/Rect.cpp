@@ -72,7 +72,7 @@ void Rect::get_vertices(Vec2 v[4]) const
 }
 
 //-----------------------------------------------------------------------------
-Vec2 Rect::get_vertex(uint index) const
+Vec2 Rect::get_vertex(uint32_t index) const
 {
 	assert(index < 4);
 

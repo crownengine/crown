@@ -42,37 +42,37 @@ public:
 	Image();
 
 	//! Constructor
-	Image(PixelFormat pixelFormat, uint width, uint height, uchar* data);
+	Image(PixelFormat pixelFormat, uint32_t width, uint32_t height, uint8_t* data);
 
 	//! Destructor
 	~Image();
 
 	//! Creates the image
-	void CreateImage(PixelFormat pixelFormat, uint width, uint height, uchar* data);
+	void CreateImage(PixelFormat pixelFormat, uint32_t width, uint32_t height, uint8_t* data);
 
 	//! Destroys the image
 	void DestroyImage();
 
 	//! Returns the image's width in pixels
-	uint GetWidth() const;
+	uint32_t GetWidth() const;
 
 	//! Returns the image's height in pixels
-	uint GetHeight() const;
+	uint32_t GetHeight() const;
 
 	//! Returns the image's pixel format
 	PixelFormat GetFormat() const;
 
 	//! Returns the image's bits per pixel
-	uint GetBitsPerPixel() const;
+	uint32_t GetBitsPerPixel() const;
 
 	//! Returns the image's bytes per pixel
-	uint GetBytesPerPixel() const;
+	uint32_t GetBytesPerPixel() const;
 
 	//! Returns a pointer to the image data
-	uchar* GetBuffer();
+	uint8_t* GetBuffer();
 
 	//! Returns a const pointer to the image data
-	const uchar* GetBuffer() const;
+	const uint8_t* GetBuffer() const;
 
 	//! Apply a color-keying
 	void ApplyColorKeying(const Color4& color);
@@ -87,7 +87,7 @@ public:
 	void SetUniformColorImage(Color4 color);
 
 	//! Set the pixel at location x,y to the specified color
-	void SetPixel(uint x, uint y, Color4 color);
+	void SetPixel(uint32_t x, uint32_t y, Color4 color);
 
 	void ConvertToRGBA8();
 
@@ -101,10 +101,10 @@ public:
 private:
 
 	PixelFormat	mPixelFormat;
-	uint		mWidth;
-	uint		mHeight;
+	uint32_t		mWidth;
+	uint32_t		mHeight;
 
-	uchar*		mBuffer;
+	uint8_t*		mBuffer;
 
 	void CreateBuffer();
 	void AssertRGB8();

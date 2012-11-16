@@ -186,7 +186,7 @@ Mesh* MeshManager::LoadPlane(const char* name, float width, float height)
 	return mesh;
 }
 
-Mesh* MeshManager::LoadGrid(const char* name, uint size, float tileSize)
+Mesh* MeshManager::LoadGrid(const char* name, uint32_t size, float tileSize)
 {
 	if (size < 1)
 	{
@@ -219,11 +219,11 @@ Mesh* MeshManager::LoadGrid(const char* name, uint size, float tileSize)
 		// Populate vertex list (generate a grid lying on the xz-plane and facing upwards)
 		float vCoord = 0.0f;//(float)size;
 		float zPos = actual;
-		for (uint h = 0; h <= size; h++)
+		for (uint32_t h = 0; h <= size; h++)
 		{
 			float uCoord = 0.0f;
 			float xPos = -actual;
-			for (uint w = 0; w <= size; w++)
+			for (uint32_t w = 0; w <= size; w++)
 			{
 				chunk->mVertexList.push_back(VertexData(Vec3(xPos, 0.0f, zPos), Vec3::YAXIS, Vec2(uCoord, vCoord)));
 				xPos += tileSize;
@@ -234,12 +234,12 @@ Mesh* MeshManager::LoadGrid(const char* name, uint size, float tileSize)
 		}
 
 		// Generate faces
-		for (uint h = 0; h < size; h++)
+		for (uint32_t h = 0; h < size; h++)
 		{
-			for (uint w = 0; w < size; w++)
+			for (uint32_t w = 0; w < size; w++)
 			{
-				uint firstRow = (h * (size + 1)) + w;
-				uint secondRow = ((h + 1) * (size + 1)) + w;
+				uint32_t firstRow = (h * (size + 1)) + w;
+				uint32_t secondRow = ((h + 1) * (size + 1)) + w;
 				chunk->mFaceList.push_back(FaceData(firstRow, firstRow + 1, secondRow + 1));
 				chunk->mFaceList.push_back(FaceData(firstRow, secondRow + 1, secondRow));
 			}

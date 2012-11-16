@@ -42,11 +42,11 @@ GLVertexBuffer::~GLVertexBuffer()
 	glDeleteBuffers(1, &mBufferID);
 }
 
-void GLVertexBuffer::SetVertexData(VertexBufferMode mode, const void* vertexData, uint vertexCount)
+void GLVertexBuffer::SetVertexData(VertexBufferMode mode, const void* vertexData, uint32_t vertexCount)
 {
 	mMode = mode;
 
-	uint vertexSize = sizeof(float) * 3;
+	uint32_t vertexSize = sizeof(float) * 3;
 	if (HasNormalCoords())
 		vertexSize += sizeof(float) * 3;
 	if (HasTextureCoords())
@@ -61,9 +61,9 @@ void GLVertexBuffer::SetVertexData(VertexBufferMode mode, const void* vertexData
 	glBufferData(GL_ARRAY_BUFFER, mSize, vertexData, GL_DYNAMIC_DRAW);
 }
 
-void GLVertexBuffer::SetVertexSubData(const void* vertexData, uint vertexOffset, uint vertexCount)
+void GLVertexBuffer::SetVertexSubData(const void* vertexData, uint32_t vertexOffset, uint32_t vertexCount)
 {
-	uint vertexSize = sizeof(float) * 3;
+	uint32_t vertexSize = sizeof(float) * 3;
 	if (HasNormalCoords())
 		vertexSize += sizeof(float) * 3;
 	if (HasTextureCoords())
@@ -78,20 +78,20 @@ void GLVertexBuffer::SetVertexSubData(const void* vertexData, uint vertexOffset,
 	glBufferSubData(GL_ARRAY_BUFFER, vertexOffset * vertexSize, vertexCount * vertexSize, vertexData);
 }
 
-uint GLVertexBuffer::GetSize() const
+uint32_t GLVertexBuffer::GetSize() const
 {
 	return mSize;
 }
 
-uint GLVertexBuffer::GetVertexCount() const
+uint32_t GLVertexBuffer::GetVertexCount() const
 {
 	return mVertexCount;
 }
 
 void GLVertexBuffer::Bind() const
 {
-	uint vertexSize = sizeof(float) * 3;
-	uint offset = vertexSize;
+	uint32_t vertexSize = sizeof(float) * 3;
+	uint32_t offset = vertexSize;
 	if (HasNormalCoords())
 		vertexSize += sizeof(float) * 3;
 	if (HasTextureCoords())

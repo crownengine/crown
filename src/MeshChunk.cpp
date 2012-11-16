@@ -60,7 +60,7 @@ void MeshChunk::UpdateBoundingBox()
 {
 	mBoundingBox.zero();
 
-	for (uint i = 0; i < mVertexList.size(); i++)
+	for (uint32_t i = 0; i < mVertexList.size(); i++)
 	{
 		mBoundingBox.add_point(mVertexList[i].position);
 	}
@@ -68,7 +68,7 @@ void MeshChunk::UpdateBoundingBox()
 
 void MeshChunk::UpdateNormals()
 {
-	for (uint i = 0; i < mFaceList.size(); i++)
+	for (uint32_t i = 0; i < mFaceList.size(); i++)
 	{
 		Vec3 normal;
 		Vec3 v1;

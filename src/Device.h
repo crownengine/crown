@@ -62,9 +62,9 @@ private:
 
 	bool					ParseCommandLine(int argc, char** argv);
 
-	static const ushort		CROWN_MAJOR;
-	static const ushort		CROWN_MINOR;
-	static const ushort		CROWN_MICRO;
+	static const uint16_t		CROWN_MAJOR;
+	static const uint16_t		CROWN_MINOR;
+	static const uint16_t		CROWN_MICRO;
 
 	int						mPreferredWindowWidth;
 	int						mPreferredWindowHeight;

@@ -52,27 +52,27 @@ private:
 class UIntProperty: public Property
 {
 public:
-	UIntProperty(const Str& name, uint* valuePtr);
+	UIntProperty(const Str& name, uint32_t* valuePtr);
 
 	PropertyType GetType() const;
 	Generic GetValue() const;
 	void SetValue(const Generic& value);
 
 private:
-	uint* mValuePtr;
+	uint32_t* mValuePtr;
 };
 
 class UShortProperty: public Property
 {
 public:
-	UShortProperty(const Str& name, ushort* valuePtr);
+	UShortProperty(const Str& name, uint16_t* valuePtr);
 
 	PropertyType GetType() const;
 	Generic GetValue() const;
 	void SetValue(const Generic& value);
 
 private:
-	ushort* mValuePtr;
+	uint16_t* mValuePtr;
 };
 
 class FloatProperty: public Property

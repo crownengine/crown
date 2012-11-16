@@ -44,7 +44,7 @@ public:
 	~AndroidRenderWindow();
 
 	//! See RenderWindow
-	virtual bool Create(uint x, uint y, uint width, uint height, uint depth, bool fullscreen);
+	virtual bool Create(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t depth, bool fullscreen);
 
 	//! See RenderWindow
 	virtual void Destroy();
@@ -53,10 +53,10 @@ public:
 	virtual void SetVisible(bool visible);
 
 	//! See RenderWindow
-	virtual void Move(uint x, uint y);
+	virtual void Move(uint32_t x, uint32_t y);
 
 	//! See RenderWindow
-	virtual void Resize(uint width, uint height);
+	virtual void Resize(uint32_t width, uint32_t height);
 
 	//! See RenderWindow
 	virtual void SetFullscreen(bool full);
@@ -78,7 +78,7 @@ public:
 private:
 
 	//! See RenderWindow
-	void _NotifyMetricsChange(uint x, uint y, uint width, uint height);
+	void _NotifyMetricsChange(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
 	//! Sets the window's title plus the additional title text in the window
 	virtual void _SetTitleAndAdditionalTextToWindow();

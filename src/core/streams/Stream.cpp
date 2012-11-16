@@ -155,10 +155,10 @@ BinaryReader::~BinaryReader()
 {
 }
 
-uchar BinaryReader::ReadByte()
+uint8_t BinaryReader::ReadByte()
 {
-	uchar buffer;
-	mStream->ReadDataBlock(&buffer, sizeof(uchar));
+	uint8_t buffer;
+	mStream->ReadDataBlock(&buffer, sizeof(uint8_t));
 	return buffer;
 }
 
@@ -169,10 +169,10 @@ short BinaryReader::ReadInt16()
 	return buffer;
 }
 
-ushort BinaryReader::ReadUint16()
+uint16_t BinaryReader::ReadUint16()
 {
-	ushort buffer;
-	mStream->ReadDataBlock(&buffer, sizeof(ushort));
+	uint16_t buffer;
+	mStream->ReadDataBlock(&buffer, sizeof(uint16_t));
 	return buffer;
 }
 
@@ -183,10 +183,10 @@ int BinaryReader::ReadInt32()
 	return buffer;
 }
 
-uint BinaryReader::ReadUint32()
+uint32_t BinaryReader::ReadUint32()
 {
-	uint buffer;
-	mStream->ReadDataBlock(&buffer, sizeof(uint));
+	uint32_t buffer;
+	mStream->ReadDataBlock(&buffer, sizeof(uint32_t));
 	return buffer;
 }
 
@@ -221,9 +221,9 @@ BinaryWriter::~BinaryWriter()
 {
 }
 
-void BinaryWriter::WriteByte(uchar buffer)
+void BinaryWriter::WriteByte(uint8_t buffer)
 {
-	mStream->WriteDataBlock(&buffer, sizeof(uchar));
+	mStream->WriteDataBlock(&buffer, sizeof(uint8_t));
 }
 
 void BinaryWriter::WriteInt16(short buffer)
@@ -231,9 +231,9 @@ void BinaryWriter::WriteInt16(short buffer)
 	mStream->WriteDataBlock(&buffer, sizeof(short));
 }
 
-void BinaryWriter::WriteUint16(ushort buffer)
+void BinaryWriter::WriteUint16(uint16_t buffer)
 {
-	mStream->WriteDataBlock(&buffer, sizeof(ushort));
+	mStream->WriteDataBlock(&buffer, sizeof(uint16_t));
 }
 
 void BinaryWriter::WriteInt32(int buffer)
@@ -241,9 +241,9 @@ void BinaryWriter::WriteInt32(int buffer)
 	mStream->WriteDataBlock(&buffer, sizeof(int));
 }
 
-void BinaryWriter::WriteUint32(uint buffer)
+void BinaryWriter::WriteUint32(uint32_t buffer)
 {
-	mStream->WriteDataBlock(&buffer, sizeof(uint));
+	mStream->WriteDataBlock(&buffer, sizeof(uint32_t));
 }
 
 void BinaryWriter::WriteInt64(long long buffer)
@@ -261,10 +261,10 @@ void BinaryWriter::WriteFloat(float buffer)
 	mStream->WriteDataBlock(&buffer, sizeof(float));
 }
 
-void BinaryWriter::InsertByte(uchar val, size_t offset)
+void BinaryWriter::InsertByte(uint8_t val, size_t offset)
 {
 	size_t tmpSize = mStream->GetSize() - offset;
-	uchar* tmp = new uchar[tmpSize];
+	uint8_t* tmp = new uint8_t[tmpSize];
 	mStream->Seek(offset, SM_SeekFromBegin);
 	mStream->ReadDataBlock(tmp, tmpSize);
 	mStream->Seek(offset, SM_SeekFromBegin);

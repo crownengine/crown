@@ -49,8 +49,8 @@ public:
 						Vec4(const Vec4& a);						//!< Copy constructor
 						~Vec4();									//!< Destructor
 
-	real				operator[](uint i) const;					//!< Random access by index
-	real&				operator[](uint i);							//!< Random access by index
+	real				operator[](uint32_t i) const;					//!< Random access by index
+	real&				operator[](uint32_t i);							//!< Random access by index
 
 	Vec4				operator+(const Vec4& a) const;				//!< Addition
 	Vec4&				operator+=(const Vec4& a);					//!< Addition
@@ -125,7 +125,7 @@ inline Vec4::~Vec4()
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec4::operator[](uint i) const
+inline real Vec4::operator[](uint32_t i) const
 {
 	assert(i < 4);
 
@@ -133,7 +133,7 @@ inline real Vec4::operator[](uint i) const
 }
 
 //-----------------------------------------------------------------------------
-inline real& Vec4::operator[](uint i)
+inline real& Vec4::operator[](uint32_t i)
 {
 	assert(i < 4);
 

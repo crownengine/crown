@@ -68,7 +68,7 @@ private:
 
 	Key TranslateKey(int winKey);
 
-	uint mModifierMask;
+	uint32_t mModifierMask;
 	bool mKeyState[MAX_KEYCODES];
 	bool mDetectableAutoRepeat;
 

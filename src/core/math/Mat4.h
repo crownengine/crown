@@ -77,10 +77,10 @@ public:
 
 	Mat4&				operator=(const Mat4& a);					//!< Assignment operator (copies the data)
 
-	real				operator[](uint i) const;					//!< Random access by index
-	real&				operator[](uint i);							//!< Random access by index
+	real				operator[](uint32_t i) const;					//!< Random access by index
+	real&				operator[](uint32_t i);							//!< Random access by index
 
-	real				operator()(uint row, uint column) const;	//!< Random access by row/column pair
+	real				operator()(uint32_t row, uint32_t column) const;	//!< Random access by row/column pair
 
 	Mat4				operator+(const Mat4& a) const;				//!< Addition
 	Mat4&				operator+=(const Mat4& a);					//!< Addition

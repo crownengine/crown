@@ -52,11 +52,11 @@ FileSubStream::~FileSubStream()
 	mFile = 0;
 }
 
-uchar FileSubStream::ReadByte()
+uint8_t FileSubStream::ReadByte()
 {
 	CheckValid();
 
-	uchar buffer;
+	uint8_t buffer;
 	
 	bool error = false;
 	
@@ -153,7 +153,7 @@ bool FileSubStream::EndOfStream() const
 	return GetPosition() - mSubPosition == mSubLength;
 }
 
-void FileSubStream::WriteByte(uchar /*val*/)
+void FileSubStream::WriteByte(uint8_t /*val*/)
 {
 	Log::E("Write operation on FileSubStream not supported.");
 	throw FileIOException("Write operation on FileSubStream not supported.");

@@ -69,7 +69,7 @@ AndroidRenderWindow::~AndroidRenderWindow()
 	}
 }
 
-bool AndroidRenderWindow::Create(uint x, uint y, uint width, uint height, uint depth, bool /*fullscreen*/)
+bool AndroidRenderWindow::Create(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t depth, bool /*fullscreen*/)
 {
 	Log::D("AndroidRenderWindow::Create: Creating window...");
 	if (!width || !height)
@@ -84,7 +84,7 @@ bool AndroidRenderWindow::Create(uint x, uint y, uint width, uint height, uint d
 		return false;
 	}
 
-	uint bpp			= depth / 4;
+	uint32_t bpp			= depth / 4;
 
 	const EGLint attribs[] =
 	{
@@ -173,11 +173,11 @@ void AndroidRenderWindow::SetVisible(bool visible)
 	mVisible = visible;
 }
 
-void AndroidRenderWindow::Move(uint x, uint y)
+void AndroidRenderWindow::Move(uint32_t x, uint32_t y)
 {
 }
 
-void AndroidRenderWindow::Resize(uint width, uint height)
+void AndroidRenderWindow::Resize(uint32_t width, uint32_t height)
 {
 }
 
@@ -204,7 +204,7 @@ void AndroidRenderWindow::EventLoop()
 {
 }
 
-void AndroidRenderWindow::_NotifyMetricsChange(uint x, uint y, uint width, uint height)
+void AndroidRenderWindow::_NotifyMetricsChange(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
 }
 

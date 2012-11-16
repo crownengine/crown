@@ -71,7 +71,7 @@ bool Frustum::contains_point(const Vec3& point) const
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Frustum::get_vertex(uint index) const
+Vec3 Frustum::get_vertex(uint32_t index) const
 {
 	// 0 = Near bottom left
 	// 1 = Near bottom right

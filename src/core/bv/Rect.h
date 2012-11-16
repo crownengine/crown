@@ -67,7 +67,7 @@ public:
 	bool			intersects_rect(const Rect& r) const;	//!< Returns whether intersects "r"
 	void			set_from_center_and_dimensions(Vec2 center, real width, real height);	//!< Sets the Rect from a center and a width - height
 	void			get_vertices(Vec2 v[4]) const;			//!< Returns the four rect's vertices
-	Vec2			get_vertex(uint index) const;			//!< Returns a rect's vertex
+	Vec2			get_vertex(uint32_t index) const;			//!< Returns a rect's vertex
 
 	Circle			to_circle() const;						//!< Returns the equivalent circle
 

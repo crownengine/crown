@@ -50,8 +50,8 @@ public:
 						Vec3(const Vec3& a);					//!< Copy constructor
 						~Vec3();								//!< Destructor
 
-	real				operator[](uint i) const;				//!< Random access by index
-	real&				operator[](uint i);						//!< Random access by index
+	real				operator[](uint32_t i) const;				//!< Random access by index
+	real&				operator[](uint32_t i);						//!< Random access by index
 
 	Vec3				operator+(const Vec3& a) const;			//!< Addition
 	Vec3&				operator+=(const Vec3& a);				//!< Addition
@@ -127,7 +127,7 @@ inline Vec3::~Vec3()
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec3::operator[](uint i) const
+inline real Vec3::operator[](uint32_t i) const
 {
 	assert(i < 3);
 
@@ -135,7 +135,7 @@ inline real Vec3::operator[](uint i) const
 }
 
 //-----------------------------------------------------------------------------
-inline real& Vec3::operator[](uint i)
+inline real& Vec3::operator[](uint32_t i)
 {
 	assert(i < 3);
 

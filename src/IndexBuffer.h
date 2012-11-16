@@ -42,12 +42,12 @@ public:
 	virtual			~IndexBuffer() {}
 
 					//! Set the index data
-	virtual void	SetIndexData(const ushort* indexData, uint indexCount) = 0;
+	virtual void	SetIndexData(const uint16_t* indexData, uint32_t indexCount) = 0;
 					//! Replaces a subset of the index data
-	virtual void	SetIndexSubData(const ushort* indexData, uint indexOffset, uint indexCount) = 0;
+	virtual void	SetIndexSubData(const uint16_t* indexData, uint32_t indexOffset, uint32_t indexCount) = 0;
 					//! Selects the index buffer as current index buffer
 
-	virtual uint	GetIndexCount() const = 0;
+	virtual uint32_t	GetIndexCount() const = 0;
 
 	virtual void	Bind() const = 0;
 	virtual void	Unbind() const = 0;

@@ -58,16 +58,16 @@ public:
 	void				_SetLighting(bool lighting);
 	void				_SetAmbientLight(const Color4& color);
 
-	void				_SetTexturing(uint unit, bool texturing);
-	void				_SetTexture(uint unit, Texture* texture);
-	void				_SetTextureMode(uint unit, TextureMode mode, const Color4& blendColor);
-	void				_SetTextureWrap(uint unit, TextureWrap wrap);
-	void				_SetTextureFilter(uint unit, TextureFilter filter);
+	void				_SetTexturing(uint32_t unit, bool texturing);
+	void				_SetTexture(uint32_t unit, Texture* texture);
+	void				_SetTextureMode(uint32_t unit, TextureMode mode, const Color4& blendColor);
+	void				_SetTextureWrap(uint32_t unit, TextureWrap wrap);
+	void				_SetTextureFilter(uint32_t unit, TextureFilter filter);
 
-	void				_SetLight(uint light, bool active);
-	void				_SetLightParams(uint light, LightType type, const Vec3& position);
-	void				_SetLightColor(uint light, const Color4& ambient, const Color4& diffuse, const Color4& specular);
-	void				_SetLightAttenuation(uint light, float constant, float linear, float quadratic);
+	void				_SetLight(uint32_t light, bool active);
+	void				_SetLightParams(uint32_t light, LightType type, const Vec3& position);
+	void				_SetLightColor(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular);
+	void				_SetLightAttenuation(uint32_t light, float constant, float linear, float quadratic);
 
 	void				_SetBackfaceCulling(bool culling);
 
@@ -107,7 +107,7 @@ public:
 
 	OcclusionQuery*		CreateOcclusionQuery();
 
-	void				SetTexture(uint layer, Texture* texture);
+	void				SetTexture(uint32_t layer, Texture* texture);
 
 	Mat4				GetMatrix(MatrixType type) const;
 	void				SetMatrix(MatrixType type, const Mat4& matrix);
@@ -120,8 +120,8 @@ public:
 	void				RenderVertexIndexBuffer(const VertexBuffer* vertices, const IndexBuffer* indices);
 	void				RenderPointBuffer(const VertexBuffer* buffer);
 
-	void				SetScissorBox(uint x, uint y, uint width, uint height);
-	void				GetScissorBox(uint& x, uint& y, uint& width, uint& height);
+	void				SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+	void				GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height);
 	void				DrawRectangle(const Point2& position, const Point2& dimensions, int drawMode,
 														 const Color4& borderColor, const Color4& fillColor);
 
@@ -130,7 +130,7 @@ public:
 
 private:
 
-	bool				ActivateTextureUnit(uint unit);		//!< Activates a texture unit and returns true if succes
+	bool				ActivateTextureUnit(uint32_t unit);		//!< Activates a texture unit and returns true if succes
 
 	void				CheckGLErrors();
 
@@ -139,7 +139,7 @@ private:
 	Mat4				mMatrix[MT_COUNT];
 
 	//Mat4				mModelMatrixStack[MAX_MODEL_MATRIX_STACK_DEPTH];
-	//uint				mModelMatrixStackIndex;
+	//uint32_t				mModelMatrixStackIndex;
 
 	int					mMaxLights;
 	int					mMaxTextureSize;

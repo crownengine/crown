@@ -40,17 +40,17 @@ GLESIndexBuffer::~GLESIndexBuffer()
 	glDeleteBuffers(1, &mBufferID);
 }
 
-void GLESIndexBuffer::SetIndexData(const ushort* indexData, uint indexCount)
+void GLESIndexBuffer::SetIndexData(const uint16_t* indexData, uint32_t indexCount)
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBufferID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(ushort), indexData, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(uint16_t), indexData, GL_DYNAMIC_DRAW);
 	mCount = indexCount;
 }
 
-void GLESIndexBuffer::SetIndexSubData(const ushort* indexData, uint indexOffset, uint indexCount)
+void GLESIndexBuffer::SetIndexSubData(const uint16_t* indexData, uint32_t indexOffset, uint32_t indexCount)
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBufferID);
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, indexOffset * sizeof(ushort), indexCount * sizeof(ushort), indexData);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, indexOffset * sizeof(uint16_t), indexCount * sizeof(uint16_t), indexData);
 }
 
 void GLESIndexBuffer::Bind() const

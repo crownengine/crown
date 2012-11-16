@@ -43,7 +43,7 @@ GLXContext		glx_context = NULL;
 GLXDrawable		glx_window = None;
 
 //-----------------------------------------------------------------------------
-bool create_render_window(uint x, uint y, uint width, uint height, bool fullscreen)
+bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen)
 {
 	assert(width != 0 && height != 0);
 
@@ -168,7 +168,7 @@ void swap_buffers()
 }
 
 //-----------------------------------------------------------------------------
-void get_render_window_metrics(uint& width, uint& height)
+void get_render_window_metrics(uint32_t& width, uint32_t& height)
 {
 	XWindowAttributes attribs;
 	XGetWindowAttributes(display, window, &attribs);
@@ -180,7 +180,7 @@ void get_render_window_metrics(uint& width, uint& height)
 }
 
 ////-----------------------------------------------------------------------------
-//void GLXRenderWindow::Move(uint x, uint y)
+//void GLXRenderWindow::Move(uint32_t x, uint32_t y)
 //{
 //	if (x == mX && y == mY)
 //	{
@@ -191,7 +191,7 @@ void get_render_window_metrics(uint& width, uint& height)
 //}
 
 ////-----------------------------------------------------------------------------
-//void GLXRenderWindow::Resize(uint width, uint height)
+//void GLXRenderWindow::Resize(uint32_t width, uint32_t height)
 //{
 //	if (!width || !height)
 //	{

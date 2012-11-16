@@ -105,10 +105,10 @@ class Pixel
 public:
 
 	//! Returns the format's bytes per pixel
-	static uint GetBytesPerPixel(PixelFormat format);
+	static uint32_t GetBytesPerPixel(PixelFormat format);
 
 	//! Returns the format's bits per pixel
-	static uint GetBitsPerPixel(PixelFormat format);
+	static uint32_t GetBitsPerPixel(PixelFormat format);
 
 private:
 

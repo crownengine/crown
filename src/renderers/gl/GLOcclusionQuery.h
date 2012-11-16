@@ -48,14 +48,14 @@ public:
 	virtual void EndQuery();
 
 	//! See OcclusionQuery
-	virtual uint GetQueryResult();
+	virtual uint32_t GetQueryResult();
 
 	//! See OcclusionQuery
 	virtual bool IsResultAvailable();
 
 private:
 
-	GLuint mQueryObject;
+	GLuint	mQueryObject;
 };
 
 } // namespace crown

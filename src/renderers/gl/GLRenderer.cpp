@@ -77,14 +77,14 @@ GLRenderer::GLRenderer() :
 	mMinMaxLineWidth[0] = 0.0f;
 	mMinMaxLineWidth[1] = 0.0f;
 
-	for (uint i = 0; i < MAX_TEXTURE_UNITS; i++)
+	for (uint32_t i = 0; i < MAX_TEXTURE_UNITS; i++)
 	{
 		mTextureUnit[i] = 0;
 		mTextureUnitTarget[i] = GL_TEXTURE_2D;
 	}
 
 	// This code snippet initializes the matrices
-	for (uint i = 0; i < MT_COUNT; i++)
+	for (uint32_t i = 0; i < MT_COUNT; i++)
 	{
 		mMatrix[i].load_identity();
 	}
@@ -110,9 +110,9 @@ GLRenderer::GLRenderer() :
 	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &mMinMaxPointSize[0]);
 	glGetFloatv(GL_LINE_WIDTH_RANGE, &mMinMaxLineWidth[0]);
 
-	const uchar* gl_vendor = glGetString(GL_VENDOR);
-	const uchar* gl_renderer = glGetString(GL_RENDERER);
-	const uchar* gl_version = glGetString(GL_VERSION);
+	const uint8_t* gl_vendor = glGetString(GL_VENDOR);
+	const uint8_t* gl_renderer = glGetString(GL_RENDERER);
+	const uint8_t* gl_version = glGetString(GL_VERSION);
 
 	Log::I("OpenGL Vendor\t: %s", gl_vendor);
 	Log::I("OpenGL Renderer\t: %s", gl_renderer);
@@ -179,17 +179,17 @@ GLRenderer::GLRenderer() :
 //-----------------------------------------------------------------------------
 GLRenderer::~GLRenderer()
 {
-	for (uint i = 0; i < mOcclusionQueryList.size(); i++)
+	for (uint32_t i = 0; i < mOcclusionQueryList.size(); i++)
 	{
 		delete mOcclusionQueryList[i];
 	}
 
-	for (uint i = 0; i < mVertexBufferList.size(); i++)
+	for (uint32_t i = 0; i < mVertexBufferList.size(); i++)
 	{
 		delete mVertexBufferList[i];
 	}
 
-	for (uint i = 0; i < mIndexBufferList.size(); i++)
+	for (uint32_t i = 0; i < mIndexBufferList.size(); i++)
 	{
 		delete mIndexBufferList[i];
 	}
@@ -239,7 +239,7 @@ void GLRenderer::_SetLighting(bool lighting)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetTexturing(uint unit, bool texturing)
+void GLRenderer::_SetTexturing(uint32_t unit, bool texturing)
 {
 	if (!ActivateTextureUnit(unit))
 		return;
@@ -255,7 +255,7 @@ void GLRenderer::_SetTexturing(uint unit, bool texturing)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetTexture(uint unit, Texture* texture)
+void GLRenderer::_SetTexture(uint32_t unit, Texture* texture)
 {
 	if (!ActivateTextureUnit(unit))
 		return;
@@ -271,7 +271,7 @@ void GLRenderer::_SetTexture(uint unit, Texture* texture)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetTextureMode(uint unit, TextureMode mode, const Color4& blendColor)
+void GLRenderer::_SetTextureMode(uint32_t unit, TextureMode mode, const Color4& blendColor)
 {
 	if (!ActivateTextureUnit(unit))
 		return;
@@ -287,7 +287,7 @@ void GLRenderer::_SetTextureMode(uint unit, TextureMode mode, const Color4& blen
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetTextureWrap(uint unit, TextureWrap wrap)
+void GLRenderer::_SetTextureWrap(uint32_t unit, TextureWrap wrap)
 {
 	GLenum glWrap = GL::GetTextureWrap(wrap);
 
@@ -297,7 +297,7 @@ void GLRenderer::_SetTextureWrap(uint unit, TextureWrap wrap)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetTextureFilter(uint unit, TextureFilter filter)
+void GLRenderer::_SetTextureFilter(uint32_t unit, TextureFilter filter)
 {
 	if (!ActivateTextureUnit(unit))
 		return;
@@ -724,7 +724,7 @@ IndexBuffer*  GLRenderer::CreateIndexBuffer()
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::SetTexture(uint layer, Texture* texture)
+void GLRenderer::SetTexture(uint32_t layer, Texture* texture)
 {
 	if (texture == NULL)
 	{
@@ -739,7 +739,7 @@ void GLRenderer::SetTexture(uint layer, Texture* texture)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::SetScissorBox(uint x, uint y, uint width, uint height)
+void GLRenderer::SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
 	int vals[4];
 	glGetIntegerv(GL_VIEWPORT, vals);
@@ -747,7 +747,7 @@ void GLRenderer::SetScissorBox(uint x, uint y, uint width, uint height)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::GetScissorBox(uint& x, uint& y, uint& width, uint& height)
+void GLRenderer::GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height)
 {
 	int vals[4];
 	glGetIntegerv(GL_SCISSOR_BOX, vals);
@@ -793,9 +793,9 @@ void GLRenderer::DrawRectangle(const Point2& position, const Point2& dimensions,
 }
 
 //-----------------------------------------------------------------------------
-bool GLRenderer::ActivateTextureUnit(uint unit)
+bool GLRenderer::ActivateTextureUnit(uint32_t unit)
 {
-	if (unit >= (uint) mMaxTextureUnits)
+	if (unit >= (uint32_t) mMaxTextureUnits)
 	{
 		return false;
 	}
@@ -807,9 +807,9 @@ bool GLRenderer::ActivateTextureUnit(uint unit)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetLight(uint light, bool active)
+void GLRenderer::_SetLight(uint32_t light, bool active)
 {
-	if (light >= (uint) mMaxLights)
+	if (light >= (uint32_t) mMaxLights)
 	{
 		return;
 	}
@@ -825,7 +825,7 @@ void GLRenderer::_SetLight(uint light, bool active)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetLightParams(uint light, LightType type, const Vec3& position)
+void GLRenderer::_SetLightParams(uint32_t light, LightType type, const Vec3& position)
 {
 	static float pos[4] =
 	{
@@ -844,7 +844,7 @@ void GLRenderer::_SetLightParams(uint light, LightType type, const Vec3& positio
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetLightColor(uint light, const Color4& ambient, const Color4& diffuse, const Color4& specular)
+void GLRenderer::_SetLightColor(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular)
 {
 	glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient.to_float_ptr());
 	glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse.to_float_ptr());
@@ -852,7 +852,7 @@ void GLRenderer::_SetLightColor(uint light, const Color4& ambient, const Color4&
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetLightAttenuation(uint light, float constant, float linear, float quadratic)
+void GLRenderer::_SetLightAttenuation(uint32_t light, float constant, float linear, float quadratic)
 {
 	glLightf(GL_LIGHT0 + light, GL_CONSTANT_ATTENUATION, constant);
 	glLightf(GL_LIGHT0 + light, GL_LINEAR_ATTENUATION, linear);

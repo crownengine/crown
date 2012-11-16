@@ -176,13 +176,13 @@ public:
 	}
 
 	//! Returns the texture's width
-	inline uint GetWidth() const
+	inline uint32_t GetWidth() const
 	{
 		return mWidth;
 	}
 
 	//! Returns the texture's height
-	inline uint GetHeight() const
+	inline uint32_t GetHeight() const
 	{
 		return mHeight;
 	}
@@ -202,8 +202,8 @@ protected:
 	TextureFilter mFilter;
 	TextureWrap mWrap;
 
-	uint mWidth;
-	uint mHeight;
+	uint32_t mWidth;
+	uint32_t mHeight;
 
 	bool mGenerateMipMaps;
 

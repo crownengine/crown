@@ -58,15 +58,15 @@ public:
 							Color4(float r, float g, float b, float a); //!< Construct from four values
 							Color4(int r, int g, int b, int a);			//!< Construct from four values
 	explicit				Color4(float c[4]);							//!< Construct from four values
-	explicit				Color4(uint rgba);							//!< Construct from 32-bit integer (red at MSB, alpha at LSB)
+	explicit				Color4(uint32_t rgba);							//!< Construct from 32-bit integer (red at MSB, alpha at LSB)
 
-	uint					get_as_rgb() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order, alpha assumed = 255)
-	uint					get_as_bgr() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order, alpha assumed = 255)
-	uint					get_as_rgba() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order)
-	uint					get_as_abgr() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order)
+	uint32_t					get_as_rgb() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order, alpha assumed = 255)
+	uint32_t					get_as_bgr() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order, alpha assumed = 255)
+	uint32_t					get_as_rgba() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order)
+	uint32_t					get_as_abgr() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order)
 
-	float					operator[](uint i) const;					//!< Random access by index
-	float&					operator[](uint i);							//!< Random access by index
+	float					operator[](uint32_t i) const;					//!< Random access by index
+	float&					operator[](uint32_t i);							//!< Random access by index
 
 	Color4					operator+(const Color4& c) const;			//!< Addition
 	Color4&					operator+=(const Color4& c);				//!< Addition
@@ -295,7 +295,7 @@ inline Color4::Color4(float c[4])
 }
 
 //-----------------------------------------------------------------------------
-inline Color4::Color4(uint rgba)
+inline Color4::Color4(uint32_t rgba)
 {
 	r = math::ONE_OVER_255 * ((rgba & 0xFF000000) >> 24);
 	g = math::ONE_OVER_255 * ((rgba & 0x00FF0000) >> 16);
@@ -326,65 +326,65 @@ inline Str Color4::to_str() const
 }
 
 //-----------------------------------------------------------------------------
-inline uint Color4::get_as_rgb() const
+inline uint32_t Color4::get_as_rgb() const
 {
-	uint rgba;
+	uint32_t rgba;
 
-	rgba =	(uint)(255.0f * r) << 24;
-	rgba |= (uint)(255.0f * g) << 16;
-	rgba |= (uint)(255.0f * b) << 8;
+	rgba =	(uint32_t)(255.0f * r) << 24;
+	rgba |= (uint32_t)(255.0f * g) << 16;
+	rgba |= (uint32_t)(255.0f * b) << 8;
 	rgba |= 255;
 
 	return rgba;
 }
 
 //-----------------------------------------------------------------------------
-inline uint Color4::get_as_bgr() const
+inline uint32_t Color4::get_as_bgr() const
 {
-	uint abgr;
+	uint32_t abgr;
 
 	abgr =	255 << 24;
-	abgr |= (uint)(255.0f * b) << 16;
-	abgr |= (uint)(255.0f * g) << 8;
-	abgr |= (uint)(255.0f * r);
+	abgr |= (uint32_t)(255.0f * b) << 16;
+	abgr |= (uint32_t)(255.0f * g) << 8;
+	abgr |= (uint32_t)(255.0f * r);
 
 	return abgr;
 }
 
 //-----------------------------------------------------------------------------
-inline uint Color4::get_as_rgba() const
+inline uint32_t Color4::get_as_rgba() const
 {
-	uint rgba;
+	uint32_t rgba;
 
-	rgba =	(uint)(255.0f * r) << 24;
-	rgba |= (uint)(255.0f * g) << 16;
-	rgba |= (uint)(255.0f * b) << 8;
-	rgba |= (uint)(255.0f * a);
+	rgba =	(uint32_t)(255.0f * r) << 24;
+	rgba |= (uint32_t)(255.0f * g) << 16;
+	rgba |= (uint32_t)(255.0f * b) << 8;
+	rgba |= (uint32_t)(255.0f * a);
 
 	return rgba;
 }
 
 //-----------------------------------------------------------------------------
-inline uint Color4::get_as_abgr() const
+inline uint32_t Color4::get_as_abgr() const
 {
-	uint abgr;
+	uint32_t abgr;
 
-	abgr =	(uint)(255.0f * a) << 24;
-	abgr |= (uint)(255.0f * b) << 16;
-	abgr |= (uint)(255.0f * g) << 8;
-	abgr |= (uint)(255.0f * r);
+	abgr =	(uint32_t)(255.0f * a) << 24;
+	abgr |= (uint32_t)(255.0f * b) << 16;
+	abgr |= (uint32_t)(255.0f * g) << 8;
+	abgr |= (uint32_t)(255.0f * r);
 
 	return abgr;
 }
 
 //-----------------------------------------------------------------------------
-inline float Color4::operator[](uint i) const
+inline float Color4::operator[](uint32_t i) const
 {
 	return (&r)[i];
 }
 
 //-----------------------------------------------------------------------------
-inline float& Color4::operator[](uint i)
+inline float& Color4::operator[](uint32_t i)
 {
 	return (&r)[i];
 }

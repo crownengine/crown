@@ -84,19 +84,19 @@ Image* TGAImageLoader::LoadFile(const char* relativePath)
 Image* TGAImageLoader::LoadUncompressedData(Stream* fp)
 {
 	Image* image;
-	uint channels = mTGAHeader.pixel_depth / 8;
-	ulong size = mTGAHeader.width * mTGAHeader.height;
-	uchar* data;
+	uint32_t channels = mTGAHeader.pixel_depth / 8;
+	uint64_t size = mTGAHeader.width * mTGAHeader.height;
+	uint8_t* data;
 	PixelFormat format = PF_RGB_8;
 
 	if (mTGAHeader.pixel_depth == 16)
 	{
-		data = new uchar[(uint)(size * 3)];
+		data = new uint8_t[(uint32_t)(size * 3)];
 		int j = 0;
 
-		for (ulong i = 0; i < size * channels; i++)
+		for (uint64_t i = 0; i < size * channels; i++)
 		{
-			ushort pixel_data;
+			uint16_t pixel_data;
 			fp->ReadDataBlock(&pixel_data, sizeof(pixel_data));
 			data[j] = (pixel_data & 0x7c) >> 10;
 			data[j+1] = (pixel_data & 0x3e) >> 5;
@@ -106,7 +106,7 @@ Image* TGAImageLoader::LoadUncompressedData(Stream* fp)
 	}
 	else
 	{
-		data = new uchar[(uint)(size * channels)];
+		data = new uint8_t[(uint32_t)(size * channels)];
 		fp->ReadDataBlock(data, (size_t)(size * channels));
 		SwapRedBlue(data, size * channels, channels);
 	}
@@ -123,14 +123,14 @@ Image* TGAImageLoader::LoadUncompressedData(Stream* fp)
 Image* TGAImageLoader::LoadCompressedData(Stream* fp)
 {
 	Image* image;
-	uint channels = mTGAHeader.pixel_depth/8;
-	uchar rle_id = 0;
-	uint i = 0;
-	uchar* colors;
-	uint colors_read = 0;
-	ulong size = mTGAHeader.width * mTGAHeader.height;
-	uchar* data = new uchar[(uint)(size * channels)];
-	colors = new uchar[channels];
+	uint32_t channels = mTGAHeader.pixel_depth/8;
+	uint8_t rle_id = 0;
+	uint32_t i = 0;
+	uint8_t* colors;
+	uint32_t colors_read = 0;
+	uint64_t size = mTGAHeader.width * mTGAHeader.height;
+	uint8_t* data = new uint8_t[(uint32_t)(size * channels)];
+	colors = new uint8_t[channels];
 	PixelFormat format = PF_RGB_8;
 
 	if (channels == 4)
@@ -140,7 +140,7 @@ Image* TGAImageLoader::LoadCompressedData(Stream* fp)
 
 	while (i < size)
 	{
-		fp->ReadDataBlock(&rle_id, sizeof(uchar));
+		fp->ReadDataBlock(&rle_id, sizeof(uint8_t));
 
 		if (rle_id & 0x80)   // Se il bit più significativo è ad 1
 		{
@@ -191,9 +191,9 @@ Image* TGAImageLoader::LoadCompressedData(Stream* fp)
 	return image;
 }
 
-void TGAImageLoader::SwapRedBlue(uchar* data, ulong size, uint channels)
+void TGAImageLoader::SwapRedBlue(uint8_t* data, uint64_t size, uint32_t channels)
 {
-	for (ulong i = 0; i < size; i += channels)
+	for (uint64_t i = 0; i < size; i += channels)
 	{
 		data[i] ^= data[i+2];
 		data[i+2] ^= data[i];

@@ -81,7 +81,7 @@ public:
 						@return
 							The byte read
 						*/
-	virtual uchar		ReadByte() = 0;
+	virtual uint8_t		ReadByte() = 0;
 						/**
 							Reads a block of data from the stream.
 						@param buffer
@@ -123,7 +123,7 @@ public:
 						@param val
 							The byte to write
 						*/
-	virtual void		WriteByte(uchar val) = 0;
+	virtual void		WriteByte(uint8_t val) = 0;
 						/**
 							Writes a block of data to the stream.
 						@param buffer
@@ -203,11 +203,11 @@ public:
 						BinaryReader(Stream* s);
 	virtual				~BinaryReader();
 
-	uchar				ReadByte();
+	uint8_t				ReadByte();
 	short				ReadInt16();
-	ushort				ReadUint16();
+	uint16_t				ReadUint16();
 	int					ReadInt32();
-	uint				ReadUint32();
+	uint32_t				ReadUint32();
 	long long			ReadInt64();
 	double				ReadDouble();
 	float				ReadFloat();
@@ -229,16 +229,16 @@ public:
 						BinaryWriter(Stream* s);
 	virtual				~BinaryWriter();
 
-	void				WriteByte(uchar);
+	void				WriteByte(uint8_t);
 	void				WriteInt16(short);
-	void				WriteUint16(ushort);
+	void				WriteUint16(uint16_t);
 	void				WriteInt32(int);
-	void				WriteUint32(uint);
+	void				WriteUint32(uint32_t);
 	void				WriteInt64(long long);
 	void				WriteDouble(double);
 	void				WriteFloat(float);
 
-	void				InsertByte(uchar val, size_t offset);
+	void				InsertByte(uint8_t val, size_t offset);
 
 	inline Stream*		GetStream() { return mStream; }
 	inline void			SetStream(Stream* stream) { mStream = stream; }

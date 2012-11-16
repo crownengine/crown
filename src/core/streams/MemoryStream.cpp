@@ -55,7 +55,7 @@ DynamicMemoryBuffer::~DynamicMemoryBuffer()
 void DynamicMemoryBuffer::Allocate(size_t capacity)
 {
 	Release();
-	mBuff = new uchar[capacity];
+	mBuff = new uint8_t[capacity];
 	this->mCapacity = capacity;
 	mSize = 0;
 }
@@ -74,11 +74,11 @@ void DynamicMemoryBuffer::CheckSpace(size_t offset, size_t size)
 	if (offset + size > mCapacity)
 	{
 		mCapacity = (size_t) ((offset + size) * 1.2f);
-		mBuff = (uchar*) realloc(mBuff, mCapacity);
+		mBuff = (uint8_t*) realloc(mBuff, mCapacity);
 	}
 }
 
-void DynamicMemoryBuffer::Write(uchar* src, size_t offset, size_t size)
+void DynamicMemoryBuffer::Write(uint8_t* src, size_t offset, size_t size)
 {
 	CheckSpace(offset, size);
 
@@ -135,7 +135,7 @@ void MemoryStream::Seek(int newPos, SeekMode mode)
 	}
 }
 
-uchar MemoryStream::ReadByte()
+uint8_t MemoryStream::ReadByte()
 {
 	CheckValid();
 
@@ -151,8 +151,8 @@ uchar MemoryStream::ReadByte()
 void MemoryStream::ReadDataBlock(void* buffer, size_t size)
 {
 	CheckValid();
-	uchar* src = mMem->GetData();
-	uchar* dest = (uchar*) buffer;
+	uint8_t* src = mMem->GetData();
+	uint8_t* dest = (uint8_t*) buffer;
 
 	if (mMemOffset + size > mMem->GetSize())
 	{
@@ -175,7 +175,7 @@ bool MemoryStream::CopyTo(Stream* stream, size_t size)
 	return true;
 }
 
-void MemoryStream::WriteByte(uchar val)
+void MemoryStream::WriteByte(uint8_t val)
 {
 	CheckValid();
 	mMem->Write(&val, mMemOffset, 1);
@@ -185,7 +185,7 @@ void MemoryStream::WriteByte(uchar val)
 void MemoryStream::WriteDataBlock(const void* buffer, size_t size)
 {
 	CheckValid();
-	mMem->Write((uchar*)buffer, mMemOffset, size);
+	mMem->Write((uint8_t*)buffer, mMemOffset, size);
 	mMemOffset += size;
 }
 
@@ -196,7 +196,7 @@ void MemoryStream::Flush()
 
 void MemoryStream::Dump()
 {
-	uchar* buff = mMem->GetData();
+	uint8_t* buff = mMem->GetData();
 
 	for (size_t i=0; i<mMem->GetSize(); i++)
 	{

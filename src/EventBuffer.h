@@ -45,10 +45,10 @@ public:
 				EventBuffer();
 				~EventBuffer();
 
-	void		PushEvent(uint eventType, void* eventData, size_t eventSize);
+	void		PushEvent(uint32_t eventType, void* eventData, size_t eventSize);
 	void		PushEventBuffer(char* eventBuffer, size_t bufferSize);
 
-	void*		NextEvent(uint& eventType, size_t& size);
+	void*		NextEvent(uint32_t& eventType, size_t& size);
 
 	void		Clear();
 	void		Flush();

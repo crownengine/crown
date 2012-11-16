@@ -67,7 +67,7 @@ public:
 
 	bool			contains_point(const Vec3& p) const;					//!< Returns whether point "p" is contained
 
-	Vec3			get_vertex(uint index) const;							//!< Returns a box's vertex
+	Vec3			get_vertex(uint32_t index) const;							//!< Returns a box's vertex
 	void			get_transformed(const Mat4& mat, Box& result) const;	//!< Returns the box trasformed according to "mat" matrix
 
 	void			to_vertices(Vec3 v[8]) const;							//!< Returns the eight box's vertices
@@ -253,7 +253,7 @@ inline void Box::to_vertices(Vec3 v[8]) const
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Box::get_vertex(uint index) const
+inline Vec3 Box::get_vertex(uint32_t index) const
 {
 	assert(index < 8);
 
@@ -287,7 +287,7 @@ inline void Box::get_transformed(const Mat4& mat, Box& result) const
 
 	result.min = result.max = mat * vertices[0];
 
-	for (uint i = 1; i < 8; i++)
+	for (uint32_t i = 1; i < 8; i++)
 	{
 		vertices[i] = mat * vertices[i];
 		result.add_point(vertices[i]);

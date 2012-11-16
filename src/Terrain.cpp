@@ -64,7 +64,7 @@ Terrain::~Terrain()
 	delete[] mIndices;
 }
 
-void Terrain::CreateTerrain(uint xSize, uint zSize, uint tilePerMeter, float initialHeight)
+void Terrain::CreateTerrain(uint32_t xSize, uint32_t zSize, uint32_t tilePerMeter, float initialHeight)
 {
 	assert(xSize > 0);
 	assert(zSize > 0);
@@ -83,12 +83,12 @@ void Terrain::CreateTerrain(uint xSize, uint zSize, uint tilePerMeter, float ini
 
 	printf("Vertices in size x/z: %d %d\n", mVerticesInSizeX, mVerticesInSizeZ);
 
-	uint heightsCount = mVerticesInSizeX * mVerticesInSizeZ;
+	uint32_t heightsCount = mVerticesInSizeX * mVerticesInSizeZ;
 
 	mHeights = new float[heightsCount];
 
 	// Init heights
-	for (uint i = 0; i < heightsCount; i++)
+	for (uint32_t i = 0; i < heightsCount; i++)
 	{
 		mHeights[i] = initialHeight;
 	}
@@ -100,7 +100,7 @@ void Terrain::CreateTerrain(uint xSize, uint zSize, uint tilePerMeter, float ini
 	mNormalCount = heightsCount;
 	mTexCoords = new Vec2[heightsCount];		// Same as vertices
 	mTexCoordCount = heightsCount;
-	mIndices = new ushort[mTilesInSizeX * mTilesInSizeZ * 6];	//
+	mIndices = new uint16_t[mTilesInSizeX * mTilesInSizeZ * 6];	//
 	mIndexCount = mTilesInSizeX * mTilesInSizeZ * 6;
 
 	// Populate vertex list (generate a grid lying on the xz-plane and facing upwards)
@@ -110,13 +110,13 @@ void Terrain::CreateTerrain(uint xSize, uint zSize, uint tilePerMeter, float ini
 	mOffsetX = xStart;
 	mOffsetZ = zStart;
 
-	uint vIndex = 0;			// Just because I'm lazy
+	uint32_t vIndex = 0;			// Just because I'm lazy
 	float xCurrent;				// Keeps track of current x position
 	float zCurrent = zStart;	// Keeps track of current z position
-	for (uint z = 0; z < mVerticesInSizeZ; z++)
+	for (uint32_t z = 0; z < mVerticesInSizeZ; z++)
 	{
 		xCurrent = xStart;	
-		for (uint x = 0; x < mVerticesInSizeX; x++)
+		for (uint32_t x = 0; x < mVerticesInSizeX; x++)
 		{
 			mVertices[vIndex].x = xCurrent;
 			mVertices[vIndex].y = mHeights[vIndex];
@@ -136,13 +136,13 @@ void Terrain::CreateTerrain(uint xSize, uint zSize, uint tilePerMeter, float ini
 	}
 
 	// Populate index list
-	uint iIndex = 0;
-	for (uint z = 0; z < mTilesInSizeZ; z++)
+	uint32_t iIndex = 0;
+	for (uint32_t z = 0; z < mTilesInSizeZ; z++)
 	{
-		for (uint x = 0; x < mTilesInSizeX; x++)
+		for (uint32_t x = 0; x < mTilesInSizeX; x++)
 		{
-			uint firstRow = z * mVerticesInSizeX + x;
-			uint secondRow = (z + 1) * mVerticesInSizeX + x;
+			uint32_t firstRow = z * mVerticesInSizeX + x;
+			uint32_t secondRow = (z + 1) * mVerticesInSizeX + x;
 
 			mIndices[iIndex + 0] = firstRow;
 			mIndices[iIndex + 1] = secondRow + 1;
@@ -157,10 +157,10 @@ void Terrain::CreateTerrain(uint xSize, uint zSize, uint tilePerMeter, float ini
 
 void Terrain::UpdateVertexBuffer(bool recomputeNormals)
 {
-	uint vIndex = 0;
-	for (uint z = 0; z < mVerticesInSizeZ; z++)
+	uint32_t vIndex = 0;
+	for (uint32_t z = 0; z < mVerticesInSizeZ; z++)
 	{
-		for (uint x = 0; x < mVerticesInSizeX; x++)
+		for (uint32_t x = 0; x < mVerticesInSizeX; x++)
 		{
 			mVertices[vIndex].y = mHeights[vIndex];
 			vIndex++;
@@ -169,7 +169,7 @@ void Terrain::UpdateVertexBuffer(bool recomputeNormals)
 
 	if (recomputeNormals)
 	{
-		for (uint i = 0; i < mIndexCount; i += 3)
+		for (uint32_t i = 0; i < mIndexCount; i += 3)
 		{
 			Vec3 normal;
 			Vec3 v1;
@@ -187,7 +187,7 @@ void Terrain::UpdateVertexBuffer(bool recomputeNormals)
 	}
 }
 
-float Terrain::GetHeightAt(uint x, uint z) const
+float Terrain::GetHeightAt(uint32_t x, uint32_t z) const
 {
 	if (x > mVerticesInSizeX) return 0.0f;
 	if (z > mVerticesInSizeZ) return 0.0f;
@@ -197,14 +197,14 @@ float Terrain::GetHeightAt(uint x, uint z) const
 
 float Terrain::GetHeightAt(const Vec3& xyz) const
 {
-	uint x, z;
+	uint32_t x, z;
 
 	WorldToHeight(xyz, x, z);
 
 	return GetHeightAt(x, z);
 }
 
-void Terrain::SetHeightAt(uint x, uint z, float height)
+void Terrain::SetHeightAt(uint32_t x, uint32_t z, float height)
 {
 	if (x >= mVerticesInSizeX) return;
 	if (z >= mVerticesInSizeZ) return;
@@ -215,20 +215,20 @@ void Terrain::SetHeightAt(uint x, uint z, float height)
 
 void Terrain::SetHeightAt(const Vec3& xyz, float height)
 {
-	uint x, z;
+	uint32_t x, z;
 
 	WorldToHeight(xyz, x, z);
 
 	SetHeightAt(x + 0, z + 0, height);
 }
 
-void Terrain::WorldToHeight(const Vec3& xyz, uint& x, uint& z) const
+void Terrain::WorldToHeight(const Vec3& xyz, uint32_t& x, uint32_t& z) const
 {
 	Vec3 offsetted = xyz + Vec3(-mOffsetX, 0.0f, mOffsetZ);
 	offsetted.z = (float)mSizeZ - offsetted.z;
 
-	x = (uint)offsetted.x;
-	z = (uint)offsetted.z;
+	x = (uint32_t)offsetted.x;
+	z = (uint32_t)offsetted.z;
 }
 
 bool Terrain::TraceRay(const Ray& ray, Triangle& result, Triangle& tri2, real& dist)
@@ -236,7 +236,7 @@ bool Terrain::TraceRay(const Ray& ray, Triangle& result, Triangle& tri2, real& d
 	bool hit = false;
 	real minDist = 9999999.0f;
 
-	for (uint i = 0; i < mIndexCount; i += 3)
+	for (uint32_t i = 0; i < mIndexCount; i += 3)
 	{
 		Triangle tri;
 
@@ -262,10 +262,10 @@ bool Terrain::TraceRay(const Ray& ray, Triangle& result, Triangle& tri2, real& d
 	return hit;
 }
 
-uint Terrain::SnapToGrid(const Vec3& vertex)
+uint32_t Terrain::SnapToGrid(const Vec3& vertex)
 {
 	float minDist = 9999999.0f;
-	uint indexToSnapped;
+	uint32_t indexToSnapped;
 	// Find the snapped point to input vertex
 	for (int i = 0; i < mVertexCount; i++)
 	{
@@ -286,12 +286,12 @@ uint Terrain::SnapToGrid(const Vec3& vertex)
 void Terrain::SaveAsBmp(const char* name)
 {
 	Image image;
-	uchar* buffer = new uchar[mVertexCount * 3];
+	uint8_t* buffer = new uint8_t[mVertexCount * 3];
 
 	float scale = 255.0f / (mMaxHeight - mMinHeight);
 
-	uint j = 0;
-	for (uint i = 0; i < mVertexCount; i++)
+	uint32_t j = 0;
+	for (uint32_t i = 0; i < mVertexCount; i++)
 	{
 		buffer[j + 0] = (mHeights[i] + (-mMinHeight)) * scale;
 		buffer[j + 1] = (mHeights[i] + (-mMinHeight)) * scale;
@@ -334,7 +334,7 @@ float Terrain::GaussDist(float x, float y, float sigma)
 	return gauss * pow(e, -exponent);
 }
 
-void Terrain::BuildBrush(uint width, uint height, float smooth)
+void Terrain::BuildBrush(uint32_t width, uint32_t height, float smooth)
 {
 	assert(width < MAX_BRUSH_SIZE);
 	assert(height < MAX_BRUSH_SIZE);
@@ -346,10 +346,10 @@ void Terrain::BuildBrush(uint width, uint height, float smooth)
 	float yStart = -(float)height * 0.5f;
 
 	float xCurrent = xStart;
-	for (uint i = 0; i <= width; i++)
+	for (uint32_t i = 0; i <= width; i++)
 	{
 		float yCurrent = yStart;
-		for (uint j = 0; j <= height; j++)
+		for (uint32_t j = 0; j <= height; j++)
 		{
 			mBrush[j * MAX_BRUSH_SIZE + i] = GaussDist(xCurrent, yCurrent, smooth);
 			yCurrent += 1.0f;
@@ -391,13 +391,13 @@ void Terrain::PlotCircle(int xx, int yy, int radius, int i)
 		}
 }
 
-void Terrain::ApplyBrush(uint x, uint z, float scale)
+void Terrain::ApplyBrush(uint32_t x, uint32_t z, float scale)
 {
-	uint offsetX = mBrushWidth / 2;
-	uint offsetY = mBrushHeight / 2;
-	for (uint i = 0; i < mBrushWidth; i++)
+	uint32_t offsetX = mBrushWidth / 2;
+	uint32_t offsetY = mBrushHeight / 2;
+	for (uint32_t i = 0; i < mBrushWidth; i++)
 	{
-		for (uint j = 0; j < mBrushHeight; j++)
+		for (uint32_t j = 0; j < mBrushHeight; j++)
 		{
 			SetHeightAt((x - offsetX) + i, (z - offsetY) + j, scale * mBrush[j * MAX_BRUSH_SIZE + i]);
 		}
@@ -406,7 +406,7 @@ void Terrain::ApplyBrush(uint x, uint z, float scale)
 
 void Terrain::ApplyBrush(const Vec3& xyz, float scale)
 {
-	uint x, z;
+	uint32_t x, z;
 
 	WorldToHeight(xyz, x, z);
 

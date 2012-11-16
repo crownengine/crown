@@ -51,7 +51,7 @@ bool TCPSocket::open(unsigned short port)
 	os::printf("listening on port %d", port);
 
 	sockaddr_in client;
-	uint client_length = sizeof(client);
+	uint32_t client_length = sizeof(client);
 
 	int active_sd = accept(sd, (sockaddr*)&client, &client_length);
 	if (active_sd < 0)

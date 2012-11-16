@@ -66,7 +66,7 @@ Material::Material() :
 	mBlendDst(BF_ONE_MINUS_SRC_ALPHA),
 	mBlendColor(0.0f, 0.0f, 0.0f, 0.0f)
 {
-	for (uint i = 0; i < MAX_TEXTURE_LAYERS; i++)
+	for (uint32_t i = 0; i < MAX_TEXTURE_LAYERS; i++)
 	{
 		mTextureLayer[i] = 0;
 	}
@@ -422,7 +422,7 @@ void Material::SetBlendColor(const Color4& color)
 	mBlendColor = color;
 }
 
-bool Material::SetTextureLayer(uint layer, Texture* texture)
+bool Material::SetTextureLayer(uint32_t layer, Texture* texture)
 {
 	if (layer >= MAX_TEXTURE_LAYERS)
 	{
@@ -433,7 +433,7 @@ bool Material::SetTextureLayer(uint layer, Texture* texture)
 	return true;
 }
 
-Texture* Material::GetTextureLayer(uint layer) const
+Texture* Material::GetTextureLayer(uint32_t layer) const
 {
 	if (layer >= MAX_TEXTURE_LAYERS)
 	{
@@ -445,7 +445,7 @@ Texture* Material::GetTextureLayer(uint layer) const
 
 void Material::SetTextureMode(TextureMode mode)
 {
-	for (uint i = 0; i < MAX_TEXTURE_LAYERS; i++)
+	for (uint32_t i = 0; i < MAX_TEXTURE_LAYERS; i++)
 	{
 		if (mTextureLayer[i] == 0)
 			continue;
@@ -456,7 +456,7 @@ void Material::SetTextureMode(TextureMode mode)
 
 void Material::SetTextureFilter(TextureFilter filter)
 {
-	for (uint i = 0; i < MAX_TEXTURE_LAYERS; i++)
+	for (uint32_t i = 0; i < MAX_TEXTURE_LAYERS; i++)
 	{
 		if (mTextureLayer[i] == 0)
 			continue;
@@ -467,7 +467,7 @@ void Material::SetTextureFilter(TextureFilter filter)
 
 void Material::SetTextureWrap(TextureWrap wrap)
 {
-	for (uint i = 0; i < MAX_TEXTURE_LAYERS; i++)
+	for (uint32_t i = 0; i < MAX_TEXTURE_LAYERS; i++)
 	{
 		if (mTextureLayer[i] == 0)
 			continue;

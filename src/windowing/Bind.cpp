@@ -181,11 +181,11 @@ void Bind::SetEnabled(bool value)
 {
 	if (value)
 	{
-		mFlags = (ushort)Math::UnsetBitmask(mFlags, BF_DISABLED);
+		mFlags = (uint16_t)Math::UnsetBitmask(mFlags, BF_DISABLED);
 	}
 	else
 	{
-		mFlags = (ushort)Math::SetBitmask(mFlags, BF_DISABLED);
+		mFlags = (uint16_t)Math::SetBitmask(mFlags, BF_DISABLED);
 	}
 }
 

@@ -44,28 +44,28 @@ public:
 				Terrain();
 				~Terrain();
 
-	void		CreateTerrain(uint xSize, uint zSize, uint tilePerMeter, float initialHeight);
+	void		CreateTerrain(uint32_t xSize, uint32_t zSize, uint32_t tilePerMeter, float initialHeight);
 
-	float		GetHeightAt(uint x, uint z) const;
+	float		GetHeightAt(uint32_t x, uint32_t z) const;
 	float		GetHeightAt(const Vec3& xyz) const;
 
-	void		SetHeightAt(uint x, uint z, float height);
+	void		SetHeightAt(uint32_t x, uint32_t z, float height);
 	void		SetHeightAt(const Vec3& xyz, float height);
 
-	void		WorldToHeight(const Vec3& xyz, uint& x, uint& z) const;
+	void		WorldToHeight(const Vec3& xyz, uint32_t& x, uint32_t& z) const;
 
 	void		UpdateVertexBuffer(bool recomputeNormals);
 
 	bool		TraceRay(const Ray& ray, Triangle& result, Triangle& tri2, real& dist);
 
-	uint		SnapToGrid(const Vec3& vertex);
+	uint32_t		SnapToGrid(const Vec3& vertex);
 
 	void		SaveAsBmp(const char* name);
 
-	void		BuildBrush(uint width, uint height, float smooth);
+	void		BuildBrush(uint32_t width, uint32_t height, float smooth);
 	float		GaussDist(float x, float y, float sigma);
 
-	void		ApplyBrush(uint x, uint z, float scale);
+	void		ApplyBrush(uint32_t x, uint32_t z, float scale);
 	void		ApplyBrush(const Vec3& xyz, float scale);
 
 	void		PlotCircle(int xx, int yy, int radius, int i);
@@ -74,31 +74,31 @@ public:
 
 private:
 
-	uint		mSizeX;				// X in meters
-	uint		mSizeZ;				// Z in meters
+	uint32_t		mSizeX;				// X in meters
+	uint32_t		mSizeZ;				// Z in meters
 	float		mOffsetX;
 	float		mOffsetZ;
-	uint		mTilePerMeter;		// How many tiles per linear meter?
-	uint		mTilesInSizeX;
-	uint		mTilesInSizeZ;
-	uint		mVerticesInSizeX;
-	uint		mVerticesInSizeZ;
+	uint32_t		mTilePerMeter;		// How many tiles per linear meter?
+	uint32_t		mTilesInSizeX;
+	uint32_t		mTilesInSizeZ;
+	uint32_t		mVerticesInSizeX;
+	uint32_t		mVerticesInSizeZ;
 	float*		mHeights;			// Contains the heights
 
 	float		mMinHeight;
 	float		mMaxHeight;
 
-	uint		mVertexCount;
+	uint32_t		mVertexCount;
 	Vec3*		mVertices;
 
-	uint		mNormalCount;
+	uint32_t		mNormalCount;
 	Vec3*		mNormals;
 
-	uint		mTexCoordCount;
+	uint32_t		mTexCoordCount;
 	Vec2*		mTexCoords;
 
-	uint		mIndexCount;
-	ushort*		mIndices;
+	uint32_t		mIndexCount;
+	uint16_t*		mIndices;
 
 	int			mBrushWidth;
 	int			mBrushHeight;

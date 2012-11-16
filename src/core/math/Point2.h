@@ -50,8 +50,8 @@ public:
 							Point2(const Point2& a);			//! Copy constructor
 							~Point2();							//! Destructor
 
-	int						operator[](uint i) const;			//! Random access by index
-	int&					operator[](uint i);					//! Random access by index
+	int						operator[](uint32_t i) const;			//! Random access by index
+	int&					operator[](uint32_t i);					//! Random access by index
 
 	Point2					operator+(const Point2& a) const;	//! Addition
 	Point2&					operator+=(const Point2& a);		//! Addition
@@ -119,7 +119,7 @@ inline Point2::~Point2()
 }
 
 //-----------------------------------------------------------------------------
-inline int Point2::operator[](uint i) const
+inline int Point2::operator[](uint32_t i) const
 {
 	assert(i < 2);
 
@@ -127,7 +127,7 @@ inline int Point2::operator[](uint i) const
 }
 
 //-----------------------------------------------------------------------------
-inline int& Point2::operator[](uint i)
+inline int& Point2::operator[](uint32_t i)
 {
 	assert(i < 2);
 

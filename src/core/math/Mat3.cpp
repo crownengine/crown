@@ -108,7 +108,7 @@ Mat3& Mat3::operator=(const Mat3& a)
 }
 
 //-----------------------------------------------------------------------------
-real Mat3::operator[](uint i) const
+real Mat3::operator[](uint32_t i) const
 {
 	assert(i < 9);
 
@@ -116,7 +116,7 @@ real Mat3::operator[](uint i) const
 }
 
 //-----------------------------------------------------------------------------
-real& Mat3::operator[](uint i)
+real& Mat3::operator[](uint32_t i)
 {
 	assert(i < 9);
 
@@ -124,7 +124,7 @@ real& Mat3::operator[](uint i)
 }
 
 //-----------------------------------------------------------------------------
-real Mat3::operator()(uint row, uint column) const
+real Mat3::operator()(uint32_t row, uint32_t column) const
 {
 	assert(row < 3 && column < 3);
 
@@ -589,7 +589,7 @@ Quat Mat3::to_quat() const
 	real fourYSquaredMinusOne = -m[0] + m[4] - m[8];
 	real fourZSquaredMinusOne = -m[0] - m[4] + m[8];
 	real fourMaxSquaredMinusOne = fourWSquaredMinusOne;
-	uint index = 0;
+	uint32_t index = 0;
 
 	if (fourXSquaredMinusOne > fourMaxSquaredMinusOne)
 	{

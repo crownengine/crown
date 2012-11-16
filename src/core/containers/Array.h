@@ -38,7 +38,7 @@ namespace crown
 	Does not grow in size.
 	Does not call constructors/destructors so it is not very suitable for non-POD items.
 */
-template <typename T, uint SIZE>
+template <typename T, uint32_t SIZE>
 class Array
 {
 public:
@@ -47,14 +47,14 @@ public:
 							Array(const Array<T, SIZE>& array);
 							~Array();
 
-	T&						operator[](uint index);
-	const T&				operator[](uint index) const;
+	T&						operator[](uint32_t index);
+	const T&				operator[](uint32_t index) const;
 
 	bool					empty() const;
-	uint					size() const;
-	uint					get_capacity() const;
+	uint32_t					size() const;
+	uint32_t					get_capacity() const;
 
-	uint					push_back(const T& item);
+	uint32_t					push_back(const T& item);
 	void					pop_back();
 
 	void					clear();
@@ -69,7 +69,7 @@ public:
 private:
 
 	Allocator*				m_allocator;
-	uint					m_count;			// The number of items
+	uint32_t					m_count;			// The number of items
 	T						m_array[SIZE];
 };
 
@@ -78,7 +78,7 @@ private:
 @note
 	Does not initialize array memory.
 */
-template <typename T, uint SIZE>
+template <typename T, uint32_t SIZE>
 inline Array<T, SIZE>::Array(Allocator& allocator) : m_allocator(&allocator), m_count(0)
 {
 	assert(SIZE > 0);
@@ -89,7 +89,7 @@ inline Array<T, SIZE>::Array(Allocator& allocator) : m_allocator(&allocator), m_
 /**
 	Copy constructor.
 */
-template <typename T, uint SIZE>
+template <typename T, uint32_t SIZE>
 inline Array<T, SIZE>::Array(const Array<T, SIZE>& array)
 {
 	*this = array;
@@ -98,7 +98,7 @@ inline Array<T, SIZE>::Array(const Array<T, SIZE>& array)
 /**
 	Destructor.
 */
-template <typename T, uint SIZE>
+template <typename T, uint32_t SIZE>
 inline Array<T, SIZE>::~Array()
 {
 }
@@ -108,8 +108,8 @@ inline Array<T, SIZE>::~Array()
 @note
 	The index has to be smaller than size()
 */
-template <typename T, uint SIZE>
-inline T& Array<T, SIZE>::operator[](uint index)
+template <typename T, uint32_t SIZE>
+inline T& Array<T, SIZE>::operator[](uint32_t index)
 {
 	assert(index >= 0);
 	assert(index < m_count);
@@ -122,8 +122,8 @@ inline T& Array<T, SIZE>::operator[](uint index)
 @note
 	The index has to be smaller than size()
 */
-template <typename T, uint SIZE>
-inline const T& Array<T, SIZE>::operator[](uint index) const
+template <typename T, uint32_t SIZE>
+inline const T& Array<T, SIZE>::operator[](uint32_t index) const
 {
 	assert(index >= 0);
 	assert(index < m_count);
@@ -134,7 +134,7 @@ inline const T& Array<T, SIZE>::operator[](uint index) const
 /**
 	Returns whether the array is empty.
 */
-template <typename T, uint SIZE>
+template <typename T, uint32_t SIZE>
 inline bool Array<T, SIZE>::empty() const
 {
 	return m_count == 0;
@@ -143,8 +143,8 @@ inline bool Array<T, SIZE>::empty() const
 /**
 	Returns the number of items in the array.
 */
-template <typename T, uint SIZE>
-inline uint Array<T, SIZE>::size() const
+template <typename T, uint32_t SIZE>
+inline uint32_t Array<T, SIZE>::size() const
 {
 	return m_count;
 }
@@ -152,8 +152,8 @@ inline uint Array<T, SIZE>::size() const
 /**
 	Returns the maximum number of items the array can hold.
 */
-template <typename T, uint SIZE>
-inline uint Array<T, SIZE>::get_capacity() const
+template <typename T, uint32_t SIZE>
+inline uint32_t Array<T, SIZE>::get_capacity() const
 {
 	return SIZE;
 }
@@ -161,8 +161,8 @@ inline uint Array<T, SIZE>::get_capacity() const
 /**
 	Appends an item to the array and returns its index.
 */
-template <typename T, uint SIZE>
-inline uint Array<T, SIZE>::push_back(const T& item)
+template <typename T, uint32_t SIZE>
+inline uint32_t Array<T, SIZE>::push_back(const T& item)
 {
 	assert(m_count < SIZE);
 
@@ -174,7 +174,7 @@ inline uint Array<T, SIZE>::push_back(const T& item)
 /**
 	Removes the item at the given index.
 */
-template <typename T, uint SIZE>
+template <typename T, uint32_t SIZE>
 inline void Array<T, SIZE>::pop_back()
 {
 	assert(m_count > 0);
@@ -188,7 +188,7 @@ inline void Array<T, SIZE>::pop_back()
 	Does not free memory, it only zeroes
 	the number of items in the array.
 */
-template <typename T, uint SIZE>
+template <typename T, uint32_t SIZE>
 inline void Array<T, SIZE>::clear()
 {
 	m_count = 0;
@@ -197,10 +197,10 @@ inline void Array<T, SIZE>::clear()
 /**
 	Copies the content of other list into this.
 */
-template <typename T, uint SIZE>
+template <typename T, uint32_t SIZE>
 inline const Array<T, SIZE>& Array<T, SIZE>::operator=(const Array<T, SIZE>& b)
 {
-	for (uint i = 0; i < b.m_count; i++)
+	for (uint32_t i = 0; i < b.m_count; i++)
 	{
 		m_array[i] = b.m_array[i];
 	}
@@ -211,28 +211,28 @@ inline const Array<T, SIZE>& Array<T, SIZE>::operator=(const Array<T, SIZE>& b)
 }
 
 //-----------------------------------------------------------------------------
-template <typename T, uint SIZE>
+template <typename T, uint32_t SIZE>
 inline const T* Array<T, SIZE>::begin() const
 {
 	return m_array;
 }
 
 //-----------------------------------------------------------------------------
-template <typename T, uint SIZE>
+template <typename T, uint32_t SIZE>
 inline T* Array<T, SIZE>::begin()
 {
 	return m_array;
 }
 
 //-----------------------------------------------------------------------------
-template <typename T, uint SIZE>
+template <typename T, uint32_t SIZE>
 inline const T* Array<T, SIZE>::end() const
 {
 	return m_array + (m_count - 1);
 }
 
 //-----------------------------------------------------------------------------
-template <typename T, uint SIZE>
+template <typename T, uint32_t SIZE>
 inline T* Array<T, SIZE>::end()
 {
 	return m_array + (m_count - 1);

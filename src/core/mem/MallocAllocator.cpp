@@ -90,7 +90,7 @@ size_t MallocAllocator::actual_allocation_size(size_t size, size_t align)
 //-----------------------------------------------------------------------------
 MallocAllocator::Header* MallocAllocator::header(void* data)
 {
-	uint* ptr = (uint*)data;
+	uint32_t* ptr = (uint32_t*)data;
 	ptr--;
 
 	while (*ptr == memory::PADDING_VALUE)
@@ -110,9 +110,9 @@ void* MallocAllocator::data(Header* header, size_t align)
 //-----------------------------------------------------------------------------
 void MallocAllocator::pad(Header* header, void* data)
 {
-	uint* p = (uint*)(header + 1);
+	uint32_t* p = (uint32_t*)(header + 1);
 
-	while (p != (uint*)data)
+	while (p != (uint32_t*)data)
 	{
 		*p = memory::PADDING_VALUE;
 		p++;
