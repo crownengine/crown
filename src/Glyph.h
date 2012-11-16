@@ -50,7 +50,7 @@ public:
 	}
 
 	//! Constructor
-	Glyph(wchar_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline) :
+	Glyph(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline) :
 		mCodePoint(code),
 		mLeft(left),
 		mRight(right),
@@ -94,15 +94,15 @@ public:
 		mBaseline = baseline;
 	}
 
-	//! Returns the glyph's code point
-	wchar_t GetCodePoint() const
+	//! Returns the glyph's code point32_t
+	uint32_t GetCodePoint() const
 	{
 		return mCodePoint;
 	}
 
 private:
 
-	wchar_t mCodePoint;
+	uint32_t mCodePoint;
 	float mLeft;
 	float mRight;
 	float mBottom;

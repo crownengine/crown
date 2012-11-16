@@ -35,7 +35,7 @@ StackLayout::StackLayout(Widget* parent):
 {
 	SetMouseSensible(false);
 
-	EnumProperty* prop = new EnumProperty("Orientation", (int*)&mOrientation);
+	EnumProperty* prop = new EnumProperty("Orientation", (int32_t*)&mOrientation);
 	prop->AddValueMapping("Horizontal", SO_HORIZONTAL);
 	prop->AddValueMapping("Vertical", SO_VERTICAL);
 	AddProperty(prop);
@@ -63,7 +63,7 @@ void StackLayout::OnSetProperty(const Str& name)
 	}
 }
 
-void StackLayout::OnArrange(Point2 position, Point2 size)
+void StackLayout::OnArrange(Point32_t2 position, Point32_t2 size)
 {
 	Move(position);
 	Resize(size);
@@ -80,20 +80,20 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 		List<WidgetSizeAcceptedEnum> acceptedStatus;
 		const List<Widget*>& children = GetChildren();
 
-		int fixedHeight = 0;
-		int fixedHeightCount = 0;
+		int32_t fixedHeight = 0;
+		int32_t fixedHeightCount = 0;
 		
 
-		for (int i = 0; i < children.GetSize(); i++)
+		for (int32_t i = 0; i < children.GetSize(); i++)
 		{
 			Widget* child = children[i];
-			int measuredY = child->GetMeasuredSize().y;
+			int32_t measuredY = child->GetMeasuredSize().y;
 
 			if (measuredY >= 0)
 			{
 				acceptedStatus.Append(WSA_FIXED);
 				fixedHeightCount ++;
-				//Take margins into account
+				//Take margins int32_to account
 				fixedHeight += measuredY + child->GetMargins().GetFixedMarginsY();
 			}
 			else
@@ -101,9 +101,9 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 		}
 
 		float suggestedHeight = ((float)size.y - fixedHeight) / (children.GetSize() - fixedHeightCount);
-		float roundupRemainder = suggestedHeight - (int)(suggestedHeight);
+		float roundupRemainder = suggestedHeight - (int32_t)(suggestedHeight);
 		float accumulator = 0.0f;
-		suggestedHeight = (float)((int)suggestedHeight);
+		suggestedHeight = (float)((int32_t)suggestedHeight);
 
 		if (suggestedHeight < 0.0f)
 		{
@@ -112,7 +112,7 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 		}
 		else
 		{
-			for (int i = 0; i < children.GetSize(); i++)
+			for (int32_t i = 0; i < children.GetSize(); i++)
 			{
 				Widget* child = children[i];
 
@@ -124,7 +124,7 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 				{
 					//Try to propose the calculated height and see if the response changes
 					//If so, restart the scan with a new suggestedHeight
-					int height = (int)suggestedHeight;
+					int32_t height = (int32_t)suggestedHeight;
 					accumulator += roundupRemainder;
 					if (accumulator >= 0.9999f)
 					{
@@ -156,9 +156,9 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 						}
 
 						suggestedHeight = ((float)size.y - fixedHeight) / (children.GetSize() - fixedHeightCount);
-						roundupRemainder = suggestedHeight - (int)(suggestedHeight);
+						roundupRemainder = suggestedHeight - (int32_t)(suggestedHeight);
 						accumulator = 0.0f;
-						suggestedHeight = (float)((int)suggestedHeight);
+						suggestedHeight = (float)((int32_t)suggestedHeight);
 						//Replace the acceptedStatus and start over
 						acceptedStatus[i] = acceptedNew;
 						i = -1;
@@ -169,15 +169,15 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 
 		accumulator = 0.0f;
 
-		position = Point2::ZERO;
-		int xSpace = size.x;
+		position = Point32_t2::ZERO;
+		int32_t xSpace = size.x;
 		size.y = 0;
 
-		for (int i = 0; i < children.GetSize(); i++)
+		for (int32_t i = 0; i < children.GetSize(); i++)
 		{
 			Widget* child = children[i];
-			Point2 pos = position;
-			int occupiedSpace = 0;
+			Point32_t2 pos = position;
+			int32_t occupiedSpace = 0;
 			bool applyMargins = false;
 
 			switch (acceptedStatus[i])
@@ -185,7 +185,7 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 				case WSA_ACCEPTED:
 				{
 					//Use the suggested height
-					int height = (int)suggestedHeight;
+					int32_t height = (int32_t)suggestedHeight;
 					accumulator += roundupRemainder;
 					if (accumulator >= 0.9999f)
 					{
@@ -245,20 +245,20 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 		List<WidgetSizeAcceptedEnum> acceptedStatus;
 		const List<Widget*>& children = GetChildren();
 
-		int fixedHeight = 0;
-		int fixedHeightCount = 0;
+		int32_t fixedHeight = 0;
+		int32_t fixedHeightCount = 0;
 		
 
-		for (int i = 0; i < children.GetSize(); i++)
+		for (int32_t i = 0; i < children.GetSize(); i++)
 		{
 			Widget* child = children[i];
-			int measuredX = child->GetMeasuredSize().x;
+			int32_t measuredX = child->GetMeasuredSize().x;
 
 			if (measuredX >= 0)
 			{
 				acceptedStatus.Append(WSA_FIXED);
 				fixedHeightCount ++;
-				//Take margins into account
+				//Take margins int32_to account
 				fixedHeight += measuredX + child->GetMargins().GetFixedMarginsX();
 			}
 			else
@@ -266,9 +266,9 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 		}
 
 		float suggestedHeight = ((float)size.x - fixedHeight) / (children.GetSize() - fixedHeightCount);
-		float roundupRemainder = suggestedHeight - (int)(suggestedHeight);
+		float roundupRemainder = suggestedHeight - (int32_t)(suggestedHeight);
 		float accumulator = 0.0f;
-		suggestedHeight = (float)((int)suggestedHeight);
+		suggestedHeight = (float)((int32_t)suggestedHeight);
 
 		if (suggestedHeight < 0.0f)
 		{
@@ -277,7 +277,7 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 		}
 		else
 		{
-			for (int i = 0; i < children.GetSize(); i++)
+			for (int32_t i = 0; i < children.GetSize(); i++)
 			{
 				Widget* child = children[i];
 
@@ -289,7 +289,7 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 				{
 					//Try to propose the calculated height and see if the response changes
 					//If so, restart the scan with a new suggestedHeight
-					int width = (int)suggestedHeight;
+					int32_t width = (int32_t)suggestedHeight;
 					accumulator += roundupRemainder;
 					if (accumulator >= 0.9999f)
 					{
@@ -321,9 +321,9 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 						}
 
 						suggestedHeight = ((float)size.x - fixedHeight) / (children.GetSize() - fixedHeightCount);
-						roundupRemainder = suggestedHeight - (int)(suggestedHeight);
+						roundupRemainder = suggestedHeight - (int32_t)(suggestedHeight);
 						accumulator = 0.0f;
-						suggestedHeight = (float)((int)suggestedHeight);
+						suggestedHeight = (float)((int32_t)suggestedHeight);
 						//Replace the acceptedStatus and start over
 						acceptedStatus[i] = acceptedNew;
 						i = -1;
@@ -334,15 +334,15 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 
 		accumulator = 0.0f;
 
-		position = Point2::ZERO;
-		int ySpace = size.y;
+		position = Point32_t2::ZERO;
+		int32_t ySpace = size.y;
 		size.x = 0;
 
-		for (int i = 0; i < children.GetSize(); i++)
+		for (int32_t i = 0; i < children.GetSize(); i++)
 		{
 			Widget* child = children[i];
-			Point2 pos = position;
-			int occupiedSpace = 0;
+			Point32_t2 pos = position;
+			int32_t occupiedSpace = 0;
 			bool applyMargins = false;
 
 			switch (acceptedStatus[i])
@@ -350,7 +350,7 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 				case WSA_ACCEPTED:
 				{
 					//Use the suggested height
-					int height = (int)suggestedHeight;
+					int32_t height = (int32_t)suggestedHeight;
 					accumulator += roundupRemainder;
 					if (accumulator >= 0.9999f)
 					{
@@ -404,15 +404,15 @@ void StackLayout::OnArrange(Point2 position, Point2 size)
 
 void StackLayout::OnMeasureFitX()
 {
-	int msx = 0;
+	int32_t msx = 0;
 
 	const List<Widget*> children = GetChildren();
 
-	for (int i = 0; i < children.GetSize(); i++)
+	for (int32_t i = 0; i < children.GetSize(); i++)
 	{
 		Widget* child = children[i];
 
-		int w = child->GetMeasuredSize().x;
+		int32_t w = child->GetMeasuredSize().x;
 		if (child->GetMargins().left > 0)
 			w += child->GetMargins().left;
 		if (child->GetMargins().right > 0)
@@ -429,15 +429,15 @@ void StackLayout::OnMeasureFitX()
 
 void StackLayout::OnMeasureFitY()
 {
-	int msy = 0;
+	int32_t msy = 0;
 
 	const List<Widget*> children = GetChildren();
 
-	for (int i = 0; i < children.GetSize(); i++)
+	for (int32_t i = 0; i < children.GetSize(); i++)
 	{
 		Widget* child = children[i];
 
-		int h = child->GetMeasuredSize().y;
+		int32_t h = child->GetMeasuredSize().y;
 		if (child->GetMargins().top > 0)
 			h += child->GetMargins().top;
 		if (child->GetMargins().bottom > 0)

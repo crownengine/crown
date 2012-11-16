@@ -46,7 +46,7 @@ public:
 	 * If a resource with the same name already exists, the
 	 * already existent resource will be returned.
 	 * @param name The name of the resource
-	 * @return A pointer to the created resource
+	 * @return A point32_ter to the created resource
 	 */
 	Font* Create(const char* name, bool& created);
 
@@ -60,7 +60,7 @@ public:
 	 * @param filename The name of the file containing the resource
 	 * @param ttSize The size of characters in pixels
 	 * @param ttResolution The resolution of characters in DPI (Dots Per Inch)
-	 * @return A pointer to the loaded resource
+	 * @return A point32_ter to the loaded resource
 	 */
 	Font* Load(const char* name);
 

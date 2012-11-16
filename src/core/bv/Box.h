@@ -37,7 +37,7 @@ namespace crown
 /**
 	Axially aligned bounding box.
 
-	Used mainly for collision detection and intersection tests.
+	Used mainly for collision detection and int32_tersection tests.
 */
 class Box
 {
@@ -62,10 +62,10 @@ public:
 	real			get_radius() const;										//!< Returns the radius
 	real			get_volume() const;										//!< Returns the volume
 
-	void			add_point(const Vec3& p);								//!< Adds a point to the aabb
+	void			add_point32_t(const Vec3& p);								//!< Adds a point32_t to the aabb
 	void			add_box(const Box& box);								//!< Adds a Box to the aabb
 
-	bool			contains_point(const Vec3& p) const;					//!< Returns whether point "p" is contained
+	bool			contains_point32_t(const Vec3& p) const;					//!< Returns whether point32_t "p" is contained
 
 	Vec3			get_vertex(uint32_t index) const;							//!< Returns a box's vertex
 	void			get_transformed(const Mat4& mat, Box& result) const;	//!< Returns the box trasformed according to "mat" matrix
@@ -121,7 +121,7 @@ inline void Box::set_max(const Vec3& max)
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::add_point(const Vec3& p)
+inline void Box::add_point32_t(const Vec3& p)
 {
 	if (p.x < min.x)
 	{
@@ -189,7 +189,7 @@ inline void Box::add_box(const Box& box)
 }
 
 //-----------------------------------------------------------------------------
-inline bool Box::contains_point(const Vec3& p) const
+inline bool Box::contains_point32_t(const Vec3& p) const
 {
 	return (p.x > min.x && p.y > min.y && p.z > min.z &&
 		p.x < max.x && p.y < max.y && p.z < max.z);
@@ -290,7 +290,7 @@ inline void Box::get_transformed(const Mat4& mat, Box& result) const
 	for (uint32_t i = 1; i < 8; i++)
 	{
 		vertices[i] = mat * vertices[i];
-		result.add_point(vertices[i]);
+		result.add_point32_t(vertices[i]);
 	}
 }
 

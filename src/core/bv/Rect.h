@@ -38,7 +38,7 @@ class Circle;
 /**
 	2D rectangle.
 
-	Used mainly for collision detection and intersection tests.
+	Used mainly for collision detection and int32_tersection tests.
 */
 class Rect
 {
@@ -63,8 +63,8 @@ public:
 	real			get_area() const;						//!< Returns the area
 	Vec2			get_size() const;						//!< Returns the diagonal
 
-	bool			contains_point(const Vec2& point) const;//!< Returns whether "point" is contained
-	bool			intersects_rect(const Rect& r) const;	//!< Returns whether intersects "r"
+	bool			contains_point32_t(const Vec2& point32_t) const;//!< Returns whether "point32_t" is contained
+	bool			int32_tersects_rect(const Rect& r) const;	//!< Returns whether int32_tersects "r"
 	void			set_from_center_and_dimensions(Vec2 center, real width, real height);	//!< Sets the Rect from a center and a width - height
 	void			get_vertices(Vec2 v[4]) const;			//!< Returns the four rect's vertices
 	Vec2			get_vertex(uint32_t index) const;			//!< Returns a rect's vertex

@@ -32,9 +32,9 @@ class InputManager;
 
 struct TouchEvent
 {
-	int pointer_id;
-	int x;
-	int y;
+	int32_t point32_ter_id;
+	int32_t x;
+	int32_t y;
 };
 
 class TouchListener

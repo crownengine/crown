@@ -31,7 +31,7 @@ namespace crown
 /**
 	The game world.
 
-	World represents the place where interactions between all the
+	World represents the place where int32_teractions between all the
 	game entities occur. It holds the systems which 
 */
 class World
@@ -54,7 +54,7 @@ private:
 
 	float		mGravity;			// Gravity of the world in meters/seconds
 
-	Camera		mCamera;			// Camera (i.e. the point of view)
+	Camera		mCamera;			// Camera (i.e. the point32_t of view)
 	Skybox		mSkybox;			// The skybox
 };
 

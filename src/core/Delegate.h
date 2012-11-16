@@ -54,7 +54,7 @@ public:
 	 { mObject = static_cast<TClass*>(object); }
 
 	IDelegate<TResult>* Duplicate()
-	 { return new Delegate(mObject.GetPointer()); }
+	 { return new Delegate(mObject.GetPoint32_ter()); }
 
 protected:
 	TClass* mObject;
@@ -94,7 +94,7 @@ public:
 
 	virtual IDelegate<TResult>* Duplicate()
 	{
-		return new Delegate1(mObject.GetPointer(), mMethod, mDefaultArg0);
+		return new Delegate1(mObject.GetPoint32_ter(), mMethod, mDefaultArg0);
 	}
 
 	TArg0 GetDefaultArg0() const;
@@ -110,7 +110,7 @@ TResult Delegate1<TClass, TResult, TArg0>::Invoke()
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(mDefaultArg0);
+	return (mObject.GetPoint32_ter()->*mMethod)(mDefaultArg0);
 }
 
 template<typename TClass, typename TResult, typename TArg0>
@@ -118,7 +118,7 @@ TResult Delegate1<TClass, TResult, TArg0>::Invoke(TArg0 arg0)
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(arg0);
+	return (mObject.GetPoint32_ter()->*mMethod)(arg0);
 }
 
 template<typename TClass, typename TResult, typename TArg0>
@@ -164,7 +164,7 @@ public:
 
 	virtual IDelegate<TResult>* Duplicate()
 	{
-		return new Delegate2(mObject.GetPointer(), mMethod, mDefaultArg0, mDefaultArg1);
+		return new Delegate2(mObject.GetPoint32_ter(), mMethod, mDefaultArg0, mDefaultArg1);
 	}
 
 	TArg0 GetDefaultArg0() const;
@@ -182,7 +182,7 @@ TResult Delegate2<TClass, TResult, TArg0, TArg1>::Invoke()
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(mDefaultArg0, mDefaultArg1);
+	return (mObject.GetPoint32_ter()->*mMethod)(mDefaultArg0, mDefaultArg1);
 }
 
 template<typename TClass, typename TResult, typename TArg0, typename TArg1>
@@ -190,7 +190,7 @@ TResult Delegate2<TClass, TResult, TArg0, TArg1>::Invoke(TArg0 arg0)
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(arg0, mDefaultArg1);
+	return (mObject.GetPoint32_ter()->*mMethod)(arg0, mDefaultArg1);
 }
 
 template<typename TClass, typename TResult, typename TArg0, typename TArg1>
@@ -198,7 +198,7 @@ TResult Delegate2<TClass, TResult, TArg0, TArg1>::Invoke(TArg0 arg0, TArg1 arg1)
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(arg0, arg1);
+	return (mObject.GetPoint32_ter()->*mMethod)(arg0, arg1);
 }
 
 template<typename TClass, typename TResult, typename TArg0, typename TArg1>
@@ -249,7 +249,7 @@ public:
 
 	virtual IDelegate<TResult>* Duplicate()
 	{
-		return new Delegate3(mObject.GetPointer(), mMethod, mDefaultArg0, mDefaultArg1, mDefaultArg2);
+		return new Delegate3(mObject.GetPoint32_ter(), mMethod, mDefaultArg0, mDefaultArg1, mDefaultArg2);
 	}
 
 	TArg0 GetDefaultArg0() const;
@@ -269,7 +269,7 @@ TResult Delegate3<TClass, TResult, TArg0, TArg1, TArg2>::Invoke()
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(mDefaultArg0, mDefaultArg1, mDefaultArg2);
+	return (mObject.GetPoint32_ter()->*mMethod)(mDefaultArg0, mDefaultArg1, mDefaultArg2);
 }
 
 template<typename TClass, typename TResult, typename TArg0, typename TArg1, typename TArg2>
@@ -277,7 +277,7 @@ TResult Delegate3<TClass, TResult, TArg0, TArg1, TArg2>::Invoke(TArg0 arg0)
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(arg0, mDefaultArg1, mDefaultArg2);
+	return (mObject.GetPoint32_ter()->*mMethod)(arg0, mDefaultArg1, mDefaultArg2);
 }
 
 template<typename TClass, typename TResult, typename TArg0, typename TArg1, typename TArg2>
@@ -285,7 +285,7 @@ TResult Delegate3<TClass, TResult, TArg0, TArg1, TArg2>::Invoke(TArg0 arg0, TArg
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(arg0, arg1, mDefaultArg2);
+	return (mObject.GetPoint32_ter()->*mMethod)(arg0, arg1, mDefaultArg2);
 }
 
 template<typename TClass, typename TResult, typename TArg0, typename TArg1, typename TArg2>
@@ -293,7 +293,7 @@ TResult Delegate3<TClass, TResult, TArg0, TArg1, TArg2>::Invoke(TArg0 arg0, TArg
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(arg0, arg1, arg2);
+	return (mObject.GetPoint32_ter()->*mMethod)(arg0, arg1, arg2);
 }
 
 template<typename TClass, typename TResult, typename TArg0, typename TArg1, typename TArg2>
@@ -351,7 +351,7 @@ public:
 
 	virtual IDelegate<TResult>* Duplicate()
 	{
-		return new Delegate4(mObject.GetPointer(), mMethod, mDefaultArg0, mDefaultArg1, mDefaultArg2, mDefaultArg3);
+		return new Delegate4(mObject.GetPoint32_ter(), mMethod, mDefaultArg0, mDefaultArg1, mDefaultArg2, mDefaultArg3);
 	}
 
 	TArg0 GetDefaultArg0() const;
@@ -373,7 +373,7 @@ TResult Delegate4<TClass, TResult, TArg0, TArg1, TArg2, TArg3>::Invoke()
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(mDefaultArg0, mDefaultArg1, mDefaultArg2, mDefaultArg3);
+	return (mObject.GetPoint32_ter()->*mMethod)(mDefaultArg0, mDefaultArg1, mDefaultArg2, mDefaultArg3);
 }
 
 template<typename TClass, typename TResult, typename TArg0, typename TArg1, typename TArg2, typename TArg3>
@@ -381,7 +381,7 @@ TResult Delegate4<TClass, TResult, TArg0, TArg1, TArg2, TArg3>::Invoke(TArg0 arg
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(arg0, mDefaultArg1, mDefaultArg2, mDefaultArg3);
+	return (mObject.GetPoint32_ter()->*mMethod)(arg0, mDefaultArg1, mDefaultArg2, mDefaultArg3);
 }
 
 template<typename TClass, typename TResult, typename TArg0, typename TArg1, typename TArg2, typename TArg3>
@@ -389,7 +389,7 @@ TResult Delegate4<TClass, TResult, TArg0, TArg1, TArg2, TArg3>::Invoke(TArg0 arg
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(arg0, arg1, mDefaultArg2, mDefaultArg3);
+	return (mObject.GetPoint32_ter()->*mMethod)(arg0, arg1, mDefaultArg2, mDefaultArg3);
 }
 
 template<typename TClass, typename TResult, typename TArg0, typename TArg1, typename TArg2, typename TArg3>
@@ -397,7 +397,7 @@ TResult Delegate4<TClass, TResult, TArg0, TArg1, TArg2, TArg3>::Invoke(TArg0 arg
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(arg0, arg1, arg2, mDefaultArg3);
+	return (mObject.GetPoint32_ter()->*mMethod)(arg0, arg1, arg2, mDefaultArg3);
 }
 
 template<typename TClass, typename TResult, typename TArg0, typename TArg1, typename TArg2, typename TArg3>
@@ -405,7 +405,7 @@ TResult Delegate4<TClass, TResult, TArg0, TArg1, TArg2, TArg3>::Invoke(TArg0 arg
 {
 	if (mObject.IsNull() || mMethod == NULL)
 		return TResult();
-	return (mObject.GetPointer()->*mMethod)(arg0, arg1, arg2, arg3);
+	return (mObject.GetPoint32_ter()->*mMethod)(arg0, arg1, arg2, arg3);
 }
 
 template<typename TClass, typename TResult, typename TArg0, typename TArg1, typename TArg2, typename TArg3>

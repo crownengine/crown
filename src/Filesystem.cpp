@@ -287,7 +287,7 @@ void Filesystem::Close(Stream* stream)
 }
 
 //-----------------------------------------------------------------------------
-void Filesystem::PrintReport()
+void Filesystem::Print32_tReport()
 {
 	Log::I("--- Filesystem report ---");
 	Log::I("Path separator\t: '/'");
@@ -566,7 +566,7 @@ const char* Filesystem::GetExtension(const char* relativePath)
 
 	static char extension[32];
 
-	int i = Str::FindLast(relativePath, '.');
+	int32_t i = Str::FindLast(relativePath, '.');
 
 	if (i == -1)
 	{

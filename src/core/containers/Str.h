@@ -50,7 +50,7 @@ public:
 	Str(const char* str);
 
 	//! Constructor
-	explicit Str(int n);
+	explicit Str(int32_t n);
 
 	//! Constructor
 	explicit Str(uint32_t n);
@@ -70,25 +70,25 @@ public:
 	//! Returns the Str's length
 	uint32_t GetLength() const;
 
-	//! Provides an interface for accessing Str's elements through an index
+	//! Provides an int32_terface for accessing Str's elements through an index
 	char operator[](uint32_t index) const;
 
 	Str& operator=(const Str& Str);
 	Str& operator=(char c);
 	Str& operator=(const char* str);
-	Str& operator=(int n);
+	Str& operator=(int32_t n);
 	Str& operator=(uint32_t n);
 	Str& operator=(float n);
 
 	Str operator+(const Str& b) const;
 	Str operator+(const char* str) const;
-	Str operator+(int n) const;
+	Str operator+(int32_t n) const;
 	Str operator+(uint32_t n) const;
 	Str operator+(float n) const;
 
 	Str& operator+=(const Str& b);
 	Str& operator+=(const char* str);
-	Str& operator+=(int n);
+	Str& operator+=(int32_t n);
 	Str& operator+=(uint32_t n);
 	Str& operator+=(float n);
 
@@ -119,13 +119,13 @@ public:
 	bool EndsWith(const Str& end) const;
 
 	//! Returns the index of the first occurrence of a character in this Str or -1 if not found
-	int FindFirst(char ch) const;
+	int32_t FindFirst(char ch) const;
 
 	//! Returns the index of the last occurrence of a character in this Str or -1 if not found
-	int FindLast(char ch) const;
+	int32_t FindLast(char ch) const;
 
 	//! Returns the index of the first occurrence of Str in this Str or -1 if not found
-	int Find(const Str& Str) const;
+	int32_t Find(const Str& Str) const;
 
 	//! Returns the subStr of this Str starting at position 'start' and ending at position 'end - 1'
 	Str GetSubstring(uint32_t start, uint32_t end) const;
@@ -146,7 +146,7 @@ public:
 	Str Trim();
 
 	//! Returns the number of occurrence of char 'ch' 
-	int GetOccurrenceCount(char ch) const;
+	int32_t GetOccurrenceCount(char ch) const;
 
 	char* c_str() const;
 
@@ -167,14 +167,14 @@ public:
 	static bool				IsWhitespace(char c);
 
 	static size_t			StrLen(const char* str);
-	static const char*		StrStr(const char* str1, const char* str2);
-	static int				StrCmp(const char* str1, const char* str2);
+	static const char*	StrStr(const char* str1, const char* str2);
+	static int32_t			StrCmp(const char* str1, const char* str2);
 	static char*			StrCpy(char* dest, const char* src);
 
-	static int				FindFirst(const char* str, char c);
-	static int				FindLast(const char* str, char c);
+	static int32_t			FindFirst(const char* str, char c);
+	static int32_t			FindLast(const char* str, char c);
 
-	bool					ParseInt(int* value) const;
+	bool					ParseInt(int32_t* value) const;
 	bool					ParseUInt(uint32_t* value) const;
 	bool					ParseFloat(float* value) const;
 
@@ -203,7 +203,7 @@ inline Str::Str(const char* str) : mLength(0), mText(0)
 	*this = str;
 }
 
-inline Str::Str(int n) : mLength(0), mText(0)
+inline Str::Str(int32_t n) : mLength(0), mText(0)
 {
 	*this = n;
 }
@@ -331,7 +331,7 @@ inline Str& Str::operator=(const char* str)
 	return *this;
 }
 
-inline Str& Str::operator=(int n)
+inline Str& Str::operator=(int32_t n)
 {
 	char tmp[12] = {0};
 	bool negative = false;
@@ -415,7 +415,7 @@ inline Str Str::operator+(const char* str) const
 	return *this + Str(str);
 }
 
-inline Str Str::operator+(int n) const
+inline Str Str::operator+(int32_t n) const
 {
 	return *this + Str(n);
 }
@@ -442,7 +442,7 @@ inline Str& Str::operator+=(const char* str)
 	return *this;
 }
 
-inline Str& Str::operator+=(int n)
+inline Str& Str::operator+=(int32_t n)
 {
 	*this = *this + n;
 	return *this;
@@ -569,7 +569,7 @@ inline bool Str::EndsWith(const Str& end) const
 	return true;
 }
 
-inline int Str::FindFirst(char ch) const
+inline int32_t Str::FindFirst(char ch) const
 {
 	for (uint32_t i = 0; i < mLength; i++)
 	{
@@ -582,7 +582,7 @@ inline int Str::FindFirst(char ch) const
 	return -1;
 }
 
-inline int Str::FindLast(char ch) const
+inline int32_t Str::FindLast(char ch) const
 {
 	for (uint32_t i = mLength; i > 0; i--)
 	{
@@ -595,7 +595,7 @@ inline int Str::FindLast(char ch) const
 	return -1;
 }
 
-inline int Str::Find(const Str& Str) const
+inline int32_t Str::Find(const Str& Str) const
 {
 	bool found = true;
 
@@ -744,8 +744,8 @@ inline void Str::Split(char ch, List<Str>& split) const
 
 inline Str Str::Trim()
 {
-	int beginIndex = 0;
-	int endIndex = mLength - 1;
+	int32_t beginIndex = 0;
+	int32_t endIndex = mLength - 1;
 
 	while (Str::IsWhitespace(mText[beginIndex]))
 	{
@@ -760,9 +760,9 @@ inline Str Str::Trim()
 	return GetSubstring(beginIndex, endIndex + 1);
 }
 
-inline int Str::GetOccurrenceCount(char ch) const
+inline int32_t Str::GetOccurrenceCount(char ch) const
 {
-	int count = 0;
+	int32_t count = 0;
 
 	for (uint32_t i = 0; i < mLength; i++)
 	{
@@ -785,7 +785,7 @@ inline Str operator+(const char* str, const Str& string)
 	return Str(str) + string;
 }
 
-inline bool Str::ParseInt(int* value) const
+inline bool Str::ParseInt(int32_t* value) const
 {
 	if (sscanf(mText, "%d", value) != 1)
 	{
@@ -939,7 +939,7 @@ inline const char* Str::StrStr(const char* str1, const char* str2)
 }
 
 //-----------------------------------------------------------------------------
-inline int Str::StrCmp(const char* str1, const char* str2)
+inline int32_t Str::StrCmp(const char* str1, const char* str2)
 {
 	return strcmp(str1, str2);
 }
@@ -951,7 +951,7 @@ inline char* Str::StrCpy(char* dest, const char* src)
 }
 
 //-----------------------------------------------------------------------------
-inline int Str::FindFirst(const char* str, char c)
+inline int32_t Str::FindFirst(const char* str, char c)
 {
 	assert(str != NULL);
 
@@ -969,7 +969,7 @@ inline int Str::FindFirst(const char* str, char c)
 }
 
 //-----------------------------------------------------------------------------
-inline int Str::FindLast(const char* str, char c)
+inline int32_t Str::FindLast(const char* str, char c)
 {
 	assert(str != NULL);
 

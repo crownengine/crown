@@ -32,7 +32,7 @@ namespace crown
 {
 
 /**
-	Implementation of Keyboard interface for Windows.
+	Implementation of Keyboard int32_terface for Windows.
 */
 class WinKeyboard : public Keyboard
 {
@@ -66,7 +66,7 @@ public:
 
 private:
 
-	Key TranslateKey(int winKey);
+	Key TranslateKey(int32_t winKey);
 
 	uint32_t mModifierMask;
 	bool mKeyState[MAX_KEYCODES];

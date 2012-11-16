@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "SpecificProperties.h"
 #include "Log.h"
-#include "Point2.h"
+#include "Point32_t2.h"
 #include "XMLReader.h"
 
 namespace Crown
@@ -56,7 +56,7 @@ bool DeserializeFromStr(Margins& out, Str& input)
 	return true;
 }
 
-IntProperty::IntProperty(const Str& name, int* valuePtr):
+IntProperty::IntProperty(const Str& name, int32_t* valuePtr):
 	Property(name), mValuePtr(valuePtr)
 {
 
@@ -152,28 +152,28 @@ void FloatProperty::SetValue(const Generic& value)
 	}
 }
 
-Point2Property::Point2Property(const Str& name, Point2* valuePtr):
+Point32_t2Property::Point32_t2Property(const Str& name, Point32_t2* valuePtr):
 	Property(name), mValuePtr(valuePtr)
 {
 
 }
 
-PropertyType Point2Property::GetType() const
+PropertyType Point32_t2Property::GetType() const
 {
-	return PT_Point2;
+	return PT_Point32_t2;
 }
 
-Generic Point2Property::GetValue() const
+Generic Point32_t2Property::GetValue() const
 {
 	return Generic(SerializeToStr(*mValuePtr));
 }
 
-void Point2Property::SetValue(const Generic& value)
+void Point32_t2Property::SetValue(const Generic& value)
 {
 	Str val = value.asStr();
 	if (!DeserializeFromStr(*mValuePtr, (Str&)val))
 	{
-		Log::E("Value not valid for Point2 property '" + GetName() + "'");
+		Log::E("Value not valid for Point32_t2 property '" + GetName() + "'");
 	}
 }
 
@@ -279,7 +279,7 @@ void IWithPropertiesProperty::SetValue(const Generic& value)
 	IWithProperties* castedValue = NULL;
 	if (!value.asType<IWithProperties*>(&castedValue))
 	{
-		Log::E("The IWithPropertiesProperty wants an object implementing the interface IWithProperties");
+		Log::E("The IWithPropertiesProperty wants an object implementing the int32_terface IWithProperties");
 		return;		
 	}
 
@@ -299,7 +299,7 @@ void IWithPropertiesProperty::SetValue(const Generic& value)
 
 //Generic GenericListProperty::GetValue() const
 //{
-//	return Generic(mValuePtr->GetPointer());
+//	return Generic(mValuePtr->GetPoint32_ter());
 //}
 
 //void GenericListProperty::SetValue(const Generic& value)
@@ -320,7 +320,7 @@ void IWithPropertiesProperty::SetValue(const Generic& value)
 //}
 
 
-EnumProperty::EnumProperty(const Str& name, int* valuePtr):
+EnumProperty::EnumProperty(const Str& name, int32_t* valuePtr):
 	Property(name), mValuePtr(valuePtr)
 {
 
@@ -336,7 +336,7 @@ Generic EnumProperty::GetValue() const
 	return Generic(*mValuePtr);
 }
 
-void EnumProperty::AddValueMapping(const Str& valueName, int enumValue)
+void EnumProperty::AddValueMapping(const Str& valueName, int32_t enumValue)
 {
 	EnumPropertyPair pair = {valueName, enumValue};
 	mValuesMapping.Append(pair);
@@ -345,7 +345,7 @@ void EnumProperty::AddValueMapping(const Str& valueName, int enumValue)
 void EnumProperty::SetValue(const Generic& value)
 {
 	const Str& strValue = value.asStr();
-	for(int i = 0; i < mValuesMapping.GetSize(); i++)
+	for(int32_t i = 0; i < mValuesMapping.GetSize(); i++)
 	{
 		if (strValue == mValuesMapping[i].valueName)
 		{

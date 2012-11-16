@@ -73,7 +73,7 @@ MulticastEvent<TSource, TArg1>::MulticastEvent()
 template <typename TSource, typename TArg1>
 MulticastEvent<TSource, TArg1>::~MulticastEvent()
 {
-	for (int i=0; i<mHandlers.GetSize(); i++)
+	for (int32_t i=0; i<mHandlers.GetSize(); i++)
 	{
 		delete mHandlers[i];
 	}
@@ -82,7 +82,7 @@ MulticastEvent<TSource, TArg1>::~MulticastEvent()
 template <typename TSource, typename TArg1>
 void MulticastEvent<TSource, TArg1>::Fire(TSource* source, TArg1 arg1)
 {
-	for (int i=0; i<mHandlers.GetSize(); i++)
+	for (int32_t i=0; i<mHandlers.GetSize(); i++)
 	{
 		HandlerType* handler = mHandlers[i];
 		handler->Invoke(source, arg1);

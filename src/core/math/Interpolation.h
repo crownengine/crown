@@ -37,55 +37,55 @@ class Interpolation
 public:
 
 							/**
-								linear interpolation between a pair of values.
+								linear int32_terpolation between a pair of values.
 							@param start
 								The start value
 							@param end
 								The end value
 							@param t
-								An interval ranging from 0.0 to 1.0
+								An int32_terval ranging from 0.0 to 1.0
 							@return
-								The interpolated value
+								The int32_terpolated value
 							*/
 	template <typename T>
 	static T				linear(const T& p0, const T& p1, real t);
 
 							/**
-								cosine interpolation between a pair of values.
+								cosine int32_terpolation between a pair of values.
 							@param start
 								The start value
 							@param end
 								The end value
 							@param t
-								An interval ranging from 0.0 to 1.0
+								An int32_terval ranging from 0.0 to 1.0
 							@return
-								The interpolated value
+								The int32_terpolated value
 							*/
 	template <typename T>
 	static T				cosine(const T& p0, const T& p1, real t);
 
 							/**
-								cubic interpolation between a pair of values.
+								cubic int32_terpolation between a pair of values.
 							@param start
 								The start value
 							@param end
 								The end value
 							@param t
-								An interval ranging from 0.0 to 1.0
+								An int32_terval ranging from 0.0 to 1.0
 							@return
-								The interpolated value
+								The int32_terpolated value
 							*/
 	template <typename T>
 	static T				cubic(const T& p0, const T& p1, real t);
 
 							/**
-								bezier interpolation.
+								bezier int32_terpolation.
 							*/
 	template <typename T>
 	static T				bezier(const T& p1, const T& p2, const T& p3, const T& p4, real t);
 
 							/**
-								Catmull-Rom spline interpolation.
+								Catmull-Rom spline int32_terpolation.
 							*/
 	template <typename T>
 	static T				catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, real t);

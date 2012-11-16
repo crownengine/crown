@@ -50,7 +50,7 @@ struct FilesystemEntry
 	{
 	}
 
-	void PrintReport()
+	void Print32_tReport()
 	{
 		Log::I("OSPath\t\t: %s", osPath.c_str());
 		Log::I("RelPath\t\t: %s", relativePath.c_str());
@@ -73,7 +73,7 @@ class Stream;
 	Accessing files:
 	Every file and every directory is accessed through the filesystem.
 	Not a single C/C++ std file io call should be used in any other part
-	of the engine in order to maintain platform independence.
+	of the engine in order to maint32_tain platform independence.
 
 	Pathnames:
 	Only unix-like pathnames (i.e. case sensitive and using '/' as separator)
@@ -135,7 +135,7 @@ public:
 
 	void				Close(Stream* stream);
 
-	void				PrintReport();
+	void				Print32_tReport();
 
 	static bool			IsValidSegment(const char* segment);
 	static bool			IsValidPath(const char* path);

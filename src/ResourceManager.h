@@ -52,25 +52,25 @@ public:
 	void		Unload(const char* name, bool reload);
 
 	Resource*	GetByName(const char* name);
-	int			GetResourceCount() const;
+	int32_t		GetResourceCount() const;
 
 	/**
 	 * Creates a generic resource with the given name.
 	 * If a resource with the same name already exists, the
 	 * already existent resource will be returned. In order
 	 * to distinguish between a newly created resource or a
-	 * pointer to an existing one, you have to check
+	 * point32_ter to an existing one, you have to check
 	 * at the value returned by 'created'.
 	 * @param name The name of the resource
 	 * @param created Returns true if newly created, false otherwise
-	 * @return A pointer to the created resource
+	 * @return A point32_ter to the created resource
 	 */
 
 	/**
 	 * Loads a generic resource from file.
 	 * The name of the file determines the name of the resource and vice-versa.
 	 * @param name Tha name of the resource
-	 * @return A pointer to the loaded resource
+	 * @return A point32_ter to the loaded resource
 	 */
 
 	/**
@@ -84,7 +84,7 @@ public:
 	/**
 	 * Destroys a generic resource with the given name.
 	 * Causes the manager to remove the resource from its
-	 * internal list.
+	 * int32_ternal list.
 	 * @note Destroying here is a misleading term since the
 	 * resource is not destroyed if there are other references
 	 * to it.
@@ -93,9 +93,9 @@ public:
 
 	/**
 	 * Returns a resource by its name.
-	 * If the resource does not exists, returns a null pointer.
+	 * If the resource does not exists, returns a null point32_ter.
 	 * @param name The name of the resource
-	 * @return A pointer to the resource
+	 * @return A point32_ter to the resource
 	 */
 
 	/**
@@ -111,7 +111,7 @@ protected:
 	virtual Resource*	CreateSpecific(const char* name) = 0;
 	virtual void		DestroySpecific(const char* name);
 
-	// Resource name -> Resource pointer
+	// Resource name -> Resource point32_ter
 	NameToResourceDict	mNameToResourceDict;
 };
 

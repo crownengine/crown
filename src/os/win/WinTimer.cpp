@@ -92,7 +92,7 @@ uint64_t Timer::GetMicroseconds() const
 	}
 
 	//I'm using doubles here because if the timer isn't precise, it's always going to say
-	//0us because of the integer calculus.
+	//0us because of the int32_teger calculus.
 	return (uint64_t)((currentTime - mCreationTime) / (mFrequency/1000000.0));
 }
 
@@ -151,7 +151,7 @@ uint64_t Timer::StopMicroseconds() const
 	}
 
 	//I'm using doubles here because if the timer isn't precise, it's always going to say
-	//0us because of the integer calculus.
+	//0us because of the int32_teger calculus.
 	return (uint64_t)((currentTime - mStartTime) / (mFrequency/1000000.0));
 }
 

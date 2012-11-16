@@ -45,7 +45,7 @@ Mesh::Mesh() :
 
 Mesh::~Mesh()
 {
-	for (int i = 0; i < mMeshChunkList.size(); i++)
+	for (int32_t i = 0; i < mMeshChunkList.size(); i++)
 	{
 		delete mMeshChunkList[i];
 	}

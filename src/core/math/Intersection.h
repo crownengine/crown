@@ -88,7 +88,7 @@ class Intersection
 
 public:
 
-	static bool TestRayPlane(const Ray& r, const Plane& p, real& distance, Vec3& intersectionPoint);
+	static bool TestRayPlane(const Ray& r, const Plane& p, real& distance, Vec3& inttersectionPoint_t);
 	static bool TestRaySphere(const Ray& r, const Sphere& s, real& distance, Vec3& intersectionPoint);
 	static bool TestRayBox(const Ray& r, const Box& b, real& distance, Vec3& intersectionPoint);
 	static bool TestRayTriangle(const Ray& r, const Triangle& t, real& distance, Vec3& intersectionPoint);
@@ -207,7 +207,7 @@ inline bool Intersection::TestRayBox(const Ray& r, const Box& b, real& distance,
 		}
 	}
 
-	// Possibly intersects
+	// Possibly int32_tersects
 	return true;
 
 	// TODO
@@ -218,7 +218,7 @@ inline bool Intersection::TestRayTriangle(const Ray& r, const Triangle& t, real&
 {
 	if (Intersection::TestRayPlane(r, t.to_plane(), distance, intersectionPoint))
 	{
-		if (t.contains_point(intersectionPoint))
+		if (t.contains_point32_t(intersectionPoint))
 		{
 			return true;
 		}
@@ -250,7 +250,7 @@ inline bool Intersection::TestPlane3(const Plane& p1, const Plane& p2, const Pla
 //-----------------------------------------------------------------------------
 inline bool Intersection::TestStaticSpherePlane(const Sphere& s, const Plane& p)
 {
-	if (math::abs(p.get_distance_to_point(s.c)) < s.r)
+	if (math::abs(p.get_distance_to_point32_t(s.c)) < s.r)
 	{
 		return true;
 	}
@@ -271,10 +271,10 @@ inline bool Intersection::TestDynamicSpherePlane(const Sphere& s, const Vec3& d,
 	const Vec3& sphereCenter = s.c;
 	const real sphereRadius = s.r;
 
-	real t0;	// Time at which the sphere intersects the plane remaining at the front side of the plane
-	real t1;	// Time at which the sphere intersects the plane remaining at the back side of the plane
+	real t0;	// Time at which the sphere int32_tersects the plane remaining at the front side of the plane
+	real t1;	// Time at which the sphere int32_tersects the plane remaining at the back side of the plane
 
-	real sphereToPlaneDistance = p.get_distance_to_point(sphereCenter);
+	real sphereToPlaneDistance = p.get_distance_to_point32_t(sphereCenter);
 	real planeNormalDotVelocity = p.n.dot(d);
 
 	if (planeNormalDotVelocity > 0.0)
@@ -325,8 +325,8 @@ inline bool Intersection::TestDynamicSphereTriangle(const Sphere& s, const Vec3&
 		return false;
 	}
 
-	// Check if the intersection point lies inside the triangle
-	if (tri.contains_point(intersectionPoint))
+	// Check if the int32_tersection point32_t lies inside the triangle
+	if (tri.contains_point32_t(intersectionPoint))
 	{
 		it = spherePlaneIt;
 		// intersectionPoint is already returned by the above call to TestDynamicSpherePlane
@@ -477,7 +477,7 @@ inline bool Intersection::TestDynamicSphereSphere(const Sphere& s1, const Vec3& 
 	Vec3 e = cs - cm;
 	real r = s1.r + s2.r;
 
-	// If ||e|| < r, intersection occurs at t = 0
+	// If ||e|| < r, int32_tersection occurs at t = 0
 	if (e.length() < r)
 	{
 		it = 0.0;
@@ -488,7 +488,7 @@ inline bool Intersection::TestDynamicSphereSphere(const Sphere& s1, const Vec3& 
 	real ed = e.dot(d);
 	real squared = (ed * ed) + (r * r) - e.dot(e);
 
-	// If the value inside the square root is neg, then no intersection
+	// If the value inside the square root is neg, then no int32_tersection
 	if (squared < 0.0)
 	{
 		return false;
@@ -497,7 +497,7 @@ inline bool Intersection::TestDynamicSphereSphere(const Sphere& s1, const Vec3& 
 	real t = ed - math::sqrt(squared);
 	real l = (d2 - d1).length();
 
-	// If t < 0 || t > l, then non intersection in the considered period of time
+	// If t < 0 || t > l, then non int32_tersection in the considered period of time
 	if (t < 0.0 || t > l)
 	{
 		return false;
@@ -535,12 +535,12 @@ inline bool Intersection::TestDynamicBoxBox(const Box& b1, const Vec3& v1, const
 	// b2 == moving box
 	Vec3 d = v2 - v1;
 
-	// Start time of intersection along each axis
+	// Start time of int32_tersection aint64_t each axis
 	Vec3 tEnterXYZ(0.0, 0.0, 0.0);
-	// Stop time of intersection along each axis
+	// Stop time of int32_tersection aint64_t each axis
 	Vec3 tLeaveXYZ(1.0, 1.0, 1.0);
 
-	// If the resulting displacement equals zero, then fallback to static intersection test
+	// If the resulting displacement equals zero, then fallback to static int32_tersection test
 	if (math::equals(d.x, (real)0.0))
 	{
 		if (b1.min.x > b2.max.x || b1.max.x < b2.min.x)
@@ -565,7 +565,7 @@ inline bool Intersection::TestDynamicBoxBox(const Box& b1, const Vec3& v1, const
 		}
 	}
 
-	// Otherwise, compute the enter/leave times along each axis
+	// Otherwise, compute the enter/leave times aint64_t each axis
 	real oneOverD = (real)(1.0 / d.x);
 	tEnterXYZ.x = (b1.min.x - b2.max.x) * oneOverD;
 	tLeaveXYZ.x = (b1.max.x - b2.min.x) * oneOverD;
@@ -597,7 +597,7 @@ inline bool Intersection::TestDynamicBoxBox(const Box& b1, const Vec3& v1, const
 	real tEnter = math::max(tEnterXYZ.x, math::max(tEnterXYZ.y, tEnterXYZ.z));
 	real tLeave = math::min(tLeaveXYZ.x, math::min(tLeaveXYZ.y, tLeaveXYZ.z));
 
-	// If tEnter > 1, then there is no intersection in the period
+	// If tEnter > 1, then there is no int32_tersection in the period
 	// of time cosidered
 	if (tEnter > 1.0)
 	{
@@ -612,17 +612,17 @@ inline bool Intersection::TestDynamicBoxBox(const Box& b1, const Vec3& v1, const
 //-----------------------------------------------------------------------------
 inline bool Intersection::TestFrustumSphere(const Frustum& f, const Sphere& s)
 {
-	if (f.mPlane[0].get_distance_to_point(s.c) < -s.r || f.mPlane[1].get_distance_to_point(s.c) < -s.r)
+	if (f.mPlane[0].get_distance_to_point32_t(s.c) < -s.r || f.mPlane[1].get_distance_to_point32_t(s.c) < -s.r)
 	{
 		return false;
 	}
 
-	if (f.mPlane[2].get_distance_to_point(s.c) < -s.r || f.mPlane[3].get_distance_to_point(s.c) < -s.r)
+	if (f.mPlane[2].get_distance_to_point32_t(s.c) < -s.r || f.mPlane[3].get_distance_to_point32_t(s.c) < -s.r)
 	{
 		return false;
 	}
 
-	if (f.mPlane[4].get_distance_to_point(s.c) < -s.r || f.mPlane[5].get_distance_to_point(s.c) < -s.r)
+	if (f.mPlane[4].get_distance_to_point32_t(s.c) < -s.r || f.mPlane[5].get_distance_to_point32_t(s.c) < -s.r)
 	{
 		return false;
 	}
@@ -641,20 +641,20 @@ inline bool Intersection::TestFrustumBox(const Frustum& f, const Box& b)
 
 		for (uint32_t j = 0; j < 8; j++)
 		{
-			if (f.mPlane[i].get_distance_to_point(b.get_vertex(j)) < 0.0)
+			if (f.mPlane[i].get_distance_to_point32_t(b.get_vertex(j)) < 0.0)
 			{
 				vertexOutCount++;
 			}
 		}
 
-		// If all vertices are outside one face, then the box doesn't intersect the frustum
+		// If all vertices are outside one face, then the box doesn't int32_tersect the frustum
 		if (vertexOutCount == 8)
 		{
 			return false;
 		}
 	}
 
-	// If we are here, is because either the box intersects or it is contained in the frustum
+	// If we are here, is because either the box int32_tersects or it is contained in the frustum
 	return true;
 }
 
@@ -695,7 +695,7 @@ inline bool Intersection::TestDynamicCircleCircle(const Circle& c1, const Vec2& 
 	Vec2 e = cs - cm;
 	real r = c1.r + c2.r;
 
-	// If ||e|| < r, intersection occurs at t = 0
+	// If ||e|| < r, int32_tersection occurs at t = 0
 	if (e.length() < r)
 	{
 		it = 0.0;
@@ -706,7 +706,7 @@ inline bool Intersection::TestDynamicCircleCircle(const Circle& c1, const Vec2& 
 	real ed = e.dot(d);
 	real squared = (ed * ed) + (r * r) - e.dot(e);
 
-	// If the value inside the square root is neg, then no intersection
+	// If the value inside the square root is neg, then no int32_tersection
 	if (squared < 0.0)
 	{
 		return false;
@@ -715,7 +715,7 @@ inline bool Intersection::TestDynamicCircleCircle(const Circle& c1, const Vec2& 
 	real t = ed - math::sqrt(squared);
 	real l = (d2 - d1).length();
 
-	// If t < 0 || t > l, then non intersection in the considered period of time
+	// If t < 0 || t > l, then non int32_tersection in the considered period of time
 	if (t < 0.0 || t > l)
 	{
 		return false;
@@ -840,7 +840,7 @@ inline bool Intersection::TestCircleRect(const Circle& c1, const Rect& r2, Vec2&
 		{
 			return false;
 		}
-		//The - is to point outwards
+		//The - is to point32_t outwards
 		penetration *= - (c1.r - len) / len;
 	}
 

@@ -111,10 +111,10 @@ bool EGLRenderWindow::Create(uint32_t x, uint32_t y, uint32_t width, uint32_t he
 	xattr.override_redirect = False;
 	XChangeWindowAttributes (mXDisplay, mXWindow, CWOverrideRedirect, &xattr);
 
-	XWMHints hints;
-	hints.input = True;
-	hints.flags = InputHint;
-	XSetWMHints(mXDisplay, mXWindow, &hints);
+	XWMHint32_ts hint32_ts;
+	hint32_ts.input = True;
+	hint32_ts.flags = InputHint32_t;
+	XSetWMHint32_ts(mXDisplay, mXWindow, &hint32_ts);
 
 	XMapRaised(mXDisplay, mXWindow);
 	XStoreName (mXDisplay, mXWindow, "GL test" );
@@ -281,13 +281,13 @@ void EGLRenderWindow::_NotifyMetricsChange(uint32_t x, uint32_t y, uint32_t widt
 	XWindowAttributes attribs;
 	XGetWindowAttributes(mXDisplay, mXWindow, &attribs);
 
-	if (attribs.x == (int)x && attribs.y == (int)y)
+	if (attribs.x == (int32_t)x && attribs.y == (int32_t)y)
 	{
 		mX = x;
 		mY = y;
 	}
 
-	if (attribs.width == (int)width && attribs.height == (int)height)
+	if (attribs.width == (int32_t)width && attribs.height == (int32_t)height)
 	{
 		mWidth = width;
 		mHeight = height;

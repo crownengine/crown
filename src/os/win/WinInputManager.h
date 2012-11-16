@@ -71,9 +71,9 @@ public:
 	@return
 		The Window Handle
 	*/
-	inline unsigned long GetWindowHandle()
+	inline unsigned int64_t GetWindowHandle()
 	{
-		return (unsigned long)mWindowHandle;
+		return (unsigned int64_t)mWindowHandle;
 	}
 
 private:

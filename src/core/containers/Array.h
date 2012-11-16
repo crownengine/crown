@@ -51,10 +51,10 @@ public:
 	const T&				operator[](uint32_t index) const;
 
 	bool					empty() const;
-	uint32_t					size() const;
-	uint32_t					get_capacity() const;
+	uint32_t				size() const;
+	uint32_t				get_capacity() const;
 
-	uint32_t					push_back(const T& item);
+	uint32_t				push_back(const T& item);
 	void					pop_back();
 
 	void					clear();
@@ -69,7 +69,7 @@ public:
 private:
 
 	Allocator*				m_allocator;
-	uint32_t					m_count;			// The number of items
+	uint32_t				m_count;			// The number of items
 	T						m_array[SIZE];
 };
 
@@ -195,7 +195,7 @@ inline void Array<T, SIZE>::clear()
 }
 
 /**
-	Copies the content of other list into this.
+	Copies the content of other list int32_to this.
 */
 template <typename T, uint32_t SIZE>
 inline const Array<T, SIZE>& Array<T, SIZE>::operator=(const Array<T, SIZE>& b)

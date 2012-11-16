@@ -42,8 +42,8 @@ class WindowContext;
 class Window : public Widget
 {
 public:
-	Window(WindowsManager* wm, int width, int height, Str title);
-	Window(WindowsManager* wm, int x, int y, int width, int height, Str title);
+	Window(WindowsManager* wm, int32_t width, int32_t height, Str title);
+	Window(WindowsManager* wm, int32_t x, int32_t y, int32_t width, int32_t height, Str title);
 	virtual ~Window();
 
 	inline WindowsManager* GetWindowsManager()
@@ -81,9 +81,9 @@ private:
 	bool mIsDoingModal;
 	WindowContext* mWindowContext;
 
-	static Point2 mDefaultPosition;
+	static Point32_t2 mDefaultPosition;
 
-	void InitWindow(int x, int y, int width, int height, Str title);
+	void InitWindow(int32_t x, int32_t y, int32_t width, int32_t height, Str title);
 
 	friend class WindowsManager;
 	friend class WindowContext;

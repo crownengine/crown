@@ -39,14 +39,14 @@ class XMLNode;
 class IntProperty: public Property
 {
 public:
-	IntProperty(const Str& name, int* valuePtr);
+	IntProperty(const Str& name, int32_t* valuePtr);
 
 	PropertyType GetType() const;
 	Generic GetValue() const;
 	void SetValue(const Generic& value);
 
 private:
-	int* mValuePtr;
+	int32_t* mValuePtr;
 };
 
 class UIntProperty: public Property
@@ -88,17 +88,17 @@ private:
 	float* mValuePtr;
 };
 
-class Point2Property: public Property
+class Point32_t2Property: public Property
 {
 public:
-	Point2Property(const Str& name, Point2* valuePtr);
+	Point32_t2Property(const Str& name, Point32_t2* valuePtr);
 
 	PropertyType GetType() const;
 	Generic GetValue() const;
 	void SetValue(const Generic& value);
 
 private:
-	Point2* mValuePtr;
+	Point32_t2* mValuePtr;
 };
 
 class StrProperty: public Property
@@ -169,19 +169,19 @@ private:
 class EnumProperty: public Property
 {
 public:
-	EnumProperty(const Str& name, int* valuePtr);
+	EnumProperty(const Str& name, int32_t* valuePtr);
 
 	PropertyType GetType() const;
 	Generic GetValue() const;
 	void SetValue(const Generic& value);
 
-	void AddValueMapping(const Str& valueName, int enumValue);
+	void AddValueMapping(const Str& valueName, int32_t enumValue);
 
 private:
 	struct EnumPropertyPair
 	{
 		Str valueName;
-		int enumValue;
+		int32_t enumValue;
 
 		bool operator==(const EnumPropertyPair& other)
 		{
@@ -189,7 +189,7 @@ private:
 		}
 	};
 
-	int* mValuePtr;
+	int32_t* mValuePtr;
 	List<EnumPropertyPair> mValuesMapping;
 };
 
@@ -242,7 +242,7 @@ bool ActionProperty<TSource, TArg1>::FindActionAndAddToEvent(const Str& actionSt
 
 	Auto<List<Str> > args = new List<Str>();
 	Str actionName;
-	if (!XWMLReader::ParseAction(actionStr, actionName, args.GetPointer()))
+	if (!XWMLReader::ParseAction(actionStr, actionName, args.GetPoint32_ter()))
 	{
 		Log::E("Action '" + actionStr + "' is in an invalid format");
 		return false;
@@ -265,7 +265,7 @@ bool ActionProperty<TSource, TArg1>::FindActionAndAddToEvent(const Str& actionSt
 		return false;
 	}
 
-	multicastEvent += CreateDelegate(this, &ActionProperty::GenericActionInvoker, (TSource*)NULL, (TArg1)NULL, action, args.GetPointer(true));
+	multicastEvent += CreateDelegate(this, &ActionProperty::GenericActionInvoker, (TSource*)NULL, (TArg1)NULL, action, args.GetPoint32_ter(true));
 	return true;
 }
 

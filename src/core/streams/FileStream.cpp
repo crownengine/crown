@@ -107,8 +107,8 @@ bool FileStream::CopyTo(Stream* stream, size_t size)
 
 	while (totReadBytes < size)
 	{
-		int readBytes;
-		int expectedReadBytes = math::min(size - totReadBytes, chunksize);
+		int32_t readBytes;
+		int32_t expectedReadBytes = math::min(size - totReadBytes, chunksize);
 		readBytes = fread(buff, 1, expectedReadBytes, mFile->GetHandle());
 
 		if (readBytes < expectedReadBytes)
@@ -179,7 +179,7 @@ void FileStream::Flush()
 	fflush(mFile->GetHandle());
 }
 
-void FileStream::Seek(int newPos, SeekMode mode)
+void FileStream::Seek(int32_t newPos, SeekMode mode)
 {
 	CheckValid();
 	//flush(); <<<---?

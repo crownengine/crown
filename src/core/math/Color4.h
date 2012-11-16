@@ -35,8 +35,8 @@ namespace crown
 /**
 	RGBA color.
 
-	Maintains 3 float values each representing a primary
-	color intensity. An extra component is used as transparency
+	Maint32_tains 3 float values each representing a primary
+	color int32_tensity. An extra component is used as transparency
 	coefficient. Each component ranges from 0.0 to 1.0; the higher
 	the value the brighter the color. An alpha value of 0.0 means
 	totally transparent while a value of 1.0 means totally opaque.
@@ -54,16 +54,16 @@ public:
 							~Color4();									//!< Destructor
 							Color4(const Color4& c);					//!< Copy constructor
 							Color4(float r, float g, float b);			//!< Construct from three values
-							Color4(int r, int g, int b);				//!< Construct from three values
+							Color4(int32_t r, int32_t g, int32_t b);				//!< Construct from three values
 							Color4(float r, float g, float b, float a); //!< Construct from four values
-							Color4(int r, int g, int b, int a);			//!< Construct from four values
+							Color4(int32_t r, int32_t g, int32_t b, int32_t a);			//!< Construct from four values
 	explicit				Color4(float c[4]);							//!< Construct from four values
-	explicit				Color4(uint32_t rgba);							//!< Construct from 32-bit integer (red at MSB, alpha at LSB)
+	explicit				Color4(uint32_t rgba);							//!< Construct from 32-bit int32_teger (red at MSB, alpha at LSB)
 
-	uint32_t					get_as_rgb() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order, alpha assumed = 255)
-	uint32_t					get_as_bgr() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order, alpha assumed = 255)
-	uint32_t					get_as_rgba() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order)
-	uint32_t					get_as_abgr() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order)
+	uint32_t				get_as_rgb() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order, alpha assumed = 255)
+	uint32_t				get_as_bgr() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order, alpha assumed = 255)
+	uint32_t				get_as_rgba() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order)
+	uint32_t				get_as_abgr() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order)
 
 	float					operator[](uint32_t i) const;					//!< Random access by index
 	float&					operator[](uint32_t i);							//!< Random access by index
@@ -80,8 +80,8 @@ public:
 	bool					operator==(const Color4& other) const;		//!< Equality operator
 	bool					operator!=(const Color4& other) const;		//!< Disequality operator
 
-	float*					to_float_ptr();								//!< Returns the pointer to the color's data.
-	const float*			to_float_ptr() const;							//!< Returns the pointer to the color's data.
+	float*					to_float_ptr();								//!< Returns the point32_ter to the color's data.
+	const float*			to_float_ptr() const;							//!< Returns the point32_ter to the color's data.
 	Str						to_str() const;								//!< Returns a Str containing the colors' components.
 
 	// SVG 1.0 color names
@@ -259,7 +259,7 @@ inline Color4::Color4(float r, float g, float b)
 }
 
 //-----------------------------------------------------------------------------
-inline Color4::Color4(int r, int g, int b)
+inline Color4::Color4(int32_t r, int32_t g, int32_t b)
 {
 	this->r = r * math::ONE_OVER_255;
 	this->g = g * math::ONE_OVER_255;
@@ -277,7 +277,7 @@ inline Color4::Color4(float r, float g, float b, float a)
 }
 
 //-----------------------------------------------------------------------------
-inline Color4::Color4(int r, int g, int b, int a)
+inline Color4::Color4(int32_t r, int32_t g, int32_t b, int32_t a)
 {
 	this->r = r * math::ONE_OVER_255;
 	this->g = g * math::ONE_OVER_255;

@@ -36,56 +36,56 @@ namespace crown
 {
 
 /**
-	2D point.
+	2D point32_t.
 */
 class Point2
 {
 public:
 
-	int						x, y;
+	int32_t						x, y;
 
 							Point2();							//!< Constructor, does nothing for efficiency
-							Point2(int nx, int ny);				//! Constructs from two components
-							Point2(const int a[2]);				//! Constructs from the array
+							Point2(int32_t nx, int32_t ny);				//! Constructs from two components
+							Point2(const int32_t a[2]);				//! Constructs from the array
 							Point2(const Point2& a);			//! Copy constructor
 							~Point2();							//! Destructor
 
-	int						operator[](uint32_t i) const;			//! Random access by index
-	int&					operator[](uint32_t i);					//! Random access by index
+	int32_t					operator[](uint32_t i) const;			//! Random access by index
+	int32_t&				operator[](uint32_t i);					//! Random access by index
 
 	Point2					operator+(const Point2& a) const;	//! Addition
 	Point2&					operator+=(const Point2& a);		//! Addition
 	Point2					operator-(const Point2& a) const;	//! Subtraction
 	Point2&					operator-=(const Point2& a);		//! Subtraction
-	Point2					operator*(int k) const;				//! Multiplication by scalar
-	Point2&					operator*=(int k);					//! Multiplication by scalar
-	Point2					operator/(int k) const;				//! Division by scalar
-	Point2&					operator/=(int k);					//! Division by scalar
-	int						dot(const Point2& a);				//! dot product
+	Point2					operator*(int32_t k) const;				//! Multiplication by scalar
+	Point2&					operator*=(int32_t k);					//! Multiplication by scalar
+	Point2					operator/(int32_t k) const;				//! Division by scalar
+	Point2&					operator/=(int32_t k);					//! Division by scalar
+	int32_t						dot(const Point2& a);				//! dot product
 
-	friend Point2			operator*(int k, const Point2& a);	//! For simmetry
+	friend Point2			operator*(int32_t k, const Point2& a);	//! For simmetry
 
 	bool					operator==(const Point2& other) const;	//! Equality operator
 	bool					operator!=(const Point2& other) const;	//! Disequality operator
-	bool					operator<(const Point2& other) const;	//! Returns whether all the components of this point are smaller than all of the "other" point
-	bool					operator>(const Point2& other) const;	//! Returns whether all the components of this point are greater than all of the "other" point
+	bool					operator<(const Point2& other) const;	//! Returns whether all the components of this point32_t are smaller than all of the "other" point32_t
+	bool					operator>(const Point2& other) const;	//! Returns whether all the components of this point32_t are greater than all of the "other" point32_t
 
-	real					length() const;						//! Returns the point's length
-	int						squared_length() const;				//! Returns the point's squared length
-	void					negate();							//! Negates the point (i.e. builds the inverse)
+	real					length() const;						//! Returns the point32_t's length
+	int32_t					squared_length() const;				//! Returns the point32_t's squared length
+	void					negate();							//! Negates the point32_t (i.e. builds the inverse)
 
 	real					get_distance_to(const Point2& a);	//!< Returns the distance
 	real					get_angle_between(const Point2& a);	//!< Returns the angle in radians
 
-	Point2					operator-() const;					//! Negates the point (i.e. builds the inverse)
+	Point2					operator-() const;					//! Negates the point32_t (i.e. builds the inverse)
 
-	void					zero();								//! Builds the zero point
+	void					zero();								//! Builds the zero point32_t
 
-	int*					to_int_ptr();		//! Returns the pointer to the point's data
-	const int*				to_int_ptr() const;	//! Returns the pointer to the point's data
-	Vec2					to_vec2() const;	//! Returns a vector from this point
-	Vec3					to_vec3() const;	//! Returns a vector from this point
-	Str						to_str() const;		//! Returns a Str containing the point's components
+	int32_t*				to_int32_t_ptr();		//! Returns the point32_ter to the point32_t's data
+	const int32_t*			to_int32_t_ptr() const;	//! Returns the point32_ter to the point32_t's data
+	Vec2					to_vec2() const;	//! Returns a vector from this point32_t
+	Vec3					to_vec3() const;	//! Returns a vector from this point32_t
+	Str						to_str() const;		//! Returns a Str containing the point32_t's components
 
 	static const Point2		ZERO;
 	static const Point2		ONE;
@@ -99,12 +99,12 @@ inline Point2::Point2() : x(0), y(0)
 }
 
 //-----------------------------------------------------------------------------
-inline Point2::Point2(int nx, int ny) : x(nx), y(ny)
+inline Point2::Point2(int32_t nx, int32_t ny) : x(nx), y(ny)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Point2::Point2(const int a[2]) : x(a[0]), y(a[1])
+inline Point2::Point2(const int32_t a[2]) : x(a[0]), y(a[1])
 {
 }
 
@@ -119,7 +119,7 @@ inline Point2::~Point2()
 }
 
 //-----------------------------------------------------------------------------
-inline int Point2::operator[](uint32_t i) const
+inline int32_t Point2::operator[](uint32_t i) const
 {
 	assert(i < 2);
 
@@ -127,7 +127,7 @@ inline int Point2::operator[](uint32_t i) const
 }
 
 //-----------------------------------------------------------------------------
-inline int& Point2::operator[](uint32_t i)
+inline int32_t& Point2::operator[](uint32_t i)
 {
 	assert(i < 2);
 
@@ -165,13 +165,13 @@ inline Point2& Point2::operator-=(const Point2& a)
 }
 
 //-----------------------------------------------------------------------------
-inline Point2 Point2::operator*(int k) const
+inline Point2 Point2::operator*(int32_t k) const
 {
 	return Point2(x * k, y * k);
 }
 
 //-----------------------------------------------------------------------------
-inline Point2& Point2::operator*=(int k)
+inline Point2& Point2::operator*=(int32_t k)
 {
 	x *= k;
 	y *= k;
@@ -180,7 +180,7 @@ inline Point2& Point2::operator*=(int k)
 }
 
 //-----------------------------------------------------------------------------
-inline Point2 Point2::operator/(int k) const
+inline Point2 Point2::operator/(int32_t k) const
 {
 	assert(k != 0);
 
@@ -188,7 +188,7 @@ inline Point2 Point2::operator/(int k) const
 }
 
 //-----------------------------------------------------------------------------
-inline Point2& Point2::operator/=(int k)
+inline Point2& Point2::operator/=(int32_t k)
 {
 	assert(k != 0);
 
@@ -199,14 +199,14 @@ inline Point2& Point2::operator/=(int k)
 }
 
 //-----------------------------------------------------------------------------
-inline int Point2::dot(const Point2& a)
+inline int32_t Point2::dot(const Point2& a)
 {
 	return x * a.x + y * a.y;
 }
 
 
 //-----------------------------------------------------------------------------
-inline Point2 operator*(int k, const Point2& a)
+inline Point2 operator*(int32_t k, const Point2& a)
 {
 	return a * k;
 }
@@ -242,7 +242,7 @@ inline real Point2::length() const
 }
 
 //-----------------------------------------------------------------------------
-inline int Point2::squared_length() const
+inline int32_t Point2::squared_length() const
 {
 	return x * x + y * y;
 }
@@ -279,13 +279,13 @@ inline void Point2::zero()
 }
 
 //-----------------------------------------------------------------------------
-inline int* Point2::to_int_ptr()
+inline int32_t* Point2::to_int32_t_ptr()
 {
 	return &x;
 }
 
 //-----------------------------------------------------------------------------
-inline const int* Point2::to_int_ptr() const
+inline const int32_t* Point2::to_int32_t_ptr() const
 {
 	return &x;
 }

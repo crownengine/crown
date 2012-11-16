@@ -47,10 +47,10 @@ public:
 	//! Sets the camera's position
 	void SetPosition(const Vec3& position);
 
-	//! Returns the camera's lookat-point
+	//! Returns the camera's lookat-point32_t
 	const Vec3& GetLookAt() const;
 
-	//! Sets the camera's lookat-point
+	//! Sets the camera's lookat-point32_t
 	void SetLookAt(const Vec3& lookat);
 
 	//! Returns the camera's up vector

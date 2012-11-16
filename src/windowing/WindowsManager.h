@@ -85,20 +85,20 @@ private:
 	Widget* mWidgetMouseDown;     //The widget on which the mouse was pressed (if any)
 	Widget* mInputFocusWidget;
 	Window* mModalWindow;
-	Point2 mMousePosition;
+	Point32_t2 mMousePosition;
 	ActionDictionary mRegisteredActions;
 
 	//Default action handlers
 	void QuitApplicationAction(Widget* src, List<Str>* args);
 	void CopyProperty(Widget* src, List<Str>* args);
 
-	Widget* FindWidgetAt(Widget* parent, Point2& point) const;
+	Widget* FindWidgetAt(Widget* parent, Point32_t2& point32_t) const;
 	void LaunchEvent(Widget* targetWidget, IDelegate1<void, bool>* onEventHelper, WindowingEventArgs* args);
 
 	//Helpers
 	void MouseInHelper(Widget* targetWidget);
 	void MouseOutHelper(Widget* targetWidget);
-	void MouseMoveHelper(Widget* targetWidget, const Point2& delta);
+	void MouseMoveHelper(Widget* targetWidget, const Point32_t2& delta);
 	void MouseUpHelper(Widget* targetWidget, bool);
 	void MouseDownHelper(Widget* targetWidget);
 	void TextInputHelper(Widget* targetWidget, const Str& text);

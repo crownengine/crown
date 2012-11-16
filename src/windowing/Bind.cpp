@@ -81,7 +81,7 @@ void Bind::Apply()
 	{
 		if (mSource.IsNull())
 		{
-			Window* w = ((Widget*)mDestination.GetPointer())->GetWindow();
+			Window* w = ((Widget*)mDestination.GetPoint32_ter())->GetWindow();
 			SetSource(w->FindChildByName(mSourceName));
 		}
 	}
@@ -94,7 +94,7 @@ void Bind::Apply()
 
 	//if (mSourceProperty == "twCrwLibrary")
 	//{
-	//	int a = 5;
+	//	int32_t a = 5;
 	//}
 
 	//Log::I("Bind::Apply: " + mSource->ToStr() + "." + mSourceProperty + " -> " + mDestination->ToStr() + "." + mDestinationProperty);
@@ -119,7 +119,7 @@ void Bind::SetSource(IWithProperties* source)
 	//Log::I("Bind::SetSource: " + mSourceProperty + " -> " + mDestinationProperty);
 	//if (mSourceProperty == "twCrwLibrary")
 	//{
-	//	int a = 5;
+	//	int32_t a = 5;
 	//}
 
 	if (!IsEnabled())
@@ -131,7 +131,7 @@ void Bind::SetSource(IWithProperties* source)
 	if (mSource.IsValid())
 	{
 		//Remove the old observing connection if present
-		sourceAsObservable = dynamic_cast<Observable*>(mSource.GetPointer());
+		sourceAsObservable = dynamic_cast<Observable*>(mSource.GetPoint32_ter());
 		if (sourceAsObservable != NULL)
 		{
 			sourceAsObservable->RemoveObserver(this);
@@ -162,7 +162,7 @@ void Bind::OnNotifyChange(Observable* obj, NotifyChangeEventArgs* args)
 {
 	//if (mSourceProperty == "twCrwLibrary")
 	//{
-	//	int a = 5;
+	//	int32_t a = 5;
 	//}
 
 	if (args->GetPropertyName() == mSourceProperty)

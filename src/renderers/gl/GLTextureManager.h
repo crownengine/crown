@@ -43,11 +43,11 @@ public:
 	 * If a resource with the same name already exists, the
 	 * already existent resource will be returned. In order
 	 * to distinguish between a newly created resource or a
-	 * pointer to an existing one, you have to check
+	 * point32_ter to an existing one, you have to check
 	 * at the value returned by 'created'.
 	 * @param name The name of the resource
 	 * @param created Returns true if newly created, false otherwise
-	 * @return A pointer to the created resource
+	 * @return A point32_ter to the created resource
 	 */
 	virtual Texture* Create(const char* name, bool& created);
 
@@ -55,7 +55,7 @@ public:
 	 * Loads a texture resource from file.
 	 * The name of the file determines the name of the resource and vice-versa.
 	 * @param name Tha name of the resource
-	 * @return A pointer to the loaded resource
+	 * @return A point32_ter to the loaded resource
 	 */
 	virtual Texture* Load(const char* name, bool generateMipMaps = true);
 
@@ -64,7 +64,7 @@ public:
 	 * The name of the file determines the name of the resource and vice-versa.
 	 * @param name The name of the resource
 	 * @param colorKey The color to use as transparent color
-	 * @return A pointer to the loaded resource
+	 * @return A point32_ter to the loaded resource
 	 */
 	virtual Texture* Load(const char* name, bool generateMipMaps, Color4 colorKey);
 

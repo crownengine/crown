@@ -49,9 +49,9 @@ public:
 
 	real		get_area() const;		//!< Returns the area
 	Vec3		get_centroid() const;	//!< Returns the center of gravity (a.k.a. centroid.)
-	Vec3		get_barycentric_coords(const Vec3& p) const;	//!< Returns the barycentric coordinates of point "p"
+	Vec3		get_barycentric_coords(const Vec3& p) const;	//!< Returns the barycentric coordinates of point32_t "p"
 
-	bool		contains_point(const Vec3& p) const;		//!< Returns whether the triangle contains the "p" point
+	bool		contains_point32_t(const Vec3& p) const;		//!< Returns whether the triangle contains the "p" point32_t
 
 	Plane		to_plane() const;		//!< Returns the plane containing the triangle
 };
@@ -113,7 +113,7 @@ inline Vec3 Triangle::get_barycentric_coords(const Vec3& p) const
 }
 
 //-----------------------------------------------------------------------------
-inline bool Triangle::contains_point(const Vec3& p) const
+inline bool Triangle::contains_point32_t(const Vec3& p) const
 {
 	Vec3 bc = get_barycentric_coords(p);
 

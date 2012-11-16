@@ -96,7 +96,7 @@ private:
 
 	static char mWindowClassName[20];
 
-	void EventLoopDo(unsigned int minMsg, unsigned int maxMsg);
+	void EventLoopDo(unsigned int32_t minMsg, unsigned int32_t maxMsg);
 };
 
 } // namespace crown

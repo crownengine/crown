@@ -57,7 +57,7 @@ public:
 				Frustum(const Frustum& frustum);		//!< Copy constructor
 				~Frustum();								//!< Destructor
 
-	bool		contains_point(const Vec3& point) const;	//!< Returns true if point intersects the frustum
+	bool		contains_point32_t(const Vec3& point32_t) const;	//!< Returns true if point32_t int32_tersects the frustum
 	Vec3		get_vertex(uint32_t index) const;			//!< Returns one of the eight frustum's corners
 
 	void		from_matrix(const Mat4& m);				//!< Builds the view frustum according to the matrix m

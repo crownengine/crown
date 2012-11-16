@@ -42,10 +42,10 @@ class Mat4;
 	This implementation uses the standard quaternion
 	multiplication equation, so, the order of multiplication
 	for multiple rotations is in a reverse fashion:
-	p' = qpq^-1 where p is the point and q the rotation quaternion
+	p' = qpq^-1 where p is the point32_t and q the rotation quaternion
 
-	p' = (ba)p(ba)^-1 where p is the point and (ba) the concatenation of two successive rotations
-	In this case, the point p is first rotated by the quaternion a and then by the quaternion b.
+	p' = (ba)p(ba)^-1 where p is the point32_t and (ba) the concatenation of two successive rotations
+	In this case, the point32_t p is first rotated by the quaternion a and then by the quaternion b.
 	The transformation order is reversed.
 */
 class Quat

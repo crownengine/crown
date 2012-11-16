@@ -48,11 +48,11 @@ private:
 	FunctionsDictionary mFunctions;
 	SpritesDictionary mSprites;
 
-	static void DrawButtonNormal(const Point2& size);
-	static void DrawButtonHighlighted(const Point2& size);
-	static void DrawButtonPressed(const Point2& size);
-	static void DrawWindow(const Point2& size);
-	static void DrawListView(const Point2& size);
+	static void DrawButtonNormal(const Point32_t2& size);
+	static void DrawButtonHighlighted(const Point32_t2& size);
+	static void DrawButtonPressed(const Point32_t2& size);
+	static void DrawWindow(const Point32_t2& size);
+	static void DrawListView(const Point32_t2& size);
 
 };
 

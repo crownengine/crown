@@ -43,7 +43,7 @@ public:
 		if (spr)
 		{
 			Frame* fr = spr->GetFrame(frameNumber);
-			SetDesiredSize((int)fr->GetSize().x, (int)fr->GetSize().y);
+			SetDesiredSize((int32_t)fr->GetSize().x, (int32_t)fr->GetSize().y);
 		}
 
 		SetMouseSensible(false);

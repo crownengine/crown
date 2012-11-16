@@ -67,15 +67,15 @@ Widget* ScrollArea::GetContentWidget()
 
 void ScrollArea::btnScrollUp_OnClick(Button* /*obj*/, Crown::EventArgs* /*args*/)
 {
-	Point2 pos = mChildrenContainer->GetTranslation();
+	Point32_t2 pos = mChildrenContainer->GetTranslation();
 	if (pos.y < 0)
 		mChildrenContainer->SetTranslation(pos.x, Math::Min(0, pos.y + 10));
 }
 
 void ScrollArea::btnScrollDown_OnClick(Button* /*obj*/, Crown::EventArgs* /*args*/)
 {
-	Point2 pos = mChildrenContainer->GetTranslation();
-	int yval = -mChildrenContainer->GetSize().y + mContainer->GetSize().y;
+	Point32_t2 pos = mChildrenContainer->GetTranslation();
+	int32_t yval = -mChildrenContainer->GetSize().y + mContainer->GetSize().y;
 	if (pos.y > yval)
 		mChildrenContainer->SetTranslation(pos.x, Math::Max(yval, pos.y - 10));
 }

@@ -47,7 +47,7 @@ bool UDPSocket::open(uint16_t port)
 			return false;
 		}
 
-		int non_blocking = 1;
+		int32_t non_blocking = 1;
 		if (fcntl( m_socket, F_SETFL, O_NONBLOCK, non_blocking ) == -1)
 		{
 			os::printf("Failed to set non-blocking socket\n");
@@ -58,7 +58,7 @@ bool UDPSocket::open(uint16_t port)
 		return true;
 }
 
-bool UDPSocket::send(IPv4Address &receiver, const void* data, int size)
+bool UDPSocket::send(IPv4Address &receiver, const void* data, int32_t size)
 {
 	assert(data);
 	assert(size > 0);
@@ -76,12 +76,12 @@ bool UDPSocket::send(IPv4Address &receiver, const void* data, int size)
 	address.sin_addr.s_addr = htonl(receiver.get_address());
 	address.sin_port = htons(receiver.get_port());
 
-	int sent_bytes = sendto(m_socket, (const char*)data, size, 0, (sockaddr*)&address, sizeof(sockaddr_in));
+	int32_t sent_bytes = sendto(m_socket, (const char*)data, size, 0, (sockaddr*)&address, sizeof(sockaddr_in));
 
 	return sent_bytes == size;
 }
 
-int UDPSocket::receive(IPv4Address &sender, void* data, int size)
+int32_t UDPSocket::receive(IPv4Address &sender, void* data, int32_t size)
 {
 	assert(data);
 	assert(size > 0);
@@ -94,7 +94,7 @@ int UDPSocket::receive(IPv4Address &sender, void* data, int size)
 	sockaddr_in from;
 	socklen_t from_length = sizeof(from);
 
-	int received_bytes = recvfrom(m_socket, (char*)data, size, 0, (sockaddr*)&from, &from_length);
+	int32_t received_bytes = recvfrom(m_socket, (char*)data, size, 0, (sockaddr*)&from, &from_length);
 
 	if (received_bytes <= 0)
 	{

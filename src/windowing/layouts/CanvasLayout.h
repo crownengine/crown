@@ -37,7 +37,7 @@ public:
 	CanvasLayout(Widget* parent);
 	virtual ~CanvasLayout();
 
-	virtual void OnArrange(Point2 position, Point2 size);
+	virtual void OnArrange(Point32_t2 position, Point32_t2 size);
 
 	virtual Str ToStr() const
 	 { return "CanvasLayout"; }

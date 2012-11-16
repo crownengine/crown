@@ -58,7 +58,7 @@ static void x11_create_hidden_cursor()
 }
 
 //-----------------------------------------------------------------------------
-static Key x11_translate_key(int x11_key)
+static Key x11_translate_key(int32_t x11_key)
 {
 	if ((x11_key > 0x40 && x11_key < 0x5B) || (x11_key > 0x60 && x11_key < 0x7B) || (x11_key > 0x2F && x11_key < 0x3A))
 	{
@@ -128,10 +128,10 @@ void init_input()
 }
 
 //-----------------------------------------------------------------------------
-void get_cursor_xy(int& x, int& y)
+void get_cursor_xy(int32_t& x, int32_t& y)
 {
 	Window unused;
-	int pointer_x, pointer_y, dummy;
+	int32_t pointer_x, pointer_y, dummy;
 	uint32_t dummy2;
 
 	XQueryPointer(display, window, &unused, &unused, &dummy, &dummy, &pointer_x, &pointer_y, &dummy2);
@@ -141,7 +141,7 @@ void get_cursor_xy(int& x, int& y)
 }
 
 //-----------------------------------------------------------------------------
-void set_cursor_xy(int x, int y)
+void set_cursor_xy(int32_t x, int32_t y)
 {
 	uint32_t width;
 	uint32_t height;
@@ -215,7 +215,7 @@ void event_loop()
 			case KeyRelease:
 			{
 				char string[4] = {0, 0, 0, 0};
-				int len = -1;
+				int32_t len = -1;
 				KeySym key;
 
 				len = XLookupString(&event.xkey, string, 4, &key, NULL);

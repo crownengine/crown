@@ -110,7 +110,7 @@ MemoryStream::~MemoryStream()
 	}
 }
 
-void MemoryStream::Seek(int newPos, SeekMode mode)
+void MemoryStream::Seek(int32_t newPos, SeekMode mode)
 {
 	CheckValid();
 	

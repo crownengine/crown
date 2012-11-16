@@ -25,8 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Point2.h"
-#include "Vec2.h"
+#include "Types.h"
 
 namespace crown
 {
@@ -46,8 +45,8 @@ enum MouseButton
 struct MouseEvent
 {
 	MouseButton button;
-	int x;
-	int y;
+	int32_t x;
+	int32_t y;
 	float wheel;
 };
 

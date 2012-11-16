@@ -75,9 +75,9 @@ void WinMouse::SetCursorVisible(bool visible)
 }
 
 //-----------------------------------------------------------------------------
-Point2 WinMouse::GetCursorXY() const
+Point32_t2 WinMouse::GetCursorXY() const
 {
-	Point2 tmp;
+	Point32_t2 tmp;
 	POINT p;
 	GetCursorPos(&p);
 	ScreenToClient(mWindowHandle, &p);
@@ -87,7 +87,7 @@ Point2 WinMouse::GetCursorXY() const
 }
 
 //-----------------------------------------------------------------------------
-void WinMouse::SetCursorXY(const Point2& position)
+void WinMouse::SetCursorXY(const Point32_t2& position)
 {
 	uint32_t width, height;
 	RECT windowRect;
@@ -98,7 +98,7 @@ void WinMouse::SetCursorXY(const Point2& position)
 
 	POINT p = {(LONG)position.x, (LONG)position.y};
 
-	if (p.x > (int)width)
+	if (p.x > (int32_t)width)
 	{
 		p.x = width;
 	}
@@ -107,7 +107,7 @@ void WinMouse::SetCursorXY(const Point2& position)
 		p.x = (LONG)position.x;
 	}
 
-	if (p.y > (int)height)
+	if (p.y > (int32_t)height)
 	{
 		p.y = height;
 	}
@@ -148,7 +148,7 @@ void WinMouse::SetCursorRelativeXY(const Vec2& position)
 	width = windowRect.right - windowRect.left;
 	height = windowRect.bottom - windowRect.top;
 
-	SetCursorXY(Point2((int)(position.x * width), (int)(position.y * height)));
+	SetCursorXY(Point32_t2((int32_t)(position.x * width), (int32_t)(position.y * height)));
 }
 
 //-----------------------------------------------------------------------------

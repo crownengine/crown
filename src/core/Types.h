@@ -27,14 +27,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Config.h"
 #include <cstddef>
+#include <stdint.h>
 
 namespace crown
 {
-
-typedef unsigned char			uint8_t;		// 8-bit
-typedef unsigned short int		uint16_t;		// 16-bit
-typedef unsigned int			uint32_t;		// 32-bit
-typedef unsigned long long int	uint64_t;		// 64-bit
 
 #ifdef CROWN_USE_FLOAT
 typedef float					real;
@@ -42,8 +38,8 @@ typedef float					real;
 typedef double					real;
 #endif
 
-typedef uint32_t					StrId32;	// 32-bit string hash
-typedef uint64_t					StrId64;	// 64-bit string hash
+typedef uint32_t				StrId32;	// 32-bit string hash
+typedef uint32_t				StrId64;	// 64-bit string hash
 
 #ifndef NULL
 #ifdef __cplusplus

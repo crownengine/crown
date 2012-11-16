@@ -52,7 +52,7 @@ void TextRenderer::EndDraw()
 }
 
 //-----------------------------------------------------------------------------
-void TextRenderer::Draw(const Str& string, int x, int y, Font* font)
+void TextRenderer::Draw(const Str& string, int32_t x, int32_t y, Font* font)
 {
 	Renderer* renderer = GetDevice()->GetRenderer();
 	Font* mFont = font;
@@ -107,7 +107,7 @@ void TextRenderer::Draw(const Str& string, int x, int y, Font* font)
 }
 
 //-----------------------------------------------------------------------------
-void TextRenderer::GetStrDimensions(const Str& string, uint32_t start, uint32_t end, int& width, int& height)
+void TextRenderer::GetStrDimensions(const Str& string, uint32_t start, uint32_t end, int32_t& width, int32_t& height)
 {
 //	if (mFont != NULL)
 //	{
@@ -117,7 +117,7 @@ void TextRenderer::GetStrDimensions(const Str& string, uint32_t start, uint32_t 
 //	height = 0;
 //	width = 0;
 
-//	//TODO: Should take baseline into account
+//	//TODO: Should take baseline int32_to account
 
 //	if (end == (uint32_t)-1)
 //		end = string.GetLength();
@@ -130,25 +130,25 @@ void TextRenderer::GetStrDimensions(const Str& string, uint32_t start, uint32_t 
 
 //		glyph.GetMetrics(dummy, dummy, dummy, dummy, gwidth, gheight, advance, baseline);
 
-//		height = Math::Max(height, (int)gheight) + (int)Math::Abs(gheight - baseline);
+//		height = Math::Max(height, (int32_t)gheight) + (int32_t)Math::Abs(gheight - baseline);
 //		if (i < string.GetLength() - 1)
-//			width += (int)advance;
+//			width += (int32_t)advance;
 //		else
 //		{
-//			width += (int)gwidth;
+//			width += (int32_t)gwidth;
 //		}
 //	}
 }
 
 //-----------------------------------------------------------------------------
-int TextRenderer::GetStrIndexFromDimensions(const Str& string, uint32_t start, const Point2& position, Point2& charPosition)
+int32_t TextRenderer::GetStrIndexFromDimensions(const Str& string, uint32_t start, const Point2& position, Point2& charPosition)
 {
 //	if (mFont == NULL)
 //	{
 //		return -1;
 //	}
 
-//	int width = 0;
+//	int32_t width = 0;
 
 //	for (uint32_t i = start; i < string.GetLength(); i++)
 //	{
@@ -168,7 +168,7 @@ int TextRenderer::GetStrIndexFromDimensions(const Str& string, uint32_t start, c
 //			charPosition.y = 0;
 //			return i;
 //		}
-//		width += (int)advance;
+//		width += (int32_t)advance;
 //	}
 //	charPosition.x = width;
 //	charPosition.y = 0;
@@ -176,7 +176,7 @@ int TextRenderer::GetStrIndexFromDimensions(const Str& string, uint32_t start, c
 }
 
 //-----------------------------------------------------------------------------
-int TextRenderer::GetMaxTextHeight()
+int32_t TextRenderer::GetMaxTextHeight()
 {
 //	return mFont->_GetMaxTextHeight();
 }

@@ -44,7 +44,7 @@ bool Widget::mDrawDebugBorder = false;
 
 Widget::Widget(Widget* parent):
 	mDesiredPosition(0, 0), mDesiredSize(-1, -1),
-	mMaximumSize(numeric_limits<int>::max(), numeric_limits<int>::max()),	mMinimumSize(0, 0),
+	mMaximumSize(numeric_limits<int32_t>::max(), numeric_limits<int32_t>::max()),	mMinimumSize(0, 0),
 	mPosition(0, 0), mSize(0, 0), mMargins(-1, -1, -1, -1), mParent(parent), mLogicalParent(parent), mVisibility(WV_VISIBLE),
 	mBindingContext(NULL), mIsMouseOver(false), mIsMouseSensible(true), mFitToChildren(FTC_NONE)
 {
@@ -53,7 +53,7 @@ Widget::Widget(Widget* parent):
 		mParent->AddChild(this);
 	}
 
-	//By using specific properties such as IntProperty, we define how the Generic value should be interpreted for each property
+	//By using specific properties such as IntProperty, we define how the Generic value should be int32_terpreted for each property
 	//TODO: Use converters where necessary
 	AddProperty(new IntProperty("Width", &mDesiredSize.x));
 	AddProperty(new IntProperty("Height", &mDesiredSize.y));
@@ -61,13 +61,13 @@ Widget::Widget(Widget* parent):
 	AddProperty(new IntProperty("MinimumHeight", &mMinimumSize.y));
 	AddProperty(new IntProperty("MaximumWidth", &mMaximumSize.x));
 	AddProperty(new IntProperty("MaximumHeight", &mMaximumSize.y));
-	AddProperty(new Point2Property("DesiredSize", &mDesiredSize));
-	AddProperty(new Point2Property("MinimumSize", &mMinimumSize));
-	AddProperty(new Point2Property("MaximumSize", &mMaximumSize));
+	AddProperty(new Point32_t2Property("DesiredSize", &mDesiredSize));
+	AddProperty(new Point32_t2Property("MinimumSize", &mMinimumSize));
+	AddProperty(new Point32_t2Property("MaximumSize", &mMaximumSize));
 	AddProperty(new StrProperty("Name", &mName));
 	AddProperty(new MarginsProperty("Margins", &mMargins));
 
-	EnumProperty* prop = new EnumProperty("FitToChildren", (int*)&mFitToChildren);
+	EnumProperty* prop = new EnumProperty("FitToChildren", (int32_t*)&mFitToChildren);
 	prop->AddValueMapping("None", FTC_NONE);
 	prop->AddValueMapping("Horizontally", FTC_HORIZONTALLY);
 	prop->AddValueMapping("Vertically", FTC_VERTICALLY);
@@ -77,23 +77,23 @@ Widget::Widget(Widget* parent):
 
 Widget::~Widget()
 {
-	for (int i=0; i<mChildren.GetSize(); i++)
+	for (int32_t i=0; i<mChildren.GetSize(); i++)
 	{
 		delete mChildren[i];
 	}
 
-	for (int i=0; i<mBinds.GetSize(); i++)
+	for (int32_t i=0; i<mBinds.GetSize(); i++)
 	{
 		delete mBinds[i];
 	}
 }
 
-void Widget::PrintLoop(int depth)
+void Widget::Print32_tLoop(int32_t depth)
 {
 	Log::I(Str(depth, ' ') + ToStr());
-	for (int i=0; i<mChildren.GetSize(); i++)
+	for (int32_t i=0; i<mChildren.GetSize(); i++)
 	{
-		mChildren[i]->PrintLoop(depth + 1);
+		mChildren[i]->Print32_tLoop(depth + 1);
 	}
 }
 
@@ -108,13 +108,13 @@ void Widget::AddChild(Widget* child)
 
 Widget* Widget::FindChildByName(const Str& name)
 {
-	for(int i = 0; i < mChildren.GetSize(); i++)
+	for(int32_t i = 0; i < mChildren.GetSize(); i++)
 	{
 		if (mChildren[i]->mName == name)
 			return mChildren[i];
 	}
 
-	for(int i = 0; i < mChildren.GetSize(); i++)
+	for(int32_t i = 0; i < mChildren.GetSize(); i++)
 	{
 		Widget* w = mChildren[i]->FindChildByName(name);
 		if (w != NULL)
@@ -130,7 +130,7 @@ IWithProperties* Widget::GetBindingContext() const
 	{
 		return mParent->GetBindingContext();
 	}
-	return const_cast<IWithProperties*>(mBindingContext.GetPointer());
+	return const_cast<IWithProperties*>(mBindingContext.GetPoint32_ter());
 }
 
 void Widget::SetBindingContext(IWithProperties* newContext)
@@ -144,7 +144,7 @@ void Widget::SetBindingContext(IWithProperties* newContext)
 
 void Widget::UpdateBindsToNewBindingContext(IWithProperties* newContext)
 {
-	for (int i=0; i<mBinds.GetSize(); i++)
+	for (int32_t i=0; i<mBinds.GetSize(); i++)
 	{
 		Bind* bind = mBinds[i];
 		bind->SetSourceIfUsingBindingContext(newContext);
@@ -153,7 +153,7 @@ void Widget::UpdateBindsToNewBindingContext(IWithProperties* newContext)
 	NotifyChangeEventArgs args("BindingContext");
 	NotifyChange(&args);
 
-	for (int i=0; i<mChildren.GetSize(); i++)
+	for (int32_t i=0; i<mChildren.GetSize(); i++)
 	{
 		mChildren[i]->UpdateBindsToNewBindingContext(newContext);
 	}
@@ -166,13 +166,13 @@ void Widget::AddBind(Bind* bind)
 
 void Widget::ApplyBinds()
 {
-	for (int i=0; i<mBinds.GetSize(); i++)
+	for (int32_t i=0; i<mBinds.GetSize(); i++)
 	{
 		mBinds[i]->Apply();
 	}
 
 	Log::IndentIn();
-	for (int i=0; i<mChildren.GetSize(); i++)
+	for (int32_t i=0; i<mChildren.GetSize(); i++)
 	{
 		mChildren[i]->ApplyBinds();
 	}
@@ -192,7 +192,7 @@ void Widget::DestroyContent()
 
 void Widget::DestroyChildren()
 {
-	int size = mChildren.GetSize();
+	int32_t size = mChildren.GetSize();
 	while (mChildren.GetSize() > 0)
 	{
 		mChildren[0]->Destroy();
@@ -242,10 +242,10 @@ void Widget::SetPropertyValue(const Str& name, const Generic& value)
 	}
 }
 
-Point2 Widget::GetScreenPosition()
+Point32_t2 Widget::GetScreenPosition()
 {
 	Widget* widget = this;
-	Point2 position = mPosition + mTranslation;
+	Point32_t2 position = mPosition + mTranslation;
 
 	while (widget->mParent != NULL)
 	{
@@ -256,10 +256,10 @@ Point2 Widget::GetScreenPosition()
 	return position;
 }
 
-Point2 Widget::GetRelativePosition(Widget* w)
+Point32_t2 Widget::GetRelativePosition(Widget* w)
 {
 	Widget* widget = this;
-	Point2 position = mPosition + mTranslation;
+	Point32_t2 position = mPosition + mTranslation;
 
 	while (widget->mParent != NULL && widget->mParent != w)
 	{
@@ -316,12 +316,12 @@ bool Widget::IsChildOf(const Widget* parent)
 	return false;
 }
 
-void Widget::Resize(int width, int height)
+void Widget::Resize(int32_t width, int32_t height)
 {
 	bool changed = false;
 	if (width != mSize.x || height != mSize.y)
 		changed = true;
-	mSize = Point2(width, height);
+	mSize = Point32_t2(width, height);
 	if (changed)
 	{
 		Window* w = GetWindow();
@@ -330,36 +330,36 @@ void Widget::Resize(int width, int height)
 	}
 }
 
-void Widget::Move(int x, int y)
+void Widget::Move(int32_t x, int32_t y)
 {
-	mPosition = Point2(x, y);
+	mPosition = Point32_t2(x, y);
 }
 
-void Widget::SetDesiredPosition(int x, int y)
+void Widget::SetDesiredPosition(int32_t x, int32_t y)
 {
-	mDesiredPosition = Point2(x, y);
+	mDesiredPosition = Point32_t2(x, y);
 	NotifyNeedsLayout();
 }
 
-void Widget::SetDesiredSize(int x, int y)
+void Widget::SetDesiredSize(int32_t x, int32_t y)
 {
-	mDesiredSize = Point2(x, y);
+	mDesiredSize = Point32_t2(x, y);
 	NotifyNeedsLayout();
 }
 
-void Widget::SetMinimumSize(int x, int y)
+void Widget::SetMinimumSize(int32_t x, int32_t y)
 {
-	mMinimumSize = Point2(x, y);
+	mMinimumSize = Point32_t2(x, y);
 	NotifyNeedsLayout();
 }
 
-void Widget::SetMaximumSize(int x, int y)
+void Widget::SetMaximumSize(int32_t x, int32_t y)
 {
-	mMaximumSize = Point2(x, y);
+	mMaximumSize = Point32_t2(x, y);
 	NotifyNeedsLayout();
 }
 
-void Widget::SetMargins(int left, int top, int right, int bottom)
+void Widget::SetMargins(int32_t left, int32_t top, int32_t right, int32_t bottom)
 {
 	mMargins.left = left;
 	mMargins.top = top;
@@ -423,7 +423,7 @@ void Widget::Destroy()
 	}
 	if (mParent)
 	{
-		int indexOnParent = mParent->mChildren.Find(this);
+		int32_t indexOnParent = mParent->mChildren.Find(this);
 		mParent->mChildren.Remove(indexOnParent);
 		mParent = NULL;
 	}
@@ -605,14 +605,14 @@ void Widget::DrawChildren(const DrawingClipInfo& clipInfo)
 {
 	Renderer* r = GetDevice()->GetRenderer();
 
-	for (int i=0; i<mChildren.GetSize(); i++)
+	for (int32_t i=0; i<mChildren.GetSize(); i++)
 	{
 	  if (mChildren[i]->mVisibility != WV_VISIBLE)
 			continue;
 
-		const Point2& childPos = mChildren[i]->GetPosition();
-		const Point2& childTrans = mChildren[i]->GetTranslation();
-		const Point2& childSize = mChildren[i]->GetSize();
+		const Point32_t2& childPos = mChildren[i]->GetPosition();
+		const Point32_t2& childTrans = mChildren[i]->GetTranslation();
+		const Point32_t2& childSize = mChildren[i]->GetSize();
 
 		DrawingClipInfo childClipInfo;
 		childClipInfo.screenX = clipInfo.screenX + childPos.x + childTrans.x;
@@ -625,21 +625,21 @@ void Widget::DrawChildren(const DrawingClipInfo& clipInfo)
 
 		if (childClipInfo.sx < clipInfo.sx)
 		{
-			childClipInfo.sw = Math::Max<int>(0, childClipInfo.sx + childClipInfo.sw - clipInfo.sx);
+			childClipInfo.sw = Math::Max<int32_t>(0, childClipInfo.sx + childClipInfo.sw - clipInfo.sx);
 			childClipInfo.sx = clipInfo.sx;
 		}
 
 		if (childClipInfo.sy < clipInfo.sy)
 		{
-			childClipInfo.sh = Math::Max<int>(0, childClipInfo.sy + childClipInfo.sh - clipInfo.sy);
+			childClipInfo.sh = Math::Max<int32_t>(0, childClipInfo.sy + childClipInfo.sh - clipInfo.sy);
 			childClipInfo.sy = clipInfo.sy;
 		}
 
 		if (childClipInfo.sx + childClipInfo.sw > clipInfo.sx + clipInfo.sw)
-			childClipInfo.sw = Math::Max<int>(0, clipInfo.sx + clipInfo.sw - childClipInfo.sx);
+			childClipInfo.sw = Math::Max<int32_t>(0, clipInfo.sx + clipInfo.sw - childClipInfo.sx);
 
 		if (childClipInfo.sy + childClipInfo.sh > clipInfo.sy + clipInfo.sh)
-			childClipInfo.sh = Math::Max<int>(0, clipInfo.sy + clipInfo.sh - childClipInfo.sy);
+			childClipInfo.sh = Math::Max<int32_t>(0, clipInfo.sy + clipInfo.sh - childClipInfo.sy);
 
 		if (childClipInfo.sw == 0 || childClipInfo.sh == 0)
 			continue;
@@ -727,7 +727,7 @@ void Widget::OnMeasure(bool fitChildrenX, bool fitChildrenY)
 		fitChildrenY = false;
 	}
 
-	for (int i = 0; i < mChildren.GetSize(); i++)
+	for (int32_t i = 0; i < mChildren.GetSize(); i++)
 	{
 		mChildren[i]->OnMeasure(fitChildrenX, fitChildrenY);
 	}
@@ -759,11 +759,11 @@ void Widget::OnMeasureFitX()
 {
 	mMeasuredSize.x = Math::Max(0, mDesiredSize.x);
 
-	for (int i = 0; i < mChildren.GetSize(); i++)
+	for (int32_t i = 0; i < mChildren.GetSize(); i++)
 	{
 		Widget* child = mChildren[i];
 
-		int w = child->mMeasuredSize.x;
+		int32_t w = child->mMeasuredSize.x;
 		if (child->mMargins.left > 0)
 			w += child->mMargins.left;
 		if (child->mMargins.right > 0)
@@ -777,11 +777,11 @@ void Widget::OnMeasureFitY()
 {
 	mMeasuredSize.y = Math::Max(0, mDesiredSize.y);
 
-	for (int i = 0; i < mChildren.GetSize(); i++)
+	for (int32_t i = 0; i < mChildren.GetSize(); i++)
 	{
 		Widget* child = mChildren[i];
 
-		int h = child->mMeasuredSize.y;
+		int32_t h = child->mMeasuredSize.y;
 		if (child->mMargins.top > 0)
 			h += child->mMargins.top;
 		if (child->mMargins.bottom > 0)
@@ -791,22 +791,22 @@ void Widget::OnMeasureFitY()
 	}
 }
 
-void Widget::OnArrange(Point2 position, Point2 size)
+void Widget::OnArrange(Point32_t2 position, Point32_t2 size)
 {
 	Move(position);
 	if (mVisibility == WV_COLLAPSED)
 	{
-		Resize(Point2::ZERO);
+		Resize(Point32_t2::ZERO);
 		return;
 	}
 	Resize(size);
 
-	for (int i=0; i<mChildren.GetSize(); i++)
+	for (int32_t i=0; i<mChildren.GetSize(); i++)
 	{
-		Point2 childPosition = mChildren[i]->GetDesiredPosition();
-		Point2 childSize = mChildren[i]->GetMeasuredSize();
+		Point32_t2 childPosition = mChildren[i]->GetDesiredPosition();
+		Point32_t2 childSize = mChildren[i]->GetMeasuredSize();
     
-    Point2 vv;
+    Point32_t2 vv;
     vv.x = 0;
     vv.y = 0;
     childSize = size;
@@ -834,9 +834,9 @@ void Widget::OnArrange(Point2 position, Point2 size)
 	}
 }
 
-int Widget::EnlargeMarginsX(Point2& position, Point2& size)
+int32_t Widget::EnlargeMarginsX(Point32_t2& position, Point32_t2& size)
 {
-	int v = size.x;
+	int32_t v = size.x;
 	if (mMargins.left > 0)
 	{
 		position.x += mMargins.left;
@@ -849,9 +849,9 @@ int Widget::EnlargeMarginsX(Point2& position, Point2& size)
 	return v;
 }
 
-int Widget::EnlargeMarginsY(Point2& position, Point2& size)
+int32_t Widget::EnlargeMarginsY(Point32_t2& position, Point32_t2& size)
 {
-	int v = size.y;
+	int32_t v = size.y;
 	if (mMargins.top > 0)
 	{
 		position.y += mMargins.top;
@@ -864,7 +864,7 @@ int Widget::EnlargeMarginsY(Point2& position, Point2& size)
 	return v;
 }
 
-void Widget::ErodeMarginsX(Point2& position, Point2& size)
+void Widget::ErodeMarginsX(Point32_t2& position, Point32_t2& size)
 {
 	if (mMargins.left > 0)
 	{
@@ -878,7 +878,7 @@ void Widget::ErodeMarginsX(Point2& position, Point2& size)
 	}
 }
 
-void Widget::ErodeMarginsY(Point2& position, Point2& size)
+void Widget::ErodeMarginsY(Point32_t2& position, Point32_t2& size)
 {
 	if (mMargins.top > 0)
 	{
@@ -892,10 +892,10 @@ void Widget::ErodeMarginsY(Point2& position, Point2& size)
 	}
 }
 
-void Widget::FitMeasuredSizeX(Point2& position, Point2& size)
+void Widget::FitMeasuredSizeX(Point32_t2& position, Point32_t2& size)
 {
-	Point2 origSize = size;
-	Point2 origPosition = position;
+	Point32_t2 origSize = size;
+	Point32_t2 origPosition = position;
 
 	if (mMeasuredSize.x < 0)
 	{
@@ -960,10 +960,10 @@ void Widget::FitMeasuredSizeX(Point2& position, Point2& size)
 	}
 }
 
-void Widget::FitMeasuredSizeY(Point2& position, Point2& size)
+void Widget::FitMeasuredSizeY(Point32_t2& position, Point32_t2& size)
 {
-	Point2 origSize = size;
-	Point2 origPosition = position;
+	Point32_t2 origSize = size;
+	Point32_t2 origPosition = position;
 
 	if (mMeasuredSize.y < 0)
 	{
@@ -1027,12 +1027,12 @@ void Widget::FitMeasuredSizeY(Point2& position, Point2& size)
 	}
 }
 
-WidgetSizeAcceptedEnum Widget::GetSizeAcceptedX(int sizeX)
+WidgetSizeAcceptedEnum Widget::GetSizeAcceptedX(int32_t sizeX)
 {
 	if (mMeasuredSize.x >= 0)	//A desired size is set, use that one regardless of the available space
 		return WSA_FIXED;
 
-	int w = sizeX;
+	int32_t w = sizeX;
 
 	//Apply margins if they are not 'auto'
 	//'auto' margins have effect only if the desired size is set, so just ignore them here
@@ -1048,12 +1048,12 @@ WidgetSizeAcceptedEnum Widget::GetSizeAcceptedX(int sizeX)
 	return WSA_ACCEPTED;
 }
 
-WidgetSizeAcceptedEnum Widget::GetSizeAcceptedY(int sizeY)
+WidgetSizeAcceptedEnum Widget::GetSizeAcceptedY(int32_t sizeY)
 {
 	if (mMeasuredSize.y >= 0)	//A desired size is set, use that one regardless of the available space
 		return WSA_FIXED;
 
-	int h = sizeY;
+	int32_t h = sizeY;
 
 	//Apply margins if they are not 'auto'
 	//'auto' margins have effect only if the desired size is set, so just ignore them here

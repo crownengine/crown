@@ -28,15 +28,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/stat.h>
 #include <unistd.h>
 
-#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "crown", __VA_ARGS__))
-#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "crown", __VA_ARGS__))
-#define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, "crown", __VA_ARGS__))
-#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "crown", __VA_ARGS__))
+#define LOGI(...) ((void)__android_log_print32_t(ANDROID_LOG_INFO, "crown", __VA_ARGS__))
+#define LOGW(...) ((void)__android_log_print32_t(ANDROID_LOG_WARN, "crown", __VA_ARGS__))
+#define LOGD(...) ((void)__android_log_print32_t(ANDROID_LOG_DEBUG, "crown", __VA_ARGS__))
+#define LOGE(...) ((void)__android_log_print32_t(ANDROID_LOG_ERROR, "crown", __VA_ARGS__))
 
 namespace crown
 {
 
-void OS::Printf(const char* string, ...)
+void OS::Print32_tf(const char* string, ...)
 {
 	LOGI(string);
 }

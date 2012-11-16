@@ -53,8 +53,8 @@ GLESRenderer::GLESRenderer() :
 
 	mActiveTextureUnit(0)
 {
-	mMinMaxPointSize[0] = 0.0f;
-	mMinMaxPointSize[1] = 0.0f;
+	mMinMaxPoint32_tSize[0] = 0.0f;
+	mMinMaxPoint32_tSize[1] = 0.0f;
 
 	for (uint32_t i = 0; i < MAX_TEXTURE_UNITS; i++)
 	{
@@ -78,14 +78,14 @@ GLESRenderer::GLESRenderer() :
 	//glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &mMaxVertexIndices);
 	//glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &mMaxVertexVertices);
 
-	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &mMinMaxPointSize[0]);
+	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &mMinMaxPoint32_tSize[0]);
 	//glGetFloatv(GL_LINE_WIDTH_RANGE, &mMinMaxLineWidth[0]);
 
 	Log::I("OpenGLES Vendor\t: %s", mGLSupport->GetVendor().c_str());
 	Log::I("OpenGLES Renderer\t: %s", mGLSupport->GetRenderer().c_str());
 	Log::I("OpenGLES Version\t: %s", mGLSupport->GetVersion().c_str());
-	Log::I("Min Point Size\t: %f", mMinMaxPointSize[0]);
-	Log::I("Max Point Size\t: %f", mMinMaxPointSize[1]);
+	Log::I("Min Point32_t Size\t: %f", mMinMaxPoint32_tSize[0]);
+	Log::I("Max Point32_t Size\t: %f", mMinMaxPoint32_tSize[1]);
 	Log::I("Min Line Width\t: %f", mMinMaxLineWidth[0]);
 	Log::I("Max Line Width\t: %f", mMinMaxLineWidth[1]);
 	Log::I("Max Texture Size\t: %dx%d", mMaxTextureSize, mMaxTextureSize);
@@ -117,8 +117,8 @@ GLESRenderer::GLESRenderer() :
 	float amb[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, amb);
 
-	// Some hints
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	// Some hint32_ts
+	glHint32_t(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
 	// Set the framebuffer clear color
 	glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
@@ -138,12 +138,12 @@ GLESRenderer::GLESRenderer() :
 
 GLESRenderer::~GLESRenderer()
 {
-	for (int i = 0; i < mVertexBufferList.GetSize(); i++)
+	for (int32_t i = 0; i < mVertexBufferList.GetSize(); i++)
 	{
 		delete mVertexBufferList[i];
 	}
 
-	for (int i = 0; i < mIndexBufferList.GetSize(); i++)
+	for (int32_t i = 0; i < mIndexBufferList.GetSize(); i++)
 	{
 		delete mIndexBufferList[i];
 	}
@@ -151,8 +151,8 @@ GLESRenderer::~GLESRenderer()
 
 void GLESRenderer::_SetViewport(const Rect& absArea)
 {
-	glViewport((int)absArea.min.x, (int)absArea.min.y, (int)absArea.max.x, (int)absArea.max.y);
-	glScissor((int)absArea.min.x, (int)absArea.min.y, (int)absArea.max.x, (int)absArea.max.y);
+	glViewport((int32_t)absArea.min.x, (int32_t)absArea.min.y, (int32_t)absArea.max.x, (int32_t)absArea.max.y);
+	glScissor((int32_t)absArea.min.x, (int32_t)absArea.min.y, (int32_t)absArea.max.x, (int32_t)absArea.max.y);
 }
 
 void GLESRenderer::SetClearColor(const Color4& color)
@@ -161,7 +161,7 @@ void GLESRenderer::SetClearColor(const Color4& color)
 }
 
 void GLESRenderer::_SetMaterialParams(const Color4& ambient, const Color4& diffuse, const Color4& specular,
-				const Color4& emission, int shininess)
+				const Color4& emission, int32_t shininess)
 {
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, &ambient.r);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, &diffuse.r);
@@ -411,7 +411,7 @@ void GLESRenderer::_SetFrontFace(FrontFace face)
 	glFrontFace(glFace);
 }
 
-void GLESRenderer::_SetViewportParams(int x, int y, int width, int height)
+void GLESRenderer::_SetViewportParams(int32_t x, int32_t y, int32_t width, int32_t height)
 {
 	glViewport(x, y, width, height);
 }
@@ -428,12 +428,12 @@ void GLESRenderer::_SetScissor(bool scissor)
 	}
 }
 
-void GLESRenderer::_SetScissorParams(int x, int y, int width, int height)
+void GLESRenderer::_SetScissorParams(int32_t x, int32_t y, int32_t width, int32_t height)
 {
 	glScissor(x, y, width, height);
 }
 
-void GLESRenderer::_SetPointSprite(bool sprite)
+void GLESRenderer::_SetPoint32_tSprite(bool sprite)
 {
 	if (sprite)
 	{
@@ -447,15 +447,15 @@ void GLESRenderer::_SetPointSprite(bool sprite)
 	}
 }
 
-void GLESRenderer::_SetPointSize(float size)
+void GLESRenderer::_SetPoint32_tSize(float size)
 {
-	glPointSize(size);
+	glPoint32_tSize(size);
 }
 
-void GLESRenderer::_SetPointParams(float min, float max)
+void GLESRenderer::_SetPoint32_tParams(float min, float max)
 {
-	glPointParameterf(GL_POINT_SIZE_MIN, min);
-	glPointParameterf(GL_POINT_SIZE_MAX, max);
+	glPoint32_tParameterf(GL_POINT_SIZE_MIN, min);
+	glPoint32_tParameterf(GL_POINT_SIZE_MAX, max);
 }
 
 void GLESRenderer::_BeginFrame()
@@ -559,7 +559,7 @@ void GLESRenderer::RenderVertexIndexBuffer(const VertexBuffer* vertices, const I
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void GLESRenderer::RenderPointBuffer(const VertexBuffer* buffer)
+void GLESRenderer::RenderPoint32_tBuffer(const VertexBuffer* buffer)
 {
 	if (buffer == NULL)
 		return;
@@ -619,16 +619,16 @@ void GLESRenderer::SetTexture(uint32_t layer, Texture* texture)
 
 void GLESRenderer::SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
-	int vals[4];
+	int32_t vals[4];
 	glGetIntegerv(GL_VIEWPORT, vals);
 	glScissor(x, vals[3] - y - height, width, height);
 }
 
 void GLESRenderer::GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height)
 {
-	int vals[4];
+	int32_t vals[4];
 	glGetIntegerv(GL_SCISSOR_BOX, vals);
-	int valsViewport[4];
+	int32_t valsViewport[4];
 	glGetIntegerv(GL_VIEWPORT, valsViewport);
 	x = vals[0];
 	width = vals[2];
@@ -636,7 +636,7 @@ void GLESRenderer::GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint
 	y = valsViewport[3] - vals[1] - height;
 }
 
-void GLESRenderer::DrawRectangle(const Point2& position, const Point2& dimensions, int drawMode,
+void GLESRenderer::DrawRectangle(const Point32_t2& position, const Point32_t2& dimensions, int32_t drawMode,
 														 const Color4& borderColor, const Color4& fillColor)
 {
 

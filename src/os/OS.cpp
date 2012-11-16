@@ -7,11 +7,11 @@ namespace os
 {
 
 static OSEvent		event_queue[MAX_OS_EVENTS];
-static int			event_queue_head = 0;
-static int			event_queue_tail = 0;
+static int32_t			event_queue_head = 0;
+static int32_t			event_queue_tail = 0;
 
 //-----------------------------------------------------------------------------
-void push_event(OSEventType type, int data_a, int data_b, int data_c, int data_d)
+void push_event(OSEventType type, int32_t data_a, int32_t data_b, int32_t data_c, int32_t data_d)
 {
 	if ((event_queue_tail + 1) % MAX_OS_EVENTS == event_queue_head)
 	{

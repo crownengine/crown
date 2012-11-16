@@ -69,14 +69,14 @@ void ListViewItem::OnDraw(DrawingClipInfo& clipInfo)
 {
 	Widget::DrawInit(clipInfo);
 	Renderer* r = GetDevice()->GetRenderer();
-	int mode = DM_NO_DRAW;
+	int32_t mode = DM_NO_DRAW;
 	if (mListView->GetSelectedIndex() == mItemIndex)
 		mode |= DM_FILL;
 
 	if (mInsideChild)
 		mode |= DM_BORDER;
 
-	r->DrawRectangle(Point2::ZERO, GetSize(), mode, Color4(0.2f, 0.4f, 1.0f), Color4(185, 213, 255));
+	r->DrawRectangle(Point32_t2::ZERO, GetSize(), mode, Color4(0.2f, 0.4f, 1.0f), Color4(185, 213, 255));
 	
 	Widget::DrawChildren(clipInfo);
 }
@@ -117,7 +117,7 @@ void ListView::OnDraw(DrawingClipInfo& clipInfo)
 
 void ListView::RegenerateItemsWidgets()
 {
-	for (int i=0; i<mListViewItems.GetSize(); i++)
+	for (int32_t i=0; i<mListViewItems.GetSize(); i++)
 	{
 		mListViewItems[i]->Destroy();
 	}
@@ -126,7 +126,7 @@ void ListView::RegenerateItemsWidgets()
 
 	if (GetItems() != NULL)
 	{
-		for (int i=0; i<GetItems()->GetSize(); i++)
+		for (int32_t i=0; i<GetItems()->GetSize(); i++)
 		{
 			ListViewItem* lwi = NULL;
 		
@@ -185,7 +185,7 @@ bool DeserializeFromStr(List<Generic>& out, Str& input)
 	input = input.GetSubstring(1, input.GetLength() - 1);
 	input.Split(',', items);
 
-	for(int i=0; i<items.GetSize(); i++)
+	for(int32_t i=0; i<items.GetSize(); i++)
 		out.Append(items[i]);
 	
 	return true;

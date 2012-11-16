@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GarbageBin.h"
 #include "WindowingEventArgs.h"
 #include "WithProperties.h"
-#include "Point2.h"
+#include "Point32_t2.h"
 #include "SignalSlot.h"
 #include "Property.h"
 
@@ -54,7 +54,7 @@ enum WidgetVisibilityEnum
 {
 	WV_VISIBLE,		//Normal visibility
 	WV_HIDDEN,		//The widget is hidden but occupies the space
-	WV_COLLAPSED	//The widget is collapsed to a point
+	WV_COLLAPSED	//The widget is collapsed to a point32_t
 };
 
 enum FitToChildrenEnum
@@ -67,8 +67,8 @@ enum FitToChildrenEnum
 
 struct DrawingClipInfo
 {
-	int screenX, screenY;	//Save the screen coordinates of the current widget
-	int sx, sy, sw, sh;		//Scissor box
+	int32_t screenX, screenY;	//Save the screen coordinates of the current widget
+	int32_t sx, sy, sw, sh;		//Scissor box
 };
 
 class Widget: public WithProperties, public IGarbageable
@@ -78,11 +78,11 @@ public:
 	virtual ~Widget();
 
 	//Desired size and position
-	inline const Point2& GetDesiredPosition() const
+	inline const Point32_t2& GetDesiredPosition() const
 	{
 		return mDesiredPosition;
 	}
-	inline const Point2& GetDesiredSize() const
+	inline const Point32_t2& GetDesiredSize() const
 	{
 		return mDesiredSize;
 	}
@@ -91,51 +91,51 @@ public:
 		return mMargins;
 	}
 
-	void SetDesiredPosition(int x, int y);
-	inline void SetDesiredPosition(const Point2& value)
+	void SetDesiredPosition(int32_t x, int32_t y);
+	inline void SetDesiredPosition(const Point32_t2& value)
 	{
 		SetDesiredPosition(value.x, value.y);
 	}
-	void SetDesiredSize(int x, int y);
-	inline void SetDesiredSize(const Point2& value)
+	void SetDesiredSize(int32_t x, int32_t y);
+	inline void SetDesiredSize(const Point32_t2& value)
 	{
 		SetDesiredSize(value.x, value.y);
 	}
-	void SetMinimumSize(int x, int y);
-	inline void SetMinimumSize(const Point2& value)
+	void SetMinimumSize(int32_t x, int32_t y);
+	inline void SetMinimumSize(const Point32_t2& value)
 	{
 		SetMinimumSize(value.x, value.y);
 	}
-	void SetMaximumSize(int x, int y);
-	inline void SetMaximumSize(const Point2& value)
+	void SetMaximumSize(int32_t x, int32_t y);
+	inline void SetMaximumSize(const Point32_t2& value)
 	{
 		SetMaximumSize(value.x, value.y);
 	}
-	inline const Point2& GetMinimumSize() const
+	inline const Point32_t2& GetMinimumSize() const
 	{
 		return mMinimumSize;
 	}
-	inline const Point2& GetMaximumSize() const
+	inline const Point32_t2& GetMaximumSize() const
 	{
 		return mMaximumSize;
 	}
 	
-	inline void SetMeasuredSize(int x, int y)
+	inline void SetMeasuredSize(int32_t x, int32_t y)
 	{
 		mMeasuredSize.x = x;
 		mMeasuredSize.y = y;
 	}
-	inline const Point2& GetMeasuredSize() const
+	inline const Point32_t2& GetMeasuredSize() const
 	{
 		return mMeasuredSize;
 	}
 
-	inline void SetTranslation(int x, int y)
+	inline void SetTranslation(int32_t x, int32_t y)
 	{
 		mTranslation.x = x;
 		mTranslation.y = y;
 	}
-	inline const Point2& GetTranslation() const
+	inline const Point32_t2& GetTranslation() const
 	{
 		return mTranslation;
 	}
@@ -149,21 +149,21 @@ public:
 		return mName;
 	}
 
-	void SetMargins(int left, int top, int right, int bottom);
+	void SetMargins(int32_t left, int32_t top, int32_t right, int32_t bottom);
 
-	inline Point2 GetPosition()
+	inline Point32_t2 GetPosition()
 	{
 		return mPosition;
 	}
-	Point2 GetScreenPosition();
-	Point2 GetRelativePosition(Widget* w);
-	inline Point2 GetSize()
+	Point32_t2 GetScreenPosition();
+	Point32_t2 GetRelativePosition(Widget* w);
+	inline Point32_t2 GetSize()
 	{
 		return mSize;
 	}
 	inline Rect GetBounds()
 	{
-		//TODO: Use a Rect with Point2 coordinates
+		//TODO: Use a Rect with Point32_t2 coordinates
 		return Rect((mPosition + mTranslation).ToVec2(), (mPosition + mTranslation + mSize).ToVec2());
 	}
 	Window* GetWindow();
@@ -183,10 +183,10 @@ public:
 		mLogicalParent = value;
 	}
 
-	inline bool IsPointInside(const Point2& point)
+	inline bool IsPoint32_tInside(const Point32_t2& point32_t)
 	{
-		//TODO: Use a Rect with Point2 coordinates
-		return GetBounds().ContainsPoint(point.ToVec2());
+		//TODO: Use a Rect with Point32_t2 coordinates
+		return GetBounds().ContainsPoint32_t(point32_t.ToVec2());
 	}
 	inline bool IsMouseOver() const
 	{
@@ -239,7 +239,7 @@ public:
 	virtual void OnMeasure(bool fitChildrenX, bool fitChildrenY);
 	virtual void OnMeasureFitX();
 	virtual void OnMeasureFitY();
-	virtual void OnArrange(Point2 position, Point2 size);
+	virtual void OnArrange(Point32_t2 position, Point32_t2 size);
 
 	bool MouseCapture();
 	void MouseRelease();
@@ -248,17 +248,17 @@ public:
 
 	void NotifyNeedsLayout();
 
-	WidgetSizeAcceptedEnum GetSizeAcceptedX(int sizeX);
-	WidgetSizeAcceptedEnum GetSizeAcceptedY(int sizeY);
+	WidgetSizeAcceptedEnum GetSizeAcceptedX(int32_t sizeX);
+	WidgetSizeAcceptedEnum GetSizeAcceptedY(int32_t sizeY);
 
-	void ErodeMarginsX(Point2& position, Point2& size);
-	void ErodeMarginsY(Point2& position, Point2& size);
+	void ErodeMarginsX(Point32_t2& position, Point32_t2& size);
+	void ErodeMarginsY(Point32_t2& position, Point32_t2& size);
 
-	int EnlargeMarginsX(Point2& position, Point2& size);
-	int EnlargeMarginsY(Point2& position, Point2& size);
+	int32_t EnlargeMarginsX(Point32_t2& position, Point32_t2& size);
+	int32_t EnlargeMarginsY(Point32_t2& position, Point32_t2& size);
 
-	void FitMeasuredSizeX(Point2& position, Point2& size);
-	void FitMeasuredSizeY(Point2& position, Point2& size);
+	void FitMeasuredSizeX(Point32_t2& position, Point32_t2& size);
+	void FitMeasuredSizeY(Point32_t2& position, Point32_t2& size);
 
 	Widget* FindChildByName(const Str& name);
 	void DestroyContent();
@@ -270,15 +270,15 @@ public:
 	virtual Str ToStr() const
 	 { return "Widget"; }
 
-	void PrintLoop(int depth);
+	void Print32_tLoop(int32_t depth);
 
 protected:
-	Point2 mDesiredPosition;
-	Point2 mDesiredSize;
-	Point2 mMeasuredSize;
-	Point2 mMaximumSize;
-	Point2 mMinimumSize;
-	Point2 mTranslation;
+	Point32_t2 mDesiredPosition;
+	Point32_t2 mDesiredSize;
+	Point32_t2 mMeasuredSize;
+	Point32_t2 mMaximumSize;
+	Point32_t2 mMinimumSize;
+	Point32_t2 mTranslation;
 
 	static bool mDrawDebugBorder;
 
@@ -346,13 +346,13 @@ protected:
 	{
 		return mChildren;
 	}
-	virtual void Resize(int width, int height);
-	inline void Resize(Point2 size)
+	virtual void Resize(int32_t width, int32_t height);
+	inline void Resize(Point32_t2 size)
 	{
 		Resize(size.x, size.y);
 	}
-	virtual void Move(int x, int y);
-	inline void Move(Point2 pos)
+	virtual void Move(int32_t x, int32_t y);
+	inline void Move(Point32_t2 pos)
 	{
 		Move(pos.x, pos.y);
 	}
@@ -364,11 +364,11 @@ protected:
 
 	void DestroyChildren();
 
-	//void ApplyMargins(Point2& position, Point2& size);
+	//void ApplyMargins(Point32_t2& position, Point32_t2& size);
 
 private:
-	Point2 mPosition;
-	Point2 mSize;
+	Point32_t2 mPosition;
+	Point32_t2 mSize;
 	Margins mMargins;
 	Widget* mParent;
 	Widget* mLogicalParent;

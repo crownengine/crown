@@ -33,8 +33,7 @@ namespace crown
 /**
 	Bit bucket stream.
 
-	Discards all data written to it and provides null data
-	reading from it; plain and simple.
+	Discards all data written to it and provides null data reading from it; plain and simple.
 */
 class NullStream: public Stream
 {
@@ -46,7 +45,7 @@ public:
 				/** @copydoc Stream::~Stream() */
 	virtual		~NullStream() {}
 				/** @copydoc Stream::Seek() */
-	void		Seek(int /*newPos*/, uint8_t /*mode*/) {}
+	void		Seek(int32_t /*newPos*/, uint8_t /*mode*/) {}
 				/**
 				@copydoc Stream::ReadByte()
 				@note

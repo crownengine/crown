@@ -56,12 +56,12 @@ public:
 
 	void					LoadFromFile(const Str& filename);
 
-	Glyph&					GetGlyph(uint32_t code);	//! Returns the glyph for the desired point code
+	Glyph&					GetGlyph(uint32_t code);	//! Returns the glyph for the desired point32_t code
 	void					SetCodeGlyphMetrics(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline);
 
-	inline uint32_t				_GetMaxTextHeight() { return mMaxTextHeight; }
-	inline uint32_t				_GetMaxCharacterHeight() { return mMaxCharacterHeight; }
-	inline uint32_t				_GetMaxCharacterWidth() { return mMaxCharacterWidth; }
+	inline uint32_t			_GetMaxTextHeight() { return mMaxTextHeight; }
+	inline uint32_t			_GetMaxCharacterHeight() { return mMaxCharacterHeight; }
+	inline uint32_t			_GetMaxCharacterWidth() { return mMaxCharacterWidth; }
 
 	Texture*				GetTexture() { return mTexture; }
 
@@ -69,9 +69,9 @@ private:
 
 	CodeGlyphDict			mCodeGlyphDict;
 
-	uint32_t					mMaxTextHeight;
-	uint32_t					mMaxCharacterHeight;
-	uint32_t					mMaxCharacterWidth;
+	uint32_t				mMaxTextHeight;
+	uint32_t				mMaxCharacterHeight;
+	uint32_t				mMaxCharacterWidth;
 
 	Texture*				mTexture;
 };

@@ -34,7 +34,7 @@ namespace crown
 bool Stream::ZipTo(Stream* stream, size_t size, size_t& zippedSize)
 {
 	const size_t CHUNK_SIZE = 16384;
-	int ret, flush;
+	int32_t ret, flush;
 	unsigned have;
 	z_stream strm;
 	unsigned char in[CHUNK_SIZE];
@@ -87,7 +87,7 @@ bool Stream::ZipTo(Stream* stream, size_t size, size_t& zippedSize)
 bool Stream::UnzipTo(Stream* stream, size_t& /*unzippedSize*/)
 {
 	const size_t CHUNK_SIZE = 16384;
-	int ret;
+	int32_t ret;
 	unsigned have;
 	z_stream strm;
 	unsigned char in[CHUNK_SIZE];
@@ -155,17 +155,17 @@ BinaryReader::~BinaryReader()
 {
 }
 
-uint8_t BinaryReader::ReadByte()
+int8_t BinaryReader::ReadByte()
 {
-	uint8_t buffer;
-	mStream->ReadDataBlock(&buffer, sizeof(uint8_t));
+	int8_t buffer;
+	mStream->ReadDataBlock(&buffer, sizeof(int8_t));
 	return buffer;
 }
 
-short BinaryReader::ReadInt16()
+int16_t BinaryReader::ReadInt16()
 {
-	short buffer;
-	mStream->ReadDataBlock(&buffer, sizeof(short));
+	int16_t buffer;
+	mStream->ReadDataBlock(&buffer, sizeof(int16_t));
 	return buffer;
 }
 
@@ -176,10 +176,10 @@ uint16_t BinaryReader::ReadUint16()
 	return buffer;
 }
 
-int BinaryReader::ReadInt32()
+int32_t BinaryReader::ReadInt32()
 {
-	int buffer;
-	mStream->ReadDataBlock(&buffer, sizeof(int));
+	int32_t buffer;
+	mStream->ReadDataBlock(&buffer, sizeof(int32_t));
 	return buffer;
 }
 
@@ -190,10 +190,10 @@ uint32_t BinaryReader::ReadUint32()
 	return buffer;
 }
 
-long long BinaryReader::ReadInt64()
+int64_t BinaryReader::ReadInt64()
 {
-	long long buffer;
-	mStream->ReadDataBlock(&buffer, sizeof(long long));
+	int64_t buffer;
+	mStream->ReadDataBlock(&buffer, sizeof(int64_t));
 	return buffer;
 }
 
@@ -221,14 +221,14 @@ BinaryWriter::~BinaryWriter()
 {
 }
 
-void BinaryWriter::WriteByte(uint8_t buffer)
+void BinaryWriter::WriteByte(int8_t buffer)
 {
-	mStream->WriteDataBlock(&buffer, sizeof(uint8_t));
+	mStream->WriteDataBlock(&buffer, sizeof(int8_t));
 }
 
-void BinaryWriter::WriteInt16(short buffer)
+void BinaryWriter::WriteInt16(int16_t buffer)
 {
-	mStream->WriteDataBlock(&buffer, sizeof(short));
+	mStream->WriteDataBlock(&buffer, sizeof(int16_t));
 }
 
 void BinaryWriter::WriteUint16(uint16_t buffer)
@@ -236,9 +236,9 @@ void BinaryWriter::WriteUint16(uint16_t buffer)
 	mStream->WriteDataBlock(&buffer, sizeof(uint16_t));
 }
 
-void BinaryWriter::WriteInt32(int buffer)
+void BinaryWriter::WriteInt32(int32_t buffer)
 {
-	mStream->WriteDataBlock(&buffer, sizeof(int));
+	mStream->WriteDataBlock(&buffer, sizeof(int32_t));
 }
 
 void BinaryWriter::WriteUint32(uint32_t buffer)
@@ -246,9 +246,9 @@ void BinaryWriter::WriteUint32(uint32_t buffer)
 	mStream->WriteDataBlock(&buffer, sizeof(uint32_t));
 }
 
-void BinaryWriter::WriteInt64(long long buffer)
+void BinaryWriter::WriteInt64(int64_t buffer)
 {
-	mStream->WriteDataBlock(&buffer, sizeof(long long));
+	mStream->WriteDataBlock(&buffer, sizeof(int64_t));
 }
 
 void BinaryWriter::WriteDouble(double buffer)
@@ -261,10 +261,10 @@ void BinaryWriter::WriteFloat(float buffer)
 	mStream->WriteDataBlock(&buffer, sizeof(float));
 }
 
-void BinaryWriter::InsertByte(uint8_t val, size_t offset)
+void BinaryWriter::InsertByte(int8_t val, size_t offset)
 {
 	size_t tmpSize = mStream->GetSize() - offset;
-	uint8_t* tmp = new uint8_t[tmpSize];
+	int8_t* tmp = new int8_t[tmpSize];
 	mStream->Seek(offset, SM_SeekFromBegin);
 	mStream->ReadDataBlock(tmp, tmpSize);
 	mStream->Seek(offset, SM_SeekFromBegin);
@@ -287,10 +287,10 @@ char TextReader::ReadChar()
 	return mStream->ReadByte();
 }
 
-char* TextReader::ReadString(char* string, int count)
+char* TextReader::ReadString(char* string, int32_t count)
 {
 	char currentChar;
-	int i = 0;
+	int32_t i = 0;
 
 	while(!mStream->EndOfStream() && i < count - 1)
 	{

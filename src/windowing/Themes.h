@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Point2.h"
+#include "Point32_t2.h"
 #include "Sprite.h"
 
 namespace Crown
@@ -47,7 +47,7 @@ enum ThemesSprites
 	TS_BOOM
 };
 
-typedef void (*ThemeFunction)(const Point2& size);
+typedef void (*ThemeFunction)(const Point32_t2& size);
 
 class ITheme
 {
@@ -65,7 +65,7 @@ public:
 	~Themes();
 
 	static void LoadTheme(ITheme* theme);
-	static void Draw(ThemesFunctions functionId, const Point2& size);
+	static void Draw(ThemesFunctions functionId, const Point32_t2& size);
 	static void Draw(ThemesSprites spriteId, uint32_t frameNumber);
 	static Sprite* GetSprite(ThemesSprites spriteId);
 

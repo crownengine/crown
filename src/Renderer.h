@@ -123,12 +123,12 @@ public:
 	@param specular
 		The specular reflectance
 	@param emission
-		The emitted light intensity
+		The emitted light int32_tensity
 	@param shininess
 		The specular exponent
 	*/
 	virtual void _SetMaterialParams(const Color4& ambient, const Color4& diffuse, const Color4& specular,
-					const Color4& emission, int shininess) = 0;
+					const Color4& emission, int32_t shininess) = 0;
 
 	/**
 		Sets whether lighting is enabled.
@@ -141,9 +141,9 @@ public:
 		Sets the global ambient light.
 	@note
 		The global ambient light defines the ambient
-		intensity for the entire scene.
+		int32_tensity for the entire scene.
 	@param color
-		The ambient intensity
+		The ambient int32_tensity
 	*/
 	virtual void _SetAmbientLight(const Color4& color) = 0;
 
@@ -169,7 +169,7 @@ public:
 		Sets the texture mode for the given texture unit.
 	@note
 		The texture mode specifies how the texture
-		values are interpreted when a fragment is
+		values are int32_terpreted when a fragment is
 		textured.
 	@param unit
 		The texture unit
@@ -290,7 +290,7 @@ public:
 	/**
 		Specifies fog parameters.
 	@note
-		This method specifies mode, intensity, start
+		This method specifies mode, int32_tensity, start
 		and end position and the color of fog.
 	*/ // TODO 
 	virtual void _SetFogParams(FogMode mode, float density, float start, float end, const Color4& color) = 0;
@@ -305,11 +305,11 @@ public:
 
 	virtual void _SetFrontFace(FrontFace face) = 0;
 
-	virtual void _SetViewportParams(int x, int y, int width, int height) = 0;
+	virtual void _SetViewportParams(int32_t x, int32_t y, int32_t width, int32_t height) = 0;
 
 	virtual void _SetScissor(bool scissor) = 0;
 
-	virtual void _SetScissorParams(int x, int y, int width, int height) = 0;
+	virtual void _SetScissorParams(int32_t x, int32_t y, int32_t width, int32_t height) = 0;
 
 	virtual void _SetPointSprite(bool sprite) = 0;
 
@@ -355,7 +355,7 @@ public:
 	virtual void RenderPointBuffer(const VertexBuffer* buffer) = 0;
 
 	//! Draws a Rectangle
-	virtual void DrawRectangle(const Point2& position, const Point2& dimensions, int drawMode,
+	virtual void DrawRectangle(const Point2& position, const Point2& dimensions, int32_t drawMode,
 														 const Color4& borderColor = Color4::BLACK, const Color4& fillColor = Color4::WHITE) = 0;
 
 	virtual void AddDebugLine(const Vec3& start, const Vec3& end, const Color4& color) = 0;

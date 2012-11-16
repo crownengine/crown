@@ -57,7 +57,7 @@ class ResourceManager;
 	for referring to files on disk covered in Filesystem.
 
 	In order to save space and keep high performances, resource
-	names are stored as 64-bit long sting hashes.
+	names are stored as 64-bit int64_t sting hashes.
 */
 class Resource
 {

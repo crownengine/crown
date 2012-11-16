@@ -52,8 +52,8 @@ public:
 
 	Plane&				normalize();								//!< Normalizes the plane
 
-	real				get_distance_to_point(const Vec3& p) const;	//!< Returns the signed distance between point "p" and the plane
-	bool				contains_point(const Vec3& p) const;		//!< Returns whether the plane contains the point
+	real				get_distance_to_point32_t(const Vec3& p) const;	//!< Returns the signed distance between point32_t "p" and the plane
+	bool				contains_point32_t(const Vec3& p) const;		//!< Returns whether the plane contains the point32_t
 
 	static const Plane	ZERO;
 	static const Plane	XAXIS;

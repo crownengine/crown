@@ -59,7 +59,7 @@ WindowsManager::WindowsManager(Scene* creator):
 
 WindowsManager::~WindowsManager()
 {
-	for (int i=0; i<mWindows.GetSize(); i++)
+	for (int32_t i=0; i<mWindows.GetSize(); i++)
 	{
 		delete mWindows[i];
 	}
@@ -84,8 +84,8 @@ bool WindowsManager::DoModalWindow(Window* window)
 
 	uint32_t rwWidth, rwHeight;
 	renderWindow->GetMetrics(rwWidth, rwHeight);
-	window->SetDesiredPosition((int)Math::Floor(((float)rwWidth  - window->GetSize().x)/2.0f),
-														 (int)Math::Floor(((float)rwHeight - window->GetSize().y)/2.0f));
+	window->SetDesiredPosition((int32_t)Math::Floor(((float)rwWidth  - window->GetSize().x)/2.0f),
+														 (int32_t)Math::Floor(((float)rwHeight - window->GetSize().y)/2.0f));
 
 	return true;
 }
@@ -152,7 +152,7 @@ void WindowsManager::ButtonReleased(const MouseEvent& event)
 
 void WindowsManager::CursorMoved(const MouseEvent& event)
 {
-	Point2 newMousePosition(event.x, event.y);
+	Point32_t2 newMousePosition(event.x, event.y);
 
 	if (mMousePosition.x == -10000)
 	{
@@ -160,7 +160,7 @@ void WindowsManager::CursorMoved(const MouseEvent& event)
 	}
 
 	//Check for the widget under mouse.
-	Point2 point(newMousePosition);
+	Point32_t2 point32_t(newMousePosition);
 	Widget* wdg = NULL;
 	Widget* wdgToMove = NULL;
 
@@ -171,24 +171,24 @@ void WindowsManager::CursorMoved(const MouseEvent& event)
 
 		if (parent != NULL)
 		{
-			point -= parent->GetScreenPosition();
+			point32_t -= parent->GetScreenPosition();
 		}
 
-		if (mMouseCapturedWidget->IsPointInside(point))
+		if (mMouseCapturedWidget->IsPoint32_tInside(point32_t))
 		{
 			wdg = mMouseCapturedWidget;
 		}
 	}
 	else
 	{
-		for (int i=mWindows.GetSize()-1; i>=0; i--)
+		for (int32_t i=mWindows.GetSize()-1; i>=0; i--)
 		{
 			Window* w = mWindows[i];
 
-			if (w->IsMouseSensible() && w->IsPointInside(point))
+			if (w->IsMouseSensible() && w->IsPoint32_tInside(point32_t))
 			{
-				point -= w->GetPosition() + w->GetTranslation();
-				wdg = FindWidgetAt(w, point);
+				point32_t -= w->GetPosition() + w->GetTranslation();
+				wdg = FindWidgetAt(w, point32_t);
 				break;
 			}
 		}
@@ -224,7 +224,7 @@ void WindowsManager::CursorMoved(const MouseEvent& event)
 
 	if (wdgToMove)
 	{
-		point -= wdgToMove->GetPosition();
+		point32_t -= wdgToMove->GetPosition();
 		MouseMoveHelper(wdgToMove, newMousePosition - mMousePosition);
 	}
 
@@ -265,18 +265,18 @@ void WindowsManager::TextInput(const KeyboardEvent& event)
 	}
 }
 
-Widget* WindowsManager::FindWidgetAt(Widget* parent, Point2& point) const
+Widget* WindowsManager::FindWidgetAt(Widget* parent, Point32_t2& point32_t) const
 {
 	Widget* widgetInside = parent;
 
-	for (int i=parent->mChildren.GetSize()-1; i>=0; i--)
+	for (int32_t i=parent->mChildren.GetSize()-1; i>=0; i--)
 	{
 		Widget* w = parent->mChildren[i];
 
-		if (w->IsPointInside(point))
+		if (w->IsPoint32_tInside(point32_t))
 		{
-			point -= w->GetPosition() + w->GetTranslation();
-			widgetInside = FindWidgetAt(w, point);
+			point32_t -= w->GetPosition() + w->GetTranslation();
+			widgetInside = FindWidgetAt(w, point32_t);
 			break;
 		}
 	}
@@ -290,7 +290,7 @@ Widget* WindowsManager::FindWidgetAt(Widget* parent, Point2& point) const
 }
 
 
-//Propagate the event in the widgets hierarchy. delegate contains the pointer to function and the
+//Propagate the event in the widgets hierarchy. delegate contains the point32_ter to function and the
 //parameters that need to be passed to it.
 void WindowsManager::LaunchEvent(Widget* targetWidget, IDelegate1<void, bool>* onEventHelper, WindowingEventArgs* args)
 {
@@ -307,7 +307,7 @@ void WindowsManager::LaunchEvent(Widget* targetWidget, IDelegate1<void, bool>* o
 
 	//Tunneling
 	args->StopPropagation(false);
-	for(int i = ancestors.GetSize()-1; i >= 0; i--)
+	for(int32_t i = ancestors.GetSize()-1; i >= 0; i--)
 	{
 		onEventHelper->SetCalledObject(ancestors[i]);
 		onEventHelper->Invoke(true);
@@ -317,7 +317,7 @@ void WindowsManager::LaunchEvent(Widget* targetWidget, IDelegate1<void, bool>* o
 
 	//Bubbling
 	args->StopPropagation(false);
-	for(int i = 0; i < ancestors.GetSize(); i++)
+	for(int32_t i = 0; i < ancestors.GetSize(); i++)
 	{
 		onEventHelper->SetCalledObject(ancestors[i]);
 		onEventHelper->Invoke(false);
@@ -344,7 +344,7 @@ void WindowsManager::MouseOutHelper(Widget* targetWidget)
 	LaunchEvent(targetWidget, &d, &args);
 }
 
-void WindowsManager::MouseMoveHelper(Widget* targetWidget, const Point2& delta)
+void WindowsManager::MouseMoveHelper(Widget* targetWidget, const Point32_t2& delta)
 {
 	MouseMoveEventArgs args(targetWidget, delta);
 	Delegate2<Widget, void, bool, MouseMoveEventArgs*> d(NULL, &Widget::OnMouseMoveHelper, true, &args);
@@ -492,7 +492,7 @@ void WindowsManager::Render()
 	renderer->_SetBlendingParams(BE_FUNC_ADD, BF_SRC_ALPHA, BF_ONE_MINUS_SRC_ALPHA, Color4::BLACK);
 	renderer->_SetLighting(false);
 
-	for (int i=0; i<mWindows.GetSize(); i++)
+	for (int32_t i=0; i<mWindows.GetSize(); i++)
 	{
 		renderer->PushMatrix();
 		Window* wnd = mWindows[i];
@@ -502,15 +502,15 @@ void WindowsManager::Render()
 		{
 			RenderWindow* renderWindow = GetDevice()->GetMainWindow();
 			//Draw a dark-gray overlay before drawing the modal window
-			//TODO: Adjust this behaviour by introducing windows z-ordering and foremost windows
+			//TODO: Adjust this behaviour by int32_troducing windows z-ordering and foremost windows
 			Color4 fillColor(0.0f, 0.0f, 0.0f, 0.3f);
 			renderer->_SetScissor(false);
-			renderer->DrawRectangle(Point2::ZERO, Point2(rwWidth, rwHeight), DM_FILL, fillColor, fillColor);
+			renderer->DrawRectangle(Point32_t2::ZERO, Point32_t2(rwWidth, rwHeight), DM_FILL, fillColor, fillColor);
 			renderer->_SetScissor(true);
 		}
 
-		Point2 pos = wnd->GetPosition();
-		Point2 size = wnd->GetSize();
+		Point32_t2 pos = wnd->GetPosition();
+		Point32_t2 size = wnd->GetSize();
 		glTranslatef((float)pos.x, (float)pos.y, 0.0f);
 
 		DrawingClipInfo clipInfo;

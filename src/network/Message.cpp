@@ -18,13 +18,13 @@ Message::~Message()
   
 }
 
-uchar* Message::get_byte_space(int len)
+uint8_t* Message::get_byte_space(int32_t len)
 {
-	byte *ptr;
+	uint8_t *ptr;
 
 	if (!w_data) 
 	{
-		os::printf( "idBitMsg::GetByteSpace: cannot write to message" );
+		printf( "idBitMsg::GetByteSpace: cannot write to message" );
 	}
 
 	// round up to the next byte
@@ -40,7 +40,7 @@ uchar* Message::get_byte_space(int len)
 	return ptr;  
 }
 
-bool Message::check_overflow(int num_bits)
+bool Message::check_overflow(int32_t num_bits)
 {
 	assert( num_bits >= 0 );
 	
@@ -48,9 +48,9 @@ bool Message::check_overflow(int num_bits)
 	{
 		if (num_bits > (max_size << 3)) 
 		{
-			os::printf(" %i bits is > full message size", num_bits );
+			printf(" %i bits is > full message size", num_bits );
 		}
-		os::printf("overflow\n");
+		printf("overflow\n");
 		begin_writing();
 		overflowed = true;
 		return true;
@@ -58,31 +58,31 @@ bool Message::check_overflow(int num_bits)
 	return false;  
 }
 
-void Message::init(uchar *data, int len)
+void Message::init(uint8_t *data, int32_t len)
 {
 	w_data = data;
 	r_data = data;
 	max_size = len;
 }
 
-void Message::init(const uchar *data, int len)
+void Message::init(const uint8_t *data, int32_t len)
 {
 	w_data = NULL;
 	r_data = data;
 	max_size = len;
 }
 
-uchar* Message::get_data()
+uint8_t* Message::get_data()
 {
 	return w_data;
 }
 
-const uchar* Message::get_data() const
+const uint8_t* Message::get_data() const
 {
 	return r_data;
 }
 
-int Message::get_max_size() const
+int32_t Message::get_max_size() const
 {
 	return max_size;
 }
@@ -93,12 +93,12 @@ bool Message::is_overflowed()
 }
 
 
-int Message::get_size() const
+int32_t Message::get_size() const
 {
 	return cur_size;
 }
 
-void Message::set_size(int size)
+void Message::set_size(int32_t size)
 {
 	if (size > max_size)
 	{
@@ -110,12 +110,12 @@ void Message::set_size(int size)
 	}
 }
 
-int Message::get_write_bit() const
+int32_t Message::get_write_bit() const
 {
 	return write_bit;
 }
 
-void Message::set_write_bit(int bit)
+void Message::set_write_bit(int32_t bit)
 {
 	write_bit = bit & 7;
 	if (write_bit) 
@@ -124,23 +124,23 @@ void Message::set_write_bit(int bit)
 	}
 }
 
-int Message::get_num_bits_written() const
+int32_t Message::get_num_bits_written() const
 {
 	return ((cur_size << 3) - ((8 - write_bit) & 7));  
 }
   
-int Message::get_remaining_write_bits() const
+int32_t Message::get_remaining_write_bits() const
 {
 	return (max_size << 3) - get_num_bits_written(); 
 }
 
-void Message::save_write_state(int& s,int& b) const
+void Message::save_write_state(int32_t& s,int32_t& b) const
 {
 	s = cur_size;
 	b = write_bit;
 }
 
-void Message::restore_write_state(int s,int b)
+void Message::restore_write_state(int32_t s,int32_t b)
 {
 	cur_size = s;
 	write_bit = b & 7;
@@ -151,43 +151,43 @@ void Message::restore_write_state(int s,int b)
 	}  
 }
 
-int Message::get_read_count() const
+int32_t Message::get_read_count() const
 {
 	return read_count;
 }
 
-void Message::set_read_count(int bytes)
+void Message::set_read_count(int32_t bytes)
 {
 	read_count = bytes;
 }
 
-int Message::get_read_bit() const
+int32_t Message::get_read_bit() const
 {
 	return read_bit;
 }
 
-void Message::set_read_bit(int bit)
+void Message::set_read_bit(int32_t bit)
 {
 	read_bit = bit & 7;
 }
 
-int Message::get_num_bits_read() const
+int32_t Message::get_num_bits_read() const
 {
 	return ((read_count << 3) - ((8 - read_bit) & 7));  
 }
 
-int Message::get_remaining_read_bits() const
+int32_t Message::get_remaining_read_bits() const
 {
 	return (cur_size << 3) - get_num_bits_read();
 }
 
-void Message::save_read_state(int& c, int& b) const
+void Message::save_read_state(int32_t& c, int32_t& b) const
 {
 	c = read_count;
 	b = read_bit;
 }
 
-void Message::restore_read_state(int c, int b)
+void Message::restore_read_state(int32_t c, int32_t b)
 {
 	read_count = c;
 	read_bit = b & 7;
@@ -200,7 +200,7 @@ void Message::begin_writing()
 	overflowed = false;
 }
 
-int Message::get_remaining_space() const
+int32_t Message::get_remaining_space() const
 {
 	return max_size - cur_size;
 }
@@ -210,20 +210,20 @@ void Message::write_byte_align()
 	write_bit = 0;
 }
 
-void Message::write_bits(int value, int num_bits)
+void Message::write_bits(int32_t value, int32_t num_bits)
 {
-	int		put;
-	int		fraction;
+	int32_t		put;
+	int32_t		fraction;
 
 	// check if w_data is void
 	if (!w_data) 
 	{
-		os::printf( "cannot write to message" );
+		printf( "cannot write to message" );
 	}
 	// check if the number of bits is valid
 	if (num_bits == 0 || num_bits < -31 || num_bits > 32) 
 	{
-		os::printf( "bad numBits %i", num_bits);
+		printf( "bad numBits %i", num_bits);
 	}
 
 	// check for value overflows
@@ -234,23 +234,23 @@ void Message::write_bits(int value, int num_bits)
 		{
 			if (value > (1 << num_bits) - 1) 
 			{
-				os::printf( "value overflow %d %d", value, num_bits );
+				printf( "value overflow %d %d", value, num_bits );
 			} 
 			else if (value < 0) 
 			{
-				os::printf( "value overflow %d %d", value, num_bits );
+				printf( "value overflow %d %d", value, num_bits );
 			}
 		} 
 		else 
 		{
-			int r = 1 << (-1 - num_bits);
+			int32_t r = 1 << (-1 - num_bits);
 			if (value > r - 1) 
 			{
-				os::printf( "value overflow %d %d", value, num_bits );
+				printf( "value overflow %d %d", value, num_bits );
 			} 
 			else if (value < -r) 
 			{
-				os::printf( "value overflow %d %d", value, num_bits );
+				printf( "value overflow %d %d", value, num_bits );
 			}
 		}
 	}
@@ -290,37 +290,37 @@ void Message::write_bits(int value, int num_bits)
 	}
 }
 
-void Message::write_char(int c)
+void Message::write_int8(int32_t c)
 {
 	write_bits(c, -8);
 }
 
-void Message::write_uchar(int c)
+void Message::write_uint8(int32_t c)
 {
 	write_bits(c, 8);  
 }
 
-void Message::write_short(int c)
+void Message::write_int16(int32_t c)
 {
 	write_bits(c, -16);  
 }
 
-void Message::write_ushort(int c)
+void Message::write_uint16(int32_t c)
 {
 	write_bits(c, 16);
 }
 
-void Message::write_long(int c)
+void Message::write_int64(int32_t c)
 {
 	write_bits(c, 32);
 }
 
 void Message::write_real(real f)
 {
-	write_bits(*reinterpret_cast<int *>(&f), 32);  
+	write_bits(*reinterpret_cast<int32_t *>(&f), 32);  
 }
 
-void Message::write_real(real f, int exp_bits, int mant_bits)
+void Message::write_real(real f, int32_t exp_bits, int32_t mant_bits)
 {
 	//TODO:need to implement floatToBits function
 }
@@ -330,17 +330,17 @@ void Message::write_angle(real f)
 	// needs to be implemented
 }
 
-void Message::write_vec3(const Vec3& v, int num_bits)
+void Message::write_vec3(const Vec3& v, int32_t num_bits)
 {
 	
 }
 
-void Message::write_string(const char* s, int max_len, bool make7Bit)
+void Message::write_string(const char* s, int32_t max_len, bool make7Bit)
 {
   
 }
 
-void Message::write_data(const void* data, int length)
+void Message::write_data(const void* data, int32_t length)
 {
 
 }
@@ -355,7 +355,7 @@ void Message::begin_reading() const
   
 }
 
-int Message::get_remaing_data() const
+int32_t Message::get_remaing_data() const
 {
   
 }
@@ -365,21 +365,21 @@ void Message::read_byte_align() const
   
 }
 
-int Message::read_bits(int num_bits) const
+int32_t Message::read_bits(int32_t num_bits) const
 {
-	int		value;
-	int		value_bits;
-	int		get;
-	int		fraction;
+	int32_t		value;
+	int32_t		value_bits;
+	int32_t		get;
+	int32_t		fraction;
 	bool	sgn;
 
 	if ( !r_data ) {
-		os::printf("cannot read from message");
+		printf("cannot read from message");
 	}
 
 	// check if the number of bits is valid
 	if ( num_bits == 0 || num_bits < -31 || num_bits > 32 ) {
-		os::printf("bad number of bits %i", num_bits );
+		printf("bad number of bits %i", num_bits );
 	}
 
 	value = 0;
@@ -436,25 +436,25 @@ int Message::read_bits(int num_bits) const
 	return value;  
 }
 
-int Message::read_char() const
+int32_t Message::read_int8() const
 {
 }
 
-int Message::read_uchar() const
+int32_t Message::read_uint8() const
 {
 }
 
-int Message::read_short() const
-{
-  
-}
-
-int Message::read_ushort() const
+int32_t Message::read_int16() const
 {
   
 }
 
-int Message::read_long() const
+int32_t Message::read_uint16() const
+{
+  
+}
+
+int32_t Message::read_int64() const
 {
   
 }
@@ -464,7 +464,7 @@ real Message::read_real() const
   
 }
 
-real Message::read_real(int exp_bits, int mant_bits) const
+real Message::read_real(int32_t exp_bits, int32_t mant_bits) const
 {
   
 }
@@ -474,17 +474,17 @@ real Message::read_angle() const
   
 }
 
-Vec3 Message::read_vec3(int num_bits) const
+Vec3 Message::read_vec3(int32_t num_bits) const
 {
   
 }
 
-int Message::read_string(char* buffer, int buffer_size) const
+int32_t Message::read_string(char* buffer, int32_t buffer_size) const
 {
   
 }
 
-int Message::read_data(void* data, int length) const
+int32_t Message::read_data(void* data, int32_t length) const
 {
   
 }
@@ -494,7 +494,7 @@ void Message::read_ipv4addr(os::IPv4Address* addr) const
   
 }
 
-// static int		vec3_to_bits(const Vec3& v, int num_bits);
-// static Vec3		bits_to_vec3(int bits, int num_bits);
+// static int32_t		vec3_to_bits(const Vec3& v, int32_t num_bits);
+// static Vec3		bits_to_vec3(int32_t bits, int32_t num_bits);
 }
 }

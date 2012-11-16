@@ -61,12 +61,11 @@ GLRenderer::GLRenderer() :
 	mMaxTextureUnits(0),
 	mMaxVertexIndices(0),
 	mMaxVertexVertices(0),
+	mMaxAnisotropy(0.0f),
 
 	mOcclusionQueryList(get_default_allocator()),
 	mVertexBufferList(get_default_allocator()),
 	mIndexBufferList(get_default_allocator()),
-
-	mMaxAnisotropy(0.0f),
 
 	mActiveTextureUnit(0),
 
@@ -110,9 +109,9 @@ GLRenderer::GLRenderer() :
 	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &mMinMaxPointSize[0]);
 	glGetFloatv(GL_LINE_WIDTH_RANGE, &mMinMaxLineWidth[0]);
 
-	const uint8_t* gl_vendor = glGetString(GL_VENDOR);
-	const uint8_t* gl_renderer = glGetString(GL_RENDERER);
-	const uint8_t* gl_version = glGetString(GL_VERSION);
+	const unsigned char* gl_vendor = glGetString(GL_VENDOR);
+	const unsigned char* gl_renderer = glGetString(GL_RENDERER);
+	const unsigned char* gl_version = glGetString(GL_VERSION);
 
 	Log::I("OpenGL Vendor\t: %s", gl_vendor);
 	Log::I("OpenGL Renderer\t: %s", gl_renderer);
@@ -156,7 +155,7 @@ GLRenderer::GLRenderer() :
 	float amb[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, amb);
 
-	// Some hints
+	// Some hint32_ts
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
 	// Set the framebuffer clear color
@@ -198,8 +197,8 @@ GLRenderer::~GLRenderer()
 //-----------------------------------------------------------------------------
 void GLRenderer::_SetViewport(const Rect& absArea)
 {
-	glViewport((int)absArea.min.x, (int)absArea.min.y, (int)absArea.max.x, (int)absArea.max.y);
-	glScissor((int)absArea.min.x, (int)absArea.min.y, (int)absArea.max.x, (int)absArea.max.y);
+	glViewport((int32_t)absArea.min.x, (int32_t)absArea.min.y, (int32_t)absArea.max.x, (int32_t)absArea.max.y);
+	glScissor((int32_t)absArea.min.x, (int32_t)absArea.min.y, (int32_t)absArea.max.x, (int32_t)absArea.max.y);
 }
 
 //-----------------------------------------------------------------------------
@@ -210,7 +209,7 @@ void GLRenderer::SetClearColor(const Color4& color)
 
 //-----------------------------------------------------------------------------
 void GLRenderer::_SetMaterialParams(const Color4& ambient, const Color4& diffuse, const Color4& specular,
-				const Color4& emission, int shininess)
+				const Color4& emission, int32_t shininess)
 {
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, &ambient.r);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, &diffuse.r);
@@ -499,7 +498,7 @@ void GLRenderer::_SetFrontFace(FrontFace face)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetViewportParams(int x, int y, int width, int height)
+void GLRenderer::_SetViewportParams(int32_t x, int32_t y, int32_t width, int32_t height)
 {
 	glViewport(x, y, width, height);
 }
@@ -518,7 +517,7 @@ void GLRenderer::_SetScissor(bool scissor)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetScissorParams(int x, int y, int width, int height)
+void GLRenderer::_SetScissorParams(int32_t x, int32_t y, int32_t width, int32_t height)
 {
 	glScissor(x, y, width, height);
 }
@@ -607,7 +606,7 @@ void GLRenderer::PushMatrix()
 {
 	assert(mModelMatrixStackIndex != MAX_MODEL_MATRIX_STACK_DEPTH);
 
-	//Copy the current matrix into the stack, and move to the next location
+	//Copy the current matrix int32_to the stack, and move to the next location
 	glGetFloatv(GL_MODELVIEW_MATRIX, mModelMatrixStack[mModelMatrixStackIndex].to_float_ptr());
 	mModelMatrixStackIndex++;
 }
@@ -741,7 +740,7 @@ void GLRenderer::SetTexture(uint32_t layer, Texture* texture)
 //-----------------------------------------------------------------------------
 void GLRenderer::SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
-	int vals[4];
+	int32_t vals[4];
 	glGetIntegerv(GL_VIEWPORT, vals);
 	glScissor(x, vals[3] - y - height, width, height);
 }
@@ -749,9 +748,9 @@ void GLRenderer::SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t 
 //-----------------------------------------------------------------------------
 void GLRenderer::GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height)
 {
-	int vals[4];
+	int32_t vals[4];
 	glGetIntegerv(GL_SCISSOR_BOX, vals);
-	int valsViewport[4];
+	int32_t valsViewport[4];
 	glGetIntegerv(GL_VIEWPORT, valsViewport);
 	x = vals[0];
 	width = vals[2];
@@ -760,7 +759,7 @@ void GLRenderer::GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::DrawRectangle(const Point2& position, const Point2& dimensions, int drawMode,
+void GLRenderer::DrawRectangle(const Point2& position, const Point2& dimensions, int32_t drawMode,
 															 const Color4& borderColor, const Color4& fillColor)
 {
 	if (drawMode & DM_FILL)

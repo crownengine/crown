@@ -70,7 +70,7 @@ public:
 
 private:
 	Str mText;
-	Point2 mTextSize;
+	Point32_t2 mTextSize;
 	Font* mFont;
 	LabelHorizontalAlign mHorizontalAlign;
 	LabelVerticalAlign mVerticalAlign;

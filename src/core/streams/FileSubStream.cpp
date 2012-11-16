@@ -107,7 +107,7 @@ bool FileSubStream::CopyTo(Stream* stream, size_t size)
 		return false;
 	}
 
-	const int chunksize = 1024*1024;
+	const int32_t chunksize = 1024*1024;
 
 	char* buff = new char[chunksize];
 
@@ -115,7 +115,7 @@ bool FileSubStream::CopyTo(Stream* stream, size_t size)
 
 	while (size == 0 || totReadBytes < size)
 	{
-		int readBytes;
+		int32_t readBytes;
 		readBytes = fread(buff, 1, chunksize, mFile->GetHandle());
 
 		if (readBytes < chunksize)
@@ -171,7 +171,7 @@ void FileSubStream::Flush()
 	fflush(mFile->GetHandle());
 }
 
-void FileSubStream::Seek(int newPos, SeekMode mode)
+void FileSubStream::Seek(int32_t newPos, SeekMode mode)
 {
 	CheckValid();
 	//flush(); <<<---?

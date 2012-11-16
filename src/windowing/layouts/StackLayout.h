@@ -43,7 +43,7 @@ public:
 	StackLayout(Widget* parent);
 	virtual ~StackLayout();
 
-	virtual void OnArrange(Point2 position, Point2 size);
+	virtual void OnArrange(Point32_t2 position, Point32_t2 size);
 	virtual void OnMeasureFitX();
 	virtual void OnMeasureFitY();
 

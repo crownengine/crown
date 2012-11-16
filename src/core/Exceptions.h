@@ -59,11 +59,11 @@ private:
 	char* mMessage;
 };
 
-class NullPointerException: public Exception
+class NullPoint32_terException: public Exception
 {
 public:
-	NullPointerException(const char* message): Exception(message) { }
-	virtual ~NullPointerException() throw() { }
+	NullPoint32_terException(const char* message): Exception(message) { }
+	virtual ~NullPoint32_terException() throw() { }
 };
 
 class ArgumentException: public Exception

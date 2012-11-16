@@ -41,14 +41,14 @@ namespace crown
 struct BitmapInfoHeader
 {
 	uint32_t biSize;
-	int  biWidth;
-	int  biHeight;
+	int32_t  biWidth;
+	int32_t  biHeight;
 	uint16_t biPlanes;
 	uint16_t biBitCount;
 	uint32_t biCompression;
 	uint32_t biSizeImage;
-	int  biXPelsPerMeter;
-	int  biYPelsPerMeter;
+	int32_t  biXPelsPerMeter;
+	int32_t  biYPelsPerMeter;
 	uint32_t biClrUsed;
 	uint32_t biClrImportant;
 };
@@ -79,9 +79,9 @@ Image* BMPImageLoader::LoadFile(const char* relativePath)
 
 	BitmapFileHeader bfh;
 	BitmapInfoHeader bih;
-	short int magicNumber = 0;
-	int padSize = 0;
-	int dataSize = 0;
+	int32_t magicNumber = 0;
+	int32_t padSize = 0;
+	int32_t dataSize = 0;
 	uint8_t* data = NULL;
 	uint8_t* tmpdata = NULL;
 	//<fp = fopen(name, "rb");
@@ -106,7 +106,7 @@ Image* BMPImageLoader::LoadFile(const char* relativePath)
 	fileStream->ReadDataBlock(&bfh, sizeof(BitmapFileHeader));
 	fileStream->ReadDataBlock(&bih, sizeof(BitmapInfoHeader));
 
-	int bpp = (bih.biBitCount/8);
+	int32_t bpp = (bih.biBitCount/8);
 
 	if (bpp != 3 && bpp != 4)
 	{
@@ -130,13 +130,13 @@ Image* BMPImageLoader::LoadFile(const char* relativePath)
 	{
 		tmpdata = new uint8_t[bih.biWidth*3];
 
-		for (int i=0; i<bih.biHeight ; i++)
+		for (int32_t i=0; i<bih.biHeight ; i++)
 		{
 			fileStream->ReadDataBlock(tmpdata, bih.biWidth*3);
 
-			int offset = bih.biWidth * 4 * i;
+			int32_t offset = bih.biWidth * 4 * i;
 
-			for (int j=0; j<bih.biWidth; j++)
+			for (int32_t j=0; j<bih.biWidth; j++)
 			{
 				data[offset++] = tmpdata[j*3+2];
 				data[offset++] = tmpdata[j*3+1];
@@ -154,9 +154,9 @@ Image* BMPImageLoader::LoadFile(const char* relativePath)
 	}
 	else
 	{
-		for (int i=0; i<bih.biHeight ; i++)
+		for (int32_t i=0; i<bih.biHeight ; i++)
 		{
-			int offset = bih.biWidth * 4 * i;
+			int32_t offset = bih.biWidth * 4 * i;
 
 			fileStream->ReadDataBlock(&data[offset], bih.biWidth*4);
 
@@ -181,9 +181,9 @@ void BMPImageLoader::SaveFile(const Image* image, const char* relativePath)
 	{
 		BitmapFileHeader bfh;
 		BitmapInfoHeader bih;
-		int padSize = 0;
-		int imgDataSize = 0;
-		int bmpDataSize;
+		int32_t padSize = 0;
+		int32_t imgDataSize = 0;
+		int32_t bmpDataSize;
 		const uint8_t* imgData = NULL;
 		uint8_t* bmpRow = NULL;
 
@@ -222,18 +222,18 @@ void BMPImageLoader::SaveFile(const Image* image, const char* relativePath)
 		fwrite(&bih, sizeof(bih), 1, fp);
 
 
-		int bpp = image->GetBytesPerPixel();
+		int32_t bpp = image->GetBytesPerPixel();
 
 		imgData = image->GetBuffer();
 		imgDataSize = image->GetWidth() * image->GetHeight() * bpp;
 
 		bmpRow = new uint8_t[bih.biWidth*3];
 
-		for (int i=0; i<bih.biHeight ; i++)
+		for (int32_t i=0; i<bih.biHeight ; i++)
 		{
-			int offset = bih.biWidth * bpp * i;
+			int32_t offset = bih.biWidth * bpp * i;
 
-			for (int j=0; j<bih.biWidth; j++)
+			for (int32_t j=0; j<bih.biWidth; j++)
 			{
 				if (bpp == 2)
 				{
@@ -265,7 +265,7 @@ void BMPImageLoader::SaveFile(const Image* image, const char* relativePath)
 
 		delete[] bmpRow;
 	}
-	catch (int err)
+	catch (int32_t err)
 	{
 		switch (err)
 		{

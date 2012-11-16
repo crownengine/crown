@@ -65,12 +65,12 @@ public:
 	void SetSource(IWithProperties* source);
 	void SetSourceIfUsingBindingContext(IWithProperties* source);
 	inline IWithProperties* GetSource()
-	 { return mSource.GetPointer(); }
+	 { return mSource.GetPoint32_ter(); }
 
 	inline void SetDestination(IWithProperties* destination)
 	 { mDestination = destination; }
 	inline IWithProperties* GetDestination()
-	 { return mDestination.GetPointer(); }
+	 { return mDestination.GetPoint32_ter(); }
 
 	bool IsEnabled() const;
 	void SetEnabled(bool value);

@@ -91,7 +91,7 @@ public:
 						MemoryStream(MemoryBuffer* f, StreamOpenMode openMode);
 	virtual				~MemoryStream();
 
-	void				Seek(int newPos, SeekMode mode);
+	void				Seek(int32_t newPos, SeekMode mode);
 
 	uint8_t				ReadByte();
 	void				ReadDataBlock(void* buffer, size_t size);

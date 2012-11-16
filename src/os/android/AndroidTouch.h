@@ -47,7 +47,7 @@ public:
 
 public:
 
-	int32_t HandleTouchEvent(struct android_app* app, AInputEvent* event);
+	int32_t32_t HandleTouchEvent(struct android_app* app, AInputEvent* event);
 
 	// Android related
 	struct android_app* mAndroidApp;

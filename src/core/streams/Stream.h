@@ -49,7 +49,7 @@ enum StreamOpenMode
 
 	It represents a flow of data attached to a 'file' which can be an archived file,
 	a regular file, a location in memory or anything that can be read or wrote.
-	A Stream is an abstraction to interact with these in an uniform way; every stream
+	A Stream is an abstraction to int32_teract with these in an uniform way; every stream
 	comes with a convenient set of methods to facilitate reading from it, writing to
 	it and so on.
 */
@@ -75,7 +75,7 @@ public:
 						@param mode
 							Position from where to move
 						*/
-	virtual void		Seek(int newPos, SeekMode mode) = 0;
+	virtual void		Seek(int32_t newPos, SeekMode mode) = 0;
 						/**
 							Reads a byte from the stream starting at current position.
 						@return
@@ -85,7 +85,7 @@ public:
 						/**
 							Reads a block of data from the stream.
 						@param buffer
-							Pointer to a block of memory of size 'size'
+							Point32_ter to a block of memory of size 'size'
 						@param size
 							The number of bytes to read
 						*/
@@ -127,7 +127,7 @@ public:
 						/**
 							Writes a block of data to the stream.
 						@param buffer
-							Pointer to a block of memory of size 'size'
+							Pointter to a block of memory of size 'size'
 						@param size
 							The number of bytes to write
 						*/
@@ -203,12 +203,12 @@ public:
 						BinaryReader(Stream* s);
 	virtual				~BinaryReader();
 
-	uint8_t				ReadByte();
-	short				ReadInt16();
-	uint16_t				ReadUint16();
-	int					ReadInt32();
-	uint32_t				ReadUint32();
-	long long			ReadInt64();
+	int8_t				ReadByte();
+	int16_t				ReadInt16();
+	uint16_t			ReadUint16();
+	int32_t				ReadInt32();
+	uint32_t			ReadUint32();
+	int64_t				ReadInt64();
 	double				ReadDouble();
 	float				ReadFloat();
 
@@ -229,16 +229,16 @@ public:
 						BinaryWriter(Stream* s);
 	virtual				~BinaryWriter();
 
-	void				WriteByte(uint8_t);
-	void				WriteInt16(short);
+	void				WriteByte(int8_t);
+	void				WriteInt16(int16_t);
 	void				WriteUint16(uint16_t);
-	void				WriteInt32(int);
+	void				WriteInt32(int32_t);
 	void				WriteUint32(uint32_t);
-	void				WriteInt64(long long);
+	void				WriteInt64(int64_t);
 	void				WriteDouble(double);
 	void				WriteFloat(float);
 
-	void				InsertByte(uint8_t val, size_t offset);
+	void				InsertByte(int8_t val, size_t offset);
 
 	inline Stream*		GetStream() { return mStream; }
 	inline void			SetStream(Stream* stream) { mStream = stream; }
@@ -260,7 +260,7 @@ public:
 	char				ReadChar();
 						/**
 							Reads characters from stream and stores them as a C string
-							into string until (count-1) characters have been read or
+							int32_to string until (count-1) characters have been read or
 							either a newline or the End-of-Stream is reached, whichever
 							comes first.
 							A newline character makes fgets stop reading, but it is considered
@@ -268,7 +268,7 @@ public:
 							A null character is automatically appended in str after the characters read to
 							signal the end of the C string.
 						*/
-	char*				ReadString(char* string, int count);
+	char*				ReadString(char* string, int32_t count);
 
 	inline Stream*		GetStream() { return mStream; }
 	inline void			SetStream(Stream* stream) { mStream = stream; }
@@ -289,7 +289,7 @@ public:
 
 	void				WriteChar(char c);
 						/**
-							Writes the string pointed by string to the stream.
+							Writes the string point32_ted by string to the stream.
 							The function begins copying from the address specified (string)
 							until it reaches the terminating null character ('\0').
 							This final null character is not copied to the stream.

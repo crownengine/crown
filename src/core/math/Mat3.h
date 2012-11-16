@@ -109,8 +109,8 @@ public:
 	Vec3				get_scale() const;							//!< Returns a Vec3 containing the matrix's scale portion
 	void				set_scale(const Vec3& scale);				//!< Fills the matrix's scale portion with the values contained in "scale"
 
-	real*				to_float_ptr();								//!< Returns the pointer to the matrix's data
-	const real*			to_float_ptr() const;						//!< Returns the pointer to the matrix's data
+	real*				to_float_ptr();								//!< Returns the point32_ter to the matrix's data
+	const real*			to_float_ptr() const;						//!< Returns the point32_ter to the matrix's data
 	Str					to_str() const;								//!< Returns a Str containing the matrix's components
 	Angles				to_angles() const;							//!< Returns an angles according to the matrix's rotation portion
 	Mat4				to_mat4() const;							//!< Returns a 4x4 matrix according to the matrix's rotation portion

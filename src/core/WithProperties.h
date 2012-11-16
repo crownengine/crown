@@ -60,7 +60,7 @@ public:
 	
 	virtual ~WithProperties()
 	{
-		for (int i=0; i<mProperties.GetSize(); i++)
+		for (int32_t i=0; i<mProperties.GetSize(); i++)
 		{
 			delete mProperties[i];
 		}
@@ -75,7 +75,7 @@ public:
 //		{
 //			return ToStr();
 //		}
-		for(int i = 0; i < mProperties.GetSize(); i++)
+		for(int32_t i = 0; i < mProperties.GetSize(); i++)
 		{
 			if (mProperties[i]->GetName() == name)
 			{
@@ -89,7 +89,7 @@ public:
 
 	virtual void SetPropertyValue(const Str& name, const Generic& value)
 	{
-		for(int i = 0; i < mProperties.GetSize(); i++)
+		for(int32_t i = 0; i < mProperties.GetSize(); i++)
 		{
 			if (mProperties[i]->GetName() == name)
 			{
@@ -118,7 +118,7 @@ public:
 
 	Property* GetProperty(const Str& name)
 	{
-		for(int i = 0; i < mProperties.GetSize(); i++)
+		for(int32_t i = 0; i < mProperties.GetSize(); i++)
 		{
 			if (mProperties[i]->GetName() == name)
 			{

@@ -46,9 +46,9 @@ Generic::~Generic()
 }
 
 //-----------------------------------------------------------------------------
-Generic::Generic(int value) : m_type(GT_INT)
+Generic::Generic(int32_t value) : m_type(GT_INT)
 {
-	m_data.int_value = value;
+	m_data.int32_t_value = value;
 }
 
 //-----------------------------------------------------------------------------
@@ -76,29 +76,29 @@ Generic::Generic(bool value) : m_type(GT_BOOL)
 }
 
 //-----------------------------------------------------------------------------
-bool Generic::as_int(int& out) const
+bool Generic::as_int32_t(int32_t& out) const
 {
 	if (m_type == GT_INT)
 	{
-		out = m_data.int_value;
+		out = m_data.int32_t_value;
 		return true;
 	}
 
 	if (m_type == GT_UINT)
 	{
-		out = (int)m_data.uint32_t_value;
+		out = (int32_t)m_data.uint32_t_value;
 		return true;
 	}
 
 	if (m_type == GT_USHORT)
 	{
-		out = (int)m_data.uint16_t_value;
+		out = (int32_t)m_data.uint16_t_value;
 		return true;
 	}
 
 	if (m_type == GT_FLOAT)
 	{
-		out = (int)m_data.float_value;
+		out = (int32_t)m_data.float_value;
 		return true;
 	}
 
@@ -112,10 +112,10 @@ bool Generic::as_int(int& out) const
 }
 
 //-----------------------------------------------------------------------------
-int Generic::as_int() const
+int32_t Generic::as_int32_t() const
 {
-	int value = 0;
-	as_int(value);
+	int32_t value = 0;
+	as_int32_t(value);
 	return value;
 }
 
@@ -124,7 +124,7 @@ bool Generic::as_uint32_t(uint32_t& out) const
 {
 	if (m_type == GT_INT)
 	{
-		out = (uint32_t)m_data.int_value;
+		out = (uint32_t)m_data.int32_t_value;
 		return true;
 	}
 
@@ -168,7 +168,7 @@ bool Generic::as_uint16_t(uint16_t& out) const
 {
 	if (m_type == GT_INT)
 	{
-		out = (uint16_t)m_data.int_value;
+		out = (uint16_t)m_data.int32_t_value;
 		return true;
 	}
 
@@ -212,7 +212,7 @@ bool Generic::as_float(float& out) const
 {
 	if (m_type == GT_INT)
 	{
-		out = (float)m_data.int_value;
+		out = (float)m_data.int32_t_value;
 		return true;
 	}
 
@@ -256,7 +256,7 @@ bool Generic::as_bool(bool& out) const
 {
 	if (m_type == GT_INT)
 	{
-		out = m_data.int_value==0?false:true;
+		out = m_data.int32_t_value==0?false:true;
 		return true;
 	}
 
@@ -307,7 +307,7 @@ bool Generic::operator==(const Generic& other)
 	switch (m_type)
 	{
 		case GT_INT:
-			return m_data.int_value == other.m_data.int_value;
+			return m_data.int32_t_value == other.m_data.int32_t_value;
 			break;
 		case GT_UINT:
 			return m_data.uint32_t_value == other.m_data.uint32_t_value;
@@ -337,7 +337,7 @@ const Generic& Generic::operator=(const Generic& other)
 	switch (m_type)
 	{
 		case GT_INT:
-			m_data.int_value = other.m_data.int_value;
+			m_data.int32_t_value = other.m_data.int32_t_value;
 			break;
 		case GT_UINT:
 			m_data.uint32_t_value = other.m_data.uint32_t_value;

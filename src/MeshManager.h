@@ -46,7 +46,7 @@ public:
 	 * If a resource with the same name already exists, the
 	 * already existent resource will be returned.
 	 * @param name The name of the resource
-	 * @return A pointer to the created resource
+	 * @return A point32_ter to the created resource
 	 */
 	Mesh* Create(const char* name, bool& created);
 
@@ -54,7 +54,7 @@ public:
 	 * Loads a mesh resource from file.
 	 * The name of the file determines the name of the resource and vice-versa.
 	 * @param name Tha name of the resource
-	 * @return A pointer to the loaded resource
+	 * @return A point32_ter to the loaded resource
 	 */
 	Mesh* Load(const char* name);
 
@@ -62,7 +62,7 @@ public:
 	 * Loads a prefab cube mesh.
 	 * @param name The name of the mesh
 	 * @param size The size of the cube in units
-	 * @return A pointer to the loaded resource
+	 * @return A point32_ter to the loaded resource
 	 */
 	Mesh* LoadCube(const char* name, float size = 1.0f);
 
@@ -77,7 +77,7 @@ public:
 	 * @param name The name of the mesh
 	 * @param width The width of the plane in units
 	 * @param height The height of the plane in units
-	 * @return A pointer to the loaded resource
+	 * @return A point32_ter to the loaded resource
 	 */
 	Mesh* LoadPlane(const char* name, float width = 1.0f, float height = 1.0f);
 
@@ -90,7 +90,7 @@ public:
 	 * @param name The name of the mesh
 	 * @param size The size of the plane in units
 	 * @param tileSize The size of a tile in units
-	 * @return A pointer to the loaded resource
+	 * @return A point32_ter to the loaded resource
 	 */
 	Mesh* LoadGrid(const char* name, uint32_t size = 20, float tileSize = 1.0f);
 

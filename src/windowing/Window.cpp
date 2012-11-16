@@ -35,9 +35,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace Crown
 {
 
-Point2 Window::mDefaultPosition(30, 30);
+Point32_t2 Window::mDefaultPosition(30, 30);
 
-Window::Window(WindowsManager* wm, int x, int y, int width, int height, Str title):
+Window::Window(WindowsManager* wm, int32_t x, int32_t y, int32_t width, int32_t height, Str title):
 	Widget(NULL),
 	mWindowsManager(wm), mModalParent(NULL),
 	mClientArea(0), mCloseButton(0), mNeedsLayout(true),
@@ -46,7 +46,7 @@ Window::Window(WindowsManager* wm, int x, int y, int width, int height, Str titl
 	InitWindow(x, y, width, height, title);
 }
 
-Window::Window(WindowsManager* wm, int width, int height, Str title):
+Window::Window(WindowsManager* wm, int32_t width, int32_t height, Str title):
 	Widget(NULL),
 	mWindowsManager(wm), mModalParent(NULL),
 	mClientArea(0), mCloseButton(0), mNeedsLayout(true),
@@ -63,7 +63,7 @@ Window::~Window()
 	delete mWindowContext;
 }
 
-void Window::InitWindow(int x, int y, int width, int height, Str title)
+void Window::InitWindow(int32_t x, int32_t y, int32_t width, int32_t height, Str title)
 {
 	mWindowsManager->mWindows.Append(this);
 	SetDesiredPosition(x - 1, y - 11);
@@ -130,7 +130,7 @@ void Window::OnDraw(DrawingClipInfo& clipInfo)
 	if (mIsDoingModal)
 	{
 		Color4 c(0.0f, 0.0f, 0.0f, 0.1f);
-		r->DrawRectangle(Point2::ZERO, GetSize(), DM_FILL, c, c);
+		r->DrawRectangle(Point32_t2::ZERO, GetSize(), DM_FILL, c, c);
 	}
 }
 
@@ -167,7 +167,7 @@ void Window::Close()
 	}
 	else
 	{
-		//Call EndModal on the windows manager, if this window was a global modal window, it will reactivate the interactions
+		//Call EndModal on the windows manager, if this window was a global modal window, it will reactivate the int32_teractions
 		mWindowsManager->EndModal(this);
 	}
 

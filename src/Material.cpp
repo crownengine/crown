@@ -116,12 +116,12 @@ void Material::SetEmission(const Color4& emission)
 	mEmission = emission;
 }
 
-int Material::GetShininess() const
+int32_t Material::GetShininess() const
 {
 	return mShininess;
 }
 
-void Material::SetShininess(int shininess)
+void Material::SetShininess(int32_t shininess)
 {
 	mShininess = shininess;
 }

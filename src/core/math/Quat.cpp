@@ -188,7 +188,7 @@ Quat Quat::power(real exp)
 }
 
 /*
-The geometric interpretation of the Quat dot product is similar to the interpretation of
+The geometric int32_terpretation of the Quat dot product is similar to the int32_terpretation of
 the vector dot product; the larger the absolute value of the Quat dot product axb, the more
 "similar" the angular displacements represented by a and b.
 */
@@ -197,7 +197,7 @@ real dot(const Quat& a, const Quat& b)
 	return a.w * b.w + a.v.dot(b.v);
 }
 
-// Spherical Linear intERPolation
+// Spherical Linear int32_tERPolation
 Quat slerp(const Quat& start, const Quat& end, real t)
 {
 	Quat delta = end * start.get_inverse();

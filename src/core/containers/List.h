@@ -52,14 +52,14 @@ public:
 	const T&			operator[](uint32_t index) const;
 
 	bool				empty() const;
-	uint32_t				size() const;
-	uint32_t				capacity() const;
+	uint32_t			size() const;
+	uint32_t			capacity() const;
 	void				set_capacity(uint32_t capacity);
 	void				grow();
 
 	void				condense();
 
-	uint32_t				push_back(const T& item);
+	uint32_t			push_back(const T& item);
 	void				pop_back();
 	void				clear();
 
@@ -73,8 +73,8 @@ public:
 private:
 
 	Allocator*			m_allocator;
-	uint32_t				m_capacity;
-	uint32_t				m_size;
+	uint32_t			m_capacity;
+	uint32_t			m_size;
 	T*					m_array;
 };
 
@@ -275,7 +275,7 @@ inline void List<T>::clear()
 }
 
 /**
-	Copies the content of the other list into this.
+	Copies the content of the other list int32_to this.
 */
 template <typename T>
 inline const List<T>& List<T>::operator=(const List<T>& other)

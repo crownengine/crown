@@ -98,7 +98,7 @@ void TreeViewItem::OnDraw(DrawingClipInfo& clipInfo)
 	Widget::DrawInit(clipInfo);
 	Renderer* r = GetDevice()->GetRenderer();
 	//TODO: All this should be moved to state effects/styles in XWML files.
-	int mode = DM_NO_DRAW;
+	int32_t mode = DM_NO_DRAW;
 	if (mTreeView->mSelectorWithSelection == mItemsSelector && mTreeView->mSelectedIndex == mItemIndex)
 		mode |= DM_FILL;
 
@@ -153,7 +153,7 @@ void TreeViewItem::OnItemTemplateChanged()
 
 void TreeViewItem::RegenerateItemsWidgets()
 {
-	for (int i=0; i<mTreeViewItems.GetSize(); i++)
+	for (int32_t i=0; i<mTreeViewItems.GetSize(); i++)
 	{
 		mTreeViewItems[i]->Destroy();
 	}
@@ -171,7 +171,7 @@ void TreeViewItem::RegenerateItemsWidgets()
 		else
 			mExpandButton->SetVisibility(WV_HIDDEN);
 
-		for (int i=0; i<GetItems()->GetSize(); i++)
+		for (int32_t i=0; i<GetItems()->GetSize(); i++)
 		{
 			TreeViewItem* lwi = NULL;
 		
@@ -255,7 +255,7 @@ Generic TreeView::GetSelectedItem() const
 	}
 }
 
-void TreeView::SelectItem(ItemsSelector* selector, int index)
+void TreeView::SelectItem(ItemsSelector* selector, int32_t index)
 {
 	if (mSelectorWithSelection)
 		mSelectorWithSelection->SetSelectedIndex(-1);
@@ -297,7 +297,7 @@ void TreeView::OnItemTemplateChanged()
 void TreeView::RegenerateItemsWidgets()
 {
 	Log::I("TreeView Regenerate");
-	for (int i=0; i<mTreeViewItems.GetSize(); i++)
+	for (int32_t i=0; i<mTreeViewItems.GetSize(); i++)
 	{
 		mTreeViewItems[i]->Destroy();
 	}
@@ -306,7 +306,7 @@ void TreeView::RegenerateItemsWidgets()
 
 	if (GetItems() != NULL)
 	{
-		for (int i=0; i<GetItems()->GetSize(); i++)
+		for (int32_t i=0; i<GetItems()->GetSize(); i++)
 		{
 			TreeViewItem* lwi = NULL;
 		

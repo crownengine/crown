@@ -759,7 +759,7 @@ void Mat4::build_look_at_lh(const Vec3& pos, const Vec3& target, const Vec3& up)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_viewpoint_billboard(const Vec3& pos, const Vec3& target, const Vec3& up)
+void Mat4::build_viewpoint32_t_billboard(const Vec3& pos, const Vec3& target, const Vec3& up)
 {
 	Vec3 zAxis = target - pos;
 	zAxis.normalize();

@@ -37,7 +37,7 @@ class Rect;
 /**
 	Circle.
 
-	Used mainly for collision detection and intersection tests.
+	Used mainly for collision detection and int32_tersection tests.
 */
 class Circle
 {

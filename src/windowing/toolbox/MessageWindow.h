@@ -42,9 +42,9 @@ enum MessageWindowResult
 class MessageWindow: public Window
 {
   public:
-		typedef IDelegate1<void, int> MessageResultDelegate;
+		typedef IDelegate1<void, int32_t> MessageResultDelegate;
 
-    MessageWindow(WindowsManager* wm, const Str& title, const Str& message, int buttonsFlags, MessageResultDelegate* callback);
+    MessageWindow(WindowsManager* wm, const Str& title, const Str& message, int32_t buttonsFlags, MessageResultDelegate* callback);
 
 		void mButton_OnClick(Button* obj, EventArgs* args);
 

@@ -81,7 +81,7 @@ void Image::DestroyImage()
 void Image::SetUniformColorImage(Color4 color)
 {
 	AssertRGB8();
-	int bpp = GetBytesPerPixel();
+	int32_t bpp = GetBytesPerPixel();
 
 	uint8_t red   = (uint8_t)(color.r * 255.0f);
 	uint8_t green = (uint8_t)(color.g * 255.0f);
@@ -89,10 +89,10 @@ void Image::SetUniformColorImage(Color4 color)
 
 	for(uint32_t i = 0; i < mHeight; i++)
 	{
-		int rowOffset = i * mWidth * bpp;
+		int32_t rowOffset = i * mWidth * bpp;
 		for(uint32_t j = 0; j < mWidth; j++)
 		{
-			int offset = rowOffset + bpp * j;
+			int32_t offset = rowOffset + bpp * j;
 			mBuffer[offset    ] = red;
 			mBuffer[offset + 1] = green;
 			mBuffer[offset + 2] = blue;
@@ -215,8 +215,8 @@ void Image::SetPixel(uint32_t x, uint32_t y, Color4 color)
 		throw ArgumentException("Coordinates outside the Image");
 	}*/
 
-	int bpp = 3;//GetBytesPerPixel();
-	int offset = (y * mWidth + x) * GetBytesPerPixel();
+	int32_t bpp = 3;//GetBytesPerPixel();
+	int32_t offset = (y * mWidth + x) * GetBytesPerPixel();
 	mBuffer[offset    ] = (uint8_t)(color.r * 255);
 	mBuffer[offset + 1] = (uint8_t)(color.g * 255);
 	mBuffer[offset + 2] = (uint8_t)(color.b * 255);

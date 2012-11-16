@@ -52,7 +52,7 @@ private:
 	bool mInsideChild;
 	ItemsSelector* mItemsSelector;
 	TreeView* mTreeView;
-	int mItemIndex;
+	int32_t mItemIndex;
 	bool mIsExpanded;
 	Button* mExpandButton;
 	Widget* mContentWidget;
@@ -112,9 +112,9 @@ private:
 	List<Widget*> mTreeViewItems;
 	ITemplate<TreeViewItem>* mItemTemplate;
 	ItemsSelector* mSelectorWithSelection;
-	int mSelectedIndex;
+	int32_t mSelectedIndex;
 
-	void SelectItem(ItemsSelector* selector, int index);
+	void SelectItem(ItemsSelector* selector, int32_t index);
 
 	virtual void InternalSelectionChanged();
 	virtual void InternalItemsChanged();

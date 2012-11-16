@@ -40,7 +40,7 @@ WinKeyboard::WinKeyboard(InputManager* creator) :
 	mModifierMask(0),
 	mWindowHandle(0)
 {
-	for (int i = 0; i < MAX_KEYCODES; i++)
+	for (int32_t i = 0; i < MAX_KEYCODES; i++)
 	{
 		mKeyState[i] = false;
 	}
@@ -142,7 +142,7 @@ void WinKeyboard::EventLoop()
 }
 
 //-----------------------------------------------------------------------------
-Key WinKeyboard::TranslateKey(int winKey)
+Key WinKeyboard::TranslateKey(int32_t winKey)
 {
 	if ((winKey > 0x40 && winKey < 0x5B) || (winKey > 0x60 && winKey < 0x7B) || (winKey > 0x2F && winKey < 0x3A))
 	{

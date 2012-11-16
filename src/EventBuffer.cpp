@@ -46,7 +46,7 @@ void EventBuffer::PushEvent(uint32_t eventType, void* eventData, size_t eventSiz
 		Flush();
 	}
 
-	char* q = mBuffer + mBufferCount;
+	uint8_t* q = mBuffer + mBufferCount;
 
 	*(uint32_t*) q = eventType;
 	*(size_t*) (q + sizeof(eventType)) = eventSize;
@@ -55,14 +55,14 @@ void EventBuffer::PushEvent(uint32_t eventType, void* eventData, size_t eventSiz
 	mBufferCount += sizeof(eventType) + sizeof(eventSize) + eventSize;
 }
 
-void EventBuffer::PushEventBuffer(char* eventBuffer, size_t bufferSize)
+void EventBuffer::PushEventBuffer(uint8_t* eventBuffer, size_t bufferSize)
 {
 	if (mBufferCount + bufferSize > MAX_EVENT_QUEUE_SIZE)
 	{
 		Flush();
 	}
 
-	char* q = mBuffer + mBufferCount;
+	uint8_t* q = mBuffer + mBufferCount;
 	memcpy(q, eventBuffer, bufferSize);
 
 	mBufferCount += bufferSize;
@@ -74,7 +74,7 @@ void* EventBuffer::NextEvent(uint32_t& eventType, size_t& size)
 
 	if (read < mBufferCount)
 	{
-		char* q = mBuffer + read;
+		uint8_t* q = mBuffer + read;
 
 		eventType = *(uint32_t*)q;
 		size = *(size_t*)(q + sizeof(uint32_t));
@@ -104,7 +104,7 @@ size_t EventBuffer::GetSize() const
 	return mBufferCount;
 }
 
-char* EventBuffer::GetBuffer()
+uint8_t* EventBuffer::GetBuffer()
 {
 	return mBuffer;
 }

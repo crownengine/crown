@@ -32,51 +32,51 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void OS::Printf(const char* string, ...)
+void OS::Print32_tf(const char* string, ...)
 {
 	va_list args;
 
 	va_start(args, string);
-	vprintf(string, args);
+	vprint32_tf(string, args);
 	va_end(args);
 }
 
 //-----------------------------------------------------------------------------
-void OS::Vprintf(const char* string, va_list arg)
+void OS::Vprint32_tf(const char* string, va_list arg)
 {
-	vprintf(string, arg);
+	vprint32_tf(string, arg);
 }
 
 //-----------------------------------------------------------------------------
 void OS::LogDebug(const char* string, va_list arg)
 {
-	Printf("D: ");
-	Vprintf(string, arg);
-	Printf("\n");
+	Print32_tf("D: ");
+	Vprint32_tf(string, arg);
+	Print32_tf("\n");
 }
 
 //-----------------------------------------------------------------------------
 void OS::LogError(const char* string, va_list arg)
 {
-	Printf("E: ");
-	Vprintf(string, arg);
-	Printf("\n");
+	Print32_tf("E: ");
+	Vprint32_tf(string, arg);
+	Print32_tf("\n");
 }
 
 //-----------------------------------------------------------------------------
 void OS::LogWarning(const char* string, va_list arg)
 {
-	Printf("W: ");
-	Vprintf(string, arg);
-	Printf("\n");
+	Print32_tf("W: ");
+	Vprint32_tf(string, arg);
+	Print32_tf("\n");
 }
 
 //-----------------------------------------------------------------------------
 void OS::LogInfo(const char* string, va_list arg)
 {
-	Printf("I: ");
-	Vprintf(string, arg);
-	Printf("\n");
+	Print32_tf("I: ");
+	Vprint32_tf(string, arg);
+	Print32_tf("\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -134,7 +134,7 @@ bool OS::Rmdir(const char* path)
 const char* OS::GetCWD()
 {
 	static char cwdBuf[1024];
-	int len = GetCurrentDirectory(1024, cwdBuf);
+	int32_t len = GetCurrentDirectory(1024, cwdBuf);
 
 	if (len == 0)
 	{
@@ -155,7 +155,7 @@ const char* OS::GetHome()
 const char* OS::GetEnv(const char* env)
 {
 	static char evnBuf[1024];
-	int len = GetEnvironmentVariable(env, envBuf, 1024);
+	int32_t len = GetEnvironmentVariable(env, envBuf, 1024);
 
 	if (len == 0)
 	{

@@ -30,16 +30,16 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-bool Rect::contains_point(const Vec2& point) const
+bool Rect::contains_point32_t(const Vec2& point32_t) const
 {
-	return (point.x >= min.x && point.y >= min.y &&
-			point.x <= max.x && point.y <= max.y);
+	return (point32_t.x >= min.x && point32_t.y >= min.y &&
+			point32_t.x <= max.x && point32_t.y <= max.y);
 }
 
 //-----------------------------------------------------------------------------
-bool Rect::intersects_rect(const Rect& Rect) const
+bool Rect::int32_tersects_rect(const Rect& Rect) const
 {
-	//return (contains_point(Rect.min) || contains_point(Rect.max));
+	//return (contains_point32_t(Rect.min) || contains_point32_t(Rect.max));
 	if (Rect.min.x > max.x || Rect.max.x < min.x || Rect.min.y > max.y || Rect.max.y < min.y)
 		return false;
 	return true;

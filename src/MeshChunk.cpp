@@ -41,12 +41,12 @@ MeshChunk::~MeshChunk()
 
 }
 
-int MeshChunk::GetVertexCount() const
+int32_t MeshChunk::GetVertexCount() const
 {
 	return mVertexList.size();
 }
 
-int MeshChunk::GetFaceCount() const
+int32_t MeshChunk::GetFaceCount() const
 {
 	return mFaceList.size();
 }
@@ -62,7 +62,7 @@ void MeshChunk::UpdateBoundingBox()
 
 	for (uint32_t i = 0; i < mVertexList.size(); i++)
 	{
-		mBoundingBox.add_point(mVertexList[i].position);
+		mBoundingBox.add_point32_t(mVertexList[i].position);
 	}
 }
 

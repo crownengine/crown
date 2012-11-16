@@ -162,7 +162,7 @@ void InputManager::set_cursor_relative_xy(const Vec2& position)
 
 	os::get_render_window_metrics(window_width, window_height);
 
-	set_cursor_xy(Point2((int)(position.x * (float) window_width), (int)(position.y * (float) window_height)));
+	set_cursor_xy(Point2((int32_t)(position.x * (float) window_width), (int32_t)(position.y * (float) window_height)));
 }
 
 //-----------------------------------------------------------------------------

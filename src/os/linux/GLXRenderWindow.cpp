@@ -58,7 +58,7 @@ bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t heigh
 	Window defRoot = DefaultRootWindow(display);
 
 	// Color index buffer not supported - deprecated
-	int fbAttribs[] =
+	int32_t fbAttribs[] =
 	{
 		GLX_DOUBLEBUFFER,		True,			// Only double-buffered
 		GLX_RED_SIZE,			8,
@@ -79,7 +79,7 @@ bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t heigh
 		None
 	};
 
-	int fbCount;
+	int32_t fbCount;
 	GLXFBConfig* fbConfig = glXChooseFBConfig(display, XDefaultScreen(display), fbAttribs, &fbCount);
 
 	if (!fbConfig)

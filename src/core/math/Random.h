@@ -37,24 +37,24 @@ class Random
 {
 public:
 
-			Random(int seed);	//!< Constructor
+			Random(int32_t seed);	//!< Constructor
 
-	int		get_int();			//!< Returns a pseudo-random integer in the range [0, 32767]
-	int		get_int(int max);	//!< Returns a pseudo-random integer in the range [0, max)
+	int32_t		get_int32_t();			//!< Returns a pseudo-random int32_teger in the range [0, 32767]
+	int32_t		get_int32_t(int32_t max);	//!< Returns a pseudo-random int32_teger in the range [0, max)
 	float	get_unit_float();	//!< Returns a pseudo-random float in the range [0.0, 1.0].
 
 private:
 
-	int		mSeed;
+	int32_t		mSeed;
 };
 
 //-----------------------------------------------------------------------------
-inline Random::Random(int seed) : mSeed(seed)
+inline Random::Random(int32_t seed) : mSeed(seed)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline int Random::get_int()
+inline int32_t Random::get_int32_t()
 {
 	mSeed = 214013 * mSeed + 13737667;
 
@@ -62,15 +62,15 @@ inline int Random::get_int()
 }
 
 //-----------------------------------------------------------------------------
-inline int Random::get_int(int max)
+inline int32_t Random::get_int32_t(int32_t max)
 {
-	return (max == 0) ? 0 : get_int() % max;
+	return (max == 0) ? 0 : get_int32_t() % max;
 }
 
 //-----------------------------------------------------------------------------
 inline float Random::get_unit_float()
 {
-	return get_int() / (float) 0x7FFF;
+	return get_int32_t() / (float) 0x7FFF;
 }
 
 } // namespace crown

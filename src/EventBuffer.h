@@ -46,7 +46,7 @@ public:
 				~EventBuffer();
 
 	void		PushEvent(uint32_t eventType, void* eventData, size_t eventSize);
-	void		PushEventBuffer(char* eventBuffer, size_t bufferSize);
+	void		PushEventBuffer(uint8_t* eventBuffer, size_t bufferSize);
 
 	void*		NextEvent(uint32_t& eventType, size_t& size);
 
@@ -54,12 +54,12 @@ public:
 	void		Flush();
 
 	size_t		GetSize() const;
-	char*		GetBuffer();
+	uint8_t*		GetBuffer();
 
 public:
 
 	size_t		mBufferCount;					// Number of bytes in the buffer
-	char		mBuffer[MAX_EVENT_QUEUE_SIZE];
+	uint8_t		mBuffer[MAX_EVENT_QUEUE_SIZE];
 };
 
 } // namespace crown

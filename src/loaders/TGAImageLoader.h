@@ -40,16 +40,16 @@ class TGAImageLoader : public ImageLoader
 	struct TGAHeader_t
 	{
 
-		uint8_t id_length;        /* 00h  Size of Image ID field */
-		uint8_t color_map_type;   /* 01h  Color map type */
-		uint8_t image_type;       /* 02h  Image type code */
-		uint8_t c_map_spec[5];    /* 03h  Color map origin 05h Color map length 07h Depth of color map entries */
+		char id_length;        /* 00h  Size of Image ID field */
+		char color_map_type;   /* 01h  Color map type */
+		char image_type;       /* 02h  Image type code */
+		char c_map_spec[5];    /* 03h  Color map origin 05h Color map length 07h Depth of color map entries */
 		uint16_t x_offset;        /* 08h  X origin of image */
 		uint16_t y_offset;        /* 0Ah  Y origin of image */
 		uint16_t width;           /* 0Ch  Width of image */
 		uint16_t height;          /* 0Eh  Height of image */
-		uint8_t pixel_depth;      /* 10h  Image pixel size */
-		uint8_t image_descriptor; /* 11h  Image descriptor byte */
+		char pixel_depth;      /* 10h  Image pixel size */
+		char image_descriptor; /* 11h  Image descriptor byte */
 	};
 
 public:

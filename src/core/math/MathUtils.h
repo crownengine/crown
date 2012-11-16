@@ -62,9 +62,9 @@ const double	DOUBLE_PRECISION			= (real)1.0e-9;
 bool			equals(float a, float b, float precision = FLOAT_PRECISION);
 bool			equals(double a, double b, double precision = DOUBLE_PRECISION);
 
-bool			test_bitmask(int value, int bitmask);	//!< Tests agains a specified bitmask and returns true only if all bits are satisfied
-int				set_bitmask(int value, int bitmask);	//!< Sets the specified bitmask
-int				unset_bitmask(int value, int bitmask);	//!< Removes the specified bitmask
+bool			test_bitmask(int32_t value, int32_t bitmask);	//!< Tests agains a specified bitmask and returns true only if all bits are satisfied
+int32_t			set_bitmask(int32_t value, int32_t bitmask);	//!< Sets the specified bitmask
+int32_t			unset_bitmask(int32_t value, int32_t bitmask);	//!< Removes the specified bitmask
 
 
 template <typename T> T		min(const T& a, const T& b);	//!< Returns minimum between two values
@@ -75,10 +75,10 @@ template <typename T> void	swap(T& a, T& b);				//!< Swaps @a and @b
 
 real			deg_to_rad(real deg);			//!< Returns "deg" in radians
 real			rad_to_deg(real rad);			//!< Returns "rad" in degrees
-uint32_t			next_pow_2(uint32_t x);				//!< Returns the nearest power of two to @x
-bool			is_pow_2(uint32_t x);				//!< Returns whether @x is power of two
-real			ceil(real x);					//!< Returns the smallest integral value that is not less than x
-real			floor(real x);					//!< Returns the largest integral value that is not greater than x
+uint32_t		next_pow_2(uint32_t x);			//!< Returns the nearest power of two to @x
+bool			is_pow_2(uint32_t x);			//!< Returns whether @x is power of two
+real			ceil(real x);					//!< Returns the smallest int32_tegral value that is not less than x
+real			floor(real x);					//!< Returns the largest int32_tegral value that is not greater than x
 real			sqrt(real x);					//!< Returns the square root of @x
 real			inv_sqrt(real x);				//!< Returns the inverse square root of @x
 real			sin(real x);					//!< Returns the sine of @x
@@ -88,7 +88,7 @@ real			acos(real x);					//!< Returns the arc cosine of @x
 real			tan(real x);					//!< Returns the tangent of @x
 real			atan2(real y, real x);			//!< Returns the arc tangent of @y/@x
 real			abs(real x);					//!< Returns the absolute value of @x
-real			fmod(real n, real d);			//!< Returns the realing-point remainder of numerator/denominator
+real			fmod(real n, real d);			//!< Returns the realing-point32_t remainder of numerator/denominator
 
 
 				//! Returns true if there are solutions and puts them in 'x1' and 'x2' (x1 <= x2)
@@ -107,19 +107,19 @@ inline bool equals(double a, double b, double precision)
 }
 
 //-----------------------------------------------------------------------------
-inline bool test_bitmask(int value, int bitmask)
+inline bool test_bitmask(int32_t value, int32_t bitmask)
 {
 	return (value & bitmask) == bitmask;
 }
 
 //-----------------------------------------------------------------------------
-inline int set_bitmask(int value, int bitmask)
+inline int32_t set_bitmask(int32_t value, int32_t bitmask)
 {
 	return value | bitmask;
 }
 
 //-----------------------------------------------------------------------------
-inline int unset_bitmask(int value, int bitmask)
+inline int32_t unset_bitmask(int32_t value, int32_t bitmask)
 {
 	return value & (~bitmask);
 }

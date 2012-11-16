@@ -31,7 +31,7 @@ namespace crown
 {
 
 LogLevel Log::mThreshold = LL_DEBUG;
-int Log::mIndentCount = 0;
+int32_t Log::mIndentCount = 0;
 
 LogLevel Log::GetThreshold()
 {

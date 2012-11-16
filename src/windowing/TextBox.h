@@ -63,13 +63,13 @@ private:
 	Str mDisplayedText;
 	uint32_t mDisplayedTextIndex; //< Index in mText of the first character of the displayed text
 
-	int mDisplayedTextX;
-	Point2 mDisplayedTextDimensions;
-	int mDisplayedTextOffset;
+	int32_t mDisplayedTextX;
+	Point32_t2 mDisplayedTextDimensions;
+	int32_t mDisplayedTextOffset;
 
 	
 	uint32_t mCaretIndex;
-	Point2 mCaretCharPosition;
+	Point32_t2 mCaretCharPosition;
 
 	TextRenderer* mTextRenderer;
 	Font* mFont;

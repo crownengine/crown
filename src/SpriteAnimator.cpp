@@ -49,12 +49,12 @@ void SpriteAnimator::SetAngle(real angle)
 	mAngle = angle;
 }
 
-int SpriteAnimator::GetFrameIndex()
+int32_t SpriteAnimator::GetFrameIndex()
 {
 	return mFrameIndex;
 }
 
-void SpriteAnimator::SetFrameIndex(int index)
+void SpriteAnimator::SetFrameIndex(int32_t index)
 {
 	if (mSprite)
 	{
@@ -65,12 +65,12 @@ void SpriteAnimator::SetFrameIndex(int index)
 	}
 }
 
-void SpriteAnimator::SetFrameInterval(int interval)
+void SpriteAnimator::SetFrameInterval(int32_t int32_terval)
 {
-	mFrameInterval = interval;
-	if (mFrameCounter == 0 || mFrameCounter > interval)
+	mFrameInterval = int32_terval;
+	if (mFrameCounter == 0 || mFrameCounter > int32_terval)
 	{
-		mFrameCounter = interval;
+		mFrameCounter = int32_terval;
 	}
 }
 

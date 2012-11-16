@@ -49,7 +49,7 @@ void Themes::LoadTheme(ITheme* theme)
 	mCurrentTheme = theme;
 }
 
-void Themes::Draw(ThemesFunctions functionId, const Point2& size)
+void Themes::Draw(ThemesFunctions functionId, const Point32_t2& size)
 {
 	ThemeFunction func = mCurrentTheme->GetFunction(functionId);
 

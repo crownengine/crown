@@ -52,22 +52,22 @@ public:
 
 	void	BeginDraw();
 	void	EndDraw();
-	void	Draw(const Str& string, int x, int y, Font* font);
+	void	Draw(const Str& string, int32_t x, int32_t y, Font* font);
 
 			//! Returns the sizes in pixels of the given string, when rendered with the current font
-	void	GetStrDimensions(const Str& string, uint32_t start, uint32_t end, int& width, int& height);
+	void	GetStrDimensions(const Str& string, uint32_t start, uint32_t end, int32_t& width, int32_t& height);
 			//! Returns the character index of the character at the given position
-	int		GetStrIndexFromDimensions(const Str& string, uint32_t start, const Point2& position, Point2& charPosition);
+	int32_t		GetStrIndexFromDimensions(const Str& string, uint32_t start, const Point2& position, Point2& charPosition);
 			//! Returns the max height of the text in the current font
-	int		GetMaxTextHeight();
+	int32_t		GetMaxTextHeight();
 
 
-	void GetStrDimensions(const Str& string, int& width, int& height)
+	void GetStrDimensions(const Str& string, int32_t& width, int32_t& height)
 	{
 		GetStrDimensions(string, 0, -1, width, height);
 	}
 
-	void GetStrDimensions(const Str& string, uint32_t start, int& width, int& height)
+	void GetStrDimensions(const Str& string, uint32_t start, int32_t& width, int32_t& height)
 	{
 		GetStrDimensions(string, start, -1, width, height);
 	}

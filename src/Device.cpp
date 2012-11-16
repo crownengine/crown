@@ -189,7 +189,7 @@ bool Device::ParseCommandLine(int argc, char** argv)
 		os::printf("Usage: %s [options]\n", argv[0]);
 		os::printf("Options:\n\n");
 		os::printf("All of the following options take precedence over\nenvironment variables and configuration files.\n\n");
-		// Print options
+		// Print32_t options
 		os::printf("  -help\t\t\t\t\tShow this help\n");
 		os::printf("  -root-path <path>\t\t\tUse <path> as the filesystem root path\n");
 		os::printf("  -user-path <path>\t\t\tUse <path> as the filesystem user path\n");
@@ -200,7 +200,7 @@ bool Device::ParseCommandLine(int argc, char** argv)
 	}
 
 	// Parse command line arguments
-	int i = 1;
+	int32_t i = 1;
 	while (i < argc)
 	{
 		if (Str::StrCmp(argv[i], "-root-path") == 0)

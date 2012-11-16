@@ -52,8 +52,8 @@ AndroidTouch::~AndroidTouch()
 
 void AndroidTouch::EventLoop()
 {
-	int ident;
-	int events;
+	int32_t ident;
+	int32_t events;
 	struct android_poll_source* source;
 
 	struct android_app* app = mAndroidApp;
@@ -71,7 +71,7 @@ void AndroidTouch::EventLoop()
 					return;
 				}
 
-				int32_t handled = 0;
+				int32_t32_t handled = 0;
 				handled = this->HandleTouchEvent(app, event);
 				AInputQueue_finishEvent(app->inputQueue, event, handled);
 			}
@@ -84,21 +84,21 @@ void AndroidTouch::EventLoop()
 	}
 }
 
-int32_t AndroidTouch::HandleTouchEvent(struct android_app* app, AInputEvent* event)
+int32_t32_t AndroidTouch::HandleTouchEvent(struct android_app* app, AInputEvent* event)
 {
 	TouchEvent touchEvent;
 
 	if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
 	{
-		int32_t motionAction = AMotionEvent_getAction(event);
-		int32_t motionCode = motionAction & AMOTION_EVENT_ACTION_MASK;
-		int32_t pointerIndex =
+		int32_t32_t motionAction = AMotionEvent_getAction(event);
+		int32_t32_t motionCode = motionAction & AMOTION_EVENT_ACTION_MASK;
+		int32_t32_t point32_terIndex =
 			(motionAction & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
-		int32_t pointerCount = AMotionEvent_getPointerCount(event);
+		int32_t32_t point32_terCount = AMotionEvent_getPoint32_terCount(event);
 
-		touchEvent.pointer_id	= AMotionEvent_getPointerId(event, pointerIndex);
-		touchEvent.x			= AMotionEvent_getX(event, pointerIndex);
-		touchEvent.y			= AMotionEvent_getY(event, pointerIndex);
+		touchEvent.point32_ter_id	= AMotionEvent_getPoint32_terId(event, point32_terIndex);
+		touchEvent.x			= AMotionEvent_getX(event, point32_terIndex);
+		touchEvent.y			= AMotionEvent_getY(event, point32_terIndex);
 
 		switch (motionCode)
 		{
@@ -130,9 +130,9 @@ int32_t AndroidTouch::HandleTouchEvent(struct android_app* app, AInputEvent* eve
 			}
 			case AMOTION_EVENT_ACTION_MOVE:
 			{
-				for (int32_t i = 0; i < pointerCount; i++)
+				for (int32_t32_t i = 0; i < point32_terCount; i++)
 				{
-					touchEvent.pointer_id	= AMotionEvent_getPointerId(event, i);
+					touchEvent.point32_ter_id	= AMotionEvent_getPoint32_terId(event, i);
 					touchEvent.x			= AMotionEvent_getX(event, i);
 					touchEvent.y			= AMotionEvent_getY(event, i);
 

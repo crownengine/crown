@@ -82,8 +82,8 @@ public:
 
 	void				zero();									//!< Builds the zero vector
 
-	real*				to_float_ptr();							//!< Returns the pointer to the vector's data
-	const real*			to_float_ptr() const;						//!< Returns the pointer to the vector's data
+	real*				to_float_ptr();							//!< Returns the point32_ter to the vector's data
+	const real*			to_float_ptr() const;						//!< Returns the point32_ter to the vector's data
 	Str					to_str() const;							//!< Returns a Str containing the vector's components
 
 	static const Vec2	ZERO;

@@ -118,19 +118,19 @@ bool WGLRenderWindow::Create(uint32_t x, uint32_t y, uint32_t width, uint32_t he
 		return false;
 	}
 
-	//Save the WGLRenderWindow pointer to the window's user data
+	//Save the WGLRenderWindow point32_ter to the window's user data
 	SetWindowLong(mWindowHandle, GWL_USERDATA, (LONG) this);
 	RECT rc;
 	rc.left = rc.top = 0;
 	rc.right = width;
 	rc.bottom = height;
-	int style, styleEx;
+	int32_t style, styleEx;
 	style = GetWindowLong(mWindowHandle, GWL_STYLE);
 	styleEx = GetWindowLong(mWindowHandle, GWL_EXSTYLE);
 	AdjustWindowRectEx(&rc, style, false, styleEx);
 	SetWindowPos(mWindowHandle, 0, 0, 0, rc.right-rc.left, rc.bottom-rc.top, SWP_NOMOVE | SWP_NOZORDER);
 	PIXELFORMATDESCRIPTOR pfd;
-	int iFormat;
+	int32_t iFormat;
 	/* get the device context (DC) */
 	mDC = GetDC(mWindowHandle);
 	/* set the pixel format for the DC */
@@ -221,7 +221,7 @@ void WGLRenderWindow::_SetTitleAndAdditionalTextToWindow()
 
 void WGLRenderWindow::EventLoop()
 {
-	//The ultimate lamer trick: do the event loop filtering out the mouse and keyboard events by doing sequential calls with intervals
+	//The ultimate lamer trick: do the event loop filtering out the mouse and keyboard events by doing sequential calls with int32_tervals
 	EventLoopDo(0, 0);
 	//EventLoopDo(1, WM_KEYFIRST-1);
 	//EventLoopDo(WM_KEYFIRST, WM_KEYLAST);
@@ -230,7 +230,7 @@ void WGLRenderWindow::EventLoop()
 	//EventLoopDo(WM_MOUSELAST+1, WM_USER);
 }
 
-void WGLRenderWindow::EventLoopDo(unsigned int minMsg, unsigned int maxMsg)
+void WGLRenderWindow::EventLoopDo(unsigned int32_t minMsg, unsigned int32_t maxMsg)
 {
 	MSG msg;
 	while (PeekMessage(&msg, mWindowHandle, minMsg, maxMsg, PM_REMOVE))

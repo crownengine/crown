@@ -50,7 +50,7 @@ public:
 	virtual ~FileSubStream();
 
 	/** @copydoc Stream::Seek() */
-	void Seek(int newPos, SeekMode mode);
+	void Seek(int32_t newPos, SeekMode mode);
 
 	/** @copydoc Stream::ReadByte() */
 	uint8_t ReadByte();

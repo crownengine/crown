@@ -41,11 +41,11 @@ public:
 
 	virtual Generic GetSelectedItem() const;
 
-	inline int GetSelectedIndex() const
+	inline int32_t GetSelectedIndex() const
 	{
 		return mSelectedIndex;
 	}
-	virtual void SetSelectedIndex(int value);
+	virtual void SetSelectedIndex(int32_t value);
 
 	virtual Generic GetPropertyValue(const Str& name) const;
 	virtual void SetPropertyValue(const Str& name, const Generic& value);
@@ -59,7 +59,7 @@ protected:
 	virtual void InternalSelectionChanged() = 0;
 
 private:
-	int mSelectedIndex;
+	int32_t mSelectedIndex;
 };
 
 }

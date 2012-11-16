@@ -58,14 +58,14 @@ Frustum::~Frustum()
 }
 
 //-----------------------------------------------------------------------------
-bool Frustum::contains_point(const Vec3& point) const
+bool Frustum::contains_point32_t(const Vec3& point32_t) const
 {
-	if (mPlane[FP_LEFT].get_distance_to_point(point) < 0.0) return false;
-	if (mPlane[FP_RIGHT].get_distance_to_point(point) < 0.0) return false;
-	if (mPlane[FP_BOTTOM].get_distance_to_point(point) < 0.0) return false;
-	if (mPlane[FP_TOP].get_distance_to_point(point) < 0.0) return false;
-	if (mPlane[FP_NEAR].get_distance_to_point(point) < 0.0) return false;
-	if (mPlane[FP_FAR].get_distance_to_point(point) < 0.0) return false;
+	if (mPlane[FP_LEFT].get_distance_to_point32_t(point32_t) < 0.0) return false;
+	if (mPlane[FP_RIGHT].get_distance_to_point32_t(point32_t) < 0.0) return false;
+	if (mPlane[FP_BOTTOM].get_distance_to_point32_t(point32_t) < 0.0) return false;
+	if (mPlane[FP_TOP].get_distance_to_point32_t(point32_t) < 0.0) return false;
+	if (mPlane[FP_NEAR].get_distance_to_point32_t(point32_t) < 0.0) return false;
+	if (mPlane[FP_FAR].get_distance_to_point32_t(point32_t) < 0.0) return false;
 
 	return true;
 }
@@ -162,14 +162,14 @@ Box Frustum::to_box() const
 	Box tmp;
 	tmp.zero();
 
-	tmp.add_point(this->get_vertex(0));
-	tmp.add_point(this->get_vertex(1));
-	tmp.add_point(this->get_vertex(2));
-	tmp.add_point(this->get_vertex(3));
-	tmp.add_point(this->get_vertex(4));
-	tmp.add_point(this->get_vertex(5));
-	tmp.add_point(this->get_vertex(6));
-	tmp.add_point(this->get_vertex(7));
+	tmp.add_point32_t(this->get_vertex(0));
+	tmp.add_point32_t(this->get_vertex(1));
+	tmp.add_point32_t(this->get_vertex(2));
+	tmp.add_point32_t(this->get_vertex(3));
+	tmp.add_point32_t(this->get_vertex(4));
+	tmp.add_point32_t(this->get_vertex(5));
+	tmp.add_point32_t(this->get_vertex(6));
+	tmp.add_point32_t(this->get_vertex(7));
 
 	return tmp;
 }

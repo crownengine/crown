@@ -74,13 +74,13 @@ Plane& Plane::normalize()
 }
 
 //-----------------------------------------------------------------------------
-real Plane::get_distance_to_point(const Vec3& p) const
+real Plane::get_distance_to_point32_t(const Vec3& p) const
 {
 	return n.dot(p) + d;
 }
 
 //-----------------------------------------------------------------------------
-bool Plane::contains_point(const Vec3& p) const
+bool Plane::contains_point32_t(const Vec3& p) const
 {
 	return math::equals(n.dot(p) + d, (real)0.0);
 }

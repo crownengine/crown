@@ -139,17 +139,17 @@ public:
 	//! Sets the specular reflectance
 	void SetSpecular(const Color4& specular);
 
-	//! Returns the emitted light intensity
+	//! Returns the emitted light int32_tensity
 	const Color4& GetEmission() const;
 
-	//! Sets the emitted light intensity
+	//! Sets the emitted light int32_tensity
 	void SetEmission(const Color4& emission);
 
 	//! Returns the shininess
-	int GetShininess() const;
+	int32_t GetShininess() const;
 
 	//! Sets the shininess
-	void SetShininess(int shininess);
+	void SetShininess(int32_t shininess);
 
 	//! Returns whether lighting is enabled
 	bool GetLighting() const;
@@ -199,10 +199,10 @@ public:
 	//! Sets whether blending is enabled
 	void SetBlending(bool blending);
 
-	//! Returns whether writing into the color buffer is enabled
+	//! Returns whether writing int32_to the color buffer is enabled
 	bool GetColorWrite() const;
 
-	//! Sets whether writing into the color buffer is enabled
+	//! Sets whether writing int32_to the color buffer is enabled
 	void SetColorWrite(bool write);
 
 	//! Returns whether fog is enabled
@@ -217,10 +217,10 @@ public:
 	//! Sets whether alpha test is enabled
 	void SetAlphaTest(bool test);
 
-	//! Returns whether point sprite is enabled
+	//! Returns whether point32_t sprite is enabled
 	bool GetPointSprite() const;
 
-	//! Sets whether point sprite is enabled
+	//! Sets whether point32_t sprite is enabled
 	void SetPointSprite(bool sprite);
 
 	//! Returns the shading type
@@ -289,22 +289,22 @@ public:
 	//! Sets the alpha reference
 	void SetAlphaRef(float ref);
 
-	//! Returns the points' size
+	//! Returns the point size
 	float GetPointSize() const;
 
-	//! Sets the points' size
+	//! Sets the point size
 	void SetPointSize(float size);
 
-	//! Returns the minimum points' size
+	//! Returns the minimum point size
 	float GetPointSizeMin() const;
 
-	//! Sets the minimum points' size
+	//! Sets the minimum point size
 	void SetPointSizeMin(float min);
 
-	//! Returns the maximum points' size
+	//! Returns the maximum point size
 	float GetPointSizeMax() const;
 
-	//! Sets the maximum points' size
+	//! Sets the maximum point' size
 	void SetPointSizeMax(float max);
 
 	//! Returns the blending equation
@@ -359,7 +359,7 @@ public:
 	Color4 mDiffuse;
 	Color4 mSpecular;
 	Color4 mEmission;
-	int mShininess;
+	int32_t mShininess;
 
 	bool mLighting				: 1; // Whether lighting is enabled
 	bool mTexturing				: 1; // Whether texturing is enabled
@@ -369,7 +369,7 @@ public:
 	bool mDepthWrite			: 1; // Whether depth write is enabled
 	bool mRescaleNormals		: 1; // Whether auto normal rescaling is enabled
 	bool mBlending				: 1; // Whether blending is enabled
-	bool mColorWrite			: 1; // Whether writing into the color buffer is enabled
+	bool mColorWrite			: 1; // Whether writing int32_to the color buffer is enabled
 	bool mFog					: 1; // Whether fog is enabled
 	bool mAlphaTest				: 1; // Whether alpha test is enabled
 	bool mPointSprite			: 1; // Whether point sprite is enabled

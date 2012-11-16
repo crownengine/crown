@@ -85,7 +85,7 @@ public:
 	bool Contains(const TKey& key) const;
 	void Clear();
 
-	inline int GetSize() const
+	inline int32_t GetSize() const
 	{
 		return mSize;
 	}
@@ -97,7 +97,7 @@ protected:
 private:
 	Node* mRoot;
 	Node* mSentinel;
-	int mSize;
+	int32_t mSize;
 
 	Node* GetPredecessor(Node* n) const;
 	Node* GetSuccessor(Node* n) const;
@@ -111,7 +111,7 @@ private:
 	void InnerClear(Node* n);
 
 #ifdef RBTREE_VERIFY
-	int dbgVerify(Node* n) const;
+	int32_t dbgVerify(Node* n) const;
 #endif
 };
 
@@ -647,7 +647,7 @@ inline void RBTree<TKey, TValue>::RotateRight(Node* x)
 
 #ifdef RBTREE_VERIFY
 template<typename TKey, typename TValue>
-int RBTree<TKey, TValue>::dbgVerify(Node* n) const
+int32_t RBTree<TKey, TValue>::dbgVerify(Node* n) const
 {
 	if (n == mSentinel)
 	{
@@ -666,8 +666,8 @@ int RBTree<TKey, TValue>::dbgVerify(Node* n) const
 		assert(n->item.key < n->right->item.key);
 	}
 
-	int bhL = dbgVerify(n->left);
-	int bhR = dbgVerify(n->right);
+	int32_t bhL = dbgVerify(n->left);
+	int32_t bhR = dbgVerify(n->right);
 	assert(bhL == bhR);
 
 	if (n->color == BLACK)

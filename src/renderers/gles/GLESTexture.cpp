@@ -57,7 +57,7 @@ GLuint GLESTexture::GetGLObject() const
 
 GLenum GLESTexture::GetGLTextureFormat() const
 {
-//	int value;
+//	int32_t value;
 //	glGetTexLevelParameteriv(GetGLTarget(), 0, GL_TEXTURE_INTERNAL_FORMAT, &value);
 //	return value;
 	return 0;
@@ -163,9 +163,9 @@ Image* GLESTexture::GetImage() const
 
 //	GLenum glFormat = GetGLTextureFormat();
 //	PixelFormat format = GetTextureFormat();
-//	int bytesPerPixel = Pixel::GetBytesPerPixel(format);
+//	int32_t bytesPerPixel = Pixel::GetBytesPerPixel(format);
 
-//	uint8_t* texData = new uint8_t[GetWidth() * GetHeight() * bytesPerPixel];
+//	char* texData = new char[GetWidth() * GetHeight() * bytesPerPixel];
 
 //	glGetTexImage(target, 0, glFormat, GL_UNSIGNED_BYTE, texData);
 

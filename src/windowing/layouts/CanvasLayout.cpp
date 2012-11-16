@@ -39,16 +39,16 @@ CanvasLayout::~CanvasLayout()
 {
 }
 
-void CanvasLayout::OnArrange(Point2 position, Point2 size)
+void CanvasLayout::OnArrange(Point32_t2 position, Point32_t2 size)
 {
 	Move(position);
 	Resize(size);
 	const List<Widget*>& children = GetChildren();
 
-	for (int i=0; i<children.GetSize(); i++)
+	for (int32_t i=0; i<children.GetSize(); i++)
 	{
-    Point2 childPosition = children[i]->GetDesiredPosition();
-		Point2 childSize = children[i]->GetMeasuredSize();
+    Point32_t2 childPosition = children[i]->GetDesiredPosition();
+		Point32_t2 childSize = children[i]->GetMeasuredSize();
     
     if (childSize.x < 0)
       childSize.x = children[i]->GetMinimumSize().x;

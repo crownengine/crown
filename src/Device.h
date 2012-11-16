@@ -62,12 +62,12 @@ private:
 
 	bool					ParseCommandLine(int argc, char** argv);
 
-	static const uint16_t		CROWN_MAJOR;
-	static const uint16_t		CROWN_MINOR;
-	static const uint16_t		CROWN_MICRO;
+	static const uint16_t	CROWN_MAJOR;
+	static const uint16_t	CROWN_MINOR;
+	static const uint16_t	CROWN_MICRO;
 
-	int						mPreferredWindowWidth;
-	int						mPreferredWindowHeight;
+	int32_t					mPreferredWindowWidth;
+	int32_t					mPreferredWindowHeight;
 	bool					mPreferredWindowFullscreen;
 	Str						mPreferredRootPath;
 	Str						mPreferredUserPath;

@@ -21,13 +21,13 @@ TCPSocket::~TCPSocket()
 	close();
 }
 
-bool TCPSocket::open(unsigned short port)
+bool TCPSocket::open(unsigned int32_t16_t port)
 {
-	int sd = socket(AF_INET, SOCK_STREAM, 0);
+	int32_t sd = socket(AF_INET, SOCK_STREAM, 0);
 
 	if (sd <= 0)
 	{
-		os::printf("failed to open socket\n");
+		os::print32_tf("failed to open socket\n");
 		set_socket_id(0);
 		return false;
 	}
@@ -42,21 +42,21 @@ bool TCPSocket::open(unsigned short port)
 
 	if (bind(sd, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0)
 	{
-		os::printf("failed to bind socket\n");
+		os::print32_tf("failed to bind socket\n");
 		close();
 		return false;
 	}
 
 	listen(sd, 5);
-	os::printf("listening on port %d", port);
+	os::print32_tf("listening on port %d", port);
 
 	sockaddr_in client;
 	uint32_t client_length = sizeof(client);
 
-	int active_sd = accept(sd, (sockaddr*)&client, &client_length);
+	int32_t active_sd = accept(sd, (sockaddr*)&client, &client_length);
 	if (active_sd < 0)
 	{
-		os::printf("failed to accept connections");
+		os::print32_tf("failed to accept connections");
 	}
 
 	set_active_socket_id(active_sd);
@@ -66,11 +66,11 @@ bool TCPSocket::open(unsigned short port)
 
 bool TCPSocket::connect(IPv4Address& destination)
 {		
-	int sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	int32_t sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	if (sd <= 0)
 	{
-		os::printf("failed to open socket\n");
+		os::print32_tf("failed to open socket\n");
 		set_socket_id(0);
 		return false;
 	}
@@ -84,22 +84,22 @@ bool TCPSocket::connect(IPv4Address& destination)
 
 	if (::connect(sd, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0)
 	{
-		os::printf("failed to connect socket\n");
+		os::print32_tf("failed to connect socket\n");
 		close();
 		return false;
 	}
 }
 
-int	TCPSocket::close()
+int32_t	TCPSocket::close()
 {
-		int asd = get_active_socket_id();
+		int32_t asd = get_active_socket_id();
 		if (asd != 0)
 		{
 			closesocket(asd);
 			set_active_socket_id(0);
 		}
 
-		int sd = get_socket_id();
+		int32_t sd = get_socket_id();
 		if (sd != 0)
 		{
 			closesocket(sd);
@@ -107,12 +107,12 @@ int	TCPSocket::close()
 		}
 }
 
-bool TCPSocket::send(const void* data, int size)
+bool TCPSocket::send(const void* data, int32_t size)
 {
 	assert(data);
 	assert(size > 0);
 
-	int sd = get_active_socket_id();
+	int32_t sd = get_active_socket_id();
 	if (sd <= 0)
 	{
 		set_socket_id(0);
@@ -120,29 +120,29 @@ bool TCPSocket::send(const void* data, int size)
 		return false;
 	}
 
-	int sent_bytes = ::send(sd, (const char*)data, size, 0);
+	int32_t sent_bytes = ::send(sd, (const char*)data, size, 0);
 	if (sent_bytes <= 0)
 	{
-		os::printf("Unable to send data");
+		os::print32_tf("Unable to send data");
 		return false;
 	}
 
 	return true;  
 }
 
-int	TCPSocket::receive(void* data, int size)
+int32_t	TCPSocket::receive(void* data, int32_t size)
 {
 	assert(data);
 	assert(size > 0);
 
-	int sd = get_active_socket_id();
+	int32_t sd = get_active_socket_id();
 
 	if ( sd <= 0 )
 	{
 		return false;
 	}
 
-	int received_bytes = recv(sd, (char*)data, size, 0);
+	int32_t received_bytes = recv(sd, (char*)data, size, 0);
 	if ( received_bytes <= 0 )
 	{
 		return 0;
@@ -156,22 +156,22 @@ bool TCPSocket::is_open()
 	return m_active_socket != 0 || m_socket != 0;
 }
 
-int TCPSocket::get_socket_id()
+int32_t TCPSocket::get_socket_id()
 {
 	return m_socket; 
 }
 
-int	TCPSocket::get_active_socket_id()
+int32_t	TCPSocket::get_active_socket_id()
 {
 	return m_active_socket != 0 ? m_active_socket : m_socket; 
 }
 
-void TCPSocket::set_socket_id(int socket)
+void TCPSocket::set_socket_id(int32_t socket)
 {
 	m_socket = socket;
 }
 
-void TCPSocket::set_active_socket_id(int socket)
+void TCPSocket::set_active_socket_id(int32_t socket)
 {
 	m_active_socket = socket;
 }

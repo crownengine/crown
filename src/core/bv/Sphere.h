@@ -35,7 +35,7 @@ namespace crown
 /**
 	Sphere.
 
-	Used mainly for collision detection and intersection tests.
+	Used mainly for collision detection and int32_tersection tests.
 */
 class Sphere
 {
@@ -57,10 +57,10 @@ public:
 	void			set_center(const Vec3& center);				//!< Sets the center
 	void			set_radius(real radius);					//!< Sets the radius
 
-	void			add_point(const Vec3& p);					//!< Adds a point to the Sphere
+	void			add_point32_t(const Vec3& p);					//!< Adds a point32_t to the Sphere
 	void			add_sphere(const Sphere& s);				//!< Adds a Sphere to the Sphere
 
-	bool			contains_point(const Vec3& p) const;		//!< Returns whether point "p" is contained
+	bool			contains_point32_t(const Vec3& p) const;		//!< Returns whether point32_t "p" is contained
 };
 
 //-----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ inline void Sphere::set_radius(real radius)
 }
 
 //-----------------------------------------------------------------------------
-inline void Sphere::add_point(const Vec3& p)
+inline void Sphere::add_point32_t(const Vec3& p)
 {
 	real dist = (p - c).squared_length();
 
@@ -139,7 +139,7 @@ inline void Sphere::add_sphere(const Sphere& s)
 }
 
 //-----------------------------------------------------------------------------
-inline bool Sphere::contains_point(const Vec3& p) const
+inline bool Sphere::contains_point32_t(const Vec3& p) const
 {
 	real dist = (p - c).squared_length();
 	return (dist < r * r);

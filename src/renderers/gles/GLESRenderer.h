@@ -54,7 +54,7 @@ public:
 
 	void				SetClearColor(const Color4& color);
 	void				_SetViewport(const Rect& absArea);
-	void				_SetMaterialParams(const Color4& ambient, const Color4& diffuse, const Color4& specular, const Color4& emission, int shininess);
+	void				_SetMaterialParams(const Color4& ambient, const Color4& diffuse, const Color4& specular, const Color4& emission, int32_t shininess);
 	void				_SetLighting(bool lighting);
 	void				_SetAmbientLight(const Color4& color);
 
@@ -93,14 +93,14 @@ public:
 	void				_SetPolygonMode(PolygonMode mode);
 	void				_SetFrontFace(FrontFace face);
 
-	void				_SetViewportParams(int x, int y, int width, int height);
+	void				_SetViewportParams(int32_t x, int32_t y, int32_t width, int32_t height);
 
 	void				_SetScissor(bool scissor);
-	void				_SetScissorParams(int x, int y, int width, int height);
+	void				_SetScissorParams(int32_t x, int32_t y, int32_t width, int32_t height);
 
-	void				_SetPointSprite(bool sprite);
-	void				_SetPointSize(float size);
-	void				_SetPointParams(float min, float max);
+	void				_SetPoint32_tSprite(bool sprite);
+	void				_SetPoint32_tSize(float size);
+	void				_SetPoint32_tParams(float min, float max);
 
 	VertexBuffer*		CreateVertexBuffer();
 	IndexBuffer*		CreateIndexBuffer();
@@ -118,11 +118,11 @@ public:
 	void				SelectMatrix(MatrixType type);
 
 	void				RenderVertexIndexBuffer(const VertexBuffer* vertices, const IndexBuffer* indices);
-	void				RenderPointBuffer(const VertexBuffer* buffer);
+	void				RenderPoint32_tBuffer(const VertexBuffer* buffer);
 
 	void				SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 	void				GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height);
-	void				DrawRectangle(const Point2& position, const Point2& dimensions, int drawMode,
+	void				DrawRectangle(const Point32_t2& position, const Point32_t2& dimensions, int32_t drawMode,
 														 const Color4& borderColor, const Color4& fillColor);
 
 	void				AddDebugLine(const Vec3& start, const Vec3& end, const Color4& color) {}
@@ -141,20 +141,20 @@ private:
 	//Mat4				mModelMatrixStack[MAX_MODEL_MATRIX_STACK_DEPTH];
 	//uint32_t				mModelMatrixStackIndex;
 
-	int					mMaxLights;
-	int					mMaxTextureSize;
-	int					mMaxTextureUnits;
-	int					mMaxVertexIndices;
-	int					mMaxVertexVertices;
+	int32_t					mMaxLights;
+	int32_t					mMaxTextureSize;
+	int32_t					mMaxTextureUnits;
+	int32_t					mMaxVertexIndices;
+	int32_t					mMaxVertexVertices;
 
 	float				mMaxAnisotropy;
-	float				mMinMaxPointSize[2];
+	float				mMinMaxPoint32_tSize[2];
 	float				mMinMaxLineWidth[2];
 
 	VertexBufferList	mVertexBufferList;
 	IndexBufferList		mIndexBufferList;
 
-	int					mActiveTextureUnit;
+	int32_t					mActiveTextureUnit;
 	Texture*			mTextureUnit[MAX_TEXTURE_UNITS];
 	GLenum				mTextureUnitTarget[MAX_TEXTURE_UNITS];
 };

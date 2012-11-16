@@ -38,13 +38,13 @@ namespace Crown
 Label::Label(Widget* parent, Str text):
 	Widget(parent), mHorizontalAlign(LHA_LEFT), mVerticalAlign(LVA_CENTER)
 {
-	EnumProperty* prop = new EnumProperty("HorizontalTextAlign", (int*)&mHorizontalAlign);
+	EnumProperty* prop = new EnumProperty("HorizontalTextAlign", (int32_t*)&mHorizontalAlign);
 	prop->AddValueMapping("Left", LHA_LEFT);
 	prop->AddValueMapping("Center", LHA_CENTER);
 	prop->AddValueMapping("Right", LHA_RIGHT);
 	AddProperty(prop);
 
-	prop = new EnumProperty("VerticalTextAlign", (int*)&mVerticalAlign);
+	prop = new EnumProperty("VerticalTextAlign", (int32_t*)&mVerticalAlign);
 	prop->AddValueMapping("Top", LVA_TOP);
 	prop->AddValueMapping("Center", LVA_CENTER);
 	prop->AddValueMapping("Bottom", LVA_BOTTOM);
@@ -82,7 +82,7 @@ void Label::SetText(Str value)
 
 void Label::CalculateTextDimensions()
 {
-	int dimX, dimY;
+	int32_t dimX, dimY;
 
 	TextRenderer* textRenderer = GetDevice()->GetRenderer()->GetTextRenderer();
 	textRenderer->SetFont(mFont);
@@ -98,8 +98,8 @@ void Label::CalculateTextDimensions()
 
 void Label::OnDraw(DrawingClipInfo& clipInfo)
 {
-	int yy;
-	int xx;
+	int32_t yy;
+	int32_t xx;
 
 	TextRenderer* textRenderer = GetDevice()->GetRenderer()->GetTextRenderer();
 	textRenderer->SetFont(mFont);

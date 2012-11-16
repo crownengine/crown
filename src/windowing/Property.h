@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace Crown
 {
 
-class Point2;
+class Point32_t2;
 template <typename T>
 class List;
 class Widget;
@@ -53,7 +53,7 @@ enum PropertyType
 	PT_Bool,
 
 	/* -- Composite Types -- */
-	PT_Point2,
+	PT_Point32_t2,
 	PT_Str,
 	PT_Margins,
 	PT_Template,
@@ -92,7 +92,7 @@ private:
 
 struct Margins
 {
-	Margins(int l, int t, int r, int b)
+	Margins(int32_t l, int32_t t, int32_t r, int32_t b)
 	{
 		left = l;
 		top = t;
@@ -100,19 +100,19 @@ struct Margins
 		bottom = b;
 	}
 
-	int left;
-	int top;
-	int right;
-	int bottom;
+	int32_t left;
+	int32_t top;
+	int32_t right;
+	int32_t bottom;
 
 	//! Calculate the fixed margins in the x direction.
-	int GetFixedMarginsX() const
+	int32_t GetFixedMarginsX() const
 	{
 		return (left > 0 ? left : 0) + (right > 0 ? right : 0);
 	}
 
 	//! Calculate the fixed margins in the y direction.
-	int GetFixedMarginsY() const
+	int32_t GetFixedMarginsY() const
 	{
 		return (top > 0 ? top : 0) + (bottom > 0 ? bottom : 0);
 	}

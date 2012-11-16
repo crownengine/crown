@@ -76,11 +76,11 @@ void ItemsSelector::SetPropertyValue(const Str& name, const Generic& value)
 	}
 }
 
-void ItemsSelector::SetSelectedIndex(int value)
+void ItemsSelector::SetSelectedIndex(int32_t value)
 {
 	if (mSelectedIndex != value)
 	{
-		int prevSelectedIndex = mSelectedIndex;
+		int32_t prevSelectedIndex = mSelectedIndex;
 		mSelectedIndex = value;
 		InternalSelectionChanged();
 

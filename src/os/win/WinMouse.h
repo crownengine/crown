@@ -32,7 +32,7 @@ namespace crown
 {
 
 /**
-	Implementation of Mouse interface for Windows.
+	Implementation of Mouse int32_terface for Windows.
 */
 class WinMouse : public Mouse
 {
@@ -52,10 +52,10 @@ public:
 	virtual void SetCursorVisible(bool visible);
 
 	/** @copydoc Mouse::GetCursorXY() */
-	virtual Point2 GetCursorXY() const;
+	virtual Point32_t2 GetCursorXY() const;
 
 	/** @copydoc Mouse::SetCursorXY() */
-	virtual void SetCursorXY(const Point2& position);
+	virtual void SetCursorXY(const Point32_t2& position);
 
 	/** @copydoc Mouse::GetCursorRelativeXY() */
 	virtual Vec2 GetCursorRelativeXY() const;

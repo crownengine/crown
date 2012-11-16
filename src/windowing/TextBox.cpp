@@ -96,9 +96,9 @@ void TextBox::ScrollCaretIntoView()
 	if (mCaretCharPosition.x > mDisplayedTextX + mDisplayedTextOffset + Math::Max(0, GetSize().x - 6))
 	{
 		//scroll right
-		mDisplayedTextX = mCaretCharPosition.x - Math::Max(0, (int)GetSize().x - 6);
-		Point2 dummy;
-		mDisplayedTextIndex = mTextRenderer->GetStrIndexFromDimensions(mText, 0, Point2(mDisplayedTextX - 10, 0), dummy);
+		mDisplayedTextX = mCaretCharPosition.x - Math::Max(0, (int32_t)GetSize().x - 6);
+		Point32_t2 dummy;
+		mDisplayedTextIndex = mTextRenderer->GetStrIndexFromDimensions(mText, 0, Point32_t2(mDisplayedTextX - 10, 0), dummy);
 		mDisplayedTextOffset = mDisplayedTextX - dummy.x;
 		mDisplayedTextX = dummy.x;
 
@@ -108,8 +108,8 @@ void TextBox::ScrollCaretIntoView()
 	{
 		//scroll left
 		mDisplayedTextX = mCaretCharPosition.x;
-		Point2 dummy;
-		mDisplayedTextIndex = mTextRenderer->GetStrIndexFromDimensions(mText, 0, Point2(mDisplayedTextX - 10, 0), dummy);
+		Point32_t2 dummy;
+		mDisplayedTextIndex = mTextRenderer->GetStrIndexFromDimensions(mText, 0, Point32_t2(mDisplayedTextX - 10, 0), dummy);
 		mDisplayedTextOffset = mDisplayedTextX - dummy.x;
 		mDisplayedTextX = dummy.x;
 
@@ -122,7 +122,7 @@ void TextBox::UpdateDisplayedText()
 	mTextRenderer->SetFont(mFont);
 	uint32_t mEndIndex;
 
-	mEndIndex = mTextRenderer->GetStrIndexFromDimensions(mText, mDisplayedTextIndex, Point2((int)GetSize().x, (int)GetSize().y) + Point2(mDisplayedTextOffset, 0), mDisplayedTextDimensions);
+	mEndIndex = mTextRenderer->GetStrIndexFromDimensions(mText, mDisplayedTextIndex, Point32_t2((int32_t)GetSize().x, (int32_t)GetSize().y) + Point32_t2(mDisplayedTextOffset, 0), mDisplayedTextDimensions);
 	if (mEndIndex < mText.GetLength())
 		mEndIndex++;
 	mDisplayedText = mText.GetSubstring(mDisplayedTextIndex, mEndIndex);
@@ -142,7 +142,7 @@ void TextBox::MoveCaretLeft()
 
 	mTextRenderer->SetFont(mFont);
 
-	Point2 charSize;
+	Point32_t2 charSize;
 	mTextRenderer->GetStrDimensions(mText, mCaretIndex-1, mCaretIndex, charSize.x, charSize.y);
 	mCaretCharPosition.x -= charSize.x;
 	mCaretIndex--;
@@ -156,7 +156,7 @@ void TextBox::MoveCaretRight()
 
 	mTextRenderer->SetFont(mFont);
 
-	Point2 charSize;
+	Point32_t2 charSize;
 	mTextRenderer->GetStrDimensions(mText, mCaretIndex, mCaretIndex+1, charSize.x, charSize.y);
 	
 	mCaretCharPosition.x += charSize.x;
@@ -196,8 +196,8 @@ void TextBox::OnMouseUp(MouseButtonEventArgs* args)
 		mTextRenderer->SetFont(mFont);
 		
 		//Find the caret position
-		Point2 mousePosition = GetDevice()->GetInputManager()->GetMouse()->GetCursorXY() - GetScreenPosition();
-		mousePosition += Point2(-2 + mDisplayedTextOffset, -2);
+		Point32_t2 mousePosition = GetDevice()->GetInputManager()->GetMouse()->GetCursorXY() - GetScreenPosition();
+		mousePosition += Point32_t2(-2 + mDisplayedTextOffset, -2);
 		mCaretIndex = mTextRenderer->GetStrIndexFromDimensions(mText, mDisplayedTextIndex, mousePosition, mCaretCharPosition);
 		mCaretCharPosition.x += mDisplayedTextX;
 		ScrollCaretIntoView();
@@ -245,12 +245,12 @@ void TextBox::OnDraw(DrawingClipInfo& clipInfo)
 
 	mTextRenderer->SetFont(mFont);
 
-	Point2 sPos = GetScreenPosition();
+	Point32_t2 sPos = GetScreenPosition();
 	//r->_SetScissorParams(sPos.x+1, 600 - (sPos.y + GetSize().y-2), GetSize().x-2, GetSize().y-4);
 	r->SetScissorBox(clipInfo.sx + 1, clipInfo.sy + 1, clipInfo.sw - 2, clipInfo.sh - 2);
 
-	int yy;
-	yy = (int)((GetSize().y - 4 - mTextRenderer->GetMaxTextHeight()) / 2.0f);
+	int32_t yy;
+	yy = (int32_t)((GetSize().y - 4 - mTextRenderer->GetMaxTextHeight()) / 2.0f);
 
 	bool hasFocus = HasTextInputFocus();
 
@@ -267,8 +267,8 @@ void TextBox::OnDraw(DrawingClipInfo& clipInfo)
 
 	if (hasFocus)
 	{
-		r->DrawRectangle(mCaretCharPosition + Point2(3 - mDisplayedTextX - mDisplayedTextOffset, 2 + yy - 1),
-		                 Point2(1, mTextRenderer->GetMaxTextHeight() + 2), DM_BORDER);
+		r->DrawRectangle(mCaretCharPosition + Point32_t2(3 - mDisplayedTextX - mDisplayedTextOffset, 2 + yy - 1),
+		                 Point32_t2(1, mTextRenderer->GetMaxTextHeight() + 2), DM_BORDER);
 	}
 
 	Widget::DrawChildren(clipInfo);

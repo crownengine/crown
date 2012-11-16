@@ -53,7 +53,7 @@ void Renderer::DestroyRenderer(Renderer* renderer)
 {
 	if (renderer == NULL)
 	{
-		throw NullPointerException("Renderer::DestroyRenderer: renderer == NULL");
+		throw NullPoint32_terException("Renderer::DestroyRenderer: renderer == NULL");
 	}
 
 	delete renderer;

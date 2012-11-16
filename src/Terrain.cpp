@@ -245,8 +245,8 @@ bool Terrain::TraceRay(const Ray& ray, Triangle& result, Triangle& tri2, real& d
 		tri.v3 = mVertices[mIndices[i + 2]];
 
 		real ret;
-		Vec3 intersectionPoint;
-		if (Intersection::TestRayTriangle(ray, tri, ret, intersectionPoint))
+		Vec3 int32_tersectionPoint32_t;
+		if (Intersection::TestRayTriangle(ray, tri, ret, int32_tersectionPoint32_t))
 		{
 			if (ret < minDist)
 			{
@@ -266,8 +266,8 @@ uint32_t Terrain::SnapToGrid(const Vec3& vertex)
 {
 	float minDist = 9999999.0f;
 	uint32_t indexToSnapped;
-	// Find the snapped point to input vertex
-	for (int i = 0; i < mVertexCount; i++)
+	// Find the snapped point32_t to input vertex
+	for (int32_t i = 0; i < mVertexCount; i++)
 	{
 		Vec3 tmp = mVertices[i];
 		Vec3 vertex2 = vertex;
@@ -358,14 +358,14 @@ void Terrain::BuildBrush(uint32_t width, uint32_t height, float smooth)
 	}
 }
 
-void Terrain::PlotCircle(int xx, int yy, int radius, int i)
+void Terrain::PlotCircle(int32_t xx, int32_t yy, int32_t radius, int32_t i)
 {
-	for (int i = 0; i < 256 * 256; i++)
+	for (int32_t i = 0; i < 256 * 256; i++)
 	{
 		mBrush[i] = 0;
 	}
 
-  int x, y;
+  int32_t x, y;
 
 	mBrushWidth = radius * 2;
 	mBrushHeight = radius * 2;

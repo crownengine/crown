@@ -49,8 +49,8 @@ public:
 	}
 
 	//! Sets the items list to be used. Releases the previous one.
-	//! The internal pointer is of Shared type: if callers need to
-	//! reference the list, they must keep a reference counted pointer
+	//! The int32_ternal point32_ter is of Shared type: if callers need to
+	//! reference the list, they must keep a reference counted point32_ter
 	//! as well or delegate to the ItemsWidget instance
 	inline void SetItems(List<Generic>* value)
 	{

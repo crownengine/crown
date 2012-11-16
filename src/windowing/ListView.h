@@ -50,7 +50,7 @@ public:
 private:
 	bool mInsideChild;
 	ListView* mListView;
-	int mItemIndex;
+	int32_t mItemIndex;
 
 	virtual void OnPreviewMouseIn(MouseEventArgs* args);
 	virtual void OnPreviewMouseOut(MouseEventArgs* args);

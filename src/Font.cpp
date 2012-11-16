@@ -65,7 +65,7 @@ void Font::LoadFromFile(const Str& filename)
 
 		while (textReader.ReadString(buf, 1024) != NULL)
 		{
-			int ch;
+			int32_t ch;
 			float a, b, c, d, e, f, g, h;
 
 			sscanf(buf, "%d %f %f %f %f %f %f %f %f\n", &ch, &a, &b, &c, &d, &e, &f, &g, &h);

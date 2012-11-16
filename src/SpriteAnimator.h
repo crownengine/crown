@@ -39,9 +39,9 @@ public:
 
 	void SetSprite(Sprite* sprite);
 	void SetAngle(real angle);
-	int GetFrameIndex();
-	void SetFrameIndex(int index);
-	void SetFrameInterval(int interval);
+	int32_t GetFrameIndex();
+	void SetFrameIndex(int32_t index);
+	void SetFrameInterval(int32_t int32_terval);
 	void SetScaleX(real scaleX);
 	void SetScaleY(real scaleY);
 
@@ -51,9 +51,9 @@ public:
 	
 private:
 	Sprite* mSprite;
-	int mFrameIndex;
-	int mFrameInterval;
-	int mFrameCounter;
+	int32_t mFrameIndex;
+	int32_t mFrameInterval;
+	int32_t mFrameCounter;
 	real mAngle;
 	real mScaleX;
 	real mScaleY;

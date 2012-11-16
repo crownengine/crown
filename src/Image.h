@@ -68,10 +68,10 @@ public:
 	//! Returns the image's bytes per pixel
 	uint32_t GetBytesPerPixel() const;
 
-	//! Returns a pointer to the image data
+	//! Returns a point32_ter to the image data
 	uint8_t* GetBuffer();
 
-	//! Returns a const pointer to the image data
+	//! Returns a const point32_ter to the image data
 	const uint8_t* GetBuffer() const;
 
 	//! Apply a color-keying

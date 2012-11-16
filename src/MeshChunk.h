@@ -48,10 +48,10 @@ public:
 	~MeshChunk();
 
 	//! Returns the mesh's vertex count
-	int GetVertexCount() const;
+	int32_t GetVertexCount() const;
 
 	//! Returns the mesh's face count
-	int GetFaceCount() const;
+	int32_t GetFaceCount() const;
 
 	//! Returns the mesh's bounding box
 	const Box& GetBoundingBox() const;

@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace Crown
 {
 
-MessageWindow::MessageWindow(WindowsManager* wm, const Str& title, const Str& message, int buttonsFlags, MessageResultDelegate* callback):
+MessageWindow::MessageWindow(WindowsManager* wm, const Str& title, const Str& message, int32_t buttonsFlags, MessageResultDelegate* callback):
 	Window(wm, 300, 300, 250, 70, title), mCallback(callback)
 {
 
@@ -79,7 +79,7 @@ void MessageWindow::mButton_OnClick(Button* button, EventArgs* /*args*/)
 {
 	if (mCallback)
 	{
-		int resultFlags = 0;
+		int32_t resultFlags = 0;
 
 		if (button == mOkButton)
 			resultFlags |= MWR_OK;

@@ -61,7 +61,7 @@ bool XWMLReader::ParseAction(const Str& actionStr, Str& actionName, List<Str>* a
 	Str actionStatement = actionStr.GetSubstring(8, actionStr.GetLength() - 1);
 
 	arguments->Clear();
-	int openParenthesisIndex = actionStatement.FindFirst('(');
+	int32_t openParenthesisIndex = actionStatement.FindFirst('(');
 	if (openParenthesisIndex != -1)
 	{
 		if (actionStatement[actionStatement.GetLength() - 1] != ')')
@@ -74,13 +74,13 @@ bool XWMLReader::ParseAction(const Str& actionStr, Str& actionName, List<Str>* a
 		//TODO: Use something more appropriate than a split to detect commas
 		actionStatement.Split(',', args);
 		
-		for(int i=0; i<args.GetSize(); i++)
+		for(int32_t i=0; i<args.GetSize(); i++)
 		{
-			int firstQuoteIndex = args[i].FindFirst('\'');
+			int32_t firstQuoteIndex = args[i].FindFirst('\'');
 
 			if (firstQuoteIndex != -1)
 			{
-				int lastQuoteIndex = args[i].FindLast('\'');
+				int32_t lastQuoteIndex = args[i].FindLast('\'');
 				//In this case, trimming is not necessary because apices wrap the item well
 				arguments->Append(args[i].GetSubstring(firstQuoteIndex + 1, lastQuoteIndex));
 			}
@@ -112,7 +112,7 @@ bool XWMLReader::ParseBind(const Str& bindStr, Str& bindPath, Str& source, Str& 
 	values.Split(',', splits);
 	
 	bindPath = splits[0];
-	for(int i = 1; i < splits.GetSize(); i++)
+	for(int32_t i = 1; i < splits.GetSize(); i++)
 	{
 		List<Str> valueSplits;
 		splits[i].Split('=', valueSplits);
@@ -154,10 +154,10 @@ Window* XWMLReader::LoadFile(Str filePath, WindowsManager* windowsManager, Windo
 	//Initialize the context
 	if (context != NULL)
 	{
-		context->SetAssociatedWindow(window.GetPointer());
+		context->SetAssociatedWindow(window.GetPoint32_ter());
 	}
 
-	if (!LoadWidgetPropertiesAndChildren(rootNode, window.GetPointer()))
+	if (!LoadWidgetPropertiesAndChildren(rootNode, window.GetPoint32_ter()))
 		return NULL;
 
 	//window->ApplyBinds();
@@ -167,7 +167,7 @@ Window* XWMLReader::LoadFile(Str filePath, WindowsManager* windowsManager, Windo
 		context->OnLoad();
 	}
 
-	return window.GetPointer(true);
+	return window.GetPoint32_ter(true);
 }
 
 Window* XWMLReader::LoadWindow(XMLNode* node, WindowsManager* windowsManager)
@@ -193,10 +193,10 @@ Widget* XWMLReader::LoadWidget(XMLNode* node, Widget* parent)
 		return NULL;
 	}
 
-	if (!LoadWidgetPropertiesAndChildren(node, widget.GetPointer()))
+	if (!LoadWidgetPropertiesAndChildren(node, widget.GetPoint32_ter()))
 		return NULL;
 
-	return widget.GetPointer(true);
+	return widget.GetPoint32_ter(true);
 }
 
 bool XWMLReader::LoadWidgetPropertiesAndChildren(XMLNode* node, Widget* widget)
@@ -264,7 +264,7 @@ bool XWMLReader::LoadWidgetPropertiesAndChildren(XMLNode* node, Widget* widget)
 		widget->SetPropertyValue(ec.current().key, ec.current().value);
 	}
 
-	for(int i=0; i<node->children.GetSize(); i++)
+	for(int32_t i=0; i<node->children.GetSize(); i++)
 		LoadWidget(node->children[i], widget->GetContentWidget());
 
 	return true;

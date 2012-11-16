@@ -79,7 +79,7 @@ public:
 class MouseMoveEventArgs: public MouseEventArgs
 {
 public:
-	MouseMoveEventArgs(Widget* source, const Point2& delta):
+	MouseMoveEventArgs(Widget* source, const Point32_t2& delta):
 		MouseEventArgs(source), mDelta(delta)
 	{
 	}
@@ -88,13 +88,13 @@ public:
 	{
 	}
 
-	inline const Point2& GetDelta()
+	inline const Point32_t2& GetDelta()
 	{
 		return mDelta;
 	}
 
 private:
-	Point2 mDelta;
+	Point32_t2 mDelta;
 };
 
 class MouseButtonEventArgs: public MouseEventArgs
@@ -181,24 +181,24 @@ public:
 class SelectionChangedEventArgs: public WindowingEventArgs
 {
 public:
-	SelectionChangedEventArgs(Widget* source, int oldIndex, int newIndex):
+	SelectionChangedEventArgs(Widget* source, int32_t oldIndex, int32_t newIndex):
 		WindowingEventArgs(source), mOldIndex(oldIndex), mNewIndex(newIndex)
 	{
 	}
 	virtual ~SelectionChangedEventArgs() { }
 
-	inline int GetOldIndex()
+	inline int32_t GetOldIndex()
 	{
 		return mOldIndex;
 	}
-	inline int GetNewIndex()
+	inline int32_t GetNewIndex()
 	{
 		return mNewIndex;
 	}
 
 private:
-	int mOldIndex;
-	int mNewIndex;
+	int32_t mOldIndex;
+	int32_t mNewIndex;
 };
 
 } //namespace Crown

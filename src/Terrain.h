@@ -68,7 +68,7 @@ public:
 	void		ApplyBrush(uint32_t x, uint32_t z, float scale);
 	void		ApplyBrush(const Vec3& xyz, float scale);
 
-	void		PlotCircle(int xx, int yy, int radius, int i);
+	void		PlotCircle(int32_t xx, int32_t yy, int32_t radius, int32_t i);
 
 	void		Render();
 
@@ -100,8 +100,8 @@ private:
 	uint32_t		mIndexCount;
 	uint16_t*		mIndices;
 
-	int			mBrushWidth;
-	int			mBrushHeight;
+	int32_t			mBrushWidth;
+	int32_t			mBrushHeight;
 	float		mBrush[MAX_BRUSH_SIZE * MAX_BRUSH_SIZE];
 };
 

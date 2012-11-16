@@ -27,7 +27,7 @@ bool UDPSocket::open(uint16_t port)
 	m_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (m_socket <= 0)
 	{
-		os::printf("Failed to create socket.");
+		os::print32_tf("Failed to create socket.");
 		m_socket = 0;
 		return false;
 	}
@@ -40,7 +40,7 @@ bool UDPSocket::open(uint16_t port)
 
 	if ( bind( m_socket, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0)
 	{
-		os::printf("Failed to bind socket");
+		os::print32_tf("Failed to bind socket");
 		close();
 		return false;
 	}
@@ -49,7 +49,7 @@ bool UDPSocket::open(uint16_t port)
 	DWORD non_blocking = 1;
 	if (ioctlsocket( socket, FIONBIO, &non_blocking ) != 0)
 	{
-		os::printf("Failed to set non-blocking socket");
+		os::print32_tf("Failed to set non-blocking socket");
 		close();
 		return false;
 	}
@@ -57,7 +57,7 @@ bool UDPSocket::open(uint16_t port)
 	return true;  
 }
 
-bool UDPSocket::send(IPv4Address &receiver, const void* data, int size )
+bool UDPSocket::send(IPv4Address &receiver, const void* data, int32_t size )
 {
 	assert(data);
 	assert(size > 0);
@@ -75,12 +75,12 @@ bool UDPSocket::send(IPv4Address &receiver, const void* data, int size )
 	address.sin_addr.s_addr = htonl(receiver.get_address());
 	address.sin_port = htons(receiver.get_port());
 
-	int sent_bytes = sendto(m_socket, (const char*)data, size, 0, (sockaddr*)&address, sizeof(sockaddr_in));
+	int32_t sent_bytes = sendto(m_socket, (const char*)data, size, 0, (sockaddr*)&address, sizeof(sockaddr_in));
 
 	return sent_bytes == size;  
 }
 
-int UDPSocket::receive(IPv4Address &sender, void* data, int size)
+int32_t UDPSocket::receive(IPv4Address &sender, void* data, int32_t size)
 {
 	assert(data);
 	assert(size > 0);
@@ -90,12 +90,12 @@ int UDPSocket::receive(IPv4Address &sender, void* data, int size)
 		return false;
 	}
 
-	typedef int socklen_t;
+	typedef int32_t socklen_t;
 
 	sockaddr_in from;
 	socklen_t from_length = sizeof(from);
 
-	int received_bytes = recvfrom(m_socket, (char*)data, size, 0, (sockaddr*)&from, &from_length);
+	int32_t received_bytes = recvfrom(m_socket, (char*)data, size, 0, (sockaddr*)&from, &from_length);
 
 	if (received_bytes <= 0)
 	{

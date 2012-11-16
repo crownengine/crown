@@ -92,7 +92,7 @@ Image* TGAImageLoader::LoadUncompressedData(Stream* fp)
 	if (mTGAHeader.pixel_depth == 16)
 	{
 		data = new uint8_t[(uint32_t)(size * 3)];
-		int j = 0;
+		int32_t j = 0;
 
 		for (uint64_t i = 0; i < size * channels; i++)
 		{
