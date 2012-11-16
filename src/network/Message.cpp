@@ -344,7 +344,11 @@ void Message::write_data(const void* data, int32_t length)
 
 void Message::write_ipv4addr(const os::IPv4Address addr)
 {
-  
+	uint8_t* ptr;
+	
+	ptr = get_byte_space(4);
+	memcpy(ptr, addr.address, 4);
+	write_uint16(addr.port);
 }
 
 void Message::begin_reading() const
