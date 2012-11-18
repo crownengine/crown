@@ -332,9 +332,53 @@ void Message::write_vec3(const Vec3& v, int32_t num_bits)
 	write_bits(vec3_to_bits(v, num_bits), num_bits);
 }
 
-void Message::write_string(const char* s, int32_t max_len, bool make7Bit)
+void Message::write_string(const char* s, int32_t max_len, bool make_7_bit)
 {
-  
+	if (!s) 
+	{
+		write_data("", 1);
+	}
+	else 
+	{
+		int32_t i;
+		int32_t l;
+		int8_t* data_ptr;
+		const int8_t* byte_ptr;
+		
+		// calculate s length
+		for (l = 0; s[l]; l++) {}
+		
+		if (max_len >= 0 && l >= max_len) 
+		{
+			l = max_len - 1;
+		}
+		
+		data_ptr = get_byte_space(l + 1);
+		byte_ptr = reinterpret_cast<const int8_t*>(s);
+		if (make_7_bit) 
+		{
+			for (i = 0; i < l; i++) 
+			{
+				if ( byte_ptr[i] > 127 ) 
+				{
+					data_ptr[i] = '.';
+				} 
+				else 
+				{
+					data_ptr[i] = byte_ptr[i];
+				}
+			}
+		}
+		else 
+		{
+			for (i = 0; i < l; i++) 
+			{
+				data_ptr[i] = byte_ptr[i];
+			}
+		}
+		
+		data_ptr[i] = '\0';
+	}  
 }
 
 void Message::write_data(const void* data, int32_t length)
@@ -472,7 +516,7 @@ real Message::read_real(int32_t exp_bits, int32_t mant_bits) const
 
 Vec3 Message::read_vec3(int32_t num_bits) const
 {
-  
+	return bits_to_vec3(read_bits(num_bits), num_bits);
 }
 
 int32_t Message::read_string(char* buffer, int32_t buffer_size) const
