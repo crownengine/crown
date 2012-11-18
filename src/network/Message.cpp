@@ -322,11 +322,6 @@ void Message::write_real(real f)
 	write_bits(*reinterpret_cast<int32_t *>(&f), 32);  
 }
 
-void Message::write_real(real f, int32_t exp_bits, int32_t mant_bits)
-{
-	//TODO:need to implement floatToBits function
-}
-
 void Message::write_vec3(const Vec3& v, int32_t num_bits)
 {
 	write_bits(vec3_to_bits(v, num_bits), num_bits);
@@ -491,31 +486,30 @@ int32_t Message::read_int8() const
 
 int32_t Message::read_uint8() const
 {
+  	return (int32_t)read_bits(8);
+
 }
 
 int32_t Message::read_int16() const
 {
-  
+	return (int32_t)read_bits(-16);  
 }
 
 int32_t Message::read_uint16() const
 {
-  
+	return (int32_t)read_bits(16);  
 }
 
 int32_t Message::read_int64() const
 {
-  
+	return (int32_t)read_bits(32);
 }
 
 real Message::read_real() const
 {
-  
-}
-
-real Message::read_real(int32_t exp_bits, int32_t mant_bits) const
-{
-  
+	float value;
+	*reinterpret_cast<int*>(&value) = read_bits(32);
+	return value;  
 }
 
 Vec3 Message::read_vec3(int32_t num_bits) const
@@ -525,17 +519,75 @@ Vec3 Message::read_vec3(int32_t num_bits) const
 
 int32_t Message::read_string(char* buffer, int32_t buffer_size) const
 {
-  
+	int	l = 0;
+	int c;
+	
+	read_byte_align();
+	
+	while(1) 
+	{
+		c = read_uint8();
+		if (c <= 0 || c >= 255) 
+		{
+			break;
+		}
+		// translate all fmt spec to avoid crash bugs in string routines
+		if ( c == '%' ) 
+		{
+			c = '.';
+		}
+
+		// we will read past any excessively long string, so
+		// the following data can be read, but the string will
+		// be truncated
+		if (l < buffer_size - 1) 
+		{
+			buffer[l] = c;
+			l++;
+		}
+	}
+	
+	buffer[l] = 0;
+	return l;  
 }
 
 int32_t Message::read_data(void* data, int32_t length) const
 {
-  
+	int count;
+
+	read_byte_align();
+	
+	count = read_count;
+
+	if (read_count + length > cur_size) 
+	{
+		if (data) 
+		{
+			memcpy(data, r_data + read_count, get_remaing_data());
+		}
+		read_count = cur_size;
+	} 
+	else 
+	{
+		if (data) 
+		{
+			memcpy(data, r_data + read_count, length);
+		}
+		read_count += length;
+	}
+
+	return (read_count - count);  
 }
 
 void Message::read_ipv4addr(os::IPv4Address* addr) const
 {
-  
+
+	for (int i = 0; i < 4; i++) 
+	{
+		addr->address[i] = read_uint8();
+	}
+	
+	addr->port = read_uint16();  
 }
 
 int32_t Message::vec3_to_bits(const Vec3& v, int32_t num_bits)
