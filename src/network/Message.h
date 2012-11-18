@@ -14,6 +14,7 @@ namespace network
 	
 	class Message
 	{
+	public:
 						Message();
 						~Message();
 

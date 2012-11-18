@@ -342,8 +342,8 @@ void Message::write_string(const char* s, int32_t max_len, bool make_7_bit)
 	{
 		int32_t i;
 		int32_t l;
-		int8_t* data_ptr;
-		const int8_t* byte_ptr;
+		uint8_t* data_ptr;
+		const uint8_t* byte_ptr;
 		
 		// calculate s length
 		for (l = 0; s[l]; l++) {}
@@ -354,7 +354,7 @@ void Message::write_string(const char* s, int32_t max_len, bool make_7_bit)
 		}
 		
 		data_ptr = get_byte_space(l + 1);
-		byte_ptr = reinterpret_cast<const int8_t*>(s);
+		byte_ptr = reinterpret_cast<const uint8_t*>(s);
 		if (make_7_bit) 
 		{
 			for (i = 0; i < l; i++) 
@@ -397,17 +397,18 @@ void Message::write_ipv4addr(const os::IPv4Address addr)
 
 void Message::begin_reading() const
 {
-  
+	read_count = 0;
+	read_bit = 0;
 }
 
 int32_t Message::get_remaing_data() const
 {
-  
+	cur_size - read_count;
 }
 
 void Message::read_byte_align() const
 {
-  
+	read_bit = 0;
 }
 
 int32_t Message::read_bits(int32_t num_bits) const
@@ -418,12 +419,14 @@ int32_t Message::read_bits(int32_t num_bits) const
 	int32_t		fraction;
 	bool	sgn;
 
-	if ( !r_data ) {
+	if (!r_data) 
+	{
 		printf("cannot read from message");
 	}
 
 	// check if the number of bits is valid
-	if ( num_bits == 0 || num_bits < -31 || num_bits > 32 ) {
+	if ( num_bits == 0 || num_bits < -31 || num_bits > 32 ) 
+	{
 		printf("bad number of bits %i", num_bits );
 	}
 
@@ -447,7 +450,7 @@ int32_t Message::read_bits(int32_t num_bits) const
 		return -1;
 	}
 
-	while (value_bits < num_bits ) 
+	while (value_bits < num_bits) 
 	{
 		if (read_bit == 0) 
 		{
@@ -483,6 +486,7 @@ int32_t Message::read_bits(int32_t num_bits) const
 
 int32_t Message::read_int8() const
 {
+	return (int32_t)read_bits(-8);
 }
 
 int32_t Message::read_uint8() const

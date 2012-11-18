@@ -29,6 +29,7 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/windowing/themes
 	${CMAKE_SOURCE_DIR}/src/windowing/layouts
 	${CMAKE_SOURCE_DIR}/src/windowing/templates
+	${CMAKE_SOURCE_DIR}/src/network
 )
 
 include_directories(${INCLUDES})
