@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "CoreEventArgs.h"
 //#include "WithProperties.h"
-#include "Singleton.h"
 
 // Core/Math
 #include "Color4.h"
