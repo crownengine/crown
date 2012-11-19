@@ -54,13 +54,16 @@ public:
 	bool				empty() const;
 	uint32_t			size() const;
 	uint32_t			capacity() const;
+	void				resize(uint32_t size);
+	void				reserve(uint32_t capacity);
 	void				set_capacity(uint32_t capacity);
-	void				grow();
+	void				grow(uint32_t min_capacity);
 
 	void				condense();
 
 	uint32_t			push_back(const T& item);
 	void				pop_back();
+
 	void				clear();
 
 	const List<T>&		operator=(const List<T>& other);
@@ -104,7 +107,7 @@ inline List<T>::List(Allocator& allocator, uint32_t capacity) :
 	m_size(0),
 	m_array(NULL)
 {
-	set_capacity(capacity);
+	resize(capacity);
 }
 
 /**
@@ -185,44 +188,83 @@ inline uint32_t List<T>::capacity() const
 }
 
 /**
-	Resizes the array to the given capacity.
+	Resizes the array to the given size.
 @note
 	Old items will be copied to the newly created array.
 	If the new capacity is smaller than the previous one, the
-	previous array will be truncated.
+	array will be truncated.
+*/
+template <typename T>
+inline void List<T>::resize(uint32_t size)
+{
+	assert(size > 0);
+
+	if (size > m_capacity)
+	{
+		grow(size);
+	}
+
+	m_size = size;
+}
+
+/**
+	Reserves space in the array for at least capacity items.
+*/
+template <typename T>
+inline void List<T>::reserve(uint32_t capacity)
+{
+	if (capacity > m_capacity)
+	{
+		set_capacity(capacity);
+	}
+}
+
+/**
+	Sets the array capacity
 */
 template <typename T>
 inline void List<T>::set_capacity(uint32_t capacity)
 {
-	assert(capacity > 0);
-
-	if (m_capacity == capacity)
+	if (capacity == m_capacity)
 	{
 		return;
 	}
 
-	T* tmp = m_array;
-	m_capacity = capacity;
-
 	if (capacity < m_size)
 	{
-		m_size = capacity;
+		resize(capacity);
 	}
 
-	m_array = (T*)m_allocator->allocate(capacity * sizeof(T));
-
-	memcpy(m_array, tmp, m_size * sizeof(T));
-
-	if (tmp)
+	if (capacity > 0)
 	{
-		m_allocator->deallocate(tmp);
+		T* tmp = m_array;
+		m_capacity = capacity;
+
+		m_array = (T*)m_allocator->allocate(capacity * sizeof(T));
+
+		memcpy(m_array, tmp, m_size * sizeof(T));
+
+		if (tmp)
+		{
+			m_allocator->deallocate(tmp);
+		}
 	}
 }
 
+/**
+	Grows the array to contain at least min_capacity items
+*/
 template <typename T>
-inline void List<T>::grow()
+inline void List<T>::grow(uint32_t min_capacity)
 {
-	set_capacity(m_capacity * 2 + 16);
+	uint32_t new_capacity = m_capacity * 2 + 1;
+
+	if (new_capacity < min_capacity)
+	{
+		new_capacity = min_capacity;
+	}
+
+	set_capacity(new_capacity);
 }
 
 /**
@@ -232,18 +274,18 @@ inline void List<T>::grow()
 template <typename T>
 inline void List<T>::condense()
 {
-	set_capacity(m_size);
+	resize(m_size);
 }
 
 /**
-	Appends an item to the array and returns its index or -1 if full.
+	Appends an item to the array and returns its index.
 */
 template <typename T>
 inline uint32_t List<T>::push_back(const T& item)
 {
 	if (m_capacity == m_size)
 	{
-		grow();
+		grow(0);
 	}
 
 	m_array[m_size] = item;
@@ -275,7 +317,7 @@ inline void List<T>::clear()
 }
 
 /**
-	Copies the content of the other list int32_to this.
+	Copies the content of the other list into this.
 */
 template <typename T>
 inline const List<T>& List<T>::operator=(const List<T>& other)
