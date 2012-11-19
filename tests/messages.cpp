@@ -277,31 +277,74 @@ void test_string()
 }
 
 void test_data()
-{/*
+{
   	uint32_t bits_written;
 	uint32_t rem_write_bits;
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::Message m = network::Message();*/
+  	network::Message m = network::Message();
+	
+	uint8_t tmp[] = "test generic";
+	uint8_t res[16];
+	
+	m.init(tmp, 16);
+	
+	m.write_data(tmp, 16);
+ 	bits_written = m.get_num_bits_written();
+  	rem_write_bits = m.get_remaining_write_bits();	
+	
+	m.read_data(res, 16);
+	bits_read = m.get_num_bits_read();
+	rem_read_bits = m.get_remaining_read_bits();
+	
 	printf("-----------------------------\n");
 	printf("start write and read for GENERIC\n");
+	printf("string = %s\n", res);
+	printf("bits written = %d\n", bits_written);
+	printf("remaining write bits = %d\n", rem_write_bits);
+	printf("bits read = %d\n", bits_read);
+	printf("remaining read bits = %d\n", rem_read_bits);
 	printf("-----------------------------\n");
-
+	printf("\n");	
 
 }
 
 void test_net_address()
-{/*
+{
   	uint32_t bits_written;
 	uint32_t rem_write_bits;
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::Message m = network::Message();*/
-  	printf("-----------------------------\n");
-	printf("start write and read for NET_ADDRESS\n");
+	network::Message m = network::Message();
+
+	uint8_t tmp[16];
+	
+	
+	os::IPv4Address addr;
+	os::IPv4Address res;
+	
+	addr.set(192, 168, 0, 1, 80);
+	
+	m.init(tmp, 16);
+	m.write_ipv4addr(addr);
+	bits_written = m.get_num_bits_written();
+	rem_write_bits = m.get_remaining_write_bits();	
+	
+	m.read_ipv4addr(&res);
+	bits_read = m.get_num_bits_read();
+	rem_read_bits = m.get_remaining_read_bits();
+	
 	printf("-----------------------------\n");
+	printf("start write and read for NET_ADDRESS\n");
+	printf("a = %d, b = %d, c = %d, d = %d, p = %d\n", res.address[0], res.address[1], res.address[2], res.address[3], res.port);
+	printf("bits written = %d\n", bits_written);
+	printf("remaining write bits = %d\n", rem_write_bits);
+	printf("bits read = %d\n", bits_read);
+	printf("remaining read bits = %d\n", rem_read_bits);
+	printf("-----------------------------\n");
+	printf("\n");	
 }
 
 int main()

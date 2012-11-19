@@ -495,7 +495,7 @@ int32_t Message::read_bits(int32_t num_bits) const
 	int32_t		value_bits;
 	int32_t		get;
 	int32_t		fraction;
-	bool	sgn;
+	bool		sgn;
 
 	if (!r_data) 
 	{

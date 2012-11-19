@@ -157,6 +157,16 @@ struct IPv4Address
 
 		port = p;
 	}
+	
+	void set(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t p)
+	{
+		address[0] = a;
+		address[1] = b;
+		address[2] = c;
+		address[3] = d;
+		
+		port = p;
+	}
 };
 
 //-----------------------------------------------------------------------------
