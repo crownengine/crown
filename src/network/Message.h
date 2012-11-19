@@ -14,6 +14,7 @@ namespace network
 	
 	class Message
 	{
+	public:
 						Message();
 						~Message();
 
@@ -54,9 +55,8 @@ namespace network
 		void			write_int64(int32_t c);
 		void			write_real(real f);
 		void			write_real(real f, int32_t exp_bits, int32_t mant_bits);
-		void			write_angle(real f);
 		void			write_vec3(const Vec3& v, int32_t num_bits);
-		void			write_string(const char* s, int32_t max_len = -1, bool make7Bit = true);
+		void			write_string(const char* s, int32_t max_len = -1, bool make_7_bit = true);
 		void			write_data(const void* data, int32_t length);
 		void			write_ipv4addr(const os::IPv4Address addr);
 
@@ -71,14 +71,13 @@ namespace network
 		int32_t			read_int64() const;
 		real			read_real() const;
 		real			read_real(int32_t exp_bits, int32_t mant_bits) const;
-		real			read_angle() const;
 		Vec3			read_vec3(int32_t num_bits) const;
 		int32_t			read_string(char* buffer, int32_t buffer_size) const;
 		int32_t			read_data(void* data, int32_t length) const;
 		void			read_ipv4addr(os::IPv4Address* addr) const;
 
-// 		static int32_t		vec3_to_bits(const Vec3& v, int32_t num_bits);
-// 		static Vec3		bits_to_vec3(int32_t bits, int32_t num_bits);
+ 		static int32_t	vec3_to_bits(const Vec3& v, int32_t num_bits);
+ 		static Vec3		bits_to_vec3(int32_t bits, int32_t num_bits);
 
 	private:
 	  
