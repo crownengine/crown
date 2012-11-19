@@ -344,6 +344,8 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 template <typename T>
 inline const T* List<T>::begin() const
 {
+	assert(m_size > 0);
+
 	return m_array;
 }
 
@@ -351,6 +353,8 @@ inline const T* List<T>::begin() const
 template <typename T>
 inline T* List<T>::begin()
 {
+	assert(m_size > 0);
+
 	return m_array;
 }
 
@@ -358,14 +362,18 @@ inline T* List<T>::begin()
 template <typename T>
 inline const T* List<T>::end() const
 {
-	return m_array + (m_size - 1);
+	assert(m_size > 0);
+
+	return &m_array[m_size - 1];
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline T* List<T>::end()
 {
-	return m_array + (m_size - 1);
+	assert(m_size > 0);
+
+	return &m_array[m_size - 1];
 }
 
 } // namespace crown
