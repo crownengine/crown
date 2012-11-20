@@ -68,7 +68,6 @@ set (CORE_HEADERS
 	core/Delegate.h
 	core/Exceptions.h
 	core/SignalSlot.h
-	core/Singleton.h
 	core/Types.h
 	core/VertexData.h
 	core/WithProperties.h
@@ -235,11 +234,11 @@ set (WIN_SRC
 )
 
 set (NETWORK_SRC
-	network/Message.h
+	network/BitMessage.h
 )
 
 set (NETWORK_HEADERS
-	network/Message.cpp
+	network/BitMessage.cpp
 )
 
 set (SOURCES

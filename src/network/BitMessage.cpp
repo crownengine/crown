@@ -1,28 +1,28 @@
 #include <cassert>
 #include <cstring>
 
-#include "Message.h"
+#include "BitMessage.h"
 
 namespace crown
 {
 namespace network
 {
   
-Message::Message() : w_data(NULL), r_data(NULL), max_size(0), cur_size(0), write_bit(0), read_count(0), read_bit(0)
+BitMessage::BitMessage() : w_data(NULL), r_data(NULL), max_size(0), cur_size(0), write_bit(0), read_count(0), read_bit(0)
 {
   
 }
 
 //---------------------------------------------------------------------------------------------
 
-Message::~Message()
+BitMessage::~BitMessage()
 {
   
 }
 
 //---------------------------------------------------------------------------------------------
 
-uint8_t* Message::get_byte_space(int32_t len)
+uint8_t* BitMessage::get_byte_space(int32_t len)
 {
 	uint8_t *ptr;
 
@@ -46,7 +46,7 @@ uint8_t* Message::get_byte_space(int32_t len)
 
 //---------------------------------------------------------------------------------------------
 
-bool Message::check_overflow(int32_t num_bits)
+bool BitMessage::check_overflow(int32_t num_bits)
 {
 	assert( num_bits >= 0 );
 	
@@ -66,7 +66,7 @@ bool Message::check_overflow(int32_t num_bits)
 
 //---------------------------------------------------------------------------------------------
 
-void Message::init(uint8_t *data, int32_t len)
+void BitMessage::init(uint8_t *data, int32_t len)
 {
 	w_data = data;
 	r_data = data;
@@ -75,7 +75,7 @@ void Message::init(uint8_t *data, int32_t len)
 
 //---------------------------------------------------------------------------------------------
 
-void Message::init(const uint8_t *data, int32_t len)
+void BitMessage::init(const uint8_t *data, int32_t len)
 {
 	w_data = NULL;
 	r_data = data;
@@ -84,42 +84,42 @@ void Message::init(const uint8_t *data, int32_t len)
 
 //---------------------------------------------------------------------------------------------
 
-uint8_t* Message::get_data()
+uint8_t* BitMessage::get_data()
 {
 	return w_data;
 }
 
 //---------------------------------------------------------------------------------------------
 
-const uint8_t* Message::get_data() const
+const uint8_t* BitMessage::get_data() const
 {
 	return r_data;
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::get_max_size() const
+int32_t BitMessage::get_max_size() const
 {
 	return max_size;
 }
 
 //---------------------------------------------------------------------------------------------
 
-bool Message::is_overflowed()
+bool BitMessage::is_overflowed()
 {
 	return overflowed;
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::get_size() const
+int32_t BitMessage::get_size() const
 {
 	return cur_size;
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::set_size(int32_t size)
+void BitMessage::set_size(int32_t size)
 {
 	if (size > max_size)
 	{
@@ -133,14 +133,14 @@ void Message::set_size(int32_t size)
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::get_write_bit() const
+int32_t BitMessage::get_write_bit() const
 {
 	return write_bit;
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::set_write_bit(int32_t bit)
+void BitMessage::set_write_bit(int32_t bit)
 {
 	write_bit = bit & 7;
 	if (write_bit) 
@@ -151,21 +151,21 @@ void Message::set_write_bit(int32_t bit)
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::get_num_bits_written() const
+int32_t BitMessage::get_num_bits_written() const
 {
 	return ((cur_size << 3) - ((8 - write_bit) & 7));  
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::get_remaining_write_bits() const
+int32_t BitMessage::get_remaining_write_bits() const
 {
 	return (max_size << 3) - get_num_bits_written(); 
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::save_write_state(int32_t& s,int32_t& b) const
+void BitMessage::save_write_state(int32_t& s,int32_t& b) const
 {
 	s = cur_size;
 	b = write_bit;
@@ -173,7 +173,7 @@ void Message::save_write_state(int32_t& s,int32_t& b) const
 
 //---------------------------------------------------------------------------------------------
 
-void Message::restore_write_state(int32_t s,int32_t b)
+void BitMessage::restore_write_state(int32_t s,int32_t b)
 {
 	cur_size = s;
 	write_bit = b & 7;
@@ -186,49 +186,49 @@ void Message::restore_write_state(int32_t s,int32_t b)
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::get_read_count() const
+int32_t BitMessage::get_read_count() const
 {
 	return read_count;
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::set_read_count(int32_t bytes)
+void BitMessage::set_read_count(int32_t bytes)
 {
 	read_count = bytes;
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::get_read_bit() const
+int32_t BitMessage::get_read_bit() const
 {
 	return read_bit;
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::set_read_bit(int32_t bit)
+void BitMessage::set_read_bit(int32_t bit)
 {
 	read_bit = bit & 7;
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::get_num_bits_read() const
+int32_t BitMessage::get_num_bits_read() const
 {
 	return ((read_count << 3) - ((8 - read_bit) & 7));  
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::get_remaining_read_bits() const
+int32_t BitMessage::get_remaining_read_bits() const
 {
 	return (cur_size << 3) - get_num_bits_read();
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::save_read_state(int32_t& c, int32_t& b) const
+void BitMessage::save_read_state(int32_t& c, int32_t& b) const
 {
 	c = read_count;
 	b = read_bit;
@@ -236,7 +236,7 @@ void Message::save_read_state(int32_t& c, int32_t& b) const
 
 //---------------------------------------------------------------------------------------------
 
-void Message::restore_read_state(int32_t c, int32_t b)
+void BitMessage::restore_read_state(int32_t c, int32_t b)
 {
 	read_count = c;
 	read_bit = b & 7;
@@ -244,7 +244,7 @@ void Message::restore_read_state(int32_t c, int32_t b)
 
 //---------------------------------------------------------------------------------------------
 
-void Message::begin_writing()
+void BitMessage::begin_writing()
 {
 	cur_size = 0;
 	write_bit = 0;
@@ -253,21 +253,21 @@ void Message::begin_writing()
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::get_remaining_space() const
+int32_t BitMessage::get_remaining_space() const
 {
 	return max_size - cur_size;
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::write_byte_align()
+void BitMessage::write_byte_align()
 {
 	write_bit = 0;
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::write_bits(int32_t value, int32_t num_bits)
+void BitMessage::write_bits(int32_t value, int32_t num_bits)
 {
 	int32_t		put;
 	int32_t		fraction;
@@ -349,56 +349,56 @@ void Message::write_bits(int32_t value, int32_t num_bits)
 
 //---------------------------------------------------------------------------------------------
 
-void Message::write_int8(int32_t c)
+void BitMessage::write_int8(int32_t c)
 {
 	write_bits(c, -8);
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::write_uint8(int32_t c)
+void BitMessage::write_uint8(int32_t c)
 {
 	write_bits(c, 8);  
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::write_int16(int32_t c)
+void BitMessage::write_int16(int32_t c)
 {
 	write_bits(c, -16);  
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::write_uint16(int32_t c)
+void BitMessage::write_uint16(int32_t c)
 {
 	write_bits(c, 16);
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::write_int32(int32_t c)
+void BitMessage::write_int32(int32_t c)
 {
 	write_bits(c, 32);
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::write_real(real f)
+void BitMessage::write_real(real f)
 {
 	write_bits(*reinterpret_cast<int32_t *>(&f), 32);  
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::write_vec3(const Vec3& v, int32_t num_bits)
+void BitMessage::write_vec3(const Vec3& v, int32_t num_bits)
 {
 	write_bits(vec3_to_bits(v, num_bits), num_bits);
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::write_string(const char* s, int32_t max_len, bool make_7_bit)
+void BitMessage::write_string(const char* s, int32_t max_len, bool make_7_bit)
 {
 	if (!s) 
 	{
@@ -449,14 +449,14 @@ void Message::write_string(const char* s, int32_t max_len, bool make_7_bit)
 
 //---------------------------------------------------------------------------------------------
 
-void Message::write_data(const void* data, int32_t length)
+void BitMessage::write_data(const void* data, int32_t length)
 {
 	memcpy(get_byte_space(length), data, length);
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::write_ipv4addr(const os::IPv4Address addr)
+void BitMessage::write_ipv4addr(const os::NetAddress addr)
 {
 	uint8_t* ptr;
 	
@@ -467,7 +467,7 @@ void Message::write_ipv4addr(const os::IPv4Address addr)
 
 //---------------------------------------------------------------------------------------------
 
-void Message::begin_reading() const
+void BitMessage::begin_reading() const
 {
 	read_count = 0;
 	read_bit = 0;
@@ -475,21 +475,21 @@ void Message::begin_reading() const
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::get_remaing_data() const
+int32_t BitMessage::get_remaing_data() const
 {
 	cur_size - read_count;
 }
 
 //---------------------------------------------------------------------------------------------
 
-void Message::read_byte_align() const
+void BitMessage::read_byte_align() const
 {
 	read_bit = 0;
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::read_bits(int32_t num_bits) const
+int32_t BitMessage::read_bits(int32_t num_bits) const
 {
 	int32_t		value;
 	int32_t		value_bits;
@@ -564,14 +564,14 @@ int32_t Message::read_bits(int32_t num_bits) const
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::read_int8() const
+int32_t BitMessage::read_int8() const
 {
 	return (int32_t)read_bits(-8);
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::read_uint8() const
+int32_t BitMessage::read_uint8() const
 {
   	return (int32_t)read_bits(8);
 
@@ -579,28 +579,28 @@ int32_t Message::read_uint8() const
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::read_int16() const
+int32_t BitMessage::read_int16() const
 {
 	return (int32_t)read_bits(-16);  
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::read_uint16() const
+int32_t BitMessage::read_uint16() const
 {
 	return (int32_t)read_bits(16);  
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::read_int32() const
+int32_t BitMessage::read_int32() const
 {
 	return (int32_t)read_bits(32);
 }
 
 //---------------------------------------------------------------------------------------------
 
-real Message::read_real() const
+real BitMessage::read_real() const
 {
 	float value;
 	*reinterpret_cast<int*>(&value) = read_bits(32);
@@ -609,14 +609,14 @@ real Message::read_real() const
 
 //---------------------------------------------------------------------------------------------
 
-Vec3 Message::read_vec3(int32_t num_bits) const
+Vec3 BitMessage::read_vec3(int32_t num_bits) const
 {
 	return bits_to_vec3(read_bits(num_bits), num_bits);
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::read_string(char* buffer, int32_t buffer_size) const
+int32_t BitMessage::read_string(char* buffer, int32_t buffer_size) const
 {
 	int	l = 0;
 	int c;
@@ -652,7 +652,7 @@ int32_t Message::read_string(char* buffer, int32_t buffer_size) const
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::read_data(void* data, int32_t length) const
+int32_t BitMessage::read_data(void* data, int32_t length) const
 {
 	int count;
 
@@ -682,7 +682,7 @@ int32_t Message::read_data(void* data, int32_t length) const
 
 //---------------------------------------------------------------------------------------------
 
-void Message::read_ipv4addr(os::IPv4Address* addr) const
+void BitMessage::read_ipv4addr(os::NetAddress* addr) const
 {
 
 	for (int i = 0; i < 4; i++) 
@@ -695,7 +695,7 @@ void Message::read_ipv4addr(os::IPv4Address* addr) const
 
 //---------------------------------------------------------------------------------------------
 
-int32_t Message::vec3_to_bits(const Vec3& v, int32_t num_bits)
+int32_t BitMessage::vec3_to_bits(const Vec3& v, int32_t num_bits)
 {
 	assert(num_bits >= 6 && num_bits <= 32);
 	assert(v.squared_length() - 1.0f < 0.01f);
@@ -720,7 +720,7 @@ int32_t Message::vec3_to_bits(const Vec3& v, int32_t num_bits)
 
 //---------------------------------------------------------------------------------------------
 
-Vec3 Message::bits_to_vec3(int32_t bits, int32_t num_bits)
+Vec3 BitMessage::bits_to_vec3(int32_t bits, int32_t num_bits)
 {
 	assert(num_bits >= 6 && num_bits <= 32);
   

@@ -67,7 +67,7 @@ bool TCPSocket::open(uint16_t port)
 	return true;  
 }
 
-bool TCPSocket::connect(IPv4Address& destination)
+bool TCPSocket::connect(NetAddress& destination)
 {
 	int32_t sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 

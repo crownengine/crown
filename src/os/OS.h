@@ -41,17 +41,17 @@ namespace os
 
 //-----------------------------------------------------------------------------
 #ifdef LINUX
-const size_t	MAX_OS_PATH_LENGTH = 1024;
+const size_t	MAX_PATH_LENGTH = 1024;
 const char		PATH_SEPARATOR = '/';
-const size_t	MAX_OS_EVENTS = 512;
 
+const size_t	MAX_EVENTS = 512;
 #endif
 
 #ifdef WINDOWS
-const size_t	MAX_OS_PATH_LENGTH = 1024;
+const size_t	MAX_PATH_LENGTH = 1024;
 const char		PATH_SEPARATOR = '\\';
 
-const size_t	MAX_OS_EVENTS = 512;
+const size_t	MAX_EVENTS = 512;
 #endif
 
 //-----------------------------------------------------------------------------
@@ -119,10 +119,10 @@ struct OSEvent
 	int32_t			data_d;
 };
 
-//! Pushes @a event int32_to @a event_queue
+//! Pushes @a event into @a event_queue
 void				push_event(OSEventType type, int32_t data_a, int32_t data_b, int32_t data_c, int32_t data_d);
 
-//! Returns the event on top of the @a event_queue	
+//! Returns the event on top of the event_queue	
 OSEvent&			pop_event();
 
 
@@ -131,7 +131,7 @@ OSEvent&			pop_event();
 //		Networking
 //-----------------------------------------------------------------------------
 
-struct IPv4Address
+struct NetAddress
 {
 	uint8_t 	address[4];
 	uint16_t 	port;
@@ -182,9 +182,9 @@ public:
 				// Open connection
 	bool 		open(uint16_t port);
 				 // Send data through socket
-	bool 		send(IPv4Address &receiver, const void* data, int32_t size );
+	bool 		send(NetAddress &receiver, const void* data, int32_t size );
 				// Receive data through socket
-	int32_t 	receive(IPv4Address &sender, void* data, int32_t size);
+	int32_t 	receive(NetAddress &sender, void* data, int32_t size);
 				// Close connection
 	void 		close();
 				// Is connection open?
@@ -207,7 +207,7 @@ public:
 				// Open connection (server side)
 	bool 		open(uint16_t port);
 				// Connect (client side)
-	bool		connect(IPv4Address& destination);
+	bool		connect(NetAddress& destination);
 				// Close connection
 	int32_t		close();
 				// Send data through socket

@@ -190,7 +190,7 @@ inline void Queue<T>::push_front(const T& item)
 
 	m_read = (m_read - 1 + m_queue.size()) % m_queue.size();
 
-	(this*)[0] = item;
+	(*this)[0] = item;
 
 	m_size++;
 }

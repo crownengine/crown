@@ -139,8 +139,8 @@ bool rmdir(const char* path)
 //-----------------------------------------------------------------------------
 const char* get_cwd()
 {
-	static char cwdBuf[MAX_OS_PATH_LENGTH];
-	if (getcwd(cwdBuf, MAX_OS_PATH_LENGTH) == NULL)
+	static char cwdBuf[MAX_PATH_LENGTH];
+	if (getcwd(cwdBuf, MAX_PATH_LENGTH) == NULL)
 	{
 		return Str::EMPTY;
 	}
