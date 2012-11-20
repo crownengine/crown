@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "OS.h"
 #include "Renderer.h"
-#include "Timer.h"
 #include "Types.h"
 #include <cstdlib>
 

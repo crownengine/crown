@@ -99,7 +99,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Skybox.h"
 #include "TextRenderer.h"
 #include "TextureManager.h"
-#include "Timer.h"
 #include "VertexBuffer.h"
 
 // Engine/Filesystem

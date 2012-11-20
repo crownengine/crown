@@ -55,7 +55,6 @@ set (HEADERS
 	TextRenderer.h
 	Texture.h
 	TextureManager.h
-	Timer.h
 	VertexBuffer.h
 	World.h
 )
@@ -217,7 +216,6 @@ set (LINUX_SRC
 #	EGLRenderWindow.cpp
 	os/linux/GLXRenderWindow.cpp
 	os/linux/LinuxOS.cpp
-	os/linux/LinuxTimer.cpp
 	os/linux/Input.cpp
 	os/linux/LinuxTCPSocket.cpp
 	os/linux/LinuxUDPSocket.cpp	
@@ -225,7 +223,6 @@ set (LINUX_SRC
 
 set (LINUX_HEADERS
 #	os/linux/EGLRenderWindow.h
-	os/linux/LinuxTimer.h
 )
 
 set (WIN_SRC

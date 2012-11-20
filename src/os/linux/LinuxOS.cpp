@@ -31,11 +31,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/types.h>
 #include <dirent.h>
 #include <cstdlib>
+#include <sys/time.h>
+#include <time.h>
 
 namespace crown
 {
 namespace os
 {
+
+static timespec base_time;
 
 //-----------------------------------------------------------------------------
 void printf(const char* string, ...)
@@ -202,6 +206,26 @@ bool ls(const char* path, List<Str>& fileList)
 //-----------------------------------------------------------------------------
 void init_os()
 {
+	// Initilize the base time
+	clock_gettime(CLOCK_MONOTONIC, &base_time);
+}
+
+//-----------------------------------------------------------------------------
+uint64_t milliseconds()
+{
+	timespec tmp;
+
+	clock_gettime(CLOCK_MONOTONIC, &tmp);
+
+	return (tmp.tv_sec - base_time.tv_sec) * 1000 + (tmp.tv_nsec - base_time.tv_nsec) / 1000000;
+}
+
+//-----------------------------------------------------------------------------
+uint64_t microseconds()
+{
+	timespec tmp;
+	clock_gettime(CLOCK_MONOTONIC, &tmp);
+	return (tmp.tv_sec - base_time.tv_sec) * 1000000 + (tmp.tv_nsec - base_time.tv_nsec) / 1000;
 }
 
 } // namespace os

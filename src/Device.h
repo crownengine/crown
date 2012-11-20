@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Config.h"
-#include "Timer.h"
 #include "Str.h"
 
 namespace crown
@@ -76,7 +75,6 @@ private:
 	bool					mIsRunning	: 1;
 
 	Renderer*				mRenderer;
-	Timer					mTimer;
 
 	// Disable copying
 	Device(const Device&);
