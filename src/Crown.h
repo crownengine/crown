@@ -63,6 +63,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Str.h"
 #include "List.h"
 #include "Generic.h"
+#include "Queue.h"
 
 // Core/Mem
 #include "Memory.h"
