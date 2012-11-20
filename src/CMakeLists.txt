@@ -136,7 +136,6 @@ set (MATH_HEADERS
 set (STREAMS_SRC
 	core/streams/File.cpp
 	core/streams/FileStream.cpp
-	core/streams/FileSubStream.cpp
 	core/streams/MemoryStream.cpp
 	core/streams/Stream.cpp
 )
@@ -144,7 +143,6 @@ set (STREAMS_SRC
 set (STREAMS_HEADERS
 	core/streams/File.h
 	core/streams/FileStream.h
-	core/streams/FileSubStream.h
 	core/streams/MemoryStream.h
 	core/streams/NullStream.h
 	core/streams/Stream.h
