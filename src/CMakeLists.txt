@@ -94,7 +94,7 @@ set (CONTAINERS_SRC
 )
 
 set (CONTAINERS_HEADERS
-	core/containers/Array.h
+	core/containers/Queue.h
 	core/containers/Dictionary.h
 	core/containers/Generic.h
 	core/containers/List.h
