@@ -73,6 +73,11 @@ public:
 	T*					end();
 	const T*			end() const;
 
+	T&					front();
+	const T&			front() const;
+	T&					back();
+	const T&			back() const;
+
 private:
 
 	Allocator*			m_allocator;
@@ -142,7 +147,7 @@ inline List<T>::~List()
 template <typename T>
 inline T& List<T>::operator[](uint32_t index)
 {
-	assert(index < m_size);
+	//assert(index < m_size);
 
 	return m_array[index];
 }
@@ -155,7 +160,7 @@ inline T& List<T>::operator[](uint32_t index)
 template <typename T>
 inline const T& List<T>::operator[](uint32_t index) const
 {
-	assert(index < m_size);
+	//assert(index < m_size);
 
 	return m_array[index];
 }
@@ -197,11 +202,9 @@ inline uint32_t List<T>::capacity() const
 template <typename T>
 inline void List<T>::resize(uint32_t size)
 {
-	assert(size > 0);
-
 	if (size > m_capacity)
 	{
-		grow(size);
+		set_capacity(size);
 	}
 
 	m_size = size;
@@ -215,7 +218,7 @@ inline void List<T>::reserve(uint32_t capacity)
 {
 	if (capacity > m_capacity)
 	{
-		set_capacity(capacity);
+		grow(capacity);
 	}
 }
 
@@ -364,7 +367,7 @@ inline const T* List<T>::end() const
 {
 	assert(m_size > 0);
 
-	return &m_array[m_size - 1];
+	return m_array + m_size;
 }
 
 //-----------------------------------------------------------------------------
@@ -373,7 +376,43 @@ inline T* List<T>::end()
 {
 	assert(m_size > 0);
 
-	return &m_array[m_size - 1];
+	return m_array + m_size;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline T& List<T>::front()
+{
+	assert(m_size > 0);
+
+	return m_array[0];
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline const T& List<T>::front() const
+{
+	assert(m_size > 0);
+
+	return m_array[0];
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline T& List<T>::back()
+{
+	assert(m_size > 0);
+
+	return m_array[m_size - 1];
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline const T& List<T>::back() const
+{
+	assert(m_size > 0);
+
+	return m_array[m_size - 1];
 }
 
 } // namespace crown
