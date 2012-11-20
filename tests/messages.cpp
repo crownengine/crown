@@ -2,7 +2,7 @@
 
 #include "Vec3.h"
 #include "OS.h"
-#include "Message.h"
+#include "BitMessage.h"
 
 using namespace crown;
 
@@ -13,7 +13,7 @@ void test_int8()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::Message m = network::Message();
+  	network::BitMessage m = network::BitMessage();
 	
 	uint8_t tmp[4];
 	int8_t res;
@@ -48,7 +48,7 @@ void test_uint8()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::Message m = network::Message();
+  	network::BitMessage m = network::BitMessage();
 
 	uint8_t tmp[4];
 	uint8_t res;
@@ -82,7 +82,7 @@ void test_int16()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::Message m = network::Message();  
+  	network::BitMessage m = network::BitMessage();  
 	
 	uint8_t tmp[4];
 	int16_t res;
@@ -114,7 +114,7 @@ void test_uint16()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::Message m = network::Message();
+  	network::BitMessage m = network::BitMessage();
 
 	uint8_t tmp[4];
 	uint16_t res;
@@ -146,7 +146,7 @@ void test_int32()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::Message m = network::Message();
+  	network::BitMessage m = network::BitMessage();
 	
 	uint8_t tmp[4];
 	int32_t res;
@@ -179,7 +179,7 @@ void test_real()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::Message m = network::Message();
+  	network::BitMessage m = network::BitMessage();
 
 	uint8_t tmp[4];
 	real res;
@@ -213,19 +213,19 @@ void test_vec3()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::Message m = network::Message();
+  	network::BitMessage m = network::BitMessage();
 	
 	
-	uint8_t tmp[4];
-	Vec3 v(0.0f, 0.0f, 1.0f);
+	uint8_t tmp[12];
+	Vec3 v(0.525f, 0.432f, 0.234f);
 	Vec3 res;
 	
-	m.init(tmp, 4);
-	m.write_vec3(v, 32);
+	m.init(tmp, 12);
+	m.write_vec3(v);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
 	
-	res = m.read_vec3(32);
+	res = m.read_vec3();
 	bits_read = m.get_num_bits_read();
 	rem_read_bits = m.get_remaining_read_bits();
 	
@@ -247,7 +247,7 @@ void test_string()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::Message m = network::Message();
+  	network::BitMessage m = network::BitMessage();
 	
 	uint8_t tmp[16];
 	char res[16];
@@ -283,7 +283,7 @@ void test_data()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::Message m = network::Message();
+  	network::BitMessage m = network::BitMessage();
 	
 	uint8_t tmp[] = "test generic";
 	uint8_t res[16];
@@ -317,13 +317,13 @@ void test_net_address()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-	network::Message m = network::Message();
+	network::BitMessage m = network::BitMessage();
 
 	uint8_t tmp[16];
 	
 	
-	os::IPv4Address addr;
-	os::IPv4Address res;
+	os::NetAddress addr;
+	os::NetAddress res;
 	
 	addr.set(192, 168, 0, 1, 80);
 	

@@ -391,9 +391,11 @@ void BitMessage::write_real(real f)
 
 //---------------------------------------------------------------------------------------------
 
-void BitMessage::write_vec3(const Vec3& v, int32_t num_bits)
+void BitMessage::write_vec3(const Vec3& v)
 {
-	write_bits(vec3_to_bits(v, num_bits), num_bits);
+	write_real(v.x);
+	write_real(v.y);
+	write_real(v.z);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -609,9 +611,15 @@ real BitMessage::read_real() const
 
 //---------------------------------------------------------------------------------------------
 
-Vec3 BitMessage::read_vec3(int32_t num_bits) const
+Vec3 BitMessage::read_vec3() const
 {
-	return bits_to_vec3(read_bits(num_bits), num_bits);
+	Vec3 v;
+	
+	v.x = read_real();
+	v.y = read_real();
+	v.z = read_real();
+	
+	return v;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -691,54 +699,6 @@ void BitMessage::read_ipv4addr(os::NetAddress* addr) const
 	}
 	
 	addr->port = read_uint16();  
-}
-
-//---------------------------------------------------------------------------------------------
-
-int32_t BitMessage::vec3_to_bits(const Vec3& v, int32_t num_bits)
-{
-	assert(num_bits >= 6 && num_bits <= 32);
-	assert(v.squared_length() - 1.0f < 0.01f);
-  
-	int32_t max; 
-	int32_t bits;
-	float bias;
-
-	num_bits /= 3;
-	max = (1 << (num_bits - 1)) - 1;
-	bias = 0.5f / max;
-
-	bits = FLOATSIGNBITSET(v.x) << (num_bits * 3 - 1);
-	bits |= ((int32_t)((math::abs(v.x) + bias) * max)) << (num_bits * 2);
-	bits |= FLOATSIGNBITSET(v.y) << (num_bits * 2 - 1);
-	bits |= ((int32_t)((math::abs(v.y) + bias) * max)) << (num_bits * 1);
-	bits |= FLOATSIGNBITSET(v.z) << (num_bits * 1 - 1);
-	bits |= ((int32_t)((math::abs(v.z) + bias) * max)) << (num_bits * 0);
-	
-	return bits;  
-}
-
-//---------------------------------------------------------------------------------------------
-
-Vec3 BitMessage::bits_to_vec3(int32_t bits, int32_t num_bits)
-{
-	assert(num_bits >= 6 && num_bits <= 32);
-  
-	static float sign[2] = {1.0f, -1.0f};
-	int max;
-	float inv_max;
-	Vec3 v;
-
-	num_bits /= 3;
-	max = (1 << (num_bits - 1)) - 1;
-	inv_max = 1.0f / max;
-
-	v.x = sign[(bits >> (num_bits * 3 - 1)) & 1] * ((bits >> (num_bits * 2)) & max) * inv_max;
-	v.y = sign[(bits >> (num_bits * 2 - 1)) & 1] * ((bits >> (num_bits * 1)) & max) * inv_max;
-	v.z = sign[(bits >> (num_bits * 1 - 1)) & 1] * ((bits >> (num_bits * 0)) & max) * inv_max;
-	v.normalize();
-	
-	return v;
 }
 
 //---------------------------------------------------------------------------------------------
