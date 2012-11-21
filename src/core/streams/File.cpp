@@ -30,38 +30,44 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+//-----------------------------------------------------------------------------
 File::File() :
-	mFileHandle(0), mMode(FOM_READ)
+	m_file_handle(0), m_mode(FOM_READ)
 {
 }
 
+//-----------------------------------------------------------------------------
 File::~File()
 {
-	if (mFileHandle != 0)
+	if (m_file_handle != 0)
 	{
-		fclose(mFileHandle);
+		fclose(m_file_handle);
 	}
 }
 
-bool File::IsValid()
+//-----------------------------------------------------------------------------
+bool File::is_valid()
 {
-	return mFileHandle != 0;
+	return m_file_handle != 0;
 }
 
-FileOpenMode File::GetMode()
+//-----------------------------------------------------------------------------
+FileOpenMode File::mode()
 {
-	return mMode;
+	return m_mode;
 }
 
-FILE* File::GetHandle()
+//-----------------------------------------------------------------------------
+FILE* File::get_handle()
 {
-	return mFileHandle;
+	return m_file_handle;
 }
 
-File* File::Open(const char* path, FileOpenMode mode)
+//-----------------------------------------------------------------------------
+File* File::open(const char* path, FileOpenMode mode)
 {
 	File* f = new File();
-	f->mFileHandle = fopen(path, 
+	f->m_file_handle = fopen(path, 
 
 	/*
 		TestFlag(mode, FOM_READ) ?
@@ -72,23 +78,24 @@ File* File::Open(const char* path, FileOpenMode mode)
 	math::test_bitmask(mode, FOM_READ) ?
 		(math::test_bitmask(mode, FOM_WRITE) ? "rb+" : "rb") : (math::test_bitmask(mode, FOM_WRITE) ? "wb" : "rb")); 
 
-	if (f->mFileHandle == 0)
+	if (f->m_file_handle == NULL)
 	{
 		Log::E("File::Open: Could not open file %s", path);
 		return NULL;
 	}
 
-	f->mMode = mode;
+	f->m_mode = mode;
 
 	return f;
 }
 
-size_t File::GetSize()
+//-----------------------------------------------------------------------------
+size_t File::size()
 {
-	size_t pos = ftell(mFileHandle);
-	fseek(mFileHandle, 0, SEEK_END);
-	size_t size = ftell(mFileHandle);
-	fseek(mFileHandle, pos, SEEK_SET);
+	size_t pos = ftell(m_file_handle);
+	fseek(m_file_handle, 0, SEEK_END);
+	size_t size = ftell(m_file_handle);
+	fseek(m_file_handle, pos, SEEK_SET);
 
 	return size;
 }

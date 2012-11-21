@@ -27,7 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Stream.h"
-#include "Exceptions.h"
+#include "Allocator.h"
+#include <cassert>
 
 namespace crown
 {
@@ -40,14 +41,14 @@ public:
 						MemoryBuffer();
 	virtual				~MemoryBuffer();
 
-	virtual void		Release() = 0;
-	virtual void		Allocate(size_t size) = 0;
+	virtual void		release() = 0;
+	virtual void		allocate(size_t size) = 0;
 
-	virtual bool		IsValid() = 0;
-	virtual size_t		GetSize() = 0;
-	virtual uint8_t*		GetData() = 0;
+	virtual bool		is_valid() = 0;
+	virtual size_t		size() = 0;
+	virtual uint8_t*	data() = 0;
 
-	virtual void		Write(uint8_t* src, size_t offset, size_t size) = 0;
+	virtual void		write(uint8_t* src, size_t offset, size_t size) = 0;
 };
 
 class DynamicMemoryBuffer: public MemoryBuffer
@@ -55,27 +56,28 @@ class DynamicMemoryBuffer: public MemoryBuffer
 
 public:
 
-					DynamicMemoryBuffer(size_t initialCapacity);
-	virtual			~DynamicMemoryBuffer();
+						DynamicMemoryBuffer(Allocator& allocator, size_t initial_capacity);
+	virtual				~DynamicMemoryBuffer();
 
-	void			Release();
-	void			Allocate(size_t capacity);
+	void				release();
+	void				allocate(size_t capacity);
 
-	inline bool		IsValid() { return mBuff != 0; }
+	inline bool			is_valid() { return m_buffer != 0; }
 
-	void			CheckSpace(size_t offset, size_t space);
-	void			Write(uint8_t* src, size_t offset, size_t size);
+	void				check_space(size_t offset, size_t space);
+	void				write(uint8_t* src, size_t offset, size_t size);
 
-	inline size_t	GetSize() { return mSize; }
-	inline size_t	GetCapacity() { return mCapacity; }
+	inline size_t		size() { return m_size; }
+	inline size_t		capacity() { return m_capacity; }
 
-	inline uint8_t*	GetData() { return mBuff; }
+	inline uint8_t*		data() { return m_buffer; }
 
 protected:
 
-	uint8_t*			mBuff;
-	size_t			mCapacity;
-	size_t			mSize;
+	Allocator*			m_allocator;
+	uint8_t*			m_buffer;
+	size_t				m_capacity;
+	size_t				m_size;
 };
 
 /**
@@ -88,43 +90,37 @@ class MemoryStream: public Stream
 
 public:
 
-						MemoryStream(MemoryBuffer* f, StreamOpenMode openMode);
+						MemoryStream(MemoryBuffer* buffer, StreamOpenMode mode);
 	virtual				~MemoryStream();
 
-	void				Seek(int32_t newPos, SeekMode mode);
+	void				seek(int32_t position, SeekMode mode);
 
-	uint8_t				ReadByte();
-	void				ReadDataBlock(void* buffer, size_t size);
-	bool				CopyTo(Stream* stream, size_t size = 0);
+	uint8_t				read_byte();
+	void				read_data_block(void* buffer, size_t size);
+	bool				copy_to(Stream* stream, size_t size = 0);
 
-	void				WriteByte(uint8_t val);
-	void				WriteDataBlock(const void* buffer, size_t size);
-	void				Flush();
+	void				write_byte(uint8_t val);
+	void				write_data_block(const void* buffer, size_t size);
+	void				flush();
 
-	bool				EndOfStream() const { return GetSize() == mMemOffset; }
-	bool				IsValid() const { CheckValid(); return mMem->IsValid(); }
+	bool				end_of_stream() const { return size() == m_memory_offset; }
+	bool				is_valid() const { assert(m_memory != NULL); return m_memory->is_valid(); }
 
-	size_t				GetSize() const { CheckValid(); return mMem->GetSize(); }
-	size_t				GetPosition() const { return mMemOffset; }
+	size_t				size() const { assert(m_memory != NULL); return m_memory->size(); }
+	size_t				position() const { return m_memory_offset; }
 
-	bool				CanRead() const { return Stream::CanRead(); }
-	bool				CanWrite() const { return Stream::CanWrite(); }
-	bool				CanSeek() const { return true; }
+	bool				can_read() const { return true; }
+	bool				can_write() const { return true; }
+	bool				can_seek() const { return true; }
 
-	void				Dump();
+	void				dump();
 
 protected:
 
-	MemoryBuffer*		mMem;
-	size_t				mMemOffset;
+	inline void check_valid() { assert(m_memory != NULL); }
 
-	inline void			CheckValid() const
-						{
-							if (!mMem)
-							{
-								throw InvalidOperationException("Can't operate on an invalid MemoryStream");
-							}
-						}
+	MemoryBuffer*		m_memory;
+	size_t				m_memory_offset;
 };
 
 }

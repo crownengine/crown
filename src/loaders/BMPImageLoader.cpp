@@ -92,7 +92,7 @@ Image* BMPImageLoader::LoadFile(const char* relativePath)
 		return NULL;
 	}
 
-	fileStream->ReadDataBlock(&magicNumber, 2);
+	fileStream->read_data_block(&magicNumber, 2);
 
 	if (magicNumber != 19778)
 	{
@@ -102,9 +102,9 @@ Image* BMPImageLoader::LoadFile(const char* relativePath)
 		return NULL;
 	}
 
-	fileStream->Seek(0, SM_SeekFromBegin);
-	fileStream->ReadDataBlock(&bfh, sizeof(BitmapFileHeader));
-	fileStream->ReadDataBlock(&bih, sizeof(BitmapInfoHeader));
+	fileStream->seek(0, SM_FROM_BEGIN);
+	fileStream->read_data_block(&bfh, sizeof(BitmapFileHeader));
+	fileStream->read_data_block(&bih, sizeof(BitmapInfoHeader));
 
 	int32_t bpp = (bih.biBitCount/8);
 
@@ -132,7 +132,7 @@ Image* BMPImageLoader::LoadFile(const char* relativePath)
 
 		for (int32_t i=0; i<bih.biHeight ; i++)
 		{
-			fileStream->ReadDataBlock(tmpdata, bih.biWidth*3);
+			fileStream->read_data_block(tmpdata, bih.biWidth*3);
 
 			int32_t offset = bih.biWidth * 4 * i;
 
@@ -146,7 +146,7 @@ Image* BMPImageLoader::LoadFile(const char* relativePath)
 
 			if (padSize)
 			{
-				fileStream->Seek(padSize, SM_SeekFromCurrent);
+				fileStream->seek(padSize, SM_FROM_CURRENT);
 			}
 		}
 
@@ -158,11 +158,11 @@ Image* BMPImageLoader::LoadFile(const char* relativePath)
 		{
 			int32_t offset = bih.biWidth * 4 * i;
 
-			fileStream->ReadDataBlock(&data[offset], bih.biWidth*4);
+			fileStream->read_data_block(&data[offset], bih.biWidth*4);
 
 			if (padSize)
 			{
-				fileStream->Seek(padSize, SM_SeekFromCurrent);
+				fileStream->seek(padSize, SM_FROM_CURRENT);
 			}
 		}
 	}

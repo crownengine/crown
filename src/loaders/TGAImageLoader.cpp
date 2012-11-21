@@ -52,9 +52,9 @@ Image* TGAImageLoader::LoadFile(const char* relativePath)
 		return NULL;
 	}
 
-	fileStream->ReadDataBlock(&mTGAHeader, sizeof(mTGAHeader));
+	fileStream->read_data_block(&mTGAHeader, sizeof(mTGAHeader));
 	// Skip ID
-	fileStream->Seek(mTGAHeader.id_length, SM_SeekFromCurrent);
+	fileStream->seek(mTGAHeader.id_length, SM_FROM_CURRENT);
 
 	Image* image = NULL;
 
@@ -97,7 +97,7 @@ Image* TGAImageLoader::LoadUncompressedData(Stream* fp)
 		for (uint64_t i = 0; i < size * channels; i++)
 		{
 			uint16_t pixel_data;
-			fp->ReadDataBlock(&pixel_data, sizeof(pixel_data));
+			fp->read_data_block(&pixel_data, sizeof(pixel_data));
 			data[j] = (pixel_data & 0x7c) >> 10;
 			data[j+1] = (pixel_data & 0x3e) >> 5;
 			data[j+2] = (pixel_data & 0x1f);
@@ -107,7 +107,7 @@ Image* TGAImageLoader::LoadUncompressedData(Stream* fp)
 	else
 	{
 		data = new uint8_t[(uint32_t)(size * channels)];
-		fp->ReadDataBlock(data, (size_t)(size * channels));
+		fp->read_data_block(data, (size_t)(size * channels));
 		SwapRedBlue(data, size * channels, channels);
 	}
 
@@ -140,12 +140,12 @@ Image* TGAImageLoader::LoadCompressedData(Stream* fp)
 
 	while (i < size)
 	{
-		fp->ReadDataBlock(&rle_id, sizeof(uint8_t));
+		fp->read_data_block(&rle_id, sizeof(uint8_t));
 
 		if (rle_id & 0x80)   // Se il bit più significativo è ad 1
 		{
 			rle_id -= 127;
-			fp->ReadDataBlock(colors, channels);
+			fp->read_data_block(colors, channels);
 
 			while (rle_id)
 			{
@@ -169,7 +169,7 @@ Image* TGAImageLoader::LoadCompressedData(Stream* fp)
 
 			while (rle_id)
 			{
-				fp->ReadDataBlock(colors, channels);
+				fp->read_data_block(colors, channels);
 				data[colors_read] = colors[2];
 				data[colors_read+1] = colors[1];
 				data[colors_read+2] = colors[0];
@@ -230,8 +230,8 @@ void TGAImageLoader::SaveFile(const Image* image, const char* relativePath)
 
 	if (fileStream)
 	{
-		fileStream->WriteDataBlock(&header, sizeof(header));
-		fileStream->WriteDataBlock(image->GetBuffer(), image->GetWidth() * image->GetHeight() * image->GetBytesPerPixel());
+		fileStream->write_data_block(&header, sizeof(header));
+		fileStream->write_data_block(image->GetBuffer(), image->GetWidth() * image->GetHeight() * image->GetBytesPerPixel());
 
 		GetFilesystem()->Close(fileStream);
 	}

@@ -63,7 +63,7 @@ void Font::LoadFromFile(const Str& filename)
 		TextReader textReader(fontDef);
 		char buf[1024];
 
-		while (textReader.ReadString(buf, 1024) != NULL)
+		while (textReader.read_string(buf, 1024) != NULL)
 		{
 			int32_t ch;
 			float a, b, c, d, e, f, g, h;

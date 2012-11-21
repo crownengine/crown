@@ -26,9 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Stream.h"
-#include "Exceptions.h"
 #include "File.h"
-#include "Str.h"
+#include <cassert>
 
 namespace crown
 {
@@ -49,62 +48,50 @@ public:
 					@param openMode
 						The mode of access
 					*/
-					FileStream(StreamOpenMode openMode, const Str& filename);
+					FileStream(StreamOpenMode mode, const char* filename);
 					/**
 						Destructor
 					*/
 	virtual			~FileStream();
 					/** @copydoc Stream::Seek() */
-	void			Seek(int32_t newPos, SeekMode mode);
+	void			seek(int32_t position, SeekMode mode);
 					/** @copydoc Stream::ReadByte() */
-	uint8_t			ReadByte();
+	uint8_t			read_byte();
 					/** @copydoc Stream::ReadDataBlock() */
-	void			ReadDataBlock(void* buffer, size_t size);
+	void			read_data_block(void* buffer, size_t size);
 					/** @copydoc Stream::CopyTo() */
-	bool			CopyTo(Stream* stream, size_t size = 0);
+	bool			copy_to(Stream* stream, size_t size = 0);
 					/** @copydoc Stream::WriteByte() */
-	void			WriteByte(uint8_t val);
+	void			write_byte(uint8_t val);
 					/** @copydoc Stream::WriteDataBlock() */
-	void			WriteDataBlock(const void* buffer, size_t size);
+	void			write_data_block(const void* buffer, size_t size);
 					/** @copydoc Stream::Flush() */
-	void			Flush();
+	void			flush();
 					/** @copydoc Stream::EndOfStream() */
-	bool			EndOfStream() const;
-					/** @copydoc Stream::IsValid() */
-	bool			IsValid() const
-					{
-						if (!mFile)
-						{
-							return false;
-						}
-
-						return mFile->IsValid();
-					}
-
+	bool			end_of_stream() const;
+					/** @copydoc Stream::is_valid() */
+	bool			is_valid() const;
 					/** @copydoc Stream::GetSize() */
-	size_t			GetSize() const;
+	size_t			size() const;
 					/** @copydoc Stream::GetPosition() */
-	size_t			GetPosition() const;
+	size_t			position() const;
 					/** @copydoc Stream::CanRead() */
-	bool			CanRead() const;
+	bool			can_read() const;
 					/** @copydoc Stream::CanWrite() */
-	bool			CanWrite() const;
+	bool			can_write() const;
 					/** @copydoc Stream::CanSeek() */
-	bool			CanSeek() const;
+	bool			can_seek() const;
 
 protected:
 
-	File*			mFile;
-	bool			mLastWasRead;
+	File*			m_file;
+	bool			m_last_was_read;
 
-	inline void CheckValid() const
+	inline void check_valid() const
 	{
-		if (!mFile)
-		{
-			throw InvalidOperationException("Can't operate on an invalid FileStream");
-		}
+		assert(m_file != NULL);
 	}
 };
 
-}
+} // namespace crown
 

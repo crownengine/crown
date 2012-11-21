@@ -31,68 +31,72 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-FileStream::FileStream(StreamOpenMode openMode, const Str& filename) :
-	Stream(openMode), mFile(0),
-	mLastWasRead(true)
+//-----------------------------------------------------------------------------
+FileStream::FileStream(StreamOpenMode mode, const char* filename) :
+	Stream(mode), m_file(NULL),
+	m_last_was_read(true)
 {
 	//Takes ownership
-	FileOpenMode fileOpenMode = (FileOpenMode)0;
+	FileOpenMode file_open_mode = (FileOpenMode)0;
 
-	if (math::test_bitmask(openMode, SOM_READ))
-		fileOpenMode = (FileOpenMode)(fileOpenMode | FOM_READ);
-	if (math::test_bitmask(openMode, SOM_WRITE))
-		fileOpenMode = (FileOpenMode)(fileOpenMode | FOM_WRITE);
+	if (math::test_bitmask(mode, SOM_READ))
+		file_open_mode = (FileOpenMode)(file_open_mode | FOM_READ);
+	if (math::test_bitmask(mode, SOM_WRITE))
+		file_open_mode = (FileOpenMode)(file_open_mode | FOM_WRITE);
 
-	mFile = File::Open(filename.c_str(), fileOpenMode);
+	m_file = File::open(filename, file_open_mode);
 }
 
+//-----------------------------------------------------------------------------
 FileStream::~FileStream()
 {
-	delete mFile;
-	mFile = 0;
+	delete m_file;
+
+	m_file = 0;
 }
 
-uint8_t FileStream::ReadByte()
+//-----------------------------------------------------------------------------
+uint8_t FileStream::read_byte()
 {
-	CheckValid();
+	check_valid();
 
-	if (!mLastWasRead)
+	if (!m_last_was_read)
 	{
-		mLastWasRead = true;
-		fseek(mFile->GetHandle(), 0, SEEK_CUR);
+		m_last_was_read = true;
+		fseek(m_file->get_handle(), 0, SEEK_CUR);
 	}
 
 	uint8_t buffer;
 
-	if (fread(&buffer, 1, 1, mFile->GetHandle()) != 1)
+	if (fread(&buffer, 1, 1, m_file->get_handle()) != 1)
 	{
 		Log::E("Could not read from file.");
-		throw FileIOException("Could not read from file.");
 	}
 
 	return buffer;
 }
 
-void FileStream::ReadDataBlock(void* buffer, size_t size)
+//-----------------------------------------------------------------------------
+void FileStream::read_data_block(void* buffer, size_t size)
 {
-	CheckValid();
+	check_valid();
 
-	if (!mLastWasRead)
+	if (!m_last_was_read)
 	{
-		mLastWasRead = true;
-		fseek(mFile->GetHandle(), 0, SEEK_CUR);
+		m_last_was_read = true;
+		fseek(m_file->get_handle(), 0, SEEK_CUR);
 	}
 
-	if (fread(buffer, size, 1, mFile->GetHandle()) != 1)
+	if (fread(buffer, size, 1, m_file->get_handle()) != 1)
 	{
 		Log::E("Could not read from file.");
-		throw FileIOException("Could not read from file.");
 	}
 }
 
-bool FileStream::CopyTo(Stream* stream, size_t size)
+//-----------------------------------------------------------------------------
+bool FileStream::copy_to(Stream* stream, size_t size)
 {
-	CheckValid();
+	check_valid();
 
 	if (stream == 0)
 		return false;
@@ -109,15 +113,15 @@ bool FileStream::CopyTo(Stream* stream, size_t size)
 	{
 		int32_t readBytes;
 		int32_t expectedReadBytes = math::min(size - totReadBytes, chunksize);
-		readBytes = fread(buff, 1, expectedReadBytes, mFile->GetHandle());
+		readBytes = fread(buff, 1, expectedReadBytes, m_file->get_handle());
 
 		if (readBytes < expectedReadBytes)
 		{
-			if (feof(mFile->GetHandle()))
+			if (feof(m_file->get_handle()))
 			{
 				if (readBytes != 0)
 				{
-					stream->WriteDataBlock(buff, readBytes);
+					stream->write_data_block(buff, readBytes);
 				}
 			}
 
@@ -126,7 +130,7 @@ bool FileStream::CopyTo(Stream* stream, size_t size)
 			return false;
 		}
 
-		stream->WriteDataBlock(buff, readBytes);
+		stream->write_data_block(buff, readBytes);
 		totReadBytes += readBytes;
 	}
 
@@ -134,88 +138,112 @@ bool FileStream::CopyTo(Stream* stream, size_t size)
 	return true;
 }
 
-bool FileStream::EndOfStream() const
+//-----------------------------------------------------------------------------
+bool FileStream::end_of_stream() const
 {
-	return GetPosition() == GetSize();
+	return position() == size();
 }
 
-void FileStream::WriteByte(uint8_t val)
+//-----------------------------------------------------------------------------
+bool FileStream::is_valid() const
 {
-	CheckValid();
-
-	if (mLastWasRead)
 	{
-		mLastWasRead = false;
-		fseek(mFile->GetHandle(), 0, SEEK_CUR);
-	}
+		if (!m_file)
+		{
+			return false;
+		}
 
-	if (fputc(val, mFile->GetHandle()) == EOF)
-	{
-		Log::E("Could not write to file.");
-		throw FileIOException("Could not write to file.");
+		return m_file->is_valid();
 	}
 }
 
-void FileStream::WriteDataBlock(const void* buffer, size_t size)
+//-----------------------------------------------------------------------------
+void FileStream::write_byte(uint8_t val)
 {
-	CheckValid();
+	check_valid();
 
-	if (mLastWasRead)
+	if (m_last_was_read)
 	{
-		mLastWasRead = false;
-		fseek(mFile->GetHandle(), 0, SEEK_CUR);
+		m_last_was_read = false;
+		fseek(m_file->get_handle(), 0, SEEK_CUR);
 	}
 
-	if (fwrite(buffer, size, 1, mFile->GetHandle()) != 1)
+	if (fputc(val, m_file->get_handle()) == EOF)
 	{
 		Log::E("Could not write to file.");
-		throw FileIOException("Could not write to file.");
 	}
 }
 
-void FileStream::Flush()
+//-----------------------------------------------------------------------------
+void FileStream::write_data_block(const void* buffer, size_t size)
 {
-	CheckValid();
-	fflush(mFile->GetHandle());
+	check_valid();
+
+	if (m_last_was_read)
+	{
+		m_last_was_read = false;
+		fseek(m_file->get_handle(), 0, SEEK_CUR);
+	}
+
+	if (fwrite(buffer, size, 1, m_file->get_handle()) != 1)
+	{
+		Log::E("Could not write to file.");
+	}
 }
 
-void FileStream::Seek(int32_t newPos, SeekMode mode)
+//-----------------------------------------------------------------------------
+void FileStream::flush()
 {
-	CheckValid();
+	check_valid();
+	fflush(m_file->get_handle());
+}
+
+//-----------------------------------------------------------------------------
+void FileStream::seek(int32_t position, SeekMode mode)
+{
+	check_valid();
 	//flush(); <<<---?
-	fseek(mFile->GetHandle(), newPos, (mode==SM_SeekFromBegin)?SEEK_SET:(mode==SM_SeekFromCurrent)?SEEK_CUR:SEEK_END);
+	fseek(m_file->get_handle(), position, (mode==SM_FROM_BEGIN)?SEEK_SET:(mode==SM_FROM_CURRENT)?SEEK_CUR:SEEK_END);
 }
 
-size_t FileStream::GetPosition() const
+//-----------------------------------------------------------------------------
+size_t FileStream::position() const
 {
-	CheckValid();
-	return ftell(mFile->GetHandle());
+	check_valid();
+	return ftell(m_file->get_handle());
 }
 
-size_t FileStream::GetSize() const
+//-----------------------------------------------------------------------------
+size_t FileStream::size() const
 {
-	size_t pos = GetPosition();
-	fseek(mFile->GetHandle(), 0, SEEK_END);
-	size_t size = GetPosition();
-	fseek(mFile->GetHandle(), pos, SEEK_SET);
+	size_t pos = position();
+	fseek(m_file->get_handle(), 0, SEEK_END);
+	size_t size = position();
+	fseek(m_file->get_handle(), pos, SEEK_SET);
 	return size;
 }
 
-bool FileStream::CanRead() const
+//-----------------------------------------------------------------------------
+bool FileStream::can_read() const
 {
-	CheckValid();
-	return Stream::CanRead();
+	check_valid();
+
+	return true;
 }
 
-bool FileStream::CanWrite() const
+//-----------------------------------------------------------------------------
+bool FileStream::can_write() const
 {
-	CheckValid();
-	return Stream::CanWrite();
+	check_valid();
+
+	return true;
 }
 
-bool FileStream::CanSeek() const
+//-----------------------------------------------------------------------------
+bool FileStream::can_seek() const
 {
 	return true;
 }
 
-}
+} // namespace crown
+

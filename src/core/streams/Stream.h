@@ -26,22 +26,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "MathUtils.h"
 
 namespace crown
 {
 
 enum SeekMode
 {
-	SM_SeekFromBegin	= 0,
-	SM_SeekFromCurrent	= 1,
-	SM_SeekFromEnd		= 2
+	SM_FROM_BEGIN	= 0,
+	SM_FROM_CURRENT	= 1,
+	SM_FROM_END		= 2
 };
 
 enum StreamOpenMode
 {
-	SOM_READ	= 1,
-	SOM_WRITE	= 2
+	SOM_READ		= 1,
+	SOM_WRITE		= 2
 };
 
 /**
@@ -49,89 +48,54 @@ enum StreamOpenMode
 
 	It represents a flow of data attached to a 'file' which can be an archived file,
 	a regular file, a location in memory or anything that can be read or wrote.
-	A Stream is an abstraction to int32_teract with these in an uniform way; every stream
+	A Stream is an abstraction to interact with these in an uniform way; every stream
 	comes with a convenient set of methods to facilitate reading from it, writing to
 	it and so on.
 */
 class Stream
 {
-
 public:
 
 						/**
 							Constructor.
-						@param openMode
-							Whether to open for writing or reading
 						*/
-						Stream(StreamOpenMode openMode) : mOpenMode(openMode) {}
+						Stream(StreamOpenMode mode) : m_open_mode(mode) {}
 						/**
 							Destructor.
 						*/
 	virtual				~Stream() {};
 						/**
-							Sets the position indicator of the stream to a new position.
-						@param newPos
-							The new position
-						@param mode
-							Position from where to move
+							Sets the position indicator of the stream to position.
 						*/
-	virtual void		Seek(int32_t newPos, SeekMode mode) = 0;
+	virtual void		seek(int32_t position, SeekMode mode) = 0;
 						/**
 							Reads a byte from the stream starting at current position.
-						@return
-							The byte read
 						*/
-	virtual uint8_t		ReadByte() = 0;
+	virtual uint8_t		read_byte() = 0;
 						/**
 							Reads a block of data from the stream.
-						@param buffer
-							Point32_ter to a block of memory of size 'size'
-						@param size
-							The number of bytes to read
 						*/
-	virtual void		ReadDataBlock(void* buffer, size_t size) = 0;
+	virtual void		read_data_block(void* buffer, size_t size) = 0;
 						/**
 							Copies a chunk of 'size' bytes of data from this to another stream.
-						@param stream
-							The output stream
-						@param size
-							The number of bytes to copy
-						@return
-							True if success, false otherwise
 						*/
-	virtual bool		CopyTo(Stream* stream, size_t size = 0) = 0;
+	virtual bool		copy_to(Stream* stream, size_t size = 0) = 0;
 						/**
 							Zips a chunk of 'size' bytes of data from this to another stream. A default implementation is given
-						@param stream
-							The output stream
-						@param size
-							The number of bytes to zip
-						@return
-							True if success, false otherwise
 						*/
-	virtual bool		ZipTo(Stream* stream, size_t size, size_t& zippedSize);
+	virtual bool		zip_to(Stream* stream, size_t size, size_t& zipped_size);
 						/**
 							Unzip a zipped stream of data from this to another stream. A default implementation is given
-						@param stream
-							The output stream
-						@return
-							True if success, false otherwise
 						*/
-	virtual bool		UnzipTo(Stream* stream, size_t& unzippedSize);
+	virtual bool		unzip_to(Stream* stream, size_t& unzipped_size);
 						/**
 							Writes a byte to the stream starting at current position.
-						@param val
-							The byte to write
 						*/
-	virtual void		WriteByte(uint8_t val) = 0;
+	virtual void		write_byte(uint8_t val) = 0;
 						/**
 							Writes a block of data to the stream.
-						@param buffer
-							Pointter to a block of memory of size 'size'
-						@param size
-							The number of bytes to write
 						*/
-	virtual void		WriteDataBlock(const void* buffer, size_t size) = 0;
+	virtual void		write_data_block(const void* buffer, size_t size) = 0;
 						/**
 							Forces the previouses write operations to complete.
 							Generally, when a Stream is attached to a file,
@@ -140,58 +104,44 @@ public:
 							the file. This method forces all the pending output operations
 							to be written to the stream.
 						*/
-	virtual void		Flush() = 0;
+	virtual void		flush() = 0;
 						/**
 							Returns whether the stream is valid.
 							A stream is valid when the buffer where it operates
 							exists. (i.e. a file descriptor is attached to the stream, 
 							a memory area is attached to the stream etc.)
-						@return
-							True if valid, false otherwise
 						*/
-	virtual bool		IsValid() const = 0;
+	virtual bool		is_valid() const = 0;
 						/**
 							Returns whether the position is at end of stream.
-						@return
-							True if at end of stream, false otherwise
 						*/
-	virtual bool		EndOfStream() const = 0;
+	virtual bool		end_of_stream() const = 0;
 						/**
 							Returns the size of stream in bytes.
-						@return
-							The size in bytes
 						*/
-	virtual size_t		GetSize() const = 0;
+	virtual size_t		size() const = 0;
 						/**
 							Returns the current position in stream.
 							Generally, for binary data, it means the number of bytes
 							from the beginning of the stream.
-						@return
-							The current position
 						*/
-	virtual size_t		GetPosition() const = 0;
+	virtual size_t		position() const = 0;
 						/**
 							Returns whether the stream can be read.
-						@return
-							True if readable, false otherwise
 						*/
-	virtual inline bool	CanRead() const { return math::test_bitmask(mOpenMode, SOM_READ); }
+	virtual bool		can_read() const = 0;
 						/**
 							Returns whether the stream can be wrote.
-						@return
-							True if writeable, false otherwise
 						*/
-	virtual inline bool	CanWrite() const { return math::test_bitmask(mOpenMode, SOM_WRITE); }
+	virtual bool		can_write() const = 0;
 						/**
 							Returns whether the stream can be sought.
-						@returns
-							True is seekable, false otherwise
 						*/
-	virtual bool		CanSeek() const = 0;
+	virtual bool		can_seek() const = 0;
 
 protected:
 
-	StreamOpenMode		mOpenMode;
+	StreamOpenMode		m_open_mode;
 };
 
 //! A reader that offers a convenient way to read from a stream
@@ -203,21 +153,21 @@ public:
 						BinaryReader(Stream* s);
 	virtual				~BinaryReader();
 
-	int8_t				ReadByte();
-	int16_t				ReadInt16();
-	uint16_t			ReadUint16();
-	int32_t				ReadInt32();
-	uint32_t			ReadUint32();
-	int64_t				ReadInt64();
-	double				ReadDouble();
-	float				ReadFloat();
+	int8_t				read_byte();
+	int16_t				read_int16();
+	uint16_t			read_uint16();
+	int32_t				read_int32();
+	uint32_t			read_uint32();
+	int64_t				read_int64();
+	double				read_double();
+	float				read_float();
 
-	inline Stream*		GetStream() { return mStream; }
-	inline void			SetStream(Stream* stream) { mStream = stream; }
+	inline Stream*		get_stream() { return m_stream; }
+	inline void			set_stream(Stream* stream) { m_stream = stream; }
 
 private:
 
-	Stream*				mStream;
+	Stream*				m_stream;
 };
 
 //! A writer that offers a convenient way to write to a stream
@@ -229,23 +179,23 @@ public:
 						BinaryWriter(Stream* s);
 	virtual				~BinaryWriter();
 
-	void				WriteByte(int8_t);
-	void				WriteInt16(int16_t);
-	void				WriteUint16(uint16_t);
-	void				WriteInt32(int32_t);
-	void				WriteUint32(uint32_t);
-	void				WriteInt64(int64_t);
-	void				WriteDouble(double);
-	void				WriteFloat(float);
+	void				write_byte(int8_t);
+	void				write_int16(int16_t);
+	void				write_uint16(uint16_t);
+	void				write_int32(int32_t);
+	void				write_uint32(uint32_t);
+	void				write_int64(int64_t);
+	void				write_double(double);
+	void				write_float(float);
 
-	void				InsertByte(int8_t val, size_t offset);
+	void				insert_byte(int8_t val, size_t offset);
 
-	inline Stream*		GetStream() { return mStream; }
-	inline void			SetStream(Stream* stream) { mStream = stream; }
+	inline Stream*		get_stream() { return m_stream; }
+	inline void			set_stream(Stream* stream) { m_stream = stream; }
 
 private:
 
-	Stream*				mStream;
+	Stream*				m_stream;
 };
 
 //! A reader that offers a convenient way to read text to a stream
@@ -257,10 +207,10 @@ public:
 						TextReader(Stream* s);
 	virtual				~TextReader();
 
-	char				ReadChar();
+	char				read_char();
 						/**
 							Reads characters from stream and stores them as a C string
-							int32_to string until (count-1) characters have been read or
+							into string until (count-1) characters have been read or
 							either a newline or the End-of-Stream is reached, whichever
 							comes first.
 							A newline character makes fgets stop reading, but it is considered
@@ -268,14 +218,14 @@ public:
 							A null character is automatically appended in str after the characters read to
 							signal the end of the C string.
 						*/
-	char*				ReadString(char* string, int32_t count);
+	char*				read_string(char* string, uint32_t count);
 
-	inline Stream*		GetStream() { return mStream; }
-	inline void			SetStream(Stream* stream) { mStream = stream; }
+	inline Stream*		get_stream() { return m_stream; }
+	inline void			set_stream(Stream* stream) { m_stream = stream; }
 
 private:
 
-	Stream*				mStream;
+	Stream*				m_stream;
 };
 
 //! A reader that offers a convenient way to write text to a stream
@@ -287,21 +237,21 @@ public:
 						TextWriter(Stream* s);
 	virtual				~TextWriter();
 
-	void				WriteChar(char c);
+	void				write_char(char c);
 						/**
 							Writes the string point32_ted by string to the stream.
 							The function begins copying from the address specified (string)
 							until it reaches the terminating null character ('\0').
 							This final null character is not copied to the stream.
 						*/
-	void				WriteString(const char* string);
+	void				write_string(const char* string);
 
-	inline Stream*		GetStream() { return mStream; }
-	inline void			SetStream(Stream* stream) { mStream = stream; }
+	inline Stream*		get_stream() { return m_stream; }
+	inline void			set_stream(Stream* stream) { m_stream = stream; }
 
 private:
 
-	Stream*				mStream;
+	Stream*				m_stream;
 };
 
 } // namespace crown

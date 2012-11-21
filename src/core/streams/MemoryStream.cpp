@@ -29,179 +29,179 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MathUtils.h"
 #include "Log.h"
 #include "Types.h"
+#include "Allocator.h"
 
 namespace crown
 {
 
+//-----------------------------------------------------------------------------
 MemoryBuffer::MemoryBuffer()
 {
 }
 
+//-----------------------------------------------------------------------------
 MemoryBuffer::~MemoryBuffer()
 {
 }
 
-DynamicMemoryBuffer::DynamicMemoryBuffer(size_t initialCapacity)
+//-----------------------------------------------------------------------------
+DynamicMemoryBuffer::DynamicMemoryBuffer(Allocator& allocator, size_t initial_capacity) :
+	m_allocator(&allocator),
+	m_buffer(NULL)
 {
-	mBuff = 0;
-	Allocate(initialCapacity);
+	m_buffer = (uint8_t*)m_allocator->allocate(initial_capacity);
 }
 
+//-----------------------------------------------------------------------------
 DynamicMemoryBuffer::~DynamicMemoryBuffer()
 {
-	Release();
-}
-
-void DynamicMemoryBuffer::Allocate(size_t capacity)
-{
-	Release();
-	mBuff = new uint8_t[capacity];
-	this->mCapacity = capacity;
-	mSize = 0;
-}
-
-void DynamicMemoryBuffer::Release()
-{
-	if (mBuff != 0)
+	if (m_buffer)
 	{
-		delete[] mBuff;
-		mBuff = 0;
+		m_allocator->deallocate(m_buffer);
 	}
 }
 
-void DynamicMemoryBuffer::CheckSpace(size_t offset, size_t size)
+//-----------------------------------------------------------------------------
+void DynamicMemoryBuffer::check_space(size_t offset, size_t size)
 {
-	if (offset + size > mCapacity)
+	if (offset + size > m_capacity)
 	{
-		mCapacity = (size_t) ((offset + size) * 1.2f);
-		mBuff = (uint8_t*) realloc(mBuff, mCapacity);
+		m_capacity = (size_t) ((offset + size) * 1.2f);
+		// FIXME FIXME FIXME
+		m_buffer = (uint8_t*) realloc(m_buffer, m_capacity);
 	}
 }
 
-void DynamicMemoryBuffer::Write(uint8_t* src, size_t offset, size_t size)
+//-----------------------------------------------------------------------------
+void DynamicMemoryBuffer::write(uint8_t* src, size_t offset, size_t size)
 {
-	CheckSpace(offset, size);
+	check_space(offset, size);
 
-	for (size_t i=0; i<size; i++)
+	for (size_t i = 0; i < size; i++)
 	{
-		mBuff[offset+i] = src[i];
+		m_buffer[offset + i] = src[i];
 	}
 
 	//If the writing goes beyond the end of buffer
-	if (offset + size > this->mSize)
+	if (offset + size > this->m_size)
 	{
-		this->mSize = offset + size;
+		this->m_size = offset + size;
 	}
 }
 
-MemoryStream::MemoryStream(MemoryBuffer* f, StreamOpenMode openMode) :
-	Stream(openMode)
+//-----------------------------------------------------------------------------
+MemoryStream::MemoryStream(MemoryBuffer* buffer, StreamOpenMode mode) :
+	Stream(mode),
+	m_memory(buffer),
+	m_memory_offset(0)
 {
-	mMem = f;
-	mMemOffset = 0;
 }
 
+//-----------------------------------------------------------------------------
 MemoryStream::~MemoryStream()
 {
-	if (mMem)
-	{
-		delete mMem;
-		mMem = 0;
-	}
 }
 
-void MemoryStream::Seek(int32_t newPos, SeekMode mode)
+//-----------------------------------------------------------------------------
+void MemoryStream::seek(int32_t position, SeekMode mode)
 {
-	CheckValid();
+	check_valid();
 	
 	switch (mode)
 	{
-		case SM_SeekFromBegin:
-			mMemOffset = newPos;
+		case SM_FROM_BEGIN:
+			m_memory_offset = position;
 			break;
-		case SM_SeekFromCurrent:
-			mMemOffset += newPos;
+		case SM_FROM_CURRENT:
+			m_memory_offset += position;
 			break;
-		case SM_SeekFromEnd:
-			mMemOffset = mMem->GetSize()-1;
+		case SM_FROM_END:
+			m_memory_offset = m_memory->size()-1;
 			break;
 	}
 
-	//Allow seek to mMem->getSize() position, that means end of stream, reading not allowed but you can write if it's dynamic
-	if (mMemOffset > mMem->GetSize())
+	//Allow seek to m_memory->getSize() position, that means end of stream, reading not allowed but you can write if it's dynamic
+	if (m_memory_offset > m_memory->size())
 	{
 		Log::E("Seek beyond the end of stream.");
-		throw InvalidOperationException("Seek beyond the end of stream.");
 	}
 }
 
-uint8_t MemoryStream::ReadByte()
+//-----------------------------------------------------------------------------
+uint8_t MemoryStream::read_byte()
 {
-	CheckValid();
+	check_valid();
 
-	if (mMemOffset >= mMem->GetSize())
+	if (m_memory_offset >= m_memory->size())
 	{
 		Log::E("Trying to read beyond the end of stream.");
-		throw InvalidOperationException("Trying to read beyond the end of stream.");
 	}
 
-	return mMem->GetData()[mMemOffset++];
+	return m_memory->data()[m_memory_offset++];
 }
 
-void MemoryStream::ReadDataBlock(void* buffer, size_t size)
+//-----------------------------------------------------------------------------
+void MemoryStream::read_data_block(void* buffer, size_t size)
 {
-	CheckValid();
-	uint8_t* src = mMem->GetData();
+	check_valid();
+	uint8_t* src = m_memory->data();
 	uint8_t* dest = (uint8_t*) buffer;
 
-	if (mMemOffset + size > mMem->GetSize())
+	if (m_memory_offset + size > m_memory->size())
 	{
 		Log::E("Trying to read beyond the end of stream.");
-		throw InvalidOperationException("Trying to read beyond the end of stream.");
 	}
 
 	for (size_t i = 0; i < size; i++)
 	{
-		dest[i] = src[mMemOffset+i];
+		dest[i] = src[m_memory_offset+i];
 	}
 
-	mMemOffset += size;
+	m_memory_offset += size;
 }
 
-bool MemoryStream::CopyTo(Stream* stream, size_t size)
+//-----------------------------------------------------------------------------
+bool MemoryStream::copy_to(Stream* stream, size_t size)
 {
-	CheckValid();
-	stream->WriteDataBlock(&(mMem->GetData()[mMemOffset]), math::min(mMem->GetSize()-mMemOffset, size));
+	check_valid();
+
+	stream->write_data_block(&(m_memory->data()[m_memory_offset]), math::min(m_memory->size()-m_memory_offset, size));
+
 	return true;
 }
 
-void MemoryStream::WriteByte(uint8_t val)
+//-----------------------------------------------------------------------------
+void MemoryStream::write_byte(uint8_t val)
 {
-	CheckValid();
-	mMem->Write(&val, mMemOffset, 1);
-	mMemOffset++;
+	check_valid();
+	m_memory->write(&val, m_memory_offset, 1);
+	m_memory_offset++;
 }
 
-void MemoryStream::WriteDataBlock(const void* buffer, size_t size)
+//-----------------------------------------------------------------------------
+void MemoryStream::write_data_block(const void* buffer, size_t size)
 {
-	CheckValid();
-	mMem->Write((uint8_t*)buffer, mMemOffset, size);
-	mMemOffset += size;
+	check_valid();
+	m_memory->write((uint8_t*)buffer, m_memory_offset, size);
+	m_memory_offset += size;
 }
 
-void MemoryStream::Flush()
+//-----------------------------------------------------------------------------
+void MemoryStream::flush()
 {
 	return;
 }
 
-void MemoryStream::Dump()
+//-----------------------------------------------------------------------------
+void MemoryStream::dump()
 {
-	uint8_t* buff = mMem->GetData();
+	uint8_t* buff = m_memory->data();
 
-	for (size_t i=0; i<mMem->GetSize(); i++)
+	for (size_t i = 0; i < m_memory->size(); i++)
 	{
 		printf("%3i ", buff[i]);
 	}
 }
 
-}
+} // namespace crown
+

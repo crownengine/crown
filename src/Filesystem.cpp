@@ -251,7 +251,7 @@ Stream* Filesystem::OpenStream(const char* relativePath, StreamOpenMode openMode
 	{
 		Log::D("Filesystem::OpenStream: Found %s", info.osPath.c_str());
 
-		stream = new FileStream(openMode, info.osPath);
+		stream = new FileStream(openMode, info.osPath.c_str());
 
 		return stream;
 	}

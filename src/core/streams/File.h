@@ -50,18 +50,18 @@ public:
 
 	virtual				~File();
 
-	bool				IsValid();
+	bool				is_valid();
 
-	FileOpenMode		GetMode();
-	FILE*				GetHandle();
-	size_t				GetSize();
+	FileOpenMode		mode();
+	FILE*				get_handle();
+	size_t				size();
 
-	static File*		Open(const char* path, FileOpenMode mode);
+	static File*		open(const char* path, FileOpenMode mode);
 
 private:
 
-	FILE*				mFileHandle;
-	FileOpenMode		mMode;
+	FILE*				m_file_handle;
+	FileOpenMode		m_mode;
 
 						File();
 };

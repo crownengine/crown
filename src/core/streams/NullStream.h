@@ -41,23 +41,24 @@ class NullStream: public Stream
 public:
 
 				/** @copydoc Stream::Stream() */
-				NullStream(StreamOpenMode openMode) : Stream(openMode) {}
+				NullStream(StreamOpenMode mode) : Stream(mode) {}
 				/** @copydoc Stream::~Stream() */
 	virtual		~NullStream() {}
+
 				/** @copydoc Stream::Seek() */
-	void		Seek(int32_t /*newPos*/, uint8_t /*mode*/) {}
+	void		seek(int32_t /*position*/, uint8_t /*mode*/) {}
 				/**
 				@copydoc Stream::ReadByte()
 				@note
 					Returns always zero
 				*/
-	uint8_t		ReadByte() { return 0; }
+	uint8_t		read_byte() { return 0; }
 				/**
 				@copydoc Stream::ReadDataBlock()
 				@note
 					Fills buffer with zeroes
 				*/
-	void		ReadDataBlock(void* buffer, size_t size)
+	void		read_data_block(void* buffer, size_t size)
 				{
 					for (size_t i = 0; i < size; i++)
 					{
@@ -69,55 +70,55 @@ public:
 				@note
 					Returns always false
 				*/
-	bool		CopyTo(Stream* /*stream*/, size_t /*size = 0*/) { return false; }
+	bool		copy_to(Stream* /*stream*/, size_t /*size = 0*/) { return false; }
 				/** @copydoc Stream::WriteByte() */
-	void		WriteByte(uint8_t /*val*/) {};
+	void		write_byte(uint8_t /*val*/) {};
 				/** @copydoc Stream::WriteDataBlock() */
-	void		WriteDataBlock(const void* /*buffer*/, size_t /*size*/) {};
+	void		write_data_block(const void* /*buffer*/, size_t /*size*/) {};
 				/** @copydoc Stream::Flush() */
-	void		Flush() {};
+	void		flush() {};
 				/**
 				@copydoc Stream::IsValid()
 				@note
 					Returns always true
 				*/
-	bool		IsValid() { return true; }
+	bool		is_valid() { return true; }
 				/**
 				@copydoc Stream::EndOfStream()
 				@note
 					Returns always false
 				*/
-	bool		EndOfStream() { return false; }
+	bool		end_of_stream() { return false; }
 				/**
 				@copydoc Stream::GetSize()
 				@note
 					Returns always 0xFFFFFFFF
 				*/
-	size_t		GetSize() { return ~0; }
+	size_t		size() { return ~0; }
 				/**
 				@copydoc Stream::GetPosition()
 				@note
 					Returns always zero
 				*/
-	size_t		GetPosition() { return 0; }
+	size_t		position() { return 0; }
 				/**
 				@copydoc Stream::CanRead()
 				@note
 					Returns always true
 				*/
-	bool		CanRead() { return true; }
+	bool		can_read() { return true; }
 				/**
 				@copydoc Stream::CanWrite()
 				@note
 					Returns always true
 				*/
-	bool		CanWrite() { return true; }
+	bool		can_write() { return true; }
 				/**
 				@copydoc Stream::CanSeek()
 				@note
 					Returns always true
 				*/
-	bool		CanSeek() { return true; }
+	bool		can_seek() { return true; }
 };
 
 } // namespace crown
