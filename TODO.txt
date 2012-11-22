@@ -1,2 +1,5 @@
 TODO list:
--change struct IPv4Address in struct netAddress
+1 - Nel namespace filesystem, Aggiungere un compressore. esso fornirà la compressione dei dati in base agli algoritmi noti. 
+Il suo utilizzo spazia fra l'internetworking (invio dei dati client-server), alla compressione dei file (ad esempio delle risorse).
+
+2 - In Queue, è necessario implementare un metodo per la distruzione/deallocazione del container
