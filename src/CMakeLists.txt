@@ -238,11 +238,14 @@ set (WIN_SRC
 )
 
 set (NETWORK_SRC
-	network/BitMessage.h
+	network/BitMessage.cpp
+	network/Connection.cpp
+	
 )
 
 set (NETWORK_HEADERS
-	network/BitMessage.cpp
+	network/BitMessage.h
+	network/Connection.h
 )
 
 set (SOURCES

@@ -58,6 +58,8 @@ public:
 	void			pop_back();
 	void			push_front(const T& item);
 	void			pop_front();
+	
+	void 			clear();
 
 	T*				begin();
 	const T*		begin() const;
@@ -204,6 +206,13 @@ inline void Queue<T>::pop_front()
 	m_read = (m_read + 1) % m_queue.size();
 
 	m_size--;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline void Queue<T>::clear()
+{
+	m_size = 0;
 }
 
 //-----------------------------------------------------------------------------

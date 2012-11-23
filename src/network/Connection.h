@@ -2,6 +2,7 @@
 
 #include "Types.h"
 #include "OS.h"
+#include "Allocator.h"
 #include "BitMessage.h"
 #include "Queue.h"
 
@@ -16,7 +17,7 @@ namespace network
 	{
 	public:
 	  
-								Connection();
+								Connection(Allocator& allocator);
 								~Connection();
   
 		void					init(const os::NetAddress addr, const int id);

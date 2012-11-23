@@ -5,15 +5,19 @@ namespace crown
 namespace network
 {
 
-Connection::Connection()
+Connection::Connection(Allocator& allocator) :
+ 	m_reliable_send(allocator),
+ 	m_reliable_receive(allocator)
 {
+  
 }
 
 Connection::~Connection()
 {
+  
 }
 
-void Connection::init(const NetAddress addr, const int id)
+void Connection::init(const os::NetAddress addr, const int id)
 {
 	m_remote_address = addr;
 	m_id = id;
@@ -102,7 +106,7 @@ bool Connection::unsent_fragments_left() const
   
 }
 
-bool Connection::process(const NetAddress from, BitMessage &msg, int &sequence, int time)
+bool Connection::process(const os::NetAddress from, BitMessage &msg, int &sequence, int time)
 {
   
 }
@@ -119,8 +123,8 @@ bool Connection::get_reliable_message(BitMessage &msg)
 
 void Connection::clear_reliable_messages()
 {
-	m_reliable_send = NULL;
-	m_reliable_receive = NULL;
+	m_reliable_send.clear();
+	m_reliable_receive.clear();
 }
 
 void Connection::_write_message(BitMessage &out, const BitMessage &msg)
