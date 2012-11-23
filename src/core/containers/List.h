@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include <cassert>
 #include <cstring>
+#include <cstdio>
 
 namespace crown
 {
@@ -63,6 +64,8 @@ public:
 
 	uint32_t			push_back(const T& item);
 	void				pop_back();
+
+	uint32_t			push(const T* items, uint32_t num_items);
 
 	void				clear();
 
@@ -240,6 +243,7 @@ inline void List<T>::set_capacity(uint32_t capacity)
 
 	if (capacity > 0)
 	{
+		printf("sto resizando\n");
 		T* tmp = m_array;
 		m_capacity = capacity;
 
@@ -305,6 +309,23 @@ inline void List<T>::pop_back()
 	assert(m_size > 0);
 
 	m_size--;
+}
+
+template <typename T>
+inline uint32_t List<T>::push(const T* items, uint32_t num_items)
+{
+	if (m_capacity <= m_size + num_items)
+	{
+		reserve(m_size + num_items);
+	}
+
+	printf("num_items: %d\n", num_items);
+	printf("m_capacity: %d\n", m_capacity);
+	printf("m_size: %d\n", m_size);
+	memcpy(&m_array[m_size], items, sizeof(T) * num_items);
+	m_size += num_items;
+
+	return m_size;
 }
 
 /**
