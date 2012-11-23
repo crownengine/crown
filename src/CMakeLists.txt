@@ -158,6 +158,15 @@ set (MEM_HEADERS
 	core/mem/MallocAllocator.h
 )
 
+set (COMPRESSORS_SRC
+	core/compressors/ZipCompressor.cpp
+)
+
+set (COMPRESSORS_HEADERS
+	core/compressors/Compressor.h
+	core/compressors/ZipCompressor.h
+)
+
 set (INPUT_SRC
 	input/EventDispatcher.cpp
 	input/InputManager.cpp
@@ -251,6 +260,8 @@ set (SOURCES
 	${STREAMS_HEADERS}
 	${MEM_SRC}
 	${MEM_HEADERS}
+	${COMPRESSORS_SRC}
+	${COMPRESSORS_HEADERS}
 	${INPUT_SRC}
 	${INPUT_HEADERS}
 	${LOADERS_SRC}

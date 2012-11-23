@@ -16,6 +16,7 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/core/containers
 	${CMAKE_SOURCE_DIR}/src/core/math
 	${CMAKE_SOURCE_DIR}/src/core/mem
+	${CMAKE_SOURCE_DIR}/src/core/compressors
 	${CMAKE_SOURCE_DIR}/src/core/streams
 	${CMAKE_SOURCE_DIR}/src/os
 	${CMAKE_SOURCE_DIR}/src/os/linux
