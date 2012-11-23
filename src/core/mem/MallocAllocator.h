@@ -48,7 +48,7 @@ private:
 	//! Holds the number of bytes of an allocation
 	struct Header
 	{
-		size_t	size;
+		uint32_t	size;
 	};
 
 	size_t		actual_allocation_size(size_t size, size_t align);

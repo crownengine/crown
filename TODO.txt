@@ -1,5 +1,13 @@
 TODO list:
-1 - Nel namespace filesystem, Aggiungere un compressore. esso fornirà la compressione dei dati in base agli algoritmi noti. 
+1 - Nel namespace core, Aggiungere un compressore. esso fornirà la compressione dei dati in base agli algoritmi noti. 
 Il suo utilizzo spazia fra l'internetworking (invio dei dati client-server), alla compressione dei file (ad esempio delle risorse).
 
-2 - In Queue, è necessario implementare un metodo per la distruzione/deallocazione del container
+2 - Compilatore di risorse e relativa gestione. le risorse devono essere assolutamente correte. il game engine non controlla la veridicità delle risorse.
+dovrà implementare una funzione di hash per l'indicizzazione delle risorse nel file binario specificandone il relatico offsetx. 
+Nel momento in cui viene generato il file binario con tutte le risorse al suo interno,
+si dovrà implementare un loader che prenda in input il suddetto file e carichi le risorse in base alla richiesta, che verrà fatta specificandone il nome
+
+3 - Cvar dovranno seguire un pattern JSON
+
+FIX:
+1 - In MallocAllocator, eseguendo il test compressors, se si tenta di deallocare si ottiene _invalid pointer_. l'offset è sempre di 4 byte

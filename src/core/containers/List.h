@@ -243,7 +243,6 @@ inline void List<T>::set_capacity(uint32_t capacity)
 
 	if (capacity > 0)
 	{
-		printf("sto resizando\n");
 		T* tmp = m_array;
 		m_capacity = capacity;
 
@@ -316,12 +315,9 @@ inline uint32_t List<T>::push(const T* items, uint32_t num_items)
 {
 	if (m_capacity <= m_size + num_items)
 	{
-		reserve(m_size + num_items);
+		grow(m_size + num_items);
 	}
 
-	printf("num_items: %d\n", num_items);
-	printf("m_capacity: %d\n", m_capacity);
-	printf("m_size: %d\n", m_size);
 	memcpy(&m_array[m_size], items, sizeof(T) * num_items);
 	m_size += num_items;
 
