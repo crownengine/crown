@@ -32,6 +32,7 @@ namespace crown
 {
 
 Camera::Camera(const Vec3& position, bool visible, float fov, float aspect, bool active) :
+	mPosition(position),
 	mLookAt(0, 0, -1),
 	mUp(0, 1, 0),
 	mFOV(fov),

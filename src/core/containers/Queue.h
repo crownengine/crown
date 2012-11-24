@@ -212,6 +212,7 @@ inline void Queue<T>::pop_front()
 template <typename T>
 inline void Queue<T>::clear()
 {
+	m_read = 0;
 	m_size = 0;
 }
 

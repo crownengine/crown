@@ -11,13 +11,13 @@ int main(int argc, char** argv)
 	MallocAllocator allocator;
 	ZipCompressor compressor(allocator);
 
-	const char* uncompressed_string = "letstrythismotherfuckercompressionmethodoncrowngameengine.enjoy!";
+	const char* uncompressed_string = "letstry";
 	uint8_t* compressed_string;
 	uint8_t* result;
 	size_t compr_size = 0;
 	size_t result_size = 0;
-
-	compressed_string = compressor.compress((void*)uncompressed_string, strlen(uncompressed_string), compr_size);
+	
+ 	compressed_string = compressor.compress((void*)uncompressed_string, strlen(uncompressed_string), compr_size);
 	
 	printf("Uncompressed: ");
 	printf("Size: %d - ", strlen(uncompressed_string));
@@ -31,8 +31,8 @@ int main(int argc, char** argv)
 		printf("%c", compressed_string[i]);
 	}
 	printf("\n\n");
-	
-	result = compressor.decompress((void*)compressed_string, compr_size, result_size);
+
+	result = compressor.uncompress((void*)compressed_string, compr_size, result_size);
 	
 	printf("Uncompressed again: ");
 	printf("Size: %d - ", result_size);
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 	}
 	printf("\n\n");
 	
-//  	allocator.deallocate(result); //FIX: invalid pointer -> check header in MallocAllocator
+  	allocator.deallocate(result); //FIX: invalid pointer -> check header in MallocAllocator*/
 	
 	return 0;
 }
