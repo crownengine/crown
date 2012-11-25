@@ -28,10 +28,14 @@ BitMessage::~BitMessage()
   {
 		m_allocator->deallocate((void*)w_data);
   }
+  */
+  /*
+   * w_data and r_data point the same memory location 
+   */
   if (r_data)
   {
 		m_allocator->deallocate((void*)r_data);
-  }*/
+  }
 }
 //---------------------------------------------------------------------------------------------
 
