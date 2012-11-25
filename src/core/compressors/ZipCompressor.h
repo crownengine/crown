@@ -6,7 +6,7 @@
 namespace crown
 {
 
-class ZipCompressor : Compressor
+class ZipCompressor : public Compressor
 {
 public:
 
