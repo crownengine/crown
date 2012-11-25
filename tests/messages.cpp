@@ -3,6 +3,7 @@
 #include "Vec3.h"
 #include "OS.h"
 #include "BitMessage.h"
+#include "MallocAllocator.h"
 
 using namespace crown;
 
@@ -13,12 +14,12 @@ void test_int8()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::BitMessage m = network::BitMessage();
+	MallocAllocator allocator;
+  	network::BitMessage m = network::BitMessage(allocator);
 	
-	uint8_t tmp[4];
 	int8_t res;
 	
-	m.init(tmp, 4);
+	m.init_in_w(4);
 	m.begin_writing();
 	m.write_int8(-56);
 	bits_written = m.get_num_bits_written();
@@ -48,12 +49,12 @@ void test_uint8()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::BitMessage m = network::BitMessage();
+	MallocAllocator allocator;
+  	network::BitMessage m = network::BitMessage(allocator);
 
-	uint8_t tmp[4];
 	uint8_t res;
 	
-	m.init(tmp, 4);
+	m.init_in_w(4);
 	m.begin_writing();
 	m.write_uint8(255);
 	bits_written = m.get_num_bits_written();
@@ -82,12 +83,12 @@ void test_int16()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-  	network::BitMessage m = network::BitMessage();  
+	MallocAllocator allocator;
+  	network::BitMessage m = network::BitMessage(allocator);  
 	
-	uint8_t tmp[4];
 	int16_t res;
 	
-	m.init(tmp, 4);
+	m.init_in_w(4);
 	m.write_int16(-5555);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
@@ -113,13 +114,13 @@ void test_uint16()
 	uint32_t rem_write_bits;
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
-	
-  	network::BitMessage m = network::BitMessage();
 
-	uint8_t tmp[4];
+	MallocAllocator allocator;
+  	network::BitMessage m = network::BitMessage(allocator);
+
 	uint16_t res;
 	
-	m.init(tmp, 4);
+	m.init_in_w(4);
 	m.write_uint16(5555);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
@@ -145,13 +146,13 @@ void test_int32()
 	uint32_t rem_write_bits;
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
+
+	MallocAllocator allocator;
+  	network::BitMessage m = network::BitMessage(allocator);
 	
-  	network::BitMessage m = network::BitMessage();
-	
-	uint8_t tmp[4];
 	int32_t res;
 	
-	m.init(tmp, 4);
+	m.init_in_w(4);
 	m.write_int32(4000000);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
@@ -178,13 +179,13 @@ void test_real()
 	uint32_t rem_write_bits;
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
-	
-  	network::BitMessage m = network::BitMessage();
 
-	uint8_t tmp[4];
+	MallocAllocator allocator;
+  	network::BitMessage m = network::BitMessage(allocator);
+
 	real res;
 	
-	m.init(tmp, 4);
+	m.init_in_w(4);
 	m.write_real(4.5342f);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
@@ -212,15 +213,15 @@ void test_vec3()
 	uint32_t rem_write_bits;
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
+
+	MallocAllocator allocator;
+  	network::BitMessage m = network::BitMessage(allocator);
 	
-  	network::BitMessage m = network::BitMessage();
 	
-	
-	uint8_t tmp[12];
 	Vec3 v(0.525f, 0.432f, 0.234f);
 	Vec3 res;
 	
-	m.init(tmp, 12);
+	m.init_in_w(12);
 	m.write_vec3(v);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
@@ -246,15 +247,16 @@ void test_string()
 	uint32_t rem_write_bits;
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
-	
-  	network::BitMessage m = network::BitMessage();
+
+	MallocAllocator allocator;
+  	network::BitMessage m = network::BitMessage(allocator);
 	
 	uint8_t tmp[16];
 	char res[16];
 
 	char s[] = "test";
 	
-	m.init(tmp, 16);
+	m.init_in_w(16);
 
 	m.write_string(s, sizeof(s), true);
  	bits_written = m.get_num_bits_written();
@@ -282,13 +284,14 @@ void test_data()
 	uint32_t rem_write_bits;
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
-	
-  	network::BitMessage m = network::BitMessage();
+
+	MallocAllocator allocator;
+  	network::BitMessage m = network::BitMessage(allocator);
 	
 	uint8_t tmp[] = "test generic";
 	uint8_t res[16];
 	
-	m.init(tmp, 16);
+	m.init_in_w(16);
 	
 	m.write_data(tmp, 16);
  	bits_written = m.get_num_bits_written();
@@ -317,7 +320,8 @@ void test_net_address()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-	network::BitMessage m = network::BitMessage();
+	MallocAllocator allocator;
+	network::BitMessage m = network::BitMessage(allocator);
 
 	uint8_t tmp[16];
 	
@@ -327,7 +331,7 @@ void test_net_address()
 	
 	addr.set(192, 168, 0, 1, 80);
 	
-	m.init(tmp, 16);
+	m.init_in_w(16);
 	m.write_ipv4addr(addr);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();	

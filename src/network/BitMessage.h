@@ -2,6 +2,7 @@
 
 #include "Types.h"
 #include "OS.h"
+#include "Allocator.h"
 #include "Vec3.h"
 
 namespace crown
@@ -15,11 +16,11 @@ namespace network
 	class BitMessage
 	{
 	public:
-						BitMessage();
+						BitMessage(Allocator& allocator);
 						~BitMessage();
 
-		void			init(uint8_t *data, int32_t len);
-		void			init(const uint8_t *data, int32_t len);
+		void			init_in_w(int32_t len);
+		void			init_in_r(int32_t len);
 		uint8_t*		get_data();										// get data for writing
 		const uint8_t*	get_data() const;								// get data for reading
 		int32_t			get_max_size() const;							// get the maximum message size
@@ -86,6 +87,8 @@ namespace network
 		mutable int32_t		read_count;									// number of bytes read so far
 		mutable int32_t		read_bit;									// number of bits read from the last read byte
 		bool 				overflowed;									// overflow flag
+		
+		Allocator*			m_allocator;								// memory allocator
 
 	private:
 	  

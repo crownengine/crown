@@ -8,25 +8,31 @@ namespace crown
 namespace network
 {
   
-BitMessage::BitMessage() : 
+BitMessage::BitMessage(Allocator& allocator) : 
 	w_data(NULL), 
 	r_data(NULL), 
 	max_size(0), 
 	cur_size(0), 
 	write_bit(0), 
 	read_count(0), 
-	read_bit(0)
+	read_bit(0),
+	m_allocator(&allocator)
 {
-  
 }
 
 //---------------------------------------------------------------------------------------------
 
 BitMessage::~BitMessage()
-{
-  
+{/*
+  if (w_data)
+  {
+		m_allocator->deallocate((void*)w_data);
+  }
+  if (r_data)
+  {
+		m_allocator->deallocate((void*)r_data);
+  }*/
 }
-
 //---------------------------------------------------------------------------------------------
 
 uint8_t* BitMessage::get_byte_space(int32_t len)
@@ -73,8 +79,10 @@ bool BitMessage::check_overflow(int32_t num_bits)
 
 //---------------------------------------------------------------------------------------------
 
-void BitMessage::init(uint8_t *data, int32_t len)
+void BitMessage::init_in_w(int32_t len)
 {
+	uint8_t* data = (uint8_t*)m_allocator->allocate(len);
+	
 	w_data = data;
 	r_data = data;
 	max_size = len;
@@ -82,8 +90,10 @@ void BitMessage::init(uint8_t *data, int32_t len)
 
 //---------------------------------------------------------------------------------------------
 
-void BitMessage::init(const uint8_t *data, int32_t len)
+void BitMessage::init_in_r(int32_t len)
 {
+  	const uint8_t* data = (const uint8_t*)m_allocator->allocate(len);
+
 	w_data = NULL;
 	r_data = data;
 	max_size = len;
@@ -420,7 +430,7 @@ void BitMessage::write_string(const char* s, int32_t max_len, bool make_7_bit)
 		uint8_t* data_ptr;
 		const uint8_t* byte_ptr;
 		
-		// calculate s length
+		// calculates length
 		for (l = 0; s[l]; l++) {}
 		
 		if (max_len >= 0 && l >= max_len) 
