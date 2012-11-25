@@ -38,12 +38,6 @@ void Connection::init(const os::NetAddress addr, const int id)
 }
 
 //-----------------------------------------------------------------------------
-void Connection::shutdown()
-{
-	//TODO: don't needed with Allocator mechanism
-}
-
-//-----------------------------------------------------------------------------
 void Connection::reset_rate()
 {
   	m_last_send_time = 0;
@@ -131,12 +125,31 @@ bool Connection::process(const os::NetAddress from, int time, BitMessage &msg, i
 //-----------------------------------------------------------------------------
 void Connection::send_reliable_message(const BitMessage& msg)
 {
-	m_reliable_send.push_back(msg);
+	uint32_t id = msg.read_int32();
+
+	msg.begin_reading();
+
+	if (id == m_id)
+	{
+		m_reliable_send.push_back(msg);
+	}
 }
 
 //-----------------------------------------------------------------------------
 bool Connection::receive_reliable_message(BitMessage& msg)
 {
+	uint32_t id = msg.read_int32();
+	
+	// check correctness of message id
+	if (id == m_id)	
+	{
+		// save message
+		m_reliable_receive.push_back(msg);
+		
+		return true;
+	}
+	
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -144,19 +157,6 @@ void Connection::clear_reliable_messages()
 {
 	m_reliable_send.clear();
 	m_reliable_receive.clear();
-}
-
-//-----------------------------------------------------------------------------
-void Connection::_write_message(BitMessage& out, const BitMessage& msg)
-{
-	 uint8_t* packet; 
-	 
-}
-
-//-----------------------------------------------------------------------------
-bool Connection::_read_message(BitMessage& out, const BitMessage& msg)
-{
- 
 }
 
 //-----------------------------------------------------------------------------

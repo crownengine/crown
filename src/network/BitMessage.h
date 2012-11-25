@@ -25,7 +25,6 @@ namespace network
 		int32_t			get_max_size() const;							// get the maximum message size
 		bool 			is_overflowed();								// get overflowed flag
 
-
 		int32_t			get_size() const;								// size of the message in bytes
 		void			set_size(int32_t size);							// set the message size
 		int32_t			get_write_bit() const;							// get current write bit
@@ -59,10 +58,10 @@ namespace network
 		void			write_data(const void* data, int32_t length);
 		void			write_ipv4addr(const os::NetAddress addr);
 
-		void			begin_reading() const;					// begin reading.
-		int32_t			get_remaing_data() const;				// number of bytes left to read
-		void			read_byte_align() const;				// read up to the next byte boundary
-		int32_t			read_bits(int32_t num_bits) const;			// read the specified number of bits
+		void			begin_reading() const;							// begin reading.
+		int32_t			get_remaing_data() const;						// number of bytes left to read
+		void			read_byte_align() const;						// read up to the next byte boundary
+		int32_t			read_bits(int32_t num_bits) const;				// read the specified number of bits
 		int32_t			read_int8() const;
 		int32_t			read_uint8() const;
 		int32_t			read_int16() const;
@@ -79,14 +78,14 @@ namespace network
 
 	private:
 	  
-		uint8_t*			w_data;			// pointer to data for writing
-		const uint8_t*		r_data;			// point32_ter to data for reading
-		int32_t				max_size;		// maximum size of message in bytes
-		int32_t				cur_size;		// current size of message in bytes
-		int32_t				write_bit;		// number of bits written to the last written byte
-		mutable int32_t		read_count;		// number of bytes read so far
-		mutable int32_t		read_bit;		// number of bits read from the last read byte
-		bool 				overflowed;		// overflow flag
+		uint8_t*			w_data;										// pointer to data for writing
+		const uint8_t*		r_data;										// point32_ter to data for reading
+		int32_t				max_size;									// maximum size of message in bytes
+		int32_t				cur_size;									// current size of message in bytes
+		int32_t				write_bit;									// number of bits written to the last written byte
+		mutable int32_t		read_count;									// number of bytes read so far
+		mutable int32_t		read_bit;									// number of bits read from the last read byte
+		bool 				overflowed;									// overflow flag
 
 	private:
 	  

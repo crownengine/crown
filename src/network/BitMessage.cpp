@@ -8,7 +8,14 @@ namespace crown
 namespace network
 {
   
-BitMessage::BitMessage() : w_data(NULL), r_data(NULL), max_size(0), cur_size(0), write_bit(0), read_count(0), read_bit(0)
+BitMessage::BitMessage() : 
+	w_data(NULL), 
+	r_data(NULL), 
+	max_size(0), 
+	cur_size(0), 
+	write_bit(0), 
+	read_count(0), 
+	read_bit(0)
 {
   
 }
