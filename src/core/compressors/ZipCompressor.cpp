@@ -1,7 +1,6 @@
 #include <cstring>
 
 #include "zlib.h"
-#include "MathUtils.h"
 #include "ZipCompressor.h"
 
 namespace crown
