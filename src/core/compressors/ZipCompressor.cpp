@@ -8,8 +8,7 @@ namespace crown
 {
 
 ZipCompressor::ZipCompressor(Allocator& allocator) :
-	Compressor(allocator),
-	m_data_list(allocator)
+	Compressor(allocator)
 {
 	
 }
@@ -25,7 +24,7 @@ uint8_t* ZipCompressor::compress(const void* data, size_t in_size, size_t& out_s
 	
  	uint8_t* dest = (uint8_t*)m_allocator->allocate(out_size);
 	
-	int32_t ret = ::compress(dest, &out_size, (const Bytef*)data, in_size);
+	int32_t ret = ::compress((Bytef*)dest, (uLongf*)&out_size, (const Bytef*)data, (uLongf)in_size);
 	
 	assert(ret == Z_OK);
 	
@@ -38,11 +37,12 @@ uint8_t* ZipCompressor::uncompress(const void* data, size_t in_size, size_t& out
 	
  	uint8_t* dest = (uint8_t*)m_allocator->allocate(out_size);
 	
-	int32_t ret = ::uncompress(dest, &out_size, (const Bytef*)data, in_size);
+	int32_t ret = ::uncompress((Bytef*)dest, (uLongf*)&out_size, (const Bytef*)data, (uLongf)in_size);
 	
 	assert(ret == Z_OK);
 	
 	return dest;
 }
 
-}
+} // namespace crown
+
