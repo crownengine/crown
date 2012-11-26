@@ -25,128 +25,48 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Stream.h"
 #include "Types.h"
-#include "zlib.h"
-#include "MathUtils.h"
+#include "Compressor.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-bool Stream::zip_to(Stream* stream, size_t size, size_t& zipped_size)
+bool Stream::compress_to(Stream* stream, size_t size, size_t& zipped_size, Compressor* compressor)
 {
-	const size_t CHUNK_SIZE = 16384;
-	int32_t ret, flush;
-	unsigned have;
-	z_stream strm;
-	unsigned char in[CHUNK_SIZE];
-	unsigned char out[CHUNK_SIZE];
+	assert(stream != NULL);
+	assert(compressor != NULL);
 
-	strm.zalloc = Z_NULL;
-	strm.zfree = Z_NULL;
-	strm.opaque = Z_NULL;
-	ret = deflateInit(&strm, 6);
-	if (ret != Z_OK)
-		return false;
+	MallocAllocator allocator;
+	void* in_buffer = (void*)allocator.allocate(size);
 
-	size_t bytes_read = 0;
-	do
-	{
-		size_t this_step_bytes = math::min(CHUNK_SIZE, size - bytes_read);
-		read_data_block(in, this_step_bytes);
+	read(in_buffer, size);
 
-		strm.avail_in = this_step_bytes;
-		strm.next_in = in;
+	void* compressed_buffer = compressor->compress(in_buffer, size, zipped_size);
 
-		flush = (size - bytes_read) <= CHUNK_SIZE ? Z_FINISH : Z_NO_FLUSH;
-
-		do
-		{
-			strm.avail_out = CHUNK_SIZE;
-			strm.next_out = out;
-
-			ret = deflate(&strm, flush);    /* no bad return value */
-			assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
-
-			have = CHUNK_SIZE - strm.avail_out;
-			if (have > 0)
-				stream->write_data_block(out, have);
-			
-		} while (strm.avail_out == 0);
-		assert(strm.avail_in == 0);     /* all input will be used */
-
-		bytes_read += this_step_bytes;
-		/* done when last data in file processed */
-	} while (flush != Z_FINISH);
-	assert(ret == Z_STREAM_END);        /* stream will be complete */
-
-	/* clean up and return */
-	(void)deflateEnd(&strm);
-
-	zipped_size = strm.total_out;
+	stream->write(compressed_buffer, zipped_size);
 
 	return true;
 }
 
 //-----------------------------------------------------------------------------
-bool Stream::unzip_to(Stream* stream, size_t& /*unzipped_size*/)
+bool Stream::uncompress_to(Stream* stream, size_t& unzipped_size, Compressor* compressor)
 {
-	const size_t CHUNK_SIZE = 16384;
-	int32_t ret;
-	unsigned have;
-	z_stream strm;
-	unsigned char in[CHUNK_SIZE];
-	unsigned char out[CHUNK_SIZE];
+	assert(stream != NULL);
+	assert(compressor != NULL);
 
-	/* allocate inflate state */
-	strm.zalloc = Z_NULL;
-	strm.zfree = Z_NULL;
-	strm.opaque = Z_NULL;
-	strm.avail_in = 0;
-	strm.next_in = Z_NULL;
-	ret = inflateInit(&strm);
-	if (ret != Z_OK)
-			return false;
+	MallocAllocator allocator;
 
-	size_t size = this->size();
-	size_t bytes_read = 0;
+	size_t stream_size = size();
+	void* in_buffer = (void*)allocator.allocate(stream_size); 
 
-	/* decompress until deflate stream ends or end of file */
-	do
-	{
-		size_t this_step_bytes = math::min(CHUNK_SIZE, size - bytes_read);
-		read_data_block(in, this_step_bytes);
+	read(in_buffer, stream_size);
 
-		strm.avail_in = this_step_bytes;
-		strm.next_in = in;
-		if (strm.avail_in == 0)
-				break;
+	void* uncompressed_buffer = compressor->uncompress(in_buffer, stream_size, unzipped_size);
 
-		/* run inflate() on input until output buffer not full */
-		do {
-				strm.avail_out = CHUNK_SIZE;
-				strm.next_out = out;
-				ret = inflate(&strm, Z_NO_FLUSH);
-				assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
-				switch (ret) {
-				case Z_NEED_DICT:
-						ret = Z_DATA_ERROR;     /* and fall through */
-				case Z_DATA_ERROR:
-				case Z_MEM_ERROR:
-						(void)inflateEnd(&strm);
-						return false;
-				}
-				have = CHUNK_SIZE - strm.avail_out;
-				if (have > 0)
-					stream->write_data_block(out, have);
-		} while (strm.avail_out == 0);
+	stream->write(uncompressed_buffer, unzipped_size);
 
-		bytes_read += this_step_bytes;
-		/* done when inflate() says it's done */
-	} while (ret != Z_STREAM_END);
-
-	/* clean up and return */
-	(void)inflateEnd(&strm);
-	return ret == Z_STREAM_END;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -165,7 +85,7 @@ BinaryReader::~BinaryReader()
 int8_t BinaryReader::read_byte()
 {
 	int8_t buffer;
-	m_stream->read_data_block(&buffer, sizeof(int8_t));
+	m_stream->read(&buffer, sizeof(int8_t));
 	return buffer;
 }
 
@@ -173,7 +93,7 @@ int8_t BinaryReader::read_byte()
 int16_t BinaryReader::read_int16()
 {
 	int16_t buffer;
-	m_stream->read_data_block(&buffer, sizeof(int16_t));
+	m_stream->read(&buffer, sizeof(int16_t));
 	return buffer;
 }
 
@@ -181,7 +101,7 @@ int16_t BinaryReader::read_int16()
 uint16_t BinaryReader::read_uint16()
 {
 	uint16_t buffer;
-	m_stream->read_data_block(&buffer, sizeof(uint16_t));
+	m_stream->read(&buffer, sizeof(uint16_t));
 	return buffer;
 }
 
@@ -189,7 +109,7 @@ uint16_t BinaryReader::read_uint16()
 int32_t BinaryReader::read_int32()
 {
 	int32_t buffer;
-	m_stream->read_data_block(&buffer, sizeof(int32_t));
+	m_stream->read(&buffer, sizeof(int32_t));
 	return buffer;
 }
 
@@ -197,7 +117,7 @@ int32_t BinaryReader::read_int32()
 uint32_t BinaryReader::read_uint32()
 {
 	uint32_t buffer;
-	m_stream->read_data_block(&buffer, sizeof(uint32_t));
+	m_stream->read(&buffer, sizeof(uint32_t));
 	return buffer;
 }
 
@@ -205,7 +125,7 @@ uint32_t BinaryReader::read_uint32()
 int64_t BinaryReader::read_int64()
 {
 	int64_t buffer;
-	m_stream->read_data_block(&buffer, sizeof(int64_t));
+	m_stream->read(&buffer, sizeof(int64_t));
 	return buffer;
 }
 
@@ -213,14 +133,14 @@ int64_t BinaryReader::read_int64()
 double BinaryReader::read_double()
 {
 	double buffer;
-	m_stream->read_data_block(&buffer, sizeof(double));
+	m_stream->read(&buffer, sizeof(double));
 	return buffer;
 }
 
 float BinaryReader::read_float()
 {
 	float buffer;
-	m_stream->read_data_block(&buffer, sizeof(float));
+	m_stream->read(&buffer, sizeof(float));
 	return buffer;
 }
 
@@ -239,49 +159,49 @@ BinaryWriter::~BinaryWriter()
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_byte(int8_t buffer)
 {
-	m_stream->write_data_block(&buffer, sizeof(int8_t));
+	m_stream->write(&buffer, sizeof(int8_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_int16(int16_t buffer)
 {
-	m_stream->write_data_block(&buffer, sizeof(int16_t));
+	m_stream->write(&buffer, sizeof(int16_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_uint16(uint16_t buffer)
 {
-	m_stream->write_data_block(&buffer, sizeof(uint16_t));
+	m_stream->write(&buffer, sizeof(uint16_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_int32(int32_t buffer)
 {
-	m_stream->write_data_block(&buffer, sizeof(int32_t));
+	m_stream->write(&buffer, sizeof(int32_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_uint32(uint32_t buffer)
 {
-	m_stream->write_data_block(&buffer, sizeof(uint32_t));
+	m_stream->write(&buffer, sizeof(uint32_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_int64(int64_t buffer)
 {
-	m_stream->write_data_block(&buffer, sizeof(int64_t));
+	m_stream->write(&buffer, sizeof(int64_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_double(double buffer)
 {
-	m_stream->write_data_block(&buffer, sizeof(double));
+	m_stream->write(&buffer, sizeof(double));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_float(float buffer)
 {
-	m_stream->write_data_block(&buffer, sizeof(float));
+	m_stream->write(&buffer, sizeof(float));
 }
 
 //-----------------------------------------------------------------------------
@@ -289,11 +209,16 @@ void BinaryWriter::insert_byte(int8_t val, size_t offset)
 {
 	size_t tmpSize = m_stream->size() - offset;
 	int8_t* tmp = new int8_t[tmpSize];
-	m_stream->seek(offset, SM_FROM_BEGIN);
-	m_stream->read_data_block(tmp, tmpSize);
-	m_stream->seek(offset, SM_FROM_BEGIN);
+
+	m_stream->seek(offset);
+	m_stream->read(tmp, tmpSize);
+
+	m_stream->seek(offset);
+
 	m_stream->write_byte(val);
-	m_stream->write_data_block(tmp, tmpSize);
+
+	m_stream->write(tmp, tmpSize);
+
 	delete[] tmp;
 }
 

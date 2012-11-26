@@ -93,14 +93,18 @@ public:
 						MemoryStream(MemoryBuffer* buffer, StreamOpenMode mode);
 	virtual				~MemoryStream();
 
-	void				seek(int32_t position, SeekMode mode);
+
+	void				seek(size_t position);
+	void				seek_to_end();
+	void				skip(size_t bytes);
 
 	uint8_t				read_byte();
-	void				read_data_block(void* buffer, size_t size);
+	void				read(void* buffer, size_t size);
+	void				write_byte(uint8_t val);
+	void				write(const void* buffer, size_t size);
+
 	bool				copy_to(Stream* stream, size_t size = 0);
 
-	void				write_byte(uint8_t val);
-	void				write_data_block(const void* buffer, size_t size);
 	void				flush();
 
 	bool				end_of_stream() const { return size() == m_memory_offset; }
@@ -117,7 +121,7 @@ public:
 
 protected:
 
-	inline void check_valid() { assert(m_memory != NULL); }
+	inline void			check_valid() { assert(m_memory != NULL); }
 
 	MemoryBuffer*		m_memory;
 	size_t				m_memory_offset;

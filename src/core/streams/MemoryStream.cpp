@@ -103,28 +103,33 @@ MemoryStream::~MemoryStream()
 }
 
 //-----------------------------------------------------------------------------
-void MemoryStream::seek(int32_t position, SeekMode mode)
+void MemoryStream::seek(size_t position)
 {
 	check_valid();
 	
-	switch (mode)
-	{
-		case SM_FROM_BEGIN:
-			m_memory_offset = position;
-			break;
-		case SM_FROM_CURRENT:
-			m_memory_offset += position;
-			break;
-		case SM_FROM_END:
-			m_memory_offset = m_memory->size()-1;
-			break;
-	}
+	m_memory_offset = position;
 
 	//Allow seek to m_memory->getSize() position, that means end of stream, reading not allowed but you can write if it's dynamic
-	if (m_memory_offset > m_memory->size())
-	{
-		Log::E("Seek beyond the end of stream.");
-	}
+	assert(m_memory_offset <= m_memory->size());
+}
+
+//-----------------------------------------------------------------------------
+void MemoryStream::seek_to_end()
+{
+	check_valid();
+
+	m_memory_offset = m_memory->size() - 1;
+}
+
+//-----------------------------------------------------------------------------
+void MemoryStream::skip(size_t bytes)
+{
+	check_valid();
+
+	m_memory_offset += bytes;
+
+	//Allow seek to m_memory->getSize() position, that means end of stream, reading not allowed but you can write if it's dynamic
+	assert(m_memory_offset <= m_memory->size());
 }
 
 //-----------------------------------------------------------------------------
@@ -141,7 +146,7 @@ uint8_t MemoryStream::read_byte()
 }
 
 //-----------------------------------------------------------------------------
-void MemoryStream::read_data_block(void* buffer, size_t size)
+void MemoryStream::read(void* buffer, size_t size)
 {
 	check_valid();
 	uint8_t* src = m_memory->data();
@@ -165,7 +170,7 @@ bool MemoryStream::copy_to(Stream* stream, size_t size)
 {
 	check_valid();
 
-	stream->write_data_block(&(m_memory->data()[m_memory_offset]), math::min(m_memory->size()-m_memory_offset, size));
+	stream->write(&(m_memory->data()[m_memory_offset]), math::min(m_memory->size()-m_memory_offset, size));
 
 	return true;
 }
@@ -179,7 +184,7 @@ void MemoryStream::write_byte(uint8_t val)
 }
 
 //-----------------------------------------------------------------------------
-void MemoryStream::write_data_block(const void* buffer, size_t size)
+void MemoryStream::write(const void* buffer, size_t size)
 {
 	check_valid();
 	m_memory->write((uint8_t*)buffer, m_memory_offset, size);
