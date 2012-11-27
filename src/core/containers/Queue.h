@@ -185,7 +185,7 @@ inline void Queue<T>::pop_back()
 template <typename T>
 inline void Queue<T>::push_front(const T& item)
 {
-	if (space == 0)
+	if (space() == 0)
 	{
 		grow(0);
 	}
