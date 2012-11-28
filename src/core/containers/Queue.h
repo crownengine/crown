@@ -220,26 +220,20 @@ inline void Queue<T>::clear()
 template <typename T>
 inline T* Queue<T>::begin()
 {
-	assert(m_size > 0);
-
-	return &m_queue[m_read];
+	return m_queue.begin() + m_read;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline const T* Queue<T>::begin() const
 {
-	assert(m_size > 0);
-
-	return &m_queue[m_read];
+	return m_queue.begin() + m_read;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline T* Queue<T>::end()
 {
-	assert(m_size > 0);
-
 	uint32_t end = m_read + m_size;
 
 	return end >= m_queue.size() ? m_queue.end() : m_queue.begin() + end;
@@ -249,8 +243,6 @@ inline T* Queue<T>::end()
 template <typename T>
 inline const T* Queue<T>::end() const
 {
-	assert(m_size > 0);
-
 	uint32_t end = m_read + m_size;
 
 	return end >= m_queue.size() ? m_queue.end() : m_queue.begin() + end;
