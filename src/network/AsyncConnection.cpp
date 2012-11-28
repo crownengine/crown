@@ -1,31 +1,32 @@
-#include "Connection.h"
+#include <algorithm>
+#include "AsyncConnection.h"
 
 namespace crown
 {
 namespace network
 {
 
-Connection::Connection(Allocator& allocator) :
- 	m_reliable_send(allocator),
- 	m_reliable_receive(allocator)
+AsyncConnection::AsyncConnection(Allocator& allocator) :
+ 	m_sent_msg(allocator),
+ 	m_received_msg(allocator),
+ 	m_pending_ack(allocator),
+ 	m_acked(allocator)
 {
   
 }
 
 //-----------------------------------------------------------------------------
-Connection::~Connection()
+AsyncConnection::~AsyncConnection()
 {
   
 }
 
 //-----------------------------------------------------------------------------
-void Connection::init(const os::NetAddress addr, const int id)
+void AsyncConnection::init(const os::NetAddress addr, const int id)
 {
 	m_remote_address = addr;
 	m_id = id;
 	m_max_rate = 64000;
-	m_last_send_time = 0;
-	m_last_data_bytes = 0;
 	m_outgoing_rate_time = 0;
 	m_outgoing_rate_bytes = 0;
 	m_incoming_rate_time = 0;
@@ -33,12 +34,22 @@ void Connection::init(const os::NetAddress addr, const int id)
 	m_incoming_recv_packets = 0.0f;
 	m_incoming_dropped_packets = 0.0f;
 	m_incoming_packet_loss_time = 0;
-	m_outgoing_sequence = 0;
-	m_incoming_sequence = 0;
+	m_outgoing_sent_packet = 0;
+	m_remote_sequence = 0;
+	m_local_sequence = 0;
+	m_max_sequence = 0xFFFFFFFF;
+	m_max_rtt = 1;	//in seconds
+	m_rtt = 0;		
+	m_last_send_time = 0;
+	m_last_data_bytes = 0;
+	
+	// open port
+	m_socket.open(addr.get_port());
+	assert(m_socket.is_open());
 }
 
 //-----------------------------------------------------------------------------
-void Connection::reset_rate()
+void AsyncConnection::reset_rate()
 {
   	m_last_send_time = 0;
 	m_last_data_bytes = 0;
@@ -49,37 +60,37 @@ void Connection::reset_rate()
 }
 
 //-----------------------------------------------------------------------------
-void Connection::set_max_outgoing_rate(int rate)
+void AsyncConnection::set_max_outgoing_rate(int rate)
 {
 	m_max_rate = rate;
 }
 
 //-----------------------------------------------------------------------------
-int Connection::get_max_outgoing_rate()
+int AsyncConnection::get_max_outgoing_rate()
 {
 	return m_max_rate;
 }
 
 //-----------------------------------------------------------------------------
-os::NetAddress Connection::get_remote_address() const
+os::NetAddress AsyncConnection::get_remote_address() const
 {
 	return m_remote_address;
 }
 
 //-----------------------------------------------------------------------------
-int Connection::get_outgoing_rate() const
+int AsyncConnection::get_outgoing_rate() const
 {
 	return m_outgoing_rate_bytes;
 }
 
 //-----------------------------------------------------------------------------
-int Connection::get_incoming_rate() const
+int AsyncConnection::get_incoming_rate() const
 {
 	return m_incoming_rate_bytes;
 }
 
 //-----------------------------------------------------------------------------
-float Connection::get_incoming_packet_loss() const
+float AsyncConnection::get_incoming_packet_loss() const
 {
 	if (m_incoming_recv_packets == 0 && m_incoming_dropped_packets == 0)
 	{
@@ -90,7 +101,28 @@ float Connection::get_incoming_packet_loss() const
 }
 
 //-----------------------------------------------------------------------------
-bool Connection::ready_to_send(const int time) const
+void AsyncConnection::send_message(BitMessage& msg, const uint32_t time)
+{
+	m_socket.send(m_remote_address, msg.get_data(), msg.get_size());
+	//TODO
+}
+
+//-----------------------------------------------------------------------------
+bool AsyncConnection::receive_message(BitMessage& msg, const uint32_t time)
+{
+	m_socket.receive(m_remote_address, msg.get_data(), msg.get_size());
+	//TODO
+}
+
+//-----------------------------------------------------------------------------
+void AsyncConnection::clear_reliable_messages()
+{
+	m_sent_msg.clear();
+	m_received_msg.clear();
+}
+
+//-----------------------------------------------------------------------------
+bool AsyncConnection::ready_to_send(const int time) const
 {
 	// if max rate isn't set, send message
 	if (!m_max_rate)
@@ -105,62 +137,143 @@ bool Connection::ready_to_send(const int time) const
 	{
 		return true;
 	}
-	
 	// if last message wasn't sent, sent it!
 	return ((m_last_data_bytes - ((delta_time * m_max_rate) / 1000)) <= 0);
 }
 
 //-----------------------------------------------------------------------------
-/* 
-Processes the incoming message. Returns true when a complete message
-is ready for further processing. In that case the read pointer of msg
-points to the first byte ready for reading, and sequence is set to
-the sequence number of the message.
-*/
-bool Connection::process(const os::NetAddress from, int time, BitMessage &msg, int &sequence)
+bool AsyncConnection::process(const os::NetAddress from, int time, BitMessage &msg, int &sequence)
 {
 
 }
 
 //-----------------------------------------------------------------------------
-void Connection::send_reliable_message(const BitMessage& msg)
+void AsyncConnection::_packet_sent(size_t size)
 {
-	uint32_t id = msg.read_int32();
+	bool seq_exists_in_sent_queue = false;
+	bool seq_exists_in_pending_ack_queue = false;
+  
+	BitMessage::Header tmp;
+	BitMessage::Header* h_ptr;
+	
+	tmp.sequence = m_local_sequence;
 
-	msg.begin_reading();
-
-	if (id == m_id)
+	// If local_sequence_number is already in sent_queue
+	h_ptr = std::find(m_sent_msg.begin(), m_sent_msg.end(), tmp);
+	if (h_ptr != m_sent_msg.end())
 	{
-		m_reliable_send.push_back(msg);
+		seq_exists_in_sent_queue = true;
+	}
+	// If local_sequence_number is already in pending_ack_queue
+	h_ptr = std::find(m_pending_ack.begin(), m_pending_ack.end(), tmp);
+	if(h_ptr != m_pending_ack.end())
+	{
+		seq_exists_in_pending_ack_queue = true;
+	}	
+	// Else
+	assert(!seq_exists_in_sent_queue);
+ 	assert(!seq_exists_in_pending_ack_queue);
+	
+	// Creates Header for saving in queues
+	BitMessage::Header header;
+	header.sequence = m_local_sequence;
+	header.time = 0.0f;
+	header.size = size;
+	// Push packet data in sent_queue
+	m_sent_msg.push_back(header);
+	// push packet data in pending_ack_queue
+	m_pending_ack.push_back(header);
+	// Increments sent packet
+	m_outgoing_sent_packet++;
+	// Increments local sequence
+	m_local_sequence++;
+
+	if (m_local_sequence > m_max_sequence)
+	{
+		m_local_sequence = 0;
 	}
 }
 
 //-----------------------------------------------------------------------------
-bool Connection::receive_reliable_message(BitMessage& msg)
+void AsyncConnection::_packet_received(uint32_t sequence, size_t size)
 {
-	uint32_t id = msg.read_int32();
+	BitMessage::Header tmp;
+	BitMessage::Header* h_ptr;
+
+	tmp.sequence = sequence;
+
+	// Increment received packets
+	m_incoming_recv_packets++;
 	
-	// check correctness of message id
-	if (id == m_id)	
+	// If packet's sequence exists, return
+	h_ptr = std::find(m_received_msg.begin(), m_received_msg.end(), tmp);
+	if (h_ptr != m_received_msg.end())
 	{
-		// save message
-		m_reliable_receive.push_back(msg);
+		return;
+	}
+	
+	BitMessage::Header header;
+	header.sequence = sequence;
+	header.time = 0.0f;
+	header.size = size;
+	// Push packet data in received_queue
+	m_received_msg.push_back(header);
+	// update m_remote_sequence
+	if (_sequence_more_recent(sequence, m_remote_sequence))
+	{
+		m_remote_sequence = sequence;
+	}  
+}
+
+//-----------------------------------------------------------------------------
+bool AsyncConnection::_sequence_more_recent(uint32_t s1, uint32_t s2)
+{
+	return ((s1 > s2) && (s1 - s2 <= m_max_sequence / 2)) || ((s2 > s1) && (s2 - s1<= m_max_sequence / 2 ));
+}
+
+//-----------------------------------------------------------------------------
+uint32_t AsyncConnection::_bit_index_for_sequence(uint32_t seq, uint32_t ack)
+{
+	assert(seq != ack);
+	assert(!_sequence_more_recent(seq, ack));
+	
+	if (seq > ack)
+	{
+		assert(ack < 33);
+		assert(seq <= m_max_sequence);
+		return ack + (m_max_sequence - seq);
+	}
+	else
+	{
+		assert(ack >= 1);
+		assert(seq <= ack - 1);
+		return ack - 1 - seq;
+	}  
+}
+
+//-----------------------------------------------------------------------------
+uint32_t AsyncConnection::_generate_ack_bits(uint32_t ack)
+{
+	uint32_t ack_bits = 0;
+	
+	for (BitMessage::Header* i = m_received_msg.begin(); i != m_received_msg.end(); i++)
+	{
+		if (i->sequence == ack || _sequence_more_recent(i->sequence, ack))
+		{
+			break;
+		}
 		
-		return true;
+        uint32_t bit_index = _bit_index_for_sequence(i->sequence, ack);
+		if (bit_index <= 31)
+		{
+			ack_bits |= 1 << bit_index;
+		}
 	}
-	
-	return false;
+	return ack_bits;
 }
 
 //-----------------------------------------------------------------------------
-void Connection::clear_reliable_messages()
-{
-	m_reliable_send.clear();
-	m_reliable_receive.clear();
-}
-
-//-----------------------------------------------------------------------------
-void Connection::_update_outgoing_rate(const int time, const int size)
+void AsyncConnection::_update_outgoing_rate(const uint32_t time, const size_t size)
 {
 	// update the outgoing rate control variables
 	int delta_time;
@@ -196,7 +309,7 @@ void Connection::_update_outgoing_rate(const int time, const int size)
 }
 
 //-----------------------------------------------------------------------------
-void Connection::_update_incoming_rate(const int time, const int size)
+void AsyncConnection::_update_incoming_rate(const uint32_t time, const size_t size)
 {
 	// update incoming rate variables
 	if (time - m_incoming_rate_time > 1000) 
@@ -212,7 +325,7 @@ void Connection::_update_incoming_rate(const int time, const int size)
 }
 
 //-----------------------------------------------------------------------------
-void Connection::_update_packet_loss(const int time, const int num_recv, const int num_dropped)
+void AsyncConnection::_update_packet_loss(const uint32_t time, const uint32_t num_recv, const uint32_t num_dropped)
 {
 	// update incoming packet loss variables
 	if (time - m_incoming_packet_loss_time > 5000) 

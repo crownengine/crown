@@ -19,7 +19,7 @@ void test_int8()
 	
 	int8_t res;
 	
-	m.init_in_w(4);
+	m.init(4);
 	m.begin_writing();
 	m.write_int8(-56);
 	bits_written = m.get_num_bits_written();
@@ -54,12 +54,13 @@ void test_uint8()
 
 	uint8_t res;
 	
-	m.init_in_w(4);
+	m.init(4);
 	m.begin_writing();
 	m.write_uint8(255);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
 
+	m.begin_reading();
 	res = m.read_uint8();
 	bits_read = m.get_num_bits_read();
 	rem_read_bits = m.get_remaining_read_bits();
@@ -88,7 +89,7 @@ void test_int16()
 	
 	int16_t res;
 	
-	m.init_in_w(4);
+	m.init(4);
 	m.write_int16(-5555);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
@@ -120,7 +121,7 @@ void test_uint16()
 
 	uint16_t res;
 	
-	m.init_in_w(4);
+	m.init(4);
 	m.write_uint16(5555);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
@@ -152,7 +153,7 @@ void test_int32()
 	
 	int32_t res;
 	
-	m.init_in_w(4);
+	m.init(4);
 	m.write_int32(4000000);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
@@ -185,7 +186,7 @@ void test_real()
 
 	real res;
 	
-	m.init_in_w(4);
+	m.init(4);
 	m.write_real(4.5342f);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
@@ -221,7 +222,7 @@ void test_vec3()
 	Vec3 v(0.525f, 0.432f, 0.234f);
 	Vec3 res;
 	
-	m.init_in_w(12);
+	m.init(12);
 	m.write_vec3(v);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
@@ -256,7 +257,7 @@ void test_string()
 
 	char s[] = "test";
 	
-	m.init_in_w(16);
+	m.init(16);
 
 	m.write_string(s, sizeof(s), true);
  	bits_written = m.get_num_bits_written();
@@ -291,7 +292,7 @@ void test_data()
 	uint8_t tmp[] = "test generic";
 	uint8_t res[16];
 	
-	m.init_in_w(16);
+	m.init(16);
 	
 	m.write_data(tmp, 16);
  	bits_written = m.get_num_bits_written();
@@ -331,7 +332,7 @@ void test_net_address()
 	
 	addr.set(192, 168, 0, 1, 80);
 	
-	m.init_in_w(16);
+	m.init(16);
 	m.write_ipv4addr(addr);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();	

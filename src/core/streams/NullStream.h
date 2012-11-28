@@ -40,84 +40,83 @@ class NullStream: public Stream
 
 public:
 
-				/** @copydoc Stream::Stream() */
+				/// @copydoc Stream::Stream()
 				NullStream(StreamOpenMode mode) : Stream(mode) {}
-				/** @copydoc Stream::~Stream() */
+				/// @copydoc Stream::~Stream()
 	virtual		~NullStream() {}
 
-				/** @copydoc Stream::Seek() */
-	void		seek(int32_t /*position*/, uint8_t /*mode*/) {}
-				/**
-				@copydoc Stream::ReadByte()
-				@note
-					Returns always zero
-				*/
+				/// @copydoc Stream::seek()
+	void		seek(size_t position) {}
+
+				/// @copydoc Stream::seek_to_end()
+	void		seek_to_end() {}
+
+				/// @copydoc Stream::skip()
+	void		skip(size_t bytes) {}
+
+				/// @copydoc Stream::ReadByte()
+				/// @note
+				///	Returns always zero
 	uint8_t		read_byte() { return 0; }
-				/**
-				@copydoc Stream::ReadDataBlock()
-				@note
-					Fills buffer with zeroes
-				*/
-	void		read_data_block(void* buffer, size_t size)
+				
+				/// @copydoc Stream::ReadDataBlock()
+				/// @note
+				///	Fills buffer with zeroes
+	void		read(void* buffer, size_t size)
 				{
 					for (size_t i = 0; i < size; i++)
 					{
 						((uint8_t*)buffer)[i] = 0;
 					}
 				}
-				/**
-				@copydoc Stream::CopyTo()
-				@note
-					Returns always false
-				*/
-	bool		copy_to(Stream* /*stream*/, size_t /*size = 0*/) { return false; }
-				/** @copydoc Stream::WriteByte() */
+
+				/// @copydoc Stream::WriteByte()
 	void		write_byte(uint8_t /*val*/) {};
-				/** @copydoc Stream::WriteDataBlock() */
-	void		write_data_block(const void* /*buffer*/, size_t /*size*/) {};
-				/** @copydoc Stream::Flush() */
+
+				/// @copydoc Stream::WriteDataBlock()
+	void		write(const void* /*buffer*/, size_t /*size*/) {};
+
+				/// @copydoc Stream::CopyTo()
+				/// @note
+				///	Returns always false
+	bool		copy_to(Stream* /*stream*/, size_t /*size = 0*/) { return false; }
+
+				/// @copydoc Stream::Flush()
 	void		flush() {};
-				/**
-				@copydoc Stream::IsValid()
-				@note
-					Returns always true
-				*/
+				
+				/// @copydoc Stream::IsValid()
+				/// @note
+				///	Returns always true
 	bool		is_valid() { return true; }
-				/**
-				@copydoc Stream::EndOfStream()
-				@note
-					Returns always false
-				*/
+				
+				/// @copydoc Stream::EndOfStream()
+				/// @note
+				///	Returns always false
 	bool		end_of_stream() { return false; }
-				/**
-				@copydoc Stream::GetSize()
-				@note
-					Returns always 0xFFFFFFFF
-				*/
+				
+				/// @copydoc Stream::GetSize()
+				/// @note
+				///	Returns always 0xFFFFFFFF
 	size_t		size() { return ~0; }
-				/**
-				@copydoc Stream::GetPosition()
-				@note
-					Returns always zero
-				*/
+				
+				/// @copydoc Stream::GetPosition()
+				/// @note
+				///	Returns always zero
 	size_t		position() { return 0; }
-				/**
-				@copydoc Stream::CanRead()
-				@note
-					Returns always true
-				*/
+				
+				/// @copydoc Stream::CanRead()
+				/// @note
+				///	Returns always true
 	bool		can_read() { return true; }
-				/**
-				@copydoc Stream::CanWrite()
-				@note
-					Returns always true
-				*/
+				
+				/// @copydoc Stream::CanWrite()
+				/// @note
+				///	Returns always true
 	bool		can_write() { return true; }
-				/**
-				@copydoc Stream::CanSeek()
-				@note
-					Returns always true
-				*/
+				
+				/// @copydoc Stream::CanSeek()
+				/// @note
+				///	Returns always true
 	bool		can_seek() { return true; }
 };
 

@@ -43,8 +43,7 @@ int main(int argc, char** argv)
 	printf("\n\n");
 	
 	allocator.deallocate(compressed_string);
-  	allocator.deallocate(result); //FIX: invalid pointer -> check header in MallocAllocator*/
+  	allocator.deallocate(result); 
 	
-	delete uncompressed_string;
 	return 0;
 }

@@ -56,6 +56,31 @@ FileStream::~FileStream()
 }
 
 //-----------------------------------------------------------------------------
+void FileStream::seek(size_t position)
+{
+	check_valid();
+
+	//flush(); <<<---?
+	fseek(m_file->get_handle(), position, SEEK_SET);
+}
+
+//-----------------------------------------------------------------------------
+void FileStream::seek_to_end()
+{
+	check_valid();
+
+	fseek(m_file->get_handle(), 0, SEEK_END);
+}
+
+//-----------------------------------------------------------------------------
+void FileStream::skip(size_t bytes)
+{
+	check_valid();
+
+	fseek(m_file->get_handle(), bytes, SEEK_CUR);
+}
+
+//-----------------------------------------------------------------------------
 uint8_t FileStream::read_byte()
 {
 	check_valid();
@@ -77,7 +102,7 @@ uint8_t FileStream::read_byte()
 }
 
 //-----------------------------------------------------------------------------
-void FileStream::read_data_block(void* buffer, size_t size)
+void FileStream::read(void* buffer, size_t size)
 {
 	check_valid();
 
@@ -121,7 +146,7 @@ bool FileStream::copy_to(Stream* stream, size_t size)
 			{
 				if (readBytes != 0)
 				{
-					stream->write_data_block(buff, readBytes);
+					stream->write(buff, readBytes);
 				}
 			}
 
@@ -130,7 +155,7 @@ bool FileStream::copy_to(Stream* stream, size_t size)
 			return false;
 		}
 
-		stream->write_data_block(buff, readBytes);
+		stream->write(buff, readBytes);
 		totReadBytes += readBytes;
 	}
 
@@ -175,7 +200,7 @@ void FileStream::write_byte(uint8_t val)
 }
 
 //-----------------------------------------------------------------------------
-void FileStream::write_data_block(const void* buffer, size_t size)
+void FileStream::write(const void* buffer, size_t size)
 {
 	check_valid();
 
@@ -196,14 +221,6 @@ void FileStream::flush()
 {
 	check_valid();
 	fflush(m_file->get_handle());
-}
-
-//-----------------------------------------------------------------------------
-void FileStream::seek(int32_t position, SeekMode mode)
-{
-	check_valid();
-	//flush(); <<<---?
-	fseek(m_file->get_handle(), position, (mode==SM_FROM_BEGIN)?SEEK_SET:(mode==SM_FROM_CURRENT)?SEEK_CUR:SEEK_END);
 }
 
 //-----------------------------------------------------------------------------

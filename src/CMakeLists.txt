@@ -239,13 +239,13 @@ set (WIN_SRC
 
 set (NETWORK_SRC
 	network/BitMessage.cpp
-	network/Connection.cpp
+	network/AsyncConnection.cpp
 	
 )
 
 set (NETWORK_HEADERS
 	network/BitMessage.h
-	network/Connection.h
+	network/AsyncConnection.h
 )
 
 set (SOURCES

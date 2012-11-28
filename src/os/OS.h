@@ -146,7 +146,7 @@ struct NetAddress
 		return addr;
 	}
 	
-	uint16_t get_port()
+	uint16_t get_port() const
 	{
 		return port;
 	}
@@ -185,9 +185,9 @@ public:
 				// Open connection
 	bool 		open(uint16_t port);
 				 // Send data through socket
-	bool 		send(NetAddress &receiver, const void* data, int32_t size );
+	bool 		send(NetAddress &receiver, const void* data, size_t size );
 				// Receive data through socket
-	int32_t 	receive(NetAddress &sender, void* data, int32_t size);
+	int32_t 	receive(NetAddress &sender, void* data, size_t size);
 				// Close connection
 	void 		close();
 				// Is connection open?
@@ -214,9 +214,9 @@ public:
 				// Close connection
 	int32_t		close();
 				// Send data through socket
-	bool 		send(const void* data, int32_t size);
+	bool 		send(const void* data, size_t size);
 				// Receive data through socket
-	int32_t		receive(void* data, int32_t size);
+	int32_t		receive(void* data, size_t size);
 				// Is connection open?
 	bool 		is_open();
 				// Getter method for socket descriptor

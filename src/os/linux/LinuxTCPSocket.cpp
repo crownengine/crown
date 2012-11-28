@@ -109,7 +109,7 @@ int32_t	TCPSocket::close()
 	}
 }
 
-bool TCPSocket::send(const void* data, int32_t size)
+bool TCPSocket::send(const void* data, size_t size)
 {
 	assert(data);
 	assert(size > 0);
@@ -132,7 +132,7 @@ bool TCPSocket::send(const void* data, int32_t size)
 	return true;  
 }
 
-int32_t TCPSocket::receive(void* data, int32_t size)
+int32_t TCPSocket::receive(void* data, size_t size)
 {
 	assert(data);
 	assert(size > 0);

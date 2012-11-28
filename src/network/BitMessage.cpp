@@ -9,13 +9,14 @@ namespace network
 {
   
 BitMessage::BitMessage(Allocator& allocator) : 
-	w_data(NULL), 
-	r_data(NULL), 
-	max_size(0), 
-	cur_size(0), 
-	write_bit(0), 
-	read_count(0), 
-	read_bit(0),
+	m_data(NULL),
+	m_write(NULL), 
+	m_read(NULL), 
+	m_max_size(0), 
+	m_cur_size(0), 
+	m_write_bit(0), 
+	m_read_count(0), 
+	m_read_bit(0),
 	m_allocator(&allocator)
 {
 }
@@ -23,18 +24,10 @@ BitMessage::BitMessage(Allocator& allocator) :
 //---------------------------------------------------------------------------------------------
 
 BitMessage::~BitMessage()
-{/*
-  if (w_data)
+{
+  if (m_data)
   {
-		m_allocator->deallocate((void*)w_data);
-  }
-  */
-  /*
-   * w_data and r_data point the same memory location 
-   */
-  if (r_data)
-  {
-		m_allocator->deallocate((void*)r_data);
+		m_allocator->deallocate((void*)m_data);
   }
 }
 //---------------------------------------------------------------------------------------------
@@ -43,9 +36,9 @@ uint8_t* BitMessage::get_byte_space(int32_t len)
 {
 	uint8_t *ptr;
 
-	if (!w_data) 
+	if (!m_write) 
 	{
-		printf( "idBitMsg::GetByteSpace: cannot write to message" );
+		printf("cannot write to message");
 	}
 
 	// round up to the next byte
@@ -55,8 +48,8 @@ uint8_t* BitMessage::get_byte_space(int32_t len)
 	check_overflow(len << 3);
 
 	// allocate space
-	ptr = w_data + cur_size;
-	cur_size += len;
+	ptr = m_write + m_cur_size;
+	m_cur_size += len;
 	
 	return ptr;  
 }
@@ -69,13 +62,13 @@ bool BitMessage::check_overflow(int32_t num_bits)
 	
 	if (num_bits > get_remaining_write_bits()) 
 	{
-		if (num_bits > (max_size << 3)) 
+		if (num_bits > (m_max_size << 3)) 
 		{
 			printf(" %i bits is > full message size", num_bits );
 		}
 		printf("overflow\n");
 		begin_writing();
-		overflowed = true;
+		m_overflowed = true;
 		return true;
 	}
 	return false;  
@@ -83,72 +76,61 @@ bool BitMessage::check_overflow(int32_t num_bits)
 
 //---------------------------------------------------------------------------------------------
 
-void BitMessage::init_in_w(int32_t len)
+void BitMessage::init(int32_t len)
 {
-	uint8_t* data = (uint8_t*)m_allocator->allocate(len);
+	m_data = (uint8_t*)m_allocator->allocate(len);
 	
-	w_data = data;
-	r_data = data;
-	max_size = len;
-}
-
-//---------------------------------------------------------------------------------------------
-
-void BitMessage::init_in_r(int32_t len)
-{
-  	const uint8_t* data = (const uint8_t*)m_allocator->allocate(len);
-
-	w_data = NULL;
-	r_data = data;
-	max_size = len;
+	m_write = m_data;
+	m_read = m_data;
+	m_max_size = len;
 }
 
 //---------------------------------------------------------------------------------------------
 
 uint8_t* BitMessage::get_data()
 {
-	return w_data;
+	return m_write;
 }
 
 //---------------------------------------------------------------------------------------------
 
 const uint8_t* BitMessage::get_data() const
 {
-	return r_data;
+	return m_read;
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t BitMessage::get_max_size() const
+size_t BitMessage::get_max_size() const
 {
-	return max_size;
+	return m_max_size;
 }
 
 //---------------------------------------------------------------------------------------------
 
 bool BitMessage::is_overflowed()
 {
-	return overflowed;
+	return m_overflowed;
 }
 
 //---------------------------------------------------------------------------------------------
 
-int32_t BitMessage::get_size() const
+size_t BitMessage::get_size() const
 {
-	return cur_size;
+	return m_cur_size;
 }
 
 //---------------------------------------------------------------------------------------------
 
-void BitMessage::set_size(int32_t size)
+void BitMessage::set_size(size_t size)
 {
-	if (size > max_size)
+	if (size > m_max_size)
 	{
-		cur_size = max_size;
+		m_cur_size = m_max_size;
 	}
 	else
 	{
-		cur_size = size;
+		m_cur_size = size;
 	}
 }
 
@@ -156,17 +138,17 @@ void BitMessage::set_size(int32_t size)
 
 int32_t BitMessage::get_write_bit() const
 {
-	return write_bit;
+	return m_write_bit;
 }
 
 //---------------------------------------------------------------------------------------------
 
 void BitMessage::set_write_bit(int32_t bit)
 {
-	write_bit = bit & 7;
-	if (write_bit) 
+	m_write_bit = bit & 7;
+	if (m_write_bit) 
 	{
-		w_data[cur_size-1] &= (1 << write_bit) - 1;
+		m_write[m_cur_size-1] &= (1 << m_write_bit) - 1;
 	}
 }
 
@@ -174,34 +156,34 @@ void BitMessage::set_write_bit(int32_t bit)
 
 int32_t BitMessage::get_num_bits_written() const
 {
-	return ((cur_size << 3) - ((8 - write_bit) & 7));  
+	return ((m_cur_size << 3) - ((8 - m_write_bit) & 7));  
 }
 
 //---------------------------------------------------------------------------------------------
 
 int32_t BitMessage::get_remaining_write_bits() const
 {
-	return (max_size << 3) - get_num_bits_written(); 
+	return (m_max_size << 3) - get_num_bits_written(); 
 }
 
 //---------------------------------------------------------------------------------------------
 
 void BitMessage::save_write_state(int32_t& s,int32_t& b) const
 {
-	s = cur_size;
-	b = write_bit;
+	s = m_cur_size;
+	b = m_write_bit;
 }
 
 //---------------------------------------------------------------------------------------------
 
 void BitMessage::restore_write_state(int32_t s,int32_t b)
 {
-	cur_size = s;
-	write_bit = b & 7;
+	m_cur_size = s;
+	m_write_bit = b & 7;
 	
-	if (write_bit) 
+	if (m_write_bit) 
 	{
-		w_data[cur_size-1] &= (1 << write_bit) - 1;
+		m_write[m_cur_size-1] &= (1 << m_write_bit) - 1;
 	}  
 }
 
@@ -209,81 +191,81 @@ void BitMessage::restore_write_state(int32_t s,int32_t b)
 
 int32_t BitMessage::get_read_count() const
 {
-	return read_count;
+	return m_read_count;
 }
 
 //---------------------------------------------------------------------------------------------
 
 void BitMessage::set_read_count(int32_t bytes)
 {
-	read_count = bytes;
+	m_read_count = bytes;
 }
 
 //---------------------------------------------------------------------------------------------
 
 int32_t BitMessage::get_read_bit() const
 {
-	return read_bit;
+	return m_read_bit;
 }
 
 //---------------------------------------------------------------------------------------------
 
 void BitMessage::set_read_bit(int32_t bit)
 {
-	read_bit = bit & 7;
+	m_read_bit = bit & 7;
 }
 
 //---------------------------------------------------------------------------------------------
 
 int32_t BitMessage::get_num_bits_read() const
 {
-	return ((read_count << 3) - ((8 - read_bit) & 7));  
+	return ((m_read_count << 3) - ((8 - m_read_bit) & 7));  
 }
 
 //---------------------------------------------------------------------------------------------
 
 int32_t BitMessage::get_remaining_read_bits() const
 {
-	return (cur_size << 3) - get_num_bits_read();
+	return (m_cur_size << 3) - get_num_bits_read();
 }
 
 //---------------------------------------------------------------------------------------------
 
 void BitMessage::save_read_state(int32_t& c, int32_t& b) const
 {
-	c = read_count;
-	b = read_bit;
+	c = m_read_count;
+	b = m_read_bit;
 }
 
 //---------------------------------------------------------------------------------------------
 
 void BitMessage::restore_read_state(int32_t c, int32_t b)
 {
-	read_count = c;
-	read_bit = b & 7;
+	m_read_count = c;
+	m_read_bit = b & 7;
 }
 
 //---------------------------------------------------------------------------------------------
 
 void BitMessage::begin_writing()
 {
-	cur_size = 0;
-	write_bit = 0;
-	overflowed = false;
+	m_cur_size = 0;
+	m_write_bit = 0;
+	m_overflowed = false;
 }
 
 //---------------------------------------------------------------------------------------------
 
 int32_t BitMessage::get_remaining_space() const
 {
-	return max_size - cur_size;
+	return m_max_size - m_cur_size;
 }
 
 //---------------------------------------------------------------------------------------------
 
 void BitMessage::write_byte_align()
 {
-	write_bit = 0;
+	m_write_bit = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -293,8 +275,8 @@ void BitMessage::write_bits(int32_t value, int32_t num_bits)
 	int32_t		put;
 	int32_t		fraction;
 
-	// check if w_data is void
-	if (!w_data) 
+	// check if m_write is void
+	if (!m_write) 
 	{
 		printf( "cannot write to message" );
 	}
@@ -348,23 +330,23 @@ void BitMessage::write_bits(int32_t value, int32_t num_bits)
 	// write the bits
 	while(num_bits) 
 	{
-		if (write_bit == 0) 
+		if (m_write_bit == 0) 
 		{
-			w_data[cur_size] = 0;
-			cur_size++;
+			m_write[m_cur_size] = 0;
+			m_cur_size++;
 		}
 		
-		put = 8 - write_bit;
+		put = 8 - m_write_bit;
 		if (put > num_bits) 
 		{
 			put = num_bits;
 		}
 		
 		fraction = value & ((1 << put) - 1);
-		w_data[cur_size - 1] |= fraction << write_bit;
+		m_write[m_cur_size - 1] |= fraction << m_write_bit;
 		num_bits -= put;
 		value >>= put;
-		write_bit = (write_bit + put) & 7;
+		m_write_bit = (m_write_bit + put) & 7;
 	}
 }
 
@@ -492,22 +474,22 @@ void BitMessage::write_ipv4addr(const os::NetAddress addr)
 
 void BitMessage::begin_reading() const
 {
-	read_count = 0;
-	read_bit = 0;
+	m_read_count = 0;
+	m_read_bit = 0;
 }
 
 //---------------------------------------------------------------------------------------------
 
 int32_t BitMessage::get_remaing_data() const
 {
-	cur_size - read_count;
+	m_cur_size - m_read_count;
 }
 
 //---------------------------------------------------------------------------------------------
 
 void BitMessage::read_byte_align() const
 {
-	read_bit = 0;
+	m_read_bit = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -520,7 +502,7 @@ int32_t BitMessage::read_bits(int32_t num_bits) const
 	int32_t		fraction;
 	bool		sgn;
 
-	if (!r_data) 
+	if (!m_read) 
 	{
 		printf("cannot read from message");
 	}
@@ -553,25 +535,25 @@ int32_t BitMessage::read_bits(int32_t num_bits) const
 
 	while (value_bits < num_bits) 
 	{
-		if (read_bit == 0) 
+		if (m_read_bit == 0) 
 		{
-			read_count++;
+			m_read_count++;
 		}
 		
-		get = 8 - read_bit;
+		get = 8 - m_read_bit;
 		
 		if (get > (num_bits - value_bits)) 
 		{
 			get = num_bits - value_bits;
 		}
 		
-		fraction = r_data[read_count - 1];
-		fraction >>= read_bit;
+		fraction = m_read[m_read_count - 1];
+		fraction >>= m_read_bit;
 		fraction &= (1 << get) - 1;
 		value |= fraction << value_bits;
 
 		value_bits += get;
-		read_bit = (read_bit + get) & 7;
+		m_read_bit = (m_read_bit + get) & 7;
 	}
 
 	if (sgn) 
@@ -687,26 +669,26 @@ int32_t BitMessage::read_data(void* data, int32_t length) const
 
 	read_byte_align();
 	
-	count = read_count;
+	count = m_read_count;
 
-	if (read_count + length > cur_size) 
+	if (m_read_count + length > m_cur_size) 
 	{
 		if (data) 
 		{
-			memcpy(data, r_data + read_count, get_remaing_data());
+			memcpy(data, m_read + m_read_count, get_remaing_data());
 		}
-		read_count = cur_size;
+		m_read_count = m_cur_size;
 	} 
 	else 
 	{
 		if (data) 
 		{
-			memcpy(data, r_data + read_count, length);
+			memcpy(data, m_read + m_read_count, length);
 		}
-		read_count += length;
+		m_read_count += length;
 	}
 
-	return (read_count - count);  
+	return (m_read_count - count);  
 }
 
 //---------------------------------------------------------------------------------------------
@@ -721,8 +703,6 @@ void BitMessage::read_ipv4addr(os::NetAddress* addr) const
 	
 	addr->port = read_uint16();  
 }
-
-//---------------------------------------------------------------------------------------------
 
 }	//namespace network
 }	//namespace crown
