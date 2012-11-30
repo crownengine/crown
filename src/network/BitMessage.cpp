@@ -8,16 +8,18 @@ namespace crown
 namespace network
 {
   
-BitMessage::BitMessage(Allocator& allocator) : 
+BitMessage::BitMessage(Allocator& allocator) :
+	m_allocator(&allocator),
+	m_header(NULL),
 	m_data(NULL),
 	m_write(NULL), 
 	m_read(NULL), 
 	m_max_size(0), 
 	m_cur_size(0), 
+	m_read_count(0),
 	m_write_bit(0), 
-	m_read_count(0), 
 	m_read_bit(0),
-	m_allocator(&allocator)
+	m_overflowed(false)
 {
 }
 
@@ -461,7 +463,7 @@ void BitMessage::write_data(const void* data, int32_t length)
 
 //---------------------------------------------------------------------------------------------
 
-void BitMessage::write_ipv4addr(const os::NetAddress addr)
+void BitMessage::write_netaddr(const os::NetAddress addr)
 {
 	uint8_t* ptr;
 	
@@ -692,8 +694,7 @@ int32_t BitMessage::read_data(void* data, int32_t length) const
 }
 
 //---------------------------------------------------------------------------------------------
-
-void BitMessage::read_ipv4addr(os::NetAddress* addr) const
+void BitMessage::read_netaddr(os::NetAddress* addr) const
 {
 
 	for (int i = 0; i < 4; i++) 
@@ -703,6 +704,33 @@ void BitMessage::read_ipv4addr(os::NetAddress* addr) const
 	
 	addr->port = read_uint16();  
 }
+
+//---------------------------------------------------------------------------------------------
+void BitMessage::write_header(Header& header)
+{
+	// write header only on top of BitMessage
+	if (m_cur_size == 0)
+	{
+		write_int32(header.protocol_id);
+		write_uint16(header.sequence);
+		write_uint16(header.ack);
+		write_int32(header.ack_bits);
+		write_uint16(header.size);
+	}
+}
+
+//---------------------------------------------------------------------------------------------
+size_t BitMessage::read_header(Header& header)
+{
+	header.protocol_id = read_int32();
+	header.sequence = read_uint16();
+	header.ack = read_uint16();
+	header.ack_bits = read_int32();
+	header.size = (size_t)read_uint16();
+}
+
+
+
 
 }	//namespace network
 }	//namespace crown
