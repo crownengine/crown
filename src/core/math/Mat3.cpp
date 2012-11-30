@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mat4.h"
 #include "MathUtils.h"
 #include "Quat.h"
-#include "Str.h"
 #include "Vec3.h"
 
 namespace crown
@@ -605,18 +604,6 @@ Quat Mat3::to_quat() const
 			tmp.v.y = (-m[7] - m[5]) * mult;
 			break;
 	}
-
-	return tmp;
-}
-
-//-----------------------------------------------------------------------------
-Str Mat3::to_str() const
-{
-	Str tmp;
-
-	tmp = Str("[ ") + m[0] + Str(" ") + m[3] + Str(" ") + m[6] + Str(" ]\n");
-	tmp += Str("| ") + m[1] + Str(" ") + m[4] + Str(" ") + m[7] + Str(" |\n");
-	tmp += Str("[ ") + m[2] + Str(" ") + m[5] + Str(" ") + m[8] + Str(" ]\n");
 
 	return tmp;
 }

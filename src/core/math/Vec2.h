@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cassert>
 #include "Types.h"
 #include "MathUtils.h"
-#include "Str.h"
 
 namespace crown
 {
@@ -67,8 +66,8 @@ public:
 	bool				operator<(const Vec2& other) const;		//!< Returns whether all the components of this vector are smaller than all of the "other" vector
 	bool				operator>(const Vec2& other) const;		//!< Returns whether all the components of this vector are greater than all of the "other" vector
 
-	real				length() const;						//!< Returns the vector's length
-	real				squared_length() const;				//!< Returns the vector's squared length
+	real				length() const;							//!< Returns the vector's length
+	real				squared_length() const;					//!< Returns the vector's squared length
 	void				set_length(real len);					//!< Sets the vector's length
 	real				get_angle() const;
 	real				get_angle_2d() const;
@@ -77,14 +76,13 @@ public:
 	Vec2&				negate();								//!< Negates the vector (i.e. builds the inverse)
 	Vec2				operator-() const;						//!< Negates the vector (i.e. builds the inverse)
 
-	real				get_distance_to(const Vec2& a) const;		//!< Returns the distance
+	real				get_distance_to(const Vec2& a) const;	//!< Returns the distance
 	real				get_angle_between(const Vec2& a) const;	//!< Returns the angle in radians
 
 	void				zero();									//!< Builds the zero vector
 
 	real*				to_float_ptr();							//!< Returns the point32_ter to the vector's data
-	const real*			to_float_ptr() const;						//!< Returns the point32_ter to the vector's data
-	Str					to_str() const;							//!< Returns a Str containing the vector's components
+	const real*			to_float_ptr() const;					//!< Returns the point32_ter to the vector's data
 
 	static const Vec2	ZERO;
 	static const Vec2	ONE;
@@ -337,16 +335,6 @@ inline real* Vec2::to_float_ptr()
 inline const real* Vec2::to_float_ptr() const
 {
 	return &x;
-}
-
-//-----------------------------------------------------------------------------
-inline Str Vec2::to_str() const
-{
-	Str tmp;
-
-	tmp = Str("[ x: ") + x + Str(" y: ") + y + Str(" ]\n");
-
-	return tmp;
 }
 
 //-----------------------------------------------------------------------------

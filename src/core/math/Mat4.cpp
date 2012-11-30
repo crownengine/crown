@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mat4.h"
 #include "MathUtils.h"
 #include "Quat.h"
-#include "Str.h"
 #include "Vec3.h"
 #include "Vec4.h"
 
@@ -1041,19 +1040,6 @@ Quat Mat4::to_quat() const
 			tmp.v.y = (-m[9] - m[6]) * mult;
 			break;
 	}
-
-	return tmp;
-}
-
-//-----------------------------------------------------------------------------
-Str Mat4::to_str() const
-{
-	Str tmp;
-
-	tmp = Str("[ ") + m[0] + Str(" ") + m[4] + Str(" ") + m[8] + Str(" ") + m[12] + Str(" ]\n");
-	tmp += Str("| ") + m[1] + Str(" ") + m[5] + Str(" ") + m[9] + Str(" ") + m[13] + Str(" |\n");
-	tmp += Str("| ") + m[2] + Str(" ") + m[6] + Str(" ") + m[10] + Str(" ") + m[14] + Str(" |\n");
-	tmp += Str("[ ") + m[3] + Str(" ") + m[7] + Str(" ") + m[11] + Str(" ") + m[15] + Str(" ]\n");
 
 	return tmp;
 }

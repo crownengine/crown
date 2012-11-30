@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "MathUtils.h"
-#include "Str.h"
 
 namespace crown
 {
@@ -82,7 +81,6 @@ public:
 
 	float*					to_float_ptr();								//!< Returns the point32_ter to the color's data.
 	const float*			to_float_ptr() const;							//!< Returns the point32_ter to the color's data.
-	Str						to_str() const;								//!< Returns a Str containing the colors' components.
 
 	// SVG 1.0 color names
 	static const Color4		ALICEBLUE;
@@ -313,16 +311,6 @@ inline float* Color4::to_float_ptr()
 inline const float* Color4::to_float_ptr() const
 {
 	return &r;
-}
-
-//-----------------------------------------------------------------------------
-inline Str Color4::to_str() const
-{
-	Str tmp;
-
-	tmp = Str("[ r: ") + r + Str(" g: ") + g + Str(" b: ") + b + Str(" a: ") + a + Str(" ]\n");
-
-	return tmp;
 }
 
 //-----------------------------------------------------------------------------

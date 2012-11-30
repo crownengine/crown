@@ -37,11 +37,11 @@ class Random
 {
 public:
 
-			Random(int32_t seed);	//!< Constructor
+				Random(int32_t seed);	//!< Constructor
 
 	int32_t		get_int32_t();			//!< Returns a pseudo-random int32_teger in the range [0, 32767]
 	int32_t		get_int32_t(int32_t max);	//!< Returns a pseudo-random int32_teger in the range [0, max)
-	float	get_unit_float();	//!< Returns a pseudo-random float in the range [0.0, 1.0].
+	float		get_unit_float();	//!< Returns a pseudo-random float in the range [0.0, 1.0].
 
 private:
 

@@ -72,8 +72,6 @@ public:
 	Quat		operator*(const real& k) const;		//!< Multiplication by a scalar
 
 	Quat		power(real exp);
-
-	Str			to_str() const;						//!< Returns a Str containing the quaternion's components
 };
 
 } // namespace crown

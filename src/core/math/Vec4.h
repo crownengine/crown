@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cassert>
 #include "Types.h"
 #include "MathUtils.h"
-#include "Str.h"
 
 namespace crown
 {
@@ -83,8 +82,7 @@ public:
 	void				zero();										//!< Builds the zero vector
 
 	real*				to_float_ptr();								//!< Returns the point32_ter to the vector's data
-	const real*			to_float_ptr() const;							//!< Returns the point32_ter to the vector's data
-	Str					to_str() const;								//!< Returns a Str containing the vector's components
+	const real*			to_float_ptr() const;						//!< Returns the point32_ter to the vector's data
 
 	static const Vec4	ZERO;
 	static const Vec4	ONE;
@@ -340,16 +338,6 @@ inline real* Vec4::to_float_ptr()
 inline const real* Vec4::to_float_ptr() const
 {
 	return &x;
-}
-
-//-----------------------------------------------------------------------------
-inline Str Vec4::to_str() const
-{
-	Str tmp;
-
-	tmp = Str("[ x: ") + x + Str(" y: ") + y + Str(" z: ") + z + Str(" w: ") + w + Str(" ]\n");
-
-	return tmp;
 }
 
 } // namespace crown

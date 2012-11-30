@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cassert>
 #include "Types.h"
 #include "MathUtils.h"
-#include "Str.h"
 #include "Vec2.h"
 #include "Vec3.h"
 
@@ -45,23 +44,23 @@ public:
 	int32_t						x, y;
 
 							Point2();							//!< Constructor, does nothing for efficiency
-							Point2(int32_t nx, int32_t ny);				//! Constructs from two components
-							Point2(const int32_t a[2]);				//! Constructs from the array
+							Point2(int32_t nx, int32_t ny);		//! Constructs from two components
+							Point2(const int32_t a[2]);			//! Constructs from the array
 							Point2(const Point2& a);			//! Copy constructor
 							~Point2();							//! Destructor
 
-	int32_t					operator[](uint32_t i) const;			//! Random access by index
-	int32_t&				operator[](uint32_t i);					//! Random access by index
+	int32_t					operator[](uint32_t i) const;		//! Random access by index
+	int32_t&				operator[](uint32_t i);				//! Random access by index
 
 	Point2					operator+(const Point2& a) const;	//! Addition
 	Point2&					operator+=(const Point2& a);		//! Addition
 	Point2					operator-(const Point2& a) const;	//! Subtraction
 	Point2&					operator-=(const Point2& a);		//! Subtraction
-	Point2					operator*(int32_t k) const;				//! Multiplication by scalar
-	Point2&					operator*=(int32_t k);					//! Multiplication by scalar
-	Point2					operator/(int32_t k) const;				//! Division by scalar
-	Point2&					operator/=(int32_t k);					//! Division by scalar
-	int32_t						dot(const Point2& a);				//! dot product
+	Point2					operator*(int32_t k) const;			//! Multiplication by scalar
+	Point2&					operator*=(int32_t k);				//! Multiplication by scalar
+	Point2					operator/(int32_t k) const;			//! Division by scalar
+	Point2&					operator/=(int32_t k);				//! Division by scalar
+	int32_t					dot(const Point2& a);				//! dot product
 
 	friend Point2			operator*(int32_t k, const Point2& a);	//! For simmetry
 
@@ -81,11 +80,10 @@ public:
 
 	void					zero();								//! Builds the zero point32_t
 
-	int32_t*				to_int32_t_ptr();		//! Returns the point32_ter to the point32_t's data
-	const int32_t*			to_int32_t_ptr() const;	//! Returns the point32_ter to the point32_t's data
-	Vec2					to_vec2() const;	//! Returns a vector from this point32_t
-	Vec3					to_vec3() const;	//! Returns a vector from this point32_t
-	Str						to_str() const;		//! Returns a Str containing the point32_t's components
+	int32_t*				to_int_ptr();						//! Returns the point32_ter to the point32_t's data
+	const int32_t*			to_int_ptr() const;					//! Returns the point32_ter to the point32_t's data
+	Vec2					to_vec2() const;					//! Returns a vector from this point32_t
+	Vec3					to_vec3() const;					//! Returns a vector from this point32_t
 
 	static const Point2		ZERO;
 	static const Point2		ONE;
@@ -279,13 +277,13 @@ inline void Point2::zero()
 }
 
 //-----------------------------------------------------------------------------
-inline int32_t* Point2::to_int32_t_ptr()
+inline int32_t* Point2::to_int_ptr()
 {
 	return &x;
 }
 
 //-----------------------------------------------------------------------------
-inline const int32_t* Point2::to_int32_t_ptr() const
+inline const int32_t* Point2::to_int_ptr() const
 {
 	return &x;
 }
@@ -300,16 +298,6 @@ inline Vec2 Point2::to_vec2() const
 inline Vec3 Point2::to_vec3() const
 {
 	return Vec3((real)x, (real)y, 0.0);
-}
-
-//-----------------------------------------------------------------------------
-inline Str Point2::to_str() const
-{
-	Str tmp;
-
-	tmp = Str("[ x: ") + x + Str(" y: ") + y + Str(" ]\n");
-
-	return tmp;
 }
 
 } // namespace crown

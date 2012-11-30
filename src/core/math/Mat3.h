@@ -32,7 +32,6 @@ namespace crown
 
 class Mat4;
 class Quat;
-class Str;
 class Vec3;
 
 /**
@@ -110,7 +109,6 @@ public:
 
 	real*				to_float_ptr();								//!< Returns the point32_ter to the matrix's data
 	const real*			to_float_ptr() const;						//!< Returns the point32_ter to the matrix's data
-	Str					to_str() const;								//!< Returns a Str containing the matrix's components
 	Mat4				to_mat4() const;							//!< Returns a 4x4 matrix according to the matrix's rotation portion
 	Quat				to_quat() const;							//!< Returns a quaternion according to the matrix's rotation portion
 

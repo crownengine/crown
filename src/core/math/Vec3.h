@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cassert>
 #include "Types.h"
 #include "MathUtils.h"
-#include "Str.h"
 #include "Vec2.h"
 
 namespace crown
@@ -87,7 +86,6 @@ public:
 	real*				to_float_ptr();							//!< Returns the point32_ter to the vector's data
 	const real*			to_float_ptr() const;					//!< Returns the point32_ter to the vector's data
 	Vec2				to_vec2() const;						//!< Returns a Vec2 with only x and y coordinates
-	Str					to_str() const;							//!< Returns a Str containing the vector's components
 
 	static const Vec3	ZERO;
 	static const Vec3	ONE;
@@ -357,16 +355,6 @@ inline const real* Vec3::to_float_ptr() const
 inline Vec2 Vec3::to_vec2() const
 {
 	return Vec2(x, y);
-}
-
-//-----------------------------------------------------------------------------
-inline Str Vec3::to_str() const
-{
-	Str tmp;
-
-	tmp = Str("[ x: ") + x + Str(" y: ") + y + Str(" z: ") + z + Str(" ]\n");
-
-	return tmp;
 }
 
 //-----------------------------------------------------------------------------
