@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "Renderer.h"
 #include "Types.h"
+#include "String.h"
 #include <cstdlib>
 
 namespace crown
@@ -45,12 +46,12 @@ Device::Device() :
 	mPreferredWindowWidth(1000),
 	mPreferredWindowHeight(625),
 	mPreferredWindowFullscreen(false),
-	mPreferredRootPath(Str::EMPTY),
-	mPreferredUserPath(Str::EMPTY),
 	mIsInit(false),
 	mIsRunning(false),
 	mRenderer(NULL)
 {
+	string::strcpy(mPreferredRootPath, string::EMPTY);
+	string::strcpy(mPreferredUserPath, string::EMPTY);
 }
 
 //-----------------------------------------------------------------------------
@@ -76,7 +77,7 @@ bool Device::Init(int argc, char** argv)
 	}
 
 	// Sets the root path
-	GetFilesystem()->Init(mPreferredRootPath.c_str(), mPreferredUserPath.c_str());
+	// GetFilesystem()->Init(mPreferredRootPath.c_str(), mPreferredUserPath.c_str());
 
 	// Creates the main window
 	if (!os::create_render_window(0, 0, mPreferredWindowWidth, mPreferredWindowHeight, mPreferredWindowFullscreen))
@@ -183,7 +184,7 @@ void Device::Frame()
 //-----------------------------------------------------------------------------
 bool Device::ParseCommandLine(int argc, char** argv)
 {
-	if (argc == 2 && Str::StrCmp(argv[1], "-help") == 0)
+	if (argc == 2 && string::strcmp(argv[1], "-help") == 0)
 	{
 		os::printf("Usage: %s [options]\n", argv[0]);
 		os::printf("Options:\n\n");
@@ -202,31 +203,31 @@ bool Device::ParseCommandLine(int argc, char** argv)
 	int32_t i = 1;
 	while (i < argc)
 	{
-		if (Str::StrCmp(argv[i], "-root-path") == 0)
+		if (string::strcmp(argv[i], "-root-path") == 0)
 		{
 			if (argc < i + 2)
 			{
 				os::printf("%s: error: missing absolute path after `-root-path`\n", argv[0]);
 				return false;
 			}
-			mPreferredRootPath = argv[i + 1];
+			string::strcpy(mPreferredRootPath, argv[i + 1]);
 			// Two arguments crunched
 			i += 2;
 			continue;
 		}
-		if (Str::StrCmp(argv[i], "-user-path") == 0)
+		if (string::strcmp(argv[i], "-user-path") == 0)
 		{
 			if (argc < i + 2)
 			{
 				os::printf("%s: error: missing absolute path after `-user-path`\n", argv[0]);
 				return false;
 			}
-			mPreferredUserPath = argv[i + 1];
+			string::strcpy(mPreferredUserPath, argv[i + 1]);
 			// Two arguments crunched
 			i += 2;
 			continue;
 		}
-		if (Str::StrCmp(argv[i], "-metrics") == 0)
+		if (string::strcmp(argv[i], "-metrics") == 0)
 		{
 			if (argc < i + 3)
 			{
@@ -239,7 +240,7 @@ bool Device::ParseCommandLine(int argc, char** argv)
 			i += 3;
 			continue;
 		}
-		if (Str::StrCmp(argv[i], "-fullscreen") == 0)
+		if (string::strcmp(argv[i], "-fullscreen") == 0)
 		{
 			mPreferredWindowFullscreen = true;
 			// One argument crunched

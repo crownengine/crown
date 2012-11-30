@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Config.h"
-#include "Str.h"
 
 namespace crown
 {
@@ -68,8 +67,8 @@ private:
 	int32_t					mPreferredWindowWidth;
 	int32_t					mPreferredWindowHeight;
 	bool					mPreferredWindowFullscreen;
-	Str						mPreferredRootPath;
-	Str						mPreferredUserPath;
+	char					mPreferredRootPath[512];
+	char					mPreferredUserPath[512];
 
 	bool					mIsInit		: 1;
 	bool					mIsRunning	: 1;

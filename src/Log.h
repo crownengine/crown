@@ -25,7 +25,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Str.h"
+#include <cstdio>
+#include "Types.h"
 
 namespace crown
 {
@@ -62,7 +63,7 @@ public:
 private:
 
 	static LogLevel		mThreshold;
-	static int32_t			mIndentCount;
+	static int32_t		mIndentCount;
 };
 
 } // namespace crown

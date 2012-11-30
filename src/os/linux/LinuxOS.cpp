@@ -24,6 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "OS.h"
+#include "String.h"
 #include <cstdio>
 #include <cstdarg>
 #include <sys/stat.h>
@@ -146,7 +147,7 @@ const char* get_cwd()
 	static char cwdBuf[MAX_PATH_LENGTH];
 	if (getcwd(cwdBuf, MAX_PATH_LENGTH) == NULL)
 	{
-		return Str::EMPTY;
+		return string::EMPTY;
 	}
 
 	return cwdBuf;
@@ -160,7 +161,7 @@ const char* get_home()
 
 	if (envHome == NULL)
 	{
-		return Str::EMPTY;
+		return string::EMPTY;
 	}
 
 	return envHome;
@@ -174,34 +175,34 @@ const char* get_env(const char* env)
 
 	if (envDevel == NULL)
 	{
-		return Str::EMPTY;
+		return string::EMPTY;
 	}
 
 	return envDevel;
 }
 
-//-----------------------------------------------------------------------------
-bool ls(const char* path, List<Str>& fileList)
-{
-	DIR *dir;
-	struct dirent *ent;
+////-----------------------------------------------------------------------------
+//bool ls(const char* path, List<Str>& fileList)
+//{
+//	DIR *dir;
+//	struct dirent *ent;
 
-	dir = opendir(path);
+//	dir = opendir(path);
 
-	if (dir == NULL)
-	{
-		return false;
-	}
+//	if (dir == NULL)
+//	{
+//		return false;
+//	}
 
-	while ((ent = readdir (dir)) != NULL)
-	{
-		fileList.push_back(Str(ent->d_name));
-	}
+//	while ((ent = readdir (dir)) != NULL)
+//	{
+//		fileList.push_back(Str(ent->d_name));
+//	}
 
-	closedir (dir);
+//	closedir (dir);
 
-	return true;
-}
+//	return true;
+//}
 
 //-----------------------------------------------------------------------------
 void init_os()
