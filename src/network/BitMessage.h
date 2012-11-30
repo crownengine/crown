@@ -48,7 +48,7 @@ public:
 						BitMessage(Allocator& allocator);
 						~BitMessage();
 
-	void				init(int32_t len);
+	void				init(int32_t len);								// init with data length in byte
 	uint8_t*			get_data();										// get data for writing
 	const uint8_t*		get_data() const;								// get data for reading
 	size_t				get_max_size() const;							// get the maximum message size
@@ -86,6 +86,8 @@ public:
 	void				write_string(const char* s, int32_t max_len = -1, bool make_7_bit = true);
 	void				write_data(const void* data, int32_t length);
 	void				write_netaddr(const os::NetAddress addr);
+	void				write_header(Header& header);
+
 						// read state utilities
 	void				begin_reading() const;							// begin reading.
 	int32_t				get_remaing_data() const;						// number of bytes left to read
@@ -100,9 +102,7 @@ public:
 	Vec3				read_vec3() const;
 	int32_t				read_string(char* buffer, int32_t buffer_size) const;
 	int32_t				read_data(void* data, int32_t length) const;
-	void				read_netaddr(os::NetAddress* addr) const;	
-						// header utilities
-	void				write_header(Header& header);
+	void				read_netaddr(os::NetAddress* addr) const;
 	size_t				read_header(Header& header);
 
 private:
@@ -114,7 +114,7 @@ private:
 	
 	Allocator*			m_allocator;								// memory allocator
 
-	Header*				m_header;
+	Header*				m_header;									// message header abstraction 
 	
 	uint8_t*			m_data;
 	uint8_t*			m_write;									// pointer to data for writing

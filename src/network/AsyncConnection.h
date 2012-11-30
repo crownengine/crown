@@ -50,7 +50,7 @@ public:
 	void							clear_reliable_messages();
 									// Update AsyncConnection
 	void 							update(real delta);
-									// Returns true if the channel is ready to send new data based on the maximum rate.
+									// Returns true if the connection is ready to send new data based on the maximum rate.
 	bool							ready_to_send(const int32_t time) const;
 									// Processes the incoming message.
 	bool							process(const os::NetAddress from, int32_t time, BitMessage &msg, int32_t &sequence);
@@ -59,11 +59,11 @@ private:
 
 									 // methods which provides a reliability system
 	void 							_packet_sent(size_t size);
-	void 							_packet_received(uint32_t sequence, size_t size);
-	void 							_process_ack(uint32_t ack, uint32_t ack_bits);
-	bool							_sequence_more_recent(uint32_t s1, uint32_t s2);
-	uint32_t						_bit_index_for_sequence(uint32_t seq, uint32_t ack);
-	uint32_t						_generate_ack_bits(uint32_t ack);
+	void 							_packet_received(uint16_t sequence, size_t size);
+	void 							_process_ack(uint16_t ack, int32_t ack_bits);
+	bool							_sequence_more_recent(uint16_t s1, uint16_t s2);
+	int32_t							_bit_index_for_sequence(uint16_t seq, uint16_t ack);
+	int32_t							_generate_ack_bits(uint16_t ack);
 	void							_update_outgoing_rate(const uint32_t time, const size_t size);
 	void							_update_incoming_rate(const uint32_t time, const size_t size);
 	void							_update_packet_loss(const uint32_t time, const uint32_t num_recv, const uint32_t num_dropped);

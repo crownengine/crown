@@ -154,7 +154,7 @@ void test_int32()
 	int32_t res;
 	
 	m.init(4);
-	m.write_int32(4000000);
+	m.write_int32(4000000000);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
 	
@@ -333,11 +333,11 @@ void test_net_address()
 	addr.set(192, 168, 0, 1, 80);
 	
 	m.init(16);
-	m.write_ipv4addr(addr);
+	m.write_netaddr(addr);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();	
 	
-	m.read_ipv4addr(&res);
+	m.read_netaddr(&res);
 	bits_read = m.get_num_bits_read();
 	rem_read_bits = m.get_remaining_read_bits();
 	

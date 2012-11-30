@@ -38,7 +38,7 @@ void AsyncConnection::init(const os::NetAddress addr, const int id)
 	m_remote_sequence = 0;
 	m_local_sequence = 0;
 	m_max_sequence = 0xFFFFFFFF;
-	m_max_rtt = 1;	//in seconds
+	m_max_rtt = 1000;	//in milliseconds
 	m_rtt = 0;		
 	m_last_send_time = 0;
 	m_last_data_bytes = 0;
@@ -104,14 +104,26 @@ float AsyncConnection::get_incoming_packet_loss() const
 void AsyncConnection::send_message(BitMessage& msg, const uint32_t time)
 {
 	m_socket.send(m_remote_address, msg.get_data(), msg.get_size());
-	//TODO
+	_packet_sent(msg.get_size());
 }
 
 //-----------------------------------------------------------------------------
 bool AsyncConnection::receive_message(BitMessage& msg, const uint32_t time)
 {
-	m_socket.receive(m_remote_address, msg.get_data(), msg.get_size());
-	//TODO
+	size_t size;
+	
+	m_socket.receive(m_remote_address, msg.get_data(), size);
+	msg.set_size(size);
+	msg.begin_reading();
+
+	//TODO: check return value of receive
+	BitMessage::Header header;
+
+	msg.read_int32();	// read protocol id
+	header.sequence = msg.read_int32();	// read sequence
+	msg.read_int32();// read ack
+	msg.read_int32();// read ack_bits
+	header.size = msg.read_uint16();// read size
 }
 
 //-----------------------------------------------------------------------------
@@ -195,7 +207,7 @@ void AsyncConnection::_packet_sent(size_t size)
 }
 
 //-----------------------------------------------------------------------------
-void AsyncConnection::_packet_received(uint32_t sequence, size_t size)
+void AsyncConnection::_packet_received(uint16_t sequence, size_t size)
 {
 	BitMessage::Header tmp;
 	BitMessage::Header* h_ptr;
@@ -226,13 +238,54 @@ void AsyncConnection::_packet_received(uint32_t sequence, size_t size)
 }
 
 //-----------------------------------------------------------------------------
-bool AsyncConnection::_sequence_more_recent(uint32_t s1, uint32_t s2)
+void AsyncConnection::_process_ack(uint16_t ack, int32_t ack_bits)
+{
+	if (m_pending_ack.empty())
+	{
+		return;
+	}
+	
+	BitMessage::Header* i = m_pending_ack.begin();
+	while (i != m_pending_ack.end())
+	{
+		bool acked = false;
+		
+		if (i->sequence == ack)
+		{
+			acked = true;
+		}
+		else if (!_sequence_more_recent(i->sequence, ack))
+		{
+			uint32_t bit_index = _bit_index_for_sequence(i->sequence, ack);
+			if (bit_index <= 31)
+			{
+				acked = (ack_bits >> bit_index) & 1;
+			}
+		}
+
+		if (acked)
+		{
+			m_rtt += (i->time - m_rtt) * 0.1f;
+			
+			m_acked.push_back(*i);
+		}
+		else
+		{
+			++i;
+		}
+	}  
+	m_pending_ack.clear();
+}
+
+
+//-----------------------------------------------------------------------------
+bool AsyncConnection::_sequence_more_recent(uint16_t s1, uint16_t s2)
 {
 	return ((s1 > s2) && (s1 - s2 <= m_max_sequence / 2)) || ((s2 > s1) && (s2 - s1<= m_max_sequence / 2 ));
 }
 
 //-----------------------------------------------------------------------------
-uint32_t AsyncConnection::_bit_index_for_sequence(uint32_t seq, uint32_t ack)
+int32_t AsyncConnection::_bit_index_for_sequence(uint16_t seq, uint16_t ack)
 {
 	assert(seq != ack);
 	assert(!_sequence_more_recent(seq, ack));
@@ -252,9 +305,9 @@ uint32_t AsyncConnection::_bit_index_for_sequence(uint32_t seq, uint32_t ack)
 }
 
 //-----------------------------------------------------------------------------
-uint32_t AsyncConnection::_generate_ack_bits(uint32_t ack)
+int32_t AsyncConnection::_generate_ack_bits(uint16_t ack)
 {
-	uint32_t ack_bits = 0;
+	int32_t ack_bits = 0;
 	
 	for (BitMessage::Header* i = m_received_msg.begin(); i != m_received_msg.end(); i++)
 	{
@@ -263,7 +316,7 @@ uint32_t AsyncConnection::_generate_ack_bits(uint32_t ack)
 			break;
 		}
 		
-        uint32_t bit_index = _bit_index_for_sequence(i->sequence, ack);
+        int32_t bit_index = _bit_index_for_sequence(i->sequence, ack);
 		if (bit_index <= 31)
 		{
 			ack_bits |= 1 << bit_index;
