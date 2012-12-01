@@ -53,13 +53,14 @@ static size_t			strlen(const char* str);
 static const char*		strstr(const char* str1, const char* str2);
 static int32_t			strcmp(const char* str1, const char* str2);
 static char*			strcpy(char* dest, const char* src);
+static char*			strncpy(char* dest, const char* src, size_t len);
 
 static int32_t			find_first(const char* str, char c);
 static int32_t			find_last(const char* str, char c);
 
-bool					parse_int(int32_t* value) const;
-bool					parse_uint(uint32_t* value) const;
-bool					parse_float(float* value) const;
+//bool					parse_int(int32_t* value) const;
+//bool					parse_uint(uint32_t* value) const;
+//bool					parse_float(float* value) const;
 
 //inline void MakeLower()
 //{
@@ -292,38 +293,38 @@ bool					parse_float(float* value) const;
 //	return count;
 //}
 
-//-----------------------------------------------------------------------------
-inline bool parse_int(int32_t* value) const
-{
-	if (sscanf(mText, "%d", value) != 1)
-	{
-		return false;
-	}
+////-----------------------------------------------------------------------------
+//inline bool parse_int(int32_t* value) const
+//{
+//	if (sscanf(mText, "%d", value) != 1)
+//	{
+//		return false;
+//	}
 
-	return true;
-}
+//	return true;
+//}
 
-//-----------------------------------------------------------------------------
-inline bool parse_uint(uint32_t* value) const
-{
-	if (sscanf(mText, "%u", value) != 1)
-	{
-		return false;
-	}
+////-----------------------------------------------------------------------------
+//inline bool parse_uint(uint32_t* value) const
+//{
+//	if (sscanf(mText, "%u", value) != 1)
+//	{
+//		return false;
+//	}
 
-	return true;
-}
+//	return true;
+//}
 
-//-----------------------------------------------------------------------------
-inline bool parse_float(float* value) const
-{
-	if (sscanf(mText, "%f", value) != 1)
-	{
-		return false;
-	}
+////-----------------------------------------------------------------------------
+//inline bool parse_float(float* value) const
+//{
+//	if (sscanf(mText, "%f", value) != 1)
+//	{
+//		return false;
+//	}
 
-	return true;
-}
+//	return true;
+//}
 
 //-----------------------------------------------------------------------------
 inline bool is_alpha(char c)
@@ -445,19 +446,25 @@ inline size_t strlen(const char* str)
 //-----------------------------------------------------------------------------
 inline const char* strstr(const char* str1, const char* str2)
 {
-	return strlen(str1, str2);
+	return ::strstr(str1, str2);
 }
 
 //-----------------------------------------------------------------------------
 inline int32_t strcmp(const char* str1, const char* str2)
 {
-	return strcmp(str1, str2);
+	return ::strcmp(str1, str2);
 }
 
 //-----------------------------------------------------------------------------
 inline char* strcpy(char* dest, const char* src)
 {
-	return strcpy(dest, src);
+	return ::strcpy(dest, src);
+}
+
+//-----------------------------------------------------------------------------
+inline char* strncpy(char* dest, const char* src, size_t len)
+{
+	return ::strncpy(dest, src, len);
 }
 
 //-----------------------------------------------------------------------------
@@ -496,5 +503,6 @@ inline int32_t find_last(const char* str, char c)
 	return -1;
 }
 
+} // namespace string
 } // namespace crown
 
