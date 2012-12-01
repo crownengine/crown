@@ -138,6 +138,21 @@ struct NetAddress
 {
 	uint8_t 	address[4];
 	uint16_t 	port;
+
+	NetAddress()
+	{
+		
+	}
+	
+	NetAddress(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t p)
+	{
+		address[0] = a;
+		address[1] = b;
+		address[2] = c;
+		address[3] = d;
+		
+		port = p;
+	}
 	
 	uint32_t get_address()
 	{
@@ -169,6 +184,15 @@ struct NetAddress
 		address[3] = d;
 		
 		port = p;
+	}
+	
+	bool operator==(NetAddress& addr)
+	{
+		return address[0] == addr.address[0] &&
+			   address[1] == addr.address[1] &&
+			   address[2] == addr.address[2] &&
+			   address[3] == addr.address[3] &&
+			   port == addr.port;
 	}
 };
 
