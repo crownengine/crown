@@ -55,7 +55,6 @@ int main(int argc, char** argv)
 	
 	uint16_t port = mode == SERVER ? server_port : client_port;
 
-	
 	// connection init
 	connection.init(protocol_id, 10.0f);
 	//connection start
@@ -92,20 +91,6 @@ int main(int argc, char** argv)
                 
         send_acc += delta_time;
 		
-		if (mode == CLIENT)
-		{
-			while (send_acc > 1 / send_rate)
-			{
-				network::BitMessage message(alloc);
-			
-				message.init(6);
-				message.write_string("prova", 6);
-				
-				connection.send_message(message, delta_time);
-				
-				send_acc -= 1.0f / send_rate;
-			}
-		}
 		if (mode == SERVER)
 		{
 			while (true)
@@ -119,13 +104,29 @@ int main(int argc, char** argv)
 				{
 					char string[6];
 					received.read_string(string, 6);
-// 					os::printf("%s\n", string);
+ 					os::printf("%s\n", string);
+					
 				} 
 				
 				if (bytes <= 0)
 				{
 					break;
 				}
+			}
+		}
+		
+		if (mode == CLIENT)
+		{
+			while (send_acc > 1 / send_rate)
+			{
+				network::BitMessage message(alloc);
+			
+				message.init(6);
+				message.write_string("prova", 6);
+				
+				connection.send_message(message, delta_time);
+				
+				send_acc -= 1.0f / send_rate;
 			}
 		}
 	}

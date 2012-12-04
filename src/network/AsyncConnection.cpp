@@ -167,7 +167,6 @@ void AsyncConnection::send_message(BitMessage& msg, const uint32_t time)
 {
 	assert(m_running);
 	
-	msg.init(MAX_MESSAGE_SIZE);
 	m_socket.send(m_remote_address, msg.get_data(), msg.get_size());
 
 }
