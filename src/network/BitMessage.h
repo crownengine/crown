@@ -104,6 +104,8 @@ public:
 	int32_t				read_data(void* data, int32_t length) const;
 	void				read_netaddr(os::NetAddress* addr) const;
 	size_t				read_header(Header& header);
+	
+	void				print() const;
 
 private:
   

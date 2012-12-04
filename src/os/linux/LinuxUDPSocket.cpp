@@ -81,7 +81,7 @@ bool UDPSocket::send(NetAddress &receiver, const void* data, size_t size)
 	return sent_bytes == size;
 }
 
-int32_t UDPSocket::receive(NetAddress &sender, void* data, size_t size)
+int32_t UDPSocket::receive(NetAddress& sender, void* data, size_t size)
 {
 	assert(data);
 	assert(size > 0);
@@ -103,9 +103,9 @@ int32_t UDPSocket::receive(NetAddress &sender, void* data, size_t size)
 
 	uint32_t address = ntohl(from.sin_addr.s_addr);
 	uint16_t port = ntohs(from.sin_port);
-
+	
 	sender.set(address, port);
-
+	
 	return received_bytes;	
 }
 

@@ -156,7 +156,7 @@ struct NetAddress
 	
 	uint32_t get_address()
 	{
-		uint32_t addr = address[0] << 24 | address[1] << 16 | address[2] << 8 | address[3];
+		uint32_t addr = (address[0] << 24) | (address[1] << 16) | (address[2] << 8) | (address[3]);
 		
 		return addr;
 	}
@@ -168,10 +168,10 @@ struct NetAddress
 	
 	void set(uint32_t a, uint16_t p)
 	{
-		address[0] = (uint8_t) a >> 24;
-		address[1] = (uint8_t) a >> 16;
-		address[2] = (uint8_t) a >> 8;
-		address[3] = (uint8_t) a;
+		address[0] = a >> 24;
+		address[1] = a >> 16;
+		address[2] = a >> 8;
+		address[3] = a;
 
 		port = p;
 	}
@@ -193,6 +193,23 @@ struct NetAddress
 			   address[2] == addr.address[2] &&
 			   address[3] == addr.address[3] &&
 			   port == addr.port;
+	}
+	
+	NetAddress& operator=(const NetAddress& addr)
+	{
+		address[0] = addr.address[0];
+		address[1] = addr.address[1];
+		address[2] = addr.address[2];
+		address[3] = addr.address[3];
+		
+		port = addr.port;
+		
+		return *this;
+	}
+	
+	void print()
+	{
+		printf("NetAddress: %i.%i.%i.%i:%i\n", address[0], address[1], address[2], address[3], port);
 	}
 };
 

@@ -270,6 +270,7 @@ void test_string()
 	printf("-----------------------------\n");
 	printf("start write and read for STRING\n");
  	printf("string = %s\n", res);
+	printf("sizeof string= %d\n", sizeof(s));
 	printf("bits written = %d\n", bits_written);
 	printf("remaining write bits = %d\n", rem_write_bits);
 	printf("bits read = %d\n", bits_read);

@@ -7,6 +7,26 @@ namespace network
 {
 
 AsyncConnection::AsyncConnection(Allocator& allocator) :
+	m_remote_address(0, 0, 0, 0, 0),
+	m_mode(NONE),
+	m_state(DISCONNECTED),
+	m_max_rate(MAX_RATE),
+	m_outgoing_rate_time(0),
+	m_outgoing_rate_bytes(0),
+	m_incoming_rate_time(0),
+	m_incoming_rate_bytes(0),
+	m_incoming_recv_packets(0.0f),
+	m_incoming_dropped_packets(0.0f),
+	m_incoming_packet_loss_time(0),
+	m_outgoing_sent_packet(0),
+	m_local_sequence(0),
+	m_remote_sequence(0),
+	m_max_sequence(MAX_SEQUENCE),
+	m_max_rtt(MAX_RTT),	//in milliseconds
+	m_rtt(0),		
+	m_last_send_time(0),
+	m_last_data_bytes(0),
+	m_running(false),
  	m_sent_msg(allocator),
  	m_received_msg(allocator),
  	m_pending_ack(allocator),
@@ -22,30 +42,67 @@ AsyncConnection::~AsyncConnection()
 }
 
 //-----------------------------------------------------------------------------
-void AsyncConnection::init(const os::NetAddress addr, const int id)
+void AsyncConnection::init(const int32_t id, const real timeout)
 {
-	m_remote_address = addr;
+	// set connection's id
 	m_id = id;
-	m_max_rate = 64000;
-	m_outgoing_rate_time = 0;
-	m_outgoing_rate_bytes = 0;
-	m_incoming_rate_time = 0;
-	m_incoming_rate_bytes = 0;
-	m_incoming_recv_packets = 0.0f;
-	m_incoming_dropped_packets = 0.0f;
-	m_incoming_packet_loss_time = 0;
-	m_outgoing_sent_packet = 0;
-	m_remote_sequence = 0;
-	m_local_sequence = 0;
-	m_max_sequence = 0xFFFFFFFF;
-	m_max_rtt = 1000;	//in milliseconds
-	m_rtt = 0;		
-	m_last_send_time = 0;
-	m_last_data_bytes = 0;
-	
-	// open port
-	m_socket.open(addr.get_port());
-	assert(m_socket.is_open());
+	// set connection's timeout
+	m_timeout = timeout;
+}
+
+//-----------------------------------------------------------------------------
+bool AsyncConnection::start(uint16_t port)
+{
+	// if connection is not running
+	assert(!m_running);
+	os::printf("Start connection on port %d\n", port);
+	// open socket
+	if (!m_socket.open(port))
+	{
+		return false;
+	}
+	m_running = true;
+	return true;  
+}
+
+//-----------------------------------------------------------------------------
+void AsyncConnection::stop()
+{
+	// if connection is running
+	assert(m_running);
+	os::printf("stop connection\n");;
+//  	bool connected = is_connected();
+	_clear_data();
+	// close socket
+	m_socket.close();
+	m_running = false;
+}
+
+//-----------------------------------------------------------------------------
+void AsyncConnection::listen()
+{
+	os::printf("server listening for connection...\n");;
+	// Set connection mode and state
+	_clear_data();
+	m_mode = SERVER;
+	m_state = LISTENING;  
+}
+
+//-----------------------------------------------------------------------------
+void AsyncConnection::connect(const os::NetAddress& addr)
+{
+  	_clear_data();
+
+	os::printf("client connecting to ");
+	os::printf("%i.", (uint8_t)addr.address[0]);
+	os::printf("%i.", (uint8_t)addr.address[1]);
+	os::printf("%i.", (uint8_t)addr.address[2]);
+	os::printf("%i:", (uint8_t)addr.address[3]);
+	os::printf("%i\n", (uint16_t)addr.port);
+
+	m_mode = CLIENT;
+	m_state = CONNECTING;
+	m_remote_address = addr;
 }
 
 //-----------------------------------------------------------------------------
@@ -101,29 +158,62 @@ float AsyncConnection::get_incoming_packet_loss() const
 }
 
 //-----------------------------------------------------------------------------
+uint16_t AsyncConnection::get_local_sequence() const
+{
+	return m_local_sequence;
+}
+//-----------------------------------------------------------------------------
 void AsyncConnection::send_message(BitMessage& msg, const uint32_t time)
 {
+	assert(m_running);
+	
+	msg.init(MAX_MESSAGE_SIZE);
 	m_socket.send(m_remote_address, msg.get_data(), msg.get_size());
-	_packet_sent(msg.get_size());
+
 }
 
 //-----------------------------------------------------------------------------
-bool AsyncConnection::receive_message(BitMessage& msg, const uint32_t time)
+int32_t AsyncConnection::receive_message(BitMessage& msg, const uint32_t time)
 {
-	size_t size;
-	
-	m_socket.receive(m_remote_address, msg.get_data(), size);
+	assert(m_running);
+	// init BitMessage handler
+	msg.init(175);
+	msg.begin_writing();
+	size_t size = 175;
+	// NetAddress handler
+	os::NetAddress sender(0, 0, 0, 0, 0);
+	// receive message
+	int32_t bytes = m_socket.receive(sender, msg.get_data(), size);
+	//TODO: why received bytes is zero
+	os::printf("%d bytes received\n", bytes);
 	msg.set_size(size);
+	// sets BitMessage in only-read
 	msg.begin_reading();
+	
+	if (m_mode == SERVER && !is_connected() && bytes > 0)
+	{
+		os::printf("server accepts connection from client ");
+		os::printf("%i.", (uint8_t)sender.address[0]);
+		os::printf("%i.", (uint8_t)sender.address[1]);
+		os::printf("%i.", (uint8_t)sender.address[2]);
+		os::printf("%i:", (uint8_t)sender.address[3]);
+		os::printf("%i\n", (uint16_t)sender.port);
+		
+		m_state = CONNECTED;
+		m_remote_address = sender;
+	}
 
-	//TODO: check return value of receive
-	BitMessage::Header header;
-
-	msg.read_int32();	// read protocol id
-	header.sequence = msg.read_int32();	// read sequence
-	msg.read_int32();// read ack
-	msg.read_int32();// read ack_bits
-	header.size = msg.read_uint16();// read size
+	if (sender == m_remote_address)
+	{
+		if (m_mode == CLIENT && m_state == CONNECTING)
+		{
+			os::printf("client completes connection with server");
+			m_state = CONNECTED;
+		}
+		m_timeout_acc = 0.0f;
+		return msg.get_size();
+	}
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -132,6 +222,33 @@ void AsyncConnection::clear_reliable_messages()
 	m_sent_msg.clear();
 	m_received_msg.clear();
 }
+
+//-----------------------------------------------------------------------------
+void AsyncConnection::update(real delta)
+{
+	assert(m_running);
+	
+	m_timeout_acc += delta;
+	
+	if (m_timeout_acc > m_timeout)
+	{
+		if (m_state == CONNECTING)
+		{
+			os::printf("Connect timed out\n");
+			_clear_data();
+			m_state = CONNECT_FAIL;
+		}
+		else if (m_state == CONNECTED)
+		{
+			os::printf("Connection timed out\n");
+ 			_clear_data();
+			if (m_state == CONNECTING)
+			{
+				m_state = CONNECT_FAIL;
+			}
+		}
+	}	
+}	
 
 //-----------------------------------------------------------------------------
 bool AsyncConnection::ready_to_send(const int time) const
@@ -157,6 +274,30 @@ bool AsyncConnection::ready_to_send(const int time) const
 bool AsyncConnection::process(const os::NetAddress from, int time, BitMessage &msg, int &sequence)
 {
 
+}
+
+//-----------------------------------------------------------------------------
+bool AsyncConnection::is_connecting() const
+{ 
+	return m_state == CONNECTING; 
+}
+
+//-----------------------------------------------------------------------------
+bool AsyncConnection::is_listening() const
+{ 
+	return m_state == LISTENING; 
+}
+
+//-----------------------------------------------------------------------------
+bool AsyncConnection::is_connected() const 
+{ 
+	return m_state == CONNECTED; 
+}
+
+//-----------------------------------------------------------------------------
+bool AsyncConnection::is_connect_fail() const
+{ 
+	return m_state == CONNECT_FAIL; 
 }
 
 //-----------------------------------------------------------------------------
@@ -398,6 +539,13 @@ void AsyncConnection::_update_packet_loss(const uint32_t time, const uint32_t nu
 	m_incoming_packet_loss_time = time - 5000;
 	m_incoming_recv_packets += num_recv;
 	m_incoming_dropped_packets += num_dropped;
+}
+
+void AsyncConnection::_clear_data()
+{
+	m_state = DISCONNECTED;
+	m_timeout_acc = 0.0f;
+	m_remote_address = os::NetAddress();
 }
 
 } // namespace network
