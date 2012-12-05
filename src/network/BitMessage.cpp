@@ -27,10 +27,14 @@ BitMessage::BitMessage(Allocator& allocator) :
 
 BitMessage::~BitMessage()
 {
-  if (m_data)
-  {
-		m_allocator->deallocate((void*)m_data);
-  }
+	if (m_header)
+	{
+		m_allocator->deallocate((void*)m_header);
+	}
+	if (m_data)
+	{
+		  m_allocator->deallocate((void*)m_data);
+	}
 }
 //---------------------------------------------------------------------------------------------
 
@@ -80,6 +84,8 @@ bool BitMessage::check_overflow(int32_t num_bits)
 
 void BitMessage::init(int32_t len)
 {
+	m_header = (uint8_t*)m_allocator->allocate(12);
+	
 	m_data = (uint8_t*)m_allocator->allocate(len);
 	
 	m_write = m_data;
@@ -703,30 +709,6 @@ void BitMessage::read_netaddr(os::NetAddress* addr) const
 	}
 	
 	addr->port = read_uint16();  
-}
-
-//---------------------------------------------------------------------------------------------
-void BitMessage::write_header(Header& header)
-{
-	// write header only on top of BitMessage
-	if (m_cur_size == 0)
-	{
-		write_int32(header.protocol_id);
-		write_uint16(header.sequence);
-		write_uint16(header.ack);
-		write_int32(header.ack_bits);
-		write_uint16(header.size);
-	}
-}
-
-//---------------------------------------------------------------------------------------------
-size_t BitMessage::read_header(Header& header)
-{
-	header.protocol_id = read_int32();
-	header.sequence = read_uint16();
-	header.ack = read_uint16();
-	header.ack_bits = read_int32();
-	header.size = (size_t)read_uint16();
 }
 
 //---------------------------------------------------------------------------------------------

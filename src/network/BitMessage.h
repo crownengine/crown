@@ -10,45 +10,19 @@ namespace crown
 namespace network
 {
 	/**
-	* bit-packet reliable message
+	* bit-packet reliable message.
+	* Usage: After every instantition, must be initialized with @init(len)
 	*/
 
 class BitMessage
 {
 
 public:
-
-	struct Header
-	{	
-		// Header fields in BitMessage - 14 Bytes
-		uint32_t		protocol_id;
-		uint16_t		sequence;
-		uint16_t		ack;
-		uint32_t		ack_bits;
-		uint16_t		size;
-		// Used to checks BitMessage's validity
-		uint32_t		time;
-
-		void set(uint32_t protocol_id, uint16_t sequence, uint16_t ack, uint32_t ack_bits, size_t size)
-		{
-			this->protocol_id = protocol_id;
-			this->sequence = sequence;
-			this->ack = ack;
-			this->ack_bits = ack_bits;
-			this->size = size;
-		}
-		
-		bool operator==(const Header& header)
-		{
-			return this->sequence == header.sequence;
-		}
-	}; 
-		
-public:
 						BitMessage(Allocator& allocator);
 						~BitMessage();
 
 	void				init(int32_t len);								// init with data length in byte
+	const uint8_t*		get_header();									// get message header
 	uint8_t*			get_data();										// get data for writing
 	const uint8_t*		get_data() const;								// get data for reading
 	size_t				get_max_size() const;							// get the maximum message size
@@ -86,7 +60,6 @@ public:
 	void				write_string(const char* s, int32_t max_len = -1, bool make_7_bit = true);
 	void				write_data(const void* data, int32_t length);
 	void				write_netaddr(const os::NetAddress addr);
-	void				write_header(Header& header);
 
 						// read state utilities
 	void				begin_reading() const;							// begin reading.
@@ -103,7 +76,6 @@ public:
 	int32_t				read_string(char* buffer, int32_t buffer_size) const;
 	int32_t				read_data(void* data, int32_t length) const;
 	void				read_netaddr(os::NetAddress* addr) const;
-	size_t				read_header(Header& header);
 	
 	void				print() const;
 
@@ -115,9 +87,8 @@ private:
 private:
 	
 	Allocator*			m_allocator;								// memory allocator
-
-	Header*				m_header;									// message header abstraction 
 	
+	uint8_t*				m_header;
 	uint8_t*			m_data;
 	uint8_t*			m_write;									// pointer to data for writing
 	const uint8_t*		m_read;										// point32_ter to data for reading
