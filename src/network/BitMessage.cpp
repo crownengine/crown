@@ -729,8 +729,12 @@ size_t BitMessage::read_header(Header& header)
 	header.size = (size_t)read_uint16();
 }
 
-
-
-
+//---------------------------------------------------------------------------------------------
+void BitMessage::print() const
+{
+	os::printf("MAX_SIZE: %d\n", m_max_size);
+	os::printf("CUR_SIZE: %d\n", m_cur_size);	
+}
+  
 }	//namespace network
 }	//namespace crown
