@@ -70,12 +70,19 @@ void AsyncConnection::stop()
 {
 	// if connection is running
 	assert(m_running);
-	os::printf("stop connection\n");;
-//  	bool connected = is_connected();
-	_clear_data();
-	// close socket
-	m_socket.close();
-	m_running = false;
+	os::printf("stopping connection...\n");;
+
+	if (is_connected())
+	{
+		os::printf("connection stopped\n");;
+		_clear_data();
+		// close socket
+		m_socket.close();
+		m_running = false;
+		return;
+	}
+	
+	os::printf("connection is running yet");
 }
 
 //-----------------------------------------------------------------------------
@@ -168,6 +175,10 @@ void AsyncConnection::send_message(BitMessage& msg, const uint32_t time)
 	assert(m_running);
 	
 	m_socket.send(m_remote_address, msg.get_data(), msg.get_size());
+	
+// 	_packet_sent(msg.get_size());
+	
+	m_remote_sequence++;
 
 }
 
@@ -175,16 +186,13 @@ void AsyncConnection::send_message(BitMessage& msg, const uint32_t time)
 int32_t AsyncConnection::receive_message(BitMessage& msg, const uint32_t time)
 {
 	assert(m_running);
-	// init BitMessage handler
-	msg.init(175);
+
 	msg.begin_writing();
-	size_t size = 175;
+	size_t size = msg.get_max_size();
 	// NetAddress handler
 	os::NetAddress sender(0, 0, 0, 0, 0);
 	// receive message
 	int32_t bytes = m_socket.receive(sender, msg.get_data(), size);
-	//TODO: why received bytes is zero
-	os::printf("%d bytes received\n", bytes);
 	msg.set_size(size);
 	// sets BitMessage in only-read
 	msg.begin_reading();
@@ -267,12 +275,6 @@ bool AsyncConnection::ready_to_send(const int time) const
 	}
 	// if last message wasn't sent, sent it!
 	return ((m_last_data_bytes - ((delta_time * m_max_rate) / 1000)) <= 0);
-}
-
-//-----------------------------------------------------------------------------
-bool AsyncConnection::process(const os::NetAddress from, int time, BitMessage &msg, int &sequence)
-{
-
 }
 
 //-----------------------------------------------------------------------------

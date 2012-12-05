@@ -56,7 +56,7 @@ public:
 	uint16_t						get_remote_sequence() const;
 									// Sends message
 	void							send_message(BitMessage& msg, const uint32_t time);
-									// Receive message
+									// Receive message and process
 	int32_t							receive_message(BitMessage& msg, const uint32_t time);
 									// Removes any pending outgoing or incoming reliable messages.
 	void							clear_reliable_messages();
@@ -64,8 +64,6 @@ public:
 	void 							update(real delta);
 									// Returns true if the connection is ready to send new data based on the maximum rate.
 	bool							ready_to_send(const int32_t time) const;
-									// Processes the incoming message.
-	bool							process(const os::NetAddress from, int32_t time, BitMessage &msg, int32_t &sequence);
 	
 	bool 							is_connecting() const;
 	bool 							is_listening() const; 

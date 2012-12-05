@@ -414,23 +414,23 @@ void BitMessage::write_string(const char* s, int32_t max_len, bool make_7_bit)
 	else 
 	{
 		int32_t i;
-		int32_t l;
+		int32_t len = std::strlen(s);
 		uint8_t* data_ptr;
 		const uint8_t* byte_ptr;
 		
 		// calculates length
-		for (l = 0; s[l]; l++) {}
+		len = std::strlen(s);
 		
-		if (max_len >= 0 && l >= max_len) 
+		if (max_len >= 0 && len >= max_len) 
 		{
-			l = max_len - 1;
+			len = max_len - 1;
 		}
 		
-		data_ptr = get_byte_space(l + 1);
+		data_ptr = get_byte_space(len + 1);
 		byte_ptr = reinterpret_cast<const uint8_t*>(s);
 		if (make_7_bit) 
 		{
-			for (i = 0; i < l; i++) 
+			for (i = 0; i < len; i++) 
 			{
 				if ( byte_ptr[i] > 127 ) 
 				{
@@ -444,7 +444,7 @@ void BitMessage::write_string(const char* s, int32_t max_len, bool make_7_bit)
 		}
 		else 
 		{
-			for (i = 0; i < l; i++) 
+			for (i = 0; i < len; i++) 
 			{
 				data_ptr[i] = byte_ptr[i];
 			}
