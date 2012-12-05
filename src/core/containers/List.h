@@ -364,8 +364,6 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 template <typename T>
 inline const T* List<T>::begin() const
 {
-	assert(m_size > 0);
-
 	return m_array;
 }
 
@@ -373,8 +371,6 @@ inline const T* List<T>::begin() const
 template <typename T>
 inline T* List<T>::begin()
 {
-	assert(m_size > 0);
-
 	return m_array;
 }
 
@@ -382,8 +378,6 @@ inline T* List<T>::begin()
 template <typename T>
 inline const T* List<T>::end() const
 {
-	assert(m_size > 0);
-
 	return m_array + m_size;
 }
 
@@ -391,8 +385,6 @@ inline const T* List<T>::end() const
 template <typename T>
 inline T* List<T>::end()
 {
-	assert(m_size > 0);
-
 	return m_array + m_size;
 }
 
