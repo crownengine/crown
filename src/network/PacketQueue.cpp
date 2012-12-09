@@ -24,40 +24,72 @@ PacketQueue::~PacketQueue()
 //-------------------------------------------------------------
 bool PacketQueue::add(const PacketData& pd)
 {	
+	if (get_space_left() < sizeof(PacketData))
+	{
+		return false;
+	}
 	// update last sequence number
-	m_last = pd.sequence; 
-	// update end index
-	m_end_index += sizeof(PacketData);
+	write_uint16(pd.sequence);
+	write_int32(pd.time);
+	write_int32(pd.time);
+	last++; 
+	return true;
 }
 
 //-------------------------------------------------------------
 bool PacketQueue::get(PacketData& pd)
-{
+{	
+	// empty queue
+	if (first == last)
+	{
+		return false;
+	}
 
+	pd.sequence = read_uint16();
+	pd.time = read_int32();
+	pd.size = read_int32();
+
+	assert(pd.sequence == first);
+	first++;
+	return true;
 }
 
 //-------------------------------------------------------------
 size_t PacketQueue::get_total_size() const
 {
-
+	if (m_start_index <= m_end_index) 
+	{
+		return endIndex - startIndex;
+	} 
+	else 
+	{
+		return sizeof(buffer) - startIndex + endIndex;
+	}
 }
 
 //-------------------------------------------------------------
 size_t PacketQueue::get_space_left() const
 {
-
+	if (m_start_index <= m_end_index) 
+	{
+		return sizeof(buffer) - (endIndex - startIndex) - 1;
+	} 
+	else 
+	{
+		return (startIndex - endIndex) - 1;
+	}
 }
 
 //-------------------------------------------------------------
 int32_t PacketQueue::get_first() const
 {
-
+	return m_first;
 }
 
 //-------------------------------------------------------------
 int32_t PacketQueue::get_last() const
 {
-
+	return m_last;
 }
 
 //-------------------------------------------------------------
