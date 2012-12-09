@@ -5,6 +5,7 @@
 #include "MallocAllocator.h"
 #include "BitMessage.h"
 #include "AsyncConnection.h"
+#include "PacketQueue.h"
 
 using namespace crown;
 

@@ -363,7 +363,7 @@ void BitMessage::write_bits(int32_t value, int32_t num_bits)
 		}
 	}
 
-	// Change sign if it is negative
+	// Change sign if it's negative
 	if (num_bits < 0 ) 
 	{
 		num_bits = -num_bits;
