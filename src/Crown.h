@@ -60,7 +60,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Containers
 #include "Dictionary.h"
 #include "RBTree.h"
-#include "Str.h"
+#include "String.h"
 #include "List.h"
 #include "Generic.h"
 #include "Queue.h"
@@ -80,17 +80,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Camera.h"
 #include "Device.h"
 #include "Font.h"
-#include "FontManager.h"
 #include "Glyph.h"
 #include "Image.h"
 #include "IndexBuffer.h"
 #include "Log.h"
 #include "Material.h"
-#include "MaterialManager.h"
 #include "Mesh.h"
 #include "MeshChunk.h"
 #include "MeshLoader.h"
-#include "MeshManager.h"
 #include "MovableCamera.h"
 #include "OcclusionQuery.h"
 #include "Pixel.h"
@@ -98,15 +95,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceManager.h"
 #include "Skybox.h"
 #include "TextRenderer.h"
-#include "TextureManager.h"
 #include "VertexBuffer.h"
 
 // Engine/Filesystem
 #include "Filesystem.h"
 
 // Engine/Loaders
-#include "BMPImageLoader.h"
-#include "TGAImageLoader.h"
 //#include "XWMLReader.h"
 
 // Engine/Input
