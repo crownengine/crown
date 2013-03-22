@@ -7,6 +7,5 @@ public class CrownLib
 		System.loadLibrary("crown");
 	}
 
-	public static native boolean create();
-	public static native void destroy();
+	public static native void pushEvent(int type, int a, int b, int c, int d);
 }

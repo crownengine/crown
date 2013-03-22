@@ -23,12 +23,11 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Device.h"
 #include "Log.h"
 #include "Types.h"
-#include "Config.h"
+#include "OS.h"
 #include <EGL/egl.h>
-#include <android_native_app_glue.h>
+//#include <android_native_app_glue.h>
 #include <jni.h>
 
 namespace crown
@@ -41,116 +40,120 @@ EGLint h;
 EGLDisplay display;
 EGLSurface surface;
 EGLContext context;
-android_app* application;
+//android_app* application;
 
-bool create_render_window()
+bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen)
 {
-	assert(width != 0 && height != 0);
+//	display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
-	display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+//	assert(display != EGL_NO_DISPLAY);
 
-	assert(display != EGL_NO_DISPLAY);
+//	const EGLint attribs[] =
+//	{
+//		EGL_BUFFER_SIZE, 24,
+//		EGL_DEPTH_SIZE, 24,
+//		EGL_SURFACE_TYPE, 
+//		EGL_WINDOW_BIT,
+//		EGL_RENDERABLE_TYPE, 
+//		EGL_OPENGL_ES_BIT,
+//		EGL_NONE
+//	};
+//	
+//	EGLint major;
+//	EGLint minor;
 
-	const EGLint attribs[] =
-	{
-		EGL_BUFFER_SIZE, 24,
-		EGL_DEPTH_SIZE, 24,
-		EGL_SURFACE_TYPE, 
-		EGL_WINDOW_BIT,
-		EGL_RENDERABLE_TYPE, 
-		EGL_OPENGL_ES_BIT,
-		EGL_NONE
-	};
-	
-	EGLint major;
-	EGLint minor;
+//	assert(eglInitialize(display, &major, &minor));
 
-	assert(eglInitialize(display, &major, &minor));
+//	EGLConfig  config;
+//	EGLint     num_config;
+//	assert(eglChooseConfig(display, attribs, &config, 1, &num_config));
 
-	EGLConfig  config;
-	EGLint     num_config;
-	assert(eglChooseConfig(display, attribs, &config, 1, &num_config));
+//	EGLint format;
+//    eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
 
-	EGLint format;
-    eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
+//	// Reconfigure ANativeWindow buffer
+//    ANativeWindow_setBuffersGeometry(application->window, 0, 0, format);
 
-	// Reconfigure ANativeWindow buffer
-    ANativeWindow_setBuffersGeometry(application->window, 0, 0, format);
-
-	surface = eglCreateWindowSurface(display, config, application->window, NULL);
-	assert(surface != EGL_NO_SURFACE);
+//	surface = eglCreateWindowSurface(display, config, application->window, NULL);
+//	assert(surface != EGL_NO_SURFACE);
 
 
-	EGLint ctxattr[] =
-	{
-		EGL_CONTEXT_CLIENT_VERSION, 
-		1,
-		EGL_NONE
-	};
+//	EGLint ctxattr[] =
+//	{
+//		EGL_CONTEXT_CLIENT_VERSION, 
+//		1,
+//		EGL_NONE
+//	};
 
-	context = eglCreateContext(display, config, EGL_NO_CONTEXT, ctxattr);
-	assert(context != EGL_NO_CONTEXT);
+//	context = eglCreateContext(display, config, EGL_NO_CONTEXT, ctxattr);
+//	assert(context != EGL_NO_CONTEXT);
 
-	assert(eglMakeCurrent(display, surface, surface, context) != EGL_NO_CONTEXT);
+//	assert(eglMakeCurrent(display, surface, surface, context) != EGL_NO_CONTEXT);
 
-	eglQuerySurface(display, surface, EGL_WIDTH, &w);
-    eglQuerySurface(display, surface, EGL_HEIGHT, &h);
+//	eglQuerySurface(display, surface, EGL_WIDTH, &w);
+//    eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
-	return true;
+//	return true;
 }
 
-void destroy_render_window()
+bool destroy_render_window()
 {
-	if (display != EGL_NO_DISPLAY)
-	{
-		eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+//	if (display != EGL_NO_DISPLAY)
+//	{
+//		eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
-		if (context != EGL_NO_CONTEXT)
-		{
-            eglDestroyContext(display, context);
-		}
-		
-		if (surface != EGL_NO_SURFACE)
-		{
-            eglDestroySurface(display, surface);
-		}
+//		if (context != EGL_NO_CONTEXT)
+//		{
+//            eglDestroyContext(display, context);
+//		}
+//		
+//		if (surface != EGL_NO_SURFACE)
+//		{
+//            eglDestroySurface(display, surface);
+//		}
 
-		eglTerminate(display);
-	}
+//		eglTerminate(display);
+//	}
 }
 
-void bind()
+void get_render_window_metrics(uint32_t& width, uint32_t& height)
 {
-	eglMakeCurrent(display, surface, surface, context);
-}
-
-void unbind()
-{
-	eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+//	width = w;
+//	height = h;
 }
 
 void swap_buffers()
 {
-	eglSwapBuffers(display, surface);
+//	eglSwapBuffers(display, surface);
 }
 
-
-// JNI definitions - just tmp
-extern "C"
+void event_loop()
 {
-	JNIEXPORT bool JNICALL Java_crown_android_CrownLib_create(JNIEnv* env, jobject obj);
-	JNIEXPORT void JNICALL Java_crown_android_CrownLib_destroy(JNIEnv* env, jobject obj);
+	// FIXME
 }
 
-JNIEXPORT bool JNICALL Java_crown_android_CrownLib_create(JNIEnv* env, jobject obj)
-{
-	return create_render_window();
-}
 
-JNIEXPORT void JNICALL Java_crown_android_CrownLib_destroy(JNIEnv* env, jobject obj)
-{
-	destroy_render_window();
-}
+
+
+/* 
+tmp JNI definitions, just for testing
+TODO: remove this methods
+*/
+//extern "C"
+//{
+//	JNIEXPORT bool JNICALL Java_crown_android_CrownLib_create(JNIEnv* env, jobject obj);
+//	JNIEXPORT bool JNICALL Java_crown_android_CrownLib_destroy(JNIEnv* env, jobject obj);
+//}
+
+//JNIEXPORT bool JNICALL Java_crown_android_CrownLib_create(JNIEnv* env, jobject obj, jint x, jint y, jint width, jint height, jboolean fullscreen)
+//{
+//	create_render_window(x, y, width, height, fullscreen);
+//}
+
+//JNIEXPORT bool JNICALL Java_crown_android_CrownLib_destroy(JNIEnv* env, jobject obj)
+//{
+//	destroy_render_window();
+//}
 
 
 } // namespace os

@@ -93,6 +93,11 @@ void InputManager::EventLoop()
 
 				break;
 			}
+			case os::OSET_TOUCH_MOVE:
+			{
+				Log::I("Touch coord = %d:%d\n", event.data_a, event.data_b);
+				break;
+			}
 			default:
 			{
 				break;

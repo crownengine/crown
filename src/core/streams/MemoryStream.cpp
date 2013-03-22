@@ -90,6 +90,17 @@ void DynamicMemoryBuffer::write(uint8_t* src, size_t offset, size_t size)
 }
 
 //-----------------------------------------------------------------------------
+void DynamicMemoryBuffer::release()
+{
+	// FIXME
+}
+
+//-----------------------------------------------------------------------------
+void DynamicMemoryBuffer::allocate(size_t capacity)
+{
+	// FIXME
+}
+//-----------------------------------------------------------------------------
 MemoryStream::MemoryStream(MemoryBuffer* buffer, StreamOpenMode mode) :
 	Stream(mode),
 	m_memory(buffer),

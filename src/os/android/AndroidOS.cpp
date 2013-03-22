@@ -25,8 +25,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "OS.h"
 #include <android/log.h>
+#include <cstdio>
+#include <cstdarg>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <cstdlib>
+#include <sys/time.h>
+#include <time.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "crown", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "crown", __VA_ARGS__))
@@ -38,83 +45,191 @@ namespace crown
 namespace os
 {
 
+static timespec base_time;
+
+//-----------------------------------------------------------------------------
 void printf(const char* string, ...)
 {
-	LOGI(string);
+	va_list args;
+
+	va_start(args, string);
+	::vprintf(string, args);
+	va_end(args);
 }
 
-void log_debug(const char* string, ...)
+//-----------------------------------------------------------------------------
+void vprintf(const char* string, va_list arg)
 {
-	LOGD(string);
+	::vprintf(string, arg);
 }
 
-void log_error(const char* string, ...)
+//-----------------------------------------------------------------------------
+void log_debug(const char* string, va_list arg)
 {
-	LOGE(string);
+	printf("D: ");
+	vprintf(string, arg);
+	printf("\n");
 }
 
-void log_warning(const char* string, ...)
+//-----------------------------------------------------------------------------
+void log_error(const char* string, va_list arg)
 {
-	LOGW(string);
+	printf("E: ");
+	vprintf(string, arg);
+	printf("\n");
 }
 
-void log_info(const char* string, ...)
+//-----------------------------------------------------------------------------
+void log_warning(const char* string, va_list arg)
 {
-	LOGI(string);
+	printf("W: ");
+	vprintf(string, arg);
+	printf("\n");
 }
 
-bool exists(const Str& path)
+//-----------------------------------------------------------------------------
+void log_info(const char* string, va_list arg)
+{
+	LOGI(string, arg);
+}
+
+//-----------------------------------------------------------------------------
+bool exists(const char* path)
 {
 	struct stat dummy;
-	return (stat(path.c_str(), &dummy) == 0);
+	return (stat(path, &dummy) == 0);
 }
 
-bool is_dir(const Str& path)
+//-----------------------------------------------------------------------------
+bool is_dir(const char* path)
 {
 	struct stat info;
-	stat(path.c_str(), &info);
-	return (S_ISDIR(info.st_mode)) != 0;
+	memset(&info, 0, sizeof(struct stat));
+	lstat(path, &info);
+	return ((S_ISDIR(info.st_mode)) != 0 && (S_ISLNK(info.st_mode) == 0));
 }
 
-bool is_reg(const Str& path)
+//-----------------------------------------------------------------------------
+bool is_reg(const char* path)
 {
 	struct stat info;
-	stat(path.c_str(), &info);
-	return (S_ISREG(info.st_mode)) != 0;
+	memset(&info, 0, sizeof(struct stat));
+	lstat(path, &info);
+	return ((S_ISREG(info.st_mode) != 0) && (S_ISLNK(info.st_mode) == 0));
 }
 
-bool mknod(const Str& path)
+//-----------------------------------------------------------------------------
+bool mknod(const char* path)
 {
 	// Permission mask: rw-r--r--
-	return ::mknod(path.c_str(), S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 0) == 0;
+	return ::mknod(path, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 0) == 0;
 }
 
-bool unlink(const Str& path)
+//-----------------------------------------------------------------------------
+bool unlink(const char* path)
 {
-	return (::unlink(path.c_str()) == 0);
+	return (::unlink(path) == 0);
 }
 
-bool mkdir(const Str& path)
+//-----------------------------------------------------------------------------
+bool mkdir(const char* path)
 {
 	// rwxr-xr-x permission mask
-	return (::mkdir(path.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0);
+	return (::mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0);
 }
 
-bool rmdir(const Str& path)
+//-----------------------------------------------------------------------------
+bool rmdir(const char* path)
 {
-	return (::rmdir(path.c_str()) == 0);
+	return (::rmdir(path) == 0);
 }
 
-bool get_cwd(Str& ret)
+//-----------------------------------------------------------------------------
+const char* get_cwd()
 {
-	static char cwdBuf[1024];
-	if (getcwd(cwdBuf, 1024) == NULL)
+	static char cwdBuf[MAX_PATH_LENGTH];
+	if (getcwd(cwdBuf, MAX_PATH_LENGTH) == NULL)
+	{
+		return Str::EMPTY;
+	}
+
+	return cwdBuf;
+}
+
+//-----------------------------------------------------------------------------
+const char* get_home()
+{
+	char* envHome = NULL;
+	envHome = getenv("HOME");
+
+	if (envHome == NULL)
+	{
+		return Str::EMPTY;
+	}
+
+	return envHome;
+}
+
+//-----------------------------------------------------------------------------
+const char* get_env(const char* env)
+{
+	char* envDevel = NULL;
+	envDevel = getenv(env);
+
+	if (envDevel == NULL)
+	{
+		return Str::EMPTY;
+	}
+
+	return envDevel;
+}
+
+//-----------------------------------------------------------------------------
+bool ls(const char* path, List<Str>& fileList)
+{
+	DIR *dir;
+	struct dirent *ent;
+
+	dir = opendir(path);
+
+	if (dir == NULL)
 	{
 		return false;
 	}
 
-	ret = cwdBuf;
+	while ((ent = readdir (dir)) != NULL)
+	{
+		fileList.push_back(Str(ent->d_name));
+	}
+
+	closedir (dir);
+
 	return true;
+}
+
+//-----------------------------------------------------------------------------
+void init_os()
+{
+	// Initilize the base time
+	clock_gettime(CLOCK_MONOTONIC, &base_time);
+}
+
+//-----------------------------------------------------------------------------
+uint64_t milliseconds()
+{
+	timespec tmp;
+
+	clock_gettime(CLOCK_MONOTONIC, &tmp);
+
+	return (tmp.tv_sec - base_time.tv_sec) * 1000 + (tmp.tv_nsec - base_time.tv_nsec) / 1000000;
+}
+
+//-----------------------------------------------------------------------------
+uint64_t microseconds()
+{
+	timespec tmp;
+	clock_gettime(CLOCK_MONOTONIC, &tmp);
+	return (tmp.tv_sec - base_time.tv_sec) * 1000000 + (tmp.tv_nsec - base_time.tv_nsec) / 1000;
 }
 
 } // namespace os

@@ -16,6 +16,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE    := crown
+
 LOCAL_SRC_FILES :=\
 	core/bv/Circle.cpp\
 	core/bv/Frustum.cpp\
@@ -47,6 +48,7 @@ LOCAL_SRC_FILES :=\
 	os/OS.cpp\
 	os/android/AndroidOS.cpp\
 	os/android/AndroidRenderWindow.cpp\
+	os/android/AndroidInput.cpp\
 \
 	Filesystem.cpp\
 \
@@ -106,7 +108,6 @@ LOCAL_C_INCLUDES	:=\
 
 LOCAL_CPPFLAGS	:= -g -fexceptions
 LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv1_CM
-LOCAL_STATIC_LIBRARIES := android_native_app_glue
 include $(BUILD_SHARED_LIBRARY)
 
 #include $(CLEAR_VARS)
@@ -160,5 +161,5 @@ include $(BUILD_SHARED_LIBRARY)
 #LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv1_CM -lz
 #LOCAL_STATIC_LIBRARIES := android_native_app_glue
 #include $(BUILD_SHARED_LIBRARY)
-$(call import-module,android/native_app_glue)
+#$(call import-module,android/native_app_glue)
 
