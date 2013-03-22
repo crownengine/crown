@@ -24,97 +24,59 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Device.h"
-#include "GLESSupport.h"
-#include "AndroidRenderWindow.h"
 #include "Log.h"
 #include "Types.h"
 #include "Config.h"
+#include <EGL/egl.h>
 #include <android_native_app_glue.h>
 
 namespace crown
 {
-
-AndroidRenderWindow::AndroidRenderWindow() :
-	mEGLDisplay(EGL_NO_DISPLAY),
-	mEGLContext(EGL_NO_CONTEXT),
-	mEGLWindow(EGL_NO_SURFACE)
+namespace os
 {
-	mANativeWindow = GetDevice()->_GetAndroidApp()->window;
-	mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
-	eglInitialize(mEGLDisplay, NULL, NULL);
-}
+EGLDisplay display;
+EGLSurface surface;
+EGLContext context;
+android_app* application;
 
-AndroidRenderWindow::~AndroidRenderWindow()
+bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t depth, bool /*fullscreen*/)
 {
-	if (mEGLDisplay != EGL_NO_DISPLAY)
-	{
-		Log::D("AndroidRenderWindow::Destroy: Releasing context...");
-		if (mEGLContext != EGL_NO_CONTEXT)
-		{
-			eglMakeCurrent(mEGLDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-			eglDestroyContext(mEGLDisplay, mEGLContext);
-		}
-		Log::D("AndroidRenderWindow::Destroy: Context released.");
+	assert(width != 0 && height != 0);
 
-		if (mEGLWindow != EGL_NO_SURFACE)
-		{
-			eglDestroySurface(mEGLDisplay, mEGLWindow);
-		}
+	display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
-		mEGLWindow = EGL_NO_SURFACE;
-		Log::D("AndroidRenderWindow::Destroy: Window Destroyed.");
-
-		eglTerminate(mEGLDisplay);
-	}
-}
-
-bool AndroidRenderWindow::Create(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t depth, bool /*fullscreen*/)
-{
-	Log::D("AndroidRenderWindow::Create: Creating window...");
-	if (!width || !height)
-	{
-		Log::E("Width and height must differ from 0.");
-		return false;
-	}
-
-	if (!mEGLDisplay)
-	{
-		Log::E("Unable to open a display");
-		return false;
-	}
-
-	uint32_t bpp			= depth / 4;
+	assert(display != EGL_NO_DISPLAY);
 
 	const EGLint attribs[] =
 	{
 		EGL_BUFFER_SIZE, 24,
 		EGL_DEPTH_SIZE, 24,
-		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-		EGL_RENDERABLE_TYPE, EGL_OPENGL_ES_BIT,
+		EGL_SURFACE_TYPE, 
+		EGL_WINDOW_BIT,
+		EGL_RENDERABLE_TYPE, 
+		EGL_OPENGL_ES_BIT,
 		EGL_NONE
 	};
+	
+	EGLint major;
+	EGLint minor;
 
-	EGLConfig  ecfg;
+	assert(eglInitialize(display, &major, &minor));
+
+	EGLConfig  config;
 	EGLint     num_config;
-	if (!eglChooseConfig(mEGLDisplay, attribs, &ecfg, 1, &num_config))
-	{
-		Log::E("Unable to choose config.");
-		return false;
-	}
+	assert(eglChooseConfig(display, attribs, &config, 1, &num_config));
 
 	EGLint format;
-    eglGetConfigAttrib(mEGLDisplay, ecfg, EGL_NATIVE_VISUAL_ID, &format);
+    eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
 
 	// Reconfigure ANativeWindow buffer
-    ANativeWindow_setBuffersGeometry(mANativeWindow, 0, 0, format);
+    ANativeWindow_setBuffersGeometry(application->window, 0, 0, format);
 
-	mEGLWindow = eglCreateWindowSurface(mEGLDisplay, ecfg, mANativeWindow, NULL);
-	if (mEGLWindow == EGL_NO_SURFACE)
-	{
-		Log::E("Unable to create window surface.");
-		return false;
-	}
+	surface = eglCreateWindowSurface(display, config, application->window, NULL);
+	assert(surface != EGL_NO_SURFACE);
+
 
 	EGLint ctxattr[] =
 	{
@@ -122,95 +84,49 @@ bool AndroidRenderWindow::Create(uint32_t x, uint32_t y, uint32_t width, uint32_
 		EGL_NONE
 	};
 
-	mEGLContext = eglCreateContext(mEGLDisplay, ecfg, EGL_NO_CONTEXT, ctxattr);
-	if (mEGLContext == EGL_NO_CONTEXT)
-	{
-		Log::E("Unable to create context: " + Str(eglGetError()));
-		return false;
-	}
+	context = eglCreateContext(display, config, EGL_NO_CONTEXT, ctxattr);
+	assert(context != EGL_NO_CONTEXT);
 
-	eglMakeCurrent(mEGLDisplay, mEGLWindow, mEGLWindow, mEGLContext);
-
-	EGLint w, h;
-	eglQuerySurface(mEGLDisplay, mEGLWindow, EGL_WIDTH, &w);
-	eglQuerySurface(mEGLDisplay, mEGLWindow, EGL_HEIGHT, &h);
-
-	mX = x;
-	mY = y;
-	mWidth = w;
-	mHeight = h;
-
-	mCreated = true;
-
-	Log::D("AndroidRenderWindow::Create: Window created.");
+	assert(eglMakeCurrent(display, surface, surface, context) != EGL_NO_CONTEXT);
 
 	return true;
 }
 
-void AndroidRenderWindow::Destroy()
+void destroy_render_window()
 {
-	if (!mCreated)
+	if (display != EGL_NO_DISPLAY)
 	{
-		return;
+		eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+
+		if (context != EGL_NO_CONTEXT)
+		{
+            eglDestroyContext(display, context);
+		}
+		
+		if (surface != EGL_NO_SURFACE)
+		{
+            eglDestroySurface(display, surface);
+		}
+
+		eglTerminate(display);
 	}
-
-	// Main window can not be destroyed
-	if (mMain)
-	{
-		return;
-	}
-
-	if (mFull)
-	{
-		SetFullscreen(false);
-	}
-
-	mCreated = false;
 }
 
-void AndroidRenderWindow::SetVisible(bool visible)
+void bind()
 {
-	mVisible = visible;
+	eglMakeCurrent(display, surface, surface, context);
 }
 
-void AndroidRenderWindow::Move(uint32_t x, uint32_t y)
+void unbind()
 {
+	eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 }
 
-void AndroidRenderWindow::Resize(uint32_t width, uint32_t height)
+void swap_buffers()
 {
+	eglSwapBuffers(display, surface);
 }
 
-void AndroidRenderWindow::SetFullscreen(bool full)
-{
-}
-
-void AndroidRenderWindow::Bind()
-{
-	eglMakeCurrent(mEGLDisplay, mEGLWindow, mEGLWindow, mEGLContext);
-}
-
-void AndroidRenderWindow::Unbind()
-{
-	eglMakeCurrent(mEGLDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-}
-
-void AndroidRenderWindow::Update()
-{
-	eglSwapBuffers(mEGLDisplay, mEGLWindow);
-}
-
-void AndroidRenderWindow::EventLoop()
-{
-}
-
-void AndroidRenderWindow::_NotifyMetricsChange(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
-{
-}
-
-void AndroidRenderWindow::_SetTitleAndAdditionalTextToWindow()
-{
-}
-
+} // namespace os
 } // namespace crown
 

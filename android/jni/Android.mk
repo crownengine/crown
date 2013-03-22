@@ -45,7 +45,6 @@ LOCAL_SRC_FILES :=\
 	os/OS.cpp\
 	os/android/AndroidOS.cpp\
 	os/android/AndroidRenderWindow.cpp\
-	os/android/AndroidTimer.cpp\
 \
 	Filesystem.cpp\
 \
@@ -107,7 +106,6 @@ LOCAL_CPPFLAGS	:= -g -fexceptions
 LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv1_CM
 LOCAL_STATIC_LIBRARIES := android_native_app_glue
 include $(BUILD_STATIC_LIBRARY)
-
 include $(CLEAR_VARS)
 
 #LOCAL_MODULE    := simple
@@ -153,5 +151,5 @@ include $(CLEAR_VARS)
 #LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv1_CM -lz
 #LOCAL_STATIC_LIBRARIES := android_native_app_glue
 #include $(BUILD_SHARED_LIBRARY)
-#$(call import-module,android/native_app_glue)
+$(call import-module,android/native_app_glue)
 

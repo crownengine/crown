@@ -28,82 +28,84 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/stat.h>
 #include <unistd.h>
 
-#define LOGI(...) ((void)__android_log_print32_t(ANDROID_LOG_INFO, "crown", __VA_ARGS__))
-#define LOGW(...) ((void)__android_log_print32_t(ANDROID_LOG_WARN, "crown", __VA_ARGS__))
-#define LOGD(...) ((void)__android_log_print32_t(ANDROID_LOG_DEBUG, "crown", __VA_ARGS__))
-#define LOGE(...) ((void)__android_log_print32_t(ANDROID_LOG_ERROR, "crown", __VA_ARGS__))
+#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "crown", __VA_ARGS__))
+#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "crown", __VA_ARGS__))
+#define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, "crown", __VA_ARGS__))
+#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "crown", __VA_ARGS__))
 
 namespace crown
 {
+namespace os
+{
 
-void OS::Print32_tf(const char* string, ...)
+void printf(const char* string, ...)
 {
 	LOGI(string);
 }
 
-void OS::LogDebug(const char* string, ...)
+void log_debug(const char* string, ...)
 {
 	LOGD(string);
 }
 
-void OS::LogError(const char* string, ...)
+void log_error(const char* string, ...)
 {
 	LOGE(string);
 }
 
-void OS::LogWarning(const char* string, ...)
+void log_warning(const char* string, ...)
 {
 	LOGW(string);
 }
 
-void OS::LogInfo(const char* string, ...)
+void log_info(const char* string, ...)
 {
 	LOGI(string);
 }
 
-bool OS::Exists(const Str& path)
+bool exists(const Str& path)
 {
 	struct stat dummy;
 	return (stat(path.c_str(), &dummy) == 0);
 }
 
-bool OS::IsDir(const Str& path)
+bool is_dir(const Str& path)
 {
 	struct stat info;
 	stat(path.c_str(), &info);
 	return (S_ISDIR(info.st_mode)) != 0;
 }
 
-bool OS::IsReg(const Str& path)
+bool is_reg(const Str& path)
 {
 	struct stat info;
 	stat(path.c_str(), &info);
 	return (S_ISREG(info.st_mode)) != 0;
 }
 
-bool OS::Mknod(const Str& path)
+bool mknod(const Str& path)
 {
 	// Permission mask: rw-r--r--
-	return mknod(path.c_str(), S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 0) == 0;
+	return ::mknod(path.c_str(), S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 0) == 0;
 }
 
-bool OS::Unlink(const Str& path)
+bool unlink(const Str& path)
 {
-	return (unlink(path.c_str()) == 0);
+	return (::unlink(path.c_str()) == 0);
 }
 
-bool OS::Mkdir(const Str& path)
+bool mkdir(const Str& path)
 {
 	// rwxr-xr-x permission mask
-	return (mkdir(path.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0);
+	return (::mkdir(path.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0);
 }
 
-bool OS::Rmdir(const Str& path)
+bool rmdir(const Str& path)
 {
-	return (rmdir(path.c_str()) == 0);
+	return (::rmdir(path.c_str()) == 0);
 }
 
-bool OS::GetCWD(Str& ret)
+bool get_cwd(Str& ret)
 {
 	static char cwdBuf[1024];
 	if (getcwd(cwdBuf, 1024) == NULL)
@@ -115,5 +117,6 @@ bool OS::GetCWD(Str& ret)
 	return true;
 }
 
+} // namespace os
 } // namespace crown
 
