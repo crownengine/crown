@@ -25,148 +25,123 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Str.h"
-#include "List.h"
+#include "String.h"
 #include "Stream.h"
-#include "Log.h"
 
 namespace crown
 {
 
-/**
-	Enumerates the filesystem's entry types
-*/
-enum FilesystemEntryType
-{
-	FET_DIR = 0,		//!< The entry is a directory
-	FET_FILE,			//!< The entry is a file
-	FET_MEM,			//!< The entry is a memory file (i.e. does not exist on the disk)
-	FET_UNKNOWN			//!< The entry type is unknown
-};
-
 struct FilesystemEntry
 {
-	FilesystemEntry() : type(FET_UNKNOWN)
+	enum Type
 	{
-	}
+		DIRECTORY = 0,				///< The entry is a directory
+		FILE,						///< The entry is a file
+		MEMORY,						///< The entry is a memory file (i.e. does not exist on the disk)
+		UNKNOWN						///< The entry type is unknown
+	};
 
-	void Print32_tReport()
-	{
-		Log::I("OSPath\t\t: %s", osPath.c_str());
-		Log::I("RelPath\t\t: %s", relativePath.c_str());
-		Log::I("Type:\t\t: %s", ((type == FET_FILE) ? "file" : (type == FET_DIR) ? "dir" : "unknown"));
-	}
+	FilesystemEntry() : type(UNKNOWN) {}
 
-	FilesystemEntryType	type;			//!< Type of the entry
-	Str					osPath;			//!< OS-specific path (use only for debug)
-	Str					relativePath;	//!< Relative path of the entry
+	Type			type;				///< Type of the entry
+	char			os_path[512];		///< OS-specific path (use only for debug)
+	char			relative_path[512];	///< Relative path of the entry
 };
 
-class Stream;
-
-/**
-	Virtual filesystem.
-
-	Provides a platform-independent way to access files and directories
-	on the host filesystem.
-
-	Accessing files:
-	Every file and every directory is accessed through the filesystem.
-	Not a single C/C++ std file io call should be used in any other part
-	of the engine in order to maint32_tain platform independence.
-
-	Pathnames:
-	Only unix-like pathnames (i.e. case sensitive and using '/' as separator)
-	are allowed.
-	Only relative paths are allowed: the filesystem is responsible for
-	the creation of its absolute platform-specific counterpart.
-
-	Filesystem forbids pathnames containing '.' and '..' to prevent access
-	to files outside the predefined directories.
-	Platform specific characters like '/', '\\' and ':' are forbidden as well.
-
-	Although mixed-case pathnames are allowed, it is generally safer to use
-	only lower-case ones for maximum compatibility.
-
-	Filesystem provides access to two main directories:
-		1) Root directory
-			it is the directory where all of the data came from.
-			Defaults to the directory where the executable is in
-			but can be overridden by the CROWN_ROOT_PATH environment
-			variable. The root directory is set only once at the
-			engine start and cannot be changed anymore.
-		2) User directory
-			defaults to the user home directory. Used to store user-specific
-			stuffs such as config files, screenshots, savegames ecc.
-*/
+/// Filesystem.
+///
+/// Provides a platform-independent way to access files and directories
+/// on the host filesystem.
+///
+/// Accessing files:
+/// Every file and every directory must be accessed through the Filesystem.
+/// Not a single C/C++ std file io call or other similar facilities
+/// should be used in any other part of the engine in order to maintain
+/// absolute platform independence.
+///
+/// Filesystem maintains a root path which acts as base directory for every
+/// file operation; access to files outside the root path is not allowed. If
+/// you really need it, instantiate another filesystem whith the appropriate
+/// root path (e.g.)
+///
+/// Filesystem fs("/home/foo"); // fs will use "/home/foo" as root path
+///
+/// fs.is_file("bar.txt");      // file "bar.txt" is relative to the root path,
+///                             // so it refers to "/home/foo/bar.txt"
+///
+/// The filesystem will take care of the necessary path conversions.
+/// The root path can be really anything: platform-specific/absolute/relative/whatever.
+/// Examples of valid root paths.
+///
+/// 1) "/home/foo"
+/// 2) "C:\Users\Phil"
+/// 3) "\abc$\/..)?/"
+///
+/// The relative paths must follow some strict rules:
+///
+/// a) Only unix-like pathnames (i.e. case sensitive and using '/' as separator)
+///    are allowed.
+/// b) Only relative paths are allowed: the filesystem is responsible for
+///    the creation of its absolute platform-specific counterpart.
+/// c) Filesystem forbids pathnames containing '.' and '..' to prevent access to
+///    files outside the filesystem's root path.
+/// d) Platform specific characters like '/', '\\' and ':' are forbidden as well.
+/// e) Symlinks, on platforms which support them, are _not_ resolved for the same
+///    reason of c)
+/// f) Although mixed-case pathnames are allowed, it is generally safer to use
+///    only lower-case ones for maximum compatibility.
+///
+/// Examples of valid relative paths.
+///
+/// data/textures/grass.texture
+/// grass.texture
+/// foo/bar
 class Filesystem
 {
-
 public:
 
-						Filesystem();
+						Filesystem(const char* root_path);
 						~Filesystem();
 
-	void				Init(const char* rootPath, const char* userPath);
+						/// Returns the root path of the filesystem
+	const char*			root_path() const;
 
-	const char*			GetRootPath() const;
-	const char*			GetUserPath() const;
+						/// TODO
+	bool				get_info(const char* base_path, const char* relative_path, FilesystemEntry& info);
+	
+						/// Returns whether the @relative_path exists on disk
+	bool				exists(const char* relative_path);
 
-	void				SetUserPath(const char* relativePath);
+						/// Returns whether @relative_path is a regular file
+	bool				is_file(const char* relative_path);
+						/// Returns whether @relative_path if a directory
+	bool				is_dir(const char* relative_path);
 
-	const char*			BuildOSPath(const char* basePath, const char* relativePath);
+						/// Creates a regular file named @relative_path
+	bool				create_file(const char* relative_path);
+						/// Creates a directory named @relative_path
+	bool				create_dir(const char* relative_path);
 
-	bool				GetInfo(const char* basePath, const char* relativePath, FilesystemEntry& info);
-	bool				Exists(const char* relativePath);
+						/// Deletes the regular file @relative_path
+	bool				delete_file(const char* relative_path);
+						/// Deletes the directory @relative_path
+	bool				delete_dir(const char* relative_path);
 
-	bool				IsFile(const char* relativePath);
-	bool				IsDir(const char* relativePath);
-
-	bool				CreateFile(const char* relativePath);
-	bool				CreateDir(const char* relativePath);
-
-	bool				DeleteFile(const char* relativePath);
-	bool				DeleteDir(const char* relativePath);
-
-	Stream*				OpenStream(const char* relativePath, StreamOpenMode openMode);
-	Stream*				OpenRead(const char* relativePath);
-	Stream*				OperWrite(const char* relativePath);
-	Stream*				OpenAppend(const char* relativePath);
-
-	void				Close(Stream* stream);
-
-	void				Print32_tReport();
-
-	static bool			IsValidSegment(const char* segment);
-	static bool			IsValidPath(const char* path);
-	static bool			IsAbsolutePath(const char* path);
-	static bool			IsRootPath(const char* path);
-
-//	static const char*	GetPathname(const char* path);
-//	static bool			GetFilename(const char* path, char* ret);
-//	static bool			GetBasename(const char* path, char* ret);
-	static const char*	GetExtension(const char* relativePath);
-//	static bool			GetSegments(const char* path, List<Str>& ret);
-
-//	static bool			RemoveTrailingSeparator(const char* path, char* ret);
-
+	Stream*				open(const char* relative_path, StreamOpenMode mode);
+	void				close(Stream* stream);
+	
 private:
 
-	void				_SetRootPath(const char* relativePath) { mRootPath = relativePath; }
+	const char*			build_os_path(const char* basePath, const char* relative_path);
+	
+private:
 
-	bool				mIsInit;
+	const char*			m_root_path;
 
-	Str					mRootPath;			//!< The root path.
-	Str					mUserPath;			//!< Where user settings/saves/ecc. live in
-
-	// Disable copying
-	Filesystem(const Filesystem&);
-	Filesystem& operator=(const Filesystem&);
-
-	friend class		Device;
+						// Disable copying
+						Filesystem(const Filesystem&);
+	Filesystem&			operator=(const Filesystem&);
 };
-
-Filesystem* GetFilesystem();
 
 } // namespace crown
 
