@@ -27,35 +27,35 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <GL/glew.h>
 #include "Types.h"
-#include "Texture.h"
+#include "TextureResource.h"
 
 namespace crown
 {
 
-class GLTexture : public Texture
+class GLTexture
 {
 
 public:
 
-					GLTexture();
-					~GLTexture();
+//					GLTexture();
+//					~GLTexture();
 
-	GLenum			GetGLTarget() const;	//!< Returns the OpenGL's texture target
-	GLuint			GetGLObject() const;	//!< Returns the OpenGL's texture object
-	
-	GLenum			GetGLTextureFormat() const;
+//	GLenum			GetGLTarget() const;	//!< Returns the OpenGL's texture target
+//	GLuint			GetGLObject() const;	//!< Returns the OpenGL's texture object
+//	
+//	GLenum			GetGLTextureFormat() const;
 
-	virtual void	Load(const char* name);
-	virtual void	Unload(const char* name, bool reload);
+//	virtual void	Load(const char* name);
+//	virtual void	Unload(const char* name, bool reload);
 
-	void			LoadFromFile(const char* relativePath);
-	void			LoadFromFile(const char* relativePath, Color4 colorKey);
-	void			LoadFromFile(const char* relativePath, const char* alphaGreyscale);
+//	void			LoadFromFile(const char* relativePath);
+//	void			LoadFromFile(const char* relativePath, Color4 colorKey);
+//	void			LoadFromFile(const char* relativePath, const char* alphaGreyscale);
 
-	void			LoadFromImage(const Image* image);
+//	void			LoadFromImage(const Image* image);
 
-	Image*			GetImage() const;
-	PixelFormat		GetTextureFormat() const;
+//	Image*			GetImage() const;
+//	PixelFormat		GetTextureFormat() const;
 
 private:
 

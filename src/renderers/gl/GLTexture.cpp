@@ -24,7 +24,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "GLTexture.h"
-#include "ImageLoader.h"
 #include "Image.h"
 #include "Pixel.h"
 #include "GLTextureManager.h"
@@ -35,158 +34,158 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-GLTexture::GLTexture() :
-	mTextureObject(0)
-{
-}
+//GLTexture::GLTexture() :
+//	mTextureObject(0)
+//{
+//}
 
-GLTexture::~GLTexture()
-{
-}
+//GLTexture::~GLTexture()
+//{
+//}
 
-GLenum GLTexture::GetGLTarget() const
-{
-	return GL::GetTextureTarget(mType);
-}
+//GLenum GLTexture::GetGLTarget() const
+//{
+//	return GL::GetTextureTarget(mType);
+//}
 
-GLuint GLTexture::GetGLObject() const
-{
-	return mTextureObject;
-}
+//GLuint GLTexture::GetGLObject() const
+//{
+//	return mTextureObject;
+//}
 
-GLenum GLTexture::GetGLTextureFormat() const
-{
-	int32_t value;
-	glGetTexLevelParameteriv(GetGLTarget(), 0, GL_TEXTURE_INTERNAL_FORMAT, &value);
-	return value;
-}
+//GLenum GLTexture::GetGLTextureFormat() const
+//{
+//	int32_t value;
+//	glGetTexLevelParameteriv(GetGLTarget(), 0, GL_TEXTURE_INTERNAL_FORMAT, &value);
+//	return value;
+//}
 
-void GLTexture::Load(const char* name)
-{
-	glGenTextures(1, &mTextureObject);
+//void GLTexture::Load(const char* name)
+//{
+//	glGenTextures(1, &mTextureObject);
 
-	LoadFromFile(name);
-}
+//	LoadFromFile(name);
+//}
 
-void GLTexture::Unload(const char* name, bool reload)
-{
-	glDeleteTextures(1, &mTextureObject);
+//void GLTexture::Unload(const char* name, bool reload)
+//{
+//	glDeleteTextures(1, &mTextureObject);
 
-	if (reload)
-	{
-		Load(name);
-	}
-}
+//	if (reload)
+//	{
+//		Load(name);
+//	}
+//}
 
-void GLTexture::LoadFromFile(const char* relativePath)
-{
-	Image* image;
+//void GLTexture::LoadFromFile(const char* relativePath)
+//{
+//	Image* image;
 
-	image = ImageLoader::Load(relativePath);
-	// In case of fail, use the fallback image
-	if (!image)
-	{
-		Log::E("%s: Loading failed, using fallback.", relativePath);
-		LoadFromImage(GetTextureManager()->GetFallback());
-		return;
-	}
+//	image = ImageLoader::Load(relativePath);
+//	// In case of fail, use the fallback image
+//	if (!image)
+//	{
+//		Log::E("%s: Loading failed, using fallback.", relativePath);
+//		LoadFromImage(GetTextureManager()->GetFallback());
+//		return;
+//	}
 
-	LoadFromImage(image);
-	delete image;
-}
+//	LoadFromImage(image);
+//	delete image;
+//}
 
-void GLTexture::LoadFromFile(const char* relativePath, Color4 colorKey)
-{
-	Image* image;
+//void GLTexture::LoadFromFile(const char* relativePath, Color4 colorKey)
+//{
+//	Image* image;
 
-	image = ImageLoader::Load(relativePath);
-	// In case of fail, use the fallback image
-	if (!image)
-	{
-		Log::E("%s: Loading failed, using fallback.", relativePath);
-		LoadFromImage(GetTextureManager()->GetFallback());
-		return;
-	}
+//	image = ImageLoader::Load(relativePath);
+//	// In case of fail, use the fallback image
+//	if (!image)
+//	{
+//		Log::E("%s: Loading failed, using fallback.", relativePath);
+//		LoadFromImage(GetTextureManager()->GetFallback());
+//		return;
+//	}
 
-	image->ApplyColorKeying(colorKey);
-	LoadFromImage(image);
-	delete image;
-}
+//	image->ApplyColorKeying(colorKey);
+//	LoadFromImage(image);
+//	delete image;
+//}
 
-void GLTexture::LoadFromFile(const char* relativePath, const char* alphaGreyscale)
-{
-	Image* image;
+//void GLTexture::LoadFromFile(const char* relativePath, const char* alphaGreyscale)
+//{
+//	Image* image;
 
-	image = ImageLoader::Load(relativePath);
-	// In case of fail, use the fallback image
-	if (!image)
-	{
-		Log::E("%s: Loading failed, using fallback.", relativePath);
-		LoadFromImage(GetTextureManager()->GetFallback());
-		return;
-	}
+//	image = ImageLoader::Load(relativePath);
+//	// In case of fail, use the fallback image
+//	if (!image)
+//	{
+//		Log::E("%s: Loading failed, using fallback.", relativePath);
+//		LoadFromImage(GetTextureManager()->GetFallback());
+//		return;
+//	}
 
-	Image* greyscaleImage;
-	greyscaleImage = ImageLoader::Load(alphaGreyscale);
-	if (!greyscaleImage)
-	{
-		Log::E("%s: Loading failed, no alpha map applied.", alphaGreyscale);
-	}
-	else
-	{
-		image->ApplyGreyscaleToAlpha(greyscaleImage);
-		delete greyscaleImage;
-	}
+//	Image* greyscaleImage;
+//	greyscaleImage = ImageLoader::Load(alphaGreyscale);
+//	if (!greyscaleImage)
+//	{
+//		Log::E("%s: Loading failed, no alpha map applied.", alphaGreyscale);
+//	}
+//	else
+//	{
+//		image->ApplyGreyscaleToAlpha(greyscaleImage);
+//		delete greyscaleImage;
+//	}
 
-	LoadFromImage(image);
-	delete image;
-}
+//	LoadFromImage(image);
+//	delete image;
+//}
 
-void GLTexture::LoadFromImage(const Image* image)
-{
-	GLenum target = GetGLTarget();
-	glBindTexture(target, mTextureObject);
+//void GLTexture::LoadFromImage(const Image* image)
+//{
+//	GLenum target = GetGLTarget();
+//	glBindTexture(target, mTextureObject);
 
-	PixelFormat imageFormat = image->GetFormat();
-	GLint textureFormat = GL::GetPixelFormat(imageFormat); 
+//	PixelFormat imageFormat = image->GetFormat();
+//	GLint textureFormat = GL::GetPixelFormat(imageFormat); 
 
-	if (mGenerateMipMaps)
-	{
-		glTexParameteri(target, GL_GENERATE_MIPMAP, GL_TRUE);
-	}
+//	if (mGenerateMipMaps)
+//	{
+//		glTexParameteri(target, GL_GENERATE_MIPMAP, GL_TRUE);
+//	}
 
-	glTexImage2D(target, 0, GL_RGBA, image->GetWidth(), image->GetHeight(), 0,
-		textureFormat, GL_UNSIGNED_BYTE, image->GetBuffer());
+//	glTexImage2D(target, 0, GL_RGBA, image->GetWidth(), image->GetHeight(), 0,
+//		textureFormat, GL_UNSIGNED_BYTE, image->GetBuffer());
 
-	mWidth = image->GetWidth();
-	mHeight = image->GetHeight();
-}
+//	mWidth = image->GetWidth();
+//	mHeight = image->GetHeight();
+//}
 
-Image* GLTexture::GetImage() const
-{
-	glPixelStoref(GL_UNPACK_ALIGNMENT, 1);
+//Image* GLTexture::GetImage() const
+//{
+//	glPixelStoref(GL_UNPACK_ALIGNMENT, 1);
 
-	GLenum target = GetGLTarget();
-	glBindTexture(target, mTextureObject);
+//	GLenum target = GetGLTarget();
+//	glBindTexture(target, mTextureObject);
 
-	
+//	
 
-	GLenum glFormat = GetGLTextureFormat();
-	PixelFormat format = GetTextureFormat();
-	int32_t bytesPerPixel = Pixel::GetBytesPerPixel(format);
+//	GLenum glFormat = GetGLTextureFormat();
+//	PixelFormat format = GetTextureFormat();
+//	int32_t bytesPerPixel = Pixel::GetBytesPerPixel(format);
 
-	uint8_t* texData = new uint8_t[GetWidth() * GetHeight() * bytesPerPixel];
+//	uint8_t* texData = new uint8_t[GetWidth() * GetHeight() * bytesPerPixel];
 
-	glGetTexImage(target, 0, glFormat, GL_UNSIGNED_BYTE, texData);
-	
-	Image* image = new Image(format, GetWidth(), GetHeight(), texData);
-	return image;
-}
+//	glGetTexImage(target, 0, glFormat, GL_UNSIGNED_BYTE, texData);
+//	
+//	Image* image = new Image(format, GetWidth(), GetHeight(), texData);
+//	return image;
+//}
 
-PixelFormat GLTexture::GetTextureFormat() const
-{
-	return GL::GetPixelFormatFromGLFormat(GetGLTextureFormat());
-}
+//PixelFormat GLTexture::GetTextureFormat() const
+//{
+//	return GL::GetPixelFormatFromGLFormat(GetGLTextureFormat());
+//}
 
 } // namespace crown
 
