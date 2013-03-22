@@ -26,93 +26,66 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Dictionary.h"
+#include "List.h"
 #include "Resource.h"
+#include "ResourceLoader.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
 
-/**
-	Resource manager.
+struct ResourceEntry
+{
+	ResourceId		id;
+	ResourceState	state;
 
-	Keeps track of loaded resources.
-*/
+	uint32_t		references;
+
+	void*			resource;
+
+	bool			operator==(const StringId32& name)
+					{
+						return id.name == name;
+					}
+
+	bool			operator==(const ResourceEntry& b)
+					{
+						return id.name == b.id.name;
+					}
+};
+
+class ResourceLoader;
+
+/// Resource manager.
 class ResourceManager
 {
-
-	// FIXME: replace with hashmap
-	typedef Dictionary<StrId64, Resource*> NameToResourceDict;
-
 public:
 
-	Resource*	Create(const char* name, bool& created);
-	void		Destroy(const char* name);
+							ResourceManager();
+							~ResourceManager();
 
-	Resource*	Load(const char* name);
-	void		Unload(const char* name, bool reload);
+	ResourceId				load(const char* name);
+	ResourceId				load(StringId32 name);
 
-	Resource*	GetByName(const char* name);
-	int32_t		GetResourceCount() const;
+	void					unload(ResourceId name);
+	void					reload(ResourceId name);
 
-	/**
-	 * Creates a generic resource with the given name.
-	 * If a resource with the same name already exists, the
-	 * already existent resource will be returned. In order
-	 * to distinguish between a newly created resource or a
-	 * point32_ter to an existing one, you have to check
-	 * at the value returned by 'created'.
-	 * @param name The name of the resource
-	 * @param created Returns true if newly created, false otherwise
-	 * @return A point32_ter to the created resource
-	 */
+	bool					has(ResourceId name);
+	bool					is_loaded(ResourceId name);
+	void					flush() { m_resource_loader.flush(); }
 
-	/**
-	 * Loads a generic resource from file.
-	 * The name of the file determines the name of the resource and vice-versa.
-	 * @param name Tha name of the resource
-	 * @return A point32_ter to the loaded resource
-	 */
+private:
 
-	/**
-		Unloads a generic resource with the given name.
-	@param name
-		The name of the resource
-	@param reload
-		Whether to reload after unloading
-	*/
+	void					loading(ResourceId name);
+	void					online(ResourceId name, void* resource);
 
-	/**
-	 * Destroys a generic resource with the given name.
-	 * Causes the manager to remove the resource from its
-	 * int32_ternal list.
-	 * @note Destroying here is a misleading term since the
-	 * resource is not destroyed if there are other references
-	 * to it.
-	 * @param name The name of the resource
-	 */
+private:
 
-	/**
-	 * Returns a resource by its name.
-	 * If the resource does not exists, returns a null point32_ter.
-	 * @param name The name of the resource
-	 * @return A point32_ter to the resource
-	 */
-
-	/**
-	 * Returns the number of resources managed by this resource manager.
-	 * @return The number of resources
-	 */
-
-protected:
-
-						ResourceManager();		//!< Constructor
-	virtual				~ResourceManager();		//!< Destructor
-
-	virtual Resource*	CreateSpecific(const char* name) = 0;
-	virtual void		DestroySpecific(const char* name);
-
-	// Resource name -> Resource point32_ter
-	NameToResourceDict	mNameToResourceDict;
+	ResourceLoader			m_resource_loader;
+	MallocAllocator			m_allocator;
+	List<ResourceEntry>		m_resources;
+	
+	friend class			ResourceLoader;
 };
 
 } // namespace crown

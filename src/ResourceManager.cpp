@@ -25,89 +25,139 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "ResourceManager.h"
-#include "Str.h"
+#include "ResourceLoader.h"
+#include "String.h"
+#include <algorithm>
 
 namespace crown
 {
 
-ResourceManager::ResourceManager()
+//-----------------------------------------------------------------------------
+ResourceManager::ResourceManager() :
+	m_resource_loader(this),
+	m_resources(m_allocator)
 {
 }
 
+//-----------------------------------------------------------------------------
 ResourceManager::~ResourceManager()
 {
 }
 
-Resource* ResourceManager::Create(const char* name, bool& created)
+//-----------------------------------------------------------------------------
+ResourceId ResourceManager::load(const char* name)
 {
-	Resource* resource = GetByName(name);
+	StringId32 name_hash = string::Hash32(name);
 
-	created = false;
-
-	if (resource == NULL)
-	{
-		resource = CreateSpecific(name);
-		mNameToResourceDict[Str::Hash64(name)] = resource;
-		created = true;
-	}
-
-	return resource;
+	return load(name_hash);
 }
 
-Resource* ResourceManager::Load(const char* name)
+//-----------------------------------------------------------------------------
+ResourceId ResourceManager::load(StringId32 name)
 {
-	bool created;
-	Resource* resource = Create(name, created);
+	// Search for an already existent resource
+	ResourceEntry* entry = std::find(m_resources.begin(), m_resources.end(), name);
 
-	if (resource != NULL && created)
+	// If resource not found
+	if (entry == m_resources.end())
 	{
-		resource->Load(name);
+		ResourceId id;
+		id.name = name;
+		id.index = m_resources.size();
+
+		ResourceEntry entry;
+		entry.id = id;
+		entry.state = RS_UNLOADED;
+		entry.references = 1;
+		entry.resource = NULL;
+
+		m_resources.push_back(entry);
+
+		m_resource_loader.load(id);
+
+		return id;
 	}
 
-	return resource;
+	entry->references++;
+	return entry->id;
 }
 
-void ResourceManager::Unload(const char* name, bool reload)
+//-----------------------------------------------------------------------------
+void ResourceManager::unload(ResourceId name)
 {
-	Resource* resource = GetByName(name);
-
-	if (resource != NULL)
+	assert(has(name));
+	
+	ResourceEntry& entry = m_resources[name.index];
+	
+	entry.references--;
+	
+	if (entry.references == 0)
 	{
-		resource->Unload(name, reload);
+		entry.state = RS_UNLOADED;
+		entry.resource = NULL;
+
+		m_resource_loader.unload(name);
 	}
 }
 
-void ResourceManager::Destroy(const char* name)
+//-----------------------------------------------------------------------------
+void ResourceManager::reload(ResourceId name)
 {
-	Resource* resource = GetByName(name);
-
-	if (resource != NULL)
+	assert(has(name));
+	
+	ResourceEntry& entry = m_resources[name.index];
+	
+	if (entry.state == RS_LOADED)
 	{
-		resource->Unload(name, false);
-		DestroySpecific(name);
+	
 	}
 }
 
-Resource* ResourceManager::GetByName(const char* name)
+//-----------------------------------------------------------------------------
+bool ResourceManager::has(ResourceId name)
 {
-	uint64_t nameHash = Str::Hash64(name);
-
-	if (mNameToResourceDict.Contains(nameHash))
+	if (m_resources.size() <= name.index)
 	{
-		return mNameToResourceDict[nameHash];
+		return false;
 	}
 
-	return NULL;
+	if (m_resources[name.index].id.name == name.name)
+	{
+		return true;
+	}
+
+	return false;
 }
 
-void ResourceManager::DestroySpecific(const char* name)
+//-----------------------------------------------------------------------------
+bool ResourceManager::is_loaded(ResourceId name)
 {
-	Resource* resource = GetByName(name);
-
-	if (resource != NULL)
+	if (has(name))
 	{
-		mNameToResourceDict.Remove(Str::Hash64(name));
+		return m_resources[name.index].state == RS_LOADED;
 	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+void ResourceManager::loading(ResourceId name)
+{
+	assert(has(name) == true);
+
+	m_resources[name.index].state = RS_LOADING;
+}
+
+//-----------------------------------------------------------------------------
+void ResourceManager::online(ResourceId name, void* resource)
+{
+	assert(has(name) == true);
+	//assert(resource != NULL);
+
+	ResourceEntry& entry = m_resources[name.index];
+
+	entry.resource = resource;
+	entry.state = RS_LOADED;
 }
 
 } // namespace crown

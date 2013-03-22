@@ -25,84 +25,27 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Types.h"
+
 namespace crown
 {
 
-/**
-	Enumerates the loading state of a resource.
-*/
-enum LoadState
+/// Enumerates the loading state of a resource
+enum ResourceState
 {
-	LS_UNLOADED		= 0,	//!< The resouce is not loaded
-	LS_LOADING		= 1,	//!< The resource is loading
-	LS_LOADED		= 2,	//!< The resource is loaded
-	LS_UNLOADING	= 3		//!< The resource is unloading
+	RS_UNLOADED		= 0,		//< The resource is not loaded, so it cannot be used
+	RS_LOADING		= 1,		//< The resource loader started to load the resource but it is yet not ready to use
+	RS_LOADED		= 2			//< The resource loader finished to load the texture meaning it can be used
 };
 
-class ResourceManager;
-
-/**
-	Abstracts a generic resource.
-
-	Each resource is uniquely identified by its name.
-	The name of a resource is simply the path to the
-	corresponding file on the disk relative to the root path.
-
-	More info about the root path in Filesystem.
-
-	"textures/grass.tga" is a texture resource located at
-	"ROOT_PATH/textures/grass.tga".
-
-	Paths to resources follow the same conventions used
-	for referring to files on disk covered in Filesystem.
-
-	In order to save space and keep high performances, resource
-	names are stored as 64-bit int64_t sting hashes.
-*/
-class Resource
+/// ResourceId uniquely identifies a resource by its name and type.
+/// In order to speed up the lookup by the manager, it also keeps
+/// the index to the resource list where it is stored.
+struct ResourceId
 {
-
-public:
-
-						/**
-							Constructor.
-						*/
-						Resource() : mIsReloadable(false), mLoadState(LS_UNLOADED), mSize(0) {}
-						/**
-							Destructor.
-						*/
-	virtual				~Resource() { }
-						/**
-							Loads the resource.
-						*/
-	virtual void		Load(const char* name) { (void)name; }
-						/**
-							Unloads the resource and then optionally reloads it.
-						@param reload
-							Whether to reload after unloading
-						*/
-	virtual void		Unload(const char* name, bool reload) { (void)name; (void)reload; }
-						/**
-							Returns whether the resource is reloadable.
-						@return Whether is reloadable
-						*/
-	inline bool			IsReloadable() { return mIsReloadable; }
-						/**
-							Returns the loading state of the resource.
-						@return The loading state
-						*/
-	inline LoadState	GetLoadState() { return mLoadState; }
-						/**
-							Returns the resource's size in bytes.
-						@return The size in bytes
-						*/
-	inline size_t		GetSize() { return mSize; }
-
-protected:
-
-	bool				mIsReloadable;	//!< Whether is reloadable
-	LoadState			mLoadState;		//!< The loading state
-	size_t				mSize;			//!< The size in bytes
+	StringId32		name;
+	StringId32		type;
+	uint32_t		index;
 };
 
 } // namespace crown
