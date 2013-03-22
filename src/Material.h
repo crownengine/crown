@@ -26,7 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Texture.h"
+#include "TextureResource.h"
+#include "Resource.h"
 #include "Vec3.h"
 
 namespace crown
@@ -110,16 +111,16 @@ enum BlendFunction
 	BF_COUNT
 };
 
-class Material : public Resource
+class MaterialResource
 {
 
 public:
 
 	//! Constructor
-	Material();
+	MaterialResource();
 
 	//! Destructor
-	~Material();
+	~MaterialResource();
 
 	//! Returns the ambient reflectance
 	const Color4& GetAmbient() const;
@@ -336,10 +337,10 @@ public:
 
 	//! Sets "texture" to layer "layer"
 	//! Returns true if success
-	bool SetTextureLayer(uint32_t layer, Texture* texture);
+	bool SetTextureLayer(uint32_t layer, ResourceId texture);
 
 	//! Returns the texture at layer "layer"
-	Texture* GetTextureLayer(uint32_t layer) const;
+	ResourceId GetTextureLayer(uint32_t layer) const;
 
 	//! Sets the texture mode for all layers
 	void SetTextureMode(TextureMode mode);
@@ -355,52 +356,52 @@ public:
 
 //private:
 
-	Color4 mAmbient;
-	Color4 mDiffuse;
-	Color4 mSpecular;
-	Color4 mEmission;
-	int32_t mShininess;
+	Color4			mAmbient;
+	Color4			mDiffuse;
+	Color4			mSpecular;
+	Color4			mEmission;
+	int32_t			mShininess;
 
-	bool mLighting				: 1; // Whether lighting is enabled
-	bool mTexturing				: 1; // Whether texturing is enabled
-	bool mBackfaceCulling		: 1; // Whether backface-culling is enabled
-	bool mSeparateSpecularColor : 1; // Whether separate specular color is enabled
-	bool mDepthTest				: 1; // Whether depth test is enabled
-	bool mDepthWrite			: 1; // Whether depth write is enabled
-	bool mRescaleNormals		: 1; // Whether auto normal rescaling is enabled
-	bool mBlending				: 1; // Whether blending is enabled
-	bool mColorWrite			: 1; // Whether writing int32_to the color buffer is enabled
-	bool mFog					: 1; // Whether fog is enabled
-	bool mAlphaTest				: 1; // Whether alpha test is enabled
-	bool mPointSprite			: 1; // Whether point sprite is enabled
+	bool			mLighting				: 1; // Whether lighting is enabled
+	bool			mTexturing				: 1; // Whether texturing is enabled
+	bool			mBackfaceCulling		: 1; // Whether backface-culling is enabled
+	bool			mSeparateSpecularColor : 1; // Whether separate specular color is enabled
+	bool			mDepthTest				: 1; // Whether depth test is enabled
+	bool			mDepthWrite			: 1; // Whether depth write is enabled
+	bool			mRescaleNormals		: 1; // Whether auto normal rescaling is enabled
+	bool			mBlending				: 1; // Whether blending is enabled
+	bool			mColorWrite			: 1; // Whether writing int32_to the color buffer is enabled
+	bool			mFog					: 1; // Whether fog is enabled
+	bool			mAlphaTest				: 1; // Whether alpha test is enabled
+	bool			mPointSprite			: 1; // Whether point sprite is enabled
 
-	ShadingType mShadingType;
-	PolygonMode mPolygonMode;
-	FrontFace mFrontFace;
+	ShadingType		mShadingType;
+	PolygonMode		mPolygonMode;
+	FrontFace		mFrontFace;
 
-	CompareFunction mDepthFunc;
+	CompareFunction	mDepthFunc;
 
-	FogMode mFogMode;
-	float mFogDensity;
-	float mFogStart;
-	float mFogEnd;
-	Color4 mFogColor;
+	FogMode 		mFogMode;
+	float			mFogDensity;
+	float			mFogStart;
+	float			mFogEnd;
+	Color4			mFogColor;
 
-	CompareFunction mAlphaFunc;
-	float mAlphaRef;
+	CompareFunction	mAlphaFunc;
+	float			mAlphaRef;
 
-	float mPointSize;
-	float mPointSizeMin;
-	float mPointSizeMax;
+	float			mPointSize;
+	float			mPointSizeMin;
+	float			mPointSizeMax;
 
-	BlendEquation mBlendEquation;
-	BlendFunction mBlendSrc;
-	BlendFunction mBlendDst;
-	Color4 mBlendColor;
+	BlendEquation	mBlendEquation;
+	BlendFunction	mBlendSrc;
+	BlendFunction	mBlendDst;
+	Color4			mBlendColor;
 
-	//! A material can contain up to MAX_TEXTURE_LAYERS texture layers.
-	//! However, the maximum number of texture layers really usable is renderer-dependent.
-	Texture* mTextureLayer[MAX_TEXTURE_LAYERS];
+	// A material can contain up to MAX_TEXTURE_LAYERS texture layers.
+	// However, the maximum number of texture layers really usable is renderer-dependent.
+	ResourceId		mTextureLayer[MAX_TEXTURE_LAYERS];
 };
 
 } // namespace crown

@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-Material::Material() :
+MaterialResource::MaterialResource() :
 	mAmbient(0.5f, 0.5f, 0.5f, 1.0f),
 	mDiffuse(0.5f, 0.5f, 0.5f, 1.0f),
 	mSpecular(0.5f, 0.5f, 0.5f, 1.0f),
@@ -66,363 +66,363 @@ Material::Material() :
 	mBlendDst(BF_ONE_MINUS_SRC_ALPHA),
 	mBlendColor(0.0f, 0.0f, 0.0f, 0.0f)
 {
-	for (uint32_t i = 0; i < MAX_TEXTURE_LAYERS; i++)
-	{
-		mTextureLayer[i] = 0;
-	}
+//	for (uint32_t i = 0; i < MAX_TEXTURE_LAYERS; i++)
+//	{
+//		mTextureLayer[i] = 0;
+//	}
 }
 
-Material::~Material()
+MaterialResource::~MaterialResource()
 {
 }
 
-const Color4& Material::GetAmbient() const
+const Color4& MaterialResource::GetAmbient() const
 {
 	return mAmbient;
 }
 
-void Material::SetAmbient(const Color4& ambient)
+void MaterialResource::SetAmbient(const Color4& ambient)
 {
 	mAmbient = ambient;
 }
 
-const Color4& Material::GetDiffuse() const
+const Color4& MaterialResource::GetDiffuse() const
 {
 	return mDiffuse;
 }
 
-void Material::SetDiffuse(const Color4& diffuse)
+void MaterialResource::SetDiffuse(const Color4& diffuse)
 {
 	mDiffuse = diffuse;
 }
 
-const Color4& Material::GetSpecular() const
+const Color4& MaterialResource::GetSpecular() const
 {
 	return mSpecular;
 }
 
-void Material::SetSpecular(const Color4& specular)
+void MaterialResource::SetSpecular(const Color4& specular)
 {
 	mSpecular = specular;
 }
 
-const Color4& Material::GetEmission() const
+const Color4& MaterialResource::GetEmission() const
 {
 	return mEmission;
 }
 
-void Material::SetEmission(const Color4& emission)
+void MaterialResource::SetEmission(const Color4& emission)
 {
 	mEmission = emission;
 }
 
-int32_t Material::GetShininess() const
+int32_t MaterialResource::GetShininess() const
 {
 	return mShininess;
 }
 
-void Material::SetShininess(int32_t shininess)
+void MaterialResource::SetShininess(int32_t shininess)
 {
 	mShininess = shininess;
 }
 
-bool Material::GetLighting() const
+bool MaterialResource::GetLighting() const
 {
 	return mLighting;
 }
 
-void Material::SetLighting(bool lighting)
+void MaterialResource::SetLighting(bool lighting)
 {
 	mLighting = lighting;
 }
 
-bool Material::GetTexturing() const
+bool MaterialResource::GetTexturing() const
 {
 	return mTexturing;
 }
 
-void Material::SetTexturing(bool texturing)
+void MaterialResource::SetTexturing(bool texturing)
 {
 	mTexturing = texturing;
 }
 
-bool Material::GetBackfaceCulling() const
+bool MaterialResource::GetBackfaceCulling() const
 {
 	return mBackfaceCulling;
 }
 
-void Material::SetBackfaceCulling(bool culling)
+void MaterialResource::SetBackfaceCulling(bool culling)
 {
 	mBackfaceCulling = culling;
 }
 
-bool Material::GetSeparateSpecularColor() const
+bool MaterialResource::GetSeparateSpecularColor() const
 {
 	return mSeparateSpecularColor;
 }
 
-void Material::SetSeparateSpecularColor(bool separate)
+void MaterialResource::SetSeparateSpecularColor(bool separate)
 {
 	mSeparateSpecularColor = separate;
 }
 
-bool Material::GetDepthTest() const
+bool MaterialResource::GetDepthTest() const
 {
 	return mDepthTest;
 }
 
-void Material::SetDepthTest(bool test)
+void MaterialResource::SetDepthTest(bool test)
 {
 	mDepthTest = test;
 }
 
-bool Material::GetDepthWrite() const
+bool MaterialResource::GetDepthWrite() const
 {
 	return mDepthWrite;
 }
 
-void Material::SetDepthWrite(bool write)
+void MaterialResource::SetDepthWrite(bool write)
 {
 	mDepthWrite = write;
 }
 
-bool Material::GetRescaleNormals() const
+bool MaterialResource::GetRescaleNormals() const
 {
 	return mRescaleNormals;
 }
 
-void Material::SetRescaleNormals(bool rescale)
+void MaterialResource::SetRescaleNormals(bool rescale)
 {
 	mRescaleNormals = rescale;
 }
 
-bool Material::GetBlending() const
+bool MaterialResource::GetBlending() const
 {
 	return mBlending;
 }
 
-void Material::SetBlending(bool blending)
+void MaterialResource::SetBlending(bool blending)
 {
 	mBlending = blending;
 }
 
-bool Material::GetColorWrite() const
+bool MaterialResource::GetColorWrite() const
 {
 	return mColorWrite;
 }
 
-void Material::SetColorWrite(bool write)
+void MaterialResource::SetColorWrite(bool write)
 {
 	mColorWrite = write;
 }
 
-bool Material::GetFog() const
+bool MaterialResource::GetFog() const
 {
 	return mFog;
 }
 
-void Material::SetFog(bool fog)
+void MaterialResource::SetFog(bool fog)
 {
 	mFog = fog;
 }
 
-bool Material::GetAlphaTest() const
+bool MaterialResource::GetAlphaTest() const
 {
 	return mAlphaTest;
 }
 
-void Material::SetAlphaTest(bool test)
+void MaterialResource::SetAlphaTest(bool test)
 {
 	mAlphaTest = test;
 }
 
-bool Material::GetPointSprite() const
+bool MaterialResource::GetPointSprite() const
 {
 	return mPointSprite;
 }
 
-void Material::SetPointSprite(bool sprite)
+void MaterialResource::SetPointSprite(bool sprite)
 {
 	mPointSprite = sprite;
 }
 
-ShadingType Material::GetShadingType() const
+ShadingType MaterialResource::GetShadingType() const
 {
 	return mShadingType;
 }
 
-void Material::SetShadingType(ShadingType type)
+void MaterialResource::SetShadingType(ShadingType type)
 {
 	mShadingType = type;
 }
 
-PolygonMode Material::GetPolygonMode() const
+PolygonMode MaterialResource::GetPolygonMode() const
 {
 	return mPolygonMode;
 }
 
-void Material::SetPolygonMode(PolygonMode mode)
+void MaterialResource::SetPolygonMode(PolygonMode mode)
 {
 	mPolygonMode = mode;
 }
 
-FrontFace Material::GetFrontFace() const
+FrontFace MaterialResource::GetFrontFace() const
 {
 	return mFrontFace;
 }
 
-void Material::SetFrontFace(FrontFace front)
+void MaterialResource::SetFrontFace(FrontFace front)
 {
 	mFrontFace = front;
 }
 
-CompareFunction Material::GetDepthFunc() const
+CompareFunction MaterialResource::GetDepthFunc() const
 {
 	return mDepthFunc;
 }
 
-void Material::SetDepthFunc(CompareFunction func)
+void MaterialResource::SetDepthFunc(CompareFunction func)
 {
 	mDepthFunc = func;
 }
 
-FogMode Material::GetFogMode() const
+FogMode MaterialResource::GetFogMode() const
 {
 	return mFogMode;
 }
 
-void Material::SetFogMode(FogMode mode)
+void MaterialResource::SetFogMode(FogMode mode)
 {
 	mFogMode = mode;
 }
 
-float Material::GetFogDensity() const
+float MaterialResource::GetFogDensity() const
 {
 	return mFogDensity;
 }
 
-void Material::SetFogDensity(float density)
+void MaterialResource::SetFogDensity(float density)
 {
 	mFogDensity = density;
 }
 
-float Material::GetFogStart() const
+float MaterialResource::GetFogStart() const
 {
 	return mFogStart;
 }
 
-void Material::SetFogStart(float start)
+void MaterialResource::SetFogStart(float start)
 {
 	mFogStart = start;
 }
 
-float Material::GetFogEnd() const
+float MaterialResource::GetFogEnd() const
 {
 	return mFogEnd;
 }
 
-void Material::SetFogEnd(float end)
+void MaterialResource::SetFogEnd(float end)
 {
 	mFogEnd = end;
 }
 
-const Color4& Material::GetFogColor() const
+const Color4& MaterialResource::GetFogColor() const
 {
 	return mFogColor;
 }
 
-void Material::SetFogColor(const Color4& color)
+void MaterialResource::SetFogColor(const Color4& color)
 {
 	mFogColor = color;
 }
 
-CompareFunction Material::GetAlphaFunc() const
+CompareFunction MaterialResource::GetAlphaFunc() const
 {
 	return mAlphaFunc;
 }
 
-void Material::SetAlphaFunction(CompareFunction func)
+void MaterialResource::SetAlphaFunction(CompareFunction func)
 {
 	mAlphaFunc = func;
 }
 
-float Material::GetAlphaRef() const
+float MaterialResource::GetAlphaRef() const
 {
 	return mAlphaRef;
 }
 
-void Material::SetAlphaRef(float ref)
+void MaterialResource::SetAlphaRef(float ref)
 {
 	mAlphaRef = ref;
 }
 
-float Material::GetPointSize() const
+float MaterialResource::GetPointSize() const
 {
 	return mPointSize;
 }
 
-void Material::SetPointSize(float size)
+void MaterialResource::SetPointSize(float size)
 {
 	mPointSize = size;
 }
 
-float Material::GetPointSizeMin() const
+float MaterialResource::GetPointSizeMin() const
 {
 	return mPointSizeMin;
 }
 
-void Material::SetPointSizeMin(float min)
+void MaterialResource::SetPointSizeMin(float min)
 {
 	mPointSizeMin = min;
 }
 
-float Material::GetPointSizeMax() const
+float MaterialResource::GetPointSizeMax() const
 {
 	return mPointSizeMax;
 }
 
-void Material::SetPointSizeMax(float max)
+void MaterialResource::SetPointSizeMax(float max)
 {
 	mPointSizeMax = max;
 }
 
-BlendFunction Material::GetSrcBlendFunc() const
+BlendFunction MaterialResource::GetSrcBlendFunc() const
 {
 	return mBlendSrc;
 }
 
-void Material::SetSrcBlendFunc(BlendFunction src)
+void MaterialResource::SetSrcBlendFunc(BlendFunction src)
 {
 	mBlendSrc = src;
 }
 
-BlendFunction Material::GetDstBlendFunc() const
+BlendFunction MaterialResource::GetDstBlendFunc() const
 {
 	return mBlendDst;
 }
 
-void Material::SetDstBlendFunc(BlendFunction dst)
+void MaterialResource::SetDstBlendFunc(BlendFunction dst)
 {
 	mBlendDst = dst;
 }
 
-void Material::SetBlendFunc(BlendFunction src, BlendFunction dst)
+void MaterialResource::SetBlendFunc(BlendFunction src, BlendFunction dst)
 {
 	mBlendSrc = src;
 	mBlendDst = dst;
 }
 
-Color4& Material::GetBlendColor()
+Color4& MaterialResource::GetBlendColor()
 {
 	return mBlendColor;
 }
 
-void Material::SetBlendColor(const Color4& color)
+void MaterialResource::SetBlendColor(const Color4& color)
 {
 	mBlendColor = color;
 }
 
-bool Material::SetTextureLayer(uint32_t layer, Texture* texture)
+bool MaterialResource::SetTextureLayer(uint32_t layer, ResourceId texture)
 {
 	if (layer >= MAX_TEXTURE_LAYERS)
 	{
@@ -433,47 +433,47 @@ bool Material::SetTextureLayer(uint32_t layer, Texture* texture)
 	return true;
 }
 
-Texture* Material::GetTextureLayer(uint32_t layer) const
+ResourceId MaterialResource::GetTextureLayer(uint32_t layer) const
 {
-	if (layer >= MAX_TEXTURE_LAYERS)
-	{
-		return 0;
-	}
+//	if (layer >= MAX_TEXTURE_LAYERS)
+//	{
+//		return 0;
+//	}
 
 	return mTextureLayer[layer];
 }
 
-void Material::SetTextureMode(TextureMode mode)
+void MaterialResource::SetTextureMode(TextureMode mode)
 {
-	for (uint32_t i = 0; i < MAX_TEXTURE_LAYERS; i++)
-	{
-		if (mTextureLayer[i] == 0)
-			continue;
+//	for (uint32_t i = 0; i < MAX_TEXTURE_LAYERS; i++)
+//	{
+//		if (mTextureLayer[i] == 0)
+//			continue;
 
-		mTextureLayer[i]->SetMode(mode);
-	}
+//		mTextureLayer[i]->SetMode(mode);
+//	}
 }
 
-void Material::SetTextureFilter(TextureFilter filter)
+void MaterialResource::SetTextureFilter(TextureFilter filter)
 {
-	for (uint32_t i = 0; i < MAX_TEXTURE_LAYERS; i++)
-	{
-		if (mTextureLayer[i] == 0)
-			continue;
+//	for (uint32_t i = 0; i < MAX_TEXTURE_LAYERS; i++)
+//	{
+//		if (mTextureLayer[i] == 0)
+//			continue;
 
-		mTextureLayer[i]->SetFilter(filter);
-	}
+//		mTextureLayer[i]->SetFilter(filter);
+//	}
 }
 
-void Material::SetTextureWrap(TextureWrap wrap)
+void MaterialResource::SetTextureWrap(TextureWrap wrap)
 {
-	for (uint32_t i = 0; i < MAX_TEXTURE_LAYERS; i++)
-	{
-		if (mTextureLayer[i] == 0)
-			continue;
+//	for (uint32_t i = 0; i < MAX_TEXTURE_LAYERS; i++)
+//	{
+//		if (mTextureLayer[i] == 0)
+//			continue;
 
-		mTextureLayer[i]->SetWrap(wrap);
-	}
+//		mTextureLayer[i]->SetWrap(wrap);
+//	}
 }
 
 } // namespace crown

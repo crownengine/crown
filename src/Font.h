@@ -41,20 +41,15 @@ class Texture;
 /**
 	Font resource for using in text rendering.
 */
-class Font : public Resource
+class FontResource
 {
 
 	typedef Dictionary<uint32_t, Glyph> CodeGlyphDict;
 
 public:
 
-							Font();	//! Constructor
-							~Font();	//! Destructor
-
-	virtual void			Load(const char* name);
-	virtual void			Unload(const char* name, bool reload);
-
-	void					LoadFromFile(const Str& filename);
+							FontResource();
+							~FontResource();
 
 	Glyph&					GetGlyph(uint32_t code);	//! Returns the glyph for the desired point32_t code
 	void					SetCodeGlyphMetrics(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline);
@@ -63,7 +58,7 @@ public:
 	inline uint32_t			_GetMaxCharacterHeight() { return mMaxCharacterHeight; }
 	inline uint32_t			_GetMaxCharacterWidth() { return mMaxCharacterWidth; }
 
-	Texture*				GetTexture() { return mTexture; }
+	ResourceId				GetTexture() { return mTexture; }
 
 private:
 
@@ -73,7 +68,7 @@ private:
 	uint32_t				mMaxCharacterHeight;
 	uint32_t				mMaxCharacterWidth;
 
-	Texture*				mTexture;
+	ResourceId				mTexture;
 };
 
 } // namespace crown
