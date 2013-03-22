@@ -42,7 +42,7 @@ class IndexBuffer;
  * Mesh can have an arbitrary number of sub-meshes called MeshChunk which contribute
  * to the final mesh structure.
  */ 
-class Mesh : public Resource
+class MeshResource
 {
 
 	typedef List<MeshChunk*> MeshChunkList;
@@ -50,11 +50,11 @@ class Mesh : public Resource
 public:
 
 
-							Mesh();	//! Constructor
-							~Mesh();	//! Destructor
+							MeshResource();	//! Constructor
+							~MeshResource();	//! Destructor
 
 
-	uint32_t					GetMeshChunkCount() const;	//! Returns the MeshChunks contained in this mesh
+	uint32_t				GetMeshChunkCount() const;	//! Returns the MeshChunks contained in this mesh
 	MeshChunk*				GetMeshChunk(uint32_t index) const;
 	void					AddMeshChunk(MeshChunk* chunk);	//! Adds a MeshChunk to the mesh
 	void					RemoveMeshChunk(MeshChunk* chunk);	//! Remove a MeshChunk from the mesh
@@ -80,7 +80,7 @@ private:
 
 	VertexBuffer*			mVertexBuffer;
 	IndexBuffer*			mIndexBuffer;
-	uint32_t					mGlobalVertexCount;
+	uint32_t				mGlobalVertexCount;
 };
 
 } // namespace crown

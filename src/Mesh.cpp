@@ -35,7 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-Mesh::Mesh() :
+MeshResource::MeshResource() :
 	mMeshChunkList(get_default_allocator()),
 	mVertexBuffer(NULL),
 	mIndexBuffer(NULL),
@@ -43,7 +43,7 @@ Mesh::Mesh() :
 {
 }
 
-Mesh::~Mesh()
+MeshResource::~MeshResource()
 {
 	for (int32_t i = 0; i < mMeshChunkList.size(); i++)
 	{
@@ -51,17 +51,17 @@ Mesh::~Mesh()
 	}
 }
 
-uint32_t Mesh::GetMeshChunkCount() const
+uint32_t MeshResource::GetMeshChunkCount() const
 {
 	return mMeshChunkList.size();
 }
 
-MeshChunk* Mesh::GetMeshChunk(uint32_t index) const
+MeshChunk* MeshResource::GetMeshChunk(uint32_t index) const
 {
 	return mMeshChunkList[index];
 }
 
-void Mesh::AddMeshChunk(MeshChunk* chunk)
+void MeshResource::AddMeshChunk(MeshChunk* chunk)
 {
 	if (!chunk)
 	{
@@ -72,17 +72,17 @@ void Mesh::AddMeshChunk(MeshChunk* chunk)
 	mMeshChunkList.push_back(chunk);
 }
 
-void Mesh::RemoveMeshChunk(MeshChunk* chunk)
+void MeshResource::RemoveMeshChunk(MeshChunk* chunk)
 {
 
 }
 
-const Box& Mesh::GetBoundingBox() const
+const Box& MeshResource::GetBoundingBox() const
 {
 	return mBoundingBox;
 }
 
-void Mesh::UpdateBoundingBox()
+void MeshResource::UpdateBoundingBox()
 {
 	mBoundingBox.zero();
 
@@ -93,7 +93,7 @@ void Mesh::UpdateBoundingBox()
 	}
 }
 
-void Mesh::RecompileMesh()
+void MeshResource::RecompileMesh()
 {
 	uint32_t count = 0;
 	uint32_t offset = 0;
