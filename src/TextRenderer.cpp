@@ -52,62 +52,62 @@ void TextRenderer::EndDraw()
 }
 
 //-----------------------------------------------------------------------------
-void TextRenderer::Draw(const Str& string, int32_t x, int32_t y, Font* font)
-{
-	Renderer* renderer = GetDevice()->GetRenderer();
-	Font* mFont = font;
-	Texture* tex = font->GetTexture();
+//void TextRenderer::Draw(const char* string, int32_t x, int32_t y, Font* font)
+//{
+//	Renderer* renderer = GetDevice()->GetRenderer();
+//	Font* mFont = font;
+//	Texture* tex = font->GetTexture();
 
-	renderer->_SetTexturing(0, true);
-	renderer->_SetTexture(0, tex);
-	renderer->_SetTextureMode(0, tex->GetMode(), tex->GetBlendColor());
-	renderer->_SetTextureFilter(0, tex->GetFilter());
+//	renderer->_SetTexturing(0, true);
+//	renderer->_SetTexture(0, tex);
+//	renderer->_SetTextureMode(0, tex->GetMode(), tex->GetBlendColor());
+//	renderer->_SetTextureFilter(0, tex->GetFilter());
 
-	Color4 mColor = Color4::BLACK;
-	uint32_t mCharSpacing = 0;
-	uint32_t mLineSpacing = 0;
-	
+//	Color4 mColor = Color4::BLACK;
+//	uint32_t mCharSpacing = 0;
+//	uint32_t mLineSpacing = 0;
+//	
 
-	glColor4fv(mColor.to_float_ptr());
-    glPushMatrix();
-    glTranslatef((float)x, (float)y, 0.0f);
-  
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  
-    for (uint32_t i = 0; i < string.GetLength(); i++)
-    {
-        Glyph glyph;
-        float left, right, bottom, top, advance, dummy;
-        uint32_t ttSizeX, ttSizeY;
-  
-        glyph = mFont->GetGlyph(string[i]);
-  
-        glyph.GetMetrics(left, right, bottom, top, dummy, dummy, advance, dummy);
-        ttSizeX = (uint32_t)((right - left) * tex->GetWidth());
-        ttSizeY = (uint32_t)((top - bottom) * tex->GetHeight());
+//	glColor4fv(mColor.to_float_ptr());
+//    glPushMatrix();
+//    glTranslatef((float)x, (float)y, 0.0f);
+//  
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//  
+//    for (uint32_t i = 0; i < string.GetLength(); i++)
+//    {
+//        Glyph glyph;
+//        float left, right, bottom, top, advance, dummy;
+//        uint32_t ttSizeX, ttSizeY;
+//  
+//        glyph = mFont->GetGlyph(string[i]);
+//  
+//        glyph.GetMetrics(left, right, bottom, top, dummy, dummy, advance, dummy);
+//        ttSizeX = (uint32_t)((right - left) * tex->GetWidth());
+//        ttSizeY = (uint32_t)((top - bottom) * tex->GetHeight());
 
-        glBegin(GL_QUADS);
-        glTexCoord2f(left, top);
-        glVertex2i(0, 0);
-        glTexCoord2f(left, bottom);
-        glVertex2i(0, ttSizeY);
-        glTexCoord2f(right, bottom);
-        glVertex2i(ttSizeX, ttSizeY);
-        glTexCoord2f(right, top);
-        glVertex2i(ttSizeX, 0);
-        glEnd();
-  
-        glTranslatef(advance + (float)mCharSpacing, 0, 0);
-    }
-  
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-	//glDisable(GL_BLEND);
-}
+//        glBegin(GL_QUADS);
+//        glTexCoord2f(left, top);
+//        glVertex2i(0, 0);
+//        glTexCoord2f(left, bottom);
+//        glVertex2i(0, ttSizeY);
+//        glTexCoord2f(right, bottom);
+//        glVertex2i(ttSizeX, ttSizeY);
+//        glTexCoord2f(right, top);
+//        glVertex2i(ttSizeX, 0);
+//        glEnd();
+//  
+//        glTranslatef(advance + (float)mCharSpacing, 0, 0);
+//    }
+//  
+//    glPopMatrix();
+//    glDisable(GL_TEXTURE_2D);
+//	//glDisable(GL_BLEND);
+//}
 
 //-----------------------------------------------------------------------------
-void TextRenderer::GetStrDimensions(const Str& string, uint32_t start, uint32_t end, int32_t& width, int32_t& height)
+void TextRenderer::GetStrDimensions(const char* string, uint32_t start, uint32_t end, int32_t& width, int32_t& height)
 {
 //	if (mFont != NULL)
 //	{
@@ -141,7 +141,7 @@ void TextRenderer::GetStrDimensions(const Str& string, uint32_t start, uint32_t 
 }
 
 //-----------------------------------------------------------------------------
-int32_t TextRenderer::GetStrIndexFromDimensions(const Str& string, uint32_t start, const Point2& position, Point2& charPosition)
+int32_t TextRenderer::GetStrIndexFromDimensions(const char* string, uint32_t start, const Point2& position, Point2& charPosition)
 {
 //	if (mFont == NULL)
 //	{

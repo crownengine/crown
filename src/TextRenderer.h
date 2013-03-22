@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Str.h"
+#include "String.h"
 #include "Color4.h"
 #include "Vec2.h"
 #include "Font.h"
@@ -52,24 +52,24 @@ public:
 
 	void	BeginDraw();
 	void	EndDraw();
-	void	Draw(const Str& string, int32_t x, int32_t y, Font* font);
+	//void	Draw(const char* string, int32_t x, int32_t y, Font* font);
 
-			//! Returns the sizes in pixels of the given string, when rendered with the current font
-	void	GetStrDimensions(const Str& string, uint32_t start, uint32_t end, int32_t& width, int32_t& height);
-			//! Returns the character index of the character at the given position
-	int32_t		GetStrIndexFromDimensions(const Str& string, uint32_t start, const Point2& position, Point2& charPosition);
-			//! Returns the max height of the text in the current font
+				//! Returns the sizes in pixels of the given string, when rendered with the current font
+	void		GetStrDimensions(const char* string, uint32_t start, uint32_t end, int32_t& width, int32_t& height);
+				//! Returns the character index of the character at the given position
+	int32_t		GetStrIndexFromDimensions(const char* string, uint32_t start, const Point2& position, Point2& charPosition);
+				//! Returns the max height of the text in the current font
 	int32_t		GetMaxTextHeight();
 
 
-	void GetStrDimensions(const Str& string, int32_t& width, int32_t& height)
+	void GetStrDimensions(const char* string, int32_t& width, int32_t& height)
 	{
-		GetStrDimensions(string, 0, -1, width, height);
+		//GetStrDimensions(string, 0, -1, width, height);
 	}
 
-	void GetStrDimensions(const Str& string, uint32_t start, int32_t& width, int32_t& height)
+	void GetStrDimensions(const char* string, uint32_t start, int32_t& width, int32_t& height)
 	{
-		GetStrDimensions(string, start, -1, width, height);
+		//GetStrDimensions(string, start, -1, width, height);
 	}
 
 private:
