@@ -68,7 +68,7 @@ Texture* GLESTextureManager::Load(const char* name, bool generateMipMaps, Color4
 	return texture;
 }
 
-Texture* GLESTextureManager::Load(const char* name, const Str& greyscaleAlpha, bool generateMipMaps)
+Texture* GLESTextureManager::Load(const char* name, const char* greyscaleAlpha, bool generateMipMaps)
 {
 	bool created;
 	Texture* texture = Create(name, created);

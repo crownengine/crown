@@ -99,24 +99,24 @@ void GLESVertexBuffer::Bind() const
 
 	glBindBuffer(GL_ARRAY_BUFFER, mBufferID);
 
-	glVertexPoint32_ter(3, GL_FLOAT, vertexSize, (void*) 0);
+	glVertexPointer(3, GL_FLOAT, vertexSize, (void*) 0);
 
 	if (HasNormalCoords())
 	{
-		glNormalPoint32_ter(GL_FLOAT, vertexSize, (void*) offset);
+		glNormalPointer(GL_FLOAT, vertexSize, (void*) offset);
 		offset += sizeof(float) * 3;
 	}
 
 	if (HasTextureCoords())
 	{
 		glClientActiveTexture(GL_TEXTURE0);
-		glTexCoordPoint32_ter(2, GL_FLOAT, vertexSize, (void*) offset);
+		glTexCoordPointer(2, GL_FLOAT, vertexSize, (void*) offset);
 		offset += sizeof(float) * 2;
 	}
 
 	if (HasColorCoords())
 	{
-		glColorPoint32_ter(4, GL_FLOAT, vertexSize, (void*) offset);
+		glColorPointer(4, GL_FLOAT, vertexSize, (void*) offset);
 		offset += sizeof(float) * 4;
 	}
 }
