@@ -4,23 +4,22 @@ set (SRC
 	EventBuffer.cpp
 	Filesystem.cpp
 	Font.cpp
-	FontManager.cpp
 	Image.cpp
-	ImageLoader.cpp
 	Log.cpp
 	Material.cpp
-	MaterialManager.cpp
 	MeshChunk.cpp
 	Mesh.cpp
-	MeshManager.cpp
 	MovableCamera.cpp
 	Pixel.cpp
 	Renderer.cpp
 	ResourceManager.cpp
+	ResourceLoader.cpp
+	ResourceArchive.cpp
 	Skybox.cpp
 	Terrain.cpp
 	TextRenderer.cpp
 	World.cpp
+	TextureResource.cpp
 )
 
 set (HEADERS
@@ -32,29 +31,26 @@ set (HEADERS
 	EventBuffer.h
 	Filesystem.h
 	Font.h
-	FontManager.h
 	Glyph.h
 	Image.h
-	ImageLoader.h
 	IndexBuffer.h
 	Log.h
 	Material.h
-	MaterialManager.h
 	MeshChunk.h
 	Mesh.h
 	MeshLoader.h
-	MeshManager.h
 	MovableCamera.h
 	OcclusionQuery.h
 	Pixel.h
 	Renderer.h
 	Resource.h
 	ResourceManager.h
+	ResourceLoader.h
+	ResourceArchive.h
 	Skybox.h
 	Terrain.h
 	TextRenderer.h
-	Texture.h
-	TextureManager.h
+	TextureResource.h
 	VertexBuffer.h
 	World.h
 )
@@ -88,7 +84,6 @@ set (BV_HEADERS
 
 set (CONTAINERS_SRC
 	core/containers/Generic.cpp
-	core/containers/Str.cpp
 )
 
 set (CONTAINERS_HEADERS
@@ -97,7 +92,6 @@ set (CONTAINERS_HEADERS
 	core/containers/Generic.h
 	core/containers/List.h
 	core/containers/RBTree.h
-	core/containers/Str.h
 )
 
 set (MATH_SRC
@@ -148,6 +142,15 @@ set (STREAMS_HEADERS
 	core/streams/Stream.h
 )
 
+set (STRINGS_SRC
+)
+
+set (STRINGS_HEADERS
+	core/strings/Path.h
+	core/strings/String.h
+	core/strings/Hash.h
+)
+
 set (MEM_SRC
 	core/mem/MallocAllocator.cpp
 )
@@ -182,13 +185,9 @@ set (INPUT_HEADERS
 )
 
 set (LOADERS_SRC
-	loaders/BMPImageLoader.cpp
-	loaders/TGAImageLoader.cpp
 )
 
 set (LOADERS_HEADERS
-	loaders/BMPImageLoader.h
-	loaders/TGAImageLoader.h
 )
 
 set (GL_SRC
