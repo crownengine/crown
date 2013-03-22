@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 #include "Str.h"
 #include "List.h"
+#include <cstdarg>
 #include "Types.h"
 
 namespace crown

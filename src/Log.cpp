@@ -25,7 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Log.h"
 #include "OS.h"
-#include <cstdarg>
 
 namespace crown
 {
@@ -43,7 +42,7 @@ void Log::SetThreshold(LogLevel threshold)
 	mThreshold = threshold;
 }
 
-void Log::LogMessage(LogLevel level, const char* message, va_list arg)
+void Log::LogMessage(LogLevel level, const char* message, ::va_list arg)
 {
 	if (level > mThreshold)
 	{
