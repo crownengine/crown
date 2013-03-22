@@ -27,13 +27,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Data.h"
-#include "Texture.h"
+#include "TextureResource.h"
 #include "Vec3.h"
 
 namespace crown
 {
 
-class Texture;
 class VertexBuffer;
 class IndexBuffer;
 
@@ -59,19 +58,19 @@ public:
 	//! Destructor
 	~Skybox();
 
-	void SetFace(SkyboxFace face, Texture* texture);
+//	void SetFace(SkyboxFace face, Texture* texture);
 
 	virtual void Render();
 
 private:
 
-	VertexData mVertexData[24];
-	FaceData mFaceData[12];
+//	VertexData mVertexData[24];
+//	FaceData mFaceData[12];
 
-	VertexBuffer* mVertexBuffer;
-	IndexBuffer* mIndexBuffer[6];
+//	VertexBuffer* mVertexBuffer;
+//	IndexBuffer* mIndexBuffer[6];
 
-	Texture* mSkyboxFace[6];
+//	Texture* mSkyboxFace[6];
 };
 
 } // namespace crown
