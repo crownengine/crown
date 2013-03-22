@@ -58,11 +58,11 @@ public:
 	void				_SetLighting(bool lighting);
 	void				_SetAmbientLight(const Color4& color);
 
-	void				_SetTexturing(uint32_t unit, bool texturing);
-	void				_SetTexture(uint32_t unit, Texture* texture);
-	void				_SetTextureMode(uint32_t unit, TextureMode mode, const Color4& blendColor);
-	void				_SetTextureWrap(uint32_t unit, TextureWrap wrap);
-	void				_SetTextureFilter(uint32_t unit, TextureFilter filter);
+//	void				_SetTexturing(uint32_t unit, bool texturing);
+//	void				_SetTexture(uint32_t unit, Texture* texture);
+//	void				_SetTextureMode(uint32_t unit, TextureMode mode, const Color4& blendColor);
+//	void				_SetTextureWrap(uint32_t unit, TextureWrap wrap);
+//	void				_SetTextureFilter(uint32_t unit, TextureFilter filter);
 
 	void				_SetLight(uint32_t light, bool active);
 	void				_SetLightParams(uint32_t light, LightType type, const Vec3& position);
@@ -107,7 +107,7 @@ public:
 
 	OcclusionQuery*		CreateOcclusionQuery();
 
-	void				SetTexture(uint32_t layer, Texture* texture);
+//	void				SetTexture(uint32_t layer, Texture* texture);
 
 	Mat4				GetMatrix(MatrixType type) const;
 	void				SetMatrix(MatrixType type, const Mat4& matrix);
@@ -157,7 +157,7 @@ private:
 	IndexBufferList		mIndexBufferList;
 
 	int32_t				mActiveTextureUnit;
-	Texture*			mTextureUnit[MAX_TEXTURE_UNITS];
+//	Texture*			mTextureUnit[MAX_TEXTURE_UNITS];
 	GLenum				mTextureUnitTarget[MAX_TEXTURE_UNITS];
 
 	// Debug lines

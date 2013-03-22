@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Color4.h"
 #include "Mat4.h"
-#include "Texture.h"
+#include "TextureResource.h"
 #include "Point2.h"
 #include "Material.h"
 
@@ -36,12 +36,10 @@ namespace crown
 {
 
 class Image;
-class Texture;
 class Rect;
 class VertexBuffer;
 class IndexBuffer;
 class OcclusionQuery;
-class TextureManager;
 
 enum MatrixType
 {
@@ -147,57 +145,57 @@ public:
 	*/
 	virtual void _SetAmbientLight(const Color4& color) = 0;
 
-	/**
-		Set whether the given texture unit is enabled.
-	@param unit
-		The texture unit
-	@param texturing
-		Whether texturing is enabled or not
-	*/
-	virtual void _SetTexturing(uint32_t unit, bool texturing) = 0;
+//	/**
+//		Set whether the given texture unit is enabled.
+//	@param unit
+//		The texture unit
+//	@param texturing
+//		Whether texturing is enabled or not
+//	*/
+//	virtual void _SetTexturing(uint32_t unit, bool texturing) = 0;
 
-	/**
-		Sets a texture for the given texture unit.
-	@param unit
-		The texture unit
-	@param texture
-		The texture
-	*/
-	virtual void _SetTexture(uint32_t unit, Texture* texture) = 0;
+//	/**
+//		Sets a texture for the given texture unit.
+//	@param unit
+//		The texture unit
+//	@param texture
+//		The texture
+//	*/
+//	virtual void _SetTexture(uint32_t unit, Texture* texture) = 0;
 
-	/**
-		Sets the texture mode for the given texture unit.
-	@note
-		The texture mode specifies how the texture
-		values are int32_terpreted when a fragment is
-		textured.
-	@param unit
-		The texture unit
-	@param mode
-		The texture mode
-	@param
-		The blend color. This parameter means only when
-		mode == TM_BLEND
-	*/
-	virtual void _SetTextureMode(uint32_t unit, TextureMode mode, const Color4& blendColor) = 0;
+//	/**
+//		Sets the texture mode for the given texture unit.
+//	@note
+//		The texture mode specifies how the texture
+//		values are int32_terpreted when a fragment is
+//		textured.
+//	@param unit
+//		The texture unit
+//	@param mode
+//		The texture mode
+//	@param
+//		The blend color. This parameter means only when
+//		mode == TM_BLEND
+//	*/
+//	virtual void _SetTextureMode(uint32_t unit, TextureMode mode, const Color4& blendColor) = 0;
 
-	/**
-		Sets the texture wrap parameter for the given texture unit.
-	@param unit
-		The texture unit
-	@param wrap
-		The wrap parameter
-	*/
-	virtual void _SetTextureWrap(uint32_t unit, TextureWrap wrap) = 0;
+//	/**
+//		Sets the texture wrap parameter for the given texture unit.
+//	@param unit
+//		The texture unit
+//	@param wrap
+//		The wrap parameter
+//	*/
+//	virtual void _SetTextureWrap(uint32_t unit, TextureWrap wrap) = 0;
 
-	/**
-		Sets the filter for the given texture unit.
-	@param unit
-		The texture unit
-	@filter
-		The filter
-	*/
-	virtual void _SetTextureFilter(uint32_t unit, TextureFilter filter) = 0;
+//	/**
+//		Sets the filter for the given texture unit.
+//	@param unit
+//		The texture unit
+//	@filter
+//		The filter
+//	*/
+//	virtual void _SetTextureFilter(uint32_t unit, TextureFilter filter) = 0;
 
 	virtual void				_SetLight(uint32_t light, bool active) = 0;
 	virtual void				_SetLightParams(uint32_t light, LightType type, const Vec3& position) = 0;
@@ -326,8 +324,8 @@ public:
 	//! Creates an empty vertex buffer
 	virtual IndexBuffer* CreateIndexBuffer() = 0;
 
-	//! Sets the texture to use in the specified layer
-	virtual void SetTexture(uint32_t layer, Texture* texture) = 0;
+//	//! Sets the texture to use in the specified layer
+//	virtual void SetTexture(uint32_t layer, Texture* texture) = 0;
 
 	//! Returns the current matrix
 	virtual Mat4 GetMatrix(MatrixType type) const = 0;

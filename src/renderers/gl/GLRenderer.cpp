@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GLOcclusionQuery.h"
 #include "GLRenderer.h"
 #include "GLTexture.h"
-#include "GLTextureManager.h"
+//#include "GLTextureManager.h"
 #include "GLUtils.h"
 #include "GLVertexBuffer.h"
 #include "Log.h"
@@ -78,7 +78,7 @@ GLRenderer::GLRenderer() :
 
 	for (uint32_t i = 0; i < MAX_TEXTURE_UNITS; i++)
 	{
-		mTextureUnit[i] = 0;
+//		mTextureUnit[i] = 0;
 		mTextureUnitTarget[i] = GL_TEXTURE_2D;
 	}
 
@@ -237,78 +237,78 @@ void GLRenderer::_SetLighting(bool lighting)
 	}
 }
 
-//-----------------------------------------------------------------------------
-void GLRenderer::_SetTexturing(uint32_t unit, bool texturing)
-{
-	if (!ActivateTextureUnit(unit))
-		return;
+////-----------------------------------------------------------------------------
+//void GLRenderer::_SetTexturing(uint32_t unit, bool texturing)
+//{
+//	if (!ActivateTextureUnit(unit))
+//		return;
 
-	if (texturing)
-	{
-		glEnable(mTextureUnitTarget[unit]);
-	}
-	else
-	{
-		glDisable(mTextureUnitTarget[unit]);
-	}
-}
+//	if (texturing)
+//	{
+//		glEnable(mTextureUnitTarget[unit]);
+//	}
+//	else
+//	{
+//		glDisable(mTextureUnitTarget[unit]);
+//	}
+//}
 
-//-----------------------------------------------------------------------------
-void GLRenderer::_SetTexture(uint32_t unit, Texture* texture)
-{
-	if (!ActivateTextureUnit(unit))
-		return;
+////-----------------------------------------------------------------------------
+//void GLRenderer::_SetTexture(uint32_t unit, Texture* texture)
+//{
+//	if (!ActivateTextureUnit(unit))
+//		return;
 
-	if (texture != NULL)
-	{
-		mTextureUnit[unit] = texture;
-		mTextureUnitTarget[unit] = static_cast<const GLTexture*>(texture)->GetGLTarget();
+//	if (texture != NULL)
+//	{
+//		mTextureUnit[unit] = texture;
+//		mTextureUnitTarget[unit] = static_cast<const GLTexture*>(texture)->GetGLTarget();
 
-		glEnable(mTextureUnitTarget[unit]);
-		glBindTexture(mTextureUnitTarget[unit], static_cast<const GLTexture*>(texture)->GetGLObject());
-	}
-}
+//		glEnable(mTextureUnitTarget[unit]);
+//		glBindTexture(mTextureUnitTarget[unit], static_cast<const GLTexture*>(texture)->GetGLObject());
+//	}
+//}
 
-//-----------------------------------------------------------------------------
-void GLRenderer::_SetTextureMode(uint32_t unit, TextureMode mode, const Color4& blendColor)
-{
-	if (!ActivateTextureUnit(unit))
-		return;
+////-----------------------------------------------------------------------------
+//void GLRenderer::_SetTextureMode(uint32_t unit, TextureMode mode, const Color4& blendColor)
+//{
+//	if (!ActivateTextureUnit(unit))
+//		return;
 
-	GLint envMode = GL::GetTextureMode(mode);
+//	GLint envMode = GL::GetTextureMode(mode);
 
-	if (envMode == GL_BLEND)
-	{
-		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, &blendColor.r);
-	}
+//	if (envMode == GL_BLEND)
+//	{
+//		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, &blendColor.r);
+//	}
 
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, envMode);
-}
+//	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, envMode);
+//}
 
-//-----------------------------------------------------------------------------
-void GLRenderer::_SetTextureWrap(uint32_t unit, TextureWrap wrap)
-{
-	GLenum glWrap = GL::GetTextureWrap(wrap);
+////-----------------------------------------------------------------------------
+//void GLRenderer::_SetTextureWrap(uint32_t unit, TextureWrap wrap)
+//{
+//	GLenum glWrap = GL::GetTextureWrap(wrap);
 
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_S, glWrap);
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_T, glWrap);
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_R, glWrap);
-}
+//	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_S, glWrap);
+//	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_T, glWrap);
+//	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_R, glWrap);
+//}
 
-//-----------------------------------------------------------------------------
-void GLRenderer::_SetTextureFilter(uint32_t unit, TextureFilter filter)
-{
-	if (!ActivateTextureUnit(unit))
-		return;
+////-----------------------------------------------------------------------------
+//void GLRenderer::_SetTextureFilter(uint32_t unit, TextureFilter filter)
+//{
+//	if (!ActivateTextureUnit(unit))
+//		return;
 
-	GLint minFilter;
-	GLint magFilter;
+//	GLint minFilter;
+//	GLint magFilter;
 
-	GL::GetTextureFilter(filter, minFilter, magFilter);
+//	GL::GetTextureFilter(filter, minFilter, magFilter);
 
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_MIN_FILTER, minFilter);
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_MAG_FILTER, magFilter);
-}
+//	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_MIN_FILTER, minFilter);
+//	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_MAG_FILTER, magFilter);
+//}
 
 //-----------------------------------------------------------------------------
 void GLRenderer::_SetBackfaceCulling(bool culling)
@@ -722,20 +722,20 @@ IndexBuffer*  GLRenderer::CreateIndexBuffer()
 	return ib;
 }
 
-//-----------------------------------------------------------------------------
-void GLRenderer::SetTexture(uint32_t layer, Texture* texture)
-{
-	if (texture == NULL)
-	{
-		return;
-	}
+////-----------------------------------------------------------------------------
+//void GLRenderer::SetTexture(uint32_t layer, Texture* texture)
+//{
+//	if (texture == NULL)
+//	{
+//		return;
+//	}
 
-	_SetTexturing(layer, true);
-	_SetTexture(layer, texture);
-	_SetTextureMode(layer, texture->GetMode(), texture->GetBlendColor());
-	_SetTextureWrap(layer, texture->GetWrap());
-	_SetTextureFilter(layer, texture->GetFilter());
-}
+//	_SetTexturing(layer, true);
+//	_SetTexture(layer, texture);
+//	_SetTextureMode(layer, texture->GetMode(), texture->GetBlendColor());
+//	_SetTextureWrap(layer, texture->GetWrap());
+//	_SetTextureFilter(layer, texture->GetFilter());
+//}
 
 //-----------------------------------------------------------------------------
 void GLRenderer::SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
