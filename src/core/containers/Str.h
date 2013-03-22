@@ -851,12 +851,12 @@ inline StrId32 Str::Hash32(const char* str)
 	assert(str != NULL);
 
 	// FNV-1a
-	uint32_t hash = 2166136261u;
+	uint32_t hash = 2166136261ull;
 
 	for (size_t i = 0; str[i] != '\0'; i++)
 	{
 		hash ^= str[i];
-		hash *= 16777619u;
+		hash *= 16777619ull;
 	}
 
 	return hash;
@@ -869,12 +869,12 @@ inline StrId32 Str::Hash32(const char* str, size_t len)
 	assert(len <= Str::StrLen(str));
 
 	// FNV-1a
-	uint32_t hash = 2166136261u;
+	uint32_t hash = 2166136261ull;
 
 	for (size_t i = 0; i < len; i++)
 	{
 		hash ^= str[i];
-		hash *= 16777619u;
+		hash *= 16777619ull;
 	}
 
 	return hash;
@@ -886,12 +886,12 @@ inline StrId64 Str::Hash64(const char* str)
 	assert(str != NULL);
 
 	// FNV-1a
-	uint64_t hash = 14695981039346656037u;
+	uint64_t hash = 14695981039346656037ull;
 
 	for (size_t i = 0; str[i] != '\0'; i++)
 	{
 		hash ^= str[i];
-		hash *= 1099511628211u;
+		hash *= 1099511628211ull;
 	}
 
 	return hash;
@@ -904,12 +904,12 @@ inline StrId64 Str::Hash64(const char* str, size_t len)
 	assert(len <= Str::StrLen(str));
 
 	// FNV-1a
-	uint64_t hash = 14695981039346656037u;
+	uint64_t hash = 14695981039346656037ull;
 
 	for (size_t i = 0; i < len; i++)
 	{
 		hash ^= str[i];
-		hash *= 1099511628211u;
+		hash *= 1099511628211ull;
 	}
 
 	return hash;
