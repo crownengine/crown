@@ -38,8 +38,8 @@ typedef float					real;
 typedef double					real;
 #endif
 
-typedef uint32_t				StrId32;	// 32-bit string hash
-typedef uint32_t				StrId64;	// 64-bit string hash
+typedef uint32_t				StringId32;	// 32-bit string hash
+typedef uint32_t				StringId64;	// 64-bit string hash
 
 #ifndef NULL
 #ifdef __cplusplus
