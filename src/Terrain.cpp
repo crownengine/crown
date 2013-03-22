@@ -33,7 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdio>
 #include "Vec2.h"
 #include "Interpolation.h"
-#include "BMPImageLoader.h"
 #include <cmath>
 
 namespace crown
@@ -285,24 +284,24 @@ uint32_t Terrain::SnapToGrid(const Vec3& vertex)
 
 void Terrain::SaveAsBmp(const char* name)
 {
-	Image image;
-	uint8_t* buffer = new uint8_t[mVertexCount * 3];
+//	Image image;
+//	uint8_t* buffer = new uint8_t[mVertexCount * 3];
 
-	float scale = 255.0f / (mMaxHeight - mMinHeight);
+//	float scale = 255.0f / (mMaxHeight - mMinHeight);
 
-	uint32_t j = 0;
-	for (uint32_t i = 0; i < mVertexCount; i++)
-	{
-		buffer[j + 0] = (mHeights[i] + (-mMinHeight)) * scale;
-		buffer[j + 1] = (mHeights[i] + (-mMinHeight)) * scale;
-		buffer[j + 2] = (mHeights[i] + (-mMinHeight)) * scale;
-		j += 3;
-	}
+//	uint32_t j = 0;
+//	for (uint32_t i = 0; i < mVertexCount; i++)
+//	{
+//		buffer[j + 0] = (mHeights[i] + (-mMinHeight)) * scale;
+//		buffer[j + 1] = (mHeights[i] + (-mMinHeight)) * scale;
+//		buffer[j + 2] = (mHeights[i] + (-mMinHeight)) * scale;
+//		j += 3;
+//	}
 
-	image.CreateImage(PF_RGB_8, mVerticesInSizeX, mVerticesInSizeZ, buffer);
+//	image.CreateImage(PF_RGB_8, mVerticesInSizeX, mVerticesInSizeZ, buffer);
 
-	BMPImageLoader bmpLoader;
-	bmpLoader.SaveFile(&image, name);
+//	BMPImageLoader bmpLoader;
+//	bmpLoader.SaveFile(&image, name);
 }
 
 void Terrain::Render()
