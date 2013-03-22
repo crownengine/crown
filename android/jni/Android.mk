@@ -45,43 +45,27 @@ LOCAL_SRC_FILES :=\
 \
 	renderers/gles/GLESIndexBuffer.cpp\
 	renderers/gles/GLESRenderer.cpp\
-	renderers/gles/GLESSupport.cpp\
-	renderers/gles/GLESTextRenderer.cpp\
 	renderers/gles/GLESTexture.cpp\
 	renderers/gles/GLESTextureManager.cpp\
 	renderers/gles/GLESVertexBuffer.cpp\
 \
-	App.cpp\
 	Camera.cpp\
 	Device.cpp\
-	Entity.cpp\
 	Font.cpp\
 	FontManager.cpp\
-	Frame.cpp\
 	Image.cpp\
 	ImageLoader.cpp\
-	Light.cpp\
 	Log.cpp\
-	LogManager.cpp\
 	Material.cpp\
 	MaterialManager.cpp\
 	MeshChunk.cpp\
 	Mesh.cpp\
 	MeshManager.cpp\
 	MovableCamera.cpp\
-	PhysicNode.cpp\
-	PhysicsManager.cpp\
 	Pixel.cpp\
 	Renderer.cpp\
-	RenderWindow.cpp\
 	ResourceManager.cpp\
-	Scene.cpp\
-	SceneManager.cpp\
-	SceneNode.cpp\
 	Skybox.cpp\
-	SpriteAnimator.cpp\
-	Sprite.cpp\
-	Timer.cpp\
 \
 
 LOCAL_C_INCLUDES	:=\
