@@ -1,1 +1,1 @@
-/home/mikymod/Repositories/git/crown/src/SpriteAnimator.cpp
+../src/SpriteAnimator.cpp

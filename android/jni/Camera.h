@@ -1,1 +1,1 @@
-/home/mikymod/Repositories/git/crown/src/Camera.h
+../src/Camera.h

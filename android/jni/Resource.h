@@ -1,1 +1,1 @@
-/home/mikymod/Repositories/git/crown/src/Resource.h
+../src/Resource.h

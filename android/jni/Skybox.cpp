@@ -1,1 +1,1 @@
-/home/mikymod/Repositories/git/crown/src/Skybox.cpp
+../src/Skybox.cpp

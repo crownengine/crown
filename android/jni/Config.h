@@ -1,1 +1,1 @@
-/home/mikymod/Repositories/git/crown/src/Config.h
+../src/Config.h

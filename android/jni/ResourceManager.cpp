@@ -1,1 +1,1 @@
-/home/mikymod/Repositories/git/crown/src/ResourceManager.cpp
+../src/ResourceManager.cpp

@@ -1,1 +1,1 @@
-/home/mikymod/Repositories/git/crown/src/Log.h
+../src/Log.h

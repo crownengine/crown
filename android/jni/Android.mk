@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 LOCAL_PATH := $(call my-dir)
+
 include $(CLEAR_VARS)
 LOCAL_MODULE    := crown
 LOCAL_SRC_FILES :=\
@@ -39,39 +40,56 @@ LOCAL_SRC_FILES :=\
 	input/InputManager.cpp\
 \
 	loaders/BMPImageLoader.cpp\
+	loaders/CRWDecoder.cpp\
 	loaders/TGAImageLoader.cpp\
 \
 	Filesystem.cpp\
 \
+	renderers/gles/egl/EGLRenderWindow.cpp\
 	renderers/gles/GLESIndexBuffer.cpp\
 	renderers/gles/GLESRenderer.cpp\
+	renderers/gles/GLESSupport.cpp\
+	renderers/gles/GLESTextRenderer.cpp\
 	renderers/gles/GLESTexture.cpp\
 	renderers/gles/GLESTextureManager.cpp\
 	renderers/gles/GLESVertexBuffer.cpp\
 \
+	App.cpp\
 	Camera.cpp\
 	Device.cpp\
+	Entity.cpp\
 	Font.cpp\
 	FontManager.cpp\
+	Frame.cpp\
 	Image.cpp\
 	ImageLoader.cpp\
+	Light.cpp\
 	Log.cpp\
+	LogManager.cpp\
 	Material.cpp\
 	MaterialManager.cpp\
 	MeshChunk.cpp\
 	Mesh.cpp\
 	MeshManager.cpp\
 	MovableCamera.cpp\
+	PhysicNode.cpp\
+	PhysicsManager.cpp\
 	Pixel.cpp\
 	Renderer.cpp\
+	RenderWindow.cpp\
 	ResourceManager.cpp\
+	Scene.cpp\
+	SceneManager.cpp\
+	SceneNode.cpp\
 	Skybox.cpp\
+	SpriteAnimator.cpp\
+	Sprite.cpp\
+	Timer.cpp\
 \
 
 LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/core\
 	$(LOCAL_PATH)/core/math\
-	$(LOCAL_PATH)/core/compressors\
 	$(LOCAL_PATH)/core/containers\
 	$(LOCAL_PATH)/core/bv\
 	$(LOCAL_PATH)/core/mem\
@@ -92,8 +110,7 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/renderers/gles\
 	$(LOCAL_PATH)/renderers/gles/egl\
 	$(LOCAL_PATH)/input\
-	$(LOCAL_PATH)/os\
-	$(LOCAL_PATH)/os/android\
+	$(LOCAL_PATH)/input/android
 
 LOCAL_CPPFLAGS	:= -g -fexceptions
 LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv1_CM
@@ -140,7 +157,7 @@ include $(CLEAR_VARS)
 #	$(LOCAL_PATH)/tests/chainsawbuffet\
 #	$(LOCAL_PATH)/tests/chainsawbuffet/entities\
 #	$(LOCAL_PATH)/tests/chainsawbuffet/scenes\
-
+#
 #LOCAL_CPPFLAGS	:= -g -fexceptions
 #LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv1_CM -lz
 #LOCAL_STATIC_LIBRARIES := android_native_app_glue
