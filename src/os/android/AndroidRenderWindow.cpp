@@ -29,18 +29,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 #include <EGL/egl.h>
 #include <android_native_app_glue.h>
+#include <jni.h>
 
 namespace crown
 {
 namespace os
 {
 
+EGLint w;
+EGLint h;
 EGLDisplay display;
 EGLSurface surface;
 EGLContext context;
 android_app* application;
 
-bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t depth, bool /*fullscreen*/)
+bool create_render_window()
 {
 	assert(width != 0 && height != 0);
 
@@ -80,7 +83,8 @@ bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t heigh
 
 	EGLint ctxattr[] =
 	{
-		EGL_CONTEXT_CLIENT_VERSION, 1,
+		EGL_CONTEXT_CLIENT_VERSION, 
+		1,
 		EGL_NONE
 	};
 
@@ -88,6 +92,9 @@ bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t heigh
 	assert(context != EGL_NO_CONTEXT);
 
 	assert(eglMakeCurrent(display, surface, surface, context) != EGL_NO_CONTEXT);
+
+	eglQuerySurface(display, surface, EGL_WIDTH, &w);
+    eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
 	return true;
 }
@@ -126,6 +133,25 @@ void swap_buffers()
 {
 	eglSwapBuffers(display, surface);
 }
+
+
+// JNI definitions - just tmp
+extern "C"
+{
+	JNIEXPORT bool JNICALL Java_crown_android_CrownLib_create(JNIEnv* env, jobject obj);
+	JNIEXPORT void JNICALL Java_crown_android_CrownLib_destroy(JNIEnv* env, jobject obj);
+}
+
+JNIEXPORT bool JNICALL Java_crown_android_CrownLib_create(JNIEnv* env, jobject obj)
+{
+	return create_render_window();
+}
+
+JNIEXPORT void JNICALL Java_crown_android_CrownLib_destroy(JNIEnv* env, jobject obj)
+{
+	destroy_render_window();
+}
+
 
 } // namespace os
 } // namespace crown

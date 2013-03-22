@@ -32,6 +32,8 @@ LOCAL_SRC_FILES :=\
 	core/math/Vec2.cpp\
 	core/math/Vec3.cpp\
 	core/math/Vec4.cpp\
+	core/mem/MallocAllocator.cpp\
+	core/streams/File.cpp\
 	core/streams/FileStream.cpp\
 	core/streams/MemoryStream.cpp\
 	core/streams/Stream.cpp\
@@ -105,8 +107,15 @@ LOCAL_C_INCLUDES	:=\
 LOCAL_CPPFLAGS	:= -g -fexceptions
 LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv1_CM
 LOCAL_STATIC_LIBRARIES := android_native_app_glue
-include $(BUILD_STATIC_LIBRARY)
-include $(CLEAR_VARS)
+include $(BUILD_SHARED_LIBRARY)
+
+#include $(CLEAR_VARS)
+
+#LOCAL_CPPFLAGS	:= -g -fexceptions
+#LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv1_CM
+#LOCAL_STATIC_LIBRARIES := android_native_app_glue
+#include $(BUILD_STATIC_LIBRARY)
+#include $(CLEAR_VARS)
 
 #LOCAL_MODULE    := simple
 #LOCAL_SRC_FILES :=	tests/chainsawbuffet/maain.cpp\
