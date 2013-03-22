@@ -1,1 +1,1 @@
-../src/Resource.h
+../../src/Resource.h
