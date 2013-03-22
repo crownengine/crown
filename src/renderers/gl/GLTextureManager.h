@@ -25,52 +25,51 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "TextureManager.h"
 #include "GLTexture.h"
 
 namespace crown
 {
 
-class GLTextureManager : public TextureManager
+class GLTextureManager
 {
 
 public:
 
-	GLTextureManager() {}
+//	GLTextureManager() {}
 
-	/**
-	 * Creates a texture resource withe the given name.
-	 * If a resource with the same name already exists, the
-	 * already existent resource will be returned. In order
-	 * to distinguish between a newly created resource or a
-	 * point32_ter to an existing one, you have to check
-	 * at the value returned by 'created'.
-	 * @param name The name of the resource
-	 * @param created Returns true if newly created, false otherwise
-	 * @return A point32_ter to the created resource
-	 */
-	virtual Texture* Create(const char* name, bool& created);
+//	/**
+//	 * Creates a texture resource withe the given name.
+//	 * If a resource with the same name already exists, the
+//	 * already existent resource will be returned. In order
+//	 * to distinguish between a newly created resource or a
+//	 * point32_ter to an existing one, you have to check
+//	 * at the value returned by 'created'.
+//	 * @param name The name of the resource
+//	 * @param created Returns true if newly created, false otherwise
+//	 * @return A point32_ter to the created resource
+//	 */
+//	Texture* Create(const char* name, bool& created);
 
-	/**
-	 * Loads a texture resource from file.
-	 * The name of the file determines the name of the resource and vice-versa.
-	 * @param name Tha name of the resource
-	 * @return A point32_ter to the loaded resource
-	 */
-	virtual Texture* Load(const char* name, bool generateMipMaps = true);
+//	/**
+//	 * Loads a texture resource from file.
+//	 * The name of the file determines the name of the resource and vice-versa.
+//	 * @param name Tha name of the resource
+//	 * @return A point32_ter to the loaded resource
+//	 */
+//	Texture* Load(const char* name, bool generateMipMaps = true);
 
-	/**
-	 * Loads a texture resource from file using color keying.
-	 * The name of the file determines the name of the resource and vice-versa.
-	 * @param name The name of the resource
-	 * @param colorKey The color to use as transparent color
-	 * @return A point32_ter to the loaded resource
-	 */
-	virtual Texture* Load(const char* name, bool generateMipMaps, Color4 colorKey);
+//	/**
+//	 * Loads a texture resource from file using color keying.
+//	 * The name of the file determines the name of the resource and vice-versa.
+//	 * @param name The name of the resource
+//	 * @param colorKey The color to use as transparent color
+//	 * @return A point32_ter to the loaded resource
+//	 */
+//	Texture* Load(const char* name, bool generateMipMaps, Color4 colorKey);
 
-	virtual Texture* Load(const char* name, const char* greyscaleAlpha, bool generateMipMaps);
+//	Texture* Load(const char* name, const char* greyscaleAlpha, bool generateMipMaps);
 
-	virtual GLTexture* CreateSpecific(const char* name);
+//	GLTexture* CreateSpecific(const char* name);
 
 private:
 

@@ -29,71 +29,71 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-Texture* GLTextureManager::Create(const char* name, bool& created)
-{
-	Texture* texture = static_cast<GLTexture*>(ResourceManager::Create(name, created));
+//Texture* GLTextureManager::Create(const char* name, bool& created)
+//{
+//	Texture* texture = static_cast<GLTexture*>(ResourceManager::Create(name, created));
 
-	return texture;
-}
+//	return texture;
+//}
 
-Texture* GLTextureManager::Load(const char* name, bool generateMipMaps)
-{
-	bool created;
-	Texture* texture = Create(name, created);
+//Texture* GLTextureManager::Load(const char* name, bool generateMipMaps)
+//{
+//	bool created;
+//	Texture* texture = Create(name, created);
 
-	if (texture != NULL && created)
-	{
-		// Populate parameters
-		texture->SetGenerateMipMaps(generateMipMaps);
+//	if (texture != NULL && created)
+//	{
+//		// Populate parameters
+//		texture->SetGenerateMipMaps(generateMipMaps);
 
-		texture->Load(name);
-	}
+//		texture->Load(name);
+//	}
 
-	return texture;
-}
+//	return texture;
+//}
 
-Texture* GLTextureManager::Load(const char* name, bool generateMipMaps, Color4 colorKey)
-{
-	bool created;
-	Texture* texture = Create(name, created);
+//Texture* GLTextureManager::Load(const char* name, bool generateMipMaps, Color4 colorKey)
+//{
+//	bool created;
+//	Texture* texture = Create(name, created);
 
-	if (texture != NULL && created)
-	{
-		// Populate parameters
-		texture->SetGenerateMipMaps(generateMipMaps);
+//	if (texture != NULL && created)
+//	{
+//		// Populate parameters
+//		texture->SetGenerateMipMaps(generateMipMaps);
 
-		texture->LoadFromFile(name, colorKey);
-	}
+//		texture->LoadFromFile(name, colorKey);
+//	}
 
-	return texture;
-}
+//	return texture;
+//}
 
-Texture* GLTextureManager::Load(const char* name, const char* greyscaleAlpha, bool generateMipMaps)
-{
-	bool created;
-	Texture* texture = Create(name, created);
+//Texture* GLTextureManager::Load(const char* name, const char* greyscaleAlpha, bool generateMipMaps)
+//{
+//	bool created;
+//	Texture* texture = Create(name, created);
 
-	if (texture != NULL && created)
-	{
-		// Populate parameters
-		texture->SetGenerateMipMaps(generateMipMaps);
+//	if (texture != NULL && created)
+//	{
+//		// Populate parameters
+//		texture->SetGenerateMipMaps(generateMipMaps);
 
-		texture->LoadFromFile(name, greyscaleAlpha);
-	}
+//		texture->LoadFromFile(name, greyscaleAlpha);
+//	}
 
-	return texture;
-}
+//	return texture;
+//}
 
-GLTexture* GLTextureManager::CreateSpecific(const char* name)
-{
-	return new GLTexture();
-}
+//GLTexture* GLTextureManager::CreateSpecific(const char* name)
+//{
+//	return new GLTexture();
+//}
 
-GLTextureManager textureMgr;
-TextureManager* GetTextureManager()
-{
-	return &textureMgr;
-}
+//GLTextureManager textureMgr;
+//TextureManager* GetTextureManager()
+//{
+//	return &textureMgr;
+//}
 
 } // namespace crown
 
