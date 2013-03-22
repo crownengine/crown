@@ -26,7 +26,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Str.h"
 
 namespace crown
 {
@@ -41,7 +40,7 @@ public:
 class NotifyChangeEventArgs
 {
 public:
-	NotifyChangeEventArgs(const Str& name):
+	NotifyChangeEventArgs(const char* name):
 		mPropertyName(name)
 	{
 	}
@@ -50,13 +49,14 @@ public:
 	{
 	}
 
-	inline const Str& GetPropertyName() const
+	inline const char* GetPropertyName() const
 	{
 		return mPropertyName;
 	}
 
 private:
-	Str mPropertyName;
+
+	const char* mPropertyName;
 };
 
 }
