@@ -317,7 +317,7 @@ void test_data()
 
 void test_net_address()
 {
-  	uint32_t bits_written;
+	uint32_t bits_written;
 	uint32_t rem_write_bits;
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
@@ -350,12 +350,12 @@ void test_net_address()
 	printf("bits read = %d\n", bits_read);
 	printf("remaining read bits = %d\n", rem_read_bits);
 	printf("-----------------------------\n");
-	printf("\n");	
+	printf("\n");
 }
 
 int main()
 {
-	
+/*	
 	test_int8();
 	test_uint8();
 	test_int16();
@@ -366,6 +366,38 @@ int main()
 	test_string();
 	test_data();
 	test_net_address();
+*/
+	MallocAllocator allocator;
+	network::BitMessage msg = network::BitMessage(allocator);
+	
+	uint32_t protocol_id = 0xFFFFFFFF;
+	uint16_t sequence = 12345;
+	uint16_t ack	  = 12344;
+	uint32_t ack_bits = 1234543;
+	
+	msg.init(6);
+	msg.set_header(protocol_id, sequence, ack, ack_bits);
+	msg.begin_writing();
+	msg.write_string("prova", 6);
+	
+	msg.begin_reading();
+	uint8_t* header = msg.get_header();
+ 	char data[6];
+ 	msg.read_string(data, 6);
+	
+	uint32_t tmp1 = header[0] << 24 | header[1] << 16 | header[2] << 8 | header[3];
+	uint16_t tmp2 = header[4] << 8 | header[5];
+	uint16_t tmp3 = header[6] << 8 | header[7];
+	uint32_t tmp4 = header[8] << 24 | header[9] << 16 | header[10] << 8 | header[11];
+	
+	os::printf("protocol_id: %d\n", tmp1);
+	os::printf("sequence: %d\n", tmp2);
+	os::printf("ack: %d\n", tmp3);
+	os::printf("ack_bits: %d\n", tmp4);
+ 	os::printf("data: %s\n", data);
+	os::printf("\n");
+
+	
 	
 	return 0;
 }

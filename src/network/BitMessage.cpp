@@ -19,7 +19,8 @@ BitMessage::BitMessage(Allocator& allocator) :
 	m_read_count(0),
 	m_write_bit(0), 
 	m_read_bit(0),
-	m_overflowed(false)
+	m_overflowed(false),
+	m_init(false)
 {
 }
 
@@ -27,10 +28,14 @@ BitMessage::BitMessage(Allocator& allocator) :
 
 BitMessage::~BitMessage()
 {
-  if (m_data)
-  {
-		m_allocator->deallocate((void*)m_data);
-  }
+	if (m_header)
+	{
+		m_allocator->deallocate((void*)m_header);
+	}
+	if (m_data)
+	{
+		  m_allocator->deallocate((void*)m_data);
+	}
 }
 //---------------------------------------------------------------------------------------------
 
@@ -77,46 +82,87 @@ bool BitMessage::check_overflow(int32_t num_bits)
 }
 
 //---------------------------------------------------------------------------------------------
-
 void BitMessage::init(int32_t len)
 {
+	m_header = (uint8_t*)m_allocator->allocate(12);
+	
 	m_data = (uint8_t*)m_allocator->allocate(len);
 	
 	m_write = m_data;
 	m_read = m_data;
 	m_max_size = len;
+	
+	m_init = true;
 }
 
 //---------------------------------------------------------------------------------------------
+void BitMessage::set_header(uint32_t id, uint16_t sequence, uint16_t ack, uint32_t ack_bits)
+{
+	uint8_t header[12];
+	header[0]	= (uint8_t)(id >> 24);
+	header[1]	= (uint8_t)(id >> 16);
+	header[2]	= (uint8_t)(id >> 8);
+	header[3]	= (uint8_t)id;
+	header[4]	= (uint8_t)(sequence >> 8);
+	header[5]	= (uint8_t)sequence;
+	header[6]	= (uint8_t)(ack >> 8);
+	header[7]	= (uint8_t)ack;
+	header[8]	= (uint8_t)(ack_bits >> 24);
+	header[9]	= (uint8_t)(ack_bits >> 16);
+	header[10]	= (uint8_t)(ack_bits >> 8);
+	header[11]	= (uint8_t)(ack_bits);
+	
+	memcpy(m_header, header, 12);
+}
 
+//---------------------------------------------------------------------------------------------
+uint8_t* BitMessage::get_header()
+{
+	return m_header;
+}
+
+//---------------------------------------------------------------------------------------------
+const uint8_t* BitMessage::get_header() const
+{
+	return m_header;
+}
+//---------------------------------------------------------------------------------------------
 uint8_t* BitMessage::get_data()
 {
 	return m_write;
 }
 
 //---------------------------------------------------------------------------------------------
-
 const uint8_t* BitMessage::get_data() const
 {
 	return m_read;
 }
 
 //---------------------------------------------------------------------------------------------
-
 size_t BitMessage::get_max_size() const
 {
 	return m_max_size;
 }
 
 //---------------------------------------------------------------------------------------------
-
 bool BitMessage::is_overflowed()
 {
 	return m_overflowed;
 }
 
 //---------------------------------------------------------------------------------------------
+bool BitMessage::is_init()
+{
+	return m_init;
+}
 
+//---------------------------------------------------------------------------------------------
+size_t BitMessage::get_header_size() const
+{
+	return 12;
+}
+
+//---------------------------------------------------------------------------------------------
 size_t BitMessage::get_size() const
 {
 	return m_cur_size;
@@ -317,7 +363,7 @@ void BitMessage::write_bits(int32_t value, int32_t num_bits)
 		}
 	}
 
-	// Change sign if it is negative
+	// Change sign if it's negative
 	if (num_bits < 0 ) 
 	{
 		num_bits = -num_bits;
@@ -414,23 +460,23 @@ void BitMessage::write_string(const char* s, int32_t max_len, bool make_7_bit)
 	else 
 	{
 		int32_t i;
-		int32_t l;
+		int32_t len = std::strlen(s);
 		uint8_t* data_ptr;
 		const uint8_t* byte_ptr;
 		
 		// calculates length
-		for (l = 0; s[l]; l++) {}
+		len = std::strlen(s);
 		
-		if (max_len >= 0 && l >= max_len) 
+		if (max_len >= 0 && len >= max_len) 
 		{
-			l = max_len - 1;
+			len = max_len - 1;
 		}
 		
-		data_ptr = get_byte_space(l + 1);
+		data_ptr = get_byte_space(len + 1);
 		byte_ptr = reinterpret_cast<const uint8_t*>(s);
 		if (make_7_bit) 
 		{
-			for (i = 0; i < l; i++) 
+			for (i = 0; i < len; i++) 
 			{
 				if ( byte_ptr[i] > 127 ) 
 				{
@@ -444,7 +490,7 @@ void BitMessage::write_string(const char* s, int32_t max_len, bool make_7_bit)
 		}
 		else 
 		{
-			for (i = 0; i < l; i++) 
+			for (i = 0; i < len; i++) 
 			{
 				data_ptr[i] = byte_ptr[i];
 			}
@@ -706,34 +752,10 @@ void BitMessage::read_netaddr(os::NetAddress* addr) const
 }
 
 //---------------------------------------------------------------------------------------------
-void BitMessage::write_header(Header& header)
-{
-	// write header only on top of BitMessage
-	if (m_cur_size == 0)
-	{
-		write_int32(header.protocol_id);
-		write_uint16(header.sequence);
-		write_uint16(header.ack);
-		write_int32(header.ack_bits);
-		write_uint16(header.size);
-	}
-}
-
-//---------------------------------------------------------------------------------------------
-size_t BitMessage::read_header(Header& header)
-{
-	header.protocol_id = read_int32();
-	header.sequence = read_uint16();
-	header.ack = read_uint16();
-	header.ack_bits = read_int32();
-	header.size = (size_t)read_uint16();
-}
-
-//---------------------------------------------------------------------------------------------
 void BitMessage::print() const
 {
 	os::printf("MAX_SIZE: %d\n", m_max_size);
-	os::printf("CUR_SIZE: %d\n", m_cur_size);	
+	os::printf("CUR_SIZE: %d\n", m_cur_size);
 }
   
 }	//namespace network

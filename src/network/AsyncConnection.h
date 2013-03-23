@@ -6,26 +6,37 @@
 #include "BitMessage.h"
 #include "Queue.h"
 
-#define DEFAULT_PROTOCOL_ID 0xFFFFFFFF
-#define DEFAULT_TIMEOUT		10.0f
-#define MAX_RATE			64000
-#define MAX_SEQUENCE		0xFFFFFFFF
-#define MAX_RTT				1000
-#define MAX_PACKET_LEN		1400
-#define MAX_MESSAGE_SIZE	16384
-#define MAX_QUEUE_SIZE		16384
-
 namespace crown
 {
 namespace network
 {
 
-	
 /**
  * Reliable connection over UDP
  */
 class AsyncConnection
 {
+public:
+  
+	struct PacketData
+	{
+		  uint32_t 	sequence;
+		  real		time;
+		  size_t	size;
+		  
+		  PacketData()
+		  {
+			  sequence = 0;
+			  time = 0.0f;
+			  size = 0;
+		  }
+		  
+		  bool operator==(const PacketData& packet)
+		  {
+			  return sequence == packet.sequence;
+		  }
+	};
+  
 public:
 
 									AsyncConnection(Allocator& allocator);
@@ -56,7 +67,7 @@ public:
 	uint16_t						get_remote_sequence() const;
 									// Sends message
 	void							send_message(BitMessage& msg, const uint32_t time);
-									// Receive message
+									// Receive message and process
 	int32_t							receive_message(BitMessage& msg, const uint32_t time);
 									// Removes any pending outgoing or incoming reliable messages.
 	void							clear_reliable_messages();
@@ -64,8 +75,6 @@ public:
 	void 							update(real delta);
 									// Returns true if the connection is ready to send new data based on the maximum rate.
 	bool							ready_to_send(const int32_t time) const;
-									// Processes the incoming message.
-	bool							process(const os::NetAddress from, int32_t time, BitMessage &msg, int32_t &sequence);
 	
 	bool 							is_connecting() const;
 	bool 							is_listening() const; 
@@ -100,11 +109,11 @@ private:
 	void 							_process_ack(uint16_t ack, int32_t ack_bits);
 	bool							_sequence_more_recent(uint16_t s1, uint16_t s2);
 	int32_t							_bit_index_for_sequence(uint16_t seq, uint16_t ack);
-	int32_t							_generate_ack_bits(uint16_t ack);
+	int32_t							_generate_ack_bits();
 									// methods which provides a flow control system
-	void							_update_outgoing_rate(const uint32_t time, const size_t size);
-	void							_update_incoming_rate(const uint32_t time, const size_t size);
-	void							_update_packet_loss(const uint32_t time, const uint32_t num_recv, const uint32_t num_dropped);
+	void							_update_outgoing_rate(const uint32_t delta, const size_t size);
+	void							_update_incoming_rate(const uint32_t delta, const size_t size);
+	void							_update_packet_loss(const uint32_t delta, const uint32_t num_recv, const uint32_t num_dropped);
 	
 	void							_clear_data();
 
@@ -113,23 +122,15 @@ private:
   
 	os::NetAddress					m_remote_address;			// address of remote host
 	os::UDPSocket					m_socket;					// socket
-	int32_t							m_id;						// our identification used instead of port number
+	uint32_t						m_id;						// our identification used instead of port number
 	Mode							m_mode;						// connection mode
 	State							m_state;					// connection state
-	int32_t							m_max_rate;					// maximum number of bytes that may go out per second
-
-									// variables to keep track of the rate
-	int32_t							m_outgoing_rate_time;		// outgoing time rate
-	int32_t							m_outgoing_rate_bytes;		// outgoing bytes rate
-	int32_t							m_incoming_rate_time;		// incoming time rate
-	int32_t							m_incoming_rate_bytes;		// incoming bytes rate
+	uint32_t						m_max_rate;					// maximum number of bytes that may go out per second
 
 									// variables to keep track of the incoming packet loss
-	real							m_incoming_recv_packets;
-	real							m_incoming_dropped_packets;
-	int32_t							m_incoming_packet_loss_time;
-
-	int32_t							m_outgoing_sent_packet;		// keep track of sent packet
+	uint32_t						m_sent_packets;		
+	uint32_t						m_recv_packets;
+	real							m_dropped_packets;
 
 									// sequencing variables
 	uint16_t						m_local_sequence;
@@ -141,19 +142,30 @@ private:
 	real							m_timeout;					// connection timeout value
 	real							m_timeout_acc;				// timeout accumulator
 	
-									// variables to control the outgoing rate
-	int32_t							m_last_send_time;			// last time data was sent out
-	int32_t							m_last_data_bytes;			// bytes left to send at last send time
-									
+									// reliable message queues
+	Queue<BitMessage>				m_sent_queue;
+	Queue<BitMessage>				m_received_queue;
+	
 									// flag variables
 	bool							m_running;
-									// reliable messages
-	Queue<BitMessage::Header>		m_sent_msg;					// Sent messages queue
-	Queue<BitMessage::Header>		m_received_msg;				// Received messages queue
-	Queue<BitMessage::Header>		m_pending_ack;				// Pending acknokledges queue
-	Queue<BitMessage::Header>		m_acked;					// Acknowledges queue
-					
-
+	
+									// packet queues
+	Queue<PacketData>				m_sent_packet;					// Sent messages queue
+	Queue<PacketData>				m_received_packet;				// Received messages queue
+	Queue<PacketData>				m_pending_ack;					// Pending acknokledges queue
+	Queue<PacketData>				m_acked;						// Acknowledges queue
+	
+	Allocator*						m_allocator;					// dynamic allocator
+									
+									// constants
+	static const uint32_t			DEFAULT_PROTOCOL_ID	= 0xFFFFFFFF;
+	static const uint32_t			DEFAULT_TIMEOUT		= 10;
+	static const uint32_t			MAX_RATE			= 64000;
+	static const uint32_t			MAX_SEQUENCE		= 0xFFFF;
+	static const uint32_t			MAX_RTT				= 1000;
+	static const uint32_t			MAX_PACKET_LEN		= 1400;
+	static const uint32_t			MAX_MESSAGE_SIZE	= 16384;
+	static const uint32_t			MAX_QUEUE_SIZE		= 16384;
 
 };
 
