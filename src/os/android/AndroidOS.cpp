@@ -34,6 +34,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdlib>
 #include <sys/time.h>
 #include <time.h>
+#include <android/asset_manager_jni.h>
+#include <jni.h>
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "crown", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "crown", __VA_ARGS__))
@@ -45,7 +47,8 @@ namespace crown
 namespace os
 {
 
-static timespec base_time;
+static timespec			base_time;
+static AAssetManager*	asset_manager = NULL;
 
 //-----------------------------------------------------------------------------
 void printf(const char* string, ...)
@@ -230,6 +233,24 @@ uint64_t microseconds()
 	timespec tmp;
 	clock_gettime(CLOCK_MONOTONIC, &tmp);
 	return (tmp.tv_sec - base_time.tv_sec) * 1000000 + (tmp.tv_nsec - base_time.tv_nsec) / 1000;
+}
+
+//-----------------------------------------------------------------------------
+AAssetManager* get_android_asset_manager()
+{
+	return asset_manager;
+}
+
+//-----------------------------------------------------------------------------
+extern "C" 
+{
+	// This is sadly necessary in order to get the asset manager from java...
+    JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv * env, jobject obj, jobject assetManager);
+};
+
+JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv * env, jobject obj, jobject assetManager)
+{
+	asset_manager = AAssetManager_fromJava(env, assetManager);
 }
 
 } // namespace os
