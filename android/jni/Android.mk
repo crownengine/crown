@@ -34,7 +34,6 @@ LOCAL_SRC_FILES :=\
 	core/math/Vec3.cpp\
 	core/math/Vec4.cpp\
 	core/mem/MallocAllocator.cpp\
-	core/streams/File.cpp\
 	core/streams/FileStream.cpp\
 	core/streams/MemoryStream.cpp\
 	core/streams/Stream.cpp\
@@ -49,6 +48,7 @@ LOCAL_SRC_FILES :=\
 	os/android/AndroidOS.cpp\
 	os/android/AndroidRenderWindow.cpp\
 	os/android/AndroidInput.cpp\
+	os/android/File.cpp\
 \
 	Filesystem.cpp\
 \
