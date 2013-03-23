@@ -22,9 +22,9 @@ public class CrownActivity extends Activity
 	private static SensorManager sm;
 	private Sensor sensor;
 
-	
-    /** Called when the activity is first created. */
-    @Override
+	//TODO: add count of finger on screen at the same time
+
+//---------------------------------------------------------------------
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -32,23 +32,26 @@ public class CrownActivity extends Activity
         mView = new CrownView(getApplication());
 	    sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 	    sensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
     }
 
+//---------------------------------------------------------------------
 	public void onStart()
 	{
 		super.onStart();
 	}
-	
+
+//---------------------------------------------------------------------	
 	public void onRestart()
 	{
 		super.onRestart();
 	}
 
+//---------------------------------------------------------------------
 	public void onResume()
 	{
 		super.onResume();
         mView.onResume();
+
 		if (sensor != null) 
 		{
 		  sm.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -63,24 +66,28 @@ public class CrownActivity extends Activity
 		}
 	}
 
+//---------------------------------------------------------------------
 	public void onPause()
 	{
 		super.onPause();
         mView.onPause();
+
 		sm.unregisterListener(sensorEventListener);
 	}
 
+//---------------------------------------------------------------------
 	public void onStop()
 	{
 		super.onStop();
 	}
 
+//---------------------------------------------------------------------
 	public void onDestroy()
 	{
 		super.onDestroy();
 	}
 
-	@Override
+//---------------------------------------------------------------------
 	public boolean onTouchEvent(MotionEvent event)
 	{
 	    float x = event.getX();
@@ -111,7 +118,8 @@ public class CrownActivity extends Activity
 		}
 		return true;
 	}
-	
+
+//---------------------------------------------------------------------
   	private SensorEventListener sensorEventListener = new SensorEventListener() 
 	{
     	@Override
@@ -122,14 +130,11 @@ public class CrownActivity extends Activity
     	@Override
     	public void onSensorChanged(SensorEvent event) 
 		{
-     	 	// angle between the magnetic north directio
-     	 	// 0=North, 90=East, 180=South, 270=West
      	 	float x = event.values[0];
 			float y = event.values[1];
 			float z = event.values[2];
 			Log.i(TAG, "X:" + x + "Y:" + y + "Z:" + z);
+			CrownLib.pushEvent(11,(int) x,(int) y, (int)z, 0);
     	}
-  };
-
-
+  	};
 }

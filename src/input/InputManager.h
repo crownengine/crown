@@ -50,6 +50,7 @@ public:
 	bool IsMouseAvailable() {}
 	bool IsKeyboardAvailable() {}
 	bool IsTouchAvailable() {}
+	bool IsAccelerometerAvailable {}
 
 
 	inline void RegisterMouseListener(MouseListener* listener)

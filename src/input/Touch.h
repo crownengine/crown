@@ -32,7 +32,7 @@ class InputManager;
 
 struct TouchEvent
 {
-	int32_t point32_ter_id;
+	int32_t pointer_id;
 	int32_t x;
 	int32_t y;
 };
