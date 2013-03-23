@@ -11,11 +11,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.content.Context;
 import android.widget.Toast;
-
+import android.content.res.AssetManager;
 
 public class CrownActivity extends Activity
 {
 	public static String TAG = "CrownActivity";
+
+    static AssetManager assetManager;
 
 	private CrownView mView;
 
@@ -28,7 +30,12 @@ public class CrownActivity extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        
         setContentView(R.layout.main);
+
+		assetManager = getAssets();
+		CrownLib.initAssetManager(assetManager);
+        
         mView = new CrownView(getApplication());
 	    sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 	    sensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
