@@ -60,8 +60,7 @@ void FileStream::seek(size_t position)
 {
 	check_valid();
 
-	//flush(); <<<---?
-	fseek(m_file->get_handle(), position, SEEK_SET);
+	m_file->seek(position, SEEK_SET);
 }
 
 //-----------------------------------------------------------------------------
@@ -69,7 +68,7 @@ void FileStream::seek_to_end()
 {
 	check_valid();
 
-	fseek(m_file->get_handle(), 0, SEEK_END);
+	m_file->seek(0, SEEK_END);
 }
 
 //-----------------------------------------------------------------------------
@@ -77,7 +76,7 @@ void FileStream::skip(size_t bytes)
 {
 	check_valid();
 
-	fseek(m_file->get_handle(), bytes, SEEK_CUR);
+	m_file->seek(bytes, SEEK_CUR);
 }
 
 //-----------------------------------------------------------------------------
@@ -88,14 +87,14 @@ uint8_t FileStream::read_byte()
 	if (!m_last_was_read)
 	{
 		m_last_was_read = true;
-		fseek(m_file->get_handle(), 0, SEEK_CUR);
+		m_file->seek(0, SEEK_CUR);
 	}
 
 	uint8_t buffer;
-
-	if (fread(&buffer, 1, 1, m_file->get_handle()) != 1)
+	
+	if (m_file->read(&buffer, 1, 1) != 1)
 	{
-		Log::E("Could not read from file.");
+		Log::E("Could not read from file");
 	}
 
 	return buffer;
@@ -109,10 +108,10 @@ void FileStream::read(void* buffer, size_t size)
 	if (!m_last_was_read)
 	{
 		m_last_was_read = true;
-		fseek(m_file->get_handle(), 0, SEEK_CUR);
+		m_file->seek(0, SEEK_CUR);
 	}
 
-	if (fread(buffer, size, 1, m_file->get_handle()) != 1)
+	if (m_file->read(buffer, size, 1) != 1)
 	{
 		Log::E("Could not read from file.");
 	}
@@ -138,11 +137,12 @@ bool FileStream::copy_to(Stream* stream, size_t size)
 	{
 		int32_t readBytes;
 		int32_t expectedReadBytes = math::min(size - totReadBytes, chunksize);
-		readBytes = fread(buff, 1, expectedReadBytes, m_file->get_handle());
+
+		readBytes = m_file->read(buff, 1, expectedReadBytes);
 
 		if (readBytes < expectedReadBytes)
 		{
-			if (feof(m_file->get_handle()))
+			if (m_file->eof())
 			{
 				if (readBytes != 0)
 				{
@@ -190,10 +190,10 @@ void FileStream::write_byte(uint8_t val)
 	if (m_last_was_read)
 	{
 		m_last_was_read = false;
-		fseek(m_file->get_handle(), 0, SEEK_CUR);
+		m_file->seek(0, SEEK_CUR);
 	}
 
-	if (fputc(val, m_file->get_handle()) == EOF)
+	if (m_file->write(&val, 1, 1) != 1)
 	{
 		Log::E("Could not write to file.");
 	}
@@ -207,10 +207,10 @@ void FileStream::write(const void* buffer, size_t size)
 	if (m_last_was_read)
 	{
 		m_last_was_read = false;
-		fseek(m_file->get_handle(), 0, SEEK_CUR);
+		m_file->seek(0, SEEK_CUR);
 	}
 
-	if (fwrite(buffer, size, 1, m_file->get_handle()) != 1)
+	if (m_file->write(buffer, size, 1) != 1)
 	{
 		Log::E("Could not write to file.");
 	}
@@ -220,24 +220,24 @@ void FileStream::write(const void* buffer, size_t size)
 void FileStream::flush()
 {
 	check_valid();
-	fflush(m_file->get_handle());
+	
+	// FIXME implement flush in File
 }
 
 //-----------------------------------------------------------------------------
 size_t FileStream::position() const
 {
 	check_valid();
-	return ftell(m_file->get_handle());
+
+	return m_file->tell();
 }
 
 //-----------------------------------------------------------------------------
 size_t FileStream::size() const
 {
-	size_t pos = position();
-	fseek(m_file->get_handle(), 0, SEEK_END);
-	size_t size = position();
-	fseek(m_file->get_handle(), pos, SEEK_SET);
-	return size;
+	check_valid();
+	
+	return m_file->size();
 }
 
 //-----------------------------------------------------------------------------
