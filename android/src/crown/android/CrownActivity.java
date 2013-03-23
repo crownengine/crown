@@ -102,53 +102,38 @@ public class CrownActivity extends Activity
 	public boolean onTouchEvent(MotionEvent event)
 	{
 
+		int pointerCount = event.getPointerCount();
+		int pointerIndex = event.getActionIndex();
+		int pointerId = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+		float x = event.getX(pointerId);
+		float y = event.getY(pointerId);
+
 		int actionMasked = event.getActionMasked();
 
 		switch (actionMasked) 
 		{	
 			case MotionEvent.ACTION_DOWN:
-			{
-				Log.i(TAG, "event = ACTION_DOWN");
-			    final float x = event.getX();
-			    final float y = event.getY();
-				CrownLib.pushEvent(6, 0, (int) x,(int) y, 0);
-				break;			
-			}
-
 			case MotionEvent.ACTION_POINTER_DOWN:
 			{
-				final int pointerIndex = event.getActionIndex();
-				final int pointerId = event.getPointerId(pointerIndex);
-				final float x = event.getX(pointerId);
-				final float y = event.getY(pointerId);
-				Log.i(TAG, "event = ACTION_POINTER_DOWN_" + pointerId);
-				CrownLib.pushEvent(6, pointerId, (int)x, (int)y, 0);
-				break;
+				Log.i(TAG, "event = ACTION_DOWN_" + pointerId);
+				CrownLib.pushEvent(6, pointerId, (int) x,(int) y, 0);
+				break;			
 			}
 
 	        case MotionEvent.ACTION_MOVE:
 			{
-//				Log.i(TAG, "event = ACTION_MOVE");
-				final int pointerIndex = event.getActionIndex();
-				final int pointerId = event.getPointerId(pointerIndex);
-				final float x = event.getX(pointerId);
-				final float y = event.getY(pointerId);
 				CrownLib.pushEvent(7, pointerId, (int) x,(int) y, 0);
-				break;
-			}
-
-			case MotionEvent.ACTION_POINTER_UP:
-			{
-				final int pointerIndex = event.getActionIndex();
-				final int pointerId = event.getPointerId(pointerIndex);
-				Log.i(TAG, "event = ACTION_POINTER_UP_" + pointerId);
-
 				break;
 			}
 
 			case MotionEvent.ACTION_UP:
 			{
-				Log.i(TAG, "event = ACTION_UP");
+				Log.i(TAG, "event = ACTION_UP" + pointerId);
+				break;			
+			}
+			case MotionEvent.ACTION_POINTER_UP:
+			{
+				Log.i(TAG, "event = ACTION_UP" + pointerId);
 				break;			
 			}
 		}
