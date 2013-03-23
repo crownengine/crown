@@ -23,19 +23,19 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "OS.h"
 #include <android/log.h>
 #include <cstdio>
 #include <cstdarg>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <dirent.h>
 #include <cstdlib>
 #include <sys/time.h>
 #include <time.h>
 #include <android/asset_manager_jni.h>
-#include <jni.h>
+
+#include "OS.h"
+#include "AndroidOS.h"
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "crown", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "crown", __VA_ARGS__))
@@ -46,6 +46,12 @@ namespace crown
 {
 namespace os
 {
+
+extern "C" 
+{
+	// This is sadly necessary in order to get the asset manager from java...
+    JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv* env, jobject obj, jobject assetManager);
+};
 
 static timespec			base_time;
 static AAssetManager*	asset_manager = NULL;
@@ -242,13 +248,31 @@ AAssetManager* get_android_asset_manager()
 }
 
 //-----------------------------------------------------------------------------
-extern "C" 
+bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen)
 {
-	// This is sadly necessary in order to get the asset manager from java...
-    JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv * env, jobject obj, jobject assetManager);
-};
+	// not necessary
+}
 
-JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv * env, jobject obj, jobject assetManager)
+//-----------------------------------------------------------------------------
+bool destroy_render_window()
+{
+	// not necessary
+}
+
+//-----------------------------------------------------------------------------
+void get_render_window_metrics(uint32_t& width, uint32_t& height)
+{
+	// not necessary
+}
+
+//-----------------------------------------------------------------------------
+void swap_buffers()
+{
+	// not necessary
+}
+
+//-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv* env, jobject obj, jobject assetManager)
 {
 	asset_manager = AAssetManager_fromJava(env, assetManager);
 }

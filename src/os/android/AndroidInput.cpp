@@ -16,30 +16,41 @@ JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushEvent(JNIEnv * env, jobje
 	push_event((OSEventType)type, a, b, c, d);
 }
 
-
+//-----------------------------------------------------------------------------
 void init_input()
 {
 	// FIXME
 }
 
+//-----------------------------------------------------------------------------
+void event_loop()
+{
+	// not necessary
+}
+
+//-----------------------------------------------------------------------------
 void get_cursor_xy(int32_t& x, int32_t& y)
 {
 	// not necessary
 }
 
+//-----------------------------------------------------------------------------
 void set_cursor_xy(int32_t x, int32_t y)
 {
 	// not necessary
 }
 
+//-----------------------------------------------------------------------------
 void hide_cursor()
 {
 	// not necessary
 }
 
+//-----------------------------------------------------------------------------
 void show_cursor()
 {
 	// not necessary
 }
+
 } // namespace os
 } // namespace crown

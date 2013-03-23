@@ -46,8 +46,8 @@ LOCAL_SRC_FILES :=\
 \
 	os/OS.cpp\
 	os/android/AndroidOS.cpp\
-	os/android/AndroidRenderWindow.cpp\
 	os/android/AndroidInput.cpp\
+	os/android/AndroidRenderer.cpp\
 	os/android/File.cpp\
 \
 	Filesystem.cpp\
