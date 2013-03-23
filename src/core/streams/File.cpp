@@ -26,20 +26,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "File.h"
 #include "Log.h"
 #include "MathUtils.h"
+#include <cassert>
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
 File::File() :
-	m_file_handle(0), m_mode(FOM_READ)
+	m_file_handle(NULL), m_mode(FOM_READ)
 {
 }
 
 //-----------------------------------------------------------------------------
 File::~File()
 {
-	if (m_file_handle != 0)
+	if (m_file_handle != NULL)
 	{
 		fclose(m_file_handle);
 	}
@@ -87,6 +88,48 @@ File* File::open(const char* path, FileOpenMode mode)
 	f->m_mode = mode;
 
 	return f;
+}
+
+//-----------------------------------------------------------------------------
+size_t File::read(void* ptr, size_t size, size_t nmemb)
+{
+	assert(m_file_handle != NULL);
+	assert(ptr != NULL);
+
+	return fread(ptr, size, nmemb, m_file_handle);
+}
+
+//-----------------------------------------------------------------------------
+size_t File::write(const void* ptr, size_t size, size_t nmemb)
+{
+	assert(m_file_handle != NULL);
+	assert(ptr != NULL);
+
+	return fwrite(ptr, size, nmemb, m_file_handle);
+}
+
+//-----------------------------------------------------------------------------
+int File::seek(int32_t offset, int whence)
+{
+	assert(m_file_handle != NULL);
+
+	return fseek(m_file_handle, offset, whence);
+}
+
+//-----------------------------------------------------------------------------
+int32_t File::tell()
+{
+	assert(m_file_handle != NULL);
+	
+	return ftell(m_file_handle);
+}
+
+//-----------------------------------------------------------------------------
+int File::eof()
+{
+	assert(m_file_handle != NULL);
+	
+	return feof(m_file_handle);
 }
 
 //-----------------------------------------------------------------------------
