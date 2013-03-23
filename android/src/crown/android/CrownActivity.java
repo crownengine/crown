@@ -13,18 +13,22 @@ import android.content.Context;
 import android.widget.Toast;
 import android.content.res.AssetManager;
 
+import crown.android.CrownEnum;
+
 public class CrownActivity extends Activity
 {
 	public static String TAG = "CrownActivity";
 
+	// Resource attributes
     static AssetManager assetManager;
 
+	// Graphic attributes
 	private CrownView mView;
 
+	// Input attributes
 	private static SensorManager sm;
 	private Sensor sensor;
-
-	//TODO: add count of finger on screen at the same time
+	private int mActivePointer = -1;
 
 //---------------------------------------------------------------------
     public void onCreate(Bundle savedInstanceState)
@@ -97,29 +101,54 @@ public class CrownActivity extends Activity
 //---------------------------------------------------------------------
 	public boolean onTouchEvent(MotionEvent event)
 	{
-	    float x = event.getX();
-	    float y = event.getY();
 
-		switch (event.getAction()) 
+		int actionMasked = event.getActionMasked();
+
+		switch (actionMasked) 
 		{	
-	        case MotionEvent.ACTION_MOVE:
-			{
-				Log.i(TAG, "event = ACTION_MOVE");
-				CrownLib.pushEvent(10,(int) x,(int) y, 0, 0);
-				break;
-			}
-
 			case MotionEvent.ACTION_DOWN:
 			{
 				Log.i(TAG, "event = ACTION_DOWN");
-				CrownLib.pushEvent(10,(int) x,(int) y, 0, 0);
+			    final float x = event.getX();
+			    final float y = event.getY();
+				CrownLib.pushEvent(6, 0, (int) x,(int) y, 0);
 				break;			
+			}
+
+			case MotionEvent.ACTION_POINTER_DOWN:
+			{
+				final int pointerIndex = event.getActionIndex();
+				final int pointerId = event.getPointerId(pointerIndex);
+				final float x = event.getX(pointerId);
+				final float y = event.getY(pointerId);
+				Log.i(TAG, "event = ACTION_POINTER_DOWN_" + pointerId);
+				CrownLib.pushEvent(6, pointerId, (int)x, (int)y, 0);
+				break;
+			}
+
+	        case MotionEvent.ACTION_MOVE:
+			{
+				Log.i(TAG, "event = ACTION_MOVE");
+				final int pointerIndex = event.getActionIndex();
+				final int pointerId = event.getPointerId(pointerIndex);
+				final float x = event.getX(pointerId);
+				final float y = event.getY(pointerId);
+				CrownLib.pushEvent(7, pointerId, (int) x,(int) y, 0);
+				break;
+			}
+
+			case MotionEvent.ACTION_POINTER_UP:
+			{
+				final int pointerIndex = event.getActionIndex();
+				final int pointerId = event.getPointerId(pointerIndex);
+				Log.i(TAG, "event = ACTION_POINTER_DOWN_" + pointerId);
+
+				break;
 			}
 
 			case MotionEvent.ACTION_UP:
 			{
 				Log.i(TAG, "event = ACTION_UP");
-				CrownLib.pushEvent(10,(int) x,(int) y, 0, 0);
 				break;			
 			}
 		}
@@ -140,7 +169,7 @@ public class CrownActivity extends Activity
      	 	float x = event.values[0];
 			float y = event.values[1];
 			float z = event.values[2];
-			Log.i(TAG, "X:" + x + "Y:" + y + "Z:" + z);
+//			Log.i(TAG, "X:" + x + "Y:" + y + "Z:" + z);
 			CrownLib.pushEvent(11,(int) x,(int) y, (int)z, 0);
     	}
   	};
