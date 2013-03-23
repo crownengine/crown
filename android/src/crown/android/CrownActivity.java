@@ -128,7 +128,7 @@ public class CrownActivity extends Activity
 
 	        case MotionEvent.ACTION_MOVE:
 			{
-				Log.i(TAG, "event = ACTION_MOVE");
+//				Log.i(TAG, "event = ACTION_MOVE");
 				final int pointerIndex = event.getActionIndex();
 				final int pointerId = event.getPointerId(pointerIndex);
 				final float x = event.getX(pointerId);
@@ -141,7 +141,7 @@ public class CrownActivity extends Activity
 			{
 				final int pointerIndex = event.getActionIndex();
 				final int pointerId = event.getPointerId(pointerIndex);
-				Log.i(TAG, "event = ACTION_POINTER_DOWN_" + pointerId);
+				Log.i(TAG, "event = ACTION_POINTER_UP_" + pointerId);
 
 				break;
 			}
