@@ -134,14 +134,12 @@ set (MATH_HEADERS
 )
 
 set (STREAMS_SRC
-	core/streams/File.cpp
 	core/streams/FileStream.cpp
 	core/streams/MemoryStream.cpp
 	core/streams/Stream.cpp
 )
 
 set (STREAMS_HEADERS
-	core/streams/File.h
 	core/streams/FileStream.h
 	core/streams/MemoryStream.h
 	core/streams/NullStream.h
@@ -226,9 +224,11 @@ set (LINUX_SRC
 	os/linux/Input.cpp
 	os/linux/LinuxTCPSocket.cpp
 	os/linux/LinuxUDPSocket.cpp	
+	os/linux/File.cpp
 )
 
 set (LINUX_HEADERS
+	os/linux/File.h
 #	os/linux/EGLRenderWindow.h
 )
 
