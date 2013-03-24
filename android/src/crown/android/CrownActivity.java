@@ -41,6 +41,8 @@ public class CrownActivity extends Activity
 		CrownLib.initAssetManager(assetManager);
         
         mView = new CrownView(getApplication());
+		setContentView(mView);
+
 	    sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 	    sensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     }
@@ -90,6 +92,7 @@ public class CrownActivity extends Activity
 	public void onStop()
 	{
 		super.onStop();
+		CrownLib.shutdown();
 	}
 
 //---------------------------------------------------------------------
@@ -116,7 +119,7 @@ public class CrownActivity extends Activity
 			case MotionEvent.ACTION_DOWN:
 			case MotionEvent.ACTION_POINTER_DOWN:
 			{
-				Log.i(TAG, "event: ACTION_DOWN_" + pointerId + ", x=" + x + " y=" + y);
+//				Log.i(TAG, "event: ACTION_DOWN_" + pointerId + ", x=" + x + " y=" + y);
 				CrownLib.pushEvent(CrownEnum.OSET_TOUCH_DOWN, pointerId, (int) x,(int) y, 0);
 				break;			
 			}
@@ -124,7 +127,7 @@ public class CrownActivity extends Activity
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_POINTER_UP:
 			{
-				Log.i(TAG, "event = ACTION_UP_" + pointerId + ", x=" + x + " y=" + y);
+				//Log.i(TAG, "event = ACTION_UP_" + pointerId + ", x=" + x + " y=" + y);
 				CrownLib.pushEvent(CrownEnum.OSET_TOUCH_UP, pointerId, (int) x,(int) y, 0);
 				break;			
 			}

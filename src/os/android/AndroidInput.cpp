@@ -1,4 +1,5 @@
 #include "OS.h"
+#include "Log.h"
 #include <jni.h>
 
 namespace crown

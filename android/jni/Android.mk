@@ -105,62 +105,39 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/renderers/gles\
 	$(LOCAL_PATH)/renderers/gles/egl\
 	$(LOCAL_PATH)/input\
-#	$(LOCAL_PATH)/input/android
 
 LOCAL_CPPFLAGS	:= -g -fexceptions
-LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv1_CM
+LOCAL_LDLIBS	:= -llog -landroid -lGLESv1_CM
+include $(BUILD_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE    := simple
+LOCAL_SRC_FILES := samples/triangle.cpp\
+
+LOCAL_SHARED_LIBRARIES := crown
+LOCAL_C_INCLUDES	:=\
+	$(LOCAL_PATH)/core\
+	$(LOCAL_PATH)/core/math\
+	$(LOCAL_PATH)/core/containers\
+	$(LOCAL_PATH)/core/bv\
+	$(LOCAL_PATH)/core/mem\
+	$(LOCAL_PATH)/core/streams\
+	$(LOCAL_PATH)/loaders\
+	$(LOCAL_PATH)/os\
+	$(LOCAL_PATH)/os/android\
+	$(LOCAL_PATH)/renderers\
+	$(LOCAL_PATH)/things\
+	$(LOCAL_PATH)/filesystem\
+	$(LOCAL_PATH)/renderers/gles\
+	$(LOCAL_PATH)/renderers/gles/egl\
+	$(LOCAL_PATH)/input\
+	$(LOCAL_PATH)/samples\
+
+LOCAL_CPPFLAGS	:= -g -fexceptions
+LOCAL_LDLIBS	:= -llog -landroid -lGLESv1_CM -lz
+#LOCAL_STATIC_LIBRARIES := android_native_app_glue
+LOCAL_STATIC_LIBRARIES := crown
 include $(BUILD_SHARED_LIBRARY)
-
-#include $(CLEAR_VARS)
-
-#LOCAL_CPPFLAGS	:= -g -fexceptions
-#LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv1_CM
-#LOCAL_STATIC_LIBRARIES := android_native_app_glue
-#include $(BUILD_STATIC_LIBRARY)
-#include $(CLEAR_VARS)
-
-#LOCAL_MODULE    := simple
-#LOCAL_SRC_FILES :=	tests/chainsawbuffet/maain.cpp\
-#					tests/chainsawbuffet/Globals.cpp\
-#					tests/chainsawbuffet/entities/Pg.cpp\
-#					tests/chainsawbuffet/entities/Zombie.cpp\
-#					tests/chainsawbuffet/entities/SolidSceneNode.cpp\
-#					tests/chainsawbuffet/entities/Joystick.cpp\
-#					tests/chainsawbuffet/scenes/ArenaScene.cpp\
-#					tests/chainsawbuffet/entities/Bullet.cpp
-#LOCAL_SHARED_LIBRARIES := crown
-#LOCAL_C_INCLUDES	:=\
-#	$(LOCAL_PATH)/core\
-#	$(LOCAL_PATH)/core/math\
-#	$(LOCAL_PATH)/core/containers\
-#	$(LOCAL_PATH)/core/bv\
-#	$(LOCAL_PATH)/core/mem\
-#	$(LOCAL_PATH)/core/streams\
-#	$(LOCAL_PATH)/loaders\
-#	$(LOCAL_PATH)/renderers\
-#	$(LOCAL_PATH)/things\
-#	$(LOCAL_PATH)/filesystem\
-#	$(LOCAL_PATH)/gui\
-#	$(LOCAL_PATH)/windowing\
-#	$(LOCAL_PATH)/windowing/themes\
-#	$(LOCAL_PATH)/windowing/layouts\
-#	$(LOCAL_PATH)/windowing/templates\
-#	$(LOCAL_PATH)/windowing/toolbox\
-#	$(LOCAL_PATH)/renderers/gl\
-#	$(LOCAL_PATH)/renderers/gl/glx\
-#	$(LOCAL_PATH)/renderers/gl/wgl\
-#	$(LOCAL_PATH)/renderers/gles\
-#	$(LOCAL_PATH)/renderers/gles/egl\
-#	$(LOCAL_PATH)/input\
-#	$(LOCAL_PATH)/input/android\
-#	$(LOCAL_PATH)/tests\
-#	$(LOCAL_PATH)/tests/chainsawbuffet\
-#	$(LOCAL_PATH)/tests/chainsawbuffet/entities\
-#	$(LOCAL_PATH)/tests/chainsawbuffet/scenes\
-#
-#LOCAL_CPPFLAGS	:= -g -fexceptions
-#LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv1_CM -lz
-#LOCAL_STATIC_LIBRARIES := android_native_app_glue
-#include $(BUILD_SHARED_LIBRARY)
 #$(call import-module,android/native_app_glue)
 

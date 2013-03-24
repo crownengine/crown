@@ -40,6 +40,7 @@ class CrownView extends GLSurfaceView
          * format here, using PixelFormat.TRANSLUCENT for GL Surfaces
          * is interpreted as any 32-bit surface with alpha by SurfaceFlinger.
          */
+		Log.i(TAG, "JAVA INIT CALLED.");
         if (translucent) 
 		{
             this.getHolder().setFormat(PixelFormat.TRANSLUCENT);
@@ -49,18 +50,21 @@ class CrownView extends GLSurfaceView
          * See ContextFactory class definition below
          */
         setEGLContextFactory(new ContextFactory());
+		Log.i(TAG, "JAVA EGL CONTEXT FACTORY CALLED.");
 
         /* We need to choose an EGLConfig that matches the format of
          * our surface exactly. This is going to be done in our
          * custom config chooser. See ConfigChooser class definition
          * below.
          */
+		Log.i(TAG, "JAVA SET EGL CONTEXT CALLED.");
         setEGLConfigChooser( translucent ?
                              new ConfigChooser(8, 8, 8, 8, depth, stencil) :
                              new ConfigChooser(5, 6, 5, 0, depth, stencil) );
 
         /* Set the renderer responsible for frame rendering */
         setRenderer(new Renderer());
+		Log.i(TAG, "JAVA SET RENDERER CALLED.");
     }
 
     private static class ContextFactory implements GLSurfaceView.EGLContextFactory 
@@ -69,11 +73,18 @@ class CrownView extends GLSurfaceView
 
         public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) 
 		{
-            Log.w(TAG, "creating OpenGL ES 2.0 context");
+			Log.i(TAG, "JAVA EGL CREATE CONTEXT CALLED.");
+            Log.w(TAG, "creating EGL context");
+
             checkEglError("Before eglCreateContext", egl);
-            int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
+
+			// Create OpenGL|ES 1.1 context
+            int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 1, EGL10.EGL_NONE };
+
             EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attrib_list);
+
             checkEglError("After eglCreateContext", egl);
+
             return context;
         }
 
@@ -108,23 +119,20 @@ class CrownView extends GLSurfaceView
             mStencilSize = stencil;
         }
 
-        /* This EGL config specification is used to specify 2.0 rendering.
-         * We use a minimum size of 4 bits for red/green/blue, but will
-         * perform actual matching in chooseConfig() below.
-         */
-        private static int EGL_OPENGL_ES2_BIT = 4;
+		// Choose OpenGL|ES 1 bit
+        private static int EGL_OPENGL_ES_BIT = 1;
         private static int[] s_configAttribs2 =
         {
             EGL10.EGL_RED_SIZE, 4,
             EGL10.EGL_GREEN_SIZE, 4,
             EGL10.EGL_BLUE_SIZE, 4,
-            EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+            EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES_BIT,
             EGL10.EGL_NONE
         };
 
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) 
 		{
-
+			Log.i(TAG, "JAVA CHOOSE CONFIG CALLED.");
             /* Get the number of minimally matching EGL configurations
              */
             int[] num_config = new int[1];
@@ -153,6 +161,7 @@ class CrownView extends GLSurfaceView
 
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display, EGLConfig[] configs) 
 		{
+			Log.i(TAG, "JAVA CHOOSE CONFIG (2) CALLED.");
             for(EGLConfig config : configs) 
 			{
                 int d = findConfigAttrib(egl, display, config,
@@ -302,21 +311,21 @@ class CrownView extends GLSurfaceView
         private int[] mValue = new int[1];
     }
 
-    private static class Renderer implements GLSurfaceView.Renderer 
+    private static class Renderer implements GLSurfaceView.Renderer
 	{
         public void onDrawFrame(GL10 gl)
 		{
-
+			CrownLib.frame();
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height)
 		{
-
+			CrownLib.init();
         }
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config)
 		{
-            // Do nothing.
+
         }
     }
 }

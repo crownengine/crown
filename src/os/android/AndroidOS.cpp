@@ -75,25 +75,19 @@ void vprintf(const char* string, va_list arg)
 //-----------------------------------------------------------------------------
 void log_debug(const char* string, va_list arg)
 {
-	printf("D: ");
-	vprintf(string, arg);
-	printf("\n");
+	LOGI(string, arg);
 }
 
 //-----------------------------------------------------------------------------
 void log_error(const char* string, va_list arg)
 {
-	printf("E: ");
-	vprintf(string, arg);
-	printf("\n");
+	LOGI(string, arg);
 }
 
 //-----------------------------------------------------------------------------
 void log_warning(const char* string, va_list arg)
 {
-	printf("W: ");
-	vprintf(string, arg);
-	printf("\n");
+	LOGI(string, arg);
 }
 
 //-----------------------------------------------------------------------------
@@ -250,13 +244,13 @@ AAssetManager* get_android_asset_manager()
 //-----------------------------------------------------------------------------
 bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen)
 {
-	// not necessary
+	return true;
 }
 
 //-----------------------------------------------------------------------------
 bool destroy_render_window()
 {
-	// not necessary
+	return true;
 }
 
 //-----------------------------------------------------------------------------
