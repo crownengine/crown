@@ -29,15 +29,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mouse.h"
 #include "Keyboard.h"
 #include "Touch.h"
+#include "Accelerometer.h"
 
 namespace crown
 {
 
 class EventDispatcher
 {
-	typedef List<MouseListener*>		MouseListenerList;
-	typedef List<KeyboardListener*>		KeyboardListenerList;
-	typedef List<TouchListener*>		TouchListenerList;
+	typedef List<MouseListener*>			MouseListenerList;
+	typedef List<KeyboardListener*>			KeyboardListenerList;
+	typedef List<TouchListener*>			TouchListenerList;
+	typedef List<AccelerometerListener*>	AccListenerList;
 
 public:
 
@@ -47,6 +49,7 @@ public:
 	void AddMouseListener(MouseListener* listener);
 	void AddKeyboardListener(KeyboardListener* listener);
 	void AddTouchListener(TouchListener* listener);
+	void add_accelerometer_listener(AccelerometerListener* listener);
 
 	void ButtonPressed(const MouseEvent&);
 	void ButtonReleased(const MouseEvent&);
@@ -61,11 +64,14 @@ public:
 	void TouchMove(const TouchEvent& event);
 	void TouchCancel(const TouchEvent& event);
 
+	void accelerometer_changed(const AccelerometerEvent& event);
+
 private:
 
 	MouseListenerList		mMouseListenerList;
 	KeyboardListenerList	mKeyboardListenerList;
 	TouchListenerList		mTouchListenerList;
+	AccListenerList			m_acc_listener_list;
 };
 
 } // namespace crown

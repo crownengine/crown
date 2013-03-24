@@ -68,6 +68,11 @@ public:
 		mEventDispatcher.AddTouchListener(listener);
 	}
 
+	inline void register_accelerometer_listener(AccelerometerListener* listener)
+	{
+//		mEventDispatcher.AddAccelerometerListener(listener)
+	}
+
 	inline EventDispatcher* GetEventDispatcher()
 	{
 		return &mEventDispatcher;

@@ -14,7 +14,8 @@ struct AccelerometerEvent
 
 class AccelerometerListener
 {
-	virtual public accelerometer_changed(const AccelerometerEvent& event) { (void)event; };
+public:
+	virtual void accelerometer_changed(const AccelerometerEvent& event) { (void)event; }
 };
 
 class Accelerometer
@@ -31,3 +32,5 @@ private:
 
 	AccelerometerListener* m_listener;
 };
+
+} // namespace crown

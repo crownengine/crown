@@ -93,10 +93,35 @@ void InputManager::EventLoop()
 
 				break;
 			}
+			case os::OSET_TOUCH_DOWN:
+			case os::OSET_TOUCH_UP:
+			{
+				TouchEvent touch_event;
+				touch_event.pointer_id = event.data_a;
+				touch_event.x = event.data_b;
+				touch_event.y = event.data_c;
+				if (event.type == os::OSET_TOUCH_DOWN)
+				{
+					mEventDispatcher.TouchDown(touch_event);
+				}
+				else
+				{
+					mEventDispatcher.TouchUp(touch_event);
+				}
+				break;
+			}
 			case os::OSET_TOUCH_MOVE:
 			{
-				Log::I("Touch coord = %d:%d\n", event.data_a, event.data_b);
 				break;
+			}
+			case os::OSET_ACCELEROMETER:
+			{
+				AccelerometerEvent sensor_event;
+				sensor_event.x = event.data_a;
+				sensor_event.y = event.data_b;
+				sensor_event.z = event.data_c;
+
+				mEventDispatcher.accelerometer_changed(sensor_event);
 			}
 			default:
 			{

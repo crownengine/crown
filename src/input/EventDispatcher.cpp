@@ -33,7 +33,8 @@ namespace crown
 EventDispatcher::EventDispatcher() :
 	mMouseListenerList(get_default_allocator()),
 	mKeyboardListenerList(get_default_allocator()),
-	mTouchListenerList(get_default_allocator())
+	mTouchListenerList(get_default_allocator()),
+	m_acc_listener_list(get_default_allocator())
 {
 }
 
@@ -153,6 +154,15 @@ void EventDispatcher::TouchCancel(const TouchEvent& event)
 	for (uint32_t i = 0; i < mTouchListenerList.size(); i++)
 	{
 		mTouchListenerList[i]->TouchCancel(event);
+	}
+}
+
+//-----------------------------------------------------------------------------
+void EventDispatcher::accelerometer_changed(const AccelerometerEvent& event)
+{
+	for (uint32_t i = 0; i < m_acc_listener_list.size(); i++)
+	{
+		m_acc_listener_list[i]->accelerometer_changed(event);
 	}
 }
 
