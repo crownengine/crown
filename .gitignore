@@ -7,4 +7,5 @@
 /android/gen
 /android/libs
 /android/obj
+/android/local.properties
 
