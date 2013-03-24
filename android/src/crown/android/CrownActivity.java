@@ -102,30 +102,30 @@ public class CrownActivity extends Activity
 	public boolean onTouchEvent(MotionEvent event)
 	{
 
-		int pointerIndex = event.getActionIndex();
-		int pointerCount = event.getPointerCount();
+		final int pointerIndex = event.getActionIndex();
+		final int pointerCount = event.getPointerCount();
 
-		int pointerId = event.getPointerId(pointerIndex);
-		float x = event.getX(pointerIndex);
-		float y = event.getY(pointerIndex);
+		final int pointerId = event.getPointerId(pointerIndex);
+		final float x = event.getX(pointerIndex);
+		final float y = event.getY(pointerIndex);
 
-		int actionMasked = event.getActionMasked();
+		final int actionMasked = event.getActionMasked();
 
 		switch (actionMasked) 
 		{	
 			case MotionEvent.ACTION_DOWN:
 			case MotionEvent.ACTION_POINTER_DOWN:
 			{
-				Log.i(TAG, "event = ACTION_DOWN_" + pointerId);
-				CrownLib.pushEvent(6, pointerId, (int) x,(int) y, 0);
+				Log.i(TAG, "event: ACTION_DOWN_" + pointerId + ", x=" + x + " y=" + y);
+				CrownLib.pushEvent(CrownEnum.OSET_TOUCH_DOWN, pointerId, (int) x,(int) y, 0);
 				break;			
 			}
 
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_POINTER_UP:
 			{
-				Log.i(TAG, "event = ACTION_UP_" + pointerId);
-				CrownLib.pushEvent(7, pointerId, (int) x,(int) y, 0);
+				Log.i(TAG, "event = ACTION_UP_" + pointerId + ", x=" + x + " y=" + y);
+				CrownLib.pushEvent(CrownEnum.OSET_TOUCH_UP, pointerId, (int) x,(int) y, 0);
 				break;			
 			}
 			
@@ -134,7 +134,7 @@ public class CrownActivity extends Activity
 				for (int index = 0; index < pointerCount; index++)
 				{
 					//Log.i(TAG, "event = ACTION_MOVE_" + event.getPointerId(index) + " X=" + (int)event.getX(index) + " Y=" + (int)event.getY(index));
-					CrownLib.pushEvent(8, event.getPointerId(index), (int)event.getX(index),(int)event.getY(index), 0);
+					CrownLib.pushEvent(CrownEnum.OSET_TOUCH_MOVE, event.getPointerId(index), (int)event.getX(index),(int)event.getY(index), 0);
 				}
 
 				break;
