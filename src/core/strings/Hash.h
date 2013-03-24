@@ -5,6 +5,12 @@ namespace crown
 namespace hash
 {
 
+// Constants
+const uint32_t FNV1A_OFFSET_BASIS_32		= 2166136261u;
+const uint64_t FNV1A_OFFSET_BASIS_64		= 14695981039346656037u;
+const uint32_t FNV1A_PRIME_32				= 16777619u;
+const uint64_t FNV1A_PRIME_64				= 1099511628211u;
+
 //-----------------------------------------------------------------------------
 // MurmurHash2, by Austin Appleby
 //
@@ -64,5 +70,44 @@ static uint32_t murmur2(const void* key, size_t len, uint32_t seed)
 	return h;
 }
 
+//-----------------------------------------------------------------------------
+// FNV-1a hash, 32 bit
+static uint32_t fnv1a_32(const char* str, size_t len)
+{
+	assert(str != NULL);
+	assert(len <= string::strlen(str));
+
+	// FNV-1a
+	uint32_t hash = FNV1A_OFFSET_BASIS_32;
+
+	for (size_t i = 0; i < len; i++)
+	{
+		hash ^= str[i];
+		hash *= FNV1A_PRIME_32;
+	}
+
+	return hash;
 }
+
+//-----------------------------------------------------------------------------
+// FNV-1a hash, 64 bit
+static uint64_t fnv1a_64(const char* str, size_t len)
+{
+	assert(str != NULL);
+	assert(len <= string::strlen(str));
+
+	// FNV-1a
+	uint64_t hash = FNV1A_OFFSET_BASIS_64;
+
+	for (size_t i = 0; i < len; i++)
+	{
+		hash ^= str[i];
+		hash *= FNV1A_PRIME_64;
+	}
+
+	return hash;
 }
+
+} // namespace hash
+} // namespace crown
+

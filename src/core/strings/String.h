@@ -38,11 +38,6 @@ namespace string
 
 static const char*		EMPTY = "";
 
-static uint32_t			Hash32(const char* str);
-static uint32_t			Hash32(const char* str, size_t len);
-static uint64_t			Hash64(const char* str);
-static uint64_t			Hash64(const char* str, size_t len);
-
 static bool				is_alpha(char c);
 static bool				is_digit(char c);
 static bool				is_upper(char c);
@@ -354,76 +349,6 @@ inline bool is_lower(char c)
 inline bool is_whitespace(char c)
 {
 	return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
-}
-
-//-----------------------------------------------------------------------------
-inline uint32_t Hash32(const char* str)
-{
-	assert(str != NULL);
-
-	// FNV-1a
-	uint32_t hash = 2166136261u;
-
-	for (size_t i = 0; str[i] != '\0'; i++)
-	{
-		hash ^= str[i];
-		hash *= 16777619u;
-	}
-
-	return hash;
-}
-
-//-----------------------------------------------------------------------------
-inline uint32_t Hash32(const char* str, size_t len)
-{
-	assert(str != NULL);
-	assert(len <= string::strlen(str));
-
-	// FNV-1a
-	uint32_t hash = 2166136261u;
-
-	for (size_t i = 0; i < len; i++)
-	{
-		hash ^= str[i];
-		hash *= 16777619u;
-	}
-
-	return hash;
-}
-
-//-----------------------------------------------------------------------------
-inline uint64_t Hash64(const char* str)
-{
-	assert(str != NULL);
-
-	// FNV-1a
-	uint64_t hash = 14695981039346656037u;
-
-	for (size_t i = 0; str[i] != '\0'; i++)
-	{
-		hash ^= str[i];
-		hash *= 1099511628211u;
-	}
-
-	return hash;
-}
-
-//-----------------------------------------------------------------------------
-inline uint64_t Hash64(const char* str, size_t len)
-{
-	assert(str != NULL);
-	assert(len <= string::strlen(str));
-
-	// FNV-1a
-	uint64_t hash = 14695981039346656037u;
-
-	for (size_t i = 0; i < len; i++)
-	{
-		hash ^= str[i];
-		hash *= 1099511628211u;
-	}
-
-	return hash;
 }
 
 //-----------------------------------------------------------------------------
