@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceManager.h"
 #include "ResourceLoader.h"
 #include "String.h"
+#include "Hash.h"
 #include <algorithm>
 
 namespace crown
@@ -47,7 +48,7 @@ ResourceManager::~ResourceManager()
 //-----------------------------------------------------------------------------
 ResourceId ResourceManager::load(const char* name)
 {
-	uint32_t name_hash = string::Hash32(name);
+	uint32_t name_hash = hash::fnv1a_32(name, string::strlen(name));
 
 	return load(name_hash);
 }

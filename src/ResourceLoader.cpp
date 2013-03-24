@@ -1,6 +1,7 @@
 #include "ResourceLoader.h"
 #include "ResourceManager.h"
 #include "String.h"
+#include "Hash.h"
 #include "TextureResource.h"
 #include <stdio.h>
 #include <unistd.h>
@@ -12,9 +13,9 @@ ResourceLoader::ResourceLoader(ResourceManager* resource_manager) :
 	m_resource_manager(resource_manager),
 	m_resources(m_allocator)
 {
-	m_config_hash = string::Hash32("config");
-	m_texture_hash = string::Hash32("tga");
-	m_mesh_hash = string::Hash32("mesh");
+	m_config_hash = hash::fnv1a_32("config", string::strlen("config"));
+	m_texture_hash = hash::fnv1a_32("tga", string::strlen("tga"));
+	m_mesh_hash = hash::fnv1a_32("mesh", string::strlen("mesh"));
 }
 
 ResourceLoader::~ResourceLoader()
