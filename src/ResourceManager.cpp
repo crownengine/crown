@@ -47,13 +47,13 @@ ResourceManager::~ResourceManager()
 //-----------------------------------------------------------------------------
 ResourceId ResourceManager::load(const char* name)
 {
-	StringId32 name_hash = string::Hash32(name);
+	uint32_t name_hash = string::Hash32(name);
 
 	return load(name_hash);
 }
 
 //-----------------------------------------------------------------------------
-ResourceId ResourceManager::load(StringId32 name)
+ResourceId ResourceManager::load(uint32_t name)
 {
 	// Search for an already existent resource
 	ResourceEntry* entry = std::find(m_resources.begin(), m_resources.end(), name);

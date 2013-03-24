@@ -38,10 +38,10 @@ namespace string
 
 static const char*		EMPTY = "";
 
-static StringId32		Hash32(const char* str);
-static StringId32		Hash32(const char* str, size_t len);
-static StringId64		Hash64(const char* str);
-static StringId64		Hash64(const char* str, size_t len);
+static uint32_t			Hash32(const char* str);
+static uint32_t			Hash32(const char* str, size_t len);
+static uint64_t			Hash64(const char* str);
+static uint64_t			Hash64(const char* str, size_t len);
 
 static bool				is_alpha(char c);
 static bool				is_digit(char c);
@@ -357,7 +357,7 @@ inline bool is_whitespace(char c)
 }
 
 //-----------------------------------------------------------------------------
-inline StringId32 Hash32(const char* str)
+inline uint32_t Hash32(const char* str)
 {
 	assert(str != NULL);
 
@@ -374,7 +374,7 @@ inline StringId32 Hash32(const char* str)
 }
 
 //-----------------------------------------------------------------------------
-inline StringId32 Hash32(const char* str, size_t len)
+inline uint32_t Hash32(const char* str, size_t len)
 {
 	assert(str != NULL);
 	assert(len <= string::strlen(str));
@@ -392,7 +392,7 @@ inline StringId32 Hash32(const char* str, size_t len)
 }
 
 //-----------------------------------------------------------------------------
-inline StringId64 Hash64(const char* str)
+inline uint64_t Hash64(const char* str)
 {
 	assert(str != NULL);
 
@@ -409,7 +409,7 @@ inline StringId64 Hash64(const char* str)
 }
 
 //-----------------------------------------------------------------------------
-inline StringId64 Hash64(const char* str, size_t len)
+inline uint64_t Hash64(const char* str, size_t len)
 {
 	assert(str != NULL);
 	assert(len <= string::strlen(str));

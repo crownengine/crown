@@ -43,7 +43,7 @@ struct ResourceEntry
 
 	void*			resource;
 
-	bool			operator==(const StringId32& name)
+	bool			operator==(const uint32_t& name)
 					{
 						return id.name == name;
 					}
@@ -65,7 +65,7 @@ public:
 							~ResourceManager();
 
 	ResourceId				load(const char* name);
-	ResourceId				load(StringId32 name);
+	ResourceId				load(uint32_t name);
 
 	void					unload(ResourceId name);
 	void					reload(ResourceId name);

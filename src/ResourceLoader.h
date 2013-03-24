@@ -33,9 +33,9 @@ private:
 	MallocAllocator		m_allocator;
 	Queue<ResourceId>	m_resources;
 	
-	StringId32			m_config_hash;
-	StringId32			m_texture_hash;
-	StringId32			m_mesh_hash;
+	uint32_t			m_config_hash;
+	uint32_t			m_texture_hash;
+	uint32_t			m_mesh_hash;
 };
 
 } // namespace crown

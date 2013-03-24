@@ -43,8 +43,8 @@ enum ResourceState
 /// the index to the resource list where it is stored.
 struct ResourceId
 {
-	StringId32		name;
-	StringId32		type;
+	uint32_t		name;
+	uint32_t		type;
 	uint32_t		index;
 };
 
