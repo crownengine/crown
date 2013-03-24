@@ -112,6 +112,11 @@ void InputManager::EventLoop()
 			}
 			case os::OSET_TOUCH_MOVE:
 			{
+				TouchEvent touch_event;
+				touch_event.pointer_id = event.data_a;
+				touch_event.x = event.data_b;
+				touch_event.y = event.data_c;	
+				mEventDispatcher.TouchMove(touch_event);			
 				break;
 			}
 			case os::OSET_ACCELEROMETER:
