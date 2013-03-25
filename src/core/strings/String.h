@@ -36,7 +36,7 @@ namespace crown
 namespace string
 {
 
-static const char*		EMPTY = "";
+const char*				EMPTY = "";
 
 static bool				is_alpha(char c);
 static bool				is_digit(char c);
