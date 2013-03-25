@@ -22,4 +22,10 @@ JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdown(JNIEnv* env, jobject
 	GetDevice()->Shutdown();
 }
 
+//------------------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* env, jobject obj)
+{
+	GetDevice()->Frame();
+}
+
 } // namspace crown

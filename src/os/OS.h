@@ -56,13 +56,13 @@ const size_t	MAX_EVENTS = 512;
 #endif
 
 //-----------------------------------------------------------------------------
-void			printf(const char* string, ...);				//!< Print32_tf wrapper
-void			vprintf(const char* string, va_list arg);		//!< VPrint32_tf wrapper
+void			printf(const char* string, ...);				//!< Printf wrapper
+void			vprintf(const char* string, va_list arg);		//!< VPrintf wrapper
 
-void			log_debug(const char* string, va_list arg);		//!< Print32_t debug message
-void			log_error(const char* string, va_list arg);		//!< Print32_t error message
-void			log_warning(const char* string, va_list arg);	//!< Print32_t warning message
-void			log_info(const char* string, va_list arg);		//!< Print32_t info message
+void			log_debug(const char* string, va_list arg);		//!< Print debug message
+void			log_error(const char* string, va_list arg);		//!< Print error message
+void			log_warning(const char* string, va_list arg);	//!< Print warning message
+void			log_info(const char* string, va_list arg);		//!< Print info message
 
 bool			exists(const char* path);		//!< Returns whether the path is a file or directory on the disk
 

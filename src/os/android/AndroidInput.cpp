@@ -9,13 +9,9 @@ namespace os
 
 extern "C" 
 {
+	//!< OS push_event() jni bind
     JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushEvent(JNIEnv * env, jobject obj, jint type, jint a, jint b, jint c, jint d);
 };
-
-JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushEvent(JNIEnv * env, jobject obj, jint type, jint a, jint b, jint c, jint d)
-{
-	push_event((OSEventType)type, a, b, c, d);
-}
 
 //-----------------------------------------------------------------------------
 void init_input()
@@ -51,6 +47,12 @@ void hide_cursor()
 void show_cursor()
 {
 	// not necessary
+}
+
+//-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushEvent(JNIEnv * env, jobject obj, jint type, jint a, jint b, jint c, jint d)
+{
+	push_event((OSEventType)type, a, b, c, d);
 }
 
 } // namespace os
