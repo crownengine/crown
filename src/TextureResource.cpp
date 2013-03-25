@@ -4,13 +4,18 @@
 namespace crown
 {
 
-TextureResource* TextureResource::load(Stream* stream)
+//-----------------------------------------------------------------------------
+TextureResource* TextureResource::load(ResourceArchive* archive, uint32_t name)
 {
-	assert(stream != NULL);
+	assert(archive != NULL);
+	
+	// TODO
 }
 
+//-----------------------------------------------------------------------------
 void TextureResource::unload(TextureResource* resource)
 {
+	// TODO
 }
 	
 } // namespace crown

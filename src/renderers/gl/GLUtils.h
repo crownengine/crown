@@ -53,7 +53,6 @@ public:
 	static GLenum			GetCompareFunction(CompareFunction function);
 	static GLenum			GetBlendFunction(BlendFunction function);
 	static GLenum			GetBlendEquation(BlendEquation equation);
-	static GLenum			GetTextureTarget(TextureType type);
 	static GLenum			GetTextureMode(TextureMode mode);
 	static GLenum			GetTextureWrap(TextureWrap wrap);
 	static void				GetTextureFilter(TextureFilter filter, GLint& minFilter, GLint& magFilter);
@@ -67,7 +66,6 @@ private:
 	static const GLenum		COMPARE_FUNCTION_TABLE[CF_COUNT];
 	static const GLenum		BLEND_FUNCTION_TABLE[BF_COUNT];
 	static const GLenum		BLEND_EQUATION_TABLE[BE_COUNT];
-	static const GLenum		TEXTURE_TARGET_TABLE[TT_COUNT];
 	static const GLenum		TEXTURE_MODE_TABLE[TM_COUNT];
 	static const GLenum		TEXTURE_WRAP_TABLE[TW_COUNT];
 	static const GLenum		TEXTURE_MIN_FILTER_TABLE[TF_COUNT];
@@ -101,14 +99,6 @@ inline GLenum GL::GetBlendEquation(BlendEquation equation)
 	assert(equation < BE_COUNT);
 
 	return BLEND_EQUATION_TABLE[equation];
-}
-
-//-----------------------------------------------------------------------------
-inline GLenum GL::GetTextureTarget(TextureType type)
-{
-	assert(type < TT_COUNT);
-
-	return TEXTURE_TARGET_TABLE[type];
 }
 
 //-----------------------------------------------------------------------------

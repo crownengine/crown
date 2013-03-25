@@ -29,21 +29,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Color4.h"
 #include "Resource.h"
 #include "Image.h"
+#include "ResourceArchive.h"
 
 namespace crown
 {
 
-/// Enumerates the type of a texture
-enum TextureType
-{
-	TT_1D		= 0,
-	TT_2D		= 1,
-	TT_3D		= 2,
-	TT_CUBEMAP	= 3,
-	TT_COUNT
-};
-
-///
 enum TextureMode
 {
 	TM_MODULATE	= 0,	// Multiplies texel color by the geometry color after lighting
@@ -83,7 +73,7 @@ class TextureResource
 {
 public:
 
-	static TextureResource*		load(Stream* stream);
+	static TextureResource*		load(ResourceArchive* archive, uint32_t name);
 	static void					unload(TextureResource* texture);
 
 private:

@@ -72,15 +72,6 @@ const GLenum GL::BLEND_EQUATION_TABLE[BE_COUNT] =
 };
 
 //-----------------------------------------------------------------------------
-const GLenum GL::TEXTURE_TARGET_TABLE[TT_COUNT] =
-{
-	GL_TEXTURE_1D,
-	GL_TEXTURE_2D,
-	GL_TEXTURE_3D,
-	GL_TEXTURE_CUBE_MAP
-};
-
-//-----------------------------------------------------------------------------
 const GLenum GL::TEXTURE_MODE_TABLE[TM_COUNT] =
 {
 	GL_MODULATE,
