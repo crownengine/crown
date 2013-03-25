@@ -184,11 +184,43 @@ void basename(const char* path, char* str, size_t len)
 {
 	assert(path != NULL);
 	assert(str != NULL);
-
-	//int32_t last_separator = string::find_last(path, '/');
-	//int32_t last_dot = string::find_last(path, '.');
 	
-	// TODO
+	size_t path_len = string::strlen(path);
+
+	int32_t last_separator = string::find_last(path, '/');
+	int32_t last_dot = string::find_last(path, '.');
+	
+	printf("path-len = %d\n", path_len);
+	printf("last-separator = %d\n", last_separator);
+	printf("last-dot = %d\n", last_dot);
+
+	if (last_separator != -1 && last_dot != -1)
+	{
+		size_t basename_length = path_len - (last_separator + (path_len - last_dot)) - 1;
+		
+		printf("basename-length = %d\n", basename_length);
+		
+		size_t final_len = (len >= (size_t)(basename_length)) ? basename_length : len;
+		
+		string::strncpy(str, path + last_separator + 1, final_len);
+		str[final_len] = '\0';
+	}
+	// "/texture"
+	// "/"
+	else if (last_separator != -1 && last_dot == -1)
+	{
+		size_t final_len = (len >= (size_t)(path_len - last_separator)) ? (path_len - last_separator) : len;
+		string::strncpy(str, path + last_separator + 1, final_len);
+		str[final_len] = '\0';
+	}
+	// "texture"
+	// ""
+	else if (last_separator == -1 && last_dot == -1)
+	{
+		size_t final_len = (len >= (size_t)path_len) ? path_len : len;
+		string::strncpy(str, path, final_len);
+		str[final_len] = '\0';
+	}
 }
 
 /// Returns the extension of the path.
