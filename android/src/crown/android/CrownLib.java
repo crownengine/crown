@@ -7,10 +7,13 @@ public class CrownLib
 	static 
 	{
 		System.loadLibrary("crown");
-		System.loadLibrary("simple");
+		System.loadLibrary("triangle");
 	}
 	
 //	// Device functions
+	public static native void init();
+	public static native void frame();
+	public static native void shutdown();
 
 	// AssetManager functions
 	public static native void initAssetManager(AssetManager assetManager);
@@ -18,11 +21,5 @@ public class CrownLib
 	// InputManager functions
 	public static native void pushEvent(int type, int a, int b, int c, int d);
 
-//	// Renderer functions
-//	public static native void beginFrame();
-//	public static native void endFrame();
 
-	public static native void init();
-	public static native void frame();
-	public static native void shutdown();
 }

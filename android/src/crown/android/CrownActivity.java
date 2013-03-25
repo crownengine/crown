@@ -12,11 +12,14 @@ import android.hardware.SensorManager;
 import android.content.Context;
 import android.widget.Toast;
 import android.content.res.AssetManager;
-
 import crown.android.CrownEnum;
 
+/**
+*	BootStrap of Android Application
+*/
 public class CrownActivity extends Activity
 {
+	// debug
 	public static String TAG = "CrownActivity";
 
 	// Resource attributes
@@ -28,80 +31,101 @@ public class CrownActivity extends Activity
 	// Input attributes
 	private static SensorManager sm;
 	private Sensor sensor;
-	private int mActivePointer = -1;
 
-//---------------------------------------------------------------------
+	/**
+	*
+	*/
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        
-        setContentView(R.layout.main);
-
+		// init AssetManager
 		assetManager = getAssets();
 		CrownLib.initAssetManager(assetManager);
-        
+        // Init GLSurfaceView for rendering
         mView = new CrownView(getApplication());
 		setContentView(mView);
-
+		// init SensorManager -> accelerometer
 	    sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 	    sensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		Log.i(TAG, "onCreate called.");
     }
 
-//---------------------------------------------------------------------
+	/**
+	*
+	*/
 	public void onStart()
 	{
 		super.onStart();
+		Log.i(TAG, "onStart called.");
 	}
 
-//---------------------------------------------------------------------	
+	/**
+	*
+	*/
 	public void onRestart()
 	{
 		super.onRestart();
+		Log.i(TAG, "onRestart called.");
 	}
 
-//---------------------------------------------------------------------
+	/**
+	*
+	*/
 	public void onResume()
 	{
 		super.onResume();
         mView.onResume();
-
+		
+		Log.i(TAG, "onResume called.");
+		// init accelerometer
 		if (sensor != null) 
 		{
 		  sm.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
-		  Log.i(TAG, "Registerered for ORIENTATION Sensor");
-
+		  Log.i(TAG, "ACCELEROMETER sensor registered.");
 		} 
 		else 
 		{
-		  Log.e("Compass MainActivity", "Registerered for ORIENTATION Sensor");
-		  Toast.makeText(this, "ORIENTATION Sensor not found", Toast.LENGTH_LONG).show();
+		  Log.e(TAG, "ACCELEROMETER sensor cannot be registered. The application will be terminated.");
 		  finish();
 		}
 	}
 
-//---------------------------------------------------------------------
+	/**
+	*
+	*/
 	public void onPause()
 	{
 		super.onPause();
         mView.onPause();
-
-		sm.unregisterListener(sensorEventListener);
+		Log.i(TAG, "onPause called.");
 	}
 
-//---------------------------------------------------------------------
+	/**
+	*
+	*/
 	public void onStop()
 	{
 		super.onStop();
-		CrownLib.shutdown();
+		Log.i(TAG, "onStop called.");
+		// dismise accelerometer
+		sm.unregisterListener(sensorEventListener);
 	}
 
-//---------------------------------------------------------------------
+	/**
+	*
+	*/
 	public void onDestroy()
 	{
 		super.onDestroy();
+		Log.i(TAG, "onDestroy called.");
+
+		//CrownLib.shutdown();
 	}
 
-//---------------------------------------------------------------------
+	/**
+	*	Callback method which takes touch data and 
+	*	sends them to Crown.
+	*/
 	public boolean onTouchEvent(MotionEvent event)
 	{
 
@@ -127,7 +151,7 @@ public class CrownActivity extends Activity
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_POINTER_UP:
 			{
-				//Log.i(TAG, "event = ACTION_UP_" + pointerId + ", x=" + x + " y=" + y);
+//				Log.i(TAG, "event = ACTION_UP_" + pointerId + ", x=" + x + " y=" + y);
 				CrownLib.pushEvent(CrownEnum.OSET_TOUCH_UP, pointerId, (int) x,(int) y, 0);
 				break;			
 			}
@@ -136,7 +160,7 @@ public class CrownActivity extends Activity
 			{
 				for (int index = 0; index < pointerCount; index++)
 				{
-					//Log.i(TAG, "event = ACTION_MOVE_" + event.getPointerId(index) + " X=" + (int)event.getX(index) + " Y=" + (int)event.getY(index));
+//					Log.i(TAG, "event = ACTION_MOVE_" + event.getPointerId(index) + " X=" + (int)event.getX(index) + " Y=" + (int)event.getY(index));
 					CrownLib.pushEvent(CrownEnum.OSET_TOUCH_MOVE, event.getPointerId(index), (int)event.getX(index),(int)event.getY(index), 0);
 				}
 
@@ -147,7 +171,10 @@ public class CrownActivity extends Activity
 		return true;
 	}
 
-//---------------------------------------------------------------------
+	/**
+	*	Listener which embed callback methods for
+	*	accelerometer data
+	*/
   	private SensorEventListener sensorEventListener = new SensorEventListener() 
 	{
     	@Override
@@ -161,6 +188,7 @@ public class CrownActivity extends Activity
      	 	float x = event.values[0];
 			float y = event.values[1];
 			float z = event.values[2];
+
 //			Log.i(TAG, "X:" + x + "Y:" + y + "Z:" + z);
 			CrownLib.pushEvent(11,(int) x,(int) y, (int)z, 0);
     	}

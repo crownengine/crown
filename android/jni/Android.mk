@@ -15,8 +15,8 @@
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE    := crown
 
+LOCAL_MODULE    := crown
 LOCAL_SRC_FILES :=\
 	core/bv/Circle.cpp\
 	core/bv/Frustum.cpp\
@@ -47,7 +47,6 @@ LOCAL_SRC_FILES :=\
 	os/OS.cpp\
 	os/android/AndroidOS.cpp\
 	os/android/AndroidInput.cpp\
-	os/android/AndroidRenderer.cpp\
 	os/android/AndroidDevice.cpp\
 	os/android/File.cpp\
 \
@@ -93,29 +92,20 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/renderers\
 	$(LOCAL_PATH)/things\
 	$(LOCAL_PATH)/filesystem\
-	$(LOCAL_PATH)/gui\
-	$(LOCAL_PATH)/windowing\
-	$(LOCAL_PATH)/windowing/themes\
-	$(LOCAL_PATH)/windowing/layouts\
-	$(LOCAL_PATH)/windowing/templates\
-	$(LOCAL_PATH)/windowing/toolbox\
 	$(LOCAL_PATH)/renderers/gl\
-	$(LOCAL_PATH)/renderers/gl/glx\
-	$(LOCAL_PATH)/renderers/gl/wgl\
 	$(LOCAL_PATH)/renderers/gles\
 	$(LOCAL_PATH)/renderers/gles/egl\
 	$(LOCAL_PATH)/input\
 
 LOCAL_CPPFLAGS	:= -g -fexceptions
 LOCAL_LDLIBS	:= -llog -landroid -lGLESv1_CM
-include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE    := simple
-LOCAL_SRC_FILES := samples/triangle.cpp\
+LOCAL_MODULE    := triangle
+LOCAL_SRC_FILES := samples/triangle.cpp
 
-LOCAL_SHARED_LIBRARIES := crown
 LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/core\
 	$(LOCAL_PATH)/core/math\
@@ -127,7 +117,6 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/os\
 	$(LOCAL_PATH)/os/android\
 	$(LOCAL_PATH)/renderers\
-	$(LOCAL_PATH)/things\
 	$(LOCAL_PATH)/filesystem\
 	$(LOCAL_PATH)/renderers/gles\
 	$(LOCAL_PATH)/renderers/gles/egl\
@@ -136,8 +125,8 @@ LOCAL_C_INCLUDES	:=\
 
 LOCAL_CPPFLAGS	:= -g -fexceptions
 LOCAL_LDLIBS	:= -llog -landroid -lGLESv1_CM -lz
-#LOCAL_STATIC_LIBRARIES := android_native_app_glue
 LOCAL_STATIC_LIBRARIES := crown
+#LOCAL_STATIC_LIBRARIES := android_native_app_glue
 include $(BUILD_SHARED_LIBRARY)
-#$(call import-module,android/native_app_glue)
+#(call import-module, android/native_app_glue)
 

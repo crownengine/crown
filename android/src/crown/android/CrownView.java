@@ -7,31 +7,44 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 
-
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
+
+/**
+*	This class provides a GL context used by 
+*	Crown for rendering
+*/
 class CrownView extends GLSurfaceView 
 {
     private static String TAG = "CrownView";
 
     private static final boolean DEBUG = false;
 
+	/**
+	*	Constructor
+	*/
     public CrownView(Context context) 
 	{
         super(context);
         init(false, 0, 0);
     }
 
+	/**
+	*	Constructor
+	*/
     public CrownView(Context context, boolean translucent, int depth, int stencil) 
 	{
         super(context);
         init(translucent, depth, stencil);
     }
 
+	/**
+	*	
+	*/
     private void init(boolean translucent, int depth, int stencil) 
 	{
 
@@ -40,7 +53,6 @@ class CrownView extends GLSurfaceView
          * format here, using PixelFormat.TRANSLUCENT for GL Surfaces
          * is interpreted as any 32-bit surface with alpha by SurfaceFlinger.
          */
-		Log.i(TAG, "JAVA INIT CALLED.");
         if (translucent) 
 		{
             this.getHolder().setFormat(PixelFormat.TRANSLUCENT);
@@ -50,36 +62,37 @@ class CrownView extends GLSurfaceView
          * See ContextFactory class definition below
          */
         setEGLContextFactory(new ContextFactory());
-		Log.i(TAG, "JAVA EGL CONTEXT FACTORY CALLED.");
 
         /* We need to choose an EGLConfig that matches the format of
          * our surface exactly. This is going to be done in our
          * custom config chooser. See ConfigChooser class definition
          * below.
          */
-		Log.i(TAG, "JAVA SET EGL CONTEXT CALLED.");
         setEGLConfigChooser( translucent ?
                              new ConfigChooser(8, 8, 8, 8, depth, stencil) :
                              new ConfigChooser(5, 6, 5, 0, depth, stencil) );
 
         /* Set the renderer responsible for frame rendering */
         setRenderer(new Renderer());
-		Log.i(TAG, "JAVA SET RENDERER CALLED.");
     }
 
+	/**
+	* 	ContextFactory generate a EGL context that will be used by Crown
+	*/
     private static class ContextFactory implements GLSurfaceView.EGLContextFactory 
 	{
         private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 
         public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) 
 		{
-			Log.i(TAG, "JAVA EGL CREATE CONTEXT CALLED.");
             Log.w(TAG, "creating EGL context");
 
             checkEglError("Before eglCreateContext", egl);
 
 			// Create OpenGL|ES 1.1 context
             int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 1, EGL10.EGL_NONE };
+			// Create OpenGL|ES 2 context
+//          int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
 
             EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attrib_list);
 
@@ -94,6 +107,9 @@ class CrownView extends GLSurfaceView
         }
     }
 
+	/**
+	*	check EGL fails
+	*/
     private static void checkEglError(String prompt, EGL10 egl) 
 	{
         int error;
@@ -103,9 +119,9 @@ class CrownView extends GLSurfaceView
         }
     }
 
-	//-------------------------------------------------------------------------------------------
-
-	//-------------------------------------------------------------------------------------------
+	/**
+	*	ConfigChooser is used to set EGL configuration
+	*/
     private static class ConfigChooser implements GLSurfaceView.EGLConfigChooser 
 	{
 
@@ -121,6 +137,8 @@ class CrownView extends GLSurfaceView
 
 		// Choose OpenGL|ES 1 bit
         private static int EGL_OPENGL_ES_BIT = 1;
+		// Choose OpenGl|ES 2 bit
+//        private static int EGL_OPENGL_ES_BIT = 4;
         private static int[] s_configAttribs2 =
         {
             EGL10.EGL_RED_SIZE, 4,
@@ -161,7 +179,6 @@ class CrownView extends GLSurfaceView
 
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display, EGLConfig[] configs) 
 		{
-			Log.i(TAG, "JAVA CHOOSE CONFIG (2) CALLED.");
             for(EGLConfig config : configs) 
 			{
                 int d = findConfigAttrib(egl, display, config,
@@ -202,103 +219,103 @@ class CrownView extends GLSurfaceView
 
         private void printConfigs(EGL10 egl, EGLDisplay display, EGLConfig[] configs) 
 		{
-            int numConfigs = configs.length;
-            Log.w(TAG, String.format("%d configurations", numConfigs));
-            for (int i = 0; i < numConfigs; i++) 
-			{
-                Log.w(TAG, String.format("Configuration %d:\n", i));
-                printConfig(egl, display, configs[i]);
-            }
+//            int numConfigs = configs.length;
+//            Log.w(TAG, String.format("%d configurations", numConfigs));
+//            for (int i = 0; i < numConfigs; i++) 
+//			{
+//                Log.w(TAG, String.format("Configuration %d:\n", i));
+//                printConfig(egl, display, configs[i]);
+//            }
         }
 
         private void printConfig(EGL10 egl, EGLDisplay display, EGLConfig config) 
 		{
-            int[] attributes = {
-				                    EGL10.EGL_BUFFER_SIZE,
-            				        EGL10.EGL_ALPHA_SIZE,
-                    				EGL10.EGL_BLUE_SIZE,
-                   					EGL10.EGL_GREEN_SIZE,
-                    				EGL10.EGL_RED_SIZE,
-                    				EGL10.EGL_DEPTH_SIZE,
-                   	 				EGL10.EGL_STENCIL_SIZE,
-                    				EGL10.EGL_CONFIG_CAVEAT,
-                    				EGL10.EGL_CONFIG_ID,
-                    				EGL10.EGL_LEVEL,
-                    				EGL10.EGL_MAX_PBUFFER_HEIGHT,
-                    				EGL10.EGL_MAX_PBUFFER_PIXELS,
-                    				EGL10.EGL_MAX_PBUFFER_WIDTH,
-                    				EGL10.EGL_NATIVE_RENDERABLE,
-								    EGL10.EGL_NATIVE_VISUAL_ID,
-								    EGL10.EGL_NATIVE_VISUAL_TYPE,
-								    0x3030, // EGL10.EGL_PRESERVED_RESOURCES,
-								    EGL10.EGL_SAMPLES,
-								    EGL10.EGL_SAMPLE_BUFFERS,
-								    EGL10.EGL_SURFACE_TYPE,
-								    EGL10.EGL_TRANSPARENT_TYPE,
-								    EGL10.EGL_TRANSPARENT_RED_VALUE,
-								    EGL10.EGL_TRANSPARENT_GREEN_VALUE,
-								    EGL10.EGL_TRANSPARENT_BLUE_VALUE,
-								    0x3039, // EGL10.EGL_BIND_TO_TEXTURE_RGB,
-								    0x303A, // EGL10.EGL_BIND_TO_TEXTURE_RGBA,
-								    0x303B, // EGL10.EGL_MIN_SWAP_INTERVAL,
-								    0x303C, // EGL10.EGL_MAX_SWAP_INTERVAL,
-								    EGL10.EGL_LUMINANCE_SIZE,
-								    EGL10.EGL_ALPHA_MASK_SIZE,
-								    EGL10.EGL_COLOR_BUFFER_TYPE,
-								    EGL10.EGL_RENDERABLE_TYPE,
-								    0x3042 // EGL10.EGL_CONFORMANT
-            };
-            String[] names = {
-								    "EGL_BUFFER_SIZE",
-								    "EGL_ALPHA_SIZE",
-								    "EGL_BLUE_SIZE",
-								    "EGL_GREEN_SIZE",
-								    "EGL_RED_SIZE",
-								    "EGL_DEPTH_SIZE",
-								    "EGL_STENCIL_SIZE",
-								    "EGL_CONFIG_CAVEAT",
-								    "EGL_CONFIG_ID",
-								    "EGL_LEVEL",
-								    "EGL_MAX_PBUFFER_HEIGHT",
-								    "EGL_MAX_PBUFFER_PIXELS",
-								    "EGL_MAX_PBUFFER_WIDTH",
-								    "EGL_NATIVE_RENDERABLE",
-								    "EGL_NATIVE_VISUAL_ID",
-								    "EGL_NATIVE_VISUAL_TYPE",
-								    "EGL_PRESERVED_RESOURCES",
-								    "EGL_SAMPLES",
-								    "EGL_SAMPLE_BUFFERS",
-								    "EGL_SURFACE_TYPE",
-								    "EGL_TRANSPARENT_TYPE",
-								    "EGL_TRANSPARENT_RED_VALUE",
-								    "EGL_TRANSPARENT_GREEN_VALUE",
-								    "EGL_TRANSPARENT_BLUE_VALUE",
-								    "EGL_BIND_TO_TEXTURE_RGB",
-								    "EGL_BIND_TO_TEXTURE_RGBA",
-								    "EGL_MIN_SWAP_INTERVAL",
-								    "EGL_MAX_SWAP_INTERVAL",
-								    "EGL_LUMINANCE_SIZE",
-								    "EGL_ALPHA_MASK_SIZE",
-								    "EGL_COLOR_BUFFER_TYPE",
-								    "EGL_RENDERABLE_TYPE",
-								    "EGL_CONFORMANT"
-            };
+//            int[] attributes = {
+//				                    EGL10.EGL_BUFFER_SIZE,
+//            				        EGL10.EGL_ALPHA_SIZE,
+//                    				EGL10.EGL_BLUE_SIZE,
+//                   					EGL10.EGL_GREEN_SIZE,
+//                    				EGL10.EGL_RED_SIZE,
+//                    				EGL10.EGL_DEPTH_SIZE,
+//                   	 				EGL10.EGL_STENCIL_SIZE,
+//                    				EGL10.EGL_CONFIG_CAVEAT,
+//                    				EGL10.EGL_CONFIG_ID,
+//                    				EGL10.EGL_LEVEL,
+//                    				EGL10.EGL_MAX_PBUFFER_HEIGHT,
+//                    				EGL10.EGL_MAX_PBUFFER_PIXELS,
+//                    				EGL10.EGL_MAX_PBUFFER_WIDTH,
+//                    				EGL10.EGL_NATIVE_RENDERABLE,
+//								    EGL10.EGL_NATIVE_VISUAL_ID,
+//								    EGL10.EGL_NATIVE_VISUAL_TYPE,
+//								    0x3030, // EGL10.EGL_PRESERVED_RESOURCES,
+//								    EGL10.EGL_SAMPLES,
+//								    EGL10.EGL_SAMPLE_BUFFERS,
+//								    EGL10.EGL_SURFACE_TYPE,
+//								    EGL10.EGL_TRANSPARENT_TYPE,
+//								    EGL10.EGL_TRANSPARENT_RED_VALUE,
+//								    EGL10.EGL_TRANSPARENT_GREEN_VALUE,
+//								    EGL10.EGL_TRANSPARENT_BLUE_VALUE,
+//								    0x3039, // EGL10.EGL_BIND_TO_TEXTURE_RGB,
+//								    0x303A, // EGL10.EGL_BIND_TO_TEXTURE_RGBA,
+//								    0x303B, // EGL10.EGL_MIN_SWAP_INTERVAL,
+//								    0x303C, // EGL10.EGL_MAX_SWAP_INTERVAL,
+//								    EGL10.EGL_LUMINANCE_SIZE,
+//								    EGL10.EGL_ALPHA_MASK_SIZE,
+//								    EGL10.EGL_COLOR_BUFFER_TYPE,
+//								    EGL10.EGL_RENDERABLE_TYPE,
+//								    0x3042 // EGL10.EGL_CONFORMANT
+//            };
+//            String[] names = {
+//								    "EGL_BUFFER_SIZE",
+//								    "EGL_ALPHA_SIZE",
+//								    "EGL_BLUE_SIZE",
+//								    "EGL_GREEN_SIZE",
+//								    "EGL_RED_SIZE",
+//								    "EGL_DEPTH_SIZE",
+//								    "EGL_STENCIL_SIZE",
+//								    "EGL_CONFIG_CAVEAT",
+//								    "EGL_CONFIG_ID",
+//								    "EGL_LEVEL",
+//								    "EGL_MAX_PBUFFER_HEIGHT",
+//								    "EGL_MAX_PBUFFER_PIXELS",
+//								    "EGL_MAX_PBUFFER_WIDTH",
+//								    "EGL_NATIVE_RENDERABLE",
+//								    "EGL_NATIVE_VISUAL_ID",
+//								    "EGL_NATIVE_VISUAL_TYPE",
+//								    "EGL_PRESERVED_RESOURCES",
+//								    "EGL_SAMPLES",
+//								    "EGL_SAMPLE_BUFFERS",
+//								    "EGL_SURFACE_TYPE",
+//								    "EGL_TRANSPARENT_TYPE",
+//								    "EGL_TRANSPARENT_RED_VALUE",
+//								    "EGL_TRANSPARENT_GREEN_VALUE",
+//								    "EGL_TRANSPARENT_BLUE_VALUE",
+//								    "EGL_BIND_TO_TEXTURE_RGB",
+//								    "EGL_BIND_TO_TEXTURE_RGBA",
+//								    "EGL_MIN_SWAP_INTERVAL",
+//								    "EGL_MAX_SWAP_INTERVAL",
+//								    "EGL_LUMINANCE_SIZE",
+//								    "EGL_ALPHA_MASK_SIZE",
+//								    "EGL_COLOR_BUFFER_TYPE",
+//								    "EGL_RENDERABLE_TYPE",
+//								    "EGL_CONFORMANT"
+//            };
 
-            int[] value = new int[1];
-            for (int i = 0; i < attributes.length; i++) 
-			{
-                int attribute = attributes[i];
-                String name = names[i];
-                if ( egl.eglGetConfigAttrib(display, config, attribute, value))
-				{
-                    Log.w(TAG, String.format("  %s: %d\n", name, value[0]));
-                } 
-				else 
-				{
-                    // Log.w(TAG, String.format("  %s: failed\n", name));
-                    while (egl.eglGetError() != EGL10.EGL_SUCCESS);
-                }
-            }
+//            int[] value = new int[1];
+//            for (int i = 0; i < attributes.length; i++) 
+//			{
+//                int attribute = attributes[i];
+//                String name = names[i];
+//                if ( egl.eglGetConfigAttrib(display, config, attribute, value))
+//				{
+//                    Log.w(TAG, String.format("  %s: %d\n", name, value[0]));
+//                } 
+//				else 
+//				{
+//                    // Log.w(TAG, String.format("  %s: failed\n", name));
+//                    while (egl.eglGetError() != EGL10.EGL_SUCCESS);
+//                }
+//            }
         }
 
         // Subclasses can adjust these values:
@@ -310,7 +327,10 @@ class CrownView extends GLSurfaceView
         protected int mStencilSize;
         private int[] mValue = new int[1];
     }
-
+	
+	/**
+	*	Renderer wraps Crown rendering functions
+	*/
     private static class Renderer implements GLSurfaceView.Renderer
 	{
         public void onDrawFrame(GL10 gl)

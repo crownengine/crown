@@ -1,31 +1,36 @@
+#include <jni.h>
 #include "Device.h"
-#include "AndroidDevice.h"
+
 
 namespace crown
 {
 
-//------------------------------------------------------------------------------------
-JNIEXPORT bool JNICALL Java_crown_android_CrownLib_init(JNIEnv* env, jobject obj, jint argc, jobject argv)
+extern "C" 
 {
-	return GetDevice()->Init(argc, (char**)argv);
-}
+	//!< Device init() jni bind
+	JNIEXPORT void JNICALL Java_crown_android_CrownLib_init(JNIEnv* env, jobject obj);
+	//!< Device shutdown() jni bind
+	JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdown(JNIEnv* env, jobject obj);
+};
 
 //------------------------------------------------------------------------------------
-JNIEXPORT bool JNICALL Java_crown_android_CrownLib_isRunning(JNIEnv* env, jobject obj)
+JNIEXPORT void JNICALL Java_crown_android_CrownLib_init(JNIEnv* env, jobject obj)
 {
-	return GetDevice()->IsRunning();
+	Device* device = GetDevice();
+	device->Init(0, NULL);
 }
 
 //------------------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdown(JNIEnv* env, jobject obj)
 {
-	GetDevice()->Shutdown();
+	Device* device = GetDevice();
+	device->Shutdown();
 }
 
 //------------------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* env, jobject obj)
-{
-	GetDevice()->Frame();
-}
+//JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* env, jobject obj)
+//{
+//	GetDevice()->Frame();
+//}
 
 } // namspace crown

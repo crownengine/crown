@@ -8,9 +8,7 @@ namespace crown
 
 extern "C"
 {
-	JNIEXPORT bool JNICALL Java_crown_android_CrownLib_init(JNIEnv* env, jobject obj);
-	JNIEXPORT bool JNICALL Java_crown_android_CrownLib_frame(JNIEnv* env, jobject obj);
-	JNIEXPORT bool JNICALL Java_crown_android_CrownLib_shutdown(JNIEnv* env, jobject obj);
+	JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* env, jobject obj);
 };
 
 void draw_triangle()
@@ -35,16 +33,6 @@ void draw_triangle()
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void init()
-{
-	Device* mDevice = GetDevice();
-
-	if (!mDevice->Init(0, NULL))
-	{
-		return;
-	}
-}
-
 void frame()
 {
 	Device* mDevice = GetDevice();
@@ -60,29 +48,10 @@ void frame()
 	os::swap_buffers();
 }
 
-void shutdown()
-{
-	GetDevice()->Shutdown();
-}
-
-JNIEXPORT bool JNICALL Java_crown_android_CrownLib_init(JNIEnv* env, jobject obj)
-{
-	Log::I("Crown initialized.");
-	init();
-}
-
-JNIEXPORT bool JNICALL Java_crown_android_CrownLib_frame(JNIEnv* env, jobject obj)
+JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* env, jobject obj)
 {
 	Log::I("Render frame.");
 	frame();
 }
-
-JNIEXPORT bool JNICALL Java_crown_android_CrownLib_shutdown(JNIEnv* env, jobject obj)
-{
-	Log::I("Shutdown Crown.");
-	shutdown();
-}
-
-
 
 } // namespace crown
