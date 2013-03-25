@@ -96,22 +96,23 @@ bool Filesystem::get_info(const char* base_path, const char* relative_path, File
 	// (i.e. os_path is of the form: C:\babbeo\relative_path or /babbeo/relative_path)
 
 	const char* os_path = build_os_path(base_path, relative_path);
+	
+	string::strncpy(info.os_path, os_path, 512);
+	string::strncpy(info.relative_path, relative_path, 512);
 
 	if (os::is_reg(os_path))
 	{
 		info.type = FilesystemEntry::FILE;
-		string::strcpy(info.os_path, os_path);
-		string::strcpy(info.relative_path, relative_path);
 		return true;
 	}
 
 	if (os::is_dir(os_path))
 	{
 		info.type = FilesystemEntry::DIRECTORY;
-		string::strcpy(info.os_path, os_path);
-		string::strcpy(info.relative_path, relative_path);
 		return true;
 	}
+	
+	info.type = FilesystemEntry::UNKNOWN;
 
 	return false;
 }
