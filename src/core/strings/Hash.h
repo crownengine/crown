@@ -1,3 +1,28 @@
+/*
+Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 #pragma once
 
 namespace crown
@@ -10,6 +35,11 @@ const uint32_t FNV1A_OFFSET_BASIS_32		= 2166136261u;
 const uint64_t FNV1A_OFFSET_BASIS_64		= 14695981039346656037u;
 const uint32_t FNV1A_PRIME_32				= 16777619u;
 const uint64_t FNV1A_PRIME_64				= 1099511628211u;
+
+// Functions
+uint32_t murmur2(const void* key, size_t len, uint32_t seed);
+uint32_t fnv1a_32(const void* key, size_t len);
+uint64_t fnv1a_64(const void* key, size_t len);
 
 //-----------------------------------------------------------------------------
 // MurmurHash2, by Austin Appleby
@@ -24,8 +54,10 @@ const uint64_t FNV1A_PRIME_64				= 1099511628211u;
 // 1. It will not work incrementally.
 // 2. It will not produce the same results on little-endian and big-endian
 //    machines.
-static uint32_t murmur2(const void* key, size_t len, uint32_t seed)
+inline uint32_t murmur2(const void* key, size_t len, uint32_t seed)
 {
+	assert(key != NULL);
+
 	// 'm' and 'r' are mixing constants generated offline.
 	// They're not really 'magic', they just happen to work well.
 	const unsigned int m = 0x5bd1e995;
@@ -72,17 +104,18 @@ static uint32_t murmur2(const void* key, size_t len, uint32_t seed)
 
 //-----------------------------------------------------------------------------
 // FNV-1a hash, 32 bit
-static uint32_t fnv1a_32(const char* str, size_t len)
+inline uint32_t fnv1a_32(const void* key, size_t len)
 {
-	assert(str != NULL);
-	assert(len <= string::strlen(str));
+	assert(key != NULL);
 
 	// FNV-1a
 	uint32_t hash = FNV1A_OFFSET_BASIS_32;
 
 	for (size_t i = 0; i < len; i++)
 	{
-		hash ^= str[i];
+		unsigned char* k = (unsigned char*)key;
+
+		hash ^= k[i];
 		hash *= FNV1A_PRIME_32;
 	}
 
@@ -91,17 +124,18 @@ static uint32_t fnv1a_32(const char* str, size_t len)
 
 //-----------------------------------------------------------------------------
 // FNV-1a hash, 64 bit
-static uint64_t fnv1a_64(const char* str, size_t len)
+inline uint64_t fnv1a_64(const void* key, size_t len)
 {
-	assert(str != NULL);
-	assert(len <= string::strlen(str));
+	assert(key != NULL);
 
 	// FNV-1a
 	uint64_t hash = FNV1A_OFFSET_BASIS_64;
 
 	for (size_t i = 0; i < len; i++)
 	{
-		hash ^= str[i];
+		unsigned char* k = (unsigned char*)key;
+		
+		hash ^= k[i];
 		hash *= FNV1A_PRIME_64;
 	}
 
