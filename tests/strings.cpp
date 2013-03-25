@@ -41,6 +41,26 @@ int main()
 	path::filename("", path_output, 128);
 	assert(string::strcmp("", path_output) == 0);
 	
+	// Test basename
+	path::basename("/home/project/texture.tga", path_output, 128);
+	printf("%s\n", path_output);
+	assert(string::strcmp("texture", path_output) == 0);
+	
+	path::basename("/home/project/textureabc", path_output, 128);
+	assert(string::strcmp("textureabc", path_output) == 0);
+	
+	path::basename("/hom.e/proj./e.ct/textu.reabc", path_output, 128);
+	assert(string::strcmp("textu", path_output) == 0);
+	
+	path::basename("/home", path_output, 128);
+	assert(string::strcmp("home", path_output) == 0);
+	
+	path::basename("/", path_output, 128);
+	assert(string::strcmp("", path_output) == 0);
+	
+	path::basename("", path_output, 128);
+	assert(string::strcmp("", path_output) == 0);
+	
 	// Test extension
 	path::extension("/home/project/texture.tga", path_output, 128);
 	assert(string::strcmp("tga", path_output) == 0);
