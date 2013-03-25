@@ -53,10 +53,6 @@ static char*			strncpy(char* dest, const char* src, size_t len);
 static int32_t			find_first(const char* str, char c);
 static int32_t			find_last(const char* str, char c);
 
-//bool					parse_int(int32_t* value) const;
-//bool					parse_uint(uint32_t* value) const;
-//bool					parse_float(float* value) const;
-
 //inline void MakeLower()
 //{
 //	for (uint32_t i = 0; i < mLength; i++)
@@ -286,39 +282,6 @@ static int32_t			find_last(const char* str, char c);
 //	}
 
 //	return count;
-//}
-
-////-----------------------------------------------------------------------------
-//inline bool parse_int(int32_t* value) const
-//{
-//	if (sscanf(mText, "%d", value) != 1)
-//	{
-//		return false;
-//	}
-
-//	return true;
-//}
-
-////-----------------------------------------------------------------------------
-//inline bool parse_uint(uint32_t* value) const
-//{
-//	if (sscanf(mText, "%u", value) != 1)
-//	{
-//		return false;
-//	}
-
-//	return true;
-//}
-
-////-----------------------------------------------------------------------------
-//inline bool parse_float(float* value) const
-//{
-//	if (sscanf(mText, "%f", value) != 1)
-//	{
-//		return false;
-//	}
-
-//	return true;
 //}
 
 //-----------------------------------------------------------------------------
