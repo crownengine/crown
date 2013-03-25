@@ -34,6 +34,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+class Filesystem;
+
 struct ResourceEntry
 {
 	ResourceId		id;
@@ -61,13 +63,14 @@ class ResourceManager
 {
 public:
 
-							ResourceManager();
+							ResourceManager(Filesystem* filesystem);
 							~ResourceManager();
 
 	ResourceId				load(const char* name);
 	ResourceId				load(uint32_t name);
 
 	void					unload(ResourceId name);
+
 	void					reload(ResourceId name);
 
 	bool					has(ResourceId name);

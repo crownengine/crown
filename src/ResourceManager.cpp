@@ -34,8 +34,8 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-ResourceManager::ResourceManager() :
-	m_resource_loader(this),
+ResourceManager::ResourceManager(Filesystem* filesystem) :
+	m_resource_loader(this, filesystem),
 	m_resources(m_allocator)
 {
 }
@@ -110,23 +110,18 @@ void ResourceManager::reload(ResourceId name)
 	
 	if (entry.state == RS_LOADED)
 	{
-	
+		// FIXME
 	}
 }
 
 //-----------------------------------------------------------------------------
 bool ResourceManager::has(ResourceId name)
 {
-	if (m_resources.size() <= name.index)
+	if (m_resources.size() > name.index)
 	{
-		return false;
+		return (m_resources[name.index].id.name == name.name);
 	}
-
-	if (m_resources[name.index].id.name == name.name)
-	{
-		return true;
-	}
-
+	
 	return false;
 }
 
