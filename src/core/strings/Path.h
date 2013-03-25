@@ -212,7 +212,7 @@ void extension(const char* path, char* str, size_t len)
 	{
 		size_t final_len = (len >= (size_t)(path_len - last_dot)) ? (path_len - last_dot) : len;
 
-		memmove(str, path + last_dot + 1, final_len);
+		string::strncpy(str, path + last_dot + 1, final_len);
 		str[final_len] = '\0';
 	}
 }
