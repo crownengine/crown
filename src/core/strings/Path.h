@@ -11,7 +11,6 @@ namespace path
 bool is_valid_segment(const char* segment);
 bool is_valid_path(const char* path);
 bool is_absolute_path(const char* path);
-bool is_root_path(const char* path);
 
 void pathname(const char* path, char* str, size_t len);
 void filename(const char* path, char* str, size_t len);
@@ -69,6 +68,7 @@ bool is_valid_segment(const char* segment)
 /// b) If the path is absolute, it mustn't contain any leading character.
 bool is_valid_path(const char* path)
 {
+	(void)path;
 //	size_t path_len = string::strlen(path);
 
 //	if (pathLen == 0)
@@ -101,7 +101,7 @@ bool is_valid_path(const char* path)
 //		}
 //	}
 
-//	return true;
+	return true;
 }
 
 /// Returns whether @path is absolute (i.e. starts with '/').
@@ -121,20 +121,19 @@ void pathname(const char* path, char* str, size_t len)
 {
 	assert(path != NULL);
 	assert(str != NULL);
-
-	// FIXME
-	size_t path_len = string::strlen(path);
 	
 	int32_t last_separator = string::find_last(path, '/');
 
 	if (last_separator == -1 || last_separator == 0)
 	{
-		string::strcpy(str, "");
+		string::strncpy(str, "", len);
 	}
 	else
 	{
-		memmove(str, path, last_separator);
-		str[last_separator] = '\0';
+		size_t final_len = (len >= (size_t)last_separator) ? last_separator : len;
+		
+		string::strncpy(str, path, final_len);
+		str[final_len] = '\0';
 	}
 }
 
@@ -155,19 +154,23 @@ void filename(const char* path, char* str, size_t len)
 
 	if (last_separator == -1)
 	{
-		memmove(str, path, path_len);
-		str[path_len] = '\0';
+		size_t final_len = (len >= (size_t)last_separator) ? last_separator : len;
+		
+		string::strncpy(str, path, final_len);
+		str[final_len] = '\0';
 	}
 	else
 	{
 		if (last_separator == 0 && path_len == 1)
 		{
-			string::strcpy(str, "");
+			string::strncpy(str, "", len);
 		}
 		else
 		{
-			memmove(str, path + last_separator + 1, path_len - last_separator);
-			str[path_len - last_separator] = '\0';
+			size_t final_len = (len >= (size_t)(path_len - last_separator)) ? (path_len - last_separator) : len;
+			
+			string::strncpy(str, path + last_separator + 1, final_len);
+			str[final_len] = '\0';
 		}
 	}
 }
@@ -182,8 +185,8 @@ void basename(const char* path, char* str, size_t len)
 	assert(path != NULL);
 	assert(str != NULL);
 
-	int32_t last_separator = string::find_last(path, '/');
-	int32_t last_dot = string::find_last(path, '.');
+	//int32_t last_separator = string::find_last(path, '/');
+	//int32_t last_dot = string::find_last(path, '.');
 	
 	// TODO
 }
@@ -203,12 +206,14 @@ void extension(const char* path, char* str, size_t len)
 	
 	if (last_dot == -1)
 	{
-		string::strcpy(str, "");
+		string::strncpy(str, "", len);
 	}
 	else
 	{
-		memmove(str, path + last_dot + 1, path_len - last_dot);
-		str[path_len - last_dot] = '\0';
+		size_t final_len = (len >= (size_t)(path_len - last_dot)) ? (path_len - last_dot) : len;
+
+		memmove(str, path + last_dot + 1, final_len);
+		str[final_len] = '\0';
 	}
 }
 
@@ -230,21 +235,22 @@ void extension(const char* path, char* str, size_t len)
 /// (e.g. /home/babbeo/texture.tga/ -> /home/babbeo/texture.tga).
 bool remove_trailing_separator(const char* path, char* ret)
 {
-	size_t path_len = string::strlen(path);
-	
-	if (path_len == 0 || is_root_path(path))
-	{
-		strcpy(ret, path);
-		return true;
-	}
+//	size_t path_len = string::strlen(path);
+//	
+//	if (path_len == 0 || is_root_path(path))
+//	{
+//		strcpy(ret, path);
+//		return true;
+//	}
 
-	if (path[path_len - 1] == os::PATH_SEPARATOR)
-	{
-		string::strncpy(ret, path, path_len - 1);
-		return true;
-	}
+//	if (path[path_len - 1] == os::PATH_SEPARATOR)
+//	{
+//		string::strncpy(ret, path, path_len - 1);
+//		return true;
+//	}
 
-	string::strncpy(ret, path, path_len - 1);
+//	string::strncpy(ret, path, path_len - 1);
+//	return true;
 	return true;
 }
 
