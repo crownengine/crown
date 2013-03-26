@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "String.h"
 #include "Hash.h"
 #include "TextureResource.h"
+#include "TextResource.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -38,11 +39,13 @@ namespace crown
 ResourceLoader::ResourceLoader(ResourceManager* resource_manager, Filesystem* filesystem) :
 	m_resource_manager(resource_manager),
 	m_filesystem(filesystem),
+	m_resource_archive(filesystem),
 	m_resources(m_allocator)
 {
 	m_config_hash = hash::fnv1a_32("config", string::strlen("config"));
 	m_texture_hash = hash::fnv1a_32("tga", string::strlen("tga"));
 	m_mesh_hash = hash::fnv1a_32("mesh", string::strlen("mesh"));
+	m_txt_hash = hash::fnv1a_32("txt", 3);
 }
 
 //-----------------------------------------------------------------------------
@@ -83,16 +86,21 @@ void ResourceLoader::flush()
 //-----------------------------------------------------------------------------
 void* ResourceLoader::load_by_type(ResourceId name)
 {
-	if (name.name == m_config_hash)
+	if (name.type == m_config_hash)
 	{
 		return NULL;
 	}
 
-	if (name.name == m_texture_hash)
+	if (name.type == m_texture_hash)
 	{
-		return TextureResource::load(&m_resource_archive, name.name);
+		return TextureResource::load(&m_resource_archive, name);
 	}
-	
+
+	if (name.type == m_txt_hash)
+	{
+		return TextResource::load(&m_resource_archive, name);
+	}
+
 	return NULL;
 }
 

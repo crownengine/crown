@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// Enumerates the loading state of a resource
+/// Enumerates the loading states of a resource
 enum ResourceState
 {
 	RS_UNLOADED		= 0,		//< The resource is not loaded, so it cannot be used
@@ -43,9 +43,9 @@ enum ResourceState
 /// the index to the resource list where it is stored.
 struct ResourceId
 {
-	uint32_t		name;
-	uint32_t		type;
-	uint32_t		index;
+	uint32_t		name;		// Hashed resource name
+	uint32_t		type;		// Hashed resource type
+	uint32_t		index;		// Index into the ResourceManager internal list
 };
 
 } // namespace crown

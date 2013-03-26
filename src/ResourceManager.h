@@ -66,15 +66,40 @@ public:
 							ResourceManager(Filesystem* filesystem);
 							~ResourceManager();
 
+	/// Loads the resource by string @name and returns its resource id.
+	/// Note that the resource data is not immediately available,
+	/// the resource gets pushed in a queue of load requests and loadead as
+	/// soon as possible by the ResourceLoader.
+	/// You have to explicitly call is_loaded() method to check if the
+	/// loading process is actually completed.
 	ResourceId				load(const char* name);
-	ResourceId				load(uint32_t name);
+	
+	/// Loads the resource by hashed @name and @type and returns its resource id.
+	/// See ResourceManager::load(const char* name) for details.
+	ResourceId				load(uint32_t name, uint32_t type);
 
 	void					unload(ResourceId name);
 
 	void					reload(ResourceId name);
 
+	/// Returns whether the manager has the specified @name into
+	/// its list of resources.
+	/// Note that having a resource does not mean that the resource is
+	/// available for using; instead, you have to check is_loaded() to
+	/// obtain the resource availability.
 	bool					has(ResourceId name);
+
+	/// Returns the data associated with the resource @name.
+	/// The resource data contains resource-specific metadata
+	/// and the actual resource data. In order to correctly use
+	/// it, you have to know which type of data the @name refers to.
+	void*					data(ResourceId name);
+	
+	/// Returns whether the resource @name is loaded (i.e. whether
+	/// you can use the data associated with it).
 	bool					is_loaded(ResourceId name);
+	
+	/// Forces the loading of all of the queued resource load requests.
 	void					flush() { m_resource_loader.flush(); }
 
 private:

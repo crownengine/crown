@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceLoader.h"
 #include "String.h"
 #include "Hash.h"
+#include "Path.h"
 #include <algorithm>
 
 namespace crown
@@ -48,22 +49,30 @@ ResourceManager::~ResourceManager()
 //-----------------------------------------------------------------------------
 ResourceId ResourceManager::load(const char* name)
 {
-	uint32_t name_hash = hash::fnv1a_32(name, string::strlen(name));
+	char basename[512];
+	char extension[512];
+	
+	path::basename(name, basename, 512);
+	path::extension(name, extension, 512);
 
-	return load(name_hash);
+	uint32_t name_hash = hash::fnv1a_32(basename, string::strlen(basename));
+	uint32_t type_hash = hash::fnv1a_32(extension, string::strlen(extension));
+
+	return load(name_hash, type_hash);
 }
 
 //-----------------------------------------------------------------------------
-ResourceId ResourceManager::load(uint32_t name)
+ResourceId ResourceManager::load(uint32_t name, uint32_t type)
 {
 	// Search for an already existent resource
 	ResourceEntry* entry = std::find(m_resources.begin(), m_resources.end(), name);
 
-	// If resource not found
+	// If resource not found, create a new one
 	if (entry == m_resources.end())
 	{
 		ResourceId id;
 		id.name = name;
+		id.type = type;
 		id.index = m_resources.size();
 
 		ResourceEntry entry;
@@ -79,7 +88,9 @@ ResourceId ResourceManager::load(uint32_t name)
 		return id;
 	}
 
+	// Else, increment its reference count
 	entry->references++;
+	
 	return entry->id;
 }
 
@@ -123,6 +134,14 @@ bool ResourceManager::has(ResourceId name)
 	}
 	
 	return false;
+}
+
+//-----------------------------------------------------------------------------
+void* ResourceManager::data(ResourceId name)
+{
+	assert(has(name));
+	
+	return m_resources[name.index].resource;
 }
 
 //-----------------------------------------------------------------------------
