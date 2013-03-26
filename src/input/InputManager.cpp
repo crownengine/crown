@@ -42,7 +42,7 @@ InputManager::~InputManager()
 }
 
 //-----------------------------------------------------------------------------
-void InputManager::EventLoop()
+void InputManager::event_loop()
 {
 	os::OSEvent event;
 
@@ -67,11 +67,11 @@ void InputManager::EventLoop()
 
 				if (event.type == os::OSET_BUTTON_PRESS)
 				{
-					mEventDispatcher.ButtonPressed(mouse_event);
+					m_event_dispatcher.button_pressed(mouse_event);
 				}
 				else
 				{
-					mEventDispatcher.ButtonReleased(mouse_event);
+					m_event_dispatcher.button_released(mouse_event);
 				}
 
 				break;
@@ -84,11 +84,11 @@ void InputManager::EventLoop()
 
 				if (event.type == os::OSET_KEY_PRESS)
 				{
-					mEventDispatcher.KeyPressed(keyboard_event);
+					m_event_dispatcher.key_pressed(keyboard_event);
 				}
 				else
 				{
-					mEventDispatcher.KeyReleased(keyboard_event);
+					m_event_dispatcher.key_released(keyboard_event);
 				}
 
 				break;
@@ -102,11 +102,11 @@ void InputManager::EventLoop()
 				touch_event.y = event.data_c;
 				if (event.type == os::OSET_TOUCH_DOWN)
 				{
-					mEventDispatcher.TouchDown(touch_event);
+					m_event_dispatcher.touch_down(touch_event);
 				}
 				else
 				{
-					mEventDispatcher.TouchUp(touch_event);
+					m_event_dispatcher.touch_up(touch_event);
 				}
 				break;
 			}
@@ -116,7 +116,7 @@ void InputManager::EventLoop()
 				touch_event.pointer_id = event.data_a;
 				touch_event.x = event.data_b;
 				touch_event.y = event.data_c;	
-				mEventDispatcher.TouchMove(touch_event);			
+				m_event_dispatcher.touch_move(touch_event);			
 				break;
 			}
 			case os::OSET_ACCELEROMETER:
@@ -126,7 +126,7 @@ void InputManager::EventLoop()
 				sensor_event.y = event.data_b;
 				sensor_event.z = event.data_c;
 
-				mEventDispatcher.accelerometer_changed(sensor_event);
+				m_event_dispatcher.accelerometer_changed(sensor_event);
 			}
 			default:
 			{

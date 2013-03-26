@@ -37,15 +37,18 @@ struct TouchEvent
 	int32_t y;
 };
 
+/**
+	Interface for managing touch input device.	
+*/
 class TouchListener
 {
 
 public:
 
-	virtual void TouchDown(const TouchEvent& event) { (void)event; }
-	virtual void TouchUp(const TouchEvent& event) { (void)event; }
-	virtual void TouchMove(const TouchEvent& event) { (void)event; }
-	virtual void TouchCancel(const TouchEvent& event) { (void)event; }
+	virtual void touch_down(const TouchEvent& event) { (void)event; }
+	virtual void touch_up(const TouchEvent& event) { (void)event; }
+	virtual void touch_move(const TouchEvent& event) { (void)event; }
+	virtual void touch_cancel(const TouchEvent& event) { (void)event; }
 };
 
 /**
@@ -59,7 +62,7 @@ public:
 	/**
 		Constructor.
 	*/
-	Touch() : mListener(NULL) {}
+	Touch() : m_listener(NULL) {}
 
 	/**
 		Destructor.
@@ -71,11 +74,11 @@ public:
 	@param listener
 		The listener
 	*/
-	inline void SetListener(TouchListener* listener) { mListener = listener; }
+	inline void set_listener(TouchListener* listener) { m_listener = listener; }
 
 protected:
 
-	TouchListener* mListener;
+	TouchListener* m_listener;
 };
 
 }

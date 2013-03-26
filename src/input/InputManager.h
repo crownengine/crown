@@ -45,40 +45,40 @@ public:
 	~InputManager();
 
 	//! Initializes the input manager.
-	void Init();
+	void init();
 
-	bool IsMouseAvailable() {}
-	bool IsKeyboardAvailable() {}
-	bool IsTouchAvailable() {}
-	bool IsAccelerometerAvailable() {}
+	bool is_mouse_available() {}
+	bool is_keyboard_available() {}
+	bool is_touch_available() {}
+	bool is_accelerometer_available() {}
 
 
-	inline void RegisterMouseListener(MouseListener* listener)
+	inline void register_mouse_listener(MouseListener* listener)
 	{
-		mEventDispatcher.AddMouseListener(listener);
+		m_event_dispatcher.add_mouse_listener(listener);
 	}
 
-	inline void RegisterKeyboardListener(KeyboardListener* listener)
+	inline void register_keyboard_listener(KeyboardListener* listener)
 	{
-		mEventDispatcher.AddKeyboardListener(listener);
+		m_event_dispatcher.add_keyboard_listener(listener);
 	}
 
-	inline void RegisterTouchListener(TouchListener* listener)
+	inline void register_touch_listener(TouchListener* listener)
 	{
-		mEventDispatcher.AddTouchListener(listener);
+		m_event_dispatcher.add_touch_listener(listener);
 	}
 
 	inline void register_accelerometer_listener(AccelerometerListener* listener)
 	{
-//		mEventDispatcher.AddAccelerometerListener(listener)
+		m_event_dispatcher.add_accelerometer_listener(listener);
 	}
 
-	inline EventDispatcher* GetEventDispatcher()
+	inline EventDispatcher* get_event_dispatcher()
 	{
-		return &mEventDispatcher;
+		return &m_event_dispatcher;
 	}
 
-	void EventLoop();
+	void event_loop();
 
 	//! Returns whether the cursor is visible.
 	bool is_cursor_visible() const;
@@ -132,12 +132,12 @@ public:
 
 private:
 
-	EventDispatcher		mEventDispatcher;
+	EventDispatcher		m_event_dispatcher;
 
 	bool				m_cursor_visible;
 };
 
-InputManager* GetInputManager();
+InputManager* get_input_manager();
 
 } // namespace crown
 
