@@ -65,12 +65,9 @@ public:
 	inline VertexBuffer*	GetVertexBuffer() const { return mVertexBuffer; }
 	inline IndexBuffer*		GetIndexBuffer() const { return mIndexBuffer; }
 
-	inline uint32_t				GetGlobalVertexCount() const { return mGlobalVertexCount; }
+	inline uint32_t			GetGlobalVertexCount() const { return mGlobalVertexCount; }
 
 	void					RecompileMesh();
-
-	virtual void			Load(const char* name) {}
-	virtual void			Unload(const char* name, bool reload) {}
 
 private:
 

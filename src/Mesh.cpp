@@ -45,7 +45,7 @@ MeshResource::MeshResource() :
 
 MeshResource::~MeshResource()
 {
-	for (int32_t i = 0; i < mMeshChunkList.size(); i++)
+	for (uint32_t i = 0; i < mMeshChunkList.size(); i++)
 	{
 		delete mMeshChunkList[i];
 	}
@@ -72,7 +72,7 @@ void MeshResource::AddMeshChunk(MeshChunk* chunk)
 	mMeshChunkList.push_back(chunk);
 }
 
-void MeshResource::RemoveMeshChunk(MeshChunk* chunk)
+void MeshResource::RemoveMeshChunk(MeshChunk* /*chunk*/)
 {
 
 }
