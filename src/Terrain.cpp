@@ -40,12 +40,12 @@ namespace crown
 
 Terrain::Terrain() :
 	mHeights(NULL),
+	mMinHeight(-10.0f),
+	mMaxHeight(10.0f),
 	mVertices(NULL),
 	mNormals(NULL),
 	mTexCoords(NULL),
-	mIndices(NULL),
-	mMinHeight(-10.0f),
-	mMaxHeight(10.0f)
+	mIndices(NULL)
 {
 
 }
@@ -230,7 +230,7 @@ void Terrain::WorldToHeight(const Vec3& xyz, uint32_t& x, uint32_t& z) const
 	z = (uint32_t)offsetted.z;
 }
 
-bool Terrain::TraceRay(const Ray& ray, Triangle& result, Triangle& tri2, real& dist)
+bool Terrain::TraceRay(const Ray& ray, Triangle& result, Triangle& /*tri2*/, real& dist)
 {
 	bool hit = false;
 	real minDist = 9999999.0f;
@@ -266,7 +266,7 @@ uint32_t Terrain::SnapToGrid(const Vec3& vertex)
 	float minDist = 9999999.0f;
 	uint32_t indexToSnapped;
 	// Find the snapped point32_t to input vertex
-	for (int32_t i = 0; i < mVertexCount; i++)
+	for (uint32_t i = 0; i < mVertexCount; i++)
 	{
 		Vec3 tmp = mVertices[i];
 		Vec3 vertex2 = vertex;
@@ -282,31 +282,9 @@ uint32_t Terrain::SnapToGrid(const Vec3& vertex)
 	return indexToSnapped;
 }
 
-void Terrain::SaveAsBmp(const char* name)
-{
-//	Image image;
-//	uint8_t* buffer = new uint8_t[mVertexCount * 3];
-
-//	float scale = 255.0f / (mMaxHeight - mMinHeight);
-
-//	uint32_t j = 0;
-//	for (uint32_t i = 0; i < mVertexCount; i++)
-//	{
-//		buffer[j + 0] = (mHeights[i] + (-mMinHeight)) * scale;
-//		buffer[j + 1] = (mHeights[i] + (-mMinHeight)) * scale;
-//		buffer[j + 2] = (mHeights[i] + (-mMinHeight)) * scale;
-//		j += 3;
-//	}
-
-//	image.CreateImage(PF_RGB_8, mVerticesInSizeX, mVerticesInSizeZ, buffer);
-
-//	BMPImageLoader bmpLoader;
-//	bmpLoader.SaveFile(&image, name);
-}
-
 void Terrain::Render()
 {
-	Renderer* renderer = GetDevice()->GetRenderer();
+	//Renderer* renderer = GetDevice()->GetRenderer();
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -359,9 +337,9 @@ void Terrain::BuildBrush(uint32_t width, uint32_t height, float smooth)
 
 void Terrain::PlotCircle(int32_t xx, int32_t yy, int32_t radius, int32_t i)
 {
-	for (int32_t i = 0; i < 256 * 256; i++)
+	for (int32_t j = 0; j < 256 * 256; j++)
 	{
-		mBrush[i] = 0;
+		mBrush[j] = 0;
 	}
 
   int32_t x, y;
