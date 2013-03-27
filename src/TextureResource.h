@@ -26,10 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Color4.h"
 #include "Resource.h"
-#include "Image.h"
-#include "ResourceArchive.h"
+#include "Pixel.h"
 
 namespace crown
 {
@@ -67,24 +65,25 @@ enum TextureWrap
 	TW_COUNT
 };
 
-class Stream;
+class ResourceArchive;
 
 class TextureResource
 {
 public:
 
-	static TextureResource*		load(ResourceArchive* archive, uint32_t name);
+	static TextureResource*		load(ResourceArchive* archive, ResourceId id);
 	static void					unload(TextureResource* texture);
 
 private:
 
-	uint32_t					width;
-	uint32_t					height;
+	PixelFormat					format;
+	uint16_t					width;
+	uint16_t					height;
 
 	TextureMode					mode;
 	TextureFilter				filter;
 	TextureWrap					wrap;
-	
+
 	void*						data;
 };
 
