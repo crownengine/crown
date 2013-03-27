@@ -20,6 +20,8 @@ set (SRC
 	TextRenderer.cpp
 	World.cpp
 	TextureResource.cpp
+	
+	TextResource.cpp
 )
 
 set (HEADERS
@@ -53,6 +55,8 @@ set (HEADERS
 	TextureResource.h
 	VertexBuffer.h
 	World.h
+	
+	TextResource.h
 )
 
 set (CORE_SRC
