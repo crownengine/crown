@@ -87,7 +87,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Material.h"
 #include "Mesh.h"
 #include "MeshChunk.h"
-#include "MeshLoader.h"
 #include "MovableCamera.h"
 #include "OcclusionQuery.h"
 #include "Pixel.h"
@@ -99,9 +98,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 // Engine/Filesystem
 #include "Filesystem.h"
-
-// Engine/Loaders
-//#include "XWMLReader.h"
 
 // Engine/Input
 #include "EventDispatcher.h"

@@ -22,7 +22,6 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/os
 	${CMAKE_SOURCE_DIR}/src/os/linux
 	${CMAKE_SOURCE_DIR}/src/input
-	${CMAKE_SOURCE_DIR}/src/loaders
 	${CMAKE_SOURCE_DIR}/src/renderers
 	${CMAKE_SOURCE_DIR}/src/renderers/gl
 	${CMAKE_SOURCE_DIR}/src/renderers/gles

@@ -40,7 +40,6 @@ set (HEADERS
 	Material.h
 	MeshChunk.h
 	Mesh.h
-	MeshLoader.h
 	MovableCamera.h
 	OcclusionQuery.h
 	Pixel.h
@@ -186,12 +185,6 @@ set (INPUT_HEADERS
 	input/Touch.h
 )
 
-set (LOADERS_SRC
-)
-
-set (LOADERS_HEADERS
-)
-
 set (GL_SRC
 	renderers/gl/GLIndexBuffer.cpp
 	renderers/gl/GLOcclusionQuery.cpp
@@ -271,8 +264,6 @@ set (SOURCES
 	${COMPRESSORS_HEADERS}
 	${INPUT_SRC}
 	${INPUT_HEADERS}
-	${LOADERS_SRC}
-	${LOADERS_HEADERS}
 
 	${OS_SRC}
 	${OS_HEADERS}
