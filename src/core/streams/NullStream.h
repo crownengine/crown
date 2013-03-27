@@ -46,13 +46,13 @@ public:
 	virtual		~NullStream() {}
 
 				/// @copydoc Stream::seek()
-	void		seek(size_t position) {}
+	void		seek(size_t position) { (void)position; }
 
 				/// @copydoc Stream::seek_to_end()
 	void		seek_to_end() {}
 
 				/// @copydoc Stream::skip()
-	void		skip(size_t bytes) {}
+	void		skip(size_t bytes) { (void)bytes; }
 
 				/// @copydoc Stream::ReadByte()
 				/// @note
@@ -71,15 +71,25 @@ public:
 				}
 
 				/// @copydoc Stream::WriteByte()
-	void		write_byte(uint8_t /*val*/) {};
+	void		write_byte(uint8_t val) { (void)val; }
 
 				/// @copydoc Stream::WriteDataBlock()
-	void		write(const void* /*buffer*/, size_t /*size*/) {};
+	void		write(const void* buffer, size_t size) { (void)buffer; (void)size; }
 
 				/// @copydoc Stream::CopyTo()
 				/// @note
-				///	Returns always false
-	bool		copy_to(Stream* /*stream*/, size_t /*size = 0*/) { return false; }
+				///	Returns always true
+	bool		copy_to(Stream* stream, size_t size = 0)
+				{
+					assert(stream != NULL);
+					
+					for (size_t i = 0; i < size; i++)
+					{
+						stream->write_byte(0);
+					}
+					
+					return true;
+				}
 
 				/// @copydoc Stream::Flush()
 	void		flush() {};
