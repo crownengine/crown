@@ -23,51 +23,38 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Stream.h"
 #include "Types.h"
-#include "Compressor.h"
-#include "MallocAllocator.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-bool Stream::compress_to(Stream* stream, size_t size, size_t& zipped_size, Compressor* compressor)
+class Stream;
+
+/// A reader that offers a convenient way to read text from a Stream
+class TextReader
 {
-	assert(stream != NULL);
-	assert(compressor != NULL);
 
-	MallocAllocator allocator;
-	void* in_buffer = (void*)allocator.allocate(size);
+public:
 
-	read(in_buffer, size);
+						TextReader(Stream* s);
+						~TextReader();
 
-	void* compressed_buffer = compressor->compress(in_buffer, size, zipped_size);
+	char				read_char();
 
-	stream->write(compressed_buffer, zipped_size);
+						/// Reads characters from stream and stores them as a C string
+						/// into string until (count-1) characters have been read or
+						/// either a newline or the End-of-Stream is reached, whichever
+						/// comes first.
+						/// A newline character makes fgets stop reading, but it is considered
+						/// a valid character and therefore it is included in the string copied to string.
+						/// A null character is automatically appended in str after the characters read to
+						/// signal the end of the C string.
+	char*				read_string(char* string, uint32_t count);
 
-	return true;
-}
+private:
 
-//-----------------------------------------------------------------------------
-bool Stream::uncompress_to(Stream* stream, size_t& unzipped_size, Compressor* compressor)
-{
-	assert(stream != NULL);
-	assert(compressor != NULL);
-
-	MallocAllocator allocator;
-
-	size_t stream_size = size();
-	void* in_buffer = (void*)allocator.allocate(stream_size); 
-
-	read(in_buffer, stream_size);
-
-	void* uncompressed_buffer = compressor->uncompress(in_buffer, stream_size, unzipped_size);
-
-	stream->write(uncompressed_buffer, unzipped_size);
-
-	return true;
-}
+	Stream*				m_stream;
+};
 
 } // namespace crown
 

@@ -76,6 +76,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MemoryStream.h"
 #include "NullStream.h"
 
+#include "BinaryReader.h"
+#include "BinaryWriter.h"
+#include "TextReader.h"
+#include "TextWriter.h"
+
 // Engine
 #include "Camera.h"
 #include "Device.h"

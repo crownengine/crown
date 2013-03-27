@@ -23,50 +23,37 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "TextWriter.h"
 #include "Stream.h"
-#include "Types.h"
-#include "Compressor.h"
-#include "MallocAllocator.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-bool Stream::compress_to(Stream* stream, size_t size, size_t& zipped_size, Compressor* compressor)
+TextWriter::TextWriter(Stream* stream) : m_stream(stream)
 {
-	assert(stream != NULL);
-	assert(compressor != NULL);
-
-	MallocAllocator allocator;
-	void* in_buffer = (void*)allocator.allocate(size);
-
-	read(in_buffer, size);
-
-	void* compressed_buffer = compressor->compress(in_buffer, size, zipped_size);
-
-	stream->write(compressed_buffer, zipped_size);
-
-	return true;
 }
 
 //-----------------------------------------------------------------------------
-bool Stream::uncompress_to(Stream* stream, size_t& unzipped_size, Compressor* compressor)
+TextWriter::~TextWriter()
 {
-	assert(stream != NULL);
-	assert(compressor != NULL);
+}
 
-	MallocAllocator allocator;
+void TextWriter::write_char(char c)
+{
+	m_stream->write_byte(c);
+}
 
-	size_t stream_size = size();
-	void* in_buffer = (void*)allocator.allocate(stream_size); 
+//-----------------------------------------------------------------------------
+void TextWriter::write_string(const char* string)
+{
+	size_t count = 0;
 
-	read(in_buffer, stream_size);
-
-	void* uncompressed_buffer = compressor->uncompress(in_buffer, stream_size, unzipped_size);
-
-	stream->write(uncompressed_buffer, unzipped_size);
-
-	return true;
+	while(string[count] != '\0')
+	{
+		m_stream->write_byte(string[count]);
+		count++;
+	}
 }
 
 } // namespace crown

@@ -23,50 +23,56 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "TextReader.h"
 #include "Stream.h"
 #include "Types.h"
-#include "Compressor.h"
-#include "MallocAllocator.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-bool Stream::compress_to(Stream* stream, size_t size, size_t& zipped_size, Compressor* compressor)
+TextReader::TextReader(Stream* stream) : m_stream(stream)
 {
-	assert(stream != NULL);
-	assert(compressor != NULL);
-
-	MallocAllocator allocator;
-	void* in_buffer = (void*)allocator.allocate(size);
-
-	read(in_buffer, size);
-
-	void* compressed_buffer = compressor->compress(in_buffer, size, zipped_size);
-
-	stream->write(compressed_buffer, zipped_size);
-
-	return true;
 }
 
 //-----------------------------------------------------------------------------
-bool Stream::uncompress_to(Stream* stream, size_t& unzipped_size, Compressor* compressor)
+TextReader::~TextReader()
 {
-	assert(stream != NULL);
-	assert(compressor != NULL);
+}
 
-	MallocAllocator allocator;
+//-----------------------------------------------------------------------------
+char TextReader::read_char()
+{
+	return m_stream->read_byte();
+}
 
-	size_t stream_size = size();
-	void* in_buffer = (void*)allocator.allocate(stream_size); 
+//-----------------------------------------------------------------------------
+char* TextReader::read_string(char* string, uint32_t count)
+{
+	char currentChar;
+	uint32_t i = 0;
 
-	read(in_buffer, stream_size);
+	while(!m_stream->end_of_stream() && i < count - 1)
+	{
+		currentChar = m_stream->read_byte();
+		string[i] = currentChar;
 
-	void* uncompressed_buffer = compressor->uncompress(in_buffer, stream_size, unzipped_size);
+		i++;
 
-	stream->write(uncompressed_buffer, unzipped_size);
+		if (currentChar == '\n')
+		{
+			break;
+		}
+	}
 
-	return true;
+	if (i == 0)
+	{
+		return NULL;
+	}
+
+	string[i] = '\0';
+
+	return string;
 }
 
 } // namespace crown

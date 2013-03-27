@@ -134,6 +134,11 @@ set (STREAMS_SRC
 	core/streams/FileStream.cpp
 	core/streams/MemoryStream.cpp
 	core/streams/Stream.cpp
+	
+	core/streams/BinaryReader.cpp
+	core/streams/BinaryWriter.cpp
+	core/streams/TextReader.cpp
+	core/streams/TextWriter.cpp
 )
 
 set (STREAMS_HEADERS
@@ -141,6 +146,11 @@ set (STREAMS_HEADERS
 	core/streams/MemoryStream.h
 	core/streams/NullStream.h
 	core/streams/Stream.h
+
+	core/streams/BinaryReader.h
+	core/streams/BinaryWriter.h
+	core/streams/TextReader.h
+	core/streams/TextWriter.h
 )
 
 set (STRINGS_SRC

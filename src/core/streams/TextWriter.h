@@ -23,51 +23,33 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Stream.h"
-#include "Types.h"
-#include "Compressor.h"
-#include "MallocAllocator.h"
-
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-bool Stream::compress_to(Stream* stream, size_t size, size_t& zipped_size, Compressor* compressor)
+class Stream;
+
+/// A reader that offers a convenient way to write text to a Stream
+class TextWriter
 {
-	assert(stream != NULL);
-	assert(compressor != NULL);
 
-	MallocAllocator allocator;
-	void* in_buffer = (void*)allocator.allocate(size);
+public:
 
-	read(in_buffer, size);
+						TextWriter(Stream* s);
+	virtual				~TextWriter();
 
-	void* compressed_buffer = compressor->compress(in_buffer, size, zipped_size);
+	void				write_char(char c);
+						/**
+							Writes the string point32_ted by string to the stream.
+							The function begins copying from the address specified (string)
+							until it reaches the terminating null character ('\0').
+							This final null character is not copied to the stream.
+						*/
+	void				write_string(const char* string);
 
-	stream->write(compressed_buffer, zipped_size);
+private:
 
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-bool Stream::uncompress_to(Stream* stream, size_t& unzipped_size, Compressor* compressor)
-{
-	assert(stream != NULL);
-	assert(compressor != NULL);
-
-	MallocAllocator allocator;
-
-	size_t stream_size = size();
-	void* in_buffer = (void*)allocator.allocate(stream_size); 
-
-	read(in_buffer, stream_size);
-
-	void* uncompressed_buffer = compressor->uncompress(in_buffer, stream_size, unzipped_size);
-
-	stream->write(uncompressed_buffer, unzipped_size);
-
-	return true;
-}
+	Stream*				m_stream;
+};
 
 } // namespace crown
 
