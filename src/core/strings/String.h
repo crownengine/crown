@@ -36,22 +36,22 @@ namespace crown
 namespace string
 {
 
-const char*				EMPTY = "";
+const char* const	EMPTY = "";
 
-static bool				is_alpha(char c);
-static bool				is_digit(char c);
-static bool				is_upper(char c);
-static bool				is_lower(char c);
-static bool				is_whitespace(char c);
+bool				is_alpha(char c);
+bool				is_digit(char c);
+bool				is_upper(char c);
+bool				is_lower(char c);
+bool				is_whitespace(char c);
 
-static size_t			strlen(const char* str);
-static const char*		strstr(const char* str1, const char* str2);
-static int32_t			strcmp(const char* str1, const char* str2);
-static char*			strcpy(char* dest, const char* src);
-static char*			strncpy(char* dest, const char* src, size_t len);
+size_t				strlen(const char* str);
+const char*			strstr(const char* str1, const char* str2);
+int32_t				strcmp(const char* str1, const char* str2);
+char*				strcpy(char* dest, const char* src);
+char*				strncpy(char* dest, const char* src, size_t len);
 
-static int32_t			find_first(const char* str, char c);
-static int32_t			find_last(const char* str, char c);
+int32_t				find_first(const char* str, char c);
+int32_t				find_last(const char* str, char c);
 
 //inline void MakeLower()
 //{
