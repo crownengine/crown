@@ -28,12 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "FileStream.h"
 
-#include "Config.h"
-#ifdef WINDOWS
-#undef DeleteFile
-#undef CreateDirectory
-#endif
-
 namespace crown
 {
 
