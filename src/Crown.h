@@ -96,6 +96,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OcclusionQuery.h"
 #include "Pixel.h"
 #include "Renderer.h"
+#include "ResourceArchive.h"
+#include "ResourceLoader.h"
 #include "ResourceManager.h"
 #include "Skybox.h"
 #include "TextRenderer.h"
