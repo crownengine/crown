@@ -13,14 +13,14 @@ endif (FREETYPE_FOUND)
 
 add_executable(fontgen fontgen/fontgen.cpp)
 
-add_executable(text-compiler resource-compilers/text-compiler.cpp)
+add_executable(txt-compiler resource-compilers/txt-compiler.cpp)
 add_executable(tga-compiler resource-compilers/tga-compiler.cpp)
 
 add_executable(resource-linker resource-compilers/resource-linker.cpp)
 
 target_link_libraries(fontgen crown)
 
-target_link_libraries(text-compiler crown)
+target_link_libraries(txt-compiler crown)
 target_link_libraries(tga-compiler crown)
 
 target_link_libraries(resource-linker crown)
