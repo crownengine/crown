@@ -163,7 +163,7 @@ int main(int argc, char** argv)
 	archive_entry.name = resource_basename_hash;
 	archive_entry.type = resource_extension_hash;
 	archive_entry.offset = sizeof(ArchiveEntry);
-	archive_entry.size = image_size + sizeof(PixelFormat) + sizeof(uint16_t) * 2 +
+	archive_entry.size = image_size * channels + sizeof(PixelFormat) + sizeof(uint16_t) * 2 +
 							sizeof(TextureMode) + sizeof(TextureFilter) + sizeof(TextureWrap);
 							
 	// Write out the archive entry
