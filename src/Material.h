@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextureResource.h"
 #include "Resource.h"
 #include "Vec3.h"
+#include "Color4.h"
 
 namespace crown
 {
