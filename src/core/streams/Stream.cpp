@@ -243,7 +243,7 @@ char TextReader::read_char()
 char* TextReader::read_string(char* string, uint32_t count)
 {
 	char currentChar;
-	int32_t i = 0;
+	uint32_t i = 0;
 
 	while(!m_stream->end_of_stream() && i < count - 1)
 	{
