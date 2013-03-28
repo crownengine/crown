@@ -7,8 +7,6 @@ set (SRC
 	Image.cpp
 	Log.cpp
 	Material.cpp
-	MeshChunk.cpp
-	Mesh.cpp
 	MovableCamera.cpp
 	Pixel.cpp
 	ResourceManager.cpp
@@ -36,8 +34,6 @@ set (HEADERS
 	Image.h
 	Log.h
 	Material.h
-	MeshChunk.h
-	Mesh.h
 	MovableCamera.h
 	Pixel.h
 	Resource.h

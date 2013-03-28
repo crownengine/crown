@@ -89,8 +89,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Image.h"
 #include "Log.h"
 #include "Material.h"
-#include "Mesh.h"
-#include "MeshChunk.h"
 #include "MovableCamera.h"
 #include "Pixel.h"
 #include "ResourceArchive.h"
