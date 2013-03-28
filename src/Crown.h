@@ -87,21 +87,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Font.h"
 #include "Glyph.h"
 #include "Image.h"
-#include "IndexBuffer.h"
 #include "Log.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "MeshChunk.h"
 #include "MovableCamera.h"
-#include "OcclusionQuery.h"
 #include "Pixel.h"
-#include "Renderer.h"
 #include "ResourceArchive.h"
 #include "ResourceLoader.h"
 #include "ResourceManager.h"
 #include "Skybox.h"
 #include "TextRenderer.h"
-#include "VertexBuffer.h"
+
 
 // Engine/Filesystem
 #include "Filesystem.h"
@@ -113,6 +110,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "KeyCode.h"
 #include "Mouse.h"
 #include "Touch.h"
+
+// Engine/Renderers
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "Renderer.h"
+#include "OcclusionQuery.h"
 
 //// Engine/Windowing
 //#include "Bind.h"

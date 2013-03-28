@@ -11,7 +11,6 @@ set (SRC
 	Mesh.cpp
 	MovableCamera.cpp
 	Pixel.cpp
-	Renderer.cpp
 	ResourceManager.cpp
 	ResourceLoader.cpp
 	ResourceArchive.cpp
@@ -35,15 +34,12 @@ set (HEADERS
 	Font.h
 	Glyph.h
 	Image.h
-	IndexBuffer.h
 	Log.h
 	Material.h
 	MeshChunk.h
 	Mesh.h
 	MovableCamera.h
-	OcclusionQuery.h
 	Pixel.h
-	Renderer.h
 	Resource.h
 	ResourceManager.h
 	ResourceLoader.h
@@ -52,7 +48,6 @@ set (HEADERS
 	Terrain.h
 	TextRenderer.h
 	TextureResource.h
-	VertexBuffer.h
 	World.h
 	
 	TextResource.h
@@ -195,6 +190,17 @@ set (INPUT_HEADERS
 	input/Touch.h
 )
 
+set (RENDERERS_SRC
+	renderers/Renderer.cpp
+)
+
+set (RENDERERS_HEADERS
+	renderers/Renderer.h
+	renderers/IndexBuffer.h
+	renderers/VertexBuffer.h
+	renderers/OcclusionQuery.h
+)
+
 set (GL_SRC
 	renderers/gl/GLIndexBuffer.cpp
 	renderers/gl/GLOcclusionQuery.cpp
@@ -282,6 +288,9 @@ set (SOURCES
 	${WIN_SRC}
 	${NETWORK_SRC}
 	${NETWORK_HEADERS}
+
+	${RENDERERS_SRC}
+	${RENDERERS_HEADERS}
 
 	${GL_SRC}
 	${GL_HEADERS}
