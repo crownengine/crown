@@ -58,7 +58,7 @@ public:
 	void				_SetLighting(bool lighting);
 	void				_SetAmbientLight(const Color4& color);
 
-//	void				_SetTexturing(uint32_t unit, bool texturing);
+	void				_SetTexturing(uint32_t unit, bool texturing);
 //	void				_SetTexture(uint32_t unit, Texture* texture);
 //	void				_SetTextureMode(uint32_t unit, TextureMode mode, const Color4& blendColor);
 //	void				_SetTextureWrap(uint32_t unit, TextureWrap wrap);

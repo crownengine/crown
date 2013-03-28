@@ -145,14 +145,14 @@ public:
 	*/
 	virtual void _SetAmbientLight(const Color4& color) = 0;
 
-//	/**
-//		Set whether the given texture unit is enabled.
-//	@param unit
-//		The texture unit
-//	@param texturing
-//		Whether texturing is enabled or not
-//	*/
-//	virtual void _SetTexturing(uint32_t unit, bool texturing) = 0;
+	/**
+		Set whether the given texture unit is enabled.
+	@param unit
+		The texture unit
+	@param texturing
+		Whether texturing is enabled or not
+	*/
+	virtual void _SetTexturing(uint32_t unit, bool texturing) = 0;
 
 //	/**
 //		Sets a texture for the given texture unit.

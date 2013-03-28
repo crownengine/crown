@@ -237,21 +237,21 @@ void GLRenderer::_SetLighting(bool lighting)
 	}
 }
 
-////-----------------------------------------------------------------------------
-//void GLRenderer::_SetTexturing(uint32_t unit, bool texturing)
-//{
-//	if (!ActivateTextureUnit(unit))
-//		return;
+//-----------------------------------------------------------------------------
+void GLRenderer::_SetTexturing(uint32_t unit, bool texturing)
+{
+	if (!ActivateTextureUnit(unit))
+		return;
 
-//	if (texturing)
-//	{
-//		glEnable(mTextureUnitTarget[unit]);
-//	}
-//	else
-//	{
-//		glDisable(mTextureUnitTarget[unit]);
-//	}
-//}
+	if (texturing)
+	{
+		glEnable(mTextureUnitTarget[unit]);
+	}
+	else
+	{
+		glDisable(mTextureUnitTarget[unit]);
+	}
+}
 
 ////-----------------------------------------------------------------------------
 //void GLRenderer::_SetTexture(uint32_t unit, Texture* texture)
