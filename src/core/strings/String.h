@@ -50,8 +50,12 @@ int32_t				strcmp(const char* str1, const char* str2);
 char*				strcpy(char* dest, const char* src);
 char*				strncpy(char* dest, const char* src, size_t len);
 
-int32_t				find_first(const char* str, char c);
-int32_t				find_last(const char* str, char c);
+const char*			begin(const char* str);
+const char*			end(const char* str);
+
+const char*			find_first(const char* str, char c);
+const char*			find_last(const char* str, char c);
+void				substring(const char* begin, const char* end, char* out, size_t len);
 
 //inline void MakeLower()
 //{
@@ -132,25 +136,6 @@ int32_t				find_last(const char* str, char c);
 //	}
 
 //	return -1;
-//}
-
-//inline Str GetSubstring(uint32_t start, uint32_t end) const
-//{
-//	assert(start <= mLength);
-//	assert(end <= mLength);
-//	assert(start <= end);
-//	uint32_t len = end - start;
-//	char* tmp = new char[len + 1];
-
-//	for (uint32_t i = 0; i < len; i++)
-//	{
-//		tmp[i] = mText[i + start];
-//	}
-
-//	tmp[len] = '\0';
-//	Str ret(tmp);
-//	delete[] tmp;
-//	return ret;
 //}
 
 //inline void Remove(uint32_t start, uint32_t end)
@@ -356,39 +341,82 @@ inline char* strncpy(char* dest, const char* src, size_t len)
 }
 
 //-----------------------------------------------------------------------------
-inline int32_t find_first(const char* str, char c)
+inline const char* begin(const char* str)
 {
 	assert(str != NULL);
-
-	size_t strLen = string::strlen(str);
-
-	for (size_t i = 0; i < strLen; i++)
-	{
-		if (str[i] == c)
-		{
-			return i;
-		}
-	}
-
-	return -1;
+	
+	return str;
 }
 
 //-----------------------------------------------------------------------------
-inline int32_t find_last(const char* str, char c)
+inline const char* end(const char* str)
+{
+	assert(str != NULL);
+	
+	return str + string::strlen(str) + 1;
+}
+
+//-----------------------------------------------------------------------------
+inline const char* find_first(const char* str, char c)
 {
 	assert(str != NULL);
 
-	size_t strLen = string::strlen(str);
-
-	for (size_t i = strLen; i > 0; i--)
+	const char* str_begin = string::begin(str);
+	
+	while (str_begin != string::end(str))
 	{
-		if (str[i - 1] == c)
+		if ((*str_begin) == c)
 		{
-			return i - 1;
+			return str_begin;
 		}
+		
+		str_begin++;
+	}
+	
+	return string::end(str);
+}
+
+//-----------------------------------------------------------------------------
+inline const char* find_last(const char* str, char c)
+{
+	assert(str != NULL);
+	
+	const char* str_end = string::end(str) - 1;
+	
+	while (str_end != string::begin(str) - 1)
+	{
+		if ((*str_end) == c)
+		{
+			return str_end;
+		}
+		
+		str_end--;
+	}
+	
+	return string::end(str);
+}
+
+//-----------------------------------------------------------------------------
+inline void substring(const char* begin, const char* end, char* out, size_t len)
+{
+	assert(begin != NULL);
+	assert(end != NULL);
+	assert(out != NULL);
+	
+	size_t i = 0;
+	
+	char* out_iterator = out;
+
+	while (begin != end && i < len)
+	{
+		(*out_iterator) = (*begin);
+		
+		begin++;
+		out_iterator++;
+		i++;
 	}
 
-	return -1;
+	out[i] = '\0';
 }
 
 } // namespace string

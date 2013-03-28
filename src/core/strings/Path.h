@@ -26,7 +26,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "String.h"
-#include "OS.h"
 
 namespace crown
 {
@@ -41,9 +40,10 @@ void pathname(const char* path, char* str, size_t len);
 void filename(const char* path, char* str, size_t len);
 void basename(const char* path, char* str, size_t len);
 void extension(const char* path, char* str, size_t len);
+void filename_without_extension(const char* path, char* str, size_t len);
 
 //bool segments(const char* path, List<Str>& ret);
-bool remove_trailing_separator(const char* path, char* ret);
+void strip_trailing_separator(const char* path, char* ret, size_t len);
 
 /// Returns whether the segment is valid.
 /// @note
@@ -56,23 +56,30 @@ bool remove_trailing_separator(const char* path, char* ret);
 /// (Thanks org.eclipse.core.runtime for the documentation ;D).
 bool is_valid_segment(const char* segment)
 {
+	assert(segment != NULL);
+	
 	size_t segment_len = string::strlen(segment);
 
+	// Empty segment is not valid
 	if (segment_len == 0)
 	{
 		return false;
 	}
 
+	// Segments containing only '.' are non valid
 	if (segment_len == 1 && segment[0] == '.')
 	{
 		return false;
 	}
 
+	// Segments containing only ".." are not valid
 	if (segment_len == 2 && segment[0] == '.' && segment[1] == '.')
 	{
 		return false;
 	}
 
+	// The segment does not have to contain any forward slashes ('/')
+	// nor back slashes ('\'), nor colon signs (':')
 	for (size_t i = 0; i < segment_len; i++)
 	{
 		if (segment[i] == '/' ||
@@ -142,23 +149,23 @@ bool is_absolute_path(const char* path)
 /// e.g. "/home/project/texture.tga" -> "/home/project"
 /// e.g. "/home/project" -> "/home"
 /// e.g. "/home" -> "/"
+/// e.g. "home" -> ""
+/// 
+/// The @path must be valid.
 void pathname(const char* path, char* str, size_t len)
 {
 	assert(path != NULL);
 	assert(str != NULL);
-	
-	int32_t last_separator = string::find_last(path, '/');
 
-	if (last_separator == -1 || last_separator == 0)
+	const char* last_separator = string::find_last(path, '/');
+
+	if (last_separator == string::end(path))
 	{
 		string::strncpy(str, "", len);
 	}
 	else
 	{
-		size_t final_len = (len >= (size_t)last_separator) ? last_separator : len;
-		
-		string::strncpy(str, path, final_len);
-		str[final_len] = '\0';
+		string::substring(string::begin(path), last_separator, str, len);
 	}
 }
 
@@ -168,35 +175,22 @@ void pathname(const char* path, char* str, size_t len)
 /// e.g. "/home/project/texture" -> "texture"
 /// e.g. "/home -> "home"
 /// e.g. "/" -> ""
+///
+/// The @path must be valid.
 void filename(const char* path, char* str, size_t len)
 {
 	assert(path != NULL);
 	assert(str != NULL);
+
+	const char* last_separator = string::find_last(path, '/');
 	
-	size_t path_len = string::strlen(path);
-
-	int32_t last_separator = string::find_last(path, '/');
-
-	if (last_separator == -1)
+	if (last_separator == string::end(path))
 	{
-		size_t final_len = (len >= (size_t)last_separator) ? last_separator : len;
-		
-		string::strncpy(str, path, final_len);
-		str[final_len] = '\0';
+		string::strncpy(str, "", len);
 	}
 	else
 	{
-		if (last_separator == 0 && path_len == 1)
-		{
-			string::strncpy(str, "", len);
-		}
-		else
-		{
-			size_t final_len = (len >= (size_t)(path_len - last_separator)) ? (path_len - last_separator) : len;
-			
-			string::strncpy(str, path + last_separator + 1, final_len);
-			str[final_len] = '\0';
-		}
+		string::substring(last_separator + 1, string::end(path), str, len);
 	}
 }
 
@@ -205,47 +199,31 @@ void filename(const char* path, char* str, size_t len)
 /// e.g. "/home/project/texture.tga" -> "texture"
 /// e.g. "/home/project" -> "project"
 /// e.g. "/" -> ""
+///
+/// The @path must be valid.
 void basename(const char* path, char* str, size_t len)
 {
 	assert(path != NULL);
 	assert(str != NULL);
-	
-	size_t path_len = string::strlen(path);
 
-	int32_t last_separator = string::find_last(path, '/');
-	int32_t last_dot = string::find_last(path, '.');
+	const char* last_separator = string::find_last(path, '/');
+	const char* last_dot = string::find_last(path, '.');
 
-	if (last_separator != -1 && last_dot != -1)
+	if (last_separator == string::end(path) && last_dot != string::end(path))
 	{
-		size_t basename_length = path_len - (last_separator + (path_len - last_dot)) - 1;
-		
-		size_t final_len = (len >= (size_t)(basename_length)) ? basename_length : len;
-		
-		string::strncpy(str, path + last_separator + 1, final_len);
-		str[final_len] = '\0';
+		string::substring(string::begin(path), last_dot, str, len);
 	}
-	// "/texture"
-	// "/"
-	else if (last_separator != -1 && last_dot == -1)
+	else if (last_separator != string::end(path) && last_dot == string::end(path))
 	{
-		size_t final_len = (len >= (size_t)(path_len - last_separator)) ? (path_len - last_separator) : len;
-		string::strncpy(str, path + last_separator + 1, final_len);
-		str[final_len] = '\0';
+		string::substring(last_separator + 1, string::end(path), str, len);
 	}
-	// "texture"
-	// ""
-	else if (last_separator == -1 && last_dot == -1)
+	else if (last_separator == string::end(path) && last_dot == string::end(path))
 	{
-		size_t final_len = (len >= (size_t)path_len) ? path_len : len;
-		string::strncpy(str, path, final_len);
-		str[final_len] = '\0';
+		string::strncpy(str, path, len);
 	}
-	// "texture.tga"
-	else if (last_separator == -1 && last_dot != -1)
+	else
 	{
-		size_t final_len = (len >= (size_t)last_dot) ? last_dot : len;
-		string::strncpy(str, path, final_len);
-		str[final_len] = '\0';
+		string::substring(last_separator + 1, last_dot, str, len);
 	}
 }
 
@@ -253,26 +231,39 @@ void basename(const char* path, char* str, size_t len)
 /// @note
 /// e.g. "/home/project/texture.tga" -> "tga"
 /// e.g. "/home/project.x/texture" -> ""
+///
+/// The @path must be valid.
 void extension(const char* path, char* str, size_t len)
 {
 	assert(path != NULL);
 	assert(str != NULL);
-
-	size_t path_len = string::strlen(path);
 	
-	int32_t last_dot = string::find_last(path, '.');
+	const char* last_dot = string::find_last(path, '.');
 	
-	if (last_dot == -1)
+	if (last_dot == string::end(path))
 	{
 		string::strncpy(str, "", len);
 	}
 	else
 	{
-		size_t final_len = (len >= (size_t)(path_len - last_dot)) ? (path_len - last_dot) : len;
-
-		string::strncpy(str, path + last_dot + 1, final_len);
-		str[final_len] = '\0';
+		string::substring(last_dot + 1, string::end(path), str, len);
 	}
+}
+
+/// Returns the filename without the extension.
+/// @note
+/// e.g. "/home/project/texture.tga" -> "/home/project/texture"
+/// e.g. "/home/project/texture" -> "/home/project/texture"
+///
+/// The @path must be valid.
+void filename_without_extension(const char* path, char* str, size_t len)
+{
+	assert(path != NULL);
+	assert(str != NULL);
+	
+	const char* last_dot = string::find_last(path, '.');
+	
+	string::substring(string::begin(path), last_dot, str, len);
 }
 
 /// Returns the segments contained in path.
@@ -290,26 +281,25 @@ void extension(const char* path, char* str, size_t len)
 
 /// Fills 'ret' with the same path but without the trailing directory separator.
 /// @note
-/// (e.g. /home/babbeo/texture.tga/ -> /home/babbeo/texture.tga).
-bool remove_trailing_separator(const char* path, char* ret)
+/// e.g. "/home/project/texture.tga/" -> "/home/project/texture.tga"
+/// e.g. "/home/project/texture.tga" -> "/home/project/texture.tga"
+///
+/// The @path must be valid.
+void strip_trailing_separator(const char* path, char* ret, size_t len)
 {
-//	size_t path_len = string::strlen(path);
-//	
-//	if (path_len == 0 || is_root_path(path))
-//	{
-//		strcpy(ret, path);
-//		return true;
-//	}
-
-//	if (path[path_len - 1] == os::PATH_SEPARATOR)
-//	{
-//		string::strncpy(ret, path, path_len - 1);
-//		return true;
-//	}
-
-//	string::strncpy(ret, path, path_len - 1);
-//	return true;
-	return true;
+	assert(path != NULL);
+	assert(ret != NULL);
+	
+	size_t path_len = string::strlen(path);
+	
+	if (path[path_len - 1] == '/')
+	{
+		string::substring(string::begin(path), string::end(path) - 2, ret, len);
+	}
+	else
+	{
+		string::substring(string::begin(path), string::end(path), ret, len);
+	}
 }
 
 } // namespace path
