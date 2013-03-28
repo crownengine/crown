@@ -15,14 +15,14 @@ int main(int argc, char** argv)
 {
 	if (argc != 4)
 	{
-		printf("Usage: %s /path/to/resources /path/to/compiled resource.txt\n", argv[0]);
+		printf("Usage: %s /path/to/resources resource_in.txt resource_out.txt\n", argv[0]);
 		return -1;
 	}
 
 	Filesystem fs_root(argv[1]);
-	Filesystem fs_dest(argv[2]);
-	
-	const char* resource = argv[3];
+
+	const char* resource = argv[2];
+	const char* resource_out = argv[3];
 	
 	if (!fs_root.exists(resource))
 	{
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 	char resource_basename[256];
 	char resource_extension[256];
 	
-	path::basename(resource, resource_basename, 256);
+	path::filename_without_extension(resource, resource_basename, 256);
 	path::extension(resource, resource_extension, 256);
 	
 	printf("Resource basename  : %s\n", resource_basename);
@@ -62,14 +62,14 @@ int main(int argc, char** argv)
 	fs_root.close(src_file);
 	
 	
-	FileStream* dest_file = (FileStream*)fs_dest.open(resource, SOM_WRITE);
+	FileStream* dest_file = (FileStream*)fs_root.open(resource_out, SOM_WRITE);
 
 	dest_file->write(&archive_entry, sizeof(ArchiveEntry));
 	dest_file->write(&src_file_size, sizeof(uint32_t));
 	dest_file->write(buffer, src_file_size);
 
-	fs_dest.close(dest_file);
-	
+	fs_root.close(dest_file);
+
 	return 0;
 }
 
