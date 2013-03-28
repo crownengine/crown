@@ -51,8 +51,8 @@ ResourceId ResourceManager::load(const char* name)
 {
 	char basename[512];
 	char extension[512];
-	
-	path::basename(name, basename, 512);
+
+	path::filename_without_extension(name, basename, 512);
 	path::extension(name, extension, 512);
 
 	uint32_t name_hash = hash::fnv1a_32(basename, string::strlen(basename));
