@@ -147,18 +147,15 @@ void* ResourceManager::data(ResourceId name)
 //-----------------------------------------------------------------------------
 bool ResourceManager::is_loaded(ResourceId name)
 {
-	if (has(name))
-	{
-		return m_resources[name.index].state == RS_LOADED;
-	}
+	assert(has(name));
 
-	return false;
+	return m_resources[name.index].state == RS_LOADED;
 }
 
 //-----------------------------------------------------------------------------
 void ResourceManager::loading(ResourceId name)
 {
-	assert(has(name) == true);
+	assert(has(name));
 
 	m_resources[name.index].state = RS_LOADING;
 }
@@ -166,8 +163,7 @@ void ResourceManager::loading(ResourceId name)
 //-----------------------------------------------------------------------------
 void ResourceManager::online(ResourceId name, void* resource)
 {
-	assert(has(name) == true);
-	//assert(resource != NULL);
+	assert(has(name));
 
 	ResourceEntry& entry = m_resources[name.index];
 
