@@ -66,15 +66,15 @@ public:
 							ResourceManager(Filesystem* filesystem);
 							~ResourceManager();
 
-	/// Loads the resource by string @name and returns its resource id.
-	/// Note that the resource data is not immediately available,
+	/// Loads the resource by @name and returns its ResourceId.
+	/// Note that the resource data may be not immediately available,
 	/// the resource gets pushed in a queue of load requests and loadead as
 	/// soon as possible by the ResourceLoader.
 	/// You have to explicitly call is_loaded() method to check if the
 	/// loading process is actually completed.
 	ResourceId				load(const char* name);
 	
-	/// Loads the resource by hashed @name and @type and returns its resource id.
+	/// Loads the resource by @name and @type and returns its ResourceId.
 	/// See ResourceManager::load(const char* name) for details.
 	ResourceId				load(uint32_t name, uint32_t type);
 
@@ -82,20 +82,21 @@ public:
 
 	void					reload(ResourceId name);
 
-	/// Returns whether the manager has the specified @name into
+	/// Returns whether the manager has the @name resource into
 	/// its list of resources.
 	/// Note that having a resource does not mean that the resource is
 	/// available for using; instead, you have to check is_loaded() to
-	/// obtain the resource availability.
+	/// obtain the resource availability status.
 	bool					has(ResourceId name);
 
-	/// Returns the data associated with the resource @name.
+	/// Returns the data associated with the @name resource.
 	/// The resource data contains resource-specific metadata
 	/// and the actual resource data. In order to correctly use
-	/// it, you have to know which type of data the @name refers to.
+	/// it, you have to know which type of data @name refers to
+	/// and cast accordingly.
 	void*					data(ResourceId name);
 	
-	/// Returns whether the resource @name is loaded (i.e. whether
+	/// Returns whether the @name resource is loaded (i.e. whether
 	/// you can use the data associated with it).
 	bool					is_loaded(ResourceId name);
 	
