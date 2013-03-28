@@ -26,7 +26,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Data.h"
 #include "TextureResource.h"
 #include "Vec3.h"
 

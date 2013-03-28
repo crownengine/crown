@@ -25,7 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Mesh.h"
 #include "Vec3.h"
 #include "Triangle.h"
 #include "Intersection.h"

@@ -24,7 +24,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Terrain.h"
-#include "MeshChunk.h"
 #include "Device.h"
 #include "Renderer.h"
 #include "MathUtils.h"
