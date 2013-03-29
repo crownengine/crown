@@ -31,55 +31,54 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-
+//-----------------------------------------------------------------------
 MovableCamera::MovableCamera(const Vec3& position, bool visible, float fov, float aspect, bool active, float speed, float sensibility) :
 	Camera(position, visible, fov, aspect, active),
 	mSpeed(speed),
-	mMouseSensibility(sensibility),
-	mUpPressed(false),
-	mRightPressed(false),
-	mDownPressed(false),
-	mLeftPressed(false)
+	mSensibility(sensibility)
 {
-	get_input_manager()->register_keyboard_listener(this);
-
 	mRotFactor = Vec2(0.0f, 0.0f);
 	mAngleX = 0.0f;
 	mAngleY = 0.0f;
-
-	get_input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 }
 
+//-----------------------------------------------------------------------
 MovableCamera::~MovableCamera()
 {
 }
 
-float MovableCamera::GetMouseSensibility() const
+//-----------------------------------------------------------------------
+float MovableCamera::GetSensibility() const
 {
-	return mMouseSensibility;
+	return mSensibility;
 }
 
+//-----------------------------------------------------------------------
 void MovableCamera::SetActive(bool active)
 {
 	Camera::SetActive(active);
 	get_input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 }
 
-void MovableCamera::SetMouseSensibility(float sensibility)
+//-----------------------------------------------------------------------
+void MovableCamera::SetSensibility(float sensibility)
 {
-	mMouseSensibility = sensibility;
+	mSensibility = sensibility;
 }
 
+//-----------------------------------------------------------------------
 float MovableCamera::GetSpeed() const
 {
 	return mSpeed;
 }
 
+//-----------------------------------------------------------------------
 void MovableCamera::SetSpeed(float speed)
 {
 	mSpeed = speed;
 }
 
+//-----------------------------------------------------------------------
 void MovableCamera::Render()
 {
 	if (!mActive)
@@ -87,107 +86,27 @@ void MovableCamera::Render()
 		return;
 	}
 
-	SetViewByMouse();
+	// FIXME 
+	// SetRotation(0, 0);
 
-	if (mUpPressed)
-	{
-		MoveForward();
-		UpdateViewMatrix();
-	}
-
-	if (mRightPressed)
-	{
-		StrafeRight();
-		UpdateViewMatrix();
-	}
-
-	if (mDownPressed)
-	{
-		MoveBackward();
-		UpdateViewMatrix();
-	}
-
-	if (mLeftPressed)
-	{
-		StrafeLeft();
-		UpdateViewMatrix();
-	}
+	UpdateViewMatrix();
 
 	Camera::Render();
 }
 
-void MovableCamera::KeyPressed(const KeyboardEvent& event)
-{
-	switch (event.key)
-	{
-		case 'w':
-		{
-			mUpPressed = true;
-			break;
-		}
-		case 'a':
-		{
-			mLeftPressed = true;
-			break;
-		}
-		case 's':
-		{
-			mDownPressed = true;
-			break;
-		}
-		case 'd':
-		{
-			mRightPressed = true;
-			break;
-		}
-		default:
-		{
-			break;
-		}
-	}
-}
-
-void MovableCamera::KeyReleased(const KeyboardEvent& event)
-{
-	switch (event.key)
-	{
-		case 'w':
-		{
-			mUpPressed = false;
-			break;
-		}
-		case 'a':
-		{
-			mLeftPressed = false;
-			break;
-		}
-		case 's':
-		{
-			mDownPressed = false;
-			break;
-		}
-		case 'd':
-		{
-			mRightPressed = false;
-			break;
-		}
-		default:
-		{
-			break;
-		}
-	}
-}
-
+//-----------------------------------------------------------------------
 void MovableCamera::MoveForward()
 {
 	mPosition += mLookAt * mSpeed;
 }
 
+//-----------------------------------------------------------------------
 void MovableCamera::MoveBackward()
 {
 	mPosition -= mLookAt * mSpeed;
 }
 
+//-----------------------------------------------------------------------
 void MovableCamera::StrafeLeft()
 {
 	Vec3 left = mUp.cross(mLookAt);
@@ -195,6 +114,7 @@ void MovableCamera::StrafeLeft()
 	mPosition += left * mSpeed;
 }
 
+//-----------------------------------------------------------------------
 void MovableCamera::StrafeRight()
 {
 	Vec3 left = mUp.cross(mLookAt);
@@ -202,44 +122,27 @@ void MovableCamera::StrafeRight()
 	mPosition -= left * mSpeed;
 }
 
-void MovableCamera::SetViewByMouse()
+//-----------------------------------------------------------------------
+void MovableCamera::SetRotation(const real x, const real y)
 {
-	static Vec2 lastPos = get_input_manager()->get_cursor_relative_xy();
-	Vec2 currentPos = get_input_manager()->get_cursor_relative_xy();
-	get_input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
-
-	if (lastPos == currentPos)
-	{
-		return;
-	}
-
-	Vec2 delta = lastPos - currentPos;
-
-	get_input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
-	lastPos = get_input_manager()->get_cursor_relative_xy();
-
-	mAngleX += delta.y * mMouseSensibility;
-	mAngleY += delta.x * mMouseSensibility;
-
-	mAngleX = math::clamp_to_range(-89.999f * math::DEG_TO_RAD, 89.999f * math::DEG_TO_RAD, mAngleX);
-	mAngleY = math::fmod(mAngleY, math::TWO_PI);
-
 	Vec3 right(1, 0, 0);
 	Vec3 look;
 
 	look.x = 0.0f;
-	look.y = math::sin(mAngleX);
-	look.z = -math::cos(mAngleX);
+	look.y = math::sin(x);
+	look.z = -math::cos(x);
 
 	Vec3 up = right.cross(look);
 	up.normalize();
 
 	Mat3 m;
-	m.build_rotation_y(mAngleY);
+	m.build_rotation_y(y);
 	look = m * look;
 	mUp = m * up;
 
 	Camera::SetLookAt(look);
+
+	// FIXME: Terrain sample must be fixed for testing
 }
 
 } // namespace crown

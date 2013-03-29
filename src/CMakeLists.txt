@@ -21,6 +21,7 @@ set (SRC
 	Terrain.cpp
 	TextRenderer.cpp
 	World.cpp
+	FPSSystem.cpp
 )
 
 set (HEADERS
@@ -57,6 +58,7 @@ set (HEADERS
 	TextureManager.h
 	VertexBuffer.h
 	World.h
+	FPSSystem.h
 )
 
 set (CORE_SRC

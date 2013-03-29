@@ -256,7 +256,10 @@ bool destroy_render_window()
 //-----------------------------------------------------------------------------
 void get_render_window_metrics(uint32_t& width, uint32_t& height)
 {
-	// not necessary
+	// TODO: must be implemented in android CrownView through JNI
+	// tmp implementation, for testing on htc desire
+	width = 480;
+	height = 800;
 }
 
 //-----------------------------------------------------------------------------
