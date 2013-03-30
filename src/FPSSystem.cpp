@@ -5,23 +5,29 @@
 #include "Vec2.h"
 #include "Vec3.h"
 #include "Mat3.h"
+#include "OS.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------
-FPSSystem::FPSSystem() :
+FPSSystem::FPSSystem(MovableCamera* camera) :
 	m_angle_x(0),
 	m_angle_y(0),
-	m_sensibility()
+	m_camera(camera),
+	m_up_pressed(false),
+	m_right_pressed(false),
+	m_down_pressed(false),
+	m_left_pressed(false)
 {
 	get_input_manager()->register_keyboard_listener(this);
-	m_camera = new MovableCamera(Vec3::ZERO, true, 90.0f, 1.6f, true, 0.1, 2.5);
+	//get_input_manager()->register_mouse_listener(this);
 	get_input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
+	
 }
 
 //-----------------------------------------------------------------------
-void FPSSystem::KeyPressed(const KeyboardEvent& event)
+void FPSSystem::key_pressed(const KeyboardEvent& event)
 {
 	switch (event.key)
 	{
@@ -53,7 +59,7 @@ void FPSSystem::KeyPressed(const KeyboardEvent& event)
 }
 
 //-----------------------------------------------------------------------
-void FPSSystem::KeyReleased(const KeyboardEvent& event)
+void FPSSystem::key_released(const KeyboardEvent& event)
 {
 	switch (event.key)
 	{
@@ -85,15 +91,15 @@ void FPSSystem::KeyReleased(const KeyboardEvent& event)
 }
 
 //-----------------------------------------------------------------------
-void FPSSystem::set_camera_speed(const real speed)
+void FPSSystem::set_camera(MovableCamera* camera)
 {
-	m_camera->SetSpeed(speed);
+	m_camera = camera;
 }
 
 //-----------------------------------------------------------------------
-void FPSSystem::set_camera_sensibility(const real sensibility)
+MovableCamera* FPSSystem::get_camera()
 {
-	m_camera->SetSensibility(sensibility);
+	return m_camera;
 }
 
 //-----------------------------------------------------------------------
@@ -139,8 +145,8 @@ void FPSSystem::set_view_by_cursor()
 	get_input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 	lastPos = get_input_manager()->get_cursor_relative_xy();
 
-	m_angle_x += delta.y * m_sensibility;
-	m_angle_y += delta.x * m_sensibility;
+	m_angle_x += delta.y * m_camera->GetSensibility();
+	m_angle_y += delta.x * m_camera->GetSensibility();
 
 	m_angle_x = math::clamp_to_range(-89.999f * math::DEG_TO_RAD, 89.999f * math::DEG_TO_RAD, m_angle_x);
 	m_angle_y = math::fmod(m_angle_y, math::TWO_PI);

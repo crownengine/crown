@@ -202,7 +202,7 @@ void InputManager::set_cursor_relative_xy(const Vec2& position)
 
 //-----------------------------------------------------------------------------
 InputManager inputManager;
-InputManager* GetInputManager()
+InputManager* get_input_manager()
 {
 	return &inputManager;
 }

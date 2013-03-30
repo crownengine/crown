@@ -9,35 +9,34 @@
 
 namespace crown
 {
-/// TODO: GameplaySystem example class
-class FPSSystem : public MouseListener, public KeyboardListener, public TouchListener, public AccelerometerListener
+/// TODO: set_view_by_cursor must be implemented through scripting
+class FPSSystem : public MouseListener, public KeyboardListener
 {
 public:
 
 					/// Constructor
-					FPSSystem();
+					FPSSystem(MovableCamera* camera);
 
-	void			set_camera_speed(const real speed);
-	void 			set_camera_sensibility(const real sensibility);	
+	void 			set_camera(MovableCamera* camera);
+	MovableCamera*	get_camera();
+
 	void			camera_render();
 	void			set_view_by_cursor();	
 
-	virtual void 	KeyPressed(const KeyboardEvent& event);
-	virtual void 	KeyReleased(const KeyboardEvent& event);
+	virtual void 	key_pressed(const KeyboardEvent& event);
+	virtual void 	key_released(const KeyboardEvent& event);
 
 private:
 
 	real 	m_angle_x;
 	real 	m_angle_y;
-	real	m_speed;
-	real 	m_sensibility;
-	
-	MovableCamera* m_camera;
 
 	bool m_up_pressed : 1;
 	bool m_right_pressed : 1;
 	bool m_down_pressed : 1;
 	bool m_left_pressed : 1;
+
+	MovableCamera* m_camera;
 };
 
 } // namespace crown
