@@ -60,6 +60,7 @@ set (CORE_HEADERS
 	core/Types.h
 	core/VertexData.h
 	core/WithProperties.h
+	core/Args.h
 )
 
 set (BV_SRC
