@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include <cassert>
 #include <cstring>
-#include <cstdio>
 
 namespace crown
 {
