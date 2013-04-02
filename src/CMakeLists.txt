@@ -65,13 +65,8 @@ set (CORE_SRC
 )
 
 set (CORE_HEADERS
-	core/CoreEventArgs.h
-	core/Delegate.h
-	core/Exceptions.h
-	core/SignalSlot.h
 	core/Types.h
 	core/VertexData.h
-	core/WithProperties.h
 )
 
 set (BV_SRC

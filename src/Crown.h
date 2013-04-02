@@ -27,10 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 // Core
 #include "Exceptions.h"
-#include "SignalSlot.h"
 #include "Types.h"
-#include "CoreEventArgs.h"
-//#include "WithProperties.h"
 
 // Core/Math
 #include "Color4.h"
