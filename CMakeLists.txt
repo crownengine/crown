@@ -25,11 +25,6 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/renderers
 	${CMAKE_SOURCE_DIR}/src/renderers/gl
 	${CMAKE_SOURCE_DIR}/src/renderers/gles
-	${CMAKE_SOURCE_DIR}/src/windowing
-	${CMAKE_SOURCE_DIR}/src/windowing/toolbox
-	${CMAKE_SOURCE_DIR}/src/windowing/themes
-	${CMAKE_SOURCE_DIR}/src/windowing/layouts
-	${CMAKE_SOURCE_DIR}/src/windowing/templates
 	${CMAKE_SOURCE_DIR}/src/network
 )
 
