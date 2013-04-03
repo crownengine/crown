@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core
 #include "Exceptions.h"
 #include "Types.h"
+#include "Args.h"
 
 // Core/Math
 #include "Color4.h"
@@ -57,10 +58,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Containers
 #include "Dictionary.h"
 #include "RBTree.h"
-#include "String.h"
 #include "List.h"
 #include "Generic.h"
 #include "Queue.h"
+
+// Core/Strings
+#include "String.h"
+#include "Hash.h"
+#include "Path.h"
 
 // Core/Mem
 #include "Memory.h"
