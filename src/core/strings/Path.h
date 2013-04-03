@@ -43,7 +43,7 @@ void extension(const char* path, char* str, size_t len);
 void filename_without_extension(const char* path, char* str, size_t len);
 
 //bool segments(const char* path, List<Str>& ret);
-void strip_trailing_separator(const char* path, char* ret, size_t len);
+inline void strip_trailing_separator(const char* path, char* ret, size_t len);
 
 /// Returns whether the segment is valid.
 /// @note
@@ -54,7 +54,7 @@ void strip_trailing_separator(const char* path, char* ret, size_t len);
 /// d) Any string containing segment or device separator characters on the local file system,
 /// such as the backslash ('\') and colon (':') on some file systems.
 /// (Thanks org.eclipse.core.runtime for the documentation ;D).
-bool is_valid_segment(const char* segment)
+inline bool is_valid_segment(const char* segment)
 {
 	assert(segment != NULL);
 	
@@ -98,7 +98,7 @@ bool is_valid_segment(const char* segment)
 /// The rules for valid paths are as follows:
 /// a) The empty string is not valid.
 /// b) If the path is absolute, it mustn't contain any leading character.
-bool is_valid_path(const char* path)
+inline bool is_valid_path(const char* path)
 {
 	(void)path;
 //	size_t path_len = string::strlen(path);
@@ -137,7 +137,7 @@ bool is_valid_path(const char* path)
 }
 
 /// Returns whether @path is absolute (i.e. starts with '/').
-bool is_absolute_path(const char* path)
+inline bool is_absolute_path(const char* path)
 {
 	assert(path != NULL);
 
@@ -152,7 +152,7 @@ bool is_absolute_path(const char* path)
 /// e.g. "home" -> ""
 /// 
 /// The @path must be valid.
-void pathname(const char* path, char* str, size_t len)
+inline void pathname(const char* path, char* str, size_t len)
 {
 	assert(path != NULL);
 	assert(str != NULL);
@@ -177,7 +177,7 @@ void pathname(const char* path, char* str, size_t len)
 /// e.g. "/" -> ""
 ///
 /// The @path must be valid.
-void filename(const char* path, char* str, size_t len)
+inline void filename(const char* path, char* str, size_t len)
 {
 	assert(path != NULL);
 	assert(str != NULL);
@@ -201,7 +201,7 @@ void filename(const char* path, char* str, size_t len)
 /// e.g. "/" -> ""
 ///
 /// The @path must be valid.
-void basename(const char* path, char* str, size_t len)
+inline void basename(const char* path, char* str, size_t len)
 {
 	assert(path != NULL);
 	assert(str != NULL);
@@ -233,7 +233,7 @@ void basename(const char* path, char* str, size_t len)
 /// e.g. "/home/project.x/texture" -> ""
 ///
 /// The @path must be valid.
-void extension(const char* path, char* str, size_t len)
+inline void extension(const char* path, char* str, size_t len)
 {
 	assert(path != NULL);
 	assert(str != NULL);
@@ -256,7 +256,7 @@ void extension(const char* path, char* str, size_t len)
 /// e.g. "/home/project/texture" -> "/home/project/texture"
 ///
 /// The @path must be valid.
-void filename_without_extension(const char* path, char* str, size_t len)
+inline void filename_without_extension(const char* path, char* str, size_t len)
 {
 	assert(path != NULL);
 	assert(str != NULL);
@@ -285,7 +285,7 @@ void filename_without_extension(const char* path, char* str, size_t len)
 /// e.g. "/home/project/texture.tga" -> "/home/project/texture.tga"
 ///
 /// The @path must be valid.
-void strip_trailing_separator(const char* path, char* ret, size_t len)
+inline void strip_trailing_separator(const char* path, char* ret, size_t len)
 {
 	assert(path != NULL);
 	assert(ret != NULL);
