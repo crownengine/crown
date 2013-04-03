@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 	
 	if (!fs_root.exists(resource_in))
 	{
-		printf("%s: ERROR: %s does not exist. Aborting.\n", resource_in);
+		printf("%s: ERROR: %s does not exist. Aborting.\n", argv[0], resource_in);
 		return -1;
 	}
 
