@@ -202,7 +202,8 @@ int32_t Args::long_option(const char* option)
 
 	while (1)
 	{
-		if (current_option->name == NULL && current_option->has_arg == 0 && current_option->flag == NULL && current_option->val == 0)
+		if (current_option->name == NULL && current_option->has_arg == 0 &&
+			current_option->flag == NULL && current_option->val == 0)
 		{
 			break;
 		}
@@ -216,6 +217,10 @@ int32_t Args::long_option(const char* option)
 				if (m_argc > m_current_arg + 1)
 				{
 					m_option_argument = m_argv[m_current_arg + 1];
+				}
+				else
+				{
+					m_option_argument = NULL;
 				}
 
 				m_current_arg += 1;
@@ -248,6 +253,7 @@ int32_t Args::long_option(const char* option)
 int32_t Args::short_option(const char* option)
 {
 	(void)option;
+	return 0;
 }
 
 } // namespace crown
