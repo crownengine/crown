@@ -99,6 +99,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Skybox.h"
 #include "TextRenderer.h"
 
+#include "TextResource.h"
+#include "TextureResource.h"
 
 // Engine/Filesystem
 #include "Filesystem.h"
