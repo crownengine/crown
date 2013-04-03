@@ -130,19 +130,16 @@ inline int32_t Args::next_option()
 	{
 		case AOT_SHORT:
 		{
-			printf("Found short option\n");
 			return_value = short_option(current_arg);
 			break;
 		}
 		case AOT_LONG:
 		{
-			printf("Found long option\n");
 			return_value = long_option(current_arg);
 			break;
 		}
 		case AOT_NOT_OPTION:
 		{
-			printf("Found NOT option\n");
 			return_value = '?';
 			break;
 		}
