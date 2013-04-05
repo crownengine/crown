@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "EventDispatcher.h"
 #include "Allocator.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -65,6 +66,12 @@ void EventDispatcher::add_touch_listener(TouchListener* listener)
 	assert(listener != NULL);
 
 	m_touch_listener_list.push_back(listener);
+}
+
+void EventDispatcher::add_accelerometer_listener(AccelerometerListener* listener)
+{
+	assert(listener != NULL);
+	m_acc_listener_list.push_back(listener);
 }
 
 //-----------------------------------------------------------------------------

@@ -10,7 +10,7 @@
 namespace crown
 {
 /// TODO: set_view_by_cursor must be implemented through scripting
-class FPSSystem : public MouseListener, public KeyboardListener
+class FPSSystem : public MouseListener, public KeyboardListener, public AccelerometerListener
 {
 public:
 
@@ -25,6 +25,7 @@ public:
 
 	virtual void 	key_pressed(const KeyboardEvent& event);
 	virtual void 	key_released(const KeyboardEvent& event);
+	virtual void 	accelerometer_changed(const AccelerometerEvent& event);
 
 private:
 

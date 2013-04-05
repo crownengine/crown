@@ -11,47 +11,66 @@ extern "C"
 	JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* env, jobject obj);
 };
 
-void draw_triangle()
+class MainScene : public AccelerometerListener
 {
-	static GLfloat vertices[] = {	-1.0f, -1.0f, -2.0f,
-									1.0f, -1.0f, -2.0f,
-									0.0f, 1.0f, -2.0f};
+	
+public:
 
-	GetDevice()->GetRenderer()->SetMatrix(MT_MODEL, Mat4::IDENTITY);
+	MainScene()
+	{
+		get_input_manager()->register_accelerometer_listener(this);
+	}
 
-	Mat4 projection;
-	projection.build_projection_perspective_rh(90.0f, 800.0f/480.0f, 0.1f, 100.0f);
-	GetDevice()->GetRenderer()->SetMatrix(MT_PROJECTION, projection);
+	void accelerometer_changed(const AccelerometerEvent& event)
+	{
+		Log::I("Accelerometer changed");
+	}
 
-	GetDevice()->GetRenderer()->SetClearColor(Color4::RED);
+	void draw_triangle()
+	{
+		static GLfloat vertices[] = {	-1.0f, -1.0f, -2.0f,
+										1.0f, -1.0f, -2.0f,
+										0.0f, 1.0f, -2.0f};
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
+		GetDevice()->GetRenderer()->SetMatrix(MT_MODEL, Mat4::IDENTITY);
 
-	glDrawArrays(GL_TRIANGLES, 0, 9);
+		Mat4 projection;
+		projection.build_projection_perspective_rh(90.0f, 800.0f/480.0f, 0.1f, 100.0f);
+		GetDevice()->GetRenderer()->SetMatrix(MT_PROJECTION, projection);
 
-	glDisableClientState(GL_VERTEX_ARRAY);
-}
+		GetDevice()->GetRenderer()->SetClearColor(Color4::RED);
 
-void frame()
-{
-	Device* mDevice = GetDevice();
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, vertices);
 
-	os::event_loop();
+		glDrawArrays(GL_TRIANGLES, 0, 9);
 
-	GetInputManager()->EventLoop();
+		glDisableClientState(GL_VERTEX_ARRAY);
+	}
 
-	GetDevice()->GetRenderer()->_BeginFrame();
-	draw_triangle();
-	GetDevice()->GetRenderer()->_EndFrame();
+	void frame()
+	{
+		Device* mDevice = GetDevice();
 
-	os::swap_buffers();
-}
+		os::event_loop();
+
+		get_input_manager()->event_loop();
+
+		GetDevice()->GetRenderer()->_BeginFrame();
+		draw_triangle();
+		GetDevice()->GetRenderer()->_EndFrame();
+
+		os::swap_buffers();
+	}
+};
+
+MainScene* scene = new MainScene();
+
+
 
 JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* env, jobject obj)
 {
-	Log::I("Render frame.");
-	frame();
+	scene->frame();
 }
 
 } // namespace crown

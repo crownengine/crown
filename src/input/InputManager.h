@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "EventDispatcher.h"
 #include "Point2.h"
 #include "Vec2.h"
+#include "Log.h"
 
 namespace crown
 {

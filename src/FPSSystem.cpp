@@ -20,7 +20,8 @@ FPSSystem::FPSSystem(MovableCamera* camera) :
 	m_down_pressed(false),
 	m_left_pressed(false)
 {
-	get_input_manager()->register_keyboard_listener(this);
+//	get_input_manager()->register_keyboard_listener(this);
+	get_input_manager()->register_accelerometer_listener(this);
 	//get_input_manager()->register_mouse_listener(this);
 	get_input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 	
@@ -90,6 +91,11 @@ void FPSSystem::key_released(const KeyboardEvent& event)
 	}
 }
 
+//-----------------------------------------------------------------------
+void FPSSystem::accelerometer_changed(const AccelerometerEvent& event)
+{
+	set_view_by_cursor();
+}
 //-----------------------------------------------------------------------
 void FPSSystem::set_camera(MovableCamera* camera)
 {

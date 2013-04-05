@@ -9,7 +9,7 @@ namespace os
 
 extern "C" 
 {
-	//!< OS push_event() jni bind
+	/// OS push_event() jni bind
     JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushEvent(JNIEnv * env, jobject obj, jint type, jint a, jint b, jint c, jint d);
 };
 
@@ -22,7 +22,7 @@ void init_input()
 //-----------------------------------------------------------------------------
 void event_loop()
 {
-	// not necessary
+	// not necessary, implemented in Android
 }
 
 //-----------------------------------------------------------------------------

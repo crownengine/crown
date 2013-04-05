@@ -125,8 +125,8 @@ void InputManager::event_loop()
 				sensor_event.x = event.data_a;
 				sensor_event.y = event.data_b;
 				sensor_event.z = event.data_c;
-
 				m_event_dispatcher.accelerometer_changed(sensor_event);
+				break;
 			}
 			default:
 			{

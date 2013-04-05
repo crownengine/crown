@@ -36,6 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "OS.h"
 #include "AndroidOS.h"
+#include "Log.h"
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "crown", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "crown", __VA_ARGS__))
@@ -51,10 +52,13 @@ extern "C"
 {
 	// This is sadly necessary in order to get the asset manager from java...
     JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv* env, jobject obj, jobject assetManager);
+	JNIEXPORT void JNICALL Java_crown_android_CrownLib_setRenderWindowMetrics(JNIEnv* env, jobject obj, jint width, jint height);
 };
 
 static timespec			base_time;
 static AAssetManager*	asset_manager = NULL;
+static uint32_t			window_width;
+static uint32_t			window_height;
 
 //-----------------------------------------------------------------------------
 void printf(const char* string, ...)
@@ -256,10 +260,10 @@ bool destroy_render_window()
 //-----------------------------------------------------------------------------
 void get_render_window_metrics(uint32_t& width, uint32_t& height)
 {
-	// TODO: must be implemented in android CrownView through JNI
-	// tmp implementation, for testing on htc desire
-	width = 480;
-	height = 800;
+	width = window_width;
+	height = window_height;
+
+	Log::I("width=%d", width);
 }
 
 //-----------------------------------------------------------------------------
@@ -272,6 +276,14 @@ void swap_buffers()
 JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv* env, jobject obj, jobject assetManager)
 {
 	asset_manager = AAssetManager_fromJava(env, assetManager);
+}
+
+//-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_crown_android_CrownLib_setRenderWindowMetrics(JNIEnv* env, jobject obj, jint width, jint height)
+{
+	window_width = width;
+	window_height = height;
+	Log::I("setRenderWindowMetrics called. %d", (uint32_t)width);
 }
 
 } // namespace os
