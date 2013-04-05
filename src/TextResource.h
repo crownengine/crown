@@ -7,17 +7,17 @@ namespace crown
 {
 
 class ResourceArchive;
+class Allocator;
 
 class TextResource
 {
 public:
 
-	static TextResource*		load(ResourceArchive* archive, ResourceId id);
-	static void					unload(TextResource* text);
+	static TextResource*		load(Allocator& allocator, ResourceArchive* archive, ResourceId id);
+	static void					unload(Allocator& allocator, TextResource* text);
 
 	uint32_t					length;
 	char*						data;
 };
 
 } // namespace crown
-

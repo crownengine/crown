@@ -2,31 +2,26 @@
 #include "FileStream.h"
 #include "ResourceArchive.h"
 #include "Log.h"
-
-#include <cstdio>
+#include "Allocator.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-TextResource* TextResource::load(ResourceArchive* archive, ResourceId id)
+TextResource* TextResource::load(Allocator& allocator, ResourceArchive* archive, ResourceId id)
 {
 	assert(archive != NULL);
-	
-	Log::D("TextResource::load called.");
 	
 	FileStream* stream = archive->find(id);
 
 	if (stream != NULL)
 	{
-		TextResource* resource = new TextResource;
+		TextResource* resource = (TextResource*)allocator.allocate(sizeof(TextResource));
 
 		stream->read(&resource->length, sizeof(uint32_t));
 		
-		resource->data = new char[resource->length + 1];
-		
-		printf("Resource length: %d\n", resource->length);
-		
+		resource->data = (char*)allocator.allocate(sizeof(char) * (resource->length + 1));
+
 		stream->read(resource->data, (size_t)resource->length);
 		
 		resource->data[resource->length] = '\0';
@@ -40,10 +35,14 @@ TextResource* TextResource::load(ResourceArchive* archive, ResourceId id)
 }
 
 //-----------------------------------------------------------------------------
-void TextResource::unload(TextResource* text)
+void TextResource::unload(Allocator& allocator, TextResource* text)
 {
+	assert(text != NULL);
 
+	text->length = 0;
+
+	allocator.deallocate(text->data);
+	allocator.deallocate(text);
 }
 
 } // namespace crown
-

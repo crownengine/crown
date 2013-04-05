@@ -66,13 +66,14 @@ enum TextureWrap
 };
 
 class ResourceArchive;
+class Allocator;
 
 class TextureResource
 {
 public:
 
-	static TextureResource*		load(ResourceArchive* archive, ResourceId id);
-	static void					unload(TextureResource* texture);
+	static TextureResource*		load(Allocator& allocator, ResourceArchive* archive, ResourceId id);
+	static void					unload(Allocator& allocator, TextureResource* texture);
 
 private:
 
@@ -84,8 +85,7 @@ private:
 	TextureFilter				filter;
 	TextureWrap					wrap;
 
-	void*						data;
+	uint8_t*					data;
 };
 
 } // namespace crown
-
