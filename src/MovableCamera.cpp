@@ -86,9 +86,6 @@ void MovableCamera::Render()
 		return;
 	}
 
-	// FIXME 
-	// SetRotation(0, 0);
-
 	UpdateViewMatrix();
 
 	Camera::Render();

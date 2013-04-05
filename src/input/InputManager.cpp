@@ -60,9 +60,9 @@ void InputManager::event_loop()
 			case os::OSET_BUTTON_RELEASE:
 			{
 				MouseEvent mouse_event;
-				mouse_event.x = event.data_a;
-				mouse_event.y = event.data_b;
-				mouse_event.button = event.data_c == 0 ? MB_LEFT : event.data_c == 1 ? MB_MIDDLE : MB_RIGHT;
+				mouse_event.x = event.data_a.int_value;
+				mouse_event.y = event.data_b.int_value;
+				mouse_event.button = event.data_c.int_value == 0 ? MB_LEFT : event.data_c.int_value == 1 ? MB_MIDDLE : MB_RIGHT;
 				mouse_event.wheel = 0.0f;
 
 				if (event.type == os::OSET_BUTTON_PRESS)
@@ -80,7 +80,7 @@ void InputManager::event_loop()
 			case os::OSET_KEY_RELEASE:
 			{
 				KeyboardEvent keyboard_event;
-				keyboard_event.key = event.data_a;
+				keyboard_event.key = event.data_a.int_value;
 
 				if (event.type == os::OSET_KEY_PRESS)
 				{
@@ -97,9 +97,9 @@ void InputManager::event_loop()
 			case os::OSET_TOUCH_UP:
 			{
 				TouchEvent touch_event;
-				touch_event.pointer_id = event.data_a;
-				touch_event.x = event.data_b;
-				touch_event.y = event.data_c;
+				touch_event.pointer_id = event.data_a.int_value;
+				touch_event.x = event.data_b.int_value;
+				touch_event.y = event.data_c.int_value;
 				if (event.type == os::OSET_TOUCH_DOWN)
 				{
 					m_event_dispatcher.touch_down(touch_event);
@@ -113,18 +113,18 @@ void InputManager::event_loop()
 			case os::OSET_TOUCH_MOVE:
 			{
 				TouchEvent touch_event;
-				touch_event.pointer_id = event.data_a;
-				touch_event.x = event.data_b;
-				touch_event.y = event.data_c;	
+				touch_event.pointer_id = event.data_a.int_value;
+				touch_event.x = event.data_b.int_value;
+				touch_event.y = event.data_c.int_value;	
 				m_event_dispatcher.touch_move(touch_event);			
 				break;
 			}
 			case os::OSET_ACCELEROMETER:
 			{
 				AccelerometerEvent sensor_event;
-				sensor_event.x = event.data_a;
-				sensor_event.y = event.data_b;
-				sensor_event.z = event.data_c;
+				sensor_event.x = event.data_a.float_value;
+				sensor_event.y = event.data_b.float_value;
+				sensor_event.z = event.data_c.float_value;
 				m_event_dispatcher.accelerometer_changed(sensor_event);
 				break;
 			}

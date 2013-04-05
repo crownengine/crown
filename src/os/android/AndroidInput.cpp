@@ -10,7 +10,8 @@ namespace os
 extern "C" 
 {
 	/// OS push_event() jni bind
-    JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushEvent(JNIEnv * env, jobject obj, jint type, jint a, jint b, jint c, jint d);
+    JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushIntEvent(JNIEnv * env, jobject obj, jint type, jint a, jint b, jint c, jint d);
+    JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushFloatEvent(JNIEnv * env, jobject obj, jint type, jfloat a, jfloat b, jfloat c, jfloat d);    
 };
 
 //-----------------------------------------------------------------------------
@@ -50,9 +51,30 @@ void show_cursor()
 }
 
 //-----------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushEvent(JNIEnv * env, jobject obj, jint type, jint a, jint b, jint c, jint d)
+JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushIntEvent(JNIEnv * env, jobject obj, jint type, jint a, jint b, jint c, jint d)
+{	
+	OSEventParameter values[4];
+
+	values[0].int_value = a;
+	values[1].int_value = b;
+	values[2].int_value = c;
+	values[3].int_value = d;
+
+	push_event((OSEventType)type, values[0], values[1], values[2], values[3]);
+}
+
+//-----------------------------------------------------------------------------
+JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushFloatEvent(JNIEnv * env, jobject obj, jint type, jfloat a, jfloat b, jfloat c, jfloat d)
 {
-	push_event((OSEventType)type, a, b, c, d);
+	OSEventParameter values[4];
+
+	values[0].float_value = a;
+	values[1].float_value = b;
+	values[2].float_value = c;
+	values[3].float_value = d;
+
+
+	push_event((OSEventType)type, values[0], values[1], values[2], values[3]);
 }
 
 } // namespace os

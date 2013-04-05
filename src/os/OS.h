@@ -118,17 +118,23 @@ enum OSEventType
 	OSET_ACCELEROMETER		= 9
 };
 
+union OSEventParameter
+{
+	int32_t int_value;
+	float	float_value;
+};
+
 struct OSEvent
 {
-	OSEventType		type;
-	int32_t			data_a;
-	int32_t			data_b;
-	int32_t			data_c;
-	int32_t			data_d;
+	OSEventType			type;
+	OSEventParameter	data_a;
+	OSEventParameter	data_b;
+	OSEventParameter	data_c;
+	OSEventParameter	data_d;
 };
 
 //! Pushes @a event into @a event_queue
-void				push_event(OSEventType type, int32_t data_a, int32_t data_b, int32_t data_c, int32_t data_d);
+void				push_event(OSEventType type, OSEventParameter data_a, OSEventParameter data_b, OSEventParameter data_c, OSEventParameter data_d);
 
 //! Returns the event on top of the event_queue	
 OSEvent&			pop_event();

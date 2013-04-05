@@ -7,9 +7,9 @@ class InputManager;
 
 struct AccelerometerEvent
 {
-	int32_t x;
-	int32_t y;
-	int32_t z;
+	float x;
+	float y;
+	float z;
 };
 
 class AccelerometerListener

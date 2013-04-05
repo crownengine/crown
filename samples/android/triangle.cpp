@@ -2,9 +2,12 @@
 #include "OS.h"
 #include <jni.h>
 #include <GLES/gl.h>
+#include "MovableCamera.h"
 
 namespace crown
 {
+
+MovableCamera* cam;
 
 extern "C"
 {
@@ -19,16 +22,29 @@ public:
 	MainScene()
 	{
 		get_input_manager()->register_accelerometer_listener(this);
+
+		cam = new MovableCamera(Vec3::ZERO, true, 90.0f, 1.6f, true, 0.1, 2.5);
+
+		if (cam)
+		{
+			cam->SetActive(true);
+			cam->SetSpeed(0.1);
+			cam->SetFarClipDistance(1000.0f);
+		}
 	}
 
 	void accelerometer_changed(const AccelerometerEvent& event)
 	{
 		Log::I("Accelerometer changed");
+
+		cam->SetRotation(event.x, event.y);
 	}
 
 	void draw_triangle()
 	{
-		static GLfloat vertices[] = {	-1.0f, -1.0f, -2.0f,
+		cam->Render();
+
+		static GLfloat vertices[] = {  -1.0f, -1.0f, -2.0f,
 										1.0f, -1.0f, -2.0f,
 										0.0f, 1.0f, -2.0f};
 
@@ -38,7 +54,7 @@ public:
 		projection.build_projection_perspective_rh(90.0f, 800.0f/480.0f, 0.1f, 100.0f);
 		GetDevice()->GetRenderer()->SetMatrix(MT_PROJECTION, projection);
 
-		GetDevice()->GetRenderer()->SetClearColor(Color4::RED);
+		GetDevice()->GetRenderer()->SetClearColor(Color4::LIGHTBLUE);
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, vertices);

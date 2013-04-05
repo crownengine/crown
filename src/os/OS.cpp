@@ -11,7 +11,7 @@ static int32_t			event_queue_head = 0;
 static int32_t			event_queue_tail = 0;
 
 //-----------------------------------------------------------------------------
-void push_event(OSEventType type, int32_t data_a, int32_t data_b, int32_t data_c, int32_t data_d)
+void push_event(OSEventType type, OSEventParameter data_a, OSEventParameter data_b, OSEventParameter data_c, OSEventParameter data_d)
 {
 	if ((event_queue_tail + 1) % MAX_EVENTS == event_queue_head)
 	{
