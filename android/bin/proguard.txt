@@ -1,3 +1,0 @@
-# view AndroidManifest.xml #generated:10
--keep class crown.android.CrownActivity { <init>(...); }
-
