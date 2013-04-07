@@ -1,4 +1,9 @@
 # Ignore build directory
 /build
 
-
+# Ignore some android directories
+/android/bin
+/android/gen
+/android/libs
+/android/obj
+/android/res
