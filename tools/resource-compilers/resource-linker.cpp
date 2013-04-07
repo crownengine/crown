@@ -66,12 +66,6 @@ int main(int argc, char** argv)
 		// If the archive is well-formed, read the archive header
 		archive->read(&header, sizeof(ArchiveHeader));
 	}
-	
-	// Print debug informations about the archive
-	printf("Info: Archive successfully opened.\n");
-	printf("Info: Version  = %d\n", header.version);
-	printf("Info: Entries  = %d\n", header.entries_count);
-	printf("Info: Checksum = %d\n", header.checksum);
 
 	// In-Memory representation of the table of entries
 	ArchiveEntry* entries = NULL;
@@ -104,13 +98,6 @@ int main(int argc, char** argv)
 
 	// Read the resource entry
 	resource->read(&resource_entry, sizeof(ArchiveEntry));
-	
-	// Print debug informations about the resource
-	printf("Info: Resource successfully opened.\n");
-	printf("Info: Name   = %X\n", resource_entry.name);
-	printf("Info: Type   = %X\n", resource_entry.type);
-	printf("Info: Offset = %d\n", resource_entry.offset);
-	printf("Info: Size   = %d\n", resource_entry.size);
 
 	// In-Memory representation of the resource data
 	uint8_t* resource_data = NULL;
@@ -167,11 +154,9 @@ int main(int argc, char** argv)
 	
 	archive->seek(0);
 
-	printf("Debug: Writing header...\n");
 	// Write the new header
 	archive->write(&header, sizeof(ArchiveHeader));
 	
-	printf("Debug: Writing entries...\n");
 	// Write the previous entries only if they exist
 	if (entries_count > 0)
 	{
@@ -181,7 +166,6 @@ int main(int argc, char** argv)
 	// Write the new resource entry
 	archive->write(&resource_entry, sizeof(ArchiveEntry));
 	
-	printf("Debug: Writing data...\n");
 	// Write previous total resource data only if it exist
 	if (total_resource_data_size > 0)
 	{
