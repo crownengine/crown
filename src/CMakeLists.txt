@@ -54,7 +54,6 @@ set (CORE_SRC
 
 set (CORE_HEADERS
 	core/Types.h
-	core/VertexData.h
 	core/Args.h
 )
 
@@ -197,8 +196,6 @@ set (GL_SRC
 	renderers/gl/GLIndexBuffer.cpp
 	renderers/gl/GLOcclusionQuery.cpp
 	renderers/gl/GLRenderer.cpp
-	renderers/gl/GLTexture.cpp
-	renderers/gl/GLTextureManager.cpp
 	renderers/gl/GLUtils.cpp
 	renderers/gl/GLVertexBuffer.cpp
 )
@@ -207,8 +204,6 @@ set (GL_HEADERS
 	renderers/gl/GLIndexBuffer.h
 	renderers/gl/GLOcclusionQuery.h
 	renderers/gl/GLRenderer.h
-	renderers/gl/GLTexture.h
-	renderers/gl/GLTextureManager.h
 	renderers/gl/GLUtils.h
 	renderers/gl/GLVertexBuffer.h
 )
