@@ -28,6 +28,9 @@ public class CrownActivity extends Activity
 	// Graphic attributes
 	private CrownView mView;
 
+	// Input attributes
+	private CrownTouch mTouchListener;
+
 	/**
 	*
 	*/
@@ -42,6 +45,9 @@ public class CrownActivity extends Activity
         // Init GLSurfaceView for rendering
         mView = new CrownView(getApplication());
 		setContentView(mView);
+
+		// Init Input
+		mTouchListener = new CrownTouch();
 
 		Log.i(TAG, "onCreate called.");
     }
@@ -119,43 +125,7 @@ public class CrownActivity extends Activity
 	*/
 	public boolean onTouchEvent(MotionEvent event)
 	{
-
-		final int pointerIndex = event.getActionIndex();
-		final int pointerCount = event.getPointerCount();
-
-		final int pointerId = event.getPointerId(pointerIndex);
-		final float x = event.getX(pointerIndex);
-		final float y = event.getY(pointerIndex);
-
-		final int actionMasked = event.getActionMasked();
-
-		switch (actionMasked) 
-		{	
-			case MotionEvent.ACTION_DOWN:
-			case MotionEvent.ACTION_POINTER_DOWN:
-			{
-				CrownLib.pushIntEvent(CrownEnum.OSET_TOUCH_DOWN, pointerId, (int)x, (int)y, 0);
-				break;			
-			}
-
-			case MotionEvent.ACTION_UP:
-			case MotionEvent.ACTION_POINTER_UP:
-			{
-				CrownLib.pushIntEvent(CrownEnum.OSET_TOUCH_UP, pointerId, (int)x, (int)y, 0);
-				break;			
-			}
-			
-			case MotionEvent.ACTION_MOVE:
-			{
-				for (int index = 0; index < pointerCount; index++)
-				{
-					CrownLib.pushIntEvent(CrownEnum.OSET_TOUCH_MOVE, event.getPointerId(index), (int)event.getX(index), (int)event.getY(index), 0);
-				}
-
-				break;
-			}
-		}
-
+		mTouchListener.onTouch(event);
 		return true;
 	}
 }
