@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Types.h"
 #include "Camera.h"
 #include "Vec2.h"

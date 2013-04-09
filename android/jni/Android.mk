@@ -78,6 +78,8 @@ LOCAL_SRC_FILES :=\
 	Skybox.cpp\
 	FPSSystem.cpp\
 \
+	samples/android/triangle.cpp\
+\
 
 LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/core\
@@ -97,37 +99,10 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/renderers/gles\
 	$(LOCAL_PATH)/renderers/gles/egl\
 	$(LOCAL_PATH)/input\
+	$(LOCAL_PATH)/samples\
+
 
 LOCAL_CPPFLAGS	:= -g -fexceptions
 LOCAL_LDLIBS	:= -llog -landroid -lGLESv1_CM
 include $(BUILD_SHARED_LIBRARY)
-
-include $(CLEAR_VARS)
-
-LOCAL_MODULE    := triangle
-LOCAL_SRC_FILES := samples/android/triangle.cpp
-
-LOCAL_C_INCLUDES	:=\
-	$(LOCAL_PATH)/core\
-	$(LOCAL_PATH)/core/math\
-	$(LOCAL_PATH)/core/containers\
-	$(LOCAL_PATH)/core/bv\
-	$(LOCAL_PATH)/core/mem\
-	$(LOCAL_PATH)/core/streams\
-	$(LOCAL_PATH)/loaders\
-	$(LOCAL_PATH)/os\
-	$(LOCAL_PATH)/os/android\
-	$(LOCAL_PATH)/renderers\
-	$(LOCAL_PATH)/filesystem\
-	$(LOCAL_PATH)/renderers/gles\
-	$(LOCAL_PATH)/renderers/gles/egl\
-	$(LOCAL_PATH)/input\
-	$(LOCAL_PATH)/samples\
-
-LOCAL_CPPFLAGS	:= -g -fexceptions
-LOCAL_LDLIBS	:= -llog -landroid -lGLESv1_CM -lz
-LOCAL_STATIC_LIBRARIES := crown
-#LOCAL_STATIC_LIBRARIES := android_native_app_glue
-include $(BUILD_SHARED_LIBRARY)
 #(call import-module, android/native_app_glue)
-

@@ -23,13 +23,14 @@ public class CrownActivity extends Activity
 	public static String TAG = "CrownActivity";
 
 	// Resource attributes
-    static AssetManager assetManager;
+    static AssetManager 		mAssetManager;
 
 	// Graphic attributes
-	private CrownView mView;
+	private CrownView 			mView;
 
 	// Input attributes
-	private CrownTouch mTouchListener;
+	private CrownTouch 			mTouchListener;
+	private CrownAccelerometer	mAccelerometerListener;
 
 	/**
 	*
@@ -39,8 +40,8 @@ public class CrownActivity extends Activity
         super.onCreate(savedInstanceState);
 
 		// init AssetManager
-		assetManager = getAssets();
-		CrownLib.initAssetManager(assetManager);
+		mAssetManager = getAssets();
+		CrownLib.initAssetManager(mAssetManager);
 
         // Init GLSurfaceView for rendering
         mView = new CrownView(getApplication());
@@ -48,6 +49,7 @@ public class CrownActivity extends Activity
 
 		// Init Input
 		mTouchListener = new CrownTouch();
+		mAccelerometerListener = new CrownAccelerometer();
 
 		Log.i(TAG, "onCreate called.");
     }
@@ -81,7 +83,7 @@ public class CrownActivity extends Activity
 		Log.i(TAG, "onResume called.");
 
 		// init accelerometer
-		if (!CrownAccelerometer.startListening(this))
+		if (!mAccelerometerListener.startListening(this))
 		{
 			Log.i(TAG, "Device has no accelerometer. App terminated.");
 			finish();
@@ -107,7 +109,7 @@ public class CrownActivity extends Activity
 		Log.i(TAG, "onStop called.");
 
 		// stop accelerometer
-		CrownAccelerometer.stopListening();
+		mAccelerometerListener.stopListening();
 	}
 
 	/**

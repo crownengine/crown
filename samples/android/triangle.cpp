@@ -23,7 +23,7 @@ public:
 	{
 		get_input_manager()->register_accelerometer_listener(this);
 
-		cam = new MovableCamera(Vec3::ZERO, true, 90.0f, 1.6f, true, 0.1, 2.5);
+		cam = new MovableCamera(Vec3::ZERO, true, 90.0f, 1.6f, true, 0.1f, 2.5f);
 
 		if (cam)
 		{

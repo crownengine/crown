@@ -79,25 +79,25 @@ void vprintf(const char* string, va_list arg)
 //-----------------------------------------------------------------------------
 void log_debug(const char* string, va_list arg)
 {
-	LOGI(string, arg);
+	__android_log_vprint(ANDROID_LOG_DEBUG, "crown", string, arg);
 }
 
 //-----------------------------------------------------------------------------
 void log_error(const char* string, va_list arg)
 {
-	LOGI(string, arg);
+	__android_log_vprint(ANDROID_LOG_ERROR, "crown", string, arg);
 }
 
 //-----------------------------------------------------------------------------
 void log_warning(const char* string, va_list arg)
 {
-	LOGI(string, arg);
+	__android_log_vprint(ANDROID_LOG_WARN, "crown", string, arg);
 }
 
 //-----------------------------------------------------------------------------
 void log_info(const char* string, va_list arg)
 {
-	LOGI(string, arg);
+	__android_log_vprint(ANDROID_LOG_INFO, "crown", string, arg);
 }
 
 //-----------------------------------------------------------------------------

@@ -7,10 +7,9 @@ public class CrownLib
 	static 
 	{
 		System.loadLibrary("crown");
-		System.loadLibrary("triangle");
 	}
 	
-//	// Device functions
+	// Device functions
 	public static native void init();
 	public static native void frame();
 	public static native void shutdown();

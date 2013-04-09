@@ -19,30 +19,33 @@ import crown.android.CrownEnum;
 */
 public class CrownAccelerometer
 {
-    private static final float MIN_VALUE = -1.0f;
-    private static final float MAX_VALUE = 1.0f;
+    private final float MIN_VALUE = -1.0f;
+    private final float MAX_VALUE = 1.0f;
 
-    private static SensorManager sensorManager;
-    private static Sensor sensor;
-    private static SensorEventListener sensorEventListener;
-    private static float x;
-    private static float y;
-    private static float z; 
-    private static float lastX;
-    private static float lastY;
-    private static float lastZ;
+    private SensorManager sensorManager;
+    private Sensor sensor;
+    private SensorEventListener sensorEventListener;
 
-    private float lastAccel[] = new float[3];
-    private float accelFilter[] = new float[3];
+    private float x;
+    private float y;
+    private float z; 
+    private float lastX;
+    private float lastY;
+    private float lastZ;
 
 //-----------------------------------------------------------------------------------
-    private static boolean initAccelerometer(Context context)
+    public CrownAccelerometer()
+    {
+    }
+
+//-----------------------------------------------------------------------------------
+    private boolean initAccelerometer(Context context)
     {
     	// already initialized!
-    	// if (sensorEventListener != null)
-    	// {
-    	// 	return true;
-    	// }
+    	if (sensorEventListener != null)
+    	{
+    	    return true;
+    	}
 
     	sensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
 
@@ -70,58 +73,58 @@ public class CrownAccelerometer
     }
 
 //-----------------------------------------------------------------------------------
-    public static boolean startListening(Context context)
+    public boolean startListening(Context context)
     {
     	return initAccelerometer(context); 
     }
 
 //-----------------------------------------------------------------------------------
-    public static void stopListening()
+    public void stopListening()
     {
     	sensorManager.unregisterListener(sensorEventListener);
     }
 
 //-----------------------------------------------------------------------------------
-    public static float getX()
+    public float getX()
     {
     	return x;
     }
 
 //-----------------------------------------------------------------------------------
-    public static float getY()
+    public float getY()
     {
     	return y;
     }
 
 //-----------------------------------------------------------------------------------
-    public static float getZ()
+    public float getZ()
     {
     	return z;
     }
 
 //-----------------------------------------------------------------------------------
-    public static float getLastX()
+    public float getLastX()
     {
     	return lastX;
     }
 
 //-----------------------------------------------------------------------------------
-    public static float getLastY()
+    public float getLastY()
     {
     	return lastY;
     }
 
 //-----------------------------------------------------------------------------------
-    public static float getLastZ()
+    public float getLastZ()
     {
     	return lastZ;
     }
 
 //-----------------------------------------------------------------------------------
-    private static void lowPassFiltering(float uX, float uY, float uZ)
+    private void lowPassFiltering(float uX, float uY, float uZ)
     {
         float updateFreq = 30; // match this to your update speed
-        float cutOffFreq = 50.0f;
+        float cutOffFreq = 0.9f;
         float timeRC = 1.0f / cutOffFreq;
         float dt = 1.0f / updateFreq;
         float filterConstant = timeRC / (dt + timeRC);
@@ -143,7 +146,7 @@ public class CrownAccelerometer
     }
 
 //-----------------------------------------------------------------------------------
-    private static float clamp(float v, float min, float max)
+    private float clamp(float v, float min, float max)
     {
         if (v < min)
         {
@@ -158,7 +161,7 @@ public class CrownAccelerometer
     }
 
 //-----------------------------------------------------------------------------------
-    private static float norm(float x, float y, float z)
+    private float norm(float x, float y, float z)
     {
         float v = (float)Math.pow(x, 2) + (float)Math.pow(y, 2) + (float)Math.pow(z, 2);
         return (float)Math.sqrt(v);

@@ -5,10 +5,11 @@ import android.view.MotionEvent;
 
 public class CrownTouch
 {
+	private boolean isListening;
+
 //-----------------------------------------------------------------------------------
 	public CrownTouch()
 	{
-
 	}
 
 //-----------------------------------------------------------------------------------

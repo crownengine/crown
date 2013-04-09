@@ -63,7 +63,7 @@ public:
 private:
 
 	static LogLevel		mThreshold;
-	static int32_t			mIndentCount;
+	static int32_t		mIndentCount;
 };
 
 } // namespace crown

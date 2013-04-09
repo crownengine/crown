@@ -1,4 +1,3 @@
-#pragma once
 #include "InputManager.h"
 #include "MovableCamera.h"
 #include "FPSSystem.h"
