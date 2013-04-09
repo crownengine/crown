@@ -38,11 +38,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "AndroidOS.h"
 #include "Log.h"
 
-#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "crown", __VA_ARGS__))
-#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "crown", __VA_ARGS__))
-#define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, "crown", __VA_ARGS__))
-#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "crown", __VA_ARGS__))
-
 namespace crown
 {
 namespace os
@@ -262,8 +257,6 @@ void get_render_window_metrics(uint32_t& width, uint32_t& height)
 {
 	width = window_width;
 	height = window_height;
-
-	Log::I("width=%d", width);
 }
 
 //-----------------------------------------------------------------------------
@@ -283,7 +276,6 @@ JNIEXPORT void JNICALL Java_crown_android_CrownLib_setRenderWindowMetrics(JNIEnv
 {
 	window_width = width;
 	window_height = height;
-	Log::I("setRenderWindowMetrics called. %d", (uint32_t)width);
 }
 
 } // namespace os

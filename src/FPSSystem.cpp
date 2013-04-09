@@ -19,7 +19,7 @@ FPSSystem::FPSSystem(MovableCamera* camera) :
 	m_down_pressed(false),
 	m_left_pressed(false)
 {
-//	get_input_manager()->register_keyboard_listener(this);
+	get_input_manager()->register_keyboard_listener(this);
 	get_input_manager()->register_accelerometer_listener(this);
 	//get_input_manager()->register_mouse_listener(this);
 	get_input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
@@ -32,21 +32,25 @@ void FPSSystem::key_pressed(const KeyboardEvent& event)
 	switch (event.key)
 	{
 		case 'w':
+		case 'W':
 		{
 			m_up_pressed = true;
 			break;
 		}
 		case 'a':
+		case 'A':
 		{
 			m_left_pressed = true;
 			break;
 		}
 		case 's':
+		case 'S':
 		{
 			m_down_pressed = true;
 			break;
 		}
 		case 'd':
+		case 'D':
 		{
 			m_right_pressed = true;
 			break;

@@ -30,7 +30,6 @@ public class CrownActivity extends Activity
 
 	// Input attributes
 	private CrownTouch 			mTouchListener;
-	private CrownAccelerometer	mAccelerometerListener;
 
 	/**
 	*
@@ -49,9 +48,6 @@ public class CrownActivity extends Activity
 
 		// Init Input
 		mTouchListener = new CrownTouch();
-		mAccelerometerListener = new CrownAccelerometer();
-
-		Log.i(TAG, "onCreate called.");
     }
 
 	/**
@@ -60,7 +56,6 @@ public class CrownActivity extends Activity
 	public void onStart()
 	{
 		super.onStart();
-		Log.i(TAG, "onStart called.");
 	}
 
 	/**
@@ -69,7 +64,6 @@ public class CrownActivity extends Activity
 	public void onRestart()
 	{
 		super.onRestart();
-		Log.i(TAG, "onRestart called.");
 	}
 
 	/**
@@ -80,10 +74,8 @@ public class CrownActivity extends Activity
 		super.onResume();
         mView.onResume();
 		
-		Log.i(TAG, "onResume called.");
-
 		// init accelerometer
-		if (!mAccelerometerListener.startListening(this))
+		if (!CrownAccelerometer.startListening(this))
 		{
 			Log.i(TAG, "Device has no accelerometer. App terminated.");
 			finish();
@@ -97,7 +89,6 @@ public class CrownActivity extends Activity
 	{
 		super.onPause();
         mView.onPause();
-		Log.i(TAG, "onPause called.");
 	}
 
 	/**
@@ -106,10 +97,9 @@ public class CrownActivity extends Activity
 	public void onStop()
 	{
 		super.onStop();
-		Log.i(TAG, "onStop called.");
 
 		// stop accelerometer
-		mAccelerometerListener.stopListening();
+		CrownAccelerometer.stopListening();
 	}
 
 	/**
@@ -118,7 +108,6 @@ public class CrownActivity extends Activity
 	public void onDestroy()
 	{
 		super.onDestroy();
-		Log.i(TAG, "onDestroy called.");
 	}
 
 	/**

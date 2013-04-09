@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <X11/XKBlib.h>
 #include "Keyboard.h"
 #include "OS.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -168,6 +169,9 @@ void event_loop()
 {
 	XEvent event;
 
+	OSEventParameter data_button[4] = {0, 0, 0, 0};
+	OSEventParameter data_key[4] = {0, 0, 0, 0};
+
 	while (XPending(display))
 	{
 		XNextEvent(display, &event);
@@ -185,21 +189,27 @@ void event_loop()
 			{
 				OSEventType oset_type = event.type == ButtonPress ? OSET_BUTTON_PRESS : OSET_BUTTON_RELEASE;
 
+				data_button[0].int_value = event.xbutton.x;
+				data_button[1].int_value = event.xbutton.y;
+
 				switch (event.xbutton.button)
 				{
 					case Button1:
 					{
-						push_event(oset_type, event.xbutton.x, event.xbutton.y, 0, 0);
+						data_button[2].int_value = 0;
+						push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
 						break;
 					}
 					case Button2:
 					{
-						push_event(oset_type, event.xbutton.x, event.xbutton.y, 1, 0);
+						data_button[3].int_value = 1;
+						push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
 						break;
 					}
 					case Button3:
 					{
-						push_event(oset_type, event.xbutton.x, event.xbutton.y, 2, 0);
+						data_button[3].int_value = 2;
+						push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
 						break;
 					}
 				}
@@ -208,7 +218,7 @@ void event_loop()
 			}
 			case MotionNotify:
 			{
-				push_event(OSET_MOTION_NOTIFY, event.xbutton.x, event.xbutton.y, 0, 0);
+				push_event(OSET_MOTION_NOTIFY, data_button[0], data_button[1], data_button[2], data_button[3]);
 				break;
 			}
 			case KeyPress:
@@ -238,7 +248,9 @@ void event_loop()
 
 				OSEventType oset_type = event.type == KeyPress ? OSET_KEY_PRESS : OSET_KEY_RELEASE;
 
-				push_event(oset_type, kc, 0, 0, 0);
+				data_key[0].int_value = ((int32_t)kc);
+
+				push_event(oset_type, data_key[0], data_key[1], data_key[2], data_key[3]);
 
 //				// Text input part
 //				if (event.type == KeyPress && len > 0)

@@ -62,7 +62,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	b) you can choose OpenGL|ES if and only if you are
 	   on a Linux or Android machine.
 */
-//#define CROWN_USE_OPENGL		//!< Whether to build with OpenGL
+// #define CROWN_USE_OPENGL		//!< Whether to build with OpenGL
 #define CROWN_USE_OPENGLES		//!< Whether to build with OpenGL|ES
 
 //#define CROWN_USE_WINDOWING	//!< Whether to build with windowing

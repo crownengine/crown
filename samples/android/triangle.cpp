@@ -14,7 +14,7 @@ extern "C"
 	JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* env, jobject obj);
 };
 
-class MainScene : public AccelerometerListener
+class MainScene : public AccelerometerListener, TouchListener
 {
 	
 public:
@@ -22,6 +22,7 @@ public:
 	MainScene()
 	{
 		get_input_manager()->register_accelerometer_listener(this);
+		get_input_manager()->register_touch_listener(this);
 
 		cam = new MovableCamera(Vec3::ZERO, true, 90.0f, 1.6f, true, 0.1f, 2.5f);
 
@@ -35,13 +36,23 @@ public:
 
 	void accelerometer_changed(const AccelerometerEvent& event)
 	{
-		Log::I("Accelerometer changed");
-
 		cam->SetRotation(event.x, event.y);
+	}
+
+	void touch_down(const TouchEvent& event)
+	{
+	}
+
+	void touch_move(const TouchEvent& event)
+	{
 	}
 
 	void draw_triangle()
 	{
+		uint32_t width;
+		uint32_t height;
+		os::get_render_window_metrics(width, height);
+
 		cam->Render();
 
 		static GLfloat vertices[] = {  -1.0f, -1.0f, -2.0f,
