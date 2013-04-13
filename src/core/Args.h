@@ -192,7 +192,7 @@ inline ArgsOptionType Args::option_type(const char* option)
 }
 
 //-----------------------------------------------------------------------------
-int32_t Args::long_option(const char* option)
+inline int32_t Args::long_option(const char* option)
 {
 	int32_t option_index = 0;
 	const ArgsOption* current_option = m_longopts;
@@ -247,7 +247,7 @@ int32_t Args::long_option(const char* option)
 }
 
 //-----------------------------------------------------------------------------
-int32_t Args::short_option(const char* option)
+inline int32_t Args::short_option(const char* option)
 {
 	(void)option;
 	return 0;
