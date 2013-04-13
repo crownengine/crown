@@ -23,14 +23,15 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "Config.h"
+
 #include <GL/glew.h>
 #include <cassert>
+#include <algorithm>
 #include "Types.h"
 #include "GLIndexBuffer.h"
 #include "GLOcclusionQuery.h"
 #include "GLRenderer.h"
-#include "GLTexture.h"
-//#include "GLTextureManager.h"
 #include "GLUtils.h"
 #include "GLVertexBuffer.h"
 #include "Log.h"
@@ -38,7 +39,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Rect.h"
 #include "Allocator.h"
 
-#include "Config.h"
+#include "TextureResource.h"
+
 #if defined(WINDOWS)
 	//Define the missing constants in vs' gl.h
 	#define GL_TEXTURE_3D					0x806F
@@ -63,10 +65,7 @@ GLRenderer::GLRenderer() :
 	mMaxVertexVertices(0),
 	mMaxAnisotropy(0.0f),
 
-	mOcclusionQueryList(get_default_allocator()),
-	mVertexBufferList(get_default_allocator()),
-	mIndexBufferList(get_default_allocator()),
-
+	m_texture_count(0),
 	mActiveTextureUnit(0),
 
 	mLinesCount(0)
@@ -76,13 +75,14 @@ GLRenderer::GLRenderer() :
 	mMinMaxLineWidth[0] = 0.0f;
 	mMinMaxLineWidth[1] = 0.0f;
 
+	// Initialize texture units
 	for (uint32_t i = 0; i < MAX_TEXTURE_UNITS; i++)
 	{
-//		mTextureUnit[i] = 0;
+		mTextureUnit[i] = 0;
 		mTextureUnitTarget[i] = GL_TEXTURE_2D;
 	}
 
-	// This code snippet initializes the matrices
+	// Initialize the matrices
 	for (uint32_t i = 0; i < MT_COUNT; i++)
 	{
 		mMatrix[i].load_identity();
@@ -155,7 +155,7 @@ GLRenderer::GLRenderer() :
 	float amb[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, amb);
 
-	// Some hint32_ts
+	// Some hints
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
 	// Set the framebuffer clear color
@@ -178,37 +178,23 @@ GLRenderer::GLRenderer() :
 //-----------------------------------------------------------------------------
 GLRenderer::~GLRenderer()
 {
-	for (uint32_t i = 0; i < mOcclusionQueryList.size(); i++)
-	{
-		delete mOcclusionQueryList[i];
-	}
-
-	for (uint32_t i = 0; i < mVertexBufferList.size(); i++)
-	{
-		delete mVertexBufferList[i];
-	}
-
-	for (uint32_t i = 0; i < mIndexBufferList.size(); i++)
-	{
-		delete mIndexBufferList[i];
-	}
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetViewport(const Rect& absArea)
+void GLRenderer::set_viewport(const Rect& absArea)
 {
 	glViewport((int32_t)absArea.min.x, (int32_t)absArea.min.y, (int32_t)absArea.max.x, (int32_t)absArea.max.y);
 	glScissor((int32_t)absArea.min.x, (int32_t)absArea.min.y, (int32_t)absArea.max.x, (int32_t)absArea.max.y);
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::SetClearColor(const Color4& color)
+void GLRenderer::set_clear_color(const Color4& color)
 {
 	glClearColor(color.r, color.g, color.b, color.a);
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetMaterialParams(const Color4& ambient, const Color4& diffuse, const Color4& specular,
+void GLRenderer::set_material_params(const Color4& ambient, const Color4& diffuse, const Color4& specular,
 				const Color4& emission, int32_t shininess)
 {
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, &ambient.r);
@@ -219,13 +205,13 @@ void GLRenderer::_SetMaterialParams(const Color4& ambient, const Color4& diffuse
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetAmbientLight(const Color4& color)
+void GLRenderer::set_ambient_light(const Color4& color)
 {
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color.to_float_ptr());
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetLighting(bool lighting)
+void GLRenderer::set_lighting(bool lighting)
 {
 	if (lighting)
 	{
@@ -238,9 +224,9 @@ void GLRenderer::_SetLighting(bool lighting)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetTexturing(uint32_t unit, bool texturing)
+void GLRenderer::set_texturing(uint32_t unit, bool texturing)
 {
-	if (!ActivateTextureUnit(unit))
+	if (!activate_texture_unit(unit))
 		return;
 
 	if (texturing)
@@ -253,65 +239,64 @@ void GLRenderer::_SetTexturing(uint32_t unit, bool texturing)
 	}
 }
 
-////-----------------------------------------------------------------------------
-//void GLRenderer::_SetTexture(uint32_t unit, Texture* texture)
-//{
-//	if (!ActivateTextureUnit(unit))
-//		return;
+//-----------------------------------------------------------------------------
+void GLRenderer::set_texture(uint32_t unit, TextureId texture)
+{
+	if (!activate_texture_unit(unit))
+	{
+		return;
+	}
 
-//	if (texture != NULL)
-//	{
-//		mTextureUnit[unit] = texture;
-//		mTextureUnitTarget[unit] = static_cast<const GLTexture*>(texture)->GetGLTarget();
+	mTextureUnitTarget[unit] = GL_TEXTURE_2D;
+	mTextureUnit[unit] = m_textures[texture.index].texture_object;
 
-//		glEnable(mTextureUnitTarget[unit]);
-//		glBindTexture(mTextureUnitTarget[unit], static_cast<const GLTexture*>(texture)->GetGLObject());
-//	}
-//}
-
-////-----------------------------------------------------------------------------
-//void GLRenderer::_SetTextureMode(uint32_t unit, TextureMode mode, const Color4& blendColor)
-//{
-//	if (!ActivateTextureUnit(unit))
-//		return;
-
-//	GLint envMode = GL::GetTextureMode(mode);
-
-//	if (envMode == GL_BLEND)
-//	{
-//		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, &blendColor.r);
-//	}
-
-//	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, envMode);
-//}
-
-////-----------------------------------------------------------------------------
-//void GLRenderer::_SetTextureWrap(uint32_t unit, TextureWrap wrap)
-//{
-//	GLenum glWrap = GL::GetTextureWrap(wrap);
-
-//	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_S, glWrap);
-//	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_T, glWrap);
-//	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_R, glWrap);
-//}
-
-////-----------------------------------------------------------------------------
-//void GLRenderer::_SetTextureFilter(uint32_t unit, TextureFilter filter)
-//{
-//	if (!ActivateTextureUnit(unit))
-//		return;
-
-//	GLint minFilter;
-//	GLint magFilter;
-
-//	GL::GetTextureFilter(filter, minFilter, magFilter);
-
-//	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_MIN_FILTER, minFilter);
-//	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_MAG_FILTER, magFilter);
-//}
+	glEnable(mTextureUnitTarget[unit]);
+	glBindTexture(mTextureUnitTarget[unit], mTextureUnit[unit]);
+}
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetBackfaceCulling(bool culling)
+void GLRenderer::set_texture_mode(uint32_t unit, TextureMode mode, const Color4& blendColor)
+{
+	if (!activate_texture_unit(unit))
+		return;
+
+	GLint envMode = GL::GetTextureMode(mode);
+
+	if (envMode == GL_BLEND)
+	{
+		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, &blendColor.r);
+	}
+
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, envMode);
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::set_texture_wrap(uint32_t unit, TextureWrap wrap)
+{
+	GLenum glWrap = GL::GetTextureWrap(wrap);
+
+	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_S, glWrap);
+	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_T, glWrap);
+	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_R, glWrap);
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::set_texture_filter(uint32_t unit, TextureFilter filter)
+{
+	if (!activate_texture_unit(unit))
+		return;
+
+	GLint minFilter;
+	GLint magFilter;
+
+	GL::GetTextureFilter(filter, minFilter, magFilter);
+
+	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_MAG_FILTER, magFilter);
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::set_backface_culling(bool culling)
 {
 	if (culling)
 	{
@@ -324,7 +309,7 @@ void GLRenderer::_SetBackfaceCulling(bool culling)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetSeparateSpecularColor(bool separate)
+void GLRenderer::set_separate_specular_color(bool separate)
 {
 	if (separate)
 	{
@@ -337,7 +322,7 @@ void GLRenderer::_SetSeparateSpecularColor(bool separate)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetDepthTest(bool test)
+void GLRenderer::set_depth_test(bool test)
 {
 	if (test)
 	{
@@ -350,13 +335,13 @@ void GLRenderer::_SetDepthTest(bool test)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetDepthWrite(bool write)
+void GLRenderer::set_depth_write(bool write)
 {
 	glDepthMask((GLboolean) write);
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetDepthFunc(CompareFunction func)
+void GLRenderer::set_depth_func(CompareFunction func)
 {
 	GLenum glFunc = GL::GetCompareFunction(func);
 
@@ -364,7 +349,7 @@ void GLRenderer::_SetDepthFunc(CompareFunction func)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetRescaleNormals(bool rescale)
+void GLRenderer::set_rescale_normals(bool rescale)
 {
 	if (rescale)
 	{
@@ -377,7 +362,7 @@ void GLRenderer::_SetRescaleNormals(bool rescale)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetBlending(bool blending)
+void GLRenderer::set_blending(bool blending)
 {
 	if (blending)
 	{
@@ -390,7 +375,7 @@ void GLRenderer::_SetBlending(bool blending)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetBlendingParams(BlendEquation equation, BlendFunction src, BlendFunction dst, const Color4& color)
+void GLRenderer::set_blending_params(BlendEquation equation, BlendFunction src, BlendFunction dst, const Color4& color)
 {
 	GLenum glEquation = GL::GetBlendEquation(equation);
 
@@ -405,7 +390,7 @@ void GLRenderer::_SetBlendingParams(BlendEquation equation, BlendFunction src, B
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetColorWrite(bool write)
+void GLRenderer::set_color_write(bool write)
 {
 	if (write)
 	{
@@ -418,7 +403,7 @@ void GLRenderer::_SetColorWrite(bool write)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetFog(bool fog)
+void GLRenderer::set_fog(bool fog)
 {
 	if (fog)
 	{
@@ -431,7 +416,7 @@ void GLRenderer::_SetFog(bool fog)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetFogParams(FogMode mode, float density, float start, float end, const Color4& color)
+void GLRenderer::set_fog_params(FogMode mode, float density, float start, float end, const Color4& color)
 {
 	GLenum glMode = GL::GetFogMode(mode);
 
@@ -443,7 +428,7 @@ void GLRenderer::_SetFogParams(FogMode mode, float density, float start, float e
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetAlphaTest(bool test)
+void GLRenderer::set_alpha_test(bool test)
 {
 	if (test)
 	{
@@ -456,7 +441,7 @@ void GLRenderer::_SetAlphaTest(bool test)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetAlphaParams(CompareFunction func, float ref)
+void GLRenderer::set_alpha_params(CompareFunction func, float ref)
 {
 	GLenum glFunc = GL::GetCompareFunction(func);
 
@@ -464,7 +449,7 @@ void GLRenderer::_SetAlphaParams(CompareFunction func, float ref)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetShadingType(ShadingType type)
+void GLRenderer::set_shading_type(ShadingType type)
 {
 	GLenum glMode = GL_SMOOTH;
 
@@ -477,7 +462,7 @@ void GLRenderer::_SetShadingType(ShadingType type)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetPolygonMode(PolygonMode mode)
+void GLRenderer::set_polygon_mode(PolygonMode mode)
 {
 	GLenum glMode = GL::GetPolygonMode(mode);
 
@@ -485,7 +470,7 @@ void GLRenderer::_SetPolygonMode(PolygonMode mode)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetFrontFace(FrontFace face)
+void GLRenderer::set_front_face(FrontFace face)
 {
 	GLenum glFace = GL_CCW;
 
@@ -498,13 +483,13 @@ void GLRenderer::_SetFrontFace(FrontFace face)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetViewportParams(int32_t x, int32_t y, int32_t width, int32_t height)
+void GLRenderer::set_viewport_params(int32_t x, int32_t y, int32_t width, int32_t height)
 {
 	glViewport(x, y, width, height);
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetScissor(bool scissor)
+void GLRenderer::set_scissor(bool scissor)
 {
 	if (scissor)
 	{
@@ -517,13 +502,13 @@ void GLRenderer::_SetScissor(bool scissor)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetScissorParams(int32_t x, int32_t y, int32_t width, int32_t height)
+void GLRenderer::set_scissor_params(int32_t x, int32_t y, int32_t width, int32_t height)
 {
 	glScissor(x, y, width, height);
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetPointSprite(bool sprite)
+void GLRenderer::set_point_sprite(bool sprite)
 {
 	if (sprite)
 	{
@@ -538,41 +523,41 @@ void GLRenderer::_SetPointSprite(bool sprite)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetPointSize(float size)
+void GLRenderer::set_point_size(float size)
 {
 	glPointSize(size);
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetPointParams(float min, float max)
+void GLRenderer::set_point_params(float min, float max)
 {
 	glPointParameterf(GL_POINT_SIZE_MIN, min);
 	glPointParameterf(GL_POINT_SIZE_MAX, max);
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_BeginFrame()
+void GLRenderer::begin_frame()
 {
 	// Clear frame/depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_EndFrame()
+void GLRenderer::end_frame()
 {
 	glFinish();
 
-	CheckGLErrors();
+	check_gl_errors();
 }
 
 //-----------------------------------------------------------------------------
-Mat4 GLRenderer::GetMatrix(MatrixType type) const
+Mat4 GLRenderer::get_matrix(MatrixType type) const
 {
 	return mMatrix[type];
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::SetMatrix(MatrixType type, const Mat4& matrix)
+void GLRenderer::set_matrix(MatrixType type, const Mat4& matrix)
 {
 	mMatrix[type] = matrix;
 
@@ -602,28 +587,28 @@ void GLRenderer::SetMatrix(MatrixType type, const Mat4& matrix)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::PushMatrix()
+void GLRenderer::push_matrix()
 {
 	assert(mModelMatrixStackIndex != MAX_MODEL_MATRIX_STACK_DEPTH);
 
-	//Copy the current matrix int32_to the stack, and move to the next location
+	//Copy the current matrix into the stack, and move to the next location
 	glGetFloatv(GL_MODELVIEW_MATRIX, mModelMatrixStack[mModelMatrixStackIndex].to_float_ptr());
 	mModelMatrixStackIndex++;
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::PopMatrix()
+void GLRenderer::pop_matrix()
 {
 	// Note: Is checking for push-pop count necessary? Maybe it should signal matrix stack underflow.
 	//glPopMatrix();
 	assert(mModelMatrixStackIndex > 0);
 
 	mModelMatrixStackIndex--;
-	SetMatrix(MT_MODEL, mModelMatrixStack[mModelMatrixStackIndex]);
+	set_matrix(MT_MODEL, mModelMatrixStack[mModelMatrixStackIndex]);
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::SelectMatrix(MatrixType type)
+void GLRenderer::select_matrix(MatrixType type)
 {
 	switch (type)
 	{
@@ -646,7 +631,7 @@ void GLRenderer::SelectMatrix(MatrixType type)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::RenderVertexIndexBuffer(const VertexBuffer* vertices, const IndexBuffer* indices)
+void GLRenderer::render_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices)
 {
 	assert(vertices != NULL);
 	assert(indices != NULL);
@@ -668,7 +653,7 @@ void GLRenderer::RenderVertexIndexBuffer(const VertexBuffer* vertices, const Ind
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::RenderPointBuffer(const VertexBuffer* buffer)
+void GLRenderer::render_point_buffer(const VertexBuffer* buffer)
 {
 	if (buffer == NULL)
 		return;
@@ -687,58 +672,7 @@ void GLRenderer::RenderPointBuffer(const VertexBuffer* buffer)
 }
 
 //-----------------------------------------------------------------------------
-OcclusionQuery* GLRenderer::CreateOcclusionQuery()
-{
-	OcclusionQuery* oc = new GLOcclusionQuery();
-
-	if (!oc)
-		return 0;
-
-	mOcclusionQueryList.push_back(oc);
-	return oc;
-}
-
-//-----------------------------------------------------------------------------
-VertexBuffer*  GLRenderer::CreateVertexBuffer()
-{
-	VertexBuffer* vb = new GLVertexBuffer();
-
-	if (!vb)
-		return 0;
-
-	mVertexBufferList.push_back(vb);
-	return vb;
-}
-
-//-----------------------------------------------------------------------------
-IndexBuffer*  GLRenderer::CreateIndexBuffer()
-{
-	IndexBuffer* ib = new GLIndexBuffer();
-
-	if (!ib)
-		return 0;
-
-	mIndexBufferList.push_back(ib);
-	return ib;
-}
-
-////-----------------------------------------------------------------------------
-//void GLRenderer::SetTexture(uint32_t layer, Texture* texture)
-//{
-//	if (texture == NULL)
-//	{
-//		return;
-//	}
-
-//	_SetTexturing(layer, true);
-//	_SetTexture(layer, texture);
-//	_SetTextureMode(layer, texture->GetMode(), texture->GetBlendColor());
-//	_SetTextureWrap(layer, texture->GetWrap());
-//	_SetTextureFilter(layer, texture->GetFilter());
-//}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+void GLRenderer::set_scissor_box(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
 	int32_t vals[4];
 	glGetIntegerv(GL_VIEWPORT, vals);
@@ -746,7 +680,7 @@ void GLRenderer::SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t 
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height)
+void GLRenderer::get_scissor_box(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height)
 {
 	int32_t vals[4];
 	glGetIntegerv(GL_SCISSOR_BOX, vals);
@@ -759,7 +693,7 @@ void GLRenderer::GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::DrawRectangle(const Point2& position, const Point2& dimensions, int32_t drawMode,
+void GLRenderer::draw_rectangle(const Point2& position, const Point2& dimensions, int32_t drawMode,
 															 const Color4& borderColor, const Color4& fillColor)
 {
 	if (drawMode & DM_FILL)
@@ -792,7 +726,7 @@ void GLRenderer::DrawRectangle(const Point2& position, const Point2& dimensions,
 }
 
 //-----------------------------------------------------------------------------
-bool GLRenderer::ActivateTextureUnit(uint32_t unit)
+bool GLRenderer::activate_texture_unit(uint32_t unit)
 {
 	if (unit >= (uint32_t) mMaxTextureUnits)
 	{
@@ -806,7 +740,7 @@ bool GLRenderer::ActivateTextureUnit(uint32_t unit)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetLight(uint32_t light, bool active)
+void GLRenderer::set_light(uint32_t light, bool active)
 {
 	if (light >= (uint32_t) mMaxLights)
 	{
@@ -824,7 +758,7 @@ void GLRenderer::_SetLight(uint32_t light, bool active)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetLightParams(uint32_t light, LightType type, const Vec3& position)
+void GLRenderer::set_light_params(uint32_t light, LightType type, const Vec3& position)
 {
 	static float pos[4] =
 	{
@@ -843,7 +777,7 @@ void GLRenderer::_SetLightParams(uint32_t light, LightType type, const Vec3& pos
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetLightColor(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular)
+void GLRenderer::set_light_color(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular)
 {
 	glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient.to_float_ptr());
 	glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse.to_float_ptr());
@@ -851,7 +785,7 @@ void GLRenderer::_SetLightColor(uint32_t light, const Color4& ambient, const Col
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::_SetLightAttenuation(uint32_t light, float constant, float linear, float quadratic)
+void GLRenderer::set_light_attenuation(uint32_t light, float constant, float linear, float quadratic)
 {
 	glLightf(GL_LIGHT0 + light, GL_CONSTANT_ATTENUATION, constant);
 	glLightf(GL_LIGHT0 + light, GL_LINEAR_ATTENUATION, linear);
@@ -859,7 +793,62 @@ void GLRenderer::_SetLightAttenuation(uint32_t light, float constant, float line
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::CheckGLErrors()
+TextureId GLRenderer::load_texture(TextureResource* texture)
+{
+	// Search for an already existent texture
+	for (uint32_t i = 0; i < MAX_TEXTURES; i++)
+	{
+		if (m_textures[i].texture_resource == texture)
+		{
+			return m_textures[i].id;
+		}
+	}
+
+	// If texture not found, create a new one
+	GLuint gl_texture_object;
+
+	glGenTextures(1, &gl_texture_object);
+
+	glBindTexture(GL_TEXTURE_2D, gl_texture_object);
+
+	GLint gl_texture_format = GL::GetPixelFormat(texture->format());
+
+	// FIXME FIXME FIXME
+	//if (mGenerateMipMaps)
+	//{
+	//	glTexParameteri(target, GL_GENERATE_MIPMAP, GL_TRUE);
+	//}
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width(), texture->height(), 0,
+				 gl_texture_format, GL_UNSIGNED_BYTE, texture->data());
+
+	TextureId id;
+	id.index = m_texture_count;
+	id.id = 0;
+
+	m_textures[id.index].texture_object = gl_texture_object;
+	m_textures[id.index].texture_resource = texture;
+	m_textures[id.index].id = id;
+
+	m_texture_count++;
+
+	return id;
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::unload_texture(TextureResource* texture)
+{
+
+}
+
+//-----------------------------------------------------------------------------
+TextureId GLRenderer::reload_texture(TextureResource* old_texture, TextureResource* new_texture)
+{
+
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::check_gl_errors()
 {
 	GLenum error;
 
@@ -892,7 +881,7 @@ void GLRenderer::CheckGLErrors()
 	}
 }
 
-void GLRenderer::AddDebugLine(const Vec3& start, const Vec3& end, const Color4& color)
+void GLRenderer::add_debug_line(const Vec3& start, const Vec3& end, const Color4& color)
 {
 	if (mLinesCount < 256)
 	{
@@ -904,7 +893,7 @@ void GLRenderer::AddDebugLine(const Vec3& start, const Vec3& end, const Color4& 
 	}
 }
 
-void GLRenderer::DrawDebugLines()
+void GLRenderer::draw_debug_lines()
 {
 	if (mLinesCount == 0)
 	{
@@ -925,4 +914,3 @@ void GLRenderer::DrawDebugLines()
 }
 
 } // namespace crown
-

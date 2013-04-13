@@ -26,7 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <GL/glew.h>
-#include "TextureResource.h"
+#include <cassert>
+#include "Texture.h"
 #include "Material.h"
 #include "Pixel.h"
 
