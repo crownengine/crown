@@ -56,14 +56,12 @@ void ResourceArchive::open(const char* archive)
 	
 	m_archive_file = (FileStream*)m_filesystem->open(archive, SOM_READ);
 	
-	Log::I("Opened archive file: ", archive);
+	Log::D("Opened archive file: ", archive);
 	
 	ArchiveHeader header;
 	
 	// Read the header of the archive
 	m_archive_file->read(&header, sizeof(ArchiveHeader));
-	
-	Log::D("Found %d resources into it.", header.entries_count);
 	
 	Log::D("Version: %d", header.version);
 	Log::D("Entries: %d", header.entries_count);
@@ -91,7 +89,7 @@ void ResourceArchive::close()
 	
 	if (m_entries != NULL)
 	{
-		delete m_entries;
+		delete[] m_entries;
 	}
 	
 	m_entries = NULL;
