@@ -63,7 +63,7 @@ class ResourceManager
 {
 public:
 
-							ResourceManager(Filesystem* filesystem);
+							ResourceManager(Allocator& resource_allocator, Filesystem* filesystem);
 							~ResourceManager();
 
 	/// Loads the resource by @name and returns its ResourceId.
@@ -87,18 +87,21 @@ public:
 	/// Note that having a resource does not mean that the resource is
 	/// available for using; instead, you have to check is_loaded() to
 	/// obtain the resource availability status.
-	bool					has(ResourceId name);
+	bool					has(ResourceId name) const;
 
 	/// Returns the data associated with the @name resource.
 	/// The resource data contains resource-specific metadata
 	/// and the actual resource data. In order to correctly use
 	/// it, you have to know which type of data @name refers to
 	/// and cast accordingly.
-	void*					data(ResourceId name);
+	const void*				data(ResourceId name) const;
 	
 	/// Returns whether the @name resource is loaded (i.e. whether
 	/// you can use the data associated with it).
-	bool					is_loaded(ResourceId name);
+	bool					is_loaded(ResourceId name) const;
+
+	// Returns the number of references of the @name resource
+	uint32_t				references(ResourceId name) const;
 	
 	/// Forces the loading of all of the queued resource load requests.
 	void					flush() { m_resource_loader.flush(); }
@@ -110,6 +113,7 @@ private:
 
 private:
 
+	Allocator*				m_resource_allocator;
 	ResourceLoader			m_resource_loader;
 	MallocAllocator			m_allocator;
 	List<ResourceEntry>		m_resources;
@@ -118,4 +122,3 @@ private:
 };
 
 } // namespace crown
-

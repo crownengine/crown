@@ -36,8 +36,9 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-ResourceLoader::ResourceLoader(ResourceManager* resource_manager, Filesystem* filesystem) :
+ResourceLoader::ResourceLoader(ResourceManager* resource_manager, Allocator& resource_allocator, Filesystem* filesystem) :
 	m_resource_manager(resource_manager),
+	m_resource_allocator(&resource_allocator),
 	m_filesystem(filesystem),
 	m_resource_archive(filesystem),
 	m_resources(m_allocator)
@@ -63,9 +64,9 @@ void ResourceLoader::load(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
-void ResourceLoader::unload(ResourceId name)
+void ResourceLoader::unload(ResourceId name, void* resource)
 {
-	// do something
+	unload_by_type(name, resource);
 }
 
 //-----------------------------------------------------------------------------
@@ -93,16 +94,36 @@ void* ResourceLoader::load_by_type(ResourceId name)
 
 	if (name.type == m_texture_hash)
 	{
-		return TextureResource::load(&m_resource_archive, name);
+		return TextureResource::load(*m_resource_allocator, &m_resource_archive, name);
 	}
 
 	if (name.type == m_txt_hash)
 	{
-		return TextResource::load(&m_resource_archive, name);
+		return TextResource::load(*m_resource_allocator, &m_resource_archive, name);
 	}
 
 	return NULL;
 }
 
-} // namespace crown
+//-----------------------------------------------------------------------------
+void ResourceLoader::unload_by_type(ResourceId name, void* resource)
+{
+	if (name.type == m_config_hash)
+	{
+		return;
+	}
 
+	if (name.type == m_texture_hash)
+	{
+		TextureResource::unload(*m_resource_allocator, (TextureResource*)resource);
+	}
+
+	if (name.type == m_txt_hash)
+	{
+		TextResource::unload(*m_resource_allocator, (TextResource*)resource);
+	}
+
+	return;
+}
+
+} // namespace crown

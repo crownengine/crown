@@ -31,12 +31,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Path.h"
 #include <algorithm>
 
+#include "TextureResource.h"
+
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-ResourceManager::ResourceManager(Filesystem* filesystem) :
-	m_resource_loader(this, filesystem),
+ResourceManager::ResourceManager(Allocator& resource_allocator, Filesystem* filesystem) :
+	m_resource_allocator(&resource_allocator),
+	m_resource_loader(this, resource_allocator, filesystem),
 	m_resources(m_allocator)
 {
 }
@@ -103,12 +106,12 @@ void ResourceManager::unload(ResourceId name)
 	
 	entry.references--;
 	
-	if (entry.references == 0)
+	if (entry.references == 0 && entry.state == RS_LOADED)
 	{
+		m_resource_loader.unload(name, entry.resource);
+
 		entry.state = RS_UNLOADED;
 		entry.resource = NULL;
-
-		m_resource_loader.unload(name);
 	}
 }
 
@@ -126,7 +129,7 @@ void ResourceManager::reload(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
-bool ResourceManager::has(ResourceId name)
+bool ResourceManager::has(ResourceId name) const
 {
 	if (m_resources.size() > name.index)
 	{
@@ -137,7 +140,7 @@ bool ResourceManager::has(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
-void* ResourceManager::data(ResourceId name)
+const void* ResourceManager::data(ResourceId name) const
 {
 	assert(has(name));
 	
@@ -145,11 +148,19 @@ void* ResourceManager::data(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
-bool ResourceManager::is_loaded(ResourceId name)
+bool ResourceManager::is_loaded(ResourceId name) const
 {
 	assert(has(name));
 
 	return m_resources[name.index].state == RS_LOADED;
+}
+
+//-----------------------------------------------------------------------------
+uint32_t ResourceManager::references(ResourceId name) const
+{
+	assert(has(name));
+
+	return m_resources[name.index].references;
 }
 
 //-----------------------------------------------------------------------------
@@ -166,6 +177,11 @@ void ResourceManager::online(ResourceId name, void* resource)
 	assert(has(name));
 
 	ResourceEntry& entry = m_resources[name.index];
+
+	if (name.type == hash::fnv1a_32("tga", 3))
+	{
+		TextureResource::online((TextureResource*)resource);
+	}
 
 	entry.resource = resource;
 	entry.state = RS_LOADED;

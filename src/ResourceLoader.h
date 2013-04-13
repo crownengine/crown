@@ -34,27 +34,30 @@ namespace crown
 {
 
 class ResourceManager;
+class Allocator;
 class Filesystem;
 
 class ResourceLoader
 {
 public:
 
-						ResourceLoader(ResourceManager* resource_manager, Filesystem* filesystem);
+						ResourceLoader(ResourceManager* resource_manager, Allocator& resource_allocator, Filesystem* filesystem);
 						~ResourceLoader();
 
 	void				load(ResourceId name);
-	void				unload(ResourceId name);
+	void				unload(ResourceId name, void* resource);
 
 	void				flush();
 
 private:
 
 	void*				load_by_type(ResourceId name);
+	void				unload_by_type(ResourceId name, void* resource);
 
 private:
 
 	ResourceManager*	m_resource_manager;
+	Allocator*			m_resource_allocator;
 	Filesystem*			m_filesystem;
 
 	ResourceArchive		m_resource_archive;
