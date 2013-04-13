@@ -28,9 +28,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Color4.h"
 #include "Mat4.h"
-#include "TextureResource.h"
 #include "Point2.h"
 #include "Material.h"
+#include "Texture.h"
 
 namespace crown
 {
@@ -40,6 +40,7 @@ class Rect;
 class VertexBuffer;
 class IndexBuffer;
 class OcclusionQuery;
+class TextureResource;
 
 enum MatrixType
 {
@@ -86,17 +87,17 @@ public:
 	/**
 		Tasks to perform before a frame is rendered.
 	*/
-	virtual void _BeginFrame() = 0;
+	virtual void begin_frame() = 0;
 
 	/**
 		Tasks to perform after a frame is rendered.
 	*/
-	virtual void _EndFrame() = 0;
+	virtual void end_frame() = 0;
 
 	/**
 		Sets the clearing color of the framebuffer.
 	*/
-	virtual void SetClearColor(const Color4& color) = 0;
+	virtual void set_clear_color(const Color4& color) = 0;
 
 	/**
 		Sets the viewport.
@@ -107,7 +108,7 @@ public:
 	@param absArea
 		The viewport rectangle.
 	*/
-	virtual void _SetViewport(const Rect& absArea) = 0;
+	virtual void set_viewport(const Rect& absArea) = 0;
 
 	/**
 		Specifies material parameters.
@@ -125,7 +126,7 @@ public:
 	@param shininess
 		The specular exponent
 	*/
-	virtual void _SetMaterialParams(const Color4& ambient, const Color4& diffuse, const Color4& specular,
+	virtual void set_material_params(const Color4& ambient, const Color4& diffuse, const Color4& specular,
 					const Color4& emission, int32_t shininess) = 0;
 
 	/**
@@ -133,7 +134,7 @@ public:
 	@param lighting
 		Whether lighting is enabled or not
 	*/
-	virtual void _SetLighting(bool lighting) = 0;
+	virtual void set_lighting(bool lighting) = 0;
 
 	/**
 		Sets the global ambient light.
@@ -143,7 +144,7 @@ public:
 	@param color
 		The ambient int32_tensity
 	*/
-	virtual void _SetAmbientLight(const Color4& color) = 0;
+	virtual void set_ambient_light(const Color4& color) = 0;
 
 	/**
 		Set whether the given texture unit is enabled.
@@ -152,90 +153,82 @@ public:
 	@param texturing
 		Whether texturing is enabled or not
 	*/
-	virtual void _SetTexturing(uint32_t unit, bool texturing) = 0;
+	virtual void set_texturing(uint32_t unit, bool texturing) = 0;
 
-//	/**
-//		Sets a texture for the given texture unit.
-//	@param unit
-//		The texture unit
-//	@param texture
-//		The texture
-//	*/
-//	virtual void _SetTexture(uint32_t unit, Texture* texture) = 0;
 
-//	/**
-//		Sets the texture mode for the given texture unit.
-//	@note
-//		The texture mode specifies how the texture
-//		values are int32_terpreted when a fragment is
-//		textured.
-//	@param unit
-//		The texture unit
-//	@param mode
-//		The texture mode
-//	@param
-//		The blend color. This parameter means only when
-//		mode == TM_BLEND
-//	*/
-//	virtual void _SetTextureMode(uint32_t unit, TextureMode mode, const Color4& blendColor) = 0;
+	/**
+		Sets the texture mode for the given texture unit.
+	@note
+		The texture mode specifies how the texture
+		values are int32_terpreted when a fragment is
+		textured.
+	@param unit
+		The texture unit
+	@param mode
+		The texture mode
+	@param
+		The blend color. This parameter means only when
+		mode == TM_BLEND
+	*/
+	virtual void set_texture_mode(uint32_t unit, TextureMode mode, const Color4& blendColor) = 0;
 
-//	/**
-//		Sets the texture wrap parameter for the given texture unit.
-//	@param unit
-//		The texture unit
-//	@param wrap
-//		The wrap parameter
-//	*/
-//	virtual void _SetTextureWrap(uint32_t unit, TextureWrap wrap) = 0;
+	/**
+		Sets the texture wrap parameter for the given texture unit.
+	@param unit
+		The texture unit
+	@param wrap
+		The wrap parameter
+	*/
+	virtual void set_texture_wrap(uint32_t unit, TextureWrap wrap) = 0;
 
-//	/**
-//		Sets the filter for the given texture unit.
-//	@param unit
-//		The texture unit
-//	@filter
-//		The filter
-//	*/
-//	virtual void _SetTextureFilter(uint32_t unit, TextureFilter filter) = 0;
+	/**
+		Sets the filter for the given texture unit.
+	@param unit
+		The texture unit
+	@filter
+		The filter
+	*/
+	virtual void set_texture_filter(uint32_t unit, TextureFilter filter) = 0;
 
-	virtual void				_SetLight(uint32_t light, bool active) = 0;
-	virtual void				_SetLightParams(uint32_t light, LightType type, const Vec3& position) = 0;
-	virtual void				_SetLightColor(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular) = 0;
-	virtual void				_SetLightAttenuation(uint32_t light, float constant, float linear, float quadratic) = 0;
+	virtual void set_light(uint32_t light, bool active) = 0;
+	virtual void set_light_params(uint32_t light, LightType type, const Vec3& position) = 0;
+	virtual void set_light_color(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular) = 0;
+	virtual void set_light_attenuation(uint32_t light, float constant, float linear, float quadratic) = 0;
 
 	/**
 		Sets whether backface-culling is enabled.
 	@param culling
 		Whether backface-culling is enabled or not
 	*/
-	virtual void _SetBackfaceCulling(bool culling) = 0;
+	virtual void set_backface_culling(bool culling) = 0;
 
 	/**
 		Sets whether separate specular color is enabled.	
 	@param separate
 		Whether separate specular color is enabled or not
 	*/
-	virtual void _SetSeparateSpecularColor(bool separate) = 0;
+	virtual void set_separate_specular_color(bool separate) = 0;
 
 	/**
 		Sets whether depth test is enabled.
 	@param test
 		Whether depth test is enabled or not
 	*/
-	virtual void _SetDepthTest(bool test) = 0;
+	virtual void set_depth_test(bool test) = 0;
 
 	/**
 		Sets whether writing to depth buffer is enabled.
 	@param write
 		Whether writing is enabled or not.
 	*/
-	virtual void _SetDepthWrite(bool write) = 0;
+	virtual void set_depth_write(bool write) = 0;
 
 	/**
 		Sets the depth function to use when testing depth values.
 	@param func
 		The depth function
 	*/
-	virtual void _SetDepthFunc(CompareFunction func) = 0;
+	virtual void set_depth_func(CompareFunction func) = 0;
 
 	/**
 		Sets whether normal vectors are scaled after transformations
@@ -246,14 +239,14 @@ public:
 	@param rescale
 		Whether rescaling is enabled or not
 	*/
-	virtual void _SetRescaleNormals(bool rescale) = 0;
+	virtual void set_rescale_normals(bool rescale) = 0;
 
 	/**
 		Sets whether blending is enabled.
 	@param blending
 		Whether blending is enabled or not
 	*/
-	virtual void _SetBlending(bool blending) = 0;
+	virtual void set_blending(bool blending) = 0;
 
 	/**
 		Specifies blending parameters.
@@ -269,21 +262,21 @@ public:
 	@param color
 		The constant color used when src or dst are equal to BF_CONSTANT_COLOR
 	*/
-	virtual void _SetBlendingParams(BlendEquation equation, BlendFunction src, BlendFunction dst, const Color4& color) = 0;
+	virtual void set_blending_params(BlendEquation equation, BlendFunction src, BlendFunction dst, const Color4& color) = 0;
 
 	/**
 		Sets whether writing to color buffer is enabled.
 	@param write
 		Whether writing is enabled or not
 	*/
-	virtual void _SetColorWrite(bool write) = 0;
+	virtual void set_color_write(bool write) = 0;
 
 	/**
 		Sets whether fog is enabled.
 	@param fog
 		Whether fog is enabled or not
 	*/
-	virtual void _SetFog(bool fog) = 0;
+	virtual void set_fog(bool fog) = 0;
 
 	/**
 		Specifies fog parameters.
@@ -291,74 +284,68 @@ public:
 		This method specifies mode, int32_tensity, start
 		and end position and the color of fog.
 	*/ // TODO 
-	virtual void _SetFogParams(FogMode mode, float density, float start, float end, const Color4& color) = 0;
+	virtual void set_fog_params(FogMode mode, float density, float start, float end, const Color4& color) = 0;
 
-	virtual void _SetAlphaTest(bool test) = 0;
+	virtual void set_alpha_test(bool test) = 0;
 
-	virtual void _SetAlphaParams(CompareFunction func, float ref) = 0;
+	virtual void set_alpha_params(CompareFunction func, float ref) = 0;
 
-	virtual void _SetShadingType(ShadingType type) = 0;
+	virtual void set_shading_type(ShadingType type) = 0;
 
-	virtual void _SetPolygonMode(PolygonMode mode) = 0;
+	virtual void set_polygon_mode(PolygonMode mode) = 0;
 
-	virtual void _SetFrontFace(FrontFace face) = 0;
+	virtual void set_front_face(FrontFace face) = 0;
 
-	virtual void _SetViewportParams(int32_t x, int32_t y, int32_t width, int32_t height) = 0;
+	virtual void set_viewport_params(int32_t x, int32_t y, int32_t width, int32_t height) = 0;
 
-	virtual void _SetScissor(bool scissor) = 0;
+	virtual void set_scissor(bool scissor) = 0;
 
-	virtual void _SetScissorParams(int32_t x, int32_t y, int32_t width, int32_t height) = 0;
+	virtual void set_scissor_params(int32_t x, int32_t y, int32_t width, int32_t height) = 0;
 
-	virtual void _SetPointSprite(bool sprite) = 0;
+	virtual void set_point_sprite(bool sprite) = 0;
 
-	virtual void _SetPointSize(float size) = 0;
+	virtual void set_point_size(float size) = 0;
 
-	virtual void _SetPointParams(float min, float max) = 0;
+	virtual void set_point_params(float min, float max) = 0;
 
-	//! Creates an occlusion query object
-	virtual OcclusionQuery* CreateOcclusionQuery() = 0;
-
-	//! Creates an empty vertex buffer
-	virtual VertexBuffer* CreateVertexBuffer() = 0;
-
-	//! Creates an empty vertex buffer
-	virtual IndexBuffer* CreateIndexBuffer() = 0;
-
-//	//! Sets the texture to use in the specified layer
-//	virtual void SetTexture(uint32_t layer, Texture* texture) = 0;
+	//! Sets the texture to use in the specified layer
+	virtual void set_texture(uint32_t layer, TextureId texture) = 0;
 
 	//! Returns the current matrix
-	virtual Mat4 GetMatrix(MatrixType type) const = 0;
+	virtual Mat4 get_matrix(MatrixType type) const = 0;
 
 	//! Loads the current matrix
-	virtual void SetMatrix(MatrixType type, const Mat4& matrix) = 0;
+	virtual void set_matrix(MatrixType type, const Mat4& matrix) = 0;
 
 	//! Pushes the current model matrix
-	virtual void PushMatrix() = 0;
+	virtual void push_matrix() = 0;
 
 	//! Pops the previously pushed model matrix
-	virtual void PopMatrix() = 0;
+	virtual void pop_matrix() = 0;
 
 	//! Selects the active matrix
-	virtual void SelectMatrix(MatrixType type) = 0;
+	virtual void select_matrix(MatrixType type) = 0;
 
 	//! Sets the scissor box
-	virtual void SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
+	virtual void set_scissor_box(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
 
 	//! Gets the scissor box params
-	virtual void GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height) = 0;
+	virtual void get_scissor_box(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height) = 0;
 
-	virtual void RenderVertexIndexBuffer(const VertexBuffer* vertices, const IndexBuffer* indices) = 0;
+	virtual void render_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices) = 0;
 
-	virtual void RenderPointBuffer(const VertexBuffer* buffer) = 0;
+	virtual void render_point_buffer(const VertexBuffer* buffer) = 0;
 
 	//! Draws a Rectangle
-	virtual void DrawRectangle(const Point2& position, const Point2& dimensions, int32_t drawMode,
+	virtual void draw_rectangle(const Point2& position, const Point2& dimensions, int32_t drawMode,
 														 const Color4& borderColor = Color4::BLACK, const Color4& fillColor = Color4::WHITE) = 0;
 
-	virtual void AddDebugLine(const Vec3& start, const Vec3& end, const Color4& color) = 0;
-	virtual void DrawDebugLines() = 0;
+	virtual void add_debug_line(const Vec3& start, const Vec3& end, const Color4& color) = 0;
+	virtual void draw_debug_lines() = 0;
+
+	virtual TextureId	load_texture(TextureResource* texture) = 0;
+	virtual void		unload_texture(TextureResource* texture) = 0;
+	virtual TextureId	reload_texture(TextureResource* old_texture, TextureResource* new_texture) = 0;
 };
 
 } // namespace crown
-
