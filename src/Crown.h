@@ -90,17 +90,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Glyph.h"
 #include "Image.h"
 #include "Log.h"
-#include "Material.h"
 #include "MovableCamera.h"
 #include "Pixel.h"
 #include "ResourceArchive.h"
 #include "ResourceLoader.h"
 #include "ResourceManager.h"
 #include "Skybox.h"
-#include "TextRenderer.h"
 
 #include "TextResource.h"
 #include "TextureResource.h"
+#include "MaterialResource.h"
 
 // Engine/Filesystem
 #include "Filesystem.h"
@@ -118,6 +117,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IndexBuffer.h"
 #include "Renderer.h"
 #include "OcclusionQuery.h"
+#include "Material.h"
+#include "Texture.h"
 
 //// Engine/Windowing
 //#include "Bind.h"
