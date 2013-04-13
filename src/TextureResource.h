@@ -28,42 +28,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Resource.h"
 #include "Pixel.h"
+#include "Texture.h"
 
 namespace crown
 {
-
-enum TextureMode
-{
-	TM_MODULATE	= 0,	// Multiplies texel color by the geometry color after lighting
-	TM_REPLACE	= 1,	// Replaces the fragment color with the texel color
-	TM_DECAL	= 2,	// WTF?
-	TM_BLEND	= 3,	// Blends the texel color with a constant blending color
-	TM_ADD		= 4,	// Adds the texel color to the fragment color
-	TM_COUNT
-};
-
-
-/// Enumerates the hardware filter to use when applying a texture
-enum TextureFilter
-{
-	TF_NEAREST		= 0,
-	TF_LINEAR		= 1,
-	TF_BILINEAR		= 2,
-	TF_TRILINEAR	= 3,
-	TF_ANISOTROPIC	= 4,
-	TF_COUNT
-};
-
-
-/// Enumerates the wrapping mode to use when applying a texture
-enum TextureWrap
-{
-	TW_REPEAT			= 0,
-	TW_CLAMP			= 1,
-	TW_CLAMP_TO_EDGE	= 2,
-	TW_CLAMP_TO_BORDER	= 3,
-	TW_COUNT
-};
 
 class ResourceArchive;
 class Allocator;
@@ -73,19 +41,27 @@ class TextureResource
 public:
 
 	static TextureResource*		load(Allocator& allocator, ResourceArchive* archive, ResourceId id);
+	static void					online(TextureResource* texture);
 	static void					unload(Allocator& allocator, TextureResource* texture);
+	static void					offline();
+
+public:
+
+	PixelFormat					format() const { return m_format; }
+	uint16_t					width() const { return m_width; }
+	uint16_t					height() const { return m_height; }
+	const uint8_t*				data() const { return m_data; }
 
 private:
 
-	PixelFormat					format;
-	uint16_t					width;
-	uint16_t					height;
+	PixelFormat					m_format;
+	uint16_t					m_width;
+	uint16_t					m_height;
+	uint8_t*					m_data;
 
-	TextureMode					mode;
-	TextureFilter				filter;
-	TextureWrap					wrap;
+public:
 
-	uint8_t*					data;
+	TextureId					m_render_texture;
 };
 
 } // namespace crown
