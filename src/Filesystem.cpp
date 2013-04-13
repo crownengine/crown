@@ -185,8 +185,6 @@ Stream* Filesystem::open(const char* relative_path, StreamOpenMode mode)
 
 	get_info(m_root_path, relative_path, info);
 
-	Log::D("Filesystem::OpenStream: Found %s", info.os_path);
-
 	stream = new FileStream(mode, info.os_path);
 
 	return stream;
