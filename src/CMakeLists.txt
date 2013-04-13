@@ -6,7 +6,7 @@ set (SRC
 	Font.cpp
 	Image.cpp
 	Log.cpp
-	Material.cpp
+	MaterialResource.cpp
 	MovableCamera.cpp
 	Pixel.cpp
 	ResourceManager.cpp
@@ -14,7 +14,6 @@ set (SRC
 	ResourceArchive.cpp
 	Skybox.cpp
 	Terrain.cpp
-	TextRenderer.cpp
 	World.cpp
 	TextureResource.cpp
 	
@@ -33,7 +32,7 @@ set (HEADERS
 	Glyph.h
 	Image.h
 	Log.h
-	Material.h
+	MaterialResource.h
 	MovableCamera.h
 	Pixel.h
 	Resource.h
@@ -42,7 +41,6 @@ set (HEADERS
 	ResourceArchive.h
 	Skybox.h
 	Terrain.h
-	TextRenderer.h
 	TextureResource.h
 	World.h
 	
@@ -190,6 +188,8 @@ set (RENDERERS_HEADERS
 	renderers/IndexBuffer.h
 	renderers/VertexBuffer.h
 	renderers/OcclusionQuery.h
+	renderers/Material.h
+	renderers/Texture.h
 )
 
 set (GL_SRC
