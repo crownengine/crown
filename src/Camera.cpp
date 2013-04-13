@@ -154,8 +154,8 @@ const Frustum& Camera::GetFrustum() const
 
 void Camera::Render()
 {
-	GetDevice()->GetRenderer()->SetMatrix(MT_PROJECTION, mProjection);
-	GetDevice()->GetRenderer()->SetMatrix(MT_VIEW, mView);
+	GetDevice()->GetRenderer()->set_matrix(MT_PROJECTION, mProjection);
+	GetDevice()->GetRenderer()->set_matrix(MT_VIEW, mView);
 }
 
 void Camera::UpdateProjectionMatrix()
