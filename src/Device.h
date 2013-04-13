@@ -61,6 +61,8 @@ private:
 	bool					ParseCommandLine(int argc, char** argv);
 	void					PrintHelpMessage();
 
+private:
+
 	static const uint16_t	CROWN_MAJOR;
 	static const uint16_t	CROWN_MINOR;
 	static const uint16_t	CROWN_MICRO;

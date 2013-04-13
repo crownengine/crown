@@ -176,8 +176,8 @@ void Device::Frame()
 
 	GetInputManager()->EventLoop();
 
-		mRenderer->_BeginFrame();
-		mRenderer->_EndFrame();
+		mRenderer->begin_frame();
+		mRenderer->end_frame();
 
 	os::swap_buffers();
 }
