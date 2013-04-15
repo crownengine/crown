@@ -33,64 +33,14 @@ namespace crown
 class Filesystem;
 class FileStream;
 
-const uint32_t ARCHIVE_VERSION	= 1;	// Version of the archive
-
-struct ArchiveHeader
-{
-	uint32_t	version;			// The version number of the archive
-	uint32_t	entries_count;		// Number of resource entries in the archive
-	uint32_t	checksum;			// MD5 checksum of the archive
-	uint8_t		padding[64];		// Padding for additional data
-};
-
-struct ArchiveEntry
-{
-	uint32_t	name;				// Name of the resource (fnv1a hash)
-	uint32_t	type;				// Type of the resource (fnv1a hash)
-	uint64_t	offset;				// First byte of the resource (as absolute offset)
-	uint32_t	size;				// Size of the resource data (in bytes)
-};
-
-/// Structure of the archive
-///
-/// [ArchiveHeader]
-/// [ArchiveEntry]
-/// [ArchiveEntry]
-/// ...
-/// [ArchiveEntry]
-/// [ResourceData]
-/// [ResourceData]
-/// ...
-/// [ResourceData]
-///
-/// A valid archive must always have at least the archive header,
-/// starting at byte 0 of the archive file.
-///
-/// Newer archive versions must be totally backward compatible
-/// across minor engine releases, in order to be able to use
-/// recent version of the engine with older game archives.
-
-/// Source of resources
 class ResourceArchive
 {
 public:
 
-							ResourceArchive(Filesystem* filesystem);
-							~ResourceArchive();
+							ResourceArchive(Filesystem& fs) {}
+	virtual					~ResourceArchive() {}
 
-	void					open(const char* archive);
-	void					close();
-
-	FileStream*				find(ResourceId name);
-
-private:
-
-	Filesystem*				m_filesystem;
-	
-	FileStream*				m_archive_file;
-
-	ArchiveEntry*			m_entries;
-	uint32_t				m_entries_count;
+	virtual FileStream*		find(ResourceId name) = 0;
 };
 
 } // namespace crown
