@@ -32,12 +32,12 @@ namespace hash
 
 // Constants
 const uint32_t FNV1A_OFFSET_BASIS_32		= 2166136261u;
-const uint64_t FNV1A_OFFSET_BASIS_64		= 14695981039346656037u;
 const uint32_t FNV1A_PRIME_32				= 16777619u;
+const uint64_t FNV1A_OFFSET_BASIS_64		= 14695981039346656037u;
 const uint64_t FNV1A_PRIME_64				= 1099511628211u;
 
 // Functions
-uint32_t murmur2(const void* key, size_t len, uint32_t seed);
+uint32_t murmur2_32(const void* key, size_t len, uint32_t seed);
 uint32_t fnv1a_32(const void* key, size_t len);
 uint64_t fnv1a_64(const void* key, size_t len);
 
@@ -54,7 +54,7 @@ uint64_t fnv1a_64(const void* key, size_t len);
 // 1. It will not work incrementally.
 // 2. It will not produce the same results on little-endian and big-endian
 //    machines.
-inline uint32_t murmur2(const void* key, size_t len, uint32_t seed)
+inline uint32_t murmur2_32(const void* key, size_t len, uint32_t seed)
 {
 	assert(key != NULL);
 
