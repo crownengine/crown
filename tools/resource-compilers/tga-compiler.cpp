@@ -4,11 +4,10 @@
 #include "Crown.h"
 
 const char* root_path = NULL;
+const char* dest_path = NULL;
 const char* resource_in = NULL;
 const char* resource_out = NULL;
-
-void print_help_message(const char* program_name);
-void parse_command_line(int argc, char** argv);
+uint32_t hash_seed = 0;
 
 using namespace crown;
 
@@ -43,6 +42,7 @@ int main(int argc, char** argv)
 	// FIXME: validate input
 
 	Filesystem fs_root(root_path);
+	Filesystem fs_dest(dest_path);
 	
 	if (!fs_root.exists(resource_in))
 	{
@@ -56,8 +56,21 @@ int main(int argc, char** argv)
 	path::filename_without_extension(resource_in, resource_basename, 256);
 	path::extension(resource_in, resource_extension, 256);
 	
-	uint32_t resource_basename_hash = hash::fnv1a_32(resource_basename, string::strlen(resource_basename));
-	uint32_t resource_extension_hash = hash::fnv1a_32(resource_extension, string::strlen(resource_extension));
+	uint32_t resource_basename_hash = hash::murmur2_32(resource_basename, string::strlen(resource_basename), hash_seed);
+	uint32_t resource_extension_hash = hash::murmur2_32(resource_extension, string::strlen(resource_extension), hash_seed);
+
+	char out_filename[512];
+	out_filename[0] = '\0';
+
+	snprintf(resource_basename, 256, "%X", resource_basename_hash);
+	snprintf(resource_extension, 256, "%X", resource_extension_hash);
+	
+	string::strncat(out_filename, resource_basename, 512);
+	string::strncat(out_filename, resource_extension, 512);
+
+	resource_out = out_filename;
+
+	printf("%s => %s\n", resource_in, resource_out);
 
 	FileStream* src_file = (FileStream*)fs_root.open(resource_in, SOM_READ);
 	
@@ -139,7 +152,7 @@ int main(int argc, char** argv)
 	}
 	
 	// Open output file
-	FileStream* dest_file = (FileStream*)fs_root.open(resource_out, SOM_WRITE);
+	FileStream* dest_file = (FileStream*)fs_dest.open(resource_out, SOM_WRITE);
 	
 	ArchiveEntry archive_entry;
 	archive_entry.name = resource_basename_hash;
@@ -163,7 +176,7 @@ int main(int argc, char** argv)
 		delete[] image_data;
 	}
 	
-	fs_root.close(dest_file);
+	fs_dest.close(dest_file);
 
 	return 0;
 }
@@ -176,8 +189,9 @@ void parse_command_line(int argc, char** argv)
 	{
 		"help",         AOA_NO_ARGUMENT,       NULL,        'h',
 		"root-path",    AOA_REQUIRED_ARGUMENT, NULL,        'r',
+		"dest-path",    AOA_REQUIRED_ARGUMENT, NULL,        'd',
 		"resource-in",  AOA_REQUIRED_ARGUMENT, NULL,        'i',
-		"resource-out", AOA_REQUIRED_ARGUMENT, NULL,        'o',
+		"seed",         AOA_REQUIRED_ARGUMENT, NULL,        's',
 		NULL, 0, NULL, 0
 	};
 
@@ -212,6 +226,19 @@ void parse_command_line(int argc, char** argv)
 				
 				break;
 			}
+			// Dest path
+			case 'd':
+			{
+				if (args.option_argument() == NULL)
+				{
+					printf("%s: ERROR: missing path after `--dest-path`\n", argv[0]);
+					exit(-1);
+				}
+				
+				dest_path = args.option_argument();
+				
+				break;
+			}
 			// Resource in
 			case 'i':
 			{
@@ -225,17 +252,16 @@ void parse_command_line(int argc, char** argv)
 				
 				break;
 			}
-			// Resource out
-			case 'o':
+			case 's':
 			{
 				if (args.option_argument() == NULL)
 				{
-					printf("%s: ERROR: missing path after `--resource-out`\n", argv[0]);
+					printf("%s: ERROR: missing seed value after `--seed`\n", argv[0]);
 					exit(-1);
 				}
 
-				resource_out = args.option_argument();
-				
+				hash_seed = atoi(args.option_argument());
+
 				break;
 			}
 			default:
@@ -254,8 +280,9 @@ void print_help_message(const char* program_name)
 
 	printf("  --help                  Show this help.\n");
 	printf("  --root-path <path>      The _absolute_ <path> whether to look for the input resource.\n");
+	printf("  --dest-path <path>      The _absolute_ <path> whether to put the compiled resource.\n");
 	printf("  --resource-in <path>    The _relative_ <path> of the input resource.\n");
-	printf("  --resource-out <width>  The _relative_ <path> of the output resource.\n");
+	printf("  --seed <value>          The unsigned integer <value> of the hash seed.\n");
 }
 
 //-----------------------------------------------------------------------------
