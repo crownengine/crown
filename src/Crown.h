@@ -93,6 +93,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MovableCamera.h"
 #include "Pixel.h"
 #include "ResourceArchive.h"
+#include "ArchiveResourceArchive.h"
+#include "FileResourceArchive.h"
 #include "ResourceLoader.h"
 #include "ResourceManager.h"
 #include "Skybox.h"

@@ -11,13 +11,14 @@ set (SRC
 	Pixel.cpp
 	ResourceManager.cpp
 	ResourceLoader.cpp
-	ResourceArchive.cpp
 	Skybox.cpp
 	Terrain.cpp
 	World.cpp
 	TextureResource.cpp
 	
 	TextResource.cpp
+	ArchiveResourceArchive.cpp
+	FileResourceArchive.cpp
 )
 
 set (HEADERS
@@ -45,6 +46,8 @@ set (HEADERS
 	World.h
 	
 	TextResource.h
+	ArchiveResourceArchive.h
+	FileResourceArchive.h
 )
 
 set (CORE_SRC
