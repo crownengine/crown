@@ -58,8 +58,9 @@ ResourceId ResourceManager::load(const char* name)
 	path::filename_without_extension(name, basename, 512);
 	path::extension(name, extension, 512);
 
-	uint32_t name_hash = hash::fnv1a_32(basename, string::strlen(basename));
-	uint32_t type_hash = hash::fnv1a_32(extension, string::strlen(extension));
+	// FIXME hardcoded seed
+	uint32_t name_hash = hash::murmur2_32(basename, string::strlen(basename), 0);
+	uint32_t type_hash = hash::murmur2_32(extension, string::strlen(extension), 0);
 
 	return load(name_hash, type_hash);
 }
@@ -184,7 +185,8 @@ void ResourceManager::online(ResourceId name, void* resource)
 
 	ResourceEntry& entry = m_resources[name.index];
 
-	if (name.type == hash::fnv1a_32("tga", 3))
+	// FIXME hardcoded seed
+	if (name.type == hash::murmur2_32("tga", 3, 0))
 	{
 		TextureResource::online((TextureResource*)resource);
 	}

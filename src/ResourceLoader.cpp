@@ -44,10 +44,11 @@ ResourceLoader::ResourceLoader(Allocator& resource_allocator, ResourceArchive& a
 	m_loading_callback(NULL),
 	m_online_callback(NULL)
 {
-	m_config_hash = hash::fnv1a_32("config", string::strlen("config"));
-	m_texture_hash = hash::fnv1a_32("tga", string::strlen("tga"));
-	m_mesh_hash = hash::fnv1a_32("mesh", string::strlen("mesh"));
-	m_txt_hash = hash::fnv1a_32("txt", 3);
+	// FIXME hardcoded seed
+	m_config_hash = hash::murmur2_32("config", string::strlen("config"), 0);
+	m_texture_hash = hash::murmur2_32("tga", string::strlen("tga"), 0);
+	m_mesh_hash = hash::murmur2_32("mesh", string::strlen("mesh"), 0);
+	m_txt_hash = hash::murmur2_32("txt", 3, 0);
 }
 
 //-----------------------------------------------------------------------------
