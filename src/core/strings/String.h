@@ -49,6 +49,7 @@ const char*			strstr(const char* str1, const char* str2);
 int32_t				strcmp(const char* str1, const char* str2);
 char*				strcpy(char* dest, const char* src);
 char*				strncpy(char* dest, const char* src, size_t len);
+char*				strncat(char* dest, const char* src, size_t len);
 
 const char*			begin(const char* str);
 const char*			end(const char* str);
@@ -338,6 +339,12 @@ inline char* strcpy(char* dest, const char* src)
 inline char* strncpy(char* dest, const char* src, size_t len)
 {
 	return ::strncpy(dest, src, len);
+}
+
+//-----------------------------------------------------------------------------
+inline char* strncat(char* dest, const char* src, size_t len)
+{
+	return ::strncat(dest, src, len);
 }
 
 //-----------------------------------------------------------------------------
