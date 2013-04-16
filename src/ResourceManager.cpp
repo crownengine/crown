@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "String.h"
 #include "Hash.h"
 #include "Path.h"
+#include "Log.h"
 #include <algorithm>
 
 #include "TextureResource.h"
@@ -37,9 +38,8 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-ResourceManager::ResourceManager(Allocator& resource_allocator, Filesystem* filesystem) :
-	m_resource_allocator(&resource_allocator),
-	m_resource_loader(this, resource_allocator, filesystem),
+ResourceManager::ResourceManager(ResourceLoader& loader) :
+	m_resource_loader(loader),
 	m_resources(m_allocator)
 {
 }
@@ -164,6 +164,12 @@ uint32_t ResourceManager::references(ResourceId name) const
 }
 
 //-----------------------------------------------------------------------------
+void ResourceManager::flush()
+{
+	m_resource_loader.flush();
+}
+
+//-----------------------------------------------------------------------------
 void ResourceManager::loading(ResourceId name)
 {
 	assert(has(name));
@@ -185,6 +191,22 @@ void ResourceManager::online(ResourceId name, void* resource)
 
 	entry.resource = resource;
 	entry.state = RS_LOADED;
+}
+
+//-----------------------------------------------------------------------------
+void ResourceManager::loading_callback_wrapper(void* thiz, ResourceId name)
+{
+	ResourceManager* self = (ResourceManager*)thiz;
+
+	self->loading(name);
+}
+
+//-----------------------------------------------------------------------------
+void ResourceManager::online_callback_wrapper(void* thiz, ResourceId name, void* resource)
+{
+	ResourceManager* self = (ResourceManager*)thiz;
+
+	self->online(name, resource);
 }
 
 } // namespace crown

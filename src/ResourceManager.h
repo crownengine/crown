@@ -28,13 +28,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "List.h"
 #include "Resource.h"
-#include "ResourceLoader.h"
 #include "MallocAllocator.h"
 
 namespace crown
 {
-
-class Filesystem;
 
 struct ResourceEntry
 {
@@ -63,7 +60,7 @@ class ResourceManager
 {
 public:
 
-							ResourceManager(Allocator& resource_allocator, Filesystem* filesystem);
+							ResourceManager(ResourceLoader& loader);
 							~ResourceManager();
 
 	/// Loads the resource by @name and returns its ResourceId.
@@ -104,7 +101,11 @@ public:
 	uint32_t				references(ResourceId name) const;
 	
 	/// Forces the loading of all of the queued resource load requests.
-	void					flush() { m_resource_loader.flush(); }
+	void					flush();
+
+	/// Callback wrappers to member functions
+	void					loading_callback_wrapper(void* thiz, ResourceId name);
+	void					online_callback_wrapper(void* thiz, ResourceId name, void* resource);
 
 private:
 
@@ -113,8 +114,8 @@ private:
 
 private:
 
-	Allocator*				m_resource_allocator;
-	ResourceLoader			m_resource_loader;
+	ResourceLoader&			m_resource_loader;
+
 	MallocAllocator			m_allocator;
 	List<ResourceEntry>		m_resources;
 	

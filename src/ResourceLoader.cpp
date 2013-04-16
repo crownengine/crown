@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "ResourceLoader.h"
 #include "ResourceManager.h"
+#include "ResourceArchive.h"
 #include "String.h"
 #include "Hash.h"
 #include "TextureResource.h"
@@ -36,12 +37,12 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-ResourceLoader::ResourceLoader(ResourceManager* resource_manager, Allocator& resource_allocator, Filesystem* filesystem) :
-	m_resource_manager(resource_manager),
-	m_resource_allocator(&resource_allocator),
-	m_filesystem(filesystem),
-	m_resource_archive(filesystem),
-	m_resources(m_allocator)
+ResourceLoader::ResourceLoader(Allocator& resource_allocator, ResourceArchive& archive) :
+	m_resource_allocator(resource_allocator),
+	m_resource_archive(archive),
+	m_resources(m_allocator),
+	m_loading_callback(NULL),
+	m_online_callback(NULL)
 {
 	m_config_hash = hash::fnv1a_32("config", string::strlen("config"));
 	m_texture_hash = hash::fnv1a_32("tga", string::strlen("tga"));
@@ -60,7 +61,10 @@ void ResourceLoader::load(ResourceId name)
 	m_resources.push_back(name);
 	
 	// callback to the resource manager
-	m_resource_manager->loading(name);
+	if (m_loading_callback != NULL)
+	{
+		m_loading_callback(name);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -78,10 +82,25 @@ void ResourceLoader::flush()
 		
 		void* data = load_by_type(resource);
 
-		m_resource_manager->online(m_resources.front(), data);
+		if (m_online_callback != NULL)
+		{
+			m_online_callback(m_resources.front(), data);
+		}
 
 		m_resources.pop_front();
 	}
+}
+
+//-----------------------------------------------------------------------------
+void ResourceLoader::set_loading_callback(ResourceLoadingCallback f)
+{
+	m_loading_callback = f;
+}
+
+//-----------------------------------------------------------------------------
+void ResourceLoader::set_online_callback(ResourceOnlineCallback f)
+{
+	m_online_callback = f;
 }
 
 //-----------------------------------------------------------------------------
@@ -94,12 +113,12 @@ void* ResourceLoader::load_by_type(ResourceId name)
 
 	if (name.type == m_texture_hash)
 	{
-		return TextureResource::load(*m_resource_allocator, &m_resource_archive, name);
+		return TextureResource::load(m_resource_allocator, &m_resource_archive, name);
 	}
 
 	if (name.type == m_txt_hash)
 	{
-		return TextResource::load(*m_resource_allocator, &m_resource_archive, name);
+		return TextResource::load(m_resource_allocator, &m_resource_archive, name);
 	}
 
 	return NULL;
@@ -115,12 +134,12 @@ void ResourceLoader::unload_by_type(ResourceId name, void* resource)
 
 	if (name.type == m_texture_hash)
 	{
-		TextureResource::unload(*m_resource_allocator, (TextureResource*)resource);
+		TextureResource::unload(m_resource_allocator, (TextureResource*)resource);
 	}
 
 	if (name.type == m_txt_hash)
 	{
-		TextResource::unload(*m_resource_allocator, (TextResource*)resource);
+		TextResource::unload(m_resource_allocator, (TextResource*)resource);
 	}
 
 	return;

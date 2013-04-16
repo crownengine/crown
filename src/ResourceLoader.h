@@ -28,26 +28,32 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Queue.h"
 #include "Resource.h"
 #include "MallocAllocator.h"
-#include "ResourceArchive.h"
 
 namespace crown
 {
 
 class ResourceManager;
 class Allocator;
-class Filesystem;
+class ResourceArchive;
+
+// Callbacks typedefs
+typedef void (*ResourceLoadingCallback)(ResourceId);
+typedef void (*ResourceOnlineCallback)(ResourceId, void*);
 
 class ResourceLoader
 {
 public:
 
-						ResourceLoader(ResourceManager* resource_manager, Allocator& resource_allocator, Filesystem* filesystem);
+						ResourceLoader(Allocator& resource_allocator, ResourceArchive& archive);
 						~ResourceLoader();
 
 	void				load(ResourceId name);
 	void				unload(ResourceId name, void* resource);
 
 	void				flush();
+
+	void				set_loading_callback(ResourceLoadingCallback f);
+	void				set_online_callback(ResourceOnlineCallback f);
 
 private:
 
@@ -56,14 +62,15 @@ private:
 
 private:
 
-	ResourceManager*	m_resource_manager;
-	Allocator*			m_resource_allocator;
-	Filesystem*			m_filesystem;
+	Allocator&			m_resource_allocator;
+	ResourceArchive&	m_resource_archive;
 
-	ResourceArchive		m_resource_archive;
 	MallocAllocator		m_allocator;
-
 	Queue<ResourceId>	m_resources;
+
+	// Callbacks
+	ResourceLoadingCallback m_loading_callback;
+	ResourceOnlineCallback	m_online_callback;
 	
 	uint32_t			m_config_hash;
 	uint32_t			m_texture_hash;
@@ -72,4 +79,3 @@ private:
 };
 
 } // namespace crown
-
