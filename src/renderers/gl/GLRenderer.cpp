@@ -813,11 +813,8 @@ TextureId GLRenderer::load_texture(TextureResource* texture)
 
 	GLint gl_texture_format = GL::GetPixelFormat(texture->format());
 
-	// FIXME FIXME FIXME
-	//if (mGenerateMipMaps)
-	//{
-	//	glTexParameteri(target, GL_GENERATE_MIPMAP, GL_TRUE);
-	//}
+	//FIXME FIXME FIXME
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width(), texture->height(), 0,
 				 gl_texture_format, GL_UNSIGNED_BYTE, texture->data());
