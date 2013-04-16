@@ -8,11 +8,10 @@
 
 using namespace crown;
 
-const char* command = NULL;
-const char* option = NULL;
 const char* root_path = NULL;
 const char* resource_in = NULL;
 const char* resource_out = NULL;
+
 
 void 	parse_command_line(int argc, char** argv);
 void 	print_help_message(const char* program_name);
@@ -67,7 +66,10 @@ int main(int argc, char** argv)
 	dest_file->write(&src_file_size, sizeof(uint32_t));
 	dest_file->write(buffer, src_file_size);
 
+	fs_root.delete_file(tmp_file);
 	fs_root.close(dest_file);	
+
+	printf("Resource compilation completed: %s\n", resource_out);
 
 	return 0;
 }
@@ -162,11 +164,6 @@ void print_help_message(const char* program_name)
 
 void compile_script(char* tmp_out)
 {
-	char* command = "luajit";
-	char* option = "-bl";
-
-	size_t in_len = strlen(root_path) + strlen(resource_in);
-
 	char in[256];
 	strcpy(in, root_path);
 	strcat(in, resource_in);
@@ -181,7 +178,7 @@ void compile_script(char* tmp_out)
 
 	strcpy(tmp_out, rel_out);
 
-	// Fork for exec
+	// Fork for execl
 	pid_t child = 0;
 
 	child = fork();
@@ -198,6 +195,6 @@ void compile_script(char* tmp_out)
 	}
 	else
 	{
-		execl("/usr/local/bin/luajit", command, option, in, out, NULL);
+		execl("/usr/local/bin/luajit", "luajit", "-bl", in, out, NULL);
 	}
 }

@@ -17,7 +17,7 @@ add_executable(resource-hash resource-compilers/resource-hash.cpp)
 
 add_executable(txt-compiler resource-compilers/txt-compiler.cpp)
 add_executable(tga-compiler resource-compilers/tga-compiler.cpp)
-add_executable(script-compiler resource-compilers/script-compiler.cpp)
+add_executable(lua-compiler resource-compilers/lua-compiler.cpp)
 
 add_executable(resource-linker resource-compilers/resource-linker.cpp)
 
@@ -27,7 +27,7 @@ target_link_libraries(resource-hash crown)
 
 target_link_libraries(txt-compiler crown)
 target_link_libraries(tga-compiler crown)
-target_link_libraries(script-compiler crown)
+target_link_libraries(lua-compiler crown)
 
 target_link_libraries(resource-linker crown)
 
