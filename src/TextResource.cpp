@@ -29,8 +29,6 @@ TextResource* TextResource::load(Allocator& allocator, ResourceArchive* archive,
 		return resource;
 	}
 
-	Log::E("Unable to find the resource.");
-
 	return NULL;
 }
 
