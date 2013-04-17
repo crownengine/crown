@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdlib>
 #include <sys/time.h>
 #include <time.h>
+#include <pthread.h>
 
 namespace crown
 {
@@ -229,6 +230,71 @@ uint64_t microseconds()
 	return (tmp.tv_sec - base_time.tv_sec) * 1000000 + (tmp.tv_nsec - base_time.tv_nsec) / 1000;
 }
 
+//-----------------------------------------------------------------------------
+void thread_create(ThreadFunction f, void* params, OSThread& thread, const char* name)
+{
+	OSThread tid;
+	tid.name = name;
+
+	// Make thread joinable
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+	// Create thread
+	int rc = pthread_create(&tid.thread, &attr, f, (void*)params);
+
+	if (rc != 0)
+	{
+		os::printf("OS: ERROR: Unable to create the thread '%s' Error code: %d\n", name, rc);
+		exit(-1);
+	}
+
+	// Free memory
+	pthread_attr_destroy(&attr);
+
+	thread = tid;
+}
+
+//-----------------------------------------------------------------------------
+void thread_join(OSThread thread)
+{
+	pthread_join(thread.thread, NULL);
+}
+
+//-----------------------------------------------------------------------------
+void thread_detach(OSThread thread)
+{
+	pthread_detach(thread.thread);
+}
+
+//-----------------------------------------------------------------------------
+void mutex_create(OSMutex& mutex)
+{
+	OSMutex mut;
+
+	pthread_mutex_init(&mut.mutex, NULL);
+
+	mutex = mut;
+}
+
+//-----------------------------------------------------------------------------
+void mutex_destroy(OSMutex mutex)
+{
+	pthread_mutex_destroy(&mutex.mutex);
+}
+
+//-----------------------------------------------------------------------------
+void mutex_lock(OSMutex mutex)
+{
+	pthread_mutex_lock(&mutex.mutex);
+}
+
+//-----------------------------------------------------------------------------
+void mutex_unlock(OSMutex mutex)
+{
+	pthread_mutex_unlock(&mutex.mutex);
+}
+
 } // namespace os
 } // namespace crown
-

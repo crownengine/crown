@@ -29,6 +29,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Types.h"
 
+#ifdef LINUX
+	#include <pthread.h>
+#endif
+
 namespace crown
 {
 
@@ -44,6 +48,20 @@ const size_t	MAX_PATH_LENGTH = 1024;
 const char		PATH_SEPARATOR = '/';
 
 const size_t	MAX_EVENTS = 512;
+
+const size_t	MAX_THREADS = 16;
+const size_t	MAX_MUTEXES = 16;
+
+struct OSThread
+{
+	pthread_t	thread;
+	const char*	name;
+};
+
+struct OSMutex
+{
+	pthread_mutex_t mutex;
+};
 #endif
 
 #ifdef WINDOWS
@@ -51,6 +69,9 @@ const size_t	MAX_PATH_LENGTH = 1024;
 const char		PATH_SEPARATOR = '\\';
 
 const size_t	MAX_EVENTS = 512;
+
+const size_t	MAX_THREADS = 16;
+const size_t	MAX_MUTEXES = 16;
 #endif
 
 //-----------------------------------------------------------------------------
@@ -122,12 +143,25 @@ struct OSEvent
 };
 
 //! Pushes @a event into @a event_queue
-void				push_event(OSEventType type, int32_t data_a, int32_t data_b, int32_t data_c, int32_t data_d);
+void			push_event(OSEventType type, int32_t data_a, int32_t data_b, int32_t data_c, int32_t data_d);
 
 //! Returns the event on top of the event_queue	
-OSEvent&			pop_event();
+OSEvent&		pop_event();
 
+//-----------------------------------------------------------------------------
+// Threads
+//-----------------------------------------------------------------------------
 
+typedef			void* (*ThreadFunction)(void*);
+
+void			thread_create(ThreadFunction f, void* params, OSThread& thread, const char* name);
+void			thread_join(OSThread thread);
+void			thread_detach(OSThread thread);
+
+void			mutex_create(OSMutex& mutex);
+void			mutex_destroy(OSMutex mutex);
+void			mutex_lock(OSMutex mutex);
+void			mutex_unlock(OSMutex mutex);
 
 //-----------------------------------------------------------------------------
 //		Networking
