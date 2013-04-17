@@ -62,6 +62,12 @@ struct OSMutex
 {
 	pthread_mutex_t mutex;
 };
+
+struct OSCond
+{
+	pthread_cond_t cond;
+};
+
 #endif
 
 #ifdef WINDOWS
@@ -154,14 +160,18 @@ OSEvent&		pop_event();
 
 typedef			void* (*ThreadFunction)(void*);
 
-void			thread_create(ThreadFunction f, void* params, OSThread& thread, const char* name);
-void			thread_join(OSThread thread);
-void			thread_detach(OSThread thread);
+void			thread_create(ThreadFunction f, void* params, OSThread* thread, const char* name);
+void			thread_join(OSThread* thread);
+void			thread_detach(OSThread* thread);
 
-void			mutex_create(OSMutex& mutex);
-void			mutex_destroy(OSMutex mutex);
-void			mutex_lock(OSMutex mutex);
-void			mutex_unlock(OSMutex mutex);
+void			mutex_create(OSMutex* mutex);
+void			mutex_destroy(OSMutex* mutex);
+void			mutex_lock(OSMutex* mutex);
+void			mutex_unlock(OSMutex* mutex);
+void			cond_create(OSCond* cond);
+void			cond_destroy(OSCond* cond);
+void			cond_signal(OSCond* cond);
+void			cond_wait(OSCond* cond, OSMutex* mutex);
 
 //-----------------------------------------------------------------------------
 //		Networking
