@@ -169,11 +169,10 @@ set (COMPRESSORS_HEADERS
 set (THREADS_HEADERS
 	core/threads/Thread.h
 	core/threads/Mutex.h
+	core/threads/Cond.h
 )
 
 set (THREADS_SRC
-	core/threads/Thread.cpp
-	core/threads/Mutex.cpp
 )
 
 set (INPUT_SRC

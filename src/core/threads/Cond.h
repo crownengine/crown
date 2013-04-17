@@ -26,52 +26,49 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "Mutex.h"
 #include "OS.h"
 
 namespace crown
 {
 
-class Mutex
+class Cond
 {
 public:
 
-					Mutex();
-					~Mutex();
+					Cond();
+					~Cond();
 
-	void			lock();
-	void			unlock();
-
-private:
-
-	os::OSMutex		m_mutex;
+	void			signal();
+	void			wait(Mutex& mutex);
 
 private:
 
-	friend class	Cond;
+	os::OSCond		m_cond;
 };
 
 //-----------------------------------------------------------------------------
-inline Mutex::Mutex()
+inline Cond::Cond()
 {
-	os::mutex_create(&m_mutex);
+	os::cond_create(&m_cond);
 }
 
 //-----------------------------------------------------------------------------
-inline Mutex::~Mutex()
+inline Cond::~Cond()
 {
-	os::mutex_destroy(&m_mutex);
+	os::cond_destroy(&m_cond);
 }
 
 //-----------------------------------------------------------------------------
-inline void Mutex::lock()
+inline void Cond::signal()
 {
-	os::mutex_lock(&m_mutex);
+	os::cond_signal(&m_cond);
 }
 
 //-----------------------------------------------------------------------------
-inline void Mutex::unlock()
+inline void Cond::wait(Mutex& mutex)
 {
-	os::mutex_unlock(&m_mutex);
+	os::cond_wait(&m_cond, &mutex.m_mutex);
 }
 
 } // namespace crown

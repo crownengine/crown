@@ -86,6 +86,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Threads
 #include "Thread.h"
 #include "Mutex.h"
+#include "Cond.h"
 
 // Engine
 #include "Camera.h"
