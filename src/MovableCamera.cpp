@@ -120,7 +120,7 @@ void MovableCamera::StrafeRight()
 }
 
 //-----------------------------------------------------------------------
-void MovableCamera::SetRotation(const real x, const real y)
+void MovableCamera::SetRotation(const float x, const float y)
 {
 	Vec3 right(1, 0, 0);
 	Vec3 look;
@@ -138,8 +138,6 @@ void MovableCamera::SetRotation(const real x, const real y)
 	mUp = m * up;
 
 	Camera::SetLookAt(look);
-
-	// FIXME: Terrain sample must be fixed for testing
 }
 
 } // namespace crown

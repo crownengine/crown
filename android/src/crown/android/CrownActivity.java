@@ -29,7 +29,8 @@ public class CrownActivity extends Activity
 	private CrownView 			mView;
 
 	// Input attributes
-	private CrownTouch 			mTouchListener;
+	private CrownTouch 			mTouch;
+	private CrownSensor			mSensor;
 
 	/**
 	*
@@ -47,7 +48,8 @@ public class CrownActivity extends Activity
 		setContentView(mView);
 
 		// Init Input
-		mTouchListener = new CrownTouch();
+		mTouch = new CrownTouch();
+		mSensor = new CrownSensor(this);
     }
 
 	/**
@@ -75,9 +77,8 @@ public class CrownActivity extends Activity
         mView.onResume();
 		
 		// init accelerometer
-		if (!CrownAccelerometer.startListening(this))
+		if (!mSensor.startListening(this))
 		{
-			Log.i(TAG, "Device has no accelerometer. App terminated.");
 			finish();
 		}
 	}
@@ -99,7 +100,7 @@ public class CrownActivity extends Activity
 		super.onStop();
 
 		// stop accelerometer
-		CrownAccelerometer.stopListening();
+		mSensor.stopListening();
 	}
 
 	/**
@@ -116,7 +117,7 @@ public class CrownActivity extends Activity
 	*/
 	public boolean onTouchEvent(MotionEvent event)
 	{
-		mTouchListener.onTouch(event);
+		mTouch.onTouch(event);
 		return true;
 	}
 }

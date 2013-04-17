@@ -1,1 +1,1 @@
-/home/mikymod/Repositories/git/crown/src/CMakeLists.txt
+../../src/CMakeLists.txt

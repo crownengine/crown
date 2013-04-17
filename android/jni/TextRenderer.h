@@ -1,1 +1,1 @@
-/home/mikymod/Repositories/git/crown/src/TextRenderer.h
+../../src/TextRenderer.h

@@ -1,1 +1,1 @@
-/home/mikymod/Repositories/git/crown/src/Pixel.cpp
+../../src/Pixel.cpp

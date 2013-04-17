@@ -62,7 +62,7 @@ public:
 		GetDevice()->GetRenderer()->SetMatrix(MT_MODEL, Mat4::IDENTITY);
 
 		Mat4 projection;
-		projection.build_projection_perspective_rh(90.0f, 800.0f/480.0f, 0.1f, 100.0f);
+		projection.build_projection_perspective_rh(90.0f, (float) width/height, 0.1f, 100.0f);
 		GetDevice()->GetRenderer()->SetMatrix(MT_PROJECTION, projection);
 
 		GetDevice()->GetRenderer()->SetClearColor(Color4::LIGHTBLUE);

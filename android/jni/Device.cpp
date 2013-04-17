@@ -1,1 +1,1 @@
-/home/mikymod/Repositories/git/crown/src/Device.cpp
+../../src/Device.cpp

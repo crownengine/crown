@@ -1,1 +1,1 @@
-/home/mikymod/Repositories/git/crown/src/Image.cpp
+../../src/Image.cpp
