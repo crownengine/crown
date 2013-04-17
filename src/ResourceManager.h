@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "List.h"
+#include "Queue.h"
 #include "Resource.h"
 #include "MallocAllocator.h"
 
@@ -75,8 +76,12 @@ public:
 	/// See ResourceManager::load(const char* name) for details.
 	ResourceId				load(uint32_t name, uint32_t type);
 
+	/// Unloads the @resource, freeing up all the memory associated by it
+	/// and eventually any global object associated with it.
+	/// (Such as texture objects, vertex buffers etc.)
 	void					unload(ResourceId name);
 
+	/// Reloads the @resource
 	void					reload(ResourceId name);
 
 	/// Returns whether the manager has the @name resource into
@@ -97,19 +102,14 @@ public:
 	/// you can use the data associated with it).
 	bool					is_loaded(ResourceId name) const;
 
-	// Returns the number of references of the @name resource
+	// Returns the number of references to the @resource
 	uint32_t				references(ResourceId name) const;
-	
-	/// Forces the loading of all of the queued resource load requests.
-	void					flush();
 
-	/// Callback wrappers to member functions
-	void					loading_callback_wrapper(void* thiz, ResourceId name);
-	void					online_callback_wrapper(void* thiz, ResourceId name, void* resource);
+	void					flush_load_queue();
+	void					bring_loaded_online();
 
 private:
 
-	void					loading(ResourceId name);
 	void					online(ResourceId name, void* resource);
 
 private:
@@ -118,8 +118,8 @@ private:
 
 	MallocAllocator			m_allocator;
 	List<ResourceEntry>		m_resources;
-	
-	friend class			ResourceLoader;
+
+	Queue<ResourceId>		m_loading_queue;
 };
 
 } // namespace crown

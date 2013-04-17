@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Hash.h"
 #include "TextureResource.h"
 #include "TextResource.h"
+#include "Log.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -40,9 +41,9 @@ namespace crown
 ResourceLoader::ResourceLoader(Allocator& resource_allocator, ResourceArchive& archive) :
 	m_resource_allocator(resource_allocator),
 	m_resource_archive(archive),
-	m_resources(m_allocator),
-	m_loading_callback(NULL),
-	m_online_callback(NULL)
+	m_waiting_resources(m_allocator),
+	m_loaded_resources(m_allocator),
+	m_thread(ResourceLoader::background_thread, (void*)this, "resource-loader-thread")
 {
 	// FIXME hardcoded seed
 	m_config_hash = hash::murmur2_32("config", string::strlen("config"), 0);
@@ -59,13 +60,11 @@ ResourceLoader::~ResourceLoader()
 //-----------------------------------------------------------------------------
 void ResourceLoader::load(ResourceId name)
 {
-	m_resources.push_back(name);
-	
-	// callback to the resource manager
-	if (m_loading_callback != NULL)
-	{
-		m_loading_callback(name);
-	}
+	m_waiting_mutex.lock();
+
+	m_waiting_resources.push_back(name);
+
+	m_waiting_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
@@ -75,49 +74,49 @@ void ResourceLoader::unload(ResourceId name, void* resource)
 }
 
 //-----------------------------------------------------------------------------
-void ResourceLoader::flush()
+void ResourceLoader::background_load()
 {
-	while (m_resources.size() > 0)
+	// FIXME: Maybe epic crash because of concurrent access to the same allocator?
+	while (true)
 	{
-		ResourceId& resource = m_resources.front();
-		
-		void* data = load_by_type(resource);
-
-		if (m_online_callback != NULL)
+		if (m_waiting_resources.size() > 0)
 		{
-			m_online_callback(m_resources.front(), data);
-		}
+			m_waiting_mutex.lock();
 
-		m_resources.pop_front();
+			ResourceId resource = m_waiting_resources.front();
+			m_waiting_resources.pop_front();
+
+			m_waiting_mutex.unlock();
+
+			void* data = load_by_type(resource);
+
+			LoadedResource lr;
+			lr.resource = resource;
+			lr.data = data;
+
+			m_loaded_mutex.lock();
+
+			m_loaded_resources.push_back(lr);
+
+			m_loaded_mutex.unlock();
+			
+			m_waiting_mutex.unlock();
+		}
 	}
 }
 
 //-----------------------------------------------------------------------------
-void ResourceLoader::set_loading_callback(ResourceLoadingCallback f)
-{
-	m_loading_callback = f;
-}
-
-//-----------------------------------------------------------------------------
-void ResourceLoader::set_online_callback(ResourceOnlineCallback f)
-{
-	m_online_callback = f;
-}
-
-//-----------------------------------------------------------------------------
-void* ResourceLoader::load_by_type(ResourceId name)
+void* ResourceLoader::load_by_type(ResourceId name) const
 {
 	if (name.type == m_config_hash)
 	{
 		return NULL;
 	}
-
-	if (name.type == m_texture_hash)
+	else if (name.type == m_texture_hash)
 	{
 		return TextureResource::load(m_resource_allocator, &m_resource_archive, name);
 	}
-
-	if (name.type == m_txt_hash)
+	else if (name.type == m_txt_hash)
 	{
 		return TextResource::load(m_resource_allocator, &m_resource_archive, name);
 	}
@@ -126,7 +125,7 @@ void* ResourceLoader::load_by_type(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
-void ResourceLoader::unload_by_type(ResourceId name, void* resource)
+void ResourceLoader::unload_by_type(ResourceId name, void* resource) const
 {
 	if (name.type == m_config_hash)
 	{
@@ -144,6 +143,14 @@ void ResourceLoader::unload_by_type(ResourceId name, void* resource)
 	}
 
 	return;
+}
+
+//-----------------------------------------------------------------------------
+void* ResourceLoader::background_thread(void* thiz)
+{
+	ResourceLoader* loader = (ResourceLoader*)thiz;
+
+	loader->background_load();
 }
 
 } // namespace crown

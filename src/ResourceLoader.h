@@ -28,17 +28,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Queue.h"
 #include "Resource.h"
 #include "MallocAllocator.h"
+#include "ResourceManager.h"
+#include "OS.h"
+#include "Thread.h"
+#include "Mutex.h"
 
 namespace crown
 {
 
-class ResourceManager;
 class Allocator;
 class ResourceArchive;
 
-// Callbacks typedefs
-typedef void (*ResourceLoadingCallback)(ResourceId);
-typedef void (*ResourceOnlineCallback)(ResourceId, void*);
+struct LoadedResource
+{
+	ResourceId	resource;
+	void*		data;
+};
 
 class ResourceLoader
 {
@@ -50,15 +55,15 @@ public:
 	void				load(ResourceId name);
 	void				unload(ResourceId name, void* resource);
 
-	void				flush();
+private:
 
-	void				set_loading_callback(ResourceLoadingCallback f);
-	void				set_online_callback(ResourceOnlineCallback f);
+	void				background_load();
+	void*				load_by_type(ResourceId name) const;
+	void				unload_by_type(ResourceId name, void* resource) const;
 
 private:
 
-	void*				load_by_type(ResourceId name);
-	void				unload_by_type(ResourceId name, void* resource);
+	static void*		background_thread(void* thiz);
 
 private:
 
@@ -66,16 +71,20 @@ private:
 	ResourceArchive&	m_resource_archive;
 
 	MallocAllocator		m_allocator;
-	Queue<ResourceId>	m_resources;
 
-	// Callbacks
-	ResourceLoadingCallback m_loading_callback;
-	ResourceOnlineCallback	m_online_callback;
-	
+	Mutex				m_waiting_mutex;
+	Queue<ResourceId>	m_waiting_resources;
+	Mutex				m_loaded_mutex;
+	Queue<LoadedResource>	m_loaded_resources;
+
+	Thread				m_thread;
+
 	uint32_t			m_config_hash;
 	uint32_t			m_texture_hash;
 	uint32_t			m_mesh_hash;
 	uint32_t			m_txt_hash;
+
+	friend class		ResourceManager;
 };
 
 } // namespace crown

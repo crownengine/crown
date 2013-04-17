@@ -40,7 +40,8 @@ namespace crown
 //-----------------------------------------------------------------------------
 ResourceManager::ResourceManager(ResourceLoader& loader) :
 	m_resource_loader(loader),
-	m_resources(m_allocator)
+	m_resources(m_allocator),
+	m_loading_queue(m_allocator)
 {
 }
 
@@ -75,19 +76,20 @@ ResourceId ResourceManager::load(uint32_t name, uint32_t type)
 	if (entry == m_resources.end())
 	{
 		ResourceId id;
+
 		id.name = name;
 		id.type = type;
 		id.index = m_resources.size();
 
 		ResourceEntry entry;
+
 		entry.id = id;
 		entry.state = RS_UNLOADED;
 		entry.references = 1;
 		entry.resource = NULL;
 
 		m_resources.push_back(entry);
-
-		m_resource_loader.load(id);
+		m_loading_queue.push_back(id);
 
 		return id;
 	}
@@ -165,24 +167,42 @@ uint32_t ResourceManager::references(ResourceId name) const
 }
 
 //-----------------------------------------------------------------------------
-void ResourceManager::flush()
+void ResourceManager::flush_load_queue()
 {
-	m_resource_loader.flush();
+	while (m_loading_queue.size() > 0)
+	{
+		ResourceId resource = m_loading_queue.front();
+
+		m_resource_loader.load(resource);
+
+		m_loading_queue.pop_front();
+
+		m_resources[resource.index].state = RS_LOADING;
+	}
 }
 
 //-----------------------------------------------------------------------------
-void ResourceManager::loading(ResourceId name)
+void ResourceManager::bring_loaded_online()
 {
-	assert(has(name));
+	m_resource_loader.m_loaded_mutex.lock();
 
-	m_resources[name.index].state = RS_LOADING;
+	Queue<LoadedResource>& loaded = m_resource_loader.m_loaded_resources;
+
+	while (loaded.size() > 0)
+	{
+		LoadedResource lr = loaded.front();
+
+		online(lr.resource, lr.data);
+
+		loaded.pop_front();
+	}
+
+	m_resource_loader.m_loaded_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
 void ResourceManager::online(ResourceId name, void* resource)
 {
-	assert(has(name));
-
 	ResourceEntry& entry = m_resources[name.index];
 
 	// FIXME hardcoded seed
@@ -193,22 +213,6 @@ void ResourceManager::online(ResourceId name, void* resource)
 
 	entry.resource = resource;
 	entry.state = RS_LOADED;
-}
-
-//-----------------------------------------------------------------------------
-void ResourceManager::loading_callback_wrapper(void* thiz, ResourceId name)
-{
-	ResourceManager* self = (ResourceManager*)thiz;
-
-	self->loading(name);
-}
-
-//-----------------------------------------------------------------------------
-void ResourceManager::online_callback_wrapper(void* thiz, ResourceId name, void* resource)
-{
-	ResourceManager* self = (ResourceManager*)thiz;
-
-	self->online(name, resource);
 }
 
 } // namespace crown
