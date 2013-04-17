@@ -30,6 +30,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Queue.h"
 #include "Resource.h"
 #include "MallocAllocator.h"
+#include "Thread.h"
+#include "Mutex.h"
+#include "Cond.h"
 
 namespace crown
 {
@@ -54,14 +57,20 @@ struct ResourceEntry
 					}
 };
 
-class ResourceLoader;
+struct LoadedResource
+{
+	ResourceId	resource;
+	void*		data;
+};
+
+class ResourceArchive;
 
 /// Resource manager.
 class ResourceManager
 {
 public:
 
-							ResourceManager(ResourceLoader& loader);
+							ResourceManager(ResourceArchive& archive, Allocator& allocator);
 							~ResourceManager();
 
 	/// Loads the resource by @name and returns its ResourceId.
@@ -110,16 +119,45 @@ public:
 
 private:
 
+	void					background_load();
+
+	void*					load_by_type(ResourceId name) const;
+	void					unload_by_type(ResourceId name, void* resource) const;
 	void					online(ResourceId name, void* resource);
 
 private:
 
-	ResourceLoader&			m_resource_loader;
+	static void*			background_thread(void* thiz);
+
+private:
+
+	// Archive whether to look for resources
+	ResourceArchive&		m_resource_archive;
+	// Used to strore resource memory
+	Allocator&				m_resource_allocator;
 
 	MallocAllocator			m_allocator;
+	// The master lookup table
 	List<ResourceEntry>		m_resources;
 
+	// Resources waiting for loading
 	Queue<ResourceId>		m_loading_queue;
+	// Resources already loaded, ready to bring online
+	Queue<LoadedResource>	m_loaded_queue;
+
+	// Background loading thread
+	Thread					m_thread;
+	Mutex					m_loading_mutex;
+	Cond 					m_loading_requests;
+	Mutex					m_loaded_mutex;
+
+private:
+
+	// Hashes of resource types (FIXME)
+	uint32_t			m_config_hash;
+	uint32_t			m_texture_hash;
+	uint32_t			m_mesh_hash;
+	uint32_t			m_txt_hash;
 };
 
 } // namespace crown
