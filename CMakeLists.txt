@@ -19,6 +19,7 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/core/compressors
 	${CMAKE_SOURCE_DIR}/src/core/streams
 	${CMAKE_SOURCE_DIR}/src/core/strings
+	${CMAKE_SOURCE_DIR}/src/core/threads
 	${CMAKE_SOURCE_DIR}/src/os
 	${CMAKE_SOURCE_DIR}/src/os/linux
 	${CMAKE_SOURCE_DIR}/src/input
