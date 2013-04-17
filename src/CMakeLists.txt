@@ -10,7 +10,6 @@ set (SRC
 	MovableCamera.cpp
 	Pixel.cpp
 	ResourceManager.cpp
-	ResourceLoader.cpp
 	Skybox.cpp
 	Terrain.cpp
 	World.cpp
@@ -38,7 +37,6 @@ set (HEADERS
 	Pixel.h
 	Resource.h
 	ResourceManager.h
-	ResourceLoader.h
 	ResourceArchive.h
 	Skybox.h
 	Terrain.h
