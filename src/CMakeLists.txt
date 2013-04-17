@@ -168,6 +168,16 @@ set (COMPRESSORS_HEADERS
 	core/compressors/ZipCompressor.h
 )
 
+set (THREADS_HEADERS
+	core/threads/Thread.h
+	core/threads/Mutex.h
+)
+
+set (THREADS_SRC
+	core/threads/Thread.cpp
+	core/threads/Mutex.cpp
+)
+
 set (INPUT_SRC
 	input/EventDispatcher.cpp
 	input/InputManager.cpp
@@ -268,6 +278,10 @@ set (SOURCES
 	${MEM_HEADERS}
 	${COMPRESSORS_SRC}
 	${COMPRESSORS_HEADERS}
+
+	${THREADS_SRC}
+	${THREADS_HEADERS}
+
 	${INPUT_SRC}
 	${INPUT_HEADERS}
 

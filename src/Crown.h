@@ -83,6 +83,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextReader.h"
 #include "TextWriter.h"
 
+// Core/Threads
+#include "Thread.h"
+#include "Mutex.h"
+
 // Engine
 #include "Camera.h"
 #include "Device.h"
