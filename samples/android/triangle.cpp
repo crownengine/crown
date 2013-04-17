@@ -41,10 +41,12 @@ public:
 
 	void touch_down(const TouchEvent& event)
 	{
+		cam->MoveForward();
 	}
 
 	void touch_move(const TouchEvent& event)
 	{
+		cam->MoveForward();
 	}
 
 	void draw_triangle()

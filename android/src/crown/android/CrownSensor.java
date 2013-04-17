@@ -18,7 +18,7 @@ import crown.android.CrownEnum;
 */
 public class CrownSensor
 {
-    private final float MIN_VALUE = 0.0f;
+    private final float MIN_VALUE = -1.0f;
     private final float MAX_VALUE = 1.0f;
     private final static float RAD2DEG = (float) (180.0f / Math.PI);
 
@@ -64,9 +64,11 @@ public class CrownSensor
 
                 public void onSensorChanged(SensorEvent event)
                 {
-                    mGravity[0] = (mGravity[0] * 2 + event.values[0]) * 0.33334f;
-                    mGravity[1] = (mGravity[1] * 2 + event.values[1]) * 0.33334f;
-                    mGravity[2] = (mGravity[2] * 2 + event.values[2]) * 0.33334f;
+                    mGravity[0] = (mGravity[0] * 2 + event.values[0]) * 0.33334f * RAD2DEG;
+                    mGravity[1] = (mGravity[1] * 2 + event.values[1]) * 0.33334f * RAD2DEG;
+                    mGravity[2] = (mGravity[2] * 2 + event.values[2]) * 0.33334f * RAD2DEG;
+
+                    norm();
 
                     CrownLib.pushFloatEvent(CrownEnum.OSET_ACCELEROMETER, mGravity[0], mGravity[1], mGravity[2], 0.0f);
                 }
@@ -127,37 +129,37 @@ public class CrownSensor
     }
 
  //-----------------------------------------------------------------------------------
-    private void lowPassFiltering(float x, float y, float z)
-    {
-        float updateFreq = 30; // match this to your update speed
-        float cutOffFreq = 0.9f;
-        float timeRC = 1.0f / cutOffFreq;
-        float dt = 1.0f / updateFreq;
-        float filterConstant = timeRC / (dt + timeRC);
-        float alpha = filterConstant;                 
-        float kAccelerometerMinStep = 0.033f;
-        float kAccelerometerNoiseAttenuation = 3.0f;
+//     private void lowPassFiltering(float x, float y, float z)
+//     {
+//         float updateFreq = 30; // match this to your update speed
+//         float cutOffFreq = 0.9f;
+//         float timeRC = 1.0f / cutOffFreq;
+//         float dt = 1.0f / updateFreq;
+//         float filterConstant = timeRC / (dt + timeRC);
+//         float alpha = filterConstant;                 
+//         float kAccelerometerMinStep = 0.033f;
+//         float kAccelerometerNoiseAttenuation = 3.0f;
 
-        float d = clamp((Math.abs(norm(mGravity[0], mGravity[1], mGravity[2]) - norm(x, y, z)) / kAccelerometerMinStep - 1.0f), MIN_VALUE, MAX_VALUE);
-        alpha = d * filterConstant / kAccelerometerNoiseAttenuation + (1.0f - d) * filterConstant;
+//         float d = clamp((Math.abs(norm(mGravity[0], mGravity[1], mGravity[2]) - norm(x, y, z)) / kAccelerometerMinStep - 1.0f), MIN_VALUE, MAX_VALUE);
+//         alpha = d * filterConstant / kAccelerometerNoiseAttenuation + (1.0f - d) * filterConstant;
 
-        mGravity[0] = (float) (alpha * (mGravity[0] + x - mLastGravity[0]));
-        mGravity[1] = (float) (alpha * (mGravity[1] + y - mLastGravity[1]));
-        mGravity[2] = (float) (alpha * (mGravity[2] + z - mLastGravity[2]));
+//         mGravity[0] = (float) (alpha * (mGravity[0] + x - mLastGravity[0]));
+//         mGravity[1] = (float) (alpha * (mGravity[1] + y - mLastGravity[1]));
+//         mGravity[2] = (float) (alpha * (mGravity[2] + z - mLastGravity[2]));
 
-        mLastGravity[0] = mGravity[0];
-        mLastGravity[1] = mGravity[1];
-        mLastGravity[2] = mGravity[2];
-    }
+//         mLastGravity[0] = mGravity[0];
+//         mLastGravity[1] = mGravity[1];
+//         mLastGravity[2] = mGravity[2];
+//     }
 
 //-----------------------------------------------------------------------------------
     private float clamp(float v, float min, float max)
     {
-        if (v <= min)
+        if (v < min)
         {
             v = min;
         }
-        else if (v >= max)
+        else if (v > max)
         {
             v = max;
         }
@@ -166,9 +168,18 @@ public class CrownSensor
     }
 
 //-----------------------------------------------------------------------------------
-    private float norm(float x, float y, float z)
+    private void norm()
     {
-        float v = (float)Math.pow(x, 2) + (float)Math.pow(y, 2) + (float)Math.pow(z, 2);
-        return (float)Math.sqrt(v);
+        float v = mGravity[0] * mGravity[0] + mGravity[1] * mGravity[1] + mGravity[2] * mGravity[2];
+        float magnitude = (float)Math.sqrt(v);
+        float invMagnitude = 1 / magnitude;
+
+        mGravity[0] *= invMagnitude;
+        mGravity[1] *= invMagnitude;
+        mGravity[2] *= invMagnitude;
+
+        mGravity[0] = clamp(mGravity[0], MIN_VALUE, MAX_VALUE);
+        mGravity[1] = clamp(mGravity[1], MIN_VALUE, MAX_VALUE);
+        mGravity[2] = clamp(mGravity[2], MIN_VALUE, MAX_VALUE);
     }
 }
