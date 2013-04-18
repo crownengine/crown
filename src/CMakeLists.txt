@@ -190,7 +190,6 @@ set (INPUT_HEADERS
 )
 
 set (RENDERERS_SRC
-	renderers/Renderer.cpp
 )
 
 set (RENDERERS_HEADERS

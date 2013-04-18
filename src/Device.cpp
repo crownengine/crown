@@ -34,6 +34,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "String.h"
 #include "Args.h"
 #include <cstdlib>
+#include "GLRenderer.h"
+//#include "GLESRenderer.h"
 
 namespace crown
 {
@@ -91,7 +93,11 @@ bool Device::Init(int argc, char** argv)
 	// Creates the renderer
 	if (!mRenderer)
 	{
-		mRenderer = Renderer::CreateRenderer();
+		#ifdef CROWN_USE_OPENGL
+		mRenderer = new GLRenderer;
+		#elif CROWN_USE_OPENGLES
+		mRenderer = new GLESRenderer;
+		#endif
 	}
 	Log::D("Renderer created.");
 
@@ -120,7 +126,7 @@ void Device::Shutdown()
 
 	if (mRenderer)
 	{
-		Renderer::DestroyRenderer(mRenderer);
+		delete mRenderer;
 	}
 
 	Log::I("Releasing Render Window...");
