@@ -41,19 +41,20 @@ public:
 
 	void touch_down(const TouchEvent& event)
 	{
-		cam->MoveForward();
+		cam->MoveBackward();
 	}
 
 	void touch_move(const TouchEvent& event)
 	{
-		cam->MoveForward();
+		cam->MoveBackward();
 	}
 
 	void draw_triangle()
 	{
-		uint32_t width;
-		uint32_t height;
-		os::get_render_window_metrics(width, height);
+		GetDevice()->GetRenderer()->SetClearColor(Color4::LIGHTBLUE);
+
+		GetDevice()->GetRenderer()->SetMatrix(MT_VIEW, Mat4::IDENTITY);
+		GetDevice()->GetRenderer()->SetMatrix(MT_MODEL, Mat4::IDENTITY);
 
 		cam->Render();
 
@@ -63,16 +64,10 @@ public:
 
 		GetDevice()->GetRenderer()->SetMatrix(MT_MODEL, Mat4::IDENTITY);
 
-		Mat4 projection;
-		projection.build_projection_perspective_rh(90.0f, (float) width/height, 0.1f, 100.0f);
-		GetDevice()->GetRenderer()->SetMatrix(MT_PROJECTION, projection);
-
-		GetDevice()->GetRenderer()->SetClearColor(Color4::LIGHTBLUE);
-
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, vertices);
 
-		glDrawArrays(GL_TRIANGLES, 0, 9);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glDisableClientState(GL_VERTEX_ARRAY);
 	}
@@ -94,8 +89,6 @@ public:
 };
 
 MainScene* scene = new MainScene();
-
-
 
 JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* env, jobject obj)
 {
