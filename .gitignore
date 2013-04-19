@@ -1,2 +1,5 @@
 # Ignore build directory
 /build
+
+# Ignore CMake-generated config files
+/src/Config.h
