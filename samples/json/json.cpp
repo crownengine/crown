@@ -17,7 +17,11 @@ int main(int argc, char** argv)
 
 	for (int i = 0; i < parser->get_tokens_number(); i++)
 	{
-		tokens[i].print();
+		for (int j = tokens[i].m_start; j < tokens[i].m_end; j++)
+		{
+			printf("%c", src[j]);
+		}
+		printf("\n");
 	}
 
 	printf("return: %d\n", error);
