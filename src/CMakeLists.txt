@@ -300,5 +300,5 @@ set (SOURCES
 	${GL_HEADERS}
 )
 
-link_libraries(X11 GL GLEW Xrandr rt z)
+link_libraries(X11 GL GLEW Xrandr rt z pthread)
 add_library(crown STATIC ${SOURCES})
