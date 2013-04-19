@@ -22,6 +22,7 @@ set (SRC
 	TextRenderer.cpp
 	World.cpp
 	FPSSystem.cpp
+	JSONParser.cpp
 )
 
 set (HEADERS
@@ -59,6 +60,7 @@ set (HEADERS
 	VertexBuffer.h
 	World.h
 	FPSSystem.h
+	JSONParser.h
 )
 
 set (CORE_SRC

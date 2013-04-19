@@ -37,6 +37,7 @@ add_executable(chain ${CHAINSAWBUFFET_SRC})
 add_executable(fs filesystem/filesystem.cpp)
 add_executable(textrenderer textrenderer/textrenderer.cpp)
 add_executable(collision collision/collision.cpp)
+add_executable(json json/json.cpp)
 
 target_link_libraries(terrain crown)
 target_link_libraries(texturing crown)
@@ -45,3 +46,6 @@ target_link_libraries(chain crown)
 target_link_libraries(fs crown)
 target_link_libraries(textrenderer crown)
 target_link_libraries(collision crown)
+target_link_libraries(json crown)
+
+
