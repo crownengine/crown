@@ -80,11 +80,6 @@ JSONParser::parse(const char* src)
 				token->m_start = m_pos;
 				m_prev_token = m_next_token - 1;
 
-				// os::printf("char: %c\n", c);
-				// os::printf("pos: %d\n", m_pos);
-				// os::printf("prev_token: %d\n", m_prev_token);
-				// os::printf("next_token: %d\n", m_next_token);
-
 				break;
 			}
 			case '}':
@@ -94,17 +89,19 @@ JSONParser::parse(const char* src)
 
 				if (m_next_token < 1)
 				{
+					os::printf("1\n");
 					return JSON_INV_CHAR;
 				}
 
-				token = &m_tokens[m_next_token -1];
+				token = &m_tokens[m_next_token - 1];
 
 				while (true)
 				{
-					if (token->m_start != -1 && token->m_end != -1)
+					if (token->m_start != -1 && token->m_end == -1)
 					{
 						if (token->m_type != type)
 						{
+							os::printf("%d\t%d\n", token->m_type, type);
 							return JSON_INV_CHAR;
 						}
 						token->m_end = m_pos + 1;
@@ -120,15 +117,9 @@ JSONParser::parse(const char* src)
 					token = &m_tokens[token->m_parent];
 				}
 
-				// os::printf("char: %c\n", c);
-				// os::printf("pos: %d\n", m_pos);
-				// os::printf("prev_token: %d\n", m_prev_token);
-				// os::printf("next_token: %d\n", m_next_token);
-
 				break;
 			}
 			case '\"':
-			case '\'':
 			{
 				error = parse_string(src);
             	if (m_prev_token != -1)
@@ -137,15 +128,15 @@ JSONParser::parse(const char* src)
             	}
 				break;
 			}
-  //           case '\t': 
-  //           case '\r': 
-  //           case '\n': 
-  //           case ':': 
-  //           case ',': 
-  //           case ' ': 
-  //           {
-  //           	break;
-  //           }
+            case '\t': 
+            case '\r': 
+            case '\n': 
+            case ':': 
+            case ',': 
+            case ' ': 
+            {
+            	break;
+            }
             case '-':
             case '0':
             case '1':
@@ -230,17 +221,14 @@ JSONParser::parse_string(const char* src)
                 default:
                	{
                 	m_pos = start;
+					os::printf("3\n");
                 	return JSON_INV_CHAR;
+                	break;
                 }
 			}
 		}
-		// os::printf("char: %c\n", c);
-		// os::printf("pos: %d\n", m_pos);
-		// os::printf("prev_token: %d\n", m_prev_token);
-		// os::printf("next_token: %d\n", m_next_token);
 		m_pos++;
 	}
-
 	m_pos = start;
 	return JSON_INV_PART;
 }
@@ -287,13 +275,9 @@ JSONParser::parse_primitive(const char* src)
 		if (c < 32 || c >= 127)
 		{
 			m_pos = start;
+			os::printf("4\n");
 			return JSON_INV_CHAR;
 		}
-
-		// os::printf("char: %c\n", c);
-		// os::printf("pos: %d\n", m_pos);
-		// os::printf("prev_token: %d\n", m_prev_token);
-		// os::printf("next_token: %d\n", m_next_token);
 
 		m_pos++;
 	}
@@ -324,7 +308,7 @@ void JSONParser::fill_token(JSONToken* token, json_type type, int32_t start, int
 	token->m_type = type;
 	token->m_start = start;
 	token->m_end = end;
-	token->m_size = 0;
+	token->m_size = token->m_end - token->m_start;
 }
 
 //--------------------------------------------------------------------------

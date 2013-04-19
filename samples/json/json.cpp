@@ -5,7 +5,7 @@ using namespace crown;
 
 int main(int argc, char** argv)
 {
-	const char* src = "'test' : {string' : 'dio', 'number' : 33}";
+	const char* src = "\"test\" : {\"string\" : \"dio\", \"number\" : 33}";
 
 	JSONParser* parser = new JSONParser();
 	json_error error;
