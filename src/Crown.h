@@ -87,6 +87,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Thread.h"
 #include "Mutex.h"
 
+// Core/Settings
+#include "IntSetting.h"
+#include "FloatSetting.h"
+
 // Engine
 #include "Camera.h"
 #include "Device.h"

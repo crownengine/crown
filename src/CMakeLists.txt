@@ -178,6 +178,16 @@ set (THREADS_SRC
 	core/threads/Mutex.cpp
 )
 
+set (SETTINGS_SRC
+	core/settings/IntSetting.cpp
+	core/settings/FloatSetting.cpp
+)
+
+set (SETTINGS_HEADERS
+	core/settings/IntSetting.h
+	core/settings/FloatSetting.h
+)
+
 set (INPUT_SRC
 	input/EventDispatcher.cpp
 	input/InputManager.cpp
@@ -278,9 +288,10 @@ set (SOURCES
 	${MEM_HEADERS}
 	${COMPRESSORS_SRC}
 	${COMPRESSORS_HEADERS}
-
 	${THREADS_SRC}
 	${THREADS_HEADERS}
+	${SETTINGS_SRC}
+	${SETTINGS_HEADERS}
 
 	${INPUT_SRC}
 	${INPUT_HEADERS}
