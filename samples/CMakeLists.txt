@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(samples)
+project(crown-samples)
 
 link_directories(${CROWN_BINARY_DIR})
 
