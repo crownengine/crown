@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION 2.8)
+
+project(crown-gles)
+
+set (GLES_SRC
+	GLESIndexBuffer.cpp
+	GLESVertexBuffer.cpp
+	GLESRenderer.cpp
+	GLESUtils.cpp
+)
+
+set (GLES_HEADERS
+	GLESIndexBuffer.h
+	GLESVertexBuffer.h
+	GLESRenderer.h
+	GLESUtils.h
+)
+
+link_libraries(GLES)
+
+add_library(crown-gles STATIC ${GLES_SRC} ${GLES_HEADERS})
+
+target_link_libraries(crown-gles crown)
+
