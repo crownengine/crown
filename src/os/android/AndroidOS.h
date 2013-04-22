@@ -23,64 +23,18 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <GLES/gl.h>
-#include "GLESSupport.h"
-#include "Str.h"
-#include "Types.h"
+#include <jni.h>
+#include <sys/types.h>
+#include <android/asset_manager.h>
 
 namespace crown
 {
-
-GLESSupport::GLESSupport()
+namespace os
 {
-}
 
-GLESSupport::~GLESSupport()
-{
-}
-
-const Str& GLESSupport::GetVendor() const
-{
-	return mVendor;
-}
-
-const Str& GLESSupport::GetRenderer() const
-{
-	return mRenderer;
-}
-
-const Str& GLESSupport::GetVersion() const
-{
-	return mVersion;
-}
-
-bool GLESSupport::CheckExtension(Str extension) const
-{
-	if (mExtensionList.Find(extension) == -1)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-void GLESSupport::BuildExtensionList()
-{
-	char* string = (char*)glGetString(GL_VENDOR);
-	mVendor = string;
-	string = (char*)glGetString(GL_RENDERER);
-	mRenderer = string;
-	string = (char*)glGetString(GL_VERSION);
-	mVersion = string;
-	string = (char*)glGetString(GL_EXTENSIONS);
-	Str extensions = string;
-	extensions.Split(' ', mExtensionList);
-}
-
-GLESSupport* GetGLESSupport()
-{
-	return new GLESSupport();
-}
+// Accessor to the android asset manager
+AAssetManager* get_android_asset_manager();
 
 } // namespace crown
+} // namespace os
 

@@ -11,14 +11,16 @@ AsyncConnection::AsyncConnection(Allocator& allocator) :
 	m_mode(NONE),
 	m_state(DISCONNECTED),
 	m_max_rate(MAX_RATE),
+	m_max_rtt(MAX_RTT),	//in milliseconds
+	m_rtt(0),
+	m_timeout(DEFAULT_TIMEOUT),
+	m_timeout_acc(0),
 	m_sent_packets(0),
 	m_recv_packets(0),
 	m_dropped_packets(0.0f),
 	m_local_sequence(0),
 	m_remote_sequence(0),
 	m_max_sequence(MAX_SEQUENCE),
-	m_max_rtt(MAX_RTT),	//in milliseconds
-	m_rtt(0),
 	m_sent_queue(allocator),
 	m_received_queue(allocator),
 	m_running(false),
@@ -94,6 +96,8 @@ void AsyncConnection::listen()
 //-----------------------------------------------------------------------------
 void AsyncConnection::connect(const os::NetAddress& addr)
 {
+	assert(m_running);
+	
   	_clear_data();
 
 	os::printf("client connecting to ");
@@ -135,22 +139,19 @@ os::NetAddress AsyncConnection::get_remote_address() const
 //-----------------------------------------------------------------------------
 int AsyncConnection::get_outgoing_rate() const
 {
+  
 }
 
 //-----------------------------------------------------------------------------
 int AsyncConnection::get_incoming_rate() const
 {
+  
 }
 
 //-----------------------------------------------------------------------------
-float AsyncConnection::get_incoming_packet_loss() const
+float AsyncConnection::get_packets_loss() const
 {
-	if (m_recv_packets == 0 && m_dropped_packets == 0)
-	{
-		return 0.0f;
-	}
-	// return loss packet %
-	return m_dropped_packets * 100 / (m_recv_packets + m_dropped_packets);
+	return m_dropped_packets;
 }
 
 //-----------------------------------------------------------------------------
@@ -158,6 +159,13 @@ uint16_t AsyncConnection::get_local_sequence() const
 {
 	return m_local_sequence;
 }
+
+//-----------------------------------------------------------------------------
+uint16_t AsyncConnection::get_remote_sequence() const
+{
+	return m_remote_sequence;
+}
+
 //-----------------------------------------------------------------------------
 void AsyncConnection::send_message(BitMessage& msg, const uint32_t time)
 {
@@ -172,6 +180,8 @@ void AsyncConnection::send_message(BitMessage& msg, const uint32_t time)
 	memcpy(data + 12, msg.get_data(), size - 12);
 	// send message
 	m_socket.send(m_remote_address, data, size);
+	
+	_packet_sent(msg.get_size());
 	// storage outgoing message
 	m_sent_queue.push_back(msg);
 }
@@ -202,16 +212,18 @@ int32_t AsyncConnection::receive_message(BitMessage& msg, const uint32_t time)
 	
 	msg.begin_writing();
 	msg.set_header(protocol_id, sequence, ack, ack_bits);
+	
 	//data-taking
  	uint8_t* tmp_ptr = &data[12];
 	memcpy(msg.get_data(), tmp_ptr, msg.get_max_size());
 	msg.set_size(size);
-	
- 	// storage incoming message	
-	m_received_queue.push_back(msg);
-	
 	// sets BitMessage in read-only for processing
 	msg.begin_reading();
+	
+	_packet_received(sequence, msg.get_size());
+	_process_ack(ack, ack_bits);
+ 	// storage incoming message	
+	m_received_queue.push_back(msg);
 	
 	// establish connection after first packet is received
 	if (m_mode == SERVER && !is_connected())
@@ -307,16 +319,16 @@ bool AsyncConnection::is_connect_fail() const
 
 //-----------------------------------------------------------------------------
 void AsyncConnection::_packet_sent(size_t size)
-{/*
+{
 	bool seq_exists_in_sent_queue = false;
 	bool seq_exists_in_pending_ack_queue = false;
   
 	PacketData tmp;
-	PacketData* h_ptr;
 	
 	tmp.sequence = m_local_sequence;
 
 	// If local_sequence_number exists
+	PacketData* h_ptr;
 	h_ptr = std::find(m_sent_packet.begin(), m_sent_packet.end(), tmp);
 	if (h_ptr != m_sent_packet.end())
 	{
@@ -346,15 +358,15 @@ void AsyncConnection::_packet_sent(size_t size)
 	// Increments local sequence
 	m_local_sequence++;
 
-	if (m_local_sequence > m_max_sequence)
+	if (m_local_sequence >= MAX_SEQUENCE)
 	{
 		m_local_sequence = 0;
-	}*/
+	}
 }
 
 //-----------------------------------------------------------------------------
 void AsyncConnection::_packet_received(uint16_t sequence, size_t size)
-{/*
+{
 	PacketData tmp;
 	PacketData* h_ptr;
 
@@ -380,7 +392,7 @@ void AsyncConnection::_packet_received(uint16_t sequence, size_t size)
 	if (_sequence_more_recent(sequence, m_remote_sequence))
 	{
 		m_remote_sequence = sequence;
-	}  */
+	}  
 }
 
 //-----------------------------------------------------------------------------
@@ -391,11 +403,13 @@ void AsyncConnection::_process_ack(uint16_t ack, int32_t ack_bits)
 		return;
 	}
 	
+	uint32_t index = 0;
+	
 	PacketData* i = m_pending_ack.begin();
-	while (i != m_pending_ack.end())
+	for(i = m_pending_ack.begin(), index = 0; i != m_pending_ack.end(); i++, index++)
 	{
 		bool acked = false;
-		
+
 		if (i->sequence == ack)
 		{
 			acked = true;
@@ -408,20 +422,15 @@ void AsyncConnection::_process_ack(uint16_t ack, int32_t ack_bits)
 				acked = (ack_bits >> bit_index) & 1;
 			}
 		}
-
+  
+		PacketData packet;
 		if (acked)
 		{
 			m_rtt += (i->time - m_rtt) * 0.1f;
-			
 			m_acked.push_back(*i);
+			m_pending_ack[index] = packet;
 		}
-		else
-		{
-			++i;
-		}
-	}  
-	
-	m_pending_ack.clear();
+	}
 }
 
 
@@ -473,22 +482,58 @@ int32_t AsyncConnection::_generate_ack_bits()
 }
 
 //-----------------------------------------------------------------------------
-void AsyncConnection::_update_outgoing_rate(const uint32_t time, const size_t size)
+void AsyncConnection::_update_packet_queues(uint32_t delta)
 {
+	PacketData* i;
+	
+	// updates queues time
+	for (i = m_sent_packet.begin(); i != m_sent_packet.end(); i++)
+	{
+		i->time += delta;
+	}
+	for (i = m_received_packet.begin(); i != m_received_packet.end(); i++)
+	{
+		i->time += delta;
+	}
+	for (i = m_pending_ack.begin(); i != m_pending_ack.end(); i++)
+	{
+		i->time += delta;
+	}
+	for (i = m_acked.begin(); i != m_acked.end(); i++)
+	{
+		i->time += delta;
+	}
+	
+	// cleans queues from old packets
+	/*
+	while (m_sent_packet.size() && m_sent_packet.front().time > MAX_RTT)
+	{
+		m_sent_packet.pop_front();
+	}
+	if (m_received_packet.size())
+	{
+		while()
+	}
+	while (m_acked.size() && m_acked.front().time > MAX_RTT * 2)
+	{
+		m_acked.pop_front();
+	}
+	while (m_pending_ack.size() && m_pending_ack.front().time > MAX_RTT)
+	{
+		m_pending_ack
+		m_dropped_packets++;
+	}*/
 
 }
 
 //-----------------------------------------------------------------------------
-void AsyncConnection::_update_incoming_rate(const uint32_t time, const size_t size)
+void AsyncConnection::_update_stats()
 {
- 
+  
 }
+
 
 //-----------------------------------------------------------------------------
-void AsyncConnection::_update_packet_loss(const uint32_t time, const uint32_t num_recv, const uint32_t num_dropped)
-{
-}
-
 void AsyncConnection::_clear_data()
 {
 	m_state = DISCONNECTED;

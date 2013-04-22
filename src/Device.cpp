@@ -174,7 +174,7 @@ void Device::Frame()
 {
 	os::event_loop();
 
-	GetInputManager()->EventLoop();
+	get_input_manager()->event_loop();
 
 		mRenderer->begin_frame();
 		mRenderer->end_frame();

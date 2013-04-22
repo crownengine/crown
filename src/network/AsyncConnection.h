@@ -60,10 +60,10 @@ public:
 									// Returns the average incoming rate over the last second.
 	int32_t							get_incoming_rate() const;
 									// Returns the average incoming packet loss over the last 5 seconds.
-	real							get_incoming_packet_loss() const;
-									// return the current local sequence number
+	real							get_packets_loss() const;
+									// returns the current local sequence number
 	uint16_t						get_local_sequence() const;
-									// return the current remote sequence number
+									// returns the current remote sequence number
 	uint16_t						get_remote_sequence() const;
 									// Sends message
 	void							send_message(BitMessage& msg, const uint32_t time);
@@ -110,10 +110,11 @@ private:
 	bool							_sequence_more_recent(uint16_t s1, uint16_t s2);
 	int32_t							_bit_index_for_sequence(uint16_t seq, uint16_t ack);
 	int32_t							_generate_ack_bits();
+	void							_update_stats();
+	void							_update_packet_queues(uint32_t delta);
+// 	void							_insert_sorted_in_queue(PacketData* begin, PacketData* end);
 									// methods which provides a flow control system
-	void							_update_outgoing_rate(const uint32_t delta, const size_t size);
-	void							_update_incoming_rate(const uint32_t delta, const size_t size);
-	void							_update_packet_loss(const uint32_t delta, const uint32_t num_recv, const uint32_t num_dropped);
+
 	
 	void							_clear_data();
 
@@ -126,6 +127,10 @@ private:
 	Mode							m_mode;						// connection mode
 	State							m_state;					// connection state
 	uint32_t						m_max_rate;					// maximum number of bytes that may go out per second
+	real							m_max_rtt;					// Maximum round trip time
+	real							m_rtt;						// Round trip time
+	real							m_timeout;					// connection timeout value
+	real							m_timeout_acc;				// timeout accumulator
 
 									// variables to keep track of the incoming packet loss
 	uint32_t						m_sent_packets;		
@@ -136,13 +141,8 @@ private:
 	uint16_t						m_local_sequence;
 	uint16_t						m_remote_sequence;
 	uint16_t						m_max_sequence;
-	
-	real							m_max_rtt;					// Maximum round trip time
-	real							m_rtt;						// Round trip time
-	real							m_timeout;					// connection timeout value
-	real							m_timeout_acc;				// timeout accumulator
-	
-									// reliable message queues
+
+									// message queues
 	Queue<BitMessage>				m_sent_queue;
 	Queue<BitMessage>				m_received_queue;
 	
@@ -154,6 +154,12 @@ private:
 	Queue<PacketData>				m_received_packet;				// Received messages queue
 	Queue<PacketData>				m_pending_ack;					// Pending acknokledges queue
 	Queue<PacketData>				m_acked;						// Acknowledges queue
+	
+									// statistic variables
+	real							m_sent_bytes_per_sec;
+	real							m_acked_bytes_per_sec;
+	real							m_sent_bandwidth;
+	real							m_acked_bandwidth;
 	
 	Allocator*						m_allocator;					// dynamic allocator
 									

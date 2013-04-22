@@ -281,8 +281,8 @@ public:
 	//! Sets the texture wrap mode for all layers
 	void SetTextureWrap(TextureWrap wrap);
 
-	virtual void	Load(const char* name);
-	virtual void	Unload(const char* name, bool reload);
+	//virtual void	Load(const char* name);
+	//virtual void	Unload(const char* name, bool reload);
 
 //private:
 

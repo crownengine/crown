@@ -68,7 +68,7 @@ public:
 	 */
 	virtual Texture* Load(const char* name, bool generateMipMaps, Color4 colorKey);
 
-	virtual Texture* Load(const char* name, const Str& greyscaleAlpha, bool generateMipMaps);
+	virtual Texture* Load(const char* name, const char* greyscaleAlpha, bool generateMipMaps);
 
 	virtual GLESTexture* CreateSpecific(const char* name);
 

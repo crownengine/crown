@@ -26,53 +26,53 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Config.h"
-#include "List.h"
-#include "Str.h"
+#include <sys/types.h>
+#include <android/asset_manager.h>
 
 namespace crown
 {
 
-class RenderWindow;
-
-class GLESSupport
+/**
+	Enumerates file opening modes.
+*/
+enum FileOpenMode
 {
+	FOM_READ	= 1,
+	FOM_WRITE	= 2
+};
 
-	typedef List<Str> StrList;
+/**
+	Standard C file wrapper.
+*/
+class File
+{
 
 public:
 
-	//! Constructor
-	GLESSupport();
+						~File();
 
-	//! Destructor
-	virtual ~GLESSupport();
+	bool				is_valid();
 
-	//! Returns the name of the vendor
-	const Str& GetVendor() const;
+	FileOpenMode		mode();
 
-	//! Returns the name of the renderer
-	const Str& GetRenderer() const;
+	size_t				read(void* ptr, size_t size, size_t nmemb);
+	size_t				write(const void* ptr, size_t size, size_t nmemb);
+	int					seek(int32_t offset, int whence);
+	int32_t				tell();
 
-	//! Returns the OpenGL's version number
-	const Str& GetVersion() const;
+	int					eof();
 
-	//! Returns true if the extension is supported
-	bool CheckExtension(Str extension) const;
+	size_t				size();
 
-	//! Builds the extension list
-	void BuildExtensionList();
+	static File*		open(const char* path, FileOpenMode mode);
 
-protected:
+private:
 
-	Str mVendor;
-	Str mRenderer;
-	Str mVersion;
+	AAsset*				m_asset;
+	FileOpenMode		m_mode;
 
-	StrList mExtensionList;
+						File();
 };
-
-GLESSupport* GetGLESSupport();
 
 } // namespace crown
 

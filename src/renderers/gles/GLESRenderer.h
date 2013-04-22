@@ -26,7 +26,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <GLES/gl.h>
-#include "List.h"
 #include "Renderer.h"
 
 #define MAX_TEXTURE_UNITS 8
@@ -34,11 +33,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class GLESSupport;
 
-/**
- * OpenGL|ES 1.1 renderer.
- */
+/// OpenGL|ES 1.1 renderer.
 class GLESRenderer : public Renderer
 {
 	typedef List<VertexBuffer*> VertexBufferList;
@@ -98,9 +94,9 @@ public:
 	void				_SetScissor(bool scissor);
 	void				_SetScissorParams(int32_t x, int32_t y, int32_t width, int32_t height);
 
-	void				_SetPoint32_tSprite(bool sprite);
-	void				_SetPoint32_tSize(float size);
-	void				_SetPoint32_tParams(float min, float max);
+	void				_SetPointSprite(bool sprite);
+	void				_SetPointSize(float size);
+	void				_SetPointParams(float min, float max);
 
 	VertexBuffer*		CreateVertexBuffer();
 	IndexBuffer*		CreateIndexBuffer();
@@ -118,11 +114,11 @@ public:
 	void				SelectMatrix(MatrixType type);
 
 	void				RenderVertexIndexBuffer(const VertexBuffer* vertices, const IndexBuffer* indices);
-	void				RenderPoint32_tBuffer(const VertexBuffer* buffer);
+	void				RenderPointBuffer(const VertexBuffer* buffer);
 
 	void				SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 	void				GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height);
-	void				DrawRectangle(const Point32_t2& position, const Point32_t2& dimensions, int32_t drawMode,
+	void				DrawRectangle(const Point2& position, const Point2& dimensions, int32_t drawMode,
 														 const Color4& borderColor, const Color4& fillColor);
 
 	void				AddDebugLine(const Vec3& start, const Vec3& end, const Color4& color) {}
@@ -134,27 +130,25 @@ private:
 
 	void				CheckGLErrors();
 
-	GLESSupport*		mGLESSupport;
-
 	Mat4				mMatrix[MT_COUNT];
 
 	//Mat4				mModelMatrixStack[MAX_MODEL_MATRIX_STACK_DEPTH];
-	//uint32_t				mModelMatrixStackIndex;
+	//uint32_t			mModelMatrixStackIndex;
 
-	int32_t					mMaxLights;
-	int32_t					mMaxTextureSize;
-	int32_t					mMaxTextureUnits;
-	int32_t					mMaxVertexIndices;
-	int32_t					mMaxVertexVertices;
+	int32_t				mMaxLights;
+	int32_t				mMaxTextureSize;
+	int32_t				mMaxTextureUnits;
+	int32_t				mMaxVertexIndices;
+	int32_t				mMaxVertexVertices;
 
 	float				mMaxAnisotropy;
-	float				mMinMaxPoint32_tSize[2];
+	float				mMinMaxPointSize[2];
 	float				mMinMaxLineWidth[2];
 
 	VertexBufferList	mVertexBufferList;
 	IndexBufferList		mIndexBufferList;
 
-	int32_t					mActiveTextureUnit;
+	int32_t				mActiveTextureUnit;
 	Texture*			mTextureUnit[MAX_TEXTURE_UNITS];
 	GLenum				mTextureUnitTarget[MAX_TEXTURE_UNITS];
 };

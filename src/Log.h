@@ -26,7 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <cstdio>
+#include <cstdarg>
 #include "Types.h"
+#include "String.h"
 
 namespace crown
 {
@@ -50,7 +52,7 @@ public:
 	static LogLevel		GetThreshold();
 	static void			SetThreshold(LogLevel threshold);
 
-	static void			LogMessage(LogLevel level, const char* message, va_list arg);
+	static void			LogMessage(LogLevel level, const char* message, ::va_list arg);
 
 	static void			D(const char* message, ...);
 	static void			E(const char* message, ...);

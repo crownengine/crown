@@ -25,24 +25,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "GLESIndexBuffer.h"
 #include "GLESRenderer.h"
-#include "GLESSupport.h"
 #include "GLESTexture.h"
 #include "GLESTextureManager.h"
 #include "GLESUtils.h"
 #include "GLESVertexBuffer.h"
-#include "Light.h"
 #include "Log.h"
 #include "Material.h"
 #include "Types.h"
 #include "Rect.h"
+#include "Allocator.h"
 #include <GLES/gl.h>
 
 namespace crown
 {
 
 GLESRenderer::GLESRenderer() :
-	mGLESSupport(NULL),
-
 	mMaxLights(0),
 	mMaxTextureSize(0),
 	mMaxTextureUnits(0),
@@ -51,10 +48,13 @@ GLESRenderer::GLESRenderer() :
 
 	mMaxAnisotropy(0.0f),
 
+	mVertexBufferList(get_default_allocator()),
+	mIndexBufferList(get_default_allocator()),
+
 	mActiveTextureUnit(0)
 {
-	mMinMaxPoint32_tSize[0] = 0.0f;
-	mMinMaxPoint32_tSize[1] = 0.0f;
+	mMinMaxPointSize[0] = 0.0f;
+	mMinMaxPointSize[1] = 0.0f;
 
 	for (uint32_t i = 0; i < MAX_TEXTURE_UNITS; i++)
 	{
@@ -65,12 +65,8 @@ GLESRenderer::GLESRenderer() :
 	// This code snippet initializes the matrices
 	for (uint32_t i = 0; i < MT_COUNT; i++)
 	{
-		mMatrix[i].LoadIdentity();
+		mMatrix[i].load_identity();
 	}
-
-	mGLESSupport = GetGLESSupport();
-
-	mGLESSupport->BuildExtensionList();
 
 	glGetIntegerv(GL_MAX_LIGHTS, &mMaxLights);
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &mMaxTextureSize);
@@ -78,14 +74,18 @@ GLESRenderer::GLESRenderer() :
 	//glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &mMaxVertexIndices);
 	//glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &mMaxVertexVertices);
 
-	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &mMinMaxPoint32_tSize[0]);
+	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &mMinMaxPointSize[0]);
 	//glGetFloatv(GL_LINE_WIDTH_RANGE, &mMinMaxLineWidth[0]);
 
-	Log::I("OpenGLES Vendor\t: %s", mGLSupport->GetVendor().c_str());
-	Log::I("OpenGLES Renderer\t: %s", mGLSupport->GetRenderer().c_str());
-	Log::I("OpenGLES Version\t: %s", mGLSupport->GetVersion().c_str());
-	Log::I("Min Point32_t Size\t: %f", mMinMaxPoint32_tSize[0]);
-	Log::I("Max Point32_t Size\t: %f", mMinMaxPoint32_tSize[1]);
+	const unsigned char* gl_vendor = glGetString(GL_VENDOR);
+	const unsigned char* gl_renderer = glGetString(GL_RENDERER);
+	const unsigned char* gl_version = glGetString(GL_VERSION);
+
+	Log::I("OpenGL|ES Vendor\t: %s", gl_vendor);
+	Log::I("OpenGL|ES Renderer\t: %s", gl_renderer);
+	Log::I("OpenGL|ES Version\t: %s", gl_version);
+	Log::I("Min Point Size\t: %f", mMinMaxPointSize[0]);
+	Log::I("Max Point Size\t: %f", mMinMaxPointSize[1]);
 	Log::I("Min Line Width\t: %f", mMinMaxLineWidth[0]);
 	Log::I("Max Line Width\t: %f", mMinMaxLineWidth[1]);
 	Log::I("Max Texture Size\t: %dx%d", mMaxTextureSize, mMaxTextureSize);
@@ -118,7 +118,7 @@ GLESRenderer::GLESRenderer() :
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, amb);
 
 	// Some hint32_ts
-	glHint32_t(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
 	// Set the framebuffer clear color
 	glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
@@ -138,12 +138,12 @@ GLESRenderer::GLESRenderer() :
 
 GLESRenderer::~GLESRenderer()
 {
-	for (int32_t i = 0; i < mVertexBufferList.GetSize(); i++)
+	for (int32_t i = 0; i < mVertexBufferList.size(); i++)
 	{
 		delete mVertexBufferList[i];
 	}
 
-	for (int32_t i = 0; i < mIndexBufferList.GetSize(); i++)
+	for (int32_t i = 0; i < mIndexBufferList.size(); i++)
 	{
 		delete mIndexBufferList[i];
 	}
@@ -184,7 +184,7 @@ void GLESRenderer::_SetLighting(bool lighting)
 
 void GLESRenderer::_SetAmbientLight(const Color4& color)
 {
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color.ToFloatPtr());
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color.to_float_ptr());
 }
 
 void GLESRenderer::_SetTexturing(uint32_t unit, bool texturing)
@@ -433,7 +433,7 @@ void GLESRenderer::_SetScissorParams(int32_t x, int32_t y, int32_t width, int32_
 	glScissor(x, y, width, height);
 }
 
-void GLESRenderer::_SetPoint32_tSprite(bool sprite)
+void GLESRenderer::_SetPointSprite(bool sprite)
 {
 	if (sprite)
 	{
@@ -447,15 +447,15 @@ void GLESRenderer::_SetPoint32_tSprite(bool sprite)
 	}
 }
 
-void GLESRenderer::_SetPoint32_tSize(float size)
+void GLESRenderer::_SetPointSize(float size)
 {
-	glPoint32_tSize(size);
+	glPointSize(size);
 }
 
-void GLESRenderer::_SetPoint32_tParams(float min, float max)
+void GLESRenderer::_SetPointParams(float min, float max)
 {
-	glPoint32_tParameterf(GL_POINT_SIZE_MIN, min);
-	glPoint32_tParameterf(GL_POINT_SIZE_MAX, max);
+	glPointParameterf(GL_POINT_SIZE_MIN, min);
+	glPointParameterf(GL_POINT_SIZE_MAX, max);
 }
 
 void GLESRenderer::_BeginFrame()
@@ -486,19 +486,19 @@ void GLESRenderer::SetMatrix(MatrixType type, const Mat4& matrix)
 		case MT_MODEL:
 			glMatrixMode(GL_MODELVIEW);
 			// Transformations must be listed in reverse order
-			glLoadMatrixf((mMatrix[MT_VIEW] * mMatrix[MT_MODEL]).ToFloatPtr());
+			glLoadMatrixf((mMatrix[MT_VIEW] * mMatrix[MT_MODEL]).to_float_ptr());
 			break;
 		case MT_PROJECTION:
 			glMatrixMode(GL_PROJECTION);
-			glLoadMatrixf(mMatrix[MT_PROJECTION].ToFloatPtr());
+			glLoadMatrixf(mMatrix[MT_PROJECTION].to_float_ptr());
 			break;
 		case MT_TEXTURE:
 			glMatrixMode(GL_TEXTURE);
-			glLoadMatrixf(mMatrix[MT_TEXTURE].ToFloatPtr());
+			glLoadMatrixf(mMatrix[MT_TEXTURE].to_float_ptr());
 			break;
 		case MT_COLOR:
 			//glMatrixMode(GL_COLOR);
-			//glLoadMatrixf(mMatrix[MT_COLOR].ToFloatPtr());
+			//glLoadMatrixf(mMatrix[MT_COLOR].to_float_ptr());
 			break;
 		default:
 			break;
@@ -559,7 +559,7 @@ void GLESRenderer::RenderVertexIndexBuffer(const VertexBuffer* vertices, const I
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void GLESRenderer::RenderPoint32_tBuffer(const VertexBuffer* buffer)
+void GLESRenderer::RenderPointBuffer(const VertexBuffer* buffer)
 {
 	if (buffer == NULL)
 		return;
@@ -590,7 +590,7 @@ VertexBuffer*  GLESRenderer::CreateVertexBuffer()
 	if (!vb)
 		return 0;
 
-	mVertexBufferList.Append(vb);
+	mVertexBufferList.push_back(vb);
 	return vb;
 }
 
@@ -601,7 +601,7 @@ IndexBuffer*  GLESRenderer::CreateIndexBuffer()
 	if (!ib)
 		return 0;
 
-	mIndexBufferList.Append(ib);
+	mIndexBufferList.push_back(ib);
 	return ib;
 }
 
@@ -636,7 +636,7 @@ void GLESRenderer::GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint
 	y = valsViewport[3] - vals[1] - height;
 }
 
-void GLESRenderer::DrawRectangle(const Point32_t2& position, const Point32_t2& dimensions, int32_t drawMode,
+void GLESRenderer::DrawRectangle(const Point2& position, const Point2& dimensions, int32_t drawMode,
 														 const Color4& borderColor, const Color4& fillColor)
 {
 
@@ -692,9 +692,9 @@ void GLESRenderer::_SetLightParams(uint32_t light, LightType type, const Vec3& p
 //-----------------------------------------------------------------------------
 void GLESRenderer::_SetLightColor(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular)
 {
-	glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient.ToFloatPtr());
-	glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse.ToFloatPtr());
-	glLightfv(GL_LIGHT0 + light, GL_SPECULAR, specular.ToFloatPtr());
+	glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient.to_float_ptr());
+	glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse.to_float_ptr());
+	glLightfv(GL_LIGHT0 + light, GL_SPECULAR, specular.to_float_ptr());
 }
 
 //-----------------------------------------------------------------------------

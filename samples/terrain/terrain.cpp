@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <GL/glu.h>
 #include "OS.h"
+#include "FPSSystem.h"
 
 using namespace crown;
 
@@ -13,7 +14,7 @@ public:
 
 	WndCtrl()
 	{
-		GetInputManager()->RegisterKeyboardListener(this);
+		get_input_manager()->register_keyboard_listener(this);
 	}
 
 	void KeyReleased(const KeyboardEvent& event)
@@ -37,8 +38,8 @@ public:
 		optShowCrate(true),
 		optShowTerrain(true)
 	{
-		GetInputManager()->RegisterKeyboardListener(this);
-		GetInputManager()->RegisterMouseListener(this);
+		get_input_manager()->register_keyboard_listener(this);
+		get_input_manager()->register_mouse_listener(this);
 		mouseRightPressed = false;
 		mouseLeftPressed = false;
 	}
@@ -47,7 +48,7 @@ public:
 	{
 	}
 
-	void KeyReleased(const KeyboardEvent& event)
+	void key_released(const KeyboardEvent& event)
 	{
 		if (event.key == '1')
 		{
@@ -78,7 +79,7 @@ public:
 		}
 	}
 
-	void ButtonPressed(const MouseEvent& event)
+	void button_pressed(const MouseEvent& event)
 	{
 		if (event.button == MB_LEFT)
 		{
@@ -121,7 +122,7 @@ public:
 		wheel += event.wheel * 0.25;
 	}
 
-	void ButtonReleased(const MouseEvent& event)
+	void button_released(const MouseEvent& event)
 	{
 		if (event.button == MB_LEFT)
 		{
@@ -134,14 +135,14 @@ public:
 		wheel -= event.wheel * 0.25;
 	}
 		
-
 	void OnLoad()
 	{
 		crown::Renderer* renderer = crown::GetDevice()->GetRenderer();
 		renderer->SetClearColor(Color4::LIGHTBLUE);
-
+		
+		Vec3 start = Vec3(0.0f, 10.0f, 0.0f);
 		// Add a movable camera
-		cam = new MovableCamera(Vec3::ZERO, true, 90.0f, 1.6f, true, 0.1, 2.5);
+		cam = new MovableCamera(/*Vec3::ZERO*/start, true, 90.0f, 1.6f, true, 0.1, 2.5);
 
 		if (cam)
 		{
@@ -149,6 +150,8 @@ public:
 			cam->SetSpeed(0.1);
 			cam->SetFarClipDistance(1000.0f);
 		}
+
+		system = new FPSSystem(cam);
 
 		// Add a skybox
 		skybox = new Skybox(Vec3::ZERO, true);
@@ -177,8 +180,9 @@ public:
 	void RenderScene()
 	{
 		Renderer* renderer = GetDevice()->GetRenderer();
-
-		cam->Render();
+		
+		system->set_view_by_cursor();
+		system->camera_render();
 
 		renderer->_SetLighting(false);
 		renderer->_SetTexturing(0, false);
@@ -235,6 +239,7 @@ public:
 
 private:
 
+	FPSSystem* system;
 	MovableCamera* cam;
 	Skybox* skybox;
 	Mat4 ortho;
@@ -268,7 +273,7 @@ int main(int argc, char** argv)
 	{
 		os::event_loop();
 
-		GetInputManager()->EventLoop();
+		get_input_manager()->event_loop();
 
 		GetDevice()->GetRenderer()->_BeginFrame();
 			mainScene.RenderScene();

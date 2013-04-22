@@ -14,11 +14,15 @@ set (SRC
 	Skybox.cpp
 	Terrain.cpp
 	World.cpp
+
 	TextureResource.cpp
 	
 	TextResource.cpp
 	ArchiveResourceArchive.cpp
 	FileResourceArchive.cpp
+
+	FPSSystem.cpp
+	JSONParser.cpp
 )
 
 set (HEADERS
@@ -48,6 +52,9 @@ set (HEADERS
 	TextResource.h
 	ArchiveResourceArchive.h
 	FileResourceArchive.h
+
+	FPSSystem.h
+	JSONParser.h
 )
 
 set (CORE_SRC
