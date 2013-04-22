@@ -693,6 +693,26 @@ void GLESRenderer::set_light_attenuation(uint32_t light, float constant, float l
 }
 
 //-----------------------------------------------------------------------------
+void GLESRenderer::render_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, vertices);
+	glNormalPointer(GL_FLOAT, 0, normals);
+	glTexCoordPointer(2, GL_FLOAT, 0, uvs);
+
+	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, indices);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+
+//-----------------------------------------------------------------------------
 TextureId GLESRenderer::load_texture(TextureResource* texture)
 {
 	// Search for an already existent texture

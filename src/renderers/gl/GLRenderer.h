@@ -116,6 +116,8 @@ public:
 	void				render_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices);
 	void				render_point_buffer(const VertexBuffer* buffer);
 
+	void				render_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count);
+
 	TextureId			load_texture(TextureResource* texture);
 	void				unload_texture(TextureResource* texture);
 	TextureId			reload_texture(TextureResource* old_texture, TextureResource* new_texture);
