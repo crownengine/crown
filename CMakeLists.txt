@@ -57,10 +57,12 @@ endif (CROWN_BUILD_TESTS)
 # detect operating system
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	set(LINUX 1)
+	add_subdirectory(src/os/linux)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	set (WINDOWS 1)
+	add_subdirectory(src/os/win)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 # set config options

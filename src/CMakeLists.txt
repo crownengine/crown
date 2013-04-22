@@ -230,26 +230,6 @@ set (OS_SRC
 	os/OS.cpp
 )
 
-set (LINUX_SRC
-#	EGLRenderWindow.cpp
-	os/linux/GLXRenderWindow.cpp
-	os/linux/LinuxOS.cpp
-	os/linux/Input.cpp
-	os/linux/LinuxTCPSocket.cpp
-	os/linux/LinuxUDPSocket.cpp	
-	os/linux/File.cpp
-)
-
-set (LINUX_HEADERS
-	os/linux/File.h
-#	os/linux/EGLRenderWindow.h
-)
-
-set (WIN_SRC
-#	os/win/WinTCPSocket.cpp
-#	os/win/WinUDPSocket.cpp
-)
-
 set (NETWORK_SRC
 	network/BitMessage.cpp
 	network/AsyncConnection.cpp
@@ -287,17 +267,15 @@ set (SOURCES
 	${INPUT_SRC}
 	${INPUT_HEADERS}
 
-	${OS_SRC}
-	${OS_HEADERS}
-	${LINUX_SRC}
-	${LINUX_HEADERS}
-	${WIN_SRC}
+	${RENDERERS_SRC}
+	${RENDERERS_HEADERS}
+
 	${NETWORK_SRC}
 	${NETWORK_HEADERS}
 
-	${RENDERERS_SRC}
-	${RENDERERS_HEADERS}
+	${OS_SRC}
+	${OS_HEADERS}
 )
 
-link_libraries(X11 Xrandr rt z pthread)
+link_libraries(rt z)
 add_library(crown STATIC ${SOURCES})
