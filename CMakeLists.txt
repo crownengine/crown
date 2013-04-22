@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 2.8)
 project(crown)
 
 option (CROWN_USE_FLOAT "Whether to use float or double for representing real numbers." ON)
-option (CROWN_BUILD_OPENGL "Whether to build the OpenGL renderer or not." ON)
-option (CROWN_BUILD_OPENGLES "Whether to build the OpenGL|ES 1.0 renderer or not." OFF)
-option (CROWN_BUILD_SAMPLES "Whether to build the samples" ON)
-option (CROWN_BUILD_TOOLS "Whether to build the tools" ON)
-option (CROWN_BUILD_TESTS "Whether to build unit tests" ON)
+option (CROWN_BUILD_OPENGL "Whether to build the OpenGL renderer or not." OFF)
+option (CROWN_BUILD_OPENGLES "Whether to build the OpenGL|ES 1.0 renderer or not." ON)
+option (CROWN_BUILD_SAMPLES "Whether to build the samples" OFF)
+option (CROWN_BUILD_TOOLS "Whether to build the tools" OFF)
+option (CROWN_BUILD_TESTS "Whether to build unit tests" OFF)
 
 set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src
@@ -25,8 +25,6 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/os/linux
 	${CMAKE_SOURCE_DIR}/src/input
 	${CMAKE_SOURCE_DIR}/src/renderers
-	${CMAKE_SOURCE_DIR}/src/renderers/gl
-	${CMAKE_SOURCE_DIR}/src/renderers/gles
 	${CMAKE_SOURCE_DIR}/src/network
 )
 
@@ -35,6 +33,14 @@ add_definitions(-pipe -ansi -W -Wall -Wextra -Wno-long-long -pedantic -fPIC -g -
 
 # add build directories
 add_subdirectory(src)
+
+if (CROWN_BUILD_OPENGL)
+add_subdirectory(src/renderers/gl)
+endif (CROWN_BUILD_OPENGL)
+
+if (CROWN_BUILD_OPENGLES)
+add_subdirectory(src/renderers/gles)
+endif (CROWN_BUILD_OPENGLES)
 
 if (CROWN_BUILD_TOOLS)
 add_subdirectory(tools)
