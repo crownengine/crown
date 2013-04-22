@@ -78,6 +78,8 @@ private:
 
 	Renderer*				mRenderer;
 
+private:
+
 	// Disable copying
 	Device(const Device&);
 	Device& operator=(const Device&);

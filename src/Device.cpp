@@ -35,6 +35,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Args.h"
 #include <cstdlib>
 
+#include "renderers/gl/GLRenderer.h"
+#include "renderers/gles/GLESRenderer.h"
+
 namespace crown
 {
 
@@ -77,21 +80,26 @@ bool Device::Init(int argc, char** argv)
 		return false;
 	}
 
-	// Sets the root path
+	// Set the root path
 	// GetFilesystem()->Init(mPreferredRootPath.c_str(), mPreferredUserPath.c_str());
 
-	// Creates the main window
+	// Create the main window
 	if (!os::create_render_window(0, 0, mPreferredWindowWidth, mPreferredWindowHeight, mPreferredWindowFullscreen))
 	{
-		Log::E("Unuble to create the main window.");
+		Log::E("Unable to create the main window.");
 		return false;
 	}
 	Log::D("Window created.");
 
-	// Creates the renderer
+	// Create the renderer
 	if (!mRenderer)
 	{
-		mRenderer = Renderer::CreateRenderer();
+		// FIXME FIXME FIXME
+		#ifdef CROWN_BUILD_OPENGL
+			mRenderer = new GLRenderer();
+		#elif defined CROWN_BUILD_OPENGLES
+			mRenderer = new GLESRenderer();
+		#endif
 	}
 	Log::D("Renderer created.");
 
@@ -120,7 +128,7 @@ void Device::Shutdown()
 
 	if (mRenderer)
 	{
-		Renderer::DestroyRenderer(mRenderer);
+		delete mRenderer;
 	}
 
 	Log::I("Releasing Render Window...");
