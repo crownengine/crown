@@ -222,22 +222,6 @@ set (RENDERERS_HEADERS
 	renderers/Texture.h
 )
 
-set (GL_SRC
-	renderers/gl/GLIndexBuffer.cpp
-	renderers/gl/GLOcclusionQuery.cpp
-	renderers/gl/GLRenderer.cpp
-	renderers/gl/GLUtils.cpp
-	renderers/gl/GLVertexBuffer.cpp
-)
-
-set (GL_HEADERS
-	renderers/gl/GLIndexBuffer.h
-	renderers/gl/GLOcclusionQuery.h
-	renderers/gl/GLRenderer.h
-	renderers/gl/GLUtils.h
-	renderers/gl/GLVertexBuffer.h
-)
-
 set (OS_HEADERS
 	os/OS.h
 )
@@ -313,10 +297,7 @@ set (SOURCES
 
 	${RENDERERS_SRC}
 	${RENDERERS_HEADERS}
-
-	${GL_SRC}
-	${GL_HEADERS}
 )
 
-link_libraries(X11 GL GLEW Xrandr rt z pthread)
+link_libraries(X11 Xrandr rt z pthread)
 add_library(crown STATIC ${SOURCES})
