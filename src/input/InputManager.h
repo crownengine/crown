@@ -48,10 +48,10 @@ public:
 	//! Initializes the input manager.
 	void init();
 
-	bool is_mouse_available() {}
-	bool is_keyboard_available() {}
-	bool is_touch_available() {}
-	bool is_accelerometer_available() {}
+	bool is_mouse_available() { return true; }
+	bool is_keyboard_available() { return true; }
+	bool is_touch_available() { return true; }
+	bool is_accelerometer_available() { return true; }
 
 
 	inline void register_mouse_listener(MouseListener* listener)
