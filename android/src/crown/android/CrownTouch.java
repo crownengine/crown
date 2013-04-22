@@ -1,15 +1,23 @@
 package crown.android;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.MotionEvent;
 
+
+/**
+* CrownTouch manages touch and gesture events passing them to Crown Engine
+*/
+
+//TODO: gestures doesn't work...fix them
 public class CrownTouch
 {
-	private boolean isListening;
+	private boolean 				isListening;
 
 //-----------------------------------------------------------------------------------
-	public CrownTouch()
+	public CrownTouch(Context context)
 	{
+		isListening = false;
 	}
 
 //-----------------------------------------------------------------------------------
@@ -53,12 +61,4 @@ public class CrownTouch
 			}
 		}
 	}
-
-//-----------------------------------------------------------------------------------
-	public boolean hasMultiTouchSupport(Context context)
-	{
-		return context.getPackageManager().hasSystemFeature("android.hardware.touchscreen.multitouch");
-	}
-
-
 }
