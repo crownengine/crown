@@ -56,36 +56,43 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 GLRenderer::GLRenderer() :
-	mModelMatrixStackIndex(0),
-
-	mMaxLights(0),
-	mMaxTextureSize(0),
-	mMaxTextureUnits(0),
-	mMaxVertexIndices(0),
-	mMaxVertexVertices(0),
-	mMaxAnisotropy(0.0f),
+	m_max_lights(0),
+	m_max_texture_size(0),
+	m_max_texture_units(0),
+	m_max_vertex_indices(0),
+	m_max_vertex_vertices(0),
+	m_max_anisotropy(0.0f),
 
 	m_texture_count(0),
-	mActiveTextureUnit(0),
-
-	mLinesCount(0)
+	m_active_texture_unit(0)
 {
-	mMinMaxPointSize[0] = 0.0f;
-	mMinMaxPointSize[1] = 0.0f;
-	mMinMaxLineWidth[0] = 0.0f;
-	mMinMaxLineWidth[1] = 0.0f;
+	m_min_max_point_size[0] = 0.0f;
+	m_min_max_point_size[1] = 0.0f;
+	m_min_max_line_width[0] = 0.0f;
+	m_min_max_line_width[1] = 0.0f;
+
+	// Initialize viewport and scissor
+	m_viewport[0] = 0;
+	m_viewport[1] = 0;
+	m_viewport[2] = 0;
+	m_viewport[3] = 0;
+
+	m_scissor[0] = 0;
+	m_scissor[1] = 0;
+	m_scissor[2] = 0;
+	m_scissor[3] = 0;
 
 	// Initialize texture units
 	for (uint32_t i = 0; i < MAX_TEXTURE_UNITS; i++)
 	{
-		mTextureUnit[i] = 0;
-		mTextureUnitTarget[i] = GL_TEXTURE_2D;
+		m_texture_unit[i] = 0;
+		m_texture_unit_target[i] = GL_TEXTURE_2D;
 	}
 
 	// Initialize the matrices
 	for (uint32_t i = 0; i < MT_COUNT; i++)
 	{
-		mMatrix[i].load_identity();
+		m_matrix[i].load_identity();
 	}
 
 	GLenum err = glewInit();
@@ -94,20 +101,20 @@ GLRenderer::GLRenderer() :
 
 	Log::I("GLEW initialized.");
 
-	glGetIntegerv(GL_MAX_LIGHTS, &mMaxLights);
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &mMaxTextureSize);
-	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &mMaxTextureUnits);
-	glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &mMaxVertexIndices);
-	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &mMaxVertexVertices);
+	glGetIntegerv(GL_MAX_LIGHTS, &m_max_lights);
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size);
+	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &m_max_texture_units);
+	glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &m_max_vertex_indices);
+	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_max_vertex_vertices);
 
 	// Check for anisotropic filter support
 	if (GLEW_EXT_texture_filter_anisotropic)
 	{
-		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &mMaxAnisotropy);
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &m_max_anisotropy);
 	}
 
-	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &mMinMaxPointSize[0]);
-	glGetFloatv(GL_LINE_WIDTH_RANGE, &mMinMaxLineWidth[0]);
+	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &m_min_max_point_size[0]);
+	glGetFloatv(GL_LINE_WIDTH_RANGE, &m_min_max_line_width[0]);
 
 	const unsigned char* gl_vendor = glGetString(GL_VENDOR);
 	const unsigned char* gl_renderer = glGetString(GL_RENDERER);
@@ -116,16 +123,16 @@ GLRenderer::GLRenderer() :
 	Log::I("OpenGL Vendor\t: %s", gl_vendor);
 	Log::I("OpenGL Renderer\t: %s", gl_renderer);
 	Log::I("OpenGL Version\t: %s", gl_version);
-	Log::I("Min Point Size\t: %f", mMinMaxPointSize[0]);
-	Log::I("Max Point Size\t: %f", mMinMaxPointSize[1]);
-	Log::I("Min Line Width\t: %f", mMinMaxLineWidth[0]);
-	Log::I("Max Line Width\t: %f", mMinMaxLineWidth[1]);
-	Log::I("Max Texture Size\t: %dx%d", mMaxTextureSize, mMaxTextureSize);
-	Log::I("Max Texture Units\t: %d", mMaxTextureUnits);
-	Log::I("Max Lights\t\t: %d", mMaxLights);
-	Log::I("Max Vertex Indices\t: %d", mMaxVertexIndices);
-	Log::I("Max Vertex Vertices\t: %d", mMaxVertexVertices);
-	Log::I("Max Anisotropy\t: %f", mMaxAnisotropy);
+	Log::I("Min Point Size\t: %f", m_min_max_point_size[0]);
+	Log::I("Max Point Size\t: %f", m_min_max_point_size[1]);
+	Log::I("Min Line Width\t: %f", m_min_max_line_width[0]);
+	Log::I("Max Line Width\t: %f", m_min_max_line_width[1]);
+	Log::I("Max Texture Size\t: %dx%d", m_max_texture_size, m_max_texture_size);
+	Log::I("Max Texture Units\t: %d", m_max_texture_units);
+	Log::I("Max Lights\t\t: %d", m_max_lights);
+	Log::I("Max Vertex Indices\t: %d", m_max_vertex_indices);
+	Log::I("Max Vertex Vertices\t: %d", m_max_vertex_vertices);
+	Log::I("Max Anisotropy\t: %f", m_max_anisotropy);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -181,13 +188,6 @@ GLRenderer::~GLRenderer()
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::set_viewport(const Rect& absArea)
-{
-	glViewport((int32_t)absArea.min.x, (int32_t)absArea.min.y, (int32_t)absArea.max.x, (int32_t)absArea.max.y);
-	glScissor((int32_t)absArea.min.x, (int32_t)absArea.min.y, (int32_t)absArea.max.x, (int32_t)absArea.max.y);
-}
-
-//-----------------------------------------------------------------------------
 void GLRenderer::set_clear_color(const Color4& color)
 {
 	glClearColor(color.r, color.g, color.b, color.a);
@@ -231,11 +231,11 @@ void GLRenderer::set_texturing(uint32_t unit, bool texturing)
 
 	if (texturing)
 	{
-		glEnable(mTextureUnitTarget[unit]);
+		glEnable(m_texture_unit_target[unit]);
 	}
 	else
 	{
-		glDisable(mTextureUnitTarget[unit]);
+		glDisable(m_texture_unit_target[unit]);
 	}
 }
 
@@ -247,11 +247,11 @@ void GLRenderer::set_texture(uint32_t unit, TextureId texture)
 		return;
 	}
 
-	mTextureUnitTarget[unit] = GL_TEXTURE_2D;
-	mTextureUnit[unit] = m_textures[texture.index].texture_object;
+	m_texture_unit_target[unit] = GL_TEXTURE_2D;
+	m_texture_unit[unit] = m_textures[texture.index].texture_object;
 
-	glEnable(mTextureUnitTarget[unit]);
-	glBindTexture(mTextureUnitTarget[unit], mTextureUnit[unit]);
+	glEnable(m_texture_unit_target[unit]);
+	glBindTexture(m_texture_unit_target[unit], m_texture_unit[unit]);
 }
 
 //-----------------------------------------------------------------------------
@@ -275,9 +275,9 @@ void GLRenderer::set_texture_wrap(uint32_t unit, TextureWrap wrap)
 {
 	GLenum glWrap = GL::GetTextureWrap(wrap);
 
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_S, glWrap);
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_T, glWrap);
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_R, glWrap);
+	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_S, glWrap);
+	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_T, glWrap);
+	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_R, glWrap);
 }
 
 //-----------------------------------------------------------------------------
@@ -291,8 +291,8 @@ void GLRenderer::set_texture_filter(uint32_t unit, TextureFilter filter)
 
 	GL::GetTextureFilter(filter, minFilter, magFilter);
 
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_MIN_FILTER, minFilter);
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_MAG_FILTER, magFilter);
+	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MAG_FILTER, magFilter);
 }
 
 //-----------------------------------------------------------------------------
@@ -485,7 +485,21 @@ void GLRenderer::set_front_face(FrontFace face)
 //-----------------------------------------------------------------------------
 void GLRenderer::set_viewport_params(int32_t x, int32_t y, int32_t width, int32_t height)
 {
+	m_viewport[0] = x;
+	m_viewport[1] = y;
+	m_viewport[2] = width;
+	m_viewport[3] = height;
+
 	glViewport(x, y, width, height);
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::get_viewport_params(int32_t& x, int32_t& y, int32_t& width, int32_t& height)
+{
+	x = m_viewport[0];
+	y = m_viewport[1];
+	width = m_viewport[2];
+	height = m_viewport[3];
 }
 
 //-----------------------------------------------------------------------------
@@ -504,7 +518,21 @@ void GLRenderer::set_scissor(bool scissor)
 //-----------------------------------------------------------------------------
 void GLRenderer::set_scissor_params(int32_t x, int32_t y, int32_t width, int32_t height)
 {
+	m_scissor[0] = x;
+	m_scissor[1] = y;
+	m_scissor[2] = width;
+	m_scissor[3] = height;
+
 	glScissor(x, y, width, height);
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::get_scissor_params(int32_t& x, int32_t& y, int32_t& width, int32_t& height)
+{
+	x = m_scissor[0];
+	y = m_scissor[1];
+	width = m_scissor[2];
+	height = m_scissor[3];
 }
 
 //-----------------------------------------------------------------------------
@@ -553,13 +581,13 @@ void GLRenderer::end_frame()
 //-----------------------------------------------------------------------------
 Mat4 GLRenderer::get_matrix(MatrixType type) const
 {
-	return mMatrix[type];
+	return m_matrix[type];
 }
 
 //-----------------------------------------------------------------------------
 void GLRenderer::set_matrix(MatrixType type, const Mat4& matrix)
 {
-	mMatrix[type] = matrix;
+	m_matrix[type] = matrix;
 
 	switch (type)
 	{
@@ -567,44 +595,23 @@ void GLRenderer::set_matrix(MatrixType type, const Mat4& matrix)
 		case MT_MODEL:
 			glMatrixMode(GL_MODELVIEW);
 			// Transformations must be listed in reverse order
-			glLoadMatrixf((mMatrix[MT_VIEW] * mMatrix[MT_MODEL]).to_float_ptr());
+			glLoadMatrixf((m_matrix[MT_VIEW] * m_matrix[MT_MODEL]).to_float_ptr());
 			break;
 		case MT_PROJECTION:
 			glMatrixMode(GL_PROJECTION);
-			glLoadMatrixf(mMatrix[MT_PROJECTION].to_float_ptr());
+			glLoadMatrixf(m_matrix[MT_PROJECTION].to_float_ptr());
 			break;
 		case MT_TEXTURE:
 			glMatrixMode(GL_TEXTURE);
-			glLoadMatrixf(mMatrix[MT_TEXTURE].to_float_ptr());
+			glLoadMatrixf(m_matrix[MT_TEXTURE].to_float_ptr());
 			break;
 		case MT_COLOR:
 			//glMatrixMode(GL_COLOR);
-			//glLoadMatrixf(mMatrix[MT_COLOR].to_float_ptr());
+			//glLoadMatrixf(m_matrix[MT_COLOR].to_float_ptr());
 			break;
 		default:
 			break;
 	}
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::push_matrix()
-{
-	assert(mModelMatrixStackIndex != MAX_MODEL_MATRIX_STACK_DEPTH);
-
-	//Copy the current matrix into the stack, and move to the next location
-	glGetFloatv(GL_MODELVIEW_MATRIX, mModelMatrixStack[mModelMatrixStackIndex].to_float_ptr());
-	mModelMatrixStackIndex++;
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::pop_matrix()
-{
-	// Note: Is checking for push-pop count necessary? Maybe it should signal matrix stack underflow.
-	//glPopMatrix();
-	assert(mModelMatrixStackIndex > 0);
-
-	mModelMatrixStackIndex--;
-	set_matrix(MT_MODEL, mModelMatrixStack[mModelMatrixStackIndex]);
 }
 
 //-----------------------------------------------------------------------------
@@ -672,69 +679,15 @@ void GLRenderer::render_point_buffer(const VertexBuffer* buffer)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::set_scissor_box(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
-{
-	int32_t vals[4];
-	glGetIntegerv(GL_VIEWPORT, vals);
-	glScissor(x, vals[3] - y - height, width, height);
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::get_scissor_box(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height)
-{
-	int32_t vals[4];
-	glGetIntegerv(GL_SCISSOR_BOX, vals);
-	int32_t valsViewport[4];
-	glGetIntegerv(GL_VIEWPORT, valsViewport);
-	x = vals[0];
-	width = vals[2];
-	height = vals[3];
-	y = valsViewport[3] - vals[1] - height;
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::draw_rectangle(const Point2& position, const Point2& dimensions, int32_t drawMode,
-															 const Color4& borderColor, const Color4& fillColor)
-{
-	if (drawMode & DM_FILL)
-	{
-		glBegin(GL_QUADS);
-
-		glColor4f(fillColor.r, fillColor.g, fillColor.b, fillColor.a);
-
-		glVertex3i(position.x								, position.y							 , 0);
-		glVertex3i(position.x + dimensions.x, position.y							 , 0);
-		glVertex3i(position.x + dimensions.x, position.y + dimensions.y, 0);
-		glVertex3i(position.x								, position.y + dimensions.y, 0);
-		
-		glEnd();
-	}
-
-	if (drawMode & DM_BORDER)
-	{
-		glBegin(GL_LINE_LOOP);
-
-		glColor4f(borderColor.r, borderColor.g, borderColor.b, borderColor.a);
-
-		glVertex3i(position.x										, position.y									 , 0);
-		glVertex3i(position.x										, position.y + dimensions.y - 1, 0);
-		glVertex3i(position.x + dimensions.x - 1, position.y + dimensions.y - 1, 0);
-		glVertex3i(position.x + dimensions.x - 1, position.y									 , 0);
-
-		glEnd();
-	}
-}
-
-//-----------------------------------------------------------------------------
 bool GLRenderer::activate_texture_unit(uint32_t unit)
 {
-	if (unit >= (uint32_t) mMaxTextureUnits)
+	if (unit >= (uint32_t) m_max_texture_units)
 	{
 		return false;
 	}
 
 	glActiveTexture(GL_TEXTURE0 + unit);
-	mActiveTextureUnit = unit;
+	m_active_texture_unit = unit;
 
 	return true;
 }
@@ -742,7 +695,7 @@ bool GLRenderer::activate_texture_unit(uint32_t unit)
 //-----------------------------------------------------------------------------
 void GLRenderer::set_light(uint32_t light, bool active)
 {
-	if (light >= (uint32_t) mMaxLights)
+	if (light >= (uint32_t) m_max_lights)
 	{
 		return;
 	}
@@ -835,13 +788,17 @@ TextureId GLRenderer::load_texture(TextureResource* texture)
 //-----------------------------------------------------------------------------
 void GLRenderer::unload_texture(TextureResource* texture)
 {
-
+	// FIXME
+	(void)texture;
 }
 
 //-----------------------------------------------------------------------------
 TextureId GLRenderer::reload_texture(TextureResource* old_texture, TextureResource* new_texture)
 {
-
+	// FIXME
+	(void)old_texture;
+	(void)new_texture;
+	return TextureId();
 }
 
 //-----------------------------------------------------------------------------
@@ -878,36 +835,5 @@ void GLRenderer::check_gl_errors()
 	}
 }
 
-void GLRenderer::add_debug_line(const Vec3& start, const Vec3& end, const Color4& color)
-{
-	if (mLinesCount < 256)
-	{
-		mLinesData[mLinesCount].start		= start;
-		mLinesData[mLinesCount].c1			= color;
-		mLinesData[mLinesCount].end			= end;
-		mLinesData[mLinesCount].c2			= color;
-		mLinesCount++;
-	}
-}
-
-void GLRenderer::draw_debug_lines()
-{
-	if (mLinesCount == 0)
-	{
-		return;
-	}
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-
-		glVertexPointer(3, GL_FLOAT, sizeof(float) * 7, &mLinesData[0].start);
-		glColorPointer(4, GL_FLOAT, sizeof(float) * 7, &mLinesData[0].c1);
-
-		glDrawArrays(GL_LINES, 0, mLinesCount * 4);
-
-	glDisableClientState(GL_VERTEX_ARRAY);
-
-	mLinesCount = 0;
-}
-
 } // namespace crown
+

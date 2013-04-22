@@ -57,7 +57,7 @@ public:
 	void				end_frame();
 
 	void				set_clear_color(const Color4& color);
-	void				set_viewport(const Rect& absArea);
+
 	void				set_material_params(const Color4& ambient, const Color4& diffuse, const Color4& specular, const Color4& emission, int32_t shininess);
 	void				set_lighting(bool lighting);
 	void				set_ambient_light(const Color4& color);
@@ -98,9 +98,11 @@ public:
 	void				set_front_face(FrontFace face);
 
 	void				set_viewport_params(int32_t x, int32_t y, int32_t width, int32_t height);
+	void				get_viewport_params(int32_t& x, int32_t& y, int32_t& width, int32_t& height);
 
 	void				set_scissor(bool scissor);
 	void				set_scissor_params(int32_t x, int32_t y, int32_t width, int32_t height);
+	void				get_scissor_params(int32_t& x, int32_t& y, int32_t& width, int32_t& height);
 
 	void				set_point_sprite(bool sprite);
 	void				set_point_size(float size);
@@ -109,25 +111,16 @@ public:
 	Mat4				get_matrix(MatrixType type) const;
 	void				set_matrix(MatrixType type, const Mat4& matrix);
 
-	void				push_matrix();
-	void				pop_matrix();
-
 	void				select_matrix(MatrixType type);
 
 	void				render_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices);
 	void				render_point_buffer(const VertexBuffer* buffer);
 
-	void				set_scissor_box(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
-	void				get_scissor_box(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height);
-	void				draw_rectangle(const Point2& position, const Point2& dimensions, int32_t drawMode,
-														 const Color4& borderColor, const Color4& fillColor);
-
-	void				add_debug_line(const Vec3& start, const Vec3& end, const Color4& color);
-	void				draw_debug_lines();
-
 	TextureId			load_texture(TextureResource* texture);
 	void				unload_texture(TextureResource* texture);
 	TextureId			reload_texture(TextureResource* old_texture, TextureResource* new_texture);
+
+private:
 
 	bool				activate_texture_unit(uint32_t unit);		//!< Activates a texture unit and returns true if succes
 	bool				activate_light(uint32_t light);
@@ -137,41 +130,30 @@ public:
 private:
 
 	// Matrices
-	Mat4				mMatrix[MT_COUNT];
-
-	Mat4				mModelMatrixStack[MAX_MODEL_MATRIX_STACK_DEPTH];
-	uint32_t			mModelMatrixStackIndex;
+	Mat4				m_matrix[MT_COUNT];
 
 	// Limits
-	int32_t				mMaxLights;
-	int32_t				mMaxTextureSize;
-	int32_t				mMaxTextureUnits;
-	int32_t				mMaxVertexIndices;
-	int32_t				mMaxVertexVertices;
+	int32_t				m_max_lights;
+	int32_t				m_max_texture_size;
+	int32_t				m_max_texture_units;
+	int32_t				m_max_vertex_indices;
+	int32_t				m_max_vertex_vertices;
 
-	float				mMaxAnisotropy;
-	float				mMinMaxPointSize[2];
-	float				mMinMaxLineWidth[2];
+	float				m_max_anisotropy;
+	float				m_min_max_point_size[2];
+	float				m_min_max_line_width[2];
+
+	// Viewport and scissor
+	int32_t				m_viewport[4];
+	int32_t				m_scissor[4];
 
 	// Texture management
 	uint32_t			m_texture_count;
 	GLTexture			m_textures[MAX_TEXTURES];
 
-	uint32_t			mActiveTextureUnit;
-	GLuint				mTextureUnit[MAX_TEXTURE_UNITS];
-	GLenum				mTextureUnitTarget[MAX_TEXTURE_UNITS];
-
-	// Debug lines
-	struct DebugLinesData
-	{
-		Vec3	start;
-		Color4	c1;
-		Vec3	end;
-		Color4	c2;
-	};
-
-	uint32_t				mLinesCount;
-	DebugLinesData		mLinesData[1024];
+	uint32_t			m_active_texture_unit;
+	GLuint				m_texture_unit[MAX_TEXTURE_UNITS];
+	GLenum				m_texture_unit_target[MAX_TEXTURE_UNITS];
 
 	friend class TextureResource;
 };
