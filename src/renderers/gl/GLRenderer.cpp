@@ -36,7 +36,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GLVertexBuffer.h"
 #include "Log.h"
 #include "Material.h"
-#include "Rect.h"
 #include "Allocator.h"
 
 #include "TextureResource.h"
