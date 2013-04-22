@@ -279,3 +279,20 @@ set (SOURCES
 
 link_libraries(rt z)
 add_library(crown STATIC ${SOURCES})
+
+if (CROWN_BUILD_OPENGL)
+target_link_libraries(crown crown-gl)
+endif (CROWN_BUILD_OPENGL)
+
+if (CROWN_BUILD_OPENGLES)
+target_link_libraries(crown crown-gles)
+endif (CROWN_BUILD_OPENGLES)
+
+if (LINUX)
+target_link_libraries(crown crown-linux)
+endif (LINUX)
+
+if (WINDOWS)
+target_link_libraries(crown crown-win)
+endif (WINDOWS)
+

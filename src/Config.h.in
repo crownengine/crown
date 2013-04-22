@@ -1,5 +1,5 @@
 #cmakedefine LINUX
 #cmakedefine WINDOWS
-#cmakedefine CROWN_USE_OPENGL
-#cmakedefine CROWN_USE_OPENGLES
+#cmakedefine CROWN_BUILD_OPENGL
+#cmakedefine CROWN_BUILD_OPENGLES
 #cmakedefine CROWN_USE_FLOAT

@@ -16,7 +16,7 @@ set (GLES_HEADERS
 	GLESUtils.h
 )
 
-link_libraries(GLES)
+link_libraries(GLESv1_CM)
 
 add_library(crown-gles STATIC ${GLES_SRC} ${GLES_HEADERS})
 
