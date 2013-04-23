@@ -7,8 +7,8 @@ namespace os
 {
 
 static OSEvent			event_queue[MAX_EVENTS];
-static int32_t			event_queue_head = 0;
-static int32_t			event_queue_tail = 0;
+static uint32_t			event_queue_head = 0;
+static uint32_t			event_queue_tail = 0;
 
 //-----------------------------------------------------------------------------
 void push_event(OSEventType type, OSEventParameter data_a, OSEventParameter data_b, OSEventParameter data_c, OSEventParameter data_d)
