@@ -22,7 +22,6 @@ LOCAL_SRC_FILES :=\
 	core/bv/Frustum.cpp\
 	core/bv/Rect.cpp\
 	core/containers/Generic.cpp\
-	core/containers/Str.cpp\
 	core/math/Color4.cpp\
 	core/math/Mat3.cpp\
 	core/math/Mat4.cpp\
@@ -37,12 +36,11 @@ LOCAL_SRC_FILES :=\
 	core/streams/FileStream.cpp\
 	core/streams/MemoryStream.cpp\
 	core/streams/Stream.cpp\
+	core/threads/Thread.cpp\
+	core/threads/Mutex.cpp\
 \
 	input/EventDispatcher.cpp\
 	input/InputManager.cpp\
-\
-	loaders/BMPImageLoader.cpp\
-	loaders/TGAImageLoader.cpp\
 \
 	os/OS.cpp\
 	os/android/AndroidOS.cpp\
@@ -54,27 +52,23 @@ LOCAL_SRC_FILES :=\
 \
 	renderers/gles/GLESIndexBuffer.cpp\
 	renderers/gles/GLESRenderer.cpp\
-	renderers/gles/GLESTexture.cpp\
-	renderers/gles/GLESTextureManager.cpp\
 	renderers/gles/GLESUtils.cpp\
 	renderers/gles/GLESVertexBuffer.cpp\
 \
 	Camera.cpp\
 	Device.cpp\
 	Font.cpp\
-	FontManager.cpp\
 	Image.cpp\
-	ImageLoader.cpp\
 	Log.cpp\
-	Material.cpp\
-	MaterialManager.cpp\
-	MeshChunk.cpp\
-	Mesh.cpp\
-	MeshManager.cpp\
+	MaterialResource.cpp\
 	MovableCamera.cpp\
 	Pixel.cpp\
-	Renderer.cpp\
 	ResourceManager.cpp\
+	ResourceLoader.cpp\
+	FileResourceArchive.cpp\
+	ArchiveResourceArchive.cpp\
+	TextureResource.cpp\
+	TextResource.cpp\
 	Skybox.cpp\
 	FPSSystem.cpp\
 \
@@ -86,16 +80,19 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/core/math\
 	$(LOCAL_PATH)/core/compressors\
 	$(LOCAL_PATH)/core/containers\
+	$(LOCAL_PATH)/core/strings\
+	$(LOCAL_PATH)/core/threads\
 	$(LOCAL_PATH)/core/bv\
 	$(LOCAL_PATH)/core/mem\
 	$(LOCAL_PATH)/core/streams\
+	$(LOCAL_PATH)/core/threads\
+	$(LOCAL_PATH)/core/settings\
 	$(LOCAL_PATH)/loaders\
 	$(LOCAL_PATH)/os\
 	$(LOCAL_PATH)/os/android\
 	$(LOCAL_PATH)/renderers\
 	$(LOCAL_PATH)/things\
 	$(LOCAL_PATH)/filesystem\
-	$(LOCAL_PATH)/renderers/gl\
 	$(LOCAL_PATH)/renderers/gles\
 	$(LOCAL_PATH)/renderers/gles/egl\
 	$(LOCAL_PATH)/input\

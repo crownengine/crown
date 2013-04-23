@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/time.h>
 #include <time.h>
 #include <android/asset_manager_jni.h>
+#include <pthread.h>
 
 #include "OS.h"
 #include "AndroidOS.h"
@@ -152,7 +153,7 @@ const char* get_cwd()
 	static char cwdBuf[MAX_PATH_LENGTH];
 	if (getcwd(cwdBuf, MAX_PATH_LENGTH) == NULL)
 	{
-		return Str::EMPTY;
+		return string::EMPTY;
 	}
 
 	return cwdBuf;
@@ -166,7 +167,7 @@ const char* get_home()
 
 	if (envHome == NULL)
 	{
-		return Str::EMPTY;
+		return string::EMPTY;
 	}
 
 	return envHome;
@@ -180,34 +181,34 @@ const char* get_env(const char* env)
 
 	if (envDevel == NULL)
 	{
-		return Str::EMPTY;
+		return string::EMPTY;
 	}
 
 	return envDevel;
 }
 
 //-----------------------------------------------------------------------------
-bool ls(const char* path, List<Str>& fileList)
-{
-	DIR *dir;
-	struct dirent *ent;
+// bool ls(const char* path, List<Str>& fileList)
+// {
+// 	DIR *dir;
+// 	struct dirent *ent;
 
-	dir = opendir(path);
+// 	dir = opendir(path);
 
-	if (dir == NULL)
-	{
-		return false;
-	}
+// 	if (dir == NULL)
+// 	{
+// 		return false;
+// 	}
 
-	while ((ent = readdir (dir)) != NULL)
-	{
-		fileList.push_back(Str(ent->d_name));
-	}
+// 	while ((ent = readdir (dir)) != NULL)
+// 	{
+// 		fileList.push_back(Str(ent->d_name));
+// 	}
 
-	closedir (dir);
+// 	closedir (dir);
 
-	return true;
-}
+// 	return true;
+// }
 
 //-----------------------------------------------------------------------------
 void init_os()
@@ -264,6 +265,73 @@ void swap_buffers()
 {
 	// not necessary
 }
+
+//-----------------------------------------------------------------------------
+void thread_create(ThreadFunction f, void* params, OSThread& thread, const char* name)
+{
+	OSThread tid;
+	tid.name = name;
+
+	// Make thread joinable
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+	// Create thread
+	int rc = pthread_create(&tid.thread, &attr, f, (void*)params);
+
+	if (rc != 0)
+	{
+		os::printf("OS: ERROR: Unable to create the thread '%s' Error code: %d\n", name, rc);
+		exit(-1);
+	}
+
+	// Free memory
+	pthread_attr_destroy(&attr);
+
+	thread = tid;
+}
+
+//-----------------------------------------------------------------------------
+void thread_join(OSThread thread)
+{
+	pthread_join(thread.thread, NULL);
+}
+
+//-----------------------------------------------------------------------------
+void thread_detach(OSThread thread)
+{
+	pthread_detach(thread.thread);
+}
+
+//-----------------------------------------------------------------------------
+void mutex_create(OSMutex& mutex)
+{
+	OSMutex mut;
+
+	pthread_mutex_init(&mut.mutex, NULL);
+
+	mutex = mut;
+}
+
+//-----------------------------------------------------------------------------
+void mutex_destroy(OSMutex mutex)
+{
+	pthread_mutex_destroy(&mutex.mutex);
+}
+
+//-----------------------------------------------------------------------------
+void mutex_lock(OSMutex mutex)
+{
+	pthread_mutex_lock(&mutex.mutex);
+}
+
+//-----------------------------------------------------------------------------
+void mutex_unlock(OSMutex mutex)
+{
+	pthread_mutex_unlock(&mutex.mutex);
+}
+
 
 //-----------------------------------------------------------------------------
 JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv* env, jobject obj, jobject assetManager)

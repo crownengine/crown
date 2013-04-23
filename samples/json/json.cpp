@@ -1,30 +1,56 @@
 #include <stdio.h>
+#include <string.h>
 #include "JSONParser.h"
+#include "Filesystem.h"
+#include "FileStream.h"
 
 using namespace crown;
 
 int main(int argc, char** argv)
 {
-	const char* src = "\"test\" : {\"string\" : \"dio\", \"number\" : 33}";
+	if (argc != 2)
+	{
+		printf("Configuration root path must be provided. Aborting!");
+		return -1;
+	}
 
-	JSONParser* parser = new JSONParser();
+	Filesystem conf_root(argv[1]);
+
+	if (!conf_root.exists("json.json"))
+	{
+		printf("Configuration file does not exists. Aborting!\n");
+		return -1;
+	}
+	
+	char dst[10][256];
+
+	FileStream* stream = (FileStream*)conf_root.open("json.json", SOM_READ);
+
+ 	JSONParser* parser = new JSONParser(stream);
+
 	json_error error;
 	JSONToken* tokens;
 
 	parser->init();
-	error = parser->parse(src);
+	error = parser->parse();
 	tokens = parser->get_tokens();
 
 	for (int i = 0; i < parser->get_tokens_number(); i++)
 	{
-		for (int j = tokens[i].m_start; j < tokens[i].m_end; j++)
-		{
-			printf("%c", src[j]);
-		}
+		printf("token[%d]\n", i);
+		printf("type: %d\n", tokens[i].m_type);
+		printf("size: %d\n", tokens[i].m_size);
+		printf("start: %d\n",tokens[i].m_start);
+		printf("end: %d\n",tokens[i].m_end);
+		printf("parent token: %d\n",tokens[i].m_parent);
 		printf("\n");
 	}
 
+	parser->shutdown();
+
 	printf("return: %d\n", error);
+
+	conf_root.close(stream);
 
 	return 0;
 }

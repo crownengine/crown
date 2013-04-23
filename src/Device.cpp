@@ -35,7 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Args.h"
 #include <cstdlib>
 
-#include "renderers/gl/GLRenderer.h"
+// #include "renderers/gl/GLRenderer.h"
 #include "renderers/gles/GLESRenderer.h"
 
 namespace crown
@@ -95,11 +95,11 @@ bool Device::Init(int argc, char** argv)
 	if (!mRenderer)
 	{
 		// FIXME FIXME FIXME
-		#ifdef CROWN_BUILD_OPENGL
-			mRenderer = new GLRenderer();
-		#elif defined CROWN_BUILD_OPENGLES
+		// #ifdef CROWN_BUILD_OPENGL
+		// 	mRenderer = new GLRenderer();
+		// #elif defined CROWN_BUILD_OPENGLES
 			mRenderer = new GLESRenderer();
-		#endif
+		// #endif
 	}
 	Log::D("Renderer created.");
 

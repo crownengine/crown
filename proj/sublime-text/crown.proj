@@ -1,0 +1,28 @@
+{
+	"folders":
+	[
+		{
+			"path": "/home/mikymod/Repositories/crown/"
+		}
+	],
+	"build_systems":
+	[
+		{
+			"cmd": ["make",	"crown"],
+			"name": "make"
+		},
+		{
+			"cmd": ["ndk-build", "crown"],
+			"name": "ndk"
+		},
+		{
+			"cmd": ["ant",	"debug"],
+			"name": "android"
+		}
+	],
+	"settings":
+	{
+		"tab_size": 4,
+		"auto_complete": true
+	}
+}

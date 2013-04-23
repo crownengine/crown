@@ -21,5 +21,5 @@ link_directories(${CROWN_BINARY_DIR} ${GTKMM_LIBRARY_DIRS})
 include_directories(${INCLUDES} ${GTKMM_INCLUDE_DIRS})
 
 add_subdirectory(resource-compilers)
-add_subdirectory(world-editor)
+#add_subdirectory(world-editor)
 
