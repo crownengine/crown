@@ -179,12 +179,10 @@ JSONParser::parse()
 		}
 	}
 
-	os::printf("PRE\n");
 	for (int i = m_next_token - 1; i >= 0; i--)
 	{
 		if (m_tokens[i].m_start != -1 && m_tokens[i].m_end == -1)
 		{
-			os::printf("DOH\n");
 			return JSON_INV_PART;
 		}
 	}

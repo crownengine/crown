@@ -8,12 +8,17 @@ using namespace crown;
 
 int main(int argc, char** argv)
 {
-	// const char* src = "\"test\":{\"params1\": [1,2,3,4], \"params2\": [5,6,7,8]}";
-	Filesystem conf_root("/home/mikymod/test");
+	if (argc != 2)
+	{
+		printf("Configuration root path must be provided. Aborting!");
+		return -1;
+	}
+
+	Filesystem conf_root(argv[1]);
 
 	if (!conf_root.exists("json.json"))
 	{
-		printf("Configuration file does not exists. Abort!\n");
+		printf("Configuration file does not exists. Aborting!\n");
 		return -1;
 	}
 	
@@ -41,21 +46,7 @@ int main(int argc, char** argv)
 		printf("\n");
 	}
 
-	// for (int i = 0; i < parser->get_tokens_number(); i++)
-	// {
-	// 	// strncpy((char*)dst[i], &src[tokens[i].m_start], tokens[i].m_size);
-	// 	dst[i][tokens[i].m_size] = '\0';
-
-	// 	printf("token[%d]\n", i);
-	// 	printf("type: %d\n", tokens[i].m_type);
-	// 	printf("size: %d\n", tokens[i].m_size);
-	// 	printf("start: %d\n",tokens[i].m_start);
-	// 	printf("end: %d\n",tokens[i].m_end);
-	// 	printf("parent token: %d\n",tokens[i].m_parent);
-	// 	printf("string: %s\n", dst[i]);
-	// 	printf("\n");
-	// }
-	// parser->shutdown();
+	parser->shutdown();
 
 	printf("return: %d\n", error);
 

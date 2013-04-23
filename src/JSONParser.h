@@ -7,6 +7,7 @@
 namespace crown
 {
 
+/// JSON Token types
 enum json_type
 {
 	JSON_PRIMITIVE 	= 0,	// Number, boolean or null
@@ -15,6 +16,7 @@ enum json_type
 	JSON_STRING 	= 3		// String
 };
 
+/// JSON error typology
 enum json_error
 {
 	JSON_NO_MEMORY	= 0,	// Not enough token provided
@@ -24,6 +26,8 @@ enum json_error
 	JSON_SUCCESS	= 4		// Everything OK!
 };
 
+/// JSONToken is a container which have pointer to a single json entity 
+/// (primitive, object, array or string) of a json file.
 struct JSONToken
 {
 	json_type	m_type;
@@ -44,6 +48,9 @@ struct JSONToken
 
 };
 
+/// JSONParser parses JSON file and stores all relative tokens.
+/// It is designed to be robust (it should work with erroneus data)
+/// and fast (data parsing on fly).
 class JSONParser
 {
 public:
@@ -57,6 +64,12 @@ public:
 	void			shutdown();
 	/// Parse JSON data
 	json_error 		parse();
+	/// Get all tokens
+	JSONToken*		get_tokens();
+	/// Get next token
+	int32_t			get_tokens_number();
+
+private:
 	/// Parse string in JSON data
 	json_error		parse_string();
 	/// Parse number or boolean in JSON data
@@ -65,12 +78,7 @@ public:
 	JSONToken* 		allocate_token();
 	/// Fill token and set boundaries
 	void			fill_token(JSONToken* token, json_type type, int32_t start, int32_t end);
-	/// Get all tokens
-	JSONToken*		get_tokens();
-	/// Get next token
-	int32_t			get_tokens_number();
 
-private:
 	/// JSON stream of data
 	Stream*			m_stream;
 	/// JSON string offset
