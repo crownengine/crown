@@ -1,10 +1,11 @@
 #include "JSONParser.h"
+#include "FileStream.h"
 
 namespace crown
 {
 
 //--------------------------------------------------------------------------
-JSONParser::JSONParser(size_t size)
+JSONParser::JSONParser(Stream* stream, size_t size)
 {
 	if (size > 1024)
 	{
@@ -16,13 +17,27 @@ JSONParser::JSONParser(size_t size)
 	}
 
 	m_size = size;
+
+	m_stream = stream;
 }
 
 //--------------------------------------------------------------------------
+JSONParser::~JSONParser()
+{
+	if (m_size > 1024)
+	{
+		delete m_tokens;
+	}
+	else
+	{
+		delete [] m_tokens_list;
+	}
+}
+//--------------------------------------------------------------------------
 void 
 JSONParser::init()
-{
-	m_pos = 0;
+{ 
+	m_pos = m_stream->position();
 	m_next_token = 0;
 	m_prev_token = -1;
 
@@ -30,24 +45,36 @@ JSONParser::init()
 }
 
 //--------------------------------------------------------------------------
-json_error 
-JSONParser::parse(const char* src)
+void
+JSONParser::shutdown()
 {
-	json_error error;
-	JSONToken* token;
+	m_pos = 0;
+	m_next_token = 0;
+	m_prev_token = -1;
 
+	is_init = false;
+}
+
+//--------------------------------------------------------------------------
+json_error 
+JSONParser::parse()
+{
 	if (!is_init)
 	{
 		return JSON_NO_INIT; 
 	}
 
-	while(src[m_pos] != '\0')
+	json_error error;
+	JSONToken* token;
+
+	char c;
+
+	while(!m_stream->end_of_stream())
 	{
 		json_type type;
 
-		char c;
-
-		c = src[m_pos];
+		c = (char)m_stream->read_byte();
+		m_pos = m_stream->position();
 
 		switch(c)
 		{
@@ -106,11 +133,12 @@ JSONParser::parse(const char* src)
 				}
 
 				token->m_size = token->m_end - token->m_start;
+
 				break;
 			}
 			case '\"':
 			{
-				error = parse_string(src);
+				error = parse_string();
             	if (m_prev_token != -1)
             	{
             		m_tokens[m_prev_token].m_size++;
@@ -141,7 +169,7 @@ JSONParser::parse(const char* src)
             case 'f':
             case 'n':
             {
-            	error = parse_primitive(src);
+            	error = parse_primitive();
             	if (m_prev_token != -1)
             	{
             		m_tokens[m_prev_token].m_size++;
@@ -149,13 +177,14 @@ JSONParser::parse(const char* src)
             	break;
             }
 		}
-		m_pos++;
 	}
 
+	os::printf("PRE\n");
 	for (int i = m_next_token - 1; i >= 0; i--)
 	{
 		if (m_tokens[i].m_start != -1 && m_tokens[i].m_end == -1)
 		{
+			os::printf("DOH\n");
 			return JSON_INV_PART;
 		}
 	}
@@ -165,17 +194,18 @@ JSONParser::parse(const char* src)
 
 //--------------------------------------------------------------------------
 json_error
-JSONParser::parse_string(const char* src)
+JSONParser::parse_string()
 {
 	JSONToken* token;
 
 	int start = m_pos;
 
-	m_pos++;
+	char c; 
 
-	while(src[m_pos] != '\0')
+	while(!m_stream->end_of_stream())
 	{	
-		char c = src[m_pos];
+		c = (char) m_stream->read_byte();
+		m_pos = m_stream->position();
 
 		if (c == '\"' || c == '\'')
 		{
@@ -195,9 +225,10 @@ JSONParser::parse_string(const char* src)
 
 		if (c == '\\')
 		{
-			m_pos++;
+			c = (char)m_stream->read_byte();
+			m_pos = m_stream->position();
 
-			switch(src[m_pos])
+			switch(c)
 			{
 				case '\"': 
 				case '/' : 
@@ -207,23 +238,17 @@ JSONParser::parse_string(const char* src)
                 case 'r': 
                 case 'n': 
                 case 't':
+                case 'u':
                 {
-                	break;
-                }
-                case 'u' :
-                {
-                	// TODO
                 	break;
                 }
                 default:
                	{
                 	m_pos = start;
                 	return JSON_INV_CHAR;
-                	break;
                 }
 			}
 		}
-		m_pos++;
 	}
 	m_pos = start;
 	return JSON_INV_PART;
@@ -231,15 +256,18 @@ JSONParser::parse_string(const char* src)
 
 //--------------------------------------------------------------------------
 json_error
-JSONParser::parse_primitive(const char* src)
+JSONParser::parse_primitive()
 {
 	JSONToken* token;
 
-	int start = m_pos;
+	int start = m_stream->position();
 
-	while (src[m_pos] != '\0')
+	char c;
+
+	while (!m_stream->end_of_stream())
 	{
-		char c = src[m_pos];
+		c = (char)m_stream->read_byte();
+		m_pos = m_stream->position();
 
 		switch (c)
 		{
@@ -250,6 +278,7 @@ JSONParser::parse_primitive(const char* src)
 			case ']':
 			{
 				token = allocate_token();
+
 				if (token == NULL)
 				{
 					m_pos = start;
@@ -259,7 +288,8 @@ JSONParser::parse_primitive(const char* src)
 				fill_token(token, JSON_PRIMITIVE, start, m_pos);
 
 				token->m_parent = m_prev_token;
-				m_pos--;
+
+				m_stream->seek(start);
 
 				return JSON_SUCCESS;
 			}
@@ -270,8 +300,6 @@ JSONParser::parse_primitive(const char* src)
 			m_pos = start;
 			return JSON_INV_CHAR;
 		}
-
-		m_pos++;
 	}
 }
 

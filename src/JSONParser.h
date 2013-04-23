@@ -2,7 +2,7 @@
 
 #include "Types.h"
 #include "OS.h"
-
+#include "Stream.h"
 
 namespace crown
 {
@@ -48,15 +48,19 @@ class JSONParser
 {
 public:
 	/// Constructor
-					JSONParser(size_t size = 1024);
+					JSONParser(Stream* stream, size_t size = 1024);
+	/// Destructor
+					~JSONParser();
 	/// Init JSON parser, must be called for each different JSON string
 	void 			init();
+	/// Shutdown JSON parser
+	void			shutdown();
 	/// Parse JSON data
-	json_error 		parse(const char* src);
+	json_error 		parse();
 	/// Parse string in JSON data
-	json_error		parse_string(const char* src);
+	json_error		parse_string();
 	/// Parse number or boolean in JSON data
-	json_error		parse_primitive(const char* src);
+	json_error		parse_primitive();
 	/// Allocate token node
 	JSONToken* 		allocate_token();
 	/// Fill token and set boundaries
@@ -67,6 +71,8 @@ public:
 	int32_t			get_tokens_number();
 
 private:
+	/// JSON stream of data
+	Stream*			m_stream;
 	/// JSON string offset
 	uint32_t 		m_pos;
 	/// Next token to allocate				
