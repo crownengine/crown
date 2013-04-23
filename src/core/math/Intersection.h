@@ -157,7 +157,7 @@ inline bool Intersection::TestRaySphere(const Ray& r, const Sphere& s, real& dis
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestRayBox(const Ray& r, const Box& b, real& distance, Vec3& /*intersectionPoint*/)
+inline bool Intersection::TestRayBox(const Ray& r, const Box& b, real& /*distance*/, Vec3& /*intersectionPoint*/)
 {
 	if (r.origin.x < b.min.x)
 	{
