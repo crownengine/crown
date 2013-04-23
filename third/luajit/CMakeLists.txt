@@ -3,9 +3,8 @@ cmake_minimum_required (VERSION 2.8)
 
 project (crown-luajit)
 	
-if (NOT LUAJIT_SOURCE_NAME)
-        set (LUAJIT_SOURCE_NAME "LuaJIT-2.0.1")
-endif (NOT LUAJIT_SOURCE_NAME)
+set (LUAJIT_SOURCE_NAME "LuaJIT-2.0.1")
+
 	
 set(LUAJIT_SRC_FOLDER "src")
 # Create variable for include and library
@@ -78,7 +77,7 @@ set (LUA_SRC
     ${LUAJIT_SRC_FOLDER}/luajit.c
 )
 
-set ($LUA_HEADERS
+set (LUA_HEADERS
     ${LUAJIT_SRC_FOLDER}/lj_alloc.h
     ${LUAJIT_SRC_FOLDER}/lj_arch.h	
     ${LUAJIT_SRC_FOLDER}/lj_asm.h	
@@ -122,7 +121,7 @@ set ($LUA_HEADERS
     ${LUAJIT_SRC_FOLDER}/lj_mcode.h
     ${LUAJIT_SRC_FOLDER}/lj_meta.h
     ${LUAJIT_SRC_FOLDER}/lj_obj.h
-    ${LUAJIT_SRC_FOLDER}/lj_parser.h
+    ${LUAJIT_SRC_FOLDER}/lj_parse.h
     ${LUAJIT_SRC_FOLDER}/lj_record.h
     ${LUAJIT_SRC_FOLDER}/lj_snap.h
     ${LUAJIT_SRC_FOLDER}/lj_state.h
@@ -142,22 +141,26 @@ set ($LUA_HEADERS
     ${LUAJIT_SRC_FOLDER}/luaconf.h
     ${LUAJIT_SRC_FOLDER}/lua.hpp
 )
-include_directories("${LUAJIT_SOURCE_NAME}/dynasm")
-add_library(${LUAJIT_LIBRARIES} STATIC ${LUA_SRC})
-if (NOT LUAJIT_STATICLIB_OUTPUT_PATH)
-	set(LUAJIT_STATICLIB_OUTPUT_PATH "." CACHE STRING
-         "LuaJIT static lib output directory")
-endif (NOT LUAJIT_STATICLIB_OUTPUT_PATH)
 
-set_target_properties (${LUAJIT_LIBRARIES} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${LUAJIT_STATICLIB_OUTPUT_PATH}")
+set (SOURCES
+    ${LUA_SRC}
+    ${LUA_HEADERS}
+)
+
+include_directories("${LUAJIT_SOURCE_NAME}/dynasm")
+
+add_library(crown-luajit STATIC ${SOURCES})
+
+
+#set_target_properties (${LUAJIT_LIBRARIES} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${LUAJIT_STATICLIB_OUTPUT_PATH}")
 	
 #if (WINDOWS)
 #	if (MSVC)
 #	    set(lua_compile_def
- #       	_CRT_SECURE_NO_DEPRECATE
-  #          _CRT_NONSTDC_NO_DEPRECATE)
-   # endif (MSVC)
-#endif (WINSOWA)
-set_target_properties(${LUAJIT_LIBRARIES} PROPERTIES
-COMPILE_DEFINITIONS "${lua_compile_def}")
+#       	_CRT_SECURE_NO_DEPRECATE
+#           _CRT_NONSTDC_NO_DEPRECATE)
+#   endif (MSVC)
+#endif (WINDOWS)
+#set_target_properties(${LUAJIT_LIBRARIES} PROPERTIES
+#COMPILE_DEFINITIONS "${lua_compile_def}")
 

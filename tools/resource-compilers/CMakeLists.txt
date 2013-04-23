@@ -22,4 +22,4 @@ target_link_libraries(resource-hash crown)
 
 add_subdirectory(txt)
 add_subdirectory(tga)
-#add_subdirectory(lua)
+add_subdirectory(lua)

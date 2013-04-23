@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 	// fs_root.close(dest_file);	
 
 	// printf("Resource compilation completed: %s\n", resource_out);
-	lua_State *L;
+	// lua_State *L;
 	 // = lua_open();
  //  	lua_close(L);
 

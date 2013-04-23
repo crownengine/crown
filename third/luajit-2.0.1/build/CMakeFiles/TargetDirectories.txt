@@ -1,1 +1,0 @@
-/home/mikymod/Scrivania/LuaJIT-2.0.1/build/CMakeFiles/LUAJIT.dir
