@@ -157,7 +157,7 @@ inline bool Intersection::TestRaySphere(const Ray& r, const Sphere& s, real& dis
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestRayBox(const Ray& r, const Box& b, real& distance, Vec3& intersectionPoint)
+inline bool Intersection::TestRayBox(const Ray& r, const Box& b, real& distance, Vec3& /*intersectionPoint*/)
 {
 	if (r.origin.x < b.min.x)
 	{
@@ -464,7 +464,7 @@ inline bool Intersection::TestDynamicSphereTriangle(const Sphere& s, const Vec3&
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestDynamicSphereSphere(const Sphere& s1, const Vec3& d1, const Sphere& s2, const Vec3& d2, real& it, Vec3& intersectionPoint)
+inline bool Intersection::TestDynamicSphereSphere(const Sphere& s1, const Vec3& d1, const Sphere& s2, const Vec3& d2, real& it, Vec3& /*intersectionPoint*/)
 {
 	// s1 == static sphere
 	// s2 == moving sphere
