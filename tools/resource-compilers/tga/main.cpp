@@ -2,83 +2,40 @@
 #include <stdlib.h>
 
 #include "Crown.h"
-
-using namespace crown;
+#include "TGACompiler.h"
 
 const char* root_path = NULL;
 const char* dest_path = NULL;
 const char* resource_in = NULL;
-const char* resource_out = NULL;
 uint32_t hash_seed = 0;
+
+using namespace crown;
 
 void print_help_message(const char* program_name);
 void parse_command_line(int argc, char** argv);
 
-/// UTF-8 compiler for "txt" resource types
+/// TGA compiler for "tga" resource type
+/// TODO: Explain supported formats, usage etc.
 int main(int argc, char** argv)
 {
 	parse_command_line(argc, argv);
 	
 	// FIXME: validate input
 
-	Filesystem fs_root(root_path);
-	Filesystem fs_dest(dest_path);
-	
-	if (!fs_root.exists(resource_in))
+	TGACompiler compiler(root_path, dest_path, resource_in, hash_seed);
+
+	if (compiler.compile() == false)
 	{
-		printf("%s: ERROR: %s does not exist. Aborting.\n", argv[0], resource_in);
-		return -1;
+		printf("%s: ERROR: compilation failed for resource %s\n", argv[0], compiler.resource_path());
+		exit(-1);
 	}
 
-	char resource_basename[256];
-	char resource_extension[256];
-	
-	path::filename_without_extension(resource_in, resource_basename, 256);
-	path::extension(resource_in, resource_extension, 256);
-	
-	uint32_t resource_basename_hash = hash::murmur2_32(resource_basename, string::strlen(resource_basename), hash_seed);
-	uint32_t resource_extension_hash = hash::murmur2_32(resource_extension, string::strlen(resource_extension), hash_seed);
-
-	char out_filename[512];
-	out_filename[0] = '\0';
-
-	snprintf(resource_basename, 256, "%X", resource_basename_hash);
-	snprintf(resource_extension, 256, "%X", resource_extension_hash);
-
-	string::strncat(out_filename, resource_basename, 512);
-	string::strncat(out_filename, resource_extension, 512);
-
-	resource_out = out_filename;
-
-	printf("%s => %s\n", resource_in, resource_out);
-
-	FileStream* src_file = (FileStream*)fs_root.open(resource_in, SOM_READ);
-	
-	size_t src_file_size = src_file->size();
-	
-	ArchiveEntry archive_entry;
-	archive_entry.name = resource_basename_hash;
-	archive_entry.type = resource_extension_hash;
-	archive_entry.offset = sizeof (ArchiveEntry);
-	archive_entry.size = src_file_size + sizeof(uint32_t);
-	
-	void* buffer = new uint8_t[src_file_size];
-	
-	src_file->read(buffer, src_file_size);
-	
-	fs_root.close(src_file);
-	
-	FileStream* dest_file = (FileStream*)fs_dest.open(resource_out, SOM_WRITE);
-
-	dest_file->write(&archive_entry, sizeof(ArchiveEntry));
-	dest_file->write(&src_file_size, sizeof(uint32_t));
-	dest_file->write(buffer, src_file_size);
-
-	fs_dest.close(dest_file);
+	compiler.write();
 
 	return 0;
 }
 
+//-----------------------------------------------------------------------------
 void parse_command_line(int argc, char** argv)
 {
 	// Parse arguments
@@ -169,6 +126,7 @@ void parse_command_line(int argc, char** argv)
 	}
 }
 
+//-----------------------------------------------------------------------------
 void print_help_message(const char* program_name)
 {
 	printf("Usage: %s [options]\n", program_name);
