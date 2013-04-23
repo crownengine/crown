@@ -34,5 +34,4 @@ target_link_libraries(lua-compiler crown)
 
 target_link_libraries(resource-linker crown)
 
-add_subdirectory(gtk)
 

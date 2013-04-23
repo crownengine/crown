@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Types.h"
+#include "OS.h"
+
 
 namespace crown
 {
@@ -30,7 +32,16 @@ struct JSONToken
 	size_t 		m_size;
 	int32_t 	m_parent;
 
-	void print();
+	inline void print()
+	{
+		os::printf("Type:\t%d\n",m_type);
+		os::printf("Start:\t%d\n",m_start);
+		os::printf("End:\t%d\n",m_end);
+		os::printf("Parent:\t%d\n",m_parent);
+		os::printf("Size:\t%d\n",m_size);
+		os::printf("\n");		
+	}
+
 };
 
 class JSONParser

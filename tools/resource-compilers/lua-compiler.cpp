@@ -4,6 +4,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "lua.hpp"
 #include "Crown.h"
 
 using namespace crown;
@@ -12,7 +13,6 @@ const char* root_path = NULL;
 const char* resource_in = NULL;
 const char* resource_out = NULL;
 
-
 void 	parse_command_line(int argc, char** argv);
 void 	print_help_message(const char* program_name);
 void	compile_script(char* tmp_out);
@@ -20,56 +20,59 @@ void	compile_script(char* tmp_out);
 /// Lua scripts compiler
 int main(int argc, char** argv)
 {
-	parse_command_line(argc, argv);
+	// parse_command_line(argc, argv);
 	
-	// FIXME: validate input
+	// // FIXME: validate input
 
-	Filesystem fs_root(root_path);
+	// Filesystem fs_root(root_path);
 	
-	if (!fs_root.exists(resource_in))
-	{
-		printf("%s: ERROR: %s does not exist. Aborting.\n", argv[0], resource_in);
-		return -1;
-	}
+	// if (!fs_root.exists(resource_in))
+	// {
+	// 	printf("%s: ERROR: %s does not exist. Aborting.\n", argv[0], resource_in);
+	// 	return -1;
+	// }
 
-	char resource_basename[256];
-	char resource_extension[256];
+	// char resource_basename[256];
+	// char resource_extension[256];
 	
-	path::filename_without_extension(resource_in, resource_basename, 256);
-	path::extension(resource_in, resource_extension, 256);
+	// path::filename_without_extension(resource_in, resource_basename, 256);
+	// path::extension(resource_in, resource_extension, 256);
 	
-	uint32_t resource_basename_hash = hash::fnv1a_32(resource_basename, string::strlen(resource_basename));
-	uint32_t resource_extension_hash = hash::fnv1a_32(resource_extension, string::strlen(resource_extension));
+	// uint32_t resource_basename_hash = hash::fnv1a_32(resource_basename, string::strlen(resource_basename));
+	// uint32_t resource_extension_hash = hash::fnv1a_32(resource_extension, string::strlen(resource_extension));
 
-	char tmp_file[256];
-	compile_script(tmp_file);
+	// char tmp_file[256];
+	// compile_script(tmp_file);
 
-	FileStream* src_file = (FileStream*)fs_root.open(tmp_file, SOM_READ);
+	// FileStream* src_file = (FileStream*)fs_root.open(tmp_file, SOM_READ);
 	
-	size_t src_file_size = src_file->size();
+	// size_t src_file_size = src_file->size();
 	
-	ArchiveEntry archive_entry;
-	archive_entry.name = resource_basename_hash;
-	archive_entry.type = resource_extension_hash;
-	archive_entry.offset = sizeof (ArchiveEntry);
-	archive_entry.size = src_file_size + sizeof(uint32_t);
+	// ArchiveEntry archive_entry;
+	// archive_entry.name = resource_basename_hash;
+	// archive_entry.type = resource_extension_hash;
+	// archive_entry.offset = sizeof (ArchiveEntry);
+	// archive_entry.size = src_file_size + sizeof(uint32_t);
 	
-	void* buffer = new uint8_t[src_file_size];
+	// void* buffer = new uint8_t[src_file_size];
 	
-	src_file->read(buffer, src_file_size);
+	// src_file->read(buffer, src_file_size);
 	
-	fs_root.close(src_file);
+	// fs_root.close(src_file);
 	
-	FileStream* dest_file = (FileStream*)fs_root.open(resource_out, SOM_WRITE);
+	// FileStream* dest_file = (FileStream*)fs_root.open(resource_out, SOM_WRITE);
 
-	dest_file->write(&archive_entry, sizeof(ArchiveEntry));
-	dest_file->write(&src_file_size, sizeof(uint32_t));
-	dest_file->write(buffer, src_file_size);
+	// dest_file->write(&archive_entry, sizeof(ArchiveEntry));
+	// dest_file->write(&src_file_size, sizeof(uint32_t));
+	// dest_file->write(buffer, src_file_size);
 
-	fs_root.delete_file(tmp_file);
-	fs_root.close(dest_file);	
+	// fs_root.delete_file(tmp_file);
+	// fs_root.close(dest_file);	
 
-	printf("Resource compilation completed: %s\n", resource_out);
+	// printf("Resource compilation completed: %s\n", resource_out);
+	lua_State *L;
+	 // = lua_open();
+ //  	lua_close(L);
 
 	return 0;
 }

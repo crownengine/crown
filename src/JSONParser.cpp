@@ -1,18 +1,7 @@
 #include "JSONParser.h"
-#include "OS.h"
 
 namespace crown
 {
-
-void JSONToken::print()
-{
-	os::printf("Type:\t%d\n",m_type);
-	os::printf("Start:\t%d\n",m_start);
-	os::printf("End:\t%d\n",m_end);
-	os::printf("Parent:\t%d\n",m_parent);
-	os::printf("Size:\t%d\n",m_size);
-	os::printf("\n");
-}
 
 //--------------------------------------------------------------------------
 JSONParser::JSONParser(size_t size)
@@ -55,6 +44,7 @@ JSONParser::parse(const char* src)
 	while(src[m_pos] != '\0')
 	{
 		json_type type;
+
 		char c;
 
 		c = src[m_pos];
@@ -89,7 +79,6 @@ JSONParser::parse(const char* src)
 
 				if (m_next_token < 1)
 				{
-					os::printf("1\n");
 					return JSON_INV_CHAR;
 				}
 
@@ -101,7 +90,6 @@ JSONParser::parse(const char* src)
 					{
 						if (token->m_type != type)
 						{
-							os::printf("%d\t%d\n", token->m_type, type);
 							return JSON_INV_CHAR;
 						}
 						token->m_end = m_pos + 1;
@@ -117,6 +105,7 @@ JSONParser::parse(const char* src)
 					token = &m_tokens[token->m_parent];
 				}
 
+				token->m_size = token->m_end - token->m_start;
 				break;
 			}
 			case '\"':
@@ -161,6 +150,14 @@ JSONParser::parse(const char* src)
             }
 		}
 		m_pos++;
+	}
+
+	for (int i = m_next_token - 1; i >= 0; i--)
+	{
+		if (m_tokens[i].m_start != -1 && m_tokens[i].m_end == -1)
+		{
+			return JSON_INV_PART;
+		}
 	}
 
 	return JSON_SUCCESS;
@@ -221,7 +218,6 @@ JSONParser::parse_string(const char* src)
                 default:
                	{
                 	m_pos = start;
-					os::printf("3\n");
                 	return JSON_INV_CHAR;
                 	break;
                 }
@@ -247,14 +243,11 @@ JSONParser::parse_primitive(const char* src)
 
 		switch (c)
 		{
-			case ':' :
-			case '\t': 
-			case '\r':
-			case '\n': 
-			case ' ' :
-			case ',' : 
-			case ']' : 
-			case '}' :
+
+			case ' ':
+			case ',': 
+			case '}':
+			case ']':
 			{
 				token = allocate_token();
 				if (token == NULL)
@@ -275,7 +268,6 @@ JSONParser::parse_primitive(const char* src)
 		if (c < 32 || c >= 127)
 		{
 			m_pos = start;
-			os::printf("4\n");
 			return JSON_INV_CHAR;
 		}
 
