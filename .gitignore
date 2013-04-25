@@ -10,3 +10,6 @@
 /android/libs
 /android/obj
 /android/res
+
+# Ignore python stuff
+__pycache__
