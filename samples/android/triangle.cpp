@@ -51,10 +51,10 @@ public:
 
 	void draw_triangle()
 	{
-		GetDevice()->GetRenderer()->set_clear_color(Color4::LIGHTBLUE);
+		GetDevice()->renderer()->set_clear_color(Color4::LIGHTBLUE);
 
-		GetDevice()->GetRenderer()->set_matrix(MT_VIEW, Mat4::IDENTITY);
-		GetDevice()->GetRenderer()->set_matrix(MT_MODEL, Mat4::IDENTITY);
+		GetDevice()->renderer()->set_matrix(MT_VIEW, Mat4::IDENTITY);
+		GetDevice()->renderer()->set_matrix(MT_MODEL, Mat4::IDENTITY);
 
 		cam->Render();
 
@@ -62,7 +62,7 @@ public:
 										1.0f, -1.0f, -2.0f,
 										0.0f, 1.0f, -2.0f};
 
-		GetDevice()->GetRenderer()->set_matrix(MT_MODEL, Mat4::IDENTITY);
+		GetDevice()->renderer()->set_matrix(MT_MODEL, Mat4::IDENTITY);
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, vertices);
@@ -74,17 +74,15 @@ public:
 
 	void frame()
 	{
-		Device* mDevice = GetDevice();
+		Device* engine = GetDevice();
 
 		os::event_loop();
 
 		get_input_manager()->event_loop();
 
-		GetDevice()->GetRenderer()->begin_frame();
+		engine->renderer()->begin_frame();
 		draw_triangle();
-		GetDevice()->GetRenderer()->end_frame();
-
-		os::swap_buffers();
+		engine->renderer()->end_frame();
 	}
 };
 
