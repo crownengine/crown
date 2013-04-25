@@ -45,6 +45,8 @@ GLXDrawable		glx_window = None;
 //-----------------------------------------------------------------------------
 bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen)
 {
+	(void)fullscreen;
+
 	assert(width != 0 && height != 0);
 
 	display = XOpenDisplay(NULL);
@@ -159,6 +161,8 @@ bool destroy_render_window()
 
 		XCloseDisplay(display);
 	}
+
+	return true;
 }
 
 //-----------------------------------------------------------------------------
