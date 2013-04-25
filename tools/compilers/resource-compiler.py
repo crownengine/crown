@@ -1,55 +1,12 @@
 #!/bin/python
 
 import os
-import subprocess
 
-resource_extensions = ('.txt', '.tga', '.dae', '.lua')
-resources = []
-resource_hashes = []
-root_path = "/home/dani/test/resources"
+from crown.resources import Repository
+from crown.resources import Compiler
 
-#------------------------------------------------------------------------------
-def read_resources(root_path):
-	for dirname, dirnames, filenames in os.walk(root_path):
+root_path = "/home/daniele/resources"
 
-		# print path to all filenames.
-		for filename in filenames:
-	
-			# get the resource name
-			abs_path = os.path.join(dirname, filename)
-			resource = os.path.relpath(abs_path, root_path)
-
-			# filter resource names by type
-			if resource.endswith(resource_extensions):
-				resources.append(resource)
-
-#------------------------------------------------------------------------------
-def perfect_seed(resources):
-	seed = 0
-
-	while True:
-		for res in resources:
-			p = subprocess.check_output(["resource-hash", "--resource-in", res, "--seed", str(seed)])
-			resource_hashes.append(str(p))
-
-		if len(resource_hashes) == len(set(resource_hashes)):
-			return seed
-		
-		resource_hashes.clear()
-		seed = seed + 1;
-
-#------------------------------------------------------------------------------
-def compile(dest_path, resource, perfect_seed):
-	if resource.endswith('.txt'):
-		p = subprocess.call(["txt-compiler", "--root-path", root_path, "--dest-path", dest_path, "--resource-in", resource, "--seed", str(perfect_seed)]);
-	if resource.endswith('.tga'):
-		p = subprocess.call(["tga-compiler", "--root-path", root_path, "--dest-path", dest_path, "--resource-in", resource, "--seed", str(perfect_seed)]);	
-
-#------------------------------------------------------------------------------
-def compile_all(dest_path, resources, perfect_seed):
-	for res in resources:
-		compile(dest_path, res, perfect_seed)
-		
 #------------------------------------------------------------------------------
 def create_output_folder(root_path):
 	output_path = os.path.dirname(root_path) + "/" + os.path.basename(root_path) + "_compiled"
@@ -69,22 +26,29 @@ def write_perfect_seed(dest_path, perfect_seed):
 	file.write(str(perfect_seed))
 	file.close()
 
+repository = Repository.Repository(root_path)
+
 #------------------------------------------------------------------------------
-print("Reading resources...\n")
-read_resources(root_path)
+print("Reading resources...")
+repository.scan()
 
-perfect_seed = perfect_seed(resources)
+print("Found", len(repository.all_resources()), "resources.")
 
-print("Perfect seed is: ", perfect_seed)
-
-print("Creating output folder...\n")
+print("Creating output folder...")
 dest_path = create_output_folder(root_path)
 
-print("Writing perfect seed...\n")
-write_perfect_seed(dest_path, perfect_seed)
+compiler = Compiler.Compiler(repository, dest_path)
+compiler.compute_perfect_seed()
 
-print("Compiling resources...\n")
-compile_all(dest_path, resources, perfect_seed)
+print("Compiling resources...")
+
+print("Perfect seed is: ", compiler.perfect_seed())
+
+print("Writing resources...")
+compiler.compile_all()
+
+print("Writing perfect seed...")
+write_perfect_seed(dest_path, compiler.perfect_seed())
 
 print("\n")
 
