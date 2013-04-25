@@ -14,12 +14,12 @@ find_package(PkgConfig)
 pkg_check_modules(GTKMM gtkmm-3.0)
 
 set (INCLUDES
-	resource-compilers
+	compilers
 )
 
 link_directories(${CROWN_BINARY_DIR} ${GTKMM_LIBRARY_DIRS})
 include_directories(${INCLUDES} ${GTKMM_INCLUDE_DIRS})
 
 add_subdirectory(compilers)
-#add_subdirectory(world-editor)
+add_subdirectory(editors/world-editor)
 
