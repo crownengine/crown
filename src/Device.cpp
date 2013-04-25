@@ -41,10 +41,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-const uint16_t Device::CROWN_MAJOR = 0;
-const uint16_t Device::CROWN_MINOR = 1;
-const uint16_t Device::CROWN_MICRO = 0;
-
 //-----------------------------------------------------------------------------
 Device::Device() :
 	m_preferred_window_width(1000),
@@ -80,7 +76,7 @@ bool Device::init(int argc, char** argv)
 	}
 
 	// Initialize
-	Log::I("Initializing Crown Engine %d.%d.%d...", CROWN_MAJOR, CROWN_MINOR, CROWN_MICRO);
+	Log::I("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
 	// Set the root path
 	// GetFilesystem()->Init(m_preferred_root_path.c_str(), m_preferred_user_path.c_str());

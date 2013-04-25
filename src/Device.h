@@ -62,12 +62,6 @@ private:
 
 private:
 
-	static const uint16_t	CROWN_MAJOR;
-	static const uint16_t	CROWN_MINOR;
-	static const uint16_t	CROWN_MICRO;
-
-private:
-
 	// Preferred settings from command line
 	int32_t					m_preferred_window_width;
 	int32_t					m_preferred_window_height;
