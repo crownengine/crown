@@ -34,32 +34,31 @@ namespace crown
 class Renderer;
 class InputManager;
 
-/**
-	Device.
-*/
+/// The Engine.
 class Device
 {
-
 public:
 
 							Device();
 							~Device();
 
-	Renderer*				GetRenderer();
+	bool					init(int argc, char** argv);
+	void					shutdown();
 
-	void					StartRunning();
-	void					StopRunning();
-	bool					IsRunning() const;
-	bool					IsInit();
-	void					Frame();
+	bool					is_running() const;
+	bool					is_init() const;
 
-	bool					Init(int argc, char** argv);
-	void					Shutdown();
+	void					start();
+	void					stop();
+
+	void					frame();
+
+	Renderer*				renderer();
 
 private:
 
-	bool					ParseCommandLine(int argc, char** argv);
-	void					PrintHelpMessage();
+	bool					parse_command_line(int argc, char** argv);
+	void					print_help_message();
 
 private:
 
@@ -67,16 +66,21 @@ private:
 	static const uint16_t	CROWN_MINOR;
 	static const uint16_t	CROWN_MICRO;
 
-	int32_t					mPreferredWindowWidth;
-	int32_t					mPreferredWindowHeight;
-	bool					mPreferredWindowFullscreen;
-	char					mPreferredRootPath[512];
-	char					mPreferredUserPath[512];
+private:
 
-	bool					mIsInit		: 1;
-	bool					mIsRunning	: 1;
+	// Preferred settings from command line
+	int32_t					m_preferred_window_width;
+	int32_t					m_preferred_window_height;
+	bool					m_preferred_window_fullscreen;
 
-	Renderer*				mRenderer;
+	char					m_preferred_root_path[512];
+	char					m_preferred_user_path[512];
+
+	bool					m_is_init		: 1;
+	bool					m_is_running	: 1;
+
+	// Subsystems
+	Renderer*				m_renderer;
 
 private:
 

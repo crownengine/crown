@@ -17,7 +17,7 @@ public:
 	{
 		if (event.key == KC_ESCAPE)
 		{
-			GetDevice()->StopRunning();
+			GetDevice()->stop();
 		}
 	}
 };
@@ -123,7 +123,7 @@ public:
 		
 	void OnLoad()
 	{
-		crown::Renderer* renderer = crown::GetDevice()->GetRenderer();
+		crown::Renderer* renderer = crown::GetDevice()->renderer();
 
 		renderer->set_clear_color(Color4::LIGHTBLUE);
 		
@@ -167,7 +167,7 @@ public:
 
 	void RenderScene()
 	{
-		Renderer* renderer = GetDevice()->GetRenderer();
+		Renderer* renderer = GetDevice()->renderer();
 		
 		system->set_view_by_cursor();
 		system->camera_render();
@@ -250,9 +250,13 @@ private:
 
 int main(int argc, char** argv)
 {
-	Device* mDevice = GetDevice();
+	os::init_os();
+	os::create_render_window(0, 0, 1000, 625, false);
+	os::init_input();
 
-	if (!mDevice->Init(argc, argv))
+	Device* engine = GetDevice();
+
+	if (!engine->init(argc, argv))
 	{
 		return 0;
 	}
@@ -261,20 +265,22 @@ int main(int argc, char** argv)
 	MainScene mainScene;
 	mainScene.OnLoad();
 
-	while (mDevice->IsRunning())
+	while (engine->is_running())
 	{
 		os::event_loop();
 
 		get_input_manager()->event_loop();
 
-		GetDevice()->GetRenderer()->begin_frame();
+		engine->renderer()->begin_frame();
 			mainScene.RenderScene();
-		GetDevice()->GetRenderer()->end_frame();
+		engine->renderer()->end_frame();
 
 		os::swap_buffers();
 	}
 
-	mDevice->Shutdown();
+	engine->shutdown();
+
+	os::destroy_render_window();
 
 	return 0;
 }

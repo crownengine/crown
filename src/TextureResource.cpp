@@ -42,7 +42,7 @@ void TextureResource::online(TextureResource* texture)
 {
 	assert(texture != NULL);
 
-	texture->m_render_texture = GetDevice()->GetRenderer()->load_texture(texture);
+	texture->m_render_texture = GetDevice()->renderer()->load_texture(texture);
 }
 
 //-----------------------------------------------------------------------------

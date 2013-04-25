@@ -280,7 +280,7 @@ uint32_t Terrain::SnapToGrid(const Vec3& vertex)
 
 void Terrain::Render()
 {
-	Renderer* renderer = GetDevice()->GetRenderer();
+	Renderer* renderer = GetDevice()->renderer();
 
 	renderer->render_triangles(
 				mVertices[0].to_float_ptr(),

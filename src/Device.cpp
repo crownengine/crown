@@ -35,8 +35,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Args.h"
 #include <cstdlib>
 
-// #include "renderers/gl/GLRenderer.h"
-#include "renderers/gles/GLESRenderer.h"
+#include "renderers/gl/GLRenderer.h"
+//#include "renderers/gles/GLESRenderer.h"
 
 namespace crown
 {
@@ -47,15 +47,17 @@ const uint16_t Device::CROWN_MICRO = 0;
 
 //-----------------------------------------------------------------------------
 Device::Device() :
-	mPreferredWindowWidth(1000),
-	mPreferredWindowHeight(625),
-	mPreferredWindowFullscreen(false),
-	mIsInit(false),
-	mIsRunning(false),
-	mRenderer(NULL)
+	m_preferred_window_width(1000),
+	m_preferred_window_height(625),
+	m_preferred_window_fullscreen(false),
+
+	m_is_init(false),
+	m_is_running(false),
+
+	m_renderer(NULL)
 {
-	string::strcpy(mPreferredRootPath, string::EMPTY);
-	string::strcpy(mPreferredUserPath, string::EMPTY);
+	string::strcpy(m_preferred_root_path, string::EMPTY);
+	string::strcpy(m_preferred_user_path, string::EMPTY);
 }
 
 //-----------------------------------------------------------------------------
@@ -64,134 +66,118 @@ Device::~Device()
 }
 
 //-----------------------------------------------------------------------------
-bool Device::Init(int argc, char** argv)
+bool Device::init(int argc, char** argv)
 {
-	if (ParseCommandLine(argc, argv) == false)
+	if (parse_command_line(argc, argv) == false)
 	{
+		return false;
+	}
+
+	if (is_init())
+	{
+		Log::E("Crown Engine is already initialized.");
 		return false;
 	}
 
 	// Initialize
-	Log::D("Initializing Device...");
-
-	if (IsInit())
-	{
-		Log::E("Device is already initialized.");
-		return false;
-	}
+	Log::I("Initializing Crown Engine %d.%d.%d...", CROWN_MAJOR, CROWN_MINOR, CROWN_MICRO);
 
 	// Set the root path
-	// GetFilesystem()->Init(mPreferredRootPath.c_str(), mPreferredUserPath.c_str());
-
-	// Create the main window
-	if (!os::create_render_window(0, 0, mPreferredWindowWidth, mPreferredWindowHeight, mPreferredWindowFullscreen))
-	{
-		Log::E("Unable to create the main window.");
-		return false;
-	}
-	Log::D("Window created.");
+	// GetFilesystem()->Init(m_preferred_root_path.c_str(), m_preferred_user_path.c_str());
 
 	// Create the renderer
-	if (!mRenderer)
+	if (m_renderer == NULL)
 	{
 		// FIXME FIXME FIXME
 		// #ifdef CROWN_BUILD_OPENGL
-		// 	mRenderer = new GLRenderer();
+		 	m_renderer = new GLRenderer();
+			Log::I("Using GLRenderer.");
 		// #elif defined CROWN_BUILD_OPENGLES
-			mRenderer = new GLESRenderer();
+		//	m_renderer = new GLESRenderer();
 		// #endif
 	}
-	Log::D("Renderer created.");
 
-	os::init_input();
+	m_is_init = true;
 
-	mIsInit = true;
+	start();
 
-	StartRunning();
-
-	Log::I("Crown Game Engine %d.%d.%d", CROWN_MAJOR, CROWN_MINOR, CROWN_MICRO);
-	Log::I("Crown is up and running, enjoy!");
+	Log::I("Crown Engine initialized.");
 
 	return true;
 }
 
 //-----------------------------------------------------------------------------
-void Device::Shutdown()
+void Device::shutdown()
 {
-	if (!IsInit())
+	if (is_init() == false)
 	{
-		Log::E("Device is not initialized.");	
+		Log::E("Crown Engine is not initialized.");	
 		return;
 	}
 
 	Log::I("Releasing Renderer...");
 
-	if (mRenderer)
+	if (m_renderer)
 	{
-		delete mRenderer;
+		delete m_renderer;
 	}
 
-	Log::I("Releasing Render Window...");
-	os::destroy_render_window();
-
-	mIsInit = false;
+	m_is_init = false;
 }
 
 //-----------------------------------------------------------------------------
-bool Device::IsInit()
+bool Device::is_init() const
 {
-	return mIsInit;
+	return m_is_init;
 }
 
 //-----------------------------------------------------------------------------
-Renderer* Device::GetRenderer()
+Renderer* Device::renderer()
 {
-	return mRenderer;
+	return m_renderer;
 }
 
 //-----------------------------------------------------------------------------
-void Device::StartRunning()
+void Device::start()
 {
-	if (!IsInit())
+	if (is_init() == false)
 	{
+		Log::E("Cannot start uninitialized engine.");
 		return;
 	}
 
-	mIsRunning = true;
+	m_is_running = true;
 }
 
 //-----------------------------------------------------------------------------
-void Device::StopRunning()
+void Device::stop()
 {
-	if (!IsInit())
+	if (is_init() == false)
 	{
+		Log::E("Cannot stop uninitialized engine.");
 		return;
 	}
 
-	mIsRunning = false;
+	m_is_running = false;
 }
 
 //-----------------------------------------------------------------------------
-bool Device::IsRunning() const
+bool Device::is_running() const
 {
-	return mIsRunning;
+	return m_is_running;
 }
 
 //-----------------------------------------------------------------------------
-void Device::Frame()
+void Device::frame()
 {
-	os::event_loop();
-
 	get_input_manager()->event_loop();
 
-		mRenderer->begin_frame();
-		mRenderer->end_frame();
-
-	os::swap_buffers();
+	m_renderer->begin_frame();
+	m_renderer->end_frame();
 }
 
 //-----------------------------------------------------------------------------
-bool Device::ParseCommandLine(int argc, char** argv)
+bool Device::parse_command_line(int argc, char** argv)
 {
 	int32_t fullscreen = 0;
 
@@ -220,14 +206,14 @@ bool Device::ParseCommandLine(int argc, char** argv)
 			}
 			case 0:
 			{
-				mPreferredWindowFullscreen = fullscreen;
+				m_preferred_window_fullscreen = fullscreen;
 
 				break;
 			}
 			// Help
 			case 'i':
 			{
-				PrintHelpMessage();
+				print_help_message();
 				return false;
 			}
 			// Root path
@@ -239,7 +225,7 @@ bool Device::ParseCommandLine(int argc, char** argv)
 					return false;
 				}
 
-				string::strcpy(mPreferredRootPath, args.option_argument());
+				string::strcpy(m_preferred_root_path, args.option_argument());
 
 				break;
 			}
@@ -252,7 +238,7 @@ bool Device::ParseCommandLine(int argc, char** argv)
 					return false;
 				}
 
-				string::strcpy(mPreferredUserPath, args.option_argument());
+				string::strcpy(m_preferred_user_path, args.option_argument());
 
 				break;
 			}
@@ -265,7 +251,7 @@ bool Device::ParseCommandLine(int argc, char** argv)
 					return false;
 				}
 
-				mPreferredWindowWidth = atoi(args.option_argument());
+				m_preferred_window_width = atoi(args.option_argument());
 				break;
 			}
 			// Window height
@@ -277,7 +263,7 @@ bool Device::ParseCommandLine(int argc, char** argv)
 					return false;
 				}
 
-				mPreferredWindowHeight = atoi(args.option_argument());
+				m_preferred_window_height = atoi(args.option_argument());
 				break;
 			}
 			default:
@@ -291,7 +277,7 @@ bool Device::ParseCommandLine(int argc, char** argv)
 }
 
 //-----------------------------------------------------------------------------
-void Device::PrintHelpMessage()
+void Device::print_help_message()
 {
 	os::printf("Usage: crown [options]\n");
 	os::printf("Options:\n\n");
