@@ -90,10 +90,6 @@ class CompilerHelper:
 		print("Done.")
 
 #------------------------------------------------------------------------------
-def print_help_message():
-	print("usage: resource-compiler <root-path>")
-
-#------------------------------------------------------------------------------
 def main():
 	root_path = ""
 
