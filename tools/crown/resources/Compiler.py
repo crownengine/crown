@@ -87,7 +87,7 @@ class Compiler:
 	def compile(self, resource):
 		# Compute perfect seed if necessary
 		if (self.m_perfect_seed == -1):
-			compute_perfect_seed()
+			self.compute_perfect_seed()
 
 		root_path = self.m_repository.root_path()
 
