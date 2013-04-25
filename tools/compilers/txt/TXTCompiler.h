@@ -36,6 +36,7 @@ class TXTCompiler : public Compiler
 public:
 
 					TXTCompiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed);
+					~TXTCompiler();
 
 	bool			compile();
 	void			write();
