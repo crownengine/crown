@@ -29,7 +29,6 @@ set (HEADERS
 	Camera.h
 	Config.h
 	Crown.h
-	Data.h
 	Device.h
 	EventBuffer.h
 	Filesystem.h
@@ -241,59 +240,86 @@ set (NETWORK_HEADERS
 	network/PacketQueue.h
 )
 
-set (SOURCES
+set (CROWN_SOURCES
 	${SRC}
-	${INCLUDES}
 	${CORE_SRC}
-	${CORE_HEADERS}
 	${BV_SRC}
-	${BV_HEADERS}
 	${CONTAINERS_SRC}
-	${CONTAINERS_HEADERS}
 	${MATH_SRC}
-	${MATH_HEADERS}
 	${STREAMS_SRC}
-	${STREAMS_HEADERS}
 	${MEM_SRC}
-	${MEM_HEADERS}
 	${COMPRESSORS_SRC}
-	${COMPRESSORS_HEADERS}
 	${THREADS_SRC}
-	${THREADS_HEADERS}
 	${SETTINGS_SRC}
-	${SETTINGS_HEADERS}
 
 	${INPUT_SRC}
-	${INPUT_HEADERS}
 
 	${RENDERERS_SRC}
-	${RENDERERS_HEADERS}
 
 	${NETWORK_SRC}
-	${NETWORK_HEADERS}
 
 	${OS_SRC}
+)
+
+set (CROWN_HEADERS
+	${HEADERS}
+
+	${CORE_HEADERS}
+	${BV_HEADERS}
+	${CONTAINERS_HEADERS}
+	${MATH_HEADERS}
+	${STREAMS_HEADERS}
+	${MEM_HEADERS}
+	${COMPRESSORS_HEADERS}
+	${THREADS_HEADERS}
+	${SETTINGS_HEADERS}
+
+	${INPUT_HEADERS}
+
+	${RENDERERS_HEADERS}
+
+	${NETWORK_HEADERS}
+
 	${OS_HEADERS}
 )
 
 link_libraries(rt z)
-add_library(crown STATIC ${SOURCES})
+add_library(crown STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
 
 if (CROWN_BUILD_OPENGL)
-target_link_libraries(crown crown-gl)
+	target_link_libraries(crown crown-gl)
 endif (CROWN_BUILD_OPENGL)
 
 if (CROWN_BUILD_OPENGLES)
-target_link_libraries(crown crown-gles)
+	target_link_libraries(crown crown-gles)
 endif (CROWN_BUILD_OPENGLES)
 
 if (LINUX)
-target_link_libraries(crown crown-linux)
+	target_link_libraries(crown crown-linux)
 endif (LINUX)
 
 if (WINDOWS)
-target_link_libraries(crown crown-win)
+	target_link_libraries(crown crown-win)
 endif (WINDOWS)
 
 install (TARGETS crown DESTINATION lib)
+install (FILES ${HEADERS} DESTINATION include)
+
+install (FILES ${CORE_HEADERS} DESTINATION include/core)
+install (FILES ${BV_HEADERS} DESTINATION include/core/bv)
+install (FILES ${CONTAINERS_HEADERS} DESTINATION include/core/containers)
+install (FILES ${MATH_HEADERS} DESTINATION include/core/math)
+install (FILES ${STREAMS_HEADERS} DESTINATION include/core/streams)
+install (FILES ${MEM_HEADERS} DESTINATION include/core/mem)
+install (FILES ${COMPRESSORS_HEADERS} DESTINATION include/core/compressors)
+install (FILES ${THREADS_HEADERS} DESTINATION include/core/threads)
+install (FILES ${SETTINGS_HEADERS} DESTINATION include/core/settings)
+
+install (FILES ${INPUT_HEADERS} DESTINATION include/input)
+
+install (FILES ${RENDERERS_HEADERS} DESTINATION include/renderers)
+
+install (FILES ${NETWORK_HEADERS} DESTINATION include/network)
+
+install (FILES ${OS_HEADERS} DESTINATION include/os)
 
