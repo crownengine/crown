@@ -88,6 +88,8 @@ class Repository:
 
 	# Scans the root path to find resources
 	def scan(self):
+		# Clear the resources
+		self.m_resources = []
 
 		for dirname, dirnames, filenames in os.walk(self.m_root_path):
 			for filename in filenames:

@@ -32,7 +32,7 @@ from pycrown import Repository
 
 class ResourceBrowser:
 	def __init__(self, repository):
-		repository.scan()
+		self.m_repository = repository
 
 		builder = Gtk.Builder()
 		builder.add_from_file("ui/resource-browser.glade")
@@ -50,8 +50,7 @@ class ResourceBrowser:
 		self.m_list_view.append_column(column)
 
 		# Populate list model
-		for res in repository.all_resources():
-			self.m_list_store.append([res])
+		self.update_list_model()
 
 		self.m_list_filter = self.m_list_store.filter_new()
 		self.m_list_filter.set_visible_func(self.visible_func)
@@ -67,6 +66,18 @@ class ResourceBrowser:
 	# Callback
 	def on_delete(self, *args):
 		Gtk.main_quit(*args)
+
+	def update_list_model(self):
+		self.m_repository.scan()
+
+		self.m_list_store.clear()
+
+		for res in self.m_repository.all_resources():
+			self.m_list_store.append([res])
+
+	# Refresh the repository contents
+	def on_update_button_clicked(self, button):
+		self.update_list_model()
 
 	# We call refilter whenever the user types into the filter entry
 	def on_filter_entry_text_changed(self, entry):
