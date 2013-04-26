@@ -11,8 +11,6 @@ include_directories(${INCLUDES} ${GTKMM_INCLUDE_DIRS})
 
 add_subdirectory(compilers)
 #add_subdirectory(editors/world-editor)
+add_subdirectory(editors/resource-browser)
 add_subdirectory(pycrown)
-
-install (FILES ${PROJECT_SOURCE_DIR}/compilers/resource-compiler.py DESTINATION bin)
-install (FILES ${PROJECT_SOURCE_DIR}/editors/resource-browser/resource-browser.py DESTINATION bin)
 
