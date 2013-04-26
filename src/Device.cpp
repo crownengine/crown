@@ -50,6 +50,7 @@ Device::Device() :
 	m_is_init(false),
 	m_is_running(false),
 
+	m_input_manager(NULL),
 	m_renderer(NULL)
 {
 	string::strcpy(m_preferred_root_path, string::EMPTY);
@@ -81,17 +82,16 @@ bool Device::init(int argc, char** argv)
 	// Set the root path
 	// GetFilesystem()->Init(m_preferred_root_path.c_str(), m_preferred_user_path.c_str());
 
+	m_input_manager = new InputManager();
+
 	// Create the renderer
-	if (m_renderer == NULL)
-	{
-		// FIXME FIXME FIXME
-		// #ifdef CROWN_BUILD_OPENGL
-		 	m_renderer = new GLRenderer();
-			Log::I("Using GLRenderer.");
-		// #elif defined CROWN_BUILD_OPENGLES
-		//	m_renderer = new GLESRenderer();
-		// #endif
-	}
+	// FIXME FIXME FIXME
+	// #ifdef CROWN_BUILD_OPENGL
+	 	m_renderer = new GLRenderer();
+		Log::I("Using GLRenderer.");
+	// #elif defined CROWN_BUILD_OPENGLES
+	//	m_renderer = new GLESRenderer();
+	// #endif
 
 	m_is_init = true;
 
@@ -111,6 +111,11 @@ void Device::shutdown()
 		return;
 	}
 
+	if (m_input_manager)
+	{
+		delete m_input_manager;
+	}
+
 	Log::I("Releasing Renderer...");
 
 	if (m_renderer)
@@ -125,6 +130,12 @@ void Device::shutdown()
 bool Device::is_init() const
 {
 	return m_is_init;
+}
+
+//-----------------------------------------------------------------------------
+InputManager* Device::input_manager()
+{
+	return m_input_manager;
 }
 
 //-----------------------------------------------------------------------------
@@ -166,7 +177,7 @@ bool Device::is_running() const
 //-----------------------------------------------------------------------------
 void Device::frame()
 {
-	get_input_manager()->event_loop();
+	m_input_manager->event_loop();
 
 	m_renderer->begin_frame();
 	m_renderer->end_frame();
@@ -289,10 +300,10 @@ void Device::print_help_message()
 	os::printf("  --fullscreen          Start in fullscreen.\n");
 }
 
-Device device;
-Device* GetDevice()
+Device g_device;
+Device* device()
 {
-	return &device;
+	return &g_device;
 }
 
 } // namespace crown

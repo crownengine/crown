@@ -1,3 +1,28 @@
+/*
+Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 #include "InputManager.h"
 #include "MovableCamera.h"
 #include "FPSSystem.h"
@@ -5,6 +30,7 @@
 #include "Vec3.h"
 #include "Mat3.h"
 #include "OS.h"
+#include "Device.h"
 
 namespace crown
 {
@@ -19,10 +45,10 @@ FPSSystem::FPSSystem(MovableCamera* camera) :
 	m_down_pressed(false),
 	m_left_pressed(false)
 {
-	get_input_manager()->register_keyboard_listener(this);
-	get_input_manager()->register_accelerometer_listener(this);
-	//get_input_manager()->register_mouse_listener(this);
-	get_input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
+	device()->input_manager()->register_keyboard_listener(this);
+	device()->input_manager()->register_accelerometer_listener(this);
+	//device()->input_manager()->register_mouse_listener(this);
+	device()->input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 	
 }
 
@@ -140,9 +166,9 @@ void FPSSystem::camera_render()
 //-----------------------------------------------------------------------	
 void FPSSystem::set_view_by_cursor()
 {
-	static Vec2 lastPos = get_input_manager()->get_cursor_relative_xy();
-	Vec2 currentPos = get_input_manager()->get_cursor_relative_xy();
-	get_input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
+	static Vec2 lastPos = device()->input_manager()->get_cursor_relative_xy();
+	Vec2 currentPos = device()->input_manager()->get_cursor_relative_xy();
+	device()->input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 
 	if (lastPos == currentPos)
 	{
@@ -151,8 +177,8 @@ void FPSSystem::set_view_by_cursor()
 
 	Vec2 delta = lastPos - currentPos;
 
-	get_input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
-	lastPos = get_input_manager()->get_cursor_relative_xy();
+	device()->input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
+	lastPos = device()->input_manager()->get_cursor_relative_xy();
 
 	m_angle_x += delta.y * m_camera->GetSensibility();
 	m_angle_y += delta.x * m_camera->GetSensibility();

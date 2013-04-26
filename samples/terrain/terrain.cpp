@@ -10,14 +10,14 @@ public:
 
 	WndCtrl()
 	{
-		get_input_manager()->register_keyboard_listener(this);
+		device()->input_manager()->register_keyboard_listener(this);
 	}
 
 	void KeyReleased(const KeyboardEvent& event)
 	{
 		if (event.key == KC_ESCAPE)
 		{
-			GetDevice()->stop();
+			device()->stop();
 		}
 	}
 };
@@ -34,8 +34,8 @@ public:
 		optShowCrate(true),
 		optShowTerrain(true)
 	{
-		get_input_manager()->register_keyboard_listener(this);
-		get_input_manager()->register_mouse_listener(this);
+		device()->input_manager()->register_keyboard_listener(this);
+		device()->input_manager()->register_mouse_listener(this);
 		mouseRightPressed = false;
 		mouseLeftPressed = false;
 	}
@@ -123,7 +123,7 @@ public:
 		
 	void OnLoad()
 	{
-		crown::Renderer* renderer = crown::GetDevice()->renderer();
+		crown::Renderer* renderer = crown::device()->renderer();
 
 		renderer->set_clear_color(Color4::LIGHTBLUE);
 		
@@ -167,7 +167,7 @@ public:
 
 	void RenderScene()
 	{
-		Renderer* renderer = GetDevice()->renderer();
+		Renderer* renderer = device()->renderer();
 		
 		system->set_view_by_cursor();
 		system->camera_render();
@@ -254,7 +254,7 @@ int main(int argc, char** argv)
 	os::create_render_window(0, 0, 1000, 625, false);
 	os::init_input();
 
-	Device* engine = GetDevice();
+	Device* engine = device();
 
 	if (!engine->init(argc, argv))
 	{
@@ -269,7 +269,7 @@ int main(int argc, char** argv)
 	{
 		os::event_loop();
 
-		get_input_manager()->event_loop();
+		device()->input_manager()->event_loop();
 
 		engine->renderer()->begin_frame();
 			mainScene.RenderScene();

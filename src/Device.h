@@ -53,6 +53,7 @@ public:
 
 	void					frame();
 
+	InputManager*			input_manager();
 	Renderer*				renderer();
 
 private:
@@ -74,6 +75,7 @@ private:
 	bool					m_is_running	: 1;
 
 	// Subsystems
+	InputManager*			m_input_manager;
 	Renderer*				m_renderer;
 
 private:
@@ -83,7 +85,7 @@ private:
 	Device& operator=(const Device&);
 };
 
-Device* GetDevice();
+Device* device();
 
 } // namespace crown
 
