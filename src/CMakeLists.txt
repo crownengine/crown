@@ -302,6 +302,8 @@ if (WINDOWS)
 	target_link_libraries(crown crown-win)
 endif (WINDOWS)
 
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
+
 install (TARGETS crown DESTINATION lib)
 install (FILES ${HEADERS} DESTINATION include)
 

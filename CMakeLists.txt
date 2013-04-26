@@ -71,5 +71,3 @@ endif (CROWN_BUILD_TESTS)
 
 #add_subdirectory(third/luajit)
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/src/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/src/Config.h)
-
