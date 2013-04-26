@@ -13,7 +13,7 @@ public:
 		device()->input_manager()->register_keyboard_listener(this);
 	}
 
-	void KeyReleased(const KeyboardEvent& event)
+	void key_released(const KeyboardEvent& event)
 	{
 		if (event.key == KC_ESCAPE)
 		{
