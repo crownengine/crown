@@ -304,24 +304,24 @@ endif (WINDOWS)
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
 
-install (TARGETS crown DESTINATION lib)
-install (FILES ${HEADERS} DESTINATION include)
+install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
+install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 
-install (FILES ${CORE_HEADERS} DESTINATION include/core)
-install (FILES ${BV_HEADERS} DESTINATION include/core/bv)
-install (FILES ${CONTAINERS_HEADERS} DESTINATION include/core/containers)
-install (FILES ${MATH_HEADERS} DESTINATION include/core/math)
-install (FILES ${STREAMS_HEADERS} DESTINATION include/core/streams)
-install (FILES ${MEM_HEADERS} DESTINATION include/core/mem)
-install (FILES ${COMPRESSORS_HEADERS} DESTINATION include/core/compressors)
-install (FILES ${THREADS_HEADERS} DESTINATION include/core/threads)
-install (FILES ${SETTINGS_HEADERS} DESTINATION include/core/settings)
+install (FILES ${CORE_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core)
+install (FILES ${BV_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/bv)
+install (FILES ${CONTAINERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/containers)
+install (FILES ${MATH_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/math)
+install (FILES ${STREAMS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/streams)
+install (FILES ${MEM_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/mem)
+install (FILES ${COMPRESSORS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/compressors)
+install (FILES ${THREADS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/threads)
+install (FILES ${SETTINGS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/settings)
 
-install (FILES ${INPUT_HEADERS} DESTINATION include/input)
+install (FILES ${INPUT_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/input)
 
-install (FILES ${RENDERERS_HEADERS} DESTINATION include/renderers)
+install (FILES ${RENDERERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/renderers)
 
-install (FILES ${NETWORK_HEADERS} DESTINATION include/network)
+install (FILES ${NETWORK_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/network)
 
-install (FILES ${OS_HEADERS} DESTINATION include/os)
+install (FILES ${OS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/os)
 

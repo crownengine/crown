@@ -22,4 +22,4 @@ add_library(crown-gles STATIC ${GLES_SRC} ${GLES_HEADERS})
 
 target_link_libraries(crown-gles crown)
 
-install (TARGETS crown-gles DESTINATION lib)
+install (TARGETS crown-gles DESTINATION lib/${CMAKE_PROJECT_NAME})

@@ -24,7 +24,8 @@ add_subdirectory(txt)
 add_subdirectory(tga)
 #add_subdirectory(lua)
 
-install (TARGETS crown-compiler-utils DESTINATION lib)
+install (TARGETS crown-compiler-utils DESTINATION lib/${CMAKE_PROJECT_NAME})
+
 install (TARGETS resource-linker DESTINATION bin)
 install (TARGETS resource-hash DESTINATION bin)
 install (FILES resource-compiler.py DESTINATION bin)

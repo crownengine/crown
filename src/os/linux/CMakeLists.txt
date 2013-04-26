@@ -23,4 +23,4 @@ add_library(crown-linux STATIC ${LINUX_SRC} ${LINUX_HEADERS})
 
 target_link_libraries(crown-linux crown)
 
-install (TARGETS crown-linux DESTINATION lib)
+install (TARGETS crown-linux DESTINATION lib/${CMAKE_PROJECT_NAME})
