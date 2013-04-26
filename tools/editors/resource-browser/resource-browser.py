@@ -79,6 +79,10 @@ class ResourceBrowser:
 		# Strip leading and trailing spaces
 		search_text = self.m_filter_entry.get_text().strip()
 
+		# Make the find case-insensitive
+		name = name.lower()
+		search_text = search_text.lower()
+
 		if (search_text == ""):
 			return True
 
