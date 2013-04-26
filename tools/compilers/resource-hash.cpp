@@ -6,7 +6,6 @@
 using namespace crown;
 
 const char* resource_in = NULL;
-const char* resource_out = NULL;
 uint32_t hash_seed = 0;
 
 void print_help_message(const char* program_name);
@@ -16,6 +15,12 @@ void parse_command_line(int argc, char** argv);
 int main(int argc, char** argv)
 {
 	parse_command_line(argc, argv);
+
+	if (resource_in == NULL)
+	{
+		printf("%s: ERROR: you have to specify the resource name with `--resource-in`\n", argv[0]);
+		exit(-1);
+	}
 
 	char resource_basename[256];
 	char resource_extension[256];
@@ -35,9 +40,7 @@ int main(int argc, char** argv)
 	string::strncat(out_filename, resource_basename, 512);
 	string::strncat(out_filename, resource_extension, 512);
 
-	resource_out = out_filename;
-
-	printf("%s\n", resource_out);
+	printf("%s\n", out_filename);
 
 	return 0;
 }

@@ -43,6 +43,24 @@ void parse_command_line(int argc, char** argv);
 int main(int argc, char** argv)
 {
 	parse_command_line(argc, argv);
+
+	if (root_path == NULL)
+	{
+		printf("%s: ERROR: you have to specify the root path with `--root-path`\n", argv[0]);
+		exit(-1);
+	}
+
+	if (dest_path == NULL)
+	{
+		printf("%s: ERROR: you have to specify the destination path with `--dest-path`\n", argv[0]);
+		exit(-1);
+	}
+
+	if (resource_in == NULL)
+	{
+		printf("%s: ERROR: you have to specify the resource name with `--resource-in`\n", argv[0]);
+		exit(-1);
+	}
 	
 	// FIXME: validate input
 
