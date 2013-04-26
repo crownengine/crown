@@ -19,8 +19,9 @@ set (LINUX_HEADERS
 
 link_libraries(X11 Xrandr pthread)
 
-add_library(crown-linux STATIC ${LINUX_SRC} ${LINUX_HEADERS})
+add_library(crown-linux-support ${LINUX_SRC} ${LINUX_HEADERS})
+add_executable(crown-linux main.cpp)
 
 target_link_libraries(crown-linux crown)
 
-install (TARGETS crown-linux DESTINATION lib/${CMAKE_PROJECT_NAME})
+install (TARGETS crown-linux DESTINATION bin)

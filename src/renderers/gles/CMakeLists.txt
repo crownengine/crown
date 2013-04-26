@@ -18,8 +18,6 @@ set (GLES_HEADERS
 
 link_libraries(GLESv1_CM)
 
-add_library(crown-gles STATIC ${GLES_SRC} ${GLES_HEADERS})
-
-target_link_libraries(crown-gles crown)
+add_library(crown-gles SHARED ${GLES_SRC} ${GLES_HEADERS})
 
 install (TARGETS crown-gles DESTINATION lib/${CMAKE_PROJECT_NAME})

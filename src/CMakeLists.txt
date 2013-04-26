@@ -284,7 +284,7 @@ set (CROWN_HEADERS
 )
 
 link_libraries(rt z)
-add_library(crown STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
+add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
 
 if (CROWN_BUILD_OPENGL)
 	target_link_libraries(crown crown-gl)
@@ -295,7 +295,7 @@ if (CROWN_BUILD_OPENGLES)
 endif (CROWN_BUILD_OPENGLES)
 
 if (LINUX)
-	target_link_libraries(crown crown-linux)
+	target_link_libraries(crown crown-linux-support)
 endif (LINUX)
 
 if (WINDOWS)

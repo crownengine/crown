@@ -20,8 +20,8 @@ set (GL_HEADERS
 
 link_libraries(GL GLEW)
 
-add_library(crown-gl STATIC ${GL_SRC} ${GL_HEADERS})
+add_library(crown-gl SHARED ${GL_SRC} ${GL_HEADERS})
 
-target_link_libraries(crown-gl crown)
+#target_link_libraries(crown-gl crown)
 
 install (TARGETS crown-gl DESTINATION lib/${CMAKE_PROJECT_NAME})
