@@ -27,8 +27,8 @@
 import sys
 import os
 
-from crown.resources import Repository
-from crown.resources import Compiler
+from pycrown import Repository
+from pycrown import Compiler
 
 DEST_PATH_SUFFIX = "_compiled"
 PERFECT_SEED_FILE = "seed.ini"

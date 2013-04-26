@@ -28,7 +28,7 @@ import sys
 import os
 from gi.repository import Gtk
 
-from crown.resources import Repository
+from pycrown import Repository
 
 class ResourceBrowser:
 	def __init__(self, repository):
