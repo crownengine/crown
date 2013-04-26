@@ -295,3 +295,5 @@ if (WINDOWS)
 target_link_libraries(crown crown-win)
 endif (WINDOWS)
 
+install (TARGETS crown DESTINATION lib)
+

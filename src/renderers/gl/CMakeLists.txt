@@ -24,3 +24,4 @@ add_library(crown-gl STATIC ${GL_SRC} ${GL_HEADERS})
 
 target_link_libraries(crown-gl crown)
 
+install (TARGETS crown-gl DESTINATION lib)

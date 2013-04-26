@@ -13,3 +13,4 @@ set (HEADERS
 add_executable(txt-compiler ${SRC} ${HEADERS})
 target_link_libraries(txt-compiler crown-compiler-utils)
 
+install (TARGETS txt-compiler DESTINATION bin)

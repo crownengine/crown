@@ -11,3 +11,5 @@ set (HEADERS
 
 add_executable(lua-compiler ${SRC} ${HEADERS})
 target_link_libraries(lua-compiler crown-compiler-utils crown-luajit)
+
+install (TARGETS lua-compiler DESTINATION bin)

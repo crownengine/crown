@@ -12,3 +12,4 @@ set (HEADERS
 add_executable(tga-compiler ${SRC} ${HEADERS})
 target_link_libraries(tga-compiler crown-compiler-utils)
 
+install (TARGETS tga-compiler DESTINATION bin)
