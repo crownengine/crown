@@ -35,7 +35,7 @@ class ResourceBrowser:
 		repository.scan()
 
 		builder = Gtk.Builder()
-		builder.add_from_file("glade/resource-browser.glade")
+		builder.add_from_file("ui/resource-browser.glade")
 
 		self.m_filter_entry = builder.get_object("entry1")
 		self.m_list_store = builder.get_object("liststore1")
