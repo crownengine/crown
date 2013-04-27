@@ -39,7 +39,7 @@ IntSetting::IntSetting(const char* name, const char* synopsis, int32_t value, in
 	m_max(max),
 	m_next(NULL)
 {
-	set_value(value);
+	*this = value;
 
 	if (IntSetting::g_int_settings_head == NULL)
 	{
@@ -84,7 +84,13 @@ int32_t IntSetting::max() const
 }
 
 //-----------------------------------------------------------------------------
-void IntSetting::set_value(int32_t value)
+IntSetting::operator int()
+{
+	return m_value;
+}
+
+//-----------------------------------------------------------------------------
+IntSetting& IntSetting::operator=(const int32_t value)
 {
 	if (value > m_max)
 	{
@@ -98,6 +104,8 @@ void IntSetting::set_value(int32_t value)
 	{
 		m_value = value;
 	}
+
+	return *this;
 }
 
 } // namespace crown

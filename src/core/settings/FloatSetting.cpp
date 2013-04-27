@@ -39,7 +39,7 @@ FloatSetting::FloatSetting(const char* name, const char* synopsis, float value, 
 	m_max(max),
 	m_next(NULL)
 {
-	set_value(value);
+	*this = value;
 
 	if (FloatSetting::g_float_settings_head == NULL)
 	{
@@ -84,7 +84,13 @@ float FloatSetting::max() const
 }
 
 //-----------------------------------------------------------------------------
-void FloatSetting::set_value(float value)
+FloatSetting::operator float()
+{
+	return m_value;
+}
+
+//-----------------------------------------------------------------------------
+FloatSetting& FloatSetting::operator=(const float value)
 {
 	if (value > m_max)
 	{
@@ -98,6 +104,8 @@ void FloatSetting::set_value(float value)
 	{
 		m_value = value;
 	}
+
+	return *this;
 }
 
 } // namespace crown
