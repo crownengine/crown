@@ -49,10 +49,6 @@ public:
 
 private:
 
-	static FloatSetting*	g_float_settings_head;
-
-private:
-
 	const char*			m_name;
 	const char*			m_synopsis;
 

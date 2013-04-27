@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-IntSetting* IntSetting::g_int_settings_head = NULL;
+static IntSetting* g_int_settings_head = NULL;
 
 //-----------------------------------------------------------------------------
 IntSetting::IntSetting(const char* name, const char* synopsis, int32_t value, int32_t min, int32_t max) :
@@ -41,15 +41,15 @@ IntSetting::IntSetting(const char* name, const char* synopsis, int32_t value, in
 {
 	*this = value;
 
-	if (IntSetting::g_int_settings_head == NULL)
+	if (g_int_settings_head == NULL)
 	{
-		IntSetting::g_int_settings_head = this;
+		g_int_settings_head = this;
 		m_next = NULL;
 	}
 	else
 	{
-		m_next = IntSetting::g_int_settings_head;
-		IntSetting::g_int_settings_head = this;
+		m_next = g_int_settings_head;
+		g_int_settings_head = this;
 	}
 }
 
