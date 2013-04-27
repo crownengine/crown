@@ -35,6 +35,7 @@ namespace crown
 Filesystem::Filesystem(const char* root_path) :
 	m_root_path(root_path)
 {
+	Log::I("Root path : %s", m_root_path);
 }
 
 //-----------------------------------------------------------------------------
