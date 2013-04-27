@@ -37,9 +37,11 @@ namespace crown
 
 //-----------------------------------------------------------------------
 FPSSystem::FPSSystem(MovableCamera* camera) :
+	m_camera(camera),
+
 	m_angle_x(0),
 	m_angle_y(0),
-	m_camera(camera),
+
 	m_up_pressed(false),
 	m_right_pressed(false),
 	m_down_pressed(false),
@@ -94,21 +96,25 @@ void FPSSystem::key_released(const KeyboardEvent& event)
 	switch (event.key)
 	{
 		case 'w':
+		case 'W':
 		{
 			m_up_pressed = false;
 			break;
 		}
 		case 'a':
+		case 'A':
 		{
 			m_left_pressed = false;
 			break;
 		}
 		case 's':
+		case 'S':
 		{
 			m_down_pressed = false;
 			break;
 		}
 		case 'd':
+		case 'D':
 		{
 			m_right_pressed = false;
 			break;
@@ -123,6 +129,7 @@ void FPSSystem::key_released(const KeyboardEvent& event)
 //-----------------------------------------------------------------------
 void FPSSystem::accelerometer_changed(const AccelerometerEvent& event)
 {
+	(void)event;
 	set_view_by_cursor();
 }
 //-----------------------------------------------------------------------
@@ -190,3 +197,4 @@ void FPSSystem::set_view_by_cursor()
 }
 
 } // namespace crown
+

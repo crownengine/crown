@@ -55,15 +55,15 @@ public:
 
 private:
 
-	real 	m_angle_x;
-	real 	m_angle_y;
+	MovableCamera*	m_camera;
 
-	bool m_up_pressed : 1;
-	bool m_right_pressed : 1;
-	bool m_down_pressed : 1;
-	bool m_left_pressed : 1;
+	real 			m_angle_x;
+	real 			m_angle_y;
 
-	MovableCamera* m_camera;
+	bool			m_up_pressed	: 1;
+	bool			m_right_pressed	: 1;
+	bool			m_down_pressed	: 1;
+	bool			m_left_pressed	: 1;
 };
 
 } // namespace crown
