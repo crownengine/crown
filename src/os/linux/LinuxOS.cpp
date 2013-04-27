@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/time.h>
 #include <time.h>
 #include <pthread.h>
+#include <dlfcn.h>
 
 namespace crown
 {
@@ -228,6 +229,44 @@ uint64_t microseconds()
 	timespec tmp;
 	clock_gettime(CLOCK_MONOTONIC, &tmp);
 	return (tmp.tv_sec - base_time.tv_sec) * 1000000 + (tmp.tv_nsec - base_time.tv_nsec) / 1000;
+}
+
+//-----------------------------------------------------------------------------
+void* open_library(const char* path)
+{
+	void* library = dlopen(path, RTLD_NOW);
+
+	if (library == NULL)
+	{
+		os::printf("OS: ERROR: Unable to load library '%s' with error: %s\n", path, dlerror());
+		return NULL;
+	}
+
+	return library;
+}
+
+//-----------------------------------------------------------------------------
+void close_library(void* library)
+{
+	assert(dlclose(library) == 0);
+}
+
+//-----------------------------------------------------------------------------
+void* lookup_symbol(void* library, const char* name)
+{
+	dlerror();
+
+	void* symbol = dlsym(library, name);
+
+	const char* error = dlerror();
+
+	if (error)
+	{
+		os::printf("OS: ERROR: Unable to lookup symbol '%s' with error: %s\n", name, error);
+		return NULL;
+	}
+
+	return symbol;
 }
 
 //-----------------------------------------------------------------------------

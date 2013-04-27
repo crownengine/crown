@@ -25,72 +25,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
-#include "Config.h"
-
 namespace crown
 {
 
-class Renderer;
-class InputManager;
-class Game;
-
-/// The Engine.
-class Device
+class Game
 {
 public:
 
-							Device();
-							~Device();
+					Game() {}
+	virtual			~Game() {}
 
-	bool					init(int argc, char** argv);
-	void					shutdown();
-
-	bool					is_running() const;
-	bool					is_init() const;
-
-	void					start();
-	void					stop();
-
-	void					frame();
-
-	InputManager*			input_manager();
-	Renderer*				renderer();
-
-private:
-
-	bool					parse_command_line(int argc, char** argv);
-	void					print_help_message();
-
-private:
-
-	// Preferred settings from command line
-	int32_t					m_preferred_window_width;
-	int32_t					m_preferred_window_height;
-	bool					m_preferred_window_fullscreen;
-
-	char					m_preferred_root_path[512];
-	char					m_preferred_user_path[512];
-
-	bool					m_is_init		: 1;
-	bool					m_is_running	: 1;
-
-	// Subsystems
-	InputManager*			m_input_manager;
-	Renderer*				m_renderer;
-
-	// The game currently running
-	Game*					m_game;
-	void*					m_game_library;
-
-private:
-
-	// Disable copying
-	Device(const Device&);
-	Device& operator=(const Device&);
+	virtual void	init() = 0;
+	virtual void	shutdown() = 0;
+	virtual void	update() = 0;
 };
 
-Device* device();
+typedef Game* create_game_t();
+typedef void destroy_game_t(Game* game);
 
 } // namespace crown
 

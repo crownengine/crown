@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "String.h"
 #include "Args.h"
+#include "Game.h"
 #include <cstdlib>
 
 #include "renderers/gl/GLRenderer.h"
@@ -99,6 +100,22 @@ bool Device::init(int argc, char** argv)
 
 	Log::I("Crown Engine initialized.");
 
+	Log::I("Initializing Game...");
+	// FIXME Should we maintain a fixed name library?
+	m_game_library = os::open_library("libgame.so");
+
+	if (m_game_library == NULL)
+	{
+		Log::E("Error while loading game library.");
+		return false;
+	}
+
+	create_game_t* create_game = (create_game_t*)os::lookup_symbol(m_game_library, "create_game");
+
+	m_game = create_game();
+
+	m_game->init();
+
 	return true;
 }
 
@@ -110,6 +127,13 @@ void Device::shutdown()
 		Log::E("Crown Engine is not initialized.");	
 		return;
 	}
+
+	m_game->shutdown();
+
+	destroy_game_t* destroy_game = (destroy_game_t*)os::lookup_symbol(m_game_library, "destroy_game");
+
+	destroy_game(m_game);
+	m_game = NULL;
 
 	if (m_input_manager)
 	{
@@ -180,6 +204,9 @@ void Device::frame()
 	m_input_manager->event_loop();
 
 	m_renderer->begin_frame();
+
+	m_game->update();
+
 	m_renderer->end_frame();
 }
 

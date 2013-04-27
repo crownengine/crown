@@ -37,9 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	OS-specific functions and parameters.
-*/
+/// OS-specific functions and parameters.
 namespace os
 {
 
@@ -76,6 +74,8 @@ const size_t	MAX_MUTEXES = 16;
 #endif
 
 //-----------------------------------------------------------------------------
+// Print and log functions
+//-----------------------------------------------------------------------------
 void			printf(const char* string, ...);				//!< Printf wrapper
 void			vprintf(const char* string, va_list arg);		//!< VPrintf wrapper
 
@@ -84,6 +84,9 @@ void			log_error(const char* string, va_list arg);		//!< Print error message
 void			log_warning(const char* string, va_list arg);	//!< Print warning message
 void			log_info(const char* string, va_list arg);		//!< Print info message
 
+//-----------------------------------------------------------------------------
+// File management
+//-----------------------------------------------------------------------------
 bool			exists(const char* path);		//!< Returns whether the path is a file or directory on the disk
 
 bool			is_dir(const char* path);		//!< Returns whether the path is a directory. (May not resolve symlinks.)
@@ -94,12 +97,17 @@ bool			unlink(const char* path);		//! Deletes a regular file. Returns true if su
 bool			mkdir(const char* path);		//! Creates a directory. Returns true if success, false if not
 bool			rmdir(const char* path);		//! Deletes a directory. Returns true if success, false if not
 
+//-----------------------------------------------------------------------------
+// OS ambient variables
+//-----------------------------------------------------------------------------
 const char*		get_cwd();						//! Fills ret with the path of the current working directory. Returns true if success, false if not 
 const char*		get_home();						//! Fills ret with the path of the user home directory
 const char*		get_env(const char* env);		//! Returns the content of the 'env' environment variable or the empty string
 
 //bool			ls(const char* path, List<Str>& fileList);	//! Returns the list of filenames in a directory.
 
+//-----------------------------------------------------------------------------
+// Render window and input management
 //-----------------------------------------------------------------------------
 void			init_os();
 
@@ -118,9 +126,13 @@ void			hide_cursor();
 void			show_cursor();
 
 //-----------------------------------------------------------------------------
+// Timing
+//-----------------------------------------------------------------------------
 uint64_t		milliseconds();
 uint64_t		microseconds();
 
+//-----------------------------------------------------------------------------
+// Events
 //-----------------------------------------------------------------------------
 enum OSEventType
 {
@@ -153,17 +165,23 @@ struct OSEvent
 	OSEventParameter	data_d;
 };
 
-//! Pushes @a event into @a event_queue
+/// Pushes the event @type along with its parameters into the os' event queue.
 void			push_event(OSEventType type, OSEventParameter data_a, OSEventParameter data_b, OSEventParameter data_c, OSEventParameter data_d);
 
 
-//! Returns the event on top of the event_queue	
+/// Returns and pops the first event in the os' event queue.
 OSEvent&		pop_event();
+
+//-----------------------------------------------------------------------------
+// Dynamic libraries
+//-----------------------------------------------------------------------------
+void*			open_library(const char* path);
+void			close_library(void* library);
+void*			lookup_symbol(void* library, const char* name);
 
 //-----------------------------------------------------------------------------
 // Threads
 //-----------------------------------------------------------------------------
-
 typedef			void* (*ThreadFunction)(void*);
 
 void			thread_create(ThreadFunction f, void* params, OSThread& thread, const char* name);
@@ -176,9 +194,8 @@ void			mutex_lock(OSMutex mutex);
 void			mutex_unlock(OSMutex mutex);
 
 //-----------------------------------------------------------------------------
-//		Networking
+// Networking
 //-----------------------------------------------------------------------------
-
 struct NetAddress
 {
 	uint8_t 	address[4];
@@ -259,7 +276,6 @@ struct NetAddress
 };
 
 //-----------------------------------------------------------------------------
-
 class UDPSocket
 {
 public:
@@ -283,8 +299,8 @@ private:
 				// Socket descriptor
 	int32_t 	m_socket;
 };
-//-----------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------
 class TCPSocket
 {
 public:
