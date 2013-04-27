@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+class Filesystem;
 class Renderer;
 class InputManager;
 class Game;
@@ -54,6 +55,7 @@ public:
 
 	void					frame();
 
+	Filesystem*				filesystem();
 	InputManager*			input_manager();
 	Renderer*				renderer();
 
@@ -76,6 +78,7 @@ private:
 	bool					m_is_running	: 1;
 
 	// Subsystems
+	Filesystem*				m_filesystem;
 	InputManager*			m_input_manager;
 	Renderer*				m_renderer;
 

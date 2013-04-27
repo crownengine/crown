@@ -141,6 +141,8 @@ private:
 						// Disable copying
 						Filesystem(const Filesystem&);
 	Filesystem&			operator=(const Filesystem&);
+
+	friend class		Device;
 };
 
 } // namespace crown

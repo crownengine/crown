@@ -51,6 +51,7 @@ Device::Device() :
 	m_is_init(false),
 	m_is_running(false),
 
+	m_filesystem(NULL),
 	m_input_manager(NULL),
 	m_renderer(NULL)
 {
@@ -81,7 +82,7 @@ bool Device::init(int argc, char** argv)
 	Log::I("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
 	// Set the root path
-	// GetFilesystem()->Init(m_preferred_root_path.c_str(), m_preferred_user_path.c_str());
+	m_filesystem = new Filesystem(m_preferred_root_path);
 
 	m_input_manager = new InputManager();
 
@@ -101,8 +102,9 @@ bool Device::init(int argc, char** argv)
 	Log::I("Crown Engine initialized.");
 
 	Log::I("Initializing Game...");
-	// FIXME Should we maintain a fixed name library?
-	m_game_library = os::open_library("libgame.so");
+
+	const char* game_library_path = m_filesystem->build_os_path(m_filesystem->root_path(), "libgame.so");
+	m_game_library = os::open_library(game_library_path);
 
 	if (m_game_library == NULL)
 	{
@@ -147,6 +149,13 @@ void Device::shutdown()
 		delete m_renderer;
 	}
 
+	Log::I("Releasing Filesystem...");
+
+	if (m_filesystem)
+	{
+		delete m_filesystem;
+	}
+
 	m_is_init = false;
 }
 
@@ -154,6 +163,12 @@ void Device::shutdown()
 bool Device::is_init() const
 {
 	return m_is_init;
+}
+
+//-----------------------------------------------------------------------------
+Filesystem* Device::filesystem()
+{
+	return m_filesystem;
 }
 
 //-----------------------------------------------------------------------------
