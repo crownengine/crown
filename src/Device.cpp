@@ -36,24 +36,35 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Game.h"
 #include <cstdlib>
 
-#include "renderers/gl/GLRenderer.h"
-//#include "renderers/gles/GLESRenderer.h"
+#ifdef CROWN_BUILD_OPENGL
+	#include "renderers/gl/GLRenderer.h"
+#endif
+
+#ifdef CROWN_BUILD_OPENGLES
+	#include "renderers/gles/GLESRenderer.h"
+#endif
 
 namespace crown
 {
+
+static const char* GAME_LIBRARY_NAME = "libgame.so";
 
 //-----------------------------------------------------------------------------
 Device::Device() :
 	m_preferred_window_width(1000),
 	m_preferred_window_height(625),
-	m_preferred_window_fullscreen(false),
+	m_preferred_window_fullscreen(0),
+	m_preferred_renderer(RENDERER_GL),
 
 	m_is_init(false),
 	m_is_running(false),
 
 	m_filesystem(NULL),
 	m_input_manager(NULL),
-	m_renderer(NULL)
+	m_renderer(NULL),
+
+	m_game(NULL),
+	m_game_library(NULL)
 {
 	string::strcpy(m_preferred_root_path, string::EMPTY);
 	string::strcpy(m_preferred_user_path, string::EMPTY);
@@ -86,24 +97,30 @@ bool Device::init(int argc, char** argv)
 
 	m_input_manager = new InputManager();
 
-	// Create the renderer
-	// FIXME FIXME FIXME
-	// #ifdef CROWN_BUILD_OPENGL
-	 	m_renderer = new GLRenderer();
-		Log::I("Using GLRenderer.");
-	// #elif defined CROWN_BUILD_OPENGLES
-	//	m_renderer = new GLESRenderer();
-	// #endif
-
-	m_is_init = true;
-
-	start();
+	if (m_preferred_renderer == RENDERER_GL)
+	{
+		#ifdef CROWN_BUILD_OPENGL
+		m_renderer = new GLRenderer;
+		#else
+		Log::E("Crown Engine was not built with OpenGL support.");
+		return false;
+		#endif
+	}
+	else if (m_preferred_renderer == RENDERER_GLES)
+	{
+		#ifdef CROWN_BUILD_OPENGLES
+		m_renderer = new GLESRenderer;
+		#else
+		Log::E("Crown Engine was not built with OpenGL|ES support.");
+		return false;
+		#endif
+	}
 
 	Log::I("Crown Engine initialized.");
 
 	Log::I("Initializing Game...");
 
-	const char* game_library_path = m_filesystem->build_os_path(m_filesystem->root_path(), "libgame.so");
+	const char* game_library_path = m_filesystem->build_os_path(m_filesystem->root_path(), GAME_LIBRARY_NAME);
 	m_game_library = os::open_library(game_library_path);
 
 	if (m_game_library == NULL)
@@ -117,6 +134,10 @@ bool Device::init(int argc, char** argv)
 	m_game = create_game();
 
 	m_game->init();
+
+	m_is_init = true;
+
+	start();
 
 	return true;
 }
@@ -228,8 +249,6 @@ void Device::frame()
 //-----------------------------------------------------------------------------
 bool Device::parse_command_line(int argc, char** argv)
 {
-	int32_t fullscreen = 0;
-
 	ArgsOption options[] = 
 	{
 		"help",       AOA_NO_ARGUMENT,       NULL,        'i',
@@ -237,7 +256,9 @@ bool Device::parse_command_line(int argc, char** argv)
 		"user-path",  AOA_REQUIRED_ARGUMENT, NULL,        'u',
 		"width",      AOA_REQUIRED_ARGUMENT, NULL,        'w',
 		"height",     AOA_REQUIRED_ARGUMENT, NULL,        'h',
-		"fullscreen", AOA_NO_ARGUMENT,       &fullscreen,  1,
+		"fullscreen", AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1,
+		"gl",         AOA_NO_ARGUMENT,       &m_preferred_renderer, RENDERER_GL,
+		"gles",       AOA_NO_ARGUMENT,       &m_preferred_renderer, RENDERER_GLES,
 		NULL, 0, NULL, 0
 	};
 
@@ -252,12 +273,6 @@ bool Device::parse_command_line(int argc, char** argv)
 			case -1:
 			{
 				return true;
-			}
-			case 0:
-			{
-				m_preferred_window_fullscreen = fullscreen;
-
-				break;
 			}
 			// Help
 			case 'i':
@@ -340,6 +355,8 @@ void Device::print_help_message()
 	os::printf("  --width <width>       Set the <width> of the render window.\n");
 	os::printf("  --height <width>      Set the <height> of the render window.\n");
 	os::printf("  --fullscreen          Start in fullscreen.\n");
+	os::printf("  --gl                  Use OpenGL as rendering backend.\n");
+	os::printf("  --gles                Use OpenGL|ES as rendering backend.\n");  
 }
 
 Device g_device;

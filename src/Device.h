@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Config.h"
+#include "OS.h"
 
 namespace crown
 {
@@ -69,10 +70,11 @@ private:
 	// Preferred settings from command line
 	int32_t					m_preferred_window_width;
 	int32_t					m_preferred_window_height;
-	bool					m_preferred_window_fullscreen;
+	int32_t					m_preferred_window_fullscreen;
+	int32_t					m_preferred_renderer;
 
-	char					m_preferred_root_path[512];
-	char					m_preferred_user_path[512];
+	char					m_preferred_root_path[os::MAX_PATH_LENGTH];
+	char					m_preferred_user_path[os::MAX_PATH_LENGTH];
 
 	bool					m_is_init		: 1;
 	bool					m_is_running	: 1;
@@ -87,6 +89,12 @@ private:
 	void*					m_game_library;
 
 private:
+
+	enum
+	{
+		RENDERER_GL		= 0,
+		RENDERER_GLES	= 1
+	};
 
 	// Disable copying
 	Device(const Device&);
