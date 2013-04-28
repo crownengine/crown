@@ -94,8 +94,16 @@ bool Device::init(int argc, char** argv)
 	// Initialize
 	Log::I("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
-	// Set the root path
-	m_filesystem = new Filesystem(m_preferred_root_path);
+	// Select current dir if no root path provided
+	if (string::strcmp(m_preferred_root_path, string::EMPTY) == 0)
+	{
+		m_filesystem = new Filesystem(os::get_cwd());
+	}
+	else
+	{
+		m_filesystem = new Filesystem(m_preferred_root_path);
+	}
+
 
 	m_input_manager = new InputManager();
 
