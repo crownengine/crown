@@ -1,5 +1,4 @@
-#include "List.h"
-#include "Array.h"
+#include "Crown.h"
 #include <cstdio>
 #include <cassert>
 
@@ -7,7 +6,9 @@ using namespace crown;
 
 int main()
 {
-	List<int> int_list;
+	MallocAllocator allocator;
+
+	List<int> int_list(allocator);
 
 	assert(int_list.size() == 0);
 
@@ -19,17 +20,19 @@ int main()
 	int_list.push_back(60);
 
 	assert(int_list.size() == 6);
-	assert(*int_list.begin() == 10);
-	assert(*int_list.end() == 60);
+	assert(int_list.front() == 10);
+	assert(int_list.back() == 60);
 
 	int_list.pop_back();
 
 	assert(int_list.size() == 5);
-	assert(*int_list.begin() == 10);
-	assert(*int_list.end() == 50);
+	assert(int_list.front() == 10);
+	assert(int_list.back() == 50);
 
 	int_list.clear();
 
 	assert(int_list.size() == 0);
+
+	return 0;
 }
 
