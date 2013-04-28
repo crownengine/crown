@@ -10,6 +10,7 @@
 /android/libs
 /android/obj
 /android/res
+/android/local.properties
 
 # Ignore python stuff
 __pycache__
