@@ -693,6 +693,24 @@ void GLESRenderer::set_light_attenuation(uint32_t light, float constant, float l
 }
 
 //-----------------------------------------------------------------------------
+void GLESRenderer::draw_lines(const float* vertices, const float* colors, uint32_t count)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+
+	glVertexPointer(3, GL_FLOAT, 0, vertices);
+	glColorPointer(4, GL_FLOAT, 0, colors);
+
+	glDrawArrays(GL_LINES, 0, count);
+
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+//-----------------------------------------------------------------------------
 void GLESRenderer::render_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
