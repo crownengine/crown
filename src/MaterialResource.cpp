@@ -30,7 +30,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-MaterialResource* MaterialResource::load(Allocator& allocator, ResourceArchive* archive, ResourceId id)
+void* MaterialResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
 {
 	(void)allocator;
 	(void)archive;
@@ -41,14 +41,14 @@ MaterialResource* MaterialResource::load(Allocator& allocator, ResourceArchive* 
 }
 
 //-----------------------------------------------------------------------------
-void MaterialResource::online(MaterialResource* material)
+void MaterialResource::online(void* material)
 {
 	(void)material;
 	// TODO
 }
 
 //-----------------------------------------------------------------------------
-void MaterialResource::unload(Allocator& allocator, MaterialResource* material)
+void MaterialResource::unload(Allocator& allocator, void* material)
 {
 	(void)allocator;
 	(void)material;

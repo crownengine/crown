@@ -114,11 +114,11 @@ void* ResourceLoader::load_by_type(ResourceId name) const
 	}
 	else if (name.type == m_texture_hash)
 	{
-		return TextureResource::load(m_resource_allocator, &m_resource_archive, name);
+		return TextureResource::load(m_resource_allocator, m_resource_archive, name);
 	}
 	else if (name.type == m_txt_hash)
 	{
-		return TextResource::load(m_resource_allocator, &m_resource_archive, name);
+		return TextResource::load(m_resource_allocator, m_resource_archive, name);
 	}
 
 	return NULL;
