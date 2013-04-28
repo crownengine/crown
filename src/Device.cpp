@@ -288,6 +288,11 @@ bool Device::parse_command_line(int argc, char** argv)
 					os::printf("%s: error: missing absolute path after `-root-path`\n", argv[0]);
 					return false;
 				}
+				if (!os::is_absolute_path(args.option_argument()))
+				{
+					os::printf("%s: error: the root path must be absolute.\n", argv[0]);
+					return false;
+				}
 
 				string::strcpy(m_preferred_root_path, args.option_argument());
 
@@ -299,6 +304,11 @@ bool Device::parse_command_line(int argc, char** argv)
 				if (args.option_argument() == NULL)
 				{
 					os::printf("%s: error: missing absolute path after `--user-path`\n", argv[0]);
+					return false;
+				}
+				if (!os::is_absolute_path(args.option_argument()))
+				{
+					os::printf("%s: error: the user path must be absolute.\n", argv[0]);
 					return false;
 				}
 
