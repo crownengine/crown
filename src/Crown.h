@@ -128,6 +128,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OcclusionQuery.h"
 #include "Material.h"
 #include "Texture.h"
+#include "DebugRenderer.h"
 
 //// Engine/Windowing
 //#include "Bind.h"

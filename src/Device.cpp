@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "OS.h"
 #include "Renderer.h"
+#include "DebugRenderer.h"
 #include "Types.h"
 #include "String.h"
 #include "Args.h"
@@ -62,6 +63,7 @@ Device::Device() :
 	m_filesystem(NULL),
 	m_input_manager(NULL),
 	m_renderer(NULL),
+	m_debug_renderer(NULL),
 
 	m_game(NULL),
 	m_game_library(NULL)
@@ -115,6 +117,8 @@ bool Device::init(int argc, char** argv)
 		return false;
 		#endif
 	}
+
+	m_debug_renderer = new DebugRenderer(*m_renderer);
 
 	Log::I("Crown Engine initialized.");
 
@@ -170,6 +174,12 @@ void Device::shutdown()
 		delete m_renderer;
 	}
 
+	Log::I("Releasing DebugRenderer...");
+	if (m_debug_renderer)
+	{
+		delete m_debug_renderer;
+	}
+
 	Log::I("Releasing Filesystem...");
 
 	if (m_filesystem)
@@ -202,6 +212,12 @@ InputManager* Device::input_manager()
 Renderer* Device::renderer()
 {
 	return m_renderer;
+}
+
+//-----------------------------------------------------------------------------
+DebugRenderer* Device::debug_renderer()
+{
+	return m_debug_renderer;
 }
 
 //-----------------------------------------------------------------------------
@@ -242,6 +258,8 @@ void Device::frame()
 	m_renderer->begin_frame();
 
 	m_game->update();
+
+	m_debug_renderer->draw_all();
 
 	m_renderer->end_frame();
 }

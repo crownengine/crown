@@ -209,6 +209,7 @@ set (INPUT_HEADERS
 )
 
 set (RENDERERS_SRC
+	renderers/DebugRenderer.cpp
 )
 
 set (RENDERERS_HEADERS
@@ -218,6 +219,7 @@ set (RENDERERS_HEADERS
 	renderers/OcclusionQuery.h
 	renderers/Material.h
 	renderers/Texture.h
+	renderers/DebugRenderer.h
 )
 
 set (OS_HEADERS

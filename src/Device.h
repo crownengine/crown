@@ -34,6 +34,7 @@ namespace crown
 
 class Filesystem;
 class Renderer;
+class DebugRenderer;
 class InputManager;
 class Game;
 
@@ -59,6 +60,7 @@ public:
 	Filesystem*				filesystem();
 	InputManager*			input_manager();
 	Renderer*				renderer();
+	DebugRenderer*			debug_renderer();
 
 private:
 
@@ -83,6 +85,7 @@ private:
 	Filesystem*				m_filesystem;
 	InputManager*			m_input_manager;
 	Renderer*				m_renderer;
+	DebugRenderer*			m_debug_renderer;
 
 	// The game currently running
 	Game*					m_game;
