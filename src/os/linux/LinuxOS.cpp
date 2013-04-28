@@ -93,6 +93,38 @@ void log_info(const char* string, va_list arg)
 }
 
 //-----------------------------------------------------------------------------
+bool is_root_path(const char* path)
+{
+	assert(path != NULL);
+
+	if (string::strlen(path) == 1)
+	{
+		if (path[0] == PATH_SEPARATOR)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+bool is_absolute_path(const char* path)
+{
+	assert(path != NULL);
+
+	if (string::strlen(path) > 0)
+	{
+		if (path[0] == PATH_SEPARATOR)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 bool exists(const char* path)
 {
 	struct stat dummy;

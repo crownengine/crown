@@ -85,6 +85,12 @@ void			log_warning(const char* string, va_list arg);	//!< Print warning message
 void			log_info(const char* string, va_list arg);		//!< Print info message
 
 //-----------------------------------------------------------------------------
+// Paths
+//-----------------------------------------------------------------------------
+bool			is_root_path(const char* path);
+bool			is_absolute_path(const char* path);
+
+//-----------------------------------------------------------------------------
 // File management
 //-----------------------------------------------------------------------------
 bool			exists(const char* path);		//!< Returns whether the path is a file or directory on the disk
