@@ -302,7 +302,7 @@ void* lookup_symbol(void* library, const char* name)
 }
 
 //-----------------------------------------------------------------------------
-void thread_create(ThreadFunction f, void* params, OSThread& thread, const char* name)
+void thread_create(ThreadFunction f, void* params, OSThread* thread, const char* name)
 {
 	thread->name = name;
 
