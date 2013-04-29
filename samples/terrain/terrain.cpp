@@ -181,8 +181,8 @@ public:
 
 		if (cam->IsActive())
 		{
-			ray.origin = cam->GetPosition();
-			ray.direction = cam->GetLookAt();
+			ray.set_origin(cam->GetPosition());
+			ray.set_direction(cam->GetLookAt());
 		}
 
 		/* Render the terrain */
@@ -212,7 +212,7 @@ public:
 		if (terrain.TraceRay(ray, tri, tri2, dist))
 		{
 			renderer->set_depth_test(false);
-			Vec3 intersectionPoint = ray.origin + (ray.direction * dist);
+			Vec3 intersectionPoint = ray.origin() + (ray.direction() * dist);
 			if (mouseLeftPressed)
 			{
 				terrain.ApplyBrush(intersectionPoint, 0.09f);

@@ -34,25 +34,25 @@ namespace crown
 class Mat3;
 class Mat4;
 
-/**
-	Quaternion.
-
-@Note:
-	This implementation uses the standard quaternion
-	multiplication equation, so, the order of multiplication
-	for multiple rotations is in a reverse fashion:
-	p' = qpq^-1 where p is the point32_t and q the rotation quaternion
-
-	p' = (ba)p(ba)^-1 where p is the point32_t and (ba) the concatenation of two successive rotations
-	In this case, the point32_t p is first rotated by the quaternion a and then by the quaternion b.
-	The transformation order is reversed.
-*/
+/// Quaternion.
+///
+/// @Note:
+/// This implementation uses the standard quaternion
+/// multiplication equation, so, the order of multiplication
+/// for multiple rotations is in a reverse fashion:
+/// p' = qpq^-1 where p is the point and q the rotation quaternion
+/// 
+/// p' = (ba)p(ba)^-1 where p is the point and (ba) the concatenation of two successive rotations
+/// In this case, the point p is first rotated by the quaternion a and then by the quaternion b.
+/// The transformation order is reversed.
 class Quat
 {
 public:
 
 	Vec3		v;
 	real		w;
+
+public:
 
 				Quat();								//!< Constructor
 				Quat(real angle, const Vec3& v);	//!< Builds the quaternion from an angle and a vector

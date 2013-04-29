@@ -34,28 +34,26 @@ class Mat4;
 class Quat;
 class Vec3;
 
-/**
-	Column major 3x3 matrix.
-
-	The engine uses column vectors for coordinate space transformations
-	so you'll have to specify transformations in reverse order.
-	e.g. (rotation translation vector) will produce the result of first translating
-	and then rotating the vector.
-	Also note that a column major matrix needs to be placed to the left of a
-	vector by matrix multiplication, so, to multiply a vector by a matrix you'll have
-	to write something like: matrix vector. Since we are also using column vectors, inverting
-	the operands would result in an impossible operation.
-
-@verbatim:
-	  X base vector
-		| Y base vector
-		|   | Z base vector
-		|   |   |
-	1 [ Xx  Yx  Zx ]
-	2 | Xy  Yy  Zy |
-	3 [ Xz  Yz  Zz ]
-		1   2   3
-*/
+/// Column major 3x3 matrix.
+/// 
+/// The engine uses column vectors for coordinate space transformations
+/// so you'll have to specify transformations in reverse order.
+/// e.g. (rotation translation vector) will produce the result of first translating
+/// and then rotating the vector.
+/// Also note that a column major matrix needs to be placed to the left of a
+/// vector by matrix multiplication, so, to multiply a vector by a matrix you'll have
+/// to write something like: matrix vector. Since we are also using column vectors, inverting
+/// the operands would result in an impossible operation.
+/// 
+/// @verbatim:
+///   X base vector
+///     | Y base vector
+///     |   | Z base vector
+///     |   |   |
+/// 1 [ Xx  Yx  Zx ]
+/// 2 | Xy  Yy  Zy |
+/// 3 [ Xz  Yz  Zz ]
+///     1   2   3
 class Mat3
 {
 
@@ -107,8 +105,8 @@ public:
 	Vec3				get_scale() const;							//!< Returns a Vec3 containing the matrix's scale portion
 	void				set_scale(const Vec3& scale);				//!< Fills the matrix's scale portion with the values contained in "scale"
 
-	real*				to_float_ptr();								//!< Returns the point32_ter to the matrix's data
-	const real*			to_float_ptr() const;						//!< Returns the point32_ter to the matrix's data
+	real*				to_float_ptr();								//!< Returns the pointer to the matrix's data
+	const real*			to_float_ptr() const;						//!< Returns the pointer to the matrix's data
 	Mat4				to_mat4() const;							//!< Returns a 4x4 matrix according to the matrix's rotation portion
 	Quat				to_quat() const;							//!< Returns a quaternion according to the matrix's rotation portion
 

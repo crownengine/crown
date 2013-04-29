@@ -233,11 +233,7 @@ bool Terrain::TraceRay(const Ray& ray, Triangle& result, Triangle& /*tri2*/, rea
 
 	for (uint32_t i = 0; i < mIndexCount; i += 3)
 	{
-		Triangle tri;
-
-		tri.v1 = mVertices[mIndices[i + 0]];
-		tri.v2 = mVertices[mIndices[i + 1]];
-		tri.v3 = mVertices[mIndices[i + 2]];
+		Triangle tri(mVertices[mIndices[i + 0]], mVertices[mIndices[i + 1]], mVertices[mIndices[i + 2]]);
 
 		real ret;
 		Vec3 int32_tersectionPoint32_t;
@@ -344,15 +340,15 @@ void Terrain::PlotCircle(int32_t xx, int32_t yy, int32_t radius, int32_t i)
 
 			if (i == 0)
 			{
-				mBrush[(y + yy) * MAX_BRUSH_SIZE + (x + xx)] = Interpolation::linear(0.0f, 1.0f, rDist);
+				mBrush[(y + yy) * MAX_BRUSH_SIZE + (x + xx)] = interpolation::linear(0.0f, 1.0f, rDist);
 			}
 			else if (i == 1)
 			{
-				mBrush[(y + yy) * MAX_BRUSH_SIZE + (x + xx)] = Interpolation::cosine(0.0f, 1.0f, rDist);
+				mBrush[(y + yy) * MAX_BRUSH_SIZE + (x + xx)] = interpolation::cosine(0.0f, 1.0f, rDist);
 			}
 			else if (i == 2)
 			{
-				mBrush[(y + yy) * MAX_BRUSH_SIZE + (x + xx)] = Interpolation::cubic(0.0f, 1.0f, rDist);
+				mBrush[(y + yy) * MAX_BRUSH_SIZE + (x + xx)] = interpolation::cubic(0.0f, 1.0f, rDist);
 			}
 		}
 }

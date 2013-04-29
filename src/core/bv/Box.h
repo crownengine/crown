@@ -34,177 +34,193 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	Axially aligned bounding box.
-
-	Used mainly for collision detection and int32_tersection tests.
-*/
+/// Axially aligned bounding box.
+///
+/// Used mainly for collision detection and intersection tests.
 class Box
 {
-
 public:
 
-	Vec3			min;
-	Vec3			max;
+	/// Does nothing for efficiency.
+					Box();
 
+	/// Constructs from @min and @max.
+					Box(const Vec3& min, const Vec3& max);			
+					Box(const Box& box);
 
-					Box();													//!< Constructor
-					Box(const Vec3& newMin, const Vec3& newMax);			//!< Constructs from min and max
-					Box(const Box& box);									//!< Copy constructor
-					~Box();													//!< Destructor
+	const Vec3&		min() const;
+	const Vec3&		max() const;
+	void			set_min(const Vec3& min);
+	void			set_max(const Vec3& max);
 
-	const Vec3&		get_min() const;										//!< Returns the "min" corner
-	const Vec3&		get_max() const;										//!< Returns the "max" corner
-	void			set_min(const Vec3& min);								//!< Sets the "min" corner
-	void			set_max(const Vec3& max);								//!< Sets the "max" corner
+	Vec3			center() const;
+	real			radius() const;
+	real			volume() const;
 
-	Vec3			get_center() const;										//!< Returns the center
-	real			get_radius() const;										//!< Returns the radius
-	real			get_volume() const;										//!< Returns the volume
+	/// Adds @count @points expanding if necessary.
+	void			add_points(const Vec3* points, uint32_t count);
 
-	void			add_point32_t(const Vec3& p);								//!< Adds a point32_t to the aabb
-	void			add_box(const Box& box);								//!< Adds a Box to the aabb
+	/// Adds @count @boxes expanding if necessay.
+	void			add_boxes(const Box* boxes, uint32_t count);
 
-	bool			contains_point32_t(const Vec3& p) const;					//!< Returns whether point32_t "p" is contained
+	/// Returns whether point32_t "p" is contained.
+	bool			contains_point(const Vec3& p) const;
 
-	Vec3			get_vertex(uint32_t index) const;							//!< Returns a box's vertex
-	void			get_transformed(const Mat4& mat, Box& result) const;	//!< Returns the box trasformed according to "mat" matrix
+	/// Returns a box's vertex.
+	Vec3			vertex(uint32_t index) const;		
 
-	void			to_vertices(Vec3 v[8]) const;							//!< Returns the eight box's vertices
-	Sphere			to_sphere() const;										//!< Returns as a sphere
+	/// Returns the box trasformed according to "mat" matrix.
+	void			transformed(const Mat4& mat, Box& result) const;	
 
-	void			zero();													//!< Sets min and max to zero
+	/// Returns the eight box's vertices
+	void			to_vertices(Vec3 v[8]) const;	
+
+	/// Returns as a sphere						
+	Sphere			to_sphere() const;										
+
+	/// Sets min and max to zero
+	void			zero();													
+
+private:
+
+	Vec3			m_min;
+	Vec3			m_max;
 };
 
 //-----------------------------------------------------------------------------
-inline Box::Box() : min(0.0, 0.0, 0.0), max(0.0, 0.0, 0.0)
+inline Box::Box()
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Box::Box(const Box& box) : min(box.min), max(box.max)
+inline Box::Box(const Box& box) : m_min(box.m_min), m_max(box.m_max)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Box::Box(const Vec3& newMin, const Vec3& newMax) : min(newMin), max(newMax)
+inline Box::Box(const Vec3& min, const Vec3& max) : m_min(min), m_max(max)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Box::~Box()
+inline const Vec3& Box::min() const
 {
-}
-
-//-----------------------------------------------------------------------------
-inline const Vec3& Box::get_min() const
-{
-	return min;
+	return m_min;
 }
 
 //-----------------------------------------------------------------------------
 inline void Box::set_min(const Vec3& min)
 {
-	this->min = min;
+	m_min = min;
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec3& Box::get_max() const
+inline const Vec3& Box::max() const
 {
-	return max;
+	return m_max;
 }
 
 //-----------------------------------------------------------------------------
 inline void Box::set_max(const Vec3& max)
 {
-	this->max = max;
+	m_max = max;
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::add_point32_t(const Vec3& p)
+inline void Box::add_points(const Vec3* points, uint32_t count)
 {
-	if (p.x < min.x)
+	for (uint32_t i = 0; i < count; i++)
 	{
-		min.x = p.x;
-	}
+		const Vec3& p = points[i];
 
-	if (p.y < min.y)
-	{
-		min.y = p.y;
-	}
+		if (p.x < m_min.x)
+		{
+			m_min.x = p.x;
+		}
 
-	if (p.z < min.z)
-	{
-		min.z = p.z;
-	}
+		if (p.y < m_min.y)
+		{
+			m_min.y = p.y;
+		}
 
-	if (p.x > max.x)
-	{
-		max.x = p.x;
-	}
+		if (p.z < m_min.z)
+		{
+			m_min.z = p.z;
+		}
 
-	if (p.y > max.y)
-	{
-		max.y = p.y;
-	}
+		if (p.x > m_max.x)
+		{
+			m_max.x = p.x;
+		}
 
-	if (p.z > max.z)
-	{
-		max.z = p.z;
-	}
-}
+		if (p.y > m_max.y)
+		{
+			m_max.y = p.y;
+		}
 
-//-----------------------------------------------------------------------------
-inline void Box::add_box(const Box& box)
-{
-	if (box.min.x < min.x)
-	{
-		min.x = box.min.x;
-	}
-
-	if (box.min.y < min.y)
-	{
-		min.y = box.min.y;
-	}
-
-	if (box.min.z < min.z)
-	{
-		min.z = box.min.z;
-	}
-
-	if (box.max.x > max.x)
-	{
-		max.x = box.max.x;
-	}
-
-	if (box.max.y > max.y)
-	{
-		max.y = box.max.y;
-	}
-
-	if (box.max.z > max.z)
-	{
-		max.z = box.max.z;
+		if (p.z > m_max.z)
+		{
+			m_max.z = p.z;
+		}
 	}
 }
 
 //-----------------------------------------------------------------------------
-inline bool Box::contains_point32_t(const Vec3& p) const
+inline void Box::add_boxes(const Box* boxes, uint32_t count)
 {
-	return (p.x > min.x && p.y > min.y && p.z > min.z &&
-		p.x < max.x && p.y < max.y && p.z < max.z);
+	for (uint32_t i = 0; i < count; i++)
+	{
+		const Box& box = boxes[i];
+
+		if (box.m_min.x < m_min.x)
+		{
+			m_min.x = box.m_min.x;
+		}
+
+		if (box.m_min.y < m_min.y)
+		{
+			m_min.y = box.m_min.y;
+		}
+
+		if (box.m_min.z < m_min.z)
+		{
+			m_min.z = box.m_min.z;
+		}
+
+		if (box.m_max.x > m_max.x)
+		{
+			m_max.x = box.m_max.x;
+		}
+
+		if (box.m_max.y > m_max.y)
+		{
+			m_max.y = box.m_max.y;
+		}
+
+		if (box.m_max.z > m_max.z)
+		{
+			m_max.z = box.m_max.z;
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Box::get_center() const
+inline bool Box::contains_point(const Vec3& p) const
 {
-	return (min + max) * 0.5;
+	return (p.x > m_min.x && p.y > m_min.y && p.z > m_min.z &&
+		p.x < m_max.x && p.y < m_max.y && p.z < m_max.z);
 }
 
 //-----------------------------------------------------------------------------
-inline real Box::get_radius() const
+inline Vec3 Box::center() const
 {
-	return (max - (min + max) * 0.5).length();
+	return (m_min + m_max) * 0.5;
+}
+
+//-----------------------------------------------------------------------------
+inline real Box::radius() const
+{
+	return (m_max - (m_min + m_max) * 0.5).length();
 }
 
 //-----------------------------------------------------------------------------
@@ -219,98 +235,103 @@ inline void Box::to_vertices(Vec3 v[8]) const
 	// |      |
 	// |      |  <--- Bottom face
 	// 0 ---- 1
-	v[0].x = min.x;
-	v[0].y = min.y;
-	v[0].z = max.z;
+	v[0].x = m_min.x;
+	v[0].y = m_min.y;
+	v[0].z = m_max.z;
 
-	v[1].x = max.x;
-	v[1].y = min.y;
-	v[1].z = max.z;
+	v[1].x = m_max.x;
+	v[1].y = m_min.y;
+	v[1].z = m_max.z;
 
-	v[2].x = max.x;
-	v[2].y = min.y;
-	v[2].z = min.z;
+	v[2].x = m_max.x;
+	v[2].y = m_min.y;
+	v[2].z = m_min.z;
 
-	v[3].x = min.x;
-	v[3].y = min.y;
-	v[3].z = min.z;
+	v[3].x = m_min.x;
+	v[3].y = m_min.y;
+	v[3].z = m_min.z;
 
-	v[4].x = min.x;
-	v[4].y = max.y;
-	v[4].z = max.z;
+	v[4].x = m_min.x;
+	v[4].y = m_max.y;
+	v[4].z = m_max.z;
 
-	v[5].x = max.x;
-	v[5].y = max.y;
-	v[5].z = max.z;
+	v[5].x = m_max.x;
+	v[5].y = m_max.y;
+	v[5].z = m_max.z;
 
-	v[6].x = max.x;
-	v[6].y = max.y;
-	v[6].z = min.z;
+	v[6].x = m_max.x;
+	v[6].y = m_max.y;
+	v[6].z = m_min.z;
 
-	v[7].x = min.x;
-	v[7].y = max.y;
-	v[7].z = min.z;
+	v[7].x = m_min.x;
+	v[7].y = m_max.y;
+	v[7].z = m_min.z;
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Box::get_vertex(uint32_t index) const
+inline Vec3 Box::vertex(uint32_t index) const
 {
 	assert(index < 8);
 
 	switch (index)
 	{
 		case 0:
-			return Vec3(min.x, min.y, min.z);
+			return Vec3(m_min.x, m_min.y, m_min.z);
 		case 1:
-			return Vec3(max.x, min.y, min.z);
+			return Vec3(m_max.x, m_min.y, m_min.z);
 		case 2:
-			return Vec3(max.x, min.y, max.z);
+			return Vec3(m_max.x, m_min.y, m_max.z);
 		case 3:
-			return Vec3(min.x, min.y, max.z);
+			return Vec3(m_min.x, m_min.y, m_max.z);
 		case 4:
-			return Vec3(min.x, max.y, min.z);
+			return Vec3(m_min.x, m_max.y, m_min.z);
 		case 5:
-			return Vec3(max.x, max.y, min.z);
+			return Vec3(m_max.x, m_max.y, m_min.z);
 		case 6:
-			return Vec3(max.x, max.y, max.z);
+			return Vec3(m_max.x, m_max.y, m_max.z);
 		case 7:
-			return Vec3(min.x, max.y, max.z);
+			return Vec3(m_min.x, m_max.y, m_max.z);
 	}
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::get_transformed(const Mat4& mat, Box& result) const
+inline void Box::transformed(const Mat4& mat, Box& result) const
 {
 	Vec3 vertices[8];
 
 	to_vertices(vertices);
 
-	result.min = result.max = mat * vertices[0];
+	result.m_min = mat * vertices[0];
+	result.m_max = mat * vertices[0];
 
-	for (uint32_t i = 1; i < 8; i++)
-	{
-		vertices[i] = mat * vertices[i];
-		result.add_point32_t(vertices[i]);
-	}
+	vertices[1] = mat * vertices[1];
+	vertices[2] = mat * vertices[2];
+	vertices[3] = mat * vertices[3];
+	vertices[4] = mat * vertices[4];
+	vertices[5] = mat * vertices[5];
+	vertices[6] = mat * vertices[6];
+	vertices[7] = mat * vertices[7];
+
+	result.add_points(&vertices[1], 7);
 }
 
 //-----------------------------------------------------------------------------
-inline real Box::get_volume() const
+inline real Box::volume() const
 {
-	return (max.x - min.x) * (max.y - min.y) * (max.z - min.z);
+	return (m_max.x - m_min.x) * (m_max.y - m_min.y) * (m_max.z - m_min.z);
 }
 
 //-----------------------------------------------------------------------------
 inline void Box::zero()
 {
-	min.zero();
-	max.zero();
+	m_min.zero();
+	m_max.zero();
 }
 
 //-----------------------------------------------------------------------------
 inline Sphere Box::to_sphere() const
 {
-	return Sphere(get_center(), get_radius());
+	return Sphere(center(), radius());
 }
 
 } // namespace crown

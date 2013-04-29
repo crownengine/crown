@@ -35,12 +35,13 @@ class Random
 {
 public:
 
+	/// Initializes the generator with the given @seed.
 				Random(int32_t seed);
 
-	/// Returns a pseudo-random int32_teger in the range [0, 32767].
+	/// Returns a pseudo-random integer in the range [0, 32767].
 	int32_t		integer();
 
-	/// Returns a pseudo-random int32_teger in the range [0, max).
+	/// Returns a pseudo-random integer in the range [0, max).
 	int32_t		integer(int32_t max);
 
 	/// Returns a pseudo-random float in the range [0.0, 1.0].

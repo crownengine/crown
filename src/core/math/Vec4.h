@@ -32,9 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	4D column vector.
-*/
+/// 4D column vector.
 class Vec4
 {
 public:
@@ -48,8 +46,8 @@ public:
 						Vec4(const Vec4& a);						//!< Copy constructor
 						~Vec4();									//!< Destructor
 
-	real				operator[](uint32_t i) const;					//!< Random access by index
-	real&				operator[](uint32_t i);							//!< Random access by index
+	real				operator[](uint32_t i) const;				//!< Random access by index
+	real&				operator[](uint32_t i);						//!< Random access by index
 
 	Vec4				operator+(const Vec4& a) const;				//!< Addition
 	Vec4&				operator+=(const Vec4& a);					//!< Addition
@@ -59,7 +57,7 @@ public:
 	Vec4&				operator*=(real k);							//!< Multiplication by scalar
 	Vec4				operator/(real k) const;					//!< Division by scalar
 	Vec4&				operator/=(real k);							//!< Division by scalar
-	real				dot(const Vec4& a) const;					//!< dot product
+	real				dot(const Vec4& a) const;					//!< Dot product
 
 	friend Vec4			operator*(real k, const Vec4& a);			//!< For simmetry
 

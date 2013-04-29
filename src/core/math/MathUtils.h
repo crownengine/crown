@@ -32,18 +32,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define BIT(i) (1 << i)
 
-#define FLOATSIGNBITSET(f)		((*(const unsigned long *)&(f)) >> 31)
-// #define FLOATSIGNBITNOTSET(f)	((~(*(const unsigned long *)&(f))) >> 31)
-// #define FLOATNOTZERO(f)			((*(const unsigned long *)&(f)) & ~(1<<31) )
-// #define INTSIGNBITSET(i)		(((const unsigned long)(i)) >> 31)
-// #define INTSIGNBITNOTSET(i)		((~((const unsigned long)(i))) >> 31)
-
 namespace crown
 {
 
-/**
-	Math utilities.
-*/
+/// Math utilities.
 namespace math
 {
 
@@ -94,7 +86,7 @@ real			acos(real x);					//!< Returns the arc cosine of @x
 real			tan(real x);					//!< Returns the tangent of @x
 real			atan2(real y, real x);			//!< Returns the arc tangent of @y/@x
 real			abs(real x);					//!< Returns the absolute value of @x
-real			fmod(real n, real d);			//!< Returns the realing-point32_t remainder of numerator/denominator
+real			fmod(real n, real d);			//!< Returns the realing-point remainder of numerator/denominator
 
 
 				//! Returns true if there are solutions and puts them in 'x1' and 'x2' (x1 <= x2)

@@ -35,30 +35,28 @@ class Quat;
 class Vec3;
 class Vec4;
 
-/**
-	Column major 4x4 matrix.
-
-	The engine uses column vectors for coordinate space transformations
-	so you'll have to specify transformations in reverse order.
-	e.g. (rotation * translation * vector) will produce the result of first translating
-	and then rotating the vector.
-	Also note that a column major matrix needs to be placed to the left of a
-	vector by matrix multiplication, so, to multiply a vector by a matrix you'll have
-	to write something like: matrix * vector. Since we are also using column vectors, inverting
-	the operands would result in an impossible operation.
-
-@verbatim:
-	  X base vector
-		| Y base vector
-		|   | Z base vector
-		|   |   | Translation vector
-		|   |   |   |
-	1 [ Xx  Yx  Zx  Tx ]
-	2 | Xy  Yy  Zy  Ty |
-	3 | Xz  Yz  Zz  Tz |
-	4 [ 0   0   0   1  ]
-		1   2   3   4
-*/
+/// Column-major 4x4 matrix.
+/// 
+/// The engine uses column vectors for coordinate space transformations
+/// so you'll have to specify transformations in reverse order.
+/// e.g. (rotation * translation * vector) will produce the result of first translating
+/// and then rotating the vector.
+/// Also note that a column major matrix needs to be placed to the left of a
+/// vector by matrix multiplication, so, to multiply a vector by a matrix you'll have
+/// to write something like: matrix * vector. Since we are also using column vectors, inverting
+/// the operands would result in an impossible operation.
+/// 
+/// @verbatim:
+///   X base vector
+///     | Y base vector
+///     |   | Z base vector
+///     |   |   | Translation vector
+///     |   |   |   |
+/// 1 [ Xx  Yx  Zx  Tx ]
+/// 2 | Xy  Yy  Zy  Ty |
+/// 3 | Xz  Yz  Zz  Tz |
+/// 4 [ 0   0   0   1  ]
+///     1   2   3   4
 class Mat4
 {
 
@@ -107,8 +105,8 @@ public:
 
 	void				build_look_at_rh(const Vec3& pos, const Vec3& target, const Vec3& up);	//!< Builds a "Righ-Handed look-at" matrix from a position, a target, and an up vector
 	void				build_look_at_lh(const Vec3& pos, const Vec3& target, const Vec3& up);	//!< Builds a "Left-Handed look-at" matrix from a position, a target, and an up vector
-	void				build_viewpoint32_t_billboard(const Vec3& pos, const Vec3& target, const Vec3& up);	//!< Builds a "Viewpoint32_t-Oriented billboard" matrix which can be used to make an object face a specific point32_t in space
-	void				build_axis_billboard(const Vec3& pos, const Vec3& target, const Vec3& axis);	//!< Builds a "Arbitrary-Axis billboard" matrix which can be used to make an object face a specific point32_t in space
+	void				build_viewpoint_billboard(const Vec3& pos, const Vec3& target, const Vec3& up);	//!< Builds a "Viewpoint-Oriented billboard" matrix which can be used to make an object face a specific point in space
+	void				build_axis_billboard(const Vec3& pos, const Vec3& target, const Vec3& axis);	//!< Builds a "Arbitrary-Axis billboard" matrix which can be used to make an object face a specific point in space
 
 	Mat4&				transpose();								//!< Transposes the matrix
 	Mat4				get_transposed() const;						//!< Returns the transposed of the matrix
@@ -124,8 +122,8 @@ public:
 	Vec3				get_scale() const;							//!< Returns a Vec3 containing the matrix's scale portion
 	void				set_scale(const Vec3& scale);				//!< Fills the matrix's scale portion with the values contained in "scale"
 
-	real*				to_float_ptr();								//!< Returns the point32_ter to the matrix's data
-	const real*			to_float_ptr() const;						//!< Returns the point32_ter to the matrix's data
+	real*				to_float_ptr();								//!< Returns the pointer to the matrix's data
+	const real*			to_float_ptr() const;						//!< Returns the pointer to the matrix's data
 	Mat3				to_mat3() const;							//!< Returns a 3x3 matrix according to the matrix's rotation portion
 	Quat				to_quat() const;							//!< Returns a quaternion according to the matrix's rotation portion
 

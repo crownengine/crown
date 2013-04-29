@@ -31,56 +31,71 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	RGBA color.
-
-	Maint32_tains 3 float values each representing a primary
-	color int32_tensity. An extra component is used as transparency
-	coefficient. Each component ranges from 0.0 to 1.0; the higher
-	the value the brighter the color. An alpha value of 0.0 means
-	totally transparent while a value of 1.0 means totally opaque.
-
-	It also offers a set of color name constants compliant with SVG 1.0.
-*/
+/// RGBA color.
+/// 
+/// Maintains 3 float values each representing a primary
+/// color intensity. An extra component is used as transparency
+/// coefficient. Each component ranges from 0.0 to 1.0; the higher
+/// the value the brighter the color. An alpha value of 0.0 means
+/// totally transparent while a value of 1.0 means totally opaque.
+/// 
+/// It also offers a set of color name constants compliant with SVG 1.0.
 class Color4
 {
-
 public:
 
 	float					r, g, b, a;
 
-							Color4();									//!< Constructor, does nothing for efficiency
-							~Color4();									//!< Destructor
-							Color4(const Color4& c);					//!< Copy constructor
-							Color4(float r, float g, float b);			//!< Construct from three values
-							Color4(int32_t r, int32_t g, int32_t b);				//!< Construct from three values
-							Color4(float r, float g, float b, float a); //!< Construct from four values
-							Color4(int32_t r, int32_t g, int32_t b, int32_t a);			//!< Construct from four values
-	explicit				Color4(float c[4]);							//!< Construct from four values
-	explicit				Color4(uint32_t rgba);							//!< Construct from 32-bit int32_teger (red at MSB, alpha at LSB)
+public:
 
-	uint32_t				get_as_rgb() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order, alpha assumed = 255)
-	uint32_t				get_as_bgr() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order, alpha assumed = 255)
-	uint32_t				get_as_rgba() const;	//!< Returns the color as a single 32-bit packed value. (RGBA order)
-	uint32_t				get_as_abgr() const;	//!< Returns the color as a single 32-bit packed value. (ABGR order)
+	/// Does nothing for efficiency
+							Color4();					
+							~Color4();								
+							Color4(const Color4& c);				
+							Color4(float r, float g, float b);		
+							Color4(int r, int g, int b);			
+							Color4(float r, float g, float b, float a);
+							Color4(int r, int g, int b, int a);		
+	explicit				Color4(float c[4]);	
 
-	float					operator[](uint32_t i) const;					//!< Random access by index
-	float&					operator[](uint32_t i);							//!< Random access by index
+	/// Construct from 32-bit integer (red at MSB, alpha at LSB)					
+	explicit				Color4(uint32_t rgba);
 
-	Color4					operator+(const Color4& c) const;			//!< Addition
-	Color4&					operator+=(const Color4& c);				//!< Addition
-	Color4					operator-(const Color4& c) const;			//!< Subtraction
-	Color4&					operator-=(const Color4& c);				//!< Subtraction
-	Color4					operator*(const Color4& c) const;			//!< Multiplication
-	Color4&					operator*=(const Color4& c);				//!< Multiplication
-	Color4					operator*(float scalar) const;				//!< Scalar multiplication
-	Color4&					operator*=(float scalar);					//!< Scalar multiplication
+	/// Returns the color as a packed 32-bit integer. (RGBA order, alpha assumed = 255)
+	uint32_t				to_rgb() const;		
 
-	bool					operator==(const Color4& other) const;		//!< Equality operator
-	bool					operator!=(const Color4& other) const;		//!< Disequality operator
+	/// Returns the color as a packed 32-bit integer. (ABGR order, alpha assumed = 255)
+	uint32_t				to_bgr() const;	
 
-	float*					to_float_ptr();								//!< Returns the point32_ter to the color's data.
-	const float*			to_float_ptr() const;							//!< Returns the point32_ter to the color's data.
+	/// Returns the color as a packed 32-bit integer. (RGBA order)	
+	uint32_t				to_rgba() const;	
+
+	/// Returns the color as a packed 32-bit integer. (ABGR order)
+	uint32_t				to_abgr() const;	
+
+	/// Random access by index. (red = 0, alpha = 3)
+	float					operator[](uint32_t i) const;		
+
+	/// Random access by index. (red = 0, alpha = 3)		
+	float&					operator[](uint32_t i);				
+
+	Color4					operator+(const Color4& c) const;
+	Color4&					operator+=(const Color4& c);		
+	Color4					operator-(const Color4& c) const;		
+	Color4&					operator-=(const Color4& c);		
+	Color4					operator*(const Color4& c) const;		
+	Color4&					operator*=(const Color4& c);		
+	Color4					operator*(float scalar) const;				
+	Color4&					operator*=(float scalar);				
+
+	bool					operator==(const Color4& other) const;
+	bool					operator!=(const Color4& other) const;	
+
+	/// Returns the pointer to the color's data.
+	float*					to_float_ptr();		
+
+	/// Returns the pointer to the color's data.						
+	const float*			to_float_ptr() const;
 
 	// SVG 1.0 color names
 	static const Color4		ALICEBLUE;
@@ -257,7 +272,7 @@ inline Color4::Color4(float r, float g, float b)
 }
 
 //-----------------------------------------------------------------------------
-inline Color4::Color4(int32_t r, int32_t g, int32_t b)
+inline Color4::Color4(int r, int g, int b)
 {
 	this->r = r * math::ONE_OVER_255;
 	this->g = g * math::ONE_OVER_255;
@@ -275,7 +290,7 @@ inline Color4::Color4(float r, float g, float b, float a)
 }
 
 //-----------------------------------------------------------------------------
-inline Color4::Color4(int32_t r, int32_t g, int32_t b, int32_t a)
+inline Color4::Color4(int r, int g, int b, int a)
 {
 	this->r = r * math::ONE_OVER_255;
 	this->g = g * math::ONE_OVER_255;
@@ -314,7 +329,7 @@ inline const float* Color4::to_float_ptr() const
 }
 
 //-----------------------------------------------------------------------------
-inline uint32_t Color4::get_as_rgb() const
+inline uint32_t Color4::to_rgb() const
 {
 	uint32_t rgba;
 
@@ -327,7 +342,7 @@ inline uint32_t Color4::get_as_rgb() const
 }
 
 //-----------------------------------------------------------------------------
-inline uint32_t Color4::get_as_bgr() const
+inline uint32_t Color4::to_bgr() const
 {
 	uint32_t abgr;
 
@@ -340,7 +355,7 @@ inline uint32_t Color4::get_as_bgr() const
 }
 
 //-----------------------------------------------------------------------------
-inline uint32_t Color4::get_as_rgba() const
+inline uint32_t Color4::to_rgba() const
 {
 	uint32_t rgba;
 
@@ -353,7 +368,7 @@ inline uint32_t Color4::get_as_rgba() const
 }
 
 //-----------------------------------------------------------------------------
-inline uint32_t Color4::get_as_abgr() const
+inline uint32_t Color4::to_abgr() const
 {
 	uint32_t abgr;
 

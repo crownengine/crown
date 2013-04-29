@@ -17,11 +17,11 @@ public:
 
 protected:
 	
-	Allocator* 			m_allocator;
+	Allocator& 			m_allocator;
 };
 
 inline Compressor::Compressor(Allocator& allocator) :
-	m_allocator(&allocator)
+	m_allocator(allocator)
 {
 
 }

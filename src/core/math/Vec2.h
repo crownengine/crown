@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//!< 2D column vector
+/// 2D column vector.
 class Vec2
 {
 public:
@@ -46,8 +46,8 @@ public:
 						Vec2(const Vec2& a);					//!< Copy constructor
 						~Vec2();								//!< Destructor
 
-	real				operator[](uint32_t i) const;				//!< Random access by index
-	real&				operator[](uint32_t i);						//!< Random access by index
+	real				operator[](uint32_t i) const;			//!< Random access by index
+	real&				operator[](uint32_t i);					//!< Random access by index
 
 	Vec2				operator+(const Vec2& a) const;			//!< Addition
 	Vec2&				operator+=(const Vec2& a);				//!< Addition
@@ -57,7 +57,7 @@ public:
 	Vec2&				operator*=(real k);						//!< Multiplication by scalar
 	Vec2				operator/(real k) const;				//!< Division by scalar
 	Vec2&				operator/=(real k);						//!< Division by scalar
-	real				dot(const Vec2& a) const;				//!< dot product
+	real				dot(const Vec2& a) const;				//!< Dot product
 
 	friend Vec2			operator*(real k, const Vec2& a);		//!< For simmetry
 

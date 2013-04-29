@@ -33,9 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	3D column vector.
-*/
+/// 3D column vector.
 class Vec3
 {
 public:
@@ -49,8 +47,8 @@ public:
 						Vec3(const Vec3& a);					//!< Copy constructor
 						~Vec3();								//!< Destructor
 
-	real				operator[](uint32_t i) const;				//!< Random access by index
-	real&				operator[](uint32_t i);						//!< Random access by index
+	real				operator[](uint32_t i) const;			//!< Random access by index
+	real&				operator[](uint32_t i);					//!< Random access by index
 
 	Vec3				operator+(const Vec3& a) const;			//!< Addition
 	Vec3&				operator+=(const Vec3& a);				//!< Addition
@@ -60,8 +58,8 @@ public:
 	Vec3&				operator*=(real k);						//!< Multiplication by scalar
 	Vec3				operator/(real k) const;				//!< Division by scalar
 	Vec3&				operator/=(real k);						//!< Division by scalar
-	real				dot(const Vec3& a) const;				//!< dot product
-	Vec3				cross(const Vec3& a) const;				//!< cross product
+	real				dot(const Vec3& a) const;				//!< Dot product
+	Vec3				cross(const Vec3& a) const;				//!< Cross product
 
 	friend Vec3			operator*(real k, const Vec3& a);		//!< For simmetry
 

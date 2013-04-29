@@ -32,35 +32,41 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	Sphere.
 
-	Used mainly for collision detection and int32_tersection tests.
-*/
+/// Sphere.
+///
+/// Used mainly for collision detection and intersection tests.
 class Sphere
 {
-
 public:
 
-	Vec3			c;
-	real			r;
+	/// Does nothing for efficiency.
+					Sphere();
 
-					Sphere();									//!< Constructor
-					Sphere(const Vec3& center, real radius);	//!< Constructs from center and radius
-					Sphere(const Sphere& a);					//!< Copy constructor
-					~Sphere();									//!< Destructor
+	/// Constructs from center and radius.
+					Sphere(const Vec3& center, real radius);
+					Sphere(const Sphere& a);
 
-	const Vec3&		get_center() const;							//!< Returns the center
-	real			get_radius() const;							//!< Returns the radius
-	real			get_volume() const;							//!< Returns the volume
+	const Vec3&		center() const;		
+	real			radius() const;	
+	real			volume() const;	
 
-	void			set_center(const Vec3& center);				//!< Sets the center
-	void			set_radius(real radius);					//!< Sets the radius
+	void			set_center(const Vec3& center);
+	void			set_radius(real radius);
 
-	void			add_point32_t(const Vec3& p);					//!< Adds a point32_t to the Sphere
-	void			add_sphere(const Sphere& s);				//!< Adds a Sphere to the Sphere
+	/// Adds a point expanding if necessary.
+	void			add_points(const Vec3* points, uint32_t count);	
 
-	bool			contains_point32_t(const Vec3& p) const;		//!< Returns whether point32_t "p" is contained
+	/// Adds a sphere expanding if necessary.
+	void			add_spheres(const Sphere* spheres, uint32_t count);	
+
+	/// Returns whether point @p is contained.
+	bool			contains_point(const Vec3& p) const;		
+
+private:
+
+	Vec3			m_center;
+	real			m_radius;
 };
 
 //-----------------------------------------------------------------------------
@@ -69,80 +75,85 @@ inline Sphere::Sphere()
 }
 
 //-----------------------------------------------------------------------------
-inline Sphere::Sphere(const Vec3& center, real radius) : c(center), r(radius)
+inline Sphere::Sphere(const Vec3& center, real radius) : m_center(center), m_radius(radius)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Sphere::Sphere(const Sphere& a) : c(a.c), r(a.r)
+inline Sphere::Sphere(const Sphere& a) : m_center(a.m_center), m_radius(a.m_radius)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Sphere::~Sphere()
+inline const Vec3& Sphere::center() const
 {
+	return m_center;
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec3& Sphere::get_center() const
+inline real Sphere::radius() const
 {
-	return c;
+	return m_radius;
 }
 
 //-----------------------------------------------------------------------------
-inline real Sphere::get_radius() const
+inline real Sphere::volume() const
 {
-	return r;
-}
-
-//-----------------------------------------------------------------------------
-inline real Sphere::get_volume() const
-{
-	return math::FOUR_OVER_THREE_TIMES_PI * r * r * r;
+	return math::FOUR_OVER_THREE_TIMES_PI * m_radius * m_radius * m_radius;
 }
 
 //-----------------------------------------------------------------------------
 inline void Sphere::set_center(const Vec3& center)
 {
-	c = center;
+	m_center = center;
 }
 
 //-----------------------------------------------------------------------------
 inline void Sphere::set_radius(real radius)
 {
-	this->r = radius;
+	m_radius = radius;
 }
 
 //-----------------------------------------------------------------------------
-inline void Sphere::add_point32_t(const Vec3& p)
+inline void Sphere::add_points(const Vec3* points, uint32_t count)
 {
-	real dist = (p - c).squared_length();
-
-	if (dist < r * r)
+	for (uint32_t i = 0; i < count; i++)
 	{
-		return;
-	}
+		const Vec3& p = points[i];
 
-	r = math::sqrt(dist);
-}
+		real dist = (p - m_center).squared_length();
 
-//-----------------------------------------------------------------------------
-inline void Sphere::add_sphere(const Sphere& s)
-{
-	real dist = (s.c - c).squared_length();
-
-	if (dist < (s.r + r) * (s.r + r))
-		if (s.r * s.r > r * r)
+		if (dist >= m_radius * m_radius)
 		{
-			r = math::sqrt(dist + s.r * s.r);
+			m_radius = math::sqrt(dist);
 		}
+	}
 }
 
 //-----------------------------------------------------------------------------
-inline bool Sphere::contains_point32_t(const Vec3& p) const
+inline void Sphere::add_spheres(const Sphere* spheres, uint32_t count)
 {
-	real dist = (p - c).squared_length();
-	return (dist < r * r);
+	for (uint32_t i = 0; i < count; i++)
+	{
+		const Sphere& s = spheres[i];
+
+		real dist = (s.m_center - m_center).squared_length();
+
+		if (dist < (s.m_radius + m_radius) * (s.m_radius + m_radius))
+		{
+			if (s.m_radius * s.m_radius > m_radius * m_radius)
+			{
+				m_radius = math::sqrt(dist + s.m_radius * s.m_radius);
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+inline bool Sphere::contains_point(const Vec3& p) const
+{
+	real dist = (p - m_center).squared_length();
+	return (dist < m_radius * m_radius);
 }
 
 } // namespace crown
