@@ -5,9 +5,11 @@ Type these commands in the root directory (i.e. the same as this file):
 
 1. $ mkdir build
 2. $ cd build
-3. $ cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/your/install/directory
+3. $ cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/your/install/directory -DCROWN_ARCH="..."
 4. $ make
 5. $ make install
+
+N.B: CROWN_ARCH valid values right now: "x86", "x86_64"
 
 //-----------------------------------------------------------------------------
 In order to select different build configurations you have to do the following:

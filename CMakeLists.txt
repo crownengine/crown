@@ -33,7 +33,7 @@ set (INCLUDES
 )
 
 include_directories(${INCLUDES})
-add_definitions(-pipe -ansi -W -Wall -Wextra -Wno-long-long -pedantic -fPIC -g -pg)
+add_definitions(-pipe -ansi -W -Wall -Wextra -Wno-long-long -pedantic -fPIC -g -pg -llua)
 
 # detect operating system
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -68,6 +68,15 @@ endif (CROWN_BUILD_SAMPLES)
 if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
+
+#detect architecture
+if (CROWN_ARCH MATCHES "x86")
+	add_subdirectory(third/x86);
+endif (CROWN_ARCH MATCHES "x86")
+
+if (CROWN_ARCH MATCHES "x86_64")
+	add_subdirectory(third/x86_64)
+endif (CROWN_ARCH MATCHES "x86_64")
 
 #add_subdirectory(third/luajit)
 
