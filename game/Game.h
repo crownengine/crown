@@ -23,43 +23,25 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Types.h"
-#include "MaterialResource.h"
+#pragma once
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-void* MaterialResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
+class Game
 {
-	(void)allocator;
-	(void)archive;
-	(void)id;
-	// TODO
+public:
 
-	return NULL;
-}
+					Game() {}
+	virtual			~Game() {}
 
-//-----------------------------------------------------------------------------
-void MaterialResource::online(void* material)
-{
-	(void)material;
-	// TODO
-}
+	virtual void	init() = 0;
+	virtual void	shutdown() = 0;
+	virtual void	update() = 0;
+};
 
-//-----------------------------------------------------------------------------
-void MaterialResource::unload(Allocator& allocator, void* material)
-{
-	(void)allocator;
-	(void)material;
-	// TODO
-}
-
-//-----------------------------------------------------------------------------
-void MaterialResource::offline()
-{
-	// TODO
-}
+typedef Game* create_game_t();
+typedef void destroy_game_t(Game* game);
 
 } // namespace crown
 

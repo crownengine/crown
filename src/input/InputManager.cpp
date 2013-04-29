@@ -200,12 +200,5 @@ void InputManager::set_cursor_relative_xy(const Vec2& position)
 	set_cursor_xy(Point2((int32_t)(position.x * (float) window_width), (int32_t)(position.y * (float) window_height)));
 }
 
-//-----------------------------------------------------------------------------
-InputManager inputManager;
-InputManager* get_input_manager()
-{
-	return &inputManager;
-}
-
 } // namespace crown
 

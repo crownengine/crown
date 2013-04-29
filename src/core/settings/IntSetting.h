@@ -38,15 +38,14 @@ public:
 
 	const char*			name() const;
 	const char*			synopsis() const;
+
 	int32_t				value() const;
 	int32_t				min() const;
 	int32_t				max() const;
 
-	void				set_value(int32_t value);
+						operator int();
 
-private:
-
-	static IntSetting*	g_int_settings_head;
+	IntSetting&			operator=(const int32_t value);
 
 private:
 

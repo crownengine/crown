@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mat3.h"
 #include "Types.h"
 #include "MovableCamera.h"
+#include "Device.h"
 #include "InputManager.h"
 
 namespace crown
@@ -57,7 +58,7 @@ float MovableCamera::GetSensibility() const
 void MovableCamera::SetActive(bool active)
 {
 	Camera::SetActive(active);
-	get_input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
+	device()->input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 }
 
 //-----------------------------------------------------------------------

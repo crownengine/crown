@@ -11,11 +11,9 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-TextureResource* TextureResource::load(Allocator& allocator, ResourceArchive* archive, ResourceId id)
+void* TextureResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
 {
-	assert(archive != NULL);
-	
-	FileStream* stream = archive->find(id);
+	FileStream* stream = archive.find(id);
 
 	if (stream != NULL)
 	{
@@ -38,19 +36,19 @@ TextureResource* TextureResource::load(Allocator& allocator, ResourceArchive* ar
 }
 
 //-----------------------------------------------------------------------------
-void TextureResource::online(TextureResource* texture)
-{
-	assert(texture != NULL);
-
-	texture->m_render_texture = GetDevice()->renderer()->load_texture(texture);
-}
-
-//-----------------------------------------------------------------------------
-void TextureResource::unload(Allocator& allocator, TextureResource* resource)
+void TextureResource::online(void* resource)
 {
 	assert(resource != NULL);
 
-	allocator.deallocate(resource->m_data);
+	((TextureResource*)resource)->m_render_texture = device()->renderer()->load_texture((TextureResource*)resource);
+}
+
+//-----------------------------------------------------------------------------
+void TextureResource::unload(Allocator& allocator, void* resource)
+{
+	assert(resource != NULL);
+
+	allocator.deallocate(((TextureResource*)resource)->m_data);
 	allocator.deallocate(resource);
 }
 

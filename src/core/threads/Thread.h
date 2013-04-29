@@ -46,4 +46,29 @@ private:
 	os::OSThread	m_thread;
 };
 
+//-----------------------------------------------------------------------------
+inline Thread::Thread(os::ThreadFunction f, void* args, const char* name)
+{
+	memset(&m_thread, 0, sizeof(os::OSThread));
+
+	os::thread_create(f, args, &m_thread, name);
+}
+
+//-----------------------------------------------------------------------------
+inline Thread::~Thread()
+{
+}
+
+//-----------------------------------------------------------------------------
+inline void Thread::join()
+{
+	os::thread_join(&m_thread);
+}
+
+//-----------------------------------------------------------------------------
+inline void Thread::detach()
+{
+	os::thread_detach(&m_thread);
+}
+
 } // namespace crown

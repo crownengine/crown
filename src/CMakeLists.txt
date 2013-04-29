@@ -10,7 +10,6 @@ set (SRC
 	MovableCamera.cpp
 	Pixel.cpp
 	ResourceManager.cpp
-	ResourceLoader.cpp
 	Skybox.cpp
 	Terrain.cpp
 	World.cpp
@@ -41,7 +40,6 @@ set (HEADERS
 	Pixel.h
 	Resource.h
 	ResourceManager.h
-	ResourceLoader.h
 	ResourceArchive.h
 	Skybox.h
 	Terrain.h
@@ -177,11 +175,10 @@ set (COMPRESSORS_HEADERS
 set (THREADS_HEADERS
 	core/threads/Thread.h
 	core/threads/Mutex.h
+	core/threads/Cond.h
 )
 
 set (THREADS_SRC
-	core/threads/Thread.cpp
-	core/threads/Mutex.cpp
 )
 
 set (SETTINGS_SRC
@@ -209,6 +206,7 @@ set (INPUT_HEADERS
 )
 
 set (RENDERERS_SRC
+	renderers/DebugRenderer.cpp
 )
 
 set (RENDERERS_HEADERS
@@ -218,6 +216,7 @@ set (RENDERERS_HEADERS
 	renderers/OcclusionQuery.h
 	renderers/Material.h
 	renderers/Texture.h
+	renderers/DebugRenderer.h
 )
 
 set (OS_HEADERS

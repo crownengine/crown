@@ -25,66 +25,50 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Queue.h"
-#include "Resource.h"
-#include "MallocAllocator.h"
-#include "ResourceManager.h"
-#include "OS.h"
-#include "Thread.h"
+#include "Types.h"
 #include "Mutex.h"
+#include "OS.h"
 
 namespace crown
 {
 
-class Allocator;
-class ResourceArchive;
-
-struct LoadedResource
-{
-	ResourceId	resource;
-	void*		data;
-};
-
-class ResourceLoader
+class Cond
 {
 public:
 
-						ResourceLoader(Allocator& resource_allocator, ResourceArchive& archive);
-						~ResourceLoader();
+					Cond();
+					~Cond();
 
-	void				load(ResourceId name);
-	void				unload(ResourceId name, void* resource);
-
-private:
-
-	void				background_load();
-	void*				load_by_type(ResourceId name) const;
-	void				unload_by_type(ResourceId name, void* resource) const;
+	void			signal();
+	void			wait(Mutex& mutex);
 
 private:
 
-	static void*		background_thread(void* thiz);
-
-private:
-
-	Allocator&			m_resource_allocator;
-	ResourceArchive&	m_resource_archive;
-
-	MallocAllocator		m_allocator;
-
-	Mutex				m_waiting_mutex;
-	Queue<ResourceId>	m_waiting_resources;
-	Mutex				m_loaded_mutex;
-	Queue<LoadedResource>	m_loaded_resources;
-
-	Thread				m_thread;
-
-	uint32_t			m_config_hash;
-	uint32_t			m_texture_hash;
-	uint32_t			m_mesh_hash;
-	uint32_t			m_txt_hash;
-
-	friend class		ResourceManager;
+	os::OSCond		m_cond;
 };
+
+//-----------------------------------------------------------------------------
+inline Cond::Cond()
+{
+	os::cond_create(&m_cond);
+}
+
+//-----------------------------------------------------------------------------
+inline Cond::~Cond()
+{
+	os::cond_destroy(&m_cond);
+}
+
+//-----------------------------------------------------------------------------
+inline void Cond::signal()
+{
+	os::cond_signal(&m_cond);
+}
+
+//-----------------------------------------------------------------------------
+inline void Cond::wait(Mutex& mutex)
+{
+	os::cond_wait(&m_cond, &mutex.m_mutex);
+}
 
 } // namespace crown

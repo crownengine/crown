@@ -30,27 +30,43 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "OS.h"
 #include "Renderer.h"
+#include "DebugRenderer.h"
 #include "Types.h"
 #include "String.h"
 #include "Args.h"
+#include "Game.h"
 #include <cstdlib>
 
-#include "renderers/gl/GLRenderer.h"
-//#include "renderers/gles/GLESRenderer.h"
+#ifdef CROWN_BUILD_OPENGL
+	#include "renderers/gl/GLRenderer.h"
+#endif
+
+#ifdef CROWN_BUILD_OPENGLES
+	#include "renderers/gles/GLESRenderer.h"
+#endif
 
 namespace crown
 {
+
+static const char* GAME_LIBRARY_NAME = "libgame.so";
 
 //-----------------------------------------------------------------------------
 Device::Device() :
 	m_preferred_window_width(1000),
 	m_preferred_window_height(625),
-	m_preferred_window_fullscreen(false),
+	m_preferred_window_fullscreen(0),
+	m_preferred_renderer(RENDERER_GL),
 
 	m_is_init(false),
 	m_is_running(false),
 
-	m_renderer(NULL)
+	m_filesystem(NULL),
+	m_input_manager(NULL),
+	m_renderer(NULL),
+	m_debug_renderer(NULL),
+
+	m_game(NULL),
+	m_game_library(NULL)
 {
 	string::strcpy(m_preferred_root_path, string::EMPTY);
 	string::strcpy(m_preferred_user_path, string::EMPTY);
@@ -78,26 +94,62 @@ bool Device::init(int argc, char** argv)
 	// Initialize
 	Log::I("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
-	// Set the root path
-	// GetFilesystem()->Init(m_preferred_root_path.c_str(), m_preferred_user_path.c_str());
-
-	// Create the renderer
-	if (m_renderer == NULL)
+	// Select current dir if no root path provided
+	if (string::strcmp(m_preferred_root_path, string::EMPTY) == 0)
 	{
-		// FIXME FIXME FIXME
-		// #ifdef CROWN_BUILD_OPENGL
-		 	m_renderer = new GLRenderer();
-			Log::I("Using GLRenderer.");
-		// #elif defined CROWN_BUILD_OPENGLES
-		//	m_renderer = new GLESRenderer();
-		// #endif
+		m_filesystem = new Filesystem(os::get_cwd());
 	}
+	else
+	{
+		m_filesystem = new Filesystem(m_preferred_root_path);
+	}
+
+
+	m_input_manager = new InputManager();
+
+	if (m_preferred_renderer == RENDERER_GL)
+	{
+		#ifdef CROWN_BUILD_OPENGL
+		m_renderer = new GLRenderer;
+		#else
+		Log::E("Crown Engine was not built with OpenGL support.");
+		return false;
+		#endif
+	}
+	else if (m_preferred_renderer == RENDERER_GLES)
+	{
+		#ifdef CROWN_BUILD_OPENGLES
+		m_renderer = new GLESRenderer;
+		#else
+		Log::E("Crown Engine was not built with OpenGL|ES support.");
+		return false;
+		#endif
+	}
+
+	m_debug_renderer = new DebugRenderer(*m_renderer);
+
+	Log::I("Crown Engine initialized.");
+
+	Log::I("Initializing Game...");
+
+	const char* game_library_path = m_filesystem->build_os_path(m_filesystem->root_path(), GAME_LIBRARY_NAME);
+	m_game_library = os::open_library(game_library_path);
+
+	if (m_game_library == NULL)
+	{
+		Log::E("Error while loading game library.");
+		return false;
+	}
+
+	create_game_t* create_game = (create_game_t*)os::lookup_symbol(m_game_library, "create_game");
+
+	m_game = create_game();
+
+	m_game->init();
 
 	m_is_init = true;
 
 	start();
-
-	Log::I("Crown Engine initialized.");
 
 	return true;
 }
@@ -111,11 +163,36 @@ void Device::shutdown()
 		return;
 	}
 
+	m_game->shutdown();
+
+	destroy_game_t* destroy_game = (destroy_game_t*)os::lookup_symbol(m_game_library, "destroy_game");
+
+	destroy_game(m_game);
+	m_game = NULL;
+
+	if (m_input_manager)
+	{
+		delete m_input_manager;
+	}
+
 	Log::I("Releasing Renderer...");
 
 	if (m_renderer)
 	{
 		delete m_renderer;
+	}
+
+	Log::I("Releasing DebugRenderer...");
+	if (m_debug_renderer)
+	{
+		delete m_debug_renderer;
+	}
+
+	Log::I("Releasing Filesystem...");
+
+	if (m_filesystem)
+	{
+		delete m_filesystem;
 	}
 
 	m_is_init = false;
@@ -128,9 +205,27 @@ bool Device::is_init() const
 }
 
 //-----------------------------------------------------------------------------
+Filesystem* Device::filesystem()
+{
+	return m_filesystem;
+}
+
+//-----------------------------------------------------------------------------
+InputManager* Device::input_manager()
+{
+	return m_input_manager;
+}
+
+//-----------------------------------------------------------------------------
 Renderer* Device::renderer()
 {
 	return m_renderer;
+}
+
+//-----------------------------------------------------------------------------
+DebugRenderer* Device::debug_renderer()
+{
+	return m_debug_renderer;
 }
 
 //-----------------------------------------------------------------------------
@@ -166,17 +261,20 @@ bool Device::is_running() const
 //-----------------------------------------------------------------------------
 void Device::frame()
 {
-	get_input_manager()->event_loop();
+	m_input_manager->event_loop();
 
 	m_renderer->begin_frame();
+
+	m_game->update();
+
+	m_debug_renderer->draw_all();
+
 	m_renderer->end_frame();
 }
 
 //-----------------------------------------------------------------------------
 bool Device::parse_command_line(int argc, char** argv)
 {
-	int32_t fullscreen = 0;
-
 	ArgsOption options[] = 
 	{
 		"help",       AOA_NO_ARGUMENT,       NULL,        'i',
@@ -184,7 +282,9 @@ bool Device::parse_command_line(int argc, char** argv)
 		"user-path",  AOA_REQUIRED_ARGUMENT, NULL,        'u',
 		"width",      AOA_REQUIRED_ARGUMENT, NULL,        'w',
 		"height",     AOA_REQUIRED_ARGUMENT, NULL,        'h',
-		"fullscreen", AOA_NO_ARGUMENT,       &fullscreen,  1,
+		"fullscreen", AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1,
+		"gl",         AOA_NO_ARGUMENT,       &m_preferred_renderer, RENDERER_GL,
+		"gles",       AOA_NO_ARGUMENT,       &m_preferred_renderer, RENDERER_GLES,
 		NULL, 0, NULL, 0
 	};
 
@@ -200,12 +300,6 @@ bool Device::parse_command_line(int argc, char** argv)
 			{
 				return true;
 			}
-			case 0:
-			{
-				m_preferred_window_fullscreen = fullscreen;
-
-				break;
-			}
 			// Help
 			case 'i':
 			{
@@ -220,6 +314,11 @@ bool Device::parse_command_line(int argc, char** argv)
 					os::printf("%s: error: missing absolute path after `-root-path`\n", argv[0]);
 					return false;
 				}
+				if (!os::is_absolute_path(args.option_argument()))
+				{
+					os::printf("%s: error: the root path must be absolute.\n", argv[0]);
+					return false;
+				}
 
 				string::strcpy(m_preferred_root_path, args.option_argument());
 
@@ -231,6 +330,11 @@ bool Device::parse_command_line(int argc, char** argv)
 				if (args.option_argument() == NULL)
 				{
 					os::printf("%s: error: missing absolute path after `--user-path`\n", argv[0]);
+					return false;
+				}
+				if (!os::is_absolute_path(args.option_argument()))
+				{
+					os::printf("%s: error: the user path must be absolute.\n", argv[0]);
 					return false;
 				}
 
@@ -287,12 +391,14 @@ void Device::print_help_message()
 	os::printf("  --width <width>       Set the <width> of the render window.\n");
 	os::printf("  --height <width>      Set the <height> of the render window.\n");
 	os::printf("  --fullscreen          Start in fullscreen.\n");
+	os::printf("  --gl                  Use OpenGL as rendering backend.\n");
+	os::printf("  --gles                Use OpenGL|ES as rendering backend.\n");  
 }
 
-Device device;
-Device* GetDevice()
+Device g_device;
+Device* device()
 {
-	return &device;
+	return &g_device;
 }
 
 } // namespace crown

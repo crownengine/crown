@@ -190,6 +190,7 @@ public:
 
 	virtual void render_point_buffer(const VertexBuffer* buffer) = 0;
 
+	virtual void draw_lines(const float* vertices, const float* colors, uint32_t count) = 0;
 	virtual void render_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count) = 0;
 
 	// FIXME

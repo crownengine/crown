@@ -23,34 +23,53 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Thread.h"
+#pragma once
+
+#include "Types.h"
+#include "Vec3.h"
+#include "Color4.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-Thread::Thread(os::ThreadFunction f, void* args, const char* name)
-{
-	memset(&m_thread, 0, sizeof(os::OSThread));
+const uint32_t MAX_DEBUG_LINES = 4096;
 
-	os::thread_create(f, args, m_thread, name);
-}
+class Renderer;
 
-//-----------------------------------------------------------------------------
-Thread::~Thread()
+/// Util class to render various types of primiteves
+/// for debugging purposes only.
+/// All the coordinates are in world-space.
+class DebugRenderer
 {
-}
+public:
 
-//-----------------------------------------------------------------------------
-void Thread::join()
-{
-	os::thread_join(m_thread);
-}
+				DebugRenderer(Renderer& renderer);
+				~DebugRenderer();
 
-//-----------------------------------------------------------------------------
-void Thread::detach()
-{
-	os::thread_detach(m_thread);
-}
+	void		add_line(const Vec3& start, const Vec3& end, const Color4& color, bool depth_write);
+
+	/// Total cost: 72 lines
+	void		add_sphere(const Vec3& center, const float radius, const Color4& color, bool depth_write);
+
+	/// Total cost: 12 lines
+	void		add_box(const Vec3& min, const Vec3& max, const Color4& color, bool depth_write);
+
+private:
+
+	void		draw_all();
+
+private:
+
+	Renderer&	m_renderer;
+
+	uint32_t	m_lines_count;
+
+	Vec3		m_lines[MAX_DEBUG_LINES * 2];
+	Color4		m_colors[MAX_DEBUG_LINES * 2];
+	bool		m_depth_writes[MAX_DEBUG_LINES * 2];
+
+	friend class	Device;
+};
 
 } // namespace crown
+

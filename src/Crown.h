@@ -85,6 +85,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Threads
 #include "Thread.h"
 #include "Mutex.h"
+#include "Cond.h"
 
 // Core/Settings
 #include "IntSetting.h"
@@ -102,7 +103,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceArchive.h"
 #include "ArchiveResourceArchive.h"
 #include "FileResourceArchive.h"
-#include "ResourceLoader.h"
 #include "ResourceManager.h"
 #include "Skybox.h"
 
@@ -128,6 +128,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OcclusionQuery.h"
 #include "Material.h"
 #include "Texture.h"
+#include "DebugRenderer.h"
 
 //// Engine/Windowing
 //#include "Bind.h"

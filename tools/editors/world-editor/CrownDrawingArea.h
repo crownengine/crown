@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -23,33 +24,44 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Mutex.h"
+#pragma once
+
+#include <gtkmm/drawingarea.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <GL/glx.h>
+
+#include "Device.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-Mutex::Mutex()
+// Custom widget to draw with OpenGL
+class CrownDrawingArea : public Gtk::DrawingArea
 {
-	os::mutex_create(m_mutex);
-}
+public:
 
-//-----------------------------------------------------------------------------
-Mutex::~Mutex()
-{
-	os::mutex_destroy(m_mutex);
-}
+				CrownDrawingArea(Device* engine);
+	virtual		~CrownDrawingArea();
 
-//-----------------------------------------------------------------------------
-void Mutex::lock()
-{
-	os::mutex_lock(m_mutex);
-}
+	void		on_realize();
+	bool		on_draw(const ::Cairo::RefPtr< ::Cairo::Context >& cr);
 
-//-----------------------------------------------------------------------------
-void Mutex::unlock()
-{
-	os::mutex_unlock(m_mutex);
-}
+	bool		on_idle();
+
+protected:
+
+	Display*	m_display;
+	GLXContext	m_context;
+
+	Device*		m_engine;
+
+private:
+
+	bool		make_current();
+	void		swap_buffers();
+};
 
 } // namespace crown
+

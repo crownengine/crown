@@ -27,12 +27,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Config.h"
+#include "OS.h"
 
 namespace crown
 {
 
+class Filesystem;
 class Renderer;
+class DebugRenderer;
 class InputManager;
+class Game;
 
 /// The Engine.
 class Device
@@ -53,7 +57,10 @@ public:
 
 	void					frame();
 
+	Filesystem*				filesystem();
+	InputManager*			input_manager();
 	Renderer*				renderer();
+	DebugRenderer*			debug_renderer();
 
 private:
 
@@ -65,25 +72,39 @@ private:
 	// Preferred settings from command line
 	int32_t					m_preferred_window_width;
 	int32_t					m_preferred_window_height;
-	bool					m_preferred_window_fullscreen;
+	int32_t					m_preferred_window_fullscreen;
+	int32_t					m_preferred_renderer;
 
-	char					m_preferred_root_path[512];
-	char					m_preferred_user_path[512];
+	char					m_preferred_root_path[os::MAX_PATH_LENGTH];
+	char					m_preferred_user_path[os::MAX_PATH_LENGTH];
 
 	bool					m_is_init		: 1;
 	bool					m_is_running	: 1;
 
 	// Subsystems
+	Filesystem*				m_filesystem;
+	InputManager*			m_input_manager;
 	Renderer*				m_renderer;
+	DebugRenderer*			m_debug_renderer;
+
+	// The game currently running
+	Game*					m_game;
+	void*					m_game_library;
 
 private:
+
+	enum
+	{
+		RENDERER_GL		= 0,
+		RENDERER_GLES	= 1
+	};
 
 	// Disable copying
 	Device(const Device&);
 	Device& operator=(const Device&);
 };
 
-Device* GetDevice();
+Device* device();
 
 } // namespace crown
 
