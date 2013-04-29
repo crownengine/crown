@@ -10,6 +10,7 @@
 /android/libs
 /android/obj
 /android/res
+/android/assets
 /android/local.properties
 
 # Ignore python stuff
