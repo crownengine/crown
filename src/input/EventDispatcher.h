@@ -29,43 +29,49 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mouse.h"
 #include "Keyboard.h"
 #include "Touch.h"
+#include "Accelerometer.h"
 
 namespace crown
 {
 
 class EventDispatcher
 {
-	typedef List<MouseListener*>		MouseListenerList;
-	typedef List<KeyboardListener*>		KeyboardListenerList;
-	typedef List<TouchListener*>		TouchListenerList;
+	typedef List<MouseListener*>			MouseListenerList;
+	typedef List<KeyboardListener*>			KeyboardListenerList;
+	typedef List<TouchListener*>			TouchListenerList;
+	typedef List<AccelerometerListener*>	AccelerometerListenerList;
 
 public:
 
 	EventDispatcher();
 	~EventDispatcher();
 
-	void AddMouseListener(MouseListener* listener);
-	void AddKeyboardListener(KeyboardListener* listener);
-	void AddTouchListener(TouchListener* listener);
+	void add_mouse_listener(MouseListener* listener);
+	void add_keyboard_listener(KeyboardListener* listener);
+	void add_touch_listener(TouchListener* listener);
+	void add_accelerometer_listener(AccelerometerListener* listener);
 
-	void ButtonPressed(const MouseEvent&);
-	void ButtonReleased(const MouseEvent&);
-	void CursorMoved(const MouseEvent&);
+	void button_pressed(const MouseEvent&);
+	void button_released(const MouseEvent&);
+	void cursor_moved(const MouseEvent&);
 
-	void KeyPressed(const KeyboardEvent&);
-	void KeyReleased(const KeyboardEvent&);
-	void TextInput(const KeyboardEvent&);
+	void key_pressed(const KeyboardEvent&);
+	void key_released(const KeyboardEvent&);
+	void text_input(const KeyboardEvent&);
 
-	void TouchDown(const TouchEvent& event);
-	void TouchUp(const TouchEvent& event);
-	void TouchMove(const TouchEvent& event);
-	void TouchCancel(const TouchEvent& event);
+	void touch_down(const TouchEvent& event);
+	void touch_up(const TouchEvent& event);
+	void touch_move(const TouchEvent& event);
+	void touch_cancel(const TouchEvent& event);
+
+	void accelerometer_changed(const AccelerometerEvent& event);
 
 private:
 
-	MouseListenerList		mMouseListenerList;
-	KeyboardListenerList	mKeyboardListenerList;
-	TouchListenerList		mTouchListenerList;
+	MouseListenerList			m_mouse_listener_list;
+	KeyboardListenerList		m_keyboard_listener_list;
+	TouchListenerList			m_touch_listener_list;
+	AccelerometerListenerList	m_acc_listener_list;
 };
 
 } // namespace crown

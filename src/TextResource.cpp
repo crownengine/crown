@@ -8,11 +8,9 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-TextResource* TextResource::load(Allocator& allocator, ResourceArchive* archive, ResourceId id)
+void* TextResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
 {
-	assert(archive != NULL);
-	
-	FileStream* stream = archive->find(id);
+	FileStream* stream = archive.find(id);
 
 	if (stream != NULL)
 	{
@@ -33,14 +31,14 @@ TextResource* TextResource::load(Allocator& allocator, ResourceArchive* archive,
 }
 
 //-----------------------------------------------------------------------------
-void TextResource::unload(Allocator& allocator, TextResource* text)
+void TextResource::unload(Allocator& allocator, void* resource)
 {
-	assert(text != NULL);
+	assert(resource != NULL);
 
-	text->length = 0;
+	((TextResource*)resource)->length = 0;
 
-	allocator.deallocate(text->data);
-	allocator.deallocate(text);
+	allocator.deallocate(((TextResource*)resource)->data);
+	allocator.deallocate(resource);
 }
 
 } // namespace crown

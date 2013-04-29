@@ -65,7 +65,7 @@ uint8_t* BitMessage::get_byte_space(int32_t len)
 
 bool BitMessage::check_overflow(int32_t num_bits)
 {
-	assert( num_bits >= 0 );
+	assert(num_bits >= 0);
 	
 	if (num_bits > get_remaining_write_bits()) 
 	{

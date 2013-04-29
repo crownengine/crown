@@ -1,2 +1,16 @@
 # Ignore build directory
 /build
+
+# Ignore CMake-generated config files
+/src/Config.h
+
+# Ignore some android directories
+/android/bin
+/android/gen
+/android/libs
+/android/obj
+/android/res
+/android/local.properties
+
+# Ignore python stuff
+__pycache__

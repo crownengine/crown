@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/time.h>
 #include <time.h>
 #include <pthread.h>
+#include <dlfcn.h>
 
 namespace crown
 {
@@ -89,6 +90,38 @@ void log_info(const char* string, va_list arg)
 	printf("I: ");
 	vprintf(string, arg);
 	printf("\n");
+}
+
+//-----------------------------------------------------------------------------
+bool is_root_path(const char* path)
+{
+	assert(path != NULL);
+
+	if (string::strlen(path) == 1)
+	{
+		if (path[0] == PATH_SEPARATOR)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+bool is_absolute_path(const char* path)
+{
+	assert(path != NULL);
+
+	if (string::strlen(path) > 0)
+	{
+		if (path[0] == PATH_SEPARATOR)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -231,7 +264,45 @@ uint64_t microseconds()
 }
 
 //-----------------------------------------------------------------------------
-void thread_create(ThreadFunction f, void* params, OSThread* thread, const char* name)
+void* open_library(const char* path)
+{
+	void* library = dlopen(path, RTLD_NOW);
+
+	if (library == NULL)
+	{
+		os::printf("OS: ERROR: Unable to load library '%s' with error: %s\n", path, dlerror());
+		return NULL;
+	}
+
+	return library;
+}
+
+//-----------------------------------------------------------------------------
+void close_library(void* library)
+{
+	assert(dlclose(library) == 0);
+}
+
+//-----------------------------------------------------------------------------
+void* lookup_symbol(void* library, const char* name)
+{
+	dlerror();
+
+	void* symbol = dlsym(library, name);
+
+	const char* error = dlerror();
+
+	if (error)
+	{
+		os::printf("OS: ERROR: Unable to lookup symbol '%s' with error: %s\n", name, error);
+		return NULL;
+	}
+
+	return symbol;
+}
+
+//-----------------------------------------------------------------------------
+void thread_create(ThreadFunction f, void* params, OSThread& thread, const char* name)
 {
 	thread->name = name;
 

@@ -13,11 +13,11 @@ class TextResource
 {
 public:
 
-	static TextResource*		load(Allocator& allocator, ResourceArchive* archive, ResourceId id);
-	static void					unload(Allocator& allocator, TextResource* text);
+	static void*		load(Allocator& allocator, ResourceArchive& archive, ResourceId id);
+	static void			unload(Allocator& allocator, void* resource);
 
-	uint32_t					length;
-	char*						data;
+	uint32_t			length;
+	char*				data;
 };
 
 } // namespace crown

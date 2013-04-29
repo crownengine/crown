@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <GLES/gl.h>
+#include <cassert>
 #include "Texture.h"
 #include "Material.h"
 #include "Pixel.h"

@@ -13,18 +13,21 @@ set (SRC
 	Skybox.cpp
 	Terrain.cpp
 	World.cpp
+
 	TextureResource.cpp
 	
 	TextResource.cpp
 	ArchiveResourceArchive.cpp
 	FileResourceArchive.cpp
+
+	FPSSystem.cpp
+	JSONParser.cpp
 )
 
 set (HEADERS
 	Camera.h
 	Config.h
 	Crown.h
-	Data.h
 	Device.h
 	EventBuffer.h
 	Filesystem.h
@@ -46,6 +49,9 @@ set (HEADERS
 	TextResource.h
 	ArchiveResourceArchive.h
 	FileResourceArchive.h
+
+	FPSSystem.h
+	JSONParser.h
 )
 
 set (CORE_SRC
@@ -175,6 +181,16 @@ set (THREADS_HEADERS
 set (THREADS_SRC
 )
 
+set (SETTINGS_SRC
+	core/settings/IntSetting.cpp
+	core/settings/FloatSetting.cpp
+)
+
+set (SETTINGS_HEADERS
+	core/settings/IntSetting.h
+	core/settings/FloatSetting.h
+)
+
 set (INPUT_SRC
 	input/EventDispatcher.cpp
 	input/InputManager.cpp
@@ -190,6 +206,7 @@ set (INPUT_HEADERS
 )
 
 set (RENDERERS_SRC
+	renderers/DebugRenderer.cpp
 )
 
 set (RENDERERS_HEADERS
@@ -199,22 +216,7 @@ set (RENDERERS_HEADERS
 	renderers/OcclusionQuery.h
 	renderers/Material.h
 	renderers/Texture.h
-)
-
-set (GL_SRC
-	renderers/gl/GLIndexBuffer.cpp
-	renderers/gl/GLOcclusionQuery.cpp
-	renderers/gl/GLRenderer.cpp
-	renderers/gl/GLUtils.cpp
-	renderers/gl/GLVertexBuffer.cpp
-)
-
-set (GL_HEADERS
-	renderers/gl/GLIndexBuffer.h
-	renderers/gl/GLOcclusionQuery.h
-	renderers/gl/GLRenderer.h
-	renderers/gl/GLUtils.h
-	renderers/gl/GLVertexBuffer.h
+	renderers/DebugRenderer.h
 )
 
 set (OS_HEADERS
@@ -223,26 +225,6 @@ set (OS_HEADERS
 
 set (OS_SRC
 	os/OS.cpp
-)
-
-set (LINUX_SRC
-#	EGLRenderWindow.cpp
-	os/linux/GLXRenderWindow.cpp
-	os/linux/LinuxOS.cpp
-	os/linux/Input.cpp
-	os/linux/LinuxTCPSocket.cpp
-	os/linux/LinuxUDPSocket.cpp	
-	os/linux/File.cpp
-)
-
-set (LINUX_HEADERS
-	os/linux/File.h
-#	os/linux/EGLRenderWindow.h
-)
-
-set (WIN_SRC
-#	os/win/WinTCPSocket.cpp
-#	os/win/WinUDPSocket.cpp
 )
 
 set (NETWORK_SRC
@@ -257,44 +239,88 @@ set (NETWORK_HEADERS
 	network/PacketQueue.h
 )
 
-set (SOURCES
+set (CROWN_SOURCES
 	${SRC}
-	${INCLUDES}
 	${CORE_SRC}
-	${CORE_HEADERS}
 	${BV_SRC}
-	${BV_HEADERS}
 	${CONTAINERS_SRC}
-	${CONTAINERS_HEADERS}
 	${MATH_SRC}
-	${MATH_HEADERS}
 	${STREAMS_SRC}
-	${STREAMS_HEADERS}
 	${MEM_SRC}
-	${MEM_HEADERS}
 	${COMPRESSORS_SRC}
-	${COMPRESSORS_HEADERS}
-
 	${THREADS_SRC}
-	${THREADS_HEADERS}
+	${SETTINGS_SRC}
 
 	${INPUT_SRC}
-	${INPUT_HEADERS}
-
-	${OS_SRC}
-	${OS_HEADERS}
-	${LINUX_SRC}
-	${LINUX_HEADERS}
-	${WIN_SRC}
-	${NETWORK_SRC}
-	${NETWORK_HEADERS}
 
 	${RENDERERS_SRC}
-	${RENDERERS_HEADERS}
 
-	${GL_SRC}
-	${GL_HEADERS}
+	${NETWORK_SRC}
+
+	${OS_SRC}
 )
 
-link_libraries(X11 GL GLEW Xrandr rt z)
-add_library(crown STATIC ${SOURCES})
+set (CROWN_HEADERS
+	${HEADERS}
+
+	${CORE_HEADERS}
+	${BV_HEADERS}
+	${CONTAINERS_HEADERS}
+	${MATH_HEADERS}
+	${STREAMS_HEADERS}
+	${MEM_HEADERS}
+	${COMPRESSORS_HEADERS}
+	${THREADS_HEADERS}
+	${SETTINGS_HEADERS}
+
+	${INPUT_HEADERS}
+
+	${RENDERERS_HEADERS}
+
+	${NETWORK_HEADERS}
+
+	${OS_HEADERS}
+)
+
+link_libraries(rt z)
+add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
+
+if (CROWN_BUILD_OPENGL)
+	target_link_libraries(crown crown-gl)
+endif (CROWN_BUILD_OPENGL)
+
+if (CROWN_BUILD_OPENGLES)
+	target_link_libraries(crown crown-gles)
+endif (CROWN_BUILD_OPENGLES)
+
+if (LINUX)
+	target_link_libraries(crown crown-linux-support)
+endif (LINUX)
+
+if (WINDOWS)
+	target_link_libraries(crown crown-win)
+endif (WINDOWS)
+
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
+
+install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
+install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
+
+install (FILES ${CORE_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core)
+install (FILES ${BV_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/bv)
+install (FILES ${CONTAINERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/containers)
+install (FILES ${MATH_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/math)
+install (FILES ${STREAMS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/streams)
+install (FILES ${MEM_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/mem)
+install (FILES ${COMPRESSORS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/compressors)
+install (FILES ${THREADS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/threads)
+install (FILES ${SETTINGS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/settings)
+
+install (FILES ${INPUT_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/input)
+
+install (FILES ${RENDERERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/renderers)
+
+install (FILES ${NETWORK_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/network)
+
+install (FILES ${OS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/os)
+

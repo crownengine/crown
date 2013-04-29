@@ -56,9 +56,9 @@ class KeyboardListener
 
 public:
 
-	virtual void KeyPressed(const KeyboardEvent& event) { (void)event; }
-	virtual void KeyReleased(const KeyboardEvent& event) { (void)event; }
-	virtual void TextInput(const KeyboardEvent& event) { (void)event; }
+	virtual void key_pressed(const KeyboardEvent& event) { (void)event; }
+	virtual void key_released(const KeyboardEvent& event) { (void)event; }
+	virtual void text_input(const KeyboardEvent& event) { (void)event; }
 };
 
 /**
@@ -72,7 +72,7 @@ public:
 	/**
 		Constructor.
 	*/
-	Keyboard() : mListener(NULL) {}
+	Keyboard() : m_listener(NULL) {}
 
 	/**
 		Destructor.
@@ -86,26 +86,26 @@ public:
 		of another key when the two are pressed in combination. (Thanks wikipedia.)
 		Crown currently supports three different modifier keys: Shift, Ctrl and Alt.
 	*/
-	virtual bool IsModifierPressed(ModifierKey modifier) const = 0;
+	virtual bool is_modifier_pressed(ModifierKey modifier) const = 0;
 
 	/**
 		Returns whether the specified key is pressed.
 	*/
-	virtual bool IsKeyPressed(KeyCode key) const = 0;
+	virtual bool is_key_pressed(KeyCode key) const = 0;
 
 	/**
 		Returns whether the specified key is released.
 	*/
-	virtual bool IsKeyReleased(KeyCode key) const = 0;
+	virtual bool is_key_released(KeyCode key) const = 0;
 
 	/**
 		Sets the listener for this device.
 	*/
-	inline void SetListener(KeyboardListener* listener) { mListener = listener; }
+	inline void set_listener(KeyboardListener* listener) { m_listener = listener; }
 
 protected:
 
-	KeyboardListener* mListener;
+	KeyboardListener* m_listener;
 };
 
 } // namespace crown

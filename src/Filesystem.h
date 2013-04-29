@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "String.h"
 #include "Stream.h"
+#include "OS.h"
 
 namespace crown
 {
@@ -35,17 +36,17 @@ struct FilesystemEntry
 {
 	enum Type
 	{
-		DIRECTORY = 0,				///< The entry is a directory
-		FILE,						///< The entry is a file
-		MEMORY,						///< The entry is a memory file (i.e. does not exist on the disk)
-		UNKNOWN						///< The entry type is unknown
+		DIRECTORY = 0,		///< The entry is a directory
+		FILE,				///< The entry is a file
+		MEMORY,				///< The entry is a memory file (i.e. does not exist on the disk)
+		UNKNOWN				///< The entry type is unknown
 	};
 
 	FilesystemEntry() : type(UNKNOWN) {}
 
-	Type			type;				///< Type of the entry
-	char			os_path[512];		///< OS-specific path (use only for debug)
-	char			relative_path[512];	///< Relative path of the entry
+	Type			type;								///< Type of the entry
+	char			os_path[os::MAX_PATH_LENGTH];		///< OS-specific path (use only for debug)
+	char			relative_path[os::MAX_PATH_LENGTH];	///< Relative path of the entry
 };
 
 /// Filesystem.
@@ -100,6 +101,7 @@ class Filesystem
 {
 public:
 
+						/// The @root_path must be absolute.
 						Filesystem(const char* root_path);
 						~Filesystem();
 
@@ -136,11 +138,13 @@ private:
 	
 private:
 
-	const char*			m_root_path;
+	char				m_root_path[os::MAX_PATH_LENGTH];
 
 						// Disable copying
 						Filesystem(const Filesystem&);
 	Filesystem&			operator=(const Filesystem&);
+
+	friend class		Device;
 };
 
 } // namespace crown

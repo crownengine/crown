@@ -50,14 +50,17 @@ struct MouseEvent
 	float wheel;
 };
 
+/**
+	Interface for managing mouse input
+*/
 class MouseListener
 {
 
 public:
 
-	virtual void ButtonPressed(const MouseEvent& event) { (void)event; }
-	virtual void ButtonReleased(const MouseEvent& event) { (void)event; }
-	virtual void CursorMoved(const MouseEvent& event) { (void)event; }
+	virtual void button_pressed(const MouseEvent& event) { (void)event; }
+	virtual void button_released(const MouseEvent& event) { (void)event; }
+	virtual void cursor_moved(const MouseEvent& event) { (void)event; }
 };
 
 } // namespace crown

@@ -42,7 +42,7 @@ InputManager::~InputManager()
 }
 
 //-----------------------------------------------------------------------------
-void InputManager::EventLoop()
+void InputManager::event_loop()
 {
 	os::OSEvent event;
 
@@ -60,18 +60,18 @@ void InputManager::EventLoop()
 			case os::OSET_BUTTON_RELEASE:
 			{
 				MouseEvent mouse_event;
-				mouse_event.x = event.data_a;
-				mouse_event.y = event.data_b;
-				mouse_event.button = event.data_c == 0 ? MB_LEFT : event.data_c == 1 ? MB_MIDDLE : MB_RIGHT;
+				mouse_event.x = event.data_a.int_value;
+				mouse_event.y = event.data_b.int_value;
+				mouse_event.button = event.data_c.int_value == 0 ? MB_LEFT : event.data_c.int_value == 1 ? MB_MIDDLE : MB_RIGHT;
 				mouse_event.wheel = 0.0f;
 
 				if (event.type == os::OSET_BUTTON_PRESS)
 				{
-					mEventDispatcher.ButtonPressed(mouse_event);
+					m_event_dispatcher.button_pressed(mouse_event);
 				}
 				else
 				{
-					mEventDispatcher.ButtonReleased(mouse_event);
+					m_event_dispatcher.button_released(mouse_event);
 				}
 
 				break;
@@ -80,17 +80,52 @@ void InputManager::EventLoop()
 			case os::OSET_KEY_RELEASE:
 			{
 				KeyboardEvent keyboard_event;
-				keyboard_event.key = event.data_a;
+				keyboard_event.key = event.data_a.int_value;
 
 				if (event.type == os::OSET_KEY_PRESS)
 				{
-					mEventDispatcher.KeyPressed(keyboard_event);
+					m_event_dispatcher.key_pressed(keyboard_event);
 				}
 				else
 				{
-					mEventDispatcher.KeyReleased(keyboard_event);
+					m_event_dispatcher.key_released(keyboard_event);
 				}
 
+				break;
+			}
+			case os::OSET_TOUCH_DOWN:
+			case os::OSET_TOUCH_UP:
+			{
+				TouchEvent touch_event;
+				touch_event.pointer_id = event.data_a.int_value;
+				touch_event.x = event.data_b.int_value;
+				touch_event.y = event.data_c.int_value;
+				if (event.type == os::OSET_TOUCH_DOWN)
+				{
+					m_event_dispatcher.touch_down(touch_event);
+				}
+				else
+				{
+					m_event_dispatcher.touch_up(touch_event);
+				}
+				break;
+			}
+			case os::OSET_TOUCH_MOVE:
+			{
+				TouchEvent touch_event;
+				touch_event.pointer_id = event.data_a.int_value;
+				touch_event.x = event.data_b.int_value;
+				touch_event.y = event.data_c.int_value;	
+				m_event_dispatcher.touch_move(touch_event);			
+				break;
+			}
+			case os::OSET_ACCELEROMETER:
+			{
+				AccelerometerEvent sensor_event;
+				sensor_event.x = event.data_a.float_value;
+				sensor_event.y = event.data_b.float_value;
+				sensor_event.z = event.data_c.float_value;
+				m_event_dispatcher.accelerometer_changed(sensor_event);
 				break;
 			}
 			default:
@@ -163,13 +198,6 @@ void InputManager::set_cursor_relative_xy(const Vec2& position)
 	os::get_render_window_metrics(window_width, window_height);
 
 	set_cursor_xy(Point2((int32_t)(position.x * (float) window_width), (int32_t)(position.y * (float) window_height)));
-}
-
-//-----------------------------------------------------------------------------
-InputManager inputManager;
-InputManager* GetInputManager()
-{
-	return &inputManager;
 }
 
 } // namespace crown

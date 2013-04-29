@@ -30,57 +30,61 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+namespace os
+{
+
+static timespec base_time;
 
 //-----------------------------------------------------------------------------
-void OS::Print32_tf(const char* string, ...)
+void printf(const char* string, ...)
 {
 	va_list args;
 
 	va_start(args, string);
-	vprint32_tf(string, args);
+	::vprintf(string, args);
 	va_end(args);
 }
 
 //-----------------------------------------------------------------------------
-void OS::Vprint32_tf(const char* string, va_list arg)
+void vprintf(const char* string, va_list arg)
 {
-	vprint32_tf(string, arg);
+	::vprintf(string, arg);
 }
 
 //-----------------------------------------------------------------------------
-void OS::LogDebug(const char* string, va_list arg)
+void log_debug(const char* string, va_list arg)
 {
-	Print32_tf("D: ");
-	Vprint32_tf(string, arg);
-	Print32_tf("\n");
+	printf("D: ");
+	vprintf(string, arg);
+	printf("\n");
 }
 
 //-----------------------------------------------------------------------------
-void OS::LogError(const char* string, va_list arg)
+void log_error(const char* string, va_list arg)
 {
-	Print32_tf("E: ");
-	Vprint32_tf(string, arg);
-	Print32_tf("\n");
+	printf("E: ");
+	vprintf(string, arg);
+	printf("\n");
 }
 
 //-----------------------------------------------------------------------------
-void OS::LogWarning(const char* string, va_list arg)
+void log_warning(const char* string, va_list arg)
 {
-	Print32_tf("W: ");
-	Vprint32_tf(string, arg);
-	Print32_tf("\n");
+	printf("W: ");
+	vprintf(string, arg);
+	printf("\n");
 }
 
 //-----------------------------------------------------------------------------
-void OS::LogInfo(const char* string, va_list arg)
+void log_info(const char* string, va_list arg)
 {
-	Print32_tf("I: ");
-	Vprint32_tf(string, arg);
-	Print32_tf("\n");
+	printf("I: ");
+	vprintf(string, arg);
+	printf("\n");
 }
 
 //-----------------------------------------------------------------------------
-bool OS::Exists(const char* path)
+bool exists(const char* path)
 {
 	DWORD fileAttr;
 	fileAttr = GetFileAttributes(path);
@@ -88,7 +92,7 @@ bool OS::Exists(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool OS::IsDir(const char* path)
+bool is_dir(const char* path)
 {
 	DWORD fileAttr;
 	fileAttr = GetFileAttributes(path);
@@ -96,13 +100,13 @@ bool OS::IsDir(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool OS::IsReg(const char* path)
+bool is_reg(const char* path)
 {
 	return !IsDir(path);
 }
 
 //-----------------------------------------------------------------------------
-bool OS::Mknod(const char* path)
+bool mknod(const char* path)
 {
 	HANDLE hFile = CreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
@@ -113,25 +117,25 @@ bool OS::Mknod(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool OS::Unlink(const char* path)
+bool unlink(const char* path)
 {
 	return DeleteFile(path) == TRUE;
 }
 
 //-----------------------------------------------------------------------------
-bool OS::Mkdir(const char* path)
+bool mkdir(const char* path)
 {
 	return CreateDirectory(path, NULL) == TRUE;
 }
 
 //-----------------------------------------------------------------------------
-bool OS::Rmdir(const char* path)
+bool OS::rmdir(const char* path)
 {
 	return RemoveDirectory(path) == TRUE;
 }
 
 //-----------------------------------------------------------------------------
-const char* OS::GetCWD()
+const char* get_cwd()
 {
 	static char cwdBuf[1024];
 	int32_t len = GetCurrentDirectory(1024, cwdBuf);
@@ -145,14 +149,14 @@ const char* OS::GetCWD()
 }
 
 //-----------------------------------------------------------------------------
-const char* OS::GetHome()
+const char* get_home()
 {
 	// TODO
 	return Str::EMPTY;
 }
 
 //-----------------------------------------------------------------------------
-const char* OS::GetEnv(const char* env)
+const char* get_env(const char* env)
 {
 	static char evnBuf[1024];
 	int32_t len = GetEnvironmentVariable(env, envBuf, 1024);
@@ -166,9 +170,10 @@ const char* OS::GetEnv(const char* env)
 }
 
 //-----------------------------------------------------------------------------
-bool OS::Ls(const char* path, List<Str>& fileList)
+bool ls(const char* path, List<Str>& fileList)
 {
-	return false; // TODO
+	// TODO
+	return false; 
 }
 
 } // namespace crown

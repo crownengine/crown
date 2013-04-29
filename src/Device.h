@@ -27,63 +27,84 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Config.h"
+#include "OS.h"
 
 namespace crown
 {
 
+class Filesystem;
 class Renderer;
+class DebugRenderer;
 class InputManager;
+class Game;
 
-/**
-	Device.
-*/
+/// The Engine.
 class Device
 {
-
 public:
 
 							Device();
 							~Device();
 
-	Renderer*				GetRenderer();
+	bool					init(int argc, char** argv);
+	void					shutdown();
 
-	void					StartRunning();
-	void					StopRunning();
-	bool					IsRunning() const;
-	bool					IsInit();
-	void					Frame();
+	bool					is_running() const;
+	bool					is_init() const;
 
-	bool					Init(int argc, char** argv);
-	void					Shutdown();
+	void					start();
+	void					stop();
+
+	void					frame();
+
+	Filesystem*				filesystem();
+	InputManager*			input_manager();
+	Renderer*				renderer();
+	DebugRenderer*			debug_renderer();
 
 private:
 
-	bool					ParseCommandLine(int argc, char** argv);
-	void					PrintHelpMessage();
+	bool					parse_command_line(int argc, char** argv);
+	void					print_help_message();
 
 private:
 
-	static const uint16_t	CROWN_MAJOR;
-	static const uint16_t	CROWN_MINOR;
-	static const uint16_t	CROWN_MICRO;
+	// Preferred settings from command line
+	int32_t					m_preferred_window_width;
+	int32_t					m_preferred_window_height;
+	int32_t					m_preferred_window_fullscreen;
+	int32_t					m_preferred_renderer;
 
-	int32_t					mPreferredWindowWidth;
-	int32_t					mPreferredWindowHeight;
-	bool					mPreferredWindowFullscreen;
-	char					mPreferredRootPath[512];
-	char					mPreferredUserPath[512];
+	char					m_preferred_root_path[os::MAX_PATH_LENGTH];
+	char					m_preferred_user_path[os::MAX_PATH_LENGTH];
 
-	bool					mIsInit		: 1;
-	bool					mIsRunning	: 1;
+	bool					m_is_init		: 1;
+	bool					m_is_running	: 1;
 
-	Renderer*				mRenderer;
+	// Subsystems
+	Filesystem*				m_filesystem;
+	InputManager*			m_input_manager;
+	Renderer*				m_renderer;
+	DebugRenderer*			m_debug_renderer;
+
+	// The game currently running
+	Game*					m_game;
+	void*					m_game_library;
+
+private:
+
+	enum
+	{
+		RENDERER_GL		= 0,
+		RENDERER_GLES	= 1
+	};
 
 	// Disable copying
 	Device(const Device&);
 	Device& operator=(const Device&);
 };
 
-Device* GetDevice();
+Device* device();
 
 } // namespace crown
 

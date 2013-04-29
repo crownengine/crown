@@ -25,15 +25,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "EventDispatcher.h"
 #include "Allocator.h"
+#include "Log.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
 EventDispatcher::EventDispatcher() :
-	mMouseListenerList(get_default_allocator()),
-	mKeyboardListenerList(get_default_allocator()),
-	mTouchListenerList(get_default_allocator())
+	m_mouse_listener_list(get_default_allocator()),
+	m_keyboard_listener_list(get_default_allocator()),
+	m_touch_listener_list(get_default_allocator()),
+	m_acc_listener_list(get_default_allocator())
 {
 }
 
@@ -43,116 +45,131 @@ EventDispatcher::~EventDispatcher()
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::AddMouseListener(MouseListener* listener)
+void EventDispatcher::add_mouse_listener(MouseListener* listener)
 {
 	assert(listener != NULL);
 
-	mMouseListenerList.push_back(listener);
+	m_mouse_listener_list.push_back(listener);
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::AddKeyboardListener(KeyboardListener* listener)
+void EventDispatcher::add_keyboard_listener(KeyboardListener* listener)
 {
 	assert(listener != NULL);
 
-	mKeyboardListenerList.push_back(listener);
+	m_keyboard_listener_list.push_back(listener);
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::AddTouchListener(TouchListener* listener)
+void EventDispatcher::add_touch_listener(TouchListener* listener)
 {
 	assert(listener != NULL);
 
-	mTouchListenerList.push_back(listener);
+	m_touch_listener_list.push_back(listener);
+}
+
+void EventDispatcher::add_accelerometer_listener(AccelerometerListener* listener)
+{
+	assert(listener != NULL);
+	m_acc_listener_list.push_back(listener);
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::ButtonPressed(const MouseEvent& event)
+void EventDispatcher::button_pressed(const MouseEvent& event)
 {
-	for (uint32_t i = 0; i < mMouseListenerList.size(); i++)
+	for (uint32_t i = 0; i < m_mouse_listener_list.size(); i++)
 	{
-		mMouseListenerList[i]->ButtonPressed(event);
+		m_mouse_listener_list[i]->button_pressed(event);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::ButtonReleased(const MouseEvent& event)
+void EventDispatcher::button_released(const MouseEvent& event)
 {
-	for (uint32_t i = 0; i < mMouseListenerList.size(); i++)
+	for (uint32_t i = 0; i < m_mouse_listener_list.size(); i++)
 	{
-		mMouseListenerList[i]->ButtonReleased(event);
+		m_mouse_listener_list[i]->button_released(event);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::CursorMoved(const MouseEvent& event)
+void EventDispatcher::cursor_moved(const MouseEvent& event)
 {
-	for (uint32_t i = 0; i < mMouseListenerList.size(); i++)
+	for (uint32_t i = 0; i < m_mouse_listener_list.size(); i++)
 	{
-		mMouseListenerList[i]->CursorMoved(event);
+		m_mouse_listener_list[i]->cursor_moved(event);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::KeyPressed(const KeyboardEvent& event)
+void EventDispatcher::key_pressed(const KeyboardEvent& event)
 {
-	for (uint32_t i = 0; i < mKeyboardListenerList.size(); i++)
+	for (uint32_t i = 0; i < m_keyboard_listener_list.size(); i++)
 	{
-		mKeyboardListenerList[i]->KeyPressed(event);
+		m_keyboard_listener_list[i]->key_pressed(event);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::KeyReleased(const KeyboardEvent& event)
+void EventDispatcher::key_released(const KeyboardEvent& event)
 {
-	for (uint32_t i = 0; i < mKeyboardListenerList.size(); i++)
+	for (uint32_t i = 0; i < m_keyboard_listener_list.size(); i++)
 	{
-		mKeyboardListenerList[i]->KeyReleased(event);
+		m_keyboard_listener_list[i]->key_released(event);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::TextInput(const KeyboardEvent& event)
+void EventDispatcher::text_input(const KeyboardEvent& event)
 {
-	for (uint32_t i = 0; i < mKeyboardListenerList.size(); i++)
+	for (uint32_t i = 0; i < m_keyboard_listener_list.size(); i++)
 	{
-		mKeyboardListenerList[i]->TextInput(event);
+		m_keyboard_listener_list[i]->text_input(event);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::TouchDown(const TouchEvent& event)
+void EventDispatcher::touch_down(const TouchEvent& event)
 {
-	for (uint32_t i = 0; i < mTouchListenerList.size(); i++)
+	for (uint32_t i = 0; i < m_touch_listener_list.size(); i++)
 	{
-		mTouchListenerList[i]->TouchDown(event);
+		m_touch_listener_list[i]->touch_down(event);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::TouchUp(const TouchEvent& event)
+void EventDispatcher::touch_up(const TouchEvent& event)
 {
-	for (uint32_t i = 0; i < mTouchListenerList.size(); i++)
+	for (uint32_t i = 0; i < m_touch_listener_list.size(); i++)
 	{
-		mTouchListenerList[i]->TouchUp(event);
+		m_touch_listener_list[i]->touch_up(event);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::TouchMove(const TouchEvent& event)
+void EventDispatcher::touch_move(const TouchEvent& event)
 {
-	for (uint32_t i = 0; i < mTouchListenerList.size(); i++)
+	for (uint32_t i = 0; i < m_touch_listener_list.size(); i++)
 	{
-		mTouchListenerList[i]->TouchMove(event);
+		m_touch_listener_list[i]->touch_move(event);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void EventDispatcher::TouchCancel(const TouchEvent& event)
+void EventDispatcher::touch_cancel(const TouchEvent& event)
 {
-	for (uint32_t i = 0; i < mTouchListenerList.size(); i++)
+	for (uint32_t i = 0; i < m_touch_listener_list.size(); i++)
 	{
-		mTouchListenerList[i]->TouchCancel(event);
+		m_touch_listener_list[i]->touch_cancel(event);
+	}
+}
+
+//-----------------------------------------------------------------------------
+void EventDispatcher::accelerometer_changed(const AccelerometerEvent& event)
+{
+	for (uint32_t i = 0; i < m_acc_listener_list.size(); i++)
+	{
+		m_acc_listener_list[i]->accelerometer_changed(event);
 	}
 }
 

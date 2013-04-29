@@ -1,33 +1,16 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(tools)
+project(crown-tools)
 
-include(FindFreetype)
+set (INCLUDES
+	compilers
+)
 
-link_directories(${CROWN_BINARY_DIR})
+link_directories(${CROWN_BINARY_DIR} ${GTKMM_LIBRARY_DIRS})
+include_directories(${INCLUDES} ${GTKMM_INCLUDE_DIRS})
 
-if (FREETYPE_FOUND)
-include_directories(${FREETYPE_INCLUDE_DIRS})
-link_libraries(${FREETYPE_LIBRARIES})
-endif (FREETYPE_FOUND)
-
-add_executable(fontgen fontgen/fontgen.cpp)
-
-add_executable(resource-hash resource-compilers/resource-hash.cpp)
-
-add_executable(txt-compiler resource-compilers/txt-compiler.cpp)
-add_executable(tga-compiler resource-compilers/tga-compiler.cpp)
-add_executable(lua-compiler resource-compilers/lua-compiler.cpp)
-
-add_executable(resource-linker resource-compilers/resource-linker.cpp)
-
-target_link_libraries(fontgen crown)
-
-target_link_libraries(resource-hash crown)
-
-target_link_libraries(txt-compiler crown)
-target_link_libraries(tga-compiler crown)
-target_link_libraries(lua-compiler crown)
-
-target_link_libraries(resource-linker crown)
+add_subdirectory(compilers)
+add_subdirectory(editors/world-editor)
+add_subdirectory(editors/resource-browser)
+add_subdirectory(pycrown)
 

@@ -27,12 +27,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "Renderer.h"
 #include "MathUtils.h"
-#include <GL/glew.h>
 #include "Log.h"
-#include <cstdio>
 #include "Vec2.h"
 #include "Interpolation.h"
-#include <cmath>
 
 namespace crown
 {
@@ -79,7 +76,7 @@ void Terrain::CreateTerrain(uint32_t xSize, uint32_t zSize, uint32_t tilePerMete
 	mVerticesInSizeX = mTilesInSizeX + 1;
 	mVerticesInSizeZ = mTilesInSizeZ + 1;
 
-	printf("Vertices in size x/z: %d %d\n", mVerticesInSizeX, mVerticesInSizeZ);
+	Log::D("Vertices in size x/z: %d %d\n", mVerticesInSizeX, mVerticesInSizeZ);
 
 	uint32_t heightsCount = mVerticesInSizeX * mVerticesInSizeZ;
 
@@ -283,21 +280,14 @@ uint32_t Terrain::SnapToGrid(const Vec3& vertex)
 
 void Terrain::Render()
 {
-	//Renderer* renderer = GetDevice()->GetRenderer();
+	Renderer* renderer = device()->renderer();
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, mVertices);
-	glNormalPointer(GL_FLOAT, 0, mNormals);
-	glTexCoordPointer(2, GL_FLOAT, 0, mTexCoords);
-	glDrawElements(GL_TRIANGLES, mTilesInSizeX * mTilesInSizeZ * 6, GL_UNSIGNED_SHORT, mIndices);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	renderer->render_triangles(
+				mVertices[0].to_float_ptr(),
+				mNormals[0].to_float_ptr(),
+				mTexCoords[0].to_float_ptr(),
+				mIndices,
+				mTilesInSizeX * mTilesInSizeZ * 6);
 }
 
 float Terrain::GaussDist(float x, float y, float sigma)

@@ -28,49 +28,52 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	Pseudo-random number generator.
-
-	Uses LCG algorithm: fast and compatible with the standard C rand().
-*/ 
+///	Pseudo-random number generator.
+///
+///	Uses LCG algorithm: fast and compatible with the standard C rand().
 class Random
 {
 public:
 
-				Random(int32_t seed);	//!< Constructor
+				Random(int32_t seed);
 
-	int32_t		get_int32_t();			//!< Returns a pseudo-random int32_teger in the range [0, 32767]
-	int32_t		get_int32_t(int32_t max);	//!< Returns a pseudo-random int32_teger in the range [0, max)
-	float		get_unit_float();	//!< Returns a pseudo-random float in the range [0.0, 1.0].
+	/// Returns a pseudo-random int32_teger in the range [0, 32767].
+	int32_t		integer();
+
+	/// Returns a pseudo-random int32_teger in the range [0, max).
+	int32_t		integer(int32_t max);
+
+	/// Returns a pseudo-random float in the range [0.0, 1.0].
+	float		unit_float();
 
 private:
 
-	int32_t		mSeed;
+	int32_t		m_seed;
 };
 
 //-----------------------------------------------------------------------------
-inline Random::Random(int32_t seed) : mSeed(seed)
+inline Random::Random(int32_t seed) : m_seed(seed)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline int32_t Random::get_int32_t()
+inline int32_t Random::integer()
 {
-	mSeed = 214013 * mSeed + 13737667;
+	m_seed = 214013 * m_seed + 13737667;
 
-	return (mSeed >> 16) & 0x7FFF;
+	return (m_seed >> 16) & 0x7FFF;
 }
 
 //-----------------------------------------------------------------------------
-inline int32_t Random::get_int32_t(int32_t max)
+inline int32_t Random::integer(int32_t max)
 {
-	return (max == 0) ? 0 : get_int32_t() % max;
+	return (max == 0) ? 0 : integer() % max;
 }
 
 //-----------------------------------------------------------------------------
-inline float Random::get_unit_float()
+inline float Random::unit_float()
 {
-	return get_int32_t() / (float) 0x7FFF;
+	return integer() / (float) 0x7FFF;
 }
 
 } // namespace crown

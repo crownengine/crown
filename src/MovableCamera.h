@@ -34,7 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class MovableCamera : public Camera, public MouseListener, public KeyboardListener
+class MovableCamera : public Camera
 {
 
 public:
@@ -46,11 +46,11 @@ public:
 	//! Destructor
 	~MovableCamera();
 
-	//! Returns the camera's mouse movement sensibility
-	float GetMouseSensibility() const;
+	//! Returns the camera's movement sensibility
+	float GetSensibility() const;
 
-	//! Sets the camera's mouse movement sensibility
-	void SetMouseSensibility(float sensibility);
+	//! Sets the camera's movement sensibility
+	void SetSensibility(float sensibility);
 
 	//! Returns the camera's speed
 	float GetSpeed() const;
@@ -63,28 +63,21 @@ public:
 	//! Loads the view matrix
 	virtual void Render();
 
-	virtual void KeyPressed(const KeyboardEvent& event);
-	virtual void KeyReleased(const KeyboardEvent& event);
-
-protected:
-
 	void MoveForward();
 	void MoveBackward();
 	void StrafeLeft();
 	void StrafeRight();
-	void SetViewByMouse();
+	void SetRotation(const real x, const real y);
+
+protected:
 
 	Vec2 mRotFactor;
 	float mAngleX;
 	float mAngleY;
 
 	float mSpeed;
-	float mMouseSensibility;
+	float mSensibility;
 
-	bool mUpPressed : 1;
-	bool mRightPressed : 1;
-	bool mDownPressed : 1;
-	bool mLeftPressed : 1;
 };
 
 } // namespace crown

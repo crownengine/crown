@@ -23,77 +23,89 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <GLES/gl.h>
+
 #include "GLESIndexBuffer.h"
-#include "GLESRenderer.h"
-#include "GLESSupport.h"
-#include "GLESTexture.h"
-#include "GLESTextureManager.h"
-#include "GLESUtils.h"
 #include "GLESVertexBuffer.h"
-#include "Light.h"
+#include "GLESRenderer.h"
+#include "GLESUtils.h"
 #include "Log.h"
 #include "Material.h"
 #include "Types.h"
-#include "Rect.h"
-#include <GLES/gl.h>
+
+#include "TextureResource.h"
 
 namespace crown
 {
 
+//-----------------------------------------------------------------------------
 GLESRenderer::GLESRenderer() :
-	mGLESSupport(NULL),
+	m_max_lights(0),
+	m_max_texture_size(0),
+	m_max_texture_units(0),
+	m_max_vertex_indices(0),
+	m_max_vertex_vertices(0),
+	m_max_anisotropy(0.0f),
 
-	mMaxLights(0),
-	mMaxTextureSize(0),
-	mMaxTextureUnits(0),
-	mMaxVertexIndices(0),
-	mMaxVertexVertices(0),
-
-	mMaxAnisotropy(0.0f),
-
-	mActiveTextureUnit(0)
+	m_texture_count(0),
+	m_active_texture_unit(0)
 {
-	mMinMaxPoint32_tSize[0] = 0.0f;
-	mMinMaxPoint32_tSize[1] = 0.0f;
+	m_min_max_point_size[0] = 0.0f;
+	m_min_max_point_size[1] = 0.0f;
+	m_min_max_line_width[0] = 0.0f;
+	m_min_max_line_width[1] = 0.0f;
 
+	// Initialize viewport and scissor
+	m_viewport[0] = 0;
+	m_viewport[1] = 0;
+	m_viewport[2] = 0;
+	m_viewport[3] = 0;
+
+	m_scissor[0] = 0;
+	m_scissor[1] = 0;
+	m_scissor[2] = 0;
+	m_scissor[3] = 0;
+
+	// Initialize texture units
 	for (uint32_t i = 0; i < MAX_TEXTURE_UNITS; i++)
 	{
-		mTextureUnit[i] = 0;
-		mTextureUnitTarget[i] = GL_TEXTURE_2D;
+		m_texture_unit[i] = 0;
+		m_texture_unit_target[i] = GL_TEXTURE_2D;
 	}
 
-	// This code snippet initializes the matrices
+	// Initialize the matrices
 	for (uint32_t i = 0; i < MT_COUNT; i++)
 	{
-		mMatrix[i].LoadIdentity();
+		m_matrix[i].load_identity();
 	}
 
-	mGLESSupport = GetGLESSupport();
 
-	mGLESSupport->BuildExtensionList();
+	glGetIntegerv(GL_MAX_LIGHTS, &m_max_lights);
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size);
+	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &m_max_texture_units);
+	//glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &m_max_vertex_indices);
+	//glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_max_vertex_vertices);
 
-	glGetIntegerv(GL_MAX_LIGHTS, &mMaxLights);
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &mMaxTextureSize);
-	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &mMaxTextureUnits);
-	//glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &mMaxVertexIndices);
-	//glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &mMaxVertexVertices);
+	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &m_min_max_point_size[0]);
+	//glGetFloatv(GL_LINE_WIDTH_RANGE, &m_min_max_line_width[0]);
 
-	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &mMinMaxPoint32_tSize[0]);
-	//glGetFloatv(GL_LINE_WIDTH_RANGE, &mMinMaxLineWidth[0]);
+	const unsigned char* gl_vendor = glGetString(GL_VENDOR);
+	const unsigned char* gl_renderer = glGetString(GL_RENDERER);
+	const unsigned char* gl_version = glGetString(GL_VERSION);
 
-	Log::I("OpenGLES Vendor\t: %s", mGLSupport->GetVendor().c_str());
-	Log::I("OpenGLES Renderer\t: %s", mGLSupport->GetRenderer().c_str());
-	Log::I("OpenGLES Version\t: %s", mGLSupport->GetVersion().c_str());
-	Log::I("Min Point32_t Size\t: %f", mMinMaxPoint32_tSize[0]);
-	Log::I("Max Point32_t Size\t: %f", mMinMaxPoint32_tSize[1]);
-	Log::I("Min Line Width\t: %f", mMinMaxLineWidth[0]);
-	Log::I("Max Line Width\t: %f", mMinMaxLineWidth[1]);
-	Log::I("Max Texture Size\t: %dx%d", mMaxTextureSize, mMaxTextureSize);
-	Log::I("Max Texture Units\t: %d", mMaxTextureUnits);
-	Log::I("Max Lights\t\t: %d", mMaxLights);
-	Log::I("Max Vertex Indices\t: %d", mMaxVertexIndices);
-	Log::I("Max Vertex Vertices\t: %d", mMaxVertexVertices);
-	Log::I("Max Anisotropy\t: %f", mMaxAnisotropy);
+	Log::I("OpenGL|ES Vendor\t: %s", gl_vendor);
+	Log::I("OpenGL|ES Renderer\t: %s", gl_renderer);
+	Log::I("OpenGL|ES Version\t: %s", gl_version);
+	Log::I("Min Point Size\t: %f", m_min_max_point_size[0]);
+	Log::I("Max Point Size\t: %f", m_min_max_point_size[1]);
+	Log::I("Min Line Width\t: %f", m_min_max_line_width[0]);
+	Log::I("Max Line Width\t: %f", m_min_max_line_width[1]);
+	Log::I("Max Texture Size\t: %dx%d", m_max_texture_size, m_max_texture_size);
+	Log::I("Max Texture Units\t: %d", m_max_texture_units);
+	Log::I("Max Lights\t\t: %d", m_max_lights);
+	Log::I("Max Vertex Indices\t: %d", m_max_vertex_indices);
+	Log::I("Max Vertex Vertices\t: %d", m_max_vertex_vertices);
+	Log::I("Max Anisotropy\t: %f", m_max_anisotropy);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -118,7 +130,7 @@ GLESRenderer::GLESRenderer() :
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, amb);
 
 	// Some hint32_ts
-	glHint32_t(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
 	// Set the framebuffer clear color
 	glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
@@ -136,31 +148,19 @@ GLESRenderer::GLESRenderer() :
 	Log::I("OpenGLES Renderer initialized.");
 }
 
+//-----------------------------------------------------------------------------
 GLESRenderer::~GLESRenderer()
 {
-	for (int32_t i = 0; i < mVertexBufferList.GetSize(); i++)
-	{
-		delete mVertexBufferList[i];
-	}
-
-	for (int32_t i = 0; i < mIndexBufferList.GetSize(); i++)
-	{
-		delete mIndexBufferList[i];
-	}
 }
 
-void GLESRenderer::_SetViewport(const Rect& absArea)
-{
-	glViewport((int32_t)absArea.min.x, (int32_t)absArea.min.y, (int32_t)absArea.max.x, (int32_t)absArea.max.y);
-	glScissor((int32_t)absArea.min.x, (int32_t)absArea.min.y, (int32_t)absArea.max.x, (int32_t)absArea.max.y);
-}
-
-void GLESRenderer::SetClearColor(const Color4& color)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_clear_color(const Color4& color)
 {
 	glClearColor(color.r, color.g, color.b, color.a);
 }
 
-void GLESRenderer::_SetMaterialParams(const Color4& ambient, const Color4& diffuse, const Color4& specular,
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_material_params(const Color4& ambient, const Color4& diffuse, const Color4& specular,
 				const Color4& emission, int32_t shininess)
 {
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, &ambient.r);
@@ -170,7 +170,8 @@ void GLESRenderer::_SetMaterialParams(const Color4& ambient, const Color4& diffu
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 }
 
-void GLESRenderer::_SetLighting(bool lighting)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_lighting(bool lighting)
 {
 	if (lighting)
 	{
@@ -182,45 +183,48 @@ void GLESRenderer::_SetLighting(bool lighting)
 	}
 }
 
-void GLESRenderer::_SetAmbientLight(const Color4& color)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_ambient_light(const Color4& color)
 {
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color.ToFloatPtr());
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color.to_float_ptr());
 }
 
-void GLESRenderer::_SetTexturing(uint32_t unit, bool texturing)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_texturing(uint32_t unit, bool texturing)
 {
-	if (!ActivateTextureUnit(unit))
+	if (!activate_texture_unit(unit))
 		return;
 
 	if (texturing)
 	{
-		glEnable(mTextureUnitTarget[unit]);
+		glEnable(m_texture_unit_target[unit]);
 	}
 	else
 	{
-		glDisable(mTextureUnitTarget[unit]);
+		glDisable(m_texture_unit_target[unit]);
 	}
 }
 
-void GLESRenderer::_SetTexture(uint32_t unit, Texture* texture)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_texture(uint32_t unit, TextureId texture)
 {
-	if (!ActivateTextureUnit(unit))
-		return;
-
-	if (texture != NULL)
+	if (!activate_texture_unit(unit))
 	{
-		mTextureUnit[unit] = texture;
-		mTextureUnitTarget[unit] = static_cast<const GLESTexture*>(texture)->GetGLTarget();
-
-		glEnable(mTextureUnitTarget[unit]);
-		glBindTexture(mTextureUnitTarget[unit], static_cast<const GLESTexture*>(texture)->GetGLObject());
+		return;
 	}
+
+	m_texture_unit_target[unit] = GL_TEXTURE_2D;
+	m_texture_unit[unit] = m_textures[texture.index].texture_object;
+
+	glEnable(m_texture_unit_target[unit]);
+	glBindTexture(m_texture_unit_target[unit], m_texture_unit[unit]);
 }
 
-void GLESRenderer::_SetTextureMode(uint32_t unit, TextureMode mode, const Color4& /* blendColor */)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_texture_mode(uint32_t unit, TextureMode mode, const Color4& /* blendColor */)
 {
 	/* No support for blend color, params will be ignored */
-	if (!ActivateTextureUnit(unit))
+	if (!activate_texture_unit(unit))
 		return;
 
 	GLint envMode = GLES::GetTextureMode(mode);
@@ -228,17 +232,19 @@ void GLESRenderer::_SetTextureMode(uint32_t unit, TextureMode mode, const Color4
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, envMode);
 }
 
-void GLESRenderer::_SetTextureWrap(uint32_t unit, TextureWrap wrap)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_texture_wrap(uint32_t unit, TextureWrap wrap)
 {
 	GLenum glWrap = GLES::GetTextureWrap(wrap);
 
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_S, glWrap);
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_WRAP_T, glWrap);
+	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_S, glWrap);
+	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_T, glWrap);
 }
 
-void GLESRenderer::_SetTextureFilter(uint32_t unit, TextureFilter filter)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_texture_filter(uint32_t unit, TextureFilter filter)
 {
-	if (!ActivateTextureUnit(unit))
+	if (!activate_texture_unit(unit))
 		return;
 
 	GLint minFilter;
@@ -246,11 +252,12 @@ void GLESRenderer::_SetTextureFilter(uint32_t unit, TextureFilter filter)
 
 	GLES::GetTextureFilter(filter, minFilter, magFilter);
 
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_MIN_FILTER, minFilter);
-	glTexParameteri(mTextureUnitTarget[unit], GL_TEXTURE_MAG_FILTER, magFilter);
+	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MAG_FILTER, magFilter);
 }
 
-void GLESRenderer::_SetBackfaceCulling(bool culling)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_backface_culling(bool culling)
 {
 	if (culling)
 	{
@@ -262,13 +269,14 @@ void GLESRenderer::_SetBackfaceCulling(bool culling)
 	}
 }
 
-void GLESRenderer::_SetSeparateSpecularColor(bool /* separate */)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_separate_specular_color(bool /* separate */)
 {
 	/* No support for separate specular color, params will be ignored */
 	Log::W("Renderer does not support separate specular color");
 }
 
-void GLESRenderer::_SetDepthTest(bool test)
+void GLESRenderer::set_depth_test(bool test)
 {
 	if (test)
 	{
@@ -280,19 +288,22 @@ void GLESRenderer::_SetDepthTest(bool test)
 	}
 }
 
-void GLESRenderer::_SetDepthWrite(bool write)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_depth_write(bool write)
 {
 	glDepthMask((GLboolean) write);
 }
 
-void GLESRenderer::_SetDepthFunc(CompareFunction func)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_depth_func(CompareFunction func)
 {
 	GLenum glFunc = GLES::GetCompareFunction(func);
 
 	glDepthFunc(glFunc);
 }
 
-void GLESRenderer::_SetRescaleNormals(bool rescale)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_rescale_normals(bool rescale)
 {
 	if (rescale)
 	{
@@ -304,7 +315,8 @@ void GLESRenderer::_SetRescaleNormals(bool rescale)
 	}
 }
 
-void GLESRenderer::_SetBlending(bool blending)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_blending(bool blending)
 {
 	if (blending)
 	{
@@ -316,7 +328,8 @@ void GLESRenderer::_SetBlending(bool blending)
 	}
 }
 
-void GLESRenderer::_SetBlendingParams(BlendEquation /* equation */, BlendFunction src, BlendFunction dst, const Color4& /* color */)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_blending_params(BlendEquation /* equation */, BlendFunction src, BlendFunction dst, const Color4& /* color */)
 {
 	/* No support for blend equation, params will be ignored */
 	/* No support for blend color, params will be ignored */
@@ -327,7 +340,8 @@ void GLESRenderer::_SetBlendingParams(BlendEquation /* equation */, BlendFunctio
 	glBlendFunc(glSrcFactor, glDstFactor);
 }
 
-void GLESRenderer::_SetColorWrite(bool write)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_color_write(bool write)
 {
 	if (write)
 	{
@@ -339,7 +353,8 @@ void GLESRenderer::_SetColorWrite(bool write)
 	}
 }
 
-void GLESRenderer::_SetFog(bool fog)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_fog(bool fog)
 {
 	if (fog)
 	{
@@ -351,7 +366,8 @@ void GLESRenderer::_SetFog(bool fog)
 	}
 }
 
-void GLESRenderer::_SetFogParams(FogMode mode, float density, float start, float end, const Color4& color)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_fog_params(FogMode mode, float density, float start, float end, const Color4& color)
 {
 	GLenum glMode = GLES::GetFogMode(mode);
 
@@ -362,7 +378,8 @@ void GLESRenderer::_SetFogParams(FogMode mode, float density, float start, float
 	glFogfv(GL_FOG_COLOR, &color.r);
 }
 
-void GLESRenderer::_SetAlphaTest(bool test)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_alpha_test(bool test)
 {
 	if (test)
 	{
@@ -374,14 +391,16 @@ void GLESRenderer::_SetAlphaTest(bool test)
 	}
 }
 
-void GLESRenderer::_SetAlphaParams(CompareFunction func, float ref)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_alpha_params(CompareFunction func, float ref)
 {
 	GLenum glFunc = GLES::GetCompareFunction(func);
 
 	glAlphaFunc(glFunc, ref);
 }
 
-void GLESRenderer::_SetShadingType(ShadingType type)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_shading_type(ShadingType type)
 {
 	GLenum glMode = GL_SMOOTH;
 
@@ -393,13 +412,15 @@ void GLESRenderer::_SetShadingType(ShadingType type)
 	glShadeModel(glMode);
 }
 
-void GLESRenderer::_SetPolygonMode(PolygonMode /* mode */)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_polygon_mode(PolygonMode /* mode */)
 {
 	/* No support for polygon mode, params will be ignored */
 	Log::W("Renderer does not support PolygonMode");
 }
 
-void GLESRenderer::_SetFrontFace(FrontFace face)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_front_face(FrontFace face)
 {
 	GLenum glFace = GL_CCW;
 
@@ -411,12 +432,28 @@ void GLESRenderer::_SetFrontFace(FrontFace face)
 	glFrontFace(glFace);
 }
 
-void GLESRenderer::_SetViewportParams(int32_t x, int32_t y, int32_t width, int32_t height)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_viewport_params(int32_t x, int32_t y, int32_t width, int32_t height)
 {
+	m_viewport[0] = x;
+	m_viewport[1] = y;
+	m_viewport[2] = width;
+	m_viewport[3] = height;
+
 	glViewport(x, y, width, height);
 }
 
-void GLESRenderer::_SetScissor(bool scissor)
+//-----------------------------------------------------------------------------
+void GLESRenderer::get_viewport_params(int32_t& x, int32_t& y, int32_t& width, int32_t& height)
+{
+	x = m_viewport[0];
+	y = m_viewport[1];
+	width = m_viewport[2];
+	height = m_viewport[3];
+}
+
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_scissor(bool scissor)
 {
 	if (scissor)
 	{
@@ -428,12 +465,28 @@ void GLESRenderer::_SetScissor(bool scissor)
 	}
 }
 
-void GLESRenderer::_SetScissorParams(int32_t x, int32_t y, int32_t width, int32_t height)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_scissor_params(int32_t x, int32_t y, int32_t width, int32_t height)
 {
+	m_scissor[0] = x;
+	m_scissor[1] = y;
+	m_scissor[2] = width;
+	m_scissor[3] = height;
+
 	glScissor(x, y, width, height);
 }
 
-void GLESRenderer::_SetPoint32_tSprite(bool sprite)
+//-----------------------------------------------------------------------------
+void GLESRenderer::get_scissor_params(int32_t& x, int32_t& y, int32_t& width, int32_t& height)
+{
+	x = m_scissor[0];
+	y = m_scissor[1];
+	width = m_scissor[2];
+	height = m_scissor[3];
+}
+
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_point_sprite(bool sprite)
 {
 	if (sprite)
 	{
@@ -447,38 +500,44 @@ void GLESRenderer::_SetPoint32_tSprite(bool sprite)
 	}
 }
 
-void GLESRenderer::_SetPoint32_tSize(float size)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_point_size(float size)
 {
-	glPoint32_tSize(size);
+	glPointSize(size);
 }
 
-void GLESRenderer::_SetPoint32_tParams(float min, float max)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_point_params(float min, float max)
 {
-	glPoint32_tParameterf(GL_POINT_SIZE_MIN, min);
-	glPoint32_tParameterf(GL_POINT_SIZE_MAX, max);
+	glPointParameterf(GL_POINT_SIZE_MIN, min);
+	glPointParameterf(GL_POINT_SIZE_MAX, max);
 }
 
-void GLESRenderer::_BeginFrame()
+//-----------------------------------------------------------------------------
+void GLESRenderer::begin_frame()
 {
 	// Clear frame/depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void GLESRenderer::_EndFrame()
+//-----------------------------------------------------------------------------
+void GLESRenderer::end_frame()
 {
 	glFinish();
 
-	CheckGLErrors();
+	check_gl_errors();
 }
 
-Mat4 GLESRenderer::GetMatrix(MatrixType type) const
+//-----------------------------------------------------------------------------
+Mat4 GLESRenderer::get_matrix(MatrixType type) const
 {
-	return mMatrix[type];
+	return m_matrix[type];
 }
 
-void GLESRenderer::SetMatrix(MatrixType type, const Mat4& matrix)
+//-----------------------------------------------------------------------------
+void GLESRenderer::set_matrix(MatrixType type, const Mat4& matrix)
 {
-	mMatrix[type] = matrix;
+	m_matrix[type] = matrix;
 
 	switch (type)
 	{
@@ -486,37 +545,27 @@ void GLESRenderer::SetMatrix(MatrixType type, const Mat4& matrix)
 		case MT_MODEL:
 			glMatrixMode(GL_MODELVIEW);
 			// Transformations must be listed in reverse order
-			glLoadMatrixf((mMatrix[MT_VIEW] * mMatrix[MT_MODEL]).ToFloatPtr());
+			glLoadMatrixf((m_matrix[MT_VIEW] * m_matrix[MT_MODEL]).to_float_ptr());
 			break;
 		case MT_PROJECTION:
 			glMatrixMode(GL_PROJECTION);
-			glLoadMatrixf(mMatrix[MT_PROJECTION].ToFloatPtr());
+			glLoadMatrixf(m_matrix[MT_PROJECTION].to_float_ptr());
 			break;
 		case MT_TEXTURE:
 			glMatrixMode(GL_TEXTURE);
-			glLoadMatrixf(mMatrix[MT_TEXTURE].ToFloatPtr());
+			glLoadMatrixf(m_matrix[MT_TEXTURE].to_float_ptr());
 			break;
 		case MT_COLOR:
 			//glMatrixMode(GL_COLOR);
-			//glLoadMatrixf(mMatrix[MT_COLOR].ToFloatPtr());
+			//glLoadMatrixf(m_matrix[MT_COLOR].to_float_ptr());
 			break;
 		default:
 			break;
 	}
 }
 
-void GLESRenderer::PushMatrix()
-{
-	glPushMatrix();
-}
-
-void GLESRenderer::PopMatrix()
-{
-	// Note: Is checking for push-pop count necessary? Maybe it should signal matrix stack underflow.
-	glPopMatrix();
-}
-
-void GLESRenderer::SelectMatrix(MatrixType type)
+//-----------------------------------------------------------------------------
+void GLESRenderer::select_matrix(MatrixType type)
 {
 	switch (type)
 	{
@@ -538,7 +587,8 @@ void GLESRenderer::SelectMatrix(MatrixType type)
 	}
 }
 
-void GLESRenderer::RenderVertexIndexBuffer(const VertexBuffer* vertices, const IndexBuffer* indices)
+//-----------------------------------------------------------------------------
+void GLESRenderer::render_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices)
 {
 	assert(vertices != NULL);
 	assert(indices != NULL);
@@ -559,7 +609,8 @@ void GLESRenderer::RenderVertexIndexBuffer(const VertexBuffer* vertices, const I
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void GLESRenderer::RenderPoint32_tBuffer(const VertexBuffer* buffer)
+//-----------------------------------------------------------------------------
+void GLESRenderer::render_point_buffer(const VertexBuffer* buffer)
 {
 	if (buffer == NULL)
 		return;
@@ -577,85 +628,21 @@ void GLESRenderer::RenderPoint32_tBuffer(const VertexBuffer* buffer)
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-OcclusionQuery* GLESRenderer::CreateOcclusionQuery()
+//-----------------------------------------------------------------------------
+bool GLESRenderer::activate_texture_unit(uint32_t unit)
 {
-	Log::W("Renderer does not support OcclusionQuery");
-	return 0;
-}
-
-VertexBuffer*  GLESRenderer::CreateVertexBuffer()
-{
-	VertexBuffer* vb = new GLESVertexBuffer();
-
-	if (!vb)
-		return 0;
-
-	mVertexBufferList.Append(vb);
-	return vb;
-}
-
-IndexBuffer*  GLESRenderer::CreateIndexBuffer()
-{
-	IndexBuffer* ib = new GLESIndexBuffer();
-
-	if (!ib)
-		return 0;
-
-	mIndexBufferList.Append(ib);
-	return ib;
-}
-
-void GLESRenderer::SetTexture(uint32_t layer, Texture* texture)
-{
-	if (texture == NULL)
-		return;
-
-	_SetTexturing(layer, true);
-	_SetTexture(layer, texture);
-	_SetTextureMode(layer, texture->GetMode(), texture->GetBlendColor());
-	_SetTextureWrap(layer, texture->GetWrap());
-	_SetTextureFilter(layer, texture->GetFilter());
-}
-
-void GLESRenderer::SetScissorBox(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
-{
-	int32_t vals[4];
-	glGetIntegerv(GL_VIEWPORT, vals);
-	glScissor(x, vals[3] - y - height, width, height);
-}
-
-void GLESRenderer::GetScissorBox(uint32_t& x, uint32_t& y, uint32_t& width, uint32_t& height)
-{
-	int32_t vals[4];
-	glGetIntegerv(GL_SCISSOR_BOX, vals);
-	int32_t valsViewport[4];
-	glGetIntegerv(GL_VIEWPORT, valsViewport);
-	x = vals[0];
-	width = vals[2];
-	height = vals[3];
-	y = valsViewport[3] - vals[1] - height;
-}
-
-void GLESRenderer::DrawRectangle(const Point32_t2& position, const Point32_t2& dimensions, int32_t drawMode,
-														 const Color4& borderColor, const Color4& fillColor)
-{
-
-}
-
-bool GLESRenderer::ActivateTextureUnit(uint32_t unit)
-{
-	if (unit >= (uint32_t) mMaxTextureUnits)
+	if (unit >= (uint32_t) m_max_texture_units)
 		return false;
 
 	glActiveTexture(GL_TEXTURE0 + unit);
-	mActiveTextureUnit = unit;
+	m_active_texture_unit = unit;
 	return true;
 }
 
 //-----------------------------------------------------------------------------
-void GLESRenderer::_SetLight(uint32_t light, bool active)
+void GLESRenderer::set_light(uint32_t light, bool active)
 {
-	if (light >= (uint32_t) mMaxLights)
+	if (light >= (uint32_t) m_max_lights)
 	{
 		return;
 	}
@@ -671,7 +658,7 @@ void GLESRenderer::_SetLight(uint32_t light, bool active)
 }
 
 //-----------------------------------------------------------------------------
-void GLESRenderer::_SetLightParams(uint32_t light, LightType type, const Vec3& position)
+void GLESRenderer::set_light_params(uint32_t light, LightType type, const Vec3& position)
 {
 	static float pos[4] =
 	{
@@ -690,23 +677,117 @@ void GLESRenderer::_SetLightParams(uint32_t light, LightType type, const Vec3& p
 }
 
 //-----------------------------------------------------------------------------
-void GLESRenderer::_SetLightColor(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular)
+void GLESRenderer::set_light_color(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular)
 {
-	glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient.ToFloatPtr());
-	glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse.ToFloatPtr());
-	glLightfv(GL_LIGHT0 + light, GL_SPECULAR, specular.ToFloatPtr());
+	glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient.to_float_ptr());
+	glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse.to_float_ptr());
+	glLightfv(GL_LIGHT0 + light, GL_SPECULAR, specular.to_float_ptr());
 }
 
 //-----------------------------------------------------------------------------
-void GLESRenderer::_SetLightAttenuation(uint32_t light, float constant, float linear, float quadratic)
+void GLESRenderer::set_light_attenuation(uint32_t light, float constant, float linear, float quadratic)
 {
 	glLightf(GL_LIGHT0 + light, GL_CONSTANT_ATTENUATION, constant);
 	glLightf(GL_LIGHT0 + light, GL_LINEAR_ATTENUATION, linear);
 	glLightf(GL_LIGHT0 + light, GL_QUADRATIC_ATTENUATION, quadratic);
 }
 
+//-----------------------------------------------------------------------------
+void GLESRenderer::draw_lines(const float* vertices, const float* colors, uint32_t count)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-void GLESRenderer::CheckGLErrors()
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+
+	glVertexPointer(3, GL_FLOAT, 0, vertices);
+	glColorPointer(4, GL_FLOAT, 0, colors);
+
+	glDrawArrays(GL_LINES, 0, count);
+
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+//-----------------------------------------------------------------------------
+void GLESRenderer::render_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, vertices);
+	glNormalPointer(GL_FLOAT, 0, normals);
+	glTexCoordPointer(2, GL_FLOAT, 0, uvs);
+
+	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, indices);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+
+//-----------------------------------------------------------------------------
+TextureId GLESRenderer::load_texture(TextureResource* texture)
+{
+	// Search for an already existent texture
+	for (uint32_t i = 0; i < MAX_TEXTURES; i++)
+	{
+		if (m_textures[i].texture_resource == texture)
+		{
+			return m_textures[i].id;
+		}
+	}
+
+	// If texture not found, create a new one
+	GLuint gl_texture_object;
+
+	glGenTextures(1, &gl_texture_object);
+
+	glBindTexture(GL_TEXTURE_2D, gl_texture_object);
+
+	GLint gl_texture_format = GLES::GetPixelFormat(texture->format());
+
+	//FIXME FIXME FIXME
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width(), texture->height(), 0,
+				 gl_texture_format, GL_UNSIGNED_BYTE, texture->data());
+
+	TextureId id;
+	id.index = m_texture_count;
+	id.id = 0;
+
+	m_textures[id.index].texture_object = gl_texture_object;
+	m_textures[id.index].texture_resource = texture;
+	m_textures[id.index].id = id;
+
+	m_texture_count++;
+
+	return id;
+}
+
+//-----------------------------------------------------------------------------
+void GLESRenderer::unload_texture(TextureResource* texture)
+{
+	// FIXME
+	(void)texture;
+}
+
+//-----------------------------------------------------------------------------
+TextureId GLESRenderer::reload_texture(TextureResource* old_texture, TextureResource* new_texture)
+{
+	// FIXME
+	(void)old_texture;
+	(void)new_texture;
+	return TextureId();
+}
+
+//-----------------------------------------------------------------------------
+void GLESRenderer::check_gl_errors()
 {
 	GLenum error;
 

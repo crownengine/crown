@@ -45,6 +45,8 @@ GLXDrawable		glx_window = None;
 //-----------------------------------------------------------------------------
 bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen)
 {
+	(void)fullscreen;
+
 	assert(width != 0 && height != 0);
 
 	display = XOpenDisplay(NULL);
@@ -60,23 +62,23 @@ bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t heigh
 	// Color index buffer not supported - deprecated
 	int32_t fbAttribs[] =
 	{
-		GLX_DOUBLEBUFFER,		True,			// Only double-buffered
+		GLX_DOUBLEBUFFER,		static_cast<int32_t>(True),
 		GLX_RED_SIZE,			8,
 		GLX_GREEN_SIZE,			8,
 		GLX_BLUE_SIZE,			8,
 		GLX_ALPHA_SIZE,			8,
-		GLX_DEPTH_SIZE,			24,				// Depth buffer size
-		GLX_STENCIL_SIZE,		0,				// Stencil buffer size
+		GLX_DEPTH_SIZE,			24,
+		GLX_STENCIL_SIZE,		0,
 		GLX_ACCUM_RED_SIZE,		0,
 		GLX_ACCUM_GREEN_SIZE,	0,
 		GLX_ACCUM_BLUE_SIZE,	0,
 		GLX_ACCUM_ALPHA_SIZE,	0,
-		GLX_RENDER_TYPE,		GLX_RGBA_BIT,	// The default framebuffer is always RGBA
-		GLX_DRAWABLE_TYPE,		GLX_WINDOW_BIT,
-		GLX_X_RENDERABLE,		True,
-		GLX_CONFIG_CAVEAT,		GLX_DONT_CARE,
-		GLX_TRANSPARENT_TYPE,	GLX_NONE,
-		None
+		GLX_RENDER_TYPE,		static_cast<int32_t>(GLX_RGBA_BIT),
+		GLX_DRAWABLE_TYPE,		static_cast<int32_t>(GLX_WINDOW_BIT),
+		GLX_X_RENDERABLE,		static_cast<int32_t>(True),
+		GLX_CONFIG_CAVEAT,		static_cast<int32_t>(GLX_DONT_CARE),
+		GLX_TRANSPARENT_TYPE,	static_cast<int32_t>(GLX_NONE),
+		static_cast<int32_t>(None)
 	};
 
 	int32_t fbCount;
@@ -159,6 +161,8 @@ bool destroy_render_window()
 
 		XCloseDisplay(display);
 	}
+
+	return true;
 }
 
 //-----------------------------------------------------------------------------

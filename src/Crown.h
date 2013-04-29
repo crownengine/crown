@@ -87,6 +87,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mutex.h"
 #include "Cond.h"
 
+// Core/Settings
+#include "IntSetting.h"
+#include "FloatSetting.h"
+
 // Engine
 #include "Camera.h"
 #include "Device.h"
@@ -124,6 +128,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OcclusionQuery.h"
 #include "Material.h"
 #include "Texture.h"
+#include "DebugRenderer.h"
 
 //// Engine/Windowing
 //#include "Bind.h"

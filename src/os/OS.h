@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Config.h"
 #include "List.h"
+#include <cstdarg>
 #include "Types.h"
 
 #ifdef LINUX
@@ -36,9 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	OS-specific functions and parameters.
-*/
+/// OS-specific functions and parameters.
 namespace os
 {
 
@@ -81,14 +80,25 @@ const size_t	MAX_MUTEXES = 16;
 #endif
 
 //-----------------------------------------------------------------------------
-void			printf(const char* string, ...);				//!< Print32_tf wrapper
-void			vprintf(const char* string, va_list arg);		//!< VPrint32_tf wrapper
+// Print and log functions
+//-----------------------------------------------------------------------------
+void			printf(const char* string, ...);				//!< Printf wrapper
+void			vprintf(const char* string, va_list arg);		//!< VPrintf wrapper
 
-void			log_debug(const char* string, va_list arg);		//!< Print32_t debug message
-void			log_error(const char* string, va_list arg);		//!< Print32_t error message
-void			log_warning(const char* string, va_list arg);	//!< Print32_t warning message
-void			log_info(const char* string, va_list arg);		//!< Print32_t info message
+void			log_debug(const char* string, va_list arg);		//!< Print debug message
+void			log_error(const char* string, va_list arg);		//!< Print error message
+void			log_warning(const char* string, va_list arg);	//!< Print warning message
+void			log_info(const char* string, va_list arg);		//!< Print info message
 
+//-----------------------------------------------------------------------------
+// Paths
+//-----------------------------------------------------------------------------
+bool			is_root_path(const char* path);
+bool			is_absolute_path(const char* path);
+
+//-----------------------------------------------------------------------------
+// File management
+//-----------------------------------------------------------------------------
 bool			exists(const char* path);		//!< Returns whether the path is a file or directory on the disk
 
 bool			is_dir(const char* path);		//!< Returns whether the path is a directory. (May not resolve symlinks.)
@@ -99,12 +109,17 @@ bool			unlink(const char* path);		//! Deletes a regular file. Returns true if su
 bool			mkdir(const char* path);		//! Creates a directory. Returns true if success, false if not
 bool			rmdir(const char* path);		//! Deletes a directory. Returns true if success, false if not
 
+//-----------------------------------------------------------------------------
+// OS ambient variables
+//-----------------------------------------------------------------------------
 const char*		get_cwd();						//! Fills ret with the path of the current working directory. Returns true if success, false if not 
 const char*		get_home();						//! Fills ret with the path of the user home directory
 const char*		get_env(const char* env);		//! Returns the content of the 'env' environment variable or the empty string
 
 //bool			ls(const char* path, List<Str>& fileList);	//! Returns the list of filenames in a directory.
 
+//-----------------------------------------------------------------------------
+// Render window and input management
 //-----------------------------------------------------------------------------
 void			init_os();
 
@@ -123,9 +138,13 @@ void			hide_cursor();
 void			show_cursor();
 
 //-----------------------------------------------------------------------------
+// Timing
+//-----------------------------------------------------------------------------
 uint64_t		milliseconds();
 uint64_t		microseconds();
 
+//-----------------------------------------------------------------------------
+// Events
 //-----------------------------------------------------------------------------
 enum OSEventType
 {
@@ -136,28 +155,45 @@ enum OSEventType
 
 	OSET_BUTTON_PRESS		= 3,
 	OSET_BUTTON_RELEASE		= 4,
-	OSET_MOTION_NOTIFY		= 5
+	OSET_MOTION_NOTIFY		= 5,
+	OSET_TOUCH_DOWN			= 6,
+	OSET_TOUCH_MOVE			= 7,
+	OSET_TOUCH_UP			= 8,
+	OSET_ACCELEROMETER		= 9
+};
+
+union OSEventParameter
+{
+	int32_t int_value;
+	float	float_value;
 };
 
 struct OSEvent
 {
-	OSEventType		type;
-	int32_t			data_a;
-	int32_t			data_b;
-	int32_t			data_c;
-	int32_t			data_d;
+	OSEventType			type;
+	OSEventParameter	data_a;
+	OSEventParameter	data_b;
+	OSEventParameter	data_c;
+	OSEventParameter	data_d;
 };
 
-//! Pushes @a event into @a event_queue
-void			push_event(OSEventType type, int32_t data_a, int32_t data_b, int32_t data_c, int32_t data_d);
+/// Pushes the event @type along with its parameters into the os' event queue.
+void			push_event(OSEventType type, OSEventParameter data_a, OSEventParameter data_b, OSEventParameter data_c, OSEventParameter data_d);
 
-//! Returns the event on top of the event_queue	
+
+/// Returns and pops the first event in the os' event queue.
 OSEvent&		pop_event();
+
+//-----------------------------------------------------------------------------
+// Dynamic libraries
+//-----------------------------------------------------------------------------
+void*			open_library(const char* path);
+void			close_library(void* library);
+void*			lookup_symbol(void* library, const char* name);
 
 //-----------------------------------------------------------------------------
 // Threads
 //-----------------------------------------------------------------------------
-
 typedef			void* (*ThreadFunction)(void*);
 
 void			thread_create(ThreadFunction f, void* params, OSThread* thread, const char* name);
@@ -174,9 +210,8 @@ void			cond_signal(OSCond* cond);
 void			cond_wait(OSCond* cond, OSMutex* mutex);
 
 //-----------------------------------------------------------------------------
-//		Networking
+// Networking
 //-----------------------------------------------------------------------------
-
 struct NetAddress
 {
 	uint8_t 	address[4];
@@ -257,7 +292,6 @@ struct NetAddress
 };
 
 //-----------------------------------------------------------------------------
-
 class UDPSocket
 {
 public:
@@ -281,8 +315,8 @@ private:
 				// Socket descriptor
 	int32_t 	m_socket;
 };
-//-----------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------
 class TCPSocket
 {
 public:
