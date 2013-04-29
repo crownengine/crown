@@ -4,14 +4,15 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "lua.hpp"
 #include "Crown.h"
+#include "LuaCompiler.h"
 
 using namespace crown;
 
 const char* root_path = NULL;
+const char* dest_path = NULL;
 const char* resource_in = NULL;
-const char* resource_out = NULL;
+uint32_t hash_seed = 0;
 
 void 	parse_command_line(int argc, char** argv);
 void 	print_help_message(const char* program_name);
@@ -20,34 +21,29 @@ void	compile_script(char* tmp_out);
 /// Lua scripts compiler
 int main(int argc, char** argv)
 {
-	// parse_command_line(argc, argv);
+	parse_command_line(argc, argv);
 	
-	// // FIXME: validate input
+	if (root_path == NULL)
+	{
+		printf("%s: ERROR: you have to specify the root path with `--root-path`\n", argv[0]);
+		exit(-1);
+	}
 
-	// Filesystem fs_root(root_path);
-	
-	// if (!fs_root.exists(resource_in))
-	// {
-	// 	printf("%s: ERROR: %s does not exist. Aborting.\n", argv[0], resource_in);
-	// 	return -1;
-	// }
+	if (dest_path == NULL)
+	{
+		printf("%s: ERROR: you have to specify the destination path with `--dest-path`\n", argv[0]);
+		exit(-1);
+	}
 
-	// char resource_basename[256];
-	// char resource_extension[256];
-	
-	// path::filename_without_extension(resource_in, resource_basename, 256);
-	// path::extension(resource_in, resource_extension, 256);
-	
-	// uint32_t resource_basename_hash = hash::fnv1a_32(resource_basename, string::strlen(resource_basename));
-	// uint32_t resource_extension_hash = hash::fnv1a_32(resource_extension, string::strlen(resource_extension));
+	if (resource_in == NULL)
+	{
+		printf("%s: ERROR: you have to specify the resource name with `--resource-in`\n", argv[0]);
+		exit(-1);
+	}
 
-	// char tmp_file[256];
-	// compile_script(tmp_file);
+	LuaCompiler compiler(root_path, dest_path, resource_in, hash_seed);
+	compiler.compile();
 
-	// FileStream* src_file = (FileStream*)fs_root.open(tmp_file, SOM_READ);
-	
-	// size_t src_file_size = src_file->size();
-	
 	// ArchiveEntry archive_entry;
 	// archive_entry.name = resource_basename_hash;
 	// archive_entry.type = resource_extension_hash;
@@ -70,13 +66,11 @@ int main(int argc, char** argv)
 	// fs_root.close(dest_file);	
 
 	// printf("Resource compilation completed: %s\n", resource_out);
-	// lua_State *L;
-	 // = lua_open();
- //  	lua_close(L);
 
 	return 0;
 }
 
+//-----------------------------------------------------------------------------
 void parse_command_line(int argc, char** argv)
 {
 	// Parse arguments
@@ -84,8 +78,9 @@ void parse_command_line(int argc, char** argv)
 	{
 		"help",         AOA_NO_ARGUMENT,       NULL,        'h',
 		"root-path",    AOA_REQUIRED_ARGUMENT, NULL,        'r',
+		"dest-path",    AOA_REQUIRED_ARGUMENT, NULL,        'd',
 		"resource-in",  AOA_REQUIRED_ARGUMENT, NULL,        'i',
-		"resource-out", AOA_REQUIRED_ARGUMENT, NULL,        'o',
+		"seed",         AOA_REQUIRED_ARGUMENT, NULL,        's',
 		NULL, 0, NULL, 0
 	};
 
@@ -120,6 +115,19 @@ void parse_command_line(int argc, char** argv)
 				
 				break;
 			}
+			// Dest path
+			case 'd':
+			{
+				if (args.option_argument() == NULL)
+				{
+					printf("%s: ERROR: missing path after `--dest-path`\n", argv[0]);
+					exit(-1);
+				}
+				
+				dest_path = args.option_argument();
+				
+				break;
+			}
 			// Resource in
 			case 'i':
 			{
@@ -133,17 +141,16 @@ void parse_command_line(int argc, char** argv)
 				
 				break;
 			}
-			// Resource out
-			case 'o':
+			case 's':
 			{
 				if (args.option_argument() == NULL)
 				{
-					printf("%s: ERROR: missing path after `--resource-out`\n", argv[0]);
+					printf("%s: ERROR: missing seed value after `--seed`\n", argv[0]);
 					exit(-1);
 				}
 
-				resource_out = args.option_argument();
-				
+				hash_seed = atoi(args.option_argument());
+
 				break;
 			}
 			default:

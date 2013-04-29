@@ -26,6 +26,7 @@ import subprocess
 
 TXT_C = "txt-compiler"
 TGA_C = "tga-compiler"
+LUA_C = "lua-compiler"
 RES_H = "resource-hash"
 
 ROOT_P = "--root-path"
@@ -95,5 +96,9 @@ class Compiler:
 		if resource.endswith('.txt'):
 			p = subprocess.call([TXT_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
 		if resource.endswith('.tga'):
-			p = subprocess.call([TGA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);	
+			p = subprocess.call([TGA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
+		if resource.endswith('.lua'):
+			p = subprocess.call([LUA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
+
+	
 

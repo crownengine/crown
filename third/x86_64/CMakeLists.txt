@@ -9,5 +9,4 @@ install (FILES 	luajit/include/luajit-2.0/lua.hpp
 				
 install (DIRECTORY luajit/lib/lua
 				   luajit/lib/pkgconfig DESTINATION lib/crown)
-install (FILES luajit/lib/libluajit-5.1.so.2.0.1
-			   luajit/lib/libluajit-5.1.so.2 DESTINATION lib/crown)
+install (FILES luajit/lib/libluajit-5.1.so.2.0.1 DESTINATION lib/crown)

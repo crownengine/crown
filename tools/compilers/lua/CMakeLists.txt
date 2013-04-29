@@ -10,6 +10,8 @@ set (HEADERS
 )
 
 add_executable(lua-compiler ${SRC} ${HEADERS})
-target_link_libraries(lua-compiler crown-compiler-utils crown-luajit)
+link_directories(${CROWN_THIRD}/luajit/lib)
+include_directories(${CROWN_THIRD}/luajit/include)
+target_link_libraries(lua-compiler crown-compiler-utils lua)
 
 install (TARGETS lua-compiler DESTINATION bin)
