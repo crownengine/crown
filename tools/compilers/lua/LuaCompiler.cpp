@@ -1,5 +1,6 @@
 #include "LuaCompiler.h"
 #include "FileStream.h"
+#include "lua.hpp"
 
 namespace crown
 {
