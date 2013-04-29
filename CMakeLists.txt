@@ -71,12 +71,13 @@ endif (CROWN_BUILD_TESTS)
 
 #detect architecture
 if (CROWN_ARCH MATCHES "x86")
-	add_subdirectory(third/x86);
+	set (CROWN_THIRD third/x86)
 endif (CROWN_ARCH MATCHES "x86")
 
 if (CROWN_ARCH MATCHES "x86_64")
-	add_subdirectory(third/x86_64)
+	set (CROWN_THIRD third/x86_64)
 endif (CROWN_ARCH MATCHES "x86_64")
 
-#add_subdirectory(third/luajit)
+add_subdirectory(${CROWN_THIRD})
+
 

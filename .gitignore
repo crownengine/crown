@@ -13,3 +13,6 @@
 
 # Ignore python stuff
 __pycache__
+
+# Ignore proj workspace
+/proj/sublime-text/*.sublime-workspace

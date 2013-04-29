@@ -11,6 +11,7 @@ add_executable(compressors compressors.cpp)
 add_executable(connections connections.cpp)
 add_executable(strings strings.cpp)
 add_executable(paths paths.cpp)
+add_executable(script script.cpp)
 
 
 target_link_libraries(allocators crown)
@@ -20,3 +21,4 @@ target_link_libraries(compressors crown)
 target_link_libraries(connections crown)
 target_link_libraries(strings crown)
 target_link_libraries(paths crown)
+target_link_libraries(script crown)
