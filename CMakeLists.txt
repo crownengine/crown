@@ -35,7 +35,7 @@ set (INCLUDES
 )
 
 include_directories(${INCLUDES})
-add_definitions(-pipe -ansi -W -Wall -Wextra -Wno-long-long -pedantic -fPIC -g -pg -llua)
+add_definitions(-pipe -ansi -W -Wall -Wextra -Wno-long-long -pedantic -fPIC -g -pg)
 
 # detect operating system
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -47,6 +47,17 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	set (WINDOWS 1)
 	add_subdirectory(src/os/win)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+
+#detect architecture
+if (CROWN_ARCH MATCHES "x86")
+	set (CROWN_THIRD third/x86)
+endif (CROWN_ARCH MATCHES "x86")
+
+if (CROWN_ARCH MATCHES "x86_64")
+	set (CROWN_THIRD third/x86_64)
+endif (CROWN_ARCH MATCHES "x86_64")
+
+add_subdirectory(${CROWN_THIRD})
 
 # add build directories
 add_subdirectory(src)
@@ -71,16 +82,7 @@ if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
-#detect architecture
-if (CROWN_ARCH MATCHES "x86")
-	set (CROWN_THIRD third/x86)
-endif (CROWN_ARCH MATCHES "x86")
 
-if (CROWN_ARCH MATCHES "x86_64")
-	set (CROWN_THIRD third/x86_64)
-endif (CROWN_ARCH MATCHES "x86_64")
-
-add_subdirectory(${CROWN_THIRD})
 
 
 

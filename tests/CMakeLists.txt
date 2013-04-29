@@ -22,9 +22,10 @@ target_link_libraries(compressors crown)
 target_link_libraries(connections crown)
 target_link_libraries(strings crown)
 target_link_libraries(paths crown)
-<<<<<<< HEAD
-target_link_libraries(script crown)
-=======
+
+link_directories(${CROWN_THIRD}/luajit/lib)
+include_directories(${CROWN_THIRD}/luajit/include)
+target_link_libraries(script crown lua m)
 
 add_test(allocators-test ${EXECUTABLE_OUTPUT_PATH}/allocators)
 add_test(containers-test containers)
@@ -33,4 +34,3 @@ add_test(compressors-test compressors)
 add_test(connections-test connections)
 add_test(strings-test strings)
 add_test(paths-test paths)
->>>>>>> master
