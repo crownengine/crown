@@ -34,9 +34,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	Circular buffer double-ended queue.
-*/
+/// Circular buffer double-ended queue of POD items.
+/// @note
+/// Does not call constructors/destructors so it is not very suitable for non-POD items.
 template <typename T>
 class Queue
 {
@@ -45,20 +45,51 @@ public:
 					Queue(Allocator& allocator);
 					~Queue();
 
+	/// Random access by index
 	T&				operator[](uint32_t index);
+
+	/// Random access by index
 	const T&		operator[](uint32_t index) const;
 
+	/// Returns whether the queue is empty.
 	bool			empty() const;
+
+	/// Returns the number of items in the queue
 	uint32_t		size() const;
+
+	/// Returns the number of items the queue can hold before
+	/// a resize must occur.
 	uint32_t		space() const;
+
+	/// Increase or decrease the capacity of the queue.
+	/// @note
+	/// Old items will be copied to the newly created queue.
+	/// If the new @capacity is smaller than the previous one, the
+	/// queue will be truncated.
 	void			increase_capacity(uint32_t capacity);
+
+	/// Grows the queue to contain at least @min_capacity items.
+	/// If @min_capacity is set to 0, the queue automatically
+	/// determines the new capacity based on its size at the 
+	/// time of call.
 	void			grow(uint32_t min_capacity);
 
+	/// Adds an @item to the back of the queue
 	void			push_back(const T& item);
+
+	/// Removes the last item from the queue
 	void			pop_back();
+
+	/// Adds an @item to the front of the queue
 	void			push_front(const T& item);
+
+	/// Removes the first item from the queue
 	void			pop_front();
 	
+	/// Clears the content of the queue.
+	/// @note
+	/// Does not free memory nor call destructors, it only zeroes
+	/// the number of items in the queue for efficiency.
 	void 			clear();
 
 	T*				begin();
