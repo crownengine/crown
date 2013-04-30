@@ -42,6 +42,8 @@ class InputManager;
 class Game;
 
 /// The Engine.
+/// It is the place where to look for accessing all of
+/// the engine subsystems and related stuff.
 class Device
 {
 public:
@@ -49,15 +51,28 @@ public:
 							Device();
 							~Device();
 
+	/// Initializes the engine allowing to pass command line
+	/// parameters to configure some parameters.
 	bool					init(int argc, char** argv);
+
+	/// Shutdowns the engine freeing all the allocated resources
 	void					shutdown();
 
+	/// Returns wheter the engine is running (i.e. it is actually
+	/// doing work).
 	bool					is_running() const;
+
+	/// Returns whether the engine is correctly initialized
 	bool					is_init() const;
 
+	/// Forces the engine to actually start doing work.
 	void					start();
+
+	/// Forces the engine to stop all the work it is doing
+	/// and normally terminates the program.
 	void					stop();
 
+	/// Updates all the subsystems
 	void					frame();
 
 	Filesystem*				filesystem();
