@@ -38,6 +38,7 @@ class Renderer;
 
 /// Util class to render various types of primiteves
 /// for debugging purposes only.
+/// @note
 /// All the coordinates are in world-space.
 class DebugRenderer
 {
