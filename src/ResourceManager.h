@@ -80,10 +80,6 @@ public:
 	/// You have to explicitly call is_loaded() method to check if the
 	/// loading process is actually completed.
 	ResourceId				load(const char* name);
-	
-	/// Loads the resource by @name and @type and returns its ResourceId.
-	/// See ResourceManager::load(const char* name) for details.
-	ResourceId				load(uint32_t name, uint32_t type);
 
 	/// Unloads the @resource, freeing up all the memory associated by it
 	/// and eventually any global object associated with it.
@@ -118,6 +114,9 @@ public:
 	void					bring_loaded_online();
 
 private:
+
+	// Loads the resource by name and type and returns its ResourceId.
+	ResourceId				load(uint32_t name, uint32_t type);
 
 	void					background_load();
 

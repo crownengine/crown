@@ -75,43 +75,6 @@ ResourceId ResourceManager::load(const char* name)
 }
 
 //-----------------------------------------------------------------------------
-ResourceId ResourceManager::load(uint32_t name, uint32_t type)
-{
-	// Search for an already existent resource
-	ResourceEntry* entry = std::find(m_resources.begin(), m_resources.end(), name);
-
-	// If resource not found, create a new one
-	if (entry == m_resources.end())
-	{
-		ResourceId id;
-
-		id.name = name;
-		id.type = type;
-		id.index = m_resources.size();
-
-		ResourceEntry entry;
-
-		entry.id = id;
-		entry.state = RS_UNLOADED;
-		entry.references = 1;
-		entry.resource = NULL;
-
-		m_resources.push_back(entry);
-
-		m_loading_mutex.lock();
-		m_loading_queue.push_back(id);
-		m_loading_mutex.unlock();
-
-		return id;
-	}
-
-	// Else, increment its reference count
-	entry->references++;
-	
-	return entry->id;
-}
-
-//-----------------------------------------------------------------------------
 void ResourceManager::unload(ResourceId name)
 {
 	assert(has(name));
@@ -205,6 +168,43 @@ void ResourceManager::bring_loaded_online()
 	}
 
 	m_loaded_mutex.unlock();
+}
+
+//-----------------------------------------------------------------------------
+ResourceId ResourceManager::load(uint32_t name, uint32_t type)
+{
+	// Search for an already existent resource
+	ResourceEntry* entry = std::find(m_resources.begin(), m_resources.end(), name);
+
+	// If resource not found, create a new one
+	if (entry == m_resources.end())
+	{
+		ResourceId id;
+
+		id.name = name;
+		id.type = type;
+		id.index = m_resources.size();
+
+		ResourceEntry entry;
+
+		entry.id = id;
+		entry.state = RS_UNLOADED;
+		entry.references = 1;
+		entry.resource = NULL;
+
+		m_resources.push_back(entry);
+
+		m_loading_mutex.lock();
+		m_loading_queue.push_back(id);
+		m_loading_mutex.unlock();
+
+		return id;
+	}
+
+	// Else, increment its reference count
+	entry->references++;
+	
+	return entry->id;
 }
 
 //-----------------------------------------------------------------------------
