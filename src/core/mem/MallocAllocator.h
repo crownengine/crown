@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// Allocator based on C malloc().
 class MallocAllocator : public Allocator
 {
 public:
@@ -37,15 +38,21 @@ public:
 				MallocAllocator();
 				~MallocAllocator();
 
+	/// @copydoc Allocator::allocate()
 	void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
+
+	/// @copydoc Allocator::deallocate()
 	void		deallocate(void* data);
 
+	/// @copydoc Allocator::allocated_size()
 	size_t		allocated_size();
+
+	/// Returns the size in bytes of the block of memory pointed by @data
 	size_t		get_size(void* data);
 
 private:
 
-	//! Holds the number of bytes of an allocation
+	// Holds the number of bytes of an allocation
 	struct Header
 	{
 		uint32_t	size;

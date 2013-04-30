@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// Base class for memory allocators.
 class Allocator
 {
 public:
@@ -38,8 +39,14 @@ public:
 						Allocator() {}
 	virtual				~Allocator() {}
 
+	/// Allocates @size bytes of memory aligned to the specified
+	/// @align byte and returns a pointer to the first allocated byte.
 	virtual void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN) = 0;
+
+	/// Deallocates a previously allocated block of memory pointed by @data.
 	virtual void		deallocate(void* data) = 0;
+
+	/// Returns the total number of bytes allocated.
 	virtual size_t		allocated_size() = 0;
 
 private:
