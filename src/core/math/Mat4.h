@@ -64,68 +64,115 @@ public:
 
 	real				m[16];
 
-						Mat4();										//!< Constructor, does nothing for efficiency
-						//! Constructs from a set of real
+	/// Does nothing for efficiency.
+						Mat4();	
+
+	/// Constructs from a set of real
 						Mat4(real r1c1, real r2c1, real r3c1, real r4c1, real r1c2, real r2c2, real r3c2, real r4c2, real r1c3, real r2c3, real r3c3, real r4c3, real r1c4, real r2c4, real r3c4, real r4c4);
-						Mat4(const real v[16]);						//!< Contructs from the "v" array
-						Mat4(const Mat4& a);						//!< Copy constructor
-						~Mat4();									//!< Destructor
+	
+	/// Contructs from the @v array
+						Mat4(const real v[16]);						
+						Mat4(const Mat4& a);					
+						~Mat4();				
 
-	Mat4&				operator=(const Mat4& a);					//!< Assignment operator (copies the data)
+	/// Assignment operator (copies the data)
+	Mat4&				operator=(const Mat4& a);					
 
-	real				operator[](uint32_t i) const;					//!< Random access by index
-	real&				operator[](uint32_t i);							//!< Random access by index
+	/// Random access by index
+	real				operator[](uint32_t i) const;
+
+	/// Random access by index					
+	real&				operator[](uint32_t i);							
 
 	real				operator()(uint32_t row, uint32_t column) const;	//!< Random access by row/column pair
 
-	Mat4				operator+(const Mat4& a) const;				//!< Addition
-	Mat4&				operator+=(const Mat4& a);					//!< Addition
-	Mat4				operator-(const Mat4& a) const;				//!< Subtraction
-	Mat4&				operator-=(const Mat4& a);					//!< Subtraction
-	Mat4				operator*(real k) const;					//!< Multiplication by scalar
-	Mat4&				operator*=(real k);							//!< Multiplication by scalar
-	Mat4				operator/(real k) const;					//!< Division by scalar
-	Mat4&				operator/=(real k);							//!< Division by scalar
-	Vec3				operator*(const Vec3& v) const;				//!< Multiplication by vector
-	Vec4				operator*(const Vec4& v) const;				//!< Multiplication by vector
-	Mat4				operator*(const Mat4& a) const;				//!< Multiplication
-	Mat4&				operator*=(const Mat4& a);					//!< Multiplication
+	Mat4				operator+(const Mat4& a) const;
+	Mat4&				operator+=(const Mat4& a);					
+	Mat4				operator-(const Mat4& a) const;				
+	Mat4&				operator-=(const Mat4& a);					
+	Mat4				operator*(real k) const;				
+	Mat4&				operator*=(real k);							
+	Mat4				operator/(real k) const;					
+	Mat4&				operator/=(real k);							
+	Vec3				operator*(const Vec3& v) const;				
+	Vec4				operator*(const Vec4& v) const;				
+	Mat4				operator*(const Mat4& a) const;			
+	Mat4&				operator*=(const Mat4& a);
 
-	friend Mat4			operator*(real k, const Mat4& a);			//!< For simmetry
+	/// For simmetry
+	friend Mat4			operator*(real k, const Mat4& a);			
 
-	void				build_rotation_x(real radians);				//!< Builds a rotation matrix about the X axis of "radians" radians
-	void				build_rotation_y(real radians);				//!< Builds a rotation matrix about the Y axis of "radians" radians
-	void				build_rotation_z(real radians);				//!< Builds a rotation matrix about the Z axis of "radians" radians
-	void				build_rotation(const Vec3& n, real radians);//!< Builds a rotation matrix about an arbitrary axis of "radians" radians
-	void				build_projection_perspective_rh(real fovy, real aspect, real near, real far);	//!< Builds a perspetive projection matrix suited to Right-Handed coordinate systems
-	void				build_projection_perspective_lh(real fovy, real aspect, real near, real far);	//!< Builds a perspective projection matrix suited to Left-Handed coordinate systems
-	void				build_projection_ortho_rh(real width, real height, real near, real far);		//!< Builds an orthographic projection matrix suited to Right-Handed coordinate systems
-	void				build_projection_ortho_lh(real width, real height, real near, real far);		//!< Builds an orthographic projection matrix suited to Left-Handed coordinate systems
-	void				build_projection_ortho_2d_rh(real width, real height, real near, real far);	//!< Builds a 2d orthographic projection matrix suited to Right-Handed coordinate systems
+	/// Builds a rotation matrix about the X axis of @radians radians
+	void				build_rotation_x(real radians);
 
-	void				build_look_at_rh(const Vec3& pos, const Vec3& target, const Vec3& up);	//!< Builds a "Righ-Handed look-at" matrix from a position, a target, and an up vector
-	void				build_look_at_lh(const Vec3& pos, const Vec3& target, const Vec3& up);	//!< Builds a "Left-Handed look-at" matrix from a position, a target, and an up vector
-	void				build_viewpoint_billboard(const Vec3& pos, const Vec3& target, const Vec3& up);	//!< Builds a "Viewpoint-Oriented billboard" matrix which can be used to make an object face a specific point in space
-	void				build_axis_billboard(const Vec3& pos, const Vec3& target, const Vec3& axis);	//!< Builds a "Arbitrary-Axis billboard" matrix which can be used to make an object face a specific point in space
+	/// Builds a rotation matrix about the Y axis of "radians" radians	
+	void				build_rotation_y(real radians);	
 
-	Mat4&				transpose();								//!< Transposes the matrix
-	Mat4				get_transposed() const;						//!< Returns the transposed of the matrix
-	real				get_determinant() const;					//!< Returns the matrix's determinant
-	Mat4&				invert();									//!< Inverts the matrix
-	Mat4				get_inverted() const;						//!< Returns the inverse of the matrix
+	/// Builds a rotation matrix about the Z axis of @radians radians			
+	void				build_rotation_z(real radians);		
 
-	void				load_identity();							//!< Builds the identity matrix
+	/// Builds a rotation matrix about an arbitrary axis of "radians" radians		
+	void				build_rotation(const Vec3& n, real radians);
 
-	Vec3				get_translation() const;					//!< Returns a Vec3 containing the matrix's translation portion
-	void				set_translation(const Vec3& trans);			//!< Fills the matrix's translation portion values contained in "trans"
+	/// Builds a perspetive projection matrix suited to Right-Handed coordinate systems
+	void				build_projection_perspective_rh(real fovy, real aspect, real near, real far);
 
-	Vec3				get_scale() const;							//!< Returns a Vec3 containing the matrix's scale portion
-	void				set_scale(const Vec3& scale);				//!< Fills the matrix's scale portion with the values contained in "scale"
+	/// Builds a perspective projection matrix suited to Left-Handed coordinate systems	
+	void				build_projection_perspective_lh(real fovy, real aspect, real near, real far);
 
-	real*				to_float_ptr();								//!< Returns the pointer to the matrix's data
-	const real*			to_float_ptr() const;						//!< Returns the pointer to the matrix's data
-	Mat3				to_mat3() const;							//!< Returns a 3x3 matrix according to the matrix's rotation portion
-	Quat				to_quat() const;							//!< Returns a quaternion according to the matrix's rotation portion
+	/// Builds an orthographic projection matrix suited to Right-Handed coordinate systems	
+	void				build_projection_ortho_rh(real width, real height, real near, real far);
+
+	/// Builds an orthographic projection matrix suited to Left-Handed coordinate systems		
+	void				build_projection_ortho_lh(real width, real height, real near, real far);	
+
+	/// Builds a 2d orthographic projection matrix suited to Right-Handed coordinate systems	
+	void				build_projection_ortho_2d_rh(real width, real height, real near, real far);	
+
+	/// Builds a "Righ-Handed look-at" matrix from a position, a target, and an up vector
+	void				build_look_at_rh(const Vec3& pos, const Vec3& target, const Vec3& up);
+
+	/// Builds a "Left-Handed look-at" matrix from a position, a target, and an up vector	
+	void				build_look_at_lh(const Vec3& pos, const Vec3& target, const Vec3& up);
+
+	/// Builds a "Viewpoint-Oriented billboard" matrix which can be used to make an object face a specific point in space	
+	void				build_viewpoint_billboard(const Vec3& pos, const Vec3& target, const Vec3& up);	
+
+	/// Builds a "Arbitrary-Axis billboard" matrix which can be used to make an object face a specific point in space
+	void				build_axis_billboard(const Vec3& pos, const Vec3& target, const Vec3& axis);	
+
+	Mat4&				transpose();								
+	Mat4				get_transposed() const;						
+	real				get_determinant() const;					
+	Mat4&				invert();									
+	Mat4				get_inverted() const;						
+
+	/// Builds the identity matrix
+	void				load_identity();							
+
+	/// Returns a Vec3 containing the matrix's translation portion
+	Vec3				get_translation() const;	
+
+	/// Fills the matrix's translation portion values contained in @trans				
+	void				set_translation(const Vec3& trans);			
+
+	/// Returns a Vec3 containing the matrix's scale portion
+	Vec3				get_scale() const;
+
+	/// Fills the matrix's scale portion with the values contained in @scale							
+	void				set_scale(const Vec3& scale);				
+
+	/// Returns the pointer to the matrix's data
+	real*				to_float_ptr();
+
+	/// Returns the pointer to the matrix's data								
+	const real*			to_float_ptr() const;
+
+	/// Returns a 3x3 matrix according to the matrix's rotation portion						
+	Mat3				to_mat3() const;
+
+	/// Returns a quaternion according to the matrix's rotation portion							
+	Quat				to_quat() const;							
 
 	static const Mat4	IDENTITY;
 };

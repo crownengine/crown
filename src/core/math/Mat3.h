@@ -61,54 +61,81 @@ public:
 
 	real				m[9];
 
-						Mat3();										//!< Constructor, does nothing for efficency
-						//! Constructs from a set of real
+	/// Does nothing for efficiency.
+						Mat3();			
+
+	/// Constructs from a set of real
 						Mat3(real r1c1, real r2c1, real r3c1, real r1c2, real r2c2, real r3c2, real r1c3, real r2c3, real r3c3);
-						Mat3(const real v[9]);						//!< Constructs from the "v" array
-						Mat3(const Mat3& a);						//!< Copy constructor
-						~Mat3();									//!< Destructor
+	
+	/// Constructs from the @v array
+						Mat3(const real v[9]);						
+						Mat3(const Mat3& a);	
 
-	Mat3&				operator=(const Mat3& a);					//!< Assignment operator (copies the data)
+	/// Assignment operator (copies the data)
+	Mat3&				operator=(const Mat3& a);					
 
-	real				operator[](uint32_t i) const;					//!< Random access by index
-	real&				operator[](uint32_t i);							//!< Random access by index
+	/// Random access by index
+	real				operator[](uint32_t i) const;		
 
-	real				operator()(uint32_t row, uint32_t column) const;	//!< Random access by row/column pair
+	/// Random access by index			
+	real&				operator[](uint32_t i);							
 
-	Mat3				operator+(const Mat3& a) const;				//!< Addition
-	Mat3&				operator+=(const Mat3& a);					//!< Addition
-	Mat3				operator-(const Mat3& a) const;				//!< Subtraction
-	Mat3&				operator-=(const Mat3& a);					//!< Subtraction
-	Mat3				operator*(real k) const;					//!< Multiplication by scalar
-	Mat3&				operator*=(real k);							//!< Multiplication by scalar
-	Mat3				operator/(real k) const;					//!< Division by scalar
-	Mat3&				operator/=(real k);							//!< Division by scalar
-	Vec3				operator*(const Vec3& v) const;				//!< Multiplication by vector
-	Mat3				operator*(const Mat3& a) const;				//!< Multiplication
-	Mat3&				operator*=(const Mat3& a);					//!< Multiplication
+	/// Random access by row/column pair
+	real				operator()(uint32_t row, uint32_t column) const;	
 
-	friend Mat3			operator*(real k, const Mat3& a);			//!< For simmetry
+	Mat3				operator+(const Mat3& a) const;				
+	Mat3&				operator+=(const Mat3& a);					
+	Mat3				operator-(const Mat3& a) const;				
+	Mat3&				operator-=(const Mat3& a);					
+	Mat3				operator*(real k) const;					
+	Mat3&				operator*=(real k);						
+	Mat3				operator/(real k) const;					
+	Mat3&				operator/=(real k);							
+	Vec3				operator*(const Vec3& v) const;			
+	Mat3				operator*(const Mat3& a) const;				
+	Mat3&				operator*=(const Mat3& a);			
 
-	void				build_rotation_x(real radians);				//!< Builds a rotation matrix about the X axis of "radians" radians
-	void				build_rotation_y(real radians);				//!< Builds a rotation matrix about the Y axis of "radians" radians
-	void				build_rotation_z(real radians);				//!< Builds a rotation matrix about the Z axis of "radians" radians
-	void				build_rotation(const Vec3& n, real radians);//!< Builds a rotation matrix about an arbitrary axis of "radians" radians
+	/// For simmetry
+	friend Mat3			operator*(real k, const Mat3& a);			
 
-	Mat3&				transpose();								//!< Transposes the matrix
-	Mat3				get_transposed() const;						//!< Returns the transposed of the matrix
-	real				get_determinant() const;					//!< Returns the matrix's determinant
-	Mat3&				invert();									//!< Builds the inverse of the matrix
-	Mat3				get_inverted() const;						//!< Returns the inverse of the matrix
+	/// Builds a rotation matrix about the X axis of @radians radians
+	void				build_rotation_x(real radians);			
 
-	void				load_identity();							//!< Builds the identity matrix
+	/// Builds a rotation matrix about the Y axis of @radians radians	
+	void				build_rotation_y(real radians);	
 
-	Vec3				get_scale() const;							//!< Returns a Vec3 containing the matrix's scale portion
-	void				set_scale(const Vec3& scale);				//!< Fills the matrix's scale portion with the values contained in "scale"
+	/// Builds a rotation matrix about the Z axis of @radians radians			
+	void				build_rotation_z(real radians);	
 
-	real*				to_float_ptr();								//!< Returns the pointer to the matrix's data
-	const real*			to_float_ptr() const;						//!< Returns the pointer to the matrix's data
-	Mat4				to_mat4() const;							//!< Returns a 4x4 matrix according to the matrix's rotation portion
-	Quat				to_quat() const;							//!< Returns a quaternion according to the matrix's rotation portion
+	/// Builds a rotation matrix about an arbitrary axis of "radians" radians			
+	void				build_rotation(const Vec3& n, real radians);
+
+	Mat3&				transpose();								
+	Mat3				get_transposed() const;						
+	real				get_determinant() const;					
+	Mat3&				invert();									
+	Mat3				get_inverted() const;						
+
+	/// Builds the identity matrix
+	void				load_identity();							
+
+	/// Returns a Vec3 containing the matrix's scale portion
+	Vec3				get_scale() const;	
+
+	/// Fills the matrix's scale portion with the values contained in @scale				
+	void				set_scale(const Vec3& scale);				
+
+	/// Returns the pointer to the matrix's data
+	real*				to_float_ptr();				
+
+	/// Returns the pointer to the matrix's data				
+	const real*			to_float_ptr() const;
+
+	/// Returns a 4x4 matrix according to the matrix's rotation portion						
+	Mat4				to_mat4() const;
+
+	/// Returns a quaternion according to the matrix's rotation portion							
+	Quat				to_quat() const;							
 
 	static const Mat3	IDENTITY;
 };
