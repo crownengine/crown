@@ -28,11 +28,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Config.h"
 #include "OS.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
 
 class Filesystem;
+class ResourceManager;
+class ResourceArchive;
 class Renderer;
 class DebugRenderer;
 class InputManager;
@@ -58,6 +61,7 @@ public:
 	void					frame();
 
 	Filesystem*				filesystem();
+	ResourceManager*		resource_manager();
 	InputManager*			input_manager();
 	Renderer*				renderer();
 	DebugRenderer*			debug_renderer();
@@ -74,6 +78,7 @@ private:
 	int32_t					m_preferred_window_height;
 	int32_t					m_preferred_window_fullscreen;
 	int32_t					m_preferred_renderer;
+	int32_t					m_preferred_mode;
 
 	char					m_preferred_root_path[os::MAX_PATH_LENGTH];
 	char					m_preferred_user_path[os::MAX_PATH_LENGTH];
@@ -81,11 +86,16 @@ private:
 	bool					m_is_init		: 1;
 	bool					m_is_running	: 1;
 
-	// Subsystems
+	// Public subsystems
 	Filesystem*				m_filesystem;
+	ResourceManager*		m_resource_manager;
 	InputManager*			m_input_manager;
 	Renderer*				m_renderer;
 	DebugRenderer*			m_debug_renderer;
+
+	// Private subsystems
+	ResourceArchive*		m_resource_archive;
+	MallocAllocator			m_resource_allocator;
 
 	// The game currently running
 	Game*					m_game;
@@ -95,8 +105,14 @@ private:
 
 	enum
 	{
-		RENDERER_GL		= 0,
-		RENDERER_GLES	= 1
+		RENDERER_GL,
+		RENDERER_GLES
+	};
+
+	enum
+	{
+		MODE_RELEASE,
+		MODE_DEVELOPMENT
 	};
 
 	// Disable copying

@@ -36,6 +36,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Args.h"
 #include "Game.h"
 #include <cstdlib>
+#include "ArchiveResourceArchive.h"
+#include "FileResourceArchive.h"
+#include "ResourceManager.h"
 
 #ifdef CROWN_BUILD_OPENGL
 	#include "renderers/gl/GLRenderer.h"
@@ -56,14 +59,18 @@ Device::Device() :
 	m_preferred_window_height(625),
 	m_preferred_window_fullscreen(0),
 	m_preferred_renderer(RENDERER_GL),
+	m_preferred_mode(MODE_RELEASE),
 
 	m_is_init(false),
 	m_is_running(false),
 
 	m_filesystem(NULL),
+	m_resource_manager(NULL),
 	m_input_manager(NULL),
 	m_renderer(NULL),
 	m_debug_renderer(NULL),
+
+	m_resource_archive(NULL),
 
 	m_game(NULL),
 	m_game_library(NULL)
@@ -80,14 +87,14 @@ Device::~Device()
 //-----------------------------------------------------------------------------
 bool Device::init(int argc, char** argv)
 {
-	if (parse_command_line(argc, argv) == false)
-	{
-		return false;
-	}
-
 	if (is_init())
 	{
 		Log::E("Crown Engine is already initialized.");
+		return false;
+	}
+
+	if (parse_command_line(argc, argv) == false)
+	{
 		return false;
 	}
 
@@ -104,9 +111,23 @@ bool Device::init(int argc, char** argv)
 		m_filesystem = new Filesystem(m_preferred_root_path);
 	}
 
+	// Select appropriate resource archive
+	if (m_preferred_mode == MODE_DEVELOPMENT)
+	{
+		m_resource_archive = new FileResourceArchive(*m_filesystem);
+	}
+	else
+	{
+		m_resource_archive = new ArchiveResourceArchive(*m_filesystem);
+	}
 
+	// Create resource manager
+	m_resource_manager = new ResourceManager(*m_resource_archive, m_resource_allocator);
+
+	// Create input manager
 	m_input_manager = new InputManager();
 
+	// Select appropriate renderer
 	if (m_preferred_renderer == RENDERER_GL)
 	{
 		#ifdef CROWN_BUILD_OPENGL
@@ -126,6 +147,7 @@ bool Device::init(int argc, char** argv)
 		#endif
 	}
 
+	// Create debug renderer
 	m_debug_renderer = new DebugRenderer(*m_renderer);
 
 	Log::I("Crown Engine initialized.");
@@ -170,6 +192,8 @@ void Device::shutdown()
 	destroy_game(m_game);
 	m_game = NULL;
 
+	os::close_library(m_game_library);
+
 	if (m_input_manager)
 	{
 		delete m_input_manager;
@@ -186,6 +210,17 @@ void Device::shutdown()
 	if (m_debug_renderer)
 	{
 		delete m_debug_renderer;
+	}
+
+	Log::I("Releasing ResourceManager...");
+	if (m_resource_archive)
+	{
+		delete m_resource_archive;
+	}
+
+	if (m_resource_manager)
+	{
+		delete m_resource_manager;
 	}
 
 	Log::I("Releasing Filesystem...");
@@ -208,6 +243,12 @@ bool Device::is_init() const
 Filesystem* Device::filesystem()
 {
 	return m_filesystem;
+}
+
+//-----------------------------------------------------------------------------
+ResourceManager* Device::resource_manager()
+{
+	return m_resource_manager;
 }
 
 //-----------------------------------------------------------------------------
@@ -285,6 +326,7 @@ bool Device::parse_command_line(int argc, char** argv)
 		"fullscreen", AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1,
 		"gl",         AOA_NO_ARGUMENT,       &m_preferred_renderer, RENDERER_GL,
 		"gles",       AOA_NO_ARGUMENT,       &m_preferred_renderer, RENDERER_GLES,
+		"dev",        AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT,
 		NULL, 0, NULL, 0
 	};
 
@@ -393,6 +435,7 @@ void Device::print_help_message()
 	os::printf("  --fullscreen          Start in fullscreen.\n");
 	os::printf("  --gl                  Use OpenGL as rendering backend.\n");
 	os::printf("  --gles                Use OpenGL|ES as rendering backend.\n");  
+	os::printf("  --dev                 Run the engine in development mode\n");
 }
 
 Device g_device;
