@@ -36,8 +36,7 @@ class BinaryReader
 
 public:
 
-						BinaryReader(Stream* s);
-						~BinaryReader();
+						BinaryReader(Stream& s);
 
 	int8_t				read_byte();
 	int16_t				read_int16();
@@ -50,7 +49,7 @@ public:
 
 private:
 
-	Stream*				m_stream;
+	Stream&				m_stream;
 };
 
 } // namespace crown

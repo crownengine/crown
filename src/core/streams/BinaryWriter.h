@@ -36,8 +36,7 @@ class BinaryWriter
 
 public:
 
-						BinaryWriter(Stream* s);
-	virtual				~BinaryWriter();
+						BinaryWriter(Stream& s);
 
 	void				write_byte(int8_t);
 	void				write_int16(int16_t);
@@ -52,7 +51,7 @@ public:
 
 private:
 
-	Stream*				m_stream;
+	Stream&				m_stream;
 };
 
 } // namespace crown

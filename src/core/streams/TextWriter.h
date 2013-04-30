@@ -34,13 +34,12 @@ class TextWriter
 
 public:
 
-						TextWriter(Stream* s);
-	virtual				~TextWriter();
+						TextWriter(Stream& s);
 
 	/// Writes a single character to the stream.
 	void				write_char(char c);
 	
-	/// Writes the string point32_ted by string to the stream.
+	/// Writes the string pointed by string to the stream.
 	/// The function begins copying from the address specified (string)
 	/// until it reaches the terminating null character ('\0').
 	/// This final null character is not copied to the stream.
@@ -48,7 +47,7 @@ public:
 
 private:
 
-	Stream*				m_stream;
+	Stream&				m_stream;
 };
 
 } // namespace crown

@@ -36,8 +36,7 @@ class TextReader
 
 public:
 
-						TextReader(Stream* s);
-						~TextReader();
+						TextReader(Stream& s);
 
 	/// Read a single character from the stream
 	char				read_char();
@@ -54,7 +53,7 @@ public:
 
 private:
 
-	Stream*				m_stream;
+	Stream&				m_stream;
 };
 
 } // namespace crown

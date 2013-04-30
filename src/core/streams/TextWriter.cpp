@@ -30,18 +30,14 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-TextWriter::TextWriter(Stream* stream) : m_stream(stream)
+TextWriter::TextWriter(Stream& stream) : m_stream(stream)
 {
 }
 
 //-----------------------------------------------------------------------------
-TextWriter::~TextWriter()
-{
-}
-
 void TextWriter::write_char(char c)
 {
-	m_stream->write_byte(c);
+	m_stream.write_byte(c);
 }
 
 //-----------------------------------------------------------------------------
@@ -51,7 +47,7 @@ void TextWriter::write_string(const char* string)
 
 	while(string[count] != '\0')
 	{
-		m_stream->write_byte(string[count]);
+		m_stream.write_byte(string[count]);
 		count++;
 	}
 }
