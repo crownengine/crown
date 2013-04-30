@@ -70,11 +70,13 @@ class ResourceManager
 {
 public:
 
+	/// Read resources from @archive and store resource data using @allocator.
 							ResourceManager(ResourceArchive& archive, Allocator& allocator);
 							~ResourceManager();
 
 	/// Loads the resource by @name and returns its ResourceId.
-	/// Note that the resource data may be not immediately available,
+	/// @note
+	/// The resource data may be not immediately available,
 	/// the resource gets pushed in a queue of load requests and loadead as
 	/// soon as possible by the ResourceLoader.
 	/// You have to explicitly call is_loaded() method to check if the
@@ -91,7 +93,8 @@ public:
 
 	/// Returns whether the manager has the @name resource into
 	/// its list of resources.
-	/// Note that having a resource does not mean that the resource is
+	/// @note
+	/// Having a resource does not mean that the resource is
 	/// available for using; instead, you have to check is_loaded() to
 	/// obtain the resource availability status.
 	bool					has(ResourceId name) const;
