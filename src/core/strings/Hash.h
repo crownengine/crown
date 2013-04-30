@@ -27,6 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+
+/// String hashing.
 namespace hash
 {
 
@@ -42,18 +44,19 @@ uint32_t fnv1a_32(const void* key, size_t len);
 uint64_t fnv1a_64(const void* key, size_t len);
 
 //-----------------------------------------------------------------------------
-// MurmurHash2, by Austin Appleby
-//
-// Note - This code makes a few assumptions about how your machine behaves -
-//
-// 1. We can read a 4-byte value from any address without crashing
-// 2. sizeof(int) == 4
-//
-// And it has a few limitations -
-//
-// 1. It will not work incrementally.
-// 2. It will not produce the same results on little-endian and big-endian
-//    machines.
+/// MurmurHash2, by Austin Appleby
+///
+/// @note
+/// This code makes a few assumptions about how your machine behaves
+///
+/// 1. We can read a 4-byte value from any address without crashing
+/// 2. sizeof(int) == 4
+///
+/// And it has a few limitations -
+///
+/// 1. It will not work incrementally.
+/// 2. It will not produce the same results on little-endian and big-endian
+///    machines.
 inline uint32_t murmur2_32(const void* key, size_t len, uint32_t seed)
 {
 	assert(key != NULL);
@@ -103,7 +106,7 @@ inline uint32_t murmur2_32(const void* key, size_t len, uint32_t seed)
 }
 
 //-----------------------------------------------------------------------------
-// FNV-1a hash, 32 bit
+/// FNV-1a hash, 32 bit
 inline uint32_t fnv1a_32(const void* key, size_t len)
 {
 	assert(key != NULL);
@@ -123,7 +126,7 @@ inline uint32_t fnv1a_32(const void* key, size_t len)
 }
 
 //-----------------------------------------------------------------------------
-// FNV-1a hash, 64 bit
+/// FNV-1a hash, 64 bit
 inline uint64_t fnv1a_64(const void* key, size_t len)
 {
 	assert(key != NULL);

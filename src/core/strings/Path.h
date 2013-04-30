@@ -136,14 +136,6 @@ inline bool is_valid_path(const char* path)
 	return true;
 }
 
-/// Returns whether @path is absolute (i.e. starts with '/').
-inline bool is_absolute_path(const char* path)
-{
-	assert(path != NULL);
-
-	return path[0] == '/';
-}
-
 /// Returns the pathname of the path.
 /// @note
 /// e.g. "/home/project/texture.tga" -> "/home/project"
