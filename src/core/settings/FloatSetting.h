@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// Facility to store global float settings.
 class FloatSetting
 {
 public:

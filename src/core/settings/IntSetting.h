@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// Facility to store global integer settings.
 class IntSetting
 {
 public:
