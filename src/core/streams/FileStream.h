@@ -32,59 +32,64 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	File stream.
-	Read/write access to files on disk.
-*/
+
+/// File stream.
+/// Provides common facilities to access files on disk.
 class FileStream: public Stream
 {
 
 public:
 
-					/**
-						Constructor.
-					@param filename
-						The name of the file to access
-					@param openMode
-						The mode of access
-					*/
+	/// Opens @filename with specified @mode
 					FileStream(StreamOpenMode mode, const char* filename);
-					/**
-						Destructor
-					*/
 	virtual			~FileStream();
 
-					/** @copydoc Stream::seek() */
+	/// @copydoc Stream::seek() 
 	void			seek(size_t position);
-					/** @copydoc Stream::seek_to_end() */
+
+	/// @copydoc Stream::seek_to_end() 
 	void			seek_to_end();
-					/** @copydoc Stream::skip() */
+
+	/// @copydoc Stream::skip() 
 	void			skip(size_t bytes);
-					/** @copydoc Stream::ReadByte() */
+
+	/// @copydoc Stream::read_byte() 
 	uint8_t			read_byte();
-					/** @copydoc Stream::ReadDataBlock() */
+
+	/// @copydoc Stream::read() 
 	void			read(void* buffer, size_t size);
-					/** @copydoc Stream::WriteByte() */
+
+	/// @copydoc Stream::write_byte() 
 	void			write_byte(uint8_t val);
-					/** @copydoc Stream::WriteDataBlock() */
+
+	/// @copydoc Stream::write() 
 	void			write(const void* buffer, size_t size);
-					/** @copydoc Stream::CopyTo() */
+
+	/// @copydoc Stream::copy_to() 
 	bool			copy_to(Stream* stream, size_t size = 0);
-					/** @copydoc Stream::Flush() */
+
+	/// @copydoc Stream::flush() 
 	void			flush();
-					/** @copydoc Stream::EndOfStream() */
+
+	/// @copydoc Stream::end_of_stream() 
 	bool			end_of_stream() const;
-					/** @copydoc Stream::is_valid() */
+
+	/// @copydoc Stream::is_valid() 
 	bool			is_valid() const;
-					/** @copydoc Stream::GetSize() */
+
+	/// @copydoc Stream::size() 
 	size_t			size() const;
-					/** @copydoc Stream::GetPosition() */
+
+	/// @copydoc Stream::position() 
 	size_t			position() const;
-					/** @copydoc Stream::CanRead() */
+
+	/// @copydoc Stream::can_read() 
 	bool			can_read() const;
-					/** @copydoc Stream::CanWrite() */
+
+	/// @copydoc Stream::can_write() 
 	bool			can_write() const;
-					/** @copydoc Stream::CanSeek() */
+
+	/// @copydoc Stream::can_seek() 
 	bool			can_seek() const;
 
 protected:
@@ -92,10 +97,12 @@ protected:
 	File*			m_file;
 	bool			m_last_was_read;
 
+protected:
+
 	inline void		check_valid() const
-					{
-						assert(m_file != NULL);
-					}
+	{
+		assert(m_file != NULL);
+	}
 };
 
 } // namespace crown

@@ -37,13 +37,13 @@ public:
 						TextWriter(Stream* s);
 	virtual				~TextWriter();
 
+	/// Writes a single character to the stream.
 	void				write_char(char c);
-						/**
-							Writes the string point32_ted by string to the stream.
-							The function begins copying from the address specified (string)
-							until it reaches the terminating null character ('\0').
-							This final null character is not copied to the stream.
-						*/
+	
+	/// Writes the string point32_ted by string to the stream.
+	/// The function begins copying from the address specified (string)
+	/// until it reaches the terminating null character ('\0').
+	/// This final null character is not copied to the stream.
 	void				write_string(const char* string);
 
 private:

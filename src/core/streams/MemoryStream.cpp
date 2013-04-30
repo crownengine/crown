@@ -24,12 +24,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <stdlib.h>
-#include <stdio.h>
 #include "MemoryStream.h"
 #include "MathUtils.h"
 #include "Log.h"
 #include "Types.h"
 #include "Allocator.h"
+#include "OS.h"
 
 namespace crown
 {
@@ -46,10 +46,10 @@ MemoryBuffer::~MemoryBuffer()
 
 //-----------------------------------------------------------------------------
 DynamicMemoryBuffer::DynamicMemoryBuffer(Allocator& allocator, size_t initial_capacity) :
-	m_allocator(&allocator),
+	m_allocator(allocator),
 	m_buffer(NULL)
 {
-	m_buffer = (uint8_t*)m_allocator->allocate(initial_capacity);
+	m_buffer = (uint8_t*)m_allocator.allocate(initial_capacity);
 }
 
 //-----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ DynamicMemoryBuffer::~DynamicMemoryBuffer()
 {
 	if (m_buffer)
 	{
-		m_allocator->deallocate(m_buffer);
+		m_allocator.deallocate(m_buffer);
 	}
 }
 
@@ -120,7 +120,8 @@ void MemoryStream::seek(size_t position)
 	
 	m_memory_offset = position;
 
-	//Allow seek to m_memory->getSize() position, that means end of stream, reading not allowed but you can write if it's dynamic
+	// Allow seek to m_memory->size() position, that means end of stream,
+	// reading not allowed but you can write if it's dynamic
 	assert(m_memory_offset <= m_memory->size());
 }
 
@@ -215,7 +216,7 @@ void MemoryStream::dump()
 
 	for (size_t i = 0; i < m_memory->size(); i++)
 	{
-		printf("%3i ", buff[i]);
+		os::printf("%3i ", buff[i]);
 	}
 }
 
