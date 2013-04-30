@@ -89,7 +89,7 @@ bool Device::init(int argc, char** argv)
 {
 	if (is_init())
 	{
-		Log::E("Crown Engine is already initialized.");
+		Log::e("Crown Engine is already initialized.");
 		return false;
 	}
 
@@ -99,7 +99,7 @@ bool Device::init(int argc, char** argv)
 	}
 
 	// Initialize
-	Log::I("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
+	Log::i("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
 	// Select current dir if no root path provided
 	if (string::strcmp(m_preferred_root_path, string::EMPTY) == 0)
@@ -133,7 +133,7 @@ bool Device::init(int argc, char** argv)
 		#ifdef CROWN_BUILD_OPENGL
 		m_renderer = new GLRenderer;
 		#else
-		Log::E("Crown Engine was not built with OpenGL support.");
+		Log::e("Crown Engine was not built with OpenGL support.");
 		return false;
 		#endif
 	}
@@ -142,7 +142,7 @@ bool Device::init(int argc, char** argv)
 		#ifdef CROWN_BUILD_OPENGLES
 		m_renderer = new GLESRenderer;
 		#else
-		Log::E("Crown Engine was not built with OpenGL|ES support.");
+		Log::e("Crown Engine was not built with OpenGL|ES support.");
 		return false;
 		#endif
 	}
@@ -150,16 +150,16 @@ bool Device::init(int argc, char** argv)
 	// Create debug renderer
 	m_debug_renderer = new DebugRenderer(*m_renderer);
 
-	Log::I("Crown Engine initialized.");
+	Log::i("Crown Engine initialized.");
 
-	Log::I("Initializing Game...");
+	Log::i("Initializing Game...");
 
 	const char* game_library_path = m_filesystem->build_os_path(m_filesystem->root_path(), GAME_LIBRARY_NAME);
 	m_game_library = os::open_library(game_library_path);
 
 	if (m_game_library == NULL)
 	{
-		Log::E("Error while loading game library.");
+		Log::e("Error while loading game library.");
 		return false;
 	}
 
@@ -181,7 +181,7 @@ void Device::shutdown()
 {
 	if (is_init() == false)
 	{
-		Log::E("Crown Engine is not initialized.");	
+		Log::e("Crown Engine is not initialized.");	
 		return;
 	}
 
@@ -199,20 +199,20 @@ void Device::shutdown()
 		delete m_input_manager;
 	}
 
-	Log::I("Releasing Renderer...");
+	Log::i("Releasing Renderer...");
 
 	if (m_renderer)
 	{
 		delete m_renderer;
 	}
 
-	Log::I("Releasing DebugRenderer...");
+	Log::i("Releasing DebugRenderer...");
 	if (m_debug_renderer)
 	{
 		delete m_debug_renderer;
 	}
 
-	Log::I("Releasing ResourceManager...");
+	Log::i("Releasing ResourceManager...");
 	if (m_resource_archive)
 	{
 		delete m_resource_archive;
@@ -223,7 +223,7 @@ void Device::shutdown()
 		delete m_resource_manager;
 	}
 
-	Log::I("Releasing Filesystem...");
+	Log::i("Releasing Filesystem...");
 
 	if (m_filesystem)
 	{
@@ -274,7 +274,7 @@ void Device::start()
 {
 	if (is_init() == false)
 	{
-		Log::E("Cannot start uninitialized engine.");
+		Log::e("Cannot start uninitialized engine.");
 		return;
 	}
 
@@ -286,7 +286,7 @@ void Device::stop()
 {
 	if (is_init() == false)
 	{
-		Log::E("Cannot stop uninitialized engine.");
+		Log::e("Cannot stop uninitialized engine.");
 		return;
 	}
 

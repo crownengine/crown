@@ -151,7 +151,7 @@ uint8_t MemoryStream::read_byte()
 
 	if (m_memory_offset >= m_memory->size())
 	{
-		Log::E("Trying to read beyond the end of stream.");
+		Log::e("Trying to read beyond the end of stream.");
 	}
 
 	return m_memory->data()[m_memory_offset++];
@@ -166,7 +166,7 @@ void MemoryStream::read(void* buffer, size_t size)
 
 	if (m_memory_offset + size > m_memory->size())
 	{
-		Log::E("Trying to read beyond the end of stream.");
+		Log::e("Trying to read beyond the end of stream.");
 	}
 
 	for (size_t i = 0; i < size; i++)

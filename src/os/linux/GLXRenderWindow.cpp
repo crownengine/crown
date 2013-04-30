@@ -53,7 +53,7 @@ bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t heigh
 
 	if (display == NULL)
 	{
-		Log::E("Unable to open a display");
+		Log::e("Unable to open a display");
 		return false;
 	}
 
@@ -86,7 +86,7 @@ bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t heigh
 
 	if (!fbConfig)
 	{
-		Log::E("Unable to find a matching FrameBuffer configuration.");
+		Log::e("Unable to find a matching FrameBuffer configuration.");
 		return false;
 	}
 
@@ -94,7 +94,7 @@ bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t heigh
 
 	if (!visualInfo)
 	{
-		Log::E("Unable to find a matching Visual for the FrameBuffer configuration.");
+		Log::e("Unable to find a matching Visual for the FrameBuffer configuration.");
 		XFree(fbConfig);
 		return false;
 	}
@@ -120,7 +120,7 @@ bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t heigh
 
 	if (!window)
 	{
-		Log::E("Unable to create the X Window.");
+		Log::e("Unable to create the X Window.");
 		return false;
 	}
 

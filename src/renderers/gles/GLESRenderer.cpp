@@ -93,19 +93,19 @@ GLESRenderer::GLESRenderer() :
 	const unsigned char* gl_renderer = glGetString(GL_RENDERER);
 	const unsigned char* gl_version = glGetString(GL_VERSION);
 
-	Log::I("OpenGL|ES Vendor\t: %s", gl_vendor);
-	Log::I("OpenGL|ES Renderer\t: %s", gl_renderer);
-	Log::I("OpenGL|ES Version\t: %s", gl_version);
-	Log::I("Min Point Size\t: %f", m_min_max_point_size[0]);
-	Log::I("Max Point Size\t: %f", m_min_max_point_size[1]);
-	Log::I("Min Line Width\t: %f", m_min_max_line_width[0]);
-	Log::I("Max Line Width\t: %f", m_min_max_line_width[1]);
-	Log::I("Max Texture Size\t: %dx%d", m_max_texture_size, m_max_texture_size);
-	Log::I("Max Texture Units\t: %d", m_max_texture_units);
-	Log::I("Max Lights\t\t: %d", m_max_lights);
-	Log::I("Max Vertex Indices\t: %d", m_max_vertex_indices);
-	Log::I("Max Vertex Vertices\t: %d", m_max_vertex_vertices);
-	Log::I("Max Anisotropy\t: %f", m_max_anisotropy);
+	Log::i("OpenGL|ES Vendor\t: %s", gl_vendor);
+	Log::i("OpenGL|ES Renderer\t: %s", gl_renderer);
+	Log::i("OpenGL|ES Version\t: %s", gl_version);
+	Log::i("Min Point Size\t: %f", m_min_max_point_size[0]);
+	Log::i("Max Point Size\t: %f", m_min_max_point_size[1]);
+	Log::i("Min Line Width\t: %f", m_min_max_line_width[0]);
+	Log::i("Max Line Width\t: %f", m_min_max_line_width[1]);
+	Log::i("Max Texture Size\t: %dx%d", m_max_texture_size, m_max_texture_size);
+	Log::i("Max Texture Units\t: %d", m_max_texture_units);
+	Log::i("Max Lights\t\t: %d", m_max_lights);
+	Log::i("Max Vertex Indices\t: %d", m_max_vertex_indices);
+	Log::i("Max Vertex Vertices\t: %d", m_max_vertex_vertices);
+	Log::i("Max Anisotropy\t: %f", m_max_anisotropy);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -145,7 +145,7 @@ GLESRenderer::GLESRenderer() :
 	// Disable dithering
 	glDisable(GL_DITHER);
 
-	Log::I("OpenGLES Renderer initialized.");
+	Log::i("OpenGLES Renderer initialized.");
 }
 
 //-----------------------------------------------------------------------------
@@ -273,7 +273,7 @@ void GLESRenderer::set_backface_culling(bool culling)
 void GLESRenderer::set_separate_specular_color(bool /* separate */)
 {
 	/* No support for separate specular color, params will be ignored */
-	Log::W("Renderer does not support separate specular color");
+	Log::w("Renderer does not support separate specular color");
 }
 
 void GLESRenderer::set_depth_test(bool test)
@@ -416,7 +416,7 @@ void GLESRenderer::set_shading_type(ShadingType type)
 void GLESRenderer::set_polygon_mode(PolygonMode /* mode */)
 {
 	/* No support for polygon mode, params will be ignored */
-	Log::W("Renderer does not support PolygonMode");
+	Log::w("Renderer does not support PolygonMode");
 }
 
 //-----------------------------------------------------------------------------
@@ -796,22 +796,22 @@ void GLESRenderer::check_gl_errors()
 		switch (error)
 		{
 			case GL_INVALID_ENUM:
-				Log::E("GLESRenderer: GL_INVALID_ENUM");
+				Log::e("GLESRenderer: GL_INVALID_ENUM");
 				break;
 			case GL_INVALID_VALUE:
-				Log::E("GLESRenderer: GL_INVALID_VALUE");
+				Log::e("GLESRenderer: GL_INVALID_VALUE");
 				break;
 			case GL_INVALID_OPERATION:
-				Log::E("GLESRenderer: GL_INVALID_OPERATION");
+				Log::e("GLESRenderer: GL_INVALID_OPERATION");
 				break;
 			case GL_STACK_OVERFLOW:
-				Log::E("GLESRenderer: GL_STACK_OVERFLOW");
+				Log::e("GLESRenderer: GL_STACK_OVERFLOW");
 				break;
 			case GL_STACK_UNDERFLOW:
-				Log::E("GLESRenderer: GL_STACK_UNDERFLOW");
+				Log::e("GLESRenderer: GL_STACK_UNDERFLOW");
 				break;
 			case GL_OUT_OF_MEMORY:
-				Log::E("GLESRenderer: GL_OUT_OF_MEMORY");
+				Log::e("GLESRenderer: GL_OUT_OF_MEMORY");
 				break;
 		}
 	}

@@ -155,25 +155,25 @@ void Image::ApplyGreyscaleToAlpha(Image* greyscaleImage)
 {
 	if (mPixelFormat != PF_RGBA_8)
 	{
-		Log::E("Image::ApplyGreyscaleToAlpha: Can apply alpha only on RGBA8 pixel formats.");
+		Log::e("Image::ApplyGreyscaleToAlpha: Can apply alpha only on RGBA8 pixel formats.");
 		return;
 	}
 
 	if (greyscaleImage == NULL)
 	{
-		Log::E("Image::ApplyGreyscaleToAlpha: greyscaleImage is NULL.");
+		Log::e("Image::ApplyGreyscaleToAlpha: greyscaleImage is NULL.");
 		return;
 	}
 
 	if (greyscaleImage->mPixelFormat != PF_RGBA_8)
 	{
-		Log::E("Image::ApplyGreyscaleToAlpha: greyscaleImage must have pixel format RGBA8.");
+		Log::e("Image::ApplyGreyscaleToAlpha: greyscaleImage must have pixel format RGBA8.");
 		return;
 	}
 
 	if (mWidth != greyscaleImage->mWidth || mHeight != greyscaleImage->mHeight)
 	{
-		Log::E("Image::ApplyGreyscaleToAlpha: greyscaleImage must have the same dimensions of the image.");
+		Log::e("Image::ApplyGreyscaleToAlpha: greyscaleImage must have the same dimensions of the image.");
 		return;
 	}
 

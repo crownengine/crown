@@ -94,7 +94,7 @@ uint8_t FileStream::read_byte()
 	
 	if (m_file->read(&buffer, 1, 1) != 1)
 	{
-		Log::E("Could not read from file");
+		Log::e("Could not read from file");
 	}
 
 	return buffer;
@@ -113,7 +113,7 @@ void FileStream::read(void* buffer, size_t size)
 
 	if (m_file->read(buffer, size, 1) != 1)
 	{
-		Log::E("Could not read from file.");
+		Log::e("Could not read from file.");
 	}
 }
 
@@ -195,7 +195,7 @@ void FileStream::write_byte(uint8_t val)
 
 	if (m_file->write(&val, 1, 1) != 1)
 	{
-		Log::E("Could not write to file.");
+		Log::e("Could not write to file.");
 	}
 }
 
@@ -212,7 +212,7 @@ void FileStream::write(const void* buffer, size_t size)
 
 	if (m_file->write(buffer, size, 1) != 1)
 	{
-		Log::E("Could not write to file.");
+		Log::e("Could not write to file.");
 	}
 }
 

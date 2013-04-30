@@ -50,13 +50,13 @@ EGLRenderWindow::~EGLRenderWindow()
 {
 	if (mEGLDisplay != EGL_NO_DISPLAY)
 	{
-		Log::D("EGLRenderWindow::Destroy: Releasing context...");
+		Log::d("EGLRenderWindow::Destroy: Releasing context...");
 		if (mEGLContext != EGL_NO_CONTEXT)
 		{
 			eglMakeCurrent(mEGLDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 			eglDestroyContext(mEGLDisplay, mEGLContext);
 		}
-		Log::D("EGLRenderWindow::Destroy: Context released.");
+		Log::d("EGLRenderWindow::Destroy: Context released.");
 
 		if (mEGLWindow != EGL_NO_SURFACE)
 		{
@@ -64,7 +64,7 @@ EGLRenderWindow::~EGLRenderWindow()
 		}
 
 		mEGLWindow = EGL_NO_SURFACE;
-		Log::D("EGLRenderWindow::Destroy: Window Destroyed.");
+		Log::d("EGLRenderWindow::Destroy: Window Destroyed.");
 
 		eglTerminate(mEGLDisplay);
 	}
@@ -77,16 +77,16 @@ EGLRenderWindow::~EGLRenderWindow()
 
 bool EGLRenderWindow::Create(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t depth, bool /*fullscreen*/)
 {
-	Log::D("EGLRenderWindow::Create: Creating window...");
+	Log::d("EGLRenderWindow::Create: Creating window...");
 	if (!width || !height)
 	{
-		Log::E("Width and height must differ from 0.");
+		Log::e("Width and height must differ from 0.");
 		return false;
 	}
 
 	if (!mEGLDisplay)
 	{
-		Log::E("Unable to open a display");
+		Log::e("Unable to open a display");
 		return false;
 	}
 
@@ -102,7 +102,7 @@ bool EGLRenderWindow::Create(uint32_t x, uint32_t y, uint32_t width, uint32_t he
 
 	if (!mXWindow)
 	{
-		Log::E("Unable to create the X Window.");
+		Log::e("Unable to create the X Window.");
 		return false;
 	}
 
@@ -134,14 +134,14 @@ bool EGLRenderWindow::Create(uint32_t x, uint32_t y, uint32_t width, uint32_t he
 	EGLint     num_config;
 	if (!eglChooseConfig(mEGLDisplay, attribs, &ecfg, 1, &num_config))
 	{
-		Log::E("Unable to choose config.");
+		Log::e("Unable to choose config.");
 		return false;
 	}
 
 	mEGLWindow = eglCreateWindowSurface(mEGLDisplay, ecfg, mXWindow, NULL);
 	if (mEGLWindow == EGL_NO_SURFACE)
 	{
-		Log::E("Unable to create window surface.");
+		Log::e("Unable to create window surface.");
 		return false;
 	}
 
@@ -154,7 +154,7 @@ bool EGLRenderWindow::Create(uint32_t x, uint32_t y, uint32_t width, uint32_t he
 	mEGLContext = eglCreateContext(mEGLDisplay, ecfg, EGL_NO_CONTEXT, ctxattr);
 	if (mEGLContext == EGL_NO_CONTEXT)
 	{
-		Log::E("Unable to create context: " + Str(eglGetError()));
+		Log::e("Unable to create context: " + Str(eglGetError()));
 		return false;
 	}
 
@@ -171,7 +171,7 @@ bool EGLRenderWindow::Create(uint32_t x, uint32_t y, uint32_t width, uint32_t he
 
 	mCreated = true;
 
-	Log::D("EGLRenderWindow::Create: Window created.");
+	Log::d("EGLRenderWindow::Create: Window created.");
 
 	return true;
 }

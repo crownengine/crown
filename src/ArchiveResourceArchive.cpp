@@ -47,9 +47,9 @@ ArchiveResourceArchive::ArchiveResourceArchive(Filesystem& fs) :
 	// Read the header of the archive
 	m_archive_file->read(&header, sizeof(ArchiveHeader));
 	
-	Log::D("Version: %d", header.version);
-	Log::D("Entries: %d", header.entries_count);
-	Log::D("Checksum: %d", header.checksum);
+	Log::d("Version: %d", header.version);
+	Log::d("Entries: %d", header.entries_count);
+	Log::d("Checksum: %d", header.checksum);
 	
 	m_entries = new ArchiveEntry[header.entries_count];
 	m_entries_count = header.entries_count;

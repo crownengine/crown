@@ -39,7 +39,7 @@ Filesystem::Filesystem(const char* root_path)
 
 	string::strncpy(m_root_path, root_path, os::MAX_PATH_LENGTH);
 
-	Log::I("Root path : %s", m_root_path);
+	Log::i("Root path : %s", m_root_path);
 }
 
 //-----------------------------------------------------------------------------

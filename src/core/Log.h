@@ -33,9 +33,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	Enumerates log levels.
-*/
+
+/// Enumerates log levels.
 enum LogLevel
 {
 	LL_INFO		= 0,
@@ -44,28 +43,32 @@ enum LogLevel
 	LL_DEBUG	= 3
 };
 
+/// Used to log messages.
 class Log
 {
 
 public:
 
-	static LogLevel		GetThreshold();
-	static void			SetThreshold(LogLevel threshold);
+	/// Returns the threshold used to filter out log messages.
+	static LogLevel		threshold();
 
-	static void			LogMessage(LogLevel level, const char* message, ::va_list arg);
+	/// Sets the thresold used to filter out log messages
+	static void			set_threshold(LogLevel threshold);
 
-	static void			D(const char* message, ...);
-	static void			E(const char* message, ...);
-	static void			W(const char* message, ...);
-	static void			I(const char* message, ...);
+	static void			log_message(LogLevel level, const char* message, ::va_list arg);
 
-	static void			IndentIn();
-	static void			IndentOut();
+	static void			d(const char* message, ...);
+	static void			e(const char* message, ...);
+	static void			w(const char* message, ...);
+	static void			i(const char* message, ...);
+
+	static void			indent_in();
+	static void			indent_out();
 
 private:
 
-	static LogLevel		mThreshold;
-	static int32_t		mIndentCount;
+	static LogLevel		m_threshold;
+	static int32_t		m_indent_count;
 };
 
 } // namespace crown

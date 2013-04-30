@@ -5,7 +5,6 @@ set (SRC
 	Filesystem.cpp
 	Font.cpp
 	Image.cpp
-	Log.cpp
 	MaterialResource.cpp
 	MovableCamera.cpp
 	Pixel.cpp
@@ -34,7 +33,6 @@ set (HEADERS
 	Font.h
 	Glyph.h
 	Image.h
-	Log.h
 	MaterialResource.h
 	MovableCamera.h
 	Pixel.h
@@ -55,11 +53,13 @@ set (HEADERS
 )
 
 set (CORE_SRC
+	core/Log.cpp
 )
 
 set (CORE_HEADERS
 	core/Types.h
 	core/Args.h
+	core/Log.h
 )
 
 set (BV_SRC

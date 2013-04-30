@@ -76,7 +76,7 @@ void Terrain::CreateTerrain(uint32_t xSize, uint32_t zSize, uint32_t tilePerMete
 	mVerticesInSizeX = mTilesInSizeX + 1;
 	mVerticesInSizeZ = mTilesInSizeZ + 1;
 
-	Log::D("Vertices in size x/z: %d %d\n", mVerticesInSizeX, mVerticesInSizeZ);
+	Log::d("Vertices in size x/z: %d %d\n", mVerticesInSizeX, mVerticesInSizeZ);
 
 	uint32_t heightsCount = mVerticesInSizeX * mVerticesInSizeZ;
 
