@@ -73,7 +73,6 @@ public:
 	/// Contructs from the @v array
 						Mat4(const real v[16]);						
 						Mat4(const Mat4& a);					
-						~Mat4();				
 
 	/// Assignment operator (copies the data)
 	Mat4&				operator=(const Mat4& a);					

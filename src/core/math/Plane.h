@@ -45,15 +45,21 @@ public:
 
 public:
 
-						Plane();									//!< Constructor, does nothing for efficiency
-						Plane(const Plane& p);						//!< Copy constructor
-						Plane(const Vec3& normal, real dist);		//!< Constructs from a normal and distance factor
-						~Plane();									//!< Destructor
+	/// Does nothing for efficiency.
+						Plane();						
+						Plane(const Plane& p);
 
-	Plane&				normalize();								//!< Normalizes the plane
+	/// Constructs from a normal and distance factor						
+						Plane(const Vec3& normal, real dist);		
 
-	real				distance_to_point(const Vec3& p) const;		//!< Returns the signed distance between point @p and the plane
-	bool				contains_point(const Vec3& p) const;		//!< Returns whether the plane contains the point
+	/// Normalizes the plane
+	Plane&				normalize();							
+
+	/// Returns the signed distance between point @p and the plane
+	real				distance_to_point(const Vec3& p) const;	
+
+	/// Returns whether the plane contains the point @p	
+	bool				contains_point(const Vec3& p) const;		
 
 	static const Plane	ZERO;
 	static const Plane	XAXIS;

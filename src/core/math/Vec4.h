@@ -39,48 +39,84 @@ public:
 
 	real				x, y, z, w;
 
-						Vec4();										//!< Constructor, does nothing for efficiency
-						Vec4(real val);								//!< Initializes all the components to val
-						Vec4(real nx, real ny, real nz, real nw);	//!< Constructs from four components
-						Vec4(const real v[4]);						//!< Constructs from array
-						Vec4(const Vec4& a);						//!< Copy constructor
-						~Vec4();									//!< Destructor
+	/// Does nothing for efficiency.
+						Vec4();	
 
-	real				operator[](uint32_t i) const;				//!< Random access by index
-	real&				operator[](uint32_t i);						//!< Random access by index
+	/// Initializes all the components to val						
+						Vec4(real val);
 
-	Vec4				operator+(const Vec4& a) const;				//!< Addition
-	Vec4&				operator+=(const Vec4& a);					//!< Addition
-	Vec4 				operator-(const Vec4& a) const;				//!< Subtraction
-	Vec4&				operator-=(const Vec4& a);					//!< Subtraction
-	Vec4				operator*(real k) const;					//!< Multiplication by scalar
-	Vec4&				operator*=(real k);							//!< Multiplication by scalar
-	Vec4				operator/(real k) const;					//!< Division by scalar
-	Vec4&				operator/=(real k);							//!< Division by scalar
-	real				dot(const Vec4& a) const;					//!< Dot product
+	/// Constructs from four components								
+						Vec4(real nx, real ny, real nz, real nw);
 
-	friend Vec4			operator*(real k, const Vec4& a);			//!< For simmetry
+	/// Constructs from array	
+						Vec4(const real v[4]);						
+						Vec4(const Vec4& a);
 
-	bool				operator==(const Vec4& other) const;		//!< Equality operator
-	bool				operator!=(const Vec4& other) const;		//!< Disequality operator
-	bool				operator<(const Vec4& other) const;			//!< Returns whether all the components of this vector are smaller than all of the "other" vector
-	bool				operator>(const Vec4& other) const;			//!< Returns whether all the components of this vector are greater than all of the "other" vector
+	/// Random access by index
+	real				operator[](uint32_t i) const;	
 
-	real				length() const;								//!< Returns the vector's length
-	real				squared_length() const;						//!< Returns the vector's squared length
-	void				set_length(real len);						//!< Sets the vector's length
-	Vec4&				normalize();								//!< Normalizes the vector
-	Vec4				get_normalized() const;						//!< Returns the normalized vector
-	Vec4&				negate();									//!< Negates the vector (i.e. builds the inverse)
-	Vec4				operator-() const;							//!< Negates the vector (i.e. builds the inverse)
+	/// Random access by index
+	real&				operator[](uint32_t i);						
 
-	real				get_distance_to(const Vec4& a) const;		//!< Returns the distance
-	real				get_angle_between(const Vec4& a) const;		//!< Returns the angle in radians
+	Vec4				operator+(const Vec4& a) const;				
+	Vec4&				operator+=(const Vec4& a);					
+	Vec4 				operator-(const Vec4& a) const;				
+	Vec4&				operator-=(const Vec4& a);					
+	Vec4				operator*(real k) const;					
+	Vec4&				operator*=(real k);							
+	Vec4				operator/(real k) const;					
+	Vec4&				operator/=(real k);
 
-	void				zero();										//!< Builds the zero vector
+	/// Dot product							
+	real				dot(const Vec4& a) const;					
 
-	real*				to_float_ptr();								//!< Returns the point32_ter to the vector's data
-	const real*			to_float_ptr() const;						//!< Returns the point32_ter to the vector's data
+	/// For simmetry
+	friend Vec4			operator*(real k, const Vec4& a);			
+
+	bool				operator==(const Vec4& other) const;		
+	bool				operator!=(const Vec4& other) const;
+
+	/// Returns whether all the components of this vector are smaller than all of the @other vector	
+	bool				operator<(const Vec4& other) const;	
+
+	/// Returns whether all the components of this vector are greater than all of the @other vector		
+	bool				operator>(const Vec4& other) const;			
+
+	/// Returns the vector's length
+	real				length() const;	
+
+	/// Returns the vector's squared length							
+	real				squared_length() const;
+
+	/// Sets the vector's length						
+	void				set_length(real len);
+
+	/// Normalizes the vector						
+	Vec4&				normalize();
+
+	/// Returns the normalized vector								
+	Vec4				get_normalized() const;
+
+	/// Negates the vector (i.e. builds the inverse)						
+	Vec4&				negate();	
+
+	/// Negates the vector (i.e. builds the inverse)								
+	Vec4				operator-() const;							
+
+	/// Returns the distance
+	real				get_distance_to(const Vec4& a) const;
+
+	/// Returns the angle in radians		
+	real				get_angle_between(const Vec4& a) const;		
+
+	/// Sets all components to zero
+	void				zero();										
+
+	/// Returns the pointer to the vector's data
+	real*				to_float_ptr();	
+
+	/// Returns the pointer to the vector's data							
+	const real*			to_float_ptr() const;						
 
 	static const Vec4	ZERO;
 	static const Vec4	ONE;
@@ -112,11 +148,6 @@ inline Vec4::Vec4(const real a[4]) : x(a[0]), y(a[1]), z(a[2]), w(a[3])
 
 //-----------------------------------------------------------------------------
 inline Vec4::Vec4(const Vec4& a) : x(a.x), y(a.y), z(a.z), w(a.w)
-{
-}
-
-//-----------------------------------------------------------------------------
-inline Vec4::~Vec4()
 {
 }
 

@@ -54,22 +54,37 @@ public:
 
 public:
 
-				Quat();								//!< Constructor
-				Quat(real angle, const Vec3& v);	//!< Builds the quaternion from an angle and a vector
-				~Quat();							//!< Destructor
+				Quat();
 
-	void		negate();							//!< Negates the quaternion
-	void		load_identity();					//!< Builds the identity quaternion
-	real		length() const;						//!< Returns the quaternion's length
-	void		conjugate();						//!< Conjugates the quaternion
-	Quat		get_conjugate() const;				//!< Returns the quaternion's conjugate
-	Quat		get_inverse() const;				//!< Quaternion's inverse
+	/// Builds the quaternion from an angle and a vector								
+				Quat(real angle, const Vec3& v);	
+
+	/// Negates the quaternion
+	void		negate();
+
+	/// Builds the identity quaternion							
+	void		load_identity();
+
+	/// Returns the quaternion's length					
+	real		length() const;		
+
+	/// Conjugates the quaternion				
+	void		conjugate();
+
+	/// Returns the quaternion's conjugate						
+	Quat		get_conjugate() const;
+
+	/// Quaternion's inverse				
+	Quat		get_inverse() const;				
 
 	Mat3		to_mat3() const;
 	Mat4		to_mat4() const;
 
-	Quat		operator*(const Quat& b) const;		//!< Cross product
-	Quat		operator*(const real& k) const;		//!< Multiplication by a scalar
+	/// Cross product
+	Quat		operator*(const Quat& b) const;
+
+	/// Multiplication by a scalar		
+	Quat		operator*(const real& k) const;		
 
 	Quat		power(real exp);
 };

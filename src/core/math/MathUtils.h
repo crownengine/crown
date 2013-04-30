@@ -60,36 +60,79 @@ const double	DOUBLE_PRECISION			= (real)1.0e-9;
 bool			equals(float a, float b, float precision = FLOAT_PRECISION);
 bool			equals(double a, double b, double precision = DOUBLE_PRECISION);
 
-bool			test_bitmask(int32_t value, int32_t bitmask);	//!< Tests agains a specified bitmask and returns true only if all bits are satisfied
-int32_t			set_bitmask(int32_t value, int32_t bitmask);	//!< Sets the specified bitmask
-int32_t			unset_bitmask(int32_t value, int32_t bitmask);	//!< Removes the specified bitmask
+/// Tests agains the specified @bitmask and returns true only if all bits are satisfied
+bool			test_bitmask(int32_t value, int32_t bitmask);
 
+/// Sets the specified @bitmask	
+int32_t			set_bitmask(int32_t value, int32_t bitmask);
 
-template <typename T> T		min(const T& a, const T& b);	//!< Returns minimum between two values
-template <typename T> T		max(const T& a, const T& b);	//!< Returns maximum between two values
-template <typename T> T		avg(const T& a, const T& b);	//!< Returns the arithmetic mean of a and b
-template <typename T> T		clamp_to_range(const T& min, const T& max, const T& value);	//!< Clamps a value to a specific range (min < max)
-template <typename T> void	swap(T& a, T& b);				//!< Swaps @a and @b
+/// Removes the specified @bitmask	
+int32_t			unset_bitmask(int32_t value, int32_t bitmask);	
 
-real			deg_to_rad(real deg);			//!< Returns "deg" in radians
-real			rad_to_deg(real rad);			//!< Returns "rad" in degrees
-uint32_t		next_pow_2(uint32_t x);			//!< Returns the nearest power of two to @x
-bool			is_pow_2(uint32_t x);			//!< Returns whether @x is power of two
-real			ceil(real x);					//!< Returns the smallest int32_tegral value that is not less than x
-real			floor(real x);					//!< Returns the largest int32_tegral value that is not greater than x
-real			sqrt(real x);					//!< Returns the square root of @x
-real			inv_sqrt(real x);				//!< Returns the inverse square root of @x
-real			sin(real x);					//!< Returns the sine of @x
-real			cos(real x);					//!< Returns the cosine of @x
-real			asin(real x);					//!< Returns the arc sine of @x
-real			acos(real x);					//!< Returns the arc cosine of @x
-real			tan(real x);					//!< Returns the tangent of @x
-real			atan2(real y, real x);			//!< Returns the arc tangent of @y/@x
-real			abs(real x);					//!< Returns the absolute value of @x
-real			fmod(real n, real d);			//!< Returns the realing-point remainder of numerator/denominator
+/// Returns minimum between @a and @b
+template <typename T> T		min(const T& a, const T& b);
 
+/// Returns maximum between @a and @b
+template <typename T> T		max(const T& a, const T& b);
 
-				//! Returns true if there are solutions and puts them in 'x1' and 'x2' (x1 <= x2)
+/// Returns the arithmetic mean of @a and @b	
+template <typename T> T		avg(const T& a, const T& b);
+
+/// Clamps a value to a specific range (min < max)	
+template <typename T> T		clamp_to_range(const T& min, const T& max, const T& value);	
+
+/// Swaps @a and @b
+template <typename T> void	swap(T& a, T& b);				
+
+/// Returns @deg in radians
+real			deg_to_rad(real deg);
+
+/// Returns @rad in degrees
+real			rad_to_deg(real rad);
+
+/// Returns the nearest power of two to @x
+uint32_t		next_pow_2(uint32_t x);
+
+/// Returns whether @x is a power of two			
+bool			is_pow_2(uint32_t x);	
+
+/// Returns the smallest integral value that is not less than @x
+real			ceil(real x);		
+
+/// Returns the largest integral value that is not greater than @x			
+real			floor(real x);	
+
+/// Returns the square root of @x				
+real			sqrt(real x);	
+
+/// Returns the inverse square root of @x				
+real			inv_sqrt(real x);
+
+/// Returns the sine of @x				
+real			sin(real x);	
+
+/// Returns the cosine of @x				
+real			cos(real x);
+
+/// Returns the arc sine of @x					
+real			asin(real x);	
+
+/// Returns the arc cosine of @x				
+real			acos(real x);	
+
+/// Returns the tangent of @x				
+real			tan(real x);		
+
+/// Returns the arc tangent of @y/@x			
+real			atan2(real y, real x);	
+
+/// Returns the absolute value of @x		
+real			abs(real x);			
+
+/// Returns the realing-point remainder of numerator/denominator		
+real			fmod(real n, real d);			
+
+/// Returns true if there are solutions and puts them in 'x1' and 'x2' (x1 <= x2)
 bool			solve_quadratic_equation(real a, real b, real c, real& x1, real& x2);
 
 //-----------------------------------------------------------------------------
