@@ -83,7 +83,11 @@ public:
 
 private:
 
-	
+	void					create_filesystem();
+	void					create_resource_manager();
+	void					create_input_manager();
+	void					create_renderer();
+	void					create_debug_renderer();
 
 	bool					parse_command_line(int argc, char** argv);
 	void					print_help_message();
