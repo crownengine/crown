@@ -32,12 +32,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	3D Plane.
-
-	The form is ax + by + cz + d = 0
-	where: d = -n.Dot(p)
-*/
+/// 3D Plane.
+/// 
+/// The form is ax + by + cz + d = 0
+/// where: d = -n.Dot(p)
 class Plane
 {
 public:
@@ -45,15 +43,23 @@ public:
 	Vec3				n;
 	real				d;
 
-						Plane();									//!< Constructor, does nothing for efficiency
-						Plane(const Plane& p);						//!< Copy constructor
-						Plane(const Vec3& normal, real dist);		//!< Constructs from a normal and distance factor
-						~Plane();									//!< Destructor
+public:
 
-	Plane&				normalize();								//!< Normalizes the plane
+	/// Does nothing for efficiency.
+						Plane();						
+						Plane(const Plane& p);
 
-	real				get_distance_to_point32_t(const Vec3& p) const;	//!< Returns the signed distance between point32_t "p" and the plane
-	bool				contains_point32_t(const Vec3& p) const;		//!< Returns whether the plane contains the point32_t
+	/// Constructs from a normal and distance factor						
+						Plane(const Vec3& normal, real dist);		
+
+	/// Normalizes the plane
+	Plane&				normalize();							
+
+	/// Returns the signed distance between point @p and the plane
+	real				distance_to_point(const Vec3& p) const;	
+
+	/// Returns whether the plane contains the point @p	
+	bool				contains_point(const Vec3& p) const;		
 
 	static const Plane	ZERO;
 	static const Plane	XAXIS;

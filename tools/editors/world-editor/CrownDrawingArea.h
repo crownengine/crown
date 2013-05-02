@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -25,47 +26,41 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cstdio>
-#include <cstdarg>
-#include "Types.h"
-#include "String.h"
+#include <gtkmm/drawingarea.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <GL/glx.h>
+
+#include "Device.h"
 
 namespace crown
 {
 
-/**
-	Enumerates log levels.
-*/
-enum LogLevel
+// Custom widget to draw with OpenGL
+class CrownDrawingArea : public Gtk::DrawingArea
 {
-	LL_INFO		= 0,
-	LL_WARN		= 1,
-	LL_ERROR	= 2,
-	LL_DEBUG	= 3
-};
-
-class Log
-{
-
 public:
 
-	static LogLevel		GetThreshold();
-	static void			SetThreshold(LogLevel threshold);
+				CrownDrawingArea(Device* engine);
+	virtual		~CrownDrawingArea();
 
-	static void			LogMessage(LogLevel level, const char* message, ::va_list arg);
+	void		on_realize();
+	bool		on_draw(const ::Cairo::RefPtr< ::Cairo::Context >& cr);
 
-	static void			D(const char* message, ...);
-	static void			E(const char* message, ...);
-	static void			W(const char* message, ...);
-	static void			I(const char* message, ...);
+	bool		on_idle();
 
-	static void			IndentIn();
-	static void			IndentOut();
+protected:
+
+	Display*	m_display;
+	GLXContext	m_context;
+
+	Device*		m_engine;
 
 private:
 
-	static LogLevel		mThreshold;
-	static int32_t		mIndentCount;
+	bool		make_current();
+	void		swap_buffers();
 };
 
 } // namespace crown

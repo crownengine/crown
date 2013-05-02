@@ -1,6 +1,7 @@
 #include "Crown.h"
 #include "Terrain.h"
 #include "FPSSystem.h"
+#include "Game.h"
 
 using namespace crown;
 
@@ -10,19 +11,17 @@ public:
 
 	WndCtrl()
 	{
-		get_input_manager()->register_keyboard_listener(this);
+		device()->input_manager()->register_keyboard_listener(this);
 	}
 
-	void KeyReleased(const KeyboardEvent& event)
+	void key_released(const KeyboardEvent& event)
 	{
 		if (event.key == KC_ESCAPE)
 		{
-			GetDevice()->stop();
+			device()->stop();
 		}
 	}
 };
-
-void DrawCircle(const Vec3& pos, float radius);
 
 class MainScene: public KeyboardListener, public MouseListener
 {
@@ -34,8 +33,8 @@ public:
 		optShowCrate(true),
 		optShowTerrain(true)
 	{
-		get_input_manager()->register_keyboard_listener(this);
-		get_input_manager()->register_mouse_listener(this);
+		device()->input_manager()->register_keyboard_listener(this);
+		device()->input_manager()->register_mouse_listener(this);
 		mouseRightPressed = false;
 		mouseLeftPressed = false;
 	}
@@ -121,9 +120,9 @@ public:
 		wheel -= event.wheel * 0.25;
 	}
 		
-	void OnLoad()
+	void on_load()
 	{
-		crown::Renderer* renderer = crown::GetDevice()->renderer();
+		crown::Renderer* renderer = crown::device()->renderer();
 
 		renderer->set_clear_color(Color4::LIGHTBLUE);
 		
@@ -165,9 +164,9 @@ public:
 		terrain.UpdateVertexBuffer(true);
 	}
 
-	void RenderScene()
+	void render()
 	{
-		Renderer* renderer = GetDevice()->renderer();
+		Renderer* renderer = device()->renderer();
 		
 		system->set_view_by_cursor();
 		system->camera_render();
@@ -182,8 +181,8 @@ public:
 
 		if (cam->IsActive())
 		{
-			ray.origin = cam->GetPosition();
-			ray.direction = cam->GetLookAt();
+			ray.set_origin(cam->GetPosition());
+			ray.set_direction(cam->GetLookAt());
 		}
 
 		/* Render the terrain */
@@ -213,7 +212,7 @@ public:
 		if (terrain.TraceRay(ray, tri, tri2, dist))
 		{
 			renderer->set_depth_test(false);
-			Vec3 intersectionPoint = ray.origin + (ray.direction * dist);
+			Vec3 intersectionPoint = ray.origin() + (ray.direction() * dist);
 			if (mouseLeftPressed)
 			{
 				terrain.ApplyBrush(intersectionPoint, 0.09f);
@@ -248,40 +247,37 @@ private:
 	Ray ray;
 };
 
-int main(int argc, char** argv)
+class TerrainGame : public Game
 {
-	os::init_os();
-	os::create_render_window(0, 0, 1000, 625, false);
-	os::init_input();
+public:
 
-	Device* engine = GetDevice();
-
-	if (!engine->init(argc, argv))
+	void init()
 	{
-		return 0;
+		m_scene.on_load();
 	}
 
-	WndCtrl ctrl;
-	MainScene mainScene;
-	mainScene.OnLoad();
-
-	while (engine->is_running())
+	void shutdown()
 	{
-		os::event_loop();
-
-		get_input_manager()->event_loop();
-
-		engine->renderer()->begin_frame();
-			mainScene.RenderScene();
-		engine->renderer()->end_frame();
-
-		os::swap_buffers();
 	}
 
-	engine->shutdown();
+	void update()
+	{
+		m_scene.render();
+	}
 
-	os::destroy_render_window();
+private:
 
-	return 0;
+	MainScene m_scene;
+	WndCtrl m_ctrl;
+};
+
+extern "C" Game* create_game()
+{
+	return new TerrainGame;
+}
+
+extern "C" void destroy_game(Game* game)
+{
+	delete game;
 }
 

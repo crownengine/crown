@@ -50,10 +50,10 @@ class MaterialResource
 {
 public:
 
-	static MaterialResource*	load(Allocator& allocator, ResourceArchive* archive, ResourceId id);
-	static void					online(MaterialResource* texture);
-	static void					unload(Allocator& allocator, MaterialResource* texture);
-	static void					offline();
+	static void*	load(Allocator& allocator, ResourceArchive& archive, ResourceId id);
+	static void		online(void* resource);
+	static void		unload(Allocator& allocator, void* texture);
+	static void		offline();
 
 private:
 

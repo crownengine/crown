@@ -25,22 +25,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Rect.h"
 #include "Circle.h"
+#include "MathUtils.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-bool Rect::contains_point32_t(const Vec2& point32_t) const
+bool Rect::contains_point(const Vec2& point) const
 {
-	return (point32_t.x >= min.x && point32_t.y >= min.y &&
-			point32_t.x <= max.x && point32_t.y <= max.y);
+	return (point.x >= m_min.x && point.y >= m_min.y &&
+			point.x <= m_max.x && point.y <= m_max.y);
 }
 
 //-----------------------------------------------------------------------------
-bool Rect::int32_tersects_rect(const Rect& Rect) const
+bool Rect::intersects_rect(const Rect& rect) const
 {
-	//return (contains_point32_t(Rect.min) || contains_point32_t(Rect.max));
-	if (Rect.min.x > max.x || Rect.max.x < min.x || Rect.min.y > max.y || Rect.max.y < min.y)
+	if (rect.m_min.x > m_max.x || rect.m_max.x < m_min.x || rect.m_min.y > m_max.y || rect.m_max.y < m_min.y)
 		return false;
 	return true;
 }
@@ -48,95 +48,91 @@ bool Rect::int32_tersects_rect(const Rect& Rect) const
 //-----------------------------------------------------------------------------
 void Rect::set_from_center_and_dimensions(Vec2 center, real width, real height)
 {
-	min.x = (real)(center.x - width  / 2.0);
-	min.y = (real)(center.y - height / 2.0);
-	max.x = (real)(center.x + width  / 2.0);
-	max.y = (real)(center.y + height / 2.0);
+	m_min.x = (real)(center.x - width  / 2.0);
+	m_min.y = (real)(center.y - height / 2.0);
+	m_max.x = (real)(center.x + width  / 2.0);
+	m_max.y = (real)(center.y + height / 2.0);
 }
 
 //-----------------------------------------------------------------------------
-void Rect::get_vertices(Vec2 v[4]) const
+void Rect::vertices(Vec2 v[4]) const
 {
 	// 3 ---- 2
 	// |      |
 	// |      |
 	// 0 ---- 1
-	v[0].x = min.x;
-	v[0].y = min.y;
-	v[1].x = max.x;
-	v[1].y = min.y;
-	v[2].x = max.x;
-	v[2].y = max.y;
-	v[3].x = min.x;
-	v[3].y = max.y;
+	v[0].x = m_min.x;
+	v[0].y = m_min.y;
+	v[1].x = m_max.x;
+	v[1].y = m_min.y;
+	v[2].x = m_max.x;
+	v[2].y = m_max.y;
+	v[3].x = m_min.x;
+	v[3].y = m_max.y;
 }
 
 //-----------------------------------------------------------------------------
-Vec2 Rect::get_vertex(uint32_t index) const
+Vec2 Rect::vertex(uint32_t index) const
 {
 	assert(index < 4);
 
 	switch (index)
 	{
 		case 0:
-			return Vec2(min.x, min.y);
+			return Vec2(m_min.x, m_min.y);
 		case 1:
-			return Vec2(max.x, min.y);
+			return Vec2(m_max.x, m_min.y);
 		case 2:
-			return Vec2(max.x, max.y);
+			return Vec2(m_max.x, m_max.y);
 		case 3:
-			return Vec2(min.x, max.y);
+			return Vec2(m_min.x, m_max.y);
 	}
 
 	return Vec2::ZERO;
 }
 
 //-----------------------------------------------------------------------------
-Vec2 Rect::get_center() const
+Vec2 Rect::center() const
 {
-	return (min + max) * 0.5;
+	return (m_min + m_max) * 0.5;
 }
 
 //-----------------------------------------------------------------------------
-real Rect::get_radius() const
+real Rect::radius() const
 {
-	return (max - (min + max) * 0.5).length();
+	return (m_max - (m_min + m_max) * 0.5).length();
 }
 
 //-----------------------------------------------------------------------------
-real Rect::get_area() const
+real Rect::area() const
 {
-	return (max.x - min.x) * (max.y - min.y);
+	return (m_max.x - m_min.x) * (m_max.y - m_min.y);
 }
 
 //-----------------------------------------------------------------------------
-Vec2 Rect::get_size() const
+Vec2 Rect::size() const
 {
-	return (max - min);
+	return (m_max - m_min);
 }
 
 //-----------------------------------------------------------------------------
 void Rect::fix()
 {
-	if (min.x > max.x)
+	if (m_min.x > m_max.x)
 	{
-		real tmp = min.x;
-		min.x = max.x;
-		max.x = tmp;
+		math::swap(m_min.x, m_max.x);
 	}
 
-	if (min.y > max.y)
+	if (m_min.y > m_max.y)
 	{
-		real tmp = min.y;
-		min.y = max.y;
-		max.y = tmp;
+		math::swap(m_min.y, m_max.y);
 	}
 }
 
 //-----------------------------------------------------------------------------
 Circle Rect::to_circle() const
 {
-	return Circle(get_center(), get_radius());
+	return Circle(center(), radius());
 }
 
 } // namespace crown

@@ -32,57 +32,93 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//!< 2D column vector
+/// 2D column vector.
 class Vec2
 {
 public:
 
 	real				x, y;
 
-						Vec2();									//!< Constructor, does nothing for efficiency
-						Vec2(real val);							//!< Initializes all the components to val
-						Vec2(real nx, real ny);					//!< Constructs from two components
-						Vec2(const real v[2]);					//!< Constructs from array
-						Vec2(const Vec2& a);					//!< Copy constructor
-						~Vec2();								//!< Destructor
+	/// Does nothing for efficiency.
+						Vec2();		
 
-	real				operator[](uint32_t i) const;				//!< Random access by index
-	real&				operator[](uint32_t i);						//!< Random access by index
+	/// Initializes all the components to val							
+						Vec2(real val);	
 
-	Vec2				operator+(const Vec2& a) const;			//!< Addition
-	Vec2&				operator+=(const Vec2& a);				//!< Addition
-	Vec2 				operator-(const Vec2& a) const;			//!< Subtraction
-	Vec2&				operator-=(const Vec2& a);				//!< Subtraction
-	Vec2				operator*(real k) const;				//!< Multiplication by scalar
-	Vec2&				operator*=(real k);						//!< Multiplication by scalar
-	Vec2				operator/(real k) const;				//!< Division by scalar
-	Vec2&				operator/=(real k);						//!< Division by scalar
-	real				dot(const Vec2& a) const;				//!< dot product
+	/// Constructs from two components						
+						Vec2(real nx, real ny);
 
-	friend Vec2			operator*(real k, const Vec2& a);		//!< For simmetry
+	/// Constructs from array
+						Vec2(const real v[2]);
+						Vec2(const Vec2& a);					
 
-	bool				operator==(const Vec2& other) const;	//!< Equality operator
-	bool				operator!=(const Vec2& other) const;	//!< Disequality operator
-	bool				operator<(const Vec2& other) const;		//!< Returns whether all the components of this vector are smaller than all of the "other" vector
-	bool				operator>(const Vec2& other) const;		//!< Returns whether all the components of this vector are greater than all of the "other" vector
+	/// Random access by index
+	real				operator[](uint32_t i) const;
 
-	real				length() const;							//!< Returns the vector's length
-	real				squared_length() const;					//!< Returns the vector's squared length
-	void				set_length(real len);					//!< Sets the vector's length
+	/// Random access by index			
+	real&				operator[](uint32_t i);					
+
+	Vec2				operator+(const Vec2& a) const;			
+	Vec2&				operator+=(const Vec2& a);				
+	Vec2 				operator-(const Vec2& a) const;			
+	Vec2&				operator-=(const Vec2& a);				
+	Vec2				operator*(real k) const;				
+	Vec2&				operator*=(real k);						
+	Vec2				operator/(real k) const;				
+	Vec2&				operator/=(real k);
+
+	/// Dot product						
+	real				dot(const Vec2& a) const;				
+
+	/// For simmetry
+	friend Vec2			operator*(real k, const Vec2& a);		
+
+	bool				operator==(const Vec2& other) const;	
+	bool				operator!=(const Vec2& other) const;
+
+	/// Returns whether all the components of this vector are smaller than all of the @other vector	
+	bool				operator<(const Vec2& other) const;		
+
+	/// Returns whether all the components of this vector are greater than all of the @other vector
+	bool				operator>(const Vec2& other) const;		
+
+	/// Returns the vector's length
+	real				length() const;
+
+	/// Returns the vector's squared length							
+	real				squared_length() const;
+
+	/// Sets the vector's length					
+	void				set_length(real len);					
 	real				get_angle() const;
 	real				get_angle_2d() const;
-	Vec2&				normalize();							//!< Normalizes the vector
-	Vec2				get_normalized() const;					//!< Returns the normalized vector
-	Vec2&				negate();								//!< Negates the vector (i.e. builds the inverse)
-	Vec2				operator-() const;						//!< Negates the vector (i.e. builds the inverse)
 
-	real				get_distance_to(const Vec2& a) const;	//!< Returns the distance
-	real				get_angle_between(const Vec2& a) const;	//!< Returns the angle in radians
+	/// Normalizes the vector
+	Vec2&				normalize();
 
-	void				zero();									//!< Builds the zero vector
+	/// Returns the normalized vector							
+	Vec2				get_normalized() const;
 
-	real*				to_float_ptr();							//!< Returns the point32_ter to the vector's data
-	const real*			to_float_ptr() const;					//!< Returns the point32_ter to the vector's data
+	/// Negates the vector (i.e. builds the inverse)					
+	Vec2&				negate();
+
+	/// Negates the vector (i.e. builds the inverse)								
+	Vec2				operator-() const;						
+
+	/// Returns the distance
+	real				get_distance_to(const Vec2& a) const;
+
+	/// Returns the angle in radian	
+	real				get_angle_between(const Vec2& a) const;
+
+	/// Sets all components to zero
+	void				zero();
+
+	/// Returns the pointer to the vector's data
+	real*				to_float_ptr();	
+
+	/// Returns the pointer to the vector's data						
+	const real*			to_float_ptr() const;					
 
 	static const Vec2	ZERO;
 	static const Vec2	ONE;
@@ -112,11 +148,6 @@ inline Vec2::Vec2(const real a[2]) : x(a[0]), y(a[1])
 
 //-----------------------------------------------------------------------------
 inline Vec2::Vec2(const Vec2& a) : x(a.x), y(a.y)
-{
-}
-
-//-----------------------------------------------------------------------------
-inline Vec2::~Vec2()
 {
 }
 

@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Frustum.h"
 #include "Types.h"
 #include "Intersection.h"
+#include "Mat4.h"
 
 namespace crown
 {
@@ -33,46 +34,43 @@ namespace crown
 //-----------------------------------------------------------------------------
 Frustum::Frustum()
 {
-	mPlane[FP_LEFT]		= Plane::ZERO;
-	mPlane[FP_RIGHT]	= Plane::ZERO;
-	mPlane[FP_BOTTOM]	= Plane::ZERO;
-	mPlane[FP_TOP]		= Plane::ZERO;
-	mPlane[FP_NEAR]		= Plane::ZERO;
-	mPlane[FP_FAR]		= Plane::ZERO;
+	m_planes[FP_LEFT]		= Plane::ZERO;
+	m_planes[FP_RIGHT]		= Plane::ZERO;
+	m_planes[FP_BOTTOM]		= Plane::ZERO;
+	m_planes[FP_TOP]		= Plane::ZERO;
+	m_planes[FP_NEAR]		= Plane::ZERO;
+	m_planes[FP_FAR]		= Plane::ZERO;
 }
 
 //-----------------------------------------------------------------------------
 Frustum::Frustum(const Frustum& frustum)
 {
-	mPlane[FP_LEFT]		= frustum.mPlane[FP_LEFT];
-	mPlane[FP_RIGHT]	= frustum.mPlane[FP_RIGHT];
-	mPlane[FP_BOTTOM]	= frustum.mPlane[FP_BOTTOM];
-	mPlane[FP_TOP]		= frustum.mPlane[FP_TOP];
-	mPlane[FP_NEAR]		= frustum.mPlane[FP_NEAR];
-	mPlane[FP_FAR]		= frustum.mPlane[FP_FAR];
+	m_planes[FP_LEFT]		= frustum.m_planes[FP_LEFT];
+	m_planes[FP_RIGHT]		= frustum.m_planes[FP_RIGHT];
+	m_planes[FP_BOTTOM]		= frustum.m_planes[FP_BOTTOM];
+	m_planes[FP_TOP]		= frustum.m_planes[FP_TOP];
+	m_planes[FP_NEAR]		= frustum.m_planes[FP_NEAR];
+	m_planes[FP_FAR]		= frustum.m_planes[FP_FAR];
 }
 
 //-----------------------------------------------------------------------------
-Frustum::~Frustum()
+bool Frustum::contains_point(const Vec3& point) const
 {
-}
-
-//-----------------------------------------------------------------------------
-bool Frustum::contains_point32_t(const Vec3& point32_t) const
-{
-	if (mPlane[FP_LEFT].get_distance_to_point32_t(point32_t) < 0.0) return false;
-	if (mPlane[FP_RIGHT].get_distance_to_point32_t(point32_t) < 0.0) return false;
-	if (mPlane[FP_BOTTOM].get_distance_to_point32_t(point32_t) < 0.0) return false;
-	if (mPlane[FP_TOP].get_distance_to_point32_t(point32_t) < 0.0) return false;
-	if (mPlane[FP_NEAR].get_distance_to_point32_t(point32_t) < 0.0) return false;
-	if (mPlane[FP_FAR].get_distance_to_point32_t(point32_t) < 0.0) return false;
+	if (m_planes[FP_LEFT].distance_to_point(point) < 0.0) return false;
+	if (m_planes[FP_RIGHT].distance_to_point(point) < 0.0) return false;
+	if (m_planes[FP_BOTTOM].distance_to_point(point) < 0.0) return false;
+	if (m_planes[FP_TOP].distance_to_point(point) < 0.0) return false;
+	if (m_planes[FP_NEAR].distance_to_point(point) < 0.0) return false;
+	if (m_planes[FP_FAR].distance_to_point(point) < 0.0) return false;
 
 	return true;
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Frustum::get_vertex(uint32_t index) const
+Vec3 Frustum::vertex(uint32_t index) const
 {
+	assert(index < 8);
+
 	// 0 = Near bottom left
 	// 1 = Near bottom right
 	// 2 = Near top right
@@ -82,28 +80,28 @@ Vec3 Frustum::get_vertex(uint32_t index) const
 	// 6 = Far top right
 	// 7 = Far top left
 
-	Vec3 ip(0, 0, 0);
+	Vec3 ip;
 
 	switch (index)
 	{
 		case 0:
-			Intersection::TestPlane3(mPlane[4], mPlane[0], mPlane[2], ip);
+			return Intersection::TestPlane3(m_planes[4], m_planes[0], m_planes[2], ip);
 		case 1:
-			Intersection::TestPlane3(mPlane[4], mPlane[1], mPlane[2], ip);
+			return Intersection::TestPlane3(m_planes[4], m_planes[1], m_planes[2], ip);
 		case 2:
-			Intersection::TestPlane3(mPlane[4], mPlane[1], mPlane[3], ip);
+			return Intersection::TestPlane3(m_planes[4], m_planes[1], m_planes[3], ip);
 		case 3:
-			Intersection::TestPlane3(mPlane[4], mPlane[0], mPlane[3], ip);
+			return Intersection::TestPlane3(m_planes[4], m_planes[0], m_planes[3], ip);
 		case 4:
-			Intersection::TestPlane3(mPlane[5], mPlane[0], mPlane[2], ip);
+			return Intersection::TestPlane3(m_planes[5], m_planes[0], m_planes[2], ip);
 		case 5:
-			Intersection::TestPlane3(mPlane[5], mPlane[1], mPlane[2], ip);
+			return Intersection::TestPlane3(m_planes[5], m_planes[1], m_planes[2], ip);
 		case 6:
-			Intersection::TestPlane3(mPlane[5], mPlane[1], mPlane[3], ip);
+			return Intersection::TestPlane3(m_planes[5], m_planes[1], m_planes[3], ip);
 		case 7:
-			Intersection::TestPlane3(mPlane[5], mPlane[0], mPlane[3], ip);
+			return Intersection::TestPlane3(m_planes[5], m_planes[0], m_planes[3], ip);
 		default:
-			return ip;
+			break;
 	}
 
 	return ip;
@@ -113,47 +111,47 @@ Vec3 Frustum::get_vertex(uint32_t index) const
 void Frustum::from_matrix(const Mat4& m)
 {
 	// Left plane
-	mPlane[FP_LEFT].n.x		= m.m[3] + m.m[0];
-	mPlane[FP_LEFT].n.y		= m.m[7] + m.m[4];
-	mPlane[FP_LEFT].n.z		= m.m[11] + m.m[8];
-	mPlane[FP_LEFT].d		= m.m[15] + m.m[12];
+	m_planes[FP_LEFT].n.x		= m.m[3] + m.m[0];
+	m_planes[FP_LEFT].n.y		= m.m[7] + m.m[4];
+	m_planes[FP_LEFT].n.z		= m.m[11] + m.m[8];
+	m_planes[FP_LEFT].d			= m.m[15] + m.m[12];
 
 	// Right plane
-	mPlane[FP_RIGHT].n.x	= m.m[3] - m.m[0];
-	mPlane[FP_RIGHT].n.y	= m.m[7] - m.m[4];
-	mPlane[FP_RIGHT].n.z	= m.m[11] - m.m[8];
-	mPlane[FP_RIGHT].d		= m.m[15] - m.m[12];
+	m_planes[FP_RIGHT].n.x		= m.m[3] - m.m[0];
+	m_planes[FP_RIGHT].n.y		= m.m[7] - m.m[4];
+	m_planes[FP_RIGHT].n.z		= m.m[11] - m.m[8];
+	m_planes[FP_RIGHT].d		= m.m[15] - m.m[12];
 
 	// Bottom plane
-	mPlane[FP_BOTTOM].n.x	= m.m[3] + m.m[1];
-	mPlane[FP_BOTTOM].n.y	= m.m[7] + m.m[5];
-	mPlane[FP_BOTTOM].n.z	= m.m[11] + m.m[9];
-	mPlane[FP_BOTTOM].d		= m.m[15] + m.m[13];
+	m_planes[FP_BOTTOM].n.x		= m.m[3] + m.m[1];
+	m_planes[FP_BOTTOM].n.y		= m.m[7] + m.m[5];
+	m_planes[FP_BOTTOM].n.z		= m.m[11] + m.m[9];
+	m_planes[FP_BOTTOM].d		= m.m[15] + m.m[13];
 
 	// Top plane
-	mPlane[FP_TOP].n.x		= m.m[3] - m.m[1];
-	mPlane[FP_TOP].n.y		= m.m[7] - m.m[5];
-	mPlane[FP_TOP].n.z		= m.m[11] - m.m[9];
-	mPlane[FP_TOP].d		= m.m[15] - m.m[13];
+	m_planes[FP_TOP].n.x		= m.m[3] - m.m[1];
+	m_planes[FP_TOP].n.y		= m.m[7] - m.m[5];
+	m_planes[FP_TOP].n.z		= m.m[11] - m.m[9];
+	m_planes[FP_TOP].d			= m.m[15] - m.m[13];
 
 	// Near plane
-	mPlane[FP_NEAR].n.x		= m.m[3] + m.m[2];
-	mPlane[FP_NEAR].n.y		= m.m[7] + m.m[6];
-	mPlane[FP_NEAR].n.z		= m.m[11] + m.m[10];
-	mPlane[FP_NEAR].d		= m.m[15] + m.m[14];
+	m_planes[FP_NEAR].n.x		= m.m[3] + m.m[2];
+	m_planes[FP_NEAR].n.y		= m.m[7] + m.m[6];
+	m_planes[FP_NEAR].n.z		= m.m[11] + m.m[10];
+	m_planes[FP_NEAR].d			= m.m[15] + m.m[14];
 
 	// Far plane
-	mPlane[FP_FAR].n.x		= m.m[3] - m.m[2];
-	mPlane[FP_FAR].n.y		= m.m[7] - m.m[6];
-	mPlane[FP_FAR].n.z		= m.m[11] - m.m[10];
-	mPlane[FP_FAR].d		= m.m[15] - m.m[14];
+	m_planes[FP_FAR].n.x		= m.m[3] - m.m[2];
+	m_planes[FP_FAR].n.y		= m.m[7] - m.m[6];
+	m_planes[FP_FAR].n.z		= m.m[11] - m.m[10];
+	m_planes[FP_FAR].d			= m.m[15] - m.m[14];
 
-	mPlane[FP_LEFT].normalize();
-	mPlane[FP_RIGHT].normalize();
-	mPlane[FP_BOTTOM].normalize();
-	mPlane[FP_TOP].normalize();
-	mPlane[FP_NEAR].normalize();
-	mPlane[FP_FAR].normalize();
+	m_planes[FP_LEFT].normalize();
+	m_planes[FP_RIGHT].normalize();
+	m_planes[FP_BOTTOM].normalize();
+	m_planes[FP_TOP].normalize();
+	m_planes[FP_NEAR].normalize();
+	m_planes[FP_FAR].normalize();
 }
 
 //-----------------------------------------------------------------------------
@@ -162,14 +160,17 @@ Box Frustum::to_box() const
 	Box tmp;
 	tmp.zero();
 
-	tmp.add_point32_t(this->get_vertex(0));
-	tmp.add_point32_t(this->get_vertex(1));
-	tmp.add_point32_t(this->get_vertex(2));
-	tmp.add_point32_t(this->get_vertex(3));
-	tmp.add_point32_t(this->get_vertex(4));
-	tmp.add_point32_t(this->get_vertex(5));
-	tmp.add_point32_t(this->get_vertex(6));
-	tmp.add_point32_t(this->get_vertex(7));
+	Vec3 vertices[8];
+	vertices[0] = vertex(0);
+	vertices[1] = vertex(1);
+	vertices[2] = vertex(2);
+	vertices[3] = vertex(3);
+	vertices[4] = vertex(4);
+	vertices[5] = vertex(5);
+	vertices[6] = vertex(6);
+	vertices[7] = vertex(7);
+
+	tmp.add_points(vertices, 8);
 
 	return tmp;
 }

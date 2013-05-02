@@ -5,12 +5,10 @@ set (SRC
 	Filesystem.cpp
 	Font.cpp
 	Image.cpp
-	Log.cpp
 	MaterialResource.cpp
 	MovableCamera.cpp
 	Pixel.cpp
 	ResourceManager.cpp
-	ResourceLoader.cpp
 	Skybox.cpp
 	Terrain.cpp
 	World.cpp
@@ -35,13 +33,11 @@ set (HEADERS
 	Font.h
 	Glyph.h
 	Image.h
-	Log.h
 	MaterialResource.h
 	MovableCamera.h
 	Pixel.h
 	Resource.h
 	ResourceManager.h
-	ResourceLoader.h
 	ResourceArchive.h
 	Skybox.h
 	Terrain.h
@@ -57,11 +53,13 @@ set (HEADERS
 )
 
 set (CORE_SRC
+	core/Log.cpp
 )
 
 set (CORE_HEADERS
 	core/Types.h
 	core/Args.h
+	core/Log.h
 )
 
 set (BV_SRC
@@ -177,11 +175,10 @@ set (COMPRESSORS_HEADERS
 set (THREADS_HEADERS
 	core/threads/Thread.h
 	core/threads/Mutex.h
+	core/threads/Cond.h
 )
 
 set (THREADS_SRC
-	core/threads/Thread.cpp
-	core/threads/Mutex.cpp
 )
 
 set (SETTINGS_SRC
@@ -209,6 +206,7 @@ set (INPUT_HEADERS
 )
 
 set (RENDERERS_SRC
+	renderers/DebugRenderer.cpp
 )
 
 set (RENDERERS_HEADERS
@@ -218,6 +216,7 @@ set (RENDERERS_HEADERS
 	renderers/OcclusionQuery.h
 	renderers/Material.h
 	renderers/Texture.h
+	renderers/DebugRenderer.h
 )
 
 set (OS_HEADERS

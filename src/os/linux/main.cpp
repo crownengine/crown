@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 
 	crown::os::init_input();
 
-	crown::Device* engine = crown::GetDevice();
+	crown::Device* engine = crown::device();
 
 	if (!engine->init(argc, argv))
 	{

@@ -44,6 +44,34 @@ public:
 private:
 
 	os::OSMutex		m_mutex;
+
+private:
+
+	friend class	Cond;
 };
+
+//-----------------------------------------------------------------------------
+inline Mutex::Mutex()
+{
+	os::mutex_create(&m_mutex);
+}
+
+//-----------------------------------------------------------------------------
+inline Mutex::~Mutex()
+{
+	os::mutex_destroy(&m_mutex);
+}
+
+//-----------------------------------------------------------------------------
+inline void Mutex::lock()
+{
+	os::mutex_lock(&m_mutex);
+}
+
+//-----------------------------------------------------------------------------
+inline void Mutex::unlock()
+{
+	os::mutex_unlock(&m_mutex);
+}
 
 } // namespace crown

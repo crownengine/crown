@@ -28,18 +28,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+//-----------------------------------------------------------------------------
 Shape::Shape(ShapeType type):
-	mType(type)
+	m_type(type)
 {
 }
 
+//-----------------------------------------------------------------------------
 Shape::~Shape()
 {
 }
 
-ShapeType Shape::get_shape_type()
+//-----------------------------------------------------------------------------
+ShapeType Shape::type()
 {
-	return mType;
+	return m_type;
 }
 
 }

@@ -27,14 +27,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Config.h"
+#include "OS.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
 
+class Filesystem;
+class ResourceManager;
+class ResourceArchive;
 class Renderer;
+class DebugRenderer;
 class InputManager;
+class Game;
 
 /// The Engine.
+/// It is the place where to look for accessing all of
+/// the engine subsystems and related stuff.
 class Device
 {
 public:
@@ -42,20 +51,39 @@ public:
 							Device();
 							~Device();
 
+	/// Initializes the engine allowing to pass command line
+	/// parameters to configure some parameters.
 	bool					init(int argc, char** argv);
+
+	/// Shutdowns the engine freeing all the allocated resources
 	void					shutdown();
 
+	/// Returns wheter the engine is running (i.e. it is actually
+	/// doing work).
 	bool					is_running() const;
+
+	/// Returns whether the engine is correctly initialized
 	bool					is_init() const;
 
+	/// Forces the engine to actually start doing work.
 	void					start();
+
+	/// Forces the engine to stop all the work it is doing
+	/// and normally terminates the program.
 	void					stop();
 
+	/// Updates all the subsystems
 	void					frame();
 
+	Filesystem*				filesystem();
+	ResourceManager*		resource_manager();
+	InputManager*			input_manager();
 	Renderer*				renderer();
+	DebugRenderer*			debug_renderer();
 
 private:
+
+	
 
 	bool					parse_command_line(int argc, char** argv);
 	void					print_help_message();
@@ -65,25 +93,51 @@ private:
 	// Preferred settings from command line
 	int32_t					m_preferred_window_width;
 	int32_t					m_preferred_window_height;
-	bool					m_preferred_window_fullscreen;
+	int32_t					m_preferred_window_fullscreen;
+	int32_t					m_preferred_renderer;
+	int32_t					m_preferred_mode;
 
-	char					m_preferred_root_path[512];
-	char					m_preferred_user_path[512];
+	char					m_preferred_root_path[os::MAX_PATH_LENGTH];
+	char					m_preferred_user_path[os::MAX_PATH_LENGTH];
 
 	bool					m_is_init		: 1;
 	bool					m_is_running	: 1;
 
-	// Subsystems
+	// Public subsystems
+	Filesystem*				m_filesystem;
+	ResourceManager*		m_resource_manager;
+	InputManager*			m_input_manager;
 	Renderer*				m_renderer;
+	DebugRenderer*			m_debug_renderer;
+
+	// Private subsystems
+	ResourceArchive*		m_resource_archive;
+	MallocAllocator			m_resource_allocator;
+
+	// The game currently running
+	Game*					m_game;
+	void*					m_game_library;
 
 private:
+
+	enum
+	{
+		RENDERER_GL,
+		RENDERER_GLES
+	};
+
+	enum
+	{
+		MODE_RELEASE,
+		MODE_DEVELOPMENT
+	};
 
 	// Disable copying
 	Device(const Device&);
 	Device& operator=(const Device&);
 };
 
-Device* GetDevice();
+Device* device();
 
 } // namespace crown
 

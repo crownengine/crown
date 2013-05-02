@@ -23,34 +23,25 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Thread.h"
+#pragma once
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-Thread::Thread(os::ThreadFunction f, void* args, const char* name)
+class Game
 {
-	memset(&m_thread, 0, sizeof(os::OSThread));
+public:
 
-	os::thread_create(f, args, m_thread, name);
-}
+					Game() {}
+	virtual			~Game() {}
 
-//-----------------------------------------------------------------------------
-Thread::~Thread()
-{
-}
+	virtual void	init() = 0;
+	virtual void	shutdown() = 0;
+	virtual void	update() = 0;
+};
 
-//-----------------------------------------------------------------------------
-void Thread::join()
-{
-	os::thread_join(m_thread);
-}
-
-//-----------------------------------------------------------------------------
-void Thread::detach()
-{
-	os::thread_detach(m_thread);
-}
+typedef Game* create_game_t();
+typedef void destroy_game_t(Game* game);
 
 } // namespace crown
+

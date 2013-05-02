@@ -27,10 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Box.h"
-#include "Mat4.h"
-#include "Plane.h"
-#include "Sphere.h"
 #include "Vec3.h"
+#include "Plane.h"
 
 namespace crown
 {
@@ -45,24 +43,32 @@ enum FrustumPlane
 	FP_FAR		= 5
 };
 
+class Mat4;
+
 class Frustum
 {
-
 public:
 
-	Plane		mPlane[6];
+				Frustum();				
+				Frustum(const Frustum& frustum);
 
+	/// Returns whether @point is contained into the frustum
+	bool		contains_point(const Vec3& point) const;	
 
-				Frustum();								//!< Constructor
-				Frustum(const Frustum& frustum);		//!< Copy constructor
-				~Frustum();								//!< Destructor
+	/// Returns one of the eight frustum's corners
+	Vec3		vertex(uint32_t index) const;			
 
-	bool		contains_point32_t(const Vec3& point32_t) const;	//!< Returns true if point32_t int32_tersects the frustum
-	Vec3		get_vertex(uint32_t index) const;			//!< Returns one of the eight frustum's corners
+	/// Builds the view frustum according to the matrix @m
+	void		from_matrix(const Mat4& m);				
 
-	void		from_matrix(const Mat4& m);				//!< Builds the view frustum according to the matrix m
+	/// Returns a Box containing the frustum volume
+	Box			to_box() const;							
 
-	Box			to_box() const;							//!< Returns a Box containing the frustum volume
+private:
+
+	Plane		m_planes[6];
+
+	friend class Intersection;
 };
 
 } // namespace crown

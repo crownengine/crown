@@ -25,66 +25,51 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Queue.h"
-#include "Resource.h"
-#include "MallocAllocator.h"
-#include "ResourceManager.h"
-#include "OS.h"
-#include "Thread.h"
-#include "Mutex.h"
+#include <cstdio>
+#include <cstdarg>
+#include "Types.h"
+#include "String.h"
 
 namespace crown
 {
 
-class Allocator;
-class ResourceArchive;
 
-struct LoadedResource
+/// Enumerates log levels.
+enum LogLevel
 {
-	ResourceId	resource;
-	void*		data;
+	LL_INFO		= 0,
+	LL_WARN		= 1,
+	LL_ERROR	= 2,
+	LL_DEBUG	= 3
 };
 
-class ResourceLoader
+/// Used to log messages.
+class Log
 {
+
 public:
 
-						ResourceLoader(Allocator& resource_allocator, ResourceArchive& archive);
-						~ResourceLoader();
+	/// Returns the threshold used to filter out log messages.
+	static LogLevel		threshold();
 
-	void				load(ResourceId name);
-	void				unload(ResourceId name, void* resource);
+	/// Sets the thresold used to filter out log messages
+	static void			set_threshold(LogLevel threshold);
+
+	static void			log_message(LogLevel level, const char* message, ::va_list arg);
+
+	static void			d(const char* message, ...);
+	static void			e(const char* message, ...);
+	static void			w(const char* message, ...);
+	static void			i(const char* message, ...);
+
+	static void			indent_in();
+	static void			indent_out();
 
 private:
 
-	void				background_load();
-	void*				load_by_type(ResourceId name) const;
-	void				unload_by_type(ResourceId name, void* resource) const;
-
-private:
-
-	static void*		background_thread(void* thiz);
-
-private:
-
-	Allocator&			m_resource_allocator;
-	ResourceArchive&	m_resource_archive;
-
-	MallocAllocator		m_allocator;
-
-	Mutex				m_waiting_mutex;
-	Queue<ResourceId>	m_waiting_resources;
-	Mutex				m_loaded_mutex;
-	Queue<LoadedResource>	m_loaded_resources;
-
-	Thread				m_thread;
-
-	uint32_t			m_config_hash;
-	uint32_t			m_texture_hash;
-	uint32_t			m_mesh_hash;
-	uint32_t			m_txt_hash;
-
-	friend class		ResourceManager;
+	static LogLevel		m_threshold;
+	static int32_t		m_indent_count;
 };
 
 } // namespace crown
+

@@ -34,32 +34,35 @@ namespace crown
 
 class Rect;
 
-/**
-	Circle.
-
-	Used mainly for collision detection and int32_tersection tests.
-*/
+/// Circle.
+///
+/// Used mainly for collision detection and intersection tests.
 class Circle
 {
-
 public:
 
-	Vec2			c;
-	real			r;
+	/// Does nothing for efficiency
+					Circle();
+					
+	/// Constructs from @center and @radius
+					Circle(const Vec2& center, real radius);	
+					Circle(const Circle& circle);				
 
-					Circle();									//!< Constructor, does nothing for efficiency
-					Circle(const Vec2& center, real radius);	//!< Constructs from center and radius
-					Circle(const Circle& circle);				//!< Copy constructor
-					~Circle();									//!< Destructor
+	const Vec2&		center() const;							
+	real			radius() const;				
 
-	const Vec2&		get_center() const;							//!< Returns the center
-	real			get_radius() const;							//!< Returns the radius
-	void			set_center(const Vec2& center);				//!< Sets the center
-	void			set_radius(real radius);					//!< Sets the radius
+	void			set_center(const Vec2& center);			
+	void			set_radius(real radius);				
 
-	real			get_area() const;							//!< Returns the area
+	real			area() const;						
 
-	Rect			to_rect() const;							//!< Returns the equivalent rect
+	/// Returns a Rect containing the circle
+	Rect			to_rect() const;
+
+private:
+
+	Vec2			m_center;
+	real			m_radius;
 };
 
 //-----------------------------------------------------------------------------
@@ -68,48 +71,43 @@ inline Circle::Circle()
 }
 
 //-----------------------------------------------------------------------------
-inline Circle::Circle(const Vec2& c, real r) : c(c), r(r)
+inline Circle::Circle(const Vec2& center, real radius) : m_center(center), m_radius(radius)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Circle::Circle(const Circle& circle) : c(circle.c), r(circle.r)
+inline Circle::Circle(const Circle& circle) : m_center(circle.m_center), m_radius(circle.m_radius)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Circle::~Circle()
+inline const Vec2& Circle::center() const
 {
+	return m_center;
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec2& Circle::get_center() const
+inline real Circle::radius() const
 {
-	return c;
-}
-
-//-----------------------------------------------------------------------------
-inline real Circle::get_radius() const
-{
-	return r;
+	return m_radius;
 }
 
 //-----------------------------------------------------------------------------
 inline void Circle::set_center(const Vec2& center)
 {
-	c = center;
+	m_center = center;
 }
 
 //-----------------------------------------------------------------------------
 inline void Circle::set_radius(real radius)
 {
-	r = radius;
+	m_radius = radius;
 }
 
 //-----------------------------------------------------------------------------
-inline real Circle::get_area() const
+inline real Circle::area() const
 {
-	return r * r * math::PI;
+	return m_radius * m_radius * math::PI;
 }
 
 } // namespace crown

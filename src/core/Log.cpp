@@ -29,22 +29,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-LogLevel Log::mThreshold = LL_DEBUG;
-int32_t Log::mIndentCount = 0;
+LogLevel Log::m_threshold = LL_DEBUG;
+int32_t Log::m_indent_count = 0;
 
-LogLevel Log::GetThreshold()
+//-----------------------------------------------------------------------------
+LogLevel Log::threshold()
 {
-	return mThreshold;
+	return m_threshold;
 }
 
-void Log::SetThreshold(LogLevel threshold)
+//-----------------------------------------------------------------------------
+void Log::set_threshold(LogLevel threshold)
 {
-	mThreshold = threshold;
+	m_threshold = threshold;
 }
 
-void Log::LogMessage(LogLevel level, const char* message, ::va_list arg)
+//-----------------------------------------------------------------------------
+void Log::log_message(LogLevel level, const char* message, ::va_list arg)
 {
-	if (level > mThreshold)
+	if (level > m_threshold)
 	{
 		return;
 	}
@@ -68,48 +71,54 @@ void Log::LogMessage(LogLevel level, const char* message, ::va_list arg)
 	}
 }
 
-void Log::D(const char* message, ...)
+//-----------------------------------------------------------------------------
+void Log::d(const char* message, ...)
 {
 	va_list args;
 	va_start (args, message);
-	LogMessage(LL_DEBUG, message, args);
+	log_message(LL_DEBUG, message, args);
 	va_end (args);
 }
 
-void Log::E(const char* message, ...)
+//-----------------------------------------------------------------------------
+void Log::e(const char* message, ...)
 {
 	va_list args;
 	va_start (args, message);
-	LogMessage(LL_ERROR, message, args);
+	log_message(LL_ERROR, message, args);
 	va_end (args);
 }
 
-void Log::W(const char* message, ...)
+//-----------------------------------------------------------------------------
+void Log::w(const char* message, ...)
 {
 	va_list args;
 	va_start (args, message);
-	LogMessage(LL_WARN, message, args);
+	log_message(LL_WARN, message, args);
 	va_end (args);
 }
 
-void Log::I(const char* message, ...)
+//-----------------------------------------------------------------------------
+void Log::i(const char* message, ...)
 {
 	va_list args;
 	va_start (args, message);
-	LogMessage(LL_INFO, message, args);
+	log_message(LL_INFO, message, args);
 	va_end (args);
 }
 
-void Log::IndentIn()
+//-----------------------------------------------------------------------------
+void Log::indent_in()
 {
-	mIndentCount += 1;
+	m_indent_count += 1;
 }
 
-void Log::IndentOut()
+//-----------------------------------------------------------------------------
+void Log::indent_out()
 {
-	if (mIndentCount >= 1)
+	if (m_indent_count > 0)
 	{
-		mIndentCount -= 1;
+		m_indent_count -= 1;
 	}
 }
 

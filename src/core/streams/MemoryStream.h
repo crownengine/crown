@@ -74,49 +74,74 @@ public:
 
 protected:
 
-	Allocator*			m_allocator;
+	Allocator&			m_allocator;
 	uint8_t*			m_buffer;
 	size_t				m_capacity;
 	size_t				m_size;
 };
 
-/**
-	Memory stream.
-
-	Access memory buffers.
-*/
+/// Memory stream.
+/// Access memory buffers.
 class MemoryStream: public Stream
 {
 
 public:
 
+	/// @copydoc Stream::Stream()
 						MemoryStream(MemoryBuffer* buffer, StreamOpenMode mode);
+
+	/// @copydoc Stream::~Stream()
 	virtual				~MemoryStream();
 
-
+	/// @copydoc Stream::seek()
 	void				seek(size_t position);
+
+	/// @copydoc Stream::seek_to_end()
 	void				seek_to_end();
+
+	/// @copydoc Stream::skip()
 	void				skip(size_t bytes);
 
+	/// @copydoc Stream::read_byte()
 	uint8_t				read_byte();
+
+	/// @copydoc Stream::read()
 	void				read(void* buffer, size_t size);
+
+	/// @copydoc Stream::write_byte()
 	void				write_byte(uint8_t val);
+
+	/// @copydoc Stream::write()
 	void				write(const void* buffer, size_t size);
 
+	/// @copydoc Stream::copy_to()
 	bool				copy_to(Stream* stream, size_t size = 0);
 
+	/// @copydoc Stream::flush()
 	void				flush();
 
+	/// @copydoc Stream::end_of_stream()
 	bool				end_of_stream() const { return size() == m_memory_offset; }
+
+	/// @copydoc Stream::is_valid()
 	bool				is_valid() const { assert(m_memory != NULL); return m_memory->is_valid(); }
 
+	/// @copydoc Stream::size()
 	size_t				size() const { assert(m_memory != NULL); return m_memory->size(); }
+
+	/// @copydoc Stream::position()
 	size_t				position() const { return m_memory_offset; }
 
+	/// @copydoc Stream::can_read()
 	bool				can_read() const { return true; }
+
+	/// @copydoc Stream::can_write()
 	bool				can_write() const { return true; }
+
+	/// @copydoc Stream::can_seek()
 	bool				can_seek() const { return true; }
 
+	/// Dumps the data to the console.
 	void				dump();
 
 protected:

@@ -33,7 +33,7 @@ Rect Circle::to_rect() const
 {
 	Rect b;
 
-	b.set_from_center_and_dimensions(c, r * 2.0, r * 2.0);
+	b.set_from_center_and_dimensions(m_center, m_radius * 2.0, m_radius * 2.0);
 
 	return b;
 }

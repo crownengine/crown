@@ -23,33 +23,52 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#pragma once
+
+#include "Types.h"
 #include "Mutex.h"
+#include "OS.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-Mutex::Mutex()
+class Cond
 {
-	os::mutex_create(m_mutex);
+public:
+
+					Cond();
+					~Cond();
+
+	void			signal();
+	void			wait(Mutex& mutex);
+
+private:
+
+	os::OSCond		m_cond;
+};
+
+//-----------------------------------------------------------------------------
+inline Cond::Cond()
+{
+	os::cond_create(&m_cond);
 }
 
 //-----------------------------------------------------------------------------
-Mutex::~Mutex()
+inline Cond::~Cond()
 {
-	os::mutex_destroy(m_mutex);
+	os::cond_destroy(&m_cond);
 }
 
 //-----------------------------------------------------------------------------
-void Mutex::lock()
+inline void Cond::signal()
 {
-	os::mutex_lock(m_mutex);
+	os::cond_signal(&m_cond);
 }
 
 //-----------------------------------------------------------------------------
-void Mutex::unlock()
+inline void Cond::wait(Mutex& mutex)
 {
-	os::mutex_unlock(m_mutex);
+	os::cond_wait(&m_cond, &mutex.m_mutex);
 }
 
 } // namespace crown

@@ -81,7 +81,7 @@ File* File::open(const char* path, FileOpenMode mode)
 
 	if (f->m_file_handle == NULL)
 	{
-		Log::E("File::Open: Could not open file %s", path);
+		Log::e("File::Open: Could not open file %s", path);
 		return NULL;
 	}
 

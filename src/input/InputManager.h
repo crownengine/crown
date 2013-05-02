@@ -138,7 +138,5 @@ private:
 	bool				m_cursor_visible;
 };
 
-InputManager* get_input_manager();
-
 } // namespace crown
 

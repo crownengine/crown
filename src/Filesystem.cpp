@@ -32,9 +32,14 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Filesystem::Filesystem(const char* root_path) :
-	m_root_path(root_path)
+Filesystem::Filesystem(const char* root_path)
 {
+	assert(root_path != NULL);
+	assert(os::is_absolute_path(root_path));
+
+	string::strncpy(m_root_path, root_path, os::MAX_PATH_LENGTH);
+
+	Log::i("Root path : %s", m_root_path);
 }
 
 //-----------------------------------------------------------------------------
@@ -51,7 +56,7 @@ const char* Filesystem::root_path() const
 //-----------------------------------------------------------------------------
 const char* Filesystem::build_os_path(const char* base_path, const char* relative_path)
 {
-	static char os_path[1024];
+	static char os_path[os::MAX_PATH_LENGTH];
 
 	size_t i = 0;
 
@@ -91,8 +96,8 @@ bool Filesystem::get_info(const char* base_path, const char* relative_path, File
 
 	const char* os_path = build_os_path(base_path, relative_path);
 	
-	string::strncpy(info.os_path, os_path, 512);
-	string::strncpy(info.relative_path, relative_path, 512);
+	string::strncpy(info.os_path, os_path, os::MAX_PATH_LENGTH);
+	string::strncpy(info.relative_path, relative_path, os::MAX_PATH_LENGTH);
 
 	if (os::is_reg(os_path))
 	{

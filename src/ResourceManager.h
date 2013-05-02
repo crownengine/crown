@@ -30,6 +30,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Queue.h"
 #include "Resource.h"
 #include "MallocAllocator.h"
+#include "Thread.h"
+#include "Mutex.h"
+#include "Cond.h"
 
 namespace crown
 {
@@ -54,27 +57,31 @@ struct ResourceEntry
 					}
 };
 
-class ResourceLoader;
+struct LoadedResource
+{
+	ResourceId	resource;
+	void*		data;
+};
+
+class ResourceArchive;
 
 /// Resource manager.
 class ResourceManager
 {
 public:
 
-							ResourceManager(ResourceLoader& loader);
+	/// Read resources from @archive and store resource data using @allocator.
+							ResourceManager(ResourceArchive& archive, Allocator& allocator);
 							~ResourceManager();
 
 	/// Loads the resource by @name and returns its ResourceId.
-	/// Note that the resource data may be not immediately available,
+	/// @note
+	/// The resource data may be not immediately available,
 	/// the resource gets pushed in a queue of load requests and loadead as
 	/// soon as possible by the ResourceLoader.
 	/// You have to explicitly call is_loaded() method to check if the
 	/// loading process is actually completed.
 	ResourceId				load(const char* name);
-	
-	/// Loads the resource by @name and @type and returns its ResourceId.
-	/// See ResourceManager::load(const char* name) for details.
-	ResourceId				load(uint32_t name, uint32_t type);
 
 	/// Unloads the @resource, freeing up all the memory associated by it
 	/// and eventually any global object associated with it.
@@ -86,7 +93,8 @@ public:
 
 	/// Returns whether the manager has the @name resource into
 	/// its list of resources.
-	/// Note that having a resource does not mean that the resource is
+	/// @note
+	/// Having a resource does not mean that the resource is
 	/// available for using; instead, you have to check is_loaded() to
 	/// obtain the resource availability status.
 	bool					has(ResourceId name) const;
@@ -110,16 +118,48 @@ public:
 
 private:
 
+	// Loads the resource by name and type and returns its ResourceId.
+	ResourceId				load(uint32_t name, uint32_t type);
+
+	void					background_load();
+
+	void*					load_by_type(ResourceId name) const;
+	void					unload_by_type(ResourceId name, void* resource) const;
 	void					online(ResourceId name, void* resource);
 
 private:
 
-	ResourceLoader&			m_resource_loader;
+	static void*			background_thread(void* thiz);
+
+private:
+
+	// Archive whether to look for resources
+	ResourceArchive&		m_resource_archive;
+	// Used to strore resource memory
+	Allocator&				m_resource_allocator;
 
 	MallocAllocator			m_allocator;
+	// The master lookup table
 	List<ResourceEntry>		m_resources;
 
+	// Resources waiting for loading
 	Queue<ResourceId>		m_loading_queue;
+	// Resources already loaded, ready to bring online
+	Queue<LoadedResource>	m_loaded_queue;
+
+	// Background loading thread
+	Thread					m_thread;
+	Mutex					m_loading_mutex;
+	Cond 					m_loading_requests;
+	Mutex					m_loaded_mutex;
+
+private:
+
+	// Hashes of resource types (FIXME)
+	uint32_t			m_config_hash;
+	uint32_t			m_texture_hash;
+	uint32_t			m_mesh_hash;
+	uint32_t			m_txt_hash;
 };
 
 } // namespace crown

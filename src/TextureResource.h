@@ -40,28 +40,28 @@ class TextureResource
 {
 public:
 
-	static TextureResource*		load(Allocator& allocator, ResourceArchive* archive, ResourceId id);
-	static void					online(TextureResource* texture);
-	static void					unload(Allocator& allocator, TextureResource* texture);
-	static void					offline();
+	static void*		load(Allocator& allocator, ResourceArchive& archive, ResourceId id);
+	static void			online(void* texture);
+	static void			unload(Allocator& allocator, void* resource);
+	static void			offline();
 
 public:
 
-	PixelFormat					format() const { return m_format; }
-	uint16_t					width() const { return m_width; }
-	uint16_t					height() const { return m_height; }
-	const uint8_t*				data() const { return m_data; }
+	PixelFormat			format() const { return m_format; }
+	uint16_t			width() const { return m_width; }
+	uint16_t			height() const { return m_height; }
+	const uint8_t*		data() const { return m_data; }
 
 private:
 
-	PixelFormat					m_format;
-	uint16_t					m_width;
-	uint16_t					m_height;
-	uint8_t*					m_data;
+	PixelFormat			m_format;
+	uint16_t			m_width;
+	uint16_t			m_height;
+	uint8_t*			m_data;
 
 public:
 
-	TextureId					m_render_texture;
+	TextureId			m_render_texture;
 };
 
 } // namespace crown

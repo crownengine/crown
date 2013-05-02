@@ -34,19 +34,17 @@ namespace crown
 class Mat3;
 class Mat4;
 
-/**
-	Quaternion.
-
-@Note:
-	This implementation uses the standard quaternion
-	multiplication equation, so, the order of multiplication
-	for multiple rotations is in a reverse fashion:
-	p' = qpq^-1 where p is the point32_t and q the rotation quaternion
-
-	p' = (ba)p(ba)^-1 where p is the point32_t and (ba) the concatenation of two successive rotations
-	In this case, the point32_t p is first rotated by the quaternion a and then by the quaternion b.
-	The transformation order is reversed.
-*/
+/// Quaternion.
+///
+/// @Note:
+/// This implementation uses the standard quaternion
+/// multiplication equation, so, the order of multiplication
+/// for multiple rotations is in a reverse fashion:
+/// p' = qpq^-1 where p is the point and q the rotation quaternion
+/// 
+/// p' = (ba)p(ba)^-1 where p is the point and (ba) the concatenation of two successive rotations
+/// In this case, the point p is first rotated by the quaternion a and then by the quaternion b.
+/// The transformation order is reversed.
 class Quat
 {
 public:
@@ -54,22 +52,39 @@ public:
 	Vec3		v;
 	real		w;
 
-				Quat();								//!< Constructor
-				Quat(real angle, const Vec3& v);	//!< Builds the quaternion from an angle and a vector
-				~Quat();							//!< Destructor
+public:
 
-	void		negate();							//!< Negates the quaternion
-	void		load_identity();					//!< Builds the identity quaternion
-	real		length() const;						//!< Returns the quaternion's length
-	void		conjugate();						//!< Conjugates the quaternion
-	Quat		get_conjugate() const;				//!< Returns the quaternion's conjugate
-	Quat		get_inverse() const;				//!< Quaternion's inverse
+				Quat();
+
+	/// Builds the quaternion from an angle and a vector								
+				Quat(real angle, const Vec3& v);	
+
+	/// Negates the quaternion
+	void		negate();
+
+	/// Builds the identity quaternion							
+	void		load_identity();
+
+	/// Returns the quaternion's length					
+	real		length() const;		
+
+	/// Conjugates the quaternion				
+	void		conjugate();
+
+	/// Returns the quaternion's conjugate						
+	Quat		get_conjugate() const;
+
+	/// Quaternion's inverse				
+	Quat		get_inverse() const;				
 
 	Mat3		to_mat3() const;
 	Mat4		to_mat4() const;
 
-	Quat		operator*(const Quat& b) const;		//!< Cross product
-	Quat		operator*(const real& k) const;		//!< Multiplication by a scalar
+	/// Cross product
+	Quat		operator*(const Quat& b) const;
+
+	/// Multiplication by a scalar		
+	Quat		operator*(const real& k) const;		
 
 	Quat		power(real exp);
 };

@@ -107,11 +107,6 @@ Mat4::Mat4(const Mat4& a)
 }
 
 //-----------------------------------------------------------------------------
-Mat4::~Mat4()
-{
-}
-
-//-----------------------------------------------------------------------------
 Mat4& Mat4::operator=(const Mat4& a)
 {
 	m[0] = a.m[0];
@@ -757,7 +752,7 @@ void Mat4::build_look_at_lh(const Vec3& pos, const Vec3& target, const Vec3& up)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_viewpoint32_t_billboard(const Vec3& pos, const Vec3& target, const Vec3& up)
+void Mat4::build_viewpoint_billboard(const Vec3& pos, const Vec3& target, const Vec3& up)
 {
 	Vec3 zAxis = target - pos;
 	zAxis.normalize();

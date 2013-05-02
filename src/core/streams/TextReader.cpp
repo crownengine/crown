@@ -31,19 +31,14 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-TextReader::TextReader(Stream* stream) : m_stream(stream)
-{
-}
-
-//-----------------------------------------------------------------------------
-TextReader::~TextReader()
+TextReader::TextReader(Stream& stream) : m_stream(stream)
 {
 }
 
 //-----------------------------------------------------------------------------
 char TextReader::read_char()
 {
-	return m_stream->read_byte();
+	return m_stream.read_byte();
 }
 
 //-----------------------------------------------------------------------------
@@ -52,9 +47,9 @@ char* TextReader::read_string(char* string, uint32_t count)
 	char currentChar;
 	uint32_t i = 0;
 
-	while(!m_stream->end_of_stream() && i < count - 1)
+	while(!m_stream.end_of_stream() && i < count - 1)
 	{
-		currentChar = m_stream->read_byte();
+		currentChar = m_stream.read_byte();
 		string[i] = currentChar;
 
 		i++;

@@ -53,13 +53,12 @@ public:
 					Shape(ShapeType type);
 					~Shape();
 
-	ShapeType		get_shape_type();
+	ShapeType		type();
 
 private:
 
-	ShapeType		mType;
-	void*			mShape;
+	ShapeType		m_type;
+	void*			m_shape;
 };
 
-}
-
+} // namespace crown

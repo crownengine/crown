@@ -28,84 +28,40 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	Interpolation utilities.
-*/
-class Interpolation
+/// Interpolation utilities.
+namespace interpolation
 {
 
-public:
+/// Returns the linear interpolated value between @p0 and @p1 at time @t
+template <typename T>
+static T	linear(const T& p0, const T& p1, real t);
 
-							/**
-								linear int32_terpolation between a pair of values.
-							@param start
-								The start value
-							@param end
-								The end value
-							@param t
-								An int32_terval ranging from 0.0 to 1.0
-							@return
-								The int32_terpolated value
-							*/
-	template <typename T>
-	static T				linear(const T& p0, const T& p1, real t);
+/// Returns the cosine interpolated value between @p0 and @p1 at time @t
+template <typename T>
+static T	cosine(const T& p0, const T& p1, real t);
 
-							/**
-								cosine int32_terpolation between a pair of values.
-							@param start
-								The start value
-							@param end
-								The end value
-							@param t
-								An int32_terval ranging from 0.0 to 1.0
-							@return
-								The int32_terpolated value
-							*/
-	template <typename T>
-	static T				cosine(const T& p0, const T& p1, real t);
+/// Returns the cubic interpolated value between @p0 and @p1 at time @t
+template <typename T>
+static T	cubic(const T& p0, const T& p1, real t);
 
-							/**
-								cubic int32_terpolation between a pair of values.
-							@param start
-								The start value
-							@param end
-								The end value
-							@param t
-								An int32_terval ranging from 0.0 to 1.0
-							@return
-								The int32_terpolated value
-							*/
-	template <typename T>
-	static T				cubic(const T& p0, const T& p1, real t);
+/// Bezier interpolation
+template <typename T>
+static T	bezier(const T& p1, const T& p2, const T& p3, const T& p4, real t);
 
-							/**
-								bezier int32_terpolation.
-							*/
-	template <typename T>
-	static T				bezier(const T& p1, const T& p2, const T& p3, const T& p4, real t);
-
-							/**
-								Catmull-Rom spline int32_terpolation.
-							*/
-	template <typename T>
-	static T				catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, real t);
-
-private:
-
-	// Disable construction
-	Interpolation();
-};
+/// Catmull-Rom interpolation
+template <typename T>
+static T	catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, real t);
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T Interpolation::linear(const T& p0, const T& p1, real t)
+inline T linear(const T& p0, const T& p1, real t)
 {
 	return p0 + (t * (p1 - p0));
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T Interpolation::cosine(const T& p0, const T& p1, real t)
+inline T cosine(const T& p0, const T& p1, real t)
 {
 	real f = t * math::PI;
 	real g = (1.0 - math::cos(f)) * 0.5;
@@ -115,7 +71,7 @@ inline T Interpolation::cosine(const T& p0, const T& p1, real t)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T Interpolation::cubic(const T& p0, const T& p1, real t)
+inline T cubic(const T& p0, const T& p1, real t)
 {
 	real tt = t * t;
 	real ttt = tt * t;
@@ -125,7 +81,7 @@ inline T Interpolation::cubic(const T& p0, const T& p1, real t)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T Interpolation::bezier(const T& p0, const T& p1, const T& p2, const T& p3, real t)
+inline T bezier(const T& p0, const T& p1, const T& p2, const T& p3, real t)
 {
 	real u = 1.0 - t;
 	real tt = t * t ;
@@ -143,7 +99,7 @@ inline T Interpolation::bezier(const T& p0, const T& p1, const T& p2, const T& p
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T Interpolation::catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, real t)
+inline T catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, real t)
 {
 	real tt = t * t;
 	real ttt = tt * t;
@@ -156,5 +112,6 @@ inline T Interpolation::catmull_rom(const T& p0, const T& p1, const T& p2, const
 	return tmp * 0.5;
 }
 
+} // namespace interpolation
 } // namespace crown
 

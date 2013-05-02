@@ -30,77 +30,72 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-BinaryWriter::BinaryWriter(Stream* stream) : m_stream(stream)
-{
-}
-
-//-----------------------------------------------------------------------------
-BinaryWriter::~BinaryWriter()
+BinaryWriter::BinaryWriter(Stream& stream) : m_stream(stream)
 {
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_byte(int8_t buffer)
 {
-	m_stream->write(&buffer, sizeof(int8_t));
+	m_stream.write(&buffer, sizeof(int8_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_int16(int16_t buffer)
 {
-	m_stream->write(&buffer, sizeof(int16_t));
+	m_stream.write(&buffer, sizeof(int16_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_uint16(uint16_t buffer)
 {
-	m_stream->write(&buffer, sizeof(uint16_t));
+	m_stream.write(&buffer, sizeof(uint16_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_int32(int32_t buffer)
 {
-	m_stream->write(&buffer, sizeof(int32_t));
+	m_stream.write(&buffer, sizeof(int32_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_uint32(uint32_t buffer)
 {
-	m_stream->write(&buffer, sizeof(uint32_t));
+	m_stream.write(&buffer, sizeof(uint32_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_int64(int64_t buffer)
 {
-	m_stream->write(&buffer, sizeof(int64_t));
+	m_stream.write(&buffer, sizeof(int64_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_double(double buffer)
 {
-	m_stream->write(&buffer, sizeof(double));
+	m_stream.write(&buffer, sizeof(double));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_float(float buffer)
 {
-	m_stream->write(&buffer, sizeof(float));
+	m_stream.write(&buffer, sizeof(float));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::insert_byte(int8_t val, size_t offset)
 {
-	size_t tmpSize = m_stream->size() - offset;
+	size_t tmpSize = m_stream.size() - offset;
 	int8_t* tmp = new int8_t[tmpSize];
 
-	m_stream->seek(offset);
-	m_stream->read(tmp, tmpSize);
+	m_stream.seek(offset);
+	m_stream.read(tmp, tmpSize);
 
-	m_stream->seek(offset);
+	m_stream.seek(offset);
 
-	m_stream->write_byte(val);
+	m_stream.write_byte(val);
 
-	m_stream->write(tmp, tmpSize);
+	m_stream.write(tmp, tmpSize);
 
 	delete[] tmp;
 }

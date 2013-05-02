@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-FloatSetting* FloatSetting::g_float_settings_head = NULL;
+static FloatSetting* g_float_settings_head = NULL;
 
 //-----------------------------------------------------------------------------
 FloatSetting::FloatSetting(const char* name, const char* synopsis, float value, float min, float max) :
@@ -39,17 +39,17 @@ FloatSetting::FloatSetting(const char* name, const char* synopsis, float value, 
 	m_max(max),
 	m_next(NULL)
 {
-	set_value(value);
+	*this = value;
 
-	if (FloatSetting::g_float_settings_head == NULL)
+	if (g_float_settings_head == NULL)
 	{
-		FloatSetting::g_float_settings_head = this;
+		g_float_settings_head = this;
 		m_next = NULL;
 	}
 	else
 	{
-		m_next = FloatSetting::g_float_settings_head;
-		FloatSetting::g_float_settings_head = this;
+		m_next = g_float_settings_head;
+		g_float_settings_head = this;
 	}
 }
 
@@ -84,7 +84,13 @@ float FloatSetting::max() const
 }
 
 //-----------------------------------------------------------------------------
-void FloatSetting::set_value(float value)
+FloatSetting::operator float()
+{
+	return m_value;
+}
+
+//-----------------------------------------------------------------------------
+FloatSetting& FloatSetting::operator=(const float value)
 {
 	if (value > m_max)
 	{
@@ -98,6 +104,8 @@ void FloatSetting::set_value(float value)
 	{
 		m_value = value;
 	}
+
+	return *this;
 }
 
 } // namespace crown

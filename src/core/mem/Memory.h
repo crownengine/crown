@@ -38,7 +38,7 @@ namespace memory
 const uint32_t	PADDING_VALUE	= 0xFFFFFFFFu;	//!< Value used to fill unused memory
 const size_t	DEFAULT_ALIGN	= 4;			//!< Default memory alignment in bytes
 
-//! Returns the point32_ter p aligned to the desired align
+/// Returns the pointer @p aligned to the desired @align byte
 inline void* align(void* p, size_t align)
 {
 	uintptr_t ptr = (uintptr_t)p;

@@ -98,7 +98,7 @@ GLRenderer::GLRenderer() :
 
 	assert(err == GLEW_OK);
 
-	Log::I("GLEW initialized.");
+	Log::i("GLEW initialized.");
 
 	glGetIntegerv(GL_MAX_LIGHTS, &m_max_lights);
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size);
@@ -119,19 +119,19 @@ GLRenderer::GLRenderer() :
 	const unsigned char* gl_renderer = glGetString(GL_RENDERER);
 	const unsigned char* gl_version = glGetString(GL_VERSION);
 
-	Log::I("OpenGL Vendor\t: %s", gl_vendor);
-	Log::I("OpenGL Renderer\t: %s", gl_renderer);
-	Log::I("OpenGL Version\t: %s", gl_version);
-	Log::I("Min Point Size\t: %f", m_min_max_point_size[0]);
-	Log::I("Max Point Size\t: %f", m_min_max_point_size[1]);
-	Log::I("Min Line Width\t: %f", m_min_max_line_width[0]);
-	Log::I("Max Line Width\t: %f", m_min_max_line_width[1]);
-	Log::I("Max Texture Size\t: %dx%d", m_max_texture_size, m_max_texture_size);
-	Log::I("Max Texture Units\t: %d", m_max_texture_units);
-	Log::I("Max Lights\t\t: %d", m_max_lights);
-	Log::I("Max Vertex Indices\t: %d", m_max_vertex_indices);
-	Log::I("Max Vertex Vertices\t: %d", m_max_vertex_vertices);
-	Log::I("Max Anisotropy\t: %f", m_max_anisotropy);
+	Log::i("OpenGL Vendor\t: %s", gl_vendor);
+	Log::i("OpenGL Renderer\t: %s", gl_renderer);
+	Log::i("OpenGL Version\t: %s", gl_version);
+	Log::i("Min Point Size\t: %f", m_min_max_point_size[0]);
+	Log::i("Max Point Size\t: %f", m_min_max_point_size[1]);
+	Log::i("Min Line Width\t: %f", m_min_max_line_width[0]);
+	Log::i("Max Line Width\t: %f", m_min_max_line_width[1]);
+	Log::i("Max Texture Size\t: %dx%d", m_max_texture_size, m_max_texture_size);
+	Log::i("Max Texture Units\t: %d", m_max_texture_units);
+	Log::i("Max Lights\t\t: %d", m_max_lights);
+	Log::i("Max Vertex Indices\t: %d", m_max_vertex_indices);
+	Log::i("Max Vertex Vertices\t: %d", m_max_vertex_vertices);
+	Log::i("Max Anisotropy\t: %f", m_max_anisotropy);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -178,7 +178,7 @@ GLRenderer::GLRenderer() :
 	// Disable dithering
 	glDisable(GL_DITHER);
 
-	Log::I("OpenGL Renderer initialized.");
+	Log::i("OpenGL Renderer initialized.");
 }
 
 //-----------------------------------------------------------------------------
@@ -745,6 +745,24 @@ void GLRenderer::set_light_attenuation(uint32_t light, float constant, float lin
 }
 
 //-----------------------------------------------------------------------------
+void GLRenderer::draw_lines(const float* vertices, const float* colors, uint32_t count)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+
+	glVertexPointer(3, GL_FLOAT, 0, vertices);
+	glColorPointer(4, GL_FLOAT, 0, colors);
+
+	glDrawArrays(GL_LINES, 0, count);
+
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+//-----------------------------------------------------------------------------
 void GLRenderer::render_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -830,25 +848,25 @@ void GLRenderer::check_gl_errors()
 		switch (error)
 		{
 			case GL_INVALID_ENUM:
-				Log::E("GLRenderer: GL_INVALID_ENUM");
+				Log::e("GLRenderer: GL_INVALID_ENUM");
 				break;
 			case GL_INVALID_VALUE:
-				Log::E("GLRenderer: GL_INVALID_VALUE");
+				Log::e("GLRenderer: GL_INVALID_VALUE");
 				break;
 			case GL_INVALID_OPERATION:
-				Log::E("GLRenderer: GL_INVALID_OPERATION");
+				Log::e("GLRenderer: GL_INVALID_OPERATION");
 				break;
 			case GL_STACK_OVERFLOW:
-				Log::E("GLRenderer: GL_STACK_OVERFLOW");
+				Log::e("GLRenderer: GL_STACK_OVERFLOW");
 				break;
 			case GL_STACK_UNDERFLOW:
-				Log::E("GLRenderer: GL_STACK_UNDERFLOW");
+				Log::e("GLRenderer: GL_STACK_UNDERFLOW");
 				break;
 			case GL_OUT_OF_MEMORY:
-				Log::E("GLRenderer: GL_OUT_OF_MEMORY");
+				Log::e("GLRenderer: GL_OUT_OF_MEMORY");
 				break;
 			case GL_TABLE_TOO_LARGE:
-				Log::E("GLRenderer: GL_OUT_OF_MEMORY");
+				Log::e("GLRenderer: GL_OUT_OF_MEMORY");
 				break;
 		}
 	}

@@ -11,7 +11,7 @@ option (CROWN_BUILD_OPENGL "Whether to build the OpenGL renderer or not." ON)
 option (CROWN_BUILD_OPENGLES "Whether to build the OpenGL|ES 1.0 renderer or not." OFF)
 option (CROWN_BUILD_SAMPLES "Whether to build the samples" ON)
 option (CROWN_BUILD_TOOLS "Whether to build the tools" ON)
-option (CROWN_BUILD_TESTS "Whether to build unit tests" OFF)
+option (CROWN_BUILD_TESTS "Whether to build unit tests" ON)
 
 set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src
@@ -30,6 +30,8 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/input
 	${CMAKE_SOURCE_DIR}/src/renderers
 	${CMAKE_SOURCE_DIR}/src/network
+
+	${CMAKE_SOURCE_DIR}/game
 )
 
 include_directories(${INCLUDES})
@@ -79,5 +81,4 @@ if (CROWN_ARCH MATCHES "x86_64")
 endif (CROWN_ARCH MATCHES "x86_64")
 
 add_subdirectory(${CROWN_THIRD})
-
 

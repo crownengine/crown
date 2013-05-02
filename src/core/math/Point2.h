@@ -34,14 +34,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	2D point32_t.
-*/
+/// 2D point.
 class Point2
 {
 public:
 
-	int32_t						x, y;
+	int32_t					x, y;
+
+public:
 
 							Point2();							//!< Constructor, does nothing for efficiency
 							Point2(int32_t nx, int32_t ny);		//! Constructs from two components

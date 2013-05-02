@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// Facility to store global float settings.
 class FloatSetting
 {
 public:
@@ -38,15 +39,14 @@ public:
 
 	const char*			name() const;
 	const char*			synopsis() const;
+
 	float				value() const;
 	float				min() const;
 	float				max() const;
 
-	void				set_value(float value);
+						operator float();
 
-private:
-
-	static FloatSetting*	g_float_settings_head;
+	FloatSetting&		operator=(const float value);
 
 private:
 

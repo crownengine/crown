@@ -35,43 +35,57 @@ namespace crown
 
 class Circle;
 
-/**
-	2D rectangle.
-
-	Used mainly for collision detection and int32_tersection tests.
-*/
+/// 2D rectangle.
+///
+/// Used mainly for collision detection and intersection tests.
 class Rect
 {
-
 public:
 
-	Vec2			min;
-	Vec2			max;
+	/// Does nothing for efficiency.
+					Rect();		
 
-					Rect();									//!< Constructor
-					Rect(const Vec2& a, const Vec2& b);		//!< Builds from "a" min value and "b" max value
-					Rect(const Rect& rect);					//!< Copy construcor
-					~Rect();								//!< Destructor
+	/// Constructs from  @min and @max
+					Rect(const Vec2& min, const Vec2& max);		
+					Rect(const Rect& rect);	
 
-	const Vec2&		get_min() const;						//!< Returns the "min" corner
-	const Vec2&		get_max() const;						//!< Returns the "max" corner
-	void			set_min(const Vec2& min);				//!< Sets the "min" corner
-	void			set_max(const Vec2& max);				//!< Sets the "max" corner
+	const Vec2&		min() const;					
+	const Vec2&		max() const;					
+	void			set_min(const Vec2& min);				
+	void			set_max(const Vec2& max);			
 
-	Vec2			get_center() const;						//!< Returns the center
-	real			get_radius() const;						//!< Returns the radius 
-	real			get_area() const;						//!< Returns the area
-	Vec2			get_size() const;						//!< Returns the diagonal
+	Vec2			center() const;					
+	real			radius() const;					
+	real			area() const;		
 
-	bool			contains_point32_t(const Vec2& point32_t) const;//!< Returns whether "point32_t" is contained
-	bool			int32_tersects_rect(const Rect& r) const;	//!< Returns whether int32_tersects "r"
-	void			set_from_center_and_dimensions(Vec2 center, real width, real height);	//!< Sets the Rect from a center and a width - height
-	void			get_vertices(Vec2 v[4]) const;			//!< Returns the four rect's vertices
-	Vec2			get_vertex(uint32_t index) const;			//!< Returns a rect's vertex
+	/// Returns the diagonal
+	Vec2			size() const;						
 
-	Circle			to_circle() const;						//!< Returns the equivalent circle
+	/// Returns whether @point is contained
+	bool			contains_point(const Vec2& point) const;
 
-	void			fix();									//!< Ensures that min and max aren't swapped
+	/// Returns whether intersects @r
+	bool			intersects_rect(const Rect& rect) const;	
+
+	/// Sets the Rect from a center and a width - height
+	void			set_from_center_and_dimensions(Vec2 center, real width, real height);	
+
+	/// Returns the four rect's vertices
+	void			vertices(Vec2 v[4]) const;
+
+	/// Returns a rect's vertex
+	Vec2			vertex(uint32_t index) const;			
+
+	/// Returns the equivalent circle
+	Circle			to_circle() const;
+
+	/// Ensures that min and max aren't swapped
+	void			fix();									
+
+private:
+
+	Vec2			m_min;
+	Vec2			m_max;
 };
 
 //-----------------------------------------------------------------------------
@@ -80,42 +94,37 @@ inline Rect::Rect()
 }
 
 //-----------------------------------------------------------------------------
-inline Rect::Rect(const Vec2& a, const Vec2& b) : min(a), max(b)
+inline Rect::Rect(const Vec2& min, const Vec2& max) : m_min(min), m_max(max)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Rect::Rect(const Rect& rect) : min(rect.min), max(rect.max)
+inline Rect::Rect(const Rect& rect) : m_min(rect.m_min), m_max(rect.m_max)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Rect::~Rect()
+inline const Vec2& Rect::min() const
 {
+	return m_min;
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec2& Rect::get_min() const
+inline const Vec2& Rect::max() const
 {
-	return min;
-}
-
-//-----------------------------------------------------------------------------
-inline const Vec2& Rect::get_max() const
-{
-	return max;
+	return m_max;
 }
 
 //-----------------------------------------------------------------------------
 inline void Rect::set_min(const Vec2& min)
 {
-	this->min = min;
+	m_min = min;
 }
 
 //-----------------------------------------------------------------------------
 inline void Rect::set_max(const Vec2& max)
 {
-	this->max = max;
+	m_max = max;
 }
 
 } // namespace crown
