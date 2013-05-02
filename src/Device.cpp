@@ -421,21 +421,22 @@ bool Device::parse_command_line(int argc, char** argv)
 //-----------------------------------------------------------------------------
 void Device::print_help_message()
 {
-	os::printf("Usage: crown [options]\n");
-	os::printf("Options:\n\n");
+	os::printf(
+	"Usage: crown [options]\n"
+	"Options:\n\n"
 
-	os::printf("All of the following options take precedence over\n");
-	os::printf("environment variables and configuration files.\n\n");
+	"All of the following options take precedence over\n"
+	"environment variables and configuration files.\n\n"
 
-	os::printf("  --help                Show this help.\n");
-	os::printf("  --root-path <path>    Use <path> as the filesystem root path.\n");
-	os::printf("  --user-path <path>    Use <path> as the filesystem user path.\n");
-	os::printf("  --width <width>       Set the <width> of the render window.\n");
-	os::printf("  --height <width>      Set the <height> of the render window.\n");
-	os::printf("  --fullscreen          Start in fullscreen.\n");
-	os::printf("  --gl                  Use OpenGL as rendering backend.\n");
-	os::printf("  --gles                Use OpenGL|ES as rendering backend.\n");  
-	os::printf("  --dev                 Run the engine in development mode\n");
+	"  --help                Show this help.\n"
+	"  --root-path <path>    Use <path> as the filesystem root path.\n"
+	"  --user-path <path>    Use <path> as the filesystem user path.\n"
+	"  --width <width>       Set the <width> of the render window.\n"
+	"  --height <width>      Set the <height> of the render window.\n"
+	"  --fullscreen          Start in fullscreen.\n"
+	"  --gl                  Use OpenGL as rendering backend.\n"
+	"  --gles                Use OpenGL|ES as rendering backend.\n"  
+	"  --dev                 Run the engine in development mode\n");
 }
 
 Device g_device;
