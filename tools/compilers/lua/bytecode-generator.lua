@@ -30,7 +30,7 @@ end
 --------------------------------------------------------------
 function prepare_destination(files)
 	-- Portable bytecode
-	local ext = ".raw"
+	local ext = ".script"
 	local raws =  {}
 
 	for i,s in ipairs(files) do
