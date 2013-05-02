@@ -17,6 +17,28 @@ LuaCompiler::LuaCompiler(const char* root_path, const char* dest_path, const cha
 //-----------------------------------------------------------------------------
 bool LuaCompiler::compile()
 {
+	int32_t status;
+    lua_State *L;
+
+    luaL_openlibs(L); // Load Lua libraries 
+
+    char* file;
+    strcpy(file, root_path());
+    strcat(file, resource_path());
+
+    /* Load the file containing the script we are going to run */
+    status = luaL_loadfile(L, file);
+
+    if (status)
+    {
+        printf("Couldn't load file: %s\n", lua_tostring(L, -1));
+        return -1;
+    }
+    else
+    {
+    	printf("yeah!\n");
+    }
+
 	return true;
 }
 
