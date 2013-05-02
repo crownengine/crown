@@ -50,11 +50,11 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 #detect architecture
 if (CROWN_ARCH MATCHES "x86")
-	set (CROWN_THIRD third/x86)
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86)
 endif (CROWN_ARCH MATCHES "x86")
 
 if (CROWN_ARCH MATCHES "x86_64")
-	set (CROWN_THIRD third/x86_64)
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86_64)
 endif (CROWN_ARCH MATCHES "x86_64")
 
 add_subdirectory(${CROWN_THIRD})
@@ -81,4 +81,6 @@ endif (CROWN_BUILD_SAMPLES)
 if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
+
+message (${CROWN_THIRD})
 
