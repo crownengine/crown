@@ -25,7 +25,7 @@ target_link_libraries(paths crown)
 
 link_directories(${CROWN_THIRD}/luajit/lib)
 include_directories(${CROWN_THIRD}/luajit/include)
-target_link_libraries(script crown lua m)
+target_link_libraries(script crown lua)
 
 add_test(allocators-test ${EXECUTABLE_OUTPUT_PATH}/allocators)
 add_test(containers-test containers)
