@@ -34,7 +34,25 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/game
 )
 
-include_directories(${INCLUDES})
+# detect architecture
+if (CROWN_ARCH MATCHES "x86")
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86)
+endif (CROWN_ARCH MATCHES "x86")
+
+if (CROWN_ARCH MATCHES "x86_64")
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86_64)
+endif (CROWN_ARCH MATCHES "x86_64")
+
+set (CROWN_LUAJIT_INCLUDES
+	${CROWN_THIRD}/luajit/include/luajit-2.0
+)
+
+set (CROWN_LUAJIT_LIBS
+	${CROWN_THIRD}/luajit/lib
+)
+
+include_directories(${INCLUDES} ${CROWN_LUAJIT_INCLUDES})
+link_directories(${CROWN_LUAJIT_LIBS})
 add_definitions(-pipe -ansi -W -Wall -Wextra -Wno-long-long -pedantic -fPIC -g -pg)
 
 # detect operating system
@@ -48,19 +66,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	add_subdirectory(src/os/win)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
-#detect architecture
-if (CROWN_ARCH MATCHES "x86")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86)
-endif (CROWN_ARCH MATCHES "x86")
-
-if (CROWN_ARCH MATCHES "x86_64")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86_64)
-endif (CROWN_ARCH MATCHES "x86_64")
-
-add_subdirectory(${CROWN_THIRD})
 
 # add build directories
 add_subdirectory(src)
+add_subdirectory(${CROWN_THIRD})
 
 if (CROWN_BUILD_OPENGL)
 	add_subdirectory(src/renderers/gl)
@@ -82,5 +91,4 @@ if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
-message (${CROWN_THIRD})
 
