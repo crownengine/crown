@@ -147,26 +147,26 @@ Camera* FPSSystem::camera()
 }
 
 //-----------------------------------------------------------------------
-void FPSSystem::update()
+void FPSSystem::update(float dt)
 {
 	if (m_up_pressed)
 	{
-		m_camera->move_forward(m_camera_speed);
+		m_camera->move_forward(m_camera_speed * dt);
 	}
 
 	if (m_left_pressed)
 	{
-		m_camera->strafe_left(m_camera_speed);
+		m_camera->strafe_left(m_camera_speed * dt);
 	}		
 
 	if (m_down_pressed)
 	{
-		m_camera->move_backward(m_camera_speed);
+		m_camera->move_backward(m_camera_speed * dt);
 	}
 
 	if (m_right_pressed)
 	{
-		m_camera->strafe_right(m_camera_speed);
+		m_camera->strafe_right(m_camera_speed * dt);
 	}
 
 	device()->renderer()->set_matrix(MT_VIEW, m_camera->view_matrix());

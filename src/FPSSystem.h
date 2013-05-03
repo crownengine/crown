@@ -47,7 +47,7 @@ public:
 	void 			set_camera(Camera* camera);
 	Camera*			camera();
 
-	void			update();
+	void			update(float dt);
 	void			set_view_by_cursor();	
 
 	virtual void 	key_pressed(const KeyboardEvent& event);

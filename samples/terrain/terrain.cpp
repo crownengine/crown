@@ -123,7 +123,7 @@ public:
 		// Add a movable camera
 		cam = new Camera(start, 90.0f, 1.6f);
 
-		system = new FPSSystem(cam, 0.1, 2.5);
+		system = new FPSSystem(cam, 10.0f, 2.5f);
 
 		// Add a skybox
 		skybox = new Skybox(Vec3::ZERO, true);
@@ -149,12 +149,12 @@ public:
 		terrain.UpdateVertexBuffer(true);
 	}
 
-	void render()
+	void render(float dt)
 	{
 		Renderer* renderer = device()->renderer();
 		
 		system->set_view_by_cursor();
-		system->update();
+		system->update(dt);
 
 		renderer->set_lighting(false);
 		renderer->set_texturing(0, false);
@@ -242,9 +242,9 @@ public:
 	{
 	}
 
-	void update()
+	void update(float dt)
 	{
-		m_scene.render();
+		m_scene.render(dt);
 	}
 
 private:

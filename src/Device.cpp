@@ -64,6 +64,12 @@ Device::Device() :
 	m_is_init(false),
 	m_is_running(false),
 
+	m_frame_count(0),
+
+	m_last_time(0),
+	m_current_time(0),
+	m_last_delta_time(0.0f),
+
 	m_filesystem(NULL),
 	m_resource_manager(NULL),
 	m_input_manager(NULL),
@@ -240,6 +246,8 @@ void Device::start()
 	}
 
 	m_is_running = true;
+
+	m_last_time = os::milliseconds();
 }
 
 //-----------------------------------------------------------------------------
@@ -261,17 +269,35 @@ bool Device::is_running() const
 }
 
 //-----------------------------------------------------------------------------
+uint64_t Device::frame_count() const
+{
+	return m_frame_count;
+}
+
+//-----------------------------------------------------------------------------
+float Device::last_delta_time() const
+{
+	return m_last_delta_time;
+}
+
+//-----------------------------------------------------------------------------
 void Device::frame()
 {
+	m_current_time = os::milliseconds();
+	m_last_delta_time = (m_current_time - m_last_time) / 1000.0f;
+	m_last_time = m_current_time;
+
 	m_input_manager->event_loop();
 
 	m_renderer->begin_frame();
 
-	m_game->update();
+	m_game->update(last_delta_time());
 
 	m_debug_renderer->draw_all();
 
 	m_renderer->end_frame();
+
+	m_frame_count++;
 }
 
 //-----------------------------------------------------------------------------
