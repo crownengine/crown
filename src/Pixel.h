@@ -40,9 +40,8 @@ namespace crown
 // [36 - 39]	-> 128-bit
 // 40			-> Unknown (0-bit)
 
-/**
-	Enumerates pixel formats.
-*/
+
+/// Enumerates pixel formats.
 enum PixelFormat
 {
 	PF_L_8 = 0,				//!< Luminance only, 8-bit
@@ -101,14 +100,13 @@ enum PixelFormat
 
 class Pixel
 {
-
 public:
 
-	//! Returns the format's bytes per pixel
-	static uint32_t GetBytesPerPixel(PixelFormat format);
+	/// Returns the bytes per pixel necessary to @format pixel format
+	static uint32_t bytes_per_pixel(PixelFormat format);
 
-	//! Returns the format's bits per pixel
-	static uint32_t GetBitsPerPixel(PixelFormat format);
+	/// Returns the bits per pixel necessary to @format pixel format
+	static uint32_t bits_per_pixel(PixelFormat format);
 
 private:
 
