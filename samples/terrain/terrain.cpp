@@ -140,8 +140,14 @@ public:
 
 		terrain.CreateTerrain(64, 64, 1, 0.0f);
 
-		//grass = GetTextureManager()->Load("res/grass.tga");
-		//grass->SetFilter(TF_TRILINEAR);
+		device()->resource_manager()->load("textures/red_north.tga");
+		device()->resource_manager()->load("textures/red_south.tga");
+		device()->resource_manager()->load("textures/red_east.tga");
+		device()->resource_manager()->load("textures/red_west.tga");
+		device()->resource_manager()->load("textures/red_up.tga");
+		device()->resource_manager()->load("textures/red_down.tga");
+
+		grass = device()->resource_manager()->load("textures/grass.tga");
 
 		terrain.PlotCircle(4, 4, 4, 2);
 
@@ -179,10 +185,19 @@ public:
 		renderer->set_material_params(Color4(0.3f, 0.3f, 0.3f), Color4(0.8f, 0.8f, 0.8f), Color4::BLACK, Color4::BLACK, 0);
 
 		renderer->set_matrix(MT_MODEL, Mat4::IDENTITY);
-		// Texture disabled because of last updates not in sync... :(
-		//renderer->set_texturing(0, true);
-		//renderer->set_texture(0, grass);
-		renderer->set_lighting(true);
+
+		if (device()->resource_manager()->is_loaded(grass))
+		{
+			TextureResource* grass_tex = (TextureResource*)device()->resource_manager()->data(grass);
+			if (grass_tex)
+			{
+				TextureId grass_id = grass_tex->m_render_texture;
+				renderer->set_texturing(0, true);
+				renderer->set_texture(0, grass_id);
+				renderer->set_lighting(true);
+			}
+		}
+
 		
 		//glColor3f(1, 1, 1);
 
