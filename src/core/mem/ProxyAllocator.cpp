@@ -49,4 +49,10 @@ void ProxyAllocator::deallocate(void* data)
 	m_allocator.deallocate(data);
 }
 
+//-----------------------------------------------------------------------------
+const char* ProxyAllocator::name() const
+{
+	return m_name;
+}
+
 } // namespace crown

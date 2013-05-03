@@ -47,6 +47,9 @@ public:
 	/// @copydoc Allocator::deallocate()
 	void			deallocate(void* data);
 
+	/// Returns the name of the proxy allocator
+	const char*		name() const;
+
 private:
 
 	Allocator&		m_allocator;
