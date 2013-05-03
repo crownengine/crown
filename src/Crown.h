@@ -71,6 +71,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Memory.h"
 #include "Allocator.h"
 #include "MallocAllocator.h"
+#include "ProxyAllocator.h"
 
 // Core/Streams
 #include "Stream.h"

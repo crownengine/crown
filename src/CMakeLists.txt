@@ -153,12 +153,14 @@ set (STRINGS_HEADERS
 
 set (MEM_SRC
 	core/mem/MallocAllocator.cpp
+	core/mem/ProxyAllocator.cpp
 )
 
 set (MEM_HEADERS
 	core/mem/Memory.h
 	core/mem/Allocator.h
 	core/mem/MallocAllocator.h
+	core/mem/ProxyAllocator.h
 )
 
 set (COMPRESSORS_SRC
