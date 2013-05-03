@@ -99,7 +99,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Font.h"
 #include "Glyph.h"
 #include "Image.h"
-#include "Pixel.h"
 #include "ResourceArchive.h"
 #include "ArchiveResourceArchive.h"
 #include "FileResourceArchive.h"
@@ -129,3 +128,5 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Material.h"
 #include "Texture.h"
 #include "DebugRenderer.h"
+#include "Pixel.h"
+
