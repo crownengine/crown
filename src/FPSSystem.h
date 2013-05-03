@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Keyboard.h"
 #include "Touch.h"
 #include "Accelerometer.h"
+#include "Renderer.h"
 
 namespace crown
 {
@@ -41,12 +42,12 @@ class FPSSystem : public MouseListener, public KeyboardListener, public Accelero
 public:
 
 					/// Constructor
-					FPSSystem(MovableCamera* camera);
+					FPSSystem(Camera* camera, float speed, float sensibility);
 
-	void 			set_camera(MovableCamera* camera);
-	MovableCamera*	get_camera();
+	void 			set_camera(Camera* camera);
+	Camera*			camera();
 
-	void			camera_render();
+	void			update();
 	void			set_view_by_cursor();	
 
 	virtual void 	key_pressed(const KeyboardEvent& event);
@@ -55,7 +56,10 @@ public:
 
 private:
 
-	MovableCamera*	m_camera;
+	Camera*			m_camera;
+
+	float			m_camera_speed;
+	float			m_camera_sensibility;
 
 	real 			m_angle_x;
 	real 			m_angle_y;

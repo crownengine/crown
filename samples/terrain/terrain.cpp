@@ -59,14 +59,6 @@ public:
 		{		
 			terrain.PlotCircle(8, 8, 8, 2);
 		}
-
-		if (event.key == KC_SPACE)
-		{
-			if (cam)
-			{
-				cam->SetActive(!cam->IsActive());
-			}
-		}
 	}
 
 	void button_pressed(const MouseEvent& event)
@@ -129,16 +121,9 @@ public:
 		Vec3 start = Vec3(0.0f, 10.0f, 0.0f);
 
 		// Add a movable camera
-		cam = new MovableCamera(/*Vec3::ZERO*/start, true, 90.0f, 1.6f, true, 0.1, 2.5);
+		cam = new Camera(start, 90.0f, 1.6f);
 
-		if (cam)
-		{
-			cam->SetActive(true);
-			cam->SetSpeed(0.1);
-			cam->SetFarClipDistance(1000.0f);
-		}
-
-		system = new FPSSystem(cam);
+		system = new FPSSystem(cam, 0.1, 2.5);
 
 		// Add a skybox
 		skybox = new Skybox(Vec3::ZERO, true);
@@ -169,7 +154,7 @@ public:
 		Renderer* renderer = device()->renderer();
 		
 		system->set_view_by_cursor();
-		system->camera_render();
+		system->update();
 
 		renderer->set_lighting(false);
 		renderer->set_texturing(0, false);
@@ -179,11 +164,8 @@ public:
 			skybox->Render();
 		}
 
-		if (cam->IsActive())
-		{
-			ray.set_origin(cam->GetPosition());
-			ray.set_direction(cam->GetLookAt());
-		}
+		ray.set_origin(cam->position());
+		ray.set_direction(cam->look_at());
 
 		/* Render the terrain */
 		renderer->set_ambient_light(Color4(0.5f, 0.5f, 0.5f, 1.0f));
@@ -230,7 +212,7 @@ public:
 private:
 
 	FPSSystem* system;
-	MovableCamera* cam;
+	Camera* cam;
 	Skybox* skybox;
 	Mat4 ortho;
 	Terrain terrain;

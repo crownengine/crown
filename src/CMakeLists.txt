@@ -6,7 +6,6 @@ set (SRC
 	Font.cpp
 	Image.cpp
 	MaterialResource.cpp
-	MovableCamera.cpp
 	Pixel.cpp
 	ResourceManager.cpp
 	Skybox.cpp
@@ -34,7 +33,6 @@ set (HEADERS
 	Glyph.h
 	Image.h
 	MaterialResource.h
-	MovableCamera.h
 	Pixel.h
 	Resource.h
 	ResourceManager.h

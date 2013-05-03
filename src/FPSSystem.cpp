@@ -24,7 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "InputManager.h"
-#include "MovableCamera.h"
+#include "Camera.h"
 #include "FPSSystem.h"
 #include "Vec2.h"
 #include "Vec3.h"
@@ -36,8 +36,10 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------
-FPSSystem::FPSSystem(MovableCamera* camera) :
+FPSSystem::FPSSystem(Camera* camera, float speed, float sensibility) :
 	m_camera(camera),
+	m_camera_speed(speed),
+	m_camera_sensibility(sensibility),
 
 	m_angle_x(0),
 	m_angle_y(0),
@@ -133,41 +135,42 @@ void FPSSystem::accelerometer_changed(const AccelerometerEvent& event)
 	set_view_by_cursor();
 }
 //-----------------------------------------------------------------------
-void FPSSystem::set_camera(MovableCamera* camera)
+void FPSSystem::set_camera(Camera* camera)
 {
 	m_camera = camera;
 }
 
 //-----------------------------------------------------------------------
-MovableCamera* FPSSystem::get_camera()
+Camera* FPSSystem::camera()
 {
 	return m_camera;
 }
 
 //-----------------------------------------------------------------------
-void FPSSystem::camera_render()
+void FPSSystem::update()
 {
 	if (m_up_pressed)
 	{
-		m_camera->MoveForward();
+		m_camera->move_forward(m_camera_speed);
 	}
 
 	if (m_left_pressed)
 	{
-		m_camera->StrafeLeft();
+		m_camera->strafe_left(m_camera_speed);
 	}		
 
 	if (m_down_pressed)
 	{
-		m_camera->MoveBackward();
+		m_camera->move_backward(m_camera_speed);
 	}
 
 	if (m_right_pressed)
 	{
-		m_camera->StrafeRight();
+		m_camera->strafe_right(m_camera_speed);
 	}
 
-	m_camera->Render();
+	device()->renderer()->set_matrix(MT_VIEW, m_camera->view_matrix());
+	device()->renderer()->set_matrix(MT_PROJECTION, m_camera->projection_matrix());
 }
 
 //-----------------------------------------------------------------------	
@@ -187,13 +190,13 @@ void FPSSystem::set_view_by_cursor()
 	device()->input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 	lastPos = device()->input_manager()->get_cursor_relative_xy();
 
-	m_angle_x += delta.y * m_camera->GetSensibility();
-	m_angle_y += delta.x * m_camera->GetSensibility();
+	m_angle_x += delta.y * m_camera_sensibility;
+	m_angle_y += delta.x * m_camera_sensibility;
 
 	m_angle_x = math::clamp_to_range(-89.999f * math::DEG_TO_RAD, 89.999f * math::DEG_TO_RAD, m_angle_x);
 	m_angle_y = math::fmod(m_angle_y, math::TWO_PI);
 
-	m_camera->SetRotation(m_angle_x, m_angle_y);
+	m_camera->set_rotation(m_angle_x, m_angle_y);
 }
 
 } // namespace crown
