@@ -1,37 +1,63 @@
 #include <iostream>
-
+#include "Crown.h"
 #include "lua.hpp"
+#include <unistd.h>
 
-void report_errors(lua_State *L, int status)
+using namespace crown;
+
+static void report_errors(lua_State* state, const int status)
 {
-  if ( status!=0 ) {
-    std::cerr << "-- " << lua_tostring(L, -1) << std::endl;
-    lua_pop(L, 1); // remove error message
+  if (status != 0)
+  {
+    std::cerr << "-- " << lua_tostring(state, -1) << std::endl;
+
+    lua_pop(state, 1);
   }
 }
 
 int main(int argc, char** argv)
 {
-  for ( int n=1; n<argc; ++n ) {
-    const char* file = argv[n];
+  lua_State* lua_state;
 
-    lua_State *L = luaL_newstate();
+  Filesystem fs("/home/mikymod/test/res_compiled");
 
-	luaL_openlibs(L);
+  FileResourceArchive archive(fs);
 
-    std::cerr << "-- Loading file: " << file << std::endl;
+  MallocAllocator allocator;
 
-    int s = luaL_loadfile(L, file);
+  ResourceManager res_manager(archive, allocator);
 
-    if ( s==0 ) {
-      // execute Lua program
-      s = lua_pcall(L, 0, LUA_MULTRET, 0);
+  ResourceId script = res_manager.load("lua/hello.lua");
+
+  while (1)
+  {
+    res_manager.flush_load_queue();
+    res_manager.bring_loaded_online();
+
+    if (res_manager.is_loaded(script))
+    {
+
+      lua_state = luaL_newstate();
+      luaL_openlibs(lua_state);
+
+      assert(res_manager.data(script) != NULL);
+
+      ScriptResource* resource = (ScriptResource*)res_manager.data(script);
+
+      int s = luaL_loadbuffer(lua_state, (char*)resource->data(), 47, "");
+
+      if (s == 0)
+      {
+        s = lua_pcall(lua_state, 0, LUA_MULTRET, 0);
+      }
+
+      report_errors(lua_state, s);
+
+      break;
     }
-
-    report_errors(L, s);
-    lua_close(L);
-    std::cerr << std::endl;
   }
+
+  lua_close(lua_state);
 
   return 0;
 }
