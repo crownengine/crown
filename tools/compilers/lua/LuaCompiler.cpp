@@ -56,7 +56,6 @@ void LuaCompiler::write()
 
     FileStream* file = Compiler::destination_file();
 
-    file->write(&m_file_size, sizeof(uint32_t));
     file->write(m_file_data, m_file_size);
 }
 
