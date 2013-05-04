@@ -41,7 +41,7 @@ class TextureResource
 public:
 
 	static void*		load(Allocator& allocator, ResourceArchive& archive, ResourceId id);
-	static void			online(void* texture);
+	static void			online(void* resource);
 	static void			unload(Allocator& allocator, void* resource);
 	static void			offline();
 
