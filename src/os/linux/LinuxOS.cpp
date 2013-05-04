@@ -137,7 +137,7 @@ bool is_dir(const char* path)
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
 	lstat(path, &info);
-	return ((S_ISDIR(info.st_mode)) != 0 && (S_ISLNK(info.st_mode) == 0));
+	return ((S_ISDIR(info.st_mode) == 1) && (S_ISLNK(info.st_mode) == 0));
 }
 
 //-----------------------------------------------------------------------------
@@ -146,7 +146,7 @@ bool is_reg(const char* path)
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
 	lstat(path, &info);
-	return ((S_ISREG(info.st_mode) != 0) && (S_ISLNK(info.st_mode) == 0));
+	return ((S_ISREG(info.st_mode) == 1) && (S_ISLNK(info.st_mode) == 0));
 }
 
 //-----------------------------------------------------------------------------
