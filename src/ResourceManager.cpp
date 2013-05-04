@@ -289,9 +289,13 @@ void ResourceManager::online(ResourceId name, void* resource)
 	ResourceEntry& entry = m_resources[name.index];
 
 	// FIXME hardcoded seed
-	if (name.type == hash::murmur2_32("tga", 3, 0))
+	if (name.type == m_texture_hash)
 	{
 		TextureResource::online((TextureResource*)resource);
+	}
+	else if (name.type == m_script_hash)
+	{
+		ScriptResource::online((ScriptResource*)resource);
 	}
 
 	entry.resource = resource;
