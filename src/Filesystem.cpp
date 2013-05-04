@@ -176,7 +176,8 @@ FileStream* Filesystem::open(const char* relative_path, StreamOpenMode mode)
 {
 	FilesystemEntry info;
 
-	assert(get_info(relative_path, info) && info.type == FilesystemEntry::FILE);
+	assert(get_info(relative_path, info));
+	assert(info.type == FilesystemEntry::FILE);
 
 	return new FileStream(mode, info.os_path);
 }
