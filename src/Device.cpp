@@ -287,8 +287,11 @@ void Device::frame()
 	m_last_delta_time = (m_current_time - m_last_time) / 1000.0f;
 	m_last_time = m_current_time;
 
-	m_resource_manager->flush_load_queue();
-	m_resource_manager->bring_loaded_online();
+	if (frame_count() % 5 == 0)
+	{
+		m_resource_manager->flush_load_queue();
+		m_resource_manager->bring_loaded_online();
+	}
 
 	m_input_manager->event_loop();
 
