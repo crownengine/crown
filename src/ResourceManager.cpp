@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "TextResource.h"
 #include "TextureResource.h"
+#include "ScriptResource.h"
 
 namespace crown
 {
@@ -47,10 +48,11 @@ ResourceManager::ResourceManager(ResourceArchive& archive, Allocator& allocator)
 	m_thread(ResourceManager::background_thread, (void*)this, "resource-loader-thread")
 {
 	// FIXME hardcoded seed
-	m_config_hash = hash::murmur2_32("config", string::strlen("config"), 0);
-	m_texture_hash = hash::murmur2_32("tga", string::strlen("tga"), 0);
-	m_mesh_hash = hash::murmur2_32("mesh", string::strlen("mesh"), 0);
+	m_config_hash = hash::murmur2_32("config", 6, 0);
+	m_texture_hash = hash::murmur2_32("tga", 3, 0);
+	m_mesh_hash = hash::murmur2_32("mesh", 4, 0);
 	m_txt_hash = hash::murmur2_32("txt", 3, 0);
+	m_script_hash = hash::murmur2_32("lua", 3, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -250,6 +252,10 @@ void* ResourceManager::load_by_type(ResourceId name) const
 	{
 		return TextResource::load(m_resource_allocator, m_resource_archive, name);
 	}
+	else if (name.type == m_script_hash)
+	{
+		return ScriptResource::load(m_resource_allocator, m_resource_archive, name);
+	}
 
 	return NULL;
 }
@@ -261,15 +267,17 @@ void ResourceManager::unload_by_type(ResourceId name, void* resource) const
 	{
 		return;
 	}
-
-	if (name.type == m_texture_hash)
+	else if (name.type == m_texture_hash)
 	{
 		TextureResource::unload(m_resource_allocator, (TextureResource*)resource);
 	}
-
-	if (name.type == m_txt_hash)
+	else if (name.type == m_txt_hash)
 	{
 		TextResource::unload(m_resource_allocator, (TextResource*)resource);
+	}
+	else if (name.type == m_script_hash)
+	{
+		ScriptResource::unload(m_resource_allocator, (ScriptResource*)resource);
 	}
 
 	return;
