@@ -110,13 +110,11 @@ public:
 	Mat4				get_matrix(MatrixType type) const;
 	void				set_matrix(MatrixType type, const Mat4& matrix);
 
-	void				select_matrix(MatrixType type);
-
-	void				render_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices);
-	void				render_point_buffer(const VertexBuffer* buffer);
+	void				draw_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices);
+	void				draw_point_buffer(const VertexBuffer* buffer);
 
 	void				draw_lines(const float* vertices, const float* colors, uint32_t count);
-	void				render_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count);
+	void				draw_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count);
 
 	TextureId			load_texture(TextureResource* texture);
 	void				unload_texture(TextureResource* texture);

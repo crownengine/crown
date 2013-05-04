@@ -614,30 +614,7 @@ void GLRenderer::set_matrix(MatrixType type, const Mat4& matrix)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::select_matrix(MatrixType type)
-{
-	switch (type)
-	{
-		case MT_VIEW:
-		case MT_MODEL:
-			glMatrixMode(GL_MODELVIEW);
-			break;
-		case MT_PROJECTION:
-			glMatrixMode(GL_PROJECTION);
-			break;
-		case MT_TEXTURE:
-			glMatrixMode(GL_TEXTURE);
-			break;
-		case MT_COLOR:
-			glMatrixMode(GL_COLOR);
-			break;
-		default:
-			break;
-	}
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::render_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices)
+void GLRenderer::draw_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices)
 {
 	assert(vertices != NULL);
 	assert(indices != NULL);
@@ -659,7 +636,7 @@ void GLRenderer::render_vertex_index_buffer(const VertexBuffer* vertices, const 
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::render_point_buffer(const VertexBuffer* buffer)
+void GLRenderer::draw_point_buffer(const VertexBuffer* buffer)
 {
 	if (buffer == NULL)
 		return;
@@ -763,7 +740,7 @@ void GLRenderer::draw_lines(const float* vertices, const float* colors, uint32_t
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::render_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count)
+void GLRenderer::draw_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

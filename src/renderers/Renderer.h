@@ -67,12 +67,7 @@ enum DrawMode
 
 class Renderer
 {
-
 public:
-
-	static Renderer* CreateRenderer();
-	static void	DestroyRenderer(Renderer* renderer);
-
 
 	Renderer() {}
 	virtual ~Renderer() {}
@@ -183,15 +178,11 @@ public:
 	//! Loads the current matrix
 	virtual void set_matrix(MatrixType type, const Mat4& matrix) = 0;
 
-	//! Selects the active matrix
-	virtual void select_matrix(MatrixType type) = 0;
-
-	virtual void render_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices) = 0;
-
-	virtual void render_point_buffer(const VertexBuffer* buffer) = 0;
+	virtual void draw_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices) = 0;
+	virtual void draw_point_buffer(const VertexBuffer* buffer) = 0;
 
 	virtual void draw_lines(const float* vertices, const float* colors, uint32_t count) = 0;
-	virtual void render_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count) = 0;
+	virtual void draw_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count) = 0;
 
 	// FIXME
 	virtual TextureId	load_texture(TextureResource* texture) = 0;
