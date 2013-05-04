@@ -103,7 +103,7 @@ class Compiler:
 		if resource.endswith('.lua'):
 			path = os.path.normpath(root_path + "/" + resource)
 			f = subprocess.call([LUAJIT, BC_G, path]);
-			# p = subprocess.call([LUA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
+			p = subprocess.call([LUA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
 
 	
 

@@ -10,9 +10,7 @@ set (HEADERS
 )
 
 add_executable(lua-compiler ${SRC} ${HEADERS})
-link_directories(${CROWN_THIRD}/luajit/lib)
-include_directories(${CROWN_THIRD}/luajit/include/luajit-2.0)
-target_link_libraries(lua-compiler crown-compiler-utils luajit-5.1)
+target_link_libraries(lua-compiler crown-compiler-utils)
 
 install (TARGETS lua-compiler DESTINATION bin)
 install (FILES bytecode-generator.lua DESTINATION bin)

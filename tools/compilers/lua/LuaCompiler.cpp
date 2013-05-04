@@ -1,6 +1,5 @@
 #include "LuaCompiler.h"
 #include "FileStream.h"
-#include "lua.hpp"
 
 namespace crown
 {
@@ -17,35 +16,48 @@ LuaCompiler::LuaCompiler(const char* root_path, const char* dest_path, const cha
 //-----------------------------------------------------------------------------
 bool LuaCompiler::compile()
 {
-	int32_t status;
-    lua_State *L;
+    Filesystem fs(root_path());
 
-    luaL_openlibs(L); // Load Lua libraries 
+    char tmp_resource[os::MAX_PATH_LENGTH];
 
-    char* file;
-    strcpy(file, root_path());
-    strcat(file, resource_path());
+    string::strcpy(tmp_resource, resource_path());
+    string::strcat(tmp_resource, ".script");
 
-    /* Load the file containing the script we are going to run */
-    status = luaL_loadfile(L, file);
-
-    if (status)
+    if (!fs.exists(tmp_resource))
     {
-        printf("Couldn't load file: %s\n", lua_tostring(L, -1));
-        return -1;
-    }
-    else
-    {
-    	printf("yeah!\n");
+        os::printf("Resource cannot be found.\n");
+        return false;
     }
 
-	return true;
+    FileStream* file = (FileStream*)fs.open(tmp_resource, SOM_READ);
+
+    m_file_size = file->size();
+
+    if (m_file_size == 0)
+    {
+        return false;
+    }
+
+    m_file_data = new char[m_file_size];
+    
+    // Copy the entire file into the buffer
+    file->read(m_file_data, m_file_size);
+
+    // Prepare for writing
+    Compiler::prepare_header(m_file_size);
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------
 void LuaCompiler::write()
 {
+    Compiler::write_header();
 
+    FileStream* file = Compiler::destination_file();
+
+    file->write(&m_file_size, sizeof(uint32_t));
+    file->write(m_file_data, m_file_size);
 }
 
 } // namespace crown

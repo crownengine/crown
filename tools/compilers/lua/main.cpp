@@ -42,30 +42,14 @@ int main(int argc, char** argv)
 	}
 
 	LuaCompiler compiler(root_path, dest_path, resource_in, hash_seed);
-	compiler.compile();
 
-	// ArchiveEntry archive_entry;
-	// archive_entry.name = resource_basename_hash;
-	// archive_entry.type = resource_extension_hash;
-	// archive_entry.offset = sizeof (ArchiveEntry);
-	// archive_entry.size = src_file_size + sizeof(uint32_t);
-	
-	// void* buffer = new uint8_t[src_file_size];
-	
-	// src_file->read(buffer, src_file_size);
-	
-	// fs_root.close(src_file);
-	
-	// FileStream* dest_file = (FileStream*)fs_root.open(resource_out, SOM_WRITE);
+	if (compiler.compile() == false)
+	{
+		printf("%s: ERROR: compilation failed for resource %s\n", argv[0], compiler.resource_path());
+		exit(-1);
+	}
 
-	// dest_file->write(&archive_entry, sizeof(ArchiveEntry));
-	// dest_file->write(&src_file_size, sizeof(uint32_t));
-	// dest_file->write(buffer, src_file_size);
-
-	// fs_root.delete_file(tmp_file);
-	// fs_root.close(dest_file);	
-
-	// printf("Resource compilation completed: %s\n", resource_out);
+	compiler.write();
 
 	return 0;
 }

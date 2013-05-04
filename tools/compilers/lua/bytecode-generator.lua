@@ -1,5 +1,5 @@
 local src = arg[1]
-local tmp = src .. ".tmp"
+local tmp = src .. ".script"
 
 
 local chunk = string.dump(loadfile(src), true)
