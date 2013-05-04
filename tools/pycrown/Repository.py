@@ -32,7 +32,7 @@ LUA_EXTENSION = ('.lua')
 resource_extensions = ('.txt', '.tga', '.dae', '.lua')
 
 # Represents the folder containing the resources
-# Can filter resources by type and other useful suff
+# Can filter resources by type and other useful stuff
 class Repository:
 	def __init__(self, root_path):
 		self.m_root_path = root_path

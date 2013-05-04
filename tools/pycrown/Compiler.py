@@ -23,7 +23,10 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 
 import subprocess
+import os
 
+LUAJIT = "luajit-2.0.1"
+BC_G = "bytecode-generator.lua"
 TXT_C = "txt-compiler"
 TGA_C = "tga-compiler"
 LUA_C = "lua-compiler"
@@ -98,7 +101,9 @@ class Compiler:
 		if resource.endswith('.tga'):
 			p = subprocess.call([TGA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
 		if resource.endswith('.lua'):
-			p = subprocess.call([LUA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
+			path = os.path.normpath(root_path + "/" + resource)
+			f = subprocess.call([LUAJIT, BC_G, path]);
+			# p = subprocess.call([LUA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
 
 	
 
