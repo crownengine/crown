@@ -65,6 +65,14 @@ public:
 	/// Returns whether the engine is correctly initialized
 	bool					is_init() const;
 
+	/// Return the number of frames rendered from the first
+	/// call to Device::start()
+	uint64_t				frame_count() const;
+
+	/// Returns the time in milliseconds needed to render
+	/// the last frame
+	float					last_delta_time() const;
+
 	/// Forces the engine to actually start doing work.
 	void					start();
 
@@ -83,7 +91,11 @@ public:
 
 private:
 
-	
+	void					create_filesystem();
+	void					create_resource_manager();
+	void					create_input_manager();
+	void					create_renderer();
+	void					create_debug_renderer();
 
 	bool					parse_command_line(int argc, char** argv);
 	void					print_help_message();
@@ -102,6 +114,12 @@ private:
 
 	bool					m_is_init		: 1;
 	bool					m_is_running	: 1;
+
+	uint64_t				m_frame_count;
+
+	uint64_t				m_last_time;
+	uint64_t				m_current_time;
+	float					m_last_delta_time;
 
 	// Public subsystems
 	Filesystem*				m_filesystem;

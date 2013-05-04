@@ -64,6 +64,12 @@ Device::Device() :
 	m_is_init(false),
 	m_is_running(false),
 
+	m_frame_count(0),
+
+	m_last_time(0),
+	m_current_time(0),
+	m_last_delta_time(0.0f),
+
 	m_filesystem(NULL),
 	m_resource_manager(NULL),
 	m_input_manager(NULL),
@@ -101,54 +107,15 @@ bool Device::init(int argc, char** argv)
 	// Initialize
 	Log::i("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
-	// Select current dir if no root path provided
-	if (string::strcmp(m_preferred_root_path, string::EMPTY) == 0)
-	{
-		m_filesystem = new Filesystem(os::get_cwd());
-	}
-	else
-	{
-		m_filesystem = new Filesystem(m_preferred_root_path);
-	}
+	create_filesystem();
 
-	// Select appropriate resource archive
-	if (m_preferred_mode == MODE_DEVELOPMENT)
-	{
-		m_resource_archive = new FileResourceArchive(*m_filesystem);
-	}
-	else
-	{
-		m_resource_archive = new ArchiveResourceArchive(*m_filesystem);
-	}
+	create_resource_manager();
 
-	// Create resource manager
-	m_resource_manager = new ResourceManager(*m_resource_archive, m_resource_allocator);
+	create_input_manager();
 
-	// Create input manager
-	m_input_manager = new InputManager();
+	create_renderer();
 
-	// Select appropriate renderer
-	if (m_preferred_renderer == RENDERER_GL)
-	{
-		#ifdef CROWN_BUILD_OPENGL
-		m_renderer = new GLRenderer;
-		#else
-		Log::e("Crown Engine was not built with OpenGL support.");
-		return false;
-		#endif
-	}
-	else if (m_preferred_renderer == RENDERER_GLES)
-	{
-		#ifdef CROWN_BUILD_OPENGLES
-		m_renderer = new GLESRenderer;
-		#else
-		Log::e("Crown Engine was not built with OpenGL|ES support.");
-		return false;
-		#endif
-	}
-
-	// Create debug renderer
-	m_debug_renderer = new DebugRenderer(*m_renderer);
+	create_debug_renderer();
 
 	Log::i("Crown Engine initialized.");
 
@@ -159,7 +126,7 @@ bool Device::init(int argc, char** argv)
 
 	if (m_game_library == NULL)
 	{
-		Log::e("Error while loading game library.");
+		Log::e("Unable to load the game.");
 		return false;
 	}
 
@@ -279,6 +246,8 @@ void Device::start()
 	}
 
 	m_is_running = true;
+
+	m_last_time = os::milliseconds();
 }
 
 //-----------------------------------------------------------------------------
@@ -300,17 +269,110 @@ bool Device::is_running() const
 }
 
 //-----------------------------------------------------------------------------
+uint64_t Device::frame_count() const
+{
+	return m_frame_count;
+}
+
+//-----------------------------------------------------------------------------
+float Device::last_delta_time() const
+{
+	return m_last_delta_time;
+}
+
+//-----------------------------------------------------------------------------
 void Device::frame()
 {
+	m_current_time = os::milliseconds();
+	m_last_delta_time = (m_current_time - m_last_time) / 1000.0f;
+	m_last_time = m_current_time;
+
+	if (frame_count() % 5 == 0)
+	{
+		m_resource_manager->flush_load_queue();
+		m_resource_manager->bring_loaded_online();
+	}
+
 	m_input_manager->event_loop();
 
 	m_renderer->begin_frame();
 
-	m_game->update();
+	m_game->update(last_delta_time());
 
 	m_debug_renderer->draw_all();
 
 	m_renderer->end_frame();
+
+	m_frame_count++;
+}
+
+//-----------------------------------------------------------------------------
+void Device::create_filesystem()
+{
+	// Select current dir if no root path provided
+	if (string::strcmp(m_preferred_root_path, string::EMPTY) == 0)
+	{
+		m_filesystem = new Filesystem(os::get_cwd());
+	}
+	else
+	{
+		m_filesystem = new Filesystem(m_preferred_root_path);
+	}
+}
+
+//-----------------------------------------------------------------------------
+void Device::create_resource_manager()
+{
+	// Select appropriate resource archive
+	if (m_preferred_mode == MODE_DEVELOPMENT)
+	{
+		m_resource_archive = new FileResourceArchive(*m_filesystem);
+	}
+	else
+	{
+		m_resource_archive = new ArchiveResourceArchive(*m_filesystem);
+	}
+
+	// Create resource manager
+	m_resource_manager = new ResourceManager(*m_resource_archive, m_resource_allocator);
+}
+
+//-----------------------------------------------------------------------------
+void Device::create_input_manager()
+{
+	// Create input manager
+	m_input_manager = new InputManager();
+}
+
+//-----------------------------------------------------------------------------
+void Device::create_renderer()
+{
+	// Select appropriate renderer
+	if (m_preferred_renderer == RENDERER_GL)
+	{
+		#ifdef CROWN_BUILD_OPENGL
+		m_renderer = new GLRenderer;
+		#else
+		Log::e("Crown Engine was not built with OpenGL support.");
+		assert(false);
+		#endif
+	}
+	else if (m_preferred_renderer == RENDERER_GLES)
+	{
+		#ifdef CROWN_BUILD_OPENGLES
+		m_renderer = new GLESRenderer;
+		#else
+		Log::e("Crown Engine was not built with OpenGL|ES support.");
+		assert(false);
+		#endif
+	}
+}
+
+//-----------------------------------------------------------------------------
+void Device::create_debug_renderer()
+{
+	// Create debug renderer
+	m_debug_renderer = new DebugRenderer(*m_renderer);
 }
 
 //-----------------------------------------------------------------------------

@@ -23,62 +23,36 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "Types.h"
-#include "Camera.h"
-#include "Vec2.h"
-#include "Mouse.h"
-#include "Keyboard.h"
+#include "ProxyAllocator.h"
+#include "Allocator.h"
 
 namespace crown
 {
 
-class MovableCamera : public Camera
+//-----------------------------------------------------------------------------
+ProxyAllocator::ProxyAllocator(Allocator& allocator, const char* name) :
+	m_allocator(allocator),
+	m_name(name)
 {
+	assert(name != NULL);
+}
 
-public:
+//-----------------------------------------------------------------------------
+void* ProxyAllocator::allocate(size_t size, size_t align)
+{
+	return m_allocator.allocate(size, align);
+}
 
-	//! Constructor
-	MovableCamera(const Vec3& position, bool visible, float fov, float aspect,
-					bool active, float speed, float sensibility);
+//-----------------------------------------------------------------------------
+void ProxyAllocator::deallocate(void* data)
+{
+	m_allocator.deallocate(data);
+}
 
-	//! Destructor
-	~MovableCamera();
-
-	//! Returns the camera's movement sensibility
-	float GetSensibility() const;
-
-	//! Sets the camera's movement sensibility
-	void SetSensibility(float sensibility);
-
-	//! Returns the camera's speed
-	float GetSpeed() const;
-
-	//! Sets the camera speed
-	void SetSpeed(float speed);
-
-	void SetActive(bool active);
-
-	//! Loads the view matrix
-	virtual void Render();
-
-	void MoveForward();
-	void MoveBackward();
-	void StrafeLeft();
-	void StrafeRight();
-	void SetRotation(const real x, const real y);
-
-protected:
-
-	Vec2 mRotFactor;
-	float mAngleX;
-	float mAngleY;
-
-	float mSpeed;
-	float mSensibility;
-
-};
+//-----------------------------------------------------------------------------
+const char* ProxyAllocator::name() const
+{
+	return m_name;
+}
 
 } // namespace crown
-

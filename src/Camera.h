@@ -28,107 +28,108 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Frustum.h"
 #include "Mat4.h"
+#include "Mat3.h"
 #include "Vec3.h"
 
 namespace crown
 {
 
+/// Represents the point of view into the game world.
 class Camera
 {
-
 public:
 
-	//! Constructor
-	Camera(const Vec3& position, bool visible, float fov, float aspect, bool active);
+	/// Construct the camera placed at the given world-space @position
+	/// with the given @fov field of view and @aspect ratio.
+					Camera(const Vec3& position, float fov, float aspect);
 
-	//! Destructor
-	virtual ~Camera();
+	/// Returns the world-space position of the camera 
+	const Vec3&		position() const;
 
-	//! Sets the camera's position
-	void SetPosition(const Vec3& position);
+	/// Sets the world-space @position of the camera
+	void			set_position(const Vec3& position);
 
-	//! Returns the camera's lookat-point32_t
-	const Vec3& GetLookAt() const;
+	/// Returns the lookat-point of the camera
+	const Vec3&		look_at() const;
 
-	//! Sets the camera's lookat-point32_t
-	void SetLookAt(const Vec3& lookat);
+	/// Sets the lookat-point of the camera
+	void			set_look_at(const Vec3& lookat);
 
-	//! Returns the camera's up vector
-	const Vec3& GetUpVector() const;
+	/// Sets the rotation of the camera about the world's @x axis and @y axis
+	void			set_rotation(const float x, const float y);
 
-	//! Returns whether the camera is active
-	bool IsActive() const;
+	/// Returns the up-vector of the camera
+	const Vec3&		up() const;
 
-	//! Sets whether the camera is active
-	void SetActive(bool active);
+	/// Returns the field of view of the camera in degrees
+	float			fov() const;
 
-	//! Returns the camera's Field Of View
-	float GetFOV() const;
+	/// Sets the field of view of the camera
+	void			set_fov(float fov);
 
-	//! Sets the camera's Field Of View
-	void SetFOV(float fov);
+	/// Returns the aspect ratio of the camera
+	float			aspect() const;
 
-	//! Returns whether the camera automatically adjusts aspect ratio based on the Viewport
-	bool GetAutoAspect() const;
+	/// Sets the aspect ration of the camera
+	void			set_aspect(float aspect);
 
-	//! Sets whether the camera automatically adjusts aspect ratio based on the Viewport
-	void SetAutoAspect(bool autoAspect);
+	/// Returns the near clipping distance of the camera
+	float			near_clip_distance() const;
 
-	//! Returns the camera's aspect ratio
-	float GetAspect() const;
+	/// Sets the near clipping distance of the camera
+	void			set_near_clip_distance(float near);
 
-	//! Sets the camera's aspect ratio
-	void SetAspect(float aspect);
+	/// Returns the far clipping distance of the camera
+	float			far_clip_distance() const;
 
-	//! Returns the camera's near clipping distance
-	float GetNearClipDistance() const;
+	/// Sets the far clipping distance of the camera
+	void			set_far_clip_distance(float far);
 
-	//! Sets the camera's near clipping distance
-	void SetNearClipDistance(float near);
+	/// Returns the view-frustum of the camera
+	const Frustum&	frustum() const;
 
-	//! Returns the camera's far clipping distance
-	float GetFarClipDistance() const;
+	/// Returns the renderer-independent projection matrix used by the camera
+	const Mat4&		projection_matrix() const;
 
-	//! Sets the camera's far clipping distance
-	void SetFarClipDistance(float far);
+	/// Returns the renderer-independent view matrix used by the camera
+	const Mat4&		view_matrix() const;
 
-	//! Returns the camera's view frustum
-	const Frustum& GetFrustum() const;
+	/// Moves the camera towards look direction by @meters meters
+	void			move_forward(float meters);
 
-	//! Returns the projection matrix
-	const Mat4& GetProjectionMatrix() const;
+	/// Moves the camera towards the opposite look direction by @meters meters
+	void			move_backward(float meters);
 
-	//! Returns the view matrix
-	const Mat4& GetViewMatrix() const;
+	/// Moves the camera along the axis perpendicular to the look direction by @meters meters
+	void			strafe_left(float meters);
 
-	//! Loads the view and projection matrix
-	virtual void Render();
-
-	const Vec3& GetPosition() const { return mPosition; }
+	/// Moves the camera along the axis perpendicular to the look direction by @meters meters
+	void			strafe_right(float meters);
 
 protected:
 
-	void UpdateProjectionMatrix();
-	void UpdateViewMatrix();
-	void UpdateFrustum();
+	void			update_projection_matrix();
+	void			update_view_matrix();
+	void			update_frustum();
 
-	Vec3 mPosition;
-	Vec3 mLookAt;
-	Vec3 mUp;
+	Vec3			m_position;
+	Vec3			m_look_at;
+	Vec3			m_up;
 
-	Mat4 mView;
-	Mat4 mProjection;
+	Vec2			m_rot_factor;
+	float			m_angle_x;
+	float			m_angle_y;
 
-	Frustum mFrustum;
+	Mat4			m_view;
+	Mat4			m_projection;
 
-	float mFOV;
-	float mAspect;
+	Frustum			m_frustum;
 
-	float mNear;
-	float mFar;
+	float			m_FOV;
+	float			m_aspect;
 
-	bool mActive		: 1;
-	bool mAutoAspect	: 1;
+	float			m_near;
+	float			m_far;
 };
 
 } // namespace crown

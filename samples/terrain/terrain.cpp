@@ -59,14 +59,6 @@ public:
 		{		
 			terrain.PlotCircle(8, 8, 8, 2);
 		}
-
-		if (event.key == KC_SPACE)
-		{
-			if (cam)
-			{
-				cam->SetActive(!cam->IsActive());
-			}
-		}
 	}
 
 	void button_pressed(const MouseEvent& event)
@@ -129,16 +121,9 @@ public:
 		Vec3 start = Vec3(0.0f, 10.0f, 0.0f);
 
 		// Add a movable camera
-		cam = new MovableCamera(/*Vec3::ZERO*/start, true, 90.0f, 1.6f, true, 0.1, 2.5);
+		cam = new Camera(start, 90.0f, 1.6f);
 
-		if (cam)
-		{
-			cam->SetActive(true);
-			cam->SetSpeed(0.1);
-			cam->SetFarClipDistance(1000.0f);
-		}
-
-		system = new FPSSystem(cam);
+		system = new FPSSystem(cam, 10.0f, 2.5f);
 
 		// Add a skybox
 		skybox = new Skybox(Vec3::ZERO, true);
@@ -155,8 +140,14 @@ public:
 
 		terrain.CreateTerrain(64, 64, 1, 0.0f);
 
-		//grass = GetTextureManager()->Load("res/grass.tga");
-		//grass->SetFilter(TF_TRILINEAR);
+		device()->resource_manager()->load("textures/red_north.tga");
+		device()->resource_manager()->load("textures/red_south.tga");
+		device()->resource_manager()->load("textures/red_east.tga");
+		device()->resource_manager()->load("textures/red_west.tga");
+		device()->resource_manager()->load("textures/red_up.tga");
+		device()->resource_manager()->load("textures/red_down.tga");
+
+		grass = device()->resource_manager()->load("textures/grass.tga");
 
 		terrain.PlotCircle(4, 4, 4, 2);
 
@@ -164,12 +155,12 @@ public:
 		terrain.UpdateVertexBuffer(true);
 	}
 
-	void render()
+	void render(float dt)
 	{
 		Renderer* renderer = device()->renderer();
 		
 		system->set_view_by_cursor();
-		system->camera_render();
+		system->update(dt);
 
 		renderer->set_lighting(false);
 		renderer->set_texturing(0, false);
@@ -179,11 +170,8 @@ public:
 			skybox->Render();
 		}
 
-		if (cam->IsActive())
-		{
-			ray.set_origin(cam->GetPosition());
-			ray.set_direction(cam->GetLookAt());
-		}
+		ray.set_origin(cam->position());
+		ray.set_direction(cam->look_at());
 
 		/* Render the terrain */
 		renderer->set_ambient_light(Color4(0.5f, 0.5f, 0.5f, 1.0f));
@@ -197,10 +185,19 @@ public:
 		renderer->set_material_params(Color4(0.3f, 0.3f, 0.3f), Color4(0.8f, 0.8f, 0.8f), Color4::BLACK, Color4::BLACK, 0);
 
 		renderer->set_matrix(MT_MODEL, Mat4::IDENTITY);
-		// Texture disabled because of last updates not in sync... :(
-		//renderer->set_texturing(0, true);
-		//renderer->set_texture(0, grass);
-		renderer->set_lighting(true);
+
+		if (device()->resource_manager()->is_loaded(grass))
+		{
+			TextureResource* grass_tex = (TextureResource*)device()->resource_manager()->data(grass);
+			if (grass_tex)
+			{
+				TextureId grass_id = grass_tex->m_render_texture;
+				renderer->set_texturing(0, true);
+				renderer->set_texture(0, grass_id);
+				renderer->set_lighting(true);
+			}
+		}
+
 		
 		//glColor3f(1, 1, 1);
 
@@ -230,7 +227,7 @@ public:
 private:
 
 	FPSSystem* system;
-	MovableCamera* cam;
+	Camera* cam;
 	Skybox* skybox;
 	Mat4 ortho;
 	Terrain terrain;
@@ -260,9 +257,9 @@ public:
 	{
 	}
 
-	void update()
+	void update(float dt)
 	{
-		m_scene.render();
+		m_scene.render(dt);
 	}
 
 private:

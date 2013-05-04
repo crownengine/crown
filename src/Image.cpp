@@ -115,14 +115,14 @@ PixelFormat Image::GetFormat() const
 	return mPixelFormat;
 }
 
-uint32_t Image::GetBitsPerPixel() const
-{
-	return Pixel::GetBitsPerPixel(mPixelFormat);
-}
-
 uint32_t Image::GetBytesPerPixel() const
 {
-	return Pixel::GetBytesPerPixel(mPixelFormat);
+	return Pixel::bytes_per_pixel(mPixelFormat);
+}
+
+uint32_t Image::GetBitsPerPixel() const
+{
+	return Pixel::bytes_per_pixel(mPixelFormat);
 }
 
 uint8_t* Image::GetBuffer()
@@ -215,7 +215,7 @@ void Image::SetPixel(uint32_t x, uint32_t y, Color4 color)
 		throw ArgumentException("Coordinates outside the Image");
 	}*/
 
-	int32_t bpp = 3;//GetBytesPerPixel();
+	int32_t bpp = 3;//bytes_per_pixel();
 	int32_t offset = (y * mWidth + x) * GetBytesPerPixel();
 	mBuffer[offset    ] = (uint8_t)(color.r * 255);
 	mBuffer[offset + 1] = (uint8_t)(color.g * 255);

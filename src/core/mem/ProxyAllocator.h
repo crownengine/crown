@@ -26,48 +26,34 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Camera.h"
-#include "Vec2.h"
-#include "Mouse.h"
-#include "Keyboard.h"
-#include "Touch.h"
-#include "Accelerometer.h"
-#include "Renderer.h"
+#include "Memory.h"
 
 namespace crown
 {
-/// TODO: set_view_by_cursor must be implemented through scripting
-class FPSSystem : public MouseListener, public KeyboardListener, public AccelerometerListener
+
+class Allocator;
+
+/// Offers the facility to tag allocations by a string identifier.
+class ProxyAllocator
 {
 public:
 
-					/// Constructor
-					FPSSystem(Camera* camera, float speed, float sensibility);
+	/// Tag all allocations made with @allocator by the given @name
+					ProxyAllocator(Allocator& allocator, const char* name);
 
-	void 			set_camera(Camera* camera);
-	Camera*			camera();
+	/// @copydoc Allocator::allocate()
+	void*			allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
 
-	void			update(float dt);
-	void			set_view_by_cursor();	
+	/// @copydoc Allocator::deallocate()
+	void			deallocate(void* data);
 
-	virtual void 	key_pressed(const KeyboardEvent& event);
-	virtual void 	key_released(const KeyboardEvent& event);
-	virtual void 	accelerometer_changed(const AccelerometerEvent& event);
+	/// Returns the name of the proxy allocator
+	const char*		name() const;
 
 private:
 
-	Camera*			m_camera;
-
-	float			m_camera_speed;
-	float			m_camera_sensibility;
-
-	real 			m_angle_x;
-	real 			m_angle_y;
-
-	bool			m_up_pressed	: 1;
-	bool			m_right_pressed	: 1;
-	bool			m_down_pressed	: 1;
-	bool			m_left_pressed	: 1;
+	Allocator&		m_allocator;
+	const char*		m_name;
 };
 
 } // namespace crown

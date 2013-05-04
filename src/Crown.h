@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core
 #include "Types.h"
 #include "Args.h"
+#include "Log.h"
 
 // Core/Math
 #include "Color4.h"
@@ -70,6 +71,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Memory.h"
 #include "Allocator.h"
 #include "MallocAllocator.h"
+#include "ProxyAllocator.h"
 
 // Core/Streams
 #include "Stream.h"
@@ -97,9 +99,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Font.h"
 #include "Glyph.h"
 #include "Image.h"
-#include "Log.h"
-#include "MovableCamera.h"
-#include "Pixel.h"
 #include "ResourceArchive.h"
 #include "ArchiveResourceArchive.h"
 #include "FileResourceArchive.h"
@@ -129,27 +128,5 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Material.h"
 #include "Texture.h"
 #include "DebugRenderer.h"
+#include "Pixel.h"
 
-//// Engine/Windowing
-//#include "Bind.h"
-//#include "Button.h"
-//#include "DragArea.h"
-//#include "ItemsSelector.h"
-//#include "ItemsWidget.h"
-//#include "ListView.h"
-//#include "Property.h"
-//#include "ScrollArea.h"
-//#include "SpecificProperties.h"
-//#include "StackLayout.h"
-//#include "TextBox.h"
-//#include "Themes.h"
-//#include "ThemeSpriteWidget.h"
-//#include "TreeView.h"
-//#include "Widget.h"
-//#include "Window.h"
-//#include "WindowContext.h"
-//#include "WindowingEventArgs.h"
-//#include "WindowsManager.h"
-
-// Engine/Windowing/Toolbox
-//#include "TextInputWindow.h"

@@ -6,8 +6,6 @@ set (SRC
 	Font.cpp
 	Image.cpp
 	MaterialResource.cpp
-	MovableCamera.cpp
-	Pixel.cpp
 	ResourceManager.cpp
 	Skybox.cpp
 	Terrain.cpp
@@ -34,8 +32,6 @@ set (HEADERS
 	Glyph.h
 	Image.h
 	MaterialResource.h
-	MovableCamera.h
-	Pixel.h
 	Resource.h
 	ResourceManager.h
 	ResourceArchive.h
@@ -155,12 +151,14 @@ set (STRINGS_HEADERS
 
 set (MEM_SRC
 	core/mem/MallocAllocator.cpp
+	core/mem/ProxyAllocator.cpp
 )
 
 set (MEM_HEADERS
 	core/mem/Memory.h
 	core/mem/Allocator.h
 	core/mem/MallocAllocator.h
+	core/mem/ProxyAllocator.h
 )
 
 set (COMPRESSORS_SRC
@@ -207,6 +205,7 @@ set (INPUT_HEADERS
 
 set (RENDERERS_SRC
 	renderers/DebugRenderer.cpp
+	renderers/Pixel.cpp
 )
 
 set (RENDERERS_HEADERS
@@ -217,6 +216,7 @@ set (RENDERERS_HEADERS
 	renderers/Material.h
 	renderers/Texture.h
 	renderers/DebugRenderer.h
+	renderers/Pixel.h
 )
 
 set (OS_HEADERS

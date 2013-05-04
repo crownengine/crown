@@ -23,7 +23,7 @@ void* TextureResource::load(Allocator& allocator, ResourceArchive& archive, Reso
 		stream->read(&resource->m_width, sizeof(uint16_t));
 		stream->read(&resource->m_height, sizeof(uint16_t));
 	
-		size_t size = resource->m_width * resource->m_height * Pixel::GetBytesPerPixel(resource->m_format);
+		size_t size = resource->m_width * resource->m_height * Pixel::bytes_per_pixel(resource->m_format);
 
 		resource->m_data = (uint8_t*)allocator.allocate(sizeof(uint8_t) * size);
 

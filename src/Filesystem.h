@@ -26,8 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "String.h"
-#include "Stream.h"
 #include "OS.h"
+#include "Stream.h"
 
 namespace crown
 {
@@ -49,8 +49,8 @@ struct FilesystemEntry
 	char			relative_path[os::MAX_PATH_LENGTH];	///< Relative path of the entry
 };
 
-/// Filesystem.
-///
+class FileStream;
+
 /// Provides a platform-independent way to access files and directories
 /// on the host filesystem.
 ///
@@ -71,14 +71,13 @@ struct FilesystemEntry
 ///                             // so it refers to "/home/foo/bar.txt"
 ///
 /// The filesystem will take care of the necessary path conversions.
-/// The root path can be really anything: platform-specific/absolute/relative/whatever.
-/// Examples of valid root paths.
+/// The root path must be an absolute path for the underlying operating system.
+/// Examples of valid root paths:
 ///
 /// 1) "/home/foo"
 /// 2) "C:\Users\Phil"
-/// 3) "\abc$\/..)?/"
 ///
-/// The relative paths must follow some strict rules:
+/// The relative paths, used to access files, must follow some strict rules:
 ///
 /// a) Only unix-like pathnames (i.e. case sensitive and using '/' as separator)
 ///    are allowed.
@@ -94,53 +93,61 @@ struct FilesystemEntry
 ///
 /// Examples of valid relative paths.
 ///
-/// data/textures/grass.texture
-/// grass.texture
-/// foo/bar
+/// 1) data/textures/grass.texture
+/// 2) grass.texture
+/// 3) foo/bar
 class Filesystem
 {
 public:
 
-						/// The @root_path must be absolute.
+	/// The @root_path must be absolute.
 						Filesystem(const char* root_path);
 						~Filesystem();
 
-						/// Returns the root path of the filesystem
+	/// Returns the root path of the filesystem
 	const char*			root_path() const;
 
-						/// TODO
-	bool				get_info(const char* base_path, const char* relative_path, FilesystemEntry& info);
+	/// Returns whether the @relative_path exists and fills @info with
+	/// with informations about the given @relative_path path
+	bool				get_info(const char* relative_path, FilesystemEntry& info);
 	
-						/// Returns whether the @relative_path exists on disk
+	/// Returns whether the @relative_path exists on disk
 	bool				exists(const char* relative_path);
 
-						/// Returns whether @relative_path is a regular file
+	/// Returns whether @relative_path is a regular file
 	bool				is_file(const char* relative_path);
-						/// Returns whether @relative_path if a directory
+
+	/// Returns whether @relative_path is a directory
 	bool				is_dir(const char* relative_path);
 
-						/// Creates a regular file named @relative_path
+	/// Creates a regular file named @relative_path
 	bool				create_file(const char* relative_path);
-						/// Creates a directory named @relative_path
+
+	/// Creates a directory named @relative_path
 	bool				create_dir(const char* relative_path);
 
-						/// Deletes the regular file @relative_path
+	/// Deletes the regular file @relative_path
 	bool				delete_file(const char* relative_path);
-						/// Deletes the directory @relative_path
+
+	/// Deletes the directory @relative_path
 	bool				delete_dir(const char* relative_path);
 
-	Stream*				open(const char* relative_path, StreamOpenMode mode);
-	void				close(Stream* stream);
+	/// Opens the file @relative_path with the specified access @mode
+	FileStream*			open(const char* relative_path, StreamOpenMode mode);
+
+	/// Closes a previously opened file @stream
+	void				close(FileStream* stream);
 	
 private:
 
-	const char*			build_os_path(const char* basePath, const char* relative_path);
+	// Builds the OS-dependent path from base_path and relative_path
+	const char*			build_os_path(const char* base_path, const char* relative_path);
 	
 private:
 
 	char				m_root_path[os::MAX_PATH_LENGTH];
 
-						// Disable copying
+	// Disable copying
 						Filesystem(const Filesystem&);
 	Filesystem&			operator=(const Filesystem&);
 

@@ -58,26 +58,16 @@ const char* Filesystem::build_os_path(const char* base_path, const char* relativ
 {
 	static char os_path[os::MAX_PATH_LENGTH];
 
-	size_t i = 0;
+	string::strncpy(os_path, base_path, os::MAX_PATH_LENGTH);
 
-	while (*base_path != '\0')
-	{
-		os_path[i++] = *base_path;
-		base_path++;
-	}
+	size_t base_path_len = string::strlen(base_path);
 
-	os_path[i++] = '/';
+	os_path[base_path_len] = os::PATH_SEPARATOR;
 
-	while (*relative_path != '\0')
-	{
-		os_path[i++] = *relative_path;
-		relative_path++;
-	}
+	string::strncpy(&os_path[base_path_len + 1], relative_path, os::MAX_PATH_LENGTH);
 
-	os_path[i] = '\0';
-
-	// Replace Crown-specific path separator with OS-speficic one
-	for (size_t j = 0; j < i; j++)
+	// FIXME FIXME FIXME Replace Crown-specific path separator with OS-speficic one
+	for (size_t j = 0; j < string::strlen(os_path); j++)
 	{
 		if (os_path[j] == '/')
 		{
@@ -89,12 +79,12 @@ const char* Filesystem::build_os_path(const char* base_path, const char* relativ
 }
 
 //-----------------------------------------------------------------------------
-bool Filesystem::get_info(const char* base_path, const char* relative_path, FilesystemEntry& info)
+bool Filesystem::get_info(const char* relative_path, FilesystemEntry& info)
 {
 	// Entering OS-DEPENDENT-PATH-MODE
-	// (i.e. os_path is of the form: C:\babbeo\relative_path or /babbeo/relative_path)
+	// (i.e. os_path is of the form: C:\foo\relative_path or /foo/relative_path)
 
-	const char* os_path = build_os_path(base_path, relative_path);
+	const char* os_path = build_os_path(m_root_path, relative_path);
 	
 	string::strncpy(info.os_path, os_path, os::MAX_PATH_LENGTH);
 	string::strncpy(info.relative_path, relative_path, os::MAX_PATH_LENGTH);
@@ -104,8 +94,7 @@ bool Filesystem::get_info(const char* base_path, const char* relative_path, File
 		info.type = FilesystemEntry::FILE;
 		return true;
 	}
-
-	if (os::is_dir(os_path))
+	else if (os::is_dir(os_path))
 	{
 		info.type = FilesystemEntry::DIRECTORY;
 		return true;
@@ -121,7 +110,7 @@ bool Filesystem::exists(const char* relative_path)
 {
 	FilesystemEntry dummy;
 
-	return get_info(m_root_path, relative_path, dummy);
+	return get_info(relative_path, dummy);
 }
 
 //-----------------------------------------------------------------------------
@@ -129,7 +118,7 @@ bool Filesystem::is_file(const char* relative_path)
 {
 	FilesystemEntry info;
 
-	if (get_info(m_root_path, relative_path, info))
+	if (get_info(relative_path, info))
 	{
 		return info.type == FilesystemEntry::FILE;
 	}
@@ -142,7 +131,7 @@ bool Filesystem::is_dir(const char* relative_path)
 {
 	FilesystemEntry info;
 
-	if (get_info(m_root_path, relative_path, info))
+	if (get_info(relative_path, info))
 	{
 		return info.type == FilesystemEntry::DIRECTORY;
 	}
@@ -183,20 +172,17 @@ bool Filesystem::delete_dir(const char* relative_path)
 }
 
 //-----------------------------------------------------------------------------
-Stream* Filesystem::open(const char* relative_path, StreamOpenMode mode)
+FileStream* Filesystem::open(const char* relative_path, StreamOpenMode mode)
 {
 	FilesystemEntry info;
-	Stream* stream;
 
-	get_info(m_root_path, relative_path, info);
+	assert(get_info(relative_path, info) && info.type == FilesystemEntry::FILE);
 
-	stream = new FileStream(mode, info.os_path);
-
-	return stream;
+	return new FileStream(mode, info.os_path);
 }
 
 //-----------------------------------------------------------------------------
-void Filesystem::close(Stream* stream)
+void Filesystem::close(FileStream* stream)
 {
 	delete stream;
 }

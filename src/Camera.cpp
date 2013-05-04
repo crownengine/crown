@@ -24,153 +24,207 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Camera.h"
-#include "Device.h"
 #include "Types.h"
-#include "Renderer.h"
+#include "MathUtils.h"
 
 namespace crown
 {
 
-Camera::Camera(const Vec3& position, bool visible, float fov, float aspect, bool active) :
-	mPosition(position),
-	mLookAt(0, 0, -1),
-	mUp(0, 1, 0),
-	mFOV(fov),
-	mAspect(aspect),
-	mNear(0.1f),
-	mFar(1000.0f),
-	mActive(active),
-	mAutoAspect(true)
+//-----------------------------------------------------------------------------
+Camera::Camera(const Vec3& position, float fov, float aspect) :
+	m_position(position),
+	m_look_at(0, 0, -1),
+	m_up(0, 1, 0),
+
+	m_rot_factor(0.0f, 0.0f),
+	m_angle_x(0.0f),
+	m_angle_y(0.0f),
+
+	m_FOV(fov),
+	m_aspect(aspect),
+	m_near(0.1f),
+	m_far(1000.0f)
 {
-	UpdateProjectionMatrix();
-	UpdateViewMatrix();
-	UpdateFrustum();
+	update_projection_matrix();
+	update_view_matrix();
+	update_frustum();
 }
 
-Camera::~Camera()
+//-----------------------------------------------------------------------------
+const Vec3& Camera::position() const
 {
+	return m_position;
 }
 
-void Camera::SetPosition(const Vec3& position)
+//-----------------------------------------------------------------------------
+void Camera::set_position(const Vec3& position)
 {
-	mPosition = position;
-	UpdateViewMatrix();
+	m_position = position;
+
+	update_view_matrix();
 }
 
-const Vec3& Camera::GetLookAt() const
+//-----------------------------------------------------------------------------
+const Vec3& Camera::look_at() const
 {
-	return mLookAt;
+	return m_look_at;
 }
 
-void Camera::SetLookAt(const Vec3& lookat)
+//-----------------------------------------------------------------------------
+void Camera::set_look_at(const Vec3& lookat)
 {
-	mLookAt = lookat;
-	UpdateViewMatrix();
+	m_look_at = lookat;
+
+	update_view_matrix();
 }
 
-const Vec3& Camera::GetUpVector() const
+//-----------------------------------------------------------------------
+void Camera::set_rotation(const float x, const float y)
 {
-	return mUp;
+	Vec3 right(1, 0, 0);
+	Vec3 look;
+
+	look.x = 0.0f;
+	look.y = math::sin(x);
+	look.z = -math::cos(x);
+
+	Vec3 up = right.cross(look);
+	up.normalize();
+
+	Mat3 m;
+	m.build_rotation_y(y);
+	look = m * look;
+	m_up = m * up;
+
+	set_look_at(look);
 }
 
-bool Camera::IsActive() const
+//-----------------------------------------------------------------------------
+const Vec3& Camera::up() const
 {
-	return mActive;
+	return m_up;
 }
 
-void Camera::SetActive(bool active)
+//-----------------------------------------------------------------------------
+float Camera::fov() const
 {
-	mActive = active;
+	return m_FOV;
 }
 
-float Camera::GetFOV() const
+//-----------------------------------------------------------------------------
+void Camera::set_fov(float fov)
 {
-	return mFOV;
+	m_FOV = fov;
+
+	update_projection_matrix();
 }
 
-void Camera::SetFOV(float fov)
+//-----------------------------------------------------------------------------
+float Camera::aspect() const
 {
-	mFOV = fov;
-	UpdateProjectionMatrix();
+	return m_aspect;
 }
 
-bool Camera::GetAutoAspect() const
+//-----------------------------------------------------------------------------
+void Camera::set_aspect(float aspect)
 {
-	return mAutoAspect;
+	m_aspect = aspect;
+
+	update_projection_matrix();
 }
 
-void Camera::SetAutoAspect(bool autoAspect)
+//-----------------------------------------------------------------------------
+float Camera::near_clip_distance() const
 {
-	mAutoAspect = autoAspect;
+	return m_near;
 }
 
-float Camera::GetAspect() const
+//-----------------------------------------------------------------------------
+void Camera::set_near_clip_distance(float near)
 {
-	return mAspect;
+	m_near = near;
+
+	update_projection_matrix();
 }
 
-void Camera::SetAspect(float aspect)
+//-----------------------------------------------------------------------------
+float Camera::far_clip_distance() const
 {
-	mAspect = aspect;
-	UpdateProjectionMatrix();
+	return m_far;
 }
 
-float Camera::GetNearClipDistance() const
+//-----------------------------------------------------------------------------
+void Camera::set_far_clip_distance(float far)
 {
-	return mNear;
+	m_far = far;
+
+	update_projection_matrix();
 }
 
-void Camera::SetNearClipDistance(float near)
+//-----------------------------------------------------------------------------
+const Mat4& Camera::projection_matrix() const
 {
-	mNear = near;
-	UpdateProjectionMatrix();
+	return m_projection;
 }
 
-float Camera::GetFarClipDistance() const
+//-----------------------------------------------------------------------------
+const Mat4& Camera::view_matrix() const
 {
-	return mFar;
+	return m_view;
 }
 
-void Camera::SetFarClipDistance(float far)
+//-----------------------------------------------------------------------------
+const Frustum& Camera::frustum() const
 {
-	mFar = far;
-	UpdateProjectionMatrix();
+	return m_frustum;
 }
 
-const Mat4& Camera::GetProjectionMatrix() const
+//-----------------------------------------------------------------------------
+void Camera::update_projection_matrix()
 {
-	return mProjection;
+	m_projection.build_projection_perspective_rh(m_FOV, m_aspect, m_near, m_far);
 }
 
-const Mat4& Camera::GetViewMatrix() const
+//-----------------------------------------------------------------------------
+void Camera::update_view_matrix()
 {
-	return mView;
+	m_view.build_look_at_rh(m_position, m_position + m_look_at, m_up);
 }
 
-const Frustum& Camera::GetFrustum() const
+//-----------------------------------------------------------------------------
+void Camera::update_frustum()
 {
-	return mFrustum;
+	m_frustum.from_matrix(m_projection * m_view);
 }
 
-void Camera::Render()
+//-----------------------------------------------------------------------------
+void Camera::move_forward(float meters)
 {
-	device()->renderer()->set_matrix(MT_PROJECTION, mProjection);
-	device()->renderer()->set_matrix(MT_VIEW, mView);
+	set_position(m_position + m_look_at * meters);
 }
 
-void Camera::UpdateProjectionMatrix()
+//-----------------------------------------------------------------------
+void Camera::move_backward(float meters)
 {
-	mProjection.build_projection_perspective_rh(mFOV, mAspect, mNear, mFar);
+	set_position(m_position + m_look_at * -meters);
 }
 
-void Camera::UpdateViewMatrix()
+//-----------------------------------------------------------------------
+void Camera::strafe_left(float meters)
 {
-	mView.build_look_at_rh(mPosition, mPosition + mLookAt, mUp);
+	Vec3 left = m_up.cross(m_look_at);
+	left.normalize();
+
+	set_position(m_position + left * meters);
 }
 
-void Camera::UpdateFrustum()
+//-----------------------------------------------------------------------
+void Camera::strafe_right(float meters)
 {
-	mFrustum.from_matrix(mProjection * mView);
+	Vec3 left = m_up.cross(m_look_at);
+	left.normalize();
+
+	set_position(m_position + left * -meters);
 }
 
 } // namespace crown
