@@ -12,8 +12,8 @@ set (SRC
 	World.cpp
 
 	TextureResource.cpp
-	
 	TextResource.cpp
+	ScriptResource.cpp
 	ArchiveResourceArchive.cpp
 	FileResourceArchive.cpp
 
@@ -37,10 +37,11 @@ set (HEADERS
 	ResourceArchive.h
 	Skybox.h
 	Terrain.h
-	TextureResource.h
 	World.h
-	
+
+	TextureResource.h
 	TextResource.h
+	ScriptResource.h
 	ArchiveResourceArchive.h
 	FileResourceArchive.h
 

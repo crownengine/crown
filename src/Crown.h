@@ -107,6 +107,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "TextResource.h"
 #include "TextureResource.h"
+#include "ScriptResource.h"
 #include "MaterialResource.h"
 
 // Engine/Filesystem
