@@ -65,7 +65,9 @@ FileStream* FileResourceArchive::find(ResourceId name)
 	}
 
 	FileStream* file = (FileStream*)m_filesystem.open(name_string, SOM_READ);
-	file->skip(sizeof(ArchiveEntry));
+
+	/// FIXME harcoded!!!
+	file->skip(sizeof(uint32_t) * 3);
 
 	return file;
 
