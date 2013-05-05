@@ -53,6 +53,8 @@ private:
 //-----------------------------------------------------------------------------
 inline Mutex::Mutex()
 {
+	memset(&m_mutex, 0, sizeof(os::OSMutex));
+
 	os::mutex_create(&m_mutex);
 }
 

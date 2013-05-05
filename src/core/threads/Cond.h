@@ -50,6 +50,8 @@ private:
 //-----------------------------------------------------------------------------
 inline Cond::Cond()
 {
+	memset(&m_cond, 0, sizeof(os::OSCond));
+
 	os::cond_create(&m_cond);
 }
 
