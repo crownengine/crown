@@ -232,7 +232,7 @@ void TGACompiler::load_compressed()
 //-----------------------------------------------------------------------------
 void TGACompiler::swap_red_blue()
 {
-	for (uint64_t i = 0; i < m_image_size; i += m_image_channels)
+	for (uint64_t i = 0; i < m_image_size * m_image_channels; i += m_image_channels)
 	{
 		m_image_data[i + 0] ^= m_image_data[i + 2];
 		m_image_data[i + 2] ^= m_image_data[i + 0];
