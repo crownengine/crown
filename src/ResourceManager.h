@@ -152,6 +152,7 @@ private:
 	Mutex					m_loading_mutex;
 	Cond 					m_loading_requests;
 	Mutex					m_loaded_mutex;
+	mutable Mutex			m_resources_mutex;
 
 private:
 

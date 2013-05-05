@@ -110,12 +110,18 @@ void ResourceManager::reload(ResourceId name)
 //-----------------------------------------------------------------------------
 bool ResourceManager::has(ResourceId name) const
 {
+	bool has_resource = false;
+
+	m_resources_mutex.lock();
+
 	if (m_resources.size() > name.index)
 	{
-		return (m_resources[name.index].id.name == name.name);
+		 has_resource = (m_resources[name.index].id.name == name.name);
 	}
+
+	m_resources_mutex.unlock();
 	
-	return false;
+	return has_resource;
 }
 
 //-----------------------------------------------------------------------------
@@ -123,7 +129,13 @@ const void* ResourceManager::data(ResourceId name) const
 {
 	assert(has(name));
 	
-	return m_resources[name.index].resource;
+	m_resources_mutex.lock();
+
+	void* resource = m_resources[name.index].resource;
+
+	m_resources_mutex.unlock();
+
+	return resource;
 }
 
 //-----------------------------------------------------------------------------
@@ -131,7 +143,13 @@ bool ResourceManager::is_loaded(ResourceId name) const
 {
 	assert(has(name));
 
-	return m_resources[name.index].state == RS_LOADED;
+	m_resources_mutex.lock();
+
+	bool loaded = m_resources[name.index].state == RS_LOADED;
+
+	m_resources_mutex.unlock();
+
+	return loaded;
 }
 
 //-----------------------------------------------------------------------------
@@ -139,7 +157,13 @@ uint32_t ResourceManager::references(ResourceId name) const
 {
 	assert(has(name));
 
-	return m_resources[name.index].references;
+	m_resources_mutex.lock();
+
+	bool loaded = m_resources[name.index].references;
+
+	m_resources_mutex.unlock();
+
+	return loaded;
 }
 
 //-----------------------------------------------------------------------------
@@ -286,9 +310,6 @@ void ResourceManager::unload_by_type(ResourceId name, void* resource) const
 //-----------------------------------------------------------------------------
 void ResourceManager::online(ResourceId name, void* resource)
 {
-	ResourceEntry& entry = m_resources[name.index];
-
-	// FIXME hardcoded seed
 	if (name.type == m_texture_hash)
 	{
 		TextureResource::online((TextureResource*)resource);
@@ -298,8 +319,13 @@ void ResourceManager::online(ResourceId name, void* resource)
 		ScriptResource::online((ScriptResource*)resource);
 	}
 
+	m_resources_mutex.lock();
+
+	ResourceEntry& entry = m_resources[name.index];
 	entry.resource = resource;
 	entry.state = RS_LOADED;
+
+	m_resources_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
