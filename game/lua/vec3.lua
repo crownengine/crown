@@ -46,15 +46,3 @@ ffi.cdef
 	void				vec3_zero(Vec3* self);	
 				
 ]]
-
-local lib_path = os.getenv("LD_LIBRARY_PATH")
-
-lib = ffi.load(lib_path .. "libcrown.so", true)
-
-
-local dir = lib.vec3(1, 1, 1)
-
-print(lib.vec3_negate(dir).x)
-
-
-
