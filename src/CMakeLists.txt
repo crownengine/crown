@@ -242,6 +242,7 @@ set (NETWORK_HEADERS
 
 set (BINDS_SRC
 	binds/Vec3Bind.cpp
+	binds/QuatBind.cpp
 )
 
 set (CROWN_SOURCES
