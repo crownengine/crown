@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <GL/glew.h>
 #include "Renderer.h"
+#include "Resource.h"
 
 #define MAX_TEXTURES 1024
 #define MAX_TEXTURE_UNITS 8
@@ -41,8 +42,9 @@ class TextureResource;
 struct GLTexture
 {
 	TextureId			id;
+	ResourceId			texture_resource;
+
 	GLuint				texture_object;
-	TextureResource*	texture_resource;
 };
 
 /// OpenGL renderer
@@ -117,13 +119,14 @@ public:
 	void				draw_lines(const float* vertices, const float* colors, uint32_t count);
 	void				draw_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count);
 
-	TextureId			load_texture(TextureResource* texture);
-	void				unload_texture(TextureResource* texture);
-	TextureId			reload_texture(TextureResource* old_texture, TextureResource* new_texture);
+	TextureId			load_texture(ResourceId texture);
+	void				unload_texture(ResourceId texture);
+	TextureId			reload_texture(ResourceId texture);
 
 private:
 
-	bool				activate_texture_unit(uint32_t unit);		//!< Activates a texture unit and returns true if succes
+	/// Activates a texture unit and returns true if succes
+	bool				activate_texture_unit(uint32_t unit);
 	bool				activate_light(uint32_t light);
 
 	void				check_gl_errors();

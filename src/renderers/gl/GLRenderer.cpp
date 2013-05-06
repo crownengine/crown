@@ -37,8 +37,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "Material.h"
 #include "Allocator.h"
-
 #include "TextureResource.h"
+#include "Device.h"
+#include "ResourceManager.h"
 
 #if defined(WINDOWS)
 	//Define the missing constants in vs' gl.h
@@ -760,7 +761,7 @@ void GLRenderer::draw_triangles(const float* vertices, const float* normals, con
 }
 
 //-----------------------------------------------------------------------------
-TextureId GLRenderer::load_texture(TextureResource* texture)
+TextureId GLRenderer::load_texture(ResourceId texture)
 {
 	// Search for an already existent texture
 	for (uint32_t i = 0; i < MAX_TEXTURES; i++)
@@ -775,16 +776,13 @@ TextureId GLRenderer::load_texture(TextureResource* texture)
 	GLuint gl_texture_object;
 
 	glGenTextures(1, &gl_texture_object);
-
 	glBindTexture(GL_TEXTURE_2D, gl_texture_object);
-
-	GLint gl_texture_format = GL::GetPixelFormat(texture->format());
-
-	//FIXME FIXME FIXME
 	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width(), texture->height(), 0,
-				 gl_texture_format, GL_UNSIGNED_BYTE, texture->data());
+	TextureResource* texture_ptr = (TextureResource*)device()->resource_manager()->data(texture);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_ptr->width(), texture_ptr->height(), 0,
+				 GL::GetPixelFormat(texture_ptr->format()), GL_UNSIGNED_BYTE, texture_ptr->data());
 
 	TextureId id;
 	id.index = m_texture_count;
@@ -800,19 +798,28 @@ TextureId GLRenderer::load_texture(TextureResource* texture)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::unload_texture(TextureResource* texture)
+void GLRenderer::unload_texture(ResourceId texture)
 {
 	// FIXME
 	(void)texture;
 }
 
 //-----------------------------------------------------------------------------
-TextureId GLRenderer::reload_texture(TextureResource* old_texture, TextureResource* new_texture)
+TextureId GLRenderer::reload_texture(ResourceId texture)
 {
-	// FIXME
-	(void)old_texture;
-	(void)new_texture;
-	return TextureId();
+	for (uint32_t i = 0; i < MAX_TEXTURES; i++)
+	{
+		if (m_textures[i].texture_resource == texture)
+		{
+			// Reload texture
+			glBindTexture(GL_TEXTURE_2D, m_textures[i].texture_object);
+
+			TextureResource* texture_ptr = (TextureResource*)device()->resource_manager()->data(texture);
+
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture_ptr->width(), texture_ptr->height(),
+				GL::GetPixelFormat(texture_ptr->format()), GL_UNSIGNED_BYTE, texture_ptr->data());
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------

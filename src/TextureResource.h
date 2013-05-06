@@ -58,10 +58,6 @@ private:
 	uint16_t			m_width;
 	uint16_t			m_height;
 	uint8_t*			m_data;
-
-public:
-
-	TextureId			m_render_texture;
 };
 
 } // namespace crown

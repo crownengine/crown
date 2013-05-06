@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 #include "OS.h"
 #include "MallocAllocator.h"
+#include "Resource.h"
 
 namespace crown
 {
@@ -83,6 +84,13 @@ public:
 	/// Updates all the subsystems
 	void					frame();
 
+	/// Loads a resource and returns its unique identifier.
+	ResourceId				load(const char* name);
+	void					unload(ResourceId name);
+	void					reload(ResourceId name);
+	bool					is_loaded(ResourceId name);
+	const void*				data(ResourceId name);
+
 	Filesystem*				filesystem();
 	ResourceManager*		resource_manager();
 	InputManager*			input_manager();
@@ -123,12 +131,12 @@ private:
 
 	// Public subsystems
 	Filesystem*				m_filesystem;
-	ResourceManager*		m_resource_manager;
 	InputManager*			m_input_manager;
 	Renderer*				m_renderer;
 	DebugRenderer*			m_debug_renderer;
 
 	// Private subsystems
+	ResourceManager*		m_resource_manager;
 	ResourceArchive*		m_resource_archive;
 	MallocAllocator			m_resource_allocator;
 

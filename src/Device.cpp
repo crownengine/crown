@@ -39,6 +39,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ArchiveResourceArchive.h"
 #include "FileResourceArchive.h"
 #include "ResourceManager.h"
+#include "TextureResource.h"
 
 #ifdef CROWN_BUILD_OPENGL
 	#include "renderers/gl/GLRenderer.h"
@@ -304,6 +305,37 @@ void Device::frame()
 	m_renderer->end_frame();
 
 	m_frame_count++;
+}
+
+//-----------------------------------------------------------------------------
+ResourceId Device::load(const char* name)
+{
+	return m_resource_manager->load(name);
+}
+
+//-----------------------------------------------------------------------------
+void Device::unload(ResourceId name)
+{
+	m_resource_manager->unload(name);
+}
+
+//-----------------------------------------------------------------------------
+void Device::reload(ResourceId name)
+{
+	m_resource_manager->reload(name);
+	m_renderer->reload_texture(name);
+}
+
+//-----------------------------------------------------------------------------
+bool Device::is_loaded(ResourceId name)
+{
+	return m_resource_manager->is_loaded(name);
+}
+
+//-----------------------------------------------------------------------------
+const void* Device::data(ResourceId name)
+{
+	return m_resource_manager->data(name);
 }
 
 //-----------------------------------------------------------------------------

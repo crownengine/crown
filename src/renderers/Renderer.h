@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Point2.h"
 #include "Material.h"
 #include "Texture.h"
+#include "Resource.h"
 
 namespace crown
 {
@@ -93,6 +94,9 @@ public:
 
 	/// Set whether the given texture @unit is enabled.
 	virtual void set_texturing(uint32_t unit, bool texturing) = 0;
+
+	//! Sets the texture to use in the specified layer
+	virtual void set_texture(uint32_t layer, TextureId texture) = 0;
 
 	/// Sets the texture @mode for the given texture @unit.
 	virtual void set_texture_mode(uint32_t unit, TextureMode mode, const Color4& blendColor) = 0;
@@ -169,13 +173,7 @@ public:
 	virtual void set_point_size(float size) = 0;
 	virtual void set_point_params(float min, float max) = 0;
 
-	//! Sets the texture to use in the specified layer
-	virtual void set_texture(uint32_t layer, TextureId texture) = 0;
-
-	//! Returns the current matrix
 	virtual Mat4 get_matrix(MatrixType type) const = 0;
-
-	//! Loads the current matrix
 	virtual void set_matrix(MatrixType type, const Mat4& matrix) = 0;
 
 	virtual void draw_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices) = 0;
@@ -184,10 +182,9 @@ public:
 	virtual void draw_lines(const float* vertices, const float* colors, uint32_t count) = 0;
 	virtual void draw_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count) = 0;
 
-	// FIXME
-	virtual TextureId	load_texture(TextureResource* texture) = 0;
-	virtual void		unload_texture(TextureResource* texture) = 0;
-	virtual TextureId	reload_texture(TextureResource* old_texture, TextureResource* new_texture) = 0;
+	virtual TextureId	load_texture(ResourceId texture) = 0;
+	virtual void		unload_texture(ResourceId texture) = 0;
+	virtual TextureId	reload_texture(ResourceId texture) = 0;
 };
 
 } // namespace crown

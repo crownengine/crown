@@ -92,6 +92,8 @@ void ResourceManager::unload(ResourceId name)
 
 		entry.state = RS_UNLOADED;
 		entry.resource = NULL;
+
+
 	}
 
 	m_resources_mutex.unlock();
@@ -102,12 +104,22 @@ void ResourceManager::reload(ResourceId name)
 {
 	assert(has(name));
 	
+	m_resources_mutex.lock();
+
 	ResourceEntry& entry = m_resources[name.index];
 	
 	if (entry.state == RS_LOADED)
 	{
-		// FIXME
+		unload_by_type(name, entry.resource);
+
+		entry.state = RS_UNLOADED;
+		entry.resource = NULL;
+
+		entry.resource = load_by_type(name);
+		entry.state = RS_LOADED;
 	}
+
+	m_resources_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
