@@ -240,6 +240,10 @@ set (NETWORK_HEADERS
 	network/PacketQueue.h
 )
 
+set (BINDS_SRC
+	binds/Vec3Bind.cpp
+)
+
 set (CROWN_SOURCES
 	${SRC}
 	${CORE_SRC}
@@ -259,6 +263,8 @@ set (CROWN_SOURCES
 	${NETWORK_SRC}
 
 	${OS_SRC}
+
+	${BINDS_SRC}
 )
 
 set (CROWN_HEADERS
