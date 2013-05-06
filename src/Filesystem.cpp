@@ -38,8 +38,6 @@ Filesystem::Filesystem(const char* root_path)
 	assert(os::is_absolute_path(root_path));
 
 	string::strncpy(m_root_path, root_path, os::MAX_PATH_LENGTH);
-
-	Log::i("Root path : %s", m_root_path);
 }
 
 //-----------------------------------------------------------------------------
