@@ -157,7 +157,6 @@ private:
 private:
 
 	// Hashes of resource types (FIXME)
-	uint32_t			m_config_hash;
 	uint32_t			m_texture_hash;
 	uint32_t			m_mesh_hash;
 	uint32_t			m_txt_hash;

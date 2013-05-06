@@ -48,7 +48,6 @@ ResourceManager::ResourceManager(ResourceArchive& archive, Allocator& allocator)
 	m_thread(ResourceManager::background_thread, (void*)this, "resource-loader-thread")
 {
 	// FIXME hardcoded seed
-	m_config_hash = hash::murmur2_32("config", 6, 0);
 	m_texture_hash = hash::murmur2_32("tga", 3, 0);
 	m_mesh_hash = hash::murmur2_32("mesh", 4, 0);
 	m_txt_hash = hash::murmur2_32("txt", 3, 0);
@@ -81,17 +80,21 @@ void ResourceManager::unload(ResourceId name)
 {
 	assert(has(name));
 	
+	m_resources_mutex.lock();
+
 	ResourceEntry& entry = m_resources[name.index];
 	
 	entry.references--;
 	
 	if (entry.references == 0 && entry.state == RS_LOADED)
 	{
-		//m_resource_loader.unload(name, entry.resource);
+		unload_by_type(name, entry.resource);
 
 		entry.state = RS_UNLOADED;
 		entry.resource = NULL;
 	}
+
+	m_resources_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
@@ -264,11 +267,7 @@ void ResourceManager::background_load()
 //-----------------------------------------------------------------------------
 void* ResourceManager::load_by_type(ResourceId name) const
 {
-	if (name.type == m_config_hash)
-	{
-		return NULL;
-	}
-	else if (name.type == m_texture_hash)
+	if (name.type == m_texture_hash)
 	{
 		return TextureResource::load(m_resource_allocator, m_resource_archive, name);
 	}
@@ -287,11 +286,7 @@ void* ResourceManager::load_by_type(ResourceId name) const
 //-----------------------------------------------------------------------------
 void ResourceManager::unload_by_type(ResourceId name, void* resource) const
 {
-	if (name.type == m_config_hash)
-	{
-		return;
-	}
-	else if (name.type == m_texture_hash)
+	if (name.type == m_texture_hash)
 	{
 		TextureResource::unload(m_resource_allocator, (TextureResource*)resource);
 	}
@@ -313,6 +308,10 @@ void ResourceManager::online(ResourceId name, void* resource)
 	if (name.type == m_texture_hash)
 	{
 		TextureResource::online((TextureResource*)resource);
+	}
+	else if (name.type == m_txt_hash)
+	{
+		TextResource::unload(m_resource_allocator, (TextResource*)resource);
 	}
 	else if (name.type == m_script_hash)
 	{
