@@ -140,12 +140,12 @@ public:
 
 		terrain.CreateTerrain(64, 64, 1, 0.0f);
 
-		device()->resource_manager()->load("textures/red_north.tga");
-		device()->resource_manager()->load("textures/red_south.tga");
-		device()->resource_manager()->load("textures/red_east.tga");
-		device()->resource_manager()->load("textures/red_west.tga");
-		device()->resource_manager()->load("textures/red_up.tga");
-		device()->resource_manager()->load("textures/red_down.tga");
+		red_north = device()->resource_manager()->load("textures/red_north.tga");
+		red_south = device()->resource_manager()->load("textures/red_south.tga");
+		red_east  = device()->resource_manager()->load("textures/red_east.tga");
+		red_west  = device()->resource_manager()->load("textures/red_west.tga");
+		red_up    = device()->resource_manager()->load("textures/red_up.tga");
+		red_down  = device()->resource_manager()->load("textures/red_down.tga");
 
 		grass = device()->resource_manager()->load("textures/grass.tga");
 
@@ -153,6 +153,17 @@ public:
 
 		//terrain.ApplyBrush(32, 32, 1.25f);
 		terrain.UpdateVertexBuffer(true);
+	}
+
+	void on_unload()
+	{
+		device()->resource_manager()->unload(grass);
+		device()->resource_manager()->unload(red_north);
+		device()->resource_manager()->unload(red_south);
+		device()->resource_manager()->unload(red_east);
+		device()->resource_manager()->unload(red_west);
+		device()->resource_manager()->unload(red_up);
+		device()->resource_manager()->unload(red_down);
 	}
 
 	void render(float dt)
@@ -234,6 +245,12 @@ private:
 
 	// Resources
 	ResourceId grass;
+	ResourceId red_north;
+	ResourceId red_south;
+	ResourceId red_east;
+	ResourceId red_west;
+	ResourceId red_up;
+	ResourceId red_down;
 
 	bool optShowSkybox;
 	bool optShowCrate;
@@ -255,6 +272,7 @@ public:
 
 	void shutdown()
 	{
+		m_scene.on_unload();
 	}
 
 	void update(float dt)
