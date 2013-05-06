@@ -75,6 +75,12 @@ Compiler::Compiler(const char* root_path, const char* dest_path, const char* res
 
 	// Open streams
 	m_src_file = (FileStream*)m_root_fs.open(m_resource, SOM_READ);
+
+	if (!m_dest_fs.exists(dest_name))
+	{
+		m_dest_fs.create_file(dest_name);
+	}
+
 	m_dest_file = (FileStream*)m_dest_fs.open(dest_name, SOM_WRITE);
 }
 
