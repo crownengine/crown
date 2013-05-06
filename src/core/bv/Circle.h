@@ -41,22 +41,21 @@ class Circle
 {
 public:
 
-	/// Does nothing for efficiency
+	/// Does nothing for efficiency.
 					Circle();
 					
-	/// Constructs from @center and @radius
+	/// Constructs from @center and @radius.
 					Circle(const Vec2& center, real radius);	
 					Circle(const Circle& circle);				
 
 	const Vec2&		center() const;							
-	real			radius() const;				
-
+	real			radius() const;	
 	void			set_center(const Vec2& center);			
 	void			set_radius(real radius);				
 
 	real			area() const;						
 
-	/// Returns a Rect containing the circle
+	/// Returns a Rect containing the circle.
 	Rect			to_rect() const;
 
 private:

@@ -58,28 +58,28 @@ public:
 	real			radius() const;					
 	real			area() const;		
 
-	/// Returns the diagonal
+	/// Returns the diagonal of the rect.
 	Vec2			size() const;						
 
-	/// Returns whether @point is contained
+	/// Returns whether @point point is contained into the rect.
 	bool			contains_point(const Vec2& point) const;
 
-	/// Returns whether intersects @r
+	/// Returns whether the rect intersects @r.
 	bool			intersects_rect(const Rect& rect) const;	
 
-	/// Sets the Rect from a center and a width - height
+	/// Sets the Rect from a @center and a @width - @height
 	void			set_from_center_and_dimensions(Vec2 center, real width, real height);	
 
-	/// Returns the four rect's vertices
+	/// Returns the four vertices of the rect.
 	void			vertices(Vec2 v[4]) const;
 
-	/// Returns a rect's vertex
+	/// Returns the @index -th vetex of the rect.
 	Vec2			vertex(uint32_t index) const;			
 
-	/// Returns the equivalent circle
+	/// Returns the equivalent circle.
 	Circle			to_circle() const;
 
-	/// Ensures that min and max aren't swapped
+	/// Ensures that min and max aren't swapped.
 	void			fix();									
 
 private:
