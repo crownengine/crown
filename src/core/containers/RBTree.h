@@ -80,74 +80,74 @@ public:
 	RBTree();
 	~RBTree();
 
-	Pair& Add(const TKey& key, const TValue& value);
-	void Remove(const TKey& key);
-	bool Contains(const TKey& key) const;
-	void Clear();
+	Pair& add(const TKey& key, const TValue& value);
+	void remove(const TKey& key);
+	bool contains(const TKey& key) const;
+	void clear();
 
-	inline int32_t GetSize() const
+	inline int32_t size() const
 	{
-		return mSize;
+		return m_size;
 	}
 
 protected:
 
-	Node* FindOrAdd(TKey key);
+	Node* find_or_add(TKey key);
 
 private:
-	Node* mRoot;
-	Node* mSentinel;
-	int32_t mSize;
+	Node* m_root;
+	Node* m_sentinel;
+	int32_t m_size;
 
-	Node* GetPredecessor(Node* n) const;
-	Node* GetSuccessor(Node* n) const;
-	Node* GetMin(Node* n) const;
-	Node* GetMax(Node* n) const;
-	inline void RotateLeft(Node* n);
-	inline void RotateRight(Node* n);
+	Node* predecessor(Node* n) const;
+	Node* successor(Node* n) const;
+	Node* min(Node* n) const;
+	Node* max(Node* n) const;
+	inline void rotate_left(Node* n);
+	inline void rotate_right(Node* n);
 
-	Node* InnerFind(TKey key) const;
-	void AddFixup(Node* n);
-	void InnerClear(Node* n);
+	Node* inner_find(TKey key) const;
+	void add_fixup(Node* n);
+	void inner_clear(Node* n);
 
 #ifdef RBTREE_VERIFY
-	int32_t dbgVerify(Node* n) const;
+	int32_t dbg_verify(Node* n) const;
 #endif
 };
 
 template<typename TKey, typename TValue>
 RBTree<TKey, TValue>::RBTree()
 {
-	mSentinel = new Node(TKey(), TValue());
-	mRoot = mSentinel;
-	mSize = 0;
+	m_sentinel = new Node(TKey(), TValue());
+	m_root = m_sentinel;
+	m_size = 0;
 }
 
 template<typename TKey, typename TValue>
 RBTree<TKey, TValue>::~RBTree()
 {
-	Clear();
-	delete mSentinel;
+	clear();
+	delete m_sentinel;
 }
 
 template<typename TKey, typename TValue>
-RBTreePair<TKey, TValue>& RBTree<TKey, TValue>::Add(const TKey& key, const TValue& value)
+RBTreePair<TKey, TValue>& RBTree<TKey, TValue>::add(const TKey& key, const TValue& value)
 {
 	Node* n = new Node(key, value);
 	n->color = RED;
-	n->left = mSentinel;
-	n->right = mSentinel;
+	n->left = m_sentinel;
+	n->right = m_sentinel;
 	Pair& pair = n->item;
-	Node* x = mRoot;
+	Node* x = m_root;
 	Node* y = NULL;
 
-	if (x == mSentinel)
+	if (x == m_sentinel)
 	{
-		mRoot = n;
+		m_root = n;
 	}
 	else
 	{
-		while (x != mSentinel)
+		while (x != m_sentinel)
 		{
 			y = x;
 
@@ -173,19 +173,19 @@ RBTreePair<TKey, TValue>& RBTree<TKey, TValue>::Add(const TKey& key, const TValu
 		n->parent = y;
 	}
 
-	AddFixup(n);
-	mRoot->color = BLACK;
-	mSize++;
+	add_fixup(n);
+	m_root->color = BLACK;
+	m_size++;
 #ifdef RBTREE_VERIFY
-	dbgVerify(mRoot);
+	dbg_verify(m_root);
 #endif
 	return pair;
 }
 
 template<typename TKey, typename TValue>
-void RBTree<TKey, TValue>::Remove(const TKey& key)
+void RBTree<TKey, TValue>::remove(const TKey& key)
 {
-	Node* n = InnerFind(key);
+	Node* n = inner_find(key);
 
 	if (!(n->item.key == key))
 	{
@@ -195,16 +195,16 @@ void RBTree<TKey, TValue>::Remove(const TKey& key)
 	Node* x;
 	Node* y;
 
-	if (n->left == mSentinel || n->right == mSentinel)
+	if (n->left == m_sentinel || n->right == m_sentinel)
 	{
 		y = n;
 	}
 	else
 	{
-		y = GetSuccessor(n);
+		y = successor(n);
 	}
 
-	if (y->left != mSentinel)
+	if (y->left != m_sentinel)
 	{
 		x = y->left;
 	}
@@ -228,7 +228,7 @@ void RBTree<TKey, TValue>::Remove(const TKey& key)
 	}
 	else
 	{
-		mRoot = x;
+		m_root = x;
 	}
 
 	if (y != n)
@@ -241,7 +241,7 @@ void RBTree<TKey, TValue>::Remove(const TKey& key)
 	{
 		Node* y;
 
-		while (x != mRoot && x->color == BLACK)
+		while (x != m_root && x->color == BLACK)
 		{
 			if (x == x->parent->left)
 			{
@@ -251,7 +251,7 @@ void RBTree<TKey, TValue>::Remove(const TKey& key)
 				{
 					y->color = BLACK;
 					x->parent->color = RED;
-					RotateLeft(x->parent);
+					rotate_left(x->parent);
 					y = x->parent->right;
 				}
 
@@ -266,15 +266,15 @@ void RBTree<TKey, TValue>::Remove(const TKey& key)
 					{
 						y->left->color = BLACK;
 						y->color = RED;
-						RotateRight(y);
+						rotate_right(y);
 						y = x->parent->right;
 					}
 
 					y->color = x->parent->color;
 					x->parent->color = BLACK;
 					y->right->color = BLACK;
-					RotateLeft(x->parent);
-					x = mRoot;
+					rotate_left(x->parent);
+					x = m_root;
 				}
 			}
 			else
@@ -285,7 +285,7 @@ void RBTree<TKey, TValue>::Remove(const TKey& key)
 				{
 					y->color = BLACK;
 					x->parent->color = RED;
-					RotateRight(x->parent);
+					rotate_right(x->parent);
 					y = x->parent->left;
 				}
 
@@ -300,15 +300,15 @@ void RBTree<TKey, TValue>::Remove(const TKey& key)
 					{
 						y->right->color = BLACK;
 						y->color = RED;
-						RotateLeft(y);
+						rotate_left(y);
 						y = x->parent->left;
 					}
 
 					y->color = x->parent->color;
 					x->parent->color = BLACK;
 					y->left->color = BLACK;
-					RotateRight(x->parent);
-					x = mRoot;
+					rotate_right(x->parent);
+					x = m_root;
 				}
 			}
 		}
@@ -317,30 +317,30 @@ void RBTree<TKey, TValue>::Remove(const TKey& key)
 	}
 
 	delete y;
-	mSize -= 1;
+	m_size -= 1;
 #ifdef RBTREE_VERIFY
-	dbgVerify(mRoot);
+	dbg_verify(m_root);
 #endif
 }
 
 template<typename TKey, typename TValue>
-RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::FindOrAdd(TKey key)
+RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::find_or_add(TKey key)
 {
-	Node* p = InnerFind(key);
+	Node* p = inner_find(key);
 
-	if (p != mSentinel && p->item.key == key)
+	if (p != m_sentinel && p->item.key == key)
 	{
 		return p;
 	}
 
 	Node* n = new Node(key, TValue());
 	n->color = RED;
-	n->left = mSentinel;
-	n->right = mSentinel;
+	n->left = m_sentinel;
+	n->right = m_sentinel;
 
-	if (p == mSentinel)
+	if (p == m_sentinel)
 	{
-		mRoot = n;
+		m_root = n;
 	}
 	else
 	{
@@ -356,31 +356,31 @@ RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::FindOrAdd(TKey key)
 		n->parent = p;
 	}
 
-	AddFixup(n);
-	mRoot->color = BLACK;
-	mSize++;
+	add_fixup(n);
+	m_root->color = BLACK;
+	m_size++;
 #ifdef RBTREE_VERIFY
-	dbgVerify(mRoot);
+	dbg_verify(m_root);
 #endif
 	return n;
 }
 
 template<typename TKey, typename TValue>
-void RBTree<TKey, TValue>::Clear()
+void RBTree<TKey, TValue>::clear()
 {
-	Node* tmp = mRoot;
-	mRoot = mSentinel;
-	InnerClear(tmp);
+	Node* tmp = m_root;
+	m_root = m_sentinel;
+	inner_clear(tmp);
 
-	mSize = 0;
+	m_size = 0;
 }
 
 template<typename TKey, typename TValue>
-bool RBTree<TKey, TValue>::Contains(const TKey& key) const
+bool RBTree<TKey, TValue>::contains(const TKey& key) const
 {
-	Node* n = InnerFind(key);
+	Node* n = inner_find(key);
 
-	if (n == mSentinel || !(n->item.key == key))
+	if (n == m_sentinel || !(n->item.key == key))
 	{
 		return false;
 	}
@@ -390,15 +390,15 @@ bool RBTree<TKey, TValue>::Contains(const TKey& key) const
 
 /* Inner utilities */
 template<typename TKey, typename TValue>
-RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::InnerFind(TKey key) const
+RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::inner_find(TKey key) const
 {
-	Node* x = mRoot;
+	Node* x = m_root;
 
-	while (x != mSentinel)
+	while (x != m_sentinel)
 	{
 		if (key > x->item.key)
 		{
-			if (x->right == mSentinel)
+			if (x->right == m_sentinel)
 			{
 				return x;
 			}
@@ -407,7 +407,7 @@ RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::InnerFind(TKey key) const
 		}
 		else if (key < x->item.key)
 		{
-			if (x->left == mSentinel)
+			if (x->left == m_sentinel)
 			{
 				return x;
 			}
@@ -424,12 +424,12 @@ RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::InnerFind(TKey key) const
 }
 
 template<typename TKey, typename TValue>
-void RBTree<TKey, TValue>::AddFixup(Node* n)
+void RBTree<TKey, TValue>::add_fixup(Node* n)
 {
 	Node* x;
 	Node* y;
 
-	while (n!=mRoot && n->parent->color==RED)
+	while (n!=m_root && n->parent->color==RED)
 	{
 		x = n->parent;
 
@@ -450,13 +450,13 @@ void RBTree<TKey, TValue>::AddFixup(Node* n)
 				if (n == x->right)
 				{
 					n = x;
-					RotateLeft(n);
+					rotate_left(n);
 					x = n->parent;
 				}
 
 				x->color = BLACK;
 				x->parent->color = RED;
-				RotateRight(x->parent);
+				rotate_right(x->parent);
 			}
 		}
 		else
@@ -476,22 +476,22 @@ void RBTree<TKey, TValue>::AddFixup(Node* n)
 				if (n == x->left)
 				{
 					n = x;
-					RotateRight(n);
+					rotate_right(n);
 					x = n->parent;
 				}
 
 				x->color = BLACK;
 				x->parent->color = RED;
-				RotateLeft(x->parent);
+				rotate_left(x->parent);
 			}
 		}
 	}
 }
 
 template<typename TKey, typename TValue>
-void RBTree<TKey, TValue>::InnerClear(Node* n)
+void RBTree<TKey, TValue>::inner_clear(Node* n)
 {
-	if (n == mSentinel)
+	if (n == m_sentinel)
 	{
 		return;
 	}
@@ -500,21 +500,21 @@ void RBTree<TKey, TValue>::InnerClear(Node* n)
 	
 	tmp = n->left;
 	n->left = NULL;
-	InnerClear(tmp);
+	inner_clear(tmp);
 
 	tmp = n->right;
 	n->right = NULL;
-	InnerClear(tmp);
+	inner_clear(tmp);
 
 	delete n;
 }
 
 template<typename TKey, typename TValue>
-RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::GetPredecessor(Node* x) const
+RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::predecessor(Node* x) const
 {
-	if (x->left != mSentinel)
+	if (x->left != m_sentinel)
 	{
-		return GetMax(x->left);
+		return max(x->left);
 	}
 
 	Node* y = x->parent;
@@ -529,11 +529,11 @@ RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::GetPredecessor(Node* x) const
 }
 
 template<typename TKey, typename TValue>
-RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::GetSuccessor(Node* x) const
+RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::successor(Node* x) const
 {
-	if (x->right != mSentinel)
+	if (x->right != m_sentinel)
 	{
-		return GetMin(x->right);
+		return min(x->right);
 	}
 
 	Node* y = x->parent;
@@ -548,14 +548,14 @@ RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::GetSuccessor(Node* x) const
 }
 
 template<typename TKey, typename TValue>
-RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::GetMin(Node* x) const
+RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::min(Node* x) const
 {
-	if (x == mSentinel)
+	if (x == m_sentinel)
 	{
 		return x;
 	}
 
-	while (x->left != mSentinel)
+	while (x->left != m_sentinel)
 	{
 		x = x->left;
 	}
@@ -564,14 +564,14 @@ RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::GetMin(Node* x) const
 }
 
 template<typename TKey, typename TValue>
-RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::GetMax(Node* x) const
+RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::max(Node* x) const
 {
-	if (x == mSentinel)
+	if (x == m_sentinel)
 	{
 		return x;
 	}
 
-	while (x->right != mSentinel)
+	while (x->right != m_sentinel)
 	{
 		x = x->right;
 	}
@@ -580,12 +580,12 @@ RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::GetMax(Node* x) const
 }
 
 template<typename TKey, typename TValue>
-inline void RBTree<TKey, TValue>::RotateLeft(Node* x)
+inline void RBTree<TKey, TValue>::rotate_left(Node* x)
 {
 	Node* y = x->right;
 	x->right = y->left;
 
-	if (y->left != mSentinel)
+	if (y->left != m_sentinel)
 	{
 		y->left->parent = x;
 	}
@@ -594,7 +594,7 @@ inline void RBTree<TKey, TValue>::RotateLeft(Node* x)
 
 	if (x->parent == NULL)
 	{
-		mRoot = y;
+		m_root = y;
 	}
 	else
 	{
@@ -613,12 +613,12 @@ inline void RBTree<TKey, TValue>::RotateLeft(Node* x)
 }
 
 template<typename TKey, typename TValue>
-inline void RBTree<TKey, TValue>::RotateRight(Node* x)
+inline void RBTree<TKey, TValue>::rotate_right(Node* x)
 {
 	Node* y = x->left;
 	x->left = y->right;
 
-	if (y->right != mSentinel)
+	if (y->right != m_sentinel)
 	{
 		y->right->parent = x;
 	}
@@ -627,7 +627,7 @@ inline void RBTree<TKey, TValue>::RotateRight(Node* x)
 
 	if (x->parent == NULL)
 	{
-		mRoot = y;
+		m_root = y;
 	}
 	else
 	{
@@ -647,27 +647,27 @@ inline void RBTree<TKey, TValue>::RotateRight(Node* x)
 
 #ifdef RBTREE_VERIFY
 template<typename TKey, typename TValue>
-int32_t RBTree<TKey, TValue>::dbgVerify(Node* n) const
+int32_t RBTree<TKey, TValue>::dbg_verify(Node* n) const
 {
-	if (n == mSentinel)
+	if (n == m_sentinel)
 	{
 		return 0;
 	}
 
-	if (n->left != mSentinel)
+	if (n->left != m_sentinel)
 	{
 		assert(n->left->parent == n);
 		assert(n->item.key > n->left->item.key);
 	}
 
-	if (n->right != mSentinel)
+	if (n->right != m_sentinel)
 	{
 		assert(n->right->parent == n);
 		assert(n->item.key < n->right->item.key);
 	}
 
-	int32_t bhL = dbgVerify(n->left);
-	int32_t bhR = dbgVerify(n->right);
+	int32_t bhL = dbg_verify(n->left);
+	int32_t bhR = dbg_verify(n->right);
 	assert(bhL == bhR);
 
 	if (n->color == BLACK)
