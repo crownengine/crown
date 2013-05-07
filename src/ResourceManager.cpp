@@ -182,7 +182,44 @@ uint32_t ResourceManager::references(ResourceId name) const
 }
 
 //-----------------------------------------------------------------------------
-void ResourceManager::flush_load_queue()
+uint32_t ResourceManager::remaining() const
+{
+	uint32_t count = 0;
+
+	m_loading_mutex.lock();
+
+	count = m_loading_queue.size();
+
+	m_loading_mutex.unlock();
+
+	return count;
+}
+
+//-----------------------------------------------------------------------------
+void ResourceManager::flush()
+{
+	check_load_queue();
+
+	while (true)
+	{
+		// Wait for all the resources to be loaded
+		// by the background thread
+		m_loading_mutex.lock();
+		while (m_loading_queue.size() > 0)
+		{
+			m_all_loaded.wait(m_loading_mutex);
+		}
+		m_loading_mutex.unlock();
+
+		// When all loaded, bring them online
+		bring_loaded_online();
+
+		return;
+	}
+}
+
+//-----------------------------------------------------------------------------
+void ResourceManager::check_load_queue()
 {
 	m_loading_mutex.lock();
 
@@ -190,7 +227,7 @@ void ResourceManager::flush_load_queue()
 	{
 		m_loading_requests.signal();
 	}
-	
+
 	m_loading_mutex.unlock();
 }
 
@@ -199,7 +236,6 @@ void ResourceManager::bring_loaded_online()
 {
 	m_loaded_mutex.lock();
 
-	// Update master table and bring online
 	while (m_loaded_queue.size() > 0)
 	{
 		LoadedResource lr = m_loaded_queue.front();
@@ -251,11 +287,13 @@ ResourceId ResourceManager::load(uint32_t name, uint32_t type)
 //-----------------------------------------------------------------------------
 void ResourceManager::background_load()
 {
-	// FIXME: Maybe epic crash because of concurrent access to the same allocator?
 	while (true)
 	{
 		m_loading_mutex.lock();
-		m_loading_requests.wait(m_loading_mutex);
+		while (m_loading_queue.size() == 0)
+		{
+			m_loading_requests.wait(m_loading_mutex);
+		}
 
 		ResourceId resource = m_loading_queue.front();
 		m_loading_queue.pop_front();
@@ -269,10 +307,15 @@ void ResourceManager::background_load()
 		lr.data = data;
 
 		m_loaded_mutex.lock();
-
 		m_loaded_queue.push_back(lr);
-
 		m_loaded_mutex.unlock();
+
+		m_loading_mutex.lock();
+		if (m_loading_queue.size() == 0)
+		{
+			m_all_loaded.signal();
+		}
+		m_loading_mutex.unlock();
 	}
 }
 
