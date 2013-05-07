@@ -26,9 +26,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "Hash.h"
 
 namespace crown
 {
+
+/// Hashed values for supported resource types
+const uint32_t TEXTURE_TYPE	= hash::murmur2_32("tga", 3, 0);
+const uint32_t MESH_TYPE	= hash::murmur2_32("dae", 3, 0);
+const uint32_t SCRIPT_TYPE	= hash::murmur2_32("lua", 3, 0);
+const uint32_t TEXT_TYPE	= hash::murmur2_32("txt", 3, 0);
 
 /// Enumerates the loading states of a resource
 enum ResourceState

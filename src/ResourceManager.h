@@ -167,15 +167,7 @@ private:
 	Mutex					m_loaded_mutex;
 	mutable Mutex			m_resources_mutex;
 
-private:
-
-	// Hashes of resource types (FIXME)
-	uint32_t			m_texture_hash;
-	uint32_t			m_mesh_hash;
-	uint32_t			m_txt_hash;
-	uint32_t			m_script_hash;
-
-	friend class		Device;
+	friend class			Device;
 };
 
 } // namespace crown

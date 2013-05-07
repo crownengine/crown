@@ -47,11 +47,6 @@ ResourceManager::ResourceManager(ResourceArchive& archive, Allocator& allocator)
 	m_loaded_queue(m_allocator),
 	m_thread(ResourceManager::background_thread, (void*)this, "resource-loader-thread")
 {
-	// FIXME hardcoded seed
-	m_texture_hash = hash::murmur2_32("tga", 3, 0);
-	m_mesh_hash = hash::murmur2_32("mesh", 4, 0);
-	m_txt_hash = hash::murmur2_32("txt", 3, 0);
-	m_script_hash = hash::murmur2_32("lua", 3, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -322,15 +317,15 @@ void ResourceManager::background_load()
 //-----------------------------------------------------------------------------
 void* ResourceManager::load_by_type(ResourceId name) const
 {
-	if (name.type == m_texture_hash)
+	if (name.type == TEXTURE_TYPE)
 	{
 		return TextureResource::load(m_resource_allocator, m_resource_archive, name);
 	}
-	else if (name.type == m_txt_hash)
+	else if (name.type == TEXT_TYPE)
 	{
 		return TextResource::load(m_resource_allocator, m_resource_archive, name);
 	}
-	else if (name.type == m_script_hash)
+	else if (name.type == SCRIPT_TYPE)
 	{
 		return ScriptResource::load(m_resource_allocator, m_resource_archive, name);
 	}
@@ -341,15 +336,15 @@ void* ResourceManager::load_by_type(ResourceId name) const
 //-----------------------------------------------------------------------------
 void ResourceManager::unload_by_type(ResourceId name, void* resource) const
 {
-	if (name.type == m_texture_hash)
+	if (name.type == TEXTURE_TYPE)
 	{
 		TextureResource::unload(m_resource_allocator, (TextureResource*)resource);
 	}
-	else if (name.type == m_txt_hash)
+	else if (name.type == TEXT_TYPE)
 	{
 		TextResource::unload(m_resource_allocator, (TextResource*)resource);
 	}
-	else if (name.type == m_script_hash)
+	else if (name.type == SCRIPT_TYPE)
 	{
 		ScriptResource::unload(m_resource_allocator, (ScriptResource*)resource);
 	}
@@ -360,15 +355,15 @@ void ResourceManager::unload_by_type(ResourceId name, void* resource) const
 //-----------------------------------------------------------------------------
 void ResourceManager::online(ResourceId name, void* resource)
 {
-	if (name.type == m_texture_hash)
+	if (name.type == TEXTURE_TYPE)
 	{
 		TextureResource::online((TextureResource*)resource);
 	}
-	else if (name.type == m_txt_hash)
+	else if (name.type == TEXT_TYPE)
 	{
 		TextResource::unload(m_resource_allocator, (TextResource*)resource);
 	}
-	else if (name.type == m_script_hash)
+	else if (name.type == SCRIPT_TYPE)
 	{
 		ScriptResource::online((ScriptResource*)resource);
 	}

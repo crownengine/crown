@@ -325,7 +325,7 @@ void Device::reload(ResourceId name)
 
 	const void* new_resource = m_resource_manager->data(name);
 
-	if (name.type == m_resource_manager->m_texture_hash)
+	if (name.type == TEXTURE_TYPE)
 	{
 		m_renderer->reload_texture((TextureResource*)old_resource, (TextureResource*)new_resource);
 	}
