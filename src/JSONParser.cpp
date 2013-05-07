@@ -19,6 +19,14 @@ JSONParser::JSONParser(Stream* stream, size_t size)
 	m_size = size;
 
 	m_stream = stream;
+
+	m_pos = m_stream->position();
+
+	m_next_token = 0;
+
+	m_prev_token = -1;
+
+	is_init = true;
 }
 
 //--------------------------------------------------------------------------
@@ -33,30 +41,20 @@ JSONParser::~JSONParser()
 		delete [] m_tokens_list;
 	}
 }
-//--------------------------------------------------------------------------
-void 
-JSONParser::init()
-{ 
-	m_pos = m_stream->position();
-	m_next_token = 0;
-	m_prev_token = -1;
-
-	is_init = true;
-}
 
 //--------------------------------------------------------------------------
-void
-JSONParser::shutdown()
-{
-	m_pos = 0;
-	m_next_token = 0;
-	m_prev_token = -1;
+// void
+// JSONParser::shutdown()
+// {
+// 	m_pos = 0;
+// 	m_next_token = 0;
+// 	m_prev_token = -1;
 
-	is_init = false;
-}
+// 	is_init = false;
+// }
 
 //--------------------------------------------------------------------------
-json_error 
+JSONError 
 JSONParser::parse()
 {
 	if (!is_init)
@@ -64,14 +62,14 @@ JSONParser::parse()
 		return JSON_NO_INIT; 
 	}
 
-	json_error error;
+	JSONError error;
 	JSONToken* token;
 
 	char c;
 
 	while(!m_stream->end_of_stream())
 	{
-		json_type type;
+		JSONType type;
 
 		c = (char)m_stream->read_byte();
 		m_pos = m_stream->position();
@@ -191,7 +189,7 @@ JSONParser::parse()
 }
 
 //--------------------------------------------------------------------------
-json_error
+JSONError
 JSONParser::parse_string()
 {
 	JSONToken* token;
@@ -253,7 +251,7 @@ JSONParser::parse_string()
 }
 
 //--------------------------------------------------------------------------
-json_error
+JSONError
 JSONParser::parse_primitive()
 {
 	JSONToken* token;
@@ -321,7 +319,7 @@ JSONParser::allocate_token()
 }
 
 //--------------------------------------------------------------------------
-void JSONParser::fill_token(JSONToken* token, json_type type, int32_t start, int32_t end)
+void JSONParser::fill_token(JSONToken* token, JSONType type, int32_t start, int32_t end)
 {
 	token->m_type = type;
 	token->m_start = start;
