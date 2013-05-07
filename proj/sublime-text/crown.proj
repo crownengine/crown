@@ -2,13 +2,13 @@
 	"folders":
 	[
 		{
-			"path": "/home/mikymod/Repositories/crown/"
+			"path": "/home/mikymod/repositories/crown/"
 		}
 	],
 	"build_systems":
 	[
 		{
-			"cmd": ["make",	"crown"],
+			"cmd": ["make",	"install"],
 			"name": "make"
 		},
 		{
