@@ -42,7 +42,7 @@ class TextureResource;
 struct GLTexture
 {
 	TextureId			id;
-	ResourceId			texture_resource;
+	TextureResource*	texture_resource;
 
 	GLuint				texture_object;
 };
@@ -119,9 +119,9 @@ public:
 	void				draw_lines(const float* vertices, const float* colors, uint32_t count);
 	void				draw_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count);
 
-	TextureId			load_texture(ResourceId texture);
-	void				unload_texture(ResourceId texture);
-	TextureId			reload_texture(ResourceId texture);
+	TextureId			load_texture(TextureResource* texture);
+	void				unload_texture(TextureResource* texture);
+	TextureId			reload_texture(TextureResource* old_texture, TextureResource* new_texture);
 
 private:
 

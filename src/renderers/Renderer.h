@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Point2.h"
 #include "Material.h"
 #include "Texture.h"
-#include "Resource.h"
 
 namespace crown
 {
@@ -182,9 +181,9 @@ public:
 	virtual void draw_lines(const float* vertices, const float* colors, uint32_t count) = 0;
 	virtual void draw_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count) = 0;
 
-	virtual TextureId	load_texture(ResourceId texture) = 0;
-	virtual void		unload_texture(ResourceId texture) = 0;
-	virtual TextureId	reload_texture(ResourceId texture) = 0;
+	virtual TextureId	load_texture(TextureResource* texture) = 0;
+	virtual void		unload_texture(TextureResource* texture) = 0;
+	virtual TextureId	reload_texture(TextureResource* old_texture, TextureResource* new_texture) = 0;
 };
 
 } // namespace crown
