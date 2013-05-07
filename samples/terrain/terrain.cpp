@@ -146,6 +146,11 @@ public:
 		red_up    = device()->load("textures/red_up.tga");
 		red_down  = device()->load("textures/red_down.tga");
 		grass     = device()->load("textures/grass.tga");
+
+		device()->resource_manager()->flush();
+
+		TextureResource* grass_texture = (TextureResource*)device()->data(grass);
+		grass_id = device()->renderer()->load_texture(grass_texture);
 	}
 
 	void on_unload()
@@ -197,11 +202,7 @@ public:
 
 		if (device()->is_loaded(grass))
 		{
-			renderer->set_lighting(true);
-
 			renderer->set_texturing(0, true);
-
-			TextureId grass_id = device()->renderer()->load_texture(grass);
 			renderer->set_texture(0, grass_id);
 		}
 		
@@ -246,6 +247,7 @@ private:
 	ResourceId red_west;
 	ResourceId red_up;
 	ResourceId red_down;
+	TextureId grass_id;
 
 	bool optShowSkybox;
 	bool optShowCrate;
