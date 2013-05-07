@@ -284,8 +284,8 @@ float Device::last_delta_time() const
 //-----------------------------------------------------------------------------
 void Device::frame()
 {
-	m_current_time = os::milliseconds();
-	m_last_delta_time = (m_current_time - m_last_time) / 1000.0f;
+	m_current_time = os::microseconds();
+	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
 	m_last_time = m_current_time;
 
 	m_resource_manager->check_load_queue();
