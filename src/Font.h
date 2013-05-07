@@ -51,24 +51,24 @@ public:
 							FontResource();
 							~FontResource();
 
-	Glyph&					GetGlyph(uint32_t code);	//! Returns the glyph for the desired point32_t code
-	void					SetCodeGlyphMetrics(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline);
+	Glyph&					glyph(uint32_t code);	//! Returns the glyph for the desired point code
+	void					set_code_glyph_metrics(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline);
 
-	inline uint32_t			_GetMaxTextHeight() { return mMaxTextHeight; }
-	inline uint32_t			_GetMaxCharacterHeight() { return mMaxCharacterHeight; }
-	inline uint32_t			_GetMaxCharacterWidth() { return mMaxCharacterWidth; }
+	inline uint32_t			max_text_height() { return m_max_text_height; }
+	inline uint32_t			max_character_height() { return m_max_character_height; }
+	inline uint32_t			max_character_width() { return m_max_character_width; }
 
-	ResourceId				GetTexture() { return mTexture; }
+	ResourceId				texture() { return m_texture; }
 
 private:
 
-	CodeGlyphDict			mCodeGlyphDict;
+	CodeGlyphDict			m_code_glyph_dict;
 
-	uint32_t				mMaxTextHeight;
-	uint32_t				mMaxCharacterHeight;
-	uint32_t				mMaxCharacterWidth;
+	uint32_t				m_max_text_height;
+	uint32_t				m_max_character_height;
+	uint32_t				m_max_character_width;
 
-	ResourceId				mTexture;
+	ResourceId				m_texture;
 };
 
 } // namespace crown

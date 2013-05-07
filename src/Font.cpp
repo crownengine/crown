@@ -34,9 +34,9 @@ namespace crown
 {
 
 FontResource::FontResource() :
-	mMaxTextHeight(0),
-	mMaxCharacterHeight(0),
-	mMaxCharacterWidth(0)
+	m_max_text_height(0),
+	m_max_character_height(0),
+	m_max_character_width(0)
 {
 }
 
@@ -44,26 +44,26 @@ FontResource::~FontResource()
 {
 }
 
-Glyph& FontResource::GetGlyph(uint32_t code)
+Glyph& FontResource::glyph(uint32_t code)
 {
-	if (mCodeGlyphDict.Contains(code))
+	if (m_code_glyph_dict.contains(code))
 	{
-		return mCodeGlyphDict[code];
+		return m_code_glyph_dict[code];
 	}
 
-	static Glyph nullGlyph;
-	return nullGlyph;
+	static Glyph null_glyph;
+	return null_glyph;
 }
 
-void FontResource::SetCodeGlyphMetrics(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline)
+void FontResource::set_code_glyph_metrics(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline)
 {
-	if (mCodeGlyphDict.Contains(code))
+	if (m_code_glyph_dict.contains(code))
 	{
-		mCodeGlyphDict[code].SetMetrics(left, right, bottom, top, width, height, advance, baseline);
+		m_code_glyph_dict[code].set_metrics(left, right, bottom, top, width, height, advance, baseline);
 	}
 	else
 	{
-		mCodeGlyphDict[code] = Glyph(code, left, right, bottom, top, width, height, advance, baseline);
+		m_code_glyph_dict[code] = Glyph(code, left, right, bottom, top, width, height, advance, baseline);
 	}
 }
 
