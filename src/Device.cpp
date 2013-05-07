@@ -288,11 +288,8 @@ void Device::frame()
 	m_last_delta_time = (m_current_time - m_last_time) / 1000.0f;
 	m_last_time = m_current_time;
 
-	if (frame_count() % 5 == 0)
-	{
-		m_resource_manager->flush_load_queue();
-		m_resource_manager->bring_loaded_online();
-	}
+	m_resource_manager->check_load_queue();
+	m_resource_manager->bring_loaded_online();
 
 	m_input_manager->event_loop();
 
@@ -322,8 +319,16 @@ void Device::unload(ResourceId name)
 //-----------------------------------------------------------------------------
 void Device::reload(ResourceId name)
 {
+	const void* old_resource = m_resource_manager->data(name);
+
 	m_resource_manager->reload(name);
-	m_renderer->reload_texture(name);
+
+	const void* new_resource = m_resource_manager->data(name);
+
+	if (name.type == m_resource_manager->m_texture_hash)
+	{
+		m_renderer->reload_texture((TextureResource*)old_resource, (TextureResource*)new_resource);
+	}
 }
 
 //-----------------------------------------------------------------------------
