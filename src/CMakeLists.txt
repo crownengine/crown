@@ -228,14 +228,10 @@ set (OS_SRC
 
 set (NETWORK_SRC
 	network/BitMessage.cpp
-	network/AsyncConnection.cpp
-	network/PacketQueue.h
 )
 
 set (NETWORK_HEADERS
 	network/BitMessage.h
-	network/AsyncConnection.h
-	network/PacketQueue.h
 )
 
 set (CROWN_SOURCES

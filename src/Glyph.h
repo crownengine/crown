@@ -48,8 +48,13 @@ public:
 	{
 	}
 
+<<<<<<< HEAD
+	//! Constructor
+	Glyph(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline) :
+=======
 	/// Constructor
 	Glyph(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float m_baseline) :
+>>>>>>> ba0fda4e8fc32e2c778ec5c565355d5b6fafe5c0
 		m_code_point(code),
 		m_left(left),
 		m_right(right),
@@ -58,7 +63,11 @@ public:
 		m_width(width),
 		m_height(height),
 		m_advance(advance),
+<<<<<<< HEAD
+		m_baseline(baseline)
+=======
 		m_baseline(m_baseline)
+>>>>>>> ba0fda4e8fc32e2c778ec5c565355d5b6fafe5c0
 	{
 	}
 
@@ -67,8 +76,13 @@ public:
 	{
 	}
 
+<<<<<<< HEAD
+	//! Returns the glyph's metrics
+	void metrics(float& left, float& right, float& bottom, float& top, float& width, float& height, float& advance, float& baseline) const
+=======
 	/// Returns the glyph's metrics
 	void metrics(float& left, float& right, float& bottom, float& top, float& width, float& height, float& advance, float& m_baseline) const
+>>>>>>> ba0fda4e8fc32e2c778ec5c565355d5b6fafe5c0
 	{
 		left = m_left;
 		right = m_right;
@@ -77,11 +91,19 @@ public:
 		width = m_width;
 		height = m_height;
 		advance = m_advance;
+<<<<<<< HEAD
+		baseline = m_baseline;
+	}
+
+	//! Sets the glyph's metrics
+	void set_metrics(float left, float right, float bottom, float top, float width, float height, float advance, float baseline)
+=======
 		m_baseline = m_baseline;
 	}
 
 	/// Sets the glyph's metrics
 	void set_metrics(float left, float right, float bottom, float top, float width, float height, float advance, float m_baseline)
+>>>>>>> ba0fda4e8fc32e2c778ec5c565355d5b6fafe5c0
 	{
 		m_left = left;
 		m_right = right;
@@ -90,10 +112,17 @@ public:
 		m_width = width;
 		m_height = height;
 		m_advance = advance;
+<<<<<<< HEAD
+		m_baseline = baseline;
+	}
+
+	//! Returns the glyph's code point
+=======
 		m_baseline = m_baseline;
 	}
 
 	/// Returns the glyph's code point32_t
+>>>>>>> ba0fda4e8fc32e2c778ec5c565355d5b6fafe5c0
 	uint32_t code_point() const
 	{
 		return m_code_point;

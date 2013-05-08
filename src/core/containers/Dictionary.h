@@ -43,7 +43,7 @@ public:
 
 	TValue& operator[](const TKey& key)
 	{
-		RBTreeNode<TKey, TValue>* n = RBTree<TKey, TValue>::FindOrAdd(key);
+		RBTreeNode<TKey, TValue>* n = RBTree<TKey, TValue>::find_or_add(key);
 		return n->item.value;
 	}
 };
