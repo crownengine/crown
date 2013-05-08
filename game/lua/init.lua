@@ -7,6 +7,8 @@ lib = ffi.load(lib_path .. "/libcrown.so", true)
 require("vec3")
 require("mat4")
 require("quat")
+require("math_utils")
+
 
 print("-- Testing Mat4 --\n")
 local m = Mat4.mat4(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
@@ -26,3 +28,7 @@ print("-- Mat4.subtract --\n")
 m = Mat4.subtract(m, t)
 Mat4.print(m)
 print("\n")
+
+local s = Math.sin(0.0)
+
+print("sin of 0 is " .. s)
