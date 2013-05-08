@@ -241,6 +241,7 @@ set (NETWORK_HEADERS
 )
 
 set (BINDS_SRC
+	binds/MathBinds.cpp
 	binds/Vec3Binds.cpp
 	binds/QuatBinds.cpp
 	binds/Mat4Binds.cpp
