@@ -24,7 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Types.h"
-#include "Font.h"
+#include "FontResource.h"
 
 namespace crown
 {

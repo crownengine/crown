@@ -3,7 +3,6 @@ set (SRC
 	Device.cpp
 	EventBuffer.cpp
 	Filesystem.cpp
-	Font.cpp
 	Image.cpp
 	MaterialResource.cpp
 	ResourceManager.cpp
@@ -14,6 +13,7 @@ set (SRC
 	TextureResource.cpp
 	TextResource.cpp
 	ScriptResource.cpp
+	FontResource.cpp
 	ArchiveResourceArchive.cpp
 	FileResourceArchive.cpp
 
@@ -28,7 +28,6 @@ set (HEADERS
 	Device.h
 	EventBuffer.h
 	Filesystem.h
-	Font.h
 	Glyph.h
 	Image.h
 	MaterialResource.h
@@ -42,6 +41,7 @@ set (HEADERS
 	TextureResource.h
 	TextResource.h
 	ScriptResource.h
+	FontResource.h
 	ArchiveResourceArchive.h
 	FileResourceArchive.h
 

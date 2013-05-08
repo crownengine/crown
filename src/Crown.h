@@ -96,7 +96,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Engine
 #include "Camera.h"
 #include "Device.h"
-#include "Font.h"
 #include "Glyph.h"
 #include "Image.h"
 #include "ResourceArchive.h"
@@ -109,6 +108,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextureResource.h"
 #include "ScriptResource.h"
 #include "MaterialResource.h"
+#include "FontResource.h"
 
 // Engine/Filesystem
 #include "Filesystem.h"
