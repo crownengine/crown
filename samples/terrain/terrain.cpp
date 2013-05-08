@@ -259,10 +259,11 @@ private:
 	Ray ray;
 };
 
-class TerrainGame : public Game
-{
-public:
+MainScene m_scene;
+WndCtrl m_ctrl;
 
+extern "C"
+{
 	void init()
 	{
 		m_scene.on_load();
@@ -273,24 +274,8 @@ public:
 		m_scene.on_unload();
 	}
 
-	void update(float dt)
+	void frame(float dt)
 	{
 		m_scene.render(dt);
 	}
-
-private:
-
-	MainScene m_scene;
-	WndCtrl m_ctrl;
-};
-
-extern "C" Game* create_game()
-{
-	return new TerrainGame;
 }
-
-extern "C" void destroy_game(Game* game)
-{
-	delete game;
-}
-
