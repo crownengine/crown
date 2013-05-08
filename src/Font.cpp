@@ -23,48 +23,38 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Font.h"
-#include "MathUtils.h"
 #include "Types.h"
-#include "Image.h"
-#include "Log.h"
-#include "Filesystem.h"
+#include "Font.h"
 
 namespace crown
 {
 
-FontResource::FontResource() :
-	mMaxTextHeight(0),
-	mMaxCharacterHeight(0),
-	mMaxCharacterWidth(0)
+//-----------------------------------------------------------------------------
+void* FontResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
 {
+	(void)allocator;
+	(void)archive;
+	(void)id;
+
+	return NULL;
 }
 
-FontResource::~FontResource()
+//-----------------------------------------------------------------------------
+void FontResource::online(void* resource)
 {
+	(void)resource;
 }
 
-Glyph& FontResource::GetGlyph(uint32_t code)
+//-----------------------------------------------------------------------------
+void FontResource::unload(Allocator& allocator, void* resource)
 {
-	if (mCodeGlyphDict.Contains(code))
-	{
-		return mCodeGlyphDict[code];
-	}
-
-	static Glyph nullGlyph;
-	return nullGlyph;
+	(void)allocator;
+	(void)resource;
 }
 
-void FontResource::SetCodeGlyphMetrics(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline)
+//-----------------------------------------------------------------------------
+void FontResource::offline()
 {
-	if (mCodeGlyphDict.Contains(code))
-	{
-		mCodeGlyphDict[code].SetMetrics(left, right, bottom, top, width, height, advance, baseline);
-	}
-	else
-	{
-		mCodeGlyphDict[code] = Glyph(code, left, right, bottom, top, width, height, advance, baseline);
-	}
 }
 
 } // namespace crown
