@@ -50,7 +50,7 @@ class Repository:
 	def texture_resources(self):
 		textures = []
 
-		for res in resources:
+		for res in self.m_resources:
 			if (res.endswith(TEXTURE_EXTENSION)):
 				textures.append(res)
 
@@ -60,7 +60,7 @@ class Repository:
 	def text_resources(self):
 		texts = []
 
-		for res in resources:
+		for res in self.m_resources:
 			if (res.endswith(TEXT_EXTENSION)):
 				texts.append(res)
 
@@ -70,21 +70,21 @@ class Repository:
 	def mesh_resources(self):
 		meshes = []
 
-		for res in resources:
+		for res in self.m_resources:
 			if (res.endswith(MESH_EXTENSION)):
 				meshes.append(res)
 
 		return meshes
 
 	# Returns a list of all the lua resources found
-	def lua_resources(self):
-		luas = []
+	def script_resources(self):
+		scripts = []
 
-		for res in resources:
+		for res in self.m_resources:
 			if (res.endswith(LUA_EXTENSION)):
-				luas.append(res)
+				scripts.append(res)
 
-		return luas
+		return scripts
 
 	# Scans the root path to find resources
 	def scan(self):

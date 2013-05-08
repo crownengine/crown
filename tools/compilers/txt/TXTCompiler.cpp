@@ -25,13 +25,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "TXTCompiler.h"
 #include "FileStream.h"
+#include "Resource.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
 TXTCompiler::TXTCompiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed) :
-	Compiler(root_path, dest_path, resource, seed),
+	Compiler(root_path, dest_path, resource, TEXT_TYPE, seed),
 	m_file_size(0),
 	m_file_data(NULL)
 {

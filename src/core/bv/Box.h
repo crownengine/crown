@@ -63,22 +63,22 @@ public:
 	/// Adds @count @boxes expanding if necessay.
 	void			add_boxes(const Box* boxes, uint32_t count);
 
-	/// Returns whether point32_t "p" is contained.
+	/// Returns whether point @p is contained in the box.
 	bool			contains_point(const Vec3& p) const;
 
-	/// Returns a box's vertex.
+	/// Returns the @index -th vertex of the box.
 	Vec3			vertex(uint32_t index) const;		
 
-	/// Returns the box trasformed according to "mat" matrix.
+	/// Returns the box trasformed according to @mat matrix into @result.
 	void			transformed(const Mat4& mat, Box& result) const;	
 
-	/// Returns the eight box's vertices
+	/// Returns the eight vertices of the box.
 	void			to_vertices(Vec3 v[8]) const;	
 
-	/// Returns as a sphere						
+	/// Returns as a sphere.						
 	Sphere			to_sphere() const;										
 
-	/// Sets min and max to zero
+	/// Sets min and max to zero.
 	void			zero();													
 
 private:

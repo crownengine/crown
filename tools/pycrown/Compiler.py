@@ -79,13 +79,47 @@ class Compiler:
 			resource_hashes.clear()
 			seed = seed + 1;
 
+	# Compiles all the texture resources in the repository
+	def compile_textures(self):
+		textures = self.m_repository.texture_resources();
+
+		for res in textures:
+			self.compile(res)
+
+	# Compiles all the mesh resources in the repository
+	def compile_meshes(self):
+		meshes = self.m_repository.mesh_resources();
+
+		for res in meshes:
+			self.compile(res)
+
+	# Compiles all the text resources in the repository
+	def compile_texts(self):
+		texts = self.m_repository.text_resources();
+
+		for res in texts:
+			self.compile(res)
+
+	# Compiles all the script resources in the repository
+	def compile_scripts(self):
+		scripts = self.m_repository.script_resources();
+
+		for res in scripts:
+			self.compile(res)
+
 	# Compiles all the resources in the repository
 	def compile_all(self):
-		# Obtain resources from repository
-		resources = self.m_repository.all_resources()
+		print("Compiling textures...")
+		self.compile_textures()
 
-		for res in resources:
-			self.compile(res)
+		print("Compiling meshes...")
+		self.compile_meshes()
+
+		print("Compiling texts...")
+		self.compile_texts()
+
+		print("Compiling scripts...")
+		self.compile_scripts()
 
 	# Compile a single resource from the repository
 	def compile(self, resource):
@@ -94,6 +128,8 @@ class Compiler:
 			self.compute_perfect_seed()
 
 		root_path = self.m_repository.root_path()
+
+		print(resource + " => ???")
 
 		# Call appropriate compiler based on resource extension
 		if resource.endswith('.txt'):

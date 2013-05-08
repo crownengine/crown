@@ -1,12 +1,13 @@
 #include "LuaCompiler.h"
 #include "FileStream.h"
+#include "Resource.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
 LuaCompiler::LuaCompiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed) :
-	Compiler(root_path, dest_path, resource, seed),
+	Compiler(root_path, dest_path, resource, SCRIPT_TYPE, seed),
 	m_file_size(0),
 	m_file_data(NULL)
 {

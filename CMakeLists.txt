@@ -11,7 +11,7 @@ option (CROWN_BUILD_OPENGL "Whether to build the OpenGL renderer or not." ON)
 option (CROWN_BUILD_OPENGLES "Whether to build the OpenGL|ES 1.0 renderer or not." OFF)
 option (CROWN_BUILD_SAMPLES "Whether to build the samples" ON)
 option (CROWN_BUILD_TOOLS "Whether to build the tools" ON)
-option (CROWN_BUILD_TESTS "Whether to build unit tests" ON)
+option (CROWN_BUILD_TESTS "Whether to build unit tests" OFF)
 
 set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src

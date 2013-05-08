@@ -110,13 +110,23 @@ public:
 	/// you can use the data associated with it).
 	bool					is_loaded(ResourceId name) const;
 
-	// Returns the number of references to the @resource
+	/// Returns the number of references to the @resource
 	uint32_t				references(ResourceId name) const;
 
-	void					flush_load_queue();
-	void					bring_loaded_online();
+	/// Returns the number of resources still waiting to load.
+	uint32_t				remaining() const;
+
+	/// Forces all the loading requests to complete before preceeding.
+	void					flush();
 
 private:
+
+	// Checks the load queue and signal the backgroud about pending
+	// requests. It is normally called only by the Device.
+	void					check_load_queue();
+	// Calls online() on loaded resources. Must be called only
+	// in the main thread and generally only by Device.
+	void					bring_loaded_online();
 
 	// Loads the resource by name and type and returns its ResourceId.
 	ResourceId				load(uint32_t name, uint32_t type);
@@ -149,19 +159,15 @@ private:
 
 	// Background loading thread
 	Thread					m_thread;
-	Mutex					m_loading_mutex;
+
+	mutable Mutex			m_loading_mutex;
 	Cond 					m_loading_requests;
+	Cond 					m_all_loaded;
+
 	Mutex					m_loaded_mutex;
 	mutable Mutex			m_resources_mutex;
 
-private:
-
-	// Hashes of resource types (FIXME)
-	uint32_t			m_config_hash;
-	uint32_t			m_texture_hash;
-	uint32_t			m_mesh_hash;
-	uint32_t			m_txt_hash;
-	uint32_t			m_script_hash;
+	friend class			Device;
 };
 
 } // namespace crown

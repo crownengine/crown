@@ -23,27 +23,36 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Font.h"
-#include "MathUtils.h"
 #include "Types.h"
-#include "Image.h"
-#include "Log.h"
-#include "Filesystem.h"
+#include "FontResource.h"
 
 namespace crown
 {
 
+<<<<<<< HEAD:src/Font.cpp
 FontResource::FontResource() :
 	m_max_text_height(0),
 	m_max_character_height(0),
 	m_max_character_width(0)
+=======
+//-----------------------------------------------------------------------------
+void* FontResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
+>>>>>>> ba0fda4e8fc32e2c778ec5c565355d5b6fafe5c0:src/FontResource.cpp
 {
+	(void)allocator;
+	(void)archive;
+	(void)id;
+
+	return NULL;
 }
 
-FontResource::~FontResource()
+//-----------------------------------------------------------------------------
+void FontResource::online(void* resource)
 {
+	(void)resource;
 }
 
+<<<<<<< HEAD:src/Font.cpp
 Glyph& FontResource::glyph(uint32_t code)
 {
 	if (m_code_glyph_dict.contains(code))
@@ -65,6 +74,18 @@ void FontResource::set_code_glyph_metrics(uint32_t code, float left, float right
 	{
 		m_code_glyph_dict[code] = Glyph(code, left, right, bottom, top, width, height, advance, baseline);
 	}
+=======
+//-----------------------------------------------------------------------------
+void FontResource::unload(Allocator& allocator, void* resource)
+{
+	(void)allocator;
+	(void)resource;
+}
+
+//-----------------------------------------------------------------------------
+void FontResource::offline()
+{
+>>>>>>> ba0fda4e8fc32e2c778ec5c565355d5b6fafe5c0:src/FontResource.cpp
 }
 
 } // namespace crown

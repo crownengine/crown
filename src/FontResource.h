@@ -23,3 +23,42 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#pragma once
+
+#include "Types.h"
+#include "Glyph.h"
+#include "Resource.h"
+
+namespace crown
+{
+
+class Allocator;
+class ResourceArchive;
+
+class FontResource
+{
+public:
+
+	static void*		load(Allocator& allocator, ResourceArchive& archive, ResourceId id);
+	static void			online(void* resource);
+	static void			unload(Allocator& allocator, void* resource);
+	static void			offline();
+
+public:
+
+	/// Returns the glyph for the desired point32_t code
+	Glyph&					glyph(uint32_t code);
+
+	inline uint32_t			mat_text_heigth() { return m_max_text_height; }
+	inline uint32_t			max_character_height() { return m_max_character_height; }
+	inline uint32_t			max_character_width() { return m_max_character_width; }
+
+private:
+
+	uint32_t				m_max_text_height;
+	uint32_t				m_max_character_height;
+	uint32_t				m_max_character_width;
+};
+
+} // namespace crown
+

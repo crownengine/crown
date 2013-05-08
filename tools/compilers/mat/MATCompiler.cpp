@@ -31,7 +31,7 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 MATCompiler::MATCompiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed) :
-	Compiler(root_path, dest_path, resource, seed)
+	Compiler(root_path, dest_path, resource, MATERIAL_TYPE, seed)
 {
 }
 

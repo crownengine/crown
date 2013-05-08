@@ -26,9 +26,24 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "Hash.h"
+#include "String.h"
 
 namespace crown
 {
+
+/// Hashed values for supported resource types
+const char* const TEXTURE_EXTENSION		= "tga";
+const char* const MESH_EXTENSION		= "dae";
+const char* const SCRIPT_EXTENSION		= "lua";
+const char* const TEXT_EXTENSION		= "txt";
+const char* const MATERIAL_EXTENSION	= "material";
+
+const uint32_t TEXTURE_TYPE		= hash::murmur2_32(TEXTURE_EXTENSION,  string::strlen(TEXTURE_EXTENSION),  0);
+const uint32_t MESH_TYPE		= hash::murmur2_32(MESH_EXTENSION,     string::strlen(MESH_EXTENSION),     0);
+const uint32_t SCRIPT_TYPE		= hash::murmur2_32(SCRIPT_EXTENSION,   string::strlen(SCRIPT_EXTENSION),   0);
+const uint32_t TEXT_TYPE		= hash::murmur2_32(TEXT_EXTENSION,     string::strlen(TEXT_EXTENSION),     0);
+const uint32_t MATERIAL_TYPE	= hash::murmur2_32(MATERIAL_EXTENSION, string::strlen(MATERIAL_EXTENSION), 0);
 
 /// Enumerates the loading states of a resource
 enum ResourceState
@@ -46,6 +61,11 @@ struct ResourceId
 	uint32_t		name;		// Hashed resource name
 	uint32_t		type;		// Hashed resource type
 	uint32_t		index;		// Index into the ResourceManager internal list
+
+	bool			operator==(const ResourceId& b)
+	{
+		return name == b.name && type == b.type && index == b.index;
+	}
 };
 
 } // namespace crown

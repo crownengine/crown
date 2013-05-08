@@ -39,8 +39,6 @@ void* TextureResource::load(Allocator& allocator, ResourceArchive& archive, Reso
 void TextureResource::online(void* resource)
 {
 	assert(resource != NULL);
-
-	((TextureResource*)resource)->m_render_texture = device()->renderer()->load_texture((TextureResource*)resource);
 }
 
 //-----------------------------------------------------------------------------

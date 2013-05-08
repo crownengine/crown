@@ -49,19 +49,20 @@ class Frustum
 {
 public:
 
+	/// Does nothing for efficiency.
 				Frustum();				
 				Frustum(const Frustum& frustum);
 
-	/// Returns whether @point is contained into the frustum
+	/// Returns whether @point is contained into the frustum.
 	bool		contains_point(const Vec3& point) const;	
 
-	/// Returns one of the eight frustum's corners
+	/// Returns one of the eight frustum's corners.
 	Vec3		vertex(uint32_t index) const;			
 
-	/// Builds the view frustum according to the matrix @m
+	/// Builds the view frustum according to the matrix @m.
 	void		from_matrix(const Mat4& m);				
 
-	/// Returns a Box containing the frustum volume
+	/// Returns a Box containing the frustum volume.
 	Box			to_box() const;							
 
 private:
