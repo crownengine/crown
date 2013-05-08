@@ -183,6 +183,14 @@ void swap_buffers()
 //-----------------------------------------------------------------------------
 void get_render_window_metrics(uint32_t& width, uint32_t& height)
 {
+	XWindowAttributes attribs;
+	XGetWindowAttributes(display, window, &attribs);
+
+	XFlush(display);
+
+	window_width = attribs.width;
+	window_height = attribs.height;
+
 	width = window_width;
 	height = window_height;
 }
