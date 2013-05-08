@@ -304,6 +304,11 @@ void Device::frame()
 
 	m_input_manager->event_loop();
 
+	uint32_t window_width, window_height;
+	os::get_render_window_metrics(window_width, window_height);
+	m_renderer->set_scissor_params(0, 0, window_width, window_height);
+	m_renderer->set_viewport_params(0, 0, window_width, window_height);
+
 	m_renderer->begin_frame();
 
 	game_frame(last_delta_time());

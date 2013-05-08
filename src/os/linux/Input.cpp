@@ -39,6 +39,10 @@ namespace os
 //-----------------------------------------------------------------------------
 extern Display*		display;
 extern Window		window;
+extern uint32_t		window_x;
+extern uint32_t		window_y;
+extern uint32_t		window_width;
+extern uint32_t		window_height;
 
 static bool			x11_detectable_autorepeat = false;
 static Cursor		x11_hidden_cursor = None;
@@ -180,12 +184,15 @@ void event_loop()
 
 		switch (event.type)
 		{
-//			case ConfigureNotify:
-//			{
-//				_NotifyMetricsChange(event.xconfigure.x, event.xconfigure.y,
-//										event.xconfigure.width, event.xconfigure.height);
-//				break;
-//			}
+			case ConfigureNotify:
+			{
+				window_x = event.xconfigure.x;
+				window_y = event.xconfigure.y;
+				window_width = event.xconfigure.width;
+				window_height = event.xconfigure.height;
+
+				break;
+			}
 			case ButtonPress:
 			case ButtonRelease:
 			{
