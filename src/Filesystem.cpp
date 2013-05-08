@@ -170,6 +170,16 @@ bool Filesystem::delete_dir(const char* relative_path)
 }
 
 //-----------------------------------------------------------------------------
+const char* Filesystem::os_path(const char* relative_path)
+{
+	FilesystemEntry entry;
+
+	get_info(relative_path, entry);
+
+	return entry.os_path;
+}
+
+//-----------------------------------------------------------------------------
 FileStream* Filesystem::open(const char* relative_path, StreamOpenMode mode)
 {
 	FilesystemEntry info;
