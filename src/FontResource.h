@@ -46,9 +46,6 @@ public:
 
 public:
 
-	/// Returns the glyph for the desired point32_t code
-	Glyph&					glyph(uint32_t code);
-
 	inline uint32_t			mat_text_heigth() { return m_max_text_height; }
 	inline uint32_t			max_character_height() { return m_max_character_height; }
 	inline uint32_t			max_character_width() { return m_max_character_width; }
