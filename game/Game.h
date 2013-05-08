@@ -28,20 +28,24 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Game
+extern "C"
 {
-public:
+	/// Called exactly once after the engine is fully initialized
+	/// and ready to use. This function is the right place to allocate
+	/// and initialize all the main components of the game.
+	void init();
 
-					Game() {}
-	virtual			~Game() {}
+	/// Called just before the engine starts to deallocate resources and
+	/// subsystems leading to terminating the execution.
+	/// Here you can safely perform all the necessary deallocation/destruction
+	/// of the previously allocated game resources and/or systems. 
+	void shutdown();
 
-	virtual void	init() = 0;
-	virtual void	shutdown() = 0;
-	virtual void	update(float dt) = 0;
-};
-
-typedef Game* create_game_t();
-typedef void destroy_game_t(Game* game);
+	/// Called once per frame, here is the place you tipically perform input checking,
+	/// updates, drawing and so on. The @dt parameter contains the last frame delta time
+	/// in seconds. 
+	void frame(float dt);
+}
 
 } // namespace crown
 

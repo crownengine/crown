@@ -52,7 +52,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-static const char* GAME_LIBRARY_NAME = "libgame.so";
+static void (*game_init)(void) = NULL;
+static void (*game_shutdown)(void) = NULL;
+static void (*game_frame)(float) = NULL;
 
 //-----------------------------------------------------------------------------
 Device::Device() :
@@ -72,14 +74,13 @@ Device::Device() :
 	m_last_delta_time(0.0f),
 
 	m_filesystem(NULL),
-	m_resource_manager(NULL),
 	m_input_manager(NULL),
 	m_renderer(NULL),
 	m_debug_renderer(NULL),
 
+	m_resource_manager(NULL),
 	m_resource_archive(NULL),
 
-	m_game(NULL),
 	m_game_library(NULL)
 {
 	string::strcpy(m_preferred_root_path, string::EMPTY);
@@ -122,7 +123,16 @@ bool Device::init(int argc, char** argv)
 
 	Log::i("Initializing Game...");
 
-	const char* game_library_path = m_filesystem->build_os_path(m_filesystem->root_path(), GAME_LIBRARY_NAME);
+	// Try to locate the game library
+	if (!m_filesystem->exists(GAME_LIBRARY_NAME))
+	{
+		Log::e("Unable to find the game library in the root path.", GAME_LIBRARY_NAME);
+		return false;
+	}
+
+	// Try to load the game library and bind functions
+	const char* game_library_path = m_filesystem->os_path(GAME_LIBRARY_NAME);
+
 	m_game_library = os::open_library(game_library_path);
 
 	if (m_game_library == NULL)
@@ -131,11 +141,12 @@ bool Device::init(int argc, char** argv)
 		return false;
 	}
 
-	create_game_t* create_game = (create_game_t*)os::lookup_symbol(m_game_library, "create_game");
+	*(void**)(&game_init) = os::lookup_symbol(m_game_library, "init");
+	*(void**)(&game_shutdown) = os::lookup_symbol(m_game_library, "shutdown");
+	*(void**)(&game_frame) = os::lookup_symbol(m_game_library, "frame");
 
-	m_game = create_game();
-
-	m_game->init();
+	// Initialize the game
+	game_init();
 
 	m_is_init = true;
 
@@ -153,14 +164,14 @@ void Device::shutdown()
 		return;
 	}
 
-	m_game->shutdown();
+	// Shutdowns the game
+	game_shutdown();
 
-	destroy_game_t* destroy_game = (destroy_game_t*)os::lookup_symbol(m_game_library, "destroy_game");
-
-	destroy_game(m_game);
-	m_game = NULL;
-
-	os::close_library(m_game_library);
+	// Unload the game library
+	if (m_game_library)
+	{
+		os::close_library(m_game_library);
+	}
 
 	if (m_input_manager)
 	{
@@ -295,7 +306,7 @@ void Device::frame()
 
 	m_renderer->begin_frame();
 
-	m_game->update(last_delta_time());
+	game_frame(last_delta_time());
 
 	m_debug_renderer->draw_all();
 

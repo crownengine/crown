@@ -141,7 +141,6 @@ private:
 	MallocAllocator			m_resource_allocator;
 
 	// The game currently running
-	Game*					m_game;
 	void*					m_game_library;
 
 private:
