@@ -79,3 +79,34 @@ ffi.cdef
 	void 				mat4_print(Mat4* self);
 
 ]]
+
+Mat4 = {}
+
+Mat4.mat4 								= lib.mat4
+Mat4.add 								= lib.mat4_add
+Mat4.subtract 							= lib.mat4_subtract
+Mat4.multiply 							= lib.mat4_multiply
+Mat4.multiply_by_scalar 				= lib.mat4_multiply_by_scalar
+Mat4.divide_by_scalar 					= lib.mat4_divide_by_scalar
+Mat4.build_rotation_x 					= lib.mat4_build_rotation_x
+Mat4.build_rotation_y 					= lib.mat4_build_rotation_y
+Mat4.build_rotation_z 					= lib.mat4_build_rotation_z
+Mat4.build_rotation 					= lib.mat4_build_rotation
+Mat4.build_projection_perspective_rh 	= lib.mat4_build_projection_perspective_rh
+Mat4.build_projection_perspective_lh 	= lib.mat4_build_projection_perspective_lh
+Mat4.build_projection_ortho_rh 			= lib.mat4_build_projection_ortho_rh
+Mat4.build_projection_ortho_lh 			= lib.mat4_build_projection_ortho_lh
+Mat4.build_projection_ortho_2d_rh 		= lib.mat4_build_projection_ortho_2d_rh
+Mat4.build_look_at_rh 					= lib.mat4_build_look_at_rh
+Mat4.build_look_at_lh 					= lib.mat4_build_look_at_lh
+Mat4.build_viewpoint_billboard 			= lib.mat4_build_viewpoint_billboard
+Mat4.build_axis_billboard 				= lib.mat4_build_axis_billboard
+Mat4.transpose 							= lib.mat4_transpose
+Mat4.determinant 						= lib.mat4_determinant
+Mat4.invert 							= lib.mat4_invert
+Mat4.load_identity 						= lib.mat4_load_identity
+Mat4.get_translation 					= lib.mat4_get_translation
+Mat4.set_translation 					= lib.mat4_set_translation
+Mat4.get_scale 							= lib.mat4_get_scale
+Mat4.set_scale 							= lib.mat4_set_scale
+Mat4.print 								= lib.mat4_print

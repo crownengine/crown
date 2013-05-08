@@ -1,16 +1,28 @@
-require("vec3")
-require("mat4")
-require("quat")
-
-
 local ffi = require("ffi")
 
 local lib_path = os.getenv("LD_LIBRARY_PATH")
 
-lib = ffi.load(lib_path .. "libcrown.so", true)
+lib = ffi.load(lib_path .. "/libcrown.so", true)
 
-local v = lib.vec3(1.0, 1.0, 1.0)
-local q = lib.quat(10.0, v)
-local m = lib.mat4(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)
+require("vec3")
+require("mat4")
+require("quat")
 
-lib.mat4_print(m)
+print("-- Testing Mat4 --\n")
+local m = Mat4.mat4(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
+local t = Mat4.mat4(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0)
+
+Mat4.print(m)
+print("\n")
+
+print("-- Mat4.add --\n")
+
+m = Mat4.add(m, t)
+Mat4.print(m)
+print("\n")
+
+print("-- Mat4.subtract --\n")
+
+m = Mat4.subtract(m, t)
+Mat4.print(m)
+print("\n")

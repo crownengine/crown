@@ -29,3 +29,15 @@ ffi.cdef
 
 	Quat*		quat_power(Quat* self, float exp);
 ]]
+
+Quat = {}
+
+Quat.quat 			= lib.quat
+Quat.negate  		= lib.quat_negate
+Quat.load_identity  = lib.quat_load_identity
+Quat.length  		= lib.quat_length	
+Quat.conjugate 		= lib.quat_conjugate
+Quat.inverse  		= lib.quat_inverse			
+Quat.cross  		= lib.quat_cross
+Quat.multiply 		= lib.quat_multiply
+Quat.power  		= lib.quat_power
