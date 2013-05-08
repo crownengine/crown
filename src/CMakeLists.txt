@@ -8,7 +8,6 @@ set (SRC
 	ResourceManager.cpp
 	Skybox.cpp
 	Terrain.cpp
-	World.cpp
 
 	TextureResource.cpp
 	TextResource.cpp
@@ -36,7 +35,6 @@ set (HEADERS
 	ResourceArchive.h
 	Skybox.h
 	Terrain.h
-	World.h
 
 	TextureResource.h
 	TextResource.h
