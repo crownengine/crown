@@ -39,11 +39,11 @@ const char* const SCRIPT_EXTENSION		= "lua";
 const char* const TEXT_EXTENSION		= "txt";
 const char* const MATERIAL_EXTENSION	= "material";
 
-const uint32_t TEXTURE_TYPE		= hash::murmur2_32(TEXTURE_EXTENSION,  string::strlen(TEXTURE_EXTENSION),  0);
-const uint32_t MESH_TYPE		= hash::murmur2_32(MESH_EXTENSION,     string::strlen(MESH_EXTENSION),     0);
-const uint32_t SCRIPT_TYPE		= hash::murmur2_32(SCRIPT_EXTENSION,   string::strlen(SCRIPT_EXTENSION),   0);
-const uint32_t TEXT_TYPE		= hash::murmur2_32(TEXT_EXTENSION,     string::strlen(TEXT_EXTENSION),     0);
-const uint32_t MATERIAL_TYPE	= hash::murmur2_32(MATERIAL_EXTENSION, string::strlen(MATERIAL_EXTENSION), 0);
+const uint32_t TEXTURE_TYPE		= 0x1410A16A;
+const uint32_t MESH_TYPE		= 0xE8239EEC;
+const uint32_t SCRIPT_TYPE		= 0xD96E7C37;
+const uint32_t TEXT_TYPE		= 0x9000BF0B;
+const uint32_t MATERIAL_TYPE	= 0x46807A92;
 
 /// Enumerates the loading states of a resource
 enum ResourceState
