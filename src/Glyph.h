@@ -32,85 +32,84 @@ namespace crown
 
 class Glyph
 {
-
 public:
 
-	//! Constructor
+	/// Constructor
 	Glyph() :
-		mCodePoint(0),
-		mLeft(0),
-		mRight(0),
-		mBottom(0),
-		mTop(0),
-		mWidth(0),
-		mHeight(0),
-		mAdvance(0),
-		mBaseline(0)
+		m_code_point(0),
+		m_left(0),
+		m_right(0),
+		m_bottom(0),
+		m_top(0),
+		m_width(0),
+		m_height(0),
+		m_advance(0),
+		m_baseline(0)
 	{
 	}
 
-	//! Constructor
-	Glyph(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline) :
-		mCodePoint(code),
-		mLeft(left),
-		mRight(right),
-		mBottom(bottom),
-		mTop(top),
-		mWidth(width),
-		mHeight(height),
-		mAdvance(advance),
-		mBaseline(baseline)
+	/// Constructor
+	Glyph(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float m_baseline) :
+		m_code_point(code),
+		m_left(left),
+		m_right(right),
+		m_bottom(bottom),
+		m_top(top),
+		m_width(width),
+		m_height(height),
+		m_advance(advance),
+		m_baseline(m_baseline)
 	{
 	}
 
-	//! Destructor
+	/// Destructor
 	~Glyph()
 	{
 	}
 
-	//! Returns the glyph's metrics
-	void GetMetrics(float& left, float& right, float& bottom, float& top, float& width, float& height, float& advance, float& baseline) const
+	/// Returns the glyph's metrics
+	void metrics(float& left, float& right, float& bottom, float& top, float& width, float& height, float& advance, float& m_baseline) const
 	{
-		left = mLeft;
-		right = mRight;
-		bottom = mBottom;
-		top = mTop;
-		width = mWidth;
-		height = mHeight;
-		advance = mAdvance;
-		baseline = mBaseline;
+		left = m_left;
+		right = m_right;
+		bottom = m_bottom;
+		top = m_top;
+		width = m_width;
+		height = m_height;
+		advance = m_advance;
+		m_baseline = m_baseline;
 	}
 
-	//! Sets the glyph's metrics
-	void SetMetrics(float left, float right, float bottom, float top, float width, float height, float advance, float baseline)
+	/// Sets the glyph's metrics
+	void set_metrics(float left, float right, float bottom, float top, float width, float height, float advance, float m_baseline)
 	{
-		mLeft = left;
-		mRight = right;
-		mBottom = bottom;
-		mTop = top;
-		mWidth = width;
-		mHeight = height;
-		mAdvance = advance;
-		mBaseline = baseline;
+		m_left = left;
+		m_right = right;
+		m_bottom = bottom;
+		m_top = top;
+		m_width = width;
+		m_height = height;
+		m_advance = advance;
+		m_baseline = m_baseline;
 	}
 
-	//! Returns the glyph's code point32_t
-	uint32_t GetCodePoint() const
+	/// Returns the glyph's code point32_t
+	uint32_t code_point() const
 	{
-		return mCodePoint;
+		return m_code_point;
 	}
 
 private:
 
-	uint32_t mCodePoint;
-	float mLeft;
-	float mRight;
-	float mBottom;
-	float mTop;
-	float mWidth;
-	float mHeight;
-	float mAdvance;
-	float mBaseline;
+	uint32_t m_code_point;
+	float m_left;
+	float m_right;
+	float m_bottom;
+	float m_top;
+	float m_width;
+	float m_height;
+	float m_advance;
+	float m_baseline;
 };
 
 } // namespace crown
