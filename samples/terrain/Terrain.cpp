@@ -237,7 +237,7 @@ bool Terrain::TraceRay(const Ray& ray, Triangle& result, Triangle& /*tri2*/, rea
 
 		real ret;
 		Vec3 int32_tersectionPoint32_t;
-		if (Intersection::TestRayTriangle(ray, tri, ret, int32_tersectionPoint32_t))
+		if (Intersection::test_ray_triangle(ray, tri, ret, int32_tersectionPoint32_t))
 		{
 			if (ret < minDist)
 			{
