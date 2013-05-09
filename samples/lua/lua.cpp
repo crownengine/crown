@@ -1,19 +1,9 @@
 #include <iostream>
 #include "Crown.h"
-#include "lua.hpp"
 #include <unistd.h>
+#include "ScriptSystem.h"
 
 using namespace crown;
-
-static void report_errors(lua_State* state, const int status)
-{
-  if (status != 0)
-  {
-    std::cerr << "-- " << lua_tostring(state, -1) << std::endl;
-
-    lua_pop(state, 1);
-  }
-}
 
 int main(int argc, char** argv)
 {
@@ -31,32 +21,22 @@ int main(int argc, char** argv)
 
   res_manager.flush();
 
+  ScriptSystem script_system;
+
   while (1)
   {
     if (res_manager.is_loaded(script))
     {
-
-      lua_state = luaL_newstate();
-      luaL_openlibs(lua_state);
-
       assert(res_manager.data(script) != NULL);
 
       ScriptResource* resource = (ScriptResource*)res_manager.data(script);
 
-      int s = luaL_loadbuffer(lua_state, (char*)resource->data(), 47, "");
-
-      if (s == 0)
-      {
-        s = lua_pcall(lua_state, 0, LUA_MULTRET, 0);
-      }
-
-      report_errors(lua_state, s);
+      script_system.load(resource);
+      script_system.execute();
 
       break;
     }
   }
-
-  lua_close(lua_state);
 
   return 0;
 }
