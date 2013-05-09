@@ -1,7 +1,6 @@
 set (SRC
 	Camera.cpp
 	Device.cpp
-	EventBuffer.cpp
 	Filesystem.cpp
 	MaterialResource.cpp
 	ResourceManager.cpp
@@ -23,7 +22,6 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
-	EventBuffer.h
 	Filesystem.h
 	Glyph.h
 	MaterialResource.h
