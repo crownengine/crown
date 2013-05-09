@@ -45,7 +45,7 @@ bool LuaCompiler::compile()
     file->read(m_file_data, m_file_size);
 
     // Prepare for writing
-    Compiler::prepare_header(m_file_size);
+    Compiler::prepare_header(m_file_size + sizeof(uint32_t));
 
     return true;
 }
@@ -57,6 +57,7 @@ void LuaCompiler::write()
 
     FileStream* file = Compiler::destination_file();
 
+    file->write(&m_file_size, sizeof(uint32_t));
     file->write(m_file_data, m_file_size);
 }
 
