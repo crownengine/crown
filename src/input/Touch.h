@@ -75,10 +75,22 @@ public:
 	/// Returns whether the touch pointer @id is down.
 	bool			touch_down(uint16_t id) const;
 
-	/// Returns the position of the pointer @id in windows space. 
+	/// Returns the position of the pointer @id in windows space.
+	/// @note
+	/// Coordinates in window space have the origin at the
+	/// upper-left corner of the window. +X extends from left
+	/// to right and +Y extends from top to bottom.
 	Point2			touch_xy(uint16_t id) const;
 
 	/// Returns the relative position of the pointer @id in window space.
+	/// @note
+	/// Coordinates in window space have the origin at the
+	/// upper-left corner of the window. +X extends from left
+	/// to right and +Y extends from top to bottom.
+	/// @note
+	/// Relative coordinates are mapped to a real varying
+	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
+	/// maximum extent of the cosidered axis.
 	Vec2			touch_relative_xy(uint16_t id);
 
 private:
