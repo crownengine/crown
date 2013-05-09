@@ -142,9 +142,9 @@ void CrownDrawingArea::on_realize()
 
 	make_current();
 
-	char* argv[1];
+	char* argv[] = {"crown", "--dev" };
 
-	m_engine->init(0, argv);
+	m_engine->init(2, argv);
 
 	Glib::signal_idle().connect(sigc::mem_fun(*this, &CrownDrawingArea::on_idle));
 }
