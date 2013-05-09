@@ -17,8 +17,10 @@ void* ScriptResource::load(Allocator& allocator, ResourceArchive& archive, Resou
 	if (stream != NULL)
 	{
 		ScriptResource* resource = (ScriptResource*)allocator.allocate(sizeof(ScriptResource));
-	
-		size_t size = stream->size() - stream->position();
+
+		stream->read(&resource->m_length, sizeof(uint32_t));
+		
+		size_t size = resource->m_length;
 
 		resource->m_data = (uint8_t*)allocator.allocate(sizeof(uint8_t) * size);
 

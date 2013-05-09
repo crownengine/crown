@@ -45,10 +45,13 @@ public:
 
 public:
 
+	const uint32_t		length() const { return m_length; }
 	const uint8_t*		data() const { return m_data; }
 
-private:
+	void				set_length(uint32_t len) { m_length = len; }
 
+private:
+	uint32_t 			m_length;
 	uint8_t*			m_data;
 };
 

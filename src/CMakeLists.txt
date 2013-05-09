@@ -18,6 +18,7 @@ set (SRC
 
 	FPSSystem.cpp
 	JSONParser.cpp
+	ScriptSystem.cpp
 )
 
 set (HEADERS
@@ -45,6 +46,7 @@ set (HEADERS
 
 	FPSSystem.h
 	JSONParser.h
+	ScriptSystem.h
 )
 
 set (CORE_SRC
@@ -286,7 +288,9 @@ set (CROWN_HEADERS
 	${OS_HEADERS}
 )
 
-link_libraries(rt z)
+include_directories(${CROWN_THIRD}/luajit/include/luajit-2.0)
+link_directories(${CROWN_THIRD}/luajit/lib)
+link_libraries(rt z luajit-5.1)
 add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
 
 if (CROWN_BUILD_OPENGL)
