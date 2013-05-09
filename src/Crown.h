@@ -97,7 +97,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Camera.h"
 #include "Device.h"
 #include "Glyph.h"
-#include "Image.h"
 #include "ResourceArchive.h"
 #include "ArchiveResourceArchive.h"
 #include "FileResourceArchive.h"

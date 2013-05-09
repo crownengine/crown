@@ -3,7 +3,6 @@ set (SRC
 	Device.cpp
 	EventBuffer.cpp
 	Filesystem.cpp
-	Image.cpp
 	MaterialResource.cpp
 	ResourceManager.cpp
 	Skybox.cpp
@@ -28,7 +27,6 @@ set (HEADERS
 	EventBuffer.h
 	Filesystem.h
 	Glyph.h
-	Image.h
 	MaterialResource.h
 	Resource.h
 	ResourceManager.h
