@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 2.8)
 
 set (SRC
 	terrain.cpp
+	Terrain.cpp
 )
 
 set (HEADERS
+	Terrain.h
 )
 
 add_library (game SHARED ${SRC} ${HEADERS})
