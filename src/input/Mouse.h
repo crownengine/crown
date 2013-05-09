@@ -26,15 +26,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "Vec2.h"
+#include "Point2.h"
 
 namespace crown
 {
 
-class InputManager;
+const uint32_t MAX_MOUSE_BUTTONS = 3;
 
-/**
-	Enumerates mouse buttons.
-*/
+/// Enumerates mouse buttons.
 enum MouseButton
 {
 	MB_LEFT		= 0,
@@ -50,9 +50,7 @@ struct MouseEvent
 	float wheel;
 };
 
-/**
-	Interface for managing mouse input
-*/
+/// Interface for managing mouse input.
 class MouseListener
 {
 
@@ -61,6 +59,64 @@ public:
 	virtual void button_pressed(const MouseEvent& event) { (void)event; }
 	virtual void button_released(const MouseEvent& event) { (void)event; }
 	virtual void cursor_moved(const MouseEvent& event) { (void)event; }
+};
+
+/// Interface for accessing mouse input device.
+class Mouse
+{
+public:
+
+			Mouse();
+
+
+	/// Returns whether @button is pressed.
+	bool	button_pressed(MouseButton button) const;
+
+	/// Returns whether @button is released.
+	bool	button_released(MouseButton button) const;
+
+	/// Returns the position of the cursor in window space.
+	/// @note
+	/// Coordinates in window space have the origin at the
+	/// upper-left corner of the window. +X extends from left
+	/// to right and +Y extends from top to bottom.
+	Point2	cursor_xy() const;
+
+	/// Sets the position of the cursor in window space.
+	/// @note
+	/// Coordinates in window space have the origin at the
+	/// upper-left corner of the window. +X extends from left
+	/// to right and +Y extends from top to bottom.
+	void	set_cursor_xy(const Point2& position);
+
+	/// Returns the relative position of the cursor in window space.
+	/// @note
+	/// Coordinates in window space have the origin at the
+	/// upper-left corner of the window. +X extends from left
+	/// to right and +Y extends from top to bottom.
+	/// @note
+	/// Relative coordinates are mapped to a real varying
+	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
+	/// maximum extent of the cosidered axis.
+	Vec2	cursor_relative_xy() const;
+
+	/// Sets the relative position of the cursor in window space.
+	/// @note
+	/// Coordinates in window space have the origin at the
+	/// upper-left corner of the window. +X extends from left
+	/// to right and +Y extends from top to bottom.
+	/// @note
+	/// Relative coordinates are mapped to a real varying
+	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
+	/// maximum extent of the cosidered axis.
+	void	set_cursor_relative_xy(const Vec2& position);
+
+private:
+
+	// True if correspondig button is pressed, false otherwise.
+	bool	m_buttons[MAX_MOUSE_BUTTONS];
+
+	friend class	InputManager;
 };
 
 } // namespace crown

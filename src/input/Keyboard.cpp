@@ -23,54 +23,36 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "EventDispatcher.h"
-#include "Mouse.h"
 #include "Keyboard.h"
-#include "Touch.h"
-#include "Accelerometer.h"
 
 namespace crown
 {
 
-class MouseListener;
-class KeyboardListener;
-class TouchListener;
-
-class InputManager
+//-----------------------------------------------------------------------------
+Keyboard::Keyboard()
 {
-public:
+	for (uint32_t i = 0; i < MAX_KEYCODES; i++)
+	{
+		m_keys[i] = false;
+	}
+}
 
-						InputManager();
-						~InputManager();
+//-----------------------------------------------------------------------------
+bool Keyboard::modifier_pressed(ModifierKey modifier) const
+{
+	return (m_modifier & modifier) == modifier;
+}
 
-	void				register_mouse_listener(MouseListener* listener);
-	void				register_keyboard_listener(KeyboardListener* listener);
-	void				register_touch_listener(TouchListener* listener);
-	void				register_accelerometer_listener(AccelerometerListener* listener);
+//-----------------------------------------------------------------------------
+bool Keyboard::key_pressed(KeyCode key) const
+{
+	return m_keys[key] == true;
+}
 
-	EventDispatcher*	get_event_dispatcher();
-
-	/// Returns whether the cursor is visible.
-	bool				is_cursor_visible() const;
-
-	/// Sets whether the cursor is visible.
-	void				set_cursor_visible(bool visible);
-
-	void				event_loop();
-
-private:
-
-	EventDispatcher		m_event_dispatcher;
-
-	Keyboard			m_keyboard;
-	Mouse				m_mouse;
-	Touch				m_touch;
-	Accelerometer		m_accelerometer;
-
-	bool				m_cursor_visible;
-};
+//-----------------------------------------------------------------------------
+bool Keyboard::key_released(KeyCode key) const
+{
+	return m_keys[key] == false;
+}
 
 } // namespace crown
-

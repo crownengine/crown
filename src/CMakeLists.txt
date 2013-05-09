@@ -189,6 +189,10 @@ set (SETTINGS_HEADERS
 set (INPUT_SRC
 	input/EventDispatcher.cpp
 	input/InputManager.cpp
+	input/Keyboard.cpp
+	input/Mouse.cpp
+	input/Touch.cpp
+	input/Accelerometer.cpp
 )
 
 set (INPUT_HEADERS

@@ -25,21 +25,32 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Types.h"
+#include "Vec2.h"
+#include "Point2.h"
+
 namespace crown
 {
 
-class InputManager;
+const uint32_t MAX_POINTER_IDS = 4;
+
+struct PointerData
+{
+	uint32_t	x;
+	uint32_t	y;
+	float		relative_x;
+	float		relative_y;
+	bool		up;
+};
 
 struct TouchEvent
 {
-	int32_t pointer_id;
-	int32_t x;
-	int32_t y;
+	uint32_t	pointer_id;
+	uint32_t	x;
+	uint32_t	y;
 };
 
-/**
-	Interface for managing touch input device.	
-*/
+/// Interface for managing touch input device.
 class TouchListener
 {
 
@@ -51,34 +62,30 @@ public:
 	virtual void touch_cancel(const TouchEvent& event) { (void)event; }
 };
 
-/**
-	Interface for accessing touch input device.
-*/
+/// Interface for accessing touch input device.
 class Touch
 {
-
 public:
 
-	/**
-		Constructor.
-	*/
-	Touch() : m_listener(NULL) {}
+					Touch();
 
-	/**
-		Destructor.
-	*/
-	virtual ~Touch() {}
+	/// Returns whether the touch pointer @id is up.
+	bool			touch_up(uint16_t id) const;
 
-	/**
-		Sets the listener for this device.
-	@param listener
-		The listener
-	*/
-	inline void set_listener(TouchListener* listener) { m_listener = listener; }
+	/// Returns whether the touch pointer @id is down.
+	bool			touch_down(uint16_t id) const;
 
-protected:
+	/// Returns the position of the pointer @id in windows space. 
+	Point2			touch_xy(uint16_t id) const;
 
-	TouchListener* m_listener;
+	/// Returns the relative position of the pointer @id in window space.
+	Vec2			touch_relative_xy(uint16_t id);
+
+private:
+
+	PointerData		m_pointers[MAX_POINTER_IDS];
+
+	friend class	InputManager;
 };
 
 }

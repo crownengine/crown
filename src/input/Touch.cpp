@@ -23,54 +23,43 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "EventDispatcher.h"
-#include "Mouse.h"
-#include "Keyboard.h"
 #include "Touch.h"
-#include "Accelerometer.h"
 
 namespace crown
 {
 
-class MouseListener;
-class KeyboardListener;
-class TouchListener;
-
-class InputManager
+//-----------------------------------------------------------------------------
+Touch::Touch()
 {
-public:
 
-						InputManager();
-						~InputManager();
+}
 
-	void				register_mouse_listener(MouseListener* listener);
-	void				register_keyboard_listener(KeyboardListener* listener);
-	void				register_touch_listener(TouchListener* listener);
-	void				register_accelerometer_listener(AccelerometerListener* listener);
+//-----------------------------------------------------------------------------
+bool Touch::touch_up(uint16_t id) const
+{
+	return m_pointers[id].up == true;
+}
 
-	EventDispatcher*	get_event_dispatcher();
+//-----------------------------------------------------------------------------
+bool Touch::touch_down(uint16_t id) const
+{
+	return m_pointers[id].up == false;
+}
 
-	/// Returns whether the cursor is visible.
-	bool				is_cursor_visible() const;
+//----------------------------------------------------------------------------- 
+Point2 Touch::touch_xy(uint16_t id) const
+{
+	const PointerData& data = m_pointers[id];
 
-	/// Sets whether the cursor is visible.
-	void				set_cursor_visible(bool visible);
+	return Point2(data.x, data.y);
+}
 
-	void				event_loop();
+//-----------------------------------------------------------------------------
+Vec2 Touch::touch_relative_xy(uint16_t id)
+{
+	const PointerData& data = m_pointers[id];
 
-private:
-
-	EventDispatcher		m_event_dispatcher;
-
-	Keyboard			m_keyboard;
-	Mouse				m_mouse;
-	Touch				m_touch;
-	Accelerometer		m_accelerometer;
-
-	bool				m_cursor_visible;
-};
+	return Vec2(data.relative_x, data.relative_y);
+}
 
 } // namespace crown
-

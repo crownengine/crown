@@ -42,6 +42,36 @@ InputManager::~InputManager()
 }
 
 //-----------------------------------------------------------------------------
+void InputManager::register_mouse_listener(MouseListener* listener)
+{
+	m_event_dispatcher.add_mouse_listener(listener);
+}
+
+//-----------------------------------------------------------------------------
+void InputManager::register_keyboard_listener(KeyboardListener* listener)
+{
+	m_event_dispatcher.add_keyboard_listener(listener);
+}
+
+//-----------------------------------------------------------------------------
+void InputManager::register_touch_listener(TouchListener* listener)
+{
+	m_event_dispatcher.add_touch_listener(listener);
+}
+
+//-----------------------------------------------------------------------------
+void InputManager::register_accelerometer_listener(AccelerometerListener* listener)
+{
+	m_event_dispatcher.add_accelerometer_listener(listener);
+}
+
+//-----------------------------------------------------------------------------
+EventDispatcher* InputManager::get_event_dispatcher()
+{
+	return &m_event_dispatcher;
+}
+
+//-----------------------------------------------------------------------------
 void InputManager::event_loop()
 {
 	os::OSEvent event;
@@ -67,10 +97,12 @@ void InputManager::event_loop()
 
 				if (event.type == os::OSET_BUTTON_PRESS)
 				{
+					m_mouse.m_buttons[mouse_event.button] = true;
 					m_event_dispatcher.button_pressed(mouse_event);
 				}
 				else
 				{
+					m_mouse.m_buttons[mouse_event.button] = false;
 					m_event_dispatcher.button_released(mouse_event);
 				}
 
@@ -84,10 +116,12 @@ void InputManager::event_loop()
 
 				if (event.type == os::OSET_KEY_PRESS)
 				{
+					m_keyboard.m_keys[keyboard_event.key] = true;
 					m_event_dispatcher.key_pressed(keyboard_event);
 				}
 				else
 				{
+					m_keyboard.m_keys[keyboard_event.key] = false;
 					m_event_dispatcher.key_released(keyboard_event);
 				}
 
@@ -100,14 +134,25 @@ void InputManager::event_loop()
 				touch_event.pointer_id = event.data_a.int_value;
 				touch_event.x = event.data_b.int_value;
 				touch_event.y = event.data_c.int_value;
+
+				m_touch.m_pointers[touch_event.pointer_id].x = touch_event.x;
+				m_touch.m_pointers[touch_event.pointer_id].y = touch_event.y;
+
+				// FIXME
+				m_touch.m_pointers[touch_event.pointer_id].relative_x = 0.0f;
+				m_touch.m_pointers[touch_event.pointer_id].relative_y = 0.0f;
+
 				if (event.type == os::OSET_TOUCH_DOWN)
 				{
+					m_touch.m_pointers[touch_event.pointer_id].up = false;
 					m_event_dispatcher.touch_down(touch_event);
 				}
 				else
 				{
+					m_touch.m_pointers[touch_event.pointer_id].up = true;
 					m_event_dispatcher.touch_up(touch_event);
 				}
+
 				break;
 			}
 			case os::OSET_TOUCH_MOVE:
@@ -115,8 +160,17 @@ void InputManager::event_loop()
 				TouchEvent touch_event;
 				touch_event.pointer_id = event.data_a.int_value;
 				touch_event.x = event.data_b.int_value;
-				touch_event.y = event.data_c.int_value;	
-				m_event_dispatcher.touch_move(touch_event);			
+				touch_event.y = event.data_c.int_value;
+
+				m_touch.m_pointers[touch_event.pointer_id].x = touch_event.x;
+				m_touch.m_pointers[touch_event.pointer_id].y = touch_event.y;
+
+				// FIXME
+				m_touch.m_pointers[touch_event.pointer_id].relative_x = 0.0f;
+				m_touch.m_pointers[touch_event.pointer_id].relative_y = 0.0f;
+
+				m_event_dispatcher.touch_move(touch_event);
+
 				break;
 			}
 			case os::OSET_ACCELEROMETER:
@@ -125,6 +179,11 @@ void InputManager::event_loop()
 				sensor_event.x = event.data_a.float_value;
 				sensor_event.y = event.data_b.float_value;
 				sensor_event.z = event.data_c.float_value;
+
+				m_accelerometer.m_orientation.x = sensor_event.x;
+				m_accelerometer.m_orientation.y = sensor_event.y;
+				m_accelerometer.m_orientation.z = sensor_event.z;
+
 				m_event_dispatcher.accelerometer_changed(sensor_event);
 				break;
 			}
@@ -155,49 +214,6 @@ void InputManager::set_cursor_visible(bool visible)
 	}
 
 	m_cursor_visible = visible;
-}
-
-//-----------------------------------------------------------------------------
-Point2 InputManager::get_cursor_xy() const
-{
-	Point2 xy;
-
-	os::get_cursor_xy(xy.x, xy.y);
-
-	return xy;
-}
-
-//-----------------------------------------------------------------------------
-void InputManager::set_cursor_xy(const Point2& position)
-{
-	os::set_cursor_xy(position.x, position.y);
-}
-
-//-----------------------------------------------------------------------------
-Vec2 InputManager::get_cursor_relative_xy() const
-{
-	uint32_t window_width;
-	uint32_t window_height;
-
-	os::get_render_window_metrics(window_width, window_height);
-
-	Vec2 pos = get_cursor_xy().to_vec2();
-
-	pos.x = pos.x / (float) window_width;
-	pos.y = pos.y / (float) window_height;
-
-	return pos;
-}
-
-//-----------------------------------------------------------------------------
-void InputManager::set_cursor_relative_xy(const Vec2& position)
-{
-	uint32_t window_width;
-	uint32_t window_height;
-
-	os::get_render_window_metrics(window_width, window_height);
-
-	set_cursor_xy(Point2((int32_t)(position.x * (float) window_width), (int32_t)(position.y * (float) window_height)));
 }
 
 } // namespace crown

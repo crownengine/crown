@@ -28,10 +28,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	A KeyCode is the number which uniquely identifies a key
-	on the keyboard.
-*/
+const uint16_t MAX_KEYCODES = 256;
+
+/// A KeyCode is the number which uniquely identifies a key
+/// on the keyboard.
 enum KeyCode
 {
 	KC_NOKEY		= 0x00,
@@ -91,7 +91,8 @@ enum KeyCode
 	/* [0x30, 0x39] reserved for ASCII digits */
 	/* [0x41, 0x5A] and [0x61, 0x7A] reserved for ASCII alphabet */
 
-	KC_COUNT		= 0xFF		// The last key must be <= 0xFF
+	// The last key _must_ be <= 0xFF
+	KC_COUNT		= 0xFF
 };
 
 typedef uint8_t Key;

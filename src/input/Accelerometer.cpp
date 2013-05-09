@@ -23,54 +23,21 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "EventDispatcher.h"
-#include "Mouse.h"
-#include "Keyboard.h"
-#include "Touch.h"
 #include "Accelerometer.h"
 
 namespace crown
 {
 
-class MouseListener;
-class KeyboardListener;
-class TouchListener;
-
-class InputManager
+//-----------------------------------------------------------------------------
+Accelerometer::Accelerometer() :
+	m_orientation(0.0f, 0.0f, 0.0f)
 {
-public:
+}
 
-						InputManager();
-						~InputManager();
-
-	void				register_mouse_listener(MouseListener* listener);
-	void				register_keyboard_listener(KeyboardListener* listener);
-	void				register_touch_listener(TouchListener* listener);
-	void				register_accelerometer_listener(AccelerometerListener* listener);
-
-	EventDispatcher*	get_event_dispatcher();
-
-	/// Returns whether the cursor is visible.
-	bool				is_cursor_visible() const;
-
-	/// Sets whether the cursor is visible.
-	void				set_cursor_visible(bool visible);
-
-	void				event_loop();
-
-private:
-
-	EventDispatcher		m_event_dispatcher;
-
-	Keyboard			m_keyboard;
-	Mouse				m_mouse;
-	Touch				m_touch;
-	Accelerometer		m_accelerometer;
-
-	bool				m_cursor_visible;
-};
+//-----------------------------------------------------------------------------
+const Vec3& Accelerometer::orientation() const
+{
+	return m_orientation;
+}
 
 } // namespace crown
-
