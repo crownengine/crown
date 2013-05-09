@@ -44,8 +44,9 @@ enum ModifierKey
 
 struct KeyboardEvent
 {
-	Key key;
-	char text[4];
+	Key			key;
+	uint8_t		modifier;
+	char		text[4];
 };
 
 class KeyboardListener
@@ -81,7 +82,7 @@ public:
 
 private:
 
-	ModifierKey		m_modifier;
+	uint8_t			m_modifier;
 
 	// True if key pressed, false otherwise.
 	bool			m_keys[MAX_KEYCODES];

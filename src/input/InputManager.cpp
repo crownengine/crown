@@ -137,6 +137,9 @@ void InputManager::event_loop()
 			{
 				KeyboardEvent keyboard_event;
 				keyboard_event.key = event.data_a.int_value;
+				keyboard_event.modifier = (uint8_t)event.data_b.int_value;
+
+				m_keyboard.m_modifier = keyboard_event.modifier;
 
 				if (event.type == os::OSET_KEY_PRESS)
 				{
