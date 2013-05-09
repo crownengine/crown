@@ -172,11 +172,15 @@ bool Filesystem::delete_dir(const char* relative_path)
 //-----------------------------------------------------------------------------
 const char* Filesystem::os_path(const char* relative_path)
 {
+	static char os_path[os::MAX_PATH_LENGTH];
+
 	FilesystemEntry entry;
 
 	get_info(relative_path, entry);
 
-	return entry.os_path;
+	string::strncpy(os_path, entry.os_path, os::MAX_PATH_LENGTH);
+
+	return os_path;
 }
 
 //-----------------------------------------------------------------------------
