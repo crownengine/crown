@@ -45,6 +45,11 @@ public:
 						InputManager();
 						~InputManager();
 
+	Keyboard*			keyboard();
+	Mouse*				mouse();
+	Touch*				touch();
+	Accelerometer*		accelerometer();
+
 	void				register_mouse_listener(MouseListener* listener);
 	void				register_keyboard_listener(KeyboardListener* listener);
 	void				register_touch_listener(TouchListener* listener);

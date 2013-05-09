@@ -40,6 +40,10 @@ class ResourceArchive;
 class Renderer;
 class DebugRenderer;
 class InputManager;
+class Keyboard;
+class Mouse;
+class Touch;
+class Accelerometer;
 class Game;
 
 /// The Engine.
@@ -96,6 +100,11 @@ public:
 	InputManager*			input_manager();
 	Renderer*				renderer();
 	DebugRenderer*			debug_renderer();
+
+	Keyboard*				keyboard();
+	Mouse*					mouse();
+	Touch*					touch();
+	Accelerometer*			accelerometer();
 
 private:
 

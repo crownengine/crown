@@ -42,6 +42,30 @@ InputManager::~InputManager()
 }
 
 //-----------------------------------------------------------------------------
+Keyboard* InputManager::keyboard()
+{
+	return &m_keyboard;
+}
+
+//-----------------------------------------------------------------------------
+Mouse* InputManager::mouse()
+{
+	return &m_mouse;
+}
+
+//-----------------------------------------------------------------------------
+Touch* InputManager::touch()
+{
+	return &m_touch;
+}
+
+//-----------------------------------------------------------------------------
+Accelerometer* InputManager::accelerometer()
+{
+	return &m_accelerometer;
+}
+
+//-----------------------------------------------------------------------------
 void InputManager::register_mouse_listener(MouseListener* listener)
 {
 	m_event_dispatcher.add_mouse_listener(listener);

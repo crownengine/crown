@@ -40,6 +40,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "FileResourceArchive.h"
 #include "ResourceManager.h"
 #include "TextureResource.h"
+#include "Keyboard.h"
+#include "Mouse.h"
+#include "Touch.h"
+#include "Accelerometer.h"
 
 #ifdef CROWN_BUILD_OPENGL
 	#include "renderers/gl/GLRenderer.h"
@@ -261,6 +265,30 @@ DebugRenderer* Device::debug_renderer()
 }
 
 //-----------------------------------------------------------------------------
+Keyboard* Device::keyboard()
+{
+	return m_input_manager->keyboard();
+}
+
+//-----------------------------------------------------------------------------
+Mouse* Device::mouse()
+{
+	return m_input_manager->mouse();
+}
+
+//-----------------------------------------------------------------------------
+Touch* Device::touch()
+{
+	return m_input_manager->touch();
+}
+
+//-----------------------------------------------------------------------------
+Accelerometer* Device::accelerometer()
+{
+	return m_input_manager->accelerometer();
+}
+
+//-----------------------------------------------------------------------------
 void Device::start()
 {
 	if (is_init() == false)
@@ -315,11 +343,6 @@ void Device::frame()
 	m_resource_manager->bring_loaded_online();
 
 	m_input_manager->event_loop();
-
-	uint32_t window_width, window_height;
-	os::get_render_window_metrics(window_width, window_height);
-	m_renderer->set_scissor_params(0, 0, window_width, window_height);
-	m_renderer->set_viewport_params(0, 0, window_width, window_height);
 
 	m_renderer->begin_frame();
 
