@@ -26,13 +26,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TGACompiler.h"
 #include "FileStream.h"
 #include "Pixel.h"
+#include "Resource.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
 TGACompiler::TGACompiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed) :
-	Compiler(root_path, dest_path, resource, seed),
+	Compiler(root_path, dest_path, resource, TEXTURE_TYPE, seed),
 	m_image_format(PF_UNKNOWN),
 	m_image_channels(0),
 	m_image_size(0),

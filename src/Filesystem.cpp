@@ -38,8 +38,6 @@ Filesystem::Filesystem(const char* root_path)
 	assert(os::is_absolute_path(root_path));
 
 	string::strncpy(m_root_path, root_path, os::MAX_PATH_LENGTH);
-
-	Log::i("Root path : %s", m_root_path);
 }
 
 //-----------------------------------------------------------------------------
@@ -169,6 +167,16 @@ bool Filesystem::delete_dir(const char* relative_path)
 	const char* os_path = build_os_path(m_root_path, relative_path);
 
 	return os::rmdir(os_path);
+}
+
+//-----------------------------------------------------------------------------
+const char* Filesystem::os_path(const char* relative_path)
+{
+	FilesystemEntry entry;
+
+	get_info(relative_path, entry);
+
+	return entry.os_path;
 }
 
 //-----------------------------------------------------------------------------

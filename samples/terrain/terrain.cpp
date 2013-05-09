@@ -31,7 +31,8 @@ public:
 	MainScene() :
 		optShowSkybox(true),
 		optShowCrate(true),
-		optShowTerrain(true)
+		optShowTerrain(true),
+		camera_active(true)
 	{
 		device()->input_manager()->register_keyboard_listener(this);
 		device()->input_manager()->register_mouse_listener(this);
@@ -58,6 +59,16 @@ public:
 		if (event.key == '3')
 		{		
 			terrain.PlotCircle(8, 8, 8, 2);
+		}
+
+		if (event.key == KC_F5)
+		{
+			device()->reload(grass);
+		}
+
+		if (event.key == KC_SPACE)
+		{
+			camera_active = !camera_active;
 		}
 	}
 
@@ -115,51 +126,54 @@ public:
 	void on_load()
 	{
 		crown::Renderer* renderer = crown::device()->renderer();
-
-		renderer->set_clear_color(Color4::LIGHTBLUE);
 		
 		Vec3 start = Vec3(0.0f, 10.0f, 0.0f);
 
 		// Add a movable camera
 		cam = new Camera(start, 90.0f, 1.6f);
-
 		system = new FPSSystem(cam, 10.0f, 2.5f);
-
 		// Add a skybox
 		skybox = new Skybox(Vec3::ZERO, true);
 
-		//if (skybox)
-		//{
-		//	skybox->SetFace(SF_NORTH,	GetTextureManager()->Load("res/red_north.tga"));
-		//	skybox->SetFace(SF_SOUTH,	GetTextureManager()->Load("res/red_south.tga"));
-		//	skybox->SetFace(SF_EAST,	GetTextureManager()->Load("res/red_east.tga"));
-		//	skybox->SetFace(SF_WEST,	GetTextureManager()->Load("res/red_west.tga"));
-		//	skybox->SetFace(SF_UP,		GetTextureManager()->Load("res/red_up.tga"));
-		//	skybox->SetFace(SF_DOWN,	GetTextureManager()->Load("res/red_down.tga"));
-		//}
-
 		terrain.CreateTerrain(64, 64, 1, 0.0f);
-
-		device()->resource_manager()->load("textures/red_north.tga");
-		device()->resource_manager()->load("textures/red_south.tga");
-		device()->resource_manager()->load("textures/red_east.tga");
-		device()->resource_manager()->load("textures/red_west.tga");
-		device()->resource_manager()->load("textures/red_up.tga");
-		device()->resource_manager()->load("textures/red_down.tga");
-
-		grass = device()->resource_manager()->load("textures/grass.tga");
-
 		terrain.PlotCircle(4, 4, 4, 2);
-
-		//terrain.ApplyBrush(32, 32, 1.25f);
 		terrain.UpdateVertexBuffer(true);
+
+		red_north = device()->load("textures/red_north.tga");
+		red_south = device()->load("textures/red_south.tga");
+		red_east  = device()->load("textures/red_east.tga");
+		red_west  = device()->load("textures/red_west.tga");
+		red_up    = device()->load("textures/red_up.tga");
+		red_down  = device()->load("textures/red_down.tga");
+		grass     = device()->load("textures/grass.tga");
+
+		device()->resource_manager()->flush();
+
+		TextureResource* grass_texture = (TextureResource*)device()->data(grass);
+		grass_id = device()->renderer()->load_texture(grass_texture);
+	}
+
+	void on_unload()
+	{
+		device()->unload(grass);
+		device()->unload(red_north);
+		device()->unload(red_south);
+		device()->unload(red_east);
+		device()->unload(red_west);
+		device()->unload(red_up);
+		device()->unload(red_down);
 	}
 
 	void render(float dt)
 	{
 		Renderer* renderer = device()->renderer();
+
+		renderer->set_clear_color(Color4::LIGHTBLUE);
 		
-		system->set_view_by_cursor();
+		if (camera_active)
+		{
+			system->set_view_by_cursor();
+		}
 		system->update(dt);
 
 		renderer->set_lighting(false);
@@ -186,18 +200,11 @@ public:
 
 		renderer->set_matrix(MT_MODEL, Mat4::IDENTITY);
 
-		if (device()->resource_manager()->is_loaded(grass))
+		if (device()->is_loaded(grass))
 		{
-			TextureResource* grass_tex = (TextureResource*)device()->resource_manager()->data(grass);
-			if (grass_tex)
-			{
-				TextureId grass_id = grass_tex->m_render_texture;
-				renderer->set_texturing(0, true);
-				renderer->set_texture(0, grass_id);
-				renderer->set_lighting(true);
-			}
+			renderer->set_texturing(0, true);
+			renderer->set_texture(0, grass_id);
 		}
-
 		
 		//glColor3f(1, 1, 1);
 
@@ -234,6 +241,13 @@ private:
 
 	// Resources
 	ResourceId grass;
+	ResourceId red_north;
+	ResourceId red_south;
+	ResourceId red_east;
+	ResourceId red_west;
+	ResourceId red_up;
+	ResourceId red_down;
+	TextureId grass_id;
 
 	bool optShowSkybox;
 	bool optShowCrate;
@@ -241,13 +255,15 @@ private:
 	bool mouseLeftPressed;
 	bool mouseRightPressed;
 	float wheel;
+	bool camera_active;
 	Ray ray;
 };
 
-class TerrainGame : public Game
-{
-public:
+MainScene m_scene;
+WndCtrl m_ctrl;
 
+extern "C"
+{
 	void init()
 	{
 		m_scene.on_load();
@@ -255,26 +271,11 @@ public:
 
 	void shutdown()
 	{
+		m_scene.on_unload();
 	}
 
-	void update(float dt)
+	void frame(float dt)
 	{
 		m_scene.render(dt);
 	}
-
-private:
-
-	MainScene m_scene;
-	WndCtrl m_ctrl;
-};
-
-extern "C" Game* create_game()
-{
-	return new TerrainGame;
 }
-
-extern "C" void destroy_game(Game* game)
-{
-	delete game;
-}
-

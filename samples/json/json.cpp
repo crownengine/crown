@@ -28,10 +28,9 @@ int main(int argc, char** argv)
 
  	JSONParser* parser = new JSONParser(stream);
 
-	json_error error;
+	JSONError error;
 	JSONToken* tokens;
 
-	parser->init();
 	error = parser->parse();
 	tokens = parser->get_tokens();
 
@@ -45,8 +44,6 @@ int main(int argc, char** argv)
 		printf("parent token: %d\n",tokens[i].m_parent);
 		printf("\n");
 	}
-
-	parser->shutdown();
 
 	printf("return: %d\n", error);
 

@@ -41,26 +41,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	OpenGL utilities.
-
-	Utilities for converting from wrapped names to GL names and vice-versa.
-*/
+/// OpenGL Utilities for converting from wrapped names to GL names and vice-versa.
 class GL
 {
 
 public:
 
-	static GLenum			GetCompareFunction(CompareFunction function);
-	static GLenum			GetBlendFunction(BlendFunction function);
-	static GLenum			GetBlendEquation(BlendEquation equation);
-	static GLenum			GetTextureMode(TextureMode mode);
-	static GLenum			GetTextureWrap(TextureWrap wrap);
-	static void				GetTextureFilter(TextureFilter filter, GLint& minFilter, GLint& magFilter);
-	static GLenum			GetFogMode(FogMode mode);
-	static GLenum			GetPolygonMode(PolygonMode mode);
-	static GLenum			GetPixelFormat(PixelFormat format);
-	static PixelFormat		GetPixelFormatFromGLFormat(GLenum format);
+	static GLenum			compare_function(CompareFunction function);
+	static GLenum			blend_function(BlendFunction function);
+	static GLenum			blend_equation(BlendEquation equation);
+	static GLenum			texture_mode(TextureMode mode);
+	static GLenum			texture_wrap(TextureWrap wrap);
+	static void				texture_filter(TextureFilter filter, GLint& minFilter, GLint& magFilter);
+	static GLenum			fog_mode(FogMode mode);
+	static GLenum			polygon_mode(PolygonMode mode);
+	static GLenum			pixel_format(PixelFormat format);
+	static PixelFormat		pixel_format_from_gl_format(GLenum format);
 
 private:
 
@@ -79,7 +75,7 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-inline GLenum GL::GetCompareFunction(CompareFunction function)
+inline GLenum GL::compare_function(CompareFunction function)
 {
 	assert(function < CF_COUNT);
 
@@ -87,7 +83,7 @@ inline GLenum GL::GetCompareFunction(CompareFunction function)
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GL::GetBlendFunction(BlendFunction function)
+inline GLenum GL::blend_function(BlendFunction function)
 {
 	assert(function < BF_COUNT);
 
@@ -95,7 +91,7 @@ inline GLenum GL::GetBlendFunction(BlendFunction function)
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GL::GetBlendEquation(BlendEquation equation)
+inline GLenum GL::blend_equation(BlendEquation equation)
 {
 	assert(equation < BE_COUNT);
 
@@ -103,7 +99,7 @@ inline GLenum GL::GetBlendEquation(BlendEquation equation)
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GL::GetTextureMode(TextureMode mode)
+inline GLenum GL::texture_mode(TextureMode mode)
 {
 	assert(mode < TM_COUNT);
 
@@ -111,7 +107,7 @@ inline GLenum GL::GetTextureMode(TextureMode mode)
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GL::GetTextureWrap(TextureWrap wrap)
+inline GLenum GL::texture_wrap(TextureWrap wrap)
 {
 	assert(wrap < TW_COUNT);
 
@@ -119,7 +115,7 @@ inline GLenum GL::GetTextureWrap(TextureWrap wrap)
 }
 
 //-----------------------------------------------------------------------------
-inline void GL::GetTextureFilter(TextureFilter filter, GLint& minFilter, GLint& magFilter)
+inline void GL::texture_filter(TextureFilter filter, GLint& minFilter, GLint& magFilter)
 {
 	assert(filter < TF_COUNT);
 
@@ -128,7 +124,7 @@ inline void GL::GetTextureFilter(TextureFilter filter, GLint& minFilter, GLint& 
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GL::GetFogMode(FogMode mode)
+inline GLenum GL::fog_mode(FogMode mode)
 {
 	assert(mode < FM_COUNT);
 
@@ -136,7 +132,7 @@ inline GLenum GL::GetFogMode(FogMode mode)
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GL::GetPolygonMode(PolygonMode mode)
+inline GLenum GL::polygon_mode(PolygonMode mode)
 {
 	assert(mode < PM_COUNT);
 
@@ -144,7 +140,7 @@ inline GLenum GL::GetPolygonMode(PolygonMode mode)
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GL::GetPixelFormat(PixelFormat format)
+inline GLenum GL::pixel_format(PixelFormat format)
 {
 	switch (format)
 	{
@@ -162,7 +158,7 @@ inline GLenum GL::GetPixelFormat(PixelFormat format)
 }
 
 //-----------------------------------------------------------------------------
-inline PixelFormat GL::GetPixelFormatFromGLFormat(GLenum format)
+inline PixelFormat GL::pixel_format_from_gl_format(GLenum format)
 {
 	switch (format)
 	{

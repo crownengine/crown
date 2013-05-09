@@ -3,17 +3,16 @@ set (SRC
 	Device.cpp
 	EventBuffer.cpp
 	Filesystem.cpp
-	Font.cpp
 	Image.cpp
 	MaterialResource.cpp
 	ResourceManager.cpp
 	Skybox.cpp
 	Terrain.cpp
-	World.cpp
 
 	TextureResource.cpp
 	TextResource.cpp
 	ScriptResource.cpp
+	FontResource.cpp
 	ArchiveResourceArchive.cpp
 	FileResourceArchive.cpp
 
@@ -28,7 +27,6 @@ set (HEADERS
 	Device.h
 	EventBuffer.h
 	Filesystem.h
-	Font.h
 	Glyph.h
 	Image.h
 	MaterialResource.h
@@ -37,11 +35,11 @@ set (HEADERS
 	ResourceArchive.h
 	Skybox.h
 	Terrain.h
-	World.h
 
 	TextureResource.h
 	TextResource.h
 	ScriptResource.h
+	FontResource.h
 	ArchiveResourceArchive.h
 	FileResourceArchive.h
 
@@ -230,14 +228,10 @@ set (OS_SRC
 
 set (NETWORK_SRC
 	network/BitMessage.cpp
-	network/AsyncConnection.cpp
-	network/PacketQueue.h
 )
 
 set (NETWORK_HEADERS
 	network/BitMessage.h
-	network/AsyncConnection.h
-	network/PacketQueue.h
 )
 
 set (BINDS_SRC

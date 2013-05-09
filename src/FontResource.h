@@ -26,49 +26,35 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "List.h"
-#include "Dictionary.h"
 #include "Glyph.h"
 #include "Resource.h"
-#include "Image.h"
 
 namespace crown
 {
 
-class Image;
-class Texture;
+class Allocator;
+class ResourceArchive;
 
-/**
-	Font resource for using in text rendering.
-*/
 class FontResource
 {
+public:
 
-	typedef Dictionary<uint32_t, Glyph> CodeGlyphDict;
+	static void*		load(Allocator& allocator, ResourceArchive& archive, ResourceId id);
+	static void			online(void* resource);
+	static void			unload(Allocator& allocator, void* resource);
+	static void			offline();
 
 public:
 
-							FontResource();
-							~FontResource();
-
-	Glyph&					GetGlyph(uint32_t code);	//! Returns the glyph for the desired point32_t code
-	void					SetCodeGlyphMetrics(uint32_t code, float left, float right, float bottom, float top, float width, float height, float advance, float baseline);
-
-	inline uint32_t			_GetMaxTextHeight() { return mMaxTextHeight; }
-	inline uint32_t			_GetMaxCharacterHeight() { return mMaxCharacterHeight; }
-	inline uint32_t			_GetMaxCharacterWidth() { return mMaxCharacterWidth; }
-
-	ResourceId				GetTexture() { return mTexture; }
+	inline uint32_t			mat_text_heigth() { return m_max_text_height; }
+	inline uint32_t			max_character_height() { return m_max_character_height; }
+	inline uint32_t			max_character_width() { return m_max_character_width; }
 
 private:
 
-	CodeGlyphDict			mCodeGlyphDict;
-
-	uint32_t				mMaxTextHeight;
-	uint32_t				mMaxCharacterHeight;
-	uint32_t				mMaxCharacterWidth;
-
-	ResourceId				mTexture;
+	uint32_t				m_max_text_height;
+	uint32_t				m_max_character_height;
+	uint32_t				m_max_character_width;
 };
 
 } // namespace crown

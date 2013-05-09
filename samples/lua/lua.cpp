@@ -29,11 +29,10 @@ int main(int argc, char** argv)
 
   ResourceId script = res_manager.load("lua/hello.lua");
 
+  res_manager.flush();
+
   while (1)
   {
-    res_manager.flush_load_queue();
-    res_manager.bring_loaded_online();
-
     if (res_manager.is_loaded(script))
     {
 

@@ -34,12 +34,6 @@ namespace crown
 //-----------------------------------------------------------------------------
 Frustum::Frustum()
 {
-	m_planes[FP_LEFT]		= Plane::ZERO;
-	m_planes[FP_RIGHT]		= Plane::ZERO;
-	m_planes[FP_BOTTOM]		= Plane::ZERO;
-	m_planes[FP_TOP]		= Plane::ZERO;
-	m_planes[FP_NEAR]		= Plane::ZERO;
-	m_planes[FP_FAR]		= Plane::ZERO;
 }
 
 //-----------------------------------------------------------------------------

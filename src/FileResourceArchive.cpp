@@ -49,22 +49,18 @@ FileResourceArchive::~FileResourceArchive()
 FileStream* FileResourceArchive::find(ResourceId name)
 {
 	// Convert name/type into strings
-	char name_string[512];
-	char type_string[512];
+	char resource_name[512];
 
-	// FIXME
-	snprintf(name_string, 512, "%X", name.name);
-	snprintf(type_string, 512, "%X", name.type);
-
-	string::strncat(name_string, type_string, 512);
+	// Fixme
+	snprintf(resource_name, 512, "%.8X%.8X", name.name, name.type);
 
 	// Search the resource in the filesystem
-	if (m_filesystem.exists(name_string) == false)
+	if (m_filesystem.exists(resource_name) == false)
 	{
 		return NULL;
 	}
 
-	FileStream* file = (FileStream*)m_filesystem.open(name_string, SOM_READ);
+	FileStream* file = (FileStream*)m_filesystem.open(resource_name, SOM_READ);
 
 	/// FIXME harcoded!!!
 	file->skip(sizeof(uint32_t) * 3);

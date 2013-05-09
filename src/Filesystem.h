@@ -132,6 +132,12 @@ public:
 	/// Deletes the directory @relative_path
 	bool				delete_dir(const char* relative_path);
 
+	/// Returns the os-specific path which @relative_path refers to.
+	/// @note
+	/// In general, you typically do not want to use it for normal
+	/// file interactions. Prefer using the other methods whenever possible.
+	const char*			os_path(const char* relative_path);
+
 	/// Opens the file @relative_path with the specified access @mode
 	FileStream*			open(const char* relative_path, StreamOpenMode mode);
 

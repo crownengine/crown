@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Compiler.h"
 #include "FileStream.h"
+#include "Resource.h"
 
 namespace crown
 {

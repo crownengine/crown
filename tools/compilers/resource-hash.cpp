@@ -29,17 +29,23 @@ int main(int argc, char** argv)
 	path::extension(resource_in, resource_extension, 256);
 	
 	uint32_t resource_basename_hash = hash::murmur2_32(resource_basename, string::strlen(resource_basename), hash_seed);
-	uint32_t resource_extension_hash = hash::murmur2_32(resource_extension, string::strlen(resource_extension), hash_seed);
+	uint32_t resource_extension_hash = hash::murmur2_32(resource_extension, string::strlen(resource_extension), 0);
+
+	if (resource_extension_hash != TEXTURE_TYPE &&
+		resource_extension_hash != MESH_TYPE &&
+		resource_extension_hash != SCRIPT_TYPE &&
+		resource_extension_hash != TEXT_TYPE &&
+		resource_extension_hash != MATERIAL_TYPE)
+	{
+		printf("%s: ERROR: cannot generate hash for resource '%s': Unknown type.\n", argv[0], resource_in);
+		exit(-1);
+	}
 
 	char out_filename[512];
 	out_filename[0] = '\0';
 
-	snprintf(resource_basename, 256, "%X", resource_basename_hash);
-	snprintf(resource_extension, 256, "%X", resource_extension_hash);
+	snprintf(out_filename, 256, "%.8X%.8X", resource_basename_hash, resource_extension_hash);
 	
-	string::strncat(out_filename, resource_basename, 512);
-	string::strncat(out_filename, resource_extension, 512);
-
 	printf("%s\n", out_filename);
 
 	return 0;

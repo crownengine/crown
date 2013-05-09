@@ -8,7 +8,7 @@ namespace crown
 {
 
 /// JSON Token types
-enum json_type
+enum JSONType
 {
 	JSON_PRIMITIVE 	= 0,	// Number, boolean or null
 	JSON_OBJECT 	= 1,	// Object
@@ -17,7 +17,7 @@ enum json_type
 };
 
 /// JSON error typology
-enum json_error
+enum JSONError
 {
 	JSON_NO_MEMORY	= 0,	// Not enough token provided
 	JSON_INV_CHAR	= 1,	// Invalid character inside JSON string
@@ -30,7 +30,7 @@ enum json_error
 /// (primitive, object, array or string) of a json file.
 struct JSONToken
 {
-	json_type	m_type;
+	JSONType	m_type;
 	int32_t 	m_start;
 	int32_t 	m_end;
 	size_t 		m_size;
@@ -58,12 +58,12 @@ public:
 					JSONParser(Stream* stream, size_t size = 1024);
 	/// Destructor
 					~JSONParser();
-	/// Init JSON parser, must be called for each different JSON string
-	void 			init();
-	/// Shutdown JSON parser
-	void			shutdown();
+	// /// Init JSON parser, must be called for each different JSON string
+	// void 			init();
+	// /// Shutdown JSON parser
+	// void			shutdown();
 	/// Parse JSON data
-	json_error 		parse();
+	JSONError 		parse();
 	/// Get all tokens
 	JSONToken*		get_tokens();
 	/// Get next token
@@ -71,13 +71,13 @@ public:
 
 private:
 	/// Parse string in JSON data
-	json_error		parse_string();
+	JSONError		parse_string();
 	/// Parse number or boolean in JSON data
-	json_error		parse_primitive();
+	JSONError		parse_primitive();
 	/// Allocate token node
 	JSONToken* 		allocate_token();
 	/// Fill token and set boundaries
-	void			fill_token(JSONToken* token, json_type type, int32_t start, int32_t end);
+	void			fill_token(JSONToken* token, JSONType type, int32_t start, int32_t end);
 
 	/// JSON stream of data
 	Stream*			m_stream;

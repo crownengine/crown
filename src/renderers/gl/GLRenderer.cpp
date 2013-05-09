@@ -37,7 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "Material.h"
 #include "Allocator.h"
-
 #include "TextureResource.h"
 
 #if defined(WINDOWS)
@@ -259,7 +258,7 @@ void GLRenderer::set_texture_mode(uint32_t unit, TextureMode mode, const Color4&
 	if (!activate_texture_unit(unit))
 		return;
 
-	GLint envMode = GL::GetTextureMode(mode);
+	GLint envMode = GL::texture_mode(mode);
 
 	if (envMode == GL_BLEND)
 	{
@@ -272,7 +271,7 @@ void GLRenderer::set_texture_mode(uint32_t unit, TextureMode mode, const Color4&
 //-----------------------------------------------------------------------------
 void GLRenderer::set_texture_wrap(uint32_t unit, TextureWrap wrap)
 {
-	GLenum glWrap = GL::GetTextureWrap(wrap);
+	GLenum glWrap = GL::texture_wrap(wrap);
 
 	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_S, glWrap);
 	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_T, glWrap);
@@ -288,7 +287,7 @@ void GLRenderer::set_texture_filter(uint32_t unit, TextureFilter filter)
 	GLint minFilter;
 	GLint magFilter;
 
-	GL::GetTextureFilter(filter, minFilter, magFilter);
+	GL::texture_filter(filter, minFilter, magFilter);
 
 	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MIN_FILTER, minFilter);
 	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MAG_FILTER, magFilter);
@@ -342,7 +341,7 @@ void GLRenderer::set_depth_write(bool write)
 //-----------------------------------------------------------------------------
 void GLRenderer::set_depth_func(CompareFunction func)
 {
-	GLenum glFunc = GL::GetCompareFunction(func);
+	GLenum glFunc = GL::compare_function(func);
 
 	glDepthFunc(glFunc);
 }
@@ -376,12 +375,12 @@ void GLRenderer::set_blending(bool blending)
 //-----------------------------------------------------------------------------
 void GLRenderer::set_blending_params(BlendEquation equation, BlendFunction src, BlendFunction dst, const Color4& color)
 {
-	GLenum glEquation = GL::GetBlendEquation(equation);
+	GLenum glEquation = GL::blend_equation(equation);
 
 	glBlendEquation(glEquation);
 
-	GLenum glSrcFactor = GL::GetBlendFunction(src);
-	GLenum glDstFactor = GL::GetBlendFunction(dst);
+	GLenum glSrcFactor = GL::blend_function(src);
+	GLenum glDstFactor = GL::blend_function(dst);
 
 	glBlendFunc(glSrcFactor, glDstFactor);
 
@@ -417,7 +416,7 @@ void GLRenderer::set_fog(bool fog)
 //-----------------------------------------------------------------------------
 void GLRenderer::set_fog_params(FogMode mode, float density, float start, float end, const Color4& color)
 {
-	GLenum glMode = GL::GetFogMode(mode);
+	GLenum glMode = GL::fog_mode(mode);
 
 	glFogi(GL_FOG_MODE, glMode);
 	glFogf(GL_FOG_DENSITY, density);
@@ -442,7 +441,7 @@ void GLRenderer::set_alpha_test(bool test)
 //-----------------------------------------------------------------------------
 void GLRenderer::set_alpha_params(CompareFunction func, float ref)
 {
-	GLenum glFunc = GL::GetCompareFunction(func);
+	GLenum glFunc = GL::compare_function(func);
 
 	glAlphaFunc(glFunc, ref);
 }
@@ -463,7 +462,7 @@ void GLRenderer::set_shading_type(ShadingType type)
 //-----------------------------------------------------------------------------
 void GLRenderer::set_polygon_mode(PolygonMode mode)
 {
-	GLenum glMode = GL::GetPolygonMode(mode);
+	GLenum glMode = GL::polygon_mode(mode);
 
 	glPolygonMode(GL_FRONT_AND_BACK, glMode);
 }
@@ -762,29 +761,15 @@ void GLRenderer::draw_triangles(const float* vertices, const float* normals, con
 //-----------------------------------------------------------------------------
 TextureId GLRenderer::load_texture(TextureResource* texture)
 {
-	// Search for an already existent texture
-	for (uint32_t i = 0; i < MAX_TEXTURES; i++)
-	{
-		if (m_textures[i].texture_resource == texture)
-		{
-			return m_textures[i].id;
-		}
-	}
-
 	// If texture not found, create a new one
 	GLuint gl_texture_object;
 
 	glGenTextures(1, &gl_texture_object);
-
 	glBindTexture(GL_TEXTURE_2D, gl_texture_object);
-
-	GLint gl_texture_format = GL::GetPixelFormat(texture->format());
-
-	//FIXME FIXME FIXME
 	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width(), texture->height(), 0,
-				 gl_texture_format, GL_UNSIGNED_BYTE, texture->data());
+				 GL::pixel_format(texture->format()), GL_UNSIGNED_BYTE, texture->data());
 
 	TextureId id;
 	id.index = m_texture_count;
@@ -809,10 +794,19 @@ void GLRenderer::unload_texture(TextureResource* texture)
 //-----------------------------------------------------------------------------
 TextureId GLRenderer::reload_texture(TextureResource* old_texture, TextureResource* new_texture)
 {
-	// FIXME
-	(void)old_texture;
-	(void)new_texture;
-	return TextureId();
+	for (uint32_t i = 0; i < m_texture_count; i++)
+	{
+		if (m_textures[i].texture_resource == old_texture)
+		{
+			// Reload texture
+			glBindTexture(GL_TEXTURE_2D, m_textures[i].texture_object);
+
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, new_texture->width(), new_texture->height(),
+				GL::pixel_format(new_texture->format()), GL_UNSIGNED_BYTE, new_texture->data());
+
+			m_textures[i].texture_resource = new_texture;
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------

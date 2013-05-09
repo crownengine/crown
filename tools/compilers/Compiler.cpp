@@ -23,17 +23,19 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <cstring>
+#include <cstdlib>
 #include "Compiler.h"
 #include "Hash.h"
 #include "Path.h"
 #include "FileStream.h"
-#include <cstring>
+#include "Log.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Compiler::Compiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed) :
+Compiler::Compiler(const char* root_path, const char* dest_path, const char* resource, uint32_t type_expected, uint32_t seed) :
 	m_name_hash(0),
 	m_type_hash(0),
 	m_seed(seed),
@@ -64,17 +66,31 @@ Compiler::Compiler(const char* root_path, const char* dest_path, const char* res
 	path::filename_without_extension(m_resource, m_name, MAX_RESOURCE_NAME_LENGTH);
 	path::extension(m_resource, m_type, MAX_RESOURCE_TYPE_LENGTH);
 
-	// Compute hashes
+	// Compute the resource hashes
 	m_name_hash = hash::murmur2_32(m_name, string::strlen(m_name), m_seed);
-	m_type_hash = hash::murmur2_32(m_type, string::strlen(m_type), m_seed);
+
+	// NOTE: The type hash _MUST_ be generated with seed = 0
+	m_type_hash = hash::murmur2_32(m_type, string::strlen(m_type), 0);
+
+	if (m_type_hash != type_expected)
+	{
+		Log::e("Compiler: Trying to compile '%s' with the wrong compiler. Aborting.", resource_path());
+		exit(-1);
+	}
 
 	char dest_name[17];
 	memset(dest_name, 0, 17);
 
-	snprintf(dest_name, 17, "%X%X", m_name_hash, m_type_hash);
+	snprintf(dest_name, 17, "%.8X%.8X", m_name_hash, m_type_hash);
 
 	// Open streams
 	m_src_file = (FileStream*)m_root_fs.open(m_resource, SOM_READ);
+
+	if (!m_dest_fs.exists(dest_name))
+	{
+		m_dest_fs.create_file(dest_name);
+	}
+
 	m_dest_file = (FileStream*)m_dest_fs.open(dest_name, SOM_WRITE);
 }
 

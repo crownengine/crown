@@ -54,12 +54,15 @@ class Compiler
 {
 public:
 
-						/// Looks for the @resource int the @root_path and prepares it to
-						/// compilation using @seed to generate string hashes.
-						Compiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed);
+	/// Looks for the @resource int the @root_path and prepares it to
+	/// compilation using @seed to generate hashes for the resource name.
+	/// Implementation must declare the type of resource they are expecting
+	/// to work on by setting @type_expected appropriately.
+						Compiler(const char* root_path, const char* dest_path, const char* resource,
+								 uint32_t type_expected, uint32_t seed);
 	virtual				~Compiler();
 
-						/// Actually compiles the resource.
+	/// Actually compiles the resource.
 	virtual bool		compile() = 0;
 
 	virtual void		write() = 0;

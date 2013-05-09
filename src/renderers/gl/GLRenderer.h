@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <GL/glew.h>
 #include "Renderer.h"
+#include "Resource.h"
 
 #define MAX_TEXTURES 1024
 #define MAX_TEXTURE_UNITS 8
@@ -41,8 +42,9 @@ class TextureResource;
 struct GLTexture
 {
 	TextureId			id;
-	GLuint				texture_object;
 	TextureResource*	texture_resource;
+
+	GLuint				texture_object;
 };
 
 /// OpenGL renderer
@@ -123,7 +125,8 @@ public:
 
 private:
 
-	bool				activate_texture_unit(uint32_t unit);		//!< Activates a texture unit and returns true if succes
+	/// Activates a texture unit and returns true if succes
+	bool				activate_texture_unit(uint32_t unit);
 	bool				activate_light(uint32_t light);
 
 	void				check_gl_errors();

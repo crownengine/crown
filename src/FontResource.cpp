@@ -23,3 +23,39 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "Types.h"
+#include "FontResource.h"
+
+namespace crown
+{
+
+//-----------------------------------------------------------------------------
+void* FontResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
+{
+	(void)allocator;
+	(void)archive;
+	(void)id;
+
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+void FontResource::online(void* resource)
+{
+	(void)resource;
+}
+
+//-----------------------------------------------------------------------------
+void FontResource::unload(Allocator& allocator, void* resource)
+{
+	(void)allocator;
+	(void)resource;
+}
+
+//-----------------------------------------------------------------------------
+void FontResource::offline()
+{
+}
+
+} // namespace crown
+

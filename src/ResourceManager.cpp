@@ -47,12 +47,6 @@ ResourceManager::ResourceManager(ResourceArchive& archive, Allocator& allocator)
 	m_loaded_queue(m_allocator),
 	m_thread(ResourceManager::background_thread, (void*)this, "resource-loader-thread")
 {
-	// FIXME hardcoded seed
-	m_config_hash = hash::murmur2_32("config", 6, 0);
-	m_texture_hash = hash::murmur2_32("tga", 3, 0);
-	m_mesh_hash = hash::murmur2_32("mesh", 4, 0);
-	m_txt_hash = hash::murmur2_32("txt", 3, 0);
-	m_script_hash = hash::murmur2_32("lua", 3, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -81,17 +75,23 @@ void ResourceManager::unload(ResourceId name)
 {
 	assert(has(name));
 	
+	m_resources_mutex.lock();
+
 	ResourceEntry& entry = m_resources[name.index];
 	
 	entry.references--;
 	
 	if (entry.references == 0 && entry.state == RS_LOADED)
 	{
-		//m_resource_loader.unload(name, entry.resource);
+		unload_by_type(name, entry.resource);
 
 		entry.state = RS_UNLOADED;
 		entry.resource = NULL;
+
+
 	}
+
+	m_resources_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
@@ -99,12 +99,22 @@ void ResourceManager::reload(ResourceId name)
 {
 	assert(has(name));
 	
+	m_resources_mutex.lock();
+
 	ResourceEntry& entry = m_resources[name.index];
 	
 	if (entry.state == RS_LOADED)
 	{
-		// FIXME
+		unload_by_type(name, entry.resource);
+
+		entry.state = RS_UNLOADED;
+		entry.resource = NULL;
+
+		entry.resource = load_by_type(name);
+		entry.state = RS_LOADED;
 	}
+
+	m_resources_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
@@ -167,7 +177,44 @@ uint32_t ResourceManager::references(ResourceId name) const
 }
 
 //-----------------------------------------------------------------------------
-void ResourceManager::flush_load_queue()
+uint32_t ResourceManager::remaining() const
+{
+	uint32_t count = 0;
+
+	m_loading_mutex.lock();
+
+	count = m_loading_queue.size();
+
+	m_loading_mutex.unlock();
+
+	return count;
+}
+
+//-----------------------------------------------------------------------------
+void ResourceManager::flush()
+{
+	check_load_queue();
+
+	while (true)
+	{
+		// Wait for all the resources to be loaded
+		// by the background thread
+		m_loading_mutex.lock();
+		while (m_loading_queue.size() > 0)
+		{
+			m_all_loaded.wait(m_loading_mutex);
+		}
+		m_loading_mutex.unlock();
+
+		// When all loaded, bring them online
+		bring_loaded_online();
+
+		return;
+	}
+}
+
+//-----------------------------------------------------------------------------
+void ResourceManager::check_load_queue()
 {
 	m_loading_mutex.lock();
 
@@ -175,7 +222,7 @@ void ResourceManager::flush_load_queue()
 	{
 		m_loading_requests.signal();
 	}
-	
+
 	m_loading_mutex.unlock();
 }
 
@@ -184,7 +231,6 @@ void ResourceManager::bring_loaded_online()
 {
 	m_loaded_mutex.lock();
 
-	// Update master table and bring online
 	while (m_loaded_queue.size() > 0)
 	{
 		LoadedResource lr = m_loaded_queue.front();
@@ -236,11 +282,13 @@ ResourceId ResourceManager::load(uint32_t name, uint32_t type)
 //-----------------------------------------------------------------------------
 void ResourceManager::background_load()
 {
-	// FIXME: Maybe epic crash because of concurrent access to the same allocator?
 	while (true)
 	{
 		m_loading_mutex.lock();
-		m_loading_requests.wait(m_loading_mutex);
+		while (m_loading_queue.size() == 0)
+		{
+			m_loading_requests.wait(m_loading_mutex);
+		}
 
 		ResourceId resource = m_loading_queue.front();
 		m_loading_queue.pop_front();
@@ -254,29 +302,30 @@ void ResourceManager::background_load()
 		lr.data = data;
 
 		m_loaded_mutex.lock();
-
 		m_loaded_queue.push_back(lr);
-
 		m_loaded_mutex.unlock();
+
+		m_loading_mutex.lock();
+		if (m_loading_queue.size() == 0)
+		{
+			m_all_loaded.signal();
+		}
+		m_loading_mutex.unlock();
 	}
 }
 
 //-----------------------------------------------------------------------------
 void* ResourceManager::load_by_type(ResourceId name) const
 {
-	if (name.type == m_config_hash)
-	{
-		return NULL;
-	}
-	else if (name.type == m_texture_hash)
+	if (name.type == TEXTURE_TYPE)
 	{
 		return TextureResource::load(m_resource_allocator, m_resource_archive, name);
 	}
-	else if (name.type == m_txt_hash)
+	else if (name.type == TEXT_TYPE)
 	{
 		return TextResource::load(m_resource_allocator, m_resource_archive, name);
 	}
-	else if (name.type == m_script_hash)
+	else if (name.type == SCRIPT_TYPE)
 	{
 		return ScriptResource::load(m_resource_allocator, m_resource_archive, name);
 	}
@@ -287,19 +336,15 @@ void* ResourceManager::load_by_type(ResourceId name) const
 //-----------------------------------------------------------------------------
 void ResourceManager::unload_by_type(ResourceId name, void* resource) const
 {
-	if (name.type == m_config_hash)
-	{
-		return;
-	}
-	else if (name.type == m_texture_hash)
+	if (name.type == TEXTURE_TYPE)
 	{
 		TextureResource::unload(m_resource_allocator, (TextureResource*)resource);
 	}
-	else if (name.type == m_txt_hash)
+	else if (name.type == TEXT_TYPE)
 	{
 		TextResource::unload(m_resource_allocator, (TextResource*)resource);
 	}
-	else if (name.type == m_script_hash)
+	else if (name.type == SCRIPT_TYPE)
 	{
 		ScriptResource::unload(m_resource_allocator, (ScriptResource*)resource);
 	}
@@ -310,11 +355,15 @@ void ResourceManager::unload_by_type(ResourceId name, void* resource) const
 //-----------------------------------------------------------------------------
 void ResourceManager::online(ResourceId name, void* resource)
 {
-	if (name.type == m_texture_hash)
+	if (name.type == TEXTURE_TYPE)
 	{
 		TextureResource::online((TextureResource*)resource);
 	}
-	else if (name.type == m_script_hash)
+	else if (name.type == TEXT_TYPE)
+	{
+		TextResource::unload(m_resource_allocator, (TextResource*)resource);
+	}
+	else if (name.type == SCRIPT_TYPE)
 	{
 		ScriptResource::online((ScriptResource*)resource);
 	}
