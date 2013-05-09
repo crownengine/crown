@@ -38,79 +38,72 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
- * Intersection test utils.
- *
- * Table of Intersection tests (3d)
- * +----------+----------+----------+----------+----------+----------+----------+
- * |          | Ray      | Plane    | Sphere   | Box      | Frustum  | Triangle |
- * +----------+----------+----------+----------+----------+----------+----------+
- * | Ray      | No       | Yes      | Yes      | No       | No       | Yes      |
- * +----------+----------+----------+----------+----------+----------+----------+
- * | Plane    | -        | Yes (1)  | Yes (+)  | No       | No       | No       |
- * +----------+----------+----------+----------+----------+----------+----------+
- * | Sphere   | -        | -        | Yes (+)  | No       | Yes      | Yes (+)  |
- * +----------+----------+----------+----------+----------+----------+----------+
- * | Box      | -        | -        | -        | Yes (+)  | Yes      | No       |
- * +----------+----------+----------+----------+----------+----------+----------+
- * | Frustum  | -        | -        | -        | -        | No       | No       |
- * +----------+----------+----------+----------+----------+----------+----------+
- * | Triangle | -        | -        | -        | -        | -        | No       |
- * +----------+----------+----------+----------+----------+----------+----------+
- *
- * Notes:
- * (1): Intersection of three planes
- * (-): Static intersection only
- * (+): Static/Dynamic intersection
- *
- * Table of Intersection tests (2d)
- * +---------------+----------+-------------+-------------+----------+----------+
- * |               | Circle   | Rect        | O Rect      | Segment  | Ray 2d   |
- * +---------------+----------+-------------+-------------+----------+----------+
- * | Circle        | Yes (p-) | No          | No          | No       | No       |
- * +---------------+----------+-------------+-------------+----------+----------+
- * | Rect          | -        | Yes         | No          | No       | No       | <- Axis Aligned Rect
- * +---------------+----------+-------------+-------------+----------+----------+
- * | O Rect        | -        | -           | No          | No       | No       | <- Oriented Rect
- * +---------------+----------+-------------+-------------+----------+----------+
- * | Segment       | -        | -           | -           | No       | No       |
- * +---------------+----------+-------------+-------------+----------+----------+
- * | Ray 2d        | -        | -           | -           | -        | No       |
- * +---------------+----------+-------------+-------------+----------+----------+
- *
- * Notes:
- * (p): Penetration vector
- * (-): Static intersection only
- * (+): Static/Dynamic intersection
- */
+/// Intersection test utils.
+/// Table of Intersection tests (3d)
+/// +----------+----------+----------+----------+----------+----------+----------+
+/// |          | Ray      | Plane    | Sphere   | Box      | Frustum  | Triangle |
+/// +----------+----------+----------+----------+----------+----------+----------+
+/// | Ray      | No       | Yes      | Yes      | No       | No       | Yes      |
+/// +----------+----------+----------+----------+----------+----------+----------+
+/// | Plane    | -        | Yes (1)  | Yes (+)  | No       | No       | No       |
+/// +----------+----------+----------+----------+----------+----------+----------+
+/// | Sphere   | -        | -        | Yes (+)  | No       | Yes      | Yes (+)  |
+/// +----------+----------+----------+----------+----------+----------+----------+
+/// | Box      | -        | -        | -        | Yes (+)  | Yes      | No       |
+/// +----------+----------+----------+----------+----------+----------+----------+
+/// | Frustum  | -        | -        | -        | -        | No       | No       |
+/// +----------+----------+----------+----------+----------+----------+----------+
+/// | Triangle | -        | -        | -        | -        | -        | No       |
+/// +----------+----------+----------+----------+----------+----------+----------+
+/// Notes:
+/// (1): Intersection of three planes
+/// (-): Static intersection only
+/// (+): Static/Dynamic intersection
+/// Table of Intersection tests (2d)
+/// +---------------+----------+-------------+-------------+----------+----------+
+/// |               | Circle   | Rect        | O Rect      | Segment  | Ray 2d   |
+/// +---------------+----------+-------------+-------------+----------+----------+
+/// | Circle        | Yes (p-) | No          | No          | No       | No       |
+/// +---------------+----------+-------------+-------------+----------+----------+
+/// | Rect          | -        | Yes         | No          | No       | No       | <- Axis Aligned Rect
+/// +---------------+----------+-------------+-------------+----------+----------+
+/// | O Rect        | -        | -           | No          | No       | No       | <- Oriented Rect
+/// +---------------+----------+-------------+-------------+----------+----------+
+/// | Segment       | -        | -           | -           | No       | No       |
+/// +---------------+----------+-------------+-------------+----------+----------+
+/// | Ray 2d        | -        | -           | -           | -        | No       |
+/// +---------------+----------+-------------+-------------+----------+----------+
+/// Notes:
+/// (p): Penetration vector
+/// (-): Static intersection only
+/// (+): Static/Dynamic intersection
 class Intersection
 {
-
 public:
 
-	static bool TestRayPlane(const Ray& r, const Plane& p, real& distance, Vec3& inttersectionPoint_t);
-	static bool TestRaySphere(const Ray& r, const Sphere& s, real& distance, Vec3& intersectionPoint);
-	static bool TestRayBox(const Ray& r, const Box& b, real& distance, Vec3& intersectionPoint);
-	static bool TestRayTriangle(const Ray& r, const Triangle& t, real& distance, Vec3& intersectionPoint);
+	static bool test_ray_plane(const Ray& r, const Plane& p, real& distance, Vec3& inttersectionPoint_t);
+	static bool test_ray_sphere(const Ray& r, const Sphere& s, real& distance, Vec3& intersectionPoint);
+	static bool test_ray_box(const Ray& r, const Box& b, real& distance, Vec3& intersectionPoint);
+	static bool test_ray_triangle(const Ray& r, const Triangle& t, real& distance, Vec3& intersectionPoint);
 
-	static bool TestPlane3(const Plane& p1, const Plane& p2, const Plane& p3, Vec3& ip);
+	static bool test_plane_3(const Plane& p1, const Plane& p2, const Plane& p3, Vec3& ip);
 
-	static bool TestStaticSpherePlane(const Sphere& s, const Plane& p);
-	static bool TestStaticSphereSphere(const Sphere& a, const Sphere& b);
-	static bool TestDynamicSpherePlane(const Sphere& s, const Vec3& d, const Plane& p, real& it, Vec3& intersectionPoint);
-	static bool TestDynamicSphereTriangle(const Sphere& s, const Vec3& d, const Triangle& tri, real& it, Vec3& intersectionPoint);
-	static bool TestDynamicSphereSphere(const Sphere& s1, const Vec3& d1, const Sphere& s2, const Vec3& d2, real& it, Vec3& intersectionPoint);
+	static bool test_static_sphere_plane(const Sphere& s, const Plane& p);
+	static bool test_static_sphere_sphere(const Sphere& a, const Sphere& b);
+	static bool test_dynamic_sphere_plane(const Sphere& s, const Vec3& d, const Plane& p, real& it, Vec3& intersectionPoint);
+	static bool test_dynamic_sphere_triangle(const Sphere& s, const Vec3& d, const Triangle& tri, real& it, Vec3& intersectionPoint);
+	static bool test_dynamic_sphere_sphere(const Sphere& s1, const Vec3& d1, const Sphere& s2, const Vec3& d2, real& it, Vec3& intersectionPoint);
 
-	static bool TestStaticBoxBox(const Box& b1, const Box& b2);
-	static bool TestDynamicBoxBox(const Box& b1, const Vec3& v1, const Box& b2, const Vec3& v2, real& it);
+	static bool test_static_box_box(const Box& b1, const Box& b2);
+	static bool test_dynamic_box_box(const Box& b1, const Vec3& v1, const Box& b2, const Vec3& v2, real& it);
 
-	static bool TestFrustumSphere(const Frustum& f, const Sphere& s);
-	static bool TestFrustumBox(const Frustum& f, const Box& box);
+	static bool test_frustum_sphere(const Frustum& f, const Sphere& s);
+	static bool test_frustum_box(const Frustum& f, const Box& box);
 
-	static bool TestCircleCircle(const Circle& c1, const Circle& c2, Vec2& penetration);
-	static bool TestDynamicCircleCircle(const Circle& c1, const Vec2& d1, const Circle& c2, const Vec2& d2, real& it);
-	static bool TestRectRect(const Rect& r1, const Rect& r2, Vec2& penetration);
-	static bool TestCircleRect(const Circle& c1, const Rect& r2, Vec2& penetration);
+	static bool test_circle_circle(const Circle& c1, const Circle& c2, Vec2& penetration);
+	static bool test_dynamic_circle_circle(const Circle& c1, const Vec2& d1, const Circle& c2, const Vec2& d2, real& it);
+	static bool test_rect_rect(const Rect& r1, const Rect& r2, Vec2& penetration);
+	static bool test_circle_rect(const Circle& c1, const Rect& r2, Vec2& penetration);
 
 private:
 
@@ -119,7 +112,7 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestRayPlane(const Ray& r, const Plane& p, real& distance, Vec3& intersectionPoint)
+inline bool Intersection::test_ray_plane(const Ray& r, const Plane& p, real& distance, Vec3& intersectionPoint)
 {
 	real nd = r.direction().dot(p.n);
 	real orpn = r.origin().dot(p.n);
@@ -139,7 +132,7 @@ inline bool Intersection::TestRayPlane(const Ray& r, const Plane& p, real& dista
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestRaySphere(const Ray& r, const Sphere& s, real& distance, Vec3& intersectionPoint)
+inline bool Intersection::test_ray_sphere(const Ray& r, const Sphere& s, real& distance, Vec3& intersectionPoint)
 {
 	Vec3 v = s.center() - r.origin();
 	real b = v.dot(r.direction());
@@ -157,7 +150,7 @@ inline bool Intersection::TestRaySphere(const Ray& r, const Sphere& s, real& dis
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestRayBox(const Ray& r, const Box& b, real& /*distance*/, Vec3& /*intersectionPoint*/)
+inline bool Intersection::test_ray_box(const Ray& r, const Box& b, real& /*distance*/, Vec3& /*intersectionPoint*/)
 {
 	if (r.origin().x < b.min().x)
 	{
@@ -214,9 +207,9 @@ inline bool Intersection::TestRayBox(const Ray& r, const Box& b, real& /*distanc
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestRayTriangle(const Ray& r, const Triangle& t, real& distance, Vec3& intersectionPoint)
+inline bool Intersection::test_ray_triangle(const Ray& r, const Triangle& t, real& distance, Vec3& intersectionPoint)
 {
-	if (Intersection::TestRayPlane(r, t.to_plane(), distance, intersectionPoint))
+	if (Intersection::test_ray_plane(r, t.to_plane(), distance, intersectionPoint))
 	{
 		if (t.contains_point(intersectionPoint))
 		{
@@ -228,7 +221,7 @@ inline bool Intersection::TestRayTriangle(const Ray& r, const Triangle& t, real&
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestPlane3(const Plane& p1, const Plane& p2, const Plane& p3, Vec3& ip)
+inline bool Intersection::test_plane_3(const Plane& p1, const Plane& p2, const Plane& p3, Vec3& ip)
 {
 	const Vec3& n1 = p1.n;
 	const Vec3& n2 = p2.n;
@@ -248,7 +241,7 @@ inline bool Intersection::TestPlane3(const Plane& p1, const Plane& p2, const Pla
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestStaticSpherePlane(const Sphere& s, const Plane& p)
+inline bool Intersection::test_static_sphere_plane(const Sphere& s, const Plane& p)
 {
 	if (math::abs(p.distance_to_point(s.center())) < s.radius())
 	{
@@ -259,14 +252,14 @@ inline bool Intersection::TestStaticSpherePlane(const Sphere& s, const Plane& p)
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestStaticSphereSphere(const Sphere& a, const Sphere& b)
+inline bool Intersection::test_static_sphere_sphere(const Sphere& a, const Sphere& b)
 {
 	real dist = (b.center() - a.center()).squared_length();
 	return (dist < (b.radius() + a.radius()) * (b.radius() + a.radius()));
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestDynamicSpherePlane(const Sphere& s, const Vec3& d, const Plane& p, real& it, Vec3& intersectionPoint)
+inline bool Intersection::test_dynamic_sphere_plane(const Sphere& s, const Vec3& d, const Plane& p, real& it, Vec3& intersectionPoint)
 {
 	const Vec3& sphereCenter = s.center();
 	const real sphereRadius = s.radius();
@@ -314,13 +307,13 @@ inline bool Intersection::TestDynamicSpherePlane(const Sphere& s, const Vec3& d,
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestDynamicSphereTriangle(const Sphere& s, const Vec3& d, const Triangle& tri, real& it, Vec3& intersectionPoint)
+inline bool Intersection::test_dynamic_sphere_triangle(const Sphere& s, const Vec3& d, const Triangle& tri, real& it, Vec3& intersectionPoint)
 {
 	Plane triPlane = tri.to_plane();
 
 	// Test against the plane containing the triangle
 	real spherePlaneIt;
-	if (!TestDynamicSpherePlane(s, d, triPlane, spherePlaneIt, intersectionPoint))
+	if (!test_dynamic_sphere_plane(s, d, triPlane, spherePlaneIt, intersectionPoint))
 	{
 		return false;
 	}
@@ -329,7 +322,7 @@ inline bool Intersection::TestDynamicSphereTriangle(const Sphere& s, const Vec3&
 	if (tri.contains_point(intersectionPoint))
 	{
 		it = spherePlaneIt;
-		// intersectionPoint is already returned by the above call to TestDynamicSpherePlane
+		// intersectionPoint is already returned by the above call to test_dynamic_sphere_plane
 		return true;
 	}
 
@@ -464,7 +457,7 @@ inline bool Intersection::TestDynamicSphereTriangle(const Sphere& s, const Vec3&
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestDynamicSphereSphere(const Sphere& s1, const Vec3& d1, const Sphere& s2, const Vec3& d2, real& it, Vec3& /*intersectionPoint*/)
+inline bool Intersection::test_dynamic_sphere_sphere(const Sphere& s1, const Vec3& d1, const Sphere& s2, const Vec3& d2, real& it, Vec3& /*intersectionPoint*/)
 {
 	// s1 == static sphere
 	// s2 == moving sphere
@@ -508,7 +501,7 @@ inline bool Intersection::TestDynamicSphereSphere(const Sphere& s1, const Vec3& 
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestStaticBoxBox(const Box& b1, const Box& b2)
+inline bool Intersection::test_static_box_box(const Box& b1, const Box& b2)
 {
 	if (b1.min().x > b2.max().x || b1.max().x < b2.min().x)
 	{
@@ -529,7 +522,7 @@ inline bool Intersection::TestStaticBoxBox(const Box& b1, const Box& b2)
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestDynamicBoxBox(const Box& b1, const Vec3& v1, const Box& b2, const Vec3& v2, real& it)
+inline bool Intersection::test_dynamic_box_box(const Box& b1, const Vec3& v1, const Box& b2, const Vec3& v2, real& it)
 {
 	// b1 == static box
 	// b2 == moving box
@@ -610,7 +603,7 @@ inline bool Intersection::TestDynamicBoxBox(const Box& b1, const Vec3& v1, const
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestFrustumSphere(const Frustum& f, const Sphere& s)
+inline bool Intersection::test_frustum_sphere(const Frustum& f, const Sphere& s)
 {
 	if (f.m_planes[0].distance_to_point(s.center()) < -s.radius() || f.m_planes[1].distance_to_point(s.center()) < -s.radius())
 	{
@@ -631,7 +624,7 @@ inline bool Intersection::TestFrustumSphere(const Frustum& f, const Sphere& s)
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestFrustumBox(const Frustum& f, const Box& b)
+inline bool Intersection::test_frustum_box(const Frustum& f, const Box& b)
 {
 	uint32_t vertexOutCount;
 
@@ -659,7 +652,7 @@ inline bool Intersection::TestFrustumBox(const Frustum& f, const Box& b)
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestCircleCircle(const Circle& c1, const Circle& c2, Vec2& penetration)
+inline bool Intersection::test_circle_circle(const Circle& c1, const Circle& c2, Vec2& penetration)
 {
 	Vec2 distance = c1.center() - c2.center();
 	real distanceLen2 = distance.squared_length();
@@ -682,7 +675,7 @@ inline bool Intersection::TestCircleCircle(const Circle& c1, const Circle& c2, V
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestDynamicCircleCircle(const Circle& c1, const Vec2& d1, const Circle& c2, const Vec2& d2, real& it)
+inline bool Intersection::test_dynamic_circle_circle(const Circle& c1, const Vec2& d1, const Circle& c2, const Vec2& d2, real& it)
 {
 	// c1 == static circle
 	// c2 == moving circle
@@ -726,7 +719,7 @@ inline bool Intersection::TestDynamicCircleCircle(const Circle& c1, const Vec2& 
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestRectRect(const Rect& r1, const Rect& r2, Vec2& penetration)
+inline bool Intersection::test_rect_rect(const Rect& r1, const Rect& r2, Vec2& penetration)
 {
 	//x
 	real min1MinusMax2 = r1.min().x - r2.max().x;
@@ -783,7 +776,7 @@ inline bool Intersection::TestRectRect(const Rect& r1, const Rect& r2, Vec2& pen
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::TestCircleRect(const Circle& c1, const Rect& r2, Vec2& penetration)
+inline bool Intersection::test_circle_rect(const Circle& c1, const Rect& r2, Vec2& penetration)
 {
 	bool circleIsAtRight;
 	if (c1.center().x > (r2.min().x + r2.max().x) / 2)
