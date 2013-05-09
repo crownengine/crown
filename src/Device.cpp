@@ -111,17 +111,29 @@ bool Device::init(int argc, char** argv)
 
 	create_filesystem();
 
+	Log::d("Filesystem created.");
+
 	create_resource_manager();
+
+	Log::d("Resource manager created.");
 
 	create_input_manager();
 
+	Log::d("Input manager created.");
+
 	create_renderer();
 
+	Log::d("Renderer created.");
+
 	create_debug_renderer();
+
+	Log::d("Debug renderer created.");
 
 	Log::i("Crown Engine initialized.");
 
 	Log::i("Initializing Game...");
+
+	Log::d(m_filesystem->root_path());
 
 	// Try to locate the game library
 	if (!m_filesystem->exists(GAME_LIBRARY_NAME))
