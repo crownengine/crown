@@ -45,6 +45,7 @@ ResourceManager::ResourceManager(ResourceArchive& archive, Allocator& allocator)
 	m_resources(m_allocator),
 	m_loading_queue(m_allocator),
 	m_loaded_queue(m_allocator),
+	m_background_thread_should_run(true),
 	m_thread(ResourceManager::background_thread, (void*)this, "resource-loader-thread")
 {
 }
@@ -52,6 +53,7 @@ ResourceManager::ResourceManager(ResourceArchive& archive, Allocator& allocator)
 //-----------------------------------------------------------------------------
 ResourceManager::~ResourceManager()
 {
+	m_background_thread_should_run = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -282,7 +284,7 @@ ResourceId ResourceManager::load(uint32_t name, uint32_t type)
 //-----------------------------------------------------------------------------
 void ResourceManager::background_load()
 {
-	while (true)
+	while (m_background_thread_should_run)
 	{
 		m_loading_mutex.lock();
 		while (m_loading_queue.size() == 0)
@@ -383,6 +385,8 @@ void* ResourceManager::background_thread(void* thiz)
 	ResourceManager* mgr = (ResourceManager*)thiz;
 
 	mgr->background_load();
+
+	return NULL;
 }
 
 } // namespace crown

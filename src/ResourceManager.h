@@ -158,6 +158,7 @@ private:
 	Queue<LoadedResource>	m_loaded_queue;
 
 	// Background loading thread
+	bool 					m_background_thread_should_run;
 	Thread					m_thread;
 
 	mutable Mutex			m_loading_mutex;
