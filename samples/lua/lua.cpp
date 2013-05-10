@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 
   res_manager.flush();
 
-  ScriptSystem script_system;
+  ScriptSystem* sys = scripter();
 
   while (1)
   {
@@ -31,8 +31,8 @@ int main(int argc, char** argv)
 
       ScriptResource* resource = (ScriptResource*)res_manager.data(script);
 
-      script_system.load(resource);
-      script_system.execute();
+      sys->load(resource);
+      sys->execute();
 
       break;
     }

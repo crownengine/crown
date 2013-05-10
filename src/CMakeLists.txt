@@ -241,6 +241,7 @@ set (BINDS_SRC
 	binds/Vec3Binds.cpp
 	binds/QuatBinds.cpp
 	binds/Mat4Binds.cpp
+	binds/CameraBinds.cpp
 )
 
 set (CROWN_SOURCES
