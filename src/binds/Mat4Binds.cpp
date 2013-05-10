@@ -65,7 +65,7 @@ extern "C"
 
 Mat4* mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3)
 {
-	scripter()->get_next_mat4(r1c1, r2c1, r3c1, r1c2, r2c2, r3c2, r1c3, r2c3, r3c3);
+	return scripter()->next_mat4(r1c1, r2c1, r3c1, r1c2, r2c2, r3c2, r1c3, r2c3, r3c3);
 }
 					
 Mat4* mat4_add(Mat4* self, Mat4* m)

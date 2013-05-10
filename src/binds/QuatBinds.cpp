@@ -28,7 +28,7 @@ extern "C"
 
 Quat* quat(float angle, const Vec3* v)
 {
-	scripter()->get_next_quat(angle, v);
+	return scripter()->next_quat(angle, v);
 }
 
 void quat_negate(Quat* self)

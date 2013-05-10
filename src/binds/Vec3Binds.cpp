@@ -20,7 +20,7 @@ extern "C"
 
 	float				vec3_dot(Vec3* self, const Vec3* v);
 
-	Vec3*				vec3_cross(Vec3* self, const Vec3* v);				
+	Vec3*				vec3_cross(Vec3* self, const Vec3* v);
 
 	bool				vec3_equal(Vec3* self, const Vec3* other);	
 	
@@ -48,7 +48,7 @@ extern "C"
 //------------------------------------------------------------
 Vec3* vec3(float nx, float ny, float nz)
 {
-	scripter()->get_next_vec3(nx, ny, nz);
+	return scripter()->next_vec3(nx, ny, nz);
 }
 
 //------------------------------------------------------------
