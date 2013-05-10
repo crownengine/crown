@@ -131,24 +131,22 @@ Quat* ScriptSystem::next_quat(float angle, const Vec3* v)
 	return &m_quat_list[current];
 }
 
+//-----------------------------------------------------------
 uint32_t ScriptSystem::vec3_used()
 {
 	return m_vec3_count;
 }
 
+//-----------------------------------------------------------
 uint32_t ScriptSystem::mat4_used()
 {
 	return m_mat4_count;
 }
 
+//-----------------------------------------------------------
 uint32_t ScriptSystem::quat_used()
 {
 	return m_quat_count;
-}
-
-uint32_t temp_used()
-{
-
 }
 
 ScriptSystem g_script;
@@ -158,6 +156,7 @@ ScriptSystem* scripter()
 	return &g_script;
 }
 
+//-----------------------------------------------------------
 extern "C"
 {
 

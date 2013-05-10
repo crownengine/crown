@@ -38,7 +38,7 @@ private:
 };
 
 /// ScriptSystem allows to execute lua code or bytecode chunks
-///
+/// It also provides some utilities for crown-lua environment
 class ScriptSystem
 {
 public:
@@ -91,6 +91,7 @@ private:
 
 ScriptSystem* scripter();
 
+// This block provides fews utilities for lua environment
 extern "C"
 {
 	uint32_t script_system_vec3_used();
