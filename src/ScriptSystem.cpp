@@ -59,12 +59,6 @@ m_quat_count(0)
 }
 
 //-----------------------------------------------------------
-ScriptSystem::~ScriptSystem()
-{
-
-}
-
-//-----------------------------------------------------------
 void ScriptSystem::load(ScriptResource* script)
 {
 	assert(m_state.load_buffer((char*)script->data(), script->length()) == 0);
@@ -84,7 +78,7 @@ void ScriptSystem::unload(ScriptResource* resource)
 }
 
 //-----------------------------------------------------------
-Vec3* ScriptSystem::get_next_vec3(float nx, float ny, float nz)
+Vec3* ScriptSystem::next_vec3(float nx, float ny, float nz)
 {
 	uint32_t current = m_vec3_count;
 
@@ -98,7 +92,7 @@ Vec3* ScriptSystem::get_next_vec3(float nx, float ny, float nz)
 }
 
 //-----------------------------------------------------------
-Mat4* ScriptSystem::get_next_mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3)
+Mat4* ScriptSystem::next_mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3)
 {
 	uint32_t current = m_mat4_count;
 
@@ -125,7 +119,7 @@ Mat4* ScriptSystem::get_next_mat4(float r1c1, float r2c1, float r3c1, float r1c2
 }
 
 //-----------------------------------------------------------
-Quat* ScriptSystem::get_next_quat(float angle, const Vec3* v)
+Quat* ScriptSystem::next_quat(float angle, const Vec3* v)
 {
 	uint32_t current = m_quat_count;
 
@@ -135,6 +129,25 @@ Quat* ScriptSystem::get_next_quat(float angle, const Vec3* v)
 	m_quat_count++;
 
 	return &m_quat_list[current];
+}
+
+uint32_t ScriptSystem::vec3_used()
+{
+	return m_vec3_count;
+}
+
+uint32_t ScriptSystem::mat4_used()
+{
+	return m_mat4_count;
+}
+
+uint32_t ScriptSystem::quat_used()
+{
+	return m_quat_count;
+}
+
+uint32_t temp_used()
+{
 
 }
 
@@ -144,6 +157,26 @@ ScriptSystem* scripter()
 {
 	return &g_script;
 }
+
+extern "C"
+{
+
+uint32_t script_system_vec3_used()
+{
+	return scripter()->vec3_used();
+}
+
+uint32_t script_system_mat4_used()
+{
+	return scripter()->mat4_used();
+}
+
+uint32_t script_system_quat_used()
+{
+	return scripter()->quat_used();
+}
+
+} // extern "C"
 
 
 } // namespace crown

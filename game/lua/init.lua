@@ -9,14 +9,13 @@ require("mat4")
 require("quat")
 require("math_utils")
 require("camera")
+require("script")
 
 --------------------------------------------------------------
 --------------------------------------------------------------
 --------------------------------------------------------------
-print("-- testing Vec3 --\n")
+print("-- Testing Vec3 --\n")
 local pos = Vec3.vec3(1.0, 1.0, 1.0)
-
-
 
 --------------------------------------------------------------
 --------------------------------------------------------------
@@ -44,20 +43,42 @@ print("\n")
 --------------------------------------------------------------
 --------------------------------------------------------------
 --------------------------------------------------------------
+print("-- Testing MathUtils --\n")
 
-local s = Math.sin(0.0)
 
 
-print("sin of 0 is " .. s)
+print("sin of 0 is " .. Math.sin(0.0))
 
 --------------------------------------------------------------
 --------------------------------------------------------------
 --------------------------------------------------------------
+print("-- Testing Camera --\n")
 
 local cam = Camera.camera(pos, 90.0, 1.6)
 
-print(Camera.position(cam).x)
-print(Camera.fov(cam))
+print("@move forward by 1 meter")
+print("x:" .. Camera.position(cam).x)
+print("y:" .. Camera.position(cam).y)
+print("z:" .. Camera.position(cam).z)
+
+for i=1,10 do	
+	Camera.move_forward(cam, 1.0);
+	print("@move forward by 1 meter")
+	print("x:" .. Camera.position(cam).x)
+	print("y:" .. Camera.position(cam).y)
+	print("z:" .. Camera.position(cam).z)
+end
+
+--------------------------------------------------------------
+--------------------------------------------------------------
+--------------------------------------------------------------
+print("-- Testing Script --\n")
+
+print(Script.vec3_used())
+print(Script.mat4_used())
+print(Script.quat_used())
+
+
 
 
 

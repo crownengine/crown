@@ -20,21 +20,21 @@ namespace crown
 class LuaState
 {
 public:
-							/// Constructor, private for singleton
-							LuaState();
-							/// Destructor
-							~LuaState();
-							/// Load lua chunk as buffer
-	int32_t 				load_buffer(const char* buf, size_t len);
-							/// Load lua chunk as string
-	int32_t					load_string(const char* str);
-							/// Executes lua chunk loaded in stack
-	int32_t 				execute();
+								/// Constructor, private for singleton
+								LuaState();
+								/// Destructor
+								~LuaState();
+								/// Load lua chunk as buffer
+	int32_t 					load_buffer(const char* buf, size_t len);
+								/// Load lua chunk as string
+	int32_t						load_string(const char* str);
+								/// Executes lua chunk loaded in stack
+	int32_t 					execute();
 
 private:
 
-							/// Lua state incapsulated by this class
-	lua_State*				m_state;
+								/// Lua state incapsulated by this class
+	lua_State*					m_state;
 };
 
 /// ScriptSystem allows to execute lua code or bytecode chunks
@@ -44,23 +44,28 @@ class ScriptSystem
 public:
 								/// Constructor
 								ScriptSystem();
-								///	Destructor
-								~ScriptSystem();
-								/// Load script resource
+
+								/// Loads script resource
 	void						load(ScriptResource* script);
-								/// Execute 
+								/// Executes
 	void						execute();
-								/// Unload script resource
+								/// Unloads script resource
 	void						unload(ScriptResource* script);
 								/// Returns the first free Vec3
-	Vec3*						get_next_vec3(float nx, float ny, float nz);
+	Vec3*						next_vec3(float nx, float ny, float nz);
 								/// Returns the first free Mat4
-	Mat4*						get_next_mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3);	
-								/// Return the first free Quat
-	Quat*						get_next_quat(float angle, const Vec3* v);
+	Mat4*						next_mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3);	
+								/// Returns the first free Quat
+	Quat*						next_quat(float angle, const Vec3* v);
+								/// Returns the number of vec3 used in lua environment
+	uint32_t					vec3_used();
+								/// Returns the number of mat4 used in lua environment
+	uint32_t					mat4_used();
+								/// Returns the number of quat used in lua environment
+	uint32_t 					quat_used();
 
 								/// Max number of temporary objects allowed
-	static const uint32_t		MAX_TEMP_OBJECTS = 2048;
+	static const uint32_t		MAX_TEMP_OBJECTS = 1024;
 
 
 private:
@@ -85,5 +90,14 @@ private:
 };
 
 ScriptSystem* scripter();
+
+extern "C"
+{
+	uint32_t script_system_vec3_used();
+
+	uint32_t script_system_mat4_used();
+
+	uint32_t script_system_quat_used();
+}
 
 } // namespace crown
