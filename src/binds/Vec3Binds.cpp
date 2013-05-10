@@ -1,4 +1,4 @@
-#include "Vec3.h"
+#include "ScriptSystem.h"
 
 namespace crown
 {
@@ -48,7 +48,7 @@ extern "C"
 //------------------------------------------------------------
 Vec3* vec3(float nx, float ny, float nz)
 {
-	return new Vec3(nx, ny, nz);
+	scripter()->get_next_vec3(nx, ny, nz);
 }
 
 //------------------------------------------------------------

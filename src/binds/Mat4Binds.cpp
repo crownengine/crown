@@ -1,5 +1,4 @@
-#include "Mat4.h"
-#include "Vec3.h"
+#include "ScriptSystem.h"
 #include "OS.h"
 
 namespace crown
@@ -61,14 +60,12 @@ extern "C"
 
 	void				mat4_set_scale(Mat4* self, const Vec3* scale);
 
-	// Quat				mat4_to_quat();
-
 	void 				mat4_print(Mat4* self);
 }
 
 Mat4* mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3)
 {
-	return new Mat4(r1c1, r2c1, r3c1, 0, r1c2, r2c2, r3c2, 0, r1c3, r2c3, r3c3, 0, 0, 0, 0, 1);
+	scripter()->get_next_mat4(r1c1, r2c1, r3c1, r1c2, r2c2, r3c2, r1c3, r2c3, r3c3);
 }
 					
 Mat4* mat4_add(Mat4* self, Mat4* m)

@@ -1,4 +1,4 @@
-#include "Quat.h"
+#include "ScriptSystem.h"
 
 namespace crown
 {
@@ -24,13 +24,11 @@ extern "C"
 	Quat*		quat_multiply(Quat* self, const float& k);
 
 	Quat*		quat_power(Quat* self, float exp);
-
-	// Mat4		quat_to_mat4(Quat* self);
 }
 
 Quat* quat(float angle, const Vec3* v)
 {
-	return new Quat(angle, *v);
+	scripter()->get_next_quat(angle, v);
 }
 
 void quat_negate(Quat* self)
