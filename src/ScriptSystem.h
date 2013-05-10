@@ -1,35 +1,29 @@
 #pragma once
 
+#include "lua.hpp"
+
 #include "Types.h"
 #include "String.h"
-#include "lua.hpp"
 #include "ScriptResource.h"
+
+#include "Vec3.h"
+#include "Mat4.h"
+#include "Quat.h"
+
 
 namespace crown
 {
 
-//------------------------------------------------------------------
-struct ScriptId
-{
-	uint16_t	index;
-	uint16_t	id;
-};
-
-//------------------------------------------------------------------
-struct Script
-{
-	ScriptId		id;
-	ScriptResource* script_resource;
-};
-
-/// Singleton class that abstracts lua state
+/// Abstraction of lua state.
+/// It provides 2 ways for loading lua code, as a buffer or as a string.
+/// It must be included only by ScriptSystem. 
 class LuaState
 {
 public:
+							/// Constructor, private for singleton
+							LuaState();
 							/// Destructor
 							~LuaState();
-							/// Get singleton instance
-	static LuaState*		instance();
 							/// Load lua chunk as buffer
 	int32_t 				load_buffer(const char* buf, size_t len);
 							/// Load lua chunk as string
@@ -38,42 +32,58 @@ public:
 	int32_t 				execute();
 
 private:
-							/// Constructor, private for singleton
-							LuaState();
+
 							/// Lua state incapsulated by this class
 	lua_State*				m_state;
-							/// LuaState pointer for singleton
-	static LuaState* 		m_instance;
 };
 
-LuaState* LuaState::m_instance = NULL;
-
-/// Script System allows to execute lua code or lua bytecode chunk
+/// ScriptSystem allows to execute lua code or bytecode chunks
+///
 class ScriptSystem
 {
 public:
-							/// Max number of scripts which can be loaded by this system
-	static const int32_t	MAX_SCRIPTS = 256;
+								/// Constructor
+								ScriptSystem();
+								///	Destructor
+								~ScriptSystem();
+								/// Load script resource
+	void						load(ScriptResource* script);
+								/// Execute 
+	void						execute();
+								/// Unload script resource
+	void						unload(ScriptResource* script);
+								/// Returns the first free Vec3
+	Vec3*						get_next_vec3(float nx, float ny, float nz);
+								/// Returns the first free Mat4
+	Mat4*						get_next_mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3);	
+								/// Return the first free Quat
+	Quat*						get_next_quat(float angle, const Vec3* v);
 
+								/// Max number of temporary objects allowed
+	static const uint32_t		MAX_TEMP_OBJECTS = 2048;
 
-							/// Constructor
-							ScriptSystem();
-							///	Destructor
-							~ScriptSystem();
-							/// Load scripr resource
-	ScriptId				load(ScriptResource* script);
-							/// Execute 
-	void					execute();
-							/// Unload script resource
-	void					unload(ScriptResource* script);
 
 private:
-							/// Number of scripts already loaded
-	uint32_t				m_script_count;
-							/// Resource handle
-	Script					m_script[MAX_SCRIPTS];
+								// Disable coping
+								ScriptSystem(const ScriptSystem&);
+								ScriptSystem& operator=(const ScriptSystem&);
 
-	friend class ScriptResource;
+	LuaState 					m_state;
+
+								/// Vectors used by lua environment
+	Vec3						m_vec3_list[MAX_TEMP_OBJECTS];
+								/// Counter which points to the next free Vec3
+	uint32_t					m_vec3_count;
+								/// Matrix used by lua environment
+	Mat4						m_mat4_list[MAX_TEMP_OBJECTS];
+								/// Counter which points to the next free Mat4
+	uint32_t					m_mat4_count;
+								/// Quaternions used by lua environment
+	Quat						m_quat_list[MAX_TEMP_OBJECTS];
+								/// Counter which points to the nect free Quat
+	uint32_t					m_quat_count;
 };
+
+ScriptSystem* scripter();
 
 } // namespace crown

@@ -3,6 +3,9 @@
 
 namespace crown
 {
+//-----------------------------------------------------------
+// Lua State
+//-----------------------------------------------------------
 
 //-----------------------------------------------------------
 LuaState::LuaState()
@@ -15,22 +18,7 @@ LuaState::LuaState()
 //-----------------------------------------------------------
 LuaState::~LuaState()
 {
-	if (m_instance != NULL)
-	{
-		lua_close(m_state);
-		delete m_instance;
-	}
-}
-
-//-----------------------------------------------------------
-LuaState* LuaState::instance()
-{
-	if (m_instance == NULL)
-	{
-		m_instance = new LuaState();
-	}
-
-	return m_instance;
+	lua_close(m_state);
 }
 
 //-----------------------------------------------------------
@@ -57,47 +45,104 @@ int32_t LuaState::execute()
     return s;
 }
 
+//-----------------------------------------------------------
+// ScriptSystem
+//-----------------------------------------------------------
 
 //-----------------------------------------------------------
 ScriptSystem::ScriptSystem() :
-	m_script_count(0)
+m_state(),
+m_vec3_count(0),
+m_mat4_count(0),
+m_quat_count(0)
 {
 }
 
 //-----------------------------------------------------------
 ScriptSystem::~ScriptSystem()
 {
-	// FIXME
+
 }
 
 //-----------------------------------------------------------
-ScriptId ScriptSystem::load(ScriptResource* script)
+void ScriptSystem::load(ScriptResource* script)
 {
-	assert(LuaState::instance()->load_buffer((char*)script->data(), script->length()) == 0);
-
-	ScriptId id;
-	id.index = m_script_count;
-	id.id = 0;
-
-	m_script[id.index].id = id;
-	m_script[id.index].script_resource = script;
-
-	m_script_count++;
-
-	return id;
+	assert(m_state.load_buffer((char*)script->data(), script->length()) == 0);
 }
 
 //-----------------------------------------------------------
 void ScriptSystem::execute()
 {
-	assert(LuaState::instance()->execute() == 0);	
+	assert(m_state.execute() == 0);	
 }
 
 //-----------------------------------------------------------
-void unload(ScriptResource* resource)
+void ScriptSystem::unload(ScriptResource* resource)
 {
 	(void*) resource;
 	// FIXME
+}
+
+//-----------------------------------------------------------
+Vec3* ScriptSystem::get_next_vec3(float nx, float ny, float nz)
+{
+	uint32_t current = m_vec3_count;
+
+	m_vec3_list[current].x = nx;
+	m_vec3_list[current].y = ny;
+	m_vec3_list[current].z = nz;
+
+	m_vec3_count++;
+
+	return &m_vec3_list[current];
+}
+
+//-----------------------------------------------------------
+Mat4* ScriptSystem::get_next_mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3)
+{
+	uint32_t current = m_mat4_count;
+
+	m_mat4_list[current].m[0] 	= r1c1;
+	m_mat4_list[current].m[1] 	= r2c1;
+	m_mat4_list[current].m[2] 	= r3c1;
+	m_mat4_list[current].m[3] 	= 0;
+	m_mat4_list[current].m[4] 	= r1c2;
+	m_mat4_list[current].m[5] 	= r2c2;
+	m_mat4_list[current].m[6] 	= r3c2;
+	m_mat4_list[current].m[7] 	= 0;
+	m_mat4_list[current].m[8] 	= r1c3;
+	m_mat4_list[current].m[9] 	= r2c3;
+	m_mat4_list[current].m[10] 	= r3c3;
+	m_mat4_list[current].m[11] 	= 0;
+	m_mat4_list[current].m[12] 	= 0;
+	m_mat4_list[current].m[13] 	= 0;
+	m_mat4_list[current].m[14] 	= 0;
+	m_mat4_list[current].m[15] 	= 1;
+
+	m_mat4_count++;
+
+	return &m_mat4_list[current];
+}
+
+//-----------------------------------------------------------
+Quat* ScriptSystem::get_next_quat(float angle, const Vec3* v)
+{
+	uint32_t current = m_quat_count;
+
+	m_quat_list[current].w = angle;
+	m_quat_list[current].v = *v;
+
+	m_quat_count++;
+
+	return &m_quat_list[current];
+
+}
+
+ScriptSystem g_script;
+
+ScriptSystem* scripter()
+{
+	return &g_script;
 }
 
 
