@@ -11,5 +11,5 @@ install (DIRECTORY luajit/lib/pkgconfig DESTINATION lib/crown)
 install (FILES luajit/lib/libluajit-5.1.so.2.0.1 
 			   luajit/lib/libluajit-5.1.so.2 DESTINATION lib/crown)
 
-install (FILES luajit/bin/luajit-2.0.1
-			   luajit/bin/luajit DESTINATION bin)
+install (PROGRAMS luajit/bin/luajit-2.0.1 DESTINATION bin)
+install (FILES luajit/bin/luajit DESTINATION bin)
