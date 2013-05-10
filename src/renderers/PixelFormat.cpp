@@ -23,8 +23,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Pixel.h"
 #include "Types.h"
+#include "PixelFormat.h"
 
 namespace crown
 {
