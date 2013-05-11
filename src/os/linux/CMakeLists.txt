@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.8)
 project(crown-linux)
 
 set (LINUX_SRC
-#	EGLRenderWindow.cpp
 	GLXRenderWindow.cpp
 	LinuxOS.cpp
 	Input.cpp
@@ -14,7 +13,6 @@ set (LINUX_SRC
 
 set (LINUX_HEADERS
 	File.h
-#	EGLRenderWindow.h
 )
 
 link_libraries(X11 Xrandr pthread)
