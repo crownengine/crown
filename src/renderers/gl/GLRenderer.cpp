@@ -188,7 +188,7 @@ GLRenderer::~GLRenderer()
 }
 
 //-----------------------------------------------------------------------------
-VertexBufferId GLRenderer::create_vertex_buffer(const void* vertices, size_t count, VertexFormat format)
+VertexBufferId GLRenderer::create_vertex_buffer(size_t count, VertexFormat format, const void* vertices)
 {
 	const VertexBufferId id = m_vertex_buffers_id_table.create();
 
@@ -206,7 +206,7 @@ VertexBufferId GLRenderer::create_vertex_buffer(const void* vertices, size_t cou
 }
 
 //-----------------------------------------------------------------------------
-VertexBufferId GLRenderer::create_dynamic_vertex_buffer(const void* vertices, size_t count, VertexFormat format)
+VertexBufferId GLRenderer::create_dynamic_vertex_buffer(size_t count, VertexFormat format, const void* vertices)
 {
 	const VertexBufferId id = m_vertex_buffers_id_table.create();
 
@@ -224,7 +224,7 @@ VertexBufferId GLRenderer::create_dynamic_vertex_buffer(const void* vertices, si
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::update_vertex_buffer(VertexBufferId id, const void* vertices, size_t count, size_t offset)
+void GLRenderer::update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices)
 {
 	assert(m_vertex_buffers_id_table.has(id));
 
@@ -248,7 +248,7 @@ void GLRenderer::destroy_vertex_buffer(VertexBufferId id)
 }
 
 //-----------------------------------------------------------------------------
-IndexBufferId GLRenderer::create_index_buffer(const void* indices, size_t count)
+IndexBufferId GLRenderer::create_index_buffer(size_t count, const void* indices)
 {
 	const IndexBufferId id = m_index_buffers_id_table.create();
 
@@ -277,7 +277,7 @@ void GLRenderer::destroy_index_buffer(IndexBufferId id)
 }
 
 //-----------------------------------------------------------------------------
-TextureId GLRenderer::create_texture(uint32_t width, uint32_t height, const void* data, PixelFormat format)
+TextureId GLRenderer::create_texture(uint32_t width, uint32_t height, PixelFormat format, const void* data)
 {
 	const TextureId id = m_textures_id_table.create();
 

@@ -79,15 +79,15 @@ public:
 						GLRenderer();
 						~GLRenderer();
 
-	VertexBufferId		create_vertex_buffer(const void* vertices, size_t count, VertexFormat format);
-	VertexBufferId		create_dynamic_vertex_buffer(const void* vertices, size_t count, VertexFormat format);
-	void				update_vertex_buffer(VertexBufferId id, const void* vertices, size_t count, size_t offset);
+	VertexBufferId		create_vertex_buffer(size_t count, VertexFormat format, const void* vertices);
+	VertexBufferId		create_dynamic_vertex_buffer(size_t count, VertexFormat format, const void* vertices);
+	void				update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices);
 	void				destroy_vertex_buffer(VertexBufferId id);
 
-	IndexBufferId		create_index_buffer(const void* indices, size_t count);
+	IndexBufferId		create_index_buffer(size_t count, const void* indices);
 	void				destroy_index_buffer(IndexBufferId id);
 
-	TextureId			create_texture(uint32_t width, uint32_t height, const void* data, PixelFormat format);
+	TextureId			create_texture(uint32_t width, uint32_t height, PixelFormat format, const void* data);
 	void				update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data);
 	void				destroy_texture(TextureId id);
 
