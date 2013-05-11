@@ -46,8 +46,7 @@ class TextureResource;
 struct GLTexture
 {
 	GLuint				gl_object;
-
-	TextureResource*	texture_resource;
+	PixelFormat			format;
 };
 
 //-----------------------------------------------------------------------------
@@ -87,6 +86,10 @@ public:
 
 	IndexBufferId		create_index_buffer(const void* indices, size_t count);
 	void				destroy_index_buffer(IndexBufferId id);
+
+	TextureId			create_texture(uint32_t width, uint32_t height, const void* data, PixelFormat format);
+	void				update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data);
+	void				destroy_texture(TextureId id);
 
 	// RenderBufferId	create_render_buffer(uint32_t width, uint32_t height, PixelFormat format);
 	// void				destroy_render_buffer(RenderBufferId id);
@@ -155,10 +158,6 @@ public:
 	void				draw_triangles(IndexBufferId id) const;
 
 	void				draw_lines(const float* vertices, const float* colors, uint32_t count);
-
-	TextureId			load_texture(TextureResource* texture);
-	void				unload_texture(TextureResource* texture);
-	TextureId			reload_texture(TextureResource* old_texture, TextureResource* new_texture);
 
 private:
 

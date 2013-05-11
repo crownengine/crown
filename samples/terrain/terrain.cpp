@@ -128,7 +128,7 @@ public:
 		device()->resource_manager()->flush();
 
 		TextureResource* grass_texture = (TextureResource*)device()->data(grass);
-		grass_id = device()->renderer()->load_texture(grass_texture);
+		grass_id = device()->renderer()->create_texture(grass_texture->width(), grass_texture->height(), grass_texture->data(), grass_texture->format());
 
 		//rb_id = device()->renderer()->create_render_buffer(200, 200, PF_RGBA_8);
 	}

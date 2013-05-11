@@ -375,11 +375,6 @@ void Device::reload(ResourceId name)
 	m_resource_manager->reload(name);
 
 	const void* new_resource = m_resource_manager->data(name);
-
-	if (name.type == TEXTURE_TYPE)
-	{
-		m_renderer->reload_texture((TextureResource*)old_resource, (TextureResource*)new_resource);
-	}
 }
 
 //-----------------------------------------------------------------------------

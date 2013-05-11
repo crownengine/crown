@@ -277,6 +277,51 @@ void GLRenderer::destroy_index_buffer(IndexBufferId id)
 }
 
 //-----------------------------------------------------------------------------
+TextureId GLRenderer::create_texture(uint32_t width, uint32_t height, const void* data, PixelFormat format)
+{
+	const TextureId id = m_textures_id_table.create();
+
+	GLTexture& gl_texture = m_textures[id.index];
+
+	glGenTextures(1, &gl_texture.gl_object);
+
+	glBindTexture(GL_TEXTURE_2D, gl_texture.gl_object);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+
+	// FIXME
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+				 GL::pixel_format(format), GL_UNSIGNED_BYTE, data);
+
+	gl_texture.format = format;
+
+	return id;
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data)
+{
+	assert(m_textures_id_table.has(id));
+
+	GLTexture& gl_texture = m_textures[id.index];
+
+	glBindTexture(GL_TEXTURE_2D, gl_texture.gl_object);
+
+	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL::pixel_format(gl_texture.format),
+					GL_UNSIGNED_BYTE, data);
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::destroy_texture(TextureId id)
+{
+	assert(m_textures_id_table.has(id));
+
+	GLTexture& gl_texture = m_textures[id.index];
+
+	glDeleteTextures(1, &gl_texture.gl_object);
+}
+
+//-----------------------------------------------------------------------------
 // RenderBufferId GLRenderer::create_render_buffer(uint32_t width, uint32_t height, PixelFormat format)
 // {
 // 	const RenderBufferId id = m_render_buffers_id_table.create();
@@ -906,52 +951,6 @@ void GLRenderer::draw_lines(const float* vertices, const float* colors, uint32_t
 
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
-}
-
-//-----------------------------------------------------------------------------
-TextureId GLRenderer::load_texture(TextureResource* texture)
-{
-	const TextureId id = m_textures_id_table.create();
-
-	GLTexture& gl_texture = m_textures[id.index];
-
-	glGenTextures(1, &gl_texture.gl_object);
-
-	glBindTexture(GL_TEXTURE_2D, gl_texture.gl_object);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width(), texture->height(), 0,
-				 GL::pixel_format(texture->format()), GL_UNSIGNED_BYTE, texture->data());
-
-	gl_texture.texture_resource = texture;
-
-	return id;
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::unload_texture(TextureResource* texture)
-{
-	// FIXME
-	(void)texture;
-}
-
-//-----------------------------------------------------------------------------
-TextureId GLRenderer::reload_texture(TextureResource* old_texture, TextureResource* new_texture)
-{
-	// for (uint32_t i = 0; i < m_texture_count; i++)
-	// {
-	// 	if (m_textures[i].texture_resource == old_texture)
-	// 	{
-	// 		// Reload texture
-	// 		glBindTexture(GL_TEXTURE_2D, m_textures[i].gl_object);
-
-	// 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, new_texture->width(), new_texture->height(),
-	// 			GL::pixel_format(new_texture->format()), GL_UNSIGNED_BYTE, new_texture->data());
-
-	// 		m_textures[i].texture_resource = new_texture;
-	// 	}
-	// }
 }
 
 //-----------------------------------------------------------------------------

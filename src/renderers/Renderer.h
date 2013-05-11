@@ -101,6 +101,11 @@ public:
 	/// Destroys the @id index buffer.
 	virtual void			destroy_index_buffer(IndexBufferId id) = 0;
 
+
+	virtual TextureId		create_texture(uint32_t width, uint32_t height, const void* data, PixelFormat format) = 0;
+	virtual void			update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data) = 0;
+	virtual void			destroy_texture(TextureId id) = 0;
+
 	//virtual RenderBufferId	create_render_buffer(uint32_t width, uint32_t height, PixelFormat format) = 0;
 	//virtual void			destroy_render_buffer(RenderBufferId id) = 0;
 
@@ -213,10 +218,6 @@ public:
 	virtual void draw_triangles(IndexBufferId id) const = 0;
 
 	virtual void draw_lines(const float* vertices, const float* colors, uint32_t count) = 0;
-
-	virtual TextureId	load_texture(TextureResource* texture) = 0;
-	virtual void		unload_texture(TextureResource* texture) = 0;
-	virtual TextureId	reload_texture(TextureResource* old_texture, TextureResource* new_texture) = 0;
 };
 
 } // namespace crown
