@@ -37,7 +37,6 @@ namespace crown
 /// Provides common facilities to access files on disk.
 class FileStream: public Stream
 {
-
 public:
 
 	/// Opens @filename with specified @mode

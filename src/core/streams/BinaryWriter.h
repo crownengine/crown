@@ -33,7 +33,6 @@ class Stream;
 /// A writer that offers a convenient way to write to a Stream
 class BinaryWriter
 {
-
 public:
 
 						BinaryWriter(Stream& s);

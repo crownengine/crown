@@ -31,7 +31,6 @@ class Stream;
 /// A reader that offers a convenient way to write text to a Stream
 class TextWriter
 {
-
 public:
 
 						TextWriter(Stream& s);

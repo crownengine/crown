@@ -33,7 +33,6 @@ class Stream;
 /// A reader that offers a convenient way to read from a Stream
 class BinaryReader
 {
-
 public:
 
 						BinaryReader(Stream& s);

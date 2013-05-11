@@ -35,7 +35,6 @@ namespace crown
 
 class MemoryBuffer
 {
-
 public:
 
 						MemoryBuffer();
@@ -53,7 +52,6 @@ public:
 
 class DynamicMemoryBuffer: public MemoryBuffer
 {
-
 public:
 
 						DynamicMemoryBuffer(Allocator& allocator, size_t initial_capacity);
@@ -84,7 +82,6 @@ protected:
 /// Access memory buffers.
 class MemoryStream: public Stream
 {
-
 public:
 
 	/// @copydoc Stream::Stream()
