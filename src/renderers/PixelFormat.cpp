@@ -30,7 +30,13 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-uint32_t Pixel::bits_per_pixel(PixelFormat format)
+size_t Pixel::bits_per_pixel(PixelFormat format)
+{
+	return bytes_per_pixel(format) * 8;
+}
+
+//-----------------------------------------------------------------------------
+size_t Pixel::bytes_per_pixel(PixelFormat format)
 {
 	switch (format)
 	{
@@ -38,7 +44,7 @@ uint32_t Pixel::bits_per_pixel(PixelFormat format)
 		case PF_RGB_3_3_2:
 		case PF_BGR_2_3_3:
 		{
-			return 8;
+			return 1;
 		}
 		case PF_L_16:
 		case PF_LA_8:
@@ -50,12 +56,12 @@ uint32_t Pixel::bits_per_pixel(PixelFormat format)
 		case PF_ABGR_4_4_4_4:
 		case PF_ABGR_1_5_5_5:
 		{
-			return 16;
+			return 2;
 		}
 		case PF_RGB_8:
 		case PF_BGR_8:
 		{
-			return 24;
+			return 3;
 		}
 		case PF_L_32:
 		case PF_L_FLOAT_32:
@@ -68,12 +74,12 @@ uint32_t Pixel::bits_per_pixel(PixelFormat format)
 		case PF_ABGR_8_8_8_8:
 		case PF_ABGR_2_10_10_10:
 		{
-			return 32;
+			return 4;
 		}
 		case PF_RGB_16:
 		case PF_BGR_16:
 		{
-			return 48;
+			return 6;
 		}
 		case PF_LA_32:
 		case PF_LA_FLOAT_32:
@@ -82,37 +88,28 @@ uint32_t Pixel::bits_per_pixel(PixelFormat format)
 		case PF_RGBA_16:
 		case PF_ABGR_16:
 		{
-			return 64;
+			return 8;
 		}
 		case PF_RGB_32:
 		case PF_RGB_FLOAT_32:
 		case PF_BGR_32:
 		case PF_BGR_FLOAT_32:
 		{
-			return 96;
+			return 12;
 		}
 		case PF_RGBA_32:
 		case PF_RGBA_FLOAT_32:
 		case PF_ABGR_32:
 		case PF_ABGR_FLOAT_32:
 		{
-			return 128;
+			return 16;
 		}
 		case PF_UNKNOWN:
-		{
-			return 0;
-		}
 		default:
 		{
 			return 0;
 		}
 	}
-}
-
-//-----------------------------------------------------------------------------
-uint32_t Pixel::bytes_per_pixel(PixelFormat format)
-{
-	return bits_per_pixel(format) / 8;
 }
 
 } // namespace crown
