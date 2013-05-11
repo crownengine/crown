@@ -149,10 +149,10 @@ void Terrain::CreateTerrain(uint32_t xSize, uint32_t zSize, uint32_t tilePerMete
 		}
 	}
 
-	m_vertex_buffer = device()->renderer()->create_dynamic_vertex_buffer(mVertices, mVertexCount, VF_XYZ_FLOAT_32);
-	m_normal_buffer = device()->renderer()->create_dynamic_vertex_buffer(mNormals, mNormalCount, VF_XYZ_NORMAL_FLOAT_32);
-	m_tex_coord_buffer = device()->renderer()->create_vertex_buffer(mTexCoords, mTexCoordCount, VF_UV_FLOAT_32);
-	m_index_buffer = device()->renderer()->create_index_buffer(mIndices, mIndexCount);
+	m_vertex_buffer = device()->renderer()->create_dynamic_vertex_buffer(mVertexCount, VF_XYZ_FLOAT_32, mVertices);
+	m_normal_buffer = device()->renderer()->create_dynamic_vertex_buffer(mNormalCount, VF_XYZ_NORMAL_FLOAT_32, mNormals);
+	m_tex_coord_buffer = device()->renderer()->create_vertex_buffer(mTexCoordCount, VF_UV_FLOAT_32, mTexCoords);
+	m_index_buffer = device()->renderer()->create_index_buffer(mIndexCount, mIndices);
 }
 
 void Terrain::UpdateVertexBuffer(bool recomputeNormals)
@@ -166,7 +166,7 @@ void Terrain::UpdateVertexBuffer(bool recomputeNormals)
 			vIndex++;
 		}
 
-		device()->renderer()->update_vertex_buffer(m_vertex_buffer, mVertices, mVertexCount, 0);
+		device()->renderer()->update_vertex_buffer(m_vertex_buffer, 0, mVertexCount, mVertices);
 	}
 
 	if (recomputeNormals)
@@ -187,7 +187,7 @@ void Terrain::UpdateVertexBuffer(bool recomputeNormals)
 			mNormals[mIndices[i + 2]] = normal;
 		}
 
-		device()->renderer()->update_vertex_buffer(m_normal_buffer, mNormals, mNormalCount, 0);
+		device()->renderer()->update_vertex_buffer(m_normal_buffer, 0, mNormalCount, mNormals);
 	}
 }
 
