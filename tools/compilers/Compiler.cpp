@@ -171,6 +171,8 @@ FileStream* Compiler::destination_file()
 //-----------------------------------------------------------------------------
 void Compiler::prepare_header(uint32_t size)
 {
+	m_compiled_header.magic = COMPILED_HEADER_MAGIC_NUMBER;
+	m_compiled_header.version = COMPILER_VERSION;
 	m_compiled_header.name = m_name_hash;
 	m_compiled_header.type = m_type_hash;
 	m_compiled_header.size = size;

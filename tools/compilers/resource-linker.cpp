@@ -13,6 +13,10 @@ using namespace crown;
 
 /// Resource linker links together individual compiled resources into a
 /// single binary blob ready to be loaded by Crown Engine.
+/// Usage: resource-linker <root-path> [resource1, resource2, ..., resourceN]
+/// The resources are put into the archive in the order they appear in the command line.
+/// This allows to simplify the code and to decouple the linking process from the
+/// placement optimization of the resources in the final archive.
 int main(int argc, char** argv)
 {
 	//-------------------------------------------------------------------------

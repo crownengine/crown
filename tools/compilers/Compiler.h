@@ -31,18 +31,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-const size_t MAX_RESOURCE_NAME_LENGTH = 1024;
-const size_t MAX_RESOURCE_TYPE_LENGTH = 64;
-const size_t MAX_RESOURCE_PATH_LENGTH = 1024;
+const size_t	MAX_RESOURCE_NAME_LENGTH			= 1024;
+const size_t	MAX_RESOURCE_TYPE_LENGTH			= 64;
+const size_t	MAX_RESOURCE_PATH_LENGTH			= 1024;
+
+const uint32_t	COMPILED_HEADER_MAGIC_NUMBER		= 0xCE010101;
+const uint32_t	COMPILER_VERSION					= 1;
 
 /// Contains the header data common to all
 /// types of resources passing through the
 /// standard Compiler mechanics.
 struct CompiledHeader
 {
-	uint32_t	name;	// Name of the resource (murmur2_32 hash)
-	uint32_t	type;	// Type of the resource (murmur2_32 hash)
-	uint32_t	size;	// Size of the resource data _not_ including header (in bytes)
+	uint32_t	magic;		// Magic number used to identify the file
+	uint32_t	version;	// Version of the compiler used to compile the resource
+	uint32_t	name;		// Name of the resource (murmur2_32 hash)
+	uint32_t	type;		// Type of the resource (murmur2_32 hash)
+	uint32_t	size;		// Size of the resource data _not_ including header (in bytes)
 };
 
 class FileStream;

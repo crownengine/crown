@@ -34,6 +34,17 @@ namespace crown
 class Filesystem;
 class FileStream;
 
+// The header of every compiled resource file.
+// KEEP IN SYNC WITH CompiledResource struct in Compiler.h!
+struct ResourceHeader
+{
+	uint32_t	magic;		// Magic number used to identify the file
+	uint32_t	version;	// Version of the compiler used to compile the resource
+	uint32_t	name;		// Name of the resource (murmur2_32 hash)
+	uint32_t	type;		// Type of the resource (murmur2_32 hash)
+	uint32_t	size;		// Size of the resource data _not_ including header (in bytes)
+};
+
 /// Source of resources
 class FileResourceArchive : public ResourceArchive
 {

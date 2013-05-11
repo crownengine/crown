@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Compiler.h"
 #include "FileStream.h"
-#include "Pixel.h"
+#include "PixelFormat.h"
 
 namespace crown
 {
