@@ -21,15 +21,15 @@ ffi.cdef
 		float			m_far;
 	} Camera;
 
-	Camera*				camera(const Vec3* position, float fov, float aspect);
+	Camera*				camera(const Vec3& position, float fov, float aspect);
 
 	const Vec3&			camera_position(Camera* self);
 
-	void				camera_set_position(Camera* self, const Vec3* position);
+	void				camera_set_position(Camera* self, const Vec3& position);
 
 	const Vec3&			camera_look_at(Camera* self);
 
-	void				camera_set_look_at(Camera* self, const Vec3* lookat);
+	void				camera_set_look_at(Camera* self, const Vec3& lookat);
 
 	void				camera_set_rotation(Camera* self, const float x, const float y);
 
@@ -62,6 +62,7 @@ ffi.cdef
 	void				camera_strafe_left(Camera* self, float meters);
 
 	void				camera_strafe_right(Camera* self, float meters);
+
 ]]
 
 Camera = {}
