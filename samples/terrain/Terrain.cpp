@@ -148,6 +148,11 @@ void Terrain::CreateTerrain(uint32_t xSize, uint32_t zSize, uint32_t tilePerMete
 			iIndex += 6;
 		}
 	}
+
+	m_vertex_buffer = device()->renderer()->create_dynamic_vertex_buffer(mVertices, mVertexCount, VF_XYZ_FLOAT_32);
+	m_normal_buffer = device()->renderer()->create_dynamic_vertex_buffer(mNormals, mNormalCount, VF_XYZ_NORMAL_FLOAT_32);
+	m_tex_coord_buffer = device()->renderer()->create_vertex_buffer(mTexCoords, mTexCoordCount, VF_UV_FLOAT_32);
+	m_index_buffer = device()->renderer()->create_index_buffer(mIndices, mIndexCount);
 }
 
 void Terrain::UpdateVertexBuffer(bool recomputeNormals)
@@ -160,6 +165,8 @@ void Terrain::UpdateVertexBuffer(bool recomputeNormals)
 			mVertices[vIndex].y = mHeights[vIndex];
 			vIndex++;
 		}
+
+		device()->renderer()->update_vertex_buffer(m_vertex_buffer, mVertices, mVertexCount, 0);
 	}
 
 	if (recomputeNormals)
@@ -179,6 +186,8 @@ void Terrain::UpdateVertexBuffer(bool recomputeNormals)
 			mNormals[mIndices[i + 1]] = normal;
 			mNormals[mIndices[i + 2]] = normal;
 		}
+
+		device()->renderer()->update_vertex_buffer(m_normal_buffer, mNormals, mNormalCount, 0);
 	}
 }
 
@@ -278,12 +287,10 @@ void Terrain::Render()
 {
 	Renderer* renderer = device()->renderer();
 
-	renderer->draw_triangles(
-				mVertices[0].to_float_ptr(),
-				mNormals[0].to_float_ptr(),
-				mTexCoords[0].to_float_ptr(),
-				mIndices,
-				mTilesInSizeX * mTilesInSizeZ * 6);
+	renderer->bind_vertex_buffer(m_vertex_buffer);
+	renderer->bind_vertex_buffer(m_normal_buffer);
+	renderer->bind_vertex_buffer(m_tex_coord_buffer);
+	renderer->draw_triangles(m_index_buffer);
 }
 
 float Terrain::GaussDist(float x, float y, float sigma)
