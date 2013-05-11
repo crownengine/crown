@@ -6,15 +6,15 @@ namespace crown
 extern "C"
 {
 
-Camera*				camera(const Vec3* position, float fov, float aspect);
+Camera*				camera(const Vec3& position, float fov, float aspect);
 
 const Vec3&			camera_position(Camera* self);
 
-void				camera_set_position(Camera* self, const Vec3* position);
+void				camera_set_position(Camera* self, const Vec3& position);
 
 const Vec3&			camera_look_at(Camera* self);
 
-void				camera_set_look_at(Camera* self, const Vec3* lookat);
+void				camera_set_look_at(Camera* self, const Vec3& lookat);
 
 void				camera_set_rotation(Camera* self, const float x, const float y);
 
@@ -49,9 +49,9 @@ void				camera_strafe_left(Camera* self, float meters);
 void				camera_strafe_right(Camera* self, float meters);
 }
 
-Camera* camera(const Vec3* position, float fov, float aspect)
+Camera* camera(const Vec3& position, float fov, float aspect)
 {
-	return new Camera(*position, fov, aspect);
+	return new Camera(position, fov, aspect);
 }
 
 const Vec3& camera_position(Camera* self)
@@ -59,9 +59,9 @@ const Vec3& camera_position(Camera* self)
 	return self->position();
 }
 
-void camera_set_position(Camera* self, const Vec3* position)
+void camera_set_position(Camera* self, const Vec3& position)
 {
-	self->set_position(*position);
+	self->set_position(position);
 }
 
 const Vec3& camera_look_at(Camera* self)
@@ -69,9 +69,9 @@ const Vec3& camera_look_at(Camera* self)
 	return self->look_at();
 }
 
-void camera_set_look_at(Camera* self, const Vec3* lookat)
+void camera_set_look_at(Camera* self, const Vec3& lookat)
 {
-	self->set_look_at(*lookat);
+	self->set_look_at(lookat);
 }
 
 void camera_set_rotation(Camera* self, const float x, const float y)
