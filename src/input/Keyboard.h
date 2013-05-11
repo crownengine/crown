@@ -28,16 +28,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "KeyCode.h"
 
-#define MAX_KEYCODES 256
-
 namespace crown
 {
 
 class InputManager;
 
-/**
-	Enumerates modifier keys.
-*/
+
+/// Enumerates modifier keys.
 enum ModifierKey
 {
 	MK_SHIFT	= 1,
@@ -47,8 +44,9 @@ enum ModifierKey
 
 struct KeyboardEvent
 {
-	Key key;
-	char text[4];
+	Key			key;
+	uint8_t		modifier;
+	char		text[4];
 };
 
 class KeyboardListener
@@ -61,51 +59,35 @@ public:
 	virtual void text_input(const KeyboardEvent& event) { (void)event; }
 };
 
-/**
-	Interface for accessing keyboard input device.
-*/
+/// Interface for accessing keyboard input device.
 class Keyboard
 {
-
 public:
 
-	/**
-		Constructor.
-	*/
-	Keyboard() : m_listener(NULL) {}
+					Keyboard();
 
-	/**
-		Destructor.
-	*/
-	virtual ~Keyboard() {}
+	/// Returns whether the specified @modifier is pressed.
+	/// @note
+	/// A modifier is a special key that modifies the normal action
+	/// of another key when the two are pressed in combination. (Thanks wikipedia.)
+	/// @note
+	/// Crown currently supports three different modifier keys: Shift, Ctrl and Alt.
+	bool			modifier_pressed(ModifierKey modifier) const;
 
-	/**
-		Returns whether the specified modifier is pressed.
-	@note
-		A modifier is a special key that modifies the normal action
-		of another key when the two are pressed in combination. (Thanks wikipedia.)
-		Crown currently supports three different modifier keys: Shift, Ctrl and Alt.
-	*/
-	virtual bool is_modifier_pressed(ModifierKey modifier) const = 0;
+	/// Returns whether the specified @key is pressed.
+	bool			key_pressed(KeyCode key) const;
 
-	/**
-		Returns whether the specified key is pressed.
-	*/
-	virtual bool is_key_pressed(KeyCode key) const = 0;
+	/// Returns whether the specified @key is released.
+	bool			key_released(KeyCode key) const;
 
-	/**
-		Returns whether the specified key is released.
-	*/
-	virtual bool is_key_released(KeyCode key) const = 0;
+private:
 
-	/**
-		Sets the listener for this device.
-	*/
-	inline void set_listener(KeyboardListener* listener) { m_listener = listener; }
+	uint8_t			m_modifier;
 
-protected:
+	// True if key pressed, false otherwise.
+	bool			m_keys[MAX_KEYCODES];
 
-	KeyboardListener* m_listener;
+	friend class	InputManager;
 };
 
 } // namespace crown

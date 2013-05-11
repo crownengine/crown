@@ -23,36 +23,36 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "IndexBuffer.h"
-#include "Types.h"
-#include <GLES/gl.h>
+#include "Keyboard.h"
 
 namespace crown
 {
 
-class GLESIndexBuffer: public IndexBuffer
+//-----------------------------------------------------------------------------
+Keyboard::Keyboard()
 {
-
-public:
-
-				GLESIndexBuffer();
-				~GLESIndexBuffer();
-
-	void		SetIndexData(const uint16_t* indexData, uint32_t indexCount);
-	void		SetIndexSubData(const uint16_t* indexData, uint32_t indexOffset, uint32_t indexCount);
-
-	uint32_t	GetIndexCount() const { return mCount; }
-
-	void		Bind() const;
-	void		Unbind() const;
-
-private:
-	
-	GLuint		mBufferID;
-	GLuint		mCount;
-};
-
+	for (uint32_t i = 0; i < MAX_KEYCODES; i++)
+	{
+		m_keys[i] = false;
+	}
 }
 
+//-----------------------------------------------------------------------------
+bool Keyboard::modifier_pressed(ModifierKey modifier) const
+{
+	return (m_modifier & modifier) == modifier;
+}
+
+//-----------------------------------------------------------------------------
+bool Keyboard::key_pressed(KeyCode key) const
+{
+	return m_keys[key] == true;
+}
+
+//-----------------------------------------------------------------------------
+bool Keyboard::key_released(KeyCode key) const
+{
+	return m_keys[key] == false;
+}
+
+} // namespace crown

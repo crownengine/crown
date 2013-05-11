@@ -39,6 +39,10 @@ namespace os
 //-----------------------------------------------------------------------------
 extern Display*		display;
 extern Window		window;
+extern uint32_t		window_x;
+extern uint32_t		window_y;
+extern uint32_t		window_width;
+extern uint32_t		window_height;
 
 static bool			x11_detectable_autorepeat = false;
 static Cursor		x11_hidden_cursor = None;
@@ -180,12 +184,15 @@ void event_loop()
 
 		switch (event.type)
 		{
-//			case ConfigureNotify:
-//			{
-//				_NotifyMetricsChange(event.xconfigure.x, event.xconfigure.y,
-//										event.xconfigure.width, event.xconfigure.height);
-//				break;
-//			}
+			case ConfigureNotify:
+			{
+				window_x = event.xconfigure.x;
+				window_y = event.xconfigure.y;
+				window_width = event.xconfigure.width;
+				window_height = event.xconfigure.height;
+
+				break;
+			}
 			case ButtonPress:
 			case ButtonRelease:
 			{
@@ -234,23 +241,26 @@ void event_loop()
 
 				Key kc = x11_translate_key(key);
 
-//				// Check if any modifier key is pressed or released
-//				if (kc == KC_LSHIFT || kc == KC_RSHIFT)
-//				{
-//					(event.type == KeyPress) ? mModifierMask |= MK_SHIFT : mModifierMask &= ~MK_SHIFT;
-//				}
-//				else if (kc == KC_LCONTROL || kc == KC_RCONTROL)
-//				{
-//					(event.type == KeyPress) ? mModifierMask |= MK_CTRL : mModifierMask &= ~MK_CTRL;
-//				}
-//				else if (kc == KC_LALT || kc == KC_RALT)
-//				{
-//					(event.type == KeyPress) ? mModifierMask |= MK_ALT : mModifierMask &= ~MK_ALT;
-//				}
+				// Check if any modifier key is pressed or released
+				int32_t modifier_mask = 0;
+
+				if (kc == KC_LSHIFT || kc == KC_RSHIFT)
+				{
+					(event.type == KeyPress) ? modifier_mask |= MK_SHIFT : modifier_mask &= ~MK_SHIFT;
+				}
+				else if (kc == KC_LCONTROL || kc == KC_RCONTROL)
+				{
+					(event.type == KeyPress) ? modifier_mask |= MK_CTRL : modifier_mask &= ~MK_CTRL;
+				}
+				else if (kc == KC_LALT || kc == KC_RALT)
+				{
+					(event.type == KeyPress) ? modifier_mask |= MK_ALT : modifier_mask &= ~MK_ALT;
+				}
 
 				OSEventType oset_type = event.type == KeyPress ? OSET_KEY_PRESS : OSET_KEY_RELEASE;
 
 				data_key[0].int_value = ((int32_t)kc);
+				data_key[1].int_value = modifier_mask;
 
 				push_event(oset_type, data_key[0], data_key[1], data_key[2], data_key[3]);
 

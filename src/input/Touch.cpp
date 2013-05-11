@@ -23,37 +23,43 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "VertexBuffer.h"
-#include <GLES/gl.h>
+#include "Touch.h"
 
 namespace crown
 {
 
-class GLESVertexBuffer: public VertexBuffer
+//-----------------------------------------------------------------------------
+Touch::Touch()
 {
-
-public:
-
-	GLESVertexBuffer();
-	~GLESVertexBuffer();
-
-	void		SetVertexData(VertexBufferMode mode, const void* vertexData, uint32_t vertexCount);
-	void		SetVertexSubData(const void* vertexData, uint32_t vertexOffset, uint32_t vertexCount);
-
-	uint32_t	GetSize() const;
-	uint32_t	GetVertexCount() const;
-
-	void		Bind() const;
-	void		Unbind() const;
-
-private:
-	
-	GLuint		mBufferID;
-	GLuint		mSize;
-	GLuint		mVertexCount;
-};
 
 }
 
+//-----------------------------------------------------------------------------
+bool Touch::touch_up(uint16_t id) const
+{
+	return m_pointers[id].up == true;
+}
+
+//-----------------------------------------------------------------------------
+bool Touch::touch_down(uint16_t id) const
+{
+	return m_pointers[id].up == false;
+}
+
+//----------------------------------------------------------------------------- 
+Point2 Touch::touch_xy(uint16_t id) const
+{
+	const PointerData& data = m_pointers[id];
+
+	return Point2(data.x, data.y);
+}
+
+//-----------------------------------------------------------------------------
+Vec2 Touch::touch_relative_xy(uint16_t id)
+{
+	const PointerData& data = m_pointers[id];
+
+	return Vec2(data.relative_x, data.relative_y);
+}
+
+} // namespace crown

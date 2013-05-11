@@ -1,13 +1,10 @@
 set (SRC
 	Camera.cpp
 	Device.cpp
-	EventBuffer.cpp
 	Filesystem.cpp
-	Image.cpp
 	MaterialResource.cpp
 	ResourceManager.cpp
 	Skybox.cpp
-	Terrain.cpp
 
 	TextureResource.cpp
 	TextResource.cpp
@@ -26,16 +23,13 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
-	EventBuffer.h
 	Filesystem.h
 	Glyph.h
-	Image.h
 	MaterialResource.h
 	Resource.h
 	ResourceManager.h
 	ResourceArchive.h
 	Skybox.h
-	Terrain.h
 
 	TextureResource.h
 	TextResource.h
@@ -193,6 +187,10 @@ set (SETTINGS_HEADERS
 set (INPUT_SRC
 	input/EventDispatcher.cpp
 	input/InputManager.cpp
+	input/Keyboard.cpp
+	input/Mouse.cpp
+	input/Touch.cpp
+	input/Accelerometer.cpp
 )
 
 set (INPUT_HEADERS

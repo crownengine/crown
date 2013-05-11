@@ -79,21 +79,21 @@ Vec3 Frustum::vertex(uint32_t index) const
 	switch (index)
 	{
 		case 0:
-			return Intersection::TestPlane3(m_planes[4], m_planes[0], m_planes[2], ip);
+			return Intersection::test_plane_3(m_planes[4], m_planes[0], m_planes[2], ip);
 		case 1:
-			return Intersection::TestPlane3(m_planes[4], m_planes[1], m_planes[2], ip);
+			return Intersection::test_plane_3(m_planes[4], m_planes[1], m_planes[2], ip);
 		case 2:
-			return Intersection::TestPlane3(m_planes[4], m_planes[1], m_planes[3], ip);
+			return Intersection::test_plane_3(m_planes[4], m_planes[1], m_planes[3], ip);
 		case 3:
-			return Intersection::TestPlane3(m_planes[4], m_planes[0], m_planes[3], ip);
+			return Intersection::test_plane_3(m_planes[4], m_planes[0], m_planes[3], ip);
 		case 4:
-			return Intersection::TestPlane3(m_planes[5], m_planes[0], m_planes[2], ip);
+			return Intersection::test_plane_3(m_planes[5], m_planes[0], m_planes[2], ip);
 		case 5:
-			return Intersection::TestPlane3(m_planes[5], m_planes[1], m_planes[2], ip);
+			return Intersection::test_plane_3(m_planes[5], m_planes[1], m_planes[2], ip);
 		case 6:
-			return Intersection::TestPlane3(m_planes[5], m_planes[1], m_planes[3], ip);
+			return Intersection::test_plane_3(m_planes[5], m_planes[1], m_planes[3], ip);
 		case 7:
-			return Intersection::TestPlane3(m_planes[5], m_planes[0], m_planes[3], ip);
+			return Intersection::test_plane_3(m_planes[5], m_planes[0], m_planes[3], ip);
 		default:
 			break;
 	}

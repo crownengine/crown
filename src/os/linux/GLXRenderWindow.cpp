@@ -41,6 +41,10 @@ Display*		display = NULL;
 Window			window = None;
 GLXContext		glx_context = NULL;
 GLXDrawable		glx_window = None;
+uint32_t		window_x = 0;
+uint32_t		window_y = 0;
+uint32_t		window_width = 0;
+uint32_t		window_height = 0;
 
 //-----------------------------------------------------------------------------
 bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen)
@@ -135,6 +139,11 @@ bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t heigh
 	XFree(fbConfig);
 	XFlush(display);
 
+	window_x = x;
+	window_y = y;
+	window_width = width;
+	window_height = height;
+
 	return true;
 }
 
@@ -179,8 +188,11 @@ void get_render_window_metrics(uint32_t& width, uint32_t& height)
 
 	XFlush(display);
 
-	width = attribs.width;
-	height = attribs.height;
+	window_width = attribs.width;
+	window_height = attribs.height;
+
+	width = window_width;
+	height = window_height;
 }
 
 ////-----------------------------------------------------------------------------

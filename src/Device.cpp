@@ -40,6 +40,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "FileResourceArchive.h"
 #include "ResourceManager.h"
 #include "TextureResource.h"
+#include "Keyboard.h"
+#include "Mouse.h"
+#include "Touch.h"
+#include "Accelerometer.h"
 
 #ifdef CROWN_BUILD_OPENGL
 	#include "renderers/gl/GLRenderer.h"
@@ -111,17 +115,29 @@ bool Device::init(int argc, char** argv)
 
 	create_filesystem();
 
+	Log::d("Filesystem created.");
+
 	create_resource_manager();
+
+	Log::d("Resource manager created.");
 
 	create_input_manager();
 
+	Log::d("Input manager created.");
+
 	create_renderer();
 
+	Log::d("Renderer created.");
+
 	create_debug_renderer();
+
+	Log::d("Debug renderer created.");
 
 	Log::i("Crown Engine initialized.");
 
 	Log::i("Initializing Game...");
+
+	Log::d(m_filesystem->root_path());
 
 	// Try to locate the game library
 	if (!m_filesystem->exists(GAME_LIBRARY_NAME))
@@ -246,6 +262,30 @@ Renderer* Device::renderer()
 DebugRenderer* Device::debug_renderer()
 {
 	return m_debug_renderer;
+}
+
+//-----------------------------------------------------------------------------
+Keyboard* Device::keyboard()
+{
+	return m_input_manager->keyboard();
+}
+
+//-----------------------------------------------------------------------------
+Mouse* Device::mouse()
+{
+	return m_input_manager->mouse();
+}
+
+//-----------------------------------------------------------------------------
+Touch* Device::touch()
+{
+	return m_input_manager->touch();
+}
+
+//-----------------------------------------------------------------------------
+Accelerometer* Device::accelerometer()
+{
+	return m_input_manager->accelerometer();
 }
 
 //-----------------------------------------------------------------------------

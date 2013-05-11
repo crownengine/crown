@@ -23,52 +23,73 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cstring>
-
-#include "zlib.h"
-#include "ZipCompressor.h"
+#include "Mouse.h"
+#include "OS.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-ZipCompressor::ZipCompressor(Allocator& allocator) :
-	Compressor(allocator)
+Mouse::Mouse()
 {
+	m_buttons[MB_LEFT] = false;
+	m_buttons[MB_MIDDLE] = false;
+	m_buttons[MB_RIGHT] = false;
 }
 
 //-----------------------------------------------------------------------------
-ZipCompressor::~ZipCompressor()
+bool Mouse::button_pressed(MouseButton button) const
 {
+	return m_buttons[button] == true;
 }
 
 //-----------------------------------------------------------------------------
-uint8_t* ZipCompressor::compress(const void* data, size_t in_size, size_t& out_size)
+bool Mouse::button_released(MouseButton button) const
 {
-	out_size = in_size + in_size * 0.1f + 12;
-	
- 	uint8_t* dest = (uint8_t*)m_allocator.allocate(out_size);
-	
-	int32_t ret = ::compress((Bytef*)dest, (uLongf*)&out_size, (const Bytef*)data, (uLongf)in_size);
-	
-	assert(ret == Z_OK);
-	
-	return dest;
+	return m_buttons[button] == false;
 }
 
 //-----------------------------------------------------------------------------
-uint8_t* ZipCompressor::uncompress(const void* data, size_t in_size, size_t& out_size)
+Point2 Mouse::cursor_xy() const
 {
-	out_size = in_size + in_size * 0.1f + 12;
-	
- 	uint8_t* dest = (uint8_t*)m_allocator.allocate(out_size);
-	
-	int32_t ret = ::uncompress((Bytef*)dest, (uLongf*)&out_size, (const Bytef*)data, (uLongf)in_size);
-	
-	assert(ret == Z_OK);
-	
-	return dest;
+	Point2 xy;
+
+	os::get_cursor_xy(xy.x, xy.y);
+
+	return xy;
+}
+
+//-----------------------------------------------------------------------------
+void Mouse::set_cursor_xy(const Point2& position)
+{
+	os::set_cursor_xy(position.x, position.y);
+}
+
+//-----------------------------------------------------------------------------
+Vec2 Mouse::cursor_relative_xy() const
+{
+	uint32_t window_width;
+	uint32_t window_height;
+
+	os::get_render_window_metrics(window_width, window_height);
+
+	Vec2 pos = cursor_xy().to_vec2();
+
+	pos.x = pos.x / (float) window_width;
+	pos.y = pos.y / (float) window_height;
+
+	return pos;
+}
+
+//-----------------------------------------------------------------------------
+void Mouse::set_cursor_relative_xy(const Vec2& position)
+{
+	uint32_t window_width;
+	uint32_t window_height;
+
+	os::get_render_window_metrics(window_width, window_height);
+
+	set_cursor_xy(Point2((int32_t)(position.x * (float) window_width), (int32_t)(position.y * (float) window_height)));
 }
 
 } // namespace crown
-

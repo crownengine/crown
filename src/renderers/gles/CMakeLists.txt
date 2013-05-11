@@ -3,15 +3,11 @@ cmake_minimum_required(VERSION 2.8)
 project(crown-gles)
 
 set (GLES_SRC
-	GLESIndexBuffer.cpp
-	GLESVertexBuffer.cpp
 	GLESRenderer.cpp
 	GLESUtils.cpp
 )
 
 set (GLES_HEADERS
-	GLESIndexBuffer.h
-	GLESVertexBuffer.h
 	GLESRenderer.h
 	GLESUtils.h
 )

@@ -52,7 +52,7 @@ FPSSystem::FPSSystem(Camera* camera, float speed, float sensibility) :
 	device()->input_manager()->register_keyboard_listener(this);
 	device()->input_manager()->register_accelerometer_listener(this);
 	//device()->input_manager()->register_mouse_listener(this);
-	device()->input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
+	device()->mouse()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 	
 }
 
@@ -176,9 +176,9 @@ void FPSSystem::update(float dt)
 //-----------------------------------------------------------------------	
 void FPSSystem::set_view_by_cursor()
 {
-	static Vec2 lastPos = device()->input_manager()->get_cursor_relative_xy();
-	Vec2 currentPos = device()->input_manager()->get_cursor_relative_xy();
-	device()->input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
+	static Vec2 lastPos = device()->mouse()->cursor_relative_xy();
+	Vec2 currentPos = device()->mouse()->cursor_relative_xy();
+	device()->mouse()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
 
 	if (lastPos == currentPos)
 	{
@@ -187,8 +187,8 @@ void FPSSystem::set_view_by_cursor()
 
 	Vec2 delta = lastPos - currentPos;
 
-	device()->input_manager()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
-	lastPos = device()->input_manager()->get_cursor_relative_xy();
+	device()->mouse()->set_cursor_relative_xy(Vec2(0.5f, 0.5f));
+	lastPos = device()->mouse()->cursor_relative_xy();
 
 	m_angle_x += delta.y * m_camera_sensibility;
 	m_angle_y += delta.x * m_camera_sensibility;

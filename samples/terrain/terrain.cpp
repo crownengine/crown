@@ -23,7 +23,7 @@ public:
 	}
 };
 
-class MainScene: public KeyboardListener, public MouseListener
+class MainScene
 {
 
 public:
@@ -34,8 +34,6 @@ public:
 		optShowTerrain(true),
 		camera_active(true)
 	{
-		device()->input_manager()->register_keyboard_listener(this);
-		device()->input_manager()->register_mouse_listener(this);
 		mouseRightPressed = false;
 		mouseLeftPressed = false;
 	}
@@ -44,83 +42,63 @@ public:
 	{
 	}
 
-	void key_released(const KeyboardEvent& event)
+	void poll_input()
 	{
-		if (event.key == '1')
+		Keyboard* keyb = device()->keyboard();
+		Mouse* mouse = device()->mouse();
+
+		if (keyb->key_pressed(KC_1))
 		{
 			terrain.PlotCircle(2, 2, 2, 2);
 		}
 
-		if (event.key == '2')
+		if (keyb->key_pressed(KC_2))
 		{
 			terrain.PlotCircle(4, 4, 4, 2);
 		}
 
-		if (event.key == '3')
+		if (keyb->key_pressed(KC_3))
 		{		
 			terrain.PlotCircle(8, 8, 8, 2);
 		}
 
-		if (event.key == KC_F5)
+		if (keyb->key_pressed(KC_F5))
 		{
 			device()->reload(grass);
 		}
 
-		if (event.key == KC_SPACE)
+		if (keyb->key_pressed(KC_SPACE))
 		{
 			camera_active = !camera_active;
 		}
-	}
 
-	void button_pressed(const MouseEvent& event)
-	{
-		if (event.button == MB_LEFT)
-		{
-			mouseLeftPressed = true;
+		//GLint view[4];
+		//GLdouble proj[16], model[16];
 
-			//GLint view[4];
-			//GLdouble proj[16], model[16];
+		//glGetDoublev(GL_MODELVIEW_MATRIX, model);
+		//glGetDoublev(GL_PROJECTION_MATRIX, proj);
+		//glGetIntegerv(GL_VIEWPORT, view);
 
-			//glGetDoublev(GL_MODELVIEW_MATRIX, model);
-			//glGetDoublev(GL_PROJECTION_MATRIX, proj);
-			//glGetIntegerv(GL_VIEWPORT, view);
+		//int x = event.x;
+		//int y = event.y;
 
-			//int x = event.x;
-			//int y = event.y;
+		// Adjust y wndCoord
+		//y = (625 - y);
 
-			// Adjust y wndCoord
-			//y = (625 - y);
+		//double sX, sY, sZ;
+		//double eX, eY, eZ;
 
-			//double sX, sY, sZ;
-			//double eX, eY, eZ;
+		//gluUnProject(x, y, 0.0f, model, proj, view, &sX, &sY, &sZ);
+		//gluUnProject(x, y, 1.0f, model, proj, view, &eX, &eY, &eZ);
 
-			//gluUnProject(x, y, 0.0f, model, proj, view, &sX, &sY, &sZ);
-			//gluUnProject(x, y, 1.0f, model, proj, view, &eX, &eY, &eZ);
+		//Vec3 dir = Vec3(eX, eY, eZ) - Vec3(sX, sY, sZ);
 
-			//Vec3 dir = Vec3(eX, eY, eZ) - Vec3(sX, sY, sZ);
+		//dir.normalize();
 
-			//dir.normalize();
+		//ray.direction = dir;
 
-			//ray.direction = dir;
-		}
-		else if (event.button == MB_RIGHT)
-		{
-			mouseRightPressed = true;
-		}
-		wheel += event.wheel * 0.25;
-	}
-
-	void button_released(const MouseEvent& event)
-	{
-		if (event.button == MB_LEFT)
-		{
-			mouseLeftPressed = false;
-		}
-		else if (event.button == MB_RIGHT)
-		{
-			mouseRightPressed = false;
-		}
-		wheel -= event.wheel * 0.25;
+		mouseLeftPressed = mouse->button_pressed(MB_LEFT);
+		mouseRightPressed = mouse->button_pressed(MB_RIGHT);
 	}
 		
 	void on_load()
@@ -164,8 +142,10 @@ public:
 		device()->unload(red_down);
 	}
 
-	void render(float dt)
+	void update(float dt)
 	{
+		poll_input();
+
 		Renderer* renderer = device()->renderer();
 
 		renderer->set_clear_color(Color4::LIGHTBLUE);
@@ -276,6 +256,6 @@ extern "C"
 
 	void frame(float dt)
 	{
-		m_scene.render(dt);
+		m_scene.update(dt);
 	}
 }

@@ -23,44 +23,21 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "Types.h"
-
-#define MAX_EVENT_QUEUE_SIZE 64 * 1024
+#include "Accelerometer.h"
 
 namespace crown
 {
 
-/**
-	Buffer of variable-lenght events.
-
-	[type1][size1][struct1][type2][size2][struct2]...
-*/
-class EventBuffer
+//-----------------------------------------------------------------------------
+Accelerometer::Accelerometer() :
+	m_orientation(0.0f, 0.0f, 0.0f)
 {
+}
 
-public:
-
-				EventBuffer();
-				~EventBuffer();
-
-	void		PushEvent(uint32_t eventType, void* eventData, size_t eventSize);
-	void		PushEventBuffer(uint8_t* eventBuffer, size_t bufferSize);
-
-	void*		NextEvent(uint32_t& eventType, size_t& size);
-
-	void		Clear();
-	void		Flush();
-
-	size_t		GetSize() const;
-	uint8_t*		GetBuffer();
-
-public:
-
-	size_t		mBufferCount;					// Number of bytes in the buffer
-	uint8_t		mBuffer[MAX_EVENT_QUEUE_SIZE];
-};
+//-----------------------------------------------------------------------------
+const Vec3& Accelerometer::orientation() const
+{
+	return m_orientation;
+}
 
 } // namespace crown
-

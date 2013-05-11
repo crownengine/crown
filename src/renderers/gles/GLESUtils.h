@@ -34,23 +34,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
- * OpenGLES utilities.
- */
+/// OpenGL utilities for converting from wrapped names to GL names and vice-versa.
 class GLES
 {
-
 public:
 
-
-	static GLenum			GetCompareFunction(CompareFunction function);
-	static GLenum			GetBlendFunction(BlendFunction function);
-	static GLenum			GetTextureMode(TextureMode mode);
-	static GLenum			GetTextureWrap(TextureWrap wrap);
-	static void				GetTextureFilter(TextureFilter filter, GLint& minFilter, GLint& magFilter);
-	static GLenum			GetFogMode(FogMode mode);
-	static GLenum			GetPixelFormat(PixelFormat format);
-	static PixelFormat		GetPixelFormatFromGLFormat(GLenum format);
+	static GLenum			compare_function(CompareFunction function);
+	static GLenum			blend_function(BlendFunction function);
+	static GLenum			texture_mode(TextureMode mode);
+	static GLenum			texture_wrap(TextureWrap wrap);
+	static void				texture_filter(TextureFilter filter, GLint& minFilter, GLint& magFilter);
+	static GLenum			fog_mode(FogMode mode);
+	static GLenum			pixel_format(PixelFormat format);
+	static PixelFormat		pixel_format_from_gl_format(GLenum format);
 
 private:
 
@@ -67,7 +63,7 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-inline GLenum GLES::GetCompareFunction(CompareFunction function)
+inline GLenum GLES::compare_function(CompareFunction function)
 {
 	assert(function < CF_COUNT);
 
@@ -75,7 +71,7 @@ inline GLenum GLES::GetCompareFunction(CompareFunction function)
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GLES::GetBlendFunction(BlendFunction function)
+inline GLenum GLES::blend_function(BlendFunction function)
 {
 	assert(function < BF_COUNT);
 
@@ -83,7 +79,7 @@ inline GLenum GLES::GetBlendFunction(BlendFunction function)
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GLES::GetTextureMode(TextureMode mode)
+inline GLenum GLES::texture_mode(TextureMode mode)
 {
 	assert(mode < TM_COUNT);
 
@@ -91,7 +87,7 @@ inline GLenum GLES::GetTextureMode(TextureMode mode)
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GLES::GetTextureWrap(TextureWrap wrap)
+inline GLenum GLES::texture_wrap(TextureWrap wrap)
 {
 	assert(wrap < TW_COUNT);
 
@@ -99,7 +95,7 @@ inline GLenum GLES::GetTextureWrap(TextureWrap wrap)
 }
 
 //-----------------------------------------------------------------------------
-inline void GLES::GetTextureFilter(TextureFilter filter, GLint& minFilter, GLint& magFilter)
+inline void GLES::texture_filter(TextureFilter filter, GLint& minFilter, GLint& magFilter)
 {
 	assert(filter < TF_COUNT);
 
@@ -108,7 +104,7 @@ inline void GLES::GetTextureFilter(TextureFilter filter, GLint& minFilter, GLint
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GLES::GetFogMode(FogMode mode)
+inline GLenum GLES::fog_mode(FogMode mode)
 {
 	assert(mode < FM_COUNT);
 
@@ -116,7 +112,7 @@ inline GLenum GLES::GetFogMode(FogMode mode)
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GLES::GetPixelFormat(PixelFormat format)
+inline GLenum GLES::pixel_format(PixelFormat format)
 {
 	switch (format)
 	{
@@ -134,7 +130,7 @@ inline GLenum GLES::GetPixelFormat(PixelFormat format)
 }
 
 //-----------------------------------------------------------------------------
-inline PixelFormat GLES::GetPixelFormatFromGLFormat(GLenum format)
+inline PixelFormat GLES::pixel_format_from_gl_format(GLenum format)
 {
 	switch (format)
 	{
