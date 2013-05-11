@@ -103,7 +103,7 @@ public:
 
 	virtual TextureId		create_texture(uint32_t width, uint32_t height, PixelFormat format, const void* data) = 0;
 	virtual void			update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data) = 0;
-	virtual void			destroy_texture(TextureId id);
+	virtual void			destroy_texture(TextureId id) = 0;
 
 	//virtual RenderBufferId	create_render_buffer(uint32_t width, uint32_t height, PixelFormat format) = 0;
 	//virtual void			destroy_render_buffer(RenderBufferId id) = 0;
