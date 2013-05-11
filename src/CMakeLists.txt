@@ -240,6 +240,7 @@ set (SCRIPT_SRC
 	script/binds/QuatBinds.cpp
 	script/binds/Mat4Binds.cpp
 	script/binds/CameraBinds.cpp
+	script/binds/MouseBinds.cpp
 )
 
 set (SCRIPT_HEADERS
