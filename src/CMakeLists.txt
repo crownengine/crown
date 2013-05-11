@@ -15,7 +15,6 @@ set (SRC
 
 	FPSSystem.cpp
 	JSONParser.cpp
-	ScriptSystem.cpp
 )
 
 set (HEADERS
@@ -40,7 +39,6 @@ set (HEADERS
 
 	FPSSystem.h
 	JSONParser.h
-	ScriptSystem.h
 )
 
 set (CORE_SRC
@@ -234,13 +232,19 @@ set (NETWORK_HEADERS
 	network/BitMessage.h
 )
 
-set (BINDS_SRC
-	binds/MathBinds.cpp
-	binds/Vec3Binds.cpp
-	binds/QuatBinds.cpp
-	binds/Mat4Binds.cpp
-	binds/CameraBinds.cpp
+set (SCRIPT_SRC
+	script/ScriptSystem.cpp
+	script/binds/MathBinds.cpp
+	script/binds/Vec3Binds.cpp
+	script/binds/QuatBinds.cpp
+	script/binds/Mat4Binds.cpp
+	script/binds/CameraBinds.cpp
 )
+
+set (SCRIPT_HEADERS
+	script/ScriptSystem.h
+)
+
 
 set (CROWN_SOURCES
 	${SRC}
@@ -262,7 +266,7 @@ set (CROWN_SOURCES
 
 	${OS_SRC}
 
-	${BINDS_SRC}
+	${SCRIPT_SRC}
 )
 
 set (CROWN_HEADERS
@@ -285,6 +289,8 @@ set (CROWN_HEADERS
 	${NETWORK_HEADERS}
 
 	${OS_HEADERS}
+
+	${SCRIPT_HEADERS}
 )
 
 include_directories(${CROWN_THIRD}/luajit/include/luajit-2.0)
