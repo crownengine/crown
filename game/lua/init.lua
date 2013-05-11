@@ -4,12 +4,23 @@ local lib_path = os.getenv("LD_LIBRARY_PATH")
 
 lib = ffi.load(lib_path .. "/libcrown.so", true)
 
+require("vec2")
 require("vec3")
 require("mat4")
 require("quat")
 require("math_utils")
--- require("camera")
+require("camera")
 require("script")
+
+--------------------------------------------------------------
+--------------------------------------------------------------
+--------------------------------------------------------------
+print("-- Testing Vec2 --\n")
+local v2 = Vec2.vec2(1.0, 1.0)
+
+print(v2.x)
+print(v2.y)
+
 
 --------------------------------------------------------------
 --------------------------------------------------------------
@@ -23,6 +34,8 @@ pos = Vec3.add(pos, Vec3.vec3(1.0, 2.0, 3.0)
 print(pos.x)
 print(pos.y)
 print(pos.z)
+
+print("-- Testing Vec3.negate --\n")
 
 Vec3.negate(pos)
 
