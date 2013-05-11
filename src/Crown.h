@@ -61,6 +61,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Generic.h"
 #include "Queue.h"
+#include "IdTable.h"
 
 // Core/Strings
 #include "String.h"
@@ -128,5 +129,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Material.h"
 #include "Texture.h"
 #include "DebugRenderer.h"
-#include "Pixel.h"
+#include "PixelFormat.h"
+#include "VertexFormat.h"
 

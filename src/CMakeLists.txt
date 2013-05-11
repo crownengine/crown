@@ -75,6 +75,7 @@ set (CONTAINERS_HEADERS
 	core/containers/Generic.h
 	core/containers/List.h
 	core/containers/RBTree.h
+	core/containers/IdTable.h
 )
 
 set (MATH_SRC
@@ -202,7 +203,8 @@ set (INPUT_HEADERS
 
 set (RENDERERS_SRC
 	renderers/DebugRenderer.cpp
-	renderers/Pixel.cpp
+	renderers/PixelFormat.cpp
+	renderers/VertexFormat.cpp
 )
 
 set (RENDERERS_HEADERS
@@ -213,7 +215,8 @@ set (RENDERERS_HEADERS
 	renderers/Material.h
 	renderers/Texture.h
 	renderers/DebugRenderer.h
-	renderers/Pixel.h
+	renderers/PixelFormat.h
+	renderers/VertexFormat.h
 )
 
 set (OS_HEADERS
