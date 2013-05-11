@@ -150,7 +150,7 @@ public:
 	void				set_matrix(MatrixType type, const Mat4& matrix);
 
 	void				bind_vertex_buffer(VertexBufferId vb) const;
-	void				bind_render_buffer(RenderBufferId id) const;
+	//void				bind_render_buffer(RenderBufferId id) const;
 
 	void				draw_triangles(IndexBufferId id) const;
 
@@ -206,8 +206,8 @@ private:
 	GLIndexBuffer		m_index_buffers[MAX_INDEX_BUFFERS];
 
 	// Render buffer management
-	IdTable				m_render_buffers_id_table;
-	GLRenderBuffer		m_render_buffers[MAX_RENDER_BUFFERS];
+	//IdTable				m_render_buffers_id_table;
+	//GLRenderBuffer		m_render_buffers[MAX_RENDER_BUFFERS];
 
 	friend class		TextureResource;
 };

@@ -208,7 +208,7 @@ public:
 	virtual void set_matrix(MatrixType type, const Mat4& matrix) = 0;
 
 	virtual void bind_vertex_buffer(VertexBufferId vb) const = 0;
-	virtual void bind_render_buffer(RenderBufferId id) const = 0;
+	//virtual void bind_render_buffer(RenderBufferId id) const = 0;
 
 	virtual void draw_triangles(IndexBufferId id) const = 0;
 

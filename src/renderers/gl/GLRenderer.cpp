@@ -64,8 +64,8 @@ GLRenderer::GLRenderer() :
 	m_active_texture_unit(0),
 
 	m_vertex_buffers_id_table(m_allocator, MAX_VERTEX_BUFFERS),
-	m_index_buffers_id_table(m_allocator, MAX_INDEX_BUFFERS),
-	m_render_buffers_id_table(m_allocator, MAX_RENDER_BUFFERS)
+	m_index_buffers_id_table(m_allocator, MAX_INDEX_BUFFERS)
+	//m_render_buffers_id_table(m_allocator, MAX_RENDER_BUFFERS)
 {
 	m_min_max_point_size[0] = 0.0f;
 	m_min_max_point_size[1] = 0.0f;
@@ -817,12 +817,12 @@ void GLRenderer::draw_triangles(IndexBufferId id) const
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::bind_render_buffer(RenderBufferId id) const
-{
-	assert(m_render_buffers_id_table.has(id));
+// void GLRenderer::bind_render_buffer(RenderBufferId id) const
+// {
+// 	assert(m_render_buffers_id_table.has(id));
 
-	const GLRenderBuffer& render_buffer = m_render_buffers[id.index];
-}
+// 	const GLRenderBuffer& render_buffer = m_render_buffers[id.index];
+// }
 
 //-----------------------------------------------------------------------------
 bool GLRenderer::activate_texture_unit(uint32_t unit)
