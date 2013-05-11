@@ -28,9 +28,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Color4.h"
 #include "Mat4.h"
-#include "Point2.h"
-#include "Material.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "RenderBuffer.h"
 #include "Texture.h"
+#include "Material.h"
+#include "PixelFormat.h"
+#include "VertexFormat.h"
+#include "IdTable.h"
 
 namespace crown
 {
@@ -58,12 +63,10 @@ enum LightType
 	LT_SPOT			= 2
 };
 
-enum DrawMode
-{
-	DM_NO_DRAW		= 0,
-	DM_BORDER		= 1,
-	DM_FILL			= 2
-};
+typedef Id VertexBufferId;
+typedef Id IndexBufferId;
+typedef Id RenderBufferId;
+typedef Id TextureId;
 
 class Renderer
 {
@@ -71,6 +74,35 @@ public:
 
 	Renderer() {}
 	virtual ~Renderer() {}
+
+	/// Creates a new vertex buffer optimized for rendering static vertex data.
+	/// @vertices is the array containig @count vertex data elements of the given @format.
+	virtual VertexBufferId	create_vertex_buffer(const void* vertices, size_t count, VertexFormat format) = 0;
+
+	/// Creates a new vertex buffer optimized for rendering dynamic vertex data.
+	/// @vertices is the array containig @count vertex data elements of the given @format.
+	virtual VertexBufferId	create_dynamic_vertex_buffer(const void* vertices, size_t count, VertexFormat format) = 0;
+
+	/// Updates the data associated with the given vertex buffer @id.
+	/// @vertices is the array containig @count vertex data elements of the format
+	/// specified at the creation of the buffer.
+	/// @note
+	/// @count and @offset together do not have to exceed the number of elements specified
+	/// at the creation of the buffer.
+	virtual void			update_vertex_buffer(VertexBufferId id, const void* vertices, size_t count, size_t offset) = 0;
+
+	/// Destroys the @id vertex buffer.
+	virtual void			destroy_vertex_buffer(VertexBufferId id) = 0;
+
+	/// Creates a new index buffer optimized for rendering static index buffers.
+	/// @indices is the array containing @count index data elements.
+	virtual IndexBufferId	create_index_buffer(const void* indices, size_t count) = 0;
+
+	/// Destroys the @id index buffer.
+	virtual void			destroy_index_buffer(IndexBufferId id) = 0;
+
+	//virtual RenderBufferId	create_render_buffer(uint32_t width, uint32_t height, PixelFormat format) = 0;
+	//virtual void			destroy_render_buffer(RenderBufferId id) = 0;
 
 	///	Tasks to perform before a frame is rendered.
 	virtual void begin_frame() = 0;
@@ -91,11 +123,11 @@ public:
 	/// Sets the global ambient light @color.
 	virtual void set_ambient_light(const Color4& color) = 0;
 
+	//! Sets the texture to use in the specified layer
+	virtual void bind_texture(uint32_t layer, TextureId texture) = 0;
+
 	/// Set whether the given texture @unit is enabled.
 	virtual void set_texturing(uint32_t unit, bool texturing) = 0;
-
-	//! Sets the texture to use in the specified layer
-	virtual void set_texture(uint32_t layer, TextureId texture) = 0;
 
 	/// Sets the texture @mode for the given texture @unit.
 	virtual void set_texture_mode(uint32_t unit, TextureMode mode, const Color4& blendColor) = 0;
@@ -175,11 +207,12 @@ public:
 	virtual Mat4 get_matrix(MatrixType type) const = 0;
 	virtual void set_matrix(MatrixType type, const Mat4& matrix) = 0;
 
-	virtual void draw_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices) = 0;
-	virtual void draw_point_buffer(const VertexBuffer* buffer) = 0;
+	virtual void bind_vertex_buffer(VertexBufferId vb) const = 0;
+	virtual void bind_render_buffer(RenderBufferId id) const = 0;
+
+	virtual void draw_triangles(IndexBufferId id) const = 0;
 
 	virtual void draw_lines(const float* vertices, const float* colors, uint32_t count) = 0;
-	virtual void draw_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count) = 0;
 
 	virtual TextureId	load_texture(TextureResource* texture) = 0;
 	virtual void		unload_texture(TextureResource* texture) = 0;

@@ -26,25 +26,50 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <GL/glew.h>
-#include "Renderer.h"
-#include "Resource.h"
 
-#define MAX_TEXTURES 1024
-#define MAX_TEXTURE_UNITS 8
-#define MAX_MODEL_MATRIX_STACK_DEPTH 100
+#include "Renderer.h"
+#include "Texture.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "RenderBuffer.h"
+#include "IdTable.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
 
+const uint32_t MAX_TEXTURE_UNITS = 8;
+
 class TextureResource;
 
-/// OpenGL texture
+//-----------------------------------------------------------------------------
 struct GLTexture
 {
-	TextureId			id;
-	TextureResource*	texture_resource;
+	GLuint				gl_object;
 
-	GLuint				texture_object;
+	TextureResource*	texture_resource;
+};
+
+//-----------------------------------------------------------------------------
+struct GLVertexBuffer
+{
+	GLuint				gl_object;
+	size_t				count;
+	VertexFormat		format;
+};
+
+//-----------------------------------------------------------------------------
+struct GLIndexBuffer
+{
+	GLuint				gl_object;
+	uint32_t			index_count;
+};
+
+//-----------------------------------------------------------------------------
+struct GLRenderBuffer
+{
+	GLuint				gl_frame_buffer;
+	GLuint				gl_render_buffer;
 };
 
 /// OpenGL renderer
@@ -55,6 +80,17 @@ public:
 						GLRenderer();
 						~GLRenderer();
 
+	VertexBufferId		create_vertex_buffer(const void* vertices, size_t count, VertexFormat format);
+	VertexBufferId		create_dynamic_vertex_buffer(const void* vertices, size_t count, VertexFormat format);
+	void				update_vertex_buffer(VertexBufferId id, const void* vertices, size_t count, size_t offset);
+	void				destroy_vertex_buffer(VertexBufferId id);
+
+	IndexBufferId		create_index_buffer(const void* indices, size_t count);
+	void				destroy_index_buffer(IndexBufferId id);
+
+	// RenderBufferId	create_render_buffer(uint32_t width, uint32_t height, PixelFormat format);
+	// void				destroy_render_buffer(RenderBufferId id);
+
 	void				begin_frame();
 	void				end_frame();
 
@@ -64,8 +100,8 @@ public:
 	void				set_lighting(bool lighting);
 	void				set_ambient_light(const Color4& color);
 
+	void				bind_texture(uint32_t unit, TextureId texture);
 	void				set_texturing(uint32_t unit, bool texturing);
-	void				set_texture(uint32_t unit, TextureId texture);
 	void				set_texture_mode(uint32_t unit, TextureMode mode, const Color4& blendColor);
 	void				set_texture_wrap(uint32_t unit, TextureWrap wrap);
 	void				set_texture_filter(uint32_t unit, TextureFilter filter);
@@ -113,11 +149,12 @@ public:
 	Mat4				get_matrix(MatrixType type) const;
 	void				set_matrix(MatrixType type, const Mat4& matrix);
 
-	void				draw_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices);
-	void				draw_point_buffer(const VertexBuffer* buffer);
+	void				bind_vertex_buffer(VertexBufferId vb) const;
+	void				bind_render_buffer(RenderBufferId id) const;
+
+	void				draw_triangles(IndexBufferId id) const;
 
 	void				draw_lines(const float* vertices, const float* colors, uint32_t count);
-	void				draw_triangles(const float* vertices, const float* normals, const float* uvs, const uint16_t* indices, uint32_t count);
 
 	TextureId			load_texture(TextureResource* texture);
 	void				unload_texture(TextureResource* texture);
@@ -132,6 +169,8 @@ private:
 	void				check_gl_errors();
 
 private:
+
+	MallocAllocator		m_allocator;
 
 	// Matrices
 	Mat4				m_matrix[MT_COUNT];
@@ -152,14 +191,25 @@ private:
 	int32_t				m_scissor[4];
 
 	// Texture management
-	uint32_t			m_texture_count;
+	IdTable 			m_textures_id_table;
 	GLTexture			m_textures[MAX_TEXTURES];
 
 	uint32_t			m_active_texture_unit;
 	GLuint				m_texture_unit[MAX_TEXTURE_UNITS];
 	GLenum				m_texture_unit_target[MAX_TEXTURE_UNITS];
 
-	friend class TextureResource;
+	// Vertex/Index buffer management
+	IdTable				m_vertex_buffers_id_table;
+	GLVertexBuffer		m_vertex_buffers[MAX_VERTEX_BUFFERS];
+
+	IdTable				m_index_buffers_id_table;
+	GLIndexBuffer		m_index_buffers[MAX_INDEX_BUFFERS];
+
+	// Render buffer management
+	IdTable				m_render_buffers_id_table;
+	GLRenderBuffer		m_render_buffers[MAX_RENDER_BUFFERS];
+
+	friend class		TextureResource;
 };
 
 } // namespace crown

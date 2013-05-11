@@ -29,22 +29,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cassert>
 #include "Texture.h"
 #include "Material.h"
-#include "Pixel.h"
-
-#include "Config.h"
-#if defined(WINDOWS)
-	//Define the missing constants in vs' gl.h
-	#define GL_TEXTURE_3D					0x806F
-	#define GL_TEXTURE_CUBE_MAP				0x8513
-#endif
+#include "PixelFormat.h"
 
 namespace crown
 {
 
-/// OpenGL Utilities for converting from wrapped names to GL names and vice-versa.
+/// OpenGL utilities for converting from wrapped names to GL names and vice-versa.
 class GL
 {
-
 public:
 
 	static GLenum			compare_function(CompareFunction function);
