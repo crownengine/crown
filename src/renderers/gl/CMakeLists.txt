@@ -3,13 +3,11 @@ cmake_minimum_required(VERSION 2.8)
 project(crown-gl)
 
 set (GL_SRC
-	GLOcclusionQuery.cpp
 	GLRenderer.cpp
 	GLUtils.cpp
 )
 
 set (GL_HEADERS
-	GLOcclusionQuery.h
 	GLRenderer.h
 	GLUtils.h
 )

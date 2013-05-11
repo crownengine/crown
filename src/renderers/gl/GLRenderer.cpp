@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <algorithm>
 
 #include "Types.h"
-#include "GLOcclusionQuery.h"
 #include "GLRenderer.h"
 #include "GLUtils.h"
 #include "Log.h"
