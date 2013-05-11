@@ -6,6 +6,7 @@
 #include "String.h"
 #include "ScriptResource.h"
 
+#include "Vec2.h"
 #include "Vec3.h"
 #include "Mat4.h"
 #include "Quat.h"
@@ -51,12 +52,16 @@ public:
 	void						execute();
 								/// Unloads script resource
 	void						unload(ScriptResource* script);
+								/// Returns the first free Vec2
+	Vec2&						next_vec2(float nx, float ny);
 								/// Returns the first free Vec3
-	Vec3*						next_vec3(float nx, float ny, float nz);
+	Vec3&						next_vec3(float nx, float ny, float nz);
 								/// Returns the first free Mat4
-	Mat4*						next_mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3);	
+	Mat4&						next_mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3);	
 								/// Returns the first free Quat
-	Quat*						next_quat(float angle, const Vec3* v);
+	Quat&						next_quat(float angle, const Vec3& v);
+								/// Returns the number of vec2 used in lua environment
+	uint32_t					vec2_used();
 								/// Returns the number of vec3 used in lua environment
 	uint32_t					vec3_used();
 								/// Returns the number of mat4 used in lua environment
@@ -74,12 +79,15 @@ private:
 								ScriptSystem& operator=(const ScriptSystem&);
 
 	LuaState 					m_state;
-
-								/// Vectors used by lua environment
+								/// Vec2 used by lua environment
+	Vec2 						m_vec2_list[MAX_TEMP_OBJECTS];
+								/// Counter which points to the next free Vec2
+	uint32_t					m_vec2_count;
+								/// Vec3 used by lua environment
 	Vec3						m_vec3_list[MAX_TEMP_OBJECTS];
 								/// Counter which points to the next free Vec3
 	uint32_t					m_vec3_count;
-								/// Matrix used by lua environment
+								/// Mat4 used by lua environment
 	Mat4						m_mat4_list[MAX_TEMP_OBJECTS];
 								/// Counter which points to the next free Mat4
 	uint32_t					m_mat4_count;

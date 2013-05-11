@@ -52,6 +52,7 @@ int32_t LuaState::execute()
 //-----------------------------------------------------------
 ScriptSystem::ScriptSystem() :
 m_state(),
+m_vec2_count(0),
 m_vec3_count(0),
 m_mat4_count(0),
 m_quat_count(0)
@@ -78,7 +79,20 @@ void ScriptSystem::unload(ScriptResource* resource)
 }
 
 //-----------------------------------------------------------
-Vec3* ScriptSystem::next_vec3(float nx, float ny, float nz)
+Vec2& ScriptSystem::next_vec2(float nx, float ny)
+{
+	uint32_t current = m_vec2_count;
+
+	m_vec2_list[current].x = nx;
+	m_vec2_list[current].y = ny;
+
+	m_vec2_count++;
+
+	return m_vec2_list[current];
+}
+
+//-----------------------------------------------------------
+Vec3& ScriptSystem::next_vec3(float nx, float ny, float nz)
 {
 	uint32_t current = m_vec3_count;
 
@@ -88,11 +102,11 @@ Vec3* ScriptSystem::next_vec3(float nx, float ny, float nz)
 
 	m_vec3_count++;
 
-	return &m_vec3_list[current];
+	return m_vec3_list[current];
 }
 
 //-----------------------------------------------------------
-Mat4* ScriptSystem::next_mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3)
+Mat4& ScriptSystem::next_mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3)
 {
 	uint32_t current = m_mat4_count;
 
@@ -115,22 +129,27 @@ Mat4* ScriptSystem::next_mat4(float r1c1, float r2c1, float r3c1, float r1c2, fl
 
 	m_mat4_count++;
 
-	return &m_mat4_list[current];
+	return m_mat4_list[current];
 }
 
 //-----------------------------------------------------------
-Quat* ScriptSystem::next_quat(float angle, const Vec3* v)
+Quat& ScriptSystem::next_quat(float angle, const Vec3& v)
 {
 	uint32_t current = m_quat_count;
 
 	m_quat_list[current].w = angle;
-	m_quat_list[current].v = *v;
+	m_quat_list[current].v = v;
 
 	m_quat_count++;
 
-	return &m_quat_list[current];
+	return m_quat_list[current];
 }
 
+//-----------------------------------------------------------
+uint32_t ScriptSystem::vec2_used()
+{
+	return m_vec2_count;
+}
 //-----------------------------------------------------------
 uint32_t ScriptSystem::vec3_used()
 {
@@ -149,6 +168,7 @@ uint32_t ScriptSystem::quat_used()
 	return m_quat_count;
 }
 
+//-----------------------------------------------------------
 ScriptSystem g_script;
 
 ScriptSystem* scripter()
@@ -159,6 +179,10 @@ ScriptSystem* scripter()
 //-----------------------------------------------------------
 extern "C"
 {
+uint32_t script_system_vec2_used()
+{
+	return scripter()->vec2_used();
+}
 
 uint32_t script_system_vec3_used()
 {
