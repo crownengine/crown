@@ -125,7 +125,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Renderer.h"
-#include "OcclusionQuery.h"
 #include "Material.h"
 #include "Texture.h"
 #include "DebugRenderer.h"

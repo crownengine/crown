@@ -211,7 +211,6 @@ set (RENDERERS_HEADERS
 	renderers/Renderer.h
 	renderers/IndexBuffer.h
 	renderers/VertexBuffer.h
-	renderers/OcclusionQuery.h
 	renderers/Material.h
 	renderers/Texture.h
 	renderers/DebugRenderer.h
