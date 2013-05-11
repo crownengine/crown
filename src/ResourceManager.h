@@ -157,6 +157,8 @@ private:
 	// Resources already loaded, ready to bring online
 	Queue<LoadedResource>	m_loaded_queue;
 
+	uint32_t				m_seed;
+
 	// Background loading thread
 	bool 					m_background_thread_should_run;
 	Thread					m_thread;
