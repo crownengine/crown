@@ -1,6 +1,7 @@
 #include "Device.h"
 #include "ScriptSystem.h"
 #include "Mouse.h"
+#include "OS.h"
 
 namespace crown
 {
@@ -70,11 +71,14 @@ bool mouse_button_released(uint32_t button)
 			return false;
 		}
 	}
+
+
 	return device()->mouse()->button_released(b);
 }
 
 Vec2& mouse_cursor_xy()
 {
+
 	Point2 tmp = device()->mouse()->cursor_xy();
 
 	return scripter()->next_vec2(tmp.x, tmp.y);
