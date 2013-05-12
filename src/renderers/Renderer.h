@@ -40,12 +40,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Image;
-class VertexBuffer;
-class IndexBuffer;
-class OcclusionQuery;
-class TextureResource;
-
 enum MatrixType
 {
 	MT_VIEW			= 0,
@@ -71,12 +65,19 @@ typedef Id VertexShaderId;
 typedef Id PixelShaderId;
 typedef Id GPUProgramId;
 
+class VertexBuffer;
+class IndexBuffer;
+class Vec2;
+class Vec3;
+class Vec4;
+class Mat4;
+
 class Renderer
 {
 public:
 
-	Renderer() {}
-	virtual ~Renderer() {}
+							Renderer() {}
+	virtual					~Renderer() {}
 
 	/// Creates a new vertex buffer optimized for rendering static vertex data.
 	/// @vertices is the array containig @count vertex data elements of the given @format.
@@ -116,6 +117,16 @@ public:
 
 	virtual GPUProgramId	create_gpu_program(VertexShaderId vs, PixelShaderId ps) = 0;
 	virtual void			destroy_gpu_program(GPUProgramId id) = 0;
+
+	virtual void			set_gpu_program_bool_uniform(GPUProgramId id, const char* name, bool value) = 0;
+	virtual void			set_gpu_program_int_uniform(GPUProgramId id, const char* name, int value) = 0;
+
+	virtual void			set_gpu_program_vec2_uniform(GPUProgramId id, const char* name, const Vec2& value) = 0;
+	virtual void			set_gpu_program_vec3_uniform(GPUProgramId id, const char* name, const Vec3& value) = 0;
+	virtual void			set_gpu_program_vec4_uniform(GPUProgramId id, const char* name, const Vec4& value) = 0;
+
+	virtual void			set_gpu_porgram_mat3_uniform(GPUProgramId id, const char* name, const Mat3& value) = 0;
+	virtual void			set_gpu_program_mat4_uniform(GPUProgramId id, const char* name, const Mat4& value) = 0;
 
 	virtual void			bind_gpu_program(GPUProgramId id) const = 0;
 

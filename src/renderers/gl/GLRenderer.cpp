@@ -34,8 +34,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GLUtils.h"
 #include "Log.h"
 #include "Material.h"
-#include "TextureResource.h"
+#include "Vec2.h"
 #include "Vec3.h"
+#include "Vec4.h"
+#include "Mat3.h"
+#include "Mat4.h"
 
 #if defined(WINDOWS)
 	//Define the missing constants in vs' gl.h
@@ -447,6 +450,76 @@ void GLRenderer::destroy_gpu_program(GPUProgramId id)
 	GLGPUProgram& gl_program = m_gpu_programs[id.index];
 
 	glDeleteProgram(gl_program.gl_object);
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::set_gpu_program_bool_uniform(GPUProgramId id, const char* name, bool value)
+{
+	assert(m_gpu_programs_id_table.has(id));
+
+	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
+
+	glUniform1i(uniform, (GLint) value);
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::set_gpu_program_int_uniform(GPUProgramId id, const char* name, int value)
+{
+	assert(m_gpu_programs_id_table.has(id));
+
+	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
+
+	glUniform1i(uniform, (GLint) value);
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::set_gpu_program_vec2_uniform(GPUProgramId id, const char* name, const Vec2& value)
+{
+	assert(m_gpu_programs_id_table.has(id));
+
+	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
+
+	glUniform2fv(uniform, 1, value.to_float_ptr());
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::set_gpu_program_vec3_uniform(GPUProgramId id, const char* name, const Vec3& value)
+{
+	assert(m_gpu_programs_id_table.has(id));
+
+	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
+
+	glUniform3fv(uniform, 1, value.to_float_ptr());
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::set_gpu_program_vec4_uniform(GPUProgramId id, const char* name, const Vec4& value)
+{
+	assert(m_gpu_programs_id_table.has(id));
+
+	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
+
+	glUniform4fv(uniform, 1, value.to_float_ptr());
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::set_gpu_porgram_mat3_uniform(GPUProgramId id, const char* name, const Mat3& value)
+{
+	assert(m_gpu_programs_id_table.has(id));
+
+	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
+
+	glUniformMatrix3fv(uniform, 1, GL_TRUE, value.to_float_ptr());
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::set_gpu_program_mat4_uniform(GPUProgramId id, const char* name, const Mat4& value)
+{
+	assert(m_gpu_programs_id_table.has(id));
+
+	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
+
+	glUniformMatrix4fv(uniform, 1, GL_TRUE, value.to_float_ptr());
 }
 
 //-----------------------------------------------------------------------------
@@ -1007,20 +1080,6 @@ void GLRenderer::draw_triangles(IndexBufferId id) const
 // }
 
 //-----------------------------------------------------------------------------
-bool GLRenderer::activate_texture_unit(uint32_t unit)
-{
-	if (unit >= (uint32_t) m_max_texture_units)
-	{
-		return false;
-	}
-
-	glActiveTexture(GL_TEXTURE0 + unit);
-	m_active_texture_unit = unit;
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
 void GLRenderer::set_light(uint32_t light, bool active)
 {
 	if (light >= (uint32_t) m_max_lights)
@@ -1092,7 +1151,31 @@ void GLRenderer::draw_lines(const float* vertices, const float* colors, uint32_t
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::check_gl_errors()
+bool GLRenderer::activate_texture_unit(uint32_t unit)
+{
+	if (unit >= (uint32_t) m_max_texture_units)
+	{
+		return false;
+	}
+
+	glActiveTexture(GL_TEXTURE0 + unit);
+	m_active_texture_unit = unit;
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+GLint GLRenderer::find_gpu_program_uniform(GLuint program, const char* name) const
+{
+	GLint uniform = glGetUniformLocation(program, name);
+
+	assert(uniform != -1);
+
+	return uniform;
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::check_gl_errors() const
 {
 	GLenum error;
 

@@ -98,29 +98,46 @@ public:
 						GLRenderer();
 						~GLRenderer();
 
+	// Vertex buffers
 	VertexBufferId		create_vertex_buffer(size_t count, VertexFormat format, const void* vertices);
 	VertexBufferId		create_dynamic_vertex_buffer(size_t count, VertexFormat format, const void* vertices);
 	void				update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices);
 	void				destroy_vertex_buffer(VertexBufferId id);
 
+	// Index buffers
 	IndexBufferId		create_index_buffer(size_t count, const void* indices);
 	void				destroy_index_buffer(IndexBufferId id);
 
+	// Textures
 	TextureId			create_texture(uint32_t width, uint32_t height, PixelFormat format, const void* data);
 	void				update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data);
 	void				destroy_texture(TextureId id);
 
+	// Vertex shaders
 	VertexShaderId		create_vertex_shader(const char* program);
 	void				destroy_vertex_shader(VertexShaderId id);
 
+	// Pixel shaders
 	PixelShaderId 		create_pixel_shader(const char* program);
 	void				destroy_pixel_shader(PixelShaderId id);
 
+	// GPU programs
 	GPUProgramId		create_gpu_program(VertexShaderId vs, PixelShaderId ps);
 	void				destroy_gpu_program(GPUProgramId id);
 
+	void				set_gpu_program_bool_uniform(GPUProgramId id, const char* name, bool value);
+	void				set_gpu_program_int_uniform(GPUProgramId id, const char* name, int value);
+
+	void				set_gpu_program_vec2_uniform(GPUProgramId id, const char* name, const Vec2& value);
+	void				set_gpu_program_vec3_uniform(GPUProgramId id, const char* name, const Vec3& value);
+	void				set_gpu_program_vec4_uniform(GPUProgramId id, const char* name, const Vec4& value);
+
+	void				set_gpu_porgram_mat3_uniform(GPUProgramId id, const char* name, const Mat3& value);
+	void				set_gpu_program_mat4_uniform(GPUProgramId id, const char* name, const Mat4& value);
+
 	void				bind_gpu_program(GPUProgramId id) const;
 
+	// Frame buffers
 	// RenderBufferId	create_render_buffer(uint32_t width, uint32_t height, PixelFormat format);
 	// void				destroy_render_buffer(RenderBufferId id);
 
@@ -191,11 +208,15 @@ public:
 
 private:
 
-	/// Activates a texture unit and returns true if succes
+	// Activates a texture unit and returns true if succes
 	bool				activate_texture_unit(uint32_t unit);
 	bool				activate_light(uint32_t light);
 
-	void				check_gl_errors();
+	// Shaders
+	GLint				find_gpu_program_uniform(GLuint program, const char* name) const;
+
+	// GL error checking
+	void				check_gl_errors() const;
 
 private:
 
