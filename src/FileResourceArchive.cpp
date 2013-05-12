@@ -46,7 +46,7 @@ FileResourceArchive::~FileResourceArchive()
 }
 
 //-----------------------------------------------------------------------------
-FileStream* FileResourceArchive::find(ResourceId name)
+FileStream* FileResourceArchive::open(ResourceId name)
 {
 	// Convert name/type into strings
 	char resource_name[512];
@@ -65,8 +65,12 @@ FileStream* FileResourceArchive::find(ResourceId name)
 	file->skip(sizeof(ResourceHeader));
 
 	return file;
+}
 
-	// FIXME NEED TO RELEASE MEMORY FOR file
+//-----------------------------------------------------------------------------
+void FileResourceArchive::close(FileStream* resource)
+{
+	m_filesystem.close(resource);
 }
 
 } // namespace crown

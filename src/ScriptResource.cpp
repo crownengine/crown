@@ -12,7 +12,7 @@ namespace crown
 //-----------------------------------------------------------------------------
 void* ScriptResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
 {
-	FileStream* stream = archive.find(id);
+	FileStream* stream = archive.open(id);
 
 	if (stream != NULL)
 	{
@@ -23,6 +23,8 @@ void* ScriptResource::load(Allocator& allocator, ResourceArchive& archive, Resou
 		resource->m_data = (uint8_t*)allocator.allocate(sizeof(uint8_t) * size);
 
 		stream->read(resource->m_data, size);
+
+		archive.close(stream);
 
 		return resource;
 	}
