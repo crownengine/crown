@@ -63,7 +63,10 @@ GLRenderer::GLRenderer() :
 	m_active_texture_unit(0),
 
 	m_vertex_buffers_id_table(m_allocator, MAX_VERTEX_BUFFERS),
-	m_index_buffers_id_table(m_allocator, MAX_INDEX_BUFFERS)
+	m_index_buffers_id_table(m_allocator, MAX_INDEX_BUFFERS),
+	m_vertex_shaders_id_table(m_allocator, MAX_VERTEX_SHADERS),
+	m_pixel_shaders_id_table(m_allocator, MAX_PIXEL_SHADERS),
+	m_gpu_programs_id_table(m_allocator, 128)
 	//m_render_buffers_id_table(m_allocator, MAX_RENDER_BUFFERS)
 {
 	m_min_max_point_size[0] = 0.0f;
@@ -319,6 +322,141 @@ void GLRenderer::destroy_texture(TextureId id)
 	GLTexture& gl_texture = m_textures[id.index];
 
 	glDeleteTextures(1, &gl_texture.gl_object);
+}
+
+//-----------------------------------------------------------------------------
+VertexShaderId GLRenderer::create_vertex_shader(const char* program)
+{
+	assert(program != NULL);
+
+	const VertexShaderId& id = m_vertex_shaders_id_table.create();
+
+	GLVertexShader& gl_shader = m_vertex_shaders[id.index];
+
+	gl_shader.gl_object = glCreateShader(GL_VERTEX_SHADER);
+
+	glShaderSource(gl_shader.gl_object, 1, &program, NULL);
+
+	glCompileShader(gl_shader.gl_object);
+
+	GLint success;
+	glGetShaderiv(gl_shader.gl_object, GL_COMPILE_STATUS, &success);
+
+	if (!success)
+	{
+		GLchar info_log[256];
+
+		glGetShaderInfoLog(gl_shader.gl_object, 256, NULL, info_log);
+
+		Log::e("Vertex shader compilation failed.");
+		Log::e("Log: %s", info_log);
+		assert(0);
+	}
+
+	return id;
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::destroy_vertex_shader(VertexShaderId id)
+{
+	assert(m_vertex_shaders_id_table.has(id));
+
+	GLVertexShader& gl_shader = m_vertex_shaders[id.index];
+
+	glDeleteShader(gl_shader.gl_object);
+}
+
+//-----------------------------------------------------------------------------
+PixelShaderId GLRenderer::create_pixel_shader(const char* program)
+{
+	assert(program != NULL);
+
+	const PixelShaderId& id = m_pixel_shaders_id_table.create();
+
+	GLPixelShader& gl_shader = m_pixel_shaders[id.index];
+
+	gl_shader.gl_object = glCreateShader(GL_FRAGMENT_SHADER);
+
+	glShaderSource(gl_shader.gl_object, 1, &program, NULL);
+
+	glCompileShader(gl_shader.gl_object);
+
+	GLint success;
+	glGetShaderiv(gl_shader.gl_object, GL_COMPILE_STATUS, &success);
+
+	if (!success)
+	{
+		GLchar info_log[256];
+
+		glGetShaderInfoLog(gl_shader.gl_object, 256, NULL, info_log);
+
+		Log::e("Pixel shader compilation failed.");
+		Log::e("Log: %s", info_log);
+		assert(0);
+	}
+
+	return id;	
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::destroy_pixel_shader(PixelShaderId id)
+{
+	assert(m_pixel_shaders_id_table.has(id));
+
+	GLPixelShader& gl_shader = m_pixel_shaders[id.index];
+
+	glDeleteShader(gl_shader.gl_object);	
+}
+
+//-----------------------------------------------------------------------------
+GPUProgramId GLRenderer::create_gpu_program(VertexShaderId vs, PixelShaderId ps)
+{
+	assert(m_vertex_shaders_id_table.has(vs));
+	assert(m_pixel_shaders_id_table.has(ps));
+
+	const GPUProgramId id = m_gpu_programs_id_table.create();
+
+	GLGPUProgram& gl_program = m_gpu_programs[id.index];
+
+	gl_program.gl_object = glCreateProgram();
+
+	glAttachShader(gl_program.gl_object, m_vertex_shaders[id.index].gl_object);
+	glAttachShader(gl_program.gl_object, m_pixel_shaders[id.index].gl_object);
+
+	glLinkProgram(gl_program.gl_object);
+
+	GLint success;
+	glGetProgramiv(gl_program.gl_object, GL_LINK_STATUS, &success);
+
+	if (!success)
+	{
+		GLchar info_log[256];
+		glGetProgramInfoLog(gl_program.gl_object, 256, NULL, info_log);
+		Log::e("GPU program compilation failed.\n");
+		Log::e("Log: %s", info_log);
+	}
+
+	return id;
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::destroy_gpu_program(GPUProgramId id)
+{
+	assert(m_gpu_programs_id_table.has(id));
+
+	GLGPUProgram& gl_program = m_gpu_programs[id.index];
+
+	glDeleteProgram(gl_program.gl_object);
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::bind_gpu_program(GPUProgramId id) const
+{
+	assert(m_gpu_programs_id_table.has(id));
+
+	const GLGPUProgram& gl_program = m_gpu_programs[id.index];
+
+	glUseProgram(gl_program.gl_object);
 }
 
 //-----------------------------------------------------------------------------

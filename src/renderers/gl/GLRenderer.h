@@ -32,6 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "RenderBuffer.h"
+#include "VertexShader.h"
+#include "PixelShader.h"
 #include "IdTable.h"
 #include "MallocAllocator.h"
 
@@ -71,6 +73,23 @@ struct GLRenderBuffer
 	GLuint				gl_render_buffer;
 };
 
+//-----------------------------------------------------------------------------
+struct GLVertexShader
+{
+	GLuint				gl_object;
+};
+
+//-----------------------------------------------------------------------------
+struct GLPixelShader
+{
+	GLuint				gl_object;
+};
+
+struct GLGPUProgram
+{
+	GLuint				gl_object;
+};
+
 /// OpenGL renderer
 class GLRenderer : public Renderer
 {
@@ -90,6 +109,17 @@ public:
 	TextureId			create_texture(uint32_t width, uint32_t height, PixelFormat format, const void* data);
 	void				update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data);
 	void				destroy_texture(TextureId id);
+
+	VertexShaderId		create_vertex_shader(const char* program);
+	void				destroy_vertex_shader(VertexShaderId id);
+
+	PixelShaderId 		create_pixel_shader(const char* program);
+	void				destroy_pixel_shader(PixelShaderId id);
+
+	GPUProgramId		create_gpu_program(VertexShaderId vs, PixelShaderId ps);
+	void				destroy_gpu_program(GPUProgramId id);
+
+	void				bind_gpu_program(GPUProgramId id) const;
 
 	// RenderBufferId	create_render_buffer(uint32_t width, uint32_t height, PixelFormat format);
 	// void				destroy_render_buffer(RenderBufferId id);
@@ -203,6 +233,15 @@ private:
 
 	IdTable				m_index_buffers_id_table;
 	GLIndexBuffer		m_index_buffers[MAX_INDEX_BUFFERS];
+
+	IdTable 			m_vertex_shaders_id_table;
+	GLVertexShader		m_vertex_shaders[MAX_VERTEX_SHADERS];
+
+	IdTable 			m_pixel_shaders_id_table;
+	GLPixelShader		m_pixel_shaders[MAX_PIXEL_SHADERS];
+
+	IdTable 			m_gpu_programs_id_table;
+	GLGPUProgram		m_gpu_programs[128];
 
 	// Render buffer management
 	//IdTable				m_render_buffers_id_table;
