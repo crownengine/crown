@@ -170,13 +170,6 @@ public:
 	/// Sets the clearing color of the framebuffer.
 	virtual void			set_clear_color(const Color4& color) = 0;
 
-	virtual void			set_material_params(const Color4& ambient, const Color4& diffuse, const Color4& specular,
-												const Color4& emission, int32_t shininess) = 0;
-
-	
-	/// Sets whether lighting is enabled.
-	virtual void			set_lighting(bool lighting) = 0;
-
 	/// Sets the global ambient light @color.
 	virtual void			set_ambient_light(const Color4& color) = 0;
 
@@ -195,16 +188,8 @@ public:
 	/// Sets the @filter for the given texture @unit.
 	virtual void			set_texture_filter(uint32_t unit, TextureFilter filter) = 0;
 
-	virtual void			set_light(uint32_t light, bool active) = 0;
-	virtual void			set_light_params(uint32_t light, LightType type, const Vec3& position) = 0;
-	virtual void			set_light_color(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular) = 0;
-	virtual void			set_light_attenuation(uint32_t light, float constant, float linear, float quadratic) = 0;
-
 	/// Sets whether backface-culling is enabled.
 	virtual void			set_backface_culling(bool culling) = 0;
-
-	/// Sets whether separate specular color is enabled.	
-	virtual void			set_separate_specular_color(bool separate) = 0;
 
 	/// Sets whether depth test is enabled.
 	virtual void			set_depth_test(bool test) = 0;
@@ -214,13 +199,6 @@ public:
 
 	/// Sets the depth function to use when testing depth values.
 	virtual void			set_depth_func(CompareFunction func) = 0;
-
-	///	Sets whether normal vectors are scaled after transformations
-	///	and before lighting.
-	/// @note
-	///	If the modelview matrix scales space uniformly, this
-	///	has the effect of restoring the trasformed normal to unit length.
-	virtual void			set_rescale_normals(bool rescale) = 0;
 
 	/// Sets whether blending is enabled.
 	virtual void			set_blending(bool blending) = 0;
@@ -234,19 +212,7 @@ public:
 	/// Sets whether writing to color buffer is enabled.
 	virtual void			set_color_write(bool write) = 0;
 
-	/// Sets whether fog is enabled.
-	virtual void			set_fog(bool fog) = 0;
-
-	/// Specifies fog parameters.
-	virtual void			set_fog_params(FogMode mode, float density, float start, float end, const Color4& color) = 0;
-
-	virtual void			set_alpha_test(bool test) = 0;
-
-	virtual void			set_alpha_params(CompareFunction func, float ref) = 0;
-
 	virtual void			set_shading_type(ShadingType type) = 0;
-
-	virtual void 			set_polygon_mode(PolygonMode mode) = 0;
 				
 	virtual void 			set_front_face(FrontFace face) = 0;
 				

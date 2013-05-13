@@ -153,42 +153,27 @@ public:
 	// RenderBufferId	create_render_buffer(uint32_t width, uint32_t height, PixelFormat format);
 	// void				destroy_render_buffer(RenderBufferId id);
 
+	// Called once a frame
 	void				begin_frame();
 	void				end_frame();
 
 	void				set_clear_color(const Color4& color);
 
-	void				set_material_params(const Color4& ambient, const Color4& diffuse, const Color4& specular, const Color4& emission, int32_t shininess);
-	void				set_lighting(bool lighting);
+	// Lighting
 	void				set_ambient_light(const Color4& color);
-
-	void				set_light(uint32_t light, bool active);
-	void				set_light_params(uint32_t light, LightType type, const Vec3& position);
-	void				set_light_color(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular);
-	void				set_light_attenuation(uint32_t light, float constant, float linear, float quadratic);
 
 	void				set_backface_culling(bool culling);
 
-	void				set_separate_specular_color(bool separate);
-
+	// Fragment operations
 	void				set_depth_test(bool test);
 	void				set_depth_write(bool write);
 	void				set_depth_func(CompareFunction func);
-
-	void				set_rescale_normals(bool rescale);
 
 	void				set_blending(bool blending);
 	void				set_blending_params(BlendEquation equation, BlendFunction src, BlendFunction dst, const Color4& color);
 	void				set_color_write(bool write);
 
-	void				set_fog(bool fog);
-	void				set_fog_params(FogMode mode, float density, float start, float end, const Color4& color);
-
-	void				set_alpha_test(bool test);
-	void				set_alpha_params(CompareFunction func, float ref);
-
 	void				set_shading_type(ShadingType type);
-	void				set_polygon_mode(PolygonMode mode);
 	void				set_front_face(FrontFace face);
 
 	void				set_viewport_params(int32_t x, int32_t y, int32_t width, int32_t height);
@@ -236,8 +221,10 @@ private:
 	// Matrices
 	Mat4				m_matrix[MT_COUNT];
 
+	Mat4				m_model_view_matrix;
+	Mat4				m_model_view_projection_matrix;
+
 	// Limits
-	int32_t				m_max_lights;
 	int32_t				m_max_texture_size;
 	int32_t				m_max_texture_units;
 	int32_t				m_max_vertex_indices;
@@ -250,6 +237,9 @@ private:
 	// Viewport and scissor
 	int32_t				m_viewport[4];
 	int32_t				m_scissor[4];
+
+	// Lighting
+	Color4				m_ambient_light_color;
 
 	// Texture management
 	IdTable 			m_textures_id_table;

@@ -131,9 +131,6 @@ void DebugRenderer::draw_all()
 {
 	if (m_lines_count > 0)
 	{
-		m_renderer.set_lighting(false);
-		m_renderer.set_texturing(0, false);
-
 		m_renderer.draw_lines(m_lines[0].to_float_ptr(), m_colors[0].to_float_ptr(), m_lines_count * 2);
 	}
 

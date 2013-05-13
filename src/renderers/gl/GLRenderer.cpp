@@ -59,12 +59,13 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 GLRenderer::GLRenderer() :
-	m_max_lights(0),
 	m_max_texture_size(0),
 	m_max_texture_units(0),
 	m_max_vertex_indices(0),
 	m_max_vertex_vertices(0),
 	m_max_anisotropy(0.0f),
+
+	m_ambient_light_color(Color4::GRAY),
 
 	m_textures_id_table(m_allocator, MAX_TEXTURES),
 	m_active_texture_unit(0),
@@ -105,13 +106,22 @@ GLRenderer::GLRenderer() :
 		m_matrix[i].load_identity();
 	}
 
+	m_model_view_matrix.load_identity();
+	m_model_view_projection_matrix.load_identity();
+}
+
+//-----------------------------------------------------------------------------
+GLRenderer::~GLRenderer()
+{
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::init()
+{
 	GLenum err = glewInit();
 
 	assert(err == GLEW_OK);
 
-	Log::i("GLEW initialized.");
-
-	glGetIntegerv(GL_MAX_LIGHTS, &m_max_lights);
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size);
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &m_max_texture_units);
 	glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &m_max_vertex_indices);
@@ -126,56 +136,31 @@ GLRenderer::GLRenderer() :
 	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &m_min_max_point_size[0]);
 	glGetFloatv(GL_LINE_WIDTH_RANGE, &m_min_max_line_width[0]);
 
-	const unsigned char* gl_vendor = glGetString(GL_VENDOR);
-	const unsigned char* gl_renderer = glGetString(GL_RENDERER);
-	const unsigned char* gl_version = glGetString(GL_VERSION);
+	Log::i("OpenGL Vendor\t: %s", glGetString(GL_VENDOR));
+	Log::i("OpenGL Renderer\t: %s", glGetString(GL_RENDERER));
+	Log::i("OpenGL Version\t: %s", glGetString(GL_VERSION));
 
-	Log::i("OpenGL Vendor\t: %s", gl_vendor);
-	Log::i("OpenGL Renderer\t: %s", gl_renderer);
-	Log::i("OpenGL Version\t: %s", gl_version);
-	Log::i("Min Point Size\t: %f", m_min_max_point_size[0]);
-	Log::i("Max Point Size\t: %f", m_min_max_point_size[1]);
-	Log::i("Min Line Width\t: %f", m_min_max_line_width[0]);
-	Log::i("Max Line Width\t: %f", m_min_max_line_width[1]);
-	Log::i("Max Texture Size\t: %dx%d", m_max_texture_size, m_max_texture_size);
-	Log::i("Max Texture Units\t: %d", m_max_texture_units);
-	Log::i("Max Lights\t\t: %d", m_max_lights);
-	Log::i("Max Vertex Indices\t: %d", m_max_vertex_indices);
-	Log::i("Max Vertex Vertices\t: %d", m_max_vertex_vertices);
-	Log::i("Max Anisotropy\t: %f", m_max_anisotropy);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	Log::d("Min Point Size\t: %f", m_min_max_point_size[0]);
+	Log::d("Max Point Size\t: %f", m_min_max_point_size[1]);
+	Log::d("Min Line Width\t: %f", m_min_max_line_width[0]);
+	Log::d("Max Line Width\t: %f", m_min_max_line_width[1]);
+	Log::d("Max Texture Size\t: %dx%d", m_max_texture_size, m_max_texture_size);
+	Log::d("Max Texture Units\t: %d", m_max_texture_units);
+	Log::d("Max Vertex Indices\t: %d", m_max_vertex_indices);
+	Log::d("Max Vertex Vertices\t: %d", m_max_vertex_vertices);
+	Log::d("Max Anisotropy\t: %f", m_max_anisotropy);
 
 	glDisable(GL_TEXTURE_2D);
 
-	glEnable(GL_LIGHTING);
-
 	glDisable(GL_BLEND);
-	//TODO: Use Premultiplied alpha
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendEquation(GL_FUNC_ADD);
 
 	glFrontFace(GL_CCW);
-
 	glEnable(GL_CULL_FACE);
-
-	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-
 	glShadeModel(GL_SMOOTH);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	// Set the global ambient light
-	float amb[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, amb);
-
-	// Some hints
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-	// Set the framebuffer clear color
+	// Set the default framebuffer clear color
 	glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
 
 	// Enable depth test
@@ -190,16 +175,7 @@ GLRenderer::GLRenderer() :
 	glDisable(GL_DITHER);
 
 	Log::i("OpenGL Renderer initialized.");
-}
 
-//-----------------------------------------------------------------------------
-GLRenderer::~GLRenderer()
-{
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::init()
-{
 	load_default_shaders();
 }
 
@@ -529,7 +505,7 @@ void GLRenderer::set_gpu_porgram_mat3_uniform(GPUProgramId id, const char* name,
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniformMatrix3fv(uniform, 1, GL_TRUE, value.to_float_ptr());
+	glUniformMatrix3fv(uniform, 1, GL_FALSE, value.to_float_ptr());
 }
 
 //-----------------------------------------------------------------------------
@@ -539,7 +515,7 @@ void GLRenderer::set_gpu_program_mat4_uniform(GPUProgramId id, const char* name,
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniformMatrix4fv(uniform, 1, GL_TRUE, value.to_float_ptr());
+	glUniformMatrix4fv(uniform, 1, GL_FALSE, value.to_float_ptr());
 }
 
 //-----------------------------------------------------------------------------
@@ -608,33 +584,9 @@ void GLRenderer::set_clear_color(const Color4& color)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::set_material_params(const Color4& ambient, const Color4& diffuse, const Color4& specular,
-				const Color4& emission, int32_t shininess)
-{
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, &ambient.r);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, &diffuse.r);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, &specular.r);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, &emission.r);
-	glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
-}
-
-//-----------------------------------------------------------------------------
 void GLRenderer::set_ambient_light(const Color4& color)
 {
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color.to_float_ptr());
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_lighting(bool lighting)
-{
-	if (lighting)
-	{
-		glEnable(GL_LIGHTING);
-	}
-	else
-	{
-		glDisable(GL_LIGHTING);
-	}
+	m_ambient_light_color = color;
 }
 
 //-----------------------------------------------------------------------------
@@ -725,19 +677,6 @@ void GLRenderer::set_backface_culling(bool culling)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::set_separate_specular_color(bool separate)
-{
-	if (separate)
-	{
-		glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-	}
-	else
-	{
-		glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
-	}
-}
-
-//-----------------------------------------------------------------------------
 void GLRenderer::set_depth_test(bool test)
 {
 	if (test)
@@ -762,19 +701,6 @@ void GLRenderer::set_depth_func(CompareFunction func)
 	GLenum glFunc = GL::compare_function(func);
 
 	glDepthFunc(glFunc);
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_rescale_normals(bool rescale)
-{
-	if (rescale)
-	{
-		glEnable(GL_RESCALE_NORMAL);
-	}
-	else
-	{
-		glDisable(GL_RESCALE_NORMAL);
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -819,52 +745,6 @@ void GLRenderer::set_color_write(bool write)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::set_fog(bool fog)
-{
-	if (fog)
-	{
-		glEnable(GL_FOG);
-	}
-	else
-	{
-		glDisable(GL_FOG);
-	}
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_fog_params(FogMode mode, float density, float start, float end, const Color4& color)
-{
-	GLenum glMode = GL::fog_mode(mode);
-
-	glFogi(GL_FOG_MODE, glMode);
-	glFogf(GL_FOG_DENSITY, density);
-	glFogf(GL_FOG_START, start);
-	glFogf(GL_FOG_END, end);
-	glFogfv(GL_FOG_COLOR, &color.r);
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_alpha_test(bool test)
-{
-	if (test)
-	{
-		glEnable(GL_ALPHA_TEST);
-	}
-	else
-	{
-		glDisable(GL_ALPHA_TEST);
-	}
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_alpha_params(CompareFunction func, float ref)
-{
-	GLenum glFunc = GL::compare_function(func);
-
-	glAlphaFunc(glFunc, ref);
-}
-
-//-----------------------------------------------------------------------------
 void GLRenderer::set_shading_type(ShadingType type)
 {
 	GLenum glMode = GL_SMOOTH;
@@ -875,14 +755,6 @@ void GLRenderer::set_shading_type(ShadingType type)
 	}
 
 	glShadeModel(glMode);
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_polygon_mode(PolygonMode mode)
-{
-	GLenum glMode = GL::polygon_mode(mode);
-
-	glPolygonMode(GL_FRONT_AND_BACK, glMode);
 }
 
 //-----------------------------------------------------------------------------
@@ -987,6 +859,9 @@ void GLRenderer::begin_frame()
 
 	// Bind the default gpu program
 	bind_gpu_program(m_default_gpu_program);
+
+	set_gpu_program_mat4_uniform(m_default_gpu_program, "mvp_matrix", m_model_view_projection_matrix);
+	set_gpu_program_vec3_uniform(m_default_gpu_program, "color", Vec3(0, 1, 0));
 }
 
 //-----------------------------------------------------------------------------
@@ -1012,24 +887,20 @@ void GLRenderer::set_matrix(MatrixType type, const Mat4& matrix)
 	{
 		case MT_VIEW:
 		case MT_MODEL:
-			glMatrixMode(GL_MODELVIEW);
-			// Transformations must be listed in reverse order
-			glLoadMatrixf((m_matrix[MT_VIEW] * m_matrix[MT_MODEL]).to_float_ptr());
+		{
+			m_model_view_matrix = m_matrix[MT_VIEW] * m_matrix[MT_MODEL];
 			break;
+		}
 		case MT_PROJECTION:
-			glMatrixMode(GL_PROJECTION);
-			glLoadMatrixf(m_matrix[MT_PROJECTION].to_float_ptr());
+		{
+			m_model_view_projection_matrix =  m_matrix[MT_PROJECTION] * m_model_view_matrix;
 			break;
-		case MT_TEXTURE:
-			glMatrixMode(GL_TEXTURE);
-			glLoadMatrixf(m_matrix[MT_TEXTURE].to_float_ptr());
-			break;
-		case MT_COLOR:
-			//glMatrixMode(GL_COLOR);
-			//glLoadMatrixf(m_matrix[MT_COLOR].to_float_ptr());
-			break;
+		}
 		default:
+		{
 			break;
+			assert(0);
+		}
 	}
 }
 
@@ -1105,59 +976,6 @@ void GLRenderer::draw_triangles(IndexBufferId id) const
 
 // 	const GLRenderBuffer& render_buffer = m_render_buffers[id.index];
 // }
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_light(uint32_t light, bool active)
-{
-	if (light >= (uint32_t) m_max_lights)
-	{
-		return;
-	}
-
-	if (active)
-	{
-		glEnable(GL_LIGHT0 + light);
-	}
-	else
-	{
-		glDisable(GL_LIGHT0 + light);
-	}
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_light_params(uint32_t light, LightType type, const Vec3& position)
-{
-	static float pos[4] =
-	{
-		position.x,
-		position.y,
-		position.z,
-		1.0f
-	};
-
-	if (type == LT_DIRECTION)
-	{
-		pos[3] = 0.0f;
-	}
-
-	glLightfv(GL_LIGHT0 + light, GL_POSITION, pos);
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_light_color(uint32_t light, const Color4& ambient, const Color4& diffuse, const Color4& specular)
-{
-	glLightfv(GL_LIGHT0 + light, GL_AMBIENT, ambient.to_float_ptr());
-	glLightfv(GL_LIGHT0 + light, GL_DIFFUSE, diffuse.to_float_ptr());
-	glLightfv(GL_LIGHT0 + light, GL_SPECULAR, specular.to_float_ptr());
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_light_attenuation(uint32_t light, float constant, float linear, float quadratic)
-{
-	glLightf(GL_LIGHT0 + light, GL_CONSTANT_ATTENUATION, constant);
-	glLightf(GL_LIGHT0 + light, GL_LINEAR_ATTENUATION, linear);
-	glLightf(GL_LIGHT0 + light, GL_QUADRATIC_ATTENUATION, quadratic);
-}
 
 //-----------------------------------------------------------------------------
 void GLRenderer::draw_lines(const float* vertices, const float* colors, uint32_t count)
