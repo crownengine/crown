@@ -2,6 +2,7 @@
 #include "Terrain.h"
 #include "FPSSystem.h"
 #include "Game.h"
+#include "ScriptSystem.h"
 
 using namespace crown;
 
@@ -124,11 +125,15 @@ public:
 		red_up    = device()->load("textures/red_up.tga");
 		red_down  = device()->load("textures/red_down.tga");
 		grass     = device()->load("textures/grass.tga");
+		script	  = device()->load("lua/init.lua");
 
 		device()->resource_manager()->flush();
 
 		TextureResource* grass_texture = (TextureResource*)device()->data(grass);
 		grass_id = device()->renderer()->load_texture(grass_texture);
+
+		ScriptResource* script_resource = (ScriptResource*)device()->data(script);
+		device()->script_system()->load(script_resource);
 	}
 
 	void on_unload()
@@ -228,6 +233,8 @@ private:
 	ResourceId red_up;
 	ResourceId red_down;
 	TextureId grass_id;
+
+	ResourceId script;
 
 	bool optShowSkybox;
 	bool optShowCrate;

@@ -17,7 +17,7 @@ int main(int argc, char** argv)
 
   ResourceManager res_manager(archive, allocator);
 
-  ResourceId script = res_manager.load("lua/hello.lua");
+  ResourceId script = res_manager.load("lua/init.lua");
 
   res_manager.flush();
 
