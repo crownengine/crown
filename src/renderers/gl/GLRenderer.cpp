@@ -523,6 +523,16 @@ void GLRenderer::set_gpu_program_mat4_uniform(GPUProgramId id, const char* name,
 }
 
 //-----------------------------------------------------------------------------
+void GLRenderer::set_gpu_program_sampler_uniform(GPUProgramId id, const char* name, uint32_t value)
+{
+	assert(m_gpu_programs_id_table.has(id));
+
+	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
+
+	glUniform1i(uniform, (GLint) value);	
+}
+
+//-----------------------------------------------------------------------------
 void GLRenderer::bind_gpu_program(GPUProgramId id) const
 {
 	assert(m_gpu_programs_id_table.has(id));

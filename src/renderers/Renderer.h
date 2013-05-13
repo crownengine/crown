@@ -128,6 +128,8 @@ public:
 	virtual void			set_gpu_porgram_mat3_uniform(GPUProgramId id, const char* name, const Mat3& value) = 0;
 	virtual void			set_gpu_program_mat4_uniform(GPUProgramId id, const char* name, const Mat4& value) = 0;
 
+	virtual void			set_gpu_program_sampler_uniform(GPUProgramId id, const char* name, uint32_t value) = 0;
+
 	virtual void			bind_gpu_program(GPUProgramId id) const = 0;
 
 	//virtual RenderBufferId	create_render_buffer(uint32_t width, uint32_t height, PixelFormat format) = 0;

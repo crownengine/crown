@@ -113,6 +113,12 @@ public:
 	void				update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data);
 	void				destroy_texture(TextureId id);
 
+	void				bind_texture(uint32_t unit, TextureId texture);
+	void				set_texturing(uint32_t unit, bool texturing);
+	void				set_texture_mode(uint32_t unit, TextureMode mode, const Color4& blendColor);
+	void				set_texture_wrap(uint32_t unit, TextureWrap wrap);
+	void				set_texture_filter(uint32_t unit, TextureFilter filter);
+
 	// Vertex shaders
 	VertexShaderId		create_vertex_shader(const char* program);
 	void				destroy_vertex_shader(VertexShaderId id);
@@ -135,6 +141,8 @@ public:
 	void				set_gpu_porgram_mat3_uniform(GPUProgramId id, const char* name, const Mat3& value);
 	void				set_gpu_program_mat4_uniform(GPUProgramId id, const char* name, const Mat4& value);
 
+	void				set_gpu_program_sampler_uniform(GPUProgramId id, const char* name, uint32_t value);
+
 	void				bind_gpu_program(GPUProgramId id) const;
 
 	// Frame buffers
@@ -149,12 +157,6 @@ public:
 	void				set_material_params(const Color4& ambient, const Color4& diffuse, const Color4& specular, const Color4& emission, int32_t shininess);
 	void				set_lighting(bool lighting);
 	void				set_ambient_light(const Color4& color);
-
-	void				bind_texture(uint32_t unit, TextureId texture);
-	void				set_texturing(uint32_t unit, bool texturing);
-	void				set_texture_mode(uint32_t unit, TextureMode mode, const Color4& blendColor);
-	void				set_texture_wrap(uint32_t unit, TextureWrap wrap);
-	void				set_texture_filter(uint32_t unit, TextureFilter filter);
 
 	void				set_light(uint32_t light, bool active);
 	void				set_light_params(uint32_t light, LightType type, const Vec3& position);
