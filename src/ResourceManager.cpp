@@ -39,6 +39,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextResource.h"
 #include "TextureResource.h"
 #include "ScriptResource.h"
+#include "VertexShaderResource.h"
+#include "PixelShaderResource.h"
 
 namespace crown
 {
@@ -263,16 +265,16 @@ void ResourceManager::bring_loaded_online()
 //-----------------------------------------------------------------------------
 ResourceId ResourceManager::load(uint32_t name, uint32_t type)
 {
+	ResourceId id;
+	id.name = name;
+	id.type = type;
+
 	// Search for an already existent resource
-	ResourceEntry* entry = std::find(m_resources.begin(), m_resources.end(), name);
+	ResourceEntry* entry = std::find(m_resources.begin(), m_resources.end(), id);
 
 	// If resource not found, create a new one
 	if (entry == m_resources.end())
 	{
-		ResourceId id;
-
-		id.name = name;
-		id.type = type;
 		id.index = m_resources.size();
 
 		ResourceEntry entry;
@@ -347,6 +349,14 @@ void* ResourceManager::load_by_type(ResourceId name) const
 	{
 		return ScriptResource::load(m_resource_allocator, m_resource_archive, name);
 	}
+	else if (name.type == VERTEX_SHADER_TYPE)
+	{
+		return VertexShaderResource::load(m_resource_allocator, m_resource_archive, name);
+	}
+	else if (name.type == PIXEL_SHADER_TYPE)
+	{
+		return PixelShaderResource::load(m_resource_allocator, m_resource_archive, name);
+	}
 
 	return NULL;
 }
@@ -356,15 +366,23 @@ void ResourceManager::unload_by_type(ResourceId name, void* resource) const
 {
 	if (name.type == TEXTURE_TYPE)
 	{
-		TextureResource::unload(m_resource_allocator, (TextureResource*)resource);
+		TextureResource::unload(m_resource_allocator, resource);
 	}
 	else if (name.type == TEXT_TYPE)
 	{
-		TextResource::unload(m_resource_allocator, (TextResource*)resource);
+		TextResource::unload(m_resource_allocator, resource);
 	}
 	else if (name.type == SCRIPT_TYPE)
 	{
-		ScriptResource::unload(m_resource_allocator, (ScriptResource*)resource);
+		ScriptResource::unload(m_resource_allocator, resource);
+	}
+	else if (name.type == VERTEX_SHADER_TYPE)
+	{
+		VertexShaderResource::unload(m_resource_allocator, resource);
+	}
+	else if (name.type == PIXEL_SHADER_TYPE)
+	{
+		PixelShaderResource::unload(m_resource_allocator, resource);
 	}
 
 	return;
@@ -375,15 +393,23 @@ void ResourceManager::online(ResourceId name, void* resource)
 {
 	if (name.type == TEXTURE_TYPE)
 	{
-		TextureResource::online((TextureResource*)resource);
+		TextureResource::online(resource);
 	}
 	else if (name.type == TEXT_TYPE)
 	{
-		TextResource::unload(m_resource_allocator, (TextResource*)resource);
+		TextResource::online(resource);
 	}
 	else if (name.type == SCRIPT_TYPE)
 	{
-		ScriptResource::online((ScriptResource*)resource);
+		ScriptResource::online(resource);
+	}
+	else if (name.type == VERTEX_SHADER_TYPE)
+	{
+		VertexShaderResource::online(resource);
+	}
+	else if (name.type == PIXEL_SHADER_TYPE)
+	{
+		PixelShaderResource::online(resource);
 	}
 
 	m_resources_mutex.lock();

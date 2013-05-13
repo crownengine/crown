@@ -109,6 +109,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ScriptResource.h"
 #include "MaterialResource.h"
 #include "FontResource.h"
+#include "VertexShaderResource.h"
+#include "PixelShaderResource.h"
 
 // Engine/Filesystem
 #include "Filesystem.h"

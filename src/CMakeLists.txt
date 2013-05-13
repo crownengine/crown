@@ -10,6 +10,8 @@ set (SRC
 	TextResource.cpp
 	ScriptResource.cpp
 	FontResource.cpp
+	VertexShaderResource.cpp
+	PixelShaderResource.cpp
 	ArchiveResourceArchive.cpp
 	FileResourceArchive.cpp
 
@@ -34,6 +36,8 @@ set (HEADERS
 	TextResource.h
 	ScriptResource.h
 	FontResource.h
+	VertexShaderResource.h
+	PixelShaderResource.h
 	ArchiveResourceArchive.h
 	FileResourceArchive.h
 

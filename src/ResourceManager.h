@@ -46,14 +46,14 @@ struct ResourceEntry
 
 	void*			resource;
 
-	bool			operator==(const uint32_t& name)
+	bool			operator==(const ResourceId& resource)
 					{
-						return id.name == name;
+						return id == resource;
 					}
 
 	bool			operator==(const ResourceEntry& b)
 					{
-						return id.name == b.id.name;
+						return id == b.id;
 					}
 };
 
