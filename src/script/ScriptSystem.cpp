@@ -3,47 +3,8 @@
 
 namespace crown
 {
-//-----------------------------------------------------------
-// Lua State
-//-----------------------------------------------------------
 
-//-----------------------------------------------------------
-LuaState::LuaState()
-{
-	m_state = luaL_newstate();
-
-    luaL_openlibs(m_state);
-}
-
-//-----------------------------------------------------------
-LuaState::~LuaState()
-{
-	lua_close(m_state);
-}
-
-//-----------------------------------------------------------
-int32_t LuaState::load_buffer(const char* buf, size_t len)
-{
-	int32_t s = luaL_loadbuffer(m_state, buf, len, "");
-
-	return s;
-}
-
-//-----------------------------------------------------------
-int32_t LuaState::load_string(const char* str)
-{
-	int32_t s = luaL_loadstring(m_state, str);
-
-	return s;
-}
-
-//-----------------------------------------------------------
-int32_t LuaState::execute()
-{
-    int32_t s = lua_pcall(m_state, 0, LUA_MULTRET, 0);
-
-    return s;
-}
+const char* BOOT_SCRIPT = "lua/init.lua";
 
 //-----------------------------------------------------------
 // ScriptSystem
@@ -52,6 +13,7 @@ int32_t LuaState::execute()
 //-----------------------------------------------------------
 ScriptSystem::ScriptSystem() :
 m_state(),
+m_scripts_count(0),
 m_vec2_count(0),
 m_vec3_count(0),
 m_mat4_count(0),
@@ -62,13 +24,23 @@ m_quat_count(0)
 //-----------------------------------------------------------
 void ScriptSystem::load(ScriptResource* script)
 {
-	assert(m_state.load_buffer((char*)script->data(), script->length()) == 0);
+	m_scripts[m_scripts_count] = script;
+
+	m_scripts_count++;
 }
 
 //-----------------------------------------------------------
 void ScriptSystem::execute()
 {
-	assert(m_state.execute() == 0);	
+	if (m_scripts_count != 0)
+	{
+		for (int i = 0; i < m_scripts_count; i++)
+		{
+			assert(m_state.load_buffer((char*)m_scripts[i]->data(), m_scripts[i]->length()) == 0);
+		}
+
+		assert(m_state.execute() == 0);	
+	}
 }
 
 //-----------------------------------------------------------
@@ -177,29 +149,73 @@ ScriptSystem* scripter()
 }
 
 //-----------------------------------------------------------
-extern "C"
+// Lua State
+//-----------------------------------------------------------
+
+//-----------------------------------------------------------
+LuaState::LuaState()
 {
+	m_state = luaL_newstate();
+
+    luaL_openlibs(m_state);
+}
+
+//-----------------------------------------------------------
+LuaState::~LuaState()
+{
+	lua_close(m_state);
+}
+
+//-----------------------------------------------------------
+int32_t LuaState::load_buffer(const char* buf, size_t len)
+{
+	int32_t s = luaL_loadbuffer(m_state, buf, len, "");
+
+	return s;
+}
+
+//-----------------------------------------------------------
+int32_t LuaState::load_string(const char* str)
+{
+	int32_t s = luaL_loadstring(m_state, str);
+
+	return s;
+}
+
+//-----------------------------------------------------------
+int32_t LuaState::execute()
+{
+    int32_t s = lua_pcall(m_state, 0, LUA_MULTRET, 0);
+
+    return s;
+}
+
+//-----------------------------------------------------------
+// Extern C
+//-----------------------------------------------------------
+
+//-----------------------------------------------------------
 uint32_t script_system_vec2_used()
 {
 	return scripter()->vec2_used();
 }
 
+//-----------------------------------------------------------
 uint32_t script_system_vec3_used()
 {
 	return scripter()->vec3_used();
 }
 
+//-----------------------------------------------------------
 uint32_t script_system_mat4_used()
 {
 	return scripter()->mat4_used();
 }
 
+//-----------------------------------------------------------
 uint32_t script_system_quat_used()
 {
 	return scripter()->quat_used();
 }
-
-} // extern "C"
-
 
 } // namespace crown

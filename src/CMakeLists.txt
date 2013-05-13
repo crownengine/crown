@@ -234,6 +234,7 @@ set (NETWORK_HEADERS
 
 set (SCRIPT_SRC
 	script/ScriptSystem.cpp
+	script/binds/ApplicationBinds.cpp
 	script/binds/MathBinds.cpp
 	script/binds/Vec2Binds.cpp
 	script/binds/Vec3Binds.cpp

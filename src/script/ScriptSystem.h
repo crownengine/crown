@@ -69,8 +69,12 @@ public:
 								/// Returns the number of quat used in lua environment
 	uint32_t 					quat_used();
 
+								/// First file loaded by ScriptSystem
+	static const char*			BOOT_SCRIPT;
+								/// Number of Scripts which can be loaded by ScriptSystem
+	static const uint32_t		MAX_SCRIPTS 		= 256;
 								/// Max number of temporary objects allowed
-	static const uint32_t		MAX_TEMP_OBJECTS = 1024;
+	static const uint32_t		MAX_TEMP_OBJECTS 	= 1024;
 
 
 private:
@@ -78,7 +82,11 @@ private:
 								ScriptSystem(const ScriptSystem&);
 								ScriptSystem& operator=(const ScriptSystem&);
 
-	LuaState 					m_state;
+	LuaState 					m_state;							
+								/// Scripts loaded in ScriptSystem
+	ScriptResource*				m_scripts[MAX_SCRIPTS];
+								/// number of scripts loaded
+	uint32_t					m_scripts_count;
 								/// Vec2 used by lua environment
 	Vec2 						m_vec2_list[MAX_TEMP_OBJECTS];
 								/// Counter which points to the next free Vec2
@@ -97,11 +105,15 @@ private:
 	uint32_t					m_quat_count;
 };
 
+
+
 ScriptSystem* scripter();
 
 // This block provides fews utilities for lua environment
 extern "C"
 {
+	uint32_t script_system_vec2_used();
+
 	uint32_t script_system_vec3_used();
 
 	uint32_t script_system_mat4_used();
