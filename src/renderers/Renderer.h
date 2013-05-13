@@ -57,6 +57,29 @@ enum LightType
 	LT_SPOT			= 2
 };
 
+enum ShaderAttrib
+{
+	SA_VERTEX			= 0,
+	SA_COORDS			= 1,
+	SA_NORMAL			= 2,
+	SA_DIFFUSE_MAP		= 3,
+	SA_DETAIL_MAP		= 4,
+	SA_NORMAL_MAP		= 5,
+
+	SA_COUNT
+};
+
+// Keep in sync with ShaderAttrib
+const char* const SHADER_ATTRIB_NAMES[] =
+{
+	"vertex",			// 0
+	"coords",			// 1
+	"normal",			// 2
+	"diffuse_map",		// 3
+	"detail_map",		// 4
+	"normal_map"		// 5
+};
+
 typedef Id VertexBufferId;
 typedef Id IndexBufferId;
 typedef Id RenderBufferId;
@@ -78,6 +101,9 @@ public:
 
 							Renderer() {}
 	virtual					~Renderer() {}
+
+	virtual void			init() = 0;
+	virtual void			shutdown() = 0;
 
 	/// Creates a new vertex buffer optimized for rendering static vertex data.
 	/// @vertices is the array containig @count vertex data elements of the given @format.

@@ -39,6 +39,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vec4.h"
 #include "Mat3.h"
 #include "Mat4.h"
+#include "Device.h"
+#include "ResourceManager.h"
+#include "VertexShaderResource.h"
+#include "PixelShaderResource.h"
 
 #if defined(WINDOWS)
 	//Define the missing constants in vs' gl.h
@@ -149,7 +153,7 @@ GLRenderer::GLRenderer() :
 
 	glEnable(GL_LIGHTING);
 
-	glEnable(GL_BLEND);
+	glDisable(GL_BLEND);
 	//TODO: Use Premultiplied alpha
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendEquation(GL_FUNC_ADD);
@@ -191,6 +195,18 @@ GLRenderer::GLRenderer() :
 //-----------------------------------------------------------------------------
 GLRenderer::~GLRenderer()
 {
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::init()
+{
+	load_default_shaders();
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::shutdown()
+{
+	unload_default_shaders();
 }
 
 //-----------------------------------------------------------------------------
@@ -425,6 +441,10 @@ GPUProgramId GLRenderer::create_gpu_program(VertexShaderId vs, PixelShaderId ps)
 
 	glAttachShader(gl_program.gl_object, m_vertex_shaders[id.index].gl_object);
 	glAttachShader(gl_program.gl_object, m_pixel_shaders[id.index].gl_object);
+
+	glBindAttribLocation(gl_program.gl_object, SA_VERTEX, "vertex");
+	glBindAttribLocation(gl_program.gl_object, SA_COORDS, "coords");
+	glBindAttribLocation(gl_program.gl_object, SA_NORMAL, "normal");
 
 	glLinkProgram(gl_program.gl_object);
 
@@ -964,6 +984,9 @@ void GLRenderer::begin_frame()
 {
 	// Clear frame/depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Bind the default gpu program
+	bind_gpu_program(m_default_gpu_program);
 }
 
 //-----------------------------------------------------------------------------
@@ -1023,42 +1046,36 @@ void GLRenderer::bind_vertex_buffer(VertexBufferId vb) const
 	{
 		case VF_XY_FLOAT_32:
 		{
-			glEnableClientState(GL_VERTEX_ARRAY);
-			glVertexPointer(2, GL_FLOAT, 0, 0);
+			glEnableVertexAttribArray(SA_VERTEX);
+			glVertexAttribPointer(SA_VERTEX, 2, GL_FLOAT, GL_FALSE, 0, 0);
 			break;
 		}
 		case VF_XYZ_FLOAT_32:
 		{
-			glEnableClientState(GL_VERTEX_ARRAY);
-			glVertexPointer(3, GL_FLOAT, 0, 0);
+			glEnableVertexAttribArray(SA_VERTEX);
+			glVertexAttribPointer(SA_VERTEX, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			break;
 		}
 		case VF_UV_FLOAT_32:
 		{
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(2, GL_FLOAT, 0, 0);
+			glEnableVertexAttribArray(SA_COORDS);
+			glVertexAttribPointer(SA_COORDS, 2, GL_FLOAT, GL_FALSE, 0, 0);
 			break;
 		}
 		case VF_UVT_FLOAT_32:
 		{
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(3, GL_FLOAT, 0, 0);
+			glEnableVertexAttribArray(SA_COORDS);
+			glVertexAttribPointer(SA_COORDS, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			break;
 		}
 		case VF_XYZ_NORMAL_FLOAT_32:
 		{
-			glEnableClientState(GL_NORMAL_ARRAY);
-			glNormalPointer(GL_FLOAT, 0, 0);
+			glEnableVertexAttribArray(SA_NORMAL);
+			glVertexAttribPointer(SA_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			break;
 		}
 		case VF_XYZ_UV_XYZ_NORMAL_FLOAT_32:
 		{
-			glEnableClientState(GL_VERTEX_ARRAY);
-			glEnableClientState(GL_NORMAL_ARRAY);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glVertexPointer(3, GL_FLOAT, 0, 0);
-			glTexCoordPointer(2, GL_FLOAT, 0, 0);
-			glNormalPointer(GL_FLOAT, 0, 0);
 			break;
 		}
 		default:
@@ -1158,6 +1175,56 @@ void GLRenderer::draw_lines(const float* vertices, const float* colors, uint32_t
 
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::load_default_shaders()
+{
+	ResourceManager* resman = device()->resource_manager();
+
+	// Load default vertex/pixel shaders
+	m_default_vertex_shader = resman->load("default/default.vs");
+	m_default_pixel_shader = resman->load("default/default.ps");
+
+	// Wait for loading
+	resman->flush();
+
+	// Obtain resource data
+	VertexShaderResource* vs = (VertexShaderResource*)resman->data(m_default_vertex_shader);
+	PixelShaderResource* ps = (PixelShaderResource*)resman->data(m_default_pixel_shader);
+
+	// Create and bind the default program
+	m_default_gpu_program = create_gpu_program(vs->vertex_shader(), ps->pixel_shader());
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::unload_default_shaders()
+{
+	ResourceManager* resman = device()->resource_manager();
+
+	destroy_gpu_program(m_default_gpu_program);
+
+	resman->unload(m_default_pixel_shader);
+	resman->unload(m_default_vertex_shader);
+}
+
+//-----------------------------------------------------------------------------
+void GLRenderer::reload_default_shaders()
+{
+	ResourceManager* resman = device()->resource_manager();
+
+	resman->reload(m_default_vertex_shader);
+	resman->reload(m_default_pixel_shader);
+
+	// Destroy old gpu program
+	destroy_gpu_program(m_default_gpu_program);
+
+	// Obtain resource data
+	VertexShaderResource* vs = (VertexShaderResource*)resman->data(m_default_vertex_shader);
+	PixelShaderResource* ps = (PixelShaderResource*)resman->data(m_default_pixel_shader);
+
+	// Create and bind the new default program
+	m_default_gpu_program = create_gpu_program(vs->vertex_shader(), ps->pixel_shader());
 }
 
 //-----------------------------------------------------------------------------

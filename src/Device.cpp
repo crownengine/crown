@@ -129,6 +129,8 @@ bool Device::init(int argc, char** argv)
 
 	create_renderer();
 
+	m_renderer->init();
+
 	Log::d("Renderer created.");
 
 	create_debug_renderer();
@@ -198,6 +200,8 @@ void Device::shutdown()
 
 	if (m_renderer)
 	{
+		m_renderer->shutdown();
+
 		delete m_renderer;
 	}
 

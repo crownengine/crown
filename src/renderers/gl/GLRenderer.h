@@ -36,6 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PixelShader.h"
 #include "IdTable.h"
 #include "MallocAllocator.h"
+#include "Resource.h"
 
 namespace crown
 {
@@ -97,6 +98,9 @@ public:
 
 						GLRenderer();
 						~GLRenderer();
+
+	void				init();
+	void				shutdown();
 
 	// Vertex buffers
 	VertexBufferId		create_vertex_buffer(size_t count, VertexFormat format, const void* vertices);
@@ -210,6 +214,11 @@ public:
 
 private:
 
+	// Loads the default shaders
+	void				load_default_shaders();
+	void				unload_default_shaders();
+	void				reload_default_shaders();
+
 	// Activates a texture unit and returns true if succes
 	bool				activate_texture_unit(uint32_t unit);
 	bool				activate_light(uint32_t light);
@@ -257,18 +266,26 @@ private:
 	IdTable				m_index_buffers_id_table;
 	GLIndexBuffer		m_index_buffers[MAX_INDEX_BUFFERS];
 
+	// Vertex shader management
 	IdTable 			m_vertex_shaders_id_table;
 	GLVertexShader		m_vertex_shaders[MAX_VERTEX_SHADERS];
 
+	// Pixel shader management
 	IdTable 			m_pixel_shaders_id_table;
 	GLPixelShader		m_pixel_shaders[MAX_PIXEL_SHADERS];
 
+	// GPU program management
 	IdTable 			m_gpu_programs_id_table;
 	GLGPUProgram		m_gpu_programs[128];
 
 	// Render buffer management
-	//IdTable				m_render_buffers_id_table;
-	//GLRenderBuffer		m_render_buffers[MAX_RENDER_BUFFERS];
+	//IdTable			m_render_buffers_id_table;
+	//GLRenderBuffer	m_render_buffers[MAX_RENDER_BUFFERS];
+
+	// Default shaders
+	ResourceId			m_default_vertex_shader;
+	ResourceId			m_default_pixel_shader;
+	GPUProgramId		m_default_gpu_program;
 
 	friend class		TextureResource;
 };
