@@ -43,4 +43,15 @@ void TextResource::unload(Allocator& allocator, void* resource)
 	allocator.deallocate(resource);
 }
 
+//-----------------------------------------------------------------------------
+void TextResource::online(void* resource)
+{
+	(void) resource;
+}
+
+//-----------------------------------------------------------------------------
+void TextResource::offline()
+{
+}
+
 } // namespace crown
