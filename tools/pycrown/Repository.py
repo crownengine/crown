@@ -24,12 +24,14 @@
 
 import os
 
-TEXTURE_EXTENSION = ('.tga')
-TEXT_EXTENSION = ('.txt')
-MESH_EXTENSION = ('.dae')
-LUA_EXTENSION = ('.lua')
+TEXTURE_EXTENSION			= ('.tga')
+TEXT_EXTENSION				= ('.txt')
+MESH_EXTENSION				= ('.dae')
+LUA_EXTENSION				= ('.lua')
+VERTEX_SHADER_EXTENSION		= ('.vs')
+PIXEL_SHADER_EXTENSION		= ('.ps')
 
-resource_extensions = ('.txt', '.tga', '.dae', '.lua')
+resource_extensions = ('.txt', '.tga', '.dae', '.lua', '.vs', '.ps')
 
 # Represents the folder containing the resources
 # Can filter resources by type and other useful stuff
@@ -85,6 +87,26 @@ class Repository:
 				scripts.append(res)
 
 		return scripts
+
+	# Returns a list of all the vertex shader resources found
+	def vertex_shader_resources(self):
+		vss = []
+
+		for res in self.m_resources:
+			if (res.endswith(VERTEX_SHADER_EXTENSION)):
+				vss.append(res)
+
+		return vss
+
+	# Returns a list of all the pixel shader resources found
+	def pixel_shader_resources(self):
+		pss = []
+
+		for res in self.m_resources:
+			if (res.endswith(PIXEL_SHADER_EXTENSION)):
+				pss.append(res)
+
+		return pss
 
 	# Scans the root path to find resources
 	def scan(self):

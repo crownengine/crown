@@ -24,6 +24,8 @@ add_subdirectory(txt)
 add_subdirectory(tga)
 add_subdirectory(lua)
 add_subdirectory(mat)
+add_subdirectory(vs)
+add_subdirectory(ps)
 
 install (TARGETS crown-compiler-utils DESTINATION lib/${CMAKE_PROJECT_NAME})
 
