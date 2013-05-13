@@ -76,7 +76,7 @@ ArchiveResourceArchive::~ArchiveResourceArchive()
 }
 
 //-----------------------------------------------------------------------------
-FileStream* ArchiveResourceArchive::find(ResourceId name)
+FileStream* ArchiveResourceArchive::open(ResourceId name)
 {
 	// Search the resource in the archive
 	for (uint32_t i = 0; i < m_entries_count; i++)
@@ -91,6 +91,13 @@ FileStream* ArchiveResourceArchive::find(ResourceId name)
 	}
 
 	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+void ArchiveResourceArchive::close(FileStream* resource)
+{
+	// Does nothing, the stream is automatically closed at exit.
+	(void)resource;
 }
 
 } // namespace crown

@@ -35,7 +35,9 @@ int main(int argc, char** argv)
 		resource_extension_hash != MESH_TYPE &&
 		resource_extension_hash != SCRIPT_TYPE &&
 		resource_extension_hash != TEXT_TYPE &&
-		resource_extension_hash != MATERIAL_TYPE)
+		resource_extension_hash != MATERIAL_TYPE &&
+		resource_extension_hash != VERTEX_SHADER_TYPE &&
+		resource_extension_hash != PIXEL_SHADER_TYPE)
 	{
 		printf("%s: ERROR: cannot generate hash for resource '%s': Unknown type.\n", argv[0], resource_in);
 		exit(-1);

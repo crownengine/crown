@@ -25,56 +25,26 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
-#include "ResourceArchive.h"
+#include "Compiler.h"
 
 namespace crown
 {
 
-class Filesystem;
-class FileStream;
-
-/// Structure of the archive
-///
-/// [ArchiveHeader]
-/// [ArchiveEntry]
-/// [ArchiveEntry]
-/// ...
-/// [ArchiveEntry]
-/// [ResourceData]
-/// [ResourceData]
-/// ...
-/// [ResourceData]
-///
-/// A valid archive must always have at least the archive header,
-/// starting at byte 0 of the archive file.
-///
-/// Newer archive versions must be totally backward compatible
-/// across minor engine releases, in order to be able to use
-/// recent version of the engine with older game archives.
-
-/// Source of resources
-class ArchiveResourceArchive : public ResourceArchive
+class PSCompiler : public Compiler
 {
 public:
 
-					ArchiveResourceArchive(Filesystem& fs);
-					~ArchiveResourceArchive();
+					PSCompiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed);
+					~PSCompiler();
 
-	/// @copydoc ResourceArchive::open()
-	FileStream*		open(ResourceId name);
-
-	/// @copydoc ResourceArchive::close()
-	void			close(FileStream* resource);
+	bool			compile();
+	void			write();
 
 private:
 
-	Filesystem&		m_filesystem;
-
-	FileStream*		m_archive_file;
-
-	uint32_t		m_entries_count;
-	ArchiveEntry*	m_entries;
+	uint32_t		m_file_size;
+	char*			m_file_data;
 };
 
 } // namespace crown
+

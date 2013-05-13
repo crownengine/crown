@@ -53,7 +53,12 @@ public:
 					FileResourceArchive(Filesystem& fs);
 					~FileResourceArchive();
 
-	FileStream*		find(ResourceId name);
+	/// @copydoc ResourceArchive::open()
+	FileStream*		open(ResourceId name);
+
+	/// @copydoc ResourceArchive::close()
+	void			close(FileStream* resource);
+
 
 private:
 

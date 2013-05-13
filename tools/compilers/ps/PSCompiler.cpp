@@ -23,54 +23,63 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cstdio>
-#include "FileResourceArchive.h"
-#include "Filesystem.h"
-#include "Resource.h"
+#include "PSCompiler.h"
 #include "FileStream.h"
-#include "Log.h"
-#include "String.h"
+#include "Resource.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-FileResourceArchive::FileResourceArchive(Filesystem& fs) :
-	m_filesystem(fs)
+PSCompiler::PSCompiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed) :
+	Compiler(root_path, dest_path, resource, PIXEL_SHADER_TYPE, seed),
+	m_file_size(0),
+	m_file_data(NULL)
 {
 }
 
 //-----------------------------------------------------------------------------
-FileResourceArchive::~FileResourceArchive()
+PSCompiler::~PSCompiler()
 {
-}
-
-//-----------------------------------------------------------------------------
-FileStream* FileResourceArchive::open(ResourceId name)
-{
-	// Convert name/type into strings
-	char resource_name[512];
-
-	// Fixme
-	snprintf(resource_name, 512, "%.8X%.8X", name.name, name.type);
-
-	// Search the resource in the filesystem
-	if (m_filesystem.exists(resource_name) == false)
+	if (m_file_data)
 	{
-		return NULL;
+		delete[] m_file_data;
+	}
+}
+
+//-----------------------------------------------------------------------------
+bool PSCompiler::compile()
+{
+	FileStream* file = Compiler::source_file();
+
+	m_file_size = file->size();
+
+	if (m_file_size == 0)
+	{
+		return false;
 	}
 
-	FileStream* file = (FileStream*)m_filesystem.open(resource_name, SOM_READ);
+	m_file_data = new char[m_file_size];
+	
+	// Copy the entire file into the buffer
+	file->read(m_file_data, m_file_size);
 
-	file->skip(sizeof(ResourceHeader));
+	// Prepare for writing
+	Compiler::prepare_header(m_file_size + sizeof(uint32_t));
 
-	return file;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
-void FileResourceArchive::close(FileStream* resource)
+void PSCompiler::write()
 {
-	m_filesystem.close(resource);
+	Compiler::write_header();
+
+	FileStream* file = Compiler::destination_file();
+
+	file->write(&m_file_size, sizeof(uint32_t));
+	file->write(m_file_data, m_file_size);
 }
 
 } // namespace crown
+
