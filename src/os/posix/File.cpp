@@ -84,6 +84,8 @@ size_t File::size() const
 //-----------------------------------------------------------------------------
 bool File::open(const char* path, StreamOpenMode mode)
 {
+	assert(!is_open());
+
 	const char* c_mode = mode == SOM_READ ? "rb" : SOM_WRITE ? "wb" : "x";
 
 	assert(c_mode[0] != 'x');
