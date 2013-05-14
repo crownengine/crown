@@ -25,9 +25,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <cassert>
+
 #include "Stream.h"
 #include "File.h"
-#include <cassert>
 
 namespace crown
 {
@@ -93,14 +94,14 @@ public:
 
 protected:
 
-	File*			m_file;
+	File			m_file;
 	bool			m_last_was_read;
 
 protected:
 
 	inline void		check_valid() const
 	{
-		assert(m_file != NULL);
+		assert(m_file.is_open());
 	}
 };
 

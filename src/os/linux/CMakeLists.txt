@@ -6,12 +6,14 @@ set (LINUX_SRC
 	GLXRenderWindow.cpp
 	LinuxOS.cpp
 	Input.cpp
-	LinuxTCPSocket.cpp
-	LinuxUDPSocket.cpp	
+	TCPSocket.cpp
+	UDPSocket.cpp	
 	File.cpp
 )
 
 set (LINUX_HEADERS
+	TCPSocket.h
+	UDPSocket.h
 	File.h
 )
 

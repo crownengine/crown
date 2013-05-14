@@ -220,6 +220,7 @@ set (RENDERERS_HEADERS
 
 set (OS_HEADERS
 	os/OS.h
+	os/NetAddress.h
 )
 
 set (OS_SRC
