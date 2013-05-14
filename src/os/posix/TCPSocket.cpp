@@ -89,7 +89,7 @@ bool TCPSocket::open(uint16_t port)
 	sockaddr_in client;
 	size_t client_length = sizeof(client);
 
-	int asd = accept(sd, (sockaddr*)&client, &client_length);
+	int asd = accept(sd, (sockaddr*)&client, (socklen_t*)&client_length);
 
 	if (asd < 0)
 	{

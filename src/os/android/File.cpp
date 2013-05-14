@@ -35,7 +35,7 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 File::File() :
-	m_file_handle(NULL),
+	m_asset(NULL),
 	m_mode(SOM_READ)
 {
 }
