@@ -23,33 +23,54 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include <pthread.h>
-
-#include "Types.h"
-#include "Mutex.h"
-#include "OS.h"
+#include "Thread.h"
+#include <stdlib.h>
 
 namespace crown
 {
 namespace os
 {
 
-class Cond
+//-----------------------------------------------------------------------------
+Thread::Thread(os::ThreadFunction f, void* params, const char* name) :
+	m_name(name)
 {
-public:
+	memset(&m_thread, 0, sizeof(pthread_t));
 
-					Cond();
-					~Cond();
+	// Make thread joinable
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-	void			signal();
-	void			wait(Mutex& mutex);
+	// Create thread
+	int rc = pthread_create(&m_thread, &attr, f, (void*)params);
 
-private:
+	if (rc != 0)
+	{
+		os::printf("Unable to create the thread '%s' Error code: %d\n", name, rc);
+		exit(-1);
+	}
 
-	pthread_cond_t	m_cond;
-};
+	// Free attr memory
+	pthread_attr_destroy(&attr);
+}
+
+//-----------------------------------------------------------------------------
+Thread::~Thread()
+{
+}
+
+//-----------------------------------------------------------------------------
+void Thread::join()
+{
+	pthread_join(m_thread, NULL);
+}
+
+//-----------------------------------------------------------------------------
+void Thread::detach()
+{
+	pthread_detach(m_thread);
+}
 
 } // namespace os
 } // namespace crown

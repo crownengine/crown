@@ -25,55 +25,32 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <pthread.h>
+
 #include "Types.h"
 #include "OS.h"
 
 namespace crown
+{
+namespace os
 {
 
 class Mutex
 {
 public:
 
-					Mutex();
-					~Mutex();
+						Mutex();
+						~Mutex();
 
-	void			lock();
-	void			unlock();
-
-private:
-
-	os::OSMutex		m_mutex;
+	void				lock();
+	void				unlock();
 
 private:
 
-	friend class	Cond;
+	pthread_mutex_t		m_mutex;
+
+	friend class		Cond;
 };
 
-//-----------------------------------------------------------------------------
-inline Mutex::Mutex()
-{
-	memset(&m_mutex, 0, sizeof(os::OSMutex));
-
-	os::mutex_create(&m_mutex);
-}
-
-//-----------------------------------------------------------------------------
-inline Mutex::~Mutex()
-{
-	os::mutex_destroy(&m_mutex);
-}
-
-//-----------------------------------------------------------------------------
-inline void Mutex::lock()
-{
-	os::mutex_lock(&m_mutex);
-}
-
-//-----------------------------------------------------------------------------
-inline void Mutex::unlock()
-{
-	os::mutex_unlock(&m_mutex);
-}
-
+} // namespace os
 } // namespace crown

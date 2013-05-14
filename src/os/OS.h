@@ -30,10 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdarg>
 #include "Types.h"
 
-#ifdef LINUX
-	#include <pthread.h>
-#endif
-
 namespace crown
 {
 
@@ -50,23 +46,6 @@ const size_t	MAX_EVENTS = 512;
 
 const size_t	MAX_THREADS = 16;
 const size_t	MAX_MUTEXES = 16;
-
-struct OSThread
-{
-	pthread_t	thread;
-	const char*	name;
-};
-
-struct OSMutex
-{
-	pthread_mutex_t mutex;
-};
-
-struct OSCond
-{
-	pthread_cond_t cond;
-};
-
 #endif
 
 #ifdef WINDOWS
@@ -190,24 +169,6 @@ OSEvent&		pop_event();
 void*			open_library(const char* path);
 void			close_library(void* library);
 void*			lookup_symbol(void* library, const char* name);
-
-//-----------------------------------------------------------------------------
-// Threads
-//-----------------------------------------------------------------------------
-typedef			void* (*ThreadFunction)(void*);
-
-void			thread_create(ThreadFunction f, void* params, OSThread* thread, const char* name);
-void			thread_join(OSThread* thread);
-void			thread_detach(OSThread* thread);
-
-void			mutex_create(OSMutex* mutex);
-void			mutex_destroy(OSMutex* mutex);
-void			mutex_lock(OSMutex* mutex);
-void			mutex_unlock(OSMutex* mutex);
-void			cond_create(OSCond* cond);
-void			cond_destroy(OSCond* cond);
-void			cond_signal(OSCond* cond);
-void			cond_wait(OSCond* cond, OSMutex* mutex);
 
 } // namespace os
 } // namespace crown

@@ -23,33 +23,38 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include <pthread.h>
-
-#include "Types.h"
-#include "Mutex.h"
-#include "OS.h"
+#include "Cond.h"
 
 namespace crown
 {
 namespace os
 {
 
-class Cond
+//-----------------------------------------------------------------------------
+Cond::Cond()
 {
-public:
+	memset(&m_cond, 0, sizeof(pthread_cond_t));
 
-					Cond();
-					~Cond();
+	pthread_cond_init(&m_cond, NULL);
+}
 
-	void			signal();
-	void			wait(Mutex& mutex);
+//-----------------------------------------------------------------------------
+Cond::~Cond()
+{
+	pthread_cond_destroy(&m_cond);
+}
 
-private:
+//-----------------------------------------------------------------------------
+void Cond::signal()
+{
+	pthread_cond_signal(&m_cond);
+}
 
-	pthread_cond_t	m_cond;
-};
+//-----------------------------------------------------------------------------
+void Cond::wait(Mutex& mutex)
+{
+	pthread_cond_wait(&m_cond, &(mutex.m_mutex));
+}
 
 } // namespace os
 } // namespace crown
