@@ -36,8 +36,6 @@ LOCAL_SRC_FILES :=\
 	core/streams/FileStream.cpp\
 	core/streams/MemoryStream.cpp\
 	core/streams/Stream.cpp\
-	core/threads/Thread.cpp\
-	core/threads/Mutex.cpp\
 \
 	input/EventDispatcher.cpp\
 	input/InputManager.cpp\
@@ -47,6 +45,11 @@ LOCAL_SRC_FILES :=\
 	os/android/AndroidInput.cpp\
 	os/android/AndroidDevice.cpp\
 	os/android/File.cpp\
+	os/posix/Thread.cpp\
+	os/posix/Mutex.cpp\
+	os/posix/Cond.cpp\
+	os/posix/TCPSocket.cpp\
+	os/posix/UDPSocket.cpp\
 \
 	Filesystem.cpp\
 \

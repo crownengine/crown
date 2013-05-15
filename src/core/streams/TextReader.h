@@ -33,7 +33,6 @@ class Stream;
 /// A reader that offers a convenient way to read text from a Stream
 class TextReader
 {
-
 public:
 
 						TextReader(Stream& s);

@@ -30,6 +30,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+// Max number of vertex buffers a renderer can hold.
+const uint32_t MAX_VERTEX_BUFFERS = 4096;
+
 enum VertexBufferMode
 {
 	VBM_VERTEX_ONLY		= 0,
@@ -38,36 +41,5 @@ enum VertexBufferMode
 	VBM_COLOR_COORDS	= 4
 };
 
-/**
-	Represents a vertex buffer to stream vertexes to the GPU.
-*/
-class VertexBuffer
-{
-
-public:
-
-						VertexBuffer() : mMode(VBM_VERTEX_ONLY) {}
-	virtual				~VertexBuffer() { }
-
-	inline bool			HasTextureCoords() const { return (mMode & VBM_TEXTURE_COORDS) != 0; }
-	inline bool			HasNormalCoords() const { return (mMode & VBM_NORMAL_COORDS) != 0; }
-	inline bool			HasColorCoords() const { return (mMode & VBM_COLOR_COORDS) != 0; }
-
-						//! Set the vertex data, the order of coordinates is Vertex, [Normals], [Texture], [Color]
-	virtual void		SetVertexData(VertexBufferMode mode, const void* vertexData, uint32_t vertexCount) = 0;
-						//! Replaces a subset of the vertex data, the order of coordinates is Vertex, [Normals], [Texture], [Color]
-	virtual void		SetVertexSubData(const void* vertexData, uint32_t vertexOffset, uint32_t vertexCount) = 0;
-
-	virtual uint32_t		GetSize() const = 0;			//!< Returns the size of the buffer
-	virtual uint32_t		GetVertexCount() const = 0;		//!< Returns the number of vertices in the buffer
-
-	virtual void		Bind() const = 0;
-	virtual void		Unbind() const = 0;
-
-protected:
-	
-	VertexBufferMode	mMode;
-};
-
-}
+} // namespace crown
 

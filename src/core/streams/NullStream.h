@@ -35,7 +35,6 @@ namespace crown
 /// Discards all data written to it and provides null data reading from it; plain and simple.
 class NullStream: public Stream
 {
-
 public:
 
 	/// @copydoc Stream::Stream()

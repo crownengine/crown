@@ -23,14 +23,19 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <algorithm>
+#include <cstdio>
+
 #include "Types.h"
 #include "ResourceManager.h"
 #include "String.h"
 #include "Hash.h"
 #include "Path.h"
 #include "Log.h"
-#include <algorithm>
-
+#include "Device.h"
+#include "Filesystem.h"
+#include "TextReader.h"
+#include "FileStream.h"
 #include "TextResource.h"
 #include "TextureResource.h"
 #include "ScriptResource.h"
@@ -45,13 +50,27 @@ ResourceManager::ResourceManager(ResourceArchive& archive, Allocator& allocator)
 	m_resources(m_allocator),
 	m_loading_queue(m_allocator),
 	m_loaded_queue(m_allocator),
+	m_seed(0),
+	m_background_thread_should_run(true),
 	m_thread(ResourceManager::background_thread, (void*)this, "resource-loader-thread")
 {
+	FileStream* seed_file = device()->filesystem()->open("seed.ini", SOM_READ);
+	TextReader reader(*seed_file);
+
+	char tmp_buf[32];
+	reader.read_string(tmp_buf, 32);
+
+	device()->filesystem()->close(seed_file);
+
+	sscanf(tmp_buf, "%u", &m_seed);
+
+	Log::d("Seed: %d", m_seed);
 }
 
 //-----------------------------------------------------------------------------
 ResourceManager::~ResourceManager()
 {
+	m_background_thread_should_run = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -63,8 +82,7 @@ ResourceId ResourceManager::load(const char* name)
 	path::filename_without_extension(name, basename, 512);
 	path::extension(name, extension, 512);
 
-	// FIXME hardcoded seed
-	uint32_t name_hash = hash::murmur2_32(basename, string::strlen(basename), 0);
+	uint32_t name_hash = hash::murmur2_32(basename, string::strlen(basename), m_seed);
 	uint32_t type_hash = hash::murmur2_32(extension, string::strlen(extension), 0);
 
 	return load(name_hash, type_hash);
@@ -282,7 +300,7 @@ ResourceId ResourceManager::load(uint32_t name, uint32_t type)
 //-----------------------------------------------------------------------------
 void ResourceManager::background_load()
 {
-	while (true)
+	while (m_background_thread_should_run)
 	{
 		m_loading_mutex.lock();
 		while (m_loading_queue.size() == 0)
@@ -383,6 +401,8 @@ void* ResourceManager::background_thread(void* thiz)
 	ResourceManager* mgr = (ResourceManager*)thiz;
 
 	mgr->background_load();
+
+	return NULL;
 }
 
 } // namespace crown

@@ -143,7 +143,7 @@ public:
 
 	/// Closes a previously opened file @stream
 	void				close(FileStream* stream);
-	
+
 private:
 
 	// Builds the OS-dependent path from base_path and relative_path

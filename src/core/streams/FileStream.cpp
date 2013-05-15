@@ -33,26 +33,16 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 FileStream::FileStream(StreamOpenMode mode, const char* filename) :
-	Stream(mode), m_file(NULL),
+	Stream(mode),
 	m_last_was_read(true)
 {
-	//Takes ownership
-	FileOpenMode file_open_mode = (FileOpenMode)0;
-
-	if (math::test_bitmask(mode, SOM_READ))
-		file_open_mode = (FileOpenMode)(file_open_mode | FOM_READ);
-	if (math::test_bitmask(mode, SOM_WRITE))
-		file_open_mode = (FileOpenMode)(file_open_mode | FOM_WRITE);
-
-	m_file = File::open(filename, file_open_mode);
+	m_file.open(filename, mode);
 }
 
 //-----------------------------------------------------------------------------
 FileStream::~FileStream()
 {
-	delete m_file;
-
-	m_file = 0;
+	//m_file.close();
 }
 
 //-----------------------------------------------------------------------------
@@ -60,7 +50,7 @@ void FileStream::seek(size_t position)
 {
 	check_valid();
 
-	m_file->seek(position, SEEK_SET);
+	m_file.seek(position);
 }
 
 //-----------------------------------------------------------------------------
@@ -68,7 +58,7 @@ void FileStream::seek_to_end()
 {
 	check_valid();
 
-	m_file->seek(0, SEEK_END);
+	m_file.seek_to_end();
 }
 
 //-----------------------------------------------------------------------------
@@ -76,7 +66,7 @@ void FileStream::skip(size_t bytes)
 {
 	check_valid();
 
-	m_file->seek(bytes, SEEK_CUR);
+	m_file.skip(bytes);
 }
 
 //-----------------------------------------------------------------------------
@@ -87,15 +77,12 @@ uint8_t FileStream::read_byte()
 	if (!m_last_was_read)
 	{
 		m_last_was_read = true;
-		m_file->seek(0, SEEK_CUR);
+		m_file.seek(0);
 	}
 
 	uint8_t buffer;
-	
-	if (m_file->read(&buffer, 1, 1) != 1)
-	{
-		Log::e("Could not read from file");
-	}
+
+	assert(m_file.read(&buffer, 1));
 
 	return buffer;
 }
@@ -108,13 +95,10 @@ void FileStream::read(void* buffer, size_t size)
 	if (!m_last_was_read)
 	{
 		m_last_was_read = true;
-		m_file->seek(0, SEEK_CUR);
+		m_file.seek(0);
 	}
 
-	if (m_file->read(buffer, size, 1) != 1)
-	{
-		Log::e("Could not read from file.");
-	}
+	assert(m_file.read(buffer, size));
 }
 
 //-----------------------------------------------------------------------------
@@ -131,22 +115,22 @@ bool FileStream::copy_to(Stream* stream, size_t size)
 
 	char* buff = new char[chunksize];
 
-	size_t totReadBytes = 0;
+	size_t tot_read_bytes = 0;
 
-	while (totReadBytes < size)
+	while (tot_read_bytes < size)
 	{
-		int32_t readBytes;
-		int32_t expectedReadBytes = math::min(size - totReadBytes, chunksize);
+		size_t read_bytes;
+		size_t expected_read_bytes = math::min(size - tot_read_bytes, chunksize);
 
-		readBytes = m_file->read(buff, 1, expectedReadBytes);
+		read_bytes = m_file.read(buff, expected_read_bytes);
 
-		if (readBytes < expectedReadBytes)
+		if (read_bytes < expected_read_bytes)
 		{
-			if (m_file->eof())
+			if (m_file.eof())
 			{
-				if (readBytes != 0)
+				if (read_bytes != 0)
 				{
-					stream->write(buff, readBytes);
+					stream->write(buff, read_bytes);
 				}
 			}
 
@@ -155,8 +139,8 @@ bool FileStream::copy_to(Stream* stream, size_t size)
 			return false;
 		}
 
-		stream->write(buff, readBytes);
-		totReadBytes += readBytes;
+		stream->write(buff, read_bytes);
+		tot_read_bytes += read_bytes;
 	}
 
 	delete [] buff;
@@ -172,14 +156,7 @@ bool FileStream::end_of_stream() const
 //-----------------------------------------------------------------------------
 bool FileStream::is_valid() const
 {
-	{
-		if (!m_file)
-		{
-			return false;
-		}
-
-		return m_file->is_valid();
-	}
+	return m_file.is_open();
 }
 
 //-----------------------------------------------------------------------------
@@ -190,13 +167,10 @@ void FileStream::write_byte(uint8_t val)
 	if (m_last_was_read)
 	{
 		m_last_was_read = false;
-		m_file->seek(0, SEEK_CUR);
+		m_file.seek(0);
 	}
 
-	if (m_file->write(&val, 1, 1) != 1)
-	{
-		Log::e("Could not write to file.");
-	}
+	assert(m_file.write(&val, 1) == 1);
 }
 
 //-----------------------------------------------------------------------------
@@ -207,13 +181,10 @@ void FileStream::write(const void* buffer, size_t size)
 	if (m_last_was_read)
 	{
 		m_last_was_read = false;
-		m_file->seek(0, SEEK_CUR);
+		m_file.seek(0);
 	}
 
-	if (m_file->write(buffer, size, 1) != 1)
-	{
-		Log::e("Could not write to file.");
-	}
+	assert(m_file.write(buffer, size) == size);
 }
 
 //-----------------------------------------------------------------------------
@@ -229,7 +200,7 @@ size_t FileStream::position() const
 {
 	check_valid();
 
-	return m_file->tell();
+	return m_file.position();
 }
 
 //-----------------------------------------------------------------------------
@@ -237,7 +208,7 @@ size_t FileStream::size() const
 {
 	check_valid();
 	
-	return m_file->size();
+	return m_file.size();
 }
 
 //-----------------------------------------------------------------------------

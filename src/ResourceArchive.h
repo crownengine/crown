@@ -57,7 +57,16 @@ public:
 
 	virtual					~ResourceArchive() {}
 
-	virtual FileStream*		find(ResourceId name) = 0;
+	/// Opens the resource file containing @name resource
+	/// and returns a stream from which read the data from.
+	/// @note
+	/// The resource stream points exactly at the start
+	/// of the useful resource data, so you do not have to
+	/// care about skipping headers, metadatas and so on.
+	virtual FileStream*		open(ResourceId name) = 0;
+
+	/// Closes the resource file.
+	virtual void			close(FileStream* resource) = 0;
 };
 
 } // namespace crown

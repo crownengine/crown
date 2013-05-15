@@ -130,7 +130,7 @@ public:
 		device()->resource_manager()->flush();
 
 		TextureResource* grass_texture = (TextureResource*)device()->data(grass);
-		grass_id = device()->renderer()->load_texture(grass_texture);
+		grass_id = device()->renderer()->create_texture(grass_texture->width(), grass_texture->height(), grass_texture->format(), grass_texture->data());
 
 		ScriptResource* script_resource = (ScriptResource*)device()->data(script);
 		device()->script_system()->load(script_resource);
@@ -145,6 +145,8 @@ public:
 		device()->unload(red_west);
 		device()->unload(red_up);
 		device()->unload(red_down);
+
+		//device()->renderer()->destroy_render_buffer(rb_id);
 	}
 
 	void update(float dt)
@@ -188,7 +190,7 @@ public:
 		if (device()->is_loaded(grass))
 		{
 			renderer->set_texturing(0, true);
-			renderer->set_texture(0, grass_id);
+			renderer->bind_texture(0, grass_id);
 		}
 		
 		//glColor3f(1, 1, 1);
@@ -233,6 +235,7 @@ private:
 	ResourceId red_up;
 	ResourceId red_down;
 	TextureId grass_id;
+	RenderBufferId rb_id;
 
 	ResourceId script;
 

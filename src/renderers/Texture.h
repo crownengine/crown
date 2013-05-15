@@ -30,6 +30,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+// Max number of textures a renderer can hold.
+const uint32_t MAX_TEXTURES = 4096;
+
 enum TextureMode
 {
 	TM_MODULATE	= 0,	// Multiplies texel color by the geometry color after lighting
@@ -59,12 +62,6 @@ enum TextureWrap
 	TW_CLAMP_TO_EDGE	= 2,
 	TW_CLAMP_TO_BORDER	= 3,
 	TW_COUNT
-};
-
-struct TextureId
-{
-	uint16_t	index;
-	uint16_t	id;
 };
 
 } // namespace crown

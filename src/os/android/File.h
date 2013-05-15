@@ -25,54 +25,66 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
 #include <sys/types.h>
 #include <android/asset_manager.h>
+
+#include "Types.h"
+#include "Stream.h"
 
 namespace crown
 {
 
-/**
-	Enumerates file opening modes.
-*/
-enum FileOpenMode
-{
-	FOM_READ	= 1,
-	FOM_WRITE	= 2
-};
-
-/**
-	Standard C file wrapper.
-*/
+/// Android assets wrapper
 class File
 {
-
 public:
 
-						~File();
+							File();
+							~File();
 
-	bool				is_valid();
+	/// Opens the file located at @path with the given @mode.
+	bool					open(const char* path, StreamOpenMode mode);
 
-	FileOpenMode		mode();
+	/// Closes the file.
+	void					close();
 
-	size_t				read(void* ptr, size_t size, size_t nmemb);
-	size_t				write(const void* ptr, size_t size, size_t nmemb);
-	int					seek(int32_t offset, int whence);
-	int32_t				tell();
+	bool					is_open() const;
 
-	int					eof();
+	/// Return the size of the file in bytes.
+	size_t					size() const;
 
-	size_t				size();
+	/// Returs the mode used to open the file.
+	StreamOpenMode			mode();
 
-	static File*		open(const char* path, FileOpenMode mode);
+	/// Reads @size bytes from the file and stores it into @data.
+	/// Returns the number of bytes read.
+	size_t					read(void* data, size_t size);
+
+	/// Writes @size bytes of data stored in @data and returns the
+	/// number of bytes written.
+	size_t					write(const void* data, size_t size);
+
+	/// Moves the file pointer to the given @position.
+	void					seek(size_t position);
+
+	/// Moves the file pointer to the end of the file.
+	void					seek_to_end();
+
+	/// Moves the file pointer @bytes bytes ahead the current
+	/// file pointer position.
+	void					skip(size_t bytes);
+
+	/// Returns the position of the file pointer from the
+	/// start of the file in bytes.
+	size_t					position() const;
+
+	/// Returns whether the file pointer is at the end of the file.
+	bool					eof() const;
 
 private:
 
-	AAsset*				m_asset;
-	FileOpenMode		m_mode;
-
-						File();
+	AAsset*					m_asset;
+	StreamOpenMode			m_mode;
 };
 
 } // namespace crown
-

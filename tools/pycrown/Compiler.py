@@ -30,6 +30,8 @@ BC_G = "bytecode-generator.lua"
 TXT_C = "txt-compiler"
 TGA_C = "tga-compiler"
 LUA_C = "lua-compiler"
+VS_C = "vs-compiler"
+PS_C = "ps-compiler"
 RES_H = "resource-hash"
 
 ROOT_P = "--root-path"
@@ -107,6 +109,20 @@ class Compiler:
 		for res in scripts:
 			self.compile(res)
 
+	# Compiles all the vertex shader resources in the repository
+	def compile_vertex_shaders(self):
+		vss = self.m_repository.vertex_shader_resources();
+
+		for res in vss:
+			self.compile(res)
+
+	# Compiles all the vertex shader resources in the repository
+	def compile_pixel_shaders(self):
+		pss = self.m_repository.pixel_shader_resources();
+
+		for res in pss:
+			self.compile(res)
+
 	# Compiles all the resources in the repository
 	def compile_all(self):
 		print("Compiling textures...")
@@ -121,6 +137,12 @@ class Compiler:
 		print("Compiling scripts...")
 		self.compile_scripts()
 
+		print("Compiling vertex shaders...")
+		self.compile_vertex_shaders()
+
+		print("Compiling pixel shaders...")
+		self.compile_pixel_shaders()
+
 	# Compile a single resource from the repository
 	def compile(self, resource):
 		# Compute perfect seed if necessary
@@ -134,12 +156,19 @@ class Compiler:
 		# Call appropriate compiler based on resource extension
 		if resource.endswith('.txt'):
 			p = subprocess.call([TXT_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
+		
 		if resource.endswith('.tga'):
 			p = subprocess.call([TGA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
+		
 		if resource.endswith('.lua'):
 			path = os.path.normpath(root_path + "/" + resource)
 			f = subprocess.call([LUAJIT, BC_G, path]);
 			p = subprocess.call([LUA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
+		
+		if resource.endswith('.vs'):
+			p = subprocess.call([VS_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
+		
+		if resource.endswith('.ps'):
+			p = subprocess.call([PS_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
 
-	
 

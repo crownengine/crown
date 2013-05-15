@@ -75,6 +75,7 @@ set (CONTAINERS_HEADERS
 	core/containers/Generic.h
 	core/containers/List.h
 	core/containers/RBTree.h
+	core/containers/IdTable.h
 )
 
 set (MATH_SRC
@@ -163,15 +164,6 @@ set (COMPRESSORS_HEADERS
 	core/compressors/ZipCompressor.h
 )
 
-set (THREADS_HEADERS
-	core/threads/Thread.h
-	core/threads/Mutex.h
-	core/threads/Cond.h
-)
-
-set (THREADS_SRC
-)
-
 set (SETTINGS_SRC
 	core/settings/IntSetting.cpp
 	core/settings/FloatSetting.cpp
@@ -202,22 +194,24 @@ set (INPUT_HEADERS
 
 set (RENDERERS_SRC
 	renderers/DebugRenderer.cpp
-	renderers/Pixel.cpp
+	renderers/PixelFormat.cpp
+	renderers/VertexFormat.cpp
 )
 
 set (RENDERERS_HEADERS
 	renderers/Renderer.h
 	renderers/IndexBuffer.h
 	renderers/VertexBuffer.h
-	renderers/OcclusionQuery.h
 	renderers/Material.h
 	renderers/Texture.h
 	renderers/DebugRenderer.h
-	renderers/Pixel.h
+	renderers/PixelFormat.h
+	renderers/VertexFormat.h
 )
 
 set (OS_HEADERS
 	os/OS.h
+	os/NetAddress.h
 )
 
 set (OS_SRC
@@ -257,7 +251,6 @@ set (CROWN_SOURCES
 	${STREAMS_SRC}
 	${MEM_SRC}
 	${COMPRESSORS_SRC}
-	${THREADS_SRC}
 	${SETTINGS_SRC}
 
 	${INPUT_SRC}
@@ -281,7 +274,6 @@ set (CROWN_HEADERS
 	${STREAMS_HEADERS}
 	${MEM_HEADERS}
 	${COMPRESSORS_HEADERS}
-	${THREADS_HEADERS}
 	${SETTINGS_HEADERS}
 
 	${INPUT_HEADERS}

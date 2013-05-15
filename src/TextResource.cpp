@@ -10,7 +10,7 @@ namespace crown
 //-----------------------------------------------------------------------------
 void* TextResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
 {
-	FileStream* stream = archive.find(id);
+	FileStream* stream = archive.open(id);
 
 	if (stream != NULL)
 	{
@@ -23,6 +23,8 @@ void* TextResource::load(Allocator& allocator, ResourceArchive& archive, Resourc
 		stream->read(resource->data, (size_t)resource->length);
 		
 		resource->data[resource->length] = '\0';
+
+		archive.close(stream);
 
 		return resource;
 	}

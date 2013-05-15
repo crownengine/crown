@@ -119,6 +119,8 @@ bool Device::init(int argc, char** argv)
 
 	Log::d("Filesystem created.");
 
+	Log::d("Filesystem root path: %s", m_filesystem->root_path());
+
 	create_resource_manager();
 
 	Log::d("Resource manager created.");
@@ -142,8 +144,6 @@ bool Device::init(int argc, char** argv)
 	Log::i("Crown Engine initialized.");
 
 	Log::i("Initializing Game...");
-
-	Log::d(m_filesystem->root_path());
 
 	// Try to locate the game library
 	if (!m_filesystem->exists(GAME_LIBRARY_NAME))
@@ -389,11 +389,6 @@ void Device::reload(ResourceId name)
 	m_resource_manager->reload(name);
 
 	const void* new_resource = m_resource_manager->data(name);
-
-	if (name.type == TEXTURE_TYPE)
-	{
-		m_renderer->reload_texture((TextureResource*)old_resource, (TextureResource*)new_resource);
-	}
 }
 
 //-----------------------------------------------------------------------------

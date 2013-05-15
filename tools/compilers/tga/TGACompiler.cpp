@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "TGACompiler.h"
 #include "FileStream.h"
-#include "Pixel.h"
+#include "PixelFormat.h"
 #include "Resource.h"
 
 namespace crown

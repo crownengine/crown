@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Triangle.h"
 #include "Intersection.h"
 #include "Ray.h"
+#include "Renderer.h"
 
 #define MAX_BRUSH_SIZE 256
 
@@ -96,6 +97,11 @@ private:
 
 	uint32_t		mIndexCount;
 	uint16_t*		mIndices;
+
+	VertexBufferId	m_vertex_buffer;
+	VertexBufferId	m_normal_buffer;
+	VertexBufferId	m_tex_coord_buffer;
+	IndexBufferId	m_index_buffer;
 
 	uint32_t		mBrushWidth;
 	uint32_t		mBrushHeight;

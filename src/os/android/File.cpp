@@ -23,105 +23,138 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "File.h"
-#include "Log.h"
-#include "MathUtils.h"
-#include "AndroidOS.h"
 #include <cassert>
+#include <stdio.h>
+
+#include "OS.h"
+#include "File.h"
+#include "AndroidOS.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
 File::File() :
-	m_asset(NULL), m_mode(FOM_READ)
+	m_asset(NULL),
+	m_mode(SOM_READ)
 {
 }
 
 //-----------------------------------------------------------------------------
 File::~File()
 {
+	close();
+}
+
+//-----------------------------------------------------------------------------
+void File::close()
+{
 	if (m_asset != NULL)
 	{
 		AAsset_close(m_asset);
+		m_asset = NULL;
 	}
 }
 
 //-----------------------------------------------------------------------------
-bool File::is_valid()
+bool File::is_open() const
 {
 	return m_asset != NULL;
 }
 
 //-----------------------------------------------------------------------------
-FileOpenMode File::mode()
+StreamOpenMode File::mode()
 {
 	return m_mode;
 }
 
 //-----------------------------------------------------------------------------
-File* File::open(const char* path, FileOpenMode mode)
-{
-	File* f = new File();
-
-	f->m_asset = AAssetManager_open(os::get_android_asset_manager(), path, AASSET_MODE_RANDOM);
-
-	if (f->m_asset == NULL)
-	{
-		Log::E("File::Open: Could not open file %s", path);
-		return NULL;
-	}
-
-	f->m_mode = FOM_READ;
-
-	return f;
-}
-
-//-----------------------------------------------------------------------------
-size_t File::read(void* ptr, size_t size, size_t nmemb)
-{
-	assert(m_asset != NULL);
-	assert(ptr != NULL);
-
-	return (size_t)AAsset_read(m_asset, ptr, size * nmemb);
-}
-
-//-----------------------------------------------------------------------------
-size_t File::write(const void* ptr, size_t size, size_t nmemb)
-{
-	Log::W("Cannot write to Android asset directory!!!");
-}
-
-//-----------------------------------------------------------------------------
-int File::seek(int32_t offset, int whence)
-{
-	assert(m_asset != NULL);
-
-	return AAsset_seek(m_asset, (off_t)offset, whence);
-}
-
-//-----------------------------------------------------------------------------
-int32_t File::tell()
-{
-	assert(m_asset != NULL);
-	
-	return (int32_t)(AAsset_getLength(m_asset) - AAsset_getRemainingLength(m_asset));
-}
-
-//-----------------------------------------------------------------------------
-int File::eof()
-{
-	assert(m_asset != NULL);
-	
-	return (int)(AAsset_getRemainingLength(m_asset) == 0);
-}
-
-//-----------------------------------------------------------------------------
-size_t File::size()
+size_t File::size() const
 {
 	assert(m_asset != NULL);
 	
 	return AAsset_getLength(m_asset);
+}
+
+//-----------------------------------------------------------------------------
+bool File::open(const char* path, StreamOpenMode mode)
+{
+	assert(!is_open());
+
+	// Android assets are always read-only
+	(void) mode;
+	m_mode = SOM_READ;
+
+	m_asset = AAssetManager_open(os::get_android_asset_manager(), path, AASSET_MODE_RANDOM);
+
+	if (m_asset == NULL)
+	{
+		os::printf("Could not open asset %s", path);
+
+		return false;
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+size_t File::read(void* data, size_t size)
+{
+	assert(m_asset != NULL);
+	assert(data != NULL);
+
+	return (size_t)AAsset_read(m_asset, data, size);
+}
+
+//-----------------------------------------------------------------------------
+size_t File::write(const void* data, size_t size)
+{
+	assert(m_asset != NULL);
+	assert(data != NULL);
+
+	os::printf("Android asset directory is read-only!");
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+void File::seek(size_t position)
+{
+	assert(m_asset != NULL);
+
+	assert(AAsset_seek(m_asset, (off_t)position, SEEK_SET) != (off_t) -1);
+}
+
+//-----------------------------------------------------------------------------
+void File::seek_to_end()
+{
+	assert(m_asset != NULL);
+
+	assert(AAsset_seek(m_asset, 0, SEEK_END) != (off_t) -1);
+}
+
+//-----------------------------------------------------------------------------
+void File::skip(size_t bytes)
+{
+	assert(m_asset != NULL);
+
+	assert(AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR) != (off_t) -1);
+}
+
+//-----------------------------------------------------------------------------
+size_t File::position() const
+{
+	assert(m_asset != NULL);
+	
+	return (size_t) (AAsset_getLength(m_asset) - AAsset_getRemainingLength(m_asset));
+}
+
+//-----------------------------------------------------------------------------
+bool File::eof() const
+{
+	assert(m_asset != NULL);
+	
+	return AAsset_getRemainingLength(m_asset) == 0;
 }
 
 } // namespace crown

@@ -1,7 +1,31 @@
+/*
+Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 #pragma once
 
 #include "Types.h"
-#include "OS.h"
 #include "Allocator.h"
 #include "Vec3.h"
 
@@ -9,15 +33,12 @@ namespace crown
 {
 namespace network
 {
-	/**
-	* bit-packet reliable message.
-	* Usage: After every instantition, must be initialized with @init(len)
-	*	TODO: rework as POD is needed; this feature provides compatibility with queue
-	*/
 
+/// Bit-packet reliable message.
+/// Usage: After every instantition, must be initialized with @init(len)
+/// TODO: rework as POD is needed; this feature provides compatibility with queue
 class BitMessage
 {
-
 public:
 						BitMessage(Allocator& allocator);
 						~BitMessage();
@@ -91,7 +112,7 @@ private:
 	
 private:
 	
-	Allocator*			m_allocator;								// memory allocator
+	Allocator&			m_allocator;								// memory allocator
 	
 	uint8_t*			m_header;
 	uint8_t*			m_data;
@@ -106,9 +127,9 @@ private:
 	mutable int32_t		m_read_bit;									// number of bits read from the last read byte
 	
 	bool 				m_overflowed;								// overflow flag
-	bool				m_init;										// is init flag
-	
+	bool				m_init;										// is init flag	
 };
+
 } // namespace network
 } // namespace crown
 

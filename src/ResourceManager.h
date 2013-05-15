@@ -157,15 +157,18 @@ private:
 	// Resources already loaded, ready to bring online
 	Queue<LoadedResource>	m_loaded_queue;
 
+	uint32_t				m_seed;
+
 	// Background loading thread
-	Thread					m_thread;
+	bool 					m_background_thread_should_run;
+	os::Thread				m_thread;
 
-	mutable Mutex			m_loading_mutex;
-	Cond 					m_loading_requests;
-	Cond 					m_all_loaded;
+	mutable os::Mutex		m_loading_mutex;
+	os::Cond 				m_loading_requests;
+	os::Cond 				m_all_loaded;
 
-	Mutex					m_loaded_mutex;
-	mutable Mutex			m_resources_mutex;
+	os::Mutex				m_loaded_mutex;
+	mutable os::Mutex		m_resources_mutex;
 
 	friend class			Device;
 };

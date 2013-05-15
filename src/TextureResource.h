@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Resource.h"
-#include "Pixel.h"
+#include "PixelFormat.h"
 #include "Texture.h"
 
 namespace crown
