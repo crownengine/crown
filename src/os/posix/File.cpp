@@ -110,7 +110,7 @@ size_t File::read(void* data, size_t size)
 	assert(m_file_handle != NULL);
 	assert(data != NULL);
 
-	return fread(data, size, 1, m_file_handle);
+	return fread(data, 1, size, m_file_handle);
 }
 
 //-----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ size_t File::write(const void* data, size_t size)
 	assert(m_file_handle != NULL);
 	assert(data != NULL);
 
-	return fwrite(data, size, 1, m_file_handle);
+	return fwrite(data, 1, size, m_file_handle);
 }
 
 //-----------------------------------------------------------------------------
