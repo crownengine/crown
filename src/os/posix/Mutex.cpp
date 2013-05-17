@@ -23,65 +23,39 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Types.h"
-#include "Timer.h"
-#include <sys/time.h>
+#include "Mutex.h"
 
 namespace crown
 {
-
-Timer::Timer()
+namespace os
 {
-	Reset();
+
+//-----------------------------------------------------------------------------
+Mutex::Mutex()
+{
+	memset(&m_mutex, 0, sizeof(pthread_mutex_t));
+
+	pthread_mutex_init(&m_mutex, NULL);
 }
 
-Timer::~Timer()
+//-----------------------------------------------------------------------------
+Mutex::~Mutex()
 {
+	pthread_mutex_destroy(&m_mutex);
 }
 
-void Timer::Reset()
+//-----------------------------------------------------------------------------
+void Mutex::lock()
 {
-	clock_gettime(CLOCK_MONOTONIC, &mCreationTime);
+	pthread_mutex_lock(&m_mutex);
 }
 
-uint64_t Timer::GetMilliseconds() const
+//-----------------------------------------------------------------------------
+void Mutex::unlock()
 {
-	timespec tmp;
-	clock_gettime(CLOCK_MONOTONIC, &tmp);
-	return (tmp.tv_sec - mCreationTime.tv_sec) * 1000 + (tmp.tv_nsec - mCreationTime.tv_nsec) / 1000000;
+	pthread_mutex_unlock(&m_mutex);
 }
 
-uint64_t Timer::GetMicroseconds() const
-{
-	timespec tmp;
-	clock_gettime(CLOCK_MONOTONIC, &tmp);
-	return (tmp.tv_sec - mCreationTime.tv_sec) * 1000000 + (tmp.tv_nsec - mCreationTime.tv_nsec) / 1000;
-}
-
-
-void Timer::StartMilliseconds()
-{
-	clock_gettime(CLOCK_MONOTONIC, &mStartTime);
-}
-
-uint64_t Timer::StopMilliseconds() const
-{
-	timespec tmp;
-	clock_gettime(CLOCK_MONOTONIC, &tmp);
-	return (tmp.tv_sec - mStartTime.tv_sec) * 1000 + (tmp.tv_nsec - mStartTime.tv_nsec) / 1000000;
-}
-
-void Timer::StartMicroseconds()
-{
-	clock_gettime(CLOCK_MONOTONIC, &mStartTime);
-}
-
-uint64_t Timer::StopMicroseconds() const
-{
-	timespec tmp;
-	clock_gettime(CLOCK_MONOTONIC, &tmp);
-	return (tmp.tv_sec - mStartTime.tv_sec) * 1000000 + (tmp.tv_nsec - mStartTime.tv_nsec) / 1000;
-}
-
+} // namespace os
 } // namespace crown
 

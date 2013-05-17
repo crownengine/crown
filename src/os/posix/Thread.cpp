@@ -23,50 +23,54 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "WinInputManager.h"
-#include "WinMouse.h"
-#include "WinKeyboard.h"
+#include "Thread.h"
+#include <stdlib.h>
 
 namespace crown
 {
+namespace os
+{
 
 //-----------------------------------------------------------------------------
-WinInputManager::WinInputManager() :
-	mIsMouseAvailable(false),
-	mIsKeyboardAvailable(false),
-	mWindowHandle(0)
+Thread::Thread(os::ThreadFunction f, void* params, const char* name) :
+	m_name(name)
+{
+	memset(&m_thread, 0, sizeof(pthread_t));
+
+	// Make thread joinable
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+	// Create thread
+	int rc = pthread_create(&m_thread, &attr, f, (void*)params);
+
+	if (rc != 0)
+	{
+		os::printf("Unable to create the thread '%s' Error code: %d\n", name, rc);
+		exit(-1);
+	}
+
+	// Free attr memory
+	pthread_attr_destroy(&attr);
+}
+
+//-----------------------------------------------------------------------------
+Thread::~Thread()
 {
 }
 
 //-----------------------------------------------------------------------------
-WinInputManager::~WinInputManager()
+void Thread::join()
 {
-	if (mMouse)
-	{
-		delete mMouse;
-	}
-
-	if (mKeyboard)
-	{
-		delete mKeyboard;
-	}
+	pthread_join(m_thread, NULL);
 }
 
 //-----------------------------------------------------------------------------
-void WinInputManager::Init(const EventSource& source)
+void Thread::detach()
 {
-	mWindowHandle = (HWND)source.WindowHandle;
-
-	if (!mMouse)
-	{
-		mMouse = new WinMouse(this);
-	}
-
-	if (!mKeyboard)
-	{
-		mKeyboard = new WinKeyboard(this);
-	}
+	pthread_detach(m_thread);
 }
 
+} // namespace os
 } // namespace crown
-

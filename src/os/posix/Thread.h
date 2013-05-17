@@ -25,17 +25,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <pthread.h>
+
 #include "Types.h"
 #include "OS.h"
 
 namespace crown
 {
+namespace os
+{
+
+typedef void* (*ThreadFunction)(void*);
 
 class Thread
 {
 public:
 
-					Thread(os::ThreadFunction f, void* args, const char* name);
+					Thread(os::ThreadFunction f, void* params, const char* name);
 					~Thread();
 
 	void			join();
@@ -43,32 +49,9 @@ public:
 
 private:
 
-	os::OSThread	m_thread;
+	pthread_t		m_thread;
+	const char*		m_name;
 };
 
-//-----------------------------------------------------------------------------
-inline Thread::Thread(os::ThreadFunction f, void* args, const char* name)
-{
-	memset(&m_thread, 0, sizeof(os::OSThread));
-
-	os::thread_create(f, args, &m_thread, name);
-}
-
-//-----------------------------------------------------------------------------
-inline Thread::~Thread()
-{
-}
-
-//-----------------------------------------------------------------------------
-inline void Thread::join()
-{
-	os::thread_join(&m_thread);
-}
-
-//-----------------------------------------------------------------------------
-inline void Thread::detach()
-{
-	os::thread_detach(&m_thread);
-}
-
+} // namespace os
 } // namespace crown

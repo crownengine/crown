@@ -6,13 +6,21 @@ set (LINUX_SRC
 	GLXRenderWindow.cpp
 	LinuxOS.cpp
 	Input.cpp
-	LinuxTCPSocket.cpp
-	LinuxUDPSocket.cpp	
-	File.cpp
+	../posix/TCPSocket.cpp
+	../posix/UDPSocket.cpp	
+	../posix/File.cpp
+	../posix/Thread.cpp
+	../posix/Mutex.cpp
+	../posix/Cond.cpp
 )
 
 set (LINUX_HEADERS
-	File.h
+	../posix/TCPSocket.h
+	../posix/UDPSocket.h
+	../posix/File.h
+	../posix/Thread.h
+	../posix/Mutex.h
+	../posix/Cond.h
 )
 
 link_libraries(X11 Xrandr pthread)

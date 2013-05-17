@@ -23,51 +23,38 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include <sys/time.h>
-#include "Types.h"
+#include "Cond.h"
 
 namespace crown
 {
-
-class Timer
+namespace os
 {
 
-public:
+//-----------------------------------------------------------------------------
+Cond::Cond()
+{
+	memset(&m_cond, 0, sizeof(pthread_cond_t));
 
-	//! Constructor
-	Timer();
+	pthread_cond_init(&m_cond, NULL);
+}
 
-	//! Destructor
-	~Timer();
+//-----------------------------------------------------------------------------
+Cond::~Cond()
+{
+	pthread_cond_destroy(&m_cond);
+}
 
-	//! Returns the time (in milliseconds) elapsed since the instantiation of this class
-	uint64_t GetMilliseconds() const;
+//-----------------------------------------------------------------------------
+void Cond::signal()
+{
+	pthread_cond_signal(&m_cond);
+}
 
-	//! Returns the time (in microseconds) elapsed since the instantiation of this class
-	uint64_t GetMicroseconds() const;
+//-----------------------------------------------------------------------------
+void Cond::wait(Mutex& mutex)
+{
+	pthread_cond_wait(&m_cond, &(mutex.m_mutex));
+}
 
-	//! Records the current time
-	void StartMilliseconds();
-
-	//! Returns the time (in milliseconds) elapsed since the last call to StartMilliseconds()
-	uint64_t StopMilliseconds() const;
-
-	//! Records the current time
-	void StartMicroseconds();
-
-	//! Returns the time (in microseconds) elapsed since the last call to StartMicroseconds()
-	uint64_t StopMicroseconds() const;
-
-private:
-
-	// Records the initial reference time
-	void Reset();
-
-	timespec mCreationTime;		// Time at instantiation
-	timespec mStartTime;		// Time at Start* call
-};
-
+} // namespace os
 } // namespace crown
-

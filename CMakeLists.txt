@@ -26,6 +26,7 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/core/threads
 	${CMAKE_SOURCE_DIR}/src/core/settings
 	${CMAKE_SOURCE_DIR}/src/os
+	${CMAKE_SOURCE_DIR}/src/os/posix
 	${CMAKE_SOURCE_DIR}/src/os/linux
 	${CMAKE_SOURCE_DIR}/src/input
 	${CMAKE_SOURCE_DIR}/src/renderers

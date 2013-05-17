@@ -23,124 +23,143 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "File.h"
-#include "Log.h"
-#include "MathUtils.h"
 #include <cassert>
+#include <stdio.h>
+
+#include "OS.h"
+#include "File.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
 File::File() :
-	m_file_handle(NULL), m_mode(FOM_READ)
+	m_file_handle(NULL),
+	m_mode(SOM_READ)
 {
 }
 
 //-----------------------------------------------------------------------------
 File::~File()
 {
+	close();
+}
+
+//-----------------------------------------------------------------------------
+void File::close()
+{
 	if (m_file_handle != NULL)
 	{
 		fclose(m_file_handle);
+		m_file_handle = NULL;
 	}
 }
 
 //-----------------------------------------------------------------------------
-bool File::is_valid()
+bool File::is_open() const
 {
-	return m_file_handle != 0;
+	return m_file_handle != NULL;
 }
 
 //-----------------------------------------------------------------------------
-FileOpenMode File::mode()
+StreamOpenMode File::mode()
 {
 	return m_mode;
 }
 
 //-----------------------------------------------------------------------------
-FILE* File::get_handle()
+size_t File::size() const
 {
-	return m_file_handle;
-}
+	long pos = ftell(m_file_handle);
 
-//-----------------------------------------------------------------------------
-File* File::open(const char* path, FileOpenMode mode)
-{
-	File* f = new File();
-	f->m_file_handle = fopen(path, 
-
-	/*
-		TestFlag(mode, FOM_READ) ?
-			(TestFlag(mode, FOM_WRITE) ?
-				(TestFlag(mode, FOM_CREATENEW) ? "wb+" : "rb+") : "rb") : (TestFlag(mode, FOM_WRITE) ? "wb" : "rb"));
-	*/
-
-	math::test_bitmask(mode, FOM_READ) ?
-		(math::test_bitmask(mode, FOM_WRITE) ? "rb+" : "rb") : (math::test_bitmask(mode, FOM_WRITE) ? "wb" : "rb")); 
-
-	if (f->m_file_handle == NULL)
-	{
-		Log::e("File::Open: Could not open file %s", path);
-		return NULL;
-	}
-
-	f->m_mode = mode;
-
-	return f;
-}
-
-//-----------------------------------------------------------------------------
-size_t File::read(void* ptr, size_t size, size_t nmemb)
-{
-	assert(m_file_handle != NULL);
-	assert(ptr != NULL);
-
-	return fread(ptr, size, nmemb, m_file_handle);
-}
-
-//-----------------------------------------------------------------------------
-size_t File::write(const void* ptr, size_t size, size_t nmemb)
-{
-	assert(m_file_handle != NULL);
-	assert(ptr != NULL);
-
-	return fwrite(ptr, size, nmemb, m_file_handle);
-}
-
-//-----------------------------------------------------------------------------
-int File::seek(int32_t offset, int whence)
-{
-	assert(m_file_handle != NULL);
-
-	return fseek(m_file_handle, offset, whence);
-}
-
-//-----------------------------------------------------------------------------
-int32_t File::tell()
-{
-	assert(m_file_handle != NULL);
-	
-	return ftell(m_file_handle);
-}
-
-//-----------------------------------------------------------------------------
-int File::eof()
-{
-	assert(m_file_handle != NULL);
-	
-	return feof(m_file_handle);
-}
-
-//-----------------------------------------------------------------------------
-size_t File::size()
-{
-	size_t pos = ftell(m_file_handle);
 	fseek(m_file_handle, 0, SEEK_END);
-	size_t size = ftell(m_file_handle);
+
+	long size = ftell(m_file_handle);
+
 	fseek(m_file_handle, pos, SEEK_SET);
 
-	return size;
+	return (size_t) size;
+}
+
+//-----------------------------------------------------------------------------
+bool File::open(const char* path, StreamOpenMode mode)
+{
+	assert(!is_open());
+
+	const char* c_mode = mode == SOM_READ ? "rb" : SOM_WRITE ? "wb" : "x";
+
+	assert(c_mode[0] != 'x');
+
+	m_file_handle = fopen(path, c_mode);
+
+	if (m_file_handle == NULL)
+	{
+		os::printf("Could not open file %s", path);
+
+		return false;
+	}
+
+	m_mode = mode;
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+size_t File::read(void* data, size_t size)
+{
+	assert(m_file_handle != NULL);
+	assert(data != NULL);
+
+	return fread(data, 1, size, m_file_handle);
+}
+
+//-----------------------------------------------------------------------------
+size_t File::write(const void* data, size_t size)
+{
+	assert(m_file_handle != NULL);
+	assert(data != NULL);
+
+	return fwrite(data, 1, size, m_file_handle);
+}
+
+//-----------------------------------------------------------------------------
+void File::seek(size_t position)
+{
+	assert(m_file_handle != NULL);
+
+	assert(fseek(m_file_handle, (long) position, SEEK_SET) == 0);
+}
+
+//-----------------------------------------------------------------------------
+void File::seek_to_end()
+{
+	assert(m_file_handle != NULL);
+
+	assert(fseek(m_file_handle, 0, SEEK_END) == 0);
+}
+
+//-----------------------------------------------------------------------------
+void File::skip(size_t bytes)
+{
+	assert(m_file_handle != NULL);
+
+	assert(fseek(m_file_handle, bytes, SEEK_CUR) == 0);
+}
+
+//-----------------------------------------------------------------------------
+size_t File::position() const
+{
+	assert(m_file_handle != NULL);
+
+	return (size_t) ftell(m_file_handle);
+}
+
+//-----------------------------------------------------------------------------
+bool File::eof() const
+{
+	assert(m_file_handle != NULL);
+
+	return feof(m_file_handle) != 0;
 }
 
 } // namespace crown

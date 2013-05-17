@@ -161,14 +161,14 @@ private:
 
 	// Background loading thread
 	bool 					m_background_thread_should_run;
-	Thread					m_thread;
+	os::Thread				m_thread;
 
-	mutable Mutex			m_loading_mutex;
-	Cond 					m_loading_requests;
-	Cond 					m_all_loaded;
+	mutable os::Mutex		m_loading_mutex;
+	os::Cond 				m_loading_requests;
+	os::Cond 				m_all_loaded;
 
-	Mutex					m_loaded_mutex;
-	mutable Mutex			m_resources_mutex;
+	os::Mutex				m_loaded_mutex;
+	mutable os::Mutex		m_resources_mutex;
 
 	friend class			Device;
 };

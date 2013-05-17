@@ -168,15 +168,6 @@ set (COMPRESSORS_HEADERS
 	core/compressors/ZipCompressor.h
 )
 
-set (THREADS_HEADERS
-	core/threads/Thread.h
-	core/threads/Mutex.h
-	core/threads/Cond.h
-)
-
-set (THREADS_SRC
-)
-
 set (SETTINGS_SRC
 	core/settings/IntSetting.cpp
 	core/settings/FloatSetting.cpp
@@ -224,6 +215,7 @@ set (RENDERERS_HEADERS
 
 set (OS_HEADERS
 	os/OS.h
+	os/NetAddress.h
 )
 
 set (OS_SRC
@@ -247,7 +239,6 @@ set (CROWN_SOURCES
 	${STREAMS_SRC}
 	${MEM_SRC}
 	${COMPRESSORS_SRC}
-	${THREADS_SRC}
 	${SETTINGS_SRC}
 
 	${INPUT_SRC}
@@ -269,7 +260,6 @@ set (CROWN_HEADERS
 	${STREAMS_HEADERS}
 	${MEM_HEADERS}
 	${COMPRESSORS_HEADERS}
-	${THREADS_HEADERS}
 	${SETTINGS_HEADERS}
 
 	${INPUT_HEADERS}

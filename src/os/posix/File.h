@@ -25,8 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <sys/types.h>
-#include <android/asset_manager.h>
+#include <cstdio>
 
 #include "Types.h"
 #include "Stream.h"
@@ -34,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// Android assets wrapper
+/// Standard C file wrapper
 class File
 {
 public:
@@ -83,8 +82,9 @@ public:
 
 private:
 
-	AAsset*					m_asset;
+	FILE*					m_file_handle;
 	StreamOpenMode			m_mode;
 };
 
 } // namespace crown
+

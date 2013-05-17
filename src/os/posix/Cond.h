@@ -25,55 +25,31 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cstdio>
+#include <pthread.h>
+
 #include "Types.h"
+#include "Mutex.h"
+#include "OS.h"
 
 namespace crown
 {
-
-/**
-	Enumerates file opening modes.
-*/
-enum FileOpenMode
-{
-	FOM_READ	= 1,
-	FOM_WRITE	= 2
-};
-
-/**
-	Standard C file wrapper.
-*/
-class File
+namespace os
 {
 
+class Cond
+{
 public:
 
-						~File();
+					Cond();
+					~Cond();
 
-	bool				is_valid();
-
-	FileOpenMode		mode();
-
-	FILE*				get_handle();
-
-	size_t				read(void* ptr, size_t size, size_t nmemb);
-	size_t				write(const void* ptr, size_t size, size_t nmemb);
-	int					seek(int32_t offset, int whence);
-	int32_t				tell();
-
-	int					eof();
-
-	size_t				size();
-
-	static File*		open(const char* path, FileOpenMode mode);
+	void			signal();
+	void			wait(Mutex& mutex);
 
 private:
 
-	FILE*				m_file_handle;
-	FileOpenMode		m_mode;
-
-						File();
+	pthread_cond_t	m_cond;
 };
 
+} // namespace os
 } // namespace crown
-

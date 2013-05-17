@@ -26,54 +26,42 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "OS.h"
 
 namespace crown
 {
+namespace os
+{
 
-class Mutex
+class NetAddress;
+
+/// OS level UDP socket.
+class UDPSocket
 {
 public:
 
-					Mutex();
-					~Mutex();
+				UDPSocket();
+				~UDPSocket();
 
-	void			lock();
-	void			unlock();
+	// Open connection
+	bool 		open(uint16_t port);
+
+	// Send data through socket
+	bool 		send(const NetAddress& receiver, const void* data, size_t size);
+
+	// Receive data through socket
+	size_t	 	receive(NetAddress& sender, void* data, size_t size);
+
+	// Close connection
+	void 		close();
+
+	// Is connection open?
+	bool 		is_open();
 
 private:
-
-	os::OSMutex		m_mutex;
-
-private:
-
-	friend class	Cond;
+	
+	// Socket descriptor
+	int 	m_socket;
 };
 
-//-----------------------------------------------------------------------------
-inline Mutex::Mutex()
-{
-	memset(&m_mutex, 0, sizeof(os::OSMutex));
-
-	os::mutex_create(&m_mutex);
-}
-
-//-----------------------------------------------------------------------------
-inline Mutex::~Mutex()
-{
-	os::mutex_destroy(&m_mutex);
-}
-
-//-----------------------------------------------------------------------------
-inline void Mutex::lock()
-{
-	os::mutex_lock(&m_mutex);
-}
-
-//-----------------------------------------------------------------------------
-inline void Mutex::unlock()
-{
-	os::mutex_unlock(&m_mutex);
-}
-
+} // namespace os
 } // namespace crown
