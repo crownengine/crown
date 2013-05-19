@@ -34,11 +34,16 @@ class PSCompiler : public Compiler
 {
 public:
 
-					PSCompiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed);
+					PSCompiler(const char* root_path, const char* dest_path);
 					~PSCompiler();
 
-	bool			compile();
-	void			write();
+	size_t			read_header_impl(FileStream* in_file);
+	size_t			read_resource_impl(FileStream* in_file);
+
+	void			write_header_impl(FileStream* out_file);
+	void			write_resource_impl(FileStream* out_file);
+
+	void			cleanup_impl();
 
 private:
 

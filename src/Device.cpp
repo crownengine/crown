@@ -23,6 +23,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <cstdlib>
+
 #include "Config.h"
 #include "Device.h"
 #include "Filesystem.h"
@@ -481,7 +483,7 @@ void Device::create_script_system()
 //-----------------------------------------------------------------------------
 bool Device::parse_command_line(int argc, char** argv)
 {
-	ArgsOption options[] = 
+	static ArgsOption options[] = 
 	{
 		"help",       AOA_NO_ARGUMENT,       NULL,        'i',
 		"root-path",  AOA_REQUIRED_ARGUMENT, NULL,        'r',
@@ -497,85 +499,60 @@ bool Device::parse_command_line(int argc, char** argv)
 
 	Args args(argc, argv, "", options);
 
-	while (1)
-	{
-		int32_t ret = args.next_option();
+	int32_t opt;
 
-		switch (ret)
+	while ((opt = args.getopt()) != -1)
+	{
+		switch (opt)
 		{
-			case -1:
+			case 0:
 			{
-				return true;
-			}
-			// Help
-			case 'i':
-			{
-				print_help_message();
-				return false;
+				break;
 			}
 			// Root path
 			case 'r':
 			{
-				if (args.option_argument() == NULL)
-				{
-					os::printf("%s: error: missing absolute path after `-root-path`\n", argv[0]);
-					return false;
-				}
-				if (!os::is_absolute_path(args.option_argument()))
+				if (!os::is_absolute_path(args.optarg()))
 				{
 					os::printf("%s: error: the root path must be absolute.\n", argv[0]);
 					return false;
 				}
 
-				string::strcpy(m_preferred_root_path, args.option_argument());
+				string::strcpy(m_preferred_root_path, args.optarg());
 
 				break;
 			}
 			// User path
 			case 'u':
 			{
-				if (args.option_argument() == NULL)
-				{
-					os::printf("%s: error: missing absolute path after `--user-path`\n", argv[0]);
-					return false;
-				}
-				if (!os::is_absolute_path(args.option_argument()))
+				if (!os::is_absolute_path(args.optarg()))
 				{
 					os::printf("%s: error: the user path must be absolute.\n", argv[0]);
 					return false;
 				}
 
-				string::strcpy(m_preferred_user_path, args.option_argument());
+				string::strcpy(m_preferred_user_path, args.optarg());
 
 				break;
 			}
 			// Window width
 			case 'w':
 			{
-				if (args.option_argument() == NULL)
-				{
-					os::printf("%s: error: missing width value after `--width`\n", argv[0]);
-					return false;
-				}
-
-				m_preferred_window_width = atoi(args.option_argument());
+				m_preferred_window_width = atoi(args.optarg());
 				break;
 			}
 			// Window height
 			case 'h':
 			{
-				if (args.option_argument() == NULL)
-				{
-					os::printf("%s: error: missing height value after `--height`\n", argv[0]);
-					return false;
-				}
-
-				m_preferred_window_height = atoi(args.option_argument());
+				m_preferred_window_height = atoi(args.optarg());
 				break;
 			}
+			case 'i':
+			case '?':
 			default:
 			{
-				break;
+				print_help_message();
+				exit(EXIT_FAILURE);
 			}
 		}
 	}

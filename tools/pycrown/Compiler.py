@@ -27,11 +27,7 @@ import os
 
 LUAJIT = "luajit-2.0.1"
 BC_G = "bytecode-generator.lua"
-TXT_C = "txt-compiler"
-TGA_C = "tga-compiler"
-LUA_C = "lua-compiler"
-VS_C = "vs-compiler"
-PS_C = "ps-compiler"
+COMPILER_NAME = "resource-compiler"
 RES_H = "resource-hash"
 
 ROOT_P = "--root-path"
@@ -83,45 +79,27 @@ class Compiler:
 
 	# Compiles all the texture resources in the repository
 	def compile_textures(self):
-		textures = self.m_repository.texture_resources();
-
-		for res in textures:
-			self.compile(res)
+		self.compile(self.m_repository.texture_resources());
 
 	# Compiles all the mesh resources in the repository
 	def compile_meshes(self):
-		meshes = self.m_repository.mesh_resources();
-
-		for res in meshes:
-			self.compile(res)
+		self.compile(self.m_repository.mesh_resources());
 
 	# Compiles all the text resources in the repository
 	def compile_texts(self):
-		texts = self.m_repository.text_resources();
-
-		for res in texts:
-			self.compile(res)
+		self.compile(self.m_repository.text_resources());
 
 	# Compiles all the script resources in the repository
 	def compile_scripts(self):
-		scripts = self.m_repository.script_resources();
-
-		for res in scripts:
-			self.compile(res)
+		self.compile(self.m_repository.script_resources());
 
 	# Compiles all the vertex shader resources in the repository
 	def compile_vertex_shaders(self):
-		vss = self.m_repository.vertex_shader_resources();
-
-		for res in vss:
-			self.compile(res)
+		self.compile(self.m_repository.vertex_shader_resources());
 
 	# Compiles all the vertex shader resources in the repository
 	def compile_pixel_shaders(self):
-		pss = self.m_repository.pixel_shader_resources();
-
-		for res in pss:
-			self.compile(res)
+		self.compile(self.m_repository.pixel_shader_resources());
 
 	# Compiles all the resources in the repository
 	def compile_all(self):
@@ -144,31 +122,23 @@ class Compiler:
 		self.compile_pixel_shaders()
 
 	# Compile a single resource from the repository
-	def compile(self, resource):
+	def compile(self, resources):
+		if (len(resources) == 0):
+			return
+
 		# Compute perfect seed if necessary
 		if (self.m_perfect_seed == -1):
 			self.compute_perfect_seed()
 
 		root_path = self.m_repository.root_path()
+		resource_params = (' '.join(resources)).split();
+		compiler_params = [COMPILER_NAME, "--root-path", root_path, "--dest-path", self.m_dest_path, "--seed", str(self.m_perfect_seed)]
 
-		print(resource + " => ???")
+		p = subprocess.call(compiler_params + resource_params)
 
-		# Call appropriate compiler based on resource extension
-		if resource.endswith('.txt'):
-			p = subprocess.call([TXT_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
-		
-		if resource.endswith('.tga'):
-			p = subprocess.call([TGA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
-		
-		if resource.endswith('.lua'):
-			path = os.path.normpath(root_path + "/" + resource)
-			f = subprocess.call([LUAJIT, BC_G, path]);
-			p = subprocess.call([LUA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
-		
-		if resource.endswith('.vs'):
-			p = subprocess.call([VS_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
-		
-		if resource.endswith('.ps'):
-			p = subprocess.call([PS_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
-
+		# if resource.endswith('.lua'):
+		# 	path = os.path.normpath(root_path + "/" + resource)
+		# 	f = subprocess.call([LUAJIT, BC_G, path]);
+		# 	p = subprocess.call([LUA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
+	
 

@@ -67,50 +67,28 @@ void parse_command_line(int argc, char** argv)
 
 	Args args(argc, argv, "", options);
 
-	while (1)
-	{
-		int32_t ret = args.next_option();
-		
-		switch (ret)
+	int32_t opt;
+	while ((opt = args.getopt()) != -1)
+	{		
+		switch (opt)
 		{
-			case -1:
-			{
-				return;
-			}
-			// Help message
-			case 'h':
-			{
-				print_help_message(argv[0]);
-				exit(0);
-			}
 			// Resource in
 			case 'i':
 			{
-				if (args.option_argument() == NULL)
-				{
-					printf("%s: ERROR: missing path after `--resource-in`\n", argv[0]);
-					exit(-1);
-				}
-				
-				resource_in = args.option_argument();
-				
+				resource_in = args.optarg();
 				break;
 			}
 			case 's':
 			{
-				if (args.option_argument() == NULL)
-				{
-					printf("%s: ERROR: missing seed value after `--seed`\n", argv[0]);
-					exit(-1);
-				}
-
-				hash_seed = atoi(args.option_argument());
-
+				hash_seed = atoi(args.optarg());
 				break;
 			}
+			case 'h':
+			case '?':
 			default:
 			{
-				break;
+				print_help_message(argv[0]);
+				exit(-1);
 			}
 		}
 	}

@@ -59,70 +59,42 @@ class Compiler
 {
 public:
 
-	/// Looks for the @resource int the @root_path and prepares it to
-	/// compilation using @seed to generate hashes for the resource name.
-	/// Implementation must declare the type of resource they are expecting
-	/// to work on by setting @type_expected appropriately.
-						Compiler(const char* root_path, const char* dest_path, const char* resource,
-								 uint32_t type_expected, uint32_t seed);
-	virtual				~Compiler();
+							Compiler(const char* root_path, const char* dest_path, uint32_t type_expected);
+	virtual					~Compiler();
 
-	/// Actually compiles the resource.
-	virtual bool		compile() = 0;
+	size_t					compile(const char* resource, uint32_t name, uint32_t type);
 
-	virtual void		write() = 0;
+	size_t					read_header(FileStream* in_file);
+	size_t					read_resource(FileStream* in_file);
 
-	const char*			root_path() const;
-	const char*			dest_path() const;
-	const char*			resource_path() const;
+	void					write_header(FileStream* out_file, uint32_t name, uint32_t type, uint32_t resource_size);
+	void					write_resource(FileStream* out_file);
 
-	uint32_t			resource_name_hash() const;
-	uint32_t			resource_type_hash() const;
-	uint32_t			seed() const;
+	void					cleanup();
 
-	const char*			resource_name() const;
-	const char*			resource_type() const;
-
-	FileStream*			source_file();
-	FileStream*			destination_file();
+	const char*				root_path() const;
+	const char*				dest_path() const;
+	const char*				resource_name() const;
 
 protected:
 
-	void				prepare_header(uint32_t size);
-	void				write_header();
+	virtual size_t			read_header_impl(FileStream* in_file) = 0;
+	virtual size_t			read_resource_impl(FileStream* in_file) = 0;
+
+	virtual void			write_header_impl(FileStream* out_file) = 0;
+	virtual void			write_resource_impl(FileStream* out_file) = 0;
+
+	virtual void			cleanup_impl() = 0;
 
 private:
-
-	// These memebers are private to prevent
-	// derived classes from manipulating them.
-
-	// Generic informations
-	char				m_root_path[MAX_RESOURCE_PATH_LENGTH];
-	char				m_dest_path[MAX_RESOURCE_PATH_LENGTH];
-	char				m_resource[MAX_RESOURCE_PATH_LENGTH];
-
-	uint32_t			m_name_hash;
-	uint32_t			m_type_hash;
-	uint32_t			m_seed;
-
-	char				m_name[MAX_RESOURCE_NAME_LENGTH];
-	char				m_type[MAX_RESOURCE_TYPE_LENGTH];
 
 	// Filesystems
 	Filesystem			m_root_fs;
 	Filesystem			m_dest_fs;
 
-	FileStream*			m_src_file;
-	FileStream*			m_dest_file;
+	uint32_t			m_type_expected;
 
-	// Compilation stage
-	CompiledHeader		m_compiled_header;
-
-	bool				m_prepared;
-
-	// Global compiler settings
-	bool				m_verbose;
+	char				m_resource_name[MAX_RESOURCE_NAME_LENGTH];
 };
 
 } // namespace crown
-

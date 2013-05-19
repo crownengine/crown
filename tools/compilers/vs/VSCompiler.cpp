@@ -31,8 +31,8 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-VSCompiler::VSCompiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed) :
-	Compiler(root_path, dest_path, resource, VERTEX_SHADER_TYPE, seed),
+VSCompiler::VSCompiler(const char* root_path, const char* dest_path) :
+	Compiler(root_path, dest_path, VERTEX_SHADER_TYPE),
 	m_file_size(0),
 	m_file_data(NULL)
 {
@@ -41,44 +41,50 @@ VSCompiler::VSCompiler(const char* root_path, const char* dest_path, const char*
 //-----------------------------------------------------------------------------
 VSCompiler::~VSCompiler()
 {
-	if (m_file_data)
-	{
-		delete[] m_file_data;
-	}
+	cleanup_impl();
 }
 
 //-----------------------------------------------------------------------------
-bool VSCompiler::compile()
+size_t VSCompiler::read_header_impl(FileStream* in_file)
 {
-	FileStream* file = Compiler::source_file();
+	(void) in_file;
+	return 0;
+}
 
-	m_file_size = file->size();
-
-	if (m_file_size == 0)
-	{
-		return false;
-	}
+//-----------------------------------------------------------------------------
+size_t VSCompiler::read_resource_impl(FileStream* in_file)
+{
+	m_file_size = in_file->size();
 
 	m_file_data = new char[m_file_size];
 	
 	// Copy the entire file into the buffer
-	file->read(m_file_data, m_file_size);
+	in_file->read(m_file_data, m_file_size);
 
-	// Prepare for writing
-	Compiler::prepare_header(m_file_size + sizeof(uint32_t));
-
-	return true;
+	// Return total resource size
+	return m_file_size + sizeof(uint32_t);
 }
 
 //-----------------------------------------------------------------------------
-void VSCompiler::write()
+void VSCompiler::write_header_impl(FileStream* out_file)
 {
-	Compiler::write_header();
+	out_file->write(&m_file_size, sizeof(uint32_t));
+}
 
-	FileStream* file = Compiler::destination_file();
+//-----------------------------------------------------------------------------
+void VSCompiler::write_resource_impl(FileStream* out_file)
+{
+	out_file->write(m_file_data, m_file_size);
+}
 
-	file->write(&m_file_size, sizeof(uint32_t));
-	file->write(m_file_data, m_file_size);
+//-----------------------------------------------------------------------------
+void VSCompiler::cleanup_impl()
+{
+	if (m_file_data)
+	{
+		delete[] m_file_data;
+		m_file_data = NULL;
+	}
 }
 
 } // namespace crown
