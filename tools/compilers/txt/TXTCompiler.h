@@ -35,11 +35,16 @@ class TXTCompiler : public Compiler
 {
 public:
 
-					TXTCompiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed);
+					TXTCompiler(const char* root_path, const char* dest_path);
 					~TXTCompiler();
 
-	bool			compile();
-	void			write();
+	size_t			read_header_impl(FileStream* in_file);
+	size_t			read_resource_impl(FileStream* in_file);
+
+	void			write_header_impl(FileStream* out_file);
+	void			write_resource_impl(FileStream* out_file);
+
+	void			cleanup_impl();
 
 private:
 
