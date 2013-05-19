@@ -1,3 +1,4 @@
+#include "Device.h"
 #include "ScriptSystem.h"
 
 namespace crown
@@ -48,7 +49,7 @@ extern "C"
 //------------------------------------------------------------
 Vec3& vec3(float nx, float ny, float nz)
 {
-	return scripter()->next_vec3(nx, ny, nz);
+	return device()->script_system()->next_vec3(nx, ny, nz);
 }
 
 //------------------------------------------------------------

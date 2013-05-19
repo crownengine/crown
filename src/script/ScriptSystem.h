@@ -21,15 +21,17 @@ namespace crown
 class LuaState
 {
 public:
-								/// Constructor, private for singleton
+	/// Constructor, private for singleton
 								LuaState();
-								/// Destructor
+	/// Destructor
 								~LuaState();
-								/// Load lua chunk as buffer
+	/// Load lua chunk as buffer
 	int32_t 					load_buffer(const char* buf, size_t len);
-								/// Load lua chunk as string
+	/// Load lua chunk as string
 	int32_t						load_string(const char* str);
-								/// Executes lua chunk loaded in stack
+	/// Load lua chunk as file
+	int32_t 					load_file(const char* file);
+	/// Executes lua chunk loaded in stack
 	int32_t 					execute();
 
 private:
@@ -47,11 +49,11 @@ public:
 								ScriptSystem();
 
 								/// Loads script resource
-	void						load(ScriptResource* script);
+	void						load(const char* script);
 								/// Executes
 	void						execute();
 								/// Unloads script resource
-	void						unload(ScriptResource* script);
+	void						unload(const char* script);
 								/// Returns the first free Vec2
 	Vec2&						next_vec2(float nx, float ny);
 								/// Returns the first free Vec3
@@ -71,22 +73,12 @@ public:
 
 								/// First file loaded by ScriptSystem
 	static const char*			BOOT_SCRIPT;
-								/// Number of Scripts which can be loaded by ScriptSystem
-	static const uint32_t		MAX_SCRIPTS 		= 256;
 								/// Max number of temporary objects allowed
 	static const uint32_t		MAX_TEMP_OBJECTS 	= 1024;
 
 
 private:
-								// Disable coping
-								ScriptSystem(const ScriptSystem&);
-								ScriptSystem& operator=(const ScriptSystem&);
-
 	LuaState 					m_state;							
-								/// Scripts loaded in ScriptSystem
-	ScriptResource*				m_scripts[MAX_SCRIPTS];
-								/// number of scripts loaded
-	uint32_t					m_scripts_count;
 								/// Vec2 used by lua environment
 	Vec2 						m_vec2_list[MAX_TEMP_OBJECTS];
 								/// Counter which points to the next free Vec2
@@ -105,9 +97,6 @@ private:
 	uint32_t					m_quat_count;
 };
 
-
-
-ScriptSystem* scripter();
 
 // This block provides fews utilities for lua environment
 extern "C"

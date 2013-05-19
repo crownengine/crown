@@ -475,7 +475,7 @@ void Device::create_debug_renderer()
 //-----------------------------------------------------------------------------
 void Device::create_script_system()
 {
-	m_script_system = scripter();
+	m_script_system = new ScriptSystem();
 }
 
 //-----------------------------------------------------------------------------

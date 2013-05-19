@@ -38,7 +38,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "FileStream.h"
 #include "TextResource.h"
 #include "TextureResource.h"
-#include "ScriptResource.h"
 
 namespace crown
 {
@@ -343,10 +342,6 @@ void* ResourceManager::load_by_type(ResourceId name) const
 	{
 		return TextResource::load(m_resource_allocator, m_resource_archive, name);
 	}
-	else if (name.type == SCRIPT_TYPE)
-	{
-		return ScriptResource::load(m_resource_allocator, m_resource_archive, name);
-	}
 
 	return NULL;
 }
@@ -361,10 +356,6 @@ void ResourceManager::unload_by_type(ResourceId name, void* resource) const
 	else if (name.type == TEXT_TYPE)
 	{
 		TextResource::unload(m_resource_allocator, (TextResource*)resource);
-	}
-	else if (name.type == SCRIPT_TYPE)
-	{
-		ScriptResource::unload(m_resource_allocator, (ScriptResource*)resource);
 	}
 
 	return;
@@ -381,10 +372,7 @@ void ResourceManager::online(ResourceId name, void* resource)
 	{
 		TextResource::unload(m_resource_allocator, (TextResource*)resource);
 	}
-	else if (name.type == SCRIPT_TYPE)
-	{
-		ScriptResource::online((ScriptResource*)resource);
-	}
+
 
 	m_resources_mutex.lock();
 

@@ -1,3 +1,4 @@
+#include "Device.h"
 #include "ScriptSystem.h"
 
 namespace crown
@@ -28,7 +29,7 @@ extern "C"
 
 Quat& quat(float angle, const Vec3& v)
 {
-	return scripter()->next_quat(angle, v);
+	return device()->script_system()->next_quat(angle, v);
 }
 
 void quat_negate(Quat& self)

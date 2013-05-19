@@ -1,10 +1,11 @@
 #include "ScriptSystem.h"
+#include "Filesystem.h"
 #include <cassert>
 
 namespace crown
 {
 
-const char* BOOT_SCRIPT = "lua/init.lua";
+const char* BOOT_SCRIPT = "lua/game.lua";
 
 //-----------------------------------------------------------
 // ScriptSystem
@@ -13,7 +14,6 @@ const char* BOOT_SCRIPT = "lua/init.lua";
 //-----------------------------------------------------------
 ScriptSystem::ScriptSystem() :
 m_state(),
-m_scripts_count(0),
 m_vec2_count(0),
 m_vec3_count(0),
 m_mat4_count(0),
@@ -22,32 +22,21 @@ m_quat_count(0)
 }
 
 //-----------------------------------------------------------
-void ScriptSystem::load(ScriptResource* script)
+void ScriptSystem::load(const char* script)
 {
-	m_scripts[m_scripts_count] = script;
-
-	m_scripts_count++;
+	assert(m_state.load_file(script) == 0);
 }
 
 //-----------------------------------------------------------
 void ScriptSystem::execute()
 {
-	if (m_scripts_count != 0)
-	{
-		for (int i = 0; i < m_scripts_count; i++)
-		{
-			assert(m_state.load_buffer((char*)m_scripts[i]->data(), m_scripts[i]->length()) == 0);
-		}
-
-		assert(m_state.execute() == 0);	
-	}
+	assert(m_state.execute() == 0);	
 }
 
 //-----------------------------------------------------------
-void ScriptSystem::unload(ScriptResource* resource)
+void ScriptSystem::unload(const char* script)
 {
-	(void*) resource;
-	// FIXME
+	(void*) script;
 }
 
 //-----------------------------------------------------------
@@ -178,6 +167,14 @@ int32_t LuaState::load_buffer(const char* buf, size_t len)
 int32_t LuaState::load_string(const char* str)
 {
 	int32_t s = luaL_loadstring(m_state, str);
+
+	return s;
+}
+
+//-----------------------------------------------------------
+int32_t LuaState::load_file(const char* file)
+{
+	int32_t s = luaL_loadfile(m_state, file);
 
 	return s;
 }

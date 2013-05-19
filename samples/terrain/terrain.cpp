@@ -125,15 +125,11 @@ public:
 		red_up    = device()->load("textures/red_up.tga");
 		red_down  = device()->load("textures/red_down.tga");
 		grass     = device()->load("textures/grass.tga");
-		script	  = device()->load("lua/init.lua");
 
 		device()->resource_manager()->flush();
 
 		TextureResource* grass_texture = (TextureResource*)device()->data(grass);
 		grass_id = device()->renderer()->create_texture(grass_texture->width(), grass_texture->height(), grass_texture->format(), grass_texture->data());
-
-		ScriptResource* script_resource = (ScriptResource*)device()->data(script);
-		device()->script_system()->load(script_resource);
 	}
 
 	void on_unload()

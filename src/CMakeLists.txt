@@ -8,7 +8,6 @@ set (SRC
 
 	TextureResource.cpp
 	TextResource.cpp
-	ScriptResource.cpp
 	FontResource.cpp
 	ArchiveResourceArchive.cpp
 	FileResourceArchive.cpp
@@ -32,7 +31,6 @@ set (HEADERS
 
 	TextureResource.h
 	TextResource.h
-	ScriptResource.h
 	FontResource.h
 	ArchiveResourceArchive.h
 	FileResourceArchive.h

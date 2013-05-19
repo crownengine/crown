@@ -1,3 +1,4 @@
+#include "Device.h"
 #include "ScriptSystem.h"
 #include "OS.h"
 
@@ -65,7 +66,7 @@ extern "C"
 
 Mat4& mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3)
 {
-	return scripter()->next_mat4(r1c1, r2c1, r3c1, r1c2, r2c2, r3c2, r1c3, r2c3, r3c3);
+	return device()->script_system()->next_mat4(r1c1, r2c1, r3c1, r1c2, r2c2, r3c2, r1c3, r2c3, r3c3);
 }
 					
 Mat4& mat4_add(Mat4& self, Mat4& m)
@@ -196,7 +197,7 @@ Vec3& mat4_get_translation(Mat4& self)
 {	
 	Vec3 tmp = self.get_translation();
 
-	return scripter()->next_vec3(tmp.x, tmp.y, tmp.z);
+	return device()->script_system()->next_vec3(tmp.x, tmp.y, tmp.z);
 }
 
 void mat4_set_translation(Mat4& self, const Vec3& trans)
@@ -207,7 +208,7 @@ void mat4_set_translation(Mat4& self, const Vec3& trans)
 Vec3& mat4_get_scale(Mat4& self)
 {
 	Vec3 tmp = self.get_scale();
-	return scripter()->next_vec3(tmp.x, tmp.y, tmp.z);	
+	return device()->script_system()->next_vec3(tmp.x, tmp.y, tmp.z);	
 }
 
 void mat4_set_scale(Mat4& self, const Vec3& scale)

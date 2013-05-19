@@ -81,7 +81,7 @@ Vec2& mouse_cursor_xy()
 
 	Point2 tmp = device()->mouse()->cursor_xy();
 
-	return scripter()->next_vec2(tmp.x, tmp.y);
+	return device()->script_system()->next_vec2(tmp.x, tmp.y);
 }
 
 void mouse_set_cursor_xy(const Vec2& position)
@@ -97,7 +97,7 @@ Vec2& mouse_cursor_relative_xy()
 {
 	Vec2 tmp = device()->mouse()->cursor_relative_xy();
 
-	return scripter()->next_vec2(tmp.x, tmp.y);
+	return device()->script_system()->next_vec2(tmp.x, tmp.y);
 }
 
 void mouse_set_cursor_relative_xy(const Vec2& position)

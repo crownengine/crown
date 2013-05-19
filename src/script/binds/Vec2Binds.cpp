@@ -1,4 +1,6 @@
+#include "Device.h"
 #include "ScriptSystem.h"
+
 
 namespace crown
 {
@@ -43,7 +45,7 @@ extern "C"
 
 Vec2& vec2(float nx, float ny)
 {
-	return scripter()->next_vec2(nx, ny);
+	return device()->script_system()->next_vec2(nx, ny);
 }
 
 Vec2& vec2_add(Vec2& self, const Vec2& a)
