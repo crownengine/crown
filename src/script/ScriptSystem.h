@@ -4,7 +4,6 @@
 
 #include "Types.h"
 #include "String.h"
-#include "ScriptResource.h"
 
 #include "Vec2.h"
 #include "Vec3.h"
