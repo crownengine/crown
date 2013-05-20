@@ -42,10 +42,8 @@ public:
 	static GLenum			compare_function(CompareFunction function);
 	static GLenum			blend_function(BlendFunction function);
 	static GLenum			blend_equation(BlendEquation equation);
-	static GLenum			texture_mode(TextureMode mode);
 	static GLenum			texture_wrap(TextureWrap wrap);
 	static void				texture_filter(TextureFilter filter, GLint& minFilter, GLint& magFilter);
-	static GLenum			fog_mode(FogMode mode);
 	static GLenum			polygon_mode(PolygonMode mode);
 	static GLenum			pixel_format(PixelFormat format);
 	static PixelFormat		pixel_format_from_gl_format(GLenum format);
@@ -55,11 +53,9 @@ private:
 	static const GLenum		COMPARE_FUNCTION_TABLE[CF_COUNT];
 	static const GLenum		BLEND_FUNCTION_TABLE[BF_COUNT];
 	static const GLenum		BLEND_EQUATION_TABLE[BE_COUNT];
-	static const GLenum		TEXTURE_MODE_TABLE[TM_COUNT];
 	static const GLenum		TEXTURE_WRAP_TABLE[TW_COUNT];
 	static const GLenum		TEXTURE_MIN_FILTER_TABLE[TF_COUNT];
 	static const GLenum		TEXTURE_MAG_FILTER_TABLE[TF_COUNT];
-	static const GLenum		FOG_MODE_TABLE[FM_COUNT];
 	static const GLenum		POLYGON_MODE_TABLE[PM_COUNT];
 
 	// Disable construction
@@ -91,14 +87,6 @@ inline GLenum GL::blend_equation(BlendEquation equation)
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GL::texture_mode(TextureMode mode)
-{
-	assert(mode < TM_COUNT);
-
-	return TEXTURE_MODE_TABLE[mode];
-}
-
-//-----------------------------------------------------------------------------
 inline GLenum GL::texture_wrap(TextureWrap wrap)
 {
 	assert(wrap < TW_COUNT);
@@ -113,14 +101,6 @@ inline void GL::texture_filter(TextureFilter filter, GLint& minFilter, GLint& ma
 
 	minFilter = TEXTURE_MIN_FILTER_TABLE[filter];
 	magFilter = TEXTURE_MAG_FILTER_TABLE[filter];
-}
-
-//-----------------------------------------------------------------------------
-inline GLenum GL::fog_mode(FogMode mode)
-{
-	assert(mode < FM_COUNT);
-
-	return FOG_MODE_TABLE[mode];
 }
 
 //-----------------------------------------------------------------------------

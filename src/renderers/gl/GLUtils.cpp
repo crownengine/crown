@@ -72,16 +72,6 @@ const GLenum GL::BLEND_EQUATION_TABLE[BE_COUNT] =
 };
 
 //-----------------------------------------------------------------------------
-const GLenum GL::TEXTURE_MODE_TABLE[TM_COUNT] =
-{
-	GL_MODULATE,
-	GL_REPLACE,
-	GL_DECAL,
-	GL_BLEND,
-	GL_ADD
-};
-
-//-----------------------------------------------------------------------------
 const GLenum GL::TEXTURE_WRAP_TABLE[TW_COUNT] =
 {
 	GL_REPEAT,
@@ -108,14 +98,6 @@ const GLenum GL::TEXTURE_MAG_FILTER_TABLE[TF_COUNT] =
 	GL_LINEAR,
 	GL_LINEAR,
 	GL_LINEAR
-};
-
-//-----------------------------------------------------------------------------
-const GLenum GL::FOG_MODE_TABLE[FM_COUNT] =
-{
-	GL_LINEAR,
-	GL_EXP,
-	GL_EXP2
 };
 
 //-----------------------------------------------------------------------------

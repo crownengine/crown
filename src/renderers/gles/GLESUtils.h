@@ -25,11 +25,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <GLES/gl.h>
+#include <GLES2/gl2.h>
 #include <cassert>
+
 #include "Texture.h"
 #include "Material.h"
-#include "Pixel.h"
+#include "PixelFormat.h"
 
 namespace crown
 {
@@ -41,10 +42,9 @@ public:
 
 	static GLenum			compare_function(CompareFunction function);
 	static GLenum			blend_function(BlendFunction function);
-	static GLenum			texture_mode(TextureMode mode);
+	static GLenum			blend_equation(BlendEquation equation);
 	static GLenum			texture_wrap(TextureWrap wrap);
 	static void				texture_filter(TextureFilter filter, GLint& minFilter, GLint& magFilter);
-	static GLenum			fog_mode(FogMode mode);
 	static GLenum			pixel_format(PixelFormat format);
 	static PixelFormat		pixel_format_from_gl_format(GLenum format);
 
@@ -52,11 +52,10 @@ private:
 
 	static const GLenum		COMPARE_FUNCTION_TABLE[CF_COUNT];
 	static const GLenum		BLEND_FUNCTION_TABLE[BF_COUNT];
-	static const GLenum		TEXTURE_MODE_TABLE[TM_COUNT];
+	static const GLenum		BLEND_EQUATION_TABLE[BE_COUNT];
 	static const GLenum		TEXTURE_WRAP_TABLE[TW_COUNT];
 	static const GLenum		TEXTURE_MIN_FILTER_TABLE[TF_COUNT];
 	static const GLenum		TEXTURE_MAG_FILTER_TABLE[TF_COUNT];
-	static const GLenum		FOG_MODE_TABLE[FM_COUNT];
 
 	// Disable construction
 	GLES();
@@ -79,11 +78,11 @@ inline GLenum GLES::blend_function(BlendFunction function)
 }
 
 //-----------------------------------------------------------------------------
-inline GLenum GLES::texture_mode(TextureMode mode)
+inline GLenum GLES::blend_equation(BlendEquation equation)
 {
-	assert(mode < TM_COUNT);
+	assert(equation < BE_COUNT);
 
-	return TEXTURE_MODE_TABLE[mode];
+	return BLEND_EQUATION_TABLE[equation];
 }
 
 //-----------------------------------------------------------------------------
@@ -101,14 +100,6 @@ inline void GLES::texture_filter(TextureFilter filter, GLint& minFilter, GLint& 
 
 	minFilter = TEXTURE_MIN_FILTER_TABLE[filter];
 	magFilter = TEXTURE_MAG_FILTER_TABLE[filter];
-}
-
-//-----------------------------------------------------------------------------
-inline GLenum GLES::fog_mode(FogMode mode)
-{
-	assert(mode < FM_COUNT);
-
-	return FOG_MODE_TABLE[mode];
 }
 
 //-----------------------------------------------------------------------------

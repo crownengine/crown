@@ -178,9 +178,6 @@ public:
 	/// Set whether the given texture @unit is enabled.
 	virtual void			set_texturing(uint32_t unit, bool texturing) = 0;
 
-	/// Sets the texture @mode for the given texture @unit.
-	virtual void			set_texture_mode(uint32_t unit, TextureMode mode, const Color4& blendColor) = 0;
-
 	/// Sets the texture @wrap parameter for the given texture @unit.
 	virtual void			set_texture_wrap(uint32_t unit, TextureWrap wrap) = 0;
 
@@ -210,8 +207,6 @@ public:
 
 	/// Sets whether writing to color buffer is enabled.
 	virtual void			set_color_write(bool write) = 0;
-
-	virtual void			set_shading_type(ShadingType type) = 0;
 				
 	virtual void 			set_front_face(FrontFace face) = 0;
 				
@@ -221,10 +216,6 @@ public:
 	virtual void 			set_scissor(bool scissor) = 0;
 	virtual void 			set_scissor_params(int32_t x, int32_t y, int32_t width, int32_t height) = 0;
 	virtual void 			get_scissor_params(int32_t& x, int32_t& y, int32_t& width, int32_t& height) = 0;
-				
-	virtual void 			set_point_sprite(bool sprite) = 0;
-	virtual void 			set_point_size(float size) = 0;
-	virtual void 			set_point_params(float min, float max) = 0;
 				
 	virtual Mat4 			get_matrix(MatrixType type) const = 0;
 	virtual void 			set_matrix(MatrixType type, const Mat4& matrix) = 0;

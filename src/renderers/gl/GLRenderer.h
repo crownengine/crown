@@ -118,7 +118,6 @@ public:
 
 	void				bind_texture(uint32_t unit, TextureId texture);
 	void				set_texturing(uint32_t unit, bool texturing);
-	void				set_texture_mode(uint32_t unit, TextureMode mode, const Color4& blendColor);
 	void				set_texture_wrap(uint32_t unit, TextureWrap wrap);
 	void				set_texture_filter(uint32_t unit, TextureFilter filter);
 
@@ -172,7 +171,6 @@ public:
 	void				set_blending_params(BlendEquation equation, BlendFunction src, BlendFunction dst, const Color4& color);
 	void				set_color_write(bool write);
 
-	void				set_shading_type(ShadingType type);
 	void				set_front_face(FrontFace face);
 
 	void				set_viewport_params(int32_t x, int32_t y, int32_t width, int32_t height);
@@ -181,10 +179,6 @@ public:
 	void				set_scissor(bool scissor);
 	void				set_scissor_params(int32_t x, int32_t y, int32_t width, int32_t height);
 	void				get_scissor_params(int32_t& x, int32_t& y, int32_t& width, int32_t& height);
-
-	void				set_point_sprite(bool sprite);
-	void				set_point_size(float size);
-	void				set_point_params(float min, float max);
 
 	Mat4				get_matrix(MatrixType type) const;
 	void				set_matrix(MatrixType type, const Mat4& matrix);

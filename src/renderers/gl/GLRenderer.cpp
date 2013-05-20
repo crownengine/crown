@@ -113,7 +113,7 @@ void GLRenderer::init()
 	assert(err == GLEW_OK);
 
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size);
-	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &m_max_texture_units);
+	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &m_max_texture_units);
 	glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &m_max_vertex_indices);
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_max_vertex_vertices);
 
@@ -163,6 +163,10 @@ void GLRenderer::init()
 
 	// Disable dithering
 	glDisable(GL_DITHER);
+
+	// Point sprites enabled by default
+	glEnable(GL_POINT_SPRITE);
+	glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
 
 	Log::i("OpenGL Renderer initialized.");
 
@@ -613,29 +617,12 @@ void GLRenderer::set_texturing(uint32_t unit, bool texturing)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::set_texture_mode(uint32_t unit, TextureMode mode, const Color4& blendColor)
-{
-	if (!activate_texture_unit(unit))
-		return;
-
-	GLint envMode = GL::texture_mode(mode);
-
-	if (envMode == GL_BLEND)
-	{
-		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, &blendColor.r);
-	}
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, envMode);
-}
-
-//-----------------------------------------------------------------------------
 void GLRenderer::set_texture_wrap(uint32_t unit, TextureWrap wrap)
 {
 	GLenum glWrap = GL::texture_wrap(wrap);
 
 	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_S, glWrap);
 	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_T, glWrap);
-	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_R, glWrap);
 }
 
 //-----------------------------------------------------------------------------
@@ -735,19 +722,6 @@ void GLRenderer::set_color_write(bool write)
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::set_shading_type(ShadingType type)
-{
-	GLenum glMode = GL_SMOOTH;
-
-	if (type == ST_FLAT)
-	{
-		glMode = GL_FLAT;
-	}
-
-	glShadeModel(glMode);
-}
-
-//-----------------------------------------------------------------------------
 void GLRenderer::set_front_face(FrontFace face)
 {
 	GLenum glFace = GL_CCW;
@@ -811,34 +785,6 @@ void GLRenderer::get_scissor_params(int32_t& x, int32_t& y, int32_t& width, int3
 	y = m_scissor[1];
 	width = m_scissor[2];
 	height = m_scissor[3];
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_point_sprite(bool sprite)
-{
-	if (sprite)
-	{
-		glEnable(GL_POINT_SPRITE);
-		glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
-	}
-	else
-	{
-		glDisable(GL_POINT_SPRITE);
-		glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_FALSE);
-	}
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_point_size(float size)
-{
-	glPointSize(size);
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::set_point_params(float min, float max)
-{
-	glPointParameterf(GL_POINT_SIZE_MIN, min);
-	glPointParameterf(GL_POINT_SIZE_MAX, max);
 }
 
 //-----------------------------------------------------------------------------
@@ -1077,16 +1023,7 @@ void GLRenderer::check_gl_errors() const
 			case GL_INVALID_OPERATION:
 				Log::e("GLRenderer: GL_INVALID_OPERATION");
 				break;
-			case GL_STACK_OVERFLOW:
-				Log::e("GLRenderer: GL_STACK_OVERFLOW");
-				break;
-			case GL_STACK_UNDERFLOW:
-				Log::e("GLRenderer: GL_STACK_UNDERFLOW");
-				break;
 			case GL_OUT_OF_MEMORY:
-				Log::e("GLRenderer: GL_OUT_OF_MEMORY");
-				break;
-			case GL_TABLE_TOO_LARGE:
 				Log::e("GLRenderer: GL_OUT_OF_MEMORY");
 				break;
 		}
