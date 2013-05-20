@@ -350,13 +350,11 @@ void Device::frame()
 
 	m_input_manager->event_loop();
 
-	m_renderer->begin_frame();
-
 	game_frame(last_delta_time());
 
 	m_debug_renderer->draw_all();
 
-	m_renderer->end_frame();
+	m_renderer->frame();
 
 	m_frame_count++;
 }

@@ -788,7 +788,7 @@ void GLRenderer::get_scissor_params(int32_t& x, int32_t& y, int32_t& width, int3
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::begin_frame()
+void GLRenderer::frame()
 {
 	// Clear frame/depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -798,11 +798,7 @@ void GLRenderer::begin_frame()
 
 	set_gpu_program_mat4_uniform(m_default_gpu_program, "mvp_matrix", m_model_view_projection_matrix);
 	set_gpu_program_vec3_uniform(m_default_gpu_program, "color", Vec3(0, 1, 0));
-}
 
-//-----------------------------------------------------------------------------
-void GLRenderer::end_frame()
-{
 	glFinish();
 
 	check_gl_errors();

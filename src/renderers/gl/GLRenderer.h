@@ -151,9 +151,7 @@ public:
 	// RenderBufferId	create_render_buffer(uint32_t width, uint32_t height, PixelFormat format);
 	// void				destroy_render_buffer(RenderBufferId id);
 
-	// Called once a frame
-	void				begin_frame();
-	void				end_frame();
+	void				frame();
 
 	void				set_clear_color(const Color4& color);
 
