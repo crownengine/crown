@@ -477,7 +477,10 @@ void Device::create_debug_renderer()
 //-----------------------------------------------------------------------------
 void Device::create_script_system()
 {
+	// Create script system
 	m_script_system = new ScriptSystem();
+	// Load boot script which contains init, update and shutdown functions
+	m_script_system->load_file(BOOT_SCRIPT);
 }
 
 //-----------------------------------------------------------------------------
