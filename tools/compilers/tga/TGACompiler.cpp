@@ -27,13 +27,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "FileStream.h"
 #include "PixelFormat.h"
 #include "Resource.h"
+#include "Log.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-TGACompiler::TGACompiler(const char* root_path, const char* dest_path, const char* resource, uint32_t seed) :
-	Compiler(root_path, dest_path, resource, TEXTURE_TYPE, seed),
+TGACompiler::TGACompiler(const char* root_path, const char* dest_path) :
+	Compiler(root_path, dest_path, TEXTURE_TYPE),
 	m_image_format(PF_UNKNOWN),
 	m_image_channels(0),
 	m_image_size(0),
@@ -43,16 +44,26 @@ TGACompiler::TGACompiler(const char* root_path, const char* dest_path, const cha
 }
 
 //-----------------------------------------------------------------------------
-bool TGACompiler::compile()
+TGACompiler::~TGACompiler()
 {
-	FileStream* file = Compiler::source_file();
+	cleanup_impl();
+}
 
+//-----------------------------------------------------------------------------
+size_t TGACompiler::read_header_impl(FileStream* in_file)
+{
 	// Read the header
-	file->read(&m_tga_header, sizeof(TGAHeader));
+	in_file->read(&m_tga_header, sizeof(TGAHeader));
 
 	// Skip TGA ID
-	file->skip(m_tga_header.id_length);
+	in_file->skip(m_tga_header.id_length);
 
+	return sizeof(TGAHeader) + m_tga_header.id_length;
+}
+
+//-----------------------------------------------------------------------------
+size_t TGACompiler::read_resource_impl(FileStream* in_file)
+{
 	// Compute color channels	
 	m_image_channels = m_tga_header.pixel_depth / 8;
 	
@@ -68,7 +79,7 @@ bool TGACompiler::compile()
 		{
 			m_image_format = PF_RGB_8;
 			m_image_data = new uint8_t[(uint32_t)(m_image_size * 3)];
-			
+
 			break;
 		}
 		case 4:
@@ -80,8 +91,8 @@ bool TGACompiler::compile()
 		}
 		default:
 		{
-			printf("Fatal: Unable to determine TGA channels. Aborting.\n");
-			return false;
+			Log::e("Unable to determine TGA channels.");
+			return 0;
 		}
 	}
 
@@ -90,54 +101,61 @@ bool TGACompiler::compile()
 	{
 		case 0:
 		{
-			printf("Fatal: The resource does not contain image data. Aborting.\n");
-			return false;
+			Log::e("Fatal: The resource does not contain image data.");
+			return 0;
 		}
 		case 2:
 		{
-			load_uncompressed();
+			load_uncompressed(in_file);
 			break;
 		}
 
 		case 10:
 		{
-			load_compressed();
+			load_compressed(in_file);
 			break;
 		}
 
 		default:
 		{
-			printf("Fatal: Image type not supported. Aborting.");
-			return false;
+			Log::e("Fatal: Image type not supported.");
+			return 0;
 		}
 	}
 
-	// Prepare for writing
-	Compiler::prepare_header(m_image_size * m_image_channels +
-							 sizeof(PixelFormat) + sizeof(uint16_t) * 2);
-
-	return true;
+	// Return the total resource size
+	return m_image_size * m_image_channels + sizeof(PixelFormat) + sizeof(uint16_t) + sizeof(uint16_t);
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::write()
+void TGACompiler::write_header_impl(FileStream* out_file)
 {
-	Compiler::write_header();
+	// Write the texture header
+	out_file->write(&m_image_format, sizeof(PixelFormat));
+	out_file->write(&m_tga_header.width, sizeof(uint16_t));
+	out_file->write(&m_tga_header.height, sizeof(uint16_t));
+}
 
-	FileStream* file = Compiler::destination_file();
-
+//-----------------------------------------------------------------------------
+void TGACompiler::write_resource_impl(FileStream* out_file)
+{
 	// Write out the data
-	file->write(&m_image_format, sizeof(PixelFormat));
-	file->write(&m_tga_header.width, sizeof(uint16_t));
-	file->write(&m_tga_header.height, sizeof(uint16_t));
-	file->write(m_image_data, m_image_size * m_image_channels);
+	out_file->write(m_image_data, m_image_size * m_image_channels);
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::load_uncompressed()
+void TGACompiler::cleanup_impl()
 {
-	FileStream* file = Compiler::source_file();
+	if (m_image_data)
+	{
+		delete[] m_image_data;
+		m_image_data = NULL;
+	}
+}
 
+//-----------------------------------------------------------------------------
+void TGACompiler::load_uncompressed(FileStream* in_file)
+{
 	uint64_t size = m_tga_header.width * m_tga_header.height;
 
 	if (m_image_channels == 2)
@@ -148,7 +166,7 @@ void TGACompiler::load_uncompressed()
 		{
 			uint16_t pixel_data;
 			
-			file->read(&pixel_data, sizeof(pixel_data));
+			in_file->read(&pixel_data, sizeof(pixel_data));
 			
 			m_image_data[j + 0] = (pixel_data & 0x7c) >> 10;
 			m_image_data[j + 1] = (pixel_data & 0x3e) >> 5;
@@ -159,17 +177,15 @@ void TGACompiler::load_uncompressed()
 	}
 	else
 	{
-		file->read(m_image_data, (size_t)(size * m_image_channels));
+		in_file->read(m_image_data, (size_t)(size * m_image_channels));
 
 		swap_red_blue();
 	}
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::load_compressed()
+void TGACompiler::load_compressed(FileStream* in_file)
 {
-	FileStream* file = Compiler::source_file();
-
 	uint8_t rle_id = 0;
 	uint32_t i = 0;
 	uint32_t colors_read = 0;
@@ -180,14 +196,14 @@ void TGACompiler::load_compressed()
 
 	while (i < size)
 	{
-		file->read(&rle_id, sizeof(uint8_t));
+		in_file->read(&rle_id, sizeof(uint8_t));
 
 		// If MSB == 1
 		if (rle_id & 0x80)
 		{
 			rle_id -= 127;
 			
-			file->read(&colors, m_image_channels);
+			in_file->read(&colors, m_image_channels);
 
 			while (rle_id)
 			{
@@ -211,7 +227,7 @@ void TGACompiler::load_compressed()
 
 			while (rle_id)
 			{
-				file->read(colors, m_image_channels);
+				in_file->read(colors, m_image_channels);
 				
 				m_image_data[colors_read + 0] = colors[2];
 				m_image_data[colors_read + 1] = colors[1];
