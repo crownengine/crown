@@ -8,7 +8,7 @@ set (CROWN_VERSION_MICRO 0)
 
 option (CROWN_USE_FLOAT "Whether to use float or double for representing real numbers." ON)
 option (CROWN_BUILD_OPENGL "Whether to build the OpenGL renderer or not." ON)
-option (CROWN_BUILD_OPENGLES "Whether to build the OpenGL|ES 1.0 renderer or not." OFF)
+option (CROWN_BUILD_OPENGLES "Whether to build the OpenGL|ES 2.0 renderer or not." OFF)
 option (CROWN_BUILD_SAMPLES "Whether to build the samples" ON)
 option (CROWN_BUILD_TOOLS "Whether to build the tools" ON)
 option (CROWN_BUILD_TESTS "Whether to build unit tests" OFF)
