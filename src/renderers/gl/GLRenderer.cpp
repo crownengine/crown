@@ -44,16 +44,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexShaderResource.h"
 #include "PixelShaderResource.h"
 
-#if defined(WINDOWS)
-	//Define the missing constants in vs' gl.h
-	#define GL_TEXTURE_3D					0x806F
-	#define GL_TEXTURE_CUBE_MAP				0x8513
-	#define GL_LIGHT_MODEL_COLOR_CONTROL	0x81F8
-	#define GL_SEPARATE_SPECULAR_COLOR		0x81FA
-	#define GL_SINGLE_COLOR					0x81F9
-	#define GL_GENERATE_MIPMAP				0x8191
-#endif
-
 namespace crown
 {
 
@@ -190,7 +180,7 @@ VertexBufferId GLRenderer::create_vertex_buffer(size_t count, VertexFormat forma
 {
 	const VertexBufferId id = m_vertex_buffers_id_table.create();
 
-	GLVertexBuffer& buffer = m_vertex_buffers[id.index];
+	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
 	glGenBuffers(1, &buffer.gl_object);
 
@@ -208,7 +198,7 @@ VertexBufferId GLRenderer::create_dynamic_vertex_buffer(size_t count, VertexForm
 {
 	const VertexBufferId id = m_vertex_buffers_id_table.create();
 
-	GLVertexBuffer& buffer = m_vertex_buffers[id.index];
+	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
 	glGenBuffers(1, &buffer.gl_object);
 
@@ -226,7 +216,7 @@ void GLRenderer::update_vertex_buffer(VertexBufferId id, size_t offset, size_t c
 {
 	assert(m_vertex_buffers_id_table.has(id));
 
-	GLVertexBuffer& buffer = m_vertex_buffers[id.index];
+	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object);
 	glBufferSubData(GL_ARRAY_BUFFER, offset * Vertex::bytes_per_vertex(buffer.format),
@@ -238,7 +228,7 @@ void GLRenderer::destroy_vertex_buffer(VertexBufferId id)
 {
 	assert(m_vertex_buffers_id_table.has(id));
 
-	GLVertexBuffer& buffer = m_vertex_buffers[id.index];
+	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
 	glDeleteBuffers(1, &buffer.gl_object);
 
@@ -250,7 +240,7 @@ IndexBufferId GLRenderer::create_index_buffer(size_t count, const void* indices)
 {
 	const IndexBufferId id = m_index_buffers_id_table.create();
 
-	GLIndexBuffer& buffer = m_index_buffers[id.index];
+	IndexBuffer& buffer = m_index_buffers[id.index];
 
 	glGenBuffers(1, &buffer.gl_object);
 
@@ -267,7 +257,7 @@ void GLRenderer::destroy_index_buffer(IndexBufferId id)
 {
 	assert(m_index_buffers_id_table.has(id));
 
-	GLIndexBuffer& buffer = m_index_buffers[id.index];
+	IndexBuffer& buffer = m_index_buffers[id.index];
 
 	glDeleteBuffers(1, &buffer.gl_object);
 
@@ -279,7 +269,7 @@ TextureId GLRenderer::create_texture(uint32_t width, uint32_t height, PixelForma
 {
 	const TextureId id = m_textures_id_table.create();
 
-	GLTexture& gl_texture = m_textures[id.index];
+	Texture& gl_texture = m_textures[id.index];
 
 	glGenTextures(1, &gl_texture.gl_object);
 
@@ -301,7 +291,7 @@ void GLRenderer::update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t w
 {
 	assert(m_textures_id_table.has(id));
 
-	GLTexture& gl_texture = m_textures[id.index];
+	Texture& gl_texture = m_textures[id.index];
 
 	glBindTexture(GL_TEXTURE_2D, gl_texture.gl_object);
 
@@ -314,7 +304,7 @@ void GLRenderer::destroy_texture(TextureId id)
 {
 	assert(m_textures_id_table.has(id));
 
-	GLTexture& gl_texture = m_textures[id.index];
+	Texture& gl_texture = m_textures[id.index];
 
 	glDeleteTextures(1, &gl_texture.gl_object);
 }
@@ -326,7 +316,7 @@ VertexShaderId GLRenderer::create_vertex_shader(const char* program)
 
 	const VertexShaderId& id = m_vertex_shaders_id_table.create();
 
-	GLVertexShader& gl_shader = m_vertex_shaders[id.index];
+	VertexShader& gl_shader = m_vertex_shaders[id.index];
 
 	gl_shader.gl_object = glCreateShader(GL_VERTEX_SHADER);
 
@@ -356,7 +346,7 @@ void GLRenderer::destroy_vertex_shader(VertexShaderId id)
 {
 	assert(m_vertex_shaders_id_table.has(id));
 
-	GLVertexShader& gl_shader = m_vertex_shaders[id.index];
+	VertexShader& gl_shader = m_vertex_shaders[id.index];
 
 	glDeleteShader(gl_shader.gl_object);
 }
@@ -368,7 +358,7 @@ PixelShaderId GLRenderer::create_pixel_shader(const char* program)
 
 	const PixelShaderId& id = m_pixel_shaders_id_table.create();
 
-	GLPixelShader& gl_shader = m_pixel_shaders[id.index];
+	PixelShader& gl_shader = m_pixel_shaders[id.index];
 
 	gl_shader.gl_object = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -398,7 +388,7 @@ void GLRenderer::destroy_pixel_shader(PixelShaderId id)
 {
 	assert(m_pixel_shaders_id_table.has(id));
 
-	GLPixelShader& gl_shader = m_pixel_shaders[id.index];
+	PixelShader& gl_shader = m_pixel_shaders[id.index];
 
 	glDeleteShader(gl_shader.gl_object);	
 }
@@ -411,7 +401,7 @@ GPUProgramId GLRenderer::create_gpu_program(VertexShaderId vs, PixelShaderId ps)
 
 	const GPUProgramId id = m_gpu_programs_id_table.create();
 
-	GLGPUProgram& gl_program = m_gpu_programs[id.index];
+	GPUProgram& gl_program = m_gpu_programs[id.index];
 
 	gl_program.gl_object = glCreateProgram();
 
@@ -443,7 +433,7 @@ void GLRenderer::destroy_gpu_program(GPUProgramId id)
 {
 	assert(m_gpu_programs_id_table.has(id));
 
-	GLGPUProgram& gl_program = m_gpu_programs[id.index];
+	GPUProgram& gl_program = m_gpu_programs[id.index];
 
 	glDeleteProgram(gl_program.gl_object);
 }
@@ -533,7 +523,7 @@ void GLRenderer::bind_gpu_program(GPUProgramId id) const
 {
 	assert(m_gpu_programs_id_table.has(id));
 
-	const GLGPUProgram& gl_program = m_gpu_programs[id.index];
+	const GPUProgram& gl_program = m_gpu_programs[id.index];
 
 	glUseProgram(gl_program.gl_object);
 }
@@ -909,7 +899,7 @@ void GLRenderer::bind_vertex_buffer(VertexBufferId vb) const
 {
 	assert(m_vertex_buffers_id_table.has(vb));
 
-	const GLVertexBuffer& vertex_buffer = m_vertex_buffers[vb.index];
+	const VertexBuffer& vertex_buffer = m_vertex_buffers[vb.index];
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer.gl_object);
 
@@ -962,7 +952,7 @@ void GLRenderer::draw_triangles(IndexBufferId id) const
 {
 	assert(m_index_buffers_id_table.has(id));
 
-	const GLIndexBuffer& index_buffer = m_index_buffers[id.index];
+	const IndexBuffer& index_buffer = m_index_buffers[id.index];
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer.gl_object);
 

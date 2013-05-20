@@ -43,17 +43,15 @@ namespace crown
 
 const uint32_t MAX_TEXTURE_UNITS = 8;
 
-class TextureResource;
-
 //-----------------------------------------------------------------------------
-struct GLTexture
+struct Texture
 {
 	GLuint				gl_object;
 	PixelFormat			format;
 };
 
 //-----------------------------------------------------------------------------
-struct GLVertexBuffer
+struct VertexBuffer
 {
 	GLuint				gl_object;
 	size_t				count;
@@ -61,32 +59,33 @@ struct GLVertexBuffer
 };
 
 //-----------------------------------------------------------------------------
-struct GLIndexBuffer
+struct IndexBuffer
 {
 	GLuint				gl_object;
 	uint32_t			index_count;
 };
 
 //-----------------------------------------------------------------------------
-struct GLRenderBuffer
+struct RenderBuffer
 {
 	GLuint				gl_frame_buffer;
 	GLuint				gl_render_buffer;
 };
 
 //-----------------------------------------------------------------------------
-struct GLVertexShader
+struct VertexShader
 {
 	GLuint				gl_object;
 };
 
 //-----------------------------------------------------------------------------
-struct GLPixelShader
+struct PixelShader
 {
 	GLuint				gl_object;
 };
 
-struct GLGPUProgram
+//-----------------------------------------------------------------------------
+struct GPUProgram
 {
 	GLuint				gl_object;
 };
@@ -243,7 +242,7 @@ private:
 
 	// Texture management
 	IdTable 			m_textures_id_table;
-	GLTexture			m_textures[MAX_TEXTURES];
+	Texture				m_textures[MAX_TEXTURES];
 
 	uint32_t			m_active_texture_unit;
 	GLuint				m_texture_unit[MAX_TEXTURE_UNITS];
@@ -251,22 +250,22 @@ private:
 
 	// Vertex/Index buffer management
 	IdTable				m_vertex_buffers_id_table;
-	GLVertexBuffer		m_vertex_buffers[MAX_VERTEX_BUFFERS];
+	VertexBuffer		m_vertex_buffers[MAX_VERTEX_BUFFERS];
 
 	IdTable				m_index_buffers_id_table;
-	GLIndexBuffer		m_index_buffers[MAX_INDEX_BUFFERS];
+	IndexBuffer			m_index_buffers[MAX_INDEX_BUFFERS];
 
 	// Vertex shader management
 	IdTable 			m_vertex_shaders_id_table;
-	GLVertexShader		m_vertex_shaders[MAX_VERTEX_SHADERS];
+	VertexShader		m_vertex_shaders[MAX_VERTEX_SHADERS];
 
 	// Pixel shader management
 	IdTable 			m_pixel_shaders_id_table;
-	GLPixelShader		m_pixel_shaders[MAX_PIXEL_SHADERS];
+	PixelShader			m_pixel_shaders[MAX_PIXEL_SHADERS];
 
 	// GPU program management
 	IdTable 			m_gpu_programs_id_table;
-	GLGPUProgram		m_gpu_programs[128];
+	GPUProgram			m_gpu_programs[128];
 
 	// Render buffer management
 	//IdTable			m_render_buffers_id_table;
@@ -276,8 +275,6 @@ private:
 	ResourceId			m_default_vertex_shader;
 	ResourceId			m_default_pixel_shader;
 	GPUProgramId		m_default_gpu_program;
-
-	friend class		TextureResource;
 };
 
 } // namespace crown
