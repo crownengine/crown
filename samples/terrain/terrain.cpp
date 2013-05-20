@@ -72,31 +72,6 @@ public:
 			camera_active = !camera_active;
 		}
 
-		//GLint view[4];
-		//GLdouble proj[16], model[16];
-
-		//glGetDoublev(GL_MODELVIEW_MATRIX, model);
-		//glGetDoublev(GL_PROJECTION_MATRIX, proj);
-		//glGetIntegerv(GL_VIEWPORT, view);
-
-		//int x = event.x;
-		//int y = event.y;
-
-		// Adjust y wndCoord
-		//y = (625 - y);
-
-		//double sX, sY, sZ;
-		//double eX, eY, eZ;
-
-		//gluUnProject(x, y, 0.0f, model, proj, view, &sX, &sY, &sZ);
-		//gluUnProject(x, y, 1.0f, model, proj, view, &eX, &eY, &eZ);
-
-		//Vec3 dir = Vec3(eX, eY, eZ) - Vec3(sX, sY, sZ);
-
-		//dir.normalize();
-
-		//ray.direction = dir;
-
 		mouseLeftPressed = mouse->button_pressed(MB_LEFT);
 		mouseRightPressed = mouse->button_pressed(MB_RIGHT);
 	}
@@ -117,33 +92,29 @@ public:
 		terrain.PlotCircle(4, 4, 4, 2);
 		terrain.UpdateVertexBuffer(true);
 
-		red_north = device()->load("textures/red_north.tga");
-		red_south = device()->load("textures/red_south.tga");
-		red_east  = device()->load("textures/red_east.tga");
-		red_west  = device()->load("textures/red_west.tga");
-		red_up    = device()->load("textures/red_up.tga");
-		red_down  = device()->load("textures/red_down.tga");
-		grass     = device()->load("textures/grass.tga");
+		// red_north = device()->load("textures/red_north.tga");
+		// red_south = device()->load("textures/red_south.tga");
+		// red_east  = device()->load("textures/red_east.tga");
+		// red_west  = device()->load("textures/red_west.tga");
+		// red_up    = device()->load("textures/red_up.tga");
+		// red_down  = device()->load("textures/red_down.tga");
+		grass     	 = device()->load("textures/grass.tga");
 
 		device()->resource_manager()->flush();
 
 		TextureResource* grass_texture = (TextureResource*)device()->data(grass);
 		grass_id = device()->renderer()->create_texture(grass_texture->width(), grass_texture->height(), grass_texture->format(), grass_texture->data());
-
-		//rb_id = device()->renderer()->create_render_buffer(200, 200, PF_RGBA_8);
 	}
 
 	void on_unload()
 	{
 		device()->unload(grass);
-		device()->unload(red_north);
-		device()->unload(red_south);
-		device()->unload(red_east);
-		device()->unload(red_west);
-		device()->unload(red_up);
-		device()->unload(red_down);
-
-		//device()->renderer()->destroy_render_buffer(rb_id);
+		// device()->unload(red_north);
+		// device()->unload(red_south);
+		// device()->unload(red_east);
+		// device()->unload(red_west);
+		// device()->unload(red_up);
+		// device()->unload(red_down);
 	}
 
 	void update(float dt)
@@ -160,9 +131,6 @@ public:
 		}
 		system->update(dt);
 
-		renderer->set_lighting(false);
-		renderer->set_texturing(0, false);
-
 		if (skybox)
 		{
 			skybox->Render();
@@ -174,14 +142,6 @@ public:
 		/* Render the terrain */
 		renderer->set_ambient_light(Color4(0.5f, 0.5f, 0.5f, 1.0f));
 
-		renderer->set_lighting(true);
-		renderer->set_light(0, true);
-		renderer->set_light_params(0, LT_DIRECTION, Vec3(0.6, 0.5f, -2.0f));
-		renderer->set_light_color(0, Color4::WHITE, Color4::WHITE, Color4(0.6f, 0.6f, 0.6f));
-		renderer->set_light_attenuation(0, 1, 0, 0);
-
-		renderer->set_material_params(Color4(0.3f, 0.3f, 0.3f), Color4(0.8f, 0.8f, 0.8f), Color4::BLACK, Color4::BLACK, 0);
-
 		renderer->set_matrix(MT_MODEL, Mat4::IDENTITY);
 
 		if (device()->is_loaded(grass))
@@ -189,8 +149,6 @@ public:
 			renderer->set_texturing(0, true);
 			renderer->bind_texture(0, grass_id);
 		}
-		
-		//glColor3f(1, 1, 1);
 
 		terrain.Render();
 
@@ -233,6 +191,9 @@ private:
 	ResourceId red_down;
 	TextureId grass_id;
 	RenderBufferId rb_id;
+	VertexShaderId vs_id;
+	PixelShaderId ps_id;
+	GPUProgramId gpu_program_id;
 
 	bool optShowSkybox;
 	bool optShowCrate;
