@@ -1,7 +1,6 @@
 #include "Crown.h"
 #include "tga/TGACompiler.h"
 #include "txt/TXTCompiler.h"
-#include "lua/LuaCompiler.h"
 #include "vs/VSCompiler.h"
 #include "ps/PSCompiler.h"
 
@@ -37,7 +36,6 @@ int main(int argc, char** argv)
 
 	TGACompiler tga(root_path, dest_path);
 	TXTCompiler txt(root_path, dest_path);
-	LuaCompiler lua(root_path, dest_path);
 	VSCompiler vs(root_path, dest_path);
 	PSCompiler ps(root_path, dest_path);
 
@@ -65,11 +63,6 @@ int main(int argc, char** argv)
 			case TEXT_TYPE:
 			{
 				txt.compile(resource, resource_name_hash, resource_type_hash);
-				break;
-			}
-			case SCRIPT_TYPE:
-			{
-				lua.compile(resource, resource_name_hash, resource_type_hash);
 				break;
 			}
 			case VERTEX_SHADER_TYPE:
