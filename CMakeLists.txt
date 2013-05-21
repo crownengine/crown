@@ -54,7 +54,6 @@ set (CROWN_LUAJIT_LIBS
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	set(LINUX 1)
 	list(APPEND INCLUDES
-		${CMAKE_SOURCE_DIR}/src/os/posix
 		${CMAKE_SOURCE_DIR}/src/os/linux
 	)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
