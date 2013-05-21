@@ -43,9 +43,6 @@ const size_t	MAX_PATH_LENGTH = 1024;
 const char		PATH_SEPARATOR = '/';
 
 const size_t	MAX_EVENTS = 512;
-
-const size_t	MAX_THREADS = 16;
-const size_t	MAX_MUTEXES = 16;
 #endif
 
 #ifdef WINDOWS
@@ -53,9 +50,6 @@ const size_t	MAX_PATH_LENGTH = 1024;
 const char		PATH_SEPARATOR = '\\';
 
 const size_t	MAX_EVENTS = 512;
-
-const size_t	MAX_THREADS = 16;
-const size_t	MAX_MUTEXES = 16;
 #endif
 
 //-----------------------------------------------------------------------------
