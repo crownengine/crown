@@ -15,12 +15,12 @@ set (LINUX_SRC
 )
 
 set (LINUX_HEADERS
-	../posix/TCPSocket.h
-	../posix/UDPSocket.h
-	../posix/File.h
-	../posix/Thread.h
-	../posix/Mutex.h
-	../posix/Cond.h
+	TCPSocket.h
+	UDPSocket.h
+	File.h
+	Thread.h
+	Mutex.h
+	Cond.h
 )
 
 link_libraries(X11 Xrandr pthread)
