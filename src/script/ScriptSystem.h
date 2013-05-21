@@ -14,45 +14,12 @@
 namespace crown
 {
 
-/// Abstraction of lua state.
-/// It provides 2 ways for loading lua code, as a buffer or as a string.
-/// It must be included only by ScriptSystem. 
-class LuaState
-{
-public:
-	/// Constructor, private for singleton
-								LuaState();
-	/// Destructor
-								~LuaState();
-	/// Load lua chunk as buffer
-	int32_t 					load_buffer(const char* buf, size_t len);
-	/// Load lua chunk as string
-	int32_t						load_string(const char* str);
-	/// Load lua chunk as file
-	int32_t 					load_file(const char* file);
-	/// Executes lua chunk loaded in stack
-	int32_t 					execute();
-
-private:
-
-								/// Lua state incapsulated by this class
-	lua_State*					m_state;
-};
-
-/// ScriptSystem allows to execute lua code or bytecode chunks
-/// It also provides some utilities for crown-lua environment
+/// ScriptSystem provides some utilities for crown-lua environment
 class ScriptSystem
 {
 public:
 								/// Constructor
 								ScriptSystem();
-
-								/// Loads script resource
-	void						load(const char* script);
-								/// Executes
-	void						execute();
-								/// Unloads script resource
-	void						unload(const char* script);
 								/// Returns the first free Vec2
 	Vec2&						next_vec2(float nx, float ny);
 								/// Returns the first free Vec3
@@ -68,7 +35,7 @@ public:
 								/// Returns the number of mat4 used in lua environment
 	uint32_t					mat4_used();
 								/// Returns the number of quat used in lua environment
-	uint32_t 					quat_used();
+	uint32_t					quat_used();
 
 								/// First file loaded by ScriptSystem
 	static const char*			BOOT_SCRIPT;
@@ -77,23 +44,25 @@ public:
 
 
 private:
-	LuaState 					m_state;							
 								/// Vec2 used by lua environment
 	Vec2 						m_vec2_list[MAX_TEMP_OBJECTS];
-								/// Counter which points to the next free Vec2
-	uint32_t					m_vec2_count;
 								/// Vec3 used by lua environment
 	Vec3						m_vec3_list[MAX_TEMP_OBJECTS];
-								/// Counter which points to the next free Vec3
-	uint32_t					m_vec3_count;
 								/// Mat4 used by lua environment
 	Mat4						m_mat4_list[MAX_TEMP_OBJECTS];
-								/// Counter which points to the next free Mat4
-	uint32_t					m_mat4_count;
 								/// Quaternions used by lua environment
 	Quat						m_quat_list[MAX_TEMP_OBJECTS];
-								/// Counter which points to the nect free Quat
+
+								/// Counter which points to the next free Vec2
+	uint32_t					m_vec2_count;
+								/// Counter which points to the next free Vec3
+	uint32_t					m_vec3_count;
+								/// Counter which points to the next free Mat4
+	uint32_t					m_mat4_count;
+								/// Counter which points to the next free Quat
 	uint32_t					m_quat_count;
+
+
 };
 
 
