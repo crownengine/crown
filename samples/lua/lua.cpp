@@ -14,7 +14,7 @@ void init()
 	state = luaL_newstate();
 	luaL_openlibs(state);
 
-	if (luaL_loadfile(state, "lua/lua/game.lua.script") || lua_pcall(state, 0, 0, 0))
+	if (luaL_loadfile(state, "lua/lua/game.raw") || lua_pcall(state, 0, 0, 0))
 	{
 		os::printf("error: %s", lua_tostring(state, -1));
 	}

@@ -102,8 +102,9 @@ class Compiler:
 				os.makedirs(path_out)
 
 			head, out_filename = os.path.split(res)
+			out_filename, ext = os.path.splitext(out_filename)
 
-			f = subprocess.call([LUAJIT, OPTION, path_in, path_out + "/" + out_filename + ".script"]);
+			f = subprocess.call([LUAJIT, OPTION, path_in, path_out + "/" + out_filename + ".raw"]);
 	
 	# Compiles all the vertex shader resources in the repository
 	def compile_vertex_shaders(self):
