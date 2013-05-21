@@ -6,6 +6,6 @@ function shutdown()
 	print("Lua Shutdown called.")
 end
 
-function update(dt)
-	print("Lua Update called.")
+function frame(dt)
+	print("Lua Frame called.")
 end

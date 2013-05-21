@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 
-add_executable(luas lua.cpp)
-target_link_libraries(luas crown)
+set (SRC
+	lua.cpp
+)
+
+add_library (game SHARED ${SRC})
+target_link_libraries(game crown)
+
+install (TARGETS game DESTINATION bin/lua)
 
