@@ -356,8 +356,6 @@ void Device::frame()
 	m_resource_manager->check_load_queue();
 	m_resource_manager->bring_loaded_online();
 
-	m_script_system->execute();
-
 	m_input_manager->event_loop();
 
 	m_renderer->begin_frame();
@@ -479,8 +477,6 @@ void Device::create_script_system()
 {
 	// Create script system
 	m_script_system = new ScriptSystem();
-	// Load boot script which contains init, update and shutdown functions
-	m_script_system->load_file(BOOT_SCRIPT);
 }
 
 //-----------------------------------------------------------------------------
