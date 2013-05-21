@@ -70,7 +70,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-NetAddress::NetAddress() :
+inline NetAddress::NetAddress() :
 	m_port(1000)
 {
 	m_address[0] = 127;
@@ -80,7 +80,7 @@ NetAddress::NetAddress() :
 }
 
 //-----------------------------------------------------------------------------
-NetAddress::NetAddress(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t port) :
+inline NetAddress::NetAddress(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t port) :
 	m_port(port)
 {
 	m_address[0] = a;
@@ -90,7 +90,7 @@ NetAddress::NetAddress(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t port
 }
 
 //-----------------------------------------------------------------------------
-uint32_t NetAddress::address() const
+inline uint32_t NetAddress::address() const
 {
 	uint32_t addr = (m_address[0] << 24) | (m_address[1] << 16) | (m_address[2] << 8) | (m_address[3]);
 
@@ -98,13 +98,13 @@ uint32_t NetAddress::address() const
 }
 
 //-----------------------------------------------------------------------------
-uint16_t NetAddress::port() const
+inline uint16_t NetAddress::port() const
 {
 	return m_port;
 }
 
 //-----------------------------------------------------------------------------
-void NetAddress::set(uint32_t address, uint16_t port)
+inline void NetAddress::set(uint32_t address, uint16_t port)
 {
 	m_address[0] = address >> 24;
 	m_address[1] = address >> 16;
@@ -115,7 +115,7 @@ void NetAddress::set(uint32_t address, uint16_t port)
 }
 
 //-----------------------------------------------------------------------------
-void NetAddress::set(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t port)
+inline void NetAddress::set(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t port)
 {
 	m_address[0] = a;
 	m_address[1] = b;
@@ -126,7 +126,7 @@ void NetAddress::set(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t port)
 }
 
 //-----------------------------------------------------------------------------
-bool NetAddress::operator==(const NetAddress& addr) const
+inline bool NetAddress::operator==(const NetAddress& addr) const
 {
 	return m_address[0] == addr.m_address[0] &&
 		   m_address[1] == addr.m_address[1] &&
@@ -136,7 +136,7 @@ bool NetAddress::operator==(const NetAddress& addr) const
 }
 
 //-----------------------------------------------------------------------------
-NetAddress& NetAddress::operator=(const NetAddress& addr)
+inline NetAddress& NetAddress::operator=(const NetAddress& addr)
 {
 	m_address[0] = addr.m_address[0];
 	m_address[1] = addr.m_address[1];
@@ -149,7 +149,7 @@ NetAddress& NetAddress::operator=(const NetAddress& addr)
 }
 
 //-----------------------------------------------------------------------------
-void NetAddress::print() const
+inline void NetAddress::print() const
 {
 	os::printf("NetAddress: %i.%i.%i.%i:%i\n", m_address[0], m_address[1], m_address[2], m_address[3], m_port);
 }
