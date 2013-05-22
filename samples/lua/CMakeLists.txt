@@ -7,5 +7,5 @@ set (SRC
 add_library (game SHARED ${SRC})
 target_link_libraries(game crown)
 
-install (TARGETS game DESTINATION bin/lua)
+install (TARGETS game DESTINATION bin/lua_sample)
 
