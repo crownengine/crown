@@ -1,6 +1,6 @@
-#include "lua.hpp"
 #include "MathUtils.h"
 #include "Types.h"
+#include "LuaStack.h"
 #include "OS.h"
 
 namespace crown
@@ -49,10 +49,13 @@ extern "C"
 //-------------------------------------------------------------------
 int32_t math_equals(lua_State* L)
 {
-	os::printf("binding called\n");
-	float b = luaL_checknumber(L, 1);
-	float a = luaL_checknumber(L, 1);
-	lua_pushboolean(L, math::equals(a, b, math::FLOAT_PRECISION));
+	LuaStack stack(L);
+
+	float a = stack.get_float(1);
+	float b = stack.get_float(2);
+
+	stack.push_bool(math::equals(a, b, math::FLOAT_PRECISION));
+
 	return 1;
 }
 
@@ -175,7 +178,7 @@ static const struct luaL_Reg Math [] = {
 	{NULL, NULL}	
 };
 
-int32_t luaopen_Math(lua_State* L)
+int32_t luaopen_libcrownlua(lua_State* L)
 {
 	luaL_register(L, "Math", Math);
 	return 1;

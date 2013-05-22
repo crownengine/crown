@@ -7,8 +7,8 @@ set(LUA_SRC
 )
 
 add_definitions(-Wl,-E)
-add_library(Math SHARED ${LUA_SRC})
-target_link_libraries(Math crown)
+add_library(crownlua SHARED ${LUA_SRC})
+target_link_libraries(crownlua crown)
 
-install (TARGETS Math DESTINATION lib/${CMAKE_PROJECT_NAME})
+install (TARGETS crownlua DESTINATION lib/${CMAKE_PROJECT_NAME})
 
