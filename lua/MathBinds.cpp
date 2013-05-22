@@ -1,176 +1,186 @@
+#include "lua.hpp"
 #include "MathUtils.h"
 #include "Types.h"
+#include "OS.h"
 
 namespace crown
 {
 
 extern "C"
 {
-	bool						math_equals(float a, float b);
+	// int32_t						math_test_bitmask(lua_State* L, int32_t value, int32_t bitmask);
 
-	bool						math_test_bitmask(int32_t value, int32_t bitmask);
+	// int32_t						math_set_bitmask(lua_State* L, int32_t value, int32_t bitmask);
 
-	int32_t						math_set_bitmask(int32_t value, int32_t bitmask);
+	// int32_t						math_unset_bitmask(lua_State* L, int32_t value, int32_t bitmask);					
 
-	int32_t						math_unset_bitmask(int32_t value, int32_t bitmask);					
+	// int32_t						math_deg_to_rad(lua_State* L, float deg);
 
-	float						math_deg_to_rad(float deg);
+	// int32_t						math_rad_to_deg(lua_State* L, float rad);
 
-	float						math_rad_to_deg(float rad);
+	// int32_t						math_next_pow_2(lua_State* L, uint32_t x);
 
-	uint32_t					math_next_pow_2(uint32_t x);
+	// int32_t						math_is_pow_2(lua_State* L, uint32_t x);	
 
-	bool						math_is_pow_2(uint32_t x);	
+	// int32_t						math_ceil(lua_State* L, float x);		
 
-	float						math_ceil(float x);		
+	// int32_t						math_floor(lua_State* L, float x);	
 
-	float						math_floor(float x);	
+	// int32_t						math_sqrt(lua_State* L, float x);	
 
-	float						math_sqrt(float x);	
+	// int32_t						math_inv_sqrt(lua_State* L, float x);
 
-	float						math_inv_sqrt(float x);
+	// int32_t						math_sin(lua_State* L, float x);	
 
-	float						math_sin(float x);	
+	// int32_t						math_cos(lua_State* L, float x);
 
-	float						math_cos(float x);
+	// int32_t						math_asin(lua_State* L, float x);	
 
-	float						math_asin(float x);	
+	// int32_t						math_acos(lua_State* L, float x);	
 
-	float						math_acos(float x);	
+	// int32_t						math_tan(lua_State* L, float x);		
 
-	float						math_tan(float x);		
+	// int32_t						math_atan2(lua_State* L, float y, float x);	
 
-	float						math_atan2(float y, float x);	
+	// int32_t						math_abs(lua_State* L, float x);			
 
-	float						math_abs(float x);			
-
-	float						math_fmod(float n, float d);			
-}
+	// int32_t						math_fmod(lua_State* L, float n, float d);			
 
 //-------------------------------------------------------------------
-bool math_equals(float a, float b)
+int32_t math_equals(lua_State* L)
 {
-	return math::equals(a, b, math::FLOAT_PRECISION);
+	os::printf("binding called\n");
+	float b = luaL_checknumber(L, 1);
+	float a = luaL_checknumber(L, 1);
+	lua_pushboolean(L, math::equals(a, b, math::FLOAT_PRECISION));
+	return 1;
 }
 
-//-------------------------------------------------------------------
-bool math_test_bitmask(int32_t value, int32_t bitmask)
-{
-	return math::test_bitmask(value, bitmask);
-}
-
-//-------------------------------------------------------------------
-int32_t math_set_bitmask(int32_t value, int32_t bitmask)
-{
-	return math::set_bitmask(value, bitmask);
-}
-
-//-------------------------------------------------------------------
-int32_t math_unset_bitmask(int32_t value, int32_t bitmask)
-{
-	return math::unset_bitmask(value, bitmask);
-}
-
-//-------------------------------------------------------------------
-float math_deg_to_rad(float deg)
-{
-	return math::deg_to_rad(deg);
-}
-
-//-------------------------------------------------------------------
-float math_rad_to_deg(float rad)
-{
-	return math::rad_to_deg(rad);
-}
-
-//-------------------------------------------------------------------
-uint32_t math_next_pow_2(uint32_t x)
-{
-	return math::next_pow_2(x);
-}
-
-//-------------------------------------------------------------------
-bool math_is_pow_2(uint32_t x)
-{
-	return math::is_pow_2(x);
-}
-
-//-------------------------------------------------------------------
-float math_ceil(float x)
-{
-	return math::ceil(x);
-}
-
-//-------------------------------------------------------------------
-float math_floor(float x)
-{
-	return math::floor(x);
-}
-
-//-------------------------------------------------------------------
-float math_sqrt(float x)
-{
-	return math::sqrt(x);
-}
-
-//-------------------------------------------------------------------
-float math_inv_sqrt(float x)
-{
-	return math::inv_sqrt(x);
-}
-
-//-------------------------------------------------------------------
-float math_sin(float x)
-{
-	return math::sin(x);
-}
-
-//-------------------------------------------------------------------
-float math_cos(float x)
-{
-	return math::cos(x);
-}
-
-//-------------------------------------------------------------------
-float math_asin(float x)
-{
-	return math::asin(x);
-}
-
-//-------------------------------------------------------------------
-float math_acos(float x)
-{
-	return math::acos(x);
-}
-
-//-------------------------------------------------------------------
-float math_tan(float x)
-{
-	return math::tan(x);
-}
-
-//-------------------------------------------------------------------
-float math_atan2(float y, float x)
-{
-	return math::atan2(y, x);
-}
-
-//-------------------------------------------------------------------
-float math_abs(float x)
-{
-	return math::abs(x);
-}
-
-//-------------------------------------------------------------------
-float math_fmod(float n, float d)
-{
-	return math::fmod(n, d);
-}
-
-//-------------------------------------------------------------------
-// bool math_solve_quadratic_equation(float a, float b, float c, float& x1, float& x2)
+// //-------------------------------------------------------------------
+// int32_t math_test_bitmask(lua_State* L, int32_t value, int32_t bitmask)
 // {
-// 	return math::solve_quadratic_equation(a, b, c, x1, x2);
+// 	return math::test_bitmask(value, bitmask);
 // }
+
+// //-------------------------------------------------------------------
+// int32_t math_set_bitmask(lua_State* L, int32_t value, int32_t bitmask)
+// {
+// 	return math::set_bitmask(value, bitmask);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_unset_bitmask(lua_State* L, int32_t value, int32_t bitmask)
+// {
+// 	return math::unset_bitmask(value, bitmask);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_deg_to_rad(lua_State* L, float deg)
+// {
+// 	return math::deg_to_rad(deg);
+// }
+
+// //-------------------------------------------------------------------
+// inatt32_t math_rad_to_deg(lua_State* L, float rad)
+// {
+// 	return math::rad_to_deg(rad);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_next_pow_2(lua_State* L, uint32_t x)
+// {
+// 	return math::next_pow_2(x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_is_pow_2(lua_State* L, uint32_t x)
+// {
+// 	return math::is_pow_2(x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_ceil(lua_State* L, float x)
+// {
+// 	return math::ceil(x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_floor(lua_State* L, float x)
+// {
+// 	return math::floor(x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_sqrt(lua_State* L, float x)
+// {
+// 	return math::sqrt(x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_inv_sqrt(lua_State* L, float x)
+// {
+// 	return math::inv_sqrt(x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_sin(lua_State* L, float x)
+// {
+// 	return math::sin(x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_cos(lua_State* L, float x)
+// {
+// 	return math::cos(x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_asin(lua_State* L, float x)
+// {
+// 	return math::asin(x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_acos(lua_State* L, float x)
+// {
+// 	return math::acos(x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_tan(lua_State* L, float x)
+// {
+// 	return math::tan(x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_atan2(lua_State* L, float y, float x)
+// {
+// 	return math::atan2(y, x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_abs(lua_State* L, float x)
+// {
+// 	return math::abs(x);
+// }
+
+// //-------------------------------------------------------------------
+// int32_t math_fmod(lua_State* L, float n, float d)
+// {
+// 	return math::fmod(n, d);
+// }
+
+static const struct luaL_Reg Math [] = {
+	{"equals", math_equals},
+	{NULL, NULL}	
+};
+
+int32_t luaopen_Math(lua_State* L)
+{
+	luaL_register(L, "Math", Math);
+	return 1;
+}
+
+}
 
 } // namespace crown

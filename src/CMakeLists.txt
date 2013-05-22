@@ -227,13 +227,6 @@ set (NETWORK_HEADERS
 
 set (SCRIPT_SRC
 	script/ScriptSystem.cpp
-	script/binds/MathBinds.cpp
-	script/binds/Vec2Binds.cpp
-	script/binds/Vec3Binds.cpp
-	script/binds/QuatBinds.cpp
-	script/binds/Mat4Binds.cpp
-	script/binds/CameraBinds.cpp
-	script/binds/MouseBinds.cpp
 )
 
 set (SCRIPT_HEADERS
