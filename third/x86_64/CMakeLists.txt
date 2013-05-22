@@ -13,4 +13,4 @@ install (FILES luajit/lib/libluajit-5.1.so.2.0.1
 
 install (PROGRAMS luajit/bin/luajit-2.0.1 DESTINATION bin)
 install (FILES luajit/bin/luajit DESTINATION bin)
-install (DIRECTORY luajit/share/luajit-2.0.1/jit DESTINATION bin/lua)
+install (DIRECTORY luajit/share/luajit-2.0.1/jit DESTINATION bin)
