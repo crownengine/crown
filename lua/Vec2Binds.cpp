@@ -1,7 +1,8 @@
 #include "LuaStack.h"
 #include "Device.h"
 #include "ScriptSystem.h"
-#include "Vec2Binds.h"
+#include "LuaEnvironment.h"
+#include "Vec2.h"
 #include "OS.h"
 
 namespace crown
@@ -22,12 +23,28 @@ int32_t	vec2(lua_State* L)
 	return 1;
 }
 
+int32_t vec2_values(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Vec2* a = (Vec2*)stack.get_lightudata(1);
+
+	float x = a->x;
+	float y = a->y;
+
+	stack.push_float(x);
+	stack.push_float(y);
+
+	return 2;
+}
+
+
 int32_t vec2_add(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
-	Vec2* b = (Vec2*) stack.get_lightudata(2);
+	Vec2* a = (Vec2*)stack.get_lightudata(1);
+	Vec2* b = (Vec2*)stack.get_lightudata(2);
 
 	*a += *b;
 
@@ -221,33 +238,28 @@ int32_t	vec2_zero(lua_State* L)
 	return 0;
 }
 
-static const struct luaL_Reg Vec2 [] = {
-	{"new", 			vec2},
-	{"add", 			vec2_add},
-	{"sub", 			vec2_subtract},
-	{"mul", 			vec2_multiply},
-	{"div", 			vec2_divide},
-	{"dot", 			vec2_dot},
-	{"equals", 			vec2_equals},
-	{"lower", 			vec2_lower},
-	{"greater", 		vec2_greater},
-	{"len", 			vec2_length},
-	{"squared_len", 	vec2_squared_length},
-	{"set_len", 		vec2_set_length},
-	{"norm", 			vec2_normalize},
-	{"neg", 			vec2_negate},
-	{"dist_to", 		vec2_get_distance_to},
-	{"angle_between", 	vec2_get_angle_between},
-	{"zero", 			vec2_zero},
-	{NULL, NULL}	
-};
+} // extern "C"
 
-int32_t luaopen_libcrownlua(lua_State* L)
+void load_vec2(LuaEnvironment& env)
 {
-	luaL_register(L, "Vec2", Vec2);
-	return 1;
-}
-
+	env.load_module_function("Vec2", "new", vec2);
+	env.load_module_function("Vec2", "val", vec2_values);
+	env.load_module_function("Vec2", "add", vec2_add);
+	env.load_module_function("Vec2", "sub", vec2_subtract);
+	env.load_module_function("Vec2", "mul", vec2_multiply);
+	env.load_module_function("Vec2", "div", vec2_divide);
+	env.load_module_function("Vec2", "dot", vec2_dot);
+	env.load_module_function("Vec2", "equals", vec2_equals);
+	env.load_module_function("Vec2", "lower", vec2_lower);
+	env.load_module_function("Vec2", "greater", vec2_greater);
+	env.load_module_function("Vec2", "length", vec2_length);
+	env.load_module_function("Vec2", "squared_length", vec2_squared_length);
+	env.load_module_function("Vec2", "set_length", vec2_set_length);
+	env.load_module_function("Vec2", "normalize", vec2_normalize);
+	env.load_module_function("Vec2", "negate", vec2_negate);
+	env.load_module_function("Vec2", "get_distance_to", vec2_get_distance_to);
+	env.load_module_function("Vec2", "get_angle_between", vec2_get_angle_between);
+	env.load_module_function("Vec2", "zero", vec2_zero);
 }
 
 } // namespace crown

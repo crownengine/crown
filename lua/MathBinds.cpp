@@ -178,12 +178,6 @@ static const struct luaL_Reg Math [] = {
 	{NULL, NULL}	
 };
 
-int32_t luaopen_libcrownlua(lua_State* L)
-{
-	luaL_register(L, "Math", Math);
-	return 1;
-}
-
 }
 
 } // namespace crown

@@ -227,12 +227,10 @@ set (NETWORK_HEADERS
 
 set (SCRIPT_SRC
 	script/ScriptSystem.cpp
-	script/LuaStack.cpp
 )
 
 set (SCRIPT_HEADERS
 	script/ScriptSystem.h
-	script/LuaStack.cpp
 )
 
 

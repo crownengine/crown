@@ -3,7 +3,14 @@ cmake_minimum_required(VERSION 2.8)
 project(crown-lua)
 
 set(LUA_SRC
-	MathBinds.cpp
+	LuaStack.cpp
+	LuaEnvironment.cpp
+	Vec2Binds.cpp
+)
+
+set(LUA_HEADERS
+	LuaStack.h
+	LuaEnvironment.h
 )
 
 add_definitions(-Wl,-E)
