@@ -116,22 +116,11 @@ class Compiler:
 
 	# Compiles all the resources in the repository
 	def compile_all(self):
-		print("Compiling textures...")
 		self.compile_textures()
-
-		print("Compiling meshes...")
 		self.compile_meshes()
-
-		print("Compiling texts...")
 		self.compile_texts()
-
-		print("Compiling scripts...")
 		self.compile_scripts()
-
-		print("Compiling vertex shaders...")
 		self.compile_vertex_shaders()
-
-		print("Compiling pixel shaders...")
 		self.compile_pixel_shaders()
 
 	# Compile a single resource from the repository
