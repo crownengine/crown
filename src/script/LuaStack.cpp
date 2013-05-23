@@ -1,4 +1,5 @@
 #include "LuaStack.h"
+#include <cassert>
 
 namespace crown
 {
@@ -62,5 +63,16 @@ const char* LuaStack::get_string(int32_t index)
 {
 	return luaL_checkstring(m_state, index);
 }
+
+const void* LuaStack::get_lightudata(int32_t index)
+{
+	if (!lua_islightuserdata(m_state, index))
+	{
+		assert(0);
+	}
+
+	return lua_touserdata(m_state, index);
+}	
+
 
 } // namespace crown

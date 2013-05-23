@@ -30,6 +30,8 @@ public:
 
 	const char*				get_string(int32_t index);
 
+	const void*				get_lightudata(int32_t index);
+
 private:
 
 	lua_State* 				m_state;
