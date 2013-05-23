@@ -6,6 +6,7 @@ set(LUA_SRC
 	LuaStack.cpp
 	LuaEnvironment.cpp
 	Vec2Binds.cpp
+	Vec3Binds.cpp
 )
 
 set(LUA_HEADERS

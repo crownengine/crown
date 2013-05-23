@@ -1,15 +1,17 @@
-#include "LuaStack.h"
-#include "Device.h"
-#include "ScriptSystem.h"
-#include "LuaEnvironment.h"
 #include "Vec2.h"
-#include "OS.h"
+#include "LuaStack.h"
+#include "LuaEnvironment.h"
+
 
 namespace crown
 {
 
 extern "C"
 {
+
+const int32_t 	LUA_VEC2_BUFFER_SIZE = 4096;
+Vec2 			vec2_buffer[LUA_VEC2_BUFFER_SIZE];
+uint32_t 		vec2_used = 0;	
 
 int32_t	vec2(lua_State* L)
 {
@@ -18,7 +20,12 @@ int32_t	vec2(lua_State* L)
 	float x = stack.get_float(1);
 	float y = stack.get_float(2);
 
-	stack.push_lightudata(device()->script_system()->next_vec2(x, y));
+	vec2_buffer[vec2_used].x = x;
+	vec2_buffer[vec2_used].y = y;
+
+	stack.push_lightudata(&vec2_buffer[vec2_used]);
+
+	vec2_used++;
 
 	return 1;
 }

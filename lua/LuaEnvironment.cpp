@@ -32,6 +32,7 @@ extern "C"
 		LuaEnvironment env(L);
 
 		load_vec2(env);
+		load_vec3(env);
 	}
 }
 
