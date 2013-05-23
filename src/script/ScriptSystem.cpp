@@ -22,7 +22,7 @@ ScriptSystem::ScriptSystem() :
 }
 
 //-----------------------------------------------------------
-Vec2& ScriptSystem::next_vec2(float nx, float ny)
+Vec2* ScriptSystem::next_vec2(float nx, float ny)
 {
 	uint32_t current = m_vec2_count;
 
@@ -31,7 +31,7 @@ Vec2& ScriptSystem::next_vec2(float nx, float ny)
 
 	m_vec2_count++;
 
-	return m_vec2_list[current];
+	return &m_vec2_list[current];
 }
 
 //-----------------------------------------------------------

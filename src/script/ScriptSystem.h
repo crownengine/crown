@@ -21,7 +21,7 @@ public:
 								/// Constructor
 								ScriptSystem();
 								/// Returns the first free Vec2
-	Vec2&						next_vec2(float nx, float ny);
+	Vec2*						next_vec2(float nx, float ny);
 								/// Returns the first free Vec3
 	Vec3&						next_vec3(float nx, float ny, float nz);
 								/// Returns the first free Mat4
