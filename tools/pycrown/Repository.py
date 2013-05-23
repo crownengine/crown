@@ -37,8 +37,13 @@ resource_extensions = ('.txt', '.tga', '.dae', '.lua', '.vs', '.ps')
 # Can filter resources by type and other useful stuff
 class Repository:
 	def __init__(self, root_path):
-		self.m_root_path = root_path
 		self.m_resources = []
+		self.set_root_path(root_path)
+
+	# Sets the root path triggering a complete project scan()
+	def set_root_path(self, root_path):
+		self.m_root_path = root_path
+		self.scan()
 
 	# Returns the root path
 	def root_path(self):
