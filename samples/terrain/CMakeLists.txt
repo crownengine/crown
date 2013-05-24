@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
+project(sample-terrain)
+
 set (SRC
 	terrain.cpp
 	Terrain.cpp
@@ -12,4 +14,6 @@ set (HEADERS
 #add_library (game SHARED ${SRC} ${HEADERS})
 #target_link_libraries(game crown)
 
-#install (TARGETS game DESTINATION bin/terrain)
+#install (DIRECTORY terrain DESTINATION samples)
+#install (TARGETS game DESTINATION samples/terrain)
+
