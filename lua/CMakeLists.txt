@@ -7,6 +7,10 @@ set(LUA_SRC
 	LuaEnvironment.cpp
 	Vec2Binds.cpp
 	Vec3Binds.cpp
+
+	MouseBinds.cpp
+	KeyboardBinds.cpp
+	AccelerometerBinds.cpp
 )
 
 set(LUA_HEADERS

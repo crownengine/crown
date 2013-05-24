@@ -33,6 +33,10 @@ extern "C"
 
 		load_vec2(env);
 		load_vec3(env);
+
+		load_mouse(env);
+		load_keyboard(env);
+		load_accelerometer(env);
 	}
 }
 

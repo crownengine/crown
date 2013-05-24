@@ -30,7 +30,7 @@ private:
 
 extern "C"
 {
-	int luaopen_crownlua(lua_State* L);
+	int luaopen_libcrownlua(lua_State* L);
 }
 
 void load_vec2(LuaEnvironment& env);
