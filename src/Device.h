@@ -39,7 +39,6 @@ class ResourceManager;
 class ResourceArchive;
 class Renderer;
 class DebugRenderer;
-class ScriptSystem;
 class InputManager;
 class Keyboard;
 class Mouse;
@@ -101,7 +100,6 @@ public:
 	InputManager*			input_manager();
 	Renderer*				renderer();
 	DebugRenderer*			debug_renderer();
-	ScriptSystem*			script_system();
 
 	Keyboard*				keyboard();
 	Mouse*					mouse();
@@ -115,7 +113,6 @@ private:
 	void					create_input_manager();
 	void					create_renderer();
 	void					create_debug_renderer();
-	void					create_script_system();
 
 	bool					parse_command_line(int argc, char** argv);
 	void					print_help_message();
@@ -146,7 +143,6 @@ private:
 	InputManager*			m_input_manager;
 	Renderer*				m_renderer;
 	DebugRenderer*			m_debug_renderer;
-	ScriptSystem*			m_script_system;
 
 	// Private subsystems
 	ResourceManager*		m_resource_manager;

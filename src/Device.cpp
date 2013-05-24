@@ -46,7 +46,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mouse.h"
 #include "Touch.h"
 #include "Accelerometer.h"
-#include "ScriptSystem.h"
 
 #ifdef CROWN_BUILD_OPENGL
 	#include "renderers/gl/GLRenderer.h"
@@ -84,7 +83,6 @@ Device::Device() :
 	m_input_manager(NULL),
 	m_renderer(NULL),
 	m_debug_renderer(NULL),
-	m_script_system(NULL),
 
 	m_resource_manager(NULL),
 	m_resource_archive(NULL),
@@ -138,10 +136,6 @@ bool Device::init(int argc, char** argv)
 	create_debug_renderer();
 
 	Log::d("Debug renderer created.");
-
-	create_script_system();
-
-	Log::d("Script system created.");
 
 	Log::i("Crown Engine initialized.");
 
@@ -270,12 +264,6 @@ Renderer* Device::renderer()
 DebugRenderer* Device::debug_renderer()
 {
 	return m_debug_renderer;
-}
-
-//-----------------------------------------------------------------------------
-ScriptSystem* Device::script_system()
-{
-	return m_script_system;
 }
 
 //-----------------------------------------------------------------------------
@@ -470,13 +458,6 @@ void Device::create_debug_renderer()
 {
 	// Create debug renderer
 	m_debug_renderer = new DebugRenderer(*m_renderer);
-}
-
-//-----------------------------------------------------------------------------
-void Device::create_script_system()
-{
-	// Create script system
-	m_script_system = new ScriptSystem();
 }
 
 //-----------------------------------------------------------------------------
