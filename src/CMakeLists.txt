@@ -47,6 +47,7 @@ set (CORE_SRC
 )
 
 set (CORE_HEADERS
+	core/Assert.h
 	core/Types.h
 	core/Args.h
 	core/Log.h
