@@ -1,5 +1,7 @@
-#include "Device.h"
-#include "ScriptSystem.h"
+#include "Mat4.h"
+#include "Vec3.h"
+#include "LuaStack.h"
+#include "LuaEnvironment.h"
 #include "OS.h"
 
 namespace crown
@@ -7,222 +9,404 @@ namespace crown
 
 extern "C"
 {
-	Mat4&				mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3);
-						
-	Mat4&				mat4_add(Mat4& self, Mat4& m);
 
-	Mat4&				mat4_subtract(Mat4& self, Mat4& m);
+const int32_t 	LUA_MAT4_BUFFER_SIZE = 4096;
+Mat4 			mat4_buffer[LUA_MAT4_BUFFER_SIZE];
+uint32_t 		mat4_used = 0;
 
-	Mat4&				mat4_multiply(Mat4& self, Mat4& m);
-
-	Mat4&				mat4_multiply_by_scalar(Mat4& self, float k);
-
-	Mat4&				mat4_divide_by_scalar(Mat4& self, float k);
-
-	void				mat4_build_rotation_x(Mat4& self, float radians);
-
-	void				mat4_build_rotation_y(Mat4& self, float radians);	
-
-	void				mat4_build_rotation_z(Mat4& self, float radians);
-
-	void				mat4_build_rotation(Mat4& self, const Vec3& n, float radians);
-
-	void				mat4_build_projection_perspective_rh(Mat4& self, float fovy, float aspect, float near, float far);
-
-	void				mat4_build_projection_perspective_lh(Mat4& self, float fovy, float aspect, float near, float far);
-
-	void				mat4_build_projection_ortho_rh(Mat4& self, float width, float height, float near, float far);
-
-	void				mat4_build_projection_ortho_lh(Mat4& self, float width, float height, float near, float far);
-
-	void				mat4_build_projection_ortho_2d_rh(Mat4& self, float width, float height, float near, float far);
-
-	void				mat4_build_look_at_rh(Mat4& self, const Vec3& pos, const Vec3& target, const Vec3& up);
-
-	void				mat4_build_look_at_lh(Mat4& self, const Vec3& pos, const Vec3& target, const Vec3& up);
-
-	void				mat4_build_viewpoint_billboard(Mat4& self, const Vec3& pos, const Vec3& target, const Vec3& up);
-
-	void				mat4_build_axis_billboard(Mat4& self, const Vec3& pos, const Vec3& target, const Vec3& axis);
-
-	Mat4&				mat4_transpose(Mat4& self);
-
-	float				mat4_determinant(Mat4& self);
-
-	Mat4&				mat4_invert(Mat4& self);
-
-	void				mat4_load_identity(Mat4& self);
-
-	Vec3&				mat4_get_translation(Mat4& self);
-
-	void				mat4_set_translation(Mat4& self, const Vec3& trans);
-
-	Vec3&				mat4_get_scale(Mat4& self);
-
-	void				mat4_set_scale(Mat4& self, const Vec3& scale);
-
-	void 				mat4_print(Mat4& self);
-}
-
-Mat4& mat4(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3)
+int32_t mat4(lua_State* L)
 {
-	return device()->script_system()->next_mat4(r1c1, r2c1, r3c1, r1c2, r2c2, r3c2, r1c3, r2c3, r3c3);
+	LuaStack stack(L);
+
+	float m0 = stack.get_float(1);
+	float m1 = stack.get_float(2);
+	float m2 = stack.get_float(3);
+	float m4 = stack.get_float(4);	
+	float m5 = stack.get_float(5);
+	float m6 = stack.get_float(6);	
+	float m8 = stack.get_float(7);
+	float m9 = stack.get_float(8);
+	float m10 = stack.get_float(9);
+
+	mat4_buffer[mat4_used].m[0] = m0;
+	mat4_buffer[mat4_used].m[1] = m1;
+	mat4_buffer[mat4_used].m[2] = m2;
+	mat4_buffer[mat4_used].m[4] = m4;
+	mat4_buffer[mat4_used].m[5] = m5;
+	mat4_buffer[mat4_used].m[6] = m6;
+	mat4_buffer[mat4_used].m[8] = m8;
+	mat4_buffer[mat4_used].m[9] = m9;
+	mat4_buffer[mat4_used].m[10] = m10;
+
+	stack.push_lightudata(&mat4_buffer[mat4_used]);
+
+	mat4_used++;
+
+	return 1;
 }
 					
-Mat4& mat4_add(Mat4& self, Mat4& m)
+int32_t mat4_add(lua_State* L)
 {
-	self += m;
+	LuaStack stack(L);
 
-	return self;
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	Mat4* b = (Mat4*)stack.get_lightudata(2);
+
+	*a += *b;
+
+	stack.push_lightudata(a);
+
+	return 1;
 }
 
-Mat4& mat4_subtract(Mat4& self, Mat4& m)
+int32_t mat4_subtract(lua_State* L)
 {
-	self -= m;
+	LuaStack stack(L);
 
-	return self;
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	Mat4* b = (Mat4*)stack.get_lightudata(2);
+
+	*a -= *b;
+
+	stack.push_lightudata(a);
+
+	return 1;
 }
 
-Mat4& mat4_multiply(Mat4& self, Mat4& m)
+int32_t mat4_multiply(lua_State* L)
 {
-	self *= m;
+	LuaStack stack(L);
 
-	return self;
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	Mat4* b = (Mat4*)stack.get_lightudata(2);
+
+	*a *= *b;
+
+	stack.push_lightudata(a);
+
+	return 1;
 }	
 
-Mat4& mat4_multiply_by_scalar(Mat4& self, float k)
+int32_t mat4_multiply_by_scalar(lua_State* L)
 {
-	self *= k;
+	LuaStack stack(L);
 
-	return self;
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	float k = stack.get_float(2);
+
+	*a *= k;
+
+	stack.push_lightudata(a);
+
+	return 1;
 }
 
-Mat4& mat4_divide_by_scalar(Mat4& self, float k)
+int32_t mat4_divide_by_scalar(lua_State* L)
 {
-	self /= k;
+	LuaStack stack(L);
 
-	return self;
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	float k = stack.get_float(2);
+
+	*a /= k;
+
+	stack.push_lightudata(a);
+
+	return 1;
 }
 
-void mat4_build_rotation_x(Mat4& self, float radians)
+int32_t mat4_build_rotation_x(lua_State* L)
 {
-	self.build_rotation_x(radians);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	float k = stack.get_float(2);
+
+	a->build_rotation_x(k);
+
+	return 0;
 }
 
-void mat4_build_rotation_y(Mat4& self, float radians)
+int32_t mat4_build_rotation_y(lua_State* L)
 {
-	self.build_rotation_y(radians);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	float k = stack.get_float(2);
+
+	a->build_rotation_y(k);
+
+	return 0;
 }
 
-void mat4_build_rotation_z(Mat4& self, float radians)
+int32_t mat4_build_rotation_z(lua_State* L)
 {
-	self.build_rotation_z(radians);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	float k = stack.get_float(2);
+
+	a->build_rotation_z(k);
+
+	return 0;
 }
 
-void mat4_build_rotation(Mat4& self, const Vec3& n, float radians)
+int32_t mat4_build_rotation(lua_State* L)
 {
-	self.build_rotation(n, radians);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	Vec3* d = (Vec3*)stack.get_lightudata(2);
+	float k = stack.get_float(3);
+
+	a->build_rotation(*d, k);
+
+	return 0;
 }
 
-void mat4_build_projection_perspective_rh(Mat4& self, float fovy, float aspect, float near, float far)
+int32_t mat4_build_projection_perspective_rh(lua_State* L)
 {
-	self.build_projection_perspective_rh(fovy, aspect, near, far);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	float fovy = stack.get_float(2);
+	float aspect = stack.get_float(3);
+	float near = stack.get_float(4);
+	float far = stack.get_float(5);
+
+	a->build_projection_perspective_rh(fovy, aspect, near, far);
+
+	return 0;
 }
 
-void mat4_build_projection_perspective_lh(Mat4& self, float fovy, float aspect, float near, float far)
+int32_t mat4_build_projection_perspective_lh(lua_State* L)
 {
-	self.build_projection_perspective_lh(fovy, aspect, near, far);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	float fovy = stack.get_float(2);
+	float aspect = stack.get_float(3);
+	float near = stack.get_float(4);
+	float far = stack.get_float(5);
+
+	a->build_projection_perspective_lh(fovy, aspect, near, far);
+
+	return 0;
 }
 
-void mat4_build_projection_ortho_rh(Mat4& self, float width, float height, float near, float far)
+int32_t mat4_build_projection_ortho_rh(lua_State* L)
 {
-	self.build_projection_ortho_rh(width, height, near, far);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	float width = stack.get_float(2);
+	float height = stack.get_float(3);
+	float near = stack.get_float(4);
+	float far = stack.get_float(5);
+
+	a->build_projection_ortho_rh(width, height, near, far);
+
+	return 0;
 }
 
-void mat4_build_projection_ortho_lh(Mat4& self, float width, float height, float near, float far)
+int32_t mat4_build_projection_ortho_lh(lua_State* L)
 {
-	self.build_projection_ortho_lh(width, height, near, far);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	float width = stack.get_float(2);
+	float height = stack.get_float(3);
+	float near = stack.get_float(4);
+	float far = stack.get_float(5);
+
+	a->build_projection_ortho_lh(width, height, near, far);
+
+	return 0;
 }
 
-void mat4_build_projection_ortho_2d_rh(Mat4& self, float width, float height, float near, float far)
+int32_t mat4_build_projection_ortho_2d_rh(lua_State* L)
 {
-	self.build_projection_ortho_2d_rh(width, height, near, far);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	float width = stack.get_float(2);
+	float height = stack.get_float(3);
+	float near = stack.get_float(4);
+	float far = stack.get_float(5);
+
+	a->build_projection_ortho_2d_rh(width, height, near, far);
+
+	return 0;
 }
 
-void mat4_build_look_at_rh(Mat4& self, const Vec3& pos, const Vec3& target, const Vec3& up)
+int32_t mat4_build_look_at_rh(lua_State* L)
 {
-	self.build_look_at_rh(pos, target, up);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	Vec3* pos = (Vec3*)stack.get_lightudata(2);
+	Vec3* target = (Vec3*)stack.get_lightudata(3);
+	Vec3* up = (Vec3*)stack.get_lightudata(4);
+
+	a->build_look_at_rh(*pos, *target, *up);
+
+	return 0;
 }
 
-void mat4_build_look_at_lh(Mat4& self, const Vec3& pos, const Vec3& target, const Vec3& up)
+int32_t mat4_build_look_at_lh(lua_State* L)
 {
-	self.build_look_at_lh(pos, target, up);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	Vec3* pos = (Vec3*)stack.get_lightudata(2);
+	Vec3* target = (Vec3*)stack.get_lightudata(3);
+	Vec3* up = (Vec3*)stack.get_lightudata(4);
+
+	a->build_look_at_lh(*pos, *target, *up);
+
+	return 0;
 }
 
-void mat4_build_viewpoint_billboard(Mat4& self, const Vec3& pos, const Vec3& target, const Vec3& up)
+int32_t mat4_build_viewpoint_billboard(lua_State* L)
 {
-	self.build_viewpoint_billboard(pos, target, up);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	Vec3* pos = (Vec3*)stack.get_lightudata(2);
+	Vec3* target = (Vec3*)stack.get_lightudata(3);
+	Vec3* up = (Vec3*)stack.get_lightudata(4);
+
+	a->build_viewpoint_billboard(*pos, *target, *up);
+
+	return 0;
 }
 
-void mat4_build_axis_billboard(Mat4& self, const Vec3& pos, const Vec3& target, const Vec3& axis)
+int32_t mat4_build_axis_billboard(lua_State* L)
 {
-	self.build_axis_billboard(pos, target, axis);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	Vec3* pos = (Vec3*)stack.get_lightudata(2);
+	Vec3* target = (Vec3*)stack.get_lightudata(3);
+	Vec3* up = (Vec3*)stack.get_lightudata(4);
+
+	a->build_axis_billboard(*pos, *target, *up);
+
+	return 0;
 }
 
-Mat4& mat4_transpose(Mat4& self)
+int32_t mat4_transpose(lua_State* L)
 {
-	self.transpose();
+	LuaStack stack(L);
 
-	return self;
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+
+	a->transpose();
+
+	stack.push_lightudata(a);
+
+	return 1;
 }
 
-float mat4_determinant(Mat4& self)
+int32_t mat4_determinant(lua_State* L)
 {
-	return self.get_determinant();
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+
+	stack.push_float(a->get_determinant());
+
+	return 1;
 }
 
-Mat4& mat4_invert(Mat4& self)
+int32_t mat4_invert(lua_State* L)
 {
-	self.invert();
+	LuaStack stack(L);
 
-	return self;
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+
+	a->invert();
+
+	stack.push_lightudata(a);
+
+	return 1;
 }
 
-void mat4_load_identity(Mat4& self)
+int32_t mat4_load_identity(lua_State* L)
 {
-	self.load_identity();
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+
+	a->load_identity();
+
+	return 0;
 }
 
-Vec3& mat4_get_translation(Mat4& self)
+int32_t mat4_get_translation(lua_State* L)
 {	
-	Vec3 tmp = self.get_translation();
+	LuaStack stack(L);
 
-	return device()->script_system()->next_vec3(tmp.x, tmp.y, tmp.z);
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+
+	Vec3 trans = a->get_translation();
+
+	stack.push_lightudata(&trans);
+
+	return 1;
 }
 
-void mat4_set_translation(Mat4& self, const Vec3& trans)
+int32_t mat4_set_translation(lua_State* L)
 {
-	self.set_translation(trans);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	Vec3* trans = (Vec3*)stack.get_lightudata(2);
+
+	a->set_translation(*trans);
+
+	return 0;
 }
 
-Vec3& mat4_get_scale(Mat4& self)
+int32_t mat4_get_scale(lua_State* L)
 {
-	Vec3 tmp = self.get_scale();
-	return device()->script_system()->next_vec3(tmp.x, tmp.y, tmp.z);	
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+
+	Vec3 scale = a->get_scale();
+
+	stack.push_lightudata(&scale);
+
+	return 1;
 }
 
-void mat4_set_scale(Mat4& self, const Vec3& scale)
+int32_t mat4_set_scale(lua_State* L)
 {
-	self.set_scale(scale);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+	Vec3* scale = (Vec3*)stack.get_lightudata(2);
+
+	a->set_scale(*scale);
+
+	return 0;
 }
 
-void mat4_print(Mat4& self)
+int32_t mat4_print(lua_State* L)
 {
-	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", self.m[0], self.m[4], self.m[8], self.m[12]);
-	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", self.m[1], self.m[5], self.m[9], self.m[13]);
-	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", self.m[2], self.m[6], self.m[10], self.m[14]);
-	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", self.m[3], self.m[7], self.m[11], self.m[15]);
+	LuaStack stack(L);
+
+	Mat4* a = (Mat4*)stack.get_lightudata(1);
+
+	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a->m[0], a->m[4], a->m[8], a->m[12]);
+	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a->m[1], a->m[5], a->m[9], a->m[13]);
+	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a->m[2], a->m[6], a->m[10], a->m[14]);
+	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a->m[3], a->m[7], a->m[11], a->m[15]);
+
+	return 0;
 }
 
+} //extern "C"
 
 } //namespace crown

@@ -7,6 +7,7 @@ set(LUA_SRC
 	LuaEnvironment.cpp
 	Vec2Binds.cpp
 	Vec3Binds.cpp
+	Mat4Binds.cpp
 
 	MouseBinds.cpp
 	KeyboardBinds.cpp
