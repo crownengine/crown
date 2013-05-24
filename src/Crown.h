@@ -130,6 +130,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PixelFormat.h"
 #include "VertexFormat.h"
 
-// Engine/Script
-#include "ScriptSystem.h"
 
