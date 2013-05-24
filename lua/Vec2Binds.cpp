@@ -11,7 +11,12 @@ extern "C"
 
 const int32_t 	LUA_VEC2_BUFFER_SIZE = 4096;
 Vec2 			vec2_buffer[LUA_VEC2_BUFFER_SIZE];
-uint32_t 		vec2_used = 0;	
+uint32_t 		vec2_used = 0;
+
+Vec2* next_vec2()
+{
+	return &vec2_buffer[vec2_used++];
+}
 
 int32_t	vec2(lua_State* L)
 {

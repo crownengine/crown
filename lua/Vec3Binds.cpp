@@ -14,6 +14,11 @@ const int32_t 	LUA_VEC3_BUFFER_SIZE = 4096;
 Vec3 			vec3_buffer[LUA_VEC3_BUFFER_SIZE];
 uint32_t 		vec3_used = 0;
 
+Vec3* next_vec3()
+{
+	return &vec3_buffer[vec3_used++];
+}
+
 //------------------------------------------------------------
 int32_t vec3(lua_State* L)
 {
