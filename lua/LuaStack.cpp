@@ -35,9 +35,32 @@ void LuaStack::push_string(const char* str, size_t len)
 }
 
 //-------------------------------------------------------
-void LuaStack::push_lightudata(void* ptr)
+void LuaStack::push_vec2(Vec2* v)
 {
-	lua_pushlightuserdata(m_state, ptr);
+	assert(v >= &vec2_buffer[0] && v <= &vec2_buffer[LUA_VEC2_BUFFER_SIZE-1]);
+
+	lua_pushlightuserdata(m_state, v);
+}
+
+void LuaStack::push_vec3(Vec3* v)
+{
+	assert(v >= &vec3_buffer[0] && v <= &vec3_buffer[LUA_VEC3_BUFFER_SIZE-1]);
+
+	lua_pushlightuserdata(m_state, v);
+}
+
+void LuaStack::push_mat4(Mat4* m)
+{
+	assert(m >= &mat4_buffer[0] && m <= &mat4_buffer[LUA_MAT4_BUFFER_SIZE-1]);
+
+	lua_pushlightuserdata(m_state, m);
+}
+
+void LuaStack::push_quat(Quat* q)
+{
+	assert(q >= &quat_buffer[0] && q <= &quat_buffer[LUA_MAT4_BUFFER_SIZE-1]);
+
+	lua_pushlightuserdata(m_state, q);
 }
 
 //-------------------------------------------------------
@@ -64,15 +87,52 @@ const char* LuaStack::get_string(int32_t index)
 	return luaL_checkstring(m_state, index);
 }
 
-const void* LuaStack::get_lightudata(int32_t index)
+Vec2* LuaStack::get_vec2(int32_t index)
 {
-	if (!lua_islightuserdata(m_state, index))
-	{
-		assert(0);
-	}
+	assert(lua_islightuserdata(m_state, index));
 
-	return lua_touserdata(m_state, index);
-}	
+	Vec2* v = (Vec2*)lua_touserdata(m_state, index);
+
+	assert(v >= &vec2_buffer[0] && v <= &vec2_buffer[LUA_VEC2_BUFFER_SIZE-1]);
+
+	return v;
+}
+
+//-------------------------------------------------------
+Vec3* LuaStack::get_vec3(int32_t index)
+{
+	assert(lua_islightuserdata(m_state, index));
+
+	Vec3* v = (Vec3*)lua_touserdata(m_state, index);
+
+	assert(v >= &vec3_buffer[0] && v <= &vec3_buffer[LUA_VEC3_BUFFER_SIZE-1]);
+
+	return v;
+}
+
+//-------------------------------------------------------
+Mat4* LuaStack::get_mat4(int32_t index)
+{
+	assert(lua_islightuserdata(m_state, index));
+
+	Mat4* m = (Mat4*)lua_touserdata(m_state, index);
+
+	assert(m >= &mat4_buffer[0] && m <= &mat4_buffer[LUA_MAT4_BUFFER_SIZE-1]);
+
+	return m;
+}
+
+//-------------------------------------------------------
+Quat* LuaStack::get_quat(int32_t index)
+{
+	assert(lua_islightuserdata(m_state, index));
+
+	Quat* q = (Quat*)lua_touserdata(m_state, index);
+
+	assert(q >= &quat_buffer[0] && q <= &quat_buffer[LUA_QUAT_BUFFER_SIZE-1]);
+
+	return q;
+}
 
 
 } // namespace crown

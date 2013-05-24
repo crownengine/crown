@@ -9,10 +9,6 @@ namespace crown
 extern "C"
 {
 
-const int32_t 	LUA_VEC2_BUFFER_SIZE = 4096;
-Vec2 			vec2_buffer[LUA_VEC2_BUFFER_SIZE];
-uint32_t 		vec2_used = 0;
-
 Vec2* next_vec2()
 {
 	return &vec2_buffer[vec2_used++];
@@ -28,7 +24,7 @@ int32_t	vec2(lua_State* L)
 	vec2_buffer[vec2_used].x = x;
 	vec2_buffer[vec2_used].y = y;
 
-	stack.push_lightudata(&vec2_buffer[vec2_used]);
+	stack.push_vec2(&vec2_buffer[vec2_used]);
 
 	vec2_used++;
 
@@ -39,7 +35,7 @@ int32_t vec2_values(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2* a = (Vec2*)stack.get_lightudata(1);
+	Vec2* a = (Vec2*)stack.get_vec2(1);
 
 	float x = a->x;
 	float y = a->y;
@@ -55,12 +51,12 @@ int32_t vec2_add(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2* a = (Vec2*)stack.get_lightudata(1);
-	Vec2* b = (Vec2*)stack.get_lightudata(2);
+	Vec2* a = (Vec2*)stack.get_vec2(1);
+	Vec2* b = (Vec2*)stack.get_vec2(2);
 
 	*a += *b;
 
-	stack.push_lightudata(a);
+	stack.push_vec2(a);
 
 	return 1;
 }
@@ -69,12 +65,12 @@ int32_t vec2_subtract(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
-	Vec2* b = (Vec2*) stack.get_lightudata(2);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
+	Vec2* b = (Vec2*) stack.get_vec2(2);
 
 	*a -= *b;
 
-	stack.push_lightudata(a);
+	stack.push_vec2(a);
 
 	return 1;
 }
@@ -83,12 +79,12 @@ int32_t vec2_multiply(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
 	float k = stack.get_float(2);
 
 	*a *= k;
 
-	stack.push_lightudata(a);
+	stack.push_vec2(a);
 
 	return 1;
 }			
@@ -97,12 +93,12 @@ int32_t vec2_divide(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
 	float k = stack.get_float(2);
 
 	*a /= k;
 
-	stack.push_lightudata(a);
+	stack.push_vec2(a);
 
 	return 1;
 }
@@ -111,8 +107,8 @@ int32_t vec2_dot(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
-	Vec2* b = (Vec2*) stack.get_lightudata(2);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
+	Vec2* b = (Vec2*) stack.get_vec2(2);
 
 	stack.push_float(a->dot(*b));
 
@@ -123,8 +119,8 @@ int32_t vec2_equals(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
-	Vec2* b = (Vec2*) stack.get_lightudata(2);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
+	Vec2* b = (Vec2*) stack.get_vec2(2);
 
 	stack.push_bool(*a == *b);
 
@@ -135,8 +131,8 @@ int32_t vec2_lower(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
-	Vec2* b = (Vec2*) stack.get_lightudata(2);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
+	Vec2* b = (Vec2*) stack.get_vec2(2);
 
 	stack.push_bool(*a < *b);
 
@@ -147,8 +143,8 @@ int32_t vec2_greater(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
-	Vec2* b = (Vec2*) stack.get_lightudata(2);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
+	Vec2* b = (Vec2*) stack.get_vec2(2);
 	
 	stack.push_bool(*a > *b);
 
@@ -159,7 +155,7 @@ int32_t vec2_length(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
 
 	stack.push_float(a->length());
 
@@ -170,7 +166,7 @@ int32_t vec2_squared_length(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
 
 	stack.push_float(a->squared_length());
 
@@ -181,7 +177,7 @@ int32_t vec2_set_length(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
 	float len = stack.get_float(2);
 
 	a->set_length(len);
@@ -193,11 +189,11 @@ int32_t	vec2_normalize(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
 
 	a->normalize();
 
-	stack.push_lightudata(a);
+	stack.push_vec2(a);
 
 	return 1;
 }
@@ -206,11 +202,11 @@ int32_t	vec2_negate(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
 
 	a->negate();
 
-	stack.push_lightudata(a);
+	stack.push_vec2(a);
 
 	return 1;
 }
@@ -219,8 +215,8 @@ int32_t	vec2_get_distance_to(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
-	Vec2* b = (Vec2*) stack.get_lightudata(2);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
+	Vec2* b = (Vec2*) stack.get_vec2(2);
 
 	stack.push_float(a->get_distance_to(*b));
 
@@ -231,8 +227,8 @@ int32_t	vec2_get_angle_between(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
-	Vec2* b = (Vec2*) stack.get_lightudata(2);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
+	Vec2* b = (Vec2*) stack.get_vec2(2);
 
 	stack.push_float(a->get_angle_between(*b));
 
@@ -243,7 +239,7 @@ int32_t	vec2_zero(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2* a = (Vec2*) stack.get_lightudata(1);
+	Vec2* a = (Vec2*) stack.get_vec2(1);
 
 	a->zero();
 
