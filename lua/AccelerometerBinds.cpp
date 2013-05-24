@@ -9,8 +9,6 @@ namespace crown
 extern "C"
 {
 
-extern Vec3* next_vec3();
-
 //-----------------------------------------------------------------------------
 int32_t accelerometer_orientation(lua_State* L)
 {
@@ -19,7 +17,7 @@ int32_t accelerometer_orientation(lua_State* L)
 	Vec3* orientation = next_vec3();
 	*orientation = device()->accelerometer()->orientation();
 
-	stack.push_lightudata(orientation);
+	stack.push_vec3(orientation);
 
 	return 1;
 }

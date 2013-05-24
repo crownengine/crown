@@ -10,11 +10,6 @@ namespace crown
 extern "C"
 {
 
-Vec3* next_vec3()
-{
-	return &vec3_buffer[vec3_used++];
-}
-
 //------------------------------------------------------------
 int32_t vec3(lua_State* L)
 {
@@ -24,13 +19,13 @@ int32_t vec3(lua_State* L)
 	float y = stack.get_float(2);
 	float z = stack.get_float(3);
 
-	vec3_buffer[vec3_used].x = x;
-	vec3_buffer[vec3_used].y = y;
-	vec3_buffer[vec3_used].z = z;
+	Vec3* vec = next_vec3();
 
-	stack.push_vec3(&vec3_buffer[vec3_used]);
+	vec->x = x;
+	vec->y = y;
+	vec->z = z;
 
-	vec3_used++;
+	stack.push_vec3(vec);
 
 	return 1;
 }

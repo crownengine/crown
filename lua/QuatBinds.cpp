@@ -6,6 +6,7 @@
 
 namespace crown
 {
+
 extern "C"
 {
 
@@ -16,12 +17,12 @@ int32_t quat(lua_State* L)
 	float w = stack.get_float(1);
 	Vec3* v = stack.get_vec3(2);
 
-	quat_buffer[quat_used].w = w;
-	quat_buffer[quat_used].v = *v;
+	Quat* quat = next_quat();
 
-	stack.push_quat(&quat_buffer[quat_used]);
+	quat->w = w;
+	quat->v = *v;
 
-	quat_used++;
+	stack.push_quat(quat);
 
 	return 1;
 }
@@ -65,7 +66,10 @@ int32_t quat_conjugate(lua_State* L)
 
 	Quat* q = stack.get_quat(1);
 
-	stack.push_quat(&q->get_conjugate());
+	Quat* conjugate = next_quat();
+	*conjugate = q->get_conjugate();
+
+	stack.push_quat(conjugate);
 
 	return 1;
 }
@@ -76,7 +80,10 @@ int32_t quat_inverse(lua_State* L)
 
 	Quat* q = stack.get_quat(1);
 
-	stack.push_quat(&q->get_inverse());
+	Quat* inverse = next_quat();
+	*inverse = q->get_inverse();
+
+	stack.push_quat(inverse);
 
 	return 1;
 }
@@ -88,7 +95,7 @@ int32_t quat_cross(lua_State* L)
 	Quat* q1 = stack.get_quat(1);
 	Quat* q2 = stack.get_quat(2);
 
-	*q1 *= (*q2)
+	*q1 = (*q1) * (*q2);
 
 	stack.push_quat(q1);
 
@@ -104,7 +111,7 @@ int32_t quat_multiply(lua_State* L)
 
 	*q = (*q) * k;
 
-	stack.push_lightudata(q);
+	stack.push_quat(q);
 
 	return 1;
 }
@@ -113,12 +120,12 @@ int32_t quat_power(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Quat* q = (Quat*)stack.get_lightudata(1);
+	Quat* q = stack.get_quat(1);
 	float k = stack.get_float(2);
 
 	q->power(k);
 
-	stack.push_lightudata(q);
+	stack.push_quat(q);
 
 	return 1;
 }

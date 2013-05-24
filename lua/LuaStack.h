@@ -10,23 +10,12 @@
 namespace crown
 {
 
-const int32_t 	LUA_VEC2_BUFFER_SIZE = 4096;
-Vec2 			vec2_buffer[LUA_VEC2_BUFFER_SIZE];
-uint32_t 		vec2_used = 0;
+Vec2* next_vec2();
+Vec3* next_vec3();
 
-const int32_t 	LUA_VEC3_BUFFER_SIZE = 4096;
-Vec3 			vec3_buffer[LUA_VEC3_BUFFER_SIZE];
-uint32_t 		vec3_used = 0;
+Mat4* next_mat4();
+Quat* next_quat();
 
-const int32_t 	LUA_MAT4_BUFFER_SIZE = 4096;
-Mat4 			mat4_buffer[LUA_MAT4_BUFFER_SIZE];
-uint32_t 		mat4_used = 0;
-
-const int32_t 	LUA_QUAT_BUFFER_SIZE = 4096;
-Quat 			quat_buffer[LUA_QUAT_BUFFER_SIZE];
-uint32_t 		quat_used = 0;
-
-///
 class LuaStack
 {
 public:

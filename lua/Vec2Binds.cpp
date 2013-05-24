@@ -9,11 +9,6 @@ namespace crown
 extern "C"
 {
 
-Vec2* next_vec2()
-{
-	return &vec2_buffer[vec2_used++];
-}
-
 int32_t	vec2(lua_State* L)
 {
 	LuaStack stack(L);
@@ -21,12 +16,12 @@ int32_t	vec2(lua_State* L)
 	float x = stack.get_float(1);
 	float y = stack.get_float(2);
 
-	vec2_buffer[vec2_used].x = x;
-	vec2_buffer[vec2_used].y = y;
+	Vec2* vec = next_vec2();
 
-	stack.push_vec2(&vec2_buffer[vec2_used]);
+	vec->x = x;
+	vec->y = y;
 
-	vec2_used++;
+	stack.push_vec2(vec);
 
 	return 1;
 }

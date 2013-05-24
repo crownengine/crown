@@ -10,7 +10,6 @@ namespace crown
 extern "C"
 {
 
-
 int32_t mat4(lua_State* L)
 {
 	LuaStack stack(L);
@@ -25,19 +24,19 @@ int32_t mat4(lua_State* L)
 	float m9 = stack.get_float(8);
 	float m10 = stack.get_float(9);
 
-	mat4_buffer[mat4_used].m[0] = m0;
-	mat4_buffer[mat4_used].m[1] = m1;
-	mat4_buffer[mat4_used].m[2] = m2;
-	mat4_buffer[mat4_used].m[4] = m4;
-	mat4_buffer[mat4_used].m[5] = m5;
-	mat4_buffer[mat4_used].m[6] = m6;
-	mat4_buffer[mat4_used].m[8] = m8;
-	mat4_buffer[mat4_used].m[9] = m9;
-	mat4_buffer[mat4_used].m[10] = m10;
+	Mat4* mat = next_mat4();
 
-	stack.push_mat4(&mat4_buffer[mat4_used]);
+	mat->m[0] = m0;
+	mat->m[1] = m1;
+	mat->m[2] = m2;
+	mat->m[4] = m4;
+	mat->m[5] = m5;
+	mat->m[6] = m6;
+	mat->m[8] = m8;
+	mat->m[9] = m9;
+	mat->m[10] = m10;
 
-	mat4_used++;
+	stack.push_mat4(mat);
 
 	return 1;
 }
@@ -346,7 +345,10 @@ int32_t mat4_get_translation(lua_State* L)
 
 	Mat4* a = stack.get_mat4(1);
 
-	stack.push_vec3(&a->get_translation());
+	Vec3* translation = next_vec3();
+	*translation = a->get_translation();
+
+	stack.push_vec3(translation);
 
 	return 1;
 }
@@ -369,8 +371,10 @@ int32_t mat4_get_scale(lua_State* L)
 
 	Mat4* a = stack.get_mat4(1);
 
+	Vec3* scale = next_vec3();
+	*scale = a->get_scale();
 
-	stack.push_vec3(&a->get_scale());
+	stack.push_vec3(scale);
 
 	return 1;
 }

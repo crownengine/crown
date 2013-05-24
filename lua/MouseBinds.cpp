@@ -10,8 +10,6 @@ namespace crown
 extern "C"
 {
 
-extern Vec2* next_vec2();
-
 //-----------------------------------------------------------------------------
 int32_t mouse_button_pressed(lua_State* L)
 {
@@ -54,7 +52,7 @@ int32_t mouse_cursor_relative_xy(lua_State* L)
 	Vec2* xy = next_vec2();
 	*xy = device()->mouse()->cursor_relative_xy();
 
-	stack.push_lightudata(xy);
+	stack.push_vec2(xy);
 
 	return 1;
 }
@@ -64,7 +62,7 @@ int32_t mouse_set_cursor_relative_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2* xy = (Vec2*) stack.get_lightudata(1);
+	Vec2* xy = (Vec2*) stack.get_vec2(1);
 
 	device()->mouse()->set_cursor_relative_xy(*xy);
 
