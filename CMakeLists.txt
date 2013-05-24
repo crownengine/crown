@@ -13,6 +13,7 @@ option (CROWN_BUILD_SAMPLES "Whether to build the samples" ON)
 option (CROWN_BUILD_TOOLS "Whether to build the tools" ON)
 option (CROWN_BUILD_TESTS "Whether to build unit tests" OFF)
 
+# platform independent includes
 set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src
 	${CMAKE_SOURCE_DIR}/src/core
@@ -23,11 +24,8 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/core/compressors
 	${CMAKE_SOURCE_DIR}/src/core/streams
 	${CMAKE_SOURCE_DIR}/src/core/strings
-	${CMAKE_SOURCE_DIR}/src/core/threads
 	${CMAKE_SOURCE_DIR}/src/core/settings
 	${CMAKE_SOURCE_DIR}/src/os
-	${CMAKE_SOURCE_DIR}/src/os/posix
-	${CMAKE_SOURCE_DIR}/src/os/linux
 	${CMAKE_SOURCE_DIR}/src/input
 	${CMAKE_SOURCE_DIR}/src/renderers
 	${CMAKE_SOURCE_DIR}/src/network
@@ -52,25 +50,36 @@ set (CROWN_LUAJIT_LIBS
 	${CROWN_THIRD}/luajit/lib
 )
 
+# detect operating system
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	set(LINUX 1)
+	list(APPEND INCLUDES
+		${CMAKE_SOURCE_DIR}/src/os/linux
+	)
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	set(WINDOWS 1)
+	list(APPEND INCLUDES
+		${CMAKE_SOURCE_DIR}/src/os/win
+	)
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+
 include_directories(${INCLUDES} ${CROWN_LUAJIT_INCLUDES})
 link_directories(${CROWN_LUAJIT_LIBS})
 add_definitions(-pipe -ansi -W -Wall -Wextra -Wno-long-long -pedantic -fPIC -g -pg)
 
-# detect operating system
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	set(LINUX 1)
-	add_subdirectory(src/os/linux)
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	set (WINDOWS 1)
-	add_subdirectory(src/os/win)
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-
-
 # add build directories
 add_subdirectory(src)
 add_subdirectory(${CROWN_THIRD})
+
+if (LINUX)
+	add_subdirectory(src/os/linux)
+endif (LINUX)
+
+if (WINDOWS)
+	add_subdirectory(src/os/win)
+endif (WINDOWS)
 
 if (CROWN_BUILD_OPENGL)
 	add_subdirectory(src/renderers/gl)
@@ -91,5 +100,4 @@ endif (CROWN_BUILD_SAMPLES)
 if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
-
 
