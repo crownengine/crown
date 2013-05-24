@@ -225,15 +225,6 @@ set (NETWORK_HEADERS
 	network/BitMessage.h
 )
 
-set (SCRIPT_SRC
-	script/ScriptSystem.cpp
-)
-
-set (SCRIPT_HEADERS
-	script/ScriptSystem.h
-)
-
-
 set (CROWN_SOURCES
 	${SRC}
 	${CORE_SRC}
@@ -252,8 +243,6 @@ set (CROWN_SOURCES
 	${NETWORK_SRC}
 
 	${OS_SRC}
-
-	${SCRIPT_SRC}
 )
 
 set (CROWN_HEADERS
