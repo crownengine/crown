@@ -409,4 +409,38 @@ int32_t mat4_print(lua_State* L)
 
 } //extern "C"
 
+void load_mat4(LuaEnvironment& env)
+{
+	env.load_module_function("Mat4", "new", 							mat4);
+	env.load_module_function("Mat4", "add", 							mat4_add);
+	env.load_module_function("Mat4", "sub", 							mat4_subtract);
+	env.load_module_function("Mat4", "mul", 							mat4_multiply);
+	env.load_module_function("Mat4", "muls", 							mat4_multiply_by_scalar);
+	env.load_module_function("Mat4", "divs", 							mat4_divide_by_scalar);
+	env.load_module_function("Mat4", "build_rotation_x", 				mat4_build_rotation_x);
+	env.load_module_function("Mat4", "build_rotation_y", 				mat4_build_rotation_y);
+	env.load_module_function("Mat4", "build_rotation_z", 				mat4_build_rotation_z);
+	env.load_module_function("Mat4", "build_rotation", 					mat4_build_rotation);
+	env.load_module_function("Mat4", "build_projection_perspective_rh", mat4_build_projection_perspective_rh);
+	env.load_module_function("Mat4", "build_projection_perspective_lh", mat4_build_projection_perspective_lh);
+	env.load_module_function("Mat4", "build_projection_ortho_rh", 		mat4_build_projection_ortho_rh);
+	env.load_module_function("Mat4", "build_projection_ortho_lh", 		mat4_build_projection_ortho_lh);
+	env.load_module_function("Mat4", "build_projection_ortho_2d_rh", 	mat4_build_projection_ortho_2d_rh);
+	env.load_module_function("Mat4", "build_look_at_rh", 				mat4_build_look_at_rh);
+	env.load_module_function("Mat4", "build_look_at_lh", 				mat4_build_look_at_rh);
+	env.load_module_function("Mat4", "build_viewpoint_billboard", 		mat4_build_viewpoint_billboard);
+	env.load_module_function("Mat4", "build_axis_billboard", 			mat4_build_axis_billboard);
+	env.load_module_function("Mat4", "transpose", 						mat4_transpose);
+	env.load_module_function("Mat4", "determinant", 					mat4_determinant);
+	env.load_module_function("Mat4", "invert", 							mat4_invert);
+	env.load_module_function("Mat4", "load_identity", 					mat4_load_identity);
+	env.load_module_function("Mat4", "get_translation", 				mat4_get_translation);
+	env.load_module_function("Mat4", "set_translation", 				mat4_set_translation);
+	env.load_module_function("Mat4", "get_scale", 						mat4_get_scale);
+	env.load_module_function("Mat4", "set_scale", 						mat4_set_scale);
+	env.load_module_function("Mat4", "print", 							mat4_print);
+
+}
+
+
 } //namespace crown
