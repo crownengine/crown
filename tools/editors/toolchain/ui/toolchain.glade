@@ -1,6 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 3.6 -->
+  <object class="GtkListStore" id="platform_list_store">
+    <columns>
+      <!-- column-name gchararray2 -->
+      <column type="gchararray"/>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">linux</col>
+        <col id="1" translatable="yes">Linux</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">windows</col>
+        <col id="1" translatable="yes">Windows</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">android</col>
+        <col id="1" translatable="yes">Android</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="target_list_store">
+    <columns>
+      <!-- column-name guint1 -->
+      <column type="guint"/>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">0</col>
+        <col id="1" translatable="yes">Devel</col>
+      </row>
+      <row>
+        <col id="0">1</col>
+        <col id="1" translatable="yes">Release</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
     <property name="window_position">center-always</property>
@@ -21,6 +61,7 @@
             <property name="can_focus">False</property>
             <property name="row_spacing">10</property>
             <property name="column_spacing">10</property>
+            <property name="row_homogeneous">True</property>
             <child>
               <object class="GtkLabel" id="label1">
                 <property name="visible">True</property>
@@ -82,6 +123,16 @@
               <object class="GtkComboBox" id="platform_combobox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="model">platform_list_store</property>
+                <property name="active">0</property>
+                <property name="entry_text_column">1</property>
+                <signal name="changed" handler="on_platform_combobox_changed" swapped="no"/>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                  <attributes>
+                    <attribute name="text">1</attribute>
+                  </attributes>
+                </child>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -94,6 +145,15 @@
               <object class="GtkComboBox" id="target_combobox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="model">target_list_store</property>
+                <property name="active">0</property>
+                <signal name="changed" handler="on_target_combobox_changed" swapped="no"/>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext2"/>
+                  <attributes>
+                    <attribute name="text">1</attribute>
+                  </attributes>
+                </child>
               </object>
               <packing>
                 <property name="left_attach">1</property>

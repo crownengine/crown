@@ -35,6 +35,8 @@ from pycrown import Repository
 class Toolchain:
 	def __init__(self):
 
+		self.m_current_platform = "linux"
+
 		builder = Gtk.Builder()
 		builder.add_from_file("ui/toolchain.glade")
 
@@ -58,11 +60,23 @@ class Toolchain:
 		self.m_run_button.set_sensitive(True)
 		self.m_root_path = button.get_filename()
 
+	def on_platform_combobox_changed(self, combo):
+		tree_iter = combo.get_active_iter()
+		if tree_iter != None:
+			model = combo.get_model()
+			platform, name = model[tree_iter][:2]
+			# Sets the current platform name
+			self.m_current_platform = platform
+
+	def on_target_combobox_changed(self, combo):
+		print("Not implemented.")
+
+
 	def on_run_button_clicked(self, button):
 		root_path = str(self.m_root_path)
-		dest_path = root_path + "_compiled"
+		dest_path = root_path + "_" + self.m_current_platform
 
-		comp = subprocess.call(["python", "resource-compiler.py", str(self.m_root_path)])
+		comp = subprocess.call(["python", "resource-compiler.py", str(self.m_root_path), self.m_current_platform])
 		crown = subprocess.call(["crown-linux", "--root-path", dest_path, "--dev"])
 
 	def on_browser_button_clicked(self, button):

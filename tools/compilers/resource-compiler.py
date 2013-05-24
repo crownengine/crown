@@ -30,16 +30,15 @@ import os
 from pycrown import Repository
 from pycrown import Compiler
 
-DEST_PATH_SUFFIX = "_compiled"
 PERFECT_SEED_FILE = "seed.ini"
 
 # Helper for compiling resources
 class CompilerHelper:
-	def __init__(self, root_path):
+	def __init__(self, root_path, platform_name):
 		self.m_root_path = root_path
 
 		# Define destination path name
-		dest = os.path.dirname(root_path) + "/" + os.path.basename(root_path) + DEST_PATH_SUFFIX
+		dest = os.path.dirname(root_path) + "/" + os.path.basename(root_path) + "_" + platform_name
 		self.m_dest_path = os.path.normpath(dest)
 
 		# Repository needs a root path
@@ -93,11 +92,12 @@ class CompilerHelper:
 def main():
 	root_path = ""
 
-	if (len(sys.argv) != 2):
-		print("Usage: resource-compiler <root-path>")
+	if (len(sys.argv) != 3):
+		print("Usage: resource-compiler <root-path> <platform-name>")
 		sys.exit(-1)
 
 	root_path = sys.argv[1];
+	platform_name = sys.argv[2];
 
 	root_path = os.path.abspath(root_path)
 
@@ -113,7 +113,7 @@ def main():
 		print("The path has to be a directory.")
 		sys.exit(-1)
 
-	helper = CompilerHelper(root_path)
+	helper = CompilerHelper(root_path, platform_name)
 
 	helper.compile()
 
