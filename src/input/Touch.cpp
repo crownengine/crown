@@ -47,11 +47,11 @@ bool Touch::touch_down(uint16_t id) const
 }
 
 //----------------------------------------------------------------------------- 
-Point2 Touch::touch_xy(uint16_t id) const
+Vec2 Touch::touch_xy(uint16_t id) const
 {
 	const PointerData& data = m_pointers[id];
 
-	return Point2(data.x, data.y);
+	return Vec2(data.x, data.y);
 }
 
 //-----------------------------------------------------------------------------
