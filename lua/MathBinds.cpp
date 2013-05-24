@@ -190,22 +190,22 @@ int32_t math_fmod(lua_State* L)
 
 void load_math(LuaEnvironment& env)
 {
-	env.load_module_function("Math", "deg_to_rad", math_deg_to_rad);
-	env.load_module_function("Math", "rad_to_deg", math_rad_to_deg);
-	env.load_module_function("Math", "next_pow_2", math_next_pow_2);
-	env.load_module_function("Math", "is_pow_2", math_is_pow_2);
-	env.load_module_function("Math", "ceil", math_ceil);
-	env.load_module_function("Math", "floor", math_floor);
-	env.load_module_function("Math", "sqrt", math_sqrt);
-	env.load_module_function("Math", "inv_sqrt", math_inv_sqrt);
-	env.load_module_function("Math", "sin", math_sin);
-	env.load_module_function("Math", "cos", math_cos);
-	env.load_module_function("Math", "asin", math_asin);
-	env.load_module_function("Math", "acos", math_acos);
-	env.load_module_function("Math", "tan", math_tan);
-	env.load_module_function("Math", "atan2", math_atan2);
-	env.load_module_function("Math", "abs", math_abs);
-	env.load_module_function("Math", "fmod", math_fmod);
+	env.load_module_function("Math", "deg_to_rad", 	math_deg_to_rad);
+	env.load_module_function("Math", "rad_to_deg", 	math_rad_to_deg);
+	env.load_module_function("Math", "next_pow_2", 	math_next_pow_2);
+	env.load_module_function("Math", "is_pow_2", 	math_is_pow_2);
+	env.load_module_function("Math", "ceil", 		math_ceil);
+	env.load_module_function("Math", "floor", 		math_floor);
+	env.load_module_function("Math", "sqrt", 		math_sqrt);
+	env.load_module_function("Math", "inv_sqrt", 	math_inv_sqrt);
+	env.load_module_function("Math", "sin", 		math_sin);
+	env.load_module_function("Math", "cos", 		math_cos);
+	env.load_module_function("Math", "asin",	 	math_asin);
+	env.load_module_function("Math", "acos", 		math_acos);
+	env.load_module_function("Math", "tan", 		math_tan);
+	env.load_module_function("Math", "atan2", 		math_atan2);
+	env.load_module_function("Math", "abs", 		math_abs);
+	env.load_module_function("Math", "fmod", 		math_fmod);
 }
 
 } // namespace crown

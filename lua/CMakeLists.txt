@@ -8,6 +8,7 @@ set(LUA_SRC
 	Vec2Binds.cpp
 	Vec3Binds.cpp
 	Mat4Binds.cpp
+	QuatBinds.cpp
 	MathBinds.cpp
 
 	MouseBinds.cpp
