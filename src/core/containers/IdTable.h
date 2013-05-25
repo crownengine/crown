@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Assert.h"
 #include "Allocator.h"
 #include "Types.h"
 
@@ -110,9 +111,6 @@ inline IdTable::~IdTable()
 //-----------------------------------------------------------------------------
 inline Id IdTable::create()
 {
-	// We have reached maximum number of ids
-	assert(m_next_id != m_max_ids);
-
 	// Obtain a new id
 	Id id;
 	id.id = next_id();
@@ -136,7 +134,7 @@ inline Id IdTable::create()
 //-----------------------------------------------------------------------------
 inline void IdTable::destroy(Id id)
 {
-	assert(has(id));
+	ce_assert(has(id), "IdTable does not have ID: %d,%d", id.id, id.index);
 
 	m_ids[id.index].next = m_freelist;
 	m_freelist = id.index;
@@ -145,15 +143,13 @@ inline void IdTable::destroy(Id id)
 //-----------------------------------------------------------------------------
 inline bool IdTable::has(Id id) const
 {
-	assert (id.index < m_max_ids);
-
-	return m_ids[id.index].id == id.id;
+	return id.index < m_max_ids && m_ids[id.index].id == id.id;
 }
 
 //-----------------------------------------------------------------------------
 inline uint16_t IdTable::next_id()
 {
-	assert(m_next_id < m_max_ids);
+	ce_assert(m_next_id < m_max_ids, "Maximum number of IDs reached");
 
 	return m_next_id++;
 }

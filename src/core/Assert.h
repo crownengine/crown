@@ -24,18 +24,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <cstdlib>
+#include <cstdio>
 #include "Config.h"
-#include "OS.h"
 
 #pragma once
 
 #ifdef CROWN_DEBUG
-
-	#define ce_error(file, line, message, ...) do { os::printf(message, __VA_ARGS__);\
-		os::printf("\n\tIn %s:%d\n", file, line); abort(); } while(0)
-
-	#define ce_assert(condition, message, ...) do { if ((!condition)) { ce_error(__FILE__, __LINE__,\
-		"Assertion failed: %s\n\t" message, #condition, __VA_ARGS__); } } while(0)
+	#define ce_error(file, line, message, ...) do { printf(message, __VA_ARGS__);\
+				printf("\n\tIn %s:%d\n\n", file, line); abort(); } while(0)
+	#define ce_assert(condition, message, ...) do { if (!(condition)) { ce_error(__FILE__, __LINE__,\
+				"Assertion failed: %s\n\t" message, #condition, ##__VA_ARGS__); } } while(0)
 #else
 	#define ce_assert(condition, message, ...) ((void)0)
 #endif

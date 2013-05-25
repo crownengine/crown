@@ -23,7 +23,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cassert>
+#include "Assert.h"
 #include "Mat3.h"
 #include "Types.h"
 #include "Mat4.h"
@@ -132,7 +132,7 @@ Mat4& Mat4::operator=(const Mat4& a)
 //-----------------------------------------------------------------------------
 real Mat4::operator[](uint32_t i) const
 {
-	assert(i < 16);
+	ce_assert(i < 16, "Index must be < 16");
 
 	return m[i];
 }
@@ -140,7 +140,7 @@ real Mat4::operator[](uint32_t i) const
 //-----------------------------------------------------------------------------
 real& Mat4::operator[](uint32_t i)
 {
-	assert(i < 16);
+	ce_assert(i < 16, "Index must be < 16");
 
 	return m[i];
 }
@@ -148,7 +148,7 @@ real& Mat4::operator[](uint32_t i)
 //-----------------------------------------------------------------------------
 real Mat4::operator()(uint32_t row, uint32_t column) const
 {
-	assert(row < 4 && column < 4);
+	ce_assert(row < 4 && column < 4, "Row and column must be < 4");
 
 	return m[row + column * 4];
 }

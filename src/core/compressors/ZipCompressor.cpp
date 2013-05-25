@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstring>
 
 #include "zlib.h"
+#include "Assert.h"
 #include "ZipCompressor.h"
 
 namespace crown
@@ -51,7 +52,7 @@ uint8_t* ZipCompressor::compress(const void* data, size_t in_size, size_t& out_s
 	
 	int32_t ret = ::compress((Bytef*)dest, (uLongf*)&out_size, (const Bytef*)data, (uLongf)in_size);
 	
-	assert(ret == Z_OK);
+	ce_assert(ret == Z_OK, "Failed to compress the data");
 	
 	return dest;
 }
@@ -65,7 +66,7 @@ uint8_t* ZipCompressor::uncompress(const void* data, size_t in_size, size_t& out
 	
 	int32_t ret = ::uncompress((Bytef*)dest, (uLongf*)&out_size, (const Bytef*)data, (uLongf)in_size);
 	
-	assert(ret == Z_OK);
+	ce_assert(ret == Z_OK, "Failed to uncompress the data");
 	
 	return dest;
 }

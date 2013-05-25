@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cassert>
+#include "Assert.h"
 
 #include "Stream.h"
 #include "File.h"
@@ -66,7 +66,7 @@ public:
 	void			write(const void* buffer, size_t size);
 
 	/// @copydoc Stream::copy_to() 
-	bool			copy_to(Stream* stream, size_t size = 0);
+	bool			copy_to(Stream& stream, size_t size = 0);
 
 	/// @copydoc Stream::flush() 
 	void			flush();
@@ -101,7 +101,7 @@ protected:
 
 	inline void		check_valid() const
 	{
-		assert(m_file.is_open());
+		ce_assert(m_file.is_open(), "File is not open");
 	}
 };
 

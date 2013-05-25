@@ -1,4 +1,4 @@
-#include <cassert>
+#include "Assert.h"
 #include <winsock2.h>
 #pragma comment(lib, "wsock32.lib")
 
@@ -109,8 +109,8 @@ int32_t	TCPSocket::close()
 
 bool TCPSocket::send(const void* data, int32_t size)
 {
-	assert(data);
-	assert(size > 0);
+	ce_assert(data);
+	ce_assert(size > 0);
 
 	int32_t sd = get_active_socket_id();
 	if (sd <= 0)
@@ -132,8 +132,8 @@ bool TCPSocket::send(const void* data, int32_t size)
 
 int32_t	TCPSocket::receive(void* data, int32_t size)
 {
-	assert(data);
-	assert(size > 0);
+	ce_assert(data);
+	ce_assert(size > 0);
 
 	int32_t sd = get_active_socket_id();
 

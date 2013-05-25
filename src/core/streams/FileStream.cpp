@@ -82,7 +82,7 @@ uint8_t FileStream::read_byte()
 
 	uint8_t buffer;
 
-	assert(m_file.read(&buffer, 1));
+	ce_assert(m_file.read(&buffer, 1) == 1, "Failed to read from file");
 
 	return buffer;
 }
@@ -98,18 +98,13 @@ void FileStream::read(void* buffer, size_t size)
 		m_file.seek(0);
 	}
 
-	assert(m_file.read(buffer, size));
+	ce_assert(m_file.read(buffer, size) == size, "Failed to read from file");
 }
 
 //-----------------------------------------------------------------------------
-bool FileStream::copy_to(Stream* stream, size_t size)
+bool FileStream::copy_to(Stream& stream, size_t size)
 {
 	check_valid();
-
-	if (stream == 0)
-		return false;
-	if (size == 0)
-		return true;
 
 	const size_t chunksize = 1024*1024;
 
@@ -130,7 +125,7 @@ bool FileStream::copy_to(Stream* stream, size_t size)
 			{
 				if (read_bytes != 0)
 				{
-					stream->write(buff, read_bytes);
+					stream.write(buff, read_bytes);
 				}
 			}
 
@@ -139,7 +134,7 @@ bool FileStream::copy_to(Stream* stream, size_t size)
 			return false;
 		}
 
-		stream->write(buff, read_bytes);
+		stream.write(buff, read_bytes);
 		tot_read_bytes += read_bytes;
 	}
 
@@ -170,7 +165,7 @@ void FileStream::write_byte(uint8_t val)
 		m_file.seek(0);
 	}
 
-	assert(m_file.write(&val, 1) == 1);
+	ce_assert(m_file.write(&val, 1) == 1, "Failed to write to file");
 }
 
 //-----------------------------------------------------------------------------
@@ -184,7 +179,7 @@ void FileStream::write(const void* buffer, size_t size)
 		m_file.seek(0);
 	}
 
-	assert(m_file.write(buffer, size) == size);
+	ce_assert(m_file.write(buffer, size) == size, "Failed to write to file");
 }
 
 //-----------------------------------------------------------------------------

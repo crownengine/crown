@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "CrownDrawingArea.h"
 #include <iostream>
 #include <gdk/gdkx.h>
-#include <cassert>
+#include "Assert.h"
 #include <cstdio>
 #include <GL/gl.h>
 #include <gtkmm/window.h>

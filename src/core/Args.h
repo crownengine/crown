@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cassert>
+#include "Assert.h"
 #include "Types.h"
 #include "String.h"
 

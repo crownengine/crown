@@ -39,8 +39,6 @@ int main(int argc, char** argv)
       lua_state = luaL_newstate();
       luaL_openlibs(lua_state);
 
-      assert(res_manager.data(script) != NULL);
-
       ScriptResource* resource = (ScriptResource*)res_manager.data(script);
 
       int s = luaL_loadbuffer(lua_state, (char*)resource->data(), 47, "");

@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cassert>
+#include "Assert.h"
 #include <cstdio>
 #include <cstring>
 #include "List.h"
@@ -142,9 +142,9 @@ void				substring(const char* begin, const char* end, char* out, size_t len);
 
 //inline void Remove(uint32_t start, uint32_t end)
 //{
-//	assert(start <= mLength);
-//	assert(end <= mLength);
-//	assert(start <= end);
+//	ce_assert(start <= mLength);
+//	ce_assert(end <= mLength);
+//	ce_assert(start <= end);
 //	uint32_t len = end - start;
 //	char* tmp = new char[mLength - len + 1];
 
@@ -177,7 +177,7 @@ void				substring(const char* begin, const char* end, char* out, size_t len);
 ////! Replaces all the occurencies of the given Str with the new one
 //inline void Replace(const Str& toFind, const Str& toReplace)
 //{
-//	assert(toReplace.mLength > 0);
+//	ce_assert(toReplace.mLength > 0);
 //	if (mLength < toReplace.mLength)
 //		return;
 
@@ -357,7 +357,7 @@ inline char* strncat(char* dest, const char* src, size_t len)
 //-----------------------------------------------------------------------------
 inline const char* begin(const char* str)
 {
-	assert(str != NULL);
+	ce_assert(str != NULL, "Str must be != NULL");
 	
 	return str;
 }
@@ -365,7 +365,7 @@ inline const char* begin(const char* str)
 //-----------------------------------------------------------------------------
 inline const char* end(const char* str)
 {
-	assert(str != NULL);
+	ce_assert(str != NULL, "Str must be != NULL");
 	
 	return str + string::strlen(str) + 1;
 }
@@ -373,7 +373,7 @@ inline const char* end(const char* str)
 //-----------------------------------------------------------------------------
 inline const char* find_first(const char* str, char c)
 {
-	assert(str != NULL);
+	ce_assert(str != NULL, "Str must be != NULL");
 
 	const char* str_begin = string::begin(str);
 	
@@ -393,7 +393,7 @@ inline const char* find_first(const char* str, char c)
 //-----------------------------------------------------------------------------
 inline const char* find_last(const char* str, char c)
 {
-	assert(str != NULL);
+	ce_assert(str != NULL, "Str must be != NULL");
 	
 	const char* str_end = string::end(str) - 1;
 	
@@ -413,9 +413,9 @@ inline const char* find_last(const char* str, char c)
 //-----------------------------------------------------------------------------
 inline void substring(const char* begin, const char* end, char* out, size_t len)
 {
-	assert(begin != NULL);
-	assert(end != NULL);
-	assert(out != NULL);
+	ce_assert(begin != NULL, "Begin must be != NULL");
+	ce_assert(end != NULL, "End must be != NULL");
+	ce_assert(out != NULL, "Out must be != NULL");
 	
 	size_t i = 0;
 	

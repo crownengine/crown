@@ -439,7 +439,7 @@ void Device::create_renderer()
 		m_renderer = new GLRenderer;
 		#else
 		Log::e("Crown Engine was not built with OpenGL support.");
-		assert(false);
+		exit(EXIT_FAILURE);
 		#endif
 	}
 	else if (m_preferred_renderer == RENDERER_GLES)
@@ -448,7 +448,7 @@ void Device::create_renderer()
 		m_renderer = new GLESRenderer;
 		#else
 		Log::e("Crown Engine was not built with OpenGL|ES support.");
-		assert(false);
+		exit(EXIT_FAILURE);
 		#endif
 	}
 }

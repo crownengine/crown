@@ -108,7 +108,7 @@ public:
 private:
   
 	uint8_t*			get_byte_space(int32_t len);
-	bool 				check_overflow(int32_t num_bits);			// check buffer overflow	
+	bool 				check_overflow(uint32_t num_bits);			// check buffer overflow	
 	
 private:
 	

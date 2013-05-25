@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <cstdlib>
-#include <cassert>
+#include "Assert.h"
 #include "Types.h"
 
 namespace crown
@@ -656,19 +656,19 @@ int32_t RBTree<TKey, TValue>::dbg_verify(Node* n) const
 
 	if (n->left != m_sentinel)
 	{
-		assert(n->left->parent == n);
-		assert(n->item.key > n->left->item.key);
+		ce_assert(n->left->parent == n);
+		ce_assert(n->item.key > n->left->item.key);
 	}
 
 	if (n->right != m_sentinel)
 	{
-		assert(n->right->parent == n);
-		assert(n->item.key < n->right->item.key);
+		ce_assert(n->right->parent == n);
+		ce_assert(n->item.key < n->right->item.key);
 	}
 
 	int32_t bhL = dbg_verify(n->left);
 	int32_t bhR = dbg_verify(n->right);
-	assert(bhL == bhR);
+	ce_assert(bhL == bhR);
 
 	if (n->color == BLACK)
 	{
@@ -678,7 +678,7 @@ int32_t RBTree<TKey, TValue>::dbg_verify(Node* n) const
 	{
 		if (n->parent != NULL && n->parent->color == RED)
 		{
-			assert(false);
+			ce_assert(false);
 		}
 	}
 

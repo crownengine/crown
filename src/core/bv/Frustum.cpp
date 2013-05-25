@@ -63,7 +63,7 @@ bool Frustum::contains_point(const Vec3& point) const
 //-----------------------------------------------------------------------------
 Vec3 Frustum::vertex(uint32_t index) const
 {
-	assert(index < 8);
+	ce_assert(index < 8, "Index must be < 8");
 
 	// 0 = Near bottom left
 	// 1 = Near bottom right

@@ -12,30 +12,27 @@ void* TextResource::load(Allocator& allocator, ResourceArchive& archive, Resourc
 {
 	FileStream* stream = archive.open(id);
 
-	if (stream != NULL)
-	{
-		TextResource* resource = (TextResource*)allocator.allocate(sizeof(TextResource));
+	ce_assert(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
 
-		stream->read(&resource->length, sizeof(uint32_t));
-		
-		resource->data = (char*)allocator.allocate(sizeof(char) * (resource->length + 1));
+	TextResource* resource = (TextResource*)allocator.allocate(sizeof(TextResource));
 
-		stream->read(resource->data, (size_t)resource->length);
-		
-		resource->data[resource->length] = '\0';
+	stream->read(&resource->length, sizeof(uint32_t));
+	
+	resource->data = (char*)allocator.allocate(sizeof(char) * (resource->length + 1));
 
-		archive.close(stream);
+	stream->read(resource->data, (size_t)resource->length);
+	
+	resource->data[resource->length] = '\0';
 
-		return resource;
-	}
+	archive.close(stream);
 
-	return NULL;
+	return resource;
 }
 
 //-----------------------------------------------------------------------------
 void TextResource::unload(Allocator& allocator, void* resource)
 {
-	assert(resource != NULL);
+	ce_assert(resource != NULL, "Resource not loaded");
 
 	((TextResource*)resource)->length = 0;
 
