@@ -265,8 +265,6 @@ set (CROWN_HEADERS
 	${NETWORK_HEADERS}
 
 	${OS_HEADERS}
-
-	${SCRIPT_HEADERS}
 )
 
 include_directories(${CROWN_THIRD}/luajit/include/luajit-2.0)
