@@ -34,9 +34,9 @@ namespace crown
 //-----------------------------------------------------------------------------
 FileStream::FileStream(StreamOpenMode mode, const char* filename) :
 	Stream(mode),
+	m_file(filename, mode),
 	m_last_was_read(true)
 {
-	m_file.open(filename, mode);
 }
 
 //-----------------------------------------------------------------------------

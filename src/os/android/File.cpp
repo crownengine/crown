@@ -34,10 +34,15 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-File::File() :
+File::File(const char* path, StreamOpenMode mode) :
 	m_asset(NULL),
-	m_mode(SOM_READ)
 {
+	// Android assets are always read-only
+	(void) mode;
+	m_mode = SOM_READ;
+	m_asset = AAssetManager_open(os::get_android_asset_manager(), path, AASSET_MODE_RANDOM);
+
+	ce_assert(m_asset != NULL, "Unable to open file: %s", path)
 }
 
 //-----------------------------------------------------------------------------
@@ -72,22 +77,6 @@ StreamOpenMode File::mode()
 size_t File::size() const
 {
 	return AAsset_getLength(m_asset);
-}
-
-//-----------------------------------------------------------------------------
-bool File::open(const char* path, StreamOpenMode mode)
-{
-	ce_assert(!is_open(), "Asset is already open: %s", path);
-
-	// Android assets are always read-only
-	(void) mode;
-	m_mode = SOM_READ;
-
-	m_asset = AAssetManager_open(os::get_android_asset_manager(), path, AASSET_MODE_RANDOM);
-
-	ce_assert(m_asset != NULL, "Unable to open asset: %s", path)
-
-	return true;
 }
 
 //-----------------------------------------------------------------------------

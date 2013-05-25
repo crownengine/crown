@@ -33,10 +33,13 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-File::File() :
-	m_file_handle(NULL),
-	m_mode(SOM_READ)
+File::File(const char* path, StreamOpenMode mode) :
+	m_file_handle(NULL)
 {
+	m_file_handle = fopen(path, SOM_READ ? "rb" : "wb");
+	ce_assert(m_file_handle != NULL, "Unable to open file: %s", path);
+
+	m_mode = mode;
 }
 
 //-----------------------------------------------------------------------------
@@ -79,23 +82,6 @@ size_t File::size() const
 	fseek(m_file_handle, pos, SEEK_SET);
 
 	return (size_t) size;
-}
-
-//-----------------------------------------------------------------------------
-bool File::open(const char* path, StreamOpenMode mode)
-{
-	ce_assert(!is_open(), "File is already open: %s", path);
-
-	const char* c_mode = mode == SOM_READ ? "rb" : SOM_WRITE ? "wb" : "x";
-
-	ce_assert(c_mode[0] != 'x', "Open mode not valid");
-
-	m_mode = mode;
-	m_file_handle = fopen(path, c_mode);
-
-	ce_assert(m_file_handle != NULL, "Unable to open file: %s", path);
-
-	return true;
 }
 
 //-----------------------------------------------------------------------------
