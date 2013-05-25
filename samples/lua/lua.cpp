@@ -1,4 +1,3 @@
-#include "lua.hpp"
 #include "Crown.h"
 #include "Game.h"
 
@@ -6,40 +5,39 @@
 namespace crown
 {
 
-lua_State* state;
-int z;
+lua_State* L;
 
 void init()
 {
-	state = luaL_newstate();
-	luaL_openlibs(state);
+	L = luaL_newstate();
+	luaL_openlibs(L);
 
-	if (luaL_loadfile(state, "lua_sample/lua/game.raw") || lua_pcall(state, 0, 0, 0))
+	if (luaL_loadfile(L, "/home/mikymod/test/res_linux/lua/game.raw") || lua_pcall(L, 0, 0, 0))
 	{
-		os::printf("error: %s", lua_tostring(state, -1));
+		os::printf("error: %s", lua_tostring(L, -1));
 	}
 
-	lua_getglobal(state, "init");
+	lua_getglobal(L, "init");
 
-	lua_pcall(state, 0, 0, 0);
+	lua_pcall(L, 0, 0, 0);
 }
 
 void shutdown()
 {
-	lua_getglobal(state, "shutdown");
+	lua_getglobal(L, "shutdown");
 
-	lua_pcall(state, 0, 0, 0);
+	lua_pcall(L, 0, 0, 0);
 
-	lua_close(state);
+	lua_close(L);
 }
 
 void frame(float dt)
 {
-	lua_getglobal(state, "frame");
+	lua_getglobal(L, "frame");
 
-	lua_pushnumber(state, dt);
+	lua_pushnumber(L, dt);
 
-	lua_pcall(state, 1, 0, 0);
+	lua_pcall(L, 1, 0, 0);
 }
 
 }
