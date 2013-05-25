@@ -23,6 +23,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "Assert.h"
 #include "ProxyAllocator.h"
 #include "Allocator.h"
 
@@ -34,7 +35,7 @@ ProxyAllocator::ProxyAllocator(Allocator& allocator, const char* name) :
 	m_allocator(allocator),
 	m_name(name)
 {
-	assert(name != NULL);
+	ce_assert(name != NULL, "Name must be != NULL");
 }
 
 //-----------------------------------------------------------------------------

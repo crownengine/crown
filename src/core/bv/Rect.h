@@ -25,10 +25,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cassert>
 #include "Types.h"
 #include "Vec2.h"
-
 
 namespace crown
 {

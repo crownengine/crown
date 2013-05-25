@@ -77,13 +77,11 @@ public:
 	/// @copydoc Stream::copy_to()
 	/// @note
 	///	Returns always true
-	bool		copy_to(Stream* stream, size_t size = 0)
+	bool		copy_to(Stream& stream, size_t size = 0)
 	{
-		assert(stream != NULL);
-		
 		for (size_t i = 0; i < size; i++)
 		{
-			stream->write_byte(0);
+			stream.write_byte(0);
 		}
 		
 		return true;

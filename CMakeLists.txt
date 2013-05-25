@@ -34,6 +34,9 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/game
 )
 
+# always debug mode for now
+set (CROWN_DEBUG 1)
+
 # detect architecture
 if (CROWN_ARCH MATCHES "x86")
 	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86)
@@ -68,7 +71,7 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 include_directories(${INCLUDES} ${CROWN_LUAJIT_INCLUDES})
 link_directories(${CROWN_LUAJIT_LIBS})
-add_definitions(-pipe -ansi -W -Wall -Wextra -Wno-long-long -pedantic -fPIC -g -pg)
+add_definitions(-pipe -ansi -W -Wall -Wextra -Wno-long-long -Wno-variadic-macros -fPIC -g -pg)
 
 # add build directories
 add_subdirectory(src)

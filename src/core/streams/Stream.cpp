@@ -32,39 +32,33 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-bool Stream::compress_to(Stream* stream, size_t size, size_t& zipped_size, Compressor* compressor)
+bool Stream::compress_to(Stream& stream, size_t size, size_t& zipped_size, Compressor& compressor)
 {
-	assert(stream != NULL);
-	assert(compressor != NULL);
-
 	MallocAllocator allocator;
 	void* in_buffer = (void*)allocator.allocate(size);
 
 	read(in_buffer, size);
 
-	void* compressed_buffer = compressor->compress(in_buffer, size, zipped_size);
+	void* compressed_buffer = compressor.compress(in_buffer, size, zipped_size);
 
-	stream->write(compressed_buffer, zipped_size);
+	stream.write(compressed_buffer, zipped_size);
 
 	return true;
 }
 
 //-----------------------------------------------------------------------------
-bool Stream::uncompress_to(Stream* stream, size_t& unzipped_size, Compressor* compressor)
+bool Stream::uncompress_to(Stream& stream, size_t& unzipped_size, Compressor& compressor)
 {
-	assert(stream != NULL);
-	assert(compressor != NULL);
-
 	MallocAllocator allocator;
 
 	size_t stream_size = size();
-	void* in_buffer = (void*)allocator.allocate(stream_size); 
+	void* in_buffer = (void*)allocator.allocate(stream_size);
 
 	read(in_buffer, stream_size);
 
-	void* uncompressed_buffer = compressor->uncompress(in_buffer, stream_size, unzipped_size);
+	void* uncompressed_buffer = compressor.uncompress(in_buffer, stream_size, unzipped_size);
 
-	stream->write(uncompressed_buffer, unzipped_size);
+	stream.write(uncompressed_buffer, unzipped_size);
 
 	return true;
 }

@@ -1,4 +1,4 @@
-#include <cassert>
+#include "Assert.h"
 #include <winsock2.h>
 #pragma comment(lib, "wsock32.lib")
 
@@ -22,7 +22,7 @@ UDPSocket::~UDPSocket()
 
 bool UDPSocket::open(uint16_t port)
 {
-	assert(!is_open());
+	ce_assert(!is_open());
 
 	m_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (m_socket <= 0)
@@ -59,16 +59,16 @@ bool UDPSocket::open(uint16_t port)
 
 bool UDPSocket::send(IPv4Address &receiver, const void* data, int32_t size )
 {
-	assert(data);
-	assert(size > 0);
+	ce_assert(data);
+	ce_assert(size > 0);
 
 	if (m_socket == 0)
 	{
 		return false;
 	}
 	
-	assert(receiver.get_address() != 0);
-	assert(receiver.get_port() != 0);
+	ce_assert(receiver.get_address() != 0);
+	ce_assert(receiver.get_port() != 0);
 
 	sockaddr_in address;
 	address.sin_family = AF_INET;
@@ -82,8 +82,8 @@ bool UDPSocket::send(IPv4Address &receiver, const void* data, int32_t size )
 
 int32_t UDPSocket::receive(IPv4Address &sender, void* data, int32_t size)
 {
-	assert(data);
-	assert(size > 0);
+	ce_assert(data);
+	ce_assert(size > 0);
 
 	if (m_socket == 0)
 	{

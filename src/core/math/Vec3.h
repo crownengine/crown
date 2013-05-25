@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cassert>
+#include "Assert.h"
 #include "Types.h"
 #include "MathUtils.h"
 #include "Vec2.h"
@@ -160,7 +160,7 @@ inline Vec3::Vec3(const Vec3& a) : x(a.x), y(a.y), z(a.z)
 //-----------------------------------------------------------------------------
 inline real Vec3::operator[](uint32_t i) const
 {
-	assert(i < 3);
+	ce_assert(i < 3, "Index must be < 3");
 
 	return (&x)[i];
 }
@@ -168,7 +168,7 @@ inline real Vec3::operator[](uint32_t i) const
 //-----------------------------------------------------------------------------
 inline real& Vec3::operator[](uint32_t i)
 {
-	assert(i < 3);
+	ce_assert(i < 3, "Index must be < 3");
 
 	return (&x)[i];
 }
@@ -224,7 +224,7 @@ inline Vec3& Vec3::operator*=(real k)
 //-----------------------------------------------------------------------------
 inline Vec3 Vec3::operator/(real k) const
 {
-	assert(k != (real)0.0);
+	ce_assert(k != (real)0.0, "Division by zero");
 
 	real inv = (real)(1.0 / k);
 
@@ -234,7 +234,7 @@ inline Vec3 Vec3::operator/(real k) const
 //-----------------------------------------------------------------------------
 inline Vec3& Vec3::operator/=(real k)
 {
-	assert(k != (real)0.0);
+	ce_assert(k != (real)0.0, "Division by zero");
 
 	real inv = (real)(1.0 / k);
 

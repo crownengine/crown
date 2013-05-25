@@ -42,5 +42,4 @@ void frame(float dt)
 	lua_pcall(state, 1, 0, 0);
 }
 
-
 }

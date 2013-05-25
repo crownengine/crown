@@ -23,6 +23,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "Assert.h"
 #include "Rect.h"
 #include "Circle.h"
 #include "MathUtils.h"
@@ -74,7 +75,7 @@ void Rect::vertices(Vec2 v[4]) const
 //-----------------------------------------------------------------------------
 Vec2 Rect::vertex(uint32_t index) const
 {
-	assert(index < 4);
+	ce_assert(index < 4, "Index must be < 4");
 
 	switch (index)
 	{

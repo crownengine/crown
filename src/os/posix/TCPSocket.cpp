@@ -28,8 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <netinet/in.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <cassert>
 
+#include "Assert.h"
 #include "Types.h"
 #include "OS.h"
 #include "TCPSocket.h"
@@ -153,8 +153,7 @@ void TCPSocket::close()
 //-----------------------------------------------------------------------------
 bool TCPSocket::send(const void* data, size_t size)
 {
-	assert(data != NULL);
-	assert(size > 0);
+	ce_assert(data != NULL, "Data must be != NULL");
 
 	if (m_active_socket <= 0)
 	{
@@ -177,8 +176,7 @@ bool TCPSocket::send(const void* data, size_t size)
 //-----------------------------------------------------------------------------
 size_t TCPSocket::receive(void* data, size_t size)
 {
-	assert(data);
-	assert(size > 0);
+	ce_assert(data != NULL, "Data must be != NULL");
 
 	if (m_active_socket <= 0)
 	{

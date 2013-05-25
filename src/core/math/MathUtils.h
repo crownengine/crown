@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cassert>
+#include "Assert.h"
 #include <cmath>
 #include "Types.h"
 #include <cstdio>
@@ -190,7 +190,7 @@ inline T avg(const T& a, const T& b)
 template <typename T>
 inline T clamp_to_range(const T& min, const T& max, const T& value)
 {
-	assert(min < max);
+	ce_assert(min < max, "Min must be < max");
 
 	if (value > max)
 	{

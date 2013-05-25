@@ -136,9 +136,6 @@ void Heightfield::set_max_altitude(float max)
 //-----------------------------------------------------------------------------
 float Heightfield::altitude(uint32_t x, uint32_t y) const
 {
-	assert(x < m_width);
-	assert(y < m_height);
-
 	return m_altitudes[coords_to_index(x, y)];
 }
 
@@ -165,8 +162,8 @@ void Heightfield::set_altitudes(float altitude)
 //-----------------------------------------------------------------------------
 uint32_t Heightfield::coords_to_index(uint32_t x, uint32_t y) const
 {
-	assert(x < m_width);
-	assert(y < m_height);
+	ce_assert(x < m_width, "X coordinates beyond heightfield width");
+	ce_assert(y < m_height, "Y coordinates beyond heightfield height");
 
 	return m_width * y + x;
 }

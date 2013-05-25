@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cassert>
+#include "Assert.h"
 #include "Types.h"
 
 namespace crown
@@ -62,7 +62,7 @@ uint64_t fnv1a_64(const void* key, size_t len);
 ///    machines.
 inline uint32_t murmur2_32(const void* key, size_t len, uint32_t seed)
 {
-	assert(key != NULL);
+	ce_assert(key != NULL, "Key must be != NULL");
 
 	// 'm' and 'r' are mixing constants generated offline.
 	// They're not really 'magic', they just happen to work well.
@@ -112,7 +112,7 @@ inline uint32_t murmur2_32(const void* key, size_t len, uint32_t seed)
 /// FNV-1a hash, 32 bit
 inline uint32_t fnv1a_32(const void* key, size_t len)
 {
-	assert(key != NULL);
+	ce_assert(key != NULL, "Key must be != NULL");
 
 	// FNV-1a
 	uint32_t hash = FNV1A_OFFSET_BASIS_32;
@@ -132,7 +132,7 @@ inline uint32_t fnv1a_32(const void* key, size_t len)
 /// FNV-1a hash, 64 bit
 inline uint64_t fnv1a_64(const void* key, size_t len)
 {
-	assert(key != NULL);
+	ce_assert(key != NULL, "Key must be != NULL");
 
 	// FNV-1a
 	uint64_t hash = FNV1A_OFFSET_BASIS_64;

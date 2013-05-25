@@ -61,10 +61,6 @@ Terrain::~Terrain()
 
 void Terrain::CreateTerrain(uint32_t xSize, uint32_t zSize, uint32_t tilePerMeter, float initialHeight)
 {
-	assert(xSize > 0);
-	assert(zSize > 0);
-	assert(tilePerMeter > 0);
-
 	mSizeX = xSize;
 	mSizeZ = zSize;
 	mTilePerMeter = tilePerMeter;
@@ -305,9 +301,6 @@ float Terrain::GaussDist(float x, float y, float sigma)
 
 void Terrain::BuildBrush(uint32_t width, uint32_t height, float smooth)
 {
-	assert(width < MAX_BRUSH_SIZE);
-	assert(height < MAX_BRUSH_SIZE);
-
 	mBrushWidth = width;
 	mBrushHeight = height;
 

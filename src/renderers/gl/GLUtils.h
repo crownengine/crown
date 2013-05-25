@@ -26,7 +26,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <GL/glew.h>
-#include <cassert>
 #include "Texture.h"
 #include "Material.h"
 #include "PixelFormat.h"
@@ -69,48 +68,36 @@ private:
 //-----------------------------------------------------------------------------
 inline GLenum GL::compare_function(CompareFunction function)
 {
-	assert(function < CF_COUNT);
-
 	return COMPARE_FUNCTION_TABLE[function];
 }
 
 //-----------------------------------------------------------------------------
 inline GLenum GL::blend_function(BlendFunction function)
 {
-	assert(function < BF_COUNT);
-
 	return BLEND_FUNCTION_TABLE[function];
 }
 
 //-----------------------------------------------------------------------------
 inline GLenum GL::blend_equation(BlendEquation equation)
 {
-	assert(equation < BE_COUNT);
-
 	return BLEND_EQUATION_TABLE[equation];
 }
 
 //-----------------------------------------------------------------------------
 inline GLenum GL::texture_mode(TextureMode mode)
 {
-	assert(mode < TM_COUNT);
-
 	return TEXTURE_MODE_TABLE[mode];
 }
 
 //-----------------------------------------------------------------------------
 inline GLenum GL::texture_wrap(TextureWrap wrap)
 {
-	assert(wrap < TW_COUNT);
-
 	return TEXTURE_WRAP_TABLE[wrap];
 }
 
 //-----------------------------------------------------------------------------
 inline void GL::texture_filter(TextureFilter filter, GLint& minFilter, GLint& magFilter)
 {
-	assert(filter < TF_COUNT);
-
 	minFilter = TEXTURE_MIN_FILTER_TABLE[filter];
 	magFilter = TEXTURE_MAG_FILTER_TABLE[filter];
 }
@@ -118,16 +105,12 @@ inline void GL::texture_filter(TextureFilter filter, GLint& minFilter, GLint& ma
 //-----------------------------------------------------------------------------
 inline GLenum GL::fog_mode(FogMode mode)
 {
-	assert(mode < FM_COUNT);
-
 	return FOG_MODE_TABLE[mode];
 }
 
 //-----------------------------------------------------------------------------
 inline GLenum GL::polygon_mode(PolygonMode mode)
 {
-	assert(mode < PM_COUNT);
-
 	return POLYGON_MODE_TABLE[mode];
 }
 

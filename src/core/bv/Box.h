@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cassert>
+#include "Assert.h"
 #include "Types.h"
 #include "Mat4.h"
 #include "Vec3.h"
@@ -271,7 +271,7 @@ inline void Box::to_vertices(Vec3 v[8]) const
 //-----------------------------------------------------------------------------
 inline Vec3 Box::vertex(uint32_t index) const
 {
-	assert(index < 8);
+	ce_assert(index < 8, "Index must be < 8");
 
 	switch (index)
 	{

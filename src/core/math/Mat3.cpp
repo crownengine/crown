@@ -23,7 +23,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cassert>
+#include "Assert.h"
 #include "Mat3.h"
 #include "Types.h"
 #include "Mat4.h"
@@ -103,7 +103,7 @@ Mat3& Mat3::operator=(const Mat3& a)
 //-----------------------------------------------------------------------------
 real Mat3::operator[](uint32_t i) const
 {
-	assert(i < 9);
+	ce_assert(i < 9, "Index must be < 9");
 
 	return m[i];
 }
@@ -111,7 +111,7 @@ real Mat3::operator[](uint32_t i) const
 //-----------------------------------------------------------------------------
 real& Mat3::operator[](uint32_t i)
 {
-	assert(i < 9);
+	ce_assert(i < 9, "Index must be < 9");
 
 	return m[i];
 }
@@ -119,7 +119,7 @@ real& Mat3::operator[](uint32_t i)
 //-----------------------------------------------------------------------------
 real Mat3::operator()(uint32_t row, uint32_t column) const
 {
-	assert(row < 3 && column < 3);
+	ce_assert(row < 3 && column < 3, "Row and column must be < 3");
 
 	return m[row + column * 3];
 }

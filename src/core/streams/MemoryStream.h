@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Stream.h"
 #include "Allocator.h"
-#include <cassert>
+#include "Assert.h"
 
 namespace crown
 {
@@ -112,7 +112,7 @@ public:
 	void				write(const void* buffer, size_t size);
 
 	/// @copydoc Stream::copy_to()
-	bool				copy_to(Stream* stream, size_t size = 0);
+	bool				copy_to(Stream& stream, size_t size = 0);
 
 	/// @copydoc Stream::flush()
 	void				flush();
@@ -121,10 +121,10 @@ public:
 	bool				end_of_stream() const { return size() == m_memory_offset; }
 
 	/// @copydoc Stream::is_valid()
-	bool				is_valid() const { assert(m_memory != NULL); return m_memory->is_valid(); }
+	bool				is_valid() const { ce_assert(m_memory != NULL, "Memory is NULL"); return m_memory->is_valid(); }
 
 	/// @copydoc Stream::size()
-	size_t				size() const { assert(m_memory != NULL); return m_memory->size(); }
+	size_t				size() const { ce_assert(m_memory != NULL, "Memory is NULL"); return m_memory->size(); }
 
 	/// @copydoc Stream::position()
 	size_t				position() const { return m_memory_offset; }
@@ -143,7 +143,7 @@ public:
 
 protected:
 
-	inline void			check_valid() { assert(m_memory != NULL); }
+	inline void			check_valid() { ce_assert(m_memory != NULL, "Memory is NULL"); }
 
 	MemoryBuffer*		m_memory;
 	size_t				m_memory_offset;
