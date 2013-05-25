@@ -29,9 +29,9 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/input
 	${CMAKE_SOURCE_DIR}/src/renderers
 	${CMAKE_SOURCE_DIR}/src/network
-	${CMAKE_SOURCE_DIR}/src/script
 
 	${CMAKE_SOURCE_DIR}/game
+	${CMAKE_SOURCE_DIR}/lua
 )
 
 # always debug mode for now
