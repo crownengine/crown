@@ -47,6 +47,38 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+// //-----------------------------------------------------------------------------
+// #define gl_check(function)\
+// {
+// 	do\
+// 	{\
+// 		function;\
+// 		while()
+
+// 	} while (0)
+
+// 	GLenum error;
+
+// 	while ((error = glGetError()))
+// 	{
+// 		switch (error)
+// 		{
+// 			case GL_INVALID_ENUM:
+// 				Log::e("GLRenderer: GL_INVALID_ENUM");
+// 				break;
+// 			case GL_INVALID_VALUE:
+// 				Log::e("GLRenderer: GL_INVALID_VALUE");
+// 				break;
+// 			case GL_INVALID_OPERATION:
+// 				Log::e("GLRenderer: GL_INVALID_OPERATION");
+// 				break;
+// 			case GL_OUT_OF_MEMORY:
+// 				Log::e("GLRenderer: GL_OUT_OF_MEMORY");
+// 				break;
+// 		}
+// 	}
+// }
+
 //-----------------------------------------------------------------------------
 GLRenderer::GLRenderer() :
 	m_max_texture_size(0),
@@ -315,7 +347,7 @@ void GLRenderer::destroy_texture(TextureId id)
 //-----------------------------------------------------------------------------
 VertexShaderId GLRenderer::create_vertex_shader(const char* program)
 {
-	assert(program != NULL);
+	ce_assert(program != NULL, "Program must be != NULL");
 
 	const VertexShaderId& id = m_vertex_shaders_id_table.create();
 
@@ -338,7 +370,7 @@ VertexShaderId GLRenderer::create_vertex_shader(const char* program)
 
 		Log::e("Vertex shader compilation failed.");
 		Log::e("Log: %s", info_log);
-		assert(0);
+		ce_assert(0, "");
 	}
 
 	return id;
@@ -347,7 +379,7 @@ VertexShaderId GLRenderer::create_vertex_shader(const char* program)
 //-----------------------------------------------------------------------------
 void GLRenderer::destroy_vertex_shader(VertexShaderId id)
 {
-	assert(m_vertex_shaders_id_table.has(id));
+	ce_assert(m_vertex_shaders_id_table.has(id), "Vertex shader does not exist");
 
 	VertexShader& gl_shader = m_vertex_shaders[id.index];
 
@@ -357,7 +389,7 @@ void GLRenderer::destroy_vertex_shader(VertexShaderId id)
 //-----------------------------------------------------------------------------
 PixelShaderId GLRenderer::create_pixel_shader(const char* program)
 {
-	assert(program != NULL);
+	ce_assert(program != NULL, "Program must be != NULL");
 
 	const PixelShaderId& id = m_pixel_shaders_id_table.create();
 
@@ -380,7 +412,7 @@ PixelShaderId GLRenderer::create_pixel_shader(const char* program)
 
 		Log::e("Pixel shader compilation failed.");
 		Log::e("Log: %s", info_log);
-		assert(0);
+		ce_assert(0, "");
 	}
 
 	return id;	
@@ -389,7 +421,7 @@ PixelShaderId GLRenderer::create_pixel_shader(const char* program)
 //-----------------------------------------------------------------------------
 void GLRenderer::destroy_pixel_shader(PixelShaderId id)
 {
-	assert(m_pixel_shaders_id_table.has(id));
+	ce_assert(m_pixel_shaders_id_table.has(id), "Pixel shader does not exist");
 
 	PixelShader& gl_shader = m_pixel_shaders[id.index];
 
@@ -399,8 +431,8 @@ void GLRenderer::destroy_pixel_shader(PixelShaderId id)
 //-----------------------------------------------------------------------------
 GPUProgramId GLRenderer::create_gpu_program(VertexShaderId vs, PixelShaderId ps)
 {
-	assert(m_vertex_shaders_id_table.has(vs));
-	assert(m_pixel_shaders_id_table.has(ps));
+	ce_assert(m_vertex_shaders_id_table.has(vs), "Vertex shader does not exist");
+	ce_assert(m_pixel_shaders_id_table.has(ps), "Pixel shader does not exist");
 
 	const GPUProgramId id = m_gpu_programs_id_table.create();
 
@@ -434,7 +466,7 @@ GPUProgramId GLRenderer::create_gpu_program(VertexShaderId vs, PixelShaderId ps)
 //-----------------------------------------------------------------------------
 void GLRenderer::destroy_gpu_program(GPUProgramId id)
 {
-	assert(m_gpu_programs_id_table.has(id));
+	ce_assert(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	GPUProgram& gl_program = m_gpu_programs[id.index];
 
@@ -444,7 +476,7 @@ void GLRenderer::destroy_gpu_program(GPUProgramId id)
 //-----------------------------------------------------------------------------
 void GLRenderer::set_gpu_program_bool_uniform(GPUProgramId id, const char* name, bool value)
 {
-	assert(m_gpu_programs_id_table.has(id));
+	ce_assert(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
@@ -454,7 +486,7 @@ void GLRenderer::set_gpu_program_bool_uniform(GPUProgramId id, const char* name,
 //-----------------------------------------------------------------------------
 void GLRenderer::set_gpu_program_int_uniform(GPUProgramId id, const char* name, int value)
 {
-	assert(m_gpu_programs_id_table.has(id));
+	ce_assert(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
@@ -464,7 +496,7 @@ void GLRenderer::set_gpu_program_int_uniform(GPUProgramId id, const char* name, 
 //-----------------------------------------------------------------------------
 void GLRenderer::set_gpu_program_vec2_uniform(GPUProgramId id, const char* name, const Vec2& value)
 {
-	assert(m_gpu_programs_id_table.has(id));
+	ce_assert(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
@@ -474,7 +506,7 @@ void GLRenderer::set_gpu_program_vec2_uniform(GPUProgramId id, const char* name,
 //-----------------------------------------------------------------------------
 void GLRenderer::set_gpu_program_vec3_uniform(GPUProgramId id, const char* name, const Vec3& value)
 {
-	assert(m_gpu_programs_id_table.has(id));
+	ce_assert(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
@@ -484,7 +516,7 @@ void GLRenderer::set_gpu_program_vec3_uniform(GPUProgramId id, const char* name,
 //-----------------------------------------------------------------------------
 void GLRenderer::set_gpu_program_vec4_uniform(GPUProgramId id, const char* name, const Vec4& value)
 {
-	assert(m_gpu_programs_id_table.has(id));
+	ce_assert(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
@@ -494,7 +526,7 @@ void GLRenderer::set_gpu_program_vec4_uniform(GPUProgramId id, const char* name,
 //-----------------------------------------------------------------------------
 void GLRenderer::set_gpu_porgram_mat3_uniform(GPUProgramId id, const char* name, const Mat3& value)
 {
-	assert(m_gpu_programs_id_table.has(id));
+	ce_assert(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
@@ -504,7 +536,7 @@ void GLRenderer::set_gpu_porgram_mat3_uniform(GPUProgramId id, const char* name,
 //-----------------------------------------------------------------------------
 void GLRenderer::set_gpu_program_mat4_uniform(GPUProgramId id, const char* name, const Mat4& value)
 {
-	assert(m_gpu_programs_id_table.has(id));
+	ce_assert(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
@@ -514,7 +546,7 @@ void GLRenderer::set_gpu_program_mat4_uniform(GPUProgramId id, const char* name,
 //-----------------------------------------------------------------------------
 void GLRenderer::set_gpu_program_sampler_uniform(GPUProgramId id, const char* name, uint32_t value)
 {
-	assert(m_gpu_programs_id_table.has(id));
+	ce_assert(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
@@ -524,7 +556,7 @@ void GLRenderer::set_gpu_program_sampler_uniform(GPUProgramId id, const char* na
 //-----------------------------------------------------------------------------
 void GLRenderer::bind_gpu_program(GPUProgramId id) const
 {
-	assert(m_gpu_programs_id_table.has(id));
+	ce_assert(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GPUProgram& gl_program = m_gpu_programs[id.index];
 
@@ -799,8 +831,6 @@ void GLRenderer::frame()
 	set_gpu_program_vec3_uniform(m_default_gpu_program, "color", Vec3(0, 1, 0));
 
 	glFinish();
-
-	check_gl_errors();
 }
 
 //-----------------------------------------------------------------------------
@@ -830,7 +860,7 @@ void GLRenderer::set_matrix(MatrixType type, const Mat4& matrix)
 		default:
 		{
 			break;
-			assert(0);
+			ce_assert(0, "");
 		}
 	}
 }
@@ -995,34 +1025,9 @@ GLint GLRenderer::find_gpu_program_uniform(GLuint program, const char* name) con
 {
 	GLint uniform = glGetUniformLocation(program, name);
 
-	assert(uniform != -1);
+	ce_assert(uniform != -1, "Uniform does not exist");
 
 	return uniform;
-}
-
-//-----------------------------------------------------------------------------
-void GLRenderer::check_gl_errors() const
-{
-	GLenum error;
-
-	while ((error = glGetError()))
-	{
-		switch (error)
-		{
-			case GL_INVALID_ENUM:
-				Log::e("GLRenderer: GL_INVALID_ENUM");
-				break;
-			case GL_INVALID_VALUE:
-				Log::e("GLRenderer: GL_INVALID_VALUE");
-				break;
-			case GL_INVALID_OPERATION:
-				Log::e("GLRenderer: GL_INVALID_OPERATION");
-				break;
-			case GL_OUT_OF_MEMORY:
-				Log::e("GLRenderer: GL_OUT_OF_MEMORY");
-				break;
-		}
-	}
 }
 
 } // namespace crown
