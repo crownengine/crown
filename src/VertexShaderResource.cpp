@@ -38,30 +38,27 @@ void* VertexShaderResource::load(Allocator& allocator, ResourceArchive& archive,
 {
 	FileStream* stream = archive.open(id);
 
-	if (stream != NULL)
-	{
-		VertexShaderResource* resource = (VertexShaderResource*)allocator.allocate(sizeof(VertexShaderResource));
+	ce_assert(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
 
-		stream->read(&resource->m_program_text_length, sizeof(uint32_t));
+	VertexShaderResource* resource = (VertexShaderResource*)allocator.allocate(sizeof(VertexShaderResource));
 
-		resource->m_program_text = (char*)allocator.allocate(sizeof(char) * (resource->m_program_text_length + 1));
+	stream->read(&resource->m_program_text_length, sizeof(uint32_t));
 
-		stream->read(resource->m_program_text, (size_t)resource->m_program_text_length);
-		
-		resource->m_program_text[resource->m_program_text_length] = '\0';
+	resource->m_program_text = (char*)allocator.allocate(sizeof(char) * (resource->m_program_text_length + 1));
 
-		archive.close(stream);
+	stream->read(resource->m_program_text, (size_t)resource->m_program_text_length);
+	
+	resource->m_program_text[resource->m_program_text_length] = '\0';
 
-		return resource;
-	}
+	archive.close(stream);
 
-	return NULL;
+	return resource;
 }
 
 //-----------------------------------------------------------------------------
 void VertexShaderResource::unload(Allocator& allocator, void* resource)
 {
-	assert(resource != NULL);
+	ce_assert(resource != NULL, "Resource not loaded");
 
 	((VertexShaderResource*)resource)->m_program_text_length = 0;
 
