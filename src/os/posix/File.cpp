@@ -73,15 +73,17 @@ StreamOpenMode File::mode()
 //-----------------------------------------------------------------------------
 size_t File::size() const
 {
-	long pos = ftell(m_file_handle);
+	size_t pos = position();
 
-	fseek(m_file_handle, 0, SEEK_END);
+	int fseek_result = fseek(m_file_handle, 0, SEEK_END);
+	ce_assert(fseek_result == 0, "Failed to seek");
 
-	long size = ftell(m_file_handle);
+	size_t size = position();
 
-	fseek(m_file_handle, pos, SEEK_SET);
+	fseek_result = fseek(m_file_handle, (long) pos, SEEK_SET);
+	ce_assert(fseek_result == 0, "Failed to seek");
 
-	return (size_t) size;
+	return size;
 }
 
 //-----------------------------------------------------------------------------
@@ -103,19 +105,22 @@ size_t File::write(const void* data, size_t size)
 //-----------------------------------------------------------------------------
 void File::seek(size_t position)
 {
-	ce_assert(fseek(m_file_handle, (long) position, SEEK_SET) == 0, "Failed to seek");
+	int fseek_result = fseek(m_file_handle, (long) position, SEEK_SET);
+	ce_assert(fseek_result == 0, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
 void File::seek_to_end()
 {
-	ce_assert(fseek(m_file_handle, 0, SEEK_END) == 0, "Failed to seek");
+	int fseek_result = fseek(m_file_handle, 0, SEEK_END);
+	ce_assert(fseek_result == 0, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
 void File::skip(size_t bytes)
 {
-	ce_assert(fseek(m_file_handle, bytes, SEEK_CUR) == 0, "Failed to seek");
+	int fseek_result = fseek(m_file_handle, bytes, SEEK_CUR);
+	ce_assert(fseek_result == 0, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------

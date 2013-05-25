@@ -49,10 +49,8 @@ class Stream
 {
 public:
 
-	/// Constructor
+	/// Opens the stream with the given @mode
 						Stream(StreamOpenMode mode) : m_open_mode(mode) {}
-
-	/// Destructor
 	virtual				~Stream() {};
 
 	/// Sets the position indicator of the stream to position.

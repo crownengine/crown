@@ -80,7 +80,8 @@ void FileStream::read(void* buffer, size_t size)
 		m_file.seek(0);
 	}
 
-	ce_assert(m_file.read(buffer, size) == size, "Failed to read from file");
+	size_t bytes_read = m_file.read(buffer, size);
+	ce_assert(bytes_read == size, "Failed to read from file");
 }
 
 //-----------------------------------------------------------------------------
@@ -94,7 +95,8 @@ void FileStream::write(const void* buffer, size_t size)
 		m_file.seek(0);
 	}
 
-	ce_assert(m_file.write(buffer, size) == size, "Failed to write to file");
+	size_t bytes_written = m_file.write(buffer, size);
+	ce_assert(bytes_written == size, "Failed to write to file");
 }
 
 //-----------------------------------------------------------------------------
