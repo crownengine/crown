@@ -51,11 +51,6 @@ public:
 
 	/// @copydoc Stream::skip()
 	void		skip(size_t bytes) { (void)bytes; }
-
-	/// @copydoc Stream::read_byte()
-	/// @note
-	///	Returns always zero
-	uint8_t		read_byte() { return 0; }
 				
 	/// @copydoc Stream::read()
 	/// @note
@@ -68,9 +63,6 @@ public:
 		}
 	}
 
-	/// @copydoc Stream::write_byte()
-	void		write_byte(uint8_t val) { (void)val; }
-
 	/// @copydoc Stream::write()
 	void		write(const void* buffer, size_t size) { (void)buffer; (void)size; }
 
@@ -79,11 +71,8 @@ public:
 	///	Returns always true
 	bool		copy_to(Stream& stream, size_t size = 0)
 	{
-		for (size_t i = 0; i < size; i++)
-		{
-			stream.write_byte(0);
-		}
-		
+		char zero = 0;
+		stream.write(&zero, size);		
 		return true;
 	}
 

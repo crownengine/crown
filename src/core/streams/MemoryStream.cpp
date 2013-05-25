@@ -145,19 +145,6 @@ void MemoryStream::skip(size_t bytes)
 }
 
 //-----------------------------------------------------------------------------
-uint8_t MemoryStream::read_byte()
-{
-	check_valid();
-
-	if (m_memory_offset >= m_memory->size())
-	{
-		Log::e("Trying to read beyond the end of stream.");
-	}
-
-	return m_memory->data()[m_memory_offset++];
-}
-
-//-----------------------------------------------------------------------------
 void MemoryStream::read(void* buffer, size_t size)
 {
 	check_valid();
@@ -185,14 +172,6 @@ bool MemoryStream::copy_to(Stream& stream, size_t size)
 	stream.write(&(m_memory->data()[m_memory_offset]), math::min(m_memory->size()-m_memory_offset, size));
 
 	return true;
-}
-
-//-----------------------------------------------------------------------------
-void MemoryStream::write_byte(uint8_t val)
-{
-	check_valid();
-	m_memory->write(&val, m_memory_offset, 1);
-	m_memory_offset++;
 }
 
 //-----------------------------------------------------------------------------

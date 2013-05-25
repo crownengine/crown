@@ -68,7 +68,7 @@ bool File::is_open() const
 }
 
 //-----------------------------------------------------------------------------
-StreamOpenMode File::mode()
+StreamOpenMode File::mode() const
 {
 	return m_mode;
 }
@@ -100,19 +100,22 @@ size_t File::write(const void* data, size_t size)
 //-----------------------------------------------------------------------------
 void File::seek(size_t position)
 {
-	ce_assert(AAsset_seek(m_asset, (off_t)position, SEEK_SET) != (off_t) -1);
+	off_t seek_result = AAsset_seek(m_asset, (off_t)position, SEEK_SET);
+	ce_assert(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
 void File::seek_to_end()
 {
-	ce_assert(AAsset_seek(m_asset, 0, SEEK_END) != (off_t) -1);
+	off_t seek_result = AAsset_seek(m_asset, 0, SEEK_END);
+	ce_assert(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
 void File::skip(size_t bytes)
 {
-	ce_assert(AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR) != (off_t) -1);
+	off_t seek_result = AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR);
+	ce_assert(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------

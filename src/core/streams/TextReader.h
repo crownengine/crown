@@ -37,18 +37,15 @@ public:
 
 						TextReader(Stream& s);
 
-	/// Read a single character from the stream
-	char				read_char();
-
 	/// Reads characters from stream and stores them as a C string
-	/// into string until (count-1) characters have been read or
+	/// into string until (size-1) characters have been read or
 	/// either a newline or the End-of-Stream is reached, whichever
 	/// comes first.
 	/// A newline character makes fgets stop reading, but it is considered
 	/// a valid character and therefore it is included in the string copied to string.
 	/// A null character is automatically appended in str after the characters read to
 	/// signal the end of the C string.
-	char*				read_string(char* string, uint32_t count);
+	size_t				read_string(char* string, size_t size);
 
 private:
 

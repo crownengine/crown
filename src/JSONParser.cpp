@@ -71,7 +71,7 @@ JSONParser::parse()
 	{
 		JSONType type;
 
-		c = (char)m_stream->read_byte();
+		m_stream->read(&c, 1);
 		m_pos = m_stream->position();
 
 		switch(c)
@@ -200,7 +200,7 @@ JSONParser::parse_string()
 
 	while(!m_stream->end_of_stream())
 	{	
-		c = (char) m_stream->read_byte();
+		m_stream->read(&c, 1);
 		m_pos = m_stream->position();
 
 		if (c == '\"' || c == '\'')
@@ -221,7 +221,7 @@ JSONParser::parse_string()
 
 		if (c == '\\')
 		{
-			c = (char)m_stream->read_byte();
+			m_stream->read(&c, 1);
 			m_pos = m_stream->position();
 
 			switch(c)
@@ -262,7 +262,7 @@ JSONParser::parse_primitive()
 
 	while (!m_stream->end_of_stream())
 	{
-		c = (char)m_stream->read_byte();
+		m_stream->read(&c, 1);
 		m_pos = m_stream->position();
 
 		switch (c)

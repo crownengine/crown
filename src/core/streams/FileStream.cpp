@@ -70,24 +70,6 @@ void FileStream::skip(size_t bytes)
 }
 
 //-----------------------------------------------------------------------------
-uint8_t FileStream::read_byte()
-{
-	check_valid();
-
-	if (!m_last_was_read)
-	{
-		m_last_was_read = true;
-		m_file.seek(0);
-	}
-
-	uint8_t buffer;
-
-	ce_assert(m_file.read(&buffer, 1) == 1, "Failed to read from file");
-
-	return buffer;
-}
-
-//-----------------------------------------------------------------------------
 void FileStream::read(void* buffer, size_t size)
 {
 	check_valid();
@@ -98,7 +80,23 @@ void FileStream::read(void* buffer, size_t size)
 		m_file.seek(0);
 	}
 
-	ce_assert(m_file.read(buffer, size) == size, "Failed to read from file");
+	size_t bytes_read = m_file.read(buffer, size);
+	ce_assert(bytes_read == size, "Failed to read from file");
+}
+
+//-----------------------------------------------------------------------------
+void FileStream::write(const void* buffer, size_t size)
+{
+	check_valid();
+
+	if (m_last_was_read)
+	{
+		m_last_was_read = false;
+		m_file.seek(0);
+	}
+
+	size_t bytes_written = m_file.write(buffer, size);
+	ce_assert(bytes_written == size, "Failed to write to file");
 }
 
 //-----------------------------------------------------------------------------
@@ -152,34 +150,6 @@ bool FileStream::end_of_stream() const
 bool FileStream::is_valid() const
 {
 	return m_file.is_open();
-}
-
-//-----------------------------------------------------------------------------
-void FileStream::write_byte(uint8_t val)
-{
-	check_valid();
-
-	if (m_last_was_read)
-	{
-		m_last_was_read = false;
-		m_file.seek(0);
-	}
-
-	ce_assert(m_file.write(&val, 1) == 1, "Failed to write to file");
-}
-
-//-----------------------------------------------------------------------------
-void FileStream::write(const void* buffer, size_t size)
-{
-	check_valid();
-
-	if (m_last_was_read)
-	{
-		m_last_was_read = false;
-		m_file.seek(0);
-	}
-
-	ce_assert(m_file.write(buffer, size) == size, "Failed to write to file");
 }
 
 //-----------------------------------------------------------------------------

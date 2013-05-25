@@ -374,11 +374,7 @@ void Device::unload(ResourceId name)
 //-----------------------------------------------------------------------------
 void Device::reload(ResourceId name)
 {
-	const void* old_resource = m_resource_manager->data(name);
-
-	m_resource_manager->reload(name);
-
-	const void* new_resource = m_resource_manager->data(name);
+	(void)name;
 }
 
 //-----------------------------------------------------------------------------

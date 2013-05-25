@@ -52,7 +52,7 @@ public:
 	size_t					size() const;
 
 	/// Returs the mode used to open the file.
-	StreamOpenMode			mode();
+	StreamOpenMode			mode() const;
 
 	/// Reads @size bytes from the file and stores it into @data.
 	/// Returns the number of bytes read.
