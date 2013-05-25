@@ -131,4 +131,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PixelFormat.h"
 #include "VertexFormat.h"
 
+// Lua
+#include "LuaStack.h"
+#include "LuaEnvironment.h"
+
 
