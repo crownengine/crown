@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Allocator.h"
 #include "Types.h"
-#include <cassert>
+#include "Assert.h"
 #include <cstring>
 
 namespace crown
@@ -165,7 +165,7 @@ inline List<T>::~List()
 template <typename T>
 inline T& List<T>::operator[](uint32_t index)
 {
-	//assert(index < m_size);
+	//ce_assert(index < m_size);
 
 	return m_array[index];
 }
@@ -174,7 +174,7 @@ inline T& List<T>::operator[](uint32_t index)
 template <typename T>
 inline const T& List<T>::operator[](uint32_t index) const
 {
-	//assert(index < m_size);
+	//ce_assert(index < m_size);
 
 	return m_array[index];
 }
@@ -291,7 +291,7 @@ inline uint32_t List<T>::push_back(const T& item)
 template <typename T>
 inline void List<T>::pop_back()
 {
-	assert(m_size > 0);
+	ce_assert(m_size > 0, "The list is empty");
 
 	m_size--;
 }
@@ -372,7 +372,7 @@ inline T* List<T>::end()
 template <typename T>
 inline T& List<T>::front()
 {
-	assert(m_size > 0);
+	ce_assert(m_size > 0, "The list is empty");
 
 	return m_array[0];
 }
@@ -381,7 +381,7 @@ inline T& List<T>::front()
 template <typename T>
 inline const T& List<T>::front() const
 {
-	assert(m_size > 0);
+	ce_assert(m_size > 0, "The list is empty");
 
 	return m_array[0];
 }
@@ -390,7 +390,7 @@ inline const T& List<T>::front() const
 template <typename T>
 inline T& List<T>::back()
 {
-	assert(m_size > 0);
+	ce_assert(m_size > 0, "The list is empty");
 
 	return m_array[m_size - 1];
 }
@@ -399,7 +399,7 @@ inline T& List<T>::back()
 template <typename T>
 inline const T& List<T>::back() const
 {
-	assert(m_size > 0);
+	ce_assert(m_size > 0, "The list is empty");
 
 	return m_array[m_size - 1];
 }

@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 
 #include <GL/glew.h>
-#include <cassert>
+#include "Assert.h"
 #include <algorithm>
 
 #include "Types.h"
@@ -109,8 +109,7 @@ GLRenderer::~GLRenderer()
 void GLRenderer::init()
 {
 	GLenum err = glewInit();
-
-	assert(err == GLEW_OK);
+	ce_assert(err == GLEW_OK, "Failed to initialize GLEW");
 
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size);
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &m_max_texture_units);
@@ -218,7 +217,7 @@ VertexBufferId GLRenderer::create_dynamic_vertex_buffer(size_t count, VertexForm
 //-----------------------------------------------------------------------------
 void GLRenderer::update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices)
 {
-	assert(m_vertex_buffers_id_table.has(id));
+	ce_assert(m_vertex_buffers_id_table.has(id), "Vertex buffer does not exist");
 
 	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
@@ -230,7 +229,7 @@ void GLRenderer::update_vertex_buffer(VertexBufferId id, size_t offset, size_t c
 //-----------------------------------------------------------------------------
 void GLRenderer::destroy_vertex_buffer(VertexBufferId id)
 {
-	assert(m_vertex_buffers_id_table.has(id));
+	ce_assert(m_vertex_buffers_id_table.has(id), "Vertex buffer does not exist");
 
 	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
@@ -259,7 +258,7 @@ IndexBufferId GLRenderer::create_index_buffer(size_t count, const void* indices)
 //-----------------------------------------------------------------------------
 void GLRenderer::destroy_index_buffer(IndexBufferId id)
 {
-	assert(m_index_buffers_id_table.has(id));
+	ce_assert(m_index_buffers_id_table.has(id), "Index buffer does not exist");
 
 	IndexBuffer& buffer = m_index_buffers[id.index];
 
@@ -293,7 +292,7 @@ TextureId GLRenderer::create_texture(uint32_t width, uint32_t height, PixelForma
 //-----------------------------------------------------------------------------
 void GLRenderer::update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data)
 {
-	assert(m_textures_id_table.has(id));
+	ce_assert(m_textures_id_table.has(id), "Texture does not exist");
 
 	Texture& gl_texture = m_textures[id.index];
 
@@ -306,7 +305,7 @@ void GLRenderer::update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t w
 //-----------------------------------------------------------------------------
 void GLRenderer::destroy_texture(TextureId id)
 {
-	assert(m_textures_id_table.has(id));
+	ce_assert(m_textures_id_table.has(id), "Texture does not exist");
 
 	Texture& gl_texture = m_textures[id.index];
 
@@ -586,7 +585,7 @@ void GLRenderer::set_ambient_light(const Color4& color)
 //-----------------------------------------------------------------------------
 void GLRenderer::bind_texture(uint32_t unit, TextureId texture)
 {
-	assert(m_textures_id_table.has(texture));
+	ce_assert(m_textures_id_table.has(texture), "Texture does not exist");
 
 	if (!activate_texture_unit(unit))
 	{
@@ -839,7 +838,7 @@ void GLRenderer::set_matrix(MatrixType type, const Mat4& matrix)
 //-----------------------------------------------------------------------------
 void GLRenderer::bind_vertex_buffer(VertexBufferId vb) const
 {
-	assert(m_vertex_buffers_id_table.has(vb));
+	ce_assert(m_vertex_buffers_id_table.has(vb), "Vertex buffer does not exist");
 
 	const VertexBuffer& vertex_buffer = m_vertex_buffers[vb.index];
 
@@ -883,7 +882,7 @@ void GLRenderer::bind_vertex_buffer(VertexBufferId vb) const
 		}
 		default:
 		{
-			assert(0);
+			ce_assert(0, "Vertex format unknown");
 			break;
 		}
 	}
@@ -892,7 +891,7 @@ void GLRenderer::bind_vertex_buffer(VertexBufferId vb) const
 //-----------------------------------------------------------------------------
 void GLRenderer::draw_triangles(IndexBufferId id) const
 {
-	assert(m_index_buffers_id_table.has(id));
+	ce_assert(m_index_buffers_id_table.has(id), "Index buffer does not exist");
 
 	const IndexBuffer& index_buffer = m_index_buffers[id.index];
 
@@ -904,7 +903,7 @@ void GLRenderer::draw_triangles(IndexBufferId id) const
 //-----------------------------------------------------------------------------
 // void GLRenderer::bind_render_buffer(RenderBufferId id) const
 // {
-// 	assert(m_render_buffers_id_table.has(id));
+// 	ce_assert(m_render_buffers_id_table.has(id), "Render buffer does not exist");
 
 // 	const GLRenderBuffer& render_buffer = m_render_buffers[id.index];
 // }

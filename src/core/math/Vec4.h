@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cassert>
+#include "Assert.h"
 #include "Types.h"
 #include "MathUtils.h"
 
@@ -154,7 +154,7 @@ inline Vec4::Vec4(const Vec4& a) : x(a.x), y(a.y), z(a.z), w(a.w)
 //-----------------------------------------------------------------------------
 inline real Vec4::operator[](uint32_t i) const
 {
-	assert(i < 4);
+	ce_assert(i < 4, "Index must be < 4");
 
 	return (&x)[i];
 }
@@ -162,7 +162,7 @@ inline real Vec4::operator[](uint32_t i) const
 //-----------------------------------------------------------------------------
 inline real& Vec4::operator[](uint32_t i)
 {
-	assert(i < 4);
+	ce_assert(i < 4, "Index must be < 4");
 
 	return (&x)[i];
 }
@@ -221,7 +221,7 @@ inline Vec4& Vec4::operator*=(real k)
 //-----------------------------------------------------------------------------
 inline Vec4 Vec4::operator/(real k) const
 {
-	assert(k != (real)0.0);
+	ce_assert(k != (real)0.0, "Division by zero");
 
 	real inv = (real)(1.0 / k);
 
@@ -231,7 +231,7 @@ inline Vec4 Vec4::operator/(real k) const
 //-----------------------------------------------------------------------------
 inline Vec4& Vec4::operator/=(real k)
 {
-	assert(k != (real)0.0);
+	ce_assert(k != (real)0.0, "Division by zero");
 
 	real inv = (real)(1.0 / k);
 

@@ -211,13 +211,13 @@ void event_loop()
 					}
 					case Button2:
 					{
-						data_button[3].int_value = 1;
+						data_button[2].int_value = 1;
 						push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
 						break;
 					}
 					case Button3:
 					{
-						data_button[3].int_value = 2;
+						data_button[2].int_value = 2;
 						push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
 						break;
 					}

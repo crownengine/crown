@@ -23,7 +23,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cassert>
+#include "Assert.h"
 #include <stdio.h>
 
 #include "OS.h"
@@ -34,10 +34,15 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-File::File() :
+File::File(const char* path, StreamOpenMode mode) :
 	m_asset(NULL),
-	m_mode(SOM_READ)
 {
+	// Android assets are always read-only
+	(void) mode;
+	m_mode = SOM_READ;
+	m_asset = AAssetManager_open(os::get_android_asset_manager(), path, AASSET_MODE_RANDOM);
+
+	ce_assert(m_asset != NULL, "Unable to open file: %s", path)
 }
 
 //-----------------------------------------------------------------------------
@@ -71,37 +76,13 @@ StreamOpenMode File::mode()
 //-----------------------------------------------------------------------------
 size_t File::size() const
 {
-	assert(m_asset != NULL);
-	
 	return AAsset_getLength(m_asset);
-}
-
-//-----------------------------------------------------------------------------
-bool File::open(const char* path, StreamOpenMode mode)
-{
-	assert(!is_open());
-
-	// Android assets are always read-only
-	(void) mode;
-	m_mode = SOM_READ;
-
-	m_asset = AAssetManager_open(os::get_android_asset_manager(), path, AASSET_MODE_RANDOM);
-
-	if (m_asset == NULL)
-	{
-		os::printf("Could not open asset %s", path);
-
-		return false;
-	}
-
-	return true;
 }
 
 //-----------------------------------------------------------------------------
 size_t File::read(void* data, size_t size)
 {
-	assert(m_asset != NULL);
-	assert(data != NULL);
+	ce_assert(data != NULL, "Data must be != NULL");
 
 	return (size_t)AAsset_read(m_asset, data, size);
 }
@@ -109,8 +90,7 @@ size_t File::read(void* data, size_t size)
 //-----------------------------------------------------------------------------
 size_t File::write(const void* data, size_t size)
 {
-	assert(m_asset != NULL);
-	assert(data != NULL);
+	ce_assert(data != NULL, "Data must be != NULL");
 
 	os::printf("Android asset directory is read-only!");
 
@@ -120,40 +100,30 @@ size_t File::write(const void* data, size_t size)
 //-----------------------------------------------------------------------------
 void File::seek(size_t position)
 {
-	assert(m_asset != NULL);
-
-	assert(AAsset_seek(m_asset, (off_t)position, SEEK_SET) != (off_t) -1);
+	ce_assert(AAsset_seek(m_asset, (off_t)position, SEEK_SET) != (off_t) -1);
 }
 
 //-----------------------------------------------------------------------------
 void File::seek_to_end()
 {
-	assert(m_asset != NULL);
-
-	assert(AAsset_seek(m_asset, 0, SEEK_END) != (off_t) -1);
+	ce_assert(AAsset_seek(m_asset, 0, SEEK_END) != (off_t) -1);
 }
 
 //-----------------------------------------------------------------------------
 void File::skip(size_t bytes)
 {
-	assert(m_asset != NULL);
-
-	assert(AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR) != (off_t) -1);
+	ce_assert(AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR) != (off_t) -1);
 }
 
 //-----------------------------------------------------------------------------
 size_t File::position() const
 {
-	assert(m_asset != NULL);
-	
 	return (size_t) (AAsset_getLength(m_asset) - AAsset_getRemainingLength(m_asset));
 }
 
 //-----------------------------------------------------------------------------
 bool File::eof() const
 {
-	assert(m_asset != NULL);
-	
 	return AAsset_getRemainingLength(m_asset) == 0;
 }
 

@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "List.h"
 #include "Allocator.h"
-#include <cassert>
+#include "Assert.h"
 #include <cstring>
 
 namespace crown
@@ -207,7 +207,7 @@ inline void Queue<T>::push_back(const T& item)
 template <typename T>
 inline void Queue<T>::pop_back()
 {
-	assert(m_size > 0);
+	ce_assert(m_size > 0, "The queue is empty");
 
 	m_size--;
 }
@@ -232,7 +232,7 @@ inline void Queue<T>::push_front(const T& item)
 template <typename T>
 inline void Queue<T>::pop_front()
 {
-	assert(m_size > 0);
+	ce_assert(m_size > 0, "The queue is empty");
 
 	m_read = (m_read + 1) % m_queue.size();
 
@@ -283,7 +283,7 @@ inline const T* Queue<T>::end() const
 template <typename T>
 inline T& Queue<T>::front()
 {
-	assert(m_size > 0);
+	ce_assert(m_size > 0, "The queue is empty");
 
 	return m_queue[m_read];
 }
@@ -292,7 +292,7 @@ inline T& Queue<T>::front()
 template <typename T>
 inline const T& Queue<T>::front() const
 {
-	assert(m_size > 0);
+	ce_assert(m_size > 0, "The queue is empty");
 
 	return m_queue[m_read];
 }
@@ -301,7 +301,7 @@ inline const T& Queue<T>::front() const
 template <typename T>
 inline T& Queue<T>::back()
 {
-	assert(m_size > 0);
+	ce_assert(m_size > 0, "The queue is empty");
 
 	return (*this)[m_size - 1];
 }
@@ -310,7 +310,7 @@ inline T& Queue<T>::back()
 template <typename T>
 inline const T& Queue<T>::back() const
 {
-	assert(m_size > 0);
+	ce_assert(m_size > 0, "The queue is empty");
 
 	return (*this)[m_size - 1];
 }

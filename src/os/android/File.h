@@ -39,11 +39,9 @@ class File
 {
 public:
 
-							File();
-							~File();
-
 	/// Opens the file located at @path with the given @mode.
-	bool					open(const char* path, StreamOpenMode mode);
+							File(const char* path, StreamOpenMode mode);
+							~File();
 
 	/// Closes the file.
 	void					close();

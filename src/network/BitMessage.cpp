@@ -23,7 +23,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cassert>
+#include "Assert.h"
 #include <cstring>
 
 #include "NetAddress.h"
@@ -88,10 +88,8 @@ uint8_t* BitMessage::get_byte_space(int32_t len)
 }
 
 //---------------------------------------------------------------------------------------------
-bool BitMessage::check_overflow(int32_t num_bits)
+bool BitMessage::check_overflow(uint32_t num_bits)
 {
-	assert(num_bits >= 0);
-	
 	if (num_bits > get_remaining_write_bits()) 
 	{
 		if (num_bits > (m_max_size << 3)) 

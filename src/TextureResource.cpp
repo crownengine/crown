@@ -2,7 +2,7 @@
 #include "ResourceArchive.h"
 #include "Log.h"
 #include "FileStream.h"
-#include <cassert>
+#include "Assert.h"
 #include "Allocator.h"
 #include "Device.h"
 #include "Renderer.h"
@@ -15,38 +15,35 @@ void* TextureResource::load(Allocator& allocator, ResourceArchive& archive, Reso
 {
 	FileStream* stream = archive.open(id);
 
-	if (stream != NULL)
-	{
-		TextureResource* resource = (TextureResource*)allocator.allocate(sizeof(TextureResource));
-	
-		stream->read(&resource->m_format, sizeof(PixelFormat));
-		stream->read(&resource->m_width, sizeof(uint16_t));
-		stream->read(&resource->m_height, sizeof(uint16_t));
-	
-		size_t size = resource->m_width * resource->m_height * Pixel::bytes_per_pixel(resource->m_format);
+	ce_assert(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
 
-		resource->m_data = (uint8_t*)allocator.allocate(sizeof(uint8_t) * size);
+	TextureResource* resource = (TextureResource*)allocator.allocate(sizeof(TextureResource));
 
-		stream->read(resource->m_data, size);
+	stream->read(&resource->m_format, sizeof(PixelFormat));
+	stream->read(&resource->m_width, sizeof(uint16_t));
+	stream->read(&resource->m_height, sizeof(uint16_t));
 
-		archive.close(stream);
+	size_t size = resource->m_width * resource->m_height * Pixel::bytes_per_pixel(resource->m_format);
 
-		return resource;
-	}
+	resource->m_data = (uint8_t*)allocator.allocate(sizeof(uint8_t) * size);
 
-	return NULL;
+	stream->read(resource->m_data, size);
+
+	archive.close(stream);
+
+	return resource;
 }
 
 //-----------------------------------------------------------------------------
 void TextureResource::online(void* resource)
 {
-	assert(resource != NULL);
+	ce_assert(resource != NULL, "Resource not loaded");
 }
 
 //-----------------------------------------------------------------------------
 void TextureResource::unload(Allocator& allocator, void* resource)
 {
-	assert(resource != NULL);
+	ce_assert(resource != NULL, "Resource not loaded");
 
 	allocator.deallocate(((TextureResource*)resource)->m_data);
 	allocator.deallocate(resource);

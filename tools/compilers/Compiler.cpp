@@ -62,7 +62,7 @@ size_t Compiler::compile(const char* resource, uint32_t name, uint32_t type)
 	char output_name[17];
 	snprintf(output_name, 17, "%.8X%.8X", name, type);
 
-	Log::i("%s => %s", resource, output_name);
+	Log::i("%s <= %s", output_name, resource);
 
 	if (type != m_type_expected)
 	{

@@ -28,8 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <netinet/in.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <cassert>
 
+#include "Assert.h"
 #include "Types.h"
 #include "OS.h"
 #include "UDPSocket.h"
@@ -55,7 +55,7 @@ UDPSocket::~UDPSocket()
 //-----------------------------------------------------------------------------
 bool UDPSocket::open(uint16_t port)
 {
-	assert(!is_open());
+	ce_assert(!is_open(), "Socket is already open");
 
 	m_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
@@ -97,9 +97,7 @@ bool UDPSocket::open(uint16_t port)
 //-----------------------------------------------------------------------------
 bool UDPSocket::send(const NetAddress &receiver, const void* data, size_t size)
 {
-	assert(is_open());
-	assert(data != NULL);
-	assert(size > 0);
+	ce_assert(data != NULL, "Data must be != NULL");
 
 	sockaddr_in address;
 	address.sin_family = AF_INET;
@@ -119,9 +117,7 @@ bool UDPSocket::send(const NetAddress &receiver, const void* data, size_t size)
 //-----------------------------------------------------------------------------
 size_t UDPSocket::receive(NetAddress& sender, void* data, size_t size)
 {
-	assert(is_open());
-	assert(data);
-	assert(size > 0);
+	ce_assert(data != NULL, "Data must be != NULL");
 
 	sockaddr_in from;
 	socklen_t from_length = sizeof(from);

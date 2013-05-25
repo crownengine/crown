@@ -34,8 +34,8 @@ namespace crown
 //-----------------------------------------------------------------------------
 Filesystem::Filesystem(const char* root_path)
 {
-	assert(root_path != NULL);
-	assert(os::is_absolute_path(root_path));
+	ce_assert(root_path != NULL, "Root path must be != NULL");
+	ce_assert(os::is_absolute_path(root_path), "Root path must be absolute");
 
 	string::strncpy(m_root_path, root_path, os::MAX_PATH_LENGTH);
 }
@@ -188,8 +188,8 @@ FileStream* Filesystem::open(const char* relative_path, StreamOpenMode mode)
 {
 	FilesystemEntry info;
 
-	assert(get_info(relative_path, info));
-	assert(info.type == FilesystemEntry::FILE);
+	ce_assert(get_info(relative_path, info), "File does not exist: %s", relative_path);
+	ce_assert(info.type == FilesystemEntry::FILE, "File is not a regular file: %s", relative_path);
 
 	return new FileStream(mode, info.os_path);
 }

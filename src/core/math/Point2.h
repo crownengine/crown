@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cassert>
+#include "Assert.h"
 #include "Types.h"
 #include "MathUtils.h"
 #include "Vec2.h"
@@ -119,7 +119,7 @@ inline Point2::~Point2()
 //-----------------------------------------------------------------------------
 inline int32_t Point2::operator[](uint32_t i) const
 {
-	assert(i < 2);
+	ce_assert(i < 2, "Index must be < 2");
 
 	return (&x)[i];
 }
@@ -127,7 +127,7 @@ inline int32_t Point2::operator[](uint32_t i) const
 //-----------------------------------------------------------------------------
 inline int32_t& Point2::operator[](uint32_t i)
 {
-	assert(i < 2);
+	ce_assert(i < 2, "Index must be < 2");
 
 	return (&x)[i];
 }
@@ -180,7 +180,7 @@ inline Point2& Point2::operator*=(int32_t k)
 //-----------------------------------------------------------------------------
 inline Point2 Point2::operator/(int32_t k) const
 {
-	assert(k != 0);
+	ce_assert(k != 0, "Division by zero");
 
 	return Point2(x / k, y / k);
 }
@@ -188,7 +188,7 @@ inline Point2 Point2::operator/(int32_t k) const
 //-----------------------------------------------------------------------------
 inline Point2& Point2::operator/=(int32_t k)
 {
-	assert(k != 0);
+	ce_assert(k != 0, "Division by zero");
 
 	x /= k;
 	y /= k;

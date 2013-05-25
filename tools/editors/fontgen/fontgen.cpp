@@ -111,7 +111,7 @@ Image* BuildFontImage(const char* ttfFont, ushort ttfSize, ushort ttfResolution)
 
 	// Find the biggest character
 	// For each range
-	assert(mCodePointRangeList.GetSize() % 2 == 0);
+	ce_assert(mCodePointRangeList.GetSize() % 2 == 0);
 	for (int i = 0; i < mCodePointRangeList.GetSize(); i += 2)
 	{
 		uint j = mCodePointRangeList[i + 0];
@@ -174,7 +174,7 @@ Image* BuildFontImage(const char* ttfFont, ushort ttfSize, ushort ttfResolution)
 	FileStream fileStream(SOM_WRITE, Str(ttfFont) + Str(".txt"));
 	TextWriter fileWriter(&fileStream);
 
-	assert(mCodePointRangeList.GetSize() % 2 == 0);
+	ce_assert(mCodePointRangeList.GetSize() % 2 == 0);
 	// For each range
 	for (int i = 0; i < mCodePointRangeList.GetSize(); i += 2)
 	{
@@ -254,7 +254,7 @@ Image* BuildFontImage(const char* ttfFont, ushort ttfSize, ushort ttfResolution)
 
 void AddCodePointRange(uint min, uint max)
 {
-	assert(min <= max);
+	ce_assert(min <= max);
 
 	mCodePointRangeList.Append(min);
 	mCodePointRangeList.Append(max);

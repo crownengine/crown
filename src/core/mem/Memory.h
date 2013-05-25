@@ -26,7 +26,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <stdint.h>
-#include <cassert>
 #include <cstdio>
 #include "Types.h"
 

@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 // Core
+#include "Assert.h"
 #include "Types.h"
 #include "Args.h"
 #include "Log.h"

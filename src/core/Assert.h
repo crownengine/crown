@@ -1,5 +1,4 @@
 /*
-Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -24,20 +23,17 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#define CROWN_VERSION_MAJOR @CROWN_VERSION_MAJOR@
-#define CROWN_VERSION_MINOR @CROWN_VERSION_MINOR@
-#define CROWN_VERSION_MICRO @CROWN_VERSION_MICRO@
+#include <cstdlib>
+#include <cstdio>
+#include "Config.h"
 
-#cmakedefine LINUX
-#cmakedefine WINDOWS
-#cmakedefine CROWN_BUILD_OPENGL
-#cmakedefine CROWN_BUILD_OPENGLES
-#cmakedefine CROWN_USE_FLOAT
-#cmakedefine CROWN_DEBUG
+#pragma once
 
-// OS peculiarities
-#if defined(LINUX) || defined(ANDROID)
-	#define GAME_LIBRARY_NAME "libgame.so"
-#elif defined(WINDOWS)
-	#define GAME_LIBRARY_NAME "game.dll"
+#ifdef CROWN_DEBUG
+	#define ce_error(file, line, message, ...) do { printf(message, __VA_ARGS__);\
+				printf("\n\tIn %s:%d\n\n", file, line); abort(); } while(0)
+	#define ce_assert(condition, message, ...) do { if (!(condition)) { ce_error(__FILE__, __LINE__,\
+				"Assertion failed: %s\n\t" message, #condition, ##__VA_ARGS__); } } while(0)
+#else
+	#define ce_assert(condition, message, ...) ((void)0)
 #endif

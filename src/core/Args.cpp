@@ -39,8 +39,8 @@ Args::Args(int argc, char** argv, const char* shortopts, const ArgsOption* longo
 	m_scope(argc),
 	m_optarg(NULL)
 {
-	assert(argv != NULL);
-	assert(shortopts != NULL);
+	ce_assert(argv != NULL, "Argument vector must be != NULL");
+	ce_assert(shortopts != NULL, "Short argument list must be != NULL");
 	// longopts could be NULL
 }
 
@@ -121,9 +121,6 @@ ArgsOptionType Args::option_type(const char* option)
 //-----------------------------------------------------------------------------
 int32_t Args::long_option(const char* option)
 {
-	// Long argument detected, but it is not so.
-	assert(string::strlen(option) > 2);
-
 	const ArgsOption* current_option = m_longopts;
 
 	// Loop through all the long options

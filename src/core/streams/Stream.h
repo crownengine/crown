@@ -77,13 +77,13 @@ public:
 	virtual void		write(const void* buffer, size_t size) = 0;
 
 	/// Copies a chunk of 'size' bytes of data from this to another stream.
-	virtual bool		copy_to(Stream* stream, size_t size = 0) = 0;
+	virtual bool		copy_to(Stream& stream, size_t size = 0) = 0;
 
 	/// Zips a chunk of 'size' bytes of data from this to another stream using compressor.
-	virtual bool		compress_to(Stream* stream, size_t size, size_t& compressed_size, Compressor* compressor);
+	virtual bool		compress_to(Stream& stream, size_t size, size_t& compressed_size, Compressor& compressor);
 
 	/// Unzip a zipped stream of data from this to another stream using compressor.
-	virtual bool		uncompress_to(Stream* stream, size_t& uncompressed_size, Compressor* compressor);
+	virtual bool		uncompress_to(Stream& stream, size_t& uncompressed_size, Compressor& compressor);
 
 	/// Forces the previouses write operations to complete.
 	/// Generally, when a Stream is attached to a file,

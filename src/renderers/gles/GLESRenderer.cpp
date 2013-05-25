@@ -26,9 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 
 #include <GLES2/gl2.h>
-#include <cassert>
 #include <algorithm>
 
+#include "Assert.h"
 #include "Types.h"
 #include "GLESRenderer.h"
 #include "GLESUtils.h"
@@ -824,7 +824,17 @@ void GLESRenderer::set_matrix(MatrixType type, const Mat4& matrix)
 //-----------------------------------------------------------------------------
 void GLESRenderer::bind_vertex_buffer(VertexBufferId vb) const
 {
+<<<<<<< HEAD
 	assert(m_vertex_buffers_id_table.has(vb));
+=======
+	ce_assert(vertices != NULL);
+	ce_assert(indices != NULL);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+>>>>>>> master
 
 	const VertexBuffer& vertex_buffer = m_vertex_buffers[vb.index];
 

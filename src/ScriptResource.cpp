@@ -1,4 +1,4 @@
-#include <cassert>
+#include "Assert.h"
 
 #include "ScriptResource.h"
 #include "ResourceArchive.h"
@@ -41,7 +41,7 @@ void ScriptResource::online(void* resource)
 //-----------------------------------------------------------------------------
 void ScriptResource::unload(Allocator& allocator, void* resource)
 {
-	assert(resource != NULL);
+	ce_assert(resource != NULL, "");
 
 	allocator.deallocate(((ScriptResource*)resource)->m_data);
 	allocator.deallocate(resource);

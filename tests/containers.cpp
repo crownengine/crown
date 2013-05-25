@@ -1,6 +1,6 @@
 #include "Crown.h"
 #include <cstdio>
-#include <cassert>
+#include "Assert.h"
 
 using namespace crown;
 
@@ -10,7 +10,7 @@ int main()
 
 	List<int> int_list(allocator);
 
-	assert(int_list.size() == 0);
+	ce_assert(int_list.size() == 0, "Size differs from expected value");
 
 	int_list.push_back(10);
 	int_list.push_back(20);
@@ -19,19 +19,19 @@ int main()
 	int_list.push_back(50);
 	int_list.push_back(60);
 
-	assert(int_list.size() == 6);
-	assert(int_list.front() == 10);
-	assert(int_list.back() == 60);
+	ce_assert(int_list.size() == 6, "Size differs from expected value");
+	ce_assert(int_list.front() == 10, "Front differs from expected value");
+	ce_assert(int_list.back() == 60, "Back differs from expected value");
 
 	int_list.pop_back();
 
-	assert(int_list.size() == 5);
-	assert(int_list.front() == 10);
-	assert(int_list.back() == 50);
+	ce_assert(int_list.size() == 5, "Size differs from expected value");
+	ce_assert(int_list.front() == 10, "Front differs from expected value");
+	ce_assert(int_list.back() == 50, "Back differs from expected value");
 
 	int_list.clear();
 
-	assert(int_list.size() == 0);
+	ce_assert(int_list.size() == 0, "Size differs from expected value");
 
 	return 0;
 }
