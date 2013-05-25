@@ -1,5 +1,5 @@
 #include "LuaStack.h"
-#include <cassert>
+#include "Assert.h"
 
 namespace crown
 {
@@ -23,7 +23,7 @@ static uint32_t 		quat_used = 0;
 //-----------------------------------------------------------------------------
 Vec2* next_vec2()
 {
-	assert(vec2_used < LUA_VEC2_BUFFER_SIZE);
+	ce_assert(vec2_used < LUA_VEC2_BUFFER_SIZE, "Maximum number of Vec2 reached");
 
 	return &vec2_buffer[vec2_used++];
 }
@@ -31,7 +31,7 @@ Vec2* next_vec2()
 //-----------------------------------------------------------------------------
 Vec3* next_vec3()
 {
-	assert(vec3_used < LUA_VEC3_BUFFER_SIZE);
+	ce_assert(vec3_used < LUA_VEC3_BUFFER_SIZE, "Maximum number of Vec3 reached");
 
 	return &vec3_buffer[vec3_used++];
 }
@@ -39,7 +39,7 @@ Vec3* next_vec3()
 //-----------------------------------------------------------------------------
 Mat4* next_mat4()
 {
-	assert(mat4_used < LUA_MAT4_BUFFER_SIZE);
+	ce_assert(mat4_used < LUA_MAT4_BUFFER_SIZE, "Maximum number of Mat4 reached");
 
 	return &mat4_buffer[mat4_used++];
 }
@@ -47,7 +47,7 @@ Mat4* next_mat4()
 //-----------------------------------------------------------------------------
 Quat* next_quat()
 {
-	assert(quat_used < LUA_QUAT_BUFFER_SIZE);
+	ce_assert(quat_used < LUA_QUAT_BUFFER_SIZE, "Maximum number of Quat reached");
 
 	return &quat_buffer[quat_used++];
 }
@@ -85,7 +85,7 @@ void LuaStack::push_string(const char* str, size_t len)
 //-----------------------------------------------------------------------------
 void LuaStack::push_vec2(Vec2* v)
 {
-	assert(v >= &vec2_buffer[0] && v <= &vec2_buffer[LUA_VEC2_BUFFER_SIZE-1]);
+	ce_assert(v >= &vec2_buffer[0] && v <= &vec2_buffer[LUA_VEC2_BUFFER_SIZE-1], "Vec2 type error");
 
 	lua_pushlightuserdata(m_state, v);
 }
@@ -93,7 +93,7 @@ void LuaStack::push_vec2(Vec2* v)
 //-----------------------------------------------------------------------------
 void LuaStack::push_vec3(Vec3* v)
 {
-	assert(v >= &vec3_buffer[0] && v <= &vec3_buffer[LUA_VEC3_BUFFER_SIZE-1]);
+	ce_assert(v >= &vec3_buffer[0] && v <= &vec3_buffer[LUA_VEC3_BUFFER_SIZE-1], "Vec3 type error");
 
 	lua_pushlightuserdata(m_state, v);
 }
@@ -101,7 +101,7 @@ void LuaStack::push_vec3(Vec3* v)
 //-----------------------------------------------------------------------------
 void LuaStack::push_mat4(Mat4* m)
 {
-	assert(m >= &mat4_buffer[0] && m <= &mat4_buffer[LUA_MAT4_BUFFER_SIZE-1]);
+	ce_assert(m >= &mat4_buffer[0] && m <= &mat4_buffer[LUA_MAT4_BUFFER_SIZE-1], "Mat4 type error");
 
 	lua_pushlightuserdata(m_state, m);
 }
@@ -109,7 +109,7 @@ void LuaStack::push_mat4(Mat4* m)
 //-----------------------------------------------------------------------------
 void LuaStack::push_quat(Quat* q)
 {
-	assert(q >= &quat_buffer[0] && q <= &quat_buffer[LUA_MAT4_BUFFER_SIZE-1]);
+	ce_assert(q >= &quat_buffer[0] && q <= &quat_buffer[LUA_MAT4_BUFFER_SIZE-1], "Quat type error");
 
 	lua_pushlightuserdata(m_state, q);
 }
@@ -141,11 +141,11 @@ const char* LuaStack::get_string(int32_t index)
 //-----------------------------------------------------------------------------
 Vec2* LuaStack::get_vec2(int32_t index)
 {
-	assert(lua_islightuserdata(m_state, index));
+	ce_assert(lua_islightuserdata(m_state, index), "Not a lightuserdata object");
 
 	Vec2* v = (Vec2*)lua_touserdata(m_state, index);
 
-	assert(v >= &vec2_buffer[0] && v <= &vec2_buffer[LUA_VEC2_BUFFER_SIZE-1]);
+	ce_assert(v >= &vec2_buffer[0] && v <= &vec2_buffer[LUA_VEC2_BUFFER_SIZE-1], "Vec2 type error");
 
 	return v;
 }
@@ -153,11 +153,11 @@ Vec2* LuaStack::get_vec2(int32_t index)
 //-----------------------------------------------------------------------------
 Vec3* LuaStack::get_vec3(int32_t index)
 {
-	assert(lua_islightuserdata(m_state, index));
+	ce_assert(lua_islightuserdata(m_state, index), "Not a lightuserdata object");
 
 	Vec3* v = (Vec3*)lua_touserdata(m_state, index);
 
-	assert(v >= &vec3_buffer[0] && v <= &vec3_buffer[LUA_VEC3_BUFFER_SIZE-1]);
+	ce_assert(v >= &vec3_buffer[0] && v <= &vec3_buffer[LUA_VEC3_BUFFER_SIZE-1], "Vec3 type error");
 
 	return v;
 }
@@ -165,11 +165,11 @@ Vec3* LuaStack::get_vec3(int32_t index)
 //-----------------------------------------------------------------------------
 Mat4* LuaStack::get_mat4(int32_t index)
 {
-	assert(lua_islightuserdata(m_state, index));
+	ce_assert(lua_islightuserdata(m_state, index), "Not a lightuserdata object");
 
 	Mat4* m = (Mat4*)lua_touserdata(m_state, index);
 
-	assert(m >= &mat4_buffer[0] && m <= &mat4_buffer[LUA_MAT4_BUFFER_SIZE-1]);
+	ce_assert(m >= &mat4_buffer[0] && m <= &mat4_buffer[LUA_MAT4_BUFFER_SIZE-1], "Mat4 type error");
 
 	return m;
 }
@@ -177,11 +177,11 @@ Mat4* LuaStack::get_mat4(int32_t index)
 //-----------------------------------------------------------------------------
 Quat* LuaStack::get_quat(int32_t index)
 {
-	assert(lua_islightuserdata(m_state, index));
+	ce_assert(lua_islightuserdata(m_state, index), "Not a lightuserdata object");
 
 	Quat* q = (Quat*)lua_touserdata(m_state, index);
 
-	assert(q >= &quat_buffer[0] && q <= &quat_buffer[LUA_QUAT_BUFFER_SIZE-1]);
+	ce_assert(q >= &quat_buffer[0] && q <= &quat_buffer[LUA_QUAT_BUFFER_SIZE-1], "Quat type error");
 
 	return q;
 }

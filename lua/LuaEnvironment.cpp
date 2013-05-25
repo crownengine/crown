@@ -1,6 +1,4 @@
-#include <cassert>
 #include "LuaEnvironment.h"
-
 
 namespace crown
 {
