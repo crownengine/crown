@@ -75,6 +75,7 @@ add_definitions(-pipe -ansi -W -Wall -Wextra -Wno-long-long -Wno-variadic-macros
 
 # add build directories
 add_subdirectory(src)
+add_subdirectory(lua)
 add_subdirectory(${CROWN_THIRD})
 
 if (LINUX)
@@ -105,5 +106,4 @@ if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
-add_subdirectory(lua)
 
