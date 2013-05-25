@@ -6,12 +6,6 @@
 namespace crown
 {
 
-struct ModuleEntry
-{
-	const char* 	module;
-	luaL_Reg		entry[2];
-};
-
 class LuaEnvironment
 {
 
@@ -30,7 +24,7 @@ private:
 
 extern "C"
 {
-	int luaopen_libcrownlua(lua_State* L);
+	int32_t luaopen_libcrownlua(lua_State* L);
 }
 
 void load_vec2(LuaEnvironment& env);

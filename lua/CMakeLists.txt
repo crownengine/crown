@@ -27,3 +27,5 @@ target_link_libraries(crownlua crown)
 
 install (TARGETS crownlua DESTINATION lib/${CMAKE_PROJECT_NAME})
 
+install (FILES ${LUA_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/lua)
+
