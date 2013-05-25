@@ -64,14 +64,8 @@ public:
 	/// Sets the position indicator to bytes after current position
 	virtual void		skip(size_t bytes) = 0;
 
-	/// Reads a byte from the stream starting at current position.
-	virtual uint8_t		read_byte() = 0;
-
 	/// Reads a block of data from the stream.
 	virtual void		read(void* buffer, size_t size) = 0;
-
-	/// Writes a byte to the stream starting at current position.
-	virtual void		write_byte(uint8_t val) = 0;
 
 	/// Writes a block of data to the stream.
 	virtual void		write(const void* buffer, size_t size) = 0;

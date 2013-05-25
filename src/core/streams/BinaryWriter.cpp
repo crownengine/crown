@@ -82,23 +82,5 @@ void BinaryWriter::write_float(float buffer)
 	m_stream.write(&buffer, sizeof(float));
 }
 
-//-----------------------------------------------------------------------------
-void BinaryWriter::insert_byte(int8_t val, size_t offset)
-{
-	size_t tmpSize = m_stream.size() - offset;
-	int8_t* tmp = new int8_t[tmpSize];
-
-	m_stream.seek(offset);
-	m_stream.read(tmp, tmpSize);
-
-	m_stream.seek(offset);
-
-	m_stream.write_byte(val);
-
-	m_stream.write(tmp, tmpSize);
-
-	delete[] tmp;
-}
-
 } // namespace crown
 

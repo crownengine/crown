@@ -36,7 +36,7 @@ namespace crown
 File::File(const char* path, StreamOpenMode mode) :
 	m_file_handle(NULL)
 {
-	m_file_handle = fopen(path, SOM_READ ? "rb" : "wb");
+	m_file_handle = fopen(path, (mode == SOM_READ) ? "rb" : "wb");
 	ce_assert(m_file_handle != NULL, "Unable to open file: %s", path);
 
 	m_mode = mode;

@@ -53,14 +53,8 @@ public:
 	/// @copydoc Stream::skip() 
 	void			skip(size_t bytes);
 
-	/// @copydoc Stream::read_byte() 
-	uint8_t			read_byte();
-
 	/// @copydoc Stream::read() 
 	void			read(void* buffer, size_t size);
-
-	/// @copydoc Stream::write_byte() 
-	void			write_byte(uint8_t val);
 
 	/// @copydoc Stream::write() 
 	void			write(const void* buffer, size_t size);
