@@ -23,12 +23,12 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Config.h"
-
 #include <GL/glew.h>
-#include "Assert.h"
 #include <algorithm>
 
+#include "Config.h"
+
+#include "Assert.h"
 #include "Types.h"
 #include "GLRenderer.h"
 #include "GLUtils.h"
@@ -61,10 +61,15 @@ static const char* gl_error_to_string(GLenum error)
 }
 
 //-----------------------------------------------------------------------------
-#define gl_check(function)\
-	function;\
-	do { GLenum error; ce_assert((error = glGetError()) == GL_NO_ERROR,\
-			"OpenGL error: %s", gl_error_to_string(error)); } while (0)
+#ifdef CROWN_DEBUG
+	#define gl_check(function)\
+		function;\
+		do { GLenum error; ce_assert((error = glGetError()) == GL_NO_ERROR,\
+				"OpenGL error: %s", gl_error_to_string(error)); } while (0)
+#else
+	#define gl_check(function)\
+		function;
+#endif
 
 //-----------------------------------------------------------------------------
 GLRenderer::GLRenderer() :
