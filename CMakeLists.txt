@@ -31,6 +31,7 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/network
 
 	${CMAKE_SOURCE_DIR}/game
+	${CMAKE_SOURCE_DIR}/lua
 )
 
 # always debug mode for now
@@ -103,4 +104,6 @@ endif (CROWN_BUILD_SAMPLES)
 if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
+
+add_subdirectory(lua)
 

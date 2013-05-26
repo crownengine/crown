@@ -2,6 +2,7 @@
 #include "Terrain.h"
 #include "FPSSystem.h"
 #include "Game.h"
+#include "ScriptSystem.h"
 
 using namespace crown;
 
@@ -194,6 +195,8 @@ private:
 	VertexShaderId vs_id;
 	PixelShaderId ps_id;
 	GPUProgramId gpu_program_id;
+
+	ResourceId script;
 
 	bool optShowSkybox;
 	bool optShowCrate;

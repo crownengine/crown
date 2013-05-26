@@ -8,7 +8,6 @@ set (SRC
 
 	TextureResource.cpp
 	TextResource.cpp
-	ScriptResource.cpp
 	FontResource.cpp
 	VertexShaderResource.cpp
 	PixelShaderResource.cpp
@@ -34,7 +33,6 @@ set (HEADERS
 
 	TextureResource.h
 	TextResource.h
-	ScriptResource.h
 	FontResource.h
 	VertexShaderResource.h
 	PixelShaderResource.h
@@ -271,9 +269,13 @@ set (CROWN_HEADERS
 	${NETWORK_HEADERS}
 
 	${OS_HEADERS}
+
+	${SCRIPT_HEADERS}
 )
 
-link_libraries(rt z)
+include_directories(${CROWN_THIRD}/luajit/include/luajit-2.0)
+link_directories(${CROWN_THIRD}/luajit/lib)
+link_libraries(rt z luajit-5.1)
 add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
 
 if (CROWN_BUILD_OPENGL)

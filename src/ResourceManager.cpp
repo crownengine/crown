@@ -38,7 +38,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "FileStream.h"
 #include "TextResource.h"
 #include "TextureResource.h"
-#include "ScriptResource.h"
 #include "VertexShaderResource.h"
 #include "PixelShaderResource.h"
 
@@ -345,10 +344,6 @@ void* ResourceManager::load_by_type(ResourceId name) const
 	{
 		return TextResource::load(m_resource_allocator, m_resource_archive, name);
 	}
-	else if (name.type == SCRIPT_TYPE)
-	{
-		return ScriptResource::load(m_resource_allocator, m_resource_archive, name);
-	}
 	else if (name.type == VERTEX_SHADER_TYPE)
 	{
 		return VertexShaderResource::load(m_resource_allocator, m_resource_archive, name);
@@ -372,10 +367,6 @@ void ResourceManager::unload_by_type(ResourceId name, void* resource) const
 	{
 		TextResource::unload(m_resource_allocator, resource);
 	}
-	else if (name.type == SCRIPT_TYPE)
-	{
-		ScriptResource::unload(m_resource_allocator, resource);
-	}
 	else if (name.type == VERTEX_SHADER_TYPE)
 	{
 		VertexShaderResource::unload(m_resource_allocator, resource);
@@ -398,10 +389,6 @@ void ResourceManager::online(ResourceId name, void* resource)
 	else if (name.type == TEXT_TYPE)
 	{
 		TextResource::online(resource);
-	}
-	else if (name.type == SCRIPT_TYPE)
-	{
-		ScriptResource::online(resource);
 	}
 	else if (name.type == VERTEX_SHADER_TYPE)
 	{
