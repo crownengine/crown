@@ -39,6 +39,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MallocAllocator.h"
 #include "Resource.h"
 
+#include "GLXContext.h"
+
 namespace crown
 {
 
@@ -207,6 +209,8 @@ private:
 	void				check_gl_errors() const;
 
 private:
+
+	GLContext			m_context;
 
 	MallocAllocator		m_allocator;
 

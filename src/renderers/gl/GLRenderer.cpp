@@ -132,6 +132,8 @@ GLRenderer::~GLRenderer()
 //-----------------------------------------------------------------------------
 void GLRenderer::init()
 {
+	m_context.create_context();
+
 	GLenum err = glewInit();
 	ce_assert(err == GLEW_OK, "Failed to initialize GLEW");
 
@@ -200,6 +202,8 @@ void GLRenderer::init()
 void GLRenderer::shutdown()
 {
 	unload_default_shaders();
+
+	m_context.destroy_context();
 }
 
 //-----------------------------------------------------------------------------
@@ -818,6 +822,8 @@ void GLRenderer::frame()
 	set_gpu_program_vec3_uniform(m_default_gpu_program, "color", Vec3(0, 1, 0));
 
 	gl_check(glFinish());
+
+	m_context.swap_buffers();
 }
 
 //-----------------------------------------------------------------------------

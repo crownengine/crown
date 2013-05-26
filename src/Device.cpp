@@ -46,6 +46,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mouse.h"
 #include "Touch.h"
 #include "Accelerometer.h"
+#include "OsWindow.h"
 
 #ifdef CROWN_BUILD_OPENGL
 	#include "renderers/gl/GLRenderer.h"
@@ -129,9 +130,12 @@ bool Device::init(int argc, char** argv)
 
 	Log::d("Input manager created.");
 
-	create_renderer();
+	create_window();
 
-	m_renderer->init();
+	m_window->set_title("Crown Game Engine");
+	Log::d("Window created.");
+
+	create_renderer();
 
 	Log::d("Renderer created.");
 
@@ -198,8 +202,13 @@ void Device::shutdown()
 		delete m_input_manager;
 	}
 
-	Log::i("Releasing Renderer...");
+	Log::i("Releasing DebugRenderer...");
+	if (m_debug_renderer)
+	{
+		delete m_debug_renderer;
+	}
 
+	Log::i("Releasing Renderer...");
 	if (m_renderer)
 	{
 		m_renderer->shutdown();
@@ -207,10 +216,10 @@ void Device::shutdown()
 		delete m_renderer;
 	}
 
-	Log::i("Releasing DebugRenderer...");
-	if (m_debug_renderer)
+	Log::i("Releasing Window...");
+	if (m_window)
 	{
-		delete m_debug_renderer;
+		delete m_window;
 	}
 
 	Log::i("Releasing ResourceManager...");
@@ -225,7 +234,6 @@ void Device::shutdown()
 	}
 
 	Log::i("Releasing Filesystem...");
-
 	if (m_filesystem)
 	{
 		delete m_filesystem;
@@ -256,6 +264,12 @@ ResourceManager* Device::resource_manager()
 InputManager* Device::input_manager()
 {
 	return m_input_manager;
+}
+
+//-----------------------------------------------------------------------------
+OsWindow* Device::window()
+{
+	return m_window;
 }
 
 //-----------------------------------------------------------------------------
@@ -348,12 +362,12 @@ void Device::frame()
 	m_resource_manager->check_load_queue();
 	m_resource_manager->bring_loaded_online();
 
-	m_input_manager->event_loop();
+	m_window->frame();
+	m_input_manager->frame();
 
 	game_frame(last_delta_time());
 
 	m_debug_renderer->draw_all();
-
 	m_renderer->frame();
 
 	m_frame_count++;
@@ -428,6 +442,16 @@ void Device::create_input_manager()
 }
 
 //-----------------------------------------------------------------------------
+void Device::create_window()
+{
+	m_window = new OsWindow(m_preferred_window_width, m_preferred_window_height);
+
+	ce_assert(m_window != NULL, "Unable to create the window");
+
+	m_window->show();
+}
+
+//-----------------------------------------------------------------------------
 void Device::create_renderer()
 {
 	// Select appropriate renderer
@@ -449,6 +473,8 @@ void Device::create_renderer()
 		exit(EXIT_FAILURE);
 		#endif
 	}
+
+	m_renderer->init();
 }
 
 //-----------------------------------------------------------------------------

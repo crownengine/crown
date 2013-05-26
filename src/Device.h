@@ -37,6 +37,7 @@ namespace crown
 class Filesystem;
 class ResourceManager;
 class ResourceArchive;
+class OsWindow;
 class Renderer;
 class DebugRenderer;
 class InputManager;
@@ -98,6 +99,8 @@ public:
 	Filesystem*				filesystem();
 	ResourceManager*		resource_manager();
 	InputManager*			input_manager();
+
+	OsWindow*				window();
 	Renderer*				renderer();
 	DebugRenderer*			debug_renderer();
 
@@ -111,6 +114,8 @@ private:
 	void					create_filesystem();
 	void					create_resource_manager();
 	void					create_input_manager();
+
+	void					create_window();
 	void					create_renderer();
 	void					create_debug_renderer();
 
@@ -140,6 +145,8 @@ private:
 
 	// Public subsystems
 	Filesystem*				m_filesystem;
+
+	OsWindow*				m_window;
 	InputManager*			m_input_manager;
 	Renderer*				m_renderer;
 	DebugRenderer*			m_debug_renderer;

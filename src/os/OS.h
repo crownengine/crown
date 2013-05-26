@@ -86,19 +86,8 @@ const char*		get_env(const char* env);		//! Returns the content of the 'env' env
 //-----------------------------------------------------------------------------
 void			init_os();
 
-bool			create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen);
-bool			destroy_render_window();
-void			get_render_window_metrics(uint32_t& width, uint32_t& height);
-void			swap_buffers();
-
-void			event_loop();
-
-void			init_input();
 void			get_cursor_xy(int32_t& x, int32_t& y);
 void			set_cursor_xy(int32_t x, int32_t y);
-
-void			hide_cursor();
-void			show_cursor();
 
 //-----------------------------------------------------------------------------
 // Timing

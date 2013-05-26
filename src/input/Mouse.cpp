@@ -24,7 +24,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Mouse.h"
-#include "OS.h"
+#include "Device.h"
+#include "OsWindow.h"
 
 namespace crown
 {
@@ -54,7 +55,7 @@ Vec2 Mouse::cursor_xy() const
 {
 	int32_t x, y;
 
-	//os::get_cursor_xy(xy.x, xy.y);
+	device()->window()->get_cursor_xy(x, y);
 
 	return Vec2(x, y);
 }
@@ -62,7 +63,7 @@ Vec2 Mouse::cursor_xy() const
 //-----------------------------------------------------------------------------
 void Mouse::set_cursor_xy(const Vec2& position)
 {
-	//os::set_cursor_xy(position.x, position.y);
+	device()->window()->set_cursor_xy((int32_t) position.x, (int32_t) position.y);
 }
 
 //-----------------------------------------------------------------------------
@@ -71,7 +72,7 @@ Vec2 Mouse::cursor_relative_xy() const
 	uint32_t window_width;
 	uint32_t window_height;
 
-	os::get_render_window_metrics(window_width, window_height);
+	device()->window()->get_size(window_width, window_height);
 
 	Vec2 pos = cursor_xy();
 
@@ -87,7 +88,7 @@ void Mouse::set_cursor_relative_xy(const Vec2& position)
 	uint32_t window_width;
 	uint32_t window_height;
 
-	os::get_render_window_metrics(window_width, window_height);
+	device()->window()->get_size(window_width, window_height);
 
 	set_cursor_xy(Vec2(position.x * (float) window_width, position.y * (float) window_height));
 }

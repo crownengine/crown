@@ -40,12 +40,6 @@ int main(int argc, char** argv)
 {
 	crown::os::init_os();
 
-	crown::os::create_render_window(0, 0, 1000, 625, false);
-
-	crown::Context context;
-	context.set_window(crown::os::window);
-	context.create_context();
-
 	crown::Device* engine = crown::device();
 
 	if (!engine->init(argc, argv))
@@ -57,13 +51,9 @@ int main(int argc, char** argv)
 	while (engine->is_running())
 	{
 		engine->frame();
-
-		crown::os::swap_buffers();
 	}
 
 	engine->shutdown();
-
-	crown::os::destroy_render_window();
 
 	return 0;
 }

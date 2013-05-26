@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Config.h"
 #include "Types.h"
 #include "Color4.h"
 #include "Mat4.h"

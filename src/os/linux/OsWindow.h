@@ -25,49 +25,55 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "EventDispatcher.h"
-#include "Mouse.h"
-#include "Keyboard.h"
-#include "Touch.h"
-#include "Accelerometer.h"
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <X11/XKBlib.h>
+
+#include "Types.h"
 
 namespace crown
 {
 
-class MouseListener;
-class KeyboardListener;
-class TouchListener;
-
-class InputManager
+class OsWindow
 {
 public:
 
-						InputManager();
-						~InputManager();
+					OsWindow(uint32_t width, uint32_t height);
+					~OsWindow();
 
-	Keyboard*			keyboard();
-	Mouse*				mouse();
-	Touch*				touch();
-	Accelerometer*		accelerometer();
+	void			show();
+	void			hide();
 
-	void				register_mouse_listener(MouseListener* listener);
-	void				register_keyboard_listener(KeyboardListener* listener);
-	void				register_touch_listener(TouchListener* listener);
-	void				register_accelerometer_listener(AccelerometerListener* listener);
+	void			get_size(uint32_t& width, uint32_t& height);
+	void			get_position(uint32_t& x, uint32_t& y);
 
-	EventDispatcher*	get_event_dispatcher();
+	void			resize(uint32_t width, uint32_t height);
+	void			move(uint32_t x, uint32_t y);
 
-	void				frame();
+	void			show_cursor();
+	void			hide_cursor();
+
+	void			get_cursor_xy(int32_t& x, int32_t& y);
+	void			set_cursor_xy(int32_t x, int32_t y);
+
+	char*			title();
+	void			set_title(const char* title);
+
+	void			frame();
 
 private:
 
-	EventDispatcher		m_event_dispatcher;
+	Display*		m_x11_display;
+	Window			m_x11_window;
 
-	Keyboard			m_keyboard;
-	Mouse				m_mouse;
-	Touch				m_touch;
-	Accelerometer		m_accelerometer;
+	uint32_t		m_x;
+	uint32_t		m_y;
+	uint32_t		m_width;
+	uint32_t		m_height;
+
+	bool			m_x11_detectable_autorepeat;
+	Cursor			m_x11_hidden_cursor;
 };
 
 } // namespace crown
-

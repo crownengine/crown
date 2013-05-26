@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.8)
 project(crown-linux)
 
 set (LINUX_SRC
-	GLXRenderWindow.cpp
 	LinuxOS.cpp
 	OsWindow.cpp
 	../posix/TCPSocket.cpp
@@ -12,6 +11,8 @@ set (LINUX_SRC
 	../posix/Thread.cpp
 	../posix/Mutex.cpp
 	../posix/Cond.cpp
+
+	../../renderers/gl/GLXContext.cpp
 )
 
 set (LINUX_HEADERS
@@ -22,6 +23,8 @@ set (LINUX_HEADERS
 	Thread.h
 	Mutex.h
 	Cond.h
+
+	../../renderers/gl/GLXContext.h
 )
 
 link_libraries(X11 Xrandr pthread)

@@ -31,8 +31,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-InputManager::InputManager() :
-	m_cursor_visible(true)
+InputManager::InputManager()
 {
 }
 
@@ -96,7 +95,7 @@ EventDispatcher* InputManager::get_event_dispatcher()
 }
 
 //-----------------------------------------------------------------------------
-void InputManager::event_loop()
+void InputManager::frame()
 {
 	OsEvent event;
 
@@ -220,27 +219,6 @@ void InputManager::event_loop()
 			}
 		}
 	}
-}
-
-//-----------------------------------------------------------------------------
-bool InputManager::is_cursor_visible() const
-{
-	return m_cursor_visible;
-}
-
-//-----------------------------------------------------------------------------
-void InputManager::set_cursor_visible(bool visible)
-{
-	if (visible)
-	{
-		//hide_cursor();
-	}
-	else
-	{
-		//show_cursor();
-	}
-
-	m_cursor_visible = visible;
 }
 
 } // namespace crown

@@ -25,49 +25,32 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "EventDispatcher.h"
-#include "Mouse.h"
-#include "Keyboard.h"
-#include "Touch.h"
-#include "Accelerometer.h"
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <GL/glx.h>
+
+#include "Config.h"
 
 namespace crown
 {
 
-class MouseListener;
-class KeyboardListener;
-class TouchListener;
+void set_x11_display_and_window(Display* dpy, Window win);
 
-class InputManager
+class GLContext
 {
 public:
 
-						InputManager();
-						~InputManager();
+					GLContext();
 
-	Keyboard*			keyboard();
-	Mouse*				mouse();
-	Touch*				touch();
-	Accelerometer*		accelerometer();
+	void			create_context();
+	void			destroy_context();
 
-	void				register_mouse_listener(MouseListener* listener);
-	void				register_keyboard_listener(KeyboardListener* listener);
-	void				register_touch_listener(TouchListener* listener);
-	void				register_accelerometer_listener(AccelerometerListener* listener);
-
-	EventDispatcher*	get_event_dispatcher();
-
-	void				frame();
+	void			swap_buffers();
 
 private:
 
-	EventDispatcher		m_event_dispatcher;
-
-	Keyboard			m_keyboard;
-	Mouse				m_mouse;
-	Touch				m_touch;
-	Accelerometer		m_accelerometer;
+	GLXContext		m_glx_context;
 };
 
 } // namespace crown
-
