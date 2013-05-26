@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <GL/glew.h>
 
+#include "GLXContext.h"
 #include "Renderer.h"
 #include "Texture.h"
 #include "VertexBuffer.h"

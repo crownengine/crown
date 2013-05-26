@@ -45,8 +45,8 @@ struct FilesystemEntry
 	FilesystemEntry() : type(UNKNOWN) {}
 
 	Type			type;								///< Type of the entry
-	char			os_path[os::MAX_PATH_LENGTH];		///< OS-specific path (use only for debug)
-	char			relative_path[os::MAX_PATH_LENGTH];	///< Relative path of the entry
+	char			os_path[MAX_PATH_LENGTH];			///< OS-specific path (use only for debug)
+	char			relative_path[MAX_PATH_LENGTH];		///< Relative path of the entry
 };
 
 class FileStream;
@@ -151,7 +151,7 @@ private:
 	
 private:
 
-	char				m_root_path[os::MAX_PATH_LENGTH];
+	char				m_root_path[MAX_PATH_LENGTH];
 
 	// Disable copying
 						Filesystem(const Filesystem&);

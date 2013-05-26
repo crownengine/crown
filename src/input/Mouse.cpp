@@ -54,7 +54,7 @@ Vec2 Mouse::cursor_xy() const
 {
 	int32_t x, y;
 
-	os::get_cursor_xy(x, y);
+	//os::get_cursor_xy(xy.x, xy.y);
 
 	return Vec2(x, y);
 }
@@ -62,7 +62,7 @@ Vec2 Mouse::cursor_xy() const
 //-----------------------------------------------------------------------------
 void Mouse::set_cursor_xy(const Vec2& position)
 {
-	os::set_cursor_xy(position.x, position.y);
+	//os::set_cursor_xy(position.x, position.y);
 }
 
 //-----------------------------------------------------------------------------

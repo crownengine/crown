@@ -98,20 +98,20 @@ EventDispatcher* InputManager::get_event_dispatcher()
 //-----------------------------------------------------------------------------
 void InputManager::event_loop()
 {
-	os::OSEvent event;
+	OsEvent event;
 
 	while (1)
 	{
-		event = os::pop_event();
+		event = pop_event();
 
 		switch (event.type)
 		{
-			case os::OSET_NONE:
+			case OSET_NONE:
 			{
 				return;
 			}
-			case os::OSET_BUTTON_PRESS:
-			case os::OSET_BUTTON_RELEASE:
+			case OSET_BUTTON_PRESS:
+			case OSET_BUTTON_RELEASE:
 			{
 				MouseEvent mouse_event;
 				mouse_event.x = event.data_a.int_value;
@@ -119,7 +119,7 @@ void InputManager::event_loop()
 				mouse_event.button = event.data_c.int_value == 0 ? MB_LEFT : event.data_c.int_value == 1 ? MB_MIDDLE : MB_RIGHT;
 				mouse_event.wheel = 0.0f;
 
-				if (event.type == os::OSET_BUTTON_PRESS)
+				if (event.type == OSET_BUTTON_PRESS)
 				{
 					m_mouse.m_buttons[mouse_event.button] = true;
 					m_event_dispatcher.button_pressed(mouse_event);
@@ -132,8 +132,8 @@ void InputManager::event_loop()
 
 				break;
 			}
-			case os::OSET_KEY_PRESS:
-			case os::OSET_KEY_RELEASE:
+			case OSET_KEY_PRESS:
+			case OSET_KEY_RELEASE:
 			{
 				KeyboardEvent keyboard_event;
 				keyboard_event.key = event.data_a.int_value;
@@ -141,7 +141,7 @@ void InputManager::event_loop()
 
 				m_keyboard.m_modifier = keyboard_event.modifier;
 
-				if (event.type == os::OSET_KEY_PRESS)
+				if (event.type == OSET_KEY_PRESS)
 				{
 					m_keyboard.m_keys[keyboard_event.key] = true;
 					m_event_dispatcher.key_pressed(keyboard_event);
@@ -154,8 +154,8 @@ void InputManager::event_loop()
 
 				break;
 			}
-			case os::OSET_TOUCH_DOWN:
-			case os::OSET_TOUCH_UP:
+			case OSET_TOUCH_DOWN:
+			case OSET_TOUCH_UP:
 			{
 				TouchEvent touch_event;
 				touch_event.pointer_id = event.data_a.int_value;
@@ -169,7 +169,7 @@ void InputManager::event_loop()
 				m_touch.m_pointers[touch_event.pointer_id].relative_x = 0.0f;
 				m_touch.m_pointers[touch_event.pointer_id].relative_y = 0.0f;
 
-				if (event.type == os::OSET_TOUCH_DOWN)
+				if (event.type == OSET_TOUCH_DOWN)
 				{
 					m_touch.m_pointers[touch_event.pointer_id].up = false;
 					m_event_dispatcher.touch_down(touch_event);
@@ -182,7 +182,7 @@ void InputManager::event_loop()
 
 				break;
 			}
-			case os::OSET_TOUCH_MOVE:
+			case OSET_TOUCH_MOVE:
 			{
 				TouchEvent touch_event;
 				touch_event.pointer_id = event.data_a.int_value;
@@ -200,7 +200,7 @@ void InputManager::event_loop()
 
 				break;
 			}
-			case os::OSET_ACCELEROMETER:
+			case OSET_ACCELEROMETER:
 			{
 				AccelerometerEvent sensor_event;
 				sensor_event.x = event.data_a.float_value;
@@ -233,11 +233,11 @@ void InputManager::set_cursor_visible(bool visible)
 {
 	if (visible)
 	{
-		os::hide_cursor();
+		//hide_cursor();
 	}
 	else
 	{
-		os::show_cursor();
+		//show_cursor();
 	}
 
 	m_cursor_visible = visible;

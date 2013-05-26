@@ -37,7 +37,7 @@ Filesystem::Filesystem(const char* root_path)
 	ce_assert(root_path != NULL, "Root path must be != NULL");
 	ce_assert(os::is_absolute_path(root_path), "Root path must be absolute");
 
-	string::strncpy(m_root_path, root_path, os::MAX_PATH_LENGTH);
+	string::strncpy(m_root_path, root_path, MAX_PATH_LENGTH);
 }
 
 //-----------------------------------------------------------------------------
@@ -54,22 +54,22 @@ const char* Filesystem::root_path() const
 //-----------------------------------------------------------------------------
 const char* Filesystem::build_os_path(const char* base_path, const char* relative_path)
 {
-	static char os_path[os::MAX_PATH_LENGTH];
+	static char os_path[MAX_PATH_LENGTH];
 
-	string::strncpy(os_path, base_path, os::MAX_PATH_LENGTH);
+	string::strncpy(os_path, base_path, MAX_PATH_LENGTH);
 
 	size_t base_path_len = string::strlen(base_path);
 
-	os_path[base_path_len] = os::PATH_SEPARATOR;
+	os_path[base_path_len] = PATH_SEPARATOR;
 
-	string::strncpy(&os_path[base_path_len + 1], relative_path, os::MAX_PATH_LENGTH);
+	string::strncpy(&os_path[base_path_len + 1], relative_path, MAX_PATH_LENGTH);
 
 	// FIXME FIXME FIXME Replace Crown-specific path separator with OS-speficic one
 	for (size_t j = 0; j < string::strlen(os_path); j++)
 	{
 		if (os_path[j] == '/')
 		{
-			os_path[j] = os::PATH_SEPARATOR;
+			os_path[j] = PATH_SEPARATOR;
 		}
 	}
 
@@ -84,8 +84,8 @@ bool Filesystem::get_info(const char* relative_path, FilesystemEntry& info)
 
 	const char* os_path = build_os_path(m_root_path, relative_path);
 	
-	string::strncpy(info.os_path, os_path, os::MAX_PATH_LENGTH);
-	string::strncpy(info.relative_path, relative_path, os::MAX_PATH_LENGTH);
+	string::strncpy(info.os_path, os_path, MAX_PATH_LENGTH);
+	string::strncpy(info.relative_path, relative_path, MAX_PATH_LENGTH);
 
 	if (os::is_reg(os_path))
 	{
@@ -172,13 +172,13 @@ bool Filesystem::delete_dir(const char* relative_path)
 //-----------------------------------------------------------------------------
 const char* Filesystem::os_path(const char* relative_path)
 {
-	static char os_path[os::MAX_PATH_LENGTH];
+	static char os_path[MAX_PATH_LENGTH];
 
 	FilesystemEntry entry;
 
 	get_info(relative_path, entry);
 
-	string::strncpy(os_path, entry.os_path, os::MAX_PATH_LENGTH);
+	string::strncpy(os_path, entry.os_path, MAX_PATH_LENGTH);
 
 	return os_path;
 }

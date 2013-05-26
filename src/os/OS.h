@@ -33,25 +33,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// OS-specific functions and parameters.
-namespace os
-{
-
 //-----------------------------------------------------------------------------
 #ifdef LINUX
 const size_t	MAX_PATH_LENGTH = 1024;
 const char		PATH_SEPARATOR = '/';
 
-const size_t	MAX_EVENTS = 512;
 #endif
 
-#ifdef WINDOWS
-const size_t	MAX_PATH_LENGTH = 1024;
-const char		PATH_SEPARATOR = '\\';
-
-const size_t	MAX_EVENTS = 512;
-#endif
-
+namespace os
+{
 //-----------------------------------------------------------------------------
 // Print and log functions
 //-----------------------------------------------------------------------------
@@ -117,9 +107,18 @@ uint64_t		milliseconds();
 uint64_t		microseconds();
 
 //-----------------------------------------------------------------------------
+// Dynamic libraries
+//-----------------------------------------------------------------------------
+void*			open_library(const char* path);
+void			close_library(void* library);
+void*			lookup_symbol(void* library, const char* name);
+
+} // namespace os
+
+//-----------------------------------------------------------------------------
 // Events
 //-----------------------------------------------------------------------------
-enum OSEventType
+enum OsEventType
 {
 	OSET_NONE				= 0,
 
@@ -135,35 +134,26 @@ enum OSEventType
 	OSET_ACCELEROMETER		= 9
 };
 
-union OSEventParameter
+union OsEventParameter
 {
 	int32_t int_value;
 	float	float_value;
 };
 
-struct OSEvent
+struct OsEvent
 {
-	OSEventType			type;
-	OSEventParameter	data_a;
-	OSEventParameter	data_b;
-	OSEventParameter	data_c;
-	OSEventParameter	data_d;
+	OsEventType			type;
+	OsEventParameter	data_a;
+	OsEventParameter	data_b;
+	OsEventParameter	data_c;
+	OsEventParameter	data_d;
 };
 
 /// Pushes the event @type along with its parameters into the os' event queue.
-void			push_event(OSEventType type, OSEventParameter data_a, OSEventParameter data_b, OSEventParameter data_c, OSEventParameter data_d);
-
+void			push_event(OsEventType type, OsEventParameter data_a, OsEventParameter data_b, OsEventParameter data_c, OsEventParameter data_d);
 
 /// Returns and pops the first event in the os' event queue.
-OSEvent&		pop_event();
+OsEvent&		pop_event();
 
-//-----------------------------------------------------------------------------
-// Dynamic libraries
-//-----------------------------------------------------------------------------
-void*			open_library(const char* path);
-void			close_library(void* library);
-void*			lookup_symbol(void* library, const char* name);
-
-} // namespace os
 } // namespace crown
 

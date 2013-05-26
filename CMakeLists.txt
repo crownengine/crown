@@ -28,6 +28,7 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/os
 	${CMAKE_SOURCE_DIR}/src/input
 	${CMAKE_SOURCE_DIR}/src/renderers
+	${CMAKE_SOURCE_DIR}/src/renderers/gl
 	${CMAKE_SOURCE_DIR}/src/network
 
 	${CMAKE_SOURCE_DIR}/game

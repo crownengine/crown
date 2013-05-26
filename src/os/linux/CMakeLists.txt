@@ -5,7 +5,7 @@ project(crown-linux)
 set (LINUX_SRC
 	GLXRenderWindow.cpp
 	LinuxOS.cpp
-	Input.cpp
+	OsWindow.cpp
 	../posix/TCPSocket.cpp
 	../posix/UDPSocket.cpp	
 	../posix/File.cpp
@@ -15,6 +15,7 @@ set (LINUX_SRC
 )
 
 set (LINUX_HEADERS
+	OsWindow.h
 	TCPSocket.h
 	UDPSocket.h
 	File.h

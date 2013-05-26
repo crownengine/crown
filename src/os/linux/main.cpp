@@ -24,6 +24,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Crown.h"
+#include "List.h"
+#include "GLXContext.h"
+#include <X11/Xlib.h>
+
+namespace crown
+{
+namespace os
+{
+extern Window window;
+}
+}
 
 int main(int argc, char** argv)
 {
@@ -31,7 +42,9 @@ int main(int argc, char** argv)
 
 	crown::os::create_render_window(0, 0, 1000, 625, false);
 
-	crown::os::init_input();
+	crown::Context context;
+	context.set_window(crown::os::window);
+	context.create_context();
 
 	crown::Device* engine = crown::device();
 
@@ -43,8 +56,6 @@ int main(int argc, char** argv)
 	// Main loop
 	while (engine->is_running())
 	{
-		crown::os::event_loop();
-
 		engine->frame();
 
 		crown::os::swap_buffers();
