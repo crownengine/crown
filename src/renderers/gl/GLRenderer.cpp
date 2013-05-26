@@ -47,37 +47,24 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-// //-----------------------------------------------------------------------------
-// #define gl_check(function)\
-// {
-// 	do\
-// 	{\
-// 		function;\
-// 		while()
+//-----------------------------------------------------------------------------
+static const char* gl_error_to_string(GLenum error)
+{
+	switch (error)
+	{
+		case GL_INVALID_ENUM: return "GL_INVALID_ENUM";
+		case GL_INVALID_VALUE: return "GL_INVALID_VALUE";
+		case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION";
+		case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
+		default: return "UNKNOWN_GL_ERROR";
+	}
+}
 
-// 	} while (0)
-
-// 	GLenum error;
-
-// 	while ((error = glGetError()))
-// 	{
-// 		switch (error)
-// 		{
-// 			case GL_INVALID_ENUM:
-// 				Log::e("GLRenderer: GL_INVALID_ENUM");
-// 				break;
-// 			case GL_INVALID_VALUE:
-// 				Log::e("GLRenderer: GL_INVALID_VALUE");
-// 				break;
-// 			case GL_INVALID_OPERATION:
-// 				Log::e("GLRenderer: GL_INVALID_OPERATION");
-// 				break;
-// 			case GL_OUT_OF_MEMORY:
-// 				Log::e("GLRenderer: GL_OUT_OF_MEMORY");
-// 				break;
-// 		}
-// 	}
-// }
+//-----------------------------------------------------------------------------
+#define gl_check(function)\
+	function;\
+	do { GLenum error; ce_assert((error = glGetError()) == GL_NO_ERROR,\
+			"OpenGL error: %s", gl_error_to_string(error)); } while (0)
 
 //-----------------------------------------------------------------------------
 GLRenderer::GLRenderer() :
@@ -143,19 +130,19 @@ void GLRenderer::init()
 	GLenum err = glewInit();
 	ce_assert(err == GLEW_OK, "Failed to initialize GLEW");
 
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size);
-	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &m_max_texture_units);
-	glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &m_max_vertex_indices);
-	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_max_vertex_vertices);
+	gl_check(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size));
+	gl_check(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &m_max_texture_units));
+	gl_check(glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &m_max_vertex_indices));
+	gl_check(glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_max_vertex_vertices));
 
 	// Check for anisotropic filter support
 	if (GLEW_EXT_texture_filter_anisotropic)
 	{
-		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &m_max_anisotropy);
+		gl_check(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &m_max_anisotropy));
 	}
 
-	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &m_min_max_point_size[0]);
-	glGetFloatv(GL_LINE_WIDTH_RANGE, &m_min_max_line_width[0]);
+	gl_check(glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &m_min_max_point_size[0]));
+	gl_check(glGetFloatv(GL_LINE_WIDTH_RANGE, &m_min_max_line_width[0]));
 
 	Log::i("OpenGL Vendor\t: %s", glGetString(GL_VENDOR));
 	Log::i("OpenGL Renderer\t: %s", glGetString(GL_RENDERER));
@@ -171,33 +158,33 @@ void GLRenderer::init()
 	Log::d("Max Vertex Vertices\t: %d", m_max_vertex_vertices);
 	Log::d("Max Anisotropy\t: %f", m_max_anisotropy);
 
-	glDisable(GL_TEXTURE_2D);
+	gl_check(glDisable(GL_TEXTURE_2D));
 
-	glDisable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendEquation(GL_FUNC_ADD);
+	gl_check(glDisable(GL_BLEND));
+	gl_check(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+	gl_check(glBlendEquation(GL_FUNC_ADD));
 
-	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	glShadeModel(GL_SMOOTH);
+	gl_check(glFrontFace(GL_CCW));
+	gl_check(glEnable(GL_CULL_FACE));
+	gl_check(glShadeModel(GL_SMOOTH));
 
 	// Set the default framebuffer clear color
-	glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+	gl_check(glClearColor(0.5f, 0.5f, 0.5f, 0.5f));
 
 	// Enable depth test
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-	glClearDepth(1.0);
+	gl_check(glEnable(GL_DEPTH_TEST));
+	gl_check(glDepthFunc(GL_LEQUAL));
+	gl_check(glClearDepth(1.0));
 
 	// Enable scissor test
-	glEnable(GL_SCISSOR_TEST);
+	gl_check(glEnable(GL_SCISSOR_TEST));
 
 	// Disable dithering
-	glDisable(GL_DITHER);
+	gl_check(glDisable(GL_DITHER));
 
 	// Point sprites enabled by default
-	glEnable(GL_POINT_SPRITE);
-	glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+	gl_check(glEnable(GL_POINT_SPRITE));
+	gl_check(glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE));
 
 	Log::i("OpenGL Renderer initialized.");
 
@@ -217,10 +204,10 @@ VertexBufferId GLRenderer::create_vertex_buffer(size_t count, VertexFormat forma
 
 	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
-	glGenBuffers(1, &buffer.gl_object);
+	gl_check(glGenBuffers(1, &buffer.gl_object));
 
-	glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object);
-	glBufferData(GL_ARRAY_BUFFER, count * Vertex::bytes_per_vertex(format), vertices, GL_STATIC_DRAW);
+	gl_check(glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object));
+	gl_check(glBufferData(GL_ARRAY_BUFFER, count * Vertex::bytes_per_vertex(format), vertices, GL_STATIC_DRAW));
 
 	buffer.count = count;
 	buffer.format = format;
@@ -235,10 +222,10 @@ VertexBufferId GLRenderer::create_dynamic_vertex_buffer(size_t count, VertexForm
 
 	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
-	glGenBuffers(1, &buffer.gl_object);
+	gl_check(glGenBuffers(1, &buffer.gl_object));
 
-	glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object);
-	glBufferData(GL_ARRAY_BUFFER, count * Vertex::bytes_per_vertex(format), vertices, GL_STREAM_DRAW);
+	gl_check(glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object));
+	gl_check(glBufferData(GL_ARRAY_BUFFER, count * Vertex::bytes_per_vertex(format), vertices, GL_STREAM_DRAW));
 
 	buffer.count = count;
 	buffer.format = format;
@@ -253,9 +240,9 @@ void GLRenderer::update_vertex_buffer(VertexBufferId id, size_t offset, size_t c
 
 	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
-	glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object);
-	glBufferSubData(GL_ARRAY_BUFFER, offset * Vertex::bytes_per_vertex(buffer.format),
-					count * Vertex::bytes_per_vertex(buffer.format), vertices);
+	gl_check(glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object));
+	gl_check(glBufferSubData(GL_ARRAY_BUFFER, offset * Vertex::bytes_per_vertex(buffer.format),
+					count * Vertex::bytes_per_vertex(buffer.format), vertices));
 }
 
 //-----------------------------------------------------------------------------
@@ -265,7 +252,7 @@ void GLRenderer::destroy_vertex_buffer(VertexBufferId id)
 
 	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
-	glDeleteBuffers(1, &buffer.gl_object);
+	gl_check(glDeleteBuffers(1, &buffer.gl_object));
 
 	m_vertex_buffers_id_table.destroy(id);
 }
@@ -277,10 +264,10 @@ IndexBufferId GLRenderer::create_index_buffer(size_t count, const void* indices)
 
 	IndexBuffer& buffer = m_index_buffers[id.index];
 
-	glGenBuffers(1, &buffer.gl_object);
+	gl_check(glGenBuffers(1, &buffer.gl_object));
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.gl_object);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLushort), indices, GL_STATIC_DRAW);
+	gl_check(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.gl_object));
+	gl_check(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLushort), indices, GL_STATIC_DRAW));
 
 	buffer.index_count = count;
 
@@ -294,7 +281,7 @@ void GLRenderer::destroy_index_buffer(IndexBufferId id)
 
 	IndexBuffer& buffer = m_index_buffers[id.index];
 
-	glDeleteBuffers(1, &buffer.gl_object);
+	gl_check(glDeleteBuffers(1, &buffer.gl_object));
 
 	m_index_buffers_id_table.destroy(id);
 }
@@ -306,15 +293,15 @@ TextureId GLRenderer::create_texture(uint32_t width, uint32_t height, PixelForma
 
 	Texture& gl_texture = m_textures[id.index];
 
-	glGenTextures(1, &gl_texture.gl_object);
+	gl_check(glGenTextures(1, &gl_texture.gl_object));
 
-	glBindTexture(GL_TEXTURE_2D, gl_texture.gl_object);
+	gl_check(glBindTexture(GL_TEXTURE_2D, gl_texture.gl_object));
 
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+	gl_check(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
 
 	// FIXME
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-				 GL::pixel_format(format), GL_UNSIGNED_BYTE, data);
+	gl_check(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+				 GL::pixel_format(format), GL_UNSIGNED_BYTE, data));
 
 	gl_texture.format = format;
 
@@ -328,10 +315,10 @@ void GLRenderer::update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t w
 
 	Texture& gl_texture = m_textures[id.index];
 
-	glBindTexture(GL_TEXTURE_2D, gl_texture.gl_object);
+	gl_check(glBindTexture(GL_TEXTURE_2D, gl_texture.gl_object));
 
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL::pixel_format(gl_texture.format),
-					GL_UNSIGNED_BYTE, data);
+	gl_check(glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL::pixel_format(gl_texture.format),
+					GL_UNSIGNED_BYTE, data));
 }
 
 //-----------------------------------------------------------------------------
@@ -341,7 +328,7 @@ void GLRenderer::destroy_texture(TextureId id)
 
 	Texture& gl_texture = m_textures[id.index];
 
-	glDeleteTextures(1, &gl_texture.gl_object);
+	gl_check(glDeleteTextures(1, &gl_texture.gl_object));
 }
 
 //-----------------------------------------------------------------------------
@@ -353,20 +340,20 @@ VertexShaderId GLRenderer::create_vertex_shader(const char* program)
 
 	VertexShader& gl_shader = m_vertex_shaders[id.index];
 
-	gl_shader.gl_object = glCreateShader(GL_VERTEX_SHADER);
+	gl_shader.gl_object = gl_check(glCreateShader(GL_VERTEX_SHADER));
 
-	glShaderSource(gl_shader.gl_object, 1, &program, NULL);
+	gl_check(glShaderSource(gl_shader.gl_object, 1, &program, NULL));
 
-	glCompileShader(gl_shader.gl_object);
+	gl_check(glCompileShader(gl_shader.gl_object));
 
 	GLint success;
-	glGetShaderiv(gl_shader.gl_object, GL_COMPILE_STATUS, &success);
+	gl_check(glGetShaderiv(gl_shader.gl_object, GL_COMPILE_STATUS, &success));
 
 	if (!success)
 	{
 		GLchar info_log[256];
 
-		glGetShaderInfoLog(gl_shader.gl_object, 256, NULL, info_log);
+		gl_check(glGetShaderInfoLog(gl_shader.gl_object, 256, NULL, info_log));
 
 		Log::e("Vertex shader compilation failed.");
 		Log::e("Log: %s", info_log);
@@ -383,7 +370,7 @@ void GLRenderer::destroy_vertex_shader(VertexShaderId id)
 
 	VertexShader& gl_shader = m_vertex_shaders[id.index];
 
-	glDeleteShader(gl_shader.gl_object);
+	gl_check(glDeleteShader(gl_shader.gl_object));
 }
 
 //-----------------------------------------------------------------------------
@@ -395,20 +382,20 @@ PixelShaderId GLRenderer::create_pixel_shader(const char* program)
 
 	PixelShader& gl_shader = m_pixel_shaders[id.index];
 
-	gl_shader.gl_object = glCreateShader(GL_FRAGMENT_SHADER);
+	gl_shader.gl_object = gl_check(glCreateShader(GL_FRAGMENT_SHADER));
 
-	glShaderSource(gl_shader.gl_object, 1, &program, NULL);
+	gl_check(glShaderSource(gl_shader.gl_object, 1, &program, NULL));
 
-	glCompileShader(gl_shader.gl_object);
+	gl_check(glCompileShader(gl_shader.gl_object));
 
 	GLint success;
-	glGetShaderiv(gl_shader.gl_object, GL_COMPILE_STATUS, &success);
+	gl_check(glGetShaderiv(gl_shader.gl_object, GL_COMPILE_STATUS, &success));
 
 	if (!success)
 	{
 		GLchar info_log[256];
 
-		glGetShaderInfoLog(gl_shader.gl_object, 256, NULL, info_log);
+		gl_check(glGetShaderInfoLog(gl_shader.gl_object, 256, NULL, info_log));
 
 		Log::e("Pixel shader compilation failed.");
 		Log::e("Log: %s", info_log);
@@ -425,7 +412,7 @@ void GLRenderer::destroy_pixel_shader(PixelShaderId id)
 
 	PixelShader& gl_shader = m_pixel_shaders[id.index];
 
-	glDeleteShader(gl_shader.gl_object);	
+	gl_check(glDeleteShader(gl_shader.gl_object));	
 }
 
 //-----------------------------------------------------------------------------
@@ -438,24 +425,24 @@ GPUProgramId GLRenderer::create_gpu_program(VertexShaderId vs, PixelShaderId ps)
 
 	GPUProgram& gl_program = m_gpu_programs[id.index];
 
-	gl_program.gl_object = glCreateProgram();
+	gl_program.gl_object = gl_check(glCreateProgram());
 
-	glAttachShader(gl_program.gl_object, m_vertex_shaders[id.index].gl_object);
-	glAttachShader(gl_program.gl_object, m_pixel_shaders[id.index].gl_object);
+	gl_check(glAttachShader(gl_program.gl_object, m_vertex_shaders[id.index].gl_object));
+	gl_check(glAttachShader(gl_program.gl_object, m_pixel_shaders[id.index].gl_object));
 
-	glBindAttribLocation(gl_program.gl_object, SA_VERTEX, "vertex");
-	glBindAttribLocation(gl_program.gl_object, SA_COORDS, "coords");
-	glBindAttribLocation(gl_program.gl_object, SA_NORMAL, "normal");
+	gl_check(glBindAttribLocation(gl_program.gl_object, SA_VERTEX, "vertex"));
+	gl_check(glBindAttribLocation(gl_program.gl_object, SA_COORDS, "coords"));
+	gl_check(glBindAttribLocation(gl_program.gl_object, SA_NORMAL, "normal"));
 
-	glLinkProgram(gl_program.gl_object);
+	gl_check(glLinkProgram(gl_program.gl_object));
 
 	GLint success;
-	glGetProgramiv(gl_program.gl_object, GL_LINK_STATUS, &success);
+	gl_check(glGetProgramiv(gl_program.gl_object, GL_LINK_STATUS, &success));
 
 	if (!success)
 	{
 		GLchar info_log[256];
-		glGetProgramInfoLog(gl_program.gl_object, 256, NULL, info_log);
+		gl_check(glGetProgramInfoLog(gl_program.gl_object, 256, NULL, info_log));
 		Log::e("GPU program compilation failed.\n");
 		Log::e("Log: %s", info_log);
 	}
@@ -470,7 +457,7 @@ void GLRenderer::destroy_gpu_program(GPUProgramId id)
 
 	GPUProgram& gl_program = m_gpu_programs[id.index];
 
-	glDeleteProgram(gl_program.gl_object);
+	gl_check(glDeleteProgram(gl_program.gl_object));
 }
 
 //-----------------------------------------------------------------------------
@@ -480,7 +467,7 @@ void GLRenderer::set_gpu_program_bool_uniform(GPUProgramId id, const char* name,
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniform1i(uniform, (GLint) value);
+	gl_check(glUniform1i(uniform, (GLint) value));
 }
 
 //-----------------------------------------------------------------------------
@@ -490,7 +477,7 @@ void GLRenderer::set_gpu_program_int_uniform(GPUProgramId id, const char* name, 
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniform1i(uniform, (GLint) value);
+	gl_check(glUniform1i(uniform, (GLint) value));
 }
 
 //-----------------------------------------------------------------------------
@@ -500,7 +487,7 @@ void GLRenderer::set_gpu_program_vec2_uniform(GPUProgramId id, const char* name,
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniform2fv(uniform, 1, value.to_float_ptr());
+	gl_check(glUniform2fv(uniform, 1, value.to_float_ptr()));
 }
 
 //-----------------------------------------------------------------------------
@@ -510,7 +497,7 @@ void GLRenderer::set_gpu_program_vec3_uniform(GPUProgramId id, const char* name,
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniform3fv(uniform, 1, value.to_float_ptr());
+	gl_check(glUniform3fv(uniform, 1, value.to_float_ptr()));
 }
 
 //-----------------------------------------------------------------------------
@@ -520,7 +507,7 @@ void GLRenderer::set_gpu_program_vec4_uniform(GPUProgramId id, const char* name,
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniform4fv(uniform, 1, value.to_float_ptr());
+	gl_check(glUniform4fv(uniform, 1, value.to_float_ptr()));
 }
 
 //-----------------------------------------------------------------------------
@@ -530,7 +517,7 @@ void GLRenderer::set_gpu_porgram_mat3_uniform(GPUProgramId id, const char* name,
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniformMatrix3fv(uniform, 1, GL_FALSE, value.to_float_ptr());
+	gl_check(glUniformMatrix3fv(uniform, 1, GL_FALSE, value.to_float_ptr()));
 }
 
 //-----------------------------------------------------------------------------
@@ -540,7 +527,7 @@ void GLRenderer::set_gpu_program_mat4_uniform(GPUProgramId id, const char* name,
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniformMatrix4fv(uniform, 1, GL_FALSE, value.to_float_ptr());
+	gl_check(glUniformMatrix4fv(uniform, 1, GL_FALSE, value.to_float_ptr()));
 }
 
 //-----------------------------------------------------------------------------
@@ -550,7 +537,7 @@ void GLRenderer::set_gpu_program_sampler_uniform(GPUProgramId id, const char* na
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniform1i(uniform, (GLint) value);	
+	gl_check(glUniform1i(uniform, (GLint) value));	
 }
 
 //-----------------------------------------------------------------------------
@@ -560,7 +547,7 @@ void GLRenderer::bind_gpu_program(GPUProgramId id) const
 
 	const GPUProgram& gl_program = m_gpu_programs[id.index];
 
-	glUseProgram(gl_program.gl_object);
+	gl_check(glUseProgram(gl_program.gl_object));
 }
 
 //-----------------------------------------------------------------------------
@@ -572,17 +559,17 @@ void GLRenderer::bind_gpu_program(GPUProgramId id) const
 
 // 	if (GLEW_EXT_framebuffer_object)
 // 	{
-// 		glGenFramebuffersEXT(1, &buffer.gl_frame_buffer);
-// 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffer.gl_frame_buffer);
+// 		gl_check(glGenFramebuffersEXT(1, &buffer.gl_check(gl_frame_buffer));
+// 		gl_check(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffer.gl_check(gl_frame_buffer));
 
-// 		glGenRenderbuffersEXT(1, &buffer.gl_render_buffer);
-// 		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, buffer.gl_render_buffer);
+// 		gl_check(glGenRenderbuffersEXT(1, &buffer.gl_check(gl_render_buffer));
+// 		gl_check(glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, buffer.gl_check(gl_render_buffer));
 
-// 		glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, width, height);
+// 		gl_check(glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, width, height));
 
-// 		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, buffer.gl_render_buffer);
+// 		gl_check(glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, buffer.gl_check(gl_render_buffer));
 
-// 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+// 		gl_check(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0));
 // 	}
 
 // 	return id;
@@ -595,8 +582,8 @@ void GLRenderer::bind_gpu_program(GPUProgramId id) const
 
 // 	if (GLEW_EXT_framebuffer_object)
 // 	{
-// 		glDeleteFramebuffersEXT(1, &buffer.gl_frame_buffer);
-// 		glDeleteRenderbuffersEXT(1, &buffer.gl_render_buffer);
+// 		gl_check(glDeleteFramebuffersEXT(1, &buffer.gl_check(gl_frame_buffer));
+// 		gl_check(glDeleteRenderbuffersEXT(1, &buffer.gl_check(gl_render_buffer));
 // 	}
 
 // 	m_render_buffers_id_table.destroy(id);
@@ -605,7 +592,7 @@ void GLRenderer::bind_gpu_program(GPUProgramId id) const
 //-----------------------------------------------------------------------------
 void GLRenderer::set_clear_color(const Color4& color)
 {
-	glClearColor(color.r, color.g, color.b, color.a);
+	gl_check(glClearColor(color.r, color.g, color.b, color.a));
 }
 
 //-----------------------------------------------------------------------------
@@ -627,8 +614,8 @@ void GLRenderer::bind_texture(uint32_t unit, TextureId texture)
 	m_texture_unit_target[unit] = GL_TEXTURE_2D;
 	m_texture_unit[unit] = m_textures[texture.index].gl_object;
 
-	glEnable(m_texture_unit_target[unit]);
-	glBindTexture(m_texture_unit_target[unit], m_texture_unit[unit]);
+	gl_check(glEnable(m_texture_unit_target[unit]));
+	gl_check(glBindTexture(m_texture_unit_target[unit], m_texture_unit[unit]));
 }
 
 //-----------------------------------------------------------------------------
@@ -639,21 +626,21 @@ void GLRenderer::set_texturing(uint32_t unit, bool texturing)
 
 	if (texturing)
 	{
-		glEnable(m_texture_unit_target[unit]);
+		gl_check(glEnable(m_texture_unit_target[unit]));
 	}
 	else
 	{
-		glDisable(m_texture_unit_target[unit]);
+		gl_check(glDisable(m_texture_unit_target[unit]));
 	}
 }
 
 //-----------------------------------------------------------------------------
 void GLRenderer::set_texture_wrap(uint32_t unit, TextureWrap wrap)
 {
-	GLenum glWrap = GL::texture_wrap(wrap);
+	GLenum gl_wrap = GL::texture_wrap(wrap);
 
-	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_S, glWrap);
-	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_T, glWrap);
+	gl_check(glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_S, gl_wrap));
+	gl_check(glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_T, gl_wrap));
 }
 
 //-----------------------------------------------------------------------------
@@ -662,13 +649,13 @@ void GLRenderer::set_texture_filter(uint32_t unit, TextureFilter filter)
 	if (!activate_texture_unit(unit))
 		return;
 
-	GLint minFilter;
-	GLint magFilter;
+	GLint min_filter;
+	GLint mag_filter;
 
-	GL::texture_filter(filter, minFilter, magFilter);
+	GL::texture_filter(filter, min_filter, mag_filter);
 
-	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MIN_FILTER, minFilter);
-	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MAG_FILTER, magFilter);
+	gl_check(glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MIN_FILTER, min_filter));
+	gl_check(glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MAG_FILTER, mag_filter));
 }
 
 //-----------------------------------------------------------------------------
@@ -676,11 +663,11 @@ void GLRenderer::set_backface_culling(bool culling)
 {
 	if (culling)
 	{
-		glEnable(GL_CULL_FACE);
+		gl_check(glEnable(GL_CULL_FACE));
 	}
 	else
 	{
-		glDisable(GL_CULL_FACE);
+		gl_check(glDisable(GL_CULL_FACE));
 	}
 }
 
@@ -689,26 +676,26 @@ void GLRenderer::set_depth_test(bool test)
 {
 	if (test)
 	{
-		glEnable(GL_DEPTH_TEST);
+		gl_check(glEnable(GL_DEPTH_TEST));
 	}
 	else
 	{
-		glDisable(GL_DEPTH_TEST);
+		gl_check(glDisable(GL_DEPTH_TEST));
 	}
 }
 
 //-----------------------------------------------------------------------------
 void GLRenderer::set_depth_write(bool write)
 {
-	glDepthMask((GLboolean) write);
+	gl_check(glDepthMask((GLboolean) write));
 }
 
 //-----------------------------------------------------------------------------
 void GLRenderer::set_depth_func(CompareFunction func)
 {
-	GLenum glFunc = GL::compare_function(func);
+	GLenum gl_func = GL::compare_function(func);
 
-	glDepthFunc(glFunc);
+	gl_check(glDepthFunc(gl_func));
 }
 
 //-----------------------------------------------------------------------------
@@ -716,27 +703,27 @@ void GLRenderer::set_blending(bool blending)
 {
 	if (blending)
 	{
-		glEnable(GL_BLEND);
+		gl_check(glEnable(GL_BLEND));
 	}
 	else
 	{
-		glDisable(GL_BLEND);
+		gl_check(glDisable(GL_BLEND));
 	}
 }
 
 //-----------------------------------------------------------------------------
 void GLRenderer::set_blending_params(BlendEquation equation, BlendFunction src, BlendFunction dst, const Color4& color)
 {
-	GLenum glEquation = GL::blend_equation(equation);
+	GLenum gl_equation = GL::blend_equation(equation);
 
-	glBlendEquation(glEquation);
+	gl_check(glBlendEquation(gl_equation));
 
-	GLenum glSrcFactor = GL::blend_function(src);
-	GLenum glDstFactor = GL::blend_function(dst);
+	GLenum gl_src_factor = GL::blend_function(src);
+	GLenum gl_dst_factor = GL::blend_function(dst);
 
-	glBlendFunc(glSrcFactor, glDstFactor);
+	gl_check(glBlendFunc(gl_src_factor, gl_dst_factor));
 
-	glBlendColor(color.r, color.g, color.b, color.a);
+	gl_check(glBlendColor(color.r, color.g, color.b, color.a));
 }
 
 //-----------------------------------------------------------------------------
@@ -744,25 +731,20 @@ void GLRenderer::set_color_write(bool write)
 {
 	if (write)
 	{
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		gl_check(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 	}
 	else
 	{
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		gl_check(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
 	}
 }
 
 //-----------------------------------------------------------------------------
 void GLRenderer::set_front_face(FrontFace face)
 {
-	GLenum glFace = GL_CCW;
+	const GLenum gl_face = (face == FF_CCW) ? GL_CCW : GL_CW;
 
-	if (face == FF_CW)
-	{
-		glFace = GL_CW;
-	}
-
-	glFrontFace(glFace);
+	gl_check(glFrontFace(gl_face));
 }
 
 //-----------------------------------------------------------------------------
@@ -773,7 +755,7 @@ void GLRenderer::set_viewport_params(int32_t x, int32_t y, int32_t width, int32_
 	m_viewport[2] = width;
 	m_viewport[3] = height;
 
-	glViewport(x, y, width, height);
+	gl_check(glViewport(x, y, width, height));
 }
 
 //-----------------------------------------------------------------------------
@@ -790,11 +772,11 @@ void GLRenderer::set_scissor(bool scissor)
 {
 	if (scissor)
 	{
-		glEnable(GL_SCISSOR_TEST);
+		gl_check(glEnable(GL_SCISSOR_TEST));
 	}
 	else
 	{
-		glDisable(GL_SCISSOR_TEST);
+		gl_check(glDisable(GL_SCISSOR_TEST));
 	}
 }
 
@@ -806,7 +788,7 @@ void GLRenderer::set_scissor_params(int32_t x, int32_t y, int32_t width, int32_t
 	m_scissor[2] = width;
 	m_scissor[3] = height;
 
-	glScissor(x, y, width, height);
+	gl_check(glScissor(x, y, width, height));
 }
 
 //-----------------------------------------------------------------------------
@@ -822,7 +804,7 @@ void GLRenderer::get_scissor_params(int32_t& x, int32_t& y, int32_t& width, int3
 void GLRenderer::frame()
 {
 	// Clear frame/depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	gl_check(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 	// Bind the default gpu program
 	bind_gpu_program(m_default_gpu_program);
@@ -830,7 +812,7 @@ void GLRenderer::frame()
 	set_gpu_program_mat4_uniform(m_default_gpu_program, "mvp_matrix", m_model_view_projection_matrix);
 	set_gpu_program_vec3_uniform(m_default_gpu_program, "color", Vec3(0, 1, 0));
 
-	glFinish();
+	gl_check(glFinish());
 }
 
 //-----------------------------------------------------------------------------
@@ -872,38 +854,38 @@ void GLRenderer::bind_vertex_buffer(VertexBufferId vb) const
 
 	const VertexBuffer& vertex_buffer = m_vertex_buffers[vb.index];
 
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer.gl_object);
+	gl_check(glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer.gl_object));
 
 	switch (vertex_buffer.format)
 	{
 		case VF_XY_FLOAT_32:
 		{
-			glEnableVertexAttribArray(SA_VERTEX);
-			glVertexAttribPointer(SA_VERTEX, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			gl_check(glEnableVertexAttribArray(SA_VERTEX));
+			gl_check(glVertexAttribPointer(SA_VERTEX, 2, GL_FLOAT, GL_FALSE, 0, 0));
 			break;
 		}
 		case VF_XYZ_FLOAT_32:
 		{
-			glEnableVertexAttribArray(SA_VERTEX);
-			glVertexAttribPointer(SA_VERTEX, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			gl_check(glEnableVertexAttribArray(SA_VERTEX));
+			gl_check(glVertexAttribPointer(SA_VERTEX, 3, GL_FLOAT, GL_FALSE, 0, 0));
 			break;
 		}
 		case VF_UV_FLOAT_32:
 		{
-			glEnableVertexAttribArray(SA_COORDS);
-			glVertexAttribPointer(SA_COORDS, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			gl_check(glEnableVertexAttribArray(SA_COORDS));
+			gl_check(glVertexAttribPointer(SA_COORDS, 2, GL_FLOAT, GL_FALSE, 0, 0));
 			break;
 		}
 		case VF_UVT_FLOAT_32:
 		{
-			glEnableVertexAttribArray(SA_COORDS);
-			glVertexAttribPointer(SA_COORDS, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			gl_check(glEnableVertexAttribArray(SA_COORDS));
+			gl_check(glVertexAttribPointer(SA_COORDS, 3, GL_FLOAT, GL_FALSE, 0, 0));
 			break;
 		}
 		case VF_XYZ_NORMAL_FLOAT_32:
 		{
-			glEnableVertexAttribArray(SA_NORMAL);
-			glVertexAttribPointer(SA_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			gl_check(glEnableVertexAttribArray(SA_NORMAL));
+			gl_check(glVertexAttribPointer(SA_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0));
 			break;
 		}
 		case VF_XYZ_UV_XYZ_NORMAL_FLOAT_32:
@@ -925,9 +907,9 @@ void GLRenderer::draw_triangles(IndexBufferId id) const
 
 	const IndexBuffer& index_buffer = m_index_buffers[id.index];
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer.gl_object);
+	gl_check(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer.gl_object));
 
-	glDrawElements(GL_TRIANGLES, index_buffer.index_count, GL_UNSIGNED_SHORT, 0);
+	gl_check(glDrawElements(GL_TRIANGLES, index_buffer.index_count, GL_UNSIGNED_SHORT, 0));
 }
 
 //-----------------------------------------------------------------------------
@@ -941,19 +923,19 @@ void GLRenderer::draw_triangles(IndexBufferId id) const
 //-----------------------------------------------------------------------------
 void GLRenderer::draw_lines(const float* vertices, const float* colors, uint32_t count)
 {
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	gl_check(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	gl_check(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
+	gl_check(glEnableClientState(GL_VERTEX_ARRAY));
+	gl_check(glEnableClientState(GL_COLOR_ARRAY));
 
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
-	glColorPointer(4, GL_FLOAT, 0, colors);
+	gl_check(glVertexPointer(3, GL_FLOAT, 0, vertices));
+	gl_check(glColorPointer(4, GL_FLOAT, 0, colors));
 
-	glDrawArrays(GL_LINES, 0, count);
+	gl_check(glDrawArrays(GL_LINES, 0, count));
 
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
+	gl_check(glDisableClientState(GL_COLOR_ARRAY));
+	gl_check(glDisableClientState(GL_VERTEX_ARRAY));
 }
 
 //-----------------------------------------------------------------------------
@@ -1014,7 +996,7 @@ bool GLRenderer::activate_texture_unit(uint32_t unit)
 		return false;
 	}
 
-	glActiveTexture(GL_TEXTURE0 + unit);
+	gl_check(glActiveTexture(GL_TEXTURE0 + unit));
 	m_active_texture_unit = unit;
 
 	return true;
@@ -1023,7 +1005,7 @@ bool GLRenderer::activate_texture_unit(uint32_t unit)
 //-----------------------------------------------------------------------------
 GLint GLRenderer::find_gpu_program_uniform(GLuint program, const char* name) const
 {
-	GLint uniform = glGetUniformLocation(program, name);
+	GLint uniform = gl_check(glGetUniformLocation(program, name));
 
 	ce_assert(uniform != -1, "Uniform does not exist");
 
