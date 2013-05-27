@@ -91,7 +91,7 @@ ResourceId ResourceManager::load(const char* name)
 //-----------------------------------------------------------------------------
 void ResourceManager::unload(ResourceId name)
 {
-	ce_assert(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
+	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
 	
 	m_resources_mutex.lock();
 
@@ -115,7 +115,7 @@ void ResourceManager::unload(ResourceId name)
 //-----------------------------------------------------------------------------
 void ResourceManager::reload(ResourceId name)
 {
-	ce_assert(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
+	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
 	
 	m_resources_mutex.lock();
 
@@ -155,7 +155,7 @@ bool ResourceManager::has(ResourceId name) const
 //-----------------------------------------------------------------------------
 const void* ResourceManager::data(ResourceId name) const
 {
-	ce_assert(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
+	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
 	
 	m_resources_mutex.lock();
 
@@ -169,7 +169,7 @@ const void* ResourceManager::data(ResourceId name) const
 //-----------------------------------------------------------------------------
 bool ResourceManager::is_loaded(ResourceId name) const
 {
-	ce_assert(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
+	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
 
 	m_resources_mutex.lock();
 
@@ -183,7 +183,7 @@ bool ResourceManager::is_loaded(ResourceId name) const
 //-----------------------------------------------------------------------------
 uint32_t ResourceManager::references(ResourceId name) const
 {
-	ce_assert(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
+	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
 
 	m_resources_mutex.lock();
 

@@ -95,7 +95,7 @@ protected:
 
 	inline void		check_valid() const
 	{
-		ce_assert(m_file.is_open(), "File is not open");
+		CE_ASSERT(m_file.is_open(), "File is not open");
 	}
 };
 

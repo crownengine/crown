@@ -41,7 +41,7 @@ void ScriptResource::online(void* resource)
 //-----------------------------------------------------------------------------
 void ScriptResource::unload(Allocator& allocator, void* resource)
 {
-	ce_assert(resource != NULL, "");
+	CE_ASSERT(resource != NULL, "");
 
 	allocator.deallocate(((ScriptResource*)resource)->m_data);
 	allocator.deallocate(resource);

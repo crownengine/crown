@@ -95,7 +95,7 @@ void log_info(const char* string, va_list arg)
 //-----------------------------------------------------------------------------
 bool is_root_path(const char* path)
 {
-	ce_assert(path != NULL, "Path must be != NULL");
+	CE_ASSERT(path != NULL, "Path must be != NULL");
 
 	if (string::strlen(path) == 1)
 	{
@@ -111,7 +111,7 @@ bool is_root_path(const char* path)
 //-----------------------------------------------------------------------------
 bool is_absolute_path(const char* path)
 {
-	ce_assert(path != NULL, "Path must be != NULL");
+	CE_ASSERT(path != NULL, "Path must be != NULL");
 
 	if (string::strlen(path) > 0)
 	{
@@ -280,7 +280,7 @@ void* open_library(const char* path)
 //-----------------------------------------------------------------------------
 void close_library(void* library)
 {
-	ce_assert(dlclose(library) == 0, "Failed to close library");
+	CE_ASSERT(dlclose(library) == 0, "Failed to close library");
 }
 
 //-----------------------------------------------------------------------------

@@ -75,7 +75,7 @@ void Rect::vertices(Vec2 v[4]) const
 //-----------------------------------------------------------------------------
 Vec2 Rect::vertex(uint32_t index) const
 {
-	ce_assert(index < 4, "Index must be < 4");
+	CE_ASSERT(index < 4, "Index must be < 4");
 
 	switch (index)
 	{

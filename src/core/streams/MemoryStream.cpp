@@ -122,7 +122,7 @@ void MemoryStream::seek(size_t position)
 
 	// Allow seek to m_memory->size() position, that means end of stream,
 	// reading not allowed but you can write if it's dynamic
-	ce_assert(m_memory_offset <= m_memory->size(), "Trying to seek beyond end of stream");
+	CE_ASSERT(m_memory_offset <= m_memory->size(), "Trying to seek beyond end of stream");
 }
 
 //-----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ void MemoryStream::skip(size_t bytes)
 	m_memory_offset += bytes;
 
 	//Allow seek to m_memory->getSize() position, that means end of stream, reading not allowed but you can write if it's dynamic
-	ce_assert(m_memory_offset <= m_memory->size(), "Trying to skip beyond end of stream");
+	CE_ASSERT(m_memory_offset <= m_memory->size(), "Trying to skip beyond end of stream");
 }
 
 //-----------------------------------------------------------------------------

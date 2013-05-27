@@ -109,8 +109,8 @@ int32_t	TCPSocket::close()
 
 bool TCPSocket::send(const void* data, int32_t size)
 {
-	ce_assert(data);
-	ce_assert(size > 0);
+	CE_ASSERT(data);
+	CE_ASSERT(size > 0);
 
 	int32_t sd = get_active_socket_id();
 	if (sd <= 0)
@@ -132,8 +132,8 @@ bool TCPSocket::send(const void* data, int32_t size)
 
 int32_t	TCPSocket::receive(void* data, int32_t size)
 {
-	ce_assert(data);
-	ce_assert(size > 0);
+	CE_ASSERT(data);
+	CE_ASSERT(size > 0);
 
 	int32_t sd = get_active_socket_id();
 

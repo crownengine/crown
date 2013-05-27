@@ -42,7 +42,7 @@ File::File(const char* path, StreamOpenMode mode) :
 	m_mode = SOM_READ;
 	m_asset = AAssetManager_open(os::get_android_asset_manager(), path, AASSET_MODE_RANDOM);
 
-	ce_assert(m_asset != NULL, "Unable to open file: %s", path)
+	CE_ASSERT(m_asset != NULL, "Unable to open file: %s", path)
 }
 
 //-----------------------------------------------------------------------------
@@ -82,7 +82,7 @@ size_t File::size() const
 //-----------------------------------------------------------------------------
 size_t File::read(void* data, size_t size)
 {
-	ce_assert(data != NULL, "Data must be != NULL");
+	CE_ASSERT(data != NULL, "Data must be != NULL");
 
 	return (size_t)AAsset_read(m_asset, data, size);
 }
@@ -90,7 +90,7 @@ size_t File::read(void* data, size_t size)
 //-----------------------------------------------------------------------------
 size_t File::write(const void* data, size_t size)
 {
-	ce_assert(data != NULL, "Data must be != NULL");
+	CE_ASSERT(data != NULL, "Data must be != NULL");
 
 	os::printf("Android asset directory is read-only!");
 
@@ -101,21 +101,21 @@ size_t File::write(const void* data, size_t size)
 void File::seek(size_t position)
 {
 	off_t seek_result = AAsset_seek(m_asset, (off_t)position, SEEK_SET);
-	ce_assert(seek_result != (off_t) -1, "Failed to seek");
+	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
 void File::seek_to_end()
 {
 	off_t seek_result = AAsset_seek(m_asset, 0, SEEK_END);
-	ce_assert(seek_result != (off_t) -1, "Failed to seek");
+	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
 void File::skip(size_t bytes)
 {
 	off_t seek_result = AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR);
-	ce_assert(seek_result != (off_t) -1, "Failed to seek");
+	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
