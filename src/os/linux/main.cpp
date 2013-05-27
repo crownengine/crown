@@ -24,17 +24,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Crown.h"
-#include "List.h"
-#include "GLXContext.h"
-#include <X11/Xlib.h>
-
-namespace crown
-{
-namespace os
-{
-extern Window window;
-}
-}
 
 int main(int argc, char** argv)
 {
