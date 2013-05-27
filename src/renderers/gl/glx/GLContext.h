@@ -30,8 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 
-#include "Config.h"
-
 namespace crown
 {
 
@@ -40,7 +38,6 @@ void set_x11_display_and_window(Display* dpy, Window win);
 class GLContext
 {
 public:
-
 					GLContext();
 
 	void			create_context();

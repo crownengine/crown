@@ -24,115 +24,108 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Assert.h"
-#include <stdio.h>
-
 #include "OS.h"
-#include "File.h"
+#include "OsFile.h"
+#include "AndroidOS.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-File::File(const char* path, StreamOpenMode mode) :
-	m_file_handle(NULL)
+OsFile::OsFile(const char* path, FileOpenMode mode) :
+	m_asset(NULL),
 {
-	m_file_handle = fopen(path, (mode == SOM_READ) ? "rb" : "wb");
-	CE_ASSERT(m_file_handle != NULL, "Unable to open file: %s", path);
+	// Android assets are always read-only
+	(void) mode;
+	m_mode = SOM_READ;
+	m_asset = AAssetManager_open(os::get_android_asset_manager(), path, AASSET_MODE_RANDOM);
 
-	m_mode = mode;
+	CE_ASSERT(m_asset != NULL, "Unable to open file: %s", path)
 }
 
 //-----------------------------------------------------------------------------
-File::~File()
+OsFile::~OsFile()
 {
 	close();
 }
 
 //-----------------------------------------------------------------------------
-void File::close()
+void OsFile::close()
 {
-	if (m_file_handle != NULL)
+	if (m_asset != NULL)
 	{
-		fclose(m_file_handle);
-		m_file_handle = NULL;
+		AAsset_close(m_asset);
+		m_asset = NULL;
 	}
 }
 
 //-----------------------------------------------------------------------------
-bool File::is_open() const
+bool OsFile::is_open() const
 {
-	return m_file_handle != NULL;
+	return m_asset != NULL;
 }
 
 //-----------------------------------------------------------------------------
-StreamOpenMode File::mode()
+FileOpenMode OsFile::mode() const
 {
 	return m_mode;
 }
 
 //-----------------------------------------------------------------------------
-size_t File::size() const
+size_t OsFile::size() const
 {
-	size_t pos = position();
-
-	int fseek_result = fseek(m_file_handle, 0, SEEK_END);
-	CE_ASSERT(fseek_result == 0, "Failed to seek");
-
-	size_t size = position();
-
-	fseek_result = fseek(m_file_handle, (long) pos, SEEK_SET);
-	CE_ASSERT(fseek_result == 0, "Failed to seek");
-
-	return size;
+	return AAsset_getLength(m_asset);
 }
 
 //-----------------------------------------------------------------------------
-size_t File::read(void* data, size_t size)
+size_t OsFile::read(void* data, size_t size)
 {
 	CE_ASSERT(data != NULL, "Data must be != NULL");
 
-	return fread(data, 1, size, m_file_handle);
+	return (size_t)AAsset_read(m_asset, data, size);
 }
 
 //-----------------------------------------------------------------------------
-size_t File::write(const void* data, size_t size)
+size_t OsFile::write(const void* data, size_t size)
 {
 	CE_ASSERT(data != NULL, "Data must be != NULL");
 
-	return fwrite(data, 1, size, m_file_handle);
+	os::printf("Android asset directory is read-only!");
+
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
-void File::seek(size_t position)
+void OsFile::seek(size_t position)
 {
-	int fseek_result = fseek(m_file_handle, (long) position, SEEK_SET);
-	CE_ASSERT(fseek_result == 0, "Failed to seek");
+	off_t seek_result = AAsset_seek(m_asset, (off_t)position, SEEK_SET);
+	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
-void File::seek_to_end()
+void OsFile::seek_to_end()
 {
-	int fseek_result = fseek(m_file_handle, 0, SEEK_END);
-	CE_ASSERT(fseek_result == 0, "Failed to seek");
+	off_t seek_result = AAsset_seek(m_asset, 0, SEEK_END);
+	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
-void File::skip(size_t bytes)
+void OsFile::skip(size_t bytes)
 {
-	int fseek_result = fseek(m_file_handle, bytes, SEEK_CUR);
-	CE_ASSERT(fseek_result == 0, "Failed to seek");
+	off_t seek_result = AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR);
+	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
-size_t File::position() const
+size_t OsFile::position() const
 {
-	return (size_t) ftell(m_file_handle);
+	return (size_t) (AAsset_getLength(m_asset) - AAsset_getRemainingLength(m_asset));
 }
 
 //-----------------------------------------------------------------------------
-bool File::eof() const
+bool OsFile::eof() const
 {
-	return feof(m_file_handle) != 0;
+	return AAsset_getRemainingLength(m_asset) == 0;
 }
 
 } // namespace crown

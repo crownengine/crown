@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Filesystem.h"
 #include "Log.h"
 #include "OS.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 
 namespace crown
 {
@@ -184,18 +184,18 @@ const char* Filesystem::os_path(const char* relative_path)
 }
 
 //-----------------------------------------------------------------------------
-FileStream* Filesystem::open(const char* relative_path, StreamOpenMode mode)
+DiskFile* Filesystem::open(const char* relative_path, FileOpenMode mode)
 {
 	FilesystemEntry info;
 
 	CE_ASSERT(get_info(relative_path, info), "File does not exist: %s", relative_path);
 	CE_ASSERT(info.type == FilesystemEntry::FILE, "File is not a regular file: %s", relative_path);
 
-	return new FileStream(mode, info.os_path);
+	return new DiskFile(mode, info.os_path);
 }
 
 //-----------------------------------------------------------------------------
-void Filesystem::close(FileStream* stream)
+void Filesystem::close(DiskFile* stream)
 {
 	delete stream;
 }

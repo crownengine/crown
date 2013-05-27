@@ -25,23 +25,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <sys/types.h>
-#include <android/asset_manager.h>
+#include <cstdio>
 
 #include "Types.h"
-#include "Stream.h"
+#include "File.h"
 
 namespace crown
 {
 
-/// Android assets wrapper
-class File
+/// Standard C file wrapper
+class OsFile
 {
 public:
 
 	/// Opens the file located at @path with the given @mode.
-							File(const char* path, StreamOpenMode mode);
-							~File();
+							OsFile(const char* path, FileOpenMode mode);
+							~OsFile();
 
 	/// Closes the file.
 	void					close();
@@ -52,7 +51,7 @@ public:
 	size_t					size() const;
 
 	/// Returs the mode used to open the file.
-	StreamOpenMode			mode() const;
+	FileOpenMode			mode();
 
 	/// Reads @size bytes from the file and stores it into @data.
 	/// Returns the number of bytes read.
@@ -81,8 +80,9 @@ public:
 
 private:
 
-	AAsset*					m_asset;
-	StreamOpenMode			m_mode;
+	FILE*					m_file_handle;
+	FileOpenMode			m_mode;
 };
 
 } // namespace crown
+

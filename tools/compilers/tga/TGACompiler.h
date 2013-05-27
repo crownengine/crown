@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Compiler.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 #include "PixelFormat.h"
 
 namespace crown
@@ -54,18 +54,18 @@ public:
 					TGACompiler(const char* root_path, const char* dest_path);
 					~TGACompiler();
 
-	size_t			read_header_impl(FileStream* in_file);
-	size_t			read_resource_impl(FileStream* in_file);
+	size_t			read_header_impl(DiskFile* in_file);
+	size_t			read_resource_impl(DiskFile* in_file);
 
-	void			write_header_impl(FileStream* out_file);
-	void			write_resource_impl(FileStream* out_file);
+	void			write_header_impl(DiskFile* out_file);
+	void			write_resource_impl(DiskFile* out_file);
 
 	void			cleanup_impl();
 
 private:
 
-	void			load_uncompressed(FileStream* in_file);
-	void			load_compressed(FileStream* in_file);
+	void			load_uncompressed(DiskFile* in_file);
+	void			load_compressed(DiskFile* in_file);
 	void			swap_red_blue();
 
 private:

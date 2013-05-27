@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Stream.h"
+#include "File.h"
 #include "Allocator.h"
 #include "Assert.h"
 
@@ -78,58 +78,58 @@ protected:
 	size_t				m_size;
 };
 
-/// Memory stream.
+/// Memory file.
 /// Access memory buffers.
-class MemoryStream: public Stream
+class MemoryFile: public File
 {
 public:
 
-	/// @copydoc Stream::Stream()
-						MemoryStream(MemoryBuffer* buffer, StreamOpenMode mode);
+	/// @copydoc File::File()
+						MemoryFile(MemoryBuffer* buffer, FileOpenMode mode);
 
-	/// @copydoc Stream::~Stream()
-	virtual				~MemoryStream();
+	/// @copydoc File::~File()
+	virtual				~MemoryFile();
 
-	/// @copydoc Stream::seek()
+	/// @copydoc File::seek()
 	void				seek(size_t position);
 
-	/// @copydoc Stream::seek_to_end()
+	/// @copydoc File::seek_to_end()
 	void				seek_to_end();
 
-	/// @copydoc Stream::skip()
+	/// @copydoc File::skip()
 	void				skip(size_t bytes);
 
-	/// @copydoc Stream::read()
+	/// @copydoc File::read()
 	void				read(void* buffer, size_t size);
 
-	/// @copydoc Stream::write()
+	/// @copydoc File::write()
 	void				write(const void* buffer, size_t size);
 
-	/// @copydoc Stream::copy_to()
-	bool				copy_to(Stream& stream, size_t size = 0);
+	/// @copydoc File::copy_to()
+	bool				copy_to(File& file, size_t size = 0);
 
-	/// @copydoc Stream::flush()
+	/// @copydoc File::flush()
 	void				flush();
 
-	/// @copydoc Stream::end_of_stream()
-	bool				end_of_stream() const { return size() == m_memory_offset; }
+	/// @copydoc File::end_of_file()
+	bool				end_of_file() const { return size() == m_memory_offset; }
 
-	/// @copydoc Stream::is_valid()
+	/// @copydoc File::is_valid()
 	bool				is_valid() const { CE_ASSERT(m_memory != NULL, "Memory is NULL"); return m_memory->is_valid(); }
 
-	/// @copydoc Stream::size()
+	/// @copydoc File::size()
 	size_t				size() const { CE_ASSERT(m_memory != NULL, "Memory is NULL"); return m_memory->size(); }
 
-	/// @copydoc Stream::position()
+	/// @copydoc File::position()
 	size_t				position() const { return m_memory_offset; }
 
-	/// @copydoc Stream::can_read()
+	/// @copydoc File::can_read()
 	bool				can_read() const { return true; }
 
-	/// @copydoc Stream::can_write()
+	/// @copydoc File::can_write()
 	bool				can_write() const { return true; }
 
-	/// @copydoc Stream::can_seek()
+	/// @copydoc File::can_seek()
 	bool				can_seek() const { return true; }
 
 	/// Dumps the data to the console.

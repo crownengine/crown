@@ -50,7 +50,7 @@ struct CompiledHeader
 	uint32_t	size;		// Size of the resource data _not_ including header (in bytes)
 };
 
-class FileStream;
+class DiskFile;
 
 /// Resource compiler interface.
 /// Every specific resource compiler must inherith from this
@@ -64,11 +64,11 @@ public:
 
 	size_t					compile(const char* resource, uint32_t name, uint32_t type);
 
-	size_t					read_header(FileStream* in_file);
-	size_t					read_resource(FileStream* in_file);
+	size_t					read_header(DiskFile* in_file);
+	size_t					read_resource(DiskFile* in_file);
 
-	void					write_header(FileStream* out_file, uint32_t name, uint32_t type, uint32_t resource_size);
-	void					write_resource(FileStream* out_file);
+	void					write_header(DiskFile* out_file, uint32_t name, uint32_t type, uint32_t resource_size);
+	void					write_resource(DiskFile* out_file);
 
 	void					cleanup();
 
@@ -78,11 +78,11 @@ public:
 
 protected:
 
-	virtual size_t			read_header_impl(FileStream* in_file) = 0;
-	virtual size_t			read_resource_impl(FileStream* in_file) = 0;
+	virtual size_t			read_header_impl(DiskFile* in_file) = 0;
+	virtual size_t			read_resource_impl(DiskFile* in_file) = 0;
 
-	virtual void			write_header_impl(FileStream* out_file) = 0;
-	virtual void			write_resource_impl(FileStream* out_file) = 0;
+	virtual void			write_header_impl(DiskFile* out_file) = 0;
+	virtual void			write_resource_impl(DiskFile* out_file) = 0;
 
 	virtual void			cleanup_impl() = 0;
 

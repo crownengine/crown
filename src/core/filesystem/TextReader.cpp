@@ -23,6 +23,41 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "TextReader.h"
+#include "File.h"
+#include "Types.h"
 
-#include "../posix/File.h"
+namespace crown
+{
+
+//-----------------------------------------------------------------------------
+TextReader::TextReader(File& file) : m_file(file)
+{
+}
+
+//-----------------------------------------------------------------------------
+size_t TextReader::read_string(char* string, size_t size)
+{
+	char current_char;
+	size_t bytes_read = 0;
+
+	while(!m_file.end_of_file() && bytes_read < size - 1)
+	{
+		m_file.read(&current_char, 1);
+		string[bytes_read] = current_char;
+
+		bytes_read++;
+
+		if (current_char == '\n')
+		{
+			break;
+		}
+	}
+
+	string[bytes_read] = '\0';
+
+	return bytes_read;
+}
+
+} // namespace crown
+

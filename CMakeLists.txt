@@ -20,7 +20,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/src/core/math
 	${CMAKE_SOURCE_DIR}/src/core/mem
 	${CMAKE_SOURCE_DIR}/src/core/compressors
-	${CMAKE_SOURCE_DIR}/src/core/streams
+	${CMAKE_SOURCE_DIR}/src/core/filesystem
 	${CMAKE_SOURCE_DIR}/src/core/strings
 	${CMAKE_SOURCE_DIR}/src/core/settings
 	${CMAKE_SOURCE_DIR}/src/os

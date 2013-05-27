@@ -1,7 +1,6 @@
 set (SRC
 	Camera.cpp
 	Device.cpp
-	Filesystem.cpp
 	MaterialResource.cpp
 	ResourceManager.cpp
 	Skybox.cpp
@@ -23,7 +22,6 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
-	Filesystem.h
 	Glyph.h
 	MaterialResource.h
 	Resource.h
@@ -115,27 +113,31 @@ set (MATH_HEADERS
 	core/math/Vec4.h
 )
 
-set (STREAMS_SRC
-	core/streams/FileStream.cpp
-	core/streams/MemoryStream.cpp
-	core/streams/Stream.cpp
+set (FILESYSTEM_SRC
+	core/filesystem/DiskFile.cpp
+	core/filesystem/MemoryFile.cpp
+	core/filesystem/File.cpp
 	
-	core/streams/BinaryReader.cpp
-	core/streams/BinaryWriter.cpp
-	core/streams/TextReader.cpp
-	core/streams/TextWriter.cpp
+	core/filesystem/BinaryReader.cpp
+	core/filesystem/BinaryWriter.cpp
+	core/filesystem/TextReader.cpp
+	core/filesystem/TextWriter.cpp
+
+	core/filesystem/Filesystem.cpp
 )
 
-set (STREAMS_HEADERS
-	core/streams/FileStream.h
-	core/streams/MemoryStream.h
-	core/streams/NullStream.h
-	core/streams/Stream.h
+set (FILESYSTEM_HEADERS
+	core/filesystem/DiskFile.h
+	core/filesystem/MemoryFile.h
+	core/filesystem/NullFile.h
+	core/filesystem/File.h
 
-	core/streams/BinaryReader.h
-	core/streams/BinaryWriter.h
-	core/streams/TextReader.h
-	core/streams/TextWriter.h
+	core/filesystem/BinaryReader.h
+	core/filesystem/BinaryWriter.h
+	core/filesystem/TextReader.h
+	core/filesystem/TextWriter.h
+
+	core/filesystem/Filesystem.h
 )
 
 set (STRINGS_SRC
@@ -304,7 +306,7 @@ set (CROWN_SOURCES
 	${BV_SRC}
 	${CONTAINERS_SRC}
 	${MATH_SRC}
-	${STREAMS_SRC}
+	${FILESYSTEM_SRC}
 	${MEM_SRC}
 	${COMPRESSORS_SRC}
 	${SETTINGS_SRC}
@@ -325,7 +327,7 @@ set (CROWN_HEADERS
 	${BV_HEADERS}
 	${CONTAINERS_HEADERS}
 	${MATH_HEADERS}
-	${STREAMS_HEADERS}
+	${FILESYSTEM_HEADERS}
 	${MEM_HEADERS}
 	${COMPRESSORS_HEADERS}
 	${SETTINGS_HEADERS}
@@ -362,7 +364,7 @@ install (FILES ${CORE_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core)
 install (FILES ${BV_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/bv)
 install (FILES ${CONTAINERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/containers)
 install (FILES ${MATH_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/math)
-install (FILES ${STREAMS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/streams)
+install (FILES ${FILESYSTEM_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/filesystem)
 install (FILES ${MEM_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/mem)
 install (FILES ${COMPRESSORS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/compressors)
 install (FILES ${THREADS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/threads)

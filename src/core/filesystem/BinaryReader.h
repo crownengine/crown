@@ -23,27 +23,32 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "Types.h"
+
 namespace crown
 {
 
-class Stream;
+class File;
 
-/// A reader that offers a convenient way to write text to a Stream
-class TextWriter
+/// A reader that offers a convenient way to read from a File
+class BinaryReader
 {
 public:
 
-						TextWriter(Stream& s);
-	
-	/// Writes the string pointed by string to the stream.
-	/// The function begins copying from the address specified (string)
-	/// until it reaches the terminating null character ('\0').
-	/// The final null character is not copied to the stream.
-	void				write_string(const char* string);
+						BinaryReader(File& file);
+
+	int8_t				read_byte();
+	int16_t				read_int16();
+	uint16_t			read_uint16();
+	int32_t				read_int32();
+	uint32_t			read_uint32();
+	int64_t				read_int64();
+	float				read_float();
+	double				read_double();
 
 private:
 
-	Stream&				m_stream;
+	File&				m_file;
 };
 
 } // namespace crown

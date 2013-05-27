@@ -2,7 +2,7 @@
 
 #include "Types.h"
 #include "OS.h"
-#include "Stream.h"
+#include "File.h"
 
 namespace crown
 {
@@ -55,7 +55,7 @@ class JSONParser
 {
 public:
 	/// Constructor
-					JSONParser(Stream* stream, size_t size = 1024);
+					JSONParser(File* file, size_t size = 1024);
 	/// Destructor
 					~JSONParser();
 	// /// Init JSON parser, must be called for each different JSON string
@@ -79,8 +79,8 @@ private:
 	/// Fill token and set boundaries
 	void			fill_token(JSONToken* token, JSONType type, int32_t start, int32_t end);
 
-	/// JSON stream of data
-	Stream*			m_stream;
+	/// JSON file of data
+	File*			m_file;
 	/// JSON string offset
 	uint32_t 		m_pos;
 	/// Next token to allocate				
