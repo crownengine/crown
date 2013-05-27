@@ -171,11 +171,13 @@ set (COMPRESSORS_HEADERS
 set (SETTINGS_SRC
 	core/settings/IntSetting.cpp
 	core/settings/FloatSetting.cpp
+	core/settings/StringSetting.cpp
 )
 
 set (SETTINGS_HEADERS
 	core/settings/IntSetting.h
 	core/settings/FloatSetting.h
+	core/settings/StringSetting.h
 )
 
 set (INPUT_SRC
