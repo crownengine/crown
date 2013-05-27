@@ -257,7 +257,7 @@ if (LINUX)
 		os/linux/OsWindow.h
 		os/linux/TCPSocket.h
 		os/linux/UDPSocket.h
-		os/linux/File.h
+		os/linux/OsFile.h
 		os/linux/Thread.h
 		os/linux/Mutex.h
 		os/linux/Cond.h
@@ -269,7 +269,7 @@ if (LINUX)
 		os/linux/OsWindow.cpp
 		os/posix/TCPSocket.cpp
 		os/posix/UDPSocket.cpp	
-		os/posix/File.cpp
+		os/posix/OsFile.cpp
 		os/posix/Thread.cpp
 		os/posix/Mutex.cpp
 		os/posix/Cond.cpp
