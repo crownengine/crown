@@ -23,7 +23,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "FileStream.h"
+#include "DiskFile.h"
 #include "Types.h"
 #include "Log.h"
 #include "MathUtils.h"
@@ -32,21 +32,21 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-FileStream::FileStream(StreamOpenMode mode, const char* filename) :
-	Stream(mode),
+DiskFile::DiskFile(FileOpenMode mode, const char* filename) :
+	File(mode),
 	m_file(filename, mode),
 	m_last_was_read(true)
 {
 }
 
 //-----------------------------------------------------------------------------
-FileStream::~FileStream()
+DiskFile::~DiskFile()
 {
 	//m_file.close();
 }
 
 //-----------------------------------------------------------------------------
-void FileStream::seek(size_t position)
+void DiskFile::seek(size_t position)
 {
 	check_valid();
 
@@ -54,7 +54,7 @@ void FileStream::seek(size_t position)
 }
 
 //-----------------------------------------------------------------------------
-void FileStream::seek_to_end()
+void DiskFile::seek_to_end()
 {
 	check_valid();
 
@@ -62,7 +62,7 @@ void FileStream::seek_to_end()
 }
 
 //-----------------------------------------------------------------------------
-void FileStream::skip(size_t bytes)
+void DiskFile::skip(size_t bytes)
 {
 	check_valid();
 
@@ -70,7 +70,7 @@ void FileStream::skip(size_t bytes)
 }
 
 //-----------------------------------------------------------------------------
-void FileStream::read(void* buffer, size_t size)
+void DiskFile::read(void* buffer, size_t size)
 {
 	check_valid();
 
@@ -85,7 +85,7 @@ void FileStream::read(void* buffer, size_t size)
 }
 
 //-----------------------------------------------------------------------------
-void FileStream::write(const void* buffer, size_t size)
+void DiskFile::write(const void* buffer, size_t size)
 {
 	check_valid();
 
@@ -100,7 +100,7 @@ void FileStream::write(const void* buffer, size_t size)
 }
 
 //-----------------------------------------------------------------------------
-bool FileStream::copy_to(Stream& stream, size_t size)
+bool DiskFile::copy_to(File& file, size_t size)
 {
 	check_valid();
 
@@ -123,7 +123,7 @@ bool FileStream::copy_to(Stream& stream, size_t size)
 			{
 				if (read_bytes != 0)
 				{
-					stream.write(buff, read_bytes);
+					file.write(buff, read_bytes);
 				}
 			}
 
@@ -132,7 +132,7 @@ bool FileStream::copy_to(Stream& stream, size_t size)
 			return false;
 		}
 
-		stream.write(buff, read_bytes);
+		file.write(buff, read_bytes);
 		tot_read_bytes += read_bytes;
 	}
 
@@ -141,19 +141,19 @@ bool FileStream::copy_to(Stream& stream, size_t size)
 }
 
 //-----------------------------------------------------------------------------
-bool FileStream::end_of_stream() const
+bool DiskFile::end_of_file() const
 {
 	return position() == size();
 }
 
 //-----------------------------------------------------------------------------
-bool FileStream::is_valid() const
+bool DiskFile::is_valid() const
 {
 	return m_file.is_open();
 }
 
 //-----------------------------------------------------------------------------
-void FileStream::flush()
+void DiskFile::flush()
 {
 	check_valid();
 	
@@ -161,7 +161,7 @@ void FileStream::flush()
 }
 
 //-----------------------------------------------------------------------------
-size_t FileStream::position() const
+size_t DiskFile::position() const
 {
 	check_valid();
 
@@ -169,7 +169,7 @@ size_t FileStream::position() const
 }
 
 //-----------------------------------------------------------------------------
-size_t FileStream::size() const
+size_t DiskFile::size() const
 {
 	check_valid();
 	
@@ -177,7 +177,7 @@ size_t FileStream::size() const
 }
 
 //-----------------------------------------------------------------------------
-bool FileStream::can_read() const
+bool DiskFile::can_read() const
 {
 	check_valid();
 
@@ -185,7 +185,7 @@ bool FileStream::can_read() const
 }
 
 //-----------------------------------------------------------------------------
-bool FileStream::can_write() const
+bool DiskFile::can_write() const
 {
 	check_valid();
 
@@ -193,7 +193,7 @@ bool FileStream::can_write() const
 }
 
 //-----------------------------------------------------------------------------
-bool FileStream::can_seek() const
+bool DiskFile::can_seek() const
 {
 	return true;
 }

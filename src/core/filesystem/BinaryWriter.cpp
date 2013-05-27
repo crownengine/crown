@@ -24,62 +24,62 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "BinaryWriter.h"
-#include "Stream.h"
+#include "File.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-BinaryWriter::BinaryWriter(Stream& stream) : m_stream(stream)
+BinaryWriter::BinaryWriter(File& file) : m_file(file)
 {
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_byte(int8_t buffer)
 {
-	m_stream.write(&buffer, sizeof(int8_t));
+	m_file.write(&buffer, sizeof(int8_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_int16(int16_t buffer)
 {
-	m_stream.write(&buffer, sizeof(int16_t));
+	m_file.write(&buffer, sizeof(int16_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_uint16(uint16_t buffer)
 {
-	m_stream.write(&buffer, sizeof(uint16_t));
+	m_file.write(&buffer, sizeof(uint16_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_int32(int32_t buffer)
 {
-	m_stream.write(&buffer, sizeof(int32_t));
+	m_file.write(&buffer, sizeof(int32_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_uint32(uint32_t buffer)
 {
-	m_stream.write(&buffer, sizeof(uint32_t));
+	m_file.write(&buffer, sizeof(uint32_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_int64(int64_t buffer)
 {
-	m_stream.write(&buffer, sizeof(int64_t));
+	m_file.write(&buffer, sizeof(int64_t));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_double(double buffer)
 {
-	m_stream.write(&buffer, sizeof(double));
+	m_file.write(&buffer, sizeof(double));
 }
 
 //-----------------------------------------------------------------------------
 void BinaryWriter::write_float(float buffer)
 {
-	m_stream.write(&buffer, sizeof(float));
+	m_file.write(&buffer, sizeof(float));
 }
 
 } // namespace crown

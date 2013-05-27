@@ -23,33 +23,45 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "File.h"
 #include "Types.h"
+#include "Compressor.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
 
-class Stream;
-
-/// A reader that offers a convenient way to read from a Stream
-class BinaryReader
+//-----------------------------------------------------------------------------
+bool File::compress_to(File& file, size_t size, size_t& zipped_size, Compressor& compressor)
 {
-public:
+	MallocAllocator allocator;
+	void* in_buffer = (void*)allocator.allocate(size);
 
-						BinaryReader(Stream& s);
+	read(in_buffer, size);
 
-	int8_t				read_byte();
-	int16_t				read_int16();
-	uint16_t			read_uint16();
-	int32_t				read_int32();
-	uint32_t			read_uint32();
-	int64_t				read_int64();
-	float				read_float();
-	double				read_double();
+	void* compressed_buffer = compressor.compress(in_buffer, size, zipped_size);
 
-private:
+	file.write(compressed_buffer, zipped_size);
 
-	Stream&				m_stream;
-};
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+bool File::uncompress_to(File& file, size_t& unzipped_size, Compressor& compressor)
+{
+	MallocAllocator allocator;
+
+	size_t file_size = size();
+	void* in_buffer = (void*)allocator.allocate(file_size);
+
+	read(in_buffer, file_size);
+
+	void* uncompressed_buffer = compressor.uncompress(in_buffer, file_size, unzipped_size);
+
+	file.write(uncompressed_buffer, unzipped_size);
+
+	return true;
+}
 
 } // namespace crown
 

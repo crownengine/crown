@@ -26,69 +26,66 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Assert.h"
-
-#include "Stream.h"
+#include "OsFile.h"
 #include "File.h"
 
 namespace crown
 {
 
-
-/// File stream.
 /// Provides common facilities to access files on disk.
-class FileStream: public Stream
+class DiskFile: public File
 {
 public:
 
 	/// Opens @filename with specified @mode
-					FileStream(StreamOpenMode mode, const char* filename);
-	virtual			~FileStream();
+					DiskFile(FileOpenMode mode, const char* filename);
+	virtual			~DiskFile();
 
-	/// @copydoc Stream::seek() 
+	/// @copydoc File::seek() 
 	void			seek(size_t position);
 
-	/// @copydoc Stream::seek_to_end() 
+	/// @copydoc File::seek_to_end() 
 	void			seek_to_end();
 
-	/// @copydoc Stream::skip() 
+	/// @copydoc File::skip() 
 	void			skip(size_t bytes);
 
-	/// @copydoc Stream::read() 
+	/// @copydoc File::read() 
 	void			read(void* buffer, size_t size);
 
-	/// @copydoc Stream::write() 
+	/// @copydoc File::write() 
 	void			write(const void* buffer, size_t size);
 
-	/// @copydoc Stream::copy_to() 
-	bool			copy_to(Stream& stream, size_t size = 0);
+	/// @copydoc File::copy_to() 
+	bool			copy_to(File& file, size_t size = 0);
 
-	/// @copydoc Stream::flush() 
+	/// @copydoc File::flush() 
 	void			flush();
 
-	/// @copydoc Stream::end_of_stream() 
-	bool			end_of_stream() const;
+	/// @copydoc File::end_of_file() 
+	bool			end_of_file() const;
 
-	/// @copydoc Stream::is_valid() 
+	/// @copydoc File::is_valid() 
 	bool			is_valid() const;
 
-	/// @copydoc Stream::size() 
+	/// @copydoc File::size() 
 	size_t			size() const;
 
-	/// @copydoc Stream::position() 
+	/// @copydoc File::position() 
 	size_t			position() const;
 
-	/// @copydoc Stream::can_read() 
+	/// @copydoc File::can_read() 
 	bool			can_read() const;
 
-	/// @copydoc Stream::can_write() 
+	/// @copydoc File::can_write() 
 	bool			can_write() const;
 
-	/// @copydoc Stream::can_seek() 
+	/// @copydoc File::can_seek() 
 	bool			can_seek() const;
 
 protected:
 
-	File			m_file;
+	OsFile			m_file;
 	bool			m_last_was_read;
 
 protected:

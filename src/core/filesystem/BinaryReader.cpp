@@ -24,13 +24,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "BinaryReader.h"
-#include "Stream.h"
+#include "File.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-BinaryReader::BinaryReader(Stream& stream) : m_stream(stream)
+BinaryReader::BinaryReader(File& file) : m_file(file)
 {
 }
 
@@ -38,7 +38,7 @@ BinaryReader::BinaryReader(Stream& stream) : m_stream(stream)
 int8_t BinaryReader::read_byte()
 {
 	int8_t buffer;
-	m_stream.read(&buffer, sizeof(int8_t));
+	m_file.read(&buffer, sizeof(int8_t));
 	return buffer;
 }
 
@@ -46,7 +46,7 @@ int8_t BinaryReader::read_byte()
 int16_t BinaryReader::read_int16()
 {
 	int16_t buffer;
-	m_stream.read(&buffer, sizeof(int16_t));
+	m_file.read(&buffer, sizeof(int16_t));
 	return buffer;
 }
 
@@ -54,7 +54,7 @@ int16_t BinaryReader::read_int16()
 uint16_t BinaryReader::read_uint16()
 {
 	uint16_t buffer;
-	m_stream.read(&buffer, sizeof(uint16_t));
+	m_file.read(&buffer, sizeof(uint16_t));
 	return buffer;
 }
 
@@ -62,7 +62,7 @@ uint16_t BinaryReader::read_uint16()
 int32_t BinaryReader::read_int32()
 {
 	int32_t buffer;
-	m_stream.read(&buffer, sizeof(int32_t));
+	m_file.read(&buffer, sizeof(int32_t));
 	return buffer;
 }
 
@@ -70,7 +70,7 @@ int32_t BinaryReader::read_int32()
 uint32_t BinaryReader::read_uint32()
 {
 	uint32_t buffer;
-	m_stream.read(&buffer, sizeof(uint32_t));
+	m_file.read(&buffer, sizeof(uint32_t));
 	return buffer;
 }
 
@@ -78,7 +78,7 @@ uint32_t BinaryReader::read_uint32()
 int64_t BinaryReader::read_int64()
 {
 	int64_t buffer;
-	m_stream.read(&buffer, sizeof(int64_t));
+	m_file.read(&buffer, sizeof(int64_t));
 	return buffer;
 }
 
@@ -86,7 +86,7 @@ int64_t BinaryReader::read_int64()
 double BinaryReader::read_double()
 {
 	double buffer;
-	m_stream.read(&buffer, sizeof(double));
+	m_file.read(&buffer, sizeof(double));
 	return buffer;
 }
 
@@ -94,7 +94,7 @@ double BinaryReader::read_double()
 float BinaryReader::read_float()
 {
 	float buffer;
-	m_stream.read(&buffer, sizeof(float));
+	m_file.read(&buffer, sizeof(float));
 	return buffer;
 }
 

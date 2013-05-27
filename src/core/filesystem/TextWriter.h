@@ -23,45 +23,28 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Stream.h"
-#include "Types.h"
-#include "Compressor.h"
-#include "MallocAllocator.h"
-
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-bool Stream::compress_to(Stream& stream, size_t size, size_t& zipped_size, Compressor& compressor)
+class File;
+
+/// A reader that offers a convenient way to write text to a File
+class TextWriter
 {
-	MallocAllocator allocator;
-	void* in_buffer = (void*)allocator.allocate(size);
+public:
 
-	read(in_buffer, size);
+						TextWriter(File& file);
+	
+	/// Writes the string pointed by string to the file.
+	/// The function begins copying from the address specified (string)
+	/// until it reaches the terminating null character ('\0').
+	/// The final null character is not copied to the file.
+	void				write_string(const char* string);
 
-	void* compressed_buffer = compressor.compress(in_buffer, size, zipped_size);
+private:
 
-	stream.write(compressed_buffer, zipped_size);
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-bool Stream::uncompress_to(Stream& stream, size_t& unzipped_size, Compressor& compressor)
-{
-	MallocAllocator allocator;
-
-	size_t stream_size = size();
-	void* in_buffer = (void*)allocator.allocate(stream_size);
-
-	read(in_buffer, stream_size);
-
-	void* uncompressed_buffer = compressor.uncompress(in_buffer, stream_size, unzipped_size);
-
-	stream.write(uncompressed_buffer, unzipped_size);
-
-	return true;
-}
+	File&				m_file;
+};
 
 } // namespace crown
 

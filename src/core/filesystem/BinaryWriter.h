@@ -23,23 +23,33 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "TextWriter.h"
-#include "Stream.h"
-#include "String.h"
+#include "Types.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-TextWriter::TextWriter(Stream& stream) : m_stream(stream)
-{
-}
+class File;
 
-//-----------------------------------------------------------------------------
-void TextWriter::write_string(const char* string)
+/// A writer that offers a convenient way to write to a File
+class BinaryWriter
 {
-	m_stream.write(string, string::strlen(string));
-}
+public:
+
+						BinaryWriter(File& file);
+
+	void				write_byte(int8_t);
+	void				write_int16(int16_t);
+	void				write_uint16(uint16_t);
+	void				write_int32(int32_t);
+	void				write_uint32(uint32_t);
+	void				write_int64(int64_t);
+	void				write_double(double);
+	void				write_float(float);
+
+private:
+
+	File&				m_file;
+};
 
 } // namespace crown
 

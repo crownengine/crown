@@ -25,34 +25,34 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Stream.h"
+#include "File.h"
 
 namespace crown
 {
 
 
-/// Bit bucket stream.
+/// Bit bucket file.
 /// Discards all data written to it and provides null data reading from it; plain and simple.
-class NullStream: public Stream
+class NullFile: public File
 {
 public:
 
-	/// @copydoc Stream::Stream()
-				NullStream(StreamOpenMode mode) : Stream(mode) {}
+	/// @copydoc File::File()
+				NullFile(FileOpenMode mode) : File(mode) {}
 
-	/// @copydoc Stream::~Stream()
-	virtual		~NullStream() {}
+	/// @copydoc File::~File()
+	virtual		~NullFile() {}
 
-	/// @copydoc Stream::seek()
+	/// @copydoc File::seek()
 	void		seek(size_t position) { (void)position; }
 
-	/// @copydoc Stream::seek_to_end()
+	/// @copydoc File::seek_to_end()
 	void		seek_to_end() {}
 
-	/// @copydoc Stream::skip()
+	/// @copydoc File::skip()
 	void		skip(size_t bytes) { (void)bytes; }
 				
-	/// @copydoc Stream::read()
+	/// @copydoc File::read()
 	/// @note
 	///	Fills buffer with zeroes
 	void		read(void* buffer, size_t size)
@@ -63,53 +63,53 @@ public:
 		}
 	}
 
-	/// @copydoc Stream::write()
+	/// @copydoc File::write()
 	void		write(const void* buffer, size_t size) { (void)buffer; (void)size; }
 
-	/// @copydoc Stream::copy_to()
+	/// @copydoc File::copy_to()
 	/// @note
 	///	Returns always true
-	bool		copy_to(Stream& stream, size_t size = 0)
+	bool		copy_to(File& file, size_t size = 0)
 	{
 		char zero = 0;
-		stream.write(&zero, size);		
+		file.write(&zero, size);		
 		return true;
 	}
 
-	/// @copydoc Stream::flush()
+	/// @copydoc File::flush()
 	void		flush() {};
 				
-	/// @copydoc Stream::is_valid()
+	/// @copydoc File::is_valid()
 	/// @note
 	///	Returns always true
 	bool		is_valid() { return true; }
 				
-	/// @copydoc Stream::end_of_stream()
+	/// @copydoc File::end_of_file()
 	/// @note
 	///	Returns always false
-	bool		end_of_stream() { return false; }
+	bool		end_of_file() { return false; }
 				
-	/// @copydoc Stream::size()
+	/// @copydoc File::size()
 	/// @note
 	///	Returns always 0xFFFFFFFF
 	size_t		size() { return ~0; }
 				
-	/// @copydoc Stream::position()
+	/// @copydoc File::position()
 	/// @note
 	///	Returns always zero
 	size_t		position() { return 0; }
 				
-	/// @copydoc Stream::can_read()
+	/// @copydoc File::can_read()
 	/// @note
 	///	Returns always true
 	bool		can_read() { return true; }
 				
-	/// @copydoc Stream::can_write()
+	/// @copydoc File::can_write()
 	/// @note
 	///	Returns always true
 	bool		can_write() { return true; }
 				
-	/// @copydoc Stream::can_seek()
+	/// @copydoc File::can_seek()
 	/// @note
 	///	Returns always true
 	bool		can_seek() { return true; }

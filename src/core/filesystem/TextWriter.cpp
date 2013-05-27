@@ -23,40 +23,22 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "TextReader.h"
-#include "Stream.h"
-#include "Types.h"
+#include "TextWriter.h"
+#include "File.h"
+#include "String.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-TextReader::TextReader(Stream& stream) : m_stream(stream)
+TextWriter::TextWriter(File& file) : m_file(file)
 {
 }
 
 //-----------------------------------------------------------------------------
-size_t TextReader::read_string(char* string, size_t size)
+void TextWriter::write_string(const char* string)
 {
-	char current_char;
-	size_t bytes_read = 0;
-
-	while(!m_stream.end_of_stream() && bytes_read < size - 1)
-	{
-		m_stream.read(&current_char, 1);
-		string[bytes_read] = current_char;
-
-		bytes_read++;
-
-		if (current_char == '\n')
-		{
-			break;
-		}
-	}
-
-	string[bytes_read] = '\0';
-
-	return bytes_read;
+	m_file.write(string, string::strlen(string));
 }
 
 } // namespace crown

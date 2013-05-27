@@ -28,27 +28,28 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Stream;
+class File;
 
-/// A writer that offers a convenient way to write to a Stream
-class BinaryWriter
+/// A reader that offers a convenient way to read text from a File
+class TextReader
 {
 public:
 
-						BinaryWriter(Stream& s);
+						TextReader(File& file);
 
-	void				write_byte(int8_t);
-	void				write_int16(int16_t);
-	void				write_uint16(uint16_t);
-	void				write_int32(int32_t);
-	void				write_uint32(uint32_t);
-	void				write_int64(int64_t);
-	void				write_double(double);
-	void				write_float(float);
+	/// Reads characters from file and stores them as a C string
+	/// into string until (size-1) characters have been read or
+	/// either a newline or the End-of-File is reached, whichever
+	/// comes first.
+	/// A newline character makes fgets stop reading, but it is considered
+	/// a valid character and therefore it is included in the string copied to string.
+	/// A null character is automatically appended in str after the characters read to
+	/// signal the end of the C string.
+	size_t				read_string(char* string, size_t size);
 
 private:
 
-	Stream&				m_stream;
+	File&				m_file;
 };
 
 } // namespace crown

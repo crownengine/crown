@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "String.h"
 #include "OS.h"
-#include "Stream.h"
+#include "File.h"
 
 namespace crown
 {
@@ -49,7 +49,7 @@ struct FilesystemEntry
 	char			relative_path[os::MAX_PATH_LENGTH];	///< Relative path of the entry
 };
 
-class FileStream;
+class DiskFile;
 
 /// Provides a platform-independent way to access files and directories
 /// on the host filesystem.
@@ -139,10 +139,10 @@ public:
 	const char*			os_path(const char* relative_path);
 
 	/// Opens the file @relative_path with the specified access @mode
-	FileStream*			open(const char* relative_path, StreamOpenMode mode);
+	DiskFile*			open(const char* relative_path, FileOpenMode mode);
 
 	/// Closes a previously opened file @stream
-	void				close(FileStream* stream);
+	void				close(DiskFile* stream);
 
 private:
 
