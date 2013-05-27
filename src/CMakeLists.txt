@@ -196,6 +196,14 @@ set (INPUT_HEADERS
 	input/Touch.h
 )
 
+set (NETWORK_SRC
+	network/BitMessage.cpp
+)
+
+set (NETWORK_HEADERS
+	network/BitMessage.h
+)
+
 set (RENDERERS_SRC
 	renderers/DebugRenderer.cpp
 	renderers/PixelFormat.cpp
@@ -213,22 +221,82 @@ set (RENDERERS_HEADERS
 	renderers/VertexFormat.h
 )
 
+set (OS_SRC
+	os/OS.cpp
+)
+
 set (OS_HEADERS
 	os/OS.h
 	os/NetAddress.h
 )
 
-set (OS_SRC
-	os/OS.cpp
+# Platform independent libraries
+set (CROWN_LIBRARIES
+	rt
+	z
+	luajit-5.1
 )
 
-set (NETWORK_SRC
-	network/BitMessage.cpp
+set (CROWN_COMPILER_FLAGS
+	-pipe
+	-ansi
+	-W
+	-Wall
+	-Wextra
+	-Wno-long-long
+	-Wno-variadic-macros
+	-g
+	-pg
 )
 
-set (NETWORK_HEADERS
-	network/BitMessage.h
-)
+# Platform specific stuff
+if (LINUX)
+	list (APPEND OS_HEADERS
+		os/linux/OsWindow.h
+		os/linux/TCPSocket.h
+		os/linux/UDPSocket.h
+		os/linux/File.h
+		os/linux/Thread.h
+		os/linux/Mutex.h
+		os/linux/Cond.h
+	)
+
+	list (APPEND OS_SRC
+		os/linux/main.cpp
+		os/linux/LinuxOS.cpp
+		os/linux/OsWindow.cpp
+		os/posix/TCPSocket.cpp
+		os/posix/UDPSocket.cpp	
+		os/posix/File.cpp
+		os/posix/Thread.cpp
+		os/posix/Mutex.cpp
+		os/posix/Cond.cpp
+	)
+
+	list (APPEND RENDERERS_SRC
+		renderers/gl/GLRenderer.cpp
+		renderers/gl/GLUtils.cpp
+		renderers/gl/glx/GLContext.cpp
+	)
+
+	list (APPEND RENDERERS_HEADERS
+		renderers/gl/GLRenderer.h
+		renderers/gl/GLUtils.h
+		renderers/gl/glx/GLContext.h
+	)
+
+	list (APPEND CROWN_LIBRARIES
+		X11
+		Xrandr
+		pthread
+		dl
+		GLEW
+		GL
+	)
+
+	set (CROWN_EXECUTABLE_NAME crown-linux)
+	set (CROWN_MAIN_SRC os/linux/main.cpp)
+endif (LINUX)
 
 set (CROWN_SOURCES
 	${SRC}
@@ -273,30 +341,21 @@ set (CROWN_HEADERS
 	${SCRIPT_HEADERS}
 )
 
-include_directories(${CROWN_THIRD}/luajit/include/luajit-2.0)
-link_directories(${CROWN_THIRD}/luajit/lib)
-link_libraries(rt z luajit-5.1)
-add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
-
-if (CROWN_BUILD_OPENGL)
-	target_link_libraries(crown crown-gl)
-endif (CROWN_BUILD_OPENGL)
-
-if (CROWN_BUILD_OPENGLES)
-	target_link_libraries(crown crown-gles)
-endif (CROWN_BUILD_OPENGLES)
-
-if (LINUX)
-	target_link_libraries(crown crown-linux-support)
-endif (LINUX)
-
-if (WINDOWS)
-	target_link_libraries(crown crown-win)
-endif (WINDOWS)
-
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
 
+include_directories(${CROWN_INCLUDES} ${CROWN_LUAJIT_INCLUDES})
+
+link_directories(${CROWN_LUAJIT_LIBS})
+link_libraries(${CROWN_LIBRARIES})
+
+add_definitions(${CROWN_COMPILER_FLAGS})
+
+add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
+add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
+target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
+
 install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
+install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
 install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 
 install (FILES ${CORE_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core)
@@ -310,10 +369,7 @@ install (FILES ${THREADS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core
 install (FILES ${SETTINGS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/settings)
 
 install (FILES ${INPUT_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/input)
-
 install (FILES ${RENDERERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/renderers)
-
 install (FILES ${NETWORK_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/network)
-
 install (FILES ${OS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/os)
 
