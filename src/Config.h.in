@@ -30,8 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #cmakedefine LINUX
 #cmakedefine WINDOWS
-#cmakedefine CROWN_BUILD_OPENGL
-#cmakedefine CROWN_BUILD_OPENGLES
 #cmakedefine CROWN_USE_FLOAT
 #cmakedefine CROWN_DEBUG
 
