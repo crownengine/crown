@@ -89,8 +89,8 @@ Device::Device() :
 
 	m_game_library(NULL)
 {
-	string::strcpy(m_preferred_root_path, string::EMPTY);
-	string::strcpy(m_preferred_user_path, string::EMPTY);
+	// Select executable dir by default
+	string::strncpy(m_preferred_root_path, os::get_cwd(), os::MAX_PATH_LENGTH);
 }
 
 //-----------------------------------------------------------------------------
@@ -376,15 +376,7 @@ const void* Device::data(ResourceId name)
 //-----------------------------------------------------------------------------
 void Device::create_filesystem()
 {
-	// Select current dir if no root path provided
-	if (string::strcmp(m_preferred_root_path, string::EMPTY) == 0)
-	{
-		m_filesystem = new Filesystem(os::get_cwd());
-	}
-	else
-	{
-		m_filesystem = new Filesystem(m_preferred_root_path);
-	}
+	m_filesystem = new Filesystem(m_preferred_root_path);
 
 	Log::d("Filesystem created.");
 	Log::d("Filesystem root path: %s", m_filesystem->root_path());
@@ -461,7 +453,6 @@ void Device::parse_command_line(int argc, char** argv)
 	{
 		"help",       AOA_NO_ARGUMENT,       NULL,        'i',
 		"root-path",  AOA_REQUIRED_ARGUMENT, NULL,        'r',
-		"user-path",  AOA_REQUIRED_ARGUMENT, NULL,        'u',
 		"width",      AOA_REQUIRED_ARGUMENT, NULL,        'w',
 		"height",     AOA_REQUIRED_ARGUMENT, NULL,        'h',
 		"fullscreen", AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1,
@@ -487,12 +478,6 @@ void Device::parse_command_line(int argc, char** argv)
 			case 'r':
 			{
 				string::strcpy(m_preferred_root_path, args.optarg());
-				break;
-			}
-			// User path
-			case 'u':
-			{
-				string::strcpy(m_preferred_user_path, args.optarg());
 				break;
 			}
 			// Window width
@@ -527,12 +512,6 @@ void Device::check_preferred_settings()
 		exit(EXIT_FAILURE);
 	}
 
-	if (!os::is_absolute_path(m_preferred_user_path))
-	{
-		Log::e("The user path must be absolute.");
-		exit(EXIT_FAILURE);
-	}
-
 	if (m_preferred_window_width == 0 || m_preferred_window_height == 0)
 	{
 		Log::e("Window width and height must be greater than zero.");
@@ -552,12 +531,9 @@ void Device::print_help_message()
 
 	"  --help                Show this help.\n"
 	"  --root-path <path>    Use <path> as the filesystem root path.\n"
-	"  --user-path <path>    Use <path> as the filesystem user path.\n"
 	"  --width <width>       Set the <width> of the render window.\n"
 	"  --height <width>      Set the <height> of the render window.\n"
 	"  --fullscreen          Start in fullscreen.\n"
-	"  --gl                  Use OpenGL as rendering backend.\n"
-	"  --gles                Use OpenGL|ES as rendering backend.\n"  
 	"  --dev                 Run the engine in development mode\n");
 }
 
