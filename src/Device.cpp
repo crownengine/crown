@@ -81,7 +81,7 @@ Device::Device() :
 	m_game_library(NULL)
 {
 	// Select executable dir by default
-	string::strncpy(m_preferred_root_path, os::get_cwd(), os::MAX_PATH_LENGTH);
+	string::strncpy(m_preferred_root_path, os::get_cwd(), MAX_PATH_LENGTH);
 }
 
 //-----------------------------------------------------------------------------
