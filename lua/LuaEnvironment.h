@@ -22,10 +22,9 @@ private:
 	lua_State*		m_state;
 };
 
-extern "C"
-{
-	int32_t luaopen_libcrownlua(lua_State* L);
-}
+
+int32_t luaopen_libcrownlua(lua_State* L);
+
 
 void load_vec2(LuaEnvironment& env);
 void load_vec3(LuaEnvironment& env);
