@@ -37,7 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "String.h"
 #include "Args.h"
 #include "Game.h"
-#include <cstdlib>
 #include "ArchiveResourceArchive.h"
 #include "FileResourceArchive.h"
 #include "ResourceManager.h"
@@ -47,14 +46,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Touch.h"
 #include "Accelerometer.h"
 #include "OsWindow.h"
-
-#ifdef CROWN_BUILD_OPENGL
-	#include "renderers/gl/GLRenderer.h"
-#endif
-
-#ifdef CROWN_BUILD_OPENGLES
-	#include "renderers/gles/GLESRenderer.h"
-#endif
 
 namespace crown
 {
@@ -68,7 +59,6 @@ Device::Device() :
 	m_preferred_window_width(1000),
 	m_preferred_window_height(625),
 	m_preferred_window_fullscreen(0),
-	m_preferred_renderer(RENDERER_GL),
 	m_preferred_mode(MODE_RELEASE),
 
 	m_is_init(false),
@@ -213,7 +203,7 @@ void Device::shutdown()
 	{
 		m_renderer->shutdown();
 
-		delete m_renderer;
+		Renderer::destroy(m_renderer);
 	}
 
 	Log::i("Releasing Window...");
@@ -454,26 +444,7 @@ void Device::create_window()
 //-----------------------------------------------------------------------------
 void Device::create_renderer()
 {
-	// Select appropriate renderer
-	if (m_preferred_renderer == RENDERER_GL)
-	{
-		#ifdef CROWN_BUILD_OPENGL
-		m_renderer = new GLRenderer;
-		#else
-		Log::e("Crown Engine was not built with OpenGL support.");
-		exit(EXIT_FAILURE);
-		#endif
-	}
-	else if (m_preferred_renderer == RENDERER_GLES)
-	{
-		#ifdef CROWN_BUILD_OPENGLES
-		m_renderer = new GLESRenderer;
-		#else
-		Log::e("Crown Engine was not built with OpenGL|ES support.");
-		exit(EXIT_FAILURE);
-		#endif
-	}
-
+	m_renderer = Renderer::create();
 	m_renderer->init();
 }
 
@@ -495,8 +466,6 @@ bool Device::parse_command_line(int argc, char** argv)
 		"width",      AOA_REQUIRED_ARGUMENT, NULL,        'w',
 		"height",     AOA_REQUIRED_ARGUMENT, NULL,        'h',
 		"fullscreen", AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1,
-		"gl",         AOA_NO_ARGUMENT,       &m_preferred_renderer, RENDERER_GL,
-		"gles",       AOA_NO_ARGUMENT,       &m_preferred_renderer, RENDERER_GLES,
 		"dev",        AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT,
 		NULL, 0, NULL, 0
 	};
@@ -580,8 +549,6 @@ void Device::print_help_message()
 	"  --width <width>       Set the <width> of the render window.\n"
 	"  --height <width>      Set the <height> of the render window.\n"
 	"  --fullscreen          Start in fullscreen.\n"
-	"  --gl                  Use OpenGL as rendering backend.\n"
-	"  --gles                Use OpenGL|ES as rendering backend.\n"  
 	"  --dev                 Run the engine in development mode\n");
 }
 

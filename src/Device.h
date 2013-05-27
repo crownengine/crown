@@ -128,7 +128,6 @@ private:
 	int32_t					m_preferred_window_width;
 	int32_t					m_preferred_window_height;
 	int32_t					m_preferred_window_fullscreen;
-	int32_t					m_preferred_renderer;
 	int32_t					m_preferred_mode;
 
 	char					m_preferred_root_path[MAX_PATH_LENGTH];
@@ -160,12 +159,6 @@ private:
 	void*					m_game_library;
 
 private:
-
-	enum
-	{
-		RENDERER_GL,
-		RENDERER_GLES
-	};
 
 	enum
 	{

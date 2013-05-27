@@ -1023,5 +1023,17 @@ GLint GLRenderer::find_gpu_program_uniform(GLuint program, const char* name) con
 	return uniform;
 }
 
+//-----------------------------------------------------------------------------
+Renderer* Renderer::create()
+{
+	return new GLRenderer;
+}
+
+//-----------------------------------------------------------------------------
+void Renderer::destroy(Renderer* renderer)
+{
+	delete renderer;
+}
+
 } // namespace crown
 

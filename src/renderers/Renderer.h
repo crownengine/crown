@@ -100,6 +100,9 @@ class Renderer
 {
 public:
 
+	static Renderer*		create();
+	static void				destroy(Renderer* renderer);
+
 	virtual 				~Renderer() {};
 
 	virtual void			init() = 0;
