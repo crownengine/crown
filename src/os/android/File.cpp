@@ -34,10 +34,15 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-File::File() :
+File::File(const char* path, StreamOpenMode mode) :
 	m_asset(NULL),
-	m_mode(SOM_READ)
 {
+	// Android assets are always read-only
+	(void) mode;
+	m_mode = SOM_READ;
+	m_asset = AAssetManager_open(os::get_android_asset_manager(), path, AASSET_MODE_RANDOM);
+
+	CE_ASSERT(m_asset != NULL, "Unable to open file: %s", path)
 }
 
 //-----------------------------------------------------------------------------
@@ -63,7 +68,7 @@ bool File::is_open() const
 }
 
 //-----------------------------------------------------------------------------
-StreamOpenMode File::mode()
+StreamOpenMode File::mode() const
 {
 	return m_mode;
 }
@@ -75,25 +80,9 @@ size_t File::size() const
 }
 
 //-----------------------------------------------------------------------------
-bool File::open(const char* path, StreamOpenMode mode)
-{
-	ce_assert(!is_open(), "Asset is already open: %s", path);
-
-	// Android assets are always read-only
-	(void) mode;
-	m_mode = SOM_READ;
-
-	m_asset = AAssetManager_open(os::get_android_asset_manager(), path, AASSET_MODE_RANDOM);
-
-	ce_assert(m_asset != NULL, "Unable to open asset: %s", path)
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
 size_t File::read(void* data, size_t size)
 {
-	ce_assert(data != NULL, "Data must be != NULL");
+	CE_ASSERT(data != NULL, "Data must be != NULL");
 
 	return (size_t)AAsset_read(m_asset, data, size);
 }
@@ -101,7 +90,7 @@ size_t File::read(void* data, size_t size)
 //-----------------------------------------------------------------------------
 size_t File::write(const void* data, size_t size)
 {
-	ce_assert(data != NULL, "Data must be != NULL");
+	CE_ASSERT(data != NULL, "Data must be != NULL");
 
 	os::printf("Android asset directory is read-only!");
 
@@ -111,19 +100,22 @@ size_t File::write(const void* data, size_t size)
 //-----------------------------------------------------------------------------
 void File::seek(size_t position)
 {
-	ce_assert(AAsset_seek(m_asset, (off_t)position, SEEK_SET) != (off_t) -1);
+	off_t seek_result = AAsset_seek(m_asset, (off_t)position, SEEK_SET);
+	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
 void File::seek_to_end()
 {
-	ce_assert(AAsset_seek(m_asset, 0, SEEK_END) != (off_t) -1);
+	off_t seek_result = AAsset_seek(m_asset, 0, SEEK_END);
+	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
 void File::skip(size_t bytes)
 {
-	ce_assert(AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR) != (off_t) -1);
+	off_t seek_result = AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR);
+	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------

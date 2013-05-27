@@ -33,10 +33,13 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-File::File() :
-	m_file_handle(NULL),
-	m_mode(SOM_READ)
+File::File(const char* path, StreamOpenMode mode) :
+	m_file_handle(NULL)
 {
+	m_file_handle = fopen(path, (mode == SOM_READ) ? "rb" : "wb");
+	CE_ASSERT(m_file_handle != NULL, "Unable to open file: %s", path);
+
+	m_mode = mode;
 }
 
 //-----------------------------------------------------------------------------
@@ -70,38 +73,23 @@ StreamOpenMode File::mode()
 //-----------------------------------------------------------------------------
 size_t File::size() const
 {
-	long pos = ftell(m_file_handle);
+	size_t pos = position();
 
-	fseek(m_file_handle, 0, SEEK_END);
+	int fseek_result = fseek(m_file_handle, 0, SEEK_END);
+	CE_ASSERT(fseek_result == 0, "Failed to seek");
 
-	long size = ftell(m_file_handle);
+	size_t size = position();
 
-	fseek(m_file_handle, pos, SEEK_SET);
+	fseek_result = fseek(m_file_handle, (long) pos, SEEK_SET);
+	CE_ASSERT(fseek_result == 0, "Failed to seek");
 
-	return (size_t) size;
-}
-
-//-----------------------------------------------------------------------------
-bool File::open(const char* path, StreamOpenMode mode)
-{
-	ce_assert(!is_open(), "File is already open: %s", path);
-
-	const char* c_mode = mode == SOM_READ ? "rb" : SOM_WRITE ? "wb" : "x";
-
-	ce_assert(c_mode[0] != 'x', "Open mode not valid");
-
-	m_mode = mode;
-	m_file_handle = fopen(path, c_mode);
-
-	ce_assert(m_file_handle != NULL, "Unable to open file: %s", path);
-
-	return true;
+	return size;
 }
 
 //-----------------------------------------------------------------------------
 size_t File::read(void* data, size_t size)
 {
-	ce_assert(data != NULL, "Data must be != NULL");
+	CE_ASSERT(data != NULL, "Data must be != NULL");
 
 	return fread(data, 1, size, m_file_handle);
 }
@@ -109,7 +97,7 @@ size_t File::read(void* data, size_t size)
 //-----------------------------------------------------------------------------
 size_t File::write(const void* data, size_t size)
 {
-	ce_assert(data != NULL, "Data must be != NULL");
+	CE_ASSERT(data != NULL, "Data must be != NULL");
 
 	return fwrite(data, 1, size, m_file_handle);
 }
@@ -117,19 +105,22 @@ size_t File::write(const void* data, size_t size)
 //-----------------------------------------------------------------------------
 void File::seek(size_t position)
 {
-	ce_assert(fseek(m_file_handle, (long) position, SEEK_SET) == 0, "Failed to seek");
+	int fseek_result = fseek(m_file_handle, (long) position, SEEK_SET);
+	CE_ASSERT(fseek_result == 0, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
 void File::seek_to_end()
 {
-	ce_assert(fseek(m_file_handle, 0, SEEK_END) == 0, "Failed to seek");
+	int fseek_result = fseek(m_file_handle, 0, SEEK_END);
+	CE_ASSERT(fseek_result == 0, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
 void File::skip(size_t bytes)
 {
-	ce_assert(fseek(m_file_handle, bytes, SEEK_CUR) == 0, "Failed to seek");
+	int fseek_result = fseek(m_file_handle, bytes, SEEK_CUR);
+	CE_ASSERT(fseek_result == 0, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------

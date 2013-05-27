@@ -114,7 +114,8 @@ private:
 	void					create_renderer();
 	void					create_debug_renderer();
 
-	bool					parse_command_line(int argc, char** argv);
+	void					parse_command_line(int argc, char** argv);
+	void					check_preferred_settings();
 	void					print_help_message();
 
 private:

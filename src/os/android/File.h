@@ -39,11 +39,9 @@ class File
 {
 public:
 
-							File();
-							~File();
-
 	/// Opens the file located at @path with the given @mode.
-	bool					open(const char* path, StreamOpenMode mode);
+							File(const char* path, StreamOpenMode mode);
+							~File();
 
 	/// Closes the file.
 	void					close();
@@ -54,7 +52,7 @@ public:
 	size_t					size() const;
 
 	/// Returs the mode used to open the file.
-	StreamOpenMode			mode();
+	StreamOpenMode			mode() const;
 
 	/// Reads @size bytes from the file and stores it into @data.
 	/// Returns the number of bytes read.

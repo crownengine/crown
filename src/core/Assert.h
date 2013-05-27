@@ -30,10 +30,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #ifdef CROWN_DEBUG
-	#define ce_error(file, line, message, ...) do { printf(message, __VA_ARGS__);\
+	#define CE_ERROR(file, line, message, ...) do { printf(message, __VA_ARGS__);\
 				printf("\n\tIn %s:%d\n\n", file, line); abort(); } while(0)
-	#define ce_assert(condition, message, ...) do { if (!(condition)) { ce_error(__FILE__, __LINE__,\
+	#define CE_ASSERT(condition, message, ...) do { if (!(condition)) { CE_ERROR(__FILE__, __LINE__,\
 				"Assertion failed: %s\n\t" message, #condition, ##__VA_ARGS__); } } while(0)
 #else
-	#define ce_assert(condition, message, ...) ((void)0)
+	#define CE_ASSERT(condition, message, ...) ((void)0)
 #endif

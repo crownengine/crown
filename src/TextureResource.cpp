@@ -15,7 +15,7 @@ void* TextureResource::load(Allocator& allocator, ResourceArchive& archive, Reso
 {
 	FileStream* stream = archive.open(id);
 
-	ce_assert(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
+	CE_ASSERT(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
 
 	TextureResource* resource = (TextureResource*)allocator.allocate(sizeof(TextureResource));
 
@@ -37,13 +37,13 @@ void* TextureResource::load(Allocator& allocator, ResourceArchive& archive, Reso
 //-----------------------------------------------------------------------------
 void TextureResource::online(void* resource)
 {
-	ce_assert(resource != NULL, "Resource not loaded");
+	CE_ASSERT(resource != NULL, "Resource not loaded");
 }
 
 //-----------------------------------------------------------------------------
 void TextureResource::unload(Allocator& allocator, void* resource)
 {
-	ce_assert(resource != NULL, "Resource not loaded");
+	CE_ASSERT(resource != NULL, "Resource not loaded");
 
 	allocator.deallocate(((TextureResource*)resource)->m_data);
 	allocator.deallocate(resource);

@@ -46,8 +46,6 @@ public:
 	void				write_double(double);
 	void				write_float(float);
 
-	void				insert_byte(int8_t val, size_t offset);
-
 private:
 
 	Stream&				m_stream;

@@ -55,7 +55,7 @@ UDPSocket::~UDPSocket()
 //-----------------------------------------------------------------------------
 bool UDPSocket::open(uint16_t port)
 {
-	ce_assert(!is_open(), "Socket is already open");
+	CE_ASSERT(!is_open(), "Socket is already open");
 
 	m_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
@@ -97,7 +97,7 @@ bool UDPSocket::open(uint16_t port)
 //-----------------------------------------------------------------------------
 bool UDPSocket::send(const NetAddress &receiver, const void* data, size_t size)
 {
-	ce_assert(data != NULL, "Data must be != NULL");
+	CE_ASSERT(data != NULL, "Data must be != NULL");
 
 	sockaddr_in address;
 	address.sin_family = AF_INET;
@@ -117,7 +117,7 @@ bool UDPSocket::send(const NetAddress &receiver, const void* data, size_t size)
 //-----------------------------------------------------------------------------
 size_t UDPSocket::receive(NetAddress& sender, void* data, size_t size)
 {
-	ce_assert(data != NULL, "Data must be != NULL");
+	CE_ASSERT(data != NULL, "Data must be != NULL");
 
 	sockaddr_in from;
 	socklen_t from_length = sizeof(from);

@@ -567,8 +567,8 @@ void GLESRenderer::set_matrix(MatrixType type, const Mat4& matrix)
 //-----------------------------------------------------------------------------
 void GLESRenderer::draw_vertex_index_buffer(const VertexBuffer* vertices, const IndexBuffer* indices)
 {
-	ce_assert(vertices != NULL);
-	ce_assert(indices != NULL);
+	CE_ASSERT(vertices != NULL);
+	CE_ASSERT(indices != NULL);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);

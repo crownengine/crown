@@ -56,7 +56,7 @@ inline void strip_trailing_separator(const char* path, char* ret, size_t len);
 /// (Thanks org.eclipse.core.runtime for the documentation ;D).
 inline bool is_valid_segment(const char* segment)
 {
-	ce_assert(segment != NULL, "Segment must be != NULL");
+	CE_ASSERT(segment != NULL, "Segment must be != NULL");
 	
 	size_t segment_len = string::strlen(segment);
 
@@ -146,8 +146,8 @@ inline bool is_valid_path(const char* path)
 /// The @path must be valid.
 inline void pathname(const char* path, char* str, size_t len)
 {
-	ce_assert(path != NULL, "Path must be != NULL");
-	ce_assert(str != NULL, "Str must be != NULL");
+	CE_ASSERT(path != NULL, "Path must be != NULL");
+	CE_ASSERT(str != NULL, "Str must be != NULL");
 
 	const char* last_separator = string::find_last(path, '/');
 
@@ -171,8 +171,8 @@ inline void pathname(const char* path, char* str, size_t len)
 /// The @path must be valid.
 inline void filename(const char* path, char* str, size_t len)
 {
-	ce_assert(path != NULL, "Path must be != NULL");
-	ce_assert(str != NULL, "Str must be != NULL");
+	CE_ASSERT(path != NULL, "Path must be != NULL");
+	CE_ASSERT(str != NULL, "Str must be != NULL");
 
 	const char* last_separator = string::find_last(path, '/');
 	
@@ -195,8 +195,8 @@ inline void filename(const char* path, char* str, size_t len)
 /// The @path must be valid.
 inline void basename(const char* path, char* str, size_t len)
 {
-	ce_assert(path != NULL, "Path must be != NULL");
-	ce_assert(str != NULL, "Str must be != NULL");
+	CE_ASSERT(path != NULL, "Path must be != NULL");
+	CE_ASSERT(str != NULL, "Str must be != NULL");
 
 	const char* last_separator = string::find_last(path, '/');
 	const char* last_dot = string::find_last(path, '.');
@@ -227,8 +227,8 @@ inline void basename(const char* path, char* str, size_t len)
 /// The @path must be valid.
 inline void extension(const char* path, char* str, size_t len)
 {
-	ce_assert(path != NULL, "Path must be != NULL");
-	ce_assert(str != NULL, "Str must be != NULL");
+	CE_ASSERT(path != NULL, "Path must be != NULL");
+	CE_ASSERT(str != NULL, "Str must be != NULL");
 	
 	const char* last_dot = string::find_last(path, '.');
 	
@@ -250,8 +250,8 @@ inline void extension(const char* path, char* str, size_t len)
 /// The @path must be valid.
 inline void filename_without_extension(const char* path, char* str, size_t len)
 {
-	ce_assert(path != NULL, "Path must be != NULL");
-	ce_assert(str != NULL, "Str must be != NULL");
+	CE_ASSERT(path != NULL, "Path must be != NULL");
+	CE_ASSERT(str != NULL, "Str must be != NULL");
 	
 	const char* last_dot = string::find_last(path, '.');
 	
@@ -279,8 +279,8 @@ inline void filename_without_extension(const char* path, char* str, size_t len)
 /// The @path must be valid.
 inline void strip_trailing_separator(const char* path, char* str, size_t len)
 {
-	ce_assert(path != NULL, "Path must be != NULL");
-	ce_assert(str != NULL, "Str must be != NULL");
+	CE_ASSERT(path != NULL, "Path must be != NULL");
+	CE_ASSERT(str != NULL, "Str must be != NULL");
 	
 	size_t path_len = string::strlen(path);
 	

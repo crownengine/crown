@@ -51,7 +51,7 @@ bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t heigh
 {
 	(void)fullscreen;
 
-	ce_assert(width != 0 && height != 0, "Width and height must be != 0");
+	CE_ASSERT(width != 0 && height != 0, "Width and height must be != 0");
 
 	display = XOpenDisplay(NULL);
 

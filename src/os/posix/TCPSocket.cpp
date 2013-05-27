@@ -153,7 +153,7 @@ void TCPSocket::close()
 //-----------------------------------------------------------------------------
 bool TCPSocket::send(const void* data, size_t size)
 {
-	ce_assert(data != NULL, "Data must be != NULL");
+	CE_ASSERT(data != NULL, "Data must be != NULL");
 
 	if (m_active_socket <= 0)
 	{
@@ -176,7 +176,7 @@ bool TCPSocket::send(const void* data, size_t size)
 //-----------------------------------------------------------------------------
 size_t TCPSocket::receive(void* data, size_t size)
 {
-	ce_assert(data != NULL, "Data must be != NULL");
+	CE_ASSERT(data != NULL, "Data must be != NULL");
 
 	if (m_active_socket <= 0)
 	{

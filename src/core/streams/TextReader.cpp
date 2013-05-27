@@ -36,38 +36,27 @@ TextReader::TextReader(Stream& stream) : m_stream(stream)
 }
 
 //-----------------------------------------------------------------------------
-char TextReader::read_char()
+size_t TextReader::read_string(char* string, size_t size)
 {
-	return m_stream.read_byte();
-}
+	char current_char;
+	size_t bytes_read = 0;
 
-//-----------------------------------------------------------------------------
-char* TextReader::read_string(char* string, uint32_t count)
-{
-	char currentChar;
-	uint32_t i = 0;
-
-	while(!m_stream.end_of_stream() && i < count - 1)
+	while(!m_stream.end_of_stream() && bytes_read < size - 1)
 	{
-		currentChar = m_stream.read_byte();
-		string[i] = currentChar;
+		m_stream.read(&current_char, 1);
+		string[bytes_read] = current_char;
 
-		i++;
+		bytes_read++;
 
-		if (currentChar == '\n')
+		if (current_char == '\n')
 		{
 			break;
 		}
 	}
 
-	if (i == 0)
-	{
-		return NULL;
-	}
+	string[bytes_read] = '\0';
 
-	string[i] = '\0';
-
-	return string;
+	return bytes_read;
 }
 
 } // namespace crown

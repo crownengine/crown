@@ -154,7 +154,7 @@ inline Vec2::Vec2(const Vec2& a) : x(a.x), y(a.y)
 //-----------------------------------------------------------------------------
 inline real Vec2::operator[](uint32_t i) const
 {
-	ce_assert(i < 2, "Index must be < 2");
+	CE_ASSERT(i < 2, "Index must be < 2");
 
 	return (&x)[i];
 }
@@ -162,7 +162,7 @@ inline real Vec2::operator[](uint32_t i) const
 //-----------------------------------------------------------------------------
 inline real& Vec2::operator[](uint32_t i)
 {
-	ce_assert(i < 2, "Index must be < 2");
+	CE_ASSERT(i < 2, "Index must be < 2");
 
 	return (&x)[i];
 }
@@ -215,7 +215,7 @@ inline Vec2& Vec2::operator*=(real k)
 //-----------------------------------------------------------------------------
 inline Vec2 Vec2::operator/(real k) const
 {
-	ce_assert(k != (real)0.0, "Division by zero");
+	CE_ASSERT(k != (real)0.0, "Division by zero");
 
 	real inv = (real)(1.0 / k);
 
@@ -225,7 +225,7 @@ inline Vec2 Vec2::operator/(real k) const
 //-----------------------------------------------------------------------------
 inline Vec2& Vec2::operator/=(real k)
 {
-	ce_assert(k != (real)0.0, "Division by zero");
+	CE_ASSERT(k != (real)0.0, "Division by zero");
 
 	real inv = (real)(1.0 / k);
 

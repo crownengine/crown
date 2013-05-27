@@ -47,7 +47,7 @@ EventDispatcher::~EventDispatcher()
 //-----------------------------------------------------------------------------
 void EventDispatcher::add_mouse_listener(MouseListener* listener)
 {
-	ce_assert(listener != NULL, "Listener must be != NULL");
+	CE_ASSERT(listener != NULL, "Listener must be != NULL");
 
 	m_mouse_listener_list.push_back(listener);
 }
@@ -55,7 +55,7 @@ void EventDispatcher::add_mouse_listener(MouseListener* listener)
 //-----------------------------------------------------------------------------
 void EventDispatcher::add_keyboard_listener(KeyboardListener* listener)
 {
-	ce_assert(listener != NULL, "Listener must be != NULL");
+	CE_ASSERT(listener != NULL, "Listener must be != NULL");
 
 	m_keyboard_listener_list.push_back(listener);
 }
@@ -63,14 +63,14 @@ void EventDispatcher::add_keyboard_listener(KeyboardListener* listener)
 //-----------------------------------------------------------------------------
 void EventDispatcher::add_touch_listener(TouchListener* listener)
 {
-	ce_assert(listener != NULL, "Listener must be != NULL");
+	CE_ASSERT(listener != NULL, "Listener must be != NULL");
 
 	m_touch_listener_list.push_back(listener);
 }
 
 void EventDispatcher::add_accelerometer_listener(AccelerometerListener* listener)
 {
-	ce_assert(listener != NULL, "Listener must be != NULL");
+	CE_ASSERT(listener != NULL, "Listener must be != NULL");
 	m_acc_listener_list.push_back(listener);
 }
 

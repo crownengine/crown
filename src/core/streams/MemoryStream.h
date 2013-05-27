@@ -99,14 +99,8 @@ public:
 	/// @copydoc Stream::skip()
 	void				skip(size_t bytes);
 
-	/// @copydoc Stream::read_byte()
-	uint8_t				read_byte();
-
 	/// @copydoc Stream::read()
 	void				read(void* buffer, size_t size);
-
-	/// @copydoc Stream::write_byte()
-	void				write_byte(uint8_t val);
 
 	/// @copydoc Stream::write()
 	void				write(const void* buffer, size_t size);
@@ -121,10 +115,10 @@ public:
 	bool				end_of_stream() const { return size() == m_memory_offset; }
 
 	/// @copydoc Stream::is_valid()
-	bool				is_valid() const { ce_assert(m_memory != NULL, "Memory is NULL"); return m_memory->is_valid(); }
+	bool				is_valid() const { CE_ASSERT(m_memory != NULL, "Memory is NULL"); return m_memory->is_valid(); }
 
 	/// @copydoc Stream::size()
-	size_t				size() const { ce_assert(m_memory != NULL, "Memory is NULL"); return m_memory->size(); }
+	size_t				size() const { CE_ASSERT(m_memory != NULL, "Memory is NULL"); return m_memory->size(); }
 
 	/// @copydoc Stream::position()
 	size_t				position() const { return m_memory_offset; }
@@ -143,7 +137,7 @@ public:
 
 protected:
 
-	inline void			check_valid() { ce_assert(m_memory != NULL, "Memory is NULL"); }
+	inline void			check_valid() { CE_ASSERT(m_memory != NULL, "Memory is NULL"); }
 
 	MemoryBuffer*		m_memory;
 	size_t				m_memory_offset;

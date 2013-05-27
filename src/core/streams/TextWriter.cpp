@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "TextWriter.h"
 #include "Stream.h"
+#include "String.h"
 
 namespace crown
 {
@@ -35,21 +36,9 @@ TextWriter::TextWriter(Stream& stream) : m_stream(stream)
 }
 
 //-----------------------------------------------------------------------------
-void TextWriter::write_char(char c)
-{
-	m_stream.write_byte(c);
-}
-
-//-----------------------------------------------------------------------------
 void TextWriter::write_string(const char* string)
 {
-	size_t count = 0;
-
-	while(string[count] != '\0')
-	{
-		m_stream.write_byte(string[count]);
-		count++;
-	}
+	m_stream.write(string, string::strlen(string));
 }
 
 } // namespace crown
