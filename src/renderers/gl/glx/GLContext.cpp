@@ -64,13 +64,13 @@ void GLContext::create_context()
 
 	int fb_count;
 	GLXFBConfig* fb_config = glXChooseFBConfig(s_x11_display, DefaultScreen(s_x11_display), fb_attribs, &fb_count);
-	ce_assert(fb_config != NULL, "Unable to find a matching frame buffer configuration");
+	CE_ASSERT(fb_config != NULL, "Unable to find a matching frame buffer configuration");
 
 	XVisualInfo* vi = glXGetVisualFromFBConfig(s_x11_display, fb_config[0]);
-	ce_assert(vi != NULL, "Unable to find a matching visual for frame buffer configuration.");
+	CE_ASSERT(vi != NULL, "Unable to find a matching visual for frame buffer configuration.");
 
 	m_glx_context = glXCreateContext(s_x11_display, vi, 0, True);
-	ce_assert(m_glx_context != NULL, "Unable to create GLX context");
+	CE_ASSERT(m_glx_context != NULL, "Unable to create GLX context");
 
 	glXMakeCurrent(s_x11_display, s_x11_window, m_glx_context);
 

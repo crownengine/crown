@@ -427,7 +427,7 @@ void Device::create_window()
 {
 	m_window = new OsWindow(m_preferred_window_width, m_preferred_window_height);
 
-	ce_assert(m_window != NULL, "Unable to create the window");
+	CE_ASSERT(m_window != NULL, "Unable to create the window");
 
 	m_window->set_title("Crown Game Engine");
 	m_window->show();

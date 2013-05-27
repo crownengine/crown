@@ -38,7 +38,7 @@ void* PixelShaderResource::load(Allocator& allocator, ResourceArchive& archive, 
 {
 	FileStream* stream = archive.open(id);
 
-	ce_assert(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
+	CE_ASSERT(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
 
 	PixelShaderResource* resource = (PixelShaderResource*)allocator.allocate(sizeof(PixelShaderResource));
 
@@ -58,7 +58,7 @@ void* PixelShaderResource::load(Allocator& allocator, ResourceArchive& archive, 
 //-----------------------------------------------------------------------------
 void PixelShaderResource::unload(Allocator& allocator, void* resource)
 {
-	ce_assert(resource != NULL, "Resource not loaded");
+	CE_ASSERT(resource != NULL, "Resource not loaded");
 
 	((PixelShaderResource*)resource)->m_program_text_length = 0;
 

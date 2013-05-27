@@ -101,11 +101,11 @@ OsWindow::OsWindow(uint32_t width, uint32_t height) :
 	m_x11_detectable_autorepeat(false),
 	m_x11_hidden_cursor(None)
 {
-	ce_assert(width != 0 || height != 0, "Width and height must differ from zero");
+	CE_ASSERT(width != 0 || height != 0, "Width and height must differ from zero");
 
 	m_x11_display = XOpenDisplay(NULL);
 
-	ce_assert(m_x11_display != NULL, "Unable to open X11 display");
+	CE_ASSERT(m_x11_display != NULL, "Unable to open X11 display");
 
 	int screen = DefaultScreen(m_x11_display);
 	Window root_window = RootWindow(m_x11_display, screen);
@@ -132,7 +132,7 @@ OsWindow::OsWindow(uint32_t width, uint32_t height) :
 				   &win_attribs
 			   );
 
-	ce_assert(m_x11_window != None, "Unable to create X window");
+	CE_ASSERT(m_x11_window != None, "Unable to create X window");
 
 	// Check presence of detectable autorepeat
 	Bool detectable;
