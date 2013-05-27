@@ -2,7 +2,6 @@
 #include "Terrain.h"
 #include "FPSSystem.h"
 #include "Game.h"
-#include "ScriptSystem.h"
 
 using namespace crown;
 

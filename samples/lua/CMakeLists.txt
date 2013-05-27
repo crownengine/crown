@@ -5,8 +5,8 @@ set (SRC
 )
 
 add_definitions(-Wl,-E)
-add_library (game SHARED ${SRC})
-target_link_libraries(game crown)
+#add_library (game SHARED ${SRC})
+#target_link_libraries(game crown)
 
-install (TARGETS game DESTINATION bin/lua_sample)
+#install (TARGETS game DESTINATION bin/lua_sample)
 
