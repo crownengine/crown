@@ -107,35 +107,21 @@ bool Device::init(int argc, char** argv)
 		return false;
 	}
 
-	if (parse_command_line(argc, argv) == false)
-	{
-		return false;
-	}
+	parse_command_line(argc, argv);
+	check_preferred_settings();
 
 	// Initialize
 	Log::i("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
 	create_filesystem();
 
-	Log::d("Filesystem created.");
-
-	Log::d("Filesystem root path: %s", m_filesystem->root_path());
-
 	create_resource_manager();
-
-	Log::d("Resource manager created.");
 
 	create_input_manager();
 
-	Log::d("Input manager created.");
-
 	create_renderer();
 
-	Log::d("Renderer created.");
-
 	create_debug_renderer();
-
-	Log::d("Debug renderer created.");
 
 	Log::i("Crown Engine initialized.");
 
@@ -399,6 +385,9 @@ void Device::create_filesystem()
 	{
 		m_filesystem = new Filesystem(m_preferred_root_path);
 	}
+
+	Log::d("Filesystem created.");
+	Log::d("Filesystem root path: %s", m_filesystem->root_path());
 }
 
 //-----------------------------------------------------------------------------
@@ -416,6 +405,9 @@ void Device::create_resource_manager()
 
 	// Create resource manager
 	m_resource_manager = new ResourceManager(*m_resource_archive, m_resource_allocator);
+
+	Log::d("Resource manager created.");
+	Log::d("Resource seed: %d", m_resource_manager->seed());
 }
 
 //-----------------------------------------------------------------------------
@@ -423,6 +415,8 @@ void Device::create_input_manager()
 {
 	// Create input manager
 	m_input_manager = new InputManager();
+
+	Log::d("Input manager created.");
 }
 
 //-----------------------------------------------------------------------------
@@ -447,6 +441,8 @@ void Device::create_renderer()
 		exit(EXIT_FAILURE);
 		#endif
 	}
+
+	Log::d("Renderer created.");
 }
 
 //-----------------------------------------------------------------------------
@@ -454,10 +450,12 @@ void Device::create_debug_renderer()
 {
 	// Create debug renderer
 	m_debug_renderer = new DebugRenderer(*m_renderer);
+
+	Log::d("Debug renderer created.");
 }
 
 //-----------------------------------------------------------------------------
-bool Device::parse_command_line(int argc, char** argv)
+void Device::parse_command_line(int argc, char** argv)
 {
 	static ArgsOption options[] = 
 	{
@@ -488,27 +486,13 @@ bool Device::parse_command_line(int argc, char** argv)
 			// Root path
 			case 'r':
 			{
-				if (!os::is_absolute_path(args.optarg()))
-				{
-					os::printf("%s: error: the root path must be absolute.\n", argv[0]);
-					return false;
-				}
-
 				string::strcpy(m_preferred_root_path, args.optarg());
-
 				break;
 			}
 			// User path
 			case 'u':
 			{
-				if (!os::is_absolute_path(args.optarg()))
-				{
-					os::printf("%s: error: the user path must be absolute.\n", argv[0]);
-					return false;
-				}
-
 				string::strcpy(m_preferred_user_path, args.optarg());
-
 				break;
 			}
 			// Window width
@@ -532,8 +516,28 @@ bool Device::parse_command_line(int argc, char** argv)
 			}
 		}
 	}
+}
 
-	return true;
+//-----------------------------------------------------------------------------
+void Device::check_preferred_settings()
+{
+	if (!os::is_absolute_path(m_preferred_root_path))
+	{
+		Log::e("The root path must be absolute.");
+		exit(EXIT_FAILURE);
+	}
+
+	if (!os::is_absolute_path(m_preferred_user_path))
+	{
+		Log::e("The user path must be absolute.");
+		exit(EXIT_FAILURE);
+	}
+
+	if (m_preferred_window_width == 0 || m_preferred_window_height == 0)
+	{
+		Log::e("Window width and height must be greater than zero.");
+		exit(EXIT_FAILURE);
+	}
 }
 
 //-----------------------------------------------------------------------------

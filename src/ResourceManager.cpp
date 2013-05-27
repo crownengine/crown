@@ -63,8 +63,6 @@ ResourceManager::ResourceManager(ResourceArchive& archive, Allocator& allocator)
 	device()->filesystem()->close(seed_file);
 
 	sscanf(tmp_buf, "%u", &m_seed);
-
-	Log::d("Seed: %d", m_seed);
 }
 
 //-----------------------------------------------------------------------------
@@ -229,6 +227,12 @@ void ResourceManager::flush()
 
 		return;
 	}
+}
+
+//-----------------------------------------------------------------------------
+uint32_t ResourceManager::seed() const
+{
+	return m_seed;
 }
 
 //-----------------------------------------------------------------------------
