@@ -132,7 +132,7 @@ Mat4& Mat4::operator=(const Mat4& a)
 //-----------------------------------------------------------------------------
 real Mat4::operator[](uint32_t i) const
 {
-	ce_assert(i < 16, "Index must be < 16");
+	CE_ASSERT(i < 16, "Index must be < 16");
 
 	return m[i];
 }
@@ -140,7 +140,7 @@ real Mat4::operator[](uint32_t i) const
 //-----------------------------------------------------------------------------
 real& Mat4::operator[](uint32_t i)
 {
-	ce_assert(i < 16, "Index must be < 16");
+	CE_ASSERT(i < 16, "Index must be < 16");
 
 	return m[i];
 }
@@ -148,7 +148,7 @@ real& Mat4::operator[](uint32_t i)
 //-----------------------------------------------------------------------------
 real Mat4::operator()(uint32_t row, uint32_t column) const
 {
-	ce_assert(row < 4 && column < 4, "Row and column must be < 4");
+	CE_ASSERT(row < 4 && column < 4, "Row and column must be < 4");
 
 	return m[row + column * 4];
 }

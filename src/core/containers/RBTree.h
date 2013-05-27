@@ -656,19 +656,19 @@ int32_t RBTree<TKey, TValue>::dbg_verify(Node* n) const
 
 	if (n->left != m_sentinel)
 	{
-		ce_assert(n->left->parent == n);
-		ce_assert(n->item.key > n->left->item.key);
+		CE_ASSERT(n->left->parent == n);
+		CE_ASSERT(n->item.key > n->left->item.key);
 	}
 
 	if (n->right != m_sentinel)
 	{
-		ce_assert(n->right->parent == n);
-		ce_assert(n->item.key < n->right->item.key);
+		CE_ASSERT(n->right->parent == n);
+		CE_ASSERT(n->item.key < n->right->item.key);
 	}
 
 	int32_t bhL = dbg_verify(n->left);
 	int32_t bhR = dbg_verify(n->right);
-	ce_assert(bhL == bhR);
+	CE_ASSERT(bhL == bhR);
 
 	if (n->color == BLACK)
 	{
@@ -678,7 +678,7 @@ int32_t RBTree<TKey, TValue>::dbg_verify(Node* n) const
 	{
 		if (n->parent != NULL && n->parent->color == RED)
 		{
-			ce_assert(false);
+			CE_ASSERT(false);
 		}
 	}
 

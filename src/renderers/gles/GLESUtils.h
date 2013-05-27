@@ -69,7 +69,7 @@ private:
 //-----------------------------------------------------------------------------
 inline GLenum GLES::compare_function(CompareFunction function)
 {
-	ce_assert(function < CF_COUNT);
+	CE_ASSERT(function < CF_COUNT);
 
 	return COMPARE_FUNCTION_TABLE[function];
 }
@@ -77,7 +77,7 @@ inline GLenum GLES::compare_function(CompareFunction function)
 //-----------------------------------------------------------------------------
 inline GLenum GLES::blend_function(BlendFunction function)
 {
-	ce_assert(function < BF_COUNT);
+	CE_ASSERT(function < BF_COUNT);
 
 	return BLEND_FUNCTION_TABLE[function];
 }
@@ -86,9 +86,13 @@ inline GLenum GLES::blend_function(BlendFunction function)
 inline GLenum GLES::blend_equation(BlendEquation equation)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	assert(equation < BE_COUNT);
 =======
 	ce_assert(mode < TM_COUNT);
+>>>>>>> master
+=======
+	CE_ASSERT(mode < TM_COUNT);
 >>>>>>> master
 
 	return BLEND_EQUATION_TABLE[equation];
@@ -97,7 +101,7 @@ inline GLenum GLES::blend_equation(BlendEquation equation)
 //-----------------------------------------------------------------------------
 inline GLenum GLES::texture_wrap(TextureWrap wrap)
 {
-	ce_assert(wrap < TW_COUNT);
+	CE_ASSERT(wrap < TW_COUNT);
 
 	return TEXTURE_WRAP_TABLE[wrap];
 }
@@ -105,7 +109,7 @@ inline GLenum GLES::texture_wrap(TextureWrap wrap)
 //-----------------------------------------------------------------------------
 inline void GLES::texture_filter(TextureFilter filter, GLint& minFilter, GLint& magFilter)
 {
-	ce_assert(filter < TF_COUNT);
+	CE_ASSERT(filter < TF_COUNT);
 
 	minFilter = TEXTURE_MIN_FILTER_TABLE[filter];
 	magFilter = TEXTURE_MAG_FILTER_TABLE[filter];
@@ -116,7 +120,7 @@ inline void GLES::texture_filter(TextureFilter filter, GLint& minFilter, GLint& 
 =======
 inline GLenum GLES::fog_mode(FogMode mode)
 {
-	ce_assert(mode < FM_COUNT);
+	CE_ASSERT(mode < FM_COUNT);
 
 	return FOG_MODE_TABLE[mode];
 }

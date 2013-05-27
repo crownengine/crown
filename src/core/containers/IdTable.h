@@ -134,7 +134,7 @@ inline Id IdTable::create()
 //-----------------------------------------------------------------------------
 inline void IdTable::destroy(Id id)
 {
-	ce_assert(has(id), "IdTable does not have ID: %d,%d", id.id, id.index);
+	CE_ASSERT(has(id), "IdTable does not have ID: %d,%d", id.id, id.index);
 
 	m_ids[id.index].next = m_freelist;
 	m_freelist = id.index;
@@ -149,7 +149,7 @@ inline bool IdTable::has(Id id) const
 //-----------------------------------------------------------------------------
 inline uint16_t IdTable::next_id()
 {
-	ce_assert(m_next_id < m_max_ids, "Maximum number of IDs reached");
+	CE_ASSERT(m_next_id < m_max_ids, "Maximum number of IDs reached");
 
 	return m_next_id++;
 }

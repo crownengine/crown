@@ -119,6 +119,9 @@ public:
 	/// Forces all the loading requests to complete before preceeding.
 	void					flush();
 
+	/// Returns the seed used to generate resource name hashes.
+	uint32_t				seed() const;
+
 private:
 
 	// Checks the load queue and signal the backgroud about pending

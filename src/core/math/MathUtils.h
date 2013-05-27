@@ -190,7 +190,7 @@ inline T avg(const T& a, const T& b)
 template <typename T>
 inline T clamp_to_range(const T& min, const T& max, const T& value)
 {
-	ce_assert(min < max, "Min must be < max");
+	CE_ASSERT(min < max, "Min must be < max");
 
 	if (value > max)
 	{

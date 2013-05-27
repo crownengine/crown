@@ -825,10 +825,15 @@ void GLESRenderer::set_matrix(MatrixType type, const Mat4& matrix)
 void GLESRenderer::bind_vertex_buffer(VertexBufferId vb) const
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	assert(m_vertex_buffers_id_table.has(vb));
 =======
 	ce_assert(vertices != NULL);
 	ce_assert(indices != NULL);
+=======
+	CE_ASSERT(vertices != NULL);
+	CE_ASSERT(indices != NULL);
+>>>>>>> master
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
