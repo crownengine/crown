@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Compiler.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 
 namespace crown
 {
@@ -38,11 +38,11 @@ public:
 					TXTCompiler(const char* root_path, const char* dest_path);
 					~TXTCompiler();
 
-	size_t			read_header_impl(FileStream* in_file);
-	size_t			read_resource_impl(FileStream* in_file);
+	size_t			read_header_impl(DiskFile* in_file);
+	size_t			read_resource_impl(DiskFile* in_file);
 
-	void			write_header_impl(FileStream* out_file);
-	void			write_resource_impl(FileStream* out_file);
+	void			write_header_impl(DiskFile* out_file);
+	void			write_resource_impl(DiskFile* out_file);
 
 	void			cleanup_impl();
 

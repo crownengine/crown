@@ -3,7 +3,7 @@
 #include "ScriptResource.h"
 #include "ResourceArchive.h"
 #include "Log.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 #include "Allocator.h"
 
 namespace crown
@@ -12,7 +12,7 @@ namespace crown
 //-----------------------------------------------------------------------------
 void* ScriptResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
 {
-	FileStream* stream = archive.open(id);
+	DiskFile* stream = archive.open(id);
 
 	if (stream != NULL)
 	{

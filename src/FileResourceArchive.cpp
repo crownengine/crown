@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "FileResourceArchive.h"
 #include "Filesystem.h"
 #include "Resource.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 #include "Log.h"
 #include "String.h"
 
@@ -46,7 +46,7 @@ FileResourceArchive::~FileResourceArchive()
 }
 
 //-----------------------------------------------------------------------------
-FileStream* FileResourceArchive::open(ResourceId name)
+DiskFile* FileResourceArchive::open(ResourceId name)
 {
 	// Convert name/type into strings
 	char resource_name[512];
@@ -60,7 +60,7 @@ FileStream* FileResourceArchive::open(ResourceId name)
 		return NULL;
 	}
 
-	FileStream* file = (FileStream*)m_filesystem.open(resource_name, SOM_READ);
+	DiskFile* file = (DiskFile*)m_filesystem.open(resource_name, FOM_READ);
 
 	file->skip(sizeof(ResourceHeader));
 
@@ -68,7 +68,7 @@ FileStream* FileResourceArchive::open(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
-void FileResourceArchive::close(FileStream* resource)
+void FileResourceArchive::close(DiskFile* resource)
 {
 	m_filesystem.close(resource);
 }

@@ -24,7 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "PSCompiler.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 #include "Resource.h"
 
 namespace crown
@@ -45,14 +45,14 @@ PSCompiler::~PSCompiler()
 }
 
 //-----------------------------------------------------------------------------
-size_t PSCompiler::read_header_impl(FileStream* in_file)
+size_t PSCompiler::read_header_impl(DiskFile* in_file)
 {
 	(void) in_file;
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
-size_t PSCompiler::read_resource_impl(FileStream* in_file)
+size_t PSCompiler::read_resource_impl(DiskFile* in_file)
 {
 	m_file_size = in_file->size();
 
@@ -66,13 +66,13 @@ size_t PSCompiler::read_resource_impl(FileStream* in_file)
 }
 
 //-----------------------------------------------------------------------------
-void PSCompiler::write_header_impl(FileStream* out_file)
+void PSCompiler::write_header_impl(DiskFile* out_file)
 {
 	out_file->write(&m_file_size, sizeof(uint32_t));
 }
 
 //-----------------------------------------------------------------------------
-void PSCompiler::write_resource_impl(FileStream* out_file)
+void PSCompiler::write_resource_impl(DiskFile* out_file)
 {
 	out_file->write(m_file_data, m_file_size);
 }

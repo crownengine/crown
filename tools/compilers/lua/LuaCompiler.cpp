@@ -24,7 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "LuaCompiler.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 #include "Resource.h"
 #include "Log.h"
 
@@ -46,14 +46,14 @@ LuaCompiler::~LuaCompiler()
 }
 
 //-----------------------------------------------------------------------------
-size_t LuaCompiler::read_header_impl(FileStream* in_file)
+size_t LuaCompiler::read_header_impl(DiskFile* in_file)
 {
 	(void) in_file;
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
-size_t LuaCompiler::read_resource_impl(FileStream* in_file)
+size_t LuaCompiler::read_resource_impl(DiskFile* in_file)
 {
 	Filesystem fs(root_path());
 
@@ -68,7 +68,7 @@ size_t LuaCompiler::read_resource_impl(FileStream* in_file)
 		return 0;
 	}
 
-	FileStream* tmp_file = (FileStream*)fs.open(tmp_resource, SOM_READ);
+	DiskFile* tmp_file = (DiskFile*)fs.open(tmp_resource, FOM_READ);
 
 	m_file_size = tmp_file->size();
 
@@ -88,13 +88,13 @@ size_t LuaCompiler::read_resource_impl(FileStream* in_file)
 }
 
 //-----------------------------------------------------------------------------
-void LuaCompiler::write_header_impl(FileStream* out_file)
+void LuaCompiler::write_header_impl(DiskFile* out_file)
 {
 	(void) out_file;
 }
 
 //-----------------------------------------------------------------------------
-void LuaCompiler::write_resource_impl(FileStream* out_file)
+void LuaCompiler::write_resource_impl(DiskFile* out_file)
 {
 	out_file->write(m_file_data, m_file_size);
 }

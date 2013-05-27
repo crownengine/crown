@@ -32,7 +32,7 @@ namespace crown
 {
 
 class Filesystem;
-class FileStream;
+class DiskFile;
 
 /// Structure of the archive
 ///
@@ -62,16 +62,16 @@ public:
 					~ArchiveResourceArchive();
 
 	/// @copydoc ResourceArchive::open()
-	FileStream*		open(ResourceId name);
+	DiskFile*		open(ResourceId name);
 
 	/// @copydoc ResourceArchive::close()
-	void			close(FileStream* resource);
+	void			close(DiskFile* resource);
 
 private:
 
 	Filesystem&		m_filesystem;
 
-	FileStream*		m_archive_file;
+	DiskFile*		m_archive_file;
 
 	uint32_t		m_entries_count;
 	ArchiveEntry*	m_entries;

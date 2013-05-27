@@ -24,7 +24,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "TGACompiler.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 #include "PixelFormat.h"
 #include "Resource.h"
 #include "Log.h"
@@ -50,7 +50,7 @@ TGACompiler::~TGACompiler()
 }
 
 //-----------------------------------------------------------------------------
-size_t TGACompiler::read_header_impl(FileStream* in_file)
+size_t TGACompiler::read_header_impl(DiskFile* in_file)
 {
 	// Read the header
 	in_file->read(&m_tga_header, sizeof(TGAHeader));
@@ -62,7 +62,7 @@ size_t TGACompiler::read_header_impl(FileStream* in_file)
 }
 
 //-----------------------------------------------------------------------------
-size_t TGACompiler::read_resource_impl(FileStream* in_file)
+size_t TGACompiler::read_resource_impl(DiskFile* in_file)
 {
 	// Compute color channels	
 	m_image_channels = m_tga_header.pixel_depth / 8;
@@ -128,7 +128,7 @@ size_t TGACompiler::read_resource_impl(FileStream* in_file)
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::write_header_impl(FileStream* out_file)
+void TGACompiler::write_header_impl(DiskFile* out_file)
 {
 	// Write the texture header
 	out_file->write(&m_image_format, sizeof(PixelFormat));
@@ -137,7 +137,7 @@ void TGACompiler::write_header_impl(FileStream* out_file)
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::write_resource_impl(FileStream* out_file)
+void TGACompiler::write_resource_impl(DiskFile* out_file)
 {
 	// Write out the data
 	out_file->write(m_image_data, m_image_size * m_image_channels);
@@ -154,7 +154,7 @@ void TGACompiler::cleanup_impl()
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::load_uncompressed(FileStream* in_file)
+void TGACompiler::load_uncompressed(DiskFile* in_file)
 {
 	uint64_t size = m_tga_header.width * m_tga_header.height;
 
@@ -184,7 +184,7 @@ void TGACompiler::load_uncompressed(FileStream* in_file)
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::load_compressed(FileStream* in_file)
+void TGACompiler::load_compressed(DiskFile* in_file)
 {
 	uint8_t rle_id = 0;
 	uint32_t i = 0;
