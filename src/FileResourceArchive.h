@@ -32,7 +32,7 @@ namespace crown
 {
 
 class Filesystem;
-class FileStream;
+class DiskFile;
 
 // The header of every compiled resource file.
 // KEEP IN SYNC WITH CompiledResource struct in Compiler.h!
@@ -54,10 +54,10 @@ public:
 					~FileResourceArchive();
 
 	/// @copydoc ResourceArchive::open()
-	FileStream*		open(ResourceId name);
+	DiskFile*		open(ResourceId name);
 
 	/// @copydoc ResourceArchive::close()
-	void			close(FileStream* resource);
+	void			close(DiskFile* resource);
 
 
 private:

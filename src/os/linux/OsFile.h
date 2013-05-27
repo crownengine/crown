@@ -23,33 +23,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Types.h"
+#pragma once
 
-namespace crown
-{
-
-class Stream;
-
-/// A writer that offers a convenient way to write to a Stream
-class BinaryWriter
-{
-public:
-
-						BinaryWriter(Stream& s);
-
-	void				write_byte(int8_t);
-	void				write_int16(int16_t);
-	void				write_uint16(uint16_t);
-	void				write_int32(int32_t);
-	void				write_uint32(uint32_t);
-	void				write_int64(int64_t);
-	void				write_double(double);
-	void				write_float(float);
-
-private:
-
-	Stream&				m_stream;
-};
-
-} // namespace crown
-
+#include "../posix/OsFile.h"

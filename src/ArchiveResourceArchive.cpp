@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ArchiveResourceArchive.h"
 #include "Filesystem.h"
 #include "Resource.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 #include "Log.h"
 
 namespace crown
@@ -40,7 +40,7 @@ ArchiveResourceArchive::ArchiveResourceArchive(Filesystem& fs) :
 	m_entries(NULL)
 {
 	// FIXME Default archive name
-	m_archive_file = (FileStream*)m_filesystem.open("archive.bin", SOM_READ);
+	m_archive_file = (DiskFile*)m_filesystem.open("archive.bin", FOM_READ);
 	
 	ArchiveHeader header;
 	
@@ -76,7 +76,7 @@ ArchiveResourceArchive::~ArchiveResourceArchive()
 }
 
 //-----------------------------------------------------------------------------
-FileStream* ArchiveResourceArchive::open(ResourceId name)
+DiskFile* ArchiveResourceArchive::open(ResourceId name)
 {
 	// Search the resource in the archive
 	for (uint32_t i = 0; i < m_entries_count; i++)
@@ -86,7 +86,7 @@ FileStream* ArchiveResourceArchive::open(ResourceId name)
 			// If found, seek to the first byte of the resource data
 			m_archive_file->seek(m_entries[i].offset);
 
-			return (FileStream*)m_archive_file;
+			return (DiskFile*)m_archive_file;
 		}
 	}
 
@@ -94,7 +94,7 @@ FileStream* ArchiveResourceArchive::open(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
-void ArchiveResourceArchive::close(FileStream* resource)
+void ArchiveResourceArchive::close(DiskFile* resource)
 {
 	// Does nothing, the stream is automatically closed at exit.
 	(void)resource;

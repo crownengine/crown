@@ -28,27 +28,27 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Stream;
+class File;
 
-/// A reader that offers a convenient way to read from a Stream
-class BinaryReader
+/// A writer that offers a convenient way to write to a File
+class BinaryWriter
 {
 public:
 
-						BinaryReader(Stream& s);
+						BinaryWriter(File& file);
 
-	int8_t				read_byte();
-	int16_t				read_int16();
-	uint16_t			read_uint16();
-	int32_t				read_int32();
-	uint32_t			read_uint32();
-	int64_t				read_int64();
-	float				read_float();
-	double				read_double();
+	void				write_byte(int8_t);
+	void				write_int16(int16_t);
+	void				write_uint16(uint16_t);
+	void				write_int32(int32_t);
+	void				write_uint32(uint32_t);
+	void				write_int64(int64_t);
+	void				write_double(double);
+	void				write_float(float);
 
 private:
 
-	Stream&				m_stream;
+	File&				m_file;
 };
 
 } // namespace crown

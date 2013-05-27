@@ -8,7 +8,7 @@ set (LINUX_SRC
 	Input.cpp
 	../posix/TCPSocket.cpp
 	../posix/UDPSocket.cpp	
-	../posix/File.cpp
+	../posix/OsFile.cpp
 	../posix/Thread.cpp
 	../posix/Mutex.cpp
 	../posix/Cond.cpp
@@ -17,7 +17,7 @@ set (LINUX_SRC
 set (LINUX_HEADERS
 	TCPSocket.h
 	UDPSocket.h
-	File.h
+	OsFile.h
 	Thread.h
 	Mutex.h
 	Cond.h

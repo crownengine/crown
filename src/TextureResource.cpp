@@ -1,7 +1,7 @@
 #include "TextureResource.h"
 #include "ResourceArchive.h"
 #include "Log.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 #include "Assert.h"
 #include "Allocator.h"
 #include "Device.h"
@@ -13,7 +13,7 @@ namespace crown
 //-----------------------------------------------------------------------------
 void* TextureResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
 {
-	FileStream* stream = archive.open(id);
+	DiskFile* stream = archive.open(id);
 
 	CE_ASSERT(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
 

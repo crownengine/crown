@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include "Filesystem.h"
-#include "Stream.h"
+#include "File.h"
 #include "Path.h"
 #include "String.h"
 #include "Hash.h"
 #include "Resource.h"
 #include "ResourceArchive.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 #include <cstring>
 
 using namespace crown;
@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 	}
 
 	// Open the archive file for both reading and writing
-	FileStream* archive = (FileStream*)fs_root.open("archive.bin", (StreamOpenMode)(SOM_READ | SOM_WRITE));
+	DiskFile* archive = (DiskFile*)fs_root.open("archive.bin", (FileOpenMode)(FOM_READ | FOM_WRITE));
 	
 	// The archive header used throughout the code
 	ArchiveHeader header;
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 	//-------------------------------------------------------------------------
 
 	// Open the resource
-	FileStream* resource = (FileStream*)fs_root.open(resource_name, SOM_READ);
+	DiskFile* resource = (DiskFile*)fs_root.open(resource_name, FOM_READ);
 	
 	// If the resource is malformed, abort
 	if (resource->size() < sizeof(ArchiveEntry))

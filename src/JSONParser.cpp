@@ -1,11 +1,11 @@
 #include "JSONParser.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 
 namespace crown
 {
 
 //--------------------------------------------------------------------------
-JSONParser::JSONParser(Stream* stream, size_t size)
+JSONParser::JSONParser(File* file, size_t size)
 {
 	if (size > 1024)
 	{
@@ -18,9 +18,9 @@ JSONParser::JSONParser(Stream* stream, size_t size)
 
 	m_size = size;
 
-	m_stream = stream;
+	m_file = file;
 
-	m_pos = m_stream->position();
+	m_pos = m_file->position();
 
 	m_next_token = 0;
 
@@ -67,12 +67,12 @@ JSONParser::parse()
 
 	char c;
 
-	while(!m_stream->end_of_stream())
+	while(!m_file->end_of_file())
 	{
 		JSONType type;
 
-		m_stream->read(&c, 1);
-		m_pos = m_stream->position();
+		m_file->read(&c, 1);
+		m_pos = m_file->position();
 
 		switch(c)
 		{
@@ -198,10 +198,10 @@ JSONParser::parse_string()
 
 	char c; 
 
-	while(!m_stream->end_of_stream())
+	while(!m_file->end_of_file())
 	{	
-		m_stream->read(&c, 1);
-		m_pos = m_stream->position();
+		m_file->read(&c, 1);
+		m_pos = m_file->position();
 
 		if (c == '\"' || c == '\'')
 		{
@@ -221,8 +221,8 @@ JSONParser::parse_string()
 
 		if (c == '\\')
 		{
-			m_stream->read(&c, 1);
-			m_pos = m_stream->position();
+			m_file->read(&c, 1);
+			m_pos = m_file->position();
 
 			switch(c)
 			{
@@ -256,14 +256,14 @@ JSONParser::parse_primitive()
 {
 	JSONToken* token;
 
-	int start = m_stream->position();
+	int start = m_file->position();
 
 	char c;
 
-	while (!m_stream->end_of_stream())
+	while (!m_file->end_of_file())
 	{
-		m_stream->read(&c, 1);
-		m_pos = m_stream->position();
+		m_file->read(&c, 1);
+		m_pos = m_file->position();
 
 		switch (c)
 		{
@@ -285,7 +285,7 @@ JSONParser::parse_primitive()
 
 				token->m_parent = m_prev_token;
 
-				m_stream->seek(start);
+				m_file->seek(start);
 
 				return JSON_SUCCESS;
 			}

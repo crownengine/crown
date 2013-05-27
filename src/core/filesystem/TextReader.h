@@ -23,23 +23,34 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "TextWriter.h"
-#include "Stream.h"
-#include "String.h"
+#include "Types.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-TextWriter::TextWriter(Stream& stream) : m_stream(stream)
-{
-}
+class File;
 
-//-----------------------------------------------------------------------------
-void TextWriter::write_string(const char* string)
+/// A reader that offers a convenient way to read text from a File
+class TextReader
 {
-	m_stream.write(string, string::strlen(string));
-}
+public:
+
+						TextReader(File& file);
+
+	/// Reads characters from file and stores them as a C string
+	/// into string until (size-1) characters have been read or
+	/// either a newline or the End-of-File is reached, whichever
+	/// comes first.
+	/// A newline character makes fgets stop reading, but it is considered
+	/// a valid character and therefore it is included in the string copied to string.
+	/// A null character is automatically appended in str after the characters read to
+	/// signal the end of the C string.
+	size_t				read_string(char* string, size_t size);
+
+private:
+
+	File&				m_file;
+};
 
 } // namespace crown
 

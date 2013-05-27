@@ -1,5 +1,5 @@
 #include "TextResource.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 #include "ResourceArchive.h"
 #include "Log.h"
 #include "Allocator.h"
@@ -10,7 +10,7 @@ namespace crown
 //-----------------------------------------------------------------------------
 void* TextResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
 {
-	FileStream* stream = archive.open(id);
+	DiskFile* stream = archive.open(id);
 
 	CE_ASSERT(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
 

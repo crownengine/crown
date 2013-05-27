@@ -2,7 +2,7 @@
 #include <string.h>
 #include "JSONParser.h"
 #include "Filesystem.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 
 using namespace crown;
 
@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 	
 	char dst[10][256];
 
-	FileStream* stream = (FileStream*)conf_root.open("json.json", SOM_READ);
+	DiskFile* stream = (DiskFile*)conf_root.open("json.json", FOM_READ);
 
  	JSONParser* parser = new JSONParser(stream);
 
