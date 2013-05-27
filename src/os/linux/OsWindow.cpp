@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Keyboard.h"
 #include "OS.h"
-#include "GLXContext.h"
+#include "GLContext.h"
 #include "String.h"
 
 namespace crown

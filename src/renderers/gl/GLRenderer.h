@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <GL/glew.h>
 
-#include "GLXContext.h"
 #include "Renderer.h"
 #include "Texture.h"
 #include "VertexBuffer.h"
@@ -38,8 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IdTable.h"
 #include "MallocAllocator.h"
 #include "Resource.h"
-
-#include "GLXContext.h"
+#include "GLContext.h"
 
 namespace crown
 {

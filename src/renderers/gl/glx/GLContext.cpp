@@ -23,7 +23,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "GLXContext.h"
+#include "GLContext.h"
 #include "Assert.h"
 #include "Types.h"
 
