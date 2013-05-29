@@ -1,11 +1,17 @@
 #include "JSONParser.h"
 #include "DiskFile.h"
+#include "String.h"
+#include "OS.h"
 
 namespace crown
 {
 
 //--------------------------------------------------------------------------
-JSONParser::JSONParser(File* file, size_t size)
+JSONParser::JSONParser(File* file, size_t size) :
+	m_file(file),
+	m_next_token(0),
+	m_prev_token(-1),
+	m_key_set(false)
 {
 	if (size > 1024)
 	{
@@ -18,50 +24,29 @@ JSONParser::JSONParser(File* file, size_t size)
 
 	m_size = size;
 
-	m_file = file;
+	// m_file = file;
 
 	m_pos = m_file->position();
 
-	m_next_token = 0;
+	// m_next_token = 0;
 
-	m_prev_token = -1;
-
-	is_init = true;
+	// m_prev_token = -1;
 }
 
 //--------------------------------------------------------------------------
 JSONParser::~JSONParser()
 {
-	if (m_size > 1024)
+	if (m_size > 1024 && m_tokens != NULL)
 	{
 		delete m_tokens;
 	}
-	else
-	{
-		delete [] m_tokens_list;
-	}
+
 }
-
-//--------------------------------------------------------------------------
-// void
-// JSONParser::shutdown()
-// {
-// 	m_pos = 0;
-// 	m_next_token = 0;
-// 	m_prev_token = -1;
-
-// 	is_init = false;
-// }
 
 //--------------------------------------------------------------------------
 JSONError 
 JSONParser::parse()
 {
-	if (!is_init)
-	{
-		return JSON_NO_INIT; 
-	}
-
 	JSONError error;
 	JSONToken* token;
 
@@ -130,8 +115,8 @@ JSONParser::parse()
 					token = &m_tokens[token->m_parent];
 				}
 
-				token->m_size = token->m_end - token->m_start;
-
+				// token->m_size = token->m_end - token->m_start;
+				fill_token(token, type, token->m_start, token->m_end);
 				break;
 			}
 			case '\"':
@@ -143,10 +128,13 @@ JSONParser::parse()
             	}
 				break;
 			}
+			case ':':
+			{
+				break;
+			}
             case '\t': 
             case '\r': 
             case '\n': 
-            case ':': 
             case ',': 
             case ' ': 
             {
@@ -321,22 +309,32 @@ JSONParser::allocate_token()
 //--------------------------------------------------------------------------
 void JSONParser::fill_token(JSONToken* token, JSONType type, int32_t start, int32_t end)
 {
+	uint32_t cur_pos = m_file->position();
+
 	token->m_type = type;
 	token->m_start = start;
 	token->m_end = end;
 	token->m_size = token->m_end - token->m_start;
+
+	char tmp[token->m_size+1];
+	m_file->seek(token->m_start-1);
+	m_file->read(tmp, token->m_size);
+	tmp[token->m_size] = '\0';
+	string::strcpy(token->m_value, tmp);
+	os:printf("%d\n", string::strlen(token->m_value));
+
+	m_file->seek(cur_pos);
 }
 
-//--------------------------------------------------------------------------
 JSONToken* JSONParser::get_tokens()
 {
-	return m_tokens;
+	return m_tokens_list;
 }
 
-//--------------------------------------------------------------------------
 int32_t JSONParser::get_tokens_number()
 {
 	return m_next_token;
 }
+
 
 } //namespace crown
