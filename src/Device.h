@@ -116,6 +116,7 @@ private:
 
 	void					parse_command_line(int argc, char** argv);
 	void					check_preferred_settings();
+	void					read_engine_settings();
 	void					print_help_message();
 
 private:

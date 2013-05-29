@@ -1,8 +1,11 @@
 #pragma once
 
+#include <cstdarg>
 #include "Types.h"
 #include "OS.h"
 #include "File.h"
+#include "List.h"
+#include "Dictionary.h"
 
 namespace crown
 {
@@ -38,7 +41,6 @@ struct JSONToken
 	size_t 		m_size;					// Token's dimension
 	int32_t 	m_parent;				// Token's parent
 
-
 	inline void print()
 	{
 		os::printf("Value:\t%s\n", m_value);
@@ -68,20 +70,7 @@ public:
 	/// Get next token
 	int32_t			get_tokens_number();
 
-	bool 			get_bool(const char* name);
-
-	int32_t 		get_int(const char* name);
-
-	float			get_float(const char* name);
-
-	// void			get_string(const char* name, List<char>& string);
-
-	// void			get_array(const char* name, List<const char*>& array);
-
-	// void			get_object(const char* name, Dictionary<String, const char*>& obj);
-
 private:
-
 	/// Parse string in JSON data
 	JSONError		parse_string();
 	/// Parse number or boolean in JSON data
@@ -91,6 +80,8 @@ private:
 	/// Fill token and set boundaries
 	void			fill_token(JSONToken* token, JSONType type, int32_t start, int32_t end);
 
+	// const char**	parse_arguments(const char* first, ...);
+
 	/// JSON file of data
 	File*			m_file;
 	/// JSON string offset
@@ -99,8 +90,6 @@ private:
 	int32_t			m_next_token;
 	/// Previous token e.g parent or array		
 	int32_t			m_prev_token;
-	/// true if the current token is a key, false otherwise
-	bool 			m_key_set;
 
 	/// JSON tokens list, used as default
 	JSONToken		m_tokens_list[1024];
@@ -108,8 +97,6 @@ private:
 	JSONToken* 		m_tokens;
 	/// m_tokens default size, default 1024
 	size_t			m_size;
-
-
 };
 
 } // namespace crown

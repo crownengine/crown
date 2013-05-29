@@ -5,6 +5,8 @@
 namespace crown
 {
 
+StringSetting g_boot("boot_file", "lua main file", "lua/game.raw");
+
 lua_State* L;
 
 void init()
@@ -14,7 +16,9 @@ void init()
 
 	lua_cpcall(L, luaopen_libcrownlua, NULL);
 
-	if (luaL_loadfile(L, "/home/mikymod/test/res_linux/lua/game.raw") || lua_pcall(L, 0, 0, 0))
+	const char* path = device()->filesystem()->os_path(g_boot.value());
+
+	if (luaL_loadfile(L, path) || lua_pcall(L, 0, 0, 0))
 	{
 		os::printf("error: %s", lua_tostring(L, -1));
 	}

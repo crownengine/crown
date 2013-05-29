@@ -94,6 +94,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Settings
 #include "IntSetting.h"
 #include "FloatSetting.h"
+#include "StringSetting.h"
 
 // Engine
 #include "Camera.h"

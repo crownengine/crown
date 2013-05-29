@@ -1,7 +1,7 @@
 #include "JSONParser.h"
 #include "DiskFile.h"
-#include "String.h"
 #include "OS.h"
+#include "String.h"
 
 namespace crown
 {
@@ -10,8 +10,7 @@ namespace crown
 JSONParser::JSONParser(File* file, size_t size) :
 	m_file(file),
 	m_next_token(0),
-	m_prev_token(-1),
-	m_key_set(false)
+	m_prev_token(-1)
 {
 	if (size > 1024)
 	{
@@ -321,7 +320,6 @@ void JSONParser::fill_token(JSONToken* token, JSONType type, int32_t start, int3
 	m_file->read(tmp, token->m_size);
 	tmp[token->m_size] = '\0';
 	string::strcpy(token->m_value, tmp);
-	os:printf("%d\n", string::strlen(token->m_value));
 
 	m_file->seek(cur_pos);
 }
@@ -335,6 +333,24 @@ int32_t JSONParser::get_tokens_number()
 {
 	return m_next_token;
 }
+
+// const char** JSONParser::parse_arguments(const char* first, ...)
+// {
+	// va_list args;
+
+	// va_start(args, first);
+
+	// const char* arg;
+
+	// arg = va_arg(first, const char*);
+	// os::printf("%s\n", arg);
+
+	// while ((arg = va_arg(args, const char*)) != 0)
+	// {
+	// 	os::printf("%s\n", arg);
+	// }
+	// va_end(args);
+// }
 
 
 } //namespace crown
