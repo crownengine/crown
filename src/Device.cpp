@@ -533,9 +533,10 @@ void Device::read_engine_settings()
 
 	for (int i = 0; i < json.get_tokens_number(); i++)
 	{
-		os::printf("id: %d\n", i);
 		tokens[i].print();
 	}
+
+	json.get_array("crown").get_object("boot").get_string("file");
 }
 
 

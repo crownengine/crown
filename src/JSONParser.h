@@ -35,6 +35,7 @@ struct JSONToken
 	static const uint32_t MAX_TOKEN_LEN = 1024;
 
 	JSONType	m_type;					// Token's type
+	int32_t		m_id;					// Token's id
 	char 		m_value[MAX_TOKEN_LEN];	// Token's value
 	int32_t 	m_start;				// Starting byte
 	int32_t 	m_end;					// Ending byte
@@ -43,6 +44,7 @@ struct JSONToken
 
 	inline void print()
 	{
+		os::printf("Id:\t%d\n", m_id);
 		os::printf("Value:\t%s\n", m_value);
 		os::printf("Type:\t%d\n", m_type);
 		os::printf("Start:\t%d\n", m_start);
@@ -70,6 +72,18 @@ public:
 	/// Get next token
 	int32_t			get_tokens_number();
 
+	JSONParser&		get_object(const char* key);
+
+	JSONParser&		get_array(const char* key);
+
+	JSONParser& 	get_string(const char* key);
+
+	JSONParser&		get_float(const char* key);
+
+	JSONParser&		get_int(const char* key);
+
+	JSONParser&		get_bool(const char* key);
+
 private:
 	/// Parse string in JSON data
 	JSONError		parse_string();
@@ -79,8 +93,6 @@ private:
 	JSONToken* 		allocate_token();
 	/// Fill token and set boundaries
 	void			fill_token(JSONToken* token, JSONType type, int32_t start, int32_t end);
-
-	// const char**	parse_arguments(const char* first, ...);
 
 	/// JSON file of data
 	File*			m_file;
@@ -97,6 +109,11 @@ private:
 	JSONToken* 		m_tokens;
 	/// m_tokens default size, default 1024
 	size_t			m_size;
+
+	/// Stores the id of current node while fetching data
+	uint32_t		m_fetching_node;
+	/// Stores the number of steps while fetching data
+	uint32_t		m_fetching_step;
 };
 
 } // namespace crown
