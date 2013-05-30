@@ -396,7 +396,7 @@ void Device::create_resource_manager()
 	}
 
 	// Create resource manager
-	m_resource_manager = new ResourceManager(*m_resource_archive, m_resource_allocator);
+	m_resource_manager = new ResourceManager(*m_resource_archive);
 
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());

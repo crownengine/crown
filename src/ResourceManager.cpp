@@ -44,9 +44,8 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-ResourceManager::ResourceManager(ResourceArchive& archive, Allocator& allocator) :
+ResourceManager::ResourceManager(ResourceArchive& archive) :
 	m_resource_archive(archive),
-	m_resource_allocator(allocator),
 	m_resources(m_allocator),
 	m_loading_queue(m_allocator),
 	m_loaded_queue(m_allocator),
@@ -337,7 +336,7 @@ void ResourceManager::background_load()
 }
 
 //-----------------------------------------------------------------------------
-void* ResourceManager::load_by_type(ResourceId name) const
+void* ResourceManager::load_by_type(ResourceId name)
 {
 	if (name.type == TEXTURE_TYPE)
 	{
@@ -356,7 +355,7 @@ void* ResourceManager::load_by_type(ResourceId name) const
 }
 
 //-----------------------------------------------------------------------------
-void ResourceManager::unload_by_type(ResourceId name, void* resource) const
+void ResourceManager::unload_by_type(ResourceId name, void* resource)
 {
 	if (name.type == TEXTURE_TYPE)
 	{

@@ -146,7 +146,6 @@ private:
 	// Private subsystems
 	ResourceManager*		m_resource_manager;
 	ResourceArchive*		m_resource_archive;
-	MallocAllocator			m_resource_allocator;
 
 	// The game currently running
 	void*					m_game_library;

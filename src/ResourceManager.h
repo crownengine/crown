@@ -71,7 +71,7 @@ class ResourceManager
 public:
 
 	/// Read resources from @archive and store resource data using @allocator.
-							ResourceManager(ResourceArchive& archive, Allocator& allocator);
+							ResourceManager(ResourceArchive& archive);
 							~ResourceManager();
 
 	/// Loads the resource by @name and returns its ResourceId.
@@ -136,8 +136,8 @@ private:
 
 	void					background_load();
 
-	void*					load_by_type(ResourceId name) const;
-	void					unload_by_type(ResourceId name, void* resource) const;
+	void*					load_by_type(ResourceId name);
+	void					unload_by_type(ResourceId name, void* resource);
 	void					online(ResourceId name, void* resource);
 
 private:
@@ -149,7 +149,7 @@ private:
 	// Archive whether to look for resources
 	ResourceArchive&		m_resource_archive;
 	// Used to strore resource memory
-	Allocator&				m_resource_allocator;
+	MallocAllocator			m_resource_allocator;
 
 	MallocAllocator			m_allocator;
 	// The master lookup table
