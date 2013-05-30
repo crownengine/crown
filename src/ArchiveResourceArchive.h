@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "ResourceArchive.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
@@ -68,6 +69,8 @@ public:
 	void			close(DiskFile* resource);
 
 private:
+
+	MallocAllocator	m_allocator;
 
 	Filesystem&		m_filesystem;
 

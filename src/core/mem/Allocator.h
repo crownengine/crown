@@ -49,7 +49,26 @@ public:
 	virtual size_t		allocated_size() = 0;
 };
 
-Allocator& get_default_allocator();
+Allocator& default_allocator();
+
+/// Respects standard behaviour when calling on NULL @ptr
+template <typename T>
+void call_destructor_and_deallocate(Allocator& a, T* ptr)
+{
+	if (ptr != NULL)
+	{
+		ptr->~T();
+
+		a.deallocate(ptr);
+	}
+}
+
+//-----------------------------------------------------------------------------
+#define CE_NEW(allocator, T)\
+	new ((allocator).allocate(sizeof(T))) T
+
+//-----------------------------------------------------------------------------
+#define CE_DELETE(allocator, ptr)\
+	call_destructor_and_deallocate(allocator, ptr)
 
 } // namespace crown
-

@@ -108,10 +108,10 @@ public:
 		Vec3 start = Vec3(0.0f, 10.0f, 0.0f);
 
 		// Add a movable camera
-		cam = new Camera(start, 90.0f, 1.6f);
-		system = new FPSSystem(cam, 10.0f, 2.5f);
+		cam = CE_NEW(m_allocator, Camera)(start, 90.0f, 1.6f);
+		system = CE_NEW(m_allocator, FPSSystem)(cam, 10.0f, 2.5f);
 		// Add a skybox
-		skybox = new Skybox(Vec3::ZERO, true);
+		skybox = CE_NEW(m_allocator, Skybox)(Vec3::ZERO, true);
 
 		terrain.CreateTerrain(64, 64, 1, 0.0f);
 		terrain.PlotCircle(4, 4, 4, 2);
@@ -217,6 +217,7 @@ public:
 
 private:
 
+	MallocAllocator m_allocator;
 	FPSSystem* system;
 	Camera* cam;
 	Skybox* skybox;

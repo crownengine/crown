@@ -32,10 +32,10 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 EventDispatcher::EventDispatcher() :
-	m_mouse_listener_list(get_default_allocator()),
-	m_keyboard_listener_list(get_default_allocator()),
-	m_touch_listener_list(get_default_allocator()),
-	m_acc_listener_list(get_default_allocator())
+	m_mouse_listener_list(default_allocator()),
+	m_keyboard_listener_list(default_allocator()),
+	m_touch_listener_list(default_allocator()),
+	m_acc_listener_list(default_allocator())
 {
 }
 

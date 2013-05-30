@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <stdint.h>
 #include <cstdio>
+#include <new>
 #include "Types.h"
 
 namespace crown
@@ -47,4 +48,3 @@ inline void* align(void* p, size_t align)
 
 } // namespace memory
 } // namespace crown
-

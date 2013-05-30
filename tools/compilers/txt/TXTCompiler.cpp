@@ -56,7 +56,7 @@ size_t TXTCompiler::read_resource_impl(DiskFile* in_file)
 {
 	m_file_size = in_file->size();
 
-	m_file_data = new char[m_file_size];
+	m_file_data = (char*)default_allocator().allocate(m_file_size * sizeof(char));
 	
 	// Copy the entire file into the buffer
 	in_file->read(m_file_data, m_file_size);
@@ -81,7 +81,7 @@ void TXTCompiler::cleanup_impl()
 {
 	if (m_file_data)
 	{
-		delete[] m_file_data;
+		default_allocator().deallocate(m_file_data);
 		m_file_data = NULL;
 	}
 }

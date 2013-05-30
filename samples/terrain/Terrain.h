@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Intersection.h"
 #include "Ray.h"
 #include "Renderer.h"
+#include "MallocAllocator.h"
 
 #define MAX_BRUSH_SIZE 256
 
@@ -71,6 +72,8 @@ public:
 	void		Render();
 
 private:
+
+	MallocAllocator	m_allocator;
 
 	uint32_t		mSizeX;				// X in meters
 	uint32_t		mSizeZ;				// Z in meters

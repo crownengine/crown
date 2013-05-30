@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "String.h"
 #include "OS.h"
 #include "File.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
@@ -150,6 +151,8 @@ private:
 	const char*			build_os_path(const char* base_path, const char* relative_path);
 	
 private:
+
+	MallocAllocator		m_allocator;
 
 	char				m_root_path[os::MAX_PATH_LENGTH];
 

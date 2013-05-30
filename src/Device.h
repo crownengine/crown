@@ -120,6 +120,9 @@ private:
 
 private:
 
+	// Used to allocate all subsystems
+	MallocAllocator			m_allocator;
+
 	// Preferred settings from command line
 	int32_t					m_preferred_window_width;
 	int32_t					m_preferred_window_height;

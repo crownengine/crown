@@ -119,11 +119,5 @@ void MallocAllocator::pad(Header* header, void* data)
 	}
 }
 
-MallocAllocator default_allocator;
-Allocator& get_default_allocator()
-{
-	return default_allocator;
-}
-
 } // namespace crown
 

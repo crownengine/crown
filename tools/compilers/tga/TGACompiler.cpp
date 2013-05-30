@@ -78,14 +78,14 @@ size_t TGACompiler::read_resource_impl(DiskFile* in_file)
 		case 3:
 		{
 			m_image_format = PF_RGB_8;
-			m_image_data = new uint8_t[(uint32_t)(m_image_size * 3)];
+			m_image_data = (uint8_t*)default_allocator().allocate(m_image_size * 3 * sizeof(uint8_t));
 
 			break;
 		}
 		case 4:
 		{
 			m_image_format = PF_RGBA_8;
-			m_image_data = new uint8_t[(uint32_t)(m_image_size * m_image_channels)];
+			m_image_data = (uint8_t*)default_allocator().allocate(m_image_size * m_image_channels * sizeof(uint8_t));
 			
 			break;
 		}
@@ -148,7 +148,7 @@ void TGACompiler::cleanup_impl()
 {
 	if (m_image_data)
 	{
-		delete[] m_image_data;
+		default_allocator().deallocate(m_image_data);
 		m_image_data = NULL;
 	}
 }

@@ -50,13 +50,13 @@ Terrain::~Terrain()
 {
 	if (mHeights != NULL)
 	{
-		delete[] mHeights;
+		m_allocator.deallocate(mHeights);
 	}
 
-	delete[] mVertices;
-	delete[] mNormals;
-	delete[] mTexCoords;
-	delete[] mIndices;
+	m_allocator.deallocate(mVertices);
+	m_allocator.deallocate(mNormals);
+	m_allocator.deallocate(mTexCoords);
+	m_allocator.deallocate(mIndices);
 }
 
 void Terrain::CreateTerrain(uint32_t xSize, uint32_t zSize, uint32_t tilePerMeter, float initialHeight)
@@ -76,7 +76,7 @@ void Terrain::CreateTerrain(uint32_t xSize, uint32_t zSize, uint32_t tilePerMete
 
 	uint32_t heightsCount = mVerticesInSizeX * mVerticesInSizeZ;
 
-	mHeights = new float[heightsCount];
+	mHeights = (float*)m_allocator.allocate(heightsCount * sizeof(float));
 
 	// Init heights
 	for (uint32_t i = 0; i < heightsCount; i++)
@@ -85,13 +85,13 @@ void Terrain::CreateTerrain(uint32_t xSize, uint32_t zSize, uint32_t tilePerMete
 	}
 
 	// Construct drawing data
-	mVertices = new Vec3[heightsCount];			// There are as many vertices as heights
+	mVertices = (Vec3*)m_allocator.allocate(heightsCount * sizeof(Vec3));		// There are as many vertices as heights
 	mVertexCount = heightsCount;
-	mNormals = new Vec3[heightsCount];			// Same as vertices
+	mNormals = (Vec3*)m_allocator.allocate(heightsCount * sizeof(Vec3));		// Same as vertices
 	mNormalCount = heightsCount;
-	mTexCoords = new Vec2[heightsCount];		// Same as vertices
+	mTexCoords = (Vec2*)m_allocator.allocate(heightsCount * sizeof(Vec2));				// Same as vertices
 	mTexCoordCount = heightsCount;
-	mIndices = new uint16_t[mTilesInSizeX * mTilesInSizeZ * 6];	//
+	mIndices = (uint16_t*)m_allocator.allocate(mTilesInSizeX * mTilesInSizeZ * 6 * sizeof(uint16_t));	//
 	mIndexCount = mTilesInSizeX * mTilesInSizeZ * 6;
 
 	// Populate vertex list (generate a grid lying on the xz-plane and facing upwards)
