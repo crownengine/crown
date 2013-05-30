@@ -23,9 +23,7 @@ int main(int argc, char** argv)
 
   FileResourceArchive archive(fs);
 
-  MallocAllocator allocator;
-
-  ResourceManager res_manager(archive, allocator);
+  ResourceManager res_manager(archive);
 
   ResourceId script = res_manager.load("lua/hello.lua");
 
