@@ -41,6 +41,7 @@ class List
 {
 public:
 
+	/// Does not allocate memory.
 						List(Allocator& allocator);
 
 	/// Allocates capacity * sizeof(T) bytes.
