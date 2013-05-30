@@ -53,6 +53,24 @@ struct JSONToken
 		os::printf("Size:\t%d\n", m_size);
 		os::printf("\n");		
 	}
+
+	inline bool has_parent()
+	{
+		return m_parent != -1;
+	}
+};
+
+struct JSONNode
+{
+	int32_t 	m_id;
+	JSONType 	m_type;
+
+	inline void print()
+	{
+		os::printf("----------------\n");
+		os::printf("Id:\t%d\n", m_id);
+		os::printf("----------------\n");
+	}
 };
 
 /// JSONParser parses JSON file and stores all relative tokens.
@@ -84,6 +102,9 @@ public:
 
 	JSONParser&		get_bool(const char* key);
 
+	const char*		to_string();
+
+
 private:
 	/// Parse string in JSON data
 	JSONError		parse_string();
@@ -102,7 +123,6 @@ private:
 	int32_t			m_next_token;
 	/// Previous token e.g parent or array		
 	int32_t			m_prev_token;
-
 	/// JSON tokens list, used as default
 	JSONToken		m_tokens_list[1024];
 	/// JSON tokens ptr (used only if we need more then 1024 tokens)
@@ -110,10 +130,11 @@ private:
 	/// m_tokens default size, default 1024
 	size_t			m_size;
 
-	/// Stores the id of current node while fetching data
-	uint32_t		m_fetching_node;
-	/// Stores the number of steps while fetching data
-	uint32_t		m_fetching_step;
+	/// 
+	JSONNode		m_nodes[128];
+	///
+	uint32_t 		m_nodes_count;
+
 };
 
 } // namespace crown

@@ -536,7 +536,11 @@ void Device::read_engine_settings()
 		tokens[i].print();
 	}
 
-	json.get_array("crown").get_object("boot").get_string("file");
+	
+	const char* value = json.get_array("crown").get_object("utils").get_string("file").to_string();
+
+	os::printf("Value:\t%s\n", value);
+
 }
 
 
