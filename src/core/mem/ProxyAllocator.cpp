@@ -31,7 +31,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-ProxyAllocator::ProxyAllocator(Allocator& allocator, const char* name) :
+ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator) :
 	m_allocator(allocator),
 	m_name(name)
 {

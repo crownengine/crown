@@ -39,7 +39,7 @@ class ProxyAllocator
 public:
 
 	/// Tag all allocations made with @allocator by the given @name
-					ProxyAllocator(Allocator& allocator, const char* name);
+					ProxyAllocator(const char* name, Allocator& allocator);
 
 	/// @copydoc Allocator::allocate()
 	void*			allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
