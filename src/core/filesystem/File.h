@@ -30,98 +30,90 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-enum StreamOpenMode
+enum FileOpenMode
 {
-	SOM_READ		= 1,
-	SOM_WRITE		= 2
+	FOM_READ		= 1,
+	FOM_WRITE		= 2
 };
 
 class Compressor;
 
-/// An abstraction to access data streams.
+/// An abstraction to access data files.
 /// 
 /// It represents a flow of data attached to a 'file' which can be an archived file,
 /// a regular file, a location in memory or anything that can be read or wrote.
-/// A Stream is an abstraction to interact with these in an uniform way; every stream
+/// A File is an abstraction to interact with these in an uniform way; every file
 /// comes with a convenient set of methods to facilitate reading from it, writing to
 /// it and so on.
-class Stream
+class File
 {
 public:
 
-	/// Constructor
-						Stream(StreamOpenMode mode) : m_open_mode(mode) {}
+	/// Opens the file with the given @mode
+						File(FileOpenMode mode) : m_open_mode(mode) {}
+	virtual				~File() {};
 
-	/// Destructor
-	virtual				~Stream() {};
-
-	/// Sets the position indicator of the stream to position.
+	/// Sets the position indicator of the file to position.
 	virtual void		seek(size_t position) = 0;
 
-	/// Sets the position indicator to the end of the stream
+	/// Sets the position indicator to the end of the file
 	virtual void		seek_to_end() = 0;
 
 	/// Sets the position indicator to bytes after current position
 	virtual void		skip(size_t bytes) = 0;
 
-	/// Reads a byte from the stream starting at current position.
-	virtual uint8_t		read_byte() = 0;
-
-	/// Reads a block of data from the stream.
+	/// Reads a block of data from the file.
 	virtual void		read(void* buffer, size_t size) = 0;
 
-	/// Writes a byte to the stream starting at current position.
-	virtual void		write_byte(uint8_t val) = 0;
-
-	/// Writes a block of data to the stream.
+	/// Writes a block of data to the file.
 	virtual void		write(const void* buffer, size_t size) = 0;
 
-	/// Copies a chunk of 'size' bytes of data from this to another stream.
-	virtual bool		copy_to(Stream& stream, size_t size = 0) = 0;
+	/// Copies a chunk of 'size' bytes of data from this to another file.
+	virtual bool		copy_to(File& file, size_t size = 0) = 0;
 
-	/// Zips a chunk of 'size' bytes of data from this to another stream using compressor.
-	virtual bool		compress_to(Stream& stream, size_t size, size_t& compressed_size, Compressor& compressor);
+	/// Zips a chunk of 'size' bytes of data from this to another file using compressor.
+	virtual bool		compress_to(File& file, size_t size, size_t& compressed_size, Compressor& compressor);
 
-	/// Unzip a zipped stream of data from this to another stream using compressor.
-	virtual bool		uncompress_to(Stream& stream, size_t& uncompressed_size, Compressor& compressor);
+	/// Unzip a zipped file of data from this to another file using compressor.
+	virtual bool		uncompress_to(File& file, size_t& uncompressed_size, Compressor& compressor);
 
 	/// Forces the previouses write operations to complete.
-	/// Generally, when a Stream is attached to a file,
+	/// Generally, when a File is attached to a file,
 	/// write operations are not performed instantly, the output data
 	/// may be stored to a temporary buffer before making its way to
 	/// the file. This method forces all the pending output operations
-	/// to be written to the stream.
+	/// to be written to the file.
 	virtual void		flush() = 0;
 
-	/// Returns whether the stream is valid.
-	/// A stream is valid when the buffer where it operates
-	/// exists. (i.e. a file descriptor is attached to the stream, 
-	/// a memory area is attached to the stream etc.)
+	/// Returns whether the file is valid.
+	/// A file is valid when the buffer where it operates
+	/// exists. (i.e. a file descriptor is attached to the file, 
+	/// a memory area is attached to the file etc.)
 	virtual bool		is_valid() const = 0;
 
-	/// Returns whether the position is at end of stream.
-	virtual bool		end_of_stream() const = 0;
+	/// Returns whether the position is at end of file.
+	virtual bool		end_of_file() const = 0;
 
-	/// Returns the size of stream in bytes.
+	/// Returns the size of file in bytes.
 	virtual size_t		size() const = 0;
 
-	/// Returns the current position in stream.
+	/// Returns the current position in file.
 	/// Generally, for binary data, it means the number of bytes
-	/// from the beginning of the stream.
+	/// from the beginning of the file.
 	virtual size_t		position() const = 0;
 
-	/// Returns whether the stream can be read.
+	/// Returns whether the file can be read.
 	virtual bool		can_read() const = 0;
 
-	/// Returns whether the stream can be wrote.
+	/// Returns whether the file can be wrote.
 	virtual bool		can_write() const = 0;
 
-	/// Returns whether the stream can be sought.
+	/// Returns whether the file can be sought.
 	virtual bool		can_seek() const = 0;
 
 protected:
 
-	StreamOpenMode		m_open_mode;
+	FileOpenMode		m_open_mode;
 };
 
 } // namespace crown

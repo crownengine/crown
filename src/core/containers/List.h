@@ -165,7 +165,7 @@ inline List<T>::~List()
 template <typename T>
 inline T& List<T>::operator[](uint32_t index)
 {
-	//ce_assert(index < m_size);
+	//CE_ASSERT(index < m_size);
 
 	return m_array[index];
 }
@@ -174,7 +174,7 @@ inline T& List<T>::operator[](uint32_t index)
 template <typename T>
 inline const T& List<T>::operator[](uint32_t index) const
 {
-	//ce_assert(index < m_size);
+	//CE_ASSERT(index < m_size);
 
 	return m_array[index];
 }
@@ -291,7 +291,7 @@ inline uint32_t List<T>::push_back(const T& item)
 template <typename T>
 inline void List<T>::pop_back()
 {
-	ce_assert(m_size > 0, "The list is empty");
+	CE_ASSERT(m_size > 0, "The list is empty");
 
 	m_size--;
 }
@@ -372,7 +372,7 @@ inline T* List<T>::end()
 template <typename T>
 inline T& List<T>::front()
 {
-	ce_assert(m_size > 0, "The list is empty");
+	CE_ASSERT(m_size > 0, "The list is empty");
 
 	return m_array[0];
 }
@@ -381,7 +381,7 @@ inline T& List<T>::front()
 template <typename T>
 inline const T& List<T>::front() const
 {
-	ce_assert(m_size > 0, "The list is empty");
+	CE_ASSERT(m_size > 0, "The list is empty");
 
 	return m_array[0];
 }
@@ -390,7 +390,7 @@ inline const T& List<T>::front() const
 template <typename T>
 inline T& List<T>::back()
 {
-	ce_assert(m_size > 0, "The list is empty");
+	CE_ASSERT(m_size > 0, "The list is empty");
 
 	return m_array[m_size - 1];
 }
@@ -399,7 +399,7 @@ inline T& List<T>::back()
 template <typename T>
 inline const T& List<T>::back() const
 {
-	ce_assert(m_size > 0, "The list is empty");
+	CE_ASSERT(m_size > 0, "The list is empty");
 
 	return m_array[m_size - 1];
 }

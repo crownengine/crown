@@ -22,7 +22,7 @@ UDPSocket::~UDPSocket()
 
 bool UDPSocket::open(uint16_t port)
 {
-	ce_assert(!is_open());
+	CE_ASSERT(!is_open());
 
 	m_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (m_socket <= 0)
@@ -59,16 +59,16 @@ bool UDPSocket::open(uint16_t port)
 
 bool UDPSocket::send(IPv4Address &receiver, const void* data, int32_t size )
 {
-	ce_assert(data);
-	ce_assert(size > 0);
+	CE_ASSERT(data);
+	CE_ASSERT(size > 0);
 
 	if (m_socket == 0)
 	{
 		return false;
 	}
 	
-	ce_assert(receiver.get_address() != 0);
-	ce_assert(receiver.get_port() != 0);
+	CE_ASSERT(receiver.get_address() != 0);
+	CE_ASSERT(receiver.get_port() != 0);
 
 	sockaddr_in address;
 	address.sin_family = AF_INET;
@@ -82,8 +82,8 @@ bool UDPSocket::send(IPv4Address &receiver, const void* data, int32_t size )
 
 int32_t UDPSocket::receive(IPv4Address &sender, void* data, int32_t size)
 {
-	ce_assert(data);
-	ce_assert(size > 0);
+	CE_ASSERT(data);
+	CE_ASSERT(size > 0);
 
 	if (m_socket == 0)
 	{

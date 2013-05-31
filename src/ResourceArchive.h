@@ -49,7 +49,7 @@ struct ArchiveEntry
 };
 
 class Filesystem;
-class FileStream;
+class DiskFile;
 
 class ResourceArchive
 {
@@ -63,10 +63,10 @@ public:
 	/// The resource stream points exactly at the start
 	/// of the useful resource data, so you do not have to
 	/// care about skipping headers, metadatas and so on.
-	virtual FileStream*		open(ResourceId name) = 0;
+	virtual DiskFile*		open(ResourceId name) = 0;
 
 	/// Closes the resource file.
-	virtual void			close(FileStream* resource) = 0;
+	virtual void			close(DiskFile* resource) = 0;
 };
 
 } // namespace crown

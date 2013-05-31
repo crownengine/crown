@@ -28,21 +28,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdio>
 
 #include "Types.h"
-#include "Stream.h"
+#include "File.h"
 
 namespace crown
 {
 
 /// Standard C file wrapper
-class File
+class OsFile
 {
 public:
 
-							File();
-							~File();
-
 	/// Opens the file located at @path with the given @mode.
-	bool					open(const char* path, StreamOpenMode mode);
+							OsFile(const char* path, FileOpenMode mode);
+							~OsFile();
 
 	/// Closes the file.
 	void					close();
@@ -53,7 +51,7 @@ public:
 	size_t					size() const;
 
 	/// Returs the mode used to open the file.
-	StreamOpenMode			mode();
+	FileOpenMode			mode();
 
 	/// Reads @size bytes from the file and stores it into @data.
 	/// Returns the number of bytes read.
@@ -83,7 +81,7 @@ public:
 private:
 
 	FILE*					m_file_handle;
-	StreamOpenMode			m_mode;
+	FileOpenMode			m_mode;
 };
 
 } // namespace crown

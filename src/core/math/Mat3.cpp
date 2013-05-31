@@ -103,7 +103,7 @@ Mat3& Mat3::operator=(const Mat3& a)
 //-----------------------------------------------------------------------------
 real Mat3::operator[](uint32_t i) const
 {
-	ce_assert(i < 9, "Index must be < 9");
+	CE_ASSERT(i < 9, "Index must be < 9");
 
 	return m[i];
 }
@@ -111,7 +111,7 @@ real Mat3::operator[](uint32_t i) const
 //-----------------------------------------------------------------------------
 real& Mat3::operator[](uint32_t i)
 {
-	ce_assert(i < 9, "Index must be < 9");
+	CE_ASSERT(i < 9, "Index must be < 9");
 
 	return m[i];
 }
@@ -119,7 +119,7 @@ real& Mat3::operator[](uint32_t i)
 //-----------------------------------------------------------------------------
 real Mat3::operator()(uint32_t row, uint32_t column) const
 {
-	ce_assert(row < 3 && column < 3, "Row and column must be < 3");
+	CE_ASSERT(row < 3 && column < 3, "Row and column must be < 3");
 
 	return m[row + column * 3];
 }

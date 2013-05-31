@@ -35,7 +35,7 @@ ProxyAllocator::ProxyAllocator(Allocator& allocator, const char* name) :
 	m_allocator(allocator),
 	m_name(name)
 {
-	ce_assert(name != NULL, "Name must be != NULL");
+	CE_ASSERT(name != NULL, "Name must be != NULL");
 }
 
 //-----------------------------------------------------------------------------

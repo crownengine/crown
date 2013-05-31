@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Compiler.h"
 #include "Hash.h"
 #include "Path.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 #include "Log.h"
 
 namespace crown
@@ -77,13 +77,13 @@ size_t Compiler::compile(const char* resource, uint32_t name, uint32_t type)
 	}
 
 	// Read source file
-	FileStream* input_file = m_root_fs.open(resource, SOM_READ);
+	DiskFile* input_file = m_root_fs.open(resource, FOM_READ);
 
 	size_t header_size = read_header(input_file);
 	size_t resource_size = read_resource(input_file);
 
 	// Write compiled file
-	FileStream* output_file;
+	DiskFile* output_file;
 
 	if (m_dest_fs.exists(output_name))
 	{
@@ -91,7 +91,7 @@ size_t Compiler::compile(const char* resource, uint32_t name, uint32_t type)
 	}
 
 	m_dest_fs.create_file(output_name);
-	output_file = m_dest_fs.open(output_name, SOM_WRITE);
+	output_file = m_dest_fs.open(output_name, FOM_WRITE);
 
 	write_header(output_file, name, type, resource_size);
 	write_resource(output_file);
@@ -104,19 +104,19 @@ size_t Compiler::compile(const char* resource, uint32_t name, uint32_t type)
 }
 
 //-----------------------------------------------------------------------------
-size_t Compiler::read_header(FileStream* in_file)
+size_t Compiler::read_header(DiskFile* in_file)
 {
 	return read_header_impl(in_file);
 }
 
 //-----------------------------------------------------------------------------
-size_t Compiler::read_resource(FileStream* in_file)
+size_t Compiler::read_resource(DiskFile* in_file)
 {
 	return read_resource_impl(in_file);
 }
 
 //-----------------------------------------------------------------------------
-void Compiler::write_header(FileStream* out_file, uint32_t name, uint32_t type, uint32_t resource_size)
+void Compiler::write_header(DiskFile* out_file, uint32_t name, uint32_t type, uint32_t resource_size)
 {
 	CompiledHeader header;
 	header.magic = COMPILED_HEADER_MAGIC_NUMBER;
@@ -131,7 +131,7 @@ void Compiler::write_header(FileStream* out_file, uint32_t name, uint32_t type, 
 }
 
 //-----------------------------------------------------------------------------
-void Compiler::write_resource(FileStream* out_file)
+void Compiler::write_resource(DiskFile* out_file)
 {
 	write_resource_impl(out_file);
 }

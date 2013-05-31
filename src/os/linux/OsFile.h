@@ -23,31 +23,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace crown
-{
+#pragma once
 
-class Stream;
-
-/// A reader that offers a convenient way to write text to a Stream
-class TextWriter
-{
-public:
-
-						TextWriter(Stream& s);
-
-	/// Writes a single character to the stream.
-	void				write_char(char c);
-	
-	/// Writes the string pointed by string to the stream.
-	/// The function begins copying from the address specified (string)
-	/// until it reaches the terminating null character ('\0').
-	/// This final null character is not copied to the stream.
-	void				write_string(const char* string);
-
-private:
-
-	Stream&				m_stream;
-};
-
-} // namespace crown
-
+#include "../posix/OsFile.h"

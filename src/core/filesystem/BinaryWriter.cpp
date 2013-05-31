@@ -23,51 +23,63 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "TextReader.h"
-#include "Stream.h"
-#include "Types.h"
+#include "BinaryWriter.h"
+#include "File.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-TextReader::TextReader(Stream& stream) : m_stream(stream)
+BinaryWriter::BinaryWriter(File& file) : m_file(file)
 {
 }
 
 //-----------------------------------------------------------------------------
-char TextReader::read_char()
+void BinaryWriter::write_byte(int8_t buffer)
 {
-	return m_stream.read_byte();
+	m_file.write(&buffer, sizeof(int8_t));
 }
 
 //-----------------------------------------------------------------------------
-char* TextReader::read_string(char* string, uint32_t count)
+void BinaryWriter::write_int16(int16_t buffer)
 {
-	char currentChar;
-	uint32_t i = 0;
+	m_file.write(&buffer, sizeof(int16_t));
+}
 
-	while(!m_stream.end_of_stream() && i < count - 1)
-	{
-		currentChar = m_stream.read_byte();
-		string[i] = currentChar;
+//-----------------------------------------------------------------------------
+void BinaryWriter::write_uint16(uint16_t buffer)
+{
+	m_file.write(&buffer, sizeof(uint16_t));
+}
 
-		i++;
+//-----------------------------------------------------------------------------
+void BinaryWriter::write_int32(int32_t buffer)
+{
+	m_file.write(&buffer, sizeof(int32_t));
+}
 
-		if (currentChar == '\n')
-		{
-			break;
-		}
-	}
+//-----------------------------------------------------------------------------
+void BinaryWriter::write_uint32(uint32_t buffer)
+{
+	m_file.write(&buffer, sizeof(uint32_t));
+}
 
-	if (i == 0)
-	{
-		return NULL;
-	}
+//-----------------------------------------------------------------------------
+void BinaryWriter::write_int64(int64_t buffer)
+{
+	m_file.write(&buffer, sizeof(int64_t));
+}
 
-	string[i] = '\0';
+//-----------------------------------------------------------------------------
+void BinaryWriter::write_double(double buffer)
+{
+	m_file.write(&buffer, sizeof(double));
+}
 
-	return string;
+//-----------------------------------------------------------------------------
+void BinaryWriter::write_float(float buffer)
+{
+	m_file.write(&buffer, sizeof(float));
 }
 
 } // namespace crown

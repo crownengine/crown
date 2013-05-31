@@ -39,8 +39,8 @@ Args::Args(int argc, char** argv, const char* shortopts, const ArgsOption* longo
 	m_scope(argc),
 	m_optarg(NULL)
 {
-	ce_assert(argv != NULL, "Argument vector must be != NULL");
-	ce_assert(shortopts != NULL, "Short argument list must be != NULL");
+	CE_ASSERT(argv != NULL, "Argument vector must be != NULL");
+	CE_ASSERT(shortopts != NULL, "Short argument list must be != NULL");
 	// longopts could be NULL
 }
 

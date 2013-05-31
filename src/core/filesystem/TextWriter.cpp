@@ -23,58 +23,23 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "Types.h"
-#include "ResourceArchive.h"
+#include "TextWriter.h"
+#include "File.h"
+#include "String.h"
 
 namespace crown
 {
 
-class Filesystem;
-class DiskFile;
-
-/// Structure of the archive
-///
-/// [ArchiveHeader]
-/// [ArchiveEntry]
-/// [ArchiveEntry]
-/// ...
-/// [ArchiveEntry]
-/// [ResourceData]
-/// [ResourceData]
-/// ...
-/// [ResourceData]
-///
-/// A valid archive must always have at least the archive header,
-/// starting at byte 0 of the archive file.
-///
-/// Newer archive versions must be totally backward compatible
-/// across minor engine releases, in order to be able to use
-/// recent version of the engine with older game archives.
-
-/// Source of resources
-class ArchiveResourceArchive : public ResourceArchive
+//-----------------------------------------------------------------------------
+TextWriter::TextWriter(File& file) : m_file(file)
 {
-public:
+}
 
-					ArchiveResourceArchive(Filesystem& fs);
-					~ArchiveResourceArchive();
-
-	/// @copydoc ResourceArchive::open()
-	DiskFile*		open(ResourceId name);
-
-	/// @copydoc ResourceArchive::close()
-	void			close(DiskFile* resource);
-
-private:
-
-	Filesystem&		m_filesystem;
-
-	DiskFile*		m_archive_file;
-
-	uint32_t		m_entries_count;
-	ArchiveEntry*	m_entries;
-};
+//-----------------------------------------------------------------------------
+void TextWriter::write_string(const char* string)
+{
+	m_file.write(string, string::strlen(string));
+}
 
 } // namespace crown
+

@@ -271,7 +271,7 @@ inline void Box::to_vertices(Vec3 v[8]) const
 //-----------------------------------------------------------------------------
 inline Vec3 Box::vertex(uint32_t index) const
 {
-	ce_assert(index < 8, "Index must be < 8");
+	CE_ASSERT(index < 8, "Index must be < 8");
 
 	switch (index)
 	{

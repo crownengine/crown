@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Filesystem.h"
 #include "Log.h"
 #include "OS.h"
-#include "FileStream.h"
+#include "DiskFile.h"
 
 namespace crown
 {
@@ -34,8 +34,8 @@ namespace crown
 //-----------------------------------------------------------------------------
 Filesystem::Filesystem(const char* root_path)
 {
-	ce_assert(root_path != NULL, "Root path must be != NULL");
-	ce_assert(os::is_absolute_path(root_path), "Root path must be absolute");
+	CE_ASSERT(root_path != NULL, "Root path must be != NULL");
+	CE_ASSERT(os::is_absolute_path(root_path), "Root path must be absolute");
 
 	string::strncpy(m_root_path, root_path, os::MAX_PATH_LENGTH);
 }
@@ -184,18 +184,18 @@ const char* Filesystem::os_path(const char* relative_path)
 }
 
 //-----------------------------------------------------------------------------
-FileStream* Filesystem::open(const char* relative_path, StreamOpenMode mode)
+DiskFile* Filesystem::open(const char* relative_path, FileOpenMode mode)
 {
 	FilesystemEntry info;
 
-	ce_assert(get_info(relative_path, info), "File does not exist: %s", relative_path);
-	ce_assert(info.type == FilesystemEntry::FILE, "File is not a regular file: %s", relative_path);
+	CE_ASSERT(get_info(relative_path, info), "File does not exist: %s", relative_path);
+	CE_ASSERT(info.type == FilesystemEntry::FILE, "File is not a regular file: %s", relative_path);
 
-	return new FileStream(mode, info.os_path);
+	return new DiskFile(mode, info.os_path);
 }
 
 //-----------------------------------------------------------------------------
-void Filesystem::close(FileStream* stream)
+void Filesystem::close(DiskFile* stream)
 {
 	delete stream;
 }

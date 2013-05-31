@@ -23,34 +23,28 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "TextWriter.h"
-#include "Stream.h"
-
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-TextWriter::TextWriter(Stream& stream) : m_stream(stream)
-{
-}
+class File;
 
-//-----------------------------------------------------------------------------
-void TextWriter::write_char(char c)
+/// A reader that offers a convenient way to write text to a File
+class TextWriter
 {
-	m_stream.write_byte(c);
-}
+public:
 
-//-----------------------------------------------------------------------------
-void TextWriter::write_string(const char* string)
-{
-	size_t count = 0;
+						TextWriter(File& file);
+	
+	/// Writes the string pointed by string to the file.
+	/// The function begins copying from the address specified (string)
+	/// until it reaches the terminating null character ('\0').
+	/// The final null character is not copied to the file.
+	void				write_string(const char* string);
 
-	while(string[count] != '\0')
-	{
-		m_stream.write_byte(string[count]);
-		count++;
-	}
-}
+private:
+
+	File&				m_file;
+};
 
 } // namespace crown
 

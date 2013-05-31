@@ -114,7 +114,9 @@ private:
 	void					create_renderer();
 	void					create_debug_renderer();
 
-	bool					parse_command_line(int argc, char** argv);
+	void					parse_command_line(int argc, char** argv);
+	void					check_preferred_settings();
+	void					read_engine_settings();
 	void					print_help_message();
 
 private:
@@ -125,9 +127,7 @@ private:
 	int32_t					m_preferred_window_fullscreen;
 	int32_t					m_preferred_renderer;
 	int32_t					m_preferred_mode;
-
 	char					m_preferred_root_path[os::MAX_PATH_LENGTH];
-	char					m_preferred_user_path[os::MAX_PATH_LENGTH];
 
 	bool					m_is_init		: 1;
 	bool					m_is_running	: 1;

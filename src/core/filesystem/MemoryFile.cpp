@@ -24,7 +24,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <stdlib.h>
-#include "MemoryStream.h"
+
+#include "MemoryFile.h"
 #include "MathUtils.h"
 #include "Log.h"
 #include "Types.h"
@@ -100,33 +101,34 @@ void DynamicMemoryBuffer::allocate(size_t capacity)
 {
 	// FIXME
 }
+
 //-----------------------------------------------------------------------------
-MemoryStream::MemoryStream(MemoryBuffer* buffer, StreamOpenMode mode) :
-	Stream(mode),
+MemoryFile::MemoryFile(MemoryBuffer* buffer, FileOpenMode mode) :
+	File(mode),
 	m_memory(buffer),
 	m_memory_offset(0)
 {
 }
 
 //-----------------------------------------------------------------------------
-MemoryStream::~MemoryStream()
+MemoryFile::~MemoryFile()
 {
 }
 
 //-----------------------------------------------------------------------------
-void MemoryStream::seek(size_t position)
+void MemoryFile::seek(size_t position)
 {
 	check_valid();
 	
 	m_memory_offset = position;
 
-	// Allow seek to m_memory->size() position, that means end of stream,
+	// Allow seek to m_memory->size() position, that means end of file,
 	// reading not allowed but you can write if it's dynamic
-	ce_assert(m_memory_offset <= m_memory->size(), "Trying to seek beyond end of stream");
+	CE_ASSERT(m_memory_offset <= m_memory->size(), "Trying to seek beyond end of file");
 }
 
 //-----------------------------------------------------------------------------
-void MemoryStream::seek_to_end()
+void MemoryFile::seek_to_end()
 {
 	check_valid();
 
@@ -134,31 +136,18 @@ void MemoryStream::seek_to_end()
 }
 
 //-----------------------------------------------------------------------------
-void MemoryStream::skip(size_t bytes)
+void MemoryFile::skip(size_t bytes)
 {
 	check_valid();
 
 	m_memory_offset += bytes;
 
-	//Allow seek to m_memory->getSize() position, that means end of stream, reading not allowed but you can write if it's dynamic
-	ce_assert(m_memory_offset <= m_memory->size(), "Trying to skip beyond end of stream");
+	//Allow seek to m_memory->getSize() position, that means end of file, reading not allowed but you can write if it's dynamic
+	CE_ASSERT(m_memory_offset <= m_memory->size(), "Trying to skip beyond end of file");
 }
 
 //-----------------------------------------------------------------------------
-uint8_t MemoryStream::read_byte()
-{
-	check_valid();
-
-	if (m_memory_offset >= m_memory->size())
-	{
-		Log::e("Trying to read beyond the end of stream.");
-	}
-
-	return m_memory->data()[m_memory_offset++];
-}
-
-//-----------------------------------------------------------------------------
-void MemoryStream::read(void* buffer, size_t size)
+void MemoryFile::read(void* buffer, size_t size)
 {
 	check_valid();
 	uint8_t* src = m_memory->data();
@@ -166,7 +155,7 @@ void MemoryStream::read(void* buffer, size_t size)
 
 	if (m_memory_offset + size > m_memory->size())
 	{
-		Log::e("Trying to read beyond the end of stream.");
+		Log::e("Trying to read beyond the end of file.");
 	}
 
 	for (size_t i = 0; i < size; i++)
@@ -178,25 +167,17 @@ void MemoryStream::read(void* buffer, size_t size)
 }
 
 //-----------------------------------------------------------------------------
-bool MemoryStream::copy_to(Stream& stream, size_t size)
+bool MemoryFile::copy_to(File& file, size_t size)
 {
 	check_valid();
 
-	stream.write(&(m_memory->data()[m_memory_offset]), math::min(m_memory->size()-m_memory_offset, size));
+	file.write(&(m_memory->data()[m_memory_offset]), math::min(m_memory->size()-m_memory_offset, size));
 
 	return true;
 }
 
 //-----------------------------------------------------------------------------
-void MemoryStream::write_byte(uint8_t val)
-{
-	check_valid();
-	m_memory->write(&val, m_memory_offset, 1);
-	m_memory_offset++;
-}
-
-//-----------------------------------------------------------------------------
-void MemoryStream::write(const void* buffer, size_t size)
+void MemoryFile::write(const void* buffer, size_t size)
 {
 	check_valid();
 	m_memory->write((uint8_t*)buffer, m_memory_offset, size);
@@ -204,13 +185,13 @@ void MemoryStream::write(const void* buffer, size_t size)
 }
 
 //-----------------------------------------------------------------------------
-void MemoryStream::flush()
+void MemoryFile::flush()
 {
 	return;
 }
 
 //-----------------------------------------------------------------------------
-void MemoryStream::dump()
+void MemoryFile::dump()
 {
 	uint8_t* buff = m_memory->data();
 

@@ -75,16 +75,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MallocAllocator.h"
 #include "ProxyAllocator.h"
 
-// Core/Streams
-#include "Stream.h"
-#include "FileStream.h"
-#include "MemoryStream.h"
-#include "NullStream.h"
-
+// Core/Filesystem
+#include "File.h"
+#include "DiskFile.h"
+#include "MemoryFile.h"
+#include "NullFile.h"
 #include "BinaryReader.h"
 #include "BinaryWriter.h"
 #include "TextReader.h"
 #include "TextWriter.h"
+#include "Filesystem.h"
 
 // Core/Threads
 #include "Thread.h"
@@ -94,6 +94,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Settings
 #include "IntSetting.h"
 #include "FloatSetting.h"
+#include "StringSetting.h"
 
 // Engine
 #include "Camera.h"
@@ -109,9 +110,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextureResource.h"
 #include "MaterialResource.h"
 #include "FontResource.h"
-
-// Engine/Filesystem
-#include "Filesystem.h"
 
 // Engine/Input
 #include "EventDispatcher.h"

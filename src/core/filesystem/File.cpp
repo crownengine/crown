@@ -23,35 +23,45 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "File.h"
 #include "Types.h"
+#include "Compressor.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
 
-class Stream;
-
-/// A writer that offers a convenient way to write to a Stream
-class BinaryWriter
+//-----------------------------------------------------------------------------
+bool File::compress_to(File& file, size_t size, size_t& zipped_size, Compressor& compressor)
 {
-public:
+	MallocAllocator allocator;
+	void* in_buffer = (void*)allocator.allocate(size);
 
-						BinaryWriter(Stream& s);
+	read(in_buffer, size);
 
-	void				write_byte(int8_t);
-	void				write_int16(int16_t);
-	void				write_uint16(uint16_t);
-	void				write_int32(int32_t);
-	void				write_uint32(uint32_t);
-	void				write_int64(int64_t);
-	void				write_double(double);
-	void				write_float(float);
+	void* compressed_buffer = compressor.compress(in_buffer, size, zipped_size);
 
-	void				insert_byte(int8_t val, size_t offset);
+	file.write(compressed_buffer, zipped_size);
 
-private:
+	return true;
+}
 
-	Stream&				m_stream;
-};
+//-----------------------------------------------------------------------------
+bool File::uncompress_to(File& file, size_t& unzipped_size, Compressor& compressor)
+{
+	MallocAllocator allocator;
+
+	size_t file_size = size();
+	void* in_buffer = (void*)allocator.allocate(file_size);
+
+	read(in_buffer, file_size);
+
+	void* uncompressed_buffer = compressor.uncompress(in_buffer, file_size, unzipped_size);
+
+	file.write(uncompressed_buffer, unzipped_size);
+
+	return true;
+}
 
 } // namespace crown
 
