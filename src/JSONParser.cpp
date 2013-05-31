@@ -27,6 +27,13 @@ JSONParser::JSONParser(File* file, size_t size) :
 
 	m_pos = m_file->position();
 
+	parse();
+
+	// Test
+	for (int i = 0; i < m_next_token; i++)
+	{
+		m_tokens[i].print();
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -114,6 +121,7 @@ JSONError JSONParser::parse()
 				break;
 			}
 			case '\"':
+			case '\'':
 			{
 				error = parse_string();
             	if (m_prev_token != -1)
@@ -235,6 +243,7 @@ JSONError JSONParser::parse_string()
 JSONError JSONParser::parse_primitive()
 {
 	JSONToken* token;
+	JSONType type = JSON_INT;
 
 	int start = m_file->position();
 
@@ -247,7 +256,17 @@ JSONError JSONParser::parse_primitive()
 
 		switch (c)
 		{
-
+			case '.':
+			{
+				type = JSON_FLOAT;
+				break;
+			}
+			case 'r':
+			case 'a':
+			{
+				type = JSON_BOOL;
+				break;
+			}
 			case ' ':
 			case ',': 
 			case '}':
@@ -261,11 +280,11 @@ JSONError JSONParser::parse_primitive()
 					return JSON_NO_MEMORY;
 				}
 
-				fill_token(token, JSON_PRIMITIVE, start, m_pos);
+				fill_token(token, type, start, m_pos);
 
 				token->m_parent = m_prev_token;
 
-				m_file->seek(start);
+				// m_file->seek(start);
 
 				return JSON_SUCCESS;
 			}

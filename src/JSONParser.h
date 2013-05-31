@@ -16,7 +16,11 @@ enum JSONType
 	JSON_PRIMITIVE 	= 0,	// Number, boolean or null
 	JSON_OBJECT 	= 1,	// Object
 	JSON_ARRAY 		= 2,	// Array
-	JSON_STRING 	= 3		// String
+	JSON_STRING 	= 3,
+	JSON_FLOAT		= 4,
+	JSON_INT		= 5,
+	JSON_BOOL 		= 6,
+
 };
 
 /// JSON error typology
@@ -83,12 +87,6 @@ public:
 					JSONParser(File* file, size_t size = 1024);
 	/// Destructor
 					~JSONParser();
-	/// Parse JSON data and fill tokens
-	JSONError 		parse();
-	/// Get all tokens
-	JSONToken*		get_tokens();
-	/// Get next token
-	int32_t			get_tokens_number();
 
 	JSONParser&		get_object(const char* key);
 
@@ -96,20 +94,37 @@ public:
 
 	JSONParser& 	get_string(const char* key);
 
-	JSONParser&		get_float(const char* key);
+	JSONParser&		get_float(const char* key);				// MUST BE IMPLEMENTED
 
-	JSONParser&		get_int(const char* key);
+	JSONParser&		get_int(const char* key);				// MUST BE IMPLEMENTED
 
-	JSONParser&		get_bool(const char* key);
+	JSONParser&		get_bool(const char* key);				// MUST BE IMPLEMENTED
 
-	const char*		to_string();
+	void			to_string(List<const char*>& values);	// MUST BE IMPLEMENTED
 
+	void			to_float(float* values);				// MUST BE IMPLEMENTED
+
+	void			to_int(int* values);					// MUST BE IMPLEMENTED
+
+	void			to_bool(bool* values);					// MUST BE IMPLEMENTED
 
 private:
+	/// Parse JSON data and fill tokens
+	JSONError 		parse();
+	/// Get all tokens
+	JSONToken*		get_tokens();			// MUST BE REMOVED
+	/// Get next token
+	int32_t			get_tokens_number();	// MUST BE REMOVED
 	/// Parse string in JSON data
 	JSONError		parse_string();
 	/// Parse number or boolean in JSON data
-	JSONError		parse_primitive();
+	JSONError		parse_primitive();	// MUST BE REMOVED
+	/// Parse boolean in JSON data
+	JSONError		parse_bool();	// MUST BE IMPLEMENTED
+	/// Parse integer in JSON data
+	JSONError		parse_int();	// MUST BE IMPLEMENTED
+	/// Parse float in JSON data
+	JSONError		parse_float();	// MUST BE IMPLEMENTED
 	/// Allocate token node
 	JSONToken* 		allocate_token();
 	/// Fill token and set boundaries

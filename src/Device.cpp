@@ -528,19 +528,10 @@ void Device::read_engine_settings()
 {
 	DiskFile* file = m_filesystem->open("crown.cfg", FOM_READ);
 	JSONParser json(file);
-	json.parse();
-	JSONToken* tokens = json.get_tokens();
-
-	for (int i = 0; i < json.get_tokens_number(); i++)
-	{
-		tokens[i].print();
-	}
-
 	
-	const char* value = json.get_array("crown").get_object("utils").get_string("file").to_string();
+	// const char* value = json.get_array("crown").get_object("utils").get_string("file").to_string();
 
-	os::printf("Value:\t%s\n", value);
-
+	// os::printf("Value:\t%s\n", value);
 }
 
 
