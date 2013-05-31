@@ -128,7 +128,7 @@ bool DiskFile::copy_to(File& file, size_t size)
 				}
 			}
 
-			delete[] buff;
+			default_allocator().deallocate(buff);
 			//Either the file gave an error, or ended before size bytes could be copied
 			return false;
 		}
