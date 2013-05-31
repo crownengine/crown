@@ -1,6 +1,6 @@
 #include "TextResource.h"
 #include "DiskFile.h"
-#include "ResourceArchive.h"
+#include "Bundle.h"
 #include "Log.h"
 #include "Allocator.h"
 
@@ -8,9 +8,9 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void* TextResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
+void* TextResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
 {
-	DiskFile* stream = archive.open(id);
+	DiskFile* stream = bundle.open(id);
 
 	CE_ASSERT(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
 
@@ -24,7 +24,7 @@ void* TextResource::load(Allocator& allocator, ResourceArchive& archive, Resourc
 	
 	resource->data[resource->length] = '\0';
 
-	archive.close(stream);
+	bundle.close(stream);
 
 	return resource;
 }

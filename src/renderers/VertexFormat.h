@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -48,10 +49,10 @@ class Vertex
 {
 public:
 
-	/// Returns the bytes occupied by @format
+	/// Returns the bytes occupied by @a format
 	static size_t bytes_per_vertex(VertexFormat format);
 
-	/// Returns the bits occupied by @format
+	/// Returns the bits occupied by @a format
 	static size_t bits_per_vertex(VertexFormat format);
 
 private:

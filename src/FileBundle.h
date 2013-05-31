@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -23,54 +24,46 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cstdio>
-#include "FileResourceArchive.h"
-#include "Filesystem.h"
-#include "Resource.h"
-#include "DiskFile.h"
-#include "Log.h"
-#include "String.h"
+#pragma once
+
+#include "Types.h"
+#include "Bundle.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-FileResourceArchive::FileResourceArchive(Filesystem& fs) :
-	m_filesystem(fs)
+class Filesystem;
+class DiskFile;
+
+// The header of every compiled resource file.
+// KEEP IN SYNC WITH CompiledResource struct in Compiler.h!
+struct ResourceHeader
 {
-}
+	uint32_t	magic;		// Magic number used to identify the file
+	uint32_t	version;	// Version of the compiler used to compile the resource
+	uint32_t	name;		// Name of the resource (murmur2_32 hash)
+	uint32_t	type;		// Type of the resource (murmur2_32 hash)
+	uint32_t	size;		// Size of the resource data _not_ including header (in bytes)
+};
 
-//-----------------------------------------------------------------------------
-FileResourceArchive::~FileResourceArchive()
+/// Source of resources
+class FileBundle : public Bundle
 {
-}
+public:
 
-//-----------------------------------------------------------------------------
-DiskFile* FileResourceArchive::open(ResourceId name)
-{
-	// Convert name/type into strings
-	char resource_name[512];
+					FileBundle(Filesystem& fs);
+					~FileBundle();
 
-	// Fixme
-	snprintf(resource_name, 512, "%.8X%.8X", name.name, name.type);
+	/// @a copydoc Bundle::open()
+	DiskFile*		open(ResourceId name);
 
-	// Search the resource in the filesystem
-	if (m_filesystem.exists(resource_name) == false)
-	{
-		return NULL;
-	}
+	/// @a copydoc Bundle::close()
+	void			close(DiskFile* resource);
 
-	DiskFile* file = (DiskFile*)m_filesystem.open(resource_name, FOM_READ);
 
-	file->skip(sizeof(ResourceHeader));
+private:
 
-	return file;
-}
-
-//-----------------------------------------------------------------------------
-void FileResourceArchive::close(DiskFile* resource)
-{
-	m_filesystem.close(resource);
-}
+	Filesystem&		m_filesystem;
+};
 
 } // namespace crown

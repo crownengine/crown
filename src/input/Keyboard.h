@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -66,7 +67,7 @@ public:
 
 					Keyboard();
 
-	/// Returns whether the specified @modifier is pressed.
+	/// Returns whether the specified @a modifier is pressed.
 	/// @note
 	/// A modifier is a special key that modifies the normal action
 	/// of another key when the two are pressed in combination. (Thanks wikipedia.)
@@ -74,10 +75,10 @@ public:
 	/// Crown currently supports three different modifier keys: Shift, Ctrl and Alt.
 	bool			modifier_pressed(ModifierKey modifier) const;
 
-	/// Returns whether the specified @key is pressed.
+	/// Returns whether the specified @a key is pressed.
 	bool			key_pressed(KeyCode key) const;
 
-	/// Returns whether the specified @key is released.
+	/// Returns whether the specified @a key is released.
 	bool			key_released(KeyCode key) const;
 
 private:

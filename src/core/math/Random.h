@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -35,7 +36,7 @@ class Random
 {
 public:
 
-	/// Initializes the generator with the given @seed.
+	/// Initializes the generator with the given @a seed.
 				Random(int32_t seed);
 
 	/// Returns a pseudo-random integer in the range [0, 32767].

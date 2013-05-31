@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -46,7 +47,7 @@ class Vec4;
 /// to write something like: matrix * vector. Since we are also using column vectors, inverting
 /// the operands would result in an impossible operation.
 /// 
-/// @verbatim:
+/// @a verbatim:
 ///   X base vector
 ///     | Y base vector
 ///     |   | Z base vector
@@ -70,7 +71,7 @@ public:
 	/// Constructs from a set of real
 						Mat4(real r1c1, real r2c1, real r3c1, real r4c1, real r1c2, real r2c2, real r3c2, real r4c2, real r1c3, real r2c3, real r3c3, real r4c3, real r1c4, real r2c4, real r3c4, real r4c4);
 	
-	/// Contructs from the @v array
+	/// Contructs from the @a v array
 						Mat4(const real v[16]);						
 						Mat4(const Mat4& a);					
 
@@ -101,13 +102,13 @@ public:
 	/// For simmetry
 	friend Mat4			operator*(real k, const Mat4& a);			
 
-	/// Builds a rotation matrix about the X axis of @radians radians
+	/// Builds a rotation matrix about the X axis of @a radians radians
 	void				build_rotation_x(real radians);
 
 	/// Builds a rotation matrix about the Y axis of "radians" radians	
 	void				build_rotation_y(real radians);	
 
-	/// Builds a rotation matrix about the Z axis of @radians radians			
+	/// Builds a rotation matrix about the Z axis of @a radians radians			
 	void				build_rotation_z(real radians);		
 
 	/// Builds a rotation matrix about an arbitrary axis of "radians" radians		
@@ -152,13 +153,13 @@ public:
 	/// Returns a Vec3 containing the matrix's translation portion
 	Vec3				get_translation() const;	
 
-	/// Fills the matrix's translation portion values contained in @trans				
+	/// Fills the matrix's translation portion values contained in @a trans				
 	void				set_translation(const Vec3& trans);			
 
 	/// Returns a Vec3 containing the matrix's scale portion
 	Vec3				get_scale() const;
 
-	/// Fills the matrix's scale portion with the values contained in @scale							
+	/// Fills the matrix's scale portion with the values contained in @a scale							
 	void				set_scale(const Vec3& scale);				
 
 	/// Returns the pointer to the matrix's data

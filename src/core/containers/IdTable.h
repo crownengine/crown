@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -48,17 +49,17 @@ class IdTable
 {
 public:
 
-	/// Creates the table for tracking exactly @max_ids - 1 unique Ids.
+	/// Creates the table for tracking exactly @a max_ids - 1 unique Ids.
 					IdTable(Allocator& allocator, uint16_t max_ids);
 					~IdTable();
 
 	/// Returns a new Id.
 	Id				create();
 
-	/// Destroys the specified @id.
+	/// Destroys the specified @a id.
 	void			destroy(Id id);
 
-	/// Returns whether the table has the specified @id
+	/// Returns whether the table has the specified @a id
 	bool			has(Id id) const;
 
 private:

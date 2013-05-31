@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -23,17 +24,18 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "ArchiveResourceArchive.h"
+#include "ArchiveBundle.h"
 #include "Filesystem.h"
 #include "Resource.h"
 #include "DiskFile.h"
 #include "Log.h"
+#include "Memory.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-ArchiveResourceArchive::ArchiveResourceArchive(Filesystem& fs) :
+ArchiveBundle::ArchiveBundle(Filesystem& fs) :
 	m_filesystem(fs),
 	m_archive_file(NULL),
 	m_entries_count(0),
@@ -51,24 +53,26 @@ ArchiveResourceArchive::ArchiveResourceArchive(Filesystem& fs) :
 	Log::d("Entries: %d", header.entries_count);
 	Log::d("Checksum: %d", header.checksum);
 	
-	m_entries = new ArchiveEntry[header.entries_count];
+	// No need to initialize memory
+	m_entries = (ArchiveEntry*)m_allocator.allocate(header.entries_count * sizeof(ArchiveEntry));
+
 	m_entries_count = header.entries_count;
-	
+
 	// Read the entries
 	m_archive_file->read(m_entries, m_entries_count * sizeof(ArchiveEntry));
 }
 
 //-----------------------------------------------------------------------------
-ArchiveResourceArchive::~ArchiveResourceArchive()
+ArchiveBundle::~ArchiveBundle()
 {
 	if (m_archive_file != NULL)
 	{
-			m_filesystem.close(m_archive_file);
+		m_filesystem.close(m_archive_file);
 	}
 	
 	if (m_entries != NULL)
 	{
-		delete[] m_entries;
+		m_allocator.deallocate(m_entries);
 	}
 	
 	m_entries = NULL;
@@ -76,7 +80,7 @@ ArchiveResourceArchive::~ArchiveResourceArchive()
 }
 
 //-----------------------------------------------------------------------------
-DiskFile* ArchiveResourceArchive::open(ResourceId name)
+DiskFile* ArchiveBundle::open(ResourceId name)
 {
 	// Search the resource in the archive
 	for (uint32_t i = 0; i < m_entries_count; i++)
@@ -94,7 +98,7 @@ DiskFile* ArchiveResourceArchive::open(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
-void ArchiveResourceArchive::close(DiskFile* resource)
+void ArchiveBundle::close(DiskFile* resource)
 {
 	// Does nothing, the stream is automatically closed at exit.
 	(void)resource;

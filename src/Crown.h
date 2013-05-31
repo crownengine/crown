@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -100,9 +101,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Camera.h"
 #include "Device.h"
 #include "Glyph.h"
-#include "ResourceArchive.h"
-#include "ArchiveResourceArchive.h"
-#include "FileResourceArchive.h"
+#include "Bundle.h"
+#include "ArchiveBundle.h"
+#include "FileBundle.h"
 #include "ResourceManager.h"
 #include "Skybox.h"
 

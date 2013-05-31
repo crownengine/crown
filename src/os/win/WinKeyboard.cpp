@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -181,7 +182,7 @@ Key WinKeyboard::TranslateKey(int32_t winKey)
 		case VK_RCONTROL:	return KC_RCONTROL;
 		case VK_CAPITAL:	return KC_CAPS_LOCK;
 		case VK_LMENU:		return KC_LALT;
-		case VK_RMENU:		return KC_RALT;
+		case VK_@noteNU:		return KC_RALT;
 		case VK_LWIN:		return KC_LSUPER;
 		case VK_RWIN:		return KC_RSUPER;
 		case VK_NUMPAD0:	return KC_KP_0;

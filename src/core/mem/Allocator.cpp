@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -23,46 +24,15 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "Types.h"
-#include "ResourceArchive.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
 
-class Filesystem;
-class DiskFile;
-
-// The header of every compiled resource file.
-// KEEP IN SYNC WITH CompiledResource struct in Compiler.h!
-struct ResourceHeader
+MallocAllocator g_default_allocator;
+Allocator& default_allocator()
 {
-	uint32_t	magic;		// Magic number used to identify the file
-	uint32_t	version;	// Version of the compiler used to compile the resource
-	uint32_t	name;		// Name of the resource (murmur2_32 hash)
-	uint32_t	type;		// Type of the resource (murmur2_32 hash)
-	uint32_t	size;		// Size of the resource data _not_ including header (in bytes)
-};
-
-/// Source of resources
-class FileResourceArchive : public ResourceArchive
-{
-public:
-
-					FileResourceArchive(Filesystem& fs);
-					~FileResourceArchive();
-
-	/// @copydoc ResourceArchive::open()
-	DiskFile*		open(ResourceId name);
-
-	/// @copydoc ResourceArchive::close()
-	void			close(DiskFile* resource);
-
-
-private:
-
-	Filesystem&		m_filesystem;
-};
+	return g_default_allocator;
+}
 
 } // namespace crown

@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -27,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Log.h"
 #include "MathUtils.h"
+#include "Allocator.h"
 
 namespace crown
 {
@@ -106,7 +108,7 @@ bool DiskFile::copy_to(File& file, size_t size)
 
 	const size_t chunksize = 1024*1024;
 
-	char* buff = new char[chunksize];
+	char* buff = (char*) default_allocator().allocate(chunksize * sizeof(char));
 
 	size_t tot_read_bytes = 0;
 
@@ -127,7 +129,7 @@ bool DiskFile::copy_to(File& file, size_t size)
 				}
 			}
 
-			delete[] buff;
+			default_allocator().deallocate(buff);
 			//Either the file gave an error, or ended before size bytes could be copied
 			return false;
 		}
@@ -136,7 +138,7 @@ bool DiskFile::copy_to(File& file, size_t size)
 		tot_read_bytes += read_bytes;
 	}
 
-	delete [] buff;
+	default_allocator().deallocate(buff);
 	return true;
 }
 

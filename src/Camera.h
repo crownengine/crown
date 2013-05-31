@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -39,14 +40,14 @@ class Camera
 {
 public:
 
-	/// Construct the camera placed at the given world-space @position
-	/// with the given @fov field of view and @aspect ratio.
+	/// Construct the camera placed at the given world-space @a position
+	/// with the given @a fov field of view and @a aspect ratio.
 					Camera(const Vec3& position, float fov, float aspect);
 
 	/// Returns the world-space position of the camera 
 	const Vec3&		position() const;
 
-	/// Sets the world-space @position of the camera
+	/// Sets the world-space @a position of the camera
 	void			set_position(const Vec3& position);
 
 	/// Returns the lookat-point of the camera
@@ -55,7 +56,7 @@ public:
 	/// Sets the lookat-point of the camera
 	void			set_look_at(const Vec3& lookat);
 
-	/// Sets the rotation of the camera about the world's @x axis and @y axis
+	/// Sets the rotation of the camera about the world's @a x axis and @a y axis
 	void			set_rotation(const float x, const float y);
 
 	/// Returns the up-vector of the camera
@@ -94,16 +95,16 @@ public:
 	/// Returns the renderer-independent view matrix used by the camera
 	const Mat4&		view_matrix() const;
 
-	/// Moves the camera towards look direction by @meters meters
+	/// Moves the camera towards look direction by @a meters meters
 	void			move_forward(float meters);
 
-	/// Moves the camera towards the opposite look direction by @meters meters
+	/// Moves the camera towards the opposite look direction by @a meters meters
 	void			move_backward(float meters);
 
-	/// Moves the camera along the axis perpendicular to the look direction by @meters meters
+	/// Moves the camera along the axis perpendicular to the look direction by @a meters meters
 	void			strafe_left(float meters);
 
-	/// Moves the camera along the axis perpendicular to the look direction by @meters meters
+	/// Moves the camera along the axis perpendicular to the look direction by @a meters meters
 	void			strafe_right(float meters);
 
 protected:

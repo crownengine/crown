@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -37,22 +38,22 @@ class NullFile: public File
 {
 public:
 
-	/// @copydoc File::File()
+	/// @a copydoc File::File()
 				NullFile(FileOpenMode mode) : File(mode) {}
 
-	/// @copydoc File::~File()
+	/// @a copydoc File::~File()
 	virtual		~NullFile() {}
 
-	/// @copydoc File::seek()
+	/// @a copydoc File::seek()
 	void		seek(size_t position) { (void)position; }
 
-	/// @copydoc File::seek_to_end()
+	/// @a copydoc File::seek_to_end()
 	void		seek_to_end() {}
 
-	/// @copydoc File::skip()
+	/// @a copydoc File::skip()
 	void		skip(size_t bytes) { (void)bytes; }
 				
-	/// @copydoc File::read()
+	/// @a copydoc File::read()
 	/// @note
 	///	Fills buffer with zeroes
 	void		read(void* buffer, size_t size)
@@ -63,10 +64,10 @@ public:
 		}
 	}
 
-	/// @copydoc File::write()
+	/// @a copydoc File::write()
 	void		write(const void* buffer, size_t size) { (void)buffer; (void)size; }
 
-	/// @copydoc File::copy_to()
+	/// @a copydoc File::copy_to()
 	/// @note
 	///	Returns always true
 	bool		copy_to(File& file, size_t size = 0)
@@ -76,40 +77,40 @@ public:
 		return true;
 	}
 
-	/// @copydoc File::flush()
+	/// @a copydoc File::flush()
 	void		flush() {};
 				
-	/// @copydoc File::is_valid()
+	/// @a copydoc File::is_valid()
 	/// @note
 	///	Returns always true
 	bool		is_valid() { return true; }
 				
-	/// @copydoc File::end_of_file()
+	/// @a copydoc File::end_of_file()
 	/// @note
 	///	Returns always false
 	bool		end_of_file() { return false; }
 				
-	/// @copydoc File::size()
+	/// @a copydoc File::size()
 	/// @note
 	///	Returns always 0xFFFFFFFF
 	size_t		size() { return ~0; }
 				
-	/// @copydoc File::position()
+	/// @a copydoc File::position()
 	/// @note
 	///	Returns always zero
 	size_t		position() { return 0; }
 				
-	/// @copydoc File::can_read()
+	/// @a copydoc File::can_read()
 	/// @note
 	///	Returns always true
 	bool		can_read() { return true; }
 				
-	/// @copydoc File::can_write()
+	/// @a copydoc File::can_write()
 	/// @note
 	///	Returns always true
 	bool		can_write() { return true; }
 				
-	/// @copydoc File::can_seek()
+	/// @a copydoc File::can_seek()
 	/// @note
 	///	Returns always true
 	bool		can_seek() { return true; }

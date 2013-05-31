@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -36,7 +37,7 @@ namespace crown
 
 class Filesystem;
 class ResourceManager;
-class ResourceArchive;
+class Bundle;
 class Renderer;
 class DebugRenderer;
 class InputManager;
@@ -121,6 +122,9 @@ private:
 
 private:
 
+	// Used to allocate all subsystems
+	MallocAllocator			m_allocator;
+
 	// Preferred settings from command line
 	int32_t					m_preferred_window_width;
 	int32_t					m_preferred_window_height;
@@ -146,8 +150,7 @@ private:
 
 	// Private subsystems
 	ResourceManager*		m_resource_manager;
-	ResourceArchive*		m_resource_archive;
-	MallocAllocator			m_resource_allocator;
+	Bundle*					m_resource_bundle;
 
 	// The game currently running
 	void*					m_game_library;

@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -38,8 +39,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Args.h"
 #include "Game.h"
 #include <cstdlib>
-#include "ArchiveResourceArchive.h"
-#include "FileResourceArchive.h"
+#include "ArchiveBundle.h"
+#include "FileBundle.h"
 #include "ResourceManager.h"
 #include "TextureResource.h"
 #include "Keyboard.h"
@@ -48,6 +49,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Accelerometer.h"
 #include "JSONParser.h"
 #include "DiskFile.h"
+#include "Memory.h"
 
 #ifdef CROWN_BUILD_OPENGL
 	#include "renderers/gl/GLRenderer.h"
@@ -87,7 +89,7 @@ Device::Device() :
 	m_debug_renderer(NULL),
 
 	m_resource_manager(NULL),
-	m_resource_archive(NULL),
+	m_resource_bundle(NULL),
 
 	m_game_library(NULL)
 {
@@ -183,38 +185,38 @@ void Device::shutdown()
 
 	if (m_input_manager)
 	{
-		delete m_input_manager;
+		CE_DELETE(m_allocator, m_input_manager);
 	}
 
 	Log::i("Releasing Renderer...");
 
 	if (m_renderer)
 	{
-		delete m_renderer;
+		CE_DELETE(m_allocator, m_renderer);
 	}
 
 	Log::i("Releasing DebugRenderer...");
 	if (m_debug_renderer)
 	{
-		delete m_debug_renderer;
+		CE_DELETE(m_allocator, m_debug_renderer);
 	}
 
 	Log::i("Releasing ResourceManager...");
-	if (m_resource_archive)
+	if (m_resource_bundle)
 	{
-		delete m_resource_archive;
+		CE_DELETE(m_allocator, m_resource_bundle);
 	}
 
 	if (m_resource_manager)
 	{
-		delete m_resource_manager;
+		CE_DELETE(m_allocator, m_resource_manager);
 	}
 
 	Log::i("Releasing Filesystem...");
 
 	if (m_filesystem)
 	{
-		delete m_filesystem;
+		CE_DELETE(m_allocator, m_filesystem);
 	}
 
 	m_is_init = false;
@@ -380,7 +382,7 @@ const void* Device::data(ResourceId name)
 //-----------------------------------------------------------------------------
 void Device::create_filesystem()
 {
-	m_filesystem = new Filesystem(m_preferred_root_path);
+	m_filesystem = CE_NEW(m_allocator, Filesystem)(m_preferred_root_path);
 
 	Log::d("Filesystem created.");
 	Log::d("Filesystem root path: %s", m_filesystem->root_path());
@@ -392,15 +394,15 @@ void Device::create_resource_manager()
 	// Select appropriate resource archive
 	if (m_preferred_mode == MODE_DEVELOPMENT)
 	{
-		m_resource_archive = new FileResourceArchive(*m_filesystem);
+		m_resource_bundle = CE_NEW(m_allocator, FileBundle)(*m_filesystem);
 	}
 	else
 	{
-		m_resource_archive = new ArchiveResourceArchive(*m_filesystem);
+		m_resource_bundle = CE_NEW(m_allocator, ArchiveBundle)(*m_filesystem);
 	}
 
 	// Create resource manager
-	m_resource_manager = new ResourceManager(*m_resource_archive, m_resource_allocator);
+	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle);
 
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
@@ -410,7 +412,7 @@ void Device::create_resource_manager()
 void Device::create_input_manager()
 {
 	// Create input manager
-	m_input_manager = new InputManager();
+	m_input_manager = CE_NEW(m_allocator, InputManager)();
 
 	Log::d("Input manager created.");
 }
@@ -422,7 +424,7 @@ void Device::create_renderer()
 	if (m_preferred_renderer == RENDERER_GL)
 	{
 		#ifdef CROWN_BUILD_OPENGL
-		m_renderer = new GLRenderer;
+		m_renderer = CE_NEW(m_allocator, GLRenderer)();
 		#else
 		Log::e("Crown Engine was not built with OpenGL support.");
 		exit(EXIT_FAILURE);
@@ -431,7 +433,7 @@ void Device::create_renderer()
 	else if (m_preferred_renderer == RENDERER_GLES)
 	{
 		#ifdef CROWN_BUILD_OPENGLES
-		m_renderer = new GLESRenderer;
+		m_renderer = CE_NEW(m_allocator, GLESRenderer)();
 		#else
 		Log::e("Crown Engine was not built with OpenGL|ES support.");
 		exit(EXIT_FAILURE);
@@ -445,7 +447,7 @@ void Device::create_renderer()
 void Device::create_debug_renderer()
 {
 	// Create debug renderer
-	m_debug_renderer = new DebugRenderer(*m_renderer);
+	m_debug_renderer = CE_NEW(m_allocator, DebugRenderer)(*m_renderer);
 
 	Log::d("Debug renderer created.");
 }

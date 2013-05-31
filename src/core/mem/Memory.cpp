@@ -24,42 +24,30 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "Memory.h"
+#include "Assert.h"
+#include "MallocAllocator.h"
 
-#include "Types.h"
-
-namespace crown
+//-----------------------------------------------------------------------------
+void* operator new(size_t)
 {
+	CE_ASSERT(false, "operator new forbidden");
+}
 
-/// Facility to store global float settings.
-class FloatSetting
+//-----------------------------------------------------------------------------
+void* operator new[](size_t)
 {
-public:
+	CE_ASSERT(false, "operator new[] forbidden");
+}
 
-						FloatSetting(const char* name, const char* synopsis, float value, float min, float max);
+//-----------------------------------------------------------------------------
+void operator delete(void*)
+{
+	CE_ASSERT(false, "operator delete forbidden");
+}
 
-	const char*			name() const;
-	const char*			synopsis() const;
-
-	float				value() const;
-	float				min() const;
-	float				max() const;
-
-						operator float();
-
-	FloatSetting&		operator=(const float value);
-
-private:
-
-	const char*			m_name;
-	const char*			m_synopsis;
-
-	float				m_value;
-	float				m_min;
-	float				m_max;
-
-	FloatSetting*		m_next;
-};
-
-} // namespace crown
-
+//-----------------------------------------------------------------------------
+void operator delete[](void*)
+{
+	CE_ASSERT(false, "operator delete[] forbidden");
+}

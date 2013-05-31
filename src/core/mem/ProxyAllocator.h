@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -38,13 +39,13 @@ class ProxyAllocator
 {
 public:
 
-	/// Tag all allocations made with @allocator by the given @name
-					ProxyAllocator(Allocator& allocator, const char* name);
+	/// Tag all allocations made with @a allocator by the given @a name
+					ProxyAllocator(const char* name, Allocator& allocator);
 
-	/// @copydoc Allocator::allocate()
+	/// @a copydoc Allocator::allocate()
 	void*			allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
 
-	/// @copydoc Allocator::deallocate()
+	/// @a copydoc Allocator::deallocate()
 	void			deallocate(void* data);
 
 	/// Returns the name of the proxy allocator

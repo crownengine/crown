@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -30,10 +31,10 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void* MaterialResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
+void* MaterialResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
 {
 	(void)allocator;
-	(void)archive;
+	(void)bundle;
 	(void)id;
 	// TODO
 

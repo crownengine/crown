@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -68,20 +69,20 @@ public:
 
 					Touch();
 
-	/// Returns whether the touch pointer @id is up.
+	/// Returns whether the touch pointer @a id is up.
 	bool			touch_up(uint16_t id) const;
 
-	/// Returns whether the touch pointer @id is down.
+	/// Returns whether the touch pointer @a id is down.
 	bool			touch_down(uint16_t id) const;
 
-	/// Returns the position of the pointer @id in windows space.
+	/// Returns the position of the pointer @a id in windows space.
 	/// @note
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
 	Vec2			touch_xy(uint16_t id) const;
 
-	/// Returns the relative position of the pointer @id in window space.
+	/// Returns the relative position of the pointer @a id in window space.
 	/// @note
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left

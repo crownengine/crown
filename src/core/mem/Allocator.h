@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -36,27 +37,39 @@ class Allocator
 {
 public:
 
-						Allocator() {}
 	virtual				~Allocator() {}
 
-	/// Allocates @size bytes of memory aligned to the specified
-	/// @align byte and returns a pointer to the first allocated byte.
+	/// Allocates @a size bytes of memory aligned to the specified
+	/// @a align byte and returns a pointer to the first allocated byte.
 	virtual void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN) = 0;
 
-	/// Deallocates a previously allocated block of memory pointed by @data.
+	/// Deallocates a previously allocated block of memory pointed by @a data.
 	virtual void		deallocate(void* data) = 0;
 
 	/// Returns the total number of bytes allocated.
 	virtual size_t		allocated_size() = 0;
-
-private:
-
-	// Disable copying
-						Allocator(const Allocator&);
-	Allocator&			operator=(const Allocator&);
 };
 
-Allocator& get_default_allocator();
+Allocator& default_allocator();
+
+/// Respects standard behaviour when calling on NULL @a ptr
+template <typename T>
+void call_destructor_and_deallocate(Allocator& a, T* ptr)
+{
+	if (ptr != NULL)
+	{
+		ptr->~T();
+
+		a.deallocate(ptr);
+	}
+}
+
+//-----------------------------------------------------------------------------
+#define CE_NEW(allocator, T)\
+	new ((allocator).allocate(sizeof(T))) T
+
+//-----------------------------------------------------------------------------
+#define CE_DELETE(allocator, ptr)\
+	call_destructor_and_deallocate(allocator, ptr)
 
 } // namespace crown
-

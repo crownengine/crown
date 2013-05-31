@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -32,15 +33,15 @@ namespace crown
 namespace interpolation
 {
 
-/// Returns the linear interpolated value between @p0 and @p1 at time @t
+/// Returns the linear interpolated value between @a p0 and @a p1 at time @a t
 template <typename T>
 static T	linear(const T& p0, const T& p1, real t);
 
-/// Returns the cosine interpolated value between @p0 and @p1 at time @t
+/// Returns the cosine interpolated value between @a p0 and @a p1 at time @a t
 template <typename T>
 static T	cosine(const T& p0, const T& p1, real t);
 
-/// Returns the cubic interpolated value between @p0 and @p1 at time @t
+/// Returns the cubic interpolated value between @a p0 and @a p1 at time @a t
 template <typename T>
 static T	cubic(const T& p0, const T& p1, real t);
 

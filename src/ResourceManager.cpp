@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -43,9 +44,8 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-ResourceManager::ResourceManager(ResourceArchive& archive, Allocator& allocator) :
-	m_resource_archive(archive),
-	m_resource_allocator(allocator),
+ResourceManager::ResourceManager(Bundle& bundle) :
+	m_resource_bundle(bundle),
 	m_resources(m_allocator),
 	m_loading_queue(m_allocator),
 	m_loaded_queue(m_allocator),
@@ -336,22 +336,22 @@ void ResourceManager::background_load()
 }
 
 //-----------------------------------------------------------------------------
-void* ResourceManager::load_by_type(ResourceId name) const
+void* ResourceManager::load_by_type(ResourceId name)
 {
 	if (name.type == TEXTURE_TYPE)
 	{
-		return TextureResource::load(m_resource_allocator, m_resource_archive, name);
+		return TextureResource::load(m_resource_allocator, m_resource_bundle, name);
 	}
 	else if (name.type == TEXT_TYPE)
 	{
-		return TextResource::load(m_resource_allocator, m_resource_archive, name);
+		return TextResource::load(m_resource_allocator, m_resource_bundle, name);
 	}
 
 	return NULL;
 }
 
 //-----------------------------------------------------------------------------
-void ResourceManager::unload_by_type(ResourceId name, void* resource) const
+void ResourceManager::unload_by_type(ResourceId name, void* resource)
 {
 	if (name.type == TEXTURE_TYPE)
 	{

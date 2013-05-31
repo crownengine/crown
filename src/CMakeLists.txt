@@ -8,8 +8,8 @@ set (SRC
 	TextureResource.cpp
 	TextResource.cpp
 	FontResource.cpp
-	ArchiveResourceArchive.cpp
-	FileResourceArchive.cpp
+	ArchiveBundle.cpp
+	FileBundle.cpp
 
 	FPSSystem.cpp
 	JSONParser.cpp
@@ -24,14 +24,14 @@ set (HEADERS
 	MaterialResource.h
 	Resource.h
 	ResourceManager.h
-	ResourceArchive.h
+	Bundle.h
 	Skybox.h
 
 	TextureResource.h
 	TextResource.h
 	FontResource.h
-	ArchiveResourceArchive.h
-	FileResourceArchive.h
+	ArchiveBundle.h
+	FileBundle.h
 
 	FPSSystem.h
 	JSONParser.h
@@ -146,6 +146,8 @@ set (STRINGS_HEADERS
 )
 
 set (MEM_SRC
+	core/mem/Memory.cpp
+	core/mem/Allocator.cpp
 	core/mem/MallocAllocator.cpp
 	core/mem/ProxyAllocator.cpp
 )

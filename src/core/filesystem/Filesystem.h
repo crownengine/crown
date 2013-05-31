@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -28,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "String.h"
 #include "OS.h"
 #include "File.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
@@ -100,48 +102,48 @@ class Filesystem
 {
 public:
 
-	/// The @root_path must be absolute.
+	/// The @a root_path must be absolute.
 						Filesystem(const char* root_path);
 						~Filesystem();
 
 	/// Returns the root path of the filesystem
 	const char*			root_path() const;
 
-	/// Returns whether the @relative_path exists and fills @info with
-	/// with informations about the given @relative_path path
+	/// Returns whether the @a relative_path exists and fills @a info with
+	/// with informations about the given @a relative_path path
 	bool				get_info(const char* relative_path, FilesystemEntry& info);
 	
-	/// Returns whether the @relative_path exists on disk
+	/// Returns whether the @a relative_path exists on disk
 	bool				exists(const char* relative_path);
 
-	/// Returns whether @relative_path is a regular file
+	/// Returns whether @a relative_path is a regular file
 	bool				is_file(const char* relative_path);
 
-	/// Returns whether @relative_path is a directory
+	/// Returns whether @a relative_path is a directory
 	bool				is_dir(const char* relative_path);
 
-	/// Creates a regular file named @relative_path
+	/// Creates a regular file named @a relative_path
 	bool				create_file(const char* relative_path);
 
-	/// Creates a directory named @relative_path
+	/// Creates a directory named @a relative_path
 	bool				create_dir(const char* relative_path);
 
-	/// Deletes the regular file @relative_path
+	/// Deletes the regular file @a relative_path
 	bool				delete_file(const char* relative_path);
 
-	/// Deletes the directory @relative_path
+	/// Deletes the directory @a relative_path
 	bool				delete_dir(const char* relative_path);
 
-	/// Returns the os-specific path which @relative_path refers to.
+	/// Returns the os-specific path which @a relative_path refers to.
 	/// @note
 	/// In general, you typically do not want to use it for normal
 	/// file interactions. Prefer using the other methods whenever possible.
 	const char*			os_path(const char* relative_path);
 
-	/// Opens the file @relative_path with the specified access @mode
+	/// Opens the file @a relative_path with the specified access @a mode
 	DiskFile*			open(const char* relative_path, FileOpenMode mode);
 
-	/// Closes a previously opened file @stream
+	/// Closes a previously opened file @a stream
 	void				close(DiskFile* stream);
 
 private:
@@ -150,6 +152,8 @@ private:
 	const char*			build_os_path(const char* base_path, const char* relative_path);
 	
 private:
+
+	MallocAllocator		m_allocator;
 
 	char				m_root_path[os::MAX_PATH_LENGTH];
 
