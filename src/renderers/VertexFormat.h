@@ -48,10 +48,10 @@ class Vertex
 {
 public:
 
-	/// Returns the bytes occupied by @format
+	/// Returns the bytes occupied by @a format
 	static size_t bytes_per_vertex(VertexFormat format);
 
-	/// Returns the bits occupied by @format
+	/// Returns the bits occupied by @a format
 	static size_t bits_per_vertex(VertexFormat format);
 
 private:

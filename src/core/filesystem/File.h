@@ -49,7 +49,7 @@ class File
 {
 public:
 
-	/// Opens the file with the given @mode
+	/// Opens the file with the given @a mode
 						File(FileOpenMode mode) : m_open_mode(mode) {}
 	virtual				~File() {};
 

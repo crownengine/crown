@@ -35,7 +35,7 @@ namespace network
 {
 
 /// Bit-packet reliable message.
-/// Usage: After every instantition, must be initialized with @init(len)
+/// Usage: After every instantition, must be initialized with @a init(len)
 /// TODO: rework as POD is needed; this feature provides compatibility with queue
 class BitMessage
 {

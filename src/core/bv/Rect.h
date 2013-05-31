@@ -43,7 +43,7 @@ public:
 	/// Does nothing for efficiency.
 					Rect();		
 
-	/// Constructs from  @min and @max
+	/// Constructs from  @a min and @a max
 					Rect(const Vec2& min, const Vec2& max);		
 					Rect(const Rect& rect);	
 
@@ -59,19 +59,19 @@ public:
 	/// Returns the diagonal of the rect.
 	Vec2			size() const;						
 
-	/// Returns whether @point point is contained into the rect.
+	/// Returns whether @a point point is contained into the rect.
 	bool			contains_point(const Vec2& point) const;
 
-	/// Returns whether the rect intersects @r.
+	/// Returns whether the rect intersects @a r.
 	bool			intersects_rect(const Rect& rect) const;	
 
-	/// Sets the Rect from a @center and a @width - @height
+	/// Sets the Rect from a @a center and a @a width - @a height
 	void			set_from_center_and_dimensions(Vec2 center, real width, real height);	
 
 	/// Returns the four vertices of the rect.
 	void			vertices(Vec2 v[4]) const;
 
-	/// Returns the @index -th vetex of the rect.
+	/// Returns the @a index -th vetex of the rect.
 	Vec2			vertex(uint32_t index) const;			
 
 	/// Returns the equivalent circle.

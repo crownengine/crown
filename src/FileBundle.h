@@ -53,10 +53,10 @@ public:
 					FileBundle(Filesystem& fs);
 					~FileBundle();
 
-	/// @copydoc Bundle::open()
+	/// @a copydoc Bundle::open()
 	DiskFile*		open(ResourceId name);
 
-	/// @copydoc Bundle::close()
+	/// @a copydoc Bundle::close()
 	void			close(DiskFile* resource);
 
 

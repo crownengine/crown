@@ -69,10 +69,10 @@ public:
 			Mouse();
 
 
-	/// Returns whether @button is pressed.
+	/// Returns whether @a button is pressed.
 	bool	button_pressed(MouseButton button) const;
 
-	/// Returns whether @button is released.
+	/// Returns whether @a button is released.
 	bool	button_released(MouseButton button) const;
 
 	/// Returns the position of the cursor in window space.

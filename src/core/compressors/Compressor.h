@@ -37,14 +37,14 @@ public:
 						Compressor(Allocator& allocator);
 	virtual 			~Compressor() {}
 
-	/// Compresses the data pointed by @data of size @in_size (in bytes) and returns it.
-	/// The function also returns the size in bytes of the compressed data in @out_size.
+	/// Compresses the data pointed by @a data of size @a in_size (in bytes) and returns it.
+	/// The function also returns the size in bytes of the compressed data in @a out_size.
 	/// @note
 	/// The returned data is automatically allocated using the passed allocator.
 	virtual uint8_t* 	compress(const void* data, size_t in_size, size_t& out_size) = 0;
 
-	/// Uncompresses the data pointed by @data of size @in_size (in bytes) and returns it.
-	/// The function also returns the size in bytes of the uncompressed data in @out_size.
+	/// Uncompresses the data pointed by @a data of size @a in_size (in bytes) and returns it.
+	/// The function also returns the size in bytes of the uncompressed data in @a out_size.
 	/// @note
 	/// The returned data is automatically allocated using the passed allocator.
 	virtual uint8_t* 	uncompress(const void* data, size_t in_size, size_t& out_size) = 0;

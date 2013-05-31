@@ -76,29 +76,29 @@ public:
 	virtual ~Renderer() {}
 
 	/// Creates a new vertex buffer optimized for rendering static vertex data.
-	/// @vertices is the array containig @count vertex data elements of the given @format.
+	/// @a vertices is the array containig @a count vertex data elements of the given @a format.
 	virtual VertexBufferId	create_vertex_buffer(size_t count, VertexFormat format, const void* vertices) = 0;
 
 	/// Creates a new vertex buffer optimized for rendering dynamic vertex data.
-	/// @vertices is the array containig @count vertex data elements of the given @format.
+	/// @a vertices is the array containig @a count vertex data elements of the given @a format.
 	virtual VertexBufferId	create_dynamic_vertex_buffer(size_t count, VertexFormat format, const void* vertices) = 0;
 
-	/// Updates the data associated with the given vertex buffer @id.
-	/// @vertices is the array containig @count vertex data elements of the format
+	/// Updates the data associated with the given vertex buffer @a id.
+	/// @a vertices is the array containig @a count vertex data elements of the format
 	/// specified at the creation of the buffer.
 	/// @note
-	/// @count and @offset together do not have to exceed the number of elements specified
+	/// @a count and @a offset together do not have to exceed the number of elements specified
 	/// at the creation of the buffer.	
 	virtual void			update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices) = 0;
 
-	/// Destroys the @id vertex buffer.
+	/// Destroys the @a id vertex buffer.
 	virtual void			destroy_vertex_buffer(VertexBufferId id) = 0;
 
 	/// Creates a new index buffer optimized for rendering static index buffers.
-	/// @indices is the array containing @count index data elements.
+	/// @a indices is the array containing @a count index data elements.
 	virtual IndexBufferId	create_index_buffer(size_t count, const void* indices) = 0;
 
-	/// Destroys the @id index buffer.
+	/// Destroys the @a id index buffer.
 	virtual void			destroy_index_buffer(IndexBufferId id) = 0;
 
 	virtual TextureId		create_texture(uint32_t width, uint32_t height, PixelFormat format, const void* data) = 0;
@@ -124,22 +124,22 @@ public:
 	/// Sets whether lighting is enabled.
 	virtual void			set_lighting(bool lighting) = 0;
 
-	/// Sets the global ambient light @color.
+	/// Sets the global ambient light @a color.
 	virtual void			set_ambient_light(const Color4& color) = 0;
 
 	//! Sets the texture to use in the specified layer
 	virtual void			bind_texture(uint32_t layer, TextureId texture) = 0;
 
-	/// Set whether the given texture @unit is enabled.
+	/// Set whether the given texture @a unit is enabled.
 	virtual void			set_texturing(uint32_t unit, bool texturing) = 0;
 
-	/// Sets the texture @mode for the given texture @unit.
+	/// Sets the texture @a mode for the given texture @a unit.
 	virtual void			set_texture_mode(uint32_t unit, TextureMode mode, const Color4& blendColor) = 0;
 
-	/// Sets the texture @wrap parameter for the given texture @unit.
+	/// Sets the texture @a wrap parameter for the given texture @a unit.
 	virtual void			set_texture_wrap(uint32_t unit, TextureWrap wrap) = 0;
 
-	/// Sets the @filter for the given texture @unit.
+	/// Sets the @a filter for the given texture @a unit.
 	virtual void			set_texture_filter(uint32_t unit, TextureFilter filter) = 0;
 
 	virtual void			set_light(uint32_t light, bool active) = 0;

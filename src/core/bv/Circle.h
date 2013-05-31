@@ -44,7 +44,7 @@ public:
 	/// Does nothing for efficiency.
 					Circle();
 					
-	/// Constructs from @center and @radius.
+	/// Constructs from @a center and @a radius.
 					Circle(const Vec2& center, real radius);	
 					Circle(const Circle& circle);				
 

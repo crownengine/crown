@@ -38,13 +38,13 @@ class ProxyAllocator
 {
 public:
 
-	/// Tag all allocations made with @allocator by the given @name
+	/// Tag all allocations made with @a allocator by the given @a name
 					ProxyAllocator(const char* name, Allocator& allocator);
 
-	/// @copydoc Allocator::allocate()
+	/// @a copydoc Allocator::allocate()
 	void*			allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
 
-	/// @copydoc Allocator::deallocate()
+	/// @a copydoc Allocator::deallocate()
 	void			deallocate(void* data);
 
 	/// Returns the name of the proxy allocator

@@ -38,11 +38,11 @@ public:
 
 	virtual				~Allocator() {}
 
-	/// Allocates @size bytes of memory aligned to the specified
-	/// @align byte and returns a pointer to the first allocated byte.
+	/// Allocates @a size bytes of memory aligned to the specified
+	/// @a align byte and returns a pointer to the first allocated byte.
 	virtual void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN) = 0;
 
-	/// Deallocates a previously allocated block of memory pointed by @data.
+	/// Deallocates a previously allocated block of memory pointed by @a data.
 	virtual void		deallocate(void* data) = 0;
 
 	/// Returns the total number of bytes allocated.
@@ -51,7 +51,7 @@ public:
 
 Allocator& default_allocator();
 
-/// Respects standard behaviour when calling on NULL @ptr
+/// Respects standard behaviour when calling on NULL @a ptr
 template <typename T>
 void call_destructor_and_deallocate(Allocator& a, T* ptr)
 {

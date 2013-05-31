@@ -143,7 +143,7 @@ inline bool is_valid_path(const char* path)
 /// e.g. "/home" -> "/"
 /// e.g. "home" -> ""
 /// 
-/// The @path must be valid.
+/// The @a path must be valid.
 inline void pathname(const char* path, char* str, size_t len)
 {
 	CE_ASSERT(path != NULL, "Path must be != NULL");
@@ -168,7 +168,7 @@ inline void pathname(const char* path, char* str, size_t len)
 /// e.g. "/home -> "home"
 /// e.g. "/" -> ""
 ///
-/// The @path must be valid.
+/// The @a path must be valid.
 inline void filename(const char* path, char* str, size_t len)
 {
 	CE_ASSERT(path != NULL, "Path must be != NULL");
@@ -192,7 +192,7 @@ inline void filename(const char* path, char* str, size_t len)
 /// e.g. "/home/project" -> "project"
 /// e.g. "/" -> ""
 ///
-/// The @path must be valid.
+/// The @a path must be valid.
 inline void basename(const char* path, char* str, size_t len)
 {
 	CE_ASSERT(path != NULL, "Path must be != NULL");
@@ -224,7 +224,7 @@ inline void basename(const char* path, char* str, size_t len)
 /// e.g. "/home/project/texture.tga" -> "tga"
 /// e.g. "/home/project.x/texture" -> ""
 ///
-/// The @path must be valid.
+/// The @a path must be valid.
 inline void extension(const char* path, char* str, size_t len)
 {
 	CE_ASSERT(path != NULL, "Path must be != NULL");
@@ -247,7 +247,7 @@ inline void extension(const char* path, char* str, size_t len)
 /// e.g. "/home/project/texture.tga" -> "/home/project/texture"
 /// e.g. "/home/project/texture" -> "/home/project/texture"
 ///
-/// The @path must be valid.
+/// The @a path must be valid.
 inline void filename_without_extension(const char* path, char* str, size_t len)
 {
 	CE_ASSERT(path != NULL, "Path must be != NULL");
@@ -276,7 +276,7 @@ inline void filename_without_extension(const char* path, char* str, size_t len)
 /// e.g. "/home/project/texture.tga/" -> "/home/project/texture.tga"
 /// e.g. "/home/project/texture.tga" -> "/home/project/texture.tga"
 ///
-/// The @path must be valid.
+/// The @a path must be valid.
 inline void strip_trailing_separator(const char* path, char* str, size_t len)
 {
 	CE_ASSERT(path != NULL, "Path must be != NULL");

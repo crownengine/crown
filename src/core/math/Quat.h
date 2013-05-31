@@ -36,7 +36,7 @@ class Mat4;
 
 /// Quaternion.
 ///
-/// @Note:
+/// @a Note:
 /// This implementation uses the standard quaternion
 /// multiplication equation, so, the order of multiplication
 /// for multiple rotations is in a reverse fashion:

@@ -41,7 +41,7 @@ public:
 	/// Does nothing for efficiency.
 					Ray();
 
-	/// Constructs from @origin and @direction
+	/// Constructs from @a origin and @a direction
 					Ray(const Vec3& origin, const Vec3& direction);
 					Ray(const Ray& ray);
 

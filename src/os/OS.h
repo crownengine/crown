@@ -150,7 +150,7 @@ struct OSEvent
 	OSEventParameter	data_d;
 };
 
-/// Pushes the event @type along with its parameters into the os' event queue.
+/// Pushes the event @a type along with its parameters into the os' event queue.
 void			push_event(OSEventType type, OSEventParameter data_a, OSEventParameter data_b, OSEventParameter data_c, OSEventParameter data_d);
 
 

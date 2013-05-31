@@ -55,10 +55,10 @@ public:
 	/// Normalizes the plane
 	Plane&				normalize();							
 
-	/// Returns the signed distance between point @p and the plane
+	/// Returns the signed distance between point @a p and the plane
 	real				distance_to_point(const Vec3& p) const;	
 
-	/// Returns whether the plane contains the point @p	
+	/// Returns whether the plane contains the point @a p	
 	bool				contains_point(const Vec3& p) const;		
 
 	static const Plane	ZERO;

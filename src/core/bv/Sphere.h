@@ -43,7 +43,7 @@ public:
 	/// Does nothing for efficiency.
 					Sphere();
 
-	/// Constructs from @center and @radius.
+	/// Constructs from @a center and @a radius.
 					Sphere(const Vec3& center, real radius);
 					Sphere(const Sphere& a);
 
@@ -54,13 +54,13 @@ public:
 	void			set_center(const Vec3& center);
 	void			set_radius(real radius);
 
-	/// Adds @count @points to the sphere expanding if necessary.
+	/// Adds @a count @a points to the sphere expanding if necessary.
 	void			add_points(const Vec3* points, uint32_t count);	
 
-	/// Adds @count @spheres expanding if necessary.
+	/// Adds @a count @a spheres expanding if necessary.
 	void			add_spheres(const Sphere* spheres, uint32_t count);	
 
-	/// Returns whether point @p is contained into the sphere.
+	/// Returns whether point @a p is contained into the sphere.
 	bool			contains_point(const Vec3& p) const;		
 
 private:

@@ -45,7 +45,7 @@ class Vec3;
 /// to write something like: matrix vector. Since we are also using column vectors, inverting
 /// the operands would result in an impossible operation.
 /// 
-/// @verbatim:
+/// @a verbatim:
 ///   X base vector
 ///     | Y base vector
 ///     |   | Z base vector
@@ -67,7 +67,7 @@ public:
 	/// Constructs from a set of real
 						Mat3(real r1c1, real r2c1, real r3c1, real r1c2, real r2c2, real r3c2, real r1c3, real r2c3, real r3c3);
 	
-	/// Constructs from the @v array
+	/// Constructs from the @a v array
 						Mat3(const real v[9]);						
 						Mat3(const Mat3& a);	
 
@@ -98,13 +98,13 @@ public:
 	/// For simmetry
 	friend Mat3			operator*(real k, const Mat3& a);			
 
-	/// Builds a rotation matrix about the X axis of @radians radians
+	/// Builds a rotation matrix about the X axis of @a radians radians
 	void				build_rotation_x(real radians);			
 
-	/// Builds a rotation matrix about the Y axis of @radians radians	
+	/// Builds a rotation matrix about the Y axis of @a radians radians	
 	void				build_rotation_y(real radians);	
 
-	/// Builds a rotation matrix about the Z axis of @radians radians			
+	/// Builds a rotation matrix about the Z axis of @a radians radians			
 	void				build_rotation_z(real radians);	
 
 	/// Builds a rotation matrix about an arbitrary axis of "radians" radians			
@@ -122,7 +122,7 @@ public:
 	/// Returns a Vec3 containing the matrix's scale portion
 	Vec3				get_scale() const;	
 
-	/// Fills the matrix's scale portion with the values contained in @scale				
+	/// Fills the matrix's scale portion with the values contained in @a scale				
 	void				set_scale(const Vec3& scale);				
 
 	/// Returns the pointer to the matrix's data

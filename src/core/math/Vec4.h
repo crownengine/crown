@@ -76,10 +76,10 @@ public:
 	bool				operator==(const Vec4& other) const;		
 	bool				operator!=(const Vec4& other) const;
 
-	/// Returns whether all the components of this vector are smaller than all of the @other vector	
+	/// Returns whether all the components of this vector are smaller than all of the @a other vector	
 	bool				operator<(const Vec4& other) const;	
 
-	/// Returns whether all the components of this vector are greater than all of the @other vector		
+	/// Returns whether all the components of this vector are greater than all of the @a other vector		
 	bool				operator>(const Vec4& other) const;			
 
 	/// Returns the vector's length

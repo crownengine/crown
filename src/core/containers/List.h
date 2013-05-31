@@ -64,20 +64,20 @@ public:
 	/// Returns the maximum number of items the array can hold
 	uint32_t			capacity() const;
 
-	/// Resizes the list to the given @size.
+	/// Resizes the list to the given @a size.
 	/// @note
 	/// Old items will be copied to the newly created list.
 	/// If the new capacity is smaller than the previous one, the
 	/// list will be truncated.
 	void				resize(uint32_t size);
 
-	/// Reserves space in the list for at least @capacity items.
+	/// Reserves space in the list for at least @a capacity items.
 	void				reserve(uint32_t capacity);
 
 	/// Sets the list capacity
 	void				set_capacity(uint32_t capacity);
 
-	/// Grows the list to contain at least @min_capacity items
+	/// Grows the list to contain at least @a min_capacity items
 	void				grow(uint32_t min_capacity);
 
 	/// Condenses the array so that the capacity matches the actual number
@@ -90,7 +90,7 @@ public:
 	/// Removes the last item from the list.
 	void				pop_back();
 
-	/// Appends @count @items to the list and returns the number
+	/// Appends @a count @a items to the list and returns the number
 	/// of items in the list after the append operation.
 	uint32_t			push(const T* items, uint32_t count);
 
@@ -100,7 +100,7 @@ public:
 	/// the number of items in the list for efficiency.
 	void				clear();
 
-	/// Copies the content of the @other list into this one.
+	/// Copies the content of the @a other list into this one.
 	const List<T>&		operator=(const List<T>& other);
 
 	T*					begin();

@@ -77,13 +77,13 @@ public:
 	const char*			optarg() const;
 
 
-	/// Sets the @index into argv[] from where to start option scanning.
-	/// If @index >= argc nothing will be scanned.
+	/// Sets the @a index into argv[] from where to start option scanning.
+	/// If @a index >= argc nothing will be scanned.
 	void				set_optind(int32_t index);
 
 private:
 
-	// Returns the @option type
+	// Returns the @a option type
 	// Returns AOT_SHORT if option is of the form "-x" where 'x' is the option.
 	// Returns AOT_LONG if option is of the form "--option" where "option" is the option.
 	// Returns AOT_NOT_OPTION in all other cases.

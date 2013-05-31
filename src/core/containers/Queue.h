@@ -64,23 +64,23 @@ public:
 	/// Increase or decrease the capacity of the queue.
 	/// @note
 	/// Old items will be copied to the newly created queue.
-	/// If the new @capacity is smaller than the previous one, the
+	/// If the new @a capacity is smaller than the previous one, the
 	/// queue will be truncated.
 	void			increase_capacity(uint32_t capacity);
 
-	/// Grows the queue to contain at least @min_capacity items.
-	/// If @min_capacity is set to 0, the queue automatically
+	/// Grows the queue to contain at least @a min_capacity items.
+	/// If @a min_capacity is set to 0, the queue automatically
 	/// determines the new capacity based on its size at the 
 	/// time of call.
 	void			grow(uint32_t min_capacity);
 
-	/// Adds an @item to the back of the queue
+	/// Adds an @a item to the back of the queue
 	void			push_back(const T& item);
 
 	/// Removes the last item from the queue
 	void			pop_back();
 
-	/// Adds an @item to the front of the queue
+	/// Adds an @a item to the front of the queue
 	void			push_front(const T& item);
 
 	/// Removes the first item from the queue

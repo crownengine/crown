@@ -57,7 +57,7 @@ public:
 
 	virtual					~Bundle() {}
 
-	/// Opens the resource file containing @name resource
+	/// Opens the resource file containing @a name resource
 	/// and returns a stream from which read the data from.
 	/// @note
 	/// The resource stream points exactly at the start

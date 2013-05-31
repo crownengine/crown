@@ -70,11 +70,11 @@ class ResourceManager
 {
 public:
 
-	/// Read resources from @bundle and store resource data using @allocator.
+	/// Read resources from @a bundle and store resource data using @a allocator.
 							ResourceManager(Bundle& bundle);
 							~ResourceManager();
 
-	/// Loads the resource by @name and returns its ResourceId.
+	/// Loads the resource by @a name and returns its ResourceId.
 	/// @note
 	/// The resource data may be not immediately available,
 	/// the resource gets pushed in a queue of load requests and loadead as
@@ -83,15 +83,15 @@ public:
 	/// loading process is actually completed.
 	ResourceId				load(const char* name);
 
-	/// Unloads the @resource, freeing up all the memory associated by it
+	/// Unloads the @a resource, freeing up all the memory associated by it
 	/// and eventually any global object associated with it.
 	/// (Such as texture objects, vertex buffers etc.)
 	void					unload(ResourceId name);
 
-	/// Reloads the @resource
+	/// Reloads the @a resource
 	void					reload(ResourceId name);
 
-	/// Returns whether the manager has the @name resource into
+	/// Returns whether the manager has the @a name resource into
 	/// its list of resources.
 	/// @note
 	/// Having a resource does not mean that the resource is
@@ -99,18 +99,18 @@ public:
 	/// obtain the resource availability status.
 	bool					has(ResourceId name) const;
 
-	/// Returns the data associated with the @name resource.
+	/// Returns the data associated with the @a name resource.
 	/// The resource data contains resource-specific metadata
 	/// and the actual resource data. In order to correctly use
-	/// it, you have to know which type of data @name refers to
+	/// it, you have to know which type of data @a name refers to
 	/// and cast accordingly.
 	const void*				data(ResourceId name) const;
 	
-	/// Returns whether the @name resource is loaded (i.e. whether
+	/// Returns whether the @a name resource is loaded (i.e. whether
 	/// you can use the data associated with it).
 	bool					is_loaded(ResourceId name) const;
 
-	/// Returns the number of references to the @resource
+	/// Returns the number of references to the @a resource
 	uint32_t				references(ResourceId name) const;
 
 	/// Returns the number of resources still waiting to load.

@@ -37,50 +37,50 @@ class DiskFile: public File
 {
 public:
 
-	/// Opens @filename with specified @mode
+	/// Opens @a filename with specified @a mode
 					DiskFile(FileOpenMode mode, const char* filename);
 	virtual			~DiskFile();
 
-	/// @copydoc File::seek() 
+	/// @a copydoc File::seek() 
 	void			seek(size_t position);
 
-	/// @copydoc File::seek_to_end() 
+	/// @a copydoc File::seek_to_end() 
 	void			seek_to_end();
 
-	/// @copydoc File::skip() 
+	/// @a copydoc File::skip() 
 	void			skip(size_t bytes);
 
-	/// @copydoc File::read() 
+	/// @a copydoc File::read() 
 	void			read(void* buffer, size_t size);
 
-	/// @copydoc File::write() 
+	/// @a copydoc File::write() 
 	void			write(const void* buffer, size_t size);
 
-	/// @copydoc File::copy_to() 
+	/// @a copydoc File::copy_to() 
 	bool			copy_to(File& file, size_t size = 0);
 
-	/// @copydoc File::flush() 
+	/// @a copydoc File::flush() 
 	void			flush();
 
-	/// @copydoc File::end_of_file() 
+	/// @a copydoc File::end_of_file() 
 	bool			end_of_file() const;
 
-	/// @copydoc File::is_valid() 
+	/// @a copydoc File::is_valid() 
 	bool			is_valid() const;
 
-	/// @copydoc File::size() 
+	/// @a copydoc File::size() 
 	size_t			size() const;
 
-	/// @copydoc File::position() 
+	/// @a copydoc File::position() 
 	size_t			position() const;
 
-	/// @copydoc File::can_read() 
+	/// @a copydoc File::can_read() 
 	bool			can_read() const;
 
-	/// @copydoc File::can_write() 
+	/// @a copydoc File::can_write() 
 	bool			can_write() const;
 
-	/// @copydoc File::can_seek() 
+	/// @a copydoc File::can_seek() 
 	bool			can_seek() const;
 
 protected:

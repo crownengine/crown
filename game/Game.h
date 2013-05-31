@@ -42,7 +42,7 @@ extern "C"
 	void shutdown();
 
 	/// Called once per frame, here is the place you tipically perform input checking,
-	/// updates, drawing and so on. The @dt parameter contains the last frame delta time
+	/// updates, drawing and so on. The @a dt parameter contains the last frame delta time
 	/// in seconds. 
 	void frame(float dt);
 }

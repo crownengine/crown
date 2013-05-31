@@ -50,10 +50,10 @@ public:
 	/// Returns the center of gravity (a.k.a. "centroid").
 	Vec3		centroid() const;
 
-	/// Returns the barycentric coordinates of point @p in respect to the triangle.
+	/// Returns the barycentric coordinates of point @a p in respect to the triangle.
 	Vec3		barycentric_coords(const Vec3& p) const;
 
-	/// Returns whether the triangle contains the @p point.
+	/// Returns whether the triangle contains the @a p point.
 	bool		contains_point(const Vec3& p) const;
 
 	/// Returns the plane containing the triangle.

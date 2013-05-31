@@ -44,7 +44,7 @@ public:
 	/// Does nothing for efficiency.
 					Box();
 
-	/// Constructs from @min and @max.
+	/// Constructs from @a min and @a max.
 					Box(const Vec3& min, const Vec3& max);			
 					Box(const Box& box);
 
@@ -57,19 +57,19 @@ public:
 	real			radius() const;
 	real			volume() const;
 
-	/// Adds @count @points expanding if necessary.
+	/// Adds @a count @a points expanding if necessary.
 	void			add_points(const Vec3* points, uint32_t count);
 
-	/// Adds @count @boxes expanding if necessay.
+	/// Adds @a count @a boxes expanding if necessay.
 	void			add_boxes(const Box* boxes, uint32_t count);
 
-	/// Returns whether point @p is contained in the box.
+	/// Returns whether point @a p is contained in the box.
 	bool			contains_point(const Vec3& p) const;
 
-	/// Returns the @index -th vertex of the box.
+	/// Returns the @a index -th vertex of the box.
 	Vec3			vertex(uint32_t index) const;		
 
-	/// Returns the box trasformed according to @mat matrix into @result.
+	/// Returns the box trasformed according to @a mat matrix into @a result.
 	void			transformed(const Mat4& mat, Box& result) const;	
 
 	/// Returns the eight vertices of the box.

@@ -84,52 +84,52 @@ class MemoryFile: public File
 {
 public:
 
-	/// @copydoc File::File()
+	/// @a copydoc File::File()
 						MemoryFile(MemoryBuffer* buffer, FileOpenMode mode);
 
-	/// @copydoc File::~File()
+	/// @a copydoc File::~File()
 	virtual				~MemoryFile();
 
-	/// @copydoc File::seek()
+	/// @a copydoc File::seek()
 	void				seek(size_t position);
 
-	/// @copydoc File::seek_to_end()
+	/// @a copydoc File::seek_to_end()
 	void				seek_to_end();
 
-	/// @copydoc File::skip()
+	/// @a copydoc File::skip()
 	void				skip(size_t bytes);
 
-	/// @copydoc File::read()
+	/// @a copydoc File::read()
 	void				read(void* buffer, size_t size);
 
-	/// @copydoc File::write()
+	/// @a copydoc File::write()
 	void				write(const void* buffer, size_t size);
 
-	/// @copydoc File::copy_to()
+	/// @a copydoc File::copy_to()
 	bool				copy_to(File& file, size_t size = 0);
 
-	/// @copydoc File::flush()
+	/// @a copydoc File::flush()
 	void				flush();
 
-	/// @copydoc File::end_of_file()
+	/// @a copydoc File::end_of_file()
 	bool				end_of_file() const { return size() == m_memory_offset; }
 
-	/// @copydoc File::is_valid()
+	/// @a copydoc File::is_valid()
 	bool				is_valid() const { CE_ASSERT(m_memory != NULL, "Memory is NULL"); return m_memory->is_valid(); }
 
-	/// @copydoc File::size()
+	/// @a copydoc File::size()
 	size_t				size() const { CE_ASSERT(m_memory != NULL, "Memory is NULL"); return m_memory->size(); }
 
-	/// @copydoc File::position()
+	/// @a copydoc File::position()
 	size_t				position() const { return m_memory_offset; }
 
-	/// @copydoc File::can_read()
+	/// @a copydoc File::can_read()
 	bool				can_read() const { return true; }
 
-	/// @copydoc File::can_write()
+	/// @a copydoc File::can_write()
 	bool				can_write() const { return true; }
 
-	/// @copydoc File::can_seek()
+	/// @a copydoc File::can_seek()
 	bool				can_seek() const { return true; }
 
 	/// Dumps the data to the console.

@@ -60,73 +60,73 @@ const double	DOUBLE_PRECISION			= (real)1.0e-9;
 bool			equals(float a, float b, float precision = FLOAT_PRECISION);
 bool			equals(double a, double b, double precision = DOUBLE_PRECISION);
 
-/// Tests agains the specified @bitmask and returns true only if all bits are satisfied
+/// Tests agains the specified @a bitmask and returns true only if all bits are satisfied
 bool			test_bitmask(int32_t value, int32_t bitmask);
 
-/// Sets the specified @bitmask	
+/// Sets the specified @a bitmask	
 int32_t			set_bitmask(int32_t value, int32_t bitmask);
 
-/// Removes the specified @bitmask	
+/// Removes the specified @a bitmask	
 int32_t			unset_bitmask(int32_t value, int32_t bitmask);	
 
-/// Returns minimum between @a and @b
+/// Returns minimum between @a a and @a b
 template <typename T> T		min(const T& a, const T& b);
 
-/// Returns maximum between @a and @b
+/// Returns maximum between @a a and @a b
 template <typename T> T		max(const T& a, const T& b);
 
-/// Returns the arithmetic mean of @a and @b	
+/// Returns the arithmetic mean of @a a and @a b	
 template <typename T> T		avg(const T& a, const T& b);
 
 /// Clamps a value to a specific range (min < max)	
 template <typename T> T		clamp_to_range(const T& min, const T& max, const T& value);	
 
-/// Swaps @a and @b
+/// Swaps @a a and @a b
 template <typename T> void	swap(T& a, T& b);				
 
-/// Returns @deg in radians
+/// Returns @a deg in radians
 real			deg_to_rad(real deg);
 
-/// Returns @rad in degrees
+/// Returns @a rad in degrees
 real			rad_to_deg(real rad);
 
-/// Returns the nearest power of two to @x
+/// Returns the nearest power of two to @a x
 uint32_t		next_pow_2(uint32_t x);
 
-/// Returns whether @x is a power of two			
+/// Returns whether @a x is a power of two			
 bool			is_pow_2(uint32_t x);	
 
-/// Returns the smallest integral value that is not less than @x
+/// Returns the smallest integral value that is not less than @a x
 real			ceil(real x);		
 
-/// Returns the largest integral value that is not greater than @x			
+/// Returns the largest integral value that is not greater than @a x			
 real			floor(real x);	
 
-/// Returns the square root of @x				
+/// Returns the square root of @a x				
 real			sqrt(real x);	
 
-/// Returns the inverse square root of @x				
+/// Returns the inverse square root of @a x				
 real			inv_sqrt(real x);
 
-/// Returns the sine of @x				
+/// Returns the sine of @a x				
 real			sin(real x);	
 
-/// Returns the cosine of @x				
+/// Returns the cosine of @a x				
 real			cos(real x);
 
-/// Returns the arc sine of @x					
+/// Returns the arc sine of @a x					
 real			asin(real x);	
 
-/// Returns the arc cosine of @x				
+/// Returns the arc cosine of @a x				
 real			acos(real x);	
 
-/// Returns the tangent of @x				
+/// Returns the tangent of @a x				
 real			tan(real x);		
 
-/// Returns the arc tangent of @y/@x			
+/// Returns the arc tangent of @a y/@a x			
 real			atan2(real y, real x);	
 
-/// Returns the absolute value of @x		
+/// Returns the absolute value of @a x		
 real			abs(real x);			
 
 /// Returns the realing-point remainder of numerator/denominator		
