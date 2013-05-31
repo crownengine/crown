@@ -23,54 +23,84 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cstdio>
-#include "FileResourceArchive.h"
+#include "ArchiveBundle.h"
 #include "Filesystem.h"
 #include "Resource.h"
 #include "DiskFile.h"
 #include "Log.h"
-#include "String.h"
+#include "Memory.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-FileResourceArchive::FileResourceArchive(Filesystem& fs) :
-	m_filesystem(fs)
+ArchiveBundle::ArchiveBundle(Filesystem& fs) :
+	m_filesystem(fs),
+	m_archive_file(NULL),
+	m_entries_count(0),
+	m_entries(NULL)
 {
+	// FIXME Default archive name
+	m_archive_file = (DiskFile*)m_filesystem.open("archive.bin", FOM_READ);
+	
+	ArchiveHeader header;
+	
+	// Read the header of the archive
+	m_archive_file->read(&header, sizeof(ArchiveHeader));
+	
+	Log::d("Version: %d", header.version);
+	Log::d("Entries: %d", header.entries_count);
+	Log::d("Checksum: %d", header.checksum);
+	
+	// No need to initialize memory
+	m_entries = (ArchiveEntry*)m_allocator.allocate(header.entries_count * sizeof(ArchiveEntry));
+
+	m_entries_count = header.entries_count;
+
+	// Read the entries
+	m_archive_file->read(m_entries, m_entries_count * sizeof(ArchiveEntry));
 }
 
 //-----------------------------------------------------------------------------
-FileResourceArchive::~FileResourceArchive()
+ArchiveBundle::~ArchiveBundle()
 {
-}
-
-//-----------------------------------------------------------------------------
-DiskFile* FileResourceArchive::open(ResourceId name)
-{
-	// Convert name/type into strings
-	char resource_name[512];
-
-	// Fixme
-	snprintf(resource_name, 512, "%.8X%.8X", name.name, name.type);
-
-	// Search the resource in the filesystem
-	if (m_filesystem.exists(resource_name) == false)
+	if (m_archive_file != NULL)
 	{
-		return NULL;
+		m_filesystem.close(m_archive_file);
+	}
+	
+	if (m_entries != NULL)
+	{
+		m_allocator.deallocate(m_entries);
+	}
+	
+	m_entries = NULL;
+	m_entries_count = 0;
+}
+
+//-----------------------------------------------------------------------------
+DiskFile* ArchiveBundle::open(ResourceId name)
+{
+	// Search the resource in the archive
+	for (uint32_t i = 0; i < m_entries_count; i++)
+	{		
+		if (m_entries[i].name == name.name && m_entries[i].type == name.type)
+		{
+			// If found, seek to the first byte of the resource data
+			m_archive_file->seek(m_entries[i].offset);
+
+			return (DiskFile*)m_archive_file;
+		}
 	}
 
-	DiskFile* file = (DiskFile*)m_filesystem.open(resource_name, FOM_READ);
-
-	file->skip(sizeof(ResourceHeader));
-
-	return file;
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
-void FileResourceArchive::close(DiskFile* resource)
+void ArchiveBundle::close(DiskFile* resource)
 {
-	m_filesystem.close(resource);
+	// Does nothing, the stream is automatically closed at exit.
+	(void)resource;
 }
 
 } // namespace crown

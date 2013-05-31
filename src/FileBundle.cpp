@@ -23,61 +23,54 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "Types.h"
-#include "ResourceArchive.h"
-#include "MallocAllocator.h"
+#include <cstdio>
+#include "FileBundle.h"
+#include "Filesystem.h"
+#include "Resource.h"
+#include "DiskFile.h"
+#include "Log.h"
+#include "String.h"
 
 namespace crown
 {
 
-class Filesystem;
-class DiskFile;
-
-/// Structure of the archive
-///
-/// [ArchiveHeader]
-/// [ArchiveEntry]
-/// [ArchiveEntry]
-/// ...
-/// [ArchiveEntry]
-/// [ResourceData]
-/// [ResourceData]
-/// ...
-/// [ResourceData]
-///
-/// A valid archive must always have at least the archive header,
-/// starting at byte 0 of the archive file.
-///
-/// Newer archive versions must be totally backward compatible
-/// across minor engine releases, in order to be able to use
-/// recent version of the engine with older game archives.
-
-/// Source of resources
-class ArchiveResourceArchive : public ResourceArchive
+//-----------------------------------------------------------------------------
+FileBundle::FileBundle(Filesystem& fs) :
+	m_filesystem(fs)
 {
-public:
+}
 
-					ArchiveResourceArchive(Filesystem& fs);
-					~ArchiveResourceArchive();
+//-----------------------------------------------------------------------------
+FileBundle::~FileBundle()
+{
+}
 
-	/// @copydoc ResourceArchive::open()
-	DiskFile*		open(ResourceId name);
+//-----------------------------------------------------------------------------
+DiskFile* FileBundle::open(ResourceId name)
+{
+	// Convert name/type into strings
+	char resource_name[512];
 
-	/// @copydoc ResourceArchive::close()
-	void			close(DiskFile* resource);
+	// Fixme
+	snprintf(resource_name, 512, "%.8X%.8X", name.name, name.type);
 
-private:
+	// Search the resource in the filesystem
+	if (m_filesystem.exists(resource_name) == false)
+	{
+		return NULL;
+	}
 
-	MallocAllocator	m_allocator;
+	DiskFile* file = (DiskFile*)m_filesystem.open(resource_name, FOM_READ);
 
-	Filesystem&		m_filesystem;
+	file->skip(sizeof(ResourceHeader));
 
-	DiskFile*		m_archive_file;
+	return file;
+}
 
-	uint32_t		m_entries_count;
-	ArchiveEntry*	m_entries;
-};
+//-----------------------------------------------------------------------------
+void FileBundle::close(DiskFile* resource)
+{
+	m_filesystem.close(resource);
+}
 
 } // namespace crown

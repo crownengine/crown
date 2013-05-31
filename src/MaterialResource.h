@@ -40,7 +40,7 @@ namespace crown
 /// @note The maximum number of usable layers depends on the graphic card/Renderer config.
 const uint32_t MAX_TEXTURE_LAYERS = 8;
 
-class ResourceArchive;
+class Bundle;
 class Allocator;
 
 /// A material describes the visual properties of a surface.
@@ -50,7 +50,7 @@ class MaterialResource
 {
 public:
 
-	static void*	load(Allocator& allocator, ResourceArchive& archive, ResourceId id);
+	static void*	load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	static void		online(void* resource);
 	static void		unload(Allocator& allocator, void* texture);
 	static void		offline();

@@ -6,14 +6,14 @@
 namespace crown
 {
 
-class ResourceArchive;
+class Bundle;
 class Allocator;
 
 class TextResource
 {
 public:
 
-	static void*		load(Allocator& allocator, ResourceArchive& archive, ResourceId id);
+	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	static void			unload(Allocator& allocator, void* resource);
 
 	uint32_t			length;

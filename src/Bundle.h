@@ -25,31 +25,49 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
 #include "Resource.h"
 
 namespace crown
 {
 
-class Bundle;
-class Allocator;
+const uint32_t ARCHIVE_VERSION	= 1;	// Version of the archive
 
-class ScriptResource
+struct ArchiveHeader
+{
+	uint32_t	version;			// The version number of the archive
+	uint32_t	entries_count;		// Number of resource entries in the archive
+	uint32_t	checksum;			// MD5 checksum of the archive
+	uint8_t		padding[64];		// Padding for additional data
+};
+
+struct ArchiveEntry
+{
+	uint32_t	name;				// Name of the resource (fnv1a hash)
+	uint32_t	type;				// Type of the resource (fnv1a hash)
+	uint64_t	offset;				// First byte of the resource (as absolute offset)
+	uint32_t	size;				// Size of the resource data (in bytes)
+};
+
+class Filesystem;
+class DiskFile;
+
+class Bundle
 {
 public:
 
-	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			online(void* script);
-	static void			unload(Allocator& allocator, void* resource);
-	static void			offline();
+	virtual					~Bundle() {}
 
-public:
+	/// Opens the resource file containing @name resource
+	/// and returns a stream from which read the data from.
+	/// @note
+	/// The resource stream points exactly at the start
+	/// of the useful resource data, so you do not have to
+	/// care about skipping headers, metadatas and so on.
+	virtual DiskFile*		open(ResourceId name) = 0;
 
-	const uint8_t*		data() const { return m_data; }
-
-private:
-
-	uint8_t*			m_data;
+	/// Closes the resource file.
+	virtual void			close(DiskFile* resource) = 0;
 };
 
 } // namespace crown
+

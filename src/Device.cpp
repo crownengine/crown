@@ -38,8 +38,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Args.h"
 #include "Game.h"
 #include <cstdlib>
-#include "ArchiveResourceArchive.h"
-#include "FileResourceArchive.h"
+#include "ArchiveBundle.h"
+#include "FileBundle.h"
 #include "ResourceManager.h"
 #include "TextureResource.h"
 #include "Keyboard.h"
@@ -86,7 +86,7 @@ Device::Device() :
 	m_debug_renderer(NULL),
 
 	m_resource_manager(NULL),
-	m_resource_archive(NULL),
+	m_resource_bundle(NULL),
 
 	m_game_library(NULL)
 {
@@ -197,9 +197,9 @@ void Device::shutdown()
 	}
 
 	Log::i("Releasing ResourceManager...");
-	if (m_resource_archive)
+	if (m_resource_bundle)
 	{
-		CE_DELETE(m_allocator, m_resource_archive);
+		CE_DELETE(m_allocator, m_resource_bundle);
 	}
 
 	if (m_resource_manager)
@@ -389,15 +389,15 @@ void Device::create_resource_manager()
 	// Select appropriate resource archive
 	if (m_preferred_mode == MODE_DEVELOPMENT)
 	{
-		m_resource_archive = CE_NEW(m_allocator, FileResourceArchive)(*m_filesystem);
+		m_resource_bundle = CE_NEW(m_allocator, FileBundle)(*m_filesystem);
 	}
 	else
 	{
-		m_resource_archive = CE_NEW(m_allocator, ArchiveResourceArchive)(*m_filesystem);
+		m_resource_bundle = CE_NEW(m_allocator, ArchiveBundle)(*m_filesystem);
 	}
 
 	// Create resource manager
-	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_archive);
+	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle);
 
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());

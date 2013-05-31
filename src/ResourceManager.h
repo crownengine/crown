@@ -63,15 +63,15 @@ struct LoadedResource
 	void*		data;
 };
 
-class ResourceArchive;
+class Bundle;
 
 /// Resource manager.
 class ResourceManager
 {
 public:
 
-	/// Read resources from @archive and store resource data using @allocator.
-							ResourceManager(ResourceArchive& archive);
+	/// Read resources from @bundle and store resource data using @allocator.
+							ResourceManager(Bundle& bundle);
 							~ResourceManager();
 
 	/// Loads the resource by @name and returns its ResourceId.
@@ -147,7 +147,7 @@ private:
 private:
 
 	// Archive whether to look for resources
-	ResourceArchive&		m_resource_archive;
+	Bundle&					m_resource_bundle;
 	// Used to strore resource memory
 	MallocAllocator			m_resource_allocator;
 

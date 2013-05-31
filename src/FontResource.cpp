@@ -30,10 +30,10 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void* FontResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
+void* FontResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
 {
 	(void)allocator;
-	(void)archive;
+	(void)bundle;
 	(void)id;
 
 	return NULL;

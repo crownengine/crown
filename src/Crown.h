@@ -99,9 +99,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Camera.h"
 #include "Device.h"
 #include "Glyph.h"
-#include "ResourceArchive.h"
-#include "ArchiveResourceArchive.h"
-#include "FileResourceArchive.h"
+#include "Bundle.h"
+#include "ArchiveBundle.h"
+#include "FileBundle.h"
 #include "ResourceManager.h"
 #include "Skybox.h"
 

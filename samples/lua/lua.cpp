@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 
   Filesystem fs("/home/mikymod/test/res_compiled");
 
-  FileResourceArchive archive(fs);
+  FileBundle archive(fs);
 
   ResourceManager res_manager(archive);
 

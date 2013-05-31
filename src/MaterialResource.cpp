@@ -30,10 +30,10 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void* MaterialResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
+void* MaterialResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
 {
 	(void)allocator;
-	(void)archive;
+	(void)bundle;
 	(void)id;
 	// TODO
 

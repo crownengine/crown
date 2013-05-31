@@ -9,8 +9,8 @@ set (SRC
 	TextResource.cpp
 	ScriptResource.cpp
 	FontResource.cpp
-	ArchiveResourceArchive.cpp
-	FileResourceArchive.cpp
+	ArchiveBundle.cpp
+	FileBundle.cpp
 
 	FPSSystem.cpp
 	JSONParser.cpp
@@ -25,15 +25,15 @@ set (HEADERS
 	MaterialResource.h
 	Resource.h
 	ResourceManager.h
-	ResourceArchive.h
+	Bundle.h
 	Skybox.h
 
 	TextureResource.h
 	TextResource.h
 	ScriptResource.h
 	FontResource.h
-	ArchiveResourceArchive.h
-	FileResourceArchive.h
+	ArchiveBundle.h
+	FileBundle.h
 
 	FPSSystem.h
 	JSONParser.h

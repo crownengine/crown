@@ -26,7 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "ResourceArchive.h"
+#include "Bundle.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
@@ -34,35 +35,49 @@ namespace crown
 class Filesystem;
 class DiskFile;
 
-// The header of every compiled resource file.
-// KEEP IN SYNC WITH CompiledResource struct in Compiler.h!
-struct ResourceHeader
-{
-	uint32_t	magic;		// Magic number used to identify the file
-	uint32_t	version;	// Version of the compiler used to compile the resource
-	uint32_t	name;		// Name of the resource (murmur2_32 hash)
-	uint32_t	type;		// Type of the resource (murmur2_32 hash)
-	uint32_t	size;		// Size of the resource data _not_ including header (in bytes)
-};
+/// Structure of the archive
+///
+/// [ArchiveHeader]
+/// [ArchiveEntry]
+/// [ArchiveEntry]
+/// ...
+/// [ArchiveEntry]
+/// [ResourceData]
+/// [ResourceData]
+/// ...
+/// [ResourceData]
+///
+/// A valid archive must always have at least the archive header,
+/// starting at byte 0 of the archive file.
+///
+/// Newer archive versions must be totally backward compatible
+/// across minor engine releases, in order to be able to use
+/// recent version of the engine with older game archives.
 
 /// Source of resources
-class FileResourceArchive : public ResourceArchive
+class ArchiveBundle : public Bundle
 {
 public:
 
-					FileResourceArchive(Filesystem& fs);
-					~FileResourceArchive();
+					ArchiveBundle(Filesystem& fs);
+					~ArchiveBundle();
 
-	/// @copydoc ResourceArchive::open()
+	/// @copydoc Bundle::open()
 	DiskFile*		open(ResourceId name);
 
-	/// @copydoc ResourceArchive::close()
+	/// @copydoc Bundle::close()
 	void			close(DiskFile* resource);
-
 
 private:
 
+	MallocAllocator	m_allocator;
+
 	Filesystem&		m_filesystem;
+
+	DiskFile*		m_archive_file;
+
+	uint32_t		m_entries_count;
+	ArchiveEntry*	m_entries;
 };
 
 } // namespace crown

@@ -1,7 +1,7 @@
 #include "Assert.h"
 
 #include "ScriptResource.h"
-#include "ResourceArchive.h"
+#include "Bundle.h"
 #include "Log.h"
 #include "DiskFile.h"
 #include "Allocator.h"
@@ -10,9 +10,9 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void* ScriptResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
+void* ScriptResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
 {
-	DiskFile* stream = archive.open(id);
+	DiskFile* stream = bundle.open(id);
 
 	if (stream != NULL)
 	{
@@ -24,7 +24,7 @@ void* ScriptResource::load(Allocator& allocator, ResourceArchive& archive, Resou
 
 		stream->read(resource->m_data, size);
 
-		archive.close(stream);
+		bundle.close(stream);
 
 		return resource;
 	}

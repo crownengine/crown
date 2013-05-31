@@ -36,7 +36,7 @@ namespace crown
 
 class Filesystem;
 class ResourceManager;
-class ResourceArchive;
+class Bundle;
 class Renderer;
 class DebugRenderer;
 class InputManager;
@@ -148,7 +148,7 @@ private:
 
 	// Private subsystems
 	ResourceManager*		m_resource_manager;
-	ResourceArchive*		m_resource_archive;
+	Bundle*					m_resource_bundle;
 
 	// The game currently running
 	void*					m_game_library;

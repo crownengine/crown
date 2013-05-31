@@ -25,49 +25,44 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Resource.h"
+#include "Types.h"
+#include "Bundle.h"
 
 namespace crown
 {
 
-const uint32_t ARCHIVE_VERSION	= 1;	// Version of the archive
-
-struct ArchiveHeader
-{
-	uint32_t	version;			// The version number of the archive
-	uint32_t	entries_count;		// Number of resource entries in the archive
-	uint32_t	checksum;			// MD5 checksum of the archive
-	uint8_t		padding[64];		// Padding for additional data
-};
-
-struct ArchiveEntry
-{
-	uint32_t	name;				// Name of the resource (fnv1a hash)
-	uint32_t	type;				// Type of the resource (fnv1a hash)
-	uint64_t	offset;				// First byte of the resource (as absolute offset)
-	uint32_t	size;				// Size of the resource data (in bytes)
-};
-
 class Filesystem;
 class DiskFile;
 
-class ResourceArchive
+// The header of every compiled resource file.
+// KEEP IN SYNC WITH CompiledResource struct in Compiler.h!
+struct ResourceHeader
+{
+	uint32_t	magic;		// Magic number used to identify the file
+	uint32_t	version;	// Version of the compiler used to compile the resource
+	uint32_t	name;		// Name of the resource (murmur2_32 hash)
+	uint32_t	type;		// Type of the resource (murmur2_32 hash)
+	uint32_t	size;		// Size of the resource data _not_ including header (in bytes)
+};
+
+/// Source of resources
+class FileBundle : public Bundle
 {
 public:
 
-	virtual					~ResourceArchive() {}
+					FileBundle(Filesystem& fs);
+					~FileBundle();
 
-	/// Opens the resource file containing @name resource
-	/// and returns a stream from which read the data from.
-	/// @note
-	/// The resource stream points exactly at the start
-	/// of the useful resource data, so you do not have to
-	/// care about skipping headers, metadatas and so on.
-	virtual DiskFile*		open(ResourceId name) = 0;
+	/// @copydoc Bundle::open()
+	DiskFile*		open(ResourceId name);
 
-	/// Closes the resource file.
-	virtual void			close(DiskFile* resource) = 0;
+	/// @copydoc Bundle::close()
+	void			close(DiskFile* resource);
+
+
+private:
+
+	Filesystem&		m_filesystem;
 };
 
 } // namespace crown
-
