@@ -3,6 +3,7 @@
 #include "OS.h"
 #include "String.h"
 #include <cassert>
+#include <stdlib.h>
 
 namespace crown
 {
@@ -23,7 +24,7 @@ JSONParser::JSONParser(File* file, size_t size) :
 		m_tokens = m_tokens_list;
 	}
 
-	m_size = size;
+	m_tokens_number = size;
 
 	parse();
 
@@ -37,16 +38,15 @@ JSONParser::JSONParser(File* file, size_t size) :
 //--------------------------------------------------------------------------
 JSONParser::~JSONParser()
 {
-	if (m_size > 1024 && m_tokens != NULL)
+	if (m_tokens_number > 1024 && m_tokens != NULL)
 	{
 		delete m_tokens;
 	}
 }
 
 //--------------------------------------------------------------------------
-JSONError JSONParser::parse()
+void JSONParser::parse()
 {
-	JSONError error;
 	JSONToken* token;
 
 	char c;
@@ -173,11 +173,9 @@ JSONError JSONParser::parse()
 	{
 		if (m_tokens[i].m_start != -1 && m_tokens[i].m_end == -1)
 		{
-//			assert(false); // FIXME
+			assert(false);
 		}
 	}
-
-	return JSON_SUCCESS;
 }
 
 //--------------------------------------------------------------------------
@@ -319,7 +317,7 @@ JSONToken* JSONParser::allocate_token()
 {
 	JSONToken* token;
 
-	if (m_next_token >= m_size)
+	if (m_next_token >= m_tokens_number)
 	{
 		return NULL;
 	}	
@@ -546,10 +544,32 @@ JSONParser& JSONParser::get_bool(const char* key)
 	return *this;
 }
 
-// const char* JSONParser::to_string()
-// {
-// 	return m_tokens[m_nodes[m_nodes_count-1].m_id].m_value;
-// }
+void JSONParser::to_string(char* value)
+{
+	string::strcpy(value, m_tokens[m_nodes[m_nodes_count-1].m_id].m_value);
+}
+
+void JSONParser::to_float(float& value)
+{
+	value = atof(m_tokens[m_nodes[m_nodes_count-1].m_id].m_value);
+}
+
+void JSONParser::to_int(int& value)
+{
+	value = atoi(m_tokens[m_nodes[m_nodes_count-1].m_id].m_value);
+}
+
+void JSONParser::to_bool(bool& value)
+{
+	if (string::strcmp(m_tokens[m_nodes[m_nodes_count-1].m_id].m_value, "true") == 0)
+	{
+		value = true;
+	}
+	else
+	{
+		value = false;
+	}
+}
 
 
 } //namespace crown

@@ -98,17 +98,17 @@ public:
 
 	JSONParser&		get_bool(const char* key);
 
-	void			to_string(List<const char*>& values);
+	void			to_string(char* value);
 
-	void			to_float(float* values);
+	void			to_float(float& value);
 
-	void			to_int(int* values);
+	void			to_int(int& value);
 
-	void			to_bool(bool* values);
+	void			to_bool(bool& value);
 
 private:
 	/// Parse JSON data and fill tokens
-	JSONError 		parse();
+	void	 		parse();
 	/// Parse string in JSON data
 	void			parse_string();
 	/// Parse boolean in JSON data
@@ -131,7 +131,7 @@ private:
 	/// JSON tokens ptr (used only if we need more then 1024 tokens)
 	JSONToken* 		m_tokens;
 	/// m_tokens default size, default 1024
-	size_t			m_size;
+	size_t			m_tokens_number;
 
 	/// 
 	JSONNode		m_nodes[128];
