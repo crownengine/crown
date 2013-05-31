@@ -67,10 +67,8 @@ JSONError JSONParser::parse()
 			{
 				token = allocate_token();
 
-				if (token == NULL)
-				{
-					return JSON_NO_MEMORY;
-				}
+				assert(token != NULL);
+
 				if (m_prev_token != -1)
 				{
 					m_tokens[m_prev_token].m_size++;
@@ -88,10 +86,7 @@ JSONError JSONParser::parse()
 			{
 				type = c == '}' ? JSON_OBJECT : JSON_ARRAY;
 
-				if (m_next_token < 1)
-				{
-					return JSON_INV_CHAR;
-				}
+				assert(m_next_token > 0);
 
 				token = &m_tokens[m_next_token - 1];
 
@@ -99,12 +94,14 @@ JSONError JSONParser::parse()
 				{
 					if (token->m_start != -1 && token->m_end == -1)
 					{
-						if (token->m_type != type)
-						{
-							return JSON_INV_CHAR;
-						}
+						// FIXME
+						os::printf("Token:%s\n", token->m_value);
+						os::printf("previous:%d\ncurrent:%d\n", token->m_type, type);
+						assert(token->m_type == type);
+						
 						token->m_end = m_pos + 1;
 						m_prev_token = token->m_parent;
+
 						break;
 					}
 
@@ -123,7 +120,7 @@ JSONError JSONParser::parse()
 			case '\"':
 			case '\'':
 			{
-				error = parse_string();
+				parse_string();
             	if (m_prev_token != -1)
             	{
             		m_tokens[m_prev_token].m_size++;
@@ -153,15 +150,26 @@ JSONError JSONParser::parse()
             case '7':
             case '8':
             case '9':
-            case 't':
-            case 'f':
-            case 'n':
             {
-            	error = parse_primitive();
+            	parse_number();
             	if (m_prev_token != -1)
             	{
             		m_tokens[m_prev_token].m_size++;
             	}
+            	break;
+            }
+            case 't':	// true
+            case 'f':	// false
+            {
+            	parse_bool();
+            	if (m_prev_token != -1)
+            	{
+            		m_tokens[m_prev_token].m_size++;
+            	}
+            	break;
+            }
+            case 'n':	// null
+            {
             	break;
             }
 		}
@@ -171,7 +179,7 @@ JSONError JSONParser::parse()
 	{
 		if (m_tokens[i].m_start != -1 && m_tokens[i].m_end == -1)
 		{
-			return JSON_INV_PART;
+			assert(false); // FIXME
 		}
 	}
 
@@ -179,7 +187,7 @@ JSONError JSONParser::parse()
 }
 
 //--------------------------------------------------------------------------
-JSONError JSONParser::parse_string()
+void JSONParser::parse_string()
 {
 	JSONToken* token;
 
@@ -196,16 +204,12 @@ JSONError JSONParser::parse_string()
 		{
 			token = allocate_token();
 
-			if (token == NULL)
-			{
-				m_pos = start;
-				return JSON_NO_MEMORY;
-			}
+			assert(token != NULL);
 
 			fill_token(token, JSON_STRING, start + 1, m_pos);
 			token->m_parent = m_prev_token;
 
-			return JSON_SUCCESS;
+			return;
 		}
 
 		if (c == '\\')
@@ -229,21 +233,18 @@ JSONError JSONParser::parse_string()
                 }
                 default:
                	{
-                	m_pos = start;
-                	return JSON_INV_CHAR;
+                	assert(false);
                 }
 			}
 		}
 	}
 	m_pos = start;
-	return JSON_INV_PART;
 }
 
 //--------------------------------------------------------------------------
-JSONError JSONParser::parse_primitive()
+void JSONParser::parse_number()
 {
 	JSONToken* token;
-	JSONType type = JSON_INT;
 
 	int start = m_file->position();
 
@@ -256,17 +257,6 @@ JSONError JSONParser::parse_primitive()
 
 		switch (c)
 		{
-			case '.':
-			{
-				type = JSON_FLOAT;
-				break;
-			}
-			case 'r':
-			case 'a':
-			{
-				type = JSON_BOOL;
-				break;
-			}
 			case ' ':
 			case ',': 
 			case '}':
@@ -274,28 +264,59 @@ JSONError JSONParser::parse_primitive()
 			{
 				token = allocate_token();
 
-				if (token == NULL)
-				{
-					m_pos = start;
-					return JSON_NO_MEMORY;
-				}
-
-				fill_token(token, type, start, m_pos);
+				assert(token != NULL);
+				
+				fill_token(token, JSON_NUMBER, start, m_pos);
 
 				token->m_parent = m_prev_token;
 
-				// m_file->seek(start);
+				//m_file->seek(start);
 
-				return JSON_SUCCESS;
+				return;
 			}
 		}
 
-		if (c < 32 || c >= 127)
-		{
-			m_pos = start;
-			return JSON_INV_CHAR;
-		}
+		assert(c >= 32 || c < 127);
 	}
+}
+
+//--------------------------------------------------------------------------
+void JSONParser::parse_bool()
+{
+	JSONToken* token;
+
+	int start = m_file->position();
+
+	char c;
+
+	while (!m_file->end_of_file())
+	{
+		m_file->read(&c, 1);
+		m_pos = m_file->position();
+
+		switch (c)
+		{
+			case ' ':
+			case ',': 
+			case '}':
+			case ']':
+			{
+				token = allocate_token();
+
+				assert(token != NULL);
+				
+				fill_token(token, JSON_BOOL, start, m_pos);
+
+				token->m_parent = m_prev_token;
+
+				m_file->seek(start);
+
+				return;
+			}
+		}
+
+		assert(c >= 32 || c < 127);
+	}	
 }
 
 //--------------------------------------------------------------------------
@@ -336,18 +357,6 @@ void JSONParser::fill_token(JSONToken* token, JSONType type, int32_t start, int3
 	string::strcpy(token->m_value, tmp);
 
 	m_file->seek(cur_pos);
-}
-
-//--------------------------------------------------------------------------
-JSONToken* JSONParser::get_tokens()
-{
-	return m_tokens_list;
-}
-
-//--------------------------------------------------------------------------
-int32_t JSONParser::get_tokens_number()
-{
-	return m_next_token;
 }
 
 //--------------------------------------------------------------------------
@@ -413,7 +422,7 @@ JSONParser& JSONParser::get_array(const char* key)
 			break;
 		}
 	}
-	// Incremente nodes count for the next token
+	// Increment nodes count for the next token
 	m_nodes_count++;
 
 	return *this;
@@ -448,34 +457,72 @@ JSONParser&	JSONParser::get_string(const char* key)
 			break;
 		}
 	}
-	// Incremente nodes count for the next token
+	// Increment nodes count for the next token
 	m_nodes_count++;
 
 	return *this;
 }
 
 //--------------------------------------------------------------------------
-JSONParser& JSONParser::get_float(const char* key)
+JSONParser& JSONParser::get_number(const char* key)
 {
+	int32_t begin = m_nodes_count != 0 ? m_nodes[m_nodes_count-1].m_id : 0;
 
-}
+	for (int i = begin; i < m_next_token; i++)
+	{
+		if ((string::strcmp(m_tokens[i].m_value, key) == 0)	&& m_tokens[i].m_type == JSON_STRING)
+		{
+			assert(m_tokens[i+1].m_type == JSON_NUMBER);
 
-//--------------------------------------------------------------------------
-JSONParser&	JSONParser::get_int(const char* key)
-{
+			m_nodes[m_nodes_count].m_id = m_tokens[i+1].m_id;	
+			m_nodes[m_nodes_count].m_type = JSON_NUMBER;
+			m_nodes[m_nodes_count].print();
 
+			if (m_tokens[i+1].has_parent())
+			{
+				assert(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i+1].m_parent);
+			}
+
+			break;
+		}
+	}
+	m_nodes_count++;
+
+	return *this;
 }
 
 //--------------------------------------------------------------------------
 JSONParser& JSONParser::get_bool(const char* key)
 {
+	int32_t begin = m_nodes_count != 0 ? m_nodes[m_nodes_count-1].m_id : 0;
 
+	for (int i = begin; i < m_next_token; i++)
+	{
+		if ((string::strcmp(m_tokens[i].m_value, key) == 0)	&& m_tokens[i].m_type == JSON_STRING)
+		{
+			assert(m_tokens[i+1].m_type == JSON_BOOL);
+
+			m_nodes[m_nodes_count].m_id = m_tokens[i+1].m_id;	
+			m_nodes[m_nodes_count].m_type = JSON_BOOL;
+			m_nodes[m_nodes_count].print();
+
+			if (m_tokens[i+1].has_parent())
+			{
+				assert(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i+1].m_parent);
+			}
+
+			break;
+		}
+	}
+	m_nodes_count++;
+
+	return *this;
 }
 
-const char* JSONParser::to_string()
-{
-	return m_tokens[m_nodes[m_nodes_count-1].m_id].m_value;
-}
+// const char* JSONParser::to_string()
+// {
+// 	return m_tokens[m_nodes[m_nodes_count-1].m_id].m_value;
+// }
 
 
 } //namespace crown

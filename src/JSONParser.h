@@ -13,13 +13,11 @@ namespace crown
 /// JSON Token types
 enum JSONType
 {
-	JSON_PRIMITIVE 	= 0,	// Number, boolean or null
-	JSON_OBJECT 	= 1,	// Object
-	JSON_ARRAY 		= 2,	// Array
-	JSON_STRING 	= 3,
-	JSON_FLOAT		= 4,
-	JSON_INT		= 5,
-	JSON_BOOL 		= 6,
+	JSON_OBJECT 	= 0,	// Object
+	JSON_ARRAY 		= 1,	// Array
+	JSON_STRING 	= 2,	// String
+	JSON_NUMBER		= 3,	// Number
+	JSON_BOOL 		= 4		// Boolean
 
 };
 
@@ -94,9 +92,7 @@ public:
 
 	JSONParser& 	get_string(const char* key);
 
-	JSONParser&		get_float(const char* key);				// MUST BE IMPLEMENTED
-
-	JSONParser&		get_int(const char* key);				// MUST BE IMPLEMENTED
+	JSONParser&		get_number(const char* key);			// MUST BE IMPLEMENTED
 
 	JSONParser&		get_bool(const char* key);				// MUST BE IMPLEMENTED
 
@@ -111,20 +107,12 @@ public:
 private:
 	/// Parse JSON data and fill tokens
 	JSONError 		parse();
-	/// Get all tokens
-	JSONToken*		get_tokens();			// MUST BE REMOVED
-	/// Get next token
-	int32_t			get_tokens_number();	// MUST BE REMOVED
 	/// Parse string in JSON data
-	JSONError		parse_string();
-	/// Parse number or boolean in JSON data
-	JSONError		parse_primitive();	// MUST BE REMOVED
+	void			parse_string();
 	/// Parse boolean in JSON data
-	JSONError		parse_bool();	// MUST BE IMPLEMENTED
-	/// Parse integer in JSON data
-	JSONError		parse_int();	// MUST BE IMPLEMENTED
+	void			parse_bool();			// MUST BE IMPLEMENTED
 	/// Parse float in JSON data
-	JSONError		parse_float();	// MUST BE IMPLEMENTED
+	void			parse_number();			// MUST BE IMPLEMENTED
 	/// Allocate token node
 	JSONToken* 		allocate_token();
 	/// Fill token and set boundaries
