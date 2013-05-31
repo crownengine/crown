@@ -2,7 +2,7 @@
 #include "DiskFile.h"
 #include "OS.h"
 #include "String.h"
-#include <cassert>
+#include "Assert.h"
 #include <stdlib.h>
 
 namespace crown
@@ -29,10 +29,10 @@ JSONParser::JSONParser(File* file, size_t size) :
 	parse();
 
 	// Test
-	for (int i = 0; i < m_next_token; i++)
-	{
-		m_tokens[i].print();
-	}
+	// for (int i = 0; i < m_next_token; i++)
+	// {
+	// 	m_tokens[i].print();
+	// }
 }
 
 //--------------------------------------------------------------------------
@@ -64,7 +64,7 @@ void JSONParser::parse()
 			{
 				token = allocate_token();
 
-				assert(token != NULL);
+				CE_ASSERT(token != NULL, "Cannot allocate a new token for parsing.\n");
 
 				if (m_prev_token != -1)
 				{
@@ -83,7 +83,7 @@ void JSONParser::parse()
 			{
 				type = c == '}' ? JSON_OBJECT : JSON_ARRAY;
 
-				assert(m_next_token > 0);
+				CE_ASSERT(m_next_token > 0, "");
 
 				token = &m_tokens[m_next_token - 1];
 
@@ -98,7 +98,7 @@ void JSONParser::parse()
 					// If token is started but not finished
 					if (token->m_start != -1 && token->m_end == -1)
 					{
-						assert(token->m_type == type);
+						CE_ASSERT(token->m_type == type, "Token %d does not have type %d.\n", token->m_id, type);
 						
 						token->m_end = m_file->position();
 						m_prev_token = token->m_parent;
@@ -173,7 +173,7 @@ void JSONParser::parse()
 	{
 		if (m_tokens[i].m_start != -1 && m_tokens[i].m_end == -1)
 		{
-			assert(false);
+			CE_ASSERT(false, "There is an error in JSON syntax.");
 		}
 	}
 }
@@ -195,7 +195,7 @@ void JSONParser::parse_string()
 		{
 			token = allocate_token();
 
-			assert(token != NULL);
+			CE_ASSERT(token != NULL, "Cannot allocate a new token for parsing.\n");
 
 			fill_token(token, JSON_STRING, start, m_file->position() - 1);
 			token->m_parent = m_prev_token;
@@ -223,7 +223,7 @@ void JSONParser::parse_string()
                 }
                 default:
                	{
-                	assert(false);
+                	CE_ASSERT(false, "Wrong character.\n");
                 }
 			}
 		}
@@ -255,7 +255,7 @@ void JSONParser::parse_number()
 			{
 				token = allocate_token();
 
-				assert(token != NULL);
+				CE_ASSERT(token != NULL, "Cannot allocate a new token for parsing.\n");
 				
 				fill_token(token, JSON_NUMBER, start, m_file->position() - 1);
 
@@ -267,7 +267,7 @@ void JSONParser::parse_number()
 			}
 		}
 
-		assert(c >= 32 || c < 127);
+		CE_ASSERT(c >= 32 || c < 127, "Wrong character.\n");
 	}
 }
 
@@ -296,7 +296,7 @@ void JSONParser::parse_bool()
 			{
 				token = allocate_token();
 
-				assert(token != NULL);
+				CE_ASSERT(token != NULL, "Cannot allocate a new token.\n");
 				
 				fill_token(token, JSON_BOOL, start, m_file->position() - 1);
 
@@ -308,7 +308,7 @@ void JSONParser::parse_bool()
 			}
 		}
 
-		assert(c >= 32 || c < 127);
+		CE_ASSERT(c >= 32 || c < 127, "Wrong character.\n");
 	}	
 }
 
@@ -359,7 +359,7 @@ void JSONParser::fill_token(JSONToken* token, JSONType type, int32_t start, int3
 JSONParser& JSONParser::get_root()
 {
 	// Check if root node is an object and if it's the first
-	assert(m_tokens[0].m_type == JSON_OBJECT && m_nodes_count == 0);
+	CE_ASSERT(m_tokens[0].m_type == JSON_OBJECT && m_nodes_count == 0, "JSON root element '{'' must be first.\n");
 
 	m_nodes[m_nodes_count].m_id = m_tokens[0].m_id;	
 	m_nodes[m_nodes_count].m_type = JSON_OBJECT;
@@ -372,6 +372,8 @@ JSONParser& JSONParser::get_root()
 //--------------------------------------------------------------------------
 JSONParser&	JSONParser::get_object(const char* key)
 {
+	bool found = false;
+
 	int32_t begin = m_nodes_count != 0 ? m_nodes[m_nodes_count-1].m_id : 0;
 	// For each token
 	for (int i = begin; i < m_next_token; i++)
@@ -380,7 +382,9 @@ JSONParser&	JSONParser::get_object(const char* key)
 		if ((string::strcmp(m_tokens[i].m_value, key) == 0)	&& m_tokens[i].m_type == JSON_STRING)
 		{
 			// Check if the successive token is an array
-			assert(m_tokens[i+1].m_type == JSON_OBJECT);
+			CE_ASSERT(m_tokens[i+1].m_type == JSON_OBJECT, "Token %d is not an Object.\n", m_tokens[i+1].m_id);
+
+			found = true;
 
 			// Store token's id in a json node
 			m_nodes[m_nodes_count].m_id = m_tokens[i+1].m_id;	
@@ -391,12 +395,15 @@ JSONParser&	JSONParser::get_object(const char* key)
 			if (m_tokens[i+1].has_parent())
 			{
 				// Check if precedent token stored is the parent of current token
-				assert(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i+1].m_parent);
+				CE_ASSERT(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i+1].m_parent, "The precedent node is not parent of current.\n");
 			}
 
 			break;
 		}
 	}
+
+	CE_ASSERT(found, "Node '%s' not found!\n", key);
+
 	// Incremente nodes count for the next token
 	m_nodes_count++;
 
@@ -406,6 +413,8 @@ JSONParser&	JSONParser::get_object(const char* key)
 //--------------------------------------------------------------------------
 JSONParser& JSONParser::get_array(const char* key, uint32_t element)
 {
+	bool found = false;
+
 	int32_t begin = m_nodes_count != 0 ? m_nodes[m_nodes_count-1].m_id : 0;
 
 	element++;
@@ -417,7 +426,9 @@ JSONParser& JSONParser::get_array(const char* key, uint32_t element)
 		if ((string::strcmp(m_tokens[i].m_value, key) == 0)	&& m_tokens[i].m_type == JSON_STRING)
 		{
 			// Check if the successive token is an array
-			assert(m_tokens[i + 1].m_type == JSON_ARRAY);
+			CE_ASSERT(m_tokens[i + 1].m_type == JSON_ARRAY, "Token %d is not an Array.\n", m_tokens[i+1].m_id);
+
+			found = true;
 
 			// Store array-token's id in a json node
 			m_nodes[m_nodes_count].m_id = m_tokens[i + 1].m_id;	
@@ -428,7 +439,8 @@ JSONParser& JSONParser::get_array(const char* key, uint32_t element)
 			if (m_tokens[i + 1].has_parent())
 			{
 				// Check if precedent token stored is the parent of current token
-				assert(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i + 1].m_parent);
+				CE_ASSERT(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i + 1].m_parent,
+					"The precedent node is not parent of current.\n");
 			}
 
 			m_nodes_count++;
@@ -441,13 +453,16 @@ JSONParser& JSONParser::get_array(const char* key, uint32_t element)
 			if (m_tokens[i + 1 + element].has_parent())
 			{
 				// Check if precedent token stored is the parent of current token
-				assert(m_nodes[m_nodes_count-1].m_id == m_tokens[i + 1 + element].m_parent);				
+				CE_ASSERT(m_nodes[m_nodes_count-1].m_id == m_tokens[i + 1 + element].m_parent, 
+					"The precedent node is not parent of current.\n");				
 			}
 
 			break;
 		}
 	}
-	// Increment nodes count for the next token
+
+	CE_ASSERT(found, "Node '%s' not found!\n", key);
+
 	m_nodes_count++;
 
 	return *this;
@@ -456,33 +471,34 @@ JSONParser& JSONParser::get_array(const char* key, uint32_t element)
 //--------------------------------------------------------------------------
 JSONParser&	JSONParser::get_string(const char* key)
 {
+	bool found = false;
+
 	int32_t begin = m_nodes_count != 0 ? m_nodes[m_nodes_count-1].m_id : 0;
 
-	// For each token
 	for (int i = begin; i < m_next_token; i++)
 	{
-		// Check key and type
 		if ((string::strcmp(m_tokens[i].m_value, key) == 0)	&& m_tokens[i].m_type == JSON_STRING)
 		{
-			// Check if the successive token is an array
-			assert(m_tokens[i+1].m_type == JSON_STRING);
+			CE_ASSERT(m_tokens[i+1].m_type == JSON_STRING, "Token %d is not a String.\n", m_tokens[i+1].m_id);
 
-			// Store token's id in a json node
+			found = true;
+
 			m_nodes[m_nodes_count].m_id = m_tokens[i+1].m_id;	
 			m_nodes[m_nodes_count].m_type = JSON_STRING;
 			m_nodes[m_nodes_count].print();
 
-			// If token stored has parent
 			if (m_tokens[i+1].has_parent())
 			{
-				// Check if precedent token stored is the parent of current token
-				assert(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i+1].m_parent);
+				CE_ASSERT(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i+1].m_parent,
+					"The precedent node is not parent of current.\n");
 			}
 
 			break;
 		}
 	}
-	// Increment nodes count for the next token
+
+	CE_ASSERT(found, "Node '%s' not found!\n", key);
+
 	m_nodes_count++;
 
 	return *this;
@@ -491,13 +507,17 @@ JSONParser&	JSONParser::get_string(const char* key)
 //--------------------------------------------------------------------------
 JSONParser& JSONParser::get_number(const char* key)
 {
+	bool found = false;
+
 	int32_t begin = m_nodes_count != 0 ? m_nodes[m_nodes_count-1].m_id : 0;
 
 	for (int i = begin; i < m_next_token; i++)
 	{
 		if ((string::strcmp(m_tokens[i].m_value, key) == 0)	&& m_tokens[i].m_type == JSON_STRING)
 		{
-			assert(m_tokens[i+1].m_type == JSON_NUMBER);
+			CE_ASSERT(m_tokens[i+1].m_type == JSON_NUMBER, "Token %d is not a Number.\n", m_tokens[i+1].m_id);
+
+			found = true;
 
 			m_nodes[m_nodes_count].m_id = m_tokens[i+1].m_id;	
 			m_nodes[m_nodes_count].m_type = JSON_NUMBER;
@@ -505,12 +525,16 @@ JSONParser& JSONParser::get_number(const char* key)
 
 			if (m_tokens[i+1].has_parent())
 			{
-				assert(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i+1].m_parent);
+				CE_ASSERT(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i+1].m_parent,
+					"The precedent node is not parent of current.\n");
 			}
 
 			break;
 		}
 	}
+
+	CE_ASSERT(found, "Node '%s' not found!\n", key);
+
 	m_nodes_count++;
 
 	return *this;
@@ -519,13 +543,17 @@ JSONParser& JSONParser::get_number(const char* key)
 //--------------------------------------------------------------------------
 JSONParser& JSONParser::get_bool(const char* key)
 {
+	bool found = false;
+
 	int32_t begin = m_nodes_count != 0 ? m_nodes[m_nodes_count-1].m_id : 0;
 
 	for (int i = begin; i < m_next_token; i++)
 	{
 		if ((string::strcmp(m_tokens[i].m_value, key) == 0)	&& m_tokens[i].m_type == JSON_STRING)
 		{
-			assert(m_tokens[i+1].m_type == JSON_BOOL);
+			CE_ASSERT(m_tokens[i+1].m_type == JSON_BOOL, "Token %d is not a Boolean.\n", m_tokens[i+1].m_id);
+
+			found = true;
 
 			m_nodes[m_nodes_count].m_id = m_tokens[i+1].m_id;	
 			m_nodes[m_nodes_count].m_type = JSON_BOOL;
@@ -533,32 +561,40 @@ JSONParser& JSONParser::get_bool(const char* key)
 
 			if (m_tokens[i+1].has_parent())
 			{
-				assert(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i+1].m_parent);
+				CE_ASSERT(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i+1].m_parent,
+					"The precedent node is not parent of current.\n");
 			}
 
 			break;
 		}
 	}
+
+	CE_ASSERT(found, "Node '%s' not found!\n", key);
+
 	m_nodes_count++;
 
 	return *this;
 }
 
+//--------------------------------------------------------------------------
 void JSONParser::to_string(char* value)
 {
 	string::strcpy(value, m_tokens[m_nodes[m_nodes_count-1].m_id].m_value);
 }
 
+//--------------------------------------------------------------------------
 void JSONParser::to_float(float& value)
 {
 	value = atof(m_tokens[m_nodes[m_nodes_count-1].m_id].m_value);
 }
 
+//--------------------------------------------------------------------------
 void JSONParser::to_int(int& value)
 {
 	value = atoi(m_tokens[m_nodes[m_nodes_count-1].m_id].m_value);
 }
 
+//--------------------------------------------------------------------------
 void JSONParser::to_bool(bool& value)
 {
 	if (string::strcmp(m_tokens[m_nodes[m_nodes_count-1].m_id].m_value, "true") == 0)

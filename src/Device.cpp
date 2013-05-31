@@ -529,11 +529,7 @@ void Device::read_engine_settings()
 	DiskFile* file = m_filesystem->open("crown.cfg", FOM_READ);
 	JSONParser json(file);
 	
-	bool value;
-	json.get_root().get_array("array0", 0).to_bool(value);
-
-	if (value)
-		os::printf("YEEEEEEAH\n");
+	// MUST BE IMPLEMENTED
 }
 
 
