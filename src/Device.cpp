@@ -529,7 +529,7 @@ void Device::read_engine_settings()
 	DiskFile* file = m_filesystem->open("crown.cfg", FOM_READ);
 	JSONParser json(file);
 	
-	json.get_array("crown");
+	json.get_root().get_array("crown", 0).get_string("boot");
 }
 
 

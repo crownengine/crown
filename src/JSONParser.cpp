@@ -25,8 +25,6 @@ JSONParser::JSONParser(File* file, size_t size) :
 
 	m_size = size;
 
-	m_pos = m_file->position();
-
 	parse();
 
 	// Test
@@ -58,7 +56,6 @@ JSONError JSONParser::parse()
 		JSONType type;
 
 		m_file->read(&c, 1);
-		m_pos = m_file->position();
 
 		switch(c)
 		{
@@ -76,7 +73,7 @@ JSONError JSONParser::parse()
 				}
 
 				token->m_type = c == '{' ? JSON_OBJECT : JSON_ARRAY;
-				token->m_start = m_pos;
+				token->m_start = m_file->position() - 1;
 				m_prev_token = m_next_token - 1;
 
 				break;
@@ -92,33 +89,30 @@ JSONError JSONParser::parse()
 
 				while (true)
 				{
-					if (token->m_start != -1 && token->m_end == -1)
-					{
-						// FIXME
-						os::printf("Token:%s\n", token->m_value);
-						os::printf("previous:%d\ncurrent:%d\n", token->m_type, type);
-						assert(token->m_type == type);
-						
-						token->m_end = m_pos + 1;
-						m_prev_token = token->m_parent;
-
-						break;
-					}
-
+					// If token does not have a parent
 					if (token->m_parent == -1)
 					{
+						token->m_end = m_file->position();
+						break;
+					}
+					// If token is started but not finished
+					if (token->m_start != -1 && token->m_end == -1)
+					{
+						assert(token->m_type == type);
+						
+						token->m_end = m_file->position();
+						m_prev_token = token->m_parent;
+
 						break;
 					}
 
 					token = &m_tokens[token->m_parent];
 				}
 
-				// token->m_size = token->m_end - token->m_start;
 				fill_token(token, type, token->m_start, token->m_end);
 				break;
 			}
 			case '\"':
-			case '\'':
 			{
 				parse_string();
             	if (m_prev_token != -1)
@@ -179,7 +173,7 @@ JSONError JSONParser::parse()
 	{
 		if (m_tokens[i].m_start != -1 && m_tokens[i].m_end == -1)
 		{
-			assert(false); // FIXME
+//			assert(false); // FIXME
 		}
 	}
 
@@ -191,14 +185,13 @@ void JSONParser::parse_string()
 {
 	JSONToken* token;
 
-	int start = m_pos;
+	int start = m_file->position();
 
 	char c; 
 
 	while(!m_file->end_of_file())
 	{	
 		m_file->read(&c, 1);
-		m_pos = m_file->position();
 
 		if (c == '\"' || c == '\'')
 		{
@@ -206,7 +199,7 @@ void JSONParser::parse_string()
 
 			assert(token != NULL);
 
-			fill_token(token, JSON_STRING, start + 1, m_pos);
+			fill_token(token, JSON_STRING, start, m_file->position() - 1);
 			token->m_parent = m_prev_token;
 
 			return;
@@ -215,7 +208,6 @@ void JSONParser::parse_string()
 		if (c == '\\')
 		{
 			m_file->read(&c, 1);
-			m_pos = m_file->position();
 
 			switch(c)
 			{
@@ -238,7 +230,6 @@ void JSONParser::parse_string()
 			}
 		}
 	}
-	m_pos = start;
 }
 
 //--------------------------------------------------------------------------
@@ -246,17 +237,19 @@ void JSONParser::parse_number()
 {
 	JSONToken* token;
 
-	int start = m_file->position();
+	int start = m_file->position() - 1;
 
 	char c;
 
 	while (!m_file->end_of_file())
 	{
 		m_file->read(&c, 1);
-		m_pos = m_file->position();
 
 		switch (c)
 		{
+			case '\t': 
+			case '\r': 
+			case '\n': 
 			case ' ':
 			case ',': 
 			case '}':
@@ -266,11 +259,11 @@ void JSONParser::parse_number()
 
 				assert(token != NULL);
 				
-				fill_token(token, JSON_NUMBER, start, m_pos);
+				fill_token(token, JSON_NUMBER, start, m_file->position() - 1);
 
 				token->m_parent = m_prev_token;
 
-				//m_file->seek(start);
+				m_file->seek(m_file->position() - 1);
 
 				return;
 			}
@@ -285,17 +278,19 @@ void JSONParser::parse_bool()
 {
 	JSONToken* token;
 
-	int start = m_file->position();
+	int start = m_file->position() - 1;
 
 	char c;
 
 	while (!m_file->end_of_file())
 	{
 		m_file->read(&c, 1);
-		m_pos = m_file->position();
 
 		switch (c)
 		{
+			case '\t': 
+			case '\r': 
+			case '\n': 
 			case ' ':
 			case ',': 
 			case '}':
@@ -305,11 +300,11 @@ void JSONParser::parse_bool()
 
 				assert(token != NULL);
 				
-				fill_token(token, JSON_BOOL, start, m_pos);
+				fill_token(token, JSON_BOOL, start, m_file->position() - 1);
 
 				token->m_parent = m_prev_token;
 
-				m_file->seek(start);
+				m_file->seek(m_file->position() - 1);
 
 				return;
 			}
@@ -329,13 +324,16 @@ JSONToken* JSONParser::allocate_token()
 		return NULL;
 	}	
 
-	int32_t id = m_next_token++;
+	int32_t id = m_next_token;
 
 	token = &m_tokens[id];
 	token->m_id = id;
-	token->m_start = token->m_end = -1;
+	token->m_start = -1;
+	token->m_end = -1;
 	token->m_size = 0;
 	token->m_parent = -1;
+
+	m_next_token++;
 
 	return token;
 }
@@ -351,12 +349,26 @@ void JSONParser::fill_token(JSONToken* token, JSONType type, int32_t start, int3
 	token->m_size = token->m_end - token->m_start;
 
 	char tmp[token->m_size+1];
-	m_file->seek(token->m_start-1);
+	m_file->seek(token->m_start);
 	m_file->read(tmp, token->m_size);
 	tmp[token->m_size] = '\0';
 	string::strcpy(token->m_value, tmp);
 
 	m_file->seek(cur_pos);
+}
+
+//--------------------------------------------------------------------------
+JSONParser& JSONParser::get_root()
+{
+	// Check if root node is an object and if it's the first
+	assert(m_tokens[0].m_type == JSON_OBJECT && m_nodes_count == 0);
+
+	m_nodes[m_nodes_count].m_id = m_tokens[0].m_id;	
+	m_nodes[m_nodes_count].m_type = JSON_OBJECT;
+
+	m_nodes_count++;
+
+	return *this;
 }
 
 //--------------------------------------------------------------------------
@@ -394,9 +406,11 @@ JSONParser&	JSONParser::get_object(const char* key)
 }
 
 //--------------------------------------------------------------------------
-JSONParser& JSONParser::get_array(const char* key)
+JSONParser& JSONParser::get_array(const char* key, uint32_t element)
 {
 	int32_t begin = m_nodes_count != 0 ? m_nodes[m_nodes_count-1].m_id : 0;
+
+	element++;
 
 	// For each token
 	for (int i = begin; i < m_next_token; i++)
@@ -405,18 +419,31 @@ JSONParser& JSONParser::get_array(const char* key)
 		if ((string::strcmp(m_tokens[i].m_value, key) == 0)	&& m_tokens[i].m_type == JSON_STRING)
 		{
 			// Check if the successive token is an array
-			assert(m_tokens[i+1].m_type == JSON_ARRAY);
+			assert(m_tokens[i + 1].m_type == JSON_ARRAY);
 
-			// Store token's id in a json node
-			m_nodes[m_nodes_count].m_id = m_tokens[i+1].m_id;	
+			// Store array-token's id in a json node
+			m_nodes[m_nodes_count].m_id = m_tokens[i + 1].m_id;	
 			m_nodes[m_nodes_count].m_type = JSON_ARRAY;
 			m_nodes[m_nodes_count].print();
 
 			// If token stored has parent
-			if (m_tokens[i+1].has_parent())
+			if (m_tokens[i + 1].has_parent())
 			{
 				// Check if precedent token stored is the parent of current token
-				assert(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i+1].m_parent);
+				assert(m_nodes_count && m_nodes[m_nodes_count-1].m_id == m_tokens[i + 1].m_parent);
+			}
+
+			m_nodes_count++;
+
+			// Store element-token's id in a json node
+			m_nodes[m_nodes_count].m_id = m_tokens[i + 1 + element].m_id;	
+			m_nodes[m_nodes_count].m_type = JSON_ARRAY;
+			m_nodes[m_nodes_count].print();
+
+			if (m_tokens[i + 1 + element].has_parent())
+			{
+				// Check if precedent token stored is the parent of current token
+				assert(m_nodes[m_nodes_count-1].m_id == m_tokens[i + 1 + element].m_parent);				
 			}
 
 			break;

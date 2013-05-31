@@ -86,23 +86,25 @@ public:
 	/// Destructor
 					~JSONParser();
 
+	JSONParser&		get_root();
+
 	JSONParser&		get_object(const char* key);
 
-	JSONParser&		get_array(const char* key);
+	JSONParser&		get_array(const char* key, uint32_t element);
 
 	JSONParser& 	get_string(const char* key);
 
-	JSONParser&		get_number(const char* key);			// MUST BE IMPLEMENTED
+	JSONParser&		get_number(const char* key);		
 
-	JSONParser&		get_bool(const char* key);				// MUST BE IMPLEMENTED
+	JSONParser&		get_bool(const char* key);
 
-	void			to_string(List<const char*>& values);	// MUST BE IMPLEMENTED
+	void			to_string(List<const char*>& values);
 
-	void			to_float(float* values);				// MUST BE IMPLEMENTED
+	void			to_float(float* values);
 
-	void			to_int(int* values);					// MUST BE IMPLEMENTED
+	void			to_int(int* values);
 
-	void			to_bool(bool* values);					// MUST BE IMPLEMENTED
+	void			to_bool(bool* values);
 
 private:
 	/// Parse JSON data and fill tokens
@@ -110,18 +112,16 @@ private:
 	/// Parse string in JSON data
 	void			parse_string();
 	/// Parse boolean in JSON data
-	void			parse_bool();			// MUST BE IMPLEMENTED
+	void			parse_bool();
 	/// Parse float in JSON data
-	void			parse_number();			// MUST BE IMPLEMENTED
+	void			parse_number();
 	/// Allocate token node
 	JSONToken* 		allocate_token();
 	/// Fill token and set boundaries
 	void			fill_token(JSONToken* token, JSONType type, int32_t start, int32_t end);
 
-	/// JSON file of data
+	/// JSON data
 	File*			m_file;
-	/// JSON string offset
-	uint32_t 		m_pos;
 	/// Next token to allocate				
 	int32_t			m_next_token;
 	/// Previous token e.g parent or array		
