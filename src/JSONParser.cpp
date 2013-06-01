@@ -401,7 +401,6 @@ JSONParser&	JSONParser::get_object(const char* key)
 			// Store token's id in a json node
 			m_nodes[m_nodes_count].m_id = m_tokens[i+1].m_id;	
 			m_nodes[m_nodes_count].m_type = JSON_OBJECT;
-			m_nodes[m_nodes_count].print();
 
 			// If token stored has parent
 			if (m_tokens[i+1].has_parent())
@@ -445,7 +444,6 @@ JSONParser& JSONParser::get_array(const char* key, uint32_t element)
 			// Store array-token's id in a json node
 			m_nodes[m_nodes_count].m_id = m_tokens[i + 1].m_id;	
 			m_nodes[m_nodes_count].m_type = JSON_ARRAY;
-			m_nodes[m_nodes_count].print();
 
 			// If token stored has parent
 			if (m_tokens[i + 1].has_parent())
@@ -460,7 +458,6 @@ JSONParser& JSONParser::get_array(const char* key, uint32_t element)
 			// Store element-token's id in a json node
 			m_nodes[m_nodes_count].m_id = m_tokens[i + 1 + element].m_id;	
 			m_nodes[m_nodes_count].m_type = JSON_ARRAY;
-			m_nodes[m_nodes_count].print();
 
 			if (m_tokens[i + 1 + element].has_parent())
 			{
@@ -497,7 +494,6 @@ JSONParser&	JSONParser::get_string(const char* key)
 
 			m_nodes[m_nodes_count].m_id = m_tokens[i+1].m_id;	
 			m_nodes[m_nodes_count].m_type = JSON_STRING;
-			m_nodes[m_nodes_count].print();
 
 			if (m_tokens[i+1].has_parent())
 			{
@@ -533,7 +529,6 @@ JSONParser& JSONParser::get_number(const char* key)
 
 			m_nodes[m_nodes_count].m_id = m_tokens[i+1].m_id;	
 			m_nodes[m_nodes_count].m_type = JSON_NUMBER;
-			m_nodes[m_nodes_count].print();
 
 			if (m_tokens[i+1].has_parent())
 			{
@@ -569,7 +564,6 @@ JSONParser& JSONParser::get_bool(const char* key)
 
 			m_nodes[m_nodes_count].m_id = m_tokens[i+1].m_id;	
 			m_nodes[m_nodes_count].m_type = JSON_BOOL;
-			m_nodes[m_nodes_count].print();
 
 			if (m_tokens[i+1].has_parent())
 			{

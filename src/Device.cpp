@@ -538,7 +538,6 @@ void Device::read_engine_settings()
 	json.get_root().get_number("width").to_int(width);
 	os::printf("value = %s\n", value);
 	os::printf("width = %d\n", width);
-
 }
 
 
