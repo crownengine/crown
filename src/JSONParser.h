@@ -6,6 +6,7 @@
 #include "File.h"
 #include "List.h"
 #include "Dictionary.h"
+#include "Allocator.h"
 
 namespace crown
 {
@@ -82,7 +83,7 @@ class JSONParser
 {
 public:
 	/// Constructor
-					JSONParser(File* file, size_t size = 1024);
+					JSONParser(Allocator& allocator, File* file, size_t size = 1024);
 	/// Destructor
 					~JSONParser();
 
@@ -119,7 +120,11 @@ private:
 	JSONToken* 		allocate_token();
 	/// Fill token and set boundaries
 	void			fill_token(JSONToken* token, JSONType type, int32_t start, int32_t end);
+	/// Reset all JSON nodes
+	void			reset_nodes();
 
+
+	Allocator& 		m_allocator;
 	/// JSON data
 	File*			m_file;
 	/// Next token to allocate				
@@ -134,7 +139,7 @@ private:
 	size_t			m_tokens_number;
 
 	/// 
-	JSONNode		m_nodes[128];
+	JSONNode*		m_nodes;
 	///
 	uint32_t 		m_nodes_count;
 

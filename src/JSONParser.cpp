@@ -9,7 +9,8 @@ namespace crown
 {
 
 //--------------------------------------------------------------------------
-JSONParser::JSONParser(File* file, size_t size) :
+JSONParser::JSONParser(Allocator& allocator, File* file, size_t size) :
+	m_allocator(allocator),
 	m_file(file),
 	m_next_token(0),
 	m_prev_token(-1),
@@ -17,7 +18,7 @@ JSONParser::JSONParser(File* file, size_t size) :
 {
 	if (size > 1024)
 	{
-		m_tokens = new JSONToken[size];
+		m_tokens = CE_NEW(m_allocator, JSONToken[size]);
 	}
 	else
 	{
@@ -28,11 +29,7 @@ JSONParser::JSONParser(File* file, size_t size) :
 
 	parse();
 
-	// Test
-	// for (int i = 0; i < m_next_token; i++)
-	// {
-	// 	m_tokens[i].print();
-	// }
+	m_nodes = CE_NEW(m_allocator, JSONNode[16]);
 }
 
 //--------------------------------------------------------------------------
@@ -40,7 +37,11 @@ JSONParser::~JSONParser()
 {
 	if (m_tokens_number > 1024 && m_tokens != NULL)
 	{
-		delete m_tokens;
+		CE_DELETE(m_allocator, m_tokens);
+	}
+	if (m_nodes != NULL)
+	{
+		CE_DELETE(m_allocator, m_nodes);
 	}
 }
 
@@ -356,6 +357,17 @@ void JSONParser::fill_token(JSONToken* token, JSONType type, int32_t start, int3
 }
 
 //--------------------------------------------------------------------------
+void JSONParser::reset_nodes()
+{
+	CE_DELETE(m_allocator, m_nodes);
+
+	m_nodes = CE_NEW(m_allocator, JSONNode[16]);
+
+	// reset nodes counter 	
+	m_nodes_count = 0;
+}
+
+//--------------------------------------------------------------------------
 JSONParser& JSONParser::get_root()
 {
 	// Check if root node is an object and if it's the first
@@ -580,18 +592,24 @@ JSONParser& JSONParser::get_bool(const char* key)
 void JSONParser::to_string(char* value)
 {
 	string::strcpy(value, m_tokens[m_nodes[m_nodes_count-1].m_id].m_value);
+
+	reset_nodes();
 }
 
 //--------------------------------------------------------------------------
 void JSONParser::to_float(float& value)
 {
 	value = atof(m_tokens[m_nodes[m_nodes_count-1].m_id].m_value);
+
+	reset_nodes();
 }
 
 //--------------------------------------------------------------------------
 void JSONParser::to_int(int& value)
 {
 	value = atoi(m_tokens[m_nodes[m_nodes_count-1].m_id].m_value);
+
+	reset_nodes();
 }
 
 //--------------------------------------------------------------------------
@@ -605,7 +623,8 @@ void JSONParser::to_bool(bool& value)
 	{
 		value = false;
 	}
-}
 
+	reset_nodes();
+}
 
 } //namespace crown

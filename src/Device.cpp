@@ -529,9 +529,16 @@ void Device::check_preferred_settings()
 void Device::read_engine_settings()
 {
 	DiskFile* file = m_filesystem->open("crown.cfg", FOM_READ);
-	JSONParser json(file);
-	
-	// MUST BE IMPLEMENTED
+	MallocAllocator allocator;
+	JSONParser json(allocator, file);
+
+	char value[128];
+	int  width;
+	json.get_root().get_array("crown", 0).get_string("boot").to_string(value);
+	json.get_root().get_number("width").to_int(width);
+	os::printf("value = %s\n", value);
+	os::printf("width = %d\n", width);
+
 }
 
 
