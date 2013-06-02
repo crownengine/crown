@@ -37,6 +37,7 @@ class Allocator
 {
 public:
 
+						Allocator() {}
 	virtual				~Allocator() {}
 
 	/// Allocates @a size bytes of memory aligned to the specified
@@ -48,6 +49,12 @@ public:
 
 	/// Returns the total number of bytes allocated.
 	virtual size_t		allocated_size() = 0;
+
+private:
+
+	// Disable copying
+						Allocator(const Allocator&);
+	Allocator&			operator=(const Allocator&);
 };
 
 Allocator& default_allocator();
