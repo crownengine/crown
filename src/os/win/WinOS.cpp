@@ -34,7 +34,10 @@ namespace crown
 namespace os
 {
 
-static timespec base_time;
+// FIXME: timespec does not exists in win
+// static timespec base_time;
+	LARGE_INTEGER* frequency;
+	LARGE_INTEGER* base_time;
 
 //-----------------------------------------------------------------------------
 void printf(const char* string, ...)
@@ -82,6 +85,26 @@ void log_info(const char* string, va_list arg)
 	printf("I: ");
 	vprintf(string, arg);
 	printf("\n");
+}
+
+//-----------------------------------------------------------------------------
+bool is_root_path(const char* path)
+{
+	CE_ASSERT(path != NULL, "Path must be != NULL");
+
+	// MUST BE IMPLEMENTED
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+bool is_absolute_path(const char* path)
+{
+	CE_ASSERT(path != NULL, "Path must be != NULL");
+
+	// MUST BE IMPLEMENTED
+
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -175,6 +198,62 @@ bool ls(const char* path, List<Str>& fileList)
 {
 	// TODO
 	return false; 
+}
+
+//-----------------------------------------------------------------------------
+void init_os()
+{
+	QueryPerformanceFrequency(frequency);
+
+	CE_ASSERT(frequency > 0, "Hardware does not support high resolution performance counter.\n");
+	
+	QueryPerformanceCounter(base_time);
+}
+
+//-----------------------------------------------------------------------------
+uint64_t milliseconds()
+{
+	LARGE_INTEGER* current_time;
+
+	QueryPerformanceCounter(current_time);
+
+	return (uint64_t) (*current_time - *base_time) / (*frequency / 1000);
+}
+
+//-----------------------------------------------------------------------------
+uint64_t microseconds()
+{
+	LARGE_INTEGER* current_time;
+
+	QueryPerformanceCounter(current_time);
+
+	return (uint64_t) (*current_time - *base_time) / (*frequency / 1000000);
+}
+
+//-----------------------------------------------------------------------------
+void* open_library(const char* path)
+{
+	HMODULE library = LoadLibrary(_T(path));
+
+	CE_ASSERT(library  != NULL, "Unable to load library '%s' with error: %s\n", path, GetLastError());
+
+	return library;
+}
+
+//-----------------------------------------------------------------------------
+void close_library(void* library)
+{
+	BOOL freed = FreeLibrary(library);
+
+	CE_ASSERT(freed,  "Failed to close library\n");
+}
+
+//-----------------------------------------------------------------------------
+void* lookup_symbol(void* library, const char* name)
+{
+	FARPROC symbol = GetProcAddress(library, name);
+
+	return symbol;
 }
 
 } // namespace crown
