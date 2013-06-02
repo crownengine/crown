@@ -64,11 +64,17 @@ void call_destructor_and_deallocate(Allocator& a, T* ptr)
 	}
 }
 
-//-----------------------------------------------------------------------------
+/// Allocates memory with @a allocator for the given @a T type
+/// and calls constructor on it.
+/// @note
+/// @a allocator must be a reference to an existing allocator.
 #define CE_NEW(allocator, T)\
 	new ((allocator).allocate(sizeof(T))) T
 
-//-----------------------------------------------------------------------------
+/// Calls destructor on @a ptr and deallocates memory using the
+/// given @a allocator.
+/// @note
+/// @a allocator must be a reference to an existing allocator.
 #define CE_DELETE(allocator, ptr)\
 	call_destructor_and_deallocate(allocator, ptr)
 
