@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -117,12 +118,6 @@ void MallocAllocator::pad(Header* header, void* data)
 		*p = memory::PADDING_VALUE;
 		p++;
 	}
-}
-
-MallocAllocator default_allocator;
-Allocator& get_default_allocator()
-{
-	return default_allocator;
 }
 
 } // namespace crown

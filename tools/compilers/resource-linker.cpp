@@ -5,7 +5,7 @@
 #include "String.h"
 #include "Hash.h"
 #include "Resource.h"
-#include "ResourceArchive.h"
+#include "Bundle.h"
 #include "DiskFile.h"
 #include <cstring>
 

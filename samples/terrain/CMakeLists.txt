@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(sample-terrain)
 
 set (SRC
-	terrain.cpp
+	terrain_main.cpp
 	Terrain.cpp
 )
 

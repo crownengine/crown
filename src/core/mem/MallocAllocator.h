@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -38,16 +39,16 @@ public:
 				MallocAllocator();
 				~MallocAllocator();
 
-	/// @copydoc Allocator::allocate()
+	/// @a copydoc Allocator::allocate()
 	void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
 
-	/// @copydoc Allocator::deallocate()
+	/// @a copydoc Allocator::deallocate()
 	void		deallocate(void* data);
 
-	/// @copydoc Allocator::allocated_size()
+	/// @a copydoc Allocator::allocated_size()
 	size_t		allocated_size();
 
-	/// Returns the size in bytes of the block of memory pointed by @data
+	/// Returns the size in bytes of the block of memory pointed by @a data
 	size_t		get_size(void* data);
 
 private:

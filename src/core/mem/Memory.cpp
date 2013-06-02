@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -23,54 +24,29 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cstdio>
-#include "FileResourceArchive.h"
-#include "Filesystem.h"
-#include "Resource.h"
-#include "DiskFile.h"
-#include "Log.h"
-#include "String.h"
-
-namespace crown
-{
+#include "Memory.h"
+#include "MallocAllocator.h"
 
 //-----------------------------------------------------------------------------
-FileResourceArchive::FileResourceArchive(Filesystem& fs) :
-	m_filesystem(fs)
+void* operator new(size_t)
 {
+	CE_ASSERT(false, "operator new forbidden");
 }
 
 //-----------------------------------------------------------------------------
-FileResourceArchive::~FileResourceArchive()
+void* operator new[](size_t)
 {
+	CE_ASSERT(false, "operator new[] forbidden");
 }
 
 //-----------------------------------------------------------------------------
-DiskFile* FileResourceArchive::open(ResourceId name)
+void operator delete(void*)
 {
-	// Convert name/type into strings
-	char resource_name[512];
-
-	// Fixme
-	snprintf(resource_name, 512, "%.8X%.8X", name.name, name.type);
-
-	// Search the resource in the filesystem
-	if (m_filesystem.exists(resource_name) == false)
-	{
-		return NULL;
-	}
-
-	DiskFile* file = (DiskFile*)m_filesystem.open(resource_name, FOM_READ);
-
-	file->skip(sizeof(ResourceHeader));
-
-	return file;
+	CE_ASSERT(false, "operator delete forbidden");
 }
 
 //-----------------------------------------------------------------------------
-void FileResourceArchive::close(DiskFile* resource)
+void operator delete[](void*)
 {
-	m_filesystem.close(resource);
+	CE_ASSERT(false, "operator delete[] forbidden");
 }
-
-} // namespace crown

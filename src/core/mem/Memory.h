@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -25,9 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <stdint.h>
-#include <cstdio>
 #include "Types.h"
+#include "Assert.h"
 
 namespace crown
 {
@@ -37,9 +37,11 @@ namespace memory
 const uint32_t	PADDING_VALUE	= 0xFFFFFFFFu;	//!< Value used to fill unused memory
 const size_t	DEFAULT_ALIGN	= 4;			//!< Default memory alignment in bytes
 
-/// Returns the pointer @p aligned to the desired @align byte
+/// Returns the pointer @a p aligned to the desired @a align byte
 inline void* align(void* p, size_t align)
 {
+	CE_ASSERT(align % 2 == 0, "Alignment must be a power of two");
+
 	uintptr_t ptr = (uintptr_t)p;
 
 	return (void*)(ptr + (align - ptr % align));
@@ -47,4 +49,3 @@ inline void* align(void* p, size_t align)
 
 } // namespace memory
 } // namespace crown
-

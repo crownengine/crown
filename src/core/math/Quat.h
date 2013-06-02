@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -36,7 +37,7 @@ class Mat4;
 
 /// Quaternion.
 ///
-/// @Note:
+/// @a Note:
 /// This implementation uses the standard quaternion
 /// multiplication equation, so, the order of multiplication
 /// for multiple rotations is in a reverse fashion:

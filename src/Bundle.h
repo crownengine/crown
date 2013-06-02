@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -51,13 +52,13 @@ struct ArchiveEntry
 class Filesystem;
 class DiskFile;
 
-class ResourceArchive
+class Bundle
 {
 public:
 
-	virtual					~ResourceArchive() {}
+	virtual					~Bundle() {}
 
-	/// Opens the resource file containing @name resource
+	/// Opens the resource file containing @a name resource
 	/// and returns a stream from which read the data from.
 	/// @note
 	/// The resource stream points exactly at the start

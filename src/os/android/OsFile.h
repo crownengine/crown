@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -39,7 +40,7 @@ class OsFile
 {
 public:
 
-	/// Opens the file located at @path with the given @mode.
+	/// Opens the file located at @a path with the given @a mode.
 							OsFile(const char* path, FileOpenMode mode);
 							~OsFile();
 
@@ -54,21 +55,21 @@ public:
 	/// Returs the mode used to open the file.
 	FileOpenMode			mode() const;
 
-	/// Reads @size bytes from the file and stores it into @data.
+	/// Reads @a size bytes from the file and stores it into @a data.
 	/// Returns the number of bytes read.
 	size_t					read(void* data, size_t size);
 
-	/// Writes @size bytes of data stored in @data and returns the
+	/// Writes @a size bytes of data stored in @a data and returns the
 	/// number of bytes written.
 	size_t					write(const void* data, size_t size);
 
-	/// Moves the file pointer to the given @position.
+	/// Moves the file pointer to the given @a position.
 	void					seek(size_t position);
 
 	/// Moves the file pointer to the end of the file.
 	void					seek_to_end();
 
-	/// Moves the file pointer @bytes bytes ahead the current
+	/// Moves the file pointer @a bytes bytes ahead the current
 	/// file pointer position.
 	void					skip(size_t bytes);
 

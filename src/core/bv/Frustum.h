@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -53,13 +54,13 @@ public:
 				Frustum();				
 				Frustum(const Frustum& frustum);
 
-	/// Returns whether @point is contained into the frustum.
+	/// Returns whether @a point is contained into the frustum.
 	bool		contains_point(const Vec3& point) const;	
 
 	/// Returns one of the eight frustum's corners.
 	Vec3		vertex(uint32_t index) const;			
 
-	/// Builds the view frustum according to the matrix @m.
+	/// Builds the view frustum according to the matrix @a m.
 	void		from_matrix(const Mat4& m);				
 
 	/// Returns a Box containing the frustum volume.

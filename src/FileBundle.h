@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -26,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "ResourceArchive.h"
+#include "Bundle.h"
 
 namespace crown
 {
@@ -46,17 +47,17 @@ struct ResourceHeader
 };
 
 /// Source of resources
-class FileResourceArchive : public ResourceArchive
+class FileBundle : public Bundle
 {
 public:
 
-					FileResourceArchive(Filesystem& fs);
-					~FileResourceArchive();
+					FileBundle(Filesystem& fs);
+					~FileBundle();
 
-	/// @copydoc ResourceArchive::open()
+	/// @a copydoc Bundle::open()
 	DiskFile*		open(ResourceId name);
 
-	/// @copydoc ResourceArchive::close()
+	/// @a copydoc Bundle::close()
 	void			close(DiskFile* resource);
 
 

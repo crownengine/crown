@@ -24,42 +24,15 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "Types.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
 
-/// Facility to store global float settings.
-class FloatSetting
+MallocAllocator g_default_allocator;
+Allocator& default_allocator()
 {
-public:
-
-						FloatSetting(const char* name, const char* synopsis, float value, float min, float max);
-
-	const char*			name() const;
-	const char*			synopsis() const;
-
-	float				value() const;
-	float				min() const;
-	float				max() const;
-
-						operator float();
-
-	FloatSetting&		operator=(const float value);
-
-private:
-
-	const char*			m_name;
-	const char*			m_synopsis;
-
-	float				m_value;
-	float				m_min;
-	float				m_max;
-
-	FloatSetting*		m_next;
-};
+	return g_default_allocator;
+}
 
 } // namespace crown
-

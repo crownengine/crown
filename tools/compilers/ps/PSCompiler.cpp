@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -56,7 +57,7 @@ size_t PSCompiler::read_resource_impl(DiskFile* in_file)
 {
 	m_file_size = in_file->size();
 
-	m_file_data = new char[m_file_size];
+	m_file_data = (char*)default_allocator().allocate(m_file_size * sizeof(char));
 	
 	// Copy the entire file into the buffer
 	in_file->read(m_file_data, m_file_size);
@@ -82,7 +83,7 @@ void PSCompiler::cleanup_impl()
 {
 	if (m_file_data)
 	{
-		delete[] m_file_data;
+		default_allocator().deallocate(m_file_data);
 		m_file_data = NULL;
 	}
 }

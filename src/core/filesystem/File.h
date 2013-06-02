@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -49,7 +50,7 @@ class File
 {
 public:
 
-	/// Opens the file with the given @mode
+	/// Opens the file with the given @a mode
 						File(FileOpenMode mode) : m_open_mode(mode) {}
 	virtual				~File() {};
 

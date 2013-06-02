@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -41,7 +42,7 @@ public:
 	/// Does nothing for efficiency.
 					Ray();
 
-	/// Constructs from @origin and @direction
+	/// Constructs from @a origin and @a direction
 					Ray(const Vec3& origin, const Vec3& direction);
 					Ray(const Ray& ray);
 

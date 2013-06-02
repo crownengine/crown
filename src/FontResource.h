@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -33,13 +34,13 @@ namespace crown
 {
 
 class Allocator;
-class ResourceArchive;
+class Bundle;
 
 class FontResource
 {
 public:
 
-	static void*		load(Allocator& allocator, ResourceArchive& archive, ResourceId id);
+	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	static void			online(void* resource);
 	static void			unload(Allocator& allocator, void* resource);
 	static void			offline();

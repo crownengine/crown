@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -32,10 +33,10 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 EventDispatcher::EventDispatcher() :
-	m_mouse_listener_list(get_default_allocator()),
-	m_keyboard_listener_list(get_default_allocator()),
-	m_touch_listener_list(get_default_allocator()),
-	m_acc_listener_list(get_default_allocator())
+	m_mouse_listener_list(default_allocator()),
+	m_keyboard_listener_list(default_allocator()),
+	m_touch_listener_list(default_allocator()),
+	m_acc_listener_list(default_allocator())
 {
 }
 

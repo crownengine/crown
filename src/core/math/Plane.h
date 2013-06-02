@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -55,10 +56,10 @@ public:
 	/// Normalizes the plane
 	Plane&				normalize();							
 
-	/// Returns the signed distance between point @p and the plane
+	/// Returns the signed distance between point @a p and the plane
 	real				distance_to_point(const Vec3& p) const;	
 
-	/// Returns whether the plane contains the point @p	
+	/// Returns whether the plane contains the point @a p	
 	bool				contains_point(const Vec3& p) const;		
 
 	static const Plane	ZERO;

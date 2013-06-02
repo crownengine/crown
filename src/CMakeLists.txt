@@ -10,8 +10,8 @@ set (SRC
 	FontResource.cpp
 	VertexShaderResource.cpp
 	PixelShaderResource.cpp
-	ArchiveResourceArchive.cpp
-	FileResourceArchive.cpp
+	ArchiveBundle.cpp
+	FileBundle.cpp
 
 	FPSSystem.cpp
 	JSONParser.cpp
@@ -26,7 +26,7 @@ set (HEADERS
 	MaterialResource.h
 	Resource.h
 	ResourceManager.h
-	ResourceArchive.h
+	Bundle.h
 	Skybox.h
 
 	TextureResource.h
@@ -34,8 +34,8 @@ set (HEADERS
 	FontResource.h
 	VertexShaderResource.h
 	PixelShaderResource.h
-	ArchiveResourceArchive.h
-	FileResourceArchive.h
+	ArchiveBundle.h
+	FileBundle.h
 
 	FPSSystem.h
 	JSONParser.h
@@ -150,6 +150,8 @@ set (STRINGS_HEADERS
 )
 
 set (MEM_SRC
+	core/mem/Memory.cpp
+	core/mem/Allocator.cpp
 	core/mem/MallocAllocator.cpp
 	core/mem/ProxyAllocator.cpp
 )
@@ -173,11 +175,13 @@ set (COMPRESSORS_HEADERS
 set (SETTINGS_SRC
 	core/settings/IntSetting.cpp
 	core/settings/FloatSetting.cpp
+	core/settings/StringSetting.cpp
 )
 
 set (SETTINGS_HEADERS
 	core/settings/IntSetting.h
 	core/settings/FloatSetting.h
+	core/settings/StringSetting.h
 )
 
 set (INPUT_SRC

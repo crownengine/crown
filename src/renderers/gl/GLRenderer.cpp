@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -28,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Config.h"
 
+#include "Allocator.h"
 #include "Assert.h"
 #include "Types.h"
 #include "GLRenderer.h"
@@ -1026,13 +1028,13 @@ GLint GLRenderer::find_gpu_program_uniform(GLuint program, const char* name) con
 //-----------------------------------------------------------------------------
 Renderer* Renderer::create()
 {
-	return new GLRenderer;
+	return CE_NEW(default_allocator(), GLRenderer);
 }
 
 //-----------------------------------------------------------------------------
 void Renderer::destroy(Renderer* renderer)
 {
-	delete renderer;
+	CE_DELETE(default_allocator(), renderer);
 }
 
 } // namespace crown

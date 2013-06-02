@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -27,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "OS.h"
 #include "DiskFile.h"
+#include "Memory.h"
 
 namespace crown
 {
@@ -191,13 +193,13 @@ DiskFile* Filesystem::open(const char* relative_path, FileOpenMode mode)
 	CE_ASSERT(get_info(relative_path, info), "File does not exist: %s", relative_path);
 	CE_ASSERT(info.type == FilesystemEntry::FILE, "File is not a regular file: %s", relative_path);
 
-	return new DiskFile(mode, info.os_path);
+	return CE_NEW(m_allocator, DiskFile)(mode, info.os_path);
 }
 
 //-----------------------------------------------------------------------------
 void Filesystem::close(DiskFile* stream)
 {
-	delete stream;
+	CE_DELETE(m_allocator, stream);
 }
 
 } // namespace crown

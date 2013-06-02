@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -39,27 +40,27 @@ class WinKeyboard : public Keyboard
 
 public:
 
-	/** @copydoc Keyboard::Keyboard() */
+	/** @a copydoc Keyboard::Keyboard() */
 	WinKeyboard(InputManager* creator);
 
-	/** @copydoc Keyboard::~Keyboard() */
+	/** @a copydoc Keyboard::~Keyboard() */
 	~WinKeyboard();
 
-	/** @copydoc Keyboard::IsModifierPressed() */
+	/** @a copydoc Keyboard::IsModifierPressed() */
 	virtual bool IsModifierPressed(ModifierKey modifier) const;
 
-	/** @copydoc Keyboard::IsKeyPressed() */
+	/** @a copydoc Keyboard::IsKeyPressed() */
 	virtual bool IsKeyPressed(KeyCode key) const;
 
-	/** @copydoc Keyboard::IsKeyReleased() */
+	/** @a copydoc Keyboard::IsKeyReleased() */
 	virtual bool IsKeyReleased(KeyCode key) const;
 
-	/** @copydoc Keyboard::EventLoop() */
+	/** @a copydoc Keyboard::EventLoop() */
 	virtual void EventLoop();
 
 	/**
 		Returns whether DetectableAutoRepeat is set.
-	@return
+	@a return
 		True if set, false otherwise
 	*/
 	inline bool HasDetectableAutoRepeat() { return mDetectableAutoRepeat; }

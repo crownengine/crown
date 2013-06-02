@@ -27,39 +27,58 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "Bundle.h"
+#include "MallocAllocator.h"
 
 namespace crown
 {
 
-/// Facility to store global float settings.
-class FloatSetting
+class Filesystem;
+class DiskFile;
+
+/// Structure of the archive
+///
+/// [ArchiveHeader]
+/// [ArchiveEntry]
+/// [ArchiveEntry]
+/// ...
+/// [ArchiveEntry]
+/// [ResourceData]
+/// [ResourceData]
+/// ...
+/// [ResourceData]
+///
+/// A valid archive must always have at least the archive header,
+/// starting at byte 0 of the archive file.
+///
+/// Newer archive versions must be totally backward compatible
+/// across minor engine releases, in order to be able to use
+/// recent version of the engine with older game archives.
+
+/// Source of resources
+class ArchiveBundle : public Bundle
 {
 public:
 
-						FloatSetting(const char* name, const char* synopsis, float value, float min, float max);
+					ArchiveBundle(Filesystem& fs);
+					~ArchiveBundle();
 
-	const char*			name() const;
-	const char*			synopsis() const;
+	/// @a copydoc Bundle::open()
+	DiskFile*		open(ResourceId name);
 
-	float				value() const;
-	float				min() const;
-	float				max() const;
-
-						operator float();
-
-	FloatSetting&		operator=(const float value);
+	/// @a copydoc Bundle::close()
+	void			close(DiskFile* resource);
 
 private:
 
-	const char*			m_name;
-	const char*			m_synopsis;
+	MallocAllocator	m_allocator;
 
-	float				m_value;
-	float				m_min;
-	float				m_max;
+	Filesystem&		m_filesystem;
 
-	FloatSetting*		m_next;
+	DiskFile*		m_archive_file;
+
+	uint32_t		m_entries_count;
+	ArchiveEntry*	m_entries;
 };
 
 } // namespace crown
-

@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "PixelShaderResource.h"
 #include "DiskFile.h"
-#include "ResourceArchive.h"
+#include "Bundle.h"
 #include "Allocator.h"
 #include "Device.h"
 #include "Log.h"
@@ -34,9 +34,9 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void* PixelShaderResource::load(Allocator& allocator, ResourceArchive& archive, ResourceId id)
+void* PixelShaderResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
 {
-	DiskFile* stream = archive.open(id);
+	DiskFile* stream = bundle.open(id);
 
 	CE_ASSERT(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
 
@@ -50,7 +50,7 @@ void* PixelShaderResource::load(Allocator& allocator, ResourceArchive& archive, 
 	
 	resource->m_program_text[resource->m_program_text_length] = '\0';
 
-	archive.close(stream);
+	bundle.close(stream);
 
 	return resource;
 }

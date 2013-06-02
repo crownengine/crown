@@ -32,14 +32,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class ResourceArchive;
+class Bundle;
 class Allocator;
 
 class VertexShaderResource
 {
 public:
 
-	static void*		load(Allocator& allocator, ResourceArchive& archive, ResourceId id);
+	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	static void			online(void* resource);
 	static void			unload(Allocator& allocator, void* resource);
 	static void			offline();

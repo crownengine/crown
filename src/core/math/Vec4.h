@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -76,10 +77,10 @@ public:
 	bool				operator==(const Vec4& other) const;		
 	bool				operator!=(const Vec4& other) const;
 
-	/// Returns whether all the components of this vector are smaller than all of the @other vector	
+	/// Returns whether all the components of this vector are smaller than all of the @a other vector	
 	bool				operator<(const Vec4& other) const;	
 
-	/// Returns whether all the components of this vector are greater than all of the @other vector		
+	/// Returns whether all the components of this vector are greater than all of the @a other vector		
 	bool				operator>(const Vec4& other) const;			
 
 	/// Returns the vector's length

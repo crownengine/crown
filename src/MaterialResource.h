@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -40,7 +41,7 @@ namespace crown
 /// @note The maximum number of usable layers depends on the graphic card/Renderer config.
 const uint32_t MAX_TEXTURE_LAYERS = 8;
 
-class ResourceArchive;
+class Bundle;
 class Allocator;
 
 /// A material describes the visual properties of a surface.
@@ -50,7 +51,7 @@ class MaterialResource
 {
 public:
 
-	static void*	load(Allocator& allocator, ResourceArchive& archive, ResourceId id);
+	static void*	load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	static void		online(void* resource);
 	static void		unload(Allocator& allocator, void* texture);
 	static void		offline();

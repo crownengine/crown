@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -38,10 +39,10 @@ public:
 				ZipCompressor(Allocator& allocator);
 				~ZipCompressor();
 	
-	/// @copydoc Compressor::compress()
+	/// @a copydoc Compressor::compress()
 	uint8_t* 	compress(const void* data, size_t in_size, size_t& out_size);
 
-	/// @copydoc Compressor::uncompress()
+	/// @a copydoc Compressor::uncompress()
 	uint8_t* 	uncompress(const void* data, size_t in_size, size_t& out_size);
 };
 
