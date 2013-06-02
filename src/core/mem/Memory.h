@@ -26,10 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <stdint.h>
-#include <cstdio>
-#include <new>
 #include "Types.h"
+#include "Assert.h"
 
 namespace crown
 {
@@ -42,6 +40,8 @@ const size_t	DEFAULT_ALIGN	= 4;			//!< Default memory alignment in bytes
 /// Returns the pointer @a p aligned to the desired @a align byte
 inline void* align(void* p, size_t align)
 {
+	CE_ASSERT(align % 2 == 0, "Alignment must be a power of two");
+
 	uintptr_t ptr = (uintptr_t)p;
 
 	return (void*)(ptr + (align - ptr % align));
