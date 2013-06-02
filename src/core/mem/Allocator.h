@@ -26,6 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <new>
+
 #include "Types.h"
 #include "Memory.h"
 
@@ -37,6 +39,7 @@ class Allocator
 {
 public:
 
+						Allocator() {}
 	virtual				~Allocator() {}
 
 	/// Allocates @a size bytes of memory aligned to the specified
@@ -48,6 +51,12 @@ public:
 
 	/// Returns the total number of bytes allocated.
 	virtual size_t		allocated_size() = 0;
+
+private:
+
+	// Disable copying
+						Allocator(const Allocator&);
+	Allocator&			operator=(const Allocator&);
 };
 
 Allocator& default_allocator();
@@ -64,11 +73,17 @@ void call_destructor_and_deallocate(Allocator& a, T* ptr)
 	}
 }
 
-//-----------------------------------------------------------------------------
+/// Allocates memory with @a allocator for the given @a T type
+/// and calls constructor on it.
+/// @note
+/// @a allocator must be a reference to an existing allocator.
 #define CE_NEW(allocator, T)\
 	new ((allocator).allocate(sizeof(T))) T
 
-//-----------------------------------------------------------------------------
+/// Calls destructor on @a ptr and deallocates memory using the
+/// given @a allocator.
+/// @note
+/// @a allocator must be a reference to an existing allocator.
 #define CE_DELETE(allocator, ptr)\
 	call_destructor_and_deallocate(allocator, ptr)
 

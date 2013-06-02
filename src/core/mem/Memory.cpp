@@ -25,7 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Memory.h"
-#include "Assert.h"
 #include "MallocAllocator.h"
 
 //-----------------------------------------------------------------------------
