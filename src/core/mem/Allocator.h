@@ -26,6 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <new>
+
 #include "Types.h"
 #include "Memory.h"
 
