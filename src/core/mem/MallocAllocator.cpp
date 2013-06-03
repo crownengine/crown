@@ -25,20 +25,24 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "MallocAllocator.h"
-#include <cstdlib>
+#include "Assert.h"
+#include "malloc.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
 MallocAllocator::MallocAllocator() :
-	m_allocated_size(0)
+	m_allocated_size(0),
+	m_allocation_count(0)
 {
 }
 
 //-----------------------------------------------------------------------------
 MallocAllocator::~MallocAllocator()
 {
+	CE_ASSERT(m_allocation_count == 0, "Missing %d deallocations", m_allocation_count);
+	CE_ASSERT(m_allocated_size == 0, "Memory leak of %d bytes", m_allocated_size);
 }
 
 //-----------------------------------------------------------------------------
@@ -46,7 +50,7 @@ void* MallocAllocator::allocate(size_t size, size_t align)
 {
 	size_t actual_size = actual_allocation_size(size, align);
 
-	Header* h = (Header*)malloc(actual_size);
+	Header* h = (Header*)dlmalloc(actual_size);
 	h->size = actual_size;
 
 	void* data = memory::align(h + 1, align);
@@ -54,6 +58,7 @@ void* MallocAllocator::allocate(size_t size, size_t align)
 	pad(h, data);
 
 	m_allocated_size += actual_size;
+	m_allocation_count++;
 
 	return data;
 }
@@ -64,8 +69,9 @@ void MallocAllocator::deallocate(void* data)
 	Header* h = header(data);
 
 	m_allocated_size -= h->size;
+	m_allocation_count--;
 
-	free(h);
+	dlfree(h);
 }
 
 //-----------------------------------------------------------------------------

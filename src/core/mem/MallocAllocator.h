@@ -65,6 +65,7 @@ private:
 	void		pad(Header* header, void* data);
 
 	size_t		m_allocated_size;
+	uint32_t	m_allocation_count;
 };
 
 } // namespace crown
