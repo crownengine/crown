@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdio>
 #include <cstdarg>
 #include "Types.h"
-#include "String.h"
+#include "StringUtils.h"
 
 namespace crown
 {

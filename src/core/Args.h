@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Assert.h"
 #include "Types.h"
-#include "String.h"
+#include "StringUtils.h"
 
 namespace crown
 {

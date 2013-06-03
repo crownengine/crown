@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "TextWriter.h"
 #include "File.h"
-#include "String.h"
+#include "StringUtils.h"
 
 namespace crown
 {

@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "String.h"
+#include "StringUtils.h"
 #include "OS.h"
 #include "File.h"
 #include "MallocAllocator.h"
