@@ -54,10 +54,9 @@ OsFile::~OsFile()
 
 void OsFile::close()
 {
-	if (!CloseHandle(m_file_handle))
-	{
-		CE_ASSERT(false, "Unable to close file\n");
-	}
+	bool closed = CloseHandle(m_file_handle))
+	
+	CE_ASSERT(closed, "Unable to close file\n");
 }
 
 bool OsFile::is_open() const
