@@ -60,60 +60,60 @@ class Mat3
 
 public:
 
-	real				m[9];
+	float				m[9];
 
 	/// Does nothing for efficiency.
 						Mat3();			
 
-	/// Constructs from a set of real
-						Mat3(real r1c1, real r2c1, real r3c1, real r1c2, real r2c2, real r3c2, real r1c3, real r2c3, real r3c3);
+	/// Constructs from a set of float
+						Mat3(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3);
 	
 	/// Constructs from the @a v array
-						Mat3(const real v[9]);						
+						Mat3(const float v[9]);						
 						Mat3(const Mat3& a);	
 
 	/// Assignment operator (copies the data)
 	Mat3&				operator=(const Mat3& a);					
 
 	/// Random access by index
-	real				operator[](uint32_t i) const;		
+	float				operator[](uint32_t i) const;		
 
 	/// Random access by index			
-	real&				operator[](uint32_t i);							
+	float&				operator[](uint32_t i);							
 
 	/// Random access by row/column pair
-	real				operator()(uint32_t row, uint32_t column) const;	
+	float				operator()(uint32_t row, uint32_t column) const;	
 
 	Mat3				operator+(const Mat3& a) const;				
 	Mat3&				operator+=(const Mat3& a);					
 	Mat3				operator-(const Mat3& a) const;				
 	Mat3&				operator-=(const Mat3& a);					
-	Mat3				operator*(real k) const;					
-	Mat3&				operator*=(real k);						
-	Mat3				operator/(real k) const;					
-	Mat3&				operator/=(real k);							
+	Mat3				operator*(float k) const;					
+	Mat3&				operator*=(float k);						
+	Mat3				operator/(float k) const;					
+	Mat3&				operator/=(float k);							
 	Vec3				operator*(const Vec3& v) const;			
 	Mat3				operator*(const Mat3& a) const;				
 	Mat3&				operator*=(const Mat3& a);			
 
 	/// For simmetry
-	friend Mat3			operator*(real k, const Mat3& a);			
+	friend Mat3			operator*(float k, const Mat3& a);			
 
 	/// Builds a rotation matrix about the X axis of @a radians radians
-	void				build_rotation_x(real radians);			
+	void				build_rotation_x(float radians);			
 
 	/// Builds a rotation matrix about the Y axis of @a radians radians	
-	void				build_rotation_y(real radians);	
+	void				build_rotation_y(float radians);	
 
 	/// Builds a rotation matrix about the Z axis of @a radians radians			
-	void				build_rotation_z(real radians);	
+	void				build_rotation_z(float radians);	
 
 	/// Builds a rotation matrix about an arbitrary axis of "radians" radians			
-	void				build_rotation(const Vec3& n, real radians);
+	void				build_rotation(const Vec3& n, float radians);
 
 	Mat3&				transpose();								
 	Mat3				get_transposed() const;						
-	real				get_determinant() const;					
+	float				get_determinant() const;					
 	Mat3&				invert();									
 	Mat3				get_inverted() const;						
 
@@ -127,10 +127,10 @@ public:
 	void				set_scale(const Vec3& scale);				
 
 	/// Returns the pointer to the matrix's data
-	real*				to_float_ptr();				
+	float*				to_float_ptr();				
 
 	/// Returns the pointer to the matrix's data				
-	const real*			to_float_ptr() const;
+	const float*			to_float_ptr() const;
 
 	/// Returns a 4x4 matrix according to the matrix's rotation portion						
 	Mat4				to_mat4() const;

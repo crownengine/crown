@@ -340,7 +340,7 @@ void BitMessage::write_bits(int32_t value, int32_t num_bits)
 	}
 
 	// check for value overflows
-	// this should be an error really, as it can go unnoticed and cause either bandwidth or corrupted data transmitted
+	// this should be an error floatly, as it can go unnoticed and cause either bandwidth or corrupted data transmitted
 	if (num_bits != 32) 
 	{
 		if (num_bits > 0) 
@@ -434,7 +434,7 @@ void BitMessage::write_int32(int32_t c)
 }
 
 //---------------------------------------------------------------------------------------------
-void BitMessage::write_real(real f)
+void BitMessage::write_float(float f)
 {
 	write_bits(*reinterpret_cast<int32_t *>(&f), 32);  
 }
@@ -442,9 +442,9 @@ void BitMessage::write_real(real f)
 //---------------------------------------------------------------------------------------------
 void BitMessage::write_vec3(const Vec3& v)
 {
-	write_real(v.x);
-	write_real(v.y);
-	write_real(v.z);
+	write_float(v.x);
+	write_float(v.y);
+	write_float(v.z);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -638,7 +638,7 @@ int32_t BitMessage::read_int32() const
 }
 
 //---------------------------------------------------------------------------------------------
-real BitMessage::read_real() const
+float BitMessage::read_float() const
 {
 	float value;
 	*reinterpret_cast<int*>(&value) = read_bits(32);
@@ -650,9 +650,9 @@ Vec3 BitMessage::read_vec3() const
 {
 	Vec3 v;
 	
-	v.x = read_real();
-	v.y = read_real();
-	v.z = read_real();
+	v.x = read_float();
+	v.y = read_float();
+	v.z = read_float();
 	
 	return v;
 }

@@ -58,7 +58,7 @@ public:
 
 	void		UpdateVertexBuffer(bool recomputeNormals);
 
-	bool		TraceRay(const Ray& ray, Triangle& result, Triangle& tri2, real& dist);
+	bool		TraceRay(const Ray& ray, Triangle& result, Triangle& tri2, float& dist);
 
 	uint32_t	SnapToGrid(const Vec3& vertex);
 

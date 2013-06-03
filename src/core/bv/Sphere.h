@@ -45,15 +45,15 @@ public:
 					Sphere();
 
 	/// Constructs from @a center and @a radius.
-					Sphere(const Vec3& center, real radius);
+					Sphere(const Vec3& center, float radius);
 					Sphere(const Sphere& a);
 
 	const Vec3&		center() const;		
-	real			radius() const;	
-	real			volume() const;	
+	float			radius() const;	
+	float			volume() const;	
 
 	void			set_center(const Vec3& center);
-	void			set_radius(real radius);
+	void			set_radius(float radius);
 
 	/// Adds @a count @a points to the sphere expanding if necessary.
 	void			add_points(const Vec3* points, uint32_t count);	
@@ -67,7 +67,7 @@ public:
 private:
 
 	Vec3			m_center;
-	real			m_radius;
+	float			m_radius;
 };
 
 //-----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ inline Sphere::Sphere()
 }
 
 //-----------------------------------------------------------------------------
-inline Sphere::Sphere(const Vec3& center, real radius) : m_center(center), m_radius(radius)
+inline Sphere::Sphere(const Vec3& center, float radius) : m_center(center), m_radius(radius)
 {
 }
 
@@ -92,13 +92,13 @@ inline const Vec3& Sphere::center() const
 }
 
 //-----------------------------------------------------------------------------
-inline real Sphere::radius() const
+inline float Sphere::radius() const
 {
 	return m_radius;
 }
 
 //-----------------------------------------------------------------------------
-inline real Sphere::volume() const
+inline float Sphere::volume() const
 {
 	return math::FOUR_OVER_THREE_TIMES_PI * m_radius * m_radius * m_radius;
 }
@@ -110,7 +110,7 @@ inline void Sphere::set_center(const Vec3& center)
 }
 
 //-----------------------------------------------------------------------------
-inline void Sphere::set_radius(real radius)
+inline void Sphere::set_radius(float radius)
 {
 	m_radius = radius;
 }
@@ -122,7 +122,7 @@ inline void Sphere::add_points(const Vec3* points, uint32_t count)
 	{
 		const Vec3& p = points[i];
 
-		real dist = (p - m_center).squared_length();
+		float dist = (p - m_center).squared_length();
 
 		if (dist >= m_radius * m_radius)
 		{
@@ -138,7 +138,7 @@ inline void Sphere::add_spheres(const Sphere* spheres, uint32_t count)
 	{
 		const Sphere& s = spheres[i];
 
-		real dist = (s.m_center - m_center).squared_length();
+		float dist = (s.m_center - m_center).squared_length();
 
 		if (dist < (s.m_radius + m_radius) * (s.m_radius + m_radius))
 		{
@@ -153,7 +153,7 @@ inline void Sphere::add_spheres(const Sphere* spheres, uint32_t count)
 //-----------------------------------------------------------------------------
 inline bool Sphere::contains_point(const Vec3& p) const
 {
-	real dist = (p - m_center).squared_length();
+	float dist = (p - m_center).squared_length();
 	return (dist < m_radius * m_radius);
 }
 

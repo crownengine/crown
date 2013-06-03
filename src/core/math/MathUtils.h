@@ -41,22 +41,22 @@ namespace math
 {
 
 // Constants
-const real		PI							= (real)3.1415926535897932;
-const real		TWO_PI						= PI * (real)2.0;
-const real		HALF_PI						= PI * (real)0.5;
-const real		ONEFOURTH_PI				= PI * (real)0.25;
+const float		PI							= (float)3.1415926535897932;
+const float		TWO_PI						= PI * (float)2.0;
+const float		HALF_PI						= PI * (float)0.5;
+const float		ONEFOURTH_PI				= PI * (float)0.25;
 
-const real		DEG_TO_RAD					= PI / (real)180.0;
-const real		RAD_TO_DEG					= (real)1.0 / DEG_TO_RAD;
+const float		DEG_TO_RAD					= PI / (float)180.0;
+const float		RAD_TO_DEG					= (float)1.0 / DEG_TO_RAD;
 
-const real		FOUR_OVER_THREE				= (real)(4.0 / 3.0);
-const real		FOUR_OVER_THREE_TIMES_PI	= FOUR_OVER_THREE * PI;
+const float		FOUR_OVER_THREE				= (float)(4.0 / 3.0);
+const float		FOUR_OVER_THREE_TIMES_PI	= FOUR_OVER_THREE * PI;
 
-const real		ONE_OVER_THREE				= (real)(1.0 / 3.0);
-const real		ONE_OVER_255				= (real)(1.0 / 255.0);
+const float		ONE_OVER_THREE				= (float)(1.0 / 3.0);
+const float		ONE_OVER_255				= (float)(1.0 / 255.0);
 
-const float		FLOAT_PRECISION				= (real)1.0e-7f;
-const double	DOUBLE_PRECISION			= (real)1.0e-9;
+const float		FLOAT_PRECISION				= (float)1.0e-7f;
+const double	DOUBLE_PRECISION			= (float)1.0e-9;
 
 bool			equals(float a, float b, float precision = FLOAT_PRECISION);
 bool			equals(double a, double b, double precision = DOUBLE_PRECISION);
@@ -86,10 +86,10 @@ template <typename T> T		clamp_to_range(const T& min, const T& max, const T& val
 template <typename T> void	swap(T& a, T& b);				
 
 /// Returns @a deg in radians
-real			deg_to_rad(real deg);
+float			deg_to_rad(float deg);
 
 /// Returns @a rad in degrees
-real			rad_to_deg(real rad);
+float			rad_to_deg(float rad);
 
 /// Returns the nearest power of two to @a x
 uint32_t		next_pow_2(uint32_t x);
@@ -98,43 +98,43 @@ uint32_t		next_pow_2(uint32_t x);
 bool			is_pow_2(uint32_t x);	
 
 /// Returns the smallest integral value that is not less than @a x
-real			ceil(real x);		
+float			ceil(float x);		
 
 /// Returns the largest integral value that is not greater than @a x			
-real			floor(real x);	
+float			floor(float x);	
 
 /// Returns the square root of @a x				
-real			sqrt(real x);	
+float			sqrt(float x);	
 
 /// Returns the inverse square root of @a x				
-real			inv_sqrt(real x);
+float			inv_sqrt(float x);
 
 /// Returns the sine of @a x				
-real			sin(real x);	
+float			sin(float x);	
 
 /// Returns the cosine of @a x				
-real			cos(real x);
+float			cos(float x);
 
 /// Returns the arc sine of @a x					
-real			asin(real x);	
+float			asin(float x);	
 
 /// Returns the arc cosine of @a x				
-real			acos(real x);	
+float			acos(float x);	
 
 /// Returns the tangent of @a x				
-real			tan(real x);		
+float			tan(float x);		
 
 /// Returns the arc tangent of @a y/@a x			
-real			atan2(real y, real x);	
+float			atan2(float y, float x);	
 
 /// Returns the absolute value of @a x		
-real			abs(real x);			
+float			abs(float x);			
 
-/// Returns the realing-point remainder of numerator/denominator		
-real			fmod(real n, real d);			
+/// Returns the floating-point remainder of numerator/denominator		
+float			fmod(float n, float d);			
 
 /// Returns true if there are solutions and puts them in 'x1' and 'x2' (x1 <= x2)
-bool			solve_quadratic_equation(real a, real b, real c, real& x1, real& x2);
+bool			solve_quadratic_equation(float a, float b, float c, float& x1, float& x2);
 
 //-----------------------------------------------------------------------------
 inline bool equals(float a, float b, float precision)
@@ -216,13 +216,13 @@ inline void swap(T& a, T& b)
 }
 
 //-----------------------------------------------------------------------------
-inline real deg_to_rad(real deg)
+inline float deg_to_rad(float deg)
 {
 	return deg * DEG_TO_RAD;
 }
 
 //-----------------------------------------------------------------------------
-inline real rad_to_deg(real rad)
+inline float rad_to_deg(float rad)
 {
 	return rad * RAD_TO_DEG;
 }
@@ -248,83 +248,83 @@ inline bool is_pow_2(uint32_t x)
 }
 
 //-----------------------------------------------------------------------------
-inline real ceil(real x)
+inline float ceil(float x)
 {
 	return ceilf(x);
 }
 
 //-----------------------------------------------------------------------------
-inline real floor(real x)
+inline float floor(float x)
 {
 	return floorf(x);
 }
 
 //-----------------------------------------------------------------------------
-inline real sqrt(real x)
+inline float sqrt(float x)
 {
 	return sqrtf(x);
 }
 
 //-----------------------------------------------------------------------------
-inline real inv_sqrt(real x)
+inline float inv_sqrt(float x)
 {
 	return 1.0 / sqrt(x);
 }
 
 //-----------------------------------------------------------------------------
-inline real sin(real x)
+inline float sin(float x)
 {
 	return sinf(x);
 }
 
 //-----------------------------------------------------------------------------
-inline real cos(real x)
+inline float cos(float x)
 {
 	return cosf(x);
 }
 
 //-----------------------------------------------------------------------------
-inline real asin(real x)
+inline float asin(float x)
 {
 	return asinf(x);
 }
 
 //-----------------------------------------------------------------------------
-inline real acos(real x)
+inline float acos(float x)
 {
 	return acosf(x);
 }
 
 //-----------------------------------------------------------------------------
-inline real tan(real x)
+inline float tan(float x)
 {
 	return tanf(x);
 }
 
 //-----------------------------------------------------------------------------
-inline real atan2(real y, real x)
+inline float atan2(float y, float x)
 {
 	return atan2f(y, x);
 }
 
 //-----------------------------------------------------------------------------
-inline real abs(real x)
+inline float abs(float x)
 {
 	return fabs(x);
 }
 
 //-----------------------------------------------------------------------------
-inline real fmod(real n, real d)
+inline float fmod(float n, float d)
 {
 	return ::fmod(n, d);
 }
 
 //-----------------------------------------------------------------------------
-inline bool solve_quadratic_equation(real a, real b, real c, real& x1, real& x2)
+inline bool solve_quadratic_equation(float a, float b, float c, float& x1, float& x2)
 {
-	real delta = (b * b) - (4.0 * a * c);
+	float delta = (b * b) - (4.0 * a * c);
 
-	// If the equation has no real solutions
+	// If the equation has no float solutions
 	if (delta < 0.0)
 	{
 		return false;

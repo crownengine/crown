@@ -174,7 +174,7 @@ void test_int32()
 	
 }
 
-void test_real()
+void test_float()
 {
   	uint32_t bits_written;
 	uint32_t rem_write_bits;
@@ -184,19 +184,19 @@ void test_real()
 	MallocAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 
-	real res;
+	float res;
 	
 	m.init(4);
-	m.write_real(4.5342f);
+	m.write_float(4.5342f);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
 	
-	res = m.read_real();
+	res = m.read_float();
 	bits_read = m.get_num_bits_read();
 	rem_read_bits = m.get_remaining_read_bits();
 	
 	printf("-----------------------------\n");
-	printf("start write and read for REAL\n");
+	printf("start write and read for float\n");
 	printf("value = %f\n", res);
 	printf("bits written = %d\n", bits_written);
 	printf("remaining write bits = %d\n", rem_write_bits);
@@ -361,7 +361,7 @@ int main()
 	test_int16();
 	test_uint16();
 	test_int32();
-	test_real();
+	test_float();
 	test_vec3();
 	test_string();
 	test_data();

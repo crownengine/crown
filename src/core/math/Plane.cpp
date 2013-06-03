@@ -47,21 +47,21 @@ Plane::Plane(const Plane& p) : n(p.n), d(p.d)
 }
 
 //-----------------------------------------------------------------------------
-Plane::Plane(const Vec3& normal, real dist) : n(normal), d(dist)
+Plane::Plane(const Vec3& normal, float dist) : n(normal), d(dist)
 {
 }
 
 //-----------------------------------------------------------------------------
 Plane& Plane::normalize()
 {
-	real len = n.length();
+	float len = n.length();
 
-	if (math::equals(len, (real)0.0))
+	if (math::equals(len, (float)0.0))
 	{
 		return *this;
 	}
 
-	len = (real)1.0 / len;
+	len = (float)1.0 / len;
 
 	n *= len;
 	d *= len;
@@ -70,7 +70,7 @@ Plane& Plane::normalize()
 }
 
 //-----------------------------------------------------------------------------
-real Plane::distance_to_point(const Vec3& p) const
+float Plane::distance_to_point(const Vec3& p) const
 {
 	return n.dot(p) + d;
 }
@@ -78,7 +78,7 @@ real Plane::distance_to_point(const Vec3& p) const
 //-----------------------------------------------------------------------------
 bool Plane::contains_point(const Vec3& p) const
 {
-	return math::equals(n.dot(p) + d, (real)0.0);
+	return math::equals(n.dot(p) + d, (float)0.0);
 }
 
 } // namespace crown

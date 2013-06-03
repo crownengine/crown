@@ -232,16 +232,16 @@ void Terrain::WorldToHeight(const Vec3& xyz, uint32_t& x, uint32_t& z) const
 	z = (uint32_t)offsetted.z;
 }
 
-bool Terrain::TraceRay(const Ray& ray, Triangle& result, Triangle& /*tri2*/, real& dist)
+bool Terrain::TraceRay(const Ray& ray, Triangle& result, Triangle& /*tri2*/, float& dist)
 {
 	bool hit = false;
-	real minDist = 9999999.0f;
+	float minDist = 9999999.0f;
 
 	for (uint32_t i = 0; i < mIndexCount; i += 3)
 	{
 		Triangle tri(mVertices[mIndices[i + 0]], mVertices[mIndices[i + 1]], mVertices[mIndices[i + 2]]);
 
-		real ret;
+		float ret;
 		Vec3 int32_tersectionPoint32_t;
 		if (Intersection::test_ray_triangle(ray, tri, ret, int32_tersectionPoint32_t))
 		{

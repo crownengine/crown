@@ -196,7 +196,7 @@ public:
 
 		/* Test for intersection */
 		Triangle tri, tri2;
-		real dist;
+		float dist;
 		if (terrain.TraceRay(ray, tri, tri2, dist))
 		{
 			renderer->set_depth_test(false);

@@ -89,7 +89,7 @@ public:
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
 	/// @note
-	/// Relative coordinates are mapped to a real varying
+	/// Relative coordinates are mapped to a float varying
 	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
 	/// maximum extent of the cosidered axis.
 	Vec2			touch_relative_xy(uint16_t id);
