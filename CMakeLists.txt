@@ -69,7 +69,7 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 include_directories(${INCLUDES} ${CROWN_LUAJIT_INCLUDES})
 link_directories(${CROWN_LUAJIT_LIBS})
-add_definitions(-pipe -ansi -W -Wall -Wextra -Wno-long-long -Wno-variadic-macros -fPIC -g -pg)
+add_definitions(-pipe -std=c++11 -W -Wall -Wextra -Wno-long-long -Wno-variadic-macros -fPIC -g -pg)
 
 # add build directories
 add_subdirectory(src)
