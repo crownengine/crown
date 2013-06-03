@@ -308,9 +308,9 @@ if (WINDOWS)
 	list (APPEND OS_HEADERS
 		os/win/OsWindow.h
 		os/win/OsFile.h
+		os/win/Thread.h
 #		os/win/TCPSocket.h
 #		os/win/UDPSocket.h
-#		os/win/Thread.h
 #		os/win/Mutex.h
 #		os/win/Cond.h
 	)
@@ -319,6 +319,7 @@ if (WINDOWS)
 		os/win/WinOS.cpp
 		os/win/OsWindow.cpp
 		os/win/OsFile.cpp
+		os/win/Thread.cpp
 	)
 
 	list (APPEND RENDERERS_SRC
