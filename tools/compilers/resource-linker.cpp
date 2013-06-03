@@ -2,7 +2,7 @@
 #include "Filesystem.h"
 #include "File.h"
 #include "Path.h"
-#include "String.h"
+#include "StringUtils.h"
 #include "Hash.h"
 #include "Resource.h"
 #include "Bundle.h"

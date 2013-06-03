@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "ResourceManager.h"
-#include "String.h"
+#include "StringUtils.h"
 #include "Hash.h"
 #include "Path.h"
 #include "Log.h"

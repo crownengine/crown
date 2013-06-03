@@ -304,6 +304,26 @@ if (LINUX)
 	set (CROWN_MAIN_SRC os/linux/main.cpp)
 endif (LINUX)
 
+if (WINDOWS)
+	list (APPEND OS_HEADERS
+		os/win/OsWindow.h
+		os/win/TCPSocket.h
+		os/win/UDPSocket.h
+		os/win/OsFile.h
+		os/win/Thread.h
+		os/win/Mutex.h
+		os/win/Cond.h
+	)
+
+	list (APPEND OS_SRC
+		os/win/WinOS.cpp
+
+	)
+
+	set (CROWN_EXECUTABLE_NAME crown-win)
+	set (CROWN_MAIN_SRC os/win/main.cpp)
+endif(WINDOWS)
+
 set (CROWN_SOURCES
 	${SRC}
 	${CORE_SRC}

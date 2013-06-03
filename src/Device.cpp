@@ -35,7 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Renderer.h"
 #include "DebugRenderer.h"
 #include "Types.h"
-#include "String.h"
+#include "StringUtils.h"
 #include "Args.h"
 #include "Game.h"
 #include <cstdlib>

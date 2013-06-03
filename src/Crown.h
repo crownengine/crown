@@ -66,7 +66,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IdTable.h"
 
 // Core/Strings
-#include "String.h"
+#include "StringUtils.h"
 #include "Hash.h"
 #include "Path.h"
 

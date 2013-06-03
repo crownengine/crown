@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "DiskFile.h"
 #include "Log.h"
-#include "String.h"
+#include "StringUtils.h"
 
 namespace crown
 {

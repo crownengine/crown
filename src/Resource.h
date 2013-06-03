@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Hash.h"
-#include "String.h"
+#include "StringUtils.h"
 
 namespace crown
 {
