@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Thread.h"
 #include "Assert.h"
+#include "StringUtils.h"
 
 namespace crown
 {
@@ -40,12 +41,13 @@ Thread::Thread(os::ThreadFunction f, void* params, const char* name)
 	m_thread = CreateThread(NULL, 0, f, params, 0, NULL);
 
 	CE_ASSERT(m_thread != NULL, "Unable to create thread");
+
+	string::strcpy(m_name, name);
 }
 
 //-----------------------------------------------------------------------------
 Thread::~Thread()
 {
-	detach();
 }
 
 //-----------------------------------------------------------------------------
