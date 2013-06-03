@@ -64,6 +64,11 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	set(WINDOWS 1)
+
+	list (APPEND CROWN_INCLUDES
+		${CMAKE_SOURCE_DIR}/src/os/win
+		${CMAKE_SOURCE_DIR}/src/renderers/gl/wgl
+	)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 include_directories(${CROWN_INCLUDES} ${CROWN_LUAJIT_INCLUDES})

@@ -38,7 +38,11 @@ namespace crown
 #ifdef LINUX
 const size_t	MAX_PATH_LENGTH = 1024;
 const char		PATH_SEPARATOR = '/';
+#endif
 
+#ifdef WINDOWS
+const size_t	MAX_PATH_LENGTH = 1024;
+const char		PATH_SEPARATOR = '\\';
 #endif
 
 namespace os
