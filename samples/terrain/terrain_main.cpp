@@ -143,7 +143,9 @@ public:
 		device()->unload(red_up);
 		device()->unload(red_down);
 
-		//device()->renderer()->destroy_render_buffer(rb_id);
+		CE_DELETE(m_allocator, skybox);
+		CE_DELETE(m_allocator, system);
+		CE_DELETE(m_allocator, cam);
 	}
 
 	void update(float dt)
