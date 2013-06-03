@@ -39,23 +39,39 @@ void set_win_handle_window(HWND win)
 }
 
 //-----------------------------------------------------------------------------
-GLContext::GLContext()
+GLContext::GLContext() :
+	m_win_context(NULL)
 {
 }
 
 //-----------------------------------------------------------------------------
 void GLContext::create_context()
 {
+	wglMakeCurrent(s_handle_window, m_win_context);
+
+	CE_ASSERT(m_win_context != NULL, "Unable to create a rendering context.");
+
+	//mFull = fullscreen;
+	//mX = x;
+	//mY = y;
+	//mWidth = width;
+	//mHeight = height;
+	//mCreated = true;
+	//SetVisible(true);
+	//GetDevice()->GetRenderer()->ResizeRenderTarget(width, height);
+	//return true;
 }
 
 //-----------------------------------------------------------------------------
 void GLContext::destroy_context()
 {
+	wglMakeCurrent(NULL, NULL);
 }
 
 //-----------------------------------------------------------------------------
 void GLContext::swap_buffers()
 {
+	SwapBuffers(GetDC(s_handle_window));
 }
 
 } // namespace crown
