@@ -63,6 +63,8 @@ private:
 
 	HWND			m_window_handle;
 
+	char 			m_window_name[32];
+
 	uint32_t		m_x;
 	uint32_t		m_y;
 	uint32_t		m_width;
