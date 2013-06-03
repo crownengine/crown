@@ -78,17 +78,17 @@ link_directories(${CROWN_LUAJIT_LIBS})
 add_subdirectory(src)
 add_subdirectory(${CROWN_THIRD})
 
-if (CROWN_BUILD_TOOLS)
-	add_subdirectory(tools)
-endif (CROWN_BUILD_TOOLS)
-
-if (CROWN_BUILD_SAMPLES)
-	add_subdirectory(samples)
-endif (CROWN_BUILD_SAMPLES)
-
-if (CROWN_BUILD_TESTS)
-	add_subdirectory(tests)
-endif (CROWN_BUILD_TESTS)
-
-add_subdirectory(lua)
+#if (CROWN_BUILD_TOOLS)
+#	add_subdirectory(tools)
+#endif (CROWN_BUILD_TOOLS)
+#
+#if (CROWN_BUILD_SAMPLES)
+#	add_subdirectory(samples)
+#endif (CROWN_BUILD_SAMPLES)
+#
+#if (CROWN_BUILD_TESTS)
+#	add_subdirectory(tests)
+#endif (CROWN_BUILD_TESTS)
+#
+#add_subdirectory(lua)
 
