@@ -45,7 +45,14 @@ inline void* align_top(void* p, size_t align)
 
 	uintptr_t ptr = (uintptr_t)p;
 
-	return (void*)(ptr + (ptr & (align - 1)));
+	const size_t mod = ptr % align;
+
+	if (mod)
+	{
+		ptr += align - mod;
+	}
+
+	return (void*) ptr;
 }
 
 } // namespace memory
