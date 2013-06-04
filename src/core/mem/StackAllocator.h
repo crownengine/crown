@@ -53,8 +53,6 @@ public:
 	/// @copydoc Allocator::allocated_size()
 	size_t		allocated_size();
 
-	void		dump();
-
 private:
 
 	struct Header

@@ -94,21 +94,4 @@ size_t StackAllocator::allocated_size()
 	return (char*) m_top - (char*) m_physical_start;
 }
 
-//-----------------------------------------------------------------------------
-void StackAllocator::dump()
-{
-	uint8_t* mem = (uint8_t*)m_physical_start;
-	for (size_t i = 0; i < allocated_size(); i++)
-	{
-		if ((i % sizeof(void*)) == 0)
-		{
-			os::printf("\n");
-			os::printf("%.2X = ", (size_t)(&mem[i]) & 0xFF);
-		}
-		os::printf("%.2X ", mem[i]);
-	}
-
-	os::printf("\n");
-}
-
 } // namespace crown
