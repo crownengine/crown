@@ -54,7 +54,7 @@ void* LinearAllocator::allocate(size_t size, size_t align)
 		return NULL;
 	}
 
-	void* user_ptr = memory::align((char*) m_physical_start + m_offset, align);
+	void* user_ptr = memory::align_top((char*) m_physical_start + m_offset, align);
 
 	m_offset += actual_size;
 

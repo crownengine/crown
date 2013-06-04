@@ -38,13 +38,14 @@ const uint32_t	PADDING_VALUE	= 0xFFFFFFFFu;	//!< Value used to fill unused memor
 const size_t	DEFAULT_ALIGN	= 4;			//!< Default memory alignment in bytes
 
 /// Returns the pointer @a p aligned to the desired @a align byte
-inline void* align(void* p, size_t align)
+inline void* align_top(void* p, size_t align)
 {
+	CE_ASSERT(align > 1, "Alignment must be > 1");
 	CE_ASSERT(align % 2 == 0, "Alignment must be a power of two");
 
 	uintptr_t ptr = (uintptr_t)p;
 
-	return (void*)(ptr + (align - ptr % align));
+	return (void*)(ptr + (ptr & (align - 1)));
 }
 
 } // namespace memory

@@ -53,7 +53,7 @@ void* MallocAllocator::allocate(size_t size, size_t align)
 	Header* h = (Header*)dlmalloc(actual_size);
 	h->size = actual_size;
 
-	void* data = memory::align(h + 1, align);
+	void* data = memory::align_top(h + 1, align);
 
 	pad(h, data);
 
@@ -111,7 +111,7 @@ MallocAllocator::Header* MallocAllocator::header(void* data)
 //-----------------------------------------------------------------------------
 void* MallocAllocator::data(Header* header, size_t align)
 {
-	return memory::align(header + 1, align);
+	return memory::align_top(header + 1, align);
 }
 
 //-----------------------------------------------------------------------------
