@@ -152,6 +152,7 @@ set (MEM_SRC
 	core/mem/Memory.cpp
 	core/mem/Allocator.cpp
 	core/mem/MallocAllocator.cpp
+	core/mem/LinearAllocator.cpp
 	core/mem/ProxyAllocator.cpp
 )
 
@@ -160,6 +161,7 @@ set (MEM_HEADERS
 	core/mem/Memory.h
 	core/mem/Allocator.h
 	core/mem/MallocAllocator.h
+	core/mem/LinearAllocator.h
 	core/mem/ProxyAllocator.h
 )
 
