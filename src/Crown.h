@@ -75,6 +75,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "MallocAllocator.h"
 #include "LinearAllocator.h"
+#include "StackAllocator.h"
 #include "ProxyAllocator.h"
 
 // Core/Filesystem
