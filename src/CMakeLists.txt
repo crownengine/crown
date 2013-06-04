@@ -237,6 +237,8 @@ set (OS_HEADERS
 )
 
 # Platform independent libraries
+# FIXME: not so platform independent, name changes between different os
+# so, is better to include them in os specific chunk of cmake file
 set (CROWN_LIBRARIES
 	rt
 	z
@@ -246,7 +248,7 @@ set (CROWN_LIBRARIES
 set (CROWN_COMPILER_FLAGS
 	-pipe
 	-ansi
-	-W
+	-W    	# VS2010 compiler does not agreed O.o
 	-Wall
 	-Wextra
 	-Wno-long-long
@@ -332,6 +334,11 @@ if (WINDOWS)
 		renderers/gl/GLRenderer.h
 		renderers/gl/GLUtils.h
 		renderers/gl/wgl/GLContext.h
+	)
+
+	list (
+		zlib
+		# MUST INCLUDE OTHERS
 	)
 
 	set (CROWN_EXECUTABLE_NAME crown-win)
