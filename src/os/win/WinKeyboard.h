@@ -40,22 +40,22 @@ class WinKeyboard : public Keyboard
 
 public:
 
-	/** @a copydoc Keyboard::Keyboard() */
+	/** @copydoc Keyboard::Keyboard() */
 	WinKeyboard(InputManager* creator);
 
-	/** @a copydoc Keyboard::~Keyboard() */
+	/** @copydoc Keyboard::~Keyboard() */
 	~WinKeyboard();
 
-	/** @a copydoc Keyboard::IsModifierPressed() */
+	/** @copydoc Keyboard::IsModifierPressed() */
 	virtual bool IsModifierPressed(ModifierKey modifier) const;
 
-	/** @a copydoc Keyboard::IsKeyPressed() */
+	/** @copydoc Keyboard::IsKeyPressed() */
 	virtual bool IsKeyPressed(KeyCode key) const;
 
-	/** @a copydoc Keyboard::IsKeyReleased() */
+	/** @copydoc Keyboard::IsKeyReleased() */
 	virtual bool IsKeyReleased(KeyCode key) const;
 
-	/** @a copydoc Keyboard::EventLoop() */
+	/** @copydoc Keyboard::EventLoop() */
 	virtual void EventLoop();
 
 	/**

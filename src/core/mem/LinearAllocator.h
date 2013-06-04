@@ -40,10 +40,10 @@ public:
 				LinearAllocator(void* start, size_t size);
 				~LinearAllocator();
 
-	/// @a copydoc Allocator::allocate()
+	/// @copydoc Allocator::allocate()
 	void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
 
-	/// @a copydoc Allocator::deallocate()
+	/// @copydoc Allocator::deallocate()
 	/// @note
 	/// The linear allocator does not support deallocating
 	/// individual allocations, rather you have to call
@@ -53,7 +53,7 @@ public:
 	/// Frees all the allocations made by allocate()
 	void		clear();
 
-	/// @a copydoc Allocator::allocated_size()
+	/// @copydoc Allocator::allocated_size()
 	size_t		allocated_size();
 
 private:

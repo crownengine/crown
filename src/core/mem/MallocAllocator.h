@@ -39,13 +39,13 @@ public:
 				MallocAllocator();
 				~MallocAllocator();
 
-	/// @a copydoc Allocator::allocate()
+	/// @copydoc Allocator::allocate()
 	void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
 
-	/// @a copydoc Allocator::deallocate()
+	/// @copydoc Allocator::deallocate()
 	void		deallocate(void* data);
 
-	/// @a copydoc Allocator::allocated_size()
+	/// @copydoc Allocator::allocated_size()
 	size_t		allocated_size();
 
 	/// Returns the size in bytes of the block of memory pointed by @a data

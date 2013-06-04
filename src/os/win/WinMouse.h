@@ -40,31 +40,31 @@ class WinMouse : public Mouse
 
 public:
 
-	/** @a copydoc Mouse::Mouse() */
+	/** @copydoc Mouse::Mouse() */
 	WinMouse(InputManager* creator);
 
-	/** @a copydoc Mouse::~Mouse() */
+	/** @copydoc Mouse::~Mouse() */
 	~WinMouse();
 
-	/** @a copydoc Mouse::IsVisible() */
+	/** @copydoc Mouse::IsVisible() */
 	virtual bool IsCursorVisible() const;
 
-	/** @a copydoc Mouse::SetVisible() */
+	/** @copydoc Mouse::SetVisible() */
 	virtual void SetCursorVisible(bool visible);
 
-	/** @a copydoc Mouse::GetCursorXY() */
+	/** @copydoc Mouse::GetCursorXY() */
 	virtual Point32_t2 GetCursorXY() const;
 
-	/** @a copydoc Mouse::SetCursorXY() */
+	/** @copydoc Mouse::SetCursorXY() */
 	virtual void SetCursorXY(const Point32_t2& position);
 
-	/** @a copydoc Mouse::GetCursorRelativeXY() */
+	/** @copydoc Mouse::GetCursorRelativeXY() */
 	virtual Vec2 GetCursorRelativeXY() const;
 
-	/** @a copydoc Mouse::SetCursorRelativeXY() */
+	/** @copydoc Mouse::SetCursorRelativeXY() */
 	virtual void SetCursorRelativeXY(const Vec2& position);
 
-	/** @a copydoc Mouse::EventLoop() */
+	/** @copydoc Mouse::EventLoop() */
 	virtual void EventLoop();
 
 private:

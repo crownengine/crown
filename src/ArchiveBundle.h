@@ -63,10 +63,10 @@ public:
 					ArchiveBundle(Filesystem& fs);
 					~ArchiveBundle();
 
-	/// @a copydoc Bundle::open()
+	/// @copydoc Bundle::open()
 	DiskFile*		open(ResourceId name);
 
-	/// @a copydoc Bundle::close()
+	/// @copydoc Bundle::close()
 	void			close(DiskFile* resource);
 
 private:
