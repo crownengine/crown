@@ -44,6 +44,10 @@ if (CROWN_ARCH MATCHES "x86_64")
 	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86_64)
 endif (CROWN_ARCH MATCHES "x86_64")
 
+if (CROWN_ARCH MATCHES "win64")
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/win64)
+endif (CROWN_ARCH MATCHES "win64")
+
 set (CROWN_LUAJIT_INCLUDES
 	${CROWN_THIRD}/luajit/include/luajit-2.0
 )
