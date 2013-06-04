@@ -41,8 +41,8 @@ MallocAllocator::MallocAllocator() :
 //-----------------------------------------------------------------------------
 MallocAllocator::~MallocAllocator()
 {
-	CE_ASSERT(m_allocation_count == 0, "Missing %d deallocations", m_allocation_count);
-	CE_ASSERT(m_allocated_size == 0, "Memory leak of %d bytes", m_allocated_size);
+	CE_ASSERT(m_allocation_count == 0 && allocated_size() == 0,
+		"Missing %d deallocations causing a leak of %d bytes", m_allocation_count, allocated_size());
 }
 
 //-----------------------------------------------------------------------------
