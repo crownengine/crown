@@ -6,7 +6,6 @@ set (SRC
 
 	TextureResource.cpp
 	TextResource.cpp
-	ScriptResource.cpp
 	FontResource.cpp
 	ArchiveBundle.cpp
 	FileBundle.cpp
@@ -28,7 +27,6 @@ set (HEADERS
 
 	TextureResource.h
 	TextResource.h
-	ScriptResource.h
 	FontResource.h
 	ArchiveBundle.h
 	FileBundle.h
@@ -279,7 +277,15 @@ set (CROWN_HEADERS
 	${OS_HEADERS}
 )
 
-link_libraries(rt z)
+# IrrXML parser
+include_directories(${CROWN_THIRD}/irrxml/src)
+
+# Luajit
+include_directories(${CROWN_THIRD}/luajit/include/luajit-2.0)
+link_directories(${CROWN_THIRD}/luajit/lib)
+
+# Build platform independent library
+link_libraries(rt z luajit-5.1)
 add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
 
 if (CROWN_BUILD_OPENGL)

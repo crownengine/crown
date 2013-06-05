@@ -25,8 +25,8 @@
 import subprocess
 import os
 
-LUAJIT = "luajit-2.0.1"
-BC_G = "bytecode-generator.lua"
+LUAJIT = "luajit"
+OPTION = "-b"
 COMPILER_NAME = "resource-compiler"
 RES_H = "resource-hash"
 
@@ -91,8 +91,26 @@ class Compiler:
 
 	# Compiles all the script resources in the repository
 	def compile_scripts(self):
-		self.compile(self.m_repository.script_resources());
+		lua_resources = self.m_repository.script_resources()
+		root_path = self.m_repository.root_path()
 
+		for res in lua_resources:
+			path_in = os.path.normpath(root_path + "/" + res)
+			path_out = os.path.normpath(os.path.dirname(self.m_dest_path + "/" + res))
+
+			if not os.path.exists(path_out):
+				os.makedirs(path_out)
+
+			head, out_filename = os.path.split(res)
+			out_filename, ext = os.path.splitext(out_filename)
+
+			res_in = res
+			res_out = out_filename + ".raw"
+
+			print(res_out, "<=", res_in)
+
+			f = subprocess.call([LUAJIT, OPTION, path_in, path_out + "/" + res_out]);
+	
 	# Compiles all the vertex shader resources in the repository
 	def compile_vertex_shaders(self):
 		self.compile(self.m_repository.vertex_shader_resources());
@@ -124,10 +142,3 @@ class Compiler:
 		compiler_params = [COMPILER_NAME, "--root-path", root_path, "--dest-path", self.m_dest_path, "--seed", str(self.m_perfect_seed)]
 
 		p = subprocess.call(compiler_params + resource_params)
-
-		# if resource.endswith('.lua'):
-		# 	path = os.path.normpath(root_path + "/" + resource)
-		# 	f = subprocess.call([LUAJIT, BC_G, path]);
-		# 	p = subprocess.call([LUA_C, ROOT_P, root_path, DEST_P, self.m_dest_path, RES_IN, resource, SEED, str(self.m_perfect_seed)]);
-	
-

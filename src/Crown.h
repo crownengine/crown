@@ -97,6 +97,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Settings
 #include "IntSetting.h"
 #include "FloatSetting.h"
+#include "StringSetting.h"
 
 // Engine
 #include "Camera.h"
@@ -109,7 +110,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "TextResource.h"
 #include "TextureResource.h"
-#include "ScriptResource.h"
 #include "MaterialResource.h"
 #include "FontResource.h"
 
@@ -130,4 +130,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "DebugRenderer.h"
 #include "PixelFormat.h"
 #include "VertexFormat.h"
+
+// Lua
+#include "LuaStack.h"
+#include "LuaEnvironment.h"
+
 

@@ -2,6 +2,7 @@
 #include "Terrain.h"
 #include "FPSSystem.h"
 #include "Game.h"
+#include "ScriptSystem.h"
 
 using namespace crown;
 
@@ -127,8 +128,6 @@ public:
 
 		TextureResource* grass_texture = (TextureResource*)device()->data(grass);
 		grass_id = device()->renderer()->create_texture(grass_texture->width(), grass_texture->height(), grass_texture->format(), grass_texture->data());
-
-		//rb_id = device()->renderer()->create_render_buffer(200, 200, PF_RGBA_8);
 	}
 
 	void on_unload()
@@ -227,6 +226,8 @@ private:
 	ResourceId red_down;
 	TextureId grass_id;
 	RenderBufferId rb_id;
+
+	ResourceId script;
 
 	bool optShowSkybox;
 	bool optShowCrate;

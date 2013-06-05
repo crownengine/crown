@@ -30,6 +30,7 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/network
 
 	${CMAKE_SOURCE_DIR}/game
+	${CMAKE_SOURCE_DIR}/lua
 )
 
 # always debug mode for now
@@ -43,6 +44,11 @@ endif (CROWN_ARCH MATCHES "x86")
 if (CROWN_ARCH MATCHES "x86_64")
 	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86_64)
 endif (CROWN_ARCH MATCHES "x86_64")
+
+if (CROWN_ARCH MATCHES "ARMv7")
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/ARMv7)
+endif (CROWN_ARCH MATCHES "ARMv7")
+
 
 set (CROWN_LUAJIT_INCLUDES
 	${CROWN_THIRD}/luajit/include/luajit-2.0
@@ -73,6 +79,7 @@ add_definitions(-pipe -std=c++11 -W -Wall -Wextra -Wno-long-long -Wno-variadic-m
 
 # add build directories
 add_subdirectory(src)
+add_subdirectory(lua)
 add_subdirectory(${CROWN_THIRD})
 
 if (LINUX)
@@ -102,4 +109,5 @@ endif (CROWN_BUILD_SAMPLES)
 if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
+
 

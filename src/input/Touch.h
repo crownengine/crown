@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Vec2.h"
-#include "Point2.h"
 
 namespace crown
 {
@@ -81,7 +80,7 @@ public:
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
-	Point2			touch_xy(uint16_t id) const;
+	Vec2			touch_xy(uint16_t id) const;
 
 	/// Returns the relative position of the pointer @a id in window space.
 	/// @note

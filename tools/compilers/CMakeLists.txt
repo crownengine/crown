@@ -2,20 +2,16 @@ cmake_minimum_required(VERSION 2.8)
 
 set (SRC
 	Compiler.cpp
-
 	tga/TGACompiler.cpp
 	txt/TXTCompiler.cpp
-	lua/LuaCompiler.cpp
 	ps/PSCompiler.cpp
 	vs/VSCompiler.cpp
 )
 
 set (HEADERS
 	Compiler.h
-
 	tga/TGACompiler.h
 	txt/TXTCompiler.h
-	lua/LuaCompiler.h
 	ps/PSCompiler.h
 	vs/VSCompiler.h
 )

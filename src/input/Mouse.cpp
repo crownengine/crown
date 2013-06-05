@@ -51,17 +51,17 @@ bool Mouse::button_released(MouseButton button) const
 }
 
 //-----------------------------------------------------------------------------
-Point2 Mouse::cursor_xy() const
+Vec2 Mouse::cursor_xy() const
 {
-	Point2 xy;
+	int32_t x, y;
 
-	os::get_cursor_xy(xy.x, xy.y);
+	os::get_cursor_xy(x, y);
 
-	return xy;
+	return Vec2(x, y);
 }
 
 //-----------------------------------------------------------------------------
-void Mouse::set_cursor_xy(const Point2& position)
+void Mouse::set_cursor_xy(const Vec2& position)
 {
 	os::set_cursor_xy(position.x, position.y);
 }
@@ -74,7 +74,7 @@ Vec2 Mouse::cursor_relative_xy() const
 
 	os::get_render_window_metrics(window_width, window_height);
 
-	Vec2 pos = cursor_xy().to_vec2();
+	Vec2 pos = cursor_xy();
 
 	pos.x = pos.x / (float) window_width;
 	pos.y = pos.y / (float) window_height;
@@ -90,7 +90,7 @@ void Mouse::set_cursor_relative_xy(const Vec2& position)
 
 	os::get_render_window_metrics(window_width, window_height);
 
-	set_cursor_xy(Point2((int32_t)(position.x * (float) window_width), (int32_t)(position.y * (float) window_height)));
+	set_cursor_xy(Vec2(position.x * (float) window_width, position.y * (float) window_height));
 }
 
 } // namespace crown

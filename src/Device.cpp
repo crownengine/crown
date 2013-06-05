@@ -47,6 +47,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mouse.h"
 #include "Touch.h"
 #include "Accelerometer.h"
+#include "JSONParser.h"
+#include "DiskFile.h"
 #include "Memory.h"
 
 #ifdef CROWN_BUILD_OPENGL
@@ -128,6 +130,8 @@ bool Device::init(int argc, char** argv)
 	create_renderer();
 
 	create_debug_renderer();
+
+	read_engine_settings();
 
 	Log::i("Crown Engine initialized.");
 
@@ -532,6 +536,22 @@ void Device::check_preferred_settings()
 		exit(EXIT_FAILURE);
 	}
 }
+
+//-----------------------------------------------------------------------------
+void Device::read_engine_settings()
+{
+	DiskFile* file = m_filesystem->open("crown.cfg", FOM_READ);
+	MallocAllocator allocator;
+	JSONParser json(allocator, file);
+
+	char value[128];
+	int  width;
+	json.get_root().get_array("crown", 0).get_string("boot").to_string(value);
+	json.get_root().get_number("width").to_int(width);
+	os::printf("value = %s\n", value);
+	os::printf("width = %d\n", width);
+}
+
 
 //-----------------------------------------------------------------------------
 void Device::print_help_message()
