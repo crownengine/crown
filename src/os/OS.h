@@ -26,9 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Config.h"
-#include "List.h"
 #include <cstdarg>
+
+#include "Config.h"
 #include "Types.h"
 
 namespace crown
