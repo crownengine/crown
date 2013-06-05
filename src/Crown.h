@@ -106,7 +106,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ArchiveBundle.h"
 #include "FileBundle.h"
 #include "ResourceManager.h"
-#include "Skybox.h"
 
 #include "TextResource.h"
 #include "TextureResource.h"

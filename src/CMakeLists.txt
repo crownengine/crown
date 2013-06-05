@@ -3,7 +3,6 @@ set (SRC
 	Device.cpp
 	MaterialResource.cpp
 	ResourceManager.cpp
-	Skybox.cpp
 
 	TextureResource.cpp
 	TextResource.cpp
@@ -26,7 +25,6 @@ set (HEADERS
 	Resource.h
 	ResourceManager.h
 	Bundle.h
-	Skybox.h
 
 	TextureResource.h
 	TextResource.h
