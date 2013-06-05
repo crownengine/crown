@@ -64,7 +64,7 @@ void* LinearAllocator::allocate(size_t size, size_t align)
 //-----------------------------------------------------------------------------
 void LinearAllocator::deallocate(void* /*data*/)
 {
-	CE_ASSERT(false, "Use clear() to deallocate from linear allocator");
+	// Single deallocations not supported. Use clear().
 }
 
 //-----------------------------------------------------------------------------
