@@ -2,6 +2,7 @@
 
 #include "Vec3.h"
 #include "OS.h"
+#include "NetAddress.h"
 #include "BitMessage.h"
 #include "MallocAllocator.h"
 
@@ -344,7 +345,7 @@ void test_net_address()
 	
 	printf("-----------------------------\n");
 	printf("start write and read for NET_ADDRESS\n");
-	printf("a = %d, b = %d, c = %d, d = %d, p = %d\n", res.address[0], res.address[1], res.address[2], res.address[3], res.port);
+	printf("a = %d, b = %d, c = %d, d = %d, p = %d\n", res.m_address[0], res.m_address[1], res.m_address[2], res.m_address[3], res.m_port);
 	printf("bits written = %d\n", bits_written);
 	printf("remaining write bits = %d\n", rem_write_bits);
 	printf("bits read = %d\n", bits_read);
