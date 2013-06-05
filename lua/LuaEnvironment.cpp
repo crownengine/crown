@@ -40,6 +40,8 @@ int32_t luaopen_libcrownlua(lua_State* L)
 	load_keyboard(env);
 	load_accelerometer(env);
 
+	load_device(env);
+
 	return 1;
 }
 

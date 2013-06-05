@@ -14,6 +14,8 @@ set(LUA_SRC
 	MouseBinds.cpp
 	KeyboardBinds.cpp
 	AccelerometerBinds.cpp
+
+	DeviceBinds.cpp
 )
 
 set(LUA_HEADERS
