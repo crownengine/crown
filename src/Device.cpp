@@ -66,11 +66,15 @@ static void (*game_frame)(float) = NULL;
 
 //-----------------------------------------------------------------------------
 Device::Device() :
+	m_allocator(m_subsystems_heap, MAX_SUBSYSTEMS_HEAP),
+
 	m_preferred_window_width(1000),
 	m_preferred_window_height(625),
 	m_preferred_window_fullscreen(0),
 	m_preferred_renderer(RENDERER_GL),
 	m_preferred_mode(MODE_RELEASE),
+
+	m_quit_after_init(0),
 
 	m_is_init(false),
 	m_is_running(false),
@@ -158,6 +162,11 @@ bool Device::init(int argc, char** argv)
 
 	start();
 
+	if (m_quit_after_init == 1)
+	{
+		shutdown();
+	}
+
 	return true;
 }
 
@@ -214,6 +223,8 @@ void Device::shutdown()
 	{
 		CE_DELETE(m_allocator, m_filesystem);
 	}
+
+	m_allocator.clear();
 
 	m_is_init = false;
 }
@@ -453,14 +464,15 @@ void Device::parse_command_line(int argc, char** argv)
 {
 	static ArgsOption options[] = 
 	{
-		"help",       AOA_NO_ARGUMENT,       NULL,        'i',
-		"root-path",  AOA_REQUIRED_ARGUMENT, NULL,        'r',
-		"width",      AOA_REQUIRED_ARGUMENT, NULL,        'w',
-		"height",     AOA_REQUIRED_ARGUMENT, NULL,        'h',
-		"fullscreen", AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1,
-		"gl",         AOA_NO_ARGUMENT,       &m_preferred_renderer, RENDERER_GL,
-		"gles",       AOA_NO_ARGUMENT,       &m_preferred_renderer, RENDERER_GLES,
-		"dev",        AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT,
+		"help",             AOA_NO_ARGUMENT,       NULL,        'i',
+		"root-path",        AOA_REQUIRED_ARGUMENT, NULL,        'r',
+		"width",            AOA_REQUIRED_ARGUMENT, NULL,        'w',
+		"height",           AOA_REQUIRED_ARGUMENT, NULL,        'h',
+		"fullscreen",       AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1,
+		"gl",               AOA_NO_ARGUMENT,       &m_preferred_renderer, RENDERER_GL,
+		"gles",             AOA_NO_ARGUMENT,       &m_preferred_renderer, RENDERER_GLES,
+		"dev",              AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT,
+		"quit-after-init",  AOA_NO_ARGUMENT,       &m_quit_after_init, 1,
 		NULL, 0, NULL, 0
 	};
 
@@ -536,7 +548,9 @@ void Device::print_help_message()
 	"  --width <width>       Set the <width> of the render window.\n"
 	"  --height <width>      Set the <height> of the render window.\n"
 	"  --fullscreen          Start in fullscreen.\n"
-	"  --dev                 Run the engine in development mode\n");
+	"  --dev                 Run the engine in development mode\n"
+	"  --quit-after-init     Quits the engine immediately after the\n"
+	"                        initialization. Used only for debugging.\n");
 }
 
 Device g_device;
