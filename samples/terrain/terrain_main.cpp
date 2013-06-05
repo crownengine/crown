@@ -110,8 +110,6 @@ public:
 		// Add a movable camera
 		cam = CE_NEW(m_allocator, Camera)(start, 90.0f, 1.6f);
 		system = CE_NEW(m_allocator, FPSSystem)(cam, 10.0f, 2.5f);
-		// Add a skybox
-		skybox = CE_NEW(m_allocator, Skybox)(Vec3::ZERO, true);
 
 		terrain.CreateTerrain(64, 64, 1, 0.0f);
 		terrain.PlotCircle(4, 4, 4, 2);
@@ -143,7 +141,6 @@ public:
 		device()->unload(red_up);
 		device()->unload(red_down);
 
-		CE_DELETE(m_allocator, skybox);
 		CE_DELETE(m_allocator, system);
 		CE_DELETE(m_allocator, cam);
 	}
@@ -164,11 +161,6 @@ public:
 
 		renderer->set_lighting(false);
 		renderer->set_texturing(0, false);
-
-		if (skybox)
-		{
-			skybox->Render();
-		}
 
 		ray.set_origin(cam->position());
 		ray.set_direction(cam->look_at());
@@ -222,7 +214,6 @@ private:
 	MallocAllocator m_allocator;
 	FPSSystem* system;
 	Camera* cam;
-	Skybox* skybox;
 	Mat4 ortho;
 	Terrain terrain;
 
