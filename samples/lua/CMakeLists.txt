@@ -10,5 +10,5 @@ target_link_libraries(game-lua crown crownlua)
 
 set_target_properties (game-lua PROPERTIES OUTPUT_NAME game)
 
+install (DIRECTORY lua DESTINATION samples)
 install (TARGETS game-lua DESTINATION samples/lua)
-
