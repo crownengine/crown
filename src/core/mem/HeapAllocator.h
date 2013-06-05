@@ -32,12 +32,12 @@ namespace crown
 {
 
 /// Allocator based on C malloc().
-class MallocAllocator : public Allocator
+class HeapAllocator : public Allocator
 {
 public:
 
-				MallocAllocator();
-				~MallocAllocator();
+				HeapAllocator();
+				~HeapAllocator();
 
 	/// @copydoc Allocator::allocate()
 	void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);

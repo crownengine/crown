@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 
 namespace crown
 {
@@ -72,7 +72,7 @@ private:
 
 private:
 
-	MallocAllocator	m_allocator;
+	HeapAllocator	m_allocator;
 
 	uint32_t		m_initial_width;
 	uint32_t		m_initial_height;

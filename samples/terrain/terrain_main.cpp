@@ -211,7 +211,7 @@ public:
 
 private:
 
-	MallocAllocator m_allocator;
+	HeapAllocator m_allocator;
 	FPSSystem* system;
 	Camera* cam;
 	Mat4 ortho;

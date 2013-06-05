@@ -24,7 +24,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 #include "Assert.h"
 #include "malloc.h"
 
@@ -32,21 +32,21 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-MallocAllocator::MallocAllocator() :
+HeapAllocator::HeapAllocator() :
 	m_allocated_size(0),
 	m_allocation_count(0)
 {
 }
 
 //-----------------------------------------------------------------------------
-MallocAllocator::~MallocAllocator()
+HeapAllocator::~HeapAllocator()
 {
 	CE_ASSERT(m_allocation_count == 0 && allocated_size() == 0,
 		"Missing %d deallocations causing a leak of %d bytes", m_allocation_count, allocated_size());
 }
 
 //-----------------------------------------------------------------------------
-void* MallocAllocator::allocate(size_t size, size_t align)
+void* HeapAllocator::allocate(size_t size, size_t align)
 {
 	size_t actual_size = actual_allocation_size(size, align);
 
@@ -64,7 +64,7 @@ void* MallocAllocator::allocate(size_t size, size_t align)
 }
 
 //-----------------------------------------------------------------------------
-void MallocAllocator::deallocate(void* data)
+void HeapAllocator::deallocate(void* data)
 {
 	Header* h = header(data);
 
@@ -75,13 +75,13 @@ void MallocAllocator::deallocate(void* data)
 }
 
 //-----------------------------------------------------------------------------
-size_t MallocAllocator::allocated_size()
+size_t HeapAllocator::allocated_size()
 {
 	return m_allocated_size;
 }
 
 //-----------------------------------------------------------------------------
-size_t MallocAllocator::get_size(void* data)
+size_t HeapAllocator::get_size(void* data)
 {
 	Header* h = header(data);
 
@@ -89,13 +89,13 @@ size_t MallocAllocator::get_size(void* data)
 }
 
 //-----------------------------------------------------------------------------
-size_t MallocAllocator::actual_allocation_size(size_t size, size_t align)
+size_t HeapAllocator::actual_allocation_size(size_t size, size_t align)
 {
 	return size + align + sizeof(Header);
 }
 
 //-----------------------------------------------------------------------------
-MallocAllocator::Header* MallocAllocator::header(void* data)
+HeapAllocator::Header* HeapAllocator::header(void* data)
 {
 	uint32_t* ptr = (uint32_t*)data;
 	ptr--;
@@ -109,13 +109,13 @@ MallocAllocator::Header* MallocAllocator::header(void* data)
 }
 
 //-----------------------------------------------------------------------------
-void* MallocAllocator::data(Header* header, size_t align)
+void* HeapAllocator::data(Header* header, size_t align)
 {
 	return memory::align_top(header + 1, align);
 }
 
 //-----------------------------------------------------------------------------
-void MallocAllocator::pad(Header* header, void* data)
+void HeapAllocator::pad(Header* header, void* data)
 {
 	uint32_t* p = (uint32_t*)(header + 1);
 

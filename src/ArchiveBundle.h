@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Bundle.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 
 namespace crown
 {
@@ -71,7 +71,7 @@ public:
 
 private:
 
-	MallocAllocator	m_allocator;
+	HeapAllocator	m_allocator;
 
 	Filesystem&		m_filesystem;
 

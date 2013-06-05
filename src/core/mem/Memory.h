@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Assert.h"
+#include "OS.h"
 
 namespace crown
 {
@@ -53,6 +54,25 @@ inline void* align_top(void* p, size_t align)
 	}
 
 	return (void*) ptr;
+}
+
+/// Dumps the memory content pointed by @a p
+inline void dump(void* p, size_t size, size_t word_size)
+{
+	uint8_t* mem = (uint8_t*) p;
+
+	for (size_t i = 0; i < size; i++, mem++)
+	{
+		if (i % word_size == 0)
+		{
+			os::printf("\n");
+			os::printf("[.. %.4X] ", (size_t)mem);
+		}
+
+		os::printf("%.2X ", *mem);
+	}
+
+	os::printf("\n");
 }
 
 } // namespace memory

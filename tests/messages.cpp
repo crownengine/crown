@@ -4,7 +4,7 @@
 #include "OS.h"
 #include "NetAddress.h"
 #include "BitMessage.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 
 using namespace crown;
 
@@ -15,7 +15,7 @@ void test_int8()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 	
 	int8_t res;
@@ -50,7 +50,7 @@ void test_uint8()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 
 	uint8_t res;
@@ -85,7 +85,7 @@ void test_int16()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);  
 	
 	int16_t res;
@@ -117,7 +117,7 @@ void test_uint16()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 
 	uint16_t res;
@@ -149,7 +149,7 @@ void test_int32()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 	
 	int32_t res;
@@ -182,7 +182,7 @@ void test_float()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 
 	float res;
@@ -216,7 +216,7 @@ void test_vec3()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 	
 	
@@ -250,7 +250,7 @@ void test_string()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 	
 	uint8_t tmp[16];
@@ -288,7 +288,7 @@ void test_data()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 	
 	uint8_t tmp[] = "test generic";
@@ -323,7 +323,7 @@ void test_net_address()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-	MallocAllocator allocator;
+	HeapAllocator allocator;
 	network::BitMessage m = network::BitMessage(allocator);
 
 	uint8_t tmp[16];
@@ -368,7 +368,7 @@ int main()
 	test_data();
 	test_net_address();
 */
-	MallocAllocator allocator;
+	HeapAllocator allocator;
 	network::BitMessage msg = network::BitMessage(allocator);
 	
 	uint32_t protocol_id = 0xFFFFFFFF;

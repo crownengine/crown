@@ -73,7 +73,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Mem
 #include "Memory.h"
 #include "Allocator.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 #include "LinearAllocator.h"
 #include "StackAllocator.h"
 #include "ProxyAllocator.h"

@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Memory.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 
 //-----------------------------------------------------------------------------
 void* operator new(size_t)

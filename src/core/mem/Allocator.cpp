@@ -24,12 +24,12 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 
 namespace crown
 {
 
-MallocAllocator g_default_allocator;
+HeapAllocator g_default_allocator;
 Allocator& default_allocator()
 {
 	return g_default_allocator;

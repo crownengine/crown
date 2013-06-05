@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Queue.h"
 #include "Resource.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 #include "Thread.h"
 #include "Mutex.h"
 #include "Cond.h"
@@ -150,9 +150,9 @@ private:
 	// Archive whether to look for resources
 	Bundle&					m_resource_bundle;
 	// Used to strore resource memory
-	MallocAllocator			m_resource_allocator;
+	HeapAllocator			m_resource_allocator;
 
-	MallocAllocator			m_allocator;
+	HeapAllocator			m_allocator;
 	// The master lookup table
 	List<ResourceEntry>		m_resources;
 

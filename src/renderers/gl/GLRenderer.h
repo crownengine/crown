@@ -34,7 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IndexBuffer.h"
 #include "RenderBuffer.h"
 #include "IdTable.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 
 namespace crown
 {
@@ -170,7 +170,7 @@ private:
 
 private:
 
-	MallocAllocator		m_allocator;
+	HeapAllocator		m_allocator;
 
 	// Matrices
 	Mat4				m_matrix[MT_COUNT];

@@ -6,7 +6,7 @@ using namespace crown;
 
 int main()
 {
-	MallocAllocator allocator;
+	HeapAllocator allocator;
 
 	List<int> int_list(allocator);
 

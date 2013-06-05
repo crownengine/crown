@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "String.h"
 #include "OS.h"
 #include "File.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 
 namespace crown
 {
@@ -153,7 +153,7 @@ private:
 	
 private:
 
-	MallocAllocator		m_allocator;
+	HeapAllocator		m_allocator;
 
 	char				m_root_path[os::MAX_PATH_LENGTH];
 
