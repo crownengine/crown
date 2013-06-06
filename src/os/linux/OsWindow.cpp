@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Keyboard.h"
 #include "OS.h"
 #include "GLContext.h"
-#include "String.h"
+#include "StringUtils.h"
 
 namespace crown
 {

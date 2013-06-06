@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "OS.h"
-#include "String.h"
+#include "StringUtils.h"
 #include <cstdio>
 #include <cstdarg>
 #include <sys/stat.h>
