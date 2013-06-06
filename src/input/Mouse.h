@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #pragma once
+#undef MB_RIGHT
 
 #include "Types.h"
 #include "Vec2.h"

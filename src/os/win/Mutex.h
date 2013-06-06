@@ -45,9 +45,11 @@ public:
 	void				lock();
 	void				unlock();
 
+	CRITICAL_SECTION	handle();
+
 private:
 
-	HANDLE				m_mutex;
+	CRITICAL_SECTION	m_cs;
 
 	friend class		Cond;
 };

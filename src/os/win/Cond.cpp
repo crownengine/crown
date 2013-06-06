@@ -24,8 +24,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
 #include "Cond.h"
 
 namespace crown
@@ -45,12 +43,13 @@ Cond::~Cond()
 
 void Cond::signal()
 {
-	WakeConditionVariable(&h);
+	WakeConditionVariable(&m_cond);
 }
 
 void Cond::wait(Mutex& mutex)
 {
-	SleepConditionVariableSRW(&m_cond, mutex.handle(), INFINITE, 0);
+	CRITICAL_SECTION cs = mutex.handle();
+	SleepConditionVariableCS(&m_cond, &cs, INFINITE);
 }
 
 } // namespace os

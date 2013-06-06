@@ -203,11 +203,11 @@ set (INPUT_HEADERS
 )
 
 set (NETWORK_SRC
-	network/BitMessage.cpp
+#	network/BitMessage.cpp
 )
 
 set (NETWORK_HEADERS
-	network/BitMessage.h
+#	network/BitMessage.h
 )
 
 set (RENDERERS_SRC
@@ -323,8 +323,8 @@ if (WINDOWS)
 		os/win/OsWindow.cpp
 		os/win/OsFile.cpp
 		os/win/Thread.cpp
-		os/win/Mutex.h
-		os/win/Cond.h
+		os/win/Mutex.cpp
+		os/win/Cond.cpp
 	)
 
 	list (APPEND RENDERERS_SRC
@@ -339,14 +339,18 @@ if (WINDOWS)
 		renderers/gl/wgl/GLContext.h
 	)
 
-	list (APPEND CROWN_THIRD_LIBRARIES
-		${CROWN_THIRD}/zlib/lib/zlib
-		OpenGL
-		GLEW
+	list (APPEND CROWN_LIBRARIES
+		zlib
+		OpenGL32
+		glew32
 	)
 
 	list (APPEND CROWN_THIRD_INCLUDES
 		${CROWN_THIRD}/zlib/include
+	)
+
+	list (APPEND CROWN_THIRD_LIBS
+		${CROWN_THIRD}/zlib/lib
 	)
 	
 	set (CROWN_EXECUTABLE_NAME crown-win)
@@ -368,7 +372,7 @@ set (CROWN_SOURCES
 
 	${RENDERERS_SRC}
 
-	${NETWORK_SRC}
+#	${NETWORK_SRC}
 
 	${OS_SRC}
 )
@@ -389,7 +393,7 @@ set (CROWN_HEADERS
 
 	${RENDERERS_HEADERS}
 
-	${NETWORK_HEADERS}
+#	${NETWORK_HEADERS}
 
 	${OS_HEADERS}
 
@@ -398,9 +402,9 @@ set (CROWN_HEADERS
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
 
 include_directories(${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
-
 link_directories(${CROWN_THIRD_LIBS})
-link_libraries(${CROWN_LIBRARIES} ${WIN_LIB})
+
+link_libraries(${CROWN_LIBRARIES})
 
 add_definitions(${CROWN_COMPILER_FLAGS})
 

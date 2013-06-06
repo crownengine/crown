@@ -24,8 +24,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
 #include "Mutex.h"
 #include "Assert.h"
 
@@ -37,34 +35,33 @@ namespace os
 //-----------------------------------------------------------------------------
 Mutex::Mutex()
 {
-	m_mutex = CreateMutex(NULL, false, NULL);
+	bool init = InitializeCriticalSectionAndSpinCount(&m_cs, 0x00000400);
 
-	CE_ASSERT(m_mutex != NULL, "Unable to create mutex");
+	CE_ASSERT(init, "Unable to create mutex");
 }
 
 //-----------------------------------------------------------------------------
 Mutex::~Mutex()
 {
-	// TEST
-	unlock();
-
-	CloseHandle(m_mutex);
+	DeleteCriticalSection(&m_cs);
 }
 
 //-----------------------------------------------------------------------------
 void Mutex::lock()
 {
-	m_mutex = OpenMutex(NULL, false, NULL);
-
-	CE_ASSERT(m_mutex != NULL, "Unable to lock mutex");
+    EnterCriticalSection(&m_cs); 
 }
 
 //-----------------------------------------------------------------------------
 void Mutex::unlock()
 {
-	bool released = ReleaseMutex(m_mutex);
+    LeaveCriticalSection(&m_cs);
+}
 
-	CE_ASSERT(released, "Unable to unlock mutex");
+//-----------------------------------------------------------------------------
+CRITICAL_SECTION Mutex::handle()
+{
+	return m_cs;
 }
 
 } // namespace os

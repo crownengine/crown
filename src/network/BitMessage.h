@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Allocator.h"
 #include "Vec3.h"
+#include "NetAddress.h"
 
 namespace crown
 {
