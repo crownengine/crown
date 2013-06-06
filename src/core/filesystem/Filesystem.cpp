@@ -190,8 +190,8 @@ DiskFile* Filesystem::open(const char* relative_path, FileOpenMode mode)
 {
 	FilesystemEntry info;
 
-	CE_ASSERT(get_info(relative_path, info), "File does not exist: %s", relative_path);
-	CE_ASSERT(info.type == FilesystemEntry::FILE, "File is not a regular file: %s", relative_path);
+	CE_ASSERT(exists(relative_path), "File does not exist: %s", relative_path);
+	CE_ASSERT(is_file(relative_path), "File is not a regular file: %s", relative_path);
 
 	return CE_NEW(m_allocator, DiskFile)(mode, info.os_path);
 }
