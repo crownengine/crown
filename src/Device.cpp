@@ -568,7 +568,7 @@ void Device::print_help_message()
 	"  --height <width>      Set the <height> of the render window.\n"
 	"  --fullscreen          Start in fullscreen.\n"
 	"  --dev                 Run the engine in development mode\n"
-	"  --quit-after-init     Quits the engine immediately after the\n"
+	"  --quit-after-init     Quit the engine immediately after the\n"
 	"                        initialization. Used only for debugging.\n");
 }
 
