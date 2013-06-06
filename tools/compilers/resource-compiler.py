@@ -26,11 +26,13 @@
 
 import sys
 import os
+import shutil
 
 from pycrown import Repository
 from pycrown import Compiler
 
 PERFECT_SEED_FILE = "seed.ini"
+GAME_LIBRARY_FILE = "libgame.so"
 
 # Helper for compiling resources
 class CompilerHelper:
@@ -82,6 +84,9 @@ class CompilerHelper:
 
 		print("Compiling resources...")
 		self.m_compiler.compile_all()
+
+		print("Copying game library...")
+		shutil.copy(self.root_path() + "/" + GAME_LIBRARY_FILE, self.dest_path())
 
 		print("Writing perfect seed...")
 		self.write_perfect_seed()
