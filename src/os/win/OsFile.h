@@ -81,7 +81,7 @@ public:
 
 private:
 
-	FILE*					m_file_handle;
+	HANDLE					m_file_handle;
 	FileOpenMode			m_mode;
 };
 

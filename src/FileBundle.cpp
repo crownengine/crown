@@ -24,13 +24,14 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cstdio>
+#include <stdio.h>
 #include "FileBundle.h"
 #include "Filesystem.h"
 #include "Resource.h"
 #include "DiskFile.h"
 #include "Log.h"
-#include "StringUtils.h"
+#include "StringUtils.h" 
+#include "OS.h"
 
 namespace crown
 {

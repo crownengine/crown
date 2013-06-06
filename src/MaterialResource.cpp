@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "MaterialResource.h"
+#include "Bundle.h"
 
 namespace crown
 {

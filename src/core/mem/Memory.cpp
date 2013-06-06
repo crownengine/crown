@@ -31,12 +31,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 void* operator new(size_t)
 {
 	CE_ASSERT(false, "operator new forbidden");
+
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
 void* operator new[](size_t)
 {
 	CE_ASSERT(false, "operator new[] forbidden");
+
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------

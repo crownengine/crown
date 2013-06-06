@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <windows.h>
 #include <cstdio>
 #include <cstdarg>
+#include "StringUtils.h"
 
 namespace crown
 {
@@ -36,8 +37,8 @@ namespace os
 
 // FIXME: timespec does not exists in win
 // static timespec base_time;
-	LARGE_INTEGER* frequency;
-	LARGE_INTEGER* base_time;
+	LARGE_INTEGER frequency;
+	LARGE_INTEGER base_time;
 
 //-----------------------------------------------------------------------------
 void printf(const char* string, ...)
@@ -126,7 +127,7 @@ bool is_dir(const char* path)
 //-----------------------------------------------------------------------------
 bool is_reg(const char* path)
 {
-	return !IsDir(path);
+	return !is_dir(path);
 }
 
 //-----------------------------------------------------------------------------
@@ -153,7 +154,7 @@ bool mkdir(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool OS::rmdir(const char* path)
+bool rmdir(const char* path)
 {
 	return RemoveDirectory(path) == TRUE;
 }
@@ -166,7 +167,7 @@ const char* get_cwd()
 
 	if (len == 0)
 	{
-		return Str::EMPTY;
+		return string::EMPTY;
 	}
 
 	return cwdBuf;
@@ -176,64 +177,64 @@ const char* get_cwd()
 const char* get_home()
 {
 	// TODO
-	return Str::EMPTY;
+	return string::EMPTY;
 }
 
 //-----------------------------------------------------------------------------
 const char* get_env(const char* env)
 {
-	static char evnBuf[1024];
+	static char envBuf[1024];
 	int32_t len = GetEnvironmentVariable(env, envBuf, 1024);
 
 	if (len == 0)
 	{
-		return Str::EMPTY;
+		return string::EMPTY;
 	}
 
 	return envBuf;
 }
 
 //-----------------------------------------------------------------------------
-bool ls(const char* path, List<Str>& fileList)
-{
-	// TODO
-	return false; 
-}
+// bool ls(const char* path, List<Str>& fileList)
+// {
+//	// TODO
+//	return false; 
+//}
 
 //-----------------------------------------------------------------------------
 void init_os()
 {
-	QueryPerformanceFrequency(frequency);
+	QueryPerformanceFrequency(&frequency);
 
-	CE_ASSERT(frequency > 0, "Hardware does not support high resolution performance counter.\n");
+	CE_ASSERT(frequency.QuadPart > 0, "Hardware does not support high resolution performance counter.\n");
 	
-	QueryPerformanceCounter(base_time);
+	QueryPerformanceCounter(&base_time);
 }
 
 //-----------------------------------------------------------------------------
 uint64_t milliseconds()
 {
-	LARGE_INTEGER* current_time;
+	LARGE_INTEGER current_time;
 
-	QueryPerformanceCounter(current_time);
+	QueryPerformanceCounter(&current_time);
 
-	return (uint64_t) (*current_time - *base_time) / (*frequency / 1000);
+	return (uint64_t) (current_time.QuadPart - base_time.QuadPart) / (frequency.QuadPart / 1000);
 }
 
 //-----------------------------------------------------------------------------
 uint64_t microseconds()
 {
-	LARGE_INTEGER* current_time;
+	LARGE_INTEGER current_time;
 
-	QueryPerformanceCounter(current_time);
+	QueryPerformanceCounter(&current_time);
 
-	return (uint64_t) (*current_time - *base_time) / (*frequency / 1000000);
+	return (uint64_t) (current_time.QuadPart - base_time.QuadPart) / (frequency.QuadPart / 1000000);
 }
 
 //-----------------------------------------------------------------------------
 void* open_library(const char* path)
 {
-	HMODULE library = LoadLibrary(_T(path));
+	HMODULE library = LoadLibrary(path);
 
 	CE_ASSERT(library  != NULL, "Unable to load library '%s' with error: %s\n", path, GetLastError());
 
@@ -243,7 +244,7 @@ void* open_library(const char* path)
 //-----------------------------------------------------------------------------
 void close_library(void* library)
 {
-	BOOL freed = FreeLibrary(library);
+	BOOL freed = FreeLibrary((HMODULE)library);
 
 	CE_ASSERT(freed,  "Failed to close library\n");
 }
@@ -251,10 +252,10 @@ void close_library(void* library)
 //-----------------------------------------------------------------------------
 void* lookup_symbol(void* library, const char* name)
 {
-	FARPROC symbol = GetProcAddress(library, name);
+	FARPROC symbol = GetProcAddress((HMODULE)library, name);
 
 	return symbol;
 }
 
+} // namespace os
 } // namespace crown
-

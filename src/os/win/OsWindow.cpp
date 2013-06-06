@@ -25,6 +25,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "OsWindow.h"
 #include "Assert.h"
+#include "Keyboard.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -69,7 +71,7 @@ static Key translate_key(int32_t winKey)
 		case VK_RCONTROL:	return KC_RCONTROL;
 		case VK_CAPITAL:	return KC_CAPS_LOCK;
 		case VK_LMENU:		return KC_LALT;
-		case VK_@noteNU:	return KC_RALT;
+		case VK_RMENU:		return KC_RALT;
 		case VK_LWIN:		return KC_LSUPER;
 		case VK_RWIN:		return KC_RSUPER;
 		case VK_NUMPAD0:	return KC_KP_0;
@@ -108,7 +110,7 @@ OsWindow::OsWindow(uint32_t width, uint32_t height)
 		if (ChangeDisplaySettings(&dm_screen_setting, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
 		{
 			fullscreen = false;
-			Log::I("Fullscreen resolution not supported, switching to windowed mode.");
+			Log::i("Fullscreen resolution not supported, switching to windowed mode.");
 		}
 	}
 
@@ -120,18 +122,15 @@ OsWindow::OsWindow(uint32_t width, uint32_t height)
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = GetModuleHandle(NULL);
-	wcex.hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_CROWNICON));
+//	wcex.hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_CROWNICON));
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);
+//	wcex.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = m_window_name;
-	wcex.hIconSm = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_CROWNICON));
+//	wcex.hIconSm = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_CROWNICON));
 
-	if (!RegisterClassEx(&wcex))
-	{
-		CE_ASSERT(false, "Unable to register a Window Class.");
-		return false;
-	}
+	bool registered = RegisterClassEx(&wcex);
+	CE_ASSERT(registered, "Unable to register a Window Class.");
 
 	if (fullscreen)
 	{
@@ -139,17 +138,13 @@ OsWindow::OsWindow(uint32_t width, uint32_t height)
 	}
 	else
 	{
-		m_window_handle = CreateWindowEx(0, m_window_name, "", WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX, x, y, width, height, NULL, NULL, GetModuleHandle(NULL), NULL);
+		m_window_handle = CreateWindowEx(0, m_window_name, "", WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX, 0, 0, width, height, NULL, NULL, GetModuleHandle(NULL), NULL);
 	}
 
-	if (m_window_handle == NULL)
-	{
-		CE_ASSERT(false, "Unable to create a Window.");
-		return false;
-	}
-
+	CE_ASSERT(m_window_handle != NULL, "Unable to create a Window.");
+	
 	//Save the WGLRenderWindow pointer to the window's user data
-	SetWindowLong(m_window_handle, GWL_USERDATA, (LONG) this);
+	SetWindowLongPtr(m_window_handle, GWLP_USERDATA, (LONG) this);
 	RECT rc;
 	rc.left = rc.top = 0;
 	rc.right = width;
@@ -159,11 +154,10 @@ OsWindow::OsWindow(uint32_t width, uint32_t height)
 	styleEx = GetWindowLong(m_window_handle, GWL_EXSTYLE);
 	AdjustWindowRectEx(&rc, style, false, styleEx);
 	SetWindowPos(m_window_handle, 0, 0, 0, rc.right-rc.left, rc.bottom-rc.top, SWP_NOMOVE | SWP_NOZORDER);
-
 	PIXELFORMATDESCRIPTOR pfd;
 	int32_t pixel_format;
 	/* get the device context (DC) */
-	device_context = GetDC(m_window_handle);
+	HDC device_context = GetDC(m_window_handle);
 	/* set the pixel format for the DC */
 	ZeroMemory(&pfd, sizeof (pfd));
 	pfd.nSize = sizeof (pfd);
@@ -171,17 +165,14 @@ OsWindow::OsWindow(uint32_t width, uint32_t height)
 	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
 	pfd.iPixelType = PFD_TYPE_RGBA;
 	pfd.cColorBits = 24;
-	pfd.cDepthBits = depth;
+	//pfd.cDepthBits = depth;
 	pfd.iLayerType = PFD_MAIN_PLANE;
+
 	pixel_format = ChoosePixelFormat(device_context, &pfd);
-
-
 	CE_ASSERT(pixel_format != 0, "Pixel format not supported.");
 	
-	if (!SetPixelFormat(device_context, pixel_format, &pfd))
-	{
-		CE_ASSERT(false, "Unable to set the pixel format, altough it seems to be supported.");
-	}
+	bool pf_set = SetPixelFormat(device_context, pixel_format, &pfd);
+	CE_ASSERT(pf_set, "Unable to set the pixel format, altough it seems to be supported.");
 }
 
 //-----------------------------------------------------------------------------
@@ -202,7 +193,7 @@ void OsWindow::show()
 //-----------------------------------------------------------------------------
 void OsWindow::hide()
 {
-	ShowWindow(m_Window_handle, SW_HIDE);
+	ShowWindow(m_window_handle, SW_HIDE);
 }
 
 //-----------------------------------------------------------------------------
@@ -371,7 +362,7 @@ void OsWindow::frame()
 			case WM_KEYDOWN:
 			case WM_KEYUP:
 			{
-				Key kc = TranslateKey(msg.wParam);
+				Key kc = translate_key(msg.wParam);
 
 				int32_t modifier_mask = 0;
 

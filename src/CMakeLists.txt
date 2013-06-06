@@ -240,19 +240,17 @@ set (OS_HEADERS
 # FIXME: not so platform independent, name changes between different os
 # so, is better to include them in os specific chunk of cmake file
 set (CROWN_LIBRARIES
-	rt
-	z
 	luajit-5.1
 )
 
 set (CROWN_COMPILER_FLAGS
 	-pipe
 	-ansi
-	-W    	# VS2010 compiler does not agreed O.o
+#	-W    	# VS2010 compiler does not agreed O.o
 	-Wall
-	-Wextra
-	-Wno-long-long
-	-Wno-variadic-macros
+#	-Wextra
+#	-Wno-long-long
+#	-Wno-variadic-macros
 	-g
 	-pg
 )
@@ -294,6 +292,8 @@ if (LINUX)
 	)
 
 	list (APPEND CROWN_LIBRARIES
+		rt
+		z
 		X11
 		Xrandr
 		pthread
@@ -311,10 +311,11 @@ if (WINDOWS)
 		os/win/OsWindow.h
 		os/win/OsFile.h
 		os/win/Thread.h
+		os/win/Mutex.h
+		os/win/Cond.h
 #		os/win/TCPSocket.h
 #		os/win/UDPSocket.h
-#		os/win/Mutex.h
-#		os/win/Cond.h
+
 	)
 
 	list (APPEND OS_SRC
@@ -322,6 +323,8 @@ if (WINDOWS)
 		os/win/OsWindow.cpp
 		os/win/OsFile.cpp
 		os/win/Thread.cpp
+		os/win/Mutex.h
+		os/win/Cond.h
 	)
 
 	list (APPEND RENDERERS_SRC
@@ -336,14 +339,18 @@ if (WINDOWS)
 		renderers/gl/wgl/GLContext.h
 	)
 
-	list (
-		zlib
-		# MUST INCLUDE OTHERS
+	list (APPEND CROWN_THIRD_LIBRARIES
+		${CROWN_THIRD}/zlib/lib/zlib
+		OpenGL
+		GLEW
 	)
 
+	list (APPEND CROWN_THIRD_INCLUDES
+		${CROWN_THIRD}/zlib/include
+	)
+	
 	set (CROWN_EXECUTABLE_NAME crown-win)
 	set (CROWN_MAIN_SRC os/win/main.cpp)
-
 endif(WINDOWS)
 
 set (CROWN_SOURCES
@@ -386,15 +393,14 @@ set (CROWN_HEADERS
 
 	${OS_HEADERS}
 
-	${SCRIPT_HEADERS}
 )
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
 
-include_directories(${CROWN_INCLUDES} ${CROWN_LUAJIT_INCLUDES})
+include_directories(${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
 
-link_directories(${CROWN_LUAJIT_LIBS})
-link_libraries(${CROWN_LIBRARIES})
+link_directories(${CROWN_THIRD_LIBS})
+link_libraries(${CROWN_LIBRARIES} ${WIN_LIB})
 
 add_definitions(${CROWN_COMPILER_FLAGS})
 

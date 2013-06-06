@@ -48,11 +48,11 @@ if (CROWN_ARCH MATCHES "win64")
 	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/win64)
 endif (CROWN_ARCH MATCHES "win64")
 
-set (CROWN_LUAJIT_INCLUDES
+set (CROWN_THIRD_INCLUDES
 	${CROWN_THIRD}/luajit/include/luajit-2.0
 )
 
-set (CROWN_LUAJIT_LIBS
+set (CROWN_THIRD_LIBS
 	${CROWN_THIRD}/luajit/lib
 )
 
@@ -75,8 +75,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
-include_directories(${CROWN_INCLUDES} ${CROWN_LUAJIT_INCLUDES})
-link_directories(${CROWN_LUAJIT_LIBS})
+include_directories(${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
+link_directories(${CROWN_THIRD_LIBS})
 
 # add build directories
 add_subdirectory(src)

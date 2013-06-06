@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <windows.h>
 #include <process.h>
+#include <WinBase.h>
 #include "Types.h"
 #include "OS.h"
 
@@ -42,7 +43,7 @@ class Thread
 {
 public:
 
-					Thread(os::ThreadFunction f, void* params, const char* name);
+					Thread(os::ThreadFunction f, LPVOID params, const char* name);
 					~Thread();
 
 	void			join();

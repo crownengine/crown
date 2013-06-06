@@ -36,13 +36,13 @@ namespace os
 {
 
 //-----------------------------------------------------------------------------
-Thread::Thread(os::ThreadFunction f, void* params, const char* name)
+Thread::Thread(os::ThreadFunction f, LPVOID params, const char* name)
 {
-	m_thread = CreateThread(NULL, 0, f, params, 0, NULL);
+	m_thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) f, params, 0, NULL);
 
 	CE_ASSERT(m_thread != NULL, "Unable to create thread");
 
-	string::strcpy(m_name, name);
+	m_name = name;
 }
 
 //-----------------------------------------------------------------------------

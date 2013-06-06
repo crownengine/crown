@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "OsFile.h"
-
+#include "Assert.h"
 
 namespace crown
 {
@@ -54,7 +54,7 @@ OsFile::~OsFile()
 
 void OsFile::close()
 {
-	bool closed = CloseHandle(m_file_handle))
+	bool closed = CloseHandle(m_file_handle);
 	
 	CE_ASSERT(closed, "Unable to close file\n");
 }
@@ -70,7 +70,7 @@ size_t OsFile::size() const
 
 	GetFileSize(m_file_handle, size);
 
-	return size;
+	return *size;
 }
 
 FileOpenMode OsFile::mode()
@@ -80,7 +80,9 @@ FileOpenMode OsFile::mode()
 
 size_t OsFile::read(void* data, size_t size)
 {
-	bool read = ReadFile(m_file_handle, data, size, NULL, NULL))
+	DWORD bytes_read;
+
+	bool read = ReadFile(m_file_handle, data, size, &bytes_read, NULL);
 	
 	CE_ASSERT(read, "Cannot read from file\n");
 
@@ -89,7 +91,7 @@ size_t OsFile::read(void* data, size_t size)
 
 size_t OsFile::write(const void* data, size_t size)
 {
-	bool write = WriteFile(m_file_handle, data, size, NULL, NULL))
+	bool write = WriteFile(m_file_handle, data, size, NULL, NULL);
 	
 	CE_ASSERT(write, "Cannot read from file\n");		
 
@@ -126,7 +128,7 @@ size_t OsFile::position() const
 
 bool OsFile::eof() const
 {
-	return feof(m_file_handle) != 0;
+	return feof((FILE*)m_file_handle) != 0;
 }
 
 } // namespace crown

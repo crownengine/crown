@@ -523,7 +523,7 @@ void BitMessage::begin_reading() const
 //---------------------------------------------------------------------------------------------
 int32_t BitMessage::get_remaing_data() const
 {
-	m_cur_size - m_read_count;
+	return m_cur_size - m_read_count;
 }
 
 //---------------------------------------------------------------------------------------------

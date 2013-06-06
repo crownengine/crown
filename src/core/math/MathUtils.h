@@ -26,6 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#undef min
+#undef max
+
 #include "Assert.h"
 #include <cmath>
 #include "Types.h"

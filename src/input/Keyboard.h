@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "KeyCode.h"
+#include "OS.h"
 
 namespace crown
 {
