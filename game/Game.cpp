@@ -1,7 +1,7 @@
 #include "lua.hpp"
 #include "Device.h"
+/*
 #include "Game.h"
-
 
 namespace crown
 {
@@ -39,3 +39,4 @@ void frame(float dt)
 }
 
 }
+*/
