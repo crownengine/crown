@@ -393,7 +393,6 @@ set (CROWN_HEADERS
 #	${NETWORK_HEADERS}
 
 	${OS_HEADERS}
-
 )
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)

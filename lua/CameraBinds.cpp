@@ -1,4 +1,7 @@
 #include "Camera.h"
+#include "Vec2.h"
+#include "LuaStack.h"
+#include "LuaEnvironment.h"
 
 namespace crown
 {
@@ -6,151 +9,111 @@ namespace crown
 extern "C"
 {
 
-Camera*				camera(const Vec3& position, float fov, float aspect);
-
-const Vec3&			camera_position(Camera* self);
-
-void				camera_set_position(Camera* self, const Vec3& position);
-
-const Vec3&			camera_look_at(Camera* self);
-
-void				camera_set_look_at(Camera* self, const Vec3& lookat);
-
-void				camera_set_rotation(Camera* self, const float x, const float y);
-
-const Vec3&			camera_up(Camera* self);
-
-float				camera_fov(Camera* self);
-
-void				camera_set_fov(Camera* self, float fov);
-
-float				camera_aspect(Camera* self);
-
-void				camera_set_aspect(Camera* self, float aspect);
-
-float				camera_near_clip_distance(Camera* self);
-
-void				camera_set_near_clip_distance(Camera* self, float near);
-
-float				camera_far_clip_distance(Camera* self);
-
-void				camera_set_far_clip_distance(Camera* self, float far);
-
-const Mat4&			camera_projection_matrix(Camera* self);
-
-const Mat4&			camera_view_matrix(Camera* self);
-
-void				camera_move_forward(Camera* self, float meters);
-
-void				camera_move_backward(Camera* self, float meters);
-
-void				camera_strafe_left(Camera* self, float meters);
-
-void				camera_strafe_right(Camera* self, float meters);
-}
-
-Camera* camera(const Vec3& position, float fov, float aspect)
+int32_t camera(lua_State* L)
 {
-	return new Camera(position, fov, aspect);
+	LuaStack stack(L);	
+
 }
 
-const Vec3& camera_position(Camera* self)
+int32_t camera_position(lua_State* L)
 {
-	return self->position();
+	LuaStack stack(L);	
 }
 
-void camera_set_position(Camera* self, const Vec3& position)
+int32_t camera_set_position(lua_State* L)
 {
-	self->set_position(position);
+	LuaStack stack(L);	
 }
 
-const Vec3& camera_look_at(Camera* self)
+int32_t camera_look_at(lua_State* L)
 {
-	return self->look_at();
+	LuaStack stack(L);	
 }
 
-void camera_set_look_at(Camera* self, const Vec3& lookat)
+int32_t camera_set_look_at(lua_State* L)
 {
-	self->set_look_at(lookat);
+	LuaStack stack(L);	
 }
 
-void camera_set_rotation(Camera* self, const float x, const float y)
+int32_t camera_set_rotation(lua_State* L)
 {
-	self->set_rotation(x, y);
+	LuaStack stack(L);	
 }
 
-const Vec3& camera_up(Camera* self)
+int32_t camera_up(lua_State* L)
 {
-	return self->up();
+	LuaStack stack(L);	
 }
 
-float camera_fov(Camera* self)
+int32_t camera_fov(lua_State* L)
 {
-	return self->fov();
+	LuaStack stack(L);	
 }
 
-void camera_set_fov(Camera* self, float fov)
+int32_t camera_set_fov(lua_State* L)
 {
-	self->set_fov(fov);
+	LuaStack stack(L);	
 }
 
-float camera_aspect(Camera* self)
+int32_t camera_aspect(lua_State* L)
 {
-	return self->aspect();
+	LuaStack stack(L);	
 }
 
-void camera_set_aspect(Camera* self, float aspect)
+int32_t camera_set_aspect(lua_State* L)
 {
-	self->set_aspect(aspect);
+	LuaStack stack(L);	
 }
 
-float camera_near_clip_distance(Camera* self)
+int32_t camera_near_clip_distance(lua_State* L)
 {
-	return self->near_clip_distance();
+	LuaStack stack(L);	
 }
 
-void camera_set_near_clip_distance(Camera* self, float near)
+int32_t camera_set_near_clip_distance(lua_State* L)
 {
-	self->set_near_clip_distance(near);
+	LuaStack stack(L);	
 }
 
-float camera_far_clip_distance(Camera* self)
+int32_t camera_far_clip_distance(lua_State* L)
 {
-	return self->far_clip_distance();
+	LuaStack stack(L);	
 }
 
-void camera_set_far_clip_distance(Camera* self, float far)
+int32_t camera_set_far_clip_distance(lua_State* L)
 {
-	self->set_far_clip_distance(far);
+	LuaStack stack(L);	
 }
 
-const Mat4& camera_projection_matrix(Camera* self)
+int32_t camera_projection_matrix(lua_State* L)
 {
-	return self->projection_matrix();
+	LuaStack stack(L);	
 }
 
-const Mat4& camera_view_matrix(Camera* self)
+int32_t camera_view_matrix(lua_State* L)
 {
-	return self->view_matrix();
+	LuaStack stack(L);	
 }
 
-void camera_move_forward(Camera* self, float meters)
+int32_t camera_move_forward(lua_State* L)
 {
-	self->move_forward(meters);
+	LuaStack stack(L);	
 }
 
-void camera_move_backward(Camera* self, float meters)
+int32_t camera_move_backward(lua_State* L)
 {
-	self->move_backward(meters);
+	LuaStack stack(L);	
 }
 
-void camera_strafe_left(Camera* self, float meters)
+int32_t camera_strafe_left(lua_State* L)
 {
-	self->strafe_left(meters);
+	LuaStack stack(L);	
 }
 
-void camera_strafe_right(Camera* self, float meters)
+int32_t camera_strafe_right(lua_State* L)
 {
-	self->strafe_right(meters);
+	LuaStack stack(L);	
 }
+
+} // enxtern "C"
 } // namespace crown

@@ -48,6 +48,10 @@ if (CROWN_ARCH MATCHES "win64")
 	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/win64)
 endif (CROWN_ARCH MATCHES "win64")
 
+if (CROWN_ARCH MATCHES "ARMv7")
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/ARMv7)
+endif (CROWN_ARCH MATCHES "ARMv7")
+
 set (CROWN_THIRD_INCLUDES
 	${CROWN_THIRD}/luajit/include/luajit-2.0
 )
@@ -80,6 +84,7 @@ link_directories(${CROWN_THIRD_LIBS})
 
 # add build directories
 add_subdirectory(src)
+add_subdirectory(lua)
 add_subdirectory(${CROWN_THIRD})
 
 if (CROWN_BUILD_TOOLS)
@@ -92,5 +97,7 @@ endif (CROWN_BUILD_SAMPLES)
 if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
+
 add_subdirectory(lua)
+
 

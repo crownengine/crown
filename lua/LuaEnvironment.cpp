@@ -25,22 +25,25 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 
 extern "C"
 {
-	int32_t luaopen_libcrownlua(lua_State* L)
-	{
-		LuaEnvironment env(L);
 
-		load_vec2(env);
-		load_vec3(env);
-		load_mat4(env);
-		load_quat(env);
-		load_math(env);
+int32_t luaopen_libcrownlua(lua_State* L)
+{
+	LuaEnvironment env(L);
 
-		load_mouse(env);
-		load_keyboard(env);
-		load_accelerometer(env);
+	load_vec2(env);
+	load_vec3(env);
+	load_mat4(env);
+	load_quat(env);
+	load_math(env);
 
-		return 1;
-	}
+	load_mouse(env);
+	load_keyboard(env);
+	load_accelerometer(env);
+
+	return 1;
 }
+
+} // extern "C"
+
 
 } // namespace crown

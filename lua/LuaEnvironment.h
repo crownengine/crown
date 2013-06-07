@@ -22,11 +22,6 @@ private:
 	lua_State*		m_state;
 };
 
-extern "C"
-{
-	int32_t luaopen_libcrownlua(lua_State* L);
-}
-
 void load_vec2(LuaEnvironment& env);
 void load_vec3(LuaEnvironment& env);
 void load_mat4(LuaEnvironment& env);
@@ -39,6 +34,12 @@ void load_touch(LuaEnvironment& env);
 void load_accelerometer(LuaEnvironment& env);
 
 void load_camera(LuaEnvironment& env);
+
+extern "C"
+{
+	int32_t luaopen_libcrownlua(lua_State* L);
+}
+
 
 
 } // namespace crown
