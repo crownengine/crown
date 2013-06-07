@@ -91,28 +91,7 @@ static Key translate_key(int32_t winKey)
 //-----------------------------------------------------------------------------
 OsWindow::OsWindow(uint32_t width, uint32_t height)
 {
-	// FIXME: MUST BE TAKEN FROM DEVICE
-	bool fullscreen = false;
-
 	CE_ASSERT(!width && !height, "Width and height must differ from 0.");
-
-	if (fullscreen)
-	{
-		DEVMODE dm_screen_setting; // Device Mode
-		memset(&dm_screen_setting, 0, sizeof(dm_screen_setting)); // Makes Sure Memory's Cleared
-		dm_screen_setting.dmSize = sizeof(dm_screen_setting); // Size Of The Devmode Structure
-		dm_screen_setting.dmPelsWidth = width; // Selected Screen Width
-		dm_screen_setting.dmPelsHeight = height; // Selected Screen Height
-		dm_screen_setting.dmBitsPerPel = 32; // Selected Bits Per Pixel
-		dm_screen_setting.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-
-		// Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
-		if (ChangeDisplaySettings(&dm_screen_setting, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
-		{
-			fullscreen = false;
-			Log::i("Fullscreen resolution not supported, switching to windowed mode.");
-		}
-	}
 
 	strcpy(m_window_name, "CrownWindowClass");
 	WNDCLASSEX wcex;
@@ -122,38 +101,32 @@ OsWindow::OsWindow(uint32_t width, uint32_t height)
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = GetModuleHandle(NULL);
-//	wcex.hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_CROWNICON));
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-//	wcex.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = m_window_name;
-//	wcex.hIconSm = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_CROWNICON));
 
 	bool registered = RegisterClassEx(&wcex);
 	CE_ASSERT(registered, "Unable to register a Window Class.");
 
-	if (fullscreen)
-	{
-		m_window_handle = CreateWindowEx(0, m_window_name, "", WS_POPUP, 0, 0, width, height, NULL, NULL, GetModuleHandle(NULL), NULL);
-	}
-	else
-	{
-		m_window_handle = CreateWindowEx(0, m_window_name, "", WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX, 0, 0, width, height, NULL, NULL, GetModuleHandle(NULL), NULL);
-	}
+	m_window_handle = CreateWindowEx(0, m_window_name, "", WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX, 0, 0, width, height, NULL, NULL, GetModuleHandle(NULL), NULL);
 
 	CE_ASSERT(m_window_handle != NULL, "Unable to create a Window.");
 	
 	//Save the WGLRenderWindow pointer to the window's user data
 	SetWindowLongPtr(m_window_handle, GWLP_USERDATA, (LONG) this);
 	RECT rc;
-	rc.left = rc.top = 0;
+	rc.left = 0;
+	rc.top = 0;
 	rc.right = width;
 	rc.bottom = height;
+
 	int32_t style, styleEx;
 	style = GetWindowLong(m_window_handle, GWL_STYLE);
 	styleEx = GetWindowLong(m_window_handle, GWL_EXSTYLE);
 	AdjustWindowRectEx(&rc, style, false, styleEx);
+
 	SetWindowPos(m_window_handle, 0, 0, 0, rc.right-rc.left, rc.bottom-rc.top, SWP_NOMOVE | SWP_NOZORDER);
+
 	PIXELFORMATDESCRIPTOR pfd;
 	int32_t pixel_format;
 	/* get the device context (DC) */
@@ -165,7 +138,7 @@ OsWindow::OsWindow(uint32_t width, uint32_t height)
 	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
 	pfd.iPixelType = PFD_TYPE_RGBA;
 	pfd.cColorBits = 24;
-	//pfd.cDepthBits = depth;
+	pfd.cDepthBits = 24;
 	pfd.iLayerType = PFD_MAIN_PLANE;
 
 	pixel_format = ChoosePixelFormat(device_context, &pfd);
@@ -180,7 +153,7 @@ OsWindow::~OsWindow()
 {
 	if (m_window_handle)
 	{
-		::DestroyWindow(m_window_handle);
+		DestroyWindow(m_window_handle);
 	}
 }
 
@@ -253,6 +226,38 @@ void OsWindow::set_cursor_xy(int32_t x, int32_t y)
 {
 	SetCursorPos(x, y);
 }
+
+//-----------------------------------------------------------------------------
+void OsWindow::set_fullscreen(bool fs)
+{
+	if (m_fullscreen)
+	{
+		memset(&m_screen_setting, 0, sizeof(m_screen_setting)); // Makes Sure Memory's Cleared
+		m_screen_setting.dmSize = sizeof(m_screen_setting); // Size Of The Devmode Structure
+		m_screen_setting.dmPelsWidth = m_width; // Selected Screen Width
+		m_screen_setting.dmPelsHeight = m_height; // Selected Screen Height
+		m_screen_setting.dmBitsPerPel = 32; // Selected Bits Per Pixel
+		m_screen_setting.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+
+		// Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
+		if (ChangeDisplaySettings(&m_screen_setting, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
+		{
+			m_fullscreen = false;
+			Log::i("Fullscreen resolution not supported, switching to windowed mode.");
+		}
+		else
+		{
+			m_fullscreen = true;
+			m_window_handle = CreateWindowEx(0, m_window_name, "", WS_POPUP, 0, 0, m_width, m_height, NULL, NULL, GetModuleHandle(NULL), NULL);
+		}
+	}
+}
+
+bool OsWindow::fullscreen()
+{
+	return m_fullscreen;
+}
+
 
 //-----------------------------------------------------------------------------
 char* OsWindow::title()
@@ -407,6 +412,12 @@ void OsWindow::frame()
 			// TODO
 		}
 	}
+
+}
+
+void OsWindow::set_window(uint32_t width, uint32_t height)
+{
+
 
 }
 

@@ -50,16 +50,6 @@ void GLContext::create_context()
 	wglMakeCurrent(GetDC(s_handle_window), m_win_context);
 
 	CE_ASSERT(m_win_context != NULL, "Unable to create a rendering context.");
-
-	//mFull = fullscreen;
-	//mX = x;
-	//mY = y;
-	//mWidth = width;
-	//mHeight = height;
-	//mCreated = true;
-	//SetVisible(true);
-	//GetDevice()->GetRenderer()->ResizeRenderTarget(width, height);
-	//return true;
 }
 
 //-----------------------------------------------------------------------------

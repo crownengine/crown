@@ -57,7 +57,7 @@ void Thread::join()
 //-----------------------------------------------------------------------------
 void Thread::detach()
 {
-	bool closed = CloseHandle(m_thread);
+	BOOL closed = CloseHandle(m_thread);
 
 	CE_ASSERT(closed, "Unable to close thread");
 }

@@ -52,9 +52,11 @@ OsFile::~OsFile()
 
 void OsFile::close()
 {
-	bool closed = CloseHandle(m_file_handle);
-	
-	CE_ASSERT(closed, "Unable to close file\n");
+	if (is_open())
+	{
+		CloseHandle(m_file_handle);
+		m_file_handle = NULL;
+	}
 }
 
 bool OsFile::is_open() const
@@ -64,11 +66,11 @@ bool OsFile::is_open() const
 
 size_t OsFile::size() const
 {
-	LPDWORD size;
+	DWORD size;
 
-	GetFileSize(m_file_handle, size);
+	size = GetFileSize(m_file_handle, NULL);
 
-	return *size;
+	return size;
 }
 
 FileOpenMode OsFile::mode()

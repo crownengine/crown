@@ -54,6 +54,9 @@ public:
 	void			get_cursor_xy(int32_t& x, int32_t& y);
 	void			set_cursor_xy(int32_t x, int32_t y);
 
+	void			set_fullscreen(bool fs);
+	bool			fullscreen();
+
 	char*			title();
 	void			set_title(const char* title);
 
@@ -61,7 +64,12 @@ public:
 
 private:
 
+	void			set_window(uint32_t width, uint32_t height);
+
+private:
+
 	HWND			m_window_handle;
+	DEVMODE			m_screen_setting;
 
 	char 			m_window_name[32];
 
@@ -69,6 +77,7 @@ private:
 	uint32_t		m_y;
 	uint32_t		m_width;
 	uint32_t		m_height;
+	bool			m_fullscreen;
 };
 
 } // namespace crown

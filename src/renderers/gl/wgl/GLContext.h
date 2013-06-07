@@ -46,7 +46,6 @@ public:
 private:
 
 	HGLRC 			m_win_context;
-
 };
 
 } // namespace crown

@@ -1,7 +1,7 @@
 #include "JSONParser.h"
 #include "DiskFile.h"
 #include "OS.h"
-#include "String.h"
+#include "StringUtils.h"
 #include "Assert.h"
 #include <stdlib.h>
 
@@ -18,7 +18,7 @@ JSONParser::JSONParser(Allocator& allocator, File* file, size_t size) :
 {
 	if (size > 1024)
 	{
-		m_tokens = CE_NEW(m_allocator, JSONToken[size]);
+		m_tokens = CE_NEW(m_allocator, JSONToken[1024]);
 	}
 	else
 	{
@@ -347,7 +347,7 @@ void JSONParser::fill_token(JSONToken* token, JSONType type, int32_t start, int3
 	token->m_end = end;
 	token->m_size = token->m_end - token->m_start;
 
-	char tmp[token->m_size+1];
+	char tmp[1024];
 	m_file->seek(token->m_start);
 	m_file->read(tmp, token->m_size);
 	tmp[token->m_size] = '\0';

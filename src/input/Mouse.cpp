@@ -28,6 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "OsWindow.h"
 
+#undef MB_RIGHT
+
 namespace crown
 {
 
