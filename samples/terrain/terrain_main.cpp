@@ -213,17 +213,17 @@ WndCtrl m_ctrl;
 
 extern "C"
 {
-	__declspec(dllexport) void init()
+	__declspec(dllexport) void init_1()
 	{
 		m_scene.on_load();
 	}
 
-	__declspec(dllexport) void shutdown()
+	__declspec(dllexport) void shutdown_1()
 	{
 		m_scene.on_unload();
 	}
 
-	__declspec(dllexport) void frame(float dt)
+	__declspec(dllexport) void frame_1(float dt)
 	{
 		m_scene.update(dt);
 	}
