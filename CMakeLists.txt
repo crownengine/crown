@@ -98,6 +98,4 @@ if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
-add_subdirectory(lua)
-
 
