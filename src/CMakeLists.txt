@@ -237,20 +237,18 @@ set (OS_HEADERS
 )
 
 # Platform independent libraries
-# FIXME: not so platform independent, name changes between different os
-# so, is better to include them in os specific chunk of cmake file
 set (CROWN_LIBRARIES
 	luajit-5.1
 )
 
-set (CROWN_COMPILER_FLAGS
+set (COMPILER_FLAGS
 	-pipe
 	-ansi
-#	-W    	# VS2010 compiler does not agreed O.o
+	-W    	
 	-Wall
-#	-Wextra
-#	-Wno-long-long
-#	-Wno-variadic-macros
+	-Wextra
+	-Wno-long-long
+	-Wno-variadic-macros
 	-g
 	-pg
 )
@@ -313,9 +311,6 @@ if (WINDOWS)
 		os/win/Thread.h
 		os/win/Mutex.h
 		os/win/Cond.h
-#		os/win/TCPSocket.h
-#		os/win/UDPSocket.h
-
 	)
 
 	list (APPEND OS_SRC
@@ -352,6 +347,8 @@ if (WINDOWS)
 	list (APPEND CROWN_THIRD_LIBS
 		${CROWN_THIRD}/zlib/lib
 	)
+
+	set(COMPILER_FLAGS)
 	
 	set (CROWN_EXECUTABLE_NAME crown-win)
 	set (CROWN_MAIN_SRC os/win/main.cpp)
@@ -409,6 +406,17 @@ link_libraries(${CROWN_LIBRARIES})
 add_definitions(${CROWN_COMPILER_FLAGS})
 
 add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
+
+# TEST - generates .lib
+
+add_library(crown-static STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
+set_target_properties(crown-static PROPERTIES OUTPUT_NAME "crown")
+#set_target_properties(crown-static PROPERTIES PREFIX "lib")
+set_target_properties(crown PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+set_target_properties(crown-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+
+# ENDTEST
+
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 

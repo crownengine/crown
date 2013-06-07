@@ -26,9 +26,24 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Crown.h"
 
-int main()
+int main(int argc, char** argv)
 {
 	crown::os::init_os();
+
+	crown::Device* engine = crown::device();
+
+	if (!engine->init(argc, argv))
+	{
+		exit(-1);
+	}
+
+	// Main loop
+	while (engine->is_running())
+	{
+		engine->frame();
+	}
+
+	engine->shutdown();
 
 	return 0;
 }
