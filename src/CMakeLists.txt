@@ -405,6 +405,10 @@ link_libraries(${CROWN_LIBRARIES})
 
 add_definitions(${CROWN_COMPILER_FLAGS})
 
+if (WINDOWS)
+add_definitions(/link /OPT:NOREF)
+endif (WINDOWS)
+
 add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
 
 # TEST - generates .lib
