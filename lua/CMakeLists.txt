@@ -21,7 +21,14 @@ set(LUA_HEADERS
 	LuaEnvironment.h
 )
 
+if (LINUX)
 add_definitions(-Wl,-E)
+endif (LINUX)
+
+if (WINDOWS)
+add_definitions(/link /OPT:NOREF)
+endif (WINDOWS)
+
 add_library(crownlua SHARED ${LUA_SRC})
 target_link_libraries(crownlua crown)
 
