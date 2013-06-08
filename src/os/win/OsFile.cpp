@@ -30,7 +30,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-OsFile::OsFile(const char* path, FileOpenMode mode)
+OsFile::OsFile(const char* path, FileOpenMode mode) :
+	m_eof(false)
 {
 	m_file_handle = CreateFile(path,
 							   mode == FOM_READ ? GENERIC_READ : GENERIC_WRITE,
@@ -40,7 +41,7 @@ OsFile::OsFile(const char* path, FileOpenMode mode)
         					   FILE_ATTRIBUTE_NORMAL,
         					   NULL);
 
-	CE_ASSERT(m_file_handle != NULL, "Unable to open file: %s", path);
+	CE_ASSERT(m_file_handle != NULL || m_file_handle != INVALID_HANDLE_VALUE, "Unable to open file: %s", path);
 
 	m_mode = mode;
 }
@@ -81,54 +82,63 @@ FileOpenMode OsFile::mode()
 size_t OsFile::read(void* data, size_t size)
 {
 	DWORD bytes_read;
-
-	bool read = ReadFile(m_file_handle, data, size, &bytes_read, NULL);
 	
-	CE_ASSERT(read, "Cannot read from file\n");
+	BOOL result = ReadFile(m_file_handle, data, size, &bytes_read, NULL);
+	
+	CE_ASSERT(size == bytes_read, "Cannot read from file\n");
+
+	if (result && bytes_read == 0)
+	{
+		m_eof = true;
+	}
 
 	return size;
 }
 
 size_t OsFile::write(const void* data, size_t size)
 {
-	bool write = WriteFile(m_file_handle, data, size, NULL, NULL);
+	DWORD bytes_written;
+
+	bool write = WriteFile(m_file_handle, data, size, &bytes_written, NULL);
 	
-	CE_ASSERT(write, "Cannot read from file\n");		
+	CE_ASSERT(size == bytes_written, "Cannot read from file\n");		
 
 	return size;
 }
 
 void OsFile::seek(size_t position)
 {
-	DWORD seek_result = SetFilePointer(m_file_handle, (LONG) position, NULL, FILE_BEGIN);
+	DWORD seek_result = SetFilePointer(m_file_handle, position, NULL, FILE_BEGIN);
 
-	CE_ASSERT(seek_result == 0, "Failed to seek");
+	CE_ASSERT(seek_result != INVALID_SET_FILE_POINTER, "Failed to seek");
 }
 
 void OsFile::seek_to_end()
 {
 	DWORD seek_result = SetFilePointer(m_file_handle, 0, NULL, FILE_END);
 
-	CE_ASSERT(seek_result == 0, "Failed to seek");
+	CE_ASSERT(seek_result != INVALID_SET_FILE_POINTER, "Failed to seek");
 }
 
 void OsFile::skip(size_t bytes)
 {
-	DWORD seek_result = SetFilePointer(m_file_handle, (LONG) bytes, NULL, FILE_CURRENT);
+	DWORD seek_result = SetFilePointer(m_file_handle, bytes, NULL, FILE_CURRENT);
 
-	CE_ASSERT(seek_result == 0, "Failed to seek");
+	CE_ASSERT(seek_result != INVALID_SET_FILE_POINTER, "Failed to seek");
 }
 
 size_t OsFile::position() const
 {
 	DWORD position = SetFilePointer(m_file_handle, 0, NULL, FILE_CURRENT);
+	
+	CE_ASSERT(position != INVALID_SET_FILE_POINTER, "Failed to seek");
 
 	return position;
 }
 
 bool OsFile::eof() const
 {
-	return feof((FILE*)m_file_handle) != 0;
+	return m_eof;
 }
 
 } // namespace crown

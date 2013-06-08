@@ -83,6 +83,7 @@ private:
 
 	HANDLE					m_file_handle;
 	FileOpenMode			m_mode;
+	bool					m_eof;
 };
 
 } // namespace crown
