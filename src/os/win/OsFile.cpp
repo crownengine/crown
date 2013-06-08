@@ -108,30 +108,30 @@ size_t OsFile::write(const void* data, size_t size)
 
 void OsFile::seek(size_t position)
 {
-	DWORD seek_result = SetFilePointer(m_file_handle, position, NULL, FILE_BEGIN);
+	BOOL seek_result = SetFilePointer(m_file_handle, position, NULL, FILE_BEGIN);
 
-	CE_ASSERT(seek_result != INVALID_SET_FILE_POINTER, "Failed to seek");
+	CE_ASSERT(seek_result, "Failed to seek");
 }
 
 void OsFile::seek_to_end()
 {
-	DWORD seek_result = SetFilePointer(m_file_handle, 0, NULL, FILE_END);
+	BOOL seek_result = SetFilePointer(m_file_handle, 0, NULL, FILE_END);
 
-	CE_ASSERT(seek_result != INVALID_SET_FILE_POINTER, "Failed to seek");
+	CE_ASSERT(seek_result, "Failed to seek");
 }
 
 void OsFile::skip(size_t bytes)
 {
-	DWORD seek_result = SetFilePointer(m_file_handle, bytes, NULL, FILE_CURRENT);
+	BOOL seek_result = SetFilePointer(m_file_handle, bytes, NULL, FILE_CURRENT);
 
-	CE_ASSERT(seek_result != INVALID_SET_FILE_POINTER, "Failed to seek");
+	CE_ASSERT(seek_result, "Failed to seek");
 }
 
 size_t OsFile::position() const
 {
 	DWORD position = SetFilePointer(m_file_handle, 0, NULL, FILE_CURRENT);
 	
-	CE_ASSERT(position != INVALID_SET_FILE_POINTER, "Failed to seek");
+	CE_ASSERT(position, "Failed to seek");
 
 	return position;
 }
