@@ -18,19 +18,19 @@ set (HEADERS
 
 # utils
 add_library(crown-compiler-utils ${SRC} ${HEADERS})
-target_link_libraries(crown-compiler-utils crown)
+target_link_libraries(crown-compiler-utils)
 
 # resource-linker
 add_executable(resource-linker resource-linker.cpp)
-target_link_libraries(resource-linker crown)
+target_link_libraries(resource-linker)
 
 # resource-hash
 add_executable(resource-hash resource-hash.cpp)
-target_link_libraries(resource-hash crown)
+target_link_libraries(resource-hash)
 
 # resource-compiler
 add_executable(resource-compiler resource-compiler.cpp)
-target_link_libraries(resource-compiler crown crown-compiler-utils)
+target_link_libraries(resource-compiler crown-compiler-utils)
 
 install (TARGETS crown-compiler-utils DESTINATION lib/${CMAKE_PROJECT_NAME})
 
