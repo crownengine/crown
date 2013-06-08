@@ -35,9 +35,7 @@ namespace os
 //-----------------------------------------------------------------------------
 Mutex::Mutex()
 {
-	bool init = InitializeCriticalSectionAndSpinCount(&m_cs, 0x00000400);
-
-	CE_ASSERT(init, "Unable to create mutex");
+	InitializeCriticalSection(&m_cs);
 }
 
 //-----------------------------------------------------------------------------
