@@ -5,6 +5,7 @@ set (SRC
 	ResourceManager.cpp
 
 	TextureResource.cpp
+	MeshResource.cpp
 	TextResource.cpp
 	FontResource.cpp
 	ArchiveBundle.cpp
@@ -26,6 +27,7 @@ set (HEADERS
 	Bundle.h
 
 	TextureResource.h
+	MeshResource.h
 	TextResource.h
 	FontResource.h
 	ArchiveBundle.h
@@ -276,6 +278,9 @@ set (CROWN_HEADERS
 
 	${OS_HEADERS}
 )
+
+# Lua bindings and systems
+add_subdirectory(lua)
 
 # IrrXML parser
 include_directories(${CROWN_THIRD}/irrxml/src)

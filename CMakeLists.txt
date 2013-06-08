@@ -28,9 +28,9 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/src/input
 	${CMAKE_SOURCE_DIR}/src/renderers
 	${CMAKE_SOURCE_DIR}/src/network
+	${CMAKE_SOURCE_DIR}/src/lua
 
 	${CMAKE_SOURCE_DIR}/game
-	${CMAKE_SOURCE_DIR}/lua
 )
 
 # always debug mode for now
@@ -79,7 +79,6 @@ add_definitions(-pipe -std=c++11 -W -Wall -Wextra -Wno-long-long -Wno-variadic-m
 
 # add build directories
 add_subdirectory(src)
-add_subdirectory(lua)
 add_subdirectory(${CROWN_THIRD})
 
 if (LINUX)
