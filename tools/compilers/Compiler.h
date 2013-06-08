@@ -34,7 +34,7 @@ namespace crown
 
 const size_t	MAX_RESOURCE_NAME_LENGTH			= 1024;
 const size_t	MAX_RESOURCE_TYPE_LENGTH			= 64;
-const size_t	MAX_RESOURCE_PATH_LENGTH			= 1024;
+const size_t	MAX_RESOURCE_PATH_LENGTH			= 2048;
 
 const uint32_t	COMPILED_HEADER_MAGIC_NUMBER		= 0xCE010101;
 const uint32_t	COMPILER_VERSION					= 1;
@@ -76,6 +76,7 @@ public:
 	const char*				root_path() const;
 	const char*				dest_path() const;
 	const char*				resource_name() const;
+	const char*				resource_path() const;
 
 protected:
 
@@ -96,6 +97,7 @@ private:
 	uint32_t			m_type_expected;
 
 	char				m_resource_name[MAX_RESOURCE_NAME_LENGTH];
+	char 				m_resource_path[MAX_RESOURCE_PATH_LENGTH];
 };
 
 } // namespace crown
