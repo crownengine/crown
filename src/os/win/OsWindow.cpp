@@ -24,8 +24,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "OsWindow.h"
+#include "GLContext.h"
 #include "Assert.h"
 #include "Keyboard.h"
+#include "StringUtils.h"
 #include "Log.h"
 
 namespace crown
@@ -89,11 +91,15 @@ static Key translate_key(int32_t winKey)
 }
 
 //-----------------------------------------------------------------------------
-OsWindow::OsWindow(uint32_t width, uint32_t height)
+OsWindow::OsWindow(uint32_t width, uint32_t height) :
+	m_window_handle(NULL),
+	m_x(0),
+	m_y(0),
+	m_fullscreen(false)
 {
-	CE_ASSERT(!width && !height, "Width and height must differ from 0.");
+	CE_ASSERT(width != 0 || height != 0, "Width and height must differ from 0.");
 
-	strcpy(m_window_name, "CrownWindowClass");
+	string::strcpy(m_window_name, "CrownWindowClass");
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.style = CS_OWNDC;
@@ -101,15 +107,17 @@ OsWindow::OsWindow(uint32_t width, uint32_t height)
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = GetModuleHandle(NULL);
+    wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = m_window_name;
+    wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
-	bool registered = RegisterClassEx(&wcex);
-	CE_ASSERT(registered, "Unable to register a Window Class.");
+	uint32_t registered = RegisterClassEx(&wcex);
+	CE_ASSERT(registered != 0, "Unable to register a Window Class.");
 
 	m_window_handle = CreateWindowEx(0, m_window_name, "", WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX, 0, 0, width, height, NULL, NULL, GetModuleHandle(NULL), NULL);
-
 	CE_ASSERT(m_window_handle != NULL, "Unable to create a Window.");
 	
 	//Save the WGLRenderWindow pointer to the window's user data
@@ -146,6 +154,8 @@ OsWindow::OsWindow(uint32_t width, uint32_t height)
 	
 	bool pf_set = SetPixelFormat(device_context, pixel_format, &pfd);
 	CE_ASSERT(pf_set, "Unable to set the pixel format, altough it seems to be supported.");
+
+	set_win_handle_window(m_window_handle);
 }
 
 //-----------------------------------------------------------------------------
@@ -412,12 +422,6 @@ void OsWindow::frame()
 			// TODO
 		}
 	}
-
-}
-
-void OsWindow::set_window(uint32_t width, uint32_t height)
-{
-
 
 }
 

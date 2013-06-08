@@ -42,11 +42,14 @@ void set_win_handle_window(HWND win)
 GLContext::GLContext() :
 	m_win_context(NULL)
 {
+	
 }
 
 //-----------------------------------------------------------------------------
 void GLContext::create_context()
 {
+	m_win_context = wglCreateContext(GetDC(s_handle_window));
+
 	wglMakeCurrent(GetDC(s_handle_window), m_win_context);
 
 	CE_ASSERT(m_win_context != NULL, "Unable to create a rendering context.");

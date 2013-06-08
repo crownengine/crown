@@ -64,10 +64,6 @@ public:
 
 private:
 
-	void			set_window(uint32_t width, uint32_t height);
-
-private:
-
 	HWND			m_window_handle;
 	DEVMODE			m_screen_setting;
 
