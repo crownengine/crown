@@ -27,8 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Compiler.h"
-#include "DiskFile.h"
-#include "PixelFormat.h"
+#include "TextureFormat.h"
 
 namespace crown
 {
@@ -52,31 +51,27 @@ class TGACompiler : public Compiler
 {
 public:
 
-					TGACompiler(const char* root_path, const char* dest_path);
+					TGACompiler();
 					~TGACompiler();
 
-	size_t			read_header_impl(DiskFile* in_file);
-	size_t			read_resource_impl(DiskFile* in_file);
-
-	void			write_header_impl(DiskFile* out_file);
-	void			write_resource_impl(DiskFile* out_file);
-
-	void			cleanup_impl();
+	size_t			compile_impl(const char* resource_path);
+	void			write_impl(std::fstream& out_file);
 
 private:
 
-	void			load_uncompressed(DiskFile* in_file);
-	void			load_compressed(DiskFile* in_file);
+	void			load_uncompressed(std::fstream& in_file);
+	void			load_compressed(std::fstream& in_file);
 	void			swap_red_blue();
 
 private:
 
 	TGAHeader		m_tga_header;
+	uint32_t		m_tga_channels;
+	uint32_t		m_tga_size;
 
-	PixelFormat		m_image_format;
-	uint32_t		m_image_channels;
-	uint64_t		m_image_size;
-	uint8_t*		m_image_data;
+	TextureHeader	m_texture_header;
+	size_t			m_texture_data_size;
+	uint8_t*		m_texture_data;
 };
 
 } // namespace crown
