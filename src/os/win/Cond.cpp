@@ -48,12 +48,7 @@ void Cond::signal()
 
 void Cond::wait(Mutex& mutex)
 {
-	CRITICAL_SECTION cs = mutex.handle();
-	// Deadlock encountered, maybe the problem is INFINITE
-	// because it can not be set in a thread where a windows is created
-	// or CoInitialize is called.
-	SleepConditionVariableCS(&m_cond, &cs, 5000);
-	//m_cond->ptr == NULL 
+	SleepConditionVariableCS(&m_cond, &mutex.m_cs, 5000);
 }
 
 } // namespace os
