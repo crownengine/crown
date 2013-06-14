@@ -124,6 +124,10 @@ class Repository:
 				abs_path = os.path.join(dirname, filename)
 				resource_name = os.path.relpath(abs_path, self.m_root_path)
 
+				# Normalize resource name, OSs != Windows/Linux may need
+				# additional processing
+				resource_name = resource_name.replace("\\", "/")
+
 				# Filter resource names by type
 				if resource_name.endswith(resource_extensions):
 					self.m_resources.append(resource_name)
