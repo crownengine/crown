@@ -145,9 +145,9 @@ bool Device::init(int argc, char** argv)
 		return false;
 	}
 
-	*(void**)(&game_init) = os::lookup_symbol(m_game_library, "init");
-	*(void**)(&game_shutdown) = os::lookup_symbol(m_game_library, "shutdown");
-	*(void**)(&game_frame) = os::lookup_symbol(m_game_library, "frame");
+	*(void**)(&game_init) = os::lookup_symbol(m_game_library, "init_1");
+	*(void**)(&game_shutdown) = os::lookup_symbol(m_game_library, "shutdown_1");
+	*(void**)(&game_frame) = os::lookup_symbol(m_game_library, "frame_1");
 
 	// Initialize the game
 	game_init();

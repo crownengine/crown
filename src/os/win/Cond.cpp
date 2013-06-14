@@ -48,7 +48,7 @@ void Cond::signal()
 
 void Cond::wait(Mutex& mutex)
 {
-	SleepConditionVariableCS(&m_cond, &mutex.m_cs, 5000);
+	SleepConditionVariableCS(&m_cond, &mutex.m_cs, INFINITE);
 }
 
 } // namespace os

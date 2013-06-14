@@ -248,7 +248,7 @@ void* open_library(const char* path)
 {
 	HMODULE library = LoadLibrary(path);
 
-	CE_ASSERT(library  != NULL, "Unable to load library '%s' with error: %s\n", path, GetLastError());
+	CE_ASSERT(library  != NULL, "Unable to load library '%s' with error: %d\n", path, GetLastError());
 
 	return library;
 }
