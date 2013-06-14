@@ -35,13 +35,14 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-size_t Compiler::compile(const char* root_path, const char* dest_path, const char* resource)
+size_t Compiler::compile(const char* root_path, const char* dest_path, const char* name_in, const char* name_out)
 {
-	std::string resource_path = std::string(root_path) + "/" + std::string(resource);
+	std::string path_in = std::string(root_path) + "/" + std::string(name_in);
+	std::string path_out = std::string(dest_path) + "/" + std::string(name_out);
 
 	// The compilation fails when returned size is zero
 	size_t resource_size = 0;
-	if ((resource_size = compile_impl(resource_path.c_str())) == 0)
+	if ((resource_size = compile_impl(path_in.c_str())) == 0)
 	{
 		std::cout << "Compilation failed." << std::endl;
 		return 0;
@@ -55,7 +56,7 @@ size_t Compiler::compile(const char* root_path, const char* dest_path, const cha
 
 	// Open destination file and write the header
 	std::fstream out_file;
-	out_file.open("out.raw", std::fstream::out | std::fstream::binary);
+	out_file.open(path_out.c_str(), std::fstream::out | std::fstream::binary);
 
 	if (!out_file.is_open())
 	{

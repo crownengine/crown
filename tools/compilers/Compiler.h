@@ -42,7 +42,7 @@ public:
 
 	virtual					~Compiler() {}
 
-	size_t					compile(const char* root_path, const char* dest_path, const char* resource);
+	size_t					compile(const char* root_path, const char* dest_path, const char* name_in, const char* name_out);
 	void					cleanup();
 
 protected:

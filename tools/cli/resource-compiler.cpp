@@ -62,12 +62,29 @@ int main(int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 
+
 	TGACompiler tga;
 	// TXTCompiler txt(root_path, dest_path);
 	// VSCompiler vs(root_path, dest_path);
 	// PSCompiler ps(root_path, dest_path);
 
-	tga.compile(root_path, dest_path, argv[first_resource]);
+	char out_name[1024];
+	char resource_name[1024];
+	char resource_type[1024];
+
+	for (int32_t i = 0; i < argc - first_resource; i++)
+	{
+		path::filename_without_extension(argv[first_resource + i], resource_name, 1024);
+		path::extension(argv[first_resource + i], resource_type, 1024);
+
+		snprintf(out_name, 1024, "%.8X%.8X",
+			hash::murmur2_32(resource_name, string::strlen(resource_name), hash_seed),
+			hash::murmur2_32(resource_type, string::strlen(resource_type), 0));
+
+		printf("%s <= %s\n", out_name, argv[first_resource + i]);
+
+		tga.compile(root_path, dest_path, argv[first_resource + i], out_name);
+	}
 
 	return 0;
 }
