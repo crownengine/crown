@@ -51,19 +51,20 @@ DiskFile* FileBundle::open(ResourceId name)
 {
 	// Convert name/type into strings
 	char resource_name[512];
-
-	// Fixme
 	snprintf(resource_name, 512, "%.8X%.8X", name.name, name.type);
 
 	// Search the resource in the filesystem
-	if (m_filesystem.exists(resource_name) == false)
-	{
-		return NULL;
-	}
+	bool exists = m_filesystem.exists(resource_name);
+	CE_ASSERT(exists == true, "Resource does not exist: %s", resource_name);
 
+	// Open the resource and check magic number/version
 	DiskFile* file = (DiskFile*)m_filesystem.open(resource_name, FOM_READ);
 
-	file->skip(sizeof(ResourceHeader));
+	ResourceHeader header;
+	file->read(&header, sizeof(ResourceHeader));
+
+	CE_ASSERT(header.magic == RESOURCE_MAGIC_NUMBER, "Resource is not valid: %s", resource_name);
+	CE_ASSERT(header.version == RESOURCE_VERSION, "Resource version mismatch: %s", resource_name);
 
 	return file;
 }
