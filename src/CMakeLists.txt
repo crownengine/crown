@@ -408,23 +408,31 @@ if (WINDOWS)
 add_definitions(/link /OPT:NOREF)
 endif (WINDOWS)
 
-add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
+#add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
 
-# TEST - generates .lib
+# TEST - generates .lib 
 
-add_library(crown-static STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
-set_target_properties(crown-static PROPERTIES OUTPUT_NAME "crown")
+#add_library(crown-static STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
+#set_target_properties(crown-static PROPERTIES OUTPUT_NAME "crown")
 #set_target_properties(crown-static PROPERTIES PREFIX "lib")
-set_target_properties(crown PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-set_target_properties(crown-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+#set_target_properties(crown PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+#set_target_properties(crown-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 
 # ENDTEST
 
-add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
-target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
+add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC} ${CROWN_SOURCES} ${CROWN_HEADERS})
+#target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 
-install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
+#install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
+
+#------------------------------------------------------------------------------
+# Installing executable
+#------------------------------------------------------------------------------
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
+
+#------------------------------------------------------------------------------
+#Installing headers
+#------------------------------------------------------------------------------
 install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 
 install (FILES ${CORE_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core)
