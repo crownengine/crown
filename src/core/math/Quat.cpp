@@ -40,10 +40,10 @@ Quat::Quat()
 }
 
 //-----------------------------------------------------------------------------
-Quat::Quat(real angle, const Vec3& v)
+Quat::Quat(float angle, const Vec3& v)
 {
-	this->w = math::cos((real)(angle * 0.5));
-	this->v = v * math::sin((real)(angle * 0.5));
+	this->w = math::cos((float)(angle * 0.5));
+	this->v = v * math::sin((float)(angle * 0.5));
 }
 
 //-----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ void Quat::load_identity()
 }
 
 //-----------------------------------------------------------------------------
-real Quat::length() const
+float Quat::length() const
 {
 	return math::sqrt(w * w + v.x * v.x + v.y * v.y + v.z * v.z);
 }
@@ -83,26 +83,26 @@ Quat Quat::get_conjugate() const
 //-----------------------------------------------------------------------------
 Quat Quat::get_inverse() const
 {
-	return get_conjugate() * ((real)(1.0 / length()));
+	return get_conjugate() * ((float)(1.0 / length()));
 }
 
 //-----------------------------------------------------------------------------
 Mat3 Quat::to_mat3() const
 {
 	Mat3 tmp;
-	real x = v.x;
-	real y = v.y;
-	real z = v.z;
+	float x = v.x;
+	float y = v.y;
+	float z = v.z;
 
-	tmp.m[0] = (real)(1.0 - 2.0*y*y - 2.0*z*z);
-	tmp.m[1] = (real)(2.0*x*y + 2.0*w*z);
-	tmp.m[2] = (real)(2.0*x*z - 2.0*w*y);
-	tmp.m[3] = (real)(2.0*x*y - 2.0*w*z);
-	tmp.m[4] = (real)(1.0 - 2.0*x*x - 2.0*z*z);
-	tmp.m[5] = (real)(2.0*y*z + 2.0*w*x);
-	tmp.m[6] = (real)(2.0*x*z + 2.0*w*y);
-	tmp.m[7] = (real)(2.0*y*z - 2.0*w*x);
-	tmp.m[8] = (real)(1.0 - 2.0*x*x - 2.0*y*y);
+	tmp.m[0] = (float)(1.0 - 2.0*y*y - 2.0*z*z);
+	tmp.m[1] = (float)(2.0*x*y + 2.0*w*z);
+	tmp.m[2] = (float)(2.0*x*z - 2.0*w*y);
+	tmp.m[3] = (float)(2.0*x*y - 2.0*w*z);
+	tmp.m[4] = (float)(1.0 - 2.0*x*x - 2.0*z*z);
+	tmp.m[5] = (float)(2.0*y*z + 2.0*w*x);
+	tmp.m[6] = (float)(2.0*x*z + 2.0*w*y);
+	tmp.m[7] = (float)(2.0*y*z - 2.0*w*x);
+	tmp.m[8] = (float)(1.0 - 2.0*x*x - 2.0*y*y);
 
 	return tmp;
 }
@@ -111,21 +111,21 @@ Mat3 Quat::to_mat3() const
 Mat4 Quat::to_mat4() const
 {
 	Mat4 tmp;
-	real x = v.x;
-	real y = v.y;
-	real z = v.z;
+	float x = v.x;
+	float y = v.y;
+	float z = v.z;
 
-	tmp.m[0] = (real)(1.0 - 2.0*y*y - 2.0*z*z);
-	tmp.m[1] = (real)(2.0*x*y + 2.0*w*z);
-	tmp.m[2] = (real)(2.0*x*z - 2.0*w*y);
+	tmp.m[0] = (float)(1.0 - 2.0*y*y - 2.0*z*z);
+	tmp.m[1] = (float)(2.0*x*y + 2.0*w*z);
+	tmp.m[2] = (float)(2.0*x*z - 2.0*w*y);
 	tmp.m[3] = 0;
-	tmp.m[4] = (real)(2.0*x*y - 2.0*w*z);
-	tmp.m[5] = (real)(1.0 - 2.0*x*x - 2.0*z*z);
-	tmp.m[6] = (real)(2.0*y*z + 2.0*w*x);
+	tmp.m[4] = (float)(2.0*x*y - 2.0*w*z);
+	tmp.m[5] = (float)(1.0 - 2.0*x*x - 2.0*z*z);
+	tmp.m[6] = (float)(2.0*y*z + 2.0*w*x);
 	tmp.m[7] = 0.0;
-	tmp.m[8] = (real)(2.0*x*z + 2.0*w*y);
-	tmp.m[9] = (real)(2.0*y*z - 2.0*w*x);
-	tmp.m[10] = (real)(1.0 - 2.0*x*x - 2.0*y*y);
+	tmp.m[8] = (float)(2.0*x*z + 2.0*w*y);
+	tmp.m[9] = (float)(2.0*y*z - 2.0*w*x);
+	tmp.m[10] = (float)(1.0 - 2.0*x*x - 2.0*y*y);
 	tmp.m[11] = 0.0;
 	tmp.m[12] = 0.0;
 	tmp.m[13] = 0.0;
@@ -147,7 +147,7 @@ Quat Quat::operator*(const Quat& b) const
 }
 
 //-----------------------------------------------------------------------------
-Quat Quat::operator*(const real& k) const
+Quat Quat::operator*(const float& k) const
 {
 	Quat tmp;
 
@@ -158,16 +158,16 @@ Quat Quat::operator*(const real& k) const
 }
 
 //-----------------------------------------------------------------------------
-Quat Quat::power(real exp)
+Quat Quat::power(float exp)
 {
 	Quat tmp;
 
 	if (math::abs(w) < 0.9999)
 	{
-		real alpha = math::acos(w); // alpha = theta/2
-		real newAlpha = alpha * exp;
+		float alpha = math::acos(w); // alpha = theta/2
+		float newAlpha = alpha * exp;
 		tmp.w = math::cos(newAlpha);
-		real mult = math::sin(newAlpha) / math::sin(alpha);
+		float mult = math::sin(newAlpha) / math::sin(alpha);
 		tmp.v.x = v.x * mult;
 		tmp.v.y = v.y * mult;
 		tmp.v.z = v.z * mult;
@@ -186,14 +186,14 @@ the vector dot product; the larger the absolute value of the Quat dot product ax
 "similar" the angular displacements represented by a and b.
 */
 //-----------------------------------------------------------------------------
-real dot(const Quat& a, const Quat& b)
+float dot(const Quat& a, const Quat& b)
 {
 	return a.w * b.w + a.v.dot(b.v);
 }
 
 // Spherical Linear intERPolation
 //-----------------------------------------------------------------------------
-Quat slerp(const Quat& start, const Quat& end, real t)
+Quat slerp(const Quat& start, const Quat& end, float t)
 {
 	Quat delta = end * start.get_inverse();
 	delta = delta.power(t);

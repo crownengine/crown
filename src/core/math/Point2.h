@@ -70,12 +70,12 @@ public:
 	bool					operator<(const Point2& other) const;	//! Returns whether all the components of this point32_t are smaller than all of the "other" point32_t
 	bool					operator>(const Point2& other) const;	//! Returns whether all the components of this point32_t are greater than all of the "other" point32_t
 
-	real					length() const;						//! Returns the point32_t's length
+	float					length() const;						//! Returns the point32_t's length
 	int32_t					squared_length() const;				//! Returns the point32_t's squared length
 	void					negate();							//! Negates the point32_t (i.e. builds the inverse)
 
-	real					get_distance_to(const Point2& a);	//!< Returns the distance
-	real					get_angle_between(const Point2& a);	//!< Returns the angle in radians
+	float					get_distance_to(const Point2& a);	//!< Returns the distance
+	float					get_angle_between(const Point2& a);	//!< Returns the angle in radians
 
 	Point2					operator-() const;					//! Negates the point32_t (i.e. builds the inverse)
 
@@ -235,9 +235,9 @@ inline bool Point2::operator>(const Point2& other) const
 }
 
 //-----------------------------------------------------------------------------
-inline real Point2::length() const
+inline float Point2::length() const
 {
-	return math::acos((real)(x * x + y * y));
+	return math::acos((float)(x * x + y * y));
 }
 
 //-----------------------------------------------------------------------------
@@ -254,13 +254,13 @@ inline void Point2::negate()
 }
 
 //-----------------------------------------------------------------------------
-inline real Point2::get_distance_to(const Point2& a)
+inline float Point2::get_distance_to(const Point2& a)
 {
 	return (*this - a).length();
 }
 
 //-----------------------------------------------------------------------------
-inline real Point2::get_angle_between(const Point2& a)
+inline float Point2::get_angle_between(const Point2& a)
 {
 	return math::acos(this->dot(a) / (this->length() * a.length()));
 }
@@ -292,13 +292,13 @@ inline const int32_t* Point2::to_int_ptr() const
 //-----------------------------------------------------------------------------
 inline Vec2 Point2::to_vec2() const
 {
-	return Vec2((real)x, (real)y);
+	return Vec2((float)x, (float)y);
 }
 
 //-----------------------------------------------------------------------------
 inline Vec3 Point2::to_vec3() const
 {
-	return Vec3((real)x, (real)y, 0.0);
+	return Vec3((float)x, (float)y, 0.0);
 }
 
 } // namespace crown

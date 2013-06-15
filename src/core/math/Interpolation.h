@@ -35,60 +35,60 @@ namespace interpolation
 
 /// Returns the linear interpolated value between @a p0 and @a p1 at time @a t
 template <typename T>
-static T	linear(const T& p0, const T& p1, real t);
+static T	linear(const T& p0, const T& p1, float t);
 
 /// Returns the cosine interpolated value between @a p0 and @a p1 at time @a t
 template <typename T>
-static T	cosine(const T& p0, const T& p1, real t);
+static T	cosine(const T& p0, const T& p1, float t);
 
 /// Returns the cubic interpolated value between @a p0 and @a p1 at time @a t
 template <typename T>
-static T	cubic(const T& p0, const T& p1, real t);
+static T	cubic(const T& p0, const T& p1, float t);
 
 /// Bezier interpolation
 template <typename T>
-static T	bezier(const T& p1, const T& p2, const T& p3, const T& p4, real t);
+static T	bezier(const T& p1, const T& p2, const T& p3, const T& p4, float t);
 
 /// Catmull-Rom interpolation
 template <typename T>
-static T	catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, real t);
+static T	catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, float t);
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T linear(const T& p0, const T& p1, real t)
+inline T linear(const T& p0, const T& p1, float t)
 {
 	return p0 + (t * (p1 - p0));
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T cosine(const T& p0, const T& p1, real t)
+inline T cosine(const T& p0, const T& p1, float t)
 {
-	real f = t * math::PI;
-	real g = (1.0 - math::cos(f)) * 0.5;
+	float f = t * math::PI;
+	float g = (1.0 - math::cos(f)) * 0.5;
 
 	return p0 + (g * (p1 - p0));
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T cubic(const T& p0, const T& p1, real t)
+inline T cubic(const T& p0, const T& p1, float t)
 {
-	real tt = t * t;
-	real ttt = tt * t;
+	float tt = t * t;
+	float ttt = tt * t;
 
 	return p0 * (2.0 * ttt - 3.0 * tt + 1.0) + p1 * (3.0 * tt  - 2.0 * ttt);
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T bezier(const T& p0, const T& p1, const T& p2, const T& p3, real t)
+inline T bezier(const T& p0, const T& p1, const T& p2, const T& p3, float t)
 {
-	real u = 1.0 - t;
-	real tt = t * t ;
-	real uu = u * u;
-	real uuu = uu * u;
-	real ttt = tt * t;
+	float u = 1.0 - t;
+	float tt = t * t ;
+	float uu = u * u;
+	float uuu = uu * u;
+	float ttt = tt * t;
 
 	T tmp = (uuu * p0) +
 			(3 * uu * t * p1) +
@@ -100,10 +100,10 @@ inline T bezier(const T& p0, const T& p1, const T& p2, const T& p3, real t)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, real t)
+inline T catmull_rom(const T& p0, const T& p1, const T& p2, const T& p3, float t)
 {
-	real tt = t * t;
-	real ttt = tt * t;
+	float tt = t * t;
+	float ttt = tt * t;
 
 	T tmp = (2.0 * p1) +
 			((-p0 + p2) * t) +

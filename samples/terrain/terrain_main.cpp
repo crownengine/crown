@@ -109,12 +109,17 @@ public:
 	void on_unload()
 	{
 		device()->unload(grass);
-		// device()->unload(red_north);
-		// device()->unload(red_south);
-		// device()->unload(red_east);
-		// device()->unload(red_west);
-		// device()->unload(red_up);
-		// device()->unload(red_down);
+
+		device()->unload(red_north);
+		device()->unload(red_south);
+		device()->unload(red_east);
+		device()->unload(red_west);
+		device()->unload(red_up);
+		device()->unload(red_down);
+
+		CE_DELETE(m_allocator, skybox);
+		CE_DELETE(m_allocator, system);
+		CE_DELETE(m_allocator, cam);
 	}
 
 	void update(float dt)
@@ -154,7 +159,7 @@ public:
 
 		/* Test for intersection */
 		Triangle tri, tri2;
-		real dist;
+		float dist;
 		if (terrain.TraceRay(ray, tri, tri2, dist))
 		{
 			renderer->set_depth_test(false);

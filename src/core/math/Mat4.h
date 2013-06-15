@@ -63,71 +63,71 @@ class Mat4
 
 public:
 
-	real				m[16];
+	float				m[16];
 
 	/// Does nothing for efficiency.
 						Mat4();	
 
-	/// Constructs from a set of real
-						Mat4(real r1c1, real r2c1, real r3c1, real r4c1, real r1c2, real r2c2, real r3c2, real r4c2, real r1c3, real r2c3, real r3c3, real r4c3, real r1c4, real r2c4, real r3c4, real r4c4);
+	/// Constructs from a set of float
+						Mat4(float r1c1, float r2c1, float r3c1, float r4c1, float r1c2, float r2c2, float r3c2, float r4c2, float r1c3, float r2c3, float r3c3, float r4c3, float r1c4, float r2c4, float r3c4, float r4c4);
 	
 	/// Contructs from the @a v array
-						Mat4(const real v[16]);						
+						Mat4(const float v[16]);						
 						Mat4(const Mat4& a);					
 
 	/// Assignment operator (copies the data)
 	Mat4&				operator=(const Mat4& a);					
 
 	/// Random access by index
-	real				operator[](uint32_t i) const;
+	float				operator[](uint32_t i) const;
 
 	/// Random access by index					
-	real&				operator[](uint32_t i);							
+	float&				operator[](uint32_t i);							
 
-	real				operator()(uint32_t row, uint32_t column) const;	//!< Random access by row/column pair
+	float				operator()(uint32_t row, uint32_t column) const;	//!< Random access by row/column pair
 
 	Mat4				operator+(const Mat4& a) const;
 	Mat4&				operator+=(const Mat4& a);					
 	Mat4				operator-(const Mat4& a) const;				
 	Mat4&				operator-=(const Mat4& a);					
-	Mat4				operator*(real k) const;				
-	Mat4&				operator*=(real k);							
-	Mat4				operator/(real k) const;					
-	Mat4&				operator/=(real k);							
+	Mat4				operator*(float k) const;				
+	Mat4&				operator*=(float k);							
+	Mat4				operator/(float k) const;					
+	Mat4&				operator/=(float k);							
 	Vec3				operator*(const Vec3& v) const;				
 	Vec4				operator*(const Vec4& v) const;				
 	Mat4				operator*(const Mat4& a) const;			
 	Mat4&				operator*=(const Mat4& a);
 
 	/// For simmetry
-	friend Mat4			operator*(real k, const Mat4& a);			
+	friend Mat4			operator*(float k, const Mat4& a);			
 
 	/// Builds a rotation matrix about the X axis of @a radians radians
-	void				build_rotation_x(real radians);
+	void				build_rotation_x(float radians);
 
 	/// Builds a rotation matrix about the Y axis of "radians" radians	
-	void				build_rotation_y(real radians);	
+	void				build_rotation_y(float radians);	
 
 	/// Builds a rotation matrix about the Z axis of @a radians radians			
-	void				build_rotation_z(real radians);		
+	void				build_rotation_z(float radians);		
 
 	/// Builds a rotation matrix about an arbitrary axis of "radians" radians		
-	void				build_rotation(const Vec3& n, real radians);
+	void				build_rotation(const Vec3& n, float radians);
 
 	/// Builds a perspetive projection matrix suited to Right-Handed coordinate systems
-	void				build_projection_perspective_rh(real fovy, real aspect, real near, real far);
+	void				build_projection_perspective_rh(float fovy, float aspect, float near, float far);
 
 	/// Builds a perspective projection matrix suited to Left-Handed coordinate systems	
-	void				build_projection_perspective_lh(real fovy, real aspect, real near, real far);
+	void				build_projection_perspective_lh(float fovy, float aspect, float near, float far);
 
 	/// Builds an orthographic projection matrix suited to Right-Handed coordinate systems	
-	void				build_projection_ortho_rh(real width, real height, real near, real far);
+	void				build_projection_ortho_rh(float width, float height, float near, float far);
 
 	/// Builds an orthographic projection matrix suited to Left-Handed coordinate systems		
-	void				build_projection_ortho_lh(real width, real height, real near, real far);	
+	void				build_projection_ortho_lh(float width, float height, float near, float far);	
 
 	/// Builds a 2d orthographic projection matrix suited to Right-Handed coordinate systems	
-	void				build_projection_ortho_2d_rh(real width, real height, real near, real far);	
+	void				build_projection_ortho_2d_rh(float width, float height, float near, float far);	
 
 	/// Builds a "Righ-Handed look-at" matrix from a position, a target, and an up vector
 	void				build_look_at_rh(const Vec3& pos, const Vec3& target, const Vec3& up);
@@ -143,7 +143,7 @@ public:
 
 	Mat4&				transpose();								
 	Mat4				get_transposed() const;						
-	real				get_determinant() const;					
+	float				get_determinant() const;					
 	Mat4&				invert();									
 	Mat4				get_inverted() const;						
 
@@ -163,10 +163,10 @@ public:
 	void				set_scale(const Vec3& scale);				
 
 	/// Returns the pointer to the matrix's data
-	real*				to_float_ptr();
+	float*				to_float_ptr();
 
 	/// Returns the pointer to the matrix's data								
-	const real*			to_float_ptr() const;
+	const float*			to_float_ptr() const;
 
 	/// Returns a 3x3 matrix according to the matrix's rotation portion						
 	Mat3				to_mat3() const;

@@ -83,7 +83,7 @@ public:
 	void				write_int16(int32_t c);
 	void				write_uint16(int32_t c);
 	void				write_int32(int32_t c);
-	void				write_real(real f);
+	void				write_float(float f);
 	void				write_vec3(const Vec3& v);
 	void				write_string(const char* s, int32_t max_len = -1, bool make_7_bit = true);
 	void				write_data(const void* data, int32_t length);
@@ -99,7 +99,7 @@ public:
 	int32_t				read_int16() const;
 	int32_t				read_uint16() const;
 	int32_t				read_int32() const;
-	real				read_real() const;
+	float				read_float() const;
 	Vec3				read_vec3() const;
 	int32_t				read_string(char* buffer, int32_t buffer_size) const;
 	int32_t				read_data(void* data, int32_t length) const;

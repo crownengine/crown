@@ -54,8 +54,8 @@ public:
 	void			set_max(const Vec2& max);			
 
 	Vec2			center() const;					
-	real			radius() const;					
-	real			area() const;		
+	float			radius() const;					
+	float			area() const;		
 
 	/// Returns the diagonal of the rect.
 	Vec2			size() const;						
@@ -67,7 +67,7 @@ public:
 	bool			intersects_rect(const Rect& rect) const;	
 
 	/// Sets the Rect from a @a center and a @a width - @a height
-	void			set_from_center_and_dimensions(Vec2 center, real width, real height);	
+	void			set_from_center_and_dimensions(Vec2 center, float width, float height);	
 
 	/// Returns the four vertices of the rect.
 	void			vertices(Vec2 v[4]) const;

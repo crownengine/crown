@@ -46,7 +46,7 @@ public:
 				Triangle(const Vec3& v1, const Vec3& v2, const Vec3& v3);
 				~Triangle();
 
-	real		area() const;
+	float		area() const;
 
 	/// Returns the center of gravity (a.k.a. "centroid").
 	Vec3		centroid() const;
@@ -87,9 +87,9 @@ inline Triangle::~Triangle()
 }
 
 //-----------------------------------------------------------------------------
-inline real Triangle::area() const
+inline float Triangle::area() const
 {
-	return ((m_vertex[1] - m_vertex[0]).cross(m_vertex[2] - m_vertex[0])).length() * (real)0.5;
+	return ((m_vertex[1] - m_vertex[0]).cross(m_vertex[2] - m_vertex[0])).length() * (float)0.5;
 }
 
 //-----------------------------------------------------------------------------
@@ -112,13 +112,13 @@ inline Vec3 Triangle::barycentric_coords(const Vec3& p) const
 	Vec3 n = e1.cross(e2) / e1.cross(e2).length();
 
 	// Signed areas
-	real at = (real)(e1.cross(e2).dot(n) * 0.5);
+	float at = (float)(e1.cross(e2).dot(n) * 0.5);
 
-	real at1 = (real)(e1.cross(d3).dot(n) * 0.5);
-	real at2 = (real)(e2.cross(d1).dot(n) * 0.5);
-	real at3 = (real)(e3.cross(d2).dot(n) * 0.5);
+	float at1 = (float)(e1.cross(d3).dot(n) * 0.5);
+	float at2 = (float)(e2.cross(d1).dot(n) * 0.5);
+	float at3 = (float)(e3.cross(d2).dot(n) * 0.5);
 
-	real oneOverAt = (real)(1.0 / at);
+	float oneOverAt = (float)(1.0 / at);
 
 	return Vec3(at1 * oneOverAt, at2 * oneOverAt, at3 * oneOverAt);
 }
@@ -143,7 +143,7 @@ inline Plane Triangle::to_plane() const
 	Vec3 e2 = m_vertex[1] - m_vertex[0];
 
 	Vec3 n = e2.cross(e1).normalize();
-	real d = -n.dot(m_vertex[0]);
+	float d = -n.dot(m_vertex[0]);
 
 	return Plane(n, d);
 }

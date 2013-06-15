@@ -42,7 +42,7 @@ class Plane
 public:
 
 	Vec3				n;
-	real				d;
+	float				d;
 
 public:
 
@@ -51,13 +51,13 @@ public:
 						Plane(const Plane& p);
 
 	/// Constructs from a normal and distance factor						
-						Plane(const Vec3& normal, real dist);		
+						Plane(const Vec3& normal, float dist);		
 
 	/// Normalizes the plane
 	Plane&				normalize();							
 
 	/// Returns the signed distance between point @a p and the plane
-	real				distance_to_point(const Vec3& p) const;	
+	float				distance_to_point(const Vec3& p) const;	
 
 	/// Returns whether the plane contains the point @a p	
 	bool				contains_point(const Vec3& p) const;		

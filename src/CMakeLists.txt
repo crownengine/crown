@@ -150,6 +150,7 @@ set (STRINGS_HEADERS
 )
 
 set (MEM_SRC
+	core/mem/malloc.c
 	core/mem/Memory.cpp
 	core/mem/Allocator.cpp
 	core/mem/MallocAllocator.cpp
@@ -157,6 +158,7 @@ set (MEM_SRC
 )
 
 set (MEM_HEADERS
+	core/mem/malloc.h
 	core/mem/Memory.h
 	core/mem/Allocator.h
 	core/mem/MallocAllocator.h

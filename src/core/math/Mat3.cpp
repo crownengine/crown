@@ -43,8 +43,8 @@ Mat3::Mat3()
 }
 
 //-----------------------------------------------------------------------------
-Mat3::Mat3(real r1c1, real r2c1, real r3c1, real r1c2, real r2c2, real r3c2,
-	real r1c3, real r2c3, real r3c3)
+Mat3::Mat3(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2,
+	float r1c3, float r2c3, float r3c3)
 {
 	m[0] = r1c1;
 	m[1] = r2c1;
@@ -58,7 +58,7 @@ Mat3::Mat3(real r1c1, real r2c1, real r3c1, real r1c2, real r2c2, real r3c2,
 }
 
 //-----------------------------------------------------------------------------
-Mat3::Mat3(const real v[9])
+Mat3::Mat3(const float v[9])
 {
 	m[0] = v[0];
 	m[1] = v[1];
@@ -102,7 +102,7 @@ Mat3& Mat3::operator=(const Mat3& a)
 }
 
 //-----------------------------------------------------------------------------
-real Mat3::operator[](uint32_t i) const
+float Mat3::operator[](uint32_t i) const
 {
 	CE_ASSERT(i < 9, "Index must be < 9");
 
@@ -110,7 +110,7 @@ real Mat3::operator[](uint32_t i) const
 }
 
 //-----------------------------------------------------------------------------
-real& Mat3::operator[](uint32_t i)
+float& Mat3::operator[](uint32_t i)
 {
 	CE_ASSERT(i < 9, "Index must be < 9");
 
@@ -118,7 +118,7 @@ real& Mat3::operator[](uint32_t i)
 }
 
 //-----------------------------------------------------------------------------
-real Mat3::operator()(uint32_t row, uint32_t column) const
+float Mat3::operator()(uint32_t row, uint32_t column) const
 {
 	CE_ASSERT(row < 3 && column < 3, "Row and column must be < 3");
 
@@ -194,7 +194,7 @@ Mat3& Mat3::operator-=(const Mat3& a)
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Mat3::operator*(real k) const
+Mat3 Mat3::operator*(float k) const
 {
 	Mat3 tmp;
 
@@ -212,7 +212,7 @@ Mat3 Mat3::operator*(real k) const
 }
 
 //-----------------------------------------------------------------------------
-Mat3& Mat3::operator*=(real k)
+Mat3& Mat3::operator*=(float k)
 {
 	m[0] *= k;
 	m[1] *= k;
@@ -228,11 +228,11 @@ Mat3& Mat3::operator*=(real k)
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Mat3::operator/(real k) const
+Mat3 Mat3::operator/(float k) const
 {
 	Mat3 tmp;
 
-	k = (real)1.0 / k;
+	k = (float)1.0 / k;
 
 	tmp.m[0] = m[0] * k;
 	tmp.m[1] = m[1] * k;
@@ -248,9 +248,9 @@ Mat3 Mat3::operator/(real k) const
 }
 
 //-----------------------------------------------------------------------------
-Mat3& Mat3::operator/=(real k)
+Mat3& Mat3::operator/=(float k)
 {
-	k = (real)1.0 / k;
+	k = (float)1.0 / k;
 
 	m[0] *= k;
 	m[1] *= k;
@@ -320,13 +320,13 @@ Mat3& Mat3::operator*=(const Mat3& a)
 }
 
 //-----------------------------------------------------------------------------
-Mat3 operator*(real k, const Mat3& a)
+Mat3 operator*(float k, const Mat3& a)
 {
 	return a * k;
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::build_rotation_x(real radians)
+void Mat3::build_rotation_x(float radians)
 {
 	m[0] = 1.0;
 	m[1] = 0.0;
@@ -340,7 +340,7 @@ void Mat3::build_rotation_x(real radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::build_rotation_y(real radians)
+void Mat3::build_rotation_y(float radians)
 {
 	m[0] = math::cos(radians);
 	m[1] = 0.0;
@@ -354,7 +354,7 @@ void Mat3::build_rotation_y(real radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::build_rotation_z(real radians)
+void Mat3::build_rotation_z(float radians)
 {
 	m[0] = math::cos(radians);
 	m[1] = math::sin(radians);
@@ -368,11 +368,11 @@ void Mat3::build_rotation_z(real radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::build_rotation(const Vec3& n, real radians)
+void Mat3::build_rotation(const Vec3& n, float radians)
 {
-	real a = (real)1.0 - math::cos(radians);
-	real sin_a = math::sin(radians);
-	real cos_a = math::cos(radians);
+	float a = (float)1.0 - math::cos(radians);
+	float sin_a = math::sin(radians);
+	float cos_a = math::cos(radians);
 
 	m[0] = n.x * n.x * a + cos_a;
 	m[1] = n.x * n.y * a + n.z * sin_a;
@@ -388,7 +388,7 @@ void Mat3::build_rotation(const Vec3& n, real radians)
 //-----------------------------------------------------------------------------
 Mat3& Mat3::transpose()
 {
-	real tmp;
+	float tmp;
 
 	tmp = m[1];
 	m[1] = m[3];
@@ -424,9 +424,9 @@ Mat3 Mat3::get_transposed() const
 }
 
 //-----------------------------------------------------------------------------
-real Mat3::get_determinant() const
+float Mat3::get_determinant() const
 {
-	real det;
+	float det;
 
 	det =	m[0] * (m[4] * m[8] - m[7] * m[5]) -
 			m[3] * (m[1] * m[8] - m[7] * m[2]) +
@@ -439,14 +439,14 @@ real Mat3::get_determinant() const
 Mat3& Mat3::invert()
 {
 	Mat3 mat;
-	real det;
+	float det;
 
 	mat.m[0] = (m[4] * m[8] - m[7] * m[5]);
 	mat.m[1] = (m[1] * m[8] - m[7] * m[2]);
 	mat.m[2] = (m[1] * m[5] - m[4] * m[2]);
 
 	det = m[0] * mat.m[0] - m[3] * mat.m[1] + m[6] * mat.m[2];
-	det = (real)1.0 / det;
+	det = (float)1.0 / det;
 
 	mat.m[3] = (m[3] * m[8] - m[6] * m[5]);
 	mat.m[4] = (m[0] * m[8] - m[6] * m[2]);
@@ -504,13 +504,13 @@ void Mat3::set_scale(const Vec3& scale)
 }
 
 //-----------------------------------------------------------------------------
-real* Mat3::to_float_ptr()
+float* Mat3::to_float_ptr()
 {
 	return &m[0];
 }
 
 //-----------------------------------------------------------------------------
-const real* Mat3::to_float_ptr() const
+const float* Mat3::to_float_ptr() const
 {
 	return &m[0];
 }
@@ -545,11 +545,11 @@ Quat Mat3::to_quat() const
 {
 	Quat tmp;
 
-	real fourWSquaredMinusOne = m[0] + m[4] + m[8];
-	real fourXSquaredMinusOne = m[0] - m[4] - m[8];
-	real fourYSquaredMinusOne = -m[0] + m[4] - m[8];
-	real fourZSquaredMinusOne = -m[0] - m[4] + m[8];
-	real fourMaxSquaredMinusOne = fourWSquaredMinusOne;
+	float fourWSquaredMinusOne = m[0] + m[4] + m[8];
+	float fourXSquaredMinusOne = m[0] - m[4] - m[8];
+	float fourYSquaredMinusOne = -m[0] + m[4] - m[8];
+	float fourZSquaredMinusOne = -m[0] - m[4] + m[8];
+	float fourMaxSquaredMinusOne = fourWSquaredMinusOne;
 	uint32_t index = 0;
 
 	if (fourXSquaredMinusOne > fourMaxSquaredMinusOne)
@@ -570,8 +570,8 @@ Quat Mat3::to_quat() const
 		index = 3;
 	}
 
-	real biggest = math::sqrt(fourMaxSquaredMinusOne + (real)1.0) * (real)0.5;
-	real mult = (real)0.25 / biggest;
+	float biggest = math::sqrt(fourMaxSquaredMinusOne + (float)1.0) * (float)0.5;
+	float mult = (float)0.25 / biggest;
 
 	switch (index)
 	{

@@ -39,44 +39,44 @@ class Vec3
 {
 public:
 
-	real				x, y, z;
+	float				x, y, z;
 
 	/// Does nothing for efficiency.
 						Vec3();	
 
 	/// Initializes all the components to val								
-						Vec3(real val);	
+						Vec3(float val);	
 
 	/// Constructs from three components						
-						Vec3(real nx, real ny, real nz);
+						Vec3(float nx, float ny, float nz);
 						
 	/// Constructs from array		
-						Vec3(const real v[3]);					
+						Vec3(const float v[3]);					
 						Vec3(const Vec3& a);	
 
 	/// Random access by index
-	real				operator[](uint32_t i) const;
+	float				operator[](uint32_t i) const;
 
 	/// Random access by index			
-	real&				operator[](uint32_t i);					
+	float&				operator[](uint32_t i);					
 
 	Vec3				operator+(const Vec3& a) const;			
 	Vec3&				operator+=(const Vec3& a);				
 	Vec3 				operator-(const Vec3& a) const;			
 	Vec3&				operator-=(const Vec3& a);				
-	Vec3				operator*(real k) const;				
-	Vec3&				operator*=(real k);						
-	Vec3				operator/(real k) const;				
-	Vec3&				operator/=(real k);
+	Vec3				operator*(float k) const;				
+	Vec3&				operator*=(float k);						
+	Vec3				operator/(float k) const;				
+	Vec3&				operator/=(float k);
 
 	/// Dot product						
-	real				dot(const Vec3& a) const;
+	float				dot(const Vec3& a) const;
 
 	/// Cross product				
 	Vec3				cross(const Vec3& a) const;				
 
 	/// For simmetry
-	friend Vec3			operator*(real k, const Vec3& a);		
+	friend Vec3			operator*(float k, const Vec3& a);		
 
 	bool				operator==(const Vec3& other) const;	
 	bool				operator!=(const Vec3& other) const;
@@ -88,13 +88,13 @@ public:
 	bool				operator>(const Vec3& other) const;		
 
 	/// Returns the vector's length
-	real				length() const;	
+	float				length() const;	
 
 	/// Returns the vector's squared length						
-	real				squared_length() const;
+	float				squared_length() const;
 
 	/// Sets the vector's length					
-	void				set_length(real len);
+	void				set_length(float len);
 
 	/// Normalizes the vector					
 	Vec3&				normalize();
@@ -109,19 +109,19 @@ public:
 	Vec3				operator-() const;						
 
 	/// Returns the distance
-	real				get_distance_to(const Vec3& a) const;	
+	float				get_distance_to(const Vec3& a) const;	
 
 	/// Returns the angle in radians
-	real				get_angle_between(const Vec3& a) const;	
+	float				get_angle_between(const Vec3& a) const;	
 
 	/// Sets all components to zero
 	void				zero();									
 
 	/// Returns the pointer to the vector's data
-	real*				to_float_ptr();	
+	float*				to_float_ptr();	
 
 	/// Returns the pointer to the vector's data						
-	const real*			to_float_ptr() const;
+	const float*			to_float_ptr() const;
 
 	/// Returns a Vec2 with only x and y coordinates					
 	Vec2				to_vec2() const;						
@@ -139,17 +139,17 @@ inline Vec3::Vec3()
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3::Vec3(real val) : x(val), y(val), z(val)
+inline Vec3::Vec3(float val) : x(val), y(val), z(val)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3::Vec3(real nx, real ny, real nz) : x(nx), y(ny), z(nz)
+inline Vec3::Vec3(float nx, float ny, float nz) : x(nx), y(ny), z(nz)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3::Vec3(const real v[3]) : x(v[0]), y(v[1]), z(v[2])
+inline Vec3::Vec3(const float v[3]) : x(v[0]), y(v[1]), z(v[2])
 {
 }
 
@@ -159,7 +159,7 @@ inline Vec3::Vec3(const Vec3& a) : x(a.x), y(a.y), z(a.z)
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec3::operator[](uint32_t i) const
+inline float Vec3::operator[](uint32_t i) const
 {
 	CE_ASSERT(i < 3, "Index must be < 3");
 
@@ -167,7 +167,7 @@ inline real Vec3::operator[](uint32_t i) const
 }
 
 //-----------------------------------------------------------------------------
-inline real& Vec3::operator[](uint32_t i)
+inline float& Vec3::operator[](uint32_t i)
 {
 	CE_ASSERT(i < 3, "Index must be < 3");
 
@@ -207,13 +207,13 @@ inline Vec3& Vec3::operator-=(const Vec3& a)
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Vec3::operator*(real k) const
+inline Vec3 Vec3::operator*(float k) const
 {
 	return Vec3(x * k, y * k, z * k);
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3& Vec3::operator*=(real k)
+inline Vec3& Vec3::operator*=(float k)
 {
 	x *= k;
 	y *= k;
@@ -223,21 +223,21 @@ inline Vec3& Vec3::operator*=(real k)
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Vec3::operator/(real k) const
+inline Vec3 Vec3::operator/(float k) const
 {
-	CE_ASSERT(k != (real)0.0, "Division by zero");
+	CE_ASSERT(k != (float)0.0, "Division by zero");
 
-	real inv = (real)(1.0 / k);
+	float inv = (float)(1.0 / k);
 
 	return Vec3(x * inv, y * inv, z * inv);
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3& Vec3::operator/=(real k)
+inline Vec3& Vec3::operator/=(float k)
 {
-	CE_ASSERT(k != (real)0.0, "Division by zero");
+	CE_ASSERT(k != (float)0.0, "Division by zero");
 
-	real inv = (real)(1.0 / k);
+	float inv = (float)(1.0 / k);
 
 	x *= inv;
 	y *= inv;
@@ -247,7 +247,7 @@ inline Vec3& Vec3::operator/=(real k)
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec3::dot(const Vec3& a) const
+inline float Vec3::dot(const Vec3& a) const
 {
 	return x * a.x + y * a.y + z * a.z;
 }
@@ -259,7 +259,7 @@ inline Vec3 Vec3::cross(const Vec3& a) const
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 operator*(real k, const Vec3& a)
+inline Vec3 operator*(float k, const Vec3& a)
 {
 	return a * k;
 }
@@ -289,19 +289,19 @@ inline bool Vec3::operator>(const Vec3& other) const
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec3::length() const
+inline float Vec3::length() const
 {
 	return math::sqrt(x * x + y * y + z * z);
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec3::squared_length() const
+inline float Vec3::squared_length() const
 {
 	return x * x + y * y + z * z;
 }
 
 //-----------------------------------------------------------------------------
-inline void Vec3::set_length(real len)
+inline void Vec3::set_length(float len)
 {
 	normalize();
 
@@ -313,14 +313,14 @@ inline void Vec3::set_length(real len)
 //-----------------------------------------------------------------------------
 inline Vec3& Vec3::normalize()
 {
-	real len = length();
+	float len = length();
 
-	if (math::equals(len, (real)0.0))
+	if (math::equals(len, (float)0.0))
 	{
 		return *this;
 	}
 
-	len = (real)(1.0 / len); 
+	len = (float)(1.0 / len); 
 
 	x *= len;
 	y *= len;
@@ -354,13 +354,13 @@ inline Vec3 Vec3::operator-() const
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec3::get_distance_to(const Vec3& a) const
+inline float Vec3::get_distance_to(const Vec3& a) const
 {
 	return (*this - a).length();
 }
 
 //-----------------------------------------------------------------------------
-inline real Vec3::get_angle_between(const Vec3& a) const
+inline float Vec3::get_angle_between(const Vec3& a) const
 {
 	return math::acos(this->dot(a) / (this->length() * a.length()));
 }
@@ -374,13 +374,13 @@ inline void Vec3::zero()
 }
 
 //-----------------------------------------------------------------------------
-inline real* Vec3::to_float_ptr()
+inline float* Vec3::to_float_ptr()
 {
 	return &x;
 }
 
 //-----------------------------------------------------------------------------
-inline const real* Vec3::to_float_ptr() const
+inline const float* Vec3::to_float_ptr() const
 {
 	return &x;
 }
@@ -395,7 +395,7 @@ inline Vec2 Vec3::to_vec2() const
 /// Returns the parallel portion of "v" projected onto "n"
 inline Vec3 get_projected_parallel(const Vec3& v, const Vec3& n)
 {
-	real n_len_q;
+	float n_len_q;
 	n_len_q = n.length();
 	n_len_q = n_len_q * n_len_q;
 
