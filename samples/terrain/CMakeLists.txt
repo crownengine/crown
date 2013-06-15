@@ -9,8 +9,11 @@ set (HEADERS
 	Terrain.h
 )
 
-add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC} ${SRC} ${HEADERS})
-target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
+add_library (terrain STATIC ${SRC} ${HEADERS})
+add_executable (game-terrain ${CROWN_MAIN_SRC})
+target_link_libraries (terrain crown)
+target_link_libraries (game-terrain terrain)
+set_target_properties (game-terrain PROPERTIES OUTPUT_NAME game)
 
 install (DIRECTORY terrain DESTINATION samples)
-install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION samples/terrain)
+install (TARGETS game-terrain DESTINATION samples/terrain)

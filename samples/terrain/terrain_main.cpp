@@ -133,7 +133,6 @@ public:
 		}
 		system->update(dt);
 
-		renderer->set_lighting(false);
 		renderer->set_texturing(0, false);
 
 		ray.set_origin(cam->position());
@@ -210,20 +209,18 @@ private:
 MainScene m_scene;
 WndCtrl m_ctrl;
 
-extern "C"
+void init()
 {
-	void init()
-	{
-		m_scene.on_load();
-	}
-
-	void shutdown()
-	{
-		m_scene.on_unload();
-	}
-
-	void frame(float dt)
-	{
-		m_scene.update(dt);
-	}
+	m_scene.on_load();
 }
+
+void shutdown()
+{
+	m_scene.on_unload();
+}
+
+void frame(float dt)
+{
+	m_scene.update(dt);
+}
+
