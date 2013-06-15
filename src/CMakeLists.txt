@@ -205,11 +205,11 @@ set (INPUT_HEADERS
 )
 
 set (NETWORK_SRC
-#	network/BitMessage.cpp
+	network/BitMessage.cpp
 )
 
 set (NETWORK_HEADERS
-#	network/BitMessage.h
+	network/BitMessage.h
 )
 
 set (RENDERERS_SRC
@@ -245,6 +245,7 @@ set (CROWN_LIBRARIES
 
 set (COMPILER_FLAGS
 	-pipe
+	-std=c++11
 	-ansi
 	-W    	
 	-Wall
