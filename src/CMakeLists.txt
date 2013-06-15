@@ -37,6 +37,7 @@ set (HEADERS
 
 	FPSSystem.h
 	JSONParser.h
+	../game/Game.h
 )
 
 set (CORE_SRC
@@ -148,7 +149,7 @@ set (STRINGS_HEADERS
 )
 
 set (MEM_SRC
-	core/mem/malloc.c
+	#core/mem/malloc.c
 	core/mem/Memory.cpp
 	core/mem/Allocator.cpp
 	core/mem/HeapAllocator.cpp
@@ -158,7 +159,7 @@ set (MEM_SRC
 )
 
 set (MEM_HEADERS
-	core/mem/malloc.h
+	#core/mem/malloc.h
 	core/mem/Memory.h
 	core/mem/Allocator.h
 	core/mem/HeapAllocator.h
@@ -304,9 +305,6 @@ if (LINUX)
 		GLEW
 		GL
 	)
-
-	set (CROWN_EXECUTABLE_NAME crown-linux)
-	set (CROWN_MAIN_SRC os/linux/main.cpp)
 endif (LINUX)
 
 if (WINDOWS)
@@ -354,9 +352,6 @@ if (WINDOWS)
 	)
 
 	set(COMPILER_FLAGS)
-	
-	set (CROWN_EXECUTABLE_NAME crown-win)
-	set (CROWN_MAIN_SRC os/win/main.cpp)
 endif(WINDOWS)
 
 set (CROWN_SOURCES
@@ -414,19 +409,10 @@ add_definitions(${CROWN_COMPILER_FLAGS})
 
 if (WINDOWS)
 add_definitions(/link /OPT:NOREF)
+add_definitions(/LIBPATH:${CROWN_THIRD}/luajit/lib)
 endif (WINDOWS)
 
-add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
-
-# TEST - generates .lib 
-
-add_library(crown-static STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
-set_target_properties(crown-static PROPERTIES OUTPUT_NAME "crown")
-#set_target_properties(crown-static PROPERTIES PREFIX "lib")
-set_target_properties(crown PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-set_target_properties(crown-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-
-# ENDTEST
+add_library(crown STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
 
 install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
 

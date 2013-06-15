@@ -24,9 +24,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <cstdlib>
+
 #include "HeapAllocator.h"
 #include "Assert.h"
-#include "malloc.h"
 
 namespace crown
 {
@@ -50,7 +51,7 @@ void* HeapAllocator::allocate(size_t size, size_t align)
 {
 	size_t actual_size = actual_allocation_size(size, align);
 
-	Header* h = (Header*)dlmalloc(actual_size);
+	Header* h = (Header*)malloc(actual_size);
 	h->size = actual_size;
 
 	void* data = memory::align_top(h + 1, align);
@@ -71,7 +72,7 @@ void HeapAllocator::deallocate(void* data)
 	m_allocated_size -= h->size;
 	m_allocation_count--;
 
-	dlfree(h);
+	free(h);
 }
 
 //-----------------------------------------------------------------------------

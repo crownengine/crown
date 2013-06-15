@@ -38,7 +38,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "Args.h"
 #include "Game.h"
-#include <cstdlib>
 #include "ArchiveBundle.h"
 #include "FileBundle.h"
 #include "ResourceManager.h"
@@ -54,10 +53,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-
-static void (*game_init)(void) = NULL;
-static void (*game_shutdown)(void) = NULL;
-static void (*game_frame)(float) = NULL;
 
 //-----------------------------------------------------------------------------
 Device::Device() :
@@ -149,12 +144,8 @@ bool Device::init(int argc, char** argv)
 		return false;
 	}
 
-	*(void**)(&game_init) = os::lookup_symbol(m_game_library, "init_1");
-	*(void**)(&game_shutdown) = os::lookup_symbol(m_game_library, "shutdown_1");
-	*(void**)(&game_frame) = os::lookup_symbol(m_game_library, "frame_1");
-
 	// Initialize the game
-	game_init();
+	crown::init();
 
 	m_is_init = true;
 
@@ -178,7 +169,7 @@ void Device::shutdown()
 	}
 
 	// Shutdowns the game
-	game_shutdown();
+	crown::shutdown();
 
 	// Unload the game library
 	if (m_game_library)
@@ -356,7 +347,7 @@ void Device::frame()
 	m_window->frame();
 	m_input_manager->frame();
 
-	game_frame(last_delta_time());
+	crown::frame(last_delta_time());
 
 	m_debug_renderer->draw_all();
 	m_renderer->frame();

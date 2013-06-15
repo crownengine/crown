@@ -30,6 +30,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "KeyCode.h"
 #include "OS.h"
 
+#undef MK_SHIFT
+#undef MK_ALT
+
 namespace crown
 {
 
