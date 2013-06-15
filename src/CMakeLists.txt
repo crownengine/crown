@@ -3,7 +3,6 @@ set (SRC
 	Device.cpp
 	MaterialResource.cpp
 	ResourceManager.cpp
-	Skybox.cpp
 
 	TextureResource.cpp
 	TextResource.cpp
@@ -27,7 +26,6 @@ set (HEADERS
 	Resource.h
 	ResourceManager.h
 	Bundle.h
-	Skybox.h
 
 	TextureResource.h
 	TextResource.h
@@ -153,7 +151,9 @@ set (MEM_SRC
 	core/mem/malloc.c
 	core/mem/Memory.cpp
 	core/mem/Allocator.cpp
-	core/mem/MallocAllocator.cpp
+	core/mem/HeapAllocator.cpp
+	core/mem/LinearAllocator.cpp
+	core/mem/StackAllocator.cpp
 	core/mem/ProxyAllocator.cpp
 )
 
@@ -161,7 +161,9 @@ set (MEM_HEADERS
 	core/mem/malloc.h
 	core/mem/Memory.h
 	core/mem/Allocator.h
-	core/mem/MallocAllocator.h
+	core/mem/HeapAllocator.h
+	core/mem/LinearAllocator.h
+	core/mem/StackAllocator.h
 	core/mem/ProxyAllocator.h
 )
 
@@ -400,6 +402,9 @@ set (CROWN_HEADERS
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
 
+# Lua bindings and systems
+add_subdirectory(lua)
+
 include_directories(${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
 link_directories(${CROWN_THIRD_LIBS})
 
@@ -411,27 +416,19 @@ if (WINDOWS)
 add_definitions(/link /OPT:NOREF)
 endif (WINDOWS)
 
-#add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
+add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
 
 # TEST - generates .lib 
 
-#add_library(crown-static STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
-#set_target_properties(crown-static PROPERTIES OUTPUT_NAME "crown")
+add_library(crown-static STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
+set_target_properties(crown-static PROPERTIES OUTPUT_NAME "crown")
 #set_target_properties(crown-static PROPERTIES PREFIX "lib")
-#set_target_properties(crown PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-#set_target_properties(crown-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+set_target_properties(crown PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+set_target_properties(crown-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 
 # ENDTEST
 
-add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC} ${CROWN_SOURCES} ${CROWN_HEADERS})
-#target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
-
-#install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
-
-#------------------------------------------------------------------------------
-# Installing executable
-#------------------------------------------------------------------------------
-install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
+install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
 
 #------------------------------------------------------------------------------
 #Installing headers

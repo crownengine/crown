@@ -38,22 +38,22 @@ class NullFile: public File
 {
 public:
 
-	/// @a copydoc File::File()
+	/// @copydoc File::File()
 				NullFile(FileOpenMode mode) : File(mode) {}
 
-	/// @a copydoc File::~File()
+	/// @copydoc File::~File()
 	virtual		~NullFile() {}
 
-	/// @a copydoc File::seek()
+	/// @copydoc File::seek()
 	void		seek(size_t position) { (void)position; }
 
-	/// @a copydoc File::seek_to_end()
+	/// @copydoc File::seek_to_end()
 	void		seek_to_end() {}
 
-	/// @a copydoc File::skip()
+	/// @copydoc File::skip()
 	void		skip(size_t bytes) { (void)bytes; }
 				
-	/// @a copydoc File::read()
+	/// @copydoc File::read()
 	/// @note
 	///	Fills buffer with zeroes
 	void		read(void* buffer, size_t size)
@@ -64,10 +64,10 @@ public:
 		}
 	}
 
-	/// @a copydoc File::write()
+	/// @copydoc File::write()
 	void		write(const void* buffer, size_t size) { (void)buffer; (void)size; }
 
-	/// @a copydoc File::copy_to()
+	/// @copydoc File::copy_to()
 	/// @note
 	///	Returns always true
 	bool		copy_to(File& file, size_t size = 0)
@@ -77,40 +77,40 @@ public:
 		return true;
 	}
 
-	/// @a copydoc File::flush()
+	/// @copydoc File::flush()
 	void		flush() {};
 				
-	/// @a copydoc File::is_valid()
+	/// @copydoc File::is_valid()
 	/// @note
 	///	Returns always true
 	bool		is_valid() { return true; }
 				
-	/// @a copydoc File::end_of_file()
+	/// @copydoc File::end_of_file()
 	/// @note
 	///	Returns always false
 	bool		end_of_file() { return false; }
 				
-	/// @a copydoc File::size()
+	/// @copydoc File::size()
 	/// @note
 	///	Returns always 0xFFFFFFFF
 	size_t		size() { return ~0; }
 				
-	/// @a copydoc File::position()
+	/// @copydoc File::position()
 	/// @note
 	///	Returns always zero
 	size_t		position() { return 0; }
 				
-	/// @a copydoc File::can_read()
+	/// @copydoc File::can_read()
 	/// @note
 	///	Returns always true
 	bool		can_read() { return true; }
 				
-	/// @a copydoc File::can_write()
+	/// @copydoc File::can_write()
 	/// @note
 	///	Returns always true
 	bool		can_write() { return true; }
 				
-	/// @a copydoc File::can_seek()
+	/// @copydoc File::can_seek()
 	/// @note
 	///	Returns always true
 	bool		can_seek() { return true; }

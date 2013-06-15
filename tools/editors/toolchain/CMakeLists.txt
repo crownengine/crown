@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-install (FILES toolchain.py DESTINATION bin)
+install (FILES toolchain.py PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+	GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE DESTINATION bin)
+
 install (FILES ui/toolchain.glade DESTINATION bin/ui)

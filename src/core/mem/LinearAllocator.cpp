@@ -24,33 +24,59 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Memory.h"
-#include "HeapAllocator.h"
+#include "LinearAllocator.h"
+
+namespace crown
+{
 
 //-----------------------------------------------------------------------------
-void* operator new(size_t)
+LinearAllocator::LinearAllocator(void* start, size_t size) :
+	m_physical_start(start),
+	m_total_size(size),
+	m_offset(0)
 {
-	CE_ASSERT(false, "operator new forbidden");
-
-	return NULL;
 }
 
 //-----------------------------------------------------------------------------
-void* operator new[](size_t)
+LinearAllocator::~LinearAllocator()
 {
-	CE_ASSERT(false, "operator new[] forbidden");
-
-	return NULL;
+	CE_ASSERT(m_offset == 0, "Memory leak of %d bytes", m_offset);
 }
 
 //-----------------------------------------------------------------------------
-void operator delete(void*)
+void* LinearAllocator::allocate(size_t size, size_t align)
 {
-	CE_ASSERT(false, "operator delete forbidden");
+	const size_t actual_size = size + align;
+
+	// Memory exhausted
+	if (m_offset + actual_size > m_total_size)
+	{
+		return NULL;
+	}
+
+	void* user_ptr = memory::align_top((char*) m_physical_start + m_offset, align);
+
+	m_offset += actual_size;
+
+	return user_ptr;
 }
 
 //-----------------------------------------------------------------------------
-void operator delete[](void*)
+void LinearAllocator::deallocate(void* /*data*/)
 {
-	CE_ASSERT(false, "operator delete[] forbidden");
+	// Single deallocations not supported. Use clear().
 }
+
+//-----------------------------------------------------------------------------
+void LinearAllocator::clear()
+{
+	m_offset = 0;
+}
+
+//-----------------------------------------------------------------------------
+size_t LinearAllocator::allocated_size()
+{
+	return m_offset;
+}
+
+} // namespace crown

@@ -38,14 +38,12 @@ namespace os
 class Mutex
 {
 public:
-
+	
 						Mutex();
 						~Mutex();
 
 	void				lock();
 	void				unlock();
-
-	CRITICAL_SECTION	handle();
 
 private:
 

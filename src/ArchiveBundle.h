@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Bundle.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 
 namespace crown
 {
@@ -63,15 +63,15 @@ public:
 					ArchiveBundle(Filesystem& fs);
 					~ArchiveBundle();
 
-	/// @a copydoc Bundle::open()
+	/// @copydoc Bundle::open()
 	DiskFile*		open(ResourceId name);
 
-	/// @a copydoc Bundle::close()
+	/// @copydoc Bundle::close()
 	void			close(DiskFile* resource);
 
 private:
 
-	MallocAllocator	m_allocator;
+	HeapAllocator	m_allocator;
 
 	Filesystem&		m_filesystem;
 

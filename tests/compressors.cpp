@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <cstring>
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 #include "ZipCompressor.h"
 
 using namespace crown;
@@ -8,7 +8,7 @@ using namespace crown;
 int main(int argc, char** argv)
 {
 	
-	MallocAllocator allocator;
+	HeapAllocator allocator;
 	ZipCompressor compressor(allocator);
 
 	const char* uncompressed_string = "letstry";

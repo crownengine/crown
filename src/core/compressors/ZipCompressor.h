@@ -39,10 +39,10 @@ public:
 				ZipCompressor(Allocator& allocator);
 				~ZipCompressor();
 	
-	/// @a copydoc Compressor::compress()
+	/// @copydoc Compressor::compress()
 	uint8_t* 	compress(const void* data, size_t in_size, size_t& out_size);
 
-	/// @a copydoc Compressor::uncompress()
+	/// @copydoc Compressor::uncompress()
 	uint8_t* 	uncompress(const void* data, size_t in_size, size_t& out_size);
 };
 

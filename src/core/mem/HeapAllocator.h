@@ -26,51 +26,46 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
-#include "TextureResource.h"
-#include "Vec3.h"
+#include "Allocator.h"
 
 namespace crown
 {
 
-class VertexBuffer;
-class IndexBuffer;
-
-enum SkyboxFace
+/// Allocator based on C malloc().
+class HeapAllocator : public Allocator
 {
-	SF_NORTH	= 0,
-	SF_SOUTH	= 1,
-	SF_EAST		= 2,
-	SF_WEST		= 3,
-	SF_UP		= 4,
-	SF_DOWN		= 5,
-	SF_COUNT
-};
-
-class Skybox
-{
-
 public:
 
-	//! Constructor
-	Skybox(const Vec3& position, bool visible);
+				HeapAllocator();
+				~HeapAllocator();
 
-	//! Destructor
-	~Skybox();
+	/// @copydoc Allocator::allocate()
+	void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
 
-//	void SetFace(SkyboxFace face, Texture* texture);
+	/// @copydoc Allocator::deallocate()
+	void		deallocate(void* data);
 
-	virtual void Render();
+	/// @copydoc Allocator::allocated_size()
+	size_t		allocated_size();
+
+	/// Returns the size in bytes of the block of memory pointed by @a data
+	size_t		get_size(void* data);
 
 private:
 
-//	VertexData mVertexData[24];
-//	FaceData mFaceData[12];
+	// Holds the number of bytes of an allocation
+	struct Header
+	{
+		uint32_t	size;
+	};
 
-//	VertexBuffer* mVertexBuffer;
-//	IndexBuffer* mIndexBuffer[6];
+	size_t		actual_allocation_size(size_t size, size_t align);
+	Header*		header(void* data);
+	void*		data(Header* header, size_t align);
+	void		pad(Header* header, void* data);
 
-//	Texture* mSkyboxFace[6];
+	size_t		m_allocated_size;
+	uint32_t	m_allocation_count;
 };
 
 } // namespace crown

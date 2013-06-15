@@ -26,9 +26,9 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/src/input
 	${CMAKE_SOURCE_DIR}/src/renderers
 	${CMAKE_SOURCE_DIR}/src/network
+	${CMAKE_SOURCE_DIR}/src/lua
 
 	${CMAKE_SOURCE_DIR}/game
-	${CMAKE_SOURCE_DIR}/lua
 )
 
 # always debug mode for now
@@ -83,7 +83,6 @@ link_directories(${CROWN_THIRD_LIBS})
 
 # add build directories
 add_subdirectory(src)
-add_subdirectory(lua)
 add_subdirectory(${CROWN_THIRD})
 
 if (CROWN_BUILD_TOOLS)

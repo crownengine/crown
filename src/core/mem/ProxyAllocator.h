@@ -42,10 +42,10 @@ public:
 	/// Tag all allocations made with @a allocator by the given @a name
 					ProxyAllocator(const char* name, Allocator& allocator);
 
-	/// @a copydoc Allocator::allocate()
+	/// @copydoc Allocator::allocate()
 	void*			allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
 
-	/// @a copydoc Allocator::deallocate()
+	/// @copydoc Allocator::deallocate()
 	void			deallocate(void* data);
 
 	/// Returns the name of the proxy allocator

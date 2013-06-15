@@ -31,42 +31,36 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// Allocator based on C malloc().
-class MallocAllocator : public Allocator
+/// Allocates memory linearly from a predefined chunk
+/// and frees all the allocations with a single call to clear()
+class LinearAllocator : public Allocator
 {
 public:
 
-				MallocAllocator();
-				~MallocAllocator();
+				LinearAllocator(void* start, size_t size);
+				~LinearAllocator();
 
-	/// @a copydoc Allocator::allocate()
+	/// @copydoc Allocator::allocate()
 	void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
 
-	/// @a copydoc Allocator::deallocate()
+	/// @copydoc Allocator::deallocate()
+	/// @note
+	/// The linear allocator does not support deallocating
+	/// individual allocations, rather you have to call
+	/// clear() to free all memory at once.
 	void		deallocate(void* data);
 
-	/// @a copydoc Allocator::allocated_size()
-	size_t		allocated_size();
+	/// Frees all the allocations made by allocate()
+	void		clear();
 
-	/// Returns the size in bytes of the block of memory pointed by @a data
-	size_t		get_size(void* data);
+	/// @copydoc Allocator::allocated_size()
+	size_t		allocated_size();
 
 private:
 
-	// Holds the number of bytes of an allocation
-	struct Header
-	{
-		uint32_t	size;
-	};
-
-	size_t		actual_allocation_size(size_t size, size_t align);
-	Header*		header(void* data);
-	void*		data(Header* header, size_t align);
-	void		pad(Header* header, void* data);
-
-	size_t		m_allocated_size;
-	uint32_t	m_allocation_count;
+	void*		m_physical_start;
+	size_t		m_total_size;
+	size_t		m_offset;
 };
 
 } // namespace crown
-

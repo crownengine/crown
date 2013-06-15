@@ -42,46 +42,46 @@ public:
 					DiskFile(FileOpenMode mode, const char* filename);
 	virtual			~DiskFile();
 
-	/// @a copydoc File::seek() 
+	/// @copydoc File::seek() 
 	void			seek(size_t position);
 
-	/// @a copydoc File::seek_to_end() 
+	/// @copydoc File::seek_to_end() 
 	void			seek_to_end();
 
-	/// @a copydoc File::skip() 
+	/// @copydoc File::skip() 
 	void			skip(size_t bytes);
 
-	/// @a copydoc File::read() 
+	/// @copydoc File::read() 
 	void			read(void* buffer, size_t size);
 
-	/// @a copydoc File::write() 
+	/// @copydoc File::write() 
 	void			write(const void* buffer, size_t size);
 
-	/// @a copydoc File::copy_to() 
+	/// @copydoc File::copy_to() 
 	bool			copy_to(File& file, size_t size = 0);
 
-	/// @a copydoc File::flush() 
+	/// @copydoc File::flush() 
 	void			flush();
 
-	/// @a copydoc File::end_of_file() 
+	/// @copydoc File::end_of_file() 
 	bool			end_of_file() const;
 
-	/// @a copydoc File::is_valid() 
+	/// @copydoc File::is_valid() 
 	bool			is_valid() const;
 
-	/// @a copydoc File::size() 
+	/// @copydoc File::size() 
 	size_t			size() const;
 
-	/// @a copydoc File::position() 
+	/// @copydoc File::position() 
 	size_t			position() const;
 
-	/// @a copydoc File::can_read() 
+	/// @copydoc File::can_read() 
 	bool			can_read() const;
 
-	/// @a copydoc File::can_write() 
+	/// @copydoc File::can_write() 
 	bool			can_write() const;
 
-	/// @a copydoc File::can_seek() 
+	/// @copydoc File::can_seek() 
 	bool			can_seek() const;
 
 protected:
