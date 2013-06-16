@@ -1,42 +1,49 @@
-#include "lua.hpp"
-#include "Device.h"
-/*
+#include "Crown.h"
 #include "Game.h"
+#include "lua.hpp"
 
 namespace crown
 {
 
-lua_State* state;
+StringSetting g_boot("boot_file", "lua main file", "lua/game.raw");
+
+lua_State* L;
 
 void init()
 {
-	state = luaL_newstate();
-	luaL_openlibs(state);
+	L = luaL_newstate();
+	luaL_openlibs(L);
 
-	luaL_loadfile(state, "lua/lua/game.lua.script");
+	lua_cpcall(L, luaopen_libcrownlua, NULL);
 
-	lua_getglobal(state, "init");
+	const char* path = device()->filesystem()->os_path(g_boot.value());
 
-	lua_pcall(state, 0, 0, 0);
+	if (luaL_loadfile(L, path) || lua_pcall(L, 0, 0, 0))
+	{
+		os::printf("error: %s", lua_tostring(L, -1));
+	}
+
+	lua_getglobal(L, "init");
+
+	lua_pcall(L, 0, 0, 0);
 }
 
 void shutdown()
 {
-	lua_getglobal(state, "shutdown");
+	lua_getglobal(L, "shutdown");
 
-	lua_pcall(state, 0, 0, 0);
+	lua_pcall(L, 0, 0, 0);
 
-	lua_close(state);
+	lua_close(L);
 }
 
 void frame(float dt)
 {
-	lua_getglobal(state, "frame");
+	lua_getglobal(L, "frame");
 
-	lua_pushnumber(state, dt);
+	lua_pushnumber(L, dt);
 
-	lua_pcall(state, 1, 0, 0);
+	lua_pcall(L, 1, 0, 0);
 }
 
 }
-*/
