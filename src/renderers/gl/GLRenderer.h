@@ -209,13 +209,9 @@ private:
 
 private:
 
-<<<<<<< HEAD
-	GLContext			m_context;
-
-	MallocAllocator		m_allocator;
-=======
 	HeapAllocator		m_allocator;
->>>>>>> master
+
+	GLContext			m_context;
 
 	// Matrices
 	Mat4				m_matrix[MT_COUNT];
