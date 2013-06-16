@@ -26,7 +26,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "HeapAllocator.h"
 #include "Assert.h"
-#include "malloc.h"
 
 namespace crown
 {
