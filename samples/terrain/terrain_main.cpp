@@ -133,7 +133,6 @@ public:
 		}
 		system->update(dt);
 
-		renderer->set_lighting(false);
 		renderer->set_texturing(0, false);
 
 		ray.set_origin(cam->position());
