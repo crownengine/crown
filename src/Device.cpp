@@ -61,10 +61,14 @@ static void (*game_frame)(float) = NULL;
 
 //-----------------------------------------------------------------------------
 Device::Device() :
+	m_allocator(m_subsystems_heap, MAX_SUBSYSTEMS_HEAP),
+
 	m_preferred_window_width(1000),
 	m_preferred_window_height(625),
 	m_preferred_window_fullscreen(0),
 	m_preferred_mode(MODE_RELEASE),
+
+	m_quit_after_init(0),
 
 	m_is_init(false),
 	m_is_running(false),
@@ -156,6 +160,11 @@ bool Device::init(int argc, char** argv)
 
 	start();
 
+	if (m_quit_after_init == 1)
+	{
+		shutdown();
+	}
+
 	return true;
 }
 
@@ -218,6 +227,8 @@ void Device::shutdown()
 	{
 		CE_DELETE(m_allocator, m_filesystem);
 	}
+
+	m_allocator.clear();
 
 	m_is_init = false;
 }
@@ -457,12 +468,14 @@ void Device::parse_command_line(int argc, char** argv)
 {
 	static ArgsOption options[] = 
 	{
-		"help",       AOA_NO_ARGUMENT,       NULL,        'i',
-		"root-path",  AOA_REQUIRED_ARGUMENT, NULL,        'r',
-		"width",      AOA_REQUIRED_ARGUMENT, NULL,        'w',
-		"height",     AOA_REQUIRED_ARGUMENT, NULL,        'h',
-		"fullscreen", AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1,
-		"dev",        AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT,
+
+		"help",             AOA_NO_ARGUMENT,       NULL,        'i',
+		"root-path",        AOA_REQUIRED_ARGUMENT, NULL,        'r',
+		"width",            AOA_REQUIRED_ARGUMENT, NULL,        'w',
+		"height",           AOA_REQUIRED_ARGUMENT, NULL,        'h',
+		"fullscreen",       AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1,
+		"dev",              AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT,
+		"quit-after-init",  AOA_NO_ARGUMENT,       &m_quit_after_init, 1,
 		NULL, 0, NULL, 0
 	};
 
@@ -526,18 +539,6 @@ void Device::check_preferred_settings()
 //-----------------------------------------------------------------------------
 void Device::read_engine_settings()
 {
-	/*
-	DiskFile* file = m_filesystem->open("crown.cfg", FOM_READ);
-	MallocAllocator allocator;
-	JSONParser json(allocator, file);
-
-	char value[128];
-	int  width;
-	json.get_root().get_array("crown", 0).get_string("boot").to_string(value);
-	json.get_root().get_number("width").to_int(width);
-	os::printf("value = %s\n", value);
-	os::printf("width = %d\n", width);
-	*/
 }
 
 
@@ -556,7 +557,9 @@ void Device::print_help_message()
 	"  --width <width>       Set the <width> of the render window.\n"
 	"  --height <width>      Set the <height> of the render window.\n"
 	"  --fullscreen          Start in fullscreen.\n"
-	"  --dev                 Run the engine in development mode\n");
+	"  --dev                 Run the engine in development mode\n"
+	"  --quit-after-init     Quit the engine immediately after the\n"
+	"                        initialization. Used only for debugging.\n");
 }
 
 Device g_device;

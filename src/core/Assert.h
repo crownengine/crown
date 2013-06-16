@@ -38,3 +38,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #else
 	#define CE_ASSERT(condition, message, ...) ((void)0)
 #endif
+
+#define CE_ASSERT_NOT_NULL(x) CE_ASSERT(x != NULL, "Parameter must be not null")
+

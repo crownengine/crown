@@ -148,7 +148,7 @@ Image* BuildFontImage(const char* ttfFont, ushort ttfSize, ushort ttfResolution)
 
 	// Additional spacing between characters to avoid artifacts
 	uint glyphSpacing = 3;
-	uint glyphPerRow = (uint)(Math::Ceil(Math::Sqrt((real)(glyphCount * maxGlyphHeight / maxGlyphWidth))));
+	uint glyphPerRow = (uint)(Math::Ceil(Math::Sqrt((float)(glyphCount * maxGlyphHeight / maxGlyphWidth))));
 
 	uint bufferWidth = glyphPerRow * (maxGlyphWidth + glyphSpacing);
 	uint bufferHeight = (uint)Math::Ceil((float) glyphCount / glyphPerRow) * (maxGlyphHeight + glyphSpacing);

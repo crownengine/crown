@@ -35,6 +35,8 @@ void load_accelerometer(LuaEnvironment& env);
 
 void load_camera(LuaEnvironment& env);
 
+void load_device(LuaEnvironment& env);
+
 extern "C"
 {
 	int32_t luaopen_libcrownlua(lua_State* L);

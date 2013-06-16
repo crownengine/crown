@@ -53,6 +53,7 @@ Compiler::~Compiler()
 size_t Compiler::compile(const char* resource, uint32_t name, uint32_t type)
 {
 	string::strncpy(m_resource_name, resource, MAX_RESOURCE_NAME_LENGTH);
+	string::strncpy(m_resource_path, m_root_fs.os_path(resource), MAX_RESOURCE_PATH_LENGTH);
 
 	char resource_name[MAX_RESOURCE_NAME_LENGTH];
 	char resource_type[MAX_RESOURCE_TYPE_LENGTH];
@@ -161,6 +162,11 @@ const char* Compiler::dest_path() const
 const char* Compiler::resource_name() const
 {
 	return m_resource_name;
+}
+
+const char* Compiler::resource_path() const
+{
+	return m_resource_path;
 }
 
 } // namespace crown

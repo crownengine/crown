@@ -44,8 +44,8 @@ Mat4::Mat4()
 }
 
 //-----------------------------------------------------------------------------
-Mat4::Mat4(real r1c1, real r2c1, real r3c1, real r4c1, real r1c2, real r2c2, real r3c2, real r4c2,
-	real r1c3, real r2c3, real r3c3, real r4c3, real r1c4, real r2c4, real r3c4, real r4c4)
+Mat4::Mat4(float r1c1, float r2c1, float r3c1, float r4c1, float r1c2, float r2c2, float r3c2, float r4c2,
+	float r1c3, float r2c3, float r3c3, float r4c3, float r1c4, float r2c4, float r3c4, float r4c4)
 {
 	m[0] = r1c1;
 	m[1] = r2c1;
@@ -66,7 +66,7 @@ Mat4::Mat4(real r1c1, real r2c1, real r3c1, real r4c1, real r1c2, real r2c2, rea
 }
 
 //-----------------------------------------------------------------------------
-Mat4::Mat4(const real v[16])
+Mat4::Mat4(const float v[16])
 {
 	m[0] = v[0];
 	m[1] = v[1];
@@ -131,7 +131,7 @@ Mat4& Mat4::operator=(const Mat4& a)
 }
 
 //-----------------------------------------------------------------------------
-real Mat4::operator[](uint32_t i) const
+float Mat4::operator[](uint32_t i) const
 {
 	CE_ASSERT(i < 16, "Index must be < 16");
 
@@ -139,7 +139,7 @@ real Mat4::operator[](uint32_t i) const
 }
 
 //-----------------------------------------------------------------------------
-real& Mat4::operator[](uint32_t i)
+float& Mat4::operator[](uint32_t i)
 {
 	CE_ASSERT(i < 16, "Index must be < 16");
 
@@ -147,7 +147,7 @@ real& Mat4::operator[](uint32_t i)
 }
 
 //-----------------------------------------------------------------------------
-real Mat4::operator()(uint32_t row, uint32_t column) const
+float Mat4::operator()(uint32_t row, uint32_t column) const
 {
 	CE_ASSERT(row < 4 && column < 4, "Row and column must be < 4");
 
@@ -251,7 +251,7 @@ Mat4& Mat4::operator-=(const Mat4& a)
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mat4::operator*(real k) const
+Mat4 Mat4::operator*(float k) const
 {
 	Mat4 tmp;
 
@@ -276,7 +276,7 @@ Mat4 Mat4::operator*(real k) const
 }
 
 //-----------------------------------------------------------------------------
-Mat4& Mat4::operator*=(real k)
+Mat4& Mat4::operator*=(float k)
 {
 	m[0] *= k;
 	m[1] *= k;
@@ -299,11 +299,11 @@ Mat4& Mat4::operator*=(real k)
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mat4::operator/(real k) const
+Mat4 Mat4::operator/(float k) const
 {
 	Mat4 tmp;
 
-	k = (real)1.0 / k;
+	k = (float)1.0 / k;
 
 	tmp.m[0] = m[0] * k;
 	tmp.m[1] = m[1] * k;
@@ -326,9 +326,9 @@ Mat4 Mat4::operator/(real k) const
 }
 
 //-----------------------------------------------------------------------------
-Mat4& Mat4::operator/=(real k)
+Mat4& Mat4::operator/=(float k)
 {
-	k = (real)1.0 / k;
+	k = (float)1.0 / k;
 
 	m[0] *= k;
 	m[1] *= k;
@@ -433,13 +433,13 @@ Mat4& Mat4::operator*=(const Mat4& a)
 	return *this;
 }
 
-Mat4 operator*(real k, const Mat4& a)
+Mat4 operator*(float k, const Mat4& a)
 {
 	return a * k;
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_rotation_x(real radians)
+void Mat4::build_rotation_x(float radians)
 {
 	m[0] = 1.0;
 	m[1] = 0.0;
@@ -460,7 +460,7 @@ void Mat4::build_rotation_x(real radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_rotation_y(real radians)
+void Mat4::build_rotation_y(float radians)
 {
 	m[0] = math::cos(radians);
 	m[1] = 0.0;
@@ -481,7 +481,7 @@ void Mat4::build_rotation_y(real radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_rotation_z(real radians)
+void Mat4::build_rotation_z(float radians)
 {
 	m[0] = math::cos(radians);
 	m[1] = math::sin(radians);
@@ -502,11 +502,11 @@ void Mat4::build_rotation_z(real radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_rotation(const Vec3& n, real radians)
+void Mat4::build_rotation(const Vec3& n, float radians)
 {
-	real a = (real)1.0 - math::cos(radians);
-	real sin_a = math::sin(radians);
-	real cos_a = math::cos(radians);
+	float a = (float)1.0 - math::cos(radians);
+	float sin_a = math::sin(radians);
+	float cos_a = math::cos(radians);
 
 	m[0] = n.x * n.x * a + cos_a;
 	m[1] = n.x * n.y * a + n.z * sin_a;
@@ -527,71 +527,71 @@ void Mat4::build_rotation(const Vec3& n, real radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_projection_perspective_rh(real fovy, real aspect, real near, real far)
+void Mat4::build_projection_perspective_rh(float fovy, float aspect, float near, float far)
 {
 	double top, right;
 
-	top = math::tan((real)((double)fovy / 360.0 * math::PI)) * (double)near;
+	top = math::tan((float)((double)fovy / 360.0 * math::PI)) * (double)near;
 	right = top * aspect;
 
-	m[0] = (real)(near / right);
+	m[0] = (float)(near / right);
 	m[1] = 0.0;
 	m[2] = 0.0;
 	m[3] = 0.0;
 	m[4] = 0.0;
-	m[5] = (real)(near / top);
+	m[5] = (float)(near / top);
 	m[6] = 0.0;
 	m[7] = 0.0;
 	m[8] = 0.0;
 	m[9] = 0.0;
-	m[10] = (real)((far + near) / (near - far));
+	m[10] = (float)((far + near) / (near - far));
 	m[11] = -1.0;
 	m[12] = 0.0;
 	m[13] = 0.0;
-	m[14] = (real)((2.0 * far * near) / (near - far));
+	m[14] = (float)((2.0 * far * near) / (near - far));
 	m[15] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_projection_perspective_lh(real fovy, real aspect, real near, real far)
+void Mat4::build_projection_perspective_lh(float fovy, float aspect, float near, float far)
 {
 	double top, right;
 
-	top = math::tan((real)((double)fovy / 360.0 * math::PI)) * (double)near;
+	top = math::tan((float)((double)fovy / 360.0 * math::PI)) * (double)near;
 	right = top * aspect;
 
-	m[0] = (real)(near / right);
+	m[0] = (float)(near / right);
 	m[1] = 0.0;
 	m[2] = 0.0;
 	m[3] = 0.0;
 	m[4] = 0.0;
-	m[5] = (real)(near / top);
+	m[5] = (float)(near / top);
 	m[6] = 0.0;
 	m[7] = 0.0;
 	m[8] = 0.0;
 	m[9] = 0.0;
-	m[10] = (real)(far / (far - near));
+	m[10] = (float)(far / (far - near));
 	m[11] = 1.0;
 	m[12] = 0.0;
 	m[13] = 0.0;
-	m[14] = (real)((far * near) / (near - far));
+	m[14] = (float)((far * near) / (near - far));
 	m[15] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_projection_ortho_rh(real width, real height, real near, real far)
+void Mat4::build_projection_ortho_rh(float width, float height, float near, float far)
 {
-	m[0] = (real)2.0 / width;
+	m[0] = (float)2.0 / width;
 	m[1] = 0.0;
 	m[2] = 0.0;
 	m[3] = 0.0;
 	m[4] = 0.0;
-	m[5] = (real)2.0 / height;
+	m[5] = (float)2.0 / height;
 	m[6] = 0.0;
 	m[7] = 0.0;
 	m[8] = 0.0;
 	m[9] = 0.0;
-	m[10] = (real)2 / (near - far);
+	m[10] = (float)2 / (near - far);
 	m[11] = 0.0;
 	m[12] = 0.0;
 	m[13] = 0.0;
@@ -600,51 +600,51 @@ void Mat4::build_projection_ortho_rh(real width, real height, real near, real fa
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_projection_ortho_lh(real width, real height, real near, real far)
+void Mat4::build_projection_ortho_lh(float width, float height, float near, float far)
 {
-	m[0] = (real)2.0 / width;
+	m[0] = (float)2.0 / width;
 	m[1] = 0.0;
 	m[2] = 0.0;
 	m[3] = 0.0;
 	m[4] = 0.0;
-	m[5] = (real)2.0 / height;
+	m[5] = (float)2.0 / height;
 	m[6] = 0.0;
 	m[7] = 0.0;
 	m[8] = 0.0;
 	m[9] = 0.0;
-	m[10] = (real)2 / (far - near);
+	m[10] = (float)2 / (far - near);
 	m[11] = 0.0;
 	m[12] = 0.0;
 	m[13] = 0.0;
 	m[14] = near / (near - far);
-	m[15] = (real)1.0;
+	m[15] = (float)1.0;
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_projection_ortho_2d_rh(real width, real height, real near, real far)
+void Mat4::build_projection_ortho_2d_rh(float width, float height, float near, float far)
 {
-	m[0] = (real)2.0 / width;
+	m[0] = (float)2.0 / width;
 	m[1] = 0.0;
 	m[2] = 0.0;
 	m[3] = 0.0;
 	m[4] = 0.0;
-	m[5] = (real)-2.0 / height;
+	m[5] = (float)-2.0 / height;
 	m[6] = 0.0;
 	m[7] = 0.0;
 	m[8] = 0.0;
 	m[9] = 0.0;
-	m[10] = (real)2.0 / (near - far);
+	m[10] = (float)2.0 / (near - far);
 	m[11] = 0.0;
-	m[12] = (real)-1.0 + (m[0] * (real)0.375);		// Add 0.375 to acheive
-	m[13] =  (real)1.0 + (m[5] * (real)0.375);		// pixel-perfect 2d drawing
+	m[12] = (float)-1.0 + (m[0] * (float)0.375);		// Add 0.375 to acheive
+	m[13] =  (float)1.0 + (m[5] * (float)0.375);		// pixel-perfect 2d drawing
 	m[14] = near / (near - far);
-	m[15] = (real)1.0;
+	m[15] = (float)1.0;
 }
 
 //-----------------------------------------------------------------------------
 Mat4& Mat4::transpose()
 {
-	real tmp;
+	float tmp;
 
 	tmp = m[1];
 	m[1] = m[4];
@@ -807,16 +807,16 @@ void Mat4::build_axis_billboard(const Vec3& pos, const Vec3& target, const Vec3&
 }
 
 //-----------------------------------------------------------------------------
-real Mat4::get_determinant() const
+float Mat4::get_determinant() const
 {
-	real det;
+	float det;
 
-	real m02m07_m06m03 = m[2] * m[7] - m[6] * m[3];
-	real m02m11_m10m03 = m[2] * m[11] - m[10] * m[3];
-	real m02m15_m14m03 = m[2] * m[15] - m[14] * m[3];
-	real m06m11_m10m07 = m[6] * m[11] - m[10] * m[7];
-	real m06m15_m14m07 = m[6] * m[15] - m[14] * m[7];
-	real m10m15_m14m11 = m[10] * m[15] - m[14] * m[11];
+	float m02m07_m06m03 = m[2] * m[7] - m[6] * m[3];
+	float m02m11_m10m03 = m[2] * m[11] - m[10] * m[3];
+	float m02m15_m14m03 = m[2] * m[15] - m[14] * m[3];
+	float m06m11_m10m07 = m[6] * m[11] - m[10] * m[7];
+	float m06m15_m14m07 = m[6] * m[15] - m[14] * m[7];
+	float m10m15_m14m11 = m[10] * m[15] - m[14] * m[11];
 
 	det = 	+ m[0] * (m[5] * m10m15_m14m11 - m[9] * m06m15_m14m07 + m[13] * m06m11_m10m07)
 			- m[4] * (m[1] * m10m15_m14m11 - m[9] * m02m15_m14m03 + m[13] * m02m11_m10m03)
@@ -830,26 +830,26 @@ real Mat4::get_determinant() const
 Mat4& Mat4::invert()
 {
 	Mat4 mat;
-	real det;
+	float det;
 
-	real m01m06_m05m02 = m[1] * m[6] - m[5] * m[2];
-	real m01m07_m05m03 = m[1] * m[7] - m[5] * m[3];
-	real m01m10_m09m02 = m[1] * m[10] - m[9] * m[2];
-	real m01m11_m09m03 = m[1] * m[11] - m[9] * m[3];
-	real m01m14_m13m02 = m[1] * m[14] - m[13] * m[2];
-	real m01m15_m13m03 = m[1] * m[15] - m[13] * m[3];
-	real m02m07_m06m03 = m[2] * m[7] - m[6] * m[3];
-	real m02m11_m10m03 = m[2] * m[11] - m[10] * m[3];
-	real m02m15_m14m03 = m[2] * m[15] - m[14] * m[3];
-	real m05m10_m09m06 = m[5] * m[10] - m[9] * m[6];
-	real m05m11_m09m07 = m[5] * m[11] - m[9] * m[7];
-	real m05m14_m13m06 = m[5] * m[14] - m[13] * m[6];
-	real m05m15_m13m07 = m[5] * m[15] - m[13] * m[7];
-	real m06m11_m10m07 = m[6] * m[11] - m[10] * m[7];
-	real m06m15_m14m07 = m[6] * m[15] - m[14] * m[7];
-	real m09m14_m13m10 = m[9] * m[14] - m[13] * m[10];
-	real m09m15_m13m11 = m[9] * m[15] - m[13] * m[11];
-	real m10m15_m14m11 = m[10] * m[15] - m[14] * m[11];
+	float m01m06_m05m02 = m[1] * m[6] - m[5] * m[2];
+	float m01m07_m05m03 = m[1] * m[7] - m[5] * m[3];
+	float m01m10_m09m02 = m[1] * m[10] - m[9] * m[2];
+	float m01m11_m09m03 = m[1] * m[11] - m[9] * m[3];
+	float m01m14_m13m02 = m[1] * m[14] - m[13] * m[2];
+	float m01m15_m13m03 = m[1] * m[15] - m[13] * m[3];
+	float m02m07_m06m03 = m[2] * m[7] - m[6] * m[3];
+	float m02m11_m10m03 = m[2] * m[11] - m[10] * m[3];
+	float m02m15_m14m03 = m[2] * m[15] - m[14] * m[3];
+	float m05m10_m09m06 = m[5] * m[10] - m[9] * m[6];
+	float m05m11_m09m07 = m[5] * m[11] - m[9] * m[7];
+	float m05m14_m13m06 = m[5] * m[14] - m[13] * m[6];
+	float m05m15_m13m07 = m[5] * m[15] - m[13] * m[7];
+	float m06m11_m10m07 = m[6] * m[11] - m[10] * m[7];
+	float m06m15_m14m07 = m[6] * m[15] - m[14] * m[7];
+	float m09m14_m13m10 = m[9] * m[14] - m[13] * m[10];
+	float m09m15_m13m11 = m[9] * m[15] - m[13] * m[11];
+	float m10m15_m14m11 = m[10] * m[15] - m[14] * m[11];
 
 	mat.m[0] = (+ m[5] * m10m15_m14m11 - m[9] * m06m15_m14m07 + m[13] * m06m11_m10m07);
 	mat.m[1] = (+ m[1] * m10m15_m14m11 - m[9] * m02m15_m14m03 + m[13] * m02m11_m10m03);
@@ -857,7 +857,7 @@ Mat4& Mat4::invert()
 	mat.m[3] = (+ m[1] * m06m11_m10m07 - m[5] * m02m11_m10m03 + m[9] * m02m07_m06m03);
 
 	det = m[0] * mat.m[0] - m[4] * mat.m[1] + m[8] * mat.m[2] - m[12] * mat.m[3];
-	det = (real)1.0 / det;
+	det = (float)1.0 / det;
 
 	mat.m[4] = (+ m[4] * m10m15_m14m11 - m[8] * m06m15_m14m07 + m[12] * m06m11_m10m07);
 	mat.m[5] = (+ m[0] * m10m15_m14m11 - m[8] * m02m15_m14m03 + m[12] * m02m11_m10m03);
@@ -948,13 +948,13 @@ void Mat4::set_scale(const Vec3& scale)
 }
 
 //-----------------------------------------------------------------------------
-real* Mat4::to_float_ptr()
+float* Mat4::to_float_ptr()
 {
 	return &m[0];
 }
 
 //-----------------------------------------------------------------------------
-const real* Mat4::to_float_ptr() const
+const float* Mat4::to_float_ptr() const
 {
 	return &m[0];
 }
@@ -981,11 +981,11 @@ Mat3 Mat4::to_mat3() const
 Quat Mat4::to_quat() const
 {
 	Quat tmp;
-	real fourWSquaredMinusOne = m[0] + m[5] + m[10];
-	real fourXSquaredMinusOne = m[0] - m[5] - m[10];
-	real fourYSquaredMinusOne = -m[0] + m[5] - m[10];
-	real fourZSquaredMinusOne = -m[0] - m[5] + m[10];
-	real fourMaxSquaredMinusOne = fourWSquaredMinusOne;
+	float fourWSquaredMinusOne = m[0] + m[5] + m[10];
+	float fourXSquaredMinusOne = m[0] - m[5] - m[10];
+	float fourYSquaredMinusOne = -m[0] + m[5] - m[10];
+	float fourZSquaredMinusOne = -m[0] - m[5] + m[10];
+	float fourMaxSquaredMinusOne = fourWSquaredMinusOne;
 	uint32_t index = 0;
 
 	if (fourXSquaredMinusOne > fourMaxSquaredMinusOne)
@@ -1006,8 +1006,8 @@ Quat Mat4::to_quat() const
 		index = 3;
 	}
 
-	real biggest = math::sqrt(fourMaxSquaredMinusOne + (real)1.0) * (real)0.5;
-	real mult = (real)0.25 / biggest;
+	float biggest = math::sqrt(fourMaxSquaredMinusOne + (float)1.0) * (float)0.5;
+	float mult = (float)0.25 / biggest;
 
 	switch (index)
 	{

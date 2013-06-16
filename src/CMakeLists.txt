@@ -3,7 +3,6 @@ set (SRC
 	Device.cpp
 	MaterialResource.cpp
 	ResourceManager.cpp
-	Skybox.cpp
 
 	TextureResource.cpp
 	TextResource.cpp
@@ -27,7 +26,6 @@ set (HEADERS
 	Resource.h
 	ResourceManager.h
 	Bundle.h
-	Skybox.h
 
 	TextureResource.h
 	TextResource.h
@@ -152,14 +150,18 @@ set (STRINGS_HEADERS
 set (MEM_SRC
 	core/mem/Memory.cpp
 	core/mem/Allocator.cpp
-	core/mem/MallocAllocator.cpp
+	core/mem/HeapAllocator.cpp
+	core/mem/LinearAllocator.cpp
+	core/mem/StackAllocator.cpp
 	core/mem/ProxyAllocator.cpp
 )
 
 set (MEM_HEADERS
 	core/mem/Memory.h
 	core/mem/Allocator.h
-	core/mem/MallocAllocator.h
+	core/mem/HeapAllocator.h
+	core/mem/LinearAllocator.h
+	core/mem/StackAllocator.h
 	core/mem/ProxyAllocator.h
 )
 
@@ -399,8 +401,10 @@ configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_D
 
 include_directories(${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
 link_directories(${CROWN_THIRD_LIBS})
-
 link_libraries(${CROWN_LIBRARIES})
+
+# Lua bindings and systems
+add_subdirectory(lua)
 
 add_definitions(${CROWN_COMPILER_FLAGS})
 
@@ -408,15 +412,15 @@ if (WINDOWS)
 add_definitions(/link /OPT:NOREF)
 endif (WINDOWS)
 
-add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
+add_library(crown STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
 
 # TEST - generates .lib
 
-add_library(crown-static STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
-set_target_properties(crown-static PROPERTIES OUTPUT_NAME "crown")
+#add_library(crown-static STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
+#set_target_properties(crown-static PROPERTIES OUTPUT_NAME "crown")
 #set_target_properties(crown-static PROPERTIES PREFIX "lib")
-set_target_properties(crown PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-set_target_properties(crown-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+#set_target_properties(crown PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+#set_target_properties(crown-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 
 # ENDTEST
 

@@ -46,15 +46,15 @@ public:
 					Circle();
 					
 	/// Constructs from @a center and @a radius.
-					Circle(const Vec2& center, real radius);	
+					Circle(const Vec2& center, float radius);	
 					Circle(const Circle& circle);				
 
 	const Vec2&		center() const;							
-	real			radius() const;	
+	float			radius() const;	
 	void			set_center(const Vec2& center);			
-	void			set_radius(real radius);				
+	void			set_radius(float radius);				
 
-	real			area() const;						
+	float			area() const;						
 
 	/// Returns a Rect containing the circle.
 	Rect			to_rect() const;
@@ -62,7 +62,7 @@ public:
 private:
 
 	Vec2			m_center;
-	real			m_radius;
+	float			m_radius;
 };
 
 //-----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ inline Circle::Circle()
 }
 
 //-----------------------------------------------------------------------------
-inline Circle::Circle(const Vec2& center, real radius) : m_center(center), m_radius(radius)
+inline Circle::Circle(const Vec2& center, float radius) : m_center(center), m_radius(radius)
 {
 }
 
@@ -87,7 +87,7 @@ inline const Vec2& Circle::center() const
 }
 
 //-----------------------------------------------------------------------------
-inline real Circle::radius() const
+inline float Circle::radius() const
 {
 	return m_radius;
 }
@@ -99,13 +99,13 @@ inline void Circle::set_center(const Vec2& center)
 }
 
 //-----------------------------------------------------------------------------
-inline void Circle::set_radius(real radius)
+inline void Circle::set_radius(float radius)
 {
 	m_radius = radius;
 }
 
 //-----------------------------------------------------------------------------
-inline real Circle::area() const
+inline float Circle::area() const
 {
 	return m_radius * m_radius * math::PI;
 }

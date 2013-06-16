@@ -24,101 +24,59 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "MallocAllocator.h"
-#include <cstdlib>
+#include "LinearAllocator.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-MallocAllocator::MallocAllocator() :
-	m_allocated_size(0)
+LinearAllocator::LinearAllocator(void* start, size_t size) :
+	m_physical_start(start),
+	m_total_size(size),
+	m_offset(0)
 {
 }
 
 //-----------------------------------------------------------------------------
-MallocAllocator::~MallocAllocator()
+LinearAllocator::~LinearAllocator()
 {
+	CE_ASSERT(m_offset == 0, "Memory leak of %d bytes", m_offset);
 }
 
 //-----------------------------------------------------------------------------
-void* MallocAllocator::allocate(size_t size, size_t align)
+void* LinearAllocator::allocate(size_t size, size_t align)
 {
-	size_t actual_size = actual_allocation_size(size, align);
+	const size_t actual_size = size + align;
 
-	Header* h = (Header*)malloc(actual_size);
-	h->size = actual_size;
-
-	void* data = memory::align(h + 1, align);
-
-	pad(h, data);
-
-	m_allocated_size += actual_size;
-
-	return data;
-}
-
-//-----------------------------------------------------------------------------
-void MallocAllocator::deallocate(void* data)
-{
-	Header* h = header(data);
-
-	m_allocated_size -= h->size;
-
-	free(h);
-}
-
-//-----------------------------------------------------------------------------
-size_t MallocAllocator::allocated_size()
-{
-	return m_allocated_size;
-}
-
-//-----------------------------------------------------------------------------
-size_t MallocAllocator::get_size(void* data)
-{
-	Header* h = header(data);
-
-	return h->size;
-}
-
-//-----------------------------------------------------------------------------
-size_t MallocAllocator::actual_allocation_size(size_t size, size_t align)
-{
-	return size + align + sizeof(Header);
-}
-
-//-----------------------------------------------------------------------------
-MallocAllocator::Header* MallocAllocator::header(void* data)
-{
-	uint32_t* ptr = (uint32_t*)data;
-	ptr--;
-
-	while (*ptr == memory::PADDING_VALUE)
+	// Memory exhausted
+	if (m_offset + actual_size > m_total_size)
 	{
-		ptr--;
+		return NULL;
 	}
 
-	return (Header*)ptr;
+	void* user_ptr = memory::align_top((char*) m_physical_start + m_offset, align);
+
+	m_offset += actual_size;
+
+	return user_ptr;
 }
 
 //-----------------------------------------------------------------------------
-void* MallocAllocator::data(Header* header, size_t align)
+void LinearAllocator::deallocate(void* /*data*/)
 {
-	return memory::align(header + 1, align);
+	// Single deallocations not supported. Use clear().
 }
 
 //-----------------------------------------------------------------------------
-void MallocAllocator::pad(Header* header, void* data)
+void LinearAllocator::clear()
 {
-	uint32_t* p = (uint32_t*)(header + 1);
+	m_offset = 0;
+}
 
-	while (p != (uint32_t*)data)
-	{
-		*p = memory::PADDING_VALUE;
-		p++;
-	}
+//-----------------------------------------------------------------------------
+size_t LinearAllocator::allocated_size()
+{
+	return m_offset;
 }
 
 } // namespace crown
-

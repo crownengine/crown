@@ -24,33 +24,49 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Memory.h"
-#include "HeapAllocator.h"
+#pragma once
 
-//-----------------------------------------------------------------------------
-void* operator new(size_t)
+#include "Allocator.h"
+
+namespace crown
 {
-	CE_ASSERT(false, "operator new forbidden");
 
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-void* operator new[](size_t)
+/// Allocates memory linearly in a stack-like fashion from a
+/// predefined chunk. All deallocations must occur in LIFO
+/// order.
+class StackAllocator : public Allocator
 {
-	CE_ASSERT(false, "operator new[] forbidden");
+public:
 
-	return NULL;
-}
+				StackAllocator(void* start, size_t size);
+				~StackAllocator();
 
-//-----------------------------------------------------------------------------
-void operator delete(void*)
-{
-	CE_ASSERT(false, "operator delete forbidden");
-}
+	/// @copydoc Allocator::allocate()
+	void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
 
-//-----------------------------------------------------------------------------
-void operator delete[](void*)
-{
-	CE_ASSERT(false, "operator delete[] forbidden");
-}
+	/// @copydoc Allocator::deallocate()
+	/// @note
+	/// Deallocations must occur in LIFO order i.e. the
+	/// last allocation must be freed for first.
+	void		deallocate(void* data);
+
+	/// @copydoc Allocator::allocated_size()
+	size_t		allocated_size();
+
+private:
+
+	struct Header
+	{
+		uint32_t offset;
+		uint32_t alloc_id;
+	};
+
+	void*		m_physical_start;
+	size_t		m_total_size;
+
+	void*		m_top;
+
+	uint32_t	m_allocation_count;
+};
+
+} // namespace crown

@@ -24,62 +24,74 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "MathUtils.h"
-#include "Plane.h"
-#include "Types.h"
+#include "StackAllocator.h"
+#include "OS.h"
 
 namespace crown
 {
 
-const Plane Plane::ZERO = Plane(Vec3::ZERO, 0.0);
-const Plane	Plane::XAXIS = Plane(Vec3::XAXIS, 0.0);
-const Plane	Plane::YAXIS = Plane(Vec3::YAXIS, 0.0);
-const Plane	Plane::ZAXIS = Plane(Vec3::ZAXIS, 0.0);
-
 //-----------------------------------------------------------------------------
-Plane::Plane()
+StackAllocator::StackAllocator(void* start, size_t size) :
+	m_physical_start(start),
+	m_total_size(size),
+	m_top(start),
+	m_allocation_count(0)
 {
 }
 
 //-----------------------------------------------------------------------------
-Plane::Plane(const Plane& p) : n(p.n), d(p.d)
+StackAllocator::~StackAllocator()
 {
+	CE_ASSERT(m_allocation_count == 0 && allocated_size() == 0,
+		"Missing %d deallocations causing a leak of %d bytes", m_allocation_count, allocated_size());
 }
 
 //-----------------------------------------------------------------------------
-Plane::Plane(const Vec3& normal, float dist) : n(normal), d(dist)
+void* StackAllocator::allocate(size_t size, size_t align)
 {
-}
+	const size_t actual_size = sizeof(Header) + size + align;
 
-//-----------------------------------------------------------------------------
-Plane& Plane::normalize()
-{
-	float len = n.length();
-
-	if (math::equals(len, (float)0.0))
+	// Memory exhausted
+	if ((char*) m_top + actual_size > (char*) m_physical_start + m_total_size)
 	{
-		return *this;
+		return NULL;
 	}
 
-	len = (float)1.0 / len;
+	// The offset from TOS to the start of the buffer
+	uint32_t offset = (char*) m_top - (char*) m_physical_start;
 
-	n *= len;
-	d *= len;
+	// Align user data only, ignore header alignment
+	m_top = (char*) memory::align_top((char*) m_top + sizeof(Header), align) - sizeof(Header);
 
-	return *this;
+	Header* header = (Header*) m_top;
+	header->offset = offset;
+	header->alloc_id = m_allocation_count;
+
+	void* user_ptr = (char*) m_top + sizeof(Header);
+	m_top = (char*) m_top + actual_size;
+
+	m_allocation_count++;
+
+	return user_ptr;
 }
 
 //-----------------------------------------------------------------------------
-float Plane::distance_to_point(const Vec3& p) const
+void StackAllocator::deallocate(void* data)
 {
-	return n.dot(p) + d;
+	Header* data_header = (Header*) ((char*)data - sizeof(Header));
+
+	CE_ASSERT(data_header->alloc_id == m_allocation_count - 1,
+		"Deallocations must occur in LIFO order");
+
+	m_top = (char*) m_physical_start + data_header->offset;
+
+	m_allocation_count--;
 }
 
 //-----------------------------------------------------------------------------
-bool Plane::contains_point(const Vec3& p) const
+size_t StackAllocator::allocated_size()
 {
-	return math::equals(n.dot(p) + d, (float)0.0);
+	return (char*) m_top - (char*) m_physical_start;
 }
 
 } // namespace crown
-

@@ -73,7 +73,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Mem
 #include "Memory.h"
 #include "Allocator.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
+#include "LinearAllocator.h"
+#include "StackAllocator.h"
 #include "ProxyAllocator.h"
 
 // Core/Filesystem
@@ -105,7 +107,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ArchiveBundle.h"
 #include "FileBundle.h"
 #include "ResourceManager.h"
-#include "Skybox.h"
 
 #include "TextResource.h"
 #include "TextureResource.h"

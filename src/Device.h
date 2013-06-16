@@ -29,8 +29,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Config.h"
 #include "OS.h"
-#include "MallocAllocator.h"
+#include "LinearAllocator.h"
 #include "Resource.h"
+
+#define MAX_SUBSYSTEMS_HEAP 1024 * 1024
 
 namespace crown
 {
@@ -128,7 +130,8 @@ private:
 private:
 
 	// Used to allocate all subsystems
-	MallocAllocator			m_allocator;
+	uint8_t					m_subsystems_heap[MAX_SUBSYSTEMS_HEAP];
+	LinearAllocator			m_allocator;
 
 	// Preferred settings from command line
 	int32_t					m_preferred_window_width;
@@ -136,6 +139,8 @@ private:
 	int32_t					m_preferred_window_fullscreen;
 	int32_t					m_preferred_mode;
 	char					m_preferred_root_path[MAX_PATH_LENGTH];
+
+	int32_t					m_quit_after_init;
 
 	bool					m_is_init		: 1;
 	bool					m_is_running	: 1;

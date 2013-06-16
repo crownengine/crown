@@ -2,8 +2,9 @@
 
 #include "Vec3.h"
 #include "OS.h"
+#include "NetAddress.h"
 #include "BitMessage.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 
 using namespace crown;
 
@@ -14,7 +15,7 @@ void test_int8()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 	
 	int8_t res;
@@ -49,7 +50,7 @@ void test_uint8()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 
 	uint8_t res;
@@ -84,7 +85,7 @@ void test_int16()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);  
 	
 	int16_t res;
@@ -116,7 +117,7 @@ void test_uint16()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 
 	uint16_t res;
@@ -148,7 +149,7 @@ void test_int32()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 	
 	int32_t res;
@@ -174,29 +175,29 @@ void test_int32()
 	
 }
 
-void test_real()
+void test_float()
 {
   	uint32_t bits_written;
 	uint32_t rem_write_bits;
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 
-	real res;
+	float res;
 	
 	m.init(4);
-	m.write_real(4.5342f);
+	m.write_float(4.5342f);
 	bits_written = m.get_num_bits_written();
 	rem_write_bits = m.get_remaining_write_bits();
 	
-	res = m.read_real();
+	res = m.read_float();
 	bits_read = m.get_num_bits_read();
 	rem_read_bits = m.get_remaining_read_bits();
 	
 	printf("-----------------------------\n");
-	printf("start write and read for REAL\n");
+	printf("start write and read for float\n");
 	printf("value = %f\n", res);
 	printf("bits written = %d\n", bits_written);
 	printf("remaining write bits = %d\n", rem_write_bits);
@@ -215,7 +216,7 @@ void test_vec3()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 	
 	
@@ -249,7 +250,7 @@ void test_string()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 	
 	uint8_t tmp[16];
@@ -287,7 +288,7 @@ void test_data()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 
-	MallocAllocator allocator;
+	HeapAllocator allocator;
   	network::BitMessage m = network::BitMessage(allocator);
 	
 	uint8_t tmp[] = "test generic";
@@ -322,7 +323,7 @@ void test_net_address()
 	uint32_t bits_read;
 	uint32_t rem_read_bits; 
 	
-	MallocAllocator allocator;
+	HeapAllocator allocator;
 	network::BitMessage m = network::BitMessage(allocator);
 
 	uint8_t tmp[16];
@@ -344,7 +345,7 @@ void test_net_address()
 	
 	printf("-----------------------------\n");
 	printf("start write and read for NET_ADDRESS\n");
-	printf("a = %d, b = %d, c = %d, d = %d, p = %d\n", res.address[0], res.address[1], res.address[2], res.address[3], res.port);
+	printf("a = %d, b = %d, c = %d, d = %d, p = %d\n", res.m_address[0], res.m_address[1], res.m_address[2], res.m_address[3], res.m_port);
 	printf("bits written = %d\n", bits_written);
 	printf("remaining write bits = %d\n", rem_write_bits);
 	printf("bits read = %d\n", bits_read);
@@ -361,13 +362,13 @@ int main()
 	test_int16();
 	test_uint16();
 	test_int32();
-	test_real();
+	test_float();
 	test_vec3();
 	test_string();
 	test_data();
 	test_net_address();
 */
-	MallocAllocator allocator;
+	HeapAllocator allocator;
 	network::BitMessage msg = network::BitMessage(allocator);
 	
 	uint32_t protocol_id = 0xFFFFFFFF;

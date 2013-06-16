@@ -56,11 +56,5 @@ void Mutex::unlock()
     LeaveCriticalSection(&m_cs);
 }
 
-//-----------------------------------------------------------------------------
-CRITICAL_SECTION Mutex::handle()
-{
-	return m_cs;
-}
-
 } // namespace os
 } // namespace crown

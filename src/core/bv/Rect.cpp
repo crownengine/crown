@@ -48,12 +48,12 @@ bool Rect::intersects_rect(const Rect& rect) const
 }
 
 //-----------------------------------------------------------------------------
-void Rect::set_from_center_and_dimensions(Vec2 center, real width, real height)
+void Rect::set_from_center_and_dimensions(Vec2 center, float width, float height)
 {
-	m_min.x = (real)(center.x - width  / 2.0);
-	m_min.y = (real)(center.y - height / 2.0);
-	m_max.x = (real)(center.x + width  / 2.0);
-	m_max.y = (real)(center.y + height / 2.0);
+	m_min.x = (float)(center.x - width  / 2.0);
+	m_min.y = (float)(center.y - height / 2.0);
+	m_max.x = (float)(center.x + width  / 2.0);
+	m_max.y = (float)(center.y + height / 2.0);
 }
 
 //-----------------------------------------------------------------------------
@@ -100,13 +100,13 @@ Vec2 Rect::center() const
 }
 
 //-----------------------------------------------------------------------------
-real Rect::radius() const
+float Rect::radius() const
 {
 	return (m_max - (m_min + m_max) * 0.5).length();
 }
 
 //-----------------------------------------------------------------------------
-real Rect::area() const
+float Rect::area() const
 {
 	return (m_max.x - m_min.x) * (m_max.y - m_min.y);
 }

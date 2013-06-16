@@ -37,4 +37,5 @@ install (TARGETS crown-compiler-utils DESTINATION lib/${CMAKE_PROJECT_NAME})
 install (TARGETS resource-linker DESTINATION bin)
 install (TARGETS resource-hash DESTINATION bin)
 install (TARGETS resource-compiler DESTINATION bin)
-install (FILES resource-compiler.py DESTINATION bin)
+install (FILES resource-compiler.py PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+	GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE DESTINATION bin)

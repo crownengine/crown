@@ -51,14 +51,14 @@ class Quat
 public:
 
 	Vec3		v;
-	real		w;
+	float		w;
 
 public:
 
 				Quat();
 
 	/// Builds the quaternion from an angle and a vector								
-				Quat(real angle, const Vec3& v);	
+				Quat(float angle, const Vec3& v);	
 
 	/// Negates the quaternion
 	void		negate();
@@ -67,7 +67,7 @@ public:
 	void		load_identity();
 
 	/// Returns the quaternion's length					
-	real		length() const;		
+	float		length() const;		
 
 	/// Conjugates the quaternion				
 	void		conjugate();
@@ -85,9 +85,9 @@ public:
 	Quat		operator*(const Quat& b) const;
 
 	/// Multiplication by a scalar		
-	Quat		operator*(const real& k) const;		
+	Quat		operator*(const float& k) const;		
 
-	Quat		power(real exp);
+	Quat		power(float exp);
 };
 
 } // namespace crown

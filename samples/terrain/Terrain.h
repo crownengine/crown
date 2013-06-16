@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Intersection.h"
 #include "Ray.h"
 #include "Renderer.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 
 #define MAX_BRUSH_SIZE 256
 
@@ -58,7 +58,7 @@ public:
 
 	void		UpdateVertexBuffer(bool recomputeNormals);
 
-	bool		TraceRay(const Ray& ray, Triangle& result, Triangle& tri2, real& dist);
+	bool		TraceRay(const Ray& ray, Triangle& result, Triangle& tri2, float& dist);
 
 	uint32_t	SnapToGrid(const Vec3& vertex);
 
@@ -74,7 +74,7 @@ public:
 
 private:
 
-	MallocAllocator	m_allocator;
+	HeapAllocator	m_allocator;
 
 	uint32_t		mSizeX;				// X in meters
 	uint32_t		mSizeZ;				// Z in meters

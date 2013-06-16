@@ -55,8 +55,8 @@ public:
 	void			set_max(const Vec3& max);
 
 	Vec3			center() const;
-	real			radius() const;
-	real			volume() const;
+	float			radius() const;
+	float			volume() const;
 
 	/// Adds @a count @a points expanding if necessary.
 	void			add_points(const Vec3* points, uint32_t count);
@@ -219,7 +219,7 @@ inline Vec3 Box::center() const
 }
 
 //-----------------------------------------------------------------------------
-inline real Box::radius() const
+inline float Box::radius() const
 {
 	return (m_max - (m_min + m_max) * 0.5).length();
 }
@@ -317,7 +317,7 @@ inline void Box::transformed(const Mat4& mat, Box& result) const
 }
 
 //-----------------------------------------------------------------------------
-inline real Box::volume() const
+inline float Box::volume() const
 {
 	return (m_max.x - m_min.x) * (m_max.y - m_min.y) * (m_max.z - m_min.z);
 }

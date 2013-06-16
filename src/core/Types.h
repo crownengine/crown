@@ -26,18 +26,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Config.h"
 #include <cstddef>
 #include <stdint.h>
 
+#include "Config.h"
+
 namespace crown
 {
-
-#ifdef CROWN_USE_FLOAT
-typedef float					real;
-#else
-typedef double					real;
-#endif
 
 #ifndef NULL
 #ifdef __cplusplus

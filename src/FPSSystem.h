@@ -62,8 +62,8 @@ private:
 	float			m_camera_speed;
 	float			m_camera_sensibility;
 
-	real 			m_angle_x;
-	real 			m_angle_y;
+	float 			m_angle_x;
+	float 			m_angle_y;
 
 	bool			m_up_pressed	: 1;
 	bool			m_right_pressed	: 1;

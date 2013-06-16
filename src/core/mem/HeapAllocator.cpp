@@ -24,106 +24,106 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "Types.h"
-#include "Vec2.h"
+#include "HeapAllocator.h"
+#include "Assert.h"
+#include "malloc.h"
 
 namespace crown
 {
 
-class Circle;
-
-/// 2D rectangle.
-///
-/// Used mainly for collision detection and intersection tests.
-class Rect
-{
-public:
-
-	/// Does nothing for efficiency.
-					Rect();		
-
-	/// Constructs from  @a min and @a max
-					Rect(const Vec2& min, const Vec2& max);		
-					Rect(const Rect& rect);	
-
-	const Vec2&		min() const;					
-	const Vec2&		max() const;					
-	void			set_min(const Vec2& min);				
-	void			set_max(const Vec2& max);			
-
-	Vec2			center() const;					
-	float			radius() const;					
-	float			area() const;		
-
-	/// Returns the diagonal of the rect.
-	Vec2			size() const;						
-
-	/// Returns whether @a point point is contained into the rect.
-	bool			contains_point(const Vec2& point) const;
-
-	/// Returns whether the rect intersects @a r.
-	bool			intersects_rect(const Rect& rect) const;	
-
-	/// Sets the Rect from a @a center and a @a width - @a height
-	void			set_from_center_and_dimensions(Vec2 center, float width, float height);	
-
-	/// Returns the four vertices of the rect.
-	void			vertices(Vec2 v[4]) const;
-
-	/// Returns the @a index -th vetex of the rect.
-	Vec2			vertex(uint32_t index) const;			
-
-	/// Returns the equivalent circle.
-	Circle			to_circle() const;
-
-	/// Ensures that min and max aren't swapped.
-	void			fix();									
-
-private:
-
-	Vec2			m_min;
-	Vec2			m_max;
-};
-
 //-----------------------------------------------------------------------------
-inline Rect::Rect()
+HeapAllocator::HeapAllocator() :
+	m_allocated_size(0),
+	m_allocation_count(0)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline Rect::Rect(const Vec2& min, const Vec2& max) : m_min(min), m_max(max)
+HeapAllocator::~HeapAllocator()
 {
+	CE_ASSERT(m_allocation_count == 0 && allocated_size() == 0,
+		"Missing %d deallocations causing a leak of %d bytes", m_allocation_count, allocated_size());
 }
 
 //-----------------------------------------------------------------------------
-inline Rect::Rect(const Rect& rect) : m_min(rect.m_min), m_max(rect.m_max)
+void* HeapAllocator::allocate(size_t size, size_t align)
 {
+	size_t actual_size = actual_allocation_size(size, align);
+
+	Header* h = (Header*)malloc(actual_size);
+	h->size = actual_size;
+
+	void* data = memory::align_top(h + 1, align);
+
+	pad(h, data);
+
+	m_allocated_size += actual_size;
+	m_allocation_count++;
+
+	return data;
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec2& Rect::min() const
+void HeapAllocator::deallocate(void* data)
 {
-	return m_min;
+	Header* h = header(data);
+
+	m_allocated_size -= h->size;
+	m_allocation_count--;
+
+	free(h);
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec2& Rect::max() const
+size_t HeapAllocator::allocated_size()
 {
-	return m_max;
+	return m_allocated_size;
 }
 
 //-----------------------------------------------------------------------------
-inline void Rect::set_min(const Vec2& min)
+size_t HeapAllocator::get_size(void* data)
 {
-	m_min = min;
+	Header* h = header(data);
+
+	return h->size;
 }
 
 //-----------------------------------------------------------------------------
-inline void Rect::set_max(const Vec2& max)
+size_t HeapAllocator::actual_allocation_size(size_t size, size_t align)
 {
-	m_max = max;
+	return size + align + sizeof(Header);
+}
+
+//-----------------------------------------------------------------------------
+HeapAllocator::Header* HeapAllocator::header(void* data)
+{
+	uint32_t* ptr = (uint32_t*)data;
+	ptr--;
+
+	while (*ptr == memory::PADDING_VALUE)
+	{
+		ptr--;
+	}
+
+	return (Header*)ptr;
+}
+
+//-----------------------------------------------------------------------------
+void* HeapAllocator::data(Header* header, size_t align)
+{
+	return memory::align_top(header + 1, align);
+}
+
+//-----------------------------------------------------------------------------
+void HeapAllocator::pad(Header* header, void* data)
+{
+	uint32_t* p = (uint32_t*)(header + 1);
+
+	while (p != (uint32_t*)data)
+	{
+		*p = memory::PADDING_VALUE;
+		p++;
+	}
 }
 
 } // namespace crown

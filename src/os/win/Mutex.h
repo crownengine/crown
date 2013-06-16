@@ -45,8 +45,6 @@ public:
 	void				lock();
 	void				unlock();
 
-	CRITICAL_SECTION	handle();
-
 private:
 
 	CRITICAL_SECTION	m_cs;

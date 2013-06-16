@@ -4,10 +4,11 @@ set (SRC
 	lua.cpp
 )
 
-#add_definitions(-Wl,-E)
-#add_library (game SHARED ${SRC})
-#target_link_libraries(game crown)
+add_definitions(-Wl,-E)
+add_library (game-lua SHARED ${SRC})
+target_link_libraries(game-lua crown crownlua)
 
+set_target_properties (game-lua PROPERTIES OUTPUT_NAME game)
 
-#install (TARGETS game DESTINATION bin/lua_sample)
-
+install (DIRECTORY lua DESTINATION samples)
+install (TARGETS game-lua DESTINATION samples/lua)

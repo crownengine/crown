@@ -36,9 +36,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexShader.h"
 #include "PixelShader.h"
 #include "IdTable.h"
-#include "MallocAllocator.h"
 #include "Resource.h"
 #include "GLContext.h"
+#include "HeapAllocator.h"
 
 namespace crown
 {
@@ -209,9 +209,13 @@ private:
 
 private:
 
+<<<<<<< HEAD
 	GLContext			m_context;
 
 	MallocAllocator		m_allocator;
+=======
+	HeapAllocator		m_allocator;
+>>>>>>> master
 
 	// Matrices
 	Mat4				m_matrix[MT_COUNT];
