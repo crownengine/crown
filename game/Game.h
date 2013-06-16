@@ -29,24 +29,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-extern "C"
-{
+
 	/// Called exactly once after the engine is fully initialized
 	/// and ready to use. This function is the right place to allocate
 	/// and initialize all the main components of the game.
-	__declspec(dllexport) void init_1();
+	void init_1();
 
 	/// Called just before the engine starts to deallocate resources and
 	/// subsystems leading to terminating the execution.
 	/// Here you can safely perform all the necessary deallocation/destruction
 	/// of the previously allocated game resources and/or systems. 
-	__declspec(dllexport) void shutdown_1();
+	void shutdown_1();
 
 	/// Called once per frame, here is the place you tipically perform input checking,
 	/// updates, drawing and so on. The @a dt parameter contains the last frame delta time
 	/// in seconds. 
-	__declspec(dllexport) void frame_1(float dt);
-}
+	void frame_1(float dt);
+
 
 } // namespace crown
 

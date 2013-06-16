@@ -209,20 +209,17 @@ private:
 MainScene m_scene;
 WndCtrl m_ctrl;
 
-extern "C"
+void init_1()
 {
-	__declspec(dllexport) void init_1()
-	{
-		m_scene.on_load();
-	}
+	m_scene.on_load();
+}
+void shutdown_1()
+{
+	m_scene.on_unload();
+}
 
-	__declspec(dllexport) void shutdown_1()
-	{
-		m_scene.on_unload();
-	}
-
-	__declspec(dllexport) void frame_1(float dt)
-	{
-		m_scene.update(dt);
-	}
+void frame_1(float dt)
+{
+	m_scene.update(dt);
+}
 }
