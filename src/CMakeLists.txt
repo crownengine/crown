@@ -342,14 +342,6 @@ if (WINDOWS)
 		glew32
 	)
 
-	list (APPEND CROWN_THIRD_INCLUDES
-		${CROWN_THIRD}/zlib/include
-	)
-
-	list (APPEND CROWN_THIRD_LIBS
-		${CROWN_THIRD}/zlib/lib
-	)
-
 	set(COMPILER_FLAGS)
 	
 	set (CROWN_EXECUTABLE_NAME crown-win)
