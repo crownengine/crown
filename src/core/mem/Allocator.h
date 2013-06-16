@@ -78,7 +78,7 @@ void call_destructor_and_deallocate(Allocator& a, T* ptr)
 /// @note
 /// @a allocator must be a reference to an existing allocator.
 #define CE_NEW(allocator, T)\
-	new ((allocator).allocate(sizeof(T), alignof(T))) T
+	new ((allocator).allocate(sizeof(T), CE_ALIGNOF(T))) T
 
 /// Calls destructor on @a ptr and deallocates memory using the
 /// given @a allocator.

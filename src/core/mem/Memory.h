@@ -75,5 +75,13 @@ inline void dump(void* p, size_t size, size_t word_size)
 	os::printf("\n");
 }
 
+#ifdef _MSC_VER
+	#define CE_ALIGNOF(x) __alignof(x)
+#elif defined __GNUG__
+	#define CE_ALIGNOF(x) __alignof__(x)
+#else
+	#error "Compiler not supported."
+#endif
+
 } // namespace memory
 } // namespace crown
