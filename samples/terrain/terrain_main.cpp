@@ -209,17 +209,19 @@ private:
 MainScene m_scene;
 WndCtrl m_ctrl;
 
-void init_1()
+} // namespace crown
+
+void init()
 {
-	m_scene.on_load();
+	crown::m_scene.on_load();
 }
-void shutdown_1()
+void shutdown()
 {
-	m_scene.on_unload();
+	crown::m_scene.on_unload();
 }
 
-void frame_1(float dt)
+void frame(float dt)
 {
-	m_scene.update(dt);
+	crown::m_scene.update(dt);
 }
-}
+
