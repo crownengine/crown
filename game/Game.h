@@ -44,7 +44,7 @@ CE_EXPORT void init();
 /// subsystems leading to terminating the execution.
 /// Here you can safely perform all the necessary deallocation/destruction
 /// of the previously allocated game resources and/or systems. 
-CE_EXPORT void shutdown();
+CE_EXPORT void shutdown_1();
 
 /// Called once per frame, here is the place you tipically perform input checking,
 /// updates, drawing and so on. The @a dt parameter contains the last frame delta time
