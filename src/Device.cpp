@@ -37,7 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "StringUtils.h"
 #include "Args.h"
-#include "Game.h"
 #include <cstdlib>
 #include "ArchiveBundle.h"
 #include "FileBundle.h"
@@ -149,9 +148,9 @@ bool Device::init(int argc, char** argv)
 		return false;
 	}
 
-	*(void**)(&game_init) = os::lookup_symbol(m_game_library, "init_1");
-	*(void**)(&game_shutdown) = os::lookup_symbol(m_game_library, "shutdown_1");
-	*(void**)(&game_frame) = os::lookup_symbol(m_game_library, "frame_1");
+	*(void**)(&game_init) = os::lookup_symbol(m_game_library, "init");
+	*(void**)(&game_shutdown) = os::lookup_symbol(m_game_library, "shutdown");
+	*(void**)(&game_frame) = os::lookup_symbol(m_game_library, "frame");
 
 	// Initialize the game
 	game_init();
