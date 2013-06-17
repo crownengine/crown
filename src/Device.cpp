@@ -149,7 +149,7 @@ bool Device::init(int argc, char** argv)
 	}
 
 	*(void**)(&game_init) = os::lookup_symbol(m_game_library, "init");
-	*(void**)(&game_shutdown) = os::lookup_symbol(m_game_library, "shutdown");
+	*(void**)(&game_shutdown) = os::lookup_symbol(m_game_library, "shutdown_1");
 	*(void**)(&game_frame) = os::lookup_symbol(m_game_library, "frame");
 
 	// Initialize the game
