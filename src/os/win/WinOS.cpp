@@ -246,6 +246,7 @@ uint64_t microseconds()
 //-----------------------------------------------------------------------------
 void* open_library(const char* path)
 {
+
 	HMODULE library = LoadLibrary(path);
 
 	CE_ASSERT(library  != NULL, "Unable to load library '%s' with error: %d\n", path, GetLastError());
@@ -258,7 +259,7 @@ void close_library(void* library)
 {
 	BOOL freed = FreeLibrary((HMODULE)library);
 
-	CE_ASSERT(freed,  "Failed to close library\n");
+	CE_ASSERT(freed,  "Failed to close library\n with error: %d\n", GetLastError());
 }
 
 //-----------------------------------------------------------------------------
@@ -266,6 +267,7 @@ void* lookup_symbol(void* library, const char* name)
 {
 	FARPROC symbol = GetProcAddress((HMODULE)library, name);
 
+	CE_ASSERT(symbol  != NULL, "Unable to export symbol '%s' with error: %d\n", name, GetLastError());
 	return symbol;
 }
 
