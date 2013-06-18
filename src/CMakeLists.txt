@@ -14,6 +14,7 @@ set (SRC
 
 	FPSSystem.cpp
 	JSONParser.cpp
+	../Game/Game.cpp
 )
 
 set (HEADERS
@@ -37,6 +38,7 @@ set (HEADERS
 
 	FPSSystem.h
 	JSONParser.h
+	../Game/Game.h
 )
 
 set (CORE_SRC
@@ -406,18 +408,9 @@ endif (WINDOWS)
 
 add_library(crown STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
 
-# TEST - generates .lib
-
-#add_library(crown-static STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
-#set_target_properties(crown-static PROPERTIES OUTPUT_NAME "crown")
-#set_target_properties(crown-static PROPERTIES PREFIX "lib")
-#set_target_properties(crown PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-#set_target_properties(crown-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-
-# ENDTEST
 
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
-target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
+target_link_libraries(${CROWN_EXECUTABLE_NAME} crown crownlua)
 
 install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
