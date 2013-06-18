@@ -241,9 +241,7 @@ set (OS_HEADERS
 )
 
 # Platform independent libraries
-set (CROWN_LIBRARIES
-	luajit-5.1
-)
+set (CROWN_LIBRARIES)
 
 set (COMPILER_FLAGS
 	-pipe
@@ -302,6 +300,7 @@ if (LINUX)
 		dl
 		GLEW
 		GL
+		luajit-5.1
 	)
 
 	set (CROWN_EXECUTABLE_NAME crown-linux)
@@ -342,6 +341,7 @@ if (WINDOWS)
 		zlib
 		OpenGL32
 		glew32
+		lua51
 	)
 
 	set(COMPILER_FLAGS)
