@@ -5,18 +5,13 @@
 namespace crown
 {
 
-extern "C"
-{
-
 //-----------------------------------------------------------------------------
-int32_t device_stop(lua_State* L)
+CE_EXPORT int32_t device_stop(lua_State* L)
 {
 	device()->stop();
 
 	return 0;
 }
-
-} // extern "C"
 
 //-----------------------------------------------------------------------------
 void load_device(LuaEnvironment& env)
