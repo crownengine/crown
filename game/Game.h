@@ -26,28 +26,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Config.h"
-
-#ifdef WINDOWS
-	#define CE_EXPORT extern "C" __declspec(dllexport)
-#endif
-#ifndef WINDOWS
-	#define CE_EXPORT
-#endif
+namespace crown
+{
 
 /// Called exactly once after the engine is fully initialized
 /// and ready to use. This function is the right place to allocate
 /// and initialize all the main components of the game.
-CE_EXPORT void init();
+void init();
 
 /// Called just before the engine starts to deallocate resources and
 /// subsystems leading to terminating the execution.
 /// Here you can safely perform all the necessary deallocation/destruction
 /// of the previously allocated game resources and/or systems. 
-CE_EXPORT void shutdown_1();
+void shutdown();
 
 /// Called once per frame, here is the place you tipically perform input checking,
 /// updates, drawing and so on. The @a dt parameter contains the last frame delta time
 /// in seconds. 
-CE_EXPORT void frame(float dt);
+void frame(float dt);
 
+}
