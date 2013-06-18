@@ -8,7 +8,7 @@ install (FILES 	luajit/include/luajit-2.0/lua.hpp
 				luajit/include/luajit-2.0/lualib.h DESTINATION include/crown/luajit)
 				
 #install (DIRECTORY luajit/lib/pkgconfig DESTINATION lib/crown)
-install (FILES luajit/lib/luajit-5.1.dll DESTINATION lib/crown)
+install (FILES luajit/lib/lua51.dll DESTINATION lib/crown)
 
 install (PROGRAMS luajit/bin/luajit.exe DESTINATION bin)
 install (DIRECTORY luajit/share/luajit-2.0.1/jit DESTINATION bin)
