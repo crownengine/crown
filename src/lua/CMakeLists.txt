@@ -38,5 +38,9 @@ set_target_properties (crownlua PROPERTIES OUTPUT_NAME libcrownlua)
 
 install (TARGETS crownlua DESTINATION lib/${CMAKE_PROJECT_NAME})
 
+if (WINDOWS)
+install (TARGETS crownlua DESTINATION bin)
+endif (WINDOWS)
+
 install (FILES ${LUA_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/lua)
 
