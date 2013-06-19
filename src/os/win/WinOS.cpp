@@ -95,7 +95,7 @@ bool is_root_path(const char* path)
 
 	if (string::strlen(path) == 1)
 	{
-		if (path[0] == 'C')
+		if ((path[0] >= 65 && path[0] <= 90) || (path[0] >= 97 && path[0] <= 122))
 		{
 			return true;
 		}
@@ -111,7 +111,7 @@ bool is_absolute_path(const char* path)
 
 	if (string::strlen(path) > 0)
 	{
-		if (path[0] == 'C')
+		if ((path[0] >= 65 && path[0] <= 90) || (path[0] >= 97 && path[0] <= 122))
 		{
 			return true;
 		}
