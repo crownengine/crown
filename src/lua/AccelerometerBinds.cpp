@@ -6,11 +6,8 @@
 namespace crown
 {
 
-extern "C"
-{
-
 //-----------------------------------------------------------------------------
-int32_t accelerometer_orientation(lua_State* L)
+CE_EXPORT int32_t accelerometer_orientation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -21,8 +18,6 @@ int32_t accelerometer_orientation(lua_State* L)
 
 	return 1;
 }
-
-} // extern "C"
 
 //-----------------------------------------------------------------------------
 void load_accelerometer(LuaEnvironment& env)

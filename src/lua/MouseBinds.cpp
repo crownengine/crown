@@ -7,11 +7,8 @@
 namespace crown
 {
 
-extern "C"
-{
-
 //-----------------------------------------------------------------------------
-int32_t mouse_button_pressed(lua_State* L)
+CE_EXPORT int32_t mouse_button_pressed(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -23,7 +20,7 @@ int32_t mouse_button_pressed(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-int32_t mouse_button_released(lua_State* L)
+CE_EXPORT int32_t mouse_button_released(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -35,7 +32,7 @@ int32_t mouse_button_released(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-int32_t mouse_cursor_xy(lua_State* L)
+CE_EXPORT int32_t mouse_cursor_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -49,7 +46,7 @@ int32_t mouse_cursor_xy(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-int32_t mouse_set_cursor_xy(lua_State* L)
+CE_EXPORT int32_t mouse_set_cursor_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -61,7 +58,7 @@ int32_t mouse_set_cursor_xy(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-int32_t mouse_cursor_relative_xy(lua_State* L)
+CE_EXPORT int32_t mouse_cursor_relative_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -74,7 +71,7 @@ int32_t mouse_cursor_relative_xy(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-int32_t mouse_set_cursor_relative_xy(lua_State* L)
+CE_EXPORT int32_t mouse_set_cursor_relative_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -84,8 +81,6 @@ int32_t mouse_set_cursor_relative_xy(lua_State* L)
 
 	return 0;
 }
-
-} // extern "C"
 
 //-----------------------------------------------------------------------------
 void load_mouse(LuaEnvironment& env)

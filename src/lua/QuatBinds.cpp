@@ -7,10 +7,8 @@
 namespace crown
 {
 
-extern "C"
-{
-
-int32_t quat(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t quat(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -27,7 +25,8 @@ int32_t quat(lua_State* L)
 	return 1;
 }
 
-int32_t quat_negate(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t quat_negate(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -38,7 +37,8 @@ int32_t quat_negate(lua_State* L)
 	return 0;
 }
 
-int32_t quat_load_identity(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t quat_load_identity(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -49,7 +49,8 @@ int32_t quat_load_identity(lua_State* L)
 	return 0;
 }
 
-int32_t quat_length(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t quat_length(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -60,7 +61,8 @@ int32_t quat_length(lua_State* L)
 	return 1;
 }
 
-int32_t quat_conjugate(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t quat_conjugate(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -74,7 +76,8 @@ int32_t quat_conjugate(lua_State* L)
 	return 1;
 }
 
-int32_t quat_inverse(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t quat_inverse(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -88,7 +91,8 @@ int32_t quat_inverse(lua_State* L)
 	return 1;
 }
 
-int32_t quat_cross(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t quat_cross(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -102,7 +106,8 @@ int32_t quat_cross(lua_State* L)
 	return 1;
 }
 
-int32_t quat_multiply(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t quat_multiply(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -116,7 +121,8 @@ int32_t quat_multiply(lua_State* L)
 	return 1;
 }
 
-int32_t quat_power(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t quat_power(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -130,8 +136,7 @@ int32_t quat_power(lua_State* L)
 	return 1;
 }
 
-} // extern "C"
-
+//-----------------------------------------------------------------------------
 void load_quat(LuaEnvironment& env)
 {
 	env.load_module_function("Quat", "new", quat);

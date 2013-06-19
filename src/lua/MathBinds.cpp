@@ -5,10 +5,8 @@
 namespace crown
 {
 
-extern "C"
-{
-
-int32_t math_deg_to_rad(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_deg_to_rad(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -19,7 +17,8 @@ int32_t math_deg_to_rad(lua_State* L)
 	return 1;
 }
 
-int32_t math_rad_to_deg(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_rad_to_deg(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -30,7 +29,8 @@ int32_t math_rad_to_deg(lua_State* L)
 	return 1;
 }
 
-int32_t math_next_pow_2(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_next_pow_2(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -41,7 +41,8 @@ int32_t math_next_pow_2(lua_State* L)
 	return 1;
 }
 
-int32_t math_is_pow_2(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_is_pow_2(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -52,7 +53,8 @@ int32_t math_is_pow_2(lua_State* L)
 	return 1;
 }
 
-int32_t math_ceil(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_ceil(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -63,7 +65,8 @@ int32_t math_ceil(lua_State* L)
 	return 1;
 }
 
-int32_t math_floor(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_floor(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -74,7 +77,8 @@ int32_t math_floor(lua_State* L)
 	return 1;
 }
 
-int32_t math_sqrt(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_sqrt(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -85,7 +89,8 @@ int32_t math_sqrt(lua_State* L)
 	return 1;
 }
 
-int32_t math_inv_sqrt(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_inv_sqrt(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -96,7 +101,8 @@ int32_t math_inv_sqrt(lua_State* L)
 	return 1;
 }
 
-int32_t math_sin(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_sin(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -107,7 +113,8 @@ int32_t math_sin(lua_State* L)
 	return 1;
 }
 
-int32_t math_cos(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_cos(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -118,7 +125,8 @@ int32_t math_cos(lua_State* L)
 	return 1;
 }
 
-int32_t math_asin(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_asin(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -129,7 +137,8 @@ int32_t math_asin(lua_State* L)
 	return 1;
 }
 
-int32_t math_acos(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_acos(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -140,7 +149,8 @@ int32_t math_acos(lua_State* L)
 	return 1;
 }
 
-int32_t math_tan(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_tan(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -151,7 +161,8 @@ int32_t math_tan(lua_State* L)
 	return 1;
 }
 
-int32_t math_atan2(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_atan2(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -163,7 +174,8 @@ int32_t math_atan2(lua_State* L)
 	return 1;
 }
 
-int32_t math_abs(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_abs(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -174,7 +186,8 @@ int32_t math_abs(lua_State* L)
 	return 1;
 }
 
-int32_t math_fmod(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t math_fmod(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -186,8 +199,7 @@ int32_t math_fmod(lua_State* L)
 	return 1;
 }
 
-} // extern "C"
-
+//-----------------------------------------------------------------------------
 void load_math(LuaEnvironment& env)
 {
 	env.load_module_function("Math", "deg_to_rad", 	math_deg_to_rad);

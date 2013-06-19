@@ -7,10 +7,8 @@
 namespace crown
 {
 
-extern "C"
-{
-
-int32_t mat4(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -40,8 +38,9 @@ int32_t mat4(lua_State* L)
 
 	return 1;
 }
-					
-int32_t mat4_add(lua_State* L)
+
+//-----------------------------------------------------------------------------					
+CE_EXPORT int32_t mat4_add(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -55,7 +54,8 @@ int32_t mat4_add(lua_State* L)
 	return 1;
 }
 
-int32_t mat4_subtract(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_subtract(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -69,7 +69,8 @@ int32_t mat4_subtract(lua_State* L)
 	return 1;
 }
 
-int32_t mat4_multiply(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_multiply(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -83,7 +84,8 @@ int32_t mat4_multiply(lua_State* L)
 	return 1;
 }	
 
-int32_t mat4_multiply_by_scalar(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_multiply_by_scalar(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -97,7 +99,8 @@ int32_t mat4_multiply_by_scalar(lua_State* L)
 	return 1;
 }
 
-int32_t mat4_divide_by_scalar(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_divide_by_scalar(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -111,7 +114,8 @@ int32_t mat4_divide_by_scalar(lua_State* L)
 	return 1;
 }
 
-int32_t mat4_build_rotation_x(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_rotation_x(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -123,7 +127,8 @@ int32_t mat4_build_rotation_x(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_build_rotation_y(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_rotation_y(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -135,7 +140,8 @@ int32_t mat4_build_rotation_y(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_build_rotation_z(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_rotation_z(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -147,7 +153,8 @@ int32_t mat4_build_rotation_z(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_build_rotation(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -160,7 +167,8 @@ int32_t mat4_build_rotation(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_build_projection_perspective_rh(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_projection_perspective_rh(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -175,7 +183,8 @@ int32_t mat4_build_projection_perspective_rh(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_build_projection_perspective_lh(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_projection_perspective_lh(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -190,7 +199,8 @@ int32_t mat4_build_projection_perspective_lh(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_build_projection_ortho_rh(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_projection_ortho_rh(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -205,7 +215,8 @@ int32_t mat4_build_projection_ortho_rh(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_build_projection_ortho_lh(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_projection_ortho_lh(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -220,7 +231,8 @@ int32_t mat4_build_projection_ortho_lh(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_build_projection_ortho_2d_rh(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_projection_ortho_2d_rh(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -235,7 +247,8 @@ int32_t mat4_build_projection_ortho_2d_rh(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_build_look_at_rh(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_look_at_rh(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -249,7 +262,8 @@ int32_t mat4_build_look_at_rh(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_build_look_at_lh(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_look_at_lh(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -263,7 +277,8 @@ int32_t mat4_build_look_at_lh(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_build_viewpoint_billboard(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_viewpoint_billboard(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -277,7 +292,8 @@ int32_t mat4_build_viewpoint_billboard(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_build_axis_billboard(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_build_axis_billboard(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -291,7 +307,8 @@ int32_t mat4_build_axis_billboard(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_transpose(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_transpose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -304,7 +321,8 @@ int32_t mat4_transpose(lua_State* L)
 	return 1;
 }
 
-int32_t mat4_determinant(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_determinant(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -315,7 +333,8 @@ int32_t mat4_determinant(lua_State* L)
 	return 1;
 }
 
-int32_t mat4_invert(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_invert(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -328,7 +347,8 @@ int32_t mat4_invert(lua_State* L)
 	return 1;
 }
 
-int32_t mat4_load_identity(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_load_identity(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -339,7 +359,8 @@ int32_t mat4_load_identity(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_get_translation(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_get_translation(lua_State* L)
 {	
 	LuaStack stack(L);
 
@@ -353,7 +374,8 @@ int32_t mat4_get_translation(lua_State* L)
 	return 1;
 }
 
-int32_t mat4_set_translation(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_set_translation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -365,7 +387,8 @@ int32_t mat4_set_translation(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_get_scale(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_get_scale(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -379,7 +402,8 @@ int32_t mat4_get_scale(lua_State* L)
 	return 1;
 }
 
-int32_t mat4_set_scale(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_set_scale(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -391,7 +415,8 @@ int32_t mat4_set_scale(lua_State* L)
 	return 0;
 }
 
-int32_t mat4_print(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_print(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -405,8 +430,7 @@ int32_t mat4_print(lua_State* L)
 	return 0;
 }
 
-} //extern "C"
-
+//-----------------------------------------------------------------------------
 void load_mat4(LuaEnvironment& env)
 {
 	env.load_module_function("Mat4", "new", 							mat4);

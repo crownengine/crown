@@ -23,6 +23,7 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 	luaL_register(m_state, module, entry);
 }
 
+//-----------------------------------------------------------------------------
 CE_EXPORT int32_t luaopen_libcrownlua(lua_State* L)
 {
 	LuaEnvironment env(L);
