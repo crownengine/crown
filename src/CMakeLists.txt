@@ -12,9 +12,10 @@ set (SRC
 	ArchiveBundle.cpp
 	FileBundle.cpp
 
-	FPSSystem.cpp
+	Game.cpp
 	JSONParser.cpp
-	../Game/Game.cpp
+
+	FPSSystem.cpp
 )
 
 set (HEADERS
@@ -36,9 +37,10 @@ set (HEADERS
 	ArchiveBundle.h
 	FileBundle.h
 
-	FPSSystem.h
+	Game.h
 	JSONParser.h
-	../Game/Game.h
+
+	FPSSystem.h
 )
 
 set (CORE_SRC
