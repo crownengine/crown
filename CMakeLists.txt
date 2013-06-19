@@ -79,10 +79,12 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	
 	list (APPEND CROWN_THIRD_INCLUDES
 		${CROWN_THIRD}/zlib/include
+		${CROWN_THIRD}/luajit/include/luajit-2.0
 	)
 
 	list (APPEND CROWN_THIRD_LIBS
 		${CROWN_THIRD}/zlib/lib
+		${CROWN_THIRD}/luajit/lib
 	)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
@@ -91,7 +93,7 @@ link_directories(${CROWN_THIRD_LIBS})
 
 # add build directories
 add_subdirectory(src)
-add_subdirectory(${CROWN_THIRD})
+add_subdirectory(${CROWN_THIRD}) #necessary?
 
 if (CROWN_BUILD_TOOLS)
 	add_subdirectory(tools)

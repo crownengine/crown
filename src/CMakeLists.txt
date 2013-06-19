@@ -344,7 +344,7 @@ if (WINDOWS)
 		lua51
 	)
 
-	set(COMPILER_FLAGS)
+	set (COMPILER_FLAGS /link /OPT:NOREF)
 	
 	set (CROWN_EXECUTABLE_NAME crown-win)
 	set (CROWN_MAIN_SRC os/win/main.cpp)
@@ -402,12 +402,7 @@ add_subdirectory(lua)
 
 add_definitions(${CROWN_COMPILER_FLAGS})
 
-if (WINDOWS)
-add_definitions(/link /OPT:NOREF)
-endif (WINDOWS)
-
 add_library(crown STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
-
 
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown crownlua)
