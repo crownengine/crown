@@ -65,7 +65,25 @@ void LuaStack::push_bool(bool value)
 }
 
 //-----------------------------------------------------------------------------
-void LuaStack::push_int(int32_t value)
+void LuaStack::push_int32(int32_t value)
+{
+	lua_pushinteger(m_state, value);
+}
+
+//-----------------------------------------------------------------------------
+void LuaStack::push_uint32(uint32_t value)
+{
+	lua_pushinteger(m_state, value);
+}
+
+//-----------------------------------------------------------------------------
+void LuaStack::push_int64(int64_t value)
+{
+	lua_pushinteger(m_state, value);
+}
+
+//-----------------------------------------------------------------------------
+void LuaStack::push_uint64(uint64_t value)
 {
 	lua_pushinteger(m_state, value);
 }

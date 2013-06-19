@@ -2,7 +2,6 @@
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
 
-
 namespace crown
 {
 

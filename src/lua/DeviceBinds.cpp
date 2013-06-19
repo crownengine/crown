@@ -12,9 +12,7 @@ CE_EXPORT int32_t device_frame_count(lua_State* L)
 
 	uint64_t frame = device()->frame_count();
 
-	// FIXME: push_int use int32_t, so we need a push_int64,
-	// but i don't know if lua 5.1 supports 64 bit integer
-	stack.push_int(frame);
+	stack.push_uint64(frame);
 
 	return 1;
 }
@@ -50,9 +48,10 @@ CE_EXPORT int32_t device_stop(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_device(LuaEnvironment& env)
 {
+	env.load_module_function("Device", "frame_count", device_frame_count);
+	env.load_module_function("Device", "last_delta_time", device_last_delta_time);
 	env.load_module_function("Device", "start", device_start);
 	env.load_module_function("Device", "stop", device_stop);
-	env.load_module_function("Device", "last_delta_time", device_last_delta_time);
 }
 
 } // namespace crown

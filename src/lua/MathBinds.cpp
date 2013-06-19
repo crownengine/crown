@@ -36,7 +36,7 @@ CE_EXPORT int32_t math_next_pow_2(lua_State* L)
 
 	uint32_t x = stack.get_int(1);
 
-	stack.push_int(math::next_pow_2(x));
+	stack.push_uint32(math::next_pow_2(x));
 
 	return 1;
 }
