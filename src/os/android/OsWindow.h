@@ -23,20 +23,50 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
+
 #pragma once
 
-#include <jni.h>
 #include <sys/types.h>
-#include <android/asset_manager.h>
+#include <android/native_window.h>
 
 namespace crown
 {
-namespace os
-{
 
-// Accessor to the android asset manager
-AAssetManager* 	get_android_asset_manager();
+class OsWindow
+{
+public:
+
+					OsWindow(uint32_t width, uint32_t height);
+					~OsWindow();
+
+	void			show();
+	void			hide();
+
+	void			get_size(uint32_t& width, uint32_t& height);
+	void			get_position(uint32_t& x, uint32_t& y);
+
+	void			resize(uint32_t width, uint32_t height);
+	void			move(uint32_t x, uint32_t y);
+
+	void			show_cursor();
+	void			hide_cursor();
+
+	void			get_cursor_xy(int32_t& x, int32_t& y);
+	void			set_cursor_xy(int32_t x, int32_t y);
+
+	char*			title();
+	void			set_title(const char* title);
+
+	void			frame();
+
+private:
+
+	ANativeWindow*	m_window;
+
+	uint32_t		m_x;
+	uint32_t		m_y;
+	uint32_t		m_width;
+	uint32_t		m_height;
+};
 
 } // namespace crown
-} // namespace os
-
