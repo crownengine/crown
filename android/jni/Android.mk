@@ -60,13 +60,16 @@ LOCAL_SRC_FILES :=\
 	input/EventDispatcher.cpp\
 	input/InputManager.cpp\
 \
+	lua/LuaStack.cpp\
+	lua/LuaEnvironment.cpp\
+\
 	network/BitMessage.cpp\
 \
 	os/OS.cpp\
 	os/android/AndroidOS.cpp\
-	os/android/AndroidInput.cpp\
 	os/android/AndroidDevice.cpp\
-	os/android/File.cpp\
+	os/android/OsWindow.cpp\
+	os/android/OsFile.cpp\
 	os/posix/Thread.cpp\
 	os/posix/Mutex.cpp\
 	os/posix/Cond.cpp\
@@ -75,24 +78,25 @@ LOCAL_SRC_FILES :=\
 \
 	renderers/gles/GLESRenderer.cpp\
 	renderers/gles/GLESUtils.cpp\
+	renderers/gles/egl/GLContext.cpp\
 	renderers/DebugRenderer.cpp\
 	renderers/PixelFormat.cpp\
 	renderers/VertexFormat.cpp\
 \
-	ArchiveBundle.cpp
-	Camera.cpp
-	Device.cpp
-	FileBundle.cpp
-	FontResource.cpp
-	FPSSystem.cpp
-	Game.cpp
-	JSONParser.cpp
-	MaterialResource.cpp
-	PixelShaderResource.cpp
-	ResourceManager.cpp
-	TextResource.cpp
-	TextureResource.cpp
-	VertexShaderResource.cpp
+	ArchiveBundle.cpp\
+	Camera.cpp\
+	Device.cpp\
+	FileBundle.cpp\
+	FontResource.cpp\
+	FPSSystem.cpp\
+	JSONParser.cpp\
+	MaterialResource.cpp\
+	PixelShaderResource.cpp\
+	ResourceManager.cpp\
+	TextResource.cpp\
+	TextureResource.cpp\
+	VertexShaderResource.cpp\
+	Game.cpp\
 \
 
 LOCAL_C_INCLUDES	:=\
@@ -108,6 +112,7 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/core/settings\
 	$(LOCAL_PATH)/core/strings\
 	$(LOCAL_PATH)/input\
+	$(LOCAL_PATH)/lua\
 	$(LOCAL_PATH)/network\
 	$(LOCAL_PATH)/os\
 	$(LOCAL_PATH)/os/android\
@@ -115,8 +120,45 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/renderers/gles\
 	$(LOCAL_PATH)/renderers/gles/egl\
 	$(LOCAL_PATH)/samples\
+#	include third/luajit/include
+\
 
 LOCAL_CPPFLAGS	:= -g -fexceptions
-LOCAL_LDLIBS	:= -llog -landroid -lGLESv2
+LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv2 -lz
+LOCAL_LDLIBS 	+= $(LOCAL_PATH)/libluajit-5.1.so -lluajit-5.1
+LOCAL_SHARED_LIBRARIES := crown luajit-5.1
 include $(BUILD_SHARED_LIBRARY)
-#(call import-module, android/native_app_glue)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE    := crownlua
+
+LOCAL_SRC_FILES :=\
+	lua/LuaStack.cpp\
+	lua/LuaEnvironment.cpp\
+	lua/AccelerometerBinds.cpp\
+	lua/CameraBinds.cpp\
+	lua/DeviceBinds.cpp\
+	lua/KeyboardBinds.cpp\
+	lua/Mat4Binds.cpp\
+	lua/MathBinds.cpp\
+	lua/MouseBinds.cpp\
+	lua/QuatBinds.cpp\
+	lua/TouchBinds.cpp\
+	lua/Vec2Binds.cpp\
+	lua/Vec3Binds.cpp\
+	Game.cpp\
+
+\
+
+LOCAL_C_INCLUDES	:=\
+	$(LOCAL_PATH)\
+	$(LOCAL_PATH)/lua\
+#	include third/luajit/include
+\
+
+LOCAL_CPPFLAGS	:= -g -fexceptions -I
+LOCAL_LDLIBS	:= -llog -landroid
+LOCAL_LDLIBS 	+= $(LOCAL_PATH)/libluajit-5.1.so -lluajit-5.1
+LOCAL_SHARED_LIBRARIES := crown luajit-5.1
+include $(BUILD_SHARED_LIBRARY)
