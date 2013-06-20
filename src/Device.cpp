@@ -37,7 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "StringUtils.h"
 #include "Args.h"
-#include <cstdlib>
 #include "ArchiveBundle.h"
 #include "FileBundle.h"
 #include "ResourceManager.h"
@@ -54,10 +53,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-
-// static void (*game_init)(void) = NULL;
-// static void (*game_shutdown)(void) = NULL;
-// static void (*game_frame)(float) = NULL;
 
 //-----------------------------------------------------------------------------
 Device::Device() :
@@ -131,28 +126,6 @@ bool Device::init(int argc, char** argv)
 
 	Log::i("Initializing Game...");
 
-	// // Try to locate the game library
-	// if (!m_filesystem->exists(GAME_LIBRARY_NAME))
-	// {
-	// 	Log::e("Unable to find the game library in the root path.", GAME_LIBRARY_NAME);
-	// 	return false;
-	// }
-
-	// // Try to load the game library and bind functions
-	// const char* game_library_path = m_filesystem->os_path(GAME_LIBRARY_NAME);
-
-	// m_game_library = os::open_library(game_library_path);
-
-	// if (m_game_library == NULL)
-	// {
-	// 	Log::e("Unable to load the game.");
-	// 	return false;
-	// }
-
-	// *(void**)(&game_init) = os::lookup_symbol(m_game_library, "init");
-	// *(void**)(&game_shutdown) = os::lookup_symbol(m_game_library, "shutdown_1");
-	// *(void**)(&game_frame) = os::lookup_symbol(m_game_library, "frame");
-
 	// Initialize the game through init game function
 	crown::init();
 
@@ -179,13 +152,7 @@ void Device::shutdown()
 
 	// Shutdowns the game
 	crown::shutdown();
-
-	// Unload the game library
-	if (m_game_library)
-	{
-		os::close_library(m_game_library);
-	}
-
+	
 	if (m_input_manager)
 	{
 		CE_DELETE(m_allocator, m_input_manager);
