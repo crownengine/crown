@@ -85,9 +85,6 @@ class CompilerHelper:
 		print("Compiling resources...")
 		self.m_compiler.compile_all()
 
-		print("Copying game library...")
-		shutil.copy(self.root_path() + "/" + GAME_LIBRARY_FILE, self.dest_path())
-
 		print("Writing perfect seed...")
 		self.write_perfect_seed()
 
