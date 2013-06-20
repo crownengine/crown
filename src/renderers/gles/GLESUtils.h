@@ -26,14 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-<<<<<<< HEAD
 #include <GLES2/gl2.h>
-#include <cassert>
-
-=======
-#include <GLES/gl.h>
 #include "Assert.h"
->>>>>>> master
 #include "Texture.h"
 #include "Material.h"
 #include "PixelFormat.h"
@@ -70,7 +64,7 @@ private:
 //-----------------------------------------------------------------------------
 inline GLenum GLES::compare_function(CompareFunction function)
 {
-	CE_ASSERT(function < CF_COUNT);
+	CE_ASSERT(function < CF_COUNT, "Compare function not supported");
 
 	return COMPARE_FUNCTION_TABLE[function];
 }
@@ -78,7 +72,7 @@ inline GLenum GLES::compare_function(CompareFunction function)
 //-----------------------------------------------------------------------------
 inline GLenum GLES::blend_function(BlendFunction function)
 {
-	CE_ASSERT(function < BF_COUNT);
+	CE_ASSERT(function < BF_COUNT, "Blend function not supported");
 
 	return BLEND_FUNCTION_TABLE[function];
 }
@@ -86,15 +80,8 @@ inline GLenum GLES::blend_function(BlendFunction function)
 //-----------------------------------------------------------------------------
 inline GLenum GLES::blend_equation(BlendEquation equation)
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
-	assert(equation < BE_COUNT);
-=======
-	ce_assert(mode < TM_COUNT);
->>>>>>> master
-=======
-	CE_ASSERT(mode < TM_COUNT);
->>>>>>> master
+
+	CE_ASSERT(equation < BE_COUNT, "Blend equation not supported");
 
 	return BLEND_EQUATION_TABLE[equation];
 }
@@ -102,7 +89,7 @@ inline GLenum GLES::blend_equation(BlendEquation equation)
 //-----------------------------------------------------------------------------
 inline GLenum GLES::texture_wrap(TextureWrap wrap)
 {
-	CE_ASSERT(wrap < TW_COUNT);
+	CE_ASSERT(wrap < TW_COUNT, "Texture wrapper not supported");
 
 	return TEXTURE_WRAP_TABLE[wrap];
 }
@@ -110,24 +97,13 @@ inline GLenum GLES::texture_wrap(TextureWrap wrap)
 //-----------------------------------------------------------------------------
 inline void GLES::texture_filter(TextureFilter filter, GLint& minFilter, GLint& magFilter)
 {
-	CE_ASSERT(filter < TF_COUNT);
+	CE_ASSERT(filter < TF_COUNT, "Texture filter not supported");
 
 	minFilter = TEXTURE_MIN_FILTER_TABLE[filter];
 	magFilter = TEXTURE_MAG_FILTER_TABLE[filter];
 }
 
 //-----------------------------------------------------------------------------
-<<<<<<< HEAD
-=======
-inline GLenum GLES::fog_mode(FogMode mode)
-{
-	CE_ASSERT(mode < FM_COUNT);
-
-	return FOG_MODE_TABLE[mode];
-}
-
-//-----------------------------------------------------------------------------
->>>>>>> master
 inline GLenum GLES::pixel_format(PixelFormat format)
 {
 	switch (format)

@@ -36,7 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexShader.h"
 #include "PixelShader.h"
 #include "IdTable.h"
-#include "MallocAllocator.h"
+#include "HeapAllocator.h"
 #include "Resource.h"
 
 namespace crown
@@ -208,7 +208,7 @@ private:
 
 private:
 
-	MallocAllocator		m_allocator;
+	HeapAllocator		m_allocator;
 
 	// Matrices
 	Mat4				m_matrix[MT_COUNT];
