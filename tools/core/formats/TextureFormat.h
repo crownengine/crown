@@ -26,32 +26,26 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Compiler.h"
-#include "DiskFile.h"
+#include <cstdint>
 
 namespace crown
 {
 
-class TXTCompiler : public Compiler
+// Texture format
+//
+// [ResourceHeader]
+// [TextureHeader]
+// [TextureData]
+
+// Bump the version whenever a change in the header is made
+const uint32_t TEXTURE_VERSION = 1;
+
+struct TextureHeader
 {
-public:
-
-					TXTCompiler(const char* root_path, const char* dest_path);
-					~TXTCompiler();
-
-	size_t			read_header_impl(DiskFile* in_file);
-	size_t			read_resource_impl(DiskFile* in_file);
-
-	void			write_header_impl(DiskFile* out_file);
-	void			write_resource_impl(DiskFile* out_file);
-
-	void			cleanup_impl();
-
-private:
-
-	uint32_t		m_file_size;
-	char*			m_file_data;
+	uint32_t	version;	// Texture file version
+	uint32_t	format;		// Format of the pixels
+	uint32_t	width;		// Width in pixels
+	uint32_t	height;		// Height in pixels
 };
 
 } // namespace crown
-

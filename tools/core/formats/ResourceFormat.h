@@ -24,50 +24,28 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "Types.h"
-#include "Resource.h"
-#include "PixelFormat.h"
-#include "Texture.h"
-
 namespace crown
 {
 
-// Bump the version whenever a change in the header is made
-const uint32_t TEXTURE_VERSION = 1;
+const uint32_t	RESOURCE_MAGIC_NUMBER		= 0xCE010101;
+const uint32_t	RESOURCE_VERSION			= 2;
 
-struct TextureHeader
+/// Contains the header data common to all
+/// types of resources passing through the
+/// standard Compiler mechanics.
+struct ResourceHeader
 {
-	uint32_t	version;	// Texture file version
-	uint32_t	format;		// Format of the pixels
-	uint32_t	width;		// Width in pixels
-	uint32_t	height;		// Height in pixels
+	uint32_t	magic;		// Magic number used to identify the file
+	uint32_t	version;	// Version of the compiler used to compile the resource
+	uint32_t	size;		// Size of the resource data _not_ including this header in bytes
 };
 
-class Bundle;
-class Allocator;
-
-class TextureResource
-{
-public:
-
-	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			online(void* resource);
-	static void			unload(Allocator& allocator, void* resource);
-	static void			offline();
-
-public:
-
-	PixelFormat			format() const { return (PixelFormat) m_header.format; }
-	uint32_t			width() const { return m_header.width; }
-	uint32_t			height() const { return m_header.height; }
-	const uint8_t*		data() const { return m_data; }
-
-private:
-
-	TextureHeader		m_header;
-	uint8_t*			m_data;
-};
+// Resource format:
+//
+// [ResourceHeader]
+// [ResourceData]
+//
+// The ResourceHeader is common to all resource types.
+// Every resource appends its data after the resource header.
 
 } // namespace crown

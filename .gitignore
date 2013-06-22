@@ -3,6 +3,7 @@
 
 # Ignore CMake-generated config files
 /src/Config.h
+/tools/Config.h
 
 # Ignore some android directories
 /android/bin

@@ -1,8 +1,36 @@
-#include "Crown.h"
-#include "tga/TGACompiler.h"
-#include "txt/TXTCompiler.h"
-#include "vs/VSCompiler.h"
-#include "ps/PSCompiler.h"
+/*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
+Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#include <cstdio>
+
+#include "Args.h"
+#include "Path.h"
+#include "String.h"
+#include "Hash.h"
+#include "TGACompiler.h"
 
 using namespace crown;
 
@@ -30,57 +58,32 @@ int main(int argc, char** argv)
 	// If there are no resources
 	if (first_resource >= argc)
 	{
-		Log::e("you have to specify at least one resource.");
+		printf("you have to specify at least one resource.");
 		exit(EXIT_FAILURE);
 	}
 
-	TGACompiler tga(root_path, dest_path);
-	TXTCompiler txt(root_path, dest_path);
-	VSCompiler vs(root_path, dest_path);
-	PSCompiler ps(root_path, dest_path);
 
-	char resource_name[MAX_RESOURCE_NAME_LENGTH];
-	char resource_type[MAX_RESOURCE_TYPE_LENGTH];
+	TGACompiler tga;
+	// TXTCompiler txt(root_path, dest_path);
+	// VSCompiler vs(root_path, dest_path);
+	// PSCompiler ps(root_path, dest_path);
 
-	// Dispatch requests to the appropriate compiler
-	for (int32_t res = first_resource; res < argc; res++)
+	char out_name[1024];
+	char resource_name[1024];
+	char resource_type[1024];
+
+	for (int32_t i = 0; i < argc - first_resource; i++)
 	{
-		char* resource = argv[res];
+		path::filename_without_extension(argv[first_resource + i], resource_name, 1024);
+		path::extension(argv[first_resource + i], resource_type, 1024);
 
-		path::filename_without_extension(resource, resource_name, MAX_RESOURCE_NAME_LENGTH);
-		path::extension(resource, resource_type, MAX_RESOURCE_TYPE_LENGTH);
+		snprintf(out_name, 1024, "%.8X%.8X",
+			hash::murmur2_32(resource_name, string::strlen(resource_name), hash_seed),
+			hash::murmur2_32(resource_type, string::strlen(resource_type), 0));
 
-		uint32_t resource_name_hash = hash::murmur2_32(resource_name, string::strlen(resource_name), hash_seed);
-		uint32_t resource_type_hash = hash::murmur2_32(resource_type, string::strlen(resource_type), 0);
+		printf("%s <= %s\n", out_name, argv[first_resource + i]);
 
-		switch (resource_type_hash)
-		{
-			case TEXTURE_TYPE:
-			{
-				tga.compile(resource, resource_name_hash, resource_type_hash);
-				break;
-			}
-			case TEXT_TYPE:
-			{
-				txt.compile(resource, resource_name_hash, resource_type_hash);
-				break;
-			}
-			case VERTEX_SHADER_TYPE:
-			{
-				vs.compile(resource, resource_name_hash, resource_type_hash);
-				break;
-			}
-			case PIXEL_SHADER_TYPE:
-			{
-				ps.compile(resource, resource_name_hash, resource_type_hash);
-				break;	
-			}
-			default:
-			{
-				Log::e("Resource type not supported.");
-				break;
-			}
-		}
+		tga.compile(root_path, dest_path, argv[first_resource + i], out_name);
 	}
 
 	return 0;
@@ -157,13 +160,13 @@ void check_arguments(const char* root_path, const char* dest_path)
 {
 	if (root_path == NULL)
 	{
-		Log::e("you have to specify the root path with `--root-path`\n");
+		printf("you have to specify the root path with `--root-path`\n");
 		exit(EXIT_FAILURE);
 	}
 
 	if (dest_path == NULL)
 	{
-		Log::e("you have to specify the destination path with `--dest-path`\n");
+		printf("you have to specify the destination path with `--dest-path`\n");
 		exit(EXIT_FAILURE);
 	}
 }

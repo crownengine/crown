@@ -35,15 +35,17 @@ namespace crown
 class Filesystem;
 class DiskFile;
 
-// The header of every compiled resource file.
-// KEEP IN SYNC WITH CompiledResource struct in Compiler.h!
+const uint32_t	RESOURCE_MAGIC_NUMBER		= 0xCE010101;
+const uint32_t	RESOURCE_VERSION			= 2;
+
+/// Contains the header data common to all
+/// types of resources passing through the
+/// standard Compiler mechanics.
 struct ResourceHeader
 {
 	uint32_t	magic;		// Magic number used to identify the file
 	uint32_t	version;	// Version of the compiler used to compile the resource
-	uint32_t	name;		// Name of the resource (murmur2_32 hash)
-	uint32_t	type;		// Type of the resource (murmur2_32 hash)
-	uint32_t	size;		// Size of the resource data _not_ including header (in bytes)
+	uint32_t	size;		// Size of the resource data _not_ including this header in bytes
 };
 
 /// Source of resources

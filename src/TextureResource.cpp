@@ -39,23 +39,21 @@ namespace crown
 //-----------------------------------------------------------------------------
 void* TextureResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
 {
-	DiskFile* stream = bundle.open(id);
+	DiskFile* file = bundle.open(id);
 
-	CE_ASSERT(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
+	CE_ASSERT(file != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
 
 	TextureResource* resource = (TextureResource*)allocator.allocate(sizeof(TextureResource));
 
-	stream->read(&resource->m_format, sizeof(PixelFormat));
-	stream->read(&resource->m_width, sizeof(uint16_t));
-	stream->read(&resource->m_height, sizeof(uint16_t));
+	file->read(&resource->m_header, sizeof(TextureHeader));
 
-	size_t size = resource->m_width * resource->m_height * Pixel::bytes_per_pixel(resource->m_format);
+	size_t size = resource->width() * resource->height() * Pixel::bytes_per_pixel(resource->format());
 
 	resource->m_data = (uint8_t*)allocator.allocate(sizeof(uint8_t) * size);
 
-	stream->read(resource->m_data, size);
+	file->read(resource->m_data, size);
 
-	bundle.close(stream);
+	bundle.close(file);
 
 	return resource;
 }
