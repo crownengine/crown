@@ -7,7 +7,7 @@ set (SRC
 
 set (HEADERS
 	Terrain.h
-	../../game/Game.h
+	../../src/Game.h
 )
 
 add_library (game-terrain SHARED ${SRC} ${HEADERS})
