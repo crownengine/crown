@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 2.8)
 project(crown-tools)
 
 set (INCLUDES
-	core
-	core/formats
-	core/strings
-	compilers
-	compilers/tga
+	${CMAKE_SOURCE_DIR}/tools/core
+	${CMAKE_SOURCE_DIR}/tools/core/formats
+	${CMAKE_SOURCE_DIR}/tools/core/strings
+	${CMAKE_SOURCE_DIR}/tools/compilers
+	${CMAKE_SOURCE_DIR}/tools/compilers/tga
 )
 
 set (CORE_SRC
