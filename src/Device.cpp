@@ -126,31 +126,6 @@ bool Device::init(int argc, char** argv)
 
 	Log::i("Initializing Game...");
 
-	// Try to locate the game library
-	if (!m_filesystem->exists(GAME_LIBRARY_NAME))
-	{
-		Log::e("Unable to find the game library in the root path.", GAME_LIBRARY_NAME);
-		return false;
-	}
-
-	// Try to load the game library and bind functions
-	const char* game_library_path = m_filesystem->os_path(GAME_LIBRARY_NAME);
-
-	m_game_library = os::open_library(game_library_path);
-
-	if (m_game_library == NULL)
-	{
-		Log::e("Unable to load the game.");
-		return false;
-	}
-
-	// Initialize the game
-	crown::init();
-
-	m_is_init = true;
-
-	start();
-
 	if (m_quit_after_init == 1)
 	{
 		shutdown();
@@ -166,15 +141,6 @@ void Device::shutdown()
 	{
 		Log::e("Crown Engine is not initialized.");	
 		return;
-	}
-
-	// Shutdowns the game
-	crown::shutdown();
-
-	// Unload the game library
-	if (m_game_library)
-	{
-		os::close_library(m_game_library);
 	}
 
 	if (m_input_manager)
@@ -346,8 +312,6 @@ void Device::frame()
 
 	m_window->frame();
 	m_input_manager->frame();
-
-	crown::frame(last_delta_time());
 
 	m_debug_renderer->draw_all();
 	m_renderer->frame();
