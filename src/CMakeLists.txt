@@ -304,6 +304,9 @@ if (LINUX)
 		GL
 		luajit-5.1
 	)
+
+	set (CROWN_EXECUTABLE_NAME crown-linux)
+	set (CROWN_MAIN_SRC os/linux/main.cpp)
 endif (LINUX)
 
 if (WINDOWS)
