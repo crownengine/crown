@@ -27,4 +27,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <cstddef>
-#include <cstdint>
+#include <stdint.h>

@@ -28,7 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <string>
 #include <fstream>
-#include <cstdint>
+
+#include "Types.h"
 
 namespace crown
 {

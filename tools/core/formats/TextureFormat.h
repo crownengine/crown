@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cstdint>
+#include "Types.h"
 
 namespace crown
 {
