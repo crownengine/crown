@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Args.h"
 #include "Path.h"
-#include "String.h"
+#include "StringUtils.h"
 #include "Hash.h"
 #include "TGACompiler.h"
 
