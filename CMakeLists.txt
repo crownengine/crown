@@ -63,8 +63,6 @@ set (CROWN_THIRD_LIBS
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	set (LINUX 1)
 
-	set (CROWN_MAIN_SRC ${CMAKE_SOURCE_DIR}/src/os/linux/main.cpp)
-
 	list (APPEND CROWN_INCLUDES
 		${CMAKE_SOURCE_DIR}/src/os/linux
 		${CMAKE_SOURCE_DIR}/src/renderers/gl/glx
@@ -73,8 +71,6 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	set(WINDOWS 1)
-
-	set (CROWN_MAIN_SRC ${CMAKE_SOURCE_DIR}/src/os/win/main.cpp)
 
 	list (APPEND CROWN_INCLUDES
 		${CMAKE_SOURCE_DIR}/src/os/win
