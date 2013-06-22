@@ -38,7 +38,7 @@ namespace os
 class Mutex
 {
 public:
-	
+
 						Mutex();
 						~Mutex();
 

@@ -23,10 +23,8 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 	luaL_register(m_state, module, entry);
 }
 
-extern "C"
-{
-
-int32_t luaopen_libcrownlua(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t luaopen_libcrownlua(lua_State* L)
 {
 	LuaEnvironment env(L);
 
@@ -45,7 +43,7 @@ int32_t luaopen_libcrownlua(lua_State* L)
 	return 1;
 }
 
-} // extern "C"
+
 
 
 } // namespace crown

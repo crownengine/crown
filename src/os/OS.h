@@ -36,20 +36,18 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 #ifdef LINUX
-const size_t	MAX_PATH_LENGTH = 1024;
-const char		PATH_SEPARATOR = '/';
+	const size_t	MAX_PATH_LENGTH = 1024;
+	const char		PATH_SEPARATOR = '/';
 #endif
 
 #ifdef WINDOWS
+	const size_t	MAX_PATH_LENGTH = 1024;
+	const char		PATH_SEPARATOR = '\\';
 
-const size_t	MAX_PATH_LENGTH = 1024;
-const char		PATH_SEPARATOR = '\\';
+	#define snprintf _snprintf
 
-#define snprintf _snprintf
-
-#undef MK_SHIFT
-#undef MK_ALT
-
+	#undef MK_SHIFT
+	#undef MK_ALT
 #endif
 
 namespace os

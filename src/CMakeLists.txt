@@ -12,8 +12,10 @@ set (SRC
 	ArchiveBundle.cpp
 	FileBundle.cpp
 
-	FPSSystem.cpp
+	Game.cpp
 	JSONParser.cpp
+
+	FPSSystem.cpp
 )
 
 set (HEADERS
@@ -35,9 +37,9 @@ set (HEADERS
 	ArchiveBundle.h
 	FileBundle.h
 
-	FPSSystem.h
+	Game.h
 	JSONParser.h
-	../game/Game.h
+	FPSSystem.h
 )
 
 set (CORE_SRC
@@ -149,7 +151,6 @@ set (STRINGS_HEADERS
 )
 
 set (MEM_SRC
-	#core/mem/malloc.c
 	core/mem/Memory.cpp
 	core/mem/Allocator.cpp
 	core/mem/HeapAllocator.cpp
@@ -159,7 +160,6 @@ set (MEM_SRC
 )
 
 set (MEM_HEADERS
-	#core/mem/malloc.h
 	core/mem/Memory.h
 	core/mem/Allocator.h
 	core/mem/HeapAllocator.h
@@ -242,9 +242,7 @@ set (OS_HEADERS
 )
 
 # Platform independent libraries
-set (CROWN_LIBRARIES
-	luajit-5.1
-)
+set (CROWN_LIBRARIES)
 
 set (COMPILER_FLAGS
 	-pipe
@@ -304,6 +302,7 @@ if (LINUX)
 		dl
 		GLEW
 		GL
+		luajit-5.1
 	)
 endif (LINUX)
 
@@ -341,17 +340,13 @@ if (WINDOWS)
 		zlib
 		OpenGL32
 		glew32
+		lua51
 	)
 
-	list (APPEND CROWN_THIRD_INCLUDES
-		${CROWN_THIRD}/zlib/include
-	)
-
-	list (APPEND CROWN_THIRD_LIBS
-		${CROWN_THIRD}/zlib/lib
-	)
-
-	set(COMPILER_FLAGS)
+	set (COMPILER_FLAGS /link /OPT:NOREF)
+	
+	set (CROWN_EXECUTABLE_NAME crown-win)
+	set (CROWN_MAIN_SRC os/win/main.cpp)
 endif(WINDOWS)
 
 set (CROWN_SOURCES
@@ -397,28 +392,23 @@ set (CROWN_HEADERS
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
 
+include_directories(${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
+link_directories(${CROWN_THIRD_LIBS})
+link_libraries(${CROWN_LIBRARIES})
+
 # Lua bindings and systems
 add_subdirectory(lua)
 
-include_directories(${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
-link_directories(${CROWN_THIRD_LIBS})
-
-link_libraries(${CROWN_LIBRARIES})
-
 add_definitions(${CROWN_COMPILER_FLAGS})
-
-if (WINDOWS)
-add_definitions(/link /OPT:NOREF)
-add_definitions(/LIBPATH:${CROWN_THIRD}/luajit/lib)
-endif (WINDOWS)
 
 add_library(crown STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
 
-install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
+add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
+target_link_libraries(${CROWN_EXECUTABLE_NAME} crown crownlua)
 
-#------------------------------------------------------------------------------
-#Installing headers
-#------------------------------------------------------------------------------
+install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
+install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
+
 install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 
 install (FILES ${CORE_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core)

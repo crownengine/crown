@@ -23,6 +23,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
+#pragma once
 
 #include <jni.h>
 #include <sys/types.h>
@@ -34,7 +35,7 @@ namespace os
 {
 
 // Accessor to the android asset manager
-AAssetManager* get_android_asset_manager();
+AAssetManager* 	get_android_asset_manager();
 
 } // namespace crown
 } // namespace os

@@ -2,6 +2,14 @@
 
 #include "lua.hpp"
 #include "Types.h"
+#include "Config.h"
+
+#ifdef WINDOWS
+	#define CE_EXPORT extern "C" __declspec(dllexport)
+#else
+	#define CE_EXPORT
+#endif
+
 
 namespace crown
 {
@@ -37,11 +45,6 @@ void load_camera(LuaEnvironment& env);
 
 void load_device(LuaEnvironment& env);
 
-extern "C"
-{
-	int32_t luaopen_libcrownlua(lua_State* L);
-}
-
-
+CE_EXPORT int32_t luaopen_libcrownlua(lua_State* L);
 
 } // namespace crown

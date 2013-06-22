@@ -11,7 +11,7 @@ import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
-import javax.microedition.khronos.opengles.GL10;
+import javax.microedition.khronos.opengles.GL20;
 
 
 /**
@@ -135,10 +135,8 @@ class CrownView extends GLSurfaceView
             mStencilSize = stencil;
         }
 
-		// Choose OpenGL|ES 1 bit
-        private static int EGL_OPENGL_ES_BIT = 1;
 		// Choose OpenGl|ES 2 bit
-//        private static int EGL_OPENGL_ES_BIT = 4;
+        private static int EGL_OPENGL_ES_BIT = 4;
         private static int[] s_configAttribs2 =
         {
             EGL10.EGL_RED_SIZE, 4,
@@ -150,7 +148,6 @@ class CrownView extends GLSurfaceView
 
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) 
 		{
-			Log.i(TAG, "JAVA CHOOSE CONFIG CALLED.");
             /* Get the number of minimally matching EGL configurations
              */
             int[] num_config = new int[1];
@@ -168,10 +165,7 @@ class CrownView extends GLSurfaceView
             EGLConfig[] configs = new EGLConfig[numConfigs];
             egl.eglChooseConfig(display, s_configAttribs2, configs, numConfigs, num_config);
 
-            if (DEBUG) 
-			{
-                 printConfigs(egl, display, configs);
-            }
+
             /* Now return the "best" one
              */
             return chooseConfig(egl, display, configs);
@@ -217,107 +211,6 @@ class CrownView extends GLSurfaceView
             return defaultValue;
         }
 
-        private void printConfigs(EGL10 egl, EGLDisplay display, EGLConfig[] configs) 
-		{
-//            int numConfigs = configs.length;
-//            Log.w(TAG, String.format("%d configurations", numConfigs));
-//            for (int i = 0; i < numConfigs; i++) 
-//			{
-//                Log.w(TAG, String.format("Configuration %d:\n", i));
-//                printConfig(egl, display, configs[i]);
-//            }
-        }
-
-        private void printConfig(EGL10 egl, EGLDisplay display, EGLConfig config) 
-		{
-//            int[] attributes = {
-//				                    EGL10.EGL_BUFFER_SIZE,
-//            				        EGL10.EGL_ALPHA_SIZE,
-//                    				EGL10.EGL_BLUE_SIZE,
-//                   					EGL10.EGL_GREEN_SIZE,
-//                    				EGL10.EGL_RED_SIZE,
-//                    				EGL10.EGL_DEPTH_SIZE,
-//                   	 				EGL10.EGL_STENCIL_SIZE,
-//                    				EGL10.EGL_CONFIG_CAVEAT,
-//                    				EGL10.EGL_CONFIG_ID,
-//                    				EGL10.EGL_LEVEL,
-//                    				EGL10.EGL_MAX_PBUFFER_HEIGHT,
-//                    				EGL10.EGL_MAX_PBUFFER_PIXELS,
-//                    				EGL10.EGL_MAX_PBUFFER_WIDTH,
-//                    				EGL10.EGL_NATIVE_RENDERABLE,
-//								    EGL10.EGL_NATIVE_VISUAL_ID,
-//								    EGL10.EGL_NATIVE_VISUAL_TYPE,
-//								    0x3030, // EGL10.EGL_PRESERVED_RESOURCES,
-//								    EGL10.EGL_SAMPLES,
-//								    EGL10.EGL_SAMPLE_BUFFERS,
-//								    EGL10.EGL_SURFACE_TYPE,
-//								    EGL10.EGL_TRANSPARENT_TYPE,
-//								    EGL10.EGL_TRANSPARENT_RED_VALUE,
-//								    EGL10.EGL_TRANSPARENT_GREEN_VALUE,
-//								    EGL10.EGL_TRANSPARENT_BLUE_VALUE,
-//								    0x3039, // EGL10.EGL_BIND_TO_TEXTURE_RGB,
-//								    0x303A, // EGL10.EGL_BIND_TO_TEXTURE_RGBA,
-//								    0x303B, // EGL10.EGL_MIN_SWAP_INTERVAL,
-//								    0x303C, // EGL10.EGL_MAX_SWAP_INTERVAL,
-//								    EGL10.EGL_LUMINANCE_SIZE,
-//								    EGL10.EGL_ALPHA_MASK_SIZE,
-//								    EGL10.EGL_COLOR_BUFFER_TYPE,
-//								    EGL10.EGL_RENDERABLE_TYPE,
-//								    0x3042 // EGL10.EGL_CONFORMANT
-//            };
-//            String[] names = {
-//								    "EGL_BUFFER_SIZE",
-//								    "EGL_ALPHA_SIZE",
-//								    "EGL_BLUE_SIZE",
-//								    "EGL_GREEN_SIZE",
-//								    "EGL_RED_SIZE",
-//								    "EGL_DEPTH_SIZE",
-//								    "EGL_STENCIL_SIZE",
-//								    "EGL_CONFIG_CAVEAT",
-//								    "EGL_CONFIG_ID",
-//								    "EGL_LEVEL",
-//								    "EGL_MAX_PBUFFER_HEIGHT",
-//								    "EGL_MAX_PBUFFER_PIXELS",
-//								    "EGL_MAX_PBUFFER_WIDTH",
-//								    "EGL_NATIVE_RENDERABLE",
-//								    "EGL_NATIVE_VISUAL_ID",
-//								    "EGL_NATIVE_VISUAL_TYPE",
-//								    "EGL_PRESERVED_RESOURCES",
-//								    "EGL_SAMPLES",
-//								    "EGL_SAMPLE_BUFFERS",
-//								    "EGL_SURFACE_TYPE",
-//								    "EGL_TRANSPARENT_TYPE",
-//								    "EGL_TRANSPARENT_RED_VALUE",
-//								    "EGL_TRANSPARENT_GREEN_VALUE",
-//								    "EGL_TRANSPARENT_BLUE_VALUE",
-//								    "EGL_BIND_TO_TEXTURE_RGB",
-//								    "EGL_BIND_TO_TEXTURE_RGBA",
-//								    "EGL_MIN_SWAP_INTERVAL",
-//								    "EGL_MAX_SWAP_INTERVAL",
-//								    "EGL_LUMINANCE_SIZE",
-//								    "EGL_ALPHA_MASK_SIZE",
-//								    "EGL_COLOR_BUFFER_TYPE",
-//								    "EGL_RENDERABLE_TYPE",
-//								    "EGL_CONFORMANT"
-//            };
-
-//            int[] value = new int[1];
-//            for (int i = 0; i < attributes.length; i++) 
-//			{
-//                int attribute = attributes[i];
-//                String name = names[i];
-//                if ( egl.eglGetConfigAttrib(display, config, attribute, value))
-//				{
-//                    Log.w(TAG, String.format("  %s: %d\n", name, value[0]));
-//                } 
-//				else 
-//				{
-//                    // Log.w(TAG, String.format("  %s: failed\n", name));
-//                    while (egl.eglGetError() != EGL10.EGL_SUCCESS);
-//                }
-//            }
-        }
-
         // Subclasses can adjust these values:
         protected int mRedSize;
         protected int mGreenSize;
@@ -335,13 +228,20 @@ class CrownView extends GLSurfaceView
 	{
         public void onDrawFrame(GL10 gl)
 		{
-			CrownLib.frame();
+            if (CrownLib.isRunning())
+			{
+                CrownLib.frame();
+            }
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height)
 		{
-			CrownLib.init();
-            CrownLib.setRenderWindowMetrics(width, height);
+            if (!CrownLib.isInit())
+            {
+		        CrownLib.init();
+            }
+
+            CrownLib.setDisplaySize(width, height);
         }
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config)

@@ -23,33 +23,35 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
-package crown.android;
 
-import android.content.res.AssetManager;
-import android.view.Surface;
+#pragma once
 
-public class CrownLib
+#include <EGL/egl.h>
+#include <android/native_window.h>
+
+namespace crown
 {
-	static 
-	{
-		System.loadLibrary("crown");
-	}
-	
-	// Device functions
-	public static native void 		init();
-	public static native void 		frame();
-	public static native void 		shutdown();
-	public static native boolean 	isInit();
-	public static native boolean	isRunning();
 
-	// AssetManager functions
-	public static native void 		initAssetManager(AssetManager assetManager);
+void set_android_window(ANativeWindow* window);
 
-	// InputManager functions
-	public static native void 		pushIntEvent(int type, int a, int b, int c, int d);
-	public static native void 		pushFloatEvent(int type, float a, float b, float c, float d);
+class GLContext
+{
+public:
+					GLContext();
 
-	// Window functions
-	public static native void		setWindow(Surface window);
-	public static native void 		setDisplaySize(int width, int height);
-}
+	void			create_context();
+	void			destroy_context();
+
+	void			swap_buffers();
+
+private:
+
+	EGLDisplay 		display;
+    EGLSurface 		surface;
+    EGLConfig 		config;
+    EGLContext 		context;
+
+    int32_t			num_configs;
+};
+
+} // namespace crown

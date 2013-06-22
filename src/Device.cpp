@@ -37,7 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "StringUtils.h"
 #include "Args.h"
-#include "Game.h"
 #include "ArchiveBundle.h"
 #include "FileBundle.h"
 #include "ResourceManager.h"
@@ -50,6 +49,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "JSONParser.h"
 #include "DiskFile.h"
 #include "Memory.h"
+#include "Game.h"
 
 namespace crown
 {
@@ -126,6 +126,13 @@ bool Device::init(int argc, char** argv)
 
 	Log::i("Initializing Game...");
 
+	// Initialize the game through init game function
+	crown::init();
+
+	m_is_init = true;
+
+	start();
+
 	if (m_quit_after_init == 1)
 	{
 		shutdown();
@@ -143,6 +150,9 @@ void Device::shutdown()
 		return;
 	}
 
+	// Shutdowns the game
+	crown::shutdown();
+	
 	if (m_input_manager)
 	{
 		CE_DELETE(m_allocator, m_input_manager);
@@ -313,6 +323,8 @@ void Device::frame()
 	m_window->frame();
 	m_input_manager->frame();
 
+	crown::frame(last_delta_time());
+
 	m_debug_renderer->draw_all();
 	m_renderer->frame();
 
@@ -429,6 +441,7 @@ void Device::parse_command_line(int argc, char** argv)
 		"width",            AOA_REQUIRED_ARGUMENT, NULL,        'w',
 		"height",           AOA_REQUIRED_ARGUMENT, NULL,        'h',
 		"fullscreen",       AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1,
+		"dev",              AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT,
 		"quit-after-init",  AOA_NO_ARGUMENT,       &m_quit_after_init, 1,
 		NULL, 0, NULL, 0
 	};

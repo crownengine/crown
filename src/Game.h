@@ -23,33 +23,26 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
-package crown.android;
 
-import android.content.res.AssetManager;
-import android.view.Surface;
+#pragma once
 
-public class CrownLib
+namespace crown
 {
-	static 
-	{
-		System.loadLibrary("crown");
-	}
-	
-	// Device functions
-	public static native void 		init();
-	public static native void 		frame();
-	public static native void 		shutdown();
-	public static native boolean 	isInit();
-	public static native boolean	isRunning();
 
-	// AssetManager functions
-	public static native void 		initAssetManager(AssetManager assetManager);
+/// Called exactly once after the engine is fully initialized
+/// and ready to use. This function is the right place to allocate
+/// and initialize all the main components of the game.
+void init();
 
-	// InputManager functions
-	public static native void 		pushIntEvent(int type, int a, int b, int c, int d);
-	public static native void 		pushFloatEvent(int type, float a, float b, float c, float d);
+/// Called just before the engine starts to deallocate resources and
+/// subsystems leading to terminating the execution.
+/// Here you can safely perform all the necessary deallocation/destruction
+/// of the previously allocated game resources and/or systems. 
+void shutdown();
 
-	// Window functions
-	public static native void		setWindow(Surface window);
-	public static native void 		setDisplaySize(int width, int height);
+/// Called once per frame, here is the place you tipically perform input checking,
+/// updates, drawing and so on. The @a dt parameter contains the last frame delta time
+/// in seconds. 
+void frame(float dt);
+
 }

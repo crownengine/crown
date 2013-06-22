@@ -34,23 +34,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <sys/time.h>
 #include <time.h>
 #include <android/asset_manager_jni.h>
-#include <pthread.h>
 
 #include "OS.h"
 #include "AndroidOS.h"
+#include "OsWindow.h"
 #include "Log.h"
 
 namespace crown
 {
 namespace os
 {
-
-extern "C" 
-{
-	// This is sadly necessary in order to get the asset manager from java...
-    JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv* env, jobject obj, jobject assetManager);
-	JNIEXPORT void JNICALL Java_crown_android_CrownLib_setRenderWindowMetrics(JNIEnv* env, jobject obj, jint width, jint height);
-};
 
 static timespec			base_time;
 static AAssetManager*	asset_manager = NULL;
@@ -95,6 +88,38 @@ void log_warning(const char* string, va_list arg)
 void log_info(const char* string, va_list arg)
 {
 	__android_log_vprint(ANDROID_LOG_INFO, "crown", string, arg);
+}
+
+//-----------------------------------------------------------------------------
+bool is_root_path(const char* path)
+{
+	CE_ASSERT(path != NULL, "Path must be != NULL");
+
+	if (string::strlen(path) == 1)
+	{
+		if (path[0] == PATH_SEPARATOR)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+bool is_absolute_path(const char* path)
+{
+	CE_ASSERT(path != NULL, "Path must be != NULL");
+
+	if (string::strlen(path) > 0)
+	{
+		if (path[0] == PATH_SEPARATOR)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -189,29 +214,6 @@ const char* get_env(const char* env)
 }
 
 //-----------------------------------------------------------------------------
-// bool ls(const char* path, List<Str>& fileList)
-// {
-// 	DIR *dir;
-// 	struct dirent *ent;
-
-// 	dir = opendir(path);
-
-// 	if (dir == NULL)
-// 	{
-// 		return false;
-// 	}
-
-// 	while ((ent = readdir (dir)) != NULL)
-// 	{
-// 		fileList.push_back(Str(ent->d_name));
-// 	}
-
-// 	closedir (dir);
-
-// 	return true;
-// }
-
-//-----------------------------------------------------------------------------
 void init_os()
 {
 	// Initilize the base time
@@ -243,43 +245,38 @@ AAssetManager* get_android_asset_manager()
 }
 
 //-----------------------------------------------------------------------------
-bool create_render_window(uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen)
-{
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-bool destroy_render_window()
-{
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-void get_render_window_metrics(uint32_t& width, uint32_t& height)
-{
-	width = window_width;
-	height = window_height;
-}
-
-//-----------------------------------------------------------------------------
-void swap_buffers()
-{
-	// not necessary
-}
-
-//-----------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv* env, jobject obj, jobject assetManager)
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv* env, jobject obj, jobject assetManager)
 {
 	asset_manager = AAssetManager_fromJava(env, assetManager);
 }
 
+} // namespace os
+
 //-----------------------------------------------------------------------------
-JNIEXPORT void JNICALL Java_crown_android_CrownLib_setRenderWindowMetrics(JNIEnv* env, jobject obj, jint width, jint height)
-{
-	window_width = width;
-	window_height = height;
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushIntEvent(JNIEnv * env, jobject obj, jint type, jint a, jint b, jint c, jint d)
+{	
+	OsEventParameter values[4];
+
+	values[0].int_value = a;
+	values[1].int_value = b;
+	values[2].int_value = c;
+	values[3].int_value = d;
+
+	push_event((OsEventType)type, values[0], values[1], values[2], values[3]);
 }
 
-} // namespace os
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushFloatEvent(JNIEnv * env, jobject obj, jint type, jfloat a, jfloat b, jfloat c, jfloat d)
+{
+	OsEventParameter values[4];
+
+	values[0].float_value = a;
+	values[1].float_value = b;
+	values[2].float_value = c;
+	values[3].float_value = d;
+
+	push_event((OsEventType)type, values[0], values[1], values[2], values[3]);
+}
+
 } // namespace crown
 

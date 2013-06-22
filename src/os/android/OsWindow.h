@@ -26,25 +26,47 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <sys/types.h>
+#include <android/native_window.h>
+
 namespace crown
 {
 
-/// Called exactly once after the engine is fully initialized
-/// and ready to use. This function is the right place to allocate
-/// and initialize all the main components of the game.
-void init();
+class OsWindow
+{
+public:
 
-/// Called just before the engine starts to deallocate resources and
-/// subsystems leading to terminating the execution.
-/// Here you can safely perform all the necessary deallocation/destruction
-/// of the previously allocated game resources and/or systems. 
-void shutdown();
+					OsWindow(uint32_t width, uint32_t height);
+					~OsWindow();
 
-/// Called once per frame, here is the place you tipically perform input checking,
-/// updates, drawing and so on. The @a dt parameter contains the last frame delta time
-/// in seconds. 
-void frame(float dt);
+	void			show();
+	void			hide();
 
+	void			get_size(uint32_t& width, uint32_t& height);
+	void			get_position(uint32_t& x, uint32_t& y);
+
+	void			resize(uint32_t width, uint32_t height);
+	void			move(uint32_t x, uint32_t y);
+
+	void			show_cursor();
+	void			hide_cursor();
+
+	void			get_cursor_xy(int32_t& x, int32_t& y);
+	void			set_cursor_xy(int32_t x, int32_t y);
+
+	char*			title();
+	void			set_title(const char* title);
+
+	void			frame();
+
+private:
+
+	ANativeWindow*	m_window;
+
+	uint32_t		m_x;
+	uint32_t		m_y;
+	uint32_t		m_width;
+	uint32_t		m_height;
+};
 
 } // namespace crown
-

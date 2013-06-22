@@ -6,10 +6,8 @@
 namespace crown
 {
 
-extern "C"
-{
-
-int32_t keyboard_modifier_pressed(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t keyboard_modifier_pressed(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -20,7 +18,8 @@ int32_t keyboard_modifier_pressed(lua_State* L)
 	return 1;
 }
 
-int32_t keyboard_key_pressed(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t keyboard_key_pressed(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -31,7 +30,8 @@ int32_t keyboard_key_pressed(lua_State* L)
 	return 1;
 }
 
-int32_t keyboard_key_released(lua_State* L)
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t keyboard_key_released(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -42,8 +42,7 @@ int32_t keyboard_key_released(lua_State* L)
 	return 1;
 }
 
-} // extern "C"
-
+//-----------------------------------------------------------------------------
 void load_keyboard(LuaEnvironment& env)
 {
 	env.load_module_function("Keyboard", "modifier_pressed",	keyboard_modifier_pressed);

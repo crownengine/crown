@@ -24,7 +24,13 @@ public:
 
 	void					push_bool(bool value);
 
-	void					push_int(int32_t value);
+	void					push_int32(int32_t value);
+
+	void					push_uint32(uint32_t value);
+
+	void					push_int64(int64_t value);
+
+	void					push_uint64(uint64_t value);
 
 	void 					push_float(float value);
 

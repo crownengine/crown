@@ -24,109 +24,120 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <android/native_window_jni.h>
+
+#include "OsWindow.h"
+#include "GLContext.h"
 #include "Assert.h"
-#include "OS.h"
-#include "OsFile.h"
-#include "AndroidOS.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-OsFile::OsFile(const char* path, FileOpenMode mode)
-{
-	// Android assets are always read-only
-	(void) mode;
-	m_mode = FOM_READ;
-	m_asset = AAssetManager_open(os::get_android_asset_manager(), path, AASSET_MODE_RANDOM);
+static ANativeWindow* window = NULL;
 
-	CE_ASSERT(m_asset != NULL, "Unable to open file: %s", path);
+//-----------------------------------------------------------------------------
+OsWindow::OsWindow(uint32_t width, uint32_t height) :
+	m_window(NULL),
+	m_width(0),
+	m_height(0),
+	m_x(0),
+	m_y(0)
+{
+	m_window = window;
+
+	m_width = ANativeWindow_getWidth(m_window);
+	m_height = ANativeWindow_getHeight(m_window);
+
+    set_android_window(m_window);
 }
 
 //-----------------------------------------------------------------------------
-OsFile::~OsFile()
+OsWindow::~OsWindow()
 {
-	close();
-}
-
-//-----------------------------------------------------------------------------
-void OsFile::close()
-{
-	if (m_asset != NULL)
+	if (m_window)
 	{
-		AAsset_close(m_asset);
-		m_asset = NULL;
+		ANativeWindow_release(m_window);
 	}
+
 }
 
 //-----------------------------------------------------------------------------
-bool OsFile::is_open() const
+void OsWindow::show()
 {
-	return m_asset != NULL;
 }
 
 //-----------------------------------------------------------------------------
-FileOpenMode OsFile::mode() const
+void OsWindow::hide()
 {
-	return m_mode;
 }
 
 //-----------------------------------------------------------------------------
-size_t OsFile::size() const
+void OsWindow::get_size(uint32_t& width, uint32_t& height)
 {
-	return AAsset_getLength(m_asset);
+	width = m_width;
+	height = m_height;
 }
 
 //-----------------------------------------------------------------------------
-size_t OsFile::read(void* data, size_t size)
+void OsWindow::get_position(uint32_t& x, uint32_t& y)
 {
-	CE_ASSERT(data != NULL, "Data must be != NULL");
-
-	return (size_t)AAsset_read(m_asset, data, size);
+	x = m_x;
+	y = m_y;
 }
 
 //-----------------------------------------------------------------------------
-size_t OsFile::write(const void* data, size_t size)
+void OsWindow::resize(uint32_t width, uint32_t height)
 {
-	CE_ASSERT(data != NULL, "Data must be != NULL");
-
-	os::printf("Android asset directory is read-only!");
-
-	return 0;
 }
 
 //-----------------------------------------------------------------------------
-void OsFile::seek(size_t position)
+void OsWindow::move(uint32_t x, uint32_t y)
 {
-	off_t seek_result = AAsset_seek(m_asset, (off_t)position, SEEK_SET);
-	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
-void OsFile::seek_to_end()
+void OsWindow::show_cursor()
 {
-	off_t seek_result = AAsset_seek(m_asset, 0, SEEK_END);
-	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
-void OsFile::skip(size_t bytes)
+void OsWindow::hide_cursor()
 {
-	off_t seek_result = AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR);
-	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
-size_t OsFile::position() const
+void OsWindow::get_cursor_xy(int32_t& x, int32_t& y)
 {
-	return (size_t) (AAsset_getLength(m_asset) - AAsset_getRemainingLength(m_asset));
 }
 
 //-----------------------------------------------------------------------------
-bool OsFile::eof() const
+void OsWindow::set_cursor_xy(int32_t x, int32_t y)
 {
-	return AAsset_getRemainingLength(m_asset) == 0;
+}
+
+//-----------------------------------------------------------------------------
+char* OsWindow::title()
+{
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::set_title(const char* title)
+{
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::frame()
+{
+	// implemented on Java-side
+}
+
+//-----------------------------------------------------------------------------
+extern "C" void Java_crown_android_CrownLib_setWindow(JNIEnv *env, jclass clazz, jobject surface)
+{
+    // obtain a native window from a Java surface
+	CE_ASSERT(surface != 0, "Unable to get Android window");
+    window = ANativeWindow_fromSurface(env, surface);
 }
 
 } // namespace crown
-
