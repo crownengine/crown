@@ -10,7 +10,7 @@ StringSetting g_boot("boot_file", "lua main file", "lua/game.raw");
 lua_State* L;
 
 void init()
-{/*
+{
 	L = luaL_newstate();
 	luaL_openlibs(L);
 
@@ -26,29 +26,24 @@ void init()
 	lua_getglobal(L, "init");
 
 	lua_pcall(L, 0, 0, 0);
-	*/
 }
 
 void shutdown()
 {
-	/*
 	lua_getglobal(L, "shutdown");
 
 	lua_pcall(L, 0, 0, 0);
 
 	lua_close(L);
-	*/
 }
 
 void frame(float dt)
 {
-	/*
 	lua_getglobal(L, "frame");
 
 	lua_pushnumber(L, dt);
 
 	lua_pcall(L, 1, 0, 0);
-	*/
 }
 
 }
