@@ -209,6 +209,9 @@ private:
 MainScene m_scene;
 WndCtrl m_ctrl;
 
+namespace crown
+{
+
 void init()
 {
 	m_scene.on_load();
@@ -224,3 +227,4 @@ void frame(float dt)
 	m_scene.update(dt);
 }
 
+}
