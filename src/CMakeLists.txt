@@ -248,7 +248,7 @@ set (CROWN_LIBRARIES
 
 set (COMPILER_FLAGS
 	-pipe
-	-std=c++11
+	-std=c++03
 	-ansi
 	-W    	
 	-Wall
