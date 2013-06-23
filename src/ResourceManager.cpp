@@ -55,15 +55,15 @@ ResourceManager::ResourceManager(Bundle& bundle) :
 	m_background_thread_should_run(true),
 	m_thread(ResourceManager::background_thread, (void*)this, "resource-loader-thread")
 {
-	DiskFile* seed_file = device()->filesystem()->open("seed.ini", FOM_READ);
-	TextReader reader(*seed_file);
+	// DiskFile* seed_file = device()->filesystem()->open("seed.ini", FOM_READ);
+	// TextReader reader(*seed_file);
 
-	char tmp_buf[32];
-	reader.read_string(tmp_buf, 32);
+	// char tmp_buf[32];
+	// reader.read_string(tmp_buf, 32);
 
-	device()->filesystem()->close(seed_file);
+	// device()->filesystem()->close(seed_file);
 
-	sscanf(tmp_buf, "%u", &m_seed);
+	// sscanf(tmp_buf, "%u", &m_seed);
 }
 
 //-----------------------------------------------------------------------------
