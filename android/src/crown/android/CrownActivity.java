@@ -76,7 +76,9 @@ public class CrownActivity extends Activity
 		mSensor = new CrownSensor(this);
 		
         mWindow = (SurfaceView)findViewById(R.id.crown_window);
-        CrownLib.setWindow(mWindow);
+        CrownLib.setWindow(mWindow.getHolder().getSurface());
+
+		CrownLib.init();
     }
 
 //-----------------------------------------------------------------------------------

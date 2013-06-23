@@ -31,7 +31,8 @@ import android.view.Surface;
 public class CrownLib
 {
 	static 
-	{	
+	{
+		System.loadLibrary("luajit-5.1");
 		System.loadLibrary("crown");
 	}
 	
@@ -50,6 +51,6 @@ public class CrownLib
 	public static native void 		pushFloatEvent(int type, float a, float b, float c, float d);
 
 	// Window functions
-	public static native void		setWindow(SurfaceView window);
+	public static native void		setWindow(Surface window);
 	public static native void 		setDisplaySize(int width, int height);
 }
