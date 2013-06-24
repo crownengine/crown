@@ -39,6 +39,7 @@ import android.widget.Toast;
 import android.content.res.AssetManager;
 import android.view.Surface;
 import android.view.SurfaceView;
+import android.view.SurfaceHolder;
 
 import crown.android.CrownEnum;
 
@@ -59,41 +60,40 @@ public class CrownActivity extends Activity
 	private CrownSensor			mSensor;
 
 	// Graphic attributes
-	static SurfaceView			mWindow;
+	static CrownSurfaceView		mWindow;
 
-//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
 
 		// init AssetManager
 		mAssetManager = getAssets();
 		CrownLib.initAssetManager(mAssetManager);
 
+		// init Native Window
+        mWindow = new CrownSurfaceView(this);
+        setContentView(mWindow);
+
 		// Init Input
 		mTouch = new CrownTouch(this);
 		mSensor = new CrownSensor(this);
-		
-        mWindow = (SurfaceView)findViewById(R.id.crown_window);
-        CrownLib.setWindow(mWindow.getHolder().getSurface());
-
-		CrownLib.init();
     }
 
-//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 	public void onStart()
 	{
 		super.onStart();
+
 	}
 
-//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 	public void onRestart()
 	{
 		super.onRestart();
 	}
 
-//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 	public void onResume()
 	{
 		super.onResume();
@@ -105,13 +105,13 @@ public class CrownActivity extends Activity
 		}
 	}
 
-//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 	public void onPause()
 	{
 		super.onPause();
 	}
 
-//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 	public void onStop()
 	{
 		super.onStop();
@@ -120,20 +120,20 @@ public class CrownActivity extends Activity
 		mSensor.stopListening();
 	}
 
-//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 	public void onDestroy()
 	{
 		super.onDestroy();
 	}
 
-//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 	public boolean onTouchEvent(MotionEvent event)
 	{
 		mTouch.onTouch(event);
         return super.onTouchEvent(event);
 	}
 
-//-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 	public boolean hasMultiTouchSupport(Context context)
 	{
 		return context.getPackageManager().hasSystemFeature("android.hardware.touchscreen.multitouch");
