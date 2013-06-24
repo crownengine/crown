@@ -1036,5 +1036,17 @@ void GLESRenderer::check_gl_errors() const
 	}
 }
 
+//-----------------------------------------------------------------------------
+Renderer* Renderer::create()
+{
+	return CE_NEW(default_allocator(), GLESRenderer);
+}
+
+//-----------------------------------------------------------------------------
+void Renderer::destroy(Renderer* renderer)
+{
+	CE_DELETE(default_allocator(), renderer);
+}
+
 } // namespace crown
 

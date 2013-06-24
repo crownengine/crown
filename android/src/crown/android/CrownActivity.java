@@ -71,10 +71,6 @@ public class CrownActivity extends Activity
 		mAssetManager = getAssets();
 		CrownLib.initAssetManager(mAssetManager);
 
-        // Init GLSurfaceView for rendering
-        mView = new CrownView(getApplication());
-		setContentView(mView);
-
 		// Init Input
 		mTouch = new CrownTouch(this);
 		mSensor = new CrownSensor(this);
