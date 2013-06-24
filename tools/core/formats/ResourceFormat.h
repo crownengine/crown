@@ -24,34 +24,30 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "Compiler.h"
-#include "DiskFile.h"
+#include "Types.h"
 
 namespace crown
 {
 
-class TXTCompiler : public Compiler
+const uint32_t	RESOURCE_MAGIC_NUMBER		= 0xCE010101;
+const uint32_t	RESOURCE_VERSION			= 2;
+
+/// Contains the header data common to all
+/// types of resources passing through the
+/// standard Compiler mechanics.
+struct ResourceHeader
 {
-public:
-
-					TXTCompiler(const char* root_path, const char* dest_path);
-					~TXTCompiler();
-
-	size_t			read_header_impl(DiskFile* in_file);
-	size_t			read_resource_impl(DiskFile* in_file);
-
-	void			write_header_impl(DiskFile* out_file);
-	void			write_resource_impl(DiskFile* out_file);
-
-	void			cleanup_impl();
-
-private:
-
-	uint32_t		m_file_size;
-	char*			m_file_data;
+	uint32_t	magic;		// Magic number used to identify the file
+	uint32_t	version;	// Version of the compiler used to compile the resource
+	uint32_t	size;		// Size of the resource data _not_ including this header in bytes
 };
 
-} // namespace crown
+// Resource format:
+//
+// [ResourceHeader]
+// [ResourceData]
+//
+// The ResourceHeader is common to all resource types.
+// Every resource appends its data after the resource header.
 
+} // namespace crown

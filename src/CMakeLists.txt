@@ -39,7 +39,6 @@ set (HEADERS
 
 	Game.h
 	JSONParser.h
-
 	FPSSystem.h
 )
 
@@ -209,11 +208,11 @@ set (INPUT_HEADERS
 )
 
 set (NETWORK_SRC
-#	network/BitMessage.cpp
+	network/BitMessage.cpp
 )
 
 set (NETWORK_HEADERS
-#	network/BitMessage.h
+	network/BitMessage.h
 )
 
 set (RENDERERS_SRC
@@ -247,6 +246,7 @@ set (CROWN_LIBRARIES)
 
 set (COMPILER_FLAGS
 	-pipe
+	-std=c++03
 	-ansi
 	-W    	
 	-Wall
@@ -411,6 +411,7 @@ target_link_libraries(${CROWN_EXECUTABLE_NAME} crown crownlua)
 
 install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
+
 install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 
 install (FILES ${CORE_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core)

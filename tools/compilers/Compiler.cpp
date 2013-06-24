@@ -26,147 +26,58 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cstring>
 #include <cstdlib>
+#include <iostream>
+
 #include "Compiler.h"
-#include "Hash.h"
-#include "Path.h"
-#include "DiskFile.h"
-#include "Log.h"
+#include "ResourceFormat.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Compiler::Compiler(const char* root_path, const char* dest_path, uint32_t type_expected) :
-	m_root_fs(root_path),
-	m_dest_fs(dest_path),
-	m_type_expected(type_expected)
+size_t Compiler::compile(const char* root_path, const char* dest_path, const char* name_in, const char* name_out)
 {
-	memset(m_resource_name, 0, MAX_RESOURCE_NAME_LENGTH);
-}
+	std::string path_in = std::string(root_path) + "/" + std::string(name_in);
+	std::string path_out = std::string(dest_path) + "/" + std::string(name_out);
 
-//-----------------------------------------------------------------------------
-Compiler::~Compiler()
-{
-}
-
-//-----------------------------------------------------------------------------
-size_t Compiler::compile(const char* resource, uint32_t name, uint32_t type)
-{
-	string::strncpy(m_resource_name, resource, MAX_RESOURCE_NAME_LENGTH);
-	string::strncpy(m_resource_path, m_root_fs.os_path(resource), MAX_RESOURCE_PATH_LENGTH);
-
-	char resource_name[MAX_RESOURCE_NAME_LENGTH];
-	char resource_type[MAX_RESOURCE_TYPE_LENGTH];
-
-	path::filename_without_extension(resource, resource_name, MAX_RESOURCE_NAME_LENGTH);
-	path::extension(resource, resource_type, MAX_RESOURCE_TYPE_LENGTH);
-
-	char output_name[17];
-	snprintf(output_name, 17, "%.8X%.8X", name, type);
-
-	Log::i("%s <= %s", output_name, resource);
-
-	if (type != m_type_expected)
+	// The compilation fails when returned size is zero
+	size_t resource_size = 0;
+	if ((resource_size = compile_impl(path_in.c_str())) == 0)
 	{
-		Log::e("'%s': resource type does not match expected type.", resource);
+		std::cout << "Compilation failed." << std::endl;
 		return 0;
 	}
 
-	if (!m_root_fs.exists(resource))
+	// Setup resource header
+	ResourceHeader resource_header;
+	resource_header.magic = RESOURCE_MAGIC_NUMBER;
+	resource_header.version = RESOURCE_VERSION;
+	resource_header.size = resource_size;
+
+	// Open destination file and write the header
+	std::fstream out_file;
+	out_file.open(path_out.c_str(), std::fstream::out | std::fstream::binary);
+
+	if (!out_file.is_open())
 	{
-		Log::e("'%s': resource does not exist.");
+		std::cout << "Unable to write compiled file." << std::endl;
 		return 0;
 	}
 
-	// Read source file
-	DiskFile* input_file = m_root_fs.open(resource, FOM_READ);
+	out_file.write((char*)&resource_header, sizeof(ResourceHeader));
 
-	size_t header_size = read_header(input_file);
-	size_t resource_size = read_resource(input_file);
+	// Write resource-specific data
+	write_impl(out_file);
 
-	// Write compiled file
-	DiskFile* output_file;
-
-	if (m_dest_fs.exists(output_name))
-	{
-		m_dest_fs.delete_file(output_name);
-	}
-
-	m_dest_fs.create_file(output_name);
-	output_file = m_dest_fs.open(output_name, FOM_WRITE);
-
-	write_header(output_file, name, type, resource_size);
-	write_resource(output_file);
-
-	m_root_fs.close(input_file);
-	m_dest_fs.close(output_file);
+	out_file.close();
 
 	// Cleanup
 	cleanup();
 }
 
 //-----------------------------------------------------------------------------
-size_t Compiler::read_header(DiskFile* in_file)
-{
-	return read_header_impl(in_file);
-}
-
-//-----------------------------------------------------------------------------
-size_t Compiler::read_resource(DiskFile* in_file)
-{
-	return read_resource_impl(in_file);
-}
-
-//-----------------------------------------------------------------------------
-void Compiler::write_header(DiskFile* out_file, uint32_t name, uint32_t type, uint32_t resource_size)
-{
-	CompiledHeader header;
-	header.magic = COMPILED_HEADER_MAGIC_NUMBER;
-	header.version = COMPILER_VERSION;
-	header.name = name;
-	header.type = type;
-	header.size = resource_size;
-
-	out_file->write(&header, sizeof(CompiledHeader));
-
-	write_header_impl(out_file);
-}
-
-//-----------------------------------------------------------------------------
-void Compiler::write_resource(DiskFile* out_file)
-{
-	write_resource_impl(out_file);
-}
-
-//-----------------------------------------------------------------------------
 void Compiler::cleanup()
 {
-	cleanup_impl();
-
-	string::strncpy(m_resource_name, "", MAX_RESOURCE_NAME_LENGTH);
-}
-
-//-----------------------------------------------------------------------------
-const char* Compiler::root_path() const
-{
-	return m_root_fs.root_path();
-}
-
-//-----------------------------------------------------------------------------
-const char* Compiler::dest_path() const
-{
-	return m_dest_fs.root_path();
-}
-
-//-----------------------------------------------------------------------------
-const char* Compiler::resource_name() const
-{
-	return m_resource_name;
-}
-
-const char* Compiler::resource_path() const
-{
-	return m_resource_path;
 }
 
 } // namespace crown

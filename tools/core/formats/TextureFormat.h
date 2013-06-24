@@ -26,30 +26,26 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <string>
-#include <fstream>
-
 #include "Types.h"
 
 namespace crown
 {
 
-/// Resource compiler interface.
-/// Every specific resource compiler must inherith from this
-/// interface and implement its methods accordingly.
-class Compiler
+// Texture format
+//
+// [ResourceHeader]
+// [TextureHeader]
+// [TextureData]
+
+// Bump the version whenever a change in the header is made
+const uint32_t TEXTURE_VERSION = 1;
+
+struct TextureHeader
 {
-public:
-
-	virtual					~Compiler() {}
-
-	size_t					compile(const char* root_path, const char* dest_path, const char* name_in, const char* name_out);
-	void					cleanup();
-
-protected:
-
-	virtual size_t			compile_impl(const char* resource_path) = 0;
-	virtual void			write_impl(std::fstream& out_file) = 0;
+	uint32_t	version;	// Texture file version
+	uint32_t	format;		// Format of the pixels
+	uint32_t	width;		// Width in pixels
+	uint32_t	height;		// Height in pixels
 };
 
 } // namespace crown

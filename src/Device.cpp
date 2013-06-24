@@ -508,7 +508,6 @@ void Device::read_engine_settings()
 {
 }
 
-
 //-----------------------------------------------------------------------------
 void Device::print_help_message()
 {

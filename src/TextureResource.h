@@ -34,6 +34,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+// Bump the version whenever a change in the header is made
+const uint32_t TEXTURE_VERSION = 1;
+
+struct TextureHeader
+{
+	uint32_t	version;	// Texture file version
+	uint32_t	format;		// Format of the pixels
+	uint32_t	width;		// Width in pixels
+	uint32_t	height;		// Height in pixels
+};
+
 class Bundle;
 class Allocator;
 
@@ -48,16 +59,14 @@ public:
 
 public:
 
-	PixelFormat			format() const { return m_format; }
-	uint16_t			width() const { return m_width; }
-	uint16_t			height() const { return m_height; }
+	PixelFormat			format() const { return (PixelFormat) m_header.format; }
+	uint32_t			width() const { return m_header.width; }
+	uint32_t			height() const { return m_header.height; }
 	const uint8_t*		data() const { return m_data; }
 
 private:
 
-	PixelFormat			m_format;
-	uint16_t			m_width;
-	uint16_t			m_height;
+	TextureHeader		m_header;
 	uint8_t*			m_data;
 };
 

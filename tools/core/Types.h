@@ -26,30 +26,5 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <string>
-#include <fstream>
-
-#include "Types.h"
-
-namespace crown
-{
-
-/// Resource compiler interface.
-/// Every specific resource compiler must inherith from this
-/// interface and implement its methods accordingly.
-class Compiler
-{
-public:
-
-	virtual					~Compiler() {}
-
-	size_t					compile(const char* root_path, const char* dest_path, const char* name_in, const char* name_out);
-	void					cleanup();
-
-protected:
-
-	virtual size_t			compile_impl(const char* resource_path) = 0;
-	virtual void			write_impl(std::fstream& out_file) = 0;
-};
-
-} // namespace crown
+#include <cstddef>
+#include <stdint.h>

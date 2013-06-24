@@ -61,7 +61,7 @@ set (CROWN_THIRD_LIBS
 
 # detect operating system
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	set(LINUX 1)
+	set (LINUX 1)
 
 	list (APPEND CROWN_INCLUDES
 		${CMAKE_SOURCE_DIR}/src/os/linux

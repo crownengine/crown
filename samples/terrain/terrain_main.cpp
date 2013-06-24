@@ -217,7 +217,6 @@ public:
 MainScene m_scene;
 //WndCtrl m_ctrl;
 
-
 void init()
 {
 	//m_scene.on_load();
@@ -232,4 +231,3 @@ void frame(float dt)
 {
 	//m_scene.update(dt);
 }
-
