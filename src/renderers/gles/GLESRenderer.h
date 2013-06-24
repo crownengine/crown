@@ -265,8 +265,8 @@ private:
 	//GLRenderBuffer	m_render_buffers[MAX_RENDER_BUFFERS];
 
 	// Default shaders
-	ResourceId			m_default_vertex_shader;
-	ResourceId			m_default_pixel_shader;
+	VertexShaderId		m_default_vertex_shader;
+	PixelShaderId		m_default_pixel_shader;
 	GPUProgramId		m_default_gpu_program;
 };
 

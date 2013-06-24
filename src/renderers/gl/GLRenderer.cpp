@@ -954,51 +954,44 @@ void GLRenderer::draw_lines(const float* vertices, const float* colors, uint32_t
 //-----------------------------------------------------------------------------
 void GLRenderer::load_default_shaders()
 {
-	ResourceManager* resman = device()->resource_manager();
+	static const char* vs_text =
+		"in vec4 vertex;"
+		"in vec2 coords;"
+		"uniform mat4 mvp_matrix;"
+		"uniform vec3 color;"
 
-	// Load default vertex/pixel shaders
-	m_default_vertex_shader = resman->load("default/default.vs");
-	m_default_pixel_shader = resman->load("default/default.ps");
+		"void main(void)"
+		"{"
+		"	gl_Position = mvp_matrix * vertex;"
 
-	// Wait for loading
-	resman->flush();
+		"	gl_FrontColor = vec4(color, 1.0);"
+		"}";
 
-	// Obtain resource data
-	VertexShaderResource* vs = (VertexShaderResource*)resman->data(m_default_vertex_shader);
-	PixelShaderResource* ps = (PixelShaderResource*)resman->data(m_default_pixel_shader);
+	static const char* ps_text = 
+		"void main(void)"
+		"{"
+		"	gl_FragColor = gl_Color;"
+		"}";
+
+	m_default_vertex_shader = create_vertex_shader(vs_text);
+	m_default_pixel_shader = create_pixel_shader(ps_text);
 
 	// Create and bind the default program
-	m_default_gpu_program = create_gpu_program(vs->vertex_shader(), ps->pixel_shader());
+	m_default_gpu_program = create_gpu_program(m_default_vertex_shader, m_default_pixel_shader);
 }
 
 //-----------------------------------------------------------------------------
 void GLRenderer::unload_default_shaders()
 {
-	ResourceManager* resman = device()->resource_manager();
+	destroy_pixel_shader(m_default_pixel_shader);
+	destroy_vertex_shader(m_default_vertex_shader);
 
 	destroy_gpu_program(m_default_gpu_program);
-
-	resman->unload(m_default_pixel_shader);
-	resman->unload(m_default_vertex_shader);
 }
 
 //-----------------------------------------------------------------------------
 void GLRenderer::reload_default_shaders()
 {
-	ResourceManager* resman = device()->resource_manager();
-
-	resman->reload(m_default_vertex_shader);
-	resman->reload(m_default_pixel_shader);
-
-	// Destroy old gpu program
-	destroy_gpu_program(m_default_gpu_program);
-
-	// Obtain resource data
-	VertexShaderResource* vs = (VertexShaderResource*)resman->data(m_default_vertex_shader);
-	PixelShaderResource* ps = (PixelShaderResource*)resman->data(m_default_pixel_shader);
-
-	// Create and bind the new default program
-	m_default_gpu_program = create_gpu_program(vs->vertex_shader(), ps->pixel_shader());
 }
 
 //-----------------------------------------------------------------------------

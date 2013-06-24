@@ -808,7 +808,6 @@ void GLESRenderer::frame()
 	bind_gpu_program(m_default_gpu_program);
 
 	set_gpu_program_mat4_uniform(m_default_gpu_program, "mvp_matrix", m_model_view_projection_matrix);
-	set_gpu_program_vec3_uniform(m_default_gpu_program, "color", Vec3(0, 1, 0));
 
 	glFinish();
 	check_gl_errors();
@@ -940,51 +939,42 @@ void GLESRenderer::draw_lines(const float* vertices, const float* colors, uint32
 //-----------------------------------------------------------------------------
 void GLESRenderer::load_default_shaders()
 {
-	ResourceManager* resman = device()->resource_manager();
+	static const char* vs_text =
+		"attribute vec4 vertex;"
+		"attribute vec2 coords;"
+		"uniform mat4 mvp_matrix;"
+		"uniform vec3 color;"
 
-	// Load default vertex/pixel shaders
-	m_default_vertex_shader = resman->load("default/default.vs");
-	m_default_pixel_shader = resman->load("default/default.ps");
+		"void main(void)"
+		"{"
+		"	gl_Position = mvp_matrix * vertex;"
+		"}";
 
-	// Wait for loading
-	resman->flush();
+	static const char* ps_text = 
+		"void main(void)"
+		"{"
+		"	gl_FragColor = vec4(1, 0, 0, 0);"
+		"}";
 
-	// Obtain resource data
-	VertexShaderResource* vs = (VertexShaderResource*)resman->data(m_default_vertex_shader);
-	PixelShaderResource* ps = (PixelShaderResource*)resman->data(m_default_pixel_shader);
+	m_default_vertex_shader = create_vertex_shader(vs_text);
+	m_default_pixel_shader = create_pixel_shader(ps_text);
 
 	// Create and bind the default program
-	m_default_gpu_program = create_gpu_program(vs->vertex_shader(), ps->pixel_shader());
+	m_default_gpu_program = create_gpu_program(m_default_vertex_shader, m_default_pixel_shader);
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::unload_default_shaders()
 {
-	ResourceManager* resman = device()->resource_manager();
+	destroy_pixel_shader(m_default_pixel_shader);
+	destroy_vertex_shader(m_default_vertex_shader);
 
 	destroy_gpu_program(m_default_gpu_program);
-
-	resman->unload(m_default_pixel_shader);
-	resman->unload(m_default_vertex_shader);
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::reload_default_shaders()
 {
-	ResourceManager* resman = device()->resource_manager();
-
-	resman->reload(m_default_vertex_shader);
-	resman->reload(m_default_pixel_shader);
-
-	// Destroy old gpu program
-	destroy_gpu_program(m_default_gpu_program);
-
-	// Obtain resource data
-	VertexShaderResource* vs = (VertexShaderResource*)resman->data(m_default_vertex_shader);
-	PixelShaderResource* ps = (PixelShaderResource*)resman->data(m_default_pixel_shader);
-
-	// Create and bind the new default program
-	m_default_gpu_program = create_gpu_program(vs->vertex_shader(), ps->pixel_shader());
 }
 
 //-----------------------------------------------------------------------------
@@ -1021,16 +1011,16 @@ void GLESRenderer::check_gl_errors() const
 		switch (error)
 		{
 			case GL_INVALID_ENUM:
-				Log::e("GLRenderer: GL_INVALID_ENUM");
+				Log::e("GLESRenderer: GL_INVALID_ENUM");
 				break;
 			case GL_INVALID_VALUE:
-				Log::e("GLRenderer: GL_INVALID_VALUE");
+				Log::e("GLESRenderer: GL_INVALID_VALUE");
 				break;
 			case GL_INVALID_OPERATION:
-				Log::e("GLRenderer: GL_INVALID_OPERATION");
+				Log::e("GLESRenderer: GL_INVALID_OPERATION");
 				break;
 			case GL_OUT_OF_MEMORY:
-				Log::e("GLRenderer: GL_OUT_OF_MEMORY");
+				Log::e("GLESRenderer: GL_OUT_OF_MEMORY");
 				break;
 		}
 	}
