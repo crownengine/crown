@@ -24,7 +24,7 @@ set(LUA_HEADERS
 )
 
 if (LINUX)
-add_definitions(-Wl,-E)
+add_definitions(${COMPILER_FLAGS} -Wl,-E)
 endif (LINUX)
 
 if (WINDOWS)

@@ -255,6 +255,7 @@ set (COMPILER_FLAGS
 	-Wno-variadic-macros
 	-g
 	-pg
+	-fPIC
 )
 
 # Platform specific stuff
@@ -402,7 +403,7 @@ link_libraries(${CROWN_LIBRARIES})
 # Lua bindings and systems
 add_subdirectory(lua)
 
-add_definitions(${CROWN_COMPILER_FLAGS})
+add_definitions(${COMPILER_FLAGS})
 
 add_library(crown STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
 
