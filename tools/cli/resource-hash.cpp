@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "Crown.h"
+#include "Hash.h"
+#include "Path.h"
+#include "StringUtils.h"
+#include "Args.h"
+#include "Resource.h"
 
 using namespace crown;
 
