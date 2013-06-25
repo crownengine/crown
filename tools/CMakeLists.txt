@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(crown-tools)
 
 set (INCLUDES
+	${CMAKE_SOURCE_DIR}/tools
 	${CMAKE_SOURCE_DIR}/tools/core
 	${CMAKE_SOURCE_DIR}/tools/core/formats
 	${CMAKE_SOURCE_DIR}/tools/core/strings
