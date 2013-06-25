@@ -96,3 +96,5 @@ enum PixelFormat
 
 	PF_UNKNOWN = 40
 };
+
+} // namespace crown
