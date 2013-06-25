@@ -1,3 +1,24 @@
+cmake_minimum_required(VERSION 2.8)
+
+# platform independent includes
+set (CROWN_INCLUDES
+	${CMAKE_SOURCE_DIR}/src
+	${CMAKE_SOURCE_DIR}/src/core
+	${CMAKE_SOURCE_DIR}/src/core/bv
+	${CMAKE_SOURCE_DIR}/src/core/containers
+	${CMAKE_SOURCE_DIR}/src/core/math
+	${CMAKE_SOURCE_DIR}/src/core/mem
+	${CMAKE_SOURCE_DIR}/src/core/compressors
+	${CMAKE_SOURCE_DIR}/src/core/filesystem
+	${CMAKE_SOURCE_DIR}/src/core/strings
+	${CMAKE_SOURCE_DIR}/src/core/settings
+	${CMAKE_SOURCE_DIR}/src/os
+	${CMAKE_SOURCE_DIR}/src/input
+	${CMAKE_SOURCE_DIR}/src/renderers
+	${CMAKE_SOURCE_DIR}/src/network
+	${CMAKE_SOURCE_DIR}/src/lua
+)
+
 set (SRC
 	Camera.cpp
 	Device.cpp
@@ -259,6 +280,11 @@ set (COMPILER_FLAGS
 
 # Platform specific stuff
 if (LINUX)
+	list (APPEND CROWN_INCLUDES
+		${CMAKE_SOURCE_DIR}/src/os/linux
+		${CMAKE_SOURCE_DIR}/src/renderers/gl/glx
+	)
+
 	list (APPEND OS_HEADERS
 		os/linux/OsWindow.h
 		os/linux/TCPSocket.h
