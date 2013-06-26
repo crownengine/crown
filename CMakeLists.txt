@@ -10,25 +10,6 @@ option (CROWN_BUILD_SAMPLES "Whether to build the samples" ON)
 option (CROWN_BUILD_TOOLS "Whether to build the tools" ON)
 option (CROWN_BUILD_TESTS "Whether to build unit tests" OFF)
 
-# platform independent includes
-set (CROWN_INCLUDES
-	${CMAKE_SOURCE_DIR}/src
-	${CMAKE_SOURCE_DIR}/src/core
-	${CMAKE_SOURCE_DIR}/src/core/bv
-	${CMAKE_SOURCE_DIR}/src/core/containers
-	${CMAKE_SOURCE_DIR}/src/core/math
-	${CMAKE_SOURCE_DIR}/src/core/mem
-	${CMAKE_SOURCE_DIR}/src/core/compressors
-	${CMAKE_SOURCE_DIR}/src/core/filesystem
-	${CMAKE_SOURCE_DIR}/src/core/strings
-	${CMAKE_SOURCE_DIR}/src/core/settings
-	${CMAKE_SOURCE_DIR}/src/os
-	${CMAKE_SOURCE_DIR}/src/input
-	${CMAKE_SOURCE_DIR}/src/renderers
-	${CMAKE_SOURCE_DIR}/src/network
-	${CMAKE_SOURCE_DIR}/src/lua
-)
-
 # always debug mode for now
 set (CROWN_DEBUG 1)
 
@@ -60,34 +41,11 @@ set (CROWN_THIRD_LIBS
 # detect operating system
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	set (LINUX 1)
-
-	list (APPEND CROWN_INCLUDES
-		${CMAKE_SOURCE_DIR}/src/os/linux
-		${CMAKE_SOURCE_DIR}/src/renderers/gl/glx
-	)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	set(WINDOWS 1)
-
-	list (APPEND CROWN_INCLUDES
-		${CMAKE_SOURCE_DIR}/src/os/win
-		${CMAKE_SOURCE_DIR}/src/renderers/gl/wgl
-	)
-	
-	list (APPEND CROWN_THIRD_INCLUDES
-		${CROWN_THIRD}/zlib/include
-		${CROWN_THIRD}/luajit/include/luajit-2.0
-	)
-
-	list (APPEND CROWN_THIRD_LIBS
-		${CROWN_THIRD}/zlib/lib
-		${CROWN_THIRD}/luajit/lib
-	)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-
-include_directories(${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
-link_directories(${CROWN_THIRD_LIBS})
 
 # add build directories
 add_subdirectory(src)

@@ -169,7 +169,7 @@ void Device::shutdown()
 	{
 		m_renderer->shutdown();
 
-		Renderer::destroy(m_renderer);
+		Renderer::destroy(m_allocator, m_renderer);
 	}
 
 	Log::i("Releasing Window...");
@@ -415,7 +415,7 @@ void Device::create_window()
 //-----------------------------------------------------------------------------
 void Device::create_renderer()
 {
-	m_renderer = Renderer::create();
+	m_renderer = Renderer::create(m_allocator);
 	m_renderer->init();
 
 	Log::d("Renderer created.");

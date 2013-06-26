@@ -101,8 +101,8 @@ class Renderer
 {
 public:
 
-	static Renderer*		create();
-	static void				destroy(Renderer* renderer);
+	static Renderer*		create(Allocator& a);
+	static void				destroy(Allocator& a, Renderer* renderer);
 
 	virtual 				~Renderer() {};
 
