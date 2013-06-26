@@ -27,8 +27,6 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/src/renderers
 	${CMAKE_SOURCE_DIR}/src/network
 	${CMAKE_SOURCE_DIR}/src/lua
-
-	${CMAKE_SOURCE_DIR}/game
 )
 
 # always debug mode for now
