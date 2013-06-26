@@ -1,1 +1,0 @@
-../../src/VertexShaderResource.cpp
