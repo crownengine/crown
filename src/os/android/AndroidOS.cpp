@@ -97,7 +97,7 @@ bool is_root_path(const char* path)
 
 	if (string::strlen(path) == 1)
 	{
-		if (path[0] == PATH_SEPARATOR || string::strcmp(path, "") == 0)
+		if (path[0] == PATH_SEPARATOR)
 		{
 			return true;
 		}
@@ -111,11 +111,9 @@ bool is_absolute_path(const char* path)
 {
 	CE_ASSERT(path != NULL, "Path must be != NULL");
 
-	return true;
-
 	if (string::strlen(path) > 0)
 	{
-		if (path[0] == PATH_SEPARATOR || string::strcmp(path, "") == 0)
+		if (path[0] == PATH_SEPARATOR)
 		{
 			return true;
 		}
