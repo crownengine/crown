@@ -14,7 +14,7 @@ void init()
 	L = luaL_newstate();
 	luaL_openlibs(L);
 
-	lua_cpcall(L, luaopen_libcrownlua, NULL);
+	lua_cpcall(L, luaopen_libcrown, NULL);
 
 	const char* path = device()->filesystem()->os_path(g_boot.value());
 
