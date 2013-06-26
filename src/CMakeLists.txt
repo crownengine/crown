@@ -241,7 +241,26 @@ set (OS_HEADERS
 	os/NetAddress.h
 )
 
-# Platform independent libraries
+set(LUA_SRC
+	lua/LuaStack.cpp
+	lua/LuaEnvironment.cpp
+	lua/Vec2Binds.cpp
+	lua/Vec3Binds.cpp
+	lua/Mat4Binds.cpp
+	lua/QuatBinds.cpp
+	lua/MathBinds.cpp
+	lua/MouseBinds.cpp
+	lua/KeyboardBinds.cpp
+	lua/AccelerometerBinds.cpp
+	lua/DeviceBinds.cpp
+)
+
+set(LUA_HEADERS
+	lua/LuaStack.h
+	lua/LuaEnvironment.h
+)
+
+
 set (CROWN_LIBRARIES)
 
 set (COMPILER_FLAGS
@@ -256,6 +275,7 @@ set (COMPILER_FLAGS
 	-g
 	-pg
 	-fPIC
+	-Wl,-E
 )
 
 # Platform specific stuff
@@ -371,11 +391,12 @@ set (CROWN_SOURCES
 #	${NETWORK_SRC}
 
 	${OS_SRC}
+
+	${LUA_SRC}
 )
 
 set (CROWN_HEADERS
 	${HEADERS}
-
 	${CORE_HEADERS}
 	${BV_HEADERS}
 	${CONTAINERS_HEADERS}
@@ -392,6 +413,8 @@ set (CROWN_HEADERS
 #	${NETWORK_HEADERS}
 
 	${OS_HEADERS}
+
+	${LUA_HEADERS}
 )
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
@@ -400,15 +423,12 @@ include_directories(${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
 link_directories(${CROWN_THIRD_LIBS})
 link_libraries(${CROWN_LIBRARIES})
 
-# Lua bindings and systems
-add_subdirectory(lua)
-
 add_definitions(${COMPILER_FLAGS})
 
-add_library(crown STATIC ${CROWN_SOURCES} ${CROWN_HEADERS})
+add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
 
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
-target_link_libraries(${CROWN_EXECUTABLE_NAME} crown crownlua)
+target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 
 install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
@@ -429,4 +449,4 @@ install (FILES ${INPUT_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/input)
 install (FILES ${RENDERERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/renderers)
 install (FILES ${NETWORK_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/network)
 install (FILES ${OS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/os)
-
+install (FILES ${LUA_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/lua)

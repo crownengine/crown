@@ -2,7 +2,7 @@
 LOCAL_PATH := $(call my-dir)
 
 ###############################################################################
-libluajit-5.1
+# libluajit-5.1
 ###############################################################################
 include $(CLEAR_VARS)
 
@@ -11,7 +11,7 @@ LOCAL_SRC_FILES := libluajit-5.1.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 ###############################################################################
-libcrown
+# libcrown
 ###############################################################################
 include $(CLEAR_VARS)
 
@@ -59,9 +59,6 @@ LOCAL_SRC_FILES :=\
 	input/EventDispatcher.cpp\
 	input/InputManager.cpp\
 \
-	lua/LuaStack.cpp\
-	lua/LuaEnvironment.cpp\
-\
 	network/BitMessage.cpp\
 \
 	os/OS.cpp\
@@ -81,6 +78,20 @@ LOCAL_SRC_FILES :=\
 	renderers/DebugRenderer.cpp\
 	renderers/PixelFormat.cpp\
 	renderers/VertexFormat.cpp\
+\
+	lua/LuaStack.cpp\
+	lua/LuaEnvironment.cpp\
+	lua/AccelerometerBinds.cpp\
+	lua/CameraBinds.cpp\
+	lua/DeviceBinds.cpp\
+	lua/KeyboardBinds.cpp\
+	lua/Mat4Binds.cpp\
+	lua/MathBinds.cpp\
+	lua/MouseBinds.cpp\
+	lua/QuatBinds.cpp\
+	lua/TouchBinds.cpp\
+	lua/Vec2Binds.cpp\
+	lua/Vec3Binds.cpp\
 \
 	ArchiveBundle.cpp\
 	Camera.cpp\
@@ -118,7 +129,6 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/renderers\
 	$(LOCAL_PATH)/renderers/gles\
 	$(LOCAL_PATH)/renderers/gles/egl\
-	$(LOCAL_PATH)/samples\
 	$(LOCAL_PATH)/third/luajit/include/luajit-2.0\
 \
 
@@ -127,39 +137,6 @@ LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv2 -lz
 LOCAL_SHARED_LIBRARIES := luajit-5.1
 LOCAL_STATIC_LIBRARIES := android_native_app_glue
 include $(BUILD_SHARED_LIBRARY)
-
-###############################################################################
-libcrownlua
-###############################################################################
-include $(CLEAR_VARS)
-
-LOCAL_MODULE    := crownlua
-
-LOCAL_SRC_FILES :=\
-	lua/LuaStack.cpp\
-	lua/LuaEnvironment.cpp\
-	lua/AccelerometerBinds.cpp\
-	lua/CameraBinds.cpp\
-	lua/DeviceBinds.cpp\
-	lua/KeyboardBinds.cpp\
-	lua/Mat4Binds.cpp\
-	lua/MathBinds.cpp\
-	lua/MouseBinds.cpp\
-	lua/QuatBinds.cpp\
-	lua/TouchBinds.cpp\
-	lua/Vec2Binds.cpp\
-	lua/Vec3Binds.cpp\
-\
-
-LOCAL_C_INCLUDES	:=\
-	$(LOCAL_PATH)/lua\
-\	
-
-LOCAL_CPPFLAGS	:= -g -fexceptions -Wl,-E
-LOCAL_LDLIBS	:= -llog -landroid
-LOCAL_SHARED_LIBRARIES := crown
-include $(BUILD_SHARED_LIBRARY)
-
 
 $(call import-module,android/native_app_glue)
 
