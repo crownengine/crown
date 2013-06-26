@@ -6,7 +6,6 @@ namespace crown
 LuaEnvironment::LuaEnvironment(lua_State* L) :
 	m_state(L)
 {
-
 }
 
 //-----------------------------------------------------------
@@ -24,7 +23,7 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t luaopen_libcrownlua(lua_State* L)
+CE_EXPORT int32_t luaopen_libcrown(lua_State* L)
 {
 	LuaEnvironment env(L);
 

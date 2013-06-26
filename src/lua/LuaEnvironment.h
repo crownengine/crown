@@ -45,6 +45,6 @@ void load_camera(LuaEnvironment& env);
 
 void load_device(LuaEnvironment& env);
 
-CE_EXPORT int32_t luaopen_libcrownlua(lua_State* L);
+CE_EXPORT int32_t luaopen_libcrown(lua_State* L);
 
 } // namespace crown
