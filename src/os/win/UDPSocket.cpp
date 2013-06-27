@@ -12,11 +12,15 @@ namespace os
 
 UDPSocket::UDPSocket()
 {
+    WSADATA WsaData;
+	CE_ASSERT(WSAStartup(MAKEWORD(2,2), &WsaData) == NO_ERROR, "Unable to initialize socket");
+
 	m_socket = 0;
 }
 
 UDPSocket::~UDPSocket()
 {
+	WSACleanup();
 	close();
 }
 

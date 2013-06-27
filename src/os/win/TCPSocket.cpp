@@ -12,12 +12,16 @@ namespace os
  
 TCPSocket::TCPSocket()
 {
+    WSADATA WsaData;
+	CE_ASSERT(WSAStartup(MAKEWORD(2,2), &WsaData) == NO_ERROR, "Unable to initialize socket");
+
 	set_socket_id(0);
 	set_active_socket_id(0);  
 }
 
 TCPSocket::~TCPSocket()
 {
+	WSACleanup();
 	close();
 }
 
