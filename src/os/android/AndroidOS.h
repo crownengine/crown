@@ -26,8 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <jni.h>
-#include <sys/types.h>
 #include <android/asset_manager.h>
+
+#include "Types.h"
 
 namespace crown
 {
