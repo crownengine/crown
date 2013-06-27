@@ -1026,15 +1026,15 @@ GLint GLRenderer::find_gpu_program_uniform(GLuint program, const char* name) con
 }
 
 //-----------------------------------------------------------------------------
-Renderer* Renderer::create()
+Renderer* Renderer::create(Allocator& a)
 {
-	return CE_NEW(default_allocator(), GLRenderer);
+	return CE_NEW(a, GLRenderer);
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::destroy(Renderer* renderer)
+void Renderer::destroy(Allocator& a, Renderer* renderer)
 {
-	CE_DELETE(default_allocator(), renderer);
+	CE_DELETE(a, renderer);
 }
 
 } // namespace crown
