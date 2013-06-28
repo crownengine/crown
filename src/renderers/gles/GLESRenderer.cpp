@@ -47,6 +47,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+
 //-----------------------------------------------------------------------------
 static const char* gl_error_to_string(GLenum error)
 {
@@ -70,7 +71,7 @@ static const char* gl_error_to_string(GLenum error)
 	#define GL_CHECK(function)\
 		function;
 #endif
-		
+
 //-----------------------------------------------------------------------------
 GLESRenderer::GLESRenderer() :
 	m_max_texture_size(0),
@@ -132,13 +133,15 @@ GLESRenderer::~GLESRenderer()
 //-----------------------------------------------------------------------------
 void GLESRenderer::init()
 {
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size);
-	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &m_max_texture_units);
+	m_context.create_context();
+
+	GL_CHECK(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size));
+	GL_CHECK(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &m_max_texture_units));
 	//glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &m_max_vertex_indices);
 	//glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_max_vertex_vertices);
 
 
-	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &m_min_max_point_size[0]);
+	GL_CHECK(glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &m_min_max_point_size[0]));
 	//glGetFloatv(GL_LINE_WIDTH_RANGE, &m_min_max_line_width[0]);
 
 	Log::i("OpenGL Vendor\t: %s", glGetString(GL_VENDOR));
@@ -155,28 +158,26 @@ void GLESRenderer::init()
 	Log::d("Max Vertex Vertices\t: %d", m_max_vertex_vertices);
 	Log::d("Max Anisotropy\t: %f", m_max_anisotropy);
 
-	glDisable(GL_TEXTURE_2D);
+	GL_CHECK(glDisable(GL_BLEND));
+	GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+	GL_CHECK(glBlendEquation(GL_FUNC_ADD));
 
-	glDisable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendEquation(GL_FUNC_ADD);
-
-	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
+	GL_CHECK(glFrontFace(GL_CCW));
+	GL_CHECK(glEnable(GL_CULL_FACE));
 
 	// Set the default framebuffer clear color
-	glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+	GL_CHECK(glClearColor(0.5f, 0.5f, 0.5f, 0.5f));
 
 	// Enable depth test
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-	glClearDepthf(1.0);
+	GL_CHECK(glEnable(GL_DEPTH_TEST));
+	GL_CHECK(glDepthFunc(GL_LEQUAL));
+	GL_CHECK(glClearDepthf(1.0));
 
 	// Enable scissor test
-	glEnable(GL_SCISSOR_TEST);
+	GL_CHECK(glEnable(GL_SCISSOR_TEST));
 
 	// Disable dithering
-	glDisable(GL_DITHER);
+	GL_CHECK(glDisable(GL_DITHER));
 
 	Log::i("OpenGL Renderer initialized.");
 
@@ -187,6 +188,8 @@ void GLESRenderer::init()
 void GLESRenderer::shutdown()
 {
 	unload_default_shaders();
+
+	m_context.destroy_context();
 }
 
 //-----------------------------------------------------------------------------
@@ -196,10 +199,10 @@ VertexBufferId GLESRenderer::create_vertex_buffer(size_t count, VertexFormat for
 
 	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
-	glGenBuffers(1, &buffer.gl_object);
+	GL_CHECK(glGenBuffers(1, &buffer.gl_object));
 
-	glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object);
-	glBufferData(GL_ARRAY_BUFFER, count * Vertex::bytes_per_vertex(format), vertices, GL_STATIC_DRAW);
+	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object));
+	GL_CHECK(glBufferData(GL_ARRAY_BUFFER, count * Vertex::bytes_per_vertex(format), vertices, GL_STATIC_DRAW));
 
 	buffer.count = count;
 	buffer.format = format;
@@ -214,10 +217,10 @@ VertexBufferId GLESRenderer::create_dynamic_vertex_buffer(size_t count, VertexFo
 
 	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
-	glGenBuffers(1, &buffer.gl_object);
+	GL_CHECK(glGenBuffers(1, &buffer.gl_object));
 
-	glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object);
-	glBufferData(GL_ARRAY_BUFFER, count * Vertex::bytes_per_vertex(format), vertices, GL_STREAM_DRAW);
+	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object));
+	GL_CHECK(glBufferData(GL_ARRAY_BUFFER, count * Vertex::bytes_per_vertex(format), vertices, GL_STREAM_DRAW));
 
 	buffer.count = count;
 	buffer.format = format;
@@ -228,23 +231,23 @@ VertexBufferId GLESRenderer::create_dynamic_vertex_buffer(size_t count, VertexFo
 //-----------------------------------------------------------------------------
 void GLESRenderer::update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices)
 {
-	CE_ASSERT(m_vertex_buffers_id_table.has(id), "VertexBuffers table does not have vertex buffer %d", id);
+	CE_ASSERT(m_vertex_buffers_id_table.has(id), "Vertex buffer does not exist");
 
 	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
-	glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object);
-	glBufferSubData(GL_ARRAY_BUFFER, offset * Vertex::bytes_per_vertex(buffer.format),
-					count * Vertex::bytes_per_vertex(buffer.format), vertices);
+	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, buffer.gl_object));
+	GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, offset * Vertex::bytes_per_vertex(buffer.format),
+					count * Vertex::bytes_per_vertex(buffer.format), vertices));
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::destroy_vertex_buffer(VertexBufferId id)
 {
-	CE_ASSERT(m_vertex_buffers_id_table.has(id), "VertexBuffers table does not have vertex buffer %d", id);
+	CE_ASSERT(m_vertex_buffers_id_table.has(id), "Vertex buffer does not exist");
 
 	VertexBuffer& buffer = m_vertex_buffers[id.index];
 
-	glDeleteBuffers(1, &buffer.gl_object);
+	GL_CHECK(glDeleteBuffers(1, &buffer.gl_object));
 
 	m_vertex_buffers_id_table.destroy(id);
 }
@@ -256,10 +259,10 @@ IndexBufferId GLESRenderer::create_index_buffer(size_t count, const void* indice
 
 	IndexBuffer& buffer = m_index_buffers[id.index];
 
-	glGenBuffers(1, &buffer.gl_object);
+	GL_CHECK(glGenBuffers(1, &buffer.gl_object));
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.gl_object);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLushort), indices, GL_STATIC_DRAW);
+	GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.gl_object));
+	GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLushort), indices, GL_STATIC_DRAW));
 
 	buffer.index_count = count;
 
@@ -269,11 +272,11 @@ IndexBufferId GLESRenderer::create_index_buffer(size_t count, const void* indice
 //-----------------------------------------------------------------------------
 void GLESRenderer::destroy_index_buffer(IndexBufferId id)
 {
-	CE_ASSERT(m_index_buffers_id_table.has(id), "IndexBuffers table does not have index buffer %d", id);
+	CE_ASSERT(m_index_buffers_id_table.has(id), "Index buffer does not exist");
 
 	IndexBuffer& buffer = m_index_buffers[id.index];
 
-	glDeleteBuffers(1, &buffer.gl_object);
+	GL_CHECK(glDeleteBuffers(1, &buffer.gl_object));
 
 	m_index_buffers_id_table.destroy(id);
 }
@@ -285,15 +288,15 @@ TextureId GLESRenderer::create_texture(uint32_t width, uint32_t height, PixelFor
 
 	Texture& gl_texture = m_textures[id.index];
 
-	glGenTextures(1, &gl_texture.gl_object);
+	GL_CHECK(glGenTextures(1, &gl_texture.gl_object));
 
-	glBindTexture(GL_TEXTURE_2D, gl_texture.gl_object);
+	GL_CHECK(glBindTexture(GL_TEXTURE_2D, gl_texture.gl_object));
 
-	//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+	//GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
 
 	// FIXME
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-				 GLES::pixel_format(format), GL_UNSIGNED_BYTE, data);
+	GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+				 GLES::pixel_format(format), GL_UNSIGNED_BYTE, data));
 
 	gl_texture.format = format;
 
@@ -303,49 +306,49 @@ TextureId GLESRenderer::create_texture(uint32_t width, uint32_t height, PixelFor
 //-----------------------------------------------------------------------------
 void GLESRenderer::update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data)
 {
-	CE_ASSERT(m_textures_id_table.has(id), "Textures table does not have texture %d", id);
+	CE_ASSERT(m_textures_id_table.has(id), "Texture does not exist");
 
 	Texture& gl_texture = m_textures[id.index];
 
-	glBindTexture(GL_TEXTURE_2D, gl_texture.gl_object);
+	GL_CHECK(glBindTexture(GL_TEXTURE_2D, gl_texture.gl_object));
 
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GLES::pixel_format(gl_texture.format),
-					GL_UNSIGNED_BYTE, data);
+	GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GLES::pixel_format(gl_texture.format),
+					GL_UNSIGNED_BYTE, data));
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::destroy_texture(TextureId id)
 {
-	CE_ASSERT(m_textures_id_table.has(id), "Textures table does not have texture %d", id);
+	CE_ASSERT(m_textures_id_table.has(id), "Texture does not exist");
 
 	Texture& gl_texture = m_textures[id.index];
 
-	glDeleteTextures(1, &gl_texture.gl_object);
+	GL_CHECK(glDeleteTextures(1, &gl_texture.gl_object));
 }
 
 //-----------------------------------------------------------------------------
 VertexShaderId GLESRenderer::create_vertex_shader(const char* program)
 {
-	CE_ASSERT(program != NULL, "Vertex shader can not be null");
+	CE_ASSERT(program != NULL, "Program must be != NULL");
 
 	const VertexShaderId& id = m_vertex_shaders_id_table.create();
 
 	VertexShader& gl_shader = m_vertex_shaders[id.index];
 
-	gl_shader.gl_object = glCreateShader(GL_VERTEX_SHADER);
+	gl_shader.gl_object = GL_CHECK(glCreateShader(GL_VERTEX_SHADER));
 
-	glShaderSource(gl_shader.gl_object, 1, &program, NULL);
+	GL_CHECK(glShaderSource(gl_shader.gl_object, 1, &program, NULL));
 
-	glCompileShader(gl_shader.gl_object);
+	GL_CHECK(glCompileShader(gl_shader.gl_object));
 
 	GLint success;
-	glGetShaderiv(gl_shader.gl_object, GL_COMPILE_STATUS, &success);
+	GL_CHECK(glGetShaderiv(gl_shader.gl_object, GL_COMPILE_STATUS, &success));
 
 	if (!success)
 	{
 		GLchar info_log[256];
 
-		glGetShaderInfoLog(gl_shader.gl_object, 256, NULL, info_log);
+		GL_CHECK(glGetShaderInfoLog(gl_shader.gl_object, 256, NULL, info_log));
 
 		Log::e("Vertex shader compilation failed.");
 		Log::e("Log: %s", info_log);
@@ -358,36 +361,36 @@ VertexShaderId GLESRenderer::create_vertex_shader(const char* program)
 //-----------------------------------------------------------------------------
 void GLESRenderer::destroy_vertex_shader(VertexShaderId id)
 {
-	CE_ASSERT(m_vertex_shaders_id_table.has(id), "Vertex shaders table does not have vertex shader %d", id);
+	CE_ASSERT(m_vertex_shaders_id_table.has(id), "Vertex shader does not exist");
 
 	VertexShader& gl_shader = m_vertex_shaders[id.index];
 
-	glDeleteShader(gl_shader.gl_object);
+	GL_CHECK(glDeleteShader(gl_shader.gl_object));
 }
 
 //-----------------------------------------------------------------------------
 PixelShaderId GLESRenderer::create_pixel_shader(const char* program)
 {
-	CE_ASSERT(program != NULL, "Pixel Shader can not be null");
+	CE_ASSERT(program != NULL, "Program must be != NULL");
 
 	const PixelShaderId& id = m_pixel_shaders_id_table.create();
 
 	PixelShader& gl_shader = m_pixel_shaders[id.index];
 
-	gl_shader.gl_object = glCreateShader(GL_FRAGMENT_SHADER);
+	gl_shader.gl_object = GL_CHECK(glCreateShader(GL_FRAGMENT_SHADER));
 
-	glShaderSource(gl_shader.gl_object, 1, &program, NULL);
+	GL_CHECK(glShaderSource(gl_shader.gl_object, 1, &program, NULL));
 
-	glCompileShader(gl_shader.gl_object);
+	GL_CHECK(glCompileShader(gl_shader.gl_object));
 
 	GLint success;
-	glGetShaderiv(gl_shader.gl_object, GL_COMPILE_STATUS, &success);
+	GL_CHECK(glGetShaderiv(gl_shader.gl_object, GL_COMPILE_STATUS, &success));
 
 	if (!success)
 	{
 		GLchar info_log[256];
 
-		glGetShaderInfoLog(gl_shader.gl_object, 256, NULL, info_log);
+		GL_CHECK(glGetShaderInfoLog(gl_shader.gl_object, 256, NULL, info_log));
 
 		Log::e("Pixel shader compilation failed.");
 		Log::e("Log: %s", info_log);
@@ -400,44 +403,43 @@ PixelShaderId GLESRenderer::create_pixel_shader(const char* program)
 //-----------------------------------------------------------------------------
 void GLESRenderer::destroy_pixel_shader(PixelShaderId id)
 {
-	CE_ASSERT(m_pixel_shaders_id_table.has(id),  "Pixel shaders table does not have pixel shader %d", id);
+	CE_ASSERT(m_pixel_shaders_id_table.has(id), "Pixel shader does not exist");
 
 	PixelShader& gl_shader = m_pixel_shaders[id.index];
 
-	glDeleteShader(gl_shader.gl_object);	
+	GL_CHECK(glDeleteShader(gl_shader.gl_object));	
 }
 
 //-----------------------------------------------------------------------------
 GPUProgramId GLESRenderer::create_gpu_program(VertexShaderId vs, PixelShaderId ps)
 {
-	CE_ASSERT(m_vertex_shaders_id_table.has(vs), "Vertex shaders table does not have vertex shader %d", vs);
-	CE_ASSERT(m_pixel_shaders_id_table.has(ps), "Pixel shaders table does not have pixel shader %d", ps);
+	CE_ASSERT(m_vertex_shaders_id_table.has(vs), "Vertex shader does not exist");
+	CE_ASSERT(m_pixel_shaders_id_table.has(ps), "Pixel shader does not exist");
 
 	const GPUProgramId id = m_gpu_programs_id_table.create();
 
 	GPUProgram& gl_program = m_gpu_programs[id.index];
 
-	gl_program.gl_object = glCreateProgram();
+	gl_program.gl_object = GL_CHECK(glCreateProgram());
 
-	glAttachShader(gl_program.gl_object, m_vertex_shaders[id.index].gl_object);
-	glAttachShader(gl_program.gl_object, m_pixel_shaders[id.index].gl_object);
+	GL_CHECK(glAttachShader(gl_program.gl_object, m_vertex_shaders[id.index].gl_object));
+	GL_CHECK(glAttachShader(gl_program.gl_object, m_pixel_shaders[id.index].gl_object));
 
-	glBindAttribLocation(gl_program.gl_object, SA_VERTEX, "vertex");
-	glBindAttribLocation(gl_program.gl_object, SA_COORDS, "coords");
-	glBindAttribLocation(gl_program.gl_object, SA_NORMAL, "normal");
+	GL_CHECK(glBindAttribLocation(gl_program.gl_object, SA_VERTEX, "vertex"));
+	GL_CHECK(glBindAttribLocation(gl_program.gl_object, SA_COORDS, "coords"));
+	GL_CHECK(glBindAttribLocation(gl_program.gl_object, SA_NORMAL, "normal"));
 
-	glLinkProgram(gl_program.gl_object);
+	GL_CHECK(glLinkProgram(gl_program.gl_object));
 
 	GLint success;
-	glGetProgramiv(gl_program.gl_object, GL_LINK_STATUS, &success);
+	GL_CHECK(glGetProgramiv(gl_program.gl_object, GL_LINK_STATUS, &success));
 
 	if (!success)
 	{
 		GLchar info_log[256];
-		glGetProgramInfoLog(gl_program.gl_object, 256, NULL, info_log);
+		GL_CHECK(glGetProgramInfoLog(gl_program.gl_object, 256, NULL, info_log));
 		Log::e("GPU program compilation failed.\n");
 		Log::e("Log: %s", info_log);
-		CE_ASSERT(0, "");
 	}
 
 	return id;
@@ -446,146 +448,107 @@ GPUProgramId GLESRenderer::create_gpu_program(VertexShaderId vs, PixelShaderId p
 //-----------------------------------------------------------------------------
 void GLESRenderer::destroy_gpu_program(GPUProgramId id)
 {
-	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU programs table does not have gpu program %d", id);
+	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	GPUProgram& gl_program = m_gpu_programs[id.index];
 
-	glDeleteProgram(gl_program.gl_object);
+	GL_CHECK(glDeleteProgram(gl_program.gl_object));
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_gpu_program_bool_uniform(GPUProgramId id, const char* name, bool value)
 {
-	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU programs table does not have gpu program %d", id);
+	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniform1i(uniform, (GLint) value);
+	GL_CHECK(glUniform1i(uniform, (GLint) value));
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_gpu_program_int_uniform(GPUProgramId id, const char* name, int value)
 {
-	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU programs table does not have gpu program %d", id);
+	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniform1i(uniform, (GLint) value);
+	GL_CHECK(glUniform1i(uniform, (GLint) value));
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_gpu_program_vec2_uniform(GPUProgramId id, const char* name, const Vec2& value)
 {
-	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU programs table does not have gpu program %d", id);
+	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniform2fv(uniform, 1, value.to_float_ptr());
+	GL_CHECK(glUniform2fv(uniform, 1, value.to_float_ptr()));
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_gpu_program_vec3_uniform(GPUProgramId id, const char* name, const Vec3& value)
 {
-	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU programs table does not have gpu program %d", id);
+	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniform3fv(uniform, 1, value.to_float_ptr());
+	GL_CHECK(glUniform3fv(uniform, 1, value.to_float_ptr()));
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_gpu_program_vec4_uniform(GPUProgramId id, const char* name, const Vec4& value)
 {
-	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU programs table does not have gpu program %d", id);
+	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniform4fv(uniform, 1, value.to_float_ptr());
+	GL_CHECK(glUniform4fv(uniform, 1, value.to_float_ptr()));
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_gpu_porgram_mat3_uniform(GPUProgramId id, const char* name, const Mat3& value)
 {
-	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU programs table does not have gpu program %d", id);
+	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniformMatrix3fv(uniform, 1, GL_FALSE, value.to_float_ptr());
+	GL_CHECK(glUniformMatrix3fv(uniform, 1, GL_FALSE, value.to_float_ptr()));
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_gpu_program_mat4_uniform(GPUProgramId id, const char* name, const Mat4& value)
 {
-	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU programs table does not have gpu program %d", id);
+	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniformMatrix4fv(uniform, 1, GL_FALSE, value.to_float_ptr());
+	GL_CHECK(glUniformMatrix4fv(uniform, 1, GL_FALSE, value.to_float_ptr()));
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_gpu_program_sampler_uniform(GPUProgramId id, const char* name, uint32_t value)
 {
-	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU programs table does not have gpu program %d", id);
+	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GLint uniform = find_gpu_program_uniform(m_gpu_programs[id.index].gl_object, name);
 
-	glUniform1i(uniform, (GLint) value);	
+	GL_CHECK(glUniform1i(uniform, (GLint) value));	
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::bind_gpu_program(GPUProgramId id) const
 {
-	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU programs table does not have gpu program %d", id);
+	CE_ASSERT(m_gpu_programs_id_table.has(id), "GPU program does not exist");
 
 	const GPUProgram& gl_program = m_gpu_programs[id.index];
 
-	glUseProgram(gl_program.gl_object);
+	GL_CHECK(glUseProgram(gl_program.gl_object));
 }
-
-//-----------------------------------------------------------------------------
-// RenderBufferId GLESRenderer::create_render_buffer(uint32_t width, uint32_t height, PixelFormat format)
-// {
-// 	const RenderBufferId id = m_render_buffers_id_table.create();
-
-// 	GLRenderBuffer& buffer = m_render_buffers[id.index];
-
-// 	if (GLEW_EXT_framebuffer_object)
-// 	{
-// 		glGenFramebuffersEXT(1, &buffer.gl_frame_buffer);
-// 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffer.gl_frame_buffer);
-
-// 		glGenRenderbuffersEXT(1, &buffer.gl_render_buffer);
-// 		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, buffer.gl_render_buffer);
-
-// 		glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, width, height);
-
-// 		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, buffer.gl_render_buffer);
-
-// 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-// 	}
-
-// 	return id;
-// }
-
-//-----------------------------------------------------------------------------
-// void GLESRenderer::destroy_render_buffer(RenderBufferId id)
-// {
-// 	GLRenderBuffer& buffer = m_render_buffers[id.index];
-
-// 	if (GLEW_EXT_framebuffer_object)
-// 	{
-// 		glDeleteFramebuffersEXT(1, &buffer.gl_frame_buffer);
-// 		glDeleteRenderbuffersEXT(1, &buffer.gl_render_buffer);
-// 	}
-
-// 	m_render_buffers_id_table.destroy(id);
-// }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_clear_color(const Color4& color)
 {
-	glClearColor(color.r, color.g, color.b, color.a);
+	GL_CHECK(glClearColor(color.r, color.g, color.b, color.a));
 }
 
 //-----------------------------------------------------------------------------
@@ -597,7 +560,7 @@ void GLESRenderer::set_ambient_light(const Color4& color)
 //-----------------------------------------------------------------------------
 void GLESRenderer::bind_texture(uint32_t unit, TextureId texture)
 {
-	CE_ASSERT(m_textures_id_table.has(texture), "Textures table does not have texture %d", texture);
+	CE_ASSERT(m_textures_id_table.has(texture), "Texture does not exist");
 
 	if (!activate_texture_unit(unit))
 	{
@@ -607,8 +570,8 @@ void GLESRenderer::bind_texture(uint32_t unit, TextureId texture)
 	m_texture_unit_target[unit] = GL_TEXTURE_2D;
 	m_texture_unit[unit] = m_textures[texture.index].gl_object;
 
-	glEnable(m_texture_unit_target[unit]);
-	glBindTexture(m_texture_unit_target[unit], m_texture_unit[unit]);
+	GL_CHECK(glEnable(m_texture_unit_target[unit]));
+	GL_CHECK(glBindTexture(m_texture_unit_target[unit], m_texture_unit[unit]));
 }
 
 //-----------------------------------------------------------------------------
@@ -619,21 +582,21 @@ void GLESRenderer::set_texturing(uint32_t unit, bool texturing)
 
 	if (texturing)
 	{
-		glEnable(m_texture_unit_target[unit]);
+		GL_CHECK(glEnable(m_texture_unit_target[unit]));
 	}
 	else
 	{
-		glDisable(m_texture_unit_target[unit]);
+		GL_CHECK(glDisable(m_texture_unit_target[unit]));
 	}
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_texture_wrap(uint32_t unit, TextureWrap wrap)
 {
-	GLenum glWrap = GLES::texture_wrap(wrap);
+	GLenum gl_wrap = GLES::texture_wrap(wrap);
 
-	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_S, glWrap);
-	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_T, glWrap);
+	GL_CHECK(glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_S, gl_wrap));
+	GL_CHECK(glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_WRAP_T, gl_wrap));
 }
 
 //-----------------------------------------------------------------------------
@@ -642,13 +605,13 @@ void GLESRenderer::set_texture_filter(uint32_t unit, TextureFilter filter)
 	if (!activate_texture_unit(unit))
 		return;
 
-	GLint minFilter;
-	GLint magFilter;
+	GLint min_filter;
+	GLint mag_filter;
 
-	GLES::texture_filter(filter, minFilter, magFilter);
+	GLES::texture_filter(filter, min_filter, mag_filter);
 
-	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MIN_FILTER, minFilter);
-	glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MAG_FILTER, magFilter);
+	GL_CHECK(glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MIN_FILTER, min_filter));
+	GL_CHECK(glTexParameteri(m_texture_unit_target[unit], GL_TEXTURE_MAG_FILTER, mag_filter));
 }
 
 //-----------------------------------------------------------------------------
@@ -656,11 +619,11 @@ void GLESRenderer::set_backface_culling(bool culling)
 {
 	if (culling)
 	{
-		glEnable(GL_CULL_FACE);
+		GL_CHECK(glEnable(GL_CULL_FACE));
 	}
 	else
 	{
-		glDisable(GL_CULL_FACE);
+		GL_CHECK(glDisable(GL_CULL_FACE));
 	}
 }
 
@@ -669,26 +632,26 @@ void GLESRenderer::set_depth_test(bool test)
 {
 	if (test)
 	{
-		glEnable(GL_DEPTH_TEST);
+		GL_CHECK(glEnable(GL_DEPTH_TEST));
 	}
 	else
 	{
-		glDisable(GL_DEPTH_TEST);
+		GL_CHECK(glDisable(GL_DEPTH_TEST));
 	}
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_depth_write(bool write)
 {
-	glDepthMask((GLboolean) write);
+	GL_CHECK(glDepthMask((GLboolean) write));
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_depth_func(CompareFunction func)
 {
-	GLenum glFunc = GLES::compare_function(func);
+	GLenum gl_func = GLES::compare_function(func);
 
-	glDepthFunc(glFunc);
+	GL_CHECK(glDepthFunc(gl_func));
 }
 
 //-----------------------------------------------------------------------------
@@ -696,27 +659,27 @@ void GLESRenderer::set_blending(bool blending)
 {
 	if (blending)
 	{
-		glEnable(GL_BLEND);
+		GL_CHECK(glEnable(GL_BLEND));
 	}
 	else
 	{
-		glDisable(GL_BLEND);
+		GL_CHECK(glDisable(GL_BLEND));
 	}
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_blending_params(BlendEquation equation, BlendFunction src, BlendFunction dst, const Color4& color)
 {
-	GLenum glEquation = GLES::blend_equation(equation);
+	GLenum gl_equation = GLES::blend_equation(equation);
 
-	glBlendEquation(glEquation);
+	GL_CHECK(glBlendEquation(gl_equation));
 
-	GLenum glSrcFactor = GLES::blend_function(src);
-	GLenum glDstFactor = GLES::blend_function(dst);
+	GLenum gl_src_factor = GLES::blend_function(src);
+	GLenum gl_dst_factor = GLES::blend_function(dst);
 
-	glBlendFunc(glSrcFactor, glDstFactor);
+	GL_CHECK(glBlendFunc(gl_src_factor, gl_dst_factor));
 
-	glBlendColor(color.r, color.g, color.b, color.a);
+	GL_CHECK(glBlendColor(color.r, color.g, color.b, color.a));
 }
 
 //-----------------------------------------------------------------------------
@@ -724,25 +687,20 @@ void GLESRenderer::set_color_write(bool write)
 {
 	if (write)
 	{
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		GL_CHECK(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
 	}
 	else
 	{
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		GL_CHECK(glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
 	}
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::set_front_face(FrontFace face)
 {
-	GLenum glFace = GL_CCW;
+	const GLenum gl_face = (face == FF_CCW) ? GL_CCW : GL_CW;
 
-	if (face == FF_CW)
-	{
-		glFace = GL_CW;
-	}
-
-	glFrontFace(glFace);
+	GL_CHECK(glFrontFace(gl_face));
 }
 
 //-----------------------------------------------------------------------------
@@ -753,7 +711,7 @@ void GLESRenderer::set_viewport_params(int32_t x, int32_t y, int32_t width, int3
 	m_viewport[2] = width;
 	m_viewport[3] = height;
 
-	glViewport(x, y, width, height);
+	GL_CHECK(glViewport(x, y, width, height));
 }
 
 //-----------------------------------------------------------------------------
@@ -770,11 +728,11 @@ void GLESRenderer::set_scissor(bool scissor)
 {
 	if (scissor)
 	{
-		glEnable(GL_SCISSOR_TEST);
+		GL_CHECK(glEnable(GL_SCISSOR_TEST));
 	}
 	else
 	{
-		glDisable(GL_SCISSOR_TEST);
+		GL_CHECK(glDisable(GL_SCISSOR_TEST));
 	}
 }
 
@@ -786,7 +744,7 @@ void GLESRenderer::set_scissor_params(int32_t x, int32_t y, int32_t width, int32
 	m_scissor[2] = width;
 	m_scissor[3] = height;
 
-	glScissor(x, y, width, height);
+	GL_CHECK(glScissor(x, y, width, height));
 }
 
 //-----------------------------------------------------------------------------
@@ -802,15 +760,16 @@ void GLESRenderer::get_scissor_params(int32_t& x, int32_t& y, int32_t& width, in
 void GLESRenderer::frame()
 {
 	// Clear frame/depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 	// Bind the default gpu program
 	bind_gpu_program(m_default_gpu_program);
 
 	set_gpu_program_mat4_uniform(m_default_gpu_program, "mvp_matrix", m_model_view_projection_matrix);
 
-	glFinish();
-	check_gl_errors();
+	GL_CHECK(glFinish());
+
+	m_context.swap_buffers();
 }
 
 //-----------------------------------------------------------------------------
@@ -848,7 +807,7 @@ void GLESRenderer::set_matrix(MatrixType type, const Mat4& matrix)
 //-----------------------------------------------------------------------------
 void GLESRenderer::bind_vertex_buffer(VertexBufferId vb) const
 {
-	CE_ASSERT(m_vertex_buffers_id_table.has(vb), "Vertex buffers table does not have vertex buffer %d", vb);
+	CE_ASSERT(m_vertex_buffers_id_table.has(vb), "Vertex buffer does not exist");
 
 	const VertexBuffer& vertex_buffer = m_vertex_buffers[vb.index];
 
@@ -858,32 +817,32 @@ void GLESRenderer::bind_vertex_buffer(VertexBufferId vb) const
 	{
 		case VF_XY_FLOAT_32:
 		{
-			glEnableVertexAttribArray(SA_VERTEX);
-			glVertexAttribPointer(SA_VERTEX, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			GL_CHECK(glEnableVertexAttribArray(SA_VERTEX));
+			GL_CHECK(glVertexAttribPointer(SA_VERTEX, 2, GL_FLOAT, GL_FALSE, 0, 0));
 			break;
 		}
 		case VF_XYZ_FLOAT_32:
 		{
-			glEnableVertexAttribArray(SA_VERTEX);
-			glVertexAttribPointer(SA_VERTEX, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			GL_CHECK(glEnableVertexAttribArray(SA_VERTEX));
+			GL_CHECK(glVertexAttribPointer(SA_VERTEX, 3, GL_FLOAT, GL_FALSE, 0, 0));
 			break;
 		}
 		case VF_UV_FLOAT_32:
 		{
-			glEnableVertexAttribArray(SA_COORDS);
-			glVertexAttribPointer(SA_COORDS, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			GL_CHECK(glEnableVertexAttribArray(SA_COORDS));
+			GL_CHECK(glVertexAttribPointer(SA_COORDS, 2, GL_FLOAT, GL_FALSE, 0, 0));
 			break;
 		}
 		case VF_UVT_FLOAT_32:
 		{
-			glEnableVertexAttribArray(SA_COORDS);
-			glVertexAttribPointer(SA_COORDS, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			GL_CHECK(glEnableVertexAttribArray(SA_COORDS));
+			GL_CHECK(glVertexAttribPointer(SA_COORDS, 3, GL_FLOAT, GL_FALSE, 0, 0));
 			break;
 		}
 		case VF_XYZ_NORMAL_FLOAT_32:
 		{
-			glEnableVertexAttribArray(SA_NORMAL);
-			glVertexAttribPointer(SA_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			GL_CHECK(glEnableVertexAttribArray(SA_NORMAL));
+			GL_CHECK(glVertexAttribPointer(SA_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0));
 			break;
 		}
 		case VF_XYZ_UV_XYZ_NORMAL_FLOAT_32:
@@ -892,7 +851,7 @@ void GLESRenderer::bind_vertex_buffer(VertexBufferId vb) const
 		}
 		default:
 		{
-			CE_ASSERT(0, "");
+			CE_ASSERT(0, "Vertex format unknown");
 			break;
 		}
 	}
@@ -901,19 +860,19 @@ void GLESRenderer::bind_vertex_buffer(VertexBufferId vb) const
 //-----------------------------------------------------------------------------
 void GLESRenderer::draw_triangles(IndexBufferId id) const
 {
-	CE_ASSERT(m_index_buffers_id_table.has(id), "Index buffers table does not have index buffer %d", id);
+	CE_ASSERT(m_index_buffers_id_table.has(id), "Index buffer does not exist");
 
 	const IndexBuffer& index_buffer = m_index_buffers[id.index];
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer.gl_object);
+	GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer.gl_object));
 
-	glDrawElements(GL_TRIANGLES, index_buffer.index_count, GL_UNSIGNED_SHORT, 0);
+	GL_CHECK(glDrawElements(GL_TRIANGLES, index_buffer.index_count, GL_UNSIGNED_SHORT, 0));
 }
 
 //-----------------------------------------------------------------------------
 // void GLESRenderer::bind_render_buffer(RenderBufferId id) const
 // {
-// 	CE_ASSERT(m_render_buffers_id_table.has(id));
+// 	CE_ASSERT(m_render_buffers_id_table.has(id), "Render buffer does not exist");
 
 // 	const GLRenderBuffer& render_buffer = m_render_buffers[id.index];
 // }
@@ -921,19 +880,19 @@ void GLESRenderer::draw_triangles(IndexBufferId id) const
 //-----------------------------------------------------------------------------
 void GLESRenderer::draw_lines(const float* vertices, const float* colors, uint32_t count)
 {
-	// glBindBuffer(GL_ARRAY_BUFFER, 0);
-	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	// GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	// GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-	// glEnableClientState(GL_VERTEX_ARRAY);
-	// glEnableClientState(GL_COLOR_ARRAY);
+	// GL_CHECK(glEnableClientState(GL_VERTEX_ARRAY));
+	// GL_CHECK(glEnableClientState(GL_COLOR_ARRAY));
 
-	// glVertexPointer(3, GL_FLOAT, 0, vertices);
-	// glColorPointer(4, GL_FLOAT, 0, colors);
+	// GL_CHECK(glVertexPointer(3, GL_FLOAT, 0, vertices));
+	// GL_CHECK(glColorPointer(4, GL_FLOAT, 0, colors));
 
-	// glDrawArrays(GL_LINES, 0, count);
+	// GL_CHECK(glDrawArrays(GL_LINES, 0, count));
 
-	// glDisableClientState(GL_COLOR_ARRAY);
-	// glDisableClientState(GL_VERTEX_ARRAY);
+	// GL_CHECK(glDisableClientState(GL_COLOR_ARRAY));
+	// GL_CHECK(glDisableClientState(GL_VERTEX_ARRAY));
 }
 
 //-----------------------------------------------------------------------------
@@ -943,7 +902,6 @@ void GLESRenderer::load_default_shaders()
 		"attribute vec4 vertex;"
 		"attribute vec2 coords;"
 		"uniform mat4 mvp_matrix;"
-		"uniform vec3 color;"
 
 		"void main(void)"
 		"{"
@@ -985,7 +943,7 @@ bool GLESRenderer::activate_texture_unit(uint32_t unit)
 		return false;
 	}
 
-	glActiveTexture(GL_TEXTURE0 + unit);
+	GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
 	m_active_texture_unit = unit;
 
 	return true;
@@ -994,36 +952,11 @@ bool GLESRenderer::activate_texture_unit(uint32_t unit)
 //-----------------------------------------------------------------------------
 GLint GLESRenderer::find_gpu_program_uniform(GLuint program, const char* name) const
 {
-	GLint uniform = glGetUniformLocation(program, name);
+	GLint uniform = GL_CHECK(glGetUniformLocation(program, name));
 
-	CE_ASSERT(uniform != -1, "Uniform not found in GPU program %d", program);
+	CE_ASSERT(uniform != -1, "Uniform does not exist");
 
 	return uniform;
-}
-
-//-----------------------------------------------------------------------------
-void GLESRenderer::check_gl_errors() const
-{
-	GLenum error;
-
-	while ((error = glGetError()))
-	{
-		switch (error)
-		{
-			case GL_INVALID_ENUM:
-				Log::e("GLESRenderer: GL_INVALID_ENUM");
-				break;
-			case GL_INVALID_VALUE:
-				Log::e("GLESRenderer: GL_INVALID_VALUE");
-				break;
-			case GL_INVALID_OPERATION:
-				Log::e("GLESRenderer: GL_INVALID_OPERATION");
-				break;
-			case GL_OUT_OF_MEMORY:
-				Log::e("GLESRenderer: GL_OUT_OF_MEMORY");
-				break;
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1039,4 +972,3 @@ void Renderer::destroy(Allocator& a, Renderer* renderer)
 }
 
 } // namespace crown
-

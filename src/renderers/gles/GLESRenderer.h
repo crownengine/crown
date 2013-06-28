@@ -38,6 +38,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IdTable.h"
 #include "HeapAllocator.h"
 #include "Resource.h"
+#include "GLContext.h"
 
 namespace crown
 {
@@ -209,6 +210,8 @@ private:
 private:
 
 	HeapAllocator		m_allocator;
+
+	GLContext			m_context;
 
 	// Matrices
 	Mat4				m_matrix[MT_COUNT];
