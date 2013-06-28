@@ -29,11 +29,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdio>
 #include <cstdarg>
 #include "Types.h"
-#include "StringUtils.h"
 
 namespace crown
 {
-
 
 /// Enumerates log levels.
 enum LogLevel
