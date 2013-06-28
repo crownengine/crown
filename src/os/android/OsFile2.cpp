@@ -24,6 +24,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <android/asset_manager_jni.h>
+
 #include "Assert.h"
 #include "OS.h"
 #include "OsFile.h"
@@ -32,13 +34,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+static AAssetManager*	g_android_asset_manager = NULL;
+
 //-----------------------------------------------------------------------------
 OsFile::OsFile(const char* path, FileOpenMode mode)
 {
 	// Android assets are always read-only
 	(void) mode;
 	m_mode = FOM_READ;
-	m_asset = AAssetManager_open(os::get_android_asset_manager(), path, AASSET_MODE_RANDOM);
+	m_asset = AAssetManager_open(get_android_asset_manager(), path, AASSET_MODE_RANDOM);
 
 	CE_ASSERT(m_asset != NULL, "Unable to open file: %s", path);
 }
@@ -126,6 +130,18 @@ size_t OsFile::position() const
 bool OsFile::eof() const
 {
 	return AAsset_getRemainingLength(m_asset) == 0;
+}
+
+//-----------------------------------------------------------------------------
+AAssetManager* get_android_asset_manager()
+{
+	return g_android_asset_manager;
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv* env, jobject obj, jobject assetManager)
+{
+	g_android_asset_manager = AAssetManager_fromJava(env, assetManager);
 }
 
 } // namespace crown
