@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <GLES2/gl2.h>
 
+#include "Assert.h"
 #include "GLContext.h"
 
 namespace crown
@@ -36,6 +37,8 @@ static ANativeWindow* awindow = NULL;
 //-----------------------------------------------------------------------------
 void set_android_window(ANativeWindow* window)
 {
+    CE_ASSERT_NOT_NULL(window);
+
 	awindow = window;
 }
 
@@ -55,6 +58,7 @@ void GLContext::create_context()
 	EGLint attrib_list[]= { EGL_RED_SIZE,        8,
                             EGL_GREEN_SIZE,      8,
                             EGL_BLUE_SIZE,       8,
+                            EGL_DEPTH_SIZE,      24,
                             EGL_SURFACE_TYPE,    EGL_WINDOW_BIT,
                             EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
                             EGL_NONE};
