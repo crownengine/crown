@@ -63,7 +63,7 @@ Allocator& default_allocator();
 
 /// Respects standard behaviour when calling on NULL @a ptr
 template <typename T>
-void call_destructor_and_deallocate(Allocator& a, T* ptr)
+inline void call_destructor_and_deallocate(Allocator& a, T* ptr)
 {
 	if (ptr != NULL)
 	{
