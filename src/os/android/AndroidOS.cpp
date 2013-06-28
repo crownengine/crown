@@ -24,21 +24,21 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <android/asset_manager_jni.h>
 #include <android/log.h>
-#include <cstdio>
 #include <cstdarg>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
+#include <cstdio>
 #include <cstdlib>
+#include <dirent.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <time.h>
-#include <android/asset_manager_jni.h>
+#include <unistd.h>
 
 #include "OS.h"
 #include "AndroidOS.h"
-#include "OsWindow.h"
-#include "Log.h"
+#include "Assert.h"
+#include "StringUtils.h"
 
 namespace crown
 {
