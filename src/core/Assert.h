@@ -24,11 +24,11 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#pragma once
+
 #include <cstdlib>
 #include <cstdio>
 #include "Config.h"
-
-#pragma once
 
 #ifdef CROWN_DEBUG
 	#define CE_ERROR(file, line, message, ...) do { printf(message, __VA_ARGS__);\
