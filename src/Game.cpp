@@ -1,6 +1,7 @@
 #include "Crown.h"
 #include "Game.h"
 #include "lua.hpp"
+#include "ConsoleServer.h"
 
 namespace crown
 {
@@ -8,6 +9,7 @@ namespace crown
 StringSetting g_boot("boot_file", "lua main file", "lua/game.raw");
 
 lua_State* L;
+ConsoleServer server;
 
 void init()
 {
@@ -26,6 +28,8 @@ void init()
 	lua_getglobal(L, "init");
 
 	lua_pcall(L, 0, 0, 0);
+
+	server.start(10000);
 }
 
 void shutdown()
@@ -35,6 +39,8 @@ void shutdown()
 	lua_pcall(L, 0, 0, 0);
 
 	lua_close(L);
+
+	server.stop();
 }
 
 void frame(float dt)
@@ -44,6 +50,8 @@ void frame(float dt)
 	lua_pushnumber(L, dt);
 
 	lua_pcall(L, 1, 0, 0);
+
+	server.receive_command();
 }
 
 }
