@@ -101,6 +101,12 @@ void LuaStack::push_string(const char* str, size_t len)
 }
 
 //-----------------------------------------------------------------------------
+void LuaStack::push_lightdata(void* data, size_t len)
+{
+	lua_pushlightuserdata(m_state, data);
+}
+
+//-----------------------------------------------------------------------------
 void LuaStack::push_vec2(Vec2* v)
 {
 	CE_ASSERT(v >= &vec2_buffer[0] && v <= &vec2_buffer[LUA_VEC2_BUFFER_SIZE-1], "Vec2 type error");
@@ -154,6 +160,16 @@ float LuaStack::get_float(int32_t index)
 const char* LuaStack::get_string(int32_t index)
 {
 	return luaL_checkstring(m_state, index);
+}
+
+//-----------------------------------------------------------------------------
+void* LuaStack::get_lightdata(int32_t index)
+{
+	CE_ASSERT(lua_islightuserdata(m_state, index), "Not a lightuserdata object");
+
+	void* data = lua_touserdata(m_state, index);
+
+	return data;	
 }
 
 //-----------------------------------------------------------------------------
