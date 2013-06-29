@@ -35,6 +35,7 @@ set (SRC
 
 	Game.cpp
 	JSONParser.cpp
+	ConsoleServer.cpp
 
 	FPSSystem.cpp
 )
@@ -60,6 +61,8 @@ set (HEADERS
 
 	Game.h
 	JSONParser.h
+	ConsoleServer.h
+
 	FPSSystem.h
 )
 
