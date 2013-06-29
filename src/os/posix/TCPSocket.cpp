@@ -101,6 +101,14 @@ bool TCPSocket::open(uint16_t port)
 
 	m_active_socket = asd;
 
+	if (fcntl(m_active_socket, F_SETFL, O_NONBLOCK, 1) == -1)
+	{
+		os::printf("Failed to set non-blocking socket\n");
+		close();
+
+		return false;
+	}
+
 	return true;
 }
 
