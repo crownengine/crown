@@ -22,6 +22,8 @@ public:
 
 							LuaStack(lua_State* L);
 
+	lua_State*				state();
+
 	void					push_bool(bool value);
 
 	void					push_int32(int32_t value);

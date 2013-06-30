@@ -59,6 +59,12 @@ LuaStack::LuaStack(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+lua_State* LuaStack::state()
+{
+	return m_state;
+}
+
+//-----------------------------------------------------------------------------
 void LuaStack::push_bool(bool value)
 {
 	lua_pushboolean(m_state, value);
