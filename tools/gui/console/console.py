@@ -31,13 +31,13 @@ class Console:
 
         builder.connect_signals(self)
 
-        self.m_sock = socket.create_connection(('localhost', 10000))
+        self.m_sock = socket.create_connection(('192.168.0.15', 10000))
 
         Gtk.main()
 
 #------------------------------------------------------------------------------
     def on_destroy(self, *args):
-        self.m_sock.shutdown()
+        self.m_sock.close()
         Gtk.main_quit(*args)
 
 #------------------------------------------------------------------------------
