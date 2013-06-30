@@ -107,6 +107,7 @@ LOCAL_SRC_FILES :=\
 	TextureResource.cpp\
 	VertexShaderResource.cpp\
 	Game.cpp\
+	ConsoleServer.cpp\
 \
 
 LOCAL_C_INCLUDES	:=\
