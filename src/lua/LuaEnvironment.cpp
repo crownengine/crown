@@ -39,6 +39,8 @@ CE_EXPORT int32_t luaopen_libcrown(lua_State* L)
 
 	load_device(env);
 
+	load_window(env);
+
 	return 1;
 }
 
