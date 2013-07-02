@@ -92,6 +92,7 @@ LOCAL_SRC_FILES :=\
 	lua/TouchBinds.cpp\
 	lua/Vec2Binds.cpp\
 	lua/Vec3Binds.cpp\
+	lua/WindowBinds.cpp\
 \
 	ArchiveBundle.cpp\
 	Camera.cpp\
