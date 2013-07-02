@@ -26,51 +26,33 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 package crown.android;
 
-import android.content.Context;
-import android.view.Surface;
-import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 
-public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callback
+public class MainThread extends Thread
 {
-	private MainThread mMainThread;
+	private SurfaceHolder mHolder;
+	private CrownSurfaceView mView;
 
-	//-----------------------------------------------------------------------------
-	public CrownSurfaceView(Context context)
+	public MainThread(SurfaceHolder holder, CrownSurfaceView view)
 	{
-		super(context);
+		super();
 
-		this.getHolder().addCallback(this);
-
-		mMainThread = new MainThread(getHolder(), this);
-
-		setFocusable(true);
+		mHolder = holder;
+		mView = view;
 	}
 
-	//-----------------------------------------------------------------------------
+	// This is the classic main() replacement for Android
 	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) 
+	public void run()
 	{
-	}
+		CrownLib.setWindow(mHolder.getSurface());
+		CrownLib.init();
 
-	//-----------------------------------------------------------------------------
-	@Override
-	public void surfaceCreated(SurfaceHolder holder) 
-	{
-		mMainThread.start();
-	}
-
-	//-----------------------------------------------------------------------------
-	@Override
-	public void surfaceDestroyed(SurfaceHolder holder) 
-	{
-		try
+		while (CrownLib.isRunning())
 		{
-			mMainThread.join();
+			CrownLib.frame();
 		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
+
+		CrownLib.shutdown();
 	}
 }
