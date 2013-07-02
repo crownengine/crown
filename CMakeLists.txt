@@ -4,7 +4,7 @@ project(crown)
 
 set (CROWN_VERSION_MAJOR 0)
 set (CROWN_VERSION_MINOR 1)
-set (CROWN_VERSION_MICRO 3)
+set (CROWN_VERSION_MICRO 4)
 
 option (CROWN_BUILD_SAMPLES "Whether to build the samples" ON)
 option (CROWN_BUILD_TOOLS "Whether to build the tools" ON)
