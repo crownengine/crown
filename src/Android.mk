@@ -128,6 +128,7 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/network\
 	$(LOCAL_PATH)/os\
 	$(LOCAL_PATH)/os/android\
+	$(LOCAL_PATH)/os/posix\
 	$(LOCAL_PATH)/renderers\
 	$(LOCAL_PATH)/renderers/gles\
 	$(LOCAL_PATH)/renderers/gles/egl\
