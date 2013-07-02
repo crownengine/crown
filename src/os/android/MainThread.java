@@ -23,21 +23,36 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
-#pragma once
 
-#include <jni.h>
-#include <android/asset_manager.h>
+package crown.android;
 
-#include "Types.h"
+import android.view.SurfaceHolder;
 
-namespace crown
+public class MainThread extends Thread
 {
-namespace os
-{
+	private SurfaceHolder mHolder;
+	private CrownSurfaceView mView;
 
-// Accessor to the android asset manager
-AAssetManager* 	get_android_asset_manager();
+	public MainThread(SurfaceHolder holder, CrownSurfaceView view)
+	{
+		super();
 
-} // namespace crown
-} // namespace os
+		mHolder = holder;
+		mView = view;
+	}
 
+	// This is the classic main() replacement for Android
+	@Override
+	public void run()
+	{
+		CrownLib.setWindow(mHolder.getSurface());
+		CrownLib.init();
+
+		while (CrownLib.isRunning())
+		{
+			CrownLib.frame();
+		}
+
+		CrownLib.shutdown();
+	}
+}

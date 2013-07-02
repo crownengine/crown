@@ -23,6 +23,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
+
 package crown.android;
 
 import android.app.Activity;
@@ -69,7 +70,7 @@ public class CrownActivity extends Activity
 
 		// init AssetManager
 		mAssetManager = getAssets();
-		CrownLib.initAssetManager(mAssetManager);
+		//CrownLib.initAssetManager(mAssetManager);
 
 		// init Native Window
         mWindow = new CrownSurfaceView(this);

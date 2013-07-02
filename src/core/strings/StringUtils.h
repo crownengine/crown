@@ -26,10 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Assert.h"
 #include <cstdio>
 #include <cstring>
-#include "List.h"
+
+#include "Assert.h"
 #include "Types.h"
 
 namespace crown

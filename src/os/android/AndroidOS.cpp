@@ -24,21 +24,20 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <jni.h>
 #include <android/log.h>
-#include <cstdio>
 #include <cstdarg>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
+#include <cstdio>
 #include <cstdlib>
+#include <dirent.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <time.h>
-#include <android/asset_manager_jni.h>
+#include <unistd.h>
 
 #include "OS.h"
-#include "AndroidOS.h"
-#include "OsWindow.h"
-#include "Log.h"
+#include "Assert.h"
+#include "StringUtils.h"
 
 namespace crown
 {
@@ -46,7 +45,6 @@ namespace os
 {
 
 static timespec			base_time;
-static AAssetManager*	asset_manager = NULL;
 static uint32_t			window_width;
 static uint32_t			window_height;
 
@@ -236,18 +234,6 @@ uint64_t microseconds()
 	timespec tmp;
 	clock_gettime(CLOCK_MONOTONIC, &tmp);
 	return (tmp.tv_sec - base_time.tv_sec) * 1000000 + (tmp.tv_nsec - base_time.tv_nsec) / 1000;
-}
-
-//-----------------------------------------------------------------------------
-AAssetManager* get_android_asset_manager()
-{
-	return asset_manager;
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv* env, jobject obj, jobject assetManager)
-{
-	asset_manager = AAssetManager_fromJava(env, assetManager);
 }
 
 } // namespace os

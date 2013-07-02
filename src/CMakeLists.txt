@@ -277,6 +277,7 @@ set(LUA_SRC
 	lua/KeyboardBinds.cpp
 	lua/AccelerometerBinds.cpp
 	lua/DeviceBinds.cpp
+	lua/WindowBinds.cpp
 )
 
 set(LUA_HEADERS
