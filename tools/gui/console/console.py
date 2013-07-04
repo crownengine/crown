@@ -11,13 +11,14 @@ CMD_HELP    = "help"    # Console help
 
 # Server Console commands
 CMD_STOP    = "device stop" # Stop Engine and close console
+CMD_FRAME   = "frame"
 
 # Help message
 MSG_HELP    =   "1- clear - clear screen output\n2- exit  - terminate console\n3- device stop - terminate engine and console\n4- help - print this message\n"
 
 class Console:
 #------------------------------------------------------------------------------
-    def __init__(self):   
+    def __init__(self, address):   
         builder = Gtk.Builder()
         builder.add_from_file("ui/console.glade")
         
@@ -31,7 +32,9 @@ class Console:
 
         builder.connect_signals(self)
 
-        self.m_sock = socket.create_connection(('192.168.0.15', 10000))
+        self.m_address = address
+
+        self.m_sock = socket.create_connection((self.m_address, 10000))
 
         Gtk.main()
 
@@ -59,7 +62,7 @@ class Console:
         elif cmd == CMD_STOP:
             self.run_command(cmd)
             self.popup_dialog("Crown has stopped!", "Console connection will be closed")
-            self.on_destroy()
+            self.on_destroy()          
 
         elif cmd == CMD_HELP:
             self.print_help()
@@ -103,7 +106,14 @@ class Console:
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 def main():
-   console = Console()
+    if len(sys.argv) != 2:
+        print("Usage: console.py <ip-address>")
+        exit(-1)
+
+    address = sys.argv[1]
+
+    console = Console(address)
+
 
 main()
     
