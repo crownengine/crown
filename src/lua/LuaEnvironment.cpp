@@ -34,12 +34,6 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-const char* LuaEnvironment::lua_error()
-{
-	return lua_tostring(m_stack.state(), -1);
-}
-
-//-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment(lua_State* L) :
 	m_stack(L)
 {
@@ -51,9 +45,7 @@ LuaEnvironment::LuaEnvironment(lua_State* L) :
 void LuaEnvironment::init()
 {
 	// Open Crown library
-	int32_t lib_loaded = lua_cpcall(m_stack.state(), luaopen_libcrown, NULL);
-
-	CE_ASSERT(lib_loaded == 0, "Unable to load Crown module, error: %s", lua_error());
+	lua_cpcall(m_stack.state(), luaopen_libcrown, NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -71,25 +63,19 @@ LuaStack LuaEnvironment::stack()
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_buffer(const char* buffer, size_t len)
 {
-	int32_t buf_loaded = luaL_loadbuffer(m_stack.state(), buffer, len, "");
-
-	CE_ASSERT(buf_loaded == 0, "Unable to load buffer, error: %s", lua_error());
+	luaL_loadbuffer(m_stack.state(), buffer, len, "");
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_file(const char* file)
 {
-	int32_t file_loaded = luaL_loadfile(m_stack.state(), file);
-
-	CE_ASSERT(file_loaded == 0, "Unable to load file, error: %s", lua_error());
+	luaL_loadfile(m_stack.state(), file);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_string(const char* str)
 {
-	int32_t str_loaded = luaL_loadstring(m_stack.state(), str);
-
-	CE_ASSERT(str_loaded == 0, "Unable to load string, error: %s", lua_error());
+	luaL_loadstring(m_stack.state(), str);
 }
 
 //-----------------------------------------------------------------------------
@@ -101,9 +87,7 @@ void LuaEnvironment::get_global_symbol(const char* symbol)
 //-----------------------------------------------------------------------------
 void LuaEnvironment::execute(int32_t args, int32_t results)
 {
-	int32_t executed = lua_pcall(m_stack.state(), args, results, 0);
-
-	CE_ASSERT(executed == 0, "Unable to execute lua chunk, error: %s", lua_error());
+	lua_pcall(m_stack.state(), args, results, 0);
 }
 
 //-----------------------------------------------------------------------------

@@ -52,6 +52,8 @@ public:
 
 	LuaStack		stack();
 
+	const char*		error_buffer();
+
 	void			init();
 
 	void			shutdown();
@@ -66,9 +68,6 @@ public:
 
 	void			execute(int32_t args, int32_t results);
 
-	const char*		lua_error();
-
-
 //-----------------------------------------------------------------------------
 
 	/// Load a function to proper module
@@ -77,6 +76,8 @@ public:
 private:
 
 	LuaStack		m_stack;
+
+	char			m_error_buffer[1024];
 
 	// Disable copying
 					LuaEnvironment(const LuaEnvironment&);
@@ -94,7 +95,6 @@ void load_touch(LuaEnvironment& env);
 void load_accelerometer(LuaEnvironment& env);
 void load_camera(LuaEnvironment& env);
 void load_device(LuaEnvironment& env);
-
 void load_window(LuaEnvironment& env);
 
 CE_EXPORT int32_t luaopen_libcrown(lua_State* L);
