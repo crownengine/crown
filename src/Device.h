@@ -49,6 +49,7 @@ class Mouse;
 class Touch;
 class Accelerometer;
 class LuaEnvironment;
+class ConsoleServer;
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -113,6 +114,8 @@ public:
 	Touch*					touch();
 	Accelerometer*			accelerometer();
 
+	ConsoleServer*			console_server();
+
 private:
 
 	void					create_filesystem();
@@ -123,6 +126,8 @@ private:
 	void					create_window();
 	void					create_renderer();
 	void					create_debug_renderer();
+
+	void					create_console_server();
 
 	void					parse_command_line(int argc, char** argv);
 	void					check_preferred_settings();
@@ -165,6 +170,9 @@ private:
 	// Private subsystems
 	ResourceManager*		m_resource_manager;
 	Bundle*					m_resource_bundle;
+
+	// Debug subsystems
+	ConsoleServer*			m_console_server;
 
 private:
 

@@ -51,6 +51,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Memory.h"
 #include "Game.h"
 #include "LuaEnvironment.h"
+#include "ConsoleServer.h"
 
 namespace crown
 {
@@ -82,7 +83,9 @@ Device::Device() :
 	m_debug_renderer(NULL),
 
 	m_resource_manager(NULL),
-	m_resource_bundle(NULL)
+	m_resource_bundle(NULL),
+
+	m_console_server(NULL)
 {
 	// Select executable dir by default
 	string::strncpy(m_preferred_root_path, os::get_cwd(), MAX_PATH_LENGTH);
@@ -122,6 +125,8 @@ bool Device::init(int argc, char** argv)
 
 	create_lua_environment();
 
+	create_console_server();
+
 	read_engine_settings();
 
 	Log::i("Crown Engine initialized.");
@@ -155,9 +160,19 @@ void Device::shutdown()
 	// Shutdowns the game
 	crown::shutdown();
 
+	Log::i("Releasing ConsoleServer...");
+	if (m_console_server)
+	{
+		m_console_server->shutdown();
+
+		CE_DELETE(m_allocator, m_console_server);
+	}
+
 	Log::i("Releasing LuaEnvironment...");
 	if (m_lua_environment)
 	{
+		m_lua_environment->shutdown();
+		
 		CE_DELETE(m_allocator, m_lua_environment);
 	}
 
@@ -281,6 +296,10 @@ Accelerometer* Device::accelerometer()
 	return m_input_manager->accelerometer();
 }
 
+ConsoleServer* Device::console_server()
+{
+	return m_console_server;
+}
 //-----------------------------------------------------------------------------
 void Device::start()
 {
@@ -328,7 +347,6 @@ float Device::last_delta_time() const
 //-----------------------------------------------------------------------------
 void Device::frame()
 {
-	Log::i("this is a test");
 	m_current_time = os::microseconds();
 	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
 	m_last_time = m_current_time;
@@ -340,6 +358,8 @@ void Device::frame()
 	m_input_manager->frame();
 
 	crown::frame(last_delta_time());
+
+	m_console_server->execute();
 
 	m_debug_renderer->draw_all();
 	m_renderer->frame();
@@ -456,6 +476,15 @@ void Device::create_lua_environment()
 	m_lua_environment->init();
 
 	Log::d("Lua environment created.");
+}
+
+void Device::create_console_server()
+{
+	m_console_server = CE_NEW(m_allocator, ConsoleServer)();
+
+	m_console_server->init();
+
+	Log::d("Console server created.");
 }
 
 //-----------------------------------------------------------------------------
