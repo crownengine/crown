@@ -292,7 +292,7 @@ set (COMPILER_FLAGS
 	-pipe
 	-std=c++03
 	-ansi
-	-W    	
+	-pedantic-errors
 	-Wall
 	-Wextra
 	-Wno-long-long
