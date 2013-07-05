@@ -53,6 +53,10 @@ CE_EXPORT int32_t luaopen_libcrown(lua_State* L)
 {
 	LuaEnvironment env(L);
 
+	load_int_setting(env);
+	load_float_setting(env);
+	load_string_setting(env);
+
 	load_vec2(env);
 	load_vec3(env);
 	load_mat4(env);
@@ -69,8 +73,5 @@ CE_EXPORT int32_t luaopen_libcrown(lua_State* L)
 
 	return 1;
 }
-
-
-
 
 } // namespace crown

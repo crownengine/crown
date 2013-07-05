@@ -265,6 +265,9 @@ set (OS_HEADERS
 set(LUA_SRC
 	lua/LuaStack.cpp
 	lua/LuaEnvironment.cpp
+	lua/IntSettingBinds.cpp
+	lua/FloatSettingBinds.cpp
+	lua/StringSettingBinds.cpp
 	lua/Vec2Binds.cpp
 	lua/Vec3Binds.cpp
 	lua/Mat4Binds.cpp
