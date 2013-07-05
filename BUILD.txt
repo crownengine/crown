@@ -1,25 +1,95 @@
-//-----------------------------------------------------------------------------
-How to build Crown:
+This file contains informations about how to correctly build the
+engine on the currently supported platforms.
 
-Type these commands in the root directory (i.e. the same as this file):
+1. Dependencies
 
-1. $ mkdir build
-2. $ cd build
-3. $ cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/your/install/directory -DCROWN_ARCH="..."
-4. $ make
-5. $ make install
+	Crown Engine depends on a number of third-party libraries.
+	Some of them, like luajit, are included in this SDK, so you
+	do not need to worry too much.
 
-N.B: CROWN_ARCH valid values right now: "x86", "x86_64"
+	However, some other libraries are not included due to their
+	excessive size or for some other particular reasons.
+	In order to be able to successfully build the engine, you
+	have to install and/or properly configure the following packages:
 
-//-----------------------------------------------------------------------------
-In order to select different build configurations you have to do the following:
+	- Linux
 
-In the root directory
+		* zlib
+		* GLEW
+		* Xlib
+		* Xrandr
 
-1. $ mkdir build
-2. $ cd build
-3. $ cmake-gui ..
+	- Android
 
-//-----------------------------------------------------------------------------
-Enjoy!
+		* Android NDK and SDK
 
+	- Windows:
+
+		* zlib
+		* GLEW
+
+2. Building
+
+	The steps required for building the engine in a default and pretty
+	safe manner are summarized below for each supported platform.
+
+	All the commands and/or operations must be performed in the root
+	directory of the project (i.e. the same as this file):
+
+	- Linux
+
+		1. $ mkdir build
+		2. $ cd build
+		3. $ cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/your/install/dir -DCROWN_ARCH=<arch>
+		   (read below for valid architecture strings)
+		4. $ make
+		5. $ make install
+
+		'CROWN_ARCH' valid values right now are:
+
+	 		* Linux: "x86" or "x86_64"
+
+	- Windows
+
+		1. Create a folder named 'build'
+		2. Open a terminal and:
+		3. cd build
+		4. cmake.exe .. -DCMAKE_INSTALL_PREFIX=C:/your/install/dir -DCROWN_ARCH=win64
+		5. Open the generated Visual Studio solution and build/install from there
+
+	- Android
+
+		Building for Android is a bit involved process at the moment, we are working hard
+		to improve the system.
+
+	You can also use the GUI front-end of CMake which can, less or more, simplify
+	the overall 'complexity' of building from the terminal.
+
+ 3. System requirements
+
+ 	In order to be able to run the engine, no particular configurations are needed:
+
+ 	- Linux
+
+ 		* 32/64-bit distribution
+ 		* x86/x86_64 CPU
+ 		* The latest driver for your GPU (OpenGL >= 2.1)
+
+ 	- Windows
+
+ 		* 64-bit Windows version (Windows 7+)
+ 		* x86_64 CPU
+ 		* The latest driver for your GPU (OpenGL >= 2.1)
+
+ 	- Android
+
+ 		* Android 2.3.3+
+ 		* ARMv7 CPU
+ 		* OpenGL|ES 2 compatible GPU
+
+ 4. Known issues
+
+ 	- Linux
+
+ 		* Some open-source GPU drivers, like the Intel one, make call to 'operator new'
+ 		  and thus do not work at the moment with Crown Engine.
