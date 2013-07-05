@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "FloatSetting.h"
+#include "StringUtils.h"
 
 namespace crown
 {
@@ -107,6 +108,24 @@ FloatSetting& FloatSetting::operator=(const float value)
 	}
 
 	return *this;
+}
+
+//-----------------------------------------------------------------------------
+FloatSetting* FloatSetting::find_setting(const char* name)
+{
+	FloatSetting* head = g_float_settings_head;
+
+	while (head != NULL)
+	{
+		if (string::strcmp(name, head->name()) == 0)
+		{
+			return head;
+		}
+
+		head = head->m_next;
+	}
+
+	return NULL;
 }
 
 } // namespace crown
