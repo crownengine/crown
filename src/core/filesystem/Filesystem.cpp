@@ -63,8 +63,9 @@ const char* Filesystem::build_os_path(const char* base_path, const char* relativ
 	size_t base_path_len = string::strlen(base_path);
 
 	os_path[base_path_len] = PATH_SEPARATOR;
+	os_path[base_path_len + 1] = '\0';
 
-	string::strncpy(&os_path[base_path_len + 1], relative_path, MAX_PATH_LENGTH);
+	string::strcat(os_path, relative_path);
 
 	// FIXME FIXME FIXME Replace Crown-specific path separator with OS-speficic one
 	for (size_t j = 0; j < string::strlen(os_path); j++)
