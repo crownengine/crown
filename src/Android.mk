@@ -93,6 +93,9 @@ LOCAL_SRC_FILES :=\
 	lua/Vec2Binds.cpp\
 	lua/Vec3Binds.cpp\
 	lua/WindowBinds.cpp\
+	lua/IntSettingBinds.cpp\
+	lua/FloatSettingBinds.cpp\
+	lua/StringSettingBinds.cpp\
 \
 	ArchiveBundle.cpp\
 	Camera.cpp\
