@@ -39,27 +39,6 @@ namespace string
 
 const char* const	EMPTY = "";
 
-bool				is_alpha(char c);
-bool				is_digit(char c);
-bool				is_upper(char c);
-bool				is_lower(char c);
-bool				is_whitespace(char c);
-
-size_t				strlen(const char* str);
-const char*			strstr(const char* str1, const char* str2);
-int32_t				strcmp(const char* str1, const char* str2);
-char*				strcpy(char* dest, const char* src);
-char*				strncpy(char* dest, const char* src, size_t len);
-char* 				strcat(char* dest, const char* src);
-char*				strncat(char* dest, const char* src, size_t len);
-
-const char*			begin(const char* str);
-const char*			end(const char* str);
-
-const char*			find_first(const char* str, char c);
-const char*			find_last(const char* str, char c);
-void				substring(const char* begin, const char* end, char* out, size_t len);
-
 //-----------------------------------------------------------------------------
 inline bool is_alpha(char c)
 {
@@ -120,15 +99,12 @@ inline int32_t strcmp(const char* str1, const char* str2)
 }
 
 //-----------------------------------------------------------------------------
-inline char* strcpy(char* dest, const char* src)
-{
-	return ::strcpy(dest, src);
-}
-
-//-----------------------------------------------------------------------------
 inline char* strncpy(char* dest, const char* src, size_t len)
 {
-	return ::strncpy(dest, src, len);
+	char* ret = ::strncpy(dest, src, len);
+	dest[len - 1] = '\0';
+
+	return ret;
 }
 
 //-----------------------------------------------------------------------------
