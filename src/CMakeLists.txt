@@ -361,6 +361,11 @@ if (LINUX)
 endif (LINUX)
 
 if (WINDOWS)
+	list (APPEND CROWN_INCLUDES
+		${CMAKE_SOURCE_DIR}/src/os/win
+		${CMAKE_SOURCE_DIR}/src/renderers/gl/wgl
+	)
+
 	list (APPEND OS_HEADERS
 		os/win/OsWindow.h
 		os/win/OsFile.h
