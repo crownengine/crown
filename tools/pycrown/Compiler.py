@@ -25,10 +25,10 @@
 import subprocess
 import os
 
-LUAJIT = "luajit"
+LUAJIT = "./luajit"
 OPTION = "-b"
-COMPILER_NAME = "resource-compiler"
-RES_H = "resource-hash"
+COMPILER_NAME = "./resource-compiler"
+RES_H = "./resource-hash"
 
 ROOT_P = "--root-path"
 DEST_P = "--dest-path"

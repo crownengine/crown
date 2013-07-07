@@ -77,7 +77,7 @@ class Toolchain:
 		dest_path = root_path + "_" + self.m_current_platform
 
 		comp = subprocess.call(["python", "resource-compiler.py", str(self.m_root_path), self.m_current_platform])
-		crown = subprocess.call(["crown-linux", "--root-path", dest_path, "--dev"])
+		crown = subprocess.call(["../bin/crown-linux", "--root-path", dest_path, "--dev"])
 
 	def on_browser_button_clicked(self, button):
 		browser = subprocess.call(["python", "resource-browser.py", str(self.m_root_path)])
