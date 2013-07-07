@@ -321,7 +321,6 @@ if (LINUX)
 	)
 
 	list (APPEND OS_SRC
-		os/linux/main.cpp
 		os/linux/LinuxOS.cpp
 		os/linux/OsWindow.cpp
 		os/posix/TCPSocket.cpp
