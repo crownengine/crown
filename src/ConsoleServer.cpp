@@ -60,6 +60,8 @@ ConsoleServer::ConsoleServer() :
 	m_active(false),
 	m_thread(ConsoleServer::background_thread, (void*)this, "console-thread")
 {
+	string::strncpy(m_cmd_buffer, "", 1024);
+	string::strncpy(m_err_buffer, "", 1024);
 }
 
 //-----------------------------------------------------------------------------
@@ -67,8 +69,8 @@ void ConsoleServer::init()
 {
 	LuaEnvironment* lua = device()->lua_environment();
 
-	lua->load_buffer(init_console, string::strlen(init_console));
-	lua->execute(0, 0);
+	//lua->load_buffer(init_console, string::strlen(init_console));
+	//lua->execute(0, 0);
 
 	m_active = true;
 }
@@ -77,6 +79,9 @@ void ConsoleServer::init()
 void ConsoleServer::shutdown()
 {
 	m_active = false;
+
+	// TMP FIX
+	m_socket.close();
 }
 
 //-----------------------------------------------------------------------------
@@ -90,20 +95,14 @@ void ConsoleServer::read_eval_loop()
 
 	while (m_active)
 	{
-		// FIXME: send response of previous command
-		if (lua->status())
-		{
-			const char* tmp = lua->error();
-			send((char*)tmp, 1024);
-		}
-
+		string::strncpy(cmd, "", 1024);
 		receive((char*)cmd, 1024);
 
-		// FIXME: parse and then fill m_cmd_buffer
-
-		string::strcpy(m_cmd_buffer, cmd);
+		// Fill command buffer
+		string::strncpy(m_cmd_buffer, cmd, 1024);
 	}
 
+	Log::i("End read-eval loop");
 	m_socket.close();
 }
 
@@ -116,17 +115,19 @@ void ConsoleServer::execute()
 
 	lua->load_buffer(m_cmd_buffer, string::strlen(m_cmd_buffer));
 	lua->execute(0, 0);
-	// Reset cmd buffer
-	m_cmd_buffer[0] = '\0';
 
-	// If LuaEnvironment status is false
-	if (!lua->status())
+	string::strncpy(m_cmd_buffer, "", 1024);
+
+	string::strncpy(m_err_buffer, lua->error(), 1024);
+
+	if (string::strcmp(m_err_buffer, "") != 0)
 	{
-
-		const char* tmp = lua->error();
-
-		// Send error to client
+		// Fill error buffer
+		Log::i("error: %s", m_err_buffer);
+		//send((char*)m_err_buffer, 1024);
 	}
+
+	string::strncpy(m_err_buffer, "", 1024);
 
 	m_command_mutex.unlock();
 }
