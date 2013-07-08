@@ -54,8 +54,6 @@ public:
 
 	const char*		error();
 
-	const bool 		status();
-
 	void			init();
 
 	void			shutdown();
@@ -88,7 +86,7 @@ private:
 
 	char			m_error_buffer[1024];
 
-	bool			m_status;
+	char			m_tmp_buffer[1024];
 };
 
 void load_int_setting(LuaEnvironment& env);

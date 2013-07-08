@@ -35,11 +35,14 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment(lua_State* L) :
-	m_stack(L),
-	m_status(false)
+	m_stack(L)
 {
 	// Open Lua default libraries
 	luaL_openlibs(m_stack.state());
+
+	string::strncpy(m_error_buffer, "", 1024);
+
+	string::strncpy(m_tmp_buffer, "", 1024);
 }
 
 //-----------------------------------------------------------------------------
@@ -63,29 +66,13 @@ LuaStack LuaEnvironment::stack()
 
 //-----------------------------------------------------------------------------
 const char* LuaEnvironment::error()
-{
-	if (string::strlen(m_error_buffer) > 0)
-	{
-		char* tmp = m_error_buffer;
+{	
+	string::strncpy(m_tmp_buffer, m_error_buffer, 1024);
 
-		m_error_buffer[0] = '\0';
+	string::strncpy(m_error_buffer, "", 1024);
 
-		m_status = false;
-
-		return tmp;
-	}
-	else
-	{
-		return NULL;
-	}
+	return m_tmp_buffer;
 }
-
-//-----------------------------------------------------------------------------
-const bool LuaEnvironment::status()
-{
-	return m_status;
-}
-
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_buffer(const char* buffer, size_t len)
@@ -140,9 +127,9 @@ void LuaEnvironment::execute(int32_t args, int32_t results)
 //-----------------------------------------------------------------------------
 void LuaEnvironment::lua_error()
 {
-	string::strncpy(m_error_buffer, lua_tostring(m_stack.state(), -1), 1024);
+	string::strncpy(m_error_buffer, "", 1024);
 
-	m_status = true;
+	string::strncpy(m_error_buffer, lua_tostring(m_stack.state(), -1), 1024);
 }
 
 //-----------------------------------------------------------------------------
