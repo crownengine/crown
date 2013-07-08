@@ -1,3 +1,29 @@
+/*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
+Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 #include "ConsoleServer.h"
 #include "Log.h"
 #include "StringUtils.h"
@@ -10,31 +36,28 @@
 namespace crown
 {
 
-static IntSetting g_port("console_port", "port used by console", 10000, 9999, 65535);
+static IntSetting g_read_port("read_port", "port used for reading", 10000, 9999, 65535);
+static IntSetting g_write_port("write_port", "port used for writing", 10001, 9999, 65535);
+
 
 //-----------------------------------------------------------------------------
-const char* ConsoleServer::init_console = 	"cmd = {}; "
+const char* ConsoleServer::init_console = 	"cmd = ""; "
 											"local i = 0; "
 											"for name,class in pairs(_G) do "
 											"	if type(class) == 'table' then "
 			 								"		for func_name,func in pairs(class) do "
 			 								"			if type(func) == 'function' then "
 			 								"				i = i + 1 "
-											"				cmd[i] = name .. '.' .. func_name "
+											"				cmd = cmd .. name .. '.' .. func_name "
 											"			end "
 											"		end "
 											"	end "
 											"end";
 
-//-----------------------------------------------------------------------------
-const char* ConsoleServer::retrieve_cmds = 	"for i,line in pairs(cmd) do "
-											"	print(i .. '- ' .. line) "
-											"end";
 
 //-----------------------------------------------------------------------------
 ConsoleServer::ConsoleServer() :
 	m_active(false),
-	m_count(0),
 	m_thread(ConsoleServer::background_thread, (void*)this, "console-thread")
 {
 }
@@ -42,9 +65,10 @@ ConsoleServer::ConsoleServer() :
 //-----------------------------------------------------------------------------
 void ConsoleServer::init()
 {
+	LuaEnvironment* lua = device()->lua_environment();
 
-	device()->lua_environment()->load_buffer(init_console, string::strlen(init_console));
-	device()->lua_environment()->execute(0, 0);
+	lua->load_buffer(init_console, string::strlen(init_console));
+	lua->execute(0, 0);
 
 	m_active = true;
 }
@@ -58,52 +82,52 @@ void ConsoleServer::shutdown()
 //-----------------------------------------------------------------------------
 void ConsoleServer::read_eval_loop()
 {
-	m_socket.open(g_port);
+	m_socket.open(g_read_port);
 
-	Log::i("In read-eval loop");
+	LuaEnvironment* lua = device()->lua_environment();
 
-	char tmp[1024];
+	char cmd[1024];
 
 	while (m_active)
 	{
-		receive((char*)tmp, 1024);
+		// FIXME: send response of previous command
+		if (lua->status())
+		{
+			const char* tmp = lua->error();
+			send((char*)tmp, 1024);
+		}
 
-		Log::i("Received: %s", tmp);
-		// FIXME: parse and then fill m_buffer
+		receive((char*)cmd, 1024);
 
-		add_command(tmp);
+		// FIXME: parse and then fill m_cmd_buffer
+
+		string::strcpy(m_cmd_buffer, cmd);
 	}
 
 	m_socket.close();
 }
 
 //-----------------------------------------------------------------------------
-void ConsoleServer::add_command(const char* cmd)
-{
-	m_command_mutex.lock();
-
-	Log::i("Pussy: %s, len: %d", cmd, string::strlen(cmd));
-	string::strcpy(m_buffer[m_count].command, cmd);
-	Log::i(m_buffer[m_count].command);
-
-	++m_count;
-
-	m_command_mutex.unlock();
-}
-
-//-----------------------------------------------------------------------------
 void ConsoleServer::execute()
 {
 	m_command_mutex.lock();
-	for (uint32_t i = 0; i < m_count; i++)
+
+	LuaEnvironment* lua = device()->lua_environment();
+
+	lua->load_buffer(m_cmd_buffer, string::strlen(m_cmd_buffer));
+	lua->execute(0, 0);
+	// Reset cmd buffer
+	m_cmd_buffer[0] = '\0';
+
+	// If LuaEnvironment status is false
+	if (!lua->status())
 	{
-		Log::i("command: %s, size: %d", m_buffer[i].command, string::strlen(m_buffer[i].command));
-		device()->lua_environment()->load_buffer(m_buffer[i].command, string::strlen(m_buffer[i].command));
-		device()->lua_environment()->execute(0, 0);
-		string::strcpy(m_buffer[i].command, "");
+
+		const char* tmp = lua->error();
+
+		// Send error to client
 	}
 
-	m_count = 0;
 	m_command_mutex.unlock();
 }
 
@@ -122,23 +146,10 @@ void ConsoleServer::receive(char* data, size_t size)
 }
 
 //-----------------------------------------------------------------------------
-void ConsoleServer::parse_command(const uint8_t* data)
-{
-
-}
-
-//-----------------------------------------------------------------------------
-void ConsoleServer::command_list()
-{
-	device()->lua_environment()->load_buffer(retrieve_cmds, string::strlen(retrieve_cmds));
-	device()->lua_environment()->execute(0, 0);
-}
-
-//-----------------------------------------------------------------------------
 void* ConsoleServer::background_thread(void* thiz)
 {
 	((ConsoleServer*)thiz)->read_eval_loop();	
 }
 
 
-}
+} // namespace crown

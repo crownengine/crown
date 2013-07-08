@@ -35,7 +35,8 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment(lua_State* L) :
-	m_stack(L)
+	m_stack(L),
+	m_status(false)
 {
 	// Open Lua default libraries
 	luaL_openlibs(m_stack.state());
@@ -61,21 +62,62 @@ LuaStack LuaEnvironment::stack()
 }
 
 //-----------------------------------------------------------------------------
+const char* LuaEnvironment::error()
+{
+	if (string::strlen(m_error_buffer) > 0)
+	{
+		char* tmp = m_error_buffer;
+
+		m_error_buffer[0] = '\0';
+
+		m_status = false;
+
+		return tmp;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+//-----------------------------------------------------------------------------
+const bool LuaEnvironment::status()
+{
+	return m_status;
+}
+
+
+//-----------------------------------------------------------------------------
 void LuaEnvironment::load_buffer(const char* buffer, size_t len)
 {
-	luaL_loadbuffer(m_stack.state(), buffer, len, "");
+	int32_t loaded = luaL_loadbuffer(m_stack.state(), buffer, len, "");
+
+	if (loaded != 0)
+	{
+		lua_error();
+	}
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_file(const char* file)
 {
-	luaL_loadfile(m_stack.state(), file);
+	int32_t loaded = luaL_loadfile(m_stack.state(), file);
+
+	if (loaded != 0)
+	{
+		lua_error();
+	}
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_string(const char* str)
 {
-	luaL_loadstring(m_stack.state(), str);
+	int32_t loaded = luaL_loadstring(m_stack.state(), str);
+
+	if (loaded != 0)
+	{
+		lua_error();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -87,7 +129,20 @@ void LuaEnvironment::get_global_symbol(const char* symbol)
 //-----------------------------------------------------------------------------
 void LuaEnvironment::execute(int32_t args, int32_t results)
 {
-	lua_pcall(m_stack.state(), args, results, 0);
+	int32_t executed = lua_pcall(m_stack.state(), args, results, 0);
+
+	if (executed != 0)
+	{
+		lua_error();
+	}
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::lua_error()
+{
+	string::strcpy(m_error_buffer, lua_tostring(m_stack.state(), -1));
+
+	m_status = true;
 }
 
 //-----------------------------------------------------------------------------

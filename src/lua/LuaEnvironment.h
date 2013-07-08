@@ -52,7 +52,9 @@ public:
 
 	LuaStack		stack();
 
-	const char*		error_buffer();
+	const char*		error();
+
+	const bool 		status();
 
 	void			init();
 
@@ -75,13 +77,18 @@ public:
 
 private:
 
+	void			lua_error();
+	// Disable copying
+					LuaEnvironment(const LuaEnvironment&);
+	LuaEnvironment& operator=(const LuaEnvironment&);
+
+private:
+
 	LuaStack		m_stack;
 
 	char			m_error_buffer[1024];
 
-	// Disable copying
-					LuaEnvironment(const LuaEnvironment&);
-	LuaEnvironment& operator=(const LuaEnvironment&);
+	bool			m_status;
 };
 
 void load_vec2(LuaEnvironment& env);

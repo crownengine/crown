@@ -8,10 +8,7 @@ from gi.repository import Gtk
 CMD_CLEAR   = "clear"   # Clear console output
 CMD_EXIT    = "exit"    # Close console
 CMD_HELP    = "help"    # Console help
-
-# Server Console commands
-CMD_STOP    = "device stop" # Stop Engine and close console
-CMD_FRAME   = "frame"
+CMD_VOID    = ""        
 
 # Help message
 MSG_HELP    =   "1- clear - clear screen output\n2- exit  - terminate console\n3- device stop - terminate engine and console\n4- help - print this message\n"
@@ -57,24 +54,29 @@ class Console:
             self.m_entry.set_text("")
 
         elif cmd == CMD_EXIT:
-            self.on_destroy()
-
-        elif cmd == CMD_STOP:
-            self.run_command(cmd)
-            self.popup_dialog("Crown has stopped!", "Console connection will be closed")
-            self.on_destroy()          
+            self.on_destroy()         
 
         elif cmd == CMD_HELP:
             self.print_help()
+
+        elif cmd == CMD_VOID:
+            self.print_command('');
 
         else:    
             self.run_command(cmd)        
 
 #------------------------------------------------------------------------------
     def run_command(self, cmd):
+        msg = ''
         # Send command to Crown
         self.m_sock.send(cmd.encode())
         self.print_command(cmd)
+
+        # Receive response
+        # msg = self.m_sock.recv(1024);
+        # print(msg.decode('utf-8'))
+        # if msg != "OK":
+        #     self.print_command(msg.decode('utf-8'))
 
 #------------------------------------------------------------------------------
     def print_command(self, cmd):
