@@ -1,3 +1,29 @@
+#!/usr/bin/python
+
+# Copyright (c) 2013 Daniele Bartolini, Michele Rossi
+# Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation
+# files (the "Software"), to deal in the Software without
+# restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following
+# conditions:
+# 
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+
 import sys
 import os
 import socket
@@ -9,9 +35,6 @@ CMD_CLEAR   = "clear"   # Clear console output
 CMD_EXIT    = "exit"    # Close console
 CMD_HELP    = "help"    # Console help
 CMD_VOID    = ""        
-
-# Help message
-MSG_HELP    =   "1- clear - clear screen output\n2- exit  - terminate console\n3- device stop - terminate engine and console\n4- help - print this message\n"
 
 class Console:
 #------------------------------------------------------------------------------
@@ -75,8 +98,7 @@ class Console:
         # Receive response
         # msg = self.m_sock.recv(1024);
         # print(msg.decode('utf-8'))
-        # if msg != "OK":
-        #     self.print_command(msg.decode('utf-8'))
+        # self.print_command(msg.decode('utf-8'))
 
 #------------------------------------------------------------------------------
     def print_command(self, cmd):
@@ -88,22 +110,12 @@ class Console:
         # Reset entry
         self.m_entry.set_text("")
 
-
 #------------------------------------------------------------------------------
-    def print_help(self):
-        end_iter = self.m_buffer.get_end_iter()
-        a_string = MSG_HELP + "\n"
-        # Append command to the end of buffer
-        self.m_buffer.insert(end_iter, a_string, len(a_string))
-        # Reset entry
-        self.m_entry.set_text("")
-
-#------------------------------------------------------------------------------
-    def popup_dialog(self, message, expl):
-        dialog = Gtk.MessageDialog(self.m_window, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK, message)
-        dialog.format_secondary_text(expl)
-        dialog.run()
-        dialog.destroy()
+    # def popup_dialog(self, message, expl):
+    #     dialog = Gtk.MessageDialog(self.m_window, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK, message)
+    #     dialog.format_secondary_text(expl)
+    #     dialog.run()
+    #     dialog.destroy()
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
