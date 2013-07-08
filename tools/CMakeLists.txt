@@ -78,4 +78,5 @@ install (FILES cli/resource-compiler.py PERMISSIONS OWNER_READ OWNER_WRITE OWNER
 
 add_subdirectory(gui/resource-browser)
 add_subdirectory(gui/toolchain)
+add_subdirectory(gui/console)
 add_subdirectory(pycrown)
