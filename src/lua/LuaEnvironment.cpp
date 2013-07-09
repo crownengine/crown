@@ -140,7 +140,7 @@ void LuaEnvironment::execute(int32_t args, int32_t results)
 //-----------------------------------------------------------------------------
 void LuaEnvironment::lua_error()
 {
-	string::strcpy(m_error_buffer, lua_tostring(m_stack.state(), -1));
+	string::strncpy(m_error_buffer, lua_tostring(m_stack.state(), -1), 1024);
 
 	m_status = true;
 }
@@ -163,6 +163,10 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 CE_EXPORT int32_t luaopen_libcrown(lua_State* L)
 {
 	LuaEnvironment* env = device()->lua_environment();
+
+	load_int_setting(*env);
+	load_float_setting(*env);
+	load_string_setting(*env);
 
 	load_vec2(*env);
 	load_vec3(*env);

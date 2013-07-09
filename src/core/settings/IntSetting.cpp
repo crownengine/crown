@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "IntSetting.h"
+#include "StringUtils.h"
 
 namespace crown
 {
@@ -107,6 +108,24 @@ IntSetting& IntSetting::operator=(const int32_t value)
 	}
 
 	return *this;
+}
+
+//-----------------------------------------------------------------------------
+IntSetting*	IntSetting::find_setting(const char* name)
+{
+	IntSetting* head = g_int_settings_head;
+
+	while (head != NULL)
+	{
+		if (string::strcmp(name, head->name()) == 0)
+		{
+			return head;
+		}
+
+		head = head->m_next;
+	}
+
+	return NULL;
 }
 
 } // namespace crown

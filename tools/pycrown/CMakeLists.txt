@@ -8,5 +8,5 @@ set (PYFILES
 	Compiler.py
 )
 
-install (FILES ${PYFILES} DESTINATION lib/pycrown)
+install (FILES ${PYFILES} DESTINATION tools/pycrown)
 

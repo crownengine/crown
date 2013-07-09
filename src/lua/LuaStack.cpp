@@ -26,6 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "LuaStack.h"
 #include "Assert.h"
+#include "Vec2.h"
+#include "Vec3.h"
+#include "Mat4.h"
+#include "Quat.h"
 
 namespace crown
 {

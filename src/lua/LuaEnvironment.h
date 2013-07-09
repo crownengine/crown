@@ -91,6 +91,10 @@ private:
 	bool			m_status;
 };
 
+void load_int_setting(LuaEnvironment& env);
+void load_float_setting(LuaEnvironment& env);
+void load_string_setting(LuaEnvironment& env);
+
 void load_vec2(LuaEnvironment& env);
 void load_vec3(LuaEnvironment& env);
 void load_mat4(LuaEnvironment& env);

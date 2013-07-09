@@ -25,76 +25,79 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "StringSetting.h"
+#include "LuaStack.h"
+#include "LuaEnvironment.h"
 #include "StringUtils.h"
 
 namespace crown
 {
 
-static StringSetting* g_string_settings_head = NULL;
-
 //-----------------------------------------------------------------------------
-StringSetting::StringSetting(const char* name, const char* synopsis, const char* value) :
-	m_name(name),
-	m_synopsis(synopsis),
-	m_value(value),
-	m_next(NULL)
+CE_EXPORT int32_t string_setting_value(lua_State* L)
 {
-	*this = value;
+	LuaStack stack(L);
 
-	if (g_string_settings_head == NULL)
+	const char* setting_name = stack.get_string(1);
+
+	StringSetting* setting = StringSetting::find_setting(setting_name);
+
+	if (setting != NULL)
 	{
-		g_string_settings_head = this;
-		m_next = NULL;
+		stack.push_string(setting->value(), string::strlen(setting->value()));
 	}
 	else
 	{
-		m_next = g_string_settings_head;
-		g_string_settings_head = this;
+		stack.push_string("", string::strlen(""));
 	}
+
+	return 1;
 }
 
 //-----------------------------------------------------------------------------
-const char* StringSetting::name() const
+CE_EXPORT int32_t string_setting_synopsis(lua_State* L)
 {
-	return m_name;
-}
+	LuaStack stack(L);
 
-//-----------------------------------------------------------------------------
-const char* StringSetting::synopsis() const
-{
-	return m_synopsis;
-}
+	const char* setting_name = stack.get_string(1);
 
-//-----------------------------------------------------------------------------
-const char*	StringSetting::value() const
-{
-	return m_value;
-}
+	StringSetting* setting = StringSetting::find_setting(setting_name);
 
-//-----------------------------------------------------------------------------
-StringSetting& StringSetting::operator=(const char* value)
-{
-	m_value = value;
-
-	return *this;
-}
-
-//-----------------------------------------------------------------------------
-StringSetting* StringSetting::find_setting(const char* name)
-{
-	StringSetting* head = g_string_settings_head;
-
-	while (head != NULL)
+	if (setting != NULL)
 	{
-		if (string::strcmp(name, head->name()) == 0)
-		{
-			return head;
-		}
-
-		head = head->m_next;
+		stack.push_string(setting->synopsis(), string::strlen(setting->synopsis()));
+	}
+	else
+	{
+		stack.push_string("", string::strlen(""));
 	}
 
-	return NULL;
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t string_setting_update(lua_State* L)
+{
+	LuaStack stack(L);
+
+	const char* setting_name = stack.get_string(1);
+	const char* setting_value = stack.get_string(2);
+
+	StringSetting* setting = StringSetting::find_setting(setting_name);
+
+	if (setting != NULL)
+	{
+		(*setting) = setting_value;
+	}
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+void load_string_setting(LuaEnvironment& env)
+{
+	env.load_module_function("StringSetting", "value",		string_setting_value);
+	env.load_module_function("StringSetting", "synopsis",	string_setting_synopsis);
+	env.load_module_function("StringSetting", "update",		string_setting_update);
 }
 
 } // namespace crown

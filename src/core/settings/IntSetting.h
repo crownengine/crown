@@ -51,6 +51,11 @@ public:
 
 	IntSetting&			operator=(const int32_t value);
 
+public:
+
+	/// Returns the setting @name or NULL if not found.
+	static IntSetting*	find_setting(const char* name);
+
 private:
 
 	const char*			m_name;

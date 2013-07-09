@@ -99,7 +99,7 @@ OsWindow::OsWindow(uint32_t width, uint32_t height) :
 {
 	CE_ASSERT(width != 0 || height != 0, "Width and height must differ from 0.");
 
-	string::strcpy(m_window_name, "CrownWindowClass");
+	string::strncpy(m_window_name, "CrownWindowClass", 32);
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.style = CS_OWNDC;
@@ -278,7 +278,7 @@ char* OsWindow::title()
 //-----------------------------------------------------------------------------
 void OsWindow::set_title(const char* title)
 {
-	string::strcpy(m_window_name, title);
+	string::strncpy(m_window_name, title, 32);
 	SetWindowText(m_window_handle, m_window_name);
 }
 

@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "HeapAllocator.h"
 
 //-----------------------------------------------------------------------------
-void* operator new(size_t)
+void* operator new(size_t) throw (std::bad_alloc)
 {
 	CE_ASSERT(false, "operator new forbidden");
 
@@ -36,7 +36,7 @@ void* operator new(size_t)
 }
 
 //-----------------------------------------------------------------------------
-void* operator new[](size_t)
+void* operator new[](size_t) throw (std::bad_alloc)
 {
 	CE_ASSERT(false, "operator new[] forbidden");
 
@@ -44,13 +44,13 @@ void* operator new[](size_t)
 }
 
 //-----------------------------------------------------------------------------
-void operator delete(void*)
+void operator delete(void*) throw ()
 {
 	CE_ASSERT(false, "operator delete forbidden");
 }
 
 //-----------------------------------------------------------------------------
-void operator delete[](void*)
+void operator delete[](void*) throw ()
 {
 	CE_ASSERT(false, "operator delete[] forbidden");
 }

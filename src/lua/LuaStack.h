@@ -28,13 +28,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "lua.hpp"
 #include "Types.h"
-#include "Vec2.h"
-#include "Vec3.h"
-#include "Mat4.h"
-#include "Quat.h"
 
 namespace crown
 {
+
+class Vec2;
+class Vec3;
+class Mat4;
+class Quat;
 
 Vec2* next_vec2();
 Vec3* next_vec3();

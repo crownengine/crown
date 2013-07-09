@@ -68,12 +68,13 @@ target_link_libraries(resource-hash crown-tools)
 add_executable(resource-compiler cli/resource-compiler.cpp)
 target_link_libraries(resource-compiler crown-tools)
 
-install (TARGETS crown-tools DESTINATION lib/${CMAKE_PROJECT_NAME})
+# Install tools
+install (TARGETS crown-tools DESTINATION tools)
 
-install (TARGETS resource-hash DESTINATION bin)
-install (TARGETS resource-compiler DESTINATION bin)
+install (TARGETS resource-hash DESTINATION tools)
+install (TARGETS resource-compiler DESTINATION tools)
 install (FILES cli/resource-compiler.py PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
-	GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE DESTINATION bin)
+	GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE DESTINATION tools)
 
 add_subdirectory(gui/resource-browser)
 add_subdirectory(gui/toolchain)

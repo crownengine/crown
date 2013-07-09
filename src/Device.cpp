@@ -518,7 +518,7 @@ void Device::parse_command_line(int argc, char** argv)
 			// Root path
 			case 'r':
 			{
-				string::strcpy(m_preferred_root_path, args.optarg());
+				string::strncpy(m_preferred_root_path, args.optarg(), MAX_PATH_LENGTH);
 				break;
 			}
 			// Window width

@@ -351,7 +351,7 @@ void JSONParser::fill_token(JSONToken* token, JSONType type, int32_t start, int3
 	m_file->seek(token->m_start);
 	m_file->read(tmp, token->m_size);
 	tmp[token->m_size] = '\0';
-	string::strcpy(token->m_value, tmp);
+	string::strncpy(token->m_value, tmp, 1024);
 
 	m_file->seek(cur_pos);
 }
@@ -585,7 +585,7 @@ JSONParser& JSONParser::get_bool(const char* key)
 //--------------------------------------------------------------------------
 void JSONParser::to_string(char* value)
 {
-	string::strcpy(value, m_tokens[m_nodes[m_nodes_count-1].m_id].m_value);
+	string::strncpy(value, m_tokens[m_nodes[m_nodes_count-1].m_id].m_value, JSONToken::MAX_TOKEN_LEN);
 
 	reset_nodes();
 }

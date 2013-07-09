@@ -268,6 +268,9 @@ set (OS_HEADERS
 set(LUA_SRC
 	lua/LuaStack.cpp
 	lua/LuaEnvironment.cpp
+	lua/IntSettingBinds.cpp
+	lua/FloatSettingBinds.cpp
+	lua/StringSettingBinds.cpp
 	lua/Vec2Binds.cpp
 	lua/Vec3Binds.cpp
 	lua/Mat4Binds.cpp
@@ -292,7 +295,7 @@ set (COMPILER_FLAGS
 	-pipe
 	-std=c++03
 	-ansi
-	-W    	
+	-pedantic-errors
 	-Wall
 	-Wextra
 	-Wno-long-long
@@ -321,7 +324,6 @@ if (LINUX)
 	)
 
 	list (APPEND OS_SRC
-		os/linux/main.cpp
 		os/linux/LinuxOS.cpp
 		os/linux/OsWindow.cpp
 		os/posix/TCPSocket.cpp
@@ -361,6 +363,11 @@ if (LINUX)
 endif (LINUX)
 
 if (WINDOWS)
+	list (APPEND CROWN_INCLUDES
+		${CMAKE_SOURCE_DIR}/src/os/win
+		${CMAKE_SOURCE_DIR}/src/renderers/gl/wgl
+	)
+
 	list (APPEND OS_HEADERS
 		os/win/OsWindow.h
 		os/win/OsFile.h
@@ -457,26 +464,27 @@ add_definitions(${COMPILER_FLAGS})
 
 add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
 
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 
-install (TARGETS crown DESTINATION lib/${CMAKE_PROJECT_NAME})
+install (TARGETS crown DESTINATION bin)
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
 
-install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
+#install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 
-install (FILES ${CORE_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core)
-install (FILES ${BV_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/bv)
-install (FILES ${CONTAINERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/containers)
-install (FILES ${MATH_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/math)
-install (FILES ${FILESYSTEM_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/filesystem)
-install (FILES ${MEM_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/mem)
-install (FILES ${COMPRESSORS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/compressors)
-install (FILES ${THREADS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/threads)
-install (FILES ${SETTINGS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/settings)
-
-install (FILES ${INPUT_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/input)
-install (FILES ${RENDERERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/renderers)
-install (FILES ${NETWORK_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/network)
-install (FILES ${OS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/os)
-install (FILES ${LUA_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/lua)
+#install (FILES ${CORE_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core)
+#install (FILES ${BV_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/bv)
+#install (FILES ${CONTAINERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/containers)
+#install (FILES ${MATH_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/math)
+#install (FILES ${FILESYSTEM_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/filesystem)
+#install (FILES ${MEM_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/mem)
+#install (FILES ${COMPRESSORS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/compressors)
+#install (FILES ${THREADS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/threads)
+#install (FILES ${SETTINGS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/settings)
+#
+#install (FILES ${INPUT_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/input)
+#install (FILES ${RENDERERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/renderers)
+#install (FILES ${NETWORK_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/network)
+#install (FILES ${OS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/os)
+#install (FILES ${LUA_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/lua)
