@@ -27,6 +27,7 @@
 import sys
 import os
 import socket
+import threading
 
 from gi.repository import Gtk
 
@@ -35,6 +36,24 @@ CMD_CLEAR   = "clear"   # Clear console output
 CMD_EXIT    = "exit"    # Close console
 CMD_HELP    = "help"    # Console help
 CMD_VOID    = ""        
+
+
+class ReaderThread(threading.Thread):
+#------------------------------------------------------------------------------
+    def __init__(self, socket, error_buffer):
+        threading.Thread.__init__(self)
+
+        self.t_socket = socket
+        self.t_error = error_buffer
+        self.t_tmp = bytearray()
+
+#------------------------------------------------------------------------------
+    def run(self):
+        while True:
+            self.t_tmp = self.t_socket.recv(1024)
+            self.t_error = self.t_tmp.decode('utf-8', 'ignore')
+            print(self.t_error)
+         
 
 class Console:
 #------------------------------------------------------------------------------
@@ -53,8 +72,14 @@ class Console:
         builder.connect_signals(self)
 
         self.m_address = address
+        self.m_error_buffer = ""
 
         self.m_sock = socket.create_connection((self.m_address, 10000))
+
+        self.m_thread = ReaderThread(self.m_sock, self.m_error_buffer)
+        self.m_lock = threading.Lock()
+
+        self.m_thread.start()
 
         Gtk.main()
 
@@ -90,15 +115,13 @@ class Console:
 
 #------------------------------------------------------------------------------
     def run_command(self, cmd):
-        msg = ''
+        self.m_lock.acquire()
         # Send command to Crown
-        self.m_sock.send(cmd.encode())
+        self.m_sock.send(cmd.encode('utf-8'))
         self.print_command(cmd)
+        print("locked :" + self.m_error_buffer)
 
-        # Receive response
-        # msg = self.m_sock.recv(1024);
-        # print(msg.decode('utf-8'))
-        # self.print_command(msg.decode('utf-8'))
+        self.m_lock.release()
 
 #------------------------------------------------------------------------------
     def print_command(self, cmd):
