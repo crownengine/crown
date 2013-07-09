@@ -118,13 +118,12 @@ void ConsoleServer::execute()
 
 	string::strncpy(m_cmd_buffer, "", 1024);
 
-	string::strncpy(m_err_buffer, lua->error(), 1024);
+	string::strncpy(m_err_buffer, lua->error(),  1024);
 
 	if (string::strcmp(m_err_buffer, "") != 0)
 	{
 		// Fill error buffer
-		Log::i("error: %s", m_err_buffer);
-		//send((char*)m_err_buffer, 1024);
+		send((char*)m_err_buffer, 1024);
 	}
 
 	string::strncpy(m_err_buffer, "", 1024);
