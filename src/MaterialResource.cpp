@@ -32,13 +32,8 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void* MaterialResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
+void* MaterialResource::load(Allocator& /*allocator*/, Bundle& /*bundle*/, ResourceId /*id*/)
 {
-	(void)allocator;
-	(void)bundle;
-	(void)id;
-	// TODO
-
 	return NULL;
 }
 
@@ -50,10 +45,8 @@ void MaterialResource::online(void* material)
 }
 
 //-----------------------------------------------------------------------------
-void MaterialResource::unload(Allocator& allocator, void* material)
+void MaterialResource::unload(Allocator& /*allocator*/, void* /*material*/)
 {
-	(void)allocator;
-	(void)material;
 	// TODO
 }
 

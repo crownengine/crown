@@ -32,12 +32,8 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void* FontResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
+void* FontResource::load(Allocator& /*allocator*/, Bundle& /*bundle*/, ResourceId /*id*/)
 {
-	(void)allocator;
-	(void)bundle;
-	(void)id;
-
 	return NULL;
 }
 
@@ -48,10 +44,8 @@ void FontResource::online(void* resource)
 }
 
 //-----------------------------------------------------------------------------
-void FontResource::unload(Allocator& allocator, void* resource)
+void FontResource::unload(Allocator& /*allocator*/, void* /*resource*/)
 {
-	(void)allocator;
-	(void)resource;
 }
 
 //-----------------------------------------------------------------------------
