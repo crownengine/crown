@@ -285,23 +285,7 @@ set(LUA_HEADERS
 	lua/LuaEnvironment.h
 )
 
-
 set (CROWN_LIBRARIES)
-
-set (COMPILER_FLAGS
-	-pipe
-	-std=c++03
-	-ansi
-	-pedantic-errors
-	-Wall
-	-Wextra
-	-Wno-long-long
-	-Wno-variadic-macros
-	-g
-	-pg
-	-fPIC
-	-Wl,-E
-)
 
 # Platform specific stuff
 if (LINUX)
@@ -353,6 +337,21 @@ if (LINUX)
 		GLEW
 		GL
 		luajit-5.1
+	)
+
+	set (COMPILER_FLAGS
+		-pipe
+		-std=c++03
+		-ansi
+		-pedantic-errors
+		-Wall
+		-Wextra
+		-Wno-long-long
+		-Wno-variadic-macros
+		-g
+		-pg
+		-fPIC
+		-Wl,-E
 	)
 
 	set (CROWN_EXECUTABLE_NAME crown-linux)
