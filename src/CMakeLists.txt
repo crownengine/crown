@@ -400,7 +400,7 @@ if (WINDOWS)
 		lua51
 	)
 
-	set (COMPILER_FLAGS /link /OPT:NOREF)
+	set (COMPILER_FLAGS)
 	
 	set (CROWN_EXECUTABLE_NAME crown-win)
 	set (CROWN_MAIN_SRC os/win/main.cpp)
