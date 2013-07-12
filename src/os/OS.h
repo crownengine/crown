@@ -94,7 +94,7 @@ const char*		get_env(const char* env);		//! Returns the content of the 'env' env
 //-----------------------------------------------------------------------------
 // Render window and input management
 //-----------------------------------------------------------------------------
-void			init_os();
+CE_EXPORT void	init_os();
 
 void			get_cursor_xy(int32_t& x, int32_t& y);
 void			set_cursor_xy(int32_t x, int32_t y);

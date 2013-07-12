@@ -53,7 +53,7 @@ class Game;
 /// The Engine.
 /// It is the place where to look for accessing all of
 /// the engine subsystems and related stuff.
-class Device
+class CE_EXPORT Device
 {
 public:
 
@@ -179,7 +179,7 @@ private:
 	Device& operator=(const Device&);
 };
 
-Device* device();
+CE_EXPORT Device* device();
 
 } // namespace crown
 
