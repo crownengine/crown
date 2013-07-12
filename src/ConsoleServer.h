@@ -34,11 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-struct ConsoleCommand
-{
-	char	command[1024];
-};
-
 /// ConsoleServer runs scripts that provide some utilities for the console
 class ConsoleServer
 {
