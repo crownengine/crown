@@ -32,33 +32,47 @@ import threading
 from gi.repository import Gtk
 
 # Client Console commands
-CMD_CLEAR   = "clear"   # Clear console output
-CMD_EXIT    = "exit"    # Close console
-CMD_HELP    = "help"    # Console help
-CMD_VOID    = ""        
+CMD_CLEAR   = "clear"           # Clear console output
+CMD_EXIT_1  = "exit"            # Close console
+CMD_EXIT_2  = "Device.stop()"   # Close console
+CMD_HELP    = "help"            # Console help
+CMD_HISTORY = "history"         # History
+CMD_VOID    = ""
 
 
-# class ReaderThread(threading.Thread):
-# #------------------------------------------------------------------------------
-#     def __init__(self, socket, error_buffer):
-#         threading.Thread.__init__(self)
+class ReaderThread(threading.Thread):
+#------------------------------------------------------------------------------
+    def __init__(self, console):
+        threading.Thread.__init__(self)
+        self.t_console = console
+        self.t_stop = threading.Event()
+        self.t_is_running = True
 
-#         self.t_socket = socket
-#         self.t_error = error_buffer
-#         self.t_tmp = bytearray()
+#------------------------------------------------------------------------------
+    def stop(self):
+        self.t_stop.set()
+        self.t_is_running = False
 
-# #------------------------------------------------------------------------------
-#     def run(self):
-#         while True:
-#             self.t_tmp = self.t_socket.recv(1024)
-#             self.t_error = self.t_tmp.decode('utf-8', 'ignore')
-#             print(self.t_error)
+
+#------------------------------------------------------------------------------
+    def stopped(self):
+        return self.t_stop.isSet()
+
+#------------------------------------------------------------------------------
+    def run(self):
+        while self.t_is_running:
+            self.t_tmp = self.t_console.m_sock.recv(1024)
+
+            if self.t_tmp != "":
+                self.t_tmp = self.t_tmp.decode("utf-8")
+                self.t_error = self.t_tmp.split('\x00', 1)[0]
+                self.t_console.print_to_console(self.t_error)
+
 
 class ConsoleHistory:
 #------------------------------------------------------------------------------
     def __init__(self):
         self.m_list = list()
-
         self.m_count = 0
         self.m_index = 0
 
@@ -116,16 +130,15 @@ class Console:
 
         self.m_sock = socket.create_connection((self.m_address, 10000))
 
-        #self.m_thread = ReaderThread(self.m_sock, self.m_error_buffer)
-        #self.m_lock = threading.Lock()
-
-        #self.m_thread.start()
+        self.m_thread = ReaderThread(self)
+        self.m_thread.start()
 
         Gtk.main()
 
 #------------------------------------------------------------------------------
     def on_destroy(self, *args):
         self.m_sock.close()
+        self.m_thread.stop()
         Gtk.main_quit(*args)
 
 #------------------------------------------------------------------------------
@@ -155,8 +168,12 @@ class Console:
             self.m_buffer.set_text("")
             self.m_entry.set_text("")
 
-        elif cmd == CMD_EXIT:
+        elif cmd == CMD_EXIT_1:
             self.on_destroy()  
+
+        elif cmd == CMD_EXIT_2:
+            self.run_command(cmd)                  
+            self.on_destroy() 
 
         elif cmd == CMD_HELP:
             self.print_help()
@@ -179,13 +196,13 @@ class Console:
         a_string = "> " + text + "\n"
         # Append command to the end of buffer
         self.m_buffer.insert(end_iter, a_string, len(a_string))
+        self.m_view.scroll_mark_onscreen(self.m_buffer.get_insert())
         # Reset entry
         self.print_to_entry("")
 
 #------------------------------------------------------------------------------
     def print_to_entry(self, text):
         self.m_entry.set_text(text)
-
 
 #------------------------------------------------------------------------------
     # def popup_dialog(self, message, expl):
