@@ -76,11 +76,14 @@ class Toolchain:
 		root_path = str(self.m_root_path)
 		dest_path = root_path + "_" + self.m_current_platform
 
-		comp = subprocess.call(["python", "resource-compiler.py", str(self.m_root_path), self.m_current_platform])
-		crown = subprocess.call(["../bin/crown-linux", "--root-path", dest_path, "--dev"])
+		comp = subprocess.Popen(["python", "resource-compiler.py", str(self.m_root_path), self.m_current_platform])
+		crown = subprocess.Popen(["../bin/crown-linux", "--root-path", dest_path, "--dev"])
 
 	def on_browser_button_clicked(self, button):
-		browser = subprocess.call(["python", "resource-browser.py", str(self.m_root_path)])
+		browser = subprocess.Popen(["python", "resource-browser.py", str(self.m_root_path)])
+
+	def on_console_button_clicked(self, button):
+		console = subprocess.Popen(["python", "console.py", "localhost"])
 
 
 #------------------------------------------------------------------------------
