@@ -31,8 +31,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Config.h"
 
-namespace crown
-{
+#ifdef WINDOWS
+	#define CE_EXPORT __declspec(dllexport)
+#else
+	#define CE_EXPORT
+#endif
 
 #ifndef NULL
 #ifdef __cplusplus
@@ -41,6 +44,4 @@ namespace crown
 #define NULL    ((void *)0)
 #endif
 #endif
-
-} // namespace crown
 

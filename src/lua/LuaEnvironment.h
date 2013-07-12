@@ -30,13 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Config.h"
 
-#ifdef WINDOWS
-	#define CE_EXPORT extern "C" __declspec(dllexport)
-#else
-	#define CE_EXPORT
-#endif
-
-
 namespace crown
 {
 
