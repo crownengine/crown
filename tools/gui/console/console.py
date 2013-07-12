@@ -66,7 +66,7 @@ class ReaderThread(threading.Thread):
             if self.t_tmp != "":
                 self.t_tmp = self.t_tmp.decode("utf-8")
                 self.t_error = self.t_tmp.split('\x00', 1)[0]
-                self.t_console.print_to_console(self.t_error)
+                self.t_console.print_error(self.t_error)
 
 
 class ConsoleHistory:
@@ -133,6 +133,8 @@ class Console:
         self.m_thread = ReaderThread(self)
         self.m_thread.start()
 
+        self.m_formatter = self.m_buffer.create_tag("console", foreground="green")
+
         Gtk.main()
 
 #------------------------------------------------------------------------------
@@ -179,7 +181,7 @@ class Console:
             self.print_help()
 
         elif cmd == CMD_VOID:
-            self.print_to_console("");
+            self.print_command("");
 
         else:    
             self.run_command(cmd)        
@@ -187,18 +189,32 @@ class Console:
 #------------------------------------------------------------------------------
     def run_command(self, cmd):
         self.m_sock.send(cmd.encode('utf-8'))
-        self.print_to_console(cmd)
+        self.print_command(cmd)
 
 #------------------------------------------------------------------------------
-    def print_to_console(self, text):
+    def print_command(self, text):
         # Print command to console
-        end_iter = self.m_buffer.get_end_iter()
+        start_iter = self.m_buffer.get_end_iter()       
+
         a_string = "> " + text + "\n"
         # Append command to the end of buffer
-        self.m_buffer.insert(end_iter, a_string, len(a_string))
+
+        self.m_buffer.insert(start_iter, a_string, len(a_string))
+
         self.m_view.scroll_mark_onscreen(self.m_buffer.get_insert())
+
         # Reset entry
         self.print_to_entry("")
+
+#------------------------------------------------------------------------------
+    def print_error(self, text):
+        start_iter = self.m_buffer.get_end_iter()  
+
+        a_string = "> " + text + "\n"
+
+        self.m_buffer.insert(start_iter, a_string, len(a_string))
+
+        self.m_view.scroll_mark_onscreen(self.m_buffer.get_insert())
 
 #------------------------------------------------------------------------------
     def print_to_entry(self, text):
