@@ -25,16 +25,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Keyboard.h"
+#include "Assert.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Keyboard::Keyboard()
+Keyboard::Keyboard() :
+	m_modifier(0),
+	m_current_frame(0),
+	m_last_key(KC_NOKEY)
 {
 	for (uint32_t i = 0; i < MAX_KEYCODES; i++)
 	{
-		m_keys[i] = false;
+		m_keys[i] = ~0;
+		m_state[i] = false;
 	}
 }
 
@@ -47,13 +52,40 @@ bool Keyboard::modifier_pressed(ModifierKey modifier) const
 //-----------------------------------------------------------------------------
 bool Keyboard::key_pressed(KeyCode key) const
 {
-	return m_keys[key] == true;
+	CE_ASSERT(key >= 0 && key < MAX_KEYCODES, "KeyCode out of range: %d", key);
+
+	return (m_state[key] == true) && (m_keys[key] == m_current_frame);
 }
 
 //-----------------------------------------------------------------------------
 bool Keyboard::key_released(KeyCode key) const
 {
-	return m_keys[key] == false;
+	CE_ASSERT(key >= 0 && key < MAX_KEYCODES, "KeyCode out of range: %d", key);
+
+	return (m_state[key] == false) && (m_keys[key] == m_current_frame);
+}
+
+//-----------------------------------------------------------------------------
+bool Keyboard::any_pressed() const
+{
+	return key_pressed(m_last_key);
+}
+
+//-----------------------------------------------------------------------------
+bool Keyboard::any_released() const
+{
+	return key_released(m_last_key);
+}
+
+//-----------------------------------------------------------------------------
+void Keyboard::update(uint64_t frame, KeyCode k, bool state)
+{
+	CE_ASSERT(k >= 0 && k < MAX_KEYCODES, "KeyCode out of range: %d", key);
+
+	m_current_frame = frame;
+	m_last_key = k;
+	m_keys[k] = frame;
+	m_state[k] = state;
 }
 
 } // namespace crown

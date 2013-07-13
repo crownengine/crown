@@ -49,7 +49,7 @@ enum ModifierKey
 
 struct KeyboardEvent
 {
-	Key			key;
+	KeyCode		key;
 	uint8_t		modifier;
 	char		text[4];
 };
@@ -85,12 +85,25 @@ public:
 	/// Returns whether the specified @a key is released.
 	bool			key_released(KeyCode key) const;
 
+	/// Returns wheter any key is pressed in the current frame.
+	bool			any_pressed() const;
+
+	/// Returns whether any key is released in the current frame.
+	bool			any_released() const;
+
 private:
+
+	void			update(uint64_t frame, KeyCode k, bool state);
 
 	uint8_t			m_modifier;
 
-	// True if key pressed, false otherwise.
-	bool			m_keys[MAX_KEYCODES];
+	// The current frame number
+	uint64_t		m_current_frame;
+
+	// Last key updated
+	KeyCode			m_last_key;
+	uint64_t		m_keys[MAX_KEYCODES];
+	bool			m_state[MAX_KEYCODES];
 
 	friend class	InputManager;
 };
