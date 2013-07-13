@@ -69,11 +69,33 @@ CE_EXPORT int32_t keyboard_key_released(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int32_t keyboard_any_pressed(lua_State* L)
+{
+	LuaStack stack(L);
+
+	stack.push_bool(device()->keyboard()->any_pressed());
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t keyboard_any_released(lua_State* L)
+{
+	LuaStack stack(L);
+
+	stack.push_bool(device()->keyboard()->any_released());
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_keyboard(LuaEnvironment& env)
 {
 	env.load_module_function("Keyboard", "modifier_pressed",	keyboard_modifier_pressed);
 	env.load_module_function("Keyboard", "key_pressed",			keyboard_key_pressed);
 	env.load_module_function("Keyboard", "key_released",		keyboard_key_released);
+	env.load_module_function("Keyboard", "any_pressed",			keyboard_any_pressed);
+	env.load_module_function("Keyboard", "any_released",		keyboard_any_released);
 }
 
 } // namespace crown
