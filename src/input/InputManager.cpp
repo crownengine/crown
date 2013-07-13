@@ -96,9 +96,13 @@ EventDispatcher* InputManager::get_event_dispatcher()
 }
 
 //-----------------------------------------------------------------------------
-void InputManager::frame()
+void InputManager::frame(uint64_t frame_count)
 {
 	OsEvent event;
+
+	// Update input devices
+	m_keyboard.m_current_frame = frame_count;
+	m_mouse.m_current_frame = frame_count;
 
 	while (1)
 	{
@@ -121,12 +125,12 @@ void InputManager::frame()
 
 				if (event.type == OSET_BUTTON_PRESS)
 				{
-					m_mouse.m_buttons[mouse_event.button] = true;
+					m_mouse.update(frame_count, mouse_event.button, true);
 					m_event_dispatcher.button_pressed(mouse_event);
 				}
 				else
 				{
-					m_mouse.m_buttons[mouse_event.button] = false;
+					m_mouse.update(frame_count, mouse_event.button, false);
 					m_event_dispatcher.button_released(mouse_event);
 				}
 
@@ -136,19 +140,19 @@ void InputManager::frame()
 			case OSET_KEY_RELEASE:
 			{
 				KeyboardEvent keyboard_event;
-				keyboard_event.key = event.data_a.int_value;
+				keyboard_event.key = (KeyCode)event.data_a.int_value;
 				keyboard_event.modifier = (uint8_t)event.data_b.int_value;
 
 				m_keyboard.m_modifier = keyboard_event.modifier;
 
 				if (event.type == OSET_KEY_PRESS)
 				{
-					m_keyboard.m_keys[keyboard_event.key] = true;
+					m_keyboard.update(frame_count, keyboard_event.key, true);
 					m_event_dispatcher.key_pressed(keyboard_event);
 				}
 				else
 				{
-					m_keyboard.m_keys[keyboard_event.key] = false;
+					m_keyboard.update(frame_count, keyboard_event.key, false);
 					m_event_dispatcher.key_released(keyboard_event);
 				}
 

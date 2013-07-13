@@ -58,7 +58,7 @@ public:
 
 	EventDispatcher*	get_event_dispatcher();
 
-	void				frame();
+	void				frame(uint64_t frame_count);
 
 private:
 
