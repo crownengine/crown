@@ -79,10 +79,10 @@ public:
 	/// Crown currently supports three different modifier keys: Shift, Ctrl and Alt.
 	bool			modifier_pressed(ModifierKey modifier) const;
 
-	/// Returns whether the specified @a key is pressed.
+	/// Returns whether the specified @a key is pressed in the current frame.
 	bool			key_pressed(KeyCode key) const;
 
-	/// Returns whether the specified @a key is released.
+	/// Returns whether the specified @a key is released in the current frame.
 	bool			key_released(KeyCode key) const;
 
 	/// Returns wheter any key is pressed in the current frame.

@@ -80,9 +80,8 @@ bool Keyboard::any_released() const
 //-----------------------------------------------------------------------------
 void Keyboard::update(uint64_t frame, KeyCode k, bool state)
 {
-	CE_ASSERT(k >= 0 && k < MAX_KEYCODES, "KeyCode out of range: %d", key);
+	CE_ASSERT(k >= 0 && k < MAX_KEYCODES, "KeyCode out of range: %d", k);
 
-	m_current_frame = frame;
 	m_last_key = k;
 	m_keys[k] = frame;
 	m_state[k] = state;
