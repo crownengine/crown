@@ -4,6 +4,10 @@ function init()
 end
 
 function frame(dt)
+	-- Stop the engine when any key is released
+	if Keyboard.any_released() then
+		Device.stop()
+	end
 end
 
 function shutdown()
