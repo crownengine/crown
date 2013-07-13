@@ -321,7 +321,7 @@ void Device::frame()
 	m_resource_manager->bring_loaded_online();
 
 	m_window->frame();
-	m_input_manager->frame();
+	m_input_manager->frame(frame_count());
 
 	crown::frame(last_delta_time());
 
