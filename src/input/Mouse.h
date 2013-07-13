@@ -67,28 +67,34 @@ class Mouse
 {
 public:
 
-			Mouse();
+					Mouse();
 
 
-	/// Returns whether @a button is pressed.
-	bool	button_pressed(MouseButton button) const;
+	/// Returns whether @a button is pressed in the current frame.
+	bool			button_pressed(MouseButton button) const;
 
-	/// Returns whether @a button is released.
-	bool	button_released(MouseButton button) const;
+	/// Returns whether @a button is released in the current frame.
+	bool			button_released(MouseButton button) const;
+
+	/// Returns wheter any button is pressed in the current frame.
+	bool			any_pressed() const;
+
+	/// Returns whether any button is released in the current frame.
+	bool			any_released() const;
 
 	/// Returns the position of the cursor in window space.
 	/// @note
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
-	Vec2	cursor_xy() const;
+	Vec2			cursor_xy() const;
 
 	/// Sets the position of the cursor in window space.
 	/// @note
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
-	void	set_cursor_xy(const Vec2& position);
+	void			set_cursor_xy(const Vec2& position);
 
 	/// Returns the relative position of the cursor in window space.
 	/// @note
@@ -99,7 +105,7 @@ public:
 	/// Relative coordinates are mapped to a float varying
 	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
 	/// maximum extent of the cosidered axis.
-	Vec2	cursor_relative_xy() const;
+	Vec2			cursor_relative_xy() const;
 
 	/// Sets the relative position of the cursor in window space.
 	/// @note
@@ -110,12 +116,20 @@ public:
 	/// Relative coordinates are mapped to a float varying
 	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
 	/// maximum extent of the cosidered axis.
-	void	set_cursor_relative_xy(const Vec2& position);
+	void			set_cursor_relative_xy(const Vec2& position);
 
 private:
 
-	// True if correspondig button is pressed, false otherwise.
-	bool	m_buttons[MAX_MOUSE_BUTTONS];
+	void			update(uint64_t frame, MouseButton b, bool state);
+
+	// The current frame number
+	uint64_t		m_current_frame;
+
+	// Last button updated
+	MouseButton		m_last_button;
+
+	uint64_t		m_buttons[MAX_MOUSE_BUTTONS];
+	bool			m_state[MAX_MOUSE_BUTTONS];
 
 	friend class	InputManager;
 };

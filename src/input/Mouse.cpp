@@ -34,23 +34,45 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Mouse::Mouse()
+Mouse::Mouse() :
+	m_current_frame(0),
+	m_last_button(MB_LEFT)
 {
-	m_buttons[MB_LEFT] = false;
-	m_buttons[MB_MIDDLE] = false;
-	m_buttons[MB_RIGHT] = false;
+	m_buttons[MB_LEFT] = ~0;
+	m_buttons[MB_MIDDLE] = ~0;
+	m_buttons[MB_RIGHT] = ~0;
+
+	m_state[MB_LEFT] = false;
+	m_state[MB_MIDDLE] = false;
+	m_state[MB_RIGHT] = false;
 }
 
 //-----------------------------------------------------------------------------
 bool Mouse::button_pressed(MouseButton button) const
 {
-	return m_buttons[button] == true;
+	CE_ASSERT(button >= 0 && button < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", button);
+
+	return (m_state[button] == true) && (m_buttons[button] == m_current_frame);
 }
 
 //-----------------------------------------------------------------------------
 bool Mouse::button_released(MouseButton button) const
 {
-	return m_buttons[button] == false;
+	CE_ASSERT(button >= 0 && button < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", button);
+
+	return (m_state[button] == false) && (m_buttons[button] == m_current_frame);
+}
+
+//-----------------------------------------------------------------------------
+bool Mouse::any_pressed() const
+{
+	return button_pressed(m_last_button);
+}
+
+//-----------------------------------------------------------------------------
+bool Mouse::any_released() const
+{
+	return button_released(m_last_button);
 }
 
 //-----------------------------------------------------------------------------
@@ -94,6 +116,16 @@ void Mouse::set_cursor_relative_xy(const Vec2& position)
 	device()->window()->get_size(window_width, window_height);
 
 	set_cursor_xy(Vec2(position.x * (float) window_width, position.y * (float) window_height));
+}
+
+//-----------------------------------------------------------------------------
+void Mouse::update(uint64_t frame, MouseButton b, bool state)
+{
+	CE_ASSERT(b >= 0 && b < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", b);
+
+	m_last_button = b;
+	m_buttons[b] = frame;
+	m_state[b] = state;
 }
 
 } // namespace crown
