@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 #include "LuaStack.h"
 #include "LinearAllocator.h"
+#include "Thread.h"
 
 #ifdef WINDOWS
 	#define CE_EXPORT extern "C" __declspec(dllexport)
@@ -49,49 +50,65 @@ class LuaEnvironment
 
 public:
 	/// Constructor
-						LuaEnvironment();
+							LuaEnvironment();
 
-	void				start();
+	void					init();
 
-	void				stop();
+	void					shutdown();
 
-	lua_State*			state();
+	lua_State*				state();
 
-	const char*			error();
+	const char*				error();
 
-	void				load_buffer(const char* buffer, size_t len);
+	void					load_buffer(const char* buffer, size_t len);
 
-	void				load_file(const char* file);
+	void					load_file(const char* file);
 
-	void 				load_string(const char* str);
+	void 					load_string(const char* str);
 
-	void				get_global_symbol(const char* symbol);
+	void					get_global_symbol(const char* symbol);
 
 	/// Load a function to proper module
-	void				load_module_function(const char* module, const char* name, const lua_CFunction func);
+	void					load_module_function(const char* module, const char* name, const lua_CFunction func);
 
-	void				execute(int32_t args, int32_t results);
+	void					execute(int32_t args, int32_t results);
 
-	void				init();
+	void					collect_garbage();
 
-	void				shutdown();
+	void					game_init();
 
-	void				frame(float dt);
+	void					game_shutdown();
+
+	void					game_frame(float dt);
 
 private:
 
-	void				lua_error();
+	static void*			background_thread(void* thiz);
+
+	void					lua_error();
 	// Disable copying
-						LuaEnvironment(const LuaEnvironment&);
-	LuaEnvironment& 	operator=(const LuaEnvironment&);
+							LuaEnvironment(const LuaEnvironment&);
+	LuaEnvironment& 		operator=(const LuaEnvironment&);
 
 private:
+	/// 
+	lua_State*				m_state;
+	/// LuaEnvironment is used right now?
+	bool					m_is_used;
+	/// Thread used for garbage collection
+	os::Thread 				m_thread;
 
-	lua_State*			m_state;
+	char					m_error_buffer[1024];
 
-	char				m_error_buffer[1024];
+	char					m_tmp_buffer[1024];
 
-	char				m_tmp_buffer[1024];
+	static const char* 		class_system;
+
+	static const char*		commands_list;
+
+	static const char*		get_cmd_by_name;
+
+	static const char*		tmp_print_table;
 };
 
 

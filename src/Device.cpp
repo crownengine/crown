@@ -49,7 +49,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "JSONParser.h"
 #include "DiskFile.h"
 #include "Memory.h"
-#include "Game.h"
 #include "LuaEnvironment.h"
 #include "ConsoleServer.h"
 
@@ -134,7 +133,7 @@ bool Device::init(int argc, char** argv)
 	Log::i("Initializing Game...");
 
 	// Initialize the game through init game function
-	m_lua_environment->init();
+	m_lua_environment->game_init();
 
 	m_is_init = true;
 
@@ -158,7 +157,7 @@ void Device::shutdown()
 	}
 
 	// Shutdowns the game
-	m_lua_environment->shutdown();
+	m_lua_environment->game_shutdown();
 
 	Log::i("Releasing ConsoleServer...");
 	if (m_console_server)
@@ -171,7 +170,7 @@ void Device::shutdown()
 	Log::i("Releasing LuaEnvironment...");
 	if (m_lua_environment)
 	{
-		m_lua_environment->stop();
+		m_lua_environment->shutdown();
 		
 		CE_DELETE(m_allocator, m_lua_environment);
 	}
@@ -357,7 +356,7 @@ void Device::frame()
 	m_window->frame();
 	m_input_manager->frame();
 
-	m_lua_environment->frame(last_delta_time());
+	m_lua_environment->game_frame(last_delta_time());
 
 	m_console_server->execute();
 
@@ -471,7 +470,7 @@ void Device::create_lua_environment()
 {
 	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)();
 
-	m_lua_environment->start();
+	m_lua_environment->init();
 
 	Log::d("Lua environment created.");
 }

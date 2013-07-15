@@ -39,22 +39,6 @@ namespace crown
 static IntSetting g_read_port("read_port", "port used for reading", 10000, 9999, 65535);
 static IntSetting g_write_port("write_port", "port used for writing", 10001, 9999, 65535);
 
-
-//-----------------------------------------------------------------------------
-const char* ConsoleServer::init_console = 	"cmd = ""; "
-											"local i = 0; "
-											"for name,class in pairs(_G) do "
-											"	if type(class) == 'table' then "
-			 								"		for func_name,func in pairs(class) do "
-			 								"			if type(func) == 'function' then "
-			 								"				i = i + 1 "
-											"				cmd = cmd .. name .. '.' .. func_name "
-											"			end "
-											"		end "
-											"	end "
-											"end";
-
-
 //-----------------------------------------------------------------------------
 ConsoleServer::ConsoleServer() :
 	m_active(false),
@@ -69,9 +53,6 @@ void ConsoleServer::init()
 {
 	LuaEnvironment* lua = device()->lua_environment();
 
-	//lua->load_buffer(init_console, string::strlen(init_console));
-	//lua->execute(0, 0);
-
 	m_active = true;
 }
 
@@ -80,17 +61,12 @@ void ConsoleServer::shutdown()
 {
 	m_active = false;
 
-	// TMP FIX
 	m_socket.close();
 }
 
 //-----------------------------------------------------------------------------
 void ConsoleServer::read_eval_loop()
 {
-	m_socket.open(g_read_port);
-
-	LuaEnvironment* lua = device()->lua_environment();
-
 	char cmd[1024];
 
 	while (m_active)
@@ -141,8 +117,6 @@ void ConsoleServer::send(const void* data, size_t size)
 void ConsoleServer::receive(char* data, size_t size)
 {
 	int32_t bytes_read = m_socket.receive(data, size);
-
-	// FIX: parse json (JSONParser needs rework)
 }
 
 //-----------------------------------------------------------------------------

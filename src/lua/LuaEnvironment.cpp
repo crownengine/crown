@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 
 #include "Device.h"
+#include "OS.h"
 #include "Assert.h"
 #include "Log.h"
 #include "LuaEnvironment.h"
@@ -36,30 +37,48 @@ namespace crown
 {
 
 StringSetting g_boot("boot_file", "lua main file", "lua/game.raw");
+/*
+*N.B: Lua garbage collection is actually disabled
+*/
 
 //-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment() :
-	m_state(luaL_newstate())
+	m_state(luaL_newstate()),
+	m_is_used(false),
+	m_thread(LuaEnvironment::background_thread, (void*)this, "lua-environment-thread")
 {
 	// Open Lua default libraries
-	luaL_openlibs(m_state);
-
 	string::strncpy(m_error_buffer, "", 1024);
 
 	string::strncpy(m_tmp_buffer, "", 1024);
 }
 
 //-----------------------------------------------------------------------------
-void LuaEnvironment::start()
+void LuaEnvironment::init()
 {
+	// Open default libraries
+	luaL_openlibs(m_state);
 	// Open Crown library
 	lua_cpcall(m_state, luaopen_libcrown, NULL);
+
+	load_buffer(class_system, string::strlen(class_system));
+	execute(0, 0);
+	load_buffer(commands_list, string::strlen(commands_list));
+	execute(0, 0);
+	load_buffer(get_cmd_by_name, string::strlen(get_cmd_by_name));
+	execute(0, 0);
+	load_buffer(tmp_print_table, string::strlen(tmp_print_table));
+	execute(0, 0);
+
+	m_is_used = true;
 }
 
 //-----------------------------------------------------------------------------
-void LuaEnvironment::stop()
+void LuaEnvironment::shutdown()
 {
 	lua_close(m_state);
+
+	m_is_used = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -129,7 +148,24 @@ void LuaEnvironment::execute(int32_t args, int32_t results)
 }
 
 //-----------------------------------------------------------------------------
-void LuaEnvironment::init()
+void LuaEnvironment::collect_garbage()
+{
+	uint64_t start = os::milliseconds();
+
+	while ((os::milliseconds() - start) < device()->last_delta_time() && !m_is_used)
+	{
+		lua_gc(m_state, LUA_GCSTEP, 0);
+	}
+}
+
+//-----------------------------------------------------------------------------
+void* LuaEnvironment::background_thread(void* thiz)
+{
+	((LuaEnvironment*)thiz)->collect_garbage();	
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::game_init()
 {
 	const char* path = device()->filesystem()->os_path(g_boot.value());
 
@@ -141,14 +177,14 @@ void LuaEnvironment::init()
 }
 
 //-----------------------------------------------------------------------------
-void LuaEnvironment::shutdown()
+void LuaEnvironment::game_shutdown()
 {
 	get_global_symbol("shutdown");
 	execute(0, 0);
 }
 
 //-----------------------------------------------------------------------------
-void LuaEnvironment::frame(float dt)
+void LuaEnvironment::game_frame(float dt)
 {
 	LuaStack stack(m_state);
 
@@ -205,4 +241,59 @@ CE_EXPORT int32_t luaopen_libcrown(lua_State* L)
 	return 1;
 }
 
+const char* LuaEnvironment::class_system = "function class(klass, super) "
+    										"	if not klass then "
+        									"		klass = {} "
+                							"		local meta = {} "
+        									"		meta.__call = function(self, ...) "
+            								"			local object = {} "
+            								"			setmetatable(object, klass) "
+            								"			if object.init then object:init(...) end "
+            								"			return object "
+       										"		end "
+        									"		setmetatable(klass, meta) "
+    										"	end "  
+    										"	if super then "
+        									"		for k,v in pairs(super) do "
+            								"			klass[k] = v "
+        									"		end "
+    										"	end "
+    										"	klass.__index = klass "
+    										"	return klass "
+											"end";
+
+
+const char* LuaEnvironment::commands_list = "function get_all_commands() "
+											"	local cmds = {}; "
+											"	for class_name,class in pairs(_G) do "
+											"		if type(class) == 'table' then "
+			 								"			for func_name,func in pairs(class) do "
+			 								"				if type(func) == 'function' then "
+											"					cmds[#cmds+1] = class_name .. '.' .. func_name "
+											"				end "
+											"			end "
+											"		end "
+											"	end "
+											"	return cmds "
+											"end";
+
+const char* LuaEnvironment::get_cmd_by_name = 	"function get_command_by_name(text) "
+												"	local cmds = get_all_commands() "
+												"	local results = {} "
+												"	local index = 0 "
+												"	for i,cmd in pairs(cmds) do "
+												"		if string.find(cmd, text) then "
+												"			results[index] = cmds[i] "
+												"			index = index + 1 "
+												"		end "
+												"	end "
+												"	return results "
+												"end";
+
+const char* LuaEnvironment::tmp_print_table =	"function print_table(table) "												
+												"	for k,v in pairs(table) do "
+												"		print(v) "
+												"	end "
+												"end"
+;
 } // namespace crown

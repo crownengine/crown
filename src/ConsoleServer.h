@@ -72,8 +72,6 @@ private:
 
 	char 					m_err_buffer[1024];
 
-	/// Lua script which initializes ConsoleServer
-	static const char*		init_console;
 };
 
 } // namespace crown
