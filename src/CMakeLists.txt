@@ -33,7 +33,6 @@ set (SRC
 	ArchiveBundle.cpp
 	FileBundle.cpp
 
-	#Game.cpp
 	JSONParser.cpp
 	ConsoleServer.cpp
 
@@ -59,7 +58,6 @@ set (HEADERS
 	ArchiveBundle.h
 	FileBundle.h
 
-	Game.h
 	JSONParser.h
 	ConsoleServer.h
 
