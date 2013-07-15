@@ -29,9 +29,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Log.h"
 #include "LuaEnvironment.h"
+#include "StringSetting.h"
+#include "Filesystem.h"
 
 namespace crown
 {
+
+StringSetting g_boot("boot_file", "lua main file", "lua/game.raw");
 
 //-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment() :
@@ -122,6 +126,35 @@ void LuaEnvironment::execute(int32_t args, int32_t results)
 	{
 		lua_error();
 	}
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::init()
+{
+	const char* path = device()->filesystem()->os_path(g_boot.value());
+
+	load_file(path);
+	execute(0, 0);
+
+	get_global_symbol("init");
+	execute(0, 0);
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::shutdown()
+{
+	get_global_symbol("shutdown");
+	execute(0, 0);
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::frame(float dt)
+{
+	LuaStack stack(m_state);
+
+	get_global_symbol("frame");
+	stack.push_float(dt);
+	execute(1, 0);
 }
 
 //-----------------------------------------------------------------------------

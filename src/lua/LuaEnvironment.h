@@ -51,13 +51,13 @@ public:
 	/// Constructor
 						LuaEnvironment();
 
-	lua_State*			state();
-
-	const char*			error();
-
 	void				start();
 
 	void				stop();
+
+	lua_State*			state();
+
+	const char*			error();
 
 	void				load_buffer(const char* buffer, size_t len);
 

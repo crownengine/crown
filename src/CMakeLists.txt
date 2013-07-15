@@ -33,7 +33,7 @@ set (SRC
 	ArchiveBundle.cpp
 	FileBundle.cpp
 
-	Game.cpp
+	#Game.cpp
 	JSONParser.cpp
 	ConsoleServer.cpp
 

@@ -134,7 +134,7 @@ bool Device::init(int argc, char** argv)
 	Log::i("Initializing Game...");
 
 	// Initialize the game through init game function
-	crown::init();
+	m_lua_environment->init();
 
 	m_is_init = true;
 
@@ -158,7 +158,7 @@ void Device::shutdown()
 	}
 
 	// Shutdowns the game
-	crown::shutdown();
+	m_lua_environment->shutdown();
 
 	Log::i("Releasing ConsoleServer...");
 	if (m_console_server)
@@ -357,7 +357,7 @@ void Device::frame()
 	m_window->frame();
 	m_input_manager->frame();
 
-	crown::frame(last_delta_time());
+	m_lua_environment->frame(last_delta_time());
 
 	m_console_server->execute();
 
