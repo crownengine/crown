@@ -36,7 +36,6 @@ namespace crown
 //-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment() :
 	m_state(luaL_newstate())
-
 {
 	// Open Lua default libraries
 	luaL_openlibs(m_state);
@@ -47,14 +46,14 @@ LuaEnvironment::LuaEnvironment() :
 }
 
 //-----------------------------------------------------------------------------
-void LuaEnvironment::create()
+void LuaEnvironment::start()
 {
 	// Open Crown library
 	lua_cpcall(m_state, luaopen_libcrown, NULL);
 }
 
 //-----------------------------------------------------------------------------
-void LuaEnvironment::destroy()
+void LuaEnvironment::stop()
 {
 	lua_close(m_state);
 }

@@ -55,9 +55,9 @@ public:
 
 	const char*			error();
 
-	void				create();
+	void				start();
 
-	void				destroy();
+	void				stop();
 
 	void				load_buffer(const char* buffer, size_t len);
 
