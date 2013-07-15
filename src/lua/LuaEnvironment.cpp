@@ -35,10 +35,10 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment(lua_State* L) :
-	m_stack(L)
+	m_state(L)
 {
 	// Open Lua default libraries
-	luaL_openlibs(m_stack.state());
+	luaL_openlibs(m_state);
 
 	string::strncpy(m_error_buffer, "", 1024);
 
@@ -46,22 +46,22 @@ LuaEnvironment::LuaEnvironment(lua_State* L) :
 }
 
 //-----------------------------------------------------------------------------
-void LuaEnvironment::init()
+void LuaEnvironment::create()
 {
 	// Open Crown library
-	lua_cpcall(m_stack.state(), luaopen_libcrown, NULL);
+	lua_cpcall(m_state, luaopen_libcrown, NULL);
 }
 
 //-----------------------------------------------------------------------------
-void LuaEnvironment::shutdown()
+void LuaEnvironment::destroy()
 {
-	lua_close(m_stack.state());
+	lua_close(m_state);
 }
 
 //-----------------------------------------------------------------------------
-LuaStack LuaEnvironment::stack()
+lua_State* LuaEnvironment::state()
 {
-	return m_stack;
+	return m_state;
 }
 
 //-----------------------------------------------------------------------------
@@ -77,7 +77,7 @@ const char* LuaEnvironment::error()
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_buffer(const char* buffer, size_t len)
 {
-	int32_t loaded = luaL_loadbuffer(m_stack.state(), buffer, len, "");
+	int32_t loaded = luaL_loadbuffer(m_state, buffer, len, "");
 
 	if (loaded != 0)
 	{
@@ -88,7 +88,7 @@ void LuaEnvironment::load_buffer(const char* buffer, size_t len)
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_file(const char* file)
 {
-	int32_t loaded = luaL_loadfile(m_stack.state(), file);
+	int32_t loaded = luaL_loadfile(m_state, file);
 
 	if (loaded != 0)
 	{
@@ -99,7 +99,7 @@ void LuaEnvironment::load_file(const char* file)
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_string(const char* str)
 {
-	int32_t loaded = luaL_loadstring(m_stack.state(), str);
+	int32_t loaded = luaL_loadstring(m_state, str);
 
 	if (loaded != 0)
 	{
@@ -110,13 +110,13 @@ void LuaEnvironment::load_string(const char* str)
 //-----------------------------------------------------------------------------
 void LuaEnvironment::get_global_symbol(const char* symbol)
 {
-	lua_getglobal(m_stack.state(), symbol);
+	lua_getglobal(m_state, symbol);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::execute(int32_t args, int32_t results)
 {
-	int32_t executed = lua_pcall(m_stack.state(), args, results, 0);
+	int32_t executed = lua_pcall(m_state, args, results, 0);
 
 	if (executed != 0)
 	{
@@ -129,7 +129,7 @@ void LuaEnvironment::lua_error()
 {
 	string::strncpy(m_error_buffer, "", 1024);
 
-	string::strncpy(m_error_buffer, lua_tostring(m_stack.state(), -1), 1024);
+	string::strncpy(m_error_buffer, lua_tostring(m_state, -1), 1024);
 }
 
 //-----------------------------------------------------------------------------
@@ -143,7 +143,7 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 	entry[1].name = NULL;
 	entry[1].func = NULL;
 
-	luaL_register(m_stack.state(), module, entry);
+	luaL_register(m_state, module, entry);
 }
 
 //-----------------------------------------------------------------------------

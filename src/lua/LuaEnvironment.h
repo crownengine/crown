@@ -50,13 +50,13 @@ public:
 	/// Constructor
 					LuaEnvironment(lua_State* L);
 
-	LuaStack		stack();
+	lua_State*		state();
 
 	const char*		error();
 
-	void			init();
+	void			create();
 
-	void			shutdown();
+	void			destroy();
 
 	void			load_buffer(const char* buffer, size_t len);
 
@@ -67,6 +67,12 @@ public:
 	void			get_global_symbol(const char* symbol);
 
 	void			execute(int32_t args, int32_t results);
+
+	void			init();
+
+	void			shutdown();
+
+	void			frame(float dt);
 
 //-----------------------------------------------------------------------------
 
@@ -82,12 +88,13 @@ private:
 
 private:
 
-	LuaStack		m_stack;
+	lua_State*		m_state;
 
 	char			m_error_buffer[1024];
 
 	char			m_tmp_buffer[1024];
 };
+
 
 void load_int_setting(LuaEnvironment& env);
 void load_float_setting(LuaEnvironment& env);
