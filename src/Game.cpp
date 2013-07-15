@@ -34,8 +34,10 @@ void frame(float dt)
 {
 	LuaEnvironment* env = device()->lua_environment();
 
+	LuaStack stack(env->state());
+
 	env->get_global_symbol("frame");
-	env->stack().push_float(dt);
+	stack.push_float(dt);
 	env->execute(1, 0);
 }
 

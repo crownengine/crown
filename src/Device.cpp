@@ -171,7 +171,7 @@ void Device::shutdown()
 	Log::i("Releasing LuaEnvironment...");
 	if (m_lua_environment)
 	{
-		m_lua_environment->shutdown();
+		m_lua_environment->destroy();
 		
 		CE_DELETE(m_allocator, m_lua_environment);
 	}
@@ -473,7 +473,7 @@ void Device::create_lua_environment()
 
 	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)(L);
 
-	m_lua_environment->init();
+	m_lua_environment->create();
 
 	Log::d("Lua environment created.");
 }
