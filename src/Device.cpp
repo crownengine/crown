@@ -469,9 +469,7 @@ void Device::create_debug_renderer()
 //-----------------------------------------------------------------------------
 void Device::create_lua_environment()
 {
-	lua_State* L = luaL_newstate();
-
-	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)(L);
+	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)();
 
 	m_lua_environment->create();
 

@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Config.h"
 #include "LuaStack.h"
+#include "LinearAllocator.h"
 
 #ifdef WINDOWS
 	#define CE_EXPORT extern "C" __declspec(dllexport)
@@ -48,51 +49,49 @@ class LuaEnvironment
 
 public:
 	/// Constructor
-					LuaEnvironment(lua_State* L);
+						LuaEnvironment();
 
-	lua_State*		state();
+	lua_State*			state();
 
-	const char*		error();
+	const char*			error();
 
-	void			create();
+	void				create();
 
-	void			destroy();
+	void				destroy();
 
-	void			load_buffer(const char* buffer, size_t len);
+	void				load_buffer(const char* buffer, size_t len);
 
-	void			load_file(const char* file);
+	void				load_file(const char* file);
 
-	void 			load_string(const char* str);
+	void 				load_string(const char* str);
 
-	void			get_global_symbol(const char* symbol);
-
-	void			execute(int32_t args, int32_t results);
-
-	void			init();
-
-	void			shutdown();
-
-	void			frame(float dt);
-
-//-----------------------------------------------------------------------------
+	void				get_global_symbol(const char* symbol);
 
 	/// Load a function to proper module
-	void			load_module_function(const char* module, const char* name, const lua_CFunction func);
+	void				load_module_function(const char* module, const char* name, const lua_CFunction func);
+
+	void				execute(int32_t args, int32_t results);
+
+	void				init();
+
+	void				shutdown();
+
+	void				frame(float dt);
 
 private:
 
-	void			lua_error();
+	void				lua_error();
 	// Disable copying
-					LuaEnvironment(const LuaEnvironment&);
-	LuaEnvironment& operator=(const LuaEnvironment&);
+						LuaEnvironment(const LuaEnvironment&);
+	LuaEnvironment& 	operator=(const LuaEnvironment&);
 
 private:
 
-	lua_State*		m_state;
+	lua_State*			m_state;
 
-	char			m_error_buffer[1024];
+	char				m_error_buffer[1024];
 
-	char			m_tmp_buffer[1024];
+	char				m_tmp_buffer[1024];
 };
 
 
