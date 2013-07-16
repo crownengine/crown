@@ -13,39 +13,6 @@ option (CROWN_BUILD_TESTS "Whether to build unit tests" OFF)
 # always debug mode for now
 set (CROWN_DEBUG 1)
 
-# detect architecture
-if (CROWN_ARCH MATCHES "x86")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86)
-endif (CROWN_ARCH MATCHES "x86")
-
-if (CROWN_ARCH MATCHES "x86_64")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86_64)
-endif (CROWN_ARCH MATCHES "x86_64")
-
-if (CROWN_ARCH MATCHES "win32")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/win32)
-endif (CROWN_ARCH MATCHES "win32")
-
-if (CROWN_ARCH MATCHES "win64")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/win64)
-endif (CROWN_ARCH MATCHES "win64")
-
-if (CROWN_ARCH MATCHES "ARMv7")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/ARMv7)
-endif (CROWN_ARCH MATCHES "ARMv7")
-
-set (CROWN_THIRD_INCLUDES
-	${CROWN_THIRD}/luajit/include/luajit-2.0
-	${CROWN_THIRD}/glew-1.9.0/include
-	${CROWN_THIRD}/zlib/include	
-)
-
-set (CROWN_THIRD_LIBS
-	${CROWN_THIRD}/luajit/lib
-	${CROWN_THIRD}/glew-1.9.0/lib
-	${CROWN_THIRD}/zlib/lib
-)
-
 # detect operating system
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	set (LINUX 1)
@@ -57,7 +24,6 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 # add build directories
 add_subdirectory(src)
-add_subdirectory(${CROWN_THIRD}) #necessary?
 
 if (CROWN_BUILD_TOOLS)
 	add_subdirectory(tools)

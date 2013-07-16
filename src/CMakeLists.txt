@@ -1,5 +1,42 @@
 cmake_minimum_required(VERSION 2.8)
 
+# detect architecture
+if (CROWN_ARCH MATCHES "x86")
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/src/third/x86)
+endif (CROWN_ARCH MATCHES "x86")
+
+if (CROWN_ARCH MATCHES "x86_64")
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/src/third/x86_64)
+endif (CROWN_ARCH MATCHES "x86_64")
+
+if (CROWN_ARCH MATCHES "win32")
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/src/third/win32)
+endif (CROWN_ARCH MATCHES "win32")
+
+if (CROWN_ARCH MATCHES "win64")
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/src/third/win64)
+endif (CROWN_ARCH MATCHES "win64")
+
+if (CROWN_ARCH MATCHES "ARMv7")
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/src/third/ARMv7)
+endif (CROWN_ARCH MATCHES "ARMv7")
+
+# architecture dependent includes
+set (CROWN_THIRD_INCLUDES
+	${CROWN_THIRD}/luajit/include/luajit-2.0
+	${CROWN_THIRD}/glew-1.9.0/include
+	${CROWN_THIRD}/zlib/include	
+)
+
+# architecture dependent libraries
+set (CROWN_THIRD_LIBS
+	${CROWN_THIRD}/luajit/lib
+	${CROWN_THIRD}/glew-1.9.0/lib
+	${CROWN_THIRD}/zlib/lib
+)
+
+add_subdirectory(${CROWN_THIRD})
+
 # platform independent includes
 set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/src
