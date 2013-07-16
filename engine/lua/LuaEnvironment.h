@@ -61,9 +61,6 @@ public:
 
 	void					get_global_symbol(const char* symbol);
 
-	/// Load a function to proper module
-	void					load_module_function(const char* module, const char* name, const lua_CFunction func);
-
 	void					execute(int32_t args, int32_t results);
 
 	void					collect_garbage();
