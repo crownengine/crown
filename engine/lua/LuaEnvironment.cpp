@@ -37,6 +37,7 @@ namespace crown
 {
 
 StringSetting g_boot("boot_file", "lua main file", "lua/game.raw");
+
 /*
 *N.B: Lua garbage collection is actually disabled
 */
@@ -44,8 +45,8 @@ StringSetting g_boot("boot_file", "lua main file", "lua/game.raw");
 //-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment() :
 	m_state(luaL_newstate()),
-	m_is_used(false),
-	m_thread(LuaEnvironment::background_thread, (void*)this, "lua-environment-thread")
+	m_is_used(false)
+	//m_thread(LuaEnvironment::background_thread, (void*)this, "lua-environment-thread")
 {
 	// Open Lua default libraries
 	string::strncpy(m_error_buffer, "", 1024);
