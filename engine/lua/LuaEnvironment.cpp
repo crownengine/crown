@@ -69,6 +69,8 @@ void LuaEnvironment::init()
 	execute(0, 0);
 	load_buffer(tmp_print_table, string::strlen(tmp_print_table));
 	execute(0, 0);
+	load_buffer(count_all, string::strlen(count_all));
+	execute(0, 0);
 
 	m_is_used = true;
 }
@@ -248,7 +250,7 @@ CE_EXPORT int32_t luaopen_libcrown(lua_State* L)
 	return 1;
 }
 
-const char* LuaEnvironment::class_system = "function class(klass, super) "
+const char* LuaEnvironment::class_system =  "function class(klass, super) "
     										"	if not klass then "
         									"		klass = {} "
                 							"		local meta = {} "
@@ -301,6 +303,24 @@ const char* LuaEnvironment::tmp_print_table =	"function print_table(table) "
 												"	for k,v in pairs(table) do "
 												"		print(v) "
 												"	end "
-												"end"
-;
+												"end";
+
+const char* LuaEnvironment::count_all = 	"function count_all(f) "
+											"	local seen = {} "
+											"	local count_table "
+											"	count_table = function(t) "
+											"		if seen[t] then return end "
+											"		f(t) "
+											"		seen[t] = true "
+											"		for k,v in pairs(t) do "
+											"			if type(v) == 'table' then "
+											"				count_table(v) "
+											"			elseif type(v) == 'userdata' then "
+											"				f(v) "
+											"			end "
+											"		end "
+											"	end "
+											"	count_table(_G) "
+											"end";
+
 } // namespace crown
