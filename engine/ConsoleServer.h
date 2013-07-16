@@ -34,7 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// ConsoleServer runs scripts that provide some utilities for the console
 class ConsoleServer
 {
 public:

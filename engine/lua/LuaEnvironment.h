@@ -48,7 +48,7 @@ public:
 	void					init();
 	/// Close Lua state and shutdown LuaEnvironment
 	void					shutdown();
-	/// Return the __lua_State_ pointer required by each Lua function
+	/// Return the __lua_State__ pointer required by each Lua function
 	lua_State*				state();
 
 	const char*				error();
