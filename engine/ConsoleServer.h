@@ -26,23 +26,51 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Types.h"
+#include "TCPSocket.h"
+#include "Thread.h"
+#include "Mutex.h"
+
 namespace crown
 {
 
-/// Called exactly once after the engine is fully initialized
-/// and ready to use. This function is the right place to allocate
-/// and initialize all the main components of the game.
-void init();
+class ConsoleServer
+{
+public:
 
-/// Called just before the engine starts to deallocate resources and
-/// subsystems leading to terminating the execution.
-/// Here you can safely perform all the necessary deallocation/destruction
-/// of the previously allocated game resources and/or systems. 
-void shutdown();
+	/// Constructor
+							ConsoleServer();
+	/// Start listening on @port
+	void					init();
+	/// Stop listening
+	void					shutdown();
+	/// Read-evaluation loop, executed on a different thread
+	void					read_eval_loop();
+	/// Execute commands, executed on main thread
+	void					execute();
+	/// Send data to client
+	void					send(const void* data, size_t size = 1024);
+	/// Receive data to client
+	void					receive(char* data, size_t size = 1024);
 
-/// Called once per frame, here is the place you tipically perform input checking,
-/// updates, drawing and so on. The @a dt parameter contains the last frame delta time
-/// in seconds. 
-void frame(float dt);
+private:
 
-}
+	static void*			background_thread(void* thiz);
+
+private:
+
+	os::TCPSocket			m_socket;
+
+	os::Thread				m_thread;
+	os::Mutex				m_command_mutex;
+
+	// Is console active?
+	bool					m_active;
+	// Commands buffer
+	char					m_cmd_buffer[1024];
+
+	char 					m_err_buffer[1024];
+
+};
+
+} // namespace crown

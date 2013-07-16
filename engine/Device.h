@@ -48,7 +48,8 @@ class Keyboard;
 class Mouse;
 class Touch;
 class Accelerometer;
-class Game;
+class LuaEnvironment;
+class ConsoleServer;
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -102,6 +103,7 @@ public:
 	Filesystem*				filesystem();
 	ResourceManager*		resource_manager();
 	InputManager*			input_manager();
+	LuaEnvironment*			lua_environment();
 
 	OsWindow*				window();
 	Renderer*				renderer();
@@ -112,15 +114,20 @@ public:
 	Touch*					touch();
 	Accelerometer*			accelerometer();
 
+	ConsoleServer*			console_server();
+
 private:
 
 	void					create_filesystem();
 	void					create_resource_manager();
 	void					create_input_manager();
+	void 					create_lua_environment();
 
 	void					create_window();
 	void					create_renderer();
 	void					create_debug_renderer();
+
+	void					create_console_server();
 
 	void					parse_command_line(int argc, char** argv);
 	void					check_preferred_settings();
@@ -156,6 +163,7 @@ private:
 
 	OsWindow*				m_window;
 	InputManager*			m_input_manager;
+	LuaEnvironment*			m_lua_environment;
 	Renderer*				m_renderer;
 	DebugRenderer*			m_debug_renderer;
 
@@ -163,8 +171,8 @@ private:
 	ResourceManager*		m_resource_manager;
 	Bundle*					m_resource_bundle;
 
-	// The game currently running
-	void*					m_game_library;
+	// Debug subsystems
+	ConsoleServer*			m_console_server;
 
 private:
 

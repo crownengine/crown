@@ -184,7 +184,7 @@ size_t TCPSocket::receive(void* data, size_t size)
 		return false;
 	}
 
-	ssize_t received_bytes = ::recv(m_active_socket, (char*) data, size, 0);
+	ssize_t received_bytes = ::read(m_active_socket, (char*) data, size);
 	if (received_bytes <= 0)
 	{
 		return 0;

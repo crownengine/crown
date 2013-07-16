@@ -49,6 +49,8 @@ public:
 
 							LuaStack(lua_State* L);
 
+	lua_State*				state();
+
 	void					push_bool(bool value);
 
 	void					push_int32(int32_t value);
@@ -62,6 +64,8 @@ public:
 	void 					push_float(float value);
 
 	void 					push_string(const char* str, size_t len);
+
+	void					push_lightdata(void* data, size_t len);
 
 	void					push_vec2(Vec2* v);
 
@@ -78,6 +82,8 @@ public:
 	float 					get_float(int32_t index);
 
 	const char*				get_string(int32_t index);
+
+	void*					get_lightdata(int32_t index);
 
 	Vec2*					get_vec2(int32_t index);
 

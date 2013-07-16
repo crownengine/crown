@@ -49,7 +49,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "JSONParser.h"
 #include "DiskFile.h"
 #include "Memory.h"
-#include "Game.h"
+#include "LuaEnvironment.h"
+#include "ConsoleServer.h"
 
 namespace crown
 {
@@ -76,13 +77,14 @@ Device::Device() :
 
 	m_filesystem(NULL),
 	m_input_manager(NULL),
+	m_lua_environment(NULL),
 	m_renderer(NULL),
 	m_debug_renderer(NULL),
 
 	m_resource_manager(NULL),
 	m_resource_bundle(NULL),
 
-	m_game_library(NULL)
+	m_console_server(NULL)
 {
 	// Select executable dir by default
 	string::strncpy(m_preferred_root_path, os::get_cwd(), MAX_PATH_LENGTH);
@@ -120,6 +122,10 @@ bool Device::init(int argc, char** argv)
 
 	create_debug_renderer();
 
+	create_lua_environment();
+
+	create_console_server();
+
 	read_engine_settings();
 
 	Log::i("Crown Engine initialized.");
@@ -127,7 +133,7 @@ bool Device::init(int argc, char** argv)
 	Log::i("Initializing Game...");
 
 	// Initialize the game through init game function
-	crown::init();
+	m_lua_environment->game_init();
 
 	m_is_init = true;
 
@@ -151,8 +157,25 @@ void Device::shutdown()
 	}
 
 	// Shutdowns the game
-	crown::shutdown();
-	
+	m_lua_environment->game_shutdown();
+
+	Log::i("Releasing ConsoleServer...");
+	if (m_console_server)
+	{
+		m_console_server->shutdown();
+
+		CE_DELETE(m_allocator, m_console_server);
+	}
+
+	Log::i("Releasing LuaEnvironment...");
+	if (m_lua_environment)
+	{
+		m_lua_environment->shutdown();
+		
+		CE_DELETE(m_allocator, m_lua_environment);
+	}
+
+	Log::i("Releasing InputManager...");
 	if (m_input_manager)
 	{
 		CE_DELETE(m_allocator, m_input_manager);
@@ -225,6 +248,12 @@ InputManager* Device::input_manager()
 }
 
 //-----------------------------------------------------------------------------
+LuaEnvironment* Device::lua_environment()
+{
+	return m_lua_environment;
+}
+
+//-----------------------------------------------------------------------------
 OsWindow* Device::window()
 {
 	return m_window;
@@ -266,6 +295,10 @@ Accelerometer* Device::accelerometer()
 	return m_input_manager->accelerometer();
 }
 
+ConsoleServer* Device::console_server()
+{
+	return m_console_server;
+}
 //-----------------------------------------------------------------------------
 void Device::start()
 {
@@ -323,7 +356,9 @@ void Device::frame()
 	m_window->frame();
 	m_input_manager->frame(frame_count());
 
-	crown::frame(last_delta_time());
+	m_lua_environment->game_frame(last_delta_time());
+
+	m_console_server->execute();
 
 	m_debug_renderer->draw_all();
 	m_renderer->frame();
@@ -428,6 +463,25 @@ void Device::create_debug_renderer()
 	m_debug_renderer = CE_NEW(m_allocator, DebugRenderer)(*m_renderer);
 
 	Log::d("Debug renderer created.");
+}
+
+//-----------------------------------------------------------------------------
+void Device::create_lua_environment()
+{
+	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)();
+
+	m_lua_environment->init();
+
+	Log::d("Lua environment created.");
+}
+
+void Device::create_console_server()
+{
+	m_console_server = CE_NEW(m_allocator, ConsoleServer)();
+
+	m_console_server->init();
+
+	Log::d("Console server created.");
 }
 
 //-----------------------------------------------------------------------------

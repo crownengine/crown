@@ -89,6 +89,12 @@ LuaStack::LuaStack(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+lua_State* LuaStack::state()
+{
+	return m_state;
+}
+
+//-----------------------------------------------------------------------------
 void LuaStack::push_bool(bool value)
 {
 	lua_pushboolean(m_state, value);
@@ -128,6 +134,12 @@ void LuaStack::push_float(float value)
 void LuaStack::push_string(const char* str, size_t len)
 {
 	lua_pushlstring(m_state, str, len);
+}
+
+//-----------------------------------------------------------------------------
+void LuaStack::push_lightdata(void* data, size_t len)
+{
+	lua_pushlightuserdata(m_state, data);
 }
 
 //-----------------------------------------------------------------------------
@@ -184,6 +196,16 @@ float LuaStack::get_float(int32_t index)
 const char* LuaStack::get_string(int32_t index)
 {
 	return luaL_checkstring(m_state, index);
+}
+
+//-----------------------------------------------------------------------------
+void* LuaStack::get_lightdata(int32_t index)
+{
+	CE_ASSERT(lua_islightuserdata(m_state, index), "Not a lightuserdata object");
+
+	void* data = lua_touserdata(m_state, index);
+
+	return data;	
 }
 
 //-----------------------------------------------------------------------------
