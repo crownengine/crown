@@ -57,6 +57,7 @@ set (CROWN_INCLUDES
 )
 
 set (SRC
+	JSON.cpp
 	Camera.cpp
 	Device.cpp
 	MaterialResource.cpp
@@ -77,6 +78,7 @@ set (SRC
 )
 
 set (HEADERS
+	JSON.h
 	Camera.h
 	Config.h
 	Crown.h
