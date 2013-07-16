@@ -106,7 +106,6 @@ set (MATH_SRC
 	core/math/Color4.cpp
 	core/math/Mat3.cpp
 	core/math/Mat4.cpp
-	core/math/MathUtils.cpp
 	core/math/Plane.cpp
 	core/math/Point2.cpp
 	core/math/Quat.cpp

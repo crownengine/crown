@@ -33,7 +33,6 @@ LOCAL_SRC_FILES :=\
 	core/math/Color4.cpp\
 	core/math/Mat3.cpp\
 	core/math/Mat4.cpp\
-	core/math/MathUtils.cpp\
 	core/math/Plane.cpp\
 	core/math/Quat.cpp\
 	core/math/Shape.cpp\
