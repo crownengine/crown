@@ -29,10 +29,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #undef min
 #undef max
 
-#include "Assert.h"
 #include <cmath>
+
+#include "Assert.h"
 #include "Types.h"
-#include <cstdio>
 
 #define BIT(i) (1 << i)
 
@@ -56,97 +56,20 @@ const float		FOUR_OVER_THREE				= (float)(4.0 / 3.0);
 const float		FOUR_OVER_THREE_TIMES_PI	= FOUR_OVER_THREE * PI;
 
 const float		ONE_OVER_THREE				= (float)(1.0 / 3.0);
+const float		ONE_OVER_FOUR				= (float)(1.0 / 4.0);
 const float		ONE_OVER_255				= (float)(1.0 / 255.0);
 
 const float		FLOAT_PRECISION				= (float)1.0e-7f;
 const double	DOUBLE_PRECISION			= (float)1.0e-9;
 
-bool			equals(float a, float b, float precision = FLOAT_PRECISION);
-bool			equals(double a, double b, double precision = DOUBLE_PRECISION);
-
-/// Tests agains the specified @a bitmask and returns true only if all bits are satisfied
-bool			test_bitmask(int32_t value, int32_t bitmask);
-
-/// Sets the specified @a bitmask	
-int32_t			set_bitmask(int32_t value, int32_t bitmask);
-
-/// Removes the specified @a bitmask	
-int32_t			unset_bitmask(int32_t value, int32_t bitmask);	
-
-/// Returns minimum between @a a and @a b
-template <typename T> T		min(const T& a, const T& b);
-
-/// Returns maximum between @a a and @a b
-template <typename T> T		max(const T& a, const T& b);
-
-/// Returns the arithmetic mean of @a a and @a b	
-template <typename T> T		avg(const T& a, const T& b);
-
-/// Clamps a value to a specific range (min < max)	
-template <typename T> T		clamp_to_range(const T& min, const T& max, const T& value);	
-
-/// Swaps @a a and @a b
-template <typename T> void	swap(T& a, T& b);				
-
-/// Returns @a deg in radians
-float			deg_to_rad(float deg);
-
-/// Returns @a rad in degrees
-float			rad_to_deg(float rad);
-
-/// Returns the nearest power of two to @a x
-uint32_t		next_pow_2(uint32_t x);
-
-/// Returns whether @a x is a power of two			
-bool			is_pow_2(uint32_t x);	
-
-/// Returns the smallest integral value that is not less than @a x
-float			ceil(float x);		
-
-/// Returns the largest integral value that is not greater than @a x			
-float			floor(float x);	
-
-/// Returns the square root of @a x				
-float			sqrt(float x);	
-
-/// Returns the inverse square root of @a x				
-float			inv_sqrt(float x);
-
-/// Returns the sine of @a x				
-float			sin(float x);	
-
-/// Returns the cosine of @a x				
-float			cos(float x);
-
-/// Returns the arc sine of @a x					
-float			asin(float x);	
-
-/// Returns the arc cosine of @a x				
-float			acos(float x);	
-
-/// Returns the tangent of @a x				
-float			tan(float x);		
-
-/// Returns the arc tangent of @a y/@a x			
-float			atan2(float y, float x);	
-
-/// Returns the absolute value of @a x		
-float			abs(float x);			
-
-/// Returns the floating-point remainder of numerator/denominator		
-float			fmod(float n, float d);			
-
-/// Returns true if there are solutions and puts them in 'x1' and 'x2' (x1 <= x2)
-bool			solve_quadratic_equation(float a, float b, float c, float& x1, float& x2);
-
 //-----------------------------------------------------------------------------
-inline bool equals(float a, float b, float precision)
+inline bool equals(float a, float b, float precision  = FLOAT_PRECISION)
 {
 	return ((b <= (a + precision)) && (b >= (a - precision)));
 }
 
 //-----------------------------------------------------------------------------
-inline bool equals(double a, double b, double precision)
+inline bool equals(double a, double b, double precision  = DOUBLE_PRECISION)
 {
 	return ((b <= (a + precision)) && (b >= (a - precision)));
 }
@@ -178,6 +101,20 @@ inline T min(const T& a, const T& b)
 
 //-----------------------------------------------------------------------------
 template <typename T>
+inline T min(const T& a, const T& b, const T& c)
+{
+	return math::min(math::min(a, b), math::min(a, c));
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline T min(const T& a, const T& b, const T& c, const T& d)
+{
+	return math::min(math::min(a, b, c), math::min(a, b, d), math::min(a, c, d));
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
 inline T max(const T& a, const T& b)
 {
 	return a < b ? b : a;
@@ -185,9 +122,37 @@ inline T max(const T& a, const T& b)
 
 //-----------------------------------------------------------------------------
 template <typename T>
+inline T max(const T& a, const T& b, const T& c)
+{
+	return math::max(math::max(a, b), math::max(a, c));
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline T max(const T& a, const T& b, const T& c, const T& d)
+{
+	return math::max(math::max(a, b, c), math::max(a, b, d), math::max(a, c, d));
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
 inline T avg(const T& a, const T& b)
 {
 	return (a + b) * 0.5;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline T avg(const T& a, const T& b, const T& c)
+{
+	return (a + b + c) * ONE_OVER_THREE;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline T avg(const T& a, const T& b, const T& c, const T& d)
+{
+	return (a + b + c + d) * ONE_OVER_FOUR;
 }
 
 //-----------------------------------------------------------------------------
