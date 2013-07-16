@@ -48,6 +48,13 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 	luaL_register(m_state, module, entry);
 }
 
+//-----------------------------------------------------------
+void LuaEnvironment::load_module_enum(const char* module, const char* name, uint32_t value)
+{
+	lua_pushinteger(m_state, value);
+	lua_setfield(m_state, -2, name);
+}
+
 //-----------------------------------------------------------------------------
 CE_EXPORT int32_t luaopen_libcrown(lua_State* L)
 {

@@ -41,6 +41,7 @@ public:
 					LuaEnvironment(lua_State* L);
 	/// Load a function to proper module
 	void			load_module_function(const char* module, const char* name, const lua_CFunction func);
+	void			load_module_enum(const char* module, const char* name, uint32_t value);
 	/// Create library based on each module which will be opened by luaopen_*
 	void			create_module_library();
 
