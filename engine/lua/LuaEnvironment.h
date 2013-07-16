@@ -71,7 +71,6 @@ public:
 	void					game_shutdown();
 	/// Call frame function in the Lua game file
 	void					game_frame(float dt);
-
 	/// Load a function which will be used in Lua. @a module is the name of table contenitor,
 	/// @a name is the name of function in module and @func is the pointer to the function.
 	/// _func_ must be a C/lua function (__int32_t function_name(lua_State* L)__)
@@ -96,7 +95,7 @@ private:
 	/// LuaEnvironment is used right now?
 	bool					m_is_used;
 	/// Thread used for garbage collection
-	os::Thread 				m_thread;
+	// os::Thread 				m_thread;
 
 	char					m_error_buffer[1024];
 

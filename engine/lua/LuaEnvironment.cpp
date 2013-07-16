@@ -150,22 +150,22 @@ void LuaEnvironment::execute(int32_t args, int32_t results)
 	}
 }
 
-//-----------------------------------------------------------------------------
-void LuaEnvironment::collect_garbage()
-{
-	uint64_t start = os::milliseconds();
+// //-----------------------------------------------------------------------------
+// void LuaEnvironment::collect_garbage()
+// {
+// 	uint64_t start = os::milliseconds();
 
-	while ((os::milliseconds() - start) < device()->last_delta_time() && !m_is_used)
-	{
-		lua_gc(m_state, LUA_GCSTEP, 0);
-	}
-}
+// 	while ((os::milliseconds() - start) < device()->last_delta_time() && !m_is_used)
+// 	{
+// 		lua_gc(m_state, LUA_GCSTEP, 0);
+// 	}
+// }
 
-//-----------------------------------------------------------------------------
-void* LuaEnvironment::background_thread(void* thiz)
-{
-	((LuaEnvironment*)thiz)->collect_garbage();	
-}
+// //-----------------------------------------------------------------------------
+// void* LuaEnvironment::background_thread(void* thiz)
+// {
+// 	((LuaEnvironment*)thiz)->collect_garbage();	
+// }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::game_init()
