@@ -22,9 +22,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	set(WINDOWS 1)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
-# add build directories
-add_subdirectory(src)
+# always build the engine
+add_subdirectory(engine)
 
+# select optional projects to build
 if (CROWN_BUILD_TOOLS)
 	add_subdirectory(tools)
 endif (CROWN_BUILD_TOOLS)

@@ -2,23 +2,23 @@ cmake_minimum_required(VERSION 2.8)
 
 # detect architecture
 if (CROWN_ARCH MATCHES "x86")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/src/third/x86)
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/x86)
 endif (CROWN_ARCH MATCHES "x86")
 
 if (CROWN_ARCH MATCHES "x86_64")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/src/third/x86_64)
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/x86_64)
 endif (CROWN_ARCH MATCHES "x86_64")
 
 if (CROWN_ARCH MATCHES "win32")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/src/third/win32)
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/win32)
 endif (CROWN_ARCH MATCHES "win32")
 
 if (CROWN_ARCH MATCHES "win64")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/src/third/win64)
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/win64)
 endif (CROWN_ARCH MATCHES "win64")
 
 if (CROWN_ARCH MATCHES "ARMv7")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/src/third/ARMv7)
+	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/ARMv7)
 endif (CROWN_ARCH MATCHES "ARMv7")
 
 # architecture dependent includes
@@ -39,21 +39,21 @@ add_subdirectory(${CROWN_THIRD})
 
 # platform independent includes
 set (CROWN_INCLUDES
-	${CMAKE_SOURCE_DIR}/src
-	${CMAKE_SOURCE_DIR}/src/core
-	${CMAKE_SOURCE_DIR}/src/core/bv
-	${CMAKE_SOURCE_DIR}/src/core/containers
-	${CMAKE_SOURCE_DIR}/src/core/math
-	${CMAKE_SOURCE_DIR}/src/core/mem
-	${CMAKE_SOURCE_DIR}/src/core/compressors
-	${CMAKE_SOURCE_DIR}/src/core/filesystem
-	${CMAKE_SOURCE_DIR}/src/core/strings
-	${CMAKE_SOURCE_DIR}/src/core/settings
-	${CMAKE_SOURCE_DIR}/src/os
-	${CMAKE_SOURCE_DIR}/src/input
-	${CMAKE_SOURCE_DIR}/src/renderers
-	${CMAKE_SOURCE_DIR}/src/network
-	${CMAKE_SOURCE_DIR}/src/lua
+	${CMAKE_SOURCE_DIR}/engine
+	${CMAKE_SOURCE_DIR}/engine/core
+	${CMAKE_SOURCE_DIR}/engine/core/bv
+	${CMAKE_SOURCE_DIR}/engine/core/containers
+	${CMAKE_SOURCE_DIR}/engine/core/math
+	${CMAKE_SOURCE_DIR}/engine/core/mem
+	${CMAKE_SOURCE_DIR}/engine/core/compressors
+	${CMAKE_SOURCE_DIR}/engine/core/filesystem
+	${CMAKE_SOURCE_DIR}/engine/core/strings
+	${CMAKE_SOURCE_DIR}/engine/core/settings
+	${CMAKE_SOURCE_DIR}/engine/os
+	${CMAKE_SOURCE_DIR}/engine/input
+	${CMAKE_SOURCE_DIR}/engine/renderers
+	${CMAKE_SOURCE_DIR}/engine/network
+	${CMAKE_SOURCE_DIR}/engine/lua
 )
 
 set (SRC
@@ -326,8 +326,8 @@ set (CROWN_LIBRARIES)
 # Platform specific stuff
 if (LINUX)
 	list (APPEND CROWN_INCLUDES
-		${CMAKE_SOURCE_DIR}/src/os/linux
-		${CMAKE_SOURCE_DIR}/src/renderers/gl/glx
+		${CMAKE_SOURCE_DIR}/engine/os/linux
+		${CMAKE_SOURCE_DIR}/engine/renderers/gl/glx
 	)
 
 	list (APPEND OS_HEADERS
@@ -396,8 +396,8 @@ endif (LINUX)
 
 if (WINDOWS)
 	list (APPEND CROWN_INCLUDES
-		${CMAKE_SOURCE_DIR}/src/os/win
-		${CMAKE_SOURCE_DIR}/src/renderers/gl/wgl
+		${CMAKE_SOURCE_DIR}/engine/os/win
+		${CMAKE_SOURCE_DIR}/engine/renderers/gl/wgl
 	)
 
 	list (APPEND OS_HEADERS
