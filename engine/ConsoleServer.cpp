@@ -36,8 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-static IntSetting g_read_port("read_port", "port used for reading", 10000, 9999, 65535);
-static IntSetting g_write_port("write_port", "port used for writing", 10001, 9999, 65535);
+static IntSetting g_port("read_port", "port used for reading", 10000, 9999, 65535);
 
 //-----------------------------------------------------------------------------
 ConsoleServer::ConsoleServer() :
@@ -67,6 +66,8 @@ void ConsoleServer::shutdown()
 //-----------------------------------------------------------------------------
 void ConsoleServer::read_eval_loop()
 {
+	m_socket.open(g_port);
+	
 	char cmd[1024];
 
 	while (m_active)
