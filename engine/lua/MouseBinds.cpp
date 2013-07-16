@@ -139,6 +139,10 @@ void load_mouse(LuaEnvironment& env)
 	env.load_module_function("Mouse", "set_cursor_xy",			mouse_set_cursor_xy);
 	env.load_module_function("Mouse", "cursor_relative_xy",		mouse_cursor_relative_xy);
 	env.load_module_function("Mouse", "set_cursor_relative_xy",	mouse_set_cursor_relative_xy);
+
+	env.load_module_enum("Mouse", "MB_LEFT",		MB_LEFT);
+	env.load_module_enum("Mouse", "KB_MIDDLE",		MB_MIDDLE);
+	env.load_module_enum("Mouse", "MB_RIGHT",		MB_RIGHT);
 }
 
 } // namespace crown
