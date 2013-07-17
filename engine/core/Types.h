@@ -34,7 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #ifdef WINDOWS
 	#define CE_EXPORT __declspec(dllexport)
 #else
-	#define CE_EXPORT
+	#define CE_EXPORT __attribute__ ((visibility("default")))
 #endif
 
 #ifndef NULL

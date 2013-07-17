@@ -387,7 +387,7 @@ if (LINUX)
 		-g
 		-pg
 		-fPIC
-		-Wl,-E
+		-fvisibility=hidden
 	)
 
 	set (CROWN_EXECUTABLE_NAME crown-linux)
