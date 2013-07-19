@@ -51,8 +51,6 @@ char JSON::next(const char* str, const char c, bool force_reset)
 		current = str[index];
 	}
 
-	g_current_char = &str[index];
-
 	if (c && c != current)
 	{
 		CE_ASSERT(false, "Expected '%c' got '%c'", c, current);
@@ -60,8 +58,133 @@ char JSON::next(const char* str, const char c, bool force_reset)
 
 	index++;
 	current = str[index];
+	g_current_char = &str[index];
 
 	return current;
+}
+
+//-----------------------------------------------------------------------------
+char JSON::skip_whites(const char* s)
+{
+	char cur = (*g_current_char);
+
+	while (cur && cur == ' ') cur = next(s);
+
+	return cur;
+}
+
+//-----------------------------------------------------------------------------
+char JSON::skip_string(const char* s)
+{
+	char cur = (*g_current_char);
+
+	bool escaped = false;
+
+	if (cur == '"')
+	{
+		while ((cur = next(s)) != 0)
+		{
+			if (cur == '"' && !escaped)
+			{
+				cur = next(s);
+				return cur;
+			}
+			else if (cur == '\\') escaped = true;
+			else escaped = false;
+		}
+	}
+
+	return cur;
+}
+
+//-----------------------------------------------------------------------------
+char JSON::skip_number(const char* s)
+{
+	char cur = (*g_current_char);
+
+	while (cur && ((cur >= '0' && cur <= '9') || cur == '-' || cur == '+' ||
+					cur == 'e' || cur == 'E'))  cur = next(s);
+
+	return cur;
+}
+
+//-----------------------------------------------------------------------------
+char JSON::skip_object(const char* s)
+{
+	char cur = (*g_current_char);
+
+	uint32_t brackets = 1;
+
+	if (cur == '{')
+	{
+		brackets++;
+		cur = next(s, '{');
+
+		while (cur && brackets != 1)
+		{
+			if (cur == '}') brackets--;
+			else if (cur == '{') brackets++;
+			cur = next(s);
+		}
+	}
+
+	return cur;
+}
+
+//-----------------------------------------------------------------------------
+char JSON::skip_array(const char* s)
+{
+	char cur = (*g_current_char);
+
+	uint32_t brackets = 1;
+
+	if (cur == '[')
+	{
+		brackets++;
+		cur = next(s, '[');
+
+		while (cur && brackets != 1)
+		{
+			if (cur == ']') brackets--;
+			else if (cur == '[') brackets++;
+			cur = next(s);
+		}
+	}
+
+	return cur;
+}
+
+//-----------------------------------------------------------------------------
+char JSON::skip_bool(const char* s)
+{
+	char cur = (*g_current_char);
+
+	switch (cur)
+	{
+		case 't':
+		{
+			cur = next(s, 't');
+			cur = next(s, 'r');
+			cur = next(s, 'u');
+			cur = next(s, 'e');
+			break;
+		}
+		case 'f':
+		{
+			cur = next(s, 'f');
+			cur = next(s, 'a');
+			cur = next(s, 'l');
+			cur = next(s, 's');
+			cur = next(s, 'e');
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+
+	return cur;
 }
 
 //-----------------------------------------------------------------------------
@@ -182,8 +305,9 @@ double JSON::parse_number(const char* s)
 
 	float number = 0.0f;
 
+	// Fixme
 	sscanf(str.begin(), "%f", &number);
-	printf("\n\nParsed number: %f\n\n", number);
+
 	return number;
 }
 
@@ -257,57 +381,34 @@ void JSON::parse_array(const char* s, List<const char*>& array)
 			return;
 		}
 
-		while ((cur = next(s)) != 0)
+		while (cur)
 		{
 			array.push_back(g_current_char);
-			JSONType t = type(g_current_char);
 
-			while (cur != 0)
+			cur = skip_array(s);
+			cur = skip_object(s);
+			cur = skip_number(s);
+			cur = skip_string(s);
+			cur = skip_bool(s);
+
+			cur = skip_whites(s);
+
+			// Closing bracket (top-most array)
+			if (cur == ']')
 			{
-				cur = next(s);
-
-				if (t == JT_NUMBER)
-				{
-					if (cur == ',')
-					{
-						cur = next(s, ',');
-						// Skip whitespace
-						while (cur && cur <= ' ')
-						{
-							cur = next(s);
-						}
-						break;
-					}
-				}
-				else if (t == JT_ARRAY)
-				{
-					while (cur && cur != ']')
-					{
-						cur = next(s);
-					}
-					while (cur && cur <= ' ')
-					{
-						cur = next(s);
-					}
-					if (cur == ',')
-					{
-						cur = next(s, ' ');
-						while (cur && cur <= ' ')
-						{
-							cur = next(s);
-						}
-					}
-				}
-
-				if (cur == ']')
-				{
-					cur = next(s, ']');
-					return;
-				}
+				cur = next(s, ']');
+				return;
 			}
+
+			// Skip until next ','
+			cur = next(s, ',');
+
+			// Skip whites, eventually
+			cur = skip_whites(s);
 		}
 	}
 
+	return;
 	CE_ASSERT(false, "Not an array");
 }
 

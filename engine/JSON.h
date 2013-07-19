@@ -47,7 +47,12 @@ class JSON
 public:
 						JSON();
 
-	void 				skip_whitespace();
+	static char			skip_whites(const char* s);
+	static char 		skip_string(const char* s);
+	static char 		skip_number(const char* s);
+	static char 		skip_object(const char* s);
+	static char			skip_array(const char* s);
+	static char			skip_bool(const char* s);
 
 	static char			next(const char* s, const char c = 0, bool force_reset = false);
 
@@ -64,17 +69,7 @@ public:
 
 	static void			parse_array(const char* s, List<const char*>& array);
 
-
-	// static void			parse_array(const char* token, List<const char*>& array);
-	// static void			parse_object(const char* token, Dictionary<const char* key, const char* val>& dict);
-
-private:
-
-	char			m_buffer[1024];
-
-	uint32_t		m_index;
-
-	char			m_current;
+	// static void		parse_object(const char* token, Dictionary<const char* key, const char* val>& dict);
 };
 
 } // namespace crown
