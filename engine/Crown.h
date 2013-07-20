@@ -58,7 +58,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Sphere.h"
 
 // Core/Containers
-#include "Dictionary.h"
+#include "Map.h"
 #include "RBTree.h"
 #include "List.h"
 #include "Generic.h"

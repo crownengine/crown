@@ -36,11 +36,11 @@ class Allocator;
 
 //Note: TKey must implement operators < and ==
 template<class TKey, class TValue>
-class Dictionary: public RBTree<TKey, TValue>
+class Map : public RBTree<TKey, TValue>
 {
 public:
-	Dictionary(Allocator& allocator) : RBTree<TKey, TValue>(allocator) {};
-	~Dictionary() {};
+	Map(Allocator& allocator) : RBTree<TKey, TValue>(allocator) {};
+	~Map() {};
 
 	//using RBTree<TKey, TValue>::Pair;
 
