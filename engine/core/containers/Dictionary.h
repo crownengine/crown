@@ -32,12 +32,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+class Allocator;
+
 //Note: TKey must implement operators < and ==
 template<class TKey, class TValue>
 class Dictionary: public RBTree<TKey, TValue>
 {
 public:
-	Dictionary() {};
+	Dictionary(Allocator& allocator) : RBTree<TKey, TValue>(allocator) {};
 	~Dictionary() {};
 
 	//using RBTree<TKey, TValue>::Pair;

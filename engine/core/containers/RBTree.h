@@ -29,8 +29,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #undef max
 
 #include <cstdlib>
+
 #include "Assert.h"
 #include "Types.h"
+#include "Allocator.h"
 
 namespace crown
 {
@@ -80,7 +82,7 @@ protected:
 	typedef RBTreePair<TKey, TValue> Pair;
 
 public:
-	RBTree();
+	RBTree(Allocator& allocator);
 	~RBTree();
 
 	Pair& add(const TKey& key, const TValue& value);
@@ -98,6 +100,9 @@ protected:
 	Node* find_or_add(TKey key);
 
 private:
+
+	Allocator&		m_allocator;
+
 	Node* m_root;
 	Node* m_sentinel;
 	int32_t m_size;
@@ -119,9 +124,9 @@ private:
 };
 
 template<typename TKey, typename TValue>
-RBTree<TKey, TValue>::RBTree()
+RBTree<TKey, TValue>::RBTree(Allocator& allocator) : m_allocator(allocator)
 {
-	m_sentinel = new Node(TKey(), TValue());
+	m_sentinel = CE_NEW(m_allocator, Node)(TKey(), TValue());
 	m_root = m_sentinel;
 	m_size = 0;
 }
@@ -130,13 +135,13 @@ template<typename TKey, typename TValue>
 RBTree<TKey, TValue>::~RBTree()
 {
 	clear();
-	delete m_sentinel;
+	CE_DELETE(m_allocator, m_sentinel);
 }
 
 template<typename TKey, typename TValue>
 RBTreePair<TKey, TValue>& RBTree<TKey, TValue>::add(const TKey& key, const TValue& value)
 {
-	Node* n = new Node(key, value);
+	Node* n = CE_NEW(m_allocator, Node)(key, value);
 	n->color = RED;
 	n->left = m_sentinel;
 	n->right = m_sentinel;
@@ -319,7 +324,7 @@ void RBTree<TKey, TValue>::remove(const TKey& key)
 		x->color = BLACK;
 	}
 
-	delete y;
+	CE_DELETE(m_allocator, y);
 	m_size -= 1;
 #ifdef RBTREE_VERIFY
 	dbg_verify(m_root);
@@ -336,7 +341,7 @@ RBTreeNode<TKey, TValue>* RBTree<TKey, TValue>::find_or_add(TKey key)
 		return p;
 	}
 
-	Node* n = new Node(key, TValue());
+	Node* n = CE_NEW(m_allocator, Node)(key, TValue());
 	n->color = RED;
 	n->left = m_sentinel;
 	n->right = m_sentinel;
@@ -509,7 +514,7 @@ void RBTree<TKey, TValue>::inner_clear(Node* n)
 	n->right = NULL;
 	inner_clear(tmp);
 
-	delete n;
+	CE_DELETE(m_allocator, n);
 }
 
 template<typename TKey, typename TValue>
