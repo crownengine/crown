@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "List.h"
+#include "Map.h"
 
 namespace crown
 {
@@ -42,10 +43,15 @@ enum JSONType
 	JT_BOOL
 };
 
+struct JSONPair
+{
+	const char* key;
+	const char* val;
+};
+
 class JSON
 {
 public:
-						JSON();
 
 	static char			skip_whites(const char* s);
 	static char 		skip_string(const char* s);
@@ -68,8 +74,7 @@ public:
 	static float		parse_float(const char* s);
 
 	static void			parse_array(const char* s, List<const char*>& array);
-
-	// static void		parse_object(const char* token, Dictionary<const char* key, const char* val>& dict);
+	static void			parse_object(const char* s, List<JSONPair> & map);
 };
 
 } // namespace crown

@@ -36,7 +36,6 @@ namespace crown
 
 static const char* g_current_char = NULL;
 
-/// This function is EPIC. Love it. Now.
 //-----------------------------------------------------------------------------
 char JSON::next(const char* str, const char c, bool force_reset)
 {
@@ -68,7 +67,7 @@ char JSON::skip_whites(const char* s)
 {
 	char cur = (*g_current_char);
 
-	while (cur && cur == ' ') cur = next(s);
+	while (cur && cur <= ' ') cur = next(s);
 
 	return cur;
 }
@@ -102,7 +101,7 @@ char JSON::skip_number(const char* s)
 {
 	char cur = (*g_current_char);
 
-	while (cur && ((cur >= '0' && cur <= '9') || cur == '-' || cur == '+' ||
+	while (cur && ((cur >= '0' && cur <= '9') || cur == '-' || cur == '.' || cur == '+' ||
 					cur == 'e' || cur == 'E'))  cur = next(s);
 
 	return cur;
@@ -205,7 +204,7 @@ JSONType JSON::type(const char* s)
 		case '[': return JT_ARRAY;
 		case '"': return JT_STRING;
 		case '-': return JT_NUMBER;
-		default: return s[0] >= '0' && s[0] <= '9' ? JT_NUMBER : JT_BOOL;
+		default: return s[0] >= '0' && s[0] <= '9' ? JT_NUMBER : (s[0] == 'n' ? JT_NIL : JT_BOOL);
 	}
 }
 
@@ -335,11 +334,10 @@ bool JSON::parse_bool(const char* s)
 			next(s, 'e');
 			return false;
 		}
-		default:
-		{
-			CE_ASSERT(false, "Current token is not a boolean");
-		}
+		default: break;
 	}
+
+	CE_ASSERT(false, "Not a boolean");
 }
 
 //-----------------------------------------------------------------------------
@@ -408,8 +406,69 @@ void JSON::parse_array(const char* s, List<const char*>& array)
 		}
 	}
 
-	return;
 	CE_ASSERT(false, "Not an array");
+}
+
+//-----------------------------------------------------------------------------
+void JSON::parse_object(const char* s, List<JSONPair>& map)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	char cur = s[0];
+
+	if (cur == '{')
+	{
+		cur = next(s, '{');
+
+		cur = skip_whites(s);
+
+		if (cur == '}')
+		{
+			next(s, '}');
+			return;
+		}
+
+		while (cur)
+		{
+			JSONPair pair;
+
+			pair.key = g_current_char;
+
+			// Skip any value
+			cur = skip_array(s);
+			cur = skip_object(s);
+			cur = skip_number(s);
+			cur = skip_string(s);
+			cur = skip_bool(s);
+
+			cur = skip_whites(s);
+			cur = next(s, ':');
+			cur = skip_whites(s);
+
+			pair.val = g_current_char;
+			map.push_back(pair);
+
+			// Skip any value
+			cur = skip_array(s);
+			cur = skip_object(s);
+			cur = skip_number(s);
+			cur = skip_string(s);
+			cur = skip_bool(s);
+
+			cur = skip_whites(s);
+
+			if (cur == '}')
+			{
+				next(s, '}');
+				return;
+			}
+
+			cur = next(s, ',');
+			cur = skip_whites(s);
+		}
+	}
+
+	CE_ASSERT(false, "Not an object");
 }
 
 } // namespace crown
