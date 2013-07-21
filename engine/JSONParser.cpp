@@ -22,7 +22,7 @@ JSONParser&	JSONParser::root()
 //--------------------------------------------------------------------------
 JSONParser&	JSONParser::object(const char* key)
 {
-	JSON::parse_object()
+	//JSON::parse_object()
 }
 
 //--------------------------------------------------------------------------

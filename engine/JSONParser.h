@@ -31,7 +31,7 @@ private:
 	/// JSONParser allocator
 	HeapAllocator& 		m_allocator;
 
-	List<JSONNode>		m_nodes;
+	// List<JSONNode>		m_nodes;
 };
 
 } // namespace crown
