@@ -53,13 +53,6 @@ class JSON
 {
 public:
 
-	static char			skip_whites(const char* s);
-	static char 		skip_string(const char* s);
-	static char 		skip_number(const char* s);
-	static char 		skip_object(const char* s);
-	static char			skip_array(const char* s);
-	static char			skip_bool(const char* s);
-
 	static char			next(const char* s, const char c = 0, bool force_reset = false);
 
 	static bool			is_escapee(char c);
@@ -75,6 +68,15 @@ public:
 
 	static void			parse_array(const char* s, List<const char*>& array);
 	static void			parse_object(const char* s, List<JSONPair> & map);
+
+private:
+
+	static char			skip_whites(const char* s);
+	static char 		skip_string(const char* s);
+	static char 		skip_number(const char* s);
+	static char 		skip_object(const char* s);
+	static char			skip_array(const char* s);
+	static char			skip_bool(const char* s);
 };
 
 } // namespace crown
