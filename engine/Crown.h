@@ -74,6 +74,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Memory.h"
 #include "Allocator.h"
 #include "HeapAllocator.h"
+#include "TempAllocator.h"
 #include "LinearAllocator.h"
 #include "StackAllocator.h"
 #include "ProxyAllocator.h"

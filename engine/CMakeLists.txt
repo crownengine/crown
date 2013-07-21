@@ -223,6 +223,7 @@ set (MEM_HEADERS
 	core/mem/Memory.h
 	core/mem/Allocator.h
 	core/mem/HeapAllocator.h
+	core/mem/TempAllocator.h
 	core/mem/LinearAllocator.h
 	core/mem/StackAllocator.h
 	core/mem/ProxyAllocator.h
