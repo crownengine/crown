@@ -9,29 +9,41 @@
 namespace crown
 {
 
+struct JSONNode
+{
+	JSONType	type;
+	const char* key;
+	const char* val;
+};
+
 class JSONParser
 {
 public:
 	/// Constructor
-						JSONParser(Allocator& allocator, const char* s);
+							JSONParser(Allocator& allocator, const char* s);
 	/// Get root element
-	JSONParser&			root();
+	JSONParser&				root();
 	/// Get object @a key
-	JSONParser&			object(const char* key);
+	JSONParser&				object(const char* key);
 	/// Get array @a key and element @a index  
-	JSONParser&			array(const char* key, uint32_t index);
-	/// Get string @a key
-	JSONParser& 		string(const char* key);
-	/// Get number @a key
-	JSONParser&			number(const char* key);		
-	/// Get boolean @a key
-	JSONParser&			boolean(const char* key);
+	JSONParser&				array(const char* key, uint32_t index);
+	/// Get string
+	const char* 			string(List<char>& str);
+	/// Get number
+	double					number();		
+	/// Get boolean
+	bool 					boolean();
+
+	// Could be usefull
+	//void					fill_node();
+
+	void					print_nodes();
 
 private:
-	/// JSONParser allocator
-	HeapAllocator& 		m_allocator;
 
-	// List<JSONNode>		m_nodes;
+	const char*				m_buffer;
+
+	List<JSONNode>			m_nodes;
 };
 
 } // namespace crown

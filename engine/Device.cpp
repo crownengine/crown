@@ -473,6 +473,14 @@ void Device::create_lua_environment()
 	m_lua_environment->init();
 
 	Log::d("Lua environment created.");
+
+
+	JSONParser json(m_allocator, "{\"asd\": 10, \"boot\":[1,2,3], \"boot2\": {\"asd\":10.0564}}");
+
+	double num = json.root().object("boot2").number();
+
+	Log::i("NUMBER = %f", num);
+
 }
 
 void Device::create_console_server()
