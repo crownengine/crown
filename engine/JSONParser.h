@@ -28,14 +28,11 @@ public:
 	/// Get array @a key and element @a index  
 	JSONParser&				array(const char* key, uint32_t index);
 	/// Get string
-	const char* 			string(List<char>& str);
+	const char* 			string(const char* key, List<char>& str);
 	/// Get number
-	double					number();		
+	double					number(const char* key = NULL);	
 	/// Get boolean
-	bool 					boolean();
-
-	// Could be usefull
-	//void					fill_node();
+	bool 					boolean(const char* key = NULL);
 
 	void					print_nodes();
 
@@ -44,6 +41,8 @@ private:
 	const char*				m_buffer;
 
 	List<JSONNode>			m_nodes;
+
+	uint32_t				m_current_parent;
 };
 
 } // namespace crown

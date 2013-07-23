@@ -18,6 +18,8 @@ JSONParser::JSONParser(Allocator& allocator, const char* s) :
 //--------------------------------------------------------------------------
 JSONParser&	JSONParser::root()
 {
+	m_nodes.clear();
+
 	List<JSONPair> tmp(default_allocator());
 
 	JSON::parse_object(m_buffer, tmp);
@@ -39,6 +41,8 @@ JSONParser&	JSONParser::root()
 //--------------------------------------------------------------------------
 JSONParser&	JSONParser::object(const char* key)
 {
+	bool found = false;
+
 	for (int i = 0; i < m_nodes.size(); i++)
 	{
 		if (m_nodes[i].type == JT_OBJECT)
@@ -51,6 +55,8 @@ JSONParser&	JSONParser::object(const char* key)
 				List<JSONPair> obj(default_allocator());
 				JSON::parse_object(m_nodes[i].val, obj);
 
+				m_nodes.clear();
+
 				JSONNode node;
 
 				for (int j = 0; j < obj.size(); j++)
@@ -61,11 +67,15 @@ JSONParser&	JSONParser::object(const char* key)
 
 					m_nodes.push_back(node);
 				}
+
+				found = true;
+
+				break;
 			}
 		}
 	}
 
-	print_nodes();
+	CE_ASSERT(found, "Object called %s not found", key);
 
 	return *this;
 }
@@ -73,6 +83,8 @@ JSONParser&	JSONParser::object(const char* key)
 //--------------------------------------------------------------------------
 JSONParser&	JSONParser::array(const char* key, uint32_t index)
 {
+	bool found = false;
+
 	for (int i = 0; i < m_nodes.size(); i++)
 	{
 		if (m_nodes[i].type == JT_ARRAY)
@@ -85,6 +97,8 @@ JSONParser&	JSONParser::array(const char* key, uint32_t index)
 				List<const char*> arr(default_allocator());
 				JSON::parse_array(m_nodes[i].val, arr);
 
+				m_nodes.clear();
+
 				JSONNode node;
 
 				node.type = JSON::type(arr[index]);
@@ -92,41 +106,94 @@ JSONParser&	JSONParser::array(const char* key, uint32_t index)
 				node.val = arr[index];
 
 				m_nodes.push_back(node);
+
+				found = true;
+
+				break;
 			}
 		}
 	}
 
-	print_nodes();
+	CE_ASSERT(found, "Array called %s not found", key);
 
 	return *this;
 }
 
 //--------------------------------------------------------------------------
-const char* JSONParser::string(List<char>& str)
+const char* JSONParser::string(const char* key, List<char>& str)
 {
-	uint32_t last = m_nodes.size() - 1;
+	bool found = false;
 
-	JSON::parse_string(m_nodes[last].val, str);
+	for (int i = 0; i < m_nodes.size(); i++)
+	{
+		if (JSON::type(m_nodes[i].val) == JT_STRING)
+		{
+			List<char> tmp(default_allocator());
+			JSON::parse_string(m_nodes[i].key, tmp);
+
+			if (string::strcmp(key, tmp.begin()) == 0)
+			{
+				JSON::parse_string(m_nodes[i].val, str);	
+
+				found = true;
+
+				break;
+			}
+		}
+	}
+
+	CE_ASSERT(found, "String not found");
 }
 
 //--------------------------------------------------------------------------
-double JSONParser::number()
+double JSONParser::number(const char* key)
 {
-	uint32_t last = m_nodes.size() - 1;
+	for (int i = 0; i < m_nodes.size(); i++)
+	{
+		if (JSON::type(m_nodes[i].val) == JT_NUMBER)
+		{
+			if (m_nodes[i].key == NULL)
+			{
+				return JSON::parse_number(m_nodes[i].val);	
+			}
 
-	Log::i("Index in number: %d", last);
-	Log::i("Val in number: %s", m_nodes[last].val);
+			List<char> tmp(default_allocator());
+			JSON::parse_string(m_nodes[i].key, tmp);
 
 
-	return JSON::parse_number(m_nodes[last].val);
+			if (string::strcmp(key, tmp.begin()) == 0)
+			{			
+				return JSON::parse_number(m_nodes[i].val);	
+			}
+		}
+	}
+
+	CE_ASSERT(found, "Number not found");
 }		
 
 //--------------------------------------------------------------------------
-bool JSONParser::boolean()
+bool JSONParser::boolean(const char* key)
 {
-	uint32_t last = m_nodes.size() - 1;
+	for (int i = 0; i < m_nodes.size(); i++)
+	{
+		if (JSON::type(m_nodes[i].val) == JT_BOOL)
+		{
+			if (m_nodes[i].key == NULL)
+			{
+				return JSON::parse_bool(m_nodes[i].val);	
+			}
 
-	return JSON::parse_bool(m_nodes[last].val);
+			List<char> tmp(default_allocator());
+			JSON::parse_string(m_nodes[i].key, tmp);
+
+			if (string::strcmp(key, tmp.begin()) == 0)
+			{			
+				return JSON::parse_bool(m_nodes[i].val);	
+			}
+		}
+	}
+
+	CE_ASSERT(found, "Boolean not found");
 }
 
 //--------------------------------------------------------------------------

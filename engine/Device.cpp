@@ -477,10 +477,15 @@ void Device::create_lua_environment()
 
 	JSONParser json(m_allocator, "{\"asd\": 10, \"boot\":[1,2,3], \"boot2\": {\"asd\":10.0564}}");
 
-	double num = json.root().object("boot2").number();
+	List<char> str(default_allocator());
 
-	Log::i("NUMBER = %f", num);
+	double num = json.root().number("asd");
 
+	Log::i("num: %f", num);
+
+	double arr = json.root().array("boot", 0).number();
+
+	Log::i("arr: %f", arr);
 }
 
 void Device::create_console_server()
