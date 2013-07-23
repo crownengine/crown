@@ -41,8 +41,6 @@ private:
 	const char*				m_buffer;
 
 	List<JSONNode>			m_nodes;
-
-	uint32_t				m_current_parent;
 };
 
 } // namespace crown
