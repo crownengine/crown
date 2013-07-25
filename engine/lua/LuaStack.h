@@ -65,7 +65,7 @@ public:
 
 	void 					push_string(const char* str, size_t len);
 
-	void					push_lightdata(void* data, size_t len);
+	void					push_lightdata(void* data);
 
 	void					push_vec2(Vec2* v);
 

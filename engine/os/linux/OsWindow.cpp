@@ -320,10 +320,9 @@ void OsWindow::frame()
 			case KeyRelease:
 			{
 				char string[4] = {0, 0, 0, 0};
-				int32_t len = -1;
 				KeySym key;
 
-				len = XLookupString(&event.xkey, string, 4, &key, NULL);
+				XLookupString(&event.xkey, string, 4, &key, NULL);
 
 				Key kc = x11_translate_key(key);
 

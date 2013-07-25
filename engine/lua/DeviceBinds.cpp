@@ -56,7 +56,7 @@ CE_EXPORT int32_t device_last_delta_time(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t device_start(lua_State* L)
+CE_EXPORT int32_t device_start(lua_State* /*L*/)
 {
 	device()->start();
 
@@ -64,7 +64,7 @@ CE_EXPORT int32_t device_start(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t device_stop(lua_State* L)
+CE_EXPORT int32_t device_stop(lua_State* /*L*/)
 {
 	device()->stop();
 

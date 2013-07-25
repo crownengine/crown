@@ -137,7 +137,7 @@ void LuaStack::push_string(const char* str, size_t len)
 }
 
 //-----------------------------------------------------------------------------
-void LuaStack::push_lightdata(void* data, size_t len)
+void LuaStack::push_lightdata(void* data)
 {
 	lua_pushlightuserdata(m_state, data);
 }
