@@ -40,8 +40,8 @@ static IntSetting g_port("read_port", "port used for reading", 10000, 9999, 6553
 
 //-----------------------------------------------------------------------------
 ConsoleServer::ConsoleServer() :
-	m_active(false),
-	m_thread(ConsoleServer::background_thread, (void*)this, "console-thread")
+	m_thread(ConsoleServer::background_thread, (void*)this, "console-thread"),
+	m_active(false)
 {
 	string::strncpy(m_cmd_buffer, "", 1024);
 	string::strncpy(m_err_buffer, "", 1024);
@@ -50,8 +50,6 @@ ConsoleServer::ConsoleServer() :
 //-----------------------------------------------------------------------------
 void ConsoleServer::init()
 {
-	LuaEnvironment* lua = device()->lua_environment();
-
 	m_active = true;
 }
 
@@ -111,19 +109,21 @@ void ConsoleServer::execute()
 //-----------------------------------------------------------------------------
 void ConsoleServer::send(const void* data, size_t size)
 {
-	bool sent = m_socket.send(data, size);
+	m_socket.send(data, size);
 }
 
 //-----------------------------------------------------------------------------
 void ConsoleServer::receive(char* data, size_t size)
 {
-	int32_t bytes_read = m_socket.receive(data, size);
+	m_socket.receive(data, size);
 }
 
 //-----------------------------------------------------------------------------
 void* ConsoleServer::background_thread(void* thiz)
 {
-	((ConsoleServer*)thiz)->read_eval_loop();	
+	((ConsoleServer*)thiz)->read_eval_loop();
+
+	return NULL;
 }
 
 
