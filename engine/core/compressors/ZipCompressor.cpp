@@ -45,13 +45,13 @@ ZipCompressor::~ZipCompressor()
 }
 
 //-----------------------------------------------------------------------------
-uint8_t* ZipCompressor::compress(const void* data, size_t in_size, size_t& out_size)
+uint8_t* ZipCompressor::compress(const void* /*data*/, size_t /*in_size*/, size_t& /*out_size*/)
 {
 	return NULL;
 }
 
 //-----------------------------------------------------------------------------
-uint8_t* ZipCompressor::uncompress(const void* data, size_t in_size, size_t& out_size)
+uint8_t* ZipCompressor::uncompress(const void* /*data*/, size_t /*in_size*/, size_t& /*out_size*/)
 {
 	return NULL;
 }
