@@ -27,7 +27,6 @@ LOCAL_SRC_FILES :=\
 	core/filesystem/DiskFile.cpp\
 	core/filesystem/File.cpp\
 	core/filesystem/Filesystem.cpp\
-	core/filesystem/MemoryFile.cpp\
 	core/filesystem/TextReader.cpp\
 	core/filesystem/TextWriter.cpp\
 	core/math/Color4.cpp\

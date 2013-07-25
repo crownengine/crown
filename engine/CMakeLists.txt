@@ -176,7 +176,6 @@ set (MATH_HEADERS
 
 set (FILESYSTEM_SRC
 	core/filesystem/DiskFile.cpp
-	core/filesystem/MemoryFile.cpp
 	core/filesystem/File.cpp
 	
 	core/filesystem/BinaryReader.cpp
@@ -189,7 +188,6 @@ set (FILESYSTEM_SRC
 
 set (FILESYSTEM_HEADERS
 	core/filesystem/DiskFile.h
-	core/filesystem/MemoryFile.h
 	core/filesystem/NullFile.h
 	core/filesystem/File.h
 
