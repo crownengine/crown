@@ -82,7 +82,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Filesystem
 #include "File.h"
 #include "DiskFile.h"
-#include "MemoryFile.h"
 #include "NullFile.h"
 #include "BinaryReader.h"
 #include "BinaryWriter.h"
