@@ -168,7 +168,7 @@ double JSONParser::number(const char* key)
 		}
 	}
 
-	CE_ASSERT(found, "Number not found");
+	// CE_ASSERT(found, "Number not found");
 }		
 
 //--------------------------------------------------------------------------
@@ -193,7 +193,7 @@ bool JSONParser::boolean(const char* key)
 		}
 	}
 
-	CE_ASSERT(found, "Boolean not found");
+	// CE_ASSERT(found, "Boolean not found");
 }
 
 //--------------------------------------------------------------------------
