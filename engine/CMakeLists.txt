@@ -386,6 +386,7 @@ if (LINUX)
 		-pedantic-errors
 		-Wall
 		-Wextra
+		-Werror
 		-Wno-long-long
 		-Wno-variadic-macros
 		-g
