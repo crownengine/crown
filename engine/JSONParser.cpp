@@ -26,7 +26,7 @@ JSONParser&	JSONParser::root()
 
 	JSONNode node;
 
-	for (int i = 0; i < tmp.size(); i++)
+	for (uint32_t i = 0; i < tmp.size(); i++)
 	{
 		node.type = JSON::type(tmp[i].val);
 		node.key = tmp[i].key;
@@ -43,7 +43,7 @@ JSONParser&	JSONParser::object(const char* key)
 {
 	bool found = false;
 
-	for (int i = 0; i < m_nodes.size(); i++)
+	for (uint32_t i = 0; i < m_nodes.size(); i++)
 	{
 		if (m_nodes[i].type == JT_OBJECT)
 		{
@@ -59,7 +59,7 @@ JSONParser&	JSONParser::object(const char* key)
 
 				JSONNode node;
 
-				for (int j = 0; j < obj.size(); j++)
+				for (uint32_t j = 0; j < obj.size(); j++)
 				{
 					node.type = JSON::type(obj[j].val);
 					node.key = obj[j].key;
@@ -85,7 +85,7 @@ JSONParser&	JSONParser::array(const char* key, uint32_t index)
 {
 	bool found = false;
 
-	for (int i = 0; i < m_nodes.size(); i++)
+	for (uint32_t i = 0; i < m_nodes.size(); i++)
 	{
 		if (m_nodes[i].type == JT_ARRAY)
 		{
@@ -124,7 +124,7 @@ const char* JSONParser::string(const char* key, List<char>& str)
 {
 	bool found = false;
 
-	for (int i = 0; i < m_nodes.size(); i++)
+	for (uint32_t i = 0; i < m_nodes.size(); i++)
 	{
 		if (JSON::type(m_nodes[i].val) == JT_STRING)
 		{
@@ -143,12 +143,15 @@ const char* JSONParser::string(const char* key, List<char>& str)
 	}
 
 	CE_ASSERT(found, "String not found");
+
+	// FIXME FIXME FIXME
+	return "FIXME";
 }
 
 //--------------------------------------------------------------------------
 double JSONParser::number(const char* key)
 {
-	for (int i = 0; i < m_nodes.size(); i++)
+	for (uint32_t i = 0; i < m_nodes.size(); i++)
 	{
 		if (JSON::type(m_nodes[i].val) == JT_NUMBER)
 		{
@@ -169,12 +172,15 @@ double JSONParser::number(const char* key)
 	}
 
 	// CE_ASSERT(found, "Number not found");
+
+	// FIXME FIXME FIXME
+	return 0.0;
 }		
 
 //--------------------------------------------------------------------------
 bool JSONParser::boolean(const char* key)
 {
-	for (int i = 0; i < m_nodes.size(); i++)
+	for (uint32_t i = 0; i < m_nodes.size(); i++)
 	{
 		if (JSON::type(m_nodes[i].val) == JT_BOOL)
 		{
@@ -194,12 +200,15 @@ bool JSONParser::boolean(const char* key)
 	}
 
 	// CE_ASSERT(found, "Boolean not found");
+
+	// FIXME FIXME FIXME
+	return false;
 }
 
 //--------------------------------------------------------------------------
 void JSONParser::print_nodes()
 {
-	for (int i = 0; i < m_nodes.size(); i++)
+	for (uint32_t i = 0; i < m_nodes.size(); i++)
 	{
 		Log::i("Index: %d", i);	
 		Log::i("Type : %d", m_nodes[i].type);
