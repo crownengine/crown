@@ -53,6 +53,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/os
 	${CMAKE_SOURCE_DIR}/engine/input
 	${CMAKE_SOURCE_DIR}/engine/renderers
+	${CMAKE_SOURCE_DIR}/engine/resource
 	${CMAKE_SOURCE_DIR}/engine/network
 	${CMAKE_SOURCE_DIR}/engine/lua
 )
@@ -60,16 +61,6 @@ set (CROWN_INCLUDES
 set (SRC
 	Camera.cpp
 	Device.cpp
-	MaterialResource.cpp
-	ResourceManager.cpp
-
-	TextureResource.cpp
-	TextResource.cpp
-	FontResource.cpp
-	VertexShaderResource.cpp
-	PixelShaderResource.cpp
-	ArchiveBundle.cpp
-	FileBundle.cpp
 	ConsoleServer.cpp
 	FPSSystem.cpp
 )
@@ -80,18 +71,6 @@ set (HEADERS
 	Crown.h
 	Device.h
 	Glyph.h
-	MaterialResource.h
-	Resource.h
-	ResourceManager.h
-	Bundle.h
-
-	TextureResource.h
-	TextResource.h
-	FontResource.h
-	VertexShaderResource.h
-	PixelShaderResource.h
-	ArchiveBundle.h
-	FileBundle.h
 	ConsoleServer.h
 	FPSSystem.h
 )
@@ -294,6 +273,32 @@ set (RENDERERS_HEADERS
 	renderers/VertexFormat.h
 )
 
+set (RESOURCE_SRC
+	resource/MaterialResource.cpp
+	resource/ResourceManager.cpp
+	resource/TextureResource.cpp
+	resource/TextResource.cpp
+	resource/FontResource.cpp
+	resource/VertexShaderResource.cpp
+	resource/PixelShaderResource.cpp
+	resource/ArchiveBundle.cpp
+	resource/FileBundle.cpp
+)
+
+set (RESOURCE_HEADERS
+	resource/MaterialResource.h
+	resource/Resource.h
+	resource/ResourceManager.h
+	resource/Bundle.h
+	resource/TextureResource.h
+	resource/TextResource.h
+	resource/FontResource.h
+	resource/VertexShaderResource.h
+	resource/PixelShaderResource.h
+	resource/ArchiveBundle.h
+	resource/FileBundle.h
+)
+
 set (OS_SRC
 	os/OS.cpp
 )
@@ -464,6 +469,8 @@ set (CROWN_SOURCES
 
 	${RENDERERS_SRC}
 
+	${RESOURCE_SRC}
+
 #	${NETWORK_SRC}
 
 	${OS_SRC}
@@ -486,6 +493,8 @@ set (CROWN_HEADERS
 	${INPUT_HEADERS}
 
 	${RENDERERS_HEADERS}
+
+	${RESOURCE_HEADERS}
 
 #	${NETWORK_HEADERS}
 

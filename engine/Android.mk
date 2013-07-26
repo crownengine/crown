@@ -86,6 +86,16 @@ LOCAL_SRC_FILES :=\
 	renderers/PixelFormat.cpp\
 	renderers/VertexFormat.cpp\
 \
+	resource/ArchiveBundle.cpp\
+	resource/FileBundle.cpp\
+	resource/FontResource.cpp\
+	resource/MaterialResource.cpp\
+	resource/PixelShaderResource.cpp\
+	resource/ResourceManager.cpp\
+	resource/TextResource.cpp\
+	resource/TextureResource.cpp\
+	resource/VertexShaderResource.cpp\
+\
 	lua/LuaStack.cpp\
 	lua/LuaEnvironment.cpp\
 	lua/AccelerometerBinds.cpp\
@@ -104,19 +114,9 @@ LOCAL_SRC_FILES :=\
 	lua/FloatSettingBinds.cpp\
 	lua/StringSettingBinds.cpp\
 \
-	ArchiveBundle.cpp\
 	Camera.cpp\
 	Device.cpp\
-	FileBundle.cpp\
-	FontResource.cpp\
 	FPSSystem.cpp\
-	MaterialResource.cpp\
-	PixelShaderResource.cpp\
-	ResourceManager.cpp\
-	TextResource.cpp\
-	TextureResource.cpp\
-	VertexShaderResource.cpp\
-	Game.cpp\
 	ConsoleServer.cpp\
 \
 
