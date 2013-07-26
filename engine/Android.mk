@@ -20,8 +20,10 @@ LOCAL_SRC_FILES :=\
 	core/bv/Circle.cpp\
 	core/bv/Frustum.cpp\
 	core/bv/Rect.cpp\
+\
 	core/compressors/ZipCompressor.cpp\
 	core/containers/Generic.cpp\
+\
 	core/filesystem/BinaryReader.cpp\
 	core/filesystem/BinaryWriter.cpp\
 	core/filesystem/DiskFile.cpp\
@@ -29,6 +31,10 @@ LOCAL_SRC_FILES :=\
 	core/filesystem/Filesystem.cpp\
 	core/filesystem/TextReader.cpp\
 	core/filesystem/TextWriter.cpp\
+\
+	core/json/JSON.cpp
+	core/json/JSONParser.cpp
+\
 	core/math/Color4.cpp\
 	core/math/Mat3.cpp\
 	core/math/Mat4.cpp\
@@ -38,15 +44,18 @@ LOCAL_SRC_FILES :=\
 	core/math/Vec2.cpp\
 	core/math/Vec3.cpp\
 	core/math/Vec4.cpp\
+\
 	core/mem/Allocator.cpp\
 	core/mem/HeapAllocator.cpp\
 	core/mem/LinearAllocator.cpp\
 	core/mem/ProxyAllocator.cpp\
 	core/mem/StackAllocator.cpp\
 	core/mem/Memory.cpp\
+\
 	core/settings/FloatSetting.cpp\
 	core/settings/IntSetting.cpp\
 	core/settings/StringSetting.cpp\
+\
 	core/Args.cpp\
 	core/Log.cpp\
 \
@@ -101,7 +110,6 @@ LOCAL_SRC_FILES :=\
 	FileBundle.cpp\
 	FontResource.cpp\
 	FPSSystem.cpp\
-	JSONParser.cpp\
 	MaterialResource.cpp\
 	PixelShaderResource.cpp\
 	ResourceManager.cpp\
@@ -122,6 +130,7 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/core/math\
 	$(LOCAL_PATH)/core/mem\
 	$(LOCAL_PATH)/core/filesystem\
+	$(LOCAL_PATH)/core/json\
 	$(LOCAL_PATH)/core/settings\
 	$(LOCAL_PATH)/core/strings\
 	$(LOCAL_PATH)/input\

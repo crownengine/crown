@@ -47,6 +47,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/core/mem
 	${CMAKE_SOURCE_DIR}/engine/core/compressors
 	${CMAKE_SOURCE_DIR}/engine/core/filesystem
+	${CMAKE_SOURCE_DIR}/engine/core/json
 	${CMAKE_SOURCE_DIR}/engine/core/strings
 	${CMAKE_SOURCE_DIR}/engine/core/settings
 	${CMAKE_SOURCE_DIR}/engine/os
@@ -57,7 +58,6 @@ set (CROWN_INCLUDES
 )
 
 set (SRC
-	JSON.cpp
 	Camera.cpp
 	Device.cpp
 	MaterialResource.cpp
@@ -70,15 +70,11 @@ set (SRC
 	PixelShaderResource.cpp
 	ArchiveBundle.cpp
 	FileBundle.cpp
-
-	JSONParser.cpp
 	ConsoleServer.cpp
-
 	FPSSystem.cpp
 )
 
 set (HEADERS
-	JSON.h
 	Camera.h
 	Config.h
 	Crown.h
@@ -96,10 +92,7 @@ set (HEADERS
 	PixelShaderResource.h
 	ArchiveBundle.h
 	FileBundle.h
-
-	JSONParser.h
 	ConsoleServer.h
-
 	FPSSystem.h
 )
 
@@ -197,6 +190,16 @@ set (FILESYSTEM_HEADERS
 	core/filesystem/TextWriter.h
 
 	core/filesystem/Filesystem.h
+)
+
+set (JSON_SRC
+	core/json/JSON.cpp
+	core/json/JSONParser.cpp
+)
+
+set (JSON_HEADERS
+	core/json/JSON.h
+	core/json/JSONParser.h
 )
 
 set (STRINGS_SRC
@@ -452,6 +455,7 @@ set (CROWN_SOURCES
 	${CONTAINERS_SRC}
 	${MATH_SRC}
 	${FILESYSTEM_SRC}
+	${JSON_SRC}
 	${MEM_SRC}
 	${COMPRESSORS_SRC}
 	${SETTINGS_SRC}
@@ -474,6 +478,7 @@ set (CROWN_HEADERS
 	${CONTAINERS_HEADERS}
 	${MATH_HEADERS}
 	${FILESYSTEM_HEADERS}
+	${JSON_HEADERS}
 	${MEM_HEADERS}
 	${COMPRESSORS_HEADERS}
 	${SETTINGS_HEADERS}

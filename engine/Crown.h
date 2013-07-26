@@ -89,6 +89,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextWriter.h"
 #include "Filesystem.h"
 
+// Core/Json
+#include "JSON.h"
+#include "JSONParser.h"
+
 // Core/Threads
 #include "Thread.h"
 #include "Mutex.h"
