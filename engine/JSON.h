@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "List.h"
-#include "Map.h"
 
 namespace crown
 {
@@ -53,10 +52,6 @@ class JSON
 {
 public:
 
-	static char			next(const char* s, const char c = 0, bool force_reset = false);
-
-	static bool			is_escapee(char c);
-
 	static JSONType		type(const char* s);
 
 	static void			parse_string(const char* s, List<char>& str);
@@ -67,16 +62,7 @@ public:
 	static float		parse_float(const char* s);
 
 	static void			parse_array(const char* s, List<const char*>& array);
-	static void			parse_object(const char* s, List<JSONPair> & map);
-
-private:
-
-	static char			skip_whites(const char* s);
-	static char 		skip_string(const char* s);
-	static char 		skip_number(const char* s);
-	static char 		skip_object(const char* s);
-	static char			skip_array(const char* s);
-	static char			skip_bool(const char* s);
+	static void			parse_object(const char* s, List<JSONPair>& map);
 };
 
 } // namespace crown

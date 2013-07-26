@@ -28,153 +28,154 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "JSON.h"
 #include "Types.h"
 #include "List.h"
-#include "Allocator.h"
+#include "TempAllocator.h"
 #include <cstdio>
 
 namespace crown
 {
 
-static const char* g_current_char = NULL;
-
 //-----------------------------------------------------------------------------
-char JSON::next(const char* str, const char c, bool force_reset)
+static const char* next(const char* str, const char c = 0)
 {
-	static char* current_str = (char*)str;
-	static size_t index = 0;
-	static char current = str[index];
+	CE_ASSERT_NOT_NULL(str);
 
-	if (current_str != str || force_reset == true)
+	if (c && c != (*str))
 	{
-		current_str = (char*)str;
-		index = 0;
-		current = str[index];
+		CE_ASSERT(false, "Expected '%c' got '%c'", c, (*str));
 	}
 
-	if (c && c != current)
-	{
-		CE_ASSERT(false, "Expected '%c' got '%c'", c, current);
-	}
-
-	index++;
-	current = str[index];
-	g_current_char = &str[index];
-
-	return current;
+	return str + 1;
 }
 
 //-----------------------------------------------------------------------------
-char JSON::skip_whites(const char* s)
+static const char* skip_whites(const char* s)
 {
-	char cur = (*g_current_char);
+	CE_ASSERT_NOT_NULL(s);
 
-	while (cur && cur <= ' ') cur = next(s);
+	const char* ch = s;
 
-	return cur;
+	while ((*ch) && (*ch) <= ' ') ch = next(ch);
+
+	return ch;
 }
 
 //-----------------------------------------------------------------------------
-char JSON::skip_string(const char* s)
+static const char* skip_string(const char* s)
 {
-	char cur = (*g_current_char);
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
 
 	bool escaped = false;
 
-	if (cur == '"')
+	if ((*ch) == '"')
 	{
-		while ((cur = next(s)) != 0)
+		while ((*(ch = next(ch))) != 0)
 		{
-			if (cur == '"' && !escaped)
+			if ((*ch) == '"' && !escaped)
 			{
-				cur = next(s);
-				return cur;
+				ch = next(ch);
+				return ch;
 			}
-			else if (cur == '\\') escaped = true;
+			else if ((*ch) == '\\') escaped = true;
 			else escaped = false;
 		}
 	}
 
-	return cur;
+	return ch;
 }
 
 //-----------------------------------------------------------------------------
-char JSON::skip_number(const char* s)
+static const char* skip_number(const char* s)
 {
-	char cur = (*g_current_char);
+	CE_ASSERT_NOT_NULL(s);
 
-	while (cur && ((cur >= '0' && cur <= '9') || cur == '-' || cur == '.' || cur == '+' ||
-					cur == 'e' || cur == 'E'))  cur = next(s);
+	const char* ch = s;
 
-	return cur;
+	while ((*ch) && (((*ch) >= '0' && (*ch) <= '9') ||
+			(*ch) == '-' || (*ch) == '.' || (*ch) == '+' ||
+			(*ch) == 'e' || (*ch) == 'E'))
+	{
+		ch = next(ch);
+	}
+
+	return ch;
 }
 
 //-----------------------------------------------------------------------------
-char JSON::skip_object(const char* s)
+static const char* skip_object(const char* s)
 {
-	char cur = (*g_current_char);
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
 
 	uint32_t brackets = 1;
 
-	if (cur == '{')
+	if ((*ch) == '{')
 	{
 		brackets++;
-		cur = next(s, '{');
+		ch = next(ch, '{');
 
-		while (cur && brackets != 1)
+		while ((*ch) && brackets != 1)
 		{
-			if (cur == '}') brackets--;
-			else if (cur == '{') brackets++;
-			cur = next(s);
+			if ((*ch) == '}') brackets--;
+			else if ((*ch) == '{') brackets++;
+			ch = next(ch);
 		}
 	}
 
-	return cur;
+	return ch;
 }
 
 //-----------------------------------------------------------------------------
-char JSON::skip_array(const char* s)
+static const char* skip_array(const char* s)
 {
-	char cur = (*g_current_char);
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
 
 	uint32_t brackets = 1;
 
-	if (cur == '[')
+	if ((*ch) == '[')
 	{
 		brackets++;
-		cur = next(s, '[');
+		ch = next(ch, '[');
 
-		while (cur && brackets != 1)
+		while ((*ch) && brackets != 1)
 		{
-			if (cur == ']') brackets--;
-			else if (cur == '[') brackets++;
-			cur = next(s);
+			if ((*ch) == ']') brackets--;
+			else if ((*ch) == '[') brackets++;
+			ch = next(ch);
 		}
 	}
 
-	return cur;
+	return ch;
 }
 
 //-----------------------------------------------------------------------------
-char JSON::skip_bool(const char* s)
+static const char* skip_bool(const char* s)
 {
-	char cur = (*g_current_char);
+	CE_ASSERT_NOT_NULL(s);
 
-	switch (cur)
+	const char* ch = s;
+
+	switch ((*ch))
 	{
 		case 't':
 		{
-			cur = next(s, 't');
-			cur = next(s, 'r');
-			cur = next(s, 'u');
-			cur = next(s, 'e');
+			ch = next(ch, 't');
+			ch = next(ch, 'r');
+			ch = next(ch, 'u');
+			ch = next(ch, 'e');
 			break;
 		}
 		case 'f':
 		{
-			cur = next(s, 'f');
-			cur = next(s, 'a');
-			cur = next(s, 'l');
-			cur = next(s, 's');
-			cur = next(s, 'e');
+			ch = next(ch, 'f');
+			ch = next(ch, 'a');
+			ch = next(ch, 'l');
+			ch = next(ch, 's');
+			ch = next(ch, 'e');
 			break;
 		}
 		default:
@@ -183,11 +184,11 @@ char JSON::skip_bool(const char* s)
 		}
 	}
 
-	return cur;
+	return ch;
 }
 
 //-----------------------------------------------------------------------------
-bool JSON::is_escapee(char c)
+static bool is_escapee(char c)
 {
 	return c == '"' || c == '\\' || c == '/' || c == '\b' || c == '\f' || c == '\n' ||
 			c == '\r' || c == '\t';
@@ -214,39 +215,41 @@ void JSON::parse_string(const char* s, List<char>& str)
 {
 	CE_ASSERT_NOT_NULL(s);
 
-	char cur = '\0';
+	const char* ch = s;
 
-	if (s[0] == '"')
+	if ((*ch) == '"')
 	{
-		while ((cur = next(s)) != 0)
+		while ((*(ch = next(ch))))
 		{
-			if (cur == '"')
+			// Empty string
+			if ((*ch) == '"')
 			{
-				next(s);
+				ch = next(ch);
 				str.push_back('\0');
 				return;
 			}
-			else if (cur == '\\')
+			else if ((*ch) == '\\')
 			{
-				cur = next(s);
+				ch = next(ch);
 
-				if (cur == 'u')
+				if ((*ch) == 'u')
 				{
 					CE_ASSERT(false, "Not supported at the moment");
 				}
-				else if (is_escapee(cur))
+				else if (is_escapee(*ch))
 				{
 					str.push_back('\\');
-					str.push_back(cur);
+					str.push_back(*ch);
 				}
 				else
 				{
-					break; // to invalid string
+					// Go to invalid string
+					break;
 				}
 			}
 			else
 			{
-				str.push_back(cur);
+				str.push_back(*ch);
 			}
 		}
 	}
@@ -259,43 +262,45 @@ double JSON::parse_number(const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
 
- 	List<char> str(default_allocator());
+	const char* ch = s;
 
- 	char cur = s[0];
+	TempAllocator1024 allocator;
+ 	List<char> str(allocator);
 
-	if (cur == '-')
+	if ((*ch) == '-')
 	{
 		str.push_back('-');
-		cur = next(s, '-');
+		ch = next(ch, '-');
 	}
-	while (cur >= '0' && cur <= '9')
+	while ((*ch) >= '0' && (*ch) <= '9')
 	{
-		str.push_back(cur);
-		cur = next(s);
+		str.push_back((*ch));
+		ch = next(ch);
 	}
 
-	if (cur == '.')
+	if ((*ch) == '.')
 	{
 		str.push_back('.');
-		while ((cur = next(s)) != 0 && cur >= '0' && cur <= '9')
+		while ((*(ch = next(ch))) && (*ch) >= '0' && (*ch) <= '9')
 		{
-			str.push_back(cur);
+			str.push_back(*ch);
 		}
 	}
 
-	if (cur == 'e' || cur == 'E')
+	if ((*ch) == 'e' || (*ch) == 'E')
 	{
-		str.push_back(cur);
-		cur = next(s);
-		if (cur == '-' || cur == '+')
+		str.push_back(*ch);
+		ch = next(ch);
+
+		if ((*ch) == '-' || (*ch) == '+')
 		{
-			str.push_back(cur);
-			cur = next(s);
+			str.push_back(*ch);
+			ch = next(ch);
 		}
-		while (cur >= '0' && cur <= '9')
+		while ((*ch) >= '0' && (*ch) <= '9')
 		{
-			str.push_back(cur);
-			cur = next(s);
+			str.push_back(*ch);
+			ch = next(ch);
 		}
 	}
 
@@ -315,23 +320,25 @@ bool JSON::parse_bool(const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
 
-	switch(s[0])
+	const char* ch = s;
+
+	switch(*ch)
 	{
 		case 't':
 		{
-			next(s, 't');
-			next(s, 'r');
-			next(s, 'u');
-			next(s, 'e');
+			ch = next(ch, 't');
+			ch = next(ch, 'r');
+			ch = next(ch, 'u');
+			ch = next(ch, 'e');
 			return true;
 		}
 		case 'f':
 		{
-			next(s, 'f');
-			next(s, 'a');
-			next(s, 'l');
-			next(s, 's');			
-			next(s, 'e');
+			ch = next(ch, 'f');
+			ch = next(ch, 'a');
+			ch = next(ch, 'l');
+			ch = next(ch, 's');			
+			ch = next(ch, 'e');
 			return false;
 		}
 		default: break;
@@ -361,48 +368,48 @@ void JSON::parse_array(const char* s, List<const char*>& array)
 {
 	CE_ASSERT_NOT_NULL(s);
 
-	char cur = s[0];
+	const char* ch = s;
 
-	if (cur == '[')
+	if ((*ch) == '[')
 	{
-		cur = next(s, '[');
+		ch = next(ch, '[');
 
 		// Skip whitespaces
-		while (cur && cur <= ' ')
+		while ((*ch) && (*ch) <= ' ')
 		{
-			cur = next(s);
+			ch = next(ch);
 		}
 
-		if (cur == ']')
+		if ((*ch) == ']')
 		{
-			cur = next(s, ']');
+			ch = next(ch, ']');
 			return;
 		}
 
-		while (cur)
+		while (*ch)
 		{
-			array.push_back(g_current_char);
+			array.push_back(ch);
 
-			cur = skip_array(s);
-			cur = skip_object(s);
-			cur = skip_number(s);
-			cur = skip_string(s);
-			cur = skip_bool(s);
+			ch = skip_array(ch);
+			ch = skip_object(ch);
+			ch = skip_number(ch);
+			ch = skip_string(ch);
+			ch = skip_bool(ch);
 
-			cur = skip_whites(s);
+			ch = skip_whites(ch);
 
 			// Closing bracket (top-most array)
-			if (cur == ']')
+			if ((*ch) == ']')
 			{
-				cur = next(s, ']');
+				ch = next(ch, ']');
 				return;
 			}
 
 			// Skip until next ','
-			cur = next(s, ',');
+			ch = next(ch, ',');
 
 			// Skip whites, eventually
-			cur = skip_whites(s);
+			ch = skip_whites(ch);
 		}
 	}
 
@@ -414,57 +421,57 @@ void JSON::parse_object(const char* s, List<JSONPair>& map)
 {
 	CE_ASSERT_NOT_NULL(s);
 
-	char cur = s[0];
+	const char* ch = s;
 
-	if (cur == '{')
+	if ((*ch) == '{')
 	{
-		cur = next(s, '{');
+		ch = next(ch, '{');
 
-		cur = skip_whites(s);
+		ch = skip_whites(ch);
 
-		if (cur == '}')
+		if ((*ch) == '}')
 		{
-			next(s, '}');
+			next(ch, '}');
 			return;
 		}
 
-		while (cur)
+		while (*ch)
 		{
 			JSONPair pair;
 
-			pair.key = g_current_char;
+			pair.key = ch;
 
 			// Skip any value
-			cur = skip_array(s);
-			cur = skip_object(s);
-			cur = skip_number(s);
-			cur = skip_string(s);
-			cur = skip_bool(s);
+			ch = skip_array(ch);
+			ch = skip_object(ch);
+			ch = skip_number(ch);
+			ch = skip_string(ch);
+			ch = skip_bool(ch);
 
-			cur = skip_whites(s);
-			cur = next(s, ':');
-			cur = skip_whites(s);
+			ch = skip_whites(ch);
+			ch = next(ch, ':');
+			ch = skip_whites(ch);
 
-			pair.val = g_current_char;
+			pair.val = ch;
 			map.push_back(pair);
 
 			// Skip any value
-			cur = skip_array(s);
-			cur = skip_object(s);
-			cur = skip_number(s);
-			cur = skip_string(s);
-			cur = skip_bool(s);
+			ch = skip_array(ch);
+			ch = skip_object(ch);
+			ch = skip_number(ch);
+			ch = skip_string(ch);
+			ch = skip_bool(ch);
 
-			cur = skip_whites(s);
+			ch = skip_whites(ch);
 
-			if (cur == '}')
+			if ((*ch) == '}')
 			{
-				next(s, '}');
+				next(ch, '}');
 				return;
 			}
 
-			cur = next(s, ',');
-			cur = skip_whites(s);
+			ch = next(ch, ',');
+			ch = skip_whites(ch);
 		}
 	}
 
