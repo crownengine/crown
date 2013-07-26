@@ -93,11 +93,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "JSON.h"
 #include "JSONParser.h"
 
-// Core/Threads
-#include "Thread.h"
-#include "Mutex.h"
-#include "Cond.h"
-
 // Core/Settings
 #include "IntSetting.h"
 #include "FloatSetting.h"
@@ -127,6 +122,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mouse.h"
 #include "Touch.h"
 
+// Engine/Lua
+#include "LuaStack.h"
+#include "LuaEnvironment.h"
+
+// Engine/Os
+#include "Thread.h"
+#include "Mutex.h"
+#include "Cond.h"
+#include "OsFile.h"
+#include "OsWindow.h"
+#include "TCPSocket.h"
+#include "UDPSocket.h"
+
 // Engine/Renderers
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -136,9 +144,3 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "DebugRenderer.h"
 #include "PixelFormat.h"
 #include "VertexFormat.h"
-
-// Lua
-#include "LuaStack.h"
-#include "LuaEnvironment.h"
-
-
