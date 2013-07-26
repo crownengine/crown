@@ -32,10 +32,3 @@ OTHER DEALINGS IN THE SOFTWARE.
 #cmakedefine WINDOWS
 
 #cmakedefine CROWN_DEBUG
-
-// OS peculiarities
-#if defined(LINUX) || defined(ANDROID)
-	#define GAME_LIBRARY_NAME "libgame.so"
-#elif defined(WINDOWS)
-	#define GAME_LIBRARY_NAME "game.dll"
-#endif
