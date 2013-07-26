@@ -5,17 +5,5 @@
 /engine/Config.h
 /tools/Config.h
 
-# Ignore some android directories
-/android/bin
-/android/gen
-/android/libs
-/android/obj
-/android/res
-/android/assets
-/android/local.properties
-
 # Ignore python stuff
 __pycache__
-
-# Ignore proj workspace
-/proj/sublime-text/*.sublime-workspace
