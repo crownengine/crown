@@ -98,21 +98,21 @@ LOCAL_SRC_FILES :=\
 \
 	lua/LuaStack.cpp\
 	lua/LuaEnvironment.cpp\
-	lua/AccelerometerBinds.cpp\
-	lua/CameraBinds.cpp\
-	lua/DeviceBinds.cpp\
-	lua/KeyboardBinds.cpp\
-	lua/Mat4Binds.cpp\
-	lua/MathBinds.cpp\
-	lua/MouseBinds.cpp\
-	lua/QuatBinds.cpp\
-	lua/TouchBinds.cpp\
-	lua/Vec2Binds.cpp\
-	lua/Vec3Binds.cpp\
-	lua/WindowBinds.cpp\
-	lua/IntSettingBinds.cpp\
-	lua/FloatSettingBinds.cpp\
-	lua/StringSettingBinds.cpp\
+	lua/LuaAccelerometer.cpp\
+	lua/LuaCamera.cpp\
+	lua/LuaDevice.cpp\
+	lua/LuaKeyboard.cpp\
+	lua/LuaMat4.cpp\
+	lua/LuaMath.cpp\
+	lua/LuaMouse.cpp\
+	lua/LuaQuat.cpp\
+	lua/LuaTouch.cpp\
+	lua/LuaVec2.cpp\
+	lua/LuaVec3.cpp\
+	lua/LuaWindow.cpp\
+	lua/LuaIntSetting.cpp\
+	lua/LuaFloatSetting.cpp\
+	lua/LuaStringSetting.cpp\
 \
 	Camera.cpp\
 	Device.cpp\
