@@ -43,16 +43,12 @@ FloatSetting::FloatSetting(const char* name, const char* synopsis, float value, 
 {
 	*this = value;
 
-	if (g_float_settings_head == NULL)
-	{
-		g_float_settings_head = this;
-		m_next = NULL;
-	}
-	else
+	if (g_float_settings_head != NULL)
 	{
 		m_next = g_float_settings_head;
-		g_float_settings_head = this;
 	}
+
+	g_float_settings_head = this;
 }
 
 //-----------------------------------------------------------------------------

@@ -41,16 +41,12 @@ StringSetting::StringSetting(const char* name, const char* synopsis, const char*
 {
 	*this = value;
 
-	if (g_string_settings_head == NULL)
-	{
-		g_string_settings_head = this;
-		m_next = NULL;
-	}
-	else
+	if (g_string_settings_head != NULL)
 	{
 		m_next = g_string_settings_head;
-		g_string_settings_head = this;
 	}
+
+	g_string_settings_head = this;
 }
 
 //-----------------------------------------------------------------------------

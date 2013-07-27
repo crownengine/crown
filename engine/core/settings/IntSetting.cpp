@@ -43,16 +43,12 @@ IntSetting::IntSetting(const char* name, const char* synopsis, int32_t value, in
 {
 	*this = value;
 
-	if (g_int_settings_head == NULL)
-	{
-		g_int_settings_head = this;
-		m_next = NULL;
-	}
-	else
+	if (g_int_settings_head != NULL)
 	{
 		m_next = g_int_settings_head;
-		g_int_settings_head = this;
 	}
+
+	g_int_settings_head = this;
 }
 
 //-----------------------------------------------------------------------------
