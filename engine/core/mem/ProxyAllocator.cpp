@@ -31,12 +31,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+static ProxyAllocator* g_proxy_allocators_head = NULL;
+
 //-----------------------------------------------------------------------------
 ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator) :
 	m_allocator(allocator),
-	m_name(name)
+	m_name(name),
+	m_next(NULL)
 {
 	CE_ASSERT(name != NULL, "Name must be != NULL");
+
+	if(g_proxy_allocators_head != NULL)
+	{
+		m_next = g_proxy_allocators_head;
+	}
+
+	g_proxy_allocators_head = this;
 }
 
 //-----------------------------------------------------------------------------
