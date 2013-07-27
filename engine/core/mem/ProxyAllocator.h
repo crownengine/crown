@@ -42,23 +42,40 @@ class ProxyAllocator
 public:
 
 	/// Tag all allocations made with @a allocator by the given @a name
-					ProxyAllocator(const char* name, Allocator& allocator);
+							ProxyAllocator(const char* name, Allocator& allocator);
 
 	/// @copydoc Allocator::allocate()
-	void*			allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
+	void*					allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
 
 	/// @copydoc Allocator::deallocate()
-	void			deallocate(void* data);
+	void					deallocate(void* data);
 
 	/// Returns the name of the proxy allocator
-	const char*		name() const;
+	const char*				name() const;
+
+public:
+
+	/// Returns the total number of proxy allocators.
+	/// in the global list.
+	static uint32_t			count();
+
+	/// Returns the proxy allocator @name or NULL if not found.
+	static ProxyAllocator*	find(const char* name);
+
+	/// Returns the first proxy allocator in the global list or
+	/// NULL if the list is empty.
+	static ProxyAllocator*	begin();
+
+	/// Returns the next proxy allocator to @a a in the global list
+	/// or NULL if end-of-list is reached.
+	static ProxyAllocator*	next(ProxyAllocator* a);
 
 private:
 
-	Allocator&		m_allocator;
-	const char*		m_name;
+	Allocator&				m_allocator;
+	const char*				m_name;
 
-	ProxyAllocator*	m_next;
+	ProxyAllocator*			m_next;
 };
 
 } // namespace crown

@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "ProxyAllocator.h"
 #include "Allocator.h"
+#include "StringUtils.h"
 
 namespace crown
 {
@@ -65,6 +66,56 @@ void ProxyAllocator::deallocate(void* data)
 const char* ProxyAllocator::name() const
 {
 	return m_name;
+}
+
+//-----------------------------------------------------------------------------
+uint32_t ProxyAllocator::count()
+{
+	const ProxyAllocator* head = g_proxy_allocators_head;
+	uint32_t count = 0;
+
+	while (head != NULL)
+	{
+		++count;
+		head = head->m_next;
+	}
+
+	return count;
+}
+
+//-----------------------------------------------------------------------------
+ProxyAllocator* ProxyAllocator::find(const char* name)
+{
+	ProxyAllocator* head = g_proxy_allocators_head;
+
+	while (head != NULL)
+	{
+		if (string::strcmp(name, head->name()) == 0)
+		{
+			return head;
+		}
+
+		head = head->m_next;
+	}
+
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+ProxyAllocator* ProxyAllocator::begin()
+{
+	return g_proxy_allocators_head;
+}
+
+//-----------------------------------------------------------------------------
+ProxyAllocator* ProxyAllocator::next(ProxyAllocator* a)
+{
+	if (a == NULL)
+	{
+		return NULL;
+	}
+
+	return a->m_next;
 }
 
 } // namespace crown
