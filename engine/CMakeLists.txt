@@ -311,19 +311,19 @@ set (OS_HEADERS
 set(LUA_SRC
 	lua/LuaStack.cpp
 	lua/LuaEnvironment.cpp
-	lua/IntSettingBinds.cpp
-	lua/FloatSettingBinds.cpp
-	lua/StringSettingBinds.cpp
-	lua/Vec2Binds.cpp
-	lua/Vec3Binds.cpp
-	lua/Mat4Binds.cpp
-	lua/QuatBinds.cpp
-	lua/MathBinds.cpp
-	lua/MouseBinds.cpp
-	lua/KeyboardBinds.cpp
-	lua/AccelerometerBinds.cpp
-	lua/DeviceBinds.cpp
-	lua/WindowBinds.cpp
+	lua/LuaIntSetting.cpp
+	lua/LuaFloatSetting.cpp
+	lua/LuaStringSetting.cpp
+	lua/LuaVec2.cpp
+	lua/LuaVec3.cpp
+	lua/LuaMat4.cpp
+	lua/LuaQuat.cpp
+	lua/LuaMath.cpp
+	lua/LuaMouse.cpp
+	lua/LuaKeyboard.cpp
+	lua/LuaAccelerometer.cpp
+	lua/LuaDevice.cpp
+	lua/LuaWindow.cpp
 )
 
 set(LUA_HEADERS
