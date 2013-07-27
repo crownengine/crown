@@ -128,6 +128,14 @@ void DebugRenderer::add_box(const Vec3& min, const Vec3& max, const Color4& colo
 }
 
 //-----------------------------------------------------------------------------
+void DebugRenderer::add_pose(const Mat4& pose, bool depth_write)
+{
+	add_line(pose.translation(), pose.translation() + pose.x(), Color4::RED, depth_write);
+	add_line(pose.translation(), pose.translation() + pose.y(), Color4::GREEN, depth_write);
+	add_line(pose.translation(), pose.translation() + pose.z(), Color4::BLUE, depth_write);
+}
+
+//-----------------------------------------------------------------------------
 void DebugRenderer::draw_all()
 {
 	if (m_lines_count > 0)
@@ -139,4 +147,3 @@ void DebugRenderer::draw_all()
 }
 
 } // namespace crown
-

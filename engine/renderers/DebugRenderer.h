@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Vec3.h"
 #include "Color4.h"
+#include "Mat4.h"
 
 namespace crown
 {
@@ -55,6 +56,9 @@ public:
 
 	/// Total cost: 12 lines
 	void		add_box(const Vec3& min, const Vec3& max, const Color4& color, bool depth_write);
+
+	/// Total cost: 3 lines
+	void		add_pose(const Mat4& pose, bool depth_write);
 
 private:
 
