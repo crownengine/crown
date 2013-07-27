@@ -150,8 +150,26 @@ public:
 	/// Builds the identity matrix
 	void				load_identity();							
 
+	/// Returns a Vec3 containing the matrix's x base vector.
+	Vec3				x() const;
+
+	/// Returns a Vec3 containing the matrix's y base vector.
+	Vec3				y() const;
+
+	/// Returns a Vec3 containing the matrix's z base vector.
+	Vec3				z() const;
+
+	/// Sets the matrix's x base vector.
+	void				set_x(const Vec3& x);
+
+	/// Sets the matrix's y base vector.
+	void				set_y(const Vec3& y);
+
+	/// Sets the matrix's z base vector.
+	void				set_z(const Vec3& z);
+
 	/// Returns a Vec3 containing the matrix's translation portion
-	Vec3				get_translation() const;	
+	Vec3				translation() const;	
 
 	/// Fills the matrix's translation portion values contained in @a trans				
 	void				set_translation(const Vec3& trans);			
@@ -166,7 +184,7 @@ public:
 	float*				to_float_ptr();
 
 	/// Returns the pointer to the matrix's data								
-	const float*			to_float_ptr() const;
+	const float*		to_float_ptr() const;
 
 	/// Returns a 3x3 matrix according to the matrix's rotation portion						
 	Mat3				to_mat3() const;

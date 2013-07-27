@@ -386,14 +386,98 @@ CE_EXPORT int32_t mat4_load_identity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t mat4_get_translation(lua_State* L)
+CE_EXPORT int32_t mat4_x(lua_State* L)
+{	
+	LuaStack stack(L);
+
+	Mat4* a = stack.get_mat4(1);
+
+	Vec3* x = next_vec3();
+	*x = a->x();
+
+	stack.push_vec3(x);
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_y(lua_State* L)
+{	
+	LuaStack stack(L);
+
+	Mat4* a = stack.get_mat4(1);
+
+	Vec3* y = next_vec3();
+	*y = a->y();
+
+	stack.push_vec3(y);
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_z(lua_State* L)
+{	
+	LuaStack stack(L);
+
+	Mat4* a = stack.get_mat4(1);
+
+	Vec3* z = next_vec3();
+	*z = a->z();
+
+	stack.push_vec3(z);
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_set_x(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Mat4* a = stack.get_mat4(1);
+	Vec3* x = stack.get_vec3(2);
+
+	a->set_x(*x);
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_set_y(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Mat4* a = stack.get_mat4(1);
+	Vec3* y = stack.get_vec3(2);
+
+	a->set_y(*y);
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_set_z(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Mat4* a = stack.get_mat4(1);
+	Vec3* z = stack.get_vec3(2);
+
+	a->set_z(*z);
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int32_t mat4_translation(lua_State* L)
 {	
 	LuaStack stack(L);
 
 	Mat4* a = stack.get_mat4(1);
 
 	Vec3* translation = next_vec3();
-	*translation = a->get_translation();
+	*translation = a->translation();
 
 	stack.push_vec3(translation);
 
@@ -482,13 +566,17 @@ void load_mat4(LuaEnvironment& env)
 	env.load_module_function("Mat4", "determinant", 					mat4_determinant);
 	env.load_module_function("Mat4", "invert", 							mat4_invert);
 	env.load_module_function("Mat4", "load_identity", 					mat4_load_identity);
-	env.load_module_function("Mat4", "get_translation", 				mat4_get_translation);
+	env.load_module_function("Mat4", "x",								mat4_x);
+	env.load_module_function("Mat4", "y",								mat4_y);
+	env.load_module_function("Mat4", "z",								mat4_z);
+	env.load_module_function("Mat4", "set_x",							mat4_set_x);
+	env.load_module_function("Mat4", "set_y",							mat4_set_y);
+	env.load_module_function("Mat4", "set_z",							mat4_set_z);
+	env.load_module_function("Mat4", "translation", 					mat4_translation);
 	env.load_module_function("Mat4", "set_translation", 				mat4_set_translation);
 	env.load_module_function("Mat4", "get_scale", 						mat4_get_scale);
 	env.load_module_function("Mat4", "set_scale", 						mat4_set_scale);
 	env.load_module_function("Mat4", "print", 							mat4_print);
-
 }
-
 
 } //namespace crown
