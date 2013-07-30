@@ -32,7 +32,6 @@ LOCAL_SRC_FILES :=\
 	core/filesystem/TextReader.cpp\
 	core/filesystem/TextWriter.cpp\
 \
-	core/json/JSON.cpp
 	core/json/JSONParser.cpp
 \
 	core/math/Color4.cpp\

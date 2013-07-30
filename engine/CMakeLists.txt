@@ -172,12 +172,10 @@ set (FILESYSTEM_HEADERS
 )
 
 set (JSON_SRC
-	core/json/JSON.cpp
 	core/json/JSONParser.cpp
 )
 
 set (JSON_HEADERS
-	core/json/JSON.h
 	core/json/JSONParser.h
 )
 
