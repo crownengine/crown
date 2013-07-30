@@ -1,225 +1,641 @@
+/*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
+Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#include <cstdio>
+
 #include "JSONParser.h"
-#include "DiskFile.h"
-#include "OS.h"
+#include "TempAllocator.h"
 #include "StringUtils.h"
-#include "Assert.h"
-#include "Log.h"
 
 namespace crown
 {
 
-//--------------------------------------------------------------------------
-JSONParser::JSONParser(Allocator& allocator, const char* s) :
-	m_buffer(s),
-	m_nodes(allocator)
+//-----------------------------------------------------------------------------
+static const char* next(const char* str, const char c = 0)
 {
+	CE_ASSERT_NOT_NULL(str);
+
+	if (c && c != (*str))
+	{
+		CE_ASSERT(false, "Expected '%c' got '%c'", c, (*str));
+	}
+
+	return str + 1;
+}
+
+//-----------------------------------------------------------------------------
+static const char* skip_whites(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
+
+	while ((*ch) && (*ch) <= ' ') ch = next(ch);
+
+	return ch;
+}
+
+//-----------------------------------------------------------------------------
+static const char* skip_string(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
+
+	bool escaped = false;
+
+	if ((*ch) == '"')
+	{
+		while ((*(ch = next(ch))) != 0)
+		{
+			if ((*ch) == '"' && !escaped)
+			{
+				ch = next(ch);
+				return ch;
+			}
+			else if ((*ch) == '\\') escaped = true;
+			else escaped = false;
+		}
+	}
+
+	return ch;
+}
+
+//-----------------------------------------------------------------------------
+static const char* skip_number(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
+
+	while ((*ch) && (((*ch) >= '0' && (*ch) <= '9') ||
+			(*ch) == '-' || (*ch) == '.' || (*ch) == '+' ||
+			(*ch) == 'e' || (*ch) == 'E'))
+	{
+		ch = next(ch);
+	}
+
+	return ch;
+}
+
+//-----------------------------------------------------------------------------
+static const char* skip_object(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
+
+	uint32_t brackets = 1;
+
+	if ((*ch) == '{')
+	{
+		brackets++;
+		ch = next(ch, '{');
+
+		while ((*ch) && brackets != 1)
+		{
+			if ((*ch) == '}') brackets--;
+			else if ((*ch) == '{') brackets++;
+			ch = next(ch);
+		}
+	}
+
+	return ch;
+}
+
+//-----------------------------------------------------------------------------
+static const char* skip_array(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
+
+	uint32_t brackets = 1;
+
+	if ((*ch) == '[')
+	{
+		brackets++;
+		ch = next(ch, '[');
+
+		while ((*ch) && brackets != 1)
+		{
+			if ((*ch) == ']') brackets--;
+			else if ((*ch) == '[') brackets++;
+			ch = next(ch);
+		}
+	}
+
+	return ch;
+}
+
+//-----------------------------------------------------------------------------
+static const char* skip_bool(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
+
+	switch ((*ch))
+	{
+		case 't':
+		{
+			ch = next(ch, 't');
+			ch = next(ch, 'r');
+			ch = next(ch, 'u');
+			ch = next(ch, 'e');
+			break;
+		}
+		case 'f':
+		{
+			ch = next(ch, 'f');
+			ch = next(ch, 'a');
+			ch = next(ch, 'l');
+			ch = next(ch, 's');
+			ch = next(ch, 'e');
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+
+	return ch;
+}
+
+//-----------------------------------------------------------------------------
+static bool is_escapee(char c)
+{
+	return c == '"' || c == '\\' || c == '/' || c == '\b' || c == '\f' || c == '\n' ||
+			c == '\r' || c == '\t';
+}
+
+//--------------------------------------------------------------------------
+JSONParser::JSONParser(const char* s) :
+	m_document(s),
+	m_at(s)
+{
+	CE_ASSERT_NOT_NULL(s);
 }
 
 //--------------------------------------------------------------------------
 JSONParser&	JSONParser::root()
 {
-	m_nodes.clear();
-
-	List<JSONPair> tmp(default_allocator());
-
-	JSON::parse_object(m_buffer, tmp);
-
-	JSONNode node;
-
-	for (uint32_t i = 0; i < tmp.size(); i++)
-	{
-		node.type = JSON::type(tmp[i].val);
-		node.key = tmp[i].key;
-		node.val = tmp[i].val;
-
-		m_nodes.push_back(node);
-	}
+	m_at = skip_whites(m_document);
 
 	return *this;
 }
 
 //--------------------------------------------------------------------------
-JSONParser&	JSONParser::object(const char* key)
+JSONParser& JSONParser::operator[](uint32_t i)
 {
+	TempAllocator1024 alloc;
+	List<const char*> array(alloc);
+
+	JSONParser::parse_array(m_at, array);
+
+	CE_ASSERT(i < array.size(), "Index out of bounds");
+
+	m_at = array[i];
+
+	return *this;
+}
+
+//--------------------------------------------------------------------------
+JSONParser& JSONParser::key(const char* k)
+{
+	TempAllocator1024 alloc;
+	List<JSONPair> object(alloc);
+
+	JSONParser::parse_object(m_at, object);
+
 	bool found = false;
 
-	for (uint32_t i = 0; i < m_nodes.size(); i++)
+	for (uint32_t i = 0; i < object.size(); i++)
 	{
-		if (m_nodes[i].type == JT_OBJECT)
+		TempAllocator256 key_alloc;
+		List<char> key(key_alloc);
+
+		JSONParser::parse_string(object[i].key, key);
+
+		if (string::strcmp(k, key.begin()) == 0)
 		{
-			List<char> str(default_allocator());
-			JSON::parse_string(m_nodes[i].key, str);
+			m_at = object[i].val;
+			found = true;
+		}
+	}
 
-			if (string::strcmp(key, str.begin()) == 0)
+	CE_ASSERT(found, "Key not found");
+
+	return *this;
+}
+
+//--------------------------------------------------------------------------
+bool JSONParser::bool_value() const
+{
+	return JSONParser::parse_bool(m_at);
+}
+
+//--------------------------------------------------------------------------
+int32_t JSONParser::int_value() const
+{
+	return JSONParser::parse_int(m_at);
+}
+
+//--------------------------------------------------------------------------
+float JSONParser::float_value() const
+{
+	return JSONParser::parse_float(m_at);
+}
+
+//--------------------------------------------------------------------------
+bool JSONParser::is_nil() const
+{
+	return JSONParser::type(m_at) == JT_NIL;
+}
+
+//--------------------------------------------------------------------------
+bool JSONParser::is_bool() const
+{
+	return JSONParser::type(m_at) == JT_BOOL;
+}
+
+//--------------------------------------------------------------------------
+bool JSONParser::is_number() const
+{
+	return JSONParser::type(m_at) == JT_NUMBER;
+}
+
+//--------------------------------------------------------------------------
+bool JSONParser::is_string() const
+{
+	return JSONParser::type(m_at) == JT_STRING;
+}
+
+//--------------------------------------------------------------------------
+bool JSONParser::is_array() const
+{
+	return JSONParser::type(m_at) == JT_ARRAY;
+}
+
+//--------------------------------------------------------------------------
+bool JSONParser::is_object() const
+{
+	return JSONParser::type(m_at) == JT_OBJECT;
+}
+
+//--------------------------------------------------------------------------
+uint32_t JSONParser::size()
+{
+	switch(JSONParser::type(m_at))
+	{
+		case JT_NIL:
+		{
+			return 1;
+		}
+		case JT_OBJECT:
+		{
+			TempAllocator1024 alloc;
+			List<JSONPair> object(alloc);
+			JSONParser::parse_object(m_at, object);
+
+			return object.size();
+		}
+		case JT_ARRAY:
+		{
+			TempAllocator1024 alloc;
+			List<const char*> array(alloc);
+			JSONParser::parse_array(m_at, array);
+
+			return array.size();
+		}
+		case JT_STRING:
+		{
+			TempAllocator1024 alloc;
+			List<char> string(alloc);
+			JSONParser::parse_string(m_at, string);
+
+			return string.size();
+		}
+		case JT_NUMBER:
+		{
+			return 1;
+		}
+		case JT_BOOL:
+		{
+			return 1;
+		}
+		default:
+		{
+			return 0;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+JSONType JSONParser::type(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	switch (s[0])
+	{
+		case '{': return JT_OBJECT;
+		case '[': return JT_ARRAY;
+		case '"': return JT_STRING;
+		case '-': return JT_NUMBER;
+		default: return s[0] >= '0' && s[0] <= '9' ? JT_NUMBER : (s[0] == 'n' ? JT_NIL : JT_BOOL);
+	}
+}
+
+//-----------------------------------------------------------------------------
+void JSONParser::parse_string(const char* s, List<char>& str)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
+
+	if ((*ch) == '"')
+	{
+		while ((*(ch = next(ch))))
+		{
+			// Empty string
+			if ((*ch) == '"')
 			{
-				List<JSONPair> obj(default_allocator());
-				JSON::parse_object(m_nodes[i].val, obj);
+				ch = next(ch);
+				str.push_back('\0');
+				return;
+			}
+			else if ((*ch) == '\\')
+			{
+				ch = next(ch);
 
-				m_nodes.clear();
-
-				JSONNode node;
-
-				for (uint32_t j = 0; j < obj.size(); j++)
+				if ((*ch) == 'u')
 				{
-					node.type = JSON::type(obj[j].val);
-					node.key = obj[j].key;
-					node.val = obj[j].val;
-
-					m_nodes.push_back(node);
+					CE_ASSERT(false, "Not supported at the moment");
 				}
-
-				found = true;
-
-				break;
+				else if (is_escapee(*ch))
+				{
+					str.push_back('\\');
+					str.push_back(*ch);
+				}
+				else
+				{
+					// Go to invalid string
+					break;
+				}
 			}
-		}
-	}
-
-	CE_ASSERT(found, "Object called %s not found", key);
-
-	return *this;
-}
-
-//--------------------------------------------------------------------------
-JSONParser&	JSONParser::array(const char* key, uint32_t index)
-{
-	bool found = false;
-
-	for (uint32_t i = 0; i < m_nodes.size(); i++)
-	{
-		if (m_nodes[i].type == JT_ARRAY)
-		{
-			List<char> str(default_allocator());
-			JSON::parse_string(m_nodes[i].key, str);
-
-			if (string::strcmp(key, str.begin()) == 0)
+			else
 			{
-				List<const char*> arr(default_allocator());
-				JSON::parse_array(m_nodes[i].val, arr);
-
-				m_nodes.clear();
-
-				JSONNode node;
-
-				node.type = JSON::type(arr[index]);
-				node.key = NULL;
-				node.val = arr[index];
-
-				m_nodes.push_back(node);
-
-				found = true;
-
-				break;
+				str.push_back(*ch);
 			}
 		}
 	}
 
-	CE_ASSERT(found, "Array called %s not found", key);
-
-	return *this;
+	CE_ASSERT(false, "Not a valid string");
 }
 
-//--------------------------------------------------------------------------
-const char* JSONParser::string(const char* key, List<char>& str)
+//-----------------------------------------------------------------------------
+double JSONParser::parse_number(const char* s)
 {
-	bool found = false;
+	CE_ASSERT_NOT_NULL(s);
 
-	for (uint32_t i = 0; i < m_nodes.size(); i++)
+	const char* ch = s;
+
+	TempAllocator1024 allocator;
+ 	List<char> str(allocator);
+
+	if ((*ch) == '-')
 	{
-		if (JSON::type(m_nodes[i].val) == JT_STRING)
+		str.push_back('-');
+		ch = next(ch, '-');
+	}
+	while ((*ch) >= '0' && (*ch) <= '9')
+	{
+		str.push_back((*ch));
+		ch = next(ch);
+	}
+
+	if ((*ch) == '.')
+	{
+		str.push_back('.');
+		while ((*(ch = next(ch))) && (*ch) >= '0' && (*ch) <= '9')
 		{
-			List<char> tmp(default_allocator());
-			JSON::parse_string(m_nodes[i].key, tmp);
-
-			if (string::strcmp(key, tmp.begin()) == 0)
-			{
-				JSON::parse_string(m_nodes[i].val, str);	
-
-				found = true;
-
-				break;
-			}
+			str.push_back(*ch);
 		}
 	}
 
-	CE_ASSERT(found, "String not found");
-
-	// FIXME FIXME FIXME
-	return "FIXME";
-}
-
-//--------------------------------------------------------------------------
-double JSONParser::number(const char* key)
-{
-	for (uint32_t i = 0; i < m_nodes.size(); i++)
+	if ((*ch) == 'e' || (*ch) == 'E')
 	{
-		if (JSON::type(m_nodes[i].val) == JT_NUMBER)
+		str.push_back(*ch);
+		ch = next(ch);
+
+		if ((*ch) == '-' || (*ch) == '+')
 		{
-			if (m_nodes[i].key == NULL)
-			{
-				return JSON::parse_number(m_nodes[i].val);	
-			}
-
-			List<char> tmp(default_allocator());
-			JSON::parse_string(m_nodes[i].key, tmp);
-
-
-			if (string::strcmp(key, tmp.begin()) == 0)
-			{			
-				return JSON::parse_number(m_nodes[i].val);	
-			}
+			str.push_back(*ch);
+			ch = next(ch);
 		}
-	}
-
-	// CE_ASSERT(found, "Number not found");
-
-	// FIXME FIXME FIXME
-	return 0.0;
-}		
-
-//--------------------------------------------------------------------------
-bool JSONParser::boolean(const char* key)
-{
-	for (uint32_t i = 0; i < m_nodes.size(); i++)
-	{
-		if (JSON::type(m_nodes[i].val) == JT_BOOL)
+		while ((*ch) >= '0' && (*ch) <= '9')
 		{
-			if (m_nodes[i].key == NULL)
-			{
-				return JSON::parse_bool(m_nodes[i].val);	
-			}
-
-			List<char> tmp(default_allocator());
-			JSON::parse_string(m_nodes[i].key, tmp);
-
-			if (string::strcmp(key, tmp.begin()) == 0)
-			{			
-				return JSON::parse_bool(m_nodes[i].val);	
-			}
+			str.push_back(*ch);
+			ch = next(ch);
 		}
 	}
 
-	// CE_ASSERT(found, "Boolean not found");
+	// Ensure null terminated
+	str.push_back('\0');
 
-	// FIXME FIXME FIXME
-	return false;
+	float number = 0.0f;
+
+	// Fixme
+	sscanf(str.begin(), "%f", &number);
+
+	return number;
 }
 
-//--------------------------------------------------------------------------
-void JSONParser::print_nodes()
+//-----------------------------------------------------------------------------
+bool JSONParser::parse_bool(const char* s)
 {
-	for (uint32_t i = 0; i < m_nodes.size(); i++)
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
+
+	switch(*ch)
 	{
-		Log::i("Index: %d", i);	
-		Log::i("Type : %d", m_nodes[i].type);
-		Log::i("Key  : %s", m_nodes[i].key);
-		Log::i("Val  : %s", m_nodes[i].val);
+		case 't':
+		{
+			ch = next(ch, 't');
+			ch = next(ch, 'r');
+			ch = next(ch, 'u');
+			ch = next(ch, 'e');
+			return true;
+		}
+		case 'f':
+		{
+			ch = next(ch, 'f');
+			ch = next(ch, 'a');
+			ch = next(ch, 'l');
+			ch = next(ch, 's');			
+			ch = next(ch, 'e');
+			return false;
+		}
+		default: break;
 	}
+
+	CE_ASSERT(false, "Not a boolean");
 }
 
+//-----------------------------------------------------------------------------
+int32_t JSONParser::parse_int(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
 
+	return (int32_t) parse_number(s);
+}
 
+//-----------------------------------------------------------------------------
+float JSONParser::parse_float(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
 
+	return (float) parse_number(s);
+}
 
+//-----------------------------------------------------------------------------
+void JSONParser::parse_array(const char* s, List<const char*>& array)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
+
+	if ((*ch) == '[')
+	{
+		ch = next(ch, '[');
+
+		// Skip whitespaces
+		while ((*ch) && (*ch) <= ' ')
+		{
+			ch = next(ch);
+		}
+
+		if ((*ch) == ']')
+		{
+			ch = next(ch, ']');
+			return;
+		}
+
+		while (*ch)
+		{
+			array.push_back(ch);
+
+			ch = skip_array(ch);
+			ch = skip_object(ch);
+			ch = skip_number(ch);
+			ch = skip_string(ch);
+			ch = skip_bool(ch);
+
+			ch = skip_whites(ch);
+
+			// Closing bracket (top-most array)
+			if ((*ch) == ']')
+			{
+				ch = next(ch, ']');
+				return;
+			}
+
+			// Skip until next ','
+			ch = next(ch, ',');
+
+			// Skip whites, eventually
+			ch = skip_whites(ch);
+		}
+	}
+
+	CE_ASSERT(false, "Not an array");
+}
+
+//-----------------------------------------------------------------------------
+void JSONParser::parse_object(const char* s, List<JSONPair>& map)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
+
+	if ((*ch) == '{')
+	{
+		ch = next(ch, '{');
+
+		ch = skip_whites(ch);
+
+		if ((*ch) == '}')
+		{
+			next(ch, '}');
+			return;
+		}
+
+		while (*ch)
+		{
+			JSONPair pair;
+
+			pair.key = ch;
+
+			// Skip any value
+			ch = skip_array(ch);
+			ch = skip_object(ch);
+			ch = skip_number(ch);
+			ch = skip_string(ch);
+			ch = skip_bool(ch);
+
+			ch = skip_whites(ch);
+			ch = next(ch, ':');
+			ch = skip_whites(ch);
+
+			pair.val = ch;
+			map.push_back(pair);
+
+			// Skip any value
+			ch = skip_array(ch);
+			ch = skip_object(ch);
+			ch = skip_number(ch);
+			ch = skip_string(ch);
+			ch = skip_bool(ch);
+
+			ch = skip_whites(ch);
+
+			if ((*ch) == '}')
+			{
+				next(ch, '}');
+				return;
+			}
+
+			ch = next(ch, ',');
+			ch = skip_whites(ch);
+		}
+	}
+
+	CE_ASSERT(false, "Not an object");
+}
 
 } //namespace crown
