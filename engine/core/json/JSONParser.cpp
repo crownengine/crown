@@ -225,6 +225,12 @@ JSONParser& JSONParser::operator[](uint32_t i)
 }
 
 //--------------------------------------------------------------------------
+JSONParser& JSONParser::index(uint32_t i)
+{
+	return this->operator[](i);
+}
+
+//--------------------------------------------------------------------------
 JSONParser& JSONParser::key(const char* k)
 {
 	TempAllocator1024 alloc;

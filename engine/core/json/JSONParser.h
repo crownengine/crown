@@ -65,6 +65,9 @@ public:
 	/// Returns the @a i -th item of the current array.
 	JSONParser&			operator[](uint32_t i);
 
+	/// @copydoc JSONParser::operator[]
+	JSONParser&			index(uint32_t i);
+
 	/// Returns the element corresponding to key @a k of the
 	/// current object.
 	/// @note
