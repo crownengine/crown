@@ -107,6 +107,13 @@ public:
 	/// Returns the float value of the current element.
 	float				float_value() const;
 
+	/// Returns the string value of the current element.
+	/// @warning
+	/// The returned string is kept internally until the next call to
+	/// this function, so it is highly unsafe to just keep the pointer
+	/// instead of copying its content somewhere else.
+	const char*			string_value() const;
+
 public:
 
 	/// Returns the type of the @a s JSON text. 

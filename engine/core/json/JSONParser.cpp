@@ -272,6 +272,19 @@ float JSONParser::float_value() const
 }
 
 //--------------------------------------------------------------------------
+const char* JSONParser::string_value() const
+{
+	static TempAllocator1024 alloc;
+	static List<char> string(alloc);
+
+	string.clear();
+
+	JSONParser::parse_string(m_at, string);
+
+	return string.begin();
+}
+
+//--------------------------------------------------------------------------
 bool JSONParser::is_nil() const
 {
 	return JSONParser::type(m_at) == JT_NIL;
