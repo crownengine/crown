@@ -308,7 +308,7 @@ bool JSONParser::is_object() const
 }
 
 //--------------------------------------------------------------------------
-uint32_t JSONParser::size()
+uint32_t JSONParser::size() const
 {
 	switch(JSONParser::type(m_at))
 	{

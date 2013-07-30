@@ -96,7 +96,7 @@ public:
 	/// * string: length of the string
 	/// * array: number of elements in the array
 	/// * object: number of keys in the object
-	uint32_t			size();
+	uint32_t			size() const;
 
 	/// Returns the boolean value of the current element.
 	bool				bool_value() const;
