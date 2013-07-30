@@ -577,7 +577,7 @@ void JSONParser::parse_array(const char* s, List<const char*>& array)
 }
 
 //-----------------------------------------------------------------------------
-void JSONParser::parse_object(const char* s, List<JSONPair>& map)
+void JSONParser::parse_object(const char* s, List<JSONPair>& object)
 {
 	CE_ASSERT_NOT_NULL(s);
 
@@ -613,7 +613,7 @@ void JSONParser::parse_object(const char* s, List<JSONPair>& map)
 			ch = skip_whites(ch);
 
 			pair.val = ch;
-			map.push_back(pair);
+			object.push_back(pair);
 
 			// Skip any value
 			ch = skip_array(ch);
