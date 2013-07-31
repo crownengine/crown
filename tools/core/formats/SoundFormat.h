@@ -36,8 +36,9 @@ const uint32_t SOUND_VERSION = 1;
 struct SoundHeader
 {
 	uint32_t	version;	// Sound file version
-	int32_t		channels;
-	int32_t 	bits_per_sample;
+	uint32_t	size;
+	uint32_t	channels;
+	uint32_t 	bits_per_sample;
 };
 
 }
