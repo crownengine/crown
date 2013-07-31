@@ -94,6 +94,7 @@ LOCAL_SRC_FILES :=\
 	resource/TextResource.cpp\
 	resource/TextureResource.cpp\
 	resource/VertexShaderResource.cpp\
+	resource/SoundResource.cpp\
 \
 	lua/LuaStack.cpp\
 	lua/LuaEnvironment.cpp\
