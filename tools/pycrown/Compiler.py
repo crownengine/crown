@@ -119,6 +119,9 @@ class Compiler:
 	def compile_pixel_shaders(self):
 		self.compile(self.m_repository.pixel_shader_resources());
 
+	def compile_sounds(self):
+		self.compile(self.m_repository.sound_resources());
+
 	# Compiles all the resources in the repository
 	def compile_all(self):
 		self.compile_textures()
@@ -127,6 +130,7 @@ class Compiler:
 		self.compile_scripts()
 		self.compile_vertex_shaders()
 		self.compile_pixel_shaders()
+		self.compile_sounds()
 
 	# Compile a single resource from the repository
 	def compile(self, resources):
