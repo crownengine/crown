@@ -9,6 +9,7 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/tools/core/strings
 	${CMAKE_SOURCE_DIR}/tools/compilers
 	${CMAKE_SOURCE_DIR}/tools/compilers/tga
+	${CMAKE_SOURCE_DIR}/tools/compilers/wav
 )
 
 set (CORE_SRC
@@ -23,6 +24,7 @@ set (CORE_HEADERS
 	core/formats/PixelFormat.h
 	core/formats/ResourceFormat.h
 	core/formats/TextureFormat.h
+	core/formats/SoundFormat.h
 
 	core/strings/StringUtils.h
 	core/strings/Hash.h
@@ -32,6 +34,7 @@ set (CORE_HEADERS
 set (COMPILERS_SRC
 	compilers/Compiler.cpp
 	compilers/tga/TGACompiler.cpp
+	compilers/wav/WAVCompiler.cpp
 #	compilers/ps/PSCompiler.cpp
 #	compilers/vs/VSCompiler.cpp
 )
@@ -39,6 +42,7 @@ set (COMPILERS_SRC
 set (COMPILER_HEADERS
 	compilers/Compiler.h
 	compilers/tga/TGACompiler.h
+	compilers/wav/WAVCompiler.h
 #	compilers/ps/PSCompiler.h
 #	compilers/vs/VSCompiler.h
 )

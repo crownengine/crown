@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "Hash.h"
 #include "TGACompiler.h"
+#include "WAVCompiler.h"
 
 using namespace crown;
 
@@ -64,9 +65,7 @@ int main(int argc, char** argv)
 
 
 	TGACompiler tga;
-	// TXTCompiler txt(root_path, dest_path);
-	// VSCompiler vs(root_path, dest_path);
-	// PSCompiler ps(root_path, dest_path);
+	WAVCompiler wav;
 
 	char out_name[1024];
 	char resource_name[1024];
@@ -83,7 +82,14 @@ int main(int argc, char** argv)
 
 		printf("%s <= %s\n", out_name, argv[first_resource + i]);
 
-		tga.compile(root_path, dest_path, argv[first_resource + i], out_name);
+		if (string::strcmp(resource_type, "tga") == 0)
+		{
+			tga.compile(root_path, dest_path, argv[first_resource + i], out_name);
+		}
+		else if (string::strcmp(resource_type, "wav") == 0)
+		{
+			wav.compile(root_path, dest_path, argv[first_resource + i], out_name);
+		}
 	}
 
 	return 0;
