@@ -35,13 +35,16 @@ int main(int argc, char** argv)
 	uint32_t resource_basename_hash = hash::murmur2_32(resource_basename, string::strlen(resource_basename), hash_seed);
 	uint32_t resource_extension_hash = hash::murmur2_32(resource_extension, string::strlen(resource_extension), 0);
 
+	printf("hash: %.8X", resource_extension_hash);
+
 	if (resource_extension_hash != TEXTURE_TYPE &&
 		resource_extension_hash != MESH_TYPE &&
 		resource_extension_hash != SCRIPT_TYPE &&
 		resource_extension_hash != TEXT_TYPE &&
 		resource_extension_hash != MATERIAL_TYPE &&
 		resource_extension_hash != VERTEX_SHADER_TYPE &&
-		resource_extension_hash != PIXEL_SHADER_TYPE)
+		resource_extension_hash != PIXEL_SHADER_TYPE &&
+		resource_extension_hash != SOUND_TYPE)
 	{
 		printf("%s: ERROR: cannot generate hash for resource '%s': Unknown type.\n", argv[0], resource_in);
 		exit(-1);
