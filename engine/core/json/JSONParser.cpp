@@ -357,7 +357,7 @@ uint32_t JSONParser::size() const
 			List<char> string(alloc);
 			JSONParser::parse_string(m_at, string);
 
-			return string.size();
+			return string::strlen(string.begin());
 		}
 		case JT_NUMBER:
 		{
