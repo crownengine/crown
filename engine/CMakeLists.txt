@@ -338,6 +338,7 @@ if (LINUX)
 	list (APPEND CROWN_INCLUDES
 		${CMAKE_SOURCE_DIR}/engine/os/linux
 		${CMAKE_SOURCE_DIR}/engine/renderers/gl/glx
+		${CMAKE_SOURCE_DIR}/engine/renderers/al
 	)
 
 	list (APPEND OS_HEADERS
@@ -365,12 +366,14 @@ if (LINUX)
 		renderers/gl/GLRenderer.cpp
 		renderers/gl/GLUtils.cpp
 		renderers/gl/glx/GLContext.cpp
+		renderers/al/ALRenderer.cpp
 	)
 
 	list (APPEND RENDERERS_HEADERS
 		renderers/gl/GLRenderer.h
 		renderers/gl/GLUtils.h
 		renderers/gl/glx/GLContext.h
+		renderers/al/ALRenderer.h
 	)
 
 	list (APPEND CROWN_LIBRARIES
@@ -382,6 +385,7 @@ if (LINUX)
 		dl
 		GLEW
 		GL
+		openal
 		luajit-5.1
 	)
 
@@ -389,10 +393,10 @@ if (LINUX)
 		-pipe
 		-std=c++03
 		-ansi
-		-pedantic-errors
+		#-pedantic-errors
 		-Wall
 		-Wextra
-		-Werror
+		#-Werror
 		-Wno-long-long
 		-Wno-variadic-macros
 		-g

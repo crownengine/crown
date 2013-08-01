@@ -38,6 +38,7 @@ struct SoundHeader
 {
 	uint32_t	version;	// Sound file version
 	uint32_t	size;
+	uint32_t	sample_rate;
 	uint32_t	channels;
 	uint32_t 	bits_per_sample;
 };
@@ -57,6 +58,7 @@ public:
 public:
 
 	uint32_t 			size() const { return m_header.size; }
+	uint32_t			sample_rate() const { return m_header.sample_rate; }
 	uint32_t			channels() const { return m_header.channels; }
 	uint32_t			bits_per_sample() const { return m_header.bits_per_sample; }
 	const uint8_t*		data() const { return m_data; }

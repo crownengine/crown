@@ -85,6 +85,8 @@ ResourceId ResourceManager::load(const char* name)
 	uint32_t name_hash = hash::murmur2_32(basename, string::strlen(basename), m_seed);
 	uint32_t type_hash = hash::murmur2_32(extension, string::strlen(extension), 0);
 
+	Log::i("hash:%8X%.8X", name_hash, type_hash);
+
 	return load(name_hash, type_hash);
 }
 

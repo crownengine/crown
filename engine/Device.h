@@ -50,6 +50,7 @@ class Touch;
 class Accelerometer;
 class LuaEnvironment;
 class ConsoleServer;
+class ALRenderer;
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -116,6 +117,8 @@ public:
 
 	ConsoleServer*			console_server();
 
+	ALRenderer*				audio_renderer();
+
 private:
 
 	void					create_filesystem();
@@ -128,6 +131,8 @@ private:
 	void					create_debug_renderer();
 
 	void					create_console_server();
+
+	void					create_audio_renderer();
 
 	void					parse_command_line(int argc, char** argv);
 	void					check_preferred_settings();
@@ -173,6 +178,9 @@ private:
 
 	// Debug subsystems
 	ConsoleServer*			m_console_server;
+
+	// Test subsystems
+	ALRenderer*				m_audio_renderer;
 
 private:
 

@@ -51,6 +51,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Memory.h"
 #include "LuaEnvironment.h"
 #include "ConsoleServer.h"
+#include "ALRenderer.h"
 
 namespace crown
 {
@@ -125,6 +126,8 @@ bool Device::init(int argc, char** argv)
 	create_lua_environment();
 
 	create_console_server();
+
+	create_audio_renderer();
 
 	read_engine_settings();
 
@@ -295,10 +298,18 @@ Accelerometer* Device::accelerometer()
 	return m_input_manager->accelerometer();
 }
 
+//-----------------------------------------------------------------------------
 ConsoleServer* Device::console_server()
 {
 	return m_console_server;
 }
+
+//-----------------------------------------------------------------------------
+ALRenderer* Device::audio_renderer()
+{
+	return m_audio_renderer;
+}
+
 //-----------------------------------------------------------------------------
 void Device::start()
 {
@@ -469,12 +480,13 @@ void Device::create_debug_renderer()
 void Device::create_lua_environment()
 {
 	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)();
-
+//-----------------------------------------------------------------------------//-----------------------------------------------------------------------------
 	m_lua_environment->init();
 
 	Log::d("Lua environment created.");
 }
 
+//-----------------------------------------------------------------------------
 void Device::create_console_server()
 {
 	m_console_server = CE_NEW(m_allocator, ConsoleServer)();
@@ -483,6 +495,26 @@ void Device::create_console_server()
 
 	Log::d("Console server created.");
 }
+
+//-----------------------------------------------------------------------------
+void Device::create_audio_renderer()
+{
+	m_audio_renderer = CE_NEW(m_allocator, ALRenderer)();
+
+	m_audio_renderer->init();
+
+	ResourceId id = load("beep.wav");
+
+	m_resource_manager->flush();
+
+	//SoundResource* res = (SoundResource*)m_resource_manager->data(id);
+
+
+	//m_audio_renderer->create_sound(res->data(), res->size(), res->sample_rate(), res->channels(), res->bits_per_sample());
+									
+
+	Log::d("Audio renderer created");
+}//-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 void Device::parse_command_line(int argc, char** argv)
