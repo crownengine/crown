@@ -499,26 +499,11 @@ void Device::create_console_server()
 //-----------------------------------------------------------------------------
 void Device::create_audio_renderer()
 {
+	// FIXME: ALRenderer should be a backend. In the future
 	m_audio_renderer = CE_NEW(m_allocator, ALRenderer)();
 
 	m_audio_renderer->init();
 
-	ResourceId id = load("beep.wav");
-
-	m_resource_manager->flush();
-
-	SoundResource* res = (SoundResource*)m_resource_manager->data(id);
-
-
-	Log::i("sample_rate : %d", res->sample_rate());
-	Log::i("channels    : %d", res->channels());
-	Log::i("bxs         : %d", res->bits_per_sample());
-
-
-	SoundId sid = m_audio_renderer->create_sound(res->data(), res->size(), res->sample_rate(), res->channels(), res->bits_per_sample());
-
-	m_audio_renderer->play_sound(sid);
-									
 	Log::d("Audio renderer created");
 }
 
