@@ -66,16 +66,34 @@ ALRenderer::ALRenderer() :
 void ALRenderer::init()
 {
 	m_device = alcOpenDevice(NULL);
+	
+	if (!m_device)
+	{
+		CE_ASSERT(false, "Cannot open audio device");
+	}
 
 	m_context = alcCreateContext(m_device, NULL);
 
+	if (!m_context)
+	{
+		CE_ASSERT(false, "Cannot create context");		
+	}
+
 	AL_CHECK(alcMakeContextCurrent(m_context));
+
+	ALfloat dir[] = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f};
+
+	AL_CHECK(alListener3f(AL_POSITION, 0, 0, 1.0f));
+	AL_CHECK(alListener3f(AL_VELOCITY, 0, 0, 0));
+	AL_CHECK(alListenerfv(AL_ORIENTATION, dir));
+
 }
 
 //-----------------------------------------------------------------------------
 void ALRenderer::shutdown()
 {
-
+    AL_CHECK(alcDestroyContext(m_context));
+    AL_CHECK(alcCloseDevice(m_device));
 }
 
 //-----------------------------------------------------------------------------
@@ -86,7 +104,7 @@ SoundId ALRenderer::create_sound(const void* data, uint32_t size, uint32_t sampl
 	Sound& al_sound = m_sounds[id.index];
 
 	// Generates AL buffer
-	AL_CHECK(alGenBuffers(1, &al_sound.buffer));
+	AL_CHECK(alGenBuffers(1, &al_sound.bufferid));
 
 	bool stereo = (channels > 1);
 
@@ -103,6 +121,8 @@ SoundId ALRenderer::create_sound(const void* data, uint32_t size, uint32_t sampl
 			{
 				al_sound.format = AL_FORMAT_MONO8;
 			}
+			
+			break;
 		}
 
 		case 16:
@@ -115,43 +135,42 @@ SoundId ALRenderer::create_sound(const void* data, uint32_t size, uint32_t sampl
 			{
 				al_sound.format = AL_FORMAT_MONO16;
 			}
+
+			break;
 		}
 
 		default:
 		{
 			CE_ASSERT(false, "Wrong number of bits per sample.");
+			break;
 		}
 	}
 
 	// Sets sound's size
 	al_sound.size = size;
 
-	// Fills sound's data
-	string::strncpy((char*)al_sound.data, (char*)data, al_sound.size);
-
 	// Sets sound's frequency
 	al_sound.freq = sample_rate;
 
 	// Fills AL buffer
-	AL_CHECK(alBufferData(al_sound.buffer, al_sound.format, al_sound.data, al_sound.size, al_sound.freq));
+	AL_CHECK(alBufferData(al_sound.bufferid, al_sound.format, data, al_sound.size, al_sound.freq));
 
 	// Creates AL source
-	AL_CHECK(alGenSources(1, &al_sound.source));
-
-	// Binds buffer to sources
-	AL_CHECK(alSourcei(al_sound.source, AL_BUFFER, al_sound.buffer));
+	AL_CHECK(alGenSources(1, &al_sound.sourceid));
 
 	// Sets tmp source's properties
-	// ALfloat pos[] = { 0.0f, 0.0f, 0.0f };
-	// alSourcefv(al_sound.source, AL_POSITION, pos);
+    AL_CHECK(alSourcef(al_sound.sourceid, AL_PITCH, 1));
 
-	ALfloat pos[] = { 0.0f, 0.0f, 0.0f };
-	ALfloat vel[] = { 1.0f, 1.0f, 1.0f };
-	ALfloat dir[] = { 1.0f, 0.0f, 0.0f };
+    AL_CHECK(alSourcef(al_sound.sourceid, AL_GAIN, 1));
 
-	AL_CHECK(alListenerfv(AL_POSITION, pos));
-	AL_CHECK(alListenerfv(AL_VELOCITY, vel));
-	AL_CHECK(alListenerfv(AL_ORIENTATION, dir));
+	AL_CHECK(alSource3f(al_sound.sourceid, AL_POSITION, 0, 0, 0));
+
+	AL_CHECK(alSourcei(al_sound.sourceid, AL_LOOPING, AL_FALSE));
+
+
+	// Binds buffer to sources
+	AL_CHECK(alSourcei(al_sound.sourceid, AL_BUFFER, al_sound.bufferid));
+
 
 	return id;
 }
@@ -163,7 +182,17 @@ void ALRenderer::play_sound(SoundId id)
 
 	Sound& al_sound = m_sounds[id.index];
 
-	AL_CHECK(alSourcePlay(al_sound.source));
+	AL_CHECK(alSourcePlay(al_sound.sourceid));
+
+	// ALint source_state;
+
+	// alGetSourcei(al_sound.sourceid, AL_SOURCE_STATE, &source_state);
+
+	// while (source_state == AL_PLAYING) 
+	// {
+	// 	Log::i("dio maiale");
+ //        alGetSourcei(al_sound.sourceid, AL_SOURCE_STATE, &source_state);
+	// }
 }
 
 //-----------------------------------------------------------------------------

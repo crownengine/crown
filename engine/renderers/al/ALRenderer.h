@@ -65,10 +65,9 @@ struct Listener
 //-----------------------------------------------------------------------------
 struct Sound
 {
-	ALuint		source;
-	ALuint 		buffer;
+	ALuint		sourceid;
+	ALuint 		bufferid;
 	ALenum 		format;
-	ALvoid* 	data;
 	ALsizei		size;
 	ALsizei		freq;
 };
