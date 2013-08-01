@@ -49,27 +49,27 @@ struct Listener
 	ALfloat orientation[6];
 };
 
-// //-----------------------------------------------------------------------------
-// struct Buffer
-// {
-
-// };
-
-
-// //-----------------------------------------------------------------------------
-// struct Source
-// {
-
-// };
-
 //-----------------------------------------------------------------------------
-struct Sound
+struct Buffer
 {
-	ALuint		sourceid;
 	ALuint 		bufferid;
 	ALenum 		format;
 	ALsizei		size;
 	ALsizei		freq;
+};
+
+
+//-----------------------------------------------------------------------------
+struct Source
+{
+	ALuint		id;
+};
+
+//-----------------------------------------------------------------------------
+struct Sound
+{
+	Source 		source;
+	Buffer 		buffer;		// Should be an array of buffer
 };
 
 //-----------------------------------------------------------------------------
@@ -82,13 +82,34 @@ public:
 	void			init();
 	void			shutdown();
 
+	// FIXME: public APIs, They should be placed in AudioSystem
 	SoundId			create_sound(const void* data, uint32_t size, uint32_t sample_rate, uint32_t channels, uint32_t bxs);
-	void 			play_sound(SoundId sound);
-	void 			destroy_sound(SoundId sound);
+	void 			play_sound(SoundId id);
+	void			pause_sound(SoundId id);
+	void 			destroy_sound(SoundId id);
+
+	bool			is_sound_playing(SoundId id);
 
 public:
 
 	static const uint32_t MAX_SOUNDS = 128;
+	// END
+
+private:
+
+	// FIXME: the following methods are the real wrapper of needed OpenAL functions
+	Buffer			create_buffer(const void* data, uint32_t size, uint32_t sample_rate, uint32_t channels, uint32_t bxs);
+	void			destroy_buffer(Buffer b);
+
+	Source			create_source();
+	void			play_source(Source s);
+	void			pause_source(Source s);
+	void			destroy_source(Source s);
+	bool			is_source_playing(Source s);
+
+	Listener		create_listener();
+	void			destroy_listener(Listener);
+	// END
 
 private:
 

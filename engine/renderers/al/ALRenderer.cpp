@@ -121,7 +121,7 @@ SoundId ALRenderer::create_sound(const void* data, uint32_t size, uint32_t sampl
 			{
 				al_sound.format = AL_FORMAT_MONO8;
 			}
-			
+
 			break;
 		}
 
@@ -183,22 +183,48 @@ void ALRenderer::play_sound(SoundId id)
 	Sound& al_sound = m_sounds[id.index];
 
 	AL_CHECK(alSourcePlay(al_sound.sourceid));
-
-	// ALint source_state;
-
-	// alGetSourcei(al_sound.sourceid, AL_SOURCE_STATE, &source_state);
-
-	// while (source_state == AL_PLAYING) 
-	// {
-	// 	Log::i("dio maiale");
- //        alGetSourcei(al_sound.sourceid, AL_SOURCE_STATE, &source_state);
-	// }
 }
 
 //-----------------------------------------------------------------------------
-void ALRenderer::destroy_sound(SoundId sound)
+void ALRenderer::pause_sound(SoundId id)
 {
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exist");
 
+	Sound& al_sound = m_sounds[id.index];
+
+	if (is_sound_playing(id))
+	{
+		AL_CHECK(alSourcePause(al_sound.sourceid));
+	}
 }
+
+//-----------------------------------------------------------------------------
+void ALRenderer::destroy_sound(SoundId id)
+{
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exist");
+
+	Sound& al_sound = m_sounds[id.index];
+
+	// alDeleteSources(1, al_sound.sourceid);
+	// alDeleteBuffers(1, al_sound.bufferid);
+
+	
+
+	// Must be implemented
+}
+
+//-----------------------------------------------------------------------------
+bool ALRenderer::is_sound_playing(SoundId id)
+{
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exist");
+
+	Sound& al_sound = m_sounds[id.index];
+
+	ALint source_state;
+	alGetSourcei(al_sound.sourceid, AL_SOURCE_STATE, &source_state);
+
+	return source_state == AL_PLAYING;
+}
+
 
 } // namespace crown
