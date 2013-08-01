@@ -149,6 +149,12 @@ private:
 
 	const char* const	m_document;
 	const char*			m_at;
+
+private:
+
+	// Disable copying
+	JSONParser&			JSONParser(const JSONParser&);
+	JSONParser&			operator=(const JSONParser&);
 };
 
 } // namespace crown
