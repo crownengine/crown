@@ -37,6 +37,7 @@ struct SoundHeader
 {
 	uint32_t	version;	// Sound file version
 	uint32_t	size;
+	uint32_t	sample_rate;
 	uint32_t	channels;
 	uint32_t 	bits_per_sample;
 };

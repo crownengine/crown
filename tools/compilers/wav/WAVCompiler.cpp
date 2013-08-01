@@ -69,6 +69,7 @@ size_t WAVCompiler::compile_impl(const char* resource_path)
 
 	m_sound_header.version = SOUND_VERSION;
 	m_sound_header.size = m_wav_header.data_size;
+	m_sound_header.sample_rate = m_wav_header.fmt_sample_rate;
 	m_sound_header.channels = m_wav_header.fmt_channels;
 	m_sound_header.bits_per_sample = m_wav_header.fmt_bits_per_sample;
 
