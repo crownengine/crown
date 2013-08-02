@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Hash.h"
 #include "TGACompiler.h"
 #include "WAVCompiler.h"
+#include "DAECompiler.h"
 
 using namespace crown;
 
@@ -66,6 +67,7 @@ int main(int argc, char** argv)
 
 	TGACompiler tga;
 	WAVCompiler wav;
+	DAECompiler dae;
 
 	char out_name[1024];
 	char resource_name[1024];
@@ -89,6 +91,10 @@ int main(int argc, char** argv)
 		else if (string::strcmp(resource_type, "wav") == 0)
 		{
 			wav.compile(root_path, dest_path, argv[first_resource + i], out_name);
+		}
+		else if (string::strcmp(resource_type, "dae") == 0)
+		{
+			dae.compile(root_path, dest_path, argv[first_resource + i], out_name);
 		}
 	}
 
