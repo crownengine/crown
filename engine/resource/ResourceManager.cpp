@@ -41,6 +41,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextureResource.h"
 #include "VertexShaderResource.h"
 #include "PixelShaderResource.h"
+#include "MeshResource.h"
 
 namespace crown
 {
@@ -355,6 +356,10 @@ void* ResourceManager::load_by_type(ResourceId name)
 	else if (name.type == PIXEL_SHADER_TYPE)
 	{
 		return PixelShaderResource::load(m_resource_allocator, m_resource_bundle, name);
+	}
+	else if (name.type == MESH_TYPE)
+	{
+		return MeshResource::load(m_resource_allocator, m_resource_bundle, name);
 	}
 
 	return NULL;
