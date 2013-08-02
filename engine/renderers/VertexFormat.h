@@ -32,17 +32,15 @@ namespace crown
 /// Enumerates vertex formats.
 enum VertexFormat
 {
-	VF_XY_FLOAT_32,					///< XY coordinates, 32-bit floating point each
-	VF_XYZ_FLOAT_32,				///< XYZ coordinates, 32-bit floating point each
+	VF_XY_FLOAT_32					= 0,	///< XY coordinates, 32-bit floating point each
+	VF_XYZ_FLOAT_32					= 1,	///< XYZ coordinates, 32-bit floating point each
 
-	VF_UV_FLOAT_32,					///< UV coordinates, 32-bit floating point each
-	VF_UVT_FLOAT_32,				///< UVT coordinates, 32-bit floating point each
+	VF_UV_FLOAT_32					= 2,	///< UV coordinates, 32-bit floating point each
+	VF_UVT_FLOAT_32					= 3,	///< UVT coordinates, 32-bit floating point each
 
-	VF_XYZ_NORMAL_FLOAT_32,			///< XYZ normal coordinates, 32-bit floating point each
+	VF_XYZ_NORMAL_FLOAT_32			= 4, 	///< XYZ normal coordinates, 32-bit floating point each
 
-	VF_XYZ_UV_XYZ_NORMAL_FLOAT_32,	///< XYZ coordinates, UV coordinates, XYZ normal coordinates, 32-bit floating point each
-
-	VF_UNKNOWN
+	VF_XYZ_UV_XYZ_NORMAL_FLOAT_32	= 5		///< XYZ coordinates, UV coordinates, XYZ normal coordinates, 32-bit floating point each
 };
 
 class Vertex
