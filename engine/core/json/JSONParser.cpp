@@ -258,6 +258,24 @@ JSONElement& JSONElement::key(const char* k)
 }
 
 //--------------------------------------------------------------------------
+bool JSONElement::has_key(const char* k) const
+{
+	TempAllocator1024 alloc;
+	List<JSONPair> object(alloc);
+	JSONParser::parse_object(m_at, object);
+
+	for (uint32_t i = 0; i < object.size(); i++)
+	{
+		if (string::strcmp(k, object[i].key) == 0)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//--------------------------------------------------------------------------
 bool JSONElement::bool_value() const
 {
 	return JSONParser::parse_bool(m_at);

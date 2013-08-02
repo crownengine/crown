@@ -77,6 +77,9 @@ public:
 	/// key in order of appearance will be selected.
 	JSONElement&		key(const char* k);
 
+	/// Returns whether the element has the @a k key.
+	bool				has_key(const char* k) const;
+
 	/// Returns true wheter the element is the JSON nil special value.
 	bool				is_nil() const;
 
