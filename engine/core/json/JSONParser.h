@@ -153,7 +153,7 @@ private:
 private:
 
 	// Disable copying
-	JSONParser&			JSONParser(const JSONParser&);
+						JSONParser(const JSONParser&);
 	JSONParser&			operator=(const JSONParser&);
 };
 
