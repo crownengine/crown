@@ -146,7 +146,7 @@ int main(int argc, char** argv)
 	TGACompiler tga;
 	WAVCompiler wav;
 
-	map<const char*, Compiler*> compilers;
+	map<std::string, Compiler*> compilers;
 	compilers["tga"] = &tga;
 	compilers["wav"] = &wav;
 
@@ -174,7 +174,7 @@ int main(int argc, char** argv)
 
 		cout << out_name << " <= " << argv[first_resource + i] << endl;
 
-		map<const char*, Compiler*>::iterator it = compilers.find(resource_type);
+		map<std::string, Compiler*>::iterator it = compilers.find(resource_type);
 		if (it != compilers.end())
 		{
 			if (!it->second->compile(root_path, dest_path, argv[first_resource + i], out_name))
