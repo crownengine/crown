@@ -148,17 +148,10 @@ int main(int argc, char** argv)
 	WAVCompiler wav;
 	DAECompiler dae;
 
-	map<const char*, Compiler*> compilers;
+	map<std::string, Compiler*> compilers;
 	compilers["tga"] = &tga;
 	compilers["wav"] = &wav;
 	compilers["dae"] = &dae;
-
-	// Open debug output file
-	ofstream debug_file("/home/dani/Desktop/compiler.json");
-	if (debug_file.is_open())
-	{
-		debug_file << "{\n";
-	}
 
 	for (int32_t i = 0; i < argc - first_resource; i++)
 	{
@@ -177,7 +170,7 @@ int main(int argc, char** argv)
 
 		cout << out_name << " <= " << argv[first_resource + i] << endl;
 
-		map<const char*, Compiler*>::iterator it = compilers.find(resource_type);
+		map<std::string, Compiler*>::iterator it = compilers.find(resource_type);
 		if (it != compilers.end())
 		{
 			if (!it->second->compile(root_path, dest_path, argv[first_resource + i], out_name))
@@ -191,19 +184,7 @@ int main(int argc, char** argv)
 			cout << "No compilers found for type '" << resource_type << "'." << endl;
 			exit(EXIT_FAILURE);
 		}
-
-		// Debug stuff
-		debug_file << "    \"" << out_name << "\" : " << "\"" << argv[first_resource + i] << "\"";
-		if (argc - first_resource - i != 1)
-		{
-			debug_file << ",";
-		}
-
-		debug_file << "\n";
 	}
-
-	debug_file << "}\n";
-	debug_file.close();
 
 	return 0;
 }
