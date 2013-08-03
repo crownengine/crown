@@ -198,6 +198,50 @@ inline void substring(const char* begin, const char* end, char* out, size_t len)
 	out[i] = '\0';
 }
 
+//-----------------------------------------------------------------------------
+inline int32_t parse_int(const char* string)
+{
+	int val;
+	int ok = sscanf(string, "%d", &val);
+
+	CE_ASSERT(ok == 1, "Failed to parse int: %s", string);
+
+	return val;
+}
+
+//-----------------------------------------------------------------------------
+inline uint32_t parse_uint(const char* string)
+{
+	unsigned int val;
+	int ok = sscanf(string, "%u", &val);
+
+	CE_ASSERT(ok == 1, "Failed to parse uint: %s", string);
+
+	return val;
+}
+
+//-----------------------------------------------------------------------------
+inline float parse_float(const char* string)
+{
+	float val;
+	int ok = sscanf(string, "%f", &val);
+
+	CE_ASSERT(ok == 1, "Failed to parse float: %s", string);
+
+	return val;
+}
+
+//-----------------------------------------------------------------------------
+inline float parse_double(const char* string)
+{
+	double val;
+	int ok = sscanf(string, "%lf", &val);
+
+	CE_ASSERT(ok == 1, "Failed to parse float: %s", string);
+
+	return val;
+}
+
 } // namespace string
 } // namespace crown
 
