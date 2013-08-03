@@ -168,12 +168,12 @@ int main(int argc, char** argv)
 		char out_name[1024];
 		snprintf(out_name, 1024, "%.8X%.8X", resource_name_hash, resource_type_hash);
 
-		cout << out_name << " <= " << argv[first_resource + i] << endl;
+		cout << out_name << " <= " << resource << endl;
 
 		map<std::string, Compiler*>::iterator it = compilers.find(resource_type);
 		if (it != compilers.end())
 		{
-			if (!it->second->compile(root_path, dest_path, argv[first_resource + i], out_name))
+			if (!it->second->compile(root_path, dest_path, resource, out_name))
 			{
 				cout << "Exiting." << endl;
 				exit(EXIT_FAILURE);
