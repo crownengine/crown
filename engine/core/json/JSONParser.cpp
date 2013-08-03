@@ -250,7 +250,7 @@ JSONElement& JSONElement::key(const char* k)
 		}
 	}
 
-	CE_ASSERT(found, "Key not found");
+	CE_ASSERT(found, "Key not found: '%s'", k);
 
 	return *this;
 }
@@ -460,7 +460,7 @@ void JSONParser::parse_string(const char* s, List<char>& str)
 		}
 	}
 
-	CE_ASSERT(false, "Not a valid string");
+	CE_ASSERT(false, "Bad string");
 }
 
 //-----------------------------------------------------------------------------
@@ -545,7 +545,7 @@ bool JSONParser::parse_bool(const char* s)
 		default: break;
 	}
 
-	CE_ASSERT(false, "Not a boolean");
+	CE_ASSERT(false, "Bad boolean");
 }
 
 //-----------------------------------------------------------------------------
@@ -614,7 +614,7 @@ void JSONParser::parse_array(const char* s, List<const char*>& array)
 		}
 	}
 
-	CE_ASSERT(false, "Not an array");
+	CE_ASSERT(false, "Bad array");
 }
 
 //-----------------------------------------------------------------------------
@@ -676,7 +676,7 @@ void JSONParser::parse_object(const char* s, List<JSONPair>& object)
 		}
 	}
 
-	CE_ASSERT(false, "Not an object");
+	CE_ASSERT(false, "Bad object");
 }
 
 } //namespace crown
