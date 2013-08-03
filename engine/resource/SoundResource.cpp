@@ -24,67 +24,58 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cstdio>
-
-#include "WAVCompiler.h"
+#include "SoundResource.h"
+#include "Bundle.h"
+#include "Log.h"
+#include "DiskFile.h"
+#include "Assert.h"
+#include "Allocator.h"
+#include "Device.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-WAVCompiler::WAVCompiler() :
-	m_sound_data_size(0),
-	m_sound_data(NULL)
+void* SoundResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
 {
+	DiskFile* file = bundle.open(id);
 
+	CE_ASSERT(file != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
+
+	SoundResource* resource = (SoundResource*)allocator.allocate(sizeof(SoundResource));
+
+	file->read(&resource->m_header, sizeof(SoundHeader));
+
+	size_t size = resource->size();
+
+	resource->m_data = (uint8_t*)allocator.allocate(sizeof(uint8_t) * size);
+
+	file->read(resource->m_data, size);
+
+	bundle.close(file);
+
+	return resource;
 }
 
 //-----------------------------------------------------------------------------
-WAVCompiler::~WAVCompiler()
+void SoundResource::online(void* resource)
 {
-	if (m_sound_data)
-	{
-		delete[] m_sound_data;
-	}
+	CE_ASSERT(resource != NULL, "Resource not loaded");
 }
 
 //-----------------------------------------------------------------------------
-size_t WAVCompiler::compile_impl(const char* resource_path)
+void SoundResource::unload(Allocator& allocator, void* resource)
 {
-	std::fstream in_file;
-	in_file.open(resource_path, std::fstream::in | std::fstream::binary);
+	CE_ASSERT(resource != NULL, "Resource not loaded");
 
-	if (!in_file.is_open())
-	{
-		printf("Unable to open file: %s\n", resource_path);
-		return 0;
-	}
-
-	// Read the header
-	if (!in_file.read((char*)(char*)&m_wav_header, sizeof(WAVHeader)))
-	{
-		printf("Unable to read the WAV header.");
-		return 0;
-	}
-
-	m_sound_header.version = SOUND_VERSION;
-	m_sound_header.size = m_wav_header.data_size;
-	m_sound_header.channels = m_wav_header.fmt_channels;
-	m_sound_header.bits_per_sample = m_wav_header.fmt_bits_per_sample;
-
-	m_sound_data_size = m_wav_header.data_size;
-	m_sound_data = new uint8_t[m_sound_data_size];
-
-	in_file.read((char*)m_sound_data, m_sound_data_size);
-
-	return sizeof(SoundHeader) + m_sound_data_size;
+	allocator.deallocate(((SoundResource*)resource)->m_data);
+	allocator.deallocate(resource);
 }
 
 //-----------------------------------------------------------------------------
-void WAVCompiler::write_impl(std::fstream& out_file)
+void SoundResource::offline()
 {
-	out_file.write((char*)&m_sound_header, sizeof(SoundHeader));
-	out_file.write((char*)m_sound_data, m_sound_data_size);
+
 }
 
 } // namespace crown

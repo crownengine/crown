@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "Resource.h"
 
 namespace crown
 {
@@ -41,4 +42,30 @@ struct SoundHeader
 	uint32_t 	bits_per_sample;
 };
 
-}
+class Bundle;
+class Allocator;
+
+class SoundResource
+{
+public:
+
+	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
+	static void			online(void* resource);
+	static void			unload(Allocator& allocator, void* resource);
+	static void			offline();
+
+public:
+
+	uint32_t 			size() const { return m_header.size; }
+	uint32_t			channels() const { return m_header.channels; }
+	uint32_t			bits_per_sample() const { return m_header.bits_per_sample; }
+	const uint8_t*		data() const { return m_data; }
+
+private:
+
+	SoundHeader		m_header;
+	uint8_t*		m_data;
+
+};
+
+} // namespace crown

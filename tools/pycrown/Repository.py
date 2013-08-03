@@ -30,8 +30,9 @@ MESH_EXTENSION				= ('.dae')
 LUA_EXTENSION				= ('.lua')
 VERTEX_SHADER_EXTENSION		= ('.vs')
 PIXEL_SHADER_EXTENSION		= ('.ps')
+SOUND_EXTENSION				= ('.wav')
 
-resource_extensions = ('.txt', '.tga', '.dae', '.lua', '.vs', '.ps')
+resource_extensions = ('.txt', '.tga', '.dae', '.lua', '.vs', '.ps', '.wav')
 
 # Represents the folder containing the resources
 # Can filter resources by type and other useful stuff
@@ -112,6 +113,16 @@ class Repository:
 				pss.append(res)
 
 		return pss
+
+	# Returns a list of all the sound resources found
+	def sound_resources(self):
+		sounds = []
+
+		for res in self.m_resources:
+			if (res.endswith(SOUND_EXTENSION)):
+				sounds.append(res)
+
+		return sounds
 
 	# Scans the root path to find resources
 	def scan(self):

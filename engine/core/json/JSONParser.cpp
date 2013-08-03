@@ -194,23 +194,21 @@ static bool is_escapee(char c)
 }
 
 //--------------------------------------------------------------------------
-JSONParser::JSONParser(const char* s) :
-	m_document(s),
-	m_at(s)
+JSONElement::JSONElement() :
+	m_parser(NULL),
+	m_at(NULL)
 {
-	CE_ASSERT_NOT_NULL(s);
 }
 
 //--------------------------------------------------------------------------
-JSONParser&	JSONParser::root()
+JSONElement::JSONElement(JSONParser& parser, const char* at) :
+	m_parser(&parser),
+	m_at(at)
 {
-	m_at = skip_whites(m_document);
-
-	return *this;
 }
 
 //--------------------------------------------------------------------------
-JSONParser& JSONParser::operator[](uint32_t i)
+JSONElement& JSONElement::operator[](uint32_t i)
 {
 	TempAllocator1024 alloc;
 	List<const char*> array(alloc);
@@ -225,13 +223,13 @@ JSONParser& JSONParser::operator[](uint32_t i)
 }
 
 //--------------------------------------------------------------------------
-JSONParser& JSONParser::index(uint32_t i)
+JSONElement& JSONElement::index(uint32_t i)
 {
 	return this->operator[](i);
 }
 
 //--------------------------------------------------------------------------
-JSONParser& JSONParser::key(const char* k)
+JSONElement& JSONElement::key(const char* k)
 {
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
@@ -260,25 +258,43 @@ JSONParser& JSONParser::key(const char* k)
 }
 
 //--------------------------------------------------------------------------
-bool JSONParser::bool_value() const
+bool JSONElement::has_key(const char* k) const
+{
+	TempAllocator1024 alloc;
+	List<JSONPair> object(alloc);
+	JSONParser::parse_object(m_at, object);
+
+	for (uint32_t i = 0; i < object.size(); i++)
+	{
+		if (string::strcmp(k, object[i].key) == 0)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//--------------------------------------------------------------------------
+bool JSONElement::bool_value() const
 {
 	return JSONParser::parse_bool(m_at);
 }
 
 //--------------------------------------------------------------------------
-int32_t JSONParser::int_value() const
+int32_t JSONElement::int_value() const
 {
 	return JSONParser::parse_int(m_at);
 }
 
 //--------------------------------------------------------------------------
-float JSONParser::float_value() const
+float JSONElement::float_value() const
 {
 	return JSONParser::parse_float(m_at);
 }
 
 //--------------------------------------------------------------------------
-const char* JSONParser::string_value() const
+const char* JSONElement::string_value() const
 {
 	static TempAllocator1024 alloc;
 	static List<char> string(alloc);
@@ -291,43 +307,43 @@ const char* JSONParser::string_value() const
 }
 
 //--------------------------------------------------------------------------
-bool JSONParser::is_nil() const
+bool JSONElement::is_nil() const
 {
 	return JSONParser::type(m_at) == JT_NIL;
 }
 
 //--------------------------------------------------------------------------
-bool JSONParser::is_bool() const
+bool JSONElement::is_bool() const
 {
 	return JSONParser::type(m_at) == JT_BOOL;
 }
 
 //--------------------------------------------------------------------------
-bool JSONParser::is_number() const
+bool JSONElement::is_number() const
 {
 	return JSONParser::type(m_at) == JT_NUMBER;
 }
 
 //--------------------------------------------------------------------------
-bool JSONParser::is_string() const
+bool JSONElement::is_string() const
 {
 	return JSONParser::type(m_at) == JT_STRING;
 }
 
 //--------------------------------------------------------------------------
-bool JSONParser::is_array() const
+bool JSONElement::is_array() const
 {
 	return JSONParser::type(m_at) == JT_ARRAY;
 }
 
 //--------------------------------------------------------------------------
-bool JSONParser::is_object() const
+bool JSONElement::is_object() const
 {
 	return JSONParser::type(m_at) == JT_OBJECT;
 }
 
 //--------------------------------------------------------------------------
-uint32_t JSONParser::size() const
+uint32_t JSONElement::size() const
 {
 	switch(JSONParser::type(m_at))
 	{
@@ -372,6 +388,19 @@ uint32_t JSONParser::size() const
 			return 0;
 		}
 	}
+}
+
+//--------------------------------------------------------------------------
+JSONParser::JSONParser(const char* s) :
+	m_document(s)
+{
+	CE_ASSERT_NOT_NULL(s);
+}
+
+//--------------------------------------------------------------------------
+JSONElement JSONParser::root()
+{
+	return JSONElement(*this, skip_whites(m_document));
 }
 
 //-----------------------------------------------------------------------------

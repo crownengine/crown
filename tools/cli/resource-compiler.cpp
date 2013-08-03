@@ -24,7 +24,9 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cstdio>
+#include <iostream>
+#include <string>
+#include <map>
 
 #include "Args.h"
 #include "Path.h"
@@ -35,74 +37,32 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "DAECompiler.h"
 
 using namespace crown;
+using std::cout;
+using std::endl;
+using std::ofstream;
+using std::map;
 
 // Max number of requests per run
-const uint32_t MAX_COMPILE_REQUESTS = 512;
-
+const uint32_t	MAX_COMPILE_REQUESTS = 512;
 const char*		root_path = NULL;
 const char*		dest_path = NULL;
 uint32_t		hash_seed = 0;
 
-// Help functions
-int32_t			parse_command_line(int argc, char* argv[]);
-void			print_help_message(const char* program_name);
-void			check_arguments(const char* root_path, const char* dest_path);
-void			compile_by_type(const char* resource);
-
 //-----------------------------------------------------------------------------
-int main(int argc, char** argv)
+static void print_help_message(const char* program_name)
 {
-	int32_t first_resource = parse_command_line(argc, argv);
+	cout << "Usage: " << program_name << " [options] [resources]" << endl;
+	cout <<
+		"Options:\n\n"
 
-	// Check if all the mandatory options are set
-	check_arguments(root_path, dest_path);
-
-	// If there are no resources
-	if (first_resource >= argc)
-	{
-		printf("you have to specify at least one resource.");
-		exit(EXIT_FAILURE);
-	}
-
-
-	TGACompiler tga;
-	WAVCompiler wav;
-	DAECompiler dae;
-
-	char out_name[1024];
-	char resource_name[1024];
-	char resource_type[1024];
-
-	for (int32_t i = 0; i < argc - first_resource; i++)
-	{
-		path::filename_without_extension(argv[first_resource + i], resource_name, 1024);
-		path::extension(argv[first_resource + i], resource_type, 1024);
-
-		snprintf(out_name, 1024, "%.8X%.8X",
-			hash::murmur2_32(resource_name, string::strlen(resource_name), hash_seed),
-			hash::murmur2_32(resource_type, string::strlen(resource_type), 0));
-
-		printf("%s <= %s\n", out_name, argv[first_resource + i]);
-
-		if (string::strcmp(resource_type, "tga") == 0)
-		{
-			tga.compile(root_path, dest_path, argv[first_resource + i], out_name);
-		}
-		else if (string::strcmp(resource_type, "wav") == 0)
-		{
-			wav.compile(root_path, dest_path, argv[first_resource + i], out_name);
-		}
-		else if (string::strcmp(resource_type, "dae") == 0)
-		{
-			dae.compile(root_path, dest_path, argv[first_resource + i], out_name);
-		}
-	}
-
-	return 0;
+		"  --help                  Show this help.\n"
+		"  --root-path <path>      The absolute <path> whether to look for the input resources.\n"
+		"  --dest-path <path>      The absolute <path> whether to put the compiled resources.\n"
+		"  --seed <value>          The seed to use for generating output resource hashes.\n";
 }
 
 //-----------------------------------------------------------------------------
-int32_t parse_command_line(int argc, char* argv[])
+static int32_t parse_command_line(int argc, char* argv[])
 {
 	// Parse arguments
 	static ArgsOption options[] = 
@@ -153,32 +113,97 @@ int32_t parse_command_line(int argc, char* argv[])
 }
 
 //-----------------------------------------------------------------------------
-void print_help_message(const char* program_name)
-{
-	printf("Usage: %s [options] [resources]\n", program_name);
-	printf
-	(
-		"Options:\n\n"
-
-		"  --help                  Show this help.\n"
-		"  --root-path <path>      The absolute <path> whether to look for the input resources.\n"
-		"  --dest-path <path>      The absolute <path> whether to put the compiled resources.\n"
-		"  --seed <value>          The seed to use for generating output resource hashes.\n"
-	);
-}
-
-//-----------------------------------------------------------------------------
-void check_arguments(const char* root_path, const char* dest_path)
+static void check_arguments(const char* root_path, const char* dest_path)
 {
 	if (root_path == NULL)
 	{
-		printf("you have to specify the root path with `--root-path`\n");
+		cout << "you have to specify the root path with `--root-path`" << endl;
 		exit(EXIT_FAILURE);
 	}
 
 	if (dest_path == NULL)
 	{
-		printf("you have to specify the destination path with `--dest-path`\n");
+		cout << "you have to specify the destination path with `--dest-path`" << endl;
 		exit(EXIT_FAILURE);
 	}
+}
+
+//-----------------------------------------------------------------------------
+int main(int argc, char** argv)
+{
+	int32_t first_resource = parse_command_line(argc, argv);
+
+	// Check if all the mandatory options are set
+	check_arguments(root_path, dest_path);
+
+	// If there are no resources
+	if (first_resource >= argc)
+	{
+		cout << "You have to specify at least one resource." << endl;
+		exit(EXIT_FAILURE);
+	}
+
+	// Register compilers
+	TGACompiler tga;
+	WAVCompiler wav;
+	DAECompiler dae;
+
+	map<const char*, Compiler*> compilers;
+	compilers["tga"] = &tga;
+	compilers["wav"] = &wav;
+	compilers["dae"] = &dae;
+
+	// Open debug output file
+	ofstream debug_file("/home/dani/Desktop/compiler.json");
+	if (debug_file.is_open())
+	{
+		debug_file << "{\n";
+	}
+
+	for (int32_t i = 0; i < argc - first_resource; i++)
+	{
+		const char* resource = argv[first_resource + i];
+
+		char resource_name[1024];
+		char resource_type[1024];
+		path::filename_without_extension(resource, resource_name, 1024);
+		path::extension(resource, resource_type, 1024);
+
+		uint32_t resource_name_hash = hash::murmur2_32(resource_name, string::strlen(resource_name), hash_seed);
+		uint32_t resource_type_hash = hash::murmur2_32(resource_type, string::strlen(resource_type), 0);
+
+		char out_name[1024];
+		snprintf(out_name, 1024, "%.8X%.8X", resource_name_hash, resource_type_hash);
+
+		cout << out_name << " <= " << argv[first_resource + i] << endl;
+
+		map<const char*, Compiler*>::iterator it = compilers.find(resource_type);
+		if (it != compilers.end())
+		{
+			if (!it->second->compile(root_path, dest_path, argv[first_resource + i], out_name))
+			{
+				cout << "Exiting." << endl;
+				exit(EXIT_FAILURE);
+			}
+		}
+		else
+		{
+			cout << "No compilers found for type '" << resource_type << "'." << endl;
+			exit(EXIT_FAILURE);
+		}
+
+		// Debug stuff
+		debug_file << "    \"" << out_name << "\" : " << "\"" << argv[first_resource + i] << "\"";
+		if (argc - first_resource - i != 1)
+		{
+			debug_file << ",";
+		}
+
+		debug_file << "\n";
+	}
+
+	debug_file << "}\n";
+	debug_file.close();
+
+	return 0;
 }

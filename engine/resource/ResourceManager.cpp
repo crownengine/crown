@@ -42,6 +42,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexShaderResource.h"
 #include "PixelShaderResource.h"
 #include "MeshResource.h"
+#include "SoundResource.h"
 
 namespace crown
 {
@@ -361,6 +362,10 @@ void* ResourceManager::load_by_type(ResourceId name)
 	{
 		return MeshResource::load(m_resource_allocator, m_resource_bundle, name);
 	}
+	else if (name.type == SOUND_TYPE)
+	{
+		return SoundResource::load(m_resource_allocator, m_resource_bundle, name);
+	}
 
 	return NULL;
 }
@@ -384,6 +389,10 @@ void ResourceManager::unload_by_type(ResourceId name, void* resource)
 	{
 		PixelShaderResource::unload(m_resource_allocator, resource);
 	}
+	else if (name.type == SOUND_TYPE)
+	{
+		SoundResource::unload(m_resource_allocator, resource);
+	}
 
 	return;
 }
@@ -406,6 +415,10 @@ void ResourceManager::online(ResourceId name, void* resource)
 	else if (name.type == PIXEL_SHADER_TYPE)
 	{
 		PixelShaderResource::online(resource);
+	}
+	else if (name.type == SOUND_TYPE)
+	{
+		SoundResource::online(resource);
 	}
 
 	m_resources_mutex.lock();
