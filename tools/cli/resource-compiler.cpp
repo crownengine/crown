@@ -150,13 +150,6 @@ int main(int argc, char** argv)
 	compilers["tga"] = &tga;
 	compilers["wav"] = &wav;
 
-	// Open debug output file
-	ofstream debug_file("/home/dani/Desktop/compiler.json");
-	if (debug_file.is_open())
-	{
-		debug_file << "{\n";
-	}
-
 	for (int32_t i = 0; i < argc - first_resource; i++)
 	{
 		const char* resource = argv[first_resource + i];
@@ -188,19 +181,7 @@ int main(int argc, char** argv)
 			cout << "No compilers found for type '" << resource_type << "'." << endl;
 			exit(EXIT_FAILURE);
 		}
-
-		// Debug stuff
-		debug_file << "    \"" << out_name << "\" : " << "\"" << argv[first_resource + i] << "\"";
-		if (argc - first_resource - i != 1)
-		{
-			debug_file << ",";
-		}
-
-		debug_file << "\n";
 	}
-
-	debug_file << "}\n";
-	debug_file.close();
 
 	return 0;
 }
