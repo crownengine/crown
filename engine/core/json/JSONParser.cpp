@@ -24,8 +24,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cstdio>
-
 #include "JSONParser.h"
 #include "TempAllocator.h"
 #include "StringUtils.h"
@@ -515,12 +513,7 @@ double JSONParser::parse_number(const char* s)
 	// Ensure null terminated
 	str.push_back('\0');
 
-	float number = 0.0f;
-
-	// Fixme
-	sscanf(str.begin(), "%f", &number);
-
-	return number;
+	return string::parse_double(str.begin());
 }
 
 //-----------------------------------------------------------------------------
