@@ -37,7 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Filesystem.h"
 #include "TextReader.h"
 #include "DiskFile.h"
-#include "TextResource.h"
 #include "TextureResource.h"
 #include "MeshResource.h"
 #include "SoundResource.h"
@@ -343,7 +342,6 @@ void* ResourceManager::load_by_type(ResourceId name)
 	switch (name.type)
 	{
 		case TEXTURE_TYPE: return TextureResource::load(m_resource_allocator, m_resource_bundle, name);
-		case TEXT_TYPE: return TextResource::load(m_resource_allocator, m_resource_bundle, name);
 		case MESH_TYPE: return MeshResource::load(m_resource_allocator, m_resource_bundle, name);
 		case SOUND_TYPE: return SoundResource::load(m_resource_allocator, m_resource_bundle, name);
 		default: return NULL;
@@ -356,7 +354,6 @@ void ResourceManager::unload_by_type(ResourceId name, void* resource)
 	switch (name.type)
 	{
 		case TEXTURE_TYPE: return TextureResource::unload(m_resource_allocator, resource);
-		case TEXT_TYPE: return TextResource::unload(m_resource_allocator, resource);
 		case MESH_TYPE: return MeshResource::unload(m_resource_allocator, resource);
 		case SOUND_TYPE: return SoundResource::unload(m_resource_allocator, resource);
 	}
@@ -370,7 +367,6 @@ void ResourceManager::online(ResourceId name, void* resource)
 	switch (name.type)
 	{
 		case TEXTURE_TYPE: return TextureResource::online(resource);
-		case TEXT_TYPE: return TextResource::online(resource);
 		case MESH_TYPE: return MeshResource::online(resource);
 		case SOUND_TYPE: return SoundResource::online(resource);
 	}
