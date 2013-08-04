@@ -278,8 +278,6 @@ set (RESOURCE_SRC
 	resource/MeshResource.cpp
 	resource/TextResource.cpp
 	resource/FontResource.cpp
-	resource/VertexShaderResource.cpp
-	resource/PixelShaderResource.cpp
 	resource/SoundResource.cpp
 	resource/ArchiveBundle.cpp
 	resource/FileBundle.cpp
@@ -294,8 +292,6 @@ set (RESOURCE_HEADERS
 	resource/MeshResource.h
 	resource/TextResource.h
 	resource/FontResource.h
-	resource/VertexShaderResource.h
-	resource/PixelShaderResource.h
 	resource/SoundResource.h
 	resource/ArchiveBundle.h
 	resource/FileBundle.h

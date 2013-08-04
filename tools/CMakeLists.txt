@@ -38,8 +38,6 @@ set (COMPILERS_SRC
 	compilers/wav/WAVCompiler.cpp
 	compilers/dae/DAECompiler.cpp
 	compilers/dae/tinyxml2.cpp
-#	compilers/ps/PSCompiler.cpp
-#	compilers/vs/VSCompiler.cpp
 )
 
 set (COMPILER_HEADERS
@@ -48,8 +46,6 @@ set (COMPILER_HEADERS
 	compilers/wav/WAVCompiler.h
 	compilers/dae/DAECompiler.h
 	compilers/dae/tinyxml2.h
-#	compilers/ps/PSCompiler.h
-#	compilers/vs/VSCompiler.h
 )
 
 set (TOOLS_SRC

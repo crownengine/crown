@@ -110,8 +110,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextureResource.h"
 #include "MaterialResource.h"
 #include "FontResource.h"
-#include "VertexShaderResource.h"
-#include "PixelShaderResource.h"
 
 // Engine/Input
 #include "EventDispatcher.h"
