@@ -366,9 +366,21 @@ void ResourceManager::online(ResourceId name, void* resource)
 {
 	switch (name.type)
 	{
-		case TEXTURE_TYPE: return TextureResource::online(resource);
-		case MESH_TYPE: return MeshResource::online(resource);
-		case SOUND_TYPE: return SoundResource::online(resource);
+		case TEXTURE_TYPE:
+		{
+			TextureResource::online(resource);
+			break;
+		}
+		case MESH_TYPE:
+		{
+			MeshResource::online(resource);
+			break;
+		}
+		case SOUND_TYPE:
+		{
+			SoundResource::online(resource);
+			break;
+		}
 	}
 
 	m_resources_mutex.lock();
