@@ -42,7 +42,7 @@ enum JSONType
 	JT_BOOL
 };
 
-/// Represents a pair
+/// Represents a key-value pair in a JSON document.
 struct JSONPair
 {
 	const char* key;
