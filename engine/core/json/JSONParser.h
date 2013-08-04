@@ -80,6 +80,10 @@ public:
 	/// Returns whether the element has the @a k key.
 	bool				has_key(const char* k) const;
 
+	/// Returns whether the @a k key is unique in the object
+	/// element. If no such key is found it returns false.
+	bool				is_key_unique(const char* k) const;
+
 	/// Returns true wheter the element is the JSON nil special value.
 	bool				is_nil() const;
 

@@ -274,6 +274,31 @@ bool JSONElement::has_key(const char* k) const
 }
 
 //--------------------------------------------------------------------------
+bool JSONElement::is_key_unique(const char* k) const
+{
+	TempAllocator1024 alloc;
+	List<JSONPair> object(alloc);
+	JSONParser::parse_object(m_at, object);
+
+	bool found = false;
+
+	for (uint32_t i = 0; i < object.size(); i++)
+	{
+		if (string::strcmp(k, object[i].key) == 0)
+		{
+			if (found == true)
+			{
+				return false;
+			}
+
+			found = true;
+		}
+	}
+
+	return found;
+}
+
+//--------------------------------------------------------------------------
 bool JSONElement::bool_value() const
 {
 	return JSONParser::parse_bool(m_at);
