@@ -106,6 +106,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "FileBundle.h"
 #include "ResourceManager.h"
 #include "TextureResource.h"
+#include "MeshResource.h"
+#include "SoundResource.h"
 #include "MaterialResource.h"
 #include "FontResource.h"
 
