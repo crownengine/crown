@@ -41,26 +41,21 @@ CE_EXPORT int32_t mat4(lua_State* L)
 	float m0 = stack.get_float(1);
 	float m1 = stack.get_float(2);
 	float m2 = stack.get_float(3);
-	float m4 = stack.get_float(4);	
-	float m5 = stack.get_float(5);
-	float m6 = stack.get_float(6);	
-	float m8 = stack.get_float(7);
-	float m9 = stack.get_float(8);
-	float m10 = stack.get_float(9);
+	float m3 = stack.get_float(4);
+	float m4 = stack.get_float(5);	
+	float m5 = stack.get_float(6);
+	float m6 = stack.get_float(7);
+	float m7 = stack.get_float(8);
+	float m8 = stack.get_float(9);
+	float m9 = stack.get_float(10);
+	float m10 = stack.get_float(11);
+	float m11 = stack.get_float(12);
+	float m12 = stack.get_float(13);
+	float m13 = stack.get_float(14);
+	float m14 = stack.get_float(15);
+	float m15 = stack.get_float(16);
 
-	Mat4* mat = next_mat4();
-
-	mat->m[0] = m0;
-	mat->m[1] = m1;
-	mat->m[2] = m2;
-	mat->m[4] = m4;
-	mat->m[5] = m5;
-	mat->m[6] = m6;
-	mat->m[8] = m8;
-	mat->m[9] = m9;
-	mat->m[10] = m10;
-
-	stack.push_mat4(mat);
+	stack.push_mat4(Mat4(m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15));
 
 	return 1;
 }
@@ -70,12 +65,10 @@ CE_EXPORT int32_t mat4_add(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
-	Mat4* b = stack.get_mat4(2);
+	Mat4& a = stack.get_mat4(1);
+	Mat4& b = stack.get_mat4(2);
 
-	*a += *b;
-
-	stack.push_mat4(a);
+	stack.push_mat4(a + b);
 
 	return 1;
 }
@@ -85,12 +78,10 @@ CE_EXPORT int32_t mat4_subtract(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = (Mat4*)stack.get_mat4(1);
-	Mat4* b = (Mat4*)stack.get_mat4(2);
+	Mat4& a = stack.get_mat4(1);
+	Mat4& b = stack.get_mat4(2);
 
-	*a -= *b;
-
-	stack.push_mat4(a);
+	stack.push_mat4(a - b);
 
 	return 1;
 }
@@ -100,12 +91,10 @@ CE_EXPORT int32_t mat4_multiply(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
-	Mat4* b = stack.get_mat4(2);
+	Mat4& a = stack.get_mat4(1);
+	Mat4& b = stack.get_mat4(2);
 
-	*a *= *b;
-
-	stack.push_mat4(a);
+	stack.push_mat4(a * b);
 
 	return 1;
 }	
@@ -115,12 +104,10 @@ CE_EXPORT int32_t mat4_multiply_by_scalar(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = (Mat4*)stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 	float k = stack.get_float(2);
 
-	*a *= k;
-
-	stack.push_mat4(a);
+	stack.push_mat4(a * k);
 
 	return 1;
 }
@@ -130,12 +117,10 @@ CE_EXPORT int32_t mat4_divide_by_scalar(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = (Mat4*)stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 	float k = stack.get_float(2);
 
-	*a /= k;
-
-	stack.push_mat4(a);
+	stack.push_mat4(a / k);
 
 	return 1;
 }
@@ -145,10 +130,10 @@ CE_EXPORT int32_t mat4_build_rotation_x(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = (Mat4*)stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 	float k = stack.get_float(2);
 
-	a->build_rotation_x(k);
+	a.build_rotation_x(k);
 
 	return 0;
 }
@@ -158,10 +143,10 @@ CE_EXPORT int32_t mat4_build_rotation_y(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 	float k = stack.get_float(2);
 
-	a->build_rotation_y(k);
+	a.build_rotation_y(k);
 
 	return 0;
 }
@@ -171,10 +156,10 @@ CE_EXPORT int32_t mat4_build_rotation_z(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = (Mat4*)stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 	float k = stack.get_float(2);
 
-	a->build_rotation_z(k);
+	a.build_rotation_z(k);
 
 	return 0;
 }
@@ -184,11 +169,11 @@ CE_EXPORT int32_t mat4_build_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = (Mat4*)stack.get_mat4(1);
-	Vec3* d = (Vec3*)stack.get_vec3(2);
+	Mat4& a = stack.get_mat4(1);
+	Vec3& d = stack.get_vec3(2);
 	float k = stack.get_float(3);
 
-	a->build_rotation(*d, k);
+	a.build_rotation(d, k);
 
 	return 0;
 }
@@ -198,13 +183,13 @@ CE_EXPORT int32_t mat4_build_projection_perspective_rh(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 	float fovy = stack.get_float(2);
 	float aspect = stack.get_float(3);
 	float near = stack.get_float(4);
 	float far = stack.get_float(5);
 
-	a->build_projection_perspective_rh(fovy, aspect, near, far);
+	a.build_projection_perspective_rh(fovy, aspect, near, far);
 
 	return 0;
 }
@@ -214,13 +199,13 @@ CE_EXPORT int32_t mat4_build_projection_perspective_lh(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 	float fovy = stack.get_float(2);
 	float aspect = stack.get_float(3);
 	float near = stack.get_float(4);
 	float far = stack.get_float(5);
 
-	a->build_projection_perspective_lh(fovy, aspect, near, far);
+	a.build_projection_perspective_lh(fovy, aspect, near, far);
 
 	return 0;
 }
@@ -230,13 +215,13 @@ CE_EXPORT int32_t mat4_build_projection_ortho_rh(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 	float width = stack.get_float(2);
 	float height = stack.get_float(3);
 	float near = stack.get_float(4);
 	float far = stack.get_float(5);
 
-	a->build_projection_ortho_rh(width, height, near, far);
+	a.build_projection_ortho_rh(width, height, near, far);
 
 	return 0;
 }
@@ -246,13 +231,13 @@ CE_EXPORT int32_t mat4_build_projection_ortho_lh(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 	float width = stack.get_float(2);
 	float height = stack.get_float(3);
 	float near = stack.get_float(4);
 	float far = stack.get_float(5);
 
-	a->build_projection_ortho_lh(width, height, near, far);
+	a.build_projection_ortho_lh(width, height, near, far);
 
 	return 0;
 }
@@ -262,13 +247,13 @@ CE_EXPORT int32_t mat4_build_projection_ortho_2d_rh(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 	float width = stack.get_float(2);
 	float height = stack.get_float(3);
 	float near = stack.get_float(4);
 	float far = stack.get_float(5);
 
-	a->build_projection_ortho_2d_rh(width, height, near, far);
+	a.build_projection_ortho_2d_rh(width, height, near, far);
 
 	return 0;
 }
@@ -278,12 +263,12 @@ CE_EXPORT int32_t mat4_build_look_at_rh(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
-	Vec3* pos = stack.get_vec3(2);
-	Vec3* target = stack.get_vec3(3);
-	Vec3* up = stack.get_vec3(4);
+	Mat4& a = stack.get_mat4(1);
+	Vec3& pos = stack.get_vec3(2);
+	Vec3& target = stack.get_vec3(3);
+	Vec3& up = stack.get_vec3(4);
 
-	a->build_look_at_rh(*pos, *target, *up);
+	a.build_look_at_rh(pos, target, up);
 
 	return 0;
 }
@@ -293,12 +278,12 @@ CE_EXPORT int32_t mat4_build_look_at_lh(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
-	Vec3* pos = stack.get_vec3(2);
-	Vec3* target = stack.get_vec3(3);
-	Vec3* up = stack.get_vec3(4);
+	Mat4& a = stack.get_mat4(1);
+	Vec3& pos = stack.get_vec3(2);
+	Vec3& target = stack.get_vec3(3);
+	Vec3& up = stack.get_vec3(4);
 
-	a->build_look_at_lh(*pos, *target, *up);
+	a.build_look_at_lh(pos, target, up);
 
 	return 0;
 }
@@ -308,12 +293,12 @@ CE_EXPORT int32_t mat4_build_viewpoint_billboard(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
-	Vec3* pos = stack.get_vec3(2);
-	Vec3* target = stack.get_vec3(3);
-	Vec3* up = stack.get_vec3(4);
+	Mat4& a = stack.get_mat4(1);
+	Vec3& pos = stack.get_vec3(2);
+	Vec3& target = stack.get_vec3(3);
+	Vec3& up = stack.get_vec3(4);
 
-	a->build_viewpoint_billboard(*pos, *target, *up);
+	a.build_viewpoint_billboard(pos, target, up);
 
 	return 0;
 }
@@ -323,12 +308,12 @@ CE_EXPORT int32_t mat4_build_axis_billboard(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
-	Vec3* pos = stack.get_vec3(2);
-	Vec3* target = stack.get_vec3(3);
-	Vec3* up = stack.get_vec3(4);
+	Mat4& a = stack.get_mat4(1);
+	Vec3& pos = stack.get_vec3(2);
+	Vec3& target = stack.get_vec3(3);
+	Vec3& up = stack.get_vec3(4);
 
-	a->build_axis_billboard(*pos, *target, *up);
+	a.build_axis_billboard(pos, target, up);
 
 	return 0;
 }
@@ -338,11 +323,9 @@ CE_EXPORT int32_t mat4_transpose(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 
-	a->transpose();
-
-	stack.push_mat4(a);
+	stack.push_mat4(a.transpose());
 
 	return 1;
 }
@@ -352,9 +335,9 @@ CE_EXPORT int32_t mat4_determinant(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 
-	stack.push_float(a->get_determinant());
+	stack.push_float(a.get_determinant());
 
 	return 1;
 }
@@ -364,11 +347,9 @@ CE_EXPORT int32_t mat4_invert(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 
-	a->invert();
-
-	stack.push_mat4(a);
+	stack.push_mat4(a.invert());
 
 	return 1;
 }
@@ -378,9 +359,9 @@ CE_EXPORT int32_t mat4_load_identity(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 
-	a->load_identity();
+	a.load_identity();
 
 	return 0;
 }
@@ -390,12 +371,9 @@ CE_EXPORT int32_t mat4_x(lua_State* L)
 {	
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 
-	Vec3* x = next_vec3();
-	*x = a->x();
-
-	stack.push_vec3(x);
+	stack.push_vec3(a.x());
 
 	return 1;
 }
@@ -405,12 +383,9 @@ CE_EXPORT int32_t mat4_y(lua_State* L)
 {	
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 
-	Vec3* y = next_vec3();
-	*y = a->y();
-
-	stack.push_vec3(y);
+	stack.push_vec3(a.y());
 
 	return 1;
 }
@@ -420,12 +395,9 @@ CE_EXPORT int32_t mat4_z(lua_State* L)
 {	
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 
-	Vec3* z = next_vec3();
-	*z = a->z();
-
-	stack.push_vec3(z);
+	stack.push_vec3(a.z());
 
 	return 1;
 }
@@ -435,10 +407,10 @@ CE_EXPORT int32_t mat4_set_x(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
-	Vec3* x = stack.get_vec3(2);
+	Mat4& a = stack.get_mat4(1);
+	Vec3& x = stack.get_vec3(2);
 
-	a->set_x(*x);
+	a.set_x(x);
 
 	return 0;
 }
@@ -448,10 +420,10 @@ CE_EXPORT int32_t mat4_set_y(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
-	Vec3* y = stack.get_vec3(2);
+	Mat4& a = stack.get_mat4(1);
+	Vec3& y = stack.get_vec3(2);
 
-	a->set_y(*y);
+	a.set_y(y);
 
 	return 0;
 }
@@ -461,10 +433,10 @@ CE_EXPORT int32_t mat4_set_z(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
-	Vec3* z = stack.get_vec3(2);
+	Mat4& a = stack.get_mat4(1);
+	Vec3& z = stack.get_vec3(2);
 
-	a->set_z(*z);
+	a.set_z(z);
 
 	return 0;
 }
@@ -474,12 +446,9 @@ CE_EXPORT int32_t mat4_translation(lua_State* L)
 {	
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 
-	Vec3* translation = next_vec3();
-	*translation = a->translation();
-
-	stack.push_vec3(translation);
+	stack.push_vec3(a.translation());
 
 	return 1;
 }
@@ -489,10 +458,10 @@ CE_EXPORT int32_t mat4_set_translation(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
-	Vec3* trans = stack.get_vec3(2);
+	Mat4& a = stack.get_mat4(1);
+	Vec3& trans = stack.get_vec3(2);
 
-	a->set_translation(*trans);
+	a.set_translation(trans);
 
 	return 0;
 }
@@ -502,12 +471,9 @@ CE_EXPORT int32_t mat4_get_scale(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 
-	Vec3* scale = next_vec3();
-	*scale = a->get_scale();
-
-	stack.push_vec3(scale);
+	stack.push_vec3(a.get_scale());
 
 	return 1;
 }
@@ -517,10 +483,10 @@ CE_EXPORT int32_t mat4_set_scale(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
-	Vec3* scale = stack.get_vec3(2);
+	Mat4& a = stack.get_mat4(1);
+	Vec3& scale = stack.get_vec3(2);
 
-	a->set_scale(*scale);
+	a.set_scale(scale);
 
 	return 0;
 }
@@ -530,12 +496,12 @@ CE_EXPORT int32_t mat4_print(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Mat4* a = stack.get_mat4(1);
+	Mat4& a = stack.get_mat4(1);
 
-	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a->m[0], a->m[4], a->m[8], a->m[12]);
-	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a->m[1], a->m[5], a->m[9], a->m[13]);
-	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a->m[2], a->m[6], a->m[10], a->m[14]);
-	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a->m[3], a->m[7], a->m[11], a->m[15]);
+	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[0], a.m[4], a.m[8], a.m[12]);
+	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[1], a.m[5], a.m[9], a.m[13]);
+	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[2], a.m[6], a.m[10], a.m[14]);
+	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[3], a.m[7], a.m[11], a.m[15]);
 
 	return 0;
 }

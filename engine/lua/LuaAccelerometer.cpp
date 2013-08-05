@@ -37,10 +37,7 @@ CE_EXPORT int32_t accelerometer_orientation(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec3* orientation = next_vec3();
-	*orientation = device()->accelerometer()->orientation();
-
-	stack.push_vec3(orientation);
+	stack.push_vec3(device()->accelerometer()->orientation());
 
 	return 1;
 }

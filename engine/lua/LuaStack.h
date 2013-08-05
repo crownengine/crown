@@ -37,12 +37,6 @@ class Vec3;
 class Mat4;
 class Quat;
 
-Vec2* next_vec2();
-Vec3* next_vec3();
-
-Mat4* next_mat4();
-Quat* next_quat();
-
 class LuaStack
 {
 public:
@@ -67,13 +61,13 @@ public:
 
 	void					push_lightdata(void* data);
 
-	void					push_vec2(Vec2* v);
+	void					push_vec2(const Vec2& v);
 
-	void					push_vec3(Vec3* v);
+	void					push_vec3(const Vec3& v);
 
-	void					push_mat4(Mat4* m);
+	void					push_mat4(const Mat4& m);
 
-	void					push_quat(Quat* q);
+	void					push_quat(const Quat& q);
 
 	bool 					get_bool(int32_t index);
 
@@ -85,13 +79,10 @@ public:
 
 	void*					get_lightdata(int32_t index);
 
-	Vec2*					get_vec2(int32_t index);
-
-	Vec3*					get_vec3(int32_t index);
-
-	Mat4*					get_mat4(int32_t index);
-
-	Quat*					get_quat(int32_t index);
+	Vec2&					get_vec2(int32_t index);
+	Vec3&					get_vec3(int32_t index);
+	Mat4&					get_mat4(int32_t index);
+	Quat&					get_quat(int32_t index);
 
 private:
 
