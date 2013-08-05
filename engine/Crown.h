@@ -105,13 +105,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ArchiveBundle.h"
 #include "FileBundle.h"
 #include "ResourceManager.h"
-
-#include "TextResource.h"
 #include "TextureResource.h"
+#include "MeshResource.h"
+#include "SoundResource.h"
 #include "MaterialResource.h"
 #include "FontResource.h"
-#include "VertexShaderResource.h"
-#include "PixelShaderResource.h"
 
 // Engine/Input
 #include "EventDispatcher.h"

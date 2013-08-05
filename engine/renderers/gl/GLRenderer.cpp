@@ -42,9 +42,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mat3.h"
 #include "Mat4.h"
 #include "Device.h"
-#include "ResourceManager.h"
-#include "VertexShaderResource.h"
-#include "PixelShaderResource.h"
 
 namespace crown
 {

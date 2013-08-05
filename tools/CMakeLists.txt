@@ -10,6 +10,7 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/tools/compilers
 	${CMAKE_SOURCE_DIR}/tools/compilers/tga
 	${CMAKE_SOURCE_DIR}/tools/compilers/wav
+	${CMAKE_SOURCE_DIR}/tools/compilers/dae
 )
 
 set (CORE_SRC
@@ -35,16 +36,16 @@ set (COMPILERS_SRC
 	compilers/Compiler.cpp
 	compilers/tga/TGACompiler.cpp
 	compilers/wav/WAVCompiler.cpp
-#	compilers/ps/PSCompiler.cpp
-#	compilers/vs/VSCompiler.cpp
+	compilers/dae/DAECompiler.cpp
+	compilers/dae/tinyxml2.cpp
 )
 
 set (COMPILER_HEADERS
 	compilers/Compiler.h
 	compilers/tga/TGACompiler.h
 	compilers/wav/WAVCompiler.h
-#	compilers/ps/PSCompiler.h
-#	compilers/vs/VSCompiler.h
+	compilers/dae/DAECompiler.h
+	compilers/dae/tinyxml2.h
 )
 
 set (TOOLS_SRC

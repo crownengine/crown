@@ -26,31 +26,46 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Compiler.h"
+#include "Types.h"
+#include "Resource.h"
+#include "PixelFormat.h"
+#include "Texture.h"
 
 namespace crown
 {
 
-class PSCompiler : public Compiler
+// Bump the version whenever a change in the format is made.
+const uint32_t MESH_VERSION = 1;
+
+struct MeshHeader
+{
+	uint32_t	version;
+	uint32_t	mesh_count;
+	uint32_t	joint_count;
+	uint32_t	padding[16];
+};
+
+class Bundle;
+class Allocator;
+
+class MeshResource
 {
 public:
 
-					PSCompiler(const char* root_path, const char* dest_path);
-					~PSCompiler();
+	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
+	static void			online(void* resource);
+	static void			unload(Allocator& allocator, void* resource);
+	static void			offline();
 
-	size_t			read_header_impl(DiskFile* in_file);
-	size_t			read_resource_impl(DiskFile* in_file);
+public:
 
-	void			write_header_impl(DiskFile* out_file);
-	void			write_resource_impl(DiskFile* out_file);
+	MeshHeader			m_header;
 
-	void			cleanup_impl();
+	size_t				m_vertex_count;
+	float*				m_vertices;
 
-private:
-
-	uint32_t		m_file_size;
-	char*			m_file_data;
+	size_t				m_index_count;
+	uint16_t*			m_indices;
 };
 
 } // namespace crown
-

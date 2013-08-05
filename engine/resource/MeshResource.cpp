@@ -24,69 +24,57 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "PSCompiler.h"
+#include "MeshResource.h"
+#include "Bundle.h"
+#include "Log.h"
 #include "DiskFile.h"
-#include "Resource.h"
+#include "Assert.h"
+#include "Allocator.h"
+#include "Device.h"
+#include "Renderer.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-PSCompiler::PSCompiler(const char* root_path, const char* dest_path) :
-	Compiler(root_path, dest_path, PIXEL_SHADER_TYPE),
-	m_file_size(0),
-	m_file_data(NULL)
+void* MeshResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
+{
+	DiskFile* file = bundle.open(id);
+
+	CE_ASSERT(file != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
+
+	MeshResource* resource = (MeshResource*)allocator.allocate(sizeof(MeshResource));
+	file->read(&resource->m_header, sizeof(MeshHeader));
+
+	// Read vertices
+	file->read(&resource->m_vertex_count, sizeof(uint32_t));
+	resource->m_vertices = (float*) allocator.allocate(sizeof(float) * resource->m_vertex_count);
+	file->read(resource->m_vertices, sizeof(float) * resource->m_vertex_count);
+
+	// Read triangles
+	file->read(&resource->m_index_count, sizeof(uint32_t));
+	resource->m_indices = (uint16_t*) allocator.allocate(sizeof(uint16_t) * resource->m_index_count);
+	file->read(resource->m_indices, sizeof(uint16_t) * resource->m_index_count);
+
+	bundle.close(file);
+
+	return resource;
+}
+
+//-----------------------------------------------------------------------------
+void MeshResource::online(void* )
 {
 }
 
 //-----------------------------------------------------------------------------
-PSCompiler::~PSCompiler()
+void MeshResource::unload(Allocator& , void* )
 {
-	cleanup_impl();
 }
 
 //-----------------------------------------------------------------------------
-size_t PSCompiler::read_header_impl(DiskFile* in_file)
+void MeshResource::offline()
 {
-	(void) in_file;
-	return 0;
-}
 
-//-----------------------------------------------------------------------------
-size_t PSCompiler::read_resource_impl(DiskFile* in_file)
-{
-	m_file_size = in_file->size();
-
-	m_file_data = (char*)default_allocator().allocate(m_file_size * sizeof(char));
-	
-	// Copy the entire file into the buffer
-	in_file->read(m_file_data, m_file_size);
-
-	// Return total resource size
-	return m_file_size + sizeof(uint32_t);
-}
-
-//-----------------------------------------------------------------------------
-void PSCompiler::write_header_impl(DiskFile* out_file)
-{
-	out_file->write(&m_file_size, sizeof(uint32_t));
-}
-
-//-----------------------------------------------------------------------------
-void PSCompiler::write_resource_impl(DiskFile* out_file)
-{
-	out_file->write(m_file_data, m_file_size);
-}
-
-//-----------------------------------------------------------------------------
-void PSCompiler::cleanup_impl()
-{
-	if (m_file_data)
-	{
-		default_allocator().deallocate(m_file_data);
-		m_file_data = NULL;
-	}
 }
 
 } // namespace crown
-

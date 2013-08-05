@@ -31,11 +31,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Compiler.h"
 #include "ResourceFormat.h"
 
+using std::cout;
+using std::endl;
+
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-size_t Compiler::compile(const char* root_path, const char* dest_path, const char* name_in, const char* name_out)
+bool Compiler::compile(const char* root_path, const char* dest_path, const char* name_in, const char* name_out)
 {
 	std::string path_in = std::string(root_path) + "/" + std::string(name_in);
 	std::string path_out = std::string(dest_path) + "/" + std::string(name_out);
@@ -44,8 +47,8 @@ size_t Compiler::compile(const char* root_path, const char* dest_path, const cha
 	size_t resource_size = 0;
 	if ((resource_size = compile_impl(path_in.c_str())) == 0)
 	{
-		std::cout << "Compilation failed." << std::endl;
-		return 0;
+		cout << "Compilation failed." << endl;
+		return false;
 	}
 
 	// Setup resource header
@@ -58,21 +61,21 @@ size_t Compiler::compile(const char* root_path, const char* dest_path, const cha
 	std::fstream out_file;
 	out_file.open(path_out.c_str(), std::fstream::out | std::fstream::binary);
 
-	if (!out_file.is_open())
+	if (out_file.is_open())
 	{
-		std::cout << "Unable to write compiled file." << std::endl;
-		return 0;
+		// Write header
+		out_file.write((char*)&resource_header, sizeof(ResourceHeader));
+
+		// Write resource-specific data
+		write_impl(out_file);
+		out_file.close();
+
+		cleanup();
+		return true;
 	}
 
-	out_file.write((char*)&resource_header, sizeof(ResourceHeader));
-
-	// Write resource-specific data
-	write_impl(out_file);
-
-	out_file.close();
-
-	// Cleanup
-	cleanup();
+	cout << "Unable to write compiled file." << endl;
+	return false;
 }
 
 //-----------------------------------------------------------------------------

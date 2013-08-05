@@ -40,10 +40,10 @@ Quat::Quat()
 }
 
 //-----------------------------------------------------------------------------
-Quat::Quat(float angle, const Vec3& v)
+Quat::Quat(const Vec3& axis, float angle)
 {
-	this->w = math::cos((float)(angle * 0.5));
-	this->v = v * math::sin((float)(angle * 0.5));
+	v = axis * math::sin(angle * 0.5);
+	w = math::cos(angle * 0.5);
 }
 
 //-----------------------------------------------------------------------------
@@ -77,22 +77,23 @@ void Quat::conjugate()
 //-----------------------------------------------------------------------------
 Quat Quat::get_conjugate() const
 {
-	return Quat(w, -v);
+	return Quat(-v, w);
 }
 
 //-----------------------------------------------------------------------------
 Quat Quat::get_inverse() const
 {
-	return get_conjugate() * ((float)(1.0 / length()));
+	return get_conjugate() * (1.0 / length());
 }
 
 //-----------------------------------------------------------------------------
 Mat3 Quat::to_mat3() const
 {
+	const float& x = v.x;
+	const float& y = v.y;
+	const float& z = v.z;
+
 	Mat3 tmp;
-	float x = v.x;
-	float y = v.y;
-	float z = v.z;
 
 	tmp.m[0] = (float)(1.0 - 2.0*y*y - 2.0*z*z);
 	tmp.m[1] = (float)(2.0*x*y + 2.0*w*z);
@@ -110,10 +111,11 @@ Mat3 Quat::to_mat3() const
 //-----------------------------------------------------------------------------
 Mat4 Quat::to_mat4() const
 {
+	const float& x = v.x;
+	const float& y = v.y;
+	const float& z = v.z;
+
 	Mat4 tmp;
-	float x = v.x;
-	float y = v.y;
-	float z = v.z;
 
 	tmp.m[0] = (float)(1.0 - 2.0*y*y - 2.0*z*z);
 	tmp.m[1] = (float)(2.0*x*y + 2.0*w*z);
@@ -181,7 +183,7 @@ Quat Quat::power(float exp)
 }
 
 /*
-The geometric interpretation of the Quat dot product is similar to the int32_terpretation of
+The geometric interpretation of the Quat dot product is similar to the interpretation of
 the vector dot product; the larger the absolute value of the Quat dot product axb, the more
 "similar" the angular displacements represented by a and b.
 */
@@ -191,7 +193,7 @@ float dot(const Quat& a, const Quat& b)
 	return a.w * b.w + a.v.dot(b.v);
 }
 
-// Spherical Linear intERPolation
+// Spherical Linear interpolation
 //-----------------------------------------------------------------------------
 Quat slerp(const Quat& start, const Quat& end, float t)
 {

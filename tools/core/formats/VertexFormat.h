@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -25,33 +26,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
-#include "Resource.h"
-#include "Renderer.h"
-
 namespace crown
 {
 
-class Bundle;
-class Allocator;
-
-class VertexShaderResource
+/// Enumerates vertex formats.
+enum VertexFormat
 {
-public:
+	VF_XY_FLOAT_32					= 0,	///< XY coordinates, 32-bit floating point each
+	VF_XYZ_FLOAT_32					= 1,	///< XYZ coordinates, 32-bit floating point each
 
-	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			online(void* resource);
-	static void			unload(Allocator& allocator, void* resource);
-	static void			offline();
+	VF_UV_FLOAT_32					= 2,	///< UV coordinates, 32-bit floating point each
+	VF_UVT_FLOAT_32					= 3,	///< UVT coordinates, 32-bit floating point each
 
-	VertexShaderId		vertex_shader() const { return m_vertex_shader_id; }
+	VF_XYZ_NORMAL_FLOAT_32			= 4, 	///< XYZ normal coordinates, 32-bit floating point each
 
-private:
-
-	uint32_t			m_program_text_length;
-	char*				m_program_text;
-
-	VertexShaderId		m_vertex_shader_id;
+	VF_XYZ_UV_XYZ_NORMAL_FLOAT_32	= 5		///< XYZ coordinates, UV coordinates, XYZ normal coordinates, 32-bit floating point each
 };
 
 } // namespace crown

@@ -37,10 +37,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Filesystem.h"
 #include "TextReader.h"
 #include "DiskFile.h"
-#include "TextResource.h"
 #include "TextureResource.h"
-#include "VertexShaderResource.h"
-#include "PixelShaderResource.h"
+#include "MeshResource.h"
 #include "SoundResource.h"
 
 namespace crown
@@ -341,52 +339,23 @@ void ResourceManager::background_load()
 //-----------------------------------------------------------------------------
 void* ResourceManager::load_by_type(ResourceId name)
 {
-	if (name.type == TEXTURE_TYPE)
+	switch (name.type)
 	{
-		return TextureResource::load(m_resource_allocator, m_resource_bundle, name);
+		case TEXTURE_TYPE: return TextureResource::load(m_resource_allocator, m_resource_bundle, name);
+		case MESH_TYPE: return MeshResource::load(m_resource_allocator, m_resource_bundle, name);
+		case SOUND_TYPE: return SoundResource::load(m_resource_allocator, m_resource_bundle, name);
+		default: return NULL;
 	}
-	else if (name.type == TEXT_TYPE)
-	{
-		return TextResource::load(m_resource_allocator, m_resource_bundle, name);
-	}
-	else if (name.type == VERTEX_SHADER_TYPE)
-	{
-		return VertexShaderResource::load(m_resource_allocator, m_resource_bundle, name);
-	}
-	else if (name.type == PIXEL_SHADER_TYPE)
-	{
-		return PixelShaderResource::load(m_resource_allocator, m_resource_bundle, name);
-	}
-	else if (name.type == SOUND_TYPE)
-	{
-		return SoundResource::load(m_resource_allocator, m_resource_bundle, name);
-	}
-
-	return NULL;
 }
 
 //-----------------------------------------------------------------------------
 void ResourceManager::unload_by_type(ResourceId name, void* resource)
 {
-	if (name.type == TEXTURE_TYPE)
+	switch (name.type)
 	{
-		TextureResource::unload(m_resource_allocator, resource);
-	}
-	else if (name.type == TEXT_TYPE)
-	{
-		TextResource::unload(m_resource_allocator, resource);
-	}
-	else if (name.type == VERTEX_SHADER_TYPE)
-	{
-		VertexShaderResource::unload(m_resource_allocator, resource);
-	}
-	else if (name.type == PIXEL_SHADER_TYPE)
-	{
-		PixelShaderResource::unload(m_resource_allocator, resource);
-	}
-	else if (name.type == SOUND_TYPE)
-	{
-		SoundResource::unload(m_resource_allocator, resource);
+		case TEXTURE_TYPE: return TextureResource::unload(m_resource_allocator, resource);
+		case MESH_TYPE: return MeshResource::unload(m_resource_allocator, resource);
+		case SOUND_TYPE: return SoundResource::unload(m_resource_allocator, resource);
 	}
 
 	return;
@@ -395,25 +364,23 @@ void ResourceManager::unload_by_type(ResourceId name, void* resource)
 //-----------------------------------------------------------------------------
 void ResourceManager::online(ResourceId name, void* resource)
 {
-	if (name.type == TEXTURE_TYPE)
+	switch (name.type)
 	{
-		TextureResource::online(resource);
-	}
-	else if (name.type == TEXT_TYPE)
-	{
-		TextResource::online(resource);
-	}
-	else if (name.type == VERTEX_SHADER_TYPE)
-	{
-		VertexShaderResource::online(resource);
-	}
-	else if (name.type == PIXEL_SHADER_TYPE)
-	{
-		PixelShaderResource::online(resource);
-	}
-	else if (name.type == SOUND_TYPE)
-	{
-		SoundResource::online(resource);
+		case TEXTURE_TYPE:
+		{
+			TextureResource::online(resource);
+			break;
+		}
+		case MESH_TYPE:
+		{
+			MeshResource::online(resource);
+			break;
+		}
+		case SOUND_TYPE:
+		{
+			SoundResource::online(resource);
+			break;
+		}
 	}
 
 	m_resources_mutex.lock();
@@ -428,9 +395,7 @@ void ResourceManager::online(ResourceId name, void* resource)
 //-----------------------------------------------------------------------------
 void* ResourceManager::background_thread(void* thiz)
 {
-	ResourceManager* mgr = (ResourceManager*)thiz;
-
-	mgr->background_load();
+	((ResourceManager*)thiz)->background_load();
 
 	return NULL;
 }
