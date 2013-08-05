@@ -95,6 +95,12 @@ lua_State* LuaStack::state()
 }
 
 //-----------------------------------------------------------------------------
+int32_t LuaStack::num_args()
+{
+	return lua_gettop(m_state);
+}
+
+//-----------------------------------------------------------------------------
 void LuaStack::push_bool(bool value)
 {
 	lua_pushboolean(m_state, value);

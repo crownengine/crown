@@ -45,6 +45,11 @@ public:
 
 	lua_State*				state();
 
+	/// Returns the number of elements in the stack.
+	/// When called inside a function, it can be used to count
+	/// the number of arguments passed to the function itself.
+	int32_t					num_args();
+
 	void					push_bool(bool value);
 
 	void					push_int32(int32_t value);
