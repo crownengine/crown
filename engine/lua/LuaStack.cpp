@@ -207,7 +207,10 @@ Vec2& LuaStack::get_vec2(int32_t index)
 
 	Vec2* v = (Vec2*)lua_touserdata(m_state, index);
 
-	CE_ASSERT(v >= &vec2_buffer[0] && v <= &vec2_buffer[LUA_VEC2_BUFFER_SIZE-1], "Vec2 type error");
+	if (v < &vec2_buffer[0] || v > &vec2_buffer[LUA_VEC2_BUFFER_SIZE-1])
+	{
+		luaL_typerror(m_state, index, "Vec2");
+	}
 
 	return *v;
 }
@@ -219,7 +222,10 @@ Vec3& LuaStack::get_vec3(int32_t index)
 
 	Vec3* v = (Vec3*)lua_touserdata(m_state, index);
 
-	CE_ASSERT(v >= &vec3_buffer[0] && v <= &vec3_buffer[LUA_VEC3_BUFFER_SIZE-1], "Vec3 type error");
+	if (v < &vec3_buffer[0] || v > &vec3_buffer[LUA_VEC3_BUFFER_SIZE-1])
+	{
+		luaL_typerror(m_state, index, "Vec3");
+	}
 
 	return *v;
 }
@@ -231,7 +237,10 @@ Mat4& LuaStack::get_mat4(int32_t index)
 
 	Mat4* m = (Mat4*)lua_touserdata(m_state, index);
 
-	CE_ASSERT(m >= &mat4_buffer[0] && m <= &mat4_buffer[LUA_MAT4_BUFFER_SIZE-1], "Mat4 type error");
+	if (m < &mat4_buffer[0] || m > &mat4_buffer[LUA_MAT4_BUFFER_SIZE-1])
+	{
+		luaL_typerror(m_state, index, "Mat4");
+	}
 
 	return *m;
 }
@@ -243,7 +252,10 @@ Quat& LuaStack::get_quat(int32_t index)
 
 	Quat* q = (Quat*)lua_touserdata(m_state, index);
 
-	CE_ASSERT(q >= &quat_buffer[0] && q <= &quat_buffer[LUA_QUAT_BUFFER_SIZE-1], "Quat type error");
+	if (q < &quat_buffer[0] || q > &quat_buffer[LUA_QUAT_BUFFER_SIZE-1])
+	{
+		luaL_typerror(m_state, index, "Quat");
+	}
 
 	return *q;
 }
