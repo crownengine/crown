@@ -57,7 +57,8 @@ static const char* al_error_to_string(ALenum error)
 
 //-----------------------------------------------------------------------------
 ALRenderer::ALRenderer() :
-	m_sounds_id_table(m_allocator, MAX_SOUNDS)
+	m_buffers_id_table(m_allocator, MAX_BUFFERS),
+	m_sources_id_table(m_allocator, MAX_SOURCES)
 {
 
 }
@@ -80,13 +81,6 @@ void ALRenderer::init()
 	}
 
 	AL_CHECK(alcMakeContextCurrent(m_context));
-
-	ALfloat dir[] = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f};
-
-	AL_CHECK(alListener3f(AL_POSITION, 0, 0, 1.0f));
-	AL_CHECK(alListener3f(AL_VELOCITY, 0, 0, 0));
-	AL_CHECK(alListenerfv(AL_ORIENTATION, dir));
-
 }
 
 //-----------------------------------------------------------------------------
@@ -97,14 +91,32 @@ void ALRenderer::shutdown()
 }
 
 //-----------------------------------------------------------------------------
-SoundId ALRenderer::create_sound(const void* data, uint32_t size, uint32_t sample_rate, uint32_t channels, uint32_t bxs)
+SoundListener create_listener(float gain, Vec3 position, Vec3 velocity, Vec3 orientation_up, Vec3 orientation_at)
 {
-	SoundId id = m_sounds_id_table.create();
+	AL_CHECK(alListener3f(AL_POSITION, position.x, position.y, position.z));
+	AL_CHECK(alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z));
 
-	Sound& al_sound = m_sounds[id.index];
+	ALfloat orientation[] = {	
+								orientation_up.x, 
+								orientation_up.y, 
+								orientation_up.z,
+								orientation_at.x, 
+								orientation_at.y, 
+								orientation_at.z
+							};
+
+	AL_CHECK(alListenerfv(AL_ORIENTATION, orientation));
+}
+
+//-----------------------------------------------------------------------------
+SoundBufferId ALRenderer::create_buffer(const void* data, uint32_t size, uint32_t sample_rate, uint32_t channels, uint32_t bxs)
+{
+	SoundBufferId id = m_buffers_id_table.create();
+
+	SoundBuffer& al_buffer = m_buffers[id.index];
 
 	// Generates AL buffer
-	AL_CHECK(alGenBuffers(1, &al_sound.bufferid));
+	AL_CHECK(alGenBuffers(1, &al_buffer.id));
 
 	bool stereo = (channels > 1);
 
@@ -115,11 +127,11 @@ SoundId ALRenderer::create_sound(const void* data, uint32_t size, uint32_t sampl
 		{
 			if (stereo)
 			{
-				al_sound.format = AL_FORMAT_STEREO8;
+				al_buffer.format = AL_FORMAT_STEREO8;
 			}
 			else
 			{
-				al_sound.format = AL_FORMAT_MONO8;
+				al_buffer.format = AL_FORMAT_MONO8;
 			}
 
 			break;
@@ -129,11 +141,11 @@ SoundId ALRenderer::create_sound(const void* data, uint32_t size, uint32_t sampl
 		{
 			if (stereo)
 			{
-				al_sound.format = AL_FORMAT_STEREO16;
+				al_buffer.format = AL_FORMAT_STEREO16;
 			}
 			else
 			{
-				al_sound.format = AL_FORMAT_MONO16;
+				al_buffer.format = AL_FORMAT_MONO16;
 			}
 
 			break;
@@ -147,84 +159,97 @@ SoundId ALRenderer::create_sound(const void* data, uint32_t size, uint32_t sampl
 	}
 
 	// Sets sound's size
-	al_sound.size = size;
+	al_buffer.size = size;
 
 	// Sets sound's frequency
-	al_sound.freq = sample_rate;
+	al_buffer.freq = sample_rate;
 
 	// Fills AL buffer
-	AL_CHECK(alBufferData(al_sound.bufferid, al_sound.format, data, al_sound.size, al_sound.freq));
+	AL_CHECK(alBufferData(al_buffer.id, al_buffer.format, data, al_buffer.size, al_buffer.freq));
+}
+
+//-----------------------------------------------------------------------------
+void ALRenderer::destroy_buffer(SoundBufferId id)
+{
+	CE_ASSERT(m_buffers_id_table.has(id), "SoundBuffer does not exist");
+
+	SoundBuffer& al_buffer = m_buffers[id.index];
+
+	AL_CHECK(alDeleteBuffers(1, &al_buffer.id));
+}
+
+//-----------------------------------------------------------------------------
+SoundSourceId ALRenderer::create_source(Vec3 position, Vec3 velocity, Vec3 direction)
+{
+	SoundSourceId id = m_sources_id_table.create();
+
+	SoundSource& al_source = m_sources[id.index];
 
 	// Creates AL source
-	AL_CHECK(alGenSources(1, &al_sound.sourceid));
+	AL_CHECK(alGenSources(1, &al_source.id));
 
-	// Sets tmp source's properties
-    AL_CHECK(alSourcef(al_sound.sourceid, AL_PITCH, 1));
+    AL_CHECK(alSourcef(al_source.id, AL_GAIN, 1));
 
-    AL_CHECK(alSourcef(al_sound.sourceid, AL_GAIN, 1));
+    AL_CHECK(alSourcef(al_source.id, AL_MIN_GAIN, 0.0f));
 
-	AL_CHECK(alSource3f(al_sound.sourceid, AL_POSITION, 0, 0, 0));
+    AL_CHECK(alSourcef(al_source.id, AL_MAX_GAIN, 1.0f));
 
-	AL_CHECK(alSourcei(al_sound.sourceid, AL_LOOPING, AL_FALSE));
+	AL_CHECK(alSource3f(al_source.id, AL_POSITION, position.x, position.y, position.z));
 
+	AL_CHECK(alSource3f(al_source.id, AL_VELOCITY, velocity.x, velocity.y, velocity.z));
 
-	// Binds buffer to sources
-	AL_CHECK(alSourcei(al_sound.sourceid, AL_BUFFER, al_sound.bufferid));
+	AL_CHECK(alSource3f(al_source.id, AL_DIRECTION, direction.x, direction.y, direction.z));
 
+	AL_CHECK(alSourcei(al_source.id, AL_LOOPING, AL_FALSE));
 
 	return id;
 }
 
 //-----------------------------------------------------------------------------
-void ALRenderer::play_sound(SoundId id)
+void ALRenderer::play_source(SoundSourceId id)
 {
-	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exist");
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
 
-	Sound& al_sound = m_sounds[id.index];
+	SoundSource& al_source = m_sources[id.index];
 
-	AL_CHECK(alSourcePlay(al_sound.sourceid));
+	AL_CHECK(alSourcePlay(al_source.id));
 }
 
 //-----------------------------------------------------------------------------
-void ALRenderer::pause_sound(SoundId id)
+void ALRenderer::pause_source(SoundSourceId id)
 {
-	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exist");
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
 
-	Sound& al_sound = m_sounds[id.index];
+	SoundSource& al_source = m_sources[id.index];
 
-	if (is_sound_playing(id))
+	if (is_source_playing(id))
 	{
-		AL_CHECK(alSourcePause(al_sound.sourceid));
+		AL_CHECK(alSourcePause(al_source.id));
 	}
 }
 
 //-----------------------------------------------------------------------------
-void ALRenderer::destroy_sound(SoundId id)
+void ALRenderer::destroy_source(SoundSourceId id)
 {
-	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exist");
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
 
-	Sound& al_sound = m_sounds[id.index];
+	SoundSource& al_source = m_sources[id.index];
 
-	// alDeleteSources(1, al_sound.sourceid);
-	// alDeleteBuffers(1, al_sound.bufferid);
-
-	
-
-	// Must be implemented
+	alDeleteSources(1, &al_source.id);
 }
 
-//-----------------------------------------------------------------------------
-bool ALRenderer::is_sound_playing(SoundId id)
-{
-	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exist");
 
-	Sound& al_sound = m_sounds[id.index];
+//-----------------------------------------------------------------------------
+bool ALRenderer::is_source_playing(SoundSourceId id)
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
+
+	SoundSource& al_source = m_sources[id.index];
 
 	ALint source_state;
-	alGetSourcei(al_sound.sourceid, AL_SOURCE_STATE, &source_state);
+	alGetSourcei(al_source.id, AL_SOURCE_STATE, &source_state);
 
 	return source_state == AL_PLAYING;
 }
-
 
 } // namespace crown

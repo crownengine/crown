@@ -39,9 +39,11 @@ namespace crown
 {
 
 typedef Id SoundId;
+typedef Id SoundBufferId;
+typedef Id SoundSourceId;
 
 //-----------------------------------------------------------------------------
-struct Listener
+struct SoundListener
 {
 	ALfloat gain;
 	ALfloat position[3];
@@ -50,76 +52,67 @@ struct Listener
 };
 
 //-----------------------------------------------------------------------------
-struct Buffer
+struct SoundBuffer
 {
-	ALuint 		bufferid;
+	ALuint 		id;
+	
 	ALenum 		format;
 	ALsizei		size;
 	ALsizei		freq;
 };
 
-
 //-----------------------------------------------------------------------------
-struct Source
+struct SoundSource
 {
 	ALuint		id;
+
+	ALfloat		pos[3];
+	ALfloat		vel[3];
+	ALfloat		dir[3];
 };
 
-//-----------------------------------------------------------------------------
-struct Sound
-{
-	Source 		source;
-	Buffer 		buffer;		// Should be an array of buffer
-};
+
 
 //-----------------------------------------------------------------------------
 class ALRenderer
 {
 public:
 
-					ALRenderer();
-
-	void			init();
-	void			shutdown();
-
-	// FIXME: public APIs, They should be placed in AudioSystem
-	SoundId			create_sound(const void* data, uint32_t size, uint32_t sample_rate, uint32_t channels, uint32_t bxs);
-	void 			play_sound(SoundId id);
-	void			pause_sound(SoundId id);
-	void 			destroy_sound(SoundId id);
-
-	bool			is_sound_playing(SoundId id);
+	static const uint32_t	MAX_SOURCES = 128;
+	static const uint32_t	MAX_BUFFERS_PER_SOURCES = 16;
+	static const uint32_t 	MAX_BUFFERS = MAX_SOURCES * MAX_BUFFERS_PER_SOURCES;
 
 public:
 
-	static const uint32_t MAX_SOUNDS = 128;
-	// END
+							ALRenderer();
+
+	void					init();
+	void					shutdown();
+
+	SoundListener			create_listener(float gain, Vec3 position, Vec3 velocity, Vec3 orientation_up, Vec3 orientation_at);
+
+	SoundBufferId			create_buffer(const void* data, uint32_t size, uint32_t sample_rate, uint32_t channels, uint32_t bxs);
+	void					destroy_buffer(SoundBufferId id);
+
+	SoundSourceId			create_source(Vec3 position, Vec3 velocity, Vec3 direction);
+	void 					play_source(SoundSourceId id);
+	void					pause_source(SoundSourceId id);
+	void 					destroy_source(SoundSourceId id);
+
+	bool					is_source_playing(SoundSourceId id);
 
 private:
 
-	// FIXME: the following methods are the real wrapper of needed OpenAL functions
-	Buffer			create_buffer(const void* data, uint32_t size, uint32_t sample_rate, uint32_t channels, uint32_t bxs);
-	void			destroy_buffer(Buffer b);
+	HeapAllocator 			m_allocator;
 
-	Source			create_source();
-	void			play_source(Source s);
-	void			pause_source(Source s);
-	void			destroy_source(Source s);
-	bool			is_source_playing(Source s);
+	ALCdevice*				m_device;
+	ALCcontext*				m_context;
 
-	Listener		create_listener();
-	void			destroy_listener(Listener);
-	// END
+	IdTable 				m_buffers_id_table;
+	SoundBuffer 			m_buffers[MAX_BUFFERS];
 
-private:
-
-	HeapAllocator 	m_allocator;
-
-	ALCdevice*		m_device;
-	ALCcontext*		m_context;
-
-	IdTable			m_sounds_id_table;
-	Sound 			m_sounds[MAX_SOUNDS];
+	IdTable 				m_sources_id_table;
+	SoundSource 			m_sources[MAX_SOURCES];
 };
 
 } // namespace crown
