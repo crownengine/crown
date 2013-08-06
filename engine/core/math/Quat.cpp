@@ -34,16 +34,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+const Quat Quat::IDENTITY = Quat(0.0, 0.0, 0.0, 1.0);
+
 //-----------------------------------------------------------------------------
 Quat::Quat()
 {
 }
 
 //-----------------------------------------------------------------------------
-Quat::Quat(const Vec3& axis, float angle)
+Quat::Quat(float nx, float ny, float nz, float nw) :
+	v(nx, ny, nz),
+	w(nw)
 {
-	v = axis * math::sin(angle * 0.5);
-	w = math::cos(angle * 0.5);
+}
+
+//-----------------------------------------------------------------------------
+Quat::Quat(const Vec3& axis, float angle) :
+	v(axis * math::sin(angle * 0.5)),
+	w(math::cos(angle * 0.5))
+{
 }
 
 //-----------------------------------------------------------------------------

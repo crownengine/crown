@@ -56,39 +56,46 @@ public:
 public:
 
 	/// Does nothing
-				Quat();
+						Quat();
+
+	/// Constructs from individual components.
+						Quat(float nx, float ny, float nz, float nw);
 
 	/// Builds the quaternion from an @a axis and a @a angle.							
-				Quat(const Vec3& axis, float angle);	
+						Quat(const Vec3& axis, float angle);	
 
 	/// Negates the quaternion.
-	void		negate();
+	void				negate();
 
 	/// Builds the identity quaternion.
-	void		load_identity();
+	void				load_identity();
 
 	/// Returns the lenght of the quaternion.
-	float		length() const;		
+	float				length() const;		
 
 	/// Conjugates the quaternion.
-	void		conjugate();
+	void				conjugate();
 
 	/// Returns the quaternion's conjugate.
-	Quat		get_conjugate() const;
+	Quat				get_conjugate() const;
 
 	/// Quaternion's inverse				
-	Quat		get_inverse() const;
+	Quat				get_inverse() const;
 
-	Mat3		to_mat3() const;
-	Mat4		to_mat4() const;
+	Mat3				to_mat3() const;
+	Mat4				to_mat4() const;
 
 	/// Cross product
-	Quat		operator*(const Quat& b) const;
+	Quat				operator*(const Quat& b) const;
 
 	/// Multiplication by a scalar		
-	Quat		operator*(const float& k) const;
+	Quat				operator*(const float& k) const;
 
-	Quat		power(float exp);
+	Quat				power(float exp);
+
+public:
+
+	static const Quat	IDENTITY;
 };
 
 } // namespace crown
