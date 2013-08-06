@@ -199,71 +199,59 @@ const char* LuaStack::get_string(int32_t index)
 //-----------------------------------------------------------------------------
 void* LuaStack::get_lightdata(int32_t index)
 {
-	CE_ASSERT(lua_islightuserdata(m_state, index), "Not a lightuserdata object");
-
-	void* data = lua_touserdata(m_state, index);
-
-	return data;	
+	return lua_touserdata(m_state, index);	
 }
 
 //-----------------------------------------------------------------------------
 Vec2& LuaStack::get_vec2(int32_t index)
 {
-	CE_ASSERT(lua_islightuserdata(m_state, index), "Not a lightuserdata object");
-
-	Vec2* v = (Vec2*)lua_touserdata(m_state, index);
+	void* v = lua_touserdata(m_state, index);
 
 	if (v < &vec2_buffer[0] || v > &vec2_buffer[LUA_VEC2_BUFFER_SIZE-1])
 	{
 		luaL_typerror(m_state, index, "Vec2");
 	}
 
-	return *v;
+	return *(Vec2*)v;
 }
 
 //-----------------------------------------------------------------------------
 Vec3& LuaStack::get_vec3(int32_t index)
 {
-	CE_ASSERT(lua_islightuserdata(m_state, index), "Not a lightuserdata object");
-
-	Vec3* v = (Vec3*)lua_touserdata(m_state, index);
+	void* v = lua_touserdata(m_state, index);
 
 	if (v < &vec3_buffer[0] || v > &vec3_buffer[LUA_VEC3_BUFFER_SIZE-1])
 	{
 		luaL_typerror(m_state, index, "Vec3");
 	}
 
-	return *v;
+	return *(Vec3*)v;
 }
 
 //-----------------------------------------------------------------------------
 Mat4& LuaStack::get_mat4(int32_t index)
 {
-	CE_ASSERT(lua_islightuserdata(m_state, index), "Not a lightuserdata object");
-
-	Mat4* m = (Mat4*)lua_touserdata(m_state, index);
+	void* m = lua_touserdata(m_state, index);
 
 	if (m < &mat4_buffer[0] || m > &mat4_buffer[LUA_MAT4_BUFFER_SIZE-1])
 	{
 		luaL_typerror(m_state, index, "Mat4");
 	}
 
-	return *m;
+	return *(Mat4*)m;
 }
 
 //-----------------------------------------------------------------------------
 Quat& LuaStack::get_quat(int32_t index)
 {
-	CE_ASSERT(lua_islightuserdata(m_state, index), "Not a lightuserdata object");
-
-	Quat* q = (Quat*)lua_touserdata(m_state, index);
+	void* q = lua_touserdata(m_state, index);
 
 	if (q < &quat_buffer[0] || q > &quat_buffer[LUA_QUAT_BUFFER_SIZE-1])
 	{
 		luaL_typerror(m_state, index, "Quat");
 	}
 
-	return *q;
+	return *(Quat*)q;
 }
 
 } // namespace crown
