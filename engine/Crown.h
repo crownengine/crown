@@ -44,7 +44,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Quat.h"
 #include "Random.h"
 #include "Ray.h"
-#include "Shape.h"
 #include "Triangle.h"
 #include "Vec2.h"
 #include "Vec3.h"

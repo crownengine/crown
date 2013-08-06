@@ -121,7 +121,6 @@ set (MATH_SRC
 	core/math/Plane.cpp
 	core/math/Point2.cpp
 	core/math/Quat.cpp
-	core/math/Shape.cpp
 	core/math/Vec2.cpp
 	core/math/Vec3.cpp
 	core/math/Vec4.cpp
@@ -139,7 +138,6 @@ set (MATH_HEADERS
 	core/math/Quat.h
 	core/math/Random.h
 	core/math/Ray.h
-	core/math/Shape.h
 	core/math/Triangle.h
 	core/math/Vec2.h
 	core/math/Vec3.h
