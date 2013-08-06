@@ -38,8 +38,8 @@ CE_EXPORT int32_t quat(lua_State* L)
 {
 	LuaStack stack(L);
 
-	float w = stack.get_float(1);
-	Vec3& v = stack.get_vec3(2);
+	Vec3& v = stack.get_vec3(1);
+	float w = stack.get_float(2);
 
 	stack.push_quat(Quat(v, w));
 
