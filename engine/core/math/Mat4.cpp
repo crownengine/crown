@@ -66,6 +66,32 @@ Mat4::Mat4(float r1c1, float r2c1, float r3c1, float r4c1, float r1c2, float r2c
 }
 
 //-----------------------------------------------------------------------------
+Mat4::Mat4(const Quat& r, const Vec3& p)
+{
+	const float& rx = r.v.x;
+	const float& ry = r.v.y;
+	const float& rz = r.v.z;
+	const float& rw = r.w;
+
+	m[0] = 1.0 - 2.0 * ry * ry - 2.0 * rz * rz;
+	m[1] = 2.0 * rx * ry + 2.0 * rw * rz;
+	m[2] = 2.0 * rx * rz - 2.0 * rw * ry;
+	m[3] = 0;
+	m[4] = 2.0 * rx * ry - 2.0 * rw * rz;
+	m[5] = 1.0 - 2.0 * rx * rx - 2.0 * rz * rz;
+	m[6] = 2.0 * ry * rz + 2.0 * rw * rx;
+	m[7] = 0.0;
+	m[8] = 2.0 * rx * rz + 2.0 * rw * ry;
+	m[9] = 2.0 * ry * rz - 2.0 * rw * rx;
+	m[10] = 1.0 - 2.0 * rx * rx - 2.0 * ry * ry;
+	m[11] = 0.0;
+	m[12] = p.x;
+	m[13] = p.y;
+	m[14] = p.z;
+	m[15] = 1.0;
+}
+
+//-----------------------------------------------------------------------------
 Mat4::Mat4(const float v[16])
 {
 	m[0] = v[0];

@@ -69,7 +69,13 @@ public:
 						Mat4();	
 
 	/// Constructs from a set of float
-						Mat4(float r1c1, float r2c1, float r3c1, float r4c1, float r1c2, float r2c2, float r3c2, float r4c2, float r1c3, float r2c3, float r3c3, float r4c3, float r1c4, float r2c4, float r3c4, float r4c4);
+						Mat4(float r1c1, float r2c1, float r3c1, float r4c1,
+								float r1c2, float r2c2, float r3c2, float r4c2,
+								float r1c3, float r2c3, float r3c3, float r4c3,
+								float r1c4, float r2c4, float r3c4, float r4c4);
+
+	/// Constructs from rotation @a r and position @a p.
+						Mat4(const Quat& r, const Vec3& p);
 	
 	/// Contructs from the @a v array
 						Mat4(const float v[16]);						
