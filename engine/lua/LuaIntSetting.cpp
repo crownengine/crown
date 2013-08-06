@@ -33,7 +33,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t int_setting_query_value(lua_State* L)
+CE_EXPORT int int_setting_query_value(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -54,7 +54,7 @@ CE_EXPORT int32_t int_setting_query_value(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t int_setting_query_synopsis(lua_State* L)
+CE_EXPORT int int_setting_query_synopsis(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -75,7 +75,7 @@ CE_EXPORT int32_t int_setting_query_synopsis(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t int_setting_query_min(lua_State* L)
+CE_EXPORT int int_setting_query_min(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -96,7 +96,7 @@ CE_EXPORT int32_t int_setting_query_min(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t int_setting_query_max(lua_State* L)
+CE_EXPORT int int_setting_query_max(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -117,7 +117,7 @@ CE_EXPORT int32_t int_setting_query_max(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t int_setting_update(lua_State* L)
+CE_EXPORT int int_setting_update(lua_State* L)
 {
 	LuaStack stack(L);
 

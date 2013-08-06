@@ -34,7 +34,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t mouse_button_pressed(lua_State* L)
+CE_EXPORT int mouse_button_pressed(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -46,7 +46,7 @@ CE_EXPORT int32_t mouse_button_pressed(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t mouse_button_released(lua_State* L)
+CE_EXPORT int mouse_button_released(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -58,7 +58,7 @@ CE_EXPORT int32_t mouse_button_released(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t mouse_any_pressed(lua_State* L)
+CE_EXPORT int mouse_any_pressed(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -68,7 +68,7 @@ CE_EXPORT int32_t mouse_any_pressed(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t mouse_any_released(lua_State* L)
+CE_EXPORT int mouse_any_released(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -78,7 +78,7 @@ CE_EXPORT int32_t mouse_any_released(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t mouse_cursor_xy(lua_State* L)
+CE_EXPORT int mouse_cursor_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -88,7 +88,7 @@ CE_EXPORT int32_t mouse_cursor_xy(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t mouse_set_cursor_xy(lua_State* L)
+CE_EXPORT int mouse_set_cursor_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -100,7 +100,7 @@ CE_EXPORT int32_t mouse_set_cursor_xy(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t mouse_cursor_relative_xy(lua_State* L)
+CE_EXPORT int mouse_cursor_relative_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -110,7 +110,7 @@ CE_EXPORT int32_t mouse_cursor_relative_xy(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t mouse_set_cursor_relative_xy(lua_State* L)
+CE_EXPORT int mouse_set_cursor_relative_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
