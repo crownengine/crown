@@ -248,6 +248,9 @@ CE_EXPORT int32_t luaopen_libcrown(lua_State* /*L*/)
 
 	load_window(*env);
 
+	load_unit(*env);
+	load_world(*env);
+
 	return 1;
 }
 

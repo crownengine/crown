@@ -36,6 +36,7 @@ class Vec2;
 class Vec3;
 class Mat4;
 class Quat;
+class Unit;
 
 class LuaStack
 {
@@ -51,43 +52,33 @@ public:
 	int32_t					num_args();
 
 	void					push_bool(bool value);
-
 	void					push_int32(int32_t value);
-
 	void					push_uint32(uint32_t value);
-
 	void					push_int64(int64_t value);
-
 	void					push_uint64(uint64_t value);
-
 	void 					push_float(float value);
-
 	void 					push_string(const char* str, size_t len);
-
 	void					push_lightdata(void* data);
 
 	void					push_vec2(const Vec2& v);
-
 	void					push_vec3(const Vec3& v);
-
 	void					push_mat4(const Mat4& m);
-
 	void					push_quat(const Quat& q);
 
+	void					push_unit(Unit* unit);
+
 	bool 					get_bool(int32_t index);
-
 	int32_t					get_int(int32_t index);
-
 	float 					get_float(int32_t index);
-
 	const char*				get_string(int32_t index);
-
 	void*					get_lightdata(int32_t index);
 
 	Vec2&					get_vec2(int32_t index);
 	Vec3&					get_vec3(int32_t index);
 	Mat4&					get_mat4(int32_t index);
 	Quat&					get_quat(int32_t index);
+
+	Unit*					get_unit(int32_t index);
 
 private:
 

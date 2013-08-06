@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vec3.h"
 #include "Mat4.h"
 #include "Quat.h"
+#include "Unit.h"
 
 namespace crown
 {
@@ -173,6 +174,12 @@ void LuaStack::push_quat(const Quat& q)
 }
 
 //-----------------------------------------------------------------------------
+void LuaStack::push_unit(Unit* unit)
+{
+	lua_pushlightuserdata(m_state, unit);
+}
+
+//-----------------------------------------------------------------------------
 bool LuaStack::get_bool(int32_t index)
 {
 	return (bool) luaL_checkinteger(m_state, index);
@@ -264,6 +271,14 @@ Quat& LuaStack::get_quat(int32_t index)
 	}
 
 	return *q;
+}
+
+//-----------------------------------------------------------------------------
+Unit* LuaStack::get_unit(int32_t index)
+{
+	Unit* u = (Unit*)lua_touserdata(m_state, index);
+
+	return u;
 }
 
 } // namespace crown

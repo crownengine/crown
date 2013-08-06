@@ -130,9 +130,12 @@ void load_mouse(LuaEnvironment& env);
 void load_keyboard(LuaEnvironment& env);
 void load_touch(LuaEnvironment& env);
 void load_accelerometer(LuaEnvironment& env);
-void load_camera(LuaEnvironment& env);
 void load_device(LuaEnvironment& env);
 void load_window(LuaEnvironment& env);
+
+void load_unit(LuaEnvironment& env);
+void load_camera(LuaEnvironment& env);
+void load_world(LuaEnvironment& env);
 
 CE_EXPORT int32_t luaopen_libcrown(lua_State* L);
 
