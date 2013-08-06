@@ -99,7 +99,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Engine
 #include "Camera.h"
 #include "Device.h"
-#include "Glyph.h"
 #include "Bundle.h"
 #include "ArchiveBundle.h"
 #include "FileBundle.h"

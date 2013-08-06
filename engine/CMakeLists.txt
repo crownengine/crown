@@ -70,7 +70,6 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
-	Glyph.h
 	ConsoleServer.h
 	FPSSystem.h
 )
