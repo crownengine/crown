@@ -99,15 +99,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Engine
 #include "Camera.h"
 #include "Device.h"
-#include "Bundle.h"
-#include "ArchiveBundle.h"
-#include "FileBundle.h"
-#include "ResourceManager.h"
-#include "TextureResource.h"
-#include "MeshResource.h"
-#include "SoundResource.h"
-#include "MaterialResource.h"
-#include "FontResource.h"
 
 // Engine/Input
 #include "EventDispatcher.h"
@@ -139,3 +130,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "DebugRenderer.h"
 #include "PixelFormat.h"
 #include "VertexFormat.h"
+
+// Engine/Resource
+#include "Bundle.h"
+#include "ArchiveBundle.h"
+#include "FileBundle.h"
+#include "ResourceManager.h"
+#include "TextureResource.h"
+#include "MeshResource.h"
+#include "SoundResource.h"
+#include "MaterialResource.h"
+#include "FontResource.h"
