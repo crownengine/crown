@@ -34,7 +34,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t quat(lua_State* L)
+CE_EXPORT int quat(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -47,7 +47,7 @@ CE_EXPORT int32_t quat(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t quat_negate(lua_State* L)
+CE_EXPORT int quat_negate(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -59,7 +59,7 @@ CE_EXPORT int32_t quat_negate(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t quat_load_identity(lua_State* L)
+CE_EXPORT int quat_load_identity(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -71,7 +71,7 @@ CE_EXPORT int32_t quat_load_identity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t quat_length(lua_State* L)
+CE_EXPORT int quat_length(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -83,7 +83,7 @@ CE_EXPORT int32_t quat_length(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t quat_conjugate(lua_State* L)
+CE_EXPORT int quat_conjugate(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -95,7 +95,7 @@ CE_EXPORT int32_t quat_conjugate(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t quat_inverse(lua_State* L)
+CE_EXPORT int quat_inverse(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -107,7 +107,7 @@ CE_EXPORT int32_t quat_inverse(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t quat_cross(lua_State* L)
+CE_EXPORT int quat_cross(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -120,7 +120,7 @@ CE_EXPORT int32_t quat_cross(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t quat_multiply(lua_State* L)
+CE_EXPORT int quat_multiply(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -133,7 +133,7 @@ CE_EXPORT int32_t quat_multiply(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t quat_power(lua_State* L)
+CE_EXPORT int quat_power(lua_State* L)
 {
 	LuaStack stack(L);
 
