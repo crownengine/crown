@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <cstdlib>
+#include <unistd.h>
 
 #include "Config.h"
 #include "Device.h"
@@ -499,10 +500,46 @@ void Device::create_console_server()
 //-----------------------------------------------------------------------------
 void Device::create_audio_renderer()
 {
-	// FIXME: ALRenderer should be a backend. In the future
 	m_audio_renderer = CE_NEW(m_allocator, ALRenderer)();
 
 	m_audio_renderer->init();
+
+	Log::i("Start Audio Rendering Test...");
+
+	ResourceId rid1 = load("mono.wav");
+
+	m_resource_manager->flush();
+
+	SoundResource* res1 = (SoundResource*)m_resource_manager->data(rid1);
+
+	SoundBufferId bid1 = m_audio_renderer->create_buffer(res1->data(), res1->size(), res1->sample_rate(), res1->channels(), res1->bits_per_sample());
+
+
+	Vec3 pos(0.0f, 0.0f, -3.0f);
+	Vec3 pos1(100.0f, 0.0f, 100.0f);
+
+	Vec3 vel(0.0f, 0.0f, 0.0f);
+	Vec3 dir(0.0f, 0.0f, 1.0f);
+
+	Vec3 dir1(1.0f, 0.0f, 1.0f);
+	Vec3 dir2(0.0f, 0.0f, -1.0f);
+
+
+	SoundSourceId sid = m_audio_renderer->create_source(pos, vel, dir, false); 
+	SoundSourceId sid1 = m_audio_renderer->create_source(pos1, vel, dir, false); 
+
+
+	m_audio_renderer->bind_buffer(sid, bid1);
+	m_audio_renderer->bind_buffer(sid1, bid1);
+
+	m_audio_renderer->play_source(sid);
+
+	while (m_audio_renderer->source_playing(sid));
+
+	m_audio_renderer->play_source(sid1);
+
+
+	Log::i("End Audio Rendering Test...");
 
 	Log::d("Audio renderer created");
 }
