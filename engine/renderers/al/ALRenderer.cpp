@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-
 //-----------------------------------------------------------------------------
 static const char* al_error_to_string(ALenum error)
 {
@@ -81,6 +80,19 @@ void ALRenderer::init()
 	}
 
 	AL_CHECK(alcMakeContextCurrent(m_context));
+
+	AL_CHECK(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
+
+	AL_CHECK(alDopplerFactor(1.0f));
+	AL_CHECK(alDopplerVelocity(343.0f));
+
+	// Default listener
+	Vec3 pos(0.0f, 0.0f, 0.0f);
+	Vec3 vel(0.0f, 0.0f, 0.0f);
+	Vec3 at(0.0f, 0.0f, -1.0f);
+	Vec3 up(0.0f, 1.0f, 0.0f);
+
+	set_listener(pos, vel, at, up);
 }
 
 //-----------------------------------------------------------------------------
@@ -91,19 +103,13 @@ void ALRenderer::shutdown()
 }
 
 //-----------------------------------------------------------------------------
-SoundListener create_listener(float gain, Vec3 position, Vec3 velocity, Vec3 orientation_up, Vec3 orientation_at)
+void ALRenderer::set_listener(Vec3& position, Vec3& velocity, Vec3& orientation_up, Vec3& orientation_at)
 {
 	AL_CHECK(alListener3f(AL_POSITION, position.x, position.y, position.z));
 	AL_CHECK(alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z));
 
-	ALfloat orientation[] = {	
-								orientation_up.x, 
-								orientation_up.y, 
-								orientation_up.z,
-								orientation_at.x, 
-								orientation_at.y, 
-								orientation_at.z
-							};
+	ALfloat orientation[] = { orientation_up.x, orientation_up.y, orientation_up.z,
+								orientation_at.x, orientation_at.y, orientation_at.z };
 
 	AL_CHECK(alListenerfv(AL_ORIENTATION, orientation));
 }
@@ -178,8 +184,9 @@ void ALRenderer::destroy_buffer(SoundBufferId id)
 	AL_CHECK(alDeleteBuffers(1, &al_buffer.id));
 }
 
+
 //-----------------------------------------------------------------------------
-SoundSourceId ALRenderer::create_source(Vec3 position, Vec3 velocity, Vec3 direction)
+SoundSourceId ALRenderer::create_source(Vec3& position, Vec3& velocity, Vec3& direction, bool loop)
 {
 	SoundSourceId id = m_sources_id_table.create();
 
@@ -188,11 +195,11 @@ SoundSourceId ALRenderer::create_source(Vec3 position, Vec3 velocity, Vec3 direc
 	// Creates AL source
 	AL_CHECK(alGenSources(1, &al_source.id));
 
-    AL_CHECK(alSourcef(al_source.id, AL_GAIN, 1));
+	AL_CHECK(alSourcef(al_source.id, AL_PITCH, 1.0f));
 
-    AL_CHECK(alSourcef(al_source.id, AL_MIN_GAIN, 0.0f));
+	AL_CHECK(alSourcef(al_source.id, AL_REFERENCE_DISTANCE, 0.1f));
 
-    AL_CHECK(alSourcef(al_source.id, AL_MAX_GAIN, 1.0f));
+	AL_CHECK(alSourcef(al_source.id, AL_MAX_DISTANCE, 1000.0f));
 
 	AL_CHECK(alSource3f(al_source.id, AL_POSITION, position.x, position.y, position.z));
 
@@ -200,7 +207,14 @@ SoundSourceId ALRenderer::create_source(Vec3 position, Vec3 velocity, Vec3 direc
 
 	AL_CHECK(alSource3f(al_source.id, AL_DIRECTION, direction.x, direction.y, direction.z));
 
-	AL_CHECK(alSourcei(al_source.id, AL_LOOPING, AL_FALSE));
+	if (loop)
+	{
+		AL_CHECK(alSourcei(al_source.id, AL_LOOPING, AL_TRUE));
+	}
+	else
+	{
+		AL_CHECK(alSourcei(al_source.id, AL_LOOPING, AL_FALSE));
+	}
 
 	return id;
 }
@@ -222,7 +236,7 @@ void ALRenderer::pause_source(SoundSourceId id)
 
 	SoundSource& al_source = m_sources[id.index];
 
-	if (is_source_playing(id))
+	if (source_playing(id))
 	{
 		AL_CHECK(alSourcePause(al_source.id));
 	}
@@ -238,9 +252,70 @@ void ALRenderer::destroy_source(SoundSourceId id)
 	alDeleteSources(1, &al_source.id);
 }
 
+//-----------------------------------------------------------------------------
+void ALRenderer::bind_buffer(SoundSourceId sid, SoundBufferId bid)
+{
+	CE_ASSERT(m_sources_id_table.has(sid), "SoundSource does not exist");
+	CE_ASSERT(m_buffers_id_table.has(bid), "SoundBuffer does not exist");
+
+	SoundSource& al_source = m_sources[sid.index];
+	SoundBuffer& al_buffer = m_buffers[bid.index];
+
+	alSourcei(al_source.id, AL_BUFFER, al_buffer.id);
+}
 
 //-----------------------------------------------------------------------------
-bool ALRenderer::is_source_playing(SoundSourceId id)
+void ALRenderer::set_source_position(SoundSourceId id, Vec3& pos)
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
+
+	SoundSource& al_source = m_sources[id.index];
+
+	AL_CHECK(alSource3f(al_source.id, AL_POSITION, pos.x, pos.y, pos.z));
+}
+
+//-----------------------------------------------------------------------------
+void ALRenderer::set_source_velocity(SoundSourceId id, Vec3& vel)
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
+
+	SoundSource& al_source = m_sources[id.index];
+
+	AL_CHECK(alSource3f(al_source.id, AL_VELOCITY, vel.x, vel.y, vel.z));
+}
+
+//-----------------------------------------------------------------------------
+void ALRenderer::set_source_direction(SoundSourceId id, Vec3& dir)
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
+
+	SoundSource& al_source = m_sources[id.index];
+
+	AL_CHECK(alSource3f(al_source.id, AL_DIRECTION, dir.x, dir.y, dir.z));
+}
+
+//-----------------------------------------------------------------------------
+void ALRenderer::set_source_gain(SoundSourceId id, float gain)
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
+
+	SoundSource& al_source = m_sources[id.index];
+
+	AL_CHECK(alSourcef(al_source.id, AL_GAIN, gain));	
+}
+
+//-----------------------------------------------------------------------------
+void ALRenderer::set_source_rolloff(SoundSourceId id, float rolloff)
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
+
+	SoundSource& al_source = m_sources[id.index];
+
+	AL_CHECK(alSourcef(al_source.id, AL_ROLLOFF_FACTOR, rolloff));		
+}
+
+//-----------------------------------------------------------------------------
+bool ALRenderer::source_playing(SoundSourceId id)
 {
 	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
 

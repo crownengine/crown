@@ -43,19 +43,10 @@ typedef Id SoundBufferId;
 typedef Id SoundSourceId;
 
 //-----------------------------------------------------------------------------
-struct SoundListener
-{
-	ALfloat gain;
-	ALfloat position[3];
-	ALfloat velocity[3];
-	ALfloat orientation[6];
-};
-
-//-----------------------------------------------------------------------------
 struct SoundBuffer
 {
 	ALuint 		id;
-	
+
 	ALenum 		format;
 	ALsizei		size;
 	ALsizei		freq;
@@ -86,20 +77,54 @@ public:
 
 							ALRenderer();
 
+	/// Init AL renderer. Must be called first
 	void					init();
+
+	/// Shutdown AL Renderer
 	void					shutdown();
 
-	SoundListener			create_listener(float gain, Vec3 position, Vec3 velocity, Vec3 orientation_up, Vec3 orientation_at);
+	/// Sets listener parameters. In OpenAL, @a position affects audibility of sounds, 
+	/// @a velocity affects doppler shift and @a orientation affects how a sound could be heard
+	void					set_listener(Vec3& position, Vec3& velocity, Vec3& orientation_up, Vec3& orientation_at);
 
+	/// Creates AL buffer's @a data, with a specific @a size, which contains sound raw data.
+	/// More parameters must be specified, such as @a sample_rate, that is the number of sample per unit of time 
+	/// taken from a continuous signal to make a discrete signal, @a channels which specifies if sound is mono or stereo and @ bxs
+	/// (bits per sample) which specifies the magnitude of samples information.
+	/// N.B: stereo sound can not be attenuated
 	SoundBufferId			create_buffer(const void* data, uint32_t size, uint32_t sample_rate, uint32_t channels, uint32_t bxs);
+
+	/// Destroys AL buffer
 	void					destroy_buffer(SoundBufferId id);
 
-	SoundSourceId			create_source(Vec3 position, Vec3 velocity, Vec3 direction);
+	/// Creates AL source of sound at the given @position in 3D space
+	/// @a velocity affects doppler shift and @a direction affects how a sound could be heard
+	SoundSourceId			create_source(Vec3& position, Vec3& velocity, Vec3& direction, bool loop);
+
+	/// Plays a sound, specified by @a id, previously created
 	void 					play_source(SoundSourceId id);
+
+	/// Pauses a sound, specified by @a id, previously created
 	void					pause_source(SoundSourceId id);
+
+	/// Destroys a sound, specified by @a id, previously created
 	void 					destroy_source(SoundSourceId id);
 
-	bool					is_source_playing(SoundSourceId id);
+	/// Binds a AL buffer to AL source
+	void					bind_buffer(SoundSourceId sid, SoundBufferId bid);
+
+	/// Sets source's @a position. It affects sound audibility
+	void					set_source_position(SoundSourceId id, Vec3& pos);
+	/// Sets source's @a velocity. It affects doppler shift
+	void					set_source_velocity(SoundSourceId id, Vec3& vel);
+	/// Sets source's @a direction. It affects how a sound could be heard
+	void					set_source_direction(SoundSourceId id, Vec3& dir);
+	/// Sets source's @a gain, that is measure sound's amplification
+	void 					set_source_gain(SoundSourceId id, float gain);
+	/// Sets source's @a rolloff factor. Greater it is, greater sound's attenuation is
+	void					set_source_rolloff(SoundSourceId id, float rolloff);
+	/// Is source #@a id playing?
+	bool					source_playing(SoundSourceId id);
 
 private:
 
