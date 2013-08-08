@@ -145,7 +145,7 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/third/luajit/include/luajit-2.0\
 
 LOCAL_CPPFLAGS	:= -g -fexceptions -std=c++03 -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-variadic-macros
-LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv2 -lz 
+LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv2 -lz -lOpenSLES
 LOCAL_SHARED_LIBRARIES := luajit-5.1
 LOCAL_STATIC_LIBRARIES := android_native_app_glue
 include $(BUILD_SHARED_LIBRARY)
