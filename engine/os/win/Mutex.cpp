@@ -29,8 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-namespace os
-{
 
 //-----------------------------------------------------------------------------
 Mutex::Mutex()
@@ -56,5 +54,4 @@ void Mutex::unlock()
     LeaveCriticalSection(&m_cs);
 }
 
-} // namespace os
 } // namespace crown

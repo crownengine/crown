@@ -34,8 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-namespace os
-{
 
 class Cond
 {
@@ -50,7 +48,12 @@ public:
 private:
 
 	pthread_cond_t	m_cond;
+
+private:
+
+	// Disable copying.
+					Cond(const Cond&);
+	Cond&			operator=(const Cond&);
 };
 
-} // namespace os
 } // namespace crown

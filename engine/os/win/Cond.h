@@ -33,23 +33,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-namespace os
-{
 
 class Cond
 {
 public:
 
-							Cond();
-							~Cond();
+						Cond();
+						~Cond();
 
-	void					signal();
-	void					wait(Mutex& mutex);
+	void				signal();
+	void				wait(Mutex& mutex);
 
 private:
 
-	CONDITION_VARIABLE		m_cond;
+						Cond(const Cond&);
+	Cond&				operator=(const Cond&);
+
+private:
+
+	CONDITION_VARIABLE	m_cond;
 };
 
-} // namespace os
 } // namespace crown
