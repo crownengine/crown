@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OsWindow.h"
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
-#include "StringUtils.h"
 
 namespace crown
 {
@@ -164,7 +163,7 @@ CE_EXPORT int window_title(lua_State* L)
 
 	const char* title = device()->window()->title();
 
-	stack.push_string(title, string::strlen(title));
+	stack.push_string(title);
 
 	return 1;
 }
