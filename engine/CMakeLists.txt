@@ -54,6 +54,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/input
 	${CMAKE_SOURCE_DIR}/engine/renderers
 	${CMAKE_SOURCE_DIR}/engine/resource
+	${CMAKE_SOURCE_DIR}/engine/rpc
 	${CMAKE_SOURCE_DIR}/engine/network
 	${CMAKE_SOURCE_DIR}/engine/lua
 )
@@ -270,6 +271,7 @@ set (RENDERERS_HEADERS
 
 set (RESOURCE_SRC
 	resource/MaterialResource.cpp
+	resource/ResourceLoader.cpp
 	resource/ResourceManager.cpp
 	resource/TextureResource.cpp
 	resource/MeshResource.cpp
@@ -282,6 +284,7 @@ set (RESOURCE_SRC
 set (RESOURCE_HEADERS
 	resource/MaterialResource.h
 	resource/Resource.h
+	resource/ResourceLoader.h
 	resource/ResourceManager.h
 	resource/Bundle.h
 	resource/TextureResource.h
@@ -290,6 +293,16 @@ set (RESOURCE_HEADERS
 	resource/SoundResource.h
 	resource/ArchiveBundle.h
 	resource/FileBundle.h
+)
+
+set (RPC_SRC
+#	rpc/RPCServer.cpp
+#	rpc/RPCConnection.cpp
+)
+
+set (RPC_HEADERS
+#	rpc/RPCServer.h
+#	rpc/RPCConnection.h
 )
 
 set (OS_SRC
@@ -464,6 +477,8 @@ set (CROWN_SOURCES
 
 	${RESOURCE_SRC}
 
+	${RPC_SRC}
+
 #	${NETWORK_SRC}
 
 	${OS_SRC}
@@ -488,6 +503,8 @@ set (CROWN_HEADERS
 	${RENDERERS_HEADERS}
 
 	${RESOURCE_HEADERS}
+
+	${RPC_HEADERS}
 
 #	${NETWORK_HEADERS}
 

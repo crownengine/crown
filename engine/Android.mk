@@ -89,6 +89,7 @@ LOCAL_SRC_FILES :=\
 	resource/FontResource.cpp\
 	resource/MaterialResource.cpp\
 	resource/PixelShaderResource.cpp\
+	resource/ResourceLoader.cpp\
 	resource/ResourceManager.cpp\
 	resource/TextResource.cpp\
 	resource/TextureResource.cpp\

@@ -28,40 +28,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "List.h"
-#include "Queue.h"
 #include "Resource.h"
 #include "HeapAllocator.h"
-#include "Thread.h"
-#include "Mutex.h"
-#include "Cond.h"
+#include "ResourceLoader.h"
 
 namespace crown
 {
 
 struct ResourceEntry
 {
+	bool operator==(const ResourceId& resource) { return id == resource; }
+	bool operator==(const ResourceEntry& b) { return id == b.id; }
+
 	ResourceId		id;
 	ResourceState	state;
-
 	uint32_t		references;
-
 	void*			resource;
-
-	bool			operator==(const ResourceId& resource)
-					{
-						return id == resource;
-					}
-
-	bool			operator==(const ResourceEntry& b)
-					{
-						return id == b.id;
-					}
-};
-
-struct LoadedResource
-{
-	ResourceId	resource;
-	void*		data;
 };
 
 class Bundle;
@@ -71,7 +53,7 @@ class ResourceManager
 {
 public:
 
-	/// Read resources from @a bundle and store resource data using @a allocator.
+	/// The resources will be loaded from @a bundle.
 							ResourceManager(Bundle& bundle);
 							~ResourceManager();
 
@@ -88,9 +70,6 @@ public:
 	/// and eventually any global object associated with it.
 	/// (Such as texture objects, vertex buffers etc.)
 	void					unload(ResourceId name);
-
-	/// Reloads the @a resource
-	void					reload(ResourceId name);
 
 	/// Returns whether the manager has the @a name resource into
 	/// its list of resources.
@@ -114,9 +93,6 @@ public:
 	/// Returns the number of references to the @a resource
 	uint32_t				references(ResourceId name) const;
 
-	/// Returns the number of resources still waiting to load.
-	uint32_t				remaining() const;
-
 	/// Forces all the loading requests to complete before preceeding.
 	void					flush();
 
@@ -128,51 +104,20 @@ private:
 	// Checks the load queue and signal the backgroud about pending
 	// requests. It is normally called only by the Device.
 	void					check_load_queue();
-	// Calls online() on loaded resources. Must be called only
-	// in the main thread and generally only by Device.
-	void					bring_loaded_online();
 
 	// Loads the resource by name and type and returns its ResourceId.
 	ResourceId				load(uint32_t name, uint32_t type);
-
-	void					background_load();
-
-	void*					load_by_type(ResourceId name);
 	void					unload_by_type(ResourceId name, void* resource);
 	void					online(ResourceId name, void* resource);
 
 private:
 
-	static void*			background_thread(void* thiz);
-
-private:
-
-	// Archive whether to look for resources
-	Bundle&					m_resource_bundle;
-	// Used to strore resource memory
-	HeapAllocator			m_resource_allocator;
-
 	HeapAllocator			m_allocator;
-	// The master lookup table
+	ResourceLoader			m_loader;
+	uint32_t				m_seed;
 	List<ResourceEntry>		m_resources;
 
-	// Resources waiting for loading
-	Queue<ResourceId>		m_loading_queue;
-	// Resources already loaded, ready to bring online
-	Queue<LoadedResource>	m_loaded_queue;
-
-	uint32_t				m_seed;
-
-	// Background loading thread
-	bool 					m_background_thread_should_run;
-	os::Thread				m_thread;
-
-	mutable os::Mutex		m_loading_mutex;
-	os::Cond 				m_loading_requests;
-	os::Cond 				m_all_loaded;
-
-	os::Mutex				m_loaded_mutex;
-	mutable os::Mutex		m_resources_mutex;
+private:
 
 	friend class			Device;
 };
