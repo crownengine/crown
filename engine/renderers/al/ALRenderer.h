@@ -112,13 +112,20 @@ public:
 
 	/// Binds a AL buffer to AL source
 	void					bind_buffer(SoundSourceId sid, SoundBufferId bid);
-
+	///	Sets source's @a min_distance. From @a min_distance to @a max_distance, sound
+	/// scales from full volume to silence
+	void					set_source_min_distance(SoundSourceId id, float min_distance);
+	///	Sets source's @a max_distance. From @a min_distance to @a max_distance, sound
+	/// scales from full volume to silence
+	void					set_source_max_distance(SoundSourceId id, float max_distance);
 	/// Sets source's @a position. It affects sound audibility
 	void					set_source_position(SoundSourceId id, Vec3& pos);
 	/// Sets source's @a velocity. It affects doppler shift
 	void					set_source_velocity(SoundSourceId id, Vec3& vel);
 	/// Sets source's @a direction. It affects how a sound could be heard
 	void					set_source_direction(SoundSourceId id, Vec3& dir);
+	/// Sets source's @a pitch.
+	void					set_source_pitch(SoundSourceId id, float pitch);
 	/// Sets source's @a gain, that is measure sound's amplification
 	void 					set_source_gain(SoundSourceId id, float gain);
 	/// Sets source's @a rolloff factor. Greater it is, greater sound's attenuation is

@@ -172,6 +172,8 @@ SoundBufferId ALRenderer::create_buffer(const void* data, uint32_t size, uint32_
 
 	// Fills AL buffer
 	AL_CHECK(alBufferData(al_buffer.id, al_buffer.format, data, al_buffer.size, al_buffer.freq));
+
+	return id;
 }
 
 //-----------------------------------------------------------------------------
@@ -265,6 +267,26 @@ void ALRenderer::bind_buffer(SoundSourceId sid, SoundBufferId bid)
 }
 
 //-----------------------------------------------------------------------------
+void ALRenderer::set_source_min_distance(SoundSourceId id, float min_distance)
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
+
+	SoundSource& al_source = m_sources[id.index];
+
+	AL_CHECK(alSourcef(al_source.id, AL_REFERENCE_DISTANCE, min_distance));
+}
+
+//-----------------------------------------------------------------------------
+void ALRenderer::set_source_max_distance(SoundSourceId id, float max_distance)
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
+
+	SoundSource& al_source = m_sources[id.index];
+
+	AL_CHECK(alSourcef(al_source.id, AL_MAX_DISTANCE, max_distance));
+}
+
+//-----------------------------------------------------------------------------
 void ALRenderer::set_source_position(SoundSourceId id, Vec3& pos)
 {
 	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
@@ -292,6 +314,15 @@ void ALRenderer::set_source_direction(SoundSourceId id, Vec3& dir)
 	SoundSource& al_source = m_sources[id.index];
 
 	AL_CHECK(alSource3f(al_source.id, AL_DIRECTION, dir.x, dir.y, dir.z));
+}
+
+void ALRenderer::set_source_pitch(SoundSourceId id, float pitch)
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
+
+	SoundSource& al_source = m_sources[id.index];
+
+	AL_CHECK(alSourcef(al_source.id, AL_PITCH, pitch));		
 }
 
 //-----------------------------------------------------------------------------
