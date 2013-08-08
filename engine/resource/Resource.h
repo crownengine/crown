@@ -66,10 +66,7 @@ struct ResourceId
 	uint32_t		type;		// Hashed resource type
 	uint32_t		index;		// Index into the ResourceManager internal list
 
-	bool			operator==(const ResourceId& b)
-	{
-		return name == b.name && type == b.type && index == b.index;
-	}
+	bool operator==(const ResourceId& b) { return name == b.name && type == b.type; }
 };
 
 } // namespace crown
