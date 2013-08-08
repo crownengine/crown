@@ -61,8 +61,8 @@ private:
 
 	os::TCPSocket			m_socket;
 
-	os::Thread				m_thread;
-	os::Mutex				m_command_mutex;
+	Thread					m_thread;
+	Mutex					m_command_mutex;
 
 	// Is console active?
 	bool					m_active;
