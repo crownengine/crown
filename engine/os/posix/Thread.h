@@ -29,11 +29,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <pthread.h>
 
 #include "Types.h"
-#include "OS.h"
 
 namespace crown
-{
-namespace os
 {
 
 typedef void* (*ThreadFunction)(void*);
@@ -42,17 +39,61 @@ class Thread
 {
 public:
 
-					Thread(os::ThreadFunction f, void* params, const char* name);
-					~Thread();
+	/// Constructs the thread and gives it a @a name.
+	/// @note
+	/// The actual OS thread creation and execution is
+	/// deferred to the first call to Thread::start().
+					Thread(const char* name);
+
+	/// Does not stop the thread. The user must call
+	/// Thread::stop() to effectively stop the thread. 
+	virtual			~Thread();
+
+	/// Returns the name of the thread.
+	const char*		name() const;
 
 	void			join();
 	void			detach();
 
+	/// Returns whether the thread is currently running.
+	bool			is_running() const;
+
+	/// Returns whether the thread is being asked to stop running.
+	/// @note
+	/// The implementer tipically polls this function to
+	/// determine whether to stop the execution or not.
+	bool			is_terminating() const;
+
+	/// Starts the execution of the thread.
+	/// The function creates the OS thread and starts
+	/// its execution.
+	void			start();
+
+	/// Stops the execution of the thread if it is running.
+	/// The function releases the OS thread causing its
+	/// termination.
+	void			stop();
+
+	/// Executes in background when the thead is running.
+	/// The thread has to be started with Thread::start()
+	virtual int32_t	run();
+
 private:
 
-	pthread_t		m_thread;
+	static void*	background_proc(void* thiz);
+
+private:
+
 	const char*		m_name;
+	bool			m_is_running;
+	bool			m_is_terminating;
+	pthread_t		m_thread;
+
+private:
+
+	// Disable copying
+					Thread(const Thread&);
+	Thread&			operator=(const Thread&);
 };
 
-} // namespace os
 } // namespace crown
