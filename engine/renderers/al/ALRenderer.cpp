@@ -54,6 +54,19 @@ static const char* al_error_to_string(ALenum error)
 		function;
 #endif
 
+
+//-----------------------------------------------------------------------------
+AudioRenderer* AudioRenderer::create(Allocator& a)
+{
+	return CE_NEW(a, ALRenderer);
+}
+
+//-----------------------------------------------------------------------------
+void AudioRenderer::destroy(Allocator& a, AudioRenderer* renderer)
+{
+	CE_DELETE(a, renderer);
+}
+
 //-----------------------------------------------------------------------------
 ALRenderer::ALRenderer() :
 	m_buffers_id_table(m_allocator, MAX_BUFFERS),

@@ -30,17 +30,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <AL/alc.h>
 
 #include "Types.h"
-#include "IdTable.h"
-#include "SoundResource.h"
+#include "AudioRenderer.h"
 #include "HeapAllocator.h"
 #include "Vec3.h"
 
 namespace crown
 {
-
-typedef Id SoundId;
-typedef Id SoundBufferId;
-typedef Id SoundSourceId;
 
 //-----------------------------------------------------------------------------
 struct SoundBuffer
@@ -65,7 +60,7 @@ struct SoundSource
 
 
 //-----------------------------------------------------------------------------
-class ALRenderer
+class ALRenderer : public AudioRenderer
 {
 public:
 

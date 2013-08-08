@@ -52,7 +52,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Memory.h"
 #include "LuaEnvironment.h"
 #include "ConsoleServer.h"
-#include "ALRenderer.h"
+#include "AudioRenderer.h"
 
 namespace crown
 {
@@ -306,7 +306,7 @@ ConsoleServer* Device::console_server()
 }
 
 //-----------------------------------------------------------------------------
-ALRenderer* Device::audio_renderer()
+AudioRenderer* Device::audio_renderer()
 {
 	return m_audio_renderer;
 }
@@ -500,7 +500,7 @@ void Device::create_console_server()
 //-----------------------------------------------------------------------------
 void Device::create_audio_renderer()
 {
-	m_audio_renderer = CE_NEW(m_allocator, ALRenderer)();
+	m_audio_renderer = AudioRenderer::create(m_allocator);
 
 	m_audio_renderer->init();
 
