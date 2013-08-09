@@ -476,15 +476,14 @@ void Device::parse_command_line(int argc, char** argv)
 {
 	static ArgsOption options[] = 
 	{
-
-		"help",             AOA_NO_ARGUMENT,       NULL,        'i',
-		"root-path",        AOA_REQUIRED_ARGUMENT, NULL,        'r',
-		"width",            AOA_REQUIRED_ARGUMENT, NULL,        'w',
-		"height",           AOA_REQUIRED_ARGUMENT, NULL,        'h',
-		"fullscreen",       AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1,
-		"dev",              AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT,
-		"quit-after-init",  AOA_NO_ARGUMENT,       &m_quit_after_init, 1,
-		NULL, 0, NULL, 0
+		{ "help",             AOA_NO_ARGUMENT,       NULL,        'i' },
+		{ "root-path",        AOA_REQUIRED_ARGUMENT, NULL,        'r' },
+		{ "width",            AOA_REQUIRED_ARGUMENT, NULL,        'w' },
+		{ "height",           AOA_REQUIRED_ARGUMENT, NULL,        'h' },
+		{ "fullscreen",       AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1 },
+		{ "dev",              AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT },
+		{ "quit-after-init",  AOA_NO_ARGUMENT,       &m_quit_after_init, 1 },
+		{ NULL, 0, NULL, 0 }
 	};
 
 	Args args(argc, argv, "", options);
