@@ -162,7 +162,7 @@ void Device::shutdown()
 	Log::i("Releasing ConsoleServer...");
 	if (m_console_server)
 	{
-		m_console_server->shutdown();
+		//m_console_server->shutdown();
 
 		CE_DELETE(m_allocator, m_console_server);
 	}
@@ -350,15 +350,14 @@ void Device::frame()
 	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
 	m_last_time = m_current_time;
 
-	m_resource_manager->check_load_queue();
-	m_resource_manager->bring_loaded_online();
+	m_resource_manager->poll_resource_loader();
 
 	m_window->frame();
 	m_input_manager->frame(frame_count());
 
 	m_lua_environment->game_frame(last_delta_time());
 
-	m_console_server->execute();
+	//m_console_server->execute();
 
 	m_debug_renderer->draw_all();
 	m_renderer->frame();
@@ -477,9 +476,9 @@ void Device::create_lua_environment()
 
 void Device::create_console_server()
 {
-	m_console_server = CE_NEW(m_allocator, ConsoleServer)();
+	m_console_server = NULL;//CE_NEW(m_allocator, ConsoleServer)();
 
-	m_console_server->init();
+	//m_console_server->init();
 
 	Log::d("Console server created.");
 }
