@@ -28,46 +28,63 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Resource.h"
-#include "PixelFormat.h"
-#include "Texture.h"
+#include "Thread.h"
+#include "Queue.h"
+#include "List.h"
+#include "Mutex.h"
+#include "Cond.h"
 
 namespace crown
 {
 
-// Bump the version whenever a change in the header is made
-const uint32_t TEXTURE_VERSION = 1;
-
-struct TextureHeader
+struct LoadedResource
 {
-	uint32_t	version;	// Texture file version
-	uint32_t	format;		// Format of the pixels
-	uint32_t	width;		// Width in pixels
-	uint32_t	height;		// Height in pixels
+	LoadedResource(ResourceId r, void* d) : resource(r), data(d) {}
+
+	ResourceId	resource;
+	void*		data;
 };
 
 class Bundle;
 class Allocator;
 
-class TextureResource
+/// Loads resources in a background thread.
+class ResourceLoader : public Thread
 {
 public:
 
-	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			unload(Allocator& allocator, void* resource);
-	static void			online(void* resource);
-	static void			offline(void* resource);
+	/// Reads the resources data from the given @a bundle using
+	/// @a resource_heap to allocate memory for them.
+				ResourceLoader(Bundle& bundle, Allocator& resource_heap);
 
-public:
+	/// Loads the @a resource in a background thread.
+	void		load(ResourceId resource);
 
-	PixelFormat			format() const { return (PixelFormat) m_header.format; }
-	uint32_t			width() const { return m_header.width; }
-	uint32_t			height() const { return m_header.height; }
-	const uint8_t*		data() const { return m_data; }
+	/// Returns the number of resources still in the loading queue.
+	uint32_t	remaining() const;
+
+	/// Returns the number of resources already loaded.
+	uint32_t	num_loaded() const;
+
+	/// Returns a list of the last loaded resources.
+	void		get_loaded(List<LoadedResource>& l);
+
+	// Loads resources in the loading queue.
+	int32_t		run();
 
 private:
 
-	TextureHeader		m_header;
-	uint8_t*			m_data;
+	// Whether to look for resources
+	Bundle&					m_bundle;
+
+	// Used to strore resource memory
+	Allocator&				m_resource_heap;
+
+	Queue<ResourceId>		m_load_queue;
+	List<LoadedResource>	m_done_queue;
+	Mutex					m_load_mutex;
+	Mutex					m_done_mutex;
+	Cond					m_load_requests;
 };
 
 } // namespace crown

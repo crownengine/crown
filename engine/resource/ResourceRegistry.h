@@ -26,48 +26,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
 #include "Resource.h"
-#include "PixelFormat.h"
-#include "Texture.h"
 
 namespace crown
 {
 
-// Bump the version whenever a change in the header is made
-const uint32_t TEXTURE_VERSION = 1;
-
-struct TextureHeader
-{
-	uint32_t	version;	// Texture file version
-	uint32_t	format;		// Format of the pixels
-	uint32_t	width;		// Width in pixels
-	uint32_t	height;		// Height in pixels
-};
-
-class Bundle;
-class Allocator;
-
-class TextureResource
-{
-public:
-
-	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			unload(Allocator& allocator, void* resource);
-	static void			online(void* resource);
-	static void			offline(void* resource);
-
-public:
-
-	PixelFormat			format() const { return (PixelFormat) m_header.format; }
-	uint32_t			width() const { return m_header.width; }
-	uint32_t			height() const { return m_header.height; }
-	const uint8_t*		data() const { return m_data; }
-
-private:
-
-	TextureHeader		m_header;
-	uint8_t*			m_data;
-};
+void* resource_on_load(uint32_t type, Allocator& allocator, Bundle& bundle, ResourceId id);
+void resource_on_online(uint32_t type, void* resource);
+void resource_on_offline(uint32_t type, void* resource);
+void resource_on_unload(uint32_t type, Allocator& allocator, void* resource);
 
 } // namespace crown

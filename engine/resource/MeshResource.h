@@ -53,9 +53,9 @@ class MeshResource
 public:
 
 	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			online(void* resource);
 	static void			unload(Allocator& allocator, void* resource);
-	static void			offline();
+	static void			online(void* resource);
+	static void			offline(void* resource);
 
 public:
 

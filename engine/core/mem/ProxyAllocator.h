@@ -28,16 +28,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Memory.h"
+#include "Allocator.h"
 
 namespace crown
 {
 
-class Allocator;
-
 /// Offers the facility to tag allocators by a string identifier.
 /// Proxy allocator is appended to a global linked list when instantiated
 /// so that it is possible to later visit that list for debugging purposes.
-class ProxyAllocator
+class ProxyAllocator : public Allocator
 {
 public:
 
@@ -49,6 +48,9 @@ public:
 
 	/// @copydoc Allocator::deallocate()
 	void					deallocate(void* data);
+
+	/// @copydoc Allocator::allocated_size()
+	size_t					allocated_size();
 
 	/// Returns the name of the proxy allocator
 	const char*				name() const;
@@ -74,6 +76,7 @@ private:
 
 	Allocator&				m_allocator;
 	const char*				m_name;
+	size_t					m_total_allocated;
 
 	ProxyAllocator*			m_next;
 };

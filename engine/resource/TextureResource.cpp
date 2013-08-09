@@ -74,7 +74,7 @@ void TextureResource::unload(Allocator& allocator, void* resource)
 }
 
 //-----------------------------------------------------------------------------
-void TextureResource::offline()
+void TextureResource::offline(void* /*resource*/)
 {
 
 }

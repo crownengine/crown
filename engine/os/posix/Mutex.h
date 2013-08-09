@@ -33,8 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-namespace os
-{
 
 class Mutex
 {
@@ -50,8 +48,13 @@ private:
 
 	pthread_mutex_t		m_mutex;
 
+private:
+
+	// Disable copying.
+						Mutex(const Mutex&);
+	Mutex&				operator=(const Mutex&);
+
 	friend class		Cond;
 };
 
-} // namespace os
 } // namespace crown

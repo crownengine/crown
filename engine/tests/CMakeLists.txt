@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 
 project(crown-tests)
 
-link_directories(${CROWN_BINARY_DIR})
-
 enable_testing()
 
 add_executable(allocators allocators.cpp)

@@ -72,7 +72,7 @@ void MeshResource::unload(Allocator& , void* )
 }
 
 //-----------------------------------------------------------------------------
-void MeshResource::offline()
+void MeshResource::offline(void* /*resource*/)
 {
 
 }

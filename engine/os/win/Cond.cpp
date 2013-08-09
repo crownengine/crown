@@ -28,28 +28,28 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-namespace os
-{
 
+//-----------------------------------------------------------------------------
 Cond::Cond()
 {
 	InitializeConditionVariable(&m_cond);
 }
 
+//-----------------------------------------------------------------------------
 Cond::~Cond()
 {
-	
 }
 
+//-----------------------------------------------------------------------------
 void Cond::signal()
 {
 	WakeConditionVariable(&m_cond);
 }
 
+//-----------------------------------------------------------------------------
 void Cond::wait(Mutex& mutex)
 {
 	SleepConditionVariableCS(&m_cond, &mutex.m_cs, INFINITE);
 }
 
-} // namespace os
 } // namespace crown

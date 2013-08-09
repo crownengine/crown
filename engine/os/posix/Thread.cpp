@@ -28,17 +28,36 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <string.h>
 
 #include "Thread.h"
+#include "Assert.h"
 
 namespace crown
 {
-namespace os
-{
 
 //-----------------------------------------------------------------------------
-Thread::Thread(os::ThreadFunction f, void* params, const char* name) :
-	m_name(name)
+Thread::Thread(const char* name) :
+	m_name(name),
+	m_is_running(false),
+	m_is_terminating(false),
+	m_thread(0)
 {
 	memset(&m_thread, 0, sizeof(pthread_t));
+}
+
+//-----------------------------------------------------------------------------
+Thread::~Thread()
+{
+}
+
+//-----------------------------------------------------------------------------
+const char* Thread::name() const
+{
+	return m_name;
+}
+
+//-----------------------------------------------------------------------------
+void Thread::start()
+{
+	m_is_terminating = false;
 
 	// Make thread joinable
 	pthread_attr_t attr;
@@ -46,21 +65,49 @@ Thread::Thread(os::ThreadFunction f, void* params, const char* name) :
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
 	// Create thread
-	int rc = pthread_create(&m_thread, &attr, f, (void*)params);
-
-	if (rc != 0)
-	{
-		os::printf("Unable to create the thread '%s' Error code: %d\n", name, rc);
-		exit(-1);
-	}
+	int rc = pthread_create(&m_thread, &attr, Thread::background_proc, (void*) this);
+	CE_ASSERT(rc == 0, "Failed to create the thread '%s': errno: %d", m_name, rc);
 
 	// Free attr memory
 	pthread_attr_destroy(&attr);
+
+	m_is_running = true;
 }
 
 //-----------------------------------------------------------------------------
-Thread::~Thread()
+bool Thread::is_running() const
 {
+	return m_is_running;
+}
+
+//-----------------------------------------------------------------------------
+bool Thread::is_terminating() const
+{
+	return m_is_terminating;
+}
+
+//-----------------------------------------------------------------------------
+void Thread::stop()
+{
+	m_is_terminating = true;
+}
+
+//-----------------------------------------------------------------------------
+int32_t Thread::run()
+{
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+void* Thread::background_proc(void* thiz)
+{
+	Thread* thread = ((Thread*) thiz);
+
+	thread->run();
+
+	thread->m_is_running = false;
+
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -75,5 +122,4 @@ void Thread::detach()
 	pthread_detach(m_thread);
 }
 
-} // namespace os
 } // namespace crown

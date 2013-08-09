@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "FloatSetting.h"
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
-#include "StringUtils.h"
 
 namespace crown
 {
@@ -64,11 +63,11 @@ CE_EXPORT int float_setting_synopsis(lua_State* L)
 
 	if (setting != NULL)
 	{
-		stack.push_string(setting->synopsis(), string::strlen(setting->synopsis()));
+		stack.push_string(setting->synopsis());
 	}
 	else
 	{
-		stack.push_string("", string::strlen(""));
+		stack.push_string("");
 	}
 
 	return 1;

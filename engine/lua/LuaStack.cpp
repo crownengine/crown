@@ -138,9 +138,15 @@ void LuaStack::push_float(float value)
 }
 
 //-----------------------------------------------------------------------------
-void LuaStack::push_string(const char* str, size_t len)
+void LuaStack::push_string(const char* s)
 {
-	lua_pushlstring(m_state, str, len);
+	lua_pushstring(m_state, s);
+}
+
+//-----------------------------------------------------------------------------
+void LuaStack::push_literal(const char* s, size_t len)
+{
+	lua_pushlstring(m_state, s, len);
 }
 
 //-----------------------------------------------------------------------------

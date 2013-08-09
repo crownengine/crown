@@ -57,7 +57,8 @@ public:
 	void					push_int64(int64_t value);
 	void					push_uint64(uint64_t value);
 	void 					push_float(float value);
-	void 					push_string(const char* str, size_t len);
+	void 					push_string(const char* s);
+	void					push_literal(const char* s, size_t len);
 	void					push_lightdata(void* data);
 
 	void					push_vec2(const Vec2& v);
