@@ -142,6 +142,7 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/renderers\
 	$(LOCAL_PATH)/renderers/gles\
 	$(LOCAL_PATH)/renderers/gles/egl\
+	$(LOCAL_PATH)/renderers/sles\
 	$(LOCAL_PATH)/third/luajit/include/luajit-2.0\
 
 LOCAL_CPPFLAGS	:= -g -fexceptions -std=c++03 -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-variadic-macros
