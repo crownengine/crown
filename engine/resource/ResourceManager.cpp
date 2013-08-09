@@ -29,17 +29,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "ResourceManager.h"
+#include "ResourceRegistry.h"
+#include "Allocator.h"
 #include "StringUtils.h"
 #include "Hash.h"
 #include "Path.h"
-#include "Log.h"
 #include "Device.h"
 #include "Filesystem.h"
 #include "TextReader.h"
 #include "DiskFile.h"
-#include "TextureResource.h"
-#include "MeshResource.h"
-#include "SoundResource.h"
 #include "TempAllocator.h"
 #include "List.h"
 
@@ -48,9 +46,10 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 ResourceManager::ResourceManager(Bundle& bundle) :
-	m_loader(bundle),
+	m_resource_heap("resource", default_allocator()),
+	m_loader(bundle, m_resource_heap),
 	m_seed(0),
-	m_resources(m_allocator)
+	m_resources(default_allocator())
 {
 	DiskFile* seed_file = device()->filesystem()->open("seed.ini", FOM_READ);
 	TextReader reader(*seed_file);
@@ -97,7 +96,7 @@ void ResourceManager::unload(ResourceId name)
 	
 	if (entry.references == 0 && entry.state == RS_LOADED)
 	{
-		m_loader.unload(name, entry.resource);
+		resource_on_unload(name.type, m_resource_heap, entry.resource);
 
 		entry.state = RS_UNLOADED;
 		entry.resource = NULL;
@@ -144,7 +143,7 @@ void ResourceManager::flush()
 {
 	while (m_loader.remaining() > 0) ;
 
-	check_load_queue();
+	poll_resource_loader();
 }
 
 //-----------------------------------------------------------------------------
@@ -154,7 +153,7 @@ uint32_t ResourceManager::seed() const
 }
 
 //-----------------------------------------------------------------------------
-void ResourceManager::check_load_queue()
+void ResourceManager::poll_resource_loader()
 {
 	if (m_loader.num_loaded() != 0)
 	{
@@ -208,24 +207,7 @@ ResourceId ResourceManager::load(uint32_t name, uint32_t type)
 //-----------------------------------------------------------------------------
 void ResourceManager::online(ResourceId name, void* resource)
 {
-	switch (name.type)
-	{
-		case TEXTURE_TYPE:
-		{
-			TextureResource::online(resource);
-			break;
-		}
-		case MESH_TYPE:
-		{
-			MeshResource::online(resource);
-			break;
-		}
-		case SOUND_TYPE:
-		{
-			SoundResource::online(resource);
-			break;
-		}
-	}
+	resource_on_online(name.type, resource);
 
 	ResourceEntry& entry = m_resources[name.index];
 	entry.resource = resource;

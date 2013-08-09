@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "List.h"
 #include "Resource.h"
-#include "HeapAllocator.h"
+#include "ProxyAllocator.h"
 #include "ResourceLoader.h"
 
 namespace crown
@@ -59,11 +59,7 @@ public:
 
 	/// Loads the resource by @a name and returns its ResourceId.
 	/// @note
-	/// The resource data may be not immediately available,
-	/// the resource gets pushed in a queue of load requests and loadead as
-	/// soon as possible by the ResourceLoader.
-	/// You have to explicitly call is_loaded() method to check if the
-	/// loading process is actually completed.
+	/// Call is_loaded() method to check if the loading process is actually completed.
 	ResourceId				load(const char* name);
 
 	/// Unloads the @a resource, freeing up all the memory associated by it
@@ -103,16 +99,15 @@ private:
 
 	// Checks the load queue and signal the backgroud about pending
 	// requests. It is normally called only by the Device.
-	void					check_load_queue();
+	void					poll_resource_loader();
 
 	// Loads the resource by name and type and returns its ResourceId.
 	ResourceId				load(uint32_t name, uint32_t type);
-	void					unload_by_type(ResourceId name, void* resource);
 	void					online(ResourceId name, void* resource);
 
 private:
 
-	HeapAllocator			m_allocator;
+	ProxyAllocator			m_resource_heap;
 	ResourceLoader			m_loader;
 	uint32_t				m_seed;
 	List<ResourceEntry>		m_resources;

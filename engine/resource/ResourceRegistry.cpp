@@ -24,79 +24,78 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "ResourceLoader.h"
 #include "ResourceRegistry.h"
+#include "TextureResource.h"
+#include "MeshResource.h"
+#include "SoundResource.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap) :
-	Thread("resource-loader"),
-	m_bundle(bundle),
-	m_resource_heap(resource_heap),
-	m_load_queue(default_allocator()),
-	m_done_queue(default_allocator())
+static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 {
-}
+	{ TEXTURE_TYPE, TextureResource::load, TextureResource::unload, TextureResource::online, TextureResource::offline },
+	{ MESH_TYPE, MeshResource::load, MeshResource::unload, MeshResource::online, MeshResource::offline },
+	{ SOUND_TYPE, SoundResource::load, SoundResource::unload, SoundResource::online, SoundResource::offline },
+	{ 0, NULL, NULL, NULL, NULL }
+};
 
 //-----------------------------------------------------------------------------
-void ResourceLoader::load(ResourceId resource)
+static const ResourceCallback* find_callback(uint32_t type)
 {
-	m_load_mutex.lock();
-	m_load_queue.push_back(resource);
-	m_load_requests.signal();
-	m_load_mutex.unlock();
-}
+	const ResourceCallback* c = RESOURCE_CALLBACK_REGISTRY;
 
-//-----------------------------------------------------------------------------
-uint32_t ResourceLoader::remaining() const
-{
-	return m_load_queue.size();
-}
-
-//-----------------------------------------------------------------------------
-uint32_t ResourceLoader::num_loaded() const
-{
-	return m_done_queue.size();
-}
-
-//-----------------------------------------------------------------------------
-void ResourceLoader::get_loaded(List<LoadedResource>& l)
-{
-	m_done_mutex.lock();
-	for (uint32_t i = 0; i < m_done_queue.size(); i++)
+	while (c->type != 0)
 	{
-		l.push_back(m_done_queue[i]);
-	}
-
-	m_done_queue.clear();
-	m_done_mutex.unlock();
-}
-
-//-----------------------------------------------------------------------------
-int32_t ResourceLoader::run()
-{
-	while (!is_terminating())
-	{
-		m_load_mutex.lock();
-		while (m_load_queue.size() == 0)
+		if (c->type == type)
 		{
-			m_load_requests.wait(m_load_mutex);
+			return c;
 		}
 
-		ResourceId resource = m_load_queue.front();
-		m_load_queue.pop_front();
-		m_load_mutex.unlock();
-
-		void* data = resource_on_load(resource.type, m_resource_heap, m_bundle, resource);
-
-		m_done_mutex.lock();
-		m_done_queue.push_back(LoadedResource(resource, data));
-		m_done_mutex.unlock();
+		c++;
 	}
 
-	return 0;
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+void* resource_on_load(uint32_t type, Allocator& allocator, Bundle& bundle, ResourceId id)
+{
+	const ResourceCallback* c = find_callback(type);
+
+	CE_ASSERT_NOT_NULL(c);
+
+	return c->on_load(allocator, bundle, id);
+}
+
+//-----------------------------------------------------------------------------
+void resource_on_unload(uint32_t type, Allocator& allocator, void* resource)
+{
+	const ResourceCallback* c = find_callback(type);
+
+	CE_ASSERT_NOT_NULL(c);
+
+	return c->on_unload(allocator, resource);
+}
+
+//-----------------------------------------------------------------------------
+void resource_on_online(uint32_t type, void* resource)
+{
+	const ResourceCallback* c = find_callback(type);
+
+	CE_ASSERT_NOT_NULL(c);
+
+	return c->on_online(resource);
+}
+
+//-----------------------------------------------------------------------------
+void resource_on_offline(uint32_t type)
+{
+	const ResourceCallback* c = find_callback(type);
+
+	CE_ASSERT_NOT_NULL(c);
+
+	return c->on_offline();
 }
 
 } // namespace crown

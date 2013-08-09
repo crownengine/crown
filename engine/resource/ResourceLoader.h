@@ -27,9 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Thread.h"
 #include "Resource.h"
-#include "HeapAllocator.h"
+#include "Thread.h"
 #include "Queue.h"
 #include "List.h"
 #include "Mutex.h"
@@ -47,20 +46,19 @@ struct LoadedResource
 };
 
 class Bundle;
+class Allocator;
 
 /// Loads resources in a background thread.
 class ResourceLoader : public Thread
 {
 public:
 
-	/// Reads the resource data from the given @a bundle.
-				ResourceLoader(Bundle& bundle);
+	/// Reads the resources data from the given @a bundle using
+	/// @a resource_heap to allocate memory for them.
+				ResourceLoader(Bundle& bundle, Allocator& resource_heap);
 
 	/// Loads the @a resource in a background thread.
 	void		load(ResourceId resource);
-
-	/// Unloads the given @a resource @a data
-	void		unload(ResourceId resource, void* data);
 
 	/// Returns the number of resources still in the loading queue.
 	uint32_t	remaining() const;
@@ -76,17 +74,11 @@ public:
 
 private:
 
-	void*		load_by_type(ResourceId name);
-	void		unload_by_type(ResourceId name, void* data);
-
-private:
-
-	// Used to strore resource memory
-	HeapAllocator			m_allocator;
-	HeapAllocator			m_resource_allocator;
-
 	// Whether to look for resources
 	Bundle&					m_bundle;
+
+	// Used to strore resource memory
+	Allocator&				m_resource_heap;
 
 	Queue<ResourceId>		m_load_queue;
 	List<LoadedResource>	m_done_queue;
