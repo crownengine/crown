@@ -13,7 +13,7 @@ $engine_src 		= "../engine/."
 $android_src		= "../engine/os/android/*.java"
 $manifest			= "../engine/os/android/AndroidManifest.xml"
 
-
+#------------------------------------------------------------------------------
 def parse_command_line(args)
 	banner = "Usage: crown-android.rb --target <android-target> --name <project-name> --path <project-path>\n"
 	if args.length != 6
@@ -42,9 +42,8 @@ def parse_command_line(args)
 
 		opts.on("-p", "--path PATH", "Android project path") do |p|
 			options.path 	= p
-			$engine_dest 	= p + "/jni"
-			$android_dest	= p + "/src/crown/android"
 		end
+
 	    opts.on_tail("-h", "--help", "Show this message") do
 	    	puts opts
 	      	exit
@@ -54,6 +53,7 @@ def parse_command_line(args)
 	return options
 end
 
+#------------------------------------------------------------------------------
 def create_android_project(target, name, path)
 
 	# Creates path if not exists
@@ -82,7 +82,7 @@ def create_android_project(target, name, path)
 
 	# Copy Engine files
 	FileUtils.cp_r($engine_src, engine_dest, :remove_destination => true)
-	print "Copied engine to " + engine_dest + "/jni\n"
+	print "Copied Engine to " + engine_dest + "/jni\n"
 
 	# Copy Java files
 	FileUtils.cp_r(Dir.glob($android_src), android_dest, :remove_destination => true)
@@ -93,8 +93,6 @@ def create_android_project(target, name, path)
 	print "Copied Android Manifest to " + path  + "\n"
 end
 
-
-
+#------------------------------------------------------------------------------
 opts = parse_command_line(ARGV)
-
 create_android_project(opts.target, opts.name, opts.path)
