@@ -33,7 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "StringUtils.h"
 #include "Hash.h"
-#include "Path.h"
 #include "Device.h"
 #include "Filesystem.h"
 #include "TextReader.h"
@@ -71,16 +70,10 @@ ResourceManager::~ResourceManager()
 }
 
 //-----------------------------------------------------------------------------
-ResourceId ResourceManager::load(const char* name)
+ResourceId ResourceManager::load(const char* type, const char* name)
 {
-	char basename[512];
-	char extension[512];
-
-	path::filename_without_extension(name, basename, 512);
-	path::extension(name, extension, 512);
-
-	uint32_t name_hash = hash::murmur2_32(basename, string::strlen(basename), m_seed);
-	uint32_t type_hash = hash::murmur2_32(extension, string::strlen(extension), 0);
+	uint32_t type_hash = hash::murmur2_32(type, string::strlen(type), 0);
+	uint32_t name_hash = hash::murmur2_32(name, string::strlen(name), m_seed);
 
 	return load(name_hash, type_hash);
 }

@@ -60,7 +60,7 @@ public:
 	/// Loads the resource by @a name and returns its ResourceId.
 	/// @note
 	/// Call is_loaded() method to check if the loading process is actually completed.
-	ResourceId				load(const char* name);
+	ResourceId				load(const char* type, const char* name);
 
 	/// Unloads the @a resource, freeing up all the memory associated by it
 	/// and eventually any global object associated with it.
