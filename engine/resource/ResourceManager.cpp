@@ -25,41 +25,24 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <algorithm>
-#include <cstdio>
 
 #include "Types.h"
 #include "ResourceManager.h"
 #include "ResourceRegistry.h"
-#include "Allocator.h"
 #include "StringUtils.h"
 #include "Hash.h"
-#include "Device.h"
-#include "Filesystem.h"
-#include "TextReader.h"
-#include "DiskFile.h"
 #include "TempAllocator.h"
-#include "List.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-ResourceManager::ResourceManager(Bundle& bundle) :
+ResourceManager::ResourceManager(Bundle& bundle, uint32_t seed) :
 	m_resource_heap("resource", default_allocator()),
 	m_loader(bundle, m_resource_heap),
-	m_seed(0),
+	m_seed(seed),
 	m_resources(default_allocator())
 {
-	DiskFile* seed_file = device()->filesystem()->open("seed.ini", FOM_READ);
-	TextReader reader(*seed_file);
-
-	char tmp_buf[32];
-	reader.read_string(tmp_buf, 32);
-
-	device()->filesystem()->close(seed_file);
-
-	sscanf(tmp_buf, "%u", &m_seed);
-
 	m_loader.start();
 }
 

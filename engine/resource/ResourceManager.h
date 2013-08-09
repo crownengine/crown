@@ -54,7 +54,7 @@ class ResourceManager
 public:
 
 	/// The resources will be loaded from @a bundle.
-							ResourceManager(Bundle& bundle);
+							ResourceManager(Bundle& bundle, uint32_t seed);
 							~ResourceManager();
 
 	/// Loads the resource by @a name and returns its ResourceId.
