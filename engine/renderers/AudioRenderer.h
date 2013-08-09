@@ -42,6 +42,12 @@ class AudioRenderer
 {
 public:
 
+	static const uint32_t	MAX_SOURCES = 128;
+	static const uint32_t	MAX_BUFFERS_PER_SOURCES = 16;
+	static const uint32_t 	MAX_BUFFERS = MAX_SOURCES * MAX_BUFFERS_PER_SOURCES;
+	
+public:
+
 	static AudioRenderer*	create(Allocator& a);
 	static void				destroy(Allocator& a, AudioRenderer* renderer);
 
