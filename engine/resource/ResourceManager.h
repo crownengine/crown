@@ -48,7 +48,7 @@ struct ResourceEntry
 
 class Bundle;
 
-/// Resource manager.
+/// Keeps track and manages resources loaded by ResourceLoader.
 class ResourceManager
 {
 public:
@@ -57,39 +57,34 @@ public:
 							ResourceManager(Bundle& bundle, uint32_t seed);
 							~ResourceManager();
 
-	/// Loads the resource by @a name and returns its ResourceId.
+	/// Loads the resource by @a type and @a name and returns its ResourceId.
 	/// @note
-	/// Call is_loaded() method to check if the loading process is actually completed.
+	/// You have to call is_loaded() to check if the loading process is actually completed.
 	ResourceId				load(const char* type, const char* name);
 
-	/// Unloads the @a resource, freeing up all the memory associated by it
+	/// Unloads the resource @a name, freeing up all the memory associated by it
 	/// and eventually any global object associated with it.
-	/// (Such as texture objects, vertex buffers etc.)
 	void					unload(ResourceId name);
 
 	/// Returns whether the manager has the @a name resource into
 	/// its list of resources.
-	/// @note
+	/// @warning
 	/// Having a resource does not mean that the resource is
-	/// available for using; instead, you have to check is_loaded() to
-	/// obtain the resource availability status.
+	/// ready to be used; See is_loaded().
 	bool					has(ResourceId name) const;
 
 	/// Returns the data associated with the @a name resource.
-	/// The resource data contains resource-specific metadata
-	/// and the actual resource data. In order to correctly use
-	/// it, you have to know which type of data @a name refers to
-	/// and cast accordingly.
+	/// You will have to cast the returned pointer accordingly.
 	const void*				data(ResourceId name) const;
 	
 	/// Returns whether the @a name resource is loaded (i.e. whether
 	/// you can use the data associated with it).
 	bool					is_loaded(ResourceId name) const;
 
-	/// Returns the number of references to the @a resource
+	/// Returns the number of references to the resource @a name;
 	uint32_t				references(ResourceId name) const;
 
-	/// Forces all the loading requests to complete before preceeding.
+	/// Forces all of the loading requests to complete before preceeding.
 	void					flush();
 
 	/// Returns the seed used to generate resource name hashes.
@@ -97,8 +92,7 @@ public:
 
 private:
 
-	// Checks the load queue and signal the backgroud about pending
-	// requests. It is normally called only by the Device.
+	// Polls the resource loader for loaded resources.
 	void					poll_resource_loader();
 
 	// Loads the resource by name and type and returns its ResourceId.
