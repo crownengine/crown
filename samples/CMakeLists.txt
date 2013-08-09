@@ -4,21 +4,23 @@ project(crown-samples)
 
 # platform independent includes
 set (CROWN_INCLUDES
-	${CMAKE_SOURCE_DIR}/src
-	${CMAKE_SOURCE_DIR}/src/core
-	${CMAKE_SOURCE_DIR}/src/core/bv
-	${CMAKE_SOURCE_DIR}/src/core/containers
-	${CMAKE_SOURCE_DIR}/src/core/math
-	${CMAKE_SOURCE_DIR}/src/core/mem
-	${CMAKE_SOURCE_DIR}/src/core/compressors
-	${CMAKE_SOURCE_DIR}/src/core/filesystem
-	${CMAKE_SOURCE_DIR}/src/core/strings
-	${CMAKE_SOURCE_DIR}/src/core/settings
-	${CMAKE_SOURCE_DIR}/src/os
-	${CMAKE_SOURCE_DIR}/src/input
-	${CMAKE_SOURCE_DIR}/src/renderers
-	${CMAKE_SOURCE_DIR}/src/network
-	${CMAKE_SOURCE_DIR}/src/lua
+	${CMAKE_SOURCE_DIR}/engine
+	${CMAKE_SOURCE_DIR}/engine/core
+	${CMAKE_SOURCE_DIR}/engine/core/bv
+	${CMAKE_SOURCE_DIR}/engine/core/containers
+	${CMAKE_SOURCE_DIR}/engine/core/math
+	${CMAKE_SOURCE_DIR}/engine/core/mem
+	${CMAKE_SOURCE_DIR}/engine/core/compressors
+	${CMAKE_SOURCE_DIR}/engine/core/filesystem
+	${CMAKE_SOURCE_DIR}/engine/core/json
+	${CMAKE_SOURCE_DIR}/engine/core/strings
+	${CMAKE_SOURCE_DIR}/engine/core/settings
+	${CMAKE_SOURCE_DIR}/engine/os
+	${CMAKE_SOURCE_DIR}/engine/input
+	${CMAKE_SOURCE_DIR}/engine/renderers
+	${CMAKE_SOURCE_DIR}/engine/resource
+	${CMAKE_SOURCE_DIR}/engine/network
+	${CMAKE_SOURCE_DIR}/engine/lua
 )
 
 # detect operating system
@@ -26,8 +28,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	set (LINUX 1)
 
 	list (APPEND CROWN_INCLUDES
-		${CMAKE_SOURCE_DIR}/src/os/linux
-		${CMAKE_SOURCE_DIR}/src/renderers/glx
+		${CMAKE_SOURCE_DIR}/engine/os/linux
+		${CMAKE_SOURCE_DIR}/engine/renderers/glx
 	)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
@@ -35,8 +37,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	set(WINDOWS 1)
 
 	list (APPEND CROWN_INCLUDES
-		${CMAKE_SOURCE_DIR}/src/os/win
-		${CMAKE_SOURCE_DIR}/src/renderers/gl/wgl
+		${CMAKE_SOURCE_DIR}/engine/os/win
+		${CMAKE_SOURCE_DIR}/engine/renderers/gl/wgl
 	)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
