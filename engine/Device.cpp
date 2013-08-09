@@ -51,6 +51,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Memory.h"
 #include "LuaEnvironment.h"
 #include "ConsoleServer.h"
+#include "TextReader.h"
 
 namespace crown
 {
@@ -366,33 +367,9 @@ void Device::frame()
 }
 
 //-----------------------------------------------------------------------------
-ResourceId Device::load(const char* name)
-{
-	return m_resource_manager->load(name);
-}
-
-//-----------------------------------------------------------------------------
-void Device::unload(ResourceId name)
-{
-	m_resource_manager->unload(name);
-}
-
-//-----------------------------------------------------------------------------
 void Device::reload(ResourceId name)
 {
 	(void)name;
-}
-
-//-----------------------------------------------------------------------------
-bool Device::is_loaded(ResourceId name)
-{
-	return m_resource_manager->is_loaded(name);
-}
-
-//-----------------------------------------------------------------------------
-const void* Device::data(ResourceId name)
-{
-	return m_resource_manager->data(name);
 }
 
 //-----------------------------------------------------------------------------
@@ -417,8 +394,19 @@ void Device::create_resource_manager()
 		m_resource_bundle = CE_NEW(m_allocator, ArchiveBundle)(*m_filesystem);
 	}
 
+	// Read resource seed
+	DiskFile* seed_file = filesystem()->open("seed.ini", FOM_READ);
+	TextReader reader(*seed_file);
+
+	char tmp_buf[32];
+	reader.read_string(tmp_buf, 32);
+
+	filesystem()->close(seed_file);
+
+	uint32_t seed = string::parse_uint(tmp_buf);
+
 	// Create resource manager
-	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle);
+	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, seed);
 
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
