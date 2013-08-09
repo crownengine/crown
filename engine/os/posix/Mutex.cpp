@@ -30,8 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-namespace os
-{
 
 //-----------------------------------------------------------------------------
 Mutex::Mutex()
@@ -59,6 +57,4 @@ void Mutex::unlock()
 	pthread_mutex_unlock(&m_mutex);
 }
 
-} // namespace os
 } // namespace crown
-

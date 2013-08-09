@@ -24,57 +24,79 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "TextResource.h"
-#include "DiskFile.h"
-#include "Bundle.h"
-#include "Log.h"
-#include "Allocator.h"
+#include "ResourceLoader.h"
+#include "ResourceRegistry.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void* TextResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
+ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap) :
+	Thread("resource-loader"),
+	m_bundle(bundle),
+	m_resource_heap(resource_heap),
+	m_load_queue(default_allocator()),
+	m_done_queue(default_allocator())
 {
-	DiskFile* stream = bundle.open(id);
-
-	CE_ASSERT(stream != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
-
-	TextResource* resource = (TextResource*)allocator.allocate(sizeof(TextResource));
-
-	stream->read(&resource->length, sizeof(uint32_t));
-	
-	resource->data = (char*)allocator.allocate(sizeof(char) * (resource->length + 1));
-
-	stream->read(resource->data, (size_t)resource->length);
-	
-	resource->data[resource->length] = '\0';
-
-	bundle.close(stream);
-
-	return resource;
 }
 
 //-----------------------------------------------------------------------------
-void TextResource::unload(Allocator& allocator, void* resource)
+void ResourceLoader::load(ResourceId resource)
 {
-	CE_ASSERT(resource != NULL, "Resource not loaded");
-
-	((TextResource*)resource)->length = 0;
-
-	allocator.deallocate(((TextResource*)resource)->data);
-	allocator.deallocate(resource);
+	m_load_mutex.lock();
+	m_load_queue.push_back(resource);
+	m_load_requests.signal();
+	m_load_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
-void TextResource::online(void* resource)
+uint32_t ResourceLoader::remaining() const
 {
-	(void) resource;
+	return m_load_queue.size();
 }
 
 //-----------------------------------------------------------------------------
-void TextResource::offline()
+uint32_t ResourceLoader::num_loaded() const
 {
+	return m_done_queue.size();
+}
+
+//-----------------------------------------------------------------------------
+void ResourceLoader::get_loaded(List<LoadedResource>& l)
+{
+	m_done_mutex.lock();
+	for (uint32_t i = 0; i < m_done_queue.size(); i++)
+	{
+		l.push_back(m_done_queue[i]);
+	}
+
+	m_done_queue.clear();
+	m_done_mutex.unlock();
+}
+
+//-----------------------------------------------------------------------------
+int32_t ResourceLoader::run()
+{
+	while (!is_terminating())
+	{
+		m_load_mutex.lock();
+		while (m_load_queue.size() == 0)
+		{
+			m_load_requests.wait(m_load_mutex);
+		}
+
+		ResourceId resource = m_load_queue.front();
+		m_load_queue.pop_front();
+		m_load_mutex.unlock();
+
+		void* data = resource_on_load(resource.type, m_resource_heap, m_bundle, resource);
+
+		m_done_mutex.lock();
+		m_done_queue.push_back(LoadedResource(resource, data));
+		m_done_mutex.unlock();
+	}
+
+	return 0;
 }
 
 } // namespace crown

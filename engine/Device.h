@@ -94,12 +94,7 @@ public:
 	/// Updates all the subsystems
 	void					frame();
 
-	/// Loads a resource and returns its unique identifier.
-	ResourceId				load(const char* name);
-	void					unload(ResourceId name);
 	void					reload(ResourceId name);
-	bool					is_loaded(ResourceId name);
-	const void*				data(ResourceId name);
 
 	Filesystem*				filesystem();
 	ResourceManager*		resource_manager();

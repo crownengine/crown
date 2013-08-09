@@ -30,8 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-namespace os
-{
 
 //-----------------------------------------------------------------------------
 Cond::Cond()
@@ -59,5 +57,4 @@ void Cond::wait(Mutex& mutex)
 	pthread_cond_wait(&m_cond, &(mutex.m_mutex));
 }
 
-} // namespace os
 } // namespace crown

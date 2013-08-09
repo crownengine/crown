@@ -26,31 +26,43 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Compiler.h"
+#include "Types.h"
 
 namespace crown
 {
 
-class PSCompiler : public Compiler
+//
+// STRUCT
+// {
+//     FIELD             : SIZE                    COMMENT
+// }
+//
+// MeshHeader [1]
+// {
+//     version           : uint32_t                Version identifier
+//     mesh_count        : uint32_t                Number of meshes in the file
+//     joint_count       : uint32_t                Number of joints in the file
+//     padding           : uint32_t * 16           Reserved
+// }
+// MeshChunk [1, 2, ..., n]
+// {
+//     vertex_count      : uint32_t                Number of vertices in the mesh
+//     vertices          : float * vertex_count    Vertex data
+//
+//     tri_count         : uint32_t                Number of triangles in the mesh
+//     tris              : uint16_t * tri_count    Triangle data as indices into 'vertices'
+// }
+//
+
+// Bump the version whenever a change in the format is made.
+const uint32_t MESH_VERSION = 1;
+
+struct MeshHeader
 {
-public:
-
-					PSCompiler(const char* root_path, const char* dest_path);
-					~PSCompiler();
-
-	size_t			read_header_impl(DiskFile* in_file);
-	size_t			read_resource_impl(DiskFile* in_file);
-
-	void			write_header_impl(DiskFile* out_file);
-	void			write_resource_impl(DiskFile* out_file);
-
-	void			cleanup_impl();
-
-private:
-
-	uint32_t		m_file_size;
-	char*			m_file_data;
+	uint32_t	version;
+	uint32_t	mesh_count;
+	uint32_t	joint_count;
+	uint32_t	padding[16];
 };
 
 } // namespace crown
-

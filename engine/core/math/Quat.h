@@ -55,28 +55,29 @@ public:
 
 public:
 
+	/// Does nothing
 				Quat();
 
-	/// Builds the quaternion from an angle and a vector								
-				Quat(float angle, const Vec3& v);	
+	/// Builds the quaternion from an @a axis and a @a angle.							
+				Quat(const Vec3& axis, float angle);	
 
-	/// Negates the quaternion
+	/// Negates the quaternion.
 	void		negate();
 
-	/// Builds the identity quaternion							
+	/// Builds the identity quaternion.
 	void		load_identity();
 
-	/// Returns the quaternion's length					
+	/// Returns the lenght of the quaternion.
 	float		length() const;		
 
-	/// Conjugates the quaternion				
+	/// Conjugates the quaternion.
 	void		conjugate();
 
-	/// Returns the quaternion's conjugate						
+	/// Returns the quaternion's conjugate.
 	Quat		get_conjugate() const;
 
 	/// Quaternion's inverse				
-	Quat		get_inverse() const;				
+	Quat		get_inverse() const;
 
 	Mat3		to_mat3() const;
 	Mat4		to_mat4() const;
@@ -85,7 +86,7 @@ public:
 	Quat		operator*(const Quat& b) const;
 
 	/// Multiplication by a scalar		
-	Quat		operator*(const float& k) const;		
+	Quat		operator*(const float& k) const;
 
 	Quat		power(float exp);
 };

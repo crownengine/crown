@@ -38,6 +38,7 @@ static ProxyAllocator* g_proxy_allocators_head = NULL;
 ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator) :
 	m_allocator(allocator),
 	m_name(name),
+	m_total_allocated(0),
 	m_next(NULL)
 {
 	CE_ASSERT(name != NULL, "Name must be != NULL");
@@ -53,6 +54,8 @@ ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator) :
 //-----------------------------------------------------------------------------
 void* ProxyAllocator::allocate(size_t size, size_t align)
 {
+	m_total_allocated += size;
+
 	return m_allocator.allocate(size, align);
 }
 
@@ -60,6 +63,12 @@ void* ProxyAllocator::allocate(size_t size, size_t align)
 void ProxyAllocator::deallocate(void* data)
 {
 	m_allocator.deallocate(data);
+}
+
+//-----------------------------------------------------------------------------
+size_t ProxyAllocator::allocated_size()
+{
+	return m_total_allocated;
 }
 
 //-----------------------------------------------------------------------------

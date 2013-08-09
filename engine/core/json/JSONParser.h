@@ -42,10 +42,98 @@ enum JSONType
 	JT_BOOL
 };
 
+/// Represents a key-value pair in a JSON document.
 struct JSONPair
 {
 	const char* key;
 	const char* val;
+};
+
+class JSONParser;
+
+/// Represents a JSON element.
+/// The objects of this class are valid until the parser
+/// which has generated them, will exist.
+class JSONElement
+{
+public:
+
+	/// Used only to forward-instantiate elements.
+	/// In order to be able to use the element, it must be
+	/// obtained from JSONParser::root() or copied from an
+	/// already existent and valid element.
+						JSONElement();
+
+	/// Returns the @a i -th item of the current array.
+	JSONElement&		operator[](uint32_t i);
+
+	/// @copydoc JSONParser::operator[]
+	JSONElement&		index(uint32_t i);
+
+	/// Returns the element corresponding to key @a k of the
+	/// current object.
+	/// @note
+	/// If the key is not unique in the object scope, the last
+	/// key in order of appearance will be selected.
+	JSONElement&		key(const char* k);
+
+	/// Returns whether the element has the @a k key.
+	bool				has_key(const char* k) const;
+
+	/// Returns whether the @a k key is unique in the object
+	/// element. If no such key is found it returns false.
+	bool				is_key_unique(const char* k) const;
+
+	/// Returns true wheter the element is the JSON nil special value.
+	bool				is_nil() const;
+
+	/// Returns true wheter the element is a JSON boolean (true or false).
+	bool				is_bool() const;
+
+	/// Returns true wheter the element is a JSON number.
+	bool				is_number() const;
+
+	/// Returns true whether the element is a JSON string.
+	bool				is_string() const;
+
+	/// Returns true whether the element is a JSON array.
+	bool				is_array() const;
+
+	/// Returns true whether the element is a JSON object.
+	bool				is_object() const;
+
+	/// Returns the size of the element based on the
+	/// element's type:
+	/// * nil, bool, number: 1
+	/// * string: length of the string
+	/// * array: number of elements in the array
+	/// * object: number of keys in the object
+	uint32_t			size() const;
+
+	/// Returns the boolean value of the element.
+	bool				bool_value() const;
+
+	/// Returns the integer value of the element.
+	int32_t				int_value() const;
+
+	/// Returns the float value of the element.
+	float				float_value() const;
+
+	/// Returns the string value of the element.
+	/// @warning
+	/// The returned string is kept internally until the next call to
+	/// this function, so it is highly unsafe to just keep the pointer
+	/// instead of copying its content somewhere else.
+	const char*			string_value() const;
+
+private:
+
+						JSONElement(JSONParser& parser, const char* at);
+
+	JSONParser*			m_parser;
+	const char*			m_at;
+
+	friend class 		JSONParser;
 };
 
 /// Parses JSON documents.
@@ -60,62 +148,7 @@ public:
 						JSONParser(const char* s);
 
 	/// Returns the root element of the JSON document.
-	JSONParser&			root();
-
-	/// Returns the @a i -th item of the current array.
-	JSONParser&			operator[](uint32_t i);
-
-	/// @copydoc JSONParser::operator[]
-	JSONParser&			index(uint32_t i);
-
-	/// Returns the element corresponding to key @a k of the
-	/// current object.
-	/// @note
-	/// If the key is not unique in the object scope, the last
-	/// key in order of appearance will be selected.
-	JSONParser&			key(const char* k);
-
-	/// Returns true wheter the current element is the JSON nil special value.
-	bool				is_nil() const;
-
-	/// Returns true wheter the current element is a JSON boolean (true or false).
-	bool				is_bool() const;
-
-	/// Returns true wheter the current element is a JSON number.
-	bool				is_number() const;
-
-	/// Returns true whether the current element is a JSON string.
-	bool				is_string() const;
-
-	/// Returns true whether the current element is a JSON array.
-	bool				is_array() const;
-
-	/// Returns true whether the current element is a JSON object.
-	bool				is_object() const;
-
-	/// Returns the size of the current element based on the
-	/// element's type:
-	/// * nil, bool, number: 1
-	/// * string: length of the string
-	/// * array: number of elements in the array
-	/// * object: number of keys in the object
-	uint32_t			size() const;
-
-	/// Returns the boolean value of the current element.
-	bool				bool_value() const;
-
-	/// Returns the integer value of the current element.
-	int32_t				int_value() const;
-
-	/// Returns the float value of the current element.
-	float				float_value() const;
-
-	/// Returns the string value of the current element.
-	/// @warning
-	/// The returned string is kept internally until the next call to
-	/// this function, so it is highly unsafe to just keep the pointer
-	/// instead of copying its content somewhere else.
-	const char*			string_value() const;
+	JSONElement			root();
 
 public:
 
@@ -148,7 +181,12 @@ public:
 private:
 
 	const char* const	m_document;
-	const char*			m_at;
+
+private:
+
+	// Disable copying
+						JSONParser(const JSONParser&);
+	JSONParser&			operator=(const JSONParser&);
 };
 
 } // namespace crown

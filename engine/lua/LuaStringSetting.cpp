@@ -27,13 +27,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringSetting.h"
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
-#include "StringUtils.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t string_setting_value(lua_State* L)
+CE_EXPORT int string_setting_value(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -43,18 +42,18 @@ CE_EXPORT int32_t string_setting_value(lua_State* L)
 
 	if (setting != NULL)
 	{
-		stack.push_string(setting->value(), string::strlen(setting->value()));
+		stack.push_string(setting->value());
 	}
 	else
 	{
-		stack.push_string("", string::strlen(""));
+		stack.push_string("");
 	}
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t string_setting_synopsis(lua_State* L)
+CE_EXPORT int string_setting_synopsis(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -64,18 +63,18 @@ CE_EXPORT int32_t string_setting_synopsis(lua_State* L)
 
 	if (setting != NULL)
 	{
-		stack.push_string(setting->synopsis(), string::strlen(setting->synopsis()));
+		stack.push_string(setting->synopsis());
 	}
 	else
 	{
-		stack.push_string("", string::strlen(""));
+		stack.push_string("");
 	}
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t string_setting_update(lua_State* L)
+CE_EXPORT int string_setting_update(lua_State* L)
 {
 	LuaStack stack(L);
 

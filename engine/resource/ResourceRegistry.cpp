@@ -24,69 +24,78 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "VSCompiler.h"
-#include "DiskFile.h"
-#include "Resource.h"
+#include "ResourceRegistry.h"
+#include "TextureResource.h"
+#include "MeshResource.h"
+#include "SoundResource.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-VSCompiler::VSCompiler(const char* root_path, const char* dest_path) :
-	Compiler(root_path, dest_path, VERTEX_SHADER_TYPE),
-	m_file_size(0),
-	m_file_data(NULL)
+static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 {
-}
-
-//-----------------------------------------------------------------------------
-VSCompiler::~VSCompiler()
-{
-	cleanup_impl();
-}
+	{ TEXTURE_TYPE, TextureResource::load, TextureResource::unload, TextureResource::online, TextureResource::offline },
+	{ MESH_TYPE, MeshResource::load, MeshResource::unload, MeshResource::online, MeshResource::offline },
+	{ SOUND_TYPE, SoundResource::load, SoundResource::unload, SoundResource::online, SoundResource::offline },
+	{ 0, NULL, NULL, NULL, NULL }
+};
 
 //-----------------------------------------------------------------------------
-size_t VSCompiler::read_header_impl(DiskFile* in_file)
+static const ResourceCallback* find_callback(uint32_t type)
 {
-	(void) in_file;
-	return 0;
-}
+	const ResourceCallback* c = RESOURCE_CALLBACK_REGISTRY;
 
-//-----------------------------------------------------------------------------
-size_t VSCompiler::read_resource_impl(DiskFile* in_file)
-{
-	m_file_size = in_file->size();
-
-	m_file_data = (char*)default_allocator().allocate(m_file_size * sizeof(char));
-	
-	// Copy the entire file into the buffer
-	in_file->read(m_file_data, m_file_size);
-
-	// Return total resource size
-	return m_file_size + sizeof(uint32_t);
-}
-
-//-----------------------------------------------------------------------------
-void VSCompiler::write_header_impl(DiskFile* out_file)
-{
-	out_file->write(&m_file_size, sizeof(uint32_t));
-}
-
-//-----------------------------------------------------------------------------
-void VSCompiler::write_resource_impl(DiskFile* out_file)
-{
-	out_file->write(m_file_data, m_file_size);
-}
-
-//-----------------------------------------------------------------------------
-void VSCompiler::cleanup_impl()
-{
-	if (m_file_data)
+	while (c->type != 0)
 	{
-		default_allocator().deallocate(m_file_data);
-		m_file_data = NULL;
+		if (c->type == type)
+		{
+			return c;
+		}
+
+		c++;
 	}
+
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+void* resource_on_load(uint32_t type, Allocator& allocator, Bundle& bundle, ResourceId id)
+{
+	const ResourceCallback* c = find_callback(type);
+
+	CE_ASSERT_NOT_NULL(c);
+
+	return c->on_load(allocator, bundle, id);
+}
+
+//-----------------------------------------------------------------------------
+void resource_on_unload(uint32_t type, Allocator& allocator, void* resource)
+{
+	const ResourceCallback* c = find_callback(type);
+
+	CE_ASSERT_NOT_NULL(c);
+
+	return c->on_unload(allocator, resource);
+}
+
+//-----------------------------------------------------------------------------
+void resource_on_online(uint32_t type, void* resource)
+{
+	const ResourceCallback* c = find_callback(type);
+
+	CE_ASSERT_NOT_NULL(c);
+
+	return c->on_online(resource);
+}
+
+//-----------------------------------------------------------------------------
+void resource_on_offline(uint32_t type, void* resource)
+{
+	const ResourceCallback* c = find_callback(type);
+
+	CE_ASSERT_NOT_NULL(c);
+
+	return c->on_offline(resource);
 }
 
 } // namespace crown
-

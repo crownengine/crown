@@ -24,26 +24,48 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Shape.h"
+#pragma once
+
+#include "Types.h"
+#include "Resource.h"
+#include "PixelFormat.h"
+#include "Texture.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-Shape::Shape(ShapeType type):
-	m_type(type)
-{
-}
+// Bump the version whenever a change in the format is made.
+const uint32_t MESH_VERSION = 1;
 
-//-----------------------------------------------------------------------------
-Shape::~Shape()
+struct MeshHeader
 {
-}
+	uint32_t	version;
+	uint32_t	mesh_count;
+	uint32_t	joint_count;
+	uint32_t	padding[16];
+};
 
-//-----------------------------------------------------------------------------
-ShapeType Shape::type()
+class Bundle;
+class Allocator;
+
+class MeshResource
 {
-	return m_type;
-}
+public:
 
-}
+	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
+	static void			unload(Allocator& allocator, void* resource);
+	static void			online(void* resource);
+	static void			offline(void* resource);
+
+public:
+
+	MeshHeader			m_header;
+
+	size_t				m_vertex_count;
+	float*				m_vertices;
+
+	size_t				m_index_count;
+	uint16_t*			m_indices;
+};
+
+} // namespace crown

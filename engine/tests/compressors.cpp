@@ -5,7 +5,7 @@
 
 using namespace crown;
 
-int main(int argc, char** argv)
+int main()
 {
 	
 	HeapAllocator allocator;

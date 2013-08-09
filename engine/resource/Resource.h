@@ -39,8 +39,6 @@ const char* const MESH_EXTENSION			= "dae";
 const char* const SCRIPT_EXTENSION			= "lua";
 const char* const TEXT_EXTENSION			= "txt";
 const char* const MATERIAL_EXTENSION		= "material";
-const char* const VERTEX_SHADER_EXTENSION	= "vs";
-const char* const PIXEL_SHADER_EXTENSION	= "ps";
 const char* const SOUND_EXTENSION			= "wav";
 
 const uint32_t TEXTURE_TYPE					= 0x1410A16A;
@@ -48,17 +46,14 @@ const uint32_t MESH_TYPE					= 0xE8239EEC;
 const uint32_t SCRIPT_TYPE					= 0xD96E7C37;
 const uint32_t TEXT_TYPE					= 0x9000BF0B;
 const uint32_t MATERIAL_TYPE				= 0x46807A92;
-const uint32_t VERTEX_SHADER_TYPE			= 0xDC7F061F;
-const uint32_t PIXEL_SHADER_TYPE			= 0x2A461B45;
 const uint32_t SOUND_TYPE					= 0x8E128AA1;
-
 
 /// Enumerates the loading states of a resource
 enum ResourceState
 {
-	RS_UNLOADED		= 0,		//< The resource is not loaded, so it cannot be used
-	RS_LOADING		= 1,		//< The resource loader started to load the resource but it is yet not ready to use
-	RS_LOADED		= 2			//< The resource loader finished to load the texture meaning it can be used
+	RS_UNLOADED		= 0,		// The resource is not loaded, so it cannot be used
+	RS_LOADING		= 1,		// The resource loader started to load the resource but it is yet not ready to use
+	RS_LOADED		= 2			// The resource loader finished to load the texture meaning it can be used
 };
 
 /// ResourceId uniquely identifies a resource by its name and type.
@@ -66,14 +61,27 @@ enum ResourceState
 /// the index to the resource list where it is stored.
 struct ResourceId
 {
-	uint32_t		name;		// Hashed resource name
-	uint32_t		type;		// Hashed resource type
-	uint32_t		index;		// Index into the ResourceManager internal list
+	bool operator==(const ResourceId& b) const { return name == b.name && type == b.type; }
 
-	bool			operator==(const ResourceId& b)
-	{
-		return name == b.name && type == b.type && index == b.index;
-	}
+	uint32_t		name;
+	uint32_t		type;
+};
+
+class Allocator;
+class Bundle;
+
+typedef void*	(*ResourceLoadCallback)(Allocator& a, Bundle& b, ResourceId id);
+typedef void	(*ResourceUnloadCallback)(Allocator& a, void* resource);
+typedef void	(*ResourceOnlineCallback)(void* resource);
+typedef void	(*ResourceOfflineCallback)(void* resource);
+
+struct ResourceCallback
+{
+	uint32_t					type;
+	ResourceLoadCallback		on_load;
+	ResourceUnloadCallback		on_unload;
+	ResourceOnlineCallback		on_online;
+	ResourceOfflineCallback		on_offline;
 };
 
 } // namespace crown

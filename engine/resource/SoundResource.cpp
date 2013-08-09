@@ -73,7 +73,7 @@ void SoundResource::unload(Allocator& allocator, void* resource)
 }
 
 //-----------------------------------------------------------------------------
-void SoundResource::offline()
+void SoundResource::offline(void* /*resource*/)
 {
 
 }

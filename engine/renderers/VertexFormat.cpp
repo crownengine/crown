@@ -56,7 +56,6 @@ size_t Vertex::bytes_per_vertex(VertexFormat format)
 		{
 			return 32;
 		}
-		case VF_UNKNOWN:
 		default:
 		{
 			return 0;

@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Glyph.h"
 #include "Resource.h"
 
 namespace crown
@@ -41,9 +40,9 @@ class FontResource
 public:
 
 	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			online(void* resource);
 	static void			unload(Allocator& allocator, void* resource);
-	static void			offline();
+	static void			online(void* resource);
+	static void			offline(void* resource);
 
 public:
 

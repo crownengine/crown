@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -25,33 +26,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
 #include "Resource.h"
-#include "Renderer.h"
 
 namespace crown
 {
 
-class Bundle;
-class Allocator;
-
-class VertexShaderResource
-{
-public:
-
-	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			online(void* resource);
-	static void			unload(Allocator& allocator, void* resource);
-	static void			offline();
-
-	VertexShaderId		vertex_shader() const { return m_vertex_shader_id; }
-
-private:
-
-	uint32_t			m_program_text_length;
-	char*				m_program_text;
-
-	VertexShaderId		m_vertex_shader_id;
-};
+void* resource_on_load(uint32_t type, Allocator& allocator, Bundle& bundle, ResourceId id);
+void resource_on_online(uint32_t type, void* resource);
+void resource_on_offline(uint32_t type, void* resource);
+void resource_on_unload(uint32_t type, Allocator& allocator, void* resource);
 
 } // namespace crown
