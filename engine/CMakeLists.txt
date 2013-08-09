@@ -273,6 +273,7 @@ set (RESOURCE_SRC
 	resource/MaterialResource.cpp
 	resource/ResourceLoader.cpp
 	resource/ResourceManager.cpp
+	resource/ResourceRegistry.cpp
 	resource/TextureResource.cpp
 	resource/MeshResource.cpp
 	resource/FontResource.cpp
@@ -286,6 +287,7 @@ set (RESOURCE_HEADERS
 	resource/Resource.h
 	resource/ResourceLoader.h
 	resource/ResourceManager.h
+	resource/ResourceRegistry.h
 	resource/Bundle.h
 	resource/TextureResource.h
 	resource/MeshResource.h
