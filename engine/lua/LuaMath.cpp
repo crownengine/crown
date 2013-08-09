@@ -32,7 +32,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_deg_to_rad(lua_State* L)
+CE_EXPORT int math_deg_to_rad(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -44,7 +44,7 @@ CE_EXPORT int32_t math_deg_to_rad(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_rad_to_deg(lua_State* L)
+CE_EXPORT int math_rad_to_deg(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -56,7 +56,7 @@ CE_EXPORT int32_t math_rad_to_deg(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_next_pow_2(lua_State* L)
+CE_EXPORT int math_next_pow_2(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -68,7 +68,7 @@ CE_EXPORT int32_t math_next_pow_2(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_is_pow_2(lua_State* L)
+CE_EXPORT int math_is_pow_2(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -80,7 +80,7 @@ CE_EXPORT int32_t math_is_pow_2(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_ceil(lua_State* L)
+CE_EXPORT int math_ceil(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -92,7 +92,7 @@ CE_EXPORT int32_t math_ceil(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_floor(lua_State* L)
+CE_EXPORT int math_floor(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -104,7 +104,7 @@ CE_EXPORT int32_t math_floor(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_sqrt(lua_State* L)
+CE_EXPORT int math_sqrt(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -116,7 +116,7 @@ CE_EXPORT int32_t math_sqrt(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_inv_sqrt(lua_State* L)
+CE_EXPORT int math_inv_sqrt(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -128,7 +128,7 @@ CE_EXPORT int32_t math_inv_sqrt(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_sin(lua_State* L)
+CE_EXPORT int math_sin(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -140,7 +140,7 @@ CE_EXPORT int32_t math_sin(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_cos(lua_State* L)
+CE_EXPORT int math_cos(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -152,7 +152,7 @@ CE_EXPORT int32_t math_cos(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_asin(lua_State* L)
+CE_EXPORT int math_asin(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -164,7 +164,7 @@ CE_EXPORT int32_t math_asin(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_acos(lua_State* L)
+CE_EXPORT int math_acos(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -176,7 +176,7 @@ CE_EXPORT int32_t math_acos(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_tan(lua_State* L)
+CE_EXPORT int math_tan(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -188,7 +188,7 @@ CE_EXPORT int32_t math_tan(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_atan2(lua_State* L)
+CE_EXPORT int math_atan2(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -201,7 +201,7 @@ CE_EXPORT int32_t math_atan2(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_abs(lua_State* L)
+CE_EXPORT int math_abs(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -213,7 +213,7 @@ CE_EXPORT int32_t math_abs(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t math_fmod(lua_State* L)
+CE_EXPORT int math_fmod(lua_State* L)
 {
 	LuaStack stack(L);
 

@@ -32,8 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-namespace os
-{
 
 class Mutex
 {
@@ -49,8 +47,12 @@ private:
 
 	CRITICAL_SECTION	m_cs;
 
+private:
+
+						Mutex(const Mutex&);
+	Mutex&				operator=(const Mutex&);
+
 	friend class		Cond;
 };
 
-} // namespace os
 } // namespace crown

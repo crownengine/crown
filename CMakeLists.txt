@@ -4,11 +4,11 @@ project(crown)
 
 set (CROWN_VERSION_MAJOR 0)
 set (CROWN_VERSION_MINOR 1)
-set (CROWN_VERSION_MICRO 8)
+set (CROWN_VERSION_MICRO 9)
 
 option (CROWN_BUILD_SAMPLES "Whether to build the samples" ON)
 option (CROWN_BUILD_TOOLS "Whether to build the tools" ON)
-option (CROWN_BUILD_TESTS "Whether to build unit tests" OFF)
+option (CROWN_BUILD_TESTS "Whether to build unit tests" ON)
 
 # always debug mode for now
 set (CROWN_DEBUG 1)
@@ -29,12 +29,7 @@ add_subdirectory(engine)
 if (CROWN_BUILD_TOOLS)
 	add_subdirectory(tools)
 endif (CROWN_BUILD_TOOLS)
+
 if (CROWN_BUILD_SAMPLES)
 	add_subdirectory(samples)
 endif (CROWN_BUILD_SAMPLES)
-
-if (CROWN_BUILD_TESTS)
-	add_subdirectory(tests)
-endif (CROWN_BUILD_TESTS)
-
-

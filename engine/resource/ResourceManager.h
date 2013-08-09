@@ -28,96 +28,63 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "List.h"
-#include "Queue.h"
 #include "Resource.h"
-#include "HeapAllocator.h"
-#include "Thread.h"
-#include "Mutex.h"
-#include "Cond.h"
+#include "ProxyAllocator.h"
+#include "ResourceLoader.h"
 
 namespace crown
 {
 
 struct ResourceEntry
 {
+	bool operator==(const ResourceId& resource) const { return id == resource; }
+	bool operator==(const ResourceEntry& b) const { return id == b.id; }
+
 	ResourceId		id;
 	ResourceState	state;
-
 	uint32_t		references;
-
 	void*			resource;
-
-	bool			operator==(const ResourceId& resource)
-					{
-						return id == resource;
-					}
-
-	bool			operator==(const ResourceEntry& b)
-					{
-						return id == b.id;
-					}
-};
-
-struct LoadedResource
-{
-	ResourceId	resource;
-	void*		data;
 };
 
 class Bundle;
 
-/// Resource manager.
+/// Keeps track and manages resources loaded by ResourceLoader.
 class ResourceManager
 {
 public:
 
-	/// Read resources from @a bundle and store resource data using @a allocator.
-							ResourceManager(Bundle& bundle);
+	/// The resources will be loaded from @a bundle.
+							ResourceManager(Bundle& bundle, uint32_t seed);
 							~ResourceManager();
 
-	/// Loads the resource by @a name and returns its ResourceId.
+	/// Loads the resource by @a type and @a name and returns its ResourceId.
 	/// @note
-	/// The resource data may be not immediately available,
-	/// the resource gets pushed in a queue of load requests and loadead as
-	/// soon as possible by the ResourceLoader.
-	/// You have to explicitly call is_loaded() method to check if the
-	/// loading process is actually completed.
-	ResourceId				load(const char* name);
+	/// You have to call is_loaded() to check if the loading process is actually completed.
+	ResourceId				load(const char* type, const char* name);
 
-	/// Unloads the @a resource, freeing up all the memory associated by it
+	/// Unloads the resource @a name, freeing up all the memory associated by it
 	/// and eventually any global object associated with it.
-	/// (Such as texture objects, vertex buffers etc.)
 	void					unload(ResourceId name);
-
-	/// Reloads the @a resource
-	void					reload(ResourceId name);
 
 	/// Returns whether the manager has the @a name resource into
 	/// its list of resources.
-	/// @note
+	/// @warning
 	/// Having a resource does not mean that the resource is
-	/// available for using; instead, you have to check is_loaded() to
-	/// obtain the resource availability status.
+	/// ready to be used; See is_loaded().
 	bool					has(ResourceId name) const;
 
 	/// Returns the data associated with the @a name resource.
-	/// The resource data contains resource-specific metadata
-	/// and the actual resource data. In order to correctly use
-	/// it, you have to know which type of data @a name refers to
-	/// and cast accordingly.
+	/// You will have to cast the returned pointer accordingly.
 	const void*				data(ResourceId name) const;
 	
 	/// Returns whether the @a name resource is loaded (i.e. whether
 	/// you can use the data associated with it).
 	bool					is_loaded(ResourceId name) const;
 
-	/// Returns the number of references to the @a resource
+	/// Returns the number of references to the resource @a name;
 	uint32_t				references(ResourceId name) const;
 
-	/// Returns the number of resources still waiting to load.
-	uint32_t				remaining() const;
-
-	/// Forces all the loading requests to complete before preceeding.
+	/// Forces all of the loading requests to complete before preceeding.
 	void					flush();
 
 	/// Returns the seed used to generate resource name hashes.
@@ -125,54 +92,26 @@ public:
 
 private:
 
-	// Checks the load queue and signal the backgroud about pending
-	// requests. It is normally called only by the Device.
-	void					check_load_queue();
-	// Calls online() on loaded resources. Must be called only
-	// in the main thread and generally only by Device.
-	void					bring_loaded_online();
+	ResourceId				resource_id(const char* type, const char* name) const;
+
+	// Returns the entry of the given id.
+	ResourceEntry*			find(ResourceId id) const;
+
+	// Polls the resource loader for loaded resources.
+	void					poll_resource_loader();
 
 	// Loads the resource by name and type and returns its ResourceId.
-	ResourceId				load(uint32_t name, uint32_t type);
-
-	void					background_load();
-
-	void*					load_by_type(ResourceId name);
-	void					unload_by_type(ResourceId name, void* resource);
+	ResourceId				load(ResourceId name);
 	void					online(ResourceId name, void* resource);
 
 private:
 
-	static void*			background_thread(void* thiz);
-
-private:
-
-	// Archive whether to look for resources
-	Bundle&					m_resource_bundle;
-	// Used to strore resource memory
-	HeapAllocator			m_resource_allocator;
-
-	HeapAllocator			m_allocator;
-	// The master lookup table
+	ProxyAllocator			m_resource_heap;
+	ResourceLoader			m_loader;
+	uint32_t				m_seed;
 	List<ResourceEntry>		m_resources;
 
-	// Resources waiting for loading
-	Queue<ResourceId>		m_loading_queue;
-	// Resources already loaded, ready to bring online
-	Queue<LoadedResource>	m_loaded_queue;
-
-	uint32_t				m_seed;
-
-	// Background loading thread
-	bool 					m_background_thread_should_run;
-	os::Thread				m_thread;
-
-	mutable os::Mutex		m_loading_mutex;
-	os::Cond 				m_loading_requests;
-	os::Cond 				m_all_loaded;
-
-	os::Mutex				m_loaded_mutex;
-	mutable os::Mutex		m_resources_mutex;
+private:
 
 	friend class			Device;
 };

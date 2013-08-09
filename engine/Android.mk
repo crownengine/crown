@@ -39,7 +39,6 @@ LOCAL_SRC_FILES :=\
 	core/math/Mat4.cpp\
 	core/math/Plane.cpp\
 	core/math/Quat.cpp\
-	core/math/Shape.cpp\
 	core/math/Vec2.cpp\
 	core/math/Vec3.cpp\
 	core/math/Vec4.cpp\
@@ -90,6 +89,7 @@ LOCAL_SRC_FILES :=\
 	resource/FontResource.cpp\
 	resource/MaterialResource.cpp\
 	resource/PixelShaderResource.cpp\
+	resource/ResourceLoader.cpp\
 	resource/ResourceManager.cpp\
 	resource/TextResource.cpp\
 	resource/TextureResource.cpp\

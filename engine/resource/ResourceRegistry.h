@@ -24,26 +24,16 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Shape.h"
+#pragma once
+
+#include "Resource.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-Shape::Shape(ShapeType type):
-	m_type(type)
-{
-}
+void* resource_on_load(uint32_t type, Allocator& allocator, Bundle& bundle, ResourceId id);
+void resource_on_online(uint32_t type, void* resource);
+void resource_on_offline(uint32_t type, void* resource);
+void resource_on_unload(uint32_t type, Allocator& allocator, void* resource);
 
-//-----------------------------------------------------------------------------
-Shape::~Shape()
-{
-}
-
-//-----------------------------------------------------------------------------
-ShapeType Shape::type()
-{
-	return m_type;
-}
-
-}
+} // namespace crown

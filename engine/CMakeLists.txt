@@ -70,7 +70,6 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
-	Glyph.h
 	ConsoleServer.h
 	FPSSystem.h
 )
@@ -121,7 +120,6 @@ set (MATH_SRC
 	core/math/Plane.cpp
 	core/math/Point2.cpp
 	core/math/Quat.cpp
-	core/math/Shape.cpp
 	core/math/Vec2.cpp
 	core/math/Vec3.cpp
 	core/math/Vec4.cpp
@@ -139,7 +137,6 @@ set (MATH_HEADERS
 	core/math/Quat.h
 	core/math/Random.h
 	core/math/Ray.h
-	core/math/Shape.h
 	core/math/Triangle.h
 	core/math/Vec2.h
 	core/math/Vec3.h
@@ -273,7 +270,9 @@ set (RENDERERS_HEADERS
 
 set (RESOURCE_SRC
 	resource/MaterialResource.cpp
+	resource/ResourceLoader.cpp
 	resource/ResourceManager.cpp
+	resource/ResourceRegistry.cpp
 	resource/TextureResource.cpp
 	resource/MeshResource.cpp
 	resource/FontResource.cpp
@@ -285,7 +284,9 @@ set (RESOURCE_SRC
 set (RESOURCE_HEADERS
 	resource/MaterialResource.h
 	resource/Resource.h
+	resource/ResourceLoader.h
 	resource/ResourceManager.h
+	resource/ResourceRegistry.h
 	resource/Bundle.h
 	resource/TextureResource.h
 	resource/MeshResource.h
@@ -394,7 +395,7 @@ if (LINUX)
 		-g
 		-pg
 		-fPIC
-		-fvisibility=hidden
+		#-fvisibility=hidden
 	)
 
 	set (CROWN_EXECUTABLE_NAME crown-linux)
@@ -492,6 +493,8 @@ set (CROWN_HEADERS
 
 	${RESOURCE_HEADERS}
 
+	${RPC_HEADERS}
+
 #	${NETWORK_HEADERS}
 
 	${OS_HEADERS}
@@ -512,6 +515,10 @@ add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
+
+if (CROWN_BUILD_TESTS)
+	add_subdirectory(tests)
+endif (CROWN_BUILD_TESTS)
 
 install (TARGETS crown DESTINATION bin)
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)

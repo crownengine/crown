@@ -51,7 +51,7 @@ void MaterialResource::unload(Allocator& /*allocator*/, void* /*material*/)
 }
 
 //-----------------------------------------------------------------------------
-void MaterialResource::offline()
+void MaterialResource::offline(void* /*resource*/)
 {
 	// TODO
 }

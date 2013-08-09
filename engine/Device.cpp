@@ -51,6 +51,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Memory.h"
 #include "LuaEnvironment.h"
 #include "ConsoleServer.h"
+#include "TextReader.h"
 
 namespace crown
 {
@@ -162,7 +163,7 @@ void Device::shutdown()
 	Log::i("Releasing ConsoleServer...");
 	if (m_console_server)
 	{
-		m_console_server->shutdown();
+		//m_console_server->shutdown();
 
 		CE_DELETE(m_allocator, m_console_server);
 	}
@@ -350,15 +351,14 @@ void Device::frame()
 	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
 	m_last_time = m_current_time;
 
-	m_resource_manager->check_load_queue();
-	m_resource_manager->bring_loaded_online();
+	m_resource_manager->poll_resource_loader();
 
 	m_window->frame();
 	m_input_manager->frame(frame_count());
 
 	m_lua_environment->game_frame(last_delta_time());
 
-	m_console_server->execute();
+	//m_console_server->execute();
 
 	m_debug_renderer->draw_all();
 	m_renderer->frame();
@@ -367,33 +367,9 @@ void Device::frame()
 }
 
 //-----------------------------------------------------------------------------
-ResourceId Device::load(const char* name)
-{
-	return m_resource_manager->load(name);
-}
-
-//-----------------------------------------------------------------------------
-void Device::unload(ResourceId name)
-{
-	m_resource_manager->unload(name);
-}
-
-//-----------------------------------------------------------------------------
 void Device::reload(ResourceId name)
 {
 	(void)name;
-}
-
-//-----------------------------------------------------------------------------
-bool Device::is_loaded(ResourceId name)
-{
-	return m_resource_manager->is_loaded(name);
-}
-
-//-----------------------------------------------------------------------------
-const void* Device::data(ResourceId name)
-{
-	return m_resource_manager->data(name);
 }
 
 //-----------------------------------------------------------------------------
@@ -418,8 +394,19 @@ void Device::create_resource_manager()
 		m_resource_bundle = CE_NEW(m_allocator, ArchiveBundle)(*m_filesystem);
 	}
 
+	// Read resource seed
+	DiskFile* seed_file = filesystem()->open("seed.ini", FOM_READ);
+	TextReader reader(*seed_file);
+
+	char tmp_buf[32];
+	reader.read_string(tmp_buf, 32);
+
+	filesystem()->close(seed_file);
+
+	uint32_t seed = string::parse_uint(tmp_buf);
+
 	// Create resource manager
-	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle);
+	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, seed);
 
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
@@ -477,9 +464,9 @@ void Device::create_lua_environment()
 
 void Device::create_console_server()
 {
-	m_console_server = CE_NEW(m_allocator, ConsoleServer)();
+	m_console_server = NULL;//CE_NEW(m_allocator, ConsoleServer)();
 
-	m_console_server->init();
+	//m_console_server->init();
 
 	Log::d("Console server created.");
 }
@@ -489,15 +476,14 @@ void Device::parse_command_line(int argc, char** argv)
 {
 	static ArgsOption options[] = 
 	{
-
-		"help",             AOA_NO_ARGUMENT,       NULL,        'i',
-		"root-path",        AOA_REQUIRED_ARGUMENT, NULL,        'r',
-		"width",            AOA_REQUIRED_ARGUMENT, NULL,        'w',
-		"height",           AOA_REQUIRED_ARGUMENT, NULL,        'h',
-		"fullscreen",       AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1,
-		"dev",              AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT,
-		"quit-after-init",  AOA_NO_ARGUMENT,       &m_quit_after_init, 1,
-		NULL, 0, NULL, 0
+		{ "help",             AOA_NO_ARGUMENT,       NULL,        'i' },
+		{ "root-path",        AOA_REQUIRED_ARGUMENT, NULL,        'r' },
+		{ "width",            AOA_REQUIRED_ARGUMENT, NULL,        'w' },
+		{ "height",           AOA_REQUIRED_ARGUMENT, NULL,        'h' },
+		{ "fullscreen",       AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1 },
+		{ "dev",              AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT },
+		{ "quit-after-init",  AOA_NO_ARGUMENT,       &m_quit_after_init, 1 },
+		{ NULL, 0, NULL, 0 }
 	};
 
 	Args args(argc, argv, "", options);

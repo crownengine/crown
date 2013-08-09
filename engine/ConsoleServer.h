@@ -38,38 +38,38 @@ class ConsoleServer
 {
 public:
 
-	/// Constructor
-							ConsoleServer();
-	/// Start listening on @port
-	void					init();
-	/// Stop listening
-	void					shutdown();
-	/// Read-evaluation loop, executed on a different thread
-	void					read_eval_loop();
-	/// Execute commands, executed on main thread
-	void					execute();
-	/// Send data to client
-	void					send(const void* data, size_t size = 1024);
-	/// Receive data to client
-	void					receive(char* data, size_t size = 1024);
+// 	/// Constructor
+// 							ConsoleServer();
+// 	/// Start listening on @port
+// 	void					init();
+// 	/// Stop listening
+// 	void					shutdown();
+// 	/// Read-evaluation loop, executed on a different thread
+// 	void					read_eval_loop();
+// 	/// Execute commands, executed on main thread
+// 	void					execute();
+// 	/// Send data to client
+// 	void					send(const void* data, size_t size = 1024);
+// 	/// Receive data to client
+// 	void					receive(char* data, size_t size = 1024);
 
-private:
+// private:
 
-	static void*			background_thread(void* thiz);
+// 	static void*			background_thread(void* thiz);
 
-private:
+// private:
 
-	os::TCPSocket			m_socket;
+// 	os::TCPSocket			m_socket;
 
-	os::Thread				m_thread;
-	os::Mutex				m_command_mutex;
+// 	Thread					m_thread;
+// 	Mutex					m_command_mutex;
 
-	// Is console active?
-	bool					m_active;
-	// Commands buffer
-	char					m_cmd_buffer[1024];
+// 	// Is console active?
+// 	bool					m_active;
+// 	// Commands buffer
+// 	char					m_cmd_buffer[1024];
 
-	char 					m_err_buffer[1024];
+// 	char 					m_err_buffer[1024];
 
 };
 

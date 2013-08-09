@@ -49,7 +49,7 @@ void FontResource::unload(Allocator& /*allocator*/, void* /*resource*/)
 }
 
 //-----------------------------------------------------------------------------
-void FontResource::offline()
+void FontResource::offline(void* /*resource*/)
 {
 }
 
