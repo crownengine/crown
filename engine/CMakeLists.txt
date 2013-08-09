@@ -395,7 +395,7 @@ if (LINUX)
 		-g
 		-pg
 		-fPIC
-		-fvisibility=hidden
+		#-fvisibility=hidden
 	)
 
 	set (CROWN_EXECUTABLE_NAME crown-linux)
@@ -515,6 +515,10 @@ add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
+
+if (CROWN_BUILD_TESTS)
+	add_subdirectory(tests)
+endif (CROWN_BUILD_TESTS)
 
 install (TARGETS crown DESTINATION bin)
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
