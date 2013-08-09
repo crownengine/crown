@@ -38,93 +38,93 @@ namespace crown
 
 static IntSetting g_port("read_port", "port used for reading", 10000, 9999, 65535);
 
-//-----------------------------------------------------------------------------
-ConsoleServer::ConsoleServer() :
-	m_thread("console-thread"),
-	m_active(false)
-{
-	// string::strncpy(m_cmd_buffer, "", 1024);
-	// string::strncpy(m_err_buffer, "", 1024);
-}
+// //-----------------------------------------------------------------------------
+// ConsoleServer::ConsoleServer() :
+// 	m_thread("console-thread"),
+// 	m_active(false)
+// {
+// 	// string::strncpy(m_cmd_buffer, "", 1024);
+// 	// string::strncpy(m_err_buffer, "", 1024);
+// }
 
-//-----------------------------------------------------------------------------
-void ConsoleServer::init()
-{
-	// m_active = true;
-}
+// //-----------------------------------------------------------------------------
+// void ConsoleServer::init()
+// {
+// 	// m_active = true;
+// }
 
-//-----------------------------------------------------------------------------
-void ConsoleServer::shutdown()
-{
-	// m_active = false;
+// //-----------------------------------------------------------------------------
+// void ConsoleServer::shutdown()
+// {
+// 	// m_active = false;
 
-	// m_socket.close();
-}
+// 	// m_socket.close();
+// }
 
-//-----------------------------------------------------------------------------
-void ConsoleServer::read_eval_loop()
-{
-	// m_socket.open(g_port);
+// //-----------------------------------------------------------------------------
+// void ConsoleServer::read_eval_loop()
+// {
+// 	// m_socket.open(g_port);
 	
-	// char cmd[1024];
+// 	// char cmd[1024];
 
-	// while (m_active)
-	// {
-	// 	string::strncpy(cmd, "", 1024);
-	// 	receive((char*)cmd, 1024);
+// 	// while (m_active)
+// 	// {
+// 	// 	string::strncpy(cmd, "", 1024);
+// 	// 	receive((char*)cmd, 1024);
 
-	// 	// Fill command buffer
-	// 	string::strncpy(m_cmd_buffer, cmd, 1024);
-	// }
+// 	// 	// Fill command buffer
+// 	// 	string::strncpy(m_cmd_buffer, cmd, 1024);
+// 	// }
 
-	// Log::i("End read-eval loop");
-	// m_socket.close();
-}
+// 	// Log::i("End read-eval loop");
+// 	// m_socket.close();
+// }
 
-//-----------------------------------------------------------------------------
-void ConsoleServer::execute()
-{
-	// m_command_mutex.lock();
+// //-----------------------------------------------------------------------------
+// void ConsoleServer::execute()
+// {
+// 	// m_command_mutex.lock();
 
-	// LuaEnvironment* lua = device()->lua_environment();
+// 	// LuaEnvironment* lua = device()->lua_environment();
 
-	// lua->load_buffer(m_cmd_buffer, string::strlen(m_cmd_buffer));
-	// lua->execute(0, 0);
+// 	// lua->load_buffer(m_cmd_buffer, string::strlen(m_cmd_buffer));
+// 	// lua->execute(0, 0);
 
-	// string::strncpy(m_cmd_buffer, "", 1024);
+// 	// string::strncpy(m_cmd_buffer, "", 1024);
 
-	// string::strncpy(m_err_buffer, lua->error(),  1024);
+// 	// string::strncpy(m_err_buffer, lua->error(),  1024);
 
-	// if (string::strcmp(m_err_buffer, "") != 0)
-	// {
-	// 	// Fill error buffer
-	// 	send((char*)m_err_buffer, 1024);
-	// }
+// 	// if (string::strcmp(m_err_buffer, "") != 0)
+// 	// {
+// 	// 	// Fill error buffer
+// 	// 	send((char*)m_err_buffer, 1024);
+// 	// }
 
-	// string::strncpy(m_err_buffer, "", 1024);
+// 	// string::strncpy(m_err_buffer, "", 1024);
 
-	// m_command_mutex.unlock();
-}
+// 	// m_command_mutex.unlock();
+// }
 
-//-----------------------------------------------------------------------------
-void ConsoleServer::send(const void* data, size_t size)
-{
-	// m_socket.send(data, size);
-}
+// //-----------------------------------------------------------------------------
+// void ConsoleServer::send(const void* data, size_t size)
+// {
+// 	// m_socket.send(data, size);
+// }
 
-//-----------------------------------------------------------------------------
-void ConsoleServer::receive(char* data, size_t size)
-{
-	// m_socket.receive(data, size);
-}
+// //-----------------------------------------------------------------------------
+// void ConsoleServer::receive(char* data, size_t size)
+// {
+// 	// m_socket.receive(data, size);
+// }
 
-//-----------------------------------------------------------------------------
-void* ConsoleServer::background_thread(void* thiz)
-{
-	// ((ConsoleServer*)thiz)->read_eval_loop();
+// //-----------------------------------------------------------------------------
+// void* ConsoleServer::background_thread(void* thiz)
+// {
+// 	// ((ConsoleServer*)thiz)->read_eval_loop();
 
-	// return NULL;
-}
+// 	// return NULL;
+// }
 
 
 } // namespace crown
