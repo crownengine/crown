@@ -74,7 +74,7 @@ class Bundle;
 typedef void*	(*ResourceLoadCallback)(Allocator& a, Bundle& b, ResourceId id);
 typedef void	(*ResourceUnloadCallback)(Allocator& a, void* resource);
 typedef void	(*ResourceOnlineCallback)(void* resource);
-typedef void	(*ResourceOfflineCallback)(void);
+typedef void	(*ResourceOfflineCallback)(void* resource);
 
 struct ResourceCallback
 {

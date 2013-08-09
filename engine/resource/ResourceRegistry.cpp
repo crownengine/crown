@@ -89,13 +89,13 @@ void resource_on_online(uint32_t type, void* resource)
 }
 
 //-----------------------------------------------------------------------------
-void resource_on_offline(uint32_t type)
+void resource_on_offline(uint32_t type, void* resource)
 {
 	const ResourceCallback* c = find_callback(type);
 
 	CE_ASSERT_NOT_NULL(c);
 
-	return c->on_offline();
+	return c->on_offline(resource);
 }
 
 } // namespace crown
