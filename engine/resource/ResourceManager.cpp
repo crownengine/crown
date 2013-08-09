@@ -55,10 +55,7 @@ ResourceManager::~ResourceManager()
 //-----------------------------------------------------------------------------
 ResourceId ResourceManager::load(const char* type, const char* name)
 {
-	uint32_t type_hash = hash::murmur2_32(type, string::strlen(type), 0);
-	uint32_t name_hash = hash::murmur2_32(name, string::strlen(name), m_seed);
-
-	return load(name_hash, type_hash);
+	return load(resource_id(type, name));
 }
 
 //-----------------------------------------------------------------------------
@@ -66,28 +63,25 @@ void ResourceManager::unload(ResourceId name)
 {
 	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
 
-	ResourceEntry& entry = m_resources[name.index];
+	ResourceEntry* entry = find(name);
 	
-	entry.references--;
+	entry->references--;
 	
-	if (entry.references == 0 && entry.state == RS_LOADED)
+	if (entry->references == 0 && entry->state == RS_LOADED)
 	{
-		resource_on_unload(name.type, m_resource_heap, entry.resource);
+		resource_on_unload(name.type, m_resource_heap, entry->resource);
 
-		entry.state = RS_UNLOADED;
-		entry.resource = NULL;
+		entry->state = RS_UNLOADED;
+		entry->resource = NULL;
 	}
 }
 
 //-----------------------------------------------------------------------------
 bool ResourceManager::has(ResourceId name) const
 {
-	if (m_resources.size() > name.index)
-	{
-		 return (m_resources[name.index].id.name == name.name);
-	}
+	ResourceEntry* entry = find(name);
 
-	return false;
+	return entry != NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -95,7 +89,7 @@ const void* ResourceManager::data(ResourceId name) const
 {
 	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
 
-	return m_resources[name.index].resource;
+	return find(name)->resource;
 }
 
 //-----------------------------------------------------------------------------
@@ -103,7 +97,7 @@ bool ResourceManager::is_loaded(ResourceId name) const
 {
 	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
 
-	return m_resources[name.index].state == RS_LOADED;
+	return find(name)->state == RS_LOADED;
 }
 
 //-----------------------------------------------------------------------------
@@ -111,7 +105,7 @@ uint32_t ResourceManager::references(ResourceId name) const
 {
 	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
 
-	return m_resources[name.index].references;
+	return find(name)->references;
 }
 
 //-----------------------------------------------------------------------------
@@ -126,6 +120,24 @@ void ResourceManager::flush()
 uint32_t ResourceManager::seed() const
 {
 	return m_seed;
+}
+
+//-----------------------------------------------------------------------------
+ResourceId ResourceManager::resource_id(const char* type, const char* name) const
+{
+	ResourceId id;
+	id.type = hash::murmur2_32(type, string::strlen(type), 0);
+	id.name = hash::murmur2_32(name, string::strlen(name), m_seed);
+
+	return id;
+}
+
+//-----------------------------------------------------------------------------
+ResourceEntry* ResourceManager::find(ResourceId id) const
+{
+	const ResourceEntry* entry = std::find(m_resources.begin(), m_resources.end(), id);
+
+	return entry != m_resources.end() ? const_cast<ResourceEntry*>(entry) : NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -145,23 +157,17 @@ void ResourceManager::poll_resource_loader()
 }
 
 //-----------------------------------------------------------------------------
-ResourceId ResourceManager::load(uint32_t name, uint32_t type)
+ResourceId ResourceManager::load(ResourceId name)
 {
-	ResourceId id;
-	id.name = name;
-	id.type = type;
-
 	// Search for an already existent resource
-	ResourceEntry* entry = std::find(m_resources.begin(), m_resources.end(), id);
+	ResourceEntry* entry = find(name);
 
 	// If resource not found, create a new one
-	if (entry == m_resources.end())
+	if (entry == NULL)
 	{
-		id.index = m_resources.size();
-
 		ResourceEntry entry;
 
-		entry.id = id;
+		entry.id = name;
 		entry.state = RS_UNLOADED;
 		entry.references = 1;
 		entry.resource = NULL;
@@ -169,9 +175,9 @@ ResourceId ResourceManager::load(uint32_t name, uint32_t type)
 		m_resources.push_back(entry);
 
 		// Issue request to resource loader
-		m_loader.load(id);
+		m_loader.load(name);
 
-		return id;
+		return name;
 	}
 
 	// Else, increment its reference count
@@ -185,9 +191,9 @@ void ResourceManager::online(ResourceId name, void* resource)
 {
 	resource_on_online(name.type, resource);
 
-	ResourceEntry& entry = m_resources[name.index];
-	entry.resource = resource;
-	entry.state = RS_LOADED;
+	ResourceEntry* entry = find(name);
+	entry->resource = resource;
+	entry->state = RS_LOADED;
 }
 
 } // namespace crown

@@ -61,11 +61,10 @@ enum ResourceState
 /// the index to the resource list where it is stored.
 struct ResourceId
 {
-	bool operator==(const ResourceId& b) { return name == b.name; }
+	bool operator==(const ResourceId& b) const { return name == b.name && type == b.type; }
 
 	uint32_t		name;
 	uint32_t		type;
-	uint32_t		index;		// Index into the ResourceManager internal list
 };
 
 class Allocator;

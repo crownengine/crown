@@ -37,8 +37,8 @@ namespace crown
 
 struct ResourceEntry
 {
-	bool operator==(const ResourceId& resource) { return id == resource; }
-	bool operator==(const ResourceEntry& b) { return id == b.id; }
+	bool operator==(const ResourceId& resource) const { return id == resource; }
+	bool operator==(const ResourceEntry& b) const { return id == b.id; }
 
 	ResourceId		id;
 	ResourceState	state;
@@ -92,11 +92,16 @@ public:
 
 private:
 
+	ResourceId				resource_id(const char* type, const char* name) const;
+
+	// Returns the entry of the given id.
+	ResourceEntry*			find(ResourceId id) const;
+
 	// Polls the resource loader for loaded resources.
 	void					poll_resource_loader();
 
 	// Loads the resource by name and type and returns its ResourceId.
-	ResourceId				load(uint32_t name, uint32_t type);
+	ResourceId				load(ResourceId name);
 	void					online(ResourceId name, void* resource);
 
 private:
