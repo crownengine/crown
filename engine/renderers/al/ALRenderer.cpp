@@ -137,6 +137,8 @@ SoundBufferId ALRenderer::create_buffer(const void* data, const uint32_t size, c
 	// Generates AL buffer
 	AL_CHECK(alGenBuffers(1, &al_buffer.id));
 
+	ALenum format;
+
 	bool stereo = (channels > 1);
 
 	// Sets sound's format
@@ -146,11 +148,11 @@ SoundBufferId ALRenderer::create_buffer(const void* data, const uint32_t size, c
 		{
 			if (stereo)
 			{
-				al_buffer.format = AL_FORMAT_STEREO8;
+				format = AL_FORMAT_STEREO8;
 			}
 			else
 			{
-				al_buffer.format = AL_FORMAT_MONO8;
+				format = AL_FORMAT_MONO8;
 			}
 
 			break;
@@ -160,11 +162,11 @@ SoundBufferId ALRenderer::create_buffer(const void* data, const uint32_t size, c
 		{
 			if (stereo)
 			{
-				al_buffer.format = AL_FORMAT_STEREO16;
+				format = AL_FORMAT_STEREO16;
 			}
 			else
 			{
-				al_buffer.format = AL_FORMAT_MONO16;
+				format = AL_FORMAT_MONO16;
 			}
 
 			break;
@@ -177,14 +179,8 @@ SoundBufferId ALRenderer::create_buffer(const void* data, const uint32_t size, c
 		}
 	}
 
-	// Sets sound's size
-	al_buffer.size = size;
-
-	// Sets sound's frequency
-	al_buffer.freq = sample_rate;
-
 	// Fills AL buffer
-	AL_CHECK(alBufferData(al_buffer.id, al_buffer.format, data, al_buffer.size, al_buffer.freq));
+	AL_CHECK(alBufferData(al_buffer.id, format, data, size, sample_rate));
 
 	return id;
 }
@@ -197,6 +193,8 @@ void ALRenderer::destroy_buffer(SoundBufferId id)
 	SoundBuffer& al_buffer = m_buffers[id.index];
 
 	AL_CHECK(alDeleteBuffers(1, &al_buffer.id));
+
+	m_buffers_id_table.destroy(id);
 }
 
 
@@ -265,6 +263,8 @@ void ALRenderer::destroy_source(SoundSourceId id)
 	SoundSource& al_source = m_sources[id.index];
 
 	alDeleteSources(1, &al_source.id);
+
+	m_sources_id_table.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
