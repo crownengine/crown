@@ -13,27 +13,41 @@ $engine_src 		= "../engine/."
 $android_src		= "../engine/os/android/*.java"
 $manifest			= "../engine/os/android/AndroidManifest.xml"
 
-$path 				= ""
-$engine_dest		= ""
-$android_dest		= ""
-
 $luajit				= "../engine/third/ARMv7/luajit"
 
 #------------------------------------------------------------------------------
-def parse_command_line(args)
-	banner = "Usage: crown-android.rb --target <android-target> --name <project-name> --path <project-path>\n"
+def validate_command_line(args)
+
 	if args.length != 6
+		return false
+	end
+
+	if args[0] != "--target"
+		return false
+	end
+
+	if args[2] != "--name"
+		return false
+	end
+
+	if args[4] != "--path"
+		return false
+	end
+
+	return true
+end
+
+#------------------------------------------------------------------------------
+def parse_command_line(args)
+
+	banner = "Usage: crown-android.rb --target <android-target> --name <project-name> --path <project-path>\n"
+
+	if not validate_command_line(args)
 		print banner
 		exit
 	end
 
 	options = OpenStruct.new
-
-    options.library = []
-    options.inplace = false
-    options.encoding = "utf8"
-    options.transfer_type = :auto
-    options.verbose = false
 
 	OptionParser.new do |opts|
 		opts.banner = banner
