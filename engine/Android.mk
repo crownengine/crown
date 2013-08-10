@@ -32,7 +32,7 @@ LOCAL_SRC_FILES :=\
 	core/filesystem/TextReader.cpp\
 	core/filesystem/TextWriter.cpp\
 \
-	core/json/JSONParser.cpp
+	core/json/JSONParser.cpp\
 \
 	core/math/Color4.cpp\
 	core/math/Mat3.cpp\
@@ -88,12 +88,11 @@ LOCAL_SRC_FILES :=\
 	resource/FileBundle.cpp\
 	resource/FontResource.cpp\
 	resource/MaterialResource.cpp\
-	resource/PixelShaderResource.cpp\
+	resource/MeshResource.cpp\
 	resource/ResourceLoader.cpp\
 	resource/ResourceManager.cpp\
-	resource/TextResource.cpp\
+	resource/ResourceRegistry.cpp\
 	resource/TextureResource.cpp\
-	resource/VertexShaderResource.cpp\
 	resource/SoundResource.cpp\
 \
 	lua/LuaStack.cpp\
@@ -133,6 +132,7 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/core/json\
 	$(LOCAL_PATH)/core/settings\
 	$(LOCAL_PATH)/core/strings\
+	$(LOCAL_PATH)/resource\
 	$(LOCAL_PATH)/input\
 	$(LOCAL_PATH)/lua\
 	$(LOCAL_PATH)/network\
@@ -142,7 +142,7 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/renderers\
 	$(LOCAL_PATH)/renderers/gles\
 	$(LOCAL_PATH)/renderers/gles/egl\
-	$(LOCAL_PATH)/third/luajit/include/luajit-2.0\
+	$(LOCAL_PATH)/luajit/include/luajit-2.0\
 
 LOCAL_CPPFLAGS	:= -g -fexceptions -std=c++03 -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-variadic-macros
 LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv2 -lz 
