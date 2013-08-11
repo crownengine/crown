@@ -164,6 +164,14 @@ void Device::shutdown()
 	// Shutdowns the game
 	m_lua_environment->game_shutdown();
 
+	Log::i("Releasing AudioRenderer...");
+	if(m_audio_renderer)
+	{
+		m_audio_renderer->shutdown();
+
+		AudioRenderer::destroy(m_allocator, m_renderer);
+	}
+
 	Log::i("Releasing ConsoleServer...");
 	if (m_console_server)
 	{
