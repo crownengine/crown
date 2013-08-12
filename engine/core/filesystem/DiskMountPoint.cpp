@@ -124,6 +124,38 @@ bool DiskMountPoint::is_dir(const char* relative_path)
 }
 
 //-----------------------------------------------------------------------------
+bool DiskMountPoint::create_file(const char* relative_path)
+{
+	const char* os_path = build_os_path(m_root_path, relative_path);
+
+	return os::mknod(os_path);
+}
+
+//-----------------------------------------------------------------------------
+bool DiskMountPoint::create_dir(const char* relative_path)
+{
+	const char* os_path = build_os_path(m_root_path, relative_path);
+
+	return os::mkdir(os_path);
+}
+
+//-----------------------------------------------------------------------------
+bool DiskMountPoint::delete_file(const char* relative_path)
+{
+	const char* os_path = build_os_path(m_root_path, relative_path);
+
+	return os::unlink(os_path);
+}
+
+//-----------------------------------------------------------------------------
+bool DiskMountPoint::delete_dir(const char* relative_path)
+{
+	const char* os_path = build_os_path(m_root_path, relative_path);
+
+	return os::rmdir(os_path);
+}
+
+//-----------------------------------------------------------------------------
 const char* DiskMountPoint::os_path(const char* relative_path)
 {
 	static char os_path[MAX_PATH_LENGTH];

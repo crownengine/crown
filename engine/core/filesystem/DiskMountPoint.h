@@ -56,6 +56,18 @@ public:
 	/// Returns whether @a relative_path is a directory
 	bool				is_dir(const char* relative_path);
 
+	/// Creates a regular file called @a relative_path
+	bool				create_file(const char* relative_path);
+
+	/// Creates a directory called @a relative_path
+	bool 				create_dir(const char* relative_path);
+
+	/// Deletes a regular file called @a relative_path
+	bool				delete_file(const char* relative_path);
+
+	/// Deletes a directory called @a relative_path
+	bool 				delete_dir(const char* relative_path);
+
 	/// Returns the os-specific path which @a relative_path refers to.
 	/// @note
 	/// In general, you typically do not want to use it for normal

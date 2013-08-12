@@ -158,6 +158,7 @@ MountPoint*	Filesystem::find_mount_point(const char* mount_point)
 	{
 		if (curr->type() == type_hash)
 		{
+			Log::d("Android mount point found!");
 			return curr;
 		}
 
