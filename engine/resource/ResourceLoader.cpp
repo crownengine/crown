@@ -45,21 +45,25 @@ ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap) :
 void ResourceLoader::load(ResourceId resource)
 {
 	m_load_mutex.lock();
+	Log::i("load: lock");
 	m_load_queue.push_back(resource);
 	Log::i("Signaling...");
 	m_load_requests.signal();
+	Log::i("load: unlock");
 	m_load_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
 uint32_t ResourceLoader::remaining() const
 {
+	Log::i("remaining()");
 	return m_load_queue.size();
 }
 
 //-----------------------------------------------------------------------------
 uint32_t ResourceLoader::num_loaded() const
 {
+	Log::i("num_loaded");
 	return m_done_queue.size();
 }
 
@@ -67,12 +71,14 @@ uint32_t ResourceLoader::num_loaded() const
 void ResourceLoader::get_loaded(List<LoadedResource>& l)
 {
 	m_done_mutex.lock();
+	Log::i("get_loaded: lock");
 	for (uint32_t i = 0; i < m_done_queue.size(); i++)
 	{
 		l.push_back(m_done_queue[i]);
 	}
 
 	m_done_queue.clear();
+	Log::i("get_loaded: unlock");
 	m_done_mutex.unlock();
 }
 
