@@ -422,11 +422,6 @@ void Device::create_resource_manager()
 
 	SoundResource* res = (SoundResource*)m_resource_manager->data(rid);
 
-	if (res)
-	{
-		Log::d("Size: %d", res->size());
-	}
-
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
 }

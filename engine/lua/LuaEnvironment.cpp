@@ -170,31 +170,32 @@ void LuaEnvironment::execute(int32_t args, int32_t results)
 //-----------------------------------------------------------------------------
 void LuaEnvironment::game_init()
 {
-	// const char* path = device()->filesystem()->os_path("disk", g_boot.value());
+	const char* path = device()->filesystem()->os_path("disk", g_boot.value());
 
-	// load_file(path);
-	// execute(0, 0);
+	load_file(path);
+	execute(0, 0);
 
-	// get_global_symbol("init");
-	// execute(0, 0);
+	get_global_symbol("init");
+	execute(0, 0);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::game_shutdown()
 {
-	// get_global_symbol("shutdown");
-	// execute(0, 0);
+	get_global_symbol("shutdown");
+	execute(0, 0);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::game_frame(float dt)
 {
-	// LuaStack stack(m_state);
+	LuaStack stack(m_state);
 
-	// get_global_symbol("frame");
-	// stack.push_float(dt);
-	// execute(1, 0);
-	(void)dt;
+	Log::i("Game frame called.");
+	
+	get_global_symbol("frame");
+	stack.push_float(dt);
+	execute(1, 0);
 }
 
 //-----------------------------------------------------------------------------
