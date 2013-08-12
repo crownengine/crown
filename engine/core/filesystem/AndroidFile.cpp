@@ -24,22 +24,23 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "AssetFile.h"
+#include "AndroidFile.h"
+#include "Log.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-AssetFile::AssetFile(const char* path) :
+AndroidFile::AndroidFile(const char* path) :
 	File(FOM_READ),
 	m_file(path, FOM_READ),
 	m_last_was_read(true)
 {
-
+	Log::i("path: %s", path);
 }
 
 //-----------------------------------------------------------------------------
-void AssetFile::seek(size_t position)
+void AndroidFile::seek(size_t position)
 {
 	check_valid();
 
@@ -47,7 +48,7 @@ void AssetFile::seek(size_t position)
 }
 
 //-----------------------------------------------------------------------------
-void AssetFile::seek_to_end()
+void AndroidFile::seek_to_end()
 {
 	check_valid();
 
@@ -55,7 +56,7 @@ void AssetFile::seek_to_end()
 }
 
 //-----------------------------------------------------------------------------
-void AssetFile::skip(size_t bytes)
+void AndroidFile::skip(size_t bytes)
 {
 	check_valid();
 
@@ -63,7 +64,7 @@ void AssetFile::skip(size_t bytes)
 }
 
 //-----------------------------------------------------------------------------
-void AssetFile::read(void* buffer, size_t size)
+void AndroidFile::read(void* buffer, size_t size)
 {
 	check_valid();
 
@@ -78,37 +79,38 @@ void AssetFile::read(void* buffer, size_t size)
 }
 
 //-----------------------------------------------------------------------------
-void AssetFile::write(const void* buffer, size_t size)
+void AndroidFile::write(const void* /*buffer*/, size_t /*size*/)
 {
 	// Not needed
 }
 
 //-----------------------------------------------------------------------------
-bool AssetFile::copy_to(File& file, size_t size = 0)
+bool AndroidFile::copy_to(File& /*file*/, size_t /*size = 0*/)
+{
+	// Not needed
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+void AndroidFile::flush()
 {
 	// Not needed
 }
 
 //-----------------------------------------------------------------------------
-void AssetFile::flush()
-{
-	// Not needed
-}
-
-//-----------------------------------------------------------------------------
-bool AssetFile::is_valid() const
+bool AndroidFile::is_valid() const
 {
 	return m_file.is_open();
 }
 
 //-----------------------------------------------------------------------------
-bool AssetFile::end_of_file() const
+bool AndroidFile::end_of_file() const
 {
 	return position() == size();
 }
 
 //-----------------------------------------------------------------------------
-size_t AssetFile::size() const
+size_t AndroidFile::size() const
 {
 	check_valid();
 
@@ -116,7 +118,7 @@ size_t AssetFile::size() const
 }
 
 //-----------------------------------------------------------------------------
-size_t AssetFile::position() const
+size_t AndroidFile::position() const
 {
 	check_valid();
 
@@ -124,7 +126,7 @@ size_t AssetFile::position() const
 }
 
 //-----------------------------------------------------------------------------
-bool AssetFile::can_read() const
+bool AndroidFile::can_read() const
 {
 	check_valid();
 
@@ -132,7 +134,7 @@ bool AssetFile::can_read() const
 }
 
 //-----------------------------------------------------------------------------
-bool AssetFile::can_write() const
+bool AndroidFile::can_write() const
 {
 	check_valid();
 
@@ -140,7 +142,7 @@ bool AssetFile::can_write() const
 }
 
 //-----------------------------------------------------------------------------
-bool AssetFile::can_seek() const
+bool AndroidFile::can_seek() const
 {
 	check_valid();
 

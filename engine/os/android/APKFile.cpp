@@ -26,13 +26,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <android/asset_manager_jni.h>
 
+#include "APKFile.h"
 #include "Assert.h"
 #include "OS.h"
-#include "APKFile.h"
-#include "AndroidOS.h"
 
 namespace crown
 {
+
+AAssetManager* get_android_asset_manager();
 
 static AAssetManager*	g_android_asset_manager = NULL;
 
@@ -41,6 +42,7 @@ APKFile::APKFile(const char* path, FileOpenMode mode)
 {
 	// Android assets are always read-only
 	(void) mode;
+
 	m_mode = FOM_READ;
 	m_asset = AAssetManager_open(get_android_asset_manager(), path, AASSET_MODE_RANDOM);
 
@@ -90,7 +92,7 @@ size_t APKFile::read(void* data, size_t size)
 }
 
 //-----------------------------------------------------------------------------
-size_t APKFile::write(const void* data, size_t size)
+size_t APKFile::write(const void* data, size_t /*size*/)
 {
 	CE_ASSERT(data != NULL, "Data must be != NULL");
 

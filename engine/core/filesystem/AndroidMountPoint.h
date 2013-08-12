@@ -26,58 +26,34 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "APKFile.h"
-#include "Assert.h"
+#include "MountPoint.h"
+#include "HeapAllocator.h"
 
 namespace crown
 {
 
-class AndroidFile : public File 
+class AndroidMountPoint : public MountPoint
 {
 public:
+						AndroidMountPoint();
 
-				AndroidFile(const char* path);
+	File* 				open(const char* relative_path, FileOpenMode mode);
 
-	void		seek(size_t position);
+	void				close(File* file);
 
-	void		seek_to_end();
+	const char*			root_path();
 
-	void		skip(size_t bytes);
+	bool				exists(const char* relative_path);
 
-	void		read(void* buffer, size_t size);
+	bool				get_info(const char* relative_path, MountPointEntry& info);
+	
+	bool				is_file(const char* relative_path);
 
-	void		write(const void* buffer, size_t size);
-
-	bool		copy_to(File& file, size_t size = 0);
-
-	void		flush();
-
-	bool		is_valid() const;
-
-	bool		end_of_file() const;
-
-	size_t		size() const;
-
-	size_t		position() const;
-
-	bool		can_read() const;
-
-	bool		can_write() const;
-
-	bool		can_seek() const;
+	bool				is_dir(const char* relative_path);
 
 private:
 
-	APKFile		m_file;
-
-	bool		m_last_was_read;
-
-protected:
-
-	inline void		check_valid() const
-	{
-		CE_ASSERT(m_file.is_open(), "File is not open");
-	}
+	HeapAllocator		m_allocator;
 };
 
 } // namespace crown
