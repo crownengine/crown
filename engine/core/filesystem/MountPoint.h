@@ -34,11 +34,11 @@ namespace crown
 {
 
 /// Hashed values for supported MountPoint types
-const char* const DISK_MOUNT_POINT		= "disk";
-const char* const ASSET_FILE_POINT		= "asset";
+const char* const DISK_MOUNT_POINT			= "disk";
+const char* const ANDROID_MOUNT_POINT		= "asset";
 
-const uint32_t DISK_TYPE 				= 0x7BCBC5EE;
-const uint32_t ASSET_TYPE				= 0xE2AB7F68;
+const uint32_t DISK_TYPE 					= 0x7BCBC5EE;
+const uint32_t ANDROID_TYPE					= 0xAAD5F176;
 
 /// Represent single entity in MountPoint
 struct MountPointEntry
