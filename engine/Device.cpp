@@ -408,6 +408,12 @@ void Device::create_resource_manager()
 	// Create resource manager
 	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, seed);
 
+
+	ResourceId id = m_resource_manager->load("tga", "grass");
+	m_resource_manager->flush();
+	const void* texture = m_resource_manager->data(id);
+	Log::i("%p", texture);
+	if (texture != NULL) m_resource_manager->unload(id);
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
 }

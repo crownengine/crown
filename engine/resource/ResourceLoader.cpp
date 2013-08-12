@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "ResourceLoader.h"
 #include "ResourceRegistry.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -45,6 +46,7 @@ void ResourceLoader::load(ResourceId resource)
 {
 	m_load_mutex.lock();
 	m_load_queue.push_back(resource);
+	Log::i("Signaling...");
 	m_load_requests.signal();
 	m_load_mutex.unlock();
 }
@@ -52,17 +54,13 @@ void ResourceLoader::load(ResourceId resource)
 //-----------------------------------------------------------------------------
 uint32_t ResourceLoader::remaining() const
 {
-	m_load_mutex.lock();
 	return m_load_queue.size();
-	m_load_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
 uint32_t ResourceLoader::num_loaded() const
 {
-	m_done_mutex.lock();
 	return m_done_queue.size();
-	m_done_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
@@ -86,9 +84,10 @@ int32_t ResourceLoader::run()
 		m_load_mutex.lock();
 		while (m_load_queue.size() == 0)
 		{
+			Log::i("Waiting...");
 			m_load_requests.wait(m_load_mutex);
 		}
-
+		Log::i("Loading...");
 		ResourceId resource = m_load_queue.front();
 		m_load_queue.pop_front();
 		m_load_mutex.unlock();
