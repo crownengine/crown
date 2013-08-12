@@ -43,10 +43,13 @@ ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap) :
 //-----------------------------------------------------------------------------
 void ResourceLoader::load(ResourceId resource)
 {
-	m_load_mutex.lock();
-	m_load_queue.push_back(resource);
-	m_load_requests.signal();
-	m_load_mutex.unlock();
+	// m_load_mutex.lock();
+	// m_load_queue.push_back(resource);
+	// m_load_requests.signal();
+	// m_load_mutex.unlock();
+
+	void* data = resource_on_load(resource.type, m_resource_heap, m_bundle, resource);
+	m_done_queue.push_back(LoadedResource(resource, data));
 }
 
 //-----------------------------------------------------------------------------
@@ -77,24 +80,24 @@ void ResourceLoader::get_loaded(List<LoadedResource>& l)
 //-----------------------------------------------------------------------------
 int32_t ResourceLoader::run()
 {
-	while (!is_terminating())
-	{
-		m_load_mutex.lock();
-		while (m_load_queue.size() == 0)
-		{
-			m_load_requests.wait(m_load_mutex);
-		}
+	// while (!is_terminating())
+	// {
+	// 	m_load_mutex.lock();
+	// 	while (m_load_queue.size() == 0)
+	// 	{
+	// 		m_load_requests.wait(m_load_mutex);
+	// 	}
 
-		ResourceId resource = m_load_queue.front();
-		m_load_queue.pop_front();
-		m_load_mutex.unlock();
+	// 	ResourceId resource = m_load_queue.front();
+	// 	m_load_queue.pop_front();
+	// 	m_load_mutex.unlock();
 
-		void* data = resource_on_load(resource.type, m_resource_heap, m_bundle, resource);
+	// 	void* data = resource_on_load(resource.type, m_resource_heap, m_bundle, resource);
 
-		m_done_mutex.lock();
-		m_done_queue.push_back(LoadedResource(resource, data));
-		m_done_mutex.unlock();
-	}
+	// 	m_done_mutex.lock();
+	// 	m_done_queue.push_back(LoadedResource(resource, data));
+	// 	m_done_mutex.unlock();
+	// }
 
 	return 0;
 }
