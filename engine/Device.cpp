@@ -54,6 +54,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextReader.h"
 #include "SoundResource.h"
 #include "DiskMountPoint.h"
+#include "AndroidMountPoint.h"
 
 namespace crown
 {
@@ -379,7 +380,8 @@ void Device::create_filesystem()
 {
 	m_filesystem = CE_NEW(m_allocator, Filesystem)();
 
-	DiskMountPoint* root = CE_NEW(m_allocator, DiskMountPoint)(m_preferred_root_path);
+	// DiskMountPoint* root = CE_NEW(m_allocator, DiskMountPoint)(m_preferred_root_path);
+	AndroidMountPoint* root = CE_NEW(m_allocator, AndroidMountPoint)();
 
 	m_filesystem->mount(*root);
 
@@ -401,7 +403,7 @@ void Device::create_resource_manager()
 	}
 
 	// Read resource seed
-	DiskFile* seed_file = (DiskFile*)filesystem()->open("disk", "seed.ini", FOM_READ);
+	DiskFile* seed_file = (DiskFile*)filesystem()->open("android", "seed.ini", FOM_READ);
 	TextReader reader(*seed_file);
 
 	char tmp_buf[32];
@@ -414,20 +416,20 @@ void Device::create_resource_manager()
 	// Create resource manager
 	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, seed);
 
-	ResourceId rid = m_resource_manager->load("wav", "beep");
+	// ResourceId rid = m_resource_manager->load("wav", "beep");
 
-	m_resource_manager->flush();
+	// m_resource_manager->flush();
 
-	SoundResource* res = (SoundResource*)m_resource_manager->data(rid);
+	// SoundResource* res = (SoundResource*)m_resource_manager->data(rid);
 
-	if (res)
-	{
-		Log::d("Size: %d", res->size());
-	}
-	else
-	{
-		Log::d("dio maiale");
-	}
+	// if (res)
+	// {
+	// 	Log::d("Size: %d", res->size());
+	// }
+	// else
+	// {
+	// 	Log::d("dio maiale");
+	// }
 	
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
