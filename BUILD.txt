@@ -59,8 +59,8 @@ engine on the currently supported platforms.
 
 	- Android
 
-		Building for Android is a bit involved process at the moment, we are working hard
-		to improve the system.
+		1. $ cd utils
+		2. $ ruby crown-android.rb --target <android-target> --name <project-name> --path <project-path>
 
 	You can also use the GUI front-end of CMake which can, less or more, simplify
 	the overall 'complexity' of building from the terminal.
