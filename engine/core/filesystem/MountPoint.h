@@ -83,18 +83,20 @@ struct MountPointEntry
 class MountPoint
 {
 public:
-	inline				MountPoint(uint32_t type) : m_type(type) {}
+	inline						MountPoint(uint32_t type) : m_type(type) {}
 
 	/// Opens a file and returns a specific instance
-	virtual File*		open(const char* path, FileOpenMode mode) = 0;
+	virtual File*				open(const char* path, FileOpenMode mode) = 0;
 
 	/// Close file
-	virtual void		close(File* file) = 0;
+	virtual void				close(File* file) = 0;
 
 	/// Returns whether the @a relative_path exists
-	virtual bool		exists(const char* relative_path) = 0;
+	virtual bool				exists(const char* relative_path) = 0;
 
-	uint32_t			type() const { return m_type; }
+	virtual const char*			os_path(const char* relative_path) = 0;
+
+	uint32_t					type() const { return m_type; }
 
 protected:
 
