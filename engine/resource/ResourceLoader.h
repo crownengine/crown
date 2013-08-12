@@ -82,8 +82,8 @@ private:
 
 	Queue<ResourceId>		m_load_queue;
 	List<LoadedResource>	m_done_queue;
-	Mutex					m_load_mutex;
-	Mutex					m_done_mutex;
+	mutable Mutex			m_load_mutex;
+	mutable Mutex			m_done_mutex;
 	Cond					m_load_requests;
 };
 

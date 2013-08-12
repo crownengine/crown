@@ -52,13 +52,17 @@ void ResourceLoader::load(ResourceId resource)
 //-----------------------------------------------------------------------------
 uint32_t ResourceLoader::remaining() const
 {
+	m_load_mutex.lock();
 	return m_load_queue.size();
+	m_load_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
 uint32_t ResourceLoader::num_loaded() const
 {
+	m_done_mutex.lock();
 	return m_done_queue.size();
+	m_done_mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
