@@ -32,8 +32,6 @@ LOCAL_SRC_FILES :=\
 	core/filesystem/TextReader.cpp\
 	core/filesystem/TextWriter.cpp\
 	core/filesystem/DiskMountPoint.cpp\
-	core/filesystem/AndroidFile.cpp\
-	core/filesystem/AndroidMountPoint.cpp\
 \
 	core/json/JSONParser.cpp\
 \
@@ -74,6 +72,8 @@ LOCAL_SRC_FILES :=\
 	os/android/AndroidDevice.cpp\
 	os/android/OsWindow.cpp\
 	os/android/APKFile.cpp\
+	os/android/AndroidFile.cpp\
+	os/android/AndroidMountPoint.cpp\
 	os/posix/OsFile.cpp\
 	os/posix/Thread.cpp\
 	os/posix/Mutex.cpp\

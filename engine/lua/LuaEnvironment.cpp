@@ -190,8 +190,6 @@ void LuaEnvironment::game_shutdown()
 void LuaEnvironment::game_frame(float dt)
 {
 	LuaStack stack(m_state);
-
-	Log::i("Game frame called.");
 	
 	get_global_symbol("frame");
 	stack.push_float(dt);
