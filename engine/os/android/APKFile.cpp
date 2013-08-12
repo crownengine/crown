@@ -33,8 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-AAssetManager* get_android_asset_manager();
-
 static AAssetManager*	g_android_asset_manager = NULL;
 
 //-----------------------------------------------------------------------------

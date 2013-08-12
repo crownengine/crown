@@ -35,6 +35,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+AAssetManager* get_android_asset_manager();
+
 /// Android assets wrapper
 class APKFile
 {
