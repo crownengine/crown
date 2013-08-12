@@ -141,7 +141,7 @@ const char* Filesystem::os_path(const char* mount_point, const char* relative_pa
 
 	if (mp)
 	{
-		return ((DiskMountPoint*)mp)->os_path(relative_path);
+		return mp->os_path(relative_path);
 	}
 
 	return NULL;
@@ -158,7 +158,6 @@ MountPoint*	Filesystem::find_mount_point(const char* mount_point)
 	{
 		if (curr->type() == type_hash)
 		{
-			Log::d("Android mount point found!");
 			return curr;
 		}
 
