@@ -53,8 +53,6 @@ DiskFile* FileBundle::open(ResourceId name)
 	// Convert name/type into strings
 	char resource_name[512];
 	snprintf(resource_name, 512, "%.8X%.8X", name.name, name.type);
-
-	Log::i("name: %s", resource_name);
 	
 	// Search the resource in the filesystem
 	bool exists = m_filesystem.exists("android", resource_name);
