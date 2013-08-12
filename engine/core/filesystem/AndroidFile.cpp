@@ -36,7 +36,6 @@ AndroidFile::AndroidFile(const char* path) :
 	m_file(path, FOM_READ),
 	m_last_was_read(true)
 {
-	Log::i("path: %s", path);
 }
 
 //-----------------------------------------------------------------------------
