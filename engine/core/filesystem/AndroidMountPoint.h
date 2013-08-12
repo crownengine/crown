@@ -51,6 +51,8 @@ public:
 
 	bool				is_dir(const char* relative_path);
 
+	const char*			os_path(const char* relative_path);
+
 private:
 
 	HeapAllocator		m_allocator;
