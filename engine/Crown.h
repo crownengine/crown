@@ -62,6 +62,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Generic.h"
 #include "Queue.h"
+#include "PriorityQueue.h"
 #include "IdTable.h"
 
 // Core/Strings
