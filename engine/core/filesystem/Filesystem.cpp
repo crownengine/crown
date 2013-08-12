@@ -29,17 +29,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "DiskFile.h"
 #include "Memory.h"
+#include "Hash.h"
+#include "DiskMountPoint.h"
+
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Filesystem::Filesystem(const char* root_path)
+Filesystem::Filesystem() :
+	m_mount_point_head(NULL)
 {
-	CE_ASSERT(root_path != NULL, "Root path must be != NULL");
-	CE_ASSERT(os::is_absolute_path(root_path), "Root path must be absolute");
 
-	string::strncpy(m_root_path, root_path, MAX_PATH_LENGTH);
 }
 
 //-----------------------------------------------------------------------------
@@ -48,158 +49,124 @@ Filesystem::~Filesystem()
 }
 
 //-----------------------------------------------------------------------------
-const char* Filesystem::root_path() const
+void Filesystem::mount(MountPoint& mp)
 {
-	return m_root_path;
+	if (m_mount_point_head != NULL)
+	{
+		mp.m_next = m_mount_point_head; 
+	}
+
+	m_mount_point_head = &mp;
 }
 
 //-----------------------------------------------------------------------------
-const char* Filesystem::build_os_path(const char* base_path, const char* relative_path)
+void Filesystem::umount(MountPoint& mp)
 {
-	static char os_path[MAX_PATH_LENGTH];
+	MountPoint* current = m_mount_point_head;
+	MountPoint* previous;
+	MountPoint* tmp;
+	(void)tmp;
 
-	string::strncpy(os_path, base_path, MAX_PATH_LENGTH);
+	if (&mp == current)
+	{	
+		tmp = current;
 
-	size_t base_path_len = string::strlen(base_path);
+		current = current->m_next;
 
-	os_path[base_path_len] = PATH_SEPARATOR;
-	os_path[base_path_len + 1] = '\0';
+		tmp = NULL;
 
-	string::strcat(os_path, relative_path);
-
-	// FIXME FIXME FIXME Replace Crown-specific path separator with OS-speficic one
-	for (size_t j = 0; j < string::strlen(os_path); j++)
+		return;
+	}
+	else
 	{
-		if (os_path[j] == '/')
+		previous = current;
+		current = current->m_next;
+
+		while (current != NULL && &mp != current)
 		{
-			os_path[j] = PATH_SEPARATOR;
+			previous = current;
+
+			current = current->m_next;
+		}
+
+		if (current != NULL)
+		{
+			tmp = current;
+
+			previous->m_next = current->m_next;
+
+			tmp = NULL;
+
+			return;
 		}
 	}
-
-	return os_path;
 }
 
 //-----------------------------------------------------------------------------
-bool Filesystem::get_info(const char* relative_path, FilesystemEntry& info)
+File* Filesystem::open(const char* mount_point, const char* relative_path, FileOpenMode mode)
 {
-	// Entering OS-DEPENDENT-PATH-MODE
-	// (i.e. os_path is of the form: C:\foo\relative_path or /foo/relative_path)
+	MountPoint* mp = find_mount_point(mount_point);
 
-	const char* os_path = build_os_path(m_root_path, relative_path);
-	
-	string::strncpy(info.os_path, os_path, MAX_PATH_LENGTH);
-	string::strncpy(info.relative_path, relative_path, MAX_PATH_LENGTH);
-
-	if (os::is_reg(os_path))
+	if (mp)
 	{
-		info.type = FilesystemEntry::FILE;
-		return true;
+		return mp->open(relative_path, mode);
 	}
-	else if (os::is_dir(os_path))
-	{
-		info.type = FilesystemEntry::DIRECTORY;
-		return true;
-	}
-	
-	info.type = FilesystemEntry::UNKNOWN;
 
-	return false;
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
-bool Filesystem::exists(const char* relative_path)
+void Filesystem::close(File* file)
 {
-	FilesystemEntry dummy;
-
-	return get_info(relative_path, dummy);
+	CE_DELETE(m_allocator, file);
 }
 
 //-----------------------------------------------------------------------------
-bool Filesystem::is_file(const char* relative_path)
+bool Filesystem::exists(const char* mount_point, const char* relative_path)
 {
-	FilesystemEntry info;
+	MountPoint* mp = find_mount_point(mount_point);
 
-	if (get_info(relative_path, info))
+	if (mp)
 	{
-		return info.type == FilesystemEntry::FILE;
+		return mp->exists(relative_path);
 	}
 
 	return false;
 }
 
 //-----------------------------------------------------------------------------
-bool Filesystem::is_dir(const char* relative_path)
+const char* Filesystem::os_path(const char* mount_point, const char* relative_path)
 {
-	FilesystemEntry info;
+	MountPoint* mp = find_mount_point(mount_point);
 
-	if (get_info(relative_path, info))
+	if (mp)
 	{
-		return info.type == FilesystemEntry::DIRECTORY;
+		return ((DiskMountPoint*)mp)->os_path(relative_path);
 	}
 
-	return false;
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
-bool Filesystem::create_file(const char* relative_path)
+MountPoint*	Filesystem::find_mount_point(const char* mount_point)
 {
-	const char* os_path = build_os_path(m_root_path, relative_path);
+	MountPoint* curr = m_mount_point_head;
 
-	return os::mknod(os_path);
+	uint32_t type_hash = hash::murmur2_32(mount_point, string::strlen(mount_point), 0);
+
+	while(curr != NULL)
+	{
+		if (curr->type() == type_hash)
+		{
+			return curr;
+		}
+
+		curr = curr->m_next;
+	}
+
+	return NULL;
 }
 
-//-----------------------------------------------------------------------------
-bool Filesystem::create_dir(const char* relative_path)
-{
-	const char* os_path = build_os_path(m_root_path, relative_path);
-
-	return os::mkdir(os_path);
-}
-
-//-----------------------------------------------------------------------------
-bool Filesystem::delete_file(const char* relative_path)
-{
-	const char* os_path = build_os_path(m_root_path, relative_path);
-
-	return os::unlink(os_path);
-}
-
-//-----------------------------------------------------------------------------
-bool Filesystem::delete_dir(const char* relative_path)
-{
-	const char* os_path = build_os_path(m_root_path, relative_path);
-
-	return os::rmdir(os_path);
-}
-
-//-----------------------------------------------------------------------------
-const char* Filesystem::os_path(const char* relative_path)
-{
-	static char os_path[MAX_PATH_LENGTH];
-
-	FilesystemEntry entry;
-
-	get_info(relative_path, entry);
-
-	string::strncpy(os_path, entry.os_path, MAX_PATH_LENGTH);
-
-	return os_path;
-}
-
-//-----------------------------------------------------------------------------
-DiskFile* Filesystem::open(const char* relative_path, FileOpenMode mode)
-{
-	CE_ASSERT(exists(relative_path), "File does not exist: %s", relative_path);
-	CE_ASSERT(is_file(relative_path), "File is not a regular file: %s", relative_path);
-
-	return CE_NEW(m_allocator, DiskFile)(mode, os_path(relative_path));
-}
-
-//-----------------------------------------------------------------------------
-void Filesystem::close(DiskFile* stream)
-{
-	CE_DELETE(m_allocator, stream);
-}
 
 } // namespace crown
 
