@@ -54,12 +54,14 @@ DiskFile* FileBundle::open(ResourceId name)
 	char resource_name[512];
 	snprintf(resource_name, 512, "%.8X%.8X", name.name, name.type);
 
+	Log::i("name: %s", resource_name);
+	
 	// Search the resource in the filesystem
-	bool exists = m_filesystem.exists(resource_name);
+	bool exists = m_filesystem.exists("disk", resource_name);
 	CE_ASSERT(exists == true, "Resource does not exist: %s", resource_name);
 
 	// Open the resource and check magic number/version
-	DiskFile* file = (DiskFile*)m_filesystem.open(resource_name, FOM_READ);
+	DiskFile* file = (DiskFile*)m_filesystem.open("disk", resource_name, FOM_READ);
 
 	ResourceHeader header;
 	file->read(&header, sizeof(ResourceHeader));
