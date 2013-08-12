@@ -52,6 +52,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaEnvironment.h"
 #include "ConsoleServer.h"
 #include "TextReader.h"
+#include "SoundResource.h"
+#include "DiskMountPoint.h"
 
 namespace crown
 {
@@ -115,19 +117,19 @@ bool Device::init(int argc, char** argv)
 
 	create_resource_manager();
 
-	create_input_manager();
+	// create_input_manager();
 
-	create_window();
+	// create_window();
 
-	create_renderer();
+	// create_renderer();
 
-	create_debug_renderer();
+	// create_debug_renderer();
 
-	create_lua_environment();
+	// create_lua_environment();
 
-	create_console_server();
+	// create_console_server();
 
-	read_engine_settings();
+	// read_engine_settings();
 
 	Log::i("Crown Engine initialized.");
 
@@ -353,15 +355,15 @@ void Device::frame()
 
 	m_resource_manager->poll_resource_loader();
 
-	m_window->frame();
-	m_input_manager->frame(frame_count());
+	// m_window->frame();
+	// m_input_manager->frame(frame_count());
 
-	m_lua_environment->game_frame(last_delta_time());
+	// m_lua_environment->game_frame(last_delta_time());
 
-	//m_console_server->execute();
+	// m_console_server->execute();
 
-	m_debug_renderer->draw_all();
-	m_renderer->frame();
+	// m_debug_renderer->draw_all();
+	// m_renderer->frame();
 
 	m_frame_count++;
 }
@@ -375,10 +377,14 @@ void Device::reload(ResourceId name)
 //-----------------------------------------------------------------------------
 void Device::create_filesystem()
 {
-	m_filesystem = CE_NEW(m_allocator, Filesystem)(m_preferred_root_path);
+	m_filesystem = CE_NEW(m_allocator, Filesystem)();
+
+	DiskMountPoint* root = CE_NEW(m_allocator, DiskMountPoint)(m_preferred_root_path);
+
+	m_filesystem->mount(*root);
 
 	Log::d("Filesystem created.");
-	Log::d("Filesystem root path: %s", m_filesystem->root_path());
+	Log::d("Filesystem root path: %s",root->root_path());
 }
 
 //-----------------------------------------------------------------------------
@@ -395,7 +401,7 @@ void Device::create_resource_manager()
 	}
 
 	// Read resource seed
-	DiskFile* seed_file = filesystem()->open("seed.ini", FOM_READ);
+	DiskFile* seed_file = (DiskFile*)filesystem()->open("disk", "seed.ini", FOM_READ);
 	TextReader reader(*seed_file);
 
 	char tmp_buf[32];
@@ -408,6 +414,21 @@ void Device::create_resource_manager()
 	// Create resource manager
 	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, seed);
 
+	ResourceId rid = m_resource_manager->load("wav", "beep");
+
+	m_resource_manager->flush();
+
+	SoundResource* res = (SoundResource*)m_resource_manager->data(rid);
+
+	if (res)
+	{
+		Log::d("Size: %d", res->size());
+	}
+	else
+	{
+		Log::d("dio maiale");
+	}
+	
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
 }

@@ -152,6 +152,7 @@ set (FILESYSTEM_SRC
 	core/filesystem/TextReader.cpp
 	core/filesystem/TextWriter.cpp
 
+	core/filesystem/DiskMountPoint.cpp
 	core/filesystem/Filesystem.cpp
 )
 
@@ -165,6 +166,7 @@ set (FILESYSTEM_HEADERS
 	core/filesystem/TextReader.h
 	core/filesystem/TextWriter.h
 
+	core/filesystem/DiskMountPoint.h
 	core/filesystem/Filesystem.h
 )
 
