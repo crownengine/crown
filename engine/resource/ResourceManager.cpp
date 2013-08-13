@@ -41,6 +41,7 @@ ResourceManager::ResourceManager(Bundle& bundle, uint32_t seed) :
 	m_resource_heap("resource", default_allocator()),
 	m_loader(bundle, m_resource_heap),
 	m_seed(seed),
+	m_pendings(default_allocator()),
 	m_resources(default_allocator())
 {
 	m_loader.start();
@@ -64,14 +65,12 @@ void ResourceManager::unload(ResourceId name)
 	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
 
 	ResourceEntry* entry = find(name);
-	
+
 	entry->references--;
 	
-	if (entry->references == 0 && entry->state == RS_LOADED)
+	if (entry->references == 0)
 	{
 		resource_on_unload(name.type, m_resource_heap, entry->resource);
-
-		entry->state = RS_UNLOADED;
 		entry->resource = NULL;
 	}
 }
@@ -97,7 +96,7 @@ bool ResourceManager::is_loaded(ResourceId name) const
 {
 	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
 
-	return find(name)->state == RS_LOADED;
+	return find(name)->resource != NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -111,9 +110,10 @@ uint32_t ResourceManager::references(ResourceId name) const
 //-----------------------------------------------------------------------------
 void ResourceManager::flush()
 {
-	while (m_loader.remaining() > 0) ;
-
-	poll_resource_loader();
+	while (!m_pendings.empty())
+	{
+		poll_resource_loader();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -143,15 +143,16 @@ ResourceEntry* ResourceManager::find(ResourceId id) const
 //-----------------------------------------------------------------------------
 void ResourceManager::poll_resource_loader()
 {
-	if (m_loader.num_loaded() != 0)
+	if (!m_pendings.empty())
 	{
-		TempAllocator1024 alloc;
-		List<LoadedResource> loaded(alloc);
-		m_loader.get_loaded(loaded);
+		PendingRequest request = m_pendings.front();
 
-		for (uint32_t i = 0; i < loaded.size(); i++)
+		if (m_loader.load_resource_status(request.id) == LRS_LOADED)
 		{
-			online(loaded[i].resource, loaded[i].data);
+			m_pendings.pop_front();
+
+			void* data = m_loader.load_resource_data(request.id);
+			online(request.resource, data);
 		}
 	}
 }
@@ -168,14 +169,17 @@ ResourceId ResourceManager::load(ResourceId name)
 		ResourceEntry entry;
 
 		entry.id = name;
-		entry.state = RS_UNLOADED;
 		entry.references = 1;
 		entry.resource = NULL;
 
 		m_resources.push_back(entry);
 
 		// Issue request to resource loader
-		m_loader.load(name);
+		PendingRequest pr;
+		pr.resource = name;
+		pr.id = m_loader.load_resource(name);
+
+		m_pendings.push_back(pr);
 
 		return name;
 	}
@@ -193,7 +197,6 @@ void ResourceManager::online(ResourceId name, void* resource)
 
 	ResourceEntry* entry = find(name);
 	entry->resource = resource;
-	entry->state = RS_LOADED;
 }
 
 } // namespace crown

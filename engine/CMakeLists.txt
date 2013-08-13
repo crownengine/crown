@@ -106,6 +106,7 @@ set (CONTAINERS_SRC
 
 set (CONTAINERS_HEADERS
 	core/containers/Queue.h
+	core/containers/PriorityQueue.h
 	core/containers/Map.h
 	core/containers/Generic.h
 	core/containers/List.h
