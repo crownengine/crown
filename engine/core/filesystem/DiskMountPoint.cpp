@@ -28,18 +28,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "DiskFile.h"
 #include "StringUtils.h"
+#include "Allocator.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-DiskMountPoint::DiskMountPoint(const char* root_path) :
-	MountPoint(DISK_TYPE)
+DiskMountPoint::DiskMountPoint() : MountPoint(DISK_TYPE)
 {
-	CE_ASSERT(root_path != NULL, "Root path must be != NULL");
-	CE_ASSERT(os::is_absolute_path(root_path), "Root path must be absolute");
-
-	string::strncpy(m_root_path, root_path, MAX_PATH_LENGTH);
 }
 
 //-----------------------------------------------------------------------------
@@ -48,14 +44,23 @@ File* DiskMountPoint::open(const char* relative_path, FileOpenMode mode)
 	CE_ASSERT(exists(relative_path), "File does not exist: %s", relative_path);
 	CE_ASSERT(is_file(relative_path), "File is not a regular file: %s", relative_path);
 
-	return CE_NEW(m_allocator, DiskFile)(mode, os_path(relative_path));
+	return CE_NEW(default_allocator(), DiskFile)(mode, os_path(relative_path));
 }
 
 //-----------------------------------------------------------------------------
 void DiskMountPoint::close(File* file)
 {
-	CE_DELETE(m_allocator, file);
+	CE_DELETE(default_allocator(), file);
 }
+
+void DiskMountPoint::set_root_path(const char* root_path)
+{
+	CE_ASSERT(root_path != NULL, "Root path must be != NULL");
+	CE_ASSERT(os::is_absolute_path(root_path), "Root path must be absolute");
+
+	string::strncpy(m_root_path, root_path, MAX_PATH_LENGTH);
+}
+
 
 //-----------------------------------------------------------------------------
 const char*	DiskMountPoint::root_path() const
@@ -77,6 +82,8 @@ bool DiskMountPoint::get_info(const char* relative_path, MountPointEntry& info)
 	// (i.e. os_path is of the form: C:\foo\relative_path or /foo/relative_path)
 
 	const char* os_path = build_os_path(m_root_path, relative_path);
+
+	Log::d("path : %s", os_path);
 
 	string::strncpy(info.os_path, os_path, MAX_PATH_LENGTH);
 	string::strncpy(info.relative_path, relative_path, MAX_PATH_LENGTH);

@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "MountPoint.h"
-#include "HeapAllocator.h"
 
 namespace crown
 {
@@ -35,15 +34,21 @@ namespace crown
 class DiskMountPoint : public MountPoint
 {
 public:
-						DiskMountPoint(const char* root_path);
+						DiskMountPoint();
 
+	/// Opens file @a relative_path in specified @a mode
 	File*				open(const char* relative_path, FileOpenMode mode);
 
+	/// Closes @a file
 	void				close(File* file);
+
+	/// Sets @a root_path
+	void				set_root_path(const char* root_path);
 
 	/// Returns the root path of the mount point
 	const char*			root_path() const;
 
+	/// Returns true if file @a relative_path exists
 	bool				exists(const char* relative_path);
 
 	/// Returns whether the @a relative_path exists and fills @a info with
@@ -80,8 +85,6 @@ protected:
 	const char*			build_os_path(const char* base_path, const char* relative_path);
 
 protected:
-
-	HeapAllocator		m_allocator;
 
 	char				m_root_path[MAX_PATH_LENGTH];
 };
