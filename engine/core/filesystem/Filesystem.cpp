@@ -31,6 +31,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Memory.h"
 #include "Hash.h"
 #include "DiskMountPoint.h"
+#include "StringSetting.h"
+#include "MountPoint.h"
 
 
 namespace crown

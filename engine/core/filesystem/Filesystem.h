@@ -89,10 +89,10 @@ public:
 						Filesystem();
 						~Filesystem();
 
-	///
+	/// Makes available mount point @a mp
 	void				mount(MountPoint& mp);
 
-	///
+	/// Makes unavailable mount point @a mp
 	void				umount(MountPoint& mp);
 
 	/// Opens the file @a relative_path with the specified access @a mode
@@ -102,17 +102,21 @@ public:
 	/// Closes a previously opened file @a stream
 	void				close(File* stream);
 
+	/// Returns true if file @a relative_path exists in @a mount_point
 	bool				exists(const char* mount_point, const char* relative_path);
 
+	/// Returns path of file @a relative_path in @a mount_point
 	const char*			os_path(const char* mount_point, const char* relative_path);
 
 private:
+	
 	/// Gets __first__ mount point fetchable by @a mount_point
 	MountPoint*			find_mount_point(const char* mount_point);				
 
 	// Disable copying
 						Filesystem(const Filesystem&);
-	Filesystem&			operator=(const Filesystem&);	
+	Filesystem&			operator=(const Filesystem&);
+		
 private:
 
 	HeapAllocator		m_allocator;
