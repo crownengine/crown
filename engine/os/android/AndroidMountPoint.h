@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "MountPoint.h"
-#include "HeapAllocator.h"
 
 namespace crown
 {
@@ -41,6 +40,8 @@ public:
 
 	void				close(File* file);
 
+	void				set_root_path(const char*);
+
 	const char*			root_path();
 
 	bool				exists(const char* relative_path);
@@ -52,10 +53,6 @@ public:
 	bool				is_dir(const char* relative_path);
 
 	const char*			os_path(const char* relative_path);
-
-private:
-
-	HeapAllocator		m_allocator;
 };
 
 } // namespace crown

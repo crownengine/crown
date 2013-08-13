@@ -27,13 +27,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "AndroidMountPoint.h"
 #include "AndroidFile.h"
 #include "StringUtils.h"
+#include "Allocator.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-AndroidMountPoint::AndroidMountPoint() :
-	MountPoint(ANDROID_TYPE)
+AndroidMountPoint::AndroidMountPoint() : MountPoint(ANDROID_TYPE)
 {
 }
 
@@ -43,18 +43,26 @@ File* AndroidMountPoint::open(const char* relative_path, FileOpenMode /*mode*/)
 	CE_ASSERT(exists(relative_path), "File does not exist: %s", relative_path);
 	CE_ASSERT(is_file(relative_path), "File is not a regular file: %s", relative_path);
 
-	return CE_NEW(m_allocator, AndroidFile)(relative_path);
+	return CE_NEW(default_allocator(), AndroidFile)(relative_path);
 }
 
 //-----------------------------------------------------------------------------
 void AndroidMountPoint::close(File* file)
 {
-	CE_DELETE(m_allocator, file);
+	CE_DELETE(default_allocator(), file);
 }
+
+//-----------------------------------------------------------------------------
+void AndroidMountPoint::set_root_path(const char* /*root_path*/)
+{
+	Log::w("Stub: Android root path is always assets folder");
+}
+
 
 //-----------------------------------------------------------------------------
 const char* AndroidMountPoint::root_path()
 {
+	Log::w("Stub: Android root path is always assets folder");
 	return "Assets Folder";
 }
 
@@ -64,8 +72,6 @@ bool AndroidMountPoint::exists(const char* relative_path)
 	MountPointEntry info;
 
 	return get_info(relative_path, info);
-
-	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -78,7 +84,7 @@ bool AndroidMountPoint::get_info(const char* relative_path, MountPointEntry& inf
 	string::strncpy(info.os_path, "", MAX_PATH_LENGTH);
 	string::strncpy(info.relative_path, relative_path, MAX_PATH_LENGTH);
 
-	AAssetDir* root = AAssetManager_openDir(get_android_asset_manager(), "");
+	AAssetDir* root = AAssetManager_openDir(get_android_asset_manager(), info.os_path);
 
 	char asset_name[512];
 
@@ -86,7 +92,6 @@ bool AndroidMountPoint::get_info(const char* relative_path, MountPointEntry& inf
 
 	while (asset_name != NULL)
 	{
-		Log::i("AssetManager: %s", asset_name);
 		if (string::strcmp(asset_name, relative_path) == 0)
 		{
 			info.type = MountPointEntry::FILE;
