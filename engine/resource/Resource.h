@@ -48,14 +48,6 @@ const uint32_t TEXT_TYPE					= 0x9000BF0B;
 const uint32_t MATERIAL_TYPE				= 0x46807A92;
 const uint32_t SOUND_TYPE					= 0x8E128AA1;
 
-/// Enumerates the loading states of a resource
-enum ResourceState
-{
-	RS_UNLOADED		= 0,		// The resource is not loaded, so it cannot be used
-	RS_LOADING		= 1,		// The resource loader started to load the resource but it is yet not ready to use
-	RS_LOADED		= 2			// The resource loader finished to load the texture meaning it can be used
-};
-
 /// ResourceId uniquely identifies a resource by its name and type.
 /// In order to speed up the lookup by the manager, it also keeps
 /// the index to the resource list where it is stored.

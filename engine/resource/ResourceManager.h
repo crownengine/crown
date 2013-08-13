@@ -41,9 +41,14 @@ struct ResourceEntry
 	bool operator==(const ResourceEntry& b) const { return id == b.id; }
 
 	ResourceId		id;
-	ResourceState	state;
 	uint32_t		references;
 	void*			resource;
+};
+
+struct PendingRequest
+{
+	ResourceId resource;
+	LoadResourceId id;
 };
 
 class Bundle;
@@ -109,6 +114,8 @@ private:
 	ProxyAllocator			m_resource_heap;
 	ResourceLoader			m_loader;
 	uint32_t				m_seed;
+
+	Queue<PendingRequest>	m_pendings;
 	List<ResourceEntry>		m_resources;
 
 private:

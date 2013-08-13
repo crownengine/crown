@@ -409,13 +409,32 @@ void Device::create_resource_manager()
 	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, seed);
 
 
-	ResourceId id = m_resource_manager->load("tga", "grass");
-	m_resource_manager->flush();
-	const void* texture = m_resource_manager->data(id);
-	Log::i("%p", texture);
-	if (texture != NULL) m_resource_manager->unload(id);
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
+
+	ResourceId ids[7];
+
+	ids[0] = m_resource_manager->load("tga", "grass");
+	ids[1] = m_resource_manager->load("tga", "red_down");
+	ids[2] = m_resource_manager->load("tga", "red_up");
+	ids[3] = m_resource_manager->load("tga", "red_east");
+	ids[4] = m_resource_manager->load("tga", "red_west");
+	ids[5] = m_resource_manager->load("tga", "red_south");
+	ids[6] = m_resource_manager->load("tga", "red_north");
+
+	m_resource_manager->flush();
+
+	for (uint32_t i = 0; i < 7; i++)
+	{
+		const void* data = m_resource_manager->data(ids[i]);
+		Log::d("%.8X%.8X => %p", ids[i].name, ids[i].type, data);
+		if (data)
+		{
+			m_resource_manager->unload(ids[i]);
+		}
+	}
+
+	exit(EXIT_FAILURE);
 }
 
 //-----------------------------------------------------------------------------
