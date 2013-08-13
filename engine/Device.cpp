@@ -22,6 +22,7 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
+OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <cstdlib>
@@ -53,14 +54,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ConsoleServer.h"
 #include "TextReader.h"
 #include "SoundResource.h"
-#include "DiskMountPoint.h"
-#include "AndroidMountPoint.h"
+#include "StringSetting.h"
 
 namespace crown
 {
 
+#ifdef ANDROID
+	StringSetting g_default_mountpoint("default_mountpoint", "define default mount point for filesystem", "android");
+#else
+	StringSetting g_default_mountpoint("default_mountpoint", "define default mount point for filesystem", "disk");
+#endif
+
 //-----------------------------------------------------------------------------
-Device::Device() :
+Device::Device() : 
 	m_allocator(m_subsystems_heap, MAX_SUBSYSTEMS_HEAP),
 
 	m_preferred_window_width(1000),
@@ -92,6 +98,12 @@ Device::Device() :
 {
 	// Select executable dir by default
 	string::strncpy(m_preferred_root_path, os::get_cwd(), MAX_PATH_LENGTH);
+
+	#ifdef ANDROID
+	m_root_mountpoint = AndroidMountPoint();
+	#else
+	m_root_mountpoint = DiskMountPoint();
+	#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -358,7 +370,6 @@ void Device::frame()
 
 	m_window->frame();
 	m_input_manager->frame(frame_count());
-
 	m_lua_environment->game_frame(last_delta_time());
 
 	// m_console_server->execute();
@@ -380,13 +391,12 @@ void Device::create_filesystem()
 {
 	m_filesystem = CE_NEW(m_allocator, Filesystem)();
 
-	// DiskMountPoint* root = CE_NEW(m_allocator, DiskMountPoint)(m_preferred_root_path);
-	AndroidMountPoint* root = CE_NEW(m_allocator, AndroidMountPoint)();
+	m_root_mountpoint.set_root_path(m_preferred_root_path);
 
-	m_filesystem->mount(*root);
+	m_filesystem->mount(m_root_mountpoint);
 
 	Log::d("Filesystem created.");
-	Log::d("Filesystem root path: %s",root->root_path());
+	Log::d("Filesystem root path: %s", m_root_mountpoint.root_path());
 }
 
 //-----------------------------------------------------------------------------
@@ -403,7 +413,7 @@ void Device::create_resource_manager()
 	}
 
 	// Read resource seed
-	DiskFile* seed_file = (DiskFile*)filesystem()->open("android", "seed.ini", FOM_READ);
+	DiskFile* seed_file = (DiskFile*)filesystem()->open(g_default_mountpoint.value(), "seed.ini", FOM_READ);
 	TextReader reader(*seed_file);
 
 	char tmp_buf[32];
@@ -415,12 +425,6 @@ void Device::create_resource_manager()
 
 	// Create resource manager
 	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, seed);
-
-	ResourceId rid = m_resource_manager->load("wav", "beep");
-
-	m_resource_manager->flush();
-
-	SoundResource* res = (SoundResource*)m_resource_manager->data(rid);
 
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());

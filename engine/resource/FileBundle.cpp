@@ -32,9 +32,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "StringUtils.h" 
 #include "OS.h"
+#include "StringSetting.h"
 
 namespace crown
 {
+
+extern StringSetting g_default_mountpoint;
 
 //-----------------------------------------------------------------------------
 FileBundle::FileBundle(Filesystem& fs) :
@@ -55,11 +58,11 @@ DiskFile* FileBundle::open(ResourceId name)
 	snprintf(resource_name, 512, "%.8X%.8X", name.name, name.type);
 	
 	// Search the resource in the filesystem
-	bool exists = m_filesystem.exists("android", resource_name);
+	bool exists = m_filesystem.exists(g_default_mountpoint.value(), resource_name);
 	CE_ASSERT(exists == true, "Resource does not exist: %s", resource_name);
 
 	// Open the resource and check magic number/version
-	DiskFile* file = (DiskFile*)m_filesystem.open("android", resource_name, FOM_READ);
+	DiskFile* file = (DiskFile*)m_filesystem.open(g_default_mountpoint.value(), resource_name, FOM_READ);
 
 	ResourceHeader header;
 	file->read(&header, sizeof(ResourceHeader));

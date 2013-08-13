@@ -36,6 +36,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+extern StringSetting g_default_mountpoint;
+
 StringSetting g_boot("boot_file", "lua main file", "lua/game.raw");
 
 /*
@@ -170,7 +172,7 @@ void LuaEnvironment::execute(int32_t args, int32_t results)
 //-----------------------------------------------------------------------------
 void LuaEnvironment::game_init()
 {
-	const char* path = device()->filesystem()->os_path("disk", g_boot.value());
+	const char* path = device()->filesystem()->os_path(g_default_mountpoint.value(), g_boot.value());
 
 	load_file(path);
 	execute(0, 0);

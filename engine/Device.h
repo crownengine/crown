@@ -31,6 +31,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "LinearAllocator.h"
 #include "Resource.h"
+#include "DiskMountPoint.h"
+
+#ifdef ANDROID
+#include "AndroidMountPoint.h"
+#endif
 
 #define MAX_SUBSYSTEMS_HEAP 1024 * 1024
 
@@ -168,6 +173,14 @@ private:
 
 	// Debug subsystems
 	ConsoleServer*			m_console_server;
+
+	#ifdef ANDROID
+	AndroidMountPoint		m_root_mountpoint;
+	#else
+	DiskMountPoint			m_root_mountpoint;
+	#endif
+
+	// TODO set default StringSetting for default_mountpoint
 
 private:
 
