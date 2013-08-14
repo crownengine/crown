@@ -42,7 +42,7 @@ class AudioRenderer
 {
 public:
 
-	static const uint32_t	MAX_SOURCES = 128;
+	static const uint32_t	MAX_SOURCES = 32;
 	static const uint32_t	MAX_BUFFERS_PER_SOURCES = 16;
 	static const uint32_t 	MAX_BUFFERS = MAX_SOURCES * MAX_BUFFERS_PER_SOURCES;
 	
@@ -67,17 +67,14 @@ public:
 	/// Destroys buffer
 	virtual void			destroy_buffer(SoundBufferId id) =0;
 
-	/// Creates source of sound at the given @position in 3D space
-	/// @a velocity affects doppler shift and @a direction affects how a sound could be heard
-	virtual SoundSourceId	create_source(const Vec3& pos, const Vec3& vel, const Vec3& dir, const bool loop) =0;
+	/// Creates a source of sound 
+	virtual SoundSourceId	create_source() =0;
 	/// Plays a sound, specified by @a id, previously created
-	virtual void			play_source(SoundSourceId id) =0;
+	virtual void			play_source(SoundSourceId sid, SoundBufferId bid) =0;
 	/// Pauses a sound, specified by @a id, previously created
 	virtual void			pause_source(SoundSourceId id) =0;
 	/// Destroys a sound, specified by @a id, previously created
 	virtual void			destroy_source(SoundSourceId id) =0;
-	/// Binds a buffer to source
-	virtual void			bind_buffer(SoundSourceId sid, SoundBufferId bid) =0;
 	///	Sets source's @a min_distance. From @a min_distance to @a max_distance, sound
 	/// scales from full volume to silence
 	virtual void			set_source_min_distance(SoundSourceId id,  const float min_distance) =0;
