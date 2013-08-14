@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #ifdef ANDROID
 #include "AndroidMountPoint.h"
+#include "SLESRenderer.h"
 #endif
 
 #define MAX_SUBSYSTEMS_HEAP 1024 * 1024
@@ -118,7 +119,7 @@ public:
 	ConsoleServer*			console_server();
 
 	AudioRenderer*			audio_renderer();
-
+	
 private:
 
 	void					create_filesystem();
