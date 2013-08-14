@@ -87,6 +87,7 @@ LOCAL_SRC_FILES :=\
 	renderers/DebugRenderer.cpp\
 	renderers/PixelFormat.cpp\
 	renderers/VertexFormat.cpp\
+	renderers/sles/SLESRenderer.cpp\
 \
 	resource/ArchiveBundle.cpp\
 	resource/FileBundle.cpp\
