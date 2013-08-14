@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include "Types.h"
 #include "AudioRenderer.h"
 #include "HeapAllocator.h"
 #include "Vec3.h"
@@ -68,9 +67,9 @@ public:
 
 	void					destroy_buffer(SoundBufferId id);
 
-	SoundSourceId			create_source(const Vec3& pos, const Vec3& vel, const Vec3& dir, const bool loop);
+	SoundSourceId			create_source();
 
-	void 					play_source(SoundSourceId id);
+	void 					play_source(SoundSourceId sid, SoundBufferId bid);
 
 	void					pause_source(SoundSourceId id);
 

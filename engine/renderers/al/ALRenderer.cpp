@@ -199,7 +199,7 @@ void ALRenderer::destroy_buffer(SoundBufferId id)
 
 
 //-----------------------------------------------------------------------------
-SoundSourceId ALRenderer::create_source(const Vec3& pos, const Vec3& vel, const Vec3& dir, const bool loop)
+SoundSourceId ALRenderer::create_source()
 {
 	SoundSourceId id = m_sources_id_table.create();
 
@@ -214,30 +214,19 @@ SoundSourceId ALRenderer::create_source(const Vec3& pos, const Vec3& vel, const 
 
 	AL_CHECK(alSourcef(al_source.id, AL_MAX_DISTANCE, 1000.0f));
 
-	AL_CHECK(alSource3f(al_source.id, AL_POSITION, pos.x, pos.y, pos.z));
-
-	AL_CHECK(alSource3f(al_source.id, AL_VELOCITY, vel.x, vel.y, vel.z));
-
-	AL_CHECK(alSource3f(al_source.id, AL_DIRECTION, dir.x, dir.y, dir.z));
-
-	if (loop)
-	{
-		AL_CHECK(alSourcei(al_source.id, AL_LOOPING, AL_TRUE));
-	}
-	else
-	{
-		AL_CHECK(alSourcei(al_source.id, AL_LOOPING, AL_FALSE));
-	}
-
 	return id;
 }
 
 //-----------------------------------------------------------------------------
-void ALRenderer::play_source(SoundSourceId id)
+void ALRenderer::play_source(SoundSourceId sid, SoundBufferId bid)
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
+	CE_ASSERT(m_sources_id_table.has(sid), "SoundSource does not exist");
+	CE_ASSERT(m_buffers_id_table.has(bid), "SoundBuffer does not exist");
 
-	SoundSource& al_source = m_sources[id.index];
+	SoundSource& al_source = m_sources[sid.index];
+	SoundBuffer& al_buffer = m_buffers[bid.index];
+
+	alSourcei(al_source.id, AL_BUFFER, al_buffer.id);
 
 	AL_CHECK(alSourcePlay(al_source.id));
 }
@@ -265,18 +254,6 @@ void ALRenderer::destroy_source(SoundSourceId id)
 	alDeleteSources(1, &al_source.id);
 
 	m_sources_id_table.destroy(id);
-}
-
-//-----------------------------------------------------------------------------
-void ALRenderer::bind_buffer(SoundSourceId sid, SoundBufferId bid)
-{
-	CE_ASSERT(m_sources_id_table.has(sid), "SoundSource does not exist");
-	CE_ASSERT(m_buffers_id_table.has(bid), "SoundBuffer does not exist");
-
-	SoundSource& al_source = m_sources[sid.index];
-	SoundBuffer& al_buffer = m_buffers[bid.index];
-
-	alSourcei(al_source.id, AL_BUFFER, al_buffer.id);
 }
 
 //-----------------------------------------------------------------------------
