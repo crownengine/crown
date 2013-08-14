@@ -26,10 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <android/asset_manager_jni.h>
 
+#include "APKFile.h"
 #include "Assert.h"
 #include "OS.h"
-#include "OsFile.h"
-#include "AndroidOS.h"
 
 namespace crown
 {
@@ -37,10 +36,11 @@ namespace crown
 static AAssetManager*	g_android_asset_manager = NULL;
 
 //-----------------------------------------------------------------------------
-OsFile::OsFile(const char* path, FileOpenMode mode)
+APKFile::APKFile(const char* path, FileOpenMode mode)
 {
 	// Android assets are always read-only
 	(void) mode;
+
 	m_mode = FOM_READ;
 	m_asset = AAssetManager_open(get_android_asset_manager(), path, AASSET_MODE_RANDOM);
 
@@ -48,13 +48,13 @@ OsFile::OsFile(const char* path, FileOpenMode mode)
 }
 
 //-----------------------------------------------------------------------------
-OsFile::~OsFile()
+APKFile::~APKFile()
 {
 	close();
 }
 
 //-----------------------------------------------------------------------------
-void OsFile::close()
+void APKFile::close()
 {
 	if (m_asset != NULL)
 	{
@@ -64,25 +64,25 @@ void OsFile::close()
 }
 
 //-----------------------------------------------------------------------------
-bool OsFile::is_open() const
+bool APKFile::is_open() const
 {
 	return m_asset != NULL;
 }
 
 //-----------------------------------------------------------------------------
-FileOpenMode OsFile::mode() const
+FileOpenMode APKFile::mode() const
 {
 	return m_mode;
 }
 
 //-----------------------------------------------------------------------------
-size_t OsFile::size() const
+size_t APKFile::size() const
 {
 	return AAsset_getLength(m_asset);
 }
 
 //-----------------------------------------------------------------------------
-size_t OsFile::read(void* data, size_t size)
+size_t APKFile::read(void* data, size_t size)
 {
 	CE_ASSERT(data != NULL, "Data must be != NULL");
 
@@ -90,7 +90,7 @@ size_t OsFile::read(void* data, size_t size)
 }
 
 //-----------------------------------------------------------------------------
-size_t OsFile::write(const void* data, size_t size)
+size_t APKFile::write(const void* data, size_t /*size*/)
 {
 	CE_ASSERT(data != NULL, "Data must be != NULL");
 
@@ -100,34 +100,34 @@ size_t OsFile::write(const void* data, size_t size)
 }
 
 //-----------------------------------------------------------------------------
-void OsFile::seek(size_t position)
+void APKFile::seek(size_t position)
 {
 	off_t seek_result = AAsset_seek(m_asset, (off_t)position, SEEK_SET);
 	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
-void OsFile::seek_to_end()
+void APKFile::seek_to_end()
 {
 	off_t seek_result = AAsset_seek(m_asset, 0, SEEK_END);
 	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
-void OsFile::skip(size_t bytes)
+void APKFile::skip(size_t bytes)
 {
 	off_t seek_result = AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR);
 	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
 }
 
 //-----------------------------------------------------------------------------
-size_t OsFile::position() const
+size_t APKFile::position() const
 {
 	return (size_t) (AAsset_getLength(m_asset) - AAsset_getRemainingLength(m_asset));
 }
 
 //-----------------------------------------------------------------------------
-bool OsFile::eof() const
+bool APKFile::eof() const
 {
 	return AAsset_getRemainingLength(m_asset) == 0;
 }

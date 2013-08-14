@@ -106,6 +106,7 @@ set (CONTAINERS_SRC
 
 set (CONTAINERS_HEADERS
 	core/containers/Queue.h
+	core/containers/PriorityQueue.h
 	core/containers/Map.h
 	core/containers/Generic.h
 	core/containers/List.h
@@ -152,6 +153,7 @@ set (FILESYSTEM_SRC
 	core/filesystem/TextReader.cpp
 	core/filesystem/TextWriter.cpp
 
+	core/filesystem/DiskMountPoint.cpp
 	core/filesystem/Filesystem.cpp
 )
 
@@ -165,6 +167,7 @@ set (FILESYSTEM_HEADERS
 	core/filesystem/TextReader.h
 	core/filesystem/TextWriter.h
 
+	core/filesystem/DiskMountPoint.h
 	core/filesystem/Filesystem.h
 )
 
@@ -521,7 +524,7 @@ add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 
 if (CROWN_BUILD_TESTS)
-	add_subdirectory(tests)
+	#add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
 install (TARGETS crown DESTINATION bin)

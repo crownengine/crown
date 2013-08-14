@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "ResourceLoader.h"
 #include "ResourceRegistry.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -35,43 +36,58 @@ ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap) :
 	Thread("resource-loader"),
 	m_bundle(bundle),
 	m_resource_heap(resource_heap),
-	m_load_queue(default_allocator()),
-	m_done_queue(default_allocator())
+	m_num_requests(0),
+	m_requests(default_allocator())
 {
-}
-
-//-----------------------------------------------------------------------------
-void ResourceLoader::load(ResourceId resource)
-{
-	m_load_mutex.lock();
-	m_load_queue.push_back(resource);
-	m_load_requests.signal();
-	m_load_mutex.unlock();
-}
-
-//-----------------------------------------------------------------------------
-uint32_t ResourceLoader::remaining() const
-{
-	return m_load_queue.size();
-}
-
-//-----------------------------------------------------------------------------
-uint32_t ResourceLoader::num_loaded() const
-{
-	return m_done_queue.size();
-}
-
-//-----------------------------------------------------------------------------
-void ResourceLoader::get_loaded(List<LoadedResource>& l)
-{
-	m_done_mutex.lock();
-	for (uint32_t i = 0; i < m_done_queue.size(); i++)
+	for (uint32_t i = 0; i < MAX_LOAD_REQUESTS; i++)
 	{
-		l.push_back(m_done_queue[i]);
+		m_results[i].status = LRS_NO_INFORMATION;
+		m_results[i].data = NULL;
+	}
+}
+
+//-----------------------------------------------------------------------------
+LoadResourceId ResourceLoader::load_resource(ResourceId resource)
+{
+
+	m_requests_mutex.lock();
+
+	LoadResourceId lr_id = m_num_requests++;
+	LoadResource lr;
+	lr.id = lr_id;
+	lr.resource = resource;
+
+	m_requests.push_back(lr);
+
+	m_results[lr_id % MAX_LOAD_REQUESTS].status = LRS_QUEUED;
+
+	m_requests_mutex.unlock();
+
+	m_full.signal();
+
+	return lr_id;
+}
+
+//-----------------------------------------------------------------------------
+LoadResourceStatus ResourceLoader::load_resource_status(LoadResourceId id) const
+{
+	if (m_num_requests - id > MAX_LOAD_REQUESTS)
+	{
+		return LRS_NO_INFORMATION;
 	}
 
-	m_done_queue.clear();
-	m_done_mutex.unlock();
+	return m_results[id % MAX_LOAD_REQUESTS].status;
+}
+
+//-----------------------------------------------------------------------------
+void* ResourceLoader::load_resource_data(LoadResourceId id) const
+{
+	if (m_num_requests - id > MAX_LOAD_REQUESTS)
+	{
+		return NULL;
+	}
+
+	return m_results[id % MAX_LOAD_REQUESTS].data;
 }
 
 //-----------------------------------------------------------------------------
@@ -79,21 +95,23 @@ int32_t ResourceLoader::run()
 {
 	while (!is_terminating())
 	{
-		m_load_mutex.lock();
-		while (m_load_queue.size() == 0)
+		m_requests_mutex.lock();
+		while (m_requests.empty())
 		{
-			m_load_requests.wait(m_load_mutex);
+			m_full.wait(m_requests_mutex);
 		}
 
-		ResourceId resource = m_load_queue.front();
-		m_load_queue.pop_front();
-		m_load_mutex.unlock();
+		LoadResource request = m_requests.front();
+		m_requests.pop_front();
 
-		void* data = resource_on_load(resource.type, m_resource_heap, m_bundle, resource);
+		m_requests_mutex.unlock();
 
-		m_done_mutex.lock();
-		m_done_queue.push_back(LoadedResource(resource, data));
-		m_done_mutex.unlock();
+		m_results[request.id % MAX_LOAD_REQUESTS].status = LRS_LOADING;
+
+		void* data = resource_on_load(request.resource.type, m_resource_heap, m_bundle, request.resource);
+
+		m_results[request.id % MAX_LOAD_REQUESTS].data = data;
+		m_results[request.id % MAX_LOAD_REQUESTS].status = LRS_LOADED;
 	}
 
 	return 0;

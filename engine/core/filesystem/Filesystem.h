@@ -30,28 +30,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "File.h"
 #include "HeapAllocator.h"
+#include "MountPoint.h"
 
 namespace crown
 {
 
-struct FilesystemEntry
-{
-	enum Type
-	{
-		DIRECTORY = 0,		///< The entry is a directory
-		FILE,				///< The entry is a file
-		MEMORY,				///< The entry is a memory file (i.e. does not exist on the disk)
-		UNKNOWN				///< The entry type is unknown
-	};
-
-	FilesystemEntry() : type(UNKNOWN) {}
-
-	Type			type;								///< Type of the entry
-	char			os_path[MAX_PATH_LENGTH];			///< OS-specific path (use only for debug)
-	char			relative_path[MAX_PATH_LENGTH];		///< Relative path of the entry
-};
-
-class DiskFile;
+class File;
 
 /// Provides a platform-independent way to access files and directories
 /// on the host filesystem.
@@ -102,64 +86,45 @@ class Filesystem
 {
 public:
 
-	/// The @a root_path must be absolute.
-						Filesystem(const char* root_path);
+						Filesystem();
 						~Filesystem();
 
-	/// Returns the root path of the filesystem
-	const char*			root_path() const;
+	/// Makes available mount point @a mp
+	void				mount(MountPoint& mp);
 
-	/// Returns whether the @a relative_path exists and fills @a info with
-	/// with informations about the given @a relative_path path
-	bool				get_info(const char* relative_path, FilesystemEntry& info);
-	
-	/// Returns whether the @a relative_path exists on disk
-	bool				exists(const char* relative_path);
-
-	/// Returns whether @a relative_path is a regular file
-	bool				is_file(const char* relative_path);
-
-	/// Returns whether @a relative_path is a directory
-	bool				is_dir(const char* relative_path);
-
-	/// Creates a regular file named @a relative_path
-	bool				create_file(const char* relative_path);
-
-	/// Creates a directory named @a relative_path
-	bool				create_dir(const char* relative_path);
-
-	/// Deletes the regular file @a relative_path
-	bool				delete_file(const char* relative_path);
-
-	/// Deletes the directory @a relative_path
-	bool				delete_dir(const char* relative_path);
-
-	/// Returns the os-specific path which @a relative_path refers to.
-	/// @note
-	/// In general, you typically do not want to use it for normal
-	/// file interactions. Prefer using the other methods whenever possible.
-	const char*			os_path(const char* relative_path);
+	/// Makes unavailable mount point @a mp
+	void				umount(MountPoint& mp);
 
 	/// Opens the file @a relative_path with the specified access @a mode
-	DiskFile*			open(const char* relative_path, FileOpenMode mode);
+	/// contained in @a mount_point
+	File*				open(const char* mount_point, const char* relative_path, FileOpenMode mode);
 
 	/// Closes a previously opened file @a stream
-	void				close(DiskFile* stream);
+	void				close(File* stream);
+
+	/// Returns true if file @a relative_path exists in @a mount_point
+	bool				exists(const char* mount_point, const char* relative_path);
+
+	/// Returns path of file @a relative_path in @a mount_point
+	const char*			os_path(const char* mount_point, const char* relative_path);
 
 private:
-
-	// Builds the OS-dependent path from base_path and relative_path
-	const char*			build_os_path(const char* base_path, const char* relative_path);
 	
+	/// Gets __first__ mount point fetchable by @a mount_point
+	MountPoint*			find_mount_point(const char* mount_point);				
+
+	// Disable copying
+						Filesystem(const Filesystem&);
+	Filesystem&			operator=(const Filesystem&);
+		
 private:
 
 	HeapAllocator		m_allocator;
 
 	char				m_root_path[MAX_PATH_LENGTH];
 
-	// Disable copying
-						Filesystem(const Filesystem&);
-	Filesystem&			operator=(const Filesystem&);
+	MountPoint* 		m_mount_point_head;
+
 
 	friend class		Device;
 };

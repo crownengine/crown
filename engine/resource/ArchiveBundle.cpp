@@ -42,7 +42,7 @@ ArchiveBundle::ArchiveBundle(Filesystem& fs) :
 	m_entries(NULL)
 {
 	// FIXME Default archive name
-	m_archive_file = (DiskFile*)m_filesystem.open("archive.bin", FOM_READ);
+	m_archive_file = (DiskFile*)m_filesystem.open("disk", "archive.bin", FOM_READ);
 	
 	ArchiveHeader header;
 	
