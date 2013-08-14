@@ -74,6 +74,7 @@ void AndroidFile::read(void* buffer, size_t size)
 	}
 
 	size_t bytes_read = m_file.read(buffer, size);
+
 	CE_ASSERT(bytes_read == size, "Failed to read from file");
 }
 
