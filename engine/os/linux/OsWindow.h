@@ -39,7 +39,10 @@ class OsWindow
 {
 public:
 
-					OsWindow(uint32_t width, uint32_t height);
+	/// Creates the window with the given @a width and @a height.
+	/// When @a parent is != 0, it is interpreted as the OS-specific
+	/// handle of the parent window.
+					OsWindow(uint32_t width, uint32_t height, uint32_t parent);
 					~OsWindow();
 
 	void			show();
@@ -66,6 +69,7 @@ private:
 
 	Display*		m_x11_display;
 	Window			m_x11_window;
+	Window			m_x11_parent_window;
 
 	uint32_t		m_x;
 	uint32_t		m_y;

@@ -139,6 +139,7 @@ private:
 	int32_t					m_preferred_window_width;
 	int32_t					m_preferred_window_height;
 	int32_t					m_preferred_window_fullscreen;
+	uint32_t				m_parent_window_handle;
 	int32_t					m_preferred_mode;
 	char					m_preferred_root_path[MAX_PATH_LENGTH];
 

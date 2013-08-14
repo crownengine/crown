@@ -36,7 +36,7 @@ namespace crown
 static ANativeWindow* window = NULL;
 
 //-----------------------------------------------------------------------------
-OsWindow::OsWindow(uint32_t width, uint32_t height) :
+OsWindow::OsWindow(uint32_t width, uint32_t height, uint32_t /*parent*/) :
 	m_window(NULL),
 	m_width(0),
 	m_height(0),

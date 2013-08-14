@@ -36,7 +36,7 @@ class OsWindow
 {
 public:
 
-					OsWindow(uint32_t width, uint32_t height);
+					OsWindow(uint32_t width, uint32_t height, uint32_t parent);
 					~OsWindow();
 
 	void			show();

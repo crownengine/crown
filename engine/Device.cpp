@@ -63,6 +63,7 @@ Device::Device() :
 	m_preferred_window_width(1000),
 	m_preferred_window_height(625),
 	m_preferred_window_fullscreen(0),
+	m_parent_window_handle(0),
 	m_preferred_mode(MODE_RELEASE),
 
 	m_quit_after_init(0),
@@ -424,7 +425,7 @@ void Device::create_input_manager()
 //-----------------------------------------------------------------------------
 void Device::create_window()
 {
-	m_window = CE_NEW(m_allocator, OsWindow)(m_preferred_window_width, m_preferred_window_height);
+	m_window = CE_NEW(m_allocator, OsWindow)(m_preferred_window_width, m_preferred_window_height, m_parent_window_handle);
 
 	CE_ASSERT(m_window != NULL, "Unable to create the window");
 
@@ -481,6 +482,7 @@ void Device::parse_command_line(int argc, char** argv)
 		{ "width",            AOA_REQUIRED_ARGUMENT, NULL,        'w' },
 		{ "height",           AOA_REQUIRED_ARGUMENT, NULL,        'h' },
 		{ "fullscreen",       AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1 },
+		{ "parent-window",    AOA_REQUIRED_ARGUMENT, NULL,        'p' },
 		{ "dev",              AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT },
 		{ "quit-after-init",  AOA_NO_ARGUMENT,       &m_quit_after_init, 1 },
 		{ NULL, 0, NULL, 0 }
@@ -514,6 +516,12 @@ void Device::parse_command_line(int argc, char** argv)
 			case 'h':
 			{
 				m_preferred_window_height = atoi(args.optarg());
+				break;
+			}
+			// Parent window
+			case 'p':
+			{
+				m_parent_window_handle = string::parse_uint(args.optarg());
 				break;
 			}
 			case 'i':
@@ -558,14 +566,16 @@ void Device::print_help_message()
 	"All of the following options take precedence over\n"
 	"environment variables and configuration files.\n\n"
 
-	"  --help                Show this help.\n"
-	"  --root-path <path>    Use <path> as the filesystem root path.\n"
-	"  --width <width>       Set the <width> of the render window.\n"
-	"  --height <width>      Set the <height> of the render window.\n"
-	"  --fullscreen          Start in fullscreen.\n"
-	"  --dev                 Run the engine in development mode\n"
-	"  --quit-after-init     Quit the engine immediately after the\n"
-	"                        initialization. Used only for debugging.\n");
+	"  --help                     Show this help.\n"
+	"  --root-path <path>         Use <path> as the filesystem root path.\n"
+	"  --width <width>            Set the <width> of the main window.\n"
+	"  --height <width>           Set the <height> of the main window.\n"
+	"  --fullscreen               Start in fullscreen.\n"
+	"  --parent-window <handle>   Set the parent window <handle> of the main window.\n"
+	"                             Used only by tools.\n"
+	"  --dev                      Run the engine in development mode\n"
+	"  --quit-after-init          Quit the engine immediately after the initialization.\n"
+	"                             Used only for debugging.\n");
 }
 
 Device g_device;
