@@ -29,71 +29,69 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 
+#include "Types.h"
 #include "AudioRenderer.h"
 #include "HeapAllocator.h"
 
 namespace crown
 {
 
+//-----------------------------------------------------------------------------
 struct SoundBuffer
 {
-	SLDataLocator_AndroidSimpleBufferQueue buffer_queue;
+	uint16_t*						data;
+	size_t							size;
+	uint32_t						sample_rate;
+	uint32_t						channels;
+	uint32_t						bits_per_sample;
 };
 
+//-----------------------------------------------------------------------------
 struct SoundSource
 {
-	SLDataSource source;
+  	SLObjectItf 					player_obj;
+  	SLPlayItf 						player_play;
+  	SLAndroidSimpleBufferQueueItf 	player_bufferqueue;
+  	SLVolumeItf						player_volume;
 };
 
-/*
-* FIXME: Can't be completed right now. It's necessary to improve ResourceManager
-* implementing support to Android Assets Manager. Otherwise we must make ugly hacks
-* using Uri Audio Players.
-*/
-class SLESRenderer : public AudioRenderer
-{
 
+class SLESRenderer : public AudioRenderer
+{	
 public:
 
 									SLESRenderer();
 
 	void							init();
-
 	void							shutdown();
 
 	void							set_listener(const Vec3& pos, const Vec3& vel, const Vec3& or_up, const Vec3& or_at) const;
 
 	SoundBufferId					create_buffer(const void* data, const uint32_t size, const uint32_t sample_rate, const uint32_t channels, const uint32_t bxs);
-
 	void							destroy_buffer(SoundBufferId id);
 
-	SoundSourceId					create_source(const Vec3& pos, const Vec3& vel, const Vec3& dir, const bool loop);
-
-	void							play_source(SoundSourceId id);
-
+	SoundSourceId					create_source();
+	void							play_source(SoundSourceId sid, SoundBufferId bid);
 	void							pause_source(SoundSourceId id);
-
 	void							destroy_source(SoundSourceId id);
 
-	void							bind_buffer(SoundSourceId sid, SoundBufferId bid);
-
 	void							set_source_min_distance(SoundSourceId id,  const float min_distance);
-
 	void							set_source_max_distance(SoundSourceId id,  const float max_distance);
-
 	void							set_source_position(SoundSourceId id, const Vec3& pos);
-
 	void							set_source_velocity(SoundSourceId id, const Vec3& vel);
-
 	void							set_source_direction(SoundSourceId id, const Vec3& dir);
-
 	void							set_source_pitch(SoundSourceId id, const float pitch);
-
 	void							set_source_gain(SoundSourceId id, const float gain);
-
 	void							set_source_rolloff(SoundSourceId id, const float rolloff);
+	bool							source_playing(SoundSourceId id);	
 
-	bool							source_playing(SoundSourceId id);
+	void 							check_sles_errors(SLresult result);
+
+private:
+
+	void							create_bufferqueue_player(SoundSource& s);
+
+	void							destroy_bufferqueue_player(SoundSource& s);
 
 private:
 
@@ -103,12 +101,8 @@ private:
 	SLEngineItf						m_engine;
 
 	SLObjectItf 					m_out_mix_obj;
-	SLVolumeItf 					m_out_mix;
-	SLEnvironmentalReverbItf 		m_out_mix_env_reverb;
 
-	SLObjectItf						m_listener;
-	SL3DLocationItf					m_listener_location;
-
+//-----------------------------------------------------------------------------
 
 	IdTable 						m_buffers_id_table;
 	SoundBuffer 					m_buffers[MAX_BUFFERS];
