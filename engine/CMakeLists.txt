@@ -182,7 +182,8 @@ set (STRINGS_SRC
 
 set (STRINGS_HEADERS
 	core/strings/Path.h
-	core/strings/String.h
+	core/strings/StringUtils.h
+	core/strings/StringStream.h
 	core/strings/Hash.h
 )
 
