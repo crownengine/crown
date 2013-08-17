@@ -36,6 +36,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+void player_callback(SLAndroidSimpleBufferQueueItf caller, void* source);
+
 //-----------------------------------------------------------------------------
 struct SoundBuffer
 {

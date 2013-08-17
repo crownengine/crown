@@ -259,7 +259,11 @@ bool SLESRenderer::source_playing(SoundSourceId id)
 
 	SoundSource& s = m_sources[id.index];
 
-	return s.playing;
+    SLuint32 state;
+
+    (*s.player_play)->GetPlayState(s.player_play, &state);
+
+    return state == SL_PLAYSTATE_PLAYING;
 }	
 
 //-----------------------------------------------------------------------------
@@ -323,6 +327,8 @@ void SLESRenderer::create_bufferqueue_player(SoundSource& s)
 	result = (*s.player_obj)->GetInterface(s.player_obj, SL_IID_VOLUME, &s.player_volume);
 	check_sles_errors(result);
 
+	(*s.player_bufferqueue)->RegisterCallback(s.player_bufferqueue, player_callback, &s);
+
 	result = (*s.player_play)->SetPlayState(s.player_play, SL_PLAYSTATE_PLAYING);
 	check_sles_errors(result);
 }
@@ -348,6 +354,16 @@ void SLESRenderer::destroy_bufferqueue_player(SoundSource& s)
   			s.player_volume = NULL;
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+void player_callback(SLAndroidSimpleBufferQueueItf caller, void* source)
+{
+	(void)caller;
+
+	SoundSource* s = (SoundSource*)source;
+
+	(*s->player_play)->SetPlayState(s->player_play, SL_PLAYSTATE_STOPPED);
 }
 
 } // namespace crown
