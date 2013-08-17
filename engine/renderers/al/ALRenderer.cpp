@@ -218,6 +218,28 @@ SoundSourceId ALRenderer::create_source()
 }
 
 //-----------------------------------------------------------------------------
+SoundSourceId ALRenderer::create_loop_source()
+{
+	SoundSourceId id = m_sources_id_table.create();
+
+	SoundSource& al_source = m_sources[id.index];
+
+	// Creates AL source
+	AL_CHECK(alGenSources(1, &al_source.id));
+
+	AL_CHECK(alSourcef(al_source.id, AL_PITCH, 1.0f));
+
+	AL_CHECK(alSourcef(al_source.id, AL_REFERENCE_DISTANCE, 0.1f));
+
+	AL_CHECK(alSourcef(al_source.id, AL_MAX_DISTANCE, 1000.0f));
+
+	AL_CHECK(alSourcef(al_source.id, AL_LOOPING, AL_TRUE));
+
+	return id;
+}
+
+
+//-----------------------------------------------------------------------------
 void ALRenderer::play_source(SoundSourceId sid, SoundBufferId bid)
 {
 	CE_ASSERT(m_sources_id_table.has(sid), "SoundSource does not exist");

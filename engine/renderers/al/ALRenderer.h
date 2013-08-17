@@ -69,6 +69,8 @@ public:
 
 	SoundSourceId			create_source();
 
+	SoundSourceId			create_loop_source();
+
 	void 					play_source(SoundSourceId sid, SoundBufferId bid);
 
 	void					pause_source(SoundSourceId id);
