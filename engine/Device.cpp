@@ -39,7 +39,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "StringUtils.h"
 #include "Args.h"
-#include "ArchiveBundle.h"
+// #include "ArchiveBundle.h"
 #include "FileBundle.h"
 #include "ResourceManager.h"
 #include "TextureResource.h"
@@ -429,7 +429,7 @@ void Device::create_resource_manager()
 	}
 	else
 	{
-		m_resource_bundle = CE_NEW(m_allocator, ArchiveBundle)(*m_filesystem);
+//		m_resource_bundle = CE_NEW(m_allocator, ArchiveBundle)(*m_filesystem);
 	}
 
 	// Read resource seed

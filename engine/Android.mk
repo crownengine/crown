@@ -89,7 +89,6 @@ LOCAL_SRC_FILES :=\
 	renderers/VertexFormat.cpp\
 	renderers/sles/SLESRenderer.cpp\
 \
-	resource/ArchiveBundle.cpp\
 	resource/FileBundle.cpp\
 	resource/FontResource.cpp\
 	resource/MaterialResource.cpp\

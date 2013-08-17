@@ -280,7 +280,7 @@ set (RESOURCE_SRC
 	resource/MeshResource.cpp
 	resource/FontResource.cpp
 	resource/SoundResource.cpp
-	resource/ArchiveBundle.cpp
+#	resource/ArchiveBundle.cpp
 	resource/FileBundle.cpp
 )
 
@@ -295,7 +295,7 @@ set (RESOURCE_HEADERS
 	resource/MeshResource.h
 	resource/FontResource.h
 	resource/SoundResource.h
-	resource/ArchiveBundle.h
+#	resource/ArchiveBundle.h
 	resource/FileBundle.h
 )
 
