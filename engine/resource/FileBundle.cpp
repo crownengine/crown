@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "FileBundle.h"
 #include "Filesystem.h"
 #include "Resource.h"
-#include "DiskFile.h"
+#include "File.h"
 #include "Log.h"
 #include "StringUtils.h" 
 #include "OS.h"
@@ -51,7 +51,7 @@ FileBundle::~FileBundle()
 }
 
 //-----------------------------------------------------------------------------
-DiskFile* FileBundle::open(ResourceId name)
+File* FileBundle::open(ResourceId name)
 {
 	// Convert name/type into strings
 	char resource_name[512];
@@ -62,7 +62,7 @@ DiskFile* FileBundle::open(ResourceId name)
 	CE_ASSERT(exists == true, "Resource does not exist: %s", resource_name);
 
 	// Open the resource and check magic number/version
-	DiskFile* file = (DiskFile*)m_filesystem.open(g_default_mountpoint.value(), resource_name, FOM_READ);
+	File* file = (File*)m_filesystem.open(g_default_mountpoint.value(), resource_name, FOM_READ);
 
 	ResourceHeader header;
 	file->read(&header, sizeof(ResourceHeader));
@@ -74,7 +74,7 @@ DiskFile* FileBundle::open(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
-void FileBundle::close(DiskFile* resource)
+void FileBundle::close(File* resource)
 {
 	m_filesystem.close(resource);
 }

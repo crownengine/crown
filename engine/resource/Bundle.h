@@ -50,7 +50,7 @@ struct ArchiveEntry
 };
 
 class Filesystem;
-class DiskFile;
+class File;
 
 class Bundle
 {
@@ -64,10 +64,10 @@ public:
 	/// The resource stream points exactly at the start
 	/// of the useful resource data, so you do not have to
 	/// care about skipping headers, metadatas and so on.
-	virtual DiskFile*		open(ResourceId name) = 0;
+	virtual File*		open(ResourceId name) = 0;
 
 	/// Closes the resource file.
-	virtual void			close(DiskFile* resource) = 0;
+	virtual void			close(File* resource) = 0;
 };
 
 } // namespace crown

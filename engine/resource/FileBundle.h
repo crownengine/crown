@@ -33,7 +33,7 @@ namespace crown
 {
 
 class Filesystem;
-class DiskFile;
+class File;
 
 const uint32_t	RESOURCE_MAGIC_NUMBER		= 0xCE010101;
 const uint32_t	RESOURCE_VERSION			= 2;
@@ -57,10 +57,10 @@ public:
 					~FileBundle();
 
 	/// @copydoc Bundle::open()
-	DiskFile*		open(ResourceId name);
+	File*			open(ResourceId name);
 
 	/// @copydoc Bundle::close()
-	void			close(DiskFile* resource);
+	void			close(File* resource);
 
 
 private:

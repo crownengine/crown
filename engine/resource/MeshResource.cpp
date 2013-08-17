@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MeshResource.h"
 #include "Bundle.h"
 #include "Log.h"
-#include "DiskFile.h"
+#include "File.h"
 #include "Assert.h"
 #include "Allocator.h"
 #include "Device.h"
@@ -39,7 +39,7 @@ namespace crown
 //-----------------------------------------------------------------------------
 void* MeshResource::load(Allocator& allocator, Bundle& bundle, ResourceId id)
 {
-	DiskFile* file = bundle.open(id);
+	File* file = bundle.open(id);
 
 	CE_ASSERT(file != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
 
