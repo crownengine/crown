@@ -52,7 +52,9 @@ struct SoundSource
   	SLObjectItf 					player_obj;
   	SLPlayItf 						player_play;
   	SLAndroidSimpleBufferQueueItf 	player_bufferqueue;
+  	SLSeekItf 						player_seek;
   	SLVolumeItf						player_volume;
+  	bool							playing;
 };
 
 

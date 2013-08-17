@@ -139,12 +139,24 @@ void SLESRenderer::play_source(SoundSourceId sid, SoundBufferId bid)
 
 	result = (*s.player_bufferqueue)->Enqueue(s.player_bufferqueue, b.data, b.size);
 	check_sles_errors(result);
+
+	s.playing = true;
 }
 
 //-----------------------------------------------------------------------------
 void SLESRenderer::pause_source(SoundSourceId id)
 {
-	// Must be implemented
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
+
+	SoundSource& s = m_sources[id.index];
+
+	SLresult result;
+
+	result = (*s.player_play)->SetPlayState(s.player_play, SL_PLAYSTATE_STOPPED);
+
+	check_sles_errors(result);
+
+	s.playing = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -243,7 +255,11 @@ void SLESRenderer::set_source_rolloff(SoundSourceId id, const float rolloff)
 //-----------------------------------------------------------------------------
 bool SLESRenderer::source_playing(SoundSourceId id)
 {
-	// Must be implemented
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exist");
+
+	SoundSource& s = m_sources[id.index];
+
+	return s.playing;
 }	
 
 //-----------------------------------------------------------------------------
