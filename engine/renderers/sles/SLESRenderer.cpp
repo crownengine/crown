@@ -34,6 +34,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+uint16_t* 	loop_data;
+size_t		loop_size;
+
 //-----------------------------------------------------------------------------
 AudioRenderer* AudioRenderer::create(Allocator& a)
 {
@@ -123,6 +126,22 @@ SoundSourceId SLESRenderer::create_source()
 
 	create_bufferqueue_player(sl_source);
 
+	sl_source.loop = false;
+
+	return id;
+}
+
+//-----------------------------------------------------------------------------
+SoundSourceId SLESRenderer::create_loop_source()
+{
+	SoundSourceId id = m_sources_id_table.create();
+
+	SoundSource& sl_source = m_sources[id.index];
+
+	create_bufferqueue_player(sl_source);
+
+	sl_source.loop = true;
+
 	return id;
 }
 
@@ -140,7 +159,13 @@ void SLESRenderer::play_source(SoundSourceId sid, SoundBufferId bid)
 	result = (*s.player_bufferqueue)->Enqueue(s.player_bufferqueue, b.data, b.size);
 	check_sles_errors(result);
 
-	s.playing = true;
+	// Checks if source is a loop
+	if (s.loop)
+	{
+		// Saves in extarnal pointer sound data for looping
+		loop_data = b.data;
+		loop_size = b.size;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -155,8 +180,6 @@ void SLESRenderer::pause_source(SoundSourceId id)
 	result = (*s.player_play)->SetPlayState(s.player_play, SL_PLAYSTATE_STOPPED);
 
 	check_sles_errors(result);
-
-	s.playing = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -167,6 +190,8 @@ void SLESRenderer::destroy_source(SoundSourceId id)
 	SoundSource& s = m_sources[id.index];
 
 	destroy_bufferqueue_player(s);
+
+	m_sources_id_table.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -362,8 +387,15 @@ void player_callback(SLAndroidSimpleBufferQueueItf caller, void* source)
 	(void)caller;
 
 	SoundSource* s = (SoundSource*)source;
-
-	(*s->player_play)->SetPlayState(s->player_play, SL_PLAYSTATE_STOPPED);
+	
+	if (s->loop)
+	{
+		(*s->player_bufferqueue)->Enqueue(s->player_bufferqueue, loop_data, loop_size);
+	}
+	else
+	{
+		(*s->player_play)->SetPlayState(s->player_play, SL_PLAYSTATE_STOPPED);
+	}
 }
 
 } // namespace crown

@@ -56,7 +56,7 @@ struct SoundSource
   	SLAndroidSimpleBufferQueueItf 	player_bufferqueue;
   	SLSeekItf 						player_seek;
   	SLVolumeItf						player_volume;
-  	bool							playing;
+  	bool							loop;
 };
 
 
@@ -75,6 +75,7 @@ public:
 	void							destroy_buffer(SoundBufferId id);
 
 	SoundSourceId					create_source();
+	SoundSourceId					create_loop_source();
 	void							play_source(SoundSourceId sid, SoundBufferId bid);
 	void							pause_source(SoundSourceId id);
 	void							destroy_source(SoundSourceId id);
