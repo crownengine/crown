@@ -26,6 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "ALRenderer.h"
 #include "StringUtils.h"
+#include <vorbis/vorbisfile.h>
+#include "OggBufferCallback.h"
 
 namespace crown
 {
@@ -369,5 +371,63 @@ bool ALRenderer::source_playing(SoundSourceId id)
 
 	return source_state == AL_PLAYING;
 }
+
+//-----------------------------------------------------------------------------
+void ALRenderer::create_stream(const void* data, const uint32_t size, const uint32_t sample_rate, 
+	const uint32_t channels, const uint32_t bxs, SoundBufferId* ids)
+{
+	ov_callbacks callbacks;
+
+	callbacks.read_func 	= ogg_buffer_read;
+	callbacks.seek_func 	= ogg_buffer_seek;
+	callbacks.close_func	= ogg_buffer_close;
+	callbacks.tell_func 	= ogg_buffer_tell;
+
+	OggBuffer buffer((char*)data, size);
+
+	OggVorbis_File stream;
+
+	int32_t ret;
+
+	ret = ov_open_callbacks((void *)&buffer, &stream, NULL, -1, callbacks);
+	CE_ASSERT(ret == 0, "Unable to open custom callbacks");
+
+	(void)sample_rate;
+	(void)channels;
+	(void)bxs;
+
+	SoundBufferId id1 = m_buffers_id_table.create();
+	SoundBufferId id2 = m_buffers_id_table.create();
+
+	SoundBuffer& al_buffer1 = m_buffers[id1.index];
+	SoundBuffer& al_buffer2 = m_buffers[id2.index];
+
+	// Generates first AL buffer
+	AL_CHECK(alGenBuffers(1, &al_buffer1.id));
+	AL_CHECK(alGenBuffers(1, &al_buffer2.id));
+
+	ids[0] = id1;
+	ids[1] = id2;
+}
+
+//-----------------------------------------------------------------------------
+void ALRenderer::play_source(SoundSourceId sid, SoundBufferId* bids)
+{
+	CE_ASSERT(m_sources_id_table.has(sid), "SoundSource does not exist");
+	CE_ASSERT(m_buffers_id_table.has(bids[0]), "SoundBuffer does not exist");
+	CE_ASSERT(m_buffers_id_table.has(bids[1]), "SoundBuffer does not exist");
+
+	SoundSource& al_source = m_sources[sid.index];
+
+	SoundBuffer& al_buffer1 = m_buffers[bids[0].index];
+	SoundBuffer& al_buffer2 = m_buffers[bids[1].index];
+
+	ALuint buffers[] = {al_buffer1.id, al_buffer2.id};
+
+	alSourceQueueBuffers(source, 2, buffers);
+
+	AL_CHECK(alSourcePlay(al_source.id));
+}
+
 
 } // namespace crown

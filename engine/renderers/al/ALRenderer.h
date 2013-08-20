@@ -97,6 +97,13 @@ public:
 
 	bool					source_playing(SoundSourceId id);
 
+	// Tests
+
+	void					create_stream(const void* data, const uint32_t size, const uint32_t sample_rate, 
+								const uint32_t channels, const uint32_t bxs, SoundBufferId* ids);
+
+	void					play_source(SoundSourceId sid, SoundBufferId* bids);
+
 private:
 
 	HeapAllocator 			m_allocator;

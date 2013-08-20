@@ -34,9 +34,9 @@ namespace crown
 
 class Vec3;
 
-typedef Id SoundId;
-typedef Id SoundBufferId;
-typedef Id SoundSourceId;
+typedef		Id 		SoundId;
+typedef 	Id 		SoundBufferId;
+typedef 	Id 		SoundSourceId;
 
 class AudioRenderer
 {
@@ -99,6 +99,12 @@ public:
 	virtual void			set_source_rolloff(SoundSourceId id, const float rolloff) = 0;
 	/// Is source #@a id playing?
 	virtual bool			source_playing(SoundSourceId id) = 0;
+
+	// Tests
+	virtual void			create_stream(const void* data, const uint32_t size, const uint32_t sample_rate, 
+								const uint32_t channels, const uint32_t bxs, SoundBufferId* ids) = 0;
+	virtual void			play_source(SoundSourceId sid, SoundBufferId* bids) = 0;
+
 };
 
 } // namespace crown

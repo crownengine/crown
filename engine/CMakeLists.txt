@@ -269,6 +269,7 @@ set (RENDERERS_HEADERS
 	renderers/DebugRenderer.h
 	renderers/PixelFormat.h
 	renderers/VertexFormat.h
+	renderers/OggBufferCallback.h
 )
 
 set (RESOURCE_SRC
@@ -386,6 +387,7 @@ if (LINUX)
 		GLEW
 		GL
 		openal
+		vorbisfile
 		luajit-5.1
 	)
 
@@ -393,10 +395,10 @@ if (LINUX)
 		-pipe
 		-std=c++03
 		-ansi
-		#-pedantic-errors
+		-pedantic-errors
 		-Wall
 		-Wextra
-		#-Werror
+		-Werror
 		-Wno-long-long
 		-Wno-variadic-macros
 		-g
