@@ -30,9 +30,9 @@ MESH_EXTENSION				= ('.dae')
 LUA_EXTENSION				= ('.lua')
 VERTEX_SHADER_EXTENSION		= ('.vs')
 PIXEL_SHADER_EXTENSION		= ('.ps')
-SOUND_EXTENSION				= ('.wav')
+SOUND_EXTENSION				= ('.sound')
 
-resource_extensions = ('.txt', '.tga', '.dae', '.lua', '.vs', '.ps', '.wav')
+resource_extensions = ('.txt', '.tga', '.dae', '.lua', '.vs', '.ps', '.sound')
 
 # Represents the folder containing the resources
 # Can filter resources by type and other useful stuff

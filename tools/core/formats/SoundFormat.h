@@ -40,6 +40,7 @@ struct SoundHeader
 	uint32_t	sample_rate;
 	uint32_t	channels;
 	uint32_t 	bits_per_sample;
+	uint8_t		sound_type;
 };
 
 }

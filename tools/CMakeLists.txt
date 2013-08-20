@@ -9,7 +9,7 @@ set (INCLUDES
 	${CMAKE_SOURCE_DIR}/tools/core/strings
 	${CMAKE_SOURCE_DIR}/tools/compilers
 	${CMAKE_SOURCE_DIR}/tools/compilers/tga
-	${CMAKE_SOURCE_DIR}/tools/compilers/wav
+	${CMAKE_SOURCE_DIR}/tools/compilers/sound
 	${CMAKE_SOURCE_DIR}/tools/compilers/dae
 )
 
@@ -35,7 +35,7 @@ set (CORE_HEADERS
 set (COMPILERS_SRC
 	compilers/Compiler.cpp
 	compilers/tga/TGACompiler.cpp
-	compilers/wav/WAVCompiler.cpp
+	compilers/sound/SoundCompiler.cpp
 	compilers/dae/DAECompiler.cpp
 	compilers/dae/tinyxml2.cpp
 )
@@ -43,7 +43,7 @@ set (COMPILERS_SRC
 set (COMPILER_HEADERS
 	compilers/Compiler.h
 	compilers/tga/TGACompiler.h
-	compilers/wav/WAVCompiler.h
+	compilers/sound/SoundCompiler.h
 	compilers/dae/DAECompiler.h
 	compilers/dae/tinyxml2.h
 )
@@ -58,10 +58,18 @@ set (TOOLS_HEADERS
 	${COMPILERS_HEADERS}
 )
 
+set (TOOLS_LIBRARIES
+		vorbis
+		vorbisenc
+		vorbisfile
+		ogg
+	)
+
 include_directories(${INCLUDES})
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
 
+link_libraries(${TOOLS_LIBRARIES})
 # tools library
 add_library(crown-tools ${TOOLS_SRC} ${TOOLS_HEADERS})
 

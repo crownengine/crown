@@ -32,8 +32,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Path.h"
 #include "StringUtils.h"
 #include "Hash.h"
+
+#include "SoundCompiler.h"
 #include "TGACompiler.h"
-#include "WAVCompiler.h"
 #include "DAECompiler.h"
 
 using namespace crown;
@@ -145,12 +146,13 @@ int main(int argc, char** argv)
 
 	// Register compilers
 	TGACompiler tga;
-	WAVCompiler wav;
+	SoundCompiler sound;
 	DAECompiler dae;
 
 	map<std::string, Compiler*> compilers;
+
+	compilers["sound"] = &sound;
 	compilers["tga"] = &tga;
-	compilers["wav"] = &wav;
 	compilers["dae"] = &dae;
 
 	for (int32_t i = 0; i < argc - first_resource; i++)
