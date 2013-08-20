@@ -32,8 +32,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+//-----------------------------------------------------------------------------
+enum SoundType
+{
+	ST_WAV = 0,
+	ST_MIDI,
+	ST_OGG
+};
+
 const uint32_t SOUND_VERSION = 1;
 
+//-----------------------------------------------------------------------------
 struct SoundHeader
 {
 	uint32_t	version;	// Sound file version
@@ -41,11 +50,13 @@ struct SoundHeader
 	uint32_t	sample_rate;
 	uint32_t	channels;
 	uint32_t 	bits_per_sample;
+	uint8_t		sound_type;
 };
 
 class Bundle;
 class Allocator;
 
+//-----------------------------------------------------------------------------
 class SoundResource
 {
 public:
@@ -61,6 +72,7 @@ public:
 	uint32_t			sample_rate() const { return m_header.sample_rate; }
 	uint32_t			channels() const { return m_header.channels; }
 	uint32_t			bits_per_sample() const { return m_header.bits_per_sample; }
+	uint8_t				sound_type() const { return m_header.sound_type; }
 	const uint8_t*		data() const { return m_data; }
 
 private:
