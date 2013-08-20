@@ -516,22 +516,6 @@ void Device::create_audio_renderer()
 	m_audio_renderer = AudioRenderer::create(m_allocator);
 
 	m_audio_renderer->init();
-
-	ResourceId rid = m_resource_manager->load("wav", "mono");
-
-	m_resource_manager->flush();
-
-	SoundResource* res = (SoundResource*)m_resource_manager->data(rid);
-
-	SoundBufferId bid = m_audio_renderer->create_buffer(res->data(), res->size(), res->sample_rate(), res->channels(), res->bits_per_sample());
-
-	SoundSourceId sid = m_audio_renderer->create_loop_source();
-
-	m_audio_renderer->play_source(sid, bid);
-
-	sleep(10);
-
-	m_audio_renderer->pause_source(sid);
 	
 	Log::d("Audio renderer created");
 }
