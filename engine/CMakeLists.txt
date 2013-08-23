@@ -255,14 +255,10 @@ set (NETWORK_HEADERS
 
 set (RENDERERS_SRC
 	renderers/DebugRenderer.cpp
-	renderers/PixelFormat.cpp
-	renderers/VertexFormat.cpp
 )
 
 set (RENDERERS_HEADERS
 	renderers/Renderer.h
-	renderers/IndexBuffer.h
-	renderers/VertexBuffer.h
 	renderers/Material.h
 	renderers/Texture.h
 	renderers/DebugRenderer.h

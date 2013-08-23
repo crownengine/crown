@@ -124,8 +124,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "UDPSocket.h"
 
 // Engine/Renderers
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
 #include "Renderer.h"
 #include "Material.h"
 #include "Texture.h"
