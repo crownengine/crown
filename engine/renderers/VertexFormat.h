@@ -48,10 +48,37 @@ class Vertex
 public:
 
 	/// Returns the bytes occupied by @a format
-	static size_t bytes_per_vertex(VertexFormat format);
+	static size_t bytes_per_vertex(VertexFormat format)
+	{
+		switch (format)
+		{
+			case VF_XY_FLOAT_32:
+			case VF_UV_FLOAT_32:
+			{
+				return 8;
+			}
+			case VF_XYZ_FLOAT_32:
+			case VF_UVT_FLOAT_32:
+			case VF_XYZ_NORMAL_FLOAT_32:
+			{
+				return 12;
+			}
+			case VF_XYZ_UV_XYZ_NORMAL_FLOAT_32:
+			{
+				return 32;
+			}
+			default:
+			{
+				return 0;
+			}
+		}
+	}
 
 	/// Returns the bits occupied by @a format
-	static size_t bits_per_vertex(VertexFormat format);
+	static size_t bits_per_vertex(VertexFormat format)
+	{
+		return bytes_per_vertex(format) * 8;
+	}
 
 private:
 
