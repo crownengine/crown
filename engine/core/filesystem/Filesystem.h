@@ -110,7 +110,7 @@ public:
 
 private:
 	
-	/// Gets __first__ mount point fetchable by @a mount_point
+	/// Returns the first mount point according to @a mount_point or NULL.
 	MountPoint*			find_mount_point(const char* mount_point);				
 
 	// Disable copying

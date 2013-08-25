@@ -181,8 +181,6 @@ private:
 	DiskMountPoint			m_root_mountpoint;
 	#endif
 
-	// TODO set default StringSetting for default_mountpoint
-
 private:
 
 	enum

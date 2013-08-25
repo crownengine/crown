@@ -99,12 +99,6 @@ Device::Device() :
 {
 	// Select executable dir by default
 	string::strncpy(m_preferred_root_path, os::get_cwd(), MAX_PATH_LENGTH);
-
-	#ifdef ANDROID
-	m_root_mountpoint = AndroidMountPoint();
-	#else
-	m_root_mountpoint = DiskMountPoint();
-	#endif
 }
 
 //-----------------------------------------------------------------------------

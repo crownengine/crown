@@ -521,7 +521,7 @@ add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 
 if (CROWN_BUILD_TESTS)
-	#add_subdirectory(tests)
+	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
 install (TARGETS crown DESTINATION bin)

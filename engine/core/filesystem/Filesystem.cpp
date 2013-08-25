@@ -42,7 +42,6 @@ namespace crown
 Filesystem::Filesystem() :
 	m_mount_point_head(NULL)
 {
-
 }
 
 //-----------------------------------------------------------------------------
@@ -169,6 +168,4 @@ MountPoint*	Filesystem::find_mount_point(const char* mount_point)
 	return NULL;
 }
 
-
 } // namespace crown
-

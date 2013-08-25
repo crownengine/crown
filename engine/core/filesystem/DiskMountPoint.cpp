@@ -53,6 +53,7 @@ void DiskMountPoint::close(File* file)
 	CE_DELETE(default_allocator(), file);
 }
 
+//-----------------------------------------------------------------------------
 void DiskMountPoint::set_root_path(const char* root_path)
 {
 	CE_ASSERT(root_path != NULL, "Root path must be != NULL");
@@ -60,7 +61,6 @@ void DiskMountPoint::set_root_path(const char* root_path)
 
 	string::strncpy(m_root_path, root_path, MAX_PATH_LENGTH);
 }
-
 
 //-----------------------------------------------------------------------------
 const char*	DiskMountPoint::root_path() const
@@ -82,8 +82,6 @@ bool DiskMountPoint::get_info(const char* relative_path, MountPointEntry& info)
 	// (i.e. os_path is of the form: C:\foo\relative_path or /foo/relative_path)
 
 	const char* os_path = build_os_path(m_root_path, relative_path);
-
-	Log::d("path : %s", os_path);
 
 	string::strncpy(info.os_path, os_path, MAX_PATH_LENGTH);
 	string::strncpy(info.relative_path, relative_path, MAX_PATH_LENGTH);
