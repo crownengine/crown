@@ -49,6 +49,7 @@ ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap) :
 //-----------------------------------------------------------------------------
 LoadResourceId ResourceLoader::load_resource(ResourceId resource)
 {
+
 	m_requests_mutex.lock();
 
 	LoadResourceId lr_id = m_num_requests++;

@@ -78,6 +78,7 @@ def create_android_project(target, name, path)
 
 	engine_dest 	= path + "/jni"
 	android_dest	= path + "/src/crown/android"
+	assets_dest		= path + "/assets"
 
 	# Creates path if not exists
 	if not Dir.exists?(path)
@@ -99,6 +100,12 @@ def create_android_project(target, name, path)
 		FileUtils.mkdir_p(engine_dest)
 		print "Created directory " + engine_dest + "\n"
 	end
+
+	# if assets dir does not exists, create it!
+	if not Dir.exists?(assets_dest)
+		FileUtils.mkdir_p(assets_dest)
+		print "Created directory " + assets_dest + "\n"
+	end
 end
 
 #------------------------------------------------------------------------------
@@ -113,9 +120,11 @@ def fill_android_project(path)
 
 	# Copy luajit dir
 	FileUtils.cp_r($luajit, engine_dest, :remove_destination => true)
+	print "Copied luajit dir to " + engine_dest + "\n"
 
 	# Copy luajit lib
 	FileUtils.cp($luajit + "/lib/libluajit-5.1.so.2.0.2", engine_dest + "/libluajit-5.1.so")
+	print "Copied libluajit to " + engine_dest + "\n"
 
 	# Copy Java files
 	FileUtils.cp_r(Dir.glob($android_src), android_dest, :remove_destination => true)

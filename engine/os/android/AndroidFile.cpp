@@ -24,151 +24,128 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Filesystem.h"
+#include "AndroidFile.h"
 #include "Log.h"
-#include "OS.h"
-#include "DiskFile.h"
-#include "Memory.h"
-#include "Hash.h"
-#include "DiskMountPoint.h"
-#include "StringSetting.h"
-#include "MountPoint.h"
-
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Filesystem::Filesystem() :
-	m_mount_point_head(NULL)
-{
-
-}
-
-//-----------------------------------------------------------------------------
-Filesystem::~Filesystem()
+AndroidFile::AndroidFile(const char* path) :
+	File(FOM_READ),
+	m_file(path, FOM_READ),
+	m_last_was_read(true)
 {
 }
 
 //-----------------------------------------------------------------------------
-void Filesystem::mount(MountPoint& mp)
+void AndroidFile::seek(size_t position)
 {
-	if (m_mount_point_head != NULL)
+	check_valid();
+
+	m_file.seek(position);
+}
+
+//-----------------------------------------------------------------------------
+void AndroidFile::seek_to_end()
+{
+	check_valid();
+
+	m_file.seek_to_end();
+}
+
+//-----------------------------------------------------------------------------
+void AndroidFile::skip(size_t bytes)
+{
+	check_valid();
+
+	m_file.skip(bytes);
+}
+
+//-----------------------------------------------------------------------------
+void AndroidFile::read(void* buffer, size_t size)
+{
+	check_valid();
+
+	if (!m_last_was_read)
 	{
-		mp.m_next = m_mount_point_head; 
+		m_last_was_read = true;
+		m_file.seek(0);
 	}
 
-	m_mount_point_head = &mp;
+	size_t bytes_read = m_file.read(buffer, size);
+	CE_ASSERT(bytes_read == size, "Failed to read from file");
 }
 
 //-----------------------------------------------------------------------------
-void Filesystem::umount(MountPoint& mp)
+void AndroidFile::write(const void* /*buffer*/, size_t /*size*/)
 {
-	MountPoint* current = m_mount_point_head;
-	MountPoint* previous;
-	MountPoint* tmp;
-	(void)tmp;
-
-	if (&mp == current)
-	{	
-		tmp = current;
-
-		current = current->m_next;
-
-		tmp = NULL;
-
-		return;
-	}
-	else
-	{
-		previous = current;
-		current = current->m_next;
-
-		while (current != NULL && &mp != current)
-		{
-			previous = current;
-
-			current = current->m_next;
-		}
-
-		if (current != NULL)
-		{
-			tmp = current;
-
-			previous->m_next = current->m_next;
-
-			tmp = NULL;
-
-			return;
-		}
-	}
+	// Not needed
 }
 
 //-----------------------------------------------------------------------------
-File* Filesystem::open(const char* mount_point, const char* relative_path, FileOpenMode mode)
+bool AndroidFile::copy_to(File& /*file*/, size_t /*size = 0*/)
 {
-	MountPoint* mp = find_mount_point(mount_point);
-
-	if (mp)
-	{
-		return mp->open(relative_path, mode);
-	}
-
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-void Filesystem::close(File* file)
-{
-	CE_DELETE(m_allocator, file);
-}
-
-//-----------------------------------------------------------------------------
-bool Filesystem::exists(const char* mount_point, const char* relative_path)
-{
-	MountPoint* mp = find_mount_point(mount_point);
-
-	if (mp)
-	{
-		return mp->exists(relative_path);
-	}
-
+	// Not needed
 	return false;
 }
 
 //-----------------------------------------------------------------------------
-const char* Filesystem::os_path(const char* mount_point, const char* relative_path)
+void AndroidFile::flush()
 {
-	MountPoint* mp = find_mount_point(mount_point);
-
-	if (mp)
-	{
-		return mp->os_path(relative_path);
-	}
-
-	return NULL;
+	// Not needed
 }
 
 //-----------------------------------------------------------------------------
-MountPoint*	Filesystem::find_mount_point(const char* mount_point)
+bool AndroidFile::is_valid() const
 {
-	MountPoint* curr = m_mount_point_head;
-
-	uint32_t type_hash = hash::murmur2_32(mount_point, string::strlen(mount_point), 0);
-
-	while(curr != NULL)
-	{
-		if (curr->type() == type_hash)
-		{
-			return curr;
-		}
-
-		curr = curr->m_next;
-	}
-
-	return NULL;
+	return m_file.is_open();
 }
 
+//-----------------------------------------------------------------------------
+bool AndroidFile::end_of_file() const
+{
+	return position() == size();
+}
+
+//-----------------------------------------------------------------------------
+size_t AndroidFile::size() const
+{
+	check_valid();
+
+	return m_file.size();
+}
+
+//-----------------------------------------------------------------------------
+size_t AndroidFile::position() const
+{
+	check_valid();
+
+	return m_file.position();
+}
+
+//-----------------------------------------------------------------------------
+bool AndroidFile::can_read() const
+{
+	check_valid();
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+bool AndroidFile::can_write() const
+{
+	check_valid();
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+bool AndroidFile::can_seek() const
+{
+	check_valid();
+
+	return true;
+}
 
 } // namespace crown
-

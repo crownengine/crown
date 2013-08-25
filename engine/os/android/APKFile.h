@@ -35,14 +35,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+AAssetManager* get_android_asset_manager();
+
 /// Android assets wrapper
-class OsFile
+class APKFile
 {
 public:
 
 	/// Opens the file located at @a path with the given @a mode.
-							OsFile(const char* path, FileOpenMode mode);
-							~OsFile();
+							APKFile(const char* path, FileOpenMode mode);
+							~APKFile();
 
 	/// Closes the file.
 	void					close();
