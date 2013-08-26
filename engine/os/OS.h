@@ -112,6 +112,11 @@ void*			open_library(const char* path);
 void			close_library(void* library);
 void*			lookup_symbol(void* library, const char* name);
 
+//-----------------------------------------------------------------------------
+// Process execution
+//-----------------------------------------------------------------------------
+void			execute_process(const char* program, const char* params);
+
 } // namespace os
 
 //-----------------------------------------------------------------------------

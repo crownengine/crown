@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "OS.h"
 #include "StringUtils.h"
+#include "Assert.h"
 #include <cstdio>
 #include <cstdarg>
 #include <sys/stat.h>
@@ -37,6 +38,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <time.h>
 #include <pthread.h>
 #include <dlfcn.h>
+#include <sys/wait.h>
+
 
 namespace crown
 {
@@ -301,6 +304,27 @@ void* lookup_symbol(void* library, const char* name)
 
 	return symbol;
 }
+
+//-----------------------------------------------------------------------------
+void execute_process(const char* program, const char* params)
+{
+	int32_t ret;
+
+	pid_t pid = fork();
+	CE_ASSERT(pid != -1, "Unable to fork");
+
+	if (pid)
+	{
+		wait(&ret);
+	}
+	else
+	{
+		int32_t res = execlp(program, program, params, NULL);
+		CE_ASSERT(res != -1, "Unable to exec %s with error %d", program, res);
+		exit(EXIT_SUCCESS);
+	}
+}
+
 
 } // namespace os
 } // namespace crown
