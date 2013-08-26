@@ -167,7 +167,7 @@ inline List<T>::~List()
 template <typename T>
 inline T& List<T>::operator[](uint32_t index)
 {
-	//CE_ASSERT(index < m_size);
+	CE_ASSERT(index < m_size, "Index out of bounds");
 
 	return m_array[index];
 }
@@ -176,7 +176,7 @@ inline T& List<T>::operator[](uint32_t index)
 template <typename T>
 inline const T& List<T>::operator[](uint32_t index) const
 {
-	//CE_ASSERT(index < m_size);
+	CE_ASSERT(index < m_size, "Index out of bounds");
 
 	return m_array[index];
 }
@@ -243,7 +243,7 @@ inline void List<T>::set_capacity(uint32_t capacity)
 		T* tmp = m_array;
 		m_capacity = capacity;
 
-		m_array = (T*)m_allocator.allocate(capacity * sizeof(T));
+		m_array = (T*)m_allocator.allocate(capacity * sizeof(T), CE_ALIGNOF(T));
 
 		memcpy(m_array, tmp, m_size * sizeof(T));
 
@@ -334,7 +334,7 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 
 	if (m_capacity)
 	{
-		m_array = (T*)m_allocator.allocate(m_capacity * sizeof(T));
+		m_array = (T*)m_allocator.allocate(m_capacity * sizeof(T), CE_ALIGNOF(T));
 
 		memcpy(m_array, other.m_array, m_size * sizeof(T));
 	}
