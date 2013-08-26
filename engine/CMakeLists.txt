@@ -189,6 +189,7 @@ set (STRINGS_HEADERS
 	core/strings/StringUtils.h
 	core/strings/StringStream.h
 	core/strings/Hash.h
+	core/strings/DynamicString.h
 )
 
 set (MEM_SRC
