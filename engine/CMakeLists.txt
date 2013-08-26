@@ -56,6 +56,8 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/resource
 	${CMAKE_SOURCE_DIR}/engine/network
 	${CMAKE_SOURCE_DIR}/engine/lua
+	${CMAKE_SOURCE_DIR}/engine/compilers
+	${CMAKE_SOURCE_DIR}/engine/compilers/tga
 )
 
 set (SRC
@@ -288,6 +290,7 @@ set (RESOURCE_SRC
 set (RESOURCE_HEADERS
 	resource/MaterialResource.h
 	resource/Resource.h
+	resource/ResourceFormat.h
 	resource/ResourceLoader.h
 	resource/ResourceManager.h
 	resource/ResourceRegistry.h
@@ -309,7 +312,7 @@ set (OS_HEADERS
 	os/NetAddress.h
 )
 
-set(LUA_SRC
+set (LUA_SRC
 	lua/LuaStack.cpp
 	lua/LuaEnvironment.cpp
 	lua/LuaIntSetting.cpp
@@ -327,9 +330,19 @@ set(LUA_SRC
 	lua/LuaWindow.cpp
 )
 
-set(LUA_HEADERS
+set (LUA_HEADERS
 	lua/LuaStack.h
 	lua/LuaEnvironment.h
+)
+
+set (COMPILER_SRC
+	compilers/Compiler.cpp
+	compilers/tga/TGACompiler.cpp
+)
+
+set (COMPILER_HEADER
+	compilers/Compiler.h
+	compilers/tga/TGACompiler.h
 )
 
 set (CROWN_LIBRARIES)
@@ -477,6 +490,8 @@ set (CROWN_SOURCES
 	${OS_SRC}
 
 	${LUA_SRC}
+
+	${COMPILER_SRC}
 )
 
 set (CROWN_HEADERS
@@ -504,6 +519,8 @@ set (CROWN_HEADERS
 	${OS_HEADERS}
 
 	${LUA_HEADERS}
+
+	${COMPILER_HEADERS}
 )
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
@@ -521,7 +538,7 @@ add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 
 if (CROWN_BUILD_TESTS)
-	add_subdirectory(tests)
+	#add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
 install (TARGETS crown DESTINATION bin)

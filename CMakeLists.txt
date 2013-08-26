@@ -27,7 +27,7 @@ add_subdirectory(engine)
 
 # select optional projects to build
 if (CROWN_BUILD_TOOLS)
-	add_subdirectory(tools)
+	#add_subdirectory(tools)
 endif (CROWN_BUILD_TOOLS)
 
 if (CROWN_BUILD_SAMPLES)

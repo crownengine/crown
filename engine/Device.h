@@ -146,7 +146,10 @@ private:
 	int32_t					m_preferred_window_fullscreen;
 	uint32_t				m_parent_window_handle;
 	int32_t					m_preferred_mode;
-	char					m_preferred_root_path[MAX_PATH_LENGTH];
+	char					m_root_path[MAX_PATH_LENGTH];
+	char 					m_dest_path[MAX_PATH_LENGTH];
+	char					m_resource_path[MAX_PATH_LENGTH];
+	int32_t					m_compile;
 
 	int32_t					m_quit_after_init;
 

@@ -98,7 +98,7 @@ Device::Device() :
 	m_console_server(NULL)
 {
 	// Select executable dir by default
-	string::strncpy(m_preferred_root_path, os::get_cwd(), MAX_PATH_LENGTH);
+	string::strncpy(m_resource_path, os::get_cwd(), MAX_PATH_LENGTH);
 }
 
 //-----------------------------------------------------------------------------
@@ -120,6 +120,15 @@ bool Device::init(int argc, char** argv)
 
 	// Initialize
 	Log::i("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
+
+	if (m_compile == 1)
+	{
+		string::strncpy(m_resource_path, m_dest_path, MAX_PATH_LENGTH);
+	}
+	else
+	{
+		string::strncpy(m_resource_path, m_root_path, MAX_PATH_LENGTH);
+	}
 
 	create_filesystem();
 
@@ -386,7 +395,7 @@ void Device::create_filesystem()
 {
 	m_filesystem = CE_NEW(m_allocator, Filesystem)();
 
-	m_root_mountpoint.set_root_path(m_preferred_root_path);
+	m_root_mountpoint.set_root_path(m_resource_path);
 
 	m_filesystem->mount(m_root_mountpoint);
 
@@ -491,9 +500,11 @@ void Device::parse_command_line(int argc, char** argv)
 	{
 		{ "help",             AOA_NO_ARGUMENT,       NULL,        'i' },
 		{ "root-path",        AOA_REQUIRED_ARGUMENT, NULL,        'r' },
+		{ "dest-path",        AOA_REQUIRED_ARGUMENT, NULL,        'd' },
 		{ "width",            AOA_REQUIRED_ARGUMENT, NULL,        'w' },
 		{ "height",           AOA_REQUIRED_ARGUMENT, NULL,        'h' },
 		{ "fullscreen",       AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1 },
+		{ "compile",          AOA_NO_ARGUMENT,       &m_compile,   1 },
 		{ "parent-window",    AOA_REQUIRED_ARGUMENT, NULL,        'p' },
 		{ "dev",              AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT },
 		{ "quit-after-init",  AOA_NO_ARGUMENT,       &m_quit_after_init, 1 },
@@ -512,10 +523,15 @@ void Device::parse_command_line(int argc, char** argv)
 			{
 				break;
 			}
-			// Root path
 			case 'r':
 			{
-				string::strncpy(m_preferred_root_path, args.optarg(), MAX_PATH_LENGTH);
+				string::strncpy(m_root_path, args.optarg(), MAX_PATH_LENGTH);
+				break;
+			}
+			// Resource path
+			case 'd':
+			{
+				string::strncpy(m_dest_path, args.optarg(), MAX_PATH_LENGTH);
 				break;
 			}
 			// Window width
@@ -550,7 +566,7 @@ void Device::parse_command_line(int argc, char** argv)
 //-----------------------------------------------------------------------------
 void Device::check_preferred_settings()
 {
-	if (!os::is_absolute_path(m_preferred_root_path))
+	if (!os::is_absolute_path(m_resource_path))
 	{
 		Log::e("The root path must be absolute.");
 		exit(EXIT_FAILURE);
