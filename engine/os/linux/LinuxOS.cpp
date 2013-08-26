@@ -24,22 +24,21 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "Assert.h"
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <dirent.h>
+#include <dlfcn.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <unistd.h>
+
 #include "OS.h"
 #include "StringUtils.h"
-#include "Assert.h"
-#include <cstdio>
-#include <cstdarg>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <cstdlib>
-#include <sys/time.h>
-#include <time.h>
-#include <pthread.h>
-#include <dlfcn.h>
-#include <sys/wait.h>
-
 
 namespace crown
 {
@@ -218,29 +217,6 @@ const char* get_env(const char* env)
 
 	return envDevel;
 }
-
-////-----------------------------------------------------------------------------
-//bool ls(const char* path, List<Str>& fileList)
-//{
-//	DIR *dir;
-//	struct dirent *ent;
-
-//	dir = opendir(path);
-
-//	if (dir == NULL)
-//	{
-//		return false;
-//	}
-
-//	while ((ent = readdir (dir)) != NULL)
-//	{
-//		fileList.push_back(Str(ent->d_name));
-//	}
-
-//	closedir (dir);
-
-//	return true;
-//}
 
 //-----------------------------------------------------------------------------
 void init_os()

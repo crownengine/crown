@@ -29,26 +29,26 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "Types.h"
 #include "Assert.h"
-#include <cstring>
 
 namespace crown
 {
 
-/// Dynamic array of POD items.
+/// Dynamic array of objects.
 /// @note
-/// Does not call constructors/destructors so it is not very suitable for non-POD items.
+/// Calls constructors and destructors, not suitable for performance-critical stuff.
+/// If your data is POD, use List<T> instead.
 template <typename T>
-class List
+class Vector
 {
 public:
 
 	/// Does not allocate memory.
-						List(Allocator& allocator);
+						Vector(Allocator& allocator);
 
 	/// Allocates capacity * sizeof(T) bytes.
-						List(Allocator& allocator, uint32_t capacity);
-						List(const List<T>& list);
-						~List();
+						Vector(Allocator& allocator, uint32_t capacity);
+						Vector(const Vector<T>& vector);
+						~Vector();
 
 	/// Random access by index
 	T&					operator[](uint32_t index);
@@ -56,53 +56,53 @@ public:
 	/// Random access by index
 	const T&			operator[](uint32_t index) const;
 
-	/// Returns whether the list is empty
+	/// Returns whether the vector is empty
 	bool				empty() const;
 
-	/// Returns the number of items in the list
+	/// Returns the number of items in the vector
 	uint32_t			size() const;
 
 	/// Returns the maximum number of items the array can hold
 	uint32_t			capacity() const;
 
-	/// Resizes the list to the given @a size.
+	/// Resizes the vector to the given @a size.
 	/// @note
-	/// Old items will be copied to the newly created list.
+	/// Old items will be copied to the newly created vector.
 	/// If the new capacity is smaller than the previous one, the
-	/// list will be truncated.
+	/// vector will be truncated.
 	void				resize(uint32_t size);
 
-	/// Reserves space in the list for at least @a capacity items.
+	/// Reserves space in the vector for at least @a capacity items.
 	void				reserve(uint32_t capacity);
 
-	/// Sets the list capacity
+	/// Sets the vector capacity
 	void				set_capacity(uint32_t capacity);
 
-	/// Grows the list to contain at least @a min_capacity items
+	/// Grows the vector to contain at least @a min_capacity items
 	void				grow(uint32_t min_capacity);
 
 	/// Condenses the array so that the capacity matches the actual number
-	/// of items in the list.
+	/// of items in the vector.
 	void				condense();
 
-	/// Appends an item to the list and returns its index.
+	/// Appends an item to the vector and returns its index.
 	uint32_t			push_back(const T& item);
 
-	/// Removes the last item from the list.
+	/// Removes the last item from the vector.
 	void				pop_back();
 
-	/// Appends @a count @a items to the list and returns the number
-	/// of items in the list after the append operation.
+	/// Appends @a count @a items to the vector and returns the number
+	/// of items in the vector after the append operation.
 	uint32_t			push(const T* items, uint32_t count);
 
-	/// Clears the content of the list.
+	/// Clears the content of the vector.
 	/// @note
 	/// Does not free memory nor call destructors, it only zeroes
-	/// the number of items in the list for efficiency.
+	/// the number of items in the vector for efficiency.
 	void				clear();
 
-	/// Copies the content of the @a other list into this one.
-	const List<T>&		operator=(const List<T>& other);
+	/// Copies the content of the @a other vector into this one.
+	const Vector<T>&		operator=(const Vector<T>& other);
 
 	T*					begin();
 	const T*			begin() const;
@@ -124,14 +124,14 @@ private:
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline List<T>::List(Allocator& allocator)
+inline Vector<T>::Vector(Allocator& allocator)
 	: m_allocator(allocator), m_capacity(0), m_size(0), m_array(NULL)
 {
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline List<T>::List(Allocator& allocator, uint32_t capacity)
+inline Vector<T>::Vector(Allocator& allocator, uint32_t capacity)
 	: m_allocator(allocator), m_capacity(0), m_size(0), m_array(NULL)
 {
 	resize(capacity);
@@ -139,25 +139,29 @@ inline List<T>::List(Allocator& allocator, uint32_t capacity)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline List<T>::List(const List<T>& list)
+inline Vector<T>::Vector(const Vector<T>& vector)
 	: m_capacity(0), m_size(0), m_array(NULL)
 {
-	*this = list;
+	*this = vector;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline List<T>::~List()
+inline Vector<T>::~Vector()
 {
 	if (m_array)
 	{
+		for (uint32_t i = 0; i < m_size; i++)
+		{
+			m_array[i].~T();
+		}
 		m_allocator.deallocate(m_array);
 	}
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T& List<T>::operator[](uint32_t index)
+inline T& Vector<T>::operator[](uint32_t index)
 {
 	CE_ASSERT(index < m_size, "Index out of bounds");
 
@@ -166,7 +170,7 @@ inline T& List<T>::operator[](uint32_t index)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline const T& List<T>::operator[](uint32_t index) const
+inline const T& Vector<T>::operator[](uint32_t index) const
 {
 	CE_ASSERT(index < m_size, "Index out of bounds");
 
@@ -175,28 +179,28 @@ inline const T& List<T>::operator[](uint32_t index) const
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline bool List<T>::empty() const
+inline bool Vector<T>::empty() const
 {
 	return m_size == 0;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline uint32_t List<T>::size() const
+inline uint32_t Vector<T>::size() const
 {
 	return m_size;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline uint32_t List<T>::capacity() const
+inline uint32_t Vector<T>::capacity() const
 {
 	return m_capacity;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline void List<T>::resize(uint32_t size)
+inline void Vector<T>::resize(uint32_t size)
 {
 	if (size > m_capacity)
 	{
@@ -208,7 +212,7 @@ inline void List<T>::resize(uint32_t size)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline void List<T>::reserve(uint32_t capacity)
+inline void Vector<T>::reserve(uint32_t capacity)
 {
 	if (capacity > m_capacity)
 	{
@@ -218,7 +222,7 @@ inline void List<T>::reserve(uint32_t capacity)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline void List<T>::set_capacity(uint32_t capacity)
+inline void Vector<T>::set_capacity(uint32_t capacity)
 {
 	if (capacity == m_capacity)
 	{
@@ -235,12 +239,19 @@ inline void List<T>::set_capacity(uint32_t capacity)
 		T* tmp = m_array;
 		m_capacity = capacity;
 
-		m_array = (T*)m_allocator.allocate(capacity * sizeof(T), CE_ALIGNOF(T));
+		m_array = (T*)m_allocator.allocate(capacity * sizeof(T));
 
-		memcpy(m_array, tmp, m_size * sizeof(T));
+		for (uint32_t i = 0; i < m_size; i++)
+		{
+			new (m_array + i) T(tmp[i]);
+		}
 
 		if (tmp)
 		{
+			for (uint32_t i = 0; i < m_size; i++)
+			{
+				tmp[i].~T();
+			}
 			m_allocator.deallocate(tmp);
 		}
 	}
@@ -248,7 +259,7 @@ inline void List<T>::set_capacity(uint32_t capacity)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline void List<T>::grow(uint32_t min_capacity)
+inline void Vector<T>::grow(uint32_t min_capacity)
 {
 	uint32_t new_capacity = m_capacity * 2 + 1;
 
@@ -262,44 +273,49 @@ inline void List<T>::grow(uint32_t min_capacity)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline void List<T>::condense()
+inline void Vector<T>::condense()
 {
 	resize(m_size);
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline uint32_t List<T>::push_back(const T& item)
+inline uint32_t Vector<T>::push_back(const T& item)
 {
 	if (m_capacity == m_size)
 	{
 		grow(0);
 	}
 
-	m_array[m_size] = item;
+	new (m_array + m_size) T(item);
 
-	return 	m_size++;
+	return m_size++;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline void List<T>::pop_back()
+inline void Vector<T>::pop_back()
 {
-	CE_ASSERT(m_size > 0, "The list is empty");
+	CE_ASSERT(m_size > 0, "The vector is empty");
 
 	m_size--;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline uint32_t List<T>::push(const T* items, uint32_t count)
+inline uint32_t Vector<T>::push(const T* items, uint32_t count)
 {
 	if (m_capacity <= m_size + count)
 	{
 		grow(m_size + count);
 	}
 
-	memcpy(&m_array[m_size], items, sizeof(T) * count);
+	T* arr = &m_array[m_size];
+	for (uint32_t i = 0; i < count; i++)
+	{
+		arr[i] = items[i];
+	}
+
 	m_size += count;
 
 	return m_size;
@@ -307,14 +323,19 @@ inline uint32_t List<T>::push(const T* items, uint32_t count)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline void List<T>::clear()
+inline void Vector<T>::clear()
 {
+	for (uint32_t i = 0; i < m_size; i++)
+	{
+		m_array[i].~T();
+	}
+
 	m_size = 0;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline const List<T>& List<T>::operator=(const List<T>& other)
+inline const Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 {
 	if (m_array)
 	{
@@ -326,9 +347,12 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 
 	if (m_capacity)
 	{
-		m_array = (T*)m_allocator.allocate(m_capacity * sizeof(T), CE_ALIGNOF(T));
+		m_array = (T*)m_allocator.allocate(m_capacity * sizeof(T));
 
-		memcpy(m_array, other.m_array, m_size * sizeof(T));
+		for (uint32_t i = 0; i < m_size; i++)
+		{
+			m_array[i] = other.m_array[i];
+		}
 	}
 
 	return *this;
@@ -336,64 +360,64 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline const T* List<T>::begin() const
+inline const T* Vector<T>::begin() const
 {
 	return m_array;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T* List<T>::begin()
+inline T* Vector<T>::begin()
 {
 	return m_array;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline const T* List<T>::end() const
+inline const T* Vector<T>::end() const
 {
 	return m_array + m_size;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T* List<T>::end()
+inline T* Vector<T>::end()
 {
 	return m_array + m_size;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T& List<T>::front()
+inline T& Vector<T>::front()
 {
-	CE_ASSERT(m_size > 0, "The list is empty");
+	CE_ASSERT(m_size > 0, "The vector is empty");
 
 	return m_array[0];
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline const T& List<T>::front() const
+inline const T& Vector<T>::front() const
 {
-	CE_ASSERT(m_size > 0, "The list is empty");
+	CE_ASSERT(m_size > 0, "The vector is empty");
 
 	return m_array[0];
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T& List<T>::back()
+inline T& Vector<T>::back()
 {
-	CE_ASSERT(m_size > 0, "The list is empty");
+	CE_ASSERT(m_size > 0, "The vector is empty");
 
 	return m_array[m_size - 1];
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline const T& List<T>::back() const
+inline const T& Vector<T>::back() const
 {
-	CE_ASSERT(m_size > 0, "The list is empty");
+	CE_ASSERT(m_size > 0, "The vector is empty");
 
 	return m_array[m_size - 1];
 }

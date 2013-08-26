@@ -112,6 +112,7 @@ set (CONTAINERS_HEADERS
 	core/containers/Map.h
 	core/containers/Generic.h
 	core/containers/List.h
+	core/containers/Vector.h
 	core/containers/RBTree.h
 	core/containers/IdTable.h
 )

@@ -89,8 +89,6 @@ const char*		get_cwd();						//! Fills ret with the path of the current working 
 const char*		get_home();						//! Fills ret with the path of the user home directory
 const char*		get_env(const char* env);		//! Returns the content of the 'env' environment variable or the empty string
 
-//bool			ls(const char* path, List<Str>& fileList);	//! Returns the list of filenames in a directory.
-
 //-----------------------------------------------------------------------------
 // Render window and input management
 //-----------------------------------------------------------------------------
