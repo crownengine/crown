@@ -124,31 +124,23 @@ private:
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline List<T>::List(Allocator& allocator) :
-	m_allocator(allocator),
-	m_capacity(0),
-	m_size(0),
-	m_array(NULL)
+inline List<T>::List(Allocator& allocator)
+	: m_allocator(allocator), m_capacity(0), m_size(0), m_array(NULL)
 {
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline List<T>::List(Allocator& allocator, uint32_t capacity) :
-	m_allocator(allocator),
-	m_capacity(0),
-	m_size(0),
-	m_array(NULL)
+inline List<T>::List(Allocator& allocator, uint32_t capacity)
+	: m_allocator(allocator), m_capacity(0), m_size(0), m_array(NULL)
 {
 	resize(capacity);
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline List<T>::List(const List<T>& list) :
-	m_capacity(0),
-	m_size(0),
-	m_array(NULL)
+inline List<T>::List(const List<T>& list)
+	: m_capacity(0), m_size(0), m_array(NULL)
 {
 	*this = list;
 }
