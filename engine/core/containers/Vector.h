@@ -47,7 +47,7 @@ public:
 
 	/// Allocates capacity * sizeof(T) bytes.
 						Vector(Allocator& allocator, uint32_t capacity);
-						Vector(const Vector<T>& vector);
+						Vector(const Vector<T>& other);
 						~Vector();
 
 	/// Random access by index
@@ -116,7 +116,7 @@ public:
 
 private:
 
-	Allocator&			m_allocator;
+	Allocator*			m_allocator;
 	uint32_t			m_capacity;
 	uint32_t			m_size;
 	T*					m_array;
@@ -139,10 +139,10 @@ inline Vector<T>::Vector(Allocator& allocator, uint32_t capacity)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline Vector<T>::Vector(const Vector<T>& vector)
-	: m_capacity(0), m_size(0), m_array(NULL)
+inline Vector<T>::Vector(const Vector<T>& other)
+	: m_allocator(other.m_allocator), m_capacity(0), m_size(0), m_array(NULL)
 {
-	*this = vector;
+	*this = other;
 }
 
 //-----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ inline Vector<T>::~Vector()
 		{
 			m_array[i].~T();
 		}
-		m_allocator.deallocate(m_array);
+		m_allocator->deallocate(m_array);
 	}
 }
 
@@ -239,7 +239,7 @@ inline void Vector<T>::set_capacity(uint32_t capacity)
 		T* tmp = m_array;
 		m_capacity = capacity;
 
-		m_array = (T*)m_allocator.allocate(capacity * sizeof(T));
+		m_array = (T*)m_allocator->allocate(capacity * sizeof(T));
 
 		for (uint32_t i = 0; i < m_size; i++)
 		{
@@ -252,7 +252,7 @@ inline void Vector<T>::set_capacity(uint32_t capacity)
 			{
 				tmp[i].~T();
 			}
-			m_allocator.deallocate(tmp);
+			m_allocator->deallocate(tmp);
 		}
 	}
 }
@@ -339,7 +339,7 @@ inline const Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 {
 	if (m_array)
 	{
-		m_allocator.deallocate(m_array);
+		m_allocator->deallocate(m_array);
 	}
 
 	m_size = other.m_size;
@@ -347,7 +347,7 @@ inline const Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 
 	if (m_capacity)
 	{
-		m_array = (T*)m_allocator.allocate(m_capacity * sizeof(T));
+		m_array = (T*)m_allocator->allocate(m_capacity * sizeof(T));
 
 		for (uint32_t i = 0; i < m_size; i++)
 		{
