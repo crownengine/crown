@@ -28,21 +28,37 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Resource.h"
+#include "Bundle.h"
+#include "Allocator.h"
 
 namespace crown
 {
-
-class Allocator;
-class Bundle;
 
 class FontResource
 {
 public:
 
-	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			unload(Allocator& allocator, void* resource);
-	static void			online(void* resource);
-	static void			offline(void* resource);
+	//-----------------------------------------------------------------------------
+	static void* load(Allocator& /*allocator*/, Bundle& /*bundle*/, ResourceId /*id*/)
+	{
+		return NULL;
+	}
+
+	//-----------------------------------------------------------------------------
+	static void online(void* resource)
+	{
+		(void)resource;
+	}
+
+	//-----------------------------------------------------------------------------
+	static void unload(Allocator& /*allocator*/, void* /*resource*/)
+	{
+	}
+
+	//-----------------------------------------------------------------------------
+	static void offline(void* /*resource*/)
+	{
+	}
 
 public:
 

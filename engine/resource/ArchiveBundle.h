@@ -64,19 +64,16 @@ public:
 					~ArchiveBundle();
 
 	/// @copydoc Bundle::open()
-	DiskFile*		open(ResourceId name);
+	File*			open(ResourceId name);
 
 	/// @copydoc Bundle::close()
-	void			close(DiskFile* resource);
+	void			close(File* resource);
 
 private:
 
 	HeapAllocator	m_allocator;
-
 	Filesystem&		m_filesystem;
-
-	DiskFile*		m_archive_file;
-
+	File*			m_archive_file;
 	uint32_t		m_entries_count;
 	ArchiveEntry*	m_entries;
 };

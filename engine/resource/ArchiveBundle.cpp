@@ -42,7 +42,7 @@ ArchiveBundle::ArchiveBundle(Filesystem& fs) :
 	m_entries(NULL)
 {
 	// FIXME Default archive name
-	m_archive_file = (DiskFile*)m_filesystem.open("disk", "archive.bin", FOM_READ);
+	m_archive_file = m_filesystem.open("disk", "archive.bin", FOM_READ);
 	
 	ArchiveHeader header;
 	
@@ -80,7 +80,7 @@ ArchiveBundle::~ArchiveBundle()
 }
 
 //-----------------------------------------------------------------------------
-DiskFile* ArchiveBundle::open(ResourceId name)
+File* ArchiveBundle::open(ResourceId name)
 {
 	// Search the resource in the archive
 	for (uint32_t i = 0; i < m_entries_count; i++)
@@ -90,7 +90,7 @@ DiskFile* ArchiveBundle::open(ResourceId name)
 			// If found, seek to the first byte of the resource data
 			m_archive_file->seek(m_entries[i].offset);
 
-			return (DiskFile*)m_archive_file;
+			return m_archive_file;
 		}
 	}
 
@@ -98,7 +98,7 @@ DiskFile* ArchiveBundle::open(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
-void ArchiveBundle::close(DiskFile* resource)
+void ArchiveBundle::close(File* resource)
 {
 	// Does nothing, the stream is automatically closed at exit.
 	(void)resource;

@@ -57,10 +57,10 @@ public:
 					~FileBundle();
 
 	/// @copydoc Bundle::open()
-	DiskFile*		open(ResourceId name);
+	File*			open(ResourceId name);
 
 	/// @copydoc Bundle::close()
-	void			close(DiskFile* resource);
+	void			close(File* resource);
 
 
 private:

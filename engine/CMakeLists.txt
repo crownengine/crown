@@ -271,14 +271,9 @@ set (RENDERERS_HEADERS
 )
 
 set (RESOURCE_SRC
-	resource/MaterialResource.cpp
 	resource/ResourceLoader.cpp
 	resource/ResourceManager.cpp
 	resource/ResourceRegistry.cpp
-	resource/TextureResource.cpp
-	resource/MeshResource.cpp
-	resource/FontResource.cpp
-	resource/SoundResource.cpp
 	resource/ArchiveBundle.cpp
 	resource/FileBundle.cpp
 )

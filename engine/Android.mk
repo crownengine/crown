@@ -86,14 +86,9 @@ LOCAL_SRC_FILES :=\
 \
 	resource/ArchiveBundle.cpp\
 	resource/FileBundle.cpp\
-	resource/FontResource.cpp\
-	resource/MaterialResource.cpp\
-	resource/MeshResource.cpp\
 	resource/ResourceLoader.cpp\
 	resource/ResourceManager.cpp\
 	resource/ResourceRegistry.cpp\
-	resource/TextureResource.cpp\
-	resource/SoundResource.cpp\
 \
 	lua/LuaStack.cpp\
 	lua/LuaEnvironment.cpp\
