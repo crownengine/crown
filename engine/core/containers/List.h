@@ -47,7 +47,7 @@ public:
 
 	/// Allocates capacity * sizeof(T) bytes.
 						List(Allocator& allocator, uint32_t capacity);
-						List(const List<T>& list);
+						List(const List<T>& other);
 						~List();
 
 	/// Random access by index
@@ -116,7 +116,7 @@ public:
 
 private:
 
-	Allocator&			m_allocator;
+	Allocator*			m_allocator;
 	uint32_t			m_capacity;
 	uint32_t			m_size;
 	T*					m_array;
@@ -125,24 +125,24 @@ private:
 //-----------------------------------------------------------------------------
 template <typename T>
 inline List<T>::List(Allocator& allocator)
-	: m_allocator(allocator), m_capacity(0), m_size(0), m_array(NULL)
+	: m_allocator(&allocator), m_capacity(0), m_size(0), m_array(NULL)
 {
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline List<T>::List(Allocator& allocator, uint32_t capacity)
-	: m_allocator(allocator), m_capacity(0), m_size(0), m_array(NULL)
+	: m_allocator(&allocator), m_capacity(0), m_size(0), m_array(NULL)
 {
 	resize(capacity);
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline List<T>::List(const List<T>& list)
-	: m_capacity(0), m_size(0), m_array(NULL)
+inline List<T>::List(const List<T>& other)
+	: m_allocator(other.m_allocator), m_capacity(0), m_size(0), m_array(NULL)
 {
-	*this = list;
+	*this = other;
 }
 
 //-----------------------------------------------------------------------------
@@ -151,7 +151,7 @@ inline List<T>::~List()
 {
 	if (m_array)
 	{
-		m_allocator.deallocate(m_array);
+		m_allocator->deallocate(m_array);
 	}
 }
 
@@ -235,13 +235,13 @@ inline void List<T>::set_capacity(uint32_t capacity)
 		T* tmp = m_array;
 		m_capacity = capacity;
 
-		m_array = (T*)m_allocator.allocate(capacity * sizeof(T), CE_ALIGNOF(T));
+		m_array = (T*)m_allocator->allocate(capacity * sizeof(T), CE_ALIGNOF(T));
 
 		memcpy(m_array, tmp, m_size * sizeof(T));
 
 		if (tmp)
 		{
-			m_allocator.deallocate(tmp);
+			m_allocator->deallocate(tmp);
 		}
 	}
 }
@@ -318,7 +318,7 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 {
 	if (m_array)
 	{
-		m_allocator.deallocate(m_array);
+		m_allocator->deallocate(m_array);
 	}
 
 	m_size = other.m_size;
@@ -326,7 +326,7 @@ inline const List<T>& List<T>::operator=(const List<T>& other)
 
 	if (m_capacity)
 	{
-		m_array = (T*)m_allocator.allocate(m_capacity * sizeof(T), CE_ALIGNOF(T));
+		m_array = (T*)m_allocator->allocate(m_capacity * sizeof(T), CE_ALIGNOF(T));
 
 		memcpy(m_array, other.m_array, m_size * sizeof(T));
 	}
