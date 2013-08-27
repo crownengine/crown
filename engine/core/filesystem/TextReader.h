@@ -36,7 +36,10 @@ class TextReader
 {
 public:
 
-						TextReader(File& file);
+	//-----------------------------------------------------------------------------
+	TextReader::TextReader(File& file) : m_file(file)
+	{
+	}
 
 	/// Reads characters from file and stores them as a C string
 	/// into string until (size-1) characters have been read or
@@ -46,11 +49,32 @@ public:
 	/// a valid character and therefore it is included in the string copied to string.
 	/// A null character is automatically appended in str after the characters read to
 	/// signal the end of the C string.
-	size_t				read_string(char* string, size_t size);
+	size_t TextReader::read_string(char* string, size_t size)
+	{
+		char current_char;
+		size_t bytes_read = 0;
+
+		while(!m_file.end_of_file() && bytes_read < size - 1)
+		{
+			m_file.read(&current_char, 1);
+			string[bytes_read] = current_char;
+
+			bytes_read++;
+
+			if (current_char == '\n')
+			{
+				break;
+			}
+		}
+
+		string[bytes_read] = '\0';
+
+		return bytes_read;
+	}
 
 private:
 
-	File&				m_file;
+	File& m_file;
 };
 
 } // namespace crown
