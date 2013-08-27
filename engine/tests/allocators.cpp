@@ -27,6 +27,6 @@ int main()
 	stack.allocate(12);
 	stack.allocate(5);
 
-	memory::dump(buffer, stack.allocated_size(), 4);
+	//memory::dump(buffer, stack.allocated_size(), 4);
 }
 
