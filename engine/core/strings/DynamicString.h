@@ -26,8 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <algorithm>
 #include <cstring>
 
+#include "Assert.h"
 #include "Allocator.h"
 #include "StringUtils.h"
 #include "List.h"
@@ -53,6 +55,26 @@ public:
 	DynamicString&		operator=(const DynamicString& s);
 	DynamicString&		operator=(const char* s);
 	DynamicString&		operator=(const char c);
+
+	bool				operator==(DynamicString& s);
+	bool				operator==(const char* s);
+
+	/// Removes the leading string @a s.
+	/// @note
+	/// The string must start with @a s.
+	void				strip_leading(const char* s);
+
+	/// Removes the trailing string @a s.
+	/// @note
+	/// The string must end with @a s.
+	void				strip_trailing(const char* s);
+
+	/// Returns whether the string starts with the given @a s string.
+	bool				starts_with(const char* s);
+
+	/// Returns wheterh the string ends with the given @æ s string.
+	bool				ends_with(const char* s);
+
 	///
 	const char*			c_str();
 
@@ -90,6 +112,8 @@ inline DynamicString& DynamicString::operator+=(const DynamicString& s)
 //-----------------------------------------------------------------------------
 inline DynamicString& DynamicString::operator+=(const char* s)
 {
+	CE_ASSERT_NOT_NULL(s);
+
 	m_string.push(s, string::strlen(s));
 
 	return *this;
@@ -114,6 +138,8 @@ inline DynamicString& DynamicString::operator=(const DynamicString& s)
 //-----------------------------------------------------------------------------
 inline DynamicString& DynamicString::operator=(const char* s)
 {
+	CE_ASSERT_NOT_NULL(s);
+
 	m_string.clear();
 
 	m_string.push(s, string::strlen(s));
@@ -129,6 +155,67 @@ inline DynamicString& DynamicString::operator=(const char c)
 	m_string.push_back(c);
 
 	return *this;
+}
+
+//-----------------------------------------------------------------------------
+inline bool DynamicString::operator==(DynamicString& s)
+{
+	return string::strcmp(c_str(), s.c_str()) == 0;
+}
+
+//-----------------------------------------------------------------------------
+inline bool DynamicString::operator==(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	return string::strcmp(c_str(), s) == 0;
+}
+
+//-----------------------------------------------------------------------------
+inline void DynamicString::strip_leading(const char* s)
+{
+	CE_ASSERT(starts_with(s), "String does not start with %s", s);
+
+	const size_t my_len = string::strlen(c_str());
+	const size_t s_len = string::strlen(s);
+
+	memmove(m_string.begin(), m_string.begin() + s_len, (my_len - s_len));
+	m_string.resize(my_len - s_len);
+}
+
+//-----------------------------------------------------------------------------
+inline void DynamicString::strip_trailing(const char* s)
+{
+	CE_ASSERT(ends_with(s), "String does not end with %s", s);
+
+	const size_t my_len = string::strlen(c_str());
+	const size_t s_len = string::strlen(s);
+
+	m_string.resize(my_len - s_len);
+}
+
+//-----------------------------------------------------------------------------
+inline bool DynamicString::starts_with(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	return string::strncmp(c_str(), s, string::strlen(s)) == 0;
+}
+
+//-----------------------------------------------------------------------------
+inline bool DynamicString::ends_with(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	const size_t my_len = string::strlen(c_str());
+	const size_t s_len = string::strlen(s);
+
+	if (my_len >= s_len)
+	{
+		return string::strncmp(m_string.begin() + (my_len - s_len), s, s_len) == 0;
+	}
+
+	return false;
 }
 
 //-----------------------------------------------------------------------------

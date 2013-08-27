@@ -1,6 +1,4 @@
-#include "DynamicString.h"
-#include "Log.h"
-#include "Allocator.h"
+#include "Crown.h"
 
 using namespace crown;
 
@@ -54,11 +52,30 @@ void plus_equal_test()
 	Log::i("%s", string.c_str());
 }
 
+//-----------------------------------------------------------------------------
+void starts_ends_with_test()
+{
+	TempAllocator1024 alloc;
+
+	DynamicString string(alloc, "lua/game.lua");
+
+	CE_ASSERT(string.starts_with("lua"), "FAIL");
+	CE_ASSERT(string.starts_with("lua/game.lua"), "FAIL");
+	CE_ASSERT(!string.starts_with("game"), "FAIL");
+	CE_ASSERT(!string.starts_with("lua/game.lua/foo"), "FAIL");
+
+	CE_ASSERT(string.ends_with(".lua"), "FAIL");
+	CE_ASSERT(string.ends_with("lua/game.lua"), "FAIL");
+	CE_ASSERT(!string.ends_with("foo"), "FAIL");
+	CE_ASSERT(!string.ends_with("lua/game.lua/"), "FAIL");
+}
+
 int main()
 {
 	creation_test();
 	equal_test();
 	plus_equal_test();
+	starts_ends_with_test();
 
 	return 0;
 }
