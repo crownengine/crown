@@ -37,7 +37,7 @@ class TextReader
 public:
 
 	//-----------------------------------------------------------------------------
-	TextReader::TextReader(File& file) : m_file(file)
+	TextReader(File& file) : m_file(file)
 	{
 	}
 
@@ -49,7 +49,7 @@ public:
 	/// a valid character and therefore it is included in the string copied to string.
 	/// A null character is automatically appended in str after the characters read to
 	/// signal the end of the C string.
-	size_t TextReader::read_string(char* string, size_t size)
+	size_t read_string(char* string, size_t size)
 	{
 		char current_char;
 		size_t bytes_read = 0;
