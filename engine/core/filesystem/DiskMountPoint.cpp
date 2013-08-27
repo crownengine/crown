@@ -86,12 +86,12 @@ bool DiskMountPoint::get_info(const char* relative_path, MountPointEntry& info)
 	string::strncpy(info.os_path, os_path, MAX_PATH_LENGTH);
 	string::strncpy(info.relative_path, relative_path, MAX_PATH_LENGTH);
 
-	if (os::is_reg(os_path))
+	if (os::is_file(os_path))
 	{
 		info.type = MountPointEntry::FILE;
 		return true;
 	}
-	else if (os::is_dir(os_path))
+	else if (os::is_directory(os_path))
 	{
 		info.type = MountPointEntry::DIRECTORY;
 		return true;
@@ -133,7 +133,7 @@ bool DiskMountPoint::create_file(const char* relative_path)
 {
 	const char* os_path = build_os_path(m_root_path, relative_path);
 
-	return os::mknod(os_path);
+	return os::create_file(os_path);
 }
 
 //-----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ bool DiskMountPoint::create_dir(const char* relative_path)
 {
 	const char* os_path = build_os_path(m_root_path, relative_path);
 
-	return os::mkdir(os_path);
+	return os::create_directory(os_path);
 }
 
 //-----------------------------------------------------------------------------
@@ -149,7 +149,7 @@ bool DiskMountPoint::delete_file(const char* relative_path)
 {
 	const char* os_path = build_os_path(m_root_path, relative_path);
 
-	return os::unlink(os_path);
+	return os::delete_file(os_path);
 }
 
 //-----------------------------------------------------------------------------
@@ -157,7 +157,7 @@ bool DiskMountPoint::delete_dir(const char* relative_path)
 {
 	const char* os_path = build_os_path(m_root_path, relative_path);
 
-	return os::rmdir(os_path);
+	return os::delete_directory(os_path);
 }
 
 //-----------------------------------------------------------------------------
