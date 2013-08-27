@@ -119,7 +119,7 @@ File* Filesystem::open(const char* mount_point, const char* relative_path, FileO
 //-----------------------------------------------------------------------------
 void Filesystem::close(File* file)
 {
-	CE_DELETE(m_allocator, file);
+	CE_DELETE(default_allocator(), file);
 }
 
 //-----------------------------------------------------------------------------

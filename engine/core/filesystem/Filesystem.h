@@ -119,12 +119,8 @@ private:
 		
 private:
 
-	HeapAllocator		m_allocator;
-
 	char				m_root_path[MAX_PATH_LENGTH];
-
 	MountPoint* 		m_mount_point_head;
-
 
 	friend class		Device;
 };
