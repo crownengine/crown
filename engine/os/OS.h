@@ -30,6 +30,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Config.h"
 #include "Types.h"
+#include "Vector.h"
+#include "DynamicString.h"
 
 namespace crown
 {
@@ -81,6 +83,12 @@ bool			mknod(const char* path);		//! Creates a regular file. Returns true if suc
 bool			unlink(const char* path);		//! Deletes a regular file. Returns true if success, false if not
 bool			mkdir(const char* path);		//! Creates a directory. Returns true if success, false if not
 bool			rmdir(const char* path);		//! Deletes a directory. Returns true if success, false if not
+
+/// Returns the list of @a files in the given @a dir directory. Optionally walks into
+/// subdirectories whether @a recursive is true.
+/// @note
+/// Does not follow symbolic links.
+void			list_files(const char* path, bool recursive, Vector<DynamicString>& files);
 
 //-----------------------------------------------------------------------------
 // OS ambient variables

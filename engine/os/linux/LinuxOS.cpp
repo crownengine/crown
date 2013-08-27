@@ -39,6 +39,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "OS.h"
 #include "StringUtils.h"
+#include "TempAllocator.h"
 
 namespace crown
 {
@@ -176,6 +177,40 @@ bool mkdir(const char* path)
 bool rmdir(const char* path)
 {
 	return (::rmdir(path) == 0);
+}
+
+//-----------------------------------------------------------------------------
+void list_files(const char* path, bool recursive, Vector<DynamicString>& files)
+{
+	DIR *dir;
+	struct dirent *entry;
+
+	if (!(dir = opendir(path)))
+	{
+		return;
+	}
+
+	while ((entry = readdir(dir)))
+	{
+		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+		{
+			continue;
+		}
+
+		DynamicString filename(default_allocator());
+
+		filename += path;
+		filename += PATH_SEPARATOR;
+		filename += entry->d_name;
+		files.push_back(filename);
+
+		if (entry->d_type == DT_DIR && recursive)
+		{
+			list_files(filename.c_str(), recursive, files);
+		}
+	}
+
+	closedir(dir);
 }
 
 //-----------------------------------------------------------------------------
