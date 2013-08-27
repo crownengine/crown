@@ -125,14 +125,14 @@ private:
 //-----------------------------------------------------------------------------
 template <typename T>
 inline Vector<T>::Vector(Allocator& allocator)
-	: m_allocator(allocator), m_capacity(0), m_size(0), m_array(NULL)
+	: m_allocator(&allocator), m_capacity(0), m_size(0), m_array(NULL)
 {
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline Vector<T>::Vector(Allocator& allocator, uint32_t capacity)
-	: m_allocator(allocator), m_capacity(0), m_size(0), m_array(NULL)
+	: m_allocator(&allocator), m_capacity(0), m_size(0), m_array(NULL)
 {
 	resize(capacity);
 }
