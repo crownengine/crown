@@ -136,7 +136,7 @@ bool exists(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool is_dir(const char* path)
+bool is_directory(const char* path)
 {
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
@@ -145,7 +145,7 @@ bool is_dir(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool is_reg(const char* path)
+bool is_file(const char* path)
 {
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
@@ -154,27 +154,27 @@ bool is_reg(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool mknod(const char* path)
+bool create_file(const char* path)
 {
 	// Permission mask: rw-r--r--
 	return ::mknod(path, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 0) == 0;
 }
 
 //-----------------------------------------------------------------------------
-bool unlink(const char* path)
+bool delete_file(const char* path)
 {
 	return (::unlink(path) == 0);
 }
 
 //-----------------------------------------------------------------------------
-bool mkdir(const char* path)
+bool create_directory(const char* path)
 {
 	// rwxr-xr-x permission mask
 	return (::mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0);
 }
 
 //-----------------------------------------------------------------------------
-bool rmdir(const char* path)
+bool delete_directory(const char* path)
 {
 	return (::rmdir(path) == 0);
 }

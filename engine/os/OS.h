@@ -74,15 +74,27 @@ bool			is_absolute_path(const char* path);
 //-----------------------------------------------------------------------------
 // File management
 //-----------------------------------------------------------------------------
-bool			exists(const char* path);		//!< Returns whether the path is a file or directory on the disk
 
-bool			is_dir(const char* path);		//!< Returns whether the path is a directory. (May not resolve symlinks.)
-bool			is_reg(const char* path);		//!< Returns whether the path is a regular file. (May not resolve symlinks.)
+/// Returns whether the path is a file or directory on the disk
+bool			exists(const char* path);
 
-bool			mknod(const char* path);		//! Creates a regular file. Returns true if success, false if not
-bool			unlink(const char* path);		//! Deletes a regular file. Returns true if success, false if not
-bool			mkdir(const char* path);		//! Creates a directory. Returns true if success, false if not
-bool			rmdir(const char* path);		//! Deletes a directory. Returns true if success, false if not
+/// Returns whether the path is a directory. (May not resolve symlinks.)
+bool			is_directory(const char* path);
+
+/// Returns whether the path is a regular file. (May not resolve symlinks.)
+bool			is_file(const char* path);
+
+/// Creates a regular file. Returns true if success, false if not
+bool			create_file(const char* path);
+
+/// Deletes a regular file. Returns true if success, false if not
+bool			delete_file(const char* path);
+
+/// Creates a directory. Returns true if success, false if not
+bool			create_directory(const char* path);
+
+/// Deletes a directory. Returns true if success, false if not
+bool			delete_directory(const char* path);
 
 /// Returns the list of @a files in the given @a dir directory. Optionally walks into
 /// subdirectories whether @a recursive is true.
@@ -93,9 +105,15 @@ void			list_files(const char* path, bool recursive, Vector<DynamicString>& files
 //-----------------------------------------------------------------------------
 // OS ambient variables
 //-----------------------------------------------------------------------------
-const char*		get_cwd();						//! Fills ret with the path of the current working directory. Returns true if success, false if not 
-const char*		get_home();						//! Fills ret with the path of the user home directory
-const char*		get_env(const char* env);		//! Returns the content of the 'env' environment variable or the empty string
+
+/// Fills ret with the path of the current working directory. Returns true if success, false if not 
+const char*		get_cwd();
+
+/// Fills ret with the path of the user home directory
+const char*		get_home();
+
+/// Returns the content of the 'env' environment variable or the empty string
+const char*		get_env(const char* env);
 
 //-----------------------------------------------------------------------------
 // Render window and input management

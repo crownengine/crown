@@ -129,7 +129,7 @@ bool exists(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool is_dir(const char* path)
+bool is_direcotry(const char* path)
 {
 	DWORD fileAttr;
 	fileAttr = GetFileAttributes(path);
@@ -137,13 +137,13 @@ bool is_dir(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool is_reg(const char* path)
+bool is_file(const char* path)
 {
 	return !is_dir(path);
 }
 
 //-----------------------------------------------------------------------------
-bool mknod(const char* path)
+bool create_file(const char* path)
 {
 	HANDLE hFile = CreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
@@ -154,19 +154,19 @@ bool mknod(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool unlink(const char* path)
+bool delete_file(const char* path)
 {
 	return DeleteFile(path) == TRUE;
 }
 
 //-----------------------------------------------------------------------------
-bool mkdir(const char* path)
+bool create_directory(const char* path)
 {
 	return CreateDirectory(path, NULL) == TRUE;
 }
 
 //-----------------------------------------------------------------------------
-bool rmdir(const char* path)
+bool delete_directory(const char* path)
 {
 	return RemoveDirectory(path) == TRUE;
 }
