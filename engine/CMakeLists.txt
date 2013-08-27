@@ -150,12 +150,6 @@ set (MATH_HEADERS
 set (FILESYSTEM_SRC
 	core/filesystem/DiskFile.cpp
 	core/filesystem/File.cpp
-	
-	core/filesystem/BinaryReader.cpp
-	core/filesystem/BinaryWriter.cpp
-	core/filesystem/TextReader.cpp
-	core/filesystem/TextWriter.cpp
-
 	core/filesystem/DiskMountPoint.cpp
 	core/filesystem/Filesystem.cpp
 )

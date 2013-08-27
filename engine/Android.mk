@@ -24,13 +24,9 @@ LOCAL_SRC_FILES :=\
 	core/compressors/ZipCompressor.cpp\
 	core/containers/Generic.cpp\
 \
-	core/filesystem/BinaryReader.cpp\
-	core/filesystem/BinaryWriter.cpp\
 	core/filesystem/DiskFile.cpp\
 	core/filesystem/File.cpp\
 	core/filesystem/Filesystem.cpp\
-	core/filesystem/TextReader.cpp\
-	core/filesystem/TextWriter.cpp\
 	core/filesystem/DiskMountPoint.cpp\
 \
 	core/json/JSONParser.cpp\
