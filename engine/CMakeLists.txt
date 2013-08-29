@@ -411,8 +411,17 @@ if (LINUX)
 
 	if (CROWN_DEBUG)
 		list (APPEND COMPILER_FLAGS -g -pg)
-	elseif (CROWN_DEVELOPMENT OR CROWN_RELEASE)
+	elseif (CROWN_DEVELOPMENT)
 		list (APPEND COMPILER_FLAGS -O2)
+	elseif (CROWN_RELEASE)
+		list (APPEND COMPILER_FLAGS
+			-O2
+			-Wno-unused-variable
+			-Wno-unused-parameter
+			-Wno-maybe-uninitialized
+			-Wno-unused-but-set-variable
+			-Wno-unused-function
+		)
 	else ()
 		message (FATAL_ERROR "Oops, you should not be here")
 	endif (CROWN_DEBUG)
