@@ -100,7 +100,7 @@ bool			delete_directory(const char* path);
 /// subdirectories whether @a recursive is true.
 /// @note
 /// Does not follow symbolic links.
-void			list_files(const char* path, bool recursive, Vector<DynamicString>& files);
+void			list_files(const char* path, Vector<DynamicString>& files);
 
 //-----------------------------------------------------------------------------
 // OS ambient variables

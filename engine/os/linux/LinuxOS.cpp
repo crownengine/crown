@@ -180,7 +180,7 @@ bool delete_directory(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-void list_files(const char* path, bool recursive, Vector<DynamicString>& files)
+void list_files(const char* path, Vector<DynamicString>& files)
 {
 	DIR *dir;
 	struct dirent *entry;
@@ -199,15 +199,8 @@ void list_files(const char* path, bool recursive, Vector<DynamicString>& files)
 
 		DynamicString filename(default_allocator());
 
-		filename += path;
-		filename += PATH_SEPARATOR;
-		filename += entry->d_name;
+		filename = entry->d_name;
 		files.push_back(filename);
-
-		if (entry->d_type == DT_DIR && recursive)
-		{
-			list_files(filename.c_str(), recursive, files);
-		}
 	}
 
 	closedir(dir);
