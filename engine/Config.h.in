@@ -32,3 +32,5 @@ OTHER DEALINGS IN THE SOFTWARE.
 #cmakedefine WINDOWS
 
 #cmakedefine CROWN_DEBUG
+#cmakedefine CROWN_DEVELOPMENT
+#cmakedefine CROWN_RELEASE
