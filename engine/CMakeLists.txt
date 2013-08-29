@@ -272,8 +272,6 @@ set (RESOURCE_SRC
 	resource/ResourceLoader.cpp
 	resource/ResourceManager.cpp
 	resource/ResourceRegistry.cpp
-	resource/ArchiveBundle.cpp
-	resource/FileBundle.cpp
 )
 
 if (CROWN_DEBUG OR CROWN_DEVELOPMENT)
