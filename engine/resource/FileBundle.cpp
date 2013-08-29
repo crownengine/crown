@@ -91,13 +91,13 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-Bundle* create(Allocator& a, Filesystem& fs)
+Bundle* Bundle::create(Allocator& a, Filesystem& fs)
 {
 	return CE_NEW(a, FileBundle)(fs);
 }
 
 //-----------------------------------------------------------------------------
-void destroy(Allocator& a, Bundle* bundle)
+void Bundle::destroy(Allocator& a, Bundle* bundle)
 {
 	CE_DELETE(a, bundle);
 }
