@@ -577,10 +577,12 @@ bool JSONParser::parse_bool(const char* s)
 			ch = next(ch, 'e');
 			return false;
 		}
-		default: break;
+		default:
+		{
+			CE_ASSERT(false, "Bad boolean");
+			return false;
+		}
 	}
-
-	CE_ASSERT(false, "Bad boolean");
 }
 
 //-----------------------------------------------------------------------------
