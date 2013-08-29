@@ -276,6 +276,14 @@ set (RESOURCE_SRC
 	resource/FileBundle.cpp
 )
 
+if (CROWN_DEBUG OR CROWN_DEVELOPMENT)
+	list (APPEND RESOURCE_SRC resource/FileBundle.cpp)
+elseif (CROWN_RELEASE)
+	list (APPEND RESOURCE_SRC resource/ArchiveBundle.cpp)
+else ()
+	message (FATAL_ERROR "Oops, you should not be here")
+endif (CROWN_DEBUG OR CROWN_DEVELOPMENT)
+
 set (RESOURCE_HEADERS
 
 	resource/Resource.h
@@ -325,11 +333,13 @@ set (LUA_HEADERS
 
 set (COMPILER_SRC
 	compilers/Compiler.cpp
+	compilers/BundleCompiler.cpp
 	compilers/tga/TGACompiler.cpp
 )
 
 set (COMPILER_HEADER
 	compilers/Compiler.h
+	compilers/BundleCompiler.h
 	compilers/tga/TGACompiler.h
 )
 
@@ -397,13 +407,18 @@ if (LINUX)
 		-Werror
 		-Wno-long-long
 		-Wno-variadic-macros
-		-g
-		-pg
 		-fPIC
 		#-fvisibility=hidden
 	)
 
-	set (CROWN_EXECUTABLE_NAME crown-linux)
+	if (CROWN_DEBUG)
+		list (APPEND COMPILER_FLAGS -g -pg)
+	elseif (CROWN_DEVELOPMENT OR CROWN_RELEASE)
+		list (APPEND COMPILER_FLAGS -O2)
+	else ()
+		message (FATAL_ERROR "Oops, you should not be here")
+	endif (CROWN_DEBUG)
+
 	set (CROWN_MAIN_SRC os/linux/main.cpp)
 endif (LINUX)
 
@@ -450,8 +465,7 @@ if (WINDOWS)
 	)
 
 	set (COMPILER_FLAGS)
-	
-	set (CROWN_EXECUTABLE_NAME crown-win)
+
 	set (CROWN_MAIN_SRC os/win/main.cpp)
 endif(WINDOWS)
 
@@ -466,19 +480,12 @@ set (CROWN_SOURCES
 	${MEM_SRC}
 	${COMPRESSORS_SRC}
 	${SETTINGS_SRC}
-
 	${INPUT_SRC}
-
 	${RENDERERS_SRC}
-
 	${RESOURCE_SRC}
-
 #	${NETWORK_SRC}
-
 	${OS_SRC}
-
 	${LUA_SRC}
-
 	${COMPILER_SRC}
 )
 
@@ -493,21 +500,13 @@ set (CROWN_HEADERS
 	${MEM_HEADERS}
 	${COMPRESSORS_HEADERS}
 	${SETTINGS_HEADERS}
-
 	${INPUT_HEADERS}
-
 	${RENDERERS_HEADERS}
-
 	${RESOURCE_HEADERS}
-
 	${RPC_HEADERS}
-
 #	${NETWORK_HEADERS}
-
 	${OS_HEADERS}
-
 	${LUA_HEADERS}
-
 	${COMPILER_HEADERS}
 )
 
