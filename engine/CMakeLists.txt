@@ -148,24 +148,22 @@ set (MATH_HEADERS
 )
 
 set (FILESYSTEM_SRC
-	core/filesystem/DiskFile.cpp
 	core/filesystem/File.cpp
-	core/filesystem/DiskMountPoint.cpp
+	core/filesystem/DiskFile.cpp
+	core/filesystem/DiskFileSource.cpp
 	core/filesystem/Filesystem.cpp
 )
 
 set (FILESYSTEM_HEADERS
-	core/filesystem/DiskFile.h
-	core/filesystem/NullFile.h
 	core/filesystem/File.h
-
+	core/filesystem/NullFile.h
+	core/filesystem/DiskFile.h
+	core/filesystem/DiskFileSource.h
+	core/filesystem/Filesystem.h
 	core/filesystem/BinaryReader.h
 	core/filesystem/BinaryWriter.h
 	core/filesystem/TextReader.h
 	core/filesystem/TextWriter.h
-
-	core/filesystem/DiskMountPoint.h
-	core/filesystem/Filesystem.h
 )
 
 set (JSON_SRC
@@ -279,7 +277,7 @@ set (RESOURCE_SRC
 )
 
 set (RESOURCE_HEADERS
-	resource/MaterialResource.h
+
 	resource/Resource.h
 	resource/ResourceFormat.h
 	resource/ResourceLoader.h
@@ -290,8 +288,7 @@ set (RESOURCE_HEADERS
 	resource/MeshResource.h
 	resource/FontResource.h
 	resource/SoundResource.h
-	resource/ArchiveBundle.h
-	resource/FileBundle.h
+	resource/MaterialResource.h
 )
 
 set (OS_SRC
