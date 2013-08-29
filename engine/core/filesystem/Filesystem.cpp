@@ -25,22 +25,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Filesystem.h"
-#include "Log.h"
-#include "OS.h"
-#include "DiskFile.h"
-#include "Memory.h"
-#include "Hash.h"
-#include "DiskMountPoint.h"
-#include "StringSetting.h"
-#include "MountPoint.h"
-
+#include "FileSource.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Filesystem::Filesystem() :
-	m_mount_point_head(NULL)
+Filesystem::Filesystem(FileSource& source)
+	: m_source(&source)
 {
 }
 
@@ -50,122 +42,39 @@ Filesystem::~Filesystem()
 }
 
 //-----------------------------------------------------------------------------
-void Filesystem::mount(MountPoint& mp)
+File* Filesystem::open(const char* path, FileOpenMode mode)
 {
-	if (m_mount_point_head != NULL)
-	{
-		mp.m_next = m_mount_point_head; 
-	}
-
-	m_mount_point_head = &mp;
-}
-
-//-----------------------------------------------------------------------------
-void Filesystem::umount(MountPoint& mp)
-{
-	MountPoint* current = m_mount_point_head;
-	MountPoint* previous;
-	MountPoint* tmp;
-	(void)tmp;
-
-	if (&mp == current)
-	{	
-		tmp = current;
-
-		current = current->m_next;
-
-		tmp = NULL;
-
-		return;
-	}
-	else
-	{
-		previous = current;
-		current = current->m_next;
-
-		while (current != NULL && &mp != current)
-		{
-			previous = current;
-
-			current = current->m_next;
-		}
-
-		if (current != NULL)
-		{
-			tmp = current;
-
-			previous->m_next = current->m_next;
-
-			tmp = NULL;
-
-			return;
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-File* Filesystem::open(const char* mount_point, const char* relative_path, FileOpenMode mode)
-{
-	MountPoint* mp = find_mount_point(mount_point);
-
-	if (mp)
-	{
-		return mp->open(relative_path, mode);
-	}
-
-	return NULL;
+	return m_source->open(path, mode);
 }
 
 //-----------------------------------------------------------------------------
 void Filesystem::close(File* file)
 {
-	CE_DELETE(default_allocator(), file);
+	m_source->close(file);
 }
 
 //-----------------------------------------------------------------------------
-bool Filesystem::exists(const char* mount_point, const char* relative_path)
+void Filesystem::create_directory(const char* path)
 {
-	MountPoint* mp = find_mount_point(mount_point);
-
-	if (mp)
-	{
-		return mp->exists(relative_path);
-	}
-
-	return false;
+	m_source->create_directory(path);
 }
 
 //-----------------------------------------------------------------------------
-const char* Filesystem::os_path(const char* mount_point, const char* relative_path)
+void Filesystem::delete_directory(const char* path)
 {
-	MountPoint* mp = find_mount_point(mount_point);
-
-	if (mp)
-	{
-		return mp->os_path(relative_path);
-	}
-
-	return NULL;
+	m_source->delete_directory(path);
 }
 
 //-----------------------------------------------------------------------------
-MountPoint*	Filesystem::find_mount_point(const char* mount_point)
+void Filesystem::create_file(const char* path)
 {
-	MountPoint* curr = m_mount_point_head;
+	m_source->create_file(path);
+}
 
-	uint32_t type_hash = hash::murmur2_32(mount_point, string::strlen(mount_point), 0);
-
-	while(curr != NULL)
-	{
-		if (curr->type() == type_hash)
-		{
-			return curr;
-		}
-
-		curr = curr->m_next;
-	}
-
-	return NULL;
+//-----------------------------------------------------------------------------
+void Filesystem::delete_file(const char* path)
+{
+	m_source->delete_file(path);
 }
 
 } // namespace crown

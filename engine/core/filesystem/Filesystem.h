@@ -26,16 +26,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "StringUtils.h"
-#include "OS.h"
 #include "File.h"
-#include "HeapAllocator.h"
-#include "MountPoint.h"
 
 namespace crown
 {
 
-class File;
+class FileSource;
 
 /// Provides a platform-independent way to access files and directories
 /// on the host filesystem.
@@ -86,43 +82,26 @@ class Filesystem
 {
 public:
 
-						Filesystem();
+						Filesystem(FileSource& source);
 						~Filesystem();
 
-	/// Makes available mount point @a mp
-	void				mount(MountPoint& mp);
+	File*				open(const char* path, FileOpenMode mode);
+	void				close(File* file);
 
-	/// Makes unavailable mount point @a mp
-	void				umount(MountPoint& mp);
-
-	/// Opens the file @a relative_path with the specified access @a mode
-	/// contained in @a mount_point
-	File*				open(const char* mount_point, const char* relative_path, FileOpenMode mode);
-
-	/// Closes a previously opened file @a stream
-	void				close(File* stream);
-
-	/// Returns true if file @a relative_path exists in @a mount_point
-	bool				exists(const char* mount_point, const char* relative_path);
-
-	/// Returns path of file @a relative_path in @a mount_point
-	const char*			os_path(const char* mount_point, const char* relative_path);
-
+	void				create_directory(const char* path);
+	void				delete_directory(const char* path);
+	void				create_file(const char* path);
+	void				delete_file(const char* path);
+		
 private:
-	
-	/// Returns the first mount point according to @a mount_point or NULL.
-	MountPoint*			find_mount_point(const char* mount_point);				
+
+	FileSource*			m_source;
+
+private:			
 
 	// Disable copying
 						Filesystem(const Filesystem&);
 	Filesystem&			operator=(const Filesystem&);
-		
-private:
-
-	char				m_root_path[MAX_PATH_LENGTH];
-	MountPoint* 		m_mount_point_head;
-
-	friend class		Device;
 };
 
 } // namespace crown
