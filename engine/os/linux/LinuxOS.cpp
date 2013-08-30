@@ -310,21 +310,20 @@ void* lookup_symbol(void* library, const char* name)
 }
 
 //-----------------------------------------------------------------------------
-void execute_process(const char* program, const char* params)
+void execute_process(const char* args[])
 {
-	int32_t ret;
-
 	pid_t pid = fork();
 	CE_ASSERT(pid != -1, "Unable to fork");
 
 	if (pid)
 	{
-		wait(&ret);
+		int32_t dummy;
+		wait(&dummy);
 	}
 	else
 	{
-		int32_t res = execlp(program, program, params, NULL);
-		CE_ASSERT(res != -1, "Unable to exec %s with error %d", program, res);
+		int res = execv(args[0], (char* const*)args);
+		CE_ASSERT(res != -1, "Unable to exec '%s'. errno %d", args[0], res);
 		exit(EXIT_SUCCESS);
 	}
 }

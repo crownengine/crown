@@ -139,7 +139,13 @@ void*			lookup_symbol(void* library, const char* name);
 //-----------------------------------------------------------------------------
 // Process execution
 //-----------------------------------------------------------------------------
-void			execute_process(const char* program, const char* params);
+
+/// Executes a process.
+/// @a args is an array of arguments where:
+/// @a args[0] is the path to the program executable,
+/// @a args[1, 2, ..., n-1] is a list of arguments to pass to the executable,
+/// @a args[n] is NULL.
+void			execute_process(const char* args[]);
 
 } // namespace os
 
