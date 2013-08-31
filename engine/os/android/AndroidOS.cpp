@@ -30,8 +30,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdio>
 #include <cstdlib>
 #include <dirent.h>
+#include <dlfcn.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -172,6 +175,33 @@ bool delete_directory(const char* path)
 }
 
 //-----------------------------------------------------------------------------
+void list_files(const char* path, Vector<DynamicString>& files)
+{
+	DIR *dir;
+	struct dirent *entry;
+
+	if (!(dir = opendir(path)))
+	{
+		return;
+	}
+
+	while ((entry = readdir(dir)))
+	{
+		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+		{
+			continue;
+		}
+
+		DynamicString filename(default_allocator());
+
+		filename = entry->d_name;
+		files.push_back(filename);
+	}
+
+	closedir(dir);
+}
+
+//-----------------------------------------------------------------------------
 const char* get_cwd()
 {
 	static char cwdBuf[MAX_PATH_LENGTH];
@@ -235,6 +265,26 @@ uint64_t microseconds()
 	clock_gettime(CLOCK_MONOTONIC, &tmp);
 	return (tmp.tv_sec - base_time.tv_sec) * 1000000 + (tmp.tv_nsec - base_time.tv_nsec) / 1000;
 }
+
+//-----------------------------------------------------------------------------
+void execute_process(const char* args[])
+{
+	pid_t pid = fork();
+	CE_ASSERT(pid != -1, "Unable to fork");
+
+	if (pid)
+	{
+		int32_t dummy;
+		wait(&dummy);
+	}
+	else
+	{
+		int res = execv(args[0], (char* const*)args);
+		CE_ASSERT(res != -1, "Unable to exec '%s'. errno %d", args[0], res);
+		exit(EXIT_SUCCESS);
+	}
+}
+
 
 } // namespace os
 
