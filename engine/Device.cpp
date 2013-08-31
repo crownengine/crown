@@ -53,10 +53,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Bundle.h"
 
-#undef LINUX
-#undef WINDOWS
-#define ANDROID
-
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
 #endif
