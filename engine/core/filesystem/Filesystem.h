@@ -91,6 +91,12 @@ public:
 	/// Closes the given @a file.
 	virtual void		close(File* file) = 0;
 
+	/// Returns true if @a path is a directory.
+	virtual bool		is_directory(const char* path) = 0;
+
+	/// Returns true if @a path is a regular file.
+	virtual bool		is_file(const char* path) = 0;
+
 	/// Creates the directory at the given @a path.
 	virtual void		create_directory(const char* path) = 0;
 

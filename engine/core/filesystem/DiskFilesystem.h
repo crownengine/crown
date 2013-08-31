@@ -57,6 +57,12 @@ public:
 	/// Closes the given @a file.
 	void close(File* file);
 
+	/// Returns true if @a path is a directory.
+	bool is_directory(const char* path);
+
+	/// Returns true if @a path is a regular file.
+	bool is_file(const char* path);
+
 	/// Creates the directory at the given @a path.
 	void create_directory(const char* path);
 

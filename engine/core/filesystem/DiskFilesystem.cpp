@@ -68,6 +68,30 @@ void DiskFilesystem::close(File* file)
 }
 
 //-----------------------------------------------------------------------------
+bool DiskFilesystem::is_directory(const char* path)
+{
+	CE_ASSERT_NOT_NULL(path);
+
+	TempAllocator256 alloc;
+	DynamicString abs_path(alloc);
+	get_absolute_path(path, abs_path);
+
+	return os::is_directory(abs_path.c_str());
+}
+
+//-----------------------------------------------------------------------------
+bool DiskFilesystem::is_file(const char* path)
+{
+	CE_ASSERT_NOT_NULL(path);
+
+	TempAllocator256 alloc;
+	DynamicString abs_path(alloc);
+	get_absolute_path(path, abs_path);
+
+	return os::is_file(abs_path.c_str());
+}
+
+//-----------------------------------------------------------------------------
 void DiskFilesystem::create_directory(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
@@ -124,7 +148,7 @@ void DiskFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 	DynamicString abs_path(alloc);
 	get_absolute_path(path, abs_path);
 
-	os::list_files(path, files);
+	os::list_files(abs_path.c_str(), files);
 }
 
 //-----------------------------------------------------------------------------
