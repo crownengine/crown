@@ -42,10 +42,6 @@ TGACompiler::TGACompiler() :
 //-----------------------------------------------------------------------------
 TGACompiler::~TGACompiler()
 {
-	if (m_texture_data)
-	{
-		default_allocator().deallocate(m_texture_data);
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -141,6 +137,13 @@ void TGACompiler::write_impl(File* out_file)
 {
 	out_file->write((char*)&m_texture_header, sizeof(TextureHeader));
 	out_file->write((char*)m_texture_data, m_texture_data_size);
+
+	if (m_texture_data)
+	{
+		default_allocator().deallocate(m_texture_data);
+		m_texture_data_size = 0;
+		m_texture_data = NULL;
+	}
 }
 
 //-----------------------------------------------------------------------------

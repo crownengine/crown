@@ -60,6 +60,8 @@ public:
 		res->m_data = (uint8_t*) allocator.allocate(file_size);
 		file->read(res->m_data, file_size);
 
+		bundle.close(file);
+
 		return res;
 	}
 

@@ -123,6 +123,7 @@ bool Device::init(int argc, char** argv)
 			if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir))
 			{
 				CE_DELETE(m_allocator, m_bundle_compiler);
+				m_allocator.clear();
 				Log::e("Exiting.");
 				exit(EXIT_FAILURE);
 			}
@@ -130,6 +131,7 @@ bool Device::init(int argc, char** argv)
 			if (!m_continue)
 			{
 				CE_DELETE(m_allocator, m_bundle_compiler);
+				m_allocator.clear();
 				exit(EXIT_SUCCESS);
 			}
 		}
@@ -199,6 +201,7 @@ bool Device::init(int argc, char** argv)
 	m_resource_manager->flush();
 	m_lua_environment->load((LuaResource*) m_resource_manager->data(luagame_id));
 	m_lua_environment->call_global("init", 0);
+	m_resource_manager->unload(luagame_id);
 
 	if (m_quit_after_init == 1)
 	{
