@@ -172,10 +172,11 @@ bool Device::init(int argc, char** argv)
 
 	CE_ASSERT(m_window != NULL, "Unable to create the window");
 
+	// Create main window
 	m_window->set_title("Crown Game Engine");
-	m_window->show();
 	Log::d("Window created.");
 
+	// Create renderer
 	m_renderer = Renderer::create(m_allocator);
 	m_renderer->init();
 	Log::d("Renderer created.");
@@ -205,17 +206,16 @@ bool Device::init(int argc, char** argv)
 		shutdown();
 	}
 
+	// Show main window
+	m_window->show();
+
 	return true;
 }
 
 //-----------------------------------------------------------------------------
 void Device::shutdown()
 {
-	if (is_init() == false)
-	{
-		Log::e("Crown Engine is not initialized.");	
-		return;
-	}
+	CE_ASSERT(is_init(), "Engine is not initialized");
 
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);
