@@ -24,211 +24,19 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-
-#include "Device.h"
-#include "OS.h"
+#include <stdarg.h>
 #include "Assert.h"
-#include "Log.h"
 #include "LuaEnvironment.h"
-#include "StringSetting.h"
-#include "Filesystem.h"
+#include "StringUtils.h"
+#include "LuaStack.h"
+#include "Device.h"
+#include "LuaResource.h"
 
 namespace crown
 {
 
-extern StringSetting g_default_mountpoint;
-
-StringSetting g_boot("boot_file", "lua main file", "lua/game.raw");
-
-/*
-*N.B: Lua garbage collection is actually disabled
-*/
-
 //-----------------------------------------------------------------------------
-LuaEnvironment::LuaEnvironment() :
-	m_state(luaL_newstate()),
-	m_is_used(false)
-	//m_thread(LuaEnvironment::background_thread, (void*)this, "lua-environment-thread")
-{
-	// Open Lua default libraries
-	string::strncpy(m_error_buffer, "", 1024);
-
-	string::strncpy(m_tmp_buffer, "", 1024);
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::init()
-{
-	// Open default libraries
-	luaL_openlibs(m_state);
-	// Open Crown library
-	lua_cpcall(m_state, luaopen_libcrown, NULL);
-
-	load_buffer(class_system, string::strlen(class_system));
-	execute(0, 0);
-	load_buffer(commands_list, string::strlen(commands_list));
-	execute(0, 0);
-	load_buffer(get_cmd_by_name, string::strlen(get_cmd_by_name));
-	execute(0, 0);
-	load_buffer(tmp_print_table, string::strlen(tmp_print_table));
-	execute(0, 0);
-	load_buffer(count_all, string::strlen(count_all));
-	execute(0, 0);
-
-	m_is_used = true;
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::shutdown()
-{
-	lua_close(m_state);
-
-	m_is_used = false;
-}
-
-//-----------------------------------------------------------------------------
-lua_State* LuaEnvironment::state()
-{
-	return m_state;
-}
-
-//-----------------------------------------------------------------------------
-const char* LuaEnvironment::error()
-{	
-	string::strncpy(m_tmp_buffer, m_error_buffer, 1024);
-
-	string::strncpy(m_error_buffer, "", 1024);
-
-	return m_tmp_buffer;
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::load_buffer(const char* buffer, size_t len)
-{
-	int32_t loaded = luaL_loadbuffer(m_state, buffer, len, "");
-
-	if (loaded != 0)
-	{
-		lua_error();
-	}
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::load_file(const char* file)
-{
-	int32_t loaded = luaL_loadfile(m_state, file);
-
-	if (loaded != 0)
-	{
-		lua_error();
-	}
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::load_string(const char* str)
-{
-	int32_t loaded = luaL_loadstring(m_state, str);
-
-	if (loaded != 0)
-	{
-		lua_error();
-	}
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::get_global_symbol(const char* symbol)
-{
-	lua_getglobal(m_state, symbol);
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::execute(int32_t args, int32_t results)
-{
-	int32_t executed = lua_pcall(m_state, args, results, 0);
-
-	if (executed != 0)
-	{
-		lua_error();
-	}
-}
-
-// //-----------------------------------------------------------------------------
-// void LuaEnvironment::collect_garbage()
-// {
-// 	uint64_t start = os::milliseconds();
-
-// 	while ((os::milliseconds() - start) < device()->last_delta_time() && !m_is_used)
-// 	{
-// 		lua_gc(m_state, LUA_GCSTEP, 0);
-// 	}
-// }
-
-// //-----------------------------------------------------------------------------
-// void* LuaEnvironment::background_thread(void* thiz)
-// {
-// 	((LuaEnvironment*)thiz)->collect_garbage();	
-// }
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::game_init()
-{
-	const char* path = device()->filesystem()->os_path(g_default_mountpoint.value(), g_boot.value());
-
-	load_file(path);
-	execute(0, 0);
-
-	get_global_symbol("init");
-	execute(0, 0);
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::game_shutdown()
-{
-	get_global_symbol("shutdown");
-	execute(0, 0);
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::game_frame(float dt)
-{
-	LuaStack stack(m_state);
-	
-	get_global_symbol("frame");
-	stack.push_float(dt);
-	execute(1, 0);
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::lua_error()
-{
-	string::strncpy(m_error_buffer, "", 1024);
-
-	string::strncpy(m_error_buffer, lua_tostring(m_state, -1), 1024);
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::load_module_function(const char* module, const char* name, const lua_CFunction func)
-{
-	luaL_Reg entry[2];
-
-	entry[0].name = name;
-	entry[0].func = func;
-
-	entry[1].name = NULL;
-	entry[1].func = NULL;
-
-	luaL_register(m_state, module, entry);
-}
-
-//-----------------------------------------------------------
-void LuaEnvironment::load_module_enum(const char* /*module*/, const char* name, uint32_t value)
-{
-	lua_pushinteger(m_state, value);
-	lua_setfield(m_state, -2, name);
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int32_t luaopen_libcrown(lua_State* /*L*/)
+CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 {
 	LuaEnvironment* env = device()->lua_environment();
 
@@ -251,6 +59,136 @@ CE_EXPORT int32_t luaopen_libcrown(lua_State* /*L*/)
 	load_window(*env);
 
 	return 1;
+}
+
+//-----------------------------------------------------------------------------
+LuaEnvironment::LuaEnvironment() :
+	m_state(luaL_newstate()),
+	m_is_used(false)
+{
+	// Open Lua default libraries
+	string::strncpy(m_error_buffer, "", 1024);
+	string::strncpy(m_tmp_buffer, "", 1024);
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::init()
+{
+	// Open default libraries
+	luaL_openlibs(m_state);
+	// Open Crown library
+	lua_cpcall(m_state, luaopen_libcrown, NULL);
+
+	// load_buffer(class_system, string::strlen(class_system));
+	// execute(0, 0);
+	// load_buffer(commands_list, string::strlen(commands_list));
+	// execute(0, 0);
+	// load_buffer(get_cmd_by_name, string::strlen(get_cmd_by_name));
+	// execute(0, 0);
+	// load_buffer(tmp_print_table, string::strlen(tmp_print_table));
+	// execute(0, 0);
+	// load_buffer(count_all, string::strlen(count_all));
+	// execute(0, 0);
+
+	m_is_used = true;
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::shutdown()
+{
+	lua_close(m_state);
+
+	m_is_used = false;
+}
+
+//-----------------------------------------------------------------------------
+const char* LuaEnvironment::error()
+{	
+	string::strncpy(m_tmp_buffer, m_error_buffer, 1024);
+	string::strncpy(m_error_buffer, "", 1024);
+
+	return m_tmp_buffer;
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::load(const LuaResource* lr)
+{
+	CE_ASSERT_NOT_NULL(lr);
+
+	if (luaL_loadbuffer(m_state, (const char*) lr->code(), lr->size(), "") != 0)
+	{
+		lua_error();		
+	}
+
+	if (lua_pcall(m_state, 0, 0, 0) != 0)
+	{
+		lua_error();
+	}
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
+{
+	CE_ASSERT_NOT_NULL(func);
+
+	LuaStack stack(m_state);
+
+	va_list vl;
+	va_start(vl, argc);
+
+	lua_getglobal(m_state, func);
+
+	for (uint8_t i = 0; i < argc; i++)
+	{
+		const int type = va_arg(vl, int);
+		switch (type)
+		{
+			case ARGUMENT_FLOAT:
+			{
+				stack.push_float(va_arg(vl, double));
+				break;
+			}
+			default:
+			{
+				CE_ASSERT(false, "Oops, lua argument unknown");
+				break;
+			}
+		}
+	}
+
+	va_end(vl);
+
+	if (lua_pcall(m_state, argc, 0, 0) != 0)
+	{
+		lua_error();
+	}
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::lua_error()
+{
+	string::strncpy(m_error_buffer, "", 1024);
+	string::strncpy(m_error_buffer, lua_tostring(m_state, -1), 1024);
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::load_module_function(const char* module, const char* name, const lua_CFunction func)
+{
+	luaL_Reg entry[2];
+
+	entry[0].name = name;
+	entry[0].func = func;
+	entry[1].name = NULL;
+	entry[1].func = NULL;
+
+	luaL_register(m_state, module, entry);
+}
+
+//-----------------------------------------------------------
+void LuaEnvironment::load_module_enum(const char* /*module*/, const char* name, uint32_t value)
+{
+	lua_pushinteger(m_state, value);
+	lua_setfield(m_state, -2, name);
 }
 
 const char* LuaEnvironment::class_system =  "function class(klass, super) "
