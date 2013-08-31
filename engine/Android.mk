@@ -67,9 +67,8 @@ LOCAL_SRC_FILES :=\
 	os/android/AndroidOS.cpp\
 	os/android/AndroidDevice.cpp\
 	os/android/OsWindow.cpp\
-	os/android/APKFile.cpp\
-	os/android/AndroidFile.cpp\
-	os/android/AndroidMountPoint.cpp\
+	os/android/ApkFile.cpp\
+	od/android/ApkFilesystem.cpp\
 	os/posix/OsFile.cpp\
 	os/posix/Thread.cpp\
 	os/posix/Mutex.cpp\
