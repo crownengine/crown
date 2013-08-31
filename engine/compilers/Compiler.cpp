@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Compiler.h"
 #include "Filesystem.h"
-#include "DiskFileSource.h"
+#include "DiskFilesystem.h"
 #include "ResourceFormat.h"
 #include "File.h"
 
@@ -36,10 +36,8 @@ namespace crown
 //-----------------------------------------------------------------------------
 bool Compiler::compile(const char* root_path, const char* dest_path, const char* name_in, const char* name_out)
 {
-	DiskFileSource root_disk(root_path);
-	DiskFileSource dest_disk(dest_path);
-	Filesystem root_fs(root_disk);
-	Filesystem dest_fs(dest_disk);
+	DiskFilesystem root_fs(root_path);
+	DiskFilesystem dest_fs(dest_path);
 
 	// The compilation fails when returned size is zero
 	size_t resource_size = 0;
