@@ -82,7 +82,6 @@ LOCAL_SRC_FILES :=\
 	renderers/PixelFormat.cpp\
 	renderers/VertexFormat.cpp\
 \
-	#resource/ArchiveBundle.cpp\
 	resource/FileBundle.cpp\
 	resource/ResourceLoader.cpp\
 	resource/ResourceManager.cpp\
