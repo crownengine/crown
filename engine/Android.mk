@@ -91,7 +91,6 @@ LOCAL_SRC_FILES :=\
 	lua/LuaStack.cpp\
 	lua/LuaEnvironment.cpp\
 	lua/LuaAccelerometer.cpp\
-	lua/LuaCamera.cpp\
 	lua/LuaDevice.cpp\
 	lua/LuaKeyboard.cpp\
 	lua/LuaMat4.cpp\
