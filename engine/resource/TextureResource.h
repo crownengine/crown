@@ -57,7 +57,7 @@ public:
 	{
 		File* file = bundle.open(id);
 
-		CE_ASSERT(file != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
+		CE_ASSERT(file != NULL, "Resource does not exist: %.16llx", id.id);
 
 		TextureResource* resource = (TextureResource*)allocator.allocate(sizeof(TextureResource));
 

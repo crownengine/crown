@@ -41,14 +41,16 @@ struct ResourceEntry
 	bool operator==(const ResourceEntry& b) const { return id == b.id; }
 
 	ResourceId		id;
+	uint32_t		type;
 	uint32_t		references;
 	void*			resource;
 };
 
 struct PendingRequest
 {
-	ResourceId resource;
 	LoadResourceId id;
+	ResourceId resource;
+	uint32_t type;
 };
 
 class Bundle;
@@ -106,7 +108,7 @@ private:
 	void					poll_resource_loader();
 
 	// Loads the resource by name and type and returns its ResourceId.
-	ResourceId				load(ResourceId name);
+	ResourceId				load(uint32_t type, ResourceId name);
 	void					online(ResourceId name, void* resource);
 
 private:

@@ -61,7 +61,7 @@ public:
 	{
 		// Convert name/type into strings
 		char resource_name[512];
-		snprintf(resource_name, 512, "%.8X%.8X", name.name, name.type);
+		snprintf(resource_name, 512, "%.16llx", name.id);
 		
 		// Search the resource in the filesystem
 		// bool exists = m_filesystem.exists(resource_name);

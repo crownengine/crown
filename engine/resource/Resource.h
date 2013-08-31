@@ -53,10 +53,9 @@ const uint32_t SOUND_TYPE					= 0x8E128AA1;
 /// the index to the resource list where it is stored.
 struct ResourceId
 {
-	bool operator==(const ResourceId& b) const { return name == b.name && type == b.type; }
+	bool operator==(const ResourceId& b) const { return id == b.id; }
 
-	uint32_t		name;
-	uint32_t		type;
+	uint64_t id;
 };
 
 class Allocator;
