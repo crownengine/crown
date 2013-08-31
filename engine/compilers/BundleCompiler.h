@@ -28,6 +28,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "TGACompiler.h"
 #include "LuaCompiler.h"
+#include "DynamicString.h"
+#include "Vector.h"
+#include "DiskFilesystem.h"
 
 namespace crown
 {
@@ -36,9 +39,13 @@ class BundleCompiler
 {
 public:
 
-				BundleCompiler();
+	BundleCompiler();
 
-	bool		compile(const char* bundle_dir, const char* source_dir);
+	bool compile(const char* bundle_dir, const char* source_dir);
+
+private:
+
+	static void scan(const char* source_dir, const char* cur_dir, Vector<DynamicString>& files);
 
 private:
 

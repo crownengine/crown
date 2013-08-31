@@ -32,6 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "Resource.h"
 #include "Path.h"
+#include "DiskFilesystem.h"
+#include "TempAllocator.h"
 
 namespace crown
 {
@@ -44,9 +46,15 @@ BundleCompiler::BundleCompiler()
 //-----------------------------------------------------------------------------
 bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 {
-	// Get list of all files from source dir
 	Vector<DynamicString> files(default_allocator());
-	os::list_files(source_dir, files);
+	BundleCompiler::scan(source_dir, "", files);
+
+	// Create bundle dir if does not exist
+	DiskFilesystem temp;
+	if (!temp.is_directory(bundle_dir) || !temp.is_file(bundle_dir))
+	{
+		temp.create_directory(bundle_dir);
+	}
 
 	// Compile all resources
 	for (uint32_t i = 0; i < files.size(); i++)
@@ -63,7 +71,7 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 
 		char out_name[1024];
 		snprintf(out_name, 1024, "%.8X%.8X", resource_name_hash, resource_type_hash);
-		Log::i("%s <= %s\n", out_name, filename.c_str());
+		Log::i("%s <= %s", out_name, filename.c_str());
 
 		bool result = false;
 		if (resource_type_hash == TEXTURE_TYPE)
@@ -76,7 +84,8 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		}
 		else
 		{
-			continue;
+			Log::e("Oops, unknown resource type!");
+			return false;
 		}
 
 		if (!result)
@@ -86,6 +95,35 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 	}
 
 	return true;
+}
+
+void BundleCompiler::scan(const char* source_dir, const char* cur_dir, Vector<DynamicString>& files)
+{
+	Vector<DynamicString> my_files(default_allocator());
+
+	DiskFilesystem fs(source_dir);
+	fs.list_files(cur_dir, my_files);
+
+	for (uint32_t i = 0; i < my_files.size(); i++)
+	{
+		DynamicString file_i(default_allocator());
+
+		if (string::strcmp(cur_dir, "") != 0)
+		{
+			file_i += cur_dir;
+			file_i += '/';
+		}
+		file_i += my_files[i];
+
+		if (fs.is_directory(file_i.c_str()))
+		{
+			BundleCompiler::scan(source_dir, file_i.c_str(), files);
+		}
+		else // Assume a regular file
+		{
+			files.push_back(file_i);
+		}
+	}
 }
 
 } // namespace crown
