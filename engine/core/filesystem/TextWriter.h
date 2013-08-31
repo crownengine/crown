@@ -34,17 +34,23 @@ class TextWriter
 {
 public:
 
-						TextWriter(File& file);
-	
+	//-----------------------------------------------------------------------------
+	TextWriter(File& file) : m_file(file)
+	{
+	}
+
 	/// Writes the string pointed by string to the file.
 	/// The function begins copying from the address specified (string)
 	/// until it reaches the terminating null character ('\0').
 	/// The final null character is not copied to the file.
-	void				write_string(const char* string);
+	void write_string(const char* string)
+	{
+		m_file.write(string, string::strlen(string));
+	}
 
 private:
 
-	File&				m_file;
+	File& m_file;
 };
 
 } // namespace crown

@@ -60,7 +60,7 @@ static const char* gl_error_to_string(GLenum error)
 }
 
 //-----------------------------------------------------------------------------
-#ifdef CROWN_DEBUG
+#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
 	#define GL_CHECK(function)\
 		function;\
 		do { GLenum error; CE_ASSERT((error = glGetError()) == GL_NO_ERROR,\

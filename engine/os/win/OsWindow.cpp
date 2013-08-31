@@ -91,7 +91,7 @@ static Key translate_key(int32_t winKey)
 }
 
 //-----------------------------------------------------------------------------
-OsWindow::OsWindow(uint32_t width, uint32_t height) :
+OsWindow::OsWindow(uint32_t width, uint32_t height, uint32_t /*window*/) :
 	m_window_handle(NULL),
 	m_x(0),
 	m_y(0),

@@ -24,14 +24,9 @@ LOCAL_SRC_FILES :=\
 	core/compressors/ZipCompressor.cpp\
 	core/containers/Generic.cpp\
 \
-	core/filesystem/BinaryReader.cpp\
-	core/filesystem/BinaryWriter.cpp\
-	core/filesystem/DiskFile.cpp\
 	core/filesystem/File.cpp\
-	core/filesystem/Filesystem.cpp\
-	core/filesystem/TextReader.cpp\
-	core/filesystem/TextWriter.cpp\
-	core/filesystem/DiskMountPoint.cpp\
+	core/filesystem/DiskFile.cpp\
+	core/filesystem/DiskFilesystem.cpp\
 \
 	core/json/JSONParser.cpp\
 \
@@ -71,9 +66,8 @@ LOCAL_SRC_FILES :=\
 	os/android/AndroidOS.cpp\
 	os/android/AndroidDevice.cpp\
 	os/android/OsWindow.cpp\
-	os/android/APKFile.cpp\
-	os/android/AndroidFile.cpp\
-	os/android/AndroidMountPoint.cpp\
+	os/android/ApkFile.cpp\
+	os/android/ApkFilesystem.cpp\
 	os/posix/OsFile.cpp\
 	os/posix/Thread.cpp\
 	os/posix/Mutex.cpp\
@@ -90,19 +84,13 @@ LOCAL_SRC_FILES :=\
 	renderers/sles/SLESRenderer.cpp\
 \
 	resource/FileBundle.cpp\
-	resource/FontResource.cpp\
-	resource/MaterialResource.cpp\
-	resource/MeshResource.cpp\
 	resource/ResourceLoader.cpp\
 	resource/ResourceManager.cpp\
 	resource/ResourceRegistry.cpp\
-	resource/TextureResource.cpp\
-	resource/SoundResource.cpp\
 \
 	lua/LuaStack.cpp\
 	lua/LuaEnvironment.cpp\
 	lua/LuaAccelerometer.cpp\
-	lua/LuaCamera.cpp\
 	lua/LuaDevice.cpp\
 	lua/LuaKeyboard.cpp\
 	lua/LuaMat4.cpp\

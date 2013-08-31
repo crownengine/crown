@@ -24,84 +24,127 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "ArchiveBundle.h"
+#include "Bundle.h"
 #include "Filesystem.h"
-#include "Resource.h"
-#include "DiskFile.h"
+#include "HeapAllocator.h"
 #include "Log.h"
 #include "Memory.h"
+#include "Resource.h"
+#include "Types.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-ArchiveBundle::ArchiveBundle(Filesystem& fs) :
-	m_filesystem(fs),
-	m_archive_file(NULL),
-	m_entries_count(0),
-	m_entries(NULL)
+/// Structure of the archive
+///
+/// [ArchiveHeader]
+/// [ArchiveEntry]
+/// [ArchiveEntry]
+/// ...
+/// [ArchiveEntry]
+/// [ResourceData]
+/// [ResourceData]
+/// ...
+/// [ResourceData]
+///
+/// A valid archive must always have at least the archive header,
+/// starting at byte 0 of the archive file.
+///
+/// Newer archive versions must be totally backward compatible
+/// across minor engine releases, in order to be able to use
+/// recent version of the engine with older game archives.
+
+/// Source of resources
+class ArchiveBundle : public Bundle
 {
-	// FIXME Default archive name
-	m_archive_file = (DiskFile*)m_filesystem.open("disk", "archive.bin", FOM_READ);
-	
-	ArchiveHeader header;
-	
-	// Read the header of the archive
-	m_archive_file->read(&header, sizeof(ArchiveHeader));
-	
-	Log::d("Version: %d", header.version);
-	Log::d("Entries: %d", header.entries_count);
-	Log::d("Checksum: %d", header.checksum);
-	
-	// No need to initialize memory
-	m_entries = (ArchiveEntry*)m_allocator.allocate(header.entries_count * sizeof(ArchiveEntry));
+public:
 
-	m_entries_count = header.entries_count;
-
-	// Read the entries
-	m_archive_file->read(m_entries, m_entries_count * sizeof(ArchiveEntry));
-}
-
-//-----------------------------------------------------------------------------
-ArchiveBundle::~ArchiveBundle()
-{
-	if (m_archive_file != NULL)
+	//-----------------------------------------------------------------------------
+	ArchiveBundle(Filesystem& fs) :
+		m_filesystem(fs), m_archive_file(NULL), m_entries_count(0), m_entries(NULL)
 	{
-		m_filesystem.close(m_archive_file);
-	}
-	
-	if (m_entries != NULL)
-	{
-		m_allocator.deallocate(m_entries);
-	}
-	
-	m_entries = NULL;
-	m_entries_count = 0;
-}
+		// FIXME Default archive name
+		m_archive_file = m_filesystem.open( "archive.bin", FOM_READ);
+		
+		ArchiveHeader header;
+		
+		// Read the header of the archive
+		m_archive_file->read(&header, sizeof(ArchiveHeader));
+		
+		Log::d("Version: %d", header.version);
+		Log::d("Entries: %d", header.entries_count);
+		Log::d("Checksum: %d", header.checksum);
+		
+		// No need to initialize memory
+		m_entries = (ArchiveEntry*)m_allocator.allocate(header.entries_count * sizeof(ArchiveEntry));
 
-//-----------------------------------------------------------------------------
-DiskFile* ArchiveBundle::open(ResourceId name)
-{
-	// Search the resource in the archive
-	for (uint32_t i = 0; i < m_entries_count; i++)
-	{		
-		if (m_entries[i].name == name.name && m_entries[i].type == name.type)
+		m_entries_count = header.entries_count;
+
+		// Read the entries
+		m_archive_file->read(m_entries, m_entries_count * sizeof(ArchiveEntry));
+	}
+
+	//-----------------------------------------------------------------------------
+	~ArchiveBundle()
+	{
+		if (m_archive_file != NULL)
 		{
-			// If found, seek to the first byte of the resource data
-			m_archive_file->seek(m_entries[i].offset);
-
-			return (DiskFile*)m_archive_file;
+			m_filesystem.close(m_archive_file);
 		}
+		
+		if (m_entries != NULL)
+		{
+			m_allocator.deallocate(m_entries);
+		}
+		
+		m_entries = NULL;
+		m_entries_count = 0;
 	}
 
-	return NULL;
+	//-----------------------------------------------------------------------------
+	File* open(ResourceId name)
+	{
+		// Search the resource in the archive
+		for (uint32_t i = 0; i < m_entries_count; i++)
+		{		
+			if (m_entries[i].name == name.name && m_entries[i].type == name.type)
+			{
+				// If found, seek to the first byte of the resource data
+				m_archive_file->seek(m_entries[i].offset);
+
+				return m_archive_file;
+			}
+		}
+
+		return NULL;
+	}
+
+	//-----------------------------------------------------------------------------
+	void close(File* resource)
+	{
+		// Does nothing, the stream is automatically closed at exit.
+		(void)resource;
+	}
+
+private:
+
+	HeapAllocator	m_allocator;
+	Filesystem&		m_filesystem;
+	File*			m_archive_file;
+	uint32_t		m_entries_count;
+	ArchiveEntry*	m_entries;
+};
+
+//-----------------------------------------------------------------------------
+Bundle* Bundle::create(Allocator& a, Filesystem& fs)
+{
+	return CE_NEW(a, ArchiveBundle)(fs);
 }
 
 //-----------------------------------------------------------------------------
-void ArchiveBundle::close(DiskFile* resource)
+void Bundle::destroy(Allocator& a, Bundle* bundle)
 {
-	// Does nothing, the stream is automatically closed at exit.
-	(void)resource;
+	CE_DELETE(a, bundle);
 }
 
 } // namespace crown

@@ -36,20 +36,60 @@ class BinaryWriter
 {
 public:
 
-						BinaryWriter(File& file);
+	//-----------------------------------------------------------------------------
+	BinaryWriter(File& file) : m_file(file) {}
 
-	void				write_byte(int8_t);
-	void				write_int16(int16_t);
-	void				write_uint16(uint16_t);
-	void				write_int32(int32_t);
-	void				write_uint32(uint32_t);
-	void				write_int64(int64_t);
-	void				write_double(double);
-	void				write_float(float);
+	//-----------------------------------------------------------------------------
+	void write_byte(int8_t buffer)
+	{
+		m_file.write(&buffer, sizeof(int8_t));
+	}
+
+	//-----------------------------------------------------------------------------
+	void write_int16(int16_t buffer)
+	{
+		m_file.write(&buffer, sizeof(int16_t));
+	}
+
+	//-----------------------------------------------------------------------------
+	void write_uint16(uint16_t buffer)
+	{
+		m_file.write(&buffer, sizeof(uint16_t));
+	}
+
+	//-----------------------------------------------------------------------------
+	void write_int32(int32_t buffer)
+	{
+		m_file.write(&buffer, sizeof(int32_t));
+	}
+
+	//-----------------------------------------------------------------------------
+	void write_uint32(uint32_t buffer)
+	{
+		m_file.write(&buffer, sizeof(uint32_t));
+	}
+
+	//-----------------------------------------------------------------------------
+	void write_int64(int64_t buffer)
+	{
+		m_file.write(&buffer, sizeof(int64_t));
+	}
+
+	//-----------------------------------------------------------------------------
+	void write_double(double buffer)
+	{
+		m_file.write(&buffer, sizeof(double));
+	}
+
+	//-----------------------------------------------------------------------------
+	void write_float(float buffer)
+	{
+		m_file.write(&buffer, sizeof(float));
+	}
 
 private:
 
-	File&				m_file;
+	File& m_file;
 };
 
 } // namespace crown

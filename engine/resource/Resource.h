@@ -36,14 +36,14 @@ namespace crown
 /// Hashed values for supported resource types
 const char* const TEXTURE_EXTENSION			= "tga";
 const char* const MESH_EXTENSION			= "dae";
-const char* const SCRIPT_EXTENSION			= "lua";
+const char* const LUA_EXTENSION				= "lua";
 const char* const TEXT_EXTENSION			= "txt";
 const char* const MATERIAL_EXTENSION		= "material";
 const char* const SOUND_EXTENSION			= "sound";
 
 const uint32_t TEXTURE_TYPE					= 0x1410A16A;
 const uint32_t MESH_TYPE					= 0xE8239EEC;
-const uint32_t SCRIPT_TYPE					= 0xD96E7C37;
+const uint32_t LUA_TYPE						= 0xD96E7C37;
 const uint32_t TEXT_TYPE					= 0x9000BF0B;
 const uint32_t MATERIAL_TYPE				= 0x46807A92;
 const uint32_t SOUND_TYPE					= 0xD196AB6E;

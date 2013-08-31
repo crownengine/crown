@@ -264,7 +264,12 @@ bool JSONElement::has_key(const char* k) const
 
 	for (uint32_t i = 0; i < object.size(); i++)
 	{
-		if (string::strcmp(k, object[i].key) == 0)
+		TempAllocator256 key_alloc;
+		List<char> key(key_alloc);
+
+		JSONParser::parse_string(object[i].key, key);
+
+		if (string::strcmp(k, key.begin()) == 0)
 		{
 			return true;
 		}
@@ -284,7 +289,12 @@ bool JSONElement::is_key_unique(const char* k) const
 
 	for (uint32_t i = 0; i < object.size(); i++)
 	{
-		if (string::strcmp(k, object[i].key) == 0)
+		TempAllocator256 key_alloc;
+		List<char> key(key_alloc);
+
+		JSONParser::parse_string(object[i].key, key);
+
+		if (string::strcmp(k, key.begin()) == 0)
 		{
 			if (found == true)
 			{
@@ -567,10 +577,12 @@ bool JSONParser::parse_bool(const char* s)
 			ch = next(ch, 'e');
 			return false;
 		}
-		default: break;
+		default:
+		{
+			CE_ASSERT(false, "Bad boolean");
+			return false;
+		}
 	}
-
-	CE_ASSERT(false, "Bad boolean");
 }
 
 //-----------------------------------------------------------------------------

@@ -36,12 +36,12 @@ namespace crown
 static ANativeWindow* window = NULL;
 
 //-----------------------------------------------------------------------------
-OsWindow::OsWindow(uint32_t width, uint32_t height) :
+OsWindow::OsWindow(uint32_t /*width*/, uint32_t /*height*/, uint32_t /*parent*/) :
 	m_window(NULL),
-	m_width(0),
-	m_height(0),
 	m_x(0),
-	m_y(0)
+	m_y(0),
+	m_width(0),
+	m_height(0)
 {
 	m_window = window;
 
@@ -86,12 +86,12 @@ void OsWindow::get_position(uint32_t& x, uint32_t& y)
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::resize(uint32_t width, uint32_t height)
+void OsWindow::resize(uint32_t /*width*/, uint32_t /*height*/)
 {
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::move(uint32_t x, uint32_t y)
+void OsWindow::move(uint32_t /*x*/, uint32_t /*y*/)
 {
 }
 
@@ -106,12 +106,12 @@ void OsWindow::hide_cursor()
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::get_cursor_xy(int32_t& x, int32_t& y)
+void OsWindow::get_cursor_xy(int32_t& /*x*/, int32_t& /*y*/)
 {
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::set_cursor_xy(int32_t x, int32_t y)
+void OsWindow::set_cursor_xy(int32_t /*x*/, int32_t /*y*/)
 {
 }
 
@@ -122,18 +122,18 @@ char* OsWindow::title()
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::set_title(const char* title)
+void OsWindow::set_title(const char* /*title*/)
 {
 }
 
 //-----------------------------------------------------------------------------
 void OsWindow::frame()
 {
-	// implemented on Java-side
+	// Implemented Java-side
 }
 
 //-----------------------------------------------------------------------------
-extern "C" void Java_crown_android_CrownLib_setWindow(JNIEnv *env, jclass clazz, jobject surface)
+extern "C" void Java_crown_android_CrownLib_setWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
 {
     // obtain a native window from a Java surface
 	CE_ASSERT(surface != 0, "Unable to get Android window");

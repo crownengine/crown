@@ -33,6 +33,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Color4.h"
 #include "Material.h"
 #include "Texture.h"
+#include "Bundle.h"
+#include "Allocator.h"
 
 namespace crown
 {
@@ -41,8 +43,6 @@ namespace crown
 /// @note The maximum number of usable layers depends on the graphic card/Renderer config.
 const uint32_t MAX_TEXTURE_LAYERS = 8;
 
-class Bundle;
-class Allocator;
 
 /// A material describes the visual properties of a surface.
 /// It is primarly intended for rendering purposes but can
@@ -51,10 +51,30 @@ class MaterialResource
 {
 public:
 
-	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			unload(Allocator& allocator, void* resource);
-	static void			online(void* resource);
-	static void			offline(void* resource);
+	//-----------------------------------------------------------------------------
+	static void* load(Allocator& /*allocator*/, Bundle& /*bundle*/, ResourceId /*id*/)
+	{
+		return NULL;
+	}
+
+	//-----------------------------------------------------------------------------
+	static void online(void* material)
+	{
+		(void)material;
+		// TODO
+	}
+
+	//-----------------------------------------------------------------------------
+	static void unload(Allocator& /*allocator*/, void* /*material*/)
+	{
+		// TODO
+	}
+
+	//-----------------------------------------------------------------------------
+	static void offline(void* /*resource*/)
+	{
+		// TODO
+	}
 
 private:
 

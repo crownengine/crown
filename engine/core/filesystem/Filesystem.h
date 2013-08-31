@@ -26,16 +26,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "StringUtils.h"
-#include "OS.h"
 #include "File.h"
-#include "HeapAllocator.h"
-#include "MountPoint.h"
+#include "Vector.h"
+#include "DynamicString.h"
 
 namespace crown
 {
-
-class File;
 
 /// Provides a platform-independent way to access files and directories
 /// on the host filesystem.
@@ -86,48 +82,46 @@ class Filesystem
 {
 public:
 
-						Filesystem();
-						~Filesystem();
+						Filesystem() {};
+	virtual				~Filesystem() {};
 
-	/// Makes available mount point @a mp
-	void				mount(MountPoint& mp);
+	/// Opens the file at the given @a path with the given @a mode.
+	virtual File*		open(const char* path, FileOpenMode mode) = 0;
 
-	/// Makes unavailable mount point @a mp
-	void				umount(MountPoint& mp);
+	/// Closes the given @a file.
+	virtual void		close(File* file) = 0;
 
-	/// Opens the file @a relative_path with the specified access @a mode
-	/// contained in @a mount_point
-	File*				open(const char* mount_point, const char* relative_path, FileOpenMode mode);
+	/// Returns true if @a path is a directory.
+	virtual bool		is_directory(const char* path) = 0;
 
-	/// Closes a previously opened file @a stream
-	void				close(File* stream);
+	/// Returns true if @a path is a regular file.
+	virtual bool		is_file(const char* path) = 0;
 
-	/// Returns true if file @a relative_path exists in @a mount_point
-	bool				exists(const char* mount_point, const char* relative_path);
+	/// Creates the directory at the given @a path.
+	virtual void		create_directory(const char* path) = 0;
 
-	/// Returns path of file @a relative_path in @a mount_point
-	const char*			os_path(const char* mount_point, const char* relative_path);
+	/// Deletes the directory at the given @a path.
+	virtual void		delete_directory(const char* path) = 0;
+
+	/// Creates the file at the given @a path.
+	virtual void		create_file(const char* path) = 0;
+
+	/// Deletes the file at the given @a path.
+	virtual void		delete_file(const char* path) = 0;
+
+	/// Returns the relative file names in the given @a path.
+	virtual void		list_files(const char* path, Vector<DynamicString>& files) = 0;
+
+	/// Returns the absolute path of the given @a path based on
+	/// the root path of the file source. If @a path is absolute,
+	/// the given path is returned.
+	virtual void		get_absolute_path(const char* path, DynamicString& os_path) = 0;
 
 private:
-	
-	/// Gets __first__ mount point fetchable by @a mount_point
-	MountPoint*			find_mount_point(const char* mount_point);				
 
 	// Disable copying
 						Filesystem(const Filesystem&);
 	Filesystem&			operator=(const Filesystem&);
-		
-private:
-
-	HeapAllocator		m_allocator;
-
-	char				m_root_path[MAX_PATH_LENGTH];
-
-	MountPoint* 		m_mount_point_head;
-
-
-	friend class		Device;
 };
 
 } // namespace crown
-

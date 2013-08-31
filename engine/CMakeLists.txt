@@ -56,6 +56,9 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/resource
 	${CMAKE_SOURCE_DIR}/engine/network
 	${CMAKE_SOURCE_DIR}/engine/lua
+	${CMAKE_SOURCE_DIR}/engine/compilers
+	${CMAKE_SOURCE_DIR}/engine/compilers/lua
+	${CMAKE_SOURCE_DIR}/engine/compilers/tga
 )
 
 set (SRC
@@ -110,6 +113,7 @@ set (CONTAINERS_HEADERS
 	core/containers/Map.h
 	core/containers/Generic.h
 	core/containers/List.h
+	core/containers/Vector.h
 	core/containers/RBTree.h
 	core/containers/IdTable.h
 )
@@ -145,30 +149,21 @@ set (MATH_HEADERS
 )
 
 set (FILESYSTEM_SRC
-	core/filesystem/DiskFile.cpp
 	core/filesystem/File.cpp
-	
-	core/filesystem/BinaryReader.cpp
-	core/filesystem/BinaryWriter.cpp
-	core/filesystem/TextReader.cpp
-	core/filesystem/TextWriter.cpp
-
-	core/filesystem/DiskMountPoint.cpp
-	core/filesystem/Filesystem.cpp
+	core/filesystem/DiskFile.cpp
+	core/filesystem/DiskFilesystem.cpp
 )
 
 set (FILESYSTEM_HEADERS
-	core/filesystem/DiskFile.h
-	core/filesystem/NullFile.h
 	core/filesystem/File.h
-
+	core/filesystem/NullFile.h
+	core/filesystem/DiskFile.h
 	core/filesystem/BinaryReader.h
 	core/filesystem/BinaryWriter.h
 	core/filesystem/TextReader.h
 	core/filesystem/TextWriter.h
-
-	core/filesystem/DiskMountPoint.h
 	core/filesystem/Filesystem.h
+	core/filesystem/DiskFilesystem.h
 )
 
 set (JSON_SRC
@@ -184,8 +179,10 @@ set (STRINGS_SRC
 
 set (STRINGS_HEADERS
 	core/strings/Path.h
-	core/strings/String.h
+	core/strings/StringUtils.h
+	core/strings/StringStream.h
 	core/strings/Hash.h
+	core/strings/DynamicString.h
 )
 
 set (MEM_SRC
@@ -269,35 +266,36 @@ set (RENDERERS_HEADERS
 	renderers/DebugRenderer.h
 	renderers/PixelFormat.h
 	renderers/VertexFormat.h
-	renderers/OggBufferCallback.h
 )
 
 set (RESOURCE_SRC
-	resource/MaterialResource.cpp
 	resource/ResourceLoader.cpp
 	resource/ResourceManager.cpp
 	resource/ResourceRegistry.cpp
-	resource/TextureResource.cpp
-	resource/MeshResource.cpp
-	resource/FontResource.cpp
-	resource/SoundResource.cpp
-#	resource/ArchiveBundle.cpp
-	resource/FileBundle.cpp
 )
 
+if (CROWN_DEBUG OR CROWN_DEVELOPMENT)
+	list (APPEND RESOURCE_SRC resource/FileBundle.cpp)
+elseif (CROWN_RELEASE)
+	list (APPEND RESOURCE_SRC resource/ArchiveBundle.cpp)
+else ()
+	message (FATAL_ERROR "Oops, you should not be here")
+endif (CROWN_DEBUG OR CROWN_DEVELOPMENT)
+
 set (RESOURCE_HEADERS
-	resource/MaterialResource.h
+
 	resource/Resource.h
+	resource/ResourceFormat.h
 	resource/ResourceLoader.h
 	resource/ResourceManager.h
 	resource/ResourceRegistry.h
 	resource/Bundle.h
+	resource/LuaResource.h
 	resource/TextureResource.h
 	resource/MeshResource.h
 	resource/FontResource.h
 	resource/SoundResource.h
-#	resource/ArchiveBundle.h
-	resource/FileBundle.h
+	resource/MaterialResource.h
 )
 
 set (OS_SRC
@@ -309,7 +307,7 @@ set (OS_HEADERS
 	os/NetAddress.h
 )
 
-set(LUA_SRC
+set (LUA_SRC
 	lua/LuaStack.cpp
 	lua/LuaEnvironment.cpp
 	lua/LuaIntSetting.cpp
@@ -327,9 +325,23 @@ set(LUA_SRC
 	lua/LuaWindow.cpp
 )
 
-set(LUA_HEADERS
+set (LUA_HEADERS
 	lua/LuaStack.h
 	lua/LuaEnvironment.h
+)
+
+set (COMPILER_SRC
+	compilers/Compiler.cpp
+	compilers/BundleCompiler.cpp
+	compilers/lua/LuaCompiler.cpp
+	compilers/tga/TGACompiler.cpp
+)
+
+set (COMPILER_HEADER
+	compilers/Compiler.h
+	compilers/BundleCompiler.h
+	compilers/lua/LuaCompiler.h
+	compilers/tga/TGACompiler.h
 )
 
 set (CROWN_LIBRARIES)
@@ -367,14 +379,12 @@ if (LINUX)
 		renderers/gl/GLRenderer.cpp
 		renderers/gl/GLUtils.cpp
 		renderers/gl/glx/GLContext.cpp
-		renderers/al/ALRenderer.cpp
 	)
 
 	list (APPEND RENDERERS_HEADERS
 		renderers/gl/GLRenderer.h
 		renderers/gl/GLUtils.h
 		renderers/gl/glx/GLContext.h
-		renderers/al/ALRenderer.h
 	)
 
 	list (APPEND CROWN_LIBRARIES
@@ -401,13 +411,27 @@ if (LINUX)
 		-Werror
 		-Wno-long-long
 		-Wno-variadic-macros
-		-g
-		-pg
 		-fPIC
 		#-fvisibility=hidden
 	)
 
-	set (CROWN_EXECUTABLE_NAME crown-linux)
+	if (CROWN_DEBUG)
+		list (APPEND COMPILER_FLAGS -g -pg)
+	elseif (CROWN_DEVELOPMENT)
+		list (APPEND COMPILER_FLAGS -O2)
+	elseif (CROWN_RELEASE)
+		list (APPEND COMPILER_FLAGS
+			-O2
+			-Wno-unused-variable
+			-Wno-unused-parameter
+			-Wno-maybe-uninitialized
+			-Wno-unused-but-set-variable
+			-Wno-unused-function
+		)
+	else ()
+		message (FATAL_ERROR "Oops, you should not be here")
+	endif (CROWN_DEBUG)
+
 	set (CROWN_MAIN_SRC os/linux/main.cpp)
 endif (LINUX)
 
@@ -454,8 +478,7 @@ if (WINDOWS)
 	)
 
 	set (COMPILER_FLAGS)
-	
-	set (CROWN_EXECUTABLE_NAME crown-win)
+
 	set (CROWN_MAIN_SRC os/win/main.cpp)
 endif(WINDOWS)
 
@@ -470,18 +493,13 @@ set (CROWN_SOURCES
 	${MEM_SRC}
 	${COMPRESSORS_SRC}
 	${SETTINGS_SRC}
-
 	${INPUT_SRC}
-
 	${RENDERERS_SRC}
-
 	${RESOURCE_SRC}
-
 #	${NETWORK_SRC}
-
 	${OS_SRC}
-
 	${LUA_SRC}
+	${COMPILER_SRC}
 )
 
 set (CROWN_HEADERS
@@ -495,20 +513,14 @@ set (CROWN_HEADERS
 	${MEM_HEADERS}
 	${COMPRESSORS_HEADERS}
 	${SETTINGS_HEADERS}
-
 	${INPUT_HEADERS}
-
 	${RENDERERS_HEADERS}
-
 	${RESOURCE_HEADERS}
-
 	${RPC_HEADERS}
-
 #	${NETWORK_HEADERS}
-
 	${OS_HEADERS}
-
 	${LUA_HEADERS}
+	${COMPILER_HEADERS}
 )
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
@@ -526,7 +538,7 @@ add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 
 if (CROWN_BUILD_TESTS)
-	#add_subdirectory(tests)
+	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
 install (TARGETS crown DESTINATION bin)

@@ -91,9 +91,10 @@ static Key x11_translate_key(int32_t x11_key)
 }
 
 //-----------------------------------------------------------------------------
-OsWindow::OsWindow(uint32_t width, uint32_t height) :
+OsWindow::OsWindow(uint32_t width, uint32_t height, uint32_t parent) :
 	m_x11_display(NULL),
 	m_x11_window(None),
+	m_x11_parent_window(None),
 	m_x(0),
 	m_y(0),
 	m_width(width),
@@ -108,9 +109,17 @@ OsWindow::OsWindow(uint32_t width, uint32_t height) :
 	CE_ASSERT(m_x11_display != NULL, "Unable to open X11 display");
 
 	int screen = DefaultScreen(m_x11_display);
-	Window root_window = RootWindow(m_x11_display, screen);
 	int depth = DefaultDepth(m_x11_display, screen);
 	Visual* visual = DefaultVisual(m_x11_display, screen);
+
+	if (parent != 0)
+	{
+		m_x11_parent_window = (Window) parent;
+	}
+	else
+	{
+		m_x11_parent_window = RootWindow(m_x11_display, screen);
+	}
 
 	// We want to track keyboard and mouse events
 	XSetWindowAttributes win_attribs;
@@ -121,7 +130,7 @@ OsWindow::OsWindow(uint32_t width, uint32_t height) :
 
 	m_x11_window = XCreateWindow(
 				   m_x11_display,
-				   root_window,
+				   m_x11_parent_window,
 				   0, 0,
 				   width, height,
 				   0,

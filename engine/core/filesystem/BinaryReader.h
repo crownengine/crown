@@ -36,20 +36,76 @@ class BinaryReader
 {
 public:
 
-						BinaryReader(File& file);
+	//-----------------------------------------------------------------------------
+	BinaryReader(File& file) : m_file(file) {}
 
-	int8_t				read_byte();
-	int16_t				read_int16();
-	uint16_t			read_uint16();
-	int32_t				read_int32();
-	uint32_t			read_uint32();
-	int64_t				read_int64();
-	float				read_float();
-	double				read_double();
+	//-----------------------------------------------------------------------------
+	int8_t read_byte()
+	{
+		int8_t buffer;
+		m_file.read(&buffer, sizeof(int8_t));
+		return buffer;
+	}
+
+	//-----------------------------------------------------------------------------
+	int16_t read_int16()
+	{
+		int16_t buffer;
+		m_file.read(&buffer, sizeof(int16_t));
+		return buffer;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint16_t read_uint16()
+	{
+		uint16_t buffer;
+		m_file.read(&buffer, sizeof(uint16_t));
+		return buffer;
+	}
+
+	//-----------------------------------------------------------------------------
+	int32_t read_int32()
+	{
+		int32_t buffer;
+		m_file.read(&buffer, sizeof(int32_t));
+		return buffer;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t read_uint32()
+	{
+		uint32_t buffer;
+		m_file.read(&buffer, sizeof(uint32_t));
+		return buffer;
+	}
+
+	//-----------------------------------------------------------------------------
+	int64_t read_int64()
+	{
+		int64_t buffer;
+		m_file.read(&buffer, sizeof(int64_t));
+		return buffer;
+	}
+
+	//-----------------------------------------------------------------------------
+	double read_double()
+	{
+		double buffer;
+		m_file.read(&buffer, sizeof(double));
+		return buffer;
+	}
+
+	//-----------------------------------------------------------------------------
+	float read_float()
+	{
+		float buffer;
+		m_file.read(&buffer, sizeof(float));
+		return buffer;
+	}
 
 private:
 
-	File&				m_file;
+	File& m_file;
 };
 
 } // namespace crown

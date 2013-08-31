@@ -31,12 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "LinearAllocator.h"
 #include "Resource.h"
-#include "DiskMountPoint.h"
-
-#ifdef ANDROID
-#include "AndroidMountPoint.h"
-#include "SLESRenderer.h"
-#endif
 
 #define MAX_SUBSYSTEMS_HEAP 1024 * 1024
 
@@ -56,7 +50,7 @@ class Touch;
 class Accelerometer;
 class LuaEnvironment;
 class ConsoleServer;
-class AudioRenderer;
+class BundleCompiler;
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -100,6 +94,8 @@ public:
 	/// Updates all the subsystems
 	void					frame();
 
+	void					compile(const char* bundle_dir, const char* source_dir, const char* resource);
+
 	void					reload(ResourceId name);
 
 	Filesystem*				filesystem();
@@ -117,23 +113,8 @@ public:
 	Accelerometer*			accelerometer();
 
 	ConsoleServer*			console_server();
-
-	AudioRenderer*			audio_renderer();
 	
 private:
-
-	void					create_filesystem();
-	void					create_resource_manager();
-	void					create_input_manager();
-	void 					create_lua_environment();
-
-	void					create_window();
-	void					create_renderer();
-	void					create_debug_renderer();
-
-	void					create_console_server();
-
-	void					create_audio_renderer();
 
 	void					parse_command_line(int argc, char** argv);
 	void					check_preferred_settings();
@@ -150,8 +131,11 @@ private:
 	int32_t					m_preferred_window_width;
 	int32_t					m_preferred_window_height;
 	int32_t					m_preferred_window_fullscreen;
-	int32_t					m_preferred_mode;
-	char					m_preferred_root_path[MAX_PATH_LENGTH];
+	uint32_t				m_parent_window_handle;
+	char					m_source_dir[MAX_PATH_LENGTH];
+	char 					m_bundle_dir[MAX_PATH_LENGTH];
+	int32_t					m_compile;
+	int32_t					m_continue;
 
 	int32_t					m_quit_after_init;
 
@@ -174,27 +158,14 @@ private:
 	DebugRenderer*			m_debug_renderer;
 
 	// Private subsystems
+	BundleCompiler*			m_bundle_compiler;
 	ResourceManager*		m_resource_manager;
 	Bundle*					m_resource_bundle;
 
 	// Debug subsystems
 	ConsoleServer*			m_console_server;
 
-	AudioRenderer*			m_audio_renderer;
-
-	#ifdef ANDROID
-	AndroidMountPoint		m_root_mountpoint;
-	#else
-	DiskMountPoint			m_root_mountpoint;
-	#endif
-
 private:
-
-	enum
-	{
-		MODE_RELEASE,
-		MODE_DEVELOPMENT
-	};
 
 	// Disable copying
 	Device(const Device&);
