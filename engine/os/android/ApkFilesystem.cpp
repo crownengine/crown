@@ -24,10 +24,13 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <android/asset_manager.h>
 #include "ApkFilesystem.h"
 #include "TempAllocator.h"
 #include "ApkFile.h"
 #include "OS.h"
+
+extern AAssetManager* get_android_asset_manager();
 
 namespace crown
 {

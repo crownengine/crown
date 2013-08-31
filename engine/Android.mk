@@ -24,10 +24,9 @@ LOCAL_SRC_FILES :=\
 	core/compressors/ZipCompressor.cpp\
 	core/containers/Generic.cpp\
 \
-	core/filesystem/DiskFile.cpp\
 	core/filesystem/File.cpp\
-	core/filesystem/Filesystem.cpp\
-	core/filesystem/DiskMountPoint.cpp\
+	core/filesystem/DiskFile.cpp\
+	core/filesystem/DiskFilesystem.cpp\
 \
 	core/json/JSONParser.cpp\
 \
@@ -68,7 +67,7 @@ LOCAL_SRC_FILES :=\
 	os/android/AndroidDevice.cpp\
 	os/android/OsWindow.cpp\
 	os/android/ApkFile.cpp\
-	od/android/ApkFilesystem.cpp\
+	os/android/ApkFilesystem.cpp\
 	os/posix/OsFile.cpp\
 	os/posix/Thread.cpp\
 	os/posix/Mutex.cpp\
