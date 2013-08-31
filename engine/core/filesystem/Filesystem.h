@@ -27,12 +27,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "File.h"
+#include "Vector.h"
+#include "DynamicString.h"
 
 namespace crown
 {
-
-class FileSource;
-class DynamicString;
 
 /// Provides a platform-independent way to access files and directories
 /// on the host filesystem.
