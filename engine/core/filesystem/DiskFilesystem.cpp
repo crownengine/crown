@@ -24,10 +24,9 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "DiskFileSource.h"
+#include "DiskFilesystem.h"
 #include "StringUtils.h"
 #include "TempAllocator.h"
-#include "DynamicString.h"
 #include "DiskFile.h"
 #include "OS.h"
 
@@ -35,15 +34,13 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-DiskFileSource::DiskFileSource()
-	: FileSource(true)
+DiskFilesystem::DiskFilesystem()
 {
 	string::strncpy(m_root_path, os::get_cwd(), MAX_PATH_LENGTH);
 }
 
 //-----------------------------------------------------------------------------
-DiskFileSource::DiskFileSource(const char* root_path)
-	: FileSource(true)
+DiskFilesystem::DiskFilesystem(const char* root_path)
 {
 	CE_ASSERT_NOT_NULL(root_path);
 
@@ -51,7 +48,7 @@ DiskFileSource::DiskFileSource(const char* root_path)
 }
 
 //-----------------------------------------------------------------------------
-File* DiskFileSource::open(const char* path, FileOpenMode mode)
+File* DiskFilesystem::open(const char* path, FileOpenMode mode)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -63,7 +60,7 @@ File* DiskFileSource::open(const char* path, FileOpenMode mode)
 }
 
 //-----------------------------------------------------------------------------
-void DiskFileSource::close(File* file)
+void DiskFilesystem::close(File* file)
 {
 	CE_ASSERT_NOT_NULL(file);
 
@@ -71,7 +68,7 @@ void DiskFileSource::close(File* file)
 }
 
 //-----------------------------------------------------------------------------
-void DiskFileSource::create_directory(const char* path)
+void DiskFilesystem::create_directory(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -83,7 +80,7 @@ void DiskFileSource::create_directory(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-void DiskFileSource::delete_directory(const char* path)
+void DiskFilesystem::delete_directory(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -95,7 +92,7 @@ void DiskFileSource::delete_directory(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-void DiskFileSource::create_file(const char* path)
+void DiskFilesystem::create_file(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -107,7 +104,7 @@ void DiskFileSource::create_file(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-void DiskFileSource::delete_file(const char* path)
+void DiskFilesystem::delete_file(const char* path)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -119,7 +116,7 @@ void DiskFileSource::delete_file(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-void DiskFileSource::list_files(const char* path, Vector<DynamicString>& files)
+void DiskFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 {
 	CE_ASSERT_NOT_NULL(path);
 
@@ -131,7 +128,7 @@ void DiskFileSource::list_files(const char* path, Vector<DynamicString>& files)
 }
 
 //-----------------------------------------------------------------------------
-void DiskFileSource::get_absolute_path(const char* path, DynamicString& os_path)
+void DiskFilesystem::get_absolute_path(const char* path, DynamicString& os_path)
 {
 	if (os::is_absolute_path(path))
 	{

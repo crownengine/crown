@@ -26,16 +26,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "File.h"
-#include "FileSource.h"
-#include "Vector.h"
-#include "DynamicString.h"
-#include "OS.h"
+#include "Filesystem.h"
+#include "OS.h" // For MAX_PATH_LENGTH
 
 namespace crown
 {
-
-class DynamicString;
 
 /// Access files on disk.
 /// All the file paths can be either relative or absolute.
@@ -43,18 +38,18 @@ class DynamicString;
 /// to its absolute counterpart based on the file source's root path.
 /// Accessing files using absolute path directly is also possible,
 /// but platform-specific and thus generally not recommended.
-class DiskFileSource : public FileSource
+class DiskFilesystem : public Filesystem
 {
 public:
 
 	/// Sets the root path to the current working directory of
 	/// the engine executable.
-	DiskFileSource();
+	DiskFilesystem();
 
 	/// Sets the root path to the given @a root_path.
 	/// @note
 	/// The @a root_path must be absolute.
-	DiskFileSource(const char* root_path);
+	DiskFilesystem(const char* root_path);
 
 	/// Opens the file at the given @a path with the given @a mode.
 	File* open(const char* path, FileOpenMode mode);

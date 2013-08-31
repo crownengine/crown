@@ -82,6 +82,7 @@ class Filesystem
 {
 public:
 
+						Filesystem() {};
 	virtual				~Filesystem() {};
 
 	/// Opens the file at the given @a path with the given @a mode.

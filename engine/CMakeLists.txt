@@ -151,19 +151,19 @@ set (MATH_HEADERS
 set (FILESYSTEM_SRC
 	core/filesystem/File.cpp
 	core/filesystem/DiskFile.cpp
-	core/filesystem/DiskFileSource.cpp
+	core/filesystem/DiskFilesystem.cpp
 )
 
 set (FILESYSTEM_HEADERS
 	core/filesystem/File.h
 	core/filesystem/NullFile.h
 	core/filesystem/DiskFile.h
-	core/filesystem/DiskFileSource.h
-	core/filesystem/Filesystem.h
 	core/filesystem/BinaryReader.h
 	core/filesystem/BinaryWriter.h
 	core/filesystem/TextReader.h
 	core/filesystem/TextWriter.h
+	core/filesystem/Filesystem.h
+	core/filesystem/DiskFilesystem.h
 )
 
 set (JSON_SRC
