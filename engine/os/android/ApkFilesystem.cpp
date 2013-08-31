@@ -24,128 +24,82 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "AndroidFile.h"
-#include "Log.h"
+#include "ApkFilesystem.h"
+#include "TempAllocator.h"
+#include "ApkFile.h"
+#include "OS.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-AndroidFile::AndroidFile(const char* path) :
-	File(FOM_READ),
-	m_file(path, FOM_READ),
-	m_last_was_read(true)
+ApkFilesystem::ApkFilesystem()
 {
 }
 
 //-----------------------------------------------------------------------------
-void AndroidFile::seek(size_t position)
+File* ApkFilesystem::open(const char* path, FileOpenMode mode)
 {
-	check_valid();
+	CE_ASSERT_NOT_NULL(path);
+	CE_ASSERT(mode == FOM_READ, "Cannot open for writing in Android assets folder");
 
-	m_file.seek(position);
+	return CE_NEW(default_allocator(), ApkFile)(path);
 }
 
 //-----------------------------------------------------------------------------
-void AndroidFile::seek_to_end()
+void ApkFilesystem::close(File* file)
 {
-	check_valid();
-
-	m_file.seek_to_end();
+	CE_ASSERT_NOT_NULL(file);
+	CE_DELETE(default_allocator(), file);
 }
 
 //-----------------------------------------------------------------------------
-void AndroidFile::skip(size_t bytes)
+void ApkFilesystem::create_directory(const char* /*path*/)
 {
-	check_valid();
-
-	m_file.skip(bytes);
+	CE_ASSERT(false, "Attempt to create directory in Android assets folder");
 }
 
 //-----------------------------------------------------------------------------
-void AndroidFile::read(void* buffer, size_t size)
+void ApkFilesystem::delete_directory(const char* /*path*/)
 {
-	check_valid();
+	CE_ASSERT(false, "Attempt to delete directory in Android assets folder");
+}
 
-	if (!m_last_was_read)
+//-----------------------------------------------------------------------------
+void ApkFilesystem::create_file(const char* /*path*/)
+{
+	CE_ASSERT(false, "Attempt to create file in Android assets folder");
+}
+
+//-----------------------------------------------------------------------------
+void ApkFilesystem::delete_file(const char* /*path*/)
+{
+	CE_ASSERT(false, "Attempt to delete file in Android assets folder");
+}
+
+//-----------------------------------------------------------------------------
+void ApkFilesystem::list_files(const char* path, Vector<DynamicString>& files)
+{
+	CE_ASSERT_NOT_NULL(path);
+
+	AAssetDir* root_dir = AAssetManager_openDir(get_android_asset_manager(), path);
+	CE_ASSERT(root_dir != NULL, "Failed to open Android assets folder");
+
+	const char* filename = NULL;
+	while ((filename = AAssetDir_getNextFileName(root_dir)) != NULL)
 	{
-		m_last_was_read = true;
-		m_file.seek(0);
+		DynamicString name(default_allocator());
+		name = filename;
+		files.push_back(name);
 	}
 
-	size_t bytes_read = m_file.read(buffer, size);
-	CE_ASSERT(bytes_read == size, "Failed to read from file");
+	AAssetDir_close(root_dir);
 }
 
 //-----------------------------------------------------------------------------
-void AndroidFile::write(const void* /*buffer*/, size_t /*size*/)
+void ApkFilesystem::get_absolute_path(const char* path, DynamicString& os_path)
 {
-	// Not needed
-}
-
-//-----------------------------------------------------------------------------
-bool AndroidFile::copy_to(File& /*file*/, size_t /*size = 0*/)
-{
-	// Not needed
-	return false;
-}
-
-//-----------------------------------------------------------------------------
-void AndroidFile::flush()
-{
-	// Not needed
-}
-
-//-----------------------------------------------------------------------------
-bool AndroidFile::is_valid() const
-{
-	return m_file.is_open();
-}
-
-//-----------------------------------------------------------------------------
-bool AndroidFile::end_of_file() const
-{
-	return position() == size();
-}
-
-//-----------------------------------------------------------------------------
-size_t AndroidFile::size() const
-{
-	check_valid();
-
-	return m_file.size();
-}
-
-//-----------------------------------------------------------------------------
-size_t AndroidFile::position() const
-{
-	check_valid();
-
-	return m_file.position();
-}
-
-//-----------------------------------------------------------------------------
-bool AndroidFile::can_read() const
-{
-	check_valid();
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-bool AndroidFile::can_write() const
-{
-	check_valid();
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-bool AndroidFile::can_seek() const
-{
-	check_valid();
-
-	return true;
+	os_path = path;
 }
 
 } // namespace crown

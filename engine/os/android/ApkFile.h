@@ -26,58 +26,37 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "APKFile.h"
-#include "Assert.h"
+#include "File.h"
 
 namespace crown
 {
 
-class AndroidFile : public File 
+class ApkFile : public File 
 {
 public:
 
-				AndroidFile(const char* path);
+				ApkFile(const char* filename);
+				~ApkFile();
 
 	void		seek(size_t position);
-
 	void		seek_to_end();
-
 	void		skip(size_t bytes);
-
 	void		read(void* buffer, size_t size);
-
 	void		write(const void* buffer, size_t size);
-
 	bool		copy_to(File& file, size_t size = 0);
-
 	void		flush();
-
 	bool		is_valid() const;
-
 	bool		end_of_file() const;
-
 	size_t		size() const;
-
 	size_t		position() const;
-
 	bool		can_read() const;
-
 	bool		can_write() const;
-
 	bool		can_seek() const;
 
 private:
 
-	APKFile		m_file;
-
+	AAsset*		m_asset;
 	bool		m_last_was_read;
-
-protected:
-
-	inline void		check_valid() const
-	{
-		CE_ASSERT(m_file.is_open(), "File is not open");
-	}
 };
 
 } // namespace crown

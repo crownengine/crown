@@ -25,112 +25,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <android/asset_manager_jni.h>
-
-#include "APKFile.h"
+#include "ApkFile.h"
 #include "Assert.h"
-#include "OS.h"
 
-namespace crown
-{
-
-static AAssetManager*	g_android_asset_manager = NULL;
-
-//-----------------------------------------------------------------------------
-APKFile::APKFile(const char* path, FileOpenMode mode)
-{
-	// Android assets are always read-only
-	(void) mode;
-
-	m_mode = FOM_READ;
-	m_asset = AAssetManager_open(get_android_asset_manager(), path, AASSET_MODE_RANDOM);
-
-	CE_ASSERT(m_asset != NULL, "Unable to open file: %s", path);
-}
-
-//-----------------------------------------------------------------------------
-APKFile::~APKFile()
-{
-	close();
-}
-
-//-----------------------------------------------------------------------------
-void APKFile::close()
-{
-	if (m_asset != NULL)
-	{
-		AAsset_close(m_asset);
-		m_asset = NULL;
-	}
-}
-
-//-----------------------------------------------------------------------------
-bool APKFile::is_open() const
-{
-	return m_asset != NULL;
-}
-
-//-----------------------------------------------------------------------------
-FileOpenMode APKFile::mode() const
-{
-	return m_mode;
-}
-
-//-----------------------------------------------------------------------------
-size_t APKFile::size() const
-{
-	return AAsset_getLength(m_asset);
-}
-
-//-----------------------------------------------------------------------------
-size_t APKFile::read(void* data, size_t size)
-{
-	CE_ASSERT(data != NULL, "Data must be != NULL");
-
-	return (size_t)AAsset_read(m_asset, data, size);
-}
-
-//-----------------------------------------------------------------------------
-size_t APKFile::write(const void* data, size_t /*size*/)
-{
-	CE_ASSERT(data != NULL, "Data must be != NULL");
-
-	os::printf("Android asset directory is read-only!");
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-void APKFile::seek(size_t position)
-{
-	off_t seek_result = AAsset_seek(m_asset, (off_t)position, SEEK_SET);
-	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
-}
-
-//-----------------------------------------------------------------------------
-void APKFile::seek_to_end()
-{
-	off_t seek_result = AAsset_seek(m_asset, 0, SEEK_END);
-	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
-}
-
-//-----------------------------------------------------------------------------
-void APKFile::skip(size_t bytes)
-{
-	off_t seek_result = AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR);
-	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
-}
-
-//-----------------------------------------------------------------------------
-size_t APKFile::position() const
-{
-	return (size_t) (AAsset_getLength(m_asset) - AAsset_getRemainingLength(m_asset));
-}
-
-//-----------------------------------------------------------------------------
-bool APKFile::eof() const
-{
-	return AAsset_getRemainingLength(m_asset) == 0;
-}
+static AAssetManager* g_android_asset_manager = NULL;
 
 //-----------------------------------------------------------------------------
 AAssetManager* get_android_asset_manager()
@@ -144,5 +42,116 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(J
 	g_android_asset_manager = AAssetManager_fromJava(env, assetManager);
 }
 
-} // namespace crown
+namespace crown
+{
 
+//-----------------------------------------------------------------------------
+ApkFile::ApkFile(const char* path)
+	: File(FOM_READ)
+{
+	m_asset = AAssetManager_open(get_android_asset_manager(), path, AASSET_MODE_RANDOM);
+	CE_ASSERT(m_asset != NULL, "Unable to open file: %s", path);
+}
+
+//-----------------------------------------------------------------------------
+ApkFile::~ApkFile()
+{
+	if (m_asset != NULL)
+	{
+		AAsset_close(m_asset);
+		m_asset = NULL;
+	}
+}
+
+//-----------------------------------------------------------------------------
+void ApkFile::seek(size_t position)
+{
+	off_t seek_result = AAsset_seek(m_asset, (off_t)position, SEEK_SET);
+	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
+}
+
+//-----------------------------------------------------------------------------
+void ApkFile::seek_to_end()
+{
+	off_t seek_result = AAsset_seek(m_asset, 0, SEEK_END);
+	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek to end");
+}
+
+//-----------------------------------------------------------------------------
+void ApkFile::skip(size_t bytes)
+{
+	off_t seek_result = AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR);
+	CE_ASSERT(seek_result != (off_t) -1, "Failed to skip");
+}
+
+//-----------------------------------------------------------------------------
+void ApkFile::read(void* buffer, size_t size)
+{
+	CE_ASSERT_NOT_NULL(buffer);
+
+	size_t bytes_read = (size_t) AAsset_read(m_asset, buffer, size);
+	CE_ASSERT(bytes_read == size, "Failed to read from file: requested: %lu, read: %lu", size, bytes_read);
+}
+
+//-----------------------------------------------------------------------------
+void ApkFile::write(const void* /*buffer*/, size_t /*size*/)
+{
+	CE_ASSERT(false, "Attempt to write to android assets folder!");
+}
+
+//-----------------------------------------------------------------------------
+bool ApkFile::copy_to(File& /*file*/, size_t /*size = 0*/)
+{
+	CE_ASSERT(false, "Not implemented yet :(");
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+void ApkFile::flush()
+{
+	// Not needed
+}
+
+//-----------------------------------------------------------------------------
+bool ApkFile::is_valid() const
+{
+	return m_asset != NULL;
+}
+
+//-----------------------------------------------------------------------------
+bool ApkFile::end_of_file() const
+{
+	return AAsset_getRemainingLength(m_asset) == 0;
+}
+
+//-----------------------------------------------------------------------------
+size_t ApkFile::size() const
+{
+	return AAsset_getLength(m_asset);
+}
+
+//-----------------------------------------------------------------------------
+size_t ApkFile::position() const
+{
+	return (size_t) (AAsset_getLength(m_asset) - AAsset_getRemainingLength(m_asset));
+}
+
+//-----------------------------------------------------------------------------
+bool ApkFile::can_read() const
+{
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+bool ApkFile::can_write() const
+{
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+bool ApkFile::can_seek() const
+{
+	return true;
+}
+
+} // namespace crown
