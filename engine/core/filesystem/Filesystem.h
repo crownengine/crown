@@ -83,18 +83,33 @@ class Filesystem
 {
 public:
 
-						Filesystem();
-						~Filesystem();
+	virtual				~Filesystem() {};
 
-	virtual File*		open(const char* path, FileOpenMode mode);
-	virtual void		close(File* file);
+	/// Opens the file at the given @a path with the given @a mode.
+	virtual File*		open(const char* path, FileOpenMode mode) = 0;
 
-	virtual void		create_directory(const char* path);
-	virtual void		delete_directory(const char* path);
-	virtual void		create_file(const char* path);
-	virtual void		delete_file(const char* path);
+	/// Closes the given @a file.
+	virtual void		close(File* file) = 0;
 
-	virtual void		get_absolute_path(const char* path, DynamicString& os_path);
+	/// Creates the directory at the given @a path.
+	virtual void		create_directory(const char* path) = 0;
+
+	/// Deletes the directory at the given @a path.
+	virtual void		delete_directory(const char* path) = 0;
+
+	/// Creates the file at the given @a path.
+	virtual void		create_file(const char* path) = 0;
+
+	/// Deletes the file at the given @a path.
+	virtual void		delete_file(const char* path) = 0;
+
+	/// Returns the relative file names in the given @a path.
+	virtual void		list_files(const char* path, Vector<DynamicString>& files) = 0;
+
+	/// Returns the absolute path of the given @a path based on
+	/// the root path of the file source. If @a path is absolute,
+	/// the given path is returned.
+	virtual void		get_absolute_path(const char* path, DynamicString& os_path) = 0;
 
 private:
 
