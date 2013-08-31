@@ -47,7 +47,7 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 ApkFile::ApkFile(const char* path)
-	: File(FOM_READ)
+	: File(FOM_READ), m_asset(NULL)
 {
 	m_asset = AAssetManager_open(get_android_asset_manager(), path, AASSET_MODE_RANDOM);
 	CE_ASSERT(m_asset != NULL, "Unable to open file: %s", path);

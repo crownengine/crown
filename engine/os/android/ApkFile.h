@@ -84,7 +84,6 @@ public:
 private:
 
 	AAsset*		m_asset;
-	bool		m_last_was_read;
 };
 
 } // namespace crown
