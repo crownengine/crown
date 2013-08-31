@@ -37,12 +37,10 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-#ifdef LINUX
+#if defined(LINUX)
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '/';
-#endif
-
-#ifdef WINDOWS
+#elif defined(WINDOWS)
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '\\';
 
@@ -50,6 +48,11 @@ namespace crown
 
 	#undef MK_SHIFT
 	#undef MK_ALT
+#elif defined(ANDROID)
+	const size_t	MAX_PATH_LENGTH = 1024;
+	const char		PATH_SEPARATOR = '/';
+#else
+	#error "Oops, invalid platform!"
 #endif
 
 namespace os
