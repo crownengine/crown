@@ -152,7 +152,6 @@ set (FILESYSTEM_SRC
 	core/filesystem/File.cpp
 	core/filesystem/DiskFile.cpp
 	core/filesystem/DiskFileSource.cpp
-	core/filesystem/Filesystem.cpp
 )
 
 set (FILESYSTEM_HEADERS

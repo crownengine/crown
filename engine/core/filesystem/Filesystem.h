@@ -83,24 +83,20 @@ class Filesystem
 {
 public:
 
-						Filesystem(FileSource& source);
+						Filesystem();
 						~Filesystem();
 
-	File*				open(const char* path, FileOpenMode mode);
-	void				close(File* file);
+	virtual File*		open(const char* path, FileOpenMode mode);
+	virtual void		close(File* file);
 
-	void				create_directory(const char* path);
-	void				delete_directory(const char* path);
-	void				create_file(const char* path);
-	void				delete_file(const char* path);
+	virtual void		create_directory(const char* path);
+	virtual void		delete_directory(const char* path);
+	virtual void		create_file(const char* path);
+	virtual void		delete_file(const char* path);
 
-	void				get_absolute_path(const char* path, DynamicString& os_path);
-		
+	virtual void		get_absolute_path(const char* path, DynamicString& os_path);
+
 private:
-
-	FileSource*			m_source;
-
-private:			
 
 	// Disable copying
 						Filesystem(const Filesystem&);
@@ -108,4 +104,3 @@ private:
 };
 
 } // namespace crown
-
