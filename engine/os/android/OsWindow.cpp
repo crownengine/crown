@@ -36,12 +36,12 @@ namespace crown
 static ANativeWindow* window = NULL;
 
 //-----------------------------------------------------------------------------
-OsWindow::OsWindow(uint32_t width, uint32_t height, uint32_t /*parent*/) :
+OsWindow::OsWindow(uint32_t /*width*/, uint32_t /*height*/, uint32_t /*parent*/) :
 	m_window(NULL),
-	m_width(0),
-	m_height(0),
 	m_x(0),
-	m_y(0)
+	m_y(0),
+	m_width(0),
+	m_height(0)
 {
 	m_window = window;
 
@@ -133,7 +133,7 @@ void OsWindow::frame()
 }
 
 //-----------------------------------------------------------------------------
-extern "C" void Java_crown_android_CrownLib_setWindow(JNIEnv *env, jclass clazz, jobject surface)
+extern "C" void Java_crown_android_CrownLib_setWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
 {
     // obtain a native window from a Java surface
 	CE_ASSERT(surface != 0, "Unable to get Android window");

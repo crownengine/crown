@@ -289,7 +289,7 @@ void execute_process(const char* args[])
 } // namespace os
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushIntEvent(JNIEnv * env, jobject obj, jint type, jint a, jint b, jint c, jint d)
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushIntEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jint a, jint b, jint c, jint d)
 {	
 	OsEventParameter values[4];
 
@@ -302,7 +302,7 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushIntEvent(JNIEn
 }
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushFloatEvent(JNIEnv * env, jobject obj, jint type, jfloat a, jfloat b, jfloat c, jfloat d)
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushFloatEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jfloat a, jfloat b, jfloat c, jfloat d)
 {
 	OsEventParameter values[4];
 
