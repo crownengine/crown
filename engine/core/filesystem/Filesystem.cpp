@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Filesystem.h"
 #include "FileSource.h"
+#include "DynamicString.h"
 
 namespace crown
 {
@@ -75,6 +76,12 @@ void Filesystem::create_file(const char* path)
 void Filesystem::delete_file(const char* path)
 {
 	m_source->delete_file(path);
+}
+
+//-----------------------------------------------------------------------------
+void Filesystem::get_absolute_path(const char* path, DynamicString& os_path)
+{
+	m_source->get_absolute_path(path, os_path);
 }
 
 } // namespace crown

@@ -50,6 +50,7 @@ public:
 	virtual void create_file(const char* path) = 0;
 	virtual void delete_file(const char* path) = 0;
 	virtual void list_files(const char* path, Vector<DynamicString>& files) = 0;
+	virtual void get_absolute_path(const char* path, DynamicString& abs_path) = 0;
 
 	bool can_write() const
 	{

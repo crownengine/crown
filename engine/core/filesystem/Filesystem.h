@@ -32,6 +32,7 @@ namespace crown
 {
 
 class FileSource;
+class DynamicString;
 
 /// Provides a platform-independent way to access files and directories
 /// on the host filesystem.
@@ -92,6 +93,8 @@ public:
 	void				delete_directory(const char* path);
 	void				create_file(const char* path);
 	void				delete_file(const char* path);
+
+	void				get_absolute_path(const char* path, DynamicString& os_path);
 		
 private:
 
