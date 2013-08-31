@@ -40,6 +40,40 @@ using std::vector;
 namespace crown
 {
 
+//
+// STRUCT
+// {
+//     FIELD             : SIZE                    COMMENT
+// }
+//
+// MeshHeader [1]
+// {
+//     version           : uint32_t                Version identifier
+//     mesh_count        : uint32_t                Number of meshes in the file
+//     joint_count       : uint32_t                Number of joints in the file
+//     padding           : uint32_t * 16           Reserved
+// }
+// MeshChunk [1, 2, ..., n]
+// {
+//     vertex_count      : uint32_t                Number of vertices in the mesh
+//     vertices          : float * vertex_count    Vertex data
+//
+//     tri_count         : uint32_t                Number of triangles in the mesh
+//     tris              : uint16_t * tri_count    Triangle data as indices into 'vertices'
+// }
+//
+
+// Bump the version whenever a change in the format is made.
+const uint32_t MESH_VERSION = 1;
+
+struct MeshHeader
+{
+	uint32_t	version;
+	uint32_t	mesh_count;
+	uint32_t	joint_count;
+	uint32_t	padding[16];
+};
+
 //-----------------------------------------------------------------------------
 struct DAEFloatArray
 {
