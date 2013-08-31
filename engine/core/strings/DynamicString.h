@@ -41,18 +41,17 @@ namespace crown
 class DynamicString
 {
 public:
-	///
+
 						DynamicString(Allocator& allocator);
-	///
 						DynamicString(Allocator& allocator, const char* s);
-	///
+
 						~DynamicString();
-	///
-	DynamicString&		operator+=(const DynamicString& s);
+
+	DynamicString&		operator+=(DynamicString& s);
 	DynamicString&		operator+=(const char* s);
 	DynamicString&		operator+=(const char c);
 	///
-	DynamicString&		operator=(const DynamicString& s);
+	DynamicString&		operator=(DynamicString& s);
 	DynamicString&		operator=(const char* s);
 	DynamicString&		operator=(const char c);
 
@@ -102,9 +101,9 @@ inline DynamicString::~DynamicString()
 }
 
 //-----------------------------------------------------------------------------
-inline DynamicString& DynamicString::operator+=(const DynamicString& s)
+inline DynamicString& DynamicString::operator+=(DynamicString& s)
 {
-	const char* tmp = s.m_string.begin();
+	const char* tmp = s.c_str();
 
 	return *this += tmp;
 }
@@ -128,9 +127,9 @@ inline DynamicString& DynamicString::operator+=(const char c)
 }
 
 //-----------------------------------------------------------------------------
-inline DynamicString& DynamicString::operator=(const DynamicString& s)
+inline DynamicString& DynamicString::operator=(DynamicString& s)
 {
-	const char* tmp = s.m_string.begin();
+	const char* tmp = s.c_str();
 
 	return *this = tmp;
 }
@@ -141,7 +140,6 @@ inline DynamicString& DynamicString::operator=(const char* s)
 	CE_ASSERT_NOT_NULL(s);
 
 	m_string.clear();
-
 	m_string.push(s, string::strlen(s));
 
 	return *this;
@@ -151,7 +149,6 @@ inline DynamicString& DynamicString::operator=(const char* s)
 inline DynamicString& DynamicString::operator=(const char c)
 {
 	m_string.clear();
-
 	m_string.push_back(c);
 
 	return *this;
@@ -174,6 +171,7 @@ inline bool DynamicString::operator==(const char* s)
 //-----------------------------------------------------------------------------
 inline void DynamicString::strip_leading(const char* s)
 {
+	CE_ASSERT_NOT_NULL(s);
 	CE_ASSERT(starts_with(s), "String does not start with %s", s);
 
 	const size_t my_len = string::strlen(c_str());
@@ -186,6 +184,7 @@ inline void DynamicString::strip_leading(const char* s)
 //-----------------------------------------------------------------------------
 inline void DynamicString::strip_trailing(const char* s)
 {
+	CE_ASSERT_NOT_NULL(s);
 	CE_ASSERT(ends_with(s), "String does not end with %s", s);
 
 	const size_t my_len = string::strlen(c_str());
