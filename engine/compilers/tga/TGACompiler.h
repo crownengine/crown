@@ -54,13 +54,13 @@ public:
 					TGACompiler();
 					~TGACompiler();
 
-	size_t			compile_impl(const char* resource_path);
-	void			write_impl(std::fstream& out_file);
+	size_t			compile_impl(Filesystem& fs, const char* resource_path);
+	void			write_impl(File* out_file);
 
 private:
 
-	void			load_uncompressed(std::fstream& in_file);
-	void			load_compressed(std::fstream& in_file);
+	void			load_uncompressed(File* in_file);
+	void			load_compressed(File* in_file);
 	void			swap_red_blue();
 
 private:

@@ -24,12 +24,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <fstream>
-#include <iostream>
-
 #include "TGACompiler.h"
 #include "PixelFormat.h"
 #include "Allocator.h"
+#include "Filesystem.h"
 
 namespace crown
 {
@@ -51,26 +49,21 @@ TGACompiler::~TGACompiler()
 }
 
 //-----------------------------------------------------------------------------
-size_t TGACompiler::compile_impl(const char* resource_path)
+size_t TGACompiler::compile_impl(Filesystem& fs, const char* resource_path)
 {
-	std::fstream in_file;
-	in_file.open(resource_path, std::fstream::in | std::fstream::binary);
+	File* in_file = fs.open(resource_path, FOM_READ);
 
-	if (!in_file.is_open())
+	if (!in_file)
 	{
-		std::cout << "Unable to open file: " << resource_path << std::endl;
+		Log::e("Unable to open file: %s", resource_path);
 		return 0;
 	}
 
 	// Read the header
-	if (!in_file.read((char*)(char*)&m_tga_header, sizeof(TGAHeader)))
-	{
-		std::cout << "Unable to read the TGA header." << std::endl;
-		return 0;
-	}
+	in_file->read((char*)(char*)&m_tga_header, sizeof(TGAHeader));
 
 	// Skip TGA ID
-	in_file.seekg(m_tga_header.id_length);
+	in_file->skip(m_tga_header.id_length);
 
 	// Compute color channels
 	m_tga_channels = m_tga_header.pixel_depth / 8;
@@ -105,7 +98,7 @@ size_t TGACompiler::compile_impl(const char* resource_path)
 		}
 		default:
 		{
-			std::cout << "Unable to determine TGA channels." << std::endl;
+			Log::e("Unable to determine TGA channels.");
 			return 0;
 		}
 	}
@@ -115,7 +108,7 @@ size_t TGACompiler::compile_impl(const char* resource_path)
 	{
 		case 0:
 		{
-			std::cout << "The file does not contain image data: " << resource_path << std::endl;
+			Log::e("The file does not contain image data: %s", resource_path);
 			return 0;
 		}
 		case 2:
@@ -132,24 +125,26 @@ size_t TGACompiler::compile_impl(const char* resource_path)
 
 		default:
 		{
-			std::cout << "Image type not supported." << std::endl;
+			Log::e("Image type not supported.");
 			return 0;
 		}
 	}
+
+	fs.close(in_file);
 
 	// Return the total resource size
 	return sizeof(TextureHeader) + m_texture_data_size;
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::write_impl(std::fstream& out_file)
+void TGACompiler::write_impl(File* out_file)
 {
-	out_file.write((char*)&m_texture_header, sizeof(TextureHeader));
-	out_file.write((char*)m_texture_data, m_texture_data_size);
+	out_file->write((char*)&m_texture_header, sizeof(TextureHeader));
+	out_file->write((char*)m_texture_data, m_texture_data_size);
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::load_uncompressed(std::fstream& in_file)
+void TGACompiler::load_uncompressed(File* in_file)
 {
 	uint64_t size = m_tga_header.width * m_tga_header.height;
 
@@ -161,7 +156,7 @@ void TGACompiler::load_uncompressed(std::fstream& in_file)
 		{
 			uint16_t pixel_data;
 			
-			in_file.read((char*)&pixel_data, sizeof(pixel_data));
+			in_file->read((char*)&pixel_data, sizeof(pixel_data));
 			
 			m_texture_data[j + 0] = (pixel_data & 0x7c) >> 10;
 			m_texture_data[j + 1] = (pixel_data & 0x3e) >> 5;
@@ -172,14 +167,14 @@ void TGACompiler::load_uncompressed(std::fstream& in_file)
 	}
 	else
 	{
-		in_file.read((char*)m_texture_data, (size_t)(size * m_tga_channels));
+		in_file->read((char*)m_texture_data, (size_t)(size * m_tga_channels));
 
 		swap_red_blue();
 	}
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::load_compressed(std::fstream& in_file)
+void TGACompiler::load_compressed(File* in_file)
 {
 	uint8_t rle_id = 0;
 	uint32_t i = 0;
@@ -191,14 +186,14 @@ void TGACompiler::load_compressed(std::fstream& in_file)
 
 	while (i < size)
 	{
-		in_file.read((char*)&rle_id, sizeof(uint8_t));
+		in_file->read((char*)&rle_id, sizeof(uint8_t));
 
 		// If MSB == 1
 		if (rle_id & 0x80)
 		{
 			rle_id -= 127;
 			
-			in_file.read((char*)&colors, m_tga_channels);
+			in_file->read((char*)&colors, m_tga_channels);
 
 			while (rle_id)
 			{
@@ -222,7 +217,7 @@ void TGACompiler::load_compressed(std::fstream& in_file)
 
 			while (rle_id)
 			{
-				in_file.read((char*)colors, m_tga_channels);
+				in_file->read((char*)colors, m_tga_channels);
 				
 				m_texture_data[colors_read + 0] = colors[2];
 				m_texture_data[colors_read + 1] = colors[1];
