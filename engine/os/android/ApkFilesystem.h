@@ -31,44 +31,41 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// Access files on disk.
-/// All the file paths can be either relative or absolute.
-/// When a relative path is given, it is automatically translated
-/// to its absolute counterpart based on the file source's root path.
-/// Accessing files using absolute path directly is also possible,
-/// but platform-specific and thus generally not recommended.
+/// Access files on Android's assets folder.
+/// The assets folder is read-only and all the paths are relative.
 class ApkFilesystem : public Filesystem
 {
 public:
 
-	/// Sets the root path to the current working directory of
-	/// the engine executable.
 	ApkFilesystem();
 
-	/// Opens the file at the given @a path with the given @a mode.
-	File* open(const char* path, FileOpenMode mode);
+	/// @copydoc Filesystem::open()
+	/// @note
+	/// @a mode can only be FOM_READ
+	File* open(const char* rel_path, FileOpenMode mode);
 
-	/// Closes the given @a file.
+	/// @copydoc Filesystem::close()
 	void close(File* file);
 
-	/// Creates the directory at the given @a path.
+	/// Stub method, assets folder is read-only.
 	void create_directory(const char* path);
 
-	/// Deletes the directory at the given @a path.
+	/// Stub method, assets folder is read-only.
 	void delete_directory(const char* path);
 
-	/// Creates the file at the given @a path.
+	/// Stub method, assets folder is read-only.
 	void create_file(const char* path);
 
-	/// Deletes the file at the given @a path.
+	/// Stub method, assets folder is read-only.
 	void delete_file(const char* path);
 
-	/// Returns the relative file names in the given @a path.
+	/// @copydoc Filesystem::list_files().
 	void list_files(const char* path, Vector<DynamicString>& files);
 
-	/// Returns the absolute path of the given @a path based on
-	/// the root path of the file source. If @a path is absolute,
-	/// the given path is returned.
+	/// Returns the absolute path of the given @a path.
+	/// @note
+	/// Assets folder has no concept of "absolute path", all paths are
+	/// relative to the assets folder itself, so, all paths are returned unchanged.
 	void get_absolute_path(const char* path, DynamicString& os_path);
 };
 
