@@ -34,19 +34,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-static const int32_t 	LUA_VEC2_BUFFER_SIZE = 4096;
+static const uint32_t 	LUA_VEC2_BUFFER_SIZE = 4096;
 static Vec2 			g_vec2_buffer[LUA_VEC2_BUFFER_SIZE];
 static uint32_t 		g_vec2_used = 0;
 
-static const int32_t 	LUA_VEC3_BUFFER_SIZE = 4096;
+static const uint32_t 	LUA_VEC3_BUFFER_SIZE = 4096;
 static Vec3 			g_vec3_buffer[LUA_VEC3_BUFFER_SIZE];
 static uint32_t 		g_vec3_used = 0;
 
-static const int32_t 	LUA_MAT4_BUFFER_SIZE = 4096;
+static const uint32_t 	LUA_MAT4_BUFFER_SIZE = 4096;
 static Mat4 			g_mat4_buffer[LUA_MAT4_BUFFER_SIZE];
 static uint32_t 		g_mat4_used = 0;
 
-static const int32_t 	LUA_QUAT_BUFFER_SIZE = 4096;
+static const uint32_t 	LUA_QUAT_BUFFER_SIZE = 4096;
 static Quat 			g_quat_buffer[LUA_QUAT_BUFFER_SIZE];
 static uint32_t 		g_quat_used = 0;
 
