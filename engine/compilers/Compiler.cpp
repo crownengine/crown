@@ -24,15 +24,11 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <cstring>
-#include <cstdlib>
-#include <iostream>
-
 #include "Compiler.h"
+#include "Filesystem.h"
+#include "DiskFileSource.h"
 #include "ResourceFormat.h"
-
-using std::cout;
-using std::endl;
+#include "File.h"
 
 namespace crown
 {
@@ -40,14 +36,16 @@ namespace crown
 //-----------------------------------------------------------------------------
 bool Compiler::compile(const char* root_path, const char* dest_path, const char* name_in, const char* name_out)
 {
-	std::string path_in = std::string(root_path) + "/" + std::string(name_in);
-	std::string path_out = std::string(dest_path) + "/" + std::string(name_out);
+	DiskFileSource root_disk(root_path);
+	DiskFileSource dest_disk(dest_path);
+	Filesystem root_fs(root_disk);
+	Filesystem dest_fs(dest_disk);
 
 	// The compilation fails when returned size is zero
 	size_t resource_size = 0;
-	if ((resource_size = compile_impl(path_in.c_str())) == 0)
+	if ((resource_size = compile_impl(root_fs, name_in)) == 0)
 	{
-		cout << "Compilation failed." << endl;
+		Log::e("Compilation failed");
 		return false;
 	}
 
@@ -58,23 +56,23 @@ bool Compiler::compile(const char* root_path, const char* dest_path, const char*
 	resource_header.size = resource_size;
 
 	// Open destination file and write the header
-	std::fstream out_file;
-	out_file.open(path_out.c_str(), std::fstream::out | std::fstream::binary);
+	File* out_file = dest_fs.open(name_out, FOM_WRITE);
 
-	if (out_file.is_open())
+	if (out_file)
 	{
 		// Write header
-		out_file.write((char*)&resource_header, sizeof(ResourceHeader));
+		out_file->write((char*)&resource_header, sizeof(ResourceHeader));
 
 		// Write resource-specific data
 		write_impl(out_file);
-		out_file.close();
+
+		dest_fs.close(out_file);
 
 		cleanup();
 		return true;
 	}
 
-	cout << "Unable to write compiled file." << endl;
+	Log::e("Unable to write compiled file.");
 	return false;
 }
 

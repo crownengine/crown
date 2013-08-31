@@ -26,13 +26,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <string>
-#include <fstream>
-
 #include "Types.h"
 
 namespace crown
 {
+
+class Filesystem;
+class File;
 
 /// Resource compiler interface.
 /// Every specific resource compiler must inherith from this
@@ -48,8 +48,8 @@ public:
 
 protected:
 
-	virtual size_t			compile_impl(const char* resource_path) = 0;
-	virtual void			write_impl(std::fstream& out_file) = 0;
+	virtual size_t			compile_impl(Filesystem& fs, const char* resource_path) = 0;
+	virtual void			write_impl(File* out_file) = 0;
 };
 
 } // namespace crown
