@@ -33,9 +33,9 @@ namespace crown
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_init(JNIEnv* env, jobject obj)
 {
-	const char* argv[] = { "crown-android", "--root-path", "/sdcard/crown-android-project", "--dev" };
+	const char* argv[] = { "crown-android" };
 
-	device()->init(4, (char**)argv);
+	device()->init(1, (char**)argv);
 }
 
 //-----------------------------------------------------------------------------
