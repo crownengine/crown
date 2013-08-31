@@ -194,7 +194,7 @@ bool Device::init(int argc, char** argv)
 	m_is_init = true;
 	start();
 
-	ResourceId luagame_id = m_resource_manager->load("lua", "game");
+	ResourceId luagame_id = m_resource_manager->load("lua", "lua/game");
 	m_resource_manager->flush();
 	m_lua_environment->load((LuaResource*) m_resource_manager->data(luagame_id));
 	m_lua_environment->call_global("init", 0);
