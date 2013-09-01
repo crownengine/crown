@@ -58,7 +58,8 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/lua
 	${CMAKE_SOURCE_DIR}/engine/compilers
 	${CMAKE_SOURCE_DIR}/engine/compilers/lua
-	${CMAKE_SOURCE_DIR}/engine/compilers/tga
+	${CMAKE_SOURCE_DIR}/engine/compilers/texture
+	${CMAKE_SOURCE_DIR}/engine/compilers/mesh
 )
 
 set (SRC
@@ -334,14 +335,14 @@ set (COMPILER_SRC
 	compilers/Compiler.cpp
 	compilers/BundleCompiler.cpp
 	compilers/lua/LuaCompiler.cpp
-	compilers/tga/TGACompiler.cpp
+	compilers/texture/TextureCompiler.cpp
 )
 
 set (COMPILER_HEADER
 	compilers/Compiler.h
 	compilers/BundleCompiler.h
 	compilers/lua/LuaCompiler.h
-	compilers/tga/TGACompiler.h
+	compilers/texture/TextureCompiler.h
 )
 
 set (CROWN_LIBRARIES)

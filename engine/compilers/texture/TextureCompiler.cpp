@@ -24,7 +24,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "TGACompiler.h"
+#include "TextureCompiler.h"
 #include "PixelFormat.h"
 #include "Allocator.h"
 #include "Filesystem.h"
@@ -33,19 +33,19 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-TGACompiler::TGACompiler() :
+TextureCompiler::TextureCompiler() :
 	m_texture_data_size(0),
 	m_texture_data(NULL)
 {
 }
 
 //-----------------------------------------------------------------------------
-TGACompiler::~TGACompiler()
+TextureCompiler::~TextureCompiler()
 {
 }
 
 //-----------------------------------------------------------------------------
-size_t TGACompiler::compile_impl(Filesystem& fs, const char* resource_path)
+size_t TextureCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 {
 	File* in_file = fs.open(resource_path, FOM_READ);
 
@@ -133,7 +133,7 @@ size_t TGACompiler::compile_impl(Filesystem& fs, const char* resource_path)
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::write_impl(File* out_file)
+void TextureCompiler::write_impl(File* out_file)
 {
 	out_file->write((char*)&m_texture_header, sizeof(TextureHeader));
 	out_file->write((char*)m_texture_data, m_texture_data_size);
@@ -147,7 +147,7 @@ void TGACompiler::write_impl(File* out_file)
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::load_uncompressed(File* in_file)
+void TextureCompiler::load_uncompressed(File* in_file)
 {
 	uint64_t size = m_tga_header.width * m_tga_header.height;
 
@@ -177,7 +177,7 @@ void TGACompiler::load_uncompressed(File* in_file)
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::load_compressed(File* in_file)
+void TextureCompiler::load_compressed(File* in_file)
 {
 	uint8_t rle_id = 0;
 	uint32_t i = 0;
@@ -240,7 +240,7 @@ void TGACompiler::load_compressed(File* in_file)
 }
 
 //-----------------------------------------------------------------------------
-void TGACompiler::swap_red_blue()
+void TextureCompiler::swap_red_blue()
 {
 	for (uint64_t i = 0; i < m_tga_size * m_tga_channels; i += m_tga_channels)
 	{

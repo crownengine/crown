@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "TGACompiler.h"
+#include "TextureCompiler.h"
 #include "LuaCompiler.h"
 #include "DynamicString.h"
 #include "Vector.h"
@@ -49,8 +49,8 @@ private:
 
 private:
 
-	TGACompiler	m_tga;
-	LuaCompiler m_lua;
+	TextureCompiler	m_texture;
+	LuaCompiler 	m_lua;
 };
 
 } // namespace crown

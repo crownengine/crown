@@ -75,7 +75,7 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		bool result = false;
 		if (resource_type_hash == TEXTURE_TYPE)
 		{
-			result = m_tga.compile(source_dir, bundle_dir, filename, out_name);
+			result = m_texture.compile(source_dir, bundle_dir, filename, out_name);
 		}
 		else if (resource_type_hash == LUA_TYPE)
 		{
