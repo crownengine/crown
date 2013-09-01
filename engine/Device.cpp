@@ -101,6 +101,7 @@ Device::Device() :
 	// Bundle dir is current dir by default.
 	string::strncpy(m_bundle_dir, os::get_cwd(), MAX_PATH_LENGTH);
 	string::strncpy(m_source_dir, "", MAX_PATH_LENGTH);
+	string::strncpy(m_boot_file, "lua/game", MAX_PATH_LENGTH);
 }
 
 //-----------------------------------------------------------------------------
