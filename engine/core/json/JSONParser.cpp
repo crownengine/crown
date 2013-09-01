@@ -234,7 +234,7 @@ JSONElement& JSONElement::key(const char* k)
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
 
-	JSONParser::parse_object(m_begin, object);
+	JSONParser::parse_object(m_at, object);
 
 	bool found = false;
 
@@ -262,7 +262,7 @@ bool JSONElement::has_key(const char* k) const
 {
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
-	JSONParser::parse_object(m_begin, object);
+	JSONParser::parse_object(m_at, object);
 
 	for (uint32_t i = 0; i < object.size(); i++)
 	{
@@ -285,7 +285,7 @@ bool JSONElement::is_key_unique(const char* k) const
 {
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
-	JSONParser::parse_object(m_begin, object);
+	JSONParser::parse_object(m_at, object);
 
 	bool found = false;
 
@@ -311,25 +311,37 @@ bool JSONElement::is_key_unique(const char* k) const
 }
 
 //--------------------------------------------------------------------------
-bool JSONElement::bool_value() const
+bool JSONElement::bool_value()
 {
-	return JSONParser::parse_bool(m_at);
+	const bool value = JSONParser::parse_bool(m_at);
+
+	m_at = m_begin;
+
+	return value;
 }
 
 //--------------------------------------------------------------------------
-int32_t JSONElement::int_value() const
+int32_t JSONElement::int_value()
 {
-	return JSONParser::parse_int(m_at);
+	const int32_t value = JSONParser::parse_int(m_at);
+
+	m_at = m_begin;
+
+	return value;
 }
 
 //--------------------------------------------------------------------------
-float JSONElement::float_value() const
+float JSONElement::float_value()
 {
-	return JSONParser::parse_float(m_at);
+	const float value = JSONParser::parse_float(m_at);
+
+	m_at = m_begin;
+
+	return value;
 }
 
 //--------------------------------------------------------------------------
-const char* JSONElement::string_value() const
+const char* JSONElement::string_value()
 {
 	static TempAllocator1024 alloc;
 	static List<char> string(alloc);
@@ -337,6 +349,8 @@ const char* JSONElement::string_value() const
 	string.clear();
 
 	JSONParser::parse_string(m_at, string);
+
+	m_at = m_begin;
 
 	return string.begin();
 }
