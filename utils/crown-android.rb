@@ -162,9 +162,15 @@ def build_android_project(path)
 	# Move to root directory of Android project
 	Dir.chdir(path)
 	# Build libraries
-	system("ndk-build")
+	if system("ndk-build") != 0
+		print "Critical Error: Unable to build android project libraries\n"
+		return
+	end
 	# Build apk
-	system("ant debug")
+	if system("ant debug") != 0
+		print "Critical Error: Unable to build android apk\n"
+		return 
+	end
 end
 
 #------------------------------------------------------------------------------
