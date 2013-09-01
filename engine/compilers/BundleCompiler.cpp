@@ -24,6 +24,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <inttypes.h>
 #include "BundleCompiler.h"
 #include "Vector.h"
 #include "DynamicString.h"
@@ -67,7 +68,7 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		uint32_t resource_type_hash = hash::murmur2_32(filename_extension, string::strlen(filename_extension), 0);
 
 		char out_name[65];
-		snprintf(out_name, 65, "%.16llx", filename_hash);
+		snprintf(out_name, 65, "%"PRIx64"", filename_hash);
 
 		Log::i("%s <= %s", out_name, filename);
 

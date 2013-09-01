@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <algorithm>
-
+#include <inttypes.h>
 #include "Types.h"
 #include "ResourceManager.h"
 #include "ResourceRegistry.h"
@@ -63,7 +63,7 @@ ResourceId ResourceManager::load(const char* type, const char* name)
 //-----------------------------------------------------------------------------
 void ResourceManager::unload(ResourceId name)
 {
-	CE_ASSERT(has(name), "Resource not loaded: %.16llx", name.id);
+	CE_ASSERT(has(name), "Resource not loaded:" "%"PRIx64"", name.id);
 
 	ResourceEntry* entry = find(name);
 
@@ -87,7 +87,7 @@ bool ResourceManager::has(ResourceId name) const
 //-----------------------------------------------------------------------------
 const void* ResourceManager::data(ResourceId name) const
 {
-	CE_ASSERT(has(name), "Resource not loaded: %.16llx", name.id);
+	CE_ASSERT(has(name), "Resource not loaded:" "%"PRIx64"", name.id);
 
 	return find(name)->resource;
 }
@@ -95,7 +95,7 @@ const void* ResourceManager::data(ResourceId name) const
 //-----------------------------------------------------------------------------
 bool ResourceManager::is_loaded(ResourceId name) const
 {
-	CE_ASSERT(has(name), "Resource not loaded: %.16llx", name.id);
+	CE_ASSERT(has(name), "Resource not loaded:" "%"PRIx64"", name.id);
 
 	return find(name)->resource != NULL;
 }
@@ -103,7 +103,7 @@ bool ResourceManager::is_loaded(ResourceId name) const
 //-----------------------------------------------------------------------------
 uint32_t ResourceManager::references(ResourceId name) const
 {
-	CE_ASSERT(has(name), "Resource not loaded: %.16llx", name.id);
+	CE_ASSERT(has(name), "Resource not loaded:" "%"PRIx64"", name.id);
 
 	return find(name)->references;
 }
