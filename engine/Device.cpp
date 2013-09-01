@@ -524,8 +524,10 @@ void Device::check_preferred_settings()
 //-----------------------------------------------------------------------------
 void Device::read_engine_settings()
 {
+	// Check crown.config existance
 	CE_ASSERT(m_filesystem->is_file("crown.config"), "Unable to open crown.config");
 
+	// Copy crown config in a buffer
 	TempAllocator4096 allocator;
 
 	File* config_file = m_filesystem->open("crown.config", FOM_READ);
@@ -536,10 +538,12 @@ void Device::read_engine_settings()
 
 	m_filesystem->close(config_file);
 
+	// Parse crown.config
 	JSONParser parser(json_string);
 
 	JSONElement root = parser.root();
 
+	// Boot
 	if (root.has_key("boot"))
 	{
 		const char* boot = root.key("boot").string_value();
@@ -547,10 +551,12 @@ void Device::read_engine_settings()
 
 		string::strncpy(m_boot_file, boot, boot_length);
 	}
+	// Window width
 	if (root.has_key("window_width"))
 	{
 		m_preferred_window_width = root.key("window_width").int_value();
 	}
+	// Window height
 	if (root.has_key("window_height"))
 	{
 		m_preferred_window_height = root.key("window_height").int_value();
