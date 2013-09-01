@@ -53,12 +53,14 @@ public:
 	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
-		CE_ASSERT(file != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
+		CE_ASSERT(file != NULL, "Resource does not exist: %.16llx", id.id);
 
 		const size_t file_size = file->size() - 12;
 		LuaResource* res = (LuaResource*) allocator.allocate(sizeof(LuaResource));
 		res->m_data = (uint8_t*) allocator.allocate(file_size);
 		file->read(res->m_data, file_size);
+
+		bundle.close(file);
 
 		return res;
 	}

@@ -54,6 +54,7 @@ enum LoadResourceStatus
 struct LoadResource
 {
 	LoadResourceId id;
+	uint32_t type;
 	ResourceId resource;
 };
 
@@ -73,7 +74,7 @@ public:
 							ResourceLoader(Bundle& bundle, Allocator& resource_heap);
 
 	/// Loads the @a resource in a background thread.
-	LoadResourceId			load_resource(ResourceId resource);
+	LoadResourceId			load_resource(uint32_t type, ResourceId resource);
 
 	/// Returns the status of the given load request @a id.
 	LoadResourceStatus		load_resource_status(LoadResourceId id) const;
