@@ -57,15 +57,33 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		temp.create_directory(bundle_dir);
 	}
 
+	DiskFilesystem src_fs(source_dir);
+	DiskFilesystem dst_fs(bundle_dir);
+
 	// Compile all resources
 	for (uint32_t i = 0; i < files.size(); i++)
 	{
 		const char* filename = files[i].c_str();
+
 		uint64_t filename_hash = hash::murmur2_64(filename, string::strlen(filename), 0);
 
 		char filename_extension[32];
 		path::extension(filename, filename_extension, 32);
 		uint32_t resource_type_hash = hash::murmur2_32(filename_extension, string::strlen(filename_extension), 0);
+
+		// Do not compile if curr resource is a config file
+		if (resource_type_hash == CONFIG_TYPE)
+		{
+			File* src = src_fs.open(filename, FOM_READ);
+			File* dst = dst_fs.open(filename, FOM_WRITE);
+
+			src->copy_to(*dst, src->size());
+
+			src_fs.close(src);
+			dst_fs.close(dst);
+
+			continue;
+		}
 
 		char out_name[65];
 		snprintf(out_name, 65, "%"PRIx64"", filename_hash);
