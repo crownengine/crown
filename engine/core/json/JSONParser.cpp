@@ -194,14 +194,16 @@ static bool is_escapee(char c)
 //--------------------------------------------------------------------------
 JSONElement::JSONElement() :
 	m_parser(NULL),
-	m_at(NULL)
+	m_at(NULL),
+	m_begin(NULL)
 {
 }
 
 //--------------------------------------------------------------------------
 JSONElement::JSONElement(JSONParser& parser, const char* at) :
 	m_parser(&parser),
-	m_at(at)
+	m_at(at),
+	m_begin(at)
 {
 }
 
@@ -232,7 +234,7 @@ JSONElement& JSONElement::key(const char* k)
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
 
-	JSONParser::parse_object(m_at, object);
+	JSONParser::parse_object(m_begin, object);
 
 	bool found = false;
 
@@ -260,7 +262,7 @@ bool JSONElement::has_key(const char* k) const
 {
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
-	JSONParser::parse_object(m_at, object);
+	JSONParser::parse_object(m_begin, object);
 
 	for (uint32_t i = 0; i < object.size(); i++)
 	{
@@ -283,7 +285,7 @@ bool JSONElement::is_key_unique(const char* k) const
 {
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
-	JSONParser::parse_object(m_at, object);
+	JSONParser::parse_object(m_begin, object);
 
 	bool found = false;
 

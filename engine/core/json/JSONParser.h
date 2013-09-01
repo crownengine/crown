@@ -132,6 +132,7 @@ private:
 
 	JSONParser*			m_parser;
 	const char*			m_at;
+	const char*			m_begin;
 
 	friend class 		JSONParser;
 };
