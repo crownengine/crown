@@ -47,12 +47,12 @@ struct TGAHeader
 	char		image_descriptor;	// 11h  Image descriptor byte
 };
 
-class TGACompiler : public Compiler
+class TextureCompiler : public Compiler
 {
 public:
 
-					TGACompiler();
-					~TGACompiler();
+					TextureCompiler();
+					~TextureCompiler();
 
 	size_t			compile_impl(Filesystem& fs, const char* resource_path);
 	void			write_impl(File* out_file);
