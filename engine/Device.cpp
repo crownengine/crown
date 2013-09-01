@@ -52,6 +52,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Touch.h"
 #include "Types.h"
 #include "Bundle.h"
+#include "TempAllocator.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -148,6 +149,9 @@ bool Device::init(int argc, char** argv)
 	#endif
 	Log::d("Filesystem created.");
 
+	// Read settings from crown.config
+	read_engine_settings();
+
 	m_resource_bundle = Bundle::create(m_allocator, *m_filesystem);
 
 	// // Read resource seed
@@ -197,7 +201,7 @@ bool Device::init(int argc, char** argv)
 	m_is_init = true;
 	start();
 
-	ResourceId luagame_id = m_resource_manager->load("lua", "lua/game");
+	ResourceId luagame_id = m_resource_manager->load("lua", m_boot_file);
 	m_resource_manager->flush();
 	m_lua_environment->load((LuaResource*) m_resource_manager->data(luagame_id));
 	m_lua_environment->call_global("init", 0);
@@ -520,6 +524,41 @@ void Device::check_preferred_settings()
 //-----------------------------------------------------------------------------
 void Device::read_engine_settings()
 {
+	CE_ASSERT(m_filesystem->is_file("crown.config"), "Unable to open crown.config");
+
+	TempAllocator4096 allocator;
+
+	File* config_file = m_filesystem->open("crown.config", FOM_READ);
+
+	char* json_string = (char*)allocator.allocate(config_file->size());
+
+	config_file->read(json_string, config_file->size());
+
+	m_filesystem->close(config_file);
+
+	JSONParser parser(json_string);
+
+	JSONElement root = parser.root();
+
+	if (root.has_key("boot"))
+	{
+		const char* boot = root.key("boot").string_value();
+		const size_t boot_length = string::strlen(boot) + 1;
+
+		string::strncpy(m_boot_file, boot, boot_length);
+	}
+	if (root.has_key("window_width"))
+	{
+		m_preferred_window_width = root.key("window_width").int_value();
+	}
+	if (root.has_key("window_height"))
+	{
+		m_preferred_window_height = root.key("window_height").int_value();
+	}
+
+	allocator.deallocate(json_string);
+
+	Log::i("Configuration set");
 }
 
 //-----------------------------------------------------------------------------
