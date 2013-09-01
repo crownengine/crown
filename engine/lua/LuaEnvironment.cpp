@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaStack.h"
 #include "Device.h"
 #include "LuaResource.h"
+#include "ResourceManager.h"
 
 namespace crown
 {
@@ -62,6 +63,24 @@ CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 }
 
 //-----------------------------------------------------------------------------
+static int crown_lua_require(lua_State* L)
+{
+	LuaStack stack(L);
+
+	const char* filename = stack.get_string(1);
+
+	const ResourceId lua_res = device()->resource_manager()->load("lua", filename);
+	device()->resource_manager()->flush();
+
+	const LuaResource* lr = (LuaResource*) device()->resource_manager()->data(lua_res);
+	luaL_loadbuffer(L, (const char*) lr->code(), lr->size(), "");
+
+	device()->resource_manager()->unload(lua_res);
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment() :
 	m_state(luaL_newstate()),
 	m_is_used(false)
@@ -78,6 +97,25 @@ void LuaEnvironment::init()
 	luaL_openlibs(m_state);
 	// Open Crown library
 	lua_cpcall(m_state, luaopen_libcrown, NULL);
+
+	// Register custom loader
+	lua_getfield(m_state, LUA_GLOBALSINDEX, "package");
+	lua_getfield(m_state, -1, "loaders");
+	lua_remove(m_state, -2);
+
+	int num_loaders = 0;
+	lua_pushnil(m_state);
+	while (lua_next(m_state, -2) != 0)
+	{
+		lua_pop(m_state, 1);
+		num_loaders++;
+	}
+
+	lua_pushinteger(m_state, num_loaders + 1);
+	lua_pushcfunction(m_state, crown_lua_require);
+	lua_rawset(m_state, -3);
+
+	lua_pop(m_state, 1);
 
 	// load_buffer(class_system, string::strlen(class_system));
 	// execute(0, 0);
@@ -117,7 +155,7 @@ void LuaEnvironment::load(const LuaResource* lr)
 
 	if (luaL_loadbuffer(m_state, (const char*) lr->code(), lr->size(), "") != 0)
 	{
-		lua_error();		
+		lua_error();
 	}
 
 	if (lua_pcall(m_state, 0, 0, 0) != 0)
