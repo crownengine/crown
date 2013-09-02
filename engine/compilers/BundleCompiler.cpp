@@ -99,6 +99,10 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		{
 			result = m_lua.compile(source_dir, bundle_dir, filename, out_name);
 		}
+		else if(resource_type_hash == SOUND_TYPE)
+		{
+			result = m_sound.compile(source_dir, bundle_dir, filename, out_name);
+		}
 		else
 		{
 			Log::e("Oops, unknown resource type!");

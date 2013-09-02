@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "Bundle.h"
 #include "Allocator.h"
+#include "File.h"
 
 namespace crown
 {

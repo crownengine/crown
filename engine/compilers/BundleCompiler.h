@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "TextureCompiler.h"
 #include "LuaCompiler.h"
+#include "SoundCompiler.h"
 #include "DynamicString.h"
 #include "Vector.h"
 #include "DiskFilesystem.h"
@@ -51,6 +52,7 @@ private:
 
 	TextureCompiler	m_texture;
 	LuaCompiler 	m_lua;
+	SoundCompiler	m_sound;
 };
 
 } // namespace crown

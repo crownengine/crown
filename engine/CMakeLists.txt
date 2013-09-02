@@ -59,6 +59,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/compilers
 	${CMAKE_SOURCE_DIR}/engine/compilers/lua
 	${CMAKE_SOURCE_DIR}/engine/compilers/texture
+	${CMAKE_SOURCE_DIR}/engine/compilers/sound
 	${CMAKE_SOURCE_DIR}/engine/compilers/mesh
 )
 
@@ -336,6 +337,7 @@ set (COMPILER_SRC
 	compilers/BundleCompiler.cpp
 	compilers/lua/LuaCompiler.cpp
 	compilers/texture/TextureCompiler.cpp
+	compilers/sound/SoundCompiler.cpp
 )
 
 set (COMPILER_HEADER
@@ -343,6 +345,7 @@ set (COMPILER_HEADER
 	compilers/BundleCompiler.h
 	compilers/lua/LuaCompiler.h
 	compilers/texture/TextureCompiler.h
+	compilers/sound/SoundCompiler.h
 )
 
 set (CROWN_LIBRARIES)
