@@ -33,6 +33,7 @@ $package			= "crown.android"
 
 $engine_src 		= "../engine/."
 $android_src		= "../engine/os/android/*.java"
+$config_src			= "../engine/os/android/Config.h"
 $manifest			= "../engine/os/android/AndroidManifest.xml"
 
 $luajit				= "../engine/third/ARMv7/luajit"
@@ -140,6 +141,10 @@ def fill_android_project(path)
 	FileUtils.cp_r($engine_src, engine_dest, :remove_destination => true)
 	print "Copied Engine to " + engine_dest + "\n"
 
+	# Copy android Config.h
+	FileUtils.cp($config_src, engine_dest)
+	print "Copied Config.h to " + engine_dest + "\n"
+
 	# Copy luajit dir
 	FileUtils.cp_r($luajit, engine_dest, :remove_destination => true)
 	print "Copied luajit dir to " + engine_dest + "\n"
@@ -162,14 +167,14 @@ def build_android_project(path)
 	# Move to root directory of Android project
 	Dir.chdir(path)
 	# Build libraries
-	if system("ndk-build") != 0
-		print "Critical Error: Unable to build android project libraries\n"
+	if not system("ndk-build")
+		print "Critical error: Unable to build crown libraries"
 		return
 	end
 	# Build apk
-	if system("ant debug") != 0
-		print "Critical Error: Unable to build android apk\n"
-		return 
+	if not system("ant debug")
+		print "Critical error: Unable to build crown project"
+		return
 	end
 end
 
