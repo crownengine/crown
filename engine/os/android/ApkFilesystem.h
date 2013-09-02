@@ -47,6 +47,12 @@ public:
 	/// @copydoc Filesystem::close()
 	void close(File* file);
 
+	/// Returns always false under Android.
+	bool is_directory(const char* path);
+
+	/// Returns always false under Android.
+	bool is_file(const char* path);
+
 	/// Stub method, assets folder is read-only.
 	void create_directory(const char* path);
 

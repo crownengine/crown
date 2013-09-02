@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "Allocator.h"
 #include "Bundle.h"
@@ -62,7 +63,7 @@ public:
 	{
 		// Convert name/type into strings
 		char resource_name[512];
-		snprintf(resource_name, 512, "%.8X%.8X", name.name, name.type);
+		snprintf(resource_name, 512, "%"PRIx64"", name.id);
 		
 		// Search the resource in the filesystem
 		// bool exists = m_filesystem.exists(resource_name);
@@ -70,6 +71,8 @@ public:
 
 		// Open the resource and check magic number/version
 		File* file = m_filesystem.open(resource_name, FOM_READ);
+
+		CE_ASSERT(file != NULL, "Resource %s does not exist", resource_name);
 
 		ResourceHeader header;
 		file->read(&header, sizeof(ResourceHeader));

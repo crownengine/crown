@@ -56,8 +56,6 @@ public:
 	{
 		File* file = bundle.open(id);
 
-		CE_ASSERT(file != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
-
 		MeshResource* resource = (MeshResource*)allocator.allocate(sizeof(MeshResource));
 		file->read(&resource->m_header, sizeof(MeshHeader));
 

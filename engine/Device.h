@@ -127,13 +127,14 @@ private:
 	uint8_t					m_subsystems_heap[MAX_SUBSYSTEMS_HEAP];
 	LinearAllocator			m_allocator;
 
-	// Preferred settings from command line
+	// Preferred settings
 	int32_t					m_preferred_window_width;
 	int32_t					m_preferred_window_height;
 	int32_t					m_preferred_window_fullscreen;
 	uint32_t				m_parent_window_handle;
 	char					m_source_dir[MAX_PATH_LENGTH];
 	char 					m_bundle_dir[MAX_PATH_LENGTH];
+	char 					m_boot_file[MAX_PATH_LENGTH];
 	int32_t					m_compile;
 	int32_t					m_continue;
 

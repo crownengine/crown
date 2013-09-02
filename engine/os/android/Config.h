@@ -24,50 +24,15 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#define CROWN_VERSION_MAJOR 0 
+#define CROWN_VERSION_MINOR 1 
+#define CROWN_VERSION_MICRO 11 
 
-#include <iostream>
-#include <fstream>
-#include <ogg/ogg.h>
-#include <vorbis/codec.h>
-#include <map>
-#include <cassert>
-#include <stdint.h>
+#define ANDROID
 
-using namespace std;
-
-namespace crown
-{
-
-//-----------------------------------------------------------------------------
-struct OggStream
-{
-	int					m_serial;
-	int					m_num_packet;
-	ogg_stream_state 	m_state;
-
-	inline OggStream(int serial = -1) : m_serial(serial), m_num_packet(0) {}
-
-	inline ~OggStream() { int ret = ogg_stream_clear(&m_state);	//CE_ASSERT(ret == 0, "Cannot clear OGG stream");	}
-};
-
-//-----------------------------------------------------------------------------
-typedef map<int, OggStream*> StreamMap;
-
-//-----------------------------------------------------------------------------
-class OggDecoder
-{
-public:
-
-					OggDecoder();
-					~OggDecoder();
-
-	bool 			read_page(istream& file, ogg_sync_state* state, ogg_page* page);
-
-	void 			play(istream& file);
-
-public:
-	StreamMap		m_streams;
-};
-
-} // namespace crown
+#ifdef ANDROID
+	#define PRId64 "lld"
+	#define PRIu64 "llu"
+	#define PRIi64 "lli"
+	#define PRIx64 "llx"
+#endif

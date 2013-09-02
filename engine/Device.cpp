@@ -53,6 +53,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Touch.h"
 #include "Types.h"
 #include "Bundle.h"
+#include "TempAllocator.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -101,6 +102,7 @@ Device::Device() :
 	// Bundle dir is current dir by default.
 	string::strncpy(m_bundle_dir, os::get_cwd(), MAX_PATH_LENGTH);
 	string::strncpy(m_source_dir, "", MAX_PATH_LENGTH);
+	string::strncpy(m_boot_file, "lua/game", MAX_PATH_LENGTH);
 }
 
 //-----------------------------------------------------------------------------
@@ -124,6 +126,7 @@ bool Device::init(int argc, char** argv)
 			if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir))
 			{
 				CE_DELETE(m_allocator, m_bundle_compiler);
+				m_allocator.clear();
 				Log::e("Exiting.");
 				exit(EXIT_FAILURE);
 			}
@@ -131,6 +134,7 @@ bool Device::init(int argc, char** argv)
 			if (!m_continue)
 			{
 				CE_DELETE(m_allocator, m_bundle_compiler);
+				m_allocator.clear();
 				exit(EXIT_SUCCESS);
 			}
 		}
@@ -146,6 +150,9 @@ bool Device::init(int argc, char** argv)
 		m_filesystem = CE_NEW(m_allocator, ApkFilesystem)();
 	#endif
 	Log::d("Filesystem created.");
+
+	// Read settings from crown.config
+	read_engine_settings();
 
 	m_resource_bundle = Bundle::create(m_allocator, *m_filesystem);
 
@@ -173,10 +180,11 @@ bool Device::init(int argc, char** argv)
 
 	CE_ASSERT(m_window != NULL, "Unable to create the window");
 
+	// Create main window
 	m_window->set_title("Crown Game Engine");
-	m_window->show();
 	Log::d("Window created.");
 
+	// Create renderer
 	m_renderer = Renderer::create(m_allocator);
 	m_renderer->init();
 	Log::d("Renderer created.");
@@ -195,10 +203,11 @@ bool Device::init(int argc, char** argv)
 	m_is_init = true;
 	start();
 
-	ResourceId luagame_id = m_resource_manager->load("lua", "lua/game");
+	ResourceId luagame_id = m_resource_manager->load("lua", m_boot_file);
 	m_resource_manager->flush();
 	m_lua_environment->load((LuaResource*) m_resource_manager->data(luagame_id));
 	m_lua_environment->call_global("init", 0);
+	m_resource_manager->unload(luagame_id);
 
 	if (m_quit_after_init == 1)
 	{
@@ -206,17 +215,16 @@ bool Device::init(int argc, char** argv)
 		shutdown();
 	}
 
+	// Show main window
+	m_window->show();
+
 	return true;
 }
 
 //-----------------------------------------------------------------------------
 void Device::shutdown()
 {
-	if (is_init() == false)
-	{
-		Log::e("Crown Engine is not initialized.");	
-		return;
-	}
+	CE_ASSERT(is_init(), "Engine is not initialized");
 
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);
@@ -521,6 +529,47 @@ void Device::check_preferred_settings()
 //-----------------------------------------------------------------------------
 void Device::read_engine_settings()
 {
+	// Check crown.config existance
+	CE_ASSERT(m_filesystem->is_file("crown.config"), "Unable to open crown.config");
+
+	// Copy crown config in a buffer
+	TempAllocator4096 allocator;
+
+	File* config_file = m_filesystem->open("crown.config", FOM_READ);
+
+	char* json_string = (char*)allocator.allocate(config_file->size());
+
+	config_file->read(json_string, config_file->size());
+
+	m_filesystem->close(config_file);
+
+	// Parse crown.config
+	JSONParser parser(json_string);
+
+	JSONElement root = parser.root();
+
+	// Boot
+	if (root.has_key("boot"))
+	{
+		const char* boot = root.key("boot").string_value();
+		const size_t boot_length = string::strlen(boot) + 1;
+
+		string::strncpy(m_boot_file, boot, boot_length);
+	}
+	// Window width
+	if (root.has_key("window_width"))
+	{
+		m_preferred_window_width = root.key("window_width").int_value();
+	}
+	// Window height
+	if (root.has_key("window_height"))
+	{
+		m_preferred_window_height = root.key("window_height").int_value();
+	}
+
+	allocator.deallocate(json_string);
+
+	Log::i("Configuration set");
 }
 
 //-----------------------------------------------------------------------------

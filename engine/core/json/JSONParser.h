@@ -111,20 +111,20 @@ public:
 	uint32_t			size() const;
 
 	/// Returns the boolean value of the element.
-	bool				bool_value() const;
+	bool				bool_value();
 
 	/// Returns the integer value of the element.
-	int32_t				int_value() const;
+	int32_t				int_value();
 
 	/// Returns the float value of the element.
-	float				float_value() const;
+	float				float_value();
 
 	/// Returns the string value of the element.
 	/// @warning
 	/// The returned string is kept internally until the next call to
 	/// this function, so it is highly unsafe to just keep the pointer
 	/// instead of copying its content somewhere else.
-	const char*			string_value() const;
+	const char*			string_value();
 
 private:
 
@@ -132,6 +132,7 @@ private:
 
 	JSONParser*			m_parser;
 	const char*			m_at;
+	const char*			m_begin;
 
 	friend class 		JSONParser;
 };

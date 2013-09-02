@@ -194,14 +194,16 @@ static bool is_escapee(char c)
 //--------------------------------------------------------------------------
 JSONElement::JSONElement() :
 	m_parser(NULL),
-	m_at(NULL)
+	m_at(NULL),
+	m_begin(NULL)
 {
 }
 
 //--------------------------------------------------------------------------
 JSONElement::JSONElement(JSONParser& parser, const char* at) :
 	m_parser(&parser),
-	m_at(at)
+	m_at(at),
+	m_begin(at)
 {
 }
 
@@ -309,25 +311,37 @@ bool JSONElement::is_key_unique(const char* k) const
 }
 
 //--------------------------------------------------------------------------
-bool JSONElement::bool_value() const
+bool JSONElement::bool_value()
 {
-	return JSONParser::parse_bool(m_at);
+	const bool value = JSONParser::parse_bool(m_at);
+
+	m_at = m_begin;
+
+	return value;
 }
 
 //--------------------------------------------------------------------------
-int32_t JSONElement::int_value() const
+int32_t JSONElement::int_value()
 {
-	return JSONParser::parse_int(m_at);
+	const int32_t value = JSONParser::parse_int(m_at);
+
+	m_at = m_begin;
+
+	return value;
 }
 
 //--------------------------------------------------------------------------
-float JSONElement::float_value() const
+float JSONElement::float_value()
 {
-	return JSONParser::parse_float(m_at);
+	const float value = JSONParser::parse_float(m_at);
+
+	m_at = m_begin;
+
+	return value;
 }
 
 //--------------------------------------------------------------------------
-const char* JSONElement::string_value() const
+const char* JSONElement::string_value()
 {
 	static TempAllocator1024 alloc;
 	static List<char> string(alloc);
@@ -335,6 +349,8 @@ const char* JSONElement::string_value() const
 	string.clear();
 
 	JSONParser::parse_string(m_at, string);
+
+	m_at = m_begin;
 
 	return string.begin();
 }

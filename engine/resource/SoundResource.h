@@ -65,8 +65,6 @@ public:
 	{
 		File* file = bundle.open(id);
 
-		CE_ASSERT(file != NULL, "Resource does not exist: %.8X%.8X", id.name, id.type);
-
 		SoundResource* resource = (SoundResource*)allocator.allocate(sizeof(SoundResource));
 
 		file->read(&resource->m_header, sizeof(SoundHeader));

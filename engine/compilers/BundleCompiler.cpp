@@ -24,6 +24,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <inttypes.h>
 #include "BundleCompiler.h"
 #include "Vector.h"
 #include "DynamicString.h"
@@ -56,31 +57,47 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		temp.create_directory(bundle_dir);
 	}
 
+	DiskFilesystem src_fs(source_dir);
+	DiskFilesystem dst_fs(bundle_dir);
+
 	// Compile all resources
 	for (uint32_t i = 0; i < files.size(); i++)
 	{
-		DynamicString& filename = files[i];
+		const char* filename = files[i].c_str();
 
-		char resource_name[1024];
-		char resource_type[1024];
-		path::filename_without_extension(filename.c_str(), resource_name, 1024);
-		path::extension(filename.c_str(), resource_type, 1024);
+		uint64_t filename_hash = hash::murmur2_64(filename, string::strlen(filename), 0);
 
-		uint32_t resource_name_hash = hash::murmur2_32(resource_name, string::strlen(resource_name), 0);
-		uint32_t resource_type_hash = hash::murmur2_32(resource_type, string::strlen(resource_type), 0);
+		char filename_extension[32];
+		path::extension(filename, filename_extension, 32);
+		uint32_t resource_type_hash = hash::murmur2_32(filename_extension, string::strlen(filename_extension), 0);
 
-		char out_name[1024];
-		snprintf(out_name, 1024, "%.8X%.8X", resource_name_hash, resource_type_hash);
-		Log::i("%s <= %s", out_name, filename.c_str());
+		// Do not compile if curr resource is a config file
+		if (resource_type_hash == CONFIG_TYPE)
+		{
+			File* src = src_fs.open(filename, FOM_READ);
+			File* dst = dst_fs.open(filename, FOM_WRITE);
+
+			src->copy_to(*dst, src->size());
+
+			src_fs.close(src);
+			dst_fs.close(dst);
+
+			continue;
+		}
+
+		char out_name[65];
+		snprintf(out_name, 65, "%"PRIx64"", filename_hash);
+
+		Log::i("%s <= %s", out_name, filename);
 
 		bool result = false;
 		if (resource_type_hash == TEXTURE_TYPE)
 		{
-			result = m_tga.compile(source_dir, bundle_dir, filename.c_str(), out_name);
+			result = m_texture.compile(source_dir, bundle_dir, filename, out_name);
 		}
 		else if (resource_type_hash == LUA_TYPE)
 		{
-			result = m_lua.compile(source_dir, bundle_dir, filename.c_str(), out_name);
+			result = m_lua.compile(source_dir, bundle_dir, filename, out_name);
 		}
 		else
 		{
