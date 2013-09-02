@@ -38,7 +38,6 @@ namespace crown
 enum SoundType
 {
 	ST_WAV = 0,
-	ST_MIDI,
 	ST_OGG
 };
 
