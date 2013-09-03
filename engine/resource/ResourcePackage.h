@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// Collection of resources to load in a batch.
 class ResourcePackage
 {
 public:
@@ -45,7 +46,10 @@ public:
 		CE_ASSERT_NOT_NULL(package);
 	}
 
-	//-----------------------------------------------------------------------------
+	/// Loads all the resources in the package.
+	/// @note
+	/// The resources are not immediately available after the call is made,
+	/// instead, you have to poll for completion with has_loaded()
 	void load()
 	{
 		Log::i("ResourcePackage: loading %d textures", m_package->num_textures());
@@ -61,7 +65,7 @@ public:
 		}
 	}
 
-	//-----------------------------------------------------------------------------
+	/// Unloads all the resources in the package.
 	void unload()
 	{
 		for (uint32_t i = 0; i < m_package->num_textures(); i++)
@@ -75,14 +79,14 @@ public:
 		}		
 	}
 
-	//-----------------------------------------------------------------------------
+	/// Waits until the package has been loaded. 
 	void flush()
 	{
 		m_resource_manager->flush();
 		m_has_loaded = true;
 	}
 
-	//-----------------------------------------------------------------------------
+	/// Returns whether the package has been loaded.
 	bool has_loaded() const
 	{
 		return m_has_loaded;
