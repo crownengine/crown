@@ -105,6 +105,9 @@ bool			delete_directory(const char* path);
 /// Does not follow symbolic links.
 void			list_files(const char* path, Vector<DynamicString>& files);
 
+/// Returns os-dependent path from os-indipendent @a path
+const char*		normalize_path(const char* path);
+
 //-----------------------------------------------------------------------------
 // OS ambient variables
 //-----------------------------------------------------------------------------
