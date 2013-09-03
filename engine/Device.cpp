@@ -542,7 +542,8 @@ void Device::read_engine_settings()
 	// Parse crown.config
 	JSONParser parser(json_string);
 
-	JSONElement root = parser.root();
+	JSONElement root;
+	root = parser.root();
 
 	// Boot
 	if (root.has_key("boot"))

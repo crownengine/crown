@@ -64,6 +64,8 @@ public:
 	/// already existent and valid element.
 						JSONElement();
 
+	JSONElement&		operator=(const JSONElement& other);
+
 	/// Returns the @a i -th item of the current array.
 	JSONElement&		operator[](uint32_t i);
 
@@ -128,11 +130,11 @@ public:
 
 private:
 
-						JSONElement(JSONParser& parser, const char* at);
+	explicit			JSONElement(JSONParser& parser, const char* at);
 
 	JSONParser*			m_parser;
-	const char*			m_at;
 	const char*			m_begin;
+	const char*			m_at;
 
 	friend class 		JSONParser;
 };
