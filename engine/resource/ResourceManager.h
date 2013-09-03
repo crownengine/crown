@@ -122,6 +122,7 @@ private:
 
 private:
 
+	friend class			ResourcePackage;
 	friend class			Device;
 };
 
