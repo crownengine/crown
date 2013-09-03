@@ -40,8 +40,8 @@ class ResourcePackage
 public:
 
 	//-----------------------------------------------------------------------------
-	ResourcePackage(ResourceManager& resman, const PackageResource* package)
-		: m_resource_manager(&resman), m_package(package), m_has_loaded(false)
+	ResourcePackage(ResourceManager& resman, const ResourceId id, const PackageResource* package)
+		: m_resource_manager(&resman), m_package_id(id), m_package(package), m_has_loaded(false)
 	{
 		CE_ASSERT_NOT_NULL(package);
 	}
@@ -52,8 +52,6 @@ public:
 	/// instead, you have to poll for completion with has_loaded()
 	void load()
 	{
-		Log::i("ResourcePackage: loading %d textures", m_package->num_textures());
-		Log::i("ResourcePackage: loading %d scripts", m_package->num_scripts());
 		for (uint32_t i = 0; i < m_package->num_textures(); i++)
 		{
 			m_resource_manager->load(TEXTURE_TYPE, m_package->get_texture_id(i));
@@ -92,9 +90,16 @@ public:
 		return m_has_loaded;
 	}
 
+	/// Returns the resource id of the package.
+	ResourceId resource_id() const
+	{
+		return m_package_id;
+	}
+
 private:
 
 	ResourceManager* m_resource_manager;
+	const ResourceId m_package_id;
 	const PackageResource* m_package;
 	bool m_has_loaded;
 };
