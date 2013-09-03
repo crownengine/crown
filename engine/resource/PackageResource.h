@@ -35,16 +35,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-// Bump the version whenever a change in the header is made
-const uint32_t LUA_RESOURCE_VERSION = 1;
-
-struct LuaHeader
+// All offsets are absolute
+struct PackageHeader
 {
-	uint32_t	version;	// Lua resource version
-	uint32_t	size;		// Size of lua code
+	uint32_t num_textures;
+	uint32_t textures_offset;
+	uint32_t num_scripts;
+	uint32_t scripts_offset;
 };
 
-class LuaResource
+class PackageResource
 {
 public:
 
@@ -54,8 +54,8 @@ public:
 		File* file = bundle.open(id);
 
 		const size_t file_size = file->size() - 12;
-		LuaResource* res = (LuaResource*) allocator.allocate(sizeof(LuaResource));
-		res->m_data = (uint8_t*) allocator.allocate(file_size);
+		PackageResource* res = (PackageResource*) allocator.allocate(sizeof(PackageResource));
+		res->m_data = (char*) allocator.allocate(file_size);
 		file->read(res->m_data, file_size);
 
 		bundle.close(file);
@@ -71,7 +71,7 @@ public:
 	{
 		CE_ASSERT_NOT_NULL(resource);
 
-		allocator.deallocate(((LuaResource*)resource)->m_data);
+		allocator.deallocate(((PackageResource*)resource)->m_data);
 		allocator.deallocate(resource);
 	}
 
@@ -80,19 +80,43 @@ public:
 
 public:
 
-	uint32_t size() const
+	//-----------------------------------------------------------------------------
+	uint32_t num_textures() const
 	{
-		return ((LuaHeader*) m_data)->size;
+		CE_ASSERT_NOT_NULL(m_data);
+
+		return ((PackageHeader*)m_data)->num_textures;
 	}
 
-	const uint8_t* code() const
+	//-----------------------------------------------------------------------------
+	uint32_t num_scripts() const
 	{
-		return m_data + sizeof(LuaHeader);
+		CE_ASSERT_NOT_NULL(m_data);
+
+		return ((PackageHeader*)m_data)->num_scripts;
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_texture_id(uint32_t i) const
+	{
+		CE_ASSERT(i < num_textures(), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->textures_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_script_id(uint32_t i) const
+	{
+		CE_ASSERT(i < num_scripts(), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->scripts_offset);
+		return begin[i];
 	}
 
 private:
 
-	uint8_t* m_data;
+	char* m_data;
 };
 
 } // namespace crown

@@ -27,72 +27,72 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "ResourceManager.h"
+#include "PackageResource.h"
 #include "Resource.h"
-#include "Bundle.h"
-#include "Allocator.h"
-#include "File.h"
 
 namespace crown
 {
 
-// Bump the version whenever a change in the header is made
-const uint32_t LUA_RESOURCE_VERSION = 1;
-
-struct LuaHeader
-{
-	uint32_t	version;	// Lua resource version
-	uint32_t	size;		// Size of lua code
-};
-
-class LuaResource
+class ResourcePackage
 {
 public:
 
 	//-----------------------------------------------------------------------------
-	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	ResourcePackage(ResourceManager& resman, const PackageResource* package)
+		: m_resource_manager(&resman), m_package(package), m_has_loaded(false)
 	{
-		File* file = bundle.open(id);
-
-		const size_t file_size = file->size() - 12;
-		LuaResource* res = (LuaResource*) allocator.allocate(sizeof(LuaResource));
-		res->m_data = (uint8_t*) allocator.allocate(file_size);
-		file->read(res->m_data, file_size);
-
-		bundle.close(file);
-
-		return res;
+		CE_ASSERT_NOT_NULL(package);
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* /*resource*/) {}
-
-	//-----------------------------------------------------------------------------
-	static void unload(Allocator& allocator, void* resource)
+	void load()
 	{
-		CE_ASSERT_NOT_NULL(resource);
+		Log::i("ResourcePackage: loading %d textures", m_package->num_textures());
+		Log::i("ResourcePackage: loading %d scripts", m_package->num_scripts());
+		for (uint32_t i = 0; i < m_package->num_textures(); i++)
+		{
+			m_resource_manager->load(TEXTURE_TYPE, m_package->get_texture_id(i));
+		}
 
-		allocator.deallocate(((LuaResource*)resource)->m_data);
-		allocator.deallocate(resource);
+		for (uint32_t i = 0; i < m_package->num_scripts(); i++)
+		{
+			m_resource_manager->load(LUA_TYPE, m_package->get_script_id(i));
+		}
 	}
 
 	//-----------------------------------------------------------------------------
-	static void offline(void* /*resource*/) {}
-
-public:
-
-	uint32_t size() const
+	void unload()
 	{
-		return ((LuaHeader*) m_data)->size;
+		for (uint32_t i = 0; i < m_package->num_textures(); i++)
+		{
+			m_resource_manager->unload(m_package->get_texture_id(i));
+		}
+
+		for (uint32_t i = 0; i < m_package->num_scripts(); i++)
+		{
+			m_resource_manager->unload(m_package->get_script_id(i));
+		}		
 	}
 
-	const uint8_t* code() const
+	//-----------------------------------------------------------------------------
+	void flush()
 	{
-		return m_data + sizeof(LuaHeader);
+		m_resource_manager->flush();
+		m_has_loaded = true;
+	}
+
+	//-----------------------------------------------------------------------------
+	bool has_loaded() const
+	{
+		return m_has_loaded;
 	}
 
 private:
 
-	uint8_t* m_data;
+	ResourceManager* m_resource_manager;
+	const PackageResource* m_package;
+	bool m_has_loaded;
 };
 
 } // namespace crown

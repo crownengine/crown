@@ -60,6 +60,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/compilers/lua
 	${CMAKE_SOURCE_DIR}/engine/compilers/texture
 	${CMAKE_SOURCE_DIR}/engine/compilers/mesh
+	${CMAKE_SOURCE_DIR}/engine/compilers/package
 )
 
 set (SRC
@@ -284,7 +285,6 @@ else ()
 endif (CROWN_DEBUG OR CROWN_DEVELOPMENT)
 
 set (RESOURCE_HEADERS
-
 	resource/Resource.h
 	resource/ResourceFormat.h
 	resource/ResourceLoader.h
@@ -297,6 +297,8 @@ set (RESOURCE_HEADERS
 	resource/FontResource.h
 	resource/SoundResource.h
 	resource/MaterialResource.h
+	resource/PackageResource.h
+	resource/ResourcePackage.h
 )
 
 set (OS_SRC
@@ -336,6 +338,7 @@ set (COMPILER_SRC
 	compilers/BundleCompiler.cpp
 	compilers/lua/LuaCompiler.cpp
 	compilers/texture/TextureCompiler.cpp
+	compilers/package/PackageCompiler.cpp
 )
 
 set (COMPILER_HEADER
@@ -343,6 +346,7 @@ set (COMPILER_HEADER
 	compilers/BundleCompiler.h
 	compilers/lua/LuaCompiler.h
 	compilers/texture/TextureCompiler.h
+	compilers/package/PackageCompiler.h
 )
 
 set (CROWN_LIBRARIES)
