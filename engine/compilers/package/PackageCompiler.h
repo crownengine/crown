@@ -26,33 +26,29 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "TextureCompiler.h"
-#include "LuaCompiler.h"
-#include "PackageCompiler.h"
-#include "DynamicString.h"
-#include "Vector.h"
-#include "DiskFilesystem.h"
+#include "Compiler.h"
+#include "Resource.h"
+#include "List.h"
 
 namespace crown
 {
 
-class BundleCompiler
+class PackageCompiler : public Compiler
 {
 public:
 
-	BundleCompiler();
+	PackageCompiler();
 
-	bool compile(const char* bundle_dir, const char* source_dir);
-
-private:
-
-	static void scan(const char* source_dir, const char* cur_dir, Vector<DynamicString>& files);
+	size_t compile_impl(Filesystem& fs, const char* resource_path);
+	void write_impl(File* out_file);
 
 private:
 
-	TextureCompiler	m_texture;
-	LuaCompiler 	m_lua;
-	PackageCompiler m_package;
+	bool m_has_texture;
+	bool m_has_lua;
+
+	List<ResourceId> m_textures;
+	List<ResourceId> m_scripts;
 };
 
 } // namespace crown
