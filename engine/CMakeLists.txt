@@ -445,6 +445,7 @@ if (WINDOWS)
 		os/win/Thread.h
 		os/win/Mutex.h
 		os/win/Cond.h
+		os/win/inttypes.h
 	)
 
 	list (APPEND OS_SRC
