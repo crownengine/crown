@@ -34,18 +34,52 @@ namespace os
 {
 
 //-----------------------------------------------------------------------------
-Thread::Thread(os::ThreadFunction f, LPVOID params, const char* name)
+Thread::Thread(const char* name) :
+	m_name(name),
+	m_is_running(false),
+	m_is_terminating(false)
 {
-	m_thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) f, params, 0, NULL);
-
-	CE_ASSERT(m_thread != NULL, "Unable to create thread");
-
-	m_name = name;
 }
 
 //-----------------------------------------------------------------------------
 Thread::~Thread()
 {
+}
+
+//-----------------------------------------------------------------------------
+bool Thread::is_running() const
+{
+	return m_is_running;
+}
+
+//-----------------------------------------------------------------------------
+bool Thread::is_terminating() const
+{
+	return m_is_terminating;
+}
+
+//-----------------------------------------------------------------------------
+void Thread::start()
+{
+	m_is_terminating = false;
+
+	m_thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) Thread::background_proc, this, 0, NULL);
+
+	CE_ASSERT(m_thread != NULL, "Failed to create the thread '%s'", m_name);
+
+	m_is_running = true;
+}
+
+//-----------------------------------------------------------------------------
+void Thread::stop()
+{
+	m_is_terminating = true;
+}
+
+//-----------------------------------------------------------------------------
+int32_t	Thread::run()
+{
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -61,6 +95,18 @@ void Thread::detach()
 
 	CE_ASSERT(closed, "Unable to close thread");
 }
+
+void* Thread::background_proc(void* thiz)
+{
+	Thread* thread  = (Thread*)thiz;
+
+	thread->run();
+
+	thread->m_is_running = false;
+
+	return NULL;
+}
+
 
 } // namespace os
 } // namespace crown
