@@ -53,6 +53,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Bundle.h"
 #include "TempAllocator.h"
+#include "ResourcePackage.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -422,6 +423,29 @@ void Device::frame()
 	m_renderer->frame();
 
 	m_frame_count++;
+}
+
+//-----------------------------------------------------------------------------
+ResourcePackage* Device::create_resource_package(const char* name)
+{
+	CE_ASSERT_NOT_NULL(name);
+
+	ResourceId package_id = m_resource_manager->load("package", name);
+	m_resource_manager->flush();
+
+	PackageResource* package_res = (PackageResource*) m_resource_manager->data(package_id);
+	ResourcePackage* package = CE_NEW(m_allocator, ResourcePackage)(*m_resource_manager, package_id, package_res);
+
+	return package;
+}
+
+//-----------------------------------------------------------------------------
+void Device::destroy_resource_package(ResourcePackage* package)
+{
+	CE_ASSERT_NOT_NULL(package);
+
+	m_resource_manager->unload(package->resource_id());
+	CE_DELETE(m_allocator, package);
 }
 
 //-----------------------------------------------------------------------------

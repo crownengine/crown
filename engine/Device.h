@@ -51,6 +51,7 @@ class Accelerometer;
 class LuaEnvironment;
 class ConsoleServer;
 class BundleCompiler;
+class ResourcePackage;
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -93,6 +94,15 @@ public:
 
 	/// Updates all the subsystems
 	void					frame();
+
+	/// Returns the resource package with the given @a package_name name.
+	ResourcePackage*		create_resource_package(const char* name);
+
+	/// Destroy a previously created resource @a package.
+	/// @note
+	/// To unload the resources loaded by the package, you have to call
+	/// ResourcePackage::unload() first.
+	void					destroy_resource_package(ResourcePackage* package);
 
 	void					compile(const char* bundle_dir, const char* source_dir, const char* resource);
 
