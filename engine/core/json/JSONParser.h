@@ -63,6 +63,7 @@ public:
 	/// obtained from JSONParser::root() or copied from an
 	/// already existent and valid element.
 						JSONElement();
+						JSONElement(const JSONElement& other);
 
 	JSONElement&		operator=(const JSONElement& other);
 

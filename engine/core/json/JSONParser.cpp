@@ -204,6 +204,12 @@ JSONElement::JSONElement(JSONParser& parser, const char* at)
 }
 
 //--------------------------------------------------------------------------
+JSONElement::JSONElement(const JSONElement& other)
+	: m_parser(other.m_parser), m_begin(other.m_at), m_at(other.m_at)
+{
+}
+
+//--------------------------------------------------------------------------
 JSONElement& JSONElement::operator=(const JSONElement& other)
 {
 	m_parser = other.m_parser;
