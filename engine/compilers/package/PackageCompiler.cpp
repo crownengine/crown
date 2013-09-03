@@ -49,6 +49,7 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 
 	char file_buf[4096];
 	file->read(file_buf, file->size());
+	fs.close(file);
 
 	JSONParser json(file_buf);
 	JSONElement root = json.root();
