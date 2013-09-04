@@ -103,6 +103,7 @@ LOCAL_SRC_FILES :=\
 	lua/LuaIntSetting.cpp\
 	lua/LuaFloatSetting.cpp\
 	lua/LuaStringSetting.cpp\
+	lua/LuaResourcePackage.cpp\
 \
 	Camera.cpp\
 	Device.cpp\
