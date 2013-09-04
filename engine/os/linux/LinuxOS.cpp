@@ -209,8 +209,25 @@ void list_files(const char* path, Vector<DynamicString>& files)
 //-----------------------------------------------------------------------------
 const char* normalize_path(const char* path)
 {
-	// Stub function
-	return path;
+	static char norm[MAX_PATH_LENGTH];
+	char* cur = norm;
+
+	while ((*path) != '\0')
+	{
+		if ((*path) == '\\')
+		{
+			(*cur) = PATH_SEPARATOR;
+		}
+		else
+		{
+			(*cur) = (*path);
+		}
+
+		path++;
+		cur++;
+	}
+
+	return norm;
 }
 
 //-----------------------------------------------------------------------------
