@@ -114,5 +114,6 @@ void load_accelerometer(LuaEnvironment& env);
 void load_camera(LuaEnvironment& env);
 void load_device(LuaEnvironment& env);
 void load_window(LuaEnvironment& env);
+void load_resource_package(LuaEnvironment& env);
 
 } // namespace crown

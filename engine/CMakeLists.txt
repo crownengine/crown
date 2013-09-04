@@ -326,6 +326,7 @@ set (LUA_SRC
 	lua/LuaAccelerometer.cpp
 	lua/LuaDevice.cpp
 	lua/LuaWindow.cpp
+	lua/LuaResourcePackage.cpp
 )
 
 set (LUA_HEADERS

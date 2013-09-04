@@ -44,20 +44,17 @@ CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 	load_int_setting(*env);
 	load_float_setting(*env);
 	load_string_setting(*env);
-
 	load_vec2(*env);
 	load_vec3(*env);
 	load_mat4(*env);
 	load_quat(*env);
 	load_math(*env);
-
 	load_mouse(*env);
 	load_keyboard(*env);
 	load_accelerometer(*env);
-
 	load_device(*env);
-
 	load_window(*env);
+	load_resource_package(*env);
 
 	return 1;
 }

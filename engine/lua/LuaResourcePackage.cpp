@@ -24,85 +24,64 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Device.h"
 #include "ResourcePackage.h"
-#include "LuaEnvironment.h"
 #include "LuaStack.h"
+#include "LuaEnvironment.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int device_frame_count(lua_State* L)
-{
-	LuaStack stack(L);
-
-	uint64_t frame = device()->frame_count();
-
-	stack.push_uint64(frame);
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int device_last_delta_time(lua_State* L)
-{
-	LuaStack stack(L);
-
-	float delta = device()->last_delta_time();
-
-	stack.push_float(delta);
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int device_start(lua_State* /*L*/)
-{
-	device()->start();
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int device_stop(lua_State* /*L*/)
-{
-	device()->stop();
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int device_create_resource_package(lua_State* L)
-{
-	LuaStack stack(L);
-
-	const char* package = stack.get_string(1);
-	stack.push_lightdata(device()->create_resource_package(package));
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int device_destroy_resource_package(lua_State* L)
+CE_EXPORT int resource_package_load(lua_State* L)
 {
 	LuaStack stack(L);
 
 	ResourcePackage* package = (ResourcePackage*) stack.get_lightdata(1);
-	device()->destroy_resource_package(package);
+	package->load();
 
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
-void load_device(LuaEnvironment& env)
+CE_EXPORT int resource_package_unload(lua_State* L)
 {
-	env.load_module_function("Device", "frame_count",              device_frame_count);
-	env.load_module_function("Device", "last_delta_time",          device_last_delta_time);
-	env.load_module_function("Device", "start",                    device_start);
-	env.load_module_function("Device", "stop",                     device_stop);
-	env.load_module_function("Device", "create_resource_package",  device_create_resource_package);
-	env.load_module_function("Device", "destroy_resource_package", device_destroy_resource_package);
+	LuaStack stack(L);
+
+	ResourcePackage* package = (ResourcePackage*) stack.get_lightdata(1);
+	package->unload();
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int resource_package_flush(lua_State* L)
+{
+	LuaStack stack(L);
+
+	ResourcePackage* package = (ResourcePackage*) stack.get_lightdata(1);
+	package->flush();
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int resource_package_has_loaded(lua_State* L)
+{
+	LuaStack stack(L);
+
+	ResourcePackage* package = (ResourcePackage*) stack.get_lightdata(1);
+	stack.push_bool(package->has_loaded());
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+void load_resource_package(LuaEnvironment& env)
+{
+	env.load_module_function("ResourcePackage", "load",       resource_package_load);
+	env.load_module_function("ResourcePackage", "unload",     resource_package_unload);
+	env.load_module_function("ResourcePackage", "flush",      resource_package_flush);
+	env.load_module_function("ResourcePackage", "has_loaded", resource_package_has_loaded);
 }
 
 } // namespace crown
