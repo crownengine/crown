@@ -34,6 +34,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+#ifdef WINDOWS
+	#define LUAJIT "luajit.exe"
+#else
+	#define LUAJIT "./luajit"
+#endif
+
+
 //-----------------------------------------------------------------------------
 LuaCompiler::LuaCompiler()
 	: m_luajit_blob_size(0), m_luajit_blob(NULL)
@@ -57,7 +64,7 @@ size_t LuaCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 
 	const char* luajit[] =
 	{
-		"./luajit",
+		LUAJIT,
 		"-b",
 		res_abs_path.c_str(),
 		bc_abs_path.c_str(),

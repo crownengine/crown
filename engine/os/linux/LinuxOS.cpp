@@ -207,6 +207,13 @@ void list_files(const char* path, Vector<DynamicString>& files)
 }
 
 //-----------------------------------------------------------------------------
+const char* normalize_path(const char* path)
+{
+	// Stub function
+	return path;
+}
+
+//-----------------------------------------------------------------------------
 const char* get_cwd()
 {
 	static char cwdBuf[MAX_PATH_LENGTH];

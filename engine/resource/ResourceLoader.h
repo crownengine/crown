@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Mutex.h"
 #include "Cond.h"
+#include "OS.h"
 
 namespace crown
 {

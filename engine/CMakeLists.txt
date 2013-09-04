@@ -449,6 +449,7 @@ if (WINDOWS)
 		os/win/Thread.h
 		os/win/Mutex.h
 		os/win/Cond.h
+		os/win/inttypes.h
 	)
 
 	list (APPEND OS_SRC
@@ -479,7 +480,9 @@ if (WINDOWS)
 		lua51
 	)
 
-	set (COMPILER_FLAGS)
+	set (COMPILER_FLAGS
+		/Wall
+	)
 
 	set (CROWN_MAIN_SRC os/win/main.cpp)
 endif(WINDOWS)
