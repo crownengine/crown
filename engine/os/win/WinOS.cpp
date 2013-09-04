@@ -111,9 +111,12 @@ bool is_absolute_path(const char* path)
 
 	if (string::strlen(path) > 0)
 	{
-		if ((path[0] >= 65 && path[0] <= 90) || (path[0] >= 97 && path[0] <= 122))
+		if ((path[0] >= 'c' && path[0] <= 'z') || (path[0] >= 'C' && path[0] <= 'Z'))
 		{
-			return true;
+			if (path[1] == ':')
+			{
+				return true;
+			}
 		}
 	}
 
@@ -129,7 +132,7 @@ bool exists(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool is_dir(const char* path)
+bool is_directory(const char* path)
 {
 	DWORD fileAttr;
 	fileAttr = GetFileAttributes(path);
@@ -137,13 +140,13 @@ bool is_dir(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool is_reg(const char* path)
+bool is_file(const char* path)
 {
-	return !is_dir(path);
+	return !is_directory(path);
 }
 
 //-----------------------------------------------------------------------------
-bool mknod(const char* path)
+bool create_file(const char* path)
 {
 	HANDLE hFile = CreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
@@ -154,19 +157,19 @@ bool mknod(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool unlink(const char* path)
+bool delete_file(const char* path)
 {
 	return DeleteFile(path) == TRUE;
 }
 
 //-----------------------------------------------------------------------------
-bool mkdir(const char* path)
+bool create_directory(const char* path)
 {
 	return CreateDirectory(path, NULL) == TRUE;
 }
 
 //-----------------------------------------------------------------------------
-bool rmdir(const char* path)
+bool delete_directory(const char* path)
 {
 	return RemoveDirectory(path) == TRUE;
 }
@@ -207,11 +210,56 @@ const char* get_env(const char* env)
 }
 
 //-----------------------------------------------------------------------------
-// bool ls(const char* path, List<Str>& fileList)
-// {
-//	// TODO
-//	return false; 
-//}
+void list_files(const char* path, Vector<DynamicString>& files)
+{
+	HANDLE file = INVALID_HANDLE_VALUE;
+	WIN32_FIND_DATA ffd;
+
+	char cur_path[MAX_PATH_LENGTH];
+
+	string::strncpy(cur_path, path, string::strlen(path) + 1);
+	string::strncat(cur_path, "\\*", 2);
+
+	file = FindFirstFile(cur_path, &ffd);
+
+	do
+	{
+		CE_ASSERT(file != INVALID_HANDLE_VALUE, "Unable to list files. errono %d", GetLastError());
+
+		if ((string::strcmp(ffd.cFileName, ".") == 0) || (string::strcmp(ffd.cFileName, "..") == 0))
+		{
+			continue;
+		}
+	
+		DynamicString filename(default_allocator());
+
+		filename = ffd.cFileName;
+		files.push_back(filename);
+	}
+	while (FindNextFile(file, &ffd) != 0);
+
+	FindClose(file);
+}
+
+//-----------------------------------------------------------------------------
+const char* normalize_path(const char* path)
+{
+	static char norm[MAX_PATH_LENGTH];
+
+	for (uint32_t i = 0; i < string::strlen(path)+1; i++)
+	{
+		if (path[i] == '/')
+		{
+			norm[i] = '\\';
+		}
+		else
+		{
+			norm[i] = path[i];
+		}
+	}
+
+	return norm;
+}
 
 //-----------------------------------------------------------------------------
 void init_os()
@@ -269,6 +317,39 @@ void* lookup_symbol(void* library, const char* name)
 
 	CE_ASSERT(symbol  != NULL, "Unable to export symbol '%s' with error: %d\n", name, GetLastError());
 	return symbol;
+}
+
+//-----------------------------------------------------------------------------
+void execute_process(const char* args[])
+{
+	STARTUPINFO info;
+	memset(&info, 0, sizeof(info));
+	info.cb = sizeof(info);
+
+	PROCESS_INFORMATION process;
+	memset(&process, 0, sizeof(process));
+
+	DynamicString cmds(default_allocator());
+
+	for (uint32_t i = 0; args[i] != NULL; i++)
+	{
+		cmds += args[i];
+		cmds += ' ';
+	}
+
+	// Necessary because CreateProcess second argument must be non-const
+	char tmp[1024];
+	string::strncpy(tmp, normalize_path(cmds.c_str()), string::strlen(cmds.c_str()));
+
+	int32_t res;
+	if (res = CreateProcess(args[0], tmp, NULL, NULL, TRUE, 0, NULL, NULL, &info, &process))
+	{
+	    ::WaitForSingleObject(process.hProcess, INFINITE);
+   		CloseHandle(process.hProcess);
+    	CloseHandle(process.hThread);
+	}
+
+	CE_ASSERT(res != 0, "Unable to create process for %s, errno: %d\n", args[0], GetLastError());
 }
 
 } // namespace os

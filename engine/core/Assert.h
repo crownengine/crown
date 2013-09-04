@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 #include "Log.h"
 
-#ifdef CROWN_DEBUG
+#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
 	#define CE_ASSERT(condition, ...) do { if (!(condition)) {\
 		crown::Log::e("Assertion failed: %s", #condition);\
 		crown::Log::e("\t" __VA_ARGS__);\

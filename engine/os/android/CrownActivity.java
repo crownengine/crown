@@ -70,7 +70,7 @@ public class CrownActivity extends Activity
 
 		// init AssetManager
 		mAssetManager = getAssets();
-		//CrownLib.initAssetManager(mAssetManager);
+		CrownLib.initAssetManager(mAssetManager);
 
 		// init Native Window
         mWindow = new CrownSurfaceView(this);

@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Device.h"
+#include "ResourcePackage.h"
 #include "LuaEnvironment.h"
 #include "LuaStack.h"
 
@@ -72,12 +73,36 @@ CE_EXPORT int device_stop(lua_State* /*L*/)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int device_create_resource_package(lua_State* L)
+{
+	LuaStack stack(L);
+
+	const char* package = stack.get_string(1);
+	stack.push_lightdata(device()->create_resource_package(package));
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int device_destroy_resource_package(lua_State* L)
+{
+	LuaStack stack(L);
+
+	ResourcePackage* package = (ResourcePackage*) stack.get_lightdata(1);
+	device()->destroy_resource_package(package);
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 void load_device(LuaEnvironment& env)
 {
-	env.load_module_function("Device", "frame_count", device_frame_count);
-	env.load_module_function("Device", "last_delta_time", device_last_delta_time);
-	env.load_module_function("Device", "start", device_start);
-	env.load_module_function("Device", "stop", device_stop);
+	env.load_module_function("Device", "frame_count",              device_frame_count);
+	env.load_module_function("Device", "last_delta_time",          device_last_delta_time);
+	env.load_module_function("Device", "start",                    device_start);
+	env.load_module_function("Device", "stop",                     device_stop);
+	env.load_module_function("Device", "create_resource_package",  device_create_resource_package);
+	env.load_module_function("Device", "destroy_resource_package", device_destroy_resource_package);
 }
 
 } // namespace crown

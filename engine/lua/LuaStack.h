@@ -41,54 +41,115 @@ class LuaStack
 {
 public:
 
-							LuaStack(lua_State* L);
+	//-----------------------------------------------------------------------------	
+	LuaStack(lua_State* L) : m_state(L) {}
 
-	lua_State*				state();
+	//-----------------------------------------------------------------------------
+	lua_State* state()
+	{
+		return m_state;
+	}
 
 	/// Returns the number of elements in the stack.
 	/// When called inside a function, it can be used to count
 	/// the number of arguments passed to the function itself.
-	int32_t					num_args();
+	int32_t num_args()
+	{
+		return lua_gettop(m_state);
+	}
 
-	void					push_bool(bool value);
+	//-----------------------------------------------------------------------------
+	void push_bool(bool value)
+	{
+		lua_pushboolean(m_state, value);
+	}
 
-	void					push_int32(int32_t value);
+	//-----------------------------------------------------------------------------
+	void push_int32(int32_t value)
+	{
+		lua_pushinteger(m_state, value);
+	}
 
-	void					push_uint32(uint32_t value);
+	//-----------------------------------------------------------------------------
+	void push_uint32(uint32_t value)
+	{
+		lua_pushinteger(m_state, value);
+	}
 
-	void					push_int64(int64_t value);
+	//-----------------------------------------------------------------------------
+	void push_int64(int64_t value)
+	{
+		lua_pushinteger(m_state, value);
+	}
 
-	void					push_uint64(uint64_t value);
+	//-----------------------------------------------------------------------------
+	void push_uint64(uint64_t value)
+	{
+		lua_pushinteger(m_state, value);
+	}
 
-	void 					push_float(float value);
+	//-----------------------------------------------------------------------------
+	void push_float(float value)
+	{
+		lua_pushnumber(m_state, value);
+	}
 
-	void 					push_string(const char* s);
-	void					push_literal(const char* s, size_t len);
+	//-----------------------------------------------------------------------------
+	void push_string(const char* s)
+	{
+		lua_pushstring(m_state, s);
+	}
 
-	void					push_lightdata(void* data);
+	//-----------------------------------------------------------------------------
+	void push_literal(const char* s, size_t len)
+	{
+		lua_pushlstring(m_state, s, len);
+	}
 
-	void					push_vec2(const Vec2& v);
+	//-----------------------------------------------------------------------------
+	void push_lightdata(void* data)
+	{
+		lua_pushlightuserdata(m_state, data);
+	}
 
-	void					push_vec3(const Vec3& v);
+	//-----------------------------------------------------------------------------
+	bool get_bool(int32_t index)
+	{
+		return (bool) luaL_checkinteger(m_state, index);
+	}
 
-	void					push_mat4(const Mat4& m);
+	//-----------------------------------------------------------------------------
+	int32_t get_int(int32_t index)
+	{
+		return luaL_checkinteger(m_state, index);
+	}
 
-	void					push_quat(const Quat& q);
+	//-----------------------------------------------------------------------------
+	float get_float(int32_t index)
+	{
+		return luaL_checknumber(m_state, index);
+	}
 
-	bool 					get_bool(int32_t index);
+	//-----------------------------------------------------------------------------
+	const char* get_string(int32_t index)
+	{
+		return luaL_checkstring(m_state, index);
+	}
 
-	int32_t					get_int(int32_t index);
+	//-----------------------------------------------------------------------------
+	void* get_lightdata(int32_t index)
+	{
+		return lua_touserdata(m_state, index);	
+	}
 
-	float 					get_float(int32_t index);
-
-	const char*				get_string(int32_t index);
-
-	void*					get_lightdata(int32_t index);
-
-	Vec2&					get_vec2(int32_t index);
-	Vec3&					get_vec3(int32_t index);
-	Mat4&					get_mat4(int32_t index);
-	Quat&					get_quat(int32_t index);
+	Vec2& get_vec2(int32_t index);
+	Vec3& get_vec3(int32_t index);
+	Mat4& get_mat4(int32_t index);
+	Quat& get_quat(int32_t index);
+	void push_vec2(const Vec2& v);
+	void push_vec3(const Vec3& v);
+	void push_mat4(const Mat4& m);
+	void push_quat(const Quat& q);
 
 private:
 

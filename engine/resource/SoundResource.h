@@ -28,6 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Resource.h"
+#include "Bundle.h"
+#include "Allocator.h"
 
 namespace crown
 {
@@ -42,17 +44,50 @@ struct SoundHeader
 	uint32_t 	bits_per_sample;
 };
 
-class Bundle;
-class Allocator;
-
 class SoundResource
 {
 public:
 
-	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			unload(Allocator& allocator, void* resource);
-	static void			online(void* resource);
-	static void			offline(void* resource);
+	//-----------------------------------------------------------------------------
+	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	{
+		File* file = bundle.open(id);
+
+		SoundResource* resource = (SoundResource*)allocator.allocate(sizeof(SoundResource));
+
+		file->read(&resource->m_header, sizeof(SoundHeader));
+
+		size_t size = resource->size();
+
+		resource->m_data = (uint8_t*)allocator.allocate(sizeof(uint8_t) * size);
+
+		file->read(resource->m_data, size);
+
+		bundle.close(file);
+
+		return resource;
+	}
+
+	//-----------------------------------------------------------------------------
+	static void online(void* resource)
+	{
+		CE_ASSERT(resource != NULL, "Resource not loaded");
+	}
+
+	//-----------------------------------------------------------------------------
+	static void unload(Allocator& allocator, void* resource)
+	{
+		CE_ASSERT(resource != NULL, "Resource not loaded");
+
+		allocator.deallocate(((SoundResource*)resource)->m_data);
+		allocator.deallocate(resource);
+	}
+
+	//-----------------------------------------------------------------------------
+	static void offline(void* /*resource*/)
+	{
+
+	}
 
 public:
 

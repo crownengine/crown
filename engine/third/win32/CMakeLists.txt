@@ -14,5 +14,5 @@ if (WINDOWS)
 	install (FILES luajit/lib/luajit-5.1.dll DESTINATION bin)	
 endif (WINDOWS)
 
-install (PROGRAMS luajit/bin/luajit.exe DESTINATION tools)
-install (DIRECTORY luajit/share/luajit-2.0.1/jit DESTINATION tools)
+install (PROGRAMS luajit/bin/luajit.exe DESTINATION bin)
+install (DIRECTORY luajit/share/luajit-2.0.1/jit DESTINATION bin)

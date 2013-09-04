@@ -36,27 +36,47 @@ class OsWindow
 {
 public:
 
+	/// Stub method, does nothing under Android.
 					OsWindow(uint32_t width, uint32_t height, uint32_t parent);
 					~OsWindow();
 
+	/// Stub method, does nothing under Android.
 	void			show();
+
+	/// Stub method, does nothing under Android.
 	void			hide();
 
+	/// Returns the size in pixel of the window.
 	void			get_size(uint32_t& width, uint32_t& height);
+
+	/// Returns always (0, 0) under Android.
 	void			get_position(uint32_t& x, uint32_t& y);
 
+	/// Stub method, does nothing under Android.
 	void			resize(uint32_t width, uint32_t height);
+
+	/// Stub method, does nothing under Android.
 	void			move(uint32_t x, uint32_t y);
 
+	/// Stub method, does nothing under Android.
 	void			show_cursor();
+
+	/// Stub method, does nothing under Android.
 	void			hide_cursor();
 
+	/// Stub method, does nothing under Android.
 	void			get_cursor_xy(int32_t& x, int32_t& y);
+
+	/// Stub method, does nothing under Android.
 	void			set_cursor_xy(int32_t x, int32_t y);
 
+	/// Returns always NULL under Android.
 	char*			title();
+
+	/// Stub method, does nothing under Android.
 	void			set_title(const char* title);
 
+	/// Stub method, does nothing under Android.
 	void			frame();
 
 private:

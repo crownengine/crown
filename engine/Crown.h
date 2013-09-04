@@ -60,6 +60,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Map.h"
 #include "RBTree.h"
 #include "List.h"
+#include "Vector.h"
 #include "Generic.h"
 #include "Queue.h"
 #include "PriorityQueue.h"
@@ -133,8 +134,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 // Engine/Resource
 #include "Bundle.h"
-#include "ArchiveBundle.h"
-#include "FileBundle.h"
 #include "ResourceLoader.h"
 #include "ResourceManager.h"
 #include "TextureResource.h"

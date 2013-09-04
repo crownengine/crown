@@ -26,32 +26,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "StringUtils.h"
-#include "OS.h"
 #include "File.h"
-#include "HeapAllocator.h"
+#include "Vector.h"
+#include "DynamicString.h"
 
 namespace crown
 {
-
-struct FilesystemEntry
-{
-	enum Type
-	{
-		DIRECTORY = 0,		///< The entry is a directory
-		FILE,				///< The entry is a file
-		MEMORY,				///< The entry is a memory file (i.e. does not exist on the disk)
-		UNKNOWN				///< The entry type is unknown
-	};
-
-	FilesystemEntry() : type(UNKNOWN) {}
-
-	Type			type;								///< Type of the entry
-	char			os_path[MAX_PATH_LENGTH];			///< OS-specific path (use only for debug)
-	char			relative_path[MAX_PATH_LENGTH];		///< Relative path of the entry
-};
-
-class DiskFile;
 
 /// Provides a platform-independent way to access files and directories
 /// on the host filesystem.
@@ -102,67 +82,46 @@ class Filesystem
 {
 public:
 
-	/// The @a root_path must be absolute.
-						Filesystem(const char* root_path);
-						~Filesystem();
+						Filesystem() {};
+	virtual				~Filesystem() {};
 
-	/// Returns the root path of the filesystem
-	const char*			root_path() const;
+	/// Opens the file at the given @a path with the given @a mode.
+	virtual File*		open(const char* path, FileOpenMode mode) = 0;
 
-	/// Returns whether the @a relative_path exists and fills @a info with
-	/// with informations about the given @a relative_path path
-	bool				get_info(const char* relative_path, FilesystemEntry& info);
-	
-	/// Returns whether the @a relative_path exists on disk
-	bool				exists(const char* relative_path);
+	/// Closes the given @a file.
+	virtual void		close(File* file) = 0;
 
-	/// Returns whether @a relative_path is a regular file
-	bool				is_file(const char* relative_path);
+	/// Returns true if @a path is a directory.
+	virtual bool		is_directory(const char* path) = 0;
 
-	/// Returns whether @a relative_path is a directory
-	bool				is_dir(const char* relative_path);
+	/// Returns true if @a path is a regular file.
+	virtual bool		is_file(const char* path) = 0;
 
-	/// Creates a regular file named @a relative_path
-	bool				create_file(const char* relative_path);
+	/// Creates the directory at the given @a path.
+	virtual void		create_directory(const char* path) = 0;
 
-	/// Creates a directory named @a relative_path
-	bool				create_dir(const char* relative_path);
+	/// Deletes the directory at the given @a path.
+	virtual void		delete_directory(const char* path) = 0;
 
-	/// Deletes the regular file @a relative_path
-	bool				delete_file(const char* relative_path);
+	/// Creates the file at the given @a path.
+	virtual void		create_file(const char* path) = 0;
 
-	/// Deletes the directory @a relative_path
-	bool				delete_dir(const char* relative_path);
+	/// Deletes the file at the given @a path.
+	virtual void		delete_file(const char* path) = 0;
 
-	/// Returns the os-specific path which @a relative_path refers to.
-	/// @note
-	/// In general, you typically do not want to use it for normal
-	/// file interactions. Prefer using the other methods whenever possible.
-	const char*			os_path(const char* relative_path);
+	/// Returns the relative file names in the given @a path.
+	virtual void		list_files(const char* path, Vector<DynamicString>& files) = 0;
 
-	/// Opens the file @a relative_path with the specified access @a mode
-	DiskFile*			open(const char* relative_path, FileOpenMode mode);
-
-	/// Closes a previously opened file @a stream
-	void				close(DiskFile* stream);
+	/// Returns the absolute path of the given @a path based on
+	/// the root path of the file source. If @a path is absolute,
+	/// the given path is returned.
+	virtual void		get_absolute_path(const char* path, DynamicString& os_path) = 0;
 
 private:
-
-	// Builds the OS-dependent path from base_path and relative_path
-	const char*			build_os_path(const char* base_path, const char* relative_path);
-	
-private:
-
-	HeapAllocator		m_allocator;
-
-	char				m_root_path[MAX_PATH_LENGTH];
 
 	// Disable copying
 						Filesystem(const Filesystem&);
 	Filesystem&			operator=(const Filesystem&);
-
-	friend class		Device;
 };
 
 } // namespace crown
-

@@ -30,8 +30,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdio>
 #include <cstdlib>
 #include <dirent.h>
+#include <dlfcn.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -45,8 +48,6 @@ namespace os
 {
 
 static timespec			base_time;
-static uint32_t			window_width;
-static uint32_t			window_height;
 
 //-----------------------------------------------------------------------------
 void printf(const char* string, ...)
@@ -128,7 +129,7 @@ bool exists(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool is_dir(const char* path)
+bool is_directory(const char* path)
 {
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
@@ -137,7 +138,7 @@ bool is_dir(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool is_reg(const char* path)
+bool is_file(const char* path)
 {
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
@@ -146,29 +147,80 @@ bool is_reg(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool mknod(const char* path)
+bool create_file(const char* path)
 {
 	// Permission mask: rw-r--r--
 	return ::mknod(path, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 0) == 0;
 }
 
 //-----------------------------------------------------------------------------
-bool unlink(const char* path)
+bool delete_file(const char* path)
 {
 	return (::unlink(path) == 0);
 }
 
 //-----------------------------------------------------------------------------
-bool mkdir(const char* path)
+bool create_directory(const char* path)
 {
 	// rwxr-xr-x permission mask
 	return (::mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0);
 }
 
 //-----------------------------------------------------------------------------
-bool rmdir(const char* path)
+bool delete_directory(const char* path)
 {
 	return (::rmdir(path) == 0);
+}
+
+//-----------------------------------------------------------------------------
+void list_files(const char* path, Vector<DynamicString>& files)
+{
+	DIR *dir;
+	struct dirent *entry;
+
+	if (!(dir = opendir(path)))
+	{
+		return;
+	}
+
+	while ((entry = readdir(dir)))
+	{
+		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+		{
+			continue;
+		}
+
+		DynamicString filename(default_allocator());
+
+		filename = entry->d_name;
+		files.push_back(filename);
+	}
+
+	closedir(dir);
+}
+
+//-----------------------------------------------------------------------------
+const char* normalize_path(const char* path)
+{
+	static char norm[MAX_PATH_LENGTH];
+	char* cur = norm;
+
+	while ((*path) != '\0')
+	{
+		if ((*path) == '\\')
+		{
+			(*cur) = PATH_SEPARATOR;
+		}
+		else
+		{
+			(*cur) = (*path);
+		}
+
+		path++;
+		cur++;
+	}
+
+	return norm;
 }
 
 //-----------------------------------------------------------------------------
@@ -236,10 +288,30 @@ uint64_t microseconds()
 	return (tmp.tv_sec - base_time.tv_sec) * 1000000 + (tmp.tv_nsec - base_time.tv_nsec) / 1000;
 }
 
+//-----------------------------------------------------------------------------
+void execute_process(const char* args[])
+{
+	pid_t pid = fork();
+	CE_ASSERT(pid != -1, "Unable to fork");
+
+	if (pid)
+	{
+		int32_t dummy;
+		wait(&dummy);
+	}
+	else
+	{
+		int res = execv(args[0], (char* const*)args);
+		CE_ASSERT(res != -1, "Unable to exec '%s'. errno %d", args[0], res);
+		exit(EXIT_SUCCESS);
+	}
+}
+
+
 } // namespace os
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushIntEvent(JNIEnv * env, jobject obj, jint type, jint a, jint b, jint c, jint d)
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushIntEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jint a, jint b, jint c, jint d)
 {	
 	OsEventParameter values[4];
 
@@ -252,7 +324,7 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushIntEvent(JNIEn
 }
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushFloatEvent(JNIEnv * env, jobject obj, jint type, jfloat a, jfloat b, jfloat c, jfloat d)
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushFloatEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jfloat a, jfloat b, jfloat c, jfloat d)
 {
 	OsEventParameter values[4];
 

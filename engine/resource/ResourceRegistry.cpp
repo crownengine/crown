@@ -25,18 +25,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "ResourceRegistry.h"
+#include "LuaResource.h"
 #include "TextureResource.h"
 #include "MeshResource.h"
 #include "SoundResource.h"
+#include "PackageResource.h"
 
 namespace crown
 {
 
 static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 {
+	{ LUA_TYPE, LuaResource::load, LuaResource::unload, LuaResource::online, LuaResource::offline },
 	{ TEXTURE_TYPE, TextureResource::load, TextureResource::unload, TextureResource::online, TextureResource::offline },
 	{ MESH_TYPE, MeshResource::load, MeshResource::unload, MeshResource::online, MeshResource::offline },
 	{ SOUND_TYPE, SoundResource::load, SoundResource::unload, SoundResource::online, SoundResource::offline },
+	{ PACKAGE_TYPE, PackageResource::load, PackageResource::unload, PackageResource::online, PackageResource::offline },	
 	{ 0, NULL, NULL, NULL, NULL }
 };
 

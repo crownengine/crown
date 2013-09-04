@@ -20,12 +20,12 @@ int main()
  	compressed_string = compressor.compress((void*)uncompressed_string, strlen(uncompressed_string), compr_size);
 	
 	printf("Uncompressed: ");
-	printf("Size: %d - ", strlen(uncompressed_string));
+	printf("Size: %d - ", (uint32_t)strlen(uncompressed_string));
 	printf(uncompressed_string);
 	printf("\n\n");
 
 	printf("Compressed: ");
-	printf("Size: %d - ", compr_size);
+	printf("Size: %d - ", (uint32_t)compr_size);
 	for (size_t i = 0; i < compr_size; i++)
 	{
 		printf("%c", compressed_string[i]);
@@ -35,7 +35,7 @@ int main()
 	result = compressor.uncompress((void*)compressed_string, compr_size, result_size);
 	
 	printf("Uncompressed again: ");
-	printf("Size: %d - ", result_size);
+	printf("Size: %d - ", (uint32_t)result_size);
 	for (size_t i = 0; i < result_size; i++)
 	{
 		printf("%c", result[i]);

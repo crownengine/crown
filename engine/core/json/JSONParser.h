@@ -63,6 +63,9 @@ public:
 	/// obtained from JSONParser::root() or copied from an
 	/// already existent and valid element.
 						JSONElement();
+						JSONElement(const JSONElement& other);
+
+	JSONElement&		operator=(const JSONElement& other);
 
 	/// Returns the @a i -th item of the current array.
 	JSONElement&		operator[](uint32_t i);
@@ -111,26 +114,27 @@ public:
 	uint32_t			size() const;
 
 	/// Returns the boolean value of the element.
-	bool				bool_value() const;
+	bool				bool_value();
 
 	/// Returns the integer value of the element.
-	int32_t				int_value() const;
+	int32_t				int_value();
 
 	/// Returns the float value of the element.
-	float				float_value() const;
+	float				float_value();
 
 	/// Returns the string value of the element.
 	/// @warning
 	/// The returned string is kept internally until the next call to
 	/// this function, so it is highly unsafe to just keep the pointer
 	/// instead of copying its content somewhere else.
-	const char*			string_value() const;
+	const char*			string_value();
 
 private:
 
-						JSONElement(JSONParser& parser, const char* at);
+	explicit			JSONElement(JSONParser& parser, const char* at);
 
 	JSONParser*			m_parser;
+	const char*			m_begin;
 	const char*			m_at;
 
 	friend class 		JSONParser;

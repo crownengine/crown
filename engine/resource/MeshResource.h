@@ -30,6 +30,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "PixelFormat.h"
 #include "Texture.h"
+#include "Allocator.h"
+#include "Bundle.h"
 
 namespace crown
 {
@@ -45,17 +47,48 @@ struct MeshHeader
 	uint32_t	padding[16];
 };
 
-class Bundle;
-class Allocator;
-
 class MeshResource
 {
 public:
 
-	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			unload(Allocator& allocator, void* resource);
-	static void			online(void* resource);
-	static void			offline(void* resource);
+	//-----------------------------------------------------------------------------
+	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	{
+		File* file = bundle.open(id);
+
+		MeshResource* resource = (MeshResource*)allocator.allocate(sizeof(MeshResource));
+		file->read(&resource->m_header, sizeof(MeshHeader));
+
+		// Read vertices
+		file->read(&resource->m_vertex_count, sizeof(uint32_t));
+		resource->m_vertices = (float*) allocator.allocate(sizeof(float) * resource->m_vertex_count);
+		file->read(resource->m_vertices, sizeof(float) * resource->m_vertex_count);
+
+		// Read triangles
+		file->read(&resource->m_index_count, sizeof(uint32_t));
+		resource->m_indices = (uint16_t*) allocator.allocate(sizeof(uint16_t) * resource->m_index_count);
+		file->read(resource->m_indices, sizeof(uint16_t) * resource->m_index_count);
+
+		bundle.close(file);
+
+		return resource;
+	}
+
+	//-----------------------------------------------------------------------------
+	static void online(void* )
+	{
+	}
+
+	//-----------------------------------------------------------------------------
+	static void unload(Allocator& , void* )
+	{
+	}
+
+	//-----------------------------------------------------------------------------
+	static void offline(void* /*resource*/)
+	{
+
+	}
 
 public:
 

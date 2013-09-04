@@ -25,13 +25,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <algorithm>
-
+#include <inttypes.h>
 #include "Types.h"
 #include "ResourceManager.h"
 #include "ResourceRegistry.h"
 #include "StringUtils.h"
 #include "Hash.h"
 #include "TempAllocator.h"
+#include "DynamicString.h"
 
 namespace crown
 {
@@ -56,13 +57,13 @@ ResourceManager::~ResourceManager()
 //-----------------------------------------------------------------------------
 ResourceId ResourceManager::load(const char* type, const char* name)
 {
-	return load(resource_id(type, name));
+	return load(hash::murmur2_32(type, string::strlen(type), 0), resource_id(type, name));
 }
 
 //-----------------------------------------------------------------------------
 void ResourceManager::unload(ResourceId name)
 {
-	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
+	CE_ASSERT(has(name), "Resource not loaded:" "%"PRIx64"", name.id);
 
 	ResourceEntry* entry = find(name);
 
@@ -70,7 +71,7 @@ void ResourceManager::unload(ResourceId name)
 	
 	if (entry->references == 0)
 	{
-		resource_on_unload(name.type, m_resource_heap, entry->resource);
+		resource_on_unload(entry->type, m_resource_heap, entry->resource);
 		entry->resource = NULL;
 	}
 }
@@ -86,7 +87,7 @@ bool ResourceManager::has(ResourceId name) const
 //-----------------------------------------------------------------------------
 const void* ResourceManager::data(ResourceId name) const
 {
-	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
+	CE_ASSERT(has(name), "Resource not loaded:" "%"PRIx64"", name.id);
 
 	return find(name)->resource;
 }
@@ -94,7 +95,7 @@ const void* ResourceManager::data(ResourceId name) const
 //-----------------------------------------------------------------------------
 bool ResourceManager::is_loaded(ResourceId name) const
 {
-	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
+	CE_ASSERT(has(name), "Resource not loaded:" "%"PRIx64"", name.id);
 
 	return find(name)->resource != NULL;
 }
@@ -102,7 +103,7 @@ bool ResourceManager::is_loaded(ResourceId name) const
 //-----------------------------------------------------------------------------
 uint32_t ResourceManager::references(ResourceId name) const
 {
-	CE_ASSERT(has(name), "Resource not loaded: %.8X%.8X", name.name, name.type);
+	CE_ASSERT(has(name), "Resource not loaded:" "%"PRIx64"", name.id);
 
 	return find(name)->references;
 }
@@ -125,11 +126,16 @@ uint32_t ResourceManager::seed() const
 //-----------------------------------------------------------------------------
 ResourceId ResourceManager::resource_id(const char* type, const char* name) const
 {
-	ResourceId id;
-	id.type = hash::murmur2_32(type, string::strlen(type), 0);
-	id.name = hash::murmur2_32(name, string::strlen(name), m_seed);
+	TempAllocator256 alloc;
+	DynamicString res_name(alloc);
+	res_name += name;
+	res_name += '.';
+	res_name += type;
 
-	return id;
+	ResourceId res_id;
+	res_id.id = hash::murmur2_64(res_name.c_str(), string::strlen(res_name.c_str()), m_seed);
+
+	return res_id;
 }
 
 //-----------------------------------------------------------------------------
@@ -158,7 +164,7 @@ void ResourceManager::poll_resource_loader()
 }
 
 //-----------------------------------------------------------------------------
-ResourceId ResourceManager::load(ResourceId name)
+ResourceId ResourceManager::load(uint32_t type, ResourceId name)
 {
 	// Search for an already existent resource
 	ResourceEntry* entry = find(name);
@@ -169,6 +175,7 @@ ResourceId ResourceManager::load(ResourceId name)
 		ResourceEntry entry;
 
 		entry.id = name;
+		entry.type = type;
 		entry.references = 1;
 		entry.resource = NULL;
 
@@ -177,7 +184,7 @@ ResourceId ResourceManager::load(ResourceId name)
 		// Issue request to resource loader
 		PendingRequest pr;
 		pr.resource = name;
-		pr.id = m_loader.load_resource(name);
+		pr.id = m_loader.load_resource(type, name);
 
 		m_pendings.push_back(pr);
 
@@ -193,9 +200,9 @@ ResourceId ResourceManager::load(ResourceId name)
 //-----------------------------------------------------------------------------
 void ResourceManager::online(ResourceId name, void* resource)
 {
-	resource_on_online(name.type, resource);
-
 	ResourceEntry* entry = find(name);
+	resource_on_online(entry->type, resource);
+
 	entry->resource = resource;
 }
 

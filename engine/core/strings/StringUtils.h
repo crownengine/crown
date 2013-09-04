@@ -72,18 +72,7 @@ inline bool is_whitespace(char c)
 //-----------------------------------------------------------------------------
 inline size_t strlen(const char* str)
 {
-	size_t chars = 0;
-
-	while(*str)
-	{
-		if ((*str & 0xC0) != 0x80)
-		{
-			chars++;
-		}
-		str++;
-	}
-
-	return chars;
+	return ::strlen(str);
 }
 
 //-----------------------------------------------------------------------------
@@ -96,6 +85,12 @@ inline const char* strstr(const char* str1, const char* str2)
 inline int32_t strcmp(const char* str1, const char* str2)
 {
 	return ::strcmp(str1, str2);
+}
+
+//-----------------------------------------------------------------------------
+inline int32_t strncmp(const char* s1, const char* s2, size_t len)
+{
+	return ::strncmp(s1, s2, len);
 }
 
 //-----------------------------------------------------------------------------

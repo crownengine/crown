@@ -50,6 +50,8 @@ class Touch;
 class Accelerometer;
 class LuaEnvironment;
 class ConsoleServer;
+class BundleCompiler;
+class ResourcePackage;
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -93,6 +95,17 @@ public:
 	/// Updates all the subsystems
 	void					frame();
 
+	/// Returns the resource package with the given @a package_name name.
+	ResourcePackage*		create_resource_package(const char* name);
+
+	/// Destroy a previously created resource @a package.
+	/// @note
+	/// To unload the resources loaded by the package, you have to call
+	/// ResourcePackage::unload() first.
+	void					destroy_resource_package(ResourcePackage* package);
+
+	void					compile(const char* bundle_dir, const char* source_dir, const char* resource);
+
 	void					reload(ResourceId name);
 
 	Filesystem*				filesystem();
@@ -113,17 +126,6 @@ public:
 
 private:
 
-	void					create_filesystem();
-	void					create_resource_manager();
-	void					create_input_manager();
-	void 					create_lua_environment();
-
-	void					create_window();
-	void					create_renderer();
-	void					create_debug_renderer();
-
-	void					create_console_server();
-
 	void					parse_command_line(int argc, char** argv);
 	void					check_preferred_settings();
 	void					read_engine_settings();
@@ -135,13 +137,16 @@ private:
 	uint8_t					m_subsystems_heap[MAX_SUBSYSTEMS_HEAP];
 	LinearAllocator			m_allocator;
 
-	// Preferred settings from command line
+	// Preferred settings
 	int32_t					m_preferred_window_width;
 	int32_t					m_preferred_window_height;
 	int32_t					m_preferred_window_fullscreen;
 	uint32_t				m_parent_window_handle;
-	int32_t					m_preferred_mode;
-	char					m_preferred_root_path[MAX_PATH_LENGTH];
+	char					m_source_dir[MAX_PATH_LENGTH];
+	char 					m_bundle_dir[MAX_PATH_LENGTH];
+	char 					m_boot_file[MAX_PATH_LENGTH];
+	int32_t					m_compile;
+	int32_t					m_continue;
 
 	int32_t					m_quit_after_init;
 
@@ -164,6 +169,7 @@ private:
 	DebugRenderer*			m_debug_renderer;
 
 	// Private subsystems
+	BundleCompiler*			m_bundle_compiler;
 	ResourceManager*		m_resource_manager;
 	Bundle*					m_resource_bundle;
 
@@ -171,12 +177,6 @@ private:
 	ConsoleServer*			m_console_server;
 
 private:
-
-	enum
-	{
-		MODE_RELEASE,
-		MODE_DEVELOPMENT
-	};
 
 	// Disable copying
 	Device(const Device&);

@@ -34,29 +34,32 @@ namespace crown
 {
 
 /// Hashed values for supported resource types
-const char* const TEXTURE_EXTENSION			= "tga";
-const char* const MESH_EXTENSION			= "dae";
-const char* const SCRIPT_EXTENSION			= "lua";
-const char* const TEXT_EXTENSION			= "txt";
+const char* const TEXTURE_EXTENSION			= "texture";
+const char* const MESH_EXTENSION			= "mesh";
+const char* const LUA_EXTENSION				= "lua";
+const char* const TEXT_EXTENSION			= "text";
 const char* const MATERIAL_EXTENSION		= "material";
-const char* const SOUND_EXTENSION			= "wav";
+const char* const SOUND_EXTENSION			= "sound";
+const char* const CONFIG_EXTENSION			= "config";
+const char* const PACKAGE_EXTENSION			= "package";
 
-const uint32_t TEXTURE_TYPE					= 0x1410A16A;
-const uint32_t MESH_TYPE					= 0xE8239EEC;
-const uint32_t SCRIPT_TYPE					= 0xD96E7C37;
-const uint32_t TEXT_TYPE					= 0x9000BF0B;
+const uint32_t TEXTURE_TYPE					= 0xDEED4F7;
+const uint32_t MESH_TYPE					= 0xA6E48B29;
+const uint32_t LUA_TYPE						= 0xD96E7C37;
+const uint32_t TEXT_TYPE					= 0x45CC650;
 const uint32_t MATERIAL_TYPE				= 0x46807A92;
-const uint32_t SOUND_TYPE					= 0x8E128AA1;
+const uint32_t SOUND_TYPE					= 0xD196AB6E;
+const uint32_t CONFIG_TYPE					= 0x17DEA5E1;
+const uint32_t PACKAGE_TYPE					= 0xC0A2212C;
 
 /// ResourceId uniquely identifies a resource by its name and type.
 /// In order to speed up the lookup by the manager, it also keeps
 /// the index to the resource list where it is stored.
 struct ResourceId
 {
-	bool operator==(const ResourceId& b) const { return name == b.name && type == b.type; }
+	bool operator==(const ResourceId& b) const { return id == b.id; }
 
-	uint32_t		name;
-	uint32_t		type;
+	uint64_t id;
 };
 
 class Allocator;
