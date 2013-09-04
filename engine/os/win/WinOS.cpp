@@ -244,7 +244,7 @@ void list_files(const char* path, Vector<DynamicString>& files)
 //-----------------------------------------------------------------------------
 const char* normalize_path(const char* path)
 {
-	static char norm[1024];
+	static char norm[MAX_PATH_LENGTH];
 
 	for (uint32_t i = 0; i < string::strlen(path)+1; i++)
 	{
@@ -337,12 +337,10 @@ void execute_process(const char* args[])
 		cmds += ' ';
 	}
 
+	// Necessary because CreateProcess second argument must be non-const
 	char tmp[1024];
 	string::strncpy(tmp, normalize_path(cmds.c_str()), string::strlen(cmds.c_str()));
-	printf("normalized: %s\n", tmp);
 
-	printf("current dir: %s\n", get_cwd());
-	
 	int32_t res;
 	if (res = CreateProcess(args[0], tmp, NULL, NULL, TRUE, 0, NULL, NULL, &info, &process))
 	{
@@ -350,10 +348,8 @@ void execute_process(const char* args[])
    		CloseHandle(process.hProcess);
     	CloseHandle(process.hThread);
 	}
-	else
-	{
-		printf("Unable to create process for %s, errno: %d\n\n", args[0], GetLastError());
-	}
+
+	CE_ASSERT(res != 0, "Unable to create process for %s, errno: %d\n", args[0], GetLastError());
 }
 
 } // namespace os
