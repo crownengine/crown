@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <vector>
 
 #include "Compiler.h"
-#include "MeshFormat.h"
+#include "MeshResource.h"
 #include "tinyxml2.h"
 
 using tinyxml2::XMLElement;
@@ -39,40 +39,6 @@ using std::vector;
 
 namespace crown
 {
-
-//
-// STRUCT
-// {
-//     FIELD             : SIZE                    COMMENT
-// }
-//
-// MeshHeader [1]
-// {
-//     version           : uint32_t                Version identifier
-//     mesh_count        : uint32_t                Number of meshes in the file
-//     joint_count       : uint32_t                Number of joints in the file
-//     padding           : uint32_t * 16           Reserved
-// }
-// MeshChunk [1, 2, ..., n]
-// {
-//     vertex_count      : uint32_t                Number of vertices in the mesh
-//     vertices          : float * vertex_count    Vertex data
-//
-//     tri_count         : uint32_t                Number of triangles in the mesh
-//     tris              : uint16_t * tri_count    Triangle data as indices into 'vertices'
-// }
-//
-
-// Bump the version whenever a change in the format is made.
-const uint32_t MESH_VERSION = 1;
-
-struct MeshHeader
-{
-	uint32_t	version;
-	uint32_t	mesh_count;
-	uint32_t	joint_count;
-	uint32_t	padding[16];
-};
 
 //-----------------------------------------------------------------------------
 struct DAEFloatArray
@@ -157,15 +123,15 @@ struct DAEModel
 	std::vector<DAEGeometry>	geometries;
 };
 
-class DAECompiler : public Compiler
+class MeshCompiler : public Compiler
 {
 public:
 
-						DAECompiler();
-						~DAECompiler();
+						MeshCompiler();
+						~MeshCompiler();
 
-	size_t				compile_impl(const char* resource_path);
-	void				write_impl(std::fstream& out_file);
+	size_t				compile_impl(Filesystem& fs, const char* resource_path);
+	void				write_impl(File* out_file);
 
 private:
 
