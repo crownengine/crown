@@ -48,8 +48,6 @@ namespace os
 {
 
 static timespec			base_time;
-static uint32_t			window_width;
-static uint32_t			window_height;
 
 //-----------------------------------------------------------------------------
 void printf(const char* string, ...)
