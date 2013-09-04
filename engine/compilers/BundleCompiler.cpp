@@ -89,6 +89,12 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		char out_name[65];
 		snprintf(out_name, 65, "%"PRIx64"", filename_hash);
 
+		// Skip crown.config file
+		if (resource_type_hash == CONFIG_TYPE)
+		{
+			continue;
+		}
+
 		Log::i("%s <= %s", out_name, filename);
 
 		bool result = false;
@@ -103,11 +109,6 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		else if (resource_type_hash == PACKAGE_TYPE)
 		{
 			result = m_package.compile(source_dir, bundle_dir, filename, out_name);
-		}
-		// Skip crown.config file
-		else if (resource_type_hash == CONFIG_TYPE)
-		{
-			continue;
 		}
 		else
 		{
