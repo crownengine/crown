@@ -210,6 +210,7 @@ void list_files(const char* path, Vector<DynamicString>& files)
 const char* normalize_path(const char* path)
 {
 	// Stub function
+	return path;
 }
 
 //-----------------------------------------------------------------------------

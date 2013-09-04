@@ -65,7 +65,7 @@ struct LoadResourceData
 };
 
 /// Loads resources in a background thread.
-class ResourceLoader : public os::Thread
+class ResourceLoader : public Thread
 {
 public:
 

@@ -36,7 +36,7 @@ namespace crown
 
 #ifdef WINDOWS
 	#define LUAJIT "luajit.exe"
-#elif
+#else
 	#define LUAJIT "./luajit"
 #endif
 
