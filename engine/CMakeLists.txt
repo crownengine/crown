@@ -480,7 +480,9 @@ if (WINDOWS)
 		lua51
 	)
 
-	set (COMPILER_FLAGS)
+	set (COMPILER_FLAGS
+		/Wall
+	)
 
 	set (CROWN_MAIN_SRC os/win/main.cpp)
 endif(WINDOWS)
