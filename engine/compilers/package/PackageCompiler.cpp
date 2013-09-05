@@ -121,8 +121,15 @@ void PackageCompiler::write_impl(File* out_file)
 	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
 
 	out_file->write((char*) &header, sizeof(PackageHeader));
-	out_file->write((char*) m_textures.begin(), sizeof(ResourceId) * header.num_textures);
-	out_file->write((char*) m_scripts.begin(), sizeof(ResourceId) * header.num_scripts);
+
+	if (m_textures.size() > 0)
+	{
+		out_file->write((char*) m_textures.begin(), sizeof(ResourceId) * header.num_textures);		
+	}
+	if (m_scripts.size() > 0)
+	{
+		out_file->write((char*) m_scripts.begin(), sizeof(ResourceId) * header.num_scripts);
+	}
 
 	// Cleanup
 	m_textures.clear();

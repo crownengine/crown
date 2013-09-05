@@ -92,6 +92,12 @@ public:
 	/// and normally terminates the program.
 	void					stop();
 
+	/// Pauses the engine
+	void					pause();
+
+	/// Unpauses the engine
+	void					unpause();
+
 	/// Updates all the subsystems
 	void					frame();
 
@@ -152,6 +158,7 @@ private:
 
 	bool					m_is_init		: 1;
 	bool					m_is_running	: 1;
+	bool					m_is_paused		: 1;
 
 	uint64_t				m_frame_count;
 

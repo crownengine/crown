@@ -81,6 +81,7 @@ Device::Device() :
 
 	m_is_init(false),
 	m_is_running(false),
+	m_is_paused(false),
 
 	m_frame_count(0),
 
@@ -203,20 +204,27 @@ bool Device::init(int argc, char** argv)
 	m_is_init = true;
 	start();
 
-	ResourceId luagame_id = m_resource_manager->load("lua", m_boot_file);
-	m_resource_manager->flush();
-	m_lua_environment->load((LuaResource*) m_resource_manager->data(luagame_id));
-	m_lua_environment->call_global("init", 0);
-	m_resource_manager->unload(luagame_id);
+	// Execute lua boot file
+	if (m_lua_environment->load_and_execute(m_boot_file))
+	{
+		if (!m_lua_environment->call_global("init", 0))
+		{
+			pause();
+		}
+	}
+	else
+	{
+		pause();
+	}
+
+	// Show main window
+	m_window->show();
 
 	if (m_quit_after_init == 1)
 	{
 		stop();
 		shutdown();
 	}
-
-	// Show main window
-	m_window->show();
 
 	return true;
 }
@@ -287,6 +295,14 @@ void Device::shutdown()
 	{
 		CE_DELETE(m_allocator, m_filesystem);
 	}
+
+	#if (defined(LINUX) || defined(WINDOWS)) && (defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT))
+		Log::i("Releasing BundleCompiler...");
+		if (m_bundle_compiler)
+		{
+			CE_DELETE(m_allocator, m_bundle_compiler);
+		}
+	#endif
 
 	m_allocator.clear();
 
@@ -387,6 +403,20 @@ void Device::stop()
 }
 
 //-----------------------------------------------------------------------------
+void Device::pause()
+{
+	m_is_paused = true;
+	Log::d("Engine paused");
+}
+
+//-----------------------------------------------------------------------------
+void Device::unpause()
+{
+	m_is_paused = false;
+	Log::d("Engine unpaused");
+}
+
+//-----------------------------------------------------------------------------
 bool Device::is_running() const
 {
 	return m_is_running;
@@ -415,9 +445,14 @@ void Device::frame()
 
 	m_window->frame();
 	m_input_manager->frame(frame_count());
-	m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time());
 
-	// m_console_server->execute();
+	if (!m_is_paused)
+	{
+		if (!m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time()))
+		{
+			pause();
+		}
+	}
 
 	m_debug_renderer->draw_all();
 	m_renderer->frame();

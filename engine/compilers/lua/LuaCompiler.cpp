@@ -24,6 +24,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "Config.h"
 #include "LuaCompiler.h"
 #include "LuaResource.h"
 #include "TempAllocator.h"
@@ -35,10 +36,17 @@ namespace crown
 {
 
 #ifdef WINDOWS
-	#define LUAJIT "luajit.exe"
+	#define LUAJIT_EXECUTABLE "luajit.exe"
 #else
-	#define LUAJIT "./luajit"
+	#define LUAJIT_EXECUTABLE "./luajit"
 #endif
+
+#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	#define LUAJIT_FLAGS "-bg" // Keep debug info
+#else
+	#define LUAJIT_FLAGS "-b"
+#endif
+
 
 
 //-----------------------------------------------------------------------------
@@ -64,8 +72,8 @@ size_t LuaCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 
 	const char* luajit[] =
 	{
-		LUAJIT,
-		"-b",
+		LUAJIT_EXECUTABLE,
+		LUAJIT_FLAGS,
 		res_abs_path.c_str(),
 		bc_abs_path.c_str(),
 		NULL
