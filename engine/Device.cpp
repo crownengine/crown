@@ -205,8 +205,17 @@ bool Device::init(int argc, char** argv)
 	start();
 
 	// Execute lua boot file
-	m_lua_environment->load_and_execute(m_boot_file);
-	m_lua_environment->call_global("init", 0);
+	if (m_lua_environment->load_and_execute(m_boot_file))
+	{
+		if (!m_lua_environment->call_global("init", 0))
+		{
+			pause();
+		}
+	}
+	else
+	{
+		pause();
+	}
 
 	// Show main window
 	m_window->show();
@@ -389,12 +398,14 @@ void Device::stop()
 void Device::pause()
 {
 	m_is_paused = true;
+	Log::d("Engine paused");
 }
 
 //-----------------------------------------------------------------------------
 void Device::unpause()
 {
 	m_is_paused = false;
+	Log::d("Engine unpaused");
 }
 
 //-----------------------------------------------------------------------------
@@ -426,8 +437,14 @@ void Device::frame()
 
 	m_window->frame();
 	m_input_manager->frame(frame_count());
-	
-	m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time());
+
+	if (!m_is_paused)
+	{
+		if (!m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time()))
+		{
+			pause();
+		}
+	}
 
 	m_debug_renderer->draw_all();
 	m_renderer->frame();
