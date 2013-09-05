@@ -81,7 +81,7 @@ Device::Device() :
 
 	m_is_init(false),
 	m_is_running(false),
-	m_is_paused(true),
+	m_is_paused(false),
 
 	m_frame_count(0),
 
@@ -295,6 +295,14 @@ void Device::shutdown()
 	{
 		CE_DELETE(m_allocator, m_filesystem);
 	}
+
+	#if (defined(LINUX) || defined(WINDOWS)) && (defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT))
+		Log::i("Releasing BundleCompiler...");
+		if (m_bundle_compiler)
+		{
+			CE_DELETE(m_allocator, m_bundle_compiler);
+		}
+	#endif
 
 	m_allocator.clear();
 
