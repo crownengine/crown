@@ -132,17 +132,21 @@ bool LuaEnvironment::load_and_execute(const char* res_name)
 	resman->flush();
 	LuaResource* lr = (LuaResource*) resman->data(res_id);
 	
+	lua_getglobal(m_state, "debug");
+	lua_getfield(m_state, -1, "traceback");
 	if (luaL_loadbuffer(m_state, (const char*) lr->code(), lr->size(), res_name) == 0)
 	{
-		if (lua_pcall(m_state, 0, 0, 0) == 0)
+		if (lua_pcall(m_state, 0, 0, -2) == 0)
 		{
 			// Unloading is OK since the script data has been copied to Lua
 			resman->unload(res_id);
+			lua_pop(m_state, 2); // Pop debug.traceback
 			return true;
 		}
 	}
 
 	error();
+	lua_pop(m_state, 2); // Pop debug.traceback
 	return false;
 }
 
@@ -203,8 +207,11 @@ bool LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 	if (lua_pcall(m_state, argc, 0, -argc - 2) != 0)
 	{
 		error();
+		lua_pop(m_state, 2); // Pop debug.traceback
 		return false;
 	}
+
+	lua_pop(m_state, 2); // Pop debug.traceback
 
 	return true;
 }
@@ -214,6 +221,7 @@ void LuaEnvironment::error()
 {
 	const char* msg = lua_tostring(m_state, -1);
 	Log::e(msg);
+	lua_pop(m_state, 1);
 }
 
 } // namespace crown
