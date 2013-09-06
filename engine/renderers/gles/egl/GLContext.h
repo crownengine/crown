@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <EGL/egl.h>
-#include <android/native_window.h>
 
 namespace crown
 {
@@ -45,11 +44,11 @@ public:
 private:
 
 	EGLDisplay 		display;
-    EGLSurface 		surface;
-    EGLConfig 		config;
-    EGLContext 		context;
+	EGLSurface 		surface;
+	EGLConfig 		config;
+	EGLContext 		context;
 
-    int32_t			num_configs;
+	int32_t			num_configs;
 };
 
 } // namespace crown
