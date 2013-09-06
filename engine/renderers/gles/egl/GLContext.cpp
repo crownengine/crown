@@ -119,7 +119,7 @@ void GLContext::create_context()
 //-----------------------------------------------------------------------------
 void GLContext::destroy_context()
 {
-	EGL_CHECK(eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+	EGL_CHECK(eglMakeCurrent(EGL_NO_DISPLAY, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
 	EGL_CHECK(eglDestroyContext(display, context));
 	EGL_CHECK(eglDestroySurface(display, surface));
 	EGL_CHECK(eglTerminate(display));
