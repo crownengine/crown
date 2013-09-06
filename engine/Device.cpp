@@ -66,6 +66,33 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+class MainThread : public Thread
+{
+public:
+
+	MainThread()
+		: Thread("main-thread")
+	{
+	}
+
+	int32_t run()
+	{
+		Device* engine = device();
+		engine->init();
+
+		while (!is_terminating() && engine->is_running())
+		{
+			engine->frame();
+		}
+
+		engine->shutdown();
+
+		return 0;
+	}
+};
+
+static MainThread g_main_thread;
+
 //-----------------------------------------------------------------------------
 Device::Device() : 
 	m_allocator(m_subsystems_heap, MAX_SUBSYSTEMS_HEAP),
@@ -141,6 +168,15 @@ bool Device::init(int argc, char** argv)
 		}
 	#endif
 
+	g_main_thread.start();
+	g_main_thread.join();
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+void Device::init()
+{
 	// Initialize
 	Log::i("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
@@ -225,14 +261,14 @@ bool Device::init(int argc, char** argv)
 		stop();
 		shutdown();
 	}
-
-	return true;
 }
 
 //-----------------------------------------------------------------------------
 void Device::shutdown()
 {
 	CE_ASSERT(is_init(), "Engine is not initialized");
+
+	g_main_thread.stop();
 
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);
@@ -441,21 +477,21 @@ void Device::frame()
 	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
 	m_last_time = m_current_time;
 
-	m_resource_manager->poll_resource_loader();
-
-	m_window->frame();
-	m_input_manager->frame(frame_count());
-
 	if (!m_is_paused)
 	{
+		m_resource_manager->poll_resource_loader();
+
+		m_window->frame();
+		m_input_manager->frame(frame_count());
+
 		if (!m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time()))
 		{
 			pause();
 		}
-	}
 
-	m_debug_renderer->draw_all();
-	m_renderer->frame();
+		m_debug_renderer->draw_all();
+		m_renderer->frame();
+	}
 
 	m_frame_count++;
 }

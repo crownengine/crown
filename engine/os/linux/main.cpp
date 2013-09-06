@@ -37,14 +37,6 @@ int main(int argc, char** argv)
 		exit(-1);
 	}
 
-	// Main loop
-	while (engine->is_running())
-	{
-		engine->frame();
-	}
-
-	engine->shutdown();
-
 	return 0;
 }
 

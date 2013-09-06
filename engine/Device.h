@@ -132,6 +132,7 @@ public:
 
 private:
 
+	void					init();
 	void					parse_command_line(int argc, char** argv);
 	void					check_preferred_settings();
 	void					read_engine_settings();
@@ -188,6 +189,8 @@ private:
 	// Disable copying
 	Device(const Device&);
 	Device& operator=(const Device&);
+
+	friend class MainThread;
 };
 
 CE_EXPORT Device* device();
