@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Assert.h"
 #include "GLContext.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -82,6 +83,8 @@ void GLContext::create_context()
 	surface = eglCreateWindowSurface(display, config, (EGLNativeWindowType)awindow, NULL);
 
     eglMakeCurrent(display, surface, surface, context);
+
+    Log::i("EGL context created");
 }
 
 //-----------------------------------------------------------------------------
@@ -90,6 +93,8 @@ void GLContext::destroy_context()
  	eglDestroyContext(display, context);
  	eglDestroySurface(display, surface);
  	eglTerminate(display);
+
+    Log::i("EGL context destroyed");
 }
 
 //-----------------------------------------------------------------------------

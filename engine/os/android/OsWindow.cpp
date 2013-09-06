@@ -24,41 +24,37 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <android/native_window_jni.h>
-
 #include "OsWindow.h"
 #include "GLContext.h"
 #include "Assert.h"
+#include "Log.h"
 
 namespace crown
 {
 
-static ANativeWindow* window = NULL;
+static ANativeWindow* g_android_window = NULL;
 
 //-----------------------------------------------------------------------------
 OsWindow::OsWindow(uint32_t /*width*/, uint32_t /*height*/, uint32_t /*parent*/) :
-	m_window(NULL),
 	m_x(0),
 	m_y(0),
 	m_width(0),
 	m_height(0)
 {
-	m_window = window;
 
-	m_width = ANativeWindow_getWidth(m_window);
-	m_height = ANativeWindow_getHeight(m_window);
+	m_width = ANativeWindow_getWidth(g_android_window);
+	m_height = ANativeWindow_getHeight(g_android_window);
 
-    set_android_window(m_window);
+    set_android_window(g_android_window);
 }
 
 //-----------------------------------------------------------------------------
 OsWindow::~OsWindow()
 {
-	if (m_window)
+	if (g_android_window)
 	{
-		ANativeWindow_release(m_window);
+		ANativeWindow_release(g_android_window);
 	}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -129,7 +125,7 @@ void OsWindow::set_title(const char* /*title*/)
 //-----------------------------------------------------------------------------
 void OsWindow::frame()
 {
-	// Implemented Java-side
+	// Log::i("window width: %d", ANativeWindow_getWidth(g_android_window));
 }
 
 //-----------------------------------------------------------------------------
@@ -137,7 +133,7 @@ extern "C" void Java_crown_android_CrownLib_setWindow(JNIEnv *env, jclass /*claz
 {
     // obtain a native window from a Java surface
 	CE_ASSERT(surface != 0, "Unable to get Android window");
-    window = ANativeWindow_fromSurface(env, surface);
+    g_android_window = ANativeWindow_fromSurface(env, surface);
 }
 
 } // namespace crown

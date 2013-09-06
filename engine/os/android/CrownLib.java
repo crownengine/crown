@@ -38,20 +38,29 @@ public class CrownLib
 	}
 	
 	// Device functions
-	public static native void 		init();
+	public static native void 		initDevice();
+	public static native void		stopDevice();
+	public static native void		pauseDevice();
+	public static native void		unpauseDevice();
+	public static native void 		shutdownDevice();
+
+	public static native boolean 	isDeviceInit();
+	public static native boolean	isDeviceRunning();
+
 	public static native void 		frame();
-	public static native void 		shutdown();
-	public static native boolean 	isInit();
-	public static native boolean	isRunning();
 
 	// AssetManager functions
 	public static native void 		initAssetManager(AssetManager assetManager);
 
-	// InputManager functions
-	public static native void 		pushIntEvent(int type, int a, int b, int c, int d);
-	public static native void 		pushFloatEvent(int type, float a, float b, float c, float d);
-
 	// Window functions
 	public static native void		setWindow(Surface window);
 	public static native void 		setDisplaySize(int width, int height);
+
+	// Renderer functions
+	public static native void		initRenderer();
+	public static native void		shutdownRenderer();
+
+	// InputManager functions
+	public static native void 		pushIntEvent(int type, int a, int b, int c, int d);
+	public static native void 		pushFloatEvent(int type, float a, float b, float c, float d);	
 }

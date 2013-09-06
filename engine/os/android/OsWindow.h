@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <sys/types.h>
 #include <android/native_window.h>
+#include <android/native_window_jni.h>
 
 namespace crown
 {
@@ -80,8 +81,6 @@ public:
 	void			frame();
 
 private:
-
-	ANativeWindow*	m_window;
 
 	uint32_t		m_x;
 	uint32_t		m_y;
