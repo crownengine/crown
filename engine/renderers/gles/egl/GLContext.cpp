@@ -81,24 +81,34 @@ void GLContext::create_context()
 {
 	// Screen format rgbx8888 with no alpha channel,
 	// maybe it is wrong but is for testing
-	EGLint attrib_list[]= { EGL_RED_SIZE,        8,
-							EGL_GREEN_SIZE,      8,
-							EGL_BLUE_SIZE,       8,
-							EGL_DEPTH_SIZE,      24,
-							EGL_SURFACE_TYPE,    EGL_WINDOW_BIT,
-							EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-							EGL_NONE};
+	EGLint attrib_list[] =
+	{
+		#ifdef ANDROID
+			EGL_DEPTH_SIZE,  16,
+		#else
+			EGL_DEPTH_SIZE,  24,
+		#endif
+		EGL_SURFACE_TYPE,    EGL_WINDOW_BIT,
+		EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+		EGL_NONE
+	};
 
 	EGLint attributes[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
 
 	display = EGL_CHECK(eglGetDisplay(EGL_DEFAULT_DISPLAY));
 	CE_ASSERT(display != EGL_NO_DISPLAY, "Failed to obtain EGL display connection");
 
-	EGL_CHECK(eglInitialize(display, NULL, NULL));
+	EGLint egl_major, egl_minor;
+	EGLBoolean init_success = EGL_CHECK(eglInitialize(display, &egl_major, &egl_minor));
+	CE_ASSERT(init_success == EGL_TRUE, "Failed to initialize EGL");
 
-	EGL_CHECK(eglBindAPI(EGL_OPENGL_ES_API));
+	Log::d("EGL Initialized: major = %d, minor = %d", egl_major, egl_minor);
 
-	EGL_CHECK(eglChooseConfig(display, attrib_list, &config, 1, &num_configs));
+	EGLBoolean bind_success = EGL_CHECK(eglBindAPI(EGL_OPENGL_ES_API));
+	CE_ASSERT(bind_success != EGL_FALSE, "Failed to bind OpenGL|ES API");
+
+	EGLBoolean cfg_success = EGL_CHECK(eglChooseConfig(display, attrib_list, &config, 1, &num_configs));
+	CE_ASSERT(cfg_success == EGL_TRUE, "Failed to choose EGL configuration");
 
 	EGLint format;
 	EGL_CHECK(eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format));
@@ -113,7 +123,7 @@ void GLContext::create_context()
 
 	EGL_CHECK(eglMakeCurrent(display, surface, surface, context));
 
-	Log::i("EGL context created");
+	Log::d("EGL context created");
 }
 
 //-----------------------------------------------------------------------------
