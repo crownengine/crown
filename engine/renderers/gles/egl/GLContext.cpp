@@ -34,7 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-static ANativeWindow* awindow;
+extern ANativeWindow* g_android_window;
 
 //-----------------------------------------------------------------------------
 static const char* egl_error_to_string(EGLint error)
@@ -71,16 +71,8 @@ static const char* egl_error_to_string(EGLint error)
 #endif
 
 //-----------------------------------------------------------------------------
-void set_android_window(ANativeWindow* window)
-{
-    CE_ASSERT_NOT_NULL(window);
-
-	awindow = window;
-}
-
-//-----------------------------------------------------------------------------
-GLContext::GLContext() :
-	num_configs(0)
+GLContext::GLContext()
+	: num_configs(0)
 {
 }
 
@@ -110,11 +102,11 @@ void GLContext::create_context()
     EGLint format;
 	EGL_CHECK(eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format));
 
-	ANativeWindow_setBuffersGeometry(awindow, 0, 0, format);
+	ANativeWindow_setBuffersGeometry(g_android_window, 0, 0, format);
 
     context = EGL_CHECK(eglCreateContext(display, config, EGL_NO_CONTEXT, attributes));
 
-	surface = EGL_CHECK(eglCreateWindowSurface(display, config, (EGLNativeWindowType)awindow, NULL));
+	surface = EGL_CHECK(eglCreateWindowSurface(display, config, (EGLNativeWindowType)g_android_window, NULL));
 
     EGL_CHECK(eglMakeCurrent(display, surface, surface, context));
 

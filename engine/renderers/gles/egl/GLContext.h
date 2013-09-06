@@ -32,8 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-void set_android_window(ANativeWindow* window);
-
 class GLContext
 {
 public:
