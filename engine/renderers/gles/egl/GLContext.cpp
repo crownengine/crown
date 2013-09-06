@@ -72,7 +72,7 @@ static const char* egl_error_to_string(EGLint error)
 
 //-----------------------------------------------------------------------------
 GLContext::GLContext()
-	: num_configs(0)
+	: display(EGL_NO_DISPLAY), surface(EGL_NO_SURFACE), context(EGL_NO_CONTEXT), num_configs(0)
 {
 }
 
@@ -92,6 +92,7 @@ void GLContext::create_context()
 	EGLint attributes[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
 
 	display = EGL_CHECK(eglGetDisplay(EGL_DEFAULT_DISPLAY));
+	CE_ASSERT(display != EGL_NO_DISPLAY, "Failed to obtain EGL display connection");
 
 	EGL_CHECK(eglInitialize(display, NULL, NULL));
 
