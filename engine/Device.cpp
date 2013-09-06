@@ -169,7 +169,7 @@ bool Device::init(int argc, char** argv)
 	#endif
 
 	g_main_thread.start();
-	g_main_thread.join();
+	// g_main_thread.join();
 
 	return true;
 }
@@ -349,6 +349,12 @@ void Device::shutdown()
 bool Device::is_init() const
 {
 	return m_is_init;
+}
+
+//-----------------------------------------------------------------------------
+bool Device::is_paused() const
+{
+	return m_is_paused;
 }
 
 //-----------------------------------------------------------------------------

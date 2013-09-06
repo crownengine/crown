@@ -77,6 +77,9 @@ public:
 	/// Returns whether the engine is correctly initialized
 	bool					is_init() const;
 
+	/// Returns wheter the engine is paused
+	bool 					is_paused() const;
+
 	/// Return the number of frames rendered from the first
 	/// call to Device::start()
 	uint64_t				frame_count() const;

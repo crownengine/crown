@@ -76,6 +76,12 @@ extern "C" JNIEXPORT bool JNICALL Java_crown_android_CrownLib_isDeviceRunning(JN
 }
 
 //-----------------------------------------------------------------------------
+extern "C" JNIEXPORT bool JNICALL Java_crown_android_CrownLib_isDevicePaused(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	return device()->is_paused();
+}
+
+//-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* /*env*/, jobject /*obj*/)
 {
 	device()->frame();
