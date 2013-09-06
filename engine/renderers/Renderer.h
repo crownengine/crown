@@ -104,6 +104,7 @@ public:
 	static Renderer*		create(Allocator& a);
 	static void				destroy(Allocator& a, Renderer* renderer);
 
+							Renderer() : m_is_valid(true) {}
 	virtual 				~Renderer() {};
 
 	virtual void			init() = 0;
@@ -228,6 +229,12 @@ public:
 	virtual void 			draw_triangles(IndexBufferId id) const = 0;
 				
 	virtual void 			draw_lines(const float* vertices, const float* colors, uint32_t count) = 0;
+
+	inline	void			invalidate() { m_is_valid = false; }
+
+public:
+
+	bool 					m_is_valid;
 };
 
 } // namespace crown

@@ -68,7 +68,6 @@ public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 		}
 		else
 		{
-			CrownLib.initRenderer();
 			CrownLib.unpauseDevice();
 		}
 	}
@@ -80,6 +79,6 @@ public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 		Log.d(TAG, "Crown Surface destroyed");
 		
 		CrownLib.pauseDevice();
-		CrownLib.shutdownRenderer();
+		CrownLib.invalidateRenderer();
 	}
 }

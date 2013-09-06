@@ -59,6 +59,7 @@ public class CrownLib
 	// Renderer functions
 	public static native void		initRenderer();
 	public static native void		shutdownRenderer();
+	public static native void		invalidateRenderer();
 
 	// InputManager functions
 	public static native void 		pushIntEvent(int type, int a, int b, int c, int d);

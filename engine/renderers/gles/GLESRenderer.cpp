@@ -72,6 +72,8 @@ static const char* gl_error_to_string(GLenum error)
 
 //-----------------------------------------------------------------------------
 GLESRenderer::GLESRenderer() :
+	Renderer(),
+
 	m_max_texture_size(0),
 	m_max_texture_units(0),
 	m_max_vertex_indices(0),
@@ -757,13 +759,21 @@ void GLESRenderer::get_scissor_params(int32_t& x, int32_t& y, int32_t& width, in
 //-----------------------------------------------------------------------------
 void GLESRenderer::frame()
 {
+	if (!m_is_valid)
+	{
+		m_context.destroy_context();
+		m_context.create_context();
+		m_is_valid = true;
+	}
+
 	// Clear frame/depth buffer
 	GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+	GL_CHECK(glClearColor(0.5f, 0.5f, 0.5f, 0.5f));
 
 	// Bind the default gpu program
-	bind_gpu_program(m_default_gpu_program);
+	// bind_gpu_program(m_default_gpu_program);
 
-	set_gpu_program_mat4_uniform(m_default_gpu_program, "mvp_matrix", m_model_view_projection_matrix);
+	// set_gpu_program_mat4_uniform(m_default_gpu_program, "mvp_matrix", m_model_view_projection_matrix);
 
 	GL_CHECK(glFinish());
 
