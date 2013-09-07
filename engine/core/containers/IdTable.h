@@ -26,6 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <stdint.h>
+
 #include "Assert.h"
 #include "Allocator.h"
 #include "Types.h"
@@ -33,14 +35,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+#define INVALID_ID UINT16_MAX
+
 struct Id
 {
-	union
-	{
-		uint16_t id;
-		uint16_t next;
-	};
-
+	uint16_t id;
 	uint16_t index;
 };
 
@@ -120,7 +119,7 @@ inline Id IdTable::create()
 	if (m_freelist != m_max_ids)
 	{
 		id.index = m_freelist;
-		m_freelist = m_ids[m_freelist].next;
+		m_freelist = m_ids[m_freelist].id;
 	}
 	else
 	{
@@ -137,7 +136,8 @@ inline void IdTable::destroy(Id id)
 {
 	CE_ASSERT(has(id), "IdTable does not have ID: %d,%d", id.id, id.index);
 
-	m_ids[id.index].next = m_freelist;
+	m_ids[id.index].id = INVALID_ID;
+	m_ids[id.index].index = m_freelist;
 	m_freelist = id.index;
 }
 
