@@ -143,7 +143,8 @@ struct VertexBuffer
 	{
 		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_id));
 		GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, offset * Vertex::bytes_per_vertex(m_format),
-									count * Vertex::bytes_per_vertex(m_format), vertices));	
+									count * Vertex::bytes_per_vertex(m_format), vertices));
+		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
 
 	//-----------------------------------------------------------------------------
@@ -232,7 +233,8 @@ struct Texture
 
 		// FIXME
 		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-					 GL_RGBA, GL_UNSIGNED_BYTE, data));
+					 			GL_RGBA, GL_UNSIGNED_BYTE, data));
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 
 		m_format = format;
 	}
@@ -243,6 +245,7 @@ struct Texture
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_id));
 		GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA,
 									GL_UNSIGNED_BYTE, data));
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 	}
 
 	//-----------------------------------------------------------------------------
