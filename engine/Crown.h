@@ -126,8 +126,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 // Engine/Renderers
 #include "Renderer.h"
-#include "Material.h"
-#include "Texture.h"
+#include "RenderContext.h"
 #include "DebugRenderer.h"
 #include "PixelFormat.h"
 #include "VertexFormat.h"

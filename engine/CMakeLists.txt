@@ -259,8 +259,7 @@ set (RENDERERS_SRC
 
 set (RENDERERS_HEADERS
 	renderers/Renderer.h
-	renderers/Material.h
-	renderers/Texture.h
+	renderers/RenderContext.h
 	renderers/DebugRenderer.h
 	renderers/PixelFormat.h
 	renderers/VertexFormat.h
@@ -333,6 +332,8 @@ set (LUA_HEADERS
 set (COMPILER_SRC
 	compilers/Compiler.cpp
 	compilers/BundleCompiler.cpp
+	compilers/mesh/MeshCompiler.cpp
+	compilers/mesh/tinyxml2.cpp
 	compilers/lua/LuaCompiler.cpp
 	compilers/texture/TextureCompiler.cpp
 	compilers/package/PackageCompiler.cpp
@@ -341,6 +342,8 @@ set (COMPILER_SRC
 set (COMPILER_HEADER
 	compilers/Compiler.h
 	compilers/BundleCompiler.h
+	compilers/mesh/MeshCompiler.h
+	compilers/mesh/tinyxml2.h
 	compilers/lua/LuaCompiler.h
 	compilers/texture/TextureCompiler.h
 	compilers/package/PackageCompiler.h
@@ -378,13 +381,11 @@ if (LINUX)
 
 	list (APPEND RENDERERS_SRC
 		renderers/gl/GLRenderer.cpp
-		renderers/gl/GLUtils.cpp
 		renderers/gl/glx/GLContext.cpp
 	)
 
 	list (APPEND RENDERERS_HEADERS
 		renderers/gl/GLRenderer.h
-		renderers/gl/GLUtils.h
 		renderers/gl/glx/GLContext.h
 	)
 
@@ -460,13 +461,11 @@ if (WINDOWS)
 
 	list (APPEND RENDERERS_SRC
 		renderers/gl/GLRenderer.cpp
-		renderers/gl/GLUtils.cpp
 		renderers/gl/wgl/GLContext.cpp
 	)
 
 	list (APPEND RENDERERS_HEADERS
 		renderers/gl/GLRenderer.h
-		renderers/gl/GLUtils.h
 		renderers/gl/wgl/GLContext.h
 	)
 
@@ -540,7 +539,7 @@ add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 
 if (CROWN_BUILD_TESTS)
-	add_subdirectory(tests)
+	#add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
 install (TARGETS crown DESTINATION bin)

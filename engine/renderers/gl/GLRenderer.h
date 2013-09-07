@@ -28,13 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <GL/glew.h>
 
+#include "Config.h"
 #include "Renderer.h"
-#include "Texture.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "RenderBuffer.h"
-#include "VertexShader.h"
-#include "PixelShader.h"
 #include "IdTable.h"
 #include "Resource.h"
 #include "GLContext.h"
@@ -43,53 +38,418 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-const uint32_t MAX_TEXTURE_UNITS = 8;
+extern const GLenum TEXTURE_MIN_FILTER_TABLE[];
+extern const GLenum TEXTURE_MAG_FILTER_TABLE[];
+extern const GLenum TEXTURE_WRAP_TABLE[];
+
+enum ShaderAttrib
+{
+	ATTRIB_POSITION			= 0,
+	ATTRIB_NORMAL			= 1,
+	ATTRIB_COLOR			= 2,
+	ATTRIB_TEX_COORD0		= 3,
+	ATTRIB_TEX_COORD1		= 4,
+	ATTRIB_TEX_COORD2		= 5,
+	ATTRIB_TEX_COORD3		= 6,
+	ATTRIB_COUNT
+};
+
+// Keep in sync with ShaderAttrib
+const char* const SHADER_ATTRIB_NAMES[] =
+{
+	"a_position",
+	"a_normal",
+	"a_color",
+	"a_tex_coord0",
+	"a_tex_coord1",
+	"a_tex_coord2",
+	"a_tex_coord3"
+};
+
+enum ShaderUniform
+{
+	UNIFORM_VIEW					= 0,
+	UNIFORM_MODEL					= 1,
+	UNIFORM_MODEL_VIEW				= 2,
+	UNIFORM_MODEL_VIEW_PROJECTION	= 3,
+	UNIFORM_TIME_SINCE_START		= 4,
+	UNIFORM_COUNT
+};
+
+const char* const SHADER_UNIFORM_NAMES[] =
+{
+	"u_view",
+	"u_model",
+	"u_model_view",
+	"u_model_view_projection",
+	"u_time_since_start"
+};
+
+static ShaderUniform name_to_stock_uniform(const char* uniform)
+{
+	for (uint8_t i = 0; i < UNIFORM_COUNT; i++)
+	{
+		if (string::strcmp(uniform, SHADER_UNIFORM_NAMES[i]) == 0)
+		{
+			return (ShaderUniform) i;
+		}
+	}
+
+	return UNIFORM_COUNT;
+}
 
 //-----------------------------------------------------------------------------
-struct Texture
+static const char* gl_error_to_string(GLenum error)
 {
-	GLuint				gl_object;
-	PixelFormat			format;
-};
+	switch (error)
+	{
+		case GL_INVALID_ENUM: return "GL_INVALID_ENUM";
+		case GL_INVALID_VALUE: return "GL_INVALID_VALUE";
+		case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION";
+		case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
+		default: return "UNKNOWN_GL_ERROR";
+	}
+}
+
+//-----------------------------------------------------------------------------
+#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	#define GL_CHECK(function)\
+		function;\
+		do { GLenum error; CE_ASSERT((error = glGetError()) == GL_NO_ERROR,\
+				"OpenGL error: %s", gl_error_to_string(error)); } while (0)
+#else
+	#define GL_CHECK(function)\
+		function;
+#endif
 
 //-----------------------------------------------------------------------------
 struct VertexBuffer
 {
-	GLuint				gl_object;
-	size_t				count;
-	VertexFormat		format;
+	//-----------------------------------------------------------------------------
+	void create(size_t count, VertexFormat format, const void* vertices)
+	{
+		GL_CHECK(glGenBuffers(1, &m_id));
+		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_id));
+		                                       // FIXME FIXME FIXME
+		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, (count / 3) * Vertex::bytes_per_vertex(format), vertices, GL_STATIC_DRAW));
+		// GL_STREAM_DRAW
+
+		m_count = count;
+		m_format = format;
+	}
+
+	//-----------------------------------------------------------------------------
+	void update(size_t offset, size_t count, const void* vertices)
+	{
+		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_id));
+		GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, offset * Vertex::bytes_per_vertex(m_format),
+									count * Vertex::bytes_per_vertex(m_format), vertices));	
+	}
+
+	//-----------------------------------------------------------------------------
+	void destroy()
+	{
+		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		GL_CHECK(glDeleteBuffers(1, &m_id));
+	}
+
+public:
+
+	GLuint			m_id;
+	size_t			m_count;
+	VertexFormat	m_format;
 };
 
 //-----------------------------------------------------------------------------
 struct IndexBuffer
 {
-	GLuint				gl_object;
-	uint32_t			index_count;
+	//-----------------------------------------------------------------------------
+	void create(size_t count, const void* indices)
+	{
+		GL_CHECK(glGenBuffers(1, &m_id));
+		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id));
+		GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLushort), indices, GL_STATIC_DRAW));
+
+		m_index_count = count;
+	}
+
+	//-----------------------------------------------------------------------------
+	void destroy()
+	{
+		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+		GL_CHECK(glDeleteBuffers(1, &m_id));
+	}
+
+public:
+
+	GLuint		m_id;
+	uint32_t	m_index_count;
 };
 
 //-----------------------------------------------------------------------------
-struct RenderBuffer
+struct Shader
 {
-	GLuint				gl_frame_buffer;
-	GLuint				gl_render_buffer;
+	//-----------------------------------------------------------------------------
+	void create(ShaderType type, const char* text)
+	{
+		m_id = GL_CHECK(glCreateShader(type == SHADER_VERTEX ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER));
+
+		GL_CHECK(glShaderSource(m_id, 1, &text, NULL));
+		GL_CHECK(glCompileShader(m_id));
+
+		GLint success;
+		GL_CHECK(glGetShaderiv(m_id, GL_COMPILE_STATUS, &success));
+
+		if (!success)
+		{
+			GLchar info_log[2048];
+			GL_CHECK(glGetShaderInfoLog(m_id, 2048, NULL, info_log));
+			CE_ASSERT(false, "Shader compilation failed\n\n%s", info_log);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void destroy()
+	{
+		GL_CHECK(glDeleteShader(m_id));
+	}
+
+public:
+
+	GLuint m_id;
 };
 
 //-----------------------------------------------------------------------------
-struct VertexShader
+struct Texture
 {
-	GLuint				gl_object;
-};
+	//-----------------------------------------------------------------------------
+	void create(uint32_t width, uint32_t height, PixelFormat format, const void* data)
+	{
+		GL_CHECK(glGenTextures(1, &m_id));
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_id));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
 
-//-----------------------------------------------------------------------------
-struct PixelShader
-{
-	GLuint				gl_object;
+		// FIXME
+		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+					 GL_RGBA, GL_UNSIGNED_BYTE, data));
+
+		m_format = format;
+	}
+
+	//-----------------------------------------------------------------------------
+	void update(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data)
+	{
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_id));
+		GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA,
+									GL_UNSIGNED_BYTE, data));
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_sampler_state(uint32_t flags)
+	{
+		GLenum min_filter = TEXTURE_MIN_FILTER_TABLE[(flags & TEXTURE_FILTER_MASK) >> TEXTURE_FILTER_SHIFT];
+		GLenum mag_filter = TEXTURE_MIN_FILTER_TABLE[(flags & TEXTURE_FILTER_MASK) >> TEXTURE_FILTER_SHIFT];
+		GLenum wrap = TEXTURE_WRAP_TABLE[(flags & TEXTURE_WRAP_MASK) >> TEXTURE_WRAP_SHIFT];
+
+		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_WRAP_S, wrap));
+		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_WRAP_T, wrap));
+
+		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, min_filter));
+		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, mag_filter));
+	}
+
+	//-----------------------------------------------------------------------------
+	void destroy()
+	{
+		GL_CHECK(glBindTexture(m_target, 0));
+		GL_CHECK(glDeleteTextures(1, &m_id));
+	}
+
+	//-----------------------------------------------------------------------------
+	void commit(uint8_t unit, uint32_t flags)
+	{
+		GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+		GL_CHECK(glEnable(m_target));
+		GL_CHECK(glBindTexture(m_target, m_id));
+
+		set_sampler_state(flags);
+	}
+
+public:
+
+	GLuint			m_id;
+	GLenum			m_target;      // Always GL_TEXTURE_2D
+	uint32_t		m_width;
+	uint32_t		m_height;
+	PixelFormat		m_format;
 };
 
 //-----------------------------------------------------------------------------
 struct GPUProgram
 {
-	GLuint				gl_object;
+	//-----------------------------------------------------------------------------
+	void create(const Shader& vertex, const Shader& pixel)
+	{
+		m_id = GL_CHECK(glCreateProgram());
+
+		GL_CHECK(glAttachShader(m_id, vertex.m_id));
+		GL_CHECK(glAttachShader(m_id, pixel.m_id));
+
+		GL_CHECK(glBindAttribLocation(m_id, ATTRIB_POSITION, SHADER_ATTRIB_NAMES[ATTRIB_POSITION]));
+		GL_CHECK(glBindAttribLocation(m_id, ATTRIB_NORMAL, SHADER_ATTRIB_NAMES[ATTRIB_NORMAL]));
+
+		GL_CHECK(glLinkProgram(m_id));
+
+		GLint success;
+		GL_CHECK(glGetProgramiv(m_id, GL_LINK_STATUS, &success));
+
+		if (!success)
+		{
+			GLchar info_log[2048];
+			GL_CHECK(glGetProgramInfoLog(m_id, 2048, NULL, info_log));
+			CE_ASSERT(false, "GPU program compilation failed:\n%s", info_log);
+		}
+
+		// Find active attribs/uniforms
+		GLint num_active_attribs;
+		GLint num_active_uniforms;
+		GL_CHECK(glGetProgramiv(m_id, GL_ACTIVE_ATTRIBUTES, &num_active_attribs));
+		GL_CHECK(glGetProgramiv(m_id, GL_ACTIVE_UNIFORMS, &num_active_uniforms));
+
+		Log::d("Found %d active attribs", num_active_attribs);
+		Log::d("Found %d active uniforms", num_active_uniforms);
+
+		// Find active attribs/uniforms max length
+		GLint max_attrib_length;
+		GLint max_uniform_length;
+		GL_CHECK(glGetProgramiv(m_id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &max_attrib_length));
+		GL_CHECK(glGetProgramiv(m_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_uniform_length));
+
+		for (GLint attrib = 0; attrib < num_active_attribs; attrib++)
+		{
+			GLint attrib_size;
+			GLenum attrib_type;
+			char attrib_name[1024];
+			GL_CHECK(glGetActiveAttrib(m_id, attrib, max_attrib_length, NULL, &attrib_size, &attrib_type, attrib_name));
+
+			Log::d("Attrib %d: name = '%s' location = '%d'", attrib, attrib_name,
+					glGetAttribLocation(m_id, attrib_name));
+		}
+
+		for (GLint uniform = 0; uniform < num_active_uniforms; uniform++)
+		{
+			GLint uniform_size;
+			GLenum uniform_type;
+			char uniform_name[1024];
+			GL_CHECK(glGetActiveUniform(m_id, uniform, max_uniform_length, NULL, &uniform_size, &uniform_type, uniform_name));
+
+			GLint uniform_location = glGetUniformLocation(m_id, uniform_name);
+			Log::d("Uniform %d: name = '%s' location = '%d'", uniform, uniform_name,
+					uniform_location);
+
+			ShaderUniform stock_uniform = name_to_stock_uniform(uniform_name);
+			if (stock_uniform != UNIFORM_COUNT)
+			{
+				m_stock_uniforms[m_num_stock_uniforms] = stock_uniform;
+				m_stock_uniform_locations[m_num_stock_uniforms] = uniform_location;
+				m_num_stock_uniforms++;
+
+				Log::d("Found stock uniform: %s", uniform_name);
+			}
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void destroy()
+	{
+		GL_CHECK(glUseProgram(0));
+		GL_CHECK(glDeleteProgram(m_id));
+	}
+
+public:
+
+	GLuint				m_id;
+	uint8_t				m_num_stock_uniforms;
+	ShaderUniform		m_stock_uniforms[UNIFORM_COUNT];
+	GLint				m_stock_uniform_locations[UNIFORM_COUNT];
+};
+
+//-----------------------------------------------------------------------------
+struct RenderTarget
+{
+	void create(uint16_t /*width*/, uint16_t /*height*/, RenderTargetFormat /*format*/)
+	{
+		// // Create and bind FBO
+		// GL_CHECK(glGenFramebuffersEXT(1, &m_gl_fbo));
+		// GL_CHECK(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_gl_fbo));
+
+		// GLuint renderedTexture;
+		// glGenTextures(1, &renderedTexture);
+		 
+		// // "Bind" the newly created texture : all future texture functions will modify this texture
+		// glBindTexture(GL_TEXTURE_2D, renderedTexture);
+		 
+		// // Give an empty image to OpenGL ( the last "0" )
+		// glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, 1024, 768, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+		 
+		// // Poor filtering. Needed !
+		// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+
+		// // Create color/depth attachments
+		// switch (format)
+		// {
+		// 	case RTF_RGBA_8:
+		// 	case RTF_D24:
+		// 	{
+		// 		if (format == RTF_RGBA_8)
+		// 		{
+		// 			GL_CHECK(glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+  //                      GL_COLOR_ATTACHMENT0_EXT,
+  //                      GL_TEXTURE_2D,
+  //                      renderedTexture,
+  //                      0));
+		// 			break;
+		// 		}
+		// 		else if (format == RTF_D24)
+		// 		{
+		// 			GL_CHECK(glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, width, height));
+		// 			GL_CHECK(glFramebufferRenderbufferEXT(GL_DRAW_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, m_gl_rbo));
+		// 		}
+
+		// 		break;
+		// 	}
+		// 	default:
+		// 	{
+		// 		CE_ASSERT(false, "Oops, render target format not supported!");
+		// 		break;
+		// 	}
+		// }
+
+		// GLenum status = glCheckFramebufferStatusEXT(GL_DRAW_FRAMEBUFFER_EXT);
+		// CE_ASSERT(status == GL_FRAMEBUFFER_COMPLETE_EXT, "Oops, framebuffer incomplete!");
+
+		// GL_CHECK(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0));
+
+		// m_width = width;
+		// m_height = height;
+		// m_format = format;
+	}
+
+	void destroy()
+	{
+		// GL_CHECK(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0));
+		// GL_CHECK(glDeleteFramebuffersEXT(1, &m_gl_fbo));
+
+		// GL_CHECK(glDeleteRenderbuffersEXT(1, &m_gl_rbo));
+	}
+
+	uint16_t m_width;
+	uint16_t m_height;
+	RenderTargetFormat m_format;
+	GLuint m_gl_fbo;
+	GLuint m_gl_rbo;
 };
 
 /// OpenGL renderer
@@ -105,7 +465,6 @@ public:
 
 	// Vertex buffers
 	VertexBufferId		create_vertex_buffer(size_t count, VertexFormat format, const void* vertices);
-	VertexBufferId		create_dynamic_vertex_buffer(size_t count, VertexFormat format, const void* vertices);
 	void				update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices);
 	void				destroy_vertex_buffer(VertexBufferId id);
 
@@ -118,106 +477,29 @@ public:
 	void				update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data);
 	void				destroy_texture(TextureId id);
 
-	void				bind_texture(uint32_t unit, TextureId texture);
-	void				set_texturing(uint32_t unit, bool texturing);
-	void				set_texture_wrap(uint32_t unit, TextureWrap wrap);
-	void				set_texture_filter(uint32_t unit, TextureFilter filter);
-
 	// Vertex shaders
-	VertexShaderId		create_vertex_shader(const char* program);
-	void				destroy_vertex_shader(VertexShaderId id);
-
-	// Pixel shaders
-	PixelShaderId 		create_pixel_shader(const char* program);
-	void				destroy_pixel_shader(PixelShaderId id);
+	ShaderId			create_shader(ShaderType type, const char* text);
+	void				destroy_shader(ShaderId id);
 
 	// GPU programs
-	GPUProgramId		create_gpu_program(VertexShaderId vs, PixelShaderId ps);
+	GPUProgramId		create_gpu_program(ShaderId vertex, ShaderId pixel);
 	void				destroy_gpu_program(GPUProgramId id);
 
-	void				set_gpu_program_bool_uniform(GPUProgramId id, const char* name, bool value);
-	void				set_gpu_program_int_uniform(GPUProgramId id, const char* name, int value);
+	UniformId			create_uniform(const char* name, UniformType type);
+	void				destroy_uniform(UniformId id);
 
-	void				set_gpu_program_vec2_uniform(GPUProgramId id, const char* name, const Vec2& value);
-	void				set_gpu_program_vec3_uniform(GPUProgramId id, const char* name, const Vec3& value);
-	void				set_gpu_program_vec4_uniform(GPUProgramId id, const char* name, const Vec4& value);
+	// Render Targets
+	RenderTargetId		create_render_target(uint16_t width, uint16_t height, RenderTargetFormat format);
+	void				destroy_render_target(RenderTargetId id);
 
-	void				set_gpu_porgram_mat3_uniform(GPUProgramId id, const char* name, const Mat3& value);
-	void				set_gpu_program_mat4_uniform(GPUProgramId id, const char* name, const Mat4& value);
-
-	void				set_gpu_program_sampler_uniform(GPUProgramId id, const char* name, uint32_t value);
-
-	void				bind_gpu_program(GPUProgramId id) const;
-
-	// Frame buffers
-	// RenderBufferId	create_render_buffer(uint32_t width, uint32_t height, PixelFormat format);
-	// void				destroy_render_buffer(RenderBufferId id);
-
+	// Draws a complete frame
 	void				frame();
-
-	void				set_clear_color(const Color4& color);
-
-	// Lighting
-	void				set_ambient_light(const Color4& color);
-
-	void				set_backface_culling(bool culling);
-
-	// Fragment operations
-	void				set_depth_test(bool test);
-	void				set_depth_write(bool write);
-	void				set_depth_func(CompareFunction func);
-
-	void				set_blending(bool blending);
-	void				set_blending_params(BlendEquation equation, BlendFunction src, BlendFunction dst, const Color4& color);
-	void				set_color_write(bool write);
-
-	void				set_front_face(FrontFace face);
-
-	void				set_viewport_params(int32_t x, int32_t y, int32_t width, int32_t height);
-	void				get_viewport_params(int32_t& x, int32_t& y, int32_t& width, int32_t& height);
-
-	void				set_scissor(bool scissor);
-	void				set_scissor_params(int32_t x, int32_t y, int32_t width, int32_t height);
-	void				get_scissor_params(int32_t& x, int32_t& y, int32_t& width, int32_t& height);
-
-	Mat4				get_matrix(MatrixType type) const;
-	void				set_matrix(MatrixType type, const Mat4& matrix);
-
-	void				bind_vertex_buffer(VertexBufferId vb) const;
-	//void				bind_render_buffer(RenderBufferId id) const;
-
-	void				draw_triangles(IndexBufferId id) const;
 
 	void				draw_lines(const float* vertices, const float* colors, uint32_t count);
 
 private:
 
-	// Loads the default shaders
-	void				load_default_shaders();
-	void				unload_default_shaders();
-	void				reload_default_shaders();
-
-	// Activates a texture unit and returns true if succes
-	bool				activate_texture_unit(uint32_t unit);
-	bool				activate_light(uint32_t light);
-
-	// Shaders
-	GLint				find_gpu_program_uniform(GLuint program, const char* name) const;
-
-	// GL error checking
-	void				check_gl_errors() const;
-
-private:
-
 	HeapAllocator		m_allocator;
-
-	GLContext			m_context;
-
-	// Matrices
-	Mat4				m_matrix[MT_COUNT];
-
-	Mat4				m_model_view_matrix;
-	Mat4				m_model_view_projection_matrix;
 
 	// Limits
 	int32_t				m_max_texture_size;
@@ -229,48 +511,38 @@ private:
 	float				m_min_max_point_size[2];
 	float				m_min_max_line_width[2];
 
-	// Viewport and scissor
-	int32_t				m_viewport[4];
-	int32_t				m_scissor[4];
-
-	// Lighting
-	Color4				m_ambient_light_color;
-
 	// Texture management
 	IdTable 			m_textures_id_table;
-	Texture				m_textures[MAX_TEXTURES];
+	Texture				m_textures[CROWN_MAX_TEXTURES];
 
 	uint32_t			m_active_texture_unit;
-	GLuint				m_texture_unit[MAX_TEXTURE_UNITS];
-	GLenum				m_texture_unit_target[MAX_TEXTURE_UNITS];
+	GLuint				m_texture_unit[CROWN_MAX_TEXTURE_UNITS];
+	GLenum				m_texture_unit_target[CROWN_MAX_TEXTURE_UNITS];
 
 	// Vertex/Index buffer management
 	IdTable				m_vertex_buffers_id_table;
-	VertexBuffer		m_vertex_buffers[MAX_VERTEX_BUFFERS];
+	VertexBuffer		m_vertex_buffers[CROWN_MAX_VERTEX_BUFFERS];
 
 	IdTable				m_index_buffers_id_table;
-	IndexBuffer			m_index_buffers[MAX_INDEX_BUFFERS];
+	IndexBuffer			m_index_buffers[CROWN_MAX_INDEX_BUFFERS];
 
 	// Vertex shader management
-	IdTable 			m_vertex_shaders_id_table;
-	VertexShader		m_vertex_shaders[MAX_VERTEX_SHADERS];
-
-	// Pixel shader management
-	IdTable 			m_pixel_shaders_id_table;
-	PixelShader			m_pixel_shaders[MAX_PIXEL_SHADERS];
+	IdTable 			m_shaders_id_table;
+	Shader				m_shaders[CROWN_MAX_SHADERS];
 
 	// GPU program management
 	IdTable 			m_gpu_programs_id_table;
-	GPUProgram			m_gpu_programs[128];
+	GPUProgram			m_gpu_programs[CROWN_MAX_GPU_PROGRAMS];
+
+	IdTable				m_uniforms_id_table;
+	Uniform				m_uniforms[CROWN_MAX_UNIFORMS];
 
 	// Render buffer management
-	//IdTable			m_render_buffers_id_table;
-	//GLRenderBuffer	m_render_buffers[MAX_RENDER_BUFFERS];
+	IdTable				m_render_targets_id_table;
+	RenderTarget		m_render_targets[CROWN_MAX_RENDER_TARGETS];
 
-	// Default shaders
-	VertexShaderId		m_default_vertex_shader;
-	PixelShaderId		m_default_pixel_shader;
-	GPUProgramId		m_default_gpu_program;
+	// Context management
+	GLContext			m_context;
 };
 
 } // namespace crown

@@ -29,12 +29,35 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Resource.h"
 #include "PixelFormat.h"
-#include "Texture.h"
 #include "Allocator.h"
 #include "Bundle.h"
+#include "File.h"
 
 namespace crown
 {
+
+//
+// STRUCT
+// {
+//     FIELD             : SIZE                    COMMENT
+// }
+//
+// MeshHeader [1]
+// {
+//     version           : uint32_t                Version identifier
+//     mesh_count        : uint32_t                Number of meshes in the file
+//     joint_count       : uint32_t                Number of joints in the file
+//     padding           : uint32_t * 16           Reserved
+// }
+// MeshChunk [1, 2, ..., n]
+// {
+//     vertex_count      : uint32_t                Number of vertices in the mesh
+//     vertices          : float * vertex_count    Vertex data
+//
+//     tri_count         : uint32_t                Number of triangles in the mesh
+//     tris              : uint16_t * tri_count    Triangle data as indices into 'vertices'
+// }
+//
 
 // Bump the version whenever a change in the format is made.
 const uint32_t MESH_VERSION = 1;
@@ -55,6 +78,10 @@ public:
 	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
+
+		(void)allocator;
+		(void)bundle;
+		(void)id;
 
 		MeshResource* resource = (MeshResource*)allocator.allocate(sizeof(MeshResource));
 		file->read(&resource->m_header, sizeof(MeshHeader));
