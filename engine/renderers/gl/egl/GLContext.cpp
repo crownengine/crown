@@ -90,6 +90,8 @@ void GLContext::destroy_context()
  	eglDestroyContext(display, context);
  	eglDestroySurface(display, surface);
  	eglTerminate(display);
+
+    display = EGL_NO_DISPLAY;
 }
 
 //-----------------------------------------------------------------------------

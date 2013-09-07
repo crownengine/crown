@@ -42,7 +42,7 @@ void set_x11_display_and_window(Display* dpy, Window win)
 
 //-----------------------------------------------------------------------------
 GLContext::GLContext() :
-	m_glx_context(NULL)
+	m_glx_context(None)
 {
 }
 
@@ -91,6 +91,8 @@ void GLContext::destroy_context()
 			glXDestroyContext(s_x11_display, m_glx_context);
 		}
 	}
+
+	m_glx_context = None;
 }
 
 //-----------------------------------------------------------------------------

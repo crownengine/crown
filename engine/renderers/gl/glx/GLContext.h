@@ -46,9 +46,14 @@ public:
 
 	void			swap_buffers();
 
+	bool is_valid()
+	{
+		return m_glx_context != None;
+	}
+
 private:
 
-	GLXContext		m_glx_context;
+	GLXContext m_glx_context;
 };
 
 } // namespace crown

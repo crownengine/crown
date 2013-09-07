@@ -44,6 +44,11 @@ public:
 
 	void			swap_buffers();
 
+	void is_valid()
+	{
+		return display != EGL_NO_DISPLAY;
+	}
+
 private:
 
 	EGLDisplay 		display;
