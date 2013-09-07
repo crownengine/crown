@@ -503,11 +503,13 @@ void GLRenderer::frame()
 		}
 
 		// Bind array buffers
-		const VertexBufferId vb = cur_state.vb;
-
+		const VertexBufferId& vb = cur_state.vb;
 		if (vb.id != INVALID_ID)
 		{
 			const VertexBuffer& vertex_buffer = m_vertex_buffers[vb.index];
+
+			glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer.m_id);
+
 			switch (vertex_buffer.m_format)
 			{
 				case VF_XY_FLOAT_32:
@@ -556,7 +558,7 @@ void GLRenderer::frame()
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 		}
 
-		const IndexBufferId ib = cur_state.ib;
+		const IndexBufferId& ib = cur_state.ib;
 		if (ib.id != INVALID_ID)
 		{
 			const IndexBuffer& index_buffer = m_index_buffers[ib.index];
