@@ -233,7 +233,7 @@ struct Texture
 
 		// FIXME
 		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-					 			GL_RGBA, GL_UNSIGNED_BYTE, data));
+					 			GL_RGB, GL_UNSIGNED_BYTE, data));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 
 		m_format = format;
