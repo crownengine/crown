@@ -561,12 +561,6 @@ void Device::reload(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
-void Device::destroy_window()
-{
-	CE_DELETE(default_allocator(), m_window);
-}
-
-//-----------------------------------------------------------------------------
 void Device::parse_command_line(int argc, char** argv)
 {
 	static ArgsOption options[] = 

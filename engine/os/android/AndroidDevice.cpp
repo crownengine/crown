@@ -89,13 +89,6 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* /*en
 }
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_destroyWindow(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	device()->destroy_window();
-	Log::i("Window destroyed");
-}
-
-//-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initRenderer(JNIEnv* /*env*/, jobject /*obj*/)
 {
 	device()->init_renderer();

@@ -117,8 +117,6 @@ public:
 
 	void					reload(ResourceId name);
 
-	void					destroy_window();
-
 	Filesystem*				filesystem();
 	ResourceManager*		resource_manager();
 	InputManager*			input_manager();

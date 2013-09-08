@@ -130,4 +130,11 @@ extern "C" void Java_crown_android_CrownLib_createWindow(JNIEnv *env, jclass /*c
     Log::i("Window created");
 }
 
+//-----------------------------------------------------------------------------
+extern "C" void Java_crown_android_CrownLib_destroyWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
+{
+    ANativeWindow_release(g_android_window);
+    Log::i("Window destroyed");
+}
+
 } // namespace crown
