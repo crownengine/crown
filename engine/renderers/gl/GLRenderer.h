@@ -236,6 +236,7 @@ struct Texture
 					 			GL_RGB, GL_UNSIGNED_BYTE, data));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 
+		m_target = GL_TEXTURE_2D;
 		m_format = format;
 	}
 
