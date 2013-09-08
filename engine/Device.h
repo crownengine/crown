@@ -117,6 +117,8 @@ public:
 
 	void					reload(ResourceId name);
 
+	void					destroy_window();
+
 	Filesystem*				filesystem();
 	ResourceManager*		resource_manager();
 	InputManager*			input_manager();
@@ -132,6 +134,8 @@ public:
 	Accelerometer*			accelerometer();
 
 	ConsoleServer*			console_server();
+
+	inline void				init_renderer() { m_renderer_init_request = true; }
 
 private:
 
@@ -164,6 +168,8 @@ private:
 	bool					m_is_running	: 1;
 	bool					m_is_paused		: 1;
 
+	bool 					m_is_really_paused :1;
+
 	uint64_t				m_frame_count;
 
 	uint64_t				m_last_time;
@@ -186,6 +192,8 @@ private:
 
 	// Debug subsystems
 	ConsoleServer*			m_console_server;
+
+	bool 					m_renderer_init_request;
 
 private:
 

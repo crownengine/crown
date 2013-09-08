@@ -109,6 +109,7 @@ Device::Device() :
 	m_is_init(false),
 	m_is_running(false),
 	m_is_paused(false),
+	m_is_really_paused(false),
 
 	m_frame_count(0),
 
@@ -125,7 +126,9 @@ Device::Device() :
 	m_resource_manager(NULL),
 	m_resource_bundle(NULL),
 
-	m_console_server(NULL)
+	m_console_server(NULL),
+
+	m_renderer_init_request(false)
 {
 	// Bundle dir is current dir by default.
 	string::strncpy(m_bundle_dir, os::get_cwd(), MAX_PATH_LENGTH);
@@ -213,7 +216,8 @@ void Device::init()
 	m_input_manager = CE_NEW(m_allocator, InputManager)();
 	Log::d("Input manager created.");
 
-	m_window = CE_NEW(m_allocator, OsWindow)(m_preferred_window_width, m_preferred_window_height, m_parent_window_handle);
+	// default_allocator, maybe it needs fix
+	m_window = CE_NEW(default_allocator(), OsWindow)(m_preferred_window_width, m_preferred_window_height, m_parent_window_handle);
 
 	CE_ASSERT(m_window != NULL, "Unable to create the window");
 
@@ -224,6 +228,7 @@ void Device::init()
 	// Create renderer
 	m_renderer = Renderer::create(m_allocator);
 	m_renderer->init();
+	m_renderer_init_request = false;
 	Log::d("Renderer created.");
 
 	// Create debug renderer
@@ -312,7 +317,7 @@ void Device::shutdown()
 	Log::i("Releasing Window...");
 	if (m_window)
 	{
-		CE_DELETE(m_allocator, m_window);
+		CE_DELETE(default_allocator(), m_window);
 	}
 
 	Log::i("Releasing ResourceManager...");
@@ -448,6 +453,12 @@ void Device::stop()
 void Device::pause()
 {
 	m_is_paused = true;
+
+	while (!m_is_really_paused)
+	{
+		Log::i("Pausing...");
+	}
+
 	Log::d("Engine paused");
 }
 
@@ -455,6 +466,8 @@ void Device::pause()
 void Device::unpause()
 {
 	m_is_paused = false;
+	m_is_really_paused = false;
+
 	Log::d("Engine unpaused");
 }
 
@@ -483,6 +496,12 @@ void Device::frame()
 	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
 	m_last_time = m_current_time;
 
+	if (m_renderer_init_request)
+	{
+		m_renderer->init();
+		m_renderer_init_request = false;
+	}
+
 	if (!m_is_paused)
 	{
 		m_resource_manager->poll_resource_loader();
@@ -497,6 +516,11 @@ void Device::frame()
 
 		m_debug_renderer->draw_all();
 		m_renderer->frame();
+	}
+
+	if (m_is_paused)
+	{
+		m_is_really_paused = true;
 	}
 
 	m_frame_count++;
@@ -534,6 +558,12 @@ void Device::compile(const char* , const char* , const char* )
 void Device::reload(ResourceId name)
 {
 	(void)name;
+}
+
+//-----------------------------------------------------------------------------
+void Device::destroy_window()
+{
+	CE_DELETE(default_allocator(), m_window);
 }
 
 //-----------------------------------------------------------------------------
