@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <jni.h>
 #include "Device.h"
 #include "Renderer.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -88,21 +89,24 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* /*en
 }
 
 //-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_destroyWindow(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	device()->destroy_window();
+	Log::i("Window destroyed");
+}
+
+//-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initRenderer(JNIEnv* /*env*/, jobject /*obj*/)
 {
-	device()->renderer()->init();
+	device()->init_renderer();
+	Log::i("Renderer initialized");
 }
 
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownRenderer(JNIEnv* /*env*/, jobject /*obj*/)
 {
 	device()->renderer()->shutdown();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_invalidateRenderer(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	device()->renderer()->invalidate();
+	Log::i("Renderer shutdowned");
 }
 
 } // namespace crown
