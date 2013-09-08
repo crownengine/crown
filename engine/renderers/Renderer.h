@@ -129,6 +129,11 @@ public:
 		m_render_context.set_index_buffer(ib);
 	}
 
+	inline void set_texture(uint8_t unit, TextureId texture, uint32_t flags)
+	{
+		m_render_context.set_texture(unit, texture, flags);
+	}
+
 	inline void set_layer_render_target(uint8_t layer, RenderTargetId target)
 	{
 		m_render_context.set_layer_render_target(layer, target);

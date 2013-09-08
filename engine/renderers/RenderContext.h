@@ -33,6 +33,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+typedef Id VertexBufferId;
+typedef Id IndexBufferId;
+typedef Id RenderTargetId;
+typedef Id TextureId;
+typedef Id ShaderId;
+typedef Id GPUProgramId;
+typedef Id UniformId;
+
 enum UniformType
 {
 	UNIFORM_INTEGER,
@@ -49,17 +57,10 @@ struct Uniform
 	uint32_t m_size;
 };
 
-typedef Id VertexBufferId;
-typedef Id IndexBufferId;
-typedef Id RenderTargetId;
-typedef Id TextureId;
-typedef Id ShaderId;
-typedef Id GPUProgramId;
-typedef Id UniformId;
-
 #define MAX_RENDER_LAYERS			32
 #define MAX_RENDER_STATES			1024
 
+// State flags
 #define STATE_NONE					0x0000000000000000
 
 #define STATE_DEPTH_WRITE			0x0000000000000001
@@ -69,9 +70,17 @@ typedef Id UniformId;
 #define STATE_CULL_CW				0x0000000000000010
 #define STATE_CULL_CCW				0x0000000000000020
 
+#define STATE_TEXTURE_0				0x0000000000000100
+#define STATE_TEXTURE_1				0x0000000000000200
+#define STATE_TEXTURE_2				0x0000000000000400
+#define STATE_TEXTURE_3				0x0000000000000800
+#define STATE_TEXTURE_MASK			0x0000000000000F00
+#define STATE_MAX_TEXTURES			4
+
 #define CLEAR_COLOR					0x1
 #define CLEAR_DEPTH					0x2
 
+// Texture flags
 #define TEXTURE_FILTER_NEAREST		0x00000001
 #define TEXTURE_FILTER_LINEAR		0x00000002
 #define TEXTURE_FILTER_BILINEAR		0x00000003
@@ -85,6 +94,11 @@ typedef Id UniformId;
 #define TEXTURE_WRAP_CLAMP_REPEAT	0x00000040
 #define TEXTURE_WRAP_MASK			0x000000F0
 #define TEXTURE_WRAP_SHIFT			4
+
+// Sampler flags
+#define SAMPLER_TEXTURE				0x10000000
+#define SAMPLER_MASK				0xF0000000
+#define SAMPLER_SHIFT				28
 
 struct ViewRect
 {
@@ -117,9 +131,15 @@ struct ClearState
 
 public:
 
-	uint8_t m_flags;
-	Color4 m_color;
-	float m_depth;
+	uint8_t		m_flags;
+	Color4		m_color;
+	float		m_depth;
+};
+
+struct Sampler
+{
+	Id			sampler_id;
+	uint32_t	flags;
 };
 
 struct RenderState
@@ -132,16 +152,23 @@ struct RenderState
 		program.id = INVALID_ID;
 		vb.id = INVALID_ID;
 		ib.id = INVALID_ID;
+
+		for (uint32_t i = 0; i < STATE_MAX_TEXTURES; i++)
+		{
+			samplers[i].sampler_id.id = INVALID_ID;
+			samplers[i].flags = SAMPLER_TEXTURE;
+		}
 	}
 
 public:
 
-	uint64_t m_flags;
+	uint64_t		m_flags;
 
-	Mat4 pose;
-	GPUProgramId program;
-	VertexBufferId vb;
-	IndexBufferId ib;
+	Mat4			pose;
+	GPUProgramId	program;
+	VertexBufferId	vb;
+	IndexBufferId	ib;
+	Sampler			samplers[STATE_MAX_TEXTURES];
 };
 
 struct RenderKey
@@ -196,6 +223,15 @@ struct RenderContext
 	void set_index_buffer(IndexBufferId ib)
 	{
 		m_state.ib = ib;
+	}
+
+	void set_texture(uint8_t unit, TextureId texture, uint32_t flags)
+	{
+		m_flags |= STATE_TEXTURE_0 << unit;
+
+		Sampler& sampler = m_state.samplers[unit];
+		sampler.sampler_id = texture;
+		sampler.flags |= SAMPLER_TEXTURE | flags;
 	}
 
 	void set_layer_render_target(uint8_t layer, RenderTargetId target)
@@ -262,6 +298,7 @@ struct RenderContext
 
 	void clear()
 	{
+		m_flags = STATE_NONE;
 		m_render_key.clear();
 
 		m_num_states = 0;
@@ -270,6 +307,7 @@ struct RenderContext
 
 public:
 
+	uint64_t m_flags;
 	RenderKey m_render_key;
 	RenderState m_state;
 
