@@ -79,19 +79,13 @@ GLContext::GLContext()
 //-----------------------------------------------------------------------------
 void GLContext::create_context()
 {
-	// Screen format rgbx8888 with no alpha channel,
-	// maybe it is wrong but is for testing
-	EGLint attrib_list[] =
-	{
-		#ifdef ANDROID
-			EGL_DEPTH_SIZE,  16,
-		#else
-			EGL_DEPTH_SIZE,  24,
-		#endif
-		EGL_SURFACE_TYPE,    EGL_WINDOW_BIT,
-		EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-		EGL_NONE
-	};
+    const EGLint attrib_list[] = {
+            EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+            EGL_BLUE_SIZE, 8,
+            EGL_GREEN_SIZE, 8,
+            EGL_RED_SIZE, 8,
+            EGL_NONE
+    };
 
 	EGLint attributes[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
 

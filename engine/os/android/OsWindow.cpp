@@ -119,15 +119,15 @@ void OsWindow::set_title(const char* /*title*/)
 //-----------------------------------------------------------------------------
 void OsWindow::frame()
 {
-	// Log::i("window width: %d", ANativeWindow_getWidth(g_android_window));
 }
 
 //-----------------------------------------------------------------------------
-extern "C" void Java_crown_android_CrownLib_setWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
+extern "C" void Java_crown_android_CrownLib_createWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
 {
     // obtain a native window from a Java surface
 	CE_ASSERT(surface != 0, "Unable to get Android window");
     g_android_window = ANativeWindow_fromSurface(env, surface);
+    Log::i("Window created");
 }
 
 } // namespace crown

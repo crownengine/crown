@@ -180,15 +180,11 @@ void GLESRenderer::init()
 	GL_CHECK(glDisable(GL_DITHER));
 
 	Log::i("OpenGL Renderer initialized.");
-
-	load_default_shaders();
 }
 
 //-----------------------------------------------------------------------------
 void GLESRenderer::shutdown()
 {
-	unload_default_shaders();
-
 	m_context.destroy_context();
 }
 
@@ -759,13 +755,6 @@ void GLESRenderer::get_scissor_params(int32_t& x, int32_t& y, int32_t& width, in
 //-----------------------------------------------------------------------------
 void GLESRenderer::frame()
 {
-	if (!m_is_valid)
-	{
-		m_context.destroy_context();
-		m_context.create_context();
-		m_is_valid = true;
-	}
-
 	// Clear frame/depth buffer
 	GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	GL_CHECK(glClearColor(0.5f, 0.5f, 0.5f, 0.5f));

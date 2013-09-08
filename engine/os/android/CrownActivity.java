@@ -45,13 +45,14 @@ import android.view.SurfaceHolder;
 
 import crown.android.CrownEnum;
 
+import java.lang.Thread;
+
+
 /**
 *	BootStrap of Android Application
 */
 public class CrownActivity extends Activity
 {
-
-	// Debug
 	public static String TAG = "crown";
 
 	// Resource attributes
@@ -69,19 +70,19 @@ public class CrownActivity extends Activity
     {
         super.onCreate(savedInstanceState);
 
-		Log.i(TAG, "Crown Activity created");
-
-		// init AssetManager
+		// Init AssetManager
 		mAssetManager = getAssets();
 		CrownLib.initAssetManager(mAssetManager);
+
+		// Init Input
+		mTouch = new CrownTouch(this);
+		mSensor = new CrownSensor(this);
 
 		// init Native Window
         mWindow = new CrownSurfaceView(this);
         setContentView(mWindow);
 
-		// Init Input
-		mTouch = new CrownTouch(this);
-		mSensor = new CrownSensor(this);
+		Log.i(TAG, "Crown Activity created");
     }
 
 //-----------------------------------------------------------------------------
@@ -97,7 +98,6 @@ public class CrownActivity extends Activity
 	{
 		super.onResume();
 
-		// init accelerometer
 		mSensor.startListening(this);
 
 		Log.i(TAG, "Crown Activity resumed");
@@ -108,7 +108,6 @@ public class CrownActivity extends Activity
 	{
 		super.onPause();
 
-		// stop accelerometer
 		mSensor.stopListening();
 
 		Log.i(TAG, "Crown Activity paused");
@@ -126,6 +125,8 @@ public class CrownActivity extends Activity
 	public void onRestart()
 	{
 		super.onRestart();
+
+		Log.i(TAG, "Crown Activity restarted");
 	}
 
 //-----------------------------------------------------------------------------
