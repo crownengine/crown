@@ -107,8 +107,12 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	static void unload(Allocator& , void* )
+	static void unload(Allocator& a, void* res)
 	{
+		MeshResource* resource = (MeshResource*)res;
+		a.deallocate(resource->m_indices);
+		a.deallocate(resource->m_vertices);
+		a.deallocate(resource);
 	}
 
 	//-----------------------------------------------------------------------------
