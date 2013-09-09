@@ -156,48 +156,5 @@ void*			lookup_symbol(void* library, const char* name);
 void			execute_process(const char* args[]);
 
 } // namespace os
-
-//-----------------------------------------------------------------------------
-// Events
-//-----------------------------------------------------------------------------
-enum OsEventType
-{
-	OSET_NONE				= 0,
-
-	OSET_KEY_PRESS			= 1,
-	OSET_KEY_RELEASE		= 2,
-
-	OSET_BUTTON_PRESS		= 3,
-	OSET_BUTTON_RELEASE		= 4,
-
-	OSET_MOTION_NOTIFY		= 5,
-	OSET_TOUCH_DOWN			= 6,
-	OSET_TOUCH_MOVE			= 7,
-	OSET_TOUCH_UP			= 8,
-	
-	OSET_ACCELEROMETER		= 9
-};
-
-union OsEventParameter
-{
-	int32_t int_value;
-	float	float_value;
-};
-
-struct OsEvent
-{
-	OsEventType			type;
-	OsEventParameter	data_a;
-	OsEventParameter	data_b;
-	OsEventParameter	data_c;
-	OsEventParameter	data_d;
-};
-
-/// Pushes the event @a type along with its parameters into the os' event queue.
-void			push_event(OsEventType type, OsEventParameter data_a, OsEventParameter data_b, OsEventParameter data_c, OsEventParameter data_d);
-
-/// Returns and pops the first event in the os' event queue.
-OsEvent&		pop_event();
-
 } // namespace crown
 
