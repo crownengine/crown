@@ -54,6 +54,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/input
 	${CMAKE_SOURCE_DIR}/engine/renderers
 	${CMAKE_SOURCE_DIR}/engine/resource
+	${CMAKE_SOURCE_DIR}/engine/rpc
 	${CMAKE_SOURCE_DIR}/engine/network
 	${CMAKE_SOURCE_DIR}/engine/lua
 	${CMAKE_SOURCE_DIR}/engine/compilers
@@ -299,6 +300,24 @@ set (RESOURCE_HEADERS
 	resource/MaterialResource.h
 )
 
+set (RPC_SRC
+	rpc/RPCHandler.cpp
+)
+
+set (RPC_HEADERS
+	rpc/RPCServer.h
+	rpc/RPCHandler.h
+)
+
+set (RPC_SRC
+	rpc/RPCHandler.cpp
+)
+
+set (RPC_HEADERS
+	rpc/RPCServer.h
+	rpc/RPCHandler.h
+)
+
 set (OS_SRC
 	os/OS.cpp
 )
@@ -494,6 +513,7 @@ set (CROWN_SOURCES
 	${INPUT_SRC}
 	${RENDERERS_SRC}
 	${RESOURCE_SRC}
+	${RPC_SRC}
 #	${NETWORK_SRC}
 	${OS_SRC}
 	${LUA_SRC}
