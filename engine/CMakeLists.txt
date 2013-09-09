@@ -301,9 +301,7 @@ set (RESOURCE_HEADERS
 	resource/ResourcePackage.h
 )
 
-set (OS_SRC
-	os/OS.cpp
-)
+set (OS_SRC)
 
 set (OS_HEADERS
 	os/OS.h
