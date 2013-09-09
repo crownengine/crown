@@ -27,13 +27,56 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "NetAddress.h"
 
 namespace crown
 {
+
+class TCPClient
+{
+public:
+
+					TCPClient();
+					TCPClient(const TCPClient& c);
+					~TCPClient();
+
+	bool			connect(const os::NetAddress& destination);
+	void			close();
+	size_t			read(void* data, size_t size);
+	size_t			write(const void* data, size_t size);
+
+private:
+
+					TCPClient(int socket);
+
+private:
+
+	int				m_socket;
+
+private:
+
+	friend class	TCPListener;
+};
+
+class TCPListener
+{
+public:
+
+					TCPListener(uint16_t port);
+					~TCPListener();
+
+	bool			listen(TCPClient& c);
+	void			close();
+	size_t			read(void* data, size_t size);
+	size_t			write(const void* data, size_t size);
+
+private:
+
+	int			m_socket;
+};
+
 namespace os
 {
-
-class NetAddress;
 
 /// OS level TCP socket.
 class TCPSocket

@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <netinet/in.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "Assert.h"
 #include "Types.h"
@@ -38,6 +39,184 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+
+// static const char* errno_to_string(errno e)
+// {
+// 	switch (e)
+// 	{
+// 	}
+// }
+
+//-----------------------------------------------------------------------------
+TCPClient::TCPClient() :
+	m_socket(0)
+{
+}
+
+//-----------------------------------------------------------------------------
+TCPClient::TCPClient(int socket) :
+	m_socket(socket)
+{
+}
+
+//-----------------------------------------------------------------------------
+TCPClient::TCPClient(const TCPClient& c)
+{
+	m_socket = c.m_socket;
+}
+
+//-----------------------------------------------------------------------------
+TCPClient::~TCPClient()
+{
+}
+
+//-----------------------------------------------------------------------------
+bool TCPClient::connect(const os::NetAddress& destination)
+{
+	int sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+	if (sd <= 0)
+	{
+		os::printf("Failed to open socket\n");
+		m_socket = 0;
+
+		return false;
+	}
+
+	m_socket = sd;
+
+	sockaddr_in address;
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr =  htonl(destination.address());
+	address.sin_port = htons(destination.port());
+
+	if (::connect(sd, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0)
+	{
+		os::printf("Failed to connect socket\n");
+		close();
+
+		return false;
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+void TCPClient::close()
+{
+	if (m_socket != 0)
+	{
+		::close(m_socket);
+		m_socket = 0;
+	}
+}
+
+//-----------------------------------------------------------------------------
+size_t TCPClient::read(void* data, size_t size)
+{
+	CE_ASSERT_NOT_NULL(data);
+
+	ssize_t received_bytes = ::read(m_socket, (char*) data, size);
+	if (received_bytes == -1 && errno == EAGAIN)
+	{
+		return 0;
+	}
+
+	return received_bytes;
+}
+
+//-----------------------------------------------------------------------------
+size_t TCPClient::write(const void* data, size_t size)
+{
+	CE_ASSERT_NOT_NULL(data);
+
+	ssize_t sent_bytes = ::send(m_socket, (const char*) data, size, 0);
+	CE_ASSERT(sent_bytes >= 0, "Failed to send data");
+	CE_ASSERT((size_t) sent_bytes == size, "Failed to send data");
+
+	return sent_bytes;
+}
+
+//-----------------------------------------------------------------------------
+TCPListener::TCPListener(uint16_t port) :
+	m_socket(0)
+{
+	m_socket = socket(AF_INET, SOCK_STREAM, 0);
+	CE_ASSERT(m_socket != -1, "Failed to open socket: errno: %d", errno);
+
+	fcntl(m_socket, F_SETFL, O_NONBLOCK);
+
+	// Bind socket
+	sockaddr_in address;
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = htonl(INADDR_ANY);
+	address.sin_port = htons(port);
+
+	int bind_ret = bind(m_socket, (const sockaddr*) &address, sizeof(sockaddr_in));
+	CE_ASSERT(bind_ret != -1, "Failed to bind socket: errno: %d", errno);
+
+	int listen_ret = ::listen(m_socket, 5);
+	CE_ASSERT(listen_ret != -1, "Failed to listen on socket: errno: %d", errno);
+}
+
+//-----------------------------------------------------------------------------
+TCPListener::~TCPListener()
+{
+}
+
+//-----------------------------------------------------------------------------
+bool TCPListener::listen(TCPClient& c)
+{
+	sockaddr_in client;
+	size_t client_length = sizeof(client);
+
+	int asd = accept(m_socket, (sockaddr*)&client, (socklen_t*)&client_length);
+
+	if (asd == -1 && errno == EWOULDBLOCK)
+	{
+		return false;
+	}
+
+	fcntl(asd, F_SETFL, O_NONBLOCK);
+	c = TCPClient(asd);
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+void TCPListener::close()
+{
+	if (m_socket != 0)
+	{
+		::close(m_socket);
+		m_socket = 0;
+	}
+}
+
+//-----------------------------------------------------------------------------
+size_t TCPListener::read(void* data, size_t size)
+{
+	CE_ASSERT_NOT_NULL(data);
+
+	ssize_t received_bytes = ::recv(m_socket, (char*) data, size, 0);
+	CE_ASSERT(received_bytes >= 0, "Failed to receive data");
+
+	return received_bytes;
+}
+
+//-----------------------------------------------------------------------------
+size_t TCPListener::write(const void* data, size_t size)
+{
+	CE_ASSERT_NOT_NULL(data);
+
+	ssize_t sent_bytes = ::send(m_socket, (const char*) data, size, 0);
+	CE_ASSERT(sent_bytes >= 0, "Failed to send data");
+	CE_ASSERT((size_t) sent_bytes == size, "Failed to send data");
+
+	return sent_bytes;
+}
+
+//-----------------------------------------------------------------------------
+
 namespace os
 {
 
