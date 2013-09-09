@@ -45,6 +45,14 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
+const GLenum PRIMITIVE_TYPE_TABLE[] =
+{
+	GL_TRIANGLES,
+	GL_POINTS,
+	GL_LINES
+};
+
+//-----------------------------------------------------------------------------
 const GLenum TEXTURE_MIN_FILTER_TABLE[] =
 {
 	0, // Unused
@@ -487,8 +495,10 @@ void GLRenderer::frame()
 		if (ib.id != INVALID_ID)
 		{
 			const IndexBuffer& index_buffer = m_index_buffers[ib.index];
+			uint32_t prim_type = (flags & STATE_PRIMITIVE_MASK) >> STATE_PRIMITIVE_SHIFT;
+			GLenum gl_prim_type = PRIMITIVE_TYPE_TABLE[prim_type];
 			GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer.m_id));
-			GL_CHECK(glDrawElements(GL_TRIANGLES, index_buffer.m_index_count, GL_UNSIGNED_SHORT, 0));
+			GL_CHECK(glDrawElements(gl_prim_type, index_buffer.m_index_count, GL_UNSIGNED_SHORT, 0));
 		}
 		else
 		{
