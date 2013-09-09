@@ -131,21 +131,19 @@ bool exists(const char* path)
 //-----------------------------------------------------------------------------
 bool is_directory(const char* path)
 {
-	// struct stat info;
-	// memset(&info, 0, sizeof(struct stat));
-	// lstat(path, &info);
-	// return ((S_ISDIR(info.st_mode)) != 0 && (S_ISLNK(info.st_mode) == 0));
-	return true;
+	struct stat info;
+	memset(&info, 0, sizeof(struct stat));
+	lstat(path, &info);
+	return ((S_ISDIR(info.st_mode)) != 0 && (S_ISLNK(info.st_mode) == 0));
 }
 
 //-----------------------------------------------------------------------------
 bool is_file(const char* path)
 {
-	// struct stat info;
-	// memset(&info, 0, sizeof(struct stat));
-	// lstat(path, &info);
-	// return ((S_ISREG(info.st_mode) != 0) && (S_ISLNK(info.st_mode) == 0));
-	return true;
+	struct stat info;
+	memset(&info, 0, sizeof(struct stat));
+	lstat(path, &info);
+	return ((S_ISREG(info.st_mode) != 0) && (S_ISLNK(info.st_mode) == 0));
 }
 
 //-----------------------------------------------------------------------------
