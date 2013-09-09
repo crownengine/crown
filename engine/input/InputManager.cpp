@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "InputManager.h"
 #include "OS.h"
 #include "Log.h"
+#include "OsEventBuffer.h"
 
 namespace crown
 {
@@ -98,7 +99,9 @@ EventDispatcher* InputManager::get_event_dispatcher()
 //-----------------------------------------------------------------------------
 void InputManager::frame(uint64_t frame_count)
 {
-	OsEvent event;
+	void* event;
+	uint32_t event_type;
+	size_t event_size;
 
 	// Update input devices
 	m_keyboard.m_current_frame = frame_count;
@@ -106,9 +109,12 @@ void InputManager::frame(uint64_t frame_count)
 
 	while (1)
 	{
-		event = pop_event();
+		if ((event = os_event_buffer()->get_next_event(event_type, event_size)) == NULL)
+		{
+			break;
+		}
 
-		switch (event.type)
+		switch (event_type)
 		{
 			case OSET_NONE:
 			{
@@ -118,12 +124,12 @@ void InputManager::frame(uint64_t frame_count)
 			case OSET_BUTTON_RELEASE:
 			{
 				MouseEvent mouse_event;
-				mouse_event.x = event.data_a.int_value;
-				mouse_event.y = event.data_b.int_value;
-				mouse_event.button = event.data_c.int_value == 0 ? MB_LEFT : event.data_c.int_value == 1 ? MB_MIDDLE : MB_RIGHT;
+				mouse_event.x = ((OsMouseEvent*)event)->x;
+				mouse_event.y = ((OsMouseEvent*)event)->y;
+				mouse_event.button = ((OsMouseEvent*)event)->button == 0 ? MB_LEFT : ((OsMouseEvent*)event)->button == 1 ? MB_MIDDLE : MB_RIGHT;
 				mouse_event.wheel = 0.0f;
 
-				if (event.type == OSET_BUTTON_PRESS)
+				if (event_type == OSET_BUTTON_PRESS)
 				{
 					m_mouse.update(frame_count, mouse_event.button, true);
 					m_event_dispatcher.button_pressed(mouse_event);
@@ -140,12 +146,12 @@ void InputManager::frame(uint64_t frame_count)
 			case OSET_KEY_RELEASE:
 			{
 				KeyboardEvent keyboard_event;
-				keyboard_event.key = (KeyCode)event.data_a.int_value;
-				keyboard_event.modifier = (uint8_t)event.data_b.int_value;
+				keyboard_event.key = (KeyCode) ((OsKeyboardEvent*)event)->key;
+				keyboard_event.modifier = (uint8_t) ((OsKeyboardEvent*)event)->modifier;
 
 				m_keyboard.m_modifier = keyboard_event.modifier;
 
-				if (event.type == OSET_KEY_PRESS)
+				if (event_type == OSET_KEY_PRESS)
 				{
 					m_keyboard.update(frame_count, keyboard_event.key, true);
 					m_event_dispatcher.key_pressed(keyboard_event);
@@ -158,66 +164,66 @@ void InputManager::frame(uint64_t frame_count)
 
 				break;
 			}
-			case OSET_TOUCH_DOWN:
-			case OSET_TOUCH_UP:
-			{
-				TouchEvent touch_event;
-				touch_event.pointer_id = event.data_a.int_value;
-				touch_event.x = event.data_b.int_value;
-				touch_event.y = event.data_c.int_value;
+			// case OSET_TOUCH_DOWN:
+			// case OSET_TOUCH_UP:
+			// {
+			// 	TouchEvent touch_event;
+			// 	touch_event.pointer_id = event.data_a.int_value;
+			// 	touch_event.x = event.data_b.int_value;
+			// 	touch_event.y = event.data_c.int_value;
 
-				m_touch.m_pointers[touch_event.pointer_id].x = touch_event.x;
-				m_touch.m_pointers[touch_event.pointer_id].y = touch_event.y;
+			// 	m_touch.m_pointers[touch_event.pointer_id].x = touch_event.x;
+			// 	m_touch.m_pointers[touch_event.pointer_id].y = touch_event.y;
 
-				// FIXME
-				m_touch.m_pointers[touch_event.pointer_id].relative_x = 0.0f;
-				m_touch.m_pointers[touch_event.pointer_id].relative_y = 0.0f;
+			// 	// FIXME
+			// 	m_touch.m_pointers[touch_event.pointer_id].relative_x = 0.0f;
+			// 	m_touch.m_pointers[touch_event.pointer_id].relative_y = 0.0f;
 
-				if (event.type == OSET_TOUCH_DOWN)
-				{
-					m_touch.m_pointers[touch_event.pointer_id].up = false;
-					m_event_dispatcher.touch_down(touch_event);
-				}
-				else
-				{
-					m_touch.m_pointers[touch_event.pointer_id].up = true;
-					m_event_dispatcher.touch_up(touch_event);
-				}
+			// 	if (event.type == OSET_TOUCH_DOWN)
+			// 	{
+			// 		m_touch.m_pointers[touch_event.pointer_id].up = false;
+			// 		m_event_dispatcher.touch_down(touch_event);
+			// 	}
+			// 	else
+			// 	{
+			// 		m_touch.m_pointers[touch_event.pointer_id].up = true;
+			// 		m_event_dispatcher.touch_up(touch_event);
+			// 	}
 
-				break;
-			}
-			case OSET_TOUCH_MOVE:
-			{
-				TouchEvent touch_event;
-				touch_event.pointer_id = event.data_a.int_value;
-				touch_event.x = event.data_b.int_value;
-				touch_event.y = event.data_c.int_value;
+			// 	break;
+			// }
+			// case OSET_TOUCH_MOVE:
+			// {
+			// 	TouchEvent touch_event;
+			// 	touch_event.pointer_id = event.data_a.int_value;
+			// 	touch_event.x = event.data_b.int_value;
+			// 	touch_event.y = event.data_c.int_value;
 
-				m_touch.m_pointers[touch_event.pointer_id].x = touch_event.x;
-				m_touch.m_pointers[touch_event.pointer_id].y = touch_event.y;
+			// 	m_touch.m_pointers[touch_event.pointer_id].x = touch_event.x;
+			// 	m_touch.m_pointers[touch_event.pointer_id].y = touch_event.y;
 
-				// FIXME
-				m_touch.m_pointers[touch_event.pointer_id].relative_x = 0.0f;
-				m_touch.m_pointers[touch_event.pointer_id].relative_y = 0.0f;
+			// 	// FIXME
+			// 	m_touch.m_pointers[touch_event.pointer_id].relative_x = 0.0f;
+			// 	m_touch.m_pointers[touch_event.pointer_id].relative_y = 0.0f;
 
-				m_event_dispatcher.touch_move(touch_event);
+			// 	m_event_dispatcher.touch_move(touch_event);
 
-				break;
-			}
-			case OSET_ACCELEROMETER:
-			{
-				AccelerometerEvent sensor_event;
-				sensor_event.x = event.data_a.float_value;
-				sensor_event.y = event.data_b.float_value;
-				sensor_event.z = event.data_c.float_value;
+			// 	break;
+			// }
+			// case OSET_ACCELEROMETER:
+			// {
+			// 	AccelerometerEvent sensor_event;
+			// 	sensor_event.x = event.data_a.float_value;
+			// 	sensor_event.y = event.data_b.float_value;
+			// 	sensor_event.z = event.data_c.float_value;
 
-				m_accelerometer.m_orientation.x = sensor_event.x;
-				m_accelerometer.m_orientation.y = sensor_event.y;
-				m_accelerometer.m_orientation.z = sensor_event.z;
+			// 	m_accelerometer.m_orientation.x = sensor_event.x;
+			// 	m_accelerometer.m_orientation.y = sensor_event.y;
+			// 	m_accelerometer.m_orientation.z = sensor_event.z;
 
-				m_event_dispatcher.accelerometer_changed(sensor_event);
-				break;
-			}
+			// 	m_event_dispatcher.accelerometer_changed(sensor_event);
+			// 	break;
+			// }
 			default:
 			{
 				break;
