@@ -521,8 +521,6 @@ public:
 	// Draws a complete frame
 	void				frame();
 
-	void				draw_lines(const float* vertices, const float* colors, uint32_t count);
-
 private:
 
 	HeapAllocator		m_allocator;

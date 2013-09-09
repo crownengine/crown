@@ -564,24 +564,6 @@ void GLRenderer::frame()
 }
 
 //-----------------------------------------------------------------------------
-void GLRenderer::draw_lines(const float* vertices, const float* colors, uint32_t count)
-{
-	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-
-	GL_CHECK(glEnableClientState(GL_VERTEX_ARRAY));
-	GL_CHECK(glEnableClientState(GL_COLOR_ARRAY));
-
-	GL_CHECK(glVertexPointer(3, GL_FLOAT, 0, vertices));
-	GL_CHECK(glColorPointer(4, GL_FLOAT, 0, colors));
-
-	GL_CHECK(glDrawArrays(GL_LINES, 0, count));
-
-	GL_CHECK(glDisableClientState(GL_COLOR_ARRAY));
-	GL_CHECK(glDisableClientState(GL_VERTEX_ARRAY));
-}
-
-//-----------------------------------------------------------------------------
 Renderer* Renderer::create(Allocator& a)
 {
 	return CE_NEW(a, GLRenderer);

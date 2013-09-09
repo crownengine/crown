@@ -102,8 +102,6 @@ public:
 	///	Tasks to perform before a frame is rendered.
 	virtual void			frame() = 0;
 
-	virtual void 			draw_lines(const float* vertices, const float* colors, uint32_t count) = 0;
-
 	inline void set_state(uint64_t flags)
 	{
 		m_render_context.set_state(flags);
