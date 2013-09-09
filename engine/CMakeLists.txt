@@ -301,11 +301,15 @@ set (RESOURCE_HEADERS
 	resource/ResourcePackage.h
 )
 
-set (OS_SRC)
+set (OS_SRC
+	os/OsEventBuffer.cpp
+)
 
 set (OS_HEADERS
 	os/OS.h
 	os/NetAddress.h
+	os/OsEventBuffer.h
+	os/OsEvents.h
 )
 
 set (LUA_SRC
