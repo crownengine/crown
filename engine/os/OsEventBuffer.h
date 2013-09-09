@@ -38,11 +38,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/**
-	Buffer of variable-lenght events.
 
-	[type1][size1][struct1][type2][size2][struct2]...
-*/
+///	__OsEventBuffer__ is a global buffer used for storing events.
+///	Each subsystem can read its relative events and modifies its behaviour consequently.
+///
+/// [type #0][size #0][data #0] ... [type #n][size #n][data #n]
 class OsEventBuffer
 {
 

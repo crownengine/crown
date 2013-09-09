@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
+/// __OsEventType__ represents an event fired by the OS
 enum OsEventType
 {
 	OSET_NONE				= 0,
@@ -50,7 +50,8 @@ enum OsEventType
 	OSET_ACCELEROMETER		= 9
 };
 
-//-----------------------------------------------------------------------------
+/// __OsMouseEvent__ represents an event fired by mouse.
+/// It is processed by InputManager.
 struct OsMouseEvent
 {
 	uint32_t button;
@@ -58,14 +59,16 @@ struct OsMouseEvent
 	uint32_t y;
 };
 
-//-----------------------------------------------------------------------------
+/// __OsKeyboardEvent__ represents an event fired by keyboard.
+/// it is processed by InputManager.
 struct OsKeyboardEvent
 {
 	uint32_t key;
 	uint32_t modifier;
 };
 
-//-----------------------------------------------------------------------------
+/// __OsTouchEvent__ represents an event fired by touch screen.
+/// It is processed by InputManager.
 struct OsTouchEvent
 {
 	uint32_t pointer_id;
@@ -73,7 +76,8 @@ struct OsTouchEvent
 	uint32_t y;
 };
 
-//-----------------------------------------------------------------------------
+/// __OsAccelerometerEvent__ represents an event fired by accelerometer.
+/// It is processed by InputManager.
 struct OsAccelerometerEvent
 {
 	float x;
