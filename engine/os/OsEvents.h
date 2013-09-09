@@ -31,27 +31,50 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-struct MouseEvent
+//-----------------------------------------------------------------------------
+enum OsEventType
+{
+	OSET_NONE				= 0,
+
+	OSET_KEY_PRESS			= 1,
+	OSET_KEY_RELEASE		= 2,
+
+	OSET_BUTTON_PRESS		= 3,
+	OSET_BUTTON_RELEASE		= 4,
+
+	OSET_MOTION_NOTIFY		= 5,
+	OSET_TOUCH_DOWN			= 6,
+	OSET_TOUCH_MOVE			= 7,
+	OSET_TOUCH_UP			= 8,
+	
+	OSET_ACCELEROMETER		= 9
+};
+
+//-----------------------------------------------------------------------------
+struct OsMouseEvent
 {
 	uint32_t button;
 	uint32_t x;
 	uint32_t y;
 };
 
-struct KeyboardEvent
+//-----------------------------------------------------------------------------
+struct OsKeyboardEvent
 {
 	uint32_t key;
 	uint32_t modifier;
 };
 
-struct TouchEvent
+//-----------------------------------------------------------------------------
+struct OsTouchEvent
 {
 	uint32_t pointer_id;
 	uint32_t x;
 	uint32_t y;
 };
 
-struct AccelerometerEvent
+//-----------------------------------------------------------------------------
+struct OsAccelerometerEvent
 {
 	float x;
 	float y;
