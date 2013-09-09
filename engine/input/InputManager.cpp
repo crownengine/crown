@@ -164,52 +164,52 @@ void InputManager::frame(uint64_t frame_count)
 
 				break;
 			}
-			// case OSET_TOUCH_DOWN:
-			// case OSET_TOUCH_UP:
-			// {
-			// 	TouchEvent touch_event;
-			// 	touch_event.pointer_id = event.data_a.int_value;
-			// 	touch_event.x = event.data_b.int_value;
-			// 	touch_event.y = event.data_c.int_value;
+			case OSET_TOUCH_DOWN:
+			case OSET_TOUCH_UP:
+			{
+				TouchEvent touch_event;
+				touch_event.pointer_id = ((OsTouchEvent*)event)->pointer_id;
+				touch_event.x = ((OsTouchEvent*)event)->x;
+				touch_event.y = ((OsTouchEvent*)event)->y;
 
-			// 	m_touch.m_pointers[touch_event.pointer_id].x = touch_event.x;
-			// 	m_touch.m_pointers[touch_event.pointer_id].y = touch_event.y;
+				m_touch.m_pointers[touch_event.pointer_id].x = touch_event.x;
+				m_touch.m_pointers[touch_event.pointer_id].y = touch_event.y;
 
-			// 	// FIXME
-			// 	m_touch.m_pointers[touch_event.pointer_id].relative_x = 0.0f;
-			// 	m_touch.m_pointers[touch_event.pointer_id].relative_y = 0.0f;
+				// FIXME
+				m_touch.m_pointers[touch_event.pointer_id].relative_x = 0.0f;
+				m_touch.m_pointers[touch_event.pointer_id].relative_y = 0.0f;
 
-			// 	if (event.type == OSET_TOUCH_DOWN)
-			// 	{
-			// 		m_touch.m_pointers[touch_event.pointer_id].up = false;
-			// 		m_event_dispatcher.touch_down(touch_event);
-			// 	}
-			// 	else
-			// 	{
-			// 		m_touch.m_pointers[touch_event.pointer_id].up = true;
-			// 		m_event_dispatcher.touch_up(touch_event);
-			// 	}
+				if (event_type == OSET_TOUCH_DOWN)
+				{
+					m_touch.m_pointers[touch_event.pointer_id].up = false;
+					m_event_dispatcher.touch_down(touch_event);
+				}
+				else
+				{
+					m_touch.m_pointers[touch_event.pointer_id].up = true;
+					m_event_dispatcher.touch_up(touch_event);
+				}
 
-			// 	break;
-			// }
-			// case OSET_TOUCH_MOVE:
-			// {
-			// 	TouchEvent touch_event;
-			// 	touch_event.pointer_id = event.data_a.int_value;
-			// 	touch_event.x = event.data_b.int_value;
-			// 	touch_event.y = event.data_c.int_value;
+				break;
+			}
+			case OSET_TOUCH_MOVE:
+			{
+				TouchEvent touch_event;
+				touch_event.pointer_id = ((OsTouchEvent*)event)->pointer_id;
+				touch_event.x = ((OsTouchEvent*)event)->x;
+				touch_event.y = ((OsTouchEvent*)event)->y;
 
-			// 	m_touch.m_pointers[touch_event.pointer_id].x = touch_event.x;
-			// 	m_touch.m_pointers[touch_event.pointer_id].y = touch_event.y;
+				m_touch.m_pointers[touch_event.pointer_id].x = touch_event.x;
+				m_touch.m_pointers[touch_event.pointer_id].y = touch_event.y;
 
-			// 	// FIXME
-			// 	m_touch.m_pointers[touch_event.pointer_id].relative_x = 0.0f;
-			// 	m_touch.m_pointers[touch_event.pointer_id].relative_y = 0.0f;
+				// FIXME
+				m_touch.m_pointers[touch_event.pointer_id].relative_x = 0.0f;
+				m_touch.m_pointers[touch_event.pointer_id].relative_y = 0.0f;
 
-			// 	m_event_dispatcher.touch_move(touch_event);
+				m_event_dispatcher.touch_move(touch_event);
 
-			// 	break;
-			// }
+				break;
+			}
 			// case OSET_ACCELEROMETER:
 			// {
 			// 	AccelerometerEvent sensor_event;

@@ -60,6 +60,6 @@ public class CrownLib
 	public static native void		shutdownRenderer();
 
 	// InputManager functions
-	public static native void 		pushIntEvent(int type, int a, int b, int c, int d);
-	public static native void 		pushFloatEvent(int type, float a, float b, float c, float d);	
+	public static native void 		pushTouchEvent(int type, int pointer_id, int x, int y);
+	public static native void 		pushAccelerometerEvent(int type, float x, float y, float z);	
 }
