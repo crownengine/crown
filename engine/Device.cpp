@@ -54,6 +54,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Bundle.h"
 #include "TempAllocator.h"
 #include "ResourcePackage.h"
+#include "OsEventBuffer.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -172,7 +173,10 @@ bool Device::init(int argc, char** argv)
 	#endif
 
 	g_main_thread.start();
-	// g_main_thread.join();
+
+	#ifndef ANDROID
+	g_main_thread.join();
+	#endif
 
 	return true;
 }
@@ -524,6 +528,8 @@ void Device::frame()
 	}
 
 	m_frame_count++;
+
+	os_event_buffer()->clear();
 }
 
 //-----------------------------------------------------------------------------
