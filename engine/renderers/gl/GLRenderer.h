@@ -242,7 +242,7 @@ struct Texture
 	void set_sampler_state(uint32_t flags)
 	{
 		GLenum min_filter = TEXTURE_MIN_FILTER_TABLE[(flags & TEXTURE_FILTER_MASK) >> TEXTURE_FILTER_SHIFT];
-		GLenum mag_filter = TEXTURE_MIN_FILTER_TABLE[(flags & TEXTURE_FILTER_MASK) >> TEXTURE_FILTER_SHIFT];
+		GLenum mag_filter = TEXTURE_MAG_FILTER_TABLE[(flags & TEXTURE_FILTER_MASK) >> TEXTURE_FILTER_SHIFT];
 		GLenum wrap = TEXTURE_WRAP_TABLE[(flags & TEXTURE_WRAP_MASK) >> TEXTURE_WRAP_SHIFT];
 
 		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_WRAP_S, wrap));
