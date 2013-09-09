@@ -142,8 +142,6 @@ void GLRenderer::init()
 	Log::d("Max Vertex Indices   : %d", m_max_vertex_indices);
 	Log::d("Max Vertex Vertices  : %d", m_max_vertex_vertices);
 
-	GL_CHECK(glDisable(GL_TEXTURE_2D));
-
 	GL_CHECK(glDisable(GL_BLEND));
 	GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 	GL_CHECK(glBlendEquation(GL_FUNC_ADD));
@@ -507,51 +505,10 @@ void GLRenderer::frame()
 		if (vb.id != INVALID_ID)
 		{
 			const VertexBuffer& vertex_buffer = m_vertex_buffers[vb.index];
-
 			glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer.m_id);
 
-			switch (vertex_buffer.m_format)
-			{
-				case VF_XY_FLOAT_32:
-				{
-					GL_CHECK(glEnableVertexAttribArray(ATTRIB_POSITION));
-					GL_CHECK(glVertexAttribPointer(ATTRIB_POSITION, 2, GL_FLOAT, GL_FALSE, 0, 0));
-					break;
-				}
-				case VF_XYZ_FLOAT_32:
-				{
-					GL_CHECK(glEnableVertexAttribArray(ATTRIB_POSITION));
-					GL_CHECK(glVertexAttribPointer(ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0));
-					break;
-				}
-				case VF_XYZ_NORMAL_FLOAT_32:
-				{
-					GL_CHECK(glEnableVertexAttribArray(ATTRIB_NORMAL));
-					GL_CHECK(glVertexAttribPointer(ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0));
-					break;
-				}
-				// case VF_UV_FLOAT_32:
-				// {
-				// 	GL_CHECK(glEnableVertexAttribArray(SA_COORDS));
-				// 	GL_CHECK(glVertexAttribPointer(SA_COORDS, 2, GL_FLOAT, GL_FALSE, 0, 0));
-				// 	break;
-				// }
-				// case VF_UVT_FLOAT_32:
-				// {
-				// 	GL_CHECK(glEnableVertexAttribArray(SA_COORDS));
-				// 	GL_CHECK(glVertexAttribPointer(SA_COORDS, 3, GL_FLOAT, GL_FALSE, 0, 0));
-				// 	break;
-				// }
-				case VF_XYZ_UV_XYZ_NORMAL_FLOAT_32:
-				{
-					break;
-				}
-				default:
-				{
-					CE_ASSERT(false, "Oops, vertex format unknown!");
-					break;
-				}
-			}
+			const GPUProgram& gpu_program = m_gpu_programs[cur_state.program.index];
+			gpu_program.bind_attributes(vertex_buffer.m_format);
 		}
 		else
 		{
@@ -568,6 +525,35 @@ void GLRenderer::frame()
 		else
 		{
 			GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+		}
+
+		// Bind textures
+		{
+			uint64_t flags = STATE_TEXTURE_0;
+			for (uint32_t unit = 0; unit < STATE_MAX_TEXTURES; unit++)
+			{
+				const Sampler& sampler = cur_state.samplers[unit];
+
+				if (sampler.sampler_id.id != INVALID_ID)
+				{
+					switch (sampler.flags & SAMPLER_MASK)
+					{
+						case SAMPLER_TEXTURE:
+						{
+							Texture& texture = m_textures[sampler.sampler_id.index];
+							texture.commit(unit, sampler.flags);
+							break;
+						}
+						default:
+						{
+							CE_ASSERT(false, "Oops, sampler unknown");
+							break;
+						}
+					}
+				}
+
+				flags <<= 1;
+			}
 		}
 	}
 

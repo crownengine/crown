@@ -29,18 +29,95 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// Enumerates vertex formats.
+enum ShaderAttrib
+{
+	ATTRIB_POSITION			= 0,
+	ATTRIB_NORMAL			= 1,
+	ATTRIB_COLOR			= 2,
+	ATTRIB_TEX_COORD0		= 3,
+	ATTRIB_TEX_COORD1		= 4,
+	ATTRIB_TEX_COORD2		= 5,
+	ATTRIB_TEX_COORD3		= 6,
+	ATTRIB_COUNT
+};
+
 enum VertexFormat
 {
-	VF_XY_FLOAT_32					= 0,	///< XY coordinates, 32-bit floating point each
-	VF_XYZ_FLOAT_32					= 1,	///< XYZ coordinates, 32-bit floating point each
+	VERTEX_P2 = 0,
+	VERTEX_P2_N3,
+	VERTEX_P2_C4,
+	VERTEX_P2_T2,
+	VERTEX_P2_N3_C4,
+	VERTEX_P2_N3_C4_T2,
 
-	VF_UV_FLOAT_32					= 2,	///< UV coordinates, 32-bit floating point each
-	VF_UVT_FLOAT_32					= 3,	///< UVT coordinates, 32-bit floating point each
+	VERTEX_P3,
+	VERTEX_P3_N3,
+	VERTEX_P3_C4,
+	VERTEX_P3_T2,
+	VERTEX_P3_N3_C4,
+	VERTEX_P3_N3_C4_T2,
 
-	VF_XYZ_NORMAL_FLOAT_32			= 4, 	///< XYZ normal coordinates, 32-bit floating point each
+	VERTEX_COUNT
+};
 
-	VF_XYZ_UV_XYZ_NORMAL_FLOAT_32	= 5		///< XYZ coordinates, UV coordinates, XYZ normal coordinates, 32-bit floating point each
+struct VertexFormatInfo
+{
+	bool has_attrib(ShaderAttrib attrib) const
+	{
+		return sizes[attrib] != 0;
+	}
+
+	/// Returns the number of components per @a attrib
+	size_t num_components(ShaderAttrib attrib) const
+	{
+		return (size_t) sizes[attrib];
+	}
+
+	/// Returns the byte offset between consecutive vertex @a attrib
+	size_t attrib_stride(ShaderAttrib /*attrib*/) const
+	{
+		size_t stride = 0;
+		for (uint8_t i = 0; i < ATTRIB_COUNT; i++)
+		{
+			stride += sizes[i];
+		}
+
+		return stride * sizeof(float);
+	}
+
+	/// Returns the byte offset of the first @a attrib in the format
+	size_t attrib_offset(ShaderAttrib attrib) const
+	{
+		size_t offset = 0;
+		for (uint8_t i = 0; i < attrib; i++)
+		{
+			offset += sizes[i];
+		}
+
+		return offset * sizeof(float);
+	}
+
+public:
+
+	uint8_t sizes[ATTRIB_COUNT];
+};
+
+// VertexFormat to VertexFormatInfo
+const VertexFormatInfo VERTEX_FORMAT_INFO[VERTEX_COUNT] =
+{
+	{ 2, 0, 0, 0, 0, 0, 0 },
+	{ 2, 3, 0, 0, 0, 0, 0 },
+	{ 2, 0, 4, 0, 0, 0, 0 },
+	{ 2, 0, 0, 2, 0, 0, 0 },
+	{ 2, 3, 4, 0, 0, 0, 0 },
+	{ 2, 3, 4, 2, 0, 0, 0 },
+
+	{ 3, 0, 0, 0, 0, 0, 0 },
+	{ 3, 3, 0, 0, 0, 0, 0 },
+	{ 3, 0, 4, 0, 0, 0, 0 },
+	{ 3, 0, 0, 2, 0, 0, 0 },
+	{ 3, 3, 4, 0, 0, 0, 0 },
+	{ 3, 3, 4, 2, 0, 0, 0 }
 };
 
 class Vertex
@@ -50,34 +127,27 @@ public:
 	/// Returns the bytes occupied by @a format
 	static size_t bytes_per_vertex(VertexFormat format)
 	{
-		switch (format)
+		const VertexFormatInfo& info = VERTEX_FORMAT_INFO[format];
+		
+		size_t size = 0;
+		for (uint8_t i = 0; i < ATTRIB_COUNT; i++)
 		{
-			case VF_XY_FLOAT_32:
-			case VF_UV_FLOAT_32:
-			{
-				return 8;
-			}
-			case VF_XYZ_FLOAT_32:
-			case VF_UVT_FLOAT_32:
-			case VF_XYZ_NORMAL_FLOAT_32:
-			{
-				return 12;
-			}
-			case VF_XYZ_UV_XYZ_NORMAL_FLOAT_32:
-			{
-				return 32;
-			}
-			default:
-			{
-				return 0;
-			}
+			size += info.sizes[i];
 		}
+
+		// Components are always float
+		return size * sizeof(float);
 	}
 
 	/// Returns the bits occupied by @a format
 	static size_t bits_per_vertex(VertexFormat format)
 	{
 		return bytes_per_vertex(format) * 8;
+	}
+
+	static const VertexFormatInfo& info(VertexFormat format)
+	{
+		return VERTEX_FORMAT_INFO[format];
 	}
 
 private:

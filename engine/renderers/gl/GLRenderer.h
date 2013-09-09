@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "GLContext.h"
 #include "HeapAllocator.h"
+#include "VertexFormat.h"
 
 namespace crown
 {
@@ -42,20 +43,8 @@ extern const GLenum TEXTURE_MIN_FILTER_TABLE[];
 extern const GLenum TEXTURE_MAG_FILTER_TABLE[];
 extern const GLenum TEXTURE_WRAP_TABLE[];
 
-enum ShaderAttrib
-{
-	ATTRIB_POSITION			= 0,
-	ATTRIB_NORMAL			= 1,
-	ATTRIB_COLOR			= 2,
-	ATTRIB_TEX_COORD0		= 3,
-	ATTRIB_TEX_COORD1		= 4,
-	ATTRIB_TEX_COORD2		= 5,
-	ATTRIB_TEX_COORD3		= 6,
-	ATTRIB_COUNT
-};
-
 // Keep in sync with ShaderAttrib
-const char* const SHADER_ATTRIB_NAMES[] =
+const char* const SHADER_ATTRIB_NAMES[ATTRIB_COUNT] =
 {
 	"a_position",
 	"a_normal",
@@ -300,9 +289,6 @@ struct GPUProgram
 		GL_CHECK(glAttachShader(m_id, vertex.m_id));
 		GL_CHECK(glAttachShader(m_id, pixel.m_id));
 
-		GL_CHECK(glBindAttribLocation(m_id, ATTRIB_POSITION, SHADER_ATTRIB_NAMES[ATTRIB_POSITION]));
-		GL_CHECK(glBindAttribLocation(m_id, ATTRIB_NORMAL, SHADER_ATTRIB_NAMES[ATTRIB_NORMAL]));
-
 		GL_CHECK(glLinkProgram(m_id));
 
 		GLint success;
@@ -337,8 +323,20 @@ struct GPUProgram
 			char attrib_name[1024];
 			GL_CHECK(glGetActiveAttrib(m_id, attrib, max_attrib_length, NULL, &attrib_size, &attrib_type, attrib_name));
 
-			Log::d("Attrib %d: name = '%s' location = '%d'", attrib, attrib_name,
-					glGetAttribLocation(m_id, attrib_name));
+			GLint attrib_location = GL_CHECK(glGetAttribLocation(m_id, attrib_name));
+			Log::d("Attrib %d: name = '%s' location = '%d'", attrib, attrib_name, attrib_location);
+		}
+
+		m_num_active_attribs = 0;
+		for (uint32_t attrib = 0; attrib < ATTRIB_COUNT; attrib++)
+		{
+			GLint loc = GL_CHECK(glGetAttribLocation(m_id, SHADER_ATTRIB_NAMES[attrib]));
+			if (loc != -1)
+			{
+				m_active_attribs[m_num_active_attribs] = (ShaderAttrib) attrib;
+				m_num_active_attribs++;
+				m_attrib_locations[attrib] = loc;
+			}
 		}
 
 		for (GLint uniform = 0; uniform < num_active_uniforms; uniform++)
@@ -347,10 +345,7 @@ struct GPUProgram
 			GLenum uniform_type;
 			char uniform_name[1024];
 			GL_CHECK(glGetActiveUniform(m_id, uniform, max_uniform_length, NULL, &uniform_size, &uniform_type, uniform_name));
-
-			GLint uniform_location = glGetUniformLocation(m_id, uniform_name);
-			Log::d("Uniform %d: name = '%s' location = '%d'", uniform, uniform_name,
-					uniform_location);
+			GLint uniform_location = GL_CHECK(glGetUniformLocation(m_id, uniform_name));
 
 			ShaderUniform stock_uniform = name_to_stock_uniform(uniform_name);
 			if (stock_uniform != UNIFORM_COUNT)
@@ -358,9 +353,10 @@ struct GPUProgram
 				m_stock_uniforms[m_num_stock_uniforms] = stock_uniform;
 				m_stock_uniform_locations[m_num_stock_uniforms] = uniform_location;
 				m_num_stock_uniforms++;
-
-				Log::d("Found stock uniform: %s", uniform_name);
 			}
+
+			Log::d("Uniform %d: name = '%s' location = '%d' stock = %s", uniform, uniform_name, uniform_location,
+						(stock_uniform != UNIFORM_COUNT) ? "yes" : "no");
 		}
 	}
 
@@ -371,9 +367,34 @@ struct GPUProgram
 		GL_CHECK(glDeleteProgram(m_id));
 	}
 
+	//-----------------------------------------------------------------------------
+	void bind_attributes(VertexFormat format) const
+	{
+		// Bind all active attributes
+		for (uint8_t i = 0; i < m_num_active_attribs; i++)
+		{
+			ShaderAttrib attrib = m_active_attribs[i];
+			GLint loc = m_attrib_locations[attrib];
+
+			const VertexFormatInfo& info = Vertex::info(format);
+
+			if (loc != -1 && info.has_attrib(attrib))
+			{
+				GL_CHECK(glEnableVertexAttribArray(loc));
+				GL_CHECK(glVertexAttribPointer(loc, info.num_components(attrib), GL_FLOAT, GL_FALSE, info.attrib_stride(attrib),
+										(GLvoid*)(uintptr_t) info.attrib_offset(attrib)));
+			}
+		}
+	}
+
 public:
 
 	GLuint				m_id;
+
+	uint8_t				m_num_active_attribs;
+	ShaderAttrib		m_active_attribs[ATTRIB_COUNT];
+	GLint				m_attrib_locations[ATTRIB_COUNT];
+
 	uint8_t				m_num_stock_uniforms;
 	ShaderUniform		m_stock_uniforms[UNIFORM_COUNT];
 	GLint				m_stock_uniform_locations[UNIFORM_COUNT];
