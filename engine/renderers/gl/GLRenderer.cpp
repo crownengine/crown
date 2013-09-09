@@ -34,8 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "GLRenderer.h"
 #include "Log.h"
-#include "Vec2.h"
-#include "Vec3.h"
 #include "Vec4.h"
 #include "Mat3.h"
 #include "Mat4.h"
@@ -342,27 +340,6 @@ void GLRenderer::destroy_render_target(RenderTargetId id)
 
 	m_render_targets_id_table.destroy(id);
 }
-
-// //-----------------------------------------------------------------------------
-// void GLRenderer::set_depth_test(bool test)
-// {
-// 	if (test)
-// 	{
-// 		GL_CHECK(glEnable(GL_DEPTH_TEST));
-// 	}
-// 	else
-// 	{
-// 		GL_CHECK(glDisable(GL_DEPTH_TEST));
-// 	}
-// }
-
-// //-----------------------------------------------------------------------------
-// void GLRenderer::set_depth_func(CompareFunction func)
-// {
-// 	GLenum gl_func = GL::compare_function(func);
-
-// 	GL_CHECK(glDepthFunc(gl_func));
-// }
 
 //-----------------------------------------------------------------------------
 void GLRenderer::frame()
