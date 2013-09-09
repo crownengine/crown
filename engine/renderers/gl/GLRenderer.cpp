@@ -83,8 +83,6 @@ GLRenderer::GLRenderer() :
 	m_max_anisotropy(0.0f),
 
 	m_textures_id_table(m_allocator, CROWN_MAX_TEXTURES),
-	m_active_texture_unit(0),
-
 	m_vertex_buffers_id_table(m_allocator, CROWN_MAX_VERTEX_BUFFERS),
 	m_index_buffers_id_table(m_allocator, CROWN_MAX_INDEX_BUFFERS),
 	m_shaders_id_table(m_allocator, CROWN_MAX_SHADERS),
@@ -96,13 +94,6 @@ GLRenderer::GLRenderer() :
 	m_min_max_point_size[1] = 0.0f;
 	m_min_max_line_width[0] = 0.0f;
 	m_min_max_line_width[1] = 0.0f;
-
-	// Initialize texture units
-	for (uint32_t i = 0; i < CROWN_MAX_TEXTURE_UNITS; i++)
-	{
-		m_texture_unit[i] = 0;
-		m_texture_unit_target[i] = GL_TEXTURE_2D;
-	}
 }
 
 //-----------------------------------------------------------------------------

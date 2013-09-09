@@ -539,10 +539,6 @@ private:
 	IdTable 			m_textures_id_table;
 	Texture				m_textures[CROWN_MAX_TEXTURES];
 
-	uint32_t			m_active_texture_unit;
-	GLuint				m_texture_unit[CROWN_MAX_TEXTURE_UNITS];
-	GLenum				m_texture_unit_target[CROWN_MAX_TEXTURE_UNITS];
-
 	// Vertex/Index buffer management
 	IdTable				m_vertex_buffers_id_table;
 	VertexBuffer		m_vertex_buffers[CROWN_MAX_VERTEX_BUFFERS];
