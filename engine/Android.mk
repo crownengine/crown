@@ -62,7 +62,7 @@ LOCAL_SRC_FILES :=\
 \
 	network/BitMessage.cpp\
 \
-	os/OsEventBuffer.cpp\
+	os/EventBuffer.cpp\
 	os/android/AndroidOS.cpp\
 	os/android/AndroidDevice.cpp\
 	os/android/OsWindow.cpp\

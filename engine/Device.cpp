@@ -54,7 +54,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Bundle.h"
 #include "TempAllocator.h"
 #include "ResourcePackage.h"
-#include "OsEventBuffer.h"
+#include "EventBuffer.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"

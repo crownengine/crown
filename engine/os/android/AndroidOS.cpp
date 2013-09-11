@@ -41,7 +41,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "Assert.h"
 #include "StringUtils.h"
-#include "OsEventBuffer.h"
+#include "EventBuffer.h"
 
 namespace crown
 {

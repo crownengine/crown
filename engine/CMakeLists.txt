@@ -302,13 +302,13 @@ set (RESOURCE_HEADERS
 )
 
 set (OS_SRC
-	os/OsEventBuffer.cpp
+	os/EventBuffer.cpp
 )
 
 set (OS_HEADERS
 	os/OS.h
 	os/NetAddress.h
-	os/OsEventBuffer.h
+	os/EventBuffer.h
 	os/OsEvents.h
 )
 

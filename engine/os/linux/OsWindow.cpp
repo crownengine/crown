@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "GLContext.h"
 #include "StringUtils.h"
-#include "OsEventBuffer.h"
+#include "EventBuffer.h"
 
 namespace crown
 {

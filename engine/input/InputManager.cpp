@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "InputManager.h"
 #include "OS.h"
 #include "Log.h"
-#include "OsEventBuffer.h"
+#include "EventBuffer.h"
 
 namespace crown
 {
