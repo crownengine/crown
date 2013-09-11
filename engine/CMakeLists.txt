@@ -66,6 +66,7 @@ set (CROWN_INCLUDES
 set (SRC
 	Camera.cpp
 	Device.cpp
+	EventBuffer.cpp
 	ConsoleServer.cpp
 	FPSSystem.cpp
 )
@@ -75,6 +76,7 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
+	EventBuffer.h
 	ConsoleServer.h
 	FPSSystem.h
 )
@@ -303,13 +305,11 @@ set (RESOURCE_HEADERS
 
 set (OS_SRC
 	os/OS.cpp
-	os/EventBuffer.cpp
 )
 
 set (OS_HEADERS
 	os/OS.h
 	os/NetAddress.h
-	os/EventBuffer.h
 	os/OsEvents.h
 )
 
