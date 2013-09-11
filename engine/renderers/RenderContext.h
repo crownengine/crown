@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Color4.h"
 #include "Mat4.h"
 #include "IdTable.h"
+#include "CommandBuffer.h"
 
 namespace crown
 {
@@ -40,6 +41,12 @@ typedef Id TextureId;
 typedef Id ShaderId;
 typedef Id GPUProgramId;
 typedef Id UniformId;
+
+enum ShaderType
+{
+	SHADER_VERTEX,
+	SHADER_FRAGMENT
+};
 
 enum UniformType
 {
@@ -311,6 +318,11 @@ struct RenderContext
 		m_state.clear();
 	}
 
+	void push()
+	{
+		m_commands.commit();
+	}
+
 public:
 
 	uint64_t m_flags;
@@ -329,6 +341,9 @@ public:
 	Mat4 m_projection_matrices[MAX_RENDER_LAYERS];
 	ViewRect m_viewports[MAX_RENDER_LAYERS];
 	ViewRect m_scissors[MAX_RENDER_LAYERS];
+
+	// Commands
+	CommandBuffer m_commands;
 };
 
 } // namespace crown
