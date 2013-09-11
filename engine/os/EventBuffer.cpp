@@ -93,12 +93,4 @@ char* EventBuffer::buffer()
 	return m_buffer;
 }
 
-//-----------------------------------------------------------------------------
-EventBuffer g_os_event_buffer;
-
-EventBuffer* os_event_buffer()
-{
-	return &g_os_event_buffer;
-}
-
 } // namespace crown

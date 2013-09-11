@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Vector.h"
 #include "DynamicString.h"
+#include "EventBuffer.h"
 
 namespace crown
 {
@@ -155,6 +156,11 @@ void*			lookup_symbol(void* library, const char* name);
 /// @a args[n] is NULL.
 void			execute_process(const char* args[]);
 
+//-----------------------------------------------------------------------------
+
 } // namespace os
+
+EventBuffer* 	os_event_buffer();
+
 } // namespace crown
 

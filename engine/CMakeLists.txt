@@ -302,6 +302,7 @@ set (RESOURCE_HEADERS
 )
 
 set (OS_SRC
+	os/OS.cpp
 	os/EventBuffer.cpp
 )
 

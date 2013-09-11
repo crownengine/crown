@@ -39,9 +39,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <unistd.h>
 
 #include "OS.h"
+#include "OsEvents.h"
 #include "Assert.h"
 #include "StringUtils.h"
-#include "EventBuffer.h"
 
 namespace crown
 {
