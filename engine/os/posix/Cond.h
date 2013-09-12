@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <pthread.h>
+#include <cstring>
 
 #include "Types.h"
 #include "Mutex.h"
@@ -55,5 +56,31 @@ private:
 					Cond(const Cond&);
 	Cond&			operator=(const Cond&);
 };
+
+//-----------------------------------------------------------------------------
+inline Cond::Cond()
+{
+	memset(&m_cond, 0, sizeof(pthread_cond_t));
+
+	pthread_cond_init(&m_cond, NULL);
+}
+
+//-----------------------------------------------------------------------------
+inline Cond::~Cond()
+{
+	pthread_cond_destroy(&m_cond);
+}
+
+//-----------------------------------------------------------------------------
+inline void Cond::signal()
+{
+	pthread_cond_signal(&m_cond);
+}
+
+//-----------------------------------------------------------------------------
+inline void Cond::wait(Mutex& mutex)
+{
+	pthread_cond_wait(&m_cond, &(mutex.m_mutex));
+}
 
 } // namespace crown

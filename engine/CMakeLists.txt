@@ -379,8 +379,6 @@ if (LINUX)
 		os/posix/UDPSocket.cpp	
 		os/posix/OsFile.cpp
 		os/posix/Thread.cpp
-		os/posix/Mutex.cpp
-		os/posix/Cond.cpp
 	)
 
 	list (APPEND RENDERERS_SRC

@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <pthread.h>
+#include <cstring>
 
 #include "Types.h"
 #include "OS.h"
@@ -56,5 +57,31 @@ private:
 
 	friend class		Cond;
 };
+
+//-----------------------------------------------------------------------------
+inline Mutex::Mutex()
+{
+	memset(&m_mutex, 0, sizeof(pthread_mutex_t));
+
+	pthread_mutex_init(&m_mutex, NULL);
+}
+
+//-----------------------------------------------------------------------------
+inline Mutex::~Mutex()
+{
+	pthread_mutex_destroy(&m_mutex);
+}
+
+//-----------------------------------------------------------------------------
+inline void Mutex::lock()
+{
+	pthread_mutex_lock(&m_mutex);
+}
+
+//-----------------------------------------------------------------------------
+inline void Mutex::unlock()
+{
+	pthread_mutex_unlock(&m_mutex);
+}
 
 } // namespace crown
