@@ -92,9 +92,9 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	void write(void* data, size_t size)
+	void write(const void* data, size_t size)
 	{
-		CE_ASSERT(m_size + size < MAX_COMMAND_BUFFER_SIZE, "CommandBuffer overflow");
+		CE_ASSERT(m_size + size < MAX_COMMAND_BUFFER_SIZE, "Command buffer overflow");
 
 		memcpy(&m_buffer[m_size], data, size);
 		m_size += size;
@@ -103,7 +103,7 @@ public:
 	//-----------------------------------------------------------------------------
 	void read(void* data, size_t size)
 	{
-		CE_ASSERT(m_size + size < MAX_COMMAND_BUFFER_SIZE, "Reading beyond buffer");
+		CE_ASSERT(m_size + size < MAX_COMMAND_BUFFER_SIZE, "Command buffer overflow");
 		
 		memcpy(data, &m_buffer[m_size], size);
 		m_size += size;
