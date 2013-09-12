@@ -28,12 +28,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <errno.h>
 #include <semaphore.h>
-#include <time.h>
-#include <pthread.h>
 
 #include "Assert.h"
 #include "Mutex.h"
 #include "Cond.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -42,23 +41,23 @@ class Semaphore
 {
 public:
 
-	Semaphore();
-	~Semaphore();
+			Semaphore();
+			~Semaphore();
 
 	void	post(uint32_t count = 1);
 	void	wait();
 
 private:
 
-	Mutex m_mutex;
-	Cond m_cond;
+	Mutex 	m_mutex;
+	Cond 	m_cond;
+
 	int32_t m_count;
 
 private:
 
 	Semaphore(const Semaphore& s); // no copy constructor
 	Semaphore& operator=(const Semaphore& s); // no assignment operator
-
 };
 
 //-----------------------------------------------------------------------------

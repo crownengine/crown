@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "OS.h"
+#include "Assert.h"
 
 namespace crown
 {
@@ -63,25 +64,33 @@ inline Mutex::Mutex()
 {
 	memset(&m_mutex, 0, sizeof(pthread_mutex_t));
 
-	pthread_mutex_init(&m_mutex, NULL);
+	int32_t result = pthread_mutex_init(&m_mutex, NULL);
+
+	CE_ASSERT(result == 0, "Failed to init mutex");
 }
 
 //-----------------------------------------------------------------------------
 inline Mutex::~Mutex()
 {
-	pthread_mutex_destroy(&m_mutex);
+	int32_t result = pthread_mutex_destroy(&m_mutex);
+
+	CE_ASSERT(result == 0, "Failed to destroy mutex");
 }
 
 //-----------------------------------------------------------------------------
 inline void Mutex::lock()
 {
-	pthread_mutex_lock(&m_mutex);
+	int32_t result = pthread_mutex_lock(&m_mutex);
+
+	CE_ASSERT(result == 0, "Failed to acquire lock");
 }
 
 //-----------------------------------------------------------------------------
 inline void Mutex::unlock()
 {
-	pthread_mutex_unlock(&m_mutex);
+	int32_t result = pthread_mutex_unlock(&m_mutex);
+
+	CE_ASSERT(result == 0, "Failed to release lock");
 }
 
 } // namespace crown

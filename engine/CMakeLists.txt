@@ -370,6 +370,7 @@ if (LINUX)
 		os/linux/Thread.h
 		os/linux/Mutex.h
 		os/linux/Cond.h
+		os/posix/Semaphore.h
 	)
 
 	list (APPEND OS_SRC

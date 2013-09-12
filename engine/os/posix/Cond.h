@@ -62,25 +62,33 @@ inline Cond::Cond()
 {
 	memset(&m_cond, 0, sizeof(pthread_cond_t));
 
-	pthread_cond_init(&m_cond, NULL);
+	int32_t result = pthread_cond_init(&m_cond, NULL);
+
+	CE_ASSERT(result == 0, "Failed to init cond");
 }
 
 //-----------------------------------------------------------------------------
 inline Cond::~Cond()
 {
-	pthread_cond_destroy(&m_cond);
+	int32_t result = pthread_cond_destroy(&m_cond);
+
+	CE_ASSERT(result == 0, "Failed to destroy cond");
 }
 
 //-----------------------------------------------------------------------------
 inline void Cond::signal()
 {
-	pthread_cond_signal(&m_cond);
+	int32_t result = pthread_cond_signal(&m_cond);
+
+	CE_ASSERT(result == 0, "Failed to signal cond");
 }
 
 //-----------------------------------------------------------------------------
 inline void Cond::wait(Mutex& mutex)
 {
-	pthread_cond_wait(&m_cond, &(mutex.m_mutex));
+	int32_t result = pthread_cond_wait(&m_cond, &(mutex.m_mutex));
+
+	CE_ASSERT(result == 0, "Failed to wait cond");
 }
 
 } // namespace crown
