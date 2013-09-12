@@ -73,7 +73,8 @@ public:
 	void create_gpu_program_impl(GPUProgramId id, ShaderId vertex, ShaderId pixel);
 	void destroy_gpu_program_impl(GPUProgramId id);
 
-	void create_uniform_impl(UniformId id, const char* name, UniformType type);
+	void create_uniform_impl(UniformId id, const char* name, UniformType type, uint8_t num);
+	void update_uniform_impl(UniformId id, size_t size, const void* data);
 	void destroy_uniform_impl(UniformId id);
 
 	void create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, RenderTargetFormat format);
@@ -214,14 +215,29 @@ public:
 		m_submit->m_commands.write(id);
 	}
 
-	// UniformId create_uniform(const char* name, UniformType type)
-	// {
+	inline UniformId create_uniform(const char* name, UniformType type, uint8_t num)
+	{
+		const UniformId id = m_uniforms.create();
+		size_t len = string::strlen(name);
 
-	// }
-	// void destroy_uniform(UniformId id)
-	// {
+		CE_ASSERT(len < CROWN_MAX_UNIFORM_NAME_LENGTH, "Max uniform name length is %d", CROWN_MAX_UNIFORM_NAME_LENGTH);
 
-	// }
+		m_submit->m_commands.write(COMMAND_CREATE_UNIFORM);
+		m_submit->m_commands.write(id);
+		m_submit->m_commands.write(len);
+		m_submit->m_commands.write(name, len);
+		m_submit->m_commands.write(type);
+		m_submit->m_commands.write(num);
+
+		return id;
+	}
+
+	inline void destroy_uniform(UniformId id)
+	{
+		m_submit->m_commands.write(COMMAND_DESTROY_UNIFORM);
+		m_submit->m_commands.write(id);
+	}
+
 	// 
 	// RenderTargetId create_render_target(uint16_t width, uint16_t height, RenderTargetFormat format)
 	// {
@@ -403,10 +419,30 @@ public:
 				}
 				case COMMAND_CREATE_UNIFORM:
 				{
+					UniformId id;
+					size_t len;
+					char name[CROWN_MAX_UNIFORM_NAME_LENGTH];
+					UniformType type;
+					uint8_t num;
+
+					cmds.read(id);
+					cmds.read(len);
+					cmds.read(name, len);
+					name[len] = '\0';
+					cmds.read(type);
+					cmds.read(num);
+
+					create_uniform_impl(id, name, type, num);
+
 					break;
 				}
 				case COMMAND_DESTROY_UNIFORM:
 				{
+					UniformId id;
+					cmds.read(id);
+
+					destroy_uniform_impl(id);
+
 					break;
 				}
 				case COMMAND_END:
@@ -424,6 +460,25 @@ public:
 		while (!end);
 
 		cmds.clear();
+	}
+
+	inline void update_uniforms(ConstantBuffer& cbuf)
+	{
+		UniformType type;
+
+		while ((type = (UniformType)cbuf.read()) != UNIFORM_END)
+		{
+			UniformId id;
+			size_t size;
+
+			cbuf.read(&id, sizeof(UniformId));
+			cbuf.read(&size, sizeof(size_t));
+			const void* data = cbuf.read(size);
+
+			update_uniform_impl(id, size, data);
+		}
+
+		cbuf.clear();
 	}
 
 	inline void set_state(uint64_t flags)
@@ -449,6 +504,11 @@ public:
 	inline void set_index_buffer(IndexBufferId ib)
 	{
 		m_submit->set_index_buffer(ib);
+	}
+
+	inline void set_uniform(UniformId id, UniformType type, void* value, uint8_t num)
+	{
+		m_submit->set_uniform(id, type, value, num);
 	}
 
 	inline void set_texture(uint8_t unit, TextureId texture, uint32_t flags)
@@ -507,6 +567,7 @@ public:
 		swap_contexts();
 
 		execute_commands(m_draw->m_commands);
+		update_uniforms(m_draw->m_constants);
 
 		if (m_is_initialized)
 		{
@@ -529,7 +590,7 @@ protected:
 	IdTable<CROWN_MAX_TEXTURES> m_textures;
 	IdTable<CROWN_MAX_SHADERS> m_shaders;
 	IdTable<CROWN_MAX_GPU_PROGRAMS> m_gpu_programs;
-	// IdTable<CROWN_MAX_UNIFORMS> m_uniforms;
+	IdTable<CROWN_MAX_UNIFORMS> m_uniforms;
 	// IdTable<CROWN_MAX_RENDER_TARGETS> m_render_targets;
 
 	bool m_is_initialized;

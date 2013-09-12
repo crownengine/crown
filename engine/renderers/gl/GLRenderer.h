@@ -478,4 +478,27 @@ struct RenderTarget
 	GLuint m_gl_rbo;
 };
 
+struct Uniform
+{
+	void create(const char* name, UniformType type, uint8_t num)
+	{
+		Log::d("Uniform created, name = %s, type = %d, num = %d", name, type, num);
+	}
+
+	void update(size_t size, const void* data)
+	{
+		Log::d("Uniform updated, new size = %d, new ptr = %d", size, *((int32_t*)data));
+	}
+
+	void destroy()
+	{
+		Log::d("Uniform destroyed");
+	}
+
+public:
+
+	UniformType m_type;
+	uint8_t m_num;
+};
+
 } // namespace crown

@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mat4.h"
 #include "IdTable.h"
 #include "CommandBuffer.h"
+#include "ConstantBuffer.h"
 
 namespace crown
 {
@@ -46,22 +47,6 @@ enum ShaderType
 {
 	SHADER_VERTEX,
 	SHADER_FRAGMENT
-};
-
-enum UniformType
-{
-	UNIFORM_INTEGER,
-	UNIFORM_UNSIGNED,
-	UNIFORM_FLOAT,
-	UNIFORM_MAT3,
-	UNIFORM_MAT4
-};
-
-struct Uniform
-{
-	uint32_t m_name;
-	UniformType m_type;
-	uint32_t m_size;
 };
 
 #define MAX_RENDER_LAYERS			32
@@ -238,6 +223,11 @@ struct RenderContext
 		m_state.ib = ib;
 	}
 
+	void set_uniform(UniformId id, UniformType type, void* value, uint8_t num)
+	{
+		m_constants.write_constant(id, type, value, num);
+	}
+
 	void set_texture(uint8_t unit, TextureId texture, uint32_t flags)
 	{
 		m_flags |= STATE_TEXTURE_0 << unit;
@@ -321,6 +311,7 @@ struct RenderContext
 	void push()
 	{
 		m_commands.commit();
+		m_constants.commit();
 	}
 
 public:
@@ -342,8 +333,8 @@ public:
 	ViewRect m_viewports[MAX_RENDER_LAYERS];
 	ViewRect m_scissors[MAX_RENDER_LAYERS];
 
-	// Commands
 	CommandBuffer m_commands;
+	ConstantBuffer m_constants;
 };
 
 } // namespace crown

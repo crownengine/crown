@@ -490,17 +490,23 @@ void Renderer::destroy_gpu_program_impl(GPUProgramId id)
 	m_impl->m_gpu_programs[id.index].destroy();
 }
 
-// //-----------------------------------------------------------------------------
-// void Renderer::create_uniform_impl(UniformId id, const char* name, UniformType type)
-// {
+//-----------------------------------------------------------------------------
+void Renderer::create_uniform_impl(UniformId id, const char* name, UniformType type, uint8_t num)
+{
+	m_impl->m_uniforms[id.index].create(name, type, num);
+}
 
-// }
+//-----------------------------------------------------------------------------
+void Renderer::update_uniform_impl(UniformId id, size_t size, const void* data)
+{
+	m_impl->m_uniforms[id.index].update(size, data);
+}
 
-// //-----------------------------------------------------------------------------
-// void Renderer::destroy_uniform_impl(UniformId id)
-// {
-
-// }
+//-----------------------------------------------------------------------------
+void Renderer::destroy_uniform_impl(UniformId id)
+{
+	m_impl->m_uniforms[id.index].destroy();
+}
 
 // //-----------------------------------------------------------------------------
 // void Renderer::create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, RenderTargetFormat format)
