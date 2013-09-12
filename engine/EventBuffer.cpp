@@ -17,15 +17,18 @@ void EventBuffer::push_event(uint32_t event_type, void* event_data, size_t event
 		flush();
 	}
 
+	Log::i("m_size: %d", m_size);
+
 	char* cur = m_buffer + m_size;
 
 	*(uint32_t*) cur = event_type;
 	*(size_t*) (cur + sizeof(event_type)) = event_size;
 	memcpy(cur + sizeof(event_type) + sizeof(event_size), event_data, event_size);
 
-	m_size = sizeof(event_type) + sizeof(event_size) + event_size;
+	m_size += sizeof(event_type) + sizeof(event_size) + event_size;
 
 	Log::i("event type: %d", event_type);
+	Log::i("event size: %d", event_size);
 }
 
 //-----------------------------------------------------------------------------
@@ -56,7 +59,7 @@ void* EventBuffer::get_next_event(uint32_t& event_type, size_t& event_size)
 		// Saves type
 		event_type = *(uint32_t*) cur;
 		// Saves size
-		event_size = *(size_t*) cur + sizeof(uint32_t);
+		event_size = *(size_t*)(cur + sizeof(uint32_t));
 
 		// Set read to next event
 		read += sizeof(size_t) + sizeof(uint32_t) + event_size;
