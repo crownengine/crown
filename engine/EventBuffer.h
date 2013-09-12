@@ -68,6 +68,8 @@ public:
 
 	size_t		m_size;
 	char		m_buffer[MAX_OS_EVENT_BUFFER_SIZE];
+
+	uint32_t	m_read;
 };
 
 } // namespace crown

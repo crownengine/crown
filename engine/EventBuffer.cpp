@@ -5,7 +5,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-EventBuffer::EventBuffer() : m_size(0)
+EventBuffer::EventBuffer() : m_size(0), m_read(0)
 {
 }
 
@@ -17,8 +17,6 @@ void EventBuffer::push_event(uint32_t event_type, void* event_data, size_t event
 		flush();
 	}
 
-	Log::i("m_size: %d", m_size);
-
 	char* cur = m_buffer + m_size;
 
 	*(uint32_t*) cur = event_type;
@@ -26,9 +24,6 @@ void EventBuffer::push_event(uint32_t event_type, void* event_data, size_t event
 	memcpy(cur + sizeof(event_type) + sizeof(event_size), event_data, event_size);
 
 	m_size += sizeof(event_type) + sizeof(event_size) + event_size;
-
-	Log::i("event type: %d", event_type);
-	Log::i("event size: %d", event_size);
 }
 
 //-----------------------------------------------------------------------------
@@ -50,11 +45,9 @@ void EventBuffer::push_event_buffer(char* event_buffer, size_t buffer_size)
 //-----------------------------------------------------------------------------
 void* EventBuffer::get_next_event(uint32_t& event_type, size_t& event_size)
 {
-	static size_t read = 0;
-
-	if (read < m_size)
+	if (m_read < m_size)
 	{
-		char* cur = m_buffer + read;
+		char* cur = m_buffer + m_read;
 
 		// Saves type
 		event_type = *(uint32_t*) cur;
@@ -62,12 +55,12 @@ void* EventBuffer::get_next_event(uint32_t& event_type, size_t& event_size)
 		event_size = *(size_t*)(cur + sizeof(uint32_t));
 
 		// Set read to next event
-		read += sizeof(size_t) + sizeof(uint32_t) + event_size;
+		m_read += sizeof(size_t) + sizeof(uint32_t) + event_size;
 
 		return cur + sizeof(size_t) + sizeof(uint32_t);
 	}
 
-	read = 0;
+	m_read = 0;
 
 	return NULL;
 }
@@ -76,12 +69,14 @@ void* EventBuffer::get_next_event(uint32_t& event_type, size_t& event_size)
 void EventBuffer::clear()
 {
 	m_size = 0;
+	m_read = 0;
 }
 
 //-----------------------------------------------------------------------------
 void EventBuffer::flush()
 {
 	m_size = 0;
+	m_read = 0;
 }
 
 //-----------------------------------------------------------------------------
