@@ -50,7 +50,6 @@ import crown.android.CrownEnum;
 */
 public class CrownActivity extends Activity
 {
-
 	// Debug
 	public static String TAG = "crown";
 
@@ -61,8 +60,8 @@ public class CrownActivity extends Activity
 	private CrownTouch 			mTouch;
 	private CrownSensor			mSensor;
 
-	// Graphic attributes
-	static CrownSurfaceView		mWindow;
+	private CrownSurfaceView 	mView;
+
 
 //-----------------------------------------------------------------------------
     public void onCreate(Bundle savedInstanceState)
@@ -74,8 +73,8 @@ public class CrownActivity extends Activity
 		CrownLib.initAssetManager(mAssetManager);
 
 		// init Native Window
-        mWindow = new CrownSurfaceView(this);
-        setContentView(mWindow);
+		mView = new CrownSurfaceView(this);
+        setContentView(mView);
 
 		// Init Input
 		mTouch = new CrownTouch(this);
@@ -85,18 +84,10 @@ public class CrownActivity extends Activity
     }
 
 //-----------------------------------------------------------------------------
-	public void onStart()
-	{
-		super.onStart();
-
-		Log.i(TAG, "Crown Activity started");
-	}
-
-//-----------------------------------------------------------------------------
 	public void onResume()
 	{
 		super.onResume();
-
+		
 		// init accelerometer
 		mSensor.startListening(this);
 
@@ -112,32 +103,6 @@ public class CrownActivity extends Activity
 		mSensor.stopListening();
 
 		Log.i(TAG, "Crown Activity paused");
-	}
-
-//-----------------------------------------------------------------------------
-	public void onStop()
-	{
-		super.onStop();
-
-		Log.i(TAG, "Crown Activity stopped");
-	}
-
-//-----------------------------------------------------------------------------
-	public void onRestart()
-	{
-		super.onRestart();
-
-		Log.i(TAG, "Crown Activity restarted");
-	}
-
-//-----------------------------------------------------------------------------
-	public void onDestroy()
-	{
-		super.onDestroy();
-
-		CrownLib.stopDevice();
-
-		Log.i(TAG, "Crown Activity destroyed");
 	}
 
 //-----------------------------------------------------------------------------

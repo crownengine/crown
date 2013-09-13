@@ -61,17 +61,18 @@ int32_t main_thread(void* data)
 	return 0;
 }
 
-int ce_main(void* args)
+int32_t ce_main(void* args)
 {
 	thread.start(main_thread, args);
 
-	while (thread.is_running()) ;
+	while (thread.is_running());
+	
 	return 0;
 }
 
 }
 
-int main(int argc, char** argv)
+int32_t main(int argc, char** argv)
 {
 	crown::MainArgs args;
 	args.argc = argc;

@@ -62,15 +62,13 @@ LOCAL_SRC_FILES :=\
 \
 	network/BitMessage.cpp\
 \
-	os/EventBuffer.cpp\
+	os/OS.cpp\
 	os/android/AndroidOS.cpp\
 	os/android/AndroidDevice.cpp\
 	os/android/OsWindow.cpp\
 	os/android/ApkFile.cpp\
 	os/android/ApkFilesystem.cpp\
 	os/posix/OsFile.cpp\
-	os/posix/Mutex.cpp\
-	os/posix/Cond.cpp\
 	os/posix/TCPSocket.cpp\
 	os/posix/UDPSocket.cpp\
 \
@@ -108,6 +106,7 @@ LOCAL_SRC_FILES :=\
 	Device.cpp\
 	FPSSystem.cpp\
 	ConsoleServer.cpp\
+	EventBuffer.cpp\
 \
 
 LOCAL_C_INCLUDES	:=\

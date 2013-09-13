@@ -425,11 +425,6 @@ void Device::pause()
 {
 	m_is_paused = true;
 
-	while (!m_is_really_paused)
-	{
-		Log::i("Pausing...");
-	}
-
 	Log::d("Engine paused");
 }
 
@@ -467,12 +462,6 @@ void Device::frame()
 	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
 	m_last_time = m_current_time;
 
-	if (m_renderer_init_request)
-	{
-		m_renderer->init();
-		m_renderer_init_request = false;
-	}
-
 	if (!m_is_paused)
 	{
 		m_resource_manager->poll_resource_loader();
@@ -487,11 +476,6 @@ void Device::frame()
 
 		m_debug_renderer->draw_all();
 		m_renderer->frame();
-	}
-
-	if (m_is_paused)
-	{
-		m_is_really_paused = true;
 	}
 
 	m_frame_count++;

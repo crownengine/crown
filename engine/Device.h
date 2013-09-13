@@ -133,9 +133,6 @@ public:
 
 	ConsoleServer*			console_server();
 
-	// FixMe: Should be implemented throush OsEventBuffer and a renderer event
-	inline void				init_renderer() { m_renderer_init_request = true; }
-
 private:
 
 	void					init();

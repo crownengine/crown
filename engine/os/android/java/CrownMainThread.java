@@ -26,41 +26,43 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 package crown.android;
 
-import android.content.res.AssetManager;
-import android.view.Surface;
+import android.util.Log;
+import android.view.SurfaceHolder;
 
-public class CrownLib
+///
+public class CrownMainThread extends Thread
 {
-	static 
+	private SurfaceHolder mSurfaceHolder;
+
+	private boolean mPaused;
+
+
+//-----------------------------------------------------------------------------
+	public CrownMainThread(SurfaceHolder holder)
 	{
-		System.loadLibrary("luajit-5.1");
-		System.loadLibrary("crown");
+		super();
+		mSurfaceHolder = holder;
 	}
-	
-	// Device functions
-	public static native void 		initDevice();
-	public static native void		pauseDevice();
-	public static native void		unpauseDevice();
-	public static native void		stopDevice();
 
-	public static native boolean 	isDeviceInit();
-	public static native boolean	isDeviceRunning();
-	public static native boolean	isDevicePaused();
+//-----------------------------------------------------------------------------
+	@Override
+	public void run()
+	{
+		CrownLib.createWindow(mSurfaceHolder.getSurface());
 
-	public static native void 		frame();
+		if (!CrownLib.isDeviceInit())
+		{
+			CrownLib.initDevice();
+		}
+		else
+		{
+			CrownLib.initRenderer();
+			CrownLib.unpauseDevice();
+		}
 
-	// AssetManager functions
-	public static native void 		initAssetManager(AssetManager assetManager);
-
-	// Window functions
-	public static native void		createWindow(Surface window);
-	public static native void		destroyWindow();
-
-	// Renderer functions
-	public static native void		initRenderer();
-	public static native void		shutdownRenderer();
-
-	// InputManager functions
-	public static native void 		pushTouchEvent(int type, int pointer_id, int x, int y);
-	public static native void 		pushAccelerometerEvent(int type, float x, float y, float z);	
+		while (CrownLib.isDeviceRunning() && !CrownLib.isDevicePaused())
+		{
+			CrownLib.frame();
+		}
+	}
 }
