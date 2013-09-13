@@ -27,30 +27,30 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Memory.h"
 #include "HeapAllocator.h"
 
-//-----------------------------------------------------------------------------
-void* operator new(size_t) throw (std::bad_alloc)
-{
-	CE_ASSERT(false, "operator new forbidden");
+// //-----------------------------------------------------------------------------
+// void* operator new(size_t) throw (std::bad_alloc)
+// {
+// 	CE_ASSERT(false, "operator new forbidden");
 
-	return NULL;
-}
+// 	return NULL;
+// }
 
-//-----------------------------------------------------------------------------
-void* operator new[](size_t) throw (std::bad_alloc)
-{
-	CE_ASSERT(false, "operator new[] forbidden");
+// //-----------------------------------------------------------------------------
+// void* operator new[](size_t) throw (std::bad_alloc)
+// {
+// 	CE_ASSERT(false, "operator new[] forbidden");
 
-	return NULL;
-}
+// 	return NULL;
+// }
 
-//-----------------------------------------------------------------------------
-void operator delete(void*) throw ()
-{
-	CE_ASSERT(false, "operator delete forbidden");
-}
+// //-----------------------------------------------------------------------------
+// void operator delete(void*) throw ()
+// {
+// 	CE_ASSERT(false, "operator delete forbidden");
+// }
 
-//-----------------------------------------------------------------------------
-void operator delete[](void*) throw ()
-{
-	CE_ASSERT(false, "operator delete[] forbidden");
-}
+// //-----------------------------------------------------------------------------
+// void operator delete[](void*) throw ()
+// {
+// 	CE_ASSERT(false, "operator delete[] forbidden");
+// }
