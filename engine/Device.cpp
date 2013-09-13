@@ -67,33 +67,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class MainThread : public Thread
-{
-public:
-
-	MainThread()
-		: Thread("main-thread")
-	{
-	}
-
-	int32_t run()
-	{
-		Device* engine = device();
-		engine->init();
-
-		while (!is_terminating() && engine->is_running())
-		{
-			engine->frame();
-		}
-
-		engine->shutdown();
-
-		return 0;
-	}
-};
-
-static MainThread g_main_thread;
-
 //-----------------------------------------------------------------------------
 Device::Device() : 
 	m_allocator(m_subsystems_heap, MAX_SUBSYSTEMS_HEAP),
@@ -172,11 +145,7 @@ bool Device::init(int argc, char** argv)
 		}
 	#endif
 
-	g_main_thread.start();
-
-	#ifndef ANDROID
-	g_main_thread.join();
-	#endif
+	init();
 
 	return true;
 }
@@ -276,8 +245,6 @@ void Device::init()
 void Device::shutdown()
 {
 	CE_ASSERT(is_init(), "Engine is not initialized");
-
-	g_main_thread.stop();
 
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);

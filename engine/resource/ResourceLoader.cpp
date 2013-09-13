@@ -33,7 +33,7 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap) :
-	Thread("resource-loader"),
+	m_thread("resource-loader"),
 	m_bundle(bundle),
 	m_resource_heap(resource_heap),
 	m_num_requests(0),
@@ -94,7 +94,7 @@ void* ResourceLoader::load_resource_data(LoadResourceId id) const
 //-----------------------------------------------------------------------------
 int32_t ResourceLoader::run()
 {
-	while (!is_terminating())
+	while (m_thread.is_running())
 	{
 		m_requests_mutex.lock();
 		while (m_requests.empty())
