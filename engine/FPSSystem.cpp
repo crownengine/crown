@@ -170,8 +170,8 @@ void FPSSystem::update(float dt)
 		m_camera->strafe_right(m_camera_speed * dt);
 	}
 
-	device()->renderer()->set_matrix(MT_VIEW, m_camera->view_matrix());
-	device()->renderer()->set_matrix(MT_PROJECTION, m_camera->projection_matrix());
+	// device()->renderer()->set_matrix(MT_VIEW, m_camera->view_matrix());
+	// device()->renderer()->set_matrix(MT_PROJECTION, m_camera->projection_matrix());
 }
 
 //-----------------------------------------------------------------------	
