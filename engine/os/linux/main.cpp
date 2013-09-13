@@ -35,7 +35,7 @@ struct MainArgs
 	char** argv;
 };
 
-static OsThread thread("main-thread");
+static Thread thread("main-thread");
 
 int32_t main_thread(void* data)
 {

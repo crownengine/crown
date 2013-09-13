@@ -36,16 +36,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-typedef int32_t (*OsThreadFunction)(void*);
+typedef int32_t (*ThreadFunction)(void*);
 
-class OsThread
+class Thread
 {
 public:
 
-						OsThread(const char* name);
-						~OsThread();
+						Thread(const char* name);
+						~Thread();
 
-	void				start(OsThreadFunction func, void* data = NULL, size_t stack_size = 0);
+	void				start(ThreadFunction func, void* data = NULL, size_t stack_size = 0);
 	void				stop();
 
 	bool				is_running();
@@ -61,7 +61,7 @@ private:
 	const char* 		m_name;
 
 	pthread_t			m_handle;
-	OsThreadFunction 	m_function;
+	ThreadFunction 	m_function;
 	void*				m_data;
 	Semaphore			m_sem;
 	size_t 				m_stack_size;
@@ -70,7 +70,7 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-inline OsThread::OsThread(const char* name) :
+inline Thread::Thread(const char* name) :
 	m_name(name),
 	m_handle(0),
 	m_function(NULL),
@@ -82,12 +82,12 @@ inline OsThread::OsThread(const char* name) :
 }
 
 //-----------------------------------------------------------------------------
-inline OsThread::~OsThread()
+inline Thread::~Thread()
 {
 }
 
 //-----------------------------------------------------------------------------
-inline void OsThread::start(OsThreadFunction func, void* data, size_t stack_size)
+inline void Thread::start(ThreadFunction func, void* data, size_t stack_size)
 {
 	CE_ASSERT(!m_is_running, "Thread is already running");
 	CE_ASSERT(func != NULL, "Function must be != NULL");
@@ -122,7 +122,7 @@ inline void OsThread::start(OsThreadFunction func, void* data, size_t stack_size
 }
 
 //-----------------------------------------------------------------------------
-inline void OsThread::stop()
+inline void Thread::stop()
 {
 	CE_ASSERT(m_is_running, "Thread is not running");
 	
@@ -136,13 +136,13 @@ inline void OsThread::stop()
 }
 
 //-----------------------------------------------------------------------------
-inline bool OsThread::is_running()
+inline bool Thread::is_running()
 {
 	return m_is_running;
 }
 
 //-----------------------------------------------------------------------------
-inline int32_t OsThread::run()
+inline int32_t Thread::run()
 {
 	m_sem.post();
 	
@@ -150,9 +150,9 @@ inline int32_t OsThread::run()
 }
 
 //-----------------------------------------------------------------------------
-inline void* OsThread::thread_proc(void* arg)
+inline void* Thread::thread_proc(void* arg)
 {
-	OsThread* thread = (OsThread*)arg;
+	Thread* thread = (Thread*)arg;
 
 	int32_t result = thread->run();
 

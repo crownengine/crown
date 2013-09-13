@@ -69,7 +69,6 @@ LOCAL_SRC_FILES :=\
 	os/android/ApkFile.cpp\
 	os/android/ApkFilesystem.cpp\
 	os/posix/OsFile.cpp\
-	os/posix/Thread.cpp\
 	os/posix/Mutex.cpp\
 	os/posix/Cond.cpp\
 	os/posix/TCPSocket.cpp\

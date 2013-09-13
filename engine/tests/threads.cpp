@@ -7,7 +7,7 @@ using namespace crown;
 
 int32_t first_function(void* ft)
 {
-	OsThread* thread = (OsThread*)ft;
+	Thread* thread = (Thread*)ft;
 
 	while(thread->is_running())
 	{
@@ -19,7 +19,7 @@ int32_t first_function(void* ft)
 	
 int main()
 {
-	OsThread ft("first-thread");
+	Thread ft("first-thread");
 
 	ft.start(first_function, &ft);
 

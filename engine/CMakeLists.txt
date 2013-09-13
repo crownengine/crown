@@ -379,7 +379,6 @@ if (LINUX)
 		os/posix/TCPSocket.cpp
 		os/posix/UDPSocket.cpp	
 		os/posix/OsFile.cpp
-		os/posix/Thread.cpp
 	)
 
 	list (APPEND RENDERERS_SRC

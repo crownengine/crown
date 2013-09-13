@@ -105,7 +105,7 @@ private:
 
 private:
 
-	OsThread				m_thread;
+	Thread					m_thread;
 
 	// Whether to look for resources
 	Bundle&					m_bundle;
