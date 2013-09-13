@@ -53,6 +53,8 @@ class ConsoleServer;
 class BundleCompiler;
 class ResourcePackage;
 
+typedef void (*cb)(float);
+
 /// The Engine.
 /// It is the place where to look for accessing all of
 /// the engine subsystems and related stuff.
@@ -81,9 +83,11 @@ public:
 	/// call to Device::start()
 	uint64_t				frame_count() const;
 
-	/// Returns the time in milliseconds needed to render
-	/// the last frame
+	/// Returns the time in seconds needed to render the last frame
 	float					last_delta_time() const;
+
+	/// Returns the time in seconds since the first call to start().
+	double					time_since_start() const;
 
 	/// Forces the engine to actually start doing work.
 	void					start();
@@ -99,7 +103,7 @@ public:
 	void					unpause();
 
 	/// Updates all the subsystems
-	void					frame();
+	void					frame(cb callback);
 
 	/// Returns the resource package with the given @a package_name name.
 	ResourcePackage*		create_resource_package(const char* name);
@@ -165,6 +169,7 @@ private:
 	uint64_t				m_last_time;
 	uint64_t				m_current_time;
 	float					m_last_delta_time;
+	double					m_time_since_start;
 
 	// Public subsystems
 	Filesystem*				m_filesystem;

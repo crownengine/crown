@@ -88,6 +88,7 @@ Device::Device() :
 	m_last_time(0),
 	m_current_time(0),
 	m_last_delta_time(0.0f),
+	m_time_since_start(0.0),
 
 	m_filesystem(NULL),
 	m_input_manager(NULL),
@@ -186,7 +187,8 @@ bool Device::init(int argc, char** argv)
 	Log::d("Window created.");
 
 	// Create renderer
-	m_renderer = Renderer::create(m_allocator);
+	m_renderer = CE_NEW(default_allocator(), Renderer)(m_allocator);
+	CE_ASSERT_NOT_NULL(m_renderer);
 	m_renderer->init();
 	Log::d("Renderer created.");
 
@@ -216,6 +218,8 @@ bool Device::init(int argc, char** argv)
 	{
 		pause();
 	}
+
+	Log::d("Total allocated size: %llu", m_allocator.allocated_size());
 
 	// Show main window
 	m_window->show();
@@ -269,8 +273,7 @@ void Device::shutdown()
 	if (m_renderer)
 	{
 		m_renderer->shutdown();
-
-		Renderer::destroy(m_allocator, m_renderer);
+		CE_DELETE(default_allocator(), m_renderer);
 	}
 
 	Log::i("Releasing Window...");
@@ -435,11 +438,18 @@ float Device::last_delta_time() const
 }
 
 //-----------------------------------------------------------------------------
-void Device::frame()
+double Device::time_since_start() const
+{
+	return m_time_since_start;
+}
+
+//-----------------------------------------------------------------------------
+void Device::frame(cb callback)
 {
 	m_current_time = os::microseconds();
 	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
 	m_last_time = m_current_time;
+	m_time_since_start += m_last_delta_time;
 
 	m_resource_manager->poll_resource_loader();
 
@@ -455,6 +465,9 @@ void Device::frame()
 	}
 
 	m_debug_renderer->draw_all();
+
+	callback(m_last_delta_time);
+
 	m_renderer->frame();
 
 	m_frame_count++;
@@ -469,7 +482,7 @@ ResourcePackage* Device::create_resource_package(const char* name)
 	m_resource_manager->flush();
 
 	PackageResource* package_res = (PackageResource*) m_resource_manager->data(package_id);
-	ResourcePackage* package = CE_NEW(m_allocator, ResourcePackage)(*m_resource_manager, package_id, package_res);
+	ResourcePackage* package = CE_NEW(default_allocator(), ResourcePackage)(*m_resource_manager, package_id, package_res);
 
 	return package;
 }
@@ -480,7 +493,7 @@ void Device::destroy_resource_package(ResourcePackage* package)
 	CE_ASSERT_NOT_NULL(package);
 
 	m_resource_manager->unload(package->resource_id());
-	CE_DELETE(m_allocator, package);
+	CE_DELETE(default_allocator(), package);
 }
 
 //-----------------------------------------------------------------------------
