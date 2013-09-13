@@ -84,10 +84,6 @@ inline OsThread::OsThread(const char* name) :
 //-----------------------------------------------------------------------------
 inline OsThread::~OsThread()
 {
-	if (m_is_running)
-	{
-		stop();
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -102,6 +98,8 @@ inline void OsThread::start(OsThreadFunction func, void* data, size_t stack_size
 
 	pthread_attr_t attr;
 	int32_t result = pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
 
 	CE_ASSERT(result == 0, "pthread_attr_init failed. errno: %d", result);
 
@@ -120,7 +118,7 @@ inline void OsThread::start(OsThreadFunction func, void* data, size_t stack_size
 
 	m_is_running = true;
 
-	m_sem.wait();
+	// m_sem.wait();
 }
 
 //-----------------------------------------------------------------------------
@@ -146,7 +144,7 @@ inline bool OsThread::is_running()
 //-----------------------------------------------------------------------------
 inline int32_t OsThread::run()
 {
-	m_sem.post();
+	// m_sem.post();
 	
 	return m_function(m_data);
 }
@@ -159,6 +157,8 @@ inline void* OsThread::thread_proc(void* arg)
 	int32_t result = thread->run();
 
 	CE_ASSERT(result == 0, "Function failed");
+
+	thread->m_is_running = false;
 
 	return NULL;
 }
