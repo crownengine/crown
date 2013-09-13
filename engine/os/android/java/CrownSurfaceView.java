@@ -30,47 +30,91 @@ import android.content.Context;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
+import android.graphics.PixelFormat;
+import android.util.Log;
 
 public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callback
 {
-	private MainThread mMainThread;
+	private final String TAG = "crown";
 
-	//-----------------------------------------------------------------------------
+	private CrownMainThread mThread;
+
+	private boolean mSurfaceCreated;
+
+//-----------------------------------------------------------------------------
 	public CrownSurfaceView(Context context)
 	{
 		super(context);
 
-		this.getHolder().addCallback(this);
-
-		mMainThread = new MainThread(getHolder(), this);
+		getHolder().addCallback(this);
 
 		setFocusable(true);
+
+		mSurfaceCreated = false;
 	}
 
-	//-----------------------------------------------------------------------------
-	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) 
+//-----------------------------------------------------------------------------
+	public boolean isSurfaceCreated()
 	{
+		return mSurfaceCreated;
+	}
+
+//-----------------------------------------------------------------------------
+	public void createThread(SurfaceHolder holder)
+	{
+		mThread = new CrownMainThread(holder);
+		mThread.start();
+	}
+
+//-----------------------------------------------------------------------------
+	public void destroyThread()
+	{
+        try
+        {
+        	CrownLib.pauseDevice();
+            mThread.join();
+        }
+        catch (InterruptedException e)
+        {
+            Log.e("crown", "terminateThread corrupts");
+        }     
 	}
 
 	//-----------------------------------------------------------------------------
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) 
 	{
-		mMainThread.start();
+		Log.d(TAG, "Crown Surface created");
+
+		if (!mSurfaceCreated)
+		{
+			mSurfaceCreated = true;
+
+			createThread(holder);
+		}
 	}
 
 	//-----------------------------------------------------------------------------
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) 
 	{
-		try
-		{
-			mMainThread.join();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
+		mSurfaceCreated = false;
+
+		destroyThread();
+
+		CrownLib.pauseDevice();
+
+		CrownLib.destroyWindow();
+
+		CrownLib.shutdownRenderer();
+
+		Log.d(TAG, "Crown Surface destroyed");
+	}
+
+	//-----------------------------------------------------------------------------
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) 
+	{
+		Log.d(TAG, "Crown Surface changed");
 	}
 }

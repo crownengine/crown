@@ -24,37 +24,81 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <string.h>
+#pragma once
 
+#include <errno.h>
+#include <semaphore.h>
+
+#include "Assert.h"
+#include "Mutex.h"
 #include "Cond.h"
+#include "Log.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-Cond::Cond()
+class Semaphore
 {
-	memset(&m_cond, 0, sizeof(pthread_cond_t));
+public:
 
-	pthread_cond_init(&m_cond, NULL);
+			Semaphore();
+			~Semaphore();
+
+	void	post(uint32_t count = 1);
+	void	wait();
+
+private:
+
+	Mutex 	m_mutex;
+	Cond 	m_cond;
+
+	int32_t m_count;
+
+private:
+
+	Semaphore(const Semaphore& s); // no copy constructor
+	Semaphore& operator=(const Semaphore& s); // no assignment operator
+};
+
+//-----------------------------------------------------------------------------
+inline Semaphore::Semaphore() : m_count(0)
+{
 }
 
 //-----------------------------------------------------------------------------
-Cond::~Cond()
+inline Semaphore::~Semaphore()
 {
-	pthread_cond_destroy(&m_cond);
 }
 
 //-----------------------------------------------------------------------------
-void Cond::signal()
+inline void Semaphore::post(uint32_t count)
 {
-	pthread_cond_signal(&m_cond);
+	m_mutex.lock();
+
+	for (uint32_t i = 0; i < count; i++)
+	{
+		m_cond.signal();
+	}
+
+	m_count += count;
+
+	m_mutex.unlock();	
 }
 
 //-----------------------------------------------------------------------------
-void Cond::wait(Mutex& mutex)
+inline void Semaphore::wait()
 {
-	pthread_cond_wait(&m_cond, &(mutex.m_mutex));
+	m_mutex.lock();
+
+	while (m_count <= 0)
+	{
+		m_cond.wait(m_mutex);
+	}
+
+	m_count--;
+
+	m_mutex.unlock();
 }
+
 
 } // namespace crown

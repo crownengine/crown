@@ -24,37 +24,43 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <string.h>
+package crown.android;
 
-#include "Mutex.h"
+import android.content.res.AssetManager;
+import android.view.Surface;
 
-namespace crown
+public class CrownLib
 {
+	static 
+	{
+		System.loadLibrary("luajit-5.1");
+		System.loadLibrary("crown");
+	}
+	
+	// Device functions
+	public static native void 		initDevice();
+	public static native void		pauseDevice();
+	public static native void		unpauseDevice();
+	public static native void		stopDevice();
 
-//-----------------------------------------------------------------------------
-Mutex::Mutex()
-{
-	memset(&m_mutex, 0, sizeof(pthread_mutex_t));
+	public static native boolean 	isDeviceInit();
+	public static native boolean	isDeviceRunning();
+	public static native boolean	isDevicePaused();
 
-	pthread_mutex_init(&m_mutex, NULL);
+	public static native void 		frame();
+
+	// AssetManager functions
+	public static native void 		initAssetManager(AssetManager assetManager);
+
+	// Window functions
+	public static native void		createWindow(Surface window);
+	public static native void		destroyWindow();
+
+	// Renderer functions
+	public static native void		initRenderer();
+	public static native void		shutdownRenderer();
+
+	// InputManager functions
+	public static native void 		pushTouchEvent(int type, int pointer_id, int x, int y);
+	public static native void 		pushAccelerometerEvent(int type, float x, float y, float z);	
 }
-
-//-----------------------------------------------------------------------------
-Mutex::~Mutex()
-{
-	pthread_mutex_destroy(&m_mutex);
-}
-
-//-----------------------------------------------------------------------------
-void Mutex::lock()
-{
-	pthread_mutex_lock(&m_mutex);
-}
-
-//-----------------------------------------------------------------------------
-void Mutex::unlock()
-{
-	pthread_mutex_unlock(&m_mutex);
-}
-
-} // namespace crown

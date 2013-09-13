@@ -35,10 +35,9 @@ import android.view.MotionEvent;
 * CrownTouch manages touch and gesture events passing them to Crown Engine
 */
 
-//TODO: gestures doesn't work...fix them
 public class CrownTouch
 {
-	private boolean 				isListening;
+	private boolean isListening;
 
 //-----------------------------------------------------------------------------------
 	public CrownTouch(Context context)
@@ -63,7 +62,7 @@ public class CrownTouch
 			case MotionEvent.ACTION_DOWN:
 			case MotionEvent.ACTION_POINTER_DOWN:
 			{
-				CrownLib.pushIntEvent(CrownEnum.OSET_TOUCH_DOWN, pointerId, (int)x, (int)y, 0);
+				CrownLib.pushTouchEvent(CrownEnum.OSET_TOUCH_DOWN, pointerId, (int)x, (int)y);
 				break;			
 			}
 
@@ -72,7 +71,7 @@ public class CrownTouch
 			case MotionEvent.ACTION_OUTSIDE:
 			case MotionEvent.ACTION_CANCEL:
 			{
-				CrownLib.pushIntEvent(CrownEnum.OSET_TOUCH_UP, pointerId, (int)x, (int)y, 0);
+				CrownLib.pushTouchEvent(CrownEnum.OSET_TOUCH_UP, pointerId, (int)x, (int)y);
 				break;			
 			}
 			
@@ -80,7 +79,7 @@ public class CrownTouch
 			{
 				for (int index = 0; index < pointerCount; index++)
 				{
-					CrownLib.pushIntEvent(CrownEnum.OSET_TOUCH_MOVE, event.getPointerId(index), (int)event.getX(index), (int)event.getY(index), 0);
+					CrownLib.pushTouchEvent(CrownEnum.OSET_TOUCH_MOVE, event.getPointerId(index), (int)event.getX(index), (int)event.getY(index));
 				}
 
 				break;

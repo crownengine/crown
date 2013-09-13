@@ -66,7 +66,7 @@ struct LoadResourceData
 };
 
 /// Loads resources in a background thread.
-class ResourceLoader : public Thread
+class ResourceLoader
 {
 public:
 
@@ -86,7 +86,26 @@ public:
 	// Loads resources in the loading queue.
 	int32_t					run();
 
+	void start()
+	{
+		m_thread.start(background_run, this);
+	}
+
+	void stop()
+	{
+		m_thread.stop();
+	}
+
 private:
+
+	static int32_t background_run(void* thiz)
+	{
+		return ((ResourceLoader*)thiz)->run();
+	}
+
+private:
+
+	Thread					m_thread;
 
 	// Whether to look for resources
 	Bundle&					m_bundle;

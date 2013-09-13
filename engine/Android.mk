@@ -69,9 +69,6 @@ LOCAL_SRC_FILES :=\
 	os/android/ApkFile.cpp\
 	os/android/ApkFilesystem.cpp\
 	os/posix/OsFile.cpp\
-	os/posix/Thread.cpp\
-	os/posix/Mutex.cpp\
-	os/posix/Cond.cpp\
 	os/posix/TCPSocket.cpp\
 	os/posix/UDPSocket.cpp\
 \
@@ -109,6 +106,7 @@ LOCAL_SRC_FILES :=\
 	Device.cpp\
 	FPSSystem.cpp\
 	ConsoleServer.cpp\
+	EventBuffer.cpp\
 \
 
 LOCAL_C_INCLUDES	:=\

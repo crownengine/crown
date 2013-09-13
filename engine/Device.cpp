@@ -54,6 +54,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Bundle.h"
 #include "TempAllocator.h"
 #include "ResourcePackage.h"
+#include "EventBuffer.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -82,6 +83,7 @@ Device::Device() :
 	m_is_init(false),
 	m_is_running(false),
 	m_is_paused(false),
+	m_is_really_paused(false),
 
 	m_frame_count(0),
 
@@ -99,7 +101,9 @@ Device::Device() :
 	m_resource_manager(NULL),
 	m_resource_bundle(NULL),
 
-	m_console_server(NULL)
+	m_console_server(NULL),
+
+	m_renderer_init_request(false)
 {
 	// Bundle dir is current dir by default.
 	string::strncpy(m_bundle_dir, os::get_cwd(), MAX_PATH_LENGTH);
@@ -142,6 +146,14 @@ bool Device::init(int argc, char** argv)
 		}
 	#endif
 
+	init();
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+void Device::init()
+{
 	// Initialize
 	Log::i("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
@@ -178,7 +190,8 @@ bool Device::init(int argc, char** argv)
 	m_input_manager = CE_NEW(m_allocator, InputManager)();
 	Log::d("Input manager created.");
 
-	m_window = CE_NEW(m_allocator, OsWindow)(m_preferred_window_width, m_preferred_window_height, m_parent_window_handle);
+	// default_allocator, maybe it needs fix
+	m_window = CE_NEW(default_allocator(), OsWindow)(m_preferred_window_width, m_preferred_window_height, m_parent_window_handle);
 
 	CE_ASSERT(m_window != NULL, "Unable to create the window");
 
@@ -190,6 +203,7 @@ bool Device::init(int argc, char** argv)
 	m_renderer = CE_NEW(default_allocator(), Renderer)(m_allocator);
 	CE_ASSERT_NOT_NULL(m_renderer);
 	m_renderer->init();
+	m_renderer_init_request = false;
 	Log::d("Renderer created.");
 
 	// Create debug renderer
@@ -229,8 +243,6 @@ bool Device::init(int argc, char** argv)
 		stop();
 		shutdown();
 	}
-
-	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -279,7 +291,7 @@ void Device::shutdown()
 	Log::i("Releasing Window...");
 	if (m_window)
 	{
-		CE_DELETE(m_allocator, m_window);
+		CE_DELETE(default_allocator(), m_window);
 	}
 
 	Log::i("Releasing ResourceManager...");
@@ -316,6 +328,12 @@ void Device::shutdown()
 bool Device::is_init() const
 {
 	return m_is_init;
+}
+
+//-----------------------------------------------------------------------------
+bool Device::is_paused() const
+{
+	return m_is_paused;
 }
 
 //-----------------------------------------------------------------------------
@@ -409,6 +427,7 @@ void Device::stop()
 void Device::pause()
 {
 	m_is_paused = true;
+
 	Log::d("Engine paused");
 }
 
@@ -416,6 +435,8 @@ void Device::pause()
 void Device::unpause()
 {
 	m_is_paused = false;
+	m_is_really_paused = false;
+
 	Log::d("Engine unpaused");
 }
 
@@ -451,26 +472,26 @@ void Device::frame(cb callback)
 	m_last_time = m_current_time;
 	m_time_since_start += m_last_delta_time;
 
-	m_resource_manager->poll_resource_loader();
-
-	m_window->frame();
-	m_input_manager->frame(frame_count());
-
 	if (!m_is_paused)
 	{
+		m_resource_manager->poll_resource_loader();
+
+		m_window->frame();
+		m_input_manager->frame(frame_count());
+
 		if (!m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time()))
 		{
 			pause();
 		}
+
+		m_debug_renderer->draw_all();
+		callback(m_last_delta_time);
+		m_renderer->frame();
 	}
 
-	m_debug_renderer->draw_all();
-
-	callback(m_last_delta_time);
-
-	m_renderer->frame();
-
 	m_frame_count++;
+
+	os_event_buffer()->clear();
 }
 
 //-----------------------------------------------------------------------------

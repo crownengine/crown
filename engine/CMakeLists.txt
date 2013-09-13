@@ -66,6 +66,7 @@ set (CROWN_INCLUDES
 set (SRC
 	Camera.cpp
 	Device.cpp
+	EventBuffer.cpp
 	ConsoleServer.cpp
 	FPSSystem.cpp
 )
@@ -75,6 +76,7 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
+	EventBuffer.h
 	ConsoleServer.h
 	FPSSystem.h
 )
@@ -303,6 +305,7 @@ set (OS_SRC
 set (OS_HEADERS
 	os/OS.h
 	os/NetAddress.h
+	os/OsEvents.h
 )
 
 set (LUA_SRC
@@ -366,6 +369,7 @@ if (LINUX)
 		os/linux/Thread.h
 		os/linux/Mutex.h
 		os/linux/Cond.h
+		os/posix/Semaphore.h
 	)
 
 	list (APPEND OS_SRC
@@ -374,9 +378,6 @@ if (LINUX)
 		os/posix/TCPSocket.cpp
 		os/posix/UDPSocket.cpp	
 		os/posix/OsFile.cpp
-		os/posix/Thread.cpp
-		os/posix/Mutex.cpp
-		os/posix/Cond.cpp
 	)
 
 	list (APPEND RENDERERS_SRC

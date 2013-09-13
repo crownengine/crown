@@ -96,7 +96,7 @@ public class CrownSensor
 
                     norm();
 
-                    CrownLib.pushFloatEvent(CrownEnum.OSET_ACCELEROMETER, mGravity[0], mGravity[1], mGravity[2], 0.0f);
+                    CrownLib.pushAccelerometerEvent(CrownEnum.OSET_ACCELEROMETER, mGravity[0], mGravity[1], mGravity[2]);
                 }
             };           
         }
@@ -115,7 +115,7 @@ public class CrownSensor
                     mGeoMagn[1] = (mGeoMagn[1] + event.values[1]) * 0.5f;
                     mGeoMagn[2] = (mGeoMagn[2] + event.values[2]) * 0.5f; 
 
-                    // CrownLib.pushFloatEvent(CrownEnum.OSET_ACCELEROMETER, mGeoMagn[0], mGeoMagn[1], mGeoMagn[2], 0.0f);
+                    // CrownLib.pushAccelerometerEvent(CrownEnum.OSET_ACCELEROMETER, mGeoMagn[0], mGeoMagn[1], mGeoMagn[2], 0.0f);
                 }                
             };
         }
