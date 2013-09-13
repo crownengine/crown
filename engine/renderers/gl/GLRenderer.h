@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GLContext.h"
 #include "HeapAllocator.h"
 #include "VertexFormat.h"
+#include "Allocator.h"
 
 namespace crown
 {
@@ -42,37 +43,9 @@ namespace crown
 extern const GLenum TEXTURE_MIN_FILTER_TABLE[];
 extern const GLenum TEXTURE_MAG_FILTER_TABLE[];
 extern const GLenum TEXTURE_WRAP_TABLE[];
-
-// Keep in sync with ShaderAttrib
-const char* const SHADER_ATTRIB_NAMES[ATTRIB_COUNT] =
-{
-	"a_position",
-	"a_normal",
-	"a_color",
-	"a_tex_coord0",
-	"a_tex_coord1",
-	"a_tex_coord2",
-	"a_tex_coord3"
-};
-
-enum ShaderUniform
-{
-	UNIFORM_VIEW					= 0,
-	UNIFORM_MODEL					= 1,
-	UNIFORM_MODEL_VIEW				= 2,
-	UNIFORM_MODEL_VIEW_PROJECTION	= 3,
-	UNIFORM_TIME_SINCE_START		= 4,
-	UNIFORM_COUNT
-};
-
-const char* const SHADER_UNIFORM_NAMES[] =
-{
-	"u_view",
-	"u_model",
-	"u_model_view",
-	"u_model_view_projection",
-	"u_time_since_start"
-};
+extern const char* const SHADER_ATTRIB_NAMES[ATTRIB_COUNT];
+extern const char* const SHADER_UNIFORM_NAMES[];
+extern const size_t UNIFORM_SIZE_TABLE[UNIFORM_END];
 
 static ShaderUniform name_to_stock_uniform(const char* uniform)
 {
@@ -175,6 +148,46 @@ public:
 
 	GLuint		m_id;
 	uint32_t	m_index_count;
+};
+
+//-----------------------------------------------------------------------------
+struct Uniform
+{
+	Uniform()
+	{
+		string::strncpy(m_name, "", CROWN_MAX_UNIFORM_NAME_LENGTH);
+	}
+
+	void create(const char* name, UniformType type, uint8_t num)
+	{
+		string::strncpy(m_name, name, CROWN_MAX_UNIFORM_NAME_LENGTH);
+		m_type = type;
+		m_num = num;
+
+		size_t size = UNIFORM_SIZE_TABLE[type] * num;
+		m_data = default_allocator().allocate(size);
+		memset(m_data, 0, size);
+
+		// Log::d("Uniform created, name = %s, type = %d, num = %d, size = %d", m_name, type, num, size);
+	}
+
+	void update(size_t size, const void* data)
+	{
+		// Log::d("Uniform updated, new size = %d, new ptr = %d", size, *((int32_t*)data));
+		memcpy(m_data, data, size);
+	}
+
+	void destroy()
+	{
+		default_allocator().deallocate(m_data);
+	}
+
+public:
+
+	char m_name[CROWN_MAX_UNIFORM_NAME_LENGTH];
+	UniformType m_type;
+	uint8_t m_num;
+	void* m_data;
 };
 
 //-----------------------------------------------------------------------------
@@ -282,7 +295,7 @@ public:
 struct GPUProgram
 {
 	//-----------------------------------------------------------------------------
-	void create(const Shader& vertex, const Shader& pixel)
+	void create(const Shader& vertex, const Shader& pixel, uint32_t num_uniforms, Uniform* uniforms)
 	{
 		m_id = GL_CHECK(glCreateProgram());
 
@@ -339,6 +352,8 @@ struct GPUProgram
 			}
 		}
 
+		m_num_stock_uniforms = 0;
+		m_num_uniforms = 0;
 		for (GLint uniform = 0; uniform < num_active_uniforms; uniform++)
 		{
 			GLint uniform_size;
@@ -353,6 +368,19 @@ struct GPUProgram
 				m_stock_uniforms[m_num_stock_uniforms] = stock_uniform;
 				m_stock_uniform_locations[m_num_stock_uniforms] = uniform_location;
 				m_num_stock_uniforms++;
+			}
+			else
+			{
+				for (uint32_t i = 0; i < num_uniforms; i++)
+				{
+					if (string::strcmp(uniforms[i].m_name, uniform_name) == 0)
+					{
+						m_uniforms[m_num_uniforms] = uniforms[i].m_type;
+						m_uniform_info[m_num_uniforms].loc = uniform_location;
+						m_uniform_info[m_num_uniforms].data = uniforms[i].m_data;
+						m_num_uniforms++;
+					}
+				}
 			}
 
 			Log::d("Uniform %d: name = '%s' location = '%d' stock = %s", uniform, uniform_name, uniform_location,
@@ -387,6 +415,32 @@ struct GPUProgram
 		}
 	}
 
+	//-----------------------------------------------------------------------------
+	void commit() const
+	{
+		for (uint8_t i = 0; i < m_num_uniforms; i++)
+		{
+			const UniformType type = m_uniforms[i];
+			const GLint loc = m_uniform_info[i].loc;
+			const void* data = m_uniform_info[i].data;
+
+			switch (type)
+			{
+				case UNIFORM_INTEGER_1:   GL_CHECK(glUniform1iv(loc, 1, (const GLint*)data)); break;
+				case UNIFORM_INTEGER_2:   GL_CHECK(glUniform2iv(loc, 2, (const GLint*)data)); break;
+				case UNIFORM_INTEGER_3:   GL_CHECK(glUniform3iv(loc, 3, (const GLint*)data)); break;				
+				case UNIFORM_INTEGER_4:   GL_CHECK(glUniform4iv(loc, 4, (const GLint*)data)); break;
+				case UNIFORM_FLOAT_1:     GL_CHECK(glUniform1fv(loc, 1, (const GLfloat*)data)); break;
+				case UNIFORM_FLOAT_2:     GL_CHECK(glUniform2fv(loc, 2, (const GLfloat*)data)); break;
+				case UNIFORM_FLOAT_3:     GL_CHECK(glUniform3fv(loc, 3, (const GLfloat*)data)); break;
+				case UNIFORM_FLOAT_4:     GL_CHECK(glUniform4fv(loc, 4, (const GLfloat*)data)); break;
+				case UNIFORM_FLOAT_3_X_3: GL_CHECK(glUniformMatrix3fv(loc, 9, GL_FALSE, (const GLfloat*)data)); break;
+				case UNIFORM_FLOAT_4_X_4: GL_CHECK(glUniformMatrix4fv(loc, 16, GL_FALSE, (const GLfloat*)data)); break;
+				default: CE_ASSERT(false, "Oops, unknown uniform type"); break;
+			}
+		}
+	}
+
 public:
 
 	GLuint				m_id;
@@ -398,6 +452,16 @@ public:
 	uint8_t				m_num_stock_uniforms;
 	ShaderUniform		m_stock_uniforms[UNIFORM_COUNT];
 	GLint				m_stock_uniform_locations[UNIFORM_COUNT];
+
+	struct LocAndData
+	{
+		GLint loc;
+		void* data;
+	};
+
+	uint8_t				m_num_uniforms;
+	UniformType			m_uniforms[16];
+	LocAndData			m_uniform_info[16];
 };
 
 //-----------------------------------------------------------------------------
@@ -476,29 +540,6 @@ struct RenderTarget
 	RenderTargetFormat m_format;
 	GLuint m_gl_fbo;
 	GLuint m_gl_rbo;
-};
-
-struct Uniform
-{
-	void create(const char* name, UniformType type, uint8_t num)
-	{
-		Log::d("Uniform created, name = %s, type = %d, num = %d", name, type, num);
-	}
-
-	void update(size_t size, const void* data)
-	{
-		Log::d("Uniform updated, new size = %d, new ptr = %d", size, *((int32_t*)data));
-	}
-
-	void destroy()
-	{
-		Log::d("Uniform destroyed");
-	}
-
-public:
-
-	UniformType m_type;
-	uint8_t m_num;
 };
 
 } // namespace crown

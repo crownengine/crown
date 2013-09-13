@@ -82,6 +82,41 @@ const GLenum TEXTURE_WRAP_TABLE[] =
 	GL_REPEAT
 };
 
+// Keep in sync with ShaderAttrib
+const char* const SHADER_ATTRIB_NAMES[ATTRIB_COUNT] =
+{
+	"a_position",
+	"a_normal",
+	"a_color",
+	"a_tex_coord0",
+	"a_tex_coord1",
+	"a_tex_coord2",
+	"a_tex_coord3"
+};
+
+const char* const SHADER_UNIFORM_NAMES[] =
+{
+	"u_view",
+	"u_model",
+	"u_model_view",
+	"u_model_view_projection",
+	"u_time_since_start"
+};
+
+const size_t UNIFORM_SIZE_TABLE[UNIFORM_END] =
+{
+	sizeof(int32_t) * 1,
+	sizeof(int32_t) * 2,
+	sizeof(int32_t) * 3,
+	sizeof(int32_t) * 4,
+	sizeof(float) * 1,
+	sizeof(float) * 2,
+	sizeof(float) * 3,
+	sizeof(float) * 4,
+	sizeof(float) * 9,
+	sizeof(float) * 16
+};
+
 /// OpenGL renderer
 class RendererImplementation
 {
@@ -90,7 +125,7 @@ public:
 	//-----------------------------------------------------------------------------
 	RendererImplementation()
 		: m_max_texture_size(0), m_max_texture_units(0), m_max_vertex_indices(0), m_max_vertex_vertices(0),
-			m_max_anisotropy(0.0f)
+			m_max_anisotropy(0.0f), m_num_uniforms(0)
 	{
 		m_min_max_point_size[0] = 0.0f;
 		m_min_max_point_size[1] = 0.0f;
@@ -244,6 +279,8 @@ public:
 			{
 				const GPUProgram& gpu_program = m_gpu_programs[cur_state.program.index];
 				GL_CHECK(glUseProgram(gpu_program.m_id));
+				// Not necessarily here...
+				gpu_program.commit();
 
 				for (uint8_t uniform = 0; uniform < gpu_program.m_num_stock_uniforms; uniform++)
 				{
@@ -377,6 +414,7 @@ private:
 	Texture				m_textures[CROWN_MAX_TEXTURES];
 	Shader				m_shaders[CROWN_MAX_SHADERS];
 	GPUProgram			m_gpu_programs[CROWN_MAX_GPU_PROGRAMS];
+	uint32_t			m_num_uniforms;
 	Uniform				m_uniforms[CROWN_MAX_UNIFORMS];
 	RenderTarget		m_render_targets[CROWN_MAX_RENDER_TARGETS];
 
@@ -481,7 +519,7 @@ void Renderer::create_gpu_program_impl(GPUProgramId id, ShaderId vertex, ShaderI
 {
 	Shader& vs = m_impl->m_shaders[vertex.index];
 	Shader& ps = m_impl->m_shaders[pixel.index];
-	m_impl->m_gpu_programs[id.index].create(vs, ps);
+	m_impl->m_gpu_programs[id.index].create(vs, ps, m_impl->m_num_uniforms, m_impl->m_uniforms);
 }
 
 //-----------------------------------------------------------------------------
@@ -494,6 +532,7 @@ void Renderer::destroy_gpu_program_impl(GPUProgramId id)
 void Renderer::create_uniform_impl(UniformId id, const char* name, UniformType type, uint8_t num)
 {
 	m_impl->m_uniforms[id.index].create(name, type, num);
+	m_impl->m_num_uniforms++;
 }
 
 //-----------------------------------------------------------------------------
@@ -506,6 +545,7 @@ void Renderer::update_uniform_impl(UniformId id, size_t size, const void* data)
 void Renderer::destroy_uniform_impl(UniformId id)
 {
 	m_impl->m_uniforms[id.index].destroy();
+	m_impl->m_num_uniforms--;
 }
 
 // //-----------------------------------------------------------------------------

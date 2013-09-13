@@ -36,13 +36,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-enum RenderTargetFormat
-{
-	RTF_RGB_8,		///< RGB values, 8-bit each
-	RTF_RGBA_8,		///< RGBA values, 8-bit each
-	RTF_D24			///< Depth
-};
-
 class RendererImplementation;
 
 class Renderer
@@ -511,9 +504,9 @@ public:
 		m_submit->set_uniform(id, type, value, num);
 	}
 
-	inline void set_texture(uint8_t unit, TextureId texture, uint32_t flags)
+	inline void set_texture(uint8_t unit, UniformId sampler_uniform, TextureId texture, uint32_t flags)
 	{
-		m_submit->set_texture(unit, texture, flags);
+		m_submit->set_texture(unit, sampler_uniform, texture, flags);
 	}
 
 	inline void set_layer_render_target(uint8_t layer, RenderTargetId target)

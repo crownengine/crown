@@ -31,23 +31,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IdTable.h"
 #include "CommandBuffer.h"
 #include "ConstantBuffer.h"
+#include "RendererTypes.h"
 
 namespace crown
 {
-
-typedef Id VertexBufferId;
-typedef Id IndexBufferId;
-typedef Id RenderTargetId;
-typedef Id TextureId;
-typedef Id ShaderId;
-typedef Id GPUProgramId;
-typedef Id UniformId;
-
-enum ShaderType
-{
-	SHADER_VERTEX,
-	SHADER_FRAGMENT
-};
 
 #define MAX_RENDER_LAYERS			32
 #define MAX_RENDER_STATES			1024
@@ -228,13 +215,15 @@ struct RenderContext
 		m_constants.write_constant(id, type, value, num);
 	}
 
-	void set_texture(uint8_t unit, TextureId texture, uint32_t flags)
+	void set_texture(uint8_t unit, UniformId sampler_uniform, TextureId texture, uint32_t flags)
 	{
 		m_flags |= STATE_TEXTURE_0 << unit;
 
 		Sampler& sampler = m_state.samplers[unit];
 		sampler.sampler_id = texture;
 		sampler.flags |= SAMPLER_TEXTURE | flags;
+
+		set_uniform(sampler_uniform, UNIFORM_INTEGER_1, &unit, 1);
 	}
 
 	void set_layer_render_target(uint8_t layer, RenderTargetId target)

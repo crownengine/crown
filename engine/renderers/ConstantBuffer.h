@@ -27,42 +27,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Assert.h"
+#include "RendererTypes.h"
 
 namespace crown
 {
 
+extern const size_t UNIFORM_SIZE_TABLE[UNIFORM_END];
+
 #define MAX_CONSTANT_BUFFER_SIZE 1024 * 1024
-
-enum UniformType
-{
-	UNIFORM_INTEGER_1,
-	UNIFORM_INTEGER_2,
-	UNIFORM_INTEGER_3,
-	UNIFORM_INTEGER_4,
-	UNIFORM_FLOAT_1,
-	UNIFORM_FLOAT_2,
-	UNIFORM_FLOAT_3,
-	UNIFORM_FLOAT_4,
-	UNIFORM_FLOAT_3_X_3,
-	UNIFORM_FLOAT_4_X_4,
-	UNIFORM_END
-};
-
-const size_t UNIFORM_SIZE_TABLE[UNIFORM_END] =
-{
-	sizeof(int32_t) * 1,
-	sizeof(int32_t) * 2,
-	sizeof(int32_t) * 3,
-	sizeof(int32_t) * 4,
-	sizeof(float) * 1,
-	sizeof(float) * 2,
-	sizeof(float) * 3,
-	sizeof(float) * 4,
-	sizeof(float) * 9,
-	sizeof(float) * 16
-};
-
-typedef Id UniformId;
 
 class ConstantBuffer
 {

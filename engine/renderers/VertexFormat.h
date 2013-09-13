@@ -26,39 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "RendererTypes.h"
+
 namespace crown
 {
-
-enum ShaderAttrib
-{
-	ATTRIB_POSITION			= 0,
-	ATTRIB_NORMAL			= 1,
-	ATTRIB_COLOR			= 2,
-	ATTRIB_TEX_COORD0		= 3,
-	ATTRIB_TEX_COORD1		= 4,
-	ATTRIB_TEX_COORD2		= 5,
-	ATTRIB_TEX_COORD3		= 6,
-	ATTRIB_COUNT
-};
-
-enum VertexFormat
-{
-	VERTEX_P2 = 0,
-	VERTEX_P2_N3,
-	VERTEX_P2_C4,
-	VERTEX_P2_T2,
-	VERTEX_P2_N3_C4,
-	VERTEX_P2_N3_C4_T2,
-
-	VERTEX_P3,
-	VERTEX_P3_N3,
-	VERTEX_P3_C4,
-	VERTEX_P3_T2,
-	VERTEX_P3_N3_C4,
-	VERTEX_P3_N3_C4_T2,
-
-	VERTEX_COUNT
-};
 
 struct VertexFormatInfo
 {
