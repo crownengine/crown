@@ -26,8 +26,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <stdint.h>
-
 #include "Assert.h"
 #include "Allocator.h"
 #include "Types.h"
@@ -35,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-#define INVALID_ID UINT16_MAX
+#define INVALID_ID 65535
 
 struct Id
 {
