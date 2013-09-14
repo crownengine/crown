@@ -693,5 +693,11 @@ Device* device()
 	return &g_device;
 }
 
+void nothing(float)
+{
+	device()->renderer()->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
+	device()->renderer()->commit(0);
+}
+
 } // namespace crown
 

@@ -54,6 +54,7 @@ class BundleCompiler;
 class ResourcePackage;
 
 typedef void (*cb)(float);
+void nothing(float);
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -107,6 +108,7 @@ public:
 
 	/// Updates all the subsystems
 	void					frame(cb callback);
+	void					frame() { frame(nothing); }
 
 	/// Returns the resource package with the given @a package_name name.
 	ResourcePackage*		create_resource_package(const char* name);
