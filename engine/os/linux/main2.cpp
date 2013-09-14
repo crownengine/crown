@@ -195,8 +195,8 @@ void draw(float dt)
 	{
 		filter = TEXTURE_FILTER_TRILINEAR;
 	}
-	r->set_texture(0, u_albedo_0, grass_texture, filter | TEXTURE_WRAP_CLAMP);
-	r->set_texture(1, u_lightmap_0, lightmap_texture, filter | TEXTURE_WRAP_CLAMP);
+	r->set_texture(0, u_albedo_0, grass_texture, filter | TEXTURE_WRAP_CLAMP_EDGE);
+	r->set_texture(1, u_lightmap_0, lightmap_texture, filter | TEXTURE_WRAP_CLAMP_EDGE);
 
 	pose.set_translation(Vec3(0, 0, -1));
 	r->set_pose(pose);
