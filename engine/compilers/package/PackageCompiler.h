@@ -24,37 +24,31 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <string.h>
+#pragma once
 
-#include "Mutex.h"
+#include "Compiler.h"
+#include "Resource.h"
+#include "List.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-Mutex::Mutex()
+class PackageCompiler : public Compiler
 {
-	memset(&m_mutex, 0, sizeof(pthread_mutex_t));
+public:
 
-	pthread_mutex_init(&m_mutex, NULL);
-}
+	PackageCompiler();
 
-//-----------------------------------------------------------------------------
-Mutex::~Mutex()
-{
-	pthread_mutex_destroy(&m_mutex);
-}
+	size_t compile_impl(Filesystem& fs, const char* resource_path);
+	void write_impl(File* out_file);
 
-//-----------------------------------------------------------------------------
-void Mutex::lock()
-{
-	pthread_mutex_lock(&m_mutex);
-}
+private:
 
-//-----------------------------------------------------------------------------
-void Mutex::unlock()
-{
-	pthread_mutex_unlock(&m_mutex);
-}
+	bool m_has_texture;
+	bool m_has_lua;
+
+	List<ResourceId> m_textures;
+	List<ResourceId> m_scripts;
+};
 
 } // namespace crown

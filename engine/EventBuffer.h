@@ -24,34 +24,52 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package crown.android;
+#pragma once
 
-import android.content.res.AssetManager;
-import android.view.Surface;
+#include <cstring>
 
-public class CrownLib
+#include "Types.h"
+
+#define MAX_OS_EVENT_BUFFER_SIZE 1024
+
+namespace crown
 {
-	static 
-	{
-		System.loadLibrary("luajit-5.1");
-		System.loadLibrary("crown");
-	}
-	
-	// Device functions
-	public static native void 		init();
-	public static native void 		frame();
-	public static native void 		shutdown();
-	public static native boolean 	isInit();
-	public static native boolean	isRunning();
 
-	// AssetManager functions
-	public static native void 		initAssetManager(AssetManager assetManager);
 
-	// InputManager functions
-	public static native void 		pushIntEvent(int type, int a, int b, int c, int d);
-	public static native void 		pushFloatEvent(int type, float a, float b, float c, float d);
+///	__EventBuffer__ is a global buffer used for storing events.
+///	Each subsystem can read its relative events and modifies its behaviour consequently.
+///
+/// [type #0][size #0][data #0] ... [type #n][size #n][data #n]
+class EventBuffer
+{
 
-	// Window functions
-	public static native void		setWindow(Surface window);
-	public static native void 		setDisplaySize(int width, int height);
-}
+public:
+	/// Constructor
+				EventBuffer();
+
+	/// Pushes an @a event_data of size @a event_size with type @a event_type 
+	void		push_event(uint32_t event_type, void* event_data, size_t event_size);
+	/// Pushes an entire @a event_buffer of size @a buffer_size
+	void		push_event_buffer(char* event_buffer, size_t buffer_size);
+	/// Retrieves the @a event_type and @a event_size of next os event
+	void*		get_next_event(uint32_t& event_type, size_t& event_size);
+
+	/// Clears entire os buffer
+	void		clear();
+	/// Flushes entire os buffer
+	void		flush();
+
+	/// Returns buffer's size
+	size_t		size() const;
+	/// Return buffer
+	char*		buffer();
+
+public:
+
+	size_t		m_size;
+	char		m_buffer[MAX_OS_EVENT_BUFFER_SIZE];
+
+	uint32_t	m_read;
+};
+
+} // namespace crown

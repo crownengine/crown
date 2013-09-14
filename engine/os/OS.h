@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Vector.h"
 #include "DynamicString.h"
+#include "EventBuffer.h"
 
 namespace crown
 {
@@ -45,6 +46,8 @@ namespace crown
 	const char		PATH_SEPARATOR = '\\';
 
 	#define snprintf _snprintf
+
+	#define Thread os::Thread
 
 	#undef MK_SHIFT
 	#undef MK_ALT
@@ -105,6 +108,9 @@ bool			delete_directory(const char* path);
 /// Does not follow symbolic links.
 void			list_files(const char* path, Vector<DynamicString>& files);
 
+/// Returns os-dependent path from os-indipendent @a path
+const char*		normalize_path(const char* path);
+
 //-----------------------------------------------------------------------------
 // OS ambient variables
 //-----------------------------------------------------------------------------
@@ -150,47 +156,11 @@ void*			lookup_symbol(void* library, const char* name);
 /// @a args[n] is NULL.
 void			execute_process(const char* args[]);
 
+//-----------------------------------------------------------------------------
+
 } // namespace os
 
-//-----------------------------------------------------------------------------
-// Events
-//-----------------------------------------------------------------------------
-enum OsEventType
-{
-	OSET_NONE				= 0,
-
-	OSET_KEY_PRESS			= 1,
-	OSET_KEY_RELEASE		= 2,
-
-	OSET_BUTTON_PRESS		= 3,
-	OSET_BUTTON_RELEASE		= 4,
-	OSET_MOTION_NOTIFY		= 5,
-	OSET_TOUCH_DOWN			= 6,
-	OSET_TOUCH_MOVE			= 7,
-	OSET_TOUCH_UP			= 8,
-	OSET_ACCELEROMETER		= 9
-};
-
-union OsEventParameter
-{
-	int32_t int_value;
-	float	float_value;
-};
-
-struct OsEvent
-{
-	OsEventType			type;
-	OsEventParameter	data_a;
-	OsEventParameter	data_b;
-	OsEventParameter	data_c;
-	OsEventParameter	data_d;
-};
-
-/// Pushes the event @a type along with its parameters into the os' event queue.
-void			push_event(OsEventType type, OsEventParameter data_a, OsEventParameter data_b, OsEventParameter data_c, OsEventParameter data_d);
-
-/// Returns and pops the first event in the os' event queue.
-OsEvent&		pop_event();
+EventBuffer* 	os_event_buffer();
 
 } // namespace crown
 

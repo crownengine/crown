@@ -61,11 +61,13 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/compilers/texture
 	${CMAKE_SOURCE_DIR}/engine/compilers/sound
 	${CMAKE_SOURCE_DIR}/engine/compilers/mesh
+	${CMAKE_SOURCE_DIR}/engine/compilers/package
 )
 
 set (SRC
 	Camera.cpp
 	Device.cpp
+	EventBuffer.cpp
 	ConsoleServer.cpp
 	FPSSystem.cpp
 )
@@ -75,6 +77,7 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
+	EventBuffer.h
 	ConsoleServer.h
 	FPSSystem.h
 )
@@ -285,7 +288,6 @@ else ()
 endif (CROWN_DEBUG OR CROWN_DEVELOPMENT)
 
 set (RESOURCE_HEADERS
-
 	resource/Resource.h
 	resource/ResourceFormat.h
 	resource/ResourceLoader.h
@@ -298,6 +300,8 @@ set (RESOURCE_HEADERS
 	resource/FontResource.h
 	resource/SoundResource.h
 	resource/MaterialResource.h
+	resource/PackageResource.h
+	resource/ResourcePackage.h
 )
 
 set (OS_SRC
@@ -307,6 +311,7 @@ set (OS_SRC
 set (OS_HEADERS
 	os/OS.h
 	os/NetAddress.h
+	os/OsEvents.h
 )
 
 set (LUA_SRC
@@ -325,6 +330,7 @@ set (LUA_SRC
 	lua/LuaAccelerometer.cpp
 	lua/LuaDevice.cpp
 	lua/LuaWindow.cpp
+	lua/LuaResourcePackage.cpp
 )
 
 set (LUA_HEADERS
@@ -338,6 +344,7 @@ set (COMPILER_SRC
 	compilers/lua/LuaCompiler.cpp
 	compilers/texture/TextureCompiler.cpp
 	compilers/sound/SoundCompiler.cpp
+	compilers/package/PackageCompiler.cpp
 )
 
 set (COMPILER_HEADER
@@ -346,6 +353,7 @@ set (COMPILER_HEADER
 	compilers/lua/LuaCompiler.h
 	compilers/texture/TextureCompiler.h
 	compilers/sound/SoundCompiler.h
+	compilers/package/PackageCompiler.h
 )
 
 set (CROWN_LIBRARIES)
@@ -366,6 +374,7 @@ if (LINUX)
 		os/linux/Thread.h
 		os/linux/Mutex.h
 		os/linux/Cond.h
+		os/posix/Semaphore.h
 	)
 
 	list (APPEND OS_SRC
@@ -374,9 +383,6 @@ if (LINUX)
 		os/posix/TCPSocket.cpp
 		os/posix/UDPSocket.cpp	
 		os/posix/OsFile.cpp
-		os/posix/Thread.cpp
-		os/posix/Mutex.cpp
-		os/posix/Cond.cpp
 	)
 
 	list (APPEND RENDERERS_SRC
@@ -451,6 +457,7 @@ if (WINDOWS)
 		os/win/Thread.h
 		os/win/Mutex.h
 		os/win/Cond.h
+		os/win/inttypes.h
 	)
 
 	list (APPEND OS_SRC
@@ -481,7 +488,9 @@ if (WINDOWS)
 		lua51
 	)
 
-	set (COMPILER_FLAGS)
+	set (COMPILER_FLAGS
+		/Wall
+	)
 
 	set (CROWN_MAIN_SRC os/win/main.cpp)
 endif(WINDOWS)

@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <stdio.h>
 #include "List.h"
 #include "StringUtils.h"
+#include "OS.h"
 
 namespace crown
 {

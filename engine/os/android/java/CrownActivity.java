@@ -38,6 +38,7 @@ import android.hardware.SensorManager;
 import android.content.Context;
 import android.widget.Toast;
 import android.content.res.AssetManager;
+import android.view.View;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
@@ -49,9 +50,8 @@ import crown.android.CrownEnum;
 */
 public class CrownActivity extends Activity
 {
-
 	// Debug
-	public static String TAG = "CrownActivity";
+	public static String TAG = "crown";
 
 	// Resource attributes
     static AssetManager 		mAssetManager;
@@ -60,8 +60,8 @@ public class CrownActivity extends Activity
 	private CrownTouch 			mTouch;
 	private CrownSensor			mSensor;
 
-	// Graphic attributes
-	static CrownSurfaceView		mWindow;
+	private CrownSurfaceView 	mView;
+
 
 //-----------------------------------------------------------------------------
     public void onCreate(Bundle savedInstanceState)
@@ -73,26 +73,15 @@ public class CrownActivity extends Activity
 		CrownLib.initAssetManager(mAssetManager);
 
 		// init Native Window
-        mWindow = new CrownSurfaceView(this);
-        setContentView(mWindow);
+		mView = new CrownSurfaceView(this);
+        setContentView(mView);
 
 		// Init Input
 		mTouch = new CrownTouch(this);
 		mSensor = new CrownSensor(this);
+
+		Log.i(TAG, "Crown Activity created");
     }
-
-//-----------------------------------------------------------------------------
-	public void onStart()
-	{
-		super.onStart();
-
-	}
-
-//-----------------------------------------------------------------------------
-	public void onRestart()
-	{
-		super.onRestart();
-	}
 
 //-----------------------------------------------------------------------------
 	public void onResume()
@@ -100,31 +89,20 @@ public class CrownActivity extends Activity
 		super.onResume();
 		
 		// init accelerometer
-		if (!mSensor.startListening(this))
-		{
-			finish();
-		}
+		mSensor.startListening(this);
+
+		Log.i(TAG, "Crown Activity resumed");
 	}
 
 //-----------------------------------------------------------------------------
 	public void onPause()
 	{
 		super.onPause();
-	}
-
-//-----------------------------------------------------------------------------
-	public void onStop()
-	{
-		super.onStop();
 
 		// stop accelerometer
 		mSensor.stopListening();
-	}
 
-//-----------------------------------------------------------------------------
-	public void onDestroy()
-	{
-		super.onDestroy();
+		Log.i(TAG, "Crown Activity paused");
 	}
 
 //-----------------------------------------------------------------------------
@@ -132,11 +110,5 @@ public class CrownActivity extends Activity
 	{
 		mTouch.onTouch(event);
         return super.onTouchEvent(event);
-	}
-
-//-----------------------------------------------------------------------------
-	public boolean hasMultiTouchSupport(Context context)
-	{
-		return context.getPackageManager().hasSystemFeature("android.hardware.touchscreen.multitouch");
 	}
 }

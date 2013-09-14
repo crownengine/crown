@@ -24,16 +24,45 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "OS.h"
+package crown.android;
 
-namespace crown
+import android.util.Log;
+import android.view.SurfaceHolder;
+
+///
+public class CrownMainThread extends Thread
 {
+	private SurfaceHolder mSurfaceHolder;
 
-EventBuffer g_os_event_buffer;
+	private boolean mPaused;
 
-EventBuffer* os_event_buffer()
-{
-	return &g_os_event_buffer;
+
+//-----------------------------------------------------------------------------
+	public CrownMainThread(SurfaceHolder holder)
+	{
+		super();
+		mSurfaceHolder = holder;
+	}
+
+//-----------------------------------------------------------------------------
+	@Override
+	public void run()
+	{
+		CrownLib.createWindow(mSurfaceHolder.getSurface());
+
+		if (!CrownLib.isDeviceInit())
+		{
+			CrownLib.initDevice();
+		}
+		else
+		{
+			CrownLib.initRenderer();
+			CrownLib.unpauseDevice();
+		}
+
+		while (CrownLib.isDeviceRunning() && !CrownLib.isDevicePaused())
+		{
+			CrownLib.frame();
+		}
+	}
 }
-
-} // namespace crown

@@ -57,8 +57,23 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		temp.create_directory(bundle_dir);
 	}
 
+	// Copy crown.config to bundle dir
 	DiskFilesystem src_fs(source_dir);
 	DiskFilesystem dst_fs(bundle_dir);
+
+	if (src_fs.is_file("crown.config"))
+	{
+		File* src = src_fs.open("crown.config", FOM_READ);
+		File* dst = dst_fs.open("crown.config", FOM_WRITE);
+		src->copy_to(*dst, src->size());
+		src_fs.close(src);
+		dst_fs.close(dst);
+	}
+	else
+	{
+		Log::d("'crown.config' does not exist.");
+		return false;
+	}
 
 	// Compile all resources
 	for (uint32_t i = 0; i < files.size(); i++)
@@ -71,22 +86,14 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		path::extension(filename, filename_extension, 32);
 		uint32_t resource_type_hash = hash::murmur2_32(filename_extension, string::strlen(filename_extension), 0);
 
-		// Do not compile if curr resource is a config file
-		if (resource_type_hash == CONFIG_TYPE)
-		{
-			File* src = src_fs.open(filename, FOM_READ);
-			File* dst = dst_fs.open(filename, FOM_WRITE);
-
-			src->copy_to(*dst, src->size());
-
-			src_fs.close(src);
-			dst_fs.close(dst);
-
-			continue;
-		}
-
 		char out_name[65];
 		snprintf(out_name, 65, "%"PRIx64"", filename_hash);
+
+		// Skip crown.config file
+		if (resource_type_hash == CONFIG_TYPE)
+		{
+			continue;
+		}
 
 		Log::i("%s <= %s", out_name, filename);
 
@@ -102,6 +109,10 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		else if(resource_type_hash == SOUND_TYPE)
 		{
 			result = m_sound.compile(source_dir, bundle_dir, filename, out_name);
+		}
+		else if (resource_type_hash == PACKAGE_TYPE)
+		{
+			result = m_package.compile(source_dir, bundle_dir, filename, out_name);
 		}
 		else
 		{

@@ -24,35 +24,65 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package crown.android;
+#pragma once
 
-import android.view.SurfaceHolder;
+#include "Types.h"
 
-public class MainThread extends Thread
+namespace crown
 {
-	private SurfaceHolder mHolder;
-	private CrownSurfaceView mView;
 
-	public MainThread(SurfaceHolder holder, CrownSurfaceView view)
-	{
-		super();
+/// __OsEventType__ represents an event fired by the OS
+enum OsEventType
+{
+	OSET_NONE				= 0,
 
-		mHolder = holder;
-		mView = view;
-	}
+	OSET_KEY_PRESS			= 1,
+	OSET_KEY_RELEASE		= 2,
 
-	// This is the classic main() replacement for Android
-	@Override
-	public void run()
-	{
-		CrownLib.setWindow(mHolder.getSurface());
-		CrownLib.init();
+	OSET_BUTTON_PRESS		= 3,
+	OSET_BUTTON_RELEASE		= 4,
 
-		while (CrownLib.isRunning())
-		{
-			CrownLib.frame();
-		}
+	OSET_MOTION_NOTIFY		= 5,
+	OSET_TOUCH_DOWN			= 6,
+	OSET_TOUCH_MOVE			= 7,
+	OSET_TOUCH_UP			= 8,
+	
+	OSET_ACCELEROMETER		= 9
+};
 
-		CrownLib.shutdown();
-	}
-}
+/// __OsMouseEvent__ represents an event fired by mouse.
+/// It is processed by InputManager.
+struct OsMouseEvent
+{
+	uint32_t button;
+	uint32_t x;
+	uint32_t y;
+};
+
+/// __OsKeyboardEvent__ represents an event fired by keyboard.
+/// it is processed by InputManager.
+struct OsKeyboardEvent
+{
+	uint32_t key;
+	uint32_t modifier;
+};
+
+/// __OsTouchEvent__ represents an event fired by touch screen.
+/// It is processed by InputManager.
+struct OsTouchEvent
+{
+	uint32_t pointer_id;
+	uint32_t x;
+	uint32_t y;
+};
+
+/// __OsAccelerometerEvent__ represents an event fired by accelerometer.
+/// It is processed by InputManager.
+struct OsAccelerometerEvent
+{
+	float x;
+	float y;
+	float z;	
+};
+
+} // namespace crown

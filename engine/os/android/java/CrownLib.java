@@ -26,51 +26,41 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 package crown.android;
 
-import android.content.Context;
+import android.content.res.AssetManager;
 import android.view.Surface;
-import android.view.SurfaceView;
-import android.view.SurfaceHolder;
 
-public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callback
+public class CrownLib
 {
-	private MainThread mMainThread;
-
-	//-----------------------------------------------------------------------------
-	public CrownSurfaceView(Context context)
+	static 
 	{
-		super(context);
-
-		this.getHolder().addCallback(this);
-
-		mMainThread = new MainThread(getHolder(), this);
-
-		setFocusable(true);
+		System.loadLibrary("luajit-5.1");
+		System.loadLibrary("crown");
 	}
+	
+	// Device functions
+	public static native void 		initDevice();
+	public static native void		pauseDevice();
+	public static native void		unpauseDevice();
+	public static native void		stopDevice();
 
-	//-----------------------------------------------------------------------------
-	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) 
-	{
-	}
+	public static native boolean 	isDeviceInit();
+	public static native boolean	isDeviceRunning();
+	public static native boolean	isDevicePaused();
 
-	//-----------------------------------------------------------------------------
-	@Override
-	public void surfaceCreated(SurfaceHolder holder) 
-	{
-		mMainThread.start();
-	}
+	public static native void 		frame();
 
-	//-----------------------------------------------------------------------------
-	@Override
-	public void surfaceDestroyed(SurfaceHolder holder) 
-	{
-		try
-		{
-			mMainThread.join();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
-	}
+	// AssetManager functions
+	public static native void 		initAssetManager(AssetManager assetManager);
+
+	// Window functions
+	public static native void		createWindow(Surface window);
+	public static native void		destroyWindow();
+
+	// Renderer functions
+	public static native void		initRenderer();
+	public static native void		shutdownRenderer();
+
+	// InputManager functions
+	public static native void 		pushTouchEvent(int type, int pointer_id, int x, int y);
+	public static native void 		pushAccelerometerEvent(int type, float x, float y, float z);	
 }

@@ -39,6 +39,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <unistd.h>
 
 #include "OS.h"
+#include "OsEvents.h"
 #include "Assert.h"
 #include "StringUtils.h"
 
@@ -47,9 +48,7 @@ namespace crown
 namespace os
 {
 
-static timespec			base_time;
-static uint32_t			window_width;
-static uint32_t			window_height;
+static timespec	base_time;
 
 //-----------------------------------------------------------------------------
 void printf(const char* string, ...)
@@ -202,6 +201,30 @@ void list_files(const char* path, Vector<DynamicString>& files)
 }
 
 //-----------------------------------------------------------------------------
+const char* normalize_path(const char* path)
+{
+	static char norm[MAX_PATH_LENGTH];
+	char* cur = norm;
+
+	while ((*path) != '\0')
+	{
+		if ((*path) == '\\')
+		{
+			(*cur) = PATH_SEPARATOR;
+		}
+		else
+		{
+			(*cur) = (*path);
+		}
+
+		path++;
+		cur++;
+	}
+
+	return norm;
+}
+
+//-----------------------------------------------------------------------------
 const char* get_cwd()
 {
 	static char cwdBuf[MAX_PATH_LENGTH];
@@ -285,33 +308,30 @@ void execute_process(const char* args[])
 	}
 }
 
-
 } // namespace os
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushIntEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jint a, jint b, jint c, jint d)
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushTouchEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jint pointer_id, jint x, jint y)
 {	
-	OsEventParameter values[4];
+	OsTouchEvent event;
 
-	values[0].int_value = a;
-	values[1].int_value = b;
-	values[2].int_value = c;
-	values[3].int_value = d;
+	event.pointer_id = pointer_id;
+	event.x = x;
+	event.y = y;
 
-	push_event((OsEventType)type, values[0], values[1], values[2], values[3]);
+	os_event_buffer()->push_event((OsEventType)type, &event, sizeof(OsTouchEvent));
 }
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushFloatEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jfloat a, jfloat b, jfloat c, jfloat d)
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushAccelerometerEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jfloat x, jfloat y, jfloat z)
 {
-	OsEventParameter values[4];
+	OsAccelerometerEvent event;
 
-	values[0].float_value = a;
-	values[1].float_value = b;
-	values[2].float_value = c;
-	values[3].float_value = d;
+	event.x = x;
+	event.y = y;
+	event.z = z;
 
-	push_event((OsEventType)type, values[0], values[1], values[2], values[3]);
+	os_event_buffer()->push_event((OsEventType)type, &event, sizeof(OsAccelerometerEvent));
 }
 
 } // namespace crown

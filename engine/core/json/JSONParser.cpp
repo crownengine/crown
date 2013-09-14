@@ -192,19 +192,33 @@ static bool is_escapee(char c)
 }
 
 //--------------------------------------------------------------------------
-JSONElement::JSONElement() :
-	m_parser(NULL),
-	m_at(NULL),
-	m_begin(NULL)
+JSONElement::JSONElement()
+	: m_parser(NULL), m_begin(NULL), m_at(NULL)
 {
 }
 
 //--------------------------------------------------------------------------
-JSONElement::JSONElement(JSONParser& parser, const char* at) :
-	m_parser(&parser),
-	m_at(at),
-	m_begin(at)
+JSONElement::JSONElement(JSONParser& parser, const char* at)
+	: m_parser(&parser), m_begin(at), m_at(at)
 {
+}
+
+//--------------------------------------------------------------------------
+JSONElement::JSONElement(const JSONElement& other)
+	: m_parser(other.m_parser), m_begin(other.m_at), m_at(other.m_at)
+{
+}
+
+//--------------------------------------------------------------------------
+JSONElement& JSONElement::operator=(const JSONElement& other)
+{
+	m_parser = other.m_parser;
+
+	// Our begin is the other's at
+	m_begin = other.m_at;
+	m_at = other.m_at;
+
+	return *this;
 }
 
 //--------------------------------------------------------------------------
@@ -213,7 +227,7 @@ JSONElement& JSONElement::operator[](uint32_t i)
 	TempAllocator1024 alloc;
 	List<const char*> array(alloc);
 
-	JSONParser::parse_array(m_at, array);
+	JSONParser::parse_array(m_begin, array);
 
 	CE_ASSERT(i < array.size(), "Index out of bounds");
 
@@ -234,7 +248,7 @@ JSONElement& JSONElement::key(const char* k)
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
 
-	JSONParser::parse_object(m_at, object);
+	JSONParser::parse_object(m_begin, object);
 
 	bool found = false;
 
@@ -262,7 +276,7 @@ bool JSONElement::has_key(const char* k) const
 {
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
-	JSONParser::parse_object(m_at, object);
+	JSONParser::parse_object(m_begin, object);
 
 	for (uint32_t i = 0; i < object.size(); i++)
 	{
@@ -285,7 +299,7 @@ bool JSONElement::is_key_unique(const char* k) const
 {
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
-	JSONParser::parse_object(m_at, object);
+	JSONParser::parse_object(m_begin, object);
 
 	bool found = false;
 

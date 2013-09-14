@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "GLContext.h"
 #include "StringUtils.h"
+#include "OsEvents.h"
 
 namespace crown
 {
@@ -271,8 +272,8 @@ void OsWindow::frame()
 {
 	XEvent event;
 
-	OsEventParameter data_button[4] = {0, 0, 0, 0};
-	OsEventParameter data_key[4] = {0, 0, 0, 0};
+	OsMouseEvent mouse_event;
+	OsKeyboardEvent keyboard_event;
 
 	while (XPending(m_x11_display))
 	{
@@ -293,38 +294,38 @@ void OsWindow::frame()
 			{
 				OsEventType oset_type = event.type == ButtonPress ? OSET_BUTTON_PRESS : OSET_BUTTON_RELEASE;
 
-				data_button[0].int_value = event.xbutton.x;
-				data_button[1].int_value = event.xbutton.y;
+				mouse_event.x = event.xbutton.x;
+				mouse_event.y = event.xbutton.y;
 
 				switch (event.xbutton.button)
 				{
 					case Button1:
 					{
-						data_button[2].int_value = 0;
-						push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
+						mouse_event.button = 0;
+						os_event_buffer()->push_event(oset_type, &mouse_event, sizeof(OsMouseEvent));
 						break;
 					}
 					case Button2:
 					{
-						data_button[2].int_value = 1;
-						push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
+						mouse_event.button = 1;
+						os_event_buffer()->push_event(oset_type, &mouse_event, sizeof(OsMouseEvent));
 						break;
 					}
 					case Button3:
 					{
-						data_button[2].int_value = 2;
-						push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
+						mouse_event.button = 2;
+						os_event_buffer()->push_event(oset_type, &mouse_event, sizeof(OsMouseEvent));
 						break;
 					}
 				}
 
 				break;
 			}
-			case MotionNotify:
-			{
-				push_event(OSET_MOTION_NOTIFY, data_button[0], data_button[1], data_button[2], data_button[3]);
-				break;
-			}
+			// case MotionNotify:
+			// {
+			// 	push_event(OSET_MOTION_NOTIFY, data_button[0], data_button[1], data_button[2], data_button[3]);
+			// 	break;
+			// }
 			case KeyPress:
 			case KeyRelease:
 			{
@@ -353,10 +354,10 @@ void OsWindow::frame()
 
 				OsEventType oset_type = event.type == KeyPress ? OSET_KEY_PRESS : OSET_KEY_RELEASE;
 
-				data_key[0].int_value = ((int32_t)kc);
-				data_key[1].int_value = modifier_mask;
+				keyboard_event.key = ((int32_t)kc);
+				keyboard_event.modifier = modifier_mask;
 
-				push_event(oset_type, data_key[0], data_key[1], data_key[2], data_key[3]);
+				os_event_buffer()->push_event(oset_type, &keyboard_event, sizeof(OsKeyboardEvent));
 
 //				// Text input part
 //				if (event.type == KeyPress && len > 0)

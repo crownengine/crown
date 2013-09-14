@@ -26,74 +26,142 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <pthread.h>
+#include <cstring>
 
+#include "Assert.h"
 #include "Types.h"
+#include "Semaphore.h"
+#include "Log.h"
 
 namespace crown
 {
 
-typedef void* (*ThreadFunction)(void*);
+typedef int32_t (*ThreadFunction)(void*);
 
 class Thread
 {
 public:
 
-	/// Constructs the thread and gives it a @a name.
-	/// @note
-	/// The actual OS thread creation and execution is
-	/// deferred to the first call to Thread::start().
-					Thread(const char* name);
+						Thread(const char* name);
+						~Thread();
 
-	/// Does not stop the thread. The user must call
-	/// Thread::stop() to effectively stop the thread. 
-	virtual			~Thread();
+	void				start(ThreadFunction func, void* data = NULL, size_t stack_size = 0);
+	void				stop();
 
-	/// Returns the name of the thread.
-	const char*		name() const;
-
-	void			join();
-	void			detach();
-
-	/// Returns whether the thread is currently running.
-	bool			is_running() const;
-
-	/// Returns whether the thread is being asked to stop running.
-	/// @note
-	/// The implementer tipically polls this function to
-	/// determine whether to stop the execution or not.
-	bool			is_terminating() const;
-
-	/// Starts the execution of the thread.
-	/// The function creates the OS thread and starts
-	/// its execution.
-	void			start();
-
-	/// Stops the execution of the thread if it is running.
-	/// The function releases the OS thread causing its
-	/// termination.
-	void			stop();
-
-	/// Executes in background when the thead is running.
-	/// The thread has to be started with Thread::start()
-	virtual int32_t	run();
+	bool				is_running();
 
 private:
 
-	static void*	background_proc(void* thiz);
+	int32_t				run();
+
+	static void* 		thread_proc(void* arg);
 
 private:
 
-	const char*		m_name;
-	bool			m_is_running;
-	bool			m_is_terminating;
-	pthread_t		m_thread;
+	const char* 		m_name;
 
-private:
+	pthread_t			m_handle;
+	ThreadFunction 	m_function;
+	void*				m_data;
+	Semaphore			m_sem;
+	size_t 				m_stack_size;
 
-	// Disable copying
-					Thread(const Thread&);
-	Thread&			operator=(const Thread&);
+	bool				m_is_running :1;
 };
+
+//-----------------------------------------------------------------------------
+inline Thread::Thread(const char* name) :
+	m_name(name),
+	m_handle(0),
+	m_function(NULL),
+	m_data(NULL),
+	m_stack_size(0),
+	m_is_running(false)
+{
+	memset(&m_handle, 0, sizeof(pthread_t));
+}
+
+//-----------------------------------------------------------------------------
+inline Thread::~Thread()
+{
+}
+
+//-----------------------------------------------------------------------------
+inline void Thread::start(ThreadFunction func, void* data, size_t stack_size)
+{
+	CE_ASSERT(!m_is_running, "Thread is already running");
+	CE_ASSERT(func != NULL, "Function must be != NULL");
+
+	m_function = func;
+	m_data = data;
+	m_stack_size = stack_size;
+
+	pthread_attr_t attr;
+	int32_t result = pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+
+	CE_ASSERT(result == 0, "pthread_attr_init failed. errno: %d", result);
+
+	if (m_stack_size != 0)
+	{
+		result = pthread_attr_setstacksize(&attr, m_stack_size);
+		CE_ASSERT(result == 0, "pthread_attr_setstacksize failed. errno: %d", result);
+	}
+
+	result = pthread_create(&m_handle, &attr, thread_proc, this);
+	CE_ASSERT(result == 0, "pthread_create failed. errno: %d", result);
+
+	// Free attr memory
+	result = pthread_attr_destroy(&attr);
+	CE_ASSERT(result == 0, "pthread_attr_destroy failed. errno: %d", result);
+
+	m_is_running = true;
+
+	m_sem.wait();
+}
+
+//-----------------------------------------------------------------------------
+inline void Thread::stop()
+{
+	CE_ASSERT(m_is_running, "Thread is not running");
+	
+	m_is_running = false;
+
+	int32_t result = pthread_join(m_handle, NULL);
+
+	CE_ASSERT(result == 0, "Thread join failed. errno: %d", result);
+
+	m_handle = 0;
+}
+
+//-----------------------------------------------------------------------------
+inline bool Thread::is_running()
+{
+	return m_is_running;
+}
+
+//-----------------------------------------------------------------------------
+inline int32_t Thread::run()
+{
+	m_sem.post();
+	
+	return m_function(m_data);
+}
+
+//-----------------------------------------------------------------------------
+inline void* Thread::thread_proc(void* arg)
+{
+	Thread* thread = (Thread*)arg;
+
+	int32_t result = thread->run();
+
+	CE_ASSERT(result == 0, "Function failed");
+
+	thread->m_is_running = false;
+
+	return NULL;
+}
+
 
 } // namespace crown

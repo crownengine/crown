@@ -53,16 +53,9 @@ public:
 	/// Close Lua state and shutdown LuaEnvironment
 	void					shutdown();
 
-	const char*				error();
-
-	/// Loads and execute the given @a lr lua script resource.
-	void					load(const LuaResource* lr);
-
-	/// Calls the global function @a func with @a argc argument number.
-	/// Each argument is a pair (type, value).
-	/// Example call:
-	/// call_global("myfunc", 1, ARGUMENT_FLOAT, 3.14f)
-	void					call_global(const char* func, uint8_t argc, ...);
+	/// Loads and execute the given @a res_name Lua resource, returns
+	/// true if success, false otherwise.
+	bool					load_and_execute(const char* res_name);
 
 	/// Load a function which will be used in Lua. @a module is the name of table contenitor,
 	/// @a name is the name of function in module and @func is the pointer to the function.
@@ -74,9 +67,17 @@ public:
 	/// @a name is module's name that refears _value_ and @value is an unsigned integer
 	void					load_module_enum(const char* module, const char* name, uint32_t value);
 
+	/// Calls the global function @a func with @a argc argument number.
+	/// Each argument is a pair (type, value).
+	/// Example call:
+	/// call_global("myfunc", 1, ARGUMENT_FLOAT, 3.14f)
+	/// Returns true if success, false otherwise
+	bool					call_global(const char* func, uint8_t argc, ...);
+
+	void					error();
+
 private:
 
-	void					lua_error();
 	// Disable copying
 							LuaEnvironment(const LuaEnvironment&);
 	LuaEnvironment& 		operator=(const LuaEnvironment&);
@@ -87,14 +88,6 @@ private:
 
 	/// LuaEnvironment is used right now?
 	bool					m_is_used;
-
-	char					m_error_buffer[1024];
-	char					m_tmp_buffer[1024];
-	static const char* 		class_system;
-	static const char*		commands_list;
-	static const char*		get_cmd_by_name;
-	static const char*		tmp_print_table;
-	static const char*		count_all;
 };
 
 
@@ -114,5 +107,6 @@ void load_accelerometer(LuaEnvironment& env);
 void load_camera(LuaEnvironment& env);
 void load_device(LuaEnvironment& env);
 void load_window(LuaEnvironment& env);
+void load_resource_package(LuaEnvironment& env);
 
 } // namespace crown
