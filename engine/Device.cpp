@@ -220,6 +220,9 @@ void Device::init()
 	m_is_init = true;
 	start();
 
+	// Show main window
+	m_window->show();
+
 	// Execute lua boot file
 	if (m_lua_environment->load_and_execute(m_boot_file))
 	{
@@ -234,9 +237,6 @@ void Device::init()
 	}
 
 	Log::d("Total allocated size: %llu", m_allocator.allocated_size());
-
-	// Show main window
-	m_window->show();
 
 	if (m_quit_after_init == 1)
 	{
