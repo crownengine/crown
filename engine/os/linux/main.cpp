@@ -29,8 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-void draw(float) {}
-
 struct MainArgs
 {
 	int argc;
@@ -53,7 +51,7 @@ int32_t main_thread(void* data)
 
 	while (engine->is_running())
 	{
-		engine->frame(draw);
+		engine->frame();
 	}
 
 	engine->shutdown();
