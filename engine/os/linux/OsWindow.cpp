@@ -100,6 +100,7 @@ OsWindow::OsWindow(uint32_t width, uint32_t height, uint32_t parent) :
 	m_y(0),
 	m_width(width),
 	m_height(height),
+	m_resizable(true),
 	m_x11_detectable_autorepeat(false),
 	m_x11_hidden_cursor(None)
 {
@@ -212,6 +213,39 @@ void OsWindow::resize(uint32_t width, uint32_t height)
 void OsWindow::move(uint32_t x, uint32_t y)
 {
 	XMoveWindow(m_x11_display, m_x11_window, x, y);
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::minimize()
+{
+	XIconifyWindow(m_x11_display, m_x11_window, DefaultScreen(m_x11_display));
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::restore()
+{
+	XMapRaised(m_x11_display, m_x11_window);
+}
+
+//-----------------------------------------------------------------------------
+bool OsWindow::is_resizable() const
+{
+	return m_resizable;
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::set_resizable(bool resizable)
+{
+	XSizeHints hints;
+	hints.flags = PMinSize | PMaxSize;
+	hints.min_width = resizable ? 1 : m_width;
+	hints.min_height = resizable ? 1 : m_height;
+	hints.max_width = resizable ? 65535 : m_width;
+	hints.max_height = resizable ? 65535 : m_height;
+
+	XSetWMNormalHints(m_x11_display, m_x11_window, &hints);
+
+	m_resizable = resizable;
 }
 
 //-----------------------------------------------------------------------------

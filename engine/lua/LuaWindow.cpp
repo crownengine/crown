@@ -109,6 +109,40 @@ CE_EXPORT int window_move(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int window_minimize(lua_State* /*L*/)
+{
+	device()->window()->minimize();
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_restore(lua_State* /*L*/)
+{
+	device()->window()->restore();
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_is_resizable(lua_State* L)
+{
+	LuaStack stack(L);
+
+	stack.push_bool(device()->window()->is_resizable());
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_set_resizable(lua_State* L)
+{
+	LuaStack stack(L);
+
+	device()->window()->set_resizable(stack.get_bool(1));
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int window_show_cursor(lua_State* L)
 {
 	LuaStack stack(L);
@@ -189,6 +223,10 @@ void load_window(LuaEnvironment& env)
 	env.load_module_function("Window", "get_position",	window_get_position);
 	env.load_module_function("Window", "resize",		window_resize);
 	env.load_module_function("Window", "move",			window_move);
+	env.load_module_function("Window", "minimize",		window_minimize);
+	env.load_module_function("Window", "restore",		window_restore);
+	env.load_module_function("Window", "is_resizable",	window_is_resizable);
+	env.load_module_function("Window", "set_resizable",	window_set_resizable);
 	env.load_module_function("Window", "show_cursor",	window_show_cursor);
 	env.load_module_function("Window", "hide_cursor",	window_hide_cursor);
 	env.load_module_function("Window", "get_cursor_xy",	window_get_cursor_xy);
