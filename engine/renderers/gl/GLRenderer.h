@@ -26,9 +26,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <GL/glew.h>
-
 #include "Config.h"
+
+#if defined(LINUX) || defined(WINDOWS)
+	#include <GL/glew.h>
+#elif defined(ANDROID)
+	#include <GLES2/gl2.h>
+#else
+	#error "Oops, wrong platform"
+#endif
+
 #include "Renderer.h"
 #include "IdTable.h"
 #include "Resource.h"
@@ -231,7 +238,10 @@ struct Texture
 	{
 		GL_CHECK(glGenTextures(1, &m_id));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_id));
-		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
+
+		#if defined(LINUX) || defined(WINDOWS)
+			GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
+		#endif
 
 		// FIXME
 		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,

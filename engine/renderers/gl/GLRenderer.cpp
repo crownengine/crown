@@ -24,11 +24,17 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <GL/glew.h>
-#include <algorithm>
-
 #include "Config.h"
 
+#if defined(LINUX) || defined(WINDOWS)
+	#include <GL/glew.h>
+#elif defined(ANDROID)
+	#include <GLES2/gl2.h>
+#else
+	#error "Oops, wrong platform"
+#endif
+
+#include <algorithm>
 #include "Allocator.h"
 #include "Assert.h"
 #include "Types.h"
@@ -76,9 +82,7 @@ const GLenum TEXTURE_MAG_FILTER_TABLE[] =
 const GLenum TEXTURE_WRAP_TABLE[] =
 {
 	0, // Unused
-	GL_CLAMP,
 	GL_CLAMP_TO_EDGE,
-	GL_CLAMP_TO_BORDER,
 	GL_REPEAT
 };
 
@@ -143,16 +147,18 @@ public:
 	{
 		m_gl_context.create_context();
 
-		GLenum err = glewInit();
-		CE_ASSERT(err == GLEW_OK, "Failed to initialize GLEW");
+		#if defined(LINUX) || defined(WINDOW)
+			GLenum err = glewInit();
+			CE_ASSERT(err == GLEW_OK, "Failed to initialize GLEW");
+		#endif
 
 		GL_CHECK(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size));
 		GL_CHECK(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &m_max_texture_units));
-		GL_CHECK(glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &m_max_vertex_indices));
-		GL_CHECK(glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_max_vertex_vertices));
+		// GL_CHECK(glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &m_max_vertex_indices));
+		// GL_CHECK(glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &m_max_vertex_vertices));
 
 		GL_CHECK(glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &m_min_max_point_size[0]));
-		GL_CHECK(glGetFloatv(GL_LINE_WIDTH_RANGE, &m_min_max_line_width[0]));
+		// GL_CHECK(glGetFloatv(GL_LINE_WIDTH_RANGE, &m_min_max_line_width[0]));
 
 		Log::i("OpenGL Vendor        : %s", glGetString(GL_VENDOR));
 		Log::i("OpenGL Renderer      : %s", glGetString(GL_RENDERER));
@@ -172,16 +178,11 @@ public:
 		GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 		GL_CHECK(glBlendEquation(GL_FUNC_ADD));
 
-		GL_CHECK(glShadeModel(GL_SMOOTH));
-
-		// Enable depth test
-		GL_CHECK(glEnable(GL_DEPTH_TEST));
-		GL_CHECK(glDepthFunc(GL_LEQUAL));
-		GL_CHECK(glClearDepth(1.0));
-
-		// Point sprites enabled by default
-		GL_CHECK(glEnable(GL_POINT_SPRITE));
-		GL_CHECK(glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE));
+		#if defined(LINUX) || defined(WINDOWS)
+			// Point sprites enabled by default
+			GL_CHECK(glEnable(GL_POINT_SPRITE));
+			GL_CHECK(glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE));
+		#endif
 
 		Log::i("OpenGL Renderer initialized.");
 	}
@@ -224,7 +225,11 @@ public:
 					GLbitfield gl_clear = (clear.m_flags & CLEAR_COLOR) ? GL_COLOR_BUFFER_BIT : 0;
 					gl_clear |= (clear.m_flags & CLEAR_DEPTH) ? GL_DEPTH_BUFFER_BIT : 0;
 					GL_CHECK(glClearColor(clear.m_color.r, clear.m_color.g, clear.m_color.b, clear.m_color.a));
-					GL_CHECK(glClearDepth(clear.m_depth));
+					#if defined(LINUX) || defined(WINDOWS)
+						GL_CHECK(glClearDepth(clear.m_depth));
+					#elif defined(ANDROID)
+						GL_CHECK(glClearDepthf(clear.m_depth));
+					#endif
 					GL_CHECK(glClear(gl_clear));
 				}
 			}
