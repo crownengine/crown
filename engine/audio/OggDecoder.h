@@ -26,9 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <vorbis/vorbisfile.h>
 #include <cstring>
 
-#include "Assert.h"
+#define SOUND_STREAM_BUFFER_SIZE (4096 * 8) // 32K... should be tested
 
 namespace crown
 {
@@ -122,5 +123,83 @@ long int ogg_buffer_tell(void* src)
 
     return ob->cur_ptr - ob->buffer_ptr;
 }
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+/// __OggDecorer__ decodes ogg buffers and provides peaces of decoded audio data.
+class OggDecorer
+{
+public:
+
+	//-----------------------------------------------------------------------------
+	OggDecorer() {}
+
+	//-----------------------------------------------------------------------------
+	void open(const uint8_t* buffer)
+	{
+		ov_callbacks callbacks;
+		callbacks.read_func = ogg_buffer_read;
+		callbacks.seek_func = ogg_buffer_seek;
+		callbacks.close_func = ogg_buffer_close;
+		callbacks.tell_func = ogg_buffer_tell;
+
+		int32_t result = ov_open_callbacks(buffer, m_stream, NULL, 0, callbacks);
+		CE_ASSERT(result == 0, "Unable to open stream buffer");
+
+		m_info = ov_info(&m_stream, -1);
+
+		m_comment = ov_comment(&m_stream, -1);
+	}
+
+	//-----------------------------------------------------------------------------
+	void stream()
+	{
+	    int32_t  size = 0;
+	    int32_t  section;
+	    int32_t  result;
+
+	    while (size < SOUND_STREAM_BUFFER_SIZE)
+	    {
+	    	result = ov_read(&m_stream, m_data + size, SOUND_STREAM_BUFFER_SIZE - size, 0, 2, 1, &section);
+
+	    	CE_ASSERT(result >= 0, "Fail to read and decode ogg stream");
+
+	    	if (result > 0)
+	    	{
+	    		size += result;
+	    	}
+	    	else
+	    	{
+	    		break;
+	    	}
+	    }	
+	}
+	
+	//-----------------------------------------------------------------------------
+	void close()
+	{
+		ov_clear(m_stream);
+		memset(m_data, 0, SOUND_STREAM_BUFFER_SIZE);
+		m_info = NULL;
+	}
+
+	//-----------------------------------------------------------------------------
+	const uint8_t* data()
+	{
+		return m_data;
+	}
+
+private:
+
+	OggVorbis_File  		m_stream;
+	vorbis_info*			m_info;
+	vorbis_comment*			m_comment;
+
+	uint8_t					m_data[SOUND_STREAM_BUFFER_SIZE];
+};
+
+
+
 
 } // namespace crown
