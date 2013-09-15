@@ -33,6 +33,18 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initCrown(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	crown::init();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownCrown(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	crown::shutdown();
+}
+
+//-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initDevice(JNIEnv* /*env*/, jobject /*obj*/)
 {
 	const char* argv[] = { "crown-android" };

@@ -39,7 +39,6 @@ LOCAL_SRC_FILES :=\
 	core/math/Vec3.cpp\
 	core/math/Vec4.cpp\
 \
-	core/mem/Allocator.cpp\
 	core/mem/HeapAllocator.cpp\
 	core/mem/LinearAllocator.cpp\
 	core/mem/ProxyAllocator.cpp\

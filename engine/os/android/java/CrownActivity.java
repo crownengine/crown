@@ -68,6 +68,9 @@ public class CrownActivity extends Activity
     {
         super.onCreate(savedInstanceState);
 
+        // Initializes low-level systems (memory, os etc.)
+        CrownLib.initCrown();
+
 		// init AssetManager
 		mAssetManager = getAssets();
 		CrownLib.initAssetManager(mAssetManager);
@@ -103,6 +106,15 @@ public class CrownActivity extends Activity
 		mSensor.stopListening();
 
 		Log.i(TAG, "Crown Activity paused");
+	}
+
+//-----------------------------------------------------------------------------
+	public void onDestroy()
+	{
+		super.onDestroy();
+
+		CrownLib.shutdownDevice();
+		CrownLib.shutdownCrown();
 	}
 
 //-----------------------------------------------------------------------------

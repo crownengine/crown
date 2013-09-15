@@ -36,9 +36,14 @@ public class CrownLib
 		System.loadLibrary("luajit-5.1");
 		System.loadLibrary("crown");
 	}
+
+	// Crown functions
+	public static native void		initCrown();
+	public static native void		shutdownCrown();
 	
 	// Device functions
 	public static native void 		initDevice();
+	public static native void		shutdownDevice();
 	public static native void		pauseDevice();
 	public static native void		unpauseDevice();
 	public static native void		stopDevice();

@@ -191,7 +191,6 @@ set (STRINGS_HEADERS
 
 set (MEM_SRC
 	core/mem/Memory.cpp
-	core/mem/Allocator.cpp
 	core/mem/HeapAllocator.cpp
 	core/mem/LinearAllocator.cpp
 	core/mem/StackAllocator.cpp

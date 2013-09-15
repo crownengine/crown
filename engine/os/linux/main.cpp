@@ -39,8 +39,6 @@ static Thread thread("main-thread");
 
 int32_t main_thread(void* data)
 {
-	crown::os::init_os();
-
 	crown::Device* engine = crown::device();
 
 	MainArgs* args = (MainArgs*)data;
@@ -74,8 +72,11 @@ int32_t ce_main(void* args)
 
 int32_t main(int argc, char** argv)
 {
+	crown::init();
 	crown::MainArgs args;
 	args.argc = argc;
 	args.argv = argv;
-	return crown::ce_main(&args);
+	int32_t ret = crown::ce_main(&args);
+	crown::shutdown();
+	return ret;
 }

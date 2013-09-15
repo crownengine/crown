@@ -44,6 +44,7 @@ VertexBufferId quad_vb;
 
 UniformId u_albedo_0;
 UniformId u_lightmap_0;
+UniformId u_brightness;
 
 static float quad_vertices[] =
 {
@@ -106,10 +107,11 @@ static const char* texture_fragment =
 
 	"uniform sampler2D  u_albedo_0;"
 	"uniform sampler2D  u_lightmap_0;"
+	"uniform float      u_brightness;"
 
 	"void main(void)"
 	"{"
-	"	gl_FragColor = texture(u_albedo_0, tex_coord0) * texture(u_lightmap_0, tex_coord0) * color;"
+	"	gl_FragColor = texture(u_albedo_0, tex_coord0) * texture(u_lightmap_0, tex_coord0) * color * u_brightness;"
 	"}";
 
 void draw(float dt)
@@ -198,6 +200,20 @@ void draw(float dt)
 	r->set_texture(0, u_albedo_0, grass_texture, filter | TEXTURE_WRAP_CLAMP_EDGE);
 	r->set_texture(1, u_lightmap_0, lightmap_texture, filter | TEXTURE_WRAP_CLAMP_EDGE);
 
+	static float brightness = 1.0f;
+	if (device()->keyboard()->key_pressed(KC_UP))
+	{
+		brightness += 0.01f;
+	}
+	else if (device()->keyboard()->key_pressed(KC_DOWN))
+	{
+		brightness += -0.01f;
+	}
+	if (brightness > 1.0f)
+		brightness = 1.0f;
+
+	r->set_uniform(u_brightness, UNIFORM_FLOAT_1, &brightness, 1);
+
 	pose.set_translation(Vec3(0, 0, -1));
 	r->set_pose(pose);
 	r->commit(0);
@@ -205,7 +221,7 @@ void draw(float dt)
 
 int main(int argc, char** argv)
 {
-	os::init_os();
+	crown::init();
 
 	Device* engine = device();
 	engine->init(argc, argv);
@@ -241,6 +257,7 @@ int main(int argc, char** argv)
 
 	u_albedo_0 = r->create_uniform("u_albedo_0", UNIFORM_INTEGER_1, 1);
 	u_lightmap_0 = r->create_uniform("u_lightmap_0", UNIFORM_INTEGER_1, 1);
+	u_brightness = r->create_uniform("u_brightness", UNIFORM_FLOAT_1, 1);
 
 	default_program = r->create_gpu_program(default_vs, default_fs);
 	texture_program = r->create_gpu_program(default_vs, texture_fs);
@@ -269,4 +286,5 @@ int main(int argc, char** argv)
 	r->destroy_index_buffer(quad_ib);
 
 	engine->shutdown();
+	crown::shutdown();
 }

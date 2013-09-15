@@ -64,12 +64,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#include "ApkFilesystem.h"
 #endif
 
+#define MAX_SUBSYSTEMS_HEAP 16 * 1024 * 1024
+
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
 Device::Device() : 
-	m_allocator(m_subsystems_heap, MAX_SUBSYSTEMS_HEAP),
+	m_allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP),
 
 	m_preferred_window_width(1000),
 	m_preferred_window_height(625),
@@ -191,7 +193,7 @@ void Device::init()
 	Log::d("Input manager created.");
 
 	// default_allocator, maybe it needs fix
-	m_window = CE_NEW(default_allocator(), OsWindow)(m_preferred_window_width, m_preferred_window_height, m_parent_window_handle);
+	m_window = CE_NEW(m_allocator, OsWindow)(m_preferred_window_width, m_preferred_window_height, m_parent_window_handle);
 
 	CE_ASSERT(m_window != NULL, "Unable to create the window");
 
@@ -200,8 +202,7 @@ void Device::init()
 	Log::d("Window created.");
 
 	// Create renderer
-	m_renderer = CE_NEW(default_allocator(), Renderer)(m_allocator);
-	CE_ASSERT_NOT_NULL(m_renderer);
+	m_renderer = CE_NEW(m_allocator, Renderer)(m_allocator);
 	m_renderer->init();
 	m_renderer_init_request = false;
 	Log::d("Renderer created.");
@@ -285,13 +286,13 @@ void Device::shutdown()
 	if (m_renderer)
 	{
 		m_renderer->shutdown();
-		CE_DELETE(default_allocator(), m_renderer);
+		CE_DELETE(m_allocator, m_renderer);
 	}
 
 	Log::i("Releasing Window...");
 	if (m_window)
 	{
-		CE_DELETE(default_allocator(), m_window);
+		CE_DELETE(m_allocator, m_window);
 	}
 
 	Log::i("Releasing ResourceManager...");
@@ -687,10 +688,26 @@ void Device::print_help_message()
 	"  --quit-after-init          Quit the engine immediately after the initialization.\n");
 }
 
-Device g_device;
+static Device* g_device = NULL;
+
+//-----------------------------------------------------------------------------
+void init()
+{
+	crown::memory::init();
+	crown::os::init_os();
+	g_device = CE_NEW(default_allocator(), Device);
+}
+
+//-----------------------------------------------------------------------------
+void shutdown()
+{
+	CE_DELETE(default_allocator(), g_device);
+	crown::memory::shutdown();
+}
+
 Device* device()
 {
-	return &g_device;
+	return g_device;
 }
 
 void nothing(float)
@@ -700,4 +717,3 @@ void nothing(float)
 }
 
 } // namespace crown
-

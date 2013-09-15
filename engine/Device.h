@@ -32,8 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LinearAllocator.h"
 #include "Resource.h"
 
-#define MAX_SUBSYSTEMS_HEAP 1024 * 1024
-
 namespace crown
 {
 
@@ -150,7 +148,6 @@ private:
 private:
 
 	// Used to allocate all subsystems
-	uint8_t					m_subsystems_heap[MAX_SUBSYSTEMS_HEAP];
 	LinearAllocator			m_allocator;
 
 	// Preferred settings
@@ -207,6 +204,8 @@ private:
 	friend class MainThread;
 };
 
+CE_EXPORT void init();
+CE_EXPORT void shutdown();
 CE_EXPORT Device* device();
 
 } // namespace crown
