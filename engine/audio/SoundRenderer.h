@@ -29,6 +29,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IdTable.h"
 #include "Allocator.h"
 
+#define	MAX_SOUND_SOURCES 32
+#define	MAX_SOUND_BUFFERS 64
+
 namespace crown
 {
 
