@@ -144,35 +144,35 @@ void draw(float dt)
 		prim = STATE_PRIMITIVE_LINES;
 	}
 
-	//-----------------------
-	r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_CULL_CCW);
-	r->set_vertex_buffer(vb);
-	r->set_index_buffer(ib);
-	r->set_program(default_program);
+	// //-----------------------
+	// r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_CULL_CCW);
+	// r->set_vertex_buffer(vb);
+	// r->set_index_buffer(ib);
+	// r->set_program(default_program);
 
-	pose.set_translation(Vec3(-3, 0, -3));
-	r->set_pose(pose);
-	r->commit(0);
+	// pose.set_translation(Vec3(-3, 0, -3));
+	// r->set_pose(pose);
+	// r->commit(0);
 
-	//-----------------------
-	r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_CULL_CCW);
-	r->set_vertex_buffer(vb);
-	r->set_index_buffer(ib);
-	r->set_program(default_program);
+	// //-----------------------
+	// r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_CULL_CCW);
+	// r->set_vertex_buffer(vb);
+	// r->set_index_buffer(ib);
+	// r->set_program(default_program);
 
-	pose.set_translation(Vec3(0, 0, -3));
-	r->set_pose(pose);
-	r->commit(0);
+	// pose.set_translation(Vec3(0, 0, -3));
+	// r->set_pose(pose);
+	// r->commit(0);
 
-	//-----------------------
-	r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CCW);
-	r->set_vertex_buffer(vb);
-	r->set_index_buffer(ib);
-	r->set_program(default_program);
+	// //-----------------------
+	// r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CCW);
+	// r->set_vertex_buffer(vb);
+	// r->set_index_buffer(ib);
+	// r->set_program(default_program);
 
-	pose.set_translation(Vec3(3, 0, -3));
-	r->set_pose(pose);
-	r->commit(0);
+	// pose.set_translation(Vec3(3, 0, -3));
+	// r->set_pose(pose);
+	// r->commit(0);
 
 	//-----------------------
 	r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
@@ -228,19 +228,21 @@ int main(int argc, char** argv)
 
 	// Load mesh
 	ResourceManager* resman = engine->resource_manager();
-	ResourceId mesh = resman->load("mesh", "monkey");
+	// ResourceId mesh = resman->load("mesh", "monkey");
 	ResourceId texture = resman->load("texture", "grass");
 	ResourceId lightmap = resman->load("texture", "lightmap");
 	resman->flush();
 
-	MeshResource* mesh_resource = (MeshResource*)resman->data(mesh);
+	//MeshResource* mesh_resource = (MeshResource*)resman->data(mesh);
 	TextureResource* texture_resource = (TextureResource*)resman->data(texture);
 	TextureResource* lightmap_resource = (TextureResource*)resman->data(lightmap);
 
 	// Create vb/ib
 	r = engine->renderer();
-	vb = r->create_vertex_buffer(mesh_resource->m_vertex_count / 3, VERTEX_P3, mesh_resource->m_vertices);
-	ib = r->create_index_buffer(mesh_resource->m_index_count, mesh_resource->m_indices);
+	//vb = r->create_vertex_buffer(mesh_resource->m_vertex_count / 3, VERTEX_P3, mesh_resource->m_vertices);
+	//ib = r->create_index_buffer(mesh_resource->m_index_count, mesh_resource->m_indices);
+	(void)vb;
+	(void)ib;
 
 	// Create texture
 	grass_texture = r->create_texture(texture_resource->width(), texture_resource->height(), texture_resource->format(),
@@ -272,7 +274,7 @@ int main(int argc, char** argv)
 		engine->frame(draw);
 	}
 
-	resman->unload(mesh);
+	//resman->unload(mesh);
 	resman->unload(texture);
 	resman->unload(lightmap);
 	r->destroy_index_buffer(ib);
@@ -284,6 +286,9 @@ int main(int argc, char** argv)
 	r->destroy_gpu_program(texture_program);
 	r->destroy_vertex_buffer(quad_vb);
 	r->destroy_index_buffer(quad_ib);
+	r->destroy_uniform(u_albedo_0);
+	r->destroy_uniform(u_lightmap_0);
+	r->destroy_uniform(u_brightness);
 
 	engine->shutdown();
 	crown::shutdown();
