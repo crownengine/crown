@@ -27,8 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SoundRenderer.h"
 #include "ALRenderer.h"
 #include "StringUtils.h"
-#include <vorbis/vorbisfile.h>
-#include "OggBufferCallback.h"
 
 #include "Log.h"
 
@@ -209,7 +207,7 @@ void SoundRenderer::play_source(SoundSourceId id)
 {
 	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
 
-	SoundSource& source = m_backend->m_sources[sid.index];
+	SoundSource& source = m_backend->m_sources[id.index];
 
 	source.play();
 }
@@ -290,7 +288,7 @@ void SoundRenderer::set_source_rolloff(SoundSourceId id, const float rolloff)
 bool SoundRenderer::source_playing(SoundSourceId id)
 {
 	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
-	
+
 	return m_backend->m_sources[id.index].is_playing();
 }
 

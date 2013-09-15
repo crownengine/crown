@@ -49,6 +49,7 @@ class Mouse;
 class Touch;
 class Accelerometer;
 class LuaEnvironment;
+class SoundRenderer;
 class ConsoleServer;
 class BundleCompiler;
 class ResourcePackage;
@@ -126,6 +127,8 @@ public:
 	Renderer*				renderer();
 	DebugRenderer*			debug_renderer();
 
+	SoundRenderer*			sound_renderer();
+
 	Keyboard*				keyboard();
 	Mouse*					mouse();
 	Touch*					touch();
@@ -181,6 +184,8 @@ private:
 	Renderer*				m_renderer;
 	DebugRenderer*			m_debug_renderer;
 
+	SoundRenderer*			m_sound_renderer;
+
 	// Private subsystems
 	BundleCompiler*			m_bundle_compiler;
 	ResourceManager*		m_resource_manager;
@@ -203,4 +208,3 @@ private:
 CE_EXPORT Device* device();
 
 } // namespace crown
-

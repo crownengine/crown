@@ -56,6 +56,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TempAllocator.h"
 #include "ResourcePackage.h"
 #include "EventBuffer.h"
+#include "SoundRenderer.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -98,12 +99,12 @@ Device::Device() :
 	m_renderer(NULL),
 	m_debug_renderer(NULL),
 
+	m_sound_renderer(NULL),
+
 	m_resource_manager(NULL),
 	m_resource_bundle(NULL),
 
-	m_console_server(NULL),
-
-	m_renderer_init_request(false)
+	m_console_server(NULL)
 {
 	// Bundle dir is current dir by default.
 	string::strncpy(m_bundle_dir, os::get_cwd(), MAX_PATH_LENGTH);
@@ -213,6 +214,27 @@ void Device::init()
 	m_lua_environment->init();
 	Log::d("Lua environment created.");
 
+	m_sound_renderer = CE_NEW(default_allocator(), SoundRenderer)(m_allocator);
+	m_sound_renderer->init();
+	Log::d("Sound renderer created.");
+
+	// // START TEST
+	// ResourceId rid = m_resource_manager->load("sound", "sounds/mono");
+	// m_resource_manager->flush();
+
+	// SoundResource* res = (SoundResource*)m_resource_manager->data(rid);
+
+	// SoundBufferId bid1 = m_sound_renderer->create_buffer(res->data(), res->size(), res->sample_rate(), res->channels(), res->bits_per_sample());
+	// SoundBufferId bid2 = m_sound_renderer->create_buffer(res->data(), res->size(), res->sample_rate(), res->channels(), res->bits_per_sample());
+
+	// SoundSourceId sid = m_sound_renderer->create_source(false);
+
+	// m_sound_renderer->bind_buffer_to_source(bid1, sid);
+	// m_sound_renderer->bind_buffer_to_source(bid2, sid);
+
+	// m_sound_renderer->play_source(sid);
+	// // END TEST
+
 	Log::i("Crown Engine initialized.");
 	Log::i("Initializing Game...");
 
@@ -257,6 +279,14 @@ void Device::shutdown()
 		//m_console_server->shutdown();
 
 		CE_DELETE(m_allocator, m_console_server);
+	}
+
+	Log::d("Releasing SoundRenderer...");
+	if (m_sound_renderer)
+	{
+		m_sound_renderer->shutdown();
+
+		CE_DELETE(m_allocator, m_sound_renderer);
 	}
 
 	Log::i("Releasing LuaEnvironment...");
@@ -375,6 +405,12 @@ Renderer* Device::renderer()
 DebugRenderer* Device::debug_renderer()
 {
 	return m_debug_renderer;
+}
+
+//-----------------------------------------------------------------------------
+SoundRenderer* Device::sound_renderer()
+{
+	return m_sound_renderer;
 }
 
 //-----------------------------------------------------------------------------

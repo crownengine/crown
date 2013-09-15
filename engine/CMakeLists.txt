@@ -56,6 +56,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/resource
 	${CMAKE_SOURCE_DIR}/engine/network
 	${CMAKE_SOURCE_DIR}/engine/lua
+	${CMAKE_SOURCE_DIR}/engine/audio
 	${CMAKE_SOURCE_DIR}/engine/compilers
 	${CMAKE_SOURCE_DIR}/engine/compilers/lua
 	${CMAKE_SOURCE_DIR}/engine/compilers/texture
@@ -338,6 +339,13 @@ set (LUA_HEADERS
 	lua/LuaEnvironment.h
 )
 
+set (AUDIO_SRC)
+
+set (AUDIO_HEADERS
+	audio/SoundRenderer.h
+	audio/OggDecoder.h
+)
+
 set (COMPILER_SRC
 	compilers/Compiler.cpp
 	compilers/BundleCompiler.cpp
@@ -395,6 +403,14 @@ if (LINUX)
 		renderers/gl/GLRenderer.h
 		renderers/gl/GLUtils.h
 		renderers/gl/glx/GLContext.h
+	)
+
+	list (APPEND AUDIO_SRC
+		audio/al/ALRenderer.cpp
+	)
+
+	list (APPEND AUDIO_HEADERS
+		audio/al/ALRenderer.h
 	)
 
 	list (APPEND CROWN_LIBRARIES
@@ -512,6 +528,7 @@ set (CROWN_SOURCES
 #	${NETWORK_SRC}
 	${OS_SRC}
 	${LUA_SRC}
+	${AUDIO_SRC}
 	${COMPILER_SRC}
 )
 
@@ -533,6 +550,7 @@ set (CROWN_HEADERS
 #	${NETWORK_HEADERS}
 	${OS_HEADERS}
 	${LUA_HEADERS}
+	${AUDIO_HEADERS}
 	${COMPILER_HEADERS}
 )
 
