@@ -54,17 +54,13 @@ int32_t main_thread(void* data)
 
 	engine->shutdown();
 
-	thread.stop();
-
 	return 0;
 }
 
 int32_t ce_main(void* args)
 {
 	thread.start(main_thread, args);
-
-	while (thread.is_running());
-	
+	thread.stop();
 	return 0;
 }
 
