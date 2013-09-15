@@ -84,11 +84,14 @@ public:
 		m_thread.start(render_thread, this);
 
 		m_submit->m_commands.write(COMMAND_INIT_RENDERER);
+		frame();
 	}
 
 	inline void shutdown()
 	{
 		m_submit->m_commands.write(COMMAND_SHUTDOWN_RENDERER);
+		frame();
+
 		m_should_run = false;
 		m_thread.stop();
 	}
