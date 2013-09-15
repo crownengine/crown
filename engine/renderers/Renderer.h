@@ -50,6 +50,7 @@ public:
 	void render_impl();
 
 	void create_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat format, const void* vertices);
+	void create_dynamic_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat format);
 	void update_vertex_buffer_impl(VertexBufferId id, size_t offset, size_t count, const void* vertices);
 	void destroy_vertex_buffer_impl(VertexBufferId id);
 
@@ -94,6 +95,18 @@ public:
 		m_submit->m_commands.write(count);
 		m_submit->m_commands.write(format);
 		m_submit->m_commands.write(vertices);
+
+		return id;
+	}
+
+	inline VertexBufferId create_dynamic_vertex_buffer(size_t count, VertexFormat format)
+	{
+		const VertexBufferId id = m_vertex_buffers.create();
+
+		m_submit->m_commands.write(COMMAND_CREATE_DYNAMIC_VERTEX_BUFFER);
+		m_submit->m_commands.write(id);
+		m_submit->m_commands.write(count);
+		m_submit->m_commands.write(format);
 
 		return id;
 	}
@@ -278,6 +291,19 @@ public:
 					cmds.read(vertices);
 
 					create_vertex_buffer_impl(id, count, format, vertices);
+					break;
+				}
+				case COMMAND_CREATE_DYNAMIC_VERTEX_BUFFER:
+				{
+					VertexBufferId id;
+					size_t count;
+					VertexFormat format;
+
+					cmds.read(id);
+					cmds.read(count);
+					cmds.read(format);
+
+					create_dynamic_vertex_buffer_impl(id, count, format);
 					break;
 				}
 				case COMMAND_UPDATE_VERTEX_BUFFER:

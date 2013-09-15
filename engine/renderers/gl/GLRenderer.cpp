@@ -466,6 +466,12 @@ void Renderer::create_vertex_buffer_impl(VertexBufferId id, size_t count, Vertex
 }
 
 //-----------------------------------------------------------------------------
+void Renderer::create_dynamic_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat format)
+{
+	m_impl->m_vertex_buffers[id.index].create(count, format, NULL);
+}
+
+//-----------------------------------------------------------------------------
 void Renderer::update_vertex_buffer_impl(VertexBufferId id, size_t offset, size_t count, const void* vertices)
 {
 	m_impl->m_vertex_buffers[id.index].update(offset, count, vertices);

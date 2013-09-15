@@ -99,8 +99,8 @@ struct VertexBuffer
 	{
 		GL_CHECK(glGenBuffers(1, &m_id));
 		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_id));
-		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, count * Vertex::bytes_per_vertex(format), vertices, GL_STATIC_DRAW));
-		// GL_STREAM_DRAW
+		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, count * Vertex::bytes_per_vertex(format), vertices,
+			(vertices == NULL) ? GL_STREAM_DRAW : GL_STATIC_DRAW));
 		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
 		m_count = count;
