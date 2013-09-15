@@ -430,7 +430,8 @@ private:
 
 //-----------------------------------------------------------------------------
 Renderer::Renderer(Allocator& a)
-	: m_allocator(a), m_impl(NULL), m_submit(&m_contexts[0]), m_draw(&m_contexts[1]), m_is_initialized(false)
+	: m_allocator(a), m_impl(NULL), m_thread("render-thread"), m_submit(&m_contexts[0]), m_draw(&m_contexts[1]),
+		m_is_initialized(false), m_should_run(false)
 {
 	m_impl = CE_NEW(a, RendererImplementation);
 }

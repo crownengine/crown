@@ -32,6 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexFormat.h"
 #include "StringUtils.h"
 #include "RenderContext.h"
+#include "Thread.h"
+#include "OS.h"
 
 namespace crown
 {
@@ -78,12 +80,17 @@ public:
 
 	inline void init()
 	{
+		m_should_run = true;
+		m_thread.start(render_thread, this);
+
 		m_submit->m_commands.write(COMMAND_INIT_RENDERER);
 	}
 
 	inline void shutdown()
 	{
 		m_submit->m_commands.write(COMMAND_SHUTDOWN_RENDERER);
+		m_should_run = false;
+		m_thread.stop();
 	}
 
 	/// Creates a new vertex buffer optimized for rendering static vertex data.
@@ -618,6 +625,17 @@ public:
 		m_submit->commit(layer);
 	}
 
+	static int32_t render_thread(void* thiz)
+	{
+		Renderer* renderer = (Renderer*)thiz;
+		while (renderer->m_should_run)
+		{
+			renderer->render_all();
+		}
+
+		return 0;
+	}
+
 	inline void swap_contexts()
 	{
 		// Ensure COMMAND_END at the end of submit command buffer
@@ -626,11 +644,23 @@ public:
 		RenderContext* temp = m_submit;
 		m_submit = m_draw;
 		m_draw = temp;
+
+		m_main_wait.post();
+	}
+
+	inline void frame()
+	{
+		// Signal main thread finished updating
+		m_render_wait.post();
+		m_main_wait.wait();
 	}
 
 	// Do all the processing needed to render a frame
-	inline void frame()
+	inline void render_all()
 	{
+		// Waits for main thread to finish update
+		m_render_wait.wait();
+
 		swap_contexts();
 
 		execute_commands(m_draw->m_commands);
@@ -647,6 +677,10 @@ protected:
 	Allocator& m_allocator;
 	RendererImplementation* m_impl;
 
+	Thread m_thread;
+	Semaphore m_render_wait;
+	Semaphore m_main_wait;
+
 	RenderContext m_contexts[2];
 	RenderContext* m_submit;
 	RenderContext* m_draw;
@@ -661,6 +695,7 @@ protected:
 	// IdTable<CROWN_MAX_RENDER_TARGETS> m_render_targets;
 
 	bool m_is_initialized;
+	bool m_should_run;
 };
 
 } // namespace crown
