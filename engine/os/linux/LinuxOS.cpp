@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Assert.h"
+#include <X11/Xlib.h>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
@@ -273,6 +274,8 @@ const char* get_env(const char* env)
 //-----------------------------------------------------------------------------
 void init_os()
 {
+	XInitThreads();
+
 	// Initilize the base time
 	clock_gettime(CLOCK_MONOTONIC, &base_time);
 }
