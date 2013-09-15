@@ -138,10 +138,20 @@ struct IndexBuffer
 	{
 		GL_CHECK(glGenBuffers(1, &m_id));
 		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id));
-		GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLushort), indices, GL_STATIC_DRAW));
+		GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLushort), indices,
+					(indices == NULL) ? GL_STREAM_DRAW : GL_STATIC_DRAW));
 		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
 		m_index_count = count;
+	}
+
+	//-----------------------------------------------------------------------------
+	void update(size_t offset, size_t count, const void* indices)
+	{
+		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id));
+		GL_CHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(uint16_t),
+									count * sizeof(uint16_t), indices));
+		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
 
 	//-----------------------------------------------------------------------------

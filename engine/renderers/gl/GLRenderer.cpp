@@ -490,6 +490,18 @@ void Renderer::create_index_buffer_impl(IndexBufferId id, size_t count, const vo
 }
 
 //-----------------------------------------------------------------------------
+void Renderer::create_dynamic_index_buffer_impl(IndexBufferId id, size_t count)
+{
+	m_impl->m_index_buffers[id.index].create(count, NULL);
+}
+
+//-----------------------------------------------------------------------------
+void Renderer::update_index_buffer_impl(IndexBufferId id, size_t offset, size_t count, const void* indices)
+{
+	m_impl->m_index_buffers[id.index].update(offset, count, indices);	
+}
+
+//-----------------------------------------------------------------------------
 void Renderer::destroy_index_buffer_impl(IndexBufferId id)
 {
 	m_impl->m_index_buffers[id.index].destroy();

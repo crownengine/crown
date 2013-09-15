@@ -55,6 +55,8 @@ public:
 	void destroy_vertex_buffer_impl(VertexBufferId id);
 
 	void create_index_buffer_impl(IndexBufferId id, size_t count, const void* indices);
+	void create_dynamic_index_buffer_impl(IndexBufferId id, size_t count);
+	void update_index_buffer_impl(IndexBufferId id, size_t offset, size_t count, const void* indices);
 	void destroy_index_buffer_impl(IndexBufferId id);
 
 	void create_texture_impl(TextureId id, uint32_t width, uint32_t height, PixelFormat format, const void* data);
@@ -145,6 +147,26 @@ public:
 		m_submit->m_commands.write(indices);
 
 		return id;
+	}
+
+	inline IndexBufferId create_dynamic_index_buffer(size_t count)
+	{
+		const IndexBufferId id = m_index_buffers.create();
+
+		m_submit->m_commands.write(COMMAND_CREATE_DYNAMIC_INDEX_BUFFER);
+		m_submit->m_commands.write(id);
+		m_submit->m_commands.write(count);
+
+		return id;
+	}
+
+	inline void update_index_buffer(IndexBufferId id, size_t offset, size_t count, const void* indices)
+	{
+		m_submit->m_commands.write(COMMAND_UPDATE_INDEX_BUFFER);
+		m_submit->m_commands.write(id);
+		m_submit->m_commands.write(offset);
+		m_submit->m_commands.write(count);
+		m_submit->m_commands.write(indices);
 	}
 
 	/// Destroys the @a id index buffer.
@@ -340,6 +362,32 @@ public:
 					cmds.read(indices);
 
 					create_index_buffer_impl(id, count, indices);
+					break;
+				}
+				case COMMAND_CREATE_DYNAMIC_INDEX_BUFFER:
+				{
+					IndexBufferId id;
+					size_t count;
+
+					cmds.read(id);
+					cmds.read(count);
+
+					create_dynamic_index_buffer_impl(id, count);
+					break;
+				}
+				case COMMAND_UPDATE_INDEX_BUFFER:
+				{
+					IndexBufferId id;
+					size_t offset;
+					size_t count;
+					void* indices;
+
+					cmds.read(id);
+					cmds.read(offset);
+					cmds.read(count);
+					cmds.read(indices);
+
+					update_index_buffer_impl(id, offset, count, indices);
 					break;
 				}
 				case COMMAND_DESTROY_INDEX_BUFFER:
