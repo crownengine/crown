@@ -603,9 +603,24 @@ void Device::parse_command_line(int argc, char** argv)
 //-----------------------------------------------------------------------------
 void Device::check_preferred_settings()
 {
+	if (m_compile == 1)
+	{
+		if (string::strcmp(m_source_dir, "") == 0)
+		{
+			Log::e("You have to specify the source directory when running in compile mode.");
+			exit(EXIT_FAILURE);
+		}
+
+		if (!os::is_absolute_path(m_source_dir))
+		{
+			Log::e("The source directory must be absolute.");
+			exit(EXIT_FAILURE);
+		}
+	}
+
 	if (!os::is_absolute_path(m_bundle_dir))
 	{
-		Log::e("The root path must be absolute.");
+		Log::e("The bundle directory must be absolute.");
 		exit(EXIT_FAILURE);
 	}
 
