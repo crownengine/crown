@@ -26,25 +26,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Crown.h"
 
-namespace crown
+int main(int argc, char** argv)
 {
+	crown::init();
 
-struct MainArgs
-{
-	int argc;
-	char** argv;
-};
-
-static Thread thread("main-thread");
-
-int32_t main_thread(void* data)
-{
 	crown::Device* engine = crown::device();
-
-	MainArgs* args = (MainArgs*)data;
-	if (!engine->init(args->argc, args->argv))
+	if (!engine->init(argc, argv))
 	{
-		return -1;
+		exit(EXIT_FAILURE);
 	}
 
 	while (engine->is_running())
@@ -53,26 +42,5 @@ int32_t main_thread(void* data)
 	}
 
 	engine->shutdown();
-
-	return 0;
-}
-
-int32_t ce_main(void* args)
-{
-	thread.start(main_thread, args);
-	thread.stop();
-	return 0;
-}
-
-}
-
-int32_t main(int argc, char** argv)
-{
-	crown::init();
-	crown::MainArgs args;
-	args.argc = argc;
-	args.argv = argv;
-	int32_t ret = crown::ce_main(&args);
 	crown::shutdown();
-	return ret;
 }
