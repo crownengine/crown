@@ -108,7 +108,7 @@ public:
 	/// Sets source's @a rolloff factor. Greater it is, greater sound's attenuation is
 	void					set_source_rolloff(SoundSourceId id, const float rolloff);
 
-	/// Is source #@a id playing?
+	/// Is source @a id playing?
 	bool					source_playing(SoundSourceId id);
 
 private:

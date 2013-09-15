@@ -78,7 +78,6 @@ LOCAL_SRC_FILES :=\
 	renderers/DebugRenderer.cpp\
 	renderers/PixelFormat.cpp\
 	renderers/VertexFormat.cpp\
-	renderers/sles/SLESRenderer.cpp\
 \
 	resource/FileBundle.cpp\
 	resource/ResourceLoader.cpp\
@@ -103,6 +102,8 @@ LOCAL_SRC_FILES :=\
 	lua/LuaStringSetting.cpp\
 	lua/LuaResourcePackage.cpp\
 \
+	audio/sles/SLESRenderer.cpp\
+\
 	Camera.cpp\
 	Device.cpp\
 	FPSSystem.cpp\
@@ -126,6 +127,7 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/resource\
 	$(LOCAL_PATH)/input\
 	$(LOCAL_PATH)/lua\
+	$(LOCAL_PATH)/audio\
 	$(LOCAL_PATH)/network\
 	$(LOCAL_PATH)/os\
 	$(LOCAL_PATH)/os/android\
