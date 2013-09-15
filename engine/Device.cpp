@@ -485,7 +485,6 @@ void Device::frame(cb callback)
 			pause();
 		}
 
-		m_debug_renderer->draw_all();
 		callback(m_last_delta_time);
 		m_renderer->frame();
 	}
