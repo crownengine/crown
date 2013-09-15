@@ -29,93 +29,211 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include "AudioRenderer.h"
-#include "HeapAllocator.h"
 #include "Vec3.h"
+#include "Log.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
+static const char* al_error_to_string(ALenum error)
+{
+	switch (error)
+	{
+		case AL_INVALID_ENUM: return "AL_INVALID_ENUM";
+		case AL_INVALID_VALUE: return "AL_INVALID_VALUE";
+		case AL_INVALID_OPERATION: return "AL_INVALID_OPERATION";
+		case AL_OUT_OF_MEMORY: return "AL_OUT_OF_MEMORY";
+		default: return "UNKNOWN_AL_ERROR";
+	}
+}
+
+//-----------------------------------------------------------------------------
+#ifdef CROWN_DEBUG
+	#define AL_CHECK(function)\
+		function;\
+		do { ALenum error; CE_ASSERT((error = alGetError()) == AL_NO_ERROR,\
+				"OpenAL error: %s", al_error_to_string(error)); } while (0)
+#else
+	#define AL_CHECK(function)\
+		function;
+#endif
+
+//-----------------------------------------------------------------------------
 struct SoundBuffer
 {
-	ALuint 		id;
+	//-----------------------------------------------------------------------------
+	void create(const void* data, const uint32_t size, const uint32_t sample_rate, const uint32_t channels, const uint32_t bits)
+	{
+		AL_CHECK(alGenBuffers(1, &m_id));
+
+		m_sample_rate = sample_rate;
+		
+		bool stereo = (channels > 1);
+
+		switch(bits)
+		{
+			case 8:
+			{
+				if (stereo)	
+					m_format = AL_FORMAT_STEREO8;
+				else
+					m_format = AL_FORMAT_MONO8;
+				break;
+			}
+			case 16:
+			{
+				if (stereo)
+					m_format = AL_FORMAT_STEREO16;
+				else
+					m_format = AL_FORMAT_MONO16;
+				break;
+			}
+			default:
+			{
+				CE_ASSERT(false, "Wrong number of bits per sample.");
+			}
+		}
+
+		AL_CHECK(alBufferData(m_id, m_format, data, size, m_sample_rate));
+	}
+
+	//-----------------------------------------------------------------------------
+	void update(const void* data, const uint32_t size)
+	{
+		AL_CHECK(alBufferData(m_id, m_format, data, size, m_sample_rate));
+	}
+
+	//-----------------------------------------------------------------------------
+	void destroy()
+	{
+		AL_CHECK(alDeleteBuffers(1, &m_id));
+	}
+
+public:
+
+	ALuint 		m_id;
+	ALenum 		m_format;
+	ALuint 		m_sample_rate;
 };
 
 //-----------------------------------------------------------------------------
 struct SoundSource
 {
-	ALuint		id;
-};
+	//-----------------------------------------------------------------------------	
+	void create(bool loop)
+	{
+		AL_CHECK(alGenSources(1, &m_id));
+		AL_CHECK(alSourcef(m_id, AL_PITCH, 1.0f));
+		AL_CHECK(alSourcef(m_id, AL_REFERENCE_DISTANCE, 0.1f));
+		AL_CHECK(alSourcef(m_id, AL_MAX_DISTANCE, 1000.0f));
 
+		if (loop)
+		{
+			AL_CHECK(alSourcef(m_id, AL_LOOPING, AL_TRUE));
+		}
+	}
 
+	//-----------------------------------------------------------------------------
+	void bind_buffer(ALuint buffers)
+	{
+		// AL_CHECK(alSourcei(m_id, AL_BUFFER, buffer));
+		alSourceQueueBuffers(m_id, 1, &buffers);
+	}
 
-//-----------------------------------------------------------------------------
-class ALRenderer : public AudioRenderer
-{
+	//-----------------------------------------------------------------------------
+	ALuint unbind_buffer()
+	{
+        ALuint buffer;
+
+        alSourceUnqueueBuffers(m_id, 1, &buffer);
+
+        return buffer;
+	}
+
+	//-----------------------------------------------------------------------------
+	void destroy()
+	{
+		AL_CHECK(alDeleteSources(1, &m_id));
+	}
+
+	//-----------------------------------------------------------------------------
+	void play()
+	{
+		AL_CHECK(alSourcePlay(m_id));
+	}
+
+	//-----------------------------------------------------------------------------
+	void pause()
+	{
+		if (is_playing())
+		{
+			AL_CHECK(alSourcePause(m_id));
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_min_distance(const float min_distance)
+	{
+		AL_CHECK(alSourcef(m_id, AL_REFERENCE_DISTANCE, min_distance));
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_max_distance( const float max_distance)
+	{
+		AL_CHECK(alSourcef(m_id, AL_MAX_DISTANCE, max_distance));
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_position(const Vec3& pos)
+	{
+		AL_CHECK(alSource3f(m_id, AL_POSITION, pos.x, pos.y, pos.z));
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_velocity(const Vec3& vel)
+	{
+		AL_CHECK(alSource3f(m_id, AL_VELOCITY, vel.x, vel.y, vel.z));
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_direction(const Vec3& dir)
+	{
+		AL_CHECK(alSource3f(m_id, AL_DIRECTION, dir.x, dir.y, dir.z));
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_pitch(const float pitch)
+	{
+		AL_CHECK(alSourcef(m_id, AL_PITCH, pitch));
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_gain(const float gain)
+	{
+		AL_CHECK(alSourcef(m_id, AL_GAIN, gain));
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_rolloff(const float rolloff)
+	{
+		AL_CHECK(alSourcef(m_id, AL_ROLLOFF_FACTOR, rolloff));
+	}
+
+	//-----------------------------------------------------------------------------
+	bool is_playing() const
+	{
+		ALint source_state;
+		alGetSourcei(m_id, AL_SOURCE_STATE, &source_state);
+
+		return source_state == AL_PLAYING;
+	}
+
 public:
 
-							ALRenderer();
+	ALuint		m_id;
 
-	void					init();
-
-	void					shutdown();
-
-	void					set_listener(const Vec3& pos, const Vec3& vel, const Vec3& or_up, const Vec3& or_at) const;
-
-	SoundBufferId			create_buffer(const void* data, const uint32_t size, const uint32_t sample_rate, const uint32_t channels, const uint32_t bxs);
-
-	void					destroy_buffer(SoundBufferId id);
-
-	SoundSourceId			create_source();
-
-	SoundSourceId			create_loop_source();
-
-	void 					play_source(SoundSourceId sid, SoundBufferId bid);
-
-	void					pause_source(SoundSourceId id);
-
-	void 					destroy_source(SoundSourceId id);
-
-	void					bind_buffer(SoundSourceId sid, SoundBufferId bid);
-
-	void					set_source_min_distance(SoundSourceId id,  const float min_distance);
-
-	void					set_source_max_distance(SoundSourceId id,  const float max_distance);
-
-	void					set_source_position(SoundSourceId id, const Vec3& pos);
-
-	void					set_source_velocity(SoundSourceId id, const Vec3& vel);
-
-	void					set_source_direction(SoundSourceId id, const Vec3& dir);
-
-	void					set_source_pitch(SoundSourceId id, const float pitch);
-
-	void 					set_source_gain(SoundSourceId id, const float gain);
-
-	void					set_source_rolloff(SoundSourceId id, const float rolloff);
-
-	bool					source_playing(SoundSourceId id);
-
-	// Tests
-
-	void					create_stream(const void* data, const uint32_t size, const uint32_t sample_rate, 
-								const uint32_t channels, const uint32_t bxs, SoundBufferId* ids);
-
-	void					play_source(SoundSourceId sid, SoundBufferId* bids);
-
-private:
-
-	HeapAllocator 			m_allocator;
-
-	ALCdevice*				m_device;
-	ALCcontext*				m_context;
-
-	IdTable 				m_buffers_id_table;
-	SoundBuffer 			m_buffers[MAX_BUFFERS];
-
-	IdTable 				m_sources_id_table;
-	SoundSource 			m_sources[MAX_SOURCES];
+	uint32_t	m_num_buffers;
 };
 
 } // namespace crown

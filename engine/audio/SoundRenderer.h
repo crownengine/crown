@@ -64,6 +64,9 @@ public:
 	/// Destroys buffer
 	void					destroy_buffer(SoundBufferId id);
 
+	/// Binds buffer @a bid to source @a sid
+	void					bind_buffer_to_source(SoundBufferId bid, SoundSourceId sid);
+
 	/// Creates a source of sound 
 	SoundSourceId			create_source(bool loop);
 
@@ -71,7 +74,7 @@ public:
 	void					destroy_source(SoundSourceId id);
 
 	/// Plays a sound, specified by source @a sid and a buffer @a bid
-	void					play_source(SoundSourceId sid, SoundBufferId bid);
+	void					play_source(SoundSourceId id);
 
 	/// Pauses a sound, specified by @a id
 	void					pause_source(SoundSourceId id);
