@@ -30,10 +30,15 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-LinearAllocator::LinearAllocator(void* start, size_t size) :
-	m_physical_start(start),
-	m_total_size(size),
-	m_offset(0)
+LinearAllocator::LinearAllocator(Allocator& backing, size_t size)
+	: m_physical_start(NULL), m_total_size(size), m_offset(0)
+{
+	m_physical_start = backing.allocate(size);
+}
+
+//-----------------------------------------------------------------------------
+LinearAllocator::LinearAllocator(void* start, size_t size)
+	: m_physical_start(start), m_total_size(size), m_offset(0)
 {
 }
 

@@ -37,6 +37,7 @@ class LinearAllocator : public Allocator
 {
 public:
 
+				LinearAllocator(Allocator& backing, size_t size);
 				LinearAllocator(void* start, size_t size);
 				~LinearAllocator();
 
