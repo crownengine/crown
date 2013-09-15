@@ -117,15 +117,13 @@ def clean_file(file_name)
 	    		clean = false
 	  		end
 
-	  		puts "#{index+1}"
-
 	  		lines[index] = new_line
 		end
 	end
 
 	if(!clean)
 		File.open(file_name, 'w') do |file|
-	  		lines.each { |line| file.write(line) }
+		lines.each { |line| file.write(line) }
 		end
 	end
 end
