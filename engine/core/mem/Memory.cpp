@@ -54,3 +54,30 @@ OTHER DEALINGS IN THE SOFTWARE.
 // {
 // 	CE_ASSERT(false, "operator delete[] forbidden");
 // }
+
+namespace crown
+{
+namespace memory
+{
+
+static char buffer[1024];
+static HeapAllocator* g_default_allocator = NULL;
+
+void init()
+{
+	g_default_allocator = new (buffer) HeapAllocator();
+}
+
+void shutdown()
+{
+	g_default_allocator->~HeapAllocator();
+}
+
+} // namespace memory
+
+Allocator& default_allocator()
+{
+	return *memory::g_default_allocator;
+}
+
+} // namespace crown
