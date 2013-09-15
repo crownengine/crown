@@ -59,6 +59,7 @@ public:
 
 private:
 
+	Allocator*	m_backing;
 	void*		m_physical_start;
 	size_t		m_total_size;
 	size_t		m_offset;
