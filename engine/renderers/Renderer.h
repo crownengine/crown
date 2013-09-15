@@ -89,11 +89,14 @@ public:
 
 	inline void shutdown()
 	{
-		m_submit->m_commands.write(COMMAND_SHUTDOWN_RENDERER);
-		frame();
+		if (m_should_run)
+		{
+			m_submit->m_commands.write(COMMAND_SHUTDOWN_RENDERER);
+			frame();
 
-		m_should_run = false;
-		m_thread.stop();
+			m_should_run = false;
+			m_thread.stop();		
+		}
 	}
 
 	/// Creates a new vertex buffer optimized for rendering static vertex data.
