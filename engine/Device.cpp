@@ -57,8 +57,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourcePackage.h"
 #include "EventBuffer.h"
 #include "SoundRenderer.h"
-// tmp
-#include "SoundResource.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"

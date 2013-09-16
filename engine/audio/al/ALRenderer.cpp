@@ -282,6 +282,70 @@ void SoundRenderer::set_source_rolloff(SoundSourceId id, const float rolloff)
 }
 
 //-----------------------------------------------------------------------------
+float SoundRenderer::source_min_distance(SoundSourceId id) const
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+
+	return m_backend->m_sources[id.index].min_distance();
+}
+
+//-----------------------------------------------------------------------------
+float SoundRenderer::source_max_distance(SoundSourceId id) const
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+
+	return m_backend->m_sources[id.index].max_distance();
+}
+
+//-----------------------------------------------------------------------------
+Vec3 SoundRenderer::source_position(SoundSourceId id) const
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+
+	return m_backend->m_sources[id.index].position();
+}
+
+//-----------------------------------------------------------------------------
+Vec3 SoundRenderer::source_velocity(SoundSourceId id) const
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+
+	return m_backend->m_sources[id.index].velocity();
+}
+
+//-----------------------------------------------------------------------------
+Vec3 SoundRenderer::source_direction(SoundSourceId id) const
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+
+	return m_backend->m_sources[id.index].direction();
+}
+
+//-----------------------------------------------------------------------------
+float SoundRenderer::source_pitch(SoundSourceId id) const
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+
+	return m_backend->m_sources[id.index].pitch();
+}
+
+//-----------------------------------------------------------------------------
+float SoundRenderer::source_gain(SoundSourceId id) const
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+
+	return m_backend->m_sources[id.index].gain();
+}
+
+//-----------------------------------------------------------------------------
+float SoundRenderer::source_rolloff(SoundSourceId id) const
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+
+	return m_backend->m_sources[id.index].rolloff();
+}
+
+//-----------------------------------------------------------------------------
 bool SoundRenderer::source_playing(SoundSourceId id)
 {
 	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");

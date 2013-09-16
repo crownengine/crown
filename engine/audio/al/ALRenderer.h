@@ -221,6 +221,93 @@ struct SoundSource
 	}
 
 	//-----------------------------------------------------------------------------
+	float min_distance() const
+	{
+		ALfloat min_distance;
+		alGetSourcef(m_id, AL_REFERENCE_DISTANCE, &min_distance);
+
+		return min_distance;
+	}
+
+	//-----------------------------------------------------------------------------
+	float max_distance() const
+	{
+		ALfloat max_distance;
+		alGetSourcef(m_id, AL_MAX_DISTANCE, &max_distance);
+
+		return max_distance;
+	}
+
+	//-----------------------------------------------------------------------------
+	Vec3 position() const
+	{
+		ALfloat tmp[3];
+		alGetSourcefv(m_id, AL_POSITION, tmp);
+
+		Vec3 pos;
+		pos.x = tmp[0];
+		pos.y = tmp[1];
+		pos.z = tmp[2];
+
+		return pos;
+	}
+
+	//-----------------------------------------------------------------------------
+	Vec3 velocity() const
+	{
+		ALfloat tmp[3];
+		alGetSourcefv(m_id, AL_VELOCITY, tmp);
+
+		Vec3 vel;
+		vel.x = tmp[0];
+		vel.y = tmp[1];
+		vel.z = tmp[2];
+
+		return vel;
+	}
+
+	//-----------------------------------------------------------------------------
+	Vec3 direction() const
+	{
+		ALfloat tmp[3];
+		alGetSourcefv(m_id, AL_DIRECTION, tmp);
+
+		Vec3 dir;
+		dir.x = tmp[0];
+		dir.y = tmp[1];
+		dir.z = tmp[2];
+
+		return dir;	
+	}
+
+	//-----------------------------------------------------------------------------
+	float pitch() const
+	{
+		ALfloat pitch;
+		alGetSourcef(m_id, AL_PITCH, &pitch);
+
+		return pitch;
+	}
+
+	//-----------------------------------------------------------------------------
+	float gain() const
+	{
+		ALfloat gain;
+		alGetSourcef(m_id, AL_GAIN, &gain);
+
+		return gain;
+	}
+
+	//-----------------------------------------------------------------------------
+	float rolloff() const
+	{
+		ALfloat rolloff;
+		alGetSourcef(m_id, AL_ROLLOFF_FACTOR, &rolloff);
+
+		return rolloff;
+	}
+
+	//-----------------------------------------------------------------------------
 	bool is_playing() const
 	{
 		ALint source_state;

@@ -108,6 +108,30 @@ public:
 	/// Sets source's @a rolloff factor. Greater it is, greater sound's attenuation is
 	void					set_source_rolloff(SoundSourceId id, const float rolloff);
 
+	/// Returns minimum distance of @a id
+	float					source_min_distance(SoundSourceId id) const;
+
+	/// Returns maximum distance of @a id
+	float					source_max_distance(SoundSourceId id) const;
+	
+	/// Returns position of @a id
+	Vec3					source_position(SoundSourceId id) const;
+
+	/// Returns velocity of @a id
+	Vec3					source_velocity(SoundSourceId id) const;
+
+	/// Returns direction of @a id
+	Vec3					source_direction(SoundSourceId id) const;
+
+	/// Returns pitch of @a id
+	float					source_pitch(SoundSourceId id) const;
+
+	/// Returns gain of @a id
+	float					source_gain(SoundSourceId id) const;
+
+	/// Returns rolloff factor of @a id
+	float					source_rolloff(SoundSourceId id) const;
+
 	/// Is source @a id playing?
 	bool					source_playing(SoundSourceId id);
 

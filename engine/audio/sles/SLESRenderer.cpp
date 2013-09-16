@@ -30,9 +30,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Assert.h"
-#include "MathUtils.h"
 #include "SoundRenderer.h"
 #include "SLESRenderer.h"
+#include "Vec3.h"
 
 namespace crown
 {
@@ -395,6 +395,86 @@ void SoundRenderer::set_source_rolloff(SoundSourceId id, const float rolloff)
 
 	(void)id;
 	(void)rolloff;
+}
+
+//-----------------------------------------------------------------------------
+float SoundRenderer::source_min_distance(SoundSourceId id) const
+{
+	Log::w("Stub");
+
+	(void)id;
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+float SoundRenderer::source_max_distance(SoundSourceId id) const
+{
+	Log::w("Stub");
+
+	(void)id;
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+Vec3 SoundRenderer::source_position(SoundSourceId id) const
+{
+	Log::w("Stub");
+
+	(void)id;
+
+	return Vec3::ZERO;
+}
+
+//-----------------------------------------------------------------------------
+Vec3 SoundRenderer::source_velocity(SoundSourceId id) const
+{
+	Log::w("Stub");
+
+	(void)id;
+
+	return Vec3::ZERO;
+}
+
+//-----------------------------------------------------------------------------
+Vec3 SoundRenderer::source_direction(SoundSourceId id) const
+{
+	Log::w("Stub");
+
+	(void)id;
+
+	return Vec3::ZERO;
+}
+
+//-----------------------------------------------------------------------------
+float SoundRenderer::source_pitch(SoundSourceId id) const
+{
+	Log::w("Stub");
+
+	(void)id;
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+float SoundRenderer::source_gain(SoundSourceId id) const
+{
+	Log::w("Stub");
+
+	(void)id;
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+float SoundRenderer::source_rolloff(SoundSourceId id) const
+{
+	Log::w("Stub");
+
+	(void)id;
+
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
