@@ -57,10 +57,6 @@ void source_callback(SLAndroidSimpleBufferQueueItf caller, void* source)
 	{	// FIXME FIXME FIXME
 		(*s->m_player_bufferqueue)->Enqueue(s->m_player_bufferqueue, loop_data, loop_size);
 	}
-	else
-	{
-		(*s->m_player_play)->SetPlayState(s->m_player_play, SL_PLAYSTATE_STOPPED);
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -197,7 +193,6 @@ private:
 private:
 
 	friend class SoundRenderer;
-	// friend source_callback(SLAndroidSimpleBufferQueueItf caller, void* source);
 };
 
 //-----------------------------------------------------------------------------

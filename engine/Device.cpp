@@ -220,31 +220,6 @@ void Device::init()
 	m_sound_renderer->init();
 	Log::d("Sound renderer created.");
 
-	// // START TEST
-	// ResourceId rid1 = m_resource_manager->load("sound", "sounds/mono");
-	// ResourceId rid2 = m_resource_manager->load("sound", "sounds/beep");
-
-	// m_resource_manager->flush();
-
-	// SoundResource* res1 = (SoundResource*)m_resource_manager->data(rid1);
-	// SoundResource* res2 = (SoundResource*)m_resource_manager->data(rid2);
-
-	// SoundBufferId bid1 = m_sound_renderer->create_buffer(res1->data(), res1->size(), res1->sample_rate(), res1->channels(), res1->bits_per_sample());
-	// SoundBufferId bid2 = m_sound_renderer->create_buffer(res2->data(), res2->size(), res2->sample_rate(), res2->channels(), res2->bits_per_sample());
-
-	// SoundSourceId sid = m_sound_renderer->create_source(false);
-
-	// m_sound_renderer->bind_buffer_to_source(bid1, sid);
-
-	// m_sound_renderer->play_source(sid);
-
-	// while (m_sound_renderer->source_playing(sid));
-
-	// m_sound_renderer->bind_buffer_to_source(bid2, sid);
-
-	// m_sound_renderer->play_source(sid);
-	// // END TEST
-
 	Log::i("Crown Engine initialized.");
 	Log::i("Initializing Game...");
 
