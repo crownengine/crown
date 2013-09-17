@@ -395,8 +395,6 @@ public:
 		}
 
 		GL_CHECK(glFinish());
-
-		context.clear();
 		m_gl_context.swap_buffers();
 	}
 
@@ -458,6 +456,8 @@ void Renderer::shutdown_impl()
 void Renderer::render_impl()
 {
 	m_impl->render(*m_draw);
+
+	m_draw->clear();
 }
 
 //-----------------------------------------------------------------------------
