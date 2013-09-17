@@ -121,6 +121,19 @@ const size_t UNIFORM_SIZE_TABLE[UNIFORM_END] =
 	sizeof(float) * 16
 };
 
+ShaderUniform name_to_stock_uniform(const char* uniform)
+{
+	for (uint8_t i = 0; i < UNIFORM_COUNT; i++)
+	{
+		if (string::strcmp(uniform, SHADER_UNIFORM_NAMES[i]) == 0)
+		{
+			return (ShaderUniform) i;
+		}
+	}
+
+	return UNIFORM_COUNT;
+}
+
 /// OpenGL renderer
 class RendererImplementation
 {

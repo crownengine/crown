@@ -38,6 +38,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+extern ShaderUniform name_to_stock_uniform(const char* uniform);
 class RendererImplementation;
 
 class Renderer
@@ -258,6 +259,8 @@ public:
 
 	inline UniformId create_uniform(const char* name, UniformType type, uint8_t num)
 	{
+		CE_ASSERT(name_to_stock_uniform(name) == UNIFORM_COUNT, "Uniform name '%s' is a stock uniform.", name);
+
 		const UniformId id = m_uniforms.create();
 		size_t len = string::strlen(name);
 

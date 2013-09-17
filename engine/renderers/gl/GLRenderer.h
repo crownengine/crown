@@ -53,19 +53,7 @@ extern const GLenum TEXTURE_WRAP_TABLE[];
 extern const char* const SHADER_ATTRIB_NAMES[ATTRIB_COUNT];
 extern const char* const SHADER_UNIFORM_NAMES[];
 extern const size_t UNIFORM_SIZE_TABLE[UNIFORM_END];
-
-static ShaderUniform name_to_stock_uniform(const char* uniform)
-{
-	for (uint8_t i = 0; i < UNIFORM_COUNT; i++)
-	{
-		if (string::strcmp(uniform, SHADER_UNIFORM_NAMES[i]) == 0)
-		{
-			return (ShaderUniform) i;
-		}
-	}
-
-	return UNIFORM_COUNT;
-}
+extern ShaderUniform name_to_stock_uniform(const char* uniform);
 
 //-----------------------------------------------------------------------------
 static const char* gl_error_to_string(GLenum error)
