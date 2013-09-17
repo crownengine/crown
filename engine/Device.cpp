@@ -100,6 +100,7 @@ Device::Device() :
 	m_renderer(NULL),
 	m_debug_renderer(NULL),
 
+	m_bundle_compiler(NULL),
 	m_resource_manager(NULL),
 	m_resource_bundle(NULL),
 
