@@ -88,6 +88,7 @@ const VertexFormatInfo VERTEX_FORMAT_INFO[VERTEX_COUNT] =
 	{ 3, 0, 4, 0, 0, 0, 0 },
 	{ 3, 0, 0, 2, 0, 0, 0 },
 	{ 3, 3, 4, 0, 0, 0, 0 },
+	{ 3, 3, 0, 2, 0, 0, 0 },
 	{ 3, 3, 4, 2, 0, 0, 0 }
 };
 
