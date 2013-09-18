@@ -29,19 +29,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IdTable.h"
 #include "Allocator.h"
 
-#define	MAX_SOUND_SOURCES 32
-#define	MAX_SOUND_BUFFERS 64
+#define	MAX_SOUND_SOURCES 64
+#define	MAX_SOUND_BUFFERS 128
 
 namespace crown
 {
-
-class Vec3;
-
+//-----------------------------------------------------------------------------
 typedef 	Id 		SoundBufferId;
 typedef 	Id 		SoundSourceId;
 
+//-----------------------------------------------------------------------------
 class SoundRendererBackend;
+class Vec3;
 
+//-----------------------------------------------------------------------------
 class SoundRenderer
 {
 public:
@@ -52,6 +53,12 @@ public:
 	void					init();
 
 	void					shutdown();
+
+	/// Returns number of buffers actually in use
+	uint32_t				num_buffers();
+
+	/// Returns number of sources actually in use
+	uint32_t				num_sources();
 
 	/// Sets listener parameters. @a position affects audibility of sounds, 
 	/// @a velocity affects doppler shift and @a orientation affects how a sound could be heard
@@ -64,20 +71,28 @@ public:
 	/// N.B: stereo sound cannot be attenuated
 	SoundBufferId			create_buffer(const void* data, const uint32_t size, const uint32_t sample_rate, const uint32_t channels, const uint32_t bits);
 
+	void					update_buffer(SoundBufferId id, const void* data, const uint32_t size);
 	/// Destroys buffer
 	void					destroy_buffer(SoundBufferId id);
 
 	/// Binds buffer @a bid to source @a sid
 	void					bind_buffer_to_source(SoundBufferId bid, SoundSourceId sid);
 
+	/// Unbind the first buffer from @a id
+	void					unbind_buffer_from_source(SoundSourceId id);
+
 	/// Creates a source of sound 
-	SoundSourceId			create_source(bool loop);
+	SoundSourceId			create_source();
+
+	/// Updates buffer @a bid of source @a sid with new @a data of size @a size
+	/// Updates only happens when there is a free buffer;
+	bool 					update_source(SoundSourceId sid, SoundBufferId bid, const void* data, const size_t size);
 
 	/// Destroys a sound, specified by @a id, previously created
 	void					destroy_source(SoundSourceId id);
 
 	/// Plays a sound, specified by source @a sid and a buffer @a bid
-	void					play_source(SoundSourceId id);
+	void					play_source(SoundSourceId id, bool loop);
 
 	/// Pauses a sound, specified by @a id
 	void					pause_source(SoundSourceId id);
@@ -132,6 +147,12 @@ public:
 	/// Returns rolloff factor of @a id
 	float					source_rolloff(SoundSourceId id) const;
 
+	/// Returns number of queued buffers of @a id
+	int32_t					source_queued_buffers(SoundSourceId id) const;
+
+	/// Returns number of processed buffers of @a id
+	int32_t					source_processed_buffers(SoundSourceId id) const;
+
 	/// Is source @a id playing?
 	bool					source_playing(SoundSourceId id);
 
@@ -143,6 +164,9 @@ private:
 
 	IdTable 				m_buffers_id_table;
 	IdTable 				m_sources_id_table;
+
+	uint32_t				m_num_buffers;
+	uint32_t				m_num_sources;
 };
 
 } // namespace crown
