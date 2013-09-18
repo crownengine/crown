@@ -143,3 +143,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SoundResource.h"
 #include "MaterialResource.h"
 #include "FontResource.h"
+
+// Engine/Audio
+#include "SoundRenderer.h"
+#include "OggDecoder.h"
