@@ -37,11 +37,12 @@ $config_src			= "../engine/os/android/Config.h"
 $manifest			= "../engine/os/android/AndroidManifest.xml"
 
 $luajit				= "../engine/third/ARMv7/luajit"
+$oggvorbis			= "../engine/third/ARMv7/oggvorbis"
 
 #------------------------------------------------------------------------------
 def validate_command_line(args)
 
-	if args.length != 6
+	if args.length != 8
 		return false
 	end
 
@@ -53,7 +54,11 @@ def validate_command_line(args)
 		return false
 	end
 
-	if args[4] != "--path"
+	if args[4] != "--res"
+		return false
+	end
+
+	if args[6] != "--path"
 		return false
 	end
 
@@ -83,8 +88,12 @@ def parse_command_line(args)
 			options.name = n
 		end
 
+		opts.on("-r", "--res RES", "Android project compiled resources") do |r|
+			options.res = r
+		end
+
 		opts.on("-p", "--path PATH", "Android project path") do |p|
-			options.path 	= p
+			options.path = p
 		end
 
 	    opts.on_tail("-h", "--help", "Show this message") do
@@ -132,10 +141,11 @@ def create_android_project(target, name, path)
 end
 
 #------------------------------------------------------------------------------
-def fill_android_project(path)
+def fill_android_project(res, path)
 
 	engine_dest 	= path + "/jni"
 	android_dest	= path + "/src/crown/android"
+	resources_dest	= path + "/assets"
 
 	# Copy Engine files
 	FileUtils.cp_r($engine_src, engine_dest, :remove_destination => true)
@@ -145,13 +155,14 @@ def fill_android_project(path)
 	FileUtils.cp($config_src, engine_dest)
 	print "Copied Config.h to " + engine_dest + "\n"
 
-	# Copy luajit dir
-	FileUtils.cp_r($luajit, engine_dest, :remove_destination => true)
-	print "Copied luajit dir to " + engine_dest + "\n"
-
 	# Copy luajit lib
 	FileUtils.cp($luajit + "/lib/libluajit-5.1.so.2.0.2", engine_dest + "/libluajit-5.1.so")
-	print "Copied libluajit to " + engine_dest + "\n"
+	print "Copied luajit lib to " + engine_dest + "\n"
+
+	# Copy oggvorbis lib
+	FileUtils.cp($oggvorbis + "/lib/libogg.a", engine_dest + "/libogg.a")
+	FileUtils.cp($oggvorbis + "/lib/libvorbis.a", engine_dest + "/libvorbis.a")
+	print "Copied oggvorbis libs to " + engine_dest + "\n"
 
 	# Copy Java files
 	FileUtils.cp_r(Dir.glob($android_src), android_dest, :remove_destination => true)
@@ -160,6 +171,11 @@ def fill_android_project(path)
 	# Copy Android Manifest
 	FileUtils.cp($manifest, path)
 	print "Copied Android Manifest to " + path  + "\n"
+
+	#Copy resources
+	FileUtils.cp_r(res, resources_dest, :remove_destination => true)
+	print "Resources copied to " + resources_dest  + "\n"
+
 end
 
 #------------------------------------------------------------------------------
@@ -182,5 +198,5 @@ end
 opts = parse_command_line(ARGV)
 
 create_android_project(opts.target, opts.name, opts.path)
-fill_android_project(opts.path)
+fill_android_project(opts.res, opts.path)
 build_android_project(opts.path)
