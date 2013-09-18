@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+// ALRenderer
 class SoundRendererBackend
 {
 public:
@@ -115,7 +116,9 @@ private:
 SoundRenderer::SoundRenderer(Allocator& allocator) : 
 	m_allocator(allocator), 
 	m_buffers_id_table(default_allocator(), MAX_SOUND_BUFFERS),
-	m_sources_id_table(default_allocator(), MAX_SOUND_SOURCES)
+	m_sources_id_table(default_allocator(), MAX_SOUND_SOURCES),
+	m_num_buffers(0),
+	m_num_sources(0)
 {
 	m_backend = CE_NEW(m_allocator, SoundRendererBackend);
 }
@@ -142,6 +145,18 @@ void SoundRenderer::shutdown()
 }
 
 //-----------------------------------------------------------------------------
+uint32_t SoundRenderer::num_buffers()
+{
+	return m_num_buffers;
+}
+
+//-----------------------------------------------------------------------------
+uint32_t SoundRenderer::num_sources()
+{
+	return m_num_sources;
+}
+
+//-----------------------------------------------------------------------------
 void SoundRenderer::set_listener(const Vec3& pos, const Vec3& vel, const Vec3& or_up, const Vec3& or_at) const
 {
 	m_backend->set_listener(pos, vel, or_up, or_at);
@@ -154,7 +169,17 @@ SoundBufferId SoundRenderer::create_buffer(const void* data, const uint32_t size
 
 	m_backend->m_buffers[id.index].create(data, size, sample_rate, channels, bits);
 
+	m_num_buffers++;
+
 	return id;
+}
+
+//-----------------------------------------------------------------------------
+void SoundRenderer::update_buffer(SoundBufferId id, const void* data, const uint32_t size)
+{
+	CE_ASSERT(m_buffers_id_table.has(id), "SoundBuffer does not exists");
+
+	m_backend->m_buffers[id.index].update(data, size);
 }
 
 //-----------------------------------------------------------------------------
@@ -165,6 +190,8 @@ void SoundRenderer::destroy_buffer(SoundBufferId id)
 	m_backend->m_buffers[id.index].destroy();
 
 	m_buffers_id_table.destroy(id);
+
+	m_num_buffers--;
 }
 
 //-----------------------------------------------------------------------------
@@ -180,13 +207,51 @@ void SoundRenderer::bind_buffer_to_source(SoundBufferId bid, SoundSourceId sid)
 }
 
 //-----------------------------------------------------------------------------
-SoundSourceId SoundRenderer::create_source(bool loop)
+void SoundRenderer::unbind_buffer_from_source(SoundSourceId id)
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+
+	SoundSource& source = m_backend->m_sources[id.index];
+
+	source.unbind_buffer();
+}
+
+//-----------------------------------------------------------------------------
+SoundSourceId SoundRenderer::create_source()
 {
 	SoundSourceId id = m_sources_id_table.create();
 
-	m_backend->m_sources[id.index].create(loop);
+	m_backend->m_sources[id.index].create();
+
+	m_num_sources++;
 
 	return id;
+}
+
+//-----------------------------------------------------------------------------
+bool SoundRenderer::update_source(SoundSourceId sid, SoundBufferId bid, const void* data, const size_t size)
+{
+	CE_ASSERT(m_sources_id_table.has(sid), "SoundSource does not exists");
+	CE_ASSERT(m_buffers_id_table.has(bid), "SoundBuffer does not exists");
+
+	CE_ASSERT_NOT_NULL(data);
+
+	bool ready = false;
+
+	int32_t processed = m_backend->m_sources[sid.index].processed_buffers();
+
+	while (processed--)
+	{
+		uint32_t buffer = m_backend->m_sources[sid.index].unbind_buffer();
+
+		update_buffer(bid, data, size);
+
+		m_backend->m_sources[sid.index].bind_buffer(buffer);
+
+		ready = true;
+	}
+
+	return ready;
 }
 
 //-----------------------------------------------------------------------------
@@ -197,16 +262,16 @@ void SoundRenderer::destroy_source(SoundSourceId id)
 	m_backend->m_sources[id.index].destroy();
 
 	m_sources_id_table.destroy(id);
+
+	m_num_sources--;
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::play_source(SoundSourceId id)
+void SoundRenderer::play_source(SoundSourceId id, bool loop)
 {
 	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
 
-	SoundSource& source = m_backend->m_sources[id.index];
-
-	source.play();
+	m_backend->m_sources[id.index].play(loop);
 }
 
 //-----------------------------------------------------------------------------
