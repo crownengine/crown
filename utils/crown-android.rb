@@ -173,7 +173,7 @@ def fill_android_project(res, path)
 	print "Copied Android Manifest to " + path  + "\n"
 
 	#Copy resources
-	FileUtils.cp_r(res, resources_dest, :remove_destination => true)
+	FileUtils.cp_r(res + "/.", resources_dest, :remove_destination => true)
 	print "Resources copied to " + resources_dest  + "\n"
 
 end
