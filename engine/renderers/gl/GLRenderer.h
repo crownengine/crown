@@ -311,15 +311,23 @@ struct GPUProgram
 		GL_CHECK(glAttachShader(m_id, pixel.m_id));
 
 		GL_CHECK(glLinkProgram(m_id));
-
 		GLint success;
 		GL_CHECK(glGetProgramiv(m_id, GL_LINK_STATUS, &success));
-
 		if (!success)
 		{
 			GLchar info_log[2048];
 			GL_CHECK(glGetProgramInfoLog(m_id, 2048, NULL, info_log));
 			CE_ASSERT(false, "GPU program compilation failed:\n%s", info_log);
+		}
+
+		GL_CHECK(glValidateProgram(m_id));
+		GLint valid;
+		GL_CHECK(glGetProgramiv(m_id, GL_VALIDATE_STATUS, &valid));
+		if (!valid)
+		{
+			GLchar info_log[2048];
+			GL_CHECK(glGetProgramInfoLog(m_id, 2048, NULL, info_log));
+			CE_ASSERT(false, "GPU program validation failed:\n%s", info_log);
 		}
 
 		// Find active attribs/uniforms
