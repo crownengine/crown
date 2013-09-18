@@ -29,7 +29,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <vorbis/vorbisfile.h>
 #include <cstring>
 
-#define SOUND_STREAM_BUFFER_SIZE (4096 * 8) // 32K... should be tested
+#include "Types.h"
+#include "Assert.h"
+
+#define SOUND_STREAM_BUFFER_SIZE (4096 * 9) // 32K... should be tested
 
 namespace crown
 {
@@ -41,15 +44,20 @@ struct OggBuffer
 	char*	buffer_ptr;
 	size_t	length;
 
-	OggBuffer(char* data, size_t len) : cur_ptr(data), buffer_ptr(data), length(len) {}
+	OggBuffer(char* data, const size_t len) : 
+		cur_ptr(data), 
+		buffer_ptr(data), 
+		length(len)
+	{
+	}
 };
 
 //-----------------------------------------------------------------------------
-size_t ogg_buffer_read(void* dst, size_t size, size_t num, void* src)
+size_t ogg_buffer_read(void* dst, size_t size1, size_t size2, void* src)
 {
     OggBuffer* ob = reinterpret_cast<OggBuffer*>(src);
 
-    size_t len = size * num;
+    size_t len = size1 * size2;
 
     if ((ob->cur_ptr + len) > (ob->buffer_ptr + ob->length))
     {
@@ -64,7 +72,7 @@ size_t ogg_buffer_read(void* dst, size_t size, size_t num, void* src)
 }
 
 //-----------------------------------------------------------------------------
-int32_t	ogg_buffer_seek(void * src, ogg_int64_t offset, int32_t whence)
+int32_t	ogg_buffer_seek(void* src, ogg_int64_t offset, int32_t whence)
 {
     OggBuffer* ob = reinterpret_cast<OggBuffer*>(src);
 
@@ -127,76 +135,87 @@ long int ogg_buffer_tell(void* src)
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-/// __OggDecorer__ decodes ogg buffers and provides peaces of decoded audio data.
-class OggDecorer
+/// __OggDecoder__ decodes ogg buffers and provides peaces of decoded audio data.
+class OggDecoder
 {
 public:
 
 	//-----------------------------------------------------------------------------
-	OggDecorer() {}
-
-	//-----------------------------------------------------------------------------
-	void open(const uint8_t* buffer)
+	OggDecoder(char* data, const size_t size) : m_buffer(data, size)
 	{
+		CE_ASSERT_NOT_NULL(data);
+
 		ov_callbacks callbacks;
 		callbacks.read_func = ogg_buffer_read;
 		callbacks.seek_func = ogg_buffer_seek;
 		callbacks.close_func = ogg_buffer_close;
 		callbacks.tell_func = ogg_buffer_tell;
 
-		int32_t result = ov_open_callbacks(buffer, m_stream, NULL, 0, callbacks);
+		int32_t result = ov_open_callbacks((void*)&m_buffer, &m_stream, NULL, 0, callbacks);
 		CE_ASSERT(result == 0, "Unable to open stream buffer");
-
-		m_info = ov_info(&m_stream, -1);
-
-		m_comment = ov_comment(&m_stream, -1);
 	}
 
 	//-----------------------------------------------------------------------------
-	void stream()
+	~OggDecoder()
 	{
-	    int32_t  size = 0;
-	    int32_t  section;
-	    int32_t  result;
-
-	    while (size < SOUND_STREAM_BUFFER_SIZE)
-	    {
-	    	result = ov_read(&m_stream, m_data + size, SOUND_STREAM_BUFFER_SIZE - size, 0, 2, 1, &section);
-
-	    	CE_ASSERT(result >= 0, "Fail to read and decode ogg stream");
-
-	    	if (result > 0)
-	    	{
-	    		size += result;
-	    	}
-	    	else
-	    	{
-	    		break;
-	    	}
-	    }	
+		ov_clear(&m_stream);
 	}
+
+	//-----------------------------------------------------------------------------
+	bool stream()
+	{
+		int32_t  section;
+		int32_t  result;
+		int32_t  size = 0;
+
+		while (size < SOUND_STREAM_BUFFER_SIZE)
+		{
+			result = ov_read(&m_stream, (char*)m_data + size, SOUND_STREAM_BUFFER_SIZE - size, 0, 2, 1, &section);
 	
-	//-----------------------------------------------------------------------------
-	void close()
-	{
-		ov_clear(m_stream);
-		memset(m_data, 0, SOUND_STREAM_BUFFER_SIZE);
-		m_info = NULL;
+			if (result > 0)
+			{
+				size += result;
+			}
+			else
+			{
+				if (result == 0)
+				{
+					return false;
+				}
+				else
+				{
+					CE_ASSERT(false, "OggDecoder fail");
+				}
+			}
+		}
+
+		m_size = size;
+
+		return true;
 	}
 
 	//-----------------------------------------------------------------------------
-	const uint8_t* data()
+	const char* data()
 	{
 		return m_data;
 	}
 
+	//-----------------------------------------------------------------------------
+	size_t size()
+	{
+		return m_size;
+	}
+
 private:
+
+	OggBuffer 				m_buffer;
 
 	OggVorbis_File  		m_stream;
 	vorbis_info*			m_info;
 	vorbis_comment*			m_comment;
 
-	uint8_t					m_data[SOUND_STREAM_BUFFER_SIZE];
+	char					m_data[SOUND_STREAM_BUFFER_SIZE];
+	size_t					m_size;
 };
 
 
