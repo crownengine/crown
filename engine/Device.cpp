@@ -59,6 +59,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SoundRenderer.h"
 #include "OggDecoder.h"
 #include "SoundResource.h"
+#include "SoundSample.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -221,10 +222,14 @@ void Device::init()
 	m_sound_renderer->init();
 	Log::d("SoundRenderer created.");
 
-	// ResourceId rid = m_resource_manager->load("sound", "sounds/untrue");
-	// m_resource_manager->flush();
+	ResourceId rid = m_resource_manager->load("sound", "sounds/birds1");
+	m_resource_manager->flush();
 
-	// SoundResource* stream = (SoundResource*)m_resource_manager->data(rid);
+	SoundResource* res = (SoundResource*)m_resource_manager->data(rid);
+
+	WaveSample sample;
+	sample.create(res->data(), res->size(), res->sample_rate(), res->channels(), res->block_size(), res->bits_ps());
+
 
 	// OggDecoder decoder((char*)stream->data(), stream->size());
 
