@@ -109,8 +109,10 @@ size_t SoundCompiler::compile_if_wav(Filesystem& fs, const char* resource_path)
 	m_sound_header.version = SOUND_VERSION;
 	m_sound_header.size = header.data_size;
 	m_sound_header.sample_rate = header.fmt_sample_rate;
+	m_sound_header.avg_bytes_ps = header.fmt_avarage;
 	m_sound_header.channels = header.fmt_channels;
-	m_sound_header.bits_per_sample = header.fmt_bits_per_sample;
+	m_sound_header.block_size = header.fmt_block_align;
+	m_sound_header.bits_ps = header.fmt_bits_ps;
 	m_sound_header.sound_type = ST_WAV;
 
 	m_sound_data_size = header.data_size;
@@ -164,8 +166,10 @@ size_t SoundCompiler::compile_if_ogg(Filesystem& fs, const char* resource_path)
 	m_sound_header.version = SOUND_VERSION;
 	m_sound_header.size = size;
 	m_sound_header.sample_rate = rate;
+	m_sound_header.avg_bytes_ps = -1;
 	m_sound_header.channels = channels;
-	m_sound_header.bits_per_sample = 16;
+	m_sound_header.block_size = -1;
+	m_sound_header.bits_ps = 16;
 	m_sound_header.sound_type = ST_OGG;
 
 	m_sound_data_size = size;

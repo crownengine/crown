@@ -50,8 +50,10 @@ struct SoundHeader
 	uint32_t	version;	// Sound file version
 	uint32_t	size;
 	uint32_t	sample_rate;
+	uint32_t	avg_bytes_ps;
 	uint32_t	channels;
-	uint32_t 	bits_per_sample;
+	uint16_t	block_size;
+	uint16_t 	bits_ps;
 	uint8_t		sound_type;
 };
 
@@ -105,9 +107,13 @@ public:
 
 	uint32_t 			size() const { return m_header.size; }
 	uint32_t			sample_rate() const { return m_header.sample_rate; }
+	uint32_t			avg_bytes_ps() const { return m_header.avg_bytes_ps; }
 	uint32_t			channels() const { return m_header.channels; }
-	uint32_t			bits_per_sample() const { return m_header.bits_per_sample; }
+	uint16_t			block_size() const { return m_header.block_size; }
+	uint16_t			bits_ps() const { return m_header.bits_ps; }
+
 	uint8_t				sound_type() const { return m_header.sound_type; }
+
 	const uint8_t*		data() const { return m_data; }
 
 private:

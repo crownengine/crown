@@ -46,9 +46,9 @@ struct WAVHeader
 	int16_t			fmt_tag;				// Identifies way data is stored, 1 means no compression
 	int16_t			fmt_channels;			// Channel, 1 means mono, 2 means stereo
 	int32_t			fmt_sample_rate;		// Sample per second
-	int32_t			fmt_avarage;			// Not needed, here for completness
+	int32_t			fmt_avarage;			// Avarage bytes per sample
 	int16_t			fmt_block_align;		// Block alignment
-	int16_t			fmt_bits_per_sample;	// Number of bits per sample
+	int16_t			fmt_bits_ps;			// Number of bits per sample
 	char 			data[4];				// Should contains 'data'
 	int32_t			data_size;				// Data dimension
 };
