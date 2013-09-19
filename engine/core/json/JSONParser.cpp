@@ -456,42 +456,77 @@ void JSONElement::array_value(List<float>& array)
 //--------------------------------------------------------------------------
 bool JSONElement::is_nil() const
 {
-	return JSONParser::type(m_at) == JT_NIL;
+	if (m_at != NULL)
+	{
+		return JSONParser::type(m_at) == JT_NIL;
+	}
+
+	return true;
 }
 
 //--------------------------------------------------------------------------
 bool JSONElement::is_bool() const
 {
-	return JSONParser::type(m_at) == JT_BOOL;
+	if (m_at != NULL)
+	{
+		return JSONParser::type(m_at) == JT_BOOL;
+	}
+
+	return false;
 }
 
 //--------------------------------------------------------------------------
 bool JSONElement::is_number() const
 {
-	return JSONParser::type(m_at) == JT_NUMBER;
+	if (m_at != NULL)
+	{
+		return JSONParser::type(m_at) == JT_NUMBER;		
+	}
+
+	return false;
 }
 
 //--------------------------------------------------------------------------
 bool JSONElement::is_string() const
 {
-	return JSONParser::type(m_at) == JT_STRING;
+	if (m_at != NULL)
+	{
+		return JSONParser::type(m_at) == JT_STRING;
+	}
+
+	return false;
 }
 
 //--------------------------------------------------------------------------
 bool JSONElement::is_array() const
 {
-	return JSONParser::type(m_at) == JT_ARRAY;
+	if (m_at != NULL)
+	{
+		return JSONParser::type(m_at) == JT_ARRAY;
+	}
+
+	return false;
 }
 
 //--------------------------------------------------------------------------
 bool JSONElement::is_object() const
 {
-	return JSONParser::type(m_at) == JT_OBJECT;
+	if (m_at != NULL)
+	{
+		return JSONParser::type(m_at) == JT_OBJECT;
+	}
+
+	return false;
 }
 
 //--------------------------------------------------------------------------
 uint32_t JSONElement::size() const
 {
+	if (m_at == NULL)
+	{
+		return 0;
+	}
+
 	switch(JSONParser::type(m_at))
 	{
 		case JT_NIL:
