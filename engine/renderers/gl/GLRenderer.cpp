@@ -245,6 +245,8 @@ public:
 					#endif
 					GL_CHECK(glClear(gl_clear));
 				}
+
+				GL_CHECK(glEnable(GL_DEPTH_TEST));
 			}
 
 			// Scissor
@@ -274,18 +276,15 @@ public:
 			}
 
 			// Face culling
-			if (flags & (STATE_CULL_CW | STATE_CULL_CCW))
+			if (flags & STATE_CULL_CW)
 			{
-				if (flags & STATE_CULL_CW)
-				{
-					GL_CHECK(glEnable(GL_CULL_FACE));
-					GL_CHECK(glCullFace(GL_BACK));
-				}
-				else if (flags & STATE_CULL_CCW)
-				{
-					GL_CHECK(glEnable(GL_CULL_FACE));
-					GL_CHECK(glCullFace(GL_FRONT));
-				}
+				GL_CHECK(glEnable(GL_CULL_FACE));
+				GL_CHECK(glCullFace(GL_BACK));
+			}
+			else if (flags & STATE_CULL_CCW)
+			{
+				GL_CHECK(glEnable(GL_CULL_FACE));
+				GL_CHECK(glCullFace(GL_FRONT));
 			}
 			else
 			{
