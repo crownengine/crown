@@ -129,6 +129,29 @@ public:
 	/// instead of copying its content somewhere else.
 	const char*			string_value();
 
+	/// Returns the array value of the element.
+	/// @note
+	/// Calling this function is way faster than accessing individual
+	/// array elements by JSONElement::operator[] and it is the very preferred way
+	/// for retrieving array elemets. However, you have to be sure that the array
+	/// contains only items of the given @array type.
+	void				array_value(List<bool>& array);
+
+	/// @copydoc JSONElement::array_value(List<bool>&)
+	void				array_value(List<int16_t>& array);
+
+	/// @copydoc JSONElement::array_value(List<bool>&)
+	void				array_value(List<uint16_t>& array);
+
+	/// @copydoc JSONElement::array_value(List<bool>&)
+	void				array_value(List<int32_t>& array);
+
+	/// @copydoc JSONElement::array_value(List<bool>&)
+	void				array_value(List<uint32_t>& array);
+
+	/// @copydoc JSONElement::array_value(List<bool>&)
+	void				array_value(List<float>& array);
+
 private:
 
 	explicit			JSONElement(JSONParser& parser, const char* at);
