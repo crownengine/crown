@@ -243,6 +243,28 @@ JSONElement& JSONElement::index(uint32_t i)
 }
 
 //--------------------------------------------------------------------------
+JSONElement JSONElement::index_or_nil(uint32_t i)
+{
+	if (m_at != NULL)
+	{
+		TempAllocator1024 alloc;
+		List<const char*> array(alloc);
+
+		JSONParser::parse_array(m_begin, array);
+
+		if (i >= array.size())
+		{
+			return JSONElement();
+		}
+
+		m_at = array[i];
+		return *this;
+	}
+
+	return JSONElement();
+}
+
+//--------------------------------------------------------------------------
 JSONElement& JSONElement::key(const char* k)
 {
 	TempAllocator1024 alloc;
@@ -269,6 +291,43 @@ JSONElement& JSONElement::key(const char* k)
 	CE_ASSERT(found, "Key not found: '%s'", k);
 
 	return *this;
+}
+
+//--------------------------------------------------------------------------
+JSONElement JSONElement::key_or_nil(const char* k)
+{
+	if (m_at != NULL)
+	{
+		TempAllocator1024 alloc;
+		List<JSONPair> object(alloc);
+
+		JSONParser::parse_object(m_begin, object);
+
+		bool found = false;
+
+		for (uint32_t i = 0; i < object.size(); i++)
+		{
+			TempAllocator256 key_alloc;
+			List<char> key(key_alloc);
+
+			JSONParser::parse_string(object[i].key, key);
+
+			if (string::strcmp(k, key.begin()) == 0)
+			{
+				m_at = object[i].val;
+				found = true;
+			}
+		}
+
+		if (!found)
+		{
+			return JSONElement();
+		}
+
+		return *this;
+	}
+
+	return JSONElement();
 }
 
 //--------------------------------------------------------------------------
