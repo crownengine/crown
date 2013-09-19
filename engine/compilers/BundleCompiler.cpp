@@ -98,7 +98,11 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		Log::i("%s <= %s", out_name, filename);
 
 		bool result = false;
-		if (resource_type_hash == TEXTURE_TYPE)
+		if (resource_type_hash == MESH_TYPE)
+		{
+			result = m_mesh.compile(source_dir, bundle_dir, filename, out_name);
+		}
+		else if (resource_type_hash == TEXTURE_TYPE)
 		{
 			result = m_texture.compile(source_dir, bundle_dir, filename, out_name);
 		}

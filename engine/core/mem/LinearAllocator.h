@@ -37,6 +37,7 @@ class LinearAllocator : public Allocator
 {
 public:
 
+				LinearAllocator(Allocator& backing, size_t size);
 				LinearAllocator(void* start, size_t size);
 				~LinearAllocator();
 
@@ -58,6 +59,7 @@ public:
 
 private:
 
+	Allocator*	m_backing;
 	void*		m_physical_start;
 	size_t		m_total_size;
 	size_t		m_offset;

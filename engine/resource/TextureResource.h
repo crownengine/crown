@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Resource.h"
 #include "PixelFormat.h"
-#include "Texture.h"
 #include "Bundle.h"
 #include "Allocator.h"
 #include "File.h"

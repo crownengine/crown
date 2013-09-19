@@ -162,8 +162,8 @@ private:
 
 	SoundRendererBackend*	m_backend;
 
-	IdTable 				m_buffers_id_table;
-	IdTable 				m_sources_id_table;
+	IdTable<MAX_SOUND_BUFFERS>		m_buffers_id_table;
+	IdTable<MAX_SOUND_SOURCES>		m_sources_id_table;
 
 	uint32_t				m_num_buffers;
 	uint32_t				m_num_sources;

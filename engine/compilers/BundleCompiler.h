@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "MeshCompiler.h"
 #include "TextureCompiler.h"
 #include "LuaCompiler.h"
 #include "SoundCompiler.h"
@@ -51,6 +52,7 @@ private:
 
 private:
 
+	MeshCompiler	m_mesh;
 	TextureCompiler	m_texture;
 	LuaCompiler 	m_lua;
 	SoundCompiler	m_sound;

@@ -88,11 +88,14 @@ public:
 
 	void start()
 	{
+		m_should_run = true;
 		m_thread.start(background_run, this);
 	}
 
 	void stop()
 	{
+		m_should_run = false;
+		m_full.signal();
 		m_thread.stop();
 	}
 
@@ -106,6 +109,7 @@ private:
 private:
 
 	Thread					m_thread;
+	bool					m_should_run;
 
 	// Whether to look for resources
 	Bundle&					m_bundle;

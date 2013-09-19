@@ -127,6 +127,7 @@ void GLContext::destroy_context()
 	EGL_CHECK(eglDestroyContext(display, context));
 	EGL_CHECK(eglDestroySurface(display, surface));
 	EGL_CHECK(eglTerminate(display));
+    display = EGL_NO_DISPLAY;
 
 	Log::i("EGL context destroyed");
 }

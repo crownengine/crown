@@ -26,21 +26,34 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
+#include <EGL/egl.h>
 
 namespace crown
 {
 
-// Max number of vertex buffers a renderer can hold.
-const uint32_t MAX_VERTEX_BUFFERS = 4096;
-
-enum VertexBufferMode
+class GLContext
 {
-	VBM_VERTEX_ONLY		= 0,
-	VBM_TEXTURE_COORDS	= 1,
-	VBM_NORMAL_COORDS	= 2,
-	VBM_COLOR_COORDS	= 4
+public:
+					GLContext();
+
+	void			create_context();
+	void			destroy_context();
+
+	void			swap_buffers();
+
+	bool is_valid()
+	{
+		return display != EGL_NO_DISPLAY;
+	}
+
+private:
+
+	EGLDisplay 		display;
+	EGLSurface 		surface;
+	EGLConfig 		config;
+	EGLContext 		context;
+
+	int32_t			num_configs;
 };
 
 } // namespace crown
-

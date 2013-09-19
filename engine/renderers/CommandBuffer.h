@@ -26,49 +26,73 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
-#include "TextureResource.h"
-#include "Resource.h"
-#include "Vec3.h"
-#include "Color4.h"
-#include "Bundle.h"
-#include "Allocator.h"
+#include "Assert.h"
+#include "RendererTypes.h"
 
 namespace crown
 {
 
-/// A material describes the visual properties of a surface.
-/// It is primarly intended for rendering purposes but can
-/// also be used to drive other types of systems such as sounds or physics.
-class MaterialResource
+#define MAX_COMMAND_BUFFER_SIZE 1024 * 1024
+
+class CommandBuffer
 {
 public:
 
 	//-----------------------------------------------------------------------------
-	static void* load(Allocator& /*allocator*/, Bundle& /*bundle*/, ResourceId /*id*/)
+	CommandBuffer() : m_size(0)
 	{
-		return NULL;
+		// Ensure at least a command is in queue
+		commit();
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* material)
+	void clear()
 	{
-		(void)material;
-		// TODO
+		m_size = 0;
 	}
 
 	//-----------------------------------------------------------------------------
-	static void unload(Allocator& /*allocator*/, void* /*material*/)
+	template<typename T>
+	void write(const T type)
 	{
-		// TODO
+		write((void*)&type, sizeof(T));
+	}
+
+	template<typename T>
+	void read(T& data)
+	{
+		read((void*)&data, sizeof(T));
 	}
 
 	//-----------------------------------------------------------------------------
-	static void offline(void* /*resource*/)
+	void write(const void* data, size_t size)
 	{
-		// TODO
+		CE_ASSERT(m_size + size < MAX_COMMAND_BUFFER_SIZE, "Command buffer overflow");
+
+		memcpy(&m_buffer[m_size], data, size);
+		m_size += size;
 	}
+
+	//-----------------------------------------------------------------------------
+	void read(void* data, size_t size)
+	{
+		CE_ASSERT(m_size + size < MAX_COMMAND_BUFFER_SIZE, "Command buffer overflow");
+		
+		memcpy(data, &m_buffer[m_size], size);
+		m_size += size;
+	}
+
+	//-----------------------------------------------------------------------------
+	void commit()
+	{
+		write(COMMAND_END);
+		m_size = 0;
+	}
+
+public:
+
+	size_t	m_size;
+	char	m_buffer[MAX_COMMAND_BUFFER_SIZE];
 };
 
 } // namespace crown
-

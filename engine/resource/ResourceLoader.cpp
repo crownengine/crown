@@ -34,6 +34,7 @@ namespace crown
 //-----------------------------------------------------------------------------
 ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap) :
 	m_thread("resource-loader"),
+	m_should_run(false),
 	m_bundle(bundle),
 	m_resource_heap(resource_heap),
 	m_num_requests(0),
@@ -94,25 +95,33 @@ void* ResourceLoader::load_resource_data(LoadResourceId id) const
 //-----------------------------------------------------------------------------
 int32_t ResourceLoader::run()
 {
-	while (m_thread.is_running())
+	while (m_should_run)
 	{
 		m_requests_mutex.lock();
-		while (m_requests.empty())
+		while (m_requests.empty() && m_should_run)
 		{
 			m_full.wait(m_requests_mutex);
 		}
 
-		LoadResource request = m_requests.front();
-		m_requests.pop_front();
+		if (m_should_run)
+		{
+			LoadResource request = m_requests.front();
+			m_requests.pop_front();
 
-		m_requests_mutex.unlock();
+			m_requests_mutex.unlock();
 
-		m_results[request.id % MAX_LOAD_REQUESTS].status = LRS_LOADING;
+			m_results[request.id % MAX_LOAD_REQUESTS].status = LRS_LOADING;
 
-		void* data = resource_on_load(request.type, m_resource_heap, m_bundle, request.resource);
+			void* data = resource_on_load(request.type, m_resource_heap, m_bundle, request.resource);
 
-		m_results[request.id % MAX_LOAD_REQUESTS].data = data;
-		m_results[request.id % MAX_LOAD_REQUESTS].status = LRS_LOADED;
+			m_results[request.id % MAX_LOAD_REQUESTS].data = data;
+			m_results[request.id % MAX_LOAD_REQUESTS].status = LRS_LOADED;
+		}
+		else
+		{
+			// Release the mutex when exiting
+			m_requests_mutex.unlock();
+		}
 	}
 
 	return 0;

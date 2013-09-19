@@ -26,7 +26,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <iostream>
 #include <sstream>
-#include "DAECompiler.h"
+#include <fstream>
+#include "MeshCompiler.h"
+#include "DynamicString.h"
+#include "TempAllocator.h"
+#include "Filesystem.h"
 
 using tinyxml2::XMLDocument;
 using tinyxml2::XMLElement;
@@ -40,23 +44,24 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-DAECompiler::DAECompiler()
+MeshCompiler::MeshCompiler()
 {
-
 }
 
 //-----------------------------------------------------------------------------
-DAECompiler::~DAECompiler()
+MeshCompiler::~MeshCompiler()
 {
-
 }
 
 //-----------------------------------------------------------------------------
-size_t DAECompiler::compile_impl(const char* resource_path)
+size_t MeshCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 {
 	DAEModel model;
 
-	if (!parse_collada(resource_path, model))
+	TempAllocator256 temp;
+	DynamicString path(temp);
+	fs.get_absolute_path(resource_path, path);
+	if (!parse_collada(path.c_str(), model))
 	{
 		return 0;
 	}
@@ -104,21 +109,21 @@ size_t DAECompiler::compile_impl(const char* resource_path)
 }
 
 //-----------------------------------------------------------------------------
-void DAECompiler::write_impl(std::fstream& out_file)
+void MeshCompiler::write_impl(File* out_file)
 {
-	out_file.write((char*) &m_mesh_header, sizeof(MeshHeader));
+	out_file->write((char*) &m_mesh_header, sizeof(MeshHeader));
 
 	uint32_t vertex_count = m_vertex_vertices.size();
-	out_file.write((char*)&vertex_count, sizeof(uint32_t));
-	out_file.write((char*) m_vertex_vertices.data(), m_vertex_vertices.size() * sizeof(float));
+	out_file->write((char*)&vertex_count, sizeof(uint32_t));
+	out_file->write((char*) m_vertex_vertices.data(), m_vertex_vertices.size() * sizeof(float));
 
 	uint32_t triangle_count = m_vertex_indices.size();
-	out_file.write((char*)&triangle_count, sizeof(uint32_t));
-	out_file.write((char*) m_vertex_indices.data(), m_vertex_indices.size() * sizeof(uint16_t));
+	out_file->write((char*)&triangle_count, sizeof(uint32_t));
+	out_file->write((char*) m_vertex_indices.data(), m_vertex_indices.size() * sizeof(uint16_t));
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::parse_collada(const char* path, DAEModel& m)
+bool MeshCompiler::parse_collada(const char* path, DAEModel& m)
 {
 	XMLDocument doc;
 
@@ -168,7 +173,7 @@ bool DAECompiler::parse_collada(const char* path, DAEModel& m)
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::parse_geometry(XMLElement* geometry, DAEGeometry& g)
+bool MeshCompiler::parse_geometry(XMLElement* geometry, DAEGeometry& g)
 {
 	// Read geometry id
 	const char* geom_id = geometry->Attribute("id");
@@ -203,7 +208,7 @@ bool DAECompiler::parse_geometry(XMLElement* geometry, DAEGeometry& g)
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::parse_mesh(XMLElement* mesh, DAEMesh& m)
+bool MeshCompiler::parse_mesh(XMLElement* mesh, DAEMesh& m)
 {
 	/// Read sources
 	XMLElement* source = mesh->FirstChildElement("source");
@@ -251,7 +256,7 @@ bool DAECompiler::parse_mesh(XMLElement* mesh, DAEMesh& m)
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::parse_source(XMLElement* source, DAESource& s)
+bool MeshCompiler::parse_source(XMLElement* source, DAESource& s)
 {
 	// Read source id
 	const char* source_id = source->Attribute("id");
@@ -293,7 +298,7 @@ bool DAECompiler::parse_source(XMLElement* source, DAESource& s)
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::parse_float_array(XMLElement* array, DAEFloatArray& a)
+bool MeshCompiler::parse_float_array(XMLElement* array, DAEFloatArray& a)
 {
 	// Read float array id
 	const char* float_array_id = array->Attribute("id");
@@ -325,7 +330,7 @@ bool DAECompiler::parse_float_array(XMLElement* array, DAEFloatArray& a)
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::parse_technique_common(XMLElement* technique, DAETechniqueCommon& t)
+bool MeshCompiler::parse_technique_common(XMLElement* technique, DAETechniqueCommon& t)
 {
 	// Read accessor
 	XMLElement* accessor = technique->FirstChildElement("accessor");
@@ -339,7 +344,7 @@ bool DAECompiler::parse_technique_common(XMLElement* technique, DAETechniqueComm
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::parse_accessor(XMLElement* accessor, DAEAccessor& a)
+bool MeshCompiler::parse_accessor(XMLElement* accessor, DAEAccessor& a)
 {
 	// Read accessor source
 	const char* accessor_source = accessor->Attribute("source");
@@ -391,7 +396,7 @@ bool DAECompiler::parse_accessor(XMLElement* accessor, DAEAccessor& a)
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::parse_param(XMLElement* param, DAEParam& p)
+bool MeshCompiler::parse_param(XMLElement* param, DAEParam& p)
 {
 	// Read param name
 	const char* param_name = param->Attribute("name");
@@ -417,7 +422,7 @@ bool DAECompiler::parse_param(XMLElement* param, DAEParam& p)
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::parse_vertices(XMLElement* vertices, DAEVertices& v)
+bool MeshCompiler::parse_vertices(XMLElement* vertices, DAEVertices& v)
 {
 	// Read vertices id
 	const char* vertices_id = vertices->Attribute("id");
@@ -454,7 +459,7 @@ bool DAECompiler::parse_vertices(XMLElement* vertices, DAEVertices& v)
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::parse_input(XMLElement* input, DAEInput& i)
+bool MeshCompiler::parse_input(XMLElement* input, DAEInput& i)
 {
 	// Read input semantic
 	const char* input_semantic = input->Attribute("semantic");
@@ -486,7 +491,7 @@ bool DAECompiler::parse_input(XMLElement* input, DAEInput& i)
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::parse_polylist(XMLElement* polylist, DAEPolylist& p)
+bool MeshCompiler::parse_polylist(XMLElement* polylist, DAEPolylist& p)
 {
 	// Read polylist count
 	if (polylist->QueryUnsignedAttribute("count", &p.count) != XML_NO_ERROR)
@@ -550,7 +555,7 @@ bool DAECompiler::parse_polylist(XMLElement* polylist, DAEPolylist& p)
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::find_vertices(const DAEMesh& mesh, DAESource& source_out)
+bool MeshCompiler::find_vertices(const DAEMesh& mesh, DAESource& source_out)
 {
 	const vector<DAESource>& sources = mesh.sources;
 	const vector<DAEInput>& inputs = mesh.vertices.inputs;
@@ -576,7 +581,7 @@ bool DAECompiler::find_vertices(const DAEMesh& mesh, DAESource& source_out)
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::find_normals(const DAEMesh& mesh, DAESource& source_out)
+bool MeshCompiler::find_normals(const DAEMesh& mesh, DAESource& source_out)
 {
 	const vector<DAESource>& sources = mesh.sources;
 	const vector<DAEInput>& inputs = mesh.polylist.inputs;
@@ -603,7 +608,7 @@ bool DAECompiler::find_normals(const DAEMesh& mesh, DAESource& source_out)
 }
 
 //-----------------------------------------------------------------------------
-bool DAECompiler::extract_vertex_indices(const DAEMesh& mesh, vector<uint16_t>& indices_out)
+bool MeshCompiler::extract_vertex_indices(const DAEMesh& mesh, vector<uint16_t>& indices_out)
 {
 	// Find vertices
 	DAESource vertex_source;
@@ -614,10 +619,10 @@ bool DAECompiler::extract_vertex_indices(const DAEMesh& mesh, vector<uint16_t>& 
 
 	// Read vertices
 	const vector<uint32_t>& primitives = mesh.polylist.p;
-	const vector<float>& vertices = vertex_source.float_array.array;
+	//const vector<float>& vertices = vertex_source.float_array.array;
 
 	// FIXME FIXME FIXME
-	uint32_t offset = 0;
+	//uint32_t offset = 0;
 	uint32_t attribs = mesh.polylist.inputs.size();
 
 	uint32_t prims = 0;

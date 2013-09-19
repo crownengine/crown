@@ -114,9 +114,7 @@ private:
 
 //-----------------------------------------------------------------------------
 SoundRenderer::SoundRenderer(Allocator& allocator) : 
-	m_allocator(allocator), 
-	m_buffers_id_table(default_allocator(), MAX_SOUND_BUFFERS),
-	m_sources_id_table(default_allocator(), MAX_SOUND_SOURCES),
+	m_allocator(allocator),
 	m_num_buffers(0),
 	m_num_sources(0)
 {

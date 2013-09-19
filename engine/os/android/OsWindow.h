@@ -59,6 +59,18 @@ public:
 	/// Stub method, does nothing under Android.
 	void			move(uint32_t x, uint32_t y);
 
+	/// Stub method, does nothing under Android.	
+	void			minimize();
+
+	/// Stub method, does nothing under Android.
+	void			restore();
+
+	/// Returns always false.
+	bool			is_resizable() const;
+
+	/// Stub method, does nothing under Android.	
+	void			set_resizable(bool resizeable);
+
 	/// Stub method, does nothing under Android.
 	void			show_cursor();
 

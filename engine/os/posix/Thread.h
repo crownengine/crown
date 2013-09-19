@@ -126,12 +126,10 @@ inline void Thread::stop()
 {
 	CE_ASSERT(m_is_running, "Thread is not running");
 	
-	m_is_running = false;
-
 	int32_t result = pthread_join(m_handle, NULL);
-
 	CE_ASSERT(result == 0, "Thread join failed. errno: %d", result);
 
+	m_is_running = false;
 	m_handle = 0;
 }
 
@@ -152,15 +150,10 @@ inline int32_t Thread::run()
 //-----------------------------------------------------------------------------
 inline void* Thread::thread_proc(void* arg)
 {
-	Thread* thread = (Thread*)arg;
+	static int32_t result = -1;
+	result = ((Thread*)arg)->run();
 
-	int32_t result = thread->run();
-
-	CE_ASSERT(result == 0, "Function failed");
-
-	thread->m_is_running = false;
-
-	return NULL;
+	return (void*)&result;
 }
 
 

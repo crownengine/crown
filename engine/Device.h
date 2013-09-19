@@ -32,8 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LinearAllocator.h"
 #include "Resource.h"
 
-#define MAX_SUBSYSTEMS_HEAP 1024 * 1024
-
 namespace crown
 {
 
@@ -53,6 +51,9 @@ class SoundRenderer;
 class ConsoleServer;
 class BundleCompiler;
 class ResourcePackage;
+
+typedef void (*cb)(float);
+void nothing(float);
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -85,9 +86,11 @@ public:
 	/// call to Device::start()
 	uint64_t				frame_count() const;
 
-	/// Returns the time in milliseconds needed to render
-	/// the last frame
+	/// Returns the time in seconds needed to render the last frame
 	float					last_delta_time() const;
+
+	/// Returns the time in seconds since the first call to start().
+	double					time_since_start() const;
 
 	/// Forces the engine to actually start doing work.
 	void					start();
@@ -103,7 +106,8 @@ public:
 	void					unpause();
 
 	/// Updates all the subsystems
-	void					frame();
+	void					frame(cb callback);
+	void					frame() { frame(nothing); }
 
 	/// Returns the resource package with the given @a package_name name.
 	ResourcePackage*		create_resource_package(const char* name);
@@ -147,7 +151,6 @@ private:
 private:
 
 	// Used to allocate all subsystems
-	uint8_t					m_subsystems_heap[MAX_SUBSYSTEMS_HEAP];
 	LinearAllocator			m_allocator;
 
 	// Preferred settings
@@ -174,6 +177,7 @@ private:
 	uint64_t				m_last_time;
 	uint64_t				m_current_time;
 	float					m_last_delta_time;
+	double					m_time_since_start;
 
 	// Public subsystems
 	Filesystem*				m_filesystem;
@@ -205,6 +209,8 @@ private:
 	friend class MainThread;
 };
 
+CE_EXPORT void init();
+CE_EXPORT void shutdown();
 CE_EXPORT Device* device();
 
 } // namespace crown

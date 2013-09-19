@@ -69,12 +69,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#include "ApkFilesystem.h"
 #endif
 
+#define MAX_SUBSYSTEMS_HEAP 16 * 1024 * 1024
+
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
 Device::Device() : 
-	m_allocator(m_subsystems_heap, MAX_SUBSYSTEMS_HEAP),
+	m_allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP),
 
 	m_preferred_window_width(1000),
 	m_preferred_window_height(625),
@@ -95,15 +97,16 @@ Device::Device() :
 	m_last_time(0),
 	m_current_time(0),
 	m_last_delta_time(0.0f),
+	m_time_since_start(0.0),
 
 	m_filesystem(NULL),
 	m_input_manager(NULL),
 	m_lua_environment(NULL),
 	m_renderer(NULL),
 	m_debug_renderer(NULL),
-
 	m_sound_renderer(NULL),
 
+	m_bundle_compiler(NULL),
 	m_resource_manager(NULL),
 	m_resource_bundle(NULL),
 
@@ -195,7 +198,7 @@ void Device::init()
 	Log::d("Input manager created.");
 
 	// default_allocator, maybe it needs fix
-	m_window = CE_NEW(default_allocator(), OsWindow)(m_preferred_window_width, m_preferred_window_height, m_parent_window_handle);
+	m_window = CE_NEW(m_allocator, OsWindow)(m_preferred_window_width, m_preferred_window_height, m_parent_window_handle);
 
 	CE_ASSERT(m_window != NULL, "Unable to create the window");
 
@@ -204,7 +207,7 @@ void Device::init()
 	Log::d("Window created.");
 
 	// Create renderer
-	m_renderer = Renderer::create(m_allocator);
+	m_renderer = CE_NEW(m_allocator, Renderer)(m_allocator);
 	m_renderer->init();
 	m_renderer_init_request = false;
 	Log::d("Renderer created.");
@@ -218,17 +221,17 @@ void Device::init()
 	Log::d("Lua environment created.");
 
 	// FIXME: replace default_allocator with linear m_allocator
-	m_sound_renderer = CE_NEW(default_allocator(), SoundRenderer)(m_allocator);
+	m_sound_renderer = CE_NEW(m_allocator, SoundRenderer)(m_allocator);
 	m_sound_renderer->init();
 	Log::d("SoundRenderer created.");
 
-	ResourceId rid = m_resource_manager->load("sound", "sounds/birds1");
-	m_resource_manager->flush();
+	// ResourceId rid = m_resource_manager->load("sound", "sounds/birds1");
+	// m_resource_manager->flush();
 
-	SoundResource* res = (SoundResource*)m_resource_manager->data(rid);
+	// SoundResource* res = (SoundResource*)m_resource_manager->data(rid);
 
-	WaveSample sample;
-	sample.create(res->data(), res->size(), res->sample_rate(), res->channels(), res->block_size(), res->bits_ps());
+	// WaveSample sample;
+	// sample.create(res->data(), res->size(), res->sample_rate(), res->channels(), res->block_size(), res->bits_ps());
 
 
 	// OggDecoder decoder((char*)stream->data(), stream->size());
@@ -269,6 +272,9 @@ void Device::init()
 	m_is_init = true;
 	start();
 
+	// Show main window
+	m_window->show();
+
 	// Execute lua boot file
 	if (m_lua_environment->load_and_execute(m_boot_file))
 	{
@@ -282,8 +288,7 @@ void Device::init()
 		pause();
 	}
 
-	// Show main window
-	m_window->show();
+	Log::d("Total allocated size: %llu", m_allocator.allocated_size());
 
 	if (m_quit_after_init == 1)
 	{
@@ -315,7 +320,7 @@ void Device::shutdown()
 		m_sound_renderer->shutdown();
 
 		// FIXME: replace default_allocator with linear m_allocator
-		CE_DELETE(default_allocator(), m_sound_renderer);
+		CE_DELETE(m_allocator, m_sound_renderer);
 	}
 
 	Log::i("Releasing LuaEnvironment...");
@@ -342,14 +347,13 @@ void Device::shutdown()
 	if (m_renderer)
 	{
 		m_renderer->shutdown();
-
-		Renderer::destroy(m_allocator, m_renderer);
+		CE_DELETE(m_allocator, m_renderer);
 	}
 
 	Log::i("Releasing Window...");
 	if (m_window)
 	{
-		CE_DELETE(default_allocator(), m_window);
+		CE_DELETE(m_allocator, m_window);
 	}
 
 	Log::i("Releasing ResourceManager...");
@@ -525,11 +529,18 @@ float Device::last_delta_time() const
 }
 
 //-----------------------------------------------------------------------------
-void Device::frame()
+double Device::time_since_start() const
+{
+	return m_time_since_start;
+}
+
+//-----------------------------------------------------------------------------
+void Device::frame(cb callback)
 {
 	m_current_time = os::microseconds();
 	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
 	m_last_time = m_current_time;
+	m_time_since_start += m_last_delta_time;
 
 	if (!m_is_paused)
 	{
@@ -543,7 +554,7 @@ void Device::frame()
 			pause();
 		}
 
-		m_debug_renderer->draw_all();
+		callback(m_last_delta_time);
 		m_renderer->frame();
 	}
 
@@ -561,7 +572,7 @@ ResourcePackage* Device::create_resource_package(const char* name)
 	m_resource_manager->flush();
 
 	PackageResource* package_res = (PackageResource*) m_resource_manager->data(package_id);
-	ResourcePackage* package = CE_NEW(m_allocator, ResourcePackage)(*m_resource_manager, package_id, package_res);
+	ResourcePackage* package = CE_NEW(default_allocator(), ResourcePackage)(*m_resource_manager, package_id, package_res);
 
 	return package;
 }
@@ -572,7 +583,7 @@ void Device::destroy_resource_package(ResourcePackage* package)
 	CE_ASSERT_NOT_NULL(package);
 
 	m_resource_manager->unload(package->resource_id());
-	CE_DELETE(m_allocator, package);
+	CE_DELETE(default_allocator(), package);
 }
 
 //-----------------------------------------------------------------------------
@@ -660,9 +671,24 @@ void Device::parse_command_line(int argc, char** argv)
 //-----------------------------------------------------------------------------
 void Device::check_preferred_settings()
 {
+	if (m_compile == 1)
+	{
+		if (string::strcmp(m_source_dir, "") == 0)
+		{
+			Log::e("You have to specify the source directory when running in compile mode.");
+			exit(EXIT_FAILURE);
+		}
+
+		if (!os::is_absolute_path(m_source_dir))
+		{
+			Log::e("The source directory must be absolute.");
+			exit(EXIT_FAILURE);
+		}
+	}
+
 	if (!os::is_absolute_path(m_bundle_dir))
 	{
-		Log::e("The root path must be absolute.");
+		Log::e("The bundle directory must be absolute.");
 		exit(EXIT_FAILURE);
 	}
 
@@ -745,10 +771,32 @@ void Device::print_help_message()
 	"  --quit-after-init          Quit the engine immediately after the initialization.\n");
 }
 
-Device g_device;
+static Device* g_device = NULL;
+
+//-----------------------------------------------------------------------------
+void init()
+{
+	crown::memory::init();
+	crown::os::init_os();
+	g_device = CE_NEW(default_allocator(), Device);
+}
+
+//-----------------------------------------------------------------------------
+void shutdown()
+{
+	CE_DELETE(default_allocator(), g_device);
+	crown::memory::shutdown();
+}
+
 Device* device()
 {
-	return &g_device;
+	return g_device;
+}
+
+void nothing(float)
+{
+	device()->renderer()->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
+	device()->renderer()->commit(0);
 }
 
 } // namespace crown

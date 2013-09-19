@@ -44,7 +44,7 @@ const char* const CONFIG_EXTENSION			= "config";
 const char* const PACKAGE_EXTENSION			= "package";
 
 const uint32_t TEXTURE_TYPE					= 0xDEED4F7;
-const uint32_t MESH_TYPE					= 0xA6E48B29;
+const uint32_t MESH_TYPE					= 0x742FBC9A;
 const uint32_t LUA_TYPE						= 0xD96E7C37;
 const uint32_t TEXT_TYPE					= 0x45CC650;
 const uint32_t MATERIAL_TYPE				= 0x46807A92;
