@@ -205,6 +205,14 @@ void SoundRenderer::pause_sound(SoundId id)
 }
 
 //-----------------------------------------------------------------------------
+void SoundRenderer::set_sound_loop(SoundId id, bool loop)
+{
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
+
+	m_backend->m_sounds[id.index].loop(loop);
+}
+
+//-----------------------------------------------------------------------------
 void SoundRenderer::set_sound_min_distance(SoundId id, const float min_distance)
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");

@@ -74,6 +74,9 @@ public:
 	/// Pauses a sound, specified by @a id
 	void					pause_sound(SoundId id);
 
+	/// 
+	void					set_sound_loop(SoundId id, bool loop);
+
 	///	Sets sound's @a min_distance. From @a min_distance to @a max_distance, sound
 	/// scales from full volume to silence
 	void					set_sound_min_distance(SoundId id, const float min_distance);

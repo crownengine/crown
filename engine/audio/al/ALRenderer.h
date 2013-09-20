@@ -156,6 +156,14 @@ struct Sound
 					{
 						AL_CHECK(alBufferData(buffer, m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
 					}
+					else if (m_looping)
+					{
+						Log::i("Restart sound");
+						m_decoder.rewind();
+						m_decoder.stream();
+						AL_CHECK(alBufferData(buffer, m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
+					}
+
 
 					AL_CHECK(alSourceQueueBuffers(m_id, 1, &buffer));
 				}
@@ -188,15 +196,15 @@ struct Sound
 	}
 
 	//-----------------------------------------------------------------------------
-	void set_mode(bool loop)
+	void loop(bool loop)
 	{
-		if (loop)
+		if (loop && !m_streaming)
 		{
-			AL_CHECK(alSourcef(m_id, AL_LOOPING, AL_TRUE));
+			AL_CHECK(alSourcei(m_id, AL_LOOPING, AL_TRUE));
 		}
-		else
+		else if (!loop && !m_streaming)
 		{
-			AL_CHECK(alSourcef(m_id, AL_LOOPING, AL_FALSE));
+			AL_CHECK(alSourcei(m_id, AL_LOOPING, AL_FALSE));
 		}
 
 		m_looping = loop;
