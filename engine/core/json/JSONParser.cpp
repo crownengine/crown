@@ -434,12 +434,14 @@ void JSONElement::array_value(List<bool>& array)
 	TempAllocator1024 alloc;
 	List<const char*> temp(alloc);
 
-	JSONParser::parse_array(m_begin, temp);
+	JSONParser::parse_array(m_at, temp);
 
 	for (uint32_t i = 0; i < temp.size(); i++)
 	{
 		array.push_back(JSONParser::parse_bool(temp[i]));
 	}
+
+	m_at = m_begin;
 }
 
 //--------------------------------------------------------------------------
@@ -448,12 +450,14 @@ void JSONElement::array_value(List<int16_t>& array)
 	TempAllocator1024 alloc;
 	List<const char*> temp(alloc);
 
-	JSONParser::parse_array(m_begin, temp);
+	JSONParser::parse_array(m_at, temp);
 
 	for (uint32_t i = 0; i < temp.size(); i++)
 	{
 		array.push_back((int16_t)JSONParser::parse_int(temp[i]));
 	}
+
+	m_at = m_begin;
 }
 
 //--------------------------------------------------------------------------
@@ -462,12 +466,14 @@ void JSONElement::array_value(List<uint16_t>& array)
 	TempAllocator1024 alloc;
 	List<const char*> temp(alloc);
 
-	JSONParser::parse_array(m_begin, temp);
+	JSONParser::parse_array(m_at, temp);
 
 	for (uint32_t i = 0; i < temp.size(); i++)
 	{
 		array.push_back((uint16_t)JSONParser::parse_int(temp[i]));
 	}
+
+	m_at = m_begin;
 }
 
 //--------------------------------------------------------------------------
@@ -476,12 +482,14 @@ void JSONElement::array_value(List<int32_t>& array)
 	TempAllocator1024 alloc;
 	List<const char*> temp(alloc);
 
-	JSONParser::parse_array(m_begin, temp);
+	JSONParser::parse_array(m_at, temp);
 
 	for (uint32_t i = 0; i < temp.size(); i++)
 	{
 		array.push_back((int32_t)JSONParser::parse_int(temp[i]));
 	}
+
+	m_at = m_begin;
 }
 
 //--------------------------------------------------------------------------
@@ -490,12 +498,14 @@ void JSONElement::array_value(List<uint32_t>& array)
 	TempAllocator1024 alloc;
 	List<const char*> temp(alloc);
 
-	JSONParser::parse_array(m_begin, temp);
+	JSONParser::parse_array(m_at, temp);
 
 	for (uint32_t i = 0; i < temp.size(); i++)
 	{
 		array.push_back((uint32_t)JSONParser::parse_int(temp[i]));
 	}
+
+	m_at = m_begin;
 }
 
 //--------------------------------------------------------------------------
@@ -504,12 +514,14 @@ void JSONElement::array_value(List<float>& array)
 	TempAllocator1024 alloc;
 	List<const char*> temp(alloc);
 
-	JSONParser::parse_array(m_begin, temp);
+	JSONParser::parse_array(m_at, temp);
 
 	for (uint32_t i = 0; i < temp.size(); i++)
 	{
 		array.push_back(JSONParser::parse_float(temp[i]));
 	}
+
+	m_at = m_begin;
 }
 
 //--------------------------------------------------------------------------
