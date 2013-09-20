@@ -135,6 +135,7 @@ long int ogg_buffer_tell(void* src)
 //-----------------------------------------------------------------------------
 static const char* ov_error_to_string(int32_t error)
 {
+	Log::i("error: %d", error);
 	switch (error)
 	{
 	case OV_FALSE: return "OV_FALSE";
@@ -155,7 +156,7 @@ static const char* ov_error_to_string(int32_t error)
 //-----------------------------------------------------------------------------
 void check_ov_error(int32_t result)
 {
-	CE_ASSERT(result == 0, "OV Error: %s", ov_error_to_string(result));
+	CE_ASSERT(result >= 0, "OV Error: %s", ov_error_to_string(result));
 }
 
 
@@ -179,7 +180,6 @@ public:
 
 		int32_t result = ov_open_callbacks((void*)m_buffer, &m_stream, NULL, 0, callbacks);
 		check_ov_error(result);
-
 		m_info = ov_info(&m_stream, -1);
 	}
 
