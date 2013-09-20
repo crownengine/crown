@@ -26,8 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "SoundRenderer.h"
 #include "ALRenderer.h"
+#include "SoundResource.h"
 #include "StringUtils.h"
-
 #include "Log.h"
 
 namespace crown
@@ -102,8 +102,7 @@ private:
 	ALCdevice*				m_device;
 	ALCcontext*				m_context;
 
-	SoundBuffer 			m_buffers[MAX_SOUND_BUFFERS];
-	SoundSource 			m_sources[MAX_SOUND_SOURCES];
+	Sound 		 			m_sounds[MAX_SOUNDS];
 
 private:
 
@@ -115,8 +114,7 @@ private:
 //-----------------------------------------------------------------------------
 SoundRenderer::SoundRenderer(Allocator& allocator) : 
 	m_allocator(allocator),
-	m_num_buffers(0),
-	m_num_sources(0)
+	m_num_sounds(0)
 {
 	m_backend = CE_NEW(m_allocator, SoundRendererBackend);
 }
@@ -143,15 +141,21 @@ void SoundRenderer::shutdown()
 }
 
 //-----------------------------------------------------------------------------
-uint32_t SoundRenderer::num_buffers()
+void SoundRenderer::frame()
 {
-	return m_num_buffers;
+	for (uint32_t i = 0; i < m_num_sounds; i++)
+	{
+		if (m_backend->m_sounds[i].m_playing)
+		{
+			m_backend->m_sounds[i].update();
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
-uint32_t SoundRenderer::num_sources()
+uint32_t SoundRenderer::num_sounds()
 {
-	return m_num_sources;
+	return m_num_sounds;
 }
 
 //-----------------------------------------------------------------------------
@@ -161,259 +165,179 @@ void SoundRenderer::set_listener(const Vec3& pos, const Vec3& vel, const Vec3& o
 }
 
 //-----------------------------------------------------------------------------
-SoundBufferId SoundRenderer::create_buffer(const void* data, const uint32_t size, const uint32_t sample_rate, const uint32_t channels, const uint32_t bits)
+SoundId SoundRenderer::create_sound(SoundResource* resource)
 {
-	SoundBufferId id = m_buffers_id_table.create();
+	SoundId id = m_sounds_id_table.create();
 
-	m_backend->m_buffers[id.index].create(data, size, sample_rate, channels, bits);
+	m_backend->m_sounds[id.index].create(resource);
 
-	m_num_buffers++;
+	m_num_sounds++;
 
 	return id;
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::update_buffer(SoundBufferId id, const void* data, const uint32_t size)
+void SoundRenderer::destroy_sound(SoundId id)
 {
-	CE_ASSERT(m_buffers_id_table.has(id), "SoundBuffer does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_buffers[id.index].update(data, size);
+	m_backend->m_sounds[id.index].destroy();
+
+	m_sounds_id_table.destroy(id);
+
+	m_num_sounds--;
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::destroy_buffer(SoundBufferId id)
+void SoundRenderer::play_sound(SoundId id)
 {
-	CE_ASSERT(m_buffers_id_table.has(id), "SoundBuffer does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_buffers[id.index].destroy();
-
-	m_buffers_id_table.destroy(id);
-
-	m_num_buffers--;
+	m_backend->m_sounds[id.index].play();
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::bind_buffer_to_source(SoundBufferId bid, SoundSourceId sid)
+void SoundRenderer::pause_sound(SoundId id)
 {
-	CE_ASSERT(m_buffers_id_table.has(bid), "SoundBuffer does not exists");
-	CE_ASSERT(m_sources_id_table.has(sid), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	SoundSource& source = m_backend->m_sources[sid.index];
-	SoundBuffer& buffer = m_backend->m_buffers[bid.index];
-
-	source.bind_buffer(buffer.m_id);
+	m_backend->m_sounds[id.index].pause();
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::unbind_buffer_from_source(SoundSourceId id)
+void SoundRenderer::set_sound_min_distance(SoundId id, const float min_distance)
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	SoundSource& source = m_backend->m_sources[id.index];
-
-	source.unbind_buffer();
+	m_backend->m_sounds[id.index].set_min_distance(min_distance);
 }
 
 //-----------------------------------------------------------------------------
-SoundSourceId SoundRenderer::create_source()
+void SoundRenderer::set_sound_max_distance(SoundId id, const float max_distance)
 {
-	SoundSourceId id = m_sources_id_table.create();
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sources[id.index].create();
-
-	m_num_sources++;
-
-	return id;
+	m_backend->m_sounds[id.index].set_max_distance(max_distance);
 }
 
 //-----------------------------------------------------------------------------
-bool SoundRenderer::update_source(SoundSourceId sid, SoundBufferId bid, const void* data, const size_t size)
+void SoundRenderer::set_sound_position(SoundId id, const Vec3& pos)
 {
-	CE_ASSERT(m_sources_id_table.has(sid), "SoundSource does not exists");
-	CE_ASSERT(m_buffers_id_table.has(bid), "SoundBuffer does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	CE_ASSERT_NOT_NULL(data);
-
-	bool ready = false;
-
-	int32_t processed = m_backend->m_sources[sid.index].processed_buffers();
-
-	while (processed--)
-	{
-		uint32_t buffer = m_backend->m_sources[sid.index].unbind_buffer();
-
-		update_buffer(bid, data, size);
-
-		m_backend->m_sources[sid.index].bind_buffer(buffer);
-
-		ready = true;
-	}
-
-	return ready;
+	m_backend->m_sounds[id.index].set_position(pos);
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::destroy_source(SoundSourceId id)
+void SoundRenderer::set_sound_velocity(SoundId id, const Vec3& vel)
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sources[id.index].destroy();
-
-	m_sources_id_table.destroy(id);
-
-	m_num_sources--;
+	m_backend->m_sounds[id.index].set_velocity(vel);
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::play_source(SoundSourceId id, bool loop)
+void SoundRenderer::set_sound_direction(SoundId id, const Vec3& dir)
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sources[id.index].play(loop);
+	m_backend->m_sounds[id.index].set_direction(dir);
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::pause_source(SoundSourceId id)
+void SoundRenderer::set_sound_pitch(SoundId id, const float pitch)
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sources[id.index].pause();
+	m_backend->m_sounds[id.index].set_pitch(pitch);
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_source_min_distance(SoundSourceId id, const float min_distance)
+void SoundRenderer::set_sound_gain(SoundId id, const float gain)
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sources[id.index].set_min_distance(min_distance);
+	m_backend->m_sounds[id.index].set_gain(gain);
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_source_max_distance(SoundSourceId id, const float max_distance)
+void SoundRenderer::set_sound_rolloff(SoundId id, const float rolloff)
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sources[id.index].set_max_distance(max_distance);
+	m_backend->m_sounds[id.index].set_rolloff(rolloff);
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_source_position(SoundSourceId id, const Vec3& pos)
+float SoundRenderer::sound_min_distance(SoundId id) const
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sources[id.index].set_position(pos);
+	return m_backend->m_sounds[id.index].min_distance();
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_source_velocity(SoundSourceId id, const Vec3& vel)
+float SoundRenderer::sound_max_distance(SoundId id) const
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sources[id.index].set_velocity(vel);
+	return m_backend->m_sounds[id.index].max_distance();
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_source_direction(SoundSourceId id, const Vec3& dir)
+Vec3 SoundRenderer::sound_position(SoundId id) const
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sources[id.index].set_direction(dir);
+	return m_backend->m_sounds[id.index].position();
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_source_pitch(SoundSourceId id, const float pitch)
+Vec3 SoundRenderer::sound_velocity(SoundId id) const
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sources[id.index].set_pitch(pitch);
+	return m_backend->m_sounds[id.index].velocity();
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_source_gain(SoundSourceId id, const float gain)
+Vec3 SoundRenderer::sound_direction(SoundId id) const
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sources[id.index].set_gain(gain);
+	return m_backend->m_sounds[id.index].direction();
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_source_rolloff(SoundSourceId id, const float rolloff)
+float SoundRenderer::sound_pitch(SoundId id) const
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sources[id.index].set_rolloff(rolloff);
+	return m_backend->m_sounds[id.index].pitch();
 }
 
 //-----------------------------------------------------------------------------
-float SoundRenderer::source_min_distance(SoundSourceId id) const
+float SoundRenderer::sound_gain(SoundId id) const
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	return m_backend->m_sources[id.index].min_distance();
+	return m_backend->m_sounds[id.index].gain();
 }
 
 //-----------------------------------------------------------------------------
-float SoundRenderer::source_max_distance(SoundSourceId id) const
+float SoundRenderer::sound_rolloff(SoundId id) const
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	return m_backend->m_sources[id.index].max_distance();
+	return m_backend->m_sounds[id.index].rolloff();
 }
 
 //-----------------------------------------------------------------------------
-Vec3 SoundRenderer::source_position(SoundSourceId id) const
+bool SoundRenderer::sound_playing(SoundId id)
 {
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	return m_backend->m_sources[id.index].position();
-}
-
-//-----------------------------------------------------------------------------
-Vec3 SoundRenderer::source_velocity(SoundSourceId id) const
-{
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
-
-	return m_backend->m_sources[id.index].velocity();
-}
-
-//-----------------------------------------------------------------------------
-Vec3 SoundRenderer::source_direction(SoundSourceId id) const
-{
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
-
-	return m_backend->m_sources[id.index].direction();
-}
-
-//-----------------------------------------------------------------------------
-float SoundRenderer::source_pitch(SoundSourceId id) const
-{
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
-
-	return m_backend->m_sources[id.index].pitch();
-}
-
-//-----------------------------------------------------------------------------
-float SoundRenderer::source_gain(SoundSourceId id) const
-{
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
-
-	return m_backend->m_sources[id.index].gain();
-}
-
-//-----------------------------------------------------------------------------
-float SoundRenderer::source_rolloff(SoundSourceId id) const
-{
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
-
-	return m_backend->m_sources[id.index].rolloff();
-}
-
-//-----------------------------------------------------------------------------
-bool SoundRenderer::source_playing(SoundSourceId id)
-{
-	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
-
-	return m_backend->m_sources[id.index].is_playing();
+	return m_backend->m_sounds[id.index].is_playing();
 }
 
 } // namespace crown

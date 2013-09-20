@@ -29,6 +29,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include "SoundResource.h"
+#include "OggDecoder.h"
 #include "Vec3.h"
 #include "Log.h"
 
@@ -60,22 +62,36 @@ static const char* al_error_to_string(ALenum error)
 #endif
 
 //-----------------------------------------------------------------------------
-struct SoundBuffer
+struct Sound
 {
-
-	/// Creates AL buffer of dimension @a size containing @a data.
-	/// More parameters must be specified, such as @a sample_rate, that is the number of sample per unit of time 
-	/// taken from a continuous signal to make a discrete signal, @a channels which specifies if sound is mono or stereo and @a bits
-	/// which specifies the magnitude of samples information.
-	void create(const void* data, const size_t size, const uint32_t sample_rate, const uint32_t channels, const uint32_t bits)
+	//-----------------------------------------------------------------------------
+	Sound() : 
+		m_res(NULL), 
+		m_id(-1),	
+		m_looping(false)
 	{
-		AL_CHECK(alGenBuffers(1, &m_id));
+	}
 
-		m_sample_rate = sample_rate;
+	//-----------------------------------------------------------------------------
+	void create(SoundResource* resource)
+	{
+		CE_ASSERT_NOT_NULL(resource);
+
+		// Stores resource pointer
+		m_res = resource;
+
+		// Generates AL source
+		AL_CHECK(alGenSources(1, &m_id));
+		AL_CHECK(alSourcef(m_id, AL_PITCH, 1.0f));
+		AL_CHECK(alSourcef(m_id, AL_REFERENCE_DISTANCE, 0.1f));
+		AL_CHECK(alSourcef(m_id, AL_MAX_DISTANCE, 1000.0f));
+
+		// Generates AL buffer
+		AL_CHECK(alGenBuffers(3, m_buffer));
 		
-		bool stereo = (channels > 1);
+		bool stereo = (m_res->channels() > 1);
 
-		switch(bits)
+		switch(m_res->bits_ps())
 		{
 			case 8:
 			{
@@ -99,81 +115,91 @@ struct SoundBuffer
 			}
 		}
 
-		AL_CHECK(alBufferData(m_id, m_format, data, size, m_sample_rate));
+		// Streams resource if is ogg 
+		if (m_res->sound_type() == ST_OGG)
+		{
+			m_streaming = true;
+			m_decoder.init((char*)m_res->data(), m_res->size());
+			m_decoder.stream();
+			AL_CHECK(alBufferData(m_buffer[0], m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
+			m_decoder.stream();
+			AL_CHECK(alBufferData(m_buffer[1], m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));			
+			m_decoder.stream();
+			AL_CHECK(alBufferData(m_buffer[2], m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
+
+			AL_CHECK(alSourceQueueBuffers(m_id, 3, m_buffer));
+		}
+		else
+		{
+			AL_CHECK(alBufferData(m_buffer[0], m_format, m_res->data(), m_res->size(), m_res->sample_rate()));
+
+			AL_CHECK(alSourceQueueBuffers(m_id, 1, &m_buffer[0]));
+		}
 	}
 
-	/// Updates AL buffer with new @a data and new @a size.
-	/// Buffer id, format and sample rate remain the same
-	void update(const void* data, const uint32_t size)
+	//-----------------------------------------------------------------------------
+	void update()
 	{
-		AL_CHECK(alBufferData(m_id, m_format, data, size, m_sample_rate));
+		if (m_playing)
+		{
+			if (m_streaming)
+			{
+				uint32_t processed = processed_buffers();
+
+				while (processed--)
+				{
+					ALuint buffer;
+
+					AL_CHECK(alSourceUnqueueBuffers(m_id, 1, &buffer));
+
+					if (m_decoder.stream())
+					{
+						AL_CHECK(alBufferData(buffer, m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
+					}
+
+					AL_CHECK(alSourceQueueBuffers(m_id, 1, &buffer));
+				}
+			}
+		}
 	}
 
-	/// Destroys AL buffer
-	void destroy()
-	{
-		AL_CHECK(alDeleteBuffers(1, &m_id));
-	}
-
-public:
-
-	ALuint 		m_id;
-	ALenum 		m_format;
-	ALuint 		m_sample_rate;
-};
-
-//-----------------------------------------------------------------------------
-struct SoundSource
-{
-	/// Creates AL source
-	void create()
-	{
-		AL_CHECK(alGenSources(1, &m_id));
-		AL_CHECK(alSourcef(m_id, AL_PITCH, 1.0f));
-		AL_CHECK(alSourcef(m_id, AL_REFERENCE_DISTANCE, 0.1f));
-		AL_CHECK(alSourcef(m_id, AL_MAX_DISTANCE, 1000.0f));
-	}
-
-	/// Binds AL buffer at the end of source's buffer queue;
-	void bind_buffer(ALuint buffers)
-	{
-		AL_CHECK(alSourceQueueBuffers(m_id, 1, &buffers));
-	}
-
-	/// Unbinds first AL buffer in queue
-	ALuint unbind_buffer()
-	{
-        ALuint buffer;
-
-		AL_CHECK(alSourceUnqueueBuffers(m_id, 1, &buffer));
-
-		return buffer;
-	}
-
-	/// Destroyes AL source
+	//-----------------------------------------------------------------------------
 	void destroy()
 	{
 		AL_CHECK(alDeleteSources(1, &m_id));
+
+		AL_CHECK(alDeleteBuffers(3, m_buffer));
 	}
 
-	/// Plays AL source
-	void play(bool loop)
+	//-----------------------------------------------------------------------------
+	void play()
+	{
+		AL_CHECK(alSourcePlay(m_id));
+
+		m_playing = true;
+	}
+
+	//-----------------------------------------------------------------------------
+	void pause()
+	{
+		AL_CHECK(alSourcePause(m_id));
+
+		m_playing = false;
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_mode(bool loop)
 	{
 		if (loop)
 		{
 			AL_CHECK(alSourcef(m_id, AL_LOOPING, AL_TRUE));
 		}
-
-		AL_CHECK(alSourcePlay(m_id));
-	}
-
-	/// Pauses AL source
-	void pause()
-	{
-		if (is_playing())
+		else
 		{
-			AL_CHECK(alSourcePause(m_id));
+			AL_CHECK(alSourcef(m_id, AL_LOOPING, AL_FALSE));
 		}
+
+		m_looping = loop;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -228,6 +254,7 @@ struct SoundSource
 	float min_distance() const
 	{
 		ALfloat min_distance;
+
 		alGetSourcef(m_id, AL_REFERENCE_DISTANCE, &min_distance);
 
 		return min_distance;
@@ -237,6 +264,7 @@ struct SoundSource
 	float max_distance() const
 	{
 		ALfloat max_distance;
+
 		alGetSourcef(m_id, AL_MAX_DISTANCE, &max_distance);
 
 		return max_distance;
@@ -324,7 +352,6 @@ struct SoundSource
 	int32_t queued_buffers()
 	{
 		int32_t queued;
-
 		alGetSourcei(m_id, AL_BUFFERS_QUEUED, &queued);
 
 		return queued;
@@ -334,7 +361,6 @@ struct SoundSource
 	int32_t processed_buffers()
 	{
 		int32_t processed;
-
 		alGetSourcei(m_id, AL_BUFFERS_PROCESSED, &processed);
 
 		return processed;
@@ -342,7 +368,17 @@ struct SoundSource
 
 public:
 
-	ALuint		m_id;
+	SoundResource*	m_res;
+
+	ALuint			m_id;
+	ALuint			m_buffer[3];
+	ALuint 			m_format;
+
+	bool			m_playing;
+	bool			m_looping;
+	bool			m_streaming;
+
+	OggDecoder		m_decoder;
 };
 
 } // namespace crown
