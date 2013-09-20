@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Assert.h"
 
-#define SOUND_STREAM_BUFFER_SIZE (4096 * 9) // 32K... should be tested
+#define SOUND_STREAM_BUFFER_SIZE (4096 * 8) // 32K... should be tested
 
 namespace crown
 {
@@ -133,15 +133,39 @@ long int ogg_buffer_tell(void* src)
 }
 
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+static const char* ov_error_to_string(int32_t error)
+{
+	switch (error)
+	{
+	case OV_FALSE: return "OV_FALSE";
+	case OV_HOLE: return "OV_HOLE";
+	case OV_EREAD: return "OV_EREAD";
+	case OV_EFAULT: return "OV_EFAULT";
+	case OV_EIMPL: return "OV_EIMPL";
+	case OV_EINVAL: return "OV_EINVAL";
+	case OV_ENOTVORBIS: return "OV_ENOTVORBIS";
+	case OV_EBADHEADER: return "OV_EBADHEADER";
+	case OV_EVERSION: return "OV_EVERSION";
+	case OV_EBADLINK: return "OV_EBADLINK";
+	case OV_ENOSEEK: return "OV_ENOSEEK";
+	default: return "OV_UNKNOWN"; // this case is never reached
+	}
+}
 
-/// __OggDecoder__ decodes ogg buffers and provides peaces of decoded audio data.
+//-----------------------------------------------------------------------------
+void check_ov_error(int32_t result)
+{
+	CE_ASSERT(result == 0, "OV Error: %s", ov_error_to_string(result));
+}
+
+
+//-----------------------------------------------------------------------------
 class OggDecoder
 {
 public:
 
 	//-----------------------------------------------------------------------------
-	OggDecoder(char* data, const size_t size) : m_buffer(data, size)
+	void init(char* data, const size_t size)
 	{
 		CE_ASSERT_NOT_NULL(data);
 
@@ -151,12 +175,16 @@ public:
 		callbacks.close_func = ogg_buffer_close;
 		callbacks.tell_func = ogg_buffer_tell;
 
-		int32_t result = ov_open_callbacks((void*)&m_buffer, &m_stream, NULL, 0, callbacks);
-		CE_ASSERT(result == 0, "Unable to open stream buffer");
+		m_buffer = CE_NEW(default_allocator(), OggBuffer)(data, size);
+
+		int32_t result = ov_open_callbacks((void*)m_buffer, &m_stream, NULL, 0, callbacks);
+		check_ov_error(result);
+
+		m_info = ov_info(&m_stream, -1);
 	}
 
 	//-----------------------------------------------------------------------------
-	~OggDecoder()
+	void shutdown()
 	{
 		ov_clear(&m_stream);
 	}
@@ -171,27 +199,28 @@ public:
 		while (size < SOUND_STREAM_BUFFER_SIZE)
 		{
 			result = ov_read(&m_stream, (char*)m_data + size, SOUND_STREAM_BUFFER_SIZE - size, 0, 2, 1, &section);
-	
+			check_ov_error(result);
+
 			if (result > 0)
 			{
 				size += result;
 			}
-			else
+			else if (result == 0)
 			{
-				if (result == 0)
-				{
-					return false;
-				}
-				else
-				{
-					CE_ASSERT(false, "OggDecoder fail");
-				}
+				return false;
 			}
 		}
 
 		m_size = size;
 
 		return true;
+	}
+	
+	//-----------------------------------------------------------------------------
+	void rewind()
+	{
+		int32_t result = ov_raw_seek(&m_stream, 0);
+		check_ov_error(result);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -208,11 +237,10 @@ public:
 
 private:
 
-	OggBuffer 				m_buffer;
+	OggBuffer* 				m_buffer;
 
 	OggVorbis_File  		m_stream;
 	vorbis_info*			m_info;
-	vorbis_comment*			m_comment;
 
 	char					m_data[SOUND_STREAM_BUFFER_SIZE];
 	size_t					m_size;
