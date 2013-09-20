@@ -249,15 +249,16 @@ void OsWindow::set_resizable(bool resizable)
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::show_cursor()
+void OsWindow::show_cursor(bool show)
 {
-	XDefineCursor(m_x11_display, m_x11_window, None);
-}
-
-//-----------------------------------------------------------------------------
-void OsWindow::hide_cursor()
-{
-	XDefineCursor(m_x11_display, m_x11_window, m_x11_hidden_cursor);
+	if (show)
+	{
+		XDefineCursor(m_x11_display, m_x11_window, None);
+	}
+	else
+	{
+		XDefineCursor(m_x11_display, m_x11_window, m_x11_hidden_cursor);
+	}
 }
 
 //-----------------------------------------------------------------------------

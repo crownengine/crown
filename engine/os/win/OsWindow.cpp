@@ -206,15 +206,9 @@ void OsWindow::move(uint32_t x, uint32_t y)
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::show_cursor()
+void OsWindow::show_cursor(bool show)
 {
-	ShowCursor(true);
-}
-
-//-----------------------------------------------------------------------------
-void OsWindow::hide_cursor()
-{
-	ShowCursor(false);
+	ShowCursor(show);
 }
 
 //-----------------------------------------------------------------------------

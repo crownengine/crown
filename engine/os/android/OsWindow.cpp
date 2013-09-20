@@ -107,12 +107,7 @@ void OsWindow::set_resizable(bool /*resizeable*/)
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::show_cursor()
-{
-}
-
-//-----------------------------------------------------------------------------
-void OsWindow::hide_cursor()
+void OsWindow::show_cursor(bool /*show*/)
 {
 }
 
