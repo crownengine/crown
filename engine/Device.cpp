@@ -57,9 +57,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourcePackage.h"
 #include "EventBuffer.h"
 #include "SoundRenderer.h"
-#include "OggDecoder.h"
-#include "SoundResource.h"
-#include "SoundSample.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -220,51 +217,9 @@ void Device::init()
 	m_lua_environment->init();
 	Log::d("Lua environment created.");
 
-	// FIXME: replace default_allocator with linear m_allocator
 	m_sound_renderer = CE_NEW(m_allocator, SoundRenderer)(m_allocator);
 	m_sound_renderer->init();
 	Log::d("SoundRenderer created.");
-
-	// ResourceId rid = m_resource_manager->load("sound", "sounds/birds1");
-	// m_resource_manager->flush();
-
-	// SoundResource* res = (SoundResource*)m_resource_manager->data(rid);
-
-	// WaveSample sample;
-	// sample.create(res->data(), res->size(), res->sample_rate(), res->channels(), res->block_size(), res->bits_ps());
-
-
-	// OggDecoder decoder((char*)stream->data(), stream->size());
-
-	// SoundSourceId source = m_sound_renderer->create_source();
-
-	// decoder.stream();
-	// SoundBufferId buffer1 = m_sound_renderer->create_buffer(decoder.data(), decoder.size(), stream->sample_rate(), stream->channels(), stream->bits_per_sample());
-
-	// decoder.stream();
-	// SoundBufferId buffer2 = m_sound_renderer->create_buffer(decoder.data(), decoder.size(), stream->sample_rate(), stream->channels(), stream->bits_per_sample());
-
-	// SoundBufferId active = buffer1;
-
-	// m_sound_renderer->bind_buffer_to_source(buffer1, source);
-	// m_sound_renderer->bind_buffer_to_source(buffer2, source);
-
-	// m_sound_renderer->play_source(source, false);
-
-	// while(decoder.stream())
-	// {
-
-	// 	while(!m_sound_renderer->update_source(source, active, decoder.data(), decoder.size()));
-		
-	// 	active = buffer2;
-	// 	buffer2 = buffer1;
-	// 	buffer1 = active;
-
-	// 	if (!m_sound_renderer->source_playing(source))
-	// 	{
-	// 		m_sound_renderer->play_source(source, false);
-	// 	}
-	// }
 
 	Log::i("Crown Engine initialized.");
 	Log::i("Initializing Game...");
@@ -556,6 +511,9 @@ void Device::frame(cb callback)
 
 		callback(m_last_delta_time);
 		m_renderer->frame();
+
+		m_sound_renderer->frame();
+
 	}
 
 	m_frame_count++;
