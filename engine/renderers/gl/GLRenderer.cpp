@@ -86,6 +86,13 @@ const GLenum TEXTURE_WRAP_TABLE[] =
 	GL_REPEAT
 };
 
+//-----------------------------------------------------------------------------
+const GLTextureFormatInfo TEXTURE_FORMAT_TABLE[PIXEL_COUNT] =
+{
+	{ GL_RGB, GL_RGB },
+	{ GL_RGBA, GL_RGBA}
+};
+
 // Keep in sync with ShaderAttrib
 const char* const SHADER_ATTRIB_NAMES[ATTRIB_COUNT] =
 {

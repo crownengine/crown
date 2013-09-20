@@ -47,9 +47,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+//-----------------------------------------------------------------------------
+struct GLTextureFormatInfo
+{
+	GLenum internal_format;
+	GLenum format;
+};
+
 extern const GLenum TEXTURE_MIN_FILTER_TABLE[];
 extern const GLenum TEXTURE_MAG_FILTER_TABLE[];
 extern const GLenum TEXTURE_WRAP_TABLE[];
+extern const GLTextureFormatInfo TEXTURE_FORMAT_TABLE[PIXEL_COUNT];
 extern const char* const SHADER_ATTRIB_NAMES[ATTRIB_COUNT];
 extern const char* const SHADER_UNIFORM_NAMES[];
 extern const size_t UNIFORM_SIZE_TABLE[UNIFORM_END];
@@ -241,9 +249,11 @@ struct Texture
 			GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
 		#endif
 
-		// FIXME
-		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-					 			GL_RGB, GL_UNSIGNED_BYTE, data));
+		GLenum internal_fmt = TEXTURE_FORMAT_TABLE[format].internal_format;
+		GLenum fmt = TEXTURE_FORMAT_TABLE[format].format;
+
+		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, internal_fmt, width, height, 0,
+					 			fmt, GL_UNSIGNED_BYTE, data));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 
 		m_target = GL_TEXTURE_2D;
