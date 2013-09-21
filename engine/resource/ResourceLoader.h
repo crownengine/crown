@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Mutex.h"
 #include "Cond.h"
+#include "OS.h"
 
 namespace crown
 {
@@ -65,7 +66,7 @@ struct LoadResourceData
 };
 
 /// Loads resources in a background thread.
-class ResourceLoader : public Thread
+class ResourceLoader
 {
 public:
 
@@ -85,7 +86,30 @@ public:
 	// Loads resources in the loading queue.
 	int32_t					run();
 
+	void start()
+	{
+		m_should_run = true;
+		m_thread.start(background_run, this);
+	}
+
+	void stop()
+	{
+		m_should_run = false;
+		m_full.signal();
+		m_thread.stop();
+	}
+
 private:
+
+	static int32_t background_run(void* thiz)
+	{
+		return ((ResourceLoader*)thiz)->run();
+	}
+
+private:
+
+	Thread					m_thread;
+	bool					m_should_run;
 
 	// Whether to look for resources
 	Bundle&					m_bundle;

@@ -140,7 +140,7 @@ void DebugRenderer::draw_all()
 {
 	if (m_lines_count > 0)
 	{
-		m_renderer.draw_lines(m_lines[0].to_float_ptr(), m_colors[0].to_float_ptr(), m_lines_count * 2);
+		// m_renderer.draw_lines(m_lines[0].to_float_ptr(), m_colors[0].to_float_ptr(), m_lines_count * 2);
 	}
 
 	m_lines_count = 0;

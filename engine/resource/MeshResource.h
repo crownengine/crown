@@ -29,9 +29,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Resource.h"
 #include "PixelFormat.h"
-#include "Texture.h"
 #include "Allocator.h"
 #include "Bundle.h"
+#include "File.h"
 
 namespace crown
 {
@@ -41,10 +41,29 @@ const uint32_t MESH_VERSION = 1;
 
 struct MeshHeader
 {
-	uint32_t	version;
-	uint32_t	mesh_count;
-	uint32_t	joint_count;
-	uint32_t	padding[16];
+	uint32_t		version;
+	uint32_t		num_meshes;
+	uint32_t		num_joints;
+	uint32_t		padding[16];
+};
+
+struct VertexData
+{
+	uint32_t	    num_vertices;
+	VertexFormat	format;
+	uint32_t		offset;
+};
+
+struct IndexData
+{
+	uint32_t		num_indices;
+	uint32_t		offset;
+};
+
+struct MeshData
+{
+	VertexData		vertices;
+	IndexData		indices;
 };
 
 class MeshResource
@@ -56,22 +75,14 @@ public:
 	{
 		File* file = bundle.open(id);
 
-		MeshResource* resource = (MeshResource*)allocator.allocate(sizeof(MeshResource));
-		file->read(&resource->m_header, sizeof(MeshHeader));
-
-		// Read vertices
-		file->read(&resource->m_vertex_count, sizeof(uint32_t));
-		resource->m_vertices = (float*) allocator.allocate(sizeof(float) * resource->m_vertex_count);
-		file->read(resource->m_vertices, sizeof(float) * resource->m_vertex_count);
-
-		// Read triangles
-		file->read(&resource->m_index_count, sizeof(uint32_t));
-		resource->m_indices = (uint16_t*) allocator.allocate(sizeof(uint16_t) * resource->m_index_count);
-		file->read(resource->m_indices, sizeof(uint16_t) * resource->m_index_count);
+		const size_t file_size = file->size() - 12;
+		MeshResource* res = (MeshResource*) allocator.allocate(sizeof(MeshResource));
+		res->m_data = (uint8_t*) allocator.allocate(file_size);
+		file->read(res->m_data, file_size);
 
 		bundle.close(file);
 
-		return resource;
+		return res;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -80,25 +91,56 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	static void unload(Allocator& , void* )
+	static void unload(Allocator& a, void* res)
 	{
+		MeshResource* resource = (MeshResource*)res;
+		a.deallocate(resource->m_data);
+		a.deallocate(resource);
 	}
 
 	//-----------------------------------------------------------------------------
 	static void offline(void* /*resource*/)
 	{
+	}
 
+	//-----------------------------------------------------------------------------
+	uint32_t num_vertices()
+	{
+		MeshData* data = (MeshData*) (m_data + sizeof(MeshHeader));
+		return data->vertices.num_vertices;
+	}
+
+	//-----------------------------------------------------------------------------
+	VertexFormat vertex_format()
+	{
+		MeshData* data = (MeshData*) (m_data + sizeof(MeshHeader));
+		return data->vertices.format;
+	}
+
+	//-----------------------------------------------------------------------------
+	float* vertices()
+	{
+		MeshData* data = (MeshData*) (m_data + sizeof(MeshHeader));
+		return (float*) (m_data + data->vertices.offset);
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_indices()
+	{
+		MeshData* data = (MeshData*) (m_data + sizeof(MeshHeader));
+		return data->indices.num_indices;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint16_t* indices()
+	{
+		MeshData* data = (MeshData*) (m_data + sizeof(MeshHeader));
+		return (uint16_t*) (m_data + data->indices.offset);
 	}
 
 public:
 
-	MeshHeader			m_header;
-
-	size_t				m_vertex_count;
-	float*				m_vertices;
-
-	size_t				m_index_count;
-	uint16_t*			m_indices;
+	uint8_t* m_data;
 };
 
 } // namespace crown

@@ -30,17 +30,27 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-LinearAllocator::LinearAllocator(void* start, size_t size) :
-	m_physical_start(start),
-	m_total_size(size),
-	m_offset(0)
+LinearAllocator::LinearAllocator(Allocator& backing, size_t size)
+	: m_backing(&backing), m_physical_start(NULL), m_total_size(size), m_offset(0)
+{
+	m_physical_start = backing.allocate(size);
+}
+
+//-----------------------------------------------------------------------------
+LinearAllocator::LinearAllocator(void* start, size_t size)
+	: m_backing(NULL), m_physical_start(start), m_total_size(size), m_offset(0)
 {
 }
 
 //-----------------------------------------------------------------------------
 LinearAllocator::~LinearAllocator()
 {
-	CE_ASSERT(m_offset == 0, "Memory leak of %d bytes", m_offset);
+	if (m_backing)
+	{
+		m_backing->deallocate(m_physical_start);
+	}
+
+	CE_ASSERT(m_offset == 0, "Memory leak of %d bytes, maybe you forgot to call clear()?", m_offset);
 }
 
 //-----------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -28,46 +29,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-static const size_t		MAX_EVENTS = 512;
-static OsEvent			event_queue[MAX_EVENTS];
-static uint32_t			event_queue_head = 0;
-static uint32_t			event_queue_tail = 0;
+EventBuffer g_os_event_buffer;
 
-//-----------------------------------------------------------------------------
-void push_event(OsEventType type, OsEventParameter data_a, OsEventParameter data_b, OsEventParameter data_c, OsEventParameter data_d)
+EventBuffer* os_event_buffer()
 {
-	if ((event_queue_tail + 1) % MAX_EVENTS == event_queue_head)
-	{
-		os::printf("OS event queue full!\n");
-		return;
-	}
-
-	OsEvent* event = &event_queue[event_queue_tail];
-	event_queue_tail = (event_queue_tail + 1) % MAX_EVENTS;
-
-	event->type = type;
-	event->data_a = data_a;
-	event->data_b = data_b;
-	event->data_c = data_c;
-	event->data_d = data_d;
-}
-
-//-----------------------------------------------------------------------------
-OsEvent& pop_event()
-{
-	static OsEvent event;
-
-	if (event_queue_head == event_queue_tail)
-	{
-		event.type = OSET_NONE;
-		return event;
-	}
-
-	event = event_queue[event_queue_head];
-	event_queue_head = (event_queue_head + 1) % MAX_EVENTS;
-
-	return event;
+	return &g_os_event_buffer;
 }
 
 } // namespace crown
-

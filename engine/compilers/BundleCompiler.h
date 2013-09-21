@@ -26,8 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "MeshCompiler.h"
 #include "TextureCompiler.h"
 #include "LuaCompiler.h"
+#include "PackageCompiler.h"
 #include "DynamicString.h"
 #include "Vector.h"
 #include "DiskFilesystem.h"
@@ -49,8 +51,10 @@ private:
 
 private:
 
+	MeshCompiler	m_mesh;
 	TextureCompiler	m_texture;
 	LuaCompiler 	m_lua;
+	PackageCompiler m_package;
 };
 
 } // namespace crown

@@ -54,8 +54,13 @@ public:
 	void			resize(uint32_t width, uint32_t height);
 	void			move(uint32_t x, uint32_t y);
 
-	void			show_cursor();
-	void			hide_cursor();
+	void			minimize();
+	void			restore();
+
+	bool			is_resizable() const;
+	void			set_resizable(bool resizable);
+
+	void			show_cursor(bool show);
 
 	void			get_cursor_xy(int32_t& x, int32_t& y);
 	void			set_cursor_xy(int32_t x, int32_t y);
@@ -75,6 +80,7 @@ private:
 	uint32_t		m_y;
 	uint32_t		m_width;
 	uint32_t		m_height;
+	bool			m_resizable;
 
 	bool			m_x11_detectable_autorepeat;
 	Cursor			m_x11_hidden_cursor;

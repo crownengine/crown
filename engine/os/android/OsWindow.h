@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <sys/types.h>
 #include <android/native_window.h>
+#include <android/native_window_jni.h>
 
 namespace crown
 {
@@ -58,11 +59,20 @@ public:
 	/// Stub method, does nothing under Android.
 	void			move(uint32_t x, uint32_t y);
 
-	/// Stub method, does nothing under Android.
-	void			show_cursor();
+	/// Stub method, does nothing under Android.	
+	void			minimize();
 
 	/// Stub method, does nothing under Android.
-	void			hide_cursor();
+	void			restore();
+
+	/// Returns always false.
+	bool			is_resizable() const;
+
+	/// Stub method, does nothing under Android.	
+	void			set_resizable(bool resizeable);
+
+	/// Stub method, does nothing under Android.
+	void			show_cursor(bool show);
 
 	/// Stub method, does nothing under Android.
 	void			get_cursor_xy(int32_t& x, int32_t& y);
@@ -80,8 +90,6 @@ public:
 	void			frame();
 
 private:
-
-	ANativeWindow*	m_window;
 
 	uint32_t		m_x;
 	uint32_t		m_y;

@@ -32,8 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LinearAllocator.h"
 #include "Resource.h"
 
-#define MAX_SUBSYSTEMS_HEAP 1024 * 1024
-
 namespace crown
 {
 
@@ -51,6 +49,10 @@ class Accelerometer;
 class LuaEnvironment;
 class ConsoleServer;
 class BundleCompiler;
+class ResourcePackage;
+
+typedef void (*cb)(float);
+void nothing(float);
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -76,13 +78,18 @@ public:
 	/// Returns whether the engine is correctly initialized
 	bool					is_init() const;
 
+	/// Returns wheter the engine is paused
+	bool 					is_paused() const;
+
 	/// Return the number of frames rendered from the first
 	/// call to Device::start()
 	uint64_t				frame_count() const;
 
-	/// Returns the time in milliseconds needed to render
-	/// the last frame
+	/// Returns the time in seconds needed to render the last frame
 	float					last_delta_time() const;
+
+	/// Returns the time in seconds since the first call to start().
+	double					time_since_start() const;
 
 	/// Forces the engine to actually start doing work.
 	void					start();
@@ -91,8 +98,24 @@ public:
 	/// and normally terminates the program.
 	void					stop();
 
+	/// Pauses the engine
+	void					pause();
+
+	/// Unpauses the engine
+	void					unpause();
+
 	/// Updates all the subsystems
-	void					frame();
+	void					frame(cb callback);
+	void					frame() { frame(nothing); }
+
+	/// Returns the resource package with the given @a package_name name.
+	ResourcePackage*		create_resource_package(const char* name);
+
+	/// Destroy a previously created resource @a package.
+	/// @note
+	/// To unload the resources loaded by the package, you have to call
+	/// ResourcePackage::unload() first.
+	void					destroy_resource_package(ResourcePackage* package);
 
 	void					compile(const char* bundle_dir, const char* source_dir, const char* resource);
 
@@ -116,6 +139,7 @@ public:
 
 private:
 
+	void					init();
 	void					parse_command_line(int argc, char** argv);
 	void					check_preferred_settings();
 	void					read_engine_settings();
@@ -124,7 +148,6 @@ private:
 private:
 
 	// Used to allocate all subsystems
-	uint8_t					m_subsystems_heap[MAX_SUBSYSTEMS_HEAP];
 	LinearAllocator			m_allocator;
 
 	// Preferred settings
@@ -142,12 +165,16 @@ private:
 
 	bool					m_is_init		: 1;
 	bool					m_is_running	: 1;
+	bool					m_is_paused		: 1;
+
+	bool 					m_is_really_paused :1;
 
 	uint64_t				m_frame_count;
 
 	uint64_t				m_last_time;
 	uint64_t				m_current_time;
 	float					m_last_delta_time;
+	double					m_time_since_start;
 
 	// Public subsystems
 	Filesystem*				m_filesystem;
@@ -166,13 +193,19 @@ private:
 	// Debug subsystems
 	ConsoleServer*			m_console_server;
 
+	bool 					m_renderer_init_request;
+
 private:
 
 	// Disable copying
 	Device(const Device&);
 	Device& operator=(const Device&);
+
+	friend class MainThread;
 };
 
+CE_EXPORT void init();
+CE_EXPORT void shutdown();
 CE_EXPORT Device* device();
 
 } // namespace crown

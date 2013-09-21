@@ -44,20 +44,17 @@ CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 	load_int_setting(*env);
 	load_float_setting(*env);
 	load_string_setting(*env);
-
 	load_vec2(*env);
 	load_vec3(*env);
 	load_mat4(*env);
 	load_quat(*env);
 	load_math(*env);
-
 	load_mouse(*env);
 	load_keyboard(*env);
 	load_accelerometer(*env);
-
 	load_device(*env);
-
 	load_window(*env);
+	load_resource_package(*env);
 
 	return 1;
 }
@@ -81,13 +78,9 @@ static int crown_lua_require(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-LuaEnvironment::LuaEnvironment() :
-	m_state(luaL_newstate()),
-	m_is_used(false)
+LuaEnvironment::LuaEnvironment()
+	: m_state(luaL_newstate()), m_is_used(false)
 {
-	// Open Lua default libraries
-	string::strncpy(m_error_buffer, "", 1024);
-	string::strncpy(m_tmp_buffer, "", 1024);
 }
 
 //-----------------------------------------------------------------------------
@@ -117,17 +110,6 @@ void LuaEnvironment::init()
 
 	lua_pop(m_state, 1);
 
-	// load_buffer(class_system, string::strlen(class_system));
-	// execute(0, 0);
-	// load_buffer(commands_list, string::strlen(commands_list));
-	// execute(0, 0);
-	// load_buffer(get_cmd_by_name, string::strlen(get_cmd_by_name));
-	// execute(0, 0);
-	// load_buffer(tmp_print_table, string::strlen(tmp_print_table));
-	// execute(0, 0);
-	// load_buffer(count_all, string::strlen(count_all));
-	// execute(0, 0);
-
 	m_is_used = true;
 }
 
@@ -135,78 +117,37 @@ void LuaEnvironment::init()
 void LuaEnvironment::shutdown()
 {
 	lua_close(m_state);
-
 	m_is_used = false;
 }
 
 //-----------------------------------------------------------------------------
-const char* LuaEnvironment::error()
-{	
-	string::strncpy(m_tmp_buffer, m_error_buffer, 1024);
-	string::strncpy(m_error_buffer, "", 1024);
-
-	return m_tmp_buffer;
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::load(const LuaResource* lr)
+bool LuaEnvironment::load_and_execute(const char* res_name)
 {
-	CE_ASSERT_NOT_NULL(lr);
+	CE_ASSERT_NOT_NULL(res_name);
 
-	if (luaL_loadbuffer(m_state, (const char*) lr->code(), lr->size(), "") != 0)
+	ResourceManager* resman = device()->resource_manager();
+
+	// Load the resource
+	ResourceId res_id = resman->load("lua", res_name);
+	resman->flush();
+	LuaResource* lr = (LuaResource*) resman->data(res_id);
+	
+	lua_getglobal(m_state, "debug");
+	lua_getfield(m_state, -1, "traceback");
+	if (luaL_loadbuffer(m_state, (const char*) lr->code(), lr->size(), res_name) == 0)
 	{
-		lua_error();
-	}
-
-	if (lua_pcall(m_state, 0, 0, 0) != 0)
-	{
-		lua_error();
-	}
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
-{
-	CE_ASSERT_NOT_NULL(func);
-
-	LuaStack stack(m_state);
-
-	va_list vl;
-	va_start(vl, argc);
-
-	lua_getglobal(m_state, func);
-
-	for (uint8_t i = 0; i < argc; i++)
-	{
-		const int type = va_arg(vl, int);
-		switch (type)
+		if (lua_pcall(m_state, 0, 0, -2) == 0)
 		{
-			case ARGUMENT_FLOAT:
-			{
-				stack.push_float(va_arg(vl, double));
-				break;
-			}
-			default:
-			{
-				CE_ASSERT(false, "Oops, lua argument unknown");
-				break;
-			}
+			// Unloading is OK since the script data has been copied to Lua
+			resman->unload(res_id);
+			lua_pop(m_state, 2); // Pop debug.traceback
+			return true;
 		}
 	}
 
-	va_end(vl);
-
-	if (lua_pcall(m_state, argc, 0, 0) != 0)
-	{
-		lua_error();
-	}
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::lua_error()
-{
-	string::strncpy(m_error_buffer, "", 1024);
-	string::strncpy(m_error_buffer, lua_tostring(m_state, -1), 1024);
+	error();
+	lua_pop(m_state, 2); // Pop debug.traceback
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -229,77 +170,58 @@ void LuaEnvironment::load_module_enum(const char* /*module*/, const char* name, 
 	lua_setfield(m_state, -2, name);
 }
 
-const char* LuaEnvironment::class_system =  "function class(klass, super) "
-    										"	if not klass then "
-        									"		klass = {} "
-                							"		local meta = {} "
-        									"		meta.__call = function(self, ...) "
-            								"			local object = {} "
-            								"			setmetatable(object, klass) "
-            								"			if object.init then object:init(...) end "
-            								"			return object "
-       										"		end "
-        									"		setmetatable(klass, meta) "
-    										"	end "  
-    										"	if super then "
-        									"		for k,v in pairs(super) do "
-            								"			klass[k] = v "
-        									"		end "
-    										"	end "
-    										"	klass.__index = klass "
-    										"	return klass "
-											"end";
+//-----------------------------------------------------------------------------
+bool LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
+{
+	CE_ASSERT_NOT_NULL(func);
 
+	LuaStack stack(m_state);
 
-const char* LuaEnvironment::commands_list = "function get_all_commands() "
-											"	local cmds = {}; "
-											"	for class_name,class in pairs(_G) do "
-											"		if type(class) == 'table' then "
-			 								"			for func_name,func in pairs(class) do "
-			 								"				if type(func) == 'function' then "
-											"					cmds[#cmds+1] = class_name .. '.' .. func_name "
-											"				end "
-											"			end "
-											"		end "
-											"	end "
-											"	return cmds "
-											"end";
+	va_list vl;
+	va_start(vl, argc);
 
-const char* LuaEnvironment::get_cmd_by_name = 	"function get_command_by_name(text) "
-												"	local cmds = get_all_commands() "
-												"	local results = {} "
-												"	local index = 0 "
-												"	for i,cmd in pairs(cmds) do "
-												"		if string.find(cmd, text) then "
-												"			results[index] = cmds[i] "
-												"			index = index + 1 "
-												"		end "
-												"	end "
-												"	return results "
-												"end";
+	lua_getglobal(m_state, "debug");
+	lua_getfield(m_state, -1, "traceback");
+	lua_getglobal(m_state, func);
 
-const char* LuaEnvironment::tmp_print_table =	"function print_table(table) "												
-												"	for k,v in pairs(table) do "
-												"		print(v) "
-												"	end "
-												"end";
+	for (uint8_t i = 0; i < argc; i++)
+	{
+		const int type = va_arg(vl, int);
+		switch (type)
+		{
+			case ARGUMENT_FLOAT:
+			{
+				stack.push_float(va_arg(vl, double));
+				break;
+			}
+			default:
+			{
+				CE_ASSERT(false, "Oops, lua argument unknown");
+				break;
+			}
+		}
+	}
 
-const char* LuaEnvironment::count_all = 	"function count_all(f) "
-											"	local seen = {} "
-											"	local count_table "
-											"	count_table = function(t) "
-											"		if seen[t] then return end "
-											"		f(t) "
-											"		seen[t] = true "
-											"		for k,v in pairs(t) do "
-											"			if type(v) == 'table' then "
-											"				count_table(v) "
-											"			elseif type(v) == 'userdata' then "
-											"				f(v) "
-											"			end "
-											"		end "
-											"	end "
-											"	count_table(_G) "
-											"end";
+	va_end(vl);
+
+	if (lua_pcall(m_state, argc, 0, -argc - 2) != 0)
+	{
+		error();
+		lua_pop(m_state, 2); // Pop debug.traceback
+		return false;
+	}
+
+	lua_pop(m_state, 2); // Pop debug.traceback
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::error()
+{
+	const char* msg = lua_tostring(m_state, -1);
+	Log::e(msg);
+	lua_pop(m_state, 1);
+}
 
 } // namespace crown

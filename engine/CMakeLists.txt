@@ -61,11 +61,13 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/compilers/lua
 	${CMAKE_SOURCE_DIR}/engine/compilers/texture
 	${CMAKE_SOURCE_DIR}/engine/compilers/mesh
+	${CMAKE_SOURCE_DIR}/engine/compilers/package
 )
 
 set (SRC
 	Camera.cpp
 	Device.cpp
+	EventBuffer.cpp
 	ConsoleServer.cpp
 	FPSSystem.cpp
 )
@@ -75,6 +77,7 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
+	EventBuffer.h
 	ConsoleServer.h
 	FPSSystem.h
 )
@@ -189,7 +192,6 @@ set (STRINGS_HEADERS
 
 set (MEM_SRC
 	core/mem/Memory.cpp
-	core/mem/Allocator.cpp
 	core/mem/HeapAllocator.cpp
 	core/mem/LinearAllocator.cpp
 	core/mem/StackAllocator.cpp
@@ -255,16 +257,11 @@ set (NETWORK_HEADERS
 
 set (RENDERERS_SRC
 	renderers/DebugRenderer.cpp
-	renderers/PixelFormat.cpp
-	renderers/VertexFormat.cpp
 )
 
 set (RENDERERS_HEADERS
 	renderers/Renderer.h
-	renderers/IndexBuffer.h
-	renderers/VertexBuffer.h
-	renderers/Material.h
-	renderers/Texture.h
+	renderers/RenderContext.h
 	renderers/DebugRenderer.h
 	renderers/PixelFormat.h
 	renderers/VertexFormat.h
@@ -285,7 +282,6 @@ else ()
 endif (CROWN_DEBUG OR CROWN_DEVELOPMENT)
 
 set (RESOURCE_HEADERS
-
 	resource/Resource.h
 	resource/ResourceFormat.h
 	resource/ResourceLoader.h
@@ -298,6 +294,8 @@ set (RESOURCE_HEADERS
 	resource/FontResource.h
 	resource/SoundResource.h
 	resource/MaterialResource.h
+	resource/PackageResource.h
+	resource/ResourcePackage.h
 )
 
 set (RPC_SRC
@@ -325,6 +323,7 @@ set (OS_SRC
 set (OS_HEADERS
 	os/OS.h
 	os/NetAddress.h
+	os/OsEvents.h
 )
 
 set (LUA_SRC
@@ -343,6 +342,7 @@ set (LUA_SRC
 	lua/LuaAccelerometer.cpp
 	lua/LuaDevice.cpp
 	lua/LuaWindow.cpp
+	lua/LuaResourcePackage.cpp
 )
 
 set (LUA_HEADERS
@@ -353,15 +353,19 @@ set (LUA_HEADERS
 set (COMPILER_SRC
 	compilers/Compiler.cpp
 	compilers/BundleCompiler.cpp
+	compilers/mesh/MeshCompiler.cpp
 	compilers/lua/LuaCompiler.cpp
 	compilers/texture/TextureCompiler.cpp
+	compilers/package/PackageCompiler.cpp
 )
 
 set (COMPILER_HEADER
 	compilers/Compiler.h
 	compilers/BundleCompiler.h
+	compilers/mesh/MeshCompiler.h
 	compilers/lua/LuaCompiler.h
 	compilers/texture/TextureCompiler.h
+	compilers/package/PackageCompiler.h
 )
 
 set (CROWN_LIBRARIES)
@@ -381,6 +385,7 @@ if (LINUX)
 		os/linux/Thread.h
 		os/linux/Mutex.h
 		os/linux/Cond.h
+		os/posix/Semaphore.h
 	)
 
 	list (APPEND OS_SRC
@@ -389,20 +394,15 @@ if (LINUX)
 		os/posix/TCPSocket.cpp
 		os/posix/UDPSocket.cpp	
 		os/posix/OsFile.cpp
-		os/posix/Thread.cpp
-		os/posix/Mutex.cpp
-		os/posix/Cond.cpp
 	)
 
 	list (APPEND RENDERERS_SRC
 		renderers/gl/GLRenderer.cpp
-		renderers/gl/GLUtils.cpp
 		renderers/gl/glx/GLContext.cpp
 	)
 
 	list (APPEND RENDERERS_HEADERS
 		renderers/gl/GLRenderer.h
-		renderers/gl/GLUtils.h
 		renderers/gl/glx/GLContext.h
 	)
 
@@ -464,6 +464,7 @@ if (WINDOWS)
 		os/win/Thread.h
 		os/win/Mutex.h
 		os/win/Cond.h
+		os/win/inttypes.h
 	)
 
 	list (APPEND OS_SRC
@@ -477,13 +478,11 @@ if (WINDOWS)
 
 	list (APPEND RENDERERS_SRC
 		renderers/gl/GLRenderer.cpp
-		renderers/gl/GLUtils.cpp
 		renderers/gl/wgl/GLContext.cpp
 	)
 
 	list (APPEND RENDERERS_HEADERS
 		renderers/gl/GLRenderer.h
-		renderers/gl/GLUtils.h
 		renderers/gl/wgl/GLContext.h
 	)
 
@@ -494,7 +493,9 @@ if (WINDOWS)
 		lua51
 	)
 
-	set (COMPILER_FLAGS)
+	set (COMPILER_FLAGS
+		/Wall
+	)
 
 	set (CROWN_MAIN_SRC os/win/main.cpp)
 endif(WINDOWS)
@@ -555,12 +556,16 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 
+add_executable(crown-linux-renderer-evo os/linux/main2.cpp)
+target_link_libraries(crown-linux-renderer-evo crown)
+
 if (CROWN_BUILD_TESTS)
-	add_subdirectory(tests)
+	#add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
 install (TARGETS crown DESTINATION bin)
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
+install (TARGETS crown-linux-renderer-evo DESTINATION bin)
 
 #install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 

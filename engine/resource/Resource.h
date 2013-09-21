@@ -41,14 +41,16 @@ const char* const TEXT_EXTENSION			= "text";
 const char* const MATERIAL_EXTENSION		= "material";
 const char* const SOUND_EXTENSION			= "sound";
 const char* const CONFIG_EXTENSION			= "config";
+const char* const PACKAGE_EXTENSION			= "package";
 
 const uint32_t TEXTURE_TYPE					= 0xDEED4F7;
-const uint32_t MESH_TYPE					= 0xA6E48B29;
+const uint32_t MESH_TYPE					= 0x742FBC9A;
 const uint32_t LUA_TYPE						= 0xD96E7C37;
 const uint32_t TEXT_TYPE					= 0x45CC650;
 const uint32_t MATERIAL_TYPE				= 0x46807A92;
 const uint32_t SOUND_TYPE					= 0xD196AB6E;
 const uint32_t CONFIG_TYPE					= 0x17DEA5E1;
+const uint32_t PACKAGE_TYPE					= 0xC0A2212C;
 
 /// ResourceId uniquely identifies a resource by its name and type.
 /// In order to speed up the lookup by the manager, it also keeps

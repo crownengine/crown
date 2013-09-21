@@ -31,18 +31,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "Vec3.h"
 #include "Color4.h"
-#include "Material.h"
-#include "Texture.h"
 #include "Bundle.h"
 #include "Allocator.h"
 
 namespace crown
 {
-
-/// Max texture layers supported by the material.
-/// @note The maximum number of usable layers depends on the graphic card/Renderer config.
-const uint32_t MAX_TEXTURE_LAYERS = 8;
-
 
 /// A material describes the visual properties of a surface.
 /// It is primarly intended for rendering purposes but can
@@ -75,55 +68,6 @@ public:
 	{
 		// TODO
 	}
-
-private:
-
-	Color4			m_ambient;
-	Color4			m_diffuse;
-	Color4			m_specular;
-	Color4			m_emission;
-	int32_t			m_shininess;
-
-	bool			m_lighting					: 1; // Lighting enabled
-	bool			m_texturing					: 1; // Texturing enabled
-	bool			m_backface_culling			: 1; // Backface-culling enabled
-	bool			m_separate_specular_color 	: 1; // Separate specular color enabled
-	bool			m_depth_test				: 1; // Depth test enabled
-	bool			m_depth_write				: 1; // Depth write enabled
-	bool			m_rescale_normals			: 1; // Auto normal rescaling enabled
-	bool			m_blending					: 1; // Blending enabled
-	bool			m_color_write				: 1; // Writing into color buffer enabled
-	bool			m_fog						: 1; // Fog enabled
-	bool			m_alpha_test				: 1; // Alpha test enabled
-	bool			m_point_sprite				: 1; // Point sprite enabled
-
-	ShadingType		m_shading_type;
-	PolygonMode		m_polygon_mode;
-	FrontFace		m_front_face;
-
-	CompareFunction	m_depth_func;
-
-	FogMode 		m_fog_mode;
-	float			m_fog_density;
-	float			m_fog_start;
-	float			m_fog_end;
-	Color4			m_fog_color;
-
-	CompareFunction	m_alpha_func;
-	float			m_alpha_ref;
-
-	float			m_point_size;
-	float			m_point_size_min;
-	float			m_point_size_max;
-
-	BlendEquation	m_blend_equation;
-	BlendFunction	m_blend_src;
-	BlendFunction	m_blend_dst;
-	Color4			m_blend_color;
-
-	// A material can contain up to MAX_TEXTURE_LAYERS texture layers.
-	// However, the maximum number of texture layers actually usable is Renderer-dependent.
-	ResourceId		m_textures[MAX_TEXTURE_LAYERS];
 };
 
 } // namespace crown

@@ -58,17 +58,23 @@ class JSONElement
 {
 public:
 
-	/// Used only to forward-instantiate elements.
-	/// In order to be able to use the element, it must be
-	/// obtained from JSONParser::root() or copied from an
-	/// already existent and valid element.
+	/// Construct the nil JSONElement.
+	/// Used to forward-instantiate elements or as a special
+	/// nil element.
 						JSONElement();
+						JSONElement(const JSONElement& other);
+
+	JSONElement&		operator=(const JSONElement& other);
 
 	/// Returns the @a i -th item of the current array.
 	JSONElement&		operator[](uint32_t i);
 
-	/// @copydoc JSONParser::operator[]
+	/// @copydoc JSONElement::operator[]
 	JSONElement&		index(uint32_t i);
+
+	/// Returns the @a i -th item of the current array or
+	/// the special nil JSONElement() if the index does not exist.
+	JSONElement			index_or_nil(uint32_t i);
 
 	/// Returns the element corresponding to key @a k of the
 	/// current object.
@@ -76,6 +82,10 @@ public:
 	/// If the key is not unique in the object scope, the last
 	/// key in order of appearance will be selected.
 	JSONElement&		key(const char* k);
+
+	/// Returns the element corresponding to key @a k of the current
+	/// object, or the special nil JSONElement() if the key does not exist.
+	JSONElement			key_or_nil(const char* k);
 
 	/// Returns whether the element has the @a k key.
 	bool				has_key(const char* k) const;
@@ -126,13 +136,36 @@ public:
 	/// instead of copying its content somewhere else.
 	const char*			string_value();
 
+	/// Returns the array value of the element.
+	/// @note
+	/// Calling this function is way faster than accessing individual
+	/// array elements by JSONElement::operator[] and it is the very preferred way
+	/// for retrieving array elemets. However, you have to be sure that the array
+	/// contains only items of the given @array type.
+	void				array_value(List<bool>& array);
+
+	/// @copydoc JSONElement::array_value(List<bool>&)
+	void				array_value(List<int16_t>& array);
+
+	/// @copydoc JSONElement::array_value(List<bool>&)
+	void				array_value(List<uint16_t>& array);
+
+	/// @copydoc JSONElement::array_value(List<bool>&)
+	void				array_value(List<int32_t>& array);
+
+	/// @copydoc JSONElement::array_value(List<bool>&)
+	void				array_value(List<uint32_t>& array);
+
+	/// @copydoc JSONElement::array_value(List<bool>&)
+	void				array_value(List<float>& array);
+
 private:
 
-						JSONElement(JSONParser& parser, const char* at);
+	explicit			JSONElement(JSONParser& parser, const char* at);
 
 	JSONParser*			m_parser;
-	const char*			m_at;
 	const char*			m_begin;
+	const char*			m_at;
 
 	friend class 		JSONParser;
 };

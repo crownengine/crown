@@ -115,7 +115,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool get_bool(int32_t index)
 	{
-		return (bool) luaL_checkinteger(m_state, index);
+		return (bool) lua_toboolean(m_state, index);
 	}
 
 	//-----------------------------------------------------------------------------

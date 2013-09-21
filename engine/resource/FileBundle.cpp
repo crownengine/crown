@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "StringUtils.h" 
 #include "Types.h"
+#include "OS.h"
 
 namespace crown
 {

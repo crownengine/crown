@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Assert.h"
+#include <X11/Xlib.h>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
@@ -207,6 +208,30 @@ void list_files(const char* path, Vector<DynamicString>& files)
 }
 
 //-----------------------------------------------------------------------------
+const char* normalize_path(const char* path)
+{
+	static char norm[MAX_PATH_LENGTH];
+	char* cur = norm;
+
+	while ((*path) != '\0')
+	{
+		if ((*path) == '\\')
+		{
+			(*cur) = PATH_SEPARATOR;
+		}
+		else
+		{
+			(*cur) = (*path);
+		}
+
+		path++;
+		cur++;
+	}
+
+	return norm;
+}
+
+//-----------------------------------------------------------------------------
 const char* get_cwd()
 {
 	static char cwdBuf[MAX_PATH_LENGTH];
@@ -249,6 +274,8 @@ const char* get_env(const char* env)
 //-----------------------------------------------------------------------------
 void init_os()
 {
+	XInitThreads();
+
 	// Initilize the base time
 	clock_gettime(CLOCK_MONOTONIC, &base_time);
 }

@@ -39,7 +39,6 @@ LOCAL_SRC_FILES :=\
 	core/math/Vec3.cpp\
 	core/math/Vec4.cpp\
 \
-	core/mem/Allocator.cpp\
 	core/mem/HeapAllocator.cpp\
 	core/mem/LinearAllocator.cpp\
 	core/mem/ProxyAllocator.cpp\
@@ -69,18 +68,12 @@ LOCAL_SRC_FILES :=\
 	os/android/ApkFile.cpp\
 	os/android/ApkFilesystem.cpp\
 	os/posix/OsFile.cpp\
-	os/posix/Thread.cpp\
-	os/posix/Mutex.cpp\
-	os/posix/Cond.cpp\
 	os/posix/TCPSocket.cpp\
 	os/posix/UDPSocket.cpp\
 \
-	renderers/gles/GLESRenderer.cpp\
-	renderers/gles/GLESUtils.cpp\
-	renderers/gles/egl/GLContext.cpp\
+	renderers/gl/GLRenderer.cpp\
+	renderers/gl/egl/GLContext.cpp\
 	renderers/DebugRenderer.cpp\
-	renderers/PixelFormat.cpp\
-	renderers/VertexFormat.cpp\
 \
 	resource/FileBundle.cpp\
 	resource/ResourceLoader.cpp\
@@ -103,11 +96,13 @@ LOCAL_SRC_FILES :=\
 	lua/LuaIntSetting.cpp\
 	lua/LuaFloatSetting.cpp\
 	lua/LuaStringSetting.cpp\
+	lua/LuaResourcePackage.cpp\
 \
 	Camera.cpp\
 	Device.cpp\
 	FPSSystem.cpp\
 	ConsoleServer.cpp\
+	EventBuffer.cpp\
 \
 
 LOCAL_C_INCLUDES	:=\
@@ -131,8 +126,8 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/os/android\
 	$(LOCAL_PATH)/os/posix\
 	$(LOCAL_PATH)/renderers\
-	$(LOCAL_PATH)/renderers/gles\
-	$(LOCAL_PATH)/renderers/gles/egl\
+	$(LOCAL_PATH)/renderers/gl\
+	$(LOCAL_PATH)/renderers/gl/egl\
 	$(LOCAL_PATH)/luajit/include/luajit-2.0\
 
 LOCAL_CPPFLAGS	:= -g -fexceptions -std=c++03 -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-variadic-macros

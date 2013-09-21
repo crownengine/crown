@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "GLContext.h"
 #include "StringUtils.h"
+#include "OsEvents.h"
 
 namespace crown
 {
@@ -99,6 +100,7 @@ OsWindow::OsWindow(uint32_t width, uint32_t height, uint32_t parent) :
 	m_y(0),
 	m_width(width),
 	m_height(height),
+	m_resizable(true),
 	m_x11_detectable_autorepeat(false),
 	m_x11_hidden_cursor(None)
 {
@@ -214,15 +216,49 @@ void OsWindow::move(uint32_t x, uint32_t y)
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::show_cursor()
+void OsWindow::minimize()
 {
-	XDefineCursor(m_x11_display, m_x11_window, None);
+	XIconifyWindow(m_x11_display, m_x11_window, DefaultScreen(m_x11_display));
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::hide_cursor()
+void OsWindow::restore()
 {
-	XDefineCursor(m_x11_display, m_x11_window, m_x11_hidden_cursor);
+	XMapRaised(m_x11_display, m_x11_window);
+}
+
+//-----------------------------------------------------------------------------
+bool OsWindow::is_resizable() const
+{
+	return m_resizable;
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::set_resizable(bool resizable)
+{
+	XSizeHints hints;
+	hints.flags = PMinSize | PMaxSize;
+	hints.min_width = resizable ? 1 : m_width;
+	hints.min_height = resizable ? 1 : m_height;
+	hints.max_width = resizable ? 65535 : m_width;
+	hints.max_height = resizable ? 65535 : m_height;
+
+	XSetWMNormalHints(m_x11_display, m_x11_window, &hints);
+
+	m_resizable = resizable;
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::show_cursor(bool show)
+{
+	if (show)
+	{
+		XDefineCursor(m_x11_display, m_x11_window, None);
+	}
+	else
+	{
+		XDefineCursor(m_x11_display, m_x11_window, m_x11_hidden_cursor);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -271,8 +307,8 @@ void OsWindow::frame()
 {
 	XEvent event;
 
-	OsEventParameter data_button[4] = {0, 0, 0, 0};
-	OsEventParameter data_key[4] = {0, 0, 0, 0};
+	OsMouseEvent mouse_event;
+	OsKeyboardEvent keyboard_event;
 
 	while (XPending(m_x11_display))
 	{
@@ -293,38 +329,38 @@ void OsWindow::frame()
 			{
 				OsEventType oset_type = event.type == ButtonPress ? OSET_BUTTON_PRESS : OSET_BUTTON_RELEASE;
 
-				data_button[0].int_value = event.xbutton.x;
-				data_button[1].int_value = event.xbutton.y;
+				mouse_event.x = event.xbutton.x;
+				mouse_event.y = event.xbutton.y;
 
 				switch (event.xbutton.button)
 				{
 					case Button1:
 					{
-						data_button[2].int_value = 0;
-						push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
+						mouse_event.button = 0;
+						os_event_buffer()->push_event(oset_type, &mouse_event, sizeof(OsMouseEvent));
 						break;
 					}
 					case Button2:
 					{
-						data_button[2].int_value = 1;
-						push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
+						mouse_event.button = 1;
+						os_event_buffer()->push_event(oset_type, &mouse_event, sizeof(OsMouseEvent));
 						break;
 					}
 					case Button3:
 					{
-						data_button[2].int_value = 2;
-						push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
+						mouse_event.button = 2;
+						os_event_buffer()->push_event(oset_type, &mouse_event, sizeof(OsMouseEvent));
 						break;
 					}
 				}
 
 				break;
 			}
-			case MotionNotify:
-			{
-				push_event(OSET_MOTION_NOTIFY, data_button[0], data_button[1], data_button[2], data_button[3]);
-				break;
-			}
+			// case MotionNotify:
+			// {
+			// 	push_event(OSET_MOTION_NOTIFY, data_button[0], data_button[1], data_button[2], data_button[3]);
+			// 	break;
+			// }
 			case KeyPress:
 			case KeyRelease:
 			{
@@ -353,10 +389,10 @@ void OsWindow::frame()
 
 				OsEventType oset_type = event.type == KeyPress ? OSET_KEY_PRESS : OSET_KEY_RELEASE;
 
-				data_key[0].int_value = ((int32_t)kc);
-				data_key[1].int_value = modifier_mask;
+				keyboard_event.key = ((int32_t)kc);
+				keyboard_event.modifier = modifier_mask;
 
-				push_event(oset_type, data_key[0], data_key[1], data_key[2], data_key[3]);
+				os_event_buffer()->push_event(oset_type, &keyboard_event, sizeof(OsKeyboardEvent));
 
 //				// Text input part
 //				if (event.type == KeyPress && len > 0)

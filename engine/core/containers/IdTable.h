@@ -33,25 +33,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+#define INVALID_ID 65535
+
 struct Id
 {
-	union
-	{
-		uint16_t id;
-		uint16_t next;
-	};
-
+	uint16_t id;
 	uint16_t index;
 };
 
 /// Table of Ids.
+template <uint32_t MAX_NUM_ID>
 class IdTable
 {
 public:
 
-	/// Creates the table for tracking exactly @a max_ids - 1 unique Ids.
-					IdTable(Allocator& allocator, uint16_t max_ids);
-					~IdTable();
+	/// Creates the table for tracking exactly @a MAX_NUM_ID - 1 unique Ids.
+					IdTable();
 
 	/// Returns a new Id.
 	Id				create();
@@ -69,13 +66,6 @@ private:
 
 private:
 
-	Allocator&		m_allocator;
-
-	// The maximum number of Ids the table can track.
-	// The last valid id is reserved and cannot be used to
-	// refer to Ids from the outside.
-	const uint16_t	m_max_ids;
-
 	// The index of the first unused id.
 	uint16_t		m_freelist;
 
@@ -86,41 +76,31 @@ private:
 	uint16_t		m_next_id;
 
 	// Table of ids.
-	Id*				m_ids;
+	// The last valid id is reserved and cannot be used to
+	// refer to Ids from the outside.
+	Id				m_ids[MAX_NUM_ID];
 };
 
 //-----------------------------------------------------------------------------
-inline IdTable::IdTable(Allocator& allocator, uint16_t max_ids) :
-	m_allocator(allocator),
-	m_max_ids(max_ids),
-	m_freelist(max_ids),
-	m_last_index(0),
-	m_next_id(0)
+template <uint32_t MAX_NUM_ID>
+inline IdTable<MAX_NUM_ID>::IdTable()
+	: m_freelist(MAX_NUM_ID), m_last_index(0), m_next_id(0)
 {
-	m_ids = (Id*)m_allocator.allocate(m_max_ids * sizeof(Id));
 }
 
 //-----------------------------------------------------------------------------
-inline IdTable::~IdTable()
-{
-	if (m_ids)
-	{
-		m_allocator.deallocate(m_ids);
-	}
-}
-
-//-----------------------------------------------------------------------------
-inline Id IdTable::create()
+template <uint32_t MAX_NUM_ID>
+inline Id IdTable<MAX_NUM_ID>::create()
 {
 	// Obtain a new id
 	Id id;
 	id.id = next_id();
 
 	// Recycle slot if there are any
-	if (m_freelist != m_max_ids)
+	if (m_freelist != MAX_NUM_ID)
 	{
 		id.index = m_freelist;
-		m_freelist = m_ids[m_freelist].next;
+		m_freelist = m_ids[m_freelist].id;
 	}
 	else
 	{
@@ -133,24 +113,28 @@ inline Id IdTable::create()
 }
 
 //-----------------------------------------------------------------------------
-inline void IdTable::destroy(Id id)
+template <uint32_t MAX_NUM_ID>
+inline void IdTable<MAX_NUM_ID>::destroy(Id id)
 {
 	CE_ASSERT(has(id), "IdTable does not have ID: %d,%d", id.id, id.index);
 
-	m_ids[id.index].next = m_freelist;
+	m_ids[id.index].id = INVALID_ID;
+	m_ids[id.index].index = m_freelist;
 	m_freelist = id.index;
 }
 
 //-----------------------------------------------------------------------------
-inline bool IdTable::has(Id id) const
+template <uint32_t MAX_NUM_ID>
+inline bool IdTable<MAX_NUM_ID>::has(Id id) const
 {
-	return id.index < m_max_ids && m_ids[id.index].id == id.id;
+	return id.index < MAX_NUM_ID && m_ids[id.index].id == id.id;
 }
 
 //-----------------------------------------------------------------------------
-inline uint16_t IdTable::next_id()
+template <uint32_t MAX_NUM_ID>
+inline uint16_t IdTable<MAX_NUM_ID>::next_id()
 {
-	CE_ASSERT(m_next_id < m_max_ids, "Maximum number of IDs reached");
+	CE_ASSERT(m_next_id < MAX_NUM_ID, "Maximum number of IDs reached");
 
 	return m_next_id++;
 }

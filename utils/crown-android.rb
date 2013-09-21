@@ -32,7 +32,7 @@ $activity			= "CrownActivity"
 $package			= "crown.android"
 
 $engine_src 		= "../engine/."
-$android_src		= "../engine/os/android/*.java"
+$android_src		= "../engine/os/android/java/."
 $config_src			= "../engine/os/android/Config.h"
 $manifest			= "../engine/os/android/AndroidManifest.xml"
 
