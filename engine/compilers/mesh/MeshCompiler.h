@@ -26,101 +26,27 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <map>
-#include <string>
-#include <vector>
-
 #include "Compiler.h"
 #include "MeshResource.h"
-#include "tinyxml2.h"
-
-using tinyxml2::XMLElement;
-using std::vector;
+#include "Vec3.h"
+#include "Vec2.h"
+#include "List.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-struct DAEFloatArray
+struct MeshVertex
 {
-	std::string				id;		// UUID of the array
-	std::vector<float>		array;
-};
+	Vec3 position;
+	Vec3 normal;
+	Vec2 texcoord;
 
-//-----------------------------------------------------------------------------
-struct DAEParam
-{
-	std::string				name;
-	std::string				type;
-};
-
-//-----------------------------------------------------------------------------
-struct DAEAccessor
-{
-	std::string				source;
-	uint32_t				count;
-	uint32_t				stride;
-	std::vector<DAEParam>	params;	
-};
-
-//-----------------------------------------------------------------------------
-struct DAETechniqueCommon
-{
-	DAEAccessor				accessor;
-};
-
-//-----------------------------------------------------------------------------
-struct DAESource
-{
-	std::string 			id;					// UUID of the source
-	DAEFloatArray			float_array;		// Array of floats
-	DAETechniqueCommon		technique_common;
-};
-
-//-----------------------------------------------------------------------------
-struct DAEInput
-{
-	std::string				semantic;
-	std::string				source;
-	uint32_t				offset;
-};
-
-//-----------------------------------------------------------------------------
-struct DAEVertices
-{
-	std::string				id;
-	std::vector<DAEInput>	inputs;
-};
-
-//-----------------------------------------------------------------------------
-struct DAEPolylist
-{
-	uint32_t				count;
-	std::vector<DAEInput>	inputs;
-	std::vector<uint32_t>	vcount;
-	std::vector<uint32_t>	p;
-};
-
-//-----------------------------------------------------------------------------
-struct DAEMesh
-{
-	std::vector<DAESource>	sources;
-	DAEVertices				vertices;
-	DAEPolylist				polylist;
-};
-
-//-----------------------------------------------------------------------------
-struct DAEGeometry
-{
-	std::string				id;		// UUID of the geometry
-	std::string				name;	// Name of the geometry
-	DAEMesh					mesh;	// The mesh
-};
-
-//-----------------------------------------------------------------------------
-struct DAEModel
-{
-	std::vector<DAEGeometry>	geometries;
+	bool operator==(const MeshVertex& other)
+	{
+		return position == other.position &&
+				normal == other.normal &&
+				texcoord == other.texcoord;
+	}
 };
 
 class MeshCompiler : public Compiler
@@ -135,31 +61,12 @@ public:
 
 private:
 
-	// The following functions return false if parsing fails, true otherwise
-	static bool			parse_collada(const char* path, DAEModel& m);
-	static bool			parse_geometry(XMLElement* geometry, DAEGeometry& g);
-	static bool			parse_mesh(XMLElement* mesh, DAEMesh& m);
-	static bool			parse_source(XMLElement* source, DAESource& s);
-	static bool			parse_float_array(XMLElement* array, DAEFloatArray& a);
-	static bool			parse_technique_common(XMLElement* technique, DAETechniqueCommon& t);
-	static bool			parse_accessor(XMLElement* accessor, DAEAccessor& a);
-	static bool			parse_param(XMLElement* param, DAEParam& p);
-	static bool			parse_vertices(XMLElement* vertices, DAEVertices& v);
-	static bool			parse_input(XMLElement* input, DAEInput& i);
-	static bool			parse_polylist(XMLElement* polylist, DAEPolylist& p);
-
-	bool				find_vertices(const DAEMesh& mesh, DAESource& source_out);
-	bool				find_normals(const DAEMesh& mesh, DAESource& source_out);
-
-	bool				extract_vertex_indices(const DAEMesh& mesh, vector<uint16_t>& indices_out);
-	bool				extract_vertex_normals(const DAEMesh& mesh, vector<uint32_t>& indices_out);
-
-private:
-
 	MeshHeader			m_mesh_header;
+	bool				m_has_normal;
+	bool				m_has_texcoord;
 
-	vector<float>		m_vertex_vertices;
-	vector<uint16_t>	m_vertex_indices;
+	List<MeshVertex>	m_vertices;
+	List<uint16_t>		m_indices;
 };
 
 } // namespace crown

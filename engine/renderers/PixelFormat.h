@@ -41,73 +41,17 @@ public:
 	{
 		switch (format)
 		{
-			case PF_L_8:
-			case PF_RGB_3_3_2:
-			case PF_BGR_2_3_3:
-			{
-				return 1;
-			}
-			case PF_L_16:
-			case PF_LA_8:
-			case PF_AL_8:
-			case PF_RGB_5_6_5:
-			case PF_BGR_5_6_5:
-			case PF_RGBA_4_4_4_4:
-			case PF_RGBA_5_5_5_1:
-			case PF_ABGR_4_4_4_4:
-			case PF_ABGR_1_5_5_5:
-			{
-				return 2;
-			}
-			case PF_RGB_8:
-			case PF_BGR_8:
+			case PIXEL_RGB_8:
 			{
 				return 3;
 			}
-			case PF_L_32:
-			case PF_L_FLOAT_32:
-			case PF_LA_16:
-			case PF_AL_16:
-			case PF_RGBA_8:
-			case PF_RGBA_8_8_8_8:
-			case PF_RGBA_10_10_10_2:
-			case PF_ABGR_8:
-			case PF_ABGR_8_8_8_8:
-			case PF_ABGR_2_10_10_10:
+			case PIXEL_RGBA_8:
 			{
 				return 4;
 			}
-			case PF_RGB_16:
-			case PF_BGR_16:
-			{
-				return 6;
-			}
-			case PF_LA_32:
-			case PF_LA_FLOAT_32:
-			case PF_AL_32:
-			case PF_AL_FLOAT_32:
-			case PF_RGBA_16:
-			case PF_ABGR_16:
-			{
-				return 8;
-			}
-			case PF_RGB_32:
-			case PF_RGB_FLOAT_32:
-			case PF_BGR_32:
-			case PF_BGR_FLOAT_32:
-			{
-				return 12;
-			}
-			case PF_RGBA_32:
-			case PF_RGBA_FLOAT_32:
-			case PF_ABGR_32:
-			case PF_ABGR_FLOAT_32:
-			{
-				return 16;
-			}
-			case PF_UNKNOWN:
 			default:
 			{
+				CE_ASSERT(false, "Oops, unknown pixel format");
 				return 0;
 			}
 		}

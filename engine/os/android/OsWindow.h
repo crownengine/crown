@@ -72,10 +72,7 @@ public:
 	void			set_resizable(bool resizeable);
 
 	/// Stub method, does nothing under Android.
-	void			show_cursor();
-
-	/// Stub method, does nothing under Android.
-	void			hide_cursor();
+	void			show_cursor(bool show);
 
 	/// Stub method, does nothing under Android.
 	void			get_cursor_xy(int32_t& x, int32_t& y);

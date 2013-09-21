@@ -243,6 +243,28 @@ JSONElement& JSONElement::index(uint32_t i)
 }
 
 //--------------------------------------------------------------------------
+JSONElement JSONElement::index_or_nil(uint32_t i)
+{
+	if (m_at != NULL)
+	{
+		TempAllocator1024 alloc;
+		List<const char*> array(alloc);
+
+		JSONParser::parse_array(m_begin, array);
+
+		if (i >= array.size())
+		{
+			return JSONElement();
+		}
+
+		m_at = array[i];
+		return *this;
+	}
+
+	return JSONElement();
+}
+
+//--------------------------------------------------------------------------
 JSONElement& JSONElement::key(const char* k)
 {
 	TempAllocator1024 alloc;
@@ -269,6 +291,43 @@ JSONElement& JSONElement::key(const char* k)
 	CE_ASSERT(found, "Key not found: '%s'", k);
 
 	return *this;
+}
+
+//--------------------------------------------------------------------------
+JSONElement JSONElement::key_or_nil(const char* k)
+{
+	if (m_at != NULL)
+	{
+		TempAllocator1024 alloc;
+		List<JSONPair> object(alloc);
+
+		JSONParser::parse_object(m_begin, object);
+
+		bool found = false;
+
+		for (uint32_t i = 0; i < object.size(); i++)
+		{
+			TempAllocator256 key_alloc;
+			List<char> key(key_alloc);
+
+			JSONParser::parse_string(object[i].key, key);
+
+			if (string::strcmp(k, key.begin()) == 0)
+			{
+				m_at = object[i].val;
+				found = true;
+			}
+		}
+
+		if (!found)
+		{
+			return JSONElement();
+		}
+
+		return *this;
+	}
+
+	return JSONElement();
 }
 
 //--------------------------------------------------------------------------
@@ -370,44 +429,175 @@ const char* JSONElement::string_value()
 }
 
 //--------------------------------------------------------------------------
+void JSONElement::array_value(List<bool>& array)
+{
+	TempAllocator1024 alloc;
+	List<const char*> temp(alloc);
+
+	JSONParser::parse_array(m_at, temp);
+
+	for (uint32_t i = 0; i < temp.size(); i++)
+	{
+		array.push_back(JSONParser::parse_bool(temp[i]));
+	}
+
+	m_at = m_begin;
+}
+
+//--------------------------------------------------------------------------
+void JSONElement::array_value(List<int16_t>& array)
+{
+	TempAllocator1024 alloc;
+	List<const char*> temp(alloc);
+
+	JSONParser::parse_array(m_at, temp);
+
+	for (uint32_t i = 0; i < temp.size(); i++)
+	{
+		array.push_back((int16_t)JSONParser::parse_int(temp[i]));
+	}
+
+	m_at = m_begin;
+}
+
+//--------------------------------------------------------------------------
+void JSONElement::array_value(List<uint16_t>& array)
+{
+	TempAllocator1024 alloc;
+	List<const char*> temp(alloc);
+
+	JSONParser::parse_array(m_at, temp);
+
+	for (uint32_t i = 0; i < temp.size(); i++)
+	{
+		array.push_back((uint16_t)JSONParser::parse_int(temp[i]));
+	}
+
+	m_at = m_begin;
+}
+
+//--------------------------------------------------------------------------
+void JSONElement::array_value(List<int32_t>& array)
+{
+	TempAllocator1024 alloc;
+	List<const char*> temp(alloc);
+
+	JSONParser::parse_array(m_at, temp);
+
+	for (uint32_t i = 0; i < temp.size(); i++)
+	{
+		array.push_back((int32_t)JSONParser::parse_int(temp[i]));
+	}
+
+	m_at = m_begin;
+}
+
+//--------------------------------------------------------------------------
+void JSONElement::array_value(List<uint32_t>& array)
+{
+	TempAllocator1024 alloc;
+	List<const char*> temp(alloc);
+
+	JSONParser::parse_array(m_at, temp);
+
+	for (uint32_t i = 0; i < temp.size(); i++)
+	{
+		array.push_back((uint32_t)JSONParser::parse_int(temp[i]));
+	}
+
+	m_at = m_begin;
+}
+
+//--------------------------------------------------------------------------
+void JSONElement::array_value(List<float>& array)
+{
+	TempAllocator1024 alloc;
+	List<const char*> temp(alloc);
+
+	JSONParser::parse_array(m_at, temp);
+
+	for (uint32_t i = 0; i < temp.size(); i++)
+	{
+		array.push_back(JSONParser::parse_float(temp[i]));
+	}
+
+	m_at = m_begin;
+}
+
+//--------------------------------------------------------------------------
 bool JSONElement::is_nil() const
 {
-	return JSONParser::type(m_at) == JT_NIL;
+	if (m_at != NULL)
+	{
+		return JSONParser::type(m_at) == JT_NIL;
+	}
+
+	return true;
 }
 
 //--------------------------------------------------------------------------
 bool JSONElement::is_bool() const
 {
-	return JSONParser::type(m_at) == JT_BOOL;
+	if (m_at != NULL)
+	{
+		return JSONParser::type(m_at) == JT_BOOL;
+	}
+
+	return false;
 }
 
 //--------------------------------------------------------------------------
 bool JSONElement::is_number() const
 {
-	return JSONParser::type(m_at) == JT_NUMBER;
+	if (m_at != NULL)
+	{
+		return JSONParser::type(m_at) == JT_NUMBER;		
+	}
+
+	return false;
 }
 
 //--------------------------------------------------------------------------
 bool JSONElement::is_string() const
 {
-	return JSONParser::type(m_at) == JT_STRING;
+	if (m_at != NULL)
+	{
+		return JSONParser::type(m_at) == JT_STRING;
+	}
+
+	return false;
 }
 
 //--------------------------------------------------------------------------
 bool JSONElement::is_array() const
 {
-	return JSONParser::type(m_at) == JT_ARRAY;
+	if (m_at != NULL)
+	{
+		return JSONParser::type(m_at) == JT_ARRAY;
+	}
+
+	return false;
 }
 
 //--------------------------------------------------------------------------
 bool JSONElement::is_object() const
 {
-	return JSONParser::type(m_at) == JT_OBJECT;
+	if (m_at != NULL)
+	{
+		return JSONParser::type(m_at) == JT_OBJECT;
+	}
+
+	return false;
 }
 
 //--------------------------------------------------------------------------
 uint32_t JSONElement::size() const
 {
+	if (m_at == NULL)
+	{
+		return 0;
+	}
+
 	switch(JSONParser::type(m_at))
 	{
 		case JT_NIL:

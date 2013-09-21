@@ -147,17 +147,7 @@ CE_EXPORT int window_show_cursor(lua_State* L)
 {
 	LuaStack stack(L);
 
-	device()->window()->show_cursor();
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int window_hide_cursor(lua_State* L)
-{
-	LuaStack stack(L);
-
-	device()->window()->hide_cursor();
+	device()->window()->show_cursor(stack.get_bool(1));
 
 	return 0;
 }
@@ -228,7 +218,6 @@ void load_window(LuaEnvironment& env)
 	env.load_module_function("Window", "is_resizable",	window_is_resizable);
 	env.load_module_function("Window", "set_resizable",	window_set_resizable);
 	env.load_module_function("Window", "show_cursor",	window_show_cursor);
-	env.load_module_function("Window", "hide_cursor",	window_hide_cursor);
 	env.load_module_function("Window", "get_cursor_xy",	window_get_cursor_xy);
 	env.load_module_function("Window", "set_cursor_xy",	window_set_cursor_xy);
 	env.load_module_function("Window", "title",			window_title);

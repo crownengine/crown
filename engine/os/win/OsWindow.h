@@ -48,8 +48,7 @@ public:
 	void			resize(uint32_t width, uint32_t height);
 	void			move(uint32_t x, uint32_t y);
 
-	void			show_cursor();
-	void			hide_cursor();
+	void			show_cursor(bool show);
 
 	void			get_cursor_xy(int32_t& x, int32_t& y);
 	void			set_cursor_xy(int32_t x, int32_t y);
