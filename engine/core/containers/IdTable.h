@@ -59,6 +59,8 @@ public:
 	/// Returns whether the table has the specified @a id
 	bool			has(Id id) const;
 
+	const Id*		begin() const;
+
 private:
 
 	// Returns the next available unique id.
@@ -86,6 +88,10 @@ template <uint32_t MAX_NUM_ID>
 inline IdTable<MAX_NUM_ID>::IdTable()
 	: m_freelist(MAX_NUM_ID), m_last_index(0), m_next_id(0)
 {
+	for (uint32_t i = 0; i < MAX_NUM_ID; i++)
+	{
+		m_ids[i].id = INVALID_ID;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -128,6 +134,13 @@ template <uint32_t MAX_NUM_ID>
 inline bool IdTable<MAX_NUM_ID>::has(Id id) const
 {
 	return id.index < MAX_NUM_ID && m_ids[id.index].id == id.id;
+}
+
+//-----------------------------------------------------------------------------
+template <uint32_t MAX_NUM_ID>
+inline const Id* IdTable<MAX_NUM_ID>::begin() const
+{
+	return m_ids;
 }
 
 //-----------------------------------------------------------------------------
