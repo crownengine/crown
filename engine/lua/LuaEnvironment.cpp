@@ -151,6 +151,28 @@ bool LuaEnvironment::load_and_execute(const char* res_name)
 }
 
 //-----------------------------------------------------------------------------
+bool LuaEnvironment::execute_string(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	lua_getglobal(m_state, "debug");
+	lua_getfield(m_state, -1, "traceback");
+	if (luaL_loadstring(m_state, s) == 0)
+	{
+		if (lua_pcall(m_state, 0, 0, -2) == 0)
+		{
+			// Unloading is OK since the script data has been copied to Lua
+			lua_pop(m_state, 2); // Pop debug.traceback
+			return true;
+		}
+	}
+
+	error();
+	lua_pop(m_state, 2); // Pop debug.traceback
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 void LuaEnvironment::load_module_function(const char* module, const char* name, const lua_CFunction func)
 {
 	luaL_Reg entry[2];

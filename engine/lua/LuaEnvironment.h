@@ -57,6 +57,8 @@ public:
 	/// true if success, false otherwise.
 	bool					load_and_execute(const char* res_name);
 
+	bool					execute_string(const char* s);
+
 	/// Load a function which will be used in Lua. @a module is the name of table contenitor,
 	/// @a name is the name of function in module and @func is the pointer to the function.
 	/// _func_ must be a C/lua function (__int32_t function_name(lua_State* L)__)
