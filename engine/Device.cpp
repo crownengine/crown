@@ -221,7 +221,7 @@ void Device::init()
 	m_sound_renderer->init();
 	Log::d("SoundRenderer created.");
 
-	ResourceId id = m_resource_manager->load("sound", "sounds/untrue");
+	ResourceId id = m_resource_manager->load("sound", "sounds/mono1");
 	m_resource_manager->flush();
 
 	SoundResource* res = (SoundResource*)m_resource_manager->data(id);
@@ -230,7 +230,6 @@ void Device::init()
 	m_sound_renderer->set_sound_loop(sound, true);
 
 	m_sound_renderer->play_sound(sound);
-
 
 	Log::i("Crown Engine initialized.");
 	Log::i("Initializing Game...");
@@ -285,7 +284,6 @@ void Device::shutdown()
 	{
 		m_sound_renderer->shutdown();
 
-		// FIXME: replace default_allocator with linear m_allocator
 		CE_DELETE(m_allocator, m_sound_renderer);
 	}
 
@@ -463,17 +461,12 @@ void Device::stop()
 void Device::pause()
 {
 	m_is_paused = true;
-
-	Log::d("Engine paused");
 }
 
 //-----------------------------------------------------------------------------
 void Device::unpause()
 {
 	m_is_paused = false;
-	m_is_really_paused = false;
-
-	Log::d("Engine unpaused");
 }
 
 //-----------------------------------------------------------------------------
@@ -524,12 +517,11 @@ void Device::frame(cb callback)
 		m_renderer->frame();
 
 		m_sound_renderer->frame();
-
 	}
 
-	m_frame_count++;
-
 	os_event_buffer()->clear();
+
+	m_frame_count++;
 }
 
 //-----------------------------------------------------------------------------

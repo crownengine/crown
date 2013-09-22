@@ -66,12 +66,7 @@ struct Sound
 {
 public:
 	//-----------------------------------------------------------------------------
-	Sound() : 
-		m_res(NULL), 
-		m_id(-1),	
-		m_looping(false)
-	{
-	}
+	Sound() : m_res(NULL), m_id(-1), m_looping(false) {}
 
 	//-----------------------------------------------------------------------------
 	void create(SoundResource* resource)
@@ -397,9 +392,9 @@ public:
 	ALuint			m_buffer[3];
 	ALuint 			m_format;
 
-	bool			m_playing;
-	bool			m_looping;
-	bool			m_streaming;
+	bool			m_playing :1;
+	bool			m_looping :1;
+	bool			m_streaming :1;
 
 	OggDecoder		m_decoder;
 };
