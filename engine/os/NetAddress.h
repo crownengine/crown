@@ -31,34 +31,28 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-namespace os
-{
 
 /// OS level network address.
 class NetAddress
 {
 public:
 
-	/// Initializes the address to 127.0.0.1 and port to 1000.
+	/// Initializes the address to 127.0.0.1
 					NetAddress();
 
 	/// Initializes the address from IP address (as single elemets)
-	/// and the port number.
-					NetAddress(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t port);
+					NetAddress(uint8_t a, uint8_t b, uint8_t c, uint8_t d);
 
 	
 	/// Returns the IP address as packed 32-bit integer.
 	uint32_t		address() const;
 
-	/// Returns the port number bind to the address.
-	uint16_t		port() const;
+	/// Sets both the IP address (packed 32-bit integer)
+	void			set(uint32_t address);
 
-	/// Sets both the IP address (packed 32-bit integer) and the port number.
-	void			set(uint32_t address, uint16_t port);
+	/// Sets both the IP address (as single elements)
+	void			set(uint8_t a, uint8_t b, uint8_t c, uint8_t d);
 
-	/// Sets both the IP address (as single elements) and the port number.
-	void			set(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t port);
-	
 	bool			operator==(const NetAddress& addr) const;
 	NetAddress&		operator=(const NetAddress& addr);
 	
@@ -67,12 +61,10 @@ public:
 public:
 
 	uint8_t 		m_address[4];
-	uint16_t 		m_port;
 };
 
 //-----------------------------------------------------------------------------
-inline NetAddress::NetAddress() :
-	m_port(1000)
+inline NetAddress::NetAddress()
 {
 	m_address[0] = 127;
 	m_address[1] = 0;
@@ -81,8 +73,7 @@ inline NetAddress::NetAddress() :
 }
 
 //-----------------------------------------------------------------------------
-inline NetAddress::NetAddress(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t port) :
-	m_port(port)
+inline NetAddress::NetAddress(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
 {
 	m_address[0] = a;
 	m_address[1] = b;
@@ -99,31 +90,21 @@ inline uint32_t NetAddress::address() const
 }
 
 //-----------------------------------------------------------------------------
-inline uint16_t NetAddress::port() const
-{
-	return m_port;
-}
-
-//-----------------------------------------------------------------------------
-inline void NetAddress::set(uint32_t address, uint16_t port)
+inline void NetAddress::set(uint32_t address)
 {
 	m_address[0] = address >> 24;
 	m_address[1] = address >> 16;
 	m_address[2] = address >> 8;
 	m_address[3] = address;
-
-	m_port = port;
 }
 
 //-----------------------------------------------------------------------------
-inline void NetAddress::set(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t port)
+inline void NetAddress::set(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
 {
 	m_address[0] = a;
 	m_address[1] = b;
 	m_address[2] = c;
 	m_address[3] = d;
-	
-	m_port = port;
 }
 
 //-----------------------------------------------------------------------------
@@ -132,8 +113,7 @@ inline bool NetAddress::operator==(const NetAddress& addr) const
 	return m_address[0] == addr.m_address[0] &&
 		   m_address[1] == addr.m_address[1] &&
 		   m_address[2] == addr.m_address[2] &&
-		   m_address[3] == addr.m_address[3] &&
-		   m_port == addr.m_port;
+		   m_address[3] == addr.m_address[3];
 }
 
 //-----------------------------------------------------------------------------
@@ -144,16 +124,13 @@ inline NetAddress& NetAddress::operator=(const NetAddress& addr)
 	m_address[2] = addr.m_address[2];
 	m_address[3] = addr.m_address[3];
 	
-	m_port = addr.m_port;
-	
 	return *this;
 }
 
 //-----------------------------------------------------------------------------
 inline void NetAddress::print() const
 {
-	os::printf("NetAddress: %i.%i.%i.%i:%i\n", m_address[0], m_address[1], m_address[2], m_address[3], m_port);
+	os::printf("NetAddress: %i.%i.%i.%i\n", m_address[0], m_address[1], m_address[2], m_address[3]);
 }
 
-} // namespace os
 } // namespace crown
