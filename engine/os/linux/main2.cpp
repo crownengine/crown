@@ -30,8 +30,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 using namespace crown;
 
 Renderer* r;
-IndexBufferId ib;
-VertexBufferId vb;
+IndexBufferId monkey_ib;
+VertexBufferId monkey_vb;
+IndexBufferId cube_ib;
+VertexBufferId cube_vb;
+IndexBufferId cone_ib;
+VertexBufferId cone_vb;
+
 GPUProgramId default_program;
 GPUProgramId texture_program;
 Camera* camera;
@@ -92,13 +97,12 @@ static const char* default_vertex =
 	"	tex_coord0 = a_tex_coord0;"
 	"   color = a_color;"
 	"	gl_Position = u_model_view_projection * a_position;"
-	"	gl_FrontColor = vec4(vec3(1, 0, 0), 1.0);"
 	"}";
 
 static const char* default_fragment = 
 	"void main(void)"
 	"{"
-	"	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);"
+	"	gl_FragColor = vec4(1, 0, 0, 0);"
 	"}";
 
 static const char* texture_fragment = 
@@ -111,7 +115,7 @@ static const char* texture_fragment =
 
 	"void main(void)"
 	"{"
-	"	gl_FragColor = texture(u_albedo_0, tex_coord0) * texture(u_lightmap_0, tex_coord0) * color * u_brightness;"
+	"	gl_FragColor = texture(u_albedo_0, tex_coord0);"
 	"}";
 
 void draw(float dt)
@@ -144,42 +148,6 @@ void draw(float dt)
 		prim = STATE_PRIMITIVE_LINES;
 	}
 
-	// //-----------------------
-	// r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_CULL_CCW);
-	// r->set_vertex_buffer(vb);
-	// r->set_index_buffer(ib);
-	// r->set_program(default_program);
-
-	// pose.set_translation(Vec3(-3, 0, -3));
-	// r->set_pose(pose);
-	// r->commit(0);
-
-	// //-----------------------
-	// r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_CULL_CCW);
-	// r->set_vertex_buffer(vb);
-	// r->set_index_buffer(ib);
-	// r->set_program(default_program);
-
-	// pose.set_translation(Vec3(0, 0, -3));
-	// r->set_pose(pose);
-	// r->commit(0);
-
-	// //-----------------------
-	// r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CCW);
-	// r->set_vertex_buffer(vb);
-	// r->set_index_buffer(ib);
-	// r->set_program(default_program);
-
-	// pose.set_translation(Vec3(3, 0, -3));
-	// r->set_pose(pose);
-	// r->commit(0);
-
-	//-----------------------
-	r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
-	r->set_vertex_buffer(quad_vb);
-	r->set_index_buffer(quad_ib);
-	r->set_program(texture_program);
-
 	static uint32_t filter = TEXTURE_FILTER_NEAREST;
 	if (device()->keyboard()->key_pressed(KC_1))
 	{
@@ -197,9 +165,6 @@ void draw(float dt)
 	{
 		filter = TEXTURE_FILTER_TRILINEAR;
 	}
-	r->set_texture(0, u_albedo_0, grass_texture, filter | TEXTURE_WRAP_CLAMP_EDGE);
-	r->set_texture(1, u_lightmap_0, lightmap_texture, filter | TEXTURE_WRAP_CLAMP_EDGE);
-
 	static float brightness = 1.0f;
 	if (device()->keyboard()->key_pressed(KC_UP))
 	{
@@ -212,11 +177,50 @@ void draw(float dt)
 	if (brightness > 1.0f)
 		brightness = 1.0f;
 
+	//-----------------------
+	// r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_CULL_CW);
+	// r->set_vertex_buffer(monkey_vb);
+	// r->set_index_buffer(monkey_ib);
+	// r->set_program(default_program);
+	// pose.set_translation(Vec3(-3, 0, -3));
+	// r->set_pose(pose);
+	// r->commit(0);
+
+	//-----------------------
+	r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_CULL_CW);
+	r->set_vertex_buffer(cube_vb);
+	r->set_index_buffer(cube_ib);
+	r->set_program(texture_program);
+	r->set_texture(0, u_albedo_0, grass_texture, filter | TEXTURE_WRAP_CLAMP_EDGE);
+	r->set_texture(1, u_lightmap_0, lightmap_texture, filter | TEXTURE_WRAP_CLAMP_EDGE);
 	r->set_uniform(u_brightness, UNIFORM_FLOAT_1, &brightness, 1);
 
-	pose.set_translation(Vec3(0, 0, -1));
+	pose.set_translation(Vec3(0, 0, -3));
 	r->set_pose(pose);
 	r->commit(0);
+
+	//-----------------------
+	// r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
+	// r->set_vertex_buffer(cone_vb);
+	// r->set_index_buffer(cone_ib);
+	// r->set_program(default_program);
+
+	// pose.set_translation(Vec3(3, 0, -3));
+	// r->set_pose(pose);
+	// r->commit(0);
+
+	//-----------------------
+	// r->set_state(prim | STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
+	// r->set_vertex_buffer(quad_vb);
+	// r->set_index_buffer(quad_ib);
+	// r->set_program(texture_program);
+	// r->set_texture(0, u_albedo_0, grass_texture, filter | TEXTURE_WRAP_CLAMP_EDGE);
+	// r->set_texture(1, u_lightmap_0, lightmap_texture, filter | TEXTURE_WRAP_CLAMP_EDGE);
+	// r->set_uniform(u_brightness, UNIFORM_FLOAT_1, &brightness, 1);
+
+	// pose.set_translation(Vec3(0, 0, -1));
+	// r->set_pose(pose);
+	// r->commit(0);
 }
 
 int main(int argc, char** argv)
@@ -226,23 +230,36 @@ int main(int argc, char** argv)
 	Device* engine = device();
 	engine->init(argc, argv);
 
-	// Load mesh
+	// Load resources
 	ResourceManager* resman = engine->resource_manager();
-	// ResourceId mesh = resman->load("mesh", "monkey");
-	ResourceId texture = resman->load("texture", "grass");
+	ResourceId texture = resman->load("texture", "ship");
 	ResourceId lightmap = resman->load("texture", "lightmap");
+	ResourceId monkey = resman->load("mesh", "monkey");
+	ResourceId cube = resman->load("mesh", "ship");
+	ResourceId cone = resman->load("mesh", "cone");
 	resman->flush();
 
-	//MeshResource* mesh_resource = (MeshResource*)resman->data(mesh);
 	TextureResource* texture_resource = (TextureResource*)resman->data(texture);
 	TextureResource* lightmap_resource = (TextureResource*)resman->data(lightmap);
+	MeshResource* monkey_resource = (MeshResource*)resman->data(monkey);
+	MeshResource* cube_resource = (MeshResource*)resman->data(cube);
+	MeshResource* cone_resource = (MeshResource*)resman->data(cone);
+
+	Log::d("monkey format = %d", monkey_resource->vertex_format());
+	Log::d("monkey vcount = %d", monkey_resource->num_vertices());
+	Log::d("cube format   = %d", cube_resource->vertex_format());
+	Log::d("cube vcount   = %d", cube_resource->num_vertices());
+	Log::d("cone format = %d", cone_resource->vertex_format());
+	Log::d("cone vcount = %d", cone_resource->num_vertices());
 
 	// Create vb/ib
 	r = engine->renderer();
-	//vb = r->create_vertex_buffer(mesh_resource->m_vertex_count / 3, VERTEX_P3, mesh_resource->m_vertices);
-	//ib = r->create_index_buffer(mesh_resource->m_index_count, mesh_resource->m_indices);
-	(void)vb;
-	(void)ib;
+	monkey_vb = r->create_vertex_buffer(monkey_resource->num_vertices(), monkey_resource->vertex_format(), monkey_resource->vertices());
+	monkey_ib = r->create_index_buffer(monkey_resource->num_indices(), monkey_resource->indices());
+	cube_vb = r->create_vertex_buffer(cube_resource->num_vertices(), cube_resource->vertex_format(), cube_resource->vertices());
+	cube_ib = r->create_index_buffer(cube_resource->num_indices(), cube_resource->indices());
+	cone_vb = r->create_vertex_buffer(cone_resource->num_vertices(), cone_resource->vertex_format(), cone_resource->vertices());
+	cone_ib = r->create_index_buffer(cone_resource->num_indices(), cone_resource->indices());
 
 	// Create texture
 	grass_texture = r->create_texture(texture_resource->width(), texture_resource->height(), texture_resource->format(),
@@ -277,8 +294,16 @@ int main(int argc, char** argv)
 	//resman->unload(mesh);
 	resman->unload(texture);
 	resman->unload(lightmap);
-	r->destroy_index_buffer(ib);
-	r->destroy_vertex_buffer(vb);
+	resman->unload(monkey);
+	resman->unload(cube);
+	resman->unload(cone);
+	r->destroy_index_buffer(monkey_ib);
+	r->destroy_vertex_buffer(monkey_vb);
+	r->destroy_index_buffer(cube_ib);
+	r->destroy_vertex_buffer(cube_vb);
+	r->destroy_index_buffer(cone_ib);
+	r->destroy_vertex_buffer(cone_vb);
+
 	r->destroy_shader(default_vs);
 	r->destroy_shader(default_fs);
 	r->destroy_shader(texture_fs);

@@ -47,9 +47,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+//-----------------------------------------------------------------------------
+struct GLTextureFormatInfo
+{
+	GLenum internal_format;
+	GLenum format;
+};
+
 extern const GLenum TEXTURE_MIN_FILTER_TABLE[];
 extern const GLenum TEXTURE_MAG_FILTER_TABLE[];
 extern const GLenum TEXTURE_WRAP_TABLE[];
+extern const GLTextureFormatInfo TEXTURE_FORMAT_TABLE[PIXEL_COUNT];
 extern const char* const SHADER_ATTRIB_NAMES[ATTRIB_COUNT];
 extern const char* const SHADER_UNIFORM_NAMES[];
 extern const size_t UNIFORM_SIZE_TABLE[UNIFORM_END];
@@ -241,9 +249,11 @@ struct Texture
 			GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
 		#endif
 
-		// FIXME
-		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-					 			GL_RGB, GL_UNSIGNED_BYTE, data));
+		GLenum internal_fmt = TEXTURE_FORMAT_TABLE[format].internal_format;
+		GLenum fmt = TEXTURE_FORMAT_TABLE[format].format;
+
+		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, internal_fmt, width, height, 0,
+					 			fmt, GL_UNSIGNED_BYTE, data));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 
 		m_target = GL_TEXTURE_2D;
@@ -311,15 +321,23 @@ struct GPUProgram
 		GL_CHECK(glAttachShader(m_id, pixel.m_id));
 
 		GL_CHECK(glLinkProgram(m_id));
-
 		GLint success;
 		GL_CHECK(glGetProgramiv(m_id, GL_LINK_STATUS, &success));
-
 		if (!success)
 		{
 			GLchar info_log[2048];
 			GL_CHECK(glGetProgramInfoLog(m_id, 2048, NULL, info_log));
 			CE_ASSERT(false, "GPU program compilation failed:\n%s", info_log);
+		}
+
+		GL_CHECK(glValidateProgram(m_id));
+		GLint valid;
+		GL_CHECK(glGetProgramiv(m_id, GL_VALIDATE_STATUS, &valid));
+		if (!valid)
+		{
+			GLchar info_log[2048];
+			GL_CHECK(glGetProgramInfoLog(m_id, 2048, NULL, info_log));
+			CE_ASSERT(false, "GPU program validation failed:\n%s", info_log);
 		}
 
 		// Find active attribs/uniforms

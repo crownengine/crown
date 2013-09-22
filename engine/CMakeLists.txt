@@ -345,7 +345,6 @@ set (COMPILER_SRC
 	compilers/Compiler.cpp
 	compilers/BundleCompiler.cpp
 	compilers/mesh/MeshCompiler.cpp
-	compilers/mesh/tinyxml2.cpp
 	compilers/lua/LuaCompiler.cpp
 	compilers/texture/TextureCompiler.cpp
 	compilers/sound/SoundCompiler.cpp
@@ -356,7 +355,6 @@ set (COMPILER_HEADER
 	compilers/Compiler.h
 	compilers/BundleCompiler.h
 	compilers/mesh/MeshCompiler.h
-	compilers/mesh/tinyxml2.h
 	compilers/lua/LuaCompiler.h
 	compilers/texture/TextureCompiler.h
 	compilers/sound/SoundCompiler.h
