@@ -337,7 +337,6 @@ set (AUDIO_SRC)
 
 set (AUDIO_HEADERS
 	audio/SoundRenderer.h
-	audio/SoundSample.h
 	audio/OggDecoder.h
 )
 

@@ -64,6 +64,7 @@ static const char* al_error_to_string(ALenum error)
 //-----------------------------------------------------------------------------
 struct Sound
 {
+public:
 	//-----------------------------------------------------------------------------
 	Sound() : 
 		m_res(NULL), 
@@ -82,11 +83,12 @@ struct Sound
 
 		// Generates AL source
 		AL_CHECK(alGenSources(1, &m_id));
+
 		AL_CHECK(alSourcef(m_id, AL_PITCH, 1.0f));
 		AL_CHECK(alSourcef(m_id, AL_REFERENCE_DISTANCE, 0.1f));
 		AL_CHECK(alSourcef(m_id, AL_MAX_DISTANCE, 1000.0f));
 
-		// Generates AL buffer
+		// Generates AL buffers
 		AL_CHECK(alGenBuffers(3, m_buffer));
 		
 		bool stereo = (m_res->channels() > 1);
@@ -115,19 +117,11 @@ struct Sound
 			}
 		}
 
+		m_streaming = m_res->sound_type() == ST_OGG;
 		// Streams resource if is ogg 
-		if (m_res->sound_type() == ST_OGG)
+		if (m_streaming)
 		{
-			m_streaming = true;
-			m_decoder.init((char*)m_res->data(), m_res->size());
-			m_decoder.stream();
-			AL_CHECK(alBufferData(m_buffer[0], m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
-			m_decoder.stream();
-			AL_CHECK(alBufferData(m_buffer[1], m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));			
-			m_decoder.stream();
-			AL_CHECK(alBufferData(m_buffer[2], m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
-
-			AL_CHECK(alSourceQueueBuffers(m_id, 3, m_buffer));
+			create_stream();
 		}
 		else
 		{
@@ -144,30 +138,9 @@ struct Sound
 		{
 			if (m_streaming)
 			{
-				uint32_t processed = processed_buffers();
-
-				while (processed--)
-				{
-					ALuint buffer;
-
-					AL_CHECK(alSourceUnqueueBuffers(m_id, 1, &buffer));
-
-					if (m_decoder.stream())
-					{
-						AL_CHECK(alBufferData(buffer, m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
-					}
-					else if (m_looping)
-					{
-						Log::i("Restart sound");
-						m_decoder.rewind();
-						m_decoder.stream();
-						AL_CHECK(alBufferData(buffer, m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
-					}
-
-
-					AL_CHECK(alSourceQueueBuffers(m_id, 1, &buffer));
-				}
+				update_stream();
 			}
+			// else ... nothing right now
 		}
 	}
 
@@ -372,6 +345,48 @@ struct Sound
 		alGetSourcei(m_id, AL_BUFFERS_PROCESSED, &processed);
 
 		return processed;
+	}
+
+private:
+
+	//-----------------------------------------------------------------------------
+	void create_stream()
+	{
+		m_decoder.init((char*)m_res->data(), m_res->size());
+		m_decoder.stream();
+		AL_CHECK(alBufferData(m_buffer[0], m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
+		m_decoder.stream();
+		AL_CHECK(alBufferData(m_buffer[1], m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));			
+		m_decoder.stream();
+		AL_CHECK(alBufferData(m_buffer[2], m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
+
+		AL_CHECK(alSourceQueueBuffers(m_id, 3, m_buffer));
+	}
+
+	//-----------------------------------------------------------------------------
+	void update_stream()
+	{
+		uint32_t processed = processed_buffers();
+
+		while (processed--)
+		{
+			ALuint buffer;
+
+			AL_CHECK(alSourceUnqueueBuffers(m_id, 1, &buffer));
+
+			if (m_decoder.stream())
+			{
+				AL_CHECK(alBufferData(buffer, m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
+			}
+			else if (m_looping)
+			{
+				m_decoder.rewind();
+				m_decoder.stream();
+				AL_CHECK(alBufferData(buffer, m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
+			}
+
+			AL_CHECK(alSourceQueueBuffers(m_id, 1, &buffer));
+		}
 	}
 
 public:

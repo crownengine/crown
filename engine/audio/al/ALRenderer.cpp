@@ -143,6 +143,7 @@ void SoundRenderer::shutdown()
 //-----------------------------------------------------------------------------
 void SoundRenderer::frame()
 {
+	// TODO: needs additional works, but it's ok right now
 	for (uint32_t i = 0; i < m_num_sounds; i++)
 	{
 		if (m_backend->m_sounds[i].m_playing)
