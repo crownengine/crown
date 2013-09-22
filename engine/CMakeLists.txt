@@ -68,7 +68,6 @@ set (SRC
 	Camera.cpp
 	Device.cpp
 	EventBuffer.cpp
-	ConsoleServer.cpp
 	FPSSystem.cpp
 )
 
@@ -78,7 +77,6 @@ set (HEADERS
 	Crown.h
 	Device.h
 	EventBuffer.h
-	ConsoleServer.h
 	FPSSystem.h
 )
 
@@ -300,15 +298,7 @@ set (RESOURCE_HEADERS
 
 set (RPC_SRC
 	rpc/RPCHandler.cpp
-)
-
-set (RPC_HEADERS
-	rpc/RPCServer.h
-	rpc/RPCHandler.h
-)
-
-set (RPC_SRC
-	rpc/RPCHandler.cpp
+	rpc/RPCServer.cpp
 )
 
 set (RPC_HEADERS

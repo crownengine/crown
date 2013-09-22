@@ -101,7 +101,6 @@ LOCAL_SRC_FILES :=\
 	Camera.cpp\
 	Device.cpp\
 	FPSSystem.cpp\
-	ConsoleServer.cpp\
 	EventBuffer.cpp\
 \
 
