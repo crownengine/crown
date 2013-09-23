@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "Accelerometer.h"
 #include "Args.h"
-#include "ConsoleServer.h"
 #include "DebugRenderer.h"
 #include "DiskFile.h"
 #include "DiskFilesystem.h"
@@ -55,6 +54,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TempAllocator.h"
 #include "ResourcePackage.h"
 #include "EventBuffer.h"
+#include "RPCServer.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -79,6 +79,7 @@ Device::Device() :
 	m_parent_window_handle(0),
 	m_compile(0),
 	m_continue(0),
+	m_wait(0),
 
 	m_quit_after_init(0),
 
@@ -101,10 +102,9 @@ Device::Device() :
 	m_debug_renderer(NULL),
 
 	m_bundle_compiler(NULL),
+	m_rpc(NULL),
 	m_resource_manager(NULL),
 	m_resource_bundle(NULL),
-
-	m_console_server(NULL),
 
 	m_renderer_init_request(false)
 {
@@ -126,6 +126,16 @@ bool Device::init(int argc, char** argv)
 
 	parse_command_line(argc, argv);
 	check_preferred_settings();
+
+	// RPC only in debug or development builds
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		m_rpc = CE_NEW(m_allocator, RPCServer);
+		m_rpc->add_handler(&m_command_handler);
+		m_rpc->add_handler(&m_script_handler);
+		m_rpc->add_handler(&m_stats_handler);
+		m_rpc->add_handler(&m_ping_handler);
+		m_rpc->init((bool) m_wait);
+	#endif
 
 	// Resource compilation only in debug or development mode and only on linux or windows builds
 	#if (defined(LINUX) || defined(WINDOWS)) && (defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT))
@@ -255,14 +265,6 @@ void Device::shutdown()
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);
 
-	Log::i("Releasing ConsoleServer...");
-	if (m_console_server)
-	{
-		//m_console_server->shutdown();
-
-		CE_DELETE(m_allocator, m_console_server);
-	}
-
 	Log::i("Releasing LuaEnvironment...");
 	if (m_lua_environment)
 	{
@@ -319,6 +321,13 @@ void Device::shutdown()
 		{
 			CE_DELETE(m_allocator, m_bundle_compiler);
 		}
+	#endif
+
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		Log::flush(m_rpc);
+		m_rpc->execute_callbacks();
+		m_rpc->shutdown();
+		CE_DELETE(m_allocator, m_rpc);
 	#endif
 
 	m_allocator.clear();
@@ -404,10 +413,6 @@ Accelerometer* Device::accelerometer()
 	return m_input_manager->accelerometer();
 }
 
-ConsoleServer* Device::console_server()
-{
-	return m_console_server;
-}
 //-----------------------------------------------------------------------------
 void Device::start()
 {
@@ -474,6 +479,8 @@ void Device::frame(cb callback)
 	m_last_time = m_current_time;
 	m_time_since_start += m_last_delta_time;
 
+	m_rpc->update();
+
 	if (!m_is_paused)
 	{
 		m_resource_manager->poll_resource_loader();
@@ -490,9 +497,12 @@ void Device::frame(cb callback)
 		m_renderer->frame();
 	}
 
-	m_frame_count++;
+	Log::flush(m_rpc);
 
+	m_rpc->execute_callbacks();
 	os_event_buffer()->clear();
+
+	m_frame_count++;
 }
 
 //-----------------------------------------------------------------------------
@@ -539,6 +549,7 @@ void Device::parse_command_line(int argc, char** argv)
 		{ "bundle-dir",       AOA_REQUIRED_ARGUMENT, NULL,        'b' },
 		{ "compile",          AOA_NO_ARGUMENT,       &m_compile,   1 },
 		{ "continue",         AOA_NO_ARGUMENT,       &m_continue,  1 },
+		{ "wait",             AOA_NO_ARGUMENT,       &m_wait,      1 },
 		{ "width",            AOA_REQUIRED_ARGUMENT, NULL,        'w' },
 		{ "height",           AOA_REQUIRED_ARGUMENT, NULL,        'h' },
 		{ "fullscreen",       AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1 },
@@ -700,6 +711,7 @@ void Device::print_help_message()
 	"  --source-dir <path>        Use <path> as the source directory for resource compilation.\n"
 	"  --compile                  Run the engine as resource compiler.\n"
 	"  --continue                 Do a full compile of the resources and continue the execution.\n"
+	"  --wait                     Wait until a clent connects to the engine.\n"
 	"  --quit-after-init          Quit the engine immediately after the initialization.\n");
 }
 

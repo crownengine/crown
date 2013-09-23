@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "LinearAllocator.h"
 #include "Resource.h"
+#include "RPCHandler.h"
 
 namespace crown
 {
@@ -47,9 +48,9 @@ class Mouse;
 class Touch;
 class Accelerometer;
 class LuaEnvironment;
-class ConsoleServer;
 class BundleCompiler;
 class ResourcePackage;
+class RPCServer;
 
 typedef void (*cb)(float);
 void nothing(float);
@@ -135,8 +136,6 @@ public:
 	Touch*					touch();
 	Accelerometer*			accelerometer();
 
-	ConsoleServer*			console_server();
-
 private:
 
 	void					init();
@@ -160,6 +159,7 @@ private:
 	char 					m_boot_file[MAX_PATH_LENGTH];
 	int32_t					m_compile;
 	int32_t					m_continue;
+	int32_t					m_wait;
 
 	int32_t					m_quit_after_init;
 
@@ -187,11 +187,14 @@ private:
 
 	// Private subsystems
 	BundleCompiler*			m_bundle_compiler;
+	RPCServer*				m_rpc;
 	ResourceManager*		m_resource_manager;
 	Bundle*					m_resource_bundle;
 
-	// Debug subsystems
-	ConsoleServer*			m_console_server;
+	RPCCommandHandler		m_command_handler;
+	RPCScriptHandler		m_script_handler;
+	RPCStatsHandler			m_stats_handler;
+	RPCPingHandler			m_ping_handler;
 
 	bool 					m_renderer_init_request;
 
