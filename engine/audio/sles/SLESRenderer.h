@@ -71,6 +71,7 @@ struct Sound
 	void 			destroy();
 	void 			play();
 	void 			pause();
+	void			unpause();
 	void 			loop(bool loop);
 	void 			set_min_distance(const float min_distance);
 	void 			set_max_distance( const float max_distance);
@@ -88,6 +89,7 @@ struct Sound
 	float 			pitch() const;
 	float 			gain() const;
 	float 			rolloff() const;
+	bool 			is_created() const;
 	bool 			is_playing() const;
 	int32_t 		queued_buffers();
 	int32_t 		processed_buffers();
@@ -119,10 +121,10 @@ public:
 	uint32_t  						m_channels;
 	uint32_t  						m_bits;
 
+	bool 							m_created :1;
 	bool							m_playing  :1;
 	bool							m_looping :1;
 	bool							m_streaming :1;
-	bool 							m_update_ready :1;
 
 	OggDecoder						m_decoder;
 };
@@ -132,9 +134,25 @@ inline void Sound::buffer_callback(SLAndroidSimpleBufferQueueItf caller, void* s
 {
 	Sound* s = (Sound*)sound;
 
-	s->m_processed_buffers++;
+	if (s->is_playing())
+	{
+		s->m_processed_buffers++;
 
-	s->m_update_ready = s->m_decoder.stream();
+		if (s->m_decoder.stream())
+		{
+			(*s->m_player_bufferqueue)->Enqueue(s->m_player_bufferqueue, s->m_decoder.data(), s->m_decoder.size());
+		}
+		else if (s->m_looping)
+		{
+			s->m_decoder.rewind();
+			s->m_decoder.stream();
+			(*s->m_player_bufferqueue)->Enqueue(s->m_player_bufferqueue, s->m_decoder.data(), s->m_decoder.size());	
+		}
+		else
+		{
+			s->pause();
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -153,10 +171,10 @@ inline Sound::Sound() :
 	m_channels(0),
 	m_bits(0),
 
+	m_created(false),
 	m_playing(false),
 	m_looping(false),
-	m_streaming(false),
-	m_update_ready(false)
+	m_streaming(false)
 {
 }
 
@@ -186,7 +204,7 @@ inline void Sound::create(SLEngineItf engine, SLObjectItf out_mix_obj, SoundReso
 		break;
 	case 2:
 	default:
-		format_pcm.numChannels = 2;	
+		format_pcm.numChannels = 2;
 		format_pcm.channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
 		break;
 	}
@@ -283,36 +301,19 @@ inline void Sound::create(SLEngineItf engine, SLObjectItf out_mix_obj, SoundReso
 
 		m_decoder.stream();
 		(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
-		// m_decoder.stream();
-		// (*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
-		// m_decoder.stream();
-		// (*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
 	}
 	else
 	{
 		(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_res->data(), m_res->size());
 	}
+
+	m_created = true;
 }
 
 //-----------------------------------------------------------------------------
 inline void Sound::update()
 {
-	if (m_streaming)
-	{
-		if (m_update_ready)
-		{
-			(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
-
-			m_update_ready = false;
-		}
-		// else if (m_looping)
-		// {
-		// 	m_decoder.rewind();
-		// 	m_decoder.stream();
-		// 	(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());	
-		// }
-
-	}
+	// nothing
 }
 
 //-----------------------------------------------------------------------------
@@ -334,6 +335,11 @@ inline void Sound::destroy()
 			m_player_bufferqueue = NULL;
 			m_player_volume = NULL;
 		}
+
+		m_created = false;
+		m_playing = false;
+		m_looping = false;
+		m_streaming = false;
 	}
 }
 
@@ -356,9 +362,27 @@ inline void Sound::pause()
 }
 
 //-----------------------------------------------------------------------------
+inline void Sound::unpause()
+{
+	m_decoder.stream();
+	(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
+	play();
+}
+
+//-----------------------------------------------------------------------------
 inline void Sound::loop(bool loop)
 {
-	m_looping = true;
+	m_looping = loop;
+}
+
+//-----------------------------------------------------------------------------
+inline bool Sound::is_playing() const
+{
+	// SLuint32 state;
+	// (*m_player_play)->GetPlayState(m_player_play, &state);
+	// return state == SL_PLAYSTATE_PLAYING;
+
+	return m_playing;
 }
 
 //-----------------------------------------------------------------------------
@@ -474,29 +498,9 @@ inline float Sound::rolloff() const
 }
 
 //-----------------------------------------------------------------------------
-inline bool Sound::is_playing() const
+bool Sound::is_created() const
 {
-	SLuint32 state;
-
-	(*m_player_play)->GetPlayState(m_player_play, &state);
-
-	return state == SL_PLAYSTATE_PLAYING;
-}
-
-//-----------------------------------------------------------------------------
-inline int32_t Sound::queued_buffers()
-{
-	SLAndroidSimpleBufferQueueState state;
-
-	(*m_player_bufferqueue)->GetState(m_player_bufferqueue, &state);
-
-	return state.count;
-}
-
-//-----------------------------------------------------------------------------
-inline int32_t Sound::processed_buffers()
-{
-	return m_processed_buffers;
+	return m_created;
 }
 
 }// namespace crown

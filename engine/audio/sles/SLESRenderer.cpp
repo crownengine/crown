@@ -99,7 +99,10 @@ private:
 
 //-----------------------------------------------------------------------------
 SoundRenderer::SoundRenderer(Allocator& allocator) :
-	m_allocator(allocator)
+	m_allocator(allocator),
+	m_backend(NULL),
+	m_is_paused(false),
+	m_num_sounds(0)
 {
 	m_backend = CE_NEW(m_allocator, SoundRendererBackend);
 }
@@ -126,16 +129,33 @@ void SoundRenderer::shutdown()
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::frame()
+void SoundRenderer::pause()
 {
-	// TODO: needs additional works, but it's ok right now
-	for (uint32_t i = 0; i < m_num_sounds; i++)
+	for (uint32_t i = 0; i < MAX_SOUNDS; i++)
 	{
 		if (m_backend->m_sounds[i].is_playing())
 		{
-			m_backend->m_sounds[i].update();
+			m_backend->m_sounds[i].pause();
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+void SoundRenderer::unpause()
+{
+	for (uint32_t i = 0; i < MAX_SOUNDS; i++)
+	{
+		if (m_backend->m_sounds[i].is_created() && !m_backend->m_sounds[i].is_playing())
+		{
+			m_backend->m_sounds[i].unpause();
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+void SoundRenderer::frame()
+{
+	// not needed right now
 }
 
 //-----------------------------------------------------------------------------
@@ -323,12 +343,14 @@ int32_t SoundRenderer::sound_queued_buffers(SoundId id) const
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exist");
 
-	return m_backend->m_sounds[id.index].queued_buffers();
+	Log::w("Stub");
 }
 
 //-----------------------------------------------------------------------------
 int32_t SoundRenderer::sound_processed_buffers(SoundId id) const
 {
+	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exist");
+
 	Log::w("Stub");
 }
 

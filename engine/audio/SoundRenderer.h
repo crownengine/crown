@@ -53,6 +53,10 @@ public:
 
 	void					shutdown();
 
+	void					pause();
+
+	void					unpause();
+
 	void					frame();
 
 	/// Returns number of sounds actually in use
@@ -142,6 +146,8 @@ private:
 	Allocator& 				m_allocator;
 
 	SoundRendererBackend*	m_backend;
+
+	bool 					m_is_paused;
 
 	IdTable<MAX_SOUNDS>		m_sounds_id_table;
 
