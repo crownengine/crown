@@ -283,10 +283,10 @@ inline void Sound::create(SLEngineItf engine, SLObjectItf out_mix_obj, SoundReso
 
 		m_decoder.stream();
 		(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
-		m_decoder.stream();
-		(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
-		m_decoder.stream();
-		(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
+		// m_decoder.stream();
+		// (*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
+		// m_decoder.stream();
+		// (*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
 	}
 	else
 	{
@@ -302,6 +302,8 @@ inline void Sound::update()
 		if (m_update_ready)
 		{
 			(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
+
+			m_update_ready = false;
 		}
 		// else if (m_looping)
 		// {
@@ -310,7 +312,6 @@ inline void Sound::update()
 		// 	(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());	
 		// }
 
-		m_processed_buffers = 0;
 	}
 }
 
