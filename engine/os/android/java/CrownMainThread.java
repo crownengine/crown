@@ -57,6 +57,7 @@ public class CrownMainThread extends Thread
 		else
 		{
 			CrownLib.initRenderer();
+			CrownLib.unpauseSoundRenderer();
 			CrownLib.unpauseDevice();
 		}
 

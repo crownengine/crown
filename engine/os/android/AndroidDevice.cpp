@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <jni.h>
 #include "Device.h"
 #include "Renderer.h"
+#include "SoundRenderer.h"
 
 namespace crown
 {
@@ -109,6 +110,19 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initRenderer(JNIEn
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownRenderer(JNIEnv* /*env*/, jobject /*obj*/)
 {
 	device()->renderer()->shutdown();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pauseSoundRenderer(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	device()->sound_renderer()->pause();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_unpauseSoundRenderer(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	device()->sound_renderer()->unpause();
+
 }
 
 } // namespace crown
