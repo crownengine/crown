@@ -28,22 +28,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 int main(int argc, char** argv)
 {
-	crown::os::init_os();
+	crown::init();
 
 	crown::Device* engine = crown::device();
-
 	if (!engine->init(argc, argv))
 	{
 		exit(-1);
 	}
 
-	// Main loop
 	while (engine->is_running())
 	{
 		engine->frame();
 	}
 
 	engine->shutdown();
+	crown::shutdown();
 
 	return 0;
 }
