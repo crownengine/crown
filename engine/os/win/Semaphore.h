@@ -63,13 +63,13 @@ inline Semaphore::~Semaphore()
 }
 
 //-----------------------------------------------------------------------------
-inline void Semaphore::post(uint32_t count = 1) const
+inline void Semaphore::post(uint32_t count) const
 {
 	ReleaseSemaphore(m_handle, count, NULL);
 }
 
 //-----------------------------------------------------------------------------
-inline bool Semaphore::wait(int32_t msecs = -1) const
+inline bool Semaphore::wait(int32_t msecs) const
 {
 	DWORD milliseconds = (0 > msecs) ? INFINITE : msecs;
 	return WAIT_OBJECT_0 == WaitForSingleObject(m_handle, milliseconds);
