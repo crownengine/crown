@@ -26,98 +26,214 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
 #include "Types.h"
 #include "NetAddress.h"
+#include "Assert.h"
+#include "OS.h"
 
 namespace crown
 {
 
-class TCPClient
+struct ReadResult
+{
+	enum { NO_ERROR, UNKNOWN, REMOTE_CLOSED } error;
+	size_t received_bytes;
+};
+
+struct WriteResult
+{
+	enum { NO_ERROR, UNKNOWN, REMOTE_CLOSED } error;
+	size_t sent_bytes;
+};
+
+class TCPSocket
 {
 public:
 
-					TCPClient();
-					TCPClient(const TCPClient& c);
-					~TCPClient();
+	//-----------------------------------------------------------------------------
+	TCPSocket()
+		: m_socket(0)
+	{
+	}
 
-	bool			connect(const os::NetAddress& destination);
-	void			close();
-	size_t			read(void* data, size_t size);
-	size_t			write(const void* data, size_t size);
+	//-----------------------------------------------------------------------------
+	TCPSocket(int socket)
+		: m_socket(socket)
+	{
+	}
 
-private:
+	//-----------------------------------------------------------------------------
+	bool open(const NetAddress& destination, uint16_t port)
+	{
+		int sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-					TCPClient(int socket);
+		if (sd <= 0)
+		{
+			os::printf("Failed to open socket\n");
+			m_socket = 0;
 
-private:
+			return false;
+		}
 
-	int				m_socket;
+		m_socket = sd;
 
-private:
+		sockaddr_in address;
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr =  htonl(destination.address());
+		address.sin_port = htons(port);
 
-	friend class	TCPListener;
+		if (::connect(sd, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0)
+		{
+			os::printf("Failed to connect socket\n");
+			close();
+
+			return false;
+		}
+
+		return true;
+	}
+
+	//-----------------------------------------------------------------------------
+	void close()
+	{
+		if (m_socket != 0)
+		{
+			::close(m_socket);
+			m_socket = 0;
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	ReadResult read(void* data, size_t size)
+	{
+		CE_ASSERT_NOT_NULL(data);
+
+		ssize_t received_bytes = ::read(m_socket, (char*) data, size);
+
+		ReadResult result;
+
+		if (received_bytes == -1 && errno == EAGAIN)
+		{
+			result.error = ReadResult::NO_ERROR;
+			result.received_bytes = 0;
+		}
+		else if (received_bytes == 0)
+		{
+			result.error = ReadResult::REMOTE_CLOSED;
+		}
+		else
+		{
+			result.error = ReadResult::NO_ERROR;
+			result.received_bytes = received_bytes;
+		}
+
+		return result;
+	}
+
+	//-----------------------------------------------------------------------------
+	WriteResult write(const void* data, size_t size)
+	{
+		CE_ASSERT_NOT_NULL(data);
+
+		ssize_t sent_bytes = ::send(m_socket, (const char*) data, size, 0);
+
+		WriteResult result;
+
+		if (sent_bytes == -1)
+		{
+			result.error = WriteResult::UNKNOWN;
+		}
+		else
+		{
+			result.error = WriteResult::NO_ERROR;
+			result.sent_bytes = sent_bytes;
+		}
+
+		return result;
+	}
+
+public:
+
+	int m_socket;
 };
 
 class TCPListener
 {
 public:
 
-					TCPListener(uint16_t port);
-					~TCPListener();
+	//-----------------------------------------------------------------------------
+	bool open(uint16_t port)
+	{
+		int& sock_id = m_listener.m_socket;
 
-	bool			listen(TCPClient& c);
-	void			close();
-	size_t			read(void* data, size_t size);
-	size_t			write(const void* data, size_t size);
+		sock_id = socket(AF_INET, SOCK_STREAM, 0);
+		CE_ASSERT(sock_id != -1, "Failed to open socket: errno: %d", errno);
+
+		fcntl(sock_id, F_SETFL, O_NONBLOCK);
+
+		// Bind socket
+		sockaddr_in address;
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = htonl(INADDR_ANY);
+		address.sin_port = htons(port);
+
+		int bind_ret = bind(sock_id, (const sockaddr*) &address, sizeof(sockaddr_in));
+		CE_ASSERT(bind_ret != -1, "Failed to bind socket: errno: %d", errno);
+
+		int listen_ret = ::listen(sock_id, 5);
+		CE_ASSERT(listen_ret != -1, "Failed to listen on socket: errno: %d", errno);
+
+		return true;
+	}
+
+	//-----------------------------------------------------------------------------
+	void close()
+	{
+		m_listener.close();
+	}
+
+	//-----------------------------------------------------------------------------
+	bool listen(TCPSocket& c)
+	{
+		int& sock_id = m_listener.m_socket;
+
+		sockaddr_in client;
+		size_t client_length = sizeof(client);
+
+		int asd = accept(sock_id, (sockaddr*)&client, (socklen_t*)&client_length);
+
+		if (asd == -1 && errno == EWOULDBLOCK)
+		{
+			return false;
+		}
+
+		fcntl(asd, F_SETFL, O_NONBLOCK);
+		c.m_socket = asd;
+
+		return true;
+	}
+
+	//-----------------------------------------------------------------------------
+	ReadResult read(void* data, size_t size)
+	{
+		return m_listener.read(data, size);
+	}
+
+	//-----------------------------------------------------------------------------
+	WriteResult write(const void* data, size_t size)
+	{
+		return m_listener.write(data, size);
+	}
 
 private:
 
-	int			m_socket;
+	TCPSocket m_listener;
 };
 
-namespace os
-{
-
-/// OS level TCP socket.
-class TCPSocket
-{
-public:
-
-				TCPSocket();
-				~TCPSocket();
-
-	// Open connection (server side)
-	bool 		open(uint16_t port);
-
-	// Connect (client side)
-	bool		connect(const NetAddress& destination);
-
-	// Close connection
-	void		close();
-
-	// Send data through socket
-	bool 		send(const void* data, size_t size);
-
-	// Receive data through socket
-	size_t		receive(void* data, size_t size);
-
-	// Is connection open?
-	bool 		is_open();
-
-	// Getter method for socket descriptor
-	int 		socket_id();
-
-	// Getter method for active socket descriptor
-	int 		active_socket_id();
-
-private:
-	
-	// Generated by ::socket
-	int 		m_socket;
-
-	// Generated by ::accept
-	int 		m_active_socket;
-};
-
-} // namespace os
 } // namespace crown
