@@ -68,8 +68,6 @@ LOCAL_SRC_FILES :=\
 	os/android/ApkFile.cpp\
 	os/android/ApkFilesystem.cpp\
 	os/posix/OsFile.cpp\
-	os/posix/TCPSocket.cpp\
-	os/posix/UDPSocket.cpp\
 \
 	renderers/gl/GLRenderer.cpp\
 	renderers/gl/egl/GLContext.cpp\

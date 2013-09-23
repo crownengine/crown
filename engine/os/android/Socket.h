@@ -26,43 +26,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
-
-namespace crown
-{
-namespace os
-{
-
-class NetAddress;
-
-/// OS level UDP socket.
-class UDPSocket
-{
-public:
-
-				UDPSocket();
-				~UDPSocket();
-
-	// Open connection
-	bool 		open(uint16_t port);
-
-	// Send data through socket
-	bool 		send(const NetAddress& receiver, const void* data, size_t size);
-
-	// Receive data through socket
-	size_t	 	receive(NetAddress& sender, void* data, size_t size);
-
-	// Close connection
-	void 		close();
-
-	// Is connection open?
-	bool 		is_open();
-
-private:
-	
-	// Socket descriptor
-	int 	m_socket;
-};
-
-} // namespace os
-} // namespace crown
+#include "../posix/Socket.h"

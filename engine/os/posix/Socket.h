@@ -236,4 +236,139 @@ private:
 	TCPSocket m_listener;
 };
 
+class UDPSocket
+{
+public:
+
+	//-----------------------------------------------------------------------------
+	UDPSocket()
+		: m_socket(0)
+	{
+	}
+
+	//-----------------------------------------------------------------------------
+	~UDPSocket()
+	{
+		close();
+	}
+
+	//-----------------------------------------------------------------------------
+	bool open(uint16_t port)
+	{
+		CE_ASSERT(!is_open(), "Socket is already open");
+
+		m_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+		if (m_socket <= 0)
+		{
+			os::printf("Failed to create socket.\n");
+			m_socket = 0;
+
+			return false;
+		}
+
+		// Bind to port
+		sockaddr_in address;
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = INADDR_ANY;
+		address.sin_port = htons(port);
+
+		if (bind(m_socket, (const sockaddr*) &address, sizeof(sockaddr_in)) < 0)
+		{
+			os::printf("Failed to bind socket\n");
+			close();
+
+			return false;
+		}
+
+		if (fcntl(m_socket, F_SETFL, O_NONBLOCK, 1) == -1)
+		{
+			os::printf("Failed to set non-blocking socket\n");
+			close();
+
+			return false;
+		}
+		
+		return true;
+	}
+
+	//-----------------------------------------------------------------------------
+	void close()
+	{
+		if (m_socket != 0)
+		{
+			::close(m_socket);
+			m_socket = 0;
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	ReadResult read(NetAddress& sender, uint16_t& port, const void* data, size_t size)
+	{
+		CE_ASSERT_NOT_NULL(data);
+
+		sockaddr_in from;
+		socklen_t from_length = sizeof(from);
+
+		ssize_t received_bytes = recvfrom(m_socket, (char*)data, size, 0, (sockaddr*)&from, &from_length);
+
+		ReadResult result;
+
+		if (received_bytes == -1 && errno == EAGAIN)
+		{
+			result.error = ReadResult::NO_ERROR;
+			result.received_bytes = 0;
+		}
+		else if (received_bytes == 0)
+		{
+			result.error = ReadResult::REMOTE_CLOSED;
+		}
+		else
+		{
+			result.error = ReadResult::NO_ERROR;
+			result.received_bytes = received_bytes;
+		}
+
+		sender.set(ntohl(from.sin_addr.s_addr));
+		port = ntohs(from.sin_port);
+
+		return result;
+	}
+
+	//-----------------------------------------------------------------------------
+	WriteResult write(const NetAddress& receiver, uint16_t port, void* data, size_t size)
+	{
+		CE_ASSERT_NOT_NULL(data);
+
+		sockaddr_in address;
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = htonl(receiver.address());
+		address.sin_port = htons(port);
+
+		ssize_t sent_bytes = sendto(m_socket, (const char*) data, size, 0, (sockaddr*) &address, sizeof(sockaddr_in));
+
+		WriteResult result;
+
+		if (sent_bytes < 0)
+		{
+			result.error = WriteResult::UNKNOWN;
+			return result;
+		}
+
+		result.error = WriteResult::NO_ERROR;
+		result.sent_bytes = sent_bytes;
+		return result;
+	}
+
+	//-----------------------------------------------------------------------------
+	bool is_open()
+	{
+		return m_socket != 0;
+	}
+
+public:
+
+	int m_socket;
+};
+
 } // namespace crown

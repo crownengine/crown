@@ -121,8 +121,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Cond.h"
 #include "OsFile.h"
 #include "OsWindow.h"
-#include "TCPSocket.h"
-#include "UDPSocket.h"
+#include "Socket.h"
 
 // Engine/Renderers
 #include "Renderer.h"
