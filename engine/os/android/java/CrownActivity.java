@@ -91,6 +91,10 @@ public class CrownActivity extends Activity
 	{
 		super.onResume();
 		
+		if (CrownLib.isDeviceInit())
+		{
+			CrownLib.unpauseSoundRenderer();
+		}
 		// init accelerometer
 		mSensor.startListening(this);
 
@@ -102,6 +106,7 @@ public class CrownActivity extends Activity
 	{
 		super.onPause();
 
+		CrownLib.pauseSoundRenderer();
 		// stop accelerometer
 		mSensor.stopListening();
 

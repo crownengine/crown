@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Assert.h"
 
-#define SOUND_STREAM_BUFFER_SIZE (4096 * 4) // 32K... should be tested
+#define SOUND_STREAM_BUFFER_SIZE (4096 * 2) // 8K... should be tested
 
 namespace crown
 {

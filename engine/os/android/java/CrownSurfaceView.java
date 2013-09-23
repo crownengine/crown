@@ -108,8 +108,6 @@ public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 
 		CrownLib.shutdownRenderer();
 
-		CrownLib.pauseSoundRenderer();
-
 		Log.d(TAG, "Crown Surface destroyed");
 	}
 
