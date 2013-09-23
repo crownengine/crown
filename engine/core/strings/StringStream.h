@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <stdio.h>
 #include "List.h"
 #include "StringUtils.h"
-#include "OS.h"
 
 namespace crown
 {
@@ -39,6 +38,8 @@ class StringStream
 public:
 
 						StringStream(Allocator& allocator);
+
+	void				clear();
 
 	StringStream&		operator<<(int16_t val);
 	StringStream&		operator<<(uint16_t val);
@@ -67,6 +68,12 @@ private:
 inline StringStream::StringStream(Allocator& allocator)
 	: m_string(allocator)
 {
+}
+
+//-----------------------------------------------------------------------------
+inline void StringStream::clear()
+{
+	m_string.clear();
 }
 
 //-----------------------------------------------------------------------------
