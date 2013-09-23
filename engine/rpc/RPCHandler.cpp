@@ -24,16 +24,53 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <stdio.h>
 #include "RPCHandler.h"
 #include "RPCServer.h"
 #include "ProxyAllocator.h"
 #include "StringUtils.h"
-#include <stdio.h>
 #include "TempAllocator.h"
 #include "StringStream.h"
+#include "Device.h"
+#include "LuaEnvironment.h"
 
 namespace crown
 {
+
+//-----------------------------------------------------------------------------
+RPCCommandHandler::RPCCommandHandler()
+	: RPCHandler("command")
+{
+}
+
+//-----------------------------------------------------------------------------
+void RPCCommandHandler::execute_command(RPCServer* server, ClientId client, const char* message)
+{
+	(void)server;
+	(void)client;
+
+	JSONParser parser(message);
+	JSONElement root = parser.root();
+	JSONElement command = root.key_or_nil("command");
+
+	if (!command.is_nil())
+	{
+		const char* cmd = command.string_value();
+
+		if (string::strcmp("reload", cmd) == 0)
+		{
+			Log::d("Unimplemented");
+		}
+		else if (string::strcmp("pause", cmd) == 0)
+		{
+			device()->pause();
+		}
+		else if (string::strcmp("unpause", cmd) == 0)
+		{
+			device()->unpause();
+		}
+	}
+}
 
 //-----------------------------------------------------------------------------
 RPCScriptHandler::RPCScriptHandler()
@@ -42,7 +79,7 @@ RPCScriptHandler::RPCScriptHandler()
 }
 
 //-----------------------------------------------------------------------------
-void RPCScriptHandler::execute_command(RPCServer* server, TCPClient* client, const char* message)
+void RPCScriptHandler::execute_command(RPCServer* server, ClientId client, const char* message)
 {
 	(void)server;
 	(void)client;
@@ -51,7 +88,7 @@ void RPCScriptHandler::execute_command(RPCServer* server, TCPClient* client, con
 	JSONElement root = parser.root();
 
 	const char* script = root.key("script").string_value();
-	Log::i("RPCScritpHandler: %s", script);
+	device()->lua_environment()->execute_string(script);
 }
 
 //-----------------------------------------------------------------------------
@@ -61,7 +98,7 @@ RPCStatsHandler::RPCStatsHandler()
 }
 
 //-----------------------------------------------------------------------------
-void RPCStatsHandler::execute_command(RPCServer* server, TCPClient* client, const char* message)
+void RPCStatsHandler::execute_command(RPCServer* server, ClientId client, const char* message)
 {
 	(void)message;
 
@@ -93,7 +130,7 @@ RPCPingHandler::RPCPingHandler()
 }
 
 //-----------------------------------------------------------------------------
-void RPCPingHandler::execute_command(RPCServer* server, TCPClient* client, const char* message)
+void RPCPingHandler::execute_command(RPCServer* server, ClientId client, const char* message)
 {
 	(void)message;
 	server->send_message_to(client, "{\"type\":\"pong\"}");

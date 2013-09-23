@@ -29,10 +29,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Hash.h"
 #include "JSONParser.h"
 #include "StringUtils.h"
+#include "IdTable.h"
 
 namespace crown
 {
 
+typedef Id ClientId;
 class TCPClient;
 class RPCServer;
 
@@ -42,7 +44,7 @@ public:
 
 						RPCHandler(const char* type);
 	uint32_t			type() const { return m_type; }
-	virtual void		execute_command(RPCServer* server, TCPClient* client, const char* message) = 0;
+	virtual void		execute_command(RPCServer* server, ClientId client, const char* message) = 0;
 
 private:
 
@@ -55,17 +57,24 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-RPCHandler::RPCHandler(const char* type)
+inline RPCHandler::RPCHandler(const char* type)
 	: m_type(hash::murmur2_32(type, string::strlen(type), 0)), m_next(NULL)
 {
 }
+
+class RPCCommandHandler : public RPCHandler
+{
+public:
+			RPCCommandHandler();
+	void	execute_command(RPCServer* server, ClientId client, const char* message);
+};
 
 class RPCScriptHandler : public RPCHandler
 {
 public:
 
 			RPCScriptHandler();
-	void	execute_command(RPCServer* server, TCPClient* client, const char* message);
+	void	execute_command(RPCServer* server, ClientId client, const char* message);
 };
 
 class RPCStatsHandler : public RPCHandler
@@ -73,7 +82,7 @@ class RPCStatsHandler : public RPCHandler
 public:
 
 			RPCStatsHandler();
-	void	execute_command(RPCServer* server, TCPClient* client, const char* message);
+	void	execute_command(RPCServer* server, ClientId client, const char* message);
 };
 
 class RPCPingHandler : public RPCHandler
@@ -81,7 +90,7 @@ class RPCPingHandler : public RPCHandler
 public:
 
 			RPCPingHandler();
-	void	execute_command(RPCServer* server, TCPClient* client, const char* message);
+	void	execute_command(RPCServer* server, ClientId client, const char* message);
 };
 
 } // namespace crown
