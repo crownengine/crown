@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Keyboard.h"
 #include "StringUtils.h"
+#include "OsEvents.h"
 #include "Log.h"
 
 namespace crown
@@ -281,8 +282,8 @@ void OsWindow::frame()
 {
 	MSG msg;
 
-	OsEventParameter data_button[4] = {0, 0, 0, 0};
-	OsEventParameter data_key[4] = {0, 0, 0, 0};
+	OsMouseEvent mouse_event;
+	OsKeyboardEvent keyboard_event;
 
 	// Message are removed with PM_REMOVE
 	while (PeekMessage(&msg, m_window_handle, 0, 0, PM_REMOVE))
@@ -296,74 +297,52 @@ void OsWindow::frame()
 			case WM_LBUTTONDOWN:
 			case WM_LBUTTONUP:
 			{
-				OsEventType oset_type;
+				OsEventType oset_type = msg.message == WM_LBUTTONDOWN ? OSET_BUTTON_PRESS : OSET_BUTTON_RELEASE;
 
-				if (msg.message == WM_LBUTTONDOWN)
-				{
-					oset_type = OSET_BUTTON_PRESS;
-				}
-				if (msg.message == WM_LBUTTONUP)
-				{
-					oset_type = OSET_BUTTON_RELEASE;
-				}
+				mouse_event.x = LOWORD(msg.lParam);
+				mouse_event.y = HIWORD(msg.lParam);
 
-				data_button[0].int_value = LOWORD(msg.lParam);
-				data_button[1].int_value = HIWORD(msg.lParam);
-				data_button[2].int_value = 0;	// MIDDLE_BUTTON
+				mouse_event.button = 0;
 
-				push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
+				os_event_buffer()->push_event(oset_type, &mouse_event, sizeof(OsMouseEvent));
 
 				break;
 			}
 			case WM_RBUTTONDOWN:
 			case WM_RBUTTONUP:
 			{
-				OsEventType oset_type;
+				OsEventType oset_type = msg.message == WM_RBUTTONDOWN ? OSET_BUTTON_PRESS : OSET_BUTTON_RELEASE;
 
-				if (msg.message == WM_RBUTTONDOWN)
-				{
-					oset_type = OSET_BUTTON_PRESS;
-				}
-				if (msg.message == WM_RBUTTONUP)
-				{
-					oset_type = OSET_BUTTON_RELEASE;
-				}
+				mouse_event.x = LOWORD(msg.lParam);
+				mouse_event.y = HIWORD(msg.lParam);
 
-				data_button[0].int_value = LOWORD(msg.lParam);
-				data_button[1].int_value = HIWORD(msg.lParam);
-				data_button[2].int_value = 1;	// RIGHT BUTTON
+				mouse_event.button = 1;
 
-				push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
+				os_event_buffer()->push_event(oset_type, &mouse_event, sizeof(OsMouseEvent));
 
 				break;
 			}
 			case WM_MBUTTONDOWN:
 			case WM_MBUTTONUP:
 			{
-				OsEventType oset_type;
+				OsEventType oset_type = msg.message == WM_MBUTTONDOWN ? OSET_BUTTON_PRESS : OSET_BUTTON_RELEASE;
 
-				if (msg.message == WM_MBUTTONDOWN)
-				{
-					oset_type = OSET_BUTTON_PRESS;
-				}
-				if (msg.message == WM_MBUTTONUP)
-				{
-					oset_type = OSET_BUTTON_RELEASE;
-				}
+				mouse_event.x = LOWORD(msg.lParam);
+				mouse_event.y = HIWORD(msg.lParam);
 
-				data_button[0].int_value = LOWORD(msg.lParam);
-				data_button[1].int_value = HIWORD(msg.lParam);
-				data_button[2].int_value = 2;	// MIDDLE_BUTTON
+				mouse_event.button = 2;
 
-				push_event(oset_type, data_button[0], data_button[1], data_button[2], data_button[3]);
+				os_event_buffer()->push_event(oset_type, &mouse_event, sizeof(OsMouseEvent));
 
 				break;
 			}
 			case WM_MOUSEMOVE:
 			{
-				data_button[0].int_value = LOWORD(msg.lParam);
-				data_button[0].int_value = HIWORD(msg.lParam);
-				push_event(OSET_MOTION_NOTIFY, data_button[0], data_button[1], data_button[2], data_button[3]);
+				//mouse_event.x = LOWORD(msg.lParam);
+				//mouse_event.y = HIWORD(msg.lParam);
+
+				//os_event_buffer()->push_event(OSET_MOTION_NOTIFY, &mouse_event, sizeof(OsMouseEvent));
+
 				break;
 			}
 
@@ -391,10 +370,10 @@ void OsWindow::frame()
 
 				OsEventType oset_type = msg.message == WM_KEYDOWN ? OSET_KEY_PRESS : OSET_KEY_RELEASE;
 
-				data_key[0].int_value = ((int32_t)kc);
-				data_key[1].int_value = modifier_mask;
+				keyboard_event.key = ((int32_t)kc);
+				keyboard_event.modifier = modifier_mask;
 
-				push_event(oset_type, data_key[0], data_key[1], data_key[2], data_key[3]);
+				os_event_buffer()->push_event(oset_type, &keyboard_event, sizeof(OsKeyboardEvent));
 
 				break;
 			}
