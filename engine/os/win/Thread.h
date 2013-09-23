@@ -38,39 +38,102 @@ namespace crown
 namespace os
 {
 
-typedef void* (*ThreadFunction)(void*);
+typedef int32_t (*ThreadFunction)(void*);
 
 class Thread
 {
 public:
+						Thread(const char* name);
+						~Thread();
 
-					Thread(const char* name);
-					~Thread();
+	void				start(ThreadFunction func, void* data = NULL, size_t stack_size = 0);
+	void				stop();
 
-	const char*		name() const;
-
-	void			join();
-	void			detach();
-
-	bool			is_running() const;
-	bool			is_terminating() const;
-
-	void			start();
-	void			stop();
-
-	virtual int32_t	run();
+	bool				is_running();
 
 private:
 
-	static void*	background_proc(void* thiz);
+	int32_t				run();
+
+	static void* 		thread_proc(void* arg);
 
 private:
-	
-	const char*		m_name;
-	bool			m_is_running;
-	bool			m_is_terminating;
-	HANDLE			m_thread;
+
+	const char*			m_name;
+	HANDLE				m_handle;
+
+	ThreadFunction 		m_function;
+	void*				m_data;
+	Semaphore			m_sem;
+	size_t 				m_stack_size;
+
+	bool				m_is_running :1;
 };
+
+//-----------------------------------------------------------------------------
+inline Thread::Thread(const char* name) :
+	m_name(name),
+	m_handle(INVALID_HANDLE_VALUE),
+	m_function(NULL),
+	m_data(NULL),
+	m_stack_size(0),
+	m_is_running(false)
+{
+	memset(&m_handle, 0, sizeof(HANDLE));
+}
+
+//-----------------------------------------------------------------------------
+inline Thread::~Thread()
+{
+}
+
+//-----------------------------------------------------------------------------
+inline void	Thread::start(ThreadFunction func, void* data = NULL, size_t stack_size = 0)
+{
+	m_handle = CreateThread(NULL, stack_size, (LPTHREAD_START_ROUTINE) Thread::background_proc, this, 0, NULL);
+
+	CE_ASSERT(m_handle != NULL, "Failed to create the thread '%s'", m_name);
+
+	m_is_running = true;
+
+	m_sem.wait();
+}
+
+//-----------------------------------------------------------------------------
+inline void	Thread::stop()
+{
+	WaitForSingleObject(m_handle, INFINITE);
+	GetExitCodeThread(m_handle, (DWORD*)&m_exitCode);
+	CloseHandle(m_handle);
+	m_handle = INVALID_HANDLE_VALUE;
+
+	m_is_running = false;
+}
+
+//-----------------------------------------------------------------------------
+inline bool	Thread::is_running()
+{
+	return m_is_running;
+}
+
+//-----------------------------------------------------------------------------
+inline int32_t Thread::run()
+{
+	m_sem.post();
+	
+	return m_function(m_data);
+}
+
+//-----------------------------------------------------------------------------
+inline DWORD WINAPI Thread::thread_proc(void* arg)
+{
+	Thread* thread = (Thread*)arg;
+
+	int32_t result = thread->run();
+	
+	return result;
+}
+
 
 } // namespace os
 } // namespace crown
