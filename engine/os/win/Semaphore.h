@@ -24,32 +24,53 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Cond.h"
+#pragma once
 
-namespace crown
+#include <windows.h>
+#include <limits.h>
+
+#include "Assert.h"
+
+class Semaphore
 {
+public:
+
+	Semaphore();
+	~Semaphore();
+
+	void post(uint32_t _count = 1) const;
+	bool wait(int32_t _msecs = -1) const;
+
+private:
+
+	Semaphore(const Semaphore& s); // no copy constructor
+	Semaphore& operator=(const Semaphore& s); // no assignment operator
+
+	HANDLE m_handle;
+};
 
 //-----------------------------------------------------------------------------
-Cond::Cond()
+inline Semaphore::Semaphore()
 {
-	InitializeConditionVariable(&m_cond);
+	m_handle = CreateSemaphore(NULL, 0, LONG_MAX, NULL);
+	CE_ASSERT(m_handle != NULL, "Unable to create semaphore!");
 }
 
 //-----------------------------------------------------------------------------
-Cond::~Cond()
+inline Semaphore::~Semaphore()
 {
+	CloseHandle(m_handle);
 }
 
 //-----------------------------------------------------------------------------
-void Cond::signal()
+inline void Semaphore::post(uint32_t count = 1) const
 {
-	WakeConditionVariable(&m_cond);
+	ReleaseSemaphore(m_handle, count, NULL);
 }
 
 //-----------------------------------------------------------------------------
-void Cond::wait(Mutex& mutex)
+inline bool Semaphore::wait(int32_t msecs = -1) const
 {
-	SleepConditionVariableCS(&m_cond, &mutex.m_cs, INFINITE);
+	DWORD milliseconds = (0 > msecs) ? INFINITE : msecs;
+	return WAIT_OBJECT_0 == WaitForSingleObject(m_handle, milliseconds);
 }
-
-} // namespace crown
