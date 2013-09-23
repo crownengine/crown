@@ -37,11 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-uint16_t* 	loop_data;
-size_t		loop_size;
-
-
-
 //-----------------------------------------------------------------------------
 class SoundRendererBackend
 {
@@ -51,24 +46,29 @@ public:
 	{
 		SLresult result;
 
-	    const SLInterfaceID ids[] = {SL_IID_ENGINE};
-	    const SLboolean reqs[] = {SL_BOOLEAN_TRUE};
+		const SLInterfaceID ids[] = {SL_IID_ENGINE};
+		const SLboolean reqs[] = {SL_BOOLEAN_TRUE};
 
 		result = slCreateEngine(&m_engine_obj, 0, NULL, 1, ids, reqs);
 		result = (*m_engine_obj)->Realize(m_engine_obj, SL_BOOLEAN_FALSE);
 
 		result = (*m_engine_obj)->GetInterface(m_engine_obj, SL_IID_ENGINE, &m_engine);
 
-	    const SLInterfaceID ids1[] = {SL_IID_VOLUME};
-	    const SLboolean reqs1[] = {SL_BOOLEAN_FALSE};
+		const SLInterfaceID ids1[] = {SL_IID_VOLUME};
+		const SLboolean reqs1[] = {SL_BOOLEAN_FALSE};
 
-	    result = (*m_engine)->CreateOutputMix(m_engine, &m_out_mix_obj, 1, ids1, reqs1); 
-	    result = (*m_out_mix_obj)->Realize(m_out_mix_obj, SL_BOOLEAN_FALSE);
+		result = (*m_engine)->CreateOutputMix(m_engine, &m_out_mix_obj, 1, ids1, reqs1); 
+		result = (*m_out_mix_obj)->Realize(m_out_mix_obj, SL_BOOLEAN_FALSE);
 	}
 
 	//-----------------------------------------------------------------------------
 	void shutdown()
 	{
+		for (uint32_t i = 0; i < MAX_SOUNDS; i++)
+		{
+			m_sounds[i].destroy();
+		}
+
 		if (m_out_mix_obj)
 		{
 			(*m_out_mix_obj)->Destroy(m_out_mix_obj);

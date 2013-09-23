@@ -109,7 +109,6 @@ public:
 	SLObjectItf 					m_player_obj;
 	SLPlayItf 						m_player_play;
 	SLAndroidSimpleBufferQueueItf 	m_player_bufferqueue;
-	SLSeekItf 						m_player_seek;
 	SLVolumeItf						m_player_volume;
 
 	uint32_t						m_processed_buffers;
@@ -123,6 +122,7 @@ public:
 	bool							m_playing  :1;
 	bool							m_looping :1;
 	bool							m_streaming :1;
+	bool 							m_update_ready :1;
 
 	OggDecoder						m_decoder;
 };
@@ -134,24 +134,17 @@ inline void Sound::buffer_callback(SLAndroidSimpleBufferQueueItf caller, void* s
 
 	s->m_processed_buffers++;
 
-	if (s->m_streaming)
-	{
-		if (s->m_decoder.stream())
-		{
-			(*s->m_player_bufferqueue)->Enqueue(s->m_player_bufferqueue, s->m_decoder.data(), s->m_decoder.size());
-		}
-		else if (s->m_looping)
-		{
-			s->m_decoder.rewind();
-			s->m_decoder.stream();
-			(*s->m_player_bufferqueue)->Enqueue(s->m_player_bufferqueue, s->m_decoder.data(), s->m_decoder.size());	
-		}
-	}
+	s->m_update_ready = s->m_decoder.stream();
 }
 
 //-----------------------------------------------------------------------------
 inline Sound::Sound() : 
 	m_res(NULL),
+
+	m_player_obj(NULL),
+	m_player_play(NULL),
+	m_player_bufferqueue(NULL),
+	m_player_volume(NULL),
 
 	m_processed_buffers(0),
 	m_data(NULL),
@@ -162,7 +155,8 @@ inline Sound::Sound() :
 
 	m_playing(false),
 	m_looping(false),
-	m_streaming(false)
+	m_streaming(false),
+	m_update_ready(false)
 {
 }
 
@@ -176,21 +170,71 @@ inline void Sound::create(SLEngineItf engine, SLObjectItf out_mix_obj, SoundReso
 
 	m_res = resource;
 
-	SLresult result;
-
-	int32_t speakers = SL_SPEAKER_FRONT_CENTER;
-
 	// Configures buffer queue
 	SLDataLocator_AndroidSimpleBufferQueue buffer_queue = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
 
 	// Configures audio format
 	SLDataFormat_PCM format_pcm;
 	format_pcm.formatType = SL_DATAFORMAT_PCM;
-	format_pcm.numChannels = 1;	// Mono
+
+	// Sets channels
+	switch (m_res->channels())
+	{
+	case 1:
+		format_pcm.numChannels = 1;
+		format_pcm.channelMask = SL_SPEAKER_FRONT_CENTER;
+		break;
+	case 2:
+	default:
+		format_pcm.numChannels = 2;	
+		format_pcm.channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
+		break;
+	}
+
+	// Sets sample rate
+	switch (m_res->sample_rate())
+	{
+	case 8000:
+		format_pcm.samplesPerSec = SL_SAMPLINGRATE_8;
+		break;
+	case 11025:
+		format_pcm.samplesPerSec = SL_SAMPLINGRATE_11_025;
+		break;
+	case 16000:
+		format_pcm.samplesPerSec = SL_SAMPLINGRATE_16;
+		break;
+	case 22050:
+		format_pcm.samplesPerSec = SL_SAMPLINGRATE_22_05;
+		break;
+	case 24000:
+		format_pcm.samplesPerSec = SL_SAMPLINGRATE_24;
+		break;
+	case 32000:
+		format_pcm.samplesPerSec = SL_SAMPLINGRATE_32;
+		break;
+	case 44100:
+		format_pcm.samplesPerSec = SL_SAMPLINGRATE_44_1;
+		break;
+	case 48000:
+		format_pcm.samplesPerSec = SL_SAMPLINGRATE_48;
+		break;
+	case 64000:
+		format_pcm.samplesPerSec = SL_SAMPLINGRATE_64;
+		break;
+	case 88200:
+		format_pcm.samplesPerSec = SL_SAMPLINGRATE_88_2;
+		break;
+	case 96000:
+		format_pcm.samplesPerSec = SL_SAMPLINGRATE_96;
+		break;
+	case 192000:
+		format_pcm.samplesPerSec = SL_SAMPLINGRATE_192;
+		break;
+	}	
+	
 	format_pcm.samplesPerSec = SL_SAMPLINGRATE_44_1;
 	format_pcm.bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;
 	format_pcm.containerSize = SL_PCMSAMPLEFORMAT_FIXED_16;
-	format_pcm.channelMask = speakers;
 	format_pcm.endianness = SL_BYTEORDER_LITTLEENDIAN;
 
 	// Configures audio source
@@ -212,7 +256,7 @@ inline void Sound::create(SLEngineItf engine, SLObjectItf out_mix_obj, SoundReso
 	const SLInterfaceID ids[] = {SL_IID_PLAY, SL_IID_BUFFERQUEUE, SL_IID_VOLUME};
 	const SLboolean reqs[] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
-	result = (*m_engine)->CreateAudioPlayer(m_engine, &m_player_obj, &audio_source, &audio_sink, 3, ids, reqs);
+	SLresult result = (*m_engine)->CreateAudioPlayer(m_engine, &m_player_obj, &audio_source, &audio_sink, 3, ids, reqs);
 	check_sles_errors(result);
 
 	result = (*m_player_obj)->Realize(m_player_obj, SL_BOOLEAN_FALSE);
@@ -239,6 +283,10 @@ inline void Sound::create(SLEngineItf engine, SLObjectItf out_mix_obj, SoundReso
 
 		m_decoder.stream();
 		(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
+		m_decoder.stream();
+		(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
+		m_decoder.stream();
+		(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
 	}
 	else
 	{
@@ -249,7 +297,21 @@ inline void Sound::create(SLEngineItf engine, SLObjectItf out_mix_obj, SoundReso
 //-----------------------------------------------------------------------------
 inline void Sound::update()
 {
-	// not needed right now
+	if (m_streaming)
+	{
+		if (m_update_ready)
+		{
+			(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
+		}
+		// else if (m_looping)
+		// {
+		// 	m_decoder.rewind();
+		// 	m_decoder.stream();
+		// 	(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());	
+		// }
+
+		m_processed_buffers = 0;
+	}
 }
 
 //-----------------------------------------------------------------------------
