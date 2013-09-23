@@ -218,9 +218,6 @@ void load_keyboard(LuaEnvironment& env)
 	env.load_module_enum("Keyboard", "KC_x",			KC_x);
 	env.load_module_enum("Keyboard", "KC_y",			KC_y);
 	env.load_module_enum("Keyboard", "KC_z",			KC_z);
-
-	// The last key _must_ be <= 0xFF
-	env.load_module_enum("Keyboard", "KC_COUNT",		KC_COUNT);
 }
 
 } // namespace crown
