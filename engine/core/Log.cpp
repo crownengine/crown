@@ -25,13 +25,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Log.h"
-#include "OS.h"
+#include "LinearAllocator.h"
+#include "StringStream.h"
+#include "RPCServer.h"
 
 namespace crown
 {
 
+static char g_buffer[16 * 1024];
+static LinearAllocator g_allocator(g_buffer, 16 * 1024);
+static StringStream g_stream(g_allocator);
+
 LogLevel Log::m_threshold = LL_DEBUG;
-int32_t Log::m_indent_count = 0;
 
 //-----------------------------------------------------------------------------
 LogLevel Log::threshold()
@@ -55,21 +60,18 @@ void Log::log_message(LogLevel level, const char* message, ::va_list arg)
 
 	switch (level)
 	{
-		case LL_DEBUG:
-			os::log_info(message, arg);
-			break;
-		case LL_ERROR:
-			os::log_error(message, arg);
-			break;
-		case LL_WARN:
-			os::log_warning(message, arg);
-			break;
-		case LL_INFO:
-			os::log_info(message, arg);
-			break;
-		default:
-			break;
+		case LL_DEBUG: g_stream << "D: "; break;
+		case LL_ERROR: g_stream << "E: "; break;
+		case LL_WARN: g_stream << "W: "; break;
+		case LL_INFO: g_stream << "I: "; break;
+		default: break;
 	}
+
+	char buf[1024];
+	int len = vsnprintf(buf, 1024 - 2, message, arg);
+	buf[len] = '\n';
+	buf[len + 1] = '\0';
+	g_stream << buf;
 }
 
 //-----------------------------------------------------------------------------
@@ -109,19 +111,18 @@ void Log::i(const char* message, ...)
 }
 
 //-----------------------------------------------------------------------------
-void Log::indent_in()
+void Log::flush(RPCServer* server)
 {
-	m_indent_count += 1;
-}
+	os::printf(g_stream.c_str());
+	::fflush(stdout);
 
-//-----------------------------------------------------------------------------
-void Log::indent_out()
-{
-	if (m_indent_count > 0)
+	if (server != NULL)
 	{
-		m_indent_count -= 1;
+		server->send_message_to_all(g_stream.c_str());
 	}
+
+	g_stream.clear();
+	g_allocator.clear();
 }
 
 } // namespace crown
-
