@@ -51,7 +51,6 @@ static const char* sles_error_to_string(SLresult result)
 	case SL_RESULT_PERMISSION_DENIED: return "SL_RESULT_PERMISSION_DENIED";
 	case SL_RESULT_BUFFER_INSUFFICIENT: return "SL_RESULT_BUFFER_INSUFFICIENT";
 	default: return "SL_RESULT_UNKNOWN";
-
 	}
 }
 
@@ -73,34 +72,11 @@ struct Sound
 	void 			pause();
 	void			unpause();
 	void 			loop(bool loop);
-	void 			set_min_distance(const float min_distance);
-	void 			set_max_distance( const float max_distance);
-	void 			set_position(const Vec3& pos);
-	void 			set_velocity(const Vec3& vel);
-	void 			set_direction(const Vec3& dir);
-	void 			set_pitch(const float pitch);
-	void 			set_gain(const float gain);
-	void 			set_rolloff(const float rolloff);
-	float 			min_distance() const;
-	float 			max_distance() const;
-	Vec3 			position() const;
-	Vec3 			velocity() const;
-	Vec3 			direction() const;
-	float 			pitch() const;
-	float 			gain() const;
-	float 			rolloff() const;
+
 	bool 			is_created() const;
 	bool 			is_playing() const;
-	int32_t 		queued_buffers();
-	int32_t 		processed_buffers();
 
 	static void 	buffer_callback(SLAndroidSimpleBufferQueueItf caller, void* sound);
-
-private:
-
-	void create_stream();
-
-	void update_stream();
 
 public:
 
@@ -156,25 +132,10 @@ inline void Sound::buffer_callback(SLAndroidSimpleBufferQueueItf caller, void* s
 }
 
 //-----------------------------------------------------------------------------
-inline Sound::Sound() : 
-	m_res(NULL),
-
-	m_player_obj(NULL),
-	m_player_play(NULL),
-	m_player_bufferqueue(NULL),
-	m_player_volume(NULL),
-
-	m_processed_buffers(0),
-	m_data(NULL),
-	m_size(0),
-	m_sample_rate(0),
-	m_channels(0),
-	m_bits(0),
-
-	m_created(false),
-	m_playing(false),
-	m_looping(false),
-	m_streaming(false)
+inline Sound::Sound() : m_res(NULL), m_player_obj(NULL), m_player_play(NULL),
+						m_player_bufferqueue(NULL), m_player_volume(NULL), m_processed_buffers(0),
+						m_data(NULL), m_size(0), m_sample_rate(0), m_channels(0), m_bits(0),
+						m_created(false), m_playing(false),	m_looping(false), m_streaming(false)
 {
 }
 
@@ -313,7 +274,7 @@ inline void Sound::create(SLEngineItf engine, SLObjectItf out_mix_obj, SoundReso
 //-----------------------------------------------------------------------------
 inline void Sound::update()
 {
-	// nothing
+	// See SLESRenderer.cpp, row 160
 }
 
 //-----------------------------------------------------------------------------
@@ -376,131 +337,15 @@ inline void Sound::loop(bool loop)
 }
 
 //-----------------------------------------------------------------------------
-inline bool Sound::is_playing() const
-{
-	// SLuint32 state;
-	// (*m_player_play)->GetPlayState(m_player_play, &state);
-	// return state == SL_PLAYSTATE_PLAYING;
-
-	return m_playing;
-}
-
-//-----------------------------------------------------------------------------
-inline void Sound::set_min_distance(const float min_distance)
-{
-	Log::w("stub");
-}
-
-//-----------------------------------------------------------------------------
-inline void Sound::set_max_distance( const float max_distance)
-{
-	Log::w("stub");
-}
-
-//-----------------------------------------------------------------------------
-inline void Sound::set_position(const Vec3& pos)
-{
-	Log::w("stub");
-}
-
-//-----------------------------------------------------------------------------
-inline void Sound::set_velocity(const Vec3& vel)
-{
-	Log::w("stub");
-}
-
-//-----------------------------------------------------------------------------
-inline void Sound::set_direction(const Vec3& dir)
-{
-	Log::w("stub");
-}
-
-//-----------------------------------------------------------------------------
-inline void Sound::set_pitch(const float pitch)
-{
-	Log::w("stub");
-}
-
-//-----------------------------------------------------------------------------
-inline void Sound::set_gain(const float gain)
-{
-	Log::w("stub");
-}
-
-//-----------------------------------------------------------------------------
-inline void Sound::set_rolloff(const float rolloff)
-{
-	Log::w("stub");
-}
-
-//-----------------------------------------------------------------------------
-inline float Sound::min_distance() const
-{
-	Log::w("stub");
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-inline float Sound::max_distance() const
-{
-	Log::w("stub");
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-inline Vec3 Sound::position() const
-{
-	Log::w("stub");
-
-	return Vec3::ZERO;
-}
-
-//-----------------------------------------------------------------------------
-inline Vec3 Sound::velocity() const
-{
-	Log::w("stub");
-
-	return Vec3::ZERO;
-}
-
-//-----------------------------------------------------------------------------
-inline Vec3 Sound::direction() const
-{
-	Log::w("stub");
-
-	return Vec3::ZERO;
-}
-
-//-----------------------------------------------------------------------------
-inline float Sound::pitch() const
-{
-	Log::w("stub");
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-inline float Sound::gain() const
-{
-	Log::w("stub");
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-inline float Sound::rolloff() const
-{
-	Log::w("stub");
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
 bool Sound::is_created() const
 {
 	return m_created;
 }
 
-}// namespace crown
+//-----------------------------------------------------------------------------
+inline bool Sound::is_playing() const
+{
+	return m_playing;
+}
+
+} // namespace crown

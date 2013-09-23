@@ -138,6 +138,8 @@ void SoundRenderer::pause()
 			m_backend->m_sounds[i].pause();
 		}
 	}
+
+	m_is_paused = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -150,12 +152,16 @@ void SoundRenderer::unpause()
 			m_backend->m_sounds[i].unpause();
 		}
 	}
+
+	m_is_paused = false;
 }
 
 //-----------------------------------------------------------------------------
 void SoundRenderer::frame()
 {
-	// not needed right now
+	// Not needed because openSL|ES works through a callback mechanism making
+	// streamed-sound's update tricky with frame function. 
+	// When we will manage phisical aspect of sound then we will implement this.
 }
 
 //-----------------------------------------------------------------------------
@@ -339,19 +345,19 @@ float SoundRenderer::sound_rolloff(SoundId /*id*/) const
 }
 
 //-----------------------------------------------------------------------------
-int32_t SoundRenderer::sound_queued_buffers(SoundId id) const
+int32_t SoundRenderer::sound_queued_buffers(SoundId /*id*/) const
 {
-	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exist");
-
 	Log::w("Stub");
+
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
-int32_t SoundRenderer::sound_processed_buffers(SoundId id) const
+int32_t SoundRenderer::sound_processed_buffers(SoundId /*id*/) const
 {
-	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exist");
-
 	Log::w("Stub");
+
+	return 0;
 }
 
 
