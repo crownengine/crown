@@ -445,6 +445,7 @@ if (WINDOWS)
 		os/win/Thread.h
 		os/win/Mutex.h
 		os/win/Cond.h
+		os/win/Semaphore.h
 		os/win/inttypes.h
 	)
 
@@ -452,9 +453,6 @@ if (WINDOWS)
 		os/win/WinOS.cpp
 		os/win/OsWindow.cpp
 		os/win/OsFile.cpp
-		os/win/Thread.cpp
-		os/win/Mutex.cpp
-		os/win/Cond.cpp
 	)
 
 	list (APPEND RENDERERS_SRC
