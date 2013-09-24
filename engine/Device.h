@@ -52,7 +52,7 @@ class BundleCompiler;
 class ResourcePackage;
 
 typedef void (*cb)(float);
-void nothing(float);
+CE_EXPORT void nothing(float);
 
 /// The Engine.
 /// It is the place where to look for accessing all of

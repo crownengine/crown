@@ -207,6 +207,31 @@ void OsWindow::move(uint32_t x, uint32_t y)
 }
 
 //-----------------------------------------------------------------------------
+void OsWindow::minimize()
+{
+
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::restore()
+{
+
+}
+
+//-----------------------------------------------------------------------------
+bool OsWindow::is_resizable() const
+{
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::set_resizable(bool resizable)
+{
+
+}
+
+
+//-----------------------------------------------------------------------------
 void OsWindow::show_cursor(bool show)
 {
 	ShowCursor(show);
@@ -231,38 +256,6 @@ void OsWindow::set_cursor_xy(int32_t x, int32_t y)
 {
 	SetCursorPos(x, y);
 }
-
-//-----------------------------------------------------------------------------
-void OsWindow::set_fullscreen(bool fs)
-{
-	if (m_fullscreen)
-	{
-		memset(&m_screen_setting, 0, sizeof(m_screen_setting)); // Makes Sure Memory's Cleared
-		m_screen_setting.dmSize = sizeof(m_screen_setting); // Size Of The Devmode Structure
-		m_screen_setting.dmPelsWidth = m_width; // Selected Screen Width
-		m_screen_setting.dmPelsHeight = m_height; // Selected Screen Height
-		m_screen_setting.dmBitsPerPel = 32; // Selected Bits Per Pixel
-		m_screen_setting.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-
-		// Try To Set Selected Mode And Get Results.  NOTE: CDS_FULLSCREEN Gets Rid Of Start Bar.
-		if (ChangeDisplaySettings(&m_screen_setting, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
-		{
-			m_fullscreen = false;
-			Log::i("Fullscreen resolution not supported, switching to windowed mode.");
-		}
-		else
-		{
-			m_fullscreen = true;
-			m_window_handle = CreateWindowEx(0, m_window_name, "", WS_POPUP, 0, 0, m_width, m_height, NULL, NULL, GetModuleHandle(NULL), NULL);
-		}
-	}
-}
-
-bool OsWindow::fullscreen()
-{
-	return m_fullscreen;
-}
-
 
 //-----------------------------------------------------------------------------
 char* OsWindow::title()

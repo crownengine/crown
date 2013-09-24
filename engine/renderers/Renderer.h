@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexFormat.h"
 #include "StringUtils.h"
 #include "RenderContext.h"
-#include "Thread.h"
+#include "OsThread.h"
 #include "OS.h"
 
 namespace crown
@@ -686,7 +686,7 @@ protected:
 	Allocator& m_allocator;
 	RendererImplementation* m_impl;
 
-	Thread m_thread;
+	OsThread m_thread;
 	Semaphore m_render_wait;
 	Semaphore m_main_wait;
 

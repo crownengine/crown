@@ -48,13 +48,16 @@ public:
 	void			resize(uint32_t width, uint32_t height);
 	void			move(uint32_t x, uint32_t y);
 
+	void			minimize();
+	void			restore();
+
+	bool			is_resizable() const;
+	void			set_resizable(bool resizable);
+
 	void			show_cursor(bool show);
 
 	void			get_cursor_xy(int32_t& x, int32_t& y);
 	void			set_cursor_xy(int32_t x, int32_t y);
-
-	void			set_fullscreen(bool fs);
-	bool			fullscreen();
 
 	char*			title();
 	void			set_title(const char* title);
