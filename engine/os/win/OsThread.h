@@ -32,19 +32,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "OS.h"
+#include "Semaphore.h"
+#include "Assert.h"
 
 namespace crown
-{
-namespace os
 {
 
 typedef int32_t (*ThreadFunction)(void*);
 
-class Thread
+class OsThread
 {
 public:
-						Thread(const char* name);
-						~Thread();
+						OsThread(const char* name);
+						~OsThread();
 
 	void				start(ThreadFunction func, void* data = NULL, size_t stack_size = 0);
 	void				stop();
@@ -55,7 +55,7 @@ private:
 
 	int32_t				run();
 
-	static void* 		thread_proc(void* arg);
+	static DWORD WINAPI	thread_proc(void* arg);
 
 private:
 
@@ -68,29 +68,39 @@ private:
 	size_t 				m_stack_size;
 
 	bool				m_is_running :1;
+
+	DWORD				m_exit_code;
 };
 
 //-----------------------------------------------------------------------------
-inline Thread::Thread(const char* name) :
+CE_INLINE OsThread::OsThread(const char* name) :
 	m_name(name),
 	m_handle(INVALID_HANDLE_VALUE),
 	m_function(NULL),
 	m_data(NULL),
 	m_stack_size(0),
-	m_is_running(false)
+	m_is_running(false),
+	m_exit_code(0)
 {
 	memset(&m_handle, 0, sizeof(HANDLE));
 }
 
 //-----------------------------------------------------------------------------
-inline Thread::~Thread()
+CE_INLINE OsThread::~OsThread()
 {
 }
 
 //-----------------------------------------------------------------------------
-inline void	Thread::start(ThreadFunction func, void* data = NULL, size_t stack_size = 0)
+CE_INLINE void OsThread::start(ThreadFunction func, void* data, size_t stack_size)
 {
-	m_handle = CreateThread(NULL, stack_size, (LPTHREAD_START_ROUTINE) Thread::background_proc, this, 0, NULL);
+	CE_ASSERT(!m_is_running, "Thread is already running");
+	CE_ASSERT(func != NULL, "Function must be != NULL");
+
+	m_function = func;
+	m_data = data;
+	m_stack_size = stack_size;
+
+	m_handle = CreateThread(NULL, stack_size, OsThread::thread_proc, this, 0, NULL);
 
 	CE_ASSERT(m_handle != NULL, "Failed to create the thread '%s'", m_name);
 
@@ -100,24 +110,25 @@ inline void	Thread::start(ThreadFunction func, void* data = NULL, size_t stack_s
 }
 
 //-----------------------------------------------------------------------------
-inline void	Thread::stop()
+CE_INLINE void OsThread::stop()
 {
-	WaitForSingleObject(m_handle, INFINITE);
-	GetExitCodeThread(m_handle, (DWORD*)&m_exitCode);
-	CloseHandle(m_handle);
-	m_handle = INVALID_HANDLE_VALUE;
+	CE_ASSERT(m_is_running, "Thread is not running");
 
+	WaitForSingleObject(m_handle, INFINITE);
+	GetExitCodeThread(m_handle, &m_exit_code);
+
+	CloseHandle(m_handle);
 	m_is_running = false;
 }
 
 //-----------------------------------------------------------------------------
-inline bool	Thread::is_running()
+CE_INLINE bool OsThread::is_running()
 {
 	return m_is_running;
 }
 
 //-----------------------------------------------------------------------------
-inline int32_t Thread::run()
+CE_INLINE int32_t OsThread::run()
 {
 	m_sem.post();
 	
@@ -125,15 +136,13 @@ inline int32_t Thread::run()
 }
 
 //-----------------------------------------------------------------------------
-inline DWORD WINAPI Thread::thread_proc(void* arg)
+CE_INLINE DWORD WINAPI OsThread::thread_proc(void* arg)
 {
-	Thread* thread = (Thread*)arg;
+	OsThread* thread = (OsThread*)arg;
 
 	int32_t result = thread->run();
 	
 	return result;
 }
 
-
-} // namespace os
 } // namespace crown

@@ -38,8 +38,8 @@ public:
 	Semaphore();
 	~Semaphore();
 
-	void post(uint32_t _count = 1) const;
-	bool wait(int32_t _msecs = -1) const;
+	void post(uint32_t count = 1) const;
+	bool wait(int32_t msecs = -1) const;
 
 private:
 
