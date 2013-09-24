@@ -59,8 +59,6 @@ LOCAL_SRC_FILES :=\
 	input/EventDispatcher.cpp\
 	input/InputManager.cpp\
 \
-	network/BitMessage.cpp\
-\
 	os/OS.cpp\
 	os/android/AndroidOS.cpp\
 	os/android/AndroidDevice.cpp\
@@ -77,6 +75,9 @@ LOCAL_SRC_FILES :=\
 	resource/ResourceLoader.cpp\
 	resource/ResourceManager.cpp\
 	resource/ResourceRegistry.cpp\
+\
+	rpc/RPCServer.cpp\
+	rpc/RPCHandler.cpp\
 \
 	lua/LuaStack.cpp\
 	lua/LuaEnvironment.cpp\
@@ -116,6 +117,7 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/core/settings\
 	$(LOCAL_PATH)/core/strings\
 	$(LOCAL_PATH)/resource\
+	$(LOCAL_PATH)/rpc\
 	$(LOCAL_PATH)/input\
 	$(LOCAL_PATH)/lua\
 	$(LOCAL_PATH)/network\
