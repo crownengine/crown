@@ -116,7 +116,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaEnvironment.h"
 
 // Engine/Os
-#include "Thread.h"
+#include "OsThread.h"
 #include "Mutex.h"
 #include "Cond.h"
 #include "OsFile.h"
