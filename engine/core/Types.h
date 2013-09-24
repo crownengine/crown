@@ -33,8 +33,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #ifdef WINDOWS
 	#define CE_EXPORT __declspec(dllexport)
+	#define CE_INLINE __inline
 #else
 	#define CE_EXPORT __attribute__ ((visibility("default")))
+	#define CE_INLINE inline
 #endif
 
 #ifndef NULL
