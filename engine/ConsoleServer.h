@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "TCPSocket.h"
-#include "Thread.h"
+#include "OsThread.h"
 #include "Mutex.h"
 
 namespace crown

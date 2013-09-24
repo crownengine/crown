@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Resource.h"
-#include "Thread.h"
+#include "OsThread.h"
 #include "Queue.h"
 #include "List.h"
 #include "Mutex.h"
@@ -108,7 +108,7 @@ private:
 
 private:
 
-	Thread					m_thread;
+	OsThread				m_thread;
 	bool					m_should_run;
 
 	// Whether to look for resources
