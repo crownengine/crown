@@ -47,8 +47,6 @@ namespace crown
 
 	#define snprintf _snprintf
 
-	#define Thread os::Thread
-
 	#undef MK_SHIFT
 	#undef MK_ALT
 #elif defined(ANDROID)
