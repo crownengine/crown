@@ -363,7 +363,7 @@ if (LINUX)
 		os/linux/TCPSocket.h
 		os/linux/UDPSocket.h
 		os/linux/OsFile.h
-		os/linux/Thread.h
+		os/linux/OsThread.h
 		os/linux/Mutex.h
 		os/linux/Cond.h
 		os/posix/Semaphore.h

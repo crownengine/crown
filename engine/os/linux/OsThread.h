@@ -26,4 +26,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "../posix/Thread.h"
+#include "../posix/OsThread.h"
