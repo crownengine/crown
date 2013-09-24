@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Socket.h"
+#include "OsSocket.h"
 #include "List.h"
 #include "Queue.h"
 #include "IdTable.h"
