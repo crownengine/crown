@@ -72,7 +72,11 @@ void ResourceManager::unload(ResourceId name)
 	if (entry->references == 0)
 	{
 		resource_on_unload(entry->type, m_resource_heap, entry->resource);
-		entry->resource = NULL;
+
+		// Swap with last
+		ResourceEntry temp = m_resources[m_resources.size() - 1];
+		(*entry) = temp;
+		m_resources.pop_back();
 	}
 }
 
