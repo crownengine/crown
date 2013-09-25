@@ -51,9 +51,6 @@ class ConsoleServer;
 class BundleCompiler;
 class ResourcePackage;
 
-typedef void (*cb)(float);
-CE_EXPORT void nothing(float);
-
 /// The Engine.
 /// It is the place where to look for accessing all of
 /// the engine subsystems and related stuff.
@@ -105,8 +102,7 @@ public:
 	void					unpause();
 
 	/// Updates all the subsystems
-	void					frame(cb callback);
-	void					frame() { frame(nothing); }
+	void					frame();
 
 	/// Returns the resource package with the given @a package_name name.
 	ResourcePackage*		create_resource_package(const char* name);
@@ -179,7 +175,6 @@ private:
 	// Public subsystems
 	Filesystem*				m_filesystem;
 
-	OsWindow*				m_window;
 	InputManager*			m_input_manager;
 	LuaEnvironment*			m_lua_environment;
 	Renderer*				m_renderer;
@@ -189,9 +184,6 @@ private:
 	BundleCompiler*			m_bundle_compiler;
 	ResourceManager*		m_resource_manager;
 	Bundle*					m_resource_bundle;
-
-	// Debug subsystems
-	ConsoleServer*			m_console_server;
 
 	bool 					m_renderer_init_request;
 
@@ -204,9 +196,11 @@ private:
 	friend class MainThread;
 };
 
-CE_EXPORT void init();
-CE_EXPORT void shutdown();
 CE_EXPORT Device* device();
 
+CE_EXPORT void set_device(Device* device);
+
 } // namespace crown
+
+
 

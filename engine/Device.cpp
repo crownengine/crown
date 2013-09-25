@@ -68,7 +68,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-
 //-----------------------------------------------------------------------------
 Device::Device() : 
 	m_allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP),
@@ -103,8 +102,6 @@ Device::Device() :
 	m_bundle_compiler(NULL),
 	m_resource_manager(NULL),
 	m_resource_bundle(NULL),
-
-	m_console_server(NULL),
 
 	m_renderer_init_request(false)
 {
@@ -173,17 +170,6 @@ void Device::init()
 
 	m_resource_bundle = Bundle::create(m_allocator, *m_filesystem);
 
-	// // Read resource seed
-	// DiskFile* seed_file = (DiskFile*)filesystem()->open(g_default_mountpoint.value(), "seed.ini", FOM_READ);
-	// TextReader reader(*seed_file);
-
-	// char tmp_buf[32];
-	// reader.read_string(tmp_buf, 32);
-
-	// filesystem()->close(seed_file);
-
-	// uint32_t seed = string::parse_uint(tmp_buf);
-
 	// Create resource manager
 	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, 0);
 	Log::d("Resource manager created.");
@@ -193,19 +179,9 @@ void Device::init()
 	m_input_manager = CE_NEW(m_allocator, InputManager)();
 	Log::d("Input manager created.");
 
-	// default_allocator, maybe it needs fix
-	m_window = CE_NEW(m_allocator, OsWindow)(m_preferred_window_width, m_preferred_window_height, m_parent_window_handle);
-
-	CE_ASSERT(m_window != NULL, "Unable to create the window");
-
-	// Create main window
-	m_window->set_title("Crown Game Engine");
-	Log::d("Window created.");
-
 	// Create renderer
 	m_renderer = CE_NEW(m_allocator, Renderer)(m_allocator);
 	m_renderer->init();
-	m_renderer_init_request = false;
 	Log::d("Renderer created.");
 
 	// Create debug renderer
@@ -221,9 +197,6 @@ void Device::init()
 
 	m_is_init = true;
 	start();
-
-	// Show main window
-	m_window->show();
 
 	// Execute lua boot file
 	if (m_lua_environment->load_and_execute(m_boot_file))
@@ -255,14 +228,6 @@ void Device::shutdown()
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);
 
-	Log::i("Releasing ConsoleServer...");
-	if (m_console_server)
-	{
-		//m_console_server->shutdown();
-
-		CE_DELETE(m_allocator, m_console_server);
-	}
-
 	Log::i("Releasing LuaEnvironment...");
 	if (m_lua_environment)
 	{
@@ -288,12 +253,6 @@ void Device::shutdown()
 	{
 		m_renderer->shutdown();
 		CE_DELETE(m_allocator, m_renderer);
-	}
-
-	Log::i("Releasing Window...");
-	if (m_window)
-	{
-		CE_DELETE(m_allocator, m_window);
 	}
 
 	Log::i("Releasing ResourceManager...");
@@ -363,12 +322,6 @@ LuaEnvironment* Device::lua_environment()
 }
 
 //-----------------------------------------------------------------------------
-OsWindow* Device::window()
-{
-	return m_window;
-}
-
-//-----------------------------------------------------------------------------
 Renderer* Device::renderer()
 {
 	return m_renderer;
@@ -404,10 +357,6 @@ Accelerometer* Device::accelerometer()
 	return m_input_manager->accelerometer();
 }
 
-ConsoleServer* Device::console_server()
-{
-	return m_console_server;
-}
 //-----------------------------------------------------------------------------
 void Device::start()
 {
@@ -467,7 +416,7 @@ double Device::time_since_start() const
 }
 
 //-----------------------------------------------------------------------------
-void Device::frame(cb callback)
+void Device::frame()
 {
 	m_current_time = os::microseconds();
 	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
@@ -478,21 +427,21 @@ void Device::frame(cb callback)
 	{
 		m_resource_manager->poll_resource_loader();
 
-		m_window->frame();
+		// m_window->frame();
 		m_input_manager->frame(frame_count());
+
+		m_renderer->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
+		m_renderer->commit(0);
 
 		if (!m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time()))
 		{
 			pause();
 		}
 
-		callback(m_last_delta_time);
 		m_renderer->frame();
 	}
 
 	m_frame_count++;
-
-	os_event_buffer()->clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -703,32 +652,15 @@ void Device::print_help_message()
 	"  --quit-after-init          Quit the engine immediately after the initialization.\n");
 }
 
-static Device* g_device = NULL;
+static Device* g_device;
 
-//-----------------------------------------------------------------------------
-void init()
+void set_device(Device* device)
 {
-	crown::memory::init();
-	crown::os::init_os();
-	g_device = CE_NEW(default_allocator(), Device);
-}
-
-//-----------------------------------------------------------------------------
-void shutdown()
-{
-	CE_DELETE(default_allocator(), g_device);
-	crown::memory::shutdown();
+	g_device = device;
 }
 
 Device* device()
 {
 	return g_device;
 }
-
-void nothing(float)
-{
-	device()->renderer()->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
-	device()->renderer()->commit(0);
-}
-
 } // namespace crown
