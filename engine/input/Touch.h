@@ -44,10 +44,8 @@ struct PointerData
 };
 
 /// Interface for accessing touch input device.
-class Touch
+struct Touch
 {
-public:
-
 	/// Returns whether the touch pointer @a id is up.
 	bool touch_up(uint16_t id) const
 	{

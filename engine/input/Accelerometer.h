@@ -33,10 +33,8 @@ namespace crown
 {
 
 /// Interface for accessing accelerometer input device.
-class Accelerometer
+struct Accelerometer
 {
-public:
-	
 	//-----------------------------------------------------------------------------
 	Accelerometer()
 		: m_orientation(0.0f, 0.0f, 0.0f)

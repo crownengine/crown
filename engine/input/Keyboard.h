@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "KeyCode.h"
-#include "OS.h"
 #include "Assert.h"
 
 #undef MK_SHIFT
@@ -46,10 +45,8 @@ enum ModifierKey
 };
 
 /// Interface for accessing keyboard input device.
-class Keyboard
+struct Keyboard
 {
-public:
-
 	Keyboard()
 		: m_modifier(0), m_current_frame(0), m_last_key(KC_NOKEY)
 	{
