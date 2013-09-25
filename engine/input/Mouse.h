@@ -29,6 +29,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Vec2.h"
+#include "Device.h"
+#include "OsWindow.h"
 
 namespace crown
 {
@@ -43,58 +45,75 @@ enum MouseButton
 	MB_RIGHT	= 2
 };
 
-struct MouseEvent
-{
-	MouseButton button;
-	int32_t x;
-	int32_t y;
-	float wheel;
-};
-
-/// Interface for managing mouse input.
-class MouseListener
-{
-
-public:
-
-	virtual void button_pressed(const MouseEvent& event) { (void)event; }
-	virtual void button_released(const MouseEvent& event) { (void)event; }
-	virtual void cursor_moved(const MouseEvent& event) { (void)event; }
-};
-
 /// Interface for accessing mouse input device.
 class Mouse
 {
 public:
 
-					Mouse();
+	//-----------------------------------------------------------------------------
+	Mouse()
+		: m_current_frame(0), m_last_button(MB_LEFT)
+	{
+		m_buttons[MB_LEFT] = ~0;
+		m_buttons[MB_MIDDLE] = ~0;
+		m_buttons[MB_RIGHT] = ~0;
 
+		m_state[MB_LEFT] = false;
+		m_state[MB_MIDDLE] = false;
+		m_state[MB_RIGHT] = false;
+	}
 
 	/// Returns whether @a button is pressed in the current frame.
-	bool			button_pressed(MouseButton button) const;
+	bool button_pressed(MouseButton button) const
+	{
+		CE_ASSERT(button >= 0 && button < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", button);
+
+		return (m_state[button] == true) && (m_buttons[button] == m_current_frame);
+	}
 
 	/// Returns whether @a button is released in the current frame.
-	bool			button_released(MouseButton button) const;
+	bool button_released(MouseButton button) const
+	{
+		CE_ASSERT(button >= 0 && button < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", button);
+
+		return (m_state[button] == false) && (m_buttons[button] == m_current_frame);
+	}
 
 	/// Returns wheter any button is pressed in the current frame.
-	bool			any_pressed() const;
+	bool any_pressed() const
+	{
+		return button_pressed(m_last_button);
+	}
 
 	/// Returns whether any button is released in the current frame.
-	bool			any_released() const;
+	bool any_released() const
+	{
+		return button_released(m_last_button);
+	}
 
 	/// Returns the position of the cursor in window space.
 	/// @note
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
-	Vec2			cursor_xy() const;
+	Vec2 cursor_xy() const
+	{
+		int32_t x, y;
+
+		device()->window()->get_cursor_xy(x, y);
+
+		return Vec2(x, y);
+	}
 
 	/// Sets the position of the cursor in window space.
 	/// @note
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
-	void			set_cursor_xy(const Vec2& position);
+	void set_cursor_xy(const Vec2& position)
+	{
+		device()->window()->set_cursor_xy((int32_t) position.x, (int32_t) position.y);
+	}
 
 	/// Returns the relative position of the cursor in window space.
 	/// @note
@@ -105,7 +124,20 @@ public:
 	/// Relative coordinates are mapped to a float varying
 	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
 	/// maximum extent of the cosidered axis.
-	Vec2			cursor_relative_xy() const;
+	Vec2 cursor_relative_xy() const
+	{
+		uint32_t window_width;
+		uint32_t window_height;
+
+		device()->window()->get_size(window_width, window_height);
+
+		Vec2 pos = cursor_xy();
+
+		pos.x = pos.x / (float) window_width;
+		pos.y = pos.y / (float) window_height;
+
+		return pos;
+	}
 
 	/// Sets the relative position of the cursor in window space.
 	/// @note
@@ -116,11 +148,29 @@ public:
 	/// Relative coordinates are mapped to a float varying
 	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
 	/// maximum extent of the cosidered axis.
-	void			set_cursor_relative_xy(const Vec2& position);
+	void set_cursor_relative_xy(const Vec2& position)
+	{
+		uint32_t window_width;
+		uint32_t window_height;
+
+		device()->window()->get_size(window_width, window_height);
+
+		set_cursor_xy(Vec2(position.x * (float) window_width, position.y * (float) window_height));
+	}
 
 private:
 
-	void			update(uint64_t frame, MouseButton b, bool state);
+	//-----------------------------------------------------------------------------
+	void update(uint64_t frame, MouseButton b, bool state)
+	{
+		CE_ASSERT(b >= 0 && b < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", b);
+
+		m_last_button = b;
+		m_buttons[b] = frame;
+		m_state[b] = state;
+	}
+
+private:
 
 	// The current frame number
 	uint64_t		m_current_frame;
@@ -131,7 +181,7 @@ private:
 	uint64_t		m_buttons[MAX_MOUSE_BUTTONS];
 	bool			m_state[MAX_MOUSE_BUTTONS];
 
-	friend class	InputManager;
+	friend class	Device;
 };
 
 } // namespace crown

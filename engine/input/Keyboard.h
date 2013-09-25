@@ -29,15 +29,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "KeyCode.h"
 #include "OS.h"
+#include "Assert.h"
 
 #undef MK_SHIFT
 #undef MK_ALT
 
 namespace crown
 {
-
-class InputManager;
-
 
 /// Enumerates modifier keys.
 enum ModifierKey
@@ -47,29 +45,20 @@ enum ModifierKey
 	MK_ALT		= 4
 };
 
-struct KeyboardEvent
-{
-	KeyCode		key;
-	uint8_t		modifier;
-	char		text[4];
-};
-
-class KeyboardListener
-{
-
-public:
-
-	virtual void key_pressed(const KeyboardEvent& event) { (void)event; }
-	virtual void key_released(const KeyboardEvent& event) { (void)event; }
-	virtual void text_input(const KeyboardEvent& event) { (void)event; }
-};
-
 /// Interface for accessing keyboard input device.
 class Keyboard
 {
 public:
 
-					Keyboard();
+	Keyboard()
+		: m_modifier(0), m_current_frame(0), m_last_key(KC_NOKEY)
+	{
+		for (uint32_t i = 0; i < MAX_KEYCODES; i++)
+		{
+			m_keys[i] = ~0;
+			m_state[i] = false;
+		}
+	}
 
 	/// Returns whether the specified @a modifier is pressed.
 	/// @note
@@ -77,23 +66,51 @@ public:
 	/// of another key when the two are pressed in combination. (Thanks wikipedia.)
 	/// @note
 	/// Crown currently supports three different modifier keys: Shift, Ctrl and Alt.
-	bool			modifier_pressed(ModifierKey modifier) const;
+	bool modifier_pressed(ModifierKey modifier) const
+	{
+		return (m_modifier & modifier) == modifier;
+	}
 
 	/// Returns whether the specified @a key is pressed in the current frame.
-	bool			key_pressed(KeyCode key) const;
+	bool key_pressed(KeyCode key) const
+	{
+		CE_ASSERT(key >= 0 && key < MAX_KEYCODES, "KeyCode out of range: %d", key);
+
+		return (m_state[key] == true) && (m_keys[key] == m_current_frame);
+	}
 
 	/// Returns whether the specified @a key is released in the current frame.
-	bool			key_released(KeyCode key) const;
+	bool key_released(KeyCode key) const
+	{
+		CE_ASSERT(key >= 0 && key < MAX_KEYCODES, "KeyCode out of range: %d", key);
+
+		return (m_state[key] == false) && (m_keys[key] == m_current_frame);
+	}
 
 	/// Returns wheter any key is pressed in the current frame.
-	bool			any_pressed() const;
+	bool any_pressed() const
+	{
+		return key_pressed(m_last_key);
+	}
 
 	/// Returns whether any key is released in the current frame.
-	bool			any_released() const;
+	bool any_released() const
+	{
+		return key_released(m_last_key);
+	}
 
 private:
 
-	void			update(uint64_t frame, KeyCode k, bool state);
+	void update(uint64_t frame, KeyCode k, bool state)
+	{
+		CE_ASSERT(k >= 0 && k < MAX_KEYCODES, "KeyCode out of range: %d", k);
+
+		m_last_key = k;
+		m_keys[k] = frame;
+		m_state[k] = state;
+	}
+
+private:
 
 	uint8_t			m_modifier;
 
@@ -105,8 +122,7 @@ private:
 	uint64_t		m_keys[MAX_KEYCODES];
 	bool			m_state[MAX_KEYCODES];
 
-	friend class	InputManager;
+	friend class	Device;
 };
 
 } // namespace crown
-

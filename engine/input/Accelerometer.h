@@ -32,38 +32,29 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class InputManager;
-
-struct AccelerometerEvent
-{
-	float x;
-	float y;
-	float z;
-};
-
-class AccelerometerListener
-{
-public:
-
-	virtual void accelerometer_changed(const AccelerometerEvent& event) { (void)event; }
-};
-
 /// Interface for accessing accelerometer input device.
 class Accelerometer
 {
 public:
 	
-					Accelerometer();
+	//-----------------------------------------------------------------------------
+	Accelerometer()
+		: m_orientation(0.0f, 0.0f, 0.0f)
+	{
+	}
 
 	/// Returns the orientation of the accelerometer.
 	/// FIXME NEED MORE DOCUMENTATION
-	const Vec3&		orientation() const;
+	const Vec3& orientation() const
+	{
+		return m_orientation;
+	}
 
 private:
 
 	Vec3			m_orientation;
 
-	friend class	InputManager;
+	friend class	Device;
 };
 
 } // namespace crown
