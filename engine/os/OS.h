@@ -32,7 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Vector.h"
 #include "DynamicString.h"
-#include "EventBuffer.h"
 
 namespace crown
 {
@@ -157,8 +156,6 @@ void			execute_process(const char* args[]);
 //-----------------------------------------------------------------------------
 
 } // namespace os
-
-EventBuffer* 	os_event_buffer();
 
 } // namespace crown
 
