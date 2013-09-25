@@ -41,3 +41,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 #define CE_ASSERT_NOT_NULL(x) CE_ASSERT(x != NULL, "Parameter must be not null")
+#define CE_FATAL(msg) CE_ASSERT(false, msg)
