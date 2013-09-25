@@ -26,21 +26,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "GLContext.h"
 #include "Assert.h"
 #include "Types.h"
+#include "Log.h"
 
 namespace crown
 {
 
-static HWND s_handle_window = 0;
+static HWND g_handle_window;
 
 //-----------------------------------------------------------------------------
 void set_win_handle_window(HWND win)
 {
-	s_handle_window = win;
+	g_handle_window = win;
+
+	CE_ASSERT(g_handle_window != 0, "Unable to set Windows handle");
 }
 
 //-----------------------------------------------------------------------------
 GLContext::GLContext() :
-	m_win_context(NULL)
+	m_win_context(NULL),
+	m_hdc(0)
 {
 	
 }
@@ -48,11 +52,36 @@ GLContext::GLContext() :
 //-----------------------------------------------------------------------------
 void GLContext::create_context()
 {
-	m_win_context = wglCreateContext(GetDC(s_handle_window));
+	/* get the device context (DC) */
+	m_hdc = GetDC(g_handle_window);
+	CE_ASSERT(m_hdc != NULL, "Fail to retrieves window device context");
 
-	wglMakeCurrent(GetDC(s_handle_window), m_win_context);
 
-	CE_ASSERT(m_win_context != NULL, "Unable to create a rendering context.");
+	/* set the pixel format for the DC */
+	PIXELFORMATDESCRIPTOR pfd;
+	int32_t pixel_format;
+	ZeroMemory(&pfd, sizeof (pfd));
+	pfd.nSize = sizeof (pfd);
+	pfd.nVersion = 1;
+	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+	pfd.iPixelType = PFD_TYPE_RGBA;
+	pfd.cColorBits = 24;
+	pfd.cDepthBits = 24;
+	pfd.iLayerType = PFD_MAIN_PLANE;
+
+	pixel_format = ChoosePixelFormat(m_hdc, &pfd);
+	CE_ASSERT(pixel_format != 0, "Pixel format not supported");
+
+	bool pf_set = SetPixelFormat(m_hdc, pixel_format, &pfd);
+	CE_ASSERT(pf_set, "Unable to set the pixel format, altough it seems to be supported");
+
+	m_win_context = wglCreateContext(m_hdc);
+
+	CE_ASSERT(m_win_context != NULL, "Unable to create a render context. errno: %d", GetLastError());
+
+	BOOL result = wglMakeCurrent(m_hdc, m_win_context);
+
+	CE_ASSERT(result == TRUE , "Unable to make current WGL context.");	
 }
 
 //-----------------------------------------------------------------------------
@@ -64,7 +93,11 @@ void GLContext::destroy_context()
 //-----------------------------------------------------------------------------
 void GLContext::swap_buffers()
 {
-	SwapBuffers(GetDC(s_handle_window));
+	if (g_handle_window != NULL)
+	{
+		wglMakeCurrent(m_hdc, m_win_context);
+		SwapBuffers(m_hdc);
+	}
 }
 
 } // namespace crown
