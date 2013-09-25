@@ -50,82 +50,91 @@ Mouse::Mouse() :
 //-----------------------------------------------------------------------------
 bool Mouse::button_pressed(MouseButton button) const
 {
-	CE_ASSERT(button >= 0 && button < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", button);
+	// CE_ASSERT(button >= 0 && button < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", button);
 
-	return (m_state[button] == true) && (m_buttons[button] == m_current_frame);
+	// return (m_state[button] == true) && (m_buttons[button] == m_current_frame);
+	return false;
 }
 
 //-----------------------------------------------------------------------------
 bool Mouse::button_released(MouseButton button) const
 {
-	CE_ASSERT(button >= 0 && button < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", button);
+	// CE_ASSERT(button >= 0 && button < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", button);
 
-	return (m_state[button] == false) && (m_buttons[button] == m_current_frame);
+	// return (m_state[button] == false) && (m_buttons[button] == m_current_frame);
+	return false;
 }
 
 //-----------------------------------------------------------------------------
 bool Mouse::any_pressed() const
 {
-	return button_pressed(m_last_button);
+	// return button_pressed(m_last_button);
+	return false;
 }
 
 //-----------------------------------------------------------------------------
 bool Mouse::any_released() const
 {
-	return button_released(m_last_button);
+	// return button_released(m_last_button);
+	return false;
 }
 
 //-----------------------------------------------------------------------------
 Vec2 Mouse::cursor_xy() const
 {
-	int32_t x, y;
+	// int32_t x, y;
 
-	device()->window()->get_cursor_xy(x, y);
+	// device()->window()->get_cursor_xy(x, y);
 
-	return Vec2(x, y);
+	// return Vec2(x, y);
+
+	// return Vec2(x, y);
+	return Vec2::ZERO;
+
 }
 
 //-----------------------------------------------------------------------------
 void Mouse::set_cursor_xy(const Vec2& position)
 {
-	device()->window()->set_cursor_xy((int32_t) position.x, (int32_t) position.y);
+	// device()->window()->set_cursor_xy((int32_t) position.x, (int32_t) position.y);
 }
 
 //-----------------------------------------------------------------------------
 Vec2 Mouse::cursor_relative_xy() const
 {
-	uint32_t window_width;
-	uint32_t window_height;
+	// uint32_t window_width;
+	// uint32_t window_height;
 
-	device()->window()->get_size(window_width, window_height);
+	// device()->window()->get_size(window_width, window_height);
 
-	Vec2 pos = cursor_xy();
+	// Vec2 pos = cursor_xy();
 
-	pos.x = pos.x / (float) window_width;
-	pos.y = pos.y / (float) window_height;
+	// pos.x = pos.x / (float) window_width;
+	// pos.y = pos.y / (float) window_height;
 
-	return pos;
+	// return pos;
+	return Vec2::ZERO;
 }
 
 //-----------------------------------------------------------------------------
 void Mouse::set_cursor_relative_xy(const Vec2& position)
 {
-	uint32_t window_width;
-	uint32_t window_height;
+	// uint32_t window_width;
+	// uint32_t window_height;
 
-	device()->window()->get_size(window_width, window_height);
+	// device()->window()->get_size(window_width, window_height);
 
-	set_cursor_xy(Vec2(position.x * (float) window_width, position.y * (float) window_height));
+	// set_cursor_xy(Vec2(position.x * (float) window_width, position.y * (float) window_height));
 }
 
 //-----------------------------------------------------------------------------
 void Mouse::update(uint64_t frame, MouseButton b, bool state)
 {
-	CE_ASSERT(b >= 0 && b < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", b);
+	// CE_ASSERT(b >= 0 && b < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", b);
 
-	m_last_button = b;
-	m_buttons[b] = frame;
-	m_state[b] = state;
+	// m_last_button = b;
+	// m_buttons[b] = frame;
+	// m_state[b] = state;
 }
 
 } // namespace crown
