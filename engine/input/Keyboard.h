@@ -76,7 +76,7 @@ public:
 	{
 		CE_ASSERT(key >= 0 && key < MAX_KEYCODES, "KeyCode out of range: %d", key);
 
-		return (m_state[key] == true) && (m_keys[key] == m_current_frame);
+		return (m_state[key] == true);
 	}
 
 	/// Returns whether the specified @a key is released in the current frame.
@@ -96,10 +96,8 @@ public:
 	/// Returns whether any key is released in the current frame.
 	bool any_released() const
 	{
-		return key_released(m_last_key);
+		return key_pressed(m_last_key);
 	}
-
-private:
 
 	void update(uint64_t frame, KeyCode k, bool state)
 	{
@@ -110,7 +108,7 @@ private:
 		m_state[k] = state;
 	}
 
-private:
+public:
 
 	uint8_t			m_modifier;
 

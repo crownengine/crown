@@ -50,7 +50,7 @@ public:
 		return m_orientation;
 	}
 
-private:
+public:
 
 	Vec3			m_orientation;
 

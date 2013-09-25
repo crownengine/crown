@@ -88,7 +88,7 @@ public:
 		return Vec2(data.relative_x, data.relative_y);
 	}
 
-private:
+public:
 
 	PointerData		m_pointers[MAX_POINTER_IDS];
 

@@ -158,8 +158,6 @@ public:
 		set_cursor_xy(Vec2(position.x * (float) window_width, position.y * (float) window_height));
 	}
 
-private:
-
 	//-----------------------------------------------------------------------------
 	void update(uint64_t frame, MouseButton b, bool state)
 	{
@@ -170,7 +168,7 @@ private:
 		m_state[b] = state;
 	}
 
-private:
+public:
 
 	// The current frame number
 	uint64_t		m_current_frame;
