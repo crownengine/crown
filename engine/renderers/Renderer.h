@@ -653,8 +653,6 @@ public:
 		RenderContext* temp = m_submit;
 		m_submit = m_draw;
 		m_draw = temp;
-
-		m_main_wait.post();
 	}
 
 	inline void frame()
@@ -679,6 +677,8 @@ public:
 		{
 			render_impl();
 		}
+
+		m_main_wait.post();
 	}
 
 protected:
