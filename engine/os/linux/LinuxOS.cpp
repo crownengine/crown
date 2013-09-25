@@ -274,8 +274,6 @@ const char* get_env(const char* env)
 //-----------------------------------------------------------------------------
 void init_os()
 {
-	XInitThreads();
-
 	// Initilize the base time
 	clock_gettime(CLOCK_MONOTONIC, &base_time);
 }
