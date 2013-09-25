@@ -277,6 +277,8 @@ inline void Queue<T>::push(const T *items, uint32_t n)
 template <typename T>
 inline void Queue<T>::pop(uint32_t n)
 {
+	CE_ASSERT(m_size > 0, "The queue is empty");
+
 	m_read = (m_read + n) % m_queue.size();
 	m_size -= n;
 }
