@@ -59,7 +59,7 @@ private:
 	Allocator&			operator=(const Allocator&);
 };
 
-Allocator& default_allocator();
+CE_EXPORT Allocator& default_allocator();
 
 /// Respects standard behaviour when calling on NULL @a ptr
 template <typename T>

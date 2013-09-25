@@ -63,12 +63,12 @@ namespace memory
 static char buffer[1024];
 static HeapAllocator* g_default_allocator = NULL;
 
-void init()
+void init_memory()
 {
 	g_default_allocator = new (buffer) HeapAllocator();
 }
 
-void shutdown()
+void shutdown_memory()
 {
 	g_default_allocator->~HeapAllocator();
 }
