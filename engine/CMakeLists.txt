@@ -322,7 +322,7 @@ set (LUA_SRC
 	lua/LuaKeyboard.cpp
 	lua/LuaAccelerometer.cpp
 	lua/LuaDevice.cpp
-	lua/LuaWindow.cpp
+	#lua/LuaWindow.cpp
 	lua/LuaResourcePackage.cpp
 )
 
@@ -440,7 +440,6 @@ if (WINDOWS)
 	)
 
 	list (APPEND OS_HEADERS
-		os/win/OsWindow.h
 		os/win/OsFile.h
 		os/win/OsThread.h
 		os/win/Mutex.h
@@ -451,7 +450,6 @@ if (WINDOWS)
 
 	list (APPEND OS_SRC
 		os/win/WinOS.cpp
-		os/win/OsWindow.cpp
 		os/win/OsFile.cpp
 	)
 
@@ -463,6 +461,7 @@ if (WINDOWS)
 	list (APPEND RENDERERS_HEADERS
 		renderers/gl/GLRenderer.h
 		renderers/gl/wgl/GLContext.h
+		renderers/gl/wgl/wglext.h
 	)
 
 	list (APPEND CROWN_LIBRARIES
@@ -533,8 +532,6 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 
-#add_executable(crown-linux-renderer-evo os/linux/main2.cpp)
-#target_link_libraries(crown-linux-renderer-evo crown)
 
 if (CROWN_BUILD_TESTS)
 	#add_subdirectory(tests)
@@ -542,7 +539,6 @@ endif (CROWN_BUILD_TESTS)
 
 install (TARGETS crown DESTINATION bin)
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
-#install (TARGETS crown-linux-renderer-evo DESTINATION bin)
 
 #install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 
