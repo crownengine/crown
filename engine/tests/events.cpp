@@ -1,90 +1,35 @@
 #include "Crown.h"
 #include "EventBuffer.h"
+#include "OsTypes.h"
+#include "Mouse.h"
+#include "Log.h"
 
 using namespace crown;
 
 //-----------------------------------------------------------------------------
-struct TestEvent
-{
-	uint32_t a;
-	uint32_t b;
-	uint32_t c;
-};
-
-//-----------------------------------------------------------------------------
-void fill_events(EventBuffer& event_buffer, uint32_t num)
-{
-	TestEvent event;
-	event.a = 1;
-	event.b = 2;
-	event.c = 3;
-
-	for (uint32_t i = 0; i < num; i++)
-	{
-		event_buffer.push_event(0, &event, sizeof(TestEvent));
-	}
-
-	uint32_t size = num * (sizeof(TestEvent) + sizeof(uint32_t) + sizeof(size_t));
-
-	CE_ASSERT(event_buffer.size() == size, "Something ha gone wrong, size is %d, should be %d", event_buffer.size(), size);
-}
-
-void get_events(EventBuffer& event_buffer, uint32_t num)
-{
-	TestEvent* result;
-	uint32_t type = 0;
-	size_t size = 0;
-
-	uint32_t count = 0;
-
-	for (uint32_t i = 0; i < num; i++)
-	{
-		result = (TestEvent*)event_buffer.get_next_event(type, size);
-
-		if (result)
-		{
-			count++;
-		}
-
-		Log::i("count: %d", count);
-	}
-
-	CE_ASSERT(count == num, "Something ha gone wrong, count: %d, num: %d", count, num);
-}
-
-void get_event_until_end(EventBuffer& event_buffer)
-{
-	TestEvent* result;
-	uint32_t type = 0;
-	size_t size = 0;
-
-	int32_t count = 0;
-
-	while ((result = (TestEvent*)event_buffer.get_next_event(type, size)) != NULL)
-	{
-		count++;
-	}
-
-	Log::i("count: %d", count);
-}
-
-//-----------------------------------------------------------------------------
 int main()
 {
-	EventBuffer event_buffer;
+	EventBuffer buffer;
 
-	fill_events(event_buffer, 10);
-	get_events(event_buffer, 10);
+	OsMouseEvent ome;
+	ome.button = MouseButton::LEFT;
+	ome.x = 0;
+	ome.y = 0;
+	ome.pressed = true;
 
-	event_buffer.clear();
+	buffer.push_event((uint32_t)OsEvent::MOUSE, &ome, sizeof(OsMouseEvent));
 
-	fill_events(event_buffer, 5);
-	get_events(event_buffer, 5);
+	OsEvent::Enum type = (OsEvent::Enum)buffer.get_next_event_type();
+	Log::d("type: %d", type);
 
-	event_buffer.clear();
+	OsMouseEvent* result;
+	uint32_t et; size_t es;
+	result = (OsMouseEvent*)buffer.get_next_event(et, es);
 
-	fill_events(event_buffer, 30);
-	get_event_until_end(event_buffer);
+	Log::d("button: %d", result->button);
+	Log::d("x: %d", result->x);
+	Log::d("y: %d", result->y);
+	Log::d("pressed: %d", result->pressed);
 
 	return 0;
 }

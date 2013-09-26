@@ -28,6 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cstring>
 
+#include "OsTypes.h"
+
 #define EVENT_BUFFER_MAX_SIZE 1024 * 4
 
 namespace crown
@@ -35,12 +37,12 @@ namespace crown
 
 struct EventBuffer
 {
-	uint8_t m_buffer[EVENT_BUFFER_MAX_SIZE];
+	char m_buffer[EVENT_BUFFER_MAX_SIZE];
 	size_t m_size;
 	size_t m_read;
 
 	//-----------------------------------------------------------------------------
-	EventBuffer::EventBuffer() 
+	EventBuffer() 
 		: m_size(0), m_read(0)
 	{
 	}
@@ -48,7 +50,7 @@ struct EventBuffer
 	//-----------------------------------------------------------------------------
 	void push_event(uint32_t event_type, void* event_data, size_t event_size)
 	{
-		if (m_size + sizeof(event_type) + sizeof(event_size) + event_size > MAX_OS_EVENT_BUFFER_SIZE)
+		if (m_size + sizeof(event_type) + sizeof(event_size) + event_size > EVENT_BUFFER_MAX_SIZE)
 		{
 			flush();
 		}
@@ -70,7 +72,9 @@ struct EventBuffer
 			char* cur = m_buffer + m_read;
 
 			// Saves type
-			event_type = *(uint32_t*) cur;			
+			int32_t event_type = *(uint32_t*) cur;
+
+			return event_type;
 		}
 
 		return -1;		
@@ -100,14 +104,14 @@ struct EventBuffer
 	}
 
 	//-----------------------------------------------------------------------------
-	void EventBuffer::clear()
+	void clear()
 	{
 		m_size = 0;
 		m_read = 0;
 	}
 
 	//-----------------------------------------------------------------------------
-	void EventBuffer::flush()
+	void flush()
 	{
 		m_size = 0;
 		m_read = 0;
