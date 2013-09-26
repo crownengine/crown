@@ -68,13 +68,9 @@ public:
 	char*			title();
 	void			set_title(const char* title);
 
-	void			frame();
-
 private:
 
-	Display*		m_x11_display;
-	Window			m_x11_window;
-	Window			m_x11_parent_window;
+
 
 	uint32_t		m_x;
 	uint32_t		m_y;
@@ -83,7 +79,7 @@ private:
 	bool			m_resizable;
 
 	bool			m_x11_detectable_autorepeat;
-	Cursor			m_x11_hidden_cursor;
+
 };
 
 } // namespace crown
