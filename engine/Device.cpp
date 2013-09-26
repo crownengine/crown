@@ -35,7 +35,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "DebugRenderer.h"
 #include "DiskFile.h"
 #include "DiskFilesystem.h"
-#include "InputManager.h"
 #include "JSONParser.h"
 #include "Keyboard.h"
 #include "Log.h"
@@ -54,7 +53,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Bundle.h"
 #include "TempAllocator.h"
 #include "ResourcePackage.h"
-#include "EventBuffer.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -94,7 +92,6 @@ Device::Device() :
 	m_time_since_start(0.0),
 
 	m_filesystem(NULL),
-	m_input_manager(NULL),
 	m_lua_environment(NULL),
 	m_renderer(NULL),
 	m_debug_renderer(NULL),
@@ -175,10 +172,6 @@ void Device::init()
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
 
-	// Create input manager
-	m_input_manager = CE_NEW(m_allocator, InputManager)();
-	Log::d("Input manager created.");
-
 	// Create renderer
 	m_renderer = CE_NEW(m_allocator, Renderer)(m_allocator);
 	m_renderer->init();
@@ -234,12 +227,6 @@ void Device::shutdown()
 		m_lua_environment->shutdown();
 		
 		CE_DELETE(m_allocator, m_lua_environment);
-	}
-
-	Log::i("Releasing InputManager...");
-	if (m_input_manager)
-	{
-		CE_DELETE(m_allocator, m_input_manager);
 	}
 
 	Log::i("Releasing DebugRenderer...");
@@ -310,12 +297,6 @@ ResourceManager* Device::resource_manager()
 }
 
 //-----------------------------------------------------------------------------
-InputManager* Device::input_manager()
-{
-	return m_input_manager;
-}
-
-//-----------------------------------------------------------------------------
 LuaEnvironment* Device::lua_environment()
 {
 	return m_lua_environment;
@@ -336,25 +317,25 @@ DebugRenderer* Device::debug_renderer()
 //-----------------------------------------------------------------------------
 Keyboard* Device::keyboard()
 {
-	return m_input_manager->keyboard();
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
 Mouse* Device::mouse()
 {
-	return m_input_manager->mouse();
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
 Touch* Device::touch()
 {
-	return m_input_manager->touch();
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
 Accelerometer* Device::accelerometer()
 {
-	return m_input_manager->accelerometer();
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -378,17 +359,12 @@ void Device::stop()
 void Device::pause()
 {
 	m_is_paused = true;
-
-	Log::d("Engine paused");
 }
 
 //-----------------------------------------------------------------------------
 void Device::unpause()
 {
 	m_is_paused = false;
-	m_is_really_paused = false;
-
-	Log::d("Engine unpaused");
 }
 
 //-----------------------------------------------------------------------------
@@ -426,9 +402,6 @@ void Device::frame()
 	if (!m_is_paused)
 	{
 		m_resource_manager->poll_resource_loader();
-
-		// m_window->frame();
-		m_input_manager->frame(frame_count());
 
 		m_renderer->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
 		m_renderer->commit(0);

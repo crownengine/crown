@@ -175,7 +175,6 @@ private:
 	// Public subsystems
 	Filesystem*				m_filesystem;
 
-	InputManager*			m_input_manager;
 	LuaEnvironment*			m_lua_environment;
 	Renderer*				m_renderer;
 	DebugRenderer*			m_debug_renderer;
