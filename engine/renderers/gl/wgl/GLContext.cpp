@@ -46,19 +46,16 @@ GLContext::GLContext() :
 	m_win_context(NULL),
 	m_hdc(0)
 {
-	
 }
 
 //-----------------------------------------------------------------------------
 void GLContext::create_context()
 {
-	/* get the device context (DC) */
+	// Sets window device context
 	m_hdc = GetDC(g_handle_window);
 	CE_ASSERT(m_hdc != NULL, "Fail to retrieves window device context");
 
-	Log::i("no windows.h");
-
-	/* set the pixel format for the DC */
+	// Sets pixel format
 	PIXELFORMATDESCRIPTOR pfd;
 	int32_t pixel_format;
 	ZeroMemory(&pfd, sizeof (pfd));
@@ -74,21 +71,28 @@ void GLContext::create_context()
 	CE_ASSERT(pixel_format != 0, "Pixel format not supported");
 
 	bool pf_set = SetPixelFormat(m_hdc, pixel_format, &pfd);
-	CE_ASSERT(pf_set, "Unable to set the pixel format, altough it seems to be supported");
+	CE_ASSERT(pf_set, "Unable to set the pixel format");
 
 	m_win_context = wglCreateContext(m_hdc);
-
-	CE_ASSERT(m_win_context != NULL, "Unable to create a render context. errno: %d", GetLastError());
+	CE_ASSERT(m_win_context != NULL, "Unable to create a WGL context. errno: %d", GetLastError());
 
 	BOOL result = wglMakeCurrent(m_hdc, m_win_context);
-
 	CE_ASSERT(result == TRUE , "Unable to make current WGL context.");	
 }
 
 //-----------------------------------------------------------------------------
 void GLContext::destroy_context()
 {
-	wglMakeCurrent(NULL, NULL);
+	if (g_handle_window != NULL)
+	{
+		wglMakeCurrent(NULL, NULL);
+
+		wglDeleteContext(m_win_context);
+		m_win_context = NULL;
+		
+		ReleaseDC(g_handle_window, m_hdc);
+		m_hdc = NULL;
+	}
 }
 
 //-----------------------------------------------------------------------------
