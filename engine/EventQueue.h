@@ -24,16 +24,61 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "OS.h"
+#pragma once
+
+#include <cstring>
+#include <stdio.h>
+#include "Mutex.h"
+#include "Queue.h"
+#include "Log.h"
 
 namespace crown
 {
 
-EventBuffer g_os_event_buffer;
-
-EventBuffer* os_event_buffer()
+/// Represents an abstract queue of events
+class EventQueue
 {
-	return &g_os_event_buffer;
-}
+public:
+
+	//-----------------------------------------------------------------------------
+	EventQueue(Allocator& a)
+		: m_queue(a)
+	{
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_event(void* data)
+	{
+		m_mutex.lock();
+		m_queue.push_back(data);
+		m_mutex.unlock();
+	}
+
+	//-----------------------------------------------------------------------------
+	void* get_event()
+	{
+		m_mutex.lock();
+
+		void* data;
+		if (m_queue.size() > 0)
+		{
+			data = m_queue.front();
+			m_queue.pop_front();
+		}
+		else
+		{
+			data = NULL;
+		}
+
+		m_mutex.unlock();
+
+		return data;
+	}
+
+public:
+
+	Mutex m_mutex;
+	Queue<void*> m_queue;
+};
 
 } // namespace crown

@@ -43,44 +43,32 @@ struct PointerData
 	bool		up;
 };
 
-struct TouchEvent
-{
-	uint32_t	pointer_id;
-	uint32_t	x;
-	uint32_t	y;
-};
-
-/// Interface for managing touch input device.
-class TouchListener
-{
-
-public:
-
-	virtual void touch_down(const TouchEvent& event) { (void)event; }
-	virtual void touch_up(const TouchEvent& event) { (void)event; }
-	virtual void touch_move(const TouchEvent& event) { (void)event; }
-	virtual void touch_cancel(const TouchEvent& event) { (void)event; }
-};
-
 /// Interface for accessing touch input device.
-class Touch
+struct Touch
 {
-public:
-
-					Touch();
-
 	/// Returns whether the touch pointer @a id is up.
-	bool			touch_up(uint16_t id) const;
+	bool touch_up(uint16_t id) const
+	{
+		return m_pointers[id].up == true;
+	}
 
 	/// Returns whether the touch pointer @a id is down.
-	bool			touch_down(uint16_t id) const;
+	bool touch_down(uint16_t id) const
+	{
+		return m_pointers[id].up == false;
+	}
 
 	/// Returns the position of the pointer @a id in windows space.
 	/// @note
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
-	Vec2			touch_xy(uint16_t id) const;
+	Vec2 touch_xy(uint16_t id) const
+	{
+		const PointerData& data = m_pointers[id];
+
+		return Vec2(data.x, data.y);
+	}
 
 	/// Returns the relative position of the pointer @a id in window space.
 	/// @note
@@ -91,13 +79,18 @@ public:
 	/// Relative coordinates are mapped to a float varying
 	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
 	/// maximum extent of the cosidered axis.
-	Vec2			touch_relative_xy(uint16_t id);
+	Vec2 touch_relative_xy(uint16_t id)
+	{
+		const PointerData& data = m_pointers[id];
 
-private:
+		return Vec2(data.relative_x, data.relative_y);
+	}
+
+public:
 
 	PointerData		m_pointers[MAX_POINTER_IDS];
 
-	friend class	InputManager;
+	friend class	Device;
 };
 
 }

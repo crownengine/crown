@@ -27,48 +27,71 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Camera.h"
-#include "Vec2.h"
-#include "Mouse.h"
-#include "Keyboard.h"
-#include "Touch.h"
-#include "Accelerometer.h"
-#include "Renderer.h"
 
 namespace crown
 {
-/// TODO: set_view_by_cursor must be implemented through scripting
-class FPSSystem : public MouseListener, public KeyboardListener, public AccelerometerListener
+
+/// Represents an event fired by the OS
+enum OsEventType
 {
-public:
+	OSET_NONE				= 0,
 
-					/// Constructor
-					FPSSystem(Camera* camera, float speed, float sensibility);
+	OSET_KEY_PRESS			= 1,
+	OSET_KEY_RELEASE		= 2,
 
-	void 			set_camera(Camera* camera);
-	Camera*			camera();
+	OSET_BUTTON_PRESS		= 3,
+	OSET_BUTTON_RELEASE		= 4,
 
-	void			update(float dt);
-	void			set_view_by_cursor();	
+	OSET_MOTION_NOTIFY		= 5,
+	OSET_TOUCH_DOWN			= 6,
+	OSET_TOUCH_MOVE			= 7,
+	OSET_TOUCH_UP			= 8,
+	
+	OSET_ACCELEROMETER		= 9,
+	OSET_EXIT
+};
 
-	virtual void 	key_pressed(const KeyboardEvent& event);
-	virtual void 	key_released(const KeyboardEvent& event);
-	virtual void 	accelerometer_changed(const AccelerometerEvent& event);
+/// Represents an event fired by mouse.
+struct OsMouseEvent
+{
+	uint32_t button;
+	uint32_t x;
+	uint32_t y;
+};
 
-private:
+/// Represents an event fired by keyboard.
+struct OsKeyboardEvent
+{
+	uint32_t key;
+	uint32_t modifier;
+};
 
-	Camera*			m_camera;
+/// Represents an event fired by touch screen.
+struct OsTouchEvent
+{
+	uint32_t pointer_id;
+	uint32_t x;
+	uint32_t y;
+};
 
-	float			m_camera_speed;
-	float			m_camera_sensibility;
+/// Represents an event fired by accelerometer.
+struct OsAccelerometerEvent
+{
+	float x;
+	float y;
+	float z;	
+};
 
-	float 			m_angle_x;
-	float 			m_angle_y;
-
-	bool			m_up_pressed	: 1;
-	bool			m_right_pressed	: 1;
-	bool			m_down_pressed	: 1;
-	bool			m_left_pressed	: 1;
+struct OsEvent
+{
+	OsEventType type;
+	union
+	{
+		OsMouseEvent mouse;
+		OsKeyboardEvent keyboard;
+		OsTouchEvent touch;
+		OsAccelerometerEvent accelerometer;
+	};
 };
 
 } // namespace crown

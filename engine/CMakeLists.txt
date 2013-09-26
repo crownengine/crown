@@ -66,9 +66,7 @@ set (CROWN_INCLUDES
 set (SRC
 	Camera.cpp
 	Device.cpp
-	EventBuffer.cpp
 	ConsoleServer.cpp
-	FPSSystem.cpp
 )
 
 set (HEADERS
@@ -78,7 +76,6 @@ set (HEADERS
 	Device.h
 	EventBuffer.h
 	ConsoleServer.h
-	FPSSystem.h
 )
 
 set (CORE_SRC
@@ -229,17 +226,9 @@ set (SETTINGS_HEADERS
 )
 
 set (INPUT_SRC
-	input/EventDispatcher.cpp
-	input/InputManager.cpp
-	input/Keyboard.cpp
-	input/Mouse.cpp
-	input/Touch.cpp
-	input/Accelerometer.cpp
 )
 
 set (INPUT_HEADERS
-	input/EventDispatcher.h
-	input/InputManager.h
 	input/Keyboard.h
 	input/KeyCode.h
 	input/Mouse.h
@@ -298,7 +287,6 @@ set (RESOURCE_HEADERS
 )
 
 set (OS_SRC
-	os/OS.cpp
 )
 
 set (OS_HEADERS
@@ -531,7 +519,6 @@ add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
-
 
 if (CROWN_BUILD_TESTS)
 	#add_subdirectory(tests)
