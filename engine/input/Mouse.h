@@ -98,11 +98,12 @@ public:
 	/// to right and +Y extends from top to bottom.
 	Vec2 cursor_xy() const
 	{
-		int32_t x, y;
+		// int32_t x, y;
 
-		device()->window()->get_cursor_xy(x, y);
+		// device()->window()->get_cursor_xy(x, y);
 
-		return Vec2(x, y);
+		// return Vec2(x, y);
+		return Vec2::ZERO;
 	}
 
 	/// Sets the position of the cursor in window space.
@@ -112,7 +113,7 @@ public:
 	/// to right and +Y extends from top to bottom.
 	void set_cursor_xy(const Vec2& position)
 	{
-		device()->window()->set_cursor_xy((int32_t) position.x, (int32_t) position.y);
+		// device()->window()->set_cursor_xy((int32_t) position.x, (int32_t) position.y);
 	}
 
 	/// Returns the relative position of the cursor in window space.
@@ -126,17 +127,19 @@ public:
 	/// maximum extent of the cosidered axis.
 	Vec2 cursor_relative_xy() const
 	{
-		uint32_t window_width;
-		uint32_t window_height;
+		// uint32_t window_width;
+		// uint32_t window_height;
 
-		device()->window()->get_size(window_width, window_height);
+		// device()->window()->get_size(window_width, window_height);
 
-		Vec2 pos = cursor_xy();
+		// Vec2 pos = cursor_xy();
 
-		pos.x = pos.x / (float) window_width;
-		pos.y = pos.y / (float) window_height;
+		// pos.x = pos.x / (float) window_width;
+		// pos.y = pos.y / (float) window_height;
 
-		return pos;
+		// return pos;
+
+		return Vec2::ZERO;
 	}
 
 	/// Sets the relative position of the cursor in window space.
@@ -150,12 +153,12 @@ public:
 	/// maximum extent of the cosidered axis.
 	void set_cursor_relative_xy(const Vec2& position)
 	{
-		uint32_t window_width;
-		uint32_t window_height;
+		// uint32_t window_width;
+		// uint32_t window_height;
 
-		device()->window()->get_size(window_width, window_height);
+		// device()->window()->get_size(window_width, window_height);
 
-		set_cursor_xy(Vec2(position.x * (float) window_width, position.y * (float) window_height));
+		// set_cursor_xy(Vec2(position.x * (float) window_width, position.y * (float) window_height));
 	}
 
 	//-----------------------------------------------------------------------------

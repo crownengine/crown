@@ -49,9 +49,9 @@ CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 	load_mat4(*env);
 	load_quat(*env);
 	load_math(*env);
-	load_mouse(*env);
-	load_keyboard(*env);
-	load_accelerometer(*env);
+	// load_mouse(*env);
+	// load_keyboard(*env);
+	// load_accelerometer(*env);
 	load_device(*env);
 	// load_window(*env);
 	load_resource_package(*env);
