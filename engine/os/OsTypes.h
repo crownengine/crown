@@ -82,4 +82,16 @@ struct OsAccelerometerEvent
 	float z;	
 };
 
+struct OsEvent
+{
+	OsEventType type;
+	union
+	{
+		OsMouseEvent mouse;
+		OsKeyboardEvent keyboard;
+		OsTouchEvent touch;
+		OsAccelerometerEvent accelerometer;
+	};
+};
+
 } // namespace crown
