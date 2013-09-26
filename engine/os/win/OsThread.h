@@ -57,6 +57,9 @@ private:
 
 	static DWORD WINAPI	thread_proc(void* arg);
 
+	OsThread(const OsThread& t); // no copy constructor
+	OsThread& operator=(const OsThread& t); // no assignment operator	
+
 private:
 
 	const char*			m_name;
@@ -88,6 +91,10 @@ CE_INLINE OsThread::OsThread(const char* name) :
 //-----------------------------------------------------------------------------
 CE_INLINE OsThread::~OsThread()
 {
+	if (m_is_running)
+	{
+		stop();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -116,8 +123,9 @@ CE_INLINE void OsThread::stop()
 
 	WaitForSingleObject(m_handle, INFINITE);
 	GetExitCodeThread(m_handle, &m_exit_code);
-
 	CloseHandle(m_handle);
+	m_handle = INVALID_HANDLE_VALUE;
+
 	m_is_running = false;
 }
 
@@ -131,7 +139,7 @@ CE_INLINE bool OsThread::is_running()
 CE_INLINE int32_t OsThread::run()
 {
 	m_sem.post();
-	
+
 	return m_function(m_data);
 }
 

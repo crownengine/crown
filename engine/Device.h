@@ -41,7 +41,6 @@ class OsWindow;
 class Bundle;
 class Renderer;
 class DebugRenderer;
-class InputManager;
 class Keyboard;
 class Mouse;
 class Touch;
@@ -50,9 +49,6 @@ class LuaEnvironment;
 class ConsoleServer;
 class BundleCompiler;
 class ResourcePackage;
-
-typedef void (*cb)(float);
-CE_EXPORT void nothing(float);
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -104,9 +100,10 @@ public:
 	/// Unpauses the engine
 	void					unpause();
 
+	virtual int32_t			run(int argc, char** argv) = 0;
+
 	/// Updates all the subsystems
-	void					frame(cb callback);
-	void					frame() { frame(nothing); }
+	void					frame();
 
 	/// Returns the resource package with the given @a package_name name.
 	ResourcePackage*		create_resource_package(const char* name);
@@ -123,7 +120,6 @@ public:
 
 	Filesystem*				filesystem();
 	ResourceManager*		resource_manager();
-	InputManager*			input_manager();
 	LuaEnvironment*			lua_environment();
 
 	OsWindow*				window();
@@ -145,7 +141,7 @@ private:
 	void					read_engine_settings();
 	void					print_help_message();
 
-private:
+protected:
 
 	// Used to allocate all subsystems
 	LinearAllocator			m_allocator;
@@ -179,8 +175,10 @@ private:
 	// Public subsystems
 	Filesystem*				m_filesystem;
 
-	OsWindow*				m_window;
-	InputManager*			m_input_manager;
+	Keyboard*				m_keyboard;
+	Mouse*					m_mouse;
+	Touch*					m_touch;
+
 	LuaEnvironment*			m_lua_environment;
 	Renderer*				m_renderer;
 	DebugRenderer*			m_debug_renderer;
@@ -190,9 +188,6 @@ private:
 	ResourceManager*		m_resource_manager;
 	Bundle*					m_resource_bundle;
 
-	// Debug subsystems
-	ConsoleServer*			m_console_server;
-
 	bool 					m_renderer_init_request;
 
 private:
@@ -200,13 +195,13 @@ private:
 	// Disable copying
 	Device(const Device&);
 	Device& operator=(const Device&);
-
-	friend class MainThread;
 };
 
-CE_EXPORT void init();
-CE_EXPORT void shutdown();
 CE_EXPORT Device* device();
 
+CE_EXPORT void set_device(Device* device);
+
 } // namespace crown
+
+
 

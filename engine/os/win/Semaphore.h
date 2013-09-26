@@ -39,7 +39,7 @@ public:
 	~Semaphore();
 
 	void post(uint32_t count = 1) const;
-	bool wait(int32_t msecs = -1) const;
+	void wait(int32_t msecs = -1) const;
 
 private:
 
@@ -69,8 +69,10 @@ inline void Semaphore::post(uint32_t count) const
 }
 
 //-----------------------------------------------------------------------------
-inline bool Semaphore::wait(int32_t msecs) const
+inline void Semaphore::wait(int32_t msecs) const
 {
 	DWORD milliseconds = (0 > msecs) ? INFINITE : msecs;
-	return WAIT_OBJECT_0 == WaitForSingleObject(m_handle, milliseconds);
+	DWORD result = WaitForSingleObject(m_handle, milliseconds);
+
+	CE_ASSERT(result == WAIT_OBJECT_0, "Semaphore can not signal!");
 }

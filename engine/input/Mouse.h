@@ -35,8 +35,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-const uint32_t MAX_MOUSE_BUTTONS = 3;
-
 /// Enumerates mouse buttons.
 struct MouseButton
 {

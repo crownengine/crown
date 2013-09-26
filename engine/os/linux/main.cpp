@@ -425,22 +425,17 @@ private:
 	EventQueue m_queue;
 };
 
-crown::LinuxDevice* g_engine = NULL;
-Device* device() { return g_engine; }
-
 } // namespace crown
 
 int main(int argc, char** argv)
 {
 	crown::init();
 
-	crown::g_engine = CE_NEW(crown::default_allocator(), crown::LinuxDevice);
-
-	int32_t ret = crown::device()->run(argc, argv);
-
-	CE_DELETE(crown::default_allocator(), crown::g_engine);
+	crown::LinuxDevice* engine = CE_NEW(crown::default_allocator(), crown::LinuxDevice)();
+	crown::set_device(engine);
+	
+	int32_t ret = engine->run(argc, argv);
 
 	crown::shutdown();
-
 	return ret;
 }

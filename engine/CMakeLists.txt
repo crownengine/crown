@@ -76,6 +76,7 @@ set (HEADERS
 	Device.h
 	EventQueue.h
 	ConsoleServer.h
+	EventBuffer.h
 )
 
 set (CORE_SRC
@@ -310,7 +311,7 @@ set (LUA_SRC
 	lua/LuaKeyboard.cpp
 	lua/LuaAccelerometer.cpp
 	lua/LuaDevice.cpp
-	lua/LuaWindow.cpp
+	#lua/LuaWindow.cpp
 	lua/LuaResourcePackage.cpp
 )
 
@@ -428,7 +429,6 @@ if (WINDOWS)
 	)
 
 	list (APPEND OS_HEADERS
-		os/win/OsWindow.h
 		os/win/OsFile.h
 		os/win/OsThread.h
 		os/win/Mutex.h
@@ -439,7 +439,6 @@ if (WINDOWS)
 
 	list (APPEND OS_SRC
 		os/win/WinOS.cpp
-		os/win/OsWindow.cpp
 		os/win/OsFile.cpp
 	)
 
@@ -451,6 +450,7 @@ if (WINDOWS)
 	list (APPEND RENDERERS_HEADERS
 		renderers/gl/GLRenderer.h
 		renderers/gl/wgl/GLContext.h
+		renderers/gl/wgl/wglext.h
 	)
 
 	list (APPEND CROWN_LIBRARIES
