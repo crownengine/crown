@@ -37,23 +37,26 @@ namespace crown
 {
 
 /// Enumerates modifier keys.
-enum ModifierKey
+struct ModifierButton
 {
-	MK_SHIFT	= 1,
-	MK_CTRL		= 2,
-	MK_ALT		= 4
+	enum Enum
+	{
+		SHIFT	= 1,
+		CTRL	= 2,
+		ALT		= 4
+	};
 };
 
 /// Interface for accessing keyboard input device.
 struct Keyboard
 {
 	Keyboard()
-		: m_modifier(0), m_current_frame(0), m_last_key(KC_NOKEY)
+		: m_modifier(0), m_any_pressed(false)
 	{
-		for (uint32_t i = 0; i < MAX_KEYCODES; i++)
+		for (uint32_t i = 0; i < KeyboardButton::COUNT; i++)
 		{
-			m_keys[i] = ~0;
-			m_state[i] = false;
+			m_last_state[i] = false;
+			m_current_state[i] = false;
 		}
 	}
 
@@ -63,61 +66,53 @@ struct Keyboard
 	/// of another key when the two are pressed in combination. (Thanks wikipedia.)
 	/// @note
 	/// Crown currently supports three different modifier keys: Shift, Ctrl and Alt.
-	bool modifier_pressed(ModifierKey modifier) const
+	bool modifier_pressed(ModifierButton::Enum modifier)
 	{
-		return (m_modifier & modifier) == modifier;
+		return (m_modifier & (uint8_t) modifier) == modifier;
 	}
 
 	/// Returns whether the specified @a key is pressed in the current frame.
-	bool key_pressed(KeyCode key) const
+	bool button_pressed(KeyboardButton::Enum b)
 	{
-		CE_ASSERT(key >= 0 && key < MAX_KEYCODES, "KeyCode out of range: %d", key);
+		bool pressed = (m_current_state[b] == true && m_last_state[b] == false);
 
-		return (m_state[key] == true);
+		return pressed;
 	}
 
 	/// Returns whether the specified @a key is released in the current frame.
-	bool key_released(KeyCode key) const
+	bool button_released(KeyboardButton::Enum b)
 	{
-		CE_ASSERT(key >= 0 && key < MAX_KEYCODES, "KeyCode out of range: %d", key);
+		bool released = (m_current_state[b] == false && m_last_state[b] == true);
 
-		return (m_state[key] == false) && (m_keys[key] == m_current_frame);
+		return released;
 	}
 
 	/// Returns wheter any key is pressed in the current frame.
-	bool any_pressed() const
+	bool any_pressed()
 	{
-		return key_pressed(m_last_key);
+		return m_any_pressed;
 	}
 
 	/// Returns whether any key is released in the current frame.
-	bool any_released() const
+	bool any_released()
 	{
-		return key_pressed(m_last_key);
+		return false;
 	}
 
-	void update(uint64_t frame, KeyCode k, bool state)
+	void set_button_state(KeyboardButton::Enum b, bool state)
 	{
-		CE_ASSERT(k >= 0 && k < MAX_KEYCODES, "KeyCode out of range: %d", k);
-
-		m_last_key = k;
-		m_keys[k] = frame;
-		m_state[k] = state;
+		m_last_state[b] = m_current_state[b];
+		m_current_state[b] = state;
 	}
 
 public:
 
-	uint8_t			m_modifier;
-
-	// The current frame number
-	uint64_t		m_current_frame;
+	uint8_t m_modifier;
 
 	// Last key updated
-	KeyCode			m_last_key;
-	uint64_t		m_keys[MAX_KEYCODES];
-	bool			m_state[MAX_KEYCODES];
-
-	friend class	Device;
+	bool m_any_pressed;
+	bool m_last_state[KeyboardButton::COUNT];
+	bool m_current_state[KeyboardButton::COUNT];
 };
 
 } // namespace crown

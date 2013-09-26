@@ -89,8 +89,6 @@ struct Touch
 public:
 
 	PointerData		m_pointers[MAX_POINTER_IDS];
-
-	friend class	Device;
 };
 
 }

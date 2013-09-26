@@ -38,11 +38,15 @@ namespace crown
 const uint32_t MAX_MOUSE_BUTTONS = 3;
 
 /// Enumerates mouse buttons.
-enum MouseButton
+struct MouseButton
 {
-	MB_LEFT		= 0,
-	MB_MIDDLE	= 1,
-	MB_RIGHT	= 2
+	enum Enum
+	{
+		LEFT,
+		MIDDLE,
+		RIGHT,
+		COUNT
+	};
 };
 
 /// Interface for accessing mouse input device.
@@ -52,41 +56,50 @@ public:
 
 	//-----------------------------------------------------------------------------
 	Mouse()
-		: m_current_frame(0), m_last_button(MB_LEFT)
+		: m_last_button(MouseButton::COUNT)
 	{
-		m_buttons[MB_LEFT] = ~0;
-		m_buttons[MB_MIDDLE] = ~0;
-		m_buttons[MB_RIGHT] = ~0;
-
-		m_state[MB_LEFT] = false;
-		m_state[MB_MIDDLE] = false;
-		m_state[MB_RIGHT] = false;
+		m_last_state[MouseButton::LEFT] = false;
+		m_last_state[MouseButton::MIDDLE] = false;
+		m_last_state[MouseButton::RIGHT] = false;
+		m_current_state[MouseButton::LEFT] = false;
+		m_current_state[MouseButton::MIDDLE] = false;
+		m_current_state[MouseButton::RIGHT] = false;
 	}
 
 	/// Returns whether @a button is pressed in the current frame.
-	bool button_pressed(MouseButton button) const
+	bool button_pressed(MouseButton::Enum button)
 	{
-		CE_ASSERT(button >= 0 && button < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", button);
+		bool pressed = (m_current_state[button] == true && m_last_state[button] == false);
 
-		return (m_state[button] == true) && (m_buttons[button] == m_current_frame);
+		if (pressed)
+		{
+			m_last_state[button] = m_current_state[button];
+		}
+
+		return pressed;
 	}
 
 	/// Returns whether @a button is released in the current frame.
-	bool button_released(MouseButton button) const
+	bool button_released(MouseButton::Enum button)
 	{
-		CE_ASSERT(button >= 0 && button < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", button);
+		bool released = (m_current_state[button] == false && m_last_state[button] == true);
 
-		return (m_state[button] == false) && (m_buttons[button] == m_current_frame);
+		if (released)
+		{
+			m_last_state[button] = m_current_state[button];
+		}
+
+		return released;
 	}
 
 	/// Returns wheter any button is pressed in the current frame.
-	bool any_pressed() const
+	bool any_pressed()
 	{
 		return button_pressed(m_last_button);
 	}
 
 	/// Returns whether any button is released in the current frame.
-	bool any_released() const
+	bool any_released()
 	{
 		return button_released(m_last_button);
 	}
@@ -96,13 +109,9 @@ public:
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
-	Vec2 cursor_xy() const
+	Vec2 cursor_xy()
 	{
-		int32_t x, y;
-
-		device()->window()->get_cursor_xy(x, y);
-
-		return Vec2(x, y);
+		return Vec2(m_x, m_y);
 	}
 
 	/// Sets the position of the cursor in window space.
@@ -112,7 +121,8 @@ public:
 	/// to right and +Y extends from top to bottom.
 	void set_cursor_xy(const Vec2& position)
 	{
-		device()->window()->set_cursor_xy((int32_t) position.x, (int32_t) position.y);
+		m_x = (uint16_t) position.x;
+		m_y = (uint16_t) position.y;
 	}
 
 	/// Returns the relative position of the cursor in window space.
@@ -124,19 +134,9 @@ public:
 	/// Relative coordinates are mapped to a float varying
 	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
 	/// maximum extent of the cosidered axis.
-	Vec2 cursor_relative_xy() const
+	Vec2 cursor_relative_xy()
 	{
-		uint32_t window_width;
-		uint32_t window_height;
-
-		device()->window()->get_size(window_width, window_height);
-
-		Vec2 pos = cursor_xy();
-
-		pos.x = pos.x / (float) window_width;
-		pos.y = pos.y / (float) window_height;
-
-		return pos;
+		return Vec2(m_x / m_width, m_y / m_height);
 	}
 
 	/// Sets the relative position of the cursor in window space.
@@ -150,36 +150,38 @@ public:
 	/// maximum extent of the cosidered axis.
 	void set_cursor_relative_xy(const Vec2& position)
 	{
-		uint32_t window_width;
-		uint32_t window_height;
-
-		device()->window()->get_size(window_width, window_height);
-
-		set_cursor_xy(Vec2(position.x * (float) window_width, position.y * (float) window_height));
+		set_cursor_xy(Vec2(position.x * (float) m_width, position.y * (float) m_height));
 	}
 
 	//-----------------------------------------------------------------------------
-	void update(uint64_t frame, MouseButton b, bool state)
+	void set_metrics(uint16_t width, uint16_t height)
 	{
-		CE_ASSERT(b >= 0 && b < MAX_MOUSE_BUTTONS, "MouseButton out of range: %d", b);
+		m_width = width;
+		m_height = height;
+	}
 
+	//-----------------------------------------------------------------------------
+	void set_button_state(MouseButton::Enum b, bool state)
+	{
+		m_last_state[b] = m_current_state[b];
+		m_current_state[b] = state;
 		m_last_button = b;
-		m_buttons[b] = frame;
-		m_state[b] = state;
 	}
 
 public:
 
-	// The current frame number
-	uint64_t		m_current_frame;
-
 	// Last button updated
-	MouseButton		m_last_button;
+	MouseButton::Enum m_last_button;
+	bool m_last_state[MouseButton::COUNT];
+	bool m_current_state[MouseButton::COUNT];
 
-	uint64_t		m_buttons[MAX_MOUSE_BUTTONS];
-	bool			m_state[MAX_MOUSE_BUTTONS];
+	// Position within the window
+	uint16_t m_x;
+	uint16_t m_y;
 
-	friend class	Device;
+	// Window size
+	uint16_t m_width;
+	uint16_t m_height;
 };
 
 } // namespace crown

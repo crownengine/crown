@@ -51,8 +51,6 @@ struct Accelerometer
 public:
 
 	Vec3			m_orientation;
-
-	friend class	Device;
 };
 
 } // namespace crown
