@@ -51,62 +51,62 @@ void shutdown()
 	crown::memory::shutdown();
 }
 
-// //-----------------------------------------------------------------------------
-// static Key x11_translate_key(int32_t x11_key)
-// {
-// 	if ((x11_key > 0x40 && x11_key < 0x5B) || (x11_key > 0x60 && x11_key < 0x7B) || (x11_key > 0x2F && x11_key < 0x3A))
-// 	{
-// 		return (Key)x11_key;
-// 	}
+//-----------------------------------------------------------------------------
+static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
+{
+	if ((x11_key > 0x40 && x11_key < 0x5B) || (x11_key > 0x60 && x11_key < 0x7B) || (x11_key > 0x2F && x11_key < 0x3A))
+	{
+		return (KeyboardButton::Enum) x11_key;
+	}
 
-// 	switch (x11_key)
-// 	{
-// 		case XK_BackSpace:	return KC_BACKSPACE;
-// 		case XK_Tab:		return KC_TAB;
-// 		case XK_space:		return KC_SPACE;
-// 		case XK_Escape:		return KC_ESCAPE;
-// 		case XK_Return:		return KC_ENTER;
-// 		case XK_F1:			return KC_F1;
-// 		case XK_F2:			return KC_F2;
-// 		case XK_F3:			return KC_F3;
-// 		case XK_F4:			return KC_F4;
-// 		case XK_F5:			return KC_F5;
-// 		case XK_F6:			return KC_F6;
-// 		case XK_F7:			return KC_F7;
-// 		case XK_F8:			return KC_F8;
-// 		case XK_F9:			return KC_F9;
-// 		case XK_F10:		return KC_F10;
-// 		case XK_F11:		return KC_F11;
-// 		case XK_F12:		return KC_F12;
-// 		case XK_Home:		return KC_HOME;
-// 		case XK_Left:		return KC_LEFT;
-// 		case XK_Up:			return KC_UP;
-// 		case XK_Right:		return KC_RIGHT;
-// 		case XK_Down:		return KC_DOWN;
-// 		case XK_Page_Up:	return KC_PAGE_UP;
-// 		case XK_Page_Down:	return KC_PAGE_DOWN;
-// 		case XK_Shift_L:	return KC_LSHIFT;
-// 		case XK_Shift_R:	return KC_RSHIFT;
-// 		case XK_Control_L:	return KC_LCONTROL;
-// 		case XK_Control_R:	return KC_RCONTROL;
-// 		case XK_Caps_Lock:	return KC_CAPS_LOCK;
-// 		case XK_Alt_L:		return KC_LALT;
-// 		case XK_Alt_R:		return KC_RALT;
-// 		case XK_Super_L:	return KC_LSUPER;
-// 		case XK_Super_R:	return KC_RSUPER;
-// 		case XK_KP_0:		return KC_KP_0;
-// 		case XK_KP_1:		return KC_KP_1;
-// 		case XK_KP_2:		return KC_KP_2;
-// 		case XK_KP_3:		return KC_KP_3;
-// 		case XK_KP_4:		return KC_KP_4;
-// 		case XK_KP_5:		return KC_KP_5;
-// 		case XK_KP_6:		return KC_KP_6;
-// 		case XK_KP_7:		return KC_KP_7;
-// 		case XK_KP_8:		return KC_KP_8;
-// 		case XK_KP_9:		return KC_KP_9;
-// 		default:			return KC_NOKEY;
-// 	}
-// }
+	switch (x11_key)
+	{
+		case XK_BackSpace:	return KeyboardButton::BACKSPACE;
+		case XK_Tab:		return KeyboardButton::TAB;
+		case XK_space:		return KeyboardButton::SPACE;
+		case XK_Escape:		return KeyboardButton::ESCAPE;
+		case XK_Return:		return KeyboardButton::ENTER;
+		case XK_F1:			return KeyboardButton::F1;
+		case XK_F2:			return KeyboardButton::F2;
+		case XK_F3:			return KeyboardButton::F3;
+		case XK_F4:			return KeyboardButton::F4;
+		case XK_F5:			return KeyboardButton::F5;
+		case XK_F6:			return KeyboardButton::F6;
+		case XK_F7:			return KeyboardButton::F7;
+		case XK_F8:			return KeyboardButton::F8;
+		case XK_F9:			return KeyboardButton::F9;
+		case XK_F10:		return KeyboardButton::F10;
+		case XK_F11:		return KeyboardButton::F11;
+		case XK_F12:		return KeyboardButton::F12;
+		case XK_Home:		return KeyboardButton::HOME;
+		case XK_Left:		return KeyboardButton::LEFT;
+		case XK_Up:			return KeyboardButton::UP;
+		case XK_Right:		return KeyboardButton::RIGHT;
+		case XK_Down:		return KeyboardButton::DOWN;
+		case XK_Page_Up:	return KeyboardButton::PAGE_UP;
+		case XK_Page_Down:	return KeyboardButton::PAGE_DOWN;
+		case XK_Shift_L:	return KeyboardButton::LSHIFT;
+		case XK_Shift_R:	return KeyboardButton::RSHIFT;
+		case XK_Control_L:	return KeyboardButton::LCONTROL;
+		case XK_Control_R:	return KeyboardButton::RCONTROL;
+		case XK_Caps_Lock:	return KeyboardButton::CAPS_LOCK;
+		case XK_Alt_L:		return KeyboardButton::LALT;
+		case XK_Alt_R:		return KeyboardButton::RALT;
+		case XK_Super_L:	return KeyboardButton::LSUPER;
+		case XK_Super_R:	return KeyboardButton::RSUPER;
+		case XK_KP_0:		return KeyboardButton::KP_0;
+		case XK_KP_1:		return KeyboardButton::KP_1;
+		case XK_KP_2:		return KeyboardButton::KP_2;
+		case XK_KP_3:		return KeyboardButton::KP_3;
+		case XK_KP_4:		return KeyboardButton::KP_4;
+		case XK_KP_5:		return KeyboardButton::KP_5;
+		case XK_KP_6:		return KeyboardButton::KP_6;
+		case XK_KP_7:		return KeyboardButton::KP_7;
+		case XK_KP_8:		return KeyboardButton::KP_8;
+		case XK_KP_9:		return KeyboardButton::KP_9;
+		default:			return KeyboardButton::NONE;
+	}
+}
 
 struct MainArgs
 {
@@ -121,8 +121,11 @@ public:
 
 	//-----------------------------------------------------------------------------
 	LinuxDevice()
-		: m_x11_display(NULL), m_x11_window(None), m_x11_parent_window(None), m_x11_hidden_cursor(None),
-			m_exit(false), m_x(0), m_y(0), m_width(1000), m_height(625), m_alloc(m_event_buffer, 1024 * 4), m_queue(m_alloc)
+		: m_x11_display(NULL)
+		, m_x11_window(None)
+		, m_x11_parent_window(None)
+		, m_x11_hidden_cursor(None)
+		, m_exit(false), m_x(0), m_y(0), m_width(1000), m_height(625), m_alloc(m_event_buffer, 1024 * 4), m_queue(m_alloc)
 	{
 		for (uint32_t i = 0; i < 1024; i++)
 		{
@@ -251,13 +254,17 @@ public:
 			{
 				switch (event->type)
 				{
-					case OSET_BUTTON_PRESS:
-					case OSET_BUTTON_RELEASE:
+					case OsEvent::MOUSE:
 					{
-						Log::d("Button has been pressed: %d %d", event->mouse.x, event->mouse.y);
+						m_mouse->set_button_state(event->mouse.button, event->mouse.pressed);
 						break;
 					}
-					case OSET_EXIT:
+					case OsEvent::KEYBOARD:
+					{
+						m_keyboard->set_button_state(event->keyboard.button, event->keyboard.pressed);
+						break;
+					}
+					case OsEvent::EXIT:
 					{
 						Log::d("Exiting");
 						m_exit = true;
@@ -290,7 +297,7 @@ public:
 				if ((Atom)event.xclient.data.l[0] == m_wm_delete_message)
 				{
 					OsEvent* os_event = new OsEvent;
-					os_event->type = OSET_EXIT;
+					os_event->type = OsEvent::EXIT;
 					m_queue.push_event(os_event);
 				}
 				break;
@@ -308,36 +315,24 @@ public:
 			{
 				OsEvent* os_event = new OsEvent;
 				OsMouseEvent& mouse_event = os_event->mouse;
-				os_event->type = (event.type == ButtonPress) ? OSET_BUTTON_PRESS : OSET_BUTTON_RELEASE;
+				os_event->type = OsEvent::MOUSE;
 
-				mouse_event.x = event.xbutton.x;
-				mouse_event.y = event.xbutton.y;
-
+				MouseButton::Enum mb;
 				switch (event.xbutton.button)
 				{
-					case Button1:
-					{
-						mouse_event.button = 0;
-						m_queue.push_event(os_event);
-						m_queue.push_event(os_event);
-						m_queue.push_event(os_event);
-						m_queue.push_event(os_event);
-						m_queue.push_event(os_event);
-						m_queue.push_event(os_event);
-						break;
-					}
-					case Button2:
-					{
-						mouse_event.button = 1;
-						m_queue.push_event(os_event);
-						break;
-					}
-					case Button3:
-					{
-						mouse_event.button = 2;
-						m_queue.push_event(os_event);
-						break;
-					}
+					case Button1: mb = MouseButton::LEFT; break;
+					case Button2: mb = MouseButton::MIDDLE; break;
+					case Button3: mb = MouseButton::RIGHT; break;
+					default: mb = MouseButton::COUNT; break;
+				}
+
+				if (mb != MouseButton::COUNT)
+				{
+					mouse_event.button = mb;
+					mouse_event.x = event.xbutton.x;
+					mouse_event.y = event.xbutton.y;
+					mouse_event.pressed = event.type == ButtonPress;
+					m_queue.push_event(os_event);
 				}
 
 				break;
@@ -347,59 +342,62 @@ public:
 			// 	push_event(OSET_MOTION_NOTIFY, data_button[0], data_button[1], data_button[2], data_button[3]);
 			// 	break;
 			// }
-	// 		case KeyPress:
-	// 		case KeyRelease:
-	// 		{
-	// 			char string[4] = {0, 0, 0, 0};
-	// 			KeySym key;
+			case KeyPress:
+			case KeyRelease:
+			{
+				char string[4] = {0, 0, 0, 0};
+				KeySym key;
 
-	// 			XLookupString(&event.xkey, string, 4, &key, NULL);
+				XLookupString(&event.xkey, string, 4, &key, NULL);
 
-	// 			Key kc = x11_translate_key(key);
+				KeyboardButton::Enum kb = x11_translate_key(key);
 
-	// 			// Check if any modifier key is pressed or released
-	// 			int32_t modifier_mask = 0;
+				// Check if any modifier key is pressed or released
+				int32_t modifier_mask = 0;
 
-	// 			if (kc == KC_LSHIFT || kc == KC_RSHIFT)
-	// 			{
-	// 				(event.type == KeyPress) ? modifier_mask |= MK_SHIFT : modifier_mask &= ~MK_SHIFT;
-	// 			}
-	// 			else if (kc == KC_LCONTROL || kc == KC_RCONTROL)
-	// 			{
-	// 				(event.type == KeyPress) ? modifier_mask |= MK_CTRL : modifier_mask &= ~MK_CTRL;
-	// 			}
-	// 			else if (kc == KC_LALT || kc == KC_RALT)
-	// 			{
-	// 				(event.type == KeyPress) ? modifier_mask |= MK_ALT : modifier_mask &= ~MK_ALT;
-	// 			}
+				if (kb == KeyboardButton::LSHIFT || kb == KeyboardButton::RSHIFT)
+				{
+					(event.type == KeyPress) ? modifier_mask |= ModifierButton::SHIFT : modifier_mask &= ~ModifierButton::SHIFT;
+				}
+				else if (kb == KeyboardButton::LCONTROL || kb == KeyboardButton::RCONTROL)
+				{
+					(event.type == KeyPress) ? modifier_mask |= ModifierButton::CTRL : modifier_mask &= ~ModifierButton::CTRL;
+				}
+				else if (kb == KeyboardButton::LALT || kb == KeyboardButton::RALT)
+				{
+					(event.type == KeyPress) ? modifier_mask |= ModifierButton::ALT : modifier_mask &= ~ModifierButton::ALT;
+				}
 
-	// 			OsEventType oset_type = event.type == KeyPress ? OSET_KEY_PRESS : OSET_KEY_RELEASE;
+				OsEvent* os_event = new OsEvent;
+				OsKeyboardEvent& keyboard_event = os_event->keyboard;
+				os_event->type = OsEvent::KEYBOARD;
 
-	// 			keyboard_event.key = ((int32_t)kc);
-	// 			keyboard_event.modifier = modifier_mask;
+				keyboard_event.button = kb;
+				keyboard_event.modifier = modifier_mask;
+				keyboard_event.pressed = event.type == KeyPress;
 
-	// 			m_queue.push_event(oset_type, &keyboard_event, sizeof(OsKeyboardEvent));
+				m_queue.push_event(os_event);
 
-	// //				// Text input part
-	// //				if (event.type == KeyPress && len > 0)
-	// //				{
-	// //					//crownEvent.event_type = ET_TEXT;
-	// //					//crownEvent.text.type = TET_TEXT_INPUT;
-	// //					strncpy(keyboardEvent.text, string, 4);
+	//				// Text input part
+	//				if (event.type == KeyPress && len > 0)
+	//				{
+	//					//crownEvent.event_type = ET_TEXT;
+	//					//crownEvent.text.type = TET_TEXT_INPUT;
+	//					strncpy(keyboardEvent.text, string, 4);
 
-	// //					if (mListener)
-	// //					{
-	// //						mListener->TextInput(keyboardEvent);
-	// //					}
-	// //				}
+	//					if (mListener)
+	//					{
+	//						mListener->TextInput(keyboardEvent);
+	//					}
+	//				}
 
-	// 			break;
-	// 		}
-	// 		case KeymapNotify:
-	// 		{
-	// 			XRefreshKeyboardMapping(&event.xmapping);
-	// 			break;
-	// 		}
+				break;
+			}
+			case KeymapNotify:
+			{
+				XRefreshKeyboardMapping(&event.xmapping);
+				break;
+			}
 			default:
 			{
 				break;
