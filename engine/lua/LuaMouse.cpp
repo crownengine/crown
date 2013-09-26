@@ -40,7 +40,7 @@ CE_EXPORT int mouse_button_pressed(lua_State* L)
 
 	int32_t button = stack.get_int(1);
 
-	stack.push_bool(device()->mouse()->button_pressed((MouseButton) button));
+	stack.push_bool(device()->mouse()->button_pressed((MouseButton::Enum) button));
 
 	return 1;
 }
@@ -52,7 +52,7 @@ CE_EXPORT int mouse_button_released(lua_State* L)
 
 	int32_t button = stack.get_int(1);
 
-	stack.push_bool(device()->mouse()->button_released((MouseButton) button));
+	stack.push_bool(device()->mouse()->button_released((MouseButton::Enum) button));
 
 	return 1;
 }
@@ -133,9 +133,9 @@ void load_mouse(LuaEnvironment& env)
 	env.load_module_function("Mouse", "cursor_relative_xy",		mouse_cursor_relative_xy);
 	env.load_module_function("Mouse", "set_cursor_relative_xy",	mouse_set_cursor_relative_xy);
 
-	env.load_module_enum("Mouse", "MB_LEFT",		MB_LEFT);
-	env.load_module_enum("Mouse", "KB_MIDDLE",		MB_MIDDLE);
-	env.load_module_enum("Mouse", "MB_RIGHT",		MB_RIGHT);
+	env.load_module_enum("Mouse", "LEFT",		MouseButton::LEFT);
+	env.load_module_enum("Mouse", "MIDDLE",		MouseButton::LEFT);
+	env.load_module_enum("Mouse", "RIGHT",		MouseButton::LEFT);
 }
 
 } // namespace crown
