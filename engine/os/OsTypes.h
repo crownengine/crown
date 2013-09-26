@@ -31,39 +31,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// Represents an event fired by the OS
-enum OsEventType
-{
-	OSET_NONE				= 0,
-
-	OSET_KEY_PRESS			= 1,
-	OSET_KEY_RELEASE		= 2,
-
-	OSET_BUTTON_PRESS		= 3,
-	OSET_BUTTON_RELEASE		= 4,
-
-	OSET_MOTION_NOTIFY		= 5,
-	OSET_TOUCH_DOWN			= 6,
-	OSET_TOUCH_MOVE			= 7,
-	OSET_TOUCH_UP			= 8,
-	
-	OSET_ACCELEROMETER		= 9,
-	OSET_EXIT
-};
-
 /// Represents an event fired by mouse.
 struct OsMouseEvent
 {
-	uint32_t button;
+	MouseButton::Enum button;
 	uint32_t x;
 	uint32_t y;
+	bool pressed;
 };
 
 /// Represents an event fired by keyboard.
 struct OsKeyboardEvent
 {
-	uint32_t key;
+	KeyboardButton::Enum button;
 	uint32_t modifier;
+	bool pressed;
 };
 
 /// Represents an event fired by touch screen.
@@ -79,12 +61,26 @@ struct OsAccelerometerEvent
 {
 	float x;
 	float y;
-	float z;	
+	float z;
 };
 
 struct OsEvent
 {
-	OsEventType type;
+	/// Represents an event fired by the OS
+	enum Enum
+	{
+		NONE			= 0,
+
+		KEYBOARD		= 1,
+		MOUSE			= 2,
+		TOUCH			= 3,
+		ACCELEROMETER	= 4,
+
+		// Exit from program
+		EXIT
+	};
+
+	OsEvent::Enum type;
 	union
 	{
 		OsMouseEvent mouse;
