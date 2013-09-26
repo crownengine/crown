@@ -56,6 +56,7 @@ void GLContext::create_context()
 	m_hdc = GetDC(g_handle_window);
 	CE_ASSERT(m_hdc != NULL, "Fail to retrieves window device context");
 
+	Log::i("no windows.h");
 
 	/* set the pixel format for the DC */
 	PIXELFORMATDESCRIPTOR pfd;

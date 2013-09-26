@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <gl/glew.h>
+
 /*
 ** THIS FILE IS OBSOLETE. Please migrate away from using the
 ** ".spec" files and the headers generated from them to the
@@ -34,8 +36,6 @@ extern "C" {
 ** TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ** MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
 */
-
-#include <gl/glew.h>
 
 /* Function declaration macros - to move into glplatform.h */
 #if defined(_WIN32) && !defined(APIENTRY) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
