@@ -76,6 +76,7 @@ set (HEADERS
 	Device.h
 	EventQueue.h
 	ConsoleServer.h
+	EventBuffer.h
 )
 
 set (CORE_SRC

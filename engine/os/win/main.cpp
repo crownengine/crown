@@ -115,22 +115,23 @@ class WindowsDevice : public Device
 {
 public:
 
-	WindowsDevice() :
-		m_hwnd(0),
-		m_style(0),
-		m_width(0),
-		m_height(0),
-		m_old_width(0),
-		m_old_height(0),
-		m_frame_width(0),
-		m_frame_height(0),
-		m_aspect_ratio(0.0f),
-		m_x(0),
-		m_y(0),
-		m_frame(false),
-		m_mouse_lock(false),
-		m_started(false),
-		m_exit(false)
+	WindowsDevice() 
+		: m_hwnd(0)
+		, m_rect()
+		, m_style(0)
+		, m_width(0)
+		, m_height(0)
+		, m_old_width(0)
+		, m_old_height(0)
+		, m_frame_width(0)
+		, m_frame_height(0)
+		, m_aspect_ratio(0.0f)
+		, m_x(0)
+		, m_y(0)
+		, m_frame(true)
+		, m_mouse_lock(false)
+		, m_started(false)
+		, m_exit(false)
 	{
 	}
 
@@ -140,7 +141,7 @@ public:
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 
 		WNDCLASSEX wnd;
-		memset(&wnd, 0, sizeof(wnd) );
+		memset(&wnd, 0, sizeof(wnd));
 		wnd.cbSize = sizeof(wnd);
 		wnd.lpfnWndProc = DefWindowProc;
 		wnd.hInstance = instance;
@@ -210,7 +211,88 @@ public:
 	//-----------------------------------------------------------------------------
 	void adjust(uint32_t width, uint32_t height, bool window_frame)
 	{
-		// Nothing right now
+			m_width = width;
+			m_height = height;
+			m_aspect_ratio = float(width) / float(height);
+
+			ShowWindow(m_hwnd, SW_SHOWNORMAL);
+			RECT rect;
+			RECT newrect = {0, 0, (LONG)width, (LONG)height};
+			DWORD style = WS_POPUP|WS_SYSMENU;
+
+			if (m_frame)
+			{
+				GetWindowRect(m_hwnd, &m_rect);
+				m_style = GetWindowLong(m_hwnd, GWL_STYLE);
+			}
+
+			if (window_frame)
+			{
+				rect = m_rect;
+				style = m_style;
+			}
+			else
+			{
+				HMONITOR monitor = MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
+				MONITORINFO mi;
+				mi.cbSize = sizeof(mi);
+				GetMonitorInfo(monitor, &mi);
+				newrect = mi.rcMonitor;
+				rect = mi.rcMonitor;
+			}
+
+			SetWindowLong(m_hwnd, GWL_STYLE, style);
+			uint32_t prewidth = newrect.right - newrect.left;
+			uint32_t preheight = newrect.bottom - newrect.top;
+			AdjustWindowRect(&newrect, style, FALSE);
+			m_frame_width = (newrect.right - newrect.left) - prewidth;
+			m_frame_height = (newrect.bottom - newrect.top) - preheight;
+			UpdateWindow(m_hwnd);
+
+			if (rect.left < 0 || rect.top < 0)
+			{
+				rect.left = 0;
+				rect.top = 0;
+			}
+
+			int32_t left_t = rect.left;
+			int32_t top_t = rect.top;
+			int32_t width_t = (newrect.right-newrect.left);
+			int32_t height_t = (newrect.bottom-newrect.top);
+
+			if (!window_frame)
+			{
+				float aspect_ratio = 1.0f / m_aspect_ratio;
+				width_t = math::max(uint32_t(ENTRY_DEFAULT_WIDTH / 4), width);
+				height_t = uint32_t(float(width) * aspect_ratio);
+
+				left_t = newrect.left+(newrect.right-newrect.left-width) / 2;
+				top_t = newrect.top+(newrect.bottom-newrect.top-height) / 2;
+			}
+
+			HWND parent = GetWindow(m_hwnd, GW_OWNER);
+			if (NULL != parent)
+			{
+				if (window_frame)
+				{
+					SetWindowPos(parent, HWND_TOP, -32000, -32000, 0, 0, SWP_SHOWWINDOW);
+				}
+				else
+				{
+					SetWindowPos(parent, HWND_TOP, newrect.left, newrect.top, newrect.right-newrect.left, newrect.bottom-newrect.top, SWP_SHOWWINDOW);
+				}
+			}
+
+			Log::i("left: %d", left_t);
+			Log::i("top: %d", top_t);
+			Log::i("width: %d", width_t);
+			Log::i("height: %d", height_t);
+
+			SetWindowPos(m_hwnd, HWND_TOP, left_t, top_t, width_t, height_t, SWP_SHOWWINDOW);
+
+			ShowWindow(m_hwnd, SW_RESTORE);
+
+			m_frame = window_frame;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -222,7 +304,7 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	void setMouseLock(bool lock)
+	void set_mouse_lock(bool lock)
 	{
 		if (lock != m_mouse_lock)
 		{
@@ -272,6 +354,7 @@ public:
 			{
 			case WM_USER_SET_WINDOW_SIZE:
 			{
+				Log::i("WM_USER_SET_WINDOW_SIZE");
 				uint32_t width = GET_X_LPARAM(lparam);
 				uint32_t height = GET_Y_LPARAM(lparam);
 				adjust(width, height, true);
@@ -279,6 +362,7 @@ public:
 			}
 			case WM_USER_TOGGLE_WINDOW_FRAME:
 			{
+				Log::i("WM_USER_TOGGLE_WINDOW_FRAME");
 				if (m_frame)
 				{
 					m_old_width = m_width;
@@ -289,7 +373,7 @@ public:
 			}
 			case WM_USER_MOUSE_LOCK:
 			{
-				// setMouseLock(!!lparam);
+				set_mouse_lock(!!lparam);
 				break;
 			}
 			case WM_DESTROY:
@@ -299,7 +383,6 @@ public:
 			case WM_QUIT:
 			case WM_CLOSE:
 			{
-				Log::i("EXIT");
 				m_exit = true;
 				// m_eventQueue.postExitEvent();
 				break;
@@ -425,7 +508,6 @@ public:
 				int32_t my = GET_Y_LPARAM(lparam);
 				// m_eventQueue.postMouseEvent(mx, my, MouseButton::Middle, id == WM_MBUTTONDOWN);
 				Log::i("Middle Click! '%d' '%d'", mx, my);
-
 				break;
 			}
 			case WM_KEYDOWN:
