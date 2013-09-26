@@ -422,6 +422,9 @@ void Device::frame()
 		}
 
 		m_renderer->frame();
+
+		m_keyboard->update();
+		m_mouse->update();
 	}
 
 	m_frame_count++;
