@@ -27,78 +27,58 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <cstring>
+#include <stdio.h>
 #include "Mutex.h"
-#include "List.h"
+#include "Queue.h"
+#include "Log.h"
 
 namespace crown
 {
 
+/// Represents an abstract queue of events
 class EventQueue
 {
 public:
 
 	//-----------------------------------------------------------------------------
 	EventQueue(Allocator& a)
-		: m_read(0), m_array(a)
+		: m_queue(a)
 	{
 	}
 
 	//-----------------------------------------------------------------------------
-	void push_event(uint32_t type, char* data, uint32_t size)
+	void push_event(void* data)
 	{
 		m_mutex.lock();
-		m_array.push((char*)&type, sizeof(uint32_t));
-		m_array.push((char*)&size, sizeof(uint32_t));
-		m_array.push(data, size);
+		m_queue.push_back(data);
 		m_mutex.unlock();
 	}
 
 	//-----------------------------------------------------------------------------
-	uint32_t event_type()
+	void* get_event()
 	{
 		m_mutex.lock();
-		uint32_t type;
-		memcpy(&type, m_array.begin() + m_read, sizeof(uint32_t));
+
+		void* data;
+		if (m_queue.size() > 0)
+		{
+			data = m_queue.front();
+			m_queue.pop_front();
+		}
+		else
+		{
+			data = NULL;
+		}
+
 		m_mutex.unlock();
 
-		return type;
-	}
-
-	//-----------------------------------------------------------------------------
-	void event_data(char* event_data)
-	{
-		m_mutex.lock();
-		uint32_t size;
-		memcpy(&size, m_array.begin() + m_read, sizeof(uint32_t));
-		memcpy(event_data, m_array.begin() + m_read + size, size);
-		m_read += sizeof(uint32_t) + size;
-		m_mutex.unlock();
-	}
-
-	//-----------------------------------------------------------------------------
-	void skip()
-	{
-		m_mutex.lock();
-		uint32_t size;
-		memcpy(&size, m_array.begin() + m_read, sizeof(uint32_t));
-		m_read += sizeof(uint32_t) + size;
-		m_mutex.unlock();
-	}
-
-	//-----------------------------------------------------------------------------
-	void clear()
-	{
-		m_mutex.lock();
-		m_read = 0;
-		m_array.clear();
-		m_mutex.unlock();
+		return data;
 	}
 
 public:
 
 	Mutex m_mutex;
-	size_t m_read;
-	List<char> m_array;
+	Queue<void*> m_queue;
 };
 
 } // namespace crown
