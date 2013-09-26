@@ -40,12 +40,12 @@ const size_t	DEFAULT_ALIGN	= 4;			//!< Default memory alignment in bytes
 /// Constructs the initial default allocators.
 /// @note
 /// Has to be called before anything else during the engine startup.
-CE_EXPORT void init_memory();
+CE_EXPORT void init();
 
 /// Destroys the allocators created with memory::init().
 /// @note
 /// Should be the last call of the program.
-CE_EXPORT void shutdown_memory();
+CE_EXPORT void shutdown();
 
 /// Returns the pointer @a p aligned to the desired @a align byte
 inline void* align_top(void* p, size_t align)

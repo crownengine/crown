@@ -43,14 +43,14 @@ extern void set_win_handle_window(HWND hwnd);
 //-----------------------------------------------------------------------------
 void init()
 {
-	memory::init_memory();
+	memory::init();
 	os::init_os();
 }
 
 //-----------------------------------------------------------------------------
 void shutdown()
 {
-	memory::shutdown_memory();
+	memory::shutdown();
 }
 
 //-----------------------------------------------------------------------------
@@ -214,7 +214,7 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	void setMousePos(int32_t x, int32_t y)
+	void set_mouse_pos(int32_t x, int32_t y)
 	{
 		POINT pt = {x, y};
 		ClientToScreen(m_hwnd, &pt);
@@ -231,11 +231,11 @@ public:
 				m_x = m_width / 2;
 				m_y = m_height / 2;
 				ShowCursor(false);
-				setMousePos(m_x, m_y);
+				set_mouse_pos(m_x, m_y);
 			}
 			else
 			{
-				setMousePos(m_x, m_y);
+				set_mouse_pos(m_x, m_y);
 				ShowCursor(true);
 			}
 
@@ -391,7 +391,7 @@ public:
 						break;
 					}
 
-					setMousePos(m_x, m_y);
+					set_mouse_pos(m_x, m_y);
 				}
 
 				// m_eventQueue.postMouseEvent(mx, my);
