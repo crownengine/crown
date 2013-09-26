@@ -436,6 +436,8 @@ int main(int argc, char** argv)
 	
 	int32_t ret = engine->run(argc, argv);
 
+	CE_DELETE(crown::default_allocator(), engine);
+
 	crown::shutdown();
 	return ret;
 }

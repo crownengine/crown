@@ -25,12 +25,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #pragma once
-#undef MB_RIGHT
 
+#include <cstring>
 #include "Types.h"
 #include "Vec2.h"
-#include "Device.h"
-#include "OsWindow.h"
 
 namespace crown
 {
@@ -40,6 +38,7 @@ struct MouseButton
 {
 	enum Enum
 	{
+		NONE,
 		LEFT,
 		MIDDLE,
 		RIGHT,
@@ -54,40 +53,22 @@ public:
 
 	//-----------------------------------------------------------------------------
 	Mouse()
-		: m_last_button(MouseButton::COUNT)
+		: m_last_button(MouseButton::NONE)
 	{
-		m_last_state[MouseButton::LEFT] = false;
-		m_last_state[MouseButton::MIDDLE] = false;
-		m_last_state[MouseButton::RIGHT] = false;
-		m_current_state[MouseButton::LEFT] = false;
-		m_current_state[MouseButton::MIDDLE] = false;
-		m_current_state[MouseButton::RIGHT] = false;
+		memset(m_last_state, 0, MouseButton::COUNT);
+		memset(m_current_state, 0, MouseButton::COUNT);
 	}
 
-	/// Returns whether @a button is pressed in the current frame.
-	bool button_pressed(MouseButton::Enum button)
+	/// Returns whether the @a b button is pressed in the current frame.
+	bool button_pressed(MouseButton::Enum b)
 	{
-		bool pressed = (m_current_state[button] == true && m_last_state[button] == false);
-
-		if (pressed)
-		{
-			m_last_state[button] = m_current_state[button];
-		}
-
-		return pressed;
+		return bool(~m_last_state[b] & m_current_state[b]);
 	}
 
-	/// Returns whether @a button is released in the current frame.
-	bool button_released(MouseButton::Enum button)
+	/// Returns whether the @a b button is released in the current frame.
+	bool button_released(MouseButton::Enum b)
 	{
-		bool released = (m_current_state[button] == false && m_last_state[button] == true);
-
-		if (released)
-		{
-			m_last_state[button] = m_current_state[button];
-		}
-
-		return released;
+		return bool(m_last_state[b] & ~m_current_state[b]);
 	}
 
 	/// Returns wheter any button is pressed in the current frame.
@@ -161,17 +142,21 @@ public:
 	//-----------------------------------------------------------------------------
 	void set_button_state(MouseButton::Enum b, bool state)
 	{
-		m_last_state[b] = m_current_state[b];
-		m_current_state[b] = state;
 		m_last_button = b;
+		m_current_state[b] = state;
+	}
+
+	//-----------------------------------------------------------------------------
+	void update()
+	{
+		memcpy(m_last_state, m_current_state, MouseButton::COUNT);
 	}
 
 public:
 
-	// Last button updated
 	MouseButton::Enum m_last_button;
-	bool m_last_state[MouseButton::COUNT];
-	bool m_current_state[MouseButton::COUNT];
+	uint8_t m_last_state[MouseButton::COUNT];
+	uint8_t m_current_state[MouseButton::COUNT];
 
 	// Position within the window
 	uint16_t m_x;
