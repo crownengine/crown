@@ -47,7 +47,8 @@ enum OsEventType
 	OSET_TOUCH_MOVE			= 7,
 	OSET_TOUCH_UP			= 8,
 	
-	OSET_ACCELEROMETER		= 9
+	OSET_ACCELEROMETER		= 9,
+	OSET_EXIT
 };
 
 /// Represents an event fired by mouse.
