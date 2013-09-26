@@ -66,9 +66,7 @@ set (CROWN_INCLUDES
 set (SRC
 	Camera.cpp
 	Device.cpp
-	EventBuffer.cpp
 	ConsoleServer.cpp
-	FPSSystem.cpp
 )
 
 set (HEADERS
@@ -78,7 +76,6 @@ set (HEADERS
 	Device.h
 	EventBuffer.h
 	ConsoleServer.h
-	FPSSystem.h
 )
 
 set (CORE_SRC
@@ -229,17 +226,9 @@ set (SETTINGS_HEADERS
 )
 
 set (INPUT_SRC
-	input/EventDispatcher.cpp
-	input/InputManager.cpp
-	input/Keyboard.cpp
-	input/Mouse.cpp
-	input/Touch.cpp
-	input/Accelerometer.cpp
 )
 
 set (INPUT_HEADERS
-	input/EventDispatcher.h
-	input/InputManager.h
 	input/Keyboard.h
 	input/KeyCode.h
 	input/Mouse.h
@@ -298,7 +287,6 @@ set (RESOURCE_HEADERS
 )
 
 set (OS_SRC
-	os/OS.cpp
 )
 
 set (OS_HEADERS
@@ -533,16 +521,12 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 
-#add_executable(crown-linux-renderer-evo os/linux/main2.cpp)
-#target_link_libraries(crown-linux-renderer-evo crown)
-
 if (CROWN_BUILD_TESTS)
 	#add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
 install (TARGETS crown DESTINATION bin)
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
-#install (TARGETS crown-linux-renderer-evo DESTINATION bin)
 
 #install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 
