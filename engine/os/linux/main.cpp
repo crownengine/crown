@@ -250,22 +250,8 @@ public:
 
 		while (!m_exit)
 		{
-			while (XPending(m_x11_display))
-			{
-				m_write_sem.wait();
-
-				LinuxDevice::pump_events();
-			}
-
-			// Swap event buffers
-			EventBuffer* temp = m_read;
-			m_read = m_write;
-			m_write = temp;
-
-			m_read_sem.post();
+			LinuxDevice::pump_events();
 		}
-
-		Log::d("Stopping game thread");
 
 		game_thread.stop();
 
@@ -305,6 +291,8 @@ public:
 	//-----------------------------------------------------------------------------
 	bool process_events()
 	{
+		m_read_sem.wait();
+
 		void* event;
 		uint32_t type;
 		size_t size;
@@ -356,7 +344,6 @@ public:
 
 		m_read->clear();
 		m_write_sem.post();
-		m_read_sem.wait();
 
 		return false;
 	}
@@ -364,135 +351,144 @@ public:
 	//-----------------------------------------------------------------------------
 	void pump_events()
 	{
-		XEvent event;
-		XNextEvent(m_x11_display, &event);
-
-		switch (event.type)
+		while (XPending(m_x11_display))
 		{
-			case ClientMessage:
+			XEvent event;
+			XNextEvent(m_x11_display, &event);
+
+			switch (event.type)
 			{
-				if ((Atom)event.xclient.data.l[0] == m_wm_delete_message)
+				case ClientMessage:
 				{
-					OsExitEvent ev;
-					ev.code = 0;
-					m_write->push_event(OsEvent::EXIT, &ev, sizeof(OsExitEvent));
+					if ((Atom)event.xclient.data.l[0] == m_wm_delete_message)
+					{
+						OsExitEvent ev;
+						ev.code = 0;
+						m_write->push_event(OsEvent::EXIT, &ev, sizeof(OsExitEvent));
+					}
+					break;
 				}
-				break;
-			}
-			case ConfigureNotify:
-			{
-				m_x = event.xconfigure.x;
-				m_y = event.xconfigure.y;
-				m_width = event.xconfigure.width;
-				m_height = event.xconfigure.height;
-
-				OsMetricsEvent ev;
-				ev.x = event.xconfigure.x;
-				ev.y = event.xconfigure.y;
-				ev.width = event.xconfigure.width;
-				ev.height = event.xconfigure.height;
-
-				m_write->push_event(OsEvent::METRICS, &ev, sizeof(OsMetricsEvent));
-				Log::d("Configure notify");
-
-				break;
-			}
-			case ButtonPress:
-			case ButtonRelease:
-			{
-				OsMouseEvent ev;
-
-				MouseButton::Enum mb;
-				switch (event.xbutton.button)
+				case ConfigureNotify:
 				{
-					case Button1: mb = MouseButton::LEFT; break;
-					case Button2: mb = MouseButton::MIDDLE; break;
-					case Button3: mb = MouseButton::RIGHT; break;
-					default: mb = MouseButton::NONE; break;
+					m_x = event.xconfigure.x;
+					m_y = event.xconfigure.y;
+					m_width = event.xconfigure.width;
+					m_height = event.xconfigure.height;
+
+					OsMetricsEvent ev;
+					ev.x = event.xconfigure.x;
+					ev.y = event.xconfigure.y;
+					ev.width = event.xconfigure.width;
+					ev.height = event.xconfigure.height;
+
+					m_write->push_event(OsEvent::METRICS, &ev, sizeof(OsMetricsEvent));
+
+					break;
 				}
-
-				if (mb != MouseButton::NONE)
+				case ButtonPress:
+				case ButtonRelease:
 				{
-					ev.type = OsMouseEvent::BUTTON;
-					ev.button = mb;
-					ev.x = event.xbutton.x;
-					ev.y = event.xbutton.y;
-					ev.pressed = event.type == ButtonPress;
+					OsMouseEvent ev;
+
+					MouseButton::Enum mb;
+					switch (event.xbutton.button)
+					{
+						case Button1: mb = MouseButton::LEFT; break;
+						case Button2: mb = MouseButton::MIDDLE; break;
+						case Button3: mb = MouseButton::RIGHT; break;
+						default: mb = MouseButton::NONE; break;
+					}
+
+					if (mb != MouseButton::NONE)
+					{
+						ev.type = OsMouseEvent::BUTTON;
+						ev.button = mb;
+						ev.x = event.xbutton.x;
+						ev.y = event.xbutton.y;
+						ev.pressed = event.type == ButtonPress;
+						m_write->push_event(OsEvent::MOUSE, &ev, sizeof(OsMouseEvent));
+					}
+
+					break;
+				}
+				case MotionNotify:
+				{
+					OsMouseEvent ev;
+					ev.type = OsMouseEvent::MOVE;
+					ev.x = event.xmotion.x;
+					ev.y = event.xmotion.y;
+
 					m_write->push_event(OsEvent::MOUSE, &ev, sizeof(OsMouseEvent));
+
+					break;
 				}
-
-				break;
-			}
-			case MotionNotify:
-			{
-				OsMouseEvent ev;
-				ev.type = OsMouseEvent::MOVE;
-				ev.x = event.xmotion.x;
-				ev.y = event.xmotion.y;
-
-				m_write->push_event(OsEvent::MOUSE, &ev, sizeof(OsMouseEvent));
-
-				break;
-			}
-			case KeyPress:
-			case KeyRelease:
-			{
-				char string[4] = {0, 0, 0, 0};
-				KeySym key;
-
-				XLookupString(&event.xkey, string, 4, &key, NULL);
-
-				KeyboardButton::Enum kb = x11_translate_key(key);
-
-				// Check if any modifier key is pressed or released
-				int32_t modifier_mask = 0;
-
-				if (kb == KeyboardButton::LSHIFT || kb == KeyboardButton::RSHIFT)
+				case KeyPress:
+				case KeyRelease:
 				{
-					(event.type == KeyPress) ? modifier_mask |= ModifierButton::SHIFT : modifier_mask &= ~ModifierButton::SHIFT;
+					char string[4] = {0, 0, 0, 0};
+					KeySym key;
+
+					XLookupString(&event.xkey, string, 4, &key, NULL);
+
+					KeyboardButton::Enum kb = x11_translate_key(key);
+
+					// Check if any modifier key is pressed or released
+					int32_t modifier_mask = 0;
+
+					if (kb == KeyboardButton::LSHIFT || kb == KeyboardButton::RSHIFT)
+					{
+						(event.type == KeyPress) ? modifier_mask |= ModifierButton::SHIFT : modifier_mask &= ~ModifierButton::SHIFT;
+					}
+					else if (kb == KeyboardButton::LCONTROL || kb == KeyboardButton::RCONTROL)
+					{
+						(event.type == KeyPress) ? modifier_mask |= ModifierButton::CTRL : modifier_mask &= ~ModifierButton::CTRL;
+					}
+					else if (kb == KeyboardButton::LALT || kb == KeyboardButton::RALT)
+					{
+						(event.type == KeyPress) ? modifier_mask |= ModifierButton::ALT : modifier_mask &= ~ModifierButton::ALT;
+					}
+
+					OsKeyboardEvent ev;
+
+					ev.button = kb;
+					ev.modifier = modifier_mask;
+					ev.pressed = event.type == KeyPress;
+
+					m_write->push_event(OsEvent::KEYBOARD, &ev, sizeof(OsKeyboardEvent));
+
+	//				// Text input part
+	//				if (event.type == KeyPress && len > 0)
+	//				{
+	//					//crownEvent.event_type = ET_TEXT;
+	//					//crownEvent.text.type = TET_TEXT_INPUT;
+	//					strncpy(keyboardEvent.text, string, 4);
+
+	//					if (mListener)
+	//					{
+	//						mListener->TextInput(keyboardEvent);
+	//					}
+	//				}
+
+					break;
 				}
-				else if (kb == KeyboardButton::LCONTROL || kb == KeyboardButton::RCONTROL)
+				case KeymapNotify:
 				{
-					(event.type == KeyPress) ? modifier_mask |= ModifierButton::CTRL : modifier_mask &= ~ModifierButton::CTRL;
+					XRefreshKeyboardMapping(&event.xmapping);
+					break;
 				}
-				else if (kb == KeyboardButton::LALT || kb == KeyboardButton::RALT)
+				default:
 				{
-					(event.type == KeyPress) ? modifier_mask |= ModifierButton::ALT : modifier_mask &= ~ModifierButton::ALT;
+					break;
 				}
-
-				OsKeyboardEvent ev;
-
-				ev.button = kb;
-				ev.modifier = modifier_mask;
-				ev.pressed = event.type == KeyPress;
-
-				m_write->push_event(OsEvent::KEYBOARD, &ev, sizeof(OsKeyboardEvent));
-
-//				// Text input part
-//				if (event.type == KeyPress && len > 0)
-//				{
-//					//crownEvent.event_type = ET_TEXT;
-//					//crownEvent.text.type = TET_TEXT_INPUT;
-//					strncpy(keyboardEvent.text, string, 4);
-
-//					if (mListener)
-//					{
-//						mListener->TextInput(keyboardEvent);
-//					}
-//				}
-
-				break;
-			}
-			case KeymapNotify:
-			{
-				XRefreshKeyboardMapping(&event.xmapping);
-				break;
-			}
-			default:
-			{
-				break;
 			}
 		}
+
+		// Swap event buffers
+		EventBuffer* temp = m_read;
+		m_read = m_write;
+		m_write = temp;
+
+		m_read_sem.post();
 	}
 
 	//-----------------------------------------------------------------------------
