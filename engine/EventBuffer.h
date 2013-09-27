@@ -116,6 +116,12 @@ struct EventBuffer
 		m_size = 0;
 		m_read = 0;
 	}
+
+	//-----------------------------------------------------------------------------
+	bool is_empty()
+	{
+		return m_size == 0;
+	}
 };
 
 } // namespace crown
