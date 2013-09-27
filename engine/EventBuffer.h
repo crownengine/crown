@@ -38,6 +38,7 @@ namespace crown
 struct EventBuffer
 {
 	char m_buffer[EVENT_BUFFER_MAX_SIZE];
+	
 	size_t m_size;
 	size_t m_read;
 
@@ -62,22 +63,6 @@ struct EventBuffer
 		memcpy(cur + sizeof(event_type) + sizeof(event_size), event_data, event_size);
 
 		m_size += sizeof(event_type) + sizeof(event_size) + event_size;
-	}
-
-	//-----------------------------------------------------------------------------
-	uint32_t get_next_event_type()
-	{
-		if (m_read < m_size)
-		{
-			char* cur = m_buffer + m_read;
-
-			// Saves type
-			int32_t event_type = *(uint32_t*) cur;
-
-			return event_type;
-		}
-
-		return -1;		
 	}
 
 	//-----------------------------------------------------------------------------
@@ -115,12 +100,6 @@ struct EventBuffer
 	{
 		m_size = 0;
 		m_read = 0;
-	}
-
-	//-----------------------------------------------------------------------------
-	bool is_empty()
-	{
-		return m_size == 0;
 	}
 };
 
