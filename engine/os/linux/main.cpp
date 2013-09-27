@@ -250,10 +250,10 @@ public:
 
 		while (!m_exit)
 		{
-			m_write_sem.wait();
-
 			while (XPending(m_x11_display))
 			{
+				m_write_sem.wait();
+
 				LinuxDevice::pump_events();
 			}
 
