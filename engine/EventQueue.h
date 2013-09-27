@@ -27,58 +27,89 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <cstring>
-#include <stdio.h>
-#include "Mutex.h"
-#include "Queue.h"
-#include "Log.h"
+#include "OsTypes.h"
+#include "AtomicInt.h"
+
+#define QUEUE_SIZE 1024 * 4
 
 namespace crown
 {
 
-/// Represents an abstract queue of events
-class EventQueue
+struct EventQueue
 {
-public:
-
 	//-----------------------------------------------------------------------------
-	EventQueue(Allocator& a)
-		: m_queue(a)
+	EventQueue() 
+		: m_size(0), m_read(0)
 	{
 	}
 
-	//-----------------------------------------------------------------------------
-	void push_event(void* data)
+	int32_t space()
 	{
-		m_mutex.lock();
-		m_queue.push_back(data);
-		m_mutex.unlock();
+		return QUEUE_SIZE - m_size;
+	}
+
+	bool empty()
+	{
+		return m_read == m_size;
 	}
 
 	//-----------------------------------------------------------------------------
-	void* get_event()
+	void push_event(uint32_t event_type, void* event_data, size_t event_size)
 	{
-		m_mutex.lock();
+		int32_t next_size = 4 + 4 + event_size;
 
-		void* data;
-		if (m_queue.size() > 0)
+		if (next_size >= space())
 		{
-			data = m_queue.front();
-			m_queue.pop_front();
+			Log::d("queue full");
+			return;
 		}
-		else
+
+		int32_t cur_size = m_size;
+
+		*(&m_buffer[cur_size]) = event_type;
+		*(&m_buffer[cur_size] + 4) = event_size;
+		memcpy(&m_buffer[cur_size] + 8, event_data, event_size);
+
+		m_size += next_size;
+	}
+
+	uint32_t event_type()
+	{
+		if (empty())
+		{
+			return 0;
+		}
+
+		int32_t cur_read = m_read;
+		uint32_t type = (uint32_t) *(&m_buffer[cur_read]);
+
+		m_read += 4;
+
+		return type;
+	}
+
+	//-----------------------------------------------------------------------------
+	void get_next_event(void* data)
+	{
+		if (empty())
 		{
 			data = NULL;
 		}
 
-		m_mutex.unlock();
+		int32_t cur_read = m_read;
 
-		return data;
+		size_t event_size = (size_t) *(&m_buffer[cur_read]);
+		memcpy(data, &m_buffer[cur_read] + 4, event_size);
+
+		m_read += 4 + event_size;
 	}
 
-public:
+private:
 
-	Mutex m_mutex;
-	Queue<void*> m_queue;
+	char m_buffer[QUEUE_SIZE];
+	
+	AtomicInt m_size;
+	AtomicInt m_read;
 };
 
 } // namespace crown

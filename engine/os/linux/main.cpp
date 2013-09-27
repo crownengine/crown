@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "BundleCompiler.h"
 #include "EventBuffer.h"
 #include "Semaphore.h"
+#include "EventQueue.h"
 
 namespace crown
 {
@@ -137,8 +138,6 @@ public:
 		, m_fullscreen(0)
 		, m_compile(0)
 		, m_continue(0)
-		, m_read(&m_event[0])
-		, m_write(&m_event[1])
 	{
 	}
 
@@ -291,26 +290,23 @@ public:
 	//-----------------------------------------------------------------------------
 	bool process_events()
 	{
-		m_read_sem.wait();
-
-		void* event;
 		uint32_t type;
-		size_t size;
 		do
 		{
-			event = m_read->get_next_event(type, size);
+			type = m_queue.event_type();
 
-			if (event != NULL)
+			if (type != 0)
 			{
 				switch (type)
 				{
 					case OsEvent::MOUSE:
 					{
-						OsMouseEvent* ev = (OsMouseEvent*) event;
-						switch (ev->type)
+						OsMouseEvent ev;
+						m_queue.get_next_event(&ev);
+						switch (ev.type)
 						{
-							case OsMouseEvent::BUTTON: m_mouse->set_button_state(ev->x, ev->y, ev->button, ev->pressed); break;
-							case OsMouseEvent::MOVE: m_mouse->set_position(ev->x, ev->y); break;
+							case OsMouseEvent::BUTTON: m_mouse->set_button_state(ev.x, ev.y, ev.button, ev.pressed); break;
+							case OsMouseEvent::MOVE: m_mouse->set_position(ev.x, ev.y); break;
 							default: CE_FATAL("Oops, unknown mouse event type"); break;
 						}
 
@@ -318,14 +314,16 @@ public:
 					}
 					case OsEvent::KEYBOARD:
 					{
-						OsKeyboardEvent* ev = (OsKeyboardEvent*) event;
-						m_keyboard->set_button_state(ev->button, ev->pressed);
+						OsKeyboardEvent ev;
+						m_queue.get_next_event(&ev);
+						m_keyboard->set_button_state(ev.button, ev.pressed);
 						break;
 					}
 					case OsEvent::METRICS:
 					{
-						OsMetricsEvent* ev = (OsMetricsEvent*) event;
-						m_mouse->set_metrics(ev->width, ev->height);
+						OsMetricsEvent ev;
+						m_queue.get_next_event(&ev);
+						m_mouse->set_metrics(ev.width, ev.height);
 						break;
 					}
 					case OsEvent::EXIT:
@@ -340,10 +338,7 @@ public:
 				}
 			}
 		}
-		while (event != NULL);
-
-		m_read->clear();
-		m_write_sem.post();
+		while (type != 0);
 
 		return false;
 	}
@@ -364,7 +359,7 @@ public:
 					{
 						OsExitEvent ev;
 						ev.code = 0;
-						m_write->push_event(OsEvent::EXIT, &ev, sizeof(OsExitEvent));
+						m_queue.push_event(OsEvent::EXIT, &ev, sizeof(OsExitEvent));
 					}
 					break;
 				}
@@ -381,7 +376,7 @@ public:
 					ev.width = event.xconfigure.width;
 					ev.height = event.xconfigure.height;
 
-					m_write->push_event(OsEvent::METRICS, &ev, sizeof(OsMetricsEvent));
+					m_queue.push_event(OsEvent::METRICS, &ev, sizeof(OsMetricsEvent));
 
 					break;
 				}
@@ -406,7 +401,7 @@ public:
 						ev.x = event.xbutton.x;
 						ev.y = event.xbutton.y;
 						ev.pressed = event.type == ButtonPress;
-						m_write->push_event(OsEvent::MOUSE, &ev, sizeof(OsMouseEvent));
+						m_queue.push_event(OsEvent::MOUSE, &ev, sizeof(OsMouseEvent));
 					}
 
 					break;
@@ -418,7 +413,7 @@ public:
 					ev.x = event.xmotion.x;
 					ev.y = event.xmotion.y;
 
-					m_write->push_event(OsEvent::MOUSE, &ev, sizeof(OsMouseEvent));
+					m_queue.push_event(OsEvent::MOUSE, &ev, sizeof(OsMouseEvent));
 
 					break;
 				}
@@ -454,7 +449,7 @@ public:
 					ev.modifier = modifier_mask;
 					ev.pressed = event.type == KeyPress;
 
-					m_write->push_event(OsEvent::KEYBOARD, &ev, sizeof(OsKeyboardEvent));
+					m_queue.push_event(OsEvent::KEYBOARD, &ev, sizeof(OsKeyboardEvent));
 
 	//				// Text input part
 	//				if (event.type == KeyPress && len > 0)
@@ -482,13 +477,6 @@ public:
 				}
 			}
 		}
-
-		// Swap event buffers
-		EventBuffer* temp = m_read;
-		m_read = m_write;
-		m_write = temp;
-
-		m_read_sem.post();
 	}
 
 	//-----------------------------------------------------------------------------
@@ -633,12 +621,7 @@ private:
 	int32_t m_compile;
 	int32_t m_continue;
 
-	EventBuffer m_event[2];
-	EventBuffer* m_read;
-	EventBuffer* m_write;
-
-	Semaphore m_read_sem;
-	Semaphore m_write_sem;
+	EventQueue m_queue;
 };
 
 } // namespace crown
