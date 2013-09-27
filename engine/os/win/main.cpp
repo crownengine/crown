@@ -31,6 +31,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define WM_USER_MOUSE_LOCK          (WM_USER+2)
 
 #include "Crown.h"
+#include "OsTypes.h"
+#include "EventQueue.h"
+#include "BundleCompiler.h"
 
 #define ENTRY_DEFAULT_WIDTH 1024
 #define ENTRY_DEFAULT_HEIGHT 768
@@ -54,59 +57,59 @@ void shutdown()
 }
 
 //-----------------------------------------------------------------------------
-static Key translate_key(int32_t winKey)
+static KeyboardButton::Enum translate_key(int32_t winKey)
 {
 	if ((winKey > 0x40 && winKey < 0x5B) || (winKey > 0x60 && winKey < 0x7B) || (winKey > 0x2F && winKey < 0x3A))
 	{
-		return (Key)winKey;
+		return (KeyboardButton::Enum)winKey;
 	}
 
 	switch (winKey)
 	{
-		case VK_BACK:		return KC_BACKSPACE;
-		case VK_TAB:		return KC_TAB;
-		case VK_SPACE:		return KC_SPACE;
-		case VK_ESCAPE:		return KC_ESCAPE;
-		case VK_RETURN:		return KC_ENTER;
-		case VK_F1:			return KC_F1;
-		case VK_F2:			return KC_F2;
-		case VK_F3:			return KC_F3;
-		case VK_F4:			return KC_F4;
-		case VK_F5:			return KC_F5;
-		case VK_F6:			return KC_F6;
-		case VK_F7:			return KC_F7;
-		case VK_F8:			return KC_F8;
-		case VK_F9:			return KC_F9;
-		case VK_F10:		return KC_F10;
-		case VK_F11:		return KC_F11;
-		case VK_F12:		return KC_F12;
-		case VK_HOME:		return KC_HOME;
-		case VK_LEFT:		return KC_LEFT;
-		case VK_UP:			return KC_UP;
-		case VK_RIGHT:		return KC_RIGHT;
-		case VK_DOWN:		return KC_DOWN;
-		case VK_PRIOR:		return KC_PAGE_UP;
-		case VK_NEXT:		return KC_PAGE_DOWN;
-		case VK_LSHIFT:		return KC_LSHIFT;
-		case VK_RSHIFT:		return KC_RSHIFT;
-		case VK_LCONTROL:	return KC_LCONTROL;
-		case VK_RCONTROL:	return KC_RCONTROL;
-		case VK_CAPITAL:	return KC_CAPS_LOCK;
-		case VK_LMENU:		return KC_LALT;
-		case VK_RMENU:		return KC_RALT;
-		case VK_LWIN:		return KC_LSUPER;
-		case VK_RWIN:		return KC_RSUPER;
-		case VK_NUMPAD0:	return KC_KP_0;
-		case VK_NUMPAD1:	return KC_KP_1;
-		case VK_NUMPAD2:	return KC_KP_2;
-		case VK_NUMPAD3:	return KC_KP_3;
-		case VK_NUMPAD4:	return KC_KP_4;
-		case VK_NUMPAD5:	return KC_KP_5;
-		case VK_NUMPAD6:	return KC_KP_6;
-		case VK_NUMPAD7:	return KC_KP_7;
-		case VK_NUMPAD8:	return KC_KP_8;
-		case VK_NUMPAD9:	return KC_KP_9;
-		default:			return KC_NOKEY;
+		case VK_BACK:		return KeyboardButton::BACKSPACE;
+		case VK_TAB:		return KeyboardButton::TAB;
+		case VK_SPACE:		return KeyboardButton::SPACE;
+		case VK_ESCAPE:		return KeyboardButton::ESCAPE;
+		case VK_RETURN:		return KeyboardButton::ENTER;
+		case VK_F1:			return KeyboardButton::F1;
+		case VK_F2:			return KeyboardButton::F2;
+		case VK_F3:			return KeyboardButton::F3;
+		case VK_F4:			return KeyboardButton::F4;
+		case VK_F5:			return KeyboardButton::F5;
+		case VK_F6:			return KeyboardButton::F6;
+		case VK_F7:			return KeyboardButton::F7;
+		case VK_F8:			return KeyboardButton::F8;
+		case VK_F9:			return KeyboardButton::F9;
+		case VK_F10:		return KeyboardButton::F10;
+		case VK_F11:		return KeyboardButton::F11;
+		case VK_F12:		return KeyboardButton::F12;
+		case VK_HOME:		return KeyboardButton::HOME;
+		case VK_LEFT:		return KeyboardButton::LEFT;
+		case VK_UP:			return KeyboardButton::UP;
+		case VK_RIGHT:		return KeyboardButton::RIGHT;
+		case VK_DOWN:		return KeyboardButton::DOWN;
+		case VK_PRIOR:		return KeyboardButton::PAGE_UP;
+		case VK_NEXT:		return KeyboardButton::PAGE_DOWN;
+		case VK_LSHIFT:		return KeyboardButton::LSHIFT;
+		case VK_RSHIFT:		return KeyboardButton::RSHIFT;
+		case VK_LCONTROL:	return KeyboardButton::LCONTROL;
+		case VK_RCONTROL:	return KeyboardButton::RCONTROL;
+		case VK_CAPITAL:	return KeyboardButton::CAPS_LOCK;
+		case VK_LMENU:		return KeyboardButton::LALT;
+		case VK_RMENU:		return KeyboardButton::RALT;
+		case VK_LWIN:		return KeyboardButton::LSUPER;
+		case VK_RWIN:		return KeyboardButton::RSUPER;
+		case VK_NUMPAD0:	return KeyboardButton::KP_0;
+		case VK_NUMPAD1:	return KeyboardButton::KP_1;
+		case VK_NUMPAD2:	return KeyboardButton::KP_2;
+		case VK_NUMPAD3:	return KeyboardButton::KP_3;
+		case VK_NUMPAD4:	return KeyboardButton::KP_4;
+		case VK_NUMPAD5:	return KeyboardButton::KP_5;
+		case VK_NUMPAD6:	return KeyboardButton::KP_6;
+		case VK_NUMPAD7:	return KeyboardButton::KP_7;
+		case VK_NUMPAD8:	return KeyboardButton::KP_8;
+		case VK_NUMPAD9:	return KeyboardButton::KP_9;
+		default:			return KeyboardButton::NONE;
 	}
 }
 
@@ -132,7 +135,35 @@ public:
 		, m_mouse_lock(false)
 		, m_started(false)
 		, m_exit(false)
+		, m_alloc(m_event_buffer, 1024 * 4)
+		, m_queue(m_alloc)
 	{
+	}
+
+	//-----------------------------------------------------------------------------
+	void init(int argc, char** argv)
+	{
+		parse_command_line(argc, argv);
+		check_preferred_settings();
+
+		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+			if (m_compile == 1)
+			{
+				m_bundle_compiler = CE_NEW(default_allocator(), BundleCompiler);
+				if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir))
+				{
+					CE_DELETE(default_allocator(), m_bundle_compiler);
+					Log::e("Exiting.");
+					exit(EXIT_FAILURE);
+				}
+
+				if (!m_continue)
+				{
+					CE_DELETE(default_allocator(), m_bundle_compiler);
+					exit(EXIT_SUCCESS);
+				}
+			}
+		#endif
 	}
 
 	//-----------------------------------------------------------------------------
@@ -181,7 +212,7 @@ public:
 		m_argv = argv;
 
 		OsThread thread("game-loop");
-		thread.start(WindowsDevice::thread_proc, this);
+		thread.start(WindowsDevice::main_loop, this);
 		m_started = true;
 
 //		m_eventQueue.postSizeEvent(m_width, m_height);
@@ -204,6 +235,23 @@ public:
 
 		DestroyWindow(m_hwnd);
 		DestroyWindow(hwnd);
+
+		return 0;
+	}
+
+	//-----------------------------------------------------------------------------
+	int32_t loop()
+	{
+		Device::init();
+
+		while(is_running())
+		{
+			Device::frame();
+		}
+
+		Device::shutdown();
+
+		m_exit = true;
 
 		return 0;
 	}
@@ -327,23 +375,9 @@ public:
 
 public:
 	
-	static int32_t thread_proc(void* data)
+	static int32_t main_loop(void* data)
 	{
-		WindowsDevice* engine = (WindowsDevice*)data;
-
-		if (!engine->init(engine->m_argc, engine->m_argv))
-		{
-			exit(-1);
-		}
-
-		while (engine->is_running())
-		{
-			engine->frame();
-		}
-
-		engine->shutdown();
-
-		return 0;
+		return ((WindowsDevice*)data)->loop();
 	}
 
 	LRESULT process(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
@@ -515,7 +549,7 @@ public:
 			case WM_KEYUP:
 			case WM_SYSKEYUP:
 			{
-				Key key = translate_key(wparam);
+				KeyboardButton::Enum key = translate_key(wparam);
 				uint8_t modifiers = 0;
 				// m_eventQueue.postKeyEvent(key, modifiers, id == WM_KEYDOWN || id == WM_SYSKEYDOWN);
 				Log::i("Key! '%d'", key);
@@ -527,6 +561,126 @@ public:
 		}
 
 		return DefWindowProc(hwnd, id, wparam, lparam);
+	}
+
+	void parse_command_line(int argc, char** argv)
+	{
+		static const char* help_message =
+			"Usage: crown [options]\n"
+			"Options:\n\n"
+
+			"All of the following options take precedence over\n"
+			"environment variables and configuration files.\n\n"
+
+			"  --help                     Show this help.\n"
+			"  --bundle-dir <path>        Use <path> as the source directory for compiled resources.\n"
+			"  --width <width>            Set the <width> of the main window.\n"
+			"  --height <width>           Set the <height> of the main window.\n"
+			"  --fullscreen               Start in fullscreen.\n"
+			"  --parent-window <handle>   Set the parent window <handle> of the main window.\n"
+			"                             Used only by tools.\n"
+
+			"\nAvailable only in debug and development builds:\n\n"
+
+			"  --source-dir <path>        Use <path> as the source directory for resource compilation.\n"
+			"  --compile                  Run the engine as resource compiler.\n"
+			"  --continue                 Do a full compile of the resources and continue the execution.\n";
+
+		static ArgsOption options[] = 
+		{
+			{ "help",             AOA_NO_ARGUMENT,       NULL,        'i' },
+			{ "source-dir",       AOA_REQUIRED_ARGUMENT, NULL,        's' },
+			{ "bundle-dir",       AOA_REQUIRED_ARGUMENT, NULL,        'b' },
+			{ "compile",          AOA_NO_ARGUMENT,       &m_compile,   1 },
+			{ "continue",         AOA_NO_ARGUMENT,       &m_continue,  1 },
+			{ "width",            AOA_REQUIRED_ARGUMENT, NULL,        'w' },
+			{ "height",           AOA_REQUIRED_ARGUMENT, NULL,        'h' },
+			{ "fullscreen",       AOA_NO_ARGUMENT,       &m_fullscreen, 1 },
+			{ "parent-window",    AOA_REQUIRED_ARGUMENT, NULL,        'p' },
+			{ NULL, 0, NULL, 0 }
+		};
+
+		Args args(argc, argv, "", options);
+
+		int32_t opt;
+		while ((opt = args.getopt()) != -1)
+		{
+			switch (opt)
+			{
+				case 0:
+				{
+					break;
+				}
+				// Source directory
+				case 's':
+				{
+					string::strncpy(m_source_dir, args.optarg(), MAX_PATH_LENGTH);
+					break;
+				}
+				// Bundle directory
+				case 'b':
+				{
+					string::strncpy(m_bundle_dir, args.optarg(), MAX_PATH_LENGTH);
+					break;
+				}
+				// Window width
+				case 'w':
+				{
+					m_width = atoi(args.optarg());
+					break;
+				}
+				// Window height
+				case 'h':
+				{
+					m_height = atoi(args.optarg());
+					break;
+				}
+				// Parent window
+				case 'p':
+				{
+					m_parent_window_handle = string::parse_uint(args.optarg());
+					break;
+				}
+				case 'i':
+				case '?':
+				default:
+				{
+					os::printf(help_message);
+					exit(EXIT_FAILURE);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void check_preferred_settings()
+	{
+		if (m_compile == 1)
+		{
+			if (string::strcmp(m_source_dir, "") == 0)
+			{
+				Log::e("You have to specify the source directory when running in compile mode.");
+				exit(EXIT_FAILURE);
+			}
+
+			if (!os::is_absolute_path(m_source_dir))
+			{
+				Log::e("The source directory must be absolute.");
+				exit(EXIT_FAILURE);
+			}
+		}
+
+		if (!os::is_absolute_path(m_bundle_dir))
+		{
+			Log::e("The bundle directory must be absolute.");
+			exit(EXIT_FAILURE);
+		}
+
+		if (m_width == 0 || m_height == 0)
+		{
+			Log::e("Window width and height must be greater than zero.");
+			exit(EXIT_FAILURE);
+		}
 	}
 
 private:
@@ -554,6 +708,15 @@ public:
 
 	int32_t m_argc;
 	char**	m_argv;
+
+	uint32_t m_parent_window_handle;
+	int32_t m_fullscreen;
+	int32_t m_compile;
+	int32_t m_continue;	
+
+	char m_event_buffer[1024 * 4];
+	LinearAllocator m_alloc;
+	EventQueue m_queue;
 };
 
 WindowsDevice* engine;
@@ -574,9 +737,11 @@ int main(int argc, char** argv)
 	engine = CE_NEW(default_allocator(), WindowsDevice)();
 	set_device(crown::engine);
 	
-	((WindowsDevice*)engine)->run(argc, argv);
+	int32_t ret = ((WindowsDevice*)engine)->run(argc, argv);
+
+	CE_DELETE(default_allocator(), engine);
 
 	shutdown();
 
-	return 0;
+	return ret;
 }
