@@ -525,8 +525,11 @@ if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
+
 install (TARGETS crown DESTINATION bin)
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
+
+install (TARGETS crown DESTINATION test)
 
 #install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 
