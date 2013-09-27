@@ -95,7 +95,6 @@ public:
 			m_submit->m_commands.write(COMMAND_SHUTDOWN_RENDERER);
 			frame();
 
-			m_should_run = false;
 			m_thread.stop();		
 		}
 	}
@@ -314,6 +313,7 @@ public:
 				{
 					shutdown_impl();
 					m_is_initialized = false;
+					m_should_run = false;
 					break;
 				}
 				case COMMAND_CREATE_VERTEX_BUFFER:

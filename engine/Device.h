@@ -60,9 +60,7 @@ public:
 							Device();
 							~Device();
 
-	/// Initializes the engine allowing to pass command line
-	/// parameters to configure some parameters.
-	bool					init(int argc, char** argv);
+	void					init();
 
 	/// Shutdowns the engine freeing all the allocated resources
 	void					shutdown();
@@ -135,11 +133,7 @@ public:
 
 private:
 
-	void					init();
-	void					parse_command_line(int argc, char** argv);
-	void					check_preferred_settings();
 	void					read_engine_settings();
-	void					print_help_message();
 
 protected:
 
@@ -147,17 +141,9 @@ protected:
 	LinearAllocator			m_allocator;
 
 	// Preferred settings
-	int32_t					m_preferred_window_width;
-	int32_t					m_preferred_window_height;
-	int32_t					m_preferred_window_fullscreen;
-	uint32_t				m_parent_window_handle;
 	char					m_source_dir[MAX_PATH_LENGTH];
 	char 					m_bundle_dir[MAX_PATH_LENGTH];
 	char 					m_boot_file[MAX_PATH_LENGTH];
-	int32_t					m_compile;
-	int32_t					m_continue;
-
-	int32_t					m_quit_after_init;
 
 	bool					m_is_init		: 1;
 	bool					m_is_running	: 1;
@@ -202,6 +188,3 @@ CE_EXPORT Device* device();
 CE_EXPORT void set_device(Device* device);
 
 } // namespace crown
-
-
-

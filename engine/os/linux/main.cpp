@@ -32,6 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "OsTypes.h"
 #include "EventQueue.h"
+#include "Config.h"
+#include "BundleCompiler.h"
 
 namespace crown
 {
@@ -125,7 +127,17 @@ public:
 		, m_x11_window(None)
 		, m_x11_parent_window(None)
 		, m_x11_hidden_cursor(None)
-		, m_exit(false), m_x(0), m_y(0), m_width(1000), m_height(625), m_alloc(m_event_buffer, 1024 * 4), m_queue(m_alloc)
+		, m_exit(false)
+		, m_x(0)
+		, m_y(0)
+		, m_width(1000)
+		, m_height(625)
+		, m_parent_window_handle(0)
+		, m_fullscreen(0)
+		, m_compile(0)
+		, m_continue(0)
+		, m_alloc(m_event_buffer, 1024 * 4)
+		, m_queue(m_alloc)
 	{
 		for (uint32_t i = 0; i < 1024; i++)
 		{
@@ -134,10 +146,45 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
+	void init(int argc, char** argv)
+	{
+		parse_command_line(argc, argv);
+		check_preferred_settings();
+
+		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+			if (m_compile == 1)
+			{
+				m_bundle_compiler = CE_NEW(default_allocator(), BundleCompiler);
+				if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir))
+				{
+					CE_DELETE(default_allocator(), m_bundle_compiler);
+					Log::e("Exiting.");
+					exit(EXIT_FAILURE);
+				}
+
+				if (!m_continue)
+				{
+					CE_DELETE(default_allocator(), m_bundle_compiler);
+					exit(EXIT_SUCCESS);
+				}
+			}
+		#endif
+	}
+
+	//-----------------------------------------------------------------------------
+	void shutdown()
+	{
+		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+			CE_DELETE(default_allocator(), m_bundle_compiler);
+		#endif
+	}
+
+	//-----------------------------------------------------------------------------
 	int32_t run(int argc, char** argv)
 	{
-		XInitThreads();
+		init(argc, argv);
 
+		XInitThreads();
 		CE_ASSERT(m_width != 0 || m_height != 0, "Width and height must differ from zero");
 
 		m_x11_display = XOpenDisplay(NULL);
@@ -148,11 +195,11 @@ public:
 		int depth = DefaultDepth(m_x11_display, screen);
 		Visual* visual = DefaultVisual(m_x11_display, screen);
 
-		// if (parent != 0)
-		// {
-		// 	m_x11_parent_window = (Window) parent;
-		// }
-		// else
+		if (m_parent_window_handle != 0)
+		{
+			m_x11_parent_window = (Window) m_parent_window_handle;
+		}
+		else
 		{
 			m_x11_parent_window = RootWindow(m_x11_display, screen);
 		}
@@ -201,13 +248,8 @@ public:
 
 		set_x11_display_and_window(m_x11_display, m_x11_window);
 
-		MainArgs args;
-		args.argc = argc;
-		args.argv = argv;
-		args.device = this;
-
 		OsThread game_thread("game-thread");
-		game_thread.start(main_loop, (void*)&args);
+		game_thread.start(main_loop, (void*)this);
 
 		while (!m_exit)
 		{
@@ -216,6 +258,8 @@ public:
 				LinuxDevice::pump_events();
 			}
 		}
+
+		Log::d("Stopping game thread");
 
 		game_thread.stop();
 
@@ -226,20 +270,26 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	static int32_t main_loop(void* user_data)
+	int32_t loop()
 	{
-		MainArgs* args = (MainArgs*)user_data;
+		Device::init();
 
-		device()->init(args->argc, args->argv);
-
-		while(!args->device->process_events())
+		while(!process_events() && is_running())
 		{
-			device()->frame();
+			Device::frame();
 		}
 
-		device()->shutdown();
+		Device::shutdown();
+
+		m_exit = true;
 
 		return 0;
+	}
+
+	//-----------------------------------------------------------------------------
+	static int32_t main_loop(void* thiz)
+	{
+		return ((LinuxDevice*)thiz)->loop();
 	}
 
 	//-----------------------------------------------------------------------------
@@ -266,8 +316,6 @@ public:
 					}
 					case OsEvent::EXIT:
 					{
-						Log::d("Exiting");
-						m_exit = true;
 						return true;
 					}
 					default:
@@ -405,6 +453,128 @@ public:
 		}
 	}
 
+	//-----------------------------------------------------------------------------
+	void parse_command_line(int argc, char** argv)
+	{
+		static const char* help_message =
+			"Usage: crown [options]\n"
+			"Options:\n\n"
+
+			"All of the following options take precedence over\n"
+			"environment variables and configuration files.\n\n"
+
+			"  --help                     Show this help.\n"
+			"  --bundle-dir <path>        Use <path> as the source directory for compiled resources.\n"
+			"  --width <width>            Set the <width> of the main window.\n"
+			"  --height <width>           Set the <height> of the main window.\n"
+			"  --fullscreen               Start in fullscreen.\n"
+			"  --parent-window <handle>   Set the parent window <handle> of the main window.\n"
+			"                             Used only by tools.\n"
+
+			"\nAvailable only in debug and development builds:\n\n"
+
+			"  --source-dir <path>        Use <path> as the source directory for resource compilation.\n"
+			"  --compile                  Run the engine as resource compiler.\n"
+			"  --continue                 Do a full compile of the resources and continue the execution.\n";
+
+		static ArgsOption options[] = 
+		{
+			{ "help",             AOA_NO_ARGUMENT,       NULL,        'i' },
+			{ "source-dir",       AOA_REQUIRED_ARGUMENT, NULL,        's' },
+			{ "bundle-dir",       AOA_REQUIRED_ARGUMENT, NULL,        'b' },
+			{ "compile",          AOA_NO_ARGUMENT,       &m_compile,   1 },
+			{ "continue",         AOA_NO_ARGUMENT,       &m_continue,  1 },
+			{ "width",            AOA_REQUIRED_ARGUMENT, NULL,        'w' },
+			{ "height",           AOA_REQUIRED_ARGUMENT, NULL,        'h' },
+			{ "fullscreen",       AOA_NO_ARGUMENT,       &m_fullscreen, 1 },
+			{ "parent-window",    AOA_REQUIRED_ARGUMENT, NULL,        'p' },
+			{ NULL, 0, NULL, 0 }
+		};
+
+		Args args(argc, argv, "", options);
+
+		int32_t opt;
+		while ((opt = args.getopt()) != -1)
+		{
+			switch (opt)
+			{
+				case 0:
+				{
+					break;
+				}
+				// Source directory
+				case 's':
+				{
+					string::strncpy(m_source_dir, args.optarg(), MAX_PATH_LENGTH);
+					break;
+				}
+				// Bundle directory
+				case 'b':
+				{
+					string::strncpy(m_bundle_dir, args.optarg(), MAX_PATH_LENGTH);
+					break;
+				}
+				// Window width
+				case 'w':
+				{
+					m_width = atoi(args.optarg());
+					break;
+				}
+				// Window height
+				case 'h':
+				{
+					m_height = atoi(args.optarg());
+					break;
+				}
+				// Parent window
+				case 'p':
+				{
+					m_parent_window_handle = string::parse_uint(args.optarg());
+					break;
+				}
+				case 'i':
+				case '?':
+				default:
+				{
+					os::printf(help_message);
+					exit(EXIT_FAILURE);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void check_preferred_settings()
+	{
+		if (m_compile == 1)
+		{
+			if (string::strcmp(m_source_dir, "") == 0)
+			{
+				Log::e("You have to specify the source directory when running in compile mode.");
+				exit(EXIT_FAILURE);
+			}
+
+			if (!os::is_absolute_path(m_source_dir))
+			{
+				Log::e("The source directory must be absolute.");
+				exit(EXIT_FAILURE);
+			}
+		}
+
+		if (!os::is_absolute_path(m_bundle_dir))
+		{
+			Log::e("The bundle directory must be absolute.");
+			exit(EXIT_FAILURE);
+		}
+
+		if (m_width == 0 || m_height == 0)
+		{
+			Log::e("Window width and height must be greater than zero.");
+			exit(EXIT_FAILURE);
+		}
+	}
+
+
 private:
 
 	Display* m_x11_display;
@@ -419,6 +589,11 @@ private:
 	uint32_t m_width;
 	uint32_t m_height;
 	bool m_x11_detectable_autorepeat;
+
+	uint32_t m_parent_window_handle;
+	int32_t m_fullscreen;
+	int32_t m_compile;
+	int32_t m_continue;
 
 	char m_event_buffer[1024 * 4];
 	LinearAllocator m_alloc;
