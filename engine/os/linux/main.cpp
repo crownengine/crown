@@ -31,9 +31,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Crown.h"
 #include "Device.h"
 #include "OsTypes.h"
-#include "EventQueue.h"
 #include "Config.h"
 #include "BundleCompiler.h"
+#include "EventBuffer.h"
+#include "Semaphore.h"
 
 namespace crown
 {
@@ -136,13 +137,9 @@ public:
 		, m_fullscreen(0)
 		, m_compile(0)
 		, m_continue(0)
-		, m_alloc(m_event_buffer, 1024 * 4)
-		, m_queue(m_alloc)
+		, m_read(&m_event[0])
+		, m_write(&m_event[1])
 	{
-		for (uint32_t i = 0; i < 1024; i++)
-		{
-			m_event_buffer[i] = 'a';
-		}
 	}
 
 	//-----------------------------------------------------------------------------
@@ -253,16 +250,26 @@ public:
 
 		while (!m_exit)
 		{
+			m_write_sem.wait();
+
 			while (XPending(m_x11_display))
 			{
 				LinuxDevice::pump_events();
 			}
+
+			// Swap event buffers
+			EventBuffer* temp = m_read;
+			m_read = m_write;
+			m_write = temp;
+
+			m_read_sem.post();
 		}
 
 		Log::d("Stopping game thread");
 
 		game_thread.stop();
 
+		LinuxDevice::shutdown();
 		XDestroyWindow(m_x11_display, m_x11_window);
 		XCloseDisplay(m_x11_display);
 
@@ -277,6 +284,9 @@ public:
 		while(!process_events() && is_running())
 		{
 			Device::frame();
+
+			m_keyboard->update();
+			m_mouse->update();
 		}
 
 		Device::shutdown();
@@ -295,23 +305,39 @@ public:
 	//-----------------------------------------------------------------------------
 	bool process_events()
 	{
-		OsEvent* event;
+		void* event;
+		uint32_t type;
+		size_t size;
 		do
 		{
-			event = (OsEvent*)m_queue.get_event();
+			event = m_read->get_next_event(type, size);
 
 			if (event != NULL)
 			{
-				switch (event->type)
+				switch (type)
 				{
 					case OsEvent::MOUSE:
 					{
-						m_mouse->set_button_state(event->mouse.button, event->mouse.pressed);
+						OsMouseEvent* ev = (OsMouseEvent*) event;
+						switch (ev->type)
+						{
+							case OsMouseEvent::BUTTON: m_mouse->set_button_state(ev->x, ev->y, ev->button, ev->pressed); break;
+							case OsMouseEvent::MOVE: m_mouse->set_position(ev->x, ev->y); break;
+							default: CE_FATAL("Oops, unknown mouse event type"); break;
+						}
+
 						break;
 					}
 					case OsEvent::KEYBOARD:
 					{
-						m_keyboard->set_button_state(event->keyboard.button, event->keyboard.pressed);
+						OsKeyboardEvent* ev = (OsKeyboardEvent*) event;
+						m_keyboard->set_button_state(ev->button, ev->pressed);
+						break;
+					}
+					case OsEvent::METRICS:
+					{
+						OsMetricsEvent* ev = (OsMetricsEvent*) event;
+						m_mouse->set_metrics(ev->width, ev->height);
 						break;
 					}
 					case OsEvent::EXIT:
@@ -321,13 +347,16 @@ public:
 					default:
 					{
 						Log::d("Unmanaged");
-						//CE_FATAL("Oops, unknown Os event");
 						break;
 					}
 				}
 			}
 		}
-		while (event != 0);
+		while (event != NULL);
+
+		m_read->clear();
+		m_write_sem.post();
+		m_read_sem.wait();
 
 		return false;
 	}
@@ -344,26 +373,34 @@ public:
 			{
 				if ((Atom)event.xclient.data.l[0] == m_wm_delete_message)
 				{
-					OsEvent* os_event = new OsEvent;
-					os_event->type = OsEvent::EXIT;
-					m_queue.push_event(os_event);
+					OsExitEvent ev;
+					ev.code = 0;
+					m_write->push_event(OsEvent::EXIT, &ev, sizeof(OsExitEvent));
 				}
 				break;
 			}
-			// case ConfigureNotify:
-			// {
-			// 	m_x = event.xconfigure.x;
-			// 	m_y = event.xconfigure.y;
-			// 	m_width = event.xconfigure.width;
-			// 	m_height = event.xconfigure.height;
-			// 	break;
-			// }
+			case ConfigureNotify:
+			{
+				m_x = event.xconfigure.x;
+				m_y = event.xconfigure.y;
+				m_width = event.xconfigure.width;
+				m_height = event.xconfigure.height;
+
+				OsMetricsEvent ev;
+				ev.x = event.xconfigure.x;
+				ev.y = event.xconfigure.y;
+				ev.width = event.xconfigure.width;
+				ev.height = event.xconfigure.height;
+
+				m_write->push_event(OsEvent::METRICS, &ev, sizeof(OsMetricsEvent));
+				Log::d("Configure notify");
+
+				break;
+			}
 			case ButtonPress:
 			case ButtonRelease:
 			{
-				OsEvent* os_event = new OsEvent;
-				OsMouseEvent& mouse_event = os_event->mouse;
-				os_event->type = OsEvent::MOUSE;
+				OsMouseEvent ev;
 
 				MouseButton::Enum mb;
 				switch (event.xbutton.button)
@@ -371,25 +408,32 @@ public:
 					case Button1: mb = MouseButton::LEFT; break;
 					case Button2: mb = MouseButton::MIDDLE; break;
 					case Button3: mb = MouseButton::RIGHT; break;
-					default: mb = MouseButton::COUNT; break;
+					default: mb = MouseButton::NONE; break;
 				}
 
-				if (mb != MouseButton::COUNT)
+				if (mb != MouseButton::NONE)
 				{
-					mouse_event.button = mb;
-					mouse_event.x = event.xbutton.x;
-					mouse_event.y = event.xbutton.y;
-					mouse_event.pressed = event.type == ButtonPress;
-					m_queue.push_event(os_event);
+					ev.type = OsMouseEvent::BUTTON;
+					ev.button = mb;
+					ev.x = event.xbutton.x;
+					ev.y = event.xbutton.y;
+					ev.pressed = event.type == ButtonPress;
+					m_write->push_event(OsEvent::MOUSE, &ev, sizeof(OsMouseEvent));
 				}
 
 				break;
 			}
-			// case MotionNotify:
-			// {
-			// 	push_event(OSET_MOTION_NOTIFY, data_button[0], data_button[1], data_button[2], data_button[3]);
-			// 	break;
-			// }
+			case MotionNotify:
+			{
+				OsMouseEvent ev;
+				ev.type = OsMouseEvent::MOVE;
+				ev.x = event.xmotion.x;
+				ev.y = event.xmotion.y;
+
+				m_write->push_event(OsEvent::MOUSE, &ev, sizeof(OsMouseEvent));
+
+				break;
+			}
 			case KeyPress:
 			case KeyRelease:
 			{
@@ -416,28 +460,26 @@ public:
 					(event.type == KeyPress) ? modifier_mask |= ModifierButton::ALT : modifier_mask &= ~ModifierButton::ALT;
 				}
 
-				OsEvent* os_event = new OsEvent;
-				OsKeyboardEvent& keyboard_event = os_event->keyboard;
-				os_event->type = OsEvent::KEYBOARD;
+				OsKeyboardEvent ev;
 
-				keyboard_event.button = kb;
-				keyboard_event.modifier = modifier_mask;
-				keyboard_event.pressed = event.type == KeyPress;
+				ev.button = kb;
+				ev.modifier = modifier_mask;
+				ev.pressed = event.type == KeyPress;
 
-				m_queue.push_event(os_event);
+				m_write->push_event(OsEvent::KEYBOARD, &ev, sizeof(OsKeyboardEvent));
 
-	//				// Text input part
-	//				if (event.type == KeyPress && len > 0)
-	//				{
-	//					//crownEvent.event_type = ET_TEXT;
-	//					//crownEvent.text.type = TET_TEXT_INPUT;
-	//					strncpy(keyboardEvent.text, string, 4);
+//				// Text input part
+//				if (event.type == KeyPress && len > 0)
+//				{
+//					//crownEvent.event_type = ET_TEXT;
+//					//crownEvent.text.type = TET_TEXT_INPUT;
+//					strncpy(keyboardEvent.text, string, 4);
 
-	//					if (mListener)
-	//					{
-	//						mListener->TextInput(keyboardEvent);
-	//					}
-	//				}
+//					if (mListener)
+//					{
+//						mListener->TextInput(keyboardEvent);
+//					}
+//				}
 
 				break;
 			}
@@ -595,9 +637,12 @@ private:
 	int32_t m_compile;
 	int32_t m_continue;
 
-	char m_event_buffer[1024 * 4];
-	LinearAllocator m_alloc;
-	EventQueue m_queue;
+	EventBuffer m_event[2];
+	EventBuffer* m_read;
+	EventBuffer* m_write;
+
+	Semaphore m_read_sem;
+	Semaphore m_write_sem;
 };
 
 } // namespace crown

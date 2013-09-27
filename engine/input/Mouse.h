@@ -133,6 +133,13 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
+	void set_position(uint16_t x, uint16_t y)
+	{
+		m_x = x;
+		m_y = y;
+	}
+
+	//-----------------------------------------------------------------------------
 	void set_metrics(uint16_t width, uint16_t height)
 	{
 		m_width = width;
@@ -140,8 +147,10 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	void set_button_state(MouseButton::Enum b, bool state)
+	void set_button_state(uint16_t x, uint16_t y, MouseButton::Enum b, bool state)
 	{
+		set_position(x, y);
+
 		m_last_button = b;
 		m_current_state[b] = state;
 	}

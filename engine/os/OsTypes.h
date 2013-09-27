@@ -31,12 +31,32 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+struct OsMetricsEvent
+{
+	uint16_t x;
+	uint16_t y;
+	uint16_t width;
+	uint16_t height;
+};
+
+struct OsExitEvent
+{
+	int32_t code;
+};
+
 /// Represents an event fired by mouse.
 struct OsMouseEvent
 {
+	enum Enum
+	{
+		BUTTON,
+		MOVE
+	};
+
+	OsMouseEvent::Enum type;
 	MouseButton::Enum button;
-	uint32_t x;
-	uint32_t y;
+	uint16_t x;
+	uint16_t y;
 	bool pressed;
 };
 
@@ -51,9 +71,9 @@ struct OsKeyboardEvent
 /// Represents an event fired by touch screen.
 struct OsTouchEvent
 {
-	uint32_t pointer_id;
-	uint32_t x;
-	uint32_t y;
+	uint8_t pointer_id;
+	uint16_t x;
+	uint16_t y;
 };
 
 /// Represents an event fired by accelerometer.
@@ -76,17 +96,9 @@ struct OsEvent
 		TOUCH			= 3,
 		ACCELEROMETER	= 4,
 
+		METRICS,
 		// Exit from program
 		EXIT
-	};
-
-	OsEvent::Enum type;
-	union
-	{
-		OsMouseEvent mouse;
-		OsKeyboardEvent keyboard;
-		OsTouchEvent touch;
-		OsAccelerometerEvent accelerometer;
 	};
 };
 
