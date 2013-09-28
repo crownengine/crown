@@ -100,6 +100,17 @@ struct OsEvent
 		// Exit from program
 		EXIT
 	};
+
+	OsEvent::Enum type;
+	union
+	{
+		OsMetricsEvent metrics;
+		OsExitEvent exit;
+		OsMouseEvent mouse;
+		OsKeyboardEvent keyboard;
+		OsTouchEvent touch;
+		OsAccelerometerEvent accelerometer;
+	};
 };
 
 } // namespace crown
