@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Crown.h"
 #include "OsTypes.h"
-#include "EventQueue.h"
+#include "OsEventQueue.h"
 #include "GLContext.h"
 #include "BundleCompiler.h"
 
@@ -415,21 +415,18 @@ public:
 	//-----------------------------------------------------------------------------
 	bool process_events()
 	{
-		uint32_t type = 0;
-
+		OsEvent event;
 		do
 		{
-			type = m_queue.event_type();
+			m_queue.pop_event(&event);
 
-			if (type != 0)
+			if (event.type != OsEvent::NONE)
 			{
-				switch (type)
+				switch (event.type)
 				{
 					case OsEvent::MOUSE:
 					{
-						OsMouseEvent ev;
-						m_queue.get_next_event(&ev);
-
+						const OsMouseEvent& ev = event.mouse;
 						switch (ev.type)
 						{
 							case OsMouseEvent::BUTTON: m_mouse->set_button_state(ev.x, ev.y, ev.button, ev.pressed); break;
@@ -441,17 +438,13 @@ public:
 					}
 					case OsEvent::KEYBOARD:
 					{
-						OsKeyboardEvent ev;
-						m_queue.get_next_event(&ev);
-
+						const OsKeyboardEvent& ev = event.keyboard;
 						m_keyboard->set_button_state(ev.button, ev.pressed);
 						break;
 					}
 					case OsEvent::METRICS:
 					{
-						OsMetricsEvent ev;
-						m_queue.get_next_event(&ev);
-
+						const OsMetricsEvent& ev = event.metrics;
 						m_mouse->set_metrics(ev.width, ev.height);
 						break;
 					}
@@ -467,7 +460,7 @@ public:
 				}
 			}
 		}
-		while (type != 0);
+		while (event.type != OsEvent::NONE);
 
 		return false;
 	}
@@ -484,6 +477,9 @@ public:
 				uint32_t width = GET_X_LPARAM(lparam);
 				uint32_t height = GET_Y_LPARAM(lparam);
 				adjust(width, height, true);
+
+				m_queue.push_metrics_event(m_x, m_y, m_width, m_height);
+
 				break;
 			}
 			case WM_USER_TOGGLE_WINDOW_FRAME:
@@ -494,6 +490,9 @@ public:
 					m_old_height = m_height;
 				}
 				adjust(m_old_width, m_old_height, !m_frame);
+
+				m_queue.push_metrics_event(m_x, m_y, m_width, m_height);
+
 				break;
 			}
 			case WM_USER_MOUSE_LOCK:
@@ -512,7 +511,7 @@ public:
 
 				OsExitEvent event;
 				event.code = 0;
-				m_queue.push_event(OsEvent::EXIT, &event, sizeof(OsExitEvent));
+				m_queue.push_exit_event(0);
 
 				break;
 			}
@@ -569,6 +568,8 @@ public:
 				m_width = width;
 				m_height = height;
 
+				m_queue.push_metrics_event(m_x, m_y, m_width, m_height);
+
 				break;
 			}
 			case WM_SYSCOMMAND:
@@ -604,13 +605,8 @@ public:
 
 					set_mouse_pos(m_x, m_y);
 				}
-
-				OsMouseEvent event;
-				event.type = OsMouseEvent::MOVE;
-				event.x = mx;
-				event.y = my;
 				
-				m_queue.push_event(OsEvent::MOUSE, &event, sizeof(OsMouseEvent));
+				m_queue.push_mouse_event(m_x, m_y);
 
 				break;
 			}
@@ -619,15 +615,8 @@ public:
 			{
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
-
-				OsMouseEvent event;
-				event.type = OsMouseEvent::BUTTON;
-				event.button = MouseButton::LEFT;
-				event.x = mx;
-				event.y = my;
-				event.pressed = id == WM_LBUTTONDOWN ? true : false;
 				
-				m_queue.push_event(OsEvent::MOUSE, &event, sizeof(OsMouseEvent));
+				m_queue.push_mouse_event(mx, my, MouseButton::LEFT, id == WM_LBUTTONDOWN);
 
 				break;
 			}
@@ -637,14 +626,7 @@ public:
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
 
-				OsMouseEvent event;
-				event.type = OsMouseEvent::BUTTON;
-				event.button = MouseButton::RIGHT;
-				event.x = mx;
-				event.y = my;
-				event.pressed = id == WM_LBUTTONDOWN ? true : false;
-
-				m_queue.push_event(OsEvent::MOUSE, &event, sizeof(OsMouseEvent));
+				m_queue.push_mouse_event(mx, my, MouseButton::RIGHT, id == WM_RBUTTONDOWN);
 
 				break;
 			}
@@ -654,14 +636,7 @@ public:
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
 
-				OsMouseEvent event;
-				event.type = OsMouseEvent::BUTTON;
-				event.button = MouseButton::MIDDLE;
-				event.x = mx;
-				event.y = my;
-				event.pressed = id == WM_LBUTTONDOWN ? true : false;
-
-				m_queue.push_event(OsEvent::MOUSE, &event, sizeof(OsMouseEvent));
+				m_queue.push_mouse_event(mx, my, MouseButton::MIDDLE, id == WM_MBUTTONDOWN);
 
 				break;
 			}
@@ -687,13 +662,8 @@ public:
 					(id == WM_KEYDOWN || id == WM_SYSKEYDOWN) ? modifier_mask |= ModifierButton::ALT : modifier_mask &= ~ModifierButton::ALT;
 				}
 
-				OsKeyboardEvent event;
-				event.button = kb;
-				event.modifier = modifier_mask;
-				event.pressed = (id == WM_KEYDOWN || id == WM_SYSKEYDOWN);
-
-				m_queue.push_event(OsEvent::KEYBOARD, &event, sizeof(OsKeyboardEvent));
-				
+				m_queue.push_keyboard_event(modifier_mask, kb, id == WM_KEYDOWN || id == WM_SYSKEYDOWN);
+		
 				break;
 			}
 			default:
@@ -857,7 +827,7 @@ public:
 	int32_t m_compile;
 	int32_t m_continue;	
 
-	EventQueue m_queue;
+	OsEventQueue m_queue;
 };
 
 WindowsDevice* engine;

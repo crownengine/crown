@@ -74,9 +74,7 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
-	EventQueue.h
 	ConsoleServer.h
-	EventBuffer.h
 )
 
 set (CORE_SRC
@@ -292,6 +290,7 @@ set (OS_SRC
 
 set (OS_HEADERS
 	os/OS.h
+	os/OsEventQueue.h
 	os/NetAddress.h
 	os/OsTypes.h
 )
