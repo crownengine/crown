@@ -161,6 +161,8 @@ protected:
 	// Public subsystems
 	Filesystem*				m_filesystem;
 
+	OsWindow*				m_window;
+
 	Keyboard*				m_keyboard;
 	Mouse*					m_mouse;
 	Touch*					m_touch;

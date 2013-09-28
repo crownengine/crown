@@ -127,6 +127,9 @@ void Device::init()
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
 
+	// Create window
+	m_window = CE_NEW(m_allocator, OsWindow);
+
 	// Create input devices
 	m_keyboard = CE_NEW(m_allocator, Keyboard);
 	m_mouse = CE_NEW(m_allocator, Mouse);
@@ -250,6 +253,12 @@ ResourceManager* Device::resource_manager()
 LuaEnvironment* Device::lua_environment()
 {
 	return m_lua_environment;
+}
+
+//-----------------------------------------------------------------------------
+OsWindow* Device::window()
+{
+	return m_window;
 }
 
 //-----------------------------------------------------------------------------
