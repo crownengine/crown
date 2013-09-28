@@ -55,7 +55,7 @@ struct ArgsOption
 };
 
 /// Parses the command line arguments in a way very similar to GNU getopt.
-class Args
+class CE_EXPORT Args
 {
 public:
 
