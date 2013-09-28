@@ -60,7 +60,7 @@ namespace os
 //-----------------------------------------------------------------------------
 // Print and log functions
 //-----------------------------------------------------------------------------
-void			printf(const char* string, ...);				//!< Printf wrapper
+void CE_EXPORT	printf(const char* string, ...);				//!< Printf wrapper
 void			vprintf(const char* string, va_list arg);		//!< VPrintf wrapper
 
 void			log_debug(const char* string, va_list arg);		//!< Print debug message
@@ -71,8 +71,8 @@ void			log_info(const char* string, va_list arg);		//!< Print info message
 //-----------------------------------------------------------------------------
 // Paths
 //-----------------------------------------------------------------------------
-bool			is_root_path(const char* path);
-bool			is_absolute_path(const char* path);
+bool CE_EXPORT	is_root_path(const char* path);
+bool CE_EXPORT	is_absolute_path(const char* path);
 
 //-----------------------------------------------------------------------------
 // File management
