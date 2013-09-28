@@ -34,9 +34,9 @@ namespace crown
 static HWND g_handle_window;
 
 //-----------------------------------------------------------------------------
-void set_win_handle_window(HWND win)
+void glcontext_set_window(HWND handle)
 {
-	g_handle_window = win;
+	g_handle_window = handle;
 
 	CE_ASSERT(g_handle_window != 0, "Unable to set Windows handle");
 }

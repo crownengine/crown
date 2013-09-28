@@ -33,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-CE_EXPORT void set_win_handle_window(HWND win);
+CE_EXPORT void glcontext_set_window(HWND handle);
 
 class GLContext
 {
