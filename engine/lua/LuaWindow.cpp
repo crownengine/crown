@@ -24,8 +24,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Device.h"
 #include "OsWindow.h"
+#include "Device.h"
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
 
@@ -37,7 +37,7 @@ CE_EXPORT int window_show(lua_State* L)
 {
 	LuaStack stack(L);
 
-	// device()->window()->show();
+	device()->window()->show();
 
 	return 0;
 }
@@ -47,7 +47,7 @@ CE_EXPORT int window_hide(lua_State* L)
 {
 	LuaStack stack(L);
 
-	// device()->window()->hide();
+	device()->window()->hide();
 
 	return 0;
 }
@@ -57,15 +57,14 @@ CE_EXPORT int window_get_size(lua_State* L)
 {
 	LuaStack stack(L);
 
-	// uint32_t w, h;
+	uint32_t w, h;
 
-	// device()->window()->get_size(w, h);
+	device()->window()->get_size(w, h);
 
-	// stack.push_uint32(w);
-	// stack.push_uint32(h);
+	stack.push_uint32(w);
+	stack.push_uint32(h);
 
-	// return 2;
-	return 0;
+	return 2;
 }
 
 //-----------------------------------------------------------------------------
@@ -73,15 +72,14 @@ CE_EXPORT int window_get_position(lua_State* L)
 {
 	LuaStack stack(L);
 
-	// uint32_t x, y;
+	uint32_t x, y;
 
-	// device()->window()->get_position(x, y);
+	device()->window()->get_position(x, y);
 
-	// stack.push_uint32(x);
-	// stack.push_uint32(y);
+	stack.push_uint32(x);
+	stack.push_uint32(y);
 
-	// return 2;
-	return 0;
+	return 2;
 }
 
 //-----------------------------------------------------------------------------
@@ -89,10 +87,10 @@ CE_EXPORT int window_resize(lua_State* L)
 {
 	LuaStack stack(L);
 
-	// const int32_t w = stack.get_int(1);
-	// const int32_t h = stack.get_int(2);
+	const int32_t w = stack.get_int(1);
+	const int32_t h = stack.get_int(2);
 
-	// device()->window()->resize(w, h);
+	device()->window()->resize(w, h);
 
 	return 0;
 }
@@ -102,10 +100,10 @@ CE_EXPORT int window_move(lua_State* L)
 {
 	LuaStack stack(L);
 
-	// const int32_t x = stack.get_int(1);
-	// const int32_t y = stack.get_int(2);
+	const int32_t x = stack.get_int(1);
+	const int32_t y = stack.get_int(2);
 
-	// device()->window()->move(x, y);
+	device()->window()->move(x, y);
 
 	return 0;
 }
@@ -113,14 +111,14 @@ CE_EXPORT int window_move(lua_State* L)
 //-----------------------------------------------------------------------------
 CE_EXPORT int window_minimize(lua_State* /*L*/)
 {
-	// device()->window()->minimize();
+	device()->window()->minimize();
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
 CE_EXPORT int window_restore(lua_State* /*L*/)
 {
-	// device()->window()->restore();
+	device()->window()->restore();
 	return 0;
 }
 
@@ -129,7 +127,7 @@ CE_EXPORT int window_is_resizable(lua_State* L)
 {
 	LuaStack stack(L);
 
-	// stack.push_bool(device()->window()->is_resizable());
+	stack.push_bool(device()->window()->is_resizable());
 
 	return 1;
 }
@@ -139,46 +137,7 @@ CE_EXPORT int window_set_resizable(lua_State* L)
 {
 	LuaStack stack(L);
 
-	// device()->window()->set_resizable(stack.get_bool(1));
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int window_show_cursor(lua_State* L)
-{
-	LuaStack stack(L);
-
-	// device()->window()->show_cursor(stack.get_bool(1));
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int window_get_cursor_xy(lua_State* L)
-{
-	LuaStack stack(L);
-
-	// int32_t x, y;
-
-	// device()->window()->get_cursor_xy(x, y);
-
-	// stack.push_int32(x);
-	// stack.push_int32(y);
-
-	// return 2;
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int window_set_cursor_xy(lua_State* L)
-{
-	LuaStack stack(L);
-
-	// const int32_t x = stack.get_int(1);
-	// const int32_t y = stack.get_int(2);
-
-	// device()->window()->set_cursor_xy(x, y);
+	device()->window()->set_resizable(stack.get_bool(1));
 
 	return 0;
 }
@@ -188,13 +147,11 @@ CE_EXPORT int window_title(lua_State* L)
 {
 	LuaStack stack(L);
 
-	// const char* title = device()->window()->title();
+	const char* title = device()->window()->title();
 
-	// stack.push_string(title);
+	stack.push_string(title);
 
-	// return 1;
-
-	return 0;
+	return 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -202,9 +159,9 @@ CE_EXPORT int window_set_title(lua_State* L)
 {
 	LuaStack stack(L);
 
-	// const char* title = stack.get_string(1);
+	const char* title = stack.get_string(1);
 
-	// device()->window()->set_title(title);
+	device()->window()->set_title(title);
 
 	return 0;
 }
@@ -222,9 +179,6 @@ void load_window(LuaEnvironment& env)
 	env.load_module_function("Window", "restore",		window_restore);
 	env.load_module_function("Window", "is_resizable",	window_is_resizable);
 	env.load_module_function("Window", "set_resizable",	window_set_resizable);
-	env.load_module_function("Window", "show_cursor",	window_show_cursor);
-	env.load_module_function("Window", "get_cursor_xy",	window_get_cursor_xy);
-	env.load_module_function("Window", "set_cursor_xy",	window_set_cursor_xy);
 	env.load_module_function("Window", "title",			window_title);
 	env.load_module_function("Window", "set_title",		window_set_title);
 }
