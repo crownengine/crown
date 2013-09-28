@@ -24,19 +24,22 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#pragma once
+
+#include <windows.h>
+
 #include "Types.h"
 
 namespace crown
 {
 
+CE_EXPORT void oswindow_set_window(HWND handle_win);
+
 class OsWindow
 {
 public:
 
-	/// Creates the window with the given @a width and @a height.
-	/// When @a parent is != 0, it is interpreted as the OS-specific
-	/// handle of the parent window.
-					OsWindow(uint32_t width, uint32_t height, uint32_t parent);
+					OsWindow();
 					~OsWindow();
 
 	void			show();
@@ -54,15 +57,12 @@ public:
 	bool			is_resizable() const;
 	void			set_resizable(bool resizable);
 
-	void			show_cursor(bool show);
-
-	void			get_cursor_xy(int32_t& x, int32_t& y);
-	void			set_cursor_xy(int32_t x, int32_t y);
-
 	char*			title();
 	void			set_title(const char* title);
 
 private:
+
+	char 			m_title[32];
 
 	uint32_t		m_x;
 	uint32_t		m_y;

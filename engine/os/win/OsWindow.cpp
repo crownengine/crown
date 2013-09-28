@@ -24,18 +24,27 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "OsWindow.h"
+#include "StringUtils.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-OsWindow::OsWindow(uint32_t , uint32_t , uint32_t )
-	// m_x(0),
-	// m_y(0),
-	// m_width(width),
-	// m_height(height),
-	// m_resizable(true),
+HWND m_windows_window = 0;
+
+void oswindow_set_window(HWND handle_win)
 {
+	m_windows_window = handle_win;
+}
+
+//-----------------------------------------------------------------------------
+OsWindow::OsWindow() 
+	: m_x(0)
+	, m_y(0)
+	, m_width(0)
+	, m_height(0)
+	, m_resizable(true)
+{
+	set_title("");
 }
 
 //-----------------------------------------------------------------------------
@@ -46,11 +55,13 @@ OsWindow::~OsWindow()
 //-----------------------------------------------------------------------------
 void OsWindow::show()
 {
+	ShowWindow(m_windows_window, SW_SHOW);
 }
 
 //-----------------------------------------------------------------------------
 void OsWindow::hide()
 {
+	ShowWindow(m_windows_window, SW_HIDE);
 }
 
 //-----------------------------------------------------------------------------
@@ -68,23 +79,27 @@ void OsWindow::get_position(uint32_t& x, uint32_t& y)
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::resize(uint32_t , uint32_t )
+void OsWindow::resize(uint32_t width, uint32_t height)
 {
+	SetWindowPos(m_windows_window, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::move(uint32_t , uint32_t )
+void OsWindow::move(uint32_t x, uint32_t y)
 {
+	SetWindowPos(m_windows_window, NULL, x, y, 0, 0, SWP_NOMOVE | SWP_NOZORDER);
 }
 
 //-----------------------------------------------------------------------------
 void OsWindow::minimize()
 {
+	ShowWindow(m_windows_window, SW_MINIMIZE);
 }
 
 //-----------------------------------------------------------------------------
 void OsWindow::restore()
 {
+	ShowWindow(m_windows_window, SW_RESTORE);
 }
 
 //-----------------------------------------------------------------------------
@@ -94,34 +109,22 @@ bool OsWindow::is_resizable() const
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::set_resizable(bool )
+void OsWindow::set_resizable(bool resizable)
 {
-}
-
-//-----------------------------------------------------------------------------
-void OsWindow::show_cursor(bool )
-{
-}
-
-//-----------------------------------------------------------------------------
-void OsWindow::get_cursor_xy(int32_t& , int32_t& )
-{
-}
-
-//-----------------------------------------------------------------------------
-void OsWindow::set_cursor_xy(int32_t , int32_t )
-{
+	m_resizable = resizable;
 }
 
 //-----------------------------------------------------------------------------
 char* OsWindow::title()
 {
-	return NULL;
+	return m_title;
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::set_title(const char* )
+void OsWindow::set_title(const char* title)
 {
+	string::strncpy(m_title, title, 32);
+	SetWindowText(m_windows_window, m_title);	
 }
 
 } // namespace crown
