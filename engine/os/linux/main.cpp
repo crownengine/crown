@@ -28,14 +28,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
+#include "Config.h"
 #include "Crown.h"
 #include "Device.h"
 #include "OsTypes.h"
-#include "Config.h"
+#include "OsEventQueue.h"
 #include "BundleCompiler.h"
-#include "EventBuffer.h"
-#include "Semaphore.h"
-#include "EventQueue.h"
 
 namespace crown
 {
@@ -290,19 +288,18 @@ public:
 	//-----------------------------------------------------------------------------
 	bool process_events()
 	{
-		uint32_t type;
+		OsEvent event;
 		do
 		{
-			type = m_queue.event_type();
+			m_queue.pop_event(&event);
 
-			if (type != 0)
+			if (event.type != OsEvent::NONE)
 			{
-				switch (type)
+				switch (event.type)
 				{
 					case OsEvent::MOUSE:
 					{
-						OsMouseEvent ev;
-						m_queue.get_next_event(&ev);
+						const OsMouseEvent& ev = event.mouse;
 						switch (ev.type)
 						{
 							case OsMouseEvent::BUTTON: m_mouse->set_button_state(ev.x, ev.y, ev.button, ev.pressed); break;
@@ -314,15 +311,13 @@ public:
 					}
 					case OsEvent::KEYBOARD:
 					{
-						OsKeyboardEvent ev;
-						m_queue.get_next_event(&ev);
+						const OsKeyboardEvent& ev = event.keyboard;
 						m_keyboard->set_button_state(ev.button, ev.pressed);
 						break;
 					}
 					case OsEvent::METRICS:
 					{
-						OsMetricsEvent ev;
-						m_queue.get_next_event(&ev);
+						const OsMetricsEvent& ev = event.metrics;
 						m_mouse->set_metrics(ev.width, ev.height);
 						break;
 					}
@@ -338,7 +333,7 @@ public:
 				}
 			}
 		}
-		while (type != 0);
+		while (event.type != OsEvent::NONE);
 
 		return false;
 	}
@@ -357,9 +352,7 @@ public:
 				{
 					if ((Atom)event.xclient.data.l[0] == m_wm_delete_message)
 					{
-						OsExitEvent ev;
-						ev.code = 0;
-						m_queue.push_event(OsEvent::EXIT, &ev, sizeof(OsExitEvent));
+						m_queue.push_exit_event(0);
 					}
 					break;
 				}
@@ -370,21 +363,14 @@ public:
 					m_width = event.xconfigure.width;
 					m_height = event.xconfigure.height;
 
-					OsMetricsEvent ev;
-					ev.x = event.xconfigure.x;
-					ev.y = event.xconfigure.y;
-					ev.width = event.xconfigure.width;
-					ev.height = event.xconfigure.height;
-
-					m_queue.push_event(OsEvent::METRICS, &ev, sizeof(OsMetricsEvent));
+					m_queue.push_metrics_event(event.xconfigure.x, event.xconfigure.y,
+												event.xconfigure.width, event.xconfigure.height);
 
 					break;
 				}
 				case ButtonPress:
 				case ButtonRelease:
 				{
-					OsMouseEvent ev;
-
 					MouseButton::Enum mb;
 					switch (event.xbutton.button)
 					{
@@ -396,25 +382,14 @@ public:
 
 					if (mb != MouseButton::NONE)
 					{
-						ev.type = OsMouseEvent::BUTTON;
-						ev.button = mb;
-						ev.x = event.xbutton.x;
-						ev.y = event.xbutton.y;
-						ev.pressed = event.type == ButtonPress;
-						m_queue.push_event(OsEvent::MOUSE, &ev, sizeof(OsMouseEvent));
+						m_queue.push_mouse_event(event.xbutton.x, event.xbutton.y, mb, event.type == ButtonPress);
 					}
 
 					break;
 				}
 				case MotionNotify:
 				{
-					OsMouseEvent ev;
-					ev.type = OsMouseEvent::MOVE;
-					ev.x = event.xmotion.x;
-					ev.y = event.xmotion.y;
-
-					m_queue.push_event(OsEvent::MOUSE, &ev, sizeof(OsMouseEvent));
-
+					m_queue.push_mouse_event(event.xmotion.x, event.xmotion.y);
 					break;
 				}
 				case KeyPress:
@@ -443,13 +418,7 @@ public:
 						(event.type == KeyPress) ? modifier_mask |= ModifierButton::ALT : modifier_mask &= ~ModifierButton::ALT;
 					}
 
-					OsKeyboardEvent ev;
-
-					ev.button = kb;
-					ev.modifier = modifier_mask;
-					ev.pressed = event.type == KeyPress;
-
-					m_queue.push_event(OsEvent::KEYBOARD, &ev, sizeof(OsKeyboardEvent));
+					m_queue.push_keyboard_event(modifier_mask, kb, event.type == KeyPress);
 
 	//				// Text input part
 	//				if (event.type == KeyPress && len > 0)
@@ -621,7 +590,7 @@ private:
 	int32_t m_compile;
 	int32_t m_continue;
 
-	EventQueue m_queue;
+	OsEventQueue m_queue;
 };
 
 } // namespace crown
