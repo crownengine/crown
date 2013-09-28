@@ -431,15 +431,18 @@ if (WINDOWS)
 	list (APPEND OS_HEADERS
 		os/win/OsFile.h
 		os/win/OsThread.h
+		os/win/OsWindow.h
 		os/win/Mutex.h
 		os/win/Cond.h
 		os/win/Semaphore.h
+		os/win/AtomicInt.h
 		os/win/inttypes.h
 	)
 
 	list (APPEND OS_SRC
 		os/win/WinOS.cpp
 		os/win/OsFile.cpp
+		os/win/OsWindow.cpp
 	)
 
 	list (APPEND RENDERERS_SRC
