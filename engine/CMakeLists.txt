@@ -311,7 +311,7 @@ set (LUA_SRC
 	lua/LuaKeyboard.cpp
 	lua/LuaAccelerometer.cpp
 	lua/LuaDevice.cpp
-	#lua/LuaWindow.cpp
+	lua/LuaWindow.cpp
 	lua/LuaResourcePackage.cpp
 )
 
