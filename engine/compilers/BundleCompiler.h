@@ -37,7 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class BundleCompiler
+class CE_EXPORT BundleCompiler
 {
 public:
 

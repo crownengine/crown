@@ -49,7 +49,7 @@ struct MeshVertex
 	}
 };
 
-class MeshCompiler : public Compiler
+class CE_EXPORT MeshCompiler : public Compiler
 {
 public:
 
