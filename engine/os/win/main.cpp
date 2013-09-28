@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Crown.h"
 #include "OsTypes.h"
 #include "EventQueue.h"
+#include "GLContext.h"
 #include "BundleCompiler.h"
 
 #include "OS.h"
@@ -198,7 +199,6 @@ public:
 		wnd.cbSize = sizeof(wnd);
 		wnd.style = CS_HREDRAW | CS_VREDRAW;
 		wnd.lpfnWndProc = window_proc;
-		// wnd.lpfnWndProc = DefWindowProc;
 		wnd.hInstance = instance;
 		wnd.hIcon = LoadIcon(instance, IDI_APPLICATION);
 		wnd.hCursor = LoadCursor(instance, IDC_ARROW);
@@ -206,13 +206,36 @@ public:
 		wnd.hIconSm = LoadIcon(instance, IDI_APPLICATION);
 		RegisterClassExA(&wnd);
 
-		HWND hwnd = CreateWindowA("crown_letterbox", "CROWN", WS_POPUP|WS_SYSMENU, -32000, -32000, 0,
-									0, NULL, NULL, instance, 0);
+		HWND hwnd = CreateWindowA(
+						"crown_letterbox", 
+						"CrownUnknown",
+						WS_POPUP|WS_SYSMENU,
+						-32000,
+						-32000,
+						0,
+						0,
+						NULL,
+						NULL,
+						instance,
+						0
+					);
 
-		m_hwnd = CreateWindowA("crown", "CROWN", WS_OVERLAPPEDWINDOW|WS_VISIBLE, 0, 0, ENTRY_DEFAULT_WIDTH,
-								ENTRY_DEFAULT_HEIGHT, 0, NULL, instance, 0);
+		m_hwnd = CreateWindowA(
+					"crown",
+					"Crown",
+					WS_OVERLAPPEDWINDOW|WS_VISIBLE,
+					0,
+					0,
+					ENTRY_DEFAULT_WIDTH,
+					ENTRY_DEFAULT_HEIGHT,
+					0,
+					NULL,
+					instance,
+					0
+				);
 
-		set_win_handle_window(m_hwnd);
+		oswindow_set_window(m_hwnd);
+		glcontext_set_window(m_hwnd);
 
 		adjust(ENTRY_DEFAULT_WIDTH, ENTRY_DEFAULT_HEIGHT, true);
 		m_width = ENTRY_DEFAULT_WIDTH;
@@ -226,8 +249,6 @@ public:
 		OsThread thread("game-loop");
 		thread.start(WindowsDevice::main_loop, this);
 		m_started = true;
-
-//		m_eventQueue.postSizeEvent(m_width, m_height);
 
 		MSG msg;
 		msg.message = WM_NULL;
@@ -440,7 +461,7 @@ public:
 					}
 					default:
 					{
-						Log::d("Unmanaged. type: %d", type);
+						Log::d("Unmanaged");
 						break;
 					}
 				}
@@ -538,7 +559,6 @@ public:
 					break;
 				}
 
-				// m_eventQueue.postSizeEvent(m_width, m_height);
 				return 0;
 			}
 			case WM_SIZE:
@@ -548,22 +568,22 @@ public:
 
 				m_width = width;
 				m_height = height;
-				// m_eventQueue.postSizeEvent(m_width, m_height);
+
 				break;
 			}
 			case WM_SYSCOMMAND:
 			{
 				switch (wparam)
 				{
-				case SC_MINIMIZE:
-				case SC_RESTORE:
-				{
-					HWND parent = GetWindow(hwnd, GW_OWNER);
-					if (NULL != parent)
+					case SC_MINIMIZE:
+					case SC_RESTORE:
 					{
-						PostMessage(parent, id, wparam, lparam);
+						HWND parent = GetWindow(hwnd, GW_OWNER);
+						if (NULL != parent)
+						{
+							PostMessage(parent, id, wparam, lparam);
+						}
 					}
-				}
 				}
 				break;
 			}
@@ -812,6 +832,7 @@ private:
 public:
 
 	HWND m_hwnd;
+	HDC m_hdc;
 	RECT m_rect;
 	DWORD m_style;
 	uint32_t m_width;
