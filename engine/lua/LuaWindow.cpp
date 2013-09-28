@@ -24,204 +24,209 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-// #include "Device.h"
-// #include "OsWindow.h"
-// #include "LuaStack.h"
-// #include "LuaEnvironment.h"
+#include "Device.h"
+#include "OsWindow.h"
+#include "LuaStack.h"
+#include "LuaEnvironment.h"
 
-// namespace crown
-// {
+namespace crown
+{
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_show(lua_State* L)
-// {
-// 	LuaStack stack(L);
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_show(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	// device()->window()->show();
+	// device()->window()->show();
 
-// 	return 0;
-// }
+	return 0;
+}
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_hide(lua_State* L)
-// {
-// 	LuaStack stack(L);
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_hide(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	// device()->window()->hide();
+	// device()->window()->hide();
 
-// 	return 0;
-// }
+	return 0;
+}
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_get_size(lua_State* L)
-// {
-// 	LuaStack stack(L);
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_get_size(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	uint32_t w, h;
+	// uint32_t w, h;
 
-// /*	device()->window()->get_size(w, h);
+	// device()->window()->get_size(w, h);
 
-// 	stack.push_uint32(w);
-// 	stack.push_uint32(h);
-// */
-// 	return 2;
-// }
+	// stack.push_uint32(w);
+	// stack.push_uint32(h);
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_get_position(lua_State* L)
-// {
-// 	LuaStack stack(L);
+	// return 2;
+	return 0;
+}
 
-// /*	uint32_t x, y;
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_get_position(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	device()->window()->get_position(x, y);
+	// uint32_t x, y;
 
-// 	stack.push_uint32(x);
-// 	stack.push_uint32(y);*/
+	// device()->window()->get_position(x, y);
 
-// 	return 2;
-// }
+	// stack.push_uint32(x);
+	// stack.push_uint32(y);
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_resize(lua_State* L)
-// {
-// 	LuaStack stack(L);
+	// return 2;
+	return 0;
+}
 
-// 	const int32_t w = stack.get_int(1);
-// 	const int32_t h = stack.get_int(2);
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_resize(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	device()->window()->resize(w, h);
+	// const int32_t w = stack.get_int(1);
+	// const int32_t h = stack.get_int(2);
 
-// 	return 0;
-// }
+	// device()->window()->resize(w, h);
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_move(lua_State* L)
-// {
-// 	LuaStack stack(L);
+	return 0;
+}
 
-// 	const int32_t x = stack.get_int(1);
-// 	const int32_t y = stack.get_int(2);
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_move(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	device()->window()->move(x, y);
+	// const int32_t x = stack.get_int(1);
+	// const int32_t y = stack.get_int(2);
 
-// 	return 0;
-// }
+	// device()->window()->move(x, y);
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_minimize(lua_State* /*L*/)
-// {
-// 	device()->window()->minimize();
-// 	return 0;
-// }
+	return 0;
+}
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_restore(lua_State* /*L*/)
-// {
-// 	device()->window()->restore();
-// 	return 0;
-// }
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_minimize(lua_State* /*L*/)
+{
+	// device()->window()->minimize();
+	return 0;
+}
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_is_resizable(lua_State* L)
-// {
-// 	LuaStack stack(L);
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_restore(lua_State* /*L*/)
+{
+	// device()->window()->restore();
+	return 0;
+}
 
-// 	stack.push_bool(device()->window()->is_resizable());
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_is_resizable(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	return 1;
-// }
+	// stack.push_bool(device()->window()->is_resizable());
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_set_resizable(lua_State* L)
-// {
-// 	LuaStack stack(L);
+	return 1;
+}
 
-// 	device()->window()->set_resizable(stack.get_bool(1));
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_set_resizable(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	return 0;
-// }
+	// device()->window()->set_resizable(stack.get_bool(1));
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_show_cursor(lua_State* L)
-// {
-// 	LuaStack stack(L);
+	return 0;
+}
 
-// 	device()->window()->show_cursor(stack.get_bool(1));
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_show_cursor(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	return 0;
-// }
+	// device()->window()->show_cursor(stack.get_bool(1));
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_get_cursor_xy(lua_State* L)
-// {
-// 	LuaStack stack(L);
+	return 0;
+}
 
-// 	int32_t x, y;
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_get_cursor_xy(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	device()->window()->get_cursor_xy(x, y);
+	// int32_t x, y;
 
-// 	stack.push_int32(x);
-// 	stack.push_int32(y);
+	// device()->window()->get_cursor_xy(x, y);
 
-// 	return 2;
-// }
+	// stack.push_int32(x);
+	// stack.push_int32(y);
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_set_cursor_xy(lua_State* L)
-// {
-// 	LuaStack stack(L);
+	// return 2;
+	return 0;
+}
 
-// 	const int32_t x = stack.get_int(1);
-// 	const int32_t y = stack.get_int(2);
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_set_cursor_xy(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	device()->window()->set_cursor_xy(x, y);
+	// const int32_t x = stack.get_int(1);
+	// const int32_t y = stack.get_int(2);
 
-// 	return 0;
-// }
+	// device()->window()->set_cursor_xy(x, y);
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_title(lua_State* L)
-// {
-// 	LuaStack stack(L);
+	return 0;
+}
 
-// 	const char* title = device()->window()->title();
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_title(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	stack.push_string(title);
+	// const char* title = device()->window()->title();
 
-// 	return 1;
-// }
+	// stack.push_string(title);
 
-// //-----------------------------------------------------------------------------
-// CE_EXPORT int window_set_title(lua_State* L)
-// {
-// 	LuaStack stack(L);
+	// return 1;
 
-// 	const char* title = stack.get_string(1);
+	return 0;
+}
 
-// 	device()->window()->set_title(title);
+//-----------------------------------------------------------------------------
+CE_EXPORT int window_set_title(lua_State* L)
+{
+	LuaStack stack(L);
 
-// 	return 0;
-// }
+	// const char* title = stack.get_string(1);
 
-// //-----------------------------------------------------------------------------
-// void load_window(LuaEnvironment& env)
-// {
-// 	env.load_module_function("Window", "show",			window_show);
-// 	env.load_module_function("Window", "hide",			window_hide);
-// 	env.load_module_function("Window", "get_size",		window_get_size);
-// 	env.load_module_function("Window", "get_position",	window_get_position);
-// 	env.load_module_function("Window", "resize",		window_resize);
-// 	env.load_module_function("Window", "move",			window_move);
-// 	env.load_module_function("Window", "minimize",		window_minimize);
-// 	env.load_module_function("Window", "restore",		window_restore);
-// 	env.load_module_function("Window", "is_resizable",	window_is_resizable);
-// 	env.load_module_function("Window", "set_resizable",	window_set_resizable);
-// 	env.load_module_function("Window", "show_cursor",	window_show_cursor);
-// 	env.load_module_function("Window", "get_cursor_xy",	window_get_cursor_xy);
-// 	env.load_module_function("Window", "set_cursor_xy",	window_set_cursor_xy);
-// 	env.load_module_function("Window", "title",			window_title);
-// 	env.load_module_function("Window", "set_title",		window_set_title);
-// }
+	// device()->window()->set_title(title);
 
-// } // namespace crown
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+void load_window(LuaEnvironment& env)
+{
+	env.load_module_function("Window", "show",			window_show);
+	env.load_module_function("Window", "hide",			window_hide);
+	env.load_module_function("Window", "get_size",		window_get_size);
+	env.load_module_function("Window", "get_position",	window_get_position);
+	env.load_module_function("Window", "resize",		window_resize);
+	env.load_module_function("Window", "move",			window_move);
+	env.load_module_function("Window", "minimize",		window_minimize);
+	env.load_module_function("Window", "restore",		window_restore);
+	env.load_module_function("Window", "is_resizable",	window_is_resizable);
+	env.load_module_function("Window", "set_resizable",	window_set_resizable);
+	env.load_module_function("Window", "show_cursor",	window_show_cursor);
+	env.load_module_function("Window", "get_cursor_xy",	window_get_cursor_xy);
+	env.load_module_function("Window", "set_cursor_xy",	window_set_cursor_xy);
+	env.load_module_function("Window", "title",			window_title);
+	env.load_module_function("Window", "set_title",		window_set_title);
+}
+
+} // namespace crown
