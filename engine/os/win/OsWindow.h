@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -32,11 +33,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+CE_EXPORT void oswindow_set_window(HWND handle_win);
+
 class OsWindow
 {
 public:
 
-					OsWindow(uint32_t width, uint32_t height, uint32_t window);
+					OsWindow();
 					~OsWindow();
 
 	void			show();
@@ -48,31 +51,24 @@ public:
 	void			resize(uint32_t width, uint32_t height);
 	void			move(uint32_t x, uint32_t y);
 
-	void			show_cursor(bool show);
+	void			minimize();
+	void			restore();
 
-	void			get_cursor_xy(int32_t& x, int32_t& y);
-	void			set_cursor_xy(int32_t x, int32_t y);
-
-	void			set_fullscreen(bool fs);
-	bool			fullscreen();
+	bool			is_resizable() const;
+	void			set_resizable(bool resizable);
 
 	char*			title();
 	void			set_title(const char* title);
 
-	void			frame();
-
 private:
 
-	HWND			m_window_handle;
-	DEVMODE			m_screen_setting;
-
-	char 			m_window_name[32];
+	char 			m_title[32];
 
 	uint32_t		m_x;
 	uint32_t		m_y;
 	uint32_t		m_width;
 	uint32_t		m_height;
-	bool			m_fullscreen;
+	bool			m_resizable;
 };
 
 } // namespace crown

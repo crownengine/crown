@@ -43,7 +43,7 @@ enum LogLevel
 };
 
 /// Used to log messages.
-class Log
+class CE_EXPORT Log
 {
 
 public:

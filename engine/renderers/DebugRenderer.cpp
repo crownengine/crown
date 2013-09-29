@@ -71,11 +71,11 @@ void DebugRenderer::add_sphere(const Vec3& center, const float radius, const Col
 	// XZ plane
 	for (uint32_t deg = 0; deg < 360; deg += deg_step)
 	{
-		float rad0 = math::deg_to_rad(deg);
-		float rad1 = math::deg_to_rad(deg + deg_step);
+		float rad_0 = math::deg_to_rad(deg);
+		float rad_1 = math::deg_to_rad(deg + deg_step);
 
-		Vec3 start(math::cos(rad0) * radius, 0, -math::sin(rad0) * radius);
-		Vec3 end  (math::cos(rad1) * radius, 0, -math::sin(rad1) * radius);
+		Vec3 start(math::cos(rad_0) * radius, 0, -math::sin(rad_0) * radius);
+		Vec3 end  (math::cos(rad_1) * radius, 0, -math::sin(rad_1) * radius);
 
 		add_line(center + start, center + end, color, depth_write);
 	}
@@ -83,11 +83,11 @@ void DebugRenderer::add_sphere(const Vec3& center, const float radius, const Col
 	// XY plane
 	for (uint32_t deg = 0; deg < 360; deg += deg_step)
 	{
-		float rad0 = math::deg_to_rad(deg);
-		float rad1 = math::deg_to_rad(deg + deg_step);
+		float rad_0 = math::deg_to_rad(deg);
+		float rad_1 = math::deg_to_rad(deg + deg_step);
 
-		Vec3 start(math::cos(rad0) * radius, math::sin(rad0) * radius, 0);
-		Vec3 end  (math::cos(rad1) * radius, math::sin(rad1) * radius, 0);
+		Vec3 start(math::cos(rad_0) * radius, math::sin(rad_0) * radius, 0);
+		Vec3 end  (math::cos(rad_1) * radius, math::sin(rad_1) * radius, 0);
 
 		add_line(center + start, center + end, color, depth_write);
 	}
@@ -95,11 +95,11 @@ void DebugRenderer::add_sphere(const Vec3& center, const float radius, const Col
 	// YZ plane
 	for (uint32_t deg = 0; deg < 360; deg += deg_step)
 	{
-		float rad0 = math::deg_to_rad(deg);
-		float rad1 = math::deg_to_rad(deg + deg_step);
+		float rad_0 = math::deg_to_rad(deg);
+		float rad_1 = math::deg_to_rad(deg + deg_step);
 
-		Vec3 start(0, math::sin(rad0) * radius, -math::cos(rad0) * radius);
-		Vec3 end  (0, math::sin(rad1) * radius, -math::cos(rad1) * radius);
+		Vec3 start(0, math::sin(rad_0) * radius, -math::cos(rad_0) * radius);
+		Vec3 end  (0, math::sin(rad_1) * radius, -math::cos(rad_1) * radius);
 
 		add_line(center + start, center + end, color, depth_write);
 	}

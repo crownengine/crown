@@ -16,3 +16,11 @@ endif (WINDOWS)
 
 install (PROGRAMS luajit/bin/luajit.exe DESTINATION bin)
 install (DIRECTORY luajit/share/luajit-2.0.1/jit DESTINATION bin)
+
+if (WINDOWS)
+	install (FILES luajit/lib/lua51.dll DESTINATION test)
+	install (FILES luajit/lib/luajit-5.1.dll DESTINATION test)	
+endif (WINDOWS)
+
+install (PROGRAMS luajit/bin/luajit.exe DESTINATION test)
+install (DIRECTORY luajit/share/luajit-2.0.1/jit DESTINATION test)

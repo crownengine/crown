@@ -26,24 +26,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cstring>
+#include <windows.h>
+#include <process.h>
+#include <WinBase.h>
 
-#include "Assert.h"
 #include "Types.h"
+#include "OS.h"
 #include "Semaphore.h"
-#include "Log.h"
+#include "Assert.h"
 
 namespace crown
 {
 
 typedef int32_t (*ThreadFunction)(void*);
 
-class Thread
+class OsThread
 {
 public:
-
-						Thread(const char* name);
-						~Thread();
+						OsThread(const char* name);
+						~OsThread();
 
 	void				start(ThreadFunction func, void* data = NULL, size_t stack_size = 0);
 	void				stop();
@@ -54,40 +55,50 @@ private:
 
 	int32_t				run();
 
-	static void* 		thread_proc(void* arg);
+	static DWORD WINAPI	thread_proc(void* arg);
+
+	OsThread(const OsThread& t); // no copy constructor
+	OsThread& operator=(const OsThread& t); // no assignment operator	
 
 private:
 
-	const char* 		m_name;
+	const char*			m_name;
+	HANDLE				m_handle;
 
-	pthread_t			m_handle;
-	ThreadFunction 	m_function;
+	ThreadFunction 		m_function;
 	void*				m_data;
 	Semaphore			m_sem;
 	size_t 				m_stack_size;
 
 	bool				m_is_running :1;
+
+	DWORD				m_exit_code;
 };
 
 //-----------------------------------------------------------------------------
-inline Thread::Thread(const char* name) :
+CE_INLINE OsThread::OsThread(const char* name) :
 	m_name(name),
-	m_handle(0),
+	m_handle(INVALID_HANDLE_VALUE),
 	m_function(NULL),
 	m_data(NULL),
 	m_stack_size(0),
-	m_is_running(false)
+	m_is_running(false),
+	m_exit_code(0)
 {
-	memset(&m_handle, 0, sizeof(pthread_t));
+	memset(&m_handle, 0, sizeof(HANDLE));
 }
 
 //-----------------------------------------------------------------------------
-inline Thread::~Thread()
+CE_INLINE OsThread::~OsThread()
 {
+	if (m_is_running)
+	{
+		stop();
+	}
 }
 
 //-----------------------------------------------------------------------------
-inline void Thread::start(ThreadFunction func, void* data, size_t stack_size)
+CE_INLINE void OsThread::start(ThreadFunction func, void* data, size_t stack_size)
 {
 	CE_ASSERT(!m_is_running, "Thread is already running");
 	CE_ASSERT(func != NULL, "Function must be != NULL");
@@ -96,25 +107,9 @@ inline void Thread::start(ThreadFunction func, void* data, size_t stack_size)
 	m_data = data;
 	m_stack_size = stack_size;
 
-	pthread_attr_t attr;
-	int32_t result = pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	m_handle = CreateThread(NULL, stack_size, OsThread::thread_proc, this, 0, NULL);
 
-
-	CE_ASSERT(result == 0, "pthread_attr_init failed. errno: %d", result);
-
-	if (m_stack_size != 0)
-	{
-		result = pthread_attr_setstacksize(&attr, m_stack_size);
-		CE_ASSERT(result == 0, "pthread_attr_setstacksize failed. errno: %d", result);
-	}
-
-	result = pthread_create(&m_handle, &attr, thread_proc, this);
-	CE_ASSERT(result == 0, "pthread_create failed. errno: %d", result);
-
-	// Free attr memory
-	result = pthread_attr_destroy(&attr);
-	CE_ASSERT(result == 0, "pthread_attr_destroy failed. errno: %d", result);
+	CE_ASSERT(m_handle != NULL, "Failed to create the thread '%s'", m_name);
 
 	m_is_running = true;
 
@@ -122,39 +117,40 @@ inline void Thread::start(ThreadFunction func, void* data, size_t stack_size)
 }
 
 //-----------------------------------------------------------------------------
-inline void Thread::stop()
+CE_INLINE void OsThread::stop()
 {
 	CE_ASSERT(m_is_running, "Thread is not running");
-	
-	int32_t result = pthread_join(m_handle, NULL);
-	CE_ASSERT(result == 0, "Thread join failed. errno: %d", result);
+
+	WaitForSingleObject(m_handle, INFINITE);
+	GetExitCodeThread(m_handle, &m_exit_code);
+	CloseHandle(m_handle);
+	m_handle = INVALID_HANDLE_VALUE;
 
 	m_is_running = false;
-	m_handle = 0;
 }
 
 //-----------------------------------------------------------------------------
-inline bool Thread::is_running()
+CE_INLINE bool OsThread::is_running()
 {
 	return m_is_running;
 }
 
 //-----------------------------------------------------------------------------
-inline int32_t Thread::run()
+CE_INLINE int32_t OsThread::run()
 {
 	m_sem.post();
-	
+
 	return m_function(m_data);
 }
 
 //-----------------------------------------------------------------------------
-inline void* Thread::thread_proc(void* arg)
+CE_INLINE DWORD WINAPI OsThread::thread_proc(void* arg)
 {
-	static int32_t result = -1;
-	result = ((Thread*)arg)->run();
+	OsThread* thread = (OsThread*)arg;
 
-	return (void*)&result;
+	int32_t result = thread->run();
+	
+	return result;
 }
-
 
 } // namespace crown

@@ -24,21 +24,20 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "OS.h"
 #include <windows.h>
 #include <cstdio>
 #include <cstdarg>
 #include "StringUtils.h"
+
+#include "OS.h"
 
 namespace crown
 {
 namespace os
 {
 
-// FIXME: timespec does not exists in win
-// static timespec base_time;
-	LARGE_INTEGER frequency;
-	LARGE_INTEGER base_time;
+LARGE_INTEGER frequency;
+LARGE_INTEGER base_time;
 
 //-----------------------------------------------------------------------------
 void printf(const char* string, ...)

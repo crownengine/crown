@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class LuaCompiler : public Compiler
+class CE_EXPORT LuaCompiler : public Compiler
 {
 public:
 

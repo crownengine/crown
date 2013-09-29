@@ -41,7 +41,6 @@ class OsWindow;
 class Bundle;
 class Renderer;
 class DebugRenderer;
-class InputManager;
 class Keyboard;
 class Mouse;
 class Touch;
@@ -51,9 +50,6 @@ class SoundRenderer;
 class ConsoleServer;
 class BundleCompiler;
 class ResourcePackage;
-
-typedef void (*cb)(float);
-void nothing(float);
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -65,9 +61,7 @@ public:
 							Device();
 							~Device();
 
-	/// Initializes the engine allowing to pass command line
-	/// parameters to configure some parameters.
-	bool					init(int argc, char** argv);
+	void					init();
 
 	/// Shutdowns the engine freeing all the allocated resources
 	void					shutdown();
@@ -105,9 +99,10 @@ public:
 	/// Unpauses the engine
 	void					unpause();
 
+	virtual int32_t			run(int argc, char** argv) = 0;
+
 	/// Updates all the subsystems
-	void					frame(cb callback);
-	void					frame() { frame(nothing); }
+	void					frame();
 
 	/// Returns the resource package with the given @a package_name name.
 	ResourcePackage*		create_resource_package(const char* name);
@@ -124,7 +119,6 @@ public:
 
 	Filesystem*				filesystem();
 	ResourceManager*		resource_manager();
-	InputManager*			input_manager();
 	LuaEnvironment*			lua_environment();
 
 	OsWindow*				window();
@@ -142,29 +136,17 @@ public:
 	
 private:
 
-	void					init();
-	void					parse_command_line(int argc, char** argv);
-	void					check_preferred_settings();
 	void					read_engine_settings();
-	void					print_help_message();
 
-private:
+protected:
 
 	// Used to allocate all subsystems
 	LinearAllocator			m_allocator;
 
 	// Preferred settings
-	int32_t					m_preferred_window_width;
-	int32_t					m_preferred_window_height;
-	int32_t					m_preferred_window_fullscreen;
-	uint32_t				m_parent_window_handle;
 	char					m_source_dir[MAX_PATH_LENGTH];
 	char 					m_bundle_dir[MAX_PATH_LENGTH];
 	char 					m_boot_file[MAX_PATH_LENGTH];
-	int32_t					m_compile;
-	int32_t					m_continue;
-
-	int32_t					m_quit_after_init;
 
 	bool					m_is_init		: 1;
 	bool					m_is_running	: 1;
@@ -183,7 +165,11 @@ private:
 	Filesystem*				m_filesystem;
 
 	OsWindow*				m_window;
-	InputManager*			m_input_manager;
+
+	Keyboard*				m_keyboard;
+	Mouse*					m_mouse;
+	Touch*					m_touch;
+
 	LuaEnvironment*			m_lua_environment;
 	Renderer*				m_renderer;
 	DebugRenderer*			m_debug_renderer;
@@ -195,9 +181,6 @@ private:
 	ResourceManager*		m_resource_manager;
 	Bundle*					m_resource_bundle;
 
-	// Debug subsystems
-	ConsoleServer*			m_console_server;
-
 	bool 					m_renderer_init_request;
 
 private:
@@ -205,12 +188,10 @@ private:
 	// Disable copying
 	Device(const Device&);
 	Device& operator=(const Device&);
-
-	friend class MainThread;
 };
 
-CE_EXPORT void init();
-CE_EXPORT void shutdown();
 CE_EXPORT Device* device();
+
+CE_EXPORT void set_device(Device* device);
 
 } // namespace crown

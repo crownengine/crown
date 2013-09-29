@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexFormat.h"
 #include "StringUtils.h"
 #include "RenderContext.h"
-#include "Thread.h"
+#include "OsThread.h"
 #include "OS.h"
 
 namespace crown
@@ -95,7 +95,6 @@ public:
 			m_submit->m_commands.write(COMMAND_SHUTDOWN_RENDERER);
 			frame();
 
-			m_should_run = false;
 			m_thread.stop();		
 		}
 	}
@@ -314,6 +313,7 @@ public:
 				{
 					shutdown_impl();
 					m_is_initialized = false;
+					m_should_run = false;
 					break;
 				}
 				case COMMAND_CREATE_VERTEX_BUFFER:
@@ -653,8 +653,6 @@ public:
 		RenderContext* temp = m_submit;
 		m_submit = m_draw;
 		m_draw = temp;
-
-		m_main_wait.post();
 	}
 
 	inline void frame()
@@ -679,6 +677,8 @@ public:
 		{
 			render_impl();
 		}
+
+		m_main_wait.post();
 	}
 
 protected:
@@ -686,7 +686,7 @@ protected:
 	Allocator& m_allocator;
 	RendererImplementation* m_impl;
 
-	Thread m_thread;
+	OsThread m_thread;
 	Semaphore m_render_wait;
 	Semaphore m_main_wait;
 

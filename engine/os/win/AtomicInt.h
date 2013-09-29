@@ -27,48 +27,46 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Camera.h"
-#include "Vec2.h"
-#include "Mouse.h"
-#include "Keyboard.h"
-#include "Touch.h"
-#include "Accelerometer.h"
-#include "Renderer.h"
 
 namespace crown
 {
-/// TODO: set_view_by_cursor must be implemented through scripting
-class FPSSystem : public MouseListener, public KeyboardListener, public AccelerometerListener
+
+struct AtomicInt
 {
-public:
+	explicit AtomicInt(int32_t value)
+	{
+		m_value = value;
+	}
 
-					/// Constructor
-					FPSSystem(Camera* camera, float speed, float sensibility);
+	AtomicInt& operator+=(int32_t value)
+	{
+		InterlockedAdd(&m_value, value);
+		return *this;
+	}
 
-	void 			set_camera(Camera* camera);
-	Camera*			camera();
+	AtomicInt& operator++(void)
+	{
+		InterlockedIncrement(&m_value);
+	}
 
-	void			update(float dt);
-	void			set_view_by_cursor();	
+	AtomicInt& operator--(void)
+	{
+		InterlockedDecrement(&m_value);
+	}
 
-	virtual void 	key_pressed(const KeyboardEvent& event);
-	virtual void 	key_released(const KeyboardEvent& event);
-	virtual void 	accelerometer_changed(const AccelerometerEvent& event);
+	AtomicInt& operator=(int32_t value)
+	{
+		InterlockedExchange(&m_value, value);
+	}
+
+	operator int32_t()
+	{
+		return m_value;
+	}
 
 private:
 
-	Camera*			m_camera;
-
-	float			m_camera_speed;
-	float			m_camera_sensibility;
-
-	float 			m_angle_x;
-	float 			m_angle_y;
-
-	bool			m_up_pressed	: 1;
-	bool			m_right_pressed	: 1;
-	bool			m_down_pressed	: 1;
-	bool			m_left_pressed	: 1;
+	LONG m_value;
 };
 
 } // namespace crown

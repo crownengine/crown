@@ -24,67 +24,55 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Keyboard.h"
+#pragma once
+
+#include <windows.h>
+#include <limits.h>
+
 #include "Assert.h"
 
-namespace crown
+class Semaphore
 {
+public:
+
+	Semaphore();
+	~Semaphore();
+
+	void post(uint32_t count = 1) const;
+	void wait(int32_t msecs = -1) const;
+
+private:
+
+	Semaphore(const Semaphore& s); // no copy constructor
+	Semaphore& operator=(const Semaphore& s); // no assignment operator
+
+	HANDLE m_handle;
+};
 
 //-----------------------------------------------------------------------------
-Keyboard::Keyboard() :
-	m_modifier(0),
-	m_current_frame(0),
-	m_last_key(KC_NOKEY)
+inline Semaphore::Semaphore()
 {
-	for (uint32_t i = 0; i < MAX_KEYCODES; i++)
-	{
-		m_keys[i] = ~0;
-		m_state[i] = false;
-	}
+	m_handle = CreateSemaphore(NULL, 0, LONG_MAX, NULL);
+	CE_ASSERT(m_handle != NULL, "Unable to create semaphore!");
 }
 
 //-----------------------------------------------------------------------------
-bool Keyboard::modifier_pressed(ModifierKey modifier) const
+inline Semaphore::~Semaphore()
 {
-	return (m_modifier & modifier) == modifier;
+	CloseHandle(m_handle);
 }
 
 //-----------------------------------------------------------------------------
-bool Keyboard::key_pressed(KeyCode key) const
+inline void Semaphore::post(uint32_t count) const
 {
-	CE_ASSERT(key >= 0 && key < MAX_KEYCODES, "KeyCode out of range: %d", key);
-
-	return (m_state[key] == true) && (m_keys[key] == m_current_frame);
+	ReleaseSemaphore(m_handle, count, NULL);
 }
 
 //-----------------------------------------------------------------------------
-bool Keyboard::key_released(KeyCode key) const
+inline void Semaphore::wait(int32_t msecs) const
 {
-	CE_ASSERT(key >= 0 && key < MAX_KEYCODES, "KeyCode out of range: %d", key);
+	DWORD milliseconds = (0 > msecs) ? INFINITE : msecs;
+	DWORD result = WaitForSingleObject(m_handle, milliseconds);
 
-	return (m_state[key] == false) && (m_keys[key] == m_current_frame);
+	CE_ASSERT(result == WAIT_OBJECT_0, "Semaphore can not signal!");
 }
-
-//-----------------------------------------------------------------------------
-bool Keyboard::any_pressed() const
-{
-	return key_pressed(m_last_key);
-}
-
-//-----------------------------------------------------------------------------
-bool Keyboard::any_released() const
-{
-	return key_released(m_last_key);
-}
-
-//-----------------------------------------------------------------------------
-void Keyboard::update(uint64_t frame, KeyCode k, bool state)
-{
-	CE_ASSERT(k >= 0 && k < MAX_KEYCODES, "KeyCode out of range: %d", k);
-
-	m_last_key = k;
-	m_keys[k] = frame;
-	m_state[k] = state;
-}
-
-} // namespace crown
