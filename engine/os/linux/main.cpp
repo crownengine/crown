@@ -240,6 +240,7 @@ public:
 
 		XMapRaised(m_x11_display, m_x11_window);
 
+		oswindow_set_window(m_x11_display, m_x11_window);
 		set_x11_display_and_window(m_x11_display, m_x11_window);
 
 		OsThread game_thread("game-thread");

@@ -30,20 +30,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-OsWindow::OsWindow(uint32_t , uint32_t , uint32_t )
-	// m_x11_display(NULL),
-	// m_x11_window(None),
-	// m_x11_parent_window(None),
-	// m_x(0),
-	// m_y(0),
-	// m_width(width),
-	// m_height(height),
-	// m_resizable(true),
-	// m_x11_detectable_autorepeat(false),
-	// m_x11_hidden_cursor(None)
-{
+Display* m_x11_display = NULL;
+Window m_x11_window = None;
 
+void oswindow_set_window(Display* dpy, Window win)
+{
+	m_x11_display = dpy;
+	m_x11_window = win;	
+}
+
+//-----------------------------------------------------------------------------
+OsWindow::OsWindow()
+	: m_x(0)
+	, m_y(0)
+	, m_width(0)
+	, m_height(0)
+	, m_resizable(true)
+	, m_x11_detectable_autorepeat(false)
+{
+	set_title("");
 }
 
 //-----------------------------------------------------------------------------
@@ -54,13 +59,13 @@ OsWindow::~OsWindow()
 //-----------------------------------------------------------------------------
 void OsWindow::show()
 {
-	// XMapRaised(m_x11_display, m_x11_window);
+	XMapRaised(m_x11_display, m_x11_window);
 }
 
 //-----------------------------------------------------------------------------
 void OsWindow::hide()
 {
-	//XUnmapWindow(m_x11_display, m_x11_window);
+	XUnmapWindow(m_x11_display, m_x11_window);
 }
 
 //-----------------------------------------------------------------------------
@@ -78,27 +83,27 @@ void OsWindow::get_position(uint32_t& x, uint32_t& y)
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::resize(uint32_t , uint32_t )
+void OsWindow::resize(uint32_t width, uint32_t height)
 {
-	//XResizeWindow(m_x11_display, m_x11_window, width, height);
+	XResizeWindow(m_x11_display, m_x11_window, width, height);
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::move(uint32_t , uint32_t )
+void OsWindow::move(uint32_t x, uint32_t y)
 {
-	//XMoveWindow(m_x11_display, m_x11_window, x, y);
+	XMoveWindow(m_x11_display, m_x11_window, x, y);
 }
 
 //-----------------------------------------------------------------------------
 void OsWindow::minimize()
 {
-	//XIconifyWindow(m_x11_display, m_x11_window, DefaultScreen(m_x11_display));
+	XIconifyWindow(m_x11_display, m_x11_window, DefaultScreen(m_x11_display));
 }
 
 //-----------------------------------------------------------------------------
 void OsWindow::restore()
 {
-	//XMapRaised(m_x11_display, m_x11_window);
+	XMapRaised(m_x11_display, m_x11_window);
 }
 
 //-----------------------------------------------------------------------------
@@ -108,73 +113,38 @@ bool OsWindow::is_resizable() const
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::set_resizable(bool )
+void OsWindow::set_resizable(bool resizable)
 {
-	// XSizeHints hints;
-	// hints.flags = PMinSize | PMaxSize;
-	// hints.min_width = resizable ? 1 : m_width;
-	// hints.min_height = resizable ? 1 : m_height;
-	// hints.max_width = resizable ? 65535 : m_width;
-	// hints.max_height = resizable ? 65535 : m_height;
+	XSizeHints hints;
+	hints.flags = PMinSize | PMaxSize;
+	hints.min_width = resizable ? 1 : m_width;
+	hints.min_height = resizable ? 1 : m_height;
+	hints.max_width = resizable ? 65535 : m_width;
+	hints.max_height = resizable ? 65535 : m_height;
 
-	// XSetWMNormalHints(m_x11_display, m_x11_window, &hints);
+	XSetWMNormalHints(m_x11_display, m_x11_window, &hints);
 
-	// m_resizable = resizable;
-}
-
-//-----------------------------------------------------------------------------
-void OsWindow::show_cursor(bool )
-{
-	// if (show)
-	// {
-	// 	XDefineCursor(m_x11_display, m_x11_window, None);
-	// }
-	// else
-	// {
-	// 	XDefineCursor(m_x11_display, m_x11_window, m_x11_hidden_cursor);
-	// }
-}
-
-//-----------------------------------------------------------------------------
-void OsWindow::get_cursor_xy(int32_t& , int32_t& )
-{
-	// Window unused;
-	// int32_t pointer_x, pointer_y, dummy;
-	// uint32_t dummy2;
-
-	// XQueryPointer(m_x11_display, m_x11_window, &unused, &unused, &dummy, &dummy, &pointer_x, &pointer_y, &dummy2);
-
-	// x = pointer_x;
-	// y = pointer_y;
-}
-
-//-----------------------------------------------------------------------------
-void OsWindow::set_cursor_xy(int32_t , int32_t )
-{
-	// XWarpPointer(m_x11_display, None, m_x11_window, 0, 0, m_width, m_height, x, y);
-
-	// XFlush(m_x11_display);
+	m_resizable = resizable;
 }
 
 //-----------------------------------------------------------------------------
 char* OsWindow::title()
 {
-	// static char title[1024];
+	static char title[1024];
 
-	// char* tmp_title;
-	// XFetchName(m_x11_display, m_x11_window, &tmp_title);
+	char* tmp_title;
+	XFetchName(m_x11_display, m_x11_window, &tmp_title);
 
-	// string::strncpy(title, tmp_title, 1024);
-	// XFree(tmp_title);
+	string::strncpy(title, tmp_title, 1024);
+	XFree(tmp_title);
 
-	// return title;
-	return NULL;
+	return title;
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::set_title(const char* )
+void OsWindow::set_title(const char* title)
 {
-	// XStoreName(m_x11_display, m_x11_window, title);
+	XStoreName(m_x11_display, m_x11_window, title);
 }
 
 } // namespace crown

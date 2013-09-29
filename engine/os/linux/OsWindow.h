@@ -36,6 +36,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+void oswindow_set_window(Display* dpy, Window win);
+
+
 class OsWindow
 {
 public:
@@ -43,9 +46,9 @@ public:
 	/// Creates the window with the given @a width and @a height.
 	/// When @a parent is != 0, it is interpreted as the OS-specific
 	/// handle of the parent window.
-					OsWindow(uint32_t width, uint32_t height, uint32_t parent);
+					OsWindow();
 					~OsWindow();
-
+					
 	void			show();
 	void			hide();
 
@@ -70,8 +73,6 @@ public:
 	void			set_title(const char* title);
 
 private:
-
-
 
 	uint32_t		m_x;
 	uint32_t		m_y;
