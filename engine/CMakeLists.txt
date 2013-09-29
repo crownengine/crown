@@ -25,7 +25,8 @@ endif (CROWN_ARCH MATCHES "ARMv7")
 set (CROWN_THIRD_INCLUDES
 	${CROWN_THIRD}/luajit/include/luajit-2.0
 	${CROWN_THIRD}/glew-1.9.0/include
-	${CROWN_THIRD}/zlib/include	
+	${CROWN_THIRD}/zlib/include
+	${CROWN_THIRD}/oggvorbis/include
 )
 
 # architecture dependent libraries
@@ -33,6 +34,7 @@ set (CROWN_THIRD_LIBS
 	${CROWN_THIRD}/luajit/lib
 	${CROWN_THIRD}/glew-1.9.0/lib
 	${CROWN_THIRD}/zlib/lib
+	${CROWN_THIRD}/oggvorbis/lib
 )
 
 add_subdirectory(${CROWN_THIRD})
@@ -477,11 +479,22 @@ if (WINDOWS)
 		renderers/gl/wgl/wglext.h
 	)
 
+	list (APPEND AUDIO_SRC
+		audio/xaudio2/XAudio2Renderer.cpp
+	)
+
+	list (APPEND AUDIO_HEADERS
+		audio/xaudio2/XAudio2Renderer.h
+	)
+
 	list (APPEND CROWN_LIBRARIES
 		zlib
 		OpenGL32
 		glew32
 		lua51
+		libogg
+		libvorbis
+		libvorbisfile
 	)
 
 	set (COMPILER_FLAGS
