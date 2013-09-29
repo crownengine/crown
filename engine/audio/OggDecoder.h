@@ -246,7 +246,4 @@ private:
 	size_t					m_size;
 };
 
-
-
-
 } // namespace crown

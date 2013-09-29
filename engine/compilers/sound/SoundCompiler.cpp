@@ -27,12 +27,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <stdio.h>
 #include <limits.h>
 #include <errno.h>
-
-#include <ogg/ogg.h>
-#include <vorbis/codec.h>
-#include <vorbis/vorbisenc.h>
 #include <vorbis/vorbisfile.h>
 
+#include "Config.h"
 #include "SoundCompiler.h"
 #include "Allocator.h"
 #include "Filesystem.h"
@@ -44,9 +41,9 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-SoundCompiler::SoundCompiler() :
-	m_sound_data_size(0),
-	m_sound_data(NULL)
+SoundCompiler::SoundCompiler() 
+	: m_sound_data_size(0)
+	, m_sound_data(NULL)
 {
 }
 
@@ -135,8 +132,6 @@ size_t SoundCompiler::compile_if_ogg(Filesystem& fs, const char* resource_path)
 	fs.get_absolute_path(resource_path, s);
 	const char* abs_path = s.c_str();
 
-	Log::i("abs_path = %s", abs_path);
-
 	if ((tmp_file = fopen(abs_path, "rb")) == NULL)
 	{
 		printf("Unable to open file: '%s'\n", resource_path);
@@ -146,7 +141,7 @@ size_t SoundCompiler::compile_if_ogg(Filesystem& fs, const char* resource_path)
 
 	OggVorbis_File ogg_stream;
 
-	bool result = ov_open(tmp_file, &ogg_stream, NULL, 0) == 0;
+	bool result = ov_fopen(os::normalize_path(abs_path), &ogg_stream) == 0;
 
 	if (result == false)
 	{

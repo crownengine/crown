@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Compiler.h"
 #include "SoundResource.h"
-
+#include "Types.h"
 
 namespace crown
 {
@@ -54,7 +54,7 @@ struct WAVHeader
 };
 
 //-----------------------------------------------------------------------------
-class SoundCompiler : public Compiler
+class CE_EXPORT SoundCompiler : public Compiler
 {
 public:
 

@@ -492,7 +492,6 @@ if (WINDOWS)
 		OpenGL32
 		glew32
 		lua51
-		libogg
 		libvorbis
 		libvorbisfile
 	)
