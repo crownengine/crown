@@ -132,13 +132,6 @@ size_t SoundCompiler::compile_if_ogg(Filesystem& fs, const char* resource_path)
 	fs.get_absolute_path(resource_path, s);
 	const char* abs_path = s.c_str();
 
-	if ((tmp_file = fopen(abs_path, "rb")) == NULL)
-	{
-		printf("Unable to open file: '%s'\n", resource_path);
-		perror("Reason");
-		return 0;	
-	}
-
 	OggVorbis_File ogg_stream;
 
 	bool result = ov_fopen(os::normalize_path(abs_path), &ogg_stream) == 0;
