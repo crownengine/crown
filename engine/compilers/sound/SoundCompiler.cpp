@@ -125,8 +125,6 @@ size_t SoundCompiler::compile_if_wav(Filesystem& fs, const char* resource_path)
 //-----------------------------------------------------------------------------
 size_t SoundCompiler::compile_if_ogg(Filesystem& fs, const char* resource_path)
 {
-	FILE* tmp_file;
-
 	// Retrieves resource absolute path
 	DynamicString s(default_allocator());
 	fs.get_absolute_path(resource_path, s);
