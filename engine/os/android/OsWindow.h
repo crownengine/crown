@@ -38,7 +38,7 @@ class OsWindow
 public:
 
 	/// Stub method, does nothing under Android.
-					OsWindow(uint32_t width, uint32_t height, uint32_t parent);
+					OsWindow();
 					~OsWindow();
 
 	/// Stub method, does nothing under Android.

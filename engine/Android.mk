@@ -52,16 +52,8 @@ LOCAL_SRC_FILES :=\
 	core/Args.cpp\
 	core/Log.cpp\
 \
-	input/Accelerometer.cpp\
-	input/Keyboard.cpp\
-	input/Mouse.cpp\
-	input/Touch.cpp\
-	input/EventDispatcher.cpp\
-	input/InputManager.cpp\
-\
 	network/BitMessage.cpp\
 \
-	os/OS.cpp\
 	os/android/AndroidOS.cpp\
 	os/android/AndroidDevice.cpp\
 	os/android/OsWindow.cpp\
@@ -100,9 +92,7 @@ LOCAL_SRC_FILES :=\
 \
 	Camera.cpp\
 	Device.cpp\
-	FPSSystem.cpp\
 	ConsoleServer.cpp\
-	EventBuffer.cpp\
 \
 
 LOCAL_C_INCLUDES	:=\

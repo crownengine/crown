@@ -27,6 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "Mouse.h"
+#include "Keyboard.h"
 
 namespace crown
 {
