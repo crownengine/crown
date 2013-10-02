@@ -27,6 +27,7 @@ set (CROWN_THIRD_INCLUDES
 	${CROWN_THIRD}/glew-1.9.0/include
 	${CROWN_THIRD}/zlib/include
 	${CROWN_THIRD}/oggvorbis/include
+	${CROWN_THIRD}/openAL/include
 )
 
 # architecture dependent libraries
@@ -35,6 +36,7 @@ set (CROWN_THIRD_LIBS
 	${CROWN_THIRD}/glew-1.9.0/lib
 	${CROWN_THIRD}/zlib/lib
 	${CROWN_THIRD}/oggvorbis/lib
+	${CROWN_THIRD}/openAL/lib
 )
 
 add_subdirectory(${CROWN_THIRD})
@@ -480,11 +482,11 @@ if (WINDOWS)
 	)
 
 	list (APPEND AUDIO_SRC
-		audio/xaudio2/XAudio2Renderer.cpp
+		audio/al/ALRenderer.cpp
 	)
 
 	list (APPEND AUDIO_HEADERS
-		audio/xaudio2/XAudio2Renderer.h
+		audio/al/ALRenderer.h
 	)
 
 	list (APPEND CROWN_LIBRARIES
@@ -492,6 +494,7 @@ if (WINDOWS)
 		OpenGL32
 		glew32
 		lua51
+		OpenAL32
 		libvorbis
 		libvorbisfile
 	)
