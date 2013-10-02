@@ -98,9 +98,10 @@ public:
 	uint32_t  						m_bits;
 
 	bool 							m_created :1;
-	bool							m_playing  :1;
+	bool							m_playing :1;
 	bool							m_looping :1;
 	bool							m_streaming :1;
+	bool 							m_positional :1;
 
 	OggDecoder						m_decoder;
 };
@@ -132,10 +133,23 @@ inline void Sound::buffer_callback(SLAndroidSimpleBufferQueueItf caller, void* s
 }
 
 //-----------------------------------------------------------------------------
-inline Sound::Sound() : m_res(NULL), m_player_obj(NULL), m_player_play(NULL),
-						m_player_bufferqueue(NULL), m_player_volume(NULL), m_processed_buffers(0),
-						m_data(NULL), m_size(0), m_sample_rate(0), m_channels(0), m_bits(0),
-						m_created(false), m_playing(false),	m_looping(false), m_streaming(false)
+inline Sound::Sound()
+	: m_res(NULL)
+	, m_player_obj(NULL)
+	, m_player_play(NULL)
+	, m_player_bufferqueue(NULL)
+	, m_player_volume(NULL)
+	, m_processed_buffers(0)
+	, m_data(NULL)
+	, m_size(0)
+	, m_sample_rate(0)
+	, m_channels(0)
+	, m_bits(0)
+	, m_created(false)
+	, m_playing(false)
+	, m_looping(false)
+	, m_streaming(false)
+	, m_positional(false)
 {
 }
 
