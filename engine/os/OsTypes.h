@@ -27,48 +27,92 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Camera.h"
-#include "Vec2.h"
 #include "Mouse.h"
 #include "Keyboard.h"
-#include "Touch.h"
-#include "Accelerometer.h"
-#include "Renderer.h"
 
 namespace crown
 {
-/// TODO: set_view_by_cursor must be implemented through scripting
-class FPSSystem : public MouseListener, public KeyboardListener, public AccelerometerListener
+
+struct OsMetricsEvent
 {
-public:
+	uint16_t x;
+	uint16_t y;
+	uint16_t width;
+	uint16_t height;
+};
 
-					/// Constructor
-					FPSSystem(Camera* camera, float speed, float sensibility);
+struct OsExitEvent
+{
+	int32_t code;
+};
 
-	void 			set_camera(Camera* camera);
-	Camera*			camera();
+/// Represents an event fired by mouse.
+struct OsMouseEvent
+{
+	enum Enum
+	{
+		BUTTON,
+		MOVE
+	};
 
-	void			update(float dt);
-	void			set_view_by_cursor();	
+	OsMouseEvent::Enum type;
+	MouseButton::Enum button;
+	uint16_t x;
+	uint16_t y;
+	bool pressed;
+};
 
-	virtual void 	key_pressed(const KeyboardEvent& event);
-	virtual void 	key_released(const KeyboardEvent& event);
-	virtual void 	accelerometer_changed(const AccelerometerEvent& event);
+/// Represents an event fired by keyboard.
+struct OsKeyboardEvent
+{
+	KeyboardButton::Enum button;
+	uint32_t modifier;
+	bool pressed;
+};
 
-private:
+/// Represents an event fired by touch screen.
+struct OsTouchEvent
+{
+	uint8_t pointer_id;
+	uint16_t x;
+	uint16_t y;
+};
 
-	Camera*			m_camera;
+/// Represents an event fired by accelerometer.
+struct OsAccelerometerEvent
+{
+	float x;
+	float y;
+	float z;
+};
 
-	float			m_camera_speed;
-	float			m_camera_sensibility;
+struct OsEvent
+{
+	/// Represents an event fired by the OS
+	enum Enum
+	{
+		NONE			= 0,
 
-	float 			m_angle_x;
-	float 			m_angle_y;
+		KEYBOARD		= 1,
+		MOUSE			= 2,
+		TOUCH			= 3,
+		ACCELEROMETER	= 4,
 
-	bool			m_up_pressed	: 1;
-	bool			m_right_pressed	: 1;
-	bool			m_down_pressed	: 1;
-	bool			m_left_pressed	: 1;
+		METRICS,
+		// Exit from program
+		EXIT
+	};
+
+	OsEvent::Enum type;
+	union
+	{
+		OsMetricsEvent metrics;
+		OsExitEvent exit;
+		OsMouseEvent mouse;
+		OsKeyboardEvent keyboard;
+		OsTouchEvent touch;
+		OsAccelerometerEvent accelerometer;
+	};
 };
 
 } // namespace crown

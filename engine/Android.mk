@@ -52,14 +52,6 @@ LOCAL_SRC_FILES :=\
 	core/Args.cpp\
 	core/Log.cpp\
 \
-	input/Accelerometer.cpp\
-	input/Keyboard.cpp\
-	input/Mouse.cpp\
-	input/Touch.cpp\
-	input/EventDispatcher.cpp\
-	input/InputManager.cpp\
-\
-	os/OS.cpp\
 	os/android/AndroidOS.cpp\
 	os/android/AndroidDevice.cpp\
 	os/android/OsWindow.cpp\
@@ -99,8 +91,6 @@ LOCAL_SRC_FILES :=\
 \
 	Camera.cpp\
 	Device.cpp\
-	FPSSystem.cpp\
-	EventBuffer.cpp\
 \
 
 LOCAL_C_INCLUDES	:=\
@@ -136,4 +126,3 @@ LOCAL_STATIC_LIBRARIES := android_native_app_glue
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module,android/native_app_glue)
-

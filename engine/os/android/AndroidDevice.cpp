@@ -28,28 +28,44 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "Renderer.h"
 #include "Log.h"
+#include "Allocator.h"
 
 namespace crown
 {
 
+class AndroidDevice : public Device
+{
+public:
+
+	int32_t run(int, char**)
+	{
+		// Do nothing, the game loop is java-side
+	}
+};
+
+static AndroidDevice* g_engine;
+
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initCrown(JNIEnv* /*env*/, jobject /*obj*/)
 {
-	crown::init();
+	memory::init();
+	os::init_os();
+
+	g_engine = CE_NEW(default_allocator(), AndroidDevice);
+	set_device(g_engine);
 }
 
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownCrown(JNIEnv* /*env*/, jobject /*obj*/)
 {
-	crown::shutdown();
+	CE_DELETE(default_allocator(), g_engine);
+	memory::shutdown();
 }
 
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initDevice(JNIEnv* /*env*/, jobject /*obj*/)
 {
-	const char* argv[] = { "crown-android" };
-
-	device()->init(1, (char**)argv);
+	device()->init();
 }
 
 //-----------------------------------------------------------------------------

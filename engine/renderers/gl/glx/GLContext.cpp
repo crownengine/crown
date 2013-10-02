@@ -98,6 +98,7 @@ void GLContext::destroy_context()
 //-----------------------------------------------------------------------------
 void GLContext::swap_buffers()
 {
+	glXMakeCurrent(s_x11_display, s_x11_window, m_glx_context);
 	glXSwapBuffers(s_x11_display, s_x11_window);
 }
 

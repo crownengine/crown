@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "LinearAllocator.h"
 #include "StringStream.h"
+#include "Device.h"
 #include "RPCServer.h"
 
 namespace crown
@@ -111,14 +112,14 @@ void Log::i(const char* message, ...)
 }
 
 //-----------------------------------------------------------------------------
-void Log::flush(RPCServer* server)
+void Log::flush()
 {
 	os::printf(g_stream.c_str());
 	::fflush(stdout);
 
-	if (server != NULL)
+	if (device()->rpc() != NULL)
 	{
-		server->send_message_to_all(g_stream.c_str());
+		device()->rpc()->send_message_to_all(g_stream.c_str());
 	}
 
 	g_stream.clear();

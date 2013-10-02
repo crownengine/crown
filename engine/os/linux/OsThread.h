@@ -24,21 +24,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Accelerometer.h"
+#pragma once
 
-namespace crown
-{
-
-//-----------------------------------------------------------------------------
-Accelerometer::Accelerometer() :
-	m_orientation(0.0f, 0.0f, 0.0f)
-{
-}
-
-//-----------------------------------------------------------------------------
-const Vec3& Accelerometer::orientation() const
-{
-	return m_orientation;
-}
-
-} // namespace crown
+#include "../posix/OsThread.h"

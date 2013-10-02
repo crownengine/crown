@@ -54,4 +54,27 @@ private:
 	CONDITION_VARIABLE	m_cond;
 };
 
+//-----------------------------------------------------------------------------
+inline Cond::Cond()
+{
+	InitializeConditionVariable(&m_cond);
+}
+
+//-----------------------------------------------------------------------------
+inline Cond::~Cond()
+{
+}
+
+//-----------------------------------------------------------------------------
+inline void Cond::signal()
+{
+	WakeConditionVariable(&m_cond);
+}
+
+//-----------------------------------------------------------------------------
+inline void Cond::wait(Mutex& mutex)
+{
+	SleepConditionVariableCS(&m_cond, &mutex.m_cs, INFINITE);
+}
+
 } // namespace crown

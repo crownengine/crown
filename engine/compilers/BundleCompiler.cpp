@@ -45,34 +45,44 @@ BundleCompiler::BundleCompiler()
 }
 
 //-----------------------------------------------------------------------------
-bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
+bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, const char* resource)
 {
 	Vector<DynamicString> files(default_allocator());
-	BundleCompiler::scan(source_dir, "", files);
 
-	// Create bundle dir if does not exist
-	DiskFilesystem temp;
-	if (!temp.is_directory(bundle_dir) || !temp.is_file(bundle_dir))
+	if (resource == NULL)
 	{
-		temp.create_directory(bundle_dir);
-	}
+		BundleCompiler::scan(source_dir, "", files);
 
-	// Copy crown.config to bundle dir
-	DiskFilesystem src_fs(source_dir);
-	DiskFilesystem dst_fs(bundle_dir);
+		// Create bundle dir if does not exist
+		DiskFilesystem temp;
+		if (!temp.is_directory(bundle_dir) || !temp.is_file(bundle_dir))
+		{
+			temp.create_directory(bundle_dir);
+		}
 
-	if (src_fs.is_file("crown.config"))
-	{
-		File* src = src_fs.open("crown.config", FOM_READ);
-		File* dst = dst_fs.open("crown.config", FOM_WRITE);
-		src->copy_to(*dst, src->size());
-		src_fs.close(src);
-		dst_fs.close(dst);
+		// Copy crown.config to bundle dir
+		DiskFilesystem src_fs(source_dir);
+		DiskFilesystem dst_fs(bundle_dir);
+
+		if (src_fs.is_file("crown.config"))
+		{
+			File* src = src_fs.open("crown.config", FOM_READ);
+			File* dst = dst_fs.open("crown.config", FOM_WRITE);
+			src->copy_to(*dst, src->size());
+			src_fs.close(src);
+			dst_fs.close(dst);
+		}
+		else
+		{
+			Log::d("'crown.config' does not exist.");
+			return false;
+		}
 	}
 	else
 	{
-		Log::d("'crown.config' does not exist.");
-		return false;
+		DynamicString filename(default_allocator());
+		filename = resource;
+		files.push_back(filename);
 	}
 
 	// Compile all resources
@@ -96,6 +106,7 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir)
 		}
 
 		Log::i("%s <= %s", out_name, filename);
+		Log::flush();
 
 		bool result = false;
 		if (resource_type_hash == MESH_TYPE)

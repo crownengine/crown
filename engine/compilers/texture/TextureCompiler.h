@@ -47,7 +47,7 @@ struct TGAHeader
 	char		image_descriptor;	// 11h  Image descriptor byte
 };
 
-class TextureCompiler : public Compiler
+class CE_EXPORT TextureCompiler : public Compiler
 {
 public:
 

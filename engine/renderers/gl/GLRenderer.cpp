@@ -167,7 +167,7 @@ public:
 	{
 		m_gl_context.create_context();
 
-		#if defined(LINUX) || defined(WINDOW)
+		#if defined(LINUX) || defined(WINDOWS)
 			GLenum err = glewInit();
 			CE_ASSERT(err == GLEW_OK, "Failed to initialize GLEW");
 		#endif

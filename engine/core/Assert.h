@@ -35,9 +35,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#define CE_ASSERT(condition, ...) do { if (!(condition)) {\
 		crown::Log::e("Assertion failed: %s", #condition);\
 		crown::Log::e("\t" __VA_ARGS__);\
-		crown::Log::e("\n\tIn %s:%d\n\n", __FILE__, __LINE__); abort();} } while (0)
+		crown::Log::e("\n\tIn %s:%d\n\n", __FILE__, __LINE__);\
+		crown::Log::flush(); abort();} } while (0)
 #else
 	#define CE_ASSERT(...) ((void)0)
 #endif
 
 #define CE_ASSERT_NOT_NULL(x) CE_ASSERT(x != NULL, "Parameter must be not null")
+#define CE_FATAL(msg) CE_ASSERT(false, msg)

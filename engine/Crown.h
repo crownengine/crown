@@ -104,8 +104,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 
 // Engine/Input
-#include "EventDispatcher.h"
-#include "InputManager.h"
 #include "Keyboard.h"
 #include "KeyCode.h"
 #include "Mouse.h"
@@ -116,7 +114,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaEnvironment.h"
 
 // Engine/Os
-#include "Thread.h"
+#include "OsThread.h"
 #include "Mutex.h"
 #include "Cond.h"
 #include "OsFile.h"

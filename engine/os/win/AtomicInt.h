@@ -24,16 +24,49 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "OS.h"
+#pragma once
+
+#include "Types.h"
 
 namespace crown
 {
 
-EventBuffer g_os_event_buffer;
-
-EventBuffer* os_event_buffer()
+struct AtomicInt
 {
-	return &g_os_event_buffer;
-}
+	explicit AtomicInt(int32_t value)
+	{
+		m_value = value;
+	}
+
+	AtomicInt& operator+=(int32_t value)
+	{
+		InterlockedAdd(&m_value, value);
+		return *this;
+	}
+
+	AtomicInt& operator++(void)
+	{
+		InterlockedIncrement(&m_value);
+	}
+
+	AtomicInt& operator--(void)
+	{
+		InterlockedDecrement(&m_value);
+	}
+
+	AtomicInt& operator=(int32_t value)
+	{
+		InterlockedExchange(&m_value, value);
+	}
+
+	operator int32_t()
+	{
+		return m_value;
+	}
+
+private:
+
+	LONG m_value;
+};
 
 } // namespace crown

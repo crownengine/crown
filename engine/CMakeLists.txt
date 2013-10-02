@@ -67,8 +67,6 @@ set (CROWN_INCLUDES
 set (SRC
 	Camera.cpp
 	Device.cpp
-	EventBuffer.cpp
-	FPSSystem.cpp
 )
 
 set (HEADERS
@@ -76,8 +74,6 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
-	EventBuffer.h
-	FPSSystem.h
 )
 
 set (CORE_SRC
@@ -228,17 +224,9 @@ set (SETTINGS_HEADERS
 )
 
 set (INPUT_SRC
-	input/EventDispatcher.cpp
-	input/InputManager.cpp
-	input/Keyboard.cpp
-	input/Mouse.cpp
-	input/Touch.cpp
-	input/Accelerometer.cpp
 )
 
 set (INPUT_HEADERS
-	input/EventDispatcher.h
-	input/InputManager.h
 	input/Keyboard.h
 	input/KeyCode.h
 	input/Mouse.h
@@ -307,13 +295,13 @@ set (RPC_HEADERS
 )
 
 set (OS_SRC
-	os/OS.cpp
 )
 
 set (OS_HEADERS
 	os/OS.h
+	os/OsEventQueue.h
 	os/NetAddress.h
-	os/OsEvents.h
+	os/OsTypes.h
 )
 
 set (LUA_SRC
@@ -369,10 +357,8 @@ if (LINUX)
 
 	list (APPEND OS_HEADERS
 		os/linux/OsWindow.h
-		os/linux/TCPSocket.h
-		os/linux/UDPSocket.h
 		os/linux/OsFile.h
-		os/linux/Thread.h
+		os/linux/OsThread.h
 		os/linux/Mutex.h
 		os/linux/Cond.h
 		os/posix/Semaphore.h
@@ -447,21 +433,20 @@ if (WINDOWS)
 	)
 
 	list (APPEND OS_HEADERS
-		os/win/OsWindow.h
 		os/win/OsFile.h
-		os/win/Thread.h
+		os/win/OsThread.h
+		os/win/OsWindow.h
 		os/win/Mutex.h
 		os/win/Cond.h
+		os/win/Semaphore.h
+		os/win/AtomicInt.h
 		os/win/inttypes.h
 	)
 
 	list (APPEND OS_SRC
 		os/win/WinOS.cpp
-		os/win/OsWindow.cpp
 		os/win/OsFile.cpp
-		os/win/Thread.cpp
-		os/win/Mutex.cpp
-		os/win/Cond.cpp
+		os/win/OsWindow.cpp
 	)
 
 	list (APPEND RENDERERS_SRC
@@ -472,6 +457,7 @@ if (WINDOWS)
 	list (APPEND RENDERERS_HEADERS
 		renderers/gl/GLRenderer.h
 		renderers/gl/wgl/GLContext.h
+		renderers/gl/wgl/wglext.h
 	)
 
 	list (APPEND CROWN_LIBRARIES
@@ -482,7 +468,6 @@ if (WINDOWS)
 	)
 
 	set (COMPILER_FLAGS
-		/Wall
 	)
 
 	set (CROWN_MAIN_SRC os/win/main.cpp)
@@ -544,16 +529,15 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
 
-add_executable(crown-linux-renderer-evo os/linux/main2.cpp)
-target_link_libraries(crown-linux-renderer-evo crown)
-
 if (CROWN_BUILD_TESTS)
-	#add_subdirectory(tests)
+	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
+
 
 install (TARGETS crown DESTINATION bin)
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
-install (TARGETS crown-linux-renderer-evo DESTINATION bin)
+
+install (TARGETS crown DESTINATION test)
 
 #install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 

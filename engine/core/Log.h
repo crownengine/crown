@@ -45,7 +45,7 @@ enum LogLevel
 class RPCServer;
 
 /// Used to log messages.
-class Log
+class CE_EXPORT Log
 {
 
 public:
@@ -63,7 +63,7 @@ public:
 	static void			w(const char* message, ...);
 	static void			i(const char* message, ...);
 
-	static void			flush(RPCServer* server);
+	static void			flush();
 
 private:
 

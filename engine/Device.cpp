@@ -34,7 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "DebugRenderer.h"
 #include "DiskFile.h"
 #include "DiskFilesystem.h"
-#include "InputManager.h"
 #include "JSONParser.h"
 #include "Keyboard.h"
 #include "Log.h"
@@ -53,7 +52,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Bundle.h"
 #include "TempAllocator.h"
 #include "ResourcePackage.h"
-#include "EventBuffer.h"
 #include "RPCServer.h"
 
 #if defined(LINUX) || defined(WINDOWS)
@@ -68,45 +66,32 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-
 //-----------------------------------------------------------------------------
-Device::Device() : 
-	m_allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP),
+Device::Device()
+	: m_allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
+	, m_is_init(false)
+	, m_is_running(false)
+	, m_is_paused(false)
+	, m_is_really_paused(false)
 
-	m_preferred_window_width(1000),
-	m_preferred_window_height(625),
-	m_preferred_window_fullscreen(0),
-	m_parent_window_handle(0),
-	m_compile(0),
-	m_continue(0),
-	m_wait(0),
+	, m_frame_count(0)
 
-	m_quit_after_init(0),
+	, m_last_time(0)
+	, m_current_time(0)
+	, m_last_delta_time(0.0f)
+	, m_time_since_start(0.0)
 
-	m_is_init(false),
-	m_is_running(false),
-	m_is_paused(false),
-	m_is_really_paused(false),
+	, m_filesystem(NULL)
+	, m_lua_environment(NULL)
+	, m_renderer(NULL)
+	, m_debug_renderer(NULL)
 
-	m_frame_count(0),
+	, m_bundle_compiler(NULL)
+	, m_rpc(NULL)
+	, m_resource_manager(NULL)
+	, m_resource_bundle(NULL)
 
-	m_last_time(0),
-	m_current_time(0),
-	m_last_delta_time(0.0f),
-	m_time_since_start(0.0),
-
-	m_filesystem(NULL),
-	m_input_manager(NULL),
-	m_lua_environment(NULL),
-	m_renderer(NULL),
-	m_debug_renderer(NULL),
-
-	m_bundle_compiler(NULL),
-	m_rpc(NULL),
-	m_resource_manager(NULL),
-	m_resource_bundle(NULL),
-
-	m_renderer_init_request(false)
+	, m_renderer_init_request(false)
 {
 	// Bundle dir is current dir by default.
 	string::strncpy(m_bundle_dir, os::get_cwd(), MAX_PATH_LENGTH);
@@ -120,12 +105,10 @@ Device::~Device()
 }
 
 //-----------------------------------------------------------------------------
-bool Device::init(int argc, char** argv)
+void Device::init()
 {
-	CE_ASSERT(!is_init(), "Engine already initialized");
-
-	parse_command_line(argc, argv);
-	check_preferred_settings();
+	// Initialize
+	Log::i("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
 	// RPC only in debug or development builds
 	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
@@ -134,41 +117,8 @@ bool Device::init(int argc, char** argv)
 		m_rpc->add_handler(&m_script_handler);
 		m_rpc->add_handler(&m_stats_handler);
 		m_rpc->add_handler(&m_ping_handler);
-		m_rpc->init((bool) m_wait);
+		m_rpc->init(false);
 	#endif
-
-	// Resource compilation only in debug or development mode and only on linux or windows builds
-	#if (defined(LINUX) || defined(WINDOWS)) && (defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT))
-		if (m_compile == 1)
-		{
-			m_bundle_compiler = CE_NEW(m_allocator, BundleCompiler);
-			if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir))
-			{
-				CE_DELETE(m_allocator, m_bundle_compiler);
-				m_allocator.clear();
-				Log::e("Exiting.");
-				exit(EXIT_FAILURE);
-			}
-
-			if (!m_continue)
-			{
-				CE_DELETE(m_allocator, m_bundle_compiler);
-				m_allocator.clear();
-				exit(EXIT_SUCCESS);
-			}
-		}
-	#endif
-
-	init();
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-void Device::init()
-{
-	// Initialize
-	Log::i("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
 	// Default bundle filesystem
 	#if defined (LINUX) || defined(WINDOWS)
@@ -183,39 +133,22 @@ void Device::init()
 
 	m_resource_bundle = Bundle::create(m_allocator, *m_filesystem);
 
-	// // Read resource seed
-	// DiskFile* seed_file = (DiskFile*)filesystem()->open(g_default_mountpoint.value(), "seed.ini", FOM_READ);
-	// TextReader reader(*seed_file);
-
-	// char tmp_buf[32];
-	// reader.read_string(tmp_buf, 32);
-
-	// filesystem()->close(seed_file);
-
-	// uint32_t seed = string::parse_uint(tmp_buf);
-
 	// Create resource manager
 	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, 0);
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
 
-	// Create input manager
-	m_input_manager = CE_NEW(m_allocator, InputManager)();
-	Log::d("Input manager created.");
+	// Create window
+	m_window = CE_NEW(m_allocator, OsWindow);
 
-	// default_allocator, maybe it needs fix
-	m_window = CE_NEW(m_allocator, OsWindow)(m_preferred_window_width, m_preferred_window_height, m_parent_window_handle);
-
-	CE_ASSERT(m_window != NULL, "Unable to create the window");
-
-	// Create main window
-	m_window->set_title("Crown Game Engine");
-	Log::d("Window created.");
+	// Create input devices
+	m_keyboard = CE_NEW(m_allocator, Keyboard);
+	m_mouse = CE_NEW(m_allocator, Mouse);
+	m_touch = CE_NEW(m_allocator, Touch);
 
 	// Create renderer
 	m_renderer = CE_NEW(m_allocator, Renderer)(m_allocator);
 	m_renderer->init();
-	m_renderer_init_request = false;
 	Log::d("Renderer created.");
 
 	// Create debug renderer
@@ -232,9 +165,6 @@ void Device::init()
 	m_is_init = true;
 	start();
 
-	// Show main window
-	m_window->show();
-
 	// Execute lua boot file
 	if (m_lua_environment->load_and_execute(m_boot_file))
 	{
@@ -249,12 +179,6 @@ void Device::init()
 	}
 
 	Log::d("Total allocated size: %llu", m_allocator.allocated_size());
-
-	if (m_quit_after_init == 1)
-	{
-		stop();
-		shutdown();
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -273,11 +197,10 @@ void Device::shutdown()
 		CE_DELETE(m_allocator, m_lua_environment);
 	}
 
-	Log::i("Releasing InputManager...");
-	if (m_input_manager)
-	{
-		CE_DELETE(m_allocator, m_input_manager);
-	}
+	Log::i("Releasing Input Devices...");
+	CE_DELETE(m_allocator, m_touch);
+	CE_DELETE(m_allocator, m_mouse);
+	CE_DELETE(m_allocator, m_keyboard);
 
 	Log::i("Releasing DebugRenderer...");
 	if (m_debug_renderer)
@@ -290,12 +213,6 @@ void Device::shutdown()
 	{
 		m_renderer->shutdown();
 		CE_DELETE(m_allocator, m_renderer);
-	}
-
-	Log::i("Releasing Window...");
-	if (m_window)
-	{
-		CE_DELETE(m_allocator, m_window);
 	}
 
 	Log::i("Releasing ResourceManager...");
@@ -315,23 +232,14 @@ void Device::shutdown()
 		CE_DELETE(m_allocator, m_filesystem);
 	}
 
-	#if (defined(LINUX) || defined(WINDOWS)) && (defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT))
-		Log::i("Releasing BundleCompiler...");
-		if (m_bundle_compiler)
-		{
-			CE_DELETE(m_allocator, m_bundle_compiler);
-		}
-	#endif
-
 	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-		Log::flush(m_rpc);
+		Log::flush();
 		m_rpc->execute_callbacks();
 		m_rpc->shutdown();
 		CE_DELETE(m_allocator, m_rpc);
 	#endif
 
 	m_allocator.clear();
-
 	m_is_init = false;
 }
 
@@ -357,12 +265,6 @@ Filesystem* Device::filesystem()
 ResourceManager* Device::resource_manager()
 {
 	return m_resource_manager;
-}
-
-//-----------------------------------------------------------------------------
-InputManager* Device::input_manager()
-{
-	return m_input_manager;
 }
 
 //-----------------------------------------------------------------------------
@@ -392,25 +294,25 @@ DebugRenderer* Device::debug_renderer()
 //-----------------------------------------------------------------------------
 Keyboard* Device::keyboard()
 {
-	return m_input_manager->keyboard();
+	return m_keyboard;
 }
 
 //-----------------------------------------------------------------------------
 Mouse* Device::mouse()
 {
-	return m_input_manager->mouse();
+	return m_mouse;
 }
 
 //-----------------------------------------------------------------------------
 Touch* Device::touch()
 {
-	return m_input_manager->touch();
+	return m_touch;
 }
 
 //-----------------------------------------------------------------------------
 Accelerometer* Device::accelerometer()
 {
-	return m_input_manager->accelerometer();
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -434,17 +336,12 @@ void Device::stop()
 void Device::pause()
 {
 	m_is_paused = true;
-
-	Log::d("Engine paused");
 }
 
 //-----------------------------------------------------------------------------
 void Device::unpause()
 {
 	m_is_paused = false;
-	m_is_really_paused = false;
-
-	Log::d("Engine unpaused");
 }
 
 //-----------------------------------------------------------------------------
@@ -472,7 +369,7 @@ double Device::time_since_start() const
 }
 
 //-----------------------------------------------------------------------------
-void Device::frame(cb callback)
+void Device::frame()
 {
 	m_current_time = os::microseconds();
 	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
@@ -485,22 +382,19 @@ void Device::frame(cb callback)
 	{
 		m_resource_manager->poll_resource_loader();
 
-		m_window->frame();
-		m_input_manager->frame(frame_count());
+		m_renderer->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
+		m_renderer->commit(0);
 
 		if (!m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time()))
 		{
 			pause();
 		}
 
-		callback(m_last_delta_time);
 		m_renderer->frame();
 	}
 
-	Log::flush(m_rpc);
-
+	Log::flush();
 	m_rpc->execute_callbacks();
-	os_event_buffer()->clear();
 
 	m_frame_count++;
 }
@@ -534,213 +428,91 @@ void Device::compile(const char* , const char* , const char* )
 }
 
 //-----------------------------------------------------------------------------
-void Device::reload(ResourceId name)
+void Device::reload(const char* type, const char* name)
 {
-	(void)name;
-}
+	TempAllocator4096 temp;
+	DynamicString filename(temp);
+	filename += name;
+	filename += '.';
+	filename += type;
 
-//-----------------------------------------------------------------------------
-void Device::parse_command_line(int argc, char** argv)
-{
-	static ArgsOption options[] = 
+	if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir, filename.c_str()))
 	{
-		{ "help",             AOA_NO_ARGUMENT,       NULL,        'i' },
-		{ "source-dir",       AOA_REQUIRED_ARGUMENT, NULL,        's' },
-		{ "bundle-dir",       AOA_REQUIRED_ARGUMENT, NULL,        'b' },
-		{ "compile",          AOA_NO_ARGUMENT,       &m_compile,   1 },
-		{ "continue",         AOA_NO_ARGUMENT,       &m_continue,  1 },
-		{ "wait",             AOA_NO_ARGUMENT,       &m_wait,      1 },
-		{ "width",            AOA_REQUIRED_ARGUMENT, NULL,        'w' },
-		{ "height",           AOA_REQUIRED_ARGUMENT, NULL,        'h' },
-		{ "fullscreen",       AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1 },
-		{ "parent-window",    AOA_REQUIRED_ARGUMENT, NULL,        'p' },
-		{ "quit-after-init",  AOA_NO_ARGUMENT,       &m_quit_after_init, 1 },
-		{ NULL, 0, NULL, 0 }
-	};
+		Log::d("Compilation failed.");
+		return;
+	}
 
-	Args args(argc, argv, "", options);
+	uint32_t type_hash = hash::murmur2_32(type, string::strlen(type), 0);
 
-	int32_t opt;
-
-	while ((opt = args.getopt()) != -1)
+	switch (type_hash)
 	{
-		switch (opt)
+		case LUA_TYPE:
 		{
-			case 0:
-			{
-				break;
-			}
-			// Source directory
-			case 's':
-			{
-				string::strncpy(m_source_dir, args.optarg(), MAX_PATH_LENGTH);
-				break;
-			}
-			// Bundle directory
-			case 'b':
-			{
-				string::strncpy(m_bundle_dir, args.optarg(), MAX_PATH_LENGTH);
-				break;
-			}
-			// Window width
-			case 'w':
-			{
-				m_preferred_window_width = atoi(args.optarg());
-				break;
-			}
-			// Window height
-			case 'h':
-			{
-				m_preferred_window_height = atoi(args.optarg());
-				break;
-			}
-			// Parent window
-			case 'p':
-			{
-				m_parent_window_handle = string::parse_uint(args.optarg());
-				break;
-			}
-			case 'i':
-			case '?':
-			default:
-			{
-				print_help_message();
-				exit(EXIT_FAILURE);
-			}
+			m_lua_environment->load_and_execute(name);
+			break;
+		}
+		default:
+		{
+			CE_ASSERT(false, "Oops, unknown resource type: %s", type);
+			break;
 		}
 	}
 }
-
-//-----------------------------------------------------------------------------
-void Device::check_preferred_settings()
-{
-	if (m_compile == 1)
-	{
-		if (string::strcmp(m_source_dir, "") == 0)
-		{
-			Log::e("You have to specify the source directory when running in compile mode.");
-			exit(EXIT_FAILURE);
-		}
-
-		if (!os::is_absolute_path(m_source_dir))
-		{
-			Log::e("The source directory must be absolute.");
-			exit(EXIT_FAILURE);
-		}
-	}
-
-	if (!os::is_absolute_path(m_bundle_dir))
-	{
-		Log::e("The bundle directory must be absolute.");
-		exit(EXIT_FAILURE);
-	}
-
-	if (m_preferred_window_width == 0 || m_preferred_window_height == 0)
-	{
-		Log::e("Window width and height must be greater than zero.");
-		exit(EXIT_FAILURE);
-	}
-}
-
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 void Device::read_engine_settings()
 {
-	// Check crown.config existance
-	CE_ASSERT(m_filesystem->is_file("crown.config"), "Unable to open crown.config");
+	// // Check crown.config existance
+	// CE_ASSERT(m_filesystem->is_file("crown.config"), "Unable to open crown.config");
 
-	// Copy crown config in a buffer
-	TempAllocator4096 allocator;
+	// // Copy crown config in a buffer
+	// TempAllocator4096 allocator;
 
-	File* config_file = m_filesystem->open("crown.config", FOM_READ);
+	// File* config_file = m_filesystem->open("crown.config", FOM_READ);
 
-	char* json_string = (char*)allocator.allocate(config_file->size());
+	// char* json_string = (char*)allocator.allocate(config_file->size());
 
-	config_file->read(json_string, config_file->size());
+	// config_file->read(json_string, config_file->size());
 
-	m_filesystem->close(config_file);
+	// m_filesystem->close(config_file);
 
-	// Parse crown.config
-	JSONParser parser(json_string);
+	// // Parse crown.config
+	// JSONParser parser(json_string);
 
-	JSONElement root = parser.root();
+	// JSONElement root = parser.root();
 
-	// Boot
-	if (root.has_key("boot"))
-	{
-		const char* boot = root.key("boot").string_value();
-		const size_t boot_length = string::strlen(boot) + 1;
+	// // Boot
+	// if (root.has_key("boot"))
+	// {
+	// 	const char* boot = root.key("boot").string_value();
+	// 	const size_t boot_length = string::strlen(boot) + 1;
 
-		string::strncpy(m_boot_file, boot, boot_length);
-	}
-	// Window width
-	if (root.has_key("window_width"))
-	{
-		m_preferred_window_width = root.key("window_width").int_value();
-	}
-	// Window height
-	if (root.has_key("window_height"))
-	{
-		m_preferred_window_height = root.key("window_height").int_value();
-	}
+	// 	string::strncpy(m_boot_file, boot, boot_length);
+	// }
+	// // Window width
+	// if (root.has_key("window_width"))
+	// {
+	// 	m_preferred_window_width = root.key("window_width").int_value();
+	// }
+	// // Window height
+	// if (root.has_key("window_height"))
+	// {
+	// 	m_preferred_window_height = root.key("window_height").int_value();
+	// }
 
-	allocator.deallocate(json_string);
+	// allocator.deallocate(json_string);
 
-	Log::i("Configuration set");
+	// Log::i("Configuration set");
 }
 
-//-----------------------------------------------------------------------------
-void Device::print_help_message()
+static Device* g_device;
+void set_device(Device* device)
 {
-	os::printf(
-	"Usage: crown [options]\n"
-	"Options:\n\n"
-
-	"All of the following options take precedence over\n"
-	"environment variables and configuration files.\n\n"
-
-	"  --help                     Show this help.\n"
-	"  --bundle-dir <path>        Use <path> as the source directory for compiled resources.\n"
-	"  --width <width>            Set the <width> of the main window.\n"
-	"  --height <width>           Set the <height> of the main window.\n"
-	"  --fullscreen               Start in fullscreen.\n"
-	"  --parent-window <handle>   Set the parent window <handle> of the main window.\n"
-	"                             Used only by tools.\n"
-
-	"\nAvailable only in debug and development builds:\n\n"
-
-	"  --source-dir <path>        Use <path> as the source directory for resource compilation.\n"
-	"  --compile                  Run the engine as resource compiler.\n"
-	"  --continue                 Do a full compile of the resources and continue the execution.\n"
-	"  --wait                     Wait until a clent connects to the engine.\n"
-	"  --quit-after-init          Quit the engine immediately after the initialization.\n");
-}
-
-static Device* g_device = NULL;
-
-//-----------------------------------------------------------------------------
-void init()
-{
-	crown::memory::init();
-	crown::os::init_os();
-	g_device = CE_NEW(default_allocator(), Device);
-}
-
-//-----------------------------------------------------------------------------
-void shutdown()
-{
-	CE_DELETE(default_allocator(), g_device);
-	crown::memory::shutdown();
+	g_device = device;
 }
 
 Device* device()
 {
 	return g_device;
-}
-
-void nothing(float)
-{
-	device()->renderer()->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
-	device()->renderer()->commit(0);
 }
 
 } // namespace crown

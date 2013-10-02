@@ -59,7 +59,19 @@ void RPCCommandHandler::execute_command(RPCServer* server, ClientId client, cons
 
 		if (string::strcmp("reload", cmd) == 0)
 		{
-			Log::d("Unimplemented");
+			JSONElement resource_type = root.key_or_nil("resource_type");
+			if (!resource_type.is_nil())
+			{
+				JSONElement resource_name = root.key_or_nil("resource_name");
+				if (!resource_name.is_nil())
+				{
+					char t[256];
+					char n[256];
+					string::strncpy(t, resource_type.string_value(), 256);
+					string::strncpy(n, resource_name.string_value(), 256);
+					device()->reload(t, n);
+				}
+			}
 		}
 		else if (string::strcmp("pause", cmd) == 0)
 		{

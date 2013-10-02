@@ -35,7 +35,7 @@ namespace crown
 ANativeWindow* g_android_window = NULL;
 
 //-----------------------------------------------------------------------------
-OsWindow::OsWindow(uint32_t /*width*/, uint32_t /*height*/, uint32_t /*parent*/)
+OsWindow::OsWindow()
 	: m_x(0), m_y(0), m_width(0), m_height(0)
 {
 	m_width = ANativeWindow_getWidth(g_android_window);

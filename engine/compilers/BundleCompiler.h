@@ -37,13 +37,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class BundleCompiler
+class CE_EXPORT BundleCompiler
 {
 public:
 
 	BundleCompiler();
 
-	bool compile(const char* bundle_dir, const char* source_dir);
+	bool compile(const char* bundle_dir, const char* source_dir, const char* resource = NULL);
 
 private:
 

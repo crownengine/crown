@@ -92,7 +92,6 @@ private:
 	bool					m_is_used;
 };
 
-
 void load_int_setting(LuaEnvironment& env);
 void load_float_setting(LuaEnvironment& env);
 void load_string_setting(LuaEnvironment& env);

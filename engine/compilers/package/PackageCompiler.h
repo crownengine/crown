@@ -33,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class PackageCompiler : public Compiler
+class CE_EXPORT PackageCompiler : public Compiler
 {
 public:
 

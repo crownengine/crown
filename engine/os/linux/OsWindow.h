@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -35,6 +36,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+void oswindow_set_window(Display* dpy, Window win);
+
+
 class OsWindow
 {
 public:
@@ -42,9 +46,9 @@ public:
 	/// Creates the window with the given @a width and @a height.
 	/// When @a parent is != 0, it is interpreted as the OS-specific
 	/// handle of the parent window.
-					OsWindow(uint32_t width, uint32_t height, uint32_t parent);
+					OsWindow();
 					~OsWindow();
-
+					
 	void			show();
 	void			hide();
 
@@ -68,13 +72,7 @@ public:
 	char*			title();
 	void			set_title(const char* title);
 
-	void			frame();
-
 private:
-
-	Display*		m_x11_display;
-	Window			m_x11_window;
-	Window			m_x11_parent_window;
 
 	uint32_t		m_x;
 	uint32_t		m_y;
@@ -83,7 +81,7 @@ private:
 	bool			m_resizable;
 
 	bool			m_x11_detectable_autorepeat;
-	Cursor			m_x11_hidden_cursor;
+
 };
 
 } // namespace crown
