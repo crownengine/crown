@@ -11,6 +11,21 @@ LOCAL_SRC_FILES := libluajit-5.1.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 ###############################################################################
+# libogg & libvorbis
+###############################################################################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := ogg
+LOCAL_SRC_FILES := libogg.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := vorbis
+LOCAL_SRC_FILES := libvorbis.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+###############################################################################
 # libcrown
 ###############################################################################
 include $(CLEAR_VARS)
@@ -89,6 +104,8 @@ LOCAL_SRC_FILES :=\
 	lua/LuaStringSetting.cpp\
 	lua/LuaResourcePackage.cpp\
 \
+	audio/sles/SLESRenderer.cpp\
+\
 	Camera.cpp\
 	Device.cpp\
 \
@@ -110,6 +127,7 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/rpc\
 	$(LOCAL_PATH)/input\
 	$(LOCAL_PATH)/lua\
+	$(LOCAL_PATH)/audio\
 	$(LOCAL_PATH)/network\
 	$(LOCAL_PATH)/os\
 	$(LOCAL_PATH)/os/android\
@@ -117,12 +135,13 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/renderers\
 	$(LOCAL_PATH)/renderers/gl\
 	$(LOCAL_PATH)/renderers/gl/egl\
-	$(LOCAL_PATH)/luajit/include/luajit-2.0\
-
+	$(LOCAL_PATH)/third/ARMv7/luajit/include/luajit-2.0\
+	$(LOCAL_PATH)/third/ARMv7/oggvorbis/include\
+	
 LOCAL_CPPFLAGS	:= -g -fexceptions -std=c++03 -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-variadic-macros
-LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv2 -lz 
+LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv2 -lz -lOpenSLES
 LOCAL_SHARED_LIBRARIES := luajit-5.1
-LOCAL_STATIC_LIBRARIES := android_native_app_glue
+LOCAL_STATIC_LIBRARIES := android_native_app_glue vorbis ogg
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module,android/native_app_glue)

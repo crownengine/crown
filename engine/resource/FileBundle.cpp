@@ -55,6 +55,7 @@ class FileBundle : public Bundle
 {
 public:
 
+
 	//-----------------------------------------------------------------------------
 	FileBundle(Filesystem& fs) : m_filesystem(fs) {}
 

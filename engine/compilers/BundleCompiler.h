@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MeshCompiler.h"
 #include "TextureCompiler.h"
 #include "LuaCompiler.h"
+#include "SoundCompiler.h"
 #include "PackageCompiler.h"
 #include "DynamicString.h"
 #include "Vector.h"
@@ -54,6 +55,7 @@ private:
 	MeshCompiler	m_mesh;
 	TextureCompiler	m_texture;
 	LuaCompiler 	m_lua;
+	SoundCompiler	m_sound;
 	PackageCompiler m_package;
 };
 

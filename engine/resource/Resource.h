@@ -52,6 +52,7 @@ const uint32_t SOUND_TYPE					= 0xD196AB6E;
 const uint32_t CONFIG_TYPE					= 0x17DEA5E1;
 const uint32_t PACKAGE_TYPE					= 0xC0A2212C;
 
+
 /// ResourceId uniquely identifies a resource by its name and type.
 /// In order to speed up the lookup by the manager, it also keeps
 /// the index to the resource list where it is stored.

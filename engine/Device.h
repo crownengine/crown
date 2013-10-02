@@ -47,6 +47,7 @@ class Mouse;
 class Touch;
 class Accelerometer;
 class LuaEnvironment;
+class SoundRenderer;
 class BundleCompiler;
 class ResourcePackage;
 class RPCServer;
@@ -125,6 +126,8 @@ public:
 	Renderer*				renderer();
 	DebugRenderer*			debug_renderer();
 
+	SoundRenderer*			sound_renderer();
+
 	Keyboard*				keyboard();
 	Mouse*					mouse();
 	Touch*					touch();
@@ -170,6 +173,8 @@ protected:
 	LuaEnvironment*			m_lua_environment;
 	Renderer*				m_renderer;
 	DebugRenderer*			m_debug_renderer;
+
+	SoundRenderer*			m_sound_renderer;
 
 	// Private subsystems
 	BundleCompiler*			m_bundle_compiler;

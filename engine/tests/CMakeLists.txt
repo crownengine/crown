@@ -11,6 +11,7 @@ project(crown-tests)
 #add_executable(json json.cpp)
 add_executable(events events.cpp)
 
+
 #target_link_libraries(allocators crown)
 #target_link_libraries(containers crown)
 #target_link_libraries(compressors crown)
@@ -19,6 +20,7 @@ add_executable(events events.cpp)
 #target_link_libraries(dynamic-strings crown)
 #target_link_libraries(json crown)
 target_link_libraries(events crown)
+
 
 #install (TARGETS allocators DESTINATION test)
 #install (TARGETS containers DESTINATION test)

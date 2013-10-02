@@ -25,7 +25,9 @@ endif (CROWN_ARCH MATCHES "ARMv7")
 set (CROWN_THIRD_INCLUDES
 	${CROWN_THIRD}/luajit/include/luajit-2.0
 	${CROWN_THIRD}/glew-1.9.0/include
-	${CROWN_THIRD}/zlib/include	
+	${CROWN_THIRD}/zlib/include
+	${CROWN_THIRD}/oggvorbis/include
+	${CROWN_THIRD}/openAL/include
 )
 
 # architecture dependent libraries
@@ -33,6 +35,8 @@ set (CROWN_THIRD_LIBS
 	${CROWN_THIRD}/luajit/lib
 	${CROWN_THIRD}/glew-1.9.0/lib
 	${CROWN_THIRD}/zlib/lib
+	${CROWN_THIRD}/oggvorbis/lib
+	${CROWN_THIRD}/openAL/lib
 )
 
 add_subdirectory(${CROWN_THIRD})
@@ -57,9 +61,11 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/rpc
 	${CMAKE_SOURCE_DIR}/engine/network
 	${CMAKE_SOURCE_DIR}/engine/lua
+	${CMAKE_SOURCE_DIR}/engine/audio
 	${CMAKE_SOURCE_DIR}/engine/compilers
 	${CMAKE_SOURCE_DIR}/engine/compilers/lua
 	${CMAKE_SOURCE_DIR}/engine/compilers/texture
+	${CMAKE_SOURCE_DIR}/engine/compilers/sound
 	${CMAKE_SOURCE_DIR}/engine/compilers/mesh
 	${CMAKE_SOURCE_DIR}/engine/compilers/package
 )
@@ -328,12 +334,20 @@ set (LUA_HEADERS
 	lua/LuaEnvironment.h
 )
 
+set (AUDIO_SRC)
+
+set (AUDIO_HEADERS
+	audio/SoundRenderer.h
+	audio/OggDecoder.h
+)
+
 set (COMPILER_SRC
 	compilers/Compiler.cpp
 	compilers/BundleCompiler.cpp
 	compilers/mesh/MeshCompiler.cpp
 	compilers/lua/LuaCompiler.cpp
 	compilers/texture/TextureCompiler.cpp
+	compilers/sound/SoundCompiler.cpp
 	compilers/package/PackageCompiler.cpp
 )
 
@@ -343,6 +357,7 @@ set (COMPILER_HEADER
 	compilers/mesh/MeshCompiler.h
 	compilers/lua/LuaCompiler.h
 	compilers/texture/TextureCompiler.h
+	compilers/sound/SoundCompiler.h
 	compilers/package/PackageCompiler.h
 )
 
@@ -353,6 +368,7 @@ if (LINUX)
 	list (APPEND CROWN_INCLUDES
 		${CMAKE_SOURCE_DIR}/engine/os/linux
 		${CMAKE_SOURCE_DIR}/engine/renderers/gl/glx
+		${CMAKE_SOURCE_DIR}/engine/renderers/al
 	)
 
 	list (APPEND OS_HEADERS
@@ -380,6 +396,14 @@ if (LINUX)
 		renderers/gl/glx/GLContext.h
 	)
 
+	list (APPEND AUDIO_SRC
+		audio/al/ALRenderer.cpp
+	)
+
+	list (APPEND AUDIO_HEADERS
+		audio/al/ALRenderer.h
+	)
+
 	list (APPEND CROWN_LIBRARIES
 		rt
 		z
@@ -389,6 +413,8 @@ if (LINUX)
 		dl
 		GLEW
 		GL
+		openal
+		vorbisfile
 		luajit-5.1
 	)
 
@@ -460,11 +486,22 @@ if (WINDOWS)
 		renderers/gl/wgl/wglext.h
 	)
 
+	list (APPEND AUDIO_SRC
+		audio/al/ALRenderer.cpp
+	)
+
+	list (APPEND AUDIO_HEADERS
+		audio/al/ALRenderer.h
+	)
+
 	list (APPEND CROWN_LIBRARIES
 		zlib
 		OpenGL32
 		glew32
 		lua51
+		OpenAL32
+		libvorbis
+		libvorbisfile
 	)
 
 	set (COMPILER_FLAGS
@@ -491,6 +528,7 @@ set (CROWN_SOURCES
 #	${NETWORK_SRC}
 	${OS_SRC}
 	${LUA_SRC}
+	${AUDIO_SRC}
 	${COMPILER_SRC}
 )
 
@@ -512,6 +550,7 @@ set (CROWN_HEADERS
 #	${NETWORK_HEADERS}
 	${OS_HEADERS}
 	${LUA_HEADERS}
+	${AUDIO_HEADERS}
 	${COMPILER_HEADERS}
 )
 

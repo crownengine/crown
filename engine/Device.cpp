@@ -53,6 +53,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TempAllocator.h"
 #include "ResourcePackage.h"
 #include "RPCServer.h"
+#include "SoundRenderer.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -85,6 +86,7 @@ Device::Device()
 	, m_lua_environment(NULL)
 	, m_renderer(NULL)
 	, m_debug_renderer(NULL)
+	, m_sound_renderer(NULL)
 
 	, m_bundle_compiler(NULL)
 	, m_rpc(NULL)
@@ -159,6 +161,10 @@ void Device::init()
 	m_lua_environment->init();
 	Log::d("Lua environment created.");
 
+	m_sound_renderer = CE_NEW(m_allocator, SoundRenderer)(m_allocator);
+	m_sound_renderer->init();
+	Log::d("SoundRenderer created.");
+
 	Log::i("Crown Engine initialized.");
 	Log::i("Initializing Game...");
 
@@ -188,6 +194,15 @@ void Device::shutdown()
 
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);
+
+
+	Log::d("Releasing SoundRenderer...");
+	if (m_sound_renderer)
+	{
+		m_sound_renderer->shutdown();
+
+		CE_DELETE(m_allocator, m_sound_renderer);
+	}
 
 	Log::i("Releasing LuaEnvironment...");
 	if (m_lua_environment)
@@ -292,6 +307,12 @@ DebugRenderer* Device::debug_renderer()
 }
 
 //-----------------------------------------------------------------------------
+SoundRenderer* Device::sound_renderer()
+{
+	return m_sound_renderer;
+}
+
+//-----------------------------------------------------------------------------
 Keyboard* Device::keyboard()
 {
 	return m_keyboard;
@@ -391,6 +412,9 @@ void Device::frame()
 		}
 
 		m_renderer->frame();
+
+		// FIXME: SoundRenderer should not be updated each frame
+		m_sound_renderer->frame();
 	}
 
 	Log::flush();

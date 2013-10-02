@@ -65,6 +65,10 @@ public class CrownLib
 	public static native void		initRenderer();
 	public static native void		shutdownRenderer();
 
+	// SoundRenderer functions
+	public static native void		pauseSoundRenderer();
+	public static native void		unpauseSoundRenderer();
+
 	// InputManager functions
 	public static native void 		pushTouchEvent(int type, int pointer_id, int x, int y);
 	public static native void 		pushAccelerometerEvent(int type, float x, float y, float z);	
