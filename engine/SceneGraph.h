@@ -69,7 +69,7 @@ private:
 	HeapAllocator	m_allocator;
 
 	// Sparse table of nodes
-	IdTable			m_nodes;
+	IdTable<MAX_NODES> m_nodes;
 
 	// Conversion from sparse table to packed array
 	uint32_t		m_sparse_to_packed[MAX_NODES];

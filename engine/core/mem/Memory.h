@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Assert.h"
-#include "OS.h"
 
 namespace crown
 {
@@ -38,11 +37,21 @@ namespace memory
 const uint32_t	PADDING_VALUE	= 0xFFFFFFFFu;	//!< Value used to fill unused memory
 const size_t	DEFAULT_ALIGN	= 4;			//!< Default memory alignment in bytes
 
+/// Constructs the initial default allocators.
+/// @note
+/// Has to be called before anything else during the engine startup.
+CE_EXPORT void init();
+
+/// Destroys the allocators created with memory::init().
+/// @note
+/// Should be the last call of the program.
+CE_EXPORT void shutdown();
+
 /// Returns the pointer @a p aligned to the desired @a align byte
 inline void* align_top(void* p, size_t align)
 {
-	CE_ASSERT(align > 1, "Alignment must be > 1");
-	CE_ASSERT(align % 2 == 0, "Alignment must be a power of two");
+	CE_ASSERT(align >= 1, "Alignment must be > 1");
+	CE_ASSERT(align % 2 == 0 || align == 1, "Alignment must be a power of two");
 
 	uintptr_t ptr = (uintptr_t)p;
 
@@ -56,24 +65,24 @@ inline void* align_top(void* p, size_t align)
 	return (void*) ptr;
 }
 
-/// Dumps the memory content pointed by @a p
-inline void dump(void* p, size_t size, size_t word_size)
-{
-	uint8_t* mem = (uint8_t*) p;
+// /// Dumps the memory content pointed by @a p
+// inline void dump(void* p, size_t size, size_t word_size)
+// {
+// 	uint8_t* mem = (uint8_t*) p;
 
-	for (size_t i = 0; i < size; i++, mem++)
-	{
-		if (i % word_size == 0)
-		{
-			os::printf("\n");
-			os::printf("[.. %.4X] ", (size_t)mem);
-		}
+// 	for (size_t i = 0; i < size; i++, mem++)
+// 	{
+// 		if (i % word_size == 0)
+// 		{
+// 			os::printf("\n");
+// 			os::printf("[.. %.4X] ", (size_t)mem);
+// 		}
 
-		os::printf("%.2X ", *mem);
-	}
+// 		os::printf("%.2X ", *mem);
+// 	}
 
-	os::printf("\n");
-}
+// 	os::printf("\n");
+// }
 
 #ifdef _MSC_VER
 	#define CE_ALIGNOF(x) __alignof(x)

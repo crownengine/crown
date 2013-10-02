@@ -28,51 +28,88 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Resource.h"
-#include "Thread.h"
+#include "OsThread.h"
 #include "Queue.h"
 #include "List.h"
 #include "Mutex.h"
 #include "Cond.h"
+#include "OS.h"
 
 namespace crown
 {
 
-struct LoadedResource
-{
-	LoadedResource(ResourceId r, void* d) : resource(r), data(d) {}
-
-	ResourceId	resource;
-	void*		data;
-};
-
 class Bundle;
 class Allocator;
 
+#define MAX_LOAD_REQUESTS 1024
+typedef uint32_t LoadResourceId;
+
+enum LoadResourceStatus
+{
+	LRS_NO_INFORMATION,
+	LRS_QUEUED,
+	LRS_LOADING,
+	LRS_LOADED
+};
+
+struct LoadResource
+{
+	LoadResourceId id;
+	uint32_t type;
+	ResourceId resource;
+};
+
+struct LoadResourceData
+{
+	LoadResourceStatus status;
+	void* data;
+};
+
 /// Loads resources in a background thread.
-class ResourceLoader : public Thread
+class ResourceLoader
 {
 public:
 
 	/// Reads the resources data from the given @a bundle using
 	/// @a resource_heap to allocate memory for them.
-				ResourceLoader(Bundle& bundle, Allocator& resource_heap);
+							ResourceLoader(Bundle& bundle, Allocator& resource_heap);
 
 	/// Loads the @a resource in a background thread.
-	void		load(ResourceId resource);
+	LoadResourceId			load_resource(uint32_t type, ResourceId resource);
 
-	/// Returns the number of resources still in the loading queue.
-	uint32_t	remaining() const;
+	/// Returns the status of the given load request @a id.
+	LoadResourceStatus		load_resource_status(LoadResourceId id) const;
 
-	/// Returns the number of resources already loaded.
-	uint32_t	num_loaded() const;
-
-	/// Returns a list of the last loaded resources.
-	void		get_loaded(List<LoadedResource>& l);
+	/// Returns the data which has been loaded for the given request @a id.
+	void*					load_resource_data(LoadResourceId id) const;
 
 	// Loads resources in the loading queue.
-	int32_t		run();
+	int32_t					run();
+
+	void start()
+	{
+		m_should_run = true;
+		m_thread.start(background_run, this);
+	}
+
+	void stop()
+	{
+		m_should_run = false;
+		m_full.signal();
+		m_thread.stop();
+	}
 
 private:
+
+	static int32_t background_run(void* thiz)
+	{
+		return ((ResourceLoader*)thiz)->run();
+	}
+
+private:
+
+	OsThread				m_thread;
+	bool					m_should_run;
 
 	// Whether to look for resources
 	Bundle&					m_bundle;
@@ -80,11 +117,13 @@ private:
 	// Used to strore resource memory
 	Allocator&				m_resource_heap;
 
-	Queue<ResourceId>		m_load_queue;
-	List<LoadedResource>	m_done_queue;
-	Mutex					m_load_mutex;
-	Mutex					m_done_mutex;
-	Cond					m_load_requests;
+	uint32_t				m_num_requests;
+	Queue<LoadResource>		m_requests;
+	LoadResourceData		m_results[MAX_LOAD_REQUESTS];
+
+	Mutex					m_requests_mutex;
+	Mutex					m_results_mutex;
+	Cond					m_full;
 };
 
 } // namespace crown

@@ -29,7 +29,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Resource.h"
 #include "PixelFormat.h"
-#include "Texture.h"
+#include "Bundle.h"
+#include "Allocator.h"
+#include "File.h"
 
 namespace crown
 {
@@ -45,24 +47,72 @@ struct TextureHeader
 	uint32_t	height;		// Height in pixels
 };
 
-class Bundle;
-class Allocator;
-
 class TextureResource
 {
 public:
 
-	static void*		load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	static void			unload(Allocator& allocator, void* resource);
-	static void			online(void* resource);
-	static void			offline(void* resource);
+	//-----------------------------------------------------------------------------
+	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	{
+		File* file = bundle.open(id);
+
+		TextureResource* resource = (TextureResource*)allocator.allocate(sizeof(TextureResource));
+
+		file->read(&resource->m_header, sizeof(TextureHeader));
+
+		size_t size = resource->width() * resource->height() * Pixel::bytes_per_pixel(resource->format());
+
+		resource->m_data = (uint8_t*)allocator.allocate(sizeof(uint8_t) * size);
+
+		file->read(resource->m_data, size);
+
+		bundle.close(file);
+
+		return resource;
+	}
+
+	//-----------------------------------------------------------------------------
+	static void online(void* resource)
+	{
+		CE_ASSERT(resource != NULL, "Resource not loaded");
+	}
+
+	//-----------------------------------------------------------------------------
+	static void unload(Allocator& allocator, void* resource)
+	{
+		CE_ASSERT(resource != NULL, "Resource not loaded");
+
+		allocator.deallocate(((TextureResource*)resource)->m_data);
+		allocator.deallocate(resource);
+	}
+
+	//-----------------------------------------------------------------------------
+	static void offline(void* /*resource*/)
+	{
+
+	}
 
 public:
 
-	PixelFormat			format() const { return (PixelFormat) m_header.format; }
-	uint32_t			width() const { return m_header.width; }
-	uint32_t			height() const { return m_header.height; }
-	const uint8_t*		data() const { return m_data; }
+	PixelFormat format() const
+	{
+		return (PixelFormat) m_header.format;
+	}
+
+	uint32_t width() const
+	{
+		return m_header.width;
+	}
+
+	uint32_t height() const
+	{
+		return m_header.height;
+	}
+
+	const uint8_t* data() const
+	{
+		return m_data;
+	}
 
 private:
 

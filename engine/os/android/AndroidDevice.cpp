@@ -26,40 +26,120 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <jni.h>
 #include "Device.h"
+#include "Renderer.h"
+#include "SoundRenderer.h"
+#include "Log.h"
+#include "Allocator.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_init(JNIEnv* env, jobject obj)
+class AndroidDevice : public Device
 {
-	const char* argv[] = { "crown-android", "--root-path", "/sdcard/crown-android-project", "--dev" };
+public:
 
-	device()->init(4, (char**)argv);
+	int32_t run(int, char**)
+	{
+		// Do nothing, the game loop is java-side
+	}
+};
+
+static AndroidDevice* g_engine;
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initCrown(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	memory::init();
+	os::init_os();
+
+	g_engine = CE_NEW(default_allocator(), AndroidDevice);
+	set_device(g_engine);
 }
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdown(JNIEnv* env, jobject obj)
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownCrown(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	CE_DELETE(default_allocator(), g_engine);
+	memory::shutdown();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initDevice(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	device()->init();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_stopDevice(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	device()->stop();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownDevice(JNIEnv* /*env*/, jobject /*obj*/)
 {
 	device()->shutdown();
 }
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* env, jobject obj)
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pauseDevice(JNIEnv* /*env*/, jobject /*obj*/)
 {
-	device()->frame();
+	device()->pause();
 }
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT bool JNICALL Java_crown_android_CrownLib_isInit(JNIEnv* env, jobject obj)
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_unpauseDevice(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	device()->unpause();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT bool JNICALL Java_crown_android_CrownLib_isDeviceInit(JNIEnv* /*env*/, jobject /*obj*/)
 {
 	return device()->is_init();
 }
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT bool JNICALL Java_crown_android_CrownLib_isRunning(JNIEnv* env, jobject obj)
+extern "C" JNIEXPORT bool JNICALL Java_crown_android_CrownLib_isDeviceRunning(JNIEnv* /*env*/, jobject /*obj*/)
 {
 	return device()->is_running();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT bool JNICALL Java_crown_android_CrownLib_isDevicePaused(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	return device()->is_paused();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	device()->frame();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initRenderer(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	device()->renderer()->init();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownRenderer(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	device()->renderer()->shutdown();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pauseSoundRenderer(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	device()->sound_renderer()->pause();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_unpauseSoundRenderer(JNIEnv* /*env*/, jobject /*obj*/)
+{
+	device()->sound_renderer()->unpause();
+
 }
 
 } // namespace crown

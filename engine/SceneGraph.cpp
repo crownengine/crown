@@ -33,11 +33,10 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-SceneGraph::SceneGraph() :
-	m_nodes(m_allocator, MAX_NODES),
-	m_world_poses(m_allocator),
-	m_local_poses(m_allocator),
-	m_parents(m_allocator)
+SceneGraph::SceneGraph()
+	: m_world_poses(m_allocator)
+	, m_local_poses(m_allocator)
+	, m_parents(m_allocator)
 {
 }
 

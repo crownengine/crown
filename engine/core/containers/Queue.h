@@ -75,18 +75,24 @@ public:
 	/// time of call.
 	void			grow(uint32_t min_capacity);
 
-	/// Adds an @a item to the back of the queue
+	/// Appends an @a item to the back of the queue
 	void			push_back(const T& item);
 
 	/// Removes the last item from the queue
 	void			pop_back();
 
-	/// Adds an @a item to the front of the queue
+	/// Appends an @a item to the front of the queue
 	void			push_front(const T& item);
 
 	/// Removes the first item from the queue
 	void			pop_front();
-	
+
+	/// Appends @a n @a items to the back of the queue
+	void			push(const T *items, uint32_t n);
+
+	/// Removes @a n items from the front of the queue
+	void			pop(uint32_t n);
+
 	/// Clears the content of the queue.
 	/// @note
 	/// Does not free memory nor call destructors, it only zeroes
@@ -236,8 +242,45 @@ inline void Queue<T>::pop_front()
 	CE_ASSERT(m_size > 0, "The queue is empty");
 
 	m_read = (m_read + 1) % m_queue.size();
-
 	m_size--;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline void Queue<T>::push(const T *items, uint32_t n)
+{
+	if (space() < n)
+	{
+		grow(size() + n);		
+	}
+
+	const uint32_t size = m_queue.size();
+	const uint32_t insert = (m_read + m_size) % size;
+
+	uint32_t to_insert = n;
+	if (insert + to_insert > size)
+	{
+		to_insert = size - insert;
+	}
+
+	memcpy(m_queue.begin() + insert, items, to_insert * sizeof(T));
+
+	m_size += to_insert;
+	items += to_insert;
+	n -= to_insert;
+	memcpy(m_queue.begin(), items, n * sizeof(T));
+
+	m_size += n;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+inline void Queue<T>::pop(uint32_t n)
+{
+	CE_ASSERT(m_size > 0, "The queue is empty");
+
+	m_read = (m_read + n) % m_queue.size();
+	m_size -= n;
 }
 
 //-----------------------------------------------------------------------------

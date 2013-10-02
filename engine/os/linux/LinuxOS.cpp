@@ -24,19 +24,23 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "Assert.h"
+#include <X11/Xlib.h>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <dirent.h>
+#include <dlfcn.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <unistd.h>
+
 #include "OS.h"
 #include "StringUtils.h"
-#include <cstdio>
-#include <cstdarg>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <cstdlib>
-#include <sys/time.h>
-#include <time.h>
-#include <pthread.h>
-#include <dlfcn.h>
+#include "TempAllocator.h"
 
 namespace crown
 {
@@ -133,7 +137,7 @@ bool exists(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool is_dir(const char* path)
+bool is_directory(const char* path)
 {
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
@@ -142,7 +146,7 @@ bool is_dir(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool is_reg(const char* path)
+bool is_file(const char* path)
 {
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
@@ -151,29 +155,80 @@ bool is_reg(const char* path)
 }
 
 //-----------------------------------------------------------------------------
-bool mknod(const char* path)
+bool create_file(const char* path)
 {
 	// Permission mask: rw-r--r--
 	return ::mknod(path, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 0) == 0;
 }
 
 //-----------------------------------------------------------------------------
-bool unlink(const char* path)
+bool delete_file(const char* path)
 {
 	return (::unlink(path) == 0);
 }
 
 //-----------------------------------------------------------------------------
-bool mkdir(const char* path)
+bool create_directory(const char* path)
 {
 	// rwxr-xr-x permission mask
 	return (::mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == 0);
 }
 
 //-----------------------------------------------------------------------------
-bool rmdir(const char* path)
+bool delete_directory(const char* path)
 {
 	return (::rmdir(path) == 0);
+}
+
+//-----------------------------------------------------------------------------
+void list_files(const char* path, Vector<DynamicString>& files)
+{
+	DIR *dir;
+	struct dirent *entry;
+
+	if (!(dir = opendir(path)))
+	{
+		return;
+	}
+
+	while ((entry = readdir(dir)))
+	{
+		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+		{
+			continue;
+		}
+
+		DynamicString filename(default_allocator());
+
+		filename = entry->d_name;
+		files.push_back(filename);
+	}
+
+	closedir(dir);
+}
+
+//-----------------------------------------------------------------------------
+const char* normalize_path(const char* path)
+{
+	static char norm[MAX_PATH_LENGTH];
+	char* cur = norm;
+
+	while ((*path) != '\0')
+	{
+		if ((*path) == '\\')
+		{
+			(*cur) = PATH_SEPARATOR;
+		}
+		else
+		{
+			(*cur) = (*path);
+		}
+
+		path++;
+		cur++;
+	}
+
+	return norm;
 }
 
 //-----------------------------------------------------------------------------
@@ -215,29 +270,6 @@ const char* get_env(const char* env)
 
 	return envDevel;
 }
-
-////-----------------------------------------------------------------------------
-//bool ls(const char* path, List<Str>& fileList)
-//{
-//	DIR *dir;
-//	struct dirent *ent;
-
-//	dir = opendir(path);
-
-//	if (dir == NULL)
-//	{
-//		return false;
-//	}
-
-//	while ((ent = readdir (dir)) != NULL)
-//	{
-//		fileList.push_back(Str(ent->d_name));
-//	}
-
-//	closedir (dir);
-
-//	return true;
-//}
 
 //-----------------------------------------------------------------------------
 void init_os()
@@ -301,6 +333,26 @@ void* lookup_symbol(void* library, const char* name)
 
 	return symbol;
 }
+
+//-----------------------------------------------------------------------------
+void execute_process(const char* args[])
+{
+	pid_t pid = fork();
+	CE_ASSERT(pid != -1, "Unable to fork");
+
+	if (pid)
+	{
+		int32_t dummy;
+		wait(&dummy);
+	}
+	else
+	{
+		int res = execv(args[0], (char* const*)args);
+		CE_ASSERT(res != -1, "Unable to exec '%s'. errno %d", args[0], res);
+		exit(EXIT_SUCCESS);
+	}
+}
+
 
 } // namespace os
 } // namespace crown

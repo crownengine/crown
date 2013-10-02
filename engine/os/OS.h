@@ -30,17 +30,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Config.h"
 #include "Types.h"
+#include "Vector.h"
+#include "DynamicString.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-#ifdef LINUX
+#if defined(LINUX)
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '/';
-#endif
-
-#ifdef WINDOWS
+#elif defined(WINDOWS)
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '\\';
 
@@ -48,6 +48,11 @@ namespace crown
 
 	#undef MK_SHIFT
 	#undef MK_ALT
+#elif defined(ANDROID)
+	const size_t	MAX_PATH_LENGTH = 1024;
+	const char		PATH_SEPARATOR = '/';
+#else
+	#error "Oops, invalid platform!"
 #endif
 
 namespace os
@@ -55,7 +60,7 @@ namespace os
 //-----------------------------------------------------------------------------
 // Print and log functions
 //-----------------------------------------------------------------------------
-void			printf(const char* string, ...);				//!< Printf wrapper
+void CE_EXPORT	printf(const char* string, ...);				//!< Printf wrapper
 void			vprintf(const char* string, va_list arg);		//!< VPrintf wrapper
 
 void			log_debug(const char* string, va_list arg);		//!< Print debug message
@@ -66,30 +71,55 @@ void			log_info(const char* string, va_list arg);		//!< Print info message
 //-----------------------------------------------------------------------------
 // Paths
 //-----------------------------------------------------------------------------
-bool			is_root_path(const char* path);
-bool			is_absolute_path(const char* path);
+bool CE_EXPORT	is_root_path(const char* path);
+bool CE_EXPORT	is_absolute_path(const char* path);
 
 //-----------------------------------------------------------------------------
 // File management
 //-----------------------------------------------------------------------------
-bool			exists(const char* path);		//!< Returns whether the path is a file or directory on the disk
 
-bool			is_dir(const char* path);		//!< Returns whether the path is a directory. (May not resolve symlinks.)
-bool			is_reg(const char* path);		//!< Returns whether the path is a regular file. (May not resolve symlinks.)
+/// Returns whether the path is a file or directory on the disk
+bool			exists(const char* path);
 
-bool			mknod(const char* path);		//! Creates a regular file. Returns true if success, false if not
-bool			unlink(const char* path);		//! Deletes a regular file. Returns true if success, false if not
-bool			mkdir(const char* path);		//! Creates a directory. Returns true if success, false if not
-bool			rmdir(const char* path);		//! Deletes a directory. Returns true if success, false if not
+/// Returns whether the path is a directory. (May not resolve symlinks.)
+bool			is_directory(const char* path);
+
+/// Returns whether the path is a regular file. (May not resolve symlinks.)
+bool			is_file(const char* path);
+
+/// Creates a regular file. Returns true if success, false if not
+bool			create_file(const char* path);
+
+/// Deletes a regular file. Returns true if success, false if not
+bool			delete_file(const char* path);
+
+/// Creates a directory. Returns true if success, false if not
+bool			create_directory(const char* path);
+
+/// Deletes a directory. Returns true if success, false if not
+bool			delete_directory(const char* path);
+
+/// Returns the list of @a files in the given @a dir directory. Optionally walks into
+/// subdirectories whether @a recursive is true.
+/// @note
+/// Does not follow symbolic links.
+void			list_files(const char* path, Vector<DynamicString>& files);
+
+/// Returns os-dependent path from os-indipendent @a path
+const char*		normalize_path(const char* path);
 
 //-----------------------------------------------------------------------------
 // OS ambient variables
 //-----------------------------------------------------------------------------
-const char*		get_cwd();						//! Fills ret with the path of the current working directory. Returns true if success, false if not 
-const char*		get_home();						//! Fills ret with the path of the user home directory
-const char*		get_env(const char* env);		//! Returns the content of the 'env' environment variable or the empty string
 
-//bool			ls(const char* path, List<Str>& fileList);	//! Returns the list of filenames in a directory.
+/// Fills ret with the path of the current working directory. Returns true if success, false if not 
+const char*		get_cwd();
+
+/// Fills ret with the path of the user home directory
+const char*		get_home();
+
+/// Returns the content of the 'env' environment variable or the empty string
+const char*		get_env(const char* env);
 
 //-----------------------------------------------------------------------------
 // Render window and input management
@@ -112,47 +142,20 @@ void*			open_library(const char* path);
 void			close_library(void* library);
 void*			lookup_symbol(void* library, const char* name);
 
+//-----------------------------------------------------------------------------
+// Process execution
+//-----------------------------------------------------------------------------
+
+/// Executes a process.
+/// @a args is an array of arguments where:
+/// @a args[0] is the path to the program executable,
+/// @a args[1, 2, ..., n-1] is a list of arguments to pass to the executable,
+/// @a args[n] is NULL.
+void			execute_process(const char* args[]);
+
+//-----------------------------------------------------------------------------
+
 } // namespace os
-
-//-----------------------------------------------------------------------------
-// Events
-//-----------------------------------------------------------------------------
-enum OsEventType
-{
-	OSET_NONE				= 0,
-
-	OSET_KEY_PRESS			= 1,
-	OSET_KEY_RELEASE		= 2,
-
-	OSET_BUTTON_PRESS		= 3,
-	OSET_BUTTON_RELEASE		= 4,
-	OSET_MOTION_NOTIFY		= 5,
-	OSET_TOUCH_DOWN			= 6,
-	OSET_TOUCH_MOVE			= 7,
-	OSET_TOUCH_UP			= 8,
-	OSET_ACCELEROMETER		= 9
-};
-
-union OsEventParameter
-{
-	int32_t int_value;
-	float	float_value;
-};
-
-struct OsEvent
-{
-	OsEventType			type;
-	OsEventParameter	data_a;
-	OsEventParameter	data_b;
-	OsEventParameter	data_c;
-	OsEventParameter	data_d;
-};
-
-/// Pushes the event @a type along with its parameters into the os' event queue.
-void			push_event(OsEventType type, OsEventParameter data_a, OsEventParameter data_b, OsEventParameter data_c, OsEventParameter data_d);
-
-/// Returns and pops the first event in the os' event queue.
-OsEvent&		pop_event();
 
 } // namespace crown
 

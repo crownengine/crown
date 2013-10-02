@@ -27,30 +27,57 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Memory.h"
 #include "HeapAllocator.h"
 
-//-----------------------------------------------------------------------------
-void* operator new(size_t) throw (std::bad_alloc)
-{
-	CE_ASSERT(false, "operator new forbidden");
+// //-----------------------------------------------------------------------------
+// void* operator new(size_t) throw (std::bad_alloc)
+// {
+// 	CE_ASSERT(false, "operator new forbidden");
 
-	return NULL;
+// 	return NULL;
+// }
+
+// //-----------------------------------------------------------------------------
+// void* operator new[](size_t) throw (std::bad_alloc)
+// {
+// 	CE_ASSERT(false, "operator new[] forbidden");
+
+// 	return NULL;
+// }
+
+// //-----------------------------------------------------------------------------
+// void operator delete(void*) throw ()
+// {
+// 	CE_ASSERT(false, "operator delete forbidden");
+// }
+
+// //-----------------------------------------------------------------------------
+// void operator delete[](void*) throw ()
+// {
+// 	CE_ASSERT(false, "operator delete[] forbidden");
+// }
+
+namespace crown
+{
+namespace memory
+{
+
+static char buffer[1024];
+static HeapAllocator* g_default_allocator = NULL;
+
+void init()
+{
+	g_default_allocator = new (buffer) HeapAllocator();
 }
 
-//-----------------------------------------------------------------------------
-void* operator new[](size_t) throw (std::bad_alloc)
+void shutdown()
 {
-	CE_ASSERT(false, "operator new[] forbidden");
-
-	return NULL;
+	g_default_allocator->~HeapAllocator();
 }
 
-//-----------------------------------------------------------------------------
-void operator delete(void*) throw ()
+} // namespace memory
+
+Allocator& default_allocator()
 {
-	CE_ASSERT(false, "operator delete forbidden");
+	return *memory::g_default_allocator;
 }
 
-//-----------------------------------------------------------------------------
-void operator delete[](void*) throw ()
-{
-	CE_ASSERT(false, "operator delete[] forbidden");
-}
+} // namespace crown

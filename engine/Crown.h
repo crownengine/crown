@@ -60,12 +60,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Map.h"
 #include "RBTree.h"
 #include "List.h"
+#include "Vector.h"
 #include "Generic.h"
 #include "Queue.h"
+#include "PriorityQueue.h"
 #include "IdTable.h"
 
 // Core/Strings
 #include "StringUtils.h"
+#include "StringStream.h"
 #include "Hash.h"
 #include "Path.h"
 
@@ -101,8 +104,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 
 // Engine/Input
-#include "EventDispatcher.h"
-#include "InputManager.h"
 #include "Keyboard.h"
 #include "KeyCode.h"
 #include "Mouse.h"
@@ -113,28 +114,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaEnvironment.h"
 
 // Engine/Os
-#include "Thread.h"
+#include "OsThread.h"
 #include "Mutex.h"
 #include "Cond.h"
 #include "OsFile.h"
 #include "OsWindow.h"
-#include "TCPSocket.h"
-#include "UDPSocket.h"
+#include "OsSocket.h"
 
 // Engine/Renderers
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
 #include "Renderer.h"
-#include "Material.h"
-#include "Texture.h"
+#include "RenderContext.h"
 #include "DebugRenderer.h"
 #include "PixelFormat.h"
 #include "VertexFormat.h"
 
 // Engine/Resource
 #include "Bundle.h"
-#include "ArchiveBundle.h"
-#include "FileBundle.h"
 #include "ResourceLoader.h"
 #include "ResourceManager.h"
 #include "TextureResource.h"
@@ -142,3 +137,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SoundResource.h"
 #include "MaterialResource.h"
 #include "FontResource.h"
+
+// Engine/Audio
+#include "SoundRenderer.h"
+#include "OggDecoder.h"

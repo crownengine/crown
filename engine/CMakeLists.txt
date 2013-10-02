@@ -25,7 +25,9 @@ endif (CROWN_ARCH MATCHES "ARMv7")
 set (CROWN_THIRD_INCLUDES
 	${CROWN_THIRD}/luajit/include/luajit-2.0
 	${CROWN_THIRD}/glew-1.9.0/include
-	${CROWN_THIRD}/zlib/include	
+	${CROWN_THIRD}/zlib/include
+	${CROWN_THIRD}/oggvorbis/include
+	${CROWN_THIRD}/openAL/include
 )
 
 # architecture dependent libraries
@@ -33,6 +35,8 @@ set (CROWN_THIRD_LIBS
 	${CROWN_THIRD}/luajit/lib
 	${CROWN_THIRD}/glew-1.9.0/lib
 	${CROWN_THIRD}/zlib/lib
+	${CROWN_THIRD}/oggvorbis/lib
+	${CROWN_THIRD}/openAL/lib
 )
 
 add_subdirectory(${CROWN_THIRD})
@@ -54,15 +58,21 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/input
 	${CMAKE_SOURCE_DIR}/engine/renderers
 	${CMAKE_SOURCE_DIR}/engine/resource
+	${CMAKE_SOURCE_DIR}/engine/rpc
 	${CMAKE_SOURCE_DIR}/engine/network
 	${CMAKE_SOURCE_DIR}/engine/lua
+	${CMAKE_SOURCE_DIR}/engine/audio
+	${CMAKE_SOURCE_DIR}/engine/compilers
+	${CMAKE_SOURCE_DIR}/engine/compilers/lua
+	${CMAKE_SOURCE_DIR}/engine/compilers/texture
+	${CMAKE_SOURCE_DIR}/engine/compilers/sound
+	${CMAKE_SOURCE_DIR}/engine/compilers/mesh
+	${CMAKE_SOURCE_DIR}/engine/compilers/package
 )
 
 set (SRC
 	Camera.cpp
 	Device.cpp
-	ConsoleServer.cpp
-	FPSSystem.cpp
 )
 
 set (HEADERS
@@ -70,8 +80,6 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
-	ConsoleServer.h
-	FPSSystem.h
 )
 
 set (CORE_SRC
@@ -106,9 +114,11 @@ set (CONTAINERS_SRC
 
 set (CONTAINERS_HEADERS
 	core/containers/Queue.h
+	core/containers/PriorityQueue.h
 	core/containers/Map.h
 	core/containers/Generic.h
 	core/containers/List.h
+	core/containers/Vector.h
 	core/containers/RBTree.h
 	core/containers/IdTable.h
 )
@@ -144,28 +154,21 @@ set (MATH_HEADERS
 )
 
 set (FILESYSTEM_SRC
-	core/filesystem/DiskFile.cpp
 	core/filesystem/File.cpp
-	
-	core/filesystem/BinaryReader.cpp
-	core/filesystem/BinaryWriter.cpp
-	core/filesystem/TextReader.cpp
-	core/filesystem/TextWriter.cpp
-
-	core/filesystem/Filesystem.cpp
+	core/filesystem/DiskFile.cpp
+	core/filesystem/DiskFilesystem.cpp
 )
 
 set (FILESYSTEM_HEADERS
-	core/filesystem/DiskFile.h
-	core/filesystem/NullFile.h
 	core/filesystem/File.h
-
+	core/filesystem/NullFile.h
+	core/filesystem/DiskFile.h
 	core/filesystem/BinaryReader.h
 	core/filesystem/BinaryWriter.h
 	core/filesystem/TextReader.h
 	core/filesystem/TextWriter.h
-
 	core/filesystem/Filesystem.h
+	core/filesystem/DiskFilesystem.h
 )
 
 set (JSON_SRC
@@ -181,13 +184,14 @@ set (STRINGS_SRC
 
 set (STRINGS_HEADERS
 	core/strings/Path.h
-	core/strings/String.h
+	core/strings/StringUtils.h
+	core/strings/StringStream.h
 	core/strings/Hash.h
+	core/strings/DynamicString.h
 )
 
 set (MEM_SRC
 	core/mem/Memory.cpp
-	core/mem/Allocator.cpp
 	core/mem/HeapAllocator.cpp
 	core/mem/LinearAllocator.cpp
 	core/mem/StackAllocator.cpp
@@ -226,17 +230,9 @@ set (SETTINGS_HEADERS
 )
 
 set (INPUT_SRC
-	input/EventDispatcher.cpp
-	input/InputManager.cpp
-	input/Keyboard.cpp
-	input/Mouse.cpp
-	input/Touch.cpp
-	input/Accelerometer.cpp
 )
 
 set (INPUT_HEADERS
-	input/EventDispatcher.h
-	input/InputManager.h
 	input/Keyboard.h
 	input/KeyCode.h
 	input/Mouse.h
@@ -253,59 +249,68 @@ set (NETWORK_HEADERS
 
 set (RENDERERS_SRC
 	renderers/DebugRenderer.cpp
-	renderers/PixelFormat.cpp
-	renderers/VertexFormat.cpp
 )
 
 set (RENDERERS_HEADERS
 	renderers/Renderer.h
-	renderers/IndexBuffer.h
-	renderers/VertexBuffer.h
-	renderers/Material.h
-	renderers/Texture.h
+	renderers/RenderContext.h
 	renderers/DebugRenderer.h
 	renderers/PixelFormat.h
 	renderers/VertexFormat.h
 )
 
 set (RESOURCE_SRC
-	resource/MaterialResource.cpp
 	resource/ResourceLoader.cpp
 	resource/ResourceManager.cpp
 	resource/ResourceRegistry.cpp
-	resource/TextureResource.cpp
-	resource/MeshResource.cpp
-	resource/FontResource.cpp
-	resource/SoundResource.cpp
-	resource/ArchiveBundle.cpp
-	resource/FileBundle.cpp
 )
 
+if (CROWN_DEBUG OR CROWN_DEVELOPMENT)
+	list (APPEND RESOURCE_SRC resource/FileBundle.cpp)
+elseif (CROWN_RELEASE)
+	list (APPEND RESOURCE_SRC resource/ArchiveBundle.cpp)
+else ()
+	message (FATAL_ERROR "Oops, you should not be here")
+endif (CROWN_DEBUG OR CROWN_DEVELOPMENT)
+
 set (RESOURCE_HEADERS
-	resource/MaterialResource.h
 	resource/Resource.h
+	resource/ResourceFormat.h
 	resource/ResourceLoader.h
 	resource/ResourceManager.h
 	resource/ResourceRegistry.h
 	resource/Bundle.h
+	resource/LuaResource.h
 	resource/TextureResource.h
 	resource/MeshResource.h
 	resource/FontResource.h
 	resource/SoundResource.h
-	resource/ArchiveBundle.h
-	resource/FileBundle.h
+	resource/MaterialResource.h
+	resource/PackageResource.h
+	resource/ResourcePackage.h
+)
+
+set (RPC_SRC
+	rpc/RPCHandler.cpp
+	rpc/RPCServer.cpp
+)
+
+set (RPC_HEADERS
+	rpc/RPCServer.h
+	rpc/RPCHandler.h
 )
 
 set (OS_SRC
-	os/OS.cpp
 )
 
 set (OS_HEADERS
 	os/OS.h
+	os/OsEventQueue.h
 	os/NetAddress.h
+	os/OsTypes.h
 )
 
-set(LUA_SRC
+set (LUA_SRC
 	lua/LuaStack.cpp
 	lua/LuaEnvironment.cpp
 	lua/LuaIntSetting.cpp
@@ -321,11 +326,39 @@ set(LUA_SRC
 	lua/LuaAccelerometer.cpp
 	lua/LuaDevice.cpp
 	lua/LuaWindow.cpp
+	lua/LuaResourcePackage.cpp
 )
 
-set(LUA_HEADERS
+set (LUA_HEADERS
 	lua/LuaStack.h
 	lua/LuaEnvironment.h
+)
+
+set (AUDIO_SRC)
+
+set (AUDIO_HEADERS
+	audio/SoundRenderer.h
+	audio/OggDecoder.h
+)
+
+set (COMPILER_SRC
+	compilers/Compiler.cpp
+	compilers/BundleCompiler.cpp
+	compilers/mesh/MeshCompiler.cpp
+	compilers/lua/LuaCompiler.cpp
+	compilers/texture/TextureCompiler.cpp
+	compilers/sound/SoundCompiler.cpp
+	compilers/package/PackageCompiler.cpp
+)
+
+set (COMPILER_HEADER
+	compilers/Compiler.h
+	compilers/BundleCompiler.h
+	compilers/mesh/MeshCompiler.h
+	compilers/lua/LuaCompiler.h
+	compilers/texture/TextureCompiler.h
+	compilers/sound/SoundCompiler.h
+	compilers/package/PackageCompiler.h
 )
 
 set (CROWN_LIBRARIES)
@@ -335,39 +368,40 @@ if (LINUX)
 	list (APPEND CROWN_INCLUDES
 		${CMAKE_SOURCE_DIR}/engine/os/linux
 		${CMAKE_SOURCE_DIR}/engine/renderers/gl/glx
+		${CMAKE_SOURCE_DIR}/engine/renderers/al
 	)
 
 	list (APPEND OS_HEADERS
 		os/linux/OsWindow.h
-		os/linux/TCPSocket.h
-		os/linux/UDPSocket.h
 		os/linux/OsFile.h
-		os/linux/Thread.h
+		os/linux/OsThread.h
 		os/linux/Mutex.h
 		os/linux/Cond.h
+		os/posix/Semaphore.h
 	)
 
 	list (APPEND OS_SRC
 		os/linux/LinuxOS.cpp
 		os/linux/OsWindow.cpp
-		os/posix/TCPSocket.cpp
-		os/posix/UDPSocket.cpp	
 		os/posix/OsFile.cpp
-		os/posix/Thread.cpp
-		os/posix/Mutex.cpp
-		os/posix/Cond.cpp
 	)
 
 	list (APPEND RENDERERS_SRC
 		renderers/gl/GLRenderer.cpp
-		renderers/gl/GLUtils.cpp
 		renderers/gl/glx/GLContext.cpp
 	)
 
 	list (APPEND RENDERERS_HEADERS
 		renderers/gl/GLRenderer.h
-		renderers/gl/GLUtils.h
 		renderers/gl/glx/GLContext.h
+	)
+
+	list (APPEND AUDIO_SRC
+		audio/al/ALRenderer.cpp
+	)
+
+	list (APPEND AUDIO_HEADERS
+		audio/al/ALRenderer.h
 	)
 
 	list (APPEND CROWN_LIBRARIES
@@ -379,6 +413,8 @@ if (LINUX)
 		dl
 		GLEW
 		GL
+		openal
+		vorbisfile
 		luajit-5.1
 	)
 
@@ -392,13 +428,27 @@ if (LINUX)
 		-Werror
 		-Wno-long-long
 		-Wno-variadic-macros
-		-g
-		-pg
 		-fPIC
 		#-fvisibility=hidden
 	)
 
-	set (CROWN_EXECUTABLE_NAME crown-linux)
+	if (CROWN_DEBUG)
+		list (APPEND COMPILER_FLAGS -g -pg)
+	elseif (CROWN_DEVELOPMENT)
+		list (APPEND COMPILER_FLAGS -O2)
+	elseif (CROWN_RELEASE)
+		list (APPEND COMPILER_FLAGS
+			-O2
+			-Wno-unused-variable
+			-Wno-unused-parameter
+			-Wno-maybe-uninitialized
+			-Wno-unused-but-set-variable
+			-Wno-unused-function
+		)
+	else ()
+		message (FATAL_ERROR "Oops, you should not be here")
+	endif (CROWN_DEBUG)
+
 	set (CROWN_MAIN_SRC os/linux/main.cpp)
 endif (LINUX)
 
@@ -409,32 +459,39 @@ if (WINDOWS)
 	)
 
 	list (APPEND OS_HEADERS
-		os/win/OsWindow.h
 		os/win/OsFile.h
-		os/win/Thread.h
+		os/win/OsThread.h
+		os/win/OsWindow.h
 		os/win/Mutex.h
 		os/win/Cond.h
+		os/win/Semaphore.h
+		os/win/AtomicInt.h
+		os/win/inttypes.h
 	)
 
 	list (APPEND OS_SRC
 		os/win/WinOS.cpp
-		os/win/OsWindow.cpp
 		os/win/OsFile.cpp
-		os/win/Thread.cpp
-		os/win/Mutex.cpp
-		os/win/Cond.cpp
+		os/win/OsWindow.cpp
 	)
 
 	list (APPEND RENDERERS_SRC
 		renderers/gl/GLRenderer.cpp
-		renderers/gl/GLUtils.cpp
 		renderers/gl/wgl/GLContext.cpp
 	)
 
 	list (APPEND RENDERERS_HEADERS
 		renderers/gl/GLRenderer.h
-		renderers/gl/GLUtils.h
 		renderers/gl/wgl/GLContext.h
+		renderers/gl/wgl/wglext.h
+	)
+
+	list (APPEND AUDIO_SRC
+		audio/al/ALRenderer.cpp
+	)
+
+	list (APPEND AUDIO_HEADERS
+		audio/al/ALRenderer.h
 	)
 
 	list (APPEND CROWN_LIBRARIES
@@ -442,11 +499,14 @@ if (WINDOWS)
 		OpenGL32
 		glew32
 		lua51
+		OpenAL32
+		libvorbis
+		libvorbisfile
 	)
 
-	set (COMPILER_FLAGS)
-	
-	set (CROWN_EXECUTABLE_NAME crown-win)
+	set (COMPILER_FLAGS
+	)
+
 	set (CROWN_MAIN_SRC os/win/main.cpp)
 endif(WINDOWS)
 
@@ -461,18 +521,15 @@ set (CROWN_SOURCES
 	${MEM_SRC}
 	${COMPRESSORS_SRC}
 	${SETTINGS_SRC}
-
 	${INPUT_SRC}
-
 	${RENDERERS_SRC}
-
 	${RESOURCE_SRC}
-
+	${RPC_SRC}
 #	${NETWORK_SRC}
-
 	${OS_SRC}
-
 	${LUA_SRC}
+	${AUDIO_SRC}
+	${COMPILER_SRC}
 )
 
 set (CROWN_HEADERS
@@ -486,20 +543,15 @@ set (CROWN_HEADERS
 	${MEM_HEADERS}
 	${COMPRESSORS_HEADERS}
 	${SETTINGS_HEADERS}
-
 	${INPUT_HEADERS}
-
 	${RENDERERS_HEADERS}
-
 	${RESOURCE_HEADERS}
-
 	${RPC_HEADERS}
-
 #	${NETWORK_HEADERS}
-
 	${OS_HEADERS}
-
 	${LUA_HEADERS}
+	${AUDIO_HEADERS}
+	${COMPILER_HEADERS}
 )
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
@@ -520,8 +572,11 @@ if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
+
 install (TARGETS crown DESTINATION bin)
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
+
+install (TARGETS crown DESTINATION test)
 
 #install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 

@@ -26,12 +26,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <windows.h>
+#include "wglext.h"
+
+#include "Types.h"
 
 namespace crown
 {
 
-void set_win_handle_window(HWND win);
+CE_EXPORT void glcontext_set_window(HWND handle);
 
 class GLContext
 {
@@ -46,6 +48,7 @@ public:
 private:
 
 	HGLRC 			m_win_context;
+	HDC				m_hdc;
 };
 
 } // namespace crown

@@ -27,9 +27,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <pthread.h>
+#include <cstring>
 
 #include "Types.h"
 #include "OS.h"
+#include "Assert.h"
 
 namespace crown
 {
@@ -56,5 +58,39 @@ private:
 
 	friend class		Cond;
 };
+
+//-----------------------------------------------------------------------------
+inline Mutex::Mutex()
+{
+	memset(&m_mutex, 0, sizeof(pthread_mutex_t));
+
+	int32_t result = pthread_mutex_init(&m_mutex, NULL);
+
+	CE_ASSERT(result == 0, "Failed to init mutex. errno: %d", result);
+}
+
+//-----------------------------------------------------------------------------
+inline Mutex::~Mutex()
+{
+	int32_t result = pthread_mutex_destroy(&m_mutex);
+
+	CE_ASSERT(result == 0, "Failed to destroy mutex. errno: %d", result);
+}
+
+//-----------------------------------------------------------------------------
+inline void Mutex::lock()
+{
+	int32_t result = pthread_mutex_lock(&m_mutex);
+
+	CE_ASSERT(result == 0, "Failed to acquire lock. errno: %d", result);
+}
+
+//-----------------------------------------------------------------------------
+inline void Mutex::unlock()
+{
+	int32_t result = pthread_mutex_unlock(&m_mutex);
+
+	CE_ASSERT(result == 0, "Failed to release lock. errno: %d", result);
+}
 
 } // namespace crown

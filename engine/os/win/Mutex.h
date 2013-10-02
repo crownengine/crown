@@ -55,4 +55,28 @@ private:
 	friend class		Cond;
 };
 
+//-----------------------------------------------------------------------------
+inline Mutex::Mutex()
+{
+	InitializeCriticalSection(&m_cs);
+}
+
+//-----------------------------------------------------------------------------
+inline Mutex::~Mutex()
+{
+	DeleteCriticalSection(&m_cs);
+}
+
+//-----------------------------------------------------------------------------
+inline void Mutex::lock()
+{
+    EnterCriticalSection(&m_cs); 
+}
+
+//-----------------------------------------------------------------------------
+inline void Mutex::unlock()
+{
+    LeaveCriticalSection(&m_cs);
+}
+
 } // namespace crown

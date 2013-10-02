@@ -24,41 +24,31 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <android/native_window_jni.h>
-
 #include "OsWindow.h"
 #include "GLContext.h"
 #include "Assert.h"
+#include "Log.h"
 
 namespace crown
 {
 
-static ANativeWindow* window = NULL;
+ANativeWindow* g_android_window = NULL;
 
 //-----------------------------------------------------------------------------
-OsWindow::OsWindow(uint32_t width, uint32_t height) :
-	m_window(NULL),
-	m_width(0),
-	m_height(0),
-	m_x(0),
-	m_y(0)
+OsWindow::OsWindow()
+	: m_x(0), m_y(0), m_width(0), m_height(0)
 {
-	m_window = window;
-
-	m_width = ANativeWindow_getWidth(m_window);
-	m_height = ANativeWindow_getHeight(m_window);
-
-    set_android_window(m_window);
+	m_width = ANativeWindow_getWidth(g_android_window);
+	m_height = ANativeWindow_getHeight(g_android_window);
 }
 
 //-----------------------------------------------------------------------------
 OsWindow::~OsWindow()
 {
-	if (m_window)
+	if (g_android_window)
 	{
-		ANativeWindow_release(m_window);
+		ANativeWindow_release(g_android_window);
 	}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -86,32 +76,48 @@ void OsWindow::get_position(uint32_t& x, uint32_t& y)
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::resize(uint32_t width, uint32_t height)
+void OsWindow::resize(uint32_t /*width*/, uint32_t /*height*/)
 {
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::move(uint32_t x, uint32_t y)
+void OsWindow::move(uint32_t /*x*/, uint32_t /*y*/)
 {
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::show_cursor()
+void OsWindow::minimize()
 {
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::hide_cursor()
+void OsWindow::restore()
 {
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::get_cursor_xy(int32_t& x, int32_t& y)
+bool OsWindow::is_resizable() const
+{
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::set_resizable(bool /*resizeable*/)
 {
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::set_cursor_xy(int32_t x, int32_t y)
+void OsWindow::show_cursor(bool /*show*/)
+{
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::get_cursor_xy(int32_t& /*x*/, int32_t& /*y*/)
+{
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::set_cursor_xy(int32_t /*x*/, int32_t /*y*/)
 {
 }
 
@@ -122,22 +128,29 @@ char* OsWindow::title()
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::set_title(const char* title)
+void OsWindow::set_title(const char* /*title*/)
 {
 }
 
 //-----------------------------------------------------------------------------
 void OsWindow::frame()
 {
-	// implemented on Java-side
 }
 
 //-----------------------------------------------------------------------------
-extern "C" void Java_crown_android_CrownLib_setWindow(JNIEnv *env, jclass clazz, jobject surface)
+extern "C" void Java_crown_android_CrownLib_createWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
 {
     // obtain a native window from a Java surface
 	CE_ASSERT(surface != 0, "Unable to get Android window");
-    window = ANativeWindow_fromSurface(env, surface);
+    g_android_window = ANativeWindow_fromSurface(env, surface);
+    Log::i("Window created");
+}
+
+//-----------------------------------------------------------------------------
+extern "C" void Java_crown_android_CrownLib_destroyWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
+{
+    ANativeWindow_release(g_android_window);
+    Log::i("Window destroyed");
 }
 
 } // namespace crown

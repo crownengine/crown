@@ -31,13 +31,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 #include "Log.h"
 
-#ifdef CROWN_DEBUG
+#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
 	#define CE_ASSERT(condition, ...) do { if (!(condition)) {\
 		crown::Log::e("Assertion failed: %s", #condition);\
 		crown::Log::e("\t" __VA_ARGS__);\
-		crown::Log::e("\n\tIn %s:%d\n\n", __FILE__, __LINE__); abort();} } while (0)
+		crown::Log::e("\n\tIn %s:%d\n\n", __FILE__, __LINE__);\
+		crown::Log::flush(); abort();} } while (0)
 #else
 	#define CE_ASSERT(...) ((void)0)
 #endif
 
 #define CE_ASSERT_NOT_NULL(x) CE_ASSERT(x != NULL, "Parameter must be not null")
+#define CE_FATAL(msg) CE_ASSERT(false, msg)

@@ -24,8 +24,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Device.h"
 #include "OsWindow.h"
+#include "Device.h"
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
 
@@ -109,49 +109,35 @@ CE_EXPORT int window_move(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_show_cursor(lua_State* L)
+CE_EXPORT int window_minimize(lua_State* /*L*/)
 {
-	LuaStack stack(L);
-
-	device()->window()->show_cursor();
-
+	device()->window()->minimize();
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_hide_cursor(lua_State* L)
+CE_EXPORT int window_restore(lua_State* /*L*/)
 {
-	LuaStack stack(L);
-
-	device()->window()->hide_cursor();
-
+	device()->window()->restore();
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_get_cursor_xy(lua_State* L)
+CE_EXPORT int window_is_resizable(lua_State* L)
 {
 	LuaStack stack(L);
 
-	int32_t x, y;
+	stack.push_bool(device()->window()->is_resizable());
 
-	device()->window()->get_cursor_xy(x, y);
-
-	stack.push_int32(x);
-	stack.push_int32(y);
-
-	return 2;
+	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_set_cursor_xy(lua_State* L)
+CE_EXPORT int window_set_resizable(lua_State* L)
 {
 	LuaStack stack(L);
 
-	const int32_t x = stack.get_int(1);
-	const int32_t y = stack.get_int(2);
-
-	device()->window()->set_cursor_xy(x, y);
+	device()->window()->set_resizable(stack.get_bool(1));
 
 	return 0;
 }
@@ -189,10 +175,10 @@ void load_window(LuaEnvironment& env)
 	env.load_module_function("Window", "get_position",	window_get_position);
 	env.load_module_function("Window", "resize",		window_resize);
 	env.load_module_function("Window", "move",			window_move);
-	env.load_module_function("Window", "show_cursor",	window_show_cursor);
-	env.load_module_function("Window", "hide_cursor",	window_hide_cursor);
-	env.load_module_function("Window", "get_cursor_xy",	window_get_cursor_xy);
-	env.load_module_function("Window", "set_cursor_xy",	window_set_cursor_xy);
+	env.load_module_function("Window", "minimize",		window_minimize);
+	env.load_module_function("Window", "restore",		window_restore);
+	env.load_module_function("Window", "is_resizable",	window_is_resizable);
+	env.load_module_function("Window", "set_resizable",	window_set_resizable);
 	env.load_module_function("Window", "title",			window_title);
 	env.load_module_function("Window", "set_title",		window_set_title);
 }

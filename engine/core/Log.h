@@ -42,8 +42,10 @@ enum LogLevel
 	LL_DEBUG	= 3
 };
 
+class RPCServer;
+
 /// Used to log messages.
-class Log
+class CE_EXPORT Log
 {
 
 public:
@@ -61,13 +63,11 @@ public:
 	static void			w(const char* message, ...);
 	static void			i(const char* message, ...);
 
-	static void			indent_in();
-	static void			indent_out();
+	static void			flush();
 
 private:
 
 	static LogLevel		m_threshold;
-	static int32_t		m_indent_count;
 };
 
 } // namespace crown

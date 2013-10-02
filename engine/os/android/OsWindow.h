@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <sys/types.h>
 #include <android/native_window.h>
+#include <android/native_window_jni.h>
 
 namespace crown
 {
@@ -36,32 +37,59 @@ class OsWindow
 {
 public:
 
-					OsWindow(uint32_t width, uint32_t height);
+	/// Stub method, does nothing under Android.
+					OsWindow();
 					~OsWindow();
 
+	/// Stub method, does nothing under Android.
 	void			show();
+
+	/// Stub method, does nothing under Android.
 	void			hide();
 
+	/// Returns the size in pixel of the window.
 	void			get_size(uint32_t& width, uint32_t& height);
+
+	/// Returns always (0, 0) under Android.
 	void			get_position(uint32_t& x, uint32_t& y);
 
+	/// Stub method, does nothing under Android.
 	void			resize(uint32_t width, uint32_t height);
+
+	/// Stub method, does nothing under Android.
 	void			move(uint32_t x, uint32_t y);
 
-	void			show_cursor();
-	void			hide_cursor();
+	/// Stub method, does nothing under Android.	
+	void			minimize();
 
+	/// Stub method, does nothing under Android.
+	void			restore();
+
+	/// Returns always false.
+	bool			is_resizable() const;
+
+	/// Stub method, does nothing under Android.	
+	void			set_resizable(bool resizeable);
+
+	/// Stub method, does nothing under Android.
+	void			show_cursor(bool show);
+
+	/// Stub method, does nothing under Android.
 	void			get_cursor_xy(int32_t& x, int32_t& y);
+
+	/// Stub method, does nothing under Android.
 	void			set_cursor_xy(int32_t x, int32_t y);
 
+	/// Returns always NULL under Android.
 	char*			title();
+
+	/// Stub method, does nothing under Android.
 	void			set_title(const char* title);
 
+	/// Stub method, does nothing under Android.
 	void			frame();
 
 private:
-
-	ANativeWindow*	m_window;
 
 	uint32_t		m_x;
 	uint32_t		m_y;

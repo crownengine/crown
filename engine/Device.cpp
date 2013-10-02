@@ -22,73 +22,83 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
+OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <cstdlib>
 
 #include "Config.h"
 #include "Device.h"
-#include "Filesystem.h"
-#include "InputManager.h"
-#include "Log.h"
-#include "OS.h"
-#include "Renderer.h"
-#include "DebugRenderer.h"
-#include "Types.h"
-#include "StringUtils.h"
-#include "Args.h"
-#include "ArchiveBundle.h"
-#include "FileBundle.h"
-#include "ResourceManager.h"
-#include "TextureResource.h"
-#include "Keyboard.h"
-#include "Mouse.h"
-#include "Touch.h"
 #include "Accelerometer.h"
-#include "OsWindow.h"
-#include "JSONParser.h"
+#include "Args.h"
+#include "DebugRenderer.h"
 #include "DiskFile.h"
-#include "Memory.h"
+#include "DiskFilesystem.h"
+#include "JSONParser.h"
+#include "Keyboard.h"
+#include "Log.h"
 #include "LuaEnvironment.h"
-#include "ConsoleServer.h"
+#include "Memory.h"
+#include "Mouse.h"
+#include "OS.h"
+#include "OsWindow.h"
+#include "Renderer.h"
+#include "ResourceManager.h"
+#include "StringSetting.h"
+#include "StringUtils.h"
 #include "TextReader.h"
+#include "Touch.h"
+#include "Types.h"
+#include "Bundle.h"
+#include "TempAllocator.h"
+#include "ResourcePackage.h"
+#include "RPCServer.h"
+#include "SoundRenderer.h"
+
+#if defined(LINUX) || defined(WINDOWS)
+	#include "BundleCompiler.h"
+#endif
+
+#if defined(ANDROID)
+	#include "ApkFilesystem.h"
+#endif
+
+#define MAX_SUBSYSTEMS_HEAP 16 * 1024 * 1024
 
 namespace crown
 {
-
 //-----------------------------------------------------------------------------
-Device::Device() :
-	m_allocator(m_subsystems_heap, MAX_SUBSYSTEMS_HEAP),
+Device::Device()
+	: m_allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
+	, m_is_init(false)
+	, m_is_running(false)
+	, m_is_paused(false)
+	, m_is_really_paused(false)
 
-	m_preferred_window_width(1000),
-	m_preferred_window_height(625),
-	m_preferred_window_fullscreen(0),
-	m_preferred_mode(MODE_RELEASE),
+	, m_frame_count(0)
 
-	m_quit_after_init(0),
+	, m_last_time(0)
+	, m_current_time(0)
+	, m_last_delta_time(0.0f)
+	, m_time_since_start(0.0)
 
-	m_is_init(false),
-	m_is_running(false),
+	, m_filesystem(NULL)
+	, m_lua_environment(NULL)
+	, m_renderer(NULL)
+	, m_debug_renderer(NULL)
+	, m_sound_renderer(NULL)
 
-	m_frame_count(0),
+	, m_bundle_compiler(NULL)
+	, m_rpc(NULL)
+	, m_resource_manager(NULL)
+	, m_resource_bundle(NULL)
 
-	m_last_time(0),
-	m_current_time(0),
-	m_last_delta_time(0.0f),
-
-	m_filesystem(NULL),
-	m_input_manager(NULL),
-	m_lua_environment(NULL),
-	m_renderer(NULL),
-	m_debug_renderer(NULL),
-
-	m_resource_manager(NULL),
-	m_resource_bundle(NULL),
-
-	m_console_server(NULL)
+	, m_renderer_init_request(false)
 {
-	// Select executable dir by default
-	string::strncpy(m_preferred_root_path, os::get_cwd(), MAX_PATH_LENGTH);
+	// Bundle dir is current dir by default.
+	string::strncpy(m_bundle_dir, os::get_cwd(), MAX_PATH_LENGTH);
+	string::strncpy(m_source_dir, "", MAX_PATH_LENGTH);
+	string::strncpy(m_boot_file, "lua/game", MAX_PATH_LENGTH);
 }
 
 //-----------------------------------------------------------------------------
@@ -97,75 +107,101 @@ Device::~Device()
 }
 
 //-----------------------------------------------------------------------------
-bool Device::init(int argc, char** argv)
+void Device::init()
 {
-	if (is_init())
-	{
-		Log::e("Crown Engine is already initialized.");
-		return false;
-	}
-
-	parse_command_line(argc, argv);
-	check_preferred_settings();
-
 	// Initialize
 	Log::i("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
-	create_filesystem();
+	// RPC only in debug or development builds
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		m_rpc = CE_NEW(m_allocator, RPCServer);
+		m_rpc->add_handler(&m_command_handler);
+		m_rpc->add_handler(&m_script_handler);
+		m_rpc->add_handler(&m_stats_handler);
+		m_rpc->add_handler(&m_ping_handler);
+		m_rpc->init(false);
+	#endif
 
-	create_resource_manager();
+	// Default bundle filesystem
+	#if defined (LINUX) || defined(WINDOWS)
+		m_filesystem = CE_NEW(m_allocator, DiskFilesystem)(m_bundle_dir);
+	#elif defined(ANDROID)
+		m_filesystem = CE_NEW(m_allocator, ApkFilesystem)();
+	#endif
+	Log::d("Filesystem created.");
 
-	create_input_manager();
-
-	create_window();
-
-	create_renderer();
-
-	create_debug_renderer();
-
-	create_lua_environment();
-
-	create_console_server();
-
+	// Read settings from crown.config
 	read_engine_settings();
 
-	Log::i("Crown Engine initialized.");
+	m_resource_bundle = Bundle::create(m_allocator, *m_filesystem);
 
+	// Create resource manager
+	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, 0);
+	Log::d("Resource manager created.");
+	Log::d("Resource seed: %d", m_resource_manager->seed());
+
+	// Create window
+	m_window = CE_NEW(m_allocator, OsWindow);
+
+	// Create input devices
+	m_keyboard = CE_NEW(m_allocator, Keyboard);
+	m_mouse = CE_NEW(m_allocator, Mouse);
+	m_touch = CE_NEW(m_allocator, Touch);
+
+	// Create renderer
+	m_renderer = CE_NEW(m_allocator, Renderer)(m_allocator);
+	m_renderer->init();
+	Log::d("Renderer created.");
+
+	// Create debug renderer
+	m_debug_renderer = CE_NEW(m_allocator, DebugRenderer)(*m_renderer);
+	Log::d("Debug renderer created.");
+
+	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)();
+	m_lua_environment->init();
+	Log::d("Lua environment created.");
+
+	m_sound_renderer = CE_NEW(m_allocator, SoundRenderer)(m_allocator);
+	m_sound_renderer->init();
+	Log::d("SoundRenderer created.");
+
+	Log::i("Crown Engine initialized.");
 	Log::i("Initializing Game...");
 
-	// Initialize the game through init game function
-	m_lua_environment->game_init();
-
 	m_is_init = true;
-
 	start();
 
-	if (m_quit_after_init == 1)
+	// Execute lua boot file
+	if (m_lua_environment->load_and_execute(m_boot_file))
 	{
-		shutdown();
+		if (!m_lua_environment->call_global("init", 0))
+		{
+			pause();
+		}
+	}
+	else
+	{
+		pause();
 	}
 
-	return true;
+	Log::d("Total allocated size: %llu", m_allocator.allocated_size());
 }
 
 //-----------------------------------------------------------------------------
 void Device::shutdown()
 {
-	if (is_init() == false)
-	{
-		Log::e("Crown Engine is not initialized.");	
-		return;
-	}
+	CE_ASSERT(is_init(), "Engine is not initialized");
 
 	// Shutdowns the game
-	m_lua_environment->game_shutdown();
+	m_lua_environment->call_global("shutdown", 0);
 
-	Log::i("Releasing ConsoleServer...");
-	if (m_console_server)
+
+	Log::d("Releasing SoundRenderer...");
+	if (m_sound_renderer)
 	{
-		//m_console_server->shutdown();
+		m_sound_renderer->shutdown();
 
-		CE_DELETE(m_allocator, m_console_server);
+		CE_DELETE(m_allocator, m_sound_renderer);
 	}
 
 	Log::i("Releasing LuaEnvironment...");
@@ -176,11 +212,10 @@ void Device::shutdown()
 		CE_DELETE(m_allocator, m_lua_environment);
 	}
 
-	Log::i("Releasing InputManager...");
-	if (m_input_manager)
-	{
-		CE_DELETE(m_allocator, m_input_manager);
-	}
+	Log::i("Releasing Input Devices...");
+	CE_DELETE(m_allocator, m_touch);
+	CE_DELETE(m_allocator, m_mouse);
+	CE_DELETE(m_allocator, m_keyboard);
 
 	Log::i("Releasing DebugRenderer...");
 	if (m_debug_renderer)
@@ -192,25 +227,18 @@ void Device::shutdown()
 	if (m_renderer)
 	{
 		m_renderer->shutdown();
-
-		Renderer::destroy(m_allocator, m_renderer);
-	}
-
-	Log::i("Releasing Window...");
-	if (m_window)
-	{
-		CE_DELETE(m_allocator, m_window);
+		CE_DELETE(m_allocator, m_renderer);
 	}
 
 	Log::i("Releasing ResourceManager...");
-	if (m_resource_bundle)
-	{
-		CE_DELETE(m_allocator, m_resource_bundle);
-	}
-
 	if (m_resource_manager)
 	{
 		CE_DELETE(m_allocator, m_resource_manager);
+	}
+
+	if (m_resource_bundle)
+	{
+		Bundle::destroy(m_allocator, m_resource_bundle);
 	}
 
 	Log::i("Releasing Filesystem...");
@@ -219,8 +247,14 @@ void Device::shutdown()
 		CE_DELETE(m_allocator, m_filesystem);
 	}
 
-	m_allocator.clear();
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		Log::flush();
+		m_rpc->execute_callbacks();
+		m_rpc->shutdown();
+		CE_DELETE(m_allocator, m_rpc);
+	#endif
 
+	m_allocator.clear();
 	m_is_init = false;
 }
 
@@ -228,6 +262,12 @@ void Device::shutdown()
 bool Device::is_init() const
 {
 	return m_is_init;
+}
+
+//-----------------------------------------------------------------------------
+bool Device::is_paused() const
+{
+	return m_is_paused;
 }
 
 //-----------------------------------------------------------------------------
@@ -240,12 +280,6 @@ Filesystem* Device::filesystem()
 ResourceManager* Device::resource_manager()
 {
 	return m_resource_manager;
-}
-
-//-----------------------------------------------------------------------------
-InputManager* Device::input_manager()
-{
-	return m_input_manager;
 }
 
 //-----------------------------------------------------------------------------
@@ -273,57 +307,62 @@ DebugRenderer* Device::debug_renderer()
 }
 
 //-----------------------------------------------------------------------------
+SoundRenderer* Device::sound_renderer()
+{
+	return m_sound_renderer;
+}
+
+//-----------------------------------------------------------------------------
 Keyboard* Device::keyboard()
 {
-	return m_input_manager->keyboard();
+	return m_keyboard;
 }
 
 //-----------------------------------------------------------------------------
 Mouse* Device::mouse()
 {
-	return m_input_manager->mouse();
+	return m_mouse;
 }
 
 //-----------------------------------------------------------------------------
 Touch* Device::touch()
 {
-	return m_input_manager->touch();
+	return m_touch;
 }
 
 //-----------------------------------------------------------------------------
 Accelerometer* Device::accelerometer()
 {
-	return m_input_manager->accelerometer();
+	return NULL;
 }
 
-ConsoleServer* Device::console_server()
-{
-	return m_console_server;
-}
 //-----------------------------------------------------------------------------
 void Device::start()
 {
-	if (is_init() == false)
-	{
-		Log::e("Cannot start uninitialized engine.");
-		return;
-	}
+	CE_ASSERT(m_is_init, "Cannot start uninitialized engine.");
 
 	m_is_running = true;
-
 	m_last_time = os::milliseconds();
 }
 
 //-----------------------------------------------------------------------------
 void Device::stop()
 {
-	if (is_init() == false)
-	{
-		Log::e("Cannot stop uninitialized engine.");
-		return;
-	}
+	CE_ASSERT(m_is_init, "Cannot stop uninitialized engine.");
 
 	m_is_running = false;
+}
+
+//-----------------------------------------------------------------------------
+void Device::pause()
+{
+	m_is_paused = true;
+}
+
+//-----------------------------------------------------------------------------
+void Device::unpause()
+{
+	m_is_paused = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -345,234 +384,159 @@ float Device::last_delta_time() const
 }
 
 //-----------------------------------------------------------------------------
+double Device::time_since_start() const
+{
+	return m_time_since_start;
+}
+
+//-----------------------------------------------------------------------------
 void Device::frame()
 {
 	m_current_time = os::microseconds();
 	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
 	m_last_time = m_current_time;
+	m_time_since_start += m_last_delta_time;
 
-	m_resource_manager->poll_resource_loader();
+	m_rpc->update();
 
-	m_window->frame();
-	m_input_manager->frame(frame_count());
+	if (!m_is_paused)
+	{
+		m_resource_manager->poll_resource_loader();
 
-	m_lua_environment->game_frame(last_delta_time());
+		m_renderer->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
+		m_renderer->commit(0);
 
-	//m_console_server->execute();
+		if (!m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time()))
+		{
+			pause();
+		}
 
-	m_debug_renderer->draw_all();
-	m_renderer->frame();
+		m_renderer->frame();
+
+		// FIXME: SoundRenderer should not be updated each frame
+		m_sound_renderer->frame();
+	}
+
+	Log::flush();
+	m_rpc->execute_callbacks();
 
 	m_frame_count++;
 }
 
 //-----------------------------------------------------------------------------
-void Device::reload(ResourceId name)
+ResourcePackage* Device::create_resource_package(const char* name)
 {
-	(void)name;
+	CE_ASSERT_NOT_NULL(name);
+
+	ResourceId package_id = m_resource_manager->load("package", name);
+	m_resource_manager->flush();
+
+	PackageResource* package_res = (PackageResource*) m_resource_manager->data(package_id);
+	ResourcePackage* package = CE_NEW(default_allocator(), ResourcePackage)(*m_resource_manager, package_id, package_res);
+
+	return package;
 }
 
 //-----------------------------------------------------------------------------
-void Device::create_filesystem()
+void Device::destroy_resource_package(ResourcePackage* package)
 {
-	m_filesystem = CE_NEW(m_allocator, Filesystem)(m_preferred_root_path);
+	CE_ASSERT_NOT_NULL(package);
 
-	Log::d("Filesystem created.");
-	Log::d("Filesystem root path: %s", m_filesystem->root_path());
+	m_resource_manager->unload(package->resource_id());
+	CE_DELETE(default_allocator(), package);
 }
 
 //-----------------------------------------------------------------------------
-void Device::create_resource_manager()
+void Device::compile(const char* , const char* , const char* )
 {
-	// Select appropriate resource archive
-	if (m_preferred_mode == MODE_DEVELOPMENT)
+}
+
+//-----------------------------------------------------------------------------
+void Device::reload(const char* type, const char* name)
+{
+	TempAllocator4096 temp;
+	DynamicString filename(temp);
+	filename += name;
+	filename += '.';
+	filename += type;
+
+	if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir, filename.c_str()))
 	{
-		m_resource_bundle = CE_NEW(m_allocator, FileBundle)(*m_filesystem);
+		Log::d("Compilation failed.");
+		return;
 	}
-	else
+
+	uint32_t type_hash = hash::murmur2_32(type, string::strlen(type), 0);
+
+	switch (type_hash)
 	{
-		m_resource_bundle = CE_NEW(m_allocator, ArchiveBundle)(*m_filesystem);
-	}
-
-	// Read resource seed
-	DiskFile* seed_file = filesystem()->open("seed.ini", FOM_READ);
-	TextReader reader(*seed_file);
-
-	char tmp_buf[32];
-	reader.read_string(tmp_buf, 32);
-
-	filesystem()->close(seed_file);
-
-	uint32_t seed = string::parse_uint(tmp_buf);
-
-	// Create resource manager
-	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, seed);
-
-	Log::d("Resource manager created.");
-	Log::d("Resource seed: %d", m_resource_manager->seed());
-}
-
-//-----------------------------------------------------------------------------
-void Device::create_input_manager()
-{
-	// Create input manager
-	m_input_manager = CE_NEW(m_allocator, InputManager)();
-
-	Log::d("Input manager created.");
-}
-
-//-----------------------------------------------------------------------------
-void Device::create_window()
-{
-	m_window = CE_NEW(m_allocator, OsWindow)(m_preferred_window_width, m_preferred_window_height);
-
-	CE_ASSERT(m_window != NULL, "Unable to create the window");
-
-	m_window->set_title("Crown Game Engine");
-	m_window->show();
-
-	Log::d("Window created.");
-}
-
-//-----------------------------------------------------------------------------
-void Device::create_renderer()
-{
-	m_renderer = Renderer::create(m_allocator);
-	m_renderer->init();
-
-	Log::d("Renderer created.");
-}
-
-//-----------------------------------------------------------------------------
-void Device::create_debug_renderer()
-{
-	// Create debug renderer
-	m_debug_renderer = CE_NEW(m_allocator, DebugRenderer)(*m_renderer);
-
-	Log::d("Debug renderer created.");
-}
-
-//-----------------------------------------------------------------------------
-void Device::create_lua_environment()
-{
-	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)();
-
-	m_lua_environment->init();
-
-	Log::d("Lua environment created.");
-}
-
-void Device::create_console_server()
-{
-	m_console_server = NULL;//CE_NEW(m_allocator, ConsoleServer)();
-
-	//m_console_server->init();
-
-	Log::d("Console server created.");
-}
-
-//-----------------------------------------------------------------------------
-void Device::parse_command_line(int argc, char** argv)
-{
-	static ArgsOption options[] = 
-	{
-		{ "help",             AOA_NO_ARGUMENT,       NULL,        'i' },
-		{ "root-path",        AOA_REQUIRED_ARGUMENT, NULL,        'r' },
-		{ "width",            AOA_REQUIRED_ARGUMENT, NULL,        'w' },
-		{ "height",           AOA_REQUIRED_ARGUMENT, NULL,        'h' },
-		{ "fullscreen",       AOA_NO_ARGUMENT,       &m_preferred_window_fullscreen, 1 },
-		{ "dev",              AOA_NO_ARGUMENT,       &m_preferred_mode, MODE_DEVELOPMENT },
-		{ "quit-after-init",  AOA_NO_ARGUMENT,       &m_quit_after_init, 1 },
-		{ NULL, 0, NULL, 0 }
-	};
-
-	Args args(argc, argv, "", options);
-
-	int32_t opt;
-
-	while ((opt = args.getopt()) != -1)
-	{
-		switch (opt)
+		case LUA_TYPE:
 		{
-			case 0:
-			{
-				break;
-			}
-			// Root path
-			case 'r':
-			{
-				string::strncpy(m_preferred_root_path, args.optarg(), MAX_PATH_LENGTH);
-				break;
-			}
-			// Window width
-			case 'w':
-			{
-				m_preferred_window_width = atoi(args.optarg());
-				break;
-			}
-			// Window height
-			case 'h':
-			{
-				m_preferred_window_height = atoi(args.optarg());
-				break;
-			}
-			case 'i':
-			case '?':
-			default:
-			{
-				print_help_message();
-				exit(EXIT_FAILURE);
-			}
+			m_lua_environment->load_and_execute(name);
+			break;
+		}
+		default:
+		{
+			CE_ASSERT(false, "Oops, unknown resource type: %s", type);
+			break;
 		}
 	}
 }
-
-//-----------------------------------------------------------------------------
-void Device::check_preferred_settings()
-{
-	if (!os::is_absolute_path(m_preferred_root_path))
-	{
-		Log::e("The root path must be absolute.");
-		exit(EXIT_FAILURE);
-	}
-
-	if (m_preferred_window_width == 0 || m_preferred_window_height == 0)
-	{
-		Log::e("Window width and height must be greater than zero.");
-		exit(EXIT_FAILURE);
-	}
-}
-
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 void Device::read_engine_settings()
 {
+	// // Check crown.config existance
+	// CE_ASSERT(m_filesystem->is_file("crown.config"), "Unable to open crown.config");
+
+	// // Copy crown config in a buffer
+	// TempAllocator4096 allocator;
+
+	// File* config_file = m_filesystem->open("crown.config", FOM_READ);
+
+	// char* json_string = (char*)allocator.allocate(config_file->size());
+
+	// config_file->read(json_string, config_file->size());
+
+	// m_filesystem->close(config_file);
+
+	// // Parse crown.config
+	// JSONParser parser(json_string);
+
+	// JSONElement root = parser.root();
+
+	// // Boot
+	// if (root.has_key("boot"))
+	// {
+	// 	const char* boot = root.key("boot").string_value();
+	// 	const size_t boot_length = string::strlen(boot) + 1;
+
+	// 	string::strncpy(m_boot_file, boot, boot_length);
+	// }
+	// // Window width
+	// if (root.has_key("window_width"))
+	// {
+	// 	m_preferred_window_width = root.key("window_width").int_value();
+	// }
+	// // Window height
+	// if (root.has_key("window_height"))
+	// {
+	// 	m_preferred_window_height = root.key("window_height").int_value();
+	// }
+
+	// allocator.deallocate(json_string);
+
+	// Log::i("Configuration set");
 }
 
-//-----------------------------------------------------------------------------
-void Device::print_help_message()
+static Device* g_device;
+void set_device(Device* device)
 {
-	os::printf(
-	"Usage: crown [options]\n"
-	"Options:\n\n"
-
-	"All of the following options take precedence over\n"
-	"environment variables and configuration files.\n\n"
-
-	"  --help                Show this help.\n"
-	"  --root-path <path>    Use <path> as the filesystem root path.\n"
-	"  --width <width>       Set the <width> of the render window.\n"
-	"  --height <width>      Set the <height> of the render window.\n"
-	"  --fullscreen          Start in fullscreen.\n"
-	"  --dev                 Run the engine in development mode\n"
-	"  --quit-after-init     Quit the engine immediately after the\n"
-	"                        initialization. Used only for debugging.\n");
+	g_device = device;
 }
 
-Device g_device;
 Device* device()
 {
-	return &g_device;
+	return g_device;
 }
 
 } // namespace crown
-

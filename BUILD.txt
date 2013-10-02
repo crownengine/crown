@@ -40,27 +40,43 @@ engine on the currently supported platforms.
 
 		1. $ mkdir build
 		2. $ cd build
-		3. $ cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/your/install/dir -DCROWN_ARCH=<arch>
-		   (read below for valid architecture strings)
+		3. $ cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/your/install/dir -DCROWN_BUILD=<build>
+		   (read below for valid build strings)
 		4. $ make
 		5. $ make install
 
-		'CROWN_ARCH' valid values right now are:
+		'CROWN_BUILD' valid values right now are:
 
-	 		* Linux: "x86" or "x86_64"
+ 			* linux-debug-32
+ 			* linux-development-32
+ 			* linux-release-32
+ 			* linux-debug-64
+ 			* linux-development-64
+ 			* linux-release-64
+
 
 	- Windows
 
 		1. Create a folder named 'build'
 		2. Open a terminal and:
 		3. cd build
-		4. cmake.exe .. -DCMAKE_INSTALL_PREFIX=C:/your/install/dir -DCROWN_ARCH=win64
+		4. cmake.exe .. -DCMAKE_INSTALL_PREFIX=C:/your/install/dir -DCROWN_BUILD=<build>
 		5. Open the generated Visual Studio solution and build/install from there
+
+		'CROWN_BUILD' valid values right now are:
+
+ 			* windows-debug-32
+ 			* windows-development-32
+ 			* windows-release-32
+ 			* windows-debug-64
+ 			* windows-development-64
+ 			* windows-release-64
+
 
 	- Android
 
-		Building for Android is a bit involved process at the moment, we are working hard
-		to improve the system.
+		1. $ cd utils
+		2. $ ruby crown-android.rb --target <android-target> --name <project-name> --path <project-path>
 
 	You can also use the GUI front-end of CMake which can, less or more, simplify
 	the overall 'complexity' of building from the terminal.

@@ -11,6 +11,21 @@ LOCAL_SRC_FILES := libluajit-5.1.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 ###############################################################################
+# libogg & libvorbis
+###############################################################################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := ogg
+LOCAL_SRC_FILES := libogg.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := vorbis
+LOCAL_SRC_FILES := libvorbis.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+###############################################################################
 # libcrown
 ###############################################################################
 include $(CLEAR_VARS)
@@ -24,15 +39,11 @@ LOCAL_SRC_FILES :=\
 	core/compressors/ZipCompressor.cpp\
 	core/containers/Generic.cpp\
 \
-	core/filesystem/BinaryReader.cpp\
-	core/filesystem/BinaryWriter.cpp\
-	core/filesystem/DiskFile.cpp\
 	core/filesystem/File.cpp\
-	core/filesystem/Filesystem.cpp\
-	core/filesystem/TextReader.cpp\
-	core/filesystem/TextWriter.cpp\
+	core/filesystem/DiskFile.cpp\
+	core/filesystem/DiskFilesystem.cpp\
 \
-	core/json/JSONParser.cpp
+	core/json/JSONParser.cpp\
 \
 	core/math/Color4.cpp\
 	core/math/Mat3.cpp\
@@ -43,7 +54,6 @@ LOCAL_SRC_FILES :=\
 	core/math/Vec3.cpp\
 	core/math/Vec4.cpp\
 \
-	core/mem/Allocator.cpp\
 	core/mem/HeapAllocator.cpp\
 	core/mem/LinearAllocator.cpp\
 	core/mem/ProxyAllocator.cpp\
@@ -57,48 +67,28 @@ LOCAL_SRC_FILES :=\
 	core/Args.cpp\
 	core/Log.cpp\
 \
-	input/Accelerometer.cpp\
-	input/Keyboard.cpp\
-	input/Mouse.cpp\
-	input/Touch.cpp\
-	input/EventDispatcher.cpp\
-	input/InputManager.cpp\
-\
-	network/BitMessage.cpp\
-\
-	os/OS.cpp\
 	os/android/AndroidOS.cpp\
 	os/android/AndroidDevice.cpp\
 	os/android/OsWindow.cpp\
+	os/android/ApkFile.cpp\
+	os/android/ApkFilesystem.cpp\
 	os/posix/OsFile.cpp\
-	os/posix/Thread.cpp\
-	os/posix/Mutex.cpp\
-	os/posix/Cond.cpp\
-	os/posix/TCPSocket.cpp\
-	os/posix/UDPSocket.cpp\
 \
-	renderers/gles/GLESRenderer.cpp\
-	renderers/gles/GLESUtils.cpp\
-	renderers/gles/egl/GLContext.cpp\
+	renderers/gl/GLRenderer.cpp\
+	renderers/gl/egl/GLContext.cpp\
 	renderers/DebugRenderer.cpp\
-	renderers/PixelFormat.cpp\
-	renderers/VertexFormat.cpp\
 \
-	resource/ArchiveBundle.cpp\
 	resource/FileBundle.cpp\
-	resource/FontResource.cpp\
-	resource/MaterialResource.cpp\
-	resource/PixelShaderResource.cpp\
 	resource/ResourceLoader.cpp\
 	resource/ResourceManager.cpp\
-	resource/TextResource.cpp\
-	resource/TextureResource.cpp\
-	resource/VertexShaderResource.cpp\
+	resource/ResourceRegistry.cpp\
+\
+	rpc/RPCServer.cpp\
+	rpc/RPCHandler.cpp\
 \
 	lua/LuaStack.cpp\
 	lua/LuaEnvironment.cpp\
 	lua/LuaAccelerometer.cpp\
-	lua/LuaCamera.cpp\
 	lua/LuaDevice.cpp\
 	lua/LuaKeyboard.cpp\
 	lua/LuaMat4.cpp\
@@ -112,11 +102,12 @@ LOCAL_SRC_FILES :=\
 	lua/LuaIntSetting.cpp\
 	lua/LuaFloatSetting.cpp\
 	lua/LuaStringSetting.cpp\
+	lua/LuaResourcePackage.cpp\
+\
+	audio/sles/SLESRenderer.cpp\
 \
 	Camera.cpp\
 	Device.cpp\
-	FPSSystem.cpp\
-	ConsoleServer.cpp\
 \
 
 LOCAL_C_INCLUDES	:=\
@@ -132,22 +123,25 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/core/json\
 	$(LOCAL_PATH)/core/settings\
 	$(LOCAL_PATH)/core/strings\
+	$(LOCAL_PATH)/resource\
+	$(LOCAL_PATH)/rpc\
 	$(LOCAL_PATH)/input\
 	$(LOCAL_PATH)/lua\
+	$(LOCAL_PATH)/audio\
 	$(LOCAL_PATH)/network\
 	$(LOCAL_PATH)/os\
 	$(LOCAL_PATH)/os/android\
 	$(LOCAL_PATH)/os/posix\
 	$(LOCAL_PATH)/renderers\
-	$(LOCAL_PATH)/renderers/gles\
-	$(LOCAL_PATH)/renderers/gles/egl\
-	$(LOCAL_PATH)/third/luajit/include/luajit-2.0\
-
+	$(LOCAL_PATH)/renderers/gl\
+	$(LOCAL_PATH)/renderers/gl/egl\
+	$(LOCAL_PATH)/third/ARMv7/luajit/include/luajit-2.0\
+	$(LOCAL_PATH)/third/ARMv7/oggvorbis/include\
+	
 LOCAL_CPPFLAGS	:= -g -fexceptions -std=c++03 -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-variadic-macros
-LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv2 -lz 
+LOCAL_LDLIBS	:= -llog -landroid -lEGL -lGLESv2 -lz -lOpenSLES
 LOCAL_SHARED_LIBRARIES := luajit-5.1
-LOCAL_STATIC_LIBRARIES := android_native_app_glue
+LOCAL_STATIC_LIBRARIES := android_native_app_glue vorbis ogg
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module,android/native_app_glue)
-

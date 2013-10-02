@@ -26,50 +26,34 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <cstring>
 #include "Types.h"
 #include "KeyCode.h"
-#include "OS.h"
-
-#undef MK_SHIFT
-#undef MK_ALT
+#include "Assert.h"
 
 namespace crown
 {
 
-class InputManager;
-
-
 /// Enumerates modifier keys.
-enum ModifierKey
+struct ModifierButton
 {
-	MK_SHIFT	= 1,
-	MK_CTRL		= 2,
-	MK_ALT		= 4
-};
-
-struct KeyboardEvent
-{
-	KeyCode		key;
-	uint8_t		modifier;
-	char		text[4];
-};
-
-class KeyboardListener
-{
-
-public:
-
-	virtual void key_pressed(const KeyboardEvent& event) { (void)event; }
-	virtual void key_released(const KeyboardEvent& event) { (void)event; }
-	virtual void text_input(const KeyboardEvent& event) { (void)event; }
+	enum Enum
+	{
+		SHIFT	= 1,
+		CTRL	= 2,
+		ALT		= 4
+	};
 };
 
 /// Interface for accessing keyboard input device.
-class Keyboard
+struct Keyboard
 {
-public:
-
-					Keyboard();
+	Keyboard()
+		: m_modifier(0), m_last_button(KeyboardButton::NONE)
+	{
+		memset(m_last_state, 0, KeyboardButton::COUNT);
+		memset(m_current_state, 0, KeyboardButton::COUNT);
+	}
 
 	/// Returns whether the specified @a modifier is pressed.
 	/// @note
@@ -77,36 +61,55 @@ public:
 	/// of another key when the two are pressed in combination. (Thanks wikipedia.)
 	/// @note
 	/// Crown currently supports three different modifier keys: Shift, Ctrl and Alt.
-	bool			modifier_pressed(ModifierKey modifier) const;
+	bool modifier_pressed(ModifierButton::Enum modifier) const
+	{
+		return (m_modifier & (uint8_t) modifier) == modifier;
+	}
 
-	/// Returns whether the specified @a key is pressed in the current frame.
-	bool			key_pressed(KeyCode key) const;
+	/// Returns whether the specified @a b button is pressed in the current frame.
+	bool button_pressed(KeyboardButton::Enum b) const
+	{
+		return bool(~m_last_state[b] & m_current_state[b]);
+	}
 
-	/// Returns whether the specified @a key is released in the current frame.
-	bool			key_released(KeyCode key) const;
+	/// Returns whether the specified @a b button is released in the current frame.
+	bool button_released(KeyboardButton::Enum b) const
+	{
+		return bool(m_last_state[b] & ~m_current_state[b]);
+	}
 
-	/// Returns wheter any key is pressed in the current frame.
-	bool			any_pressed() const;
+	/// Returns wheter any button is pressed in the current frame.
+	bool any_pressed()
+	{
+		return button_pressed(m_last_button);
+	}
 
-	/// Returns whether any key is released in the current frame.
-	bool			any_released() const;
+	/// Returns whether any button is released in the current frame.
+	bool any_released()
+	{
+		return button_released(m_last_button);
+	}
 
-private:
+	//-------------------------------------------------------------------------
+	void set_button_state(KeyboardButton::Enum b, bool state)
+	{
+		m_last_button = b;
+		m_current_state[b] = state;
+	}
 
-	void			update(uint64_t frame, KeyCode k, bool state);
+	//-------------------------------------------------------------------------
+	void update()
+	{
+		memcpy(m_last_state, m_current_state, KeyboardButton::COUNT);
+	}
 
-	uint8_t			m_modifier;
+public:
 
-	// The current frame number
-	uint64_t		m_current_frame;
+	uint8_t m_modifier;
 
-	// Last key updated
-	KeyCode			m_last_key;
-	uint64_t		m_keys[MAX_KEYCODES];
-	bool			m_state[MAX_KEYCODES];
-
-	friend class	InputManager;
+	KeyboardButton::Enum m_last_button;
+	uint8_t m_last_state[KeyboardButton::COUNT];
+	uint8_t m_current_state[KeyboardButton::COUNT];
 };
 
 } // namespace crown
-
