@@ -7,3 +7,17 @@
 
 # Ignore python stuff
 __pycache__
+
+# Ignore C# stuff
+bin
+obj
+Obj
+TestResults
+test-results
+*.csproj.user
+*.suo
+*.cache
+*~
+*.swp
+*.userprefs
+*.pidb
