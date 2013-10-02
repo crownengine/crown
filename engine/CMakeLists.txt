@@ -327,6 +327,8 @@ set (LUA_SRC
 	lua/LuaDevice.cpp
 	lua/LuaWindow.cpp
 	lua/LuaResourcePackage.cpp
+	lua/LuaWorld.cpp
+	lua/LuaUnit.cpp
 )
 
 set (LUA_HEADERS
