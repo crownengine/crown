@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <windowsx.h>
+#include <winsock2.h>
 
 #define WM_USER_SET_WINDOW_SIZE     (WM_USER+0)
 #define WM_USER_TOGGLE_WINDOW_FRAME (WM_USER+1)
@@ -181,6 +182,9 @@ public:
 	{
 		init(argc, argv);
 
+		WSADATA WsaData;
+		CE_ASSERT(WSAStartup(MAKEWORD(2,2), &WsaData) == NO_ERROR, "Unable to initialize socket");
+
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 
 		WNDCLASSEX wnd;
@@ -270,6 +274,8 @@ public:
 
 		DestroyWindow(m_hwnd);
 		DestroyWindow(hwnd);
+
+		WSACleanup();
 
 		return 0;
 	}
