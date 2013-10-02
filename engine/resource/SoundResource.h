@@ -36,10 +36,13 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-enum SoundType
+struct SoundType
 {
-	ST_WAV = 0,
-	ST_OGG
+	enum Enum
+	{
+		WAV = 0,
+		OGG = 1
+	};
 };
 
 const uint32_t SOUND_VERSION = 1;
