@@ -39,9 +39,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <unistd.h>
 
 #include "OS.h"
-#include "OsEvents.h"
 #include "Assert.h"
 #include "StringUtils.h"
+#include "OsTypes.h"
 
 namespace crown
 {
@@ -319,7 +319,7 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushTouchEvent(JNI
 	event.x = x;
 	event.y = y;
 
-	os_event_buffer()->push_event((OsEventType)type, &event, sizeof(OsTouchEvent));
+	//os_event_buffer()->push_event((OsEventType)type, &event, sizeof(OsTouchEvent));
 }
 
 //-----------------------------------------------------------------------------
@@ -331,7 +331,7 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushAccelerometerE
 	event.y = y;
 	event.z = z;
 
-	os_event_buffer()->push_event((OsEventType)type, &event, sizeof(OsAccelerometerEvent));
+	//os_event_buffer()->push_event((OsEventType)type, &event, sizeof(OsAccelerometerEvent));
 }
 
 } // namespace crown
