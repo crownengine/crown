@@ -153,7 +153,7 @@ void Device::init()
 	m_sound_renderer->init();
 	Log::d("SoundRenderer created.");
 
-/*	ResourceId id = m_resource_manager->load("sound", "sounds/mono1");
+	ResourceId id = m_resource_manager->load("sound", "sounds/untrue");
 	m_resource_manager->flush();
 
 	SoundResource* res = (SoundResource*)m_resource_manager->data(id);
@@ -161,7 +161,7 @@ void Device::init()
 	SoundId sound = m_sound_renderer->create_sound(res);
 	m_sound_renderer->set_sound_loop(sound, true);
 
-	m_sound_renderer->play_sound(sound);*/
+	m_sound_renderer->play_sound(sound);
 
 	Log::i("Crown Engine initialized.");
 	Log::i("Initializing Game...");
@@ -402,6 +402,7 @@ void Device::frame()
 
 		m_renderer->frame();
 
+		// FIXME: SoundRenderer should not be updated each frame
 		m_sound_renderer->frame();
 	}
 
