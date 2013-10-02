@@ -54,6 +54,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourcePackage.h"
 #include "RPCServer.h"
 #include "SoundRenderer.h"
+#include "World.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -421,6 +422,20 @@ void Device::frame()
 	m_rpc->execute_callbacks();
 
 	m_frame_count++;
+}
+
+//-----------------------------------------------------------------------------
+World* Device::create_world()
+{
+	return CE_NEW(default_allocator(), World);
+}
+
+//-----------------------------------------------------------------------------
+void Device::destroy_world(World* world)
+{
+	CE_ASSERT_NOT_NULL(world);
+
+	CE_DELETE(default_allocator(), world);
 }
 
 //-----------------------------------------------------------------------------

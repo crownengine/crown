@@ -51,6 +51,7 @@ class SoundRenderer;
 class BundleCompiler;
 class ResourcePackage;
 class RPCServer;
+class World;
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -104,6 +105,9 @@ public:
 
 	/// Updates all the subsystems
 	void					frame();
+
+	World*					create_world();
+	void					destroy_world(World* world);
 
 	/// Returns the resource package with the given @a package_name name.
 	ResourcePackage*		create_resource_package(const char* name);

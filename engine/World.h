@@ -62,7 +62,7 @@ private:
 
 	SceneGraph		m_scene_graph;
 
-	IdTable			m_unit_table;
+	IdTable<MAX_UNITS> m_unit_table;
 	Unit*			m_units[MAX_UNITS];
 };
 

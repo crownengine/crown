@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Device.h"
 #include "ResourcePackage.h"
+#include "World.h"
 #include "LuaEnvironment.h"
 #include "LuaStack.h"
 
@@ -73,6 +74,26 @@ CE_EXPORT int device_stop(lua_State* /*L*/)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int device_create_world(lua_State* L)
+{
+	LuaStack stack(L);
+
+	stack.push_lightdata(device()->create_world());
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int device_destroy_world(lua_State* L)
+{
+	LuaStack stack(L);
+
+	device()->destroy_world((World*) stack.get_lightdata(1));
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int device_create_resource_package(lua_State* L)
 {
 	LuaStack stack(L);
@@ -101,6 +122,8 @@ void load_device(LuaEnvironment& env)
 	env.load_module_function("Device", "last_delta_time",          device_last_delta_time);
 	env.load_module_function("Device", "start",                    device_start);
 	env.load_module_function("Device", "stop",                     device_stop);
+	env.load_module_function("Device", "create_world",             device_create_world);
+	env.load_module_function("Device", "destroy_world",            device_destroy_world);
 	env.load_module_function("Device", "create_resource_package",  device_create_resource_package);
 	env.load_module_function("Device", "destroy_resource_package", device_destroy_resource_package);
 }

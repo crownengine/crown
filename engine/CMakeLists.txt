@@ -73,6 +73,9 @@ set (CROWN_INCLUDES
 set (SRC
 	Camera.cpp
 	Device.cpp
+	World.cpp
+	Unit.cpp
+	SceneGraph.cpp
 )
 
 set (HEADERS
@@ -80,6 +83,9 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
+	World.h
+	Unit.h
+	SceneGraph.h	
 )
 
 set (CORE_SRC

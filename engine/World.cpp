@@ -31,8 +31,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-World::World() :
-	m_unit_table(m_allocator, MAX_UNITS)
+World::World()
 {
 }
 
@@ -84,7 +83,7 @@ Unit* World::unit(UnitId unit)
 }
 
 //-----------------------------------------------------------------------------
-void World::update(float dt)
+void World::update(float /*dt*/)
 {
 	m_scene_graph.update();
 }

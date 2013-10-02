@@ -37,13 +37,13 @@ CE_EXPORT int world_spawn_unit(lua_State* L)
 {
 	LuaStack stack(L);
 
-	//World* world = stack.get_world(1);
-	const char* name = stack.get_string(1);
+	World* world = (World*) stack.get_lightdata(1);
+	const char* name = stack.get_string(2);
 
-	const Vec3& pos = stack.num_args() > 1 ? stack.get_vec3(2) : Vec3::ZERO;
-	const Quat& rot = stack.num_args() > 2 ? stack.get_quat(3) : Quat::IDENTITY;
+	const Vec3& pos = stack.num_args() > 2 ? stack.get_vec3(3) : Vec3::ZERO;
+	const Quat& rot = stack.num_args() > 3 ? stack.get_quat(4) : Quat::IDENTITY;
 
-	device()->world()->spawn_unit(name, pos, rot);
+	world->spawn_unit(name, pos, rot);
 
 	return 0;
 }
