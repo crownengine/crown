@@ -66,7 +66,15 @@ struct Sound
 {
 public:
 	//-----------------------------------------------------------------------------
-	Sound() : m_res(NULL), m_id(-1), m_looping(false) {}
+	Sound()
+		: m_res(NULL)
+		, m_id(-1)
+		, m_created(false)
+		, m_playing(false)
+		, m_looping(false)
+		, m_streaming(false)
+		, m_positional(false)
+	{}
 
 	//-----------------------------------------------------------------------------
 	void create(SoundResource* resource)
@@ -112,7 +120,7 @@ public:
 			}
 		}
 
-		m_streaming = m_res->sound_type() == ST_OGG;
+		m_streaming = m_res->sound_type() == SoundType::OGG;
 		// Streams resource if is ogg 
 		if (m_streaming)
 		{
@@ -120,6 +128,8 @@ public:
 		}
 		else
 		{
+			m_positional = true;
+
 			AL_CHECK(alBufferData(m_buffer[0], m_format, m_res->data(), m_res->size(), m_res->sample_rate()));
 
 			AL_CHECK(alSourceQueueBuffers(m_id, 1, &m_buffer[0]));
@@ -135,7 +145,10 @@ public:
 			{
 				update_stream();
 			}
-			// else ... nothing right now
+			else if (m_positional)
+			{
+				// nothing right now
+			}
 		}
 	}
 
@@ -392,9 +405,11 @@ public:
 	ALuint			m_buffer[3];
 	ALuint 			m_format;
 
+	bool			m_created :1;
 	bool			m_playing :1;
 	bool			m_looping :1;
 	bool			m_streaming :1;
+	bool			m_positional :1;
 
 	OggDecoder		m_decoder;
 };
