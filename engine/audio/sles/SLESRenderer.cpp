@@ -38,7 +38,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-class SoundRendererBackend
+class SoundRendererImpl
 {
 public:
 	//-----------------------------------------------------------------------------
@@ -100,32 +100,32 @@ private:
 //-----------------------------------------------------------------------------
 SoundRenderer::SoundRenderer(Allocator& allocator) :
 	m_allocator(allocator),
-	m_backend(NULL),
+	m_impl(NULL),
 	m_is_paused(false),
 	m_num_sounds(0)
 {
-	m_backend = CE_NEW(m_allocator, SoundRendererBackend);
+	m_impl = CE_NEW(m_allocator, SoundRendererImpl);
 }
 
 //-----------------------------------------------------------------------------
 SoundRenderer::~SoundRenderer()
 {
-	if (m_backend)
+	if (m_impl)
 	{
-		CE_DELETE(m_allocator, m_backend);
+		CE_DELETE(m_allocator, m_impl);
 	}
 }
 
 //-----------------------------------------------------------------------------
 void SoundRenderer::init()
 {
-	m_backend->init();
+	m_impl->init();
 }
 
 //-----------------------------------------------------------------------------
 void SoundRenderer::shutdown()
 {
-	m_backend->shutdown();
+	m_impl->shutdown();
 }
 
 //-----------------------------------------------------------------------------
@@ -133,9 +133,9 @@ void SoundRenderer::pause()
 {
 	for (uint32_t i = 0; i < MAX_SOUNDS; i++)
 	{
-		if (m_backend->m_sounds[i].is_playing())
+		if (m_impl->m_sounds[i].is_playing())
 		{
-			m_backend->m_sounds[i].pause();
+			m_impl->m_sounds[i].pause();
 		}
 	}
 
@@ -147,9 +147,9 @@ void SoundRenderer::unpause()
 {
 	for (uint32_t i = 0; i < MAX_SOUNDS; i++)
 	{
-		if (m_backend->m_sounds[i].is_created() && !m_backend->m_sounds[i].is_playing())
+		if (m_impl->m_sounds[i].is_created() && !m_impl->m_sounds[i].is_playing())
 		{
-			m_backend->m_sounds[i].unpause();
+			m_impl->m_sounds[i].unpause();
 		}
 	}
 
@@ -175,7 +175,7 @@ SoundId SoundRenderer::create_sound(SoundResource* resource)
 {
 	SoundId id = m_sounds_id_table.create();
 
-	m_backend->m_sounds[id.index].create(m_backend->m_engine, m_backend->m_out_mix_obj, resource);
+	m_impl->m_sounds[id.index].create(m_impl->m_engine, m_impl->m_out_mix_obj, resource);
 
 	m_num_sounds++;
 
@@ -187,7 +187,7 @@ void SoundRenderer::destroy_sound(SoundId id)
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sounds[id.index].destroy();
+	m_impl->m_sounds[id.index].destroy();
 
 	m_sounds_id_table.destroy(id);
 
@@ -199,7 +199,7 @@ void SoundRenderer::play_sound(SoundId id)
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sounds[id.index].play();
+	m_impl->m_sounds[id.index].play();
 }
 
 //-----------------------------------------------------------------------------
@@ -207,7 +207,7 @@ void SoundRenderer::pause_sound(SoundId id)
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sounds[id.index].pause();
+	m_impl->m_sounds[id.index].pause();
 }
 
 //-----------------------------------------------------------------------------
@@ -215,7 +215,7 @@ void SoundRenderer::set_sound_loop(SoundId id, bool loop)
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
-	m_backend->m_sounds[id.index].loop(loop);
+	m_impl->m_sounds[id.index].loop(loop);
 }
 
 //-----------------------------------------------------------------------------
@@ -223,7 +223,7 @@ bool SoundRenderer::sound_playing(SoundId id)
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exist");
 
-	return m_backend->m_sounds[id.index].is_playing();
+	return m_impl->m_sounds[id.index].is_playing();
 }
 
 //-----------------------------------------------------------------------------

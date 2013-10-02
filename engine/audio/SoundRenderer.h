@@ -38,8 +38,8 @@ namespace crown
 typedef 	Id 		SoundId;
 
 //-----------------------------------------------------------------------------
-class SoundRendererBackend;
-class SoundResource;
+class SoundRendererImpl;
+	class SoundResource;
 class Vec3;
 
 //-----------------------------------------------------------------------------
@@ -146,7 +146,7 @@ private:
 
 	Allocator& 				m_allocator;
 
-	SoundRendererBackend*	m_backend;
+	SoundRendererImpl*		m_impl;
 
 	bool 					m_is_paused;
 
