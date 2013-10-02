@@ -268,7 +268,7 @@ inline void Sound::create(SLEngineItf engine, SLObjectItf out_mix_obj, SoundReso
 	(*m_player_bufferqueue)->RegisterCallback(m_player_bufferqueue, Sound::buffer_callback, this);
 
 	// Manage simple sound or stream
-	m_streaming = m_res->sound_type() == ST_OGG;
+	m_streaming = m_res->sound_type() == SoundType::OGG;
 
 	if (m_streaming)
 	{
