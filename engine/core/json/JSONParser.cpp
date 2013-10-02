@@ -699,7 +699,6 @@ void JSONParser::parse_string(const char* s, List<char>& str)
 				}
 				else if (is_escapee(*ch))
 				{
-					str.push_back('\\');
 					str.push_back(*ch);
 				}
 				else
