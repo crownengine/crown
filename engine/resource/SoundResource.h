@@ -31,6 +31,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Bundle.h"
 #include "Allocator.h"
 #include "File.h"
+#include "Device.h"
+#include "SoundRenderer.h"
 
 namespace crown
 {
@@ -89,6 +91,12 @@ public:
 	static void online(void* resource)
 	{
 		CE_ASSERT(resource != NULL, "Resource not loaded");
+
+		SoundResource* sound = (SoundResource*)resource;
+
+		SoundId id = device()->sound_renderer()->create_sound(sound);
+
+		sound->m_id = id;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -101,9 +109,13 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	static void offline(void* /*resource*/)
+	static void offline(void* resource)
 	{
+		CE_ASSERT(resource != NULL, "Resource not loaded");
 
+		SoundResource* sound = (SoundResource*)resource;
+
+		device()->sound_renderer()->destroy_sound(sound->m_id);
 	}
 
 public:
@@ -114,16 +126,15 @@ public:
 	uint32_t			channels() const { return m_header.channels; }
 	uint16_t			block_size() const { return m_header.block_size; }
 	uint16_t			bits_ps() const { return m_header.bits_ps; }
-
 	uint8_t				sound_type() const { return m_header.sound_type; }
 
 	const uint8_t*		data() const { return m_data; }
 
-private:
+public:
 
 	SoundHeader		m_header;
 	uint8_t*		m_data;
-
+	SoundId			m_id;
 };
 
 } // namespace crown

@@ -24,51 +24,34 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "SceneGraph.h"
-#include "HeapAllocator.h"
-#include "IdTable.h"
-#include "Unit.h"
 #include "SoundWorld.h"
-#include "LinearAllocator.h"
+#include "Device.h"
+#include "ResourceManager.h"
+#include "SoundRenderer.h"
+#include "SoundResource.h"
+#include "Assert.h"
 
 namespace crown
 {
 
-#define MAX_UNITS 65000
-
-class Vec3;
-class Quat;
-
-class World
+//-----------------------------------------------------------------------------
+SoundInstanceId SoundWorld::create_sound(const char* name)
 {
-public:
-					World();
+	SoundInstanceId id = m_sound_table.create();
 
-	void			init();
-	void			shutdown();
+	SoundResource* sound = (SoundResource*)device()->resource_manager()->lookup("sounds", name);
 
-	UnitId			spawn_unit(const char* name, const Vec3& pos = Vec3::ZERO, const Quat& rot = Quat(Vec3(0, 1, 0), 0.0f));
-	void			kill_unit(UnitId unit);
+	m_sound[id.index].m_sound = sound->m_id;
 
-	void			link_unit(UnitId child, UnitId parent);
-	void			unlink_unit(UnitId child, UnitId parent);
+	return id;
+}
 
-	Unit*			unit(UnitId unit);
+//-----------------------------------------------------------------------------
+void SoundWorld::destroy_sound(SoundInstanceId sound)
+{
+	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
 
-	void			update(float dt);
-
-private:
-
-	LinearAllocator		m_allocator;
-
-	bool				m_is_init :1;
-
-	IdTable<MAX_UNITS> 	m_unit_table;
-	Unit				m_units[MAX_UNITS];
-
-	SoundWorld*			m_sound_world;
-};
+	// Stub
+}
 
 } // namespace crown

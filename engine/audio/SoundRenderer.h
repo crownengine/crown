@@ -39,7 +39,7 @@ typedef 	Id 		SoundId;
 
 //-----------------------------------------------------------------------------
 class SoundRendererImpl;
-	class SoundResource;
+class SoundResource;
 class Vec3;
 
 //-----------------------------------------------------------------------------

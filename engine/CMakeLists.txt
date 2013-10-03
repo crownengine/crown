@@ -76,6 +76,7 @@ set (SRC
 	World.cpp
 	Unit.cpp
 	SceneGraph.cpp
+	SoundWorld.cpp
 )
 
 set (HEADERS
@@ -85,7 +86,8 @@ set (HEADERS
 	Device.h
 	World.h
 	Unit.h
-	SceneGraph.h	
+	SceneGraph.h
+	SoundWorld.h
 )
 
 set (CORE_SRC

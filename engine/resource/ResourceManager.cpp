@@ -71,6 +71,7 @@ void ResourceManager::unload(ResourceId name)
 	
 	if (entry->references == 0)
 	{
+		resource_on_offline(entry->type, entry->resource);
 		resource_on_unload(entry->type, m_resource_heap, entry->resource);
 
 		// Swap with last
@@ -220,5 +221,15 @@ void ResourceManager::online(ResourceId name, void* resource)
 
 	entry->resource = resource;
 }
+
+//-----------------------------------------------------------------------------
+void ResourceManager::offline(ResourceId name, void* resource)
+{
+	ResourceEntry* entry = find(name);
+	resource_on_offline(entry->type, resource);
+
+	entry->resource = resource;
+}
+
 
 } // namespace crown

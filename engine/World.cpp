@@ -26,13 +26,32 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Assert.h"
 #include "World.h"
+#include "Allocator.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
 World::World()
+	: m_allocator(default_allocator(), 1048576)
+	, m_is_init(false)
+	, m_sound_world(NULL)
 {
+}
+
+//-----------------------------------------------------------------------------
+void World::init()
+{
+	m_sound_world = CE_NEW(m_allocator, SoundWorld);
+}
+
+//-----------------------------------------------------------------------------
+void World::shutdown()
+{
+	if (m_sound_world)
+	{
+		CE_DELETE(m_allocator, m_sound_world);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -41,6 +60,7 @@ UnitId World::spawn_unit(const char* /*name*/, const Vec3& pos, const Quat& rot)
 	const UnitId unit = m_unit_table.create();
 
 	m_units[unit.index].create(pos, rot);
+
 	// m_units[unit.index].load(ur);
 
 	return unit;

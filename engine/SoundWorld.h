@@ -26,49 +26,29 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "SceneGraph.h"
-#include "HeapAllocator.h"
 #include "IdTable.h"
-#include "Unit.h"
-#include "SoundWorld.h"
-#include "LinearAllocator.h"
+#include "SoundRenderer.h"
 
 namespace crown
 {
 
-#define MAX_UNITS 65000
+typedef Id SoundInstanceId;
 
-class Vec3;
-class Quat;
-
-class World
+struct SoundInstance
 {
-public:
-					World();
+	SoundId m_sound;
+};
 
-	void			init();
-	void			shutdown();
+class SoundWorld
+{
 
-	UnitId			spawn_unit(const char* name, const Vec3& pos = Vec3::ZERO, const Quat& rot = Quat(Vec3(0, 1, 0), 0.0f));
-	void			kill_unit(UnitId unit);
-
-	void			link_unit(UnitId child, UnitId parent);
-	void			unlink_unit(UnitId child, UnitId parent);
-
-	Unit*			unit(UnitId unit);
-
-	void			update(float dt);
+	SoundInstanceId				create_sound(const char* name);
+	void						destroy_sound(SoundInstanceId sound);
 
 private:
 
-	LinearAllocator		m_allocator;
-
-	bool				m_is_init :1;
-
-	IdTable<MAX_UNITS> 	m_unit_table;
-	Unit				m_units[MAX_UNITS];
-
-	SoundWorld*			m_sound_world;
+	IdTable<MAX_SOUNDS> 		m_sound_table;
+	SoundInstance				m_sound[MAX_SOUNDS];
 };
 
 } // namespace crown
