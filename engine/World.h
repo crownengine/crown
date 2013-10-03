@@ -34,8 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-#define MAX_CAMERAS 32
-#define MAX_UNITS 1024
+#define MAX_UNITS 65000
 
 class Vec3;
 class Quat;
@@ -50,7 +49,7 @@ public:
 	void			kill_unit(UnitId unit);
 
 	void			link_unit(UnitId child, UnitId parent);
-	void			unlink_unit(UnitId child);
+	void			unlink_unit(UnitId child, UnitId parent);
 
 	Unit*			unit(UnitId unit);
 
@@ -58,12 +57,8 @@ public:
 
 private:
 
-	HeapAllocator	m_allocator;
-
-	SceneGraph		m_scene_graph;
-
-	IdTable<MAX_UNITS> m_unit_table;
-	Unit*			m_units[MAX_UNITS];
+	IdTable<MAX_UNITS> 	m_unit_table;
+	Unit				m_units[MAX_UNITS];
 };
 
 } // namespace crown

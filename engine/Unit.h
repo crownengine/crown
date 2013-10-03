@@ -35,15 +35,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+struct UnitResource
+{
+};
+
 typedef Id UnitId;
 
 class Camera;
 
-class Unit
+struct Unit
 {
-public:
+	void			create(const Vec3& pos, const Quat& rot);
+	void			destroy();
 
-					Unit(SceneGraph& sg, const Vec3& pos, const Quat& rot);
+	void			load(UnitResource* ur);
+	void			unload();
+	void			reload(UnitResource* new_ur);
 
 	Vec3			local_position() const;
 	Quat			local_rotation() const;
@@ -57,14 +64,12 @@ public:
 	void			set_local_rotation(const Quat& rot);
 	void			set_local_pose(const Mat4& pose);
 
-private:
+public:
 
-	SceneGraph&		m_scene_graph;
+	SceneGraph		m_scene_graph;
 	NodeId			m_root_node;
 
-private:
-
-	friend class	World;
+	UnitResource*	m_resource;
 };
 
 } // namespace crown

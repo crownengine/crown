@@ -40,7 +40,8 @@ UnitId World::spawn_unit(const char* /*name*/, const Vec3& pos, const Quat& rot)
 {
 	const UnitId unit = m_unit_table.create();
 
-	m_units[unit.index] = CE_NEW(m_allocator, Unit)(m_scene_graph, pos, rot);
+	m_units[unit.index].create(pos, rot);
+	// m_units[unit.index].load(ur);
 
 	return unit;
 }
@@ -58,20 +59,22 @@ void World::link_unit(UnitId child, UnitId parent)
 	CE_ASSERT(m_unit_table.has(child), "Child unit does not exist");
 	CE_ASSERT(m_unit_table.has(parent), "Parent unit does not exist");
 
-	Unit* child_unit = unit(child);
-	Unit* parent_unit = unit(parent);
+	Unit& child_unit = m_units[child.index];
+	Unit& parent_unit =  m_units[parent.index];
 
-	m_scene_graph.link(child_unit->m_root_node, parent_unit->m_root_node);
+	parent_unit.m_scene_graph.link(child_unit.m_root_node, parent_unit.m_root_node);
 }
 
 //-----------------------------------------------------------------------------
-void World::unlink_unit(UnitId child)
+void World::unlink_unit(UnitId child, UnitId parent)
 {
-	CE_ASSERT(m_unit_table.has(child), "Node does not exist");
+	CE_ASSERT(m_unit_table.has(child), "Child unit does not exist");
+	CE_ASSERT(m_unit_table.has(parent), "Parent unit does not exist");
 
-	Unit* child_unit = unit(child);
+	Unit& child_unit = m_units[child.index];
+	Unit& parent_unit =  m_units[parent.index];
 
-	m_scene_graph.unlink(child_unit->m_root_node);
+	parent_unit.m_scene_graph.unlink(child_unit.m_root_node);		
 }
 
 //-----------------------------------------------------------------------------
@@ -79,13 +82,12 @@ Unit* World::unit(UnitId unit)
 {
 	CE_ASSERT(m_unit_table.has(unit), "Unit does not exist");
 
-	return m_units[unit.index];
+	return &m_units[unit.index];
 }
 
 //-----------------------------------------------------------------------------
 void World::update(float /*dt*/)
 {
-	m_scene_graph.update();
 }
 
 } // namespace crown
