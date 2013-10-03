@@ -73,6 +73,9 @@ public:
 	/// and eventually any global object associated with it.
 	void					unload(ResourceId name);
 
+	/// Returns the resource instance associated to the given @a type and @a name.
+	void*					lookup(const char* type, const char* name);
+
 	/// Returns whether the manager has the @a name resource into
 	/// its list of resources.
 	/// @warning

@@ -81,6 +81,17 @@ void ResourceManager::unload(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
+void* ResourceManager::lookup(const char* type, const char* name)
+{
+	ResourceId id = resource_id(type, name);
+	ResourceEntry* entry = find(id);
+
+	CE_ASSERT_NOT_NULL(entry);
+
+	return entry->resource;
+}
+
+//-----------------------------------------------------------------------------
 bool ResourceManager::has(ResourceId name) const
 {
 	ResourceEntry* entry = find(name);
