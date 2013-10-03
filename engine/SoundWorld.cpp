@@ -39,7 +39,7 @@ SoundInstanceId SoundWorld::create_sound(const char* name)
 {
 	SoundInstanceId id = m_sound_table.create();
 
-	SoundResource* sound = (SoundResource*)device()->resource_manager()->lookup("sounds", name);
+	SoundResource* sound = (SoundResource*)device()->resource_manager()->lookup("sound", name);
 
 	m_sound[id.index].m_sound = sound->m_id;
 
