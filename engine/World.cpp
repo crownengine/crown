@@ -33,7 +33,7 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 World::World()
-	: m_allocator(default_allocator(), 1048576)
+	: m_allocator(default_allocator(), 1024 * 1024)
 	, m_is_init(false)
 {
 }
