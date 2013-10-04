@@ -45,7 +45,7 @@ CE_EXPORT int sound_world_play_sound(lua_State* L)
 
 	SoundInstanceId id = world->sound_world().play_sound(name, loop, pos);
 
-	stack.push_int32(id.value);
+	stack.push_int32(id.encode());
 
 	return 1;
 }
@@ -57,8 +57,8 @@ CE_EXPORT int sound_world_pause_sound(lua_State* L)
 
 	World* world = (World*) stack.get_lightdata(1);
 
-	SoundInstanceId id = {0};
-	id.value = stack.get_int(2);
+	SoundInstanceId id;
+	id.decode(stack.get_int(2));
 
 	world->sound_world().pause_sound(id);
 
@@ -91,8 +91,8 @@ CE_EXPORT int sound_world_set_sound_range(lua_State* L)
 
 	World* world = (World*) stack.get_lightdata(1);
 
-	SoundInstanceId id = {0};
-	id.value = stack.get_int(2);
+	SoundInstanceId id;
+	id.decode(stack.get_int(2));
 	float range = stack.get_float(3);
 
 	world->sound_world().set_sound_range(id, range);
@@ -107,8 +107,8 @@ CE_EXPORT int sound_world_set_sound_volume(lua_State* L)
 
 	World* world = (World*) stack.get_lightdata(1);
 
-	SoundInstanceId id = {0};
-	id.value = stack.get_int(2);
+	SoundInstanceId id;
+	id.decode(stack.get_int(2));
 	float vol = stack.get_float(2);
 
 	world->sound_world().set_sound_volume(id, vol);
