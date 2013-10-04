@@ -114,8 +114,6 @@ private:
 	ResourceId				load(uint32_t type, ResourceId name);
 	void					online(ResourceId name, void* resource);
 
-	void					offline(ResourceId name, void* resource);
-
 private:
 
 	ProxyAllocator			m_resource_heap;

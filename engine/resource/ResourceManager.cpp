@@ -222,14 +222,4 @@ void ResourceManager::online(ResourceId name, void* resource)
 	entry->resource = resource;
 }
 
-//-----------------------------------------------------------------------------
-void ResourceManager::offline(ResourceId name, void* resource)
-{
-	ResourceEntry* entry = find(name);
-	resource_on_offline(entry->type, resource);
-
-	entry->resource = resource;
-}
-
-
 } // namespace crown
