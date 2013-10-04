@@ -103,7 +103,7 @@ public:
 	{
 		CE_ASSERT_NOT_NULL(m_data);
 
-		return ((PackageHeader*)m_data)->num_textures;
+		return ((PackageHeader*)m_data)->num_sounds;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -127,7 +127,7 @@ public:
 	//-----------------------------------------------------------------------------
 	ResourceId get_sound_id(uint32_t i) const
 	{
-		CE_ASSERT(i < num_scripts(), "Index out of bounds");
+		CE_ASSERT(i < num_sounds(), "Index out of bounds");
 
 		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->sounds_offset);
 		return begin[i];
