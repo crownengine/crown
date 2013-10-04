@@ -36,7 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-#define MAX_UNITS 65000
+#define MAX_UNITS 10
 
 class Vec3;
 class Quat;
