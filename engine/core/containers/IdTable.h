@@ -37,12 +37,19 @@ namespace crown
 
 struct Id
 {
-	union
+	uint16_t id;
+	uint16_t index;
+
+	void decode(uint32_t id_and_index)
 	{
-		uint32_t id : 16;
-		uint32_t index : 16;
-		uint32_t value;
-	};
+		id = (id_and_index & 0xFFFF0000) >> 16;
+		index = id_and_index & 0xFFFF;
+	}
+
+	uint32_t encode()
+	{
+		return (uint32_t(id) << 16) | uint32_t(index);
+	}
 };
 
 /// Table of Ids.
