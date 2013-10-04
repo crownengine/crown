@@ -37,8 +37,12 @@ namespace crown
 
 struct Id
 {
-	uint16_t id;
-	uint16_t index;
+	union
+	{
+		uint16_t id;
+		uint16_t index;
+		uint32_t value;
+	};
 };
 
 /// Table of Ids.

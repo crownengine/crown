@@ -57,8 +57,10 @@ CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 	load_accelerometer(*env);
 	load_device(*env);
 	load_resource_package(*env);
+
 	load_unit(*env);
 	load_world(*env);
+	load_sound(*env);
 
 	return 1;
 }

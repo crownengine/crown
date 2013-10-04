@@ -44,20 +44,22 @@ class Quat;
 class World
 {
 public:
-					World();
+						World();
 
-	void			init();
-	void			shutdown();
+	void				init();
+	void				shutdown();
 
-	UnitId			spawn_unit(const char* name, const Vec3& pos = Vec3::ZERO, const Quat& rot = Quat(Vec3(0, 1, 0), 0.0f));
-	void			kill_unit(UnitId unit);
+	UnitId				spawn_unit(const char* name, const Vec3& pos = Vec3::ZERO, const Quat& rot = Quat(Vec3(0, 1, 0), 0.0f));
+	void				kill_unit(UnitId unit);
 
-	void			link_unit(UnitId child, UnitId parent);
-	void			unlink_unit(UnitId child, UnitId parent);
+	void				link_unit(UnitId child, UnitId parent);
+	void				unlink_unit(UnitId child, UnitId parent);
 
-	Unit*			unit(UnitId unit);
+	Unit*				unit(UnitId unit);
 
-	void			update(float dt);
+	void				update(float dt);
+
+	SoundWorld&			sound_world();
 
 private:
 
@@ -68,7 +70,7 @@ private:
 	IdTable<MAX_UNITS> 	m_unit_table;
 	Unit				m_units[MAX_UNITS];
 
-	SoundWorld*			m_sound_world;
+	SoundWorld			m_sound_world;
 };
 
 } // namespace crown

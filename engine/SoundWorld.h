@@ -28,6 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "IdTable.h"
 #include "SoundRenderer.h"
+#include "Vec3.h"
+#include "Mat4.h"
 
 namespace crown
 {
@@ -41,9 +43,20 @@ struct SoundInstance
 
 class SoundWorld
 {
+public:
+	// void						init();
+	// void						shutdown();
 
-	SoundInstanceId				create_sound(const char* name);
-	void						destroy_sound(SoundInstanceId sound);
+	SoundInstanceId				play_sound(const char* name, const bool loop = false, const Vec3& pos = Vec3::ZERO);
+	void						pause_sound(SoundInstanceId sound);
+
+	// void 						link_sound(SoundInstanceId sound, UnitId unit);
+
+	void						set_listener(const Vec3& pos, const Vec3& vel, const Vec3& or_up, const Vec3& or_at);
+
+	void						set_sound_position(SoundInstanceId sound, const Vec3& pos);
+	void						set_sound_range(SoundInstanceId sound, const float range);
+	void						set_sound_volume(SoundInstanceId sound, const float vol);
 
 private:
 

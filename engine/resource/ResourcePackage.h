@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceManager.h"
 #include "PackageResource.h"
 #include "Resource.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -61,6 +62,11 @@ public:
 		{
 			m_resource_manager->load(LUA_TYPE, m_package->get_script_id(i));
 		}
+
+		for (uint32_t i = 0; i < m_package->num_sounds(); i++)
+		{
+			m_resource_manager->load(SOUND_TYPE, m_package->get_sound_id(i));
+		}
 	}
 
 	/// Unloads all the resources in the package.
@@ -74,7 +80,12 @@ public:
 		for (uint32_t i = 0; i < m_package->num_scripts(); i++)
 		{
 			m_resource_manager->unload(m_package->get_script_id(i));
-		}		
+		}
+
+		for (uint32_t i = 0; i < m_package->num_sounds(); i++)
+		{
+			m_resource_manager->unload(m_package->get_sound_id(i));
+		}	
 	}
 
 	/// Waits until the package has been loaded. 

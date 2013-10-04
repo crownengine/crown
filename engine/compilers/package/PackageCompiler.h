@@ -46,9 +46,11 @@ private:
 
 	bool m_has_texture;
 	bool m_has_lua;
+	bool m_has_sound;
 
 	List<ResourceId> m_textures;
 	List<ResourceId> m_scripts;
+	List<ResourceId> m_sounds;
 };
 
 } // namespace crown

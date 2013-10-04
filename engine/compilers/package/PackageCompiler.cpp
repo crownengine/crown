@@ -38,7 +38,12 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 PackageCompiler::PackageCompiler()
-	: m_has_texture(false), m_has_lua(false), m_textures(default_allocator()), m_scripts(default_allocator())
+	: m_has_texture(false)
+	, m_has_lua(false)
+	, m_has_sound(false)
+	, m_textures(default_allocator())
+	, m_scripts(default_allocator())
+	, m_sounds(default_allocator())
 {
 }
 
@@ -105,9 +110,37 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		}
 	}
 
+	// Check for sounds
+	if (root.has_key("sound"))
+	{
+		JSONElement sound_array = root.key("sound");
+		uint32_t sound_array_size = sound_array.size();
+
+		for (uint32_t i = 0; i < sound_array_size; i++)
+		{
+			TempAllocator256 alloc;
+			DynamicString sound_name(alloc);
+			sound_name += sound_array[i].string_value();
+			sound_name += ".sound";
+
+			Log::i("file: %s", sound_name.c_str());
+
+			if (!fs.is_file(sound_name.c_str()))
+			{
+				Log::e("Sound '%s' does not exist.", sound_name.c_str());
+				return 0;
+			}
+
+			ResourceId id;
+			id.id = hash::murmur2_64(sound_name.c_str(), string::strlen(sound_name.c_str()), 0);
+			m_sounds.push_back(id);
+		}
+	}
+
 	return sizeof(PackageHeader) +
 			m_textures.size() * sizeof(ResourceId) +
-			m_scripts.size() * sizeof(ResourceId);
+			m_scripts.size() * sizeof(ResourceId) +
+			m_sounds.size() * sizeof(ResourceId);
 }
 
 //-----------------------------------------------------------------------------
@@ -116,9 +149,11 @@ void PackageCompiler::write_impl(File* out_file)
 	PackageHeader header;
 	header.num_textures = m_textures.size();
 	header.num_scripts = m_scripts.size();
+	header.num_sounds = m_sounds.size();
 
 	header.textures_offset = sizeof(PackageHeader);
 	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
+	header.sounds_offset = header.scripts_offset + sizeof(ResourceId) * header.num_scripts;
 
 	out_file->write((char*) &header, sizeof(PackageHeader));
 
@@ -130,10 +165,15 @@ void PackageCompiler::write_impl(File* out_file)
 	{
 		out_file->write((char*) m_scripts.begin(), sizeof(ResourceId) * header.num_scripts);
 	}
+	if (m_sounds.size() > 0)
+	{
+		out_file->write((char*) m_sounds.begin(), sizeof(ResourceId) * header.num_sounds);
+	}
 
 	// Cleanup
 	m_textures.clear();
 	m_scripts.clear();
+	m_sounds.clear();
 }
 
 } // namespace crown

@@ -9,7 +9,7 @@ project(crown-tests)
 #add_executable(paths paths.cpp)
 #add_executable(dynamic-strings dynamic-strings.cpp)
 #add_executable(json json.cpp)
-add_executable(events events.cpp)
+#add_executable(events events.cpp)
 
 
 #target_link_libraries(allocators crown)
@@ -19,7 +19,7 @@ add_executable(events events.cpp)
 #target_link_libraries(paths crown)
 #target_link_libraries(dynamic-strings crown)
 #target_link_libraries(json crown)
-target_link_libraries(events crown)
+#target_link_libraries(events crown)
 
 
 #install (TARGETS allocators DESTINATION test)
@@ -29,5 +29,5 @@ target_link_libraries(events crown)
 #install (TARGETS paths DESTINATION test)
 #install (TARGETS dynamic-strings DESTINATION test)
 #install (TARGETS json DESTINATION test)
-install (TARGETS events DESTINATION test)
+#install (TARGETS events DESTINATION test)
 

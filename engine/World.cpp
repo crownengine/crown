@@ -35,23 +35,18 @@ namespace crown
 World::World()
 	: m_allocator(default_allocator(), 1048576)
 	, m_is_init(false)
-	, m_sound_world(NULL)
 {
 }
 
 //-----------------------------------------------------------------------------
 void World::init()
 {
-	m_sound_world = CE_NEW(m_allocator, SoundWorld);
 }
 
 //-----------------------------------------------------------------------------
 void World::shutdown()
 {
-	if (m_sound_world)
-	{
-		CE_DELETE(m_allocator, m_sound_world);
-	}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -109,5 +104,12 @@ Unit* World::unit(UnitId unit)
 void World::update(float /*dt*/)
 {
 }
+
+//-----------------------------------------------------------------------------
+SoundWorld&	World::sound_world()
+{
+	return m_sound_world;
+}
+
 
 } // namespace crown

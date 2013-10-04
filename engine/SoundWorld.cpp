@@ -34,8 +34,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+// //-----------------------------------------------------------------------------
+// void SoundWorld::init()
+// {
+
+// }
+
+// //-----------------------------------------------------------------------------
+// void SoundWorld::shutdown()
+// {
+
+// }
+
 //-----------------------------------------------------------------------------
-SoundInstanceId SoundWorld::create_sound(const char* name)
+SoundInstanceId SoundWorld::play_sound(const char* name, const bool loop, const Vec3& pos)
 {
 	SoundInstanceId id = m_sound_table.create();
 
@@ -43,15 +55,60 @@ SoundInstanceId SoundWorld::create_sound(const char* name)
 
 	m_sound[id.index].m_sound = sound->m_id;
 
+	device()->sound_renderer()->set_sound_loop(m_sound[id.index].m_sound, loop);
+
+	device()->sound_renderer()->set_sound_position(m_sound[id.index].m_sound, pos);
+
+	device()->sound_renderer()->play_sound(m_sound[id.index].m_sound);
+
 	return id;
 }
 
 //-----------------------------------------------------------------------------
-void SoundWorld::destroy_sound(SoundInstanceId sound)
+void SoundWorld::pause_sound(SoundInstanceId sound)
 {
 	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
 
-	// Stub
+	device()->sound_renderer()->pause_sound(sound);
 }
+
+// //-----------------------------------------------------------------------------
+// void SoundWorld::link_sound(SoundInstanceId sound, UnitId unit)
+// {
+// 	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+
+// 	// Must be implemented
+// }
+
+//-----------------------------------------------------------------------------
+void SoundWorld::set_listener(const Vec3& pos, const Vec3& vel, const Vec3& or_up, const Vec3& or_at)
+{
+	device()->sound_renderer()->set_listener(pos, vel, or_up, or_at);
+}
+
+//-----------------------------------------------------------------------------
+void SoundWorld::set_sound_position(SoundInstanceId sound, const Vec3& pos)
+{
+	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+
+	device()->sound_renderer()->set_sound_position(sound, pos);
+}
+
+//-----------------------------------------------------------------------------
+void SoundWorld::set_sound_range(SoundInstanceId sound, const float range)
+{
+	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+
+	device()->sound_renderer()->set_sound_max_distance(sound, range);
+}
+
+//-----------------------------------------------------------------------------
+void SoundWorld::set_sound_volume(SoundInstanceId sound, const float vol)
+{
+	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+
+	device()->sound_renderer()->set_sound_gain(sound, vol);
+}
+
 
 } // namespace crown
