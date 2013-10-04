@@ -39,8 +39,8 @@ struct Id
 {
 	union
 	{
-		uint16_t id;
-		uint16_t index;
+		uint32_t id : 16;
+		uint32_t index : 16;
 		uint32_t value;
 	};
 };
