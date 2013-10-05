@@ -67,14 +67,24 @@ public:
 		{
 			m_resource_manager->load(SOUND_TYPE, m_package->get_sound_id(i));
 		}
+
+		for (uint32_t i = 0; i < m_package->num_meshes(); i++)
+		{
+			m_resource_manager->load(MESH_TYPE, m_package->get_mesh_id(i));
+		}
 	}
 
 	/// Unloads all the resources in the package.
 	void unload()
 	{
-		for (uint32_t i = 0; i < m_package->num_textures(); i++)
+		for (uint32_t i = 0; i < m_package->num_meshes(); i++)
 		{
-			m_resource_manager->unload(m_package->get_texture_id(i));
+			m_resource_manager->unload(m_package->get_mesh_id(i));
+		}
+
+		for (uint32_t i = 0; i < m_package->num_sounds(); i++)
+		{
+			m_resource_manager->unload(m_package->get_sound_id(i));
 		}
 
 		for (uint32_t i = 0; i < m_package->num_scripts(); i++)
@@ -82,10 +92,10 @@ public:
 			m_resource_manager->unload(m_package->get_script_id(i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_sounds(); i++)
+		for (uint32_t i = 0; i < m_package->num_textures(); i++)
 		{
-			m_resource_manager->unload(m_package->get_sound_id(i));
-		}	
+			m_resource_manager->unload(m_package->get_texture_id(i));
+		}
 	}
 
 	/// Waits until the package has been loaded. 

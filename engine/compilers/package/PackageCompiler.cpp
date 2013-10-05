@@ -41,9 +41,10 @@ PackageCompiler::PackageCompiler()
 	: m_has_texture(false)
 	, m_has_lua(false)
 	, m_has_sound(false)
-	, m_textures(default_allocator())
-	, m_scripts(default_allocator())
-	, m_sounds(default_allocator())
+	, m_texture(default_allocator())
+	, m_script(default_allocator())
+	, m_sound(default_allocator())
+	, m_mesh(default_allocator())
 {
 }
 
@@ -80,7 +81,7 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(texture_name.c_str(), string::strlen(texture_name.c_str()), 0);
-			m_textures.push_back(id);
+			m_texture.push_back(id);
 		}
 	}
 
@@ -106,7 +107,7 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(lua_name.c_str(), string::strlen(lua_name.c_str()), 0);
-			m_scripts.push_back(id);
+			m_script.push_back(id);
 		}
 	}
 
@@ -131,47 +132,80 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(sound_name.c_str(), string::strlen(sound_name.c_str()), 0);
-			m_sounds.push_back(id);
+			m_sound.push_back(id);
+		}
+	}
+
+	// Check for meshes
+	if (root.has_key("mesh"))
+	{
+		JSONElement mesh_array = root.key("mesh");
+		uint32_t mesh_array_size = mesh_array.size();
+
+		for (uint32_t i = 0; i < mesh_array_size; i++)
+		{
+			TempAllocator256 alloc;
+			DynamicString mesh_name(alloc);
+			mesh_name += mesh_array[i].string_value();
+			mesh_name += ".mesh";
+
+			if (!fs.is_file(mesh_name.c_str()))
+			{
+				Log::e("Mesh '%s' does not exist.", mesh_name.c_str());
+				return 0;
+			}
+
+			ResourceId id;
+			id.id = hash::murmur2_64(mesh_name.c_str(), string::strlen(mesh_name.c_str()), 0);
+			m_mesh.push_back(id);
 		}
 	}
 
 	return sizeof(PackageHeader) +
-			m_textures.size() * sizeof(ResourceId) +
-			m_scripts.size() * sizeof(ResourceId) +
-			m_sounds.size() * sizeof(ResourceId);
+			m_texture.size() * sizeof(ResourceId) +
+			m_script.size() * sizeof(ResourceId) +
+			m_sound.size() * sizeof(ResourceId) +
+			m_mesh.size() * sizeof(ResourceId);
 }
 
 //-----------------------------------------------------------------------------
 void PackageCompiler::write_impl(File* out_file)
 {
 	PackageHeader header;
-	header.num_textures = m_textures.size();
-	header.num_scripts = m_scripts.size();
-	header.num_sounds = m_sounds.size();
+	header.num_textures = m_texture.size();
+	header.num_scripts = m_script.size();
+	header.num_sounds = m_sound.size();
+	header.num_meshes = m_mesh.size();
 
 	header.textures_offset = sizeof(PackageHeader);
 	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
 	header.sounds_offset = header.scripts_offset + sizeof(ResourceId) * header.num_scripts;
+	header.meshes_offset = header.sounds_offset + sizeof(ResourceId) * header.num_sounds;
 
 	out_file->write((char*) &header, sizeof(PackageHeader));
 
-	if (m_textures.size() > 0)
+	if (m_texture.size() > 0)
 	{
-		out_file->write((char*) m_textures.begin(), sizeof(ResourceId) * header.num_textures);		
+		out_file->write((char*) m_texture.begin(), sizeof(ResourceId) * header.num_textures);		
 	}
-	if (m_scripts.size() > 0)
+	if (m_script.size() > 0)
 	{
-		out_file->write((char*) m_scripts.begin(), sizeof(ResourceId) * header.num_scripts);
+		out_file->write((char*) m_script.begin(), sizeof(ResourceId) * header.num_scripts);
 	}
-	if (m_sounds.size() > 0)
+	if (m_sound.size() > 0)
 	{
-		out_file->write((char*) m_sounds.begin(), sizeof(ResourceId) * header.num_sounds);
+		out_file->write((char*) m_sound.begin(), sizeof(ResourceId) * header.num_sounds);
+	}
+	if (m_mesh.size() > 0)
+	{
+		out_file->write((char*) m_mesh.begin(), sizeof(ResourceId) * header.num_meshes);
 	}
 
 	// Cleanup
-	m_textures.clear();
-	m_scripts.clear();
-	m_sounds.clear();
+	m_texture.clear();
+	m_script.clear();
+	m_sound.clear();
+	m_mesh.clear();
 }
 
 } // namespace crown

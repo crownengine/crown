@@ -44,6 +44,8 @@ struct PackageHeader
 	uint32_t scripts_offset;
 	uint32_t num_sounds;
 	uint32_t sounds_offset;
+	uint32_t num_meshes;
+	uint32_t meshes_offset;
 };
 
 class PackageResource
@@ -111,6 +113,14 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
+	uint32_t num_meshes() const
+	{
+		CE_ASSERT_NOT_NULL(m_data);
+
+		return ((PackageHeader*)m_data)->num_meshes;
+	}
+
+	//-----------------------------------------------------------------------------
 	ResourceId get_texture_id(uint32_t i) const
 	{
 		CE_ASSERT(i < num_textures(), "Index out of bounds");
@@ -134,6 +144,15 @@ public:
 		CE_ASSERT(i < num_sounds(), "Index out of bounds");
 
 		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->sounds_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_mesh_id(uint32_t i) const
+	{
+		CE_ASSERT(i < num_meshes(), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->meshes_offset);
 		return begin[i];
 	}
 

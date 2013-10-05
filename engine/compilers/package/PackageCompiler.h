@@ -47,10 +47,12 @@ private:
 	bool m_has_texture;
 	bool m_has_lua;
 	bool m_has_sound;
+	bool m_has_mesh;
 
-	List<ResourceId> m_textures;
-	List<ResourceId> m_scripts;
-	List<ResourceId> m_sounds;
+	List<ResourceId> m_texture;
+	List<ResourceId> m_script;
+	List<ResourceId> m_sound;
+	List<ResourceId> m_mesh;
 };
 
 } // namespace crown

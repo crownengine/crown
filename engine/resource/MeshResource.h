@@ -32,6 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "Bundle.h"
 #include "File.h"
+#include "Device.h"
+#include "Renderer.h"
 
 namespace crown
 {
@@ -86,8 +88,12 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* )
+	static void online(void* resource)
 	{
+		MeshResource* m = (MeshResource*) resource;
+
+		m->m_vbuffer = device()->renderer()->create_vertex_buffer(m->num_vertices(), m->vertex_format(), m->vertices());
+		m->m_ibuffer = device()->renderer()->create_index_buffer(m->num_indices(), m->indices());
 	}
 
 	//-----------------------------------------------------------------------------
@@ -99,8 +105,12 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	static void offline(void* /*resource*/)
+	static void offline(void* resource)
 	{
+		MeshResource* m = (MeshResource*) resource;
+
+		device()->renderer()->destroy_index_buffer(m->m_ibuffer);
+		device()->renderer()->destroy_vertex_buffer(m->m_vbuffer);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -141,6 +151,9 @@ public:
 public:
 
 	uint8_t* m_data;
+
+	VertexBufferId m_vbuffer;
+	IndexBufferId m_ibuffer;
 };
 
 } // namespace crown
