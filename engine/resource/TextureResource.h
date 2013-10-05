@@ -32,6 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Bundle.h"
 #include "Allocator.h"
 #include "File.h"
+#include "Device.h"
+#include "Renderer.h"
 
 namespace crown
 {
@@ -74,7 +76,9 @@ public:
 	//-----------------------------------------------------------------------------
 	static void online(void* resource)
 	{
-		CE_ASSERT(resource != NULL, "Resource not loaded");
+		TextureResource* t = (TextureResource*) resource;
+
+		t->m_texture = device()->renderer()->create_texture(t->width(), t->height(), t->format(), t->data());
 	}
 
 	//-----------------------------------------------------------------------------
@@ -87,9 +91,11 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	static void offline(void* /*resource*/)
+	static void offline(void* resource)
 	{
+		TextureResource* t = (TextureResource*) resource;
 
+		device()->renderer()->destroy_texture(t->m_texture);
 	}
 
 public:
@@ -118,6 +124,8 @@ private:
 
 	TextureHeader		m_header;
 	uint8_t*			m_data;
+
+	TextureId m_texture;
 };
 
 } // namespace crown
