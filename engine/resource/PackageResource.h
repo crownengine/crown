@@ -66,7 +66,9 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* /*resource*/) {}
+	static void online(void* /*resource*/)
+	{
+	}
 
 	//-----------------------------------------------------------------------------
 	static void unload(Allocator& allocator, void* resource)
@@ -78,7 +80,9 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	static void offline(void* /*resource*/) {}
+	static void offline(void* /*resource*/)
+	{
+	}
 
 public:
 
