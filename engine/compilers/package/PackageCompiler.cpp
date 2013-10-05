@@ -123,8 +123,6 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 			sound_name += sound_array[i].string_value();
 			sound_name += ".sound";
 
-			Log::i("file: %s", sound_name.c_str());
-
 			if (!fs.is_file(sound_name.c_str()))
 			{
 				Log::e("Sound '%s' does not exist.", sound_name.c_str());
