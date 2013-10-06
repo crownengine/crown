@@ -63,7 +63,7 @@ public:
 	Unit*				lookup_unit(UnitId unit);
 	Camera*				lookup_camera(CameraId camera);
 
-	void				update(float dt);
+	void				update(Camera& camera, float dt);
 
 	SoundWorld&			sound_world();
 

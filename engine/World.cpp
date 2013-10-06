@@ -109,8 +109,10 @@ Camera* World::lookup_camera(CameraId camera)
 }
 
 //-----------------------------------------------------------------------------
-void World::update(float /*dt*/)
+void World::update(Camera& camera, float dt)
 {
+	(void)camera;
+	(void)dt;
 }
 
 //-----------------------------------------------------------------------------
