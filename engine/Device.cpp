@@ -425,6 +425,12 @@ void Device::frame()
 }
 
 //-----------------------------------------------------------------------------
+void Device::render_world(World& world, Camera& camera, float dt)
+{
+	world.update(camera, dt);
+}
+
+//-----------------------------------------------------------------------------
 World* Device::create_world()
 {
 	return CE_NEW(default_allocator(), World);

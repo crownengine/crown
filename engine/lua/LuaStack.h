@@ -38,6 +38,7 @@ class Mat4;
 class Quat;
 class Unit;
 class Camera;
+class World;
 
 class LuaStack
 {
@@ -145,6 +146,18 @@ public:
 	void* get_lightdata(int32_t index)
 	{
 		return lua_touserdata(m_state, index);	
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_world(World* world)
+	{
+		lua_pushlightuserdata(m_state, world);
+	}
+
+	//-----------------------------------------------------------------------------
+	World* get_world(int32_t index)
+	{
+		return (World*) lua_touserdata(m_state, index);
 	}
 
 	//-----------------------------------------------------------------------------

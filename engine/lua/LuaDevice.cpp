@@ -94,6 +94,19 @@ CE_EXPORT int device_destroy_world(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int device_render_world(lua_State* L)
+{
+	LuaStack stack(L);
+
+	World* world = stack.get_world(1);
+	Camera* camera = stack.get_camera(2);
+	const float dt = stack.get_float(3);
+
+	device()->render_world(*world, *camera, dt);
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int device_create_resource_package(lua_State* L)
 {
 	LuaStack stack(L);
@@ -124,6 +137,7 @@ void load_device(LuaEnvironment& env)
 	env.load_module_function("Device", "stop",                     device_stop);
 	env.load_module_function("Device", "create_world",             device_create_world);
 	env.load_module_function("Device", "destroy_world",            device_destroy_world);
+	env.load_module_function("Device", "render_world",             device_render_world);
 	env.load_module_function("Device", "create_resource_package",  device_create_resource_package);
 	env.load_module_function("Device", "destroy_resource_package", device_destroy_resource_package);
 }

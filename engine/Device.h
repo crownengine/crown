@@ -52,6 +52,7 @@ class BundleCompiler;
 class ResourcePackage;
 class RPCServer;
 class World;
+class Camera;
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -105,6 +106,9 @@ public:
 
 	/// Updates all the subsystems
 	void					frame();
+
+	/// Updates the given @a world and renders it from the given @a camera.
+	void					render_world(World& world, Camera& camera, float dt);
 
 	World*					create_world();
 	void					destroy_world(World* world);
