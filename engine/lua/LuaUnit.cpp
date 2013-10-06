@@ -39,7 +39,6 @@ CE_EXPORT int32_t unit_local_position(lua_State* L)
 	Unit* unit = stack.get_unit(1);
 
 	stack.push_vec3(unit->local_position());
-
 	return 1;
 }
 
@@ -51,7 +50,6 @@ CE_EXPORT int32_t unit_local_rotation(lua_State* L)
 	Unit* unit = stack.get_unit(1);
 
 	stack.push_quat(unit->local_rotation());
-
 	return 1;
 }
 
@@ -63,7 +61,6 @@ CE_EXPORT int32_t unit_local_pose(lua_State* L)
 	Unit* unit = stack.get_unit(1);
 
 	stack.push_mat4(unit->local_pose());
-
 	return 1;
 }
 
@@ -75,7 +72,6 @@ CE_EXPORT int32_t unit_world_position(lua_State* L)
 	Unit* unit = stack.get_unit(1);
 
 	stack.push_vec3(unit->world_position());
-
 	return 1;
 }
 
@@ -87,7 +83,6 @@ CE_EXPORT int32_t unit_world_rotation(lua_State* L)
 	Unit* unit = stack.get_unit(1);
 
 	stack.push_quat(unit->world_rotation());
-
 	return 1;
 }
 
@@ -99,7 +94,6 @@ CE_EXPORT int32_t unit_world_pose(lua_State* L)
 	Unit* unit = stack.get_unit(1);
 
 	stack.push_mat4(unit->world_pose());
-
 	return 1;
 }
 
@@ -112,7 +106,6 @@ CE_EXPORT int32_t unit_set_local_position(lua_State* L)
 	Vec3& pos = stack.get_vec3(2);
 
 	unit->set_local_position(pos);
-
 	return 0;
 }
 
@@ -125,7 +118,6 @@ CE_EXPORT int32_t unit_set_local_rotation(lua_State* L)
 	Quat& rot = stack.get_quat(2);
 
 	unit->set_local_rotation(rot);
-
 	return 0;
 }
 
@@ -138,8 +130,17 @@ CE_EXPORT int32_t unit_set_local_pose(lua_State* L)
 	Mat4& pose = stack.get_mat4(2);
 
 	unit->set_local_pose(pose);
-
 	return 0;
+}
+
+CE_EXPORT int unit_camera(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Unit* unit = stack.get_unit(1);
+
+	stack.push_camera(unit->camera("fixme"));
+	return 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -154,6 +155,8 @@ void load_unit(LuaEnvironment& env)
 	env.load_module_function("Unit", "set_local_position",		unit_set_local_position);
 	env.load_module_function("Unit", "set_local_rotation",		unit_set_local_rotation);
 	env.load_module_function("Unit", "set_local_pose",			unit_set_local_pose);
+
+	env.load_module_function("Unit", "camera", unit_camera);
 }
 
 } // namespace crown

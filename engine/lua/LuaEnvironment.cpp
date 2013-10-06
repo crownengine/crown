@@ -59,6 +59,7 @@ CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 	load_resource_package(*env);
 
 	load_unit(*env);
+	load_camera(*env);
 	load_world(*env);
 	load_sound(*env);
 

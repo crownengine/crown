@@ -25,14 +25,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Unit.h"
+#include "IdTable.h"
+#include "World.h"
 
 namespace crown
 {
 
+typedef Id CameraId;
+
 //-----------------------------------------------------------------------------
-void Unit::create(const Vec3& pos, const Quat& rot)
+void Unit::create(World& creator, const Vec3& pos, const Quat& rot)
 {
-	m_root_node = m_scene_graph.create_node(pos, rot);
+	m_creator = &creator;
+	m_root_node = m_scene_graph.create_node(-1, pos, rot);
+
+	int32_t camera_node = m_scene_graph.create_node(m_root_node, Vec3::ZERO, Quat::IDENTITY);
+	CameraId camera = m_creator->create_camera(*this, camera_node);
+	m_camera = m_creator->lookup_camera(camera);
 }
 
 //-----------------------------------------------------------------------------
@@ -59,57 +68,63 @@ void Unit::reload(UnitResource* new_ur)
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Unit::local_position() const
+Vec3 Unit::local_position(int32_t node) const
 {
-	return m_scene_graph.local_position(m_root_node);
+	return m_scene_graph.local_position(node);
 }
 
 //-----------------------------------------------------------------------------
-Quat Unit::local_rotation() const
+Quat Unit::local_rotation(int32_t node) const
 {
-	return m_scene_graph.local_rotation(m_root_node);
+	return m_scene_graph.local_rotation(node);
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Unit::local_pose() const
+Mat4 Unit::local_pose(int32_t node) const
 {
-	return m_scene_graph.local_pose(m_root_node);
+	return m_scene_graph.local_pose(node);
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Unit::world_position() const
+Vec3 Unit::world_position(int32_t node) const
 {
-	return m_scene_graph.world_position(m_root_node);
+	return m_scene_graph.world_position(node);
 }
 
 //-----------------------------------------------------------------------------
-Quat Unit::world_rotation() const
+Quat Unit::world_rotation(int32_t node) const
 {
-	return m_scene_graph.world_rotation(m_root_node);
+	return m_scene_graph.world_rotation(node);
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Unit::world_pose() const
+Mat4 Unit::world_pose(int32_t node) const
 {
-	return m_scene_graph.world_pose(m_root_node);
+	return m_scene_graph.world_pose(node);
 }
 
 //-----------------------------------------------------------------------------
-void Unit::set_local_position(const Vec3& pos)
+void Unit::set_local_position(const Vec3& pos, int32_t node)
 {
-	m_scene_graph.set_local_position(m_root_node, pos);
+	m_scene_graph.set_local_position(node, pos);
 }
 
 //-----------------------------------------------------------------------------
-void Unit::set_local_rotation(const Quat& rot)
+void Unit::set_local_rotation(const Quat& rot, int32_t node)
 {
-	m_scene_graph.set_local_rotation(m_root_node, rot);
+	m_scene_graph.set_local_rotation(node, rot);
 }
 
 //-----------------------------------------------------------------------------
-void Unit::set_local_pose(const Mat4& pose)
+void Unit::set_local_pose(const Mat4& pose, int32_t node)
 {
-	m_scene_graph.set_local_pose(m_root_node, pose);
+	m_scene_graph.set_local_pose(node, pose);
+}
+
+//-----------------------------------------------------------------------------
+Camera* Unit::camera(const char* /*name*/)
+{
+	return m_camera;
 }
 
 } // namespace crown

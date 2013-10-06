@@ -54,7 +54,7 @@ UnitId World::spawn_unit(const char* /*name*/, const Vec3& pos, const Quat& rot)
 {
 	const UnitId unit = m_unit_table.create();
 
-	m_units[unit.index].create(pos, rot);
+	m_units[unit.index].create(*this, pos, rot);
 
 	// m_units[unit.index].load(ur);
 
@@ -93,11 +93,19 @@ void World::unlink_unit(UnitId child, UnitId parent)
 }
 
 //-----------------------------------------------------------------------------
-Unit* World::unit(UnitId unit)
+Unit* World::lookup_unit(UnitId unit)
 {
 	CE_ASSERT(m_unit_table.has(unit), "Unit does not exist");
 
 	return &m_units[unit.index];
+}
+
+//-----------------------------------------------------------------------------
+Camera* World::lookup_camera(CameraId camera)
+{
+	CE_ASSERT(m_camera_table.has(camera), "Camera does not exist");
+
+	return &m_camera[camera.index];
 }
 
 //-----------------------------------------------------------------------------
@@ -109,6 +117,21 @@ void World::update(float /*dt*/)
 SoundWorld&	World::sound_world()
 {
 	return m_sound_world;
+}
+
+//-----------------------------------------------------------------------------
+CameraId World::create_camera(Unit& parent, int32_t node)
+{
+	CameraId camera = m_camera_table.create();
+
+	m_camera[camera.index].create(parent, node);
+	return camera;
+}
+
+//-----------------------------------------------------------------------------
+void World::destroy_camera(CameraId camera)
+{
+	m_camera_table.destroy(camera);
 }
 
 

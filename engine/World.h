@@ -30,13 +30,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "HeapAllocator.h"
 #include "IdTable.h"
 #include "Unit.h"
+#include "Camera.h"
 #include "SoundWorld.h"
 #include "LinearAllocator.h"
 
 namespace crown
 {
 
-#define MAX_UNITS 10
+#define MAX_UNITS 65000
+#define MAX_CAMERAS 16
+
+typedef Id UnitId;
+typedef Id CameraId;
 
 class Vec3;
 class Quat;
@@ -55,22 +60,29 @@ public:
 	void				link_unit(UnitId child, UnitId parent);
 	void				unlink_unit(UnitId child, UnitId parent);
 
-	Unit*				unit(UnitId unit);
+	Unit*				lookup_unit(UnitId unit);
+	Camera*				lookup_camera(CameraId camera);
 
 	void				update(float dt);
 
 	SoundWorld&			sound_world();
 
+	CameraId			create_camera(Unit& parent, int32_t node);
+	void				destroy_camera(CameraId camera);
+
 private:
 
-	LinearAllocator		m_allocator;
+	LinearAllocator			m_allocator;
 
-	bool				m_is_init :1;
+	bool					m_is_init :1;
 
-	IdTable<MAX_UNITS> 	m_unit_table;
-	Unit				m_units[MAX_UNITS];
+	IdTable<MAX_UNITS> 		m_unit_table;
+	Unit					m_units[MAX_UNITS];
 
-	SoundWorld			m_sound_world;
+	IdTable<MAX_CAMERAS>	m_camera_table;
+	Camera					m_camera[MAX_CAMERAS];
+
+	SoundWorld				m_sound_world;
 };
 
 } // namespace crown

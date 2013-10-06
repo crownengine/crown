@@ -27,83 +27,84 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Camera.h"
 #include "Types.h"
 #include "MathUtils.h"
+#include "Quat.h"
+#include "Unit.h"
+#include "Assert.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-Camera::Camera(const Vec3& position, float fov, float aspect) :
-	m_position(position),
-	m_look_at(0, 0, -1),
-	m_up(0, 1, 0),
-
-	m_rot_factor(0.0f, 0.0f),
-	m_angle_x(0.0f),
-	m_angle_y(0.0f),
-
-	m_FOV(fov),
-	m_aspect(aspect),
-	m_near(0.1f),
-	m_far(1000.0f)
+//-----------------------------------------------------------------------
+void Camera::create(Unit& parent, int32_t node)
 {
-	update_projection_matrix();
-	update_view_matrix();
-	update_frustum();
-}
-
-//-----------------------------------------------------------------------------
-const Vec3& Camera::position() const
-{
-	return m_position;
-}
-
-//-----------------------------------------------------------------------------
-void Camera::set_position(const Vec3& position)
-{
-	m_position = position;
-
-	update_view_matrix();
-}
-
-//-----------------------------------------------------------------------------
-const Vec3& Camera::look_at() const
-{
-	return m_look_at;
-}
-
-//-----------------------------------------------------------------------------
-void Camera::set_look_at(const Vec3& lookat)
-{
-	m_look_at = lookat;
-
-	update_view_matrix();
+	m_parent = &parent;
+	m_node = node;
 }
 
 //-----------------------------------------------------------------------
-void Camera::set_rotation(const float x, const float y)
+Vec3 Camera::local_position() const
 {
-	Vec3 right(1, 0, 0);
-	Vec3 look;
-
-	look.x = 0.0f;
-	look.y = math::sin(x);
-	look.z = -math::cos(x);
-
-	Vec3 up = right.cross(look);
-	up.normalize();
-
-	Mat3 m;
-	m.build_rotation_y(y);
-	look = m * look;
-	m_up = m * up;
-
-	set_look_at(look);
+	return m_parent->local_position(m_node);
 }
 
-//-----------------------------------------------------------------------------
-const Vec3& Camera::up() const
+//-----------------------------------------------------------------------
+Quat Camera::local_rotation() const
 {
-	return m_up;
+	return m_parent->local_rotation(m_node);
+}
+
+//-----------------------------------------------------------------------
+Mat4 Camera::local_pose() const
+{
+	return m_parent->local_pose(m_node);
+}
+
+//-----------------------------------------------------------------------
+Vec3 Camera::world_position() const
+{
+	return m_parent->world_position(m_node);
+}
+
+//-----------------------------------------------------------------------
+Quat Camera::world_rotation() const
+{
+	return m_parent->world_rotation(m_node);
+}
+
+//-----------------------------------------------------------------------
+Mat4 Camera::world_pose() const
+{
+	return m_parent->world_pose(m_node);
+}
+
+//-----------------------------------------------------------------------
+void Camera::set_local_position(const Vec3& pos)
+{
+	m_parent->set_local_position(pos, m_node);
+}
+
+//-----------------------------------------------------------------------
+void Camera::set_local_rotation(const Quat& rot)
+{
+	m_parent->set_local_rotation(rot, m_node);
+}
+
+//-----------------------------------------------------------------------
+void Camera::set_local_pose(const Mat4& pose)
+{
+	m_parent->set_local_pose(pose, m_node);
+}
+
+//-----------------------------------------------------------------------
+void Camera::set_projection_type(ProjectionType::Enum type)
+{
+	m_projection_type = type;
+}
+
+//-----------------------------------------------------------------------
+ProjectionType::Enum Camera::projection_type() const
+{
+	return m_projection_type;
 }
 
 //-----------------------------------------------------------------------------
@@ -116,7 +117,6 @@ float Camera::fov() const
 void Camera::set_fov(float fov)
 {
 	m_FOV = fov;
-
 	update_projection_matrix();
 }
 
@@ -130,7 +130,6 @@ float Camera::aspect() const
 void Camera::set_aspect(float aspect)
 {
 	m_aspect = aspect;
-
 	update_projection_matrix();
 }
 
@@ -144,7 +143,6 @@ float Camera::near_clip_distance() const
 void Camera::set_near_clip_distance(float near)
 {
 	m_near = near;
-
 	update_projection_matrix();
 }
 
@@ -158,75 +156,37 @@ float Camera::far_clip_distance() const
 void Camera::set_far_clip_distance(float far)
 {
 	m_far = far;
-
 	update_projection_matrix();
-}
-
-//-----------------------------------------------------------------------------
-const Mat4& Camera::projection_matrix() const
-{
-	return m_projection;
-}
-
-//-----------------------------------------------------------------------------
-const Mat4& Camera::view_matrix() const
-{
-	return m_view;
-}
-
-//-----------------------------------------------------------------------------
-const Frustum& Camera::frustum() const
-{
-	return m_frustum;
 }
 
 //-----------------------------------------------------------------------------
 void Camera::update_projection_matrix()
 {
-	m_projection.build_projection_perspective_rh(m_FOV, m_aspect, m_near, m_far);
-}
-
-//-----------------------------------------------------------------------------
-void Camera::update_view_matrix()
-{
-	m_view.build_look_at_rh(m_position, m_position + m_look_at, m_up);
+	switch (m_projection_type)
+	{
+		case ProjectionType::ORTHOGRAPHIC:
+		{
+			CE_FATAL("TODO");
+			break;
+		}
+		case ProjectionType::PERSPECTIVE:
+		{
+			m_projection.build_projection_perspective_rh(m_FOV, m_aspect, m_near, m_far);
+			break;
+		}
+		default:
+		{
+			CE_FATAL("Oops, unknown projection type");
+			break;
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
 void Camera::update_frustum()
 {
-	m_frustum.from_matrix(m_projection * m_view);
-}
-
-//-----------------------------------------------------------------------------
-void Camera::move_forward(float meters)
-{
-	set_position(m_position + m_look_at * meters);
-}
-
-//-----------------------------------------------------------------------
-void Camera::move_backward(float meters)
-{
-	set_position(m_position + m_look_at * -meters);
-}
-
-//-----------------------------------------------------------------------
-void Camera::strafe_left(float meters)
-{
-	Vec3 left = m_up.cross(m_look_at);
-	left.normalize();
-
-	set_position(m_position + left * meters);
-}
-
-//-----------------------------------------------------------------------
-void Camera::strafe_right(float meters)
-{
-	Vec3 left = m_up.cross(m_look_at);
-	left.normalize();
-
-	set_position(m_position + left * -meters);
+	// TODO
+	//m_frustum.from_matrix(m_projection * m_view);
 }
 
 } // namespace crown
-

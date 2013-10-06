@@ -43,9 +43,10 @@ CE_EXPORT int world_spawn_unit(lua_State* L)
 	const Vec3& pos = stack.num_args() > 2 ? stack.get_vec3(3) : Vec3::ZERO;
 	const Quat& rot = stack.num_args() > 3 ? stack.get_quat(4) : Quat::IDENTITY;
 
-	world->spawn_unit(name, pos, rot);
+	UnitId unit = world->spawn_unit(name, pos, rot);
 
-	return 0;
+	stack.push_unit(world->lookup_unit(unit));
+	return 1;
 }
 
 //-----------------------------------------------------------------------------

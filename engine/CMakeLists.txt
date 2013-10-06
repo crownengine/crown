@@ -337,6 +337,7 @@ set (LUA_SRC
 	lua/LuaResourcePackage.cpp
 	lua/LuaWorld.cpp
 	lua/LuaUnit.cpp
+	lua/LuaCamera.cpp
 	lua/LuaSound.cpp
 )
 
