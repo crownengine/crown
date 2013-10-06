@@ -29,52 +29,35 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Mat4.h"
 #include "List.h"
-#include "IdTable.h"
-#include "HeapAllocator.h"
 
 namespace crown
 {
 
-#define MAX_NODES 1024
-typedef Id NodeId;
-
-class SceneGraph
+struct SceneGraph
 {
-public:
-
 					SceneGraph();
+	int32_t			create_node(int32_t parent, const Vec3& pos, const Quat& rot);
+	void			destroy_node(int32_t id);
 
-	NodeId			create_node(const Vec3& pos, const Quat& rot);
-	void			destroy_node(NodeId id);
+	void			link(int32_t child, int32_t parent);
+	void			unlink(int32_t child);
 
-	void			link(NodeId child, NodeId parent);
-	void			unlink(NodeId child);
+	void			set_local_position(int32_t node, const Vec3& pos);
+	void			set_local_rotation(int32_t node, const Quat& rot);
+	void			set_local_pose(int32_t node, const Mat4& pose);
 
-	void			set_local_position(NodeId node, const Vec3& pos);
-	void			set_local_rotation(NodeId node, const Quat& rot);
-	void			set_local_pose(NodeId node, const Mat4& pose);
+	Vec3			local_position(int32_t node) const;
+	Quat			local_rotation(int32_t node) const;
+	Mat4			local_pose(int32_t node) const;
 
-	Vec3			local_position(NodeId node) const;
-	Quat			local_rotation(NodeId node) const;
-	Mat4			local_pose(NodeId node) const;
-
-	Vec3			world_position(NodeId node) const;
-	Quat			world_rotation(NodeId node) const;
-	Mat4			world_pose(NodeId node) const;
+	Vec3			world_position(int32_t node) const;
+	Quat			world_rotation(int32_t node) const;
+	Mat4			world_pose(int32_t node) const;
 
 	void			update();
 
-private:
+public:
 
-	HeapAllocator	m_allocator;
-
-	// Sparse table of nodes
-	IdTable<MAX_NODES> m_nodes;
-
-	// Conversion from sparse table to packed array
-	uint32_t		m_sparse_to_packed[MAX_NODES];
-
-	// Packed arrays of transforms
 	List<Mat4>		m_world_poses;
 	List<Mat4>		m_local_poses;
 	List<int32_t>	m_parents;
