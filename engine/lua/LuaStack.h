@@ -38,6 +38,8 @@ class Mat4;
 class Quat;
 class Unit;
 class Camera;
+class World;
+class Mesh;
 
 class LuaStack
 {
@@ -148,6 +150,18 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
+	void push_world(World* world)
+	{
+		lua_pushlightuserdata(m_state, world);
+	}
+
+	//-----------------------------------------------------------------------------
+	World* get_world(int32_t index)
+	{
+		return (World*) lua_touserdata(m_state, index);
+	}
+
+	//-----------------------------------------------------------------------------
 	void push_unit(Unit* unit)
 	{
 		lua_pushlightuserdata(m_state, unit);
@@ -159,14 +173,28 @@ public:
 		return (Unit*) lua_touserdata(m_state, index);
 	}
 
+	//-----------------------------------------------------------------------------
 	void push_camera(Camera* camera)
 	{
 		lua_pushlightuserdata(m_state, camera);
 	}
 
+	//-----------------------------------------------------------------------------
 	Camera* get_camera(int32_t index)
 	{
 		return (Camera*) lua_touserdata(m_state, index);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_mesh(Mesh* mesh)
+	{
+		lua_pushlightuserdata(m_state, mesh);
+	}
+
+	//-----------------------------------------------------------------------------
+	Mesh* get_mesh(int32_t index)
+	{
+		return (Mesh*) lua_touserdata(m_state, index);
 	}
 
 	Vec2& get_vec2(int32_t index);

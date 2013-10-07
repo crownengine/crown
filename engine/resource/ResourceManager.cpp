@@ -82,7 +82,7 @@ void ResourceManager::unload(ResourceId name)
 }
 
 //-----------------------------------------------------------------------------
-void* ResourceManager::lookup(const char* type, const char* name)
+const void* ResourceManager::lookup(const char* type, const char* name) const
 {
 	ResourceId id = resource_id(type, name);
 	ResourceEntry* entry = find(id);

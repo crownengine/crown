@@ -26,31 +26,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
-#include "Frustum.h"
+#include "RendererTypes.h"
 #include "Mat4.h"
-#include "Mat3.h"
-#include "Vec3.h"
 
 namespace crown
 {
 
-struct ProjectionType
-{
-	enum Enum
-	{
-		ORTHOGRAPHIC,
-		PERSPECTIVE
-	};
-};
+struct MeshResource;
 
-class Quat;
-class Unit;
-
-/// Represents the point of view into the game world.
-struct Camera
+struct Mesh
 {
-	void			create(Unit& parent, int32_t node);
+	void			create(const MeshResource* mr);
 
 	Vec3			local_position() const;
 	Quat			local_rotation() const;
@@ -64,39 +50,15 @@ struct Camera
 	void			set_local_rotation(const Quat& rot);
 	void			set_local_pose(const Mat4& pose);
 
-	void			set_projection_type(ProjectionType::Enum type);
-	ProjectionType::Enum projection_type() const;
-
-	float			fov() const;
-	void			set_fov(float fov);
-
-	float			aspect() const;
-	void			set_aspect(float aspect);
-
-	float			near_clip_distance() const;
-	void			set_near_clip_distance(float near);
-	float			far_clip_distance() const;
-	void			set_far_clip_distance(float far);
-
 public:
 
-	void			update_projection_matrix();
-	void			update_frustum();
+	int32_t m_node;
 
-public:
+	Mat4 m_local_pose;
+	Mat4 m_world_pose;
 
-	Unit*					m_parent;
-	int32_t					m_node;
-
-	ProjectionType::Enum	m_projection_type;
-	Mat4					m_projection;
-
-	Frustum					m_frustum;
-	float					m_FOV;
-	float					m_aspect;
-	float					m_near;
-	float					m_far;
+	VertexBufferId m_vbuffer;
+	IndexBufferId m_ibuffer;
 };
 
 } // namespace crown
-
