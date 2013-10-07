@@ -24,46 +24,43 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "LuaStack.h"
-#include "LuaEnvironment.h"
-#include "World.h"
-#include "Device.h"
+#pragma once
+
+#include "IdTable.h"
+#include "Mesh.h"
+#include "List.h"
+
+#define MAX_MESHES 100
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-CE_EXPORT int world_spawn_unit(lua_State* L)
+typedef Id MeshId;
+struct Camera;
+
+class RenderWorld
 {
-	LuaStack stack(L);
+public:
 
-	World* world = stack.get_world(1);
-	const char* name = stack.get_string(2);
+	RenderWorld();
+	~RenderWorld();
 
-	const Vec3& pos = stack.num_args() > 2 ? stack.get_vec3(3) : Vec3::ZERO;
-	const Quat& rot = stack.num_args() > 3 ? stack.get_quat(4) : Quat::IDENTITY;
+	MeshId create_mesh(const char* mesh);
+	void destroy_mesh(MeshId id);
 
-	UnitId unit = world->spawn_unit(name, pos, rot);
+	void update(Camera& camera, float dt);
 
-	stack.push_unit(world->lookup_unit(unit));
-	return 1;
-}
+	MeshId allocate_mesh();
+	void deallocate_mesh(MeshId id);
 
-CE_EXPORT int world_mesh(lua_State* L)
-{
-	LuaStack stack(L);
+	Mesh* mesh() { return &m_mesh[0]; }
 
-	World* world = stack.get_world(1);
+private:
 
-	stack.push_mesh(world->mesh());
-	return 1;
-}
+	IdTable<MAX_MESHES>		m_mesh_table;
+	uint32_t				m_sparse_to_packed[MAX_MESHES];
 
-//-----------------------------------------------------------------------------
-void load_world(LuaEnvironment& env)
-{
-	env.load_module_function("World", "spawn_unit",			world_spawn_unit);
-	env.load_module_function("World", "mesh", world_mesh);
-}
+	List<Mesh>				m_mesh;
+};
 
 } // namespace crown

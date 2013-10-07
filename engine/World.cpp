@@ -111,14 +111,19 @@ Camera* World::lookup_camera(CameraId camera)
 //-----------------------------------------------------------------------------
 void World::update(Camera& camera, float dt)
 {
-	(void)camera;
-	(void)dt;
+	m_render_world.update(camera, dt);
 }
 
 //-----------------------------------------------------------------------------
 SoundWorld&	World::sound_world()
 {
 	return m_sound_world;
+}
+
+//-----------------------------------------------------------------------------
+RenderWorld& World::render_world()
+{
+	return m_render_world;
 }
 
 //-----------------------------------------------------------------------------
@@ -136,5 +141,9 @@ void World::destroy_camera(CameraId camera)
 	m_camera_table.destroy(camera);
 }
 
+Mesh* World::mesh()
+{
+	return m_render_world.mesh();
+}
 
 } // namespace crown

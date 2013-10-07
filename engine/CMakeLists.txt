@@ -77,6 +77,7 @@ set (SRC
 	Unit.cpp
 	SceneGraph.cpp
 	SoundWorld.cpp
+	RenderWorld.cpp
 	Mesh.cpp
 )
 
@@ -89,6 +90,7 @@ set (HEADERS
 	Unit.h
 	SceneGraph.h
 	SoundWorld.h
+	RenderWorld.h
 	Mesh.h
 )
 

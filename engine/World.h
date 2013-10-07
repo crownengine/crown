@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Camera.h"
 #include "SoundWorld.h"
 #include "LinearAllocator.h"
+#include "RenderWorld.h"
 
 namespace crown
 {
@@ -66,9 +67,12 @@ public:
 	void				update(Camera& camera, float dt);
 
 	SoundWorld&			sound_world();
+	RenderWorld&		render_world();
 
 	CameraId			create_camera(Unit& parent, int32_t node);
 	void				destroy_camera(CameraId camera);
+
+	Mesh*				mesh();
 
 private:
 
@@ -83,6 +87,7 @@ private:
 	Camera					m_camera[MAX_CAMERAS];
 
 	SoundWorld				m_sound_world;
+	RenderWorld				m_render_world;
 };
 
 } // namespace crown
