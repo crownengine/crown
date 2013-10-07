@@ -62,6 +62,7 @@ CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 	load_camera(*env);
 	load_world(*env);
 	load_sound(*env);
+	load_mesh(*env);
 
 	return 1;
 }

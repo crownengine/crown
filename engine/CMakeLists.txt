@@ -77,6 +77,7 @@ set (SRC
 	Unit.cpp
 	SceneGraph.cpp
 	SoundWorld.cpp
+	Mesh.cpp
 )
 
 set (HEADERS
@@ -88,6 +89,7 @@ set (HEADERS
 	Unit.h
 	SceneGraph.h
 	SoundWorld.h
+	Mesh.h
 )
 
 set (CORE_SRC
@@ -339,6 +341,7 @@ set (LUA_SRC
 	lua/LuaUnit.cpp
 	lua/LuaCamera.cpp
 	lua/LuaSound.cpp
+	lua/LuaMesh.cpp
 )
 
 set (LUA_HEADERS
