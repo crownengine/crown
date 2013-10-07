@@ -32,6 +32,32 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+//-----------------------------------------------------------------------------
+struct Id32
+{
+	Id32() : key(0) {}
+
+	const Id32& operator=(const Id32& other) { key = other.key; return *this; }
+	const Id32& operator=(const uint32_t other) { key = other; return *this; }
+
+	operator uint32_t() { return key; }
+
+	uint32_t key;
+};
+
+//-----------------------------------------------------------------------------
+struct Id64
+{
+	Id64() : key(0) {}
+
+	const Id64& operator=(const Id64& other) { key = other.key; return *this; }
+	const Id64& operator=(const uint64_t other) { key = other; return *this; }
+
+	operator uint64_t()	{ return key; }
+
+	uint64_t key;
+};
+
 /// String hashing.
 namespace hash
 {
