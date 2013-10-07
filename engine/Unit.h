@@ -29,11 +29,36 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vec3.h"
 #include "Quat.h"
 #include "Mat4.h"
+#include "Hash.h"
+#include "IdTable.h"
 #include "SceneGraph.h"
+
 
 namespace crown
 {
 
+typedef	Id ComponentId;
+
+//-----------------------------------------------------------------------------
+struct ComponentType
+{
+	enum Enum
+	{
+		UNKNOWN,
+		RENDER,
+		SOUND
+	};
+};
+
+//-----------------------------------------------------------------------------
+struct Component
+{
+	Id32				id;
+	ComponentType::Enum type;
+	ComponentId			component;
+};
+
+//-----------------------------------------------------------------------------
 struct UnitResource
 {
 };
@@ -43,6 +68,7 @@ class World;
 
 struct Unit
 {
+					Unit();
 	void			create(World& creator, const Vec3& pos, const Quat& rot);
 	void			destroy();
 
@@ -62,7 +88,15 @@ struct Unit
 	void			set_local_rotation(const Quat& rot, int32_t node = 0);
 	void			set_local_pose(const Mat4& pose, int32_t node = 0);
 
+	void			add_component(const char* name, uint32_t type, ComponentId component);
+	void			remove_component(const char* name);
+	Component*		get_component(const char* name);
+
 	Camera*			camera(const char* name);
+
+private:
+
+	bool			next_free_component(uint32_t& index);
 
 public:
 
@@ -73,6 +107,8 @@ public:
 	Camera*			m_camera;
 
 	UnitResource*	m_resource;
+
+	List<Component> m_component_list;
 };
 
 } // namespace crown

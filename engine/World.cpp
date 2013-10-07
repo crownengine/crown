@@ -27,6 +27,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "World.h"
 #include "Allocator.h"
+#include "Device.h"
+#include "ResourceManager.h"
+#include "SoundRenderer.h"
+#include "SoundResource.h"
 
 namespace crown
 {
@@ -46,7 +50,6 @@ void World::init()
 //-----------------------------------------------------------------------------
 void World::shutdown()
 {
-
 }
 
 //-----------------------------------------------------------------------------
@@ -116,12 +119,6 @@ void World::update(Camera& camera, float dt)
 }
 
 //-----------------------------------------------------------------------------
-SoundWorld&	World::sound_world()
-{
-	return m_sound_world;
-}
-
-//-----------------------------------------------------------------------------
 CameraId World::create_camera(Unit& parent, int32_t node)
 {
 	CameraId camera = m_camera_table.create();
@@ -136,5 +133,71 @@ void World::destroy_camera(CameraId camera)
 	m_camera_table.destroy(camera);
 }
 
+//-----------------------------------------------------------------------------
+SoundInstanceId World::play_sound(const char* name, const bool loop, const float volume, const Vec3& pos, const float range)
+{
+	SoundInstanceId id = m_sound_table.create();
+
+	SoundResource* sound = (SoundResource*)device()->resource_manager()->lookup(SOUND_EXTENSION, name);
+
+	m_sound[id.index].m_sound = sound->m_id;
+
+	device()->sound_renderer()->set_sound_loop(m_sound[id.index].m_sound, loop);
+	device()->sound_renderer()->set_sound_gain(m_sound[id.index].m_sound, volume);
+	device()->sound_renderer()->set_sound_position(m_sound[id.index].m_sound, pos);
+	device()->sound_renderer()->set_sound_max_distance(m_sound[id.index].m_sound, range);
+
+	device()->sound_renderer()->play_sound(m_sound[id.index].m_sound);
+
+	return id;
+}
+
+//-----------------------------------------------------------------------------
+void World::pause_sound(SoundInstanceId sound)
+{
+	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+
+	device()->sound_renderer()->pause_sound(m_sound[sound.index].m_sound);
+}
+
+//-----------------------------------------------------------------------------
+void World::link_sound(SoundInstanceId sound, UnitId unit)
+{
+	CE_ASSERT(m_unit_table.has(unit), "Unit does not exists");
+	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+
+	Vec3 pos = m_units[unit.index].world_position();
+	device()->sound_renderer()->set_sound_position(m_sound[sound.index].m_sound, pos);
+}
+
+//-----------------------------------------------------------------------------
+void World::set_listener(const Vec3& pos, const Vec3& vel, const Vec3& or_up, const Vec3& or_at)
+{
+	device()->sound_renderer()->set_listener(pos, vel, or_up, or_at);
+}
+
+//-----------------------------------------------------------------------------
+void World::set_sound_position(SoundInstanceId sound, const Vec3& pos)
+{
+	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+
+	device()->sound_renderer()->set_sound_position(m_sound[sound.index].m_sound, pos);
+}
+
+//-----------------------------------------------------------------------------
+void World::set_sound_range(SoundInstanceId sound, const float range)
+{
+	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+
+	device()->sound_renderer()->set_sound_max_distance(m_sound[sound.index].m_sound, range);
+}
+
+//-----------------------------------------------------------------------------
+void World::set_sound_volume(SoundInstanceId sound, const float vol)
+{
+	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+
+	device()->sound_renderer()->set_sound_gain(m_sound[sound.index].m_sound, vol);
+}
 
 } // namespace crown

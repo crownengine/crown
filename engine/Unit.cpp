@@ -27,11 +27,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Unit.h"
 #include "IdTable.h"
 #include "World.h"
+#include "Allocator.h"
+#include "StringUtils.h"
 
 namespace crown
 {
 
 typedef Id CameraId;
+
+Unit::Unit()
+	: m_creator(NULL)
+	, m_resource(NULL)
+	, m_component_list(default_allocator(), 8) // test value
+{
+}
 
 //-----------------------------------------------------------------------------
 void Unit::create(World& creator, const Vec3& pos, const Quat& rot)
@@ -126,5 +135,81 @@ Camera* Unit::camera(const char* /*name*/)
 {
 	return m_camera;
 }
+
+//-----------------------------------------------------------------------------
+bool Unit::next_free_component(uint32_t& index)
+{
+	uint32_t i;
+	for (i = 0; i < m_component_list.size(); i++)
+	{
+		// id == 0 means free slot
+		if (m_component_list[i].id == 0)
+		{
+			index = i;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+void Unit::add_component(const char* name, uint32_t type, ComponentId component)
+{
+	CE_ASSERT_NOT_NULL(name);
+
+	uint32_t key = hash::murmur2_32(name, string::strlen(name), 0);
+
+	uint32_t free_index;
+
+	if (next_free_component(free_index))
+	{
+		m_component_list[free_index].id.key = key;
+		m_component_list[free_index].type = (ComponentType::Enum)type;
+		m_component_list[free_index].component = component;
+	}
+
+	Component comp;
+
+	comp.id.key = key;
+	comp.type = (ComponentType::Enum)type;
+	comp.component = component;
+
+	m_component_list.push_back(comp);
+}
+
+//-----------------------------------------------------------------------------
+void Unit::remove_component(const char* name)
+{
+	uint32_t hashed_name = hash::murmur2_32(name, string::strlen(name), 0);
+
+	for (uint32_t i = 0; i < m_component_list.size(); i++)
+	{
+		if (m_component_list[i].id == hashed_name)
+		{
+			m_component_list[i].id = 0;
+			return;
+		}
+	}
+
+	CE_FATAL("Component not found!");
+}
+
+//-----------------------------------------------------------------------------
+Component* Unit::get_component(const char* name)
+{
+	uint32_t hashed_name = hash::murmur2_32(name, string::strlen(name), 0);
+
+	for (uint32_t i = 0; i < m_component_list.size(); i++)
+	{
+		if (m_component_list[i].id == hashed_name)
+		{
+			return &m_component_list[i];
+		}
+	}
+
+	CE_FATAL("Component not found!");
+}
+
 
 } // namespace crown

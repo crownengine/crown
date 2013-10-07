@@ -133,6 +133,33 @@ CE_EXPORT int32_t unit_set_local_pose(lua_State* L)
 	return 0;
 }
 
+//-----------------------------------------------------------------------------
+CE_EXPORT void unit_add_component(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Unit* unit = stack.get_unit(1);
+	const char* name = stack.get_string(2);
+	uint32_t type = stack.get_int(3);
+
+	ComponentId component;
+	component.decode(stack.get_int(4));
+
+	unit->add_component(name, type, component);
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT void unit_remove_component(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Unit* unit = stack.get_unit(1);
+	const char* name = stack.get_string(2);
+
+	unit->remove_component(name);
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int unit_camera(lua_State* L)
 {
 	LuaStack stack(L);

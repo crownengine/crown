@@ -111,7 +111,6 @@ void load_resource_package(LuaEnvironment& env);
 void load_unit(LuaEnvironment& env);
 void load_camera(LuaEnvironment& env);
 void load_world(LuaEnvironment& env);
-void load_sound(LuaEnvironment& env);
 void load_mesh(LuaEnvironment& env);
 
 CE_EXPORT int32_t luaopen_libcrown(lua_State* L);
