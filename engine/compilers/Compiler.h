@@ -35,20 +35,31 @@ class Filesystem;
 class File;
 
 /// Resource compiler interface.
-/// Every specific resource compiler must inherith from this
-/// interface and implement its methods accordingly.
+/// Every specific resource compiler must implement this interface.
 class Compiler
 {
 public:
 
 	virtual					~Compiler() {}
 
+	/// Compiles the @name_in resource coming from @a root_path
+	/// in a engine-ready format and puts it into @a dest_path with the @a name_out name.
+	/// Returns true whether the copilation was successfull, false otherwise.
 	bool					compile(const char* root_path, const char* dest_path, const char* name_in, const char* name_out);
+	
+	/// Clears all the temporary stuctures used to compile
+	/// the resource.
 	void					cleanup();
 
 protected:
 
+	/// Compiles the resource found at @a resource path. A Filesystem instance is
+	/// passed along to be able to read resource data. The implementer must care
+	/// of returning the total size in bytes of the compiled resource or 0 if an
+	/// error occurs.
 	virtual size_t			compile_impl(Filesystem& fs, const char* resource_path) = 0;
+
+	/// Writes the compiled resource to @a out_file.
 	virtual void			write_impl(File* out_file) = 0;
 };
 
