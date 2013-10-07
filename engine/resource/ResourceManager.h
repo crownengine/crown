@@ -74,7 +74,7 @@ public:
 	void					unload(ResourceId name);
 
 	/// Returns the resource instance associated to the given @a type and @a name.
-	void*					lookup(const char* type, const char* name);
+	const void*				lookup(const char* type, const char* name) const;
 
 	/// Returns whether the manager has the @a name resource into
 	/// its list of resources.
