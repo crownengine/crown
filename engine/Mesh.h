@@ -27,6 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "RendererTypes.h"
+#include "Vec3.h"
+#include "Quat.h"
 #include "Mat4.h"
 
 namespace crown
@@ -36,7 +38,7 @@ struct MeshResource;
 
 struct Mesh
 {
-	void			create(const MeshResource* mr);
+	void			create(const MeshResource* mr, const Vec3& pos = Vec3::ZERO, const Quat& rot = Quat::IDENTITY);
 
 	Vec3			local_position() const;
 	Quat			local_rotation() const;

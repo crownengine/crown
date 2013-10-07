@@ -34,10 +34,13 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void Mesh::create(const MeshResource* mr)
+void Mesh::create(const MeshResource* mr, const Vec3& pos, const Quat& rot)
 {
 	m_vbuffer = mr->m_vbuffer;
 	m_ibuffer = mr->m_ibuffer;
+
+	set_local_position(pos);
+	set_local_rotation(rot);
 }
 
 //-----------------------------------------------------------------------------
