@@ -26,23 +26,30 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "SceneGraph.h"
 #include "HeapAllocator.h"
 #include "IdTable.h"
+#include "LinearAllocator.h"
 #include "Unit.h"
 #include "Camera.h"
-#include "SoundWorld.h"
 #include "LinearAllocator.h"
 #include "RenderWorld.h"
+#include "SoundRenderer.h"
 
 namespace crown
 {
 
 #define MAX_UNITS 65000
+#define	MAX_SOUNDS 64
 #define MAX_CAMERAS 16
 
 typedef Id UnitId;
 typedef Id CameraId;
+typedef Id SoundInstanceId;
+
+struct SoundInstance
+{
+	SoundId m_sound;
+};
 
 class Vec3;
 class Quat;
@@ -50,30 +57,36 @@ class Quat;
 class World
 {
 public:
-						World();
+							World();
 
-	void				init();
-	void				shutdown();
+	void					init();
+	void					shutdown();
 
-	UnitId				spawn_unit(const char* name, const Vec3& pos = Vec3::ZERO, const Quat& rot = Quat(Vec3(0, 1, 0), 0.0f));
-	void				kill_unit(UnitId unit);
+	UnitId					spawn_unit(const char* name, const Vec3& pos = Vec3::ZERO, const Quat& rot = Quat(Vec3(0, 1, 0), 0.0f));
+	void					kill_unit(UnitId unit);
 
-	void				link_unit(UnitId child, UnitId parent);
-	void				unlink_unit(UnitId child, UnitId parent);
+	void					link_unit(UnitId child, UnitId parent);
+	void					unlink_unit(UnitId child, UnitId parent);
 
-	Unit*				lookup_unit(UnitId unit);
-	Camera*				lookup_camera(CameraId camera);
+	Unit*					lookup_unit(UnitId unit);
+	Camera*					lookup_camera(CameraId camera);
 
-	void				update(Camera& camera, float dt);
+	RenderWorld&			render_world();
+	void					update(Camera& camera, float dt);
 
-	SoundWorld&			sound_world();
-	RenderWorld&		render_world();
+	CameraId				create_camera(Unit& parent, int32_t node);
+	void					destroy_camera(CameraId camera);
 
-	CameraId			create_camera(Unit& parent, int32_t node);
-	void				destroy_camera(CameraId camera);
+	Mesh*					mesh();
 
-	Mesh*				mesh();
-
+	SoundInstanceId			play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vec3& pos = Vec3::ZERO, const float range = 50.0f);
+	void					pause_sound(SoundInstanceId sound);
+	void 					link_sound(SoundInstanceId sound, UnitId unit);
+	void					set_listener(const Vec3& pos, const Vec3& vel, const Vec3& or_up, const Vec3& or_at);
+	void					set_sound_position(SoundInstanceId sound, const Vec3& pos);
+	void					set_sound_range(SoundInstanceId sound, const float range);
+	void					set_sound_volume(SoundInstanceId sound, const float vol);
+	
 private:
 
 	LinearAllocator			m_allocator;
@@ -86,7 +99,9 @@ private:
 	IdTable<MAX_CAMERAS>	m_camera_table;
 	Camera					m_camera[MAX_CAMERAS];
 
-	SoundWorld				m_sound_world;
+	IdTable<MAX_SOUNDS> 	m_sound_table;
+	SoundInstance			m_sound[MAX_SOUNDS];
+
 	RenderWorld				m_render_world;
 };
 
