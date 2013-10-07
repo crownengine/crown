@@ -50,38 +50,38 @@ class Unit;
 /// Represents the point of view into the game world.
 struct Camera
 {
-	void			create(Unit& parent, int32_t node);
+	void					create(Unit& parent, int32_t node);
 
-	Vec3			local_position() const;
-	Quat			local_rotation() const;
-	Mat4			local_pose() const;
+	Vec3					local_position() const;
+	Quat					local_rotation() const;
+	Mat4					local_pose() const;
 
-	Vec3			world_position() const;
-	Quat			world_rotation() const;
-	Mat4			world_pose() const;
+	Vec3					world_position() const;
+	Quat					world_rotation() const;
+	Mat4					world_pose() const;
 
-	void			set_local_position(const Vec3& pos);
-	void			set_local_rotation(const Quat& rot);
-	void			set_local_pose(const Mat4& pose);
+	void					set_local_position(const Vec3& pos);
+	void					set_local_rotation(const Quat& rot);
+	void					set_local_pose(const Mat4& pose);
 
-	void			set_projection_type(ProjectionType::Enum type);
-	ProjectionType::Enum projection_type() const;
+	void					set_projection_type(ProjectionType::Enum type);
+	ProjectionType::Enum	projection_type() const;
 
-	float			fov() const;
-	void			set_fov(float fov);
+	float					fov() const;
+	void					set_fov(float fov);
 
-	float			aspect() const;
-	void			set_aspect(float aspect);
+	float					aspect() const;
+	void					set_aspect(float aspect);
 
-	float			near_clip_distance() const;
-	void			set_near_clip_distance(float near);
-	float			far_clip_distance() const;
-	void			set_far_clip_distance(float far);
+	float					near_clip_distance() const;
+	void					set_near_clip_distance(float near);
+	float					far_clip_distance() const;
+	void					set_far_clip_distance(float far);
 
 public:
 
-	void			update_projection_matrix();
-	void			update_frustum();
+	void					update_projection_matrix();
+	void					update_frustum();
 
 public:
 
