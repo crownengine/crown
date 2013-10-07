@@ -253,6 +253,7 @@ void Device::shutdown()
 		m_rpc->execute_callbacks();
 		m_rpc->shutdown();
 		CE_DELETE(m_allocator, m_rpc);
+		m_rpc = NULL;
 	#endif
 
 	m_allocator.clear();
@@ -403,9 +404,6 @@ void Device::frame()
 	if (!m_is_paused)
 	{
 		m_resource_manager->poll_resource_loader();
-
-		m_renderer->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
-		m_renderer->commit(0);
 
 		if (!m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time()))
 		{
