@@ -78,12 +78,12 @@ struct Camera
 	float			far_clip_distance() const;
 	void			set_far_clip_distance(float far);
 
-private:
+public:
 
 	void			update_projection_matrix();
 	void			update_frustum();
 
-private:
+public:
 
 	Unit*					m_parent;
 	int32_t					m_node;

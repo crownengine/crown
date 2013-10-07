@@ -39,6 +39,9 @@ void Camera::create(Unit& parent, int32_t node)
 {
 	m_parent = &parent;
 	m_node = node;
+	m_projection_type = ProjectionType::PERSPECTIVE;
+
+	update_projection_matrix();
 }
 
 //-----------------------------------------------------------------------
