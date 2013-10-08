@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "DynamicString.h"
 #include "Filesystem.h"
 #include "OS.h"
+#include "Log.h"
 
 namespace crown
 {

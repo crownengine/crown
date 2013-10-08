@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PackageCompiler.h"
 #include "PackageResource.h"
 #include "TempAllocator.h"
+#include "Log.h"
 
 namespace crown
 {

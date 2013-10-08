@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Assert.h"
+#include "Log.h"
 
 #define SOUND_STREAM_BUFFER_SIZE (4096 * 2) // 8K... should be tested
 

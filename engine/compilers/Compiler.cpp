@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "DiskFilesystem.h"
 #include "ResourceFormat.h"
 #include "File.h"
+#include "Log.h"
 
 namespace crown
 {
