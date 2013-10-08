@@ -155,6 +155,11 @@ public:
 	//-----------------------------------------------------------------------------
 	void destroy()
 	{
+		if (m_streaming)
+		{
+			destroy_stream();
+		}
+
 		AL_CHECK(alDeleteSources(1, &m_id));
 
 		AL_CHECK(alDeleteBuffers(3, m_buffer));
@@ -395,6 +400,12 @@ private:
 
 			AL_CHECK(alSourceQueueBuffers(m_id, 1, &buffer));
 		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void destroy_stream()
+	{
+		m_decoder.shutdown();
 	}
 
 public:

@@ -170,13 +170,13 @@ public:
 	{
 		CE_ASSERT_NOT_NULL(data);
 
+		m_buffer = CE_NEW(default_allocator(), OggBuffer)(data, size);
+
 		ov_callbacks callbacks;
 		callbacks.read_func = ogg_buffer_read;
 		callbacks.seek_func = ogg_buffer_seek;
 		callbacks.close_func = ogg_buffer_close;
 		callbacks.tell_func = ogg_buffer_tell;
-
-		m_buffer = CE_NEW(default_allocator(), OggBuffer)(data, size);
 
 		int32_t result = ov_open_callbacks((void*)m_buffer, &m_stream, NULL, 0, callbacks);
 		check_ov_error(result);
@@ -187,6 +187,7 @@ public:
 	void shutdown()
 	{
 		ov_clear(&m_stream);
+		CE_DELETE(default_allocator(), m_buffer);
 	}
 
 	//-----------------------------------------------------------------------------
