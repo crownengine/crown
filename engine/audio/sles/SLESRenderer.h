@@ -296,6 +296,11 @@ inline void Sound::destroy()
 {
 	if (m_player_obj)
 	{
+		if (m_streaming)
+		{
+			m_decoder.shutdown();
+		}
+
 		SLuint32 state;
 		(*m_player_obj)->GetState(m_player_obj, &state);
 
