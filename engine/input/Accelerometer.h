@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Vec3.h"
+#include "Vector3.h"
 
 namespace crown
 {
@@ -43,14 +43,14 @@ struct Accelerometer
 
 	/// Returns the orientation of the accelerometer.
 	/// FIXME NEED MORE DOCUMENTATION
-	const Vec3& orientation() const
+	const Vector3& orientation() const
 	{
 		return m_orientation;
 	}
 
 public:
 
-	Vec3			m_orientation;
+	Vector3			m_orientation;
 };
 
 } // namespace crown

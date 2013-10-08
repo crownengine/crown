@@ -43,12 +43,12 @@ Unit::Unit()
 }
 
 //-----------------------------------------------------------------------------
-void Unit::create(World& creator, const Vec3& pos, const Quat& rot)
+void Unit::create(World& creator, const Vector3& pos, const Quaternion& rot)
 {
 	m_creator = &creator;
 	m_root_node = m_scene_graph.create_node(-1, pos, rot);
 
-	int32_t camera_node = m_scene_graph.create_node(m_root_node, Vec3::ZERO, Quat::IDENTITY);
+	int32_t camera_node = m_scene_graph.create_node(m_root_node, Vector3::ZERO, Quaternion::IDENTITY);
 	CameraId camera = m_creator->create_camera(camera_node);
 	m_camera = m_creator->lookup_camera(camera);
 }
@@ -77,55 +77,55 @@ void Unit::reload(UnitResource* new_ur)
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Unit::local_position(int32_t node) const
+Vector3 Unit::local_position(int32_t node) const
 {
 	return m_scene_graph.local_position(node);
 }
 
 //-----------------------------------------------------------------------------
-Quat Unit::local_rotation(int32_t node) const
+Quaternion Unit::local_rotation(int32_t node) const
 {
 	return m_scene_graph.local_rotation(node);
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Unit::local_pose(int32_t node) const
+Matrix4x4 Unit::local_pose(int32_t node) const
 {
 	return m_scene_graph.local_pose(node);
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Unit::world_position(int32_t node) const
+Vector3 Unit::world_position(int32_t node) const
 {
 	return m_scene_graph.world_position(node);
 }
 
 //-----------------------------------------------------------------------------
-Quat Unit::world_rotation(int32_t node) const
+Quaternion Unit::world_rotation(int32_t node) const
 {
 	return m_scene_graph.world_rotation(node);
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Unit::world_pose(int32_t node) const
+Matrix4x4 Unit::world_pose(int32_t node) const
 {
 	return m_scene_graph.world_pose(node);
 }
 
 //-----------------------------------------------------------------------------
-void Unit::set_local_position(const Vec3& pos, int32_t node)
+void Unit::set_local_position(const Vector3& pos, int32_t node)
 {
 	m_scene_graph.set_local_position(node, pos);
 }
 
 //-----------------------------------------------------------------------------
-void Unit::set_local_rotation(const Quat& rot, int32_t node)
+void Unit::set_local_rotation(const Quaternion& rot, int32_t node)
 {
 	m_scene_graph.set_local_rotation(node, rot);
 }
 
 //-----------------------------------------------------------------------------
-void Unit::set_local_pose(const Mat4& pose, int32_t node)
+void Unit::set_local_pose(const Matrix4x4& pose, int32_t node)
 {
 	m_scene_graph.set_local_pose(node, pose);
 }

@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Sphere.h"
-#include "Vec3.h"
+#include "Vector3.h"
 
 namespace crown
 {
@@ -41,7 +41,7 @@ class Plane
 {
 public:
 
-	Vec3				n;
+	Vector3				n;
 	float				d;
 
 public:
@@ -51,16 +51,16 @@ public:
 						Plane(const Plane& p);
 
 	/// Constructs from a normal and distance factor						
-						Plane(const Vec3& normal, float dist);		
+						Plane(const Vector3& normal, float dist);		
 
 	/// Normalizes the plane
 	Plane&				normalize();							
 
 	/// Returns the signed distance between point @a p and the plane
-	float				distance_to_point(const Vec3& p) const;	
+	float				distance_to_point(const Vector3& p) const;	
 
 	/// Returns whether the plane contains the point @a p	
-	bool				contains_point(const Vec3& p) const;		
+	bool				contains_point(const Vector3& p) const;		
 
 	static const Plane	ZERO;
 	static const Plane	XAXIS;

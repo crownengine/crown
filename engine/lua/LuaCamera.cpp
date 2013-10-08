@@ -25,9 +25,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Camera.h"
-#include "Vec3.h"
-#include "Quat.h"
-#include "Mat4.h"
+#include "Vector3.h"
+#include "Quaternion.h"
+#include "Matrix4x4.h"
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
 
@@ -41,7 +41,7 @@ CE_EXPORT int camera_local_position(lua_State* L)
 
 	Camera* camera = stack.get_camera(1);
 
-	stack.push_vec3(camera->local_position());
+	stack.push_vector3(camera->local_position());
 	return 1;
 }
 
@@ -52,7 +52,7 @@ CE_EXPORT int camera_local_rotation(lua_State* L)
 
 	Camera* camera = stack.get_camera(1);
 
-	stack.push_quat(camera->local_rotation());
+	stack.push_quaternion(camera->local_rotation());
 	return 1;
 }
 
@@ -63,7 +63,7 @@ CE_EXPORT int camera_local_pose(lua_State* L)
 
 	Camera* camera = stack.get_camera(1);
 
-	stack.push_mat4(camera->local_pose());
+	stack.push_matrix4x4(camera->local_pose());
 	return 1;
 }
 
@@ -74,7 +74,7 @@ CE_EXPORT int camera_world_position(lua_State* L)
 
 	Camera* camera = stack.get_camera(1);
 
-	stack.push_vec3(camera->world_position());
+	stack.push_vector3(camera->world_position());
 	return 1;
 }
 
@@ -85,7 +85,7 @@ CE_EXPORT int camera_world_rotation(lua_State* L)
 
 	Camera* camera = stack.get_camera(1);
 
-	stack.push_quat(camera->world_rotation());
+	stack.push_quaternion(camera->world_rotation());
 	return 1;
 }
 
@@ -96,7 +96,7 @@ CE_EXPORT int camera_world_pose(lua_State* L)
 
 	Camera* camera = stack.get_camera(1);
 
-	stack.push_mat4(camera->world_pose());
+	stack.push_matrix4x4(camera->world_pose());
 	return 1;
 }
 
@@ -106,7 +106,7 @@ CE_EXPORT int camera_set_local_position(lua_State* L)
 	LuaStack stack(L);
 
 	Camera* camera = stack.get_camera(1);
-	const Vec3 pos = stack.get_vec3(2);
+	const Vector3 pos = stack.get_vector3(2);
 
 	camera->set_local_position(pos);
 	return 0;
@@ -118,7 +118,7 @@ CE_EXPORT int camera_set_local_rotation(lua_State* L)
 	LuaStack stack(L);
 
 	Camera* camera = stack.get_camera(1);
-	const Quat rot = stack.get_quat(2);
+	const Quaternion rot = stack.get_quaternion(2);
 
 	camera->set_local_rotation(rot);
 	return 0;
@@ -130,7 +130,7 @@ CE_EXPORT int camera_set_local_pose(lua_State* L)
 	LuaStack stack(L);
 
 	Camera* camera = stack.get_camera(1);
-	const Mat4 pose = stack.get_mat4(2);
+	const Matrix4x4 pose = stack.get_matrix4x4(2);
 
 	camera->set_local_pose(pose);
 	return 0;

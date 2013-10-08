@@ -28,8 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Assert.h"
 #include "Types.h"
-#include "Mat4.h"
-#include "Vec3.h"
+#include "Matrix4x4.h"
+#include "Vector3.h"
 #include "Sphere.h"
 
 namespace crown
@@ -46,35 +46,35 @@ public:
 					Box();
 
 	/// Constructs from @a min and @a max.
-					Box(const Vec3& min, const Vec3& max);			
+					Box(const Vector3& min, const Vector3& max);			
 					Box(const Box& box);
 
-	const Vec3&		min() const;
-	const Vec3&		max() const;
-	void			set_min(const Vec3& min);
-	void			set_max(const Vec3& max);
+	const Vector3&		min() const;
+	const Vector3&		max() const;
+	void			set_min(const Vector3& min);
+	void			set_max(const Vector3& max);
 
-	Vec3			center() const;
+	Vector3			center() const;
 	float			radius() const;
 	float			volume() const;
 
 	/// Adds @a count @a points expanding if necessary.
-	void			add_points(const Vec3* points, uint32_t count);
+	void			add_points(const Vector3* points, uint32_t count);
 
 	/// Adds @a count @a boxes expanding if necessay.
 	void			add_boxes(const Box* boxes, uint32_t count);
 
 	/// Returns whether point @a p is contained in the box.
-	bool			contains_point(const Vec3& p) const;
+	bool			contains_point(const Vector3& p) const;
 
 	/// Returns the @a index -th vertex of the box.
-	Vec3			vertex(uint32_t index) const;		
+	Vector3			vertex(uint32_t index) const;		
 
 	/// Returns the box trasformed according to @a mat matrix into @a result.
-	void			transformed(const Mat4& mat, Box& result) const;	
+	void			transformed(const Matrix4x4& mat, Box& result) const;	
 
 	/// Returns the eight vertices of the box.
-	void			to_vertices(Vec3 v[8]) const;	
+	void			to_vertices(Vector3 v[8]) const;	
 
 	/// Returns as a sphere.						
 	Sphere			to_sphere() const;										
@@ -84,8 +84,8 @@ public:
 
 private:
 
-	Vec3			m_min;
-	Vec3			m_max;
+	Vector3			m_min;
+	Vector3			m_max;
 };
 
 //-----------------------------------------------------------------------------
@@ -99,40 +99,40 @@ inline Box::Box(const Box& box) : m_min(box.m_min), m_max(box.m_max)
 }
 
 //-----------------------------------------------------------------------------
-inline Box::Box(const Vec3& min, const Vec3& max) : m_min(min), m_max(max)
+inline Box::Box(const Vector3& min, const Vector3& max) : m_min(min), m_max(max)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec3& Box::min() const
+inline const Vector3& Box::min() const
 {
 	return m_min;
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::set_min(const Vec3& min)
+inline void Box::set_min(const Vector3& min)
 {
 	m_min = min;
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec3& Box::max() const
+inline const Vector3& Box::max() const
 {
 	return m_max;
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::set_max(const Vec3& max)
+inline void Box::set_max(const Vector3& max)
 {
 	m_max = max;
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::add_points(const Vec3* points, uint32_t count)
+inline void Box::add_points(const Vector3* points, uint32_t count)
 {
 	for (uint32_t i = 0; i < count; i++)
 	{
-		const Vec3& p = points[i];
+		const Vector3& p = points[i];
 
 		if (p.x < m_min.x)
 		{
@@ -206,14 +206,14 @@ inline void Box::add_boxes(const Box* boxes, uint32_t count)
 }
 
 //-----------------------------------------------------------------------------
-inline bool Box::contains_point(const Vec3& p) const
+inline bool Box::contains_point(const Vector3& p) const
 {
 	return (p.x > m_min.x && p.y > m_min.y && p.z > m_min.z &&
 		p.x < m_max.x && p.y < m_max.y && p.z < m_max.z);
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Box::center() const
+inline Vector3 Box::center() const
 {
 	return (m_min + m_max) * 0.5;
 }
@@ -225,7 +225,7 @@ inline float Box::radius() const
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::to_vertices(Vec3 v[8]) const
+inline void Box::to_vertices(Vector3 v[8]) const
 {
 	// 7 ---- 6
 	// |      |
@@ -270,35 +270,35 @@ inline void Box::to_vertices(Vec3 v[8]) const
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Box::vertex(uint32_t index) const
+inline Vector3 Box::vertex(uint32_t index) const
 {
 	CE_ASSERT(index < 8, "Index must be < 8");
 
 	switch (index)
 	{
 		case 0:
-			return Vec3(m_min.x, m_min.y, m_min.z);
+			return Vector3(m_min.x, m_min.y, m_min.z);
 		case 1:
-			return Vec3(m_max.x, m_min.y, m_min.z);
+			return Vector3(m_max.x, m_min.y, m_min.z);
 		case 2:
-			return Vec3(m_max.x, m_min.y, m_max.z);
+			return Vector3(m_max.x, m_min.y, m_max.z);
 		case 3:
-			return Vec3(m_min.x, m_min.y, m_max.z);
+			return Vector3(m_min.x, m_min.y, m_max.z);
 		case 4:
-			return Vec3(m_min.x, m_max.y, m_min.z);
+			return Vector3(m_min.x, m_max.y, m_min.z);
 		case 5:
-			return Vec3(m_max.x, m_max.y, m_min.z);
+			return Vector3(m_max.x, m_max.y, m_min.z);
 		case 6:
-			return Vec3(m_max.x, m_max.y, m_max.z);
+			return Vector3(m_max.x, m_max.y, m_max.z);
 		case 7:
-			return Vec3(m_min.x, m_max.y, m_max.z);
+			return Vector3(m_min.x, m_max.y, m_max.z);
 	}
 }
 
 //-----------------------------------------------------------------------------
-inline void Box::transformed(const Mat4& mat, Box& result) const
+inline void Box::transformed(const Matrix4x4& mat, Box& result) const
 {
-	Vec3 vertices[8];
+	Vector3 vertices[8];
 
 	to_vertices(vertices);
 

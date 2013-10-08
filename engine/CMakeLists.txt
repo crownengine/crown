@@ -135,32 +135,32 @@ set (CONTAINERS_HEADERS
 
 set (MATH_SRC
 	core/math/Color4.cpp
-	core/math/Mat3.cpp
-	core/math/Mat4.cpp
+	core/math/Matrix3x3.cpp
+	core/math/Matrix4x4.cpp
 	core/math/Plane.cpp
 	core/math/Point2.cpp
-	core/math/Quat.cpp
-	core/math/Vec2.cpp
-	core/math/Vec3.cpp
-	core/math/Vec4.cpp
+	core/math/Quaternion.cpp
+	core/math/Vector2.cpp
+	core/math/Vector3.cpp
+	core/math/Vector4.cpp
 )
 
 set (MATH_HEADERS
 	core/math/Color4.h
 	core/math/Interpolation.h
 	core/math/Intersection.h
-	core/math/Mat3.h
-	core/math/Mat4.h
+	core/math/Matrix3x3.h
+	core/math/Matrix4x4.h
 	core/math/MathUtils.h
 	core/math/Plane.h
 	core/math/Point2.h
-	core/math/Quat.h
+	core/math/Quaternion.h
 	core/math/Random.h
 	core/math/Ray.h
 	core/math/Triangle.h
-	core/math/Vec2.h
-	core/math/Vec3.h
-	core/math/Vec4.h
+	core/math/Vector2.h
+	core/math/Vector3.h
+	core/math/Vector4.h
 )
 
 set (FILESYSTEM_SRC
@@ -326,10 +326,10 @@ set (LUA_SRC
 	lua/LuaIntSetting.cpp
 	lua/LuaFloatSetting.cpp
 	lua/LuaStringSetting.cpp
-	lua/LuaVec2.cpp
-	lua/LuaVec3.cpp
-	lua/LuaMat4.cpp
-	lua/LuaQuat.cpp
+	lua/LuaVector2.cpp
+	lua/LuaVector3.cpp
+	lua/LuaMatrix4x4.cpp
+	lua/LuaQuaternion.cpp
 	lua/LuaMath.cpp
 	lua/LuaMouse.cpp
 	lua/LuaKeyboard.cpp

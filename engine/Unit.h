@@ -26,9 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Vec3.h"
-#include "Quat.h"
-#include "Mat4.h"
+#include "Vector3.h"
+#include "Quaternion.h"
+#include "Matrix4x4.h"
 #include "Hash.h"
 #include "IdTable.h"
 #include "SceneGraph.h"
@@ -69,24 +69,24 @@ class World;
 struct Unit
 {
 					Unit();
-	void			create(World& creator, const Vec3& pos, const Quat& rot);
+	void			create(World& creator, const Vector3& pos, const Quaternion& rot);
 	void			destroy();
 
 	void			load(UnitResource* ur);
 	void			unload();
 	void			reload(UnitResource* new_ur);
 
-	Vec3			local_position(int32_t node = 0) const;
-	Quat			local_rotation(int32_t node = 0) const;
-	Mat4			local_pose(int32_t node = 0) const;
+	Vector3			local_position(int32_t node = 0) const;
+	Quaternion			local_rotation(int32_t node = 0) const;
+	Matrix4x4			local_pose(int32_t node = 0) const;
 
-	Vec3			world_position(int32_t node = 0) const;
-	Quat			world_rotation(int32_t node = 0) const;
-	Mat4			world_pose(int32_t node = 0) const;
+	Vector3			world_position(int32_t node = 0) const;
+	Quaternion			world_rotation(int32_t node = 0) const;
+	Matrix4x4			world_pose(int32_t node = 0) const;
 
-	void			set_local_position(const Vec3& pos, int32_t node = 0);
-	void			set_local_rotation(const Quat& rot, int32_t node = 0);
-	void			set_local_pose(const Mat4& pose, int32_t node = 0);
+	void			set_local_position(const Vector3& pos, int32_t node = 0);
+	void			set_local_rotation(const Quaternion& rot, int32_t node = 0);
+	void			set_local_pose(const Matrix4x4& pose, int32_t node = 0);
 
 	void			add_component(const char* name, uint32_t type, ComponentId component);
 	void			remove_component(const char* name);

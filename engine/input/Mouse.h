@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cstring>
 #include "Types.h"
-#include "Vec2.h"
+#include "Vector2.h"
 
 namespace crown
 {
@@ -88,9 +88,9 @@ public:
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
-	Vec2 cursor_xy()
+	Vector2 cursor_xy()
 	{
-		return Vec2(m_x, m_y);
+		return Vector2(m_x, m_y);
 	}
 
 	/// Sets the position of the cursor in window space.
@@ -98,7 +98,7 @@ public:
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
-	void set_cursor_xy(const Vec2& position)
+	void set_cursor_xy(const Vector2& position)
 	{
 		m_x = (uint16_t) position.x;
 		m_y = (uint16_t) position.y;
@@ -113,9 +113,9 @@ public:
 	/// Relative coordinates are mapped to a float varying
 	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
 	/// maximum extent of the cosidered axis.
-	Vec2 cursor_relative_xy()
+	Vector2 cursor_relative_xy()
 	{
-		return Vec2(m_x / m_width, m_y / m_height);
+		return Vector2(m_x / m_width, m_y / m_height);
 	}
 
 	/// Sets the relative position of the cursor in window space.
@@ -127,9 +127,9 @@ public:
 	/// Relative coordinates are mapped to a float varying
 	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
 	/// maximum extent of the cosidered axis.
-	void set_cursor_relative_xy(const Vec2& position)
+	void set_cursor_relative_xy(const Vector2& position)
 	{
-		set_cursor_xy(Vec2(position.x * (float) m_width, position.y * (float) m_height));
+		set_cursor_xy(Vector2(position.x * (float) m_width, position.y * (float) m_height));
 	}
 
 	//-----------------------------------------------------------------------------

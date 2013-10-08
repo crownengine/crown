@@ -31,9 +31,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Mat4;
-class Quat;
-class Vec3;
+class Matrix4x4;
+class Quaternion;
+class Vector3;
 
 /// Column major 3x3 matrix.
 /// 
@@ -55,7 +55,7 @@ class Vec3;
 /// 2 | Xy  Yy  Zy |
 /// 3 [ Xz  Yz  Zz ]
 ///     1   2   3
-class Mat3
+class Matrix3x3
 {
 
 public:
@@ -63,17 +63,17 @@ public:
 	float				m[9];
 
 	/// Does nothing for efficiency.
-						Mat3();			
+						Matrix3x3();			
 
 	/// Constructs from a set of float
-						Mat3(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3);
+						Matrix3x3(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2, float r1c3, float r2c3, float r3c3);
 	
 	/// Constructs from the @a v array
-						Mat3(const float v[9]);						
-						Mat3(const Mat3& a);	
+						Matrix3x3(const float v[9]);						
+						Matrix3x3(const Matrix3x3& a);	
 
 	/// Assignment operator (copies the data)
-	Mat3&				operator=(const Mat3& a);					
+	Matrix3x3&			operator=(const Matrix3x3& a);					
 
 	/// Random access by index
 	float				operator[](uint32_t i) const;		
@@ -84,20 +84,20 @@ public:
 	/// Random access by row/column pair
 	float				operator()(uint32_t row, uint32_t column) const;	
 
-	Mat3				operator+(const Mat3& a) const;				
-	Mat3&				operator+=(const Mat3& a);					
-	Mat3				operator-(const Mat3& a) const;				
-	Mat3&				operator-=(const Mat3& a);					
-	Mat3				operator*(float k) const;					
-	Mat3&				operator*=(float k);						
-	Mat3				operator/(float k) const;					
-	Mat3&				operator/=(float k);							
-	Vec3				operator*(const Vec3& v) const;			
-	Mat3				operator*(const Mat3& a) const;				
-	Mat3&				operator*=(const Mat3& a);			
+	Matrix3x3			operator+(const Matrix3x3& a) const;				
+	Matrix3x3&			operator+=(const Matrix3x3& a);					
+	Matrix3x3			operator-(const Matrix3x3& a) const;				
+	Matrix3x3&			operator-=(const Matrix3x3& a);					
+	Matrix3x3			operator*(float k) const;					
+	Matrix3x3&			operator*=(float k);						
+	Matrix3x3			operator/(float k) const;					
+	Matrix3x3&			operator/=(float k);							
+	Vector3				operator*(const Vector3& v) const;			
+	Matrix3x3			operator*(const Matrix3x3& a) const;				
+	Matrix3x3&			operator*=(const Matrix3x3& a);			
 
 	/// For simmetry
-	friend Mat3			operator*(float k, const Mat3& a);			
+	friend Matrix3x3		operator*(float k, const Matrix3x3& a);			
 
 	/// Builds a rotation matrix about the X axis of @a radians radians
 	void				build_rotation_x(float radians);			
@@ -109,40 +109,40 @@ public:
 	void				build_rotation_z(float radians);	
 
 	/// Builds a rotation matrix about an arbitrary axis of "radians" radians			
-	void				build_rotation(const Vec3& n, float radians);
+	void				build_rotation(const Vector3& n, float radians);
 
-	Mat3&				transpose();								
-	Mat3				get_transposed() const;						
+	Matrix3x3&			transpose();								
+	Matrix3x3			get_transposed() const;						
 	float				get_determinant() const;					
-	Mat3&				invert();									
-	Mat3				get_inverted() const;						
+	Matrix3x3&			invert();									
+	Matrix3x3			get_inverted() const;						
 
 	/// Builds the identity matrix
 	void				load_identity();							
 
-	/// Returns a Vec3 containing the matrix's x base vector.
-	Vec3				x() const;
+	/// Returns a Vector3 containing the matrix's x base vector.
+	Vector3				x() const;
 
-	/// Returns a Vec3 containing the matrix's y base vector.
-	Vec3				y() const;
+	/// Returns a Vector3 containing the matrix's y base vector.
+	Vector3				y() const;
 
-	/// Returns a Vec3 containing the matrix's z base vector.
-	Vec3				z() const;
+	/// Returns a Vector3 containing the matrix's z base vector.
+	Vector3				z() const;
 
 	/// Sets the matrix's x base vector.
-	void				set_x(const Vec3& x);
+	void				set_x(const Vector3& x);
 
 	/// Sets the matrix's y base vector.
-	void				set_y(const Vec3& y);
+	void				set_y(const Vector3& y);
 
 	/// Sets the matrix's z base vector.
-	void				set_z(const Vec3& z);
+	void				set_z(const Vector3& z);
 
-	/// Returns a Vec3 containing the matrix's scale portion
-	Vec3				get_scale() const;	
+	/// Returns a Vector3 containing the matrix's scale portion
+	Vector3				get_scale() const;	
 
 	/// Fills the matrix's scale portion with the values contained in @a scale				
-	void				set_scale(const Vec3& scale);				
+	void				set_scale(const Vector3& scale);				
 
 	/// Returns the pointer to the matrix's data
 	float*				to_float_ptr();				
@@ -151,12 +151,12 @@ public:
 	const float*		to_float_ptr() const;
 
 	/// Returns a 4x4 matrix according to the matrix's rotation portion						
-	Mat4				to_mat4() const;
+	Matrix4x4			to_mat4() const;
 
 	/// Returns a quaternion according to the matrix's rotation portion							
-	Quat				to_quat() const;							
+	Quaternion			to_quat() const;							
 
-	static const Mat3	IDENTITY;
+	static const Matrix3x3	IDENTITY;
 };
 
 } // namespace crown

@@ -27,9 +27,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Vec3.h"
+#include "Vector3.h"
 #include "Color4.h"
-#include "Mat4.h"
+#include "Matrix4x4.h"
 
 namespace crown
 {
@@ -49,16 +49,16 @@ public:
 				DebugRenderer(Renderer& renderer);
 				~DebugRenderer();
 
-	void		add_line(const Vec3& start, const Vec3& end, const Color4& color, bool depth_write);
+	void		add_line(const Vector3& start, const Vector3& end, const Color4& color, bool depth_write);
 
 	/// Total cost: 72 lines
-	void		add_sphere(const Vec3& center, const float radius, const Color4& color, bool depth_write);
+	void		add_sphere(const Vector3& center, const float radius, const Color4& color, bool depth_write);
 
 	/// Total cost: 12 lines
-	void		add_box(const Vec3& min, const Vec3& max, const Color4& color, bool depth_write);
+	void		add_box(const Vector3& min, const Vector3& max, const Color4& color, bool depth_write);
 
 	/// Total cost: 3 lines
-	void		add_pose(const Mat4& pose, bool depth_write);
+	void		add_pose(const Matrix4x4& pose, bool depth_write);
 
 private:
 
@@ -70,7 +70,7 @@ private:
 
 	uint32_t	m_lines_count;
 
-	Vec3		m_lines[MAX_DEBUG_LINES * 2];
+	Vector3		m_lines[MAX_DEBUG_LINES * 2];
 	Color4		m_colors[MAX_DEBUG_LINES * 2];
 	bool		m_depth_writes[MAX_DEBUG_LINES * 2];
 

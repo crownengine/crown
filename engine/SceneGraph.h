@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Mat4.h"
+#include "Matrix4x4.h"
 #include "List.h"
 
 namespace crown
@@ -36,30 +36,30 @@ namespace crown
 struct SceneGraph
 {
 					SceneGraph();
-	int32_t			create_node(int32_t parent, const Vec3& pos, const Quat& rot);
+	int32_t			create_node(int32_t parent, const Vector3& pos, const Quaternion& rot);
 	void			destroy_node(int32_t id);
 
 	void			link(int32_t child, int32_t parent);
 	void			unlink(int32_t child);
 
-	void			set_local_position(int32_t node, const Vec3& pos);
-	void			set_local_rotation(int32_t node, const Quat& rot);
-	void			set_local_pose(int32_t node, const Mat4& pose);
+	void			set_local_position(int32_t node, const Vector3& pos);
+	void			set_local_rotation(int32_t node, const Quaternion& rot);
+	void			set_local_pose(int32_t node, const Matrix4x4& pose);
 
-	Vec3			local_position(int32_t node) const;
-	Quat			local_rotation(int32_t node) const;
-	Mat4			local_pose(int32_t node) const;
+	Vector3			local_position(int32_t node) const;
+	Quaternion			local_rotation(int32_t node) const;
+	Matrix4x4			local_pose(int32_t node) const;
 
-	Vec3			world_position(int32_t node) const;
-	Quat			world_rotation(int32_t node) const;
-	Mat4			world_pose(int32_t node) const;
+	Vector3			world_position(int32_t node) const;
+	Quaternion			world_rotation(int32_t node) const;
+	Matrix4x4			world_pose(int32_t node) const;
 
 	void			update();
 
 public:
 
-	List<Mat4>		m_world_poses;
-	List<Mat4>		m_local_poses;
+	List<Matrix4x4>		m_world_poses;
+	List<Matrix4x4>		m_local_poses;
 	List<int32_t>	m_parents;
 };
 

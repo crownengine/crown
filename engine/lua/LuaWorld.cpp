@@ -40,8 +40,8 @@ CE_EXPORT int world_spawn_unit(lua_State* L)
 	World* world = stack.get_world(1);
 	const char* name = stack.get_string(2);
 
-	const Vec3& pos = stack.num_args() > 2 ? stack.get_vec3(3) : Vec3::ZERO;
-	const Quat& rot = stack.num_args() > 3 ? stack.get_quat(4) : Quat::IDENTITY;
+	const Vector3& pos = stack.num_args() > 2 ? stack.get_vector3(3) : Vector3::ZERO;
+	const Quaternion& rot = stack.num_args() > 3 ? stack.get_quaternion(4) : Quaternion::IDENTITY;
 
 	UnitId unit = world->spawn_unit(name, pos, rot);
 
@@ -70,7 +70,7 @@ CE_EXPORT int world_play_sound(lua_State* L)
 
 	const bool loop = stack.num_args() > 2 ? stack.get_bool(3) : false;
 	const float volume = stack.num_args() > 3 ? stack.get_float(4) : 1.0f; // test value
-	const Vec3& pos = stack.num_args() > 4 ? stack.get_vec3(5) : Vec3::ZERO;
+	const Vector3& pos = stack.num_args() > 4 ? stack.get_vector3(5) : Vector3::ZERO;
 	const float range = stack.num_args() > 5 ? stack.get_float(6) : 1000.0f; // test value
 
 	SoundInstanceId id = world->play_sound(name, loop, volume, pos, range);
@@ -120,10 +120,10 @@ CE_EXPORT int world_set_listener(lua_State* L)
 
 	World* world = (World*) stack.get_lightdata(1);
 
-	const Vec3& pos = stack.get_vec3(2);
-	const Vec3& vel = stack.get_vec3(3);
-	const Vec3& or_up = stack.get_vec3(4);
-	const Vec3& or_at = stack.get_vec3(5);
+	const Vector3& pos = stack.get_vector3(2);
+	const Vector3& vel = stack.get_vector3(3);
+	const Vector3& or_up = stack.get_vector3(4);
+	const Vector3& or_at = stack.get_vector3(5);
 
 	world->set_listener(pos, vel, or_up, or_at);
 
@@ -140,7 +140,7 @@ CE_EXPORT int world_set_sound_position(lua_State* L)
 	SoundInstanceId id;
 	id.decode(stack.get_int(2));
 
-	const Vec3& pos = stack.get_vec3(3);
+	const Vector3& pos = stack.get_vector3(3);
 
 	world->set_sound_position(id, pos);
 

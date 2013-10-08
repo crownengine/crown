@@ -40,9 +40,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "GLRenderer.h"
 #include "Log.h"
-#include "Vec4.h"
-#include "Mat3.h"
-#include "Mat4.h"
+#include "Vector4.h"
+#include "Matrix3x3.h"
+#include "Matrix4x4.h"
 #include "Device.h"
 #include "Hash.h"
 #include "StringUtils.h"
@@ -309,8 +309,8 @@ public:
 				for (uint8_t uniform = 0; uniform < gpu_program.m_num_stock_uniforms; uniform++)
 				{
 					const GLint& uniform_location = gpu_program.m_stock_uniform_locations[uniform];
-					const Mat4& view = context.m_view_matrices[layer];
-					const Mat4& projection = context.m_projection_matrices[layer];
+					const Matrix4x4& view = context.m_view_matrices[layer];
+					const Matrix4x4& projection = context.m_projection_matrices[layer];
 
 					switch (gpu_program.m_stock_uniforms[uniform])
 					{

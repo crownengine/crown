@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Camera.h"
 #include "Types.h"
 #include "MathUtils.h"
-#include "Quat.h"
+#include "Quaternion.h"
 #include "Unit.h"
 #include "Assert.h"
 
@@ -35,7 +35,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------
-void Camera::create(int32_t node, const Vec3& pos, const Quat& rot)
+void Camera::create(int32_t node, const Vector3& pos, const Quaternion& rot)
 {
 	m_node = node;
 	m_projection_type = ProjectionType::PERSPECTIVE;
@@ -46,59 +46,59 @@ void Camera::create(int32_t node, const Vec3& pos, const Quat& rot)
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Camera::local_position() const
+Vector3 Camera::local_position() const
 {
 	return m_local_pose.translation();
 }
 
 //-----------------------------------------------------------------------------
-Quat Camera::local_rotation() const
+Quaternion Camera::local_rotation() const
 {
-	return Quat(Vec3(1, 0, 0), 0.0f);
+	return Quaternion(Vector3(1, 0, 0), 0.0f);
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Camera::local_pose() const
+Matrix4x4 Camera::local_pose() const
 {
 	return m_local_pose;
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Camera::world_position() const
+Vector3 Camera::world_position() const
 {
 	return m_world_pose.translation();
 }
 
 //-----------------------------------------------------------------------------
-Quat Camera::world_rotation() const
+Quaternion Camera::world_rotation() const
 {
-	return Quat(Vec3(1, 0, 0), 0.0f);
+	return Quaternion(Vector3(1, 0, 0), 0.0f);
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Camera::world_pose() const
+Matrix4x4 Camera::world_pose() const
 {
 	return m_world_pose;
 }
 
 //-----------------------------------------------------------------------------
-void Camera::set_local_position(const Vec3& pos)
+void Camera::set_local_position(const Vector3& pos)
 {
 	m_local_pose.set_translation(pos);
 }
 
 //-----------------------------------------------------------------------------
-void Camera::set_local_rotation(const Quat& rot)
+void Camera::set_local_rotation(const Quaternion& rot)
 {
-	Mat4& local_pose = m_local_pose;
+	Matrix4x4& local_pose = m_local_pose;
 
-	Vec3 local_translation = local_pose.translation();
+	Vector3 local_translation = local_pose.translation();
 	local_pose = rot.to_mat4();
 	local_pose.set_translation(local_translation);
 }
 
 //-----------------------------------------------------------------------------
-void Camera::set_local_pose(const Mat4& pose)
+void Camera::set_local_pose(const Matrix4x4& pose)
 {
 	m_local_pose = pose;
 }

@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Vec3.h"
+#include "Vector3.h"
 #include "Plane.h"
 #include "MathUtils.h"
 
@@ -43,19 +43,19 @@ public:
 
 	/// Does nothing for efficiency.
 				Triangle();
-				Triangle(const Vec3& v1, const Vec3& v2, const Vec3& v3);
+				Triangle(const Vector3& v1, const Vector3& v2, const Vector3& v3);
 				~Triangle();
 
 	float		area() const;
 
 	/// Returns the center of gravity (a.k.a. "centroid").
-	Vec3		centroid() const;
+	Vector3		centroid() const;
 
 	/// Returns the barycentric coordinates of point @a p in respect to the triangle.
-	Vec3		barycentric_coords(const Vec3& p) const;
+	Vector3		barycentric_coords(const Vector3& p) const;
 
 	/// Returns whether the triangle contains the @a p point.
-	bool		contains_point(const Vec3& p) const;
+	bool		contains_point(const Vector3& p) const;
 
 	/// Returns the plane containing the triangle.
 	Plane		to_plane() const;
@@ -63,7 +63,7 @@ public:
 private:
 
 	// Vertices in CCW order
-	Vec3		m_vertex[3];
+	Vector3		m_vertex[3];
 
 	friend class Intersection;
 };
@@ -74,7 +74,7 @@ inline Triangle::Triangle()
 }
 
 //-----------------------------------------------------------------------------
-inline Triangle::Triangle(const Vec3& v1, const Vec3& v2, const Vec3& v3)
+inline Triangle::Triangle(const Vector3& v1, const Vector3& v2, const Vector3& v3)
 {
 	m_vertex[0] = v1;
 	m_vertex[1] = v2;
@@ -93,23 +93,23 @@ inline float Triangle::area() const
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Triangle::centroid() const
+inline Vector3 Triangle::centroid() const
 {
 	return (m_vertex[0] + m_vertex[1] + m_vertex[2]) * math::ONE_OVER_THREE;
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Triangle::barycentric_coords(const Vec3& p) const
+inline Vector3 Triangle::barycentric_coords(const Vector3& p) const
 {
-	Vec3 e1 = m_vertex[2] - m_vertex[1];
-	Vec3 e2 = m_vertex[0] - m_vertex[2];
-	Vec3 e3 = m_vertex[1] - m_vertex[0];
+	Vector3 e1 = m_vertex[2] - m_vertex[1];
+	Vector3 e2 = m_vertex[0] - m_vertex[2];
+	Vector3 e3 = m_vertex[1] - m_vertex[0];
 
-	Vec3 d1 = p - m_vertex[0];
-	Vec3 d2 = p - m_vertex[1];
-	Vec3 d3 = p - m_vertex[2];
+	Vector3 d1 = p - m_vertex[0];
+	Vector3 d2 = p - m_vertex[1];
+	Vector3 d3 = p - m_vertex[2];
 
-	Vec3 n = e1.cross(e2) / e1.cross(e2).length();
+	Vector3 n = e1.cross(e2) / e1.cross(e2).length();
 
 	// Signed areas
 	float at = (float)(e1.cross(e2).dot(n) * 0.5);
@@ -120,13 +120,13 @@ inline Vec3 Triangle::barycentric_coords(const Vec3& p) const
 
 	float oneOverAt = (float)(1.0 / at);
 
-	return Vec3(at1 * oneOverAt, at2 * oneOverAt, at3 * oneOverAt);
+	return Vector3(at1 * oneOverAt, at2 * oneOverAt, at3 * oneOverAt);
 }
 
 //-----------------------------------------------------------------------------
-inline bool Triangle::contains_point(const Vec3& p) const
+inline bool Triangle::contains_point(const Vector3& p) const
 {
-	Vec3 bc = barycentric_coords(p);
+	Vector3 bc = barycentric_coords(p);
 
 	if (bc.x < 0.0 || bc.y < 0.0 || bc.z < 0.0)
 	{
@@ -139,10 +139,10 @@ inline bool Triangle::contains_point(const Vec3& p) const
 //-----------------------------------------------------------------------------
 inline Plane Triangle::to_plane() const
 {
-	Vec3 e1 = m_vertex[2] - m_vertex[1];
-	Vec3 e2 = m_vertex[1] - m_vertex[0];
+	Vector3 e1 = m_vertex[2] - m_vertex[1];
+	Vector3 e2 = m_vertex[1] - m_vertex[0];
 
-	Vec3 n = e2.cross(e1).normalize();
+	Vector3 n = e2.cross(e1).normalize();
 	float d = -n.dot(m_vertex[0]);
 
 	return Plane(n, d);

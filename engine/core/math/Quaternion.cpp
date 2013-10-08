@@ -24,46 +24,46 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Mat3.h"
-#include "Mat4.h"
+#include "Matrix3x3.h"
+#include "Matrix4x4.h"
 #include "Types.h"
 #include "MathUtils.h"
-#include "Quat.h"
-#include "Vec3.h"
+#include "Quaternion.h"
+#include "Vector3.h"
 
 namespace crown
 {
 
-const Quat Quat::IDENTITY = Quat(0.0, 0.0, 0.0, 1.0);
+const Quaternion Quaternion::IDENTITY = Quaternion(0.0, 0.0, 0.0, 1.0);
 
 //-----------------------------------------------------------------------------
-Quat::Quat()
+Quaternion::Quaternion()
 {
 }
 
 //-----------------------------------------------------------------------------
-Quat::Quat(float nx, float ny, float nz, float nw) :
+Quaternion::Quaternion(float nx, float ny, float nz, float nw) :
 	v(nx, ny, nz),
 	w(nw)
 {
 }
 
 //-----------------------------------------------------------------------------
-Quat::Quat(const Vec3& axis, float angle) :
+Quaternion::Quaternion(const Vector3& axis, float angle) :
 	v(axis * math::sin(angle * 0.5)),
 	w(math::cos(angle * 0.5))
 {
 }
 
 //-----------------------------------------------------------------------------
-void Quat::negate()
+void Quaternion::negate()
 {
 	w = -w;
 	v.negate();
 }
 
 //-----------------------------------------------------------------------------
-void Quat::load_identity()
+void Quaternion::load_identity()
 {
 	w = 1.0;
 	v.x = 0.0;
@@ -72,37 +72,37 @@ void Quat::load_identity()
 }
 
 //-----------------------------------------------------------------------------
-float Quat::length() const
+float Quaternion::length() const
 {
 	return math::sqrt(w * w + v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 //-----------------------------------------------------------------------------
-void Quat::conjugate()
+void Quaternion::conjugate()
 {
 	v = -v;
 }
 
 //-----------------------------------------------------------------------------
-Quat Quat::get_conjugate() const
+Quaternion Quaternion::get_conjugate() const
 {
-	return Quat(-v, w);
+	return Quaternion(-v, w);
 }
 
 //-----------------------------------------------------------------------------
-Quat Quat::get_inverse() const
+Quaternion Quaternion::get_inverse() const
 {
 	return get_conjugate() * (1.0 / length());
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Quat::to_mat3() const
+Matrix3x3 Quaternion::to_mat3() const
 {
 	const float& x = v.x;
 	const float& y = v.y;
 	const float& z = v.z;
 
-	Mat3 tmp;
+	Matrix3x3 tmp;
 
 	tmp.m[0] = (float)(1.0 - 2.0*y*y - 2.0*z*z);
 	tmp.m[1] = (float)(2.0*x*y + 2.0*w*z);
@@ -118,13 +118,13 @@ Mat3 Quat::to_mat3() const
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Quat::to_mat4() const
+Matrix4x4 Quaternion::to_mat4() const
 {
 	const float& x = v.x;
 	const float& y = v.y;
 	const float& z = v.z;
 
-	Mat4 tmp;
+	Matrix4x4 tmp;
 
 	tmp.m[0] = (float)(1.0 - 2.0*y*y - 2.0*z*z);
 	tmp.m[1] = (float)(2.0*x*y + 2.0*w*z);
@@ -147,9 +147,9 @@ Mat4 Quat::to_mat4() const
 }
 
 //-----------------------------------------------------------------------------
-Quat Quat::operator*(const Quat& b) const
+Quaternion Quaternion::operator*(const Quaternion& b) const
 {
-	Quat tmp;
+	Quaternion tmp;
 
 	tmp.w = w * b.w - v.dot(b.v);
 	tmp.v = w * b.v + b.w * v + b.v.cross(v);
@@ -158,9 +158,9 @@ Quat Quat::operator*(const Quat& b) const
 }
 
 //-----------------------------------------------------------------------------
-Quat Quat::operator*(const float& k) const
+Quaternion Quaternion::operator*(const float& k) const
 {
-	Quat tmp;
+	Quaternion tmp;
 
 	tmp.w = w * k;
 	tmp.v = v * k;
@@ -169,9 +169,9 @@ Quat Quat::operator*(const float& k) const
 }
 
 //-----------------------------------------------------------------------------
-Quat Quat::power(float exp)
+Quaternion Quaternion::power(float exp)
 {
-	Quat tmp;
+	Quaternion tmp;
 
 	if (math::abs(w) < 0.9999)
 	{
@@ -192,21 +192,21 @@ Quat Quat::power(float exp)
 }
 
 /*
-The geometric interpretation of the Quat dot product is similar to the interpretation of
-the vector dot product; the larger the absolute value of the Quat dot product axb, the more
+The geometric interpretation of the Quaternion dot product is similar to the interpretation of
+the vector dot product; the larger the absolute value of the Quaternion dot product axb, the more
 "similar" the angular displacements represented by a and b.
 */
 //-----------------------------------------------------------------------------
-float dot(const Quat& a, const Quat& b)
+float dot(const Quaternion& a, const Quaternion& b)
 {
 	return a.w * b.w + a.v.dot(b.v);
 }
 
 // Spherical Linear interpolation
 //-----------------------------------------------------------------------------
-Quat slerp(const Quat& start, const Quat& end, float t)
+Quaternion slerp(const Quaternion& start, const Quaternion& end, float t)
 {
-	Quat delta = end * start.get_inverse();
+	Quaternion delta = end * start.get_inverse();
 	delta = delta.power(t);
 
 	return delta * start;

@@ -29,8 +29,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IdTable.h"
 #include "Mesh.h"
 #include "List.h"
-#include "Vec3.h"
-#include "Quat.h"
+#include "Vector3.h"
+#include "Quaternion.h"
 
 #define MAX_MESHES 100
 
@@ -47,7 +47,7 @@ public:
 	RenderWorld();
 	~RenderWorld();
 
-	MeshId create_mesh(const char* mesh, const Vec3& pos = Vec3::ZERO, const Quat& rot = Quat::IDENTITY);
+	MeshId create_mesh(const char* mesh, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
 	void destroy_mesh(MeshId id);
 
 	void update(Camera& camera, float dt);

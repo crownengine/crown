@@ -24,16 +24,16 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Vec3.h"
+#include "Vector3.h"
 
 namespace crown
 {
 
-const Vec3 Vec3::ZERO	= Vec3(0.0, 0.0, 0.0);
-const Vec3 Vec3::ONE	= Vec3(1.0, 1.0, 1.0);
-const Vec3 Vec3::XAXIS	= Vec3(1.0, 0.0, 0.0);
-const Vec3 Vec3::YAXIS	= Vec3(0.0, 1.0, 0.0);
-const Vec3 Vec3::ZAXIS	= Vec3(0.0, 0.0, 1.0);
+const Vector3 Vector3::ZERO	= Vector3(0.0, 0.0, 0.0);
+const Vector3 Vector3::ONE	= Vector3(1.0, 1.0, 1.0);
+const Vector3 Vector3::XAXIS	= Vector3(1.0, 0.0, 0.0);
+const Vector3 Vector3::YAXIS	= Vector3(0.0, 1.0, 0.0);
+const Vector3 Vector3::ZAXIS	= Vector3(0.0, 0.0, 1.0);
 
 } // namespace crown
 

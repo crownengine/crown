@@ -38,7 +38,7 @@ CE_EXPORT int32_t unit_local_position(lua_State* L)
 
 	Unit* unit = stack.get_unit(1);
 
-	stack.push_vec3(unit->local_position());
+	stack.push_vector3(unit->local_position());
 	return 1;
 }
 
@@ -49,7 +49,7 @@ CE_EXPORT int32_t unit_local_rotation(lua_State* L)
 
 	Unit* unit = stack.get_unit(1);
 
-	stack.push_quat(unit->local_rotation());
+	stack.push_quaternion(unit->local_rotation());
 	return 1;
 }
 
@@ -60,7 +60,7 @@ CE_EXPORT int32_t unit_local_pose(lua_State* L)
 
 	Unit* unit = stack.get_unit(1);
 
-	stack.push_mat4(unit->local_pose());
+	stack.push_matrix4x4(unit->local_pose());
 	return 1;
 }
 
@@ -71,7 +71,7 @@ CE_EXPORT int32_t unit_world_position(lua_State* L)
 
 	Unit* unit = stack.get_unit(1);
 
-	stack.push_vec3(unit->world_position());
+	stack.push_vector3(unit->world_position());
 	return 1;
 }
 
@@ -82,7 +82,7 @@ CE_EXPORT int32_t unit_world_rotation(lua_State* L)
 
 	Unit* unit = stack.get_unit(1);
 
-	stack.push_quat(unit->world_rotation());
+	stack.push_quaternion(unit->world_rotation());
 	return 1;
 }
 
@@ -93,7 +93,7 @@ CE_EXPORT int32_t unit_world_pose(lua_State* L)
 
 	Unit* unit = stack.get_unit(1);
 
-	stack.push_mat4(unit->world_pose());
+	stack.push_matrix4x4(unit->world_pose());
 	return 1;
 }
 
@@ -103,7 +103,7 @@ CE_EXPORT int32_t unit_set_local_position(lua_State* L)
 	LuaStack stack(L);
 
 	Unit* unit = stack.get_unit(1);
-	Vec3& pos = stack.get_vec3(2);
+	Vector3& pos = stack.get_vector3(2);
 
 	unit->set_local_position(pos);
 	return 0;
@@ -115,7 +115,7 @@ CE_EXPORT int32_t unit_set_local_rotation(lua_State* L)
 	LuaStack stack(L);
 
 	Unit* unit = stack.get_unit(1);
-	Quat& rot = stack.get_quat(2);
+	Quaternion& rot = stack.get_quaternion(2);
 
 	unit->set_local_rotation(rot);
 	return 0;
@@ -127,7 +127,7 @@ CE_EXPORT int32_t unit_set_local_pose(lua_State* L)
 	LuaStack stack(L);
 
 	Unit* unit = stack.get_unit(1);
-	Mat4& pose = stack.get_mat4(2);
+	Matrix4x4& pose = stack.get_matrix4x4(2);
 
 	unit->set_local_pose(pose);
 	return 0;

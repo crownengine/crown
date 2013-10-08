@@ -32,10 +32,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Vec2;
-class Vec3;
-class Mat4;
-class Quat;
+class Vector2;
+class Vector3;
+class Matrix4x4;
+class Quaternion;
 class Unit;
 class Camera;
 class World;
@@ -197,14 +197,14 @@ public:
 		return (Mesh*) lua_touserdata(m_state, index);
 	}
 
-	Vec2& get_vec2(int32_t index);
-	Vec3& get_vec3(int32_t index);
-	Mat4& get_mat4(int32_t index);
-	Quat& get_quat(int32_t index);
-	void push_vec2(const Vec2& v);
-	void push_vec3(const Vec3& v);
-	void push_mat4(const Mat4& m);
-	void push_quat(const Quat& q);
+	Vector2& get_vector2(int32_t index);
+	Vector3& get_vector3(int32_t index);
+	Matrix4x4& get_matrix4x4(int32_t index);
+	Quaternion& get_quaternion(int32_t index);
+	void push_vector2(const Vector2& v);
+	void push_vector3(const Vector3& v);
+	void push_matrix4x4(const Matrix4x4& m);
+	void push_quaternion(const Quaternion& q);
 
 private:
 

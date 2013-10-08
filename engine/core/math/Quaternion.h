@@ -27,13 +27,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Vec3.h"
+#include "Vector3.h"
 
 namespace crown
 {
 
-class Mat3;
-class Mat4;
+class Matrix3x3;
+class Matrix4x4;
 
 /// Quaternion.
 ///
@@ -46,23 +46,23 @@ class Mat4;
 /// p' = (ba)p(ba)^-1 where p is the point and (ba) the concatenation of two successive rotations
 /// In this case, the point p is first rotated by the quaternion a and then by the quaternion b.
 /// The transformation order is reversed.
-class Quat
+class Quaternion
 {
 public:
 
-	Vec3		v;
+	Vector3		v;
 	float		w;
 
 public:
 
 	/// Does nothing
-						Quat();
+						Quaternion();
 
 	/// Constructs from individual components.
-						Quat(float nx, float ny, float nz, float nw);
+						Quaternion(float nx, float ny, float nz, float nw);
 
 	/// Builds the quaternion from an @a axis and a @a angle.							
-						Quat(const Vec3& axis, float angle);	
+						Quaternion(const Vector3& axis, float angle);	
 
 	/// Negates the quaternion.
 	void				negate();
@@ -77,25 +77,25 @@ public:
 	void				conjugate();
 
 	/// Returns the quaternion's conjugate.
-	Quat				get_conjugate() const;
+	Quaternion				get_conjugate() const;
 
 	/// Quaternion's inverse				
-	Quat				get_inverse() const;
+	Quaternion				get_inverse() const;
 
-	Mat3				to_mat3() const;
-	Mat4				to_mat4() const;
+	Matrix3x3				to_mat3() const;
+	Matrix4x4				to_mat4() const;
 
 	/// Cross product
-	Quat				operator*(const Quat& b) const;
+	Quaternion				operator*(const Quaternion& b) const;
 
 	/// Multiplication by a scalar		
-	Quat				operator*(const float& k) const;
+	Quaternion				operator*(const float& k) const;
 
-	Quat				power(float exp);
+	Quaternion				power(float exp);
 
 public:
 
-	static const Quat	IDENTITY;
+	static const Quaternion	IDENTITY;
 };
 
 } // namespace crown

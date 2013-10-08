@@ -120,7 +120,7 @@ RenderWorld::~RenderWorld()
 }
 
 //-----------------------------------------------------------------------------
-MeshId RenderWorld::create_mesh(const char* name, const Vec3& pos, const Quat& rot)
+MeshId RenderWorld::create_mesh(const char* name, const Vector3& pos, const Quaternion& rot)
 {
 	MeshResource* mr = (MeshResource*) device()->resource_manager()->lookup("mesh", name);
 
@@ -140,7 +140,7 @@ void RenderWorld::update(Camera& camera, float /*dt*/)
 {
 	Renderer* r = device()->renderer();
 
-	Mat4 camera_view = camera.local_pose();
+	Matrix4x4 camera_view = camera.local_pose();
 	camera_view.invert();
 
 	r->set_layer_view(0, camera_view);

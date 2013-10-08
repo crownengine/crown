@@ -51,8 +51,8 @@ struct SoundInstance
 	SoundId m_sound;
 };
 
-class Vec3;
-class Quat;
+class Vector3;
+class Quaternion;
 
 class World
 {
@@ -62,7 +62,7 @@ public:
 	void					init();
 	void					shutdown();
 
-	UnitId					spawn_unit(const char* name, const Vec3& pos = Vec3::ZERO, const Quat& rot = Quat(Vec3(0, 1, 0), 0.0f));
+	UnitId					spawn_unit(const char* name, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion(Vector3(0, 1, 0), 0.0f));
 	void					kill_unit(UnitId unit);
 
 	void					link_unit(UnitId child, UnitId parent);
@@ -74,16 +74,16 @@ public:
 	RenderWorld&			render_world();
 	void					update(Camera& camera, float dt);
 
-	CameraId				create_camera(int32_t node, const Vec3& pos = Vec3::ZERO, const Quat& rot = Quat::IDENTITY);
+	CameraId				create_camera(int32_t node, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
 	void					destroy_camera(CameraId camera);
 
 	Mesh*					mesh();
 
-	SoundInstanceId			play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vec3& pos = Vec3::ZERO, const float range = 50.0f);
+	SoundInstanceId			play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
 	void					pause_sound(SoundInstanceId sound);
 	void 					link_sound(SoundInstanceId sound, UnitId unit);
-	void					set_listener(const Vec3& pos, const Vec3& vel, const Vec3& or_up, const Vec3& or_at);
-	void					set_sound_position(SoundInstanceId sound, const Vec3& pos);
+	void					set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at);
+	void					set_sound_position(SoundInstanceId sound, const Vector3& pos);
 	void					set_sound_range(SoundInstanceId sound, const float range);
 	void					set_sound_volume(SoundInstanceId sound, const float vol);
 	

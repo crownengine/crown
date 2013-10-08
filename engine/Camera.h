@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Frustum.h"
-#include "Mat4.h"
+#include "Matrix4x4.h"
 
 namespace crown
 {
@@ -42,25 +42,25 @@ struct ProjectionType
 	};
 };
 
-class Quat;
+class Quaternion;
 class Unit;
 
 /// Represents the point of view into the game world.
 struct Camera
 {
-	void					create(int32_t node, const Vec3& pos, const Quat& rot);
+	void					create(int32_t node, const Vector3& pos, const Quaternion& rot);
 
-	Vec3					local_position() const;
-	Quat					local_rotation() const;
-	Mat4					local_pose() const;
+	Vector3					local_position() const;
+	Quaternion					local_rotation() const;
+	Matrix4x4					local_pose() const;
 
-	Vec3					world_position() const;
-	Quat					world_rotation() const;
-	Mat4					world_pose() const;
+	Vector3					world_position() const;
+	Quaternion					world_rotation() const;
+	Matrix4x4					world_pose() const;
 
-	void					set_local_position(const Vec3& pos);
-	void					set_local_rotation(const Quat& rot);
-	void					set_local_pose(const Mat4& pose);
+	void					set_local_position(const Vector3& pos);
+	void					set_local_rotation(const Quaternion& rot);
+	void					set_local_pose(const Matrix4x4& pose);
 
 	void					set_projection_type(ProjectionType::Enum type);
 	ProjectionType::Enum	projection_type() const;
@@ -84,11 +84,11 @@ public:
 public:
 
 	int32_t					m_node;
-	Mat4					m_local_pose;
-	Mat4					m_world_pose;
+	Matrix4x4					m_local_pose;
+	Matrix4x4					m_world_pose;
 
 	ProjectionType::Enum	m_projection_type;
-	Mat4					m_projection;
+	Matrix4x4					m_projection;
 
 	Frustum					m_frustum;
 	float					m_FOV;

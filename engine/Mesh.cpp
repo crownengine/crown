@@ -26,15 +26,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Mesh.h"
 #include "MeshResource.h"
-#include "Vec3.h"
-#include "Mat4.h"
-#include "Quat.h"
+#include "Vector3.h"
+#include "Matrix4x4.h"
+#include "Quaternion.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void Mesh::create(const MeshResource* mr, const Vec3& pos, const Quat& rot)
+void Mesh::create(const MeshResource* mr, const Vector3& pos, const Quaternion& rot)
 {
 	m_vbuffer = mr->m_vbuffer;
 	m_ibuffer = mr->m_ibuffer;
@@ -44,59 +44,59 @@ void Mesh::create(const MeshResource* mr, const Vec3& pos, const Quat& rot)
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mesh::local_position() const
+Vector3 Mesh::local_position() const
 {
 	return m_local_pose.translation();
 }
 
 //-----------------------------------------------------------------------------
-Quat Mesh::local_rotation() const
+Quaternion Mesh::local_rotation() const
 {
-	return Quat(Vec3(1, 0, 0), 0.0f);
+	return Quaternion(Vector3(1, 0, 0), 0.0f);
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mesh::local_pose() const
+Matrix4x4 Mesh::local_pose() const
 {
 	return m_local_pose;
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mesh::world_position() const
+Vector3 Mesh::world_position() const
 {
 	return m_world_pose.translation();
 }
 
 //-----------------------------------------------------------------------------
-Quat Mesh::world_rotation() const
+Quaternion Mesh::world_rotation() const
 {
-	return Quat(Vec3(1, 0, 0), 0.0f);
+	return Quaternion(Vector3(1, 0, 0), 0.0f);
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mesh::world_pose() const
+Matrix4x4 Mesh::world_pose() const
 {
 	return m_world_pose;
 }
 
 //-----------------------------------------------------------------------------
-void Mesh::set_local_position(const Vec3& pos)
+void Mesh::set_local_position(const Vector3& pos)
 {
 	m_local_pose.set_translation(pos);
 }
 
 //-----------------------------------------------------------------------------
-void Mesh::set_local_rotation(const Quat& rot)
+void Mesh::set_local_rotation(const Quaternion& rot)
 {
-	Mat4& local_pose = m_local_pose;
+	Matrix4x4& local_pose = m_local_pose;
 
-	Vec3 local_translation = local_pose.translation();
+	Vector3 local_translation = local_pose.translation();
 	local_pose = rot.to_mat4();
 	local_pose.set_translation(local_translation);
 }
 
 //-----------------------------------------------------------------------------
-void Mesh::set_local_pose(const Mat4& pose)
+void Mesh::set_local_pose(const Matrix4x4& pose)
 {
 	m_local_pose = pose;
 }

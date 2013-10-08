@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Vec2.h"
+#include "Vector2.h"
 
 namespace crown
 {
@@ -45,35 +45,35 @@ public:
 					Rect();		
 
 	/// Constructs from  @a min and @a max
-					Rect(const Vec2& min, const Vec2& max);		
+					Rect(const Vector2& min, const Vector2& max);		
 					Rect(const Rect& rect);	
 
-	const Vec2&		min() const;					
-	const Vec2&		max() const;					
-	void			set_min(const Vec2& min);				
-	void			set_max(const Vec2& max);			
+	const Vector2&		min() const;					
+	const Vector2&		max() const;					
+	void			set_min(const Vector2& min);				
+	void			set_max(const Vector2& max);			
 
-	Vec2			center() const;					
+	Vector2			center() const;					
 	float			radius() const;					
 	float			area() const;		
 
 	/// Returns the diagonal of the rect.
-	Vec2			size() const;						
+	Vector2			size() const;						
 
 	/// Returns whether @a point point is contained into the rect.
-	bool			contains_point(const Vec2& point) const;
+	bool			contains_point(const Vector2& point) const;
 
 	/// Returns whether the rect intersects @a r.
 	bool			intersects_rect(const Rect& rect) const;	
 
 	/// Sets the Rect from a @a center and a @a width - @a height
-	void			set_from_center_and_dimensions(Vec2 center, float width, float height);	
+	void			set_from_center_and_dimensions(Vector2 center, float width, float height);	
 
 	/// Returns the four vertices of the rect.
-	void			vertices(Vec2 v[4]) const;
+	void			vertices(Vector2 v[4]) const;
 
 	/// Returns the @a index -th vetex of the rect.
-	Vec2			vertex(uint32_t index) const;			
+	Vector2			vertex(uint32_t index) const;			
 
 	/// Returns the equivalent circle.
 	Circle			to_circle() const;
@@ -83,8 +83,8 @@ public:
 
 private:
 
-	Vec2			m_min;
-	Vec2			m_max;
+	Vector2			m_min;
+	Vector2			m_max;
 };
 
 //-----------------------------------------------------------------------------
@@ -93,7 +93,7 @@ inline Rect::Rect()
 }
 
 //-----------------------------------------------------------------------------
-inline Rect::Rect(const Vec2& min, const Vec2& max) : m_min(min), m_max(max)
+inline Rect::Rect(const Vector2& min, const Vector2& max) : m_min(min), m_max(max)
 {
 }
 
@@ -103,25 +103,25 @@ inline Rect::Rect(const Rect& rect) : m_min(rect.m_min), m_max(rect.m_max)
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec2& Rect::min() const
+inline const Vector2& Rect::min() const
 {
 	return m_min;
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec2& Rect::max() const
+inline const Vector2& Rect::max() const
 {
 	return m_max;
 }
 
 //-----------------------------------------------------------------------------
-inline void Rect::set_min(const Vec2& min)
+inline void Rect::set_min(const Vector2& min)
 {
 	m_min = min;
 }
 
 //-----------------------------------------------------------------------------
-inline void Rect::set_max(const Vec2& max)
+inline void Rect::set_max(const Vector2& max)
 {
 	m_max = max;
 }

@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Renderer.h"
 #include "MathUtils.h"
 #include "Log.h"
-#include "Vec2.h"
+#include "Vector2.h"
 #include "Interpolation.h"
 
 namespace crown
@@ -86,11 +86,11 @@ void Terrain::CreateTerrain(uint32_t xSize, uint32_t zSize, uint32_t tilePerMete
 	}
 
 	// Construct drawing data
-	mVertices = (Vec3*)m_allocator.allocate(heightsCount * sizeof(Vec3));		// There are as many vertices as heights
+	mVertices = (Vector3*)m_allocator.allocate(heightsCount * sizeof(Vector3));		// There are as many vertices as heights
 	mVertexCount = heightsCount;
-	mNormals = (Vec3*)m_allocator.allocate(heightsCount * sizeof(Vec3));		// Same as vertices
+	mNormals = (Vector3*)m_allocator.allocate(heightsCount * sizeof(Vector3));		// Same as vertices
 	mNormalCount = heightsCount;
-	mTexCoords = (Vec2*)m_allocator.allocate(heightsCount * sizeof(Vec2));				// Same as vertices
+	mTexCoords = (Vector2*)m_allocator.allocate(heightsCount * sizeof(Vector2));				// Same as vertices
 	mTexCoordCount = heightsCount;
 	mIndices = (uint16_t*)m_allocator.allocate(mTilesInSizeX * mTilesInSizeZ * 6 * sizeof(uint16_t));	//
 	mIndexCount = mTilesInSizeX * mTilesInSizeZ * 6;
@@ -170,9 +170,9 @@ void Terrain::UpdateVertexBuffer(bool recomputeNormals)
 	{
 		for (uint32_t i = 0; i < mIndexCount; i += 3)
 		{
-			Vec3 normal;
-			Vec3 v1;
-			Vec3 v2;
+			Vector3 normal;
+			Vector3 v1;
+			Vector3 v2;
 
 			v1 = mVertices[mIndices[i + 0]] - mVertices[mIndices[i + 1]];
 			v2 = mVertices[mIndices[i + 2]] - mVertices[mIndices[i + 1]];
@@ -196,7 +196,7 @@ float Terrain::GetHeightAt(uint32_t x, uint32_t z) const
 	return mHeights[z * mVerticesInSizeX + x];
 }
 
-float Terrain::GetHeightAt(const Vec3& xyz) const
+float Terrain::GetHeightAt(const Vector3& xyz) const
 {
 	uint32_t x, z;
 
@@ -214,7 +214,7 @@ void Terrain::SetHeightAt(uint32_t x, uint32_t z, float height)
 	mHeights[z * mVerticesInSizeX + x] = math::clamp_to_range(mMinHeight, mMaxHeight, mHeights[z * mVerticesInSizeX + x]);
 }
 
-void Terrain::SetHeightAt(const Vec3& xyz, float height)
+void Terrain::SetHeightAt(const Vector3& xyz, float height)
 {
 	uint32_t x, z;
 
@@ -223,9 +223,9 @@ void Terrain::SetHeightAt(const Vec3& xyz, float height)
 	SetHeightAt(x + 0, z + 0, height);
 }
 
-void Terrain::WorldToHeight(const Vec3& xyz, uint32_t& x, uint32_t& z) const
+void Terrain::WorldToHeight(const Vector3& xyz, uint32_t& x, uint32_t& z) const
 {
-	Vec3 offsetted = xyz + Vec3(-mOffsetX, 0.0f, mOffsetZ);
+	Vector3 offsetted = xyz + Vector3(-mOffsetX, 0.0f, mOffsetZ);
 	offsetted.z = (float)mSizeZ - offsetted.z;
 
 	x = (uint32_t)offsetted.x;
@@ -242,7 +242,7 @@ bool Terrain::TraceRay(const Ray& ray, Triangle& result, Triangle& /*tri2*/, flo
 		Triangle tri(mVertices[mIndices[i + 0]], mVertices[mIndices[i + 1]], mVertices[mIndices[i + 2]]);
 
 		float ret;
-		Vec3 int32_tersectionPoint32_t;
+		Vector3 int32_tersectionPoint32_t;
 		if (Intersection::test_ray_triangle(ray, tri, ret, int32_tersectionPoint32_t))
 		{
 			if (ret < minDist)
@@ -259,15 +259,15 @@ bool Terrain::TraceRay(const Ray& ray, Triangle& result, Triangle& /*tri2*/, flo
 	return hit;
 }
 
-uint32_t Terrain::SnapToGrid(const Vec3& vertex)
+uint32_t Terrain::SnapToGrid(const Vector3& vertex)
 {
 	float minDist = 9999999.0f;
 	uint32_t indexToSnapped;
 	// Find the snapped point32_t to input vertex
 	for (uint32_t i = 0; i < mVertexCount; i++)
 	{
-		Vec3 tmp = mVertices[i];
-		Vec3 vertex2 = vertex;
+		Vector3 tmp = mVertices[i];
+		Vector3 vertex2 = vertex;
 		tmp.y = vertex2.y = 0.0f;
 
 		if (tmp.get_distance_to(vertex2) < minDist)
@@ -367,7 +367,7 @@ void Terrain::ApplyBrush(uint32_t x, uint32_t z, float scale)
 	}
 }
 
-void Terrain::ApplyBrush(const Vec3& xyz, float scale)
+void Terrain::ApplyBrush(const Vector3& xyz, float scale)
 {
 	uint32_t x, z;
 

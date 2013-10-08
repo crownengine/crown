@@ -26,133 +26,134 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "LuaStack.h"
 #include "Assert.h"
-#include "Vec2.h"
-#include "Vec3.h"
-#include "Mat4.h"
-#include "Quat.h"
+#include "Vector2.h"
+#include "Vector3.h"
+#include "Matrix4x4.h"
+#include "Quaternion.h"
 
 namespace crown
 {
 
 static const uint32_t 	LUA_VEC2_BUFFER_SIZE = 4096;
-static Vec2 			g_vec2_buffer[LUA_VEC2_BUFFER_SIZE];
+static Vector2 			g_vec2_buffer[LUA_VEC2_BUFFER_SIZE];
 static uint32_t 		g_vec2_used = 0;
 
 static const uint32_t 	LUA_VEC3_BUFFER_SIZE = 4096;
-static Vec3 			g_vec3_buffer[LUA_VEC3_BUFFER_SIZE];
+static Vector3 			g_vec3_buffer[LUA_VEC3_BUFFER_SIZE];
 static uint32_t 		g_vec3_used = 0;
 
 static const uint32_t 	LUA_MAT4_BUFFER_SIZE = 4096;
-static Mat4 			g_mat4_buffer[LUA_MAT4_BUFFER_SIZE];
+static Matrix4x4 		g_mat4_buffer[LUA_MAT4_BUFFER_SIZE];
 static uint32_t 		g_mat4_used = 0;
 
 static const uint32_t 	LUA_QUAT_BUFFER_SIZE = 4096;
-static Quat 			g_quat_buffer[LUA_QUAT_BUFFER_SIZE];
+static Quaternion 		g_quat_buffer[LUA_QUAT_BUFFER_SIZE];
 static uint32_t 		g_quat_used = 0;
 
 //-----------------------------------------------------------------------------
-static Vec2* next_vec2(const Vec2& v)
+static Vector2* next_vec2(const Vector2& v)
 {
-	CE_ASSERT(g_vec2_used < LUA_VEC2_BUFFER_SIZE, "Maximum number of Vec2 reached");
+	CE_ASSERT(g_vec2_used < LUA_VEC2_BUFFER_SIZE, "Maximum number of Vector2 reached");
 
 	return &(g_vec2_buffer[g_vec2_used++] = v);
 }
 
 //-----------------------------------------------------------------------------
-static Vec3* next_vec3(const Vec3& v)
+static Vector3* next_vec3(const Vector3& v)
 {
-	CE_ASSERT(g_vec3_used < LUA_VEC3_BUFFER_SIZE, "Maximum number of Vec3 reached");
+	CE_ASSERT(g_vec3_used < LUA_VEC3_BUFFER_SIZE, "Maximum number of Vector3 reached");
 
 	return &(g_vec3_buffer[g_vec3_used++] = v);
 }
 
 //-----------------------------------------------------------------------------
-static Mat4* next_mat4(const Mat4& m)
+static Matrix4x4* next_mat4(const Matrix4x4& m)
 {
-	CE_ASSERT(g_mat4_used < LUA_MAT4_BUFFER_SIZE, "Maximum number of Mat4 reached");
+	CE_ASSERT(g_mat4_used < LUA_MAT4_BUFFER_SIZE, "Maximum number of Matrix4x4 reached");
 
 	return &(g_mat4_buffer[g_mat4_used++] = m);
 }
 
 //-----------------------------------------------------------------------------
-static Quat* next_quat(const Quat& q)
+static Quaternion* next_quat(const Quaternion& q)
 {
-	CE_ASSERT(g_quat_used < LUA_QUAT_BUFFER_SIZE, "Maximum number of Quat reached");
+	CE_ASSERT(g_quat_used < LUA_QUAT_BUFFER_SIZE, "Maximum number of Quaternion reached");
 
 	return &(g_quat_buffer[g_quat_used++] = q);
 }
 
 //-----------------------------------------------------------------------------
-Vec2& LuaStack::get_vec2(int32_t index)
+Vector2& LuaStack::get_vector2(int32_t index)
 {
 	void* v = lua_touserdata(m_state, index);
 
 	if (v < &g_vec2_buffer[0] || v > &g_vec2_buffer[LUA_VEC2_BUFFER_SIZE-1])
 	{
-		luaL_typerror(m_state, index, "Vec2");
+		luaL_typerror(m_state, index, "Vector2");
 	}
 
-	return *(Vec2*)v;
+	return *(Vector2*)v;
 }
 
 //-----------------------------------------------------------------------------
-Vec3& LuaStack::get_vec3(int32_t index)
+Vector3& LuaStack::get_vector3(int32_t index)
 {
 	void* v = lua_touserdata(m_state, index);
 
 	if (v < &g_vec3_buffer[0] || v > &g_vec3_buffer[LUA_VEC3_BUFFER_SIZE-1])
 	{
-		luaL_typerror(m_state, index, "Vec3");
+		luaL_typerror(m_state, index, "Vector3");
 	}
 
-	return *(Vec3*)v;
+	return *(Vector3*)v;
 }
 
 //-----------------------------------------------------------------------------
-Mat4& LuaStack::get_mat4(int32_t index)
+Matrix4x4& LuaStack::get_matrix4x4(int32_t index)
 {
 	void* m = lua_touserdata(m_state, index);
 
 	if (m < &g_mat4_buffer[0] || m > &g_mat4_buffer[LUA_MAT4_BUFFER_SIZE-1])
 	{
-		luaL_typerror(m_state, index, "Mat4");
+		luaL_typerror(m_state, index, "Matrix4x4");
 	}
 
-	return *(Mat4*)m;
+	return *(Matrix4x4*)m;
 }
 
 //-----------------------------------------------------------------------------
-Quat& LuaStack::get_quat(int32_t index)
+Quaternion& LuaStack::get_quaternion(int32_t index)
 {
 	void* q = lua_touserdata(m_state, index);
 
 	if (q < &g_quat_buffer[0] || q > &g_quat_buffer[LUA_QUAT_BUFFER_SIZE-1])
 	{
-		luaL_typerror(m_state, index, "Quat");
+		luaL_typerror(m_state, index, "Quaternion");
 	}
 
-	return *(Quat*)q;
+	return *(Quaternion*)q;
 }
 
-void LuaStack::push_vec2(const Vec2& v)
+//-----------------------------------------------------------------------------
+void LuaStack::push_vector2(const Vector2& v)
 {
 	lua_pushlightuserdata(m_state, next_vec2(v));
 }
 
 //-----------------------------------------------------------------------------
-void LuaStack::push_vec3(const Vec3& v)
+void LuaStack::push_vector3(const Vector3& v)
 {
 	lua_pushlightuserdata(m_state, next_vec3(v));
 }
 
 //-----------------------------------------------------------------------------
-void LuaStack::push_mat4(const Mat4& m)
+void LuaStack::push_matrix4x4(const Matrix4x4& m)
 {
 	lua_pushlightuserdata(m_state, next_mat4(m));
 }
 
 //-----------------------------------------------------------------------------
-void LuaStack::push_quat(const Quat& q)
+void LuaStack::push_quaternion(const Quaternion& q)
 {
 	lua_pushlightuserdata(m_state, next_quat(q));
 }

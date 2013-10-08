@@ -25,27 +25,29 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Assert.h"
-#include "Mat3.h"
+#include "Matrix3x3.h"
 #include "Types.h"
-#include "Mat4.h"
+#include "Matrix4x4.h"
 #include "MathUtils.h"
-#include "Quat.h"
-#include "Vec3.h"
-#include "Vec4.h"
+#include "Quaternion.h"
+#include "Vector3.h"
+#include "Vector4.h"
 
 namespace crown
 {
 
-const Mat4 Mat4::IDENTITY = Mat4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+const Matrix4x4 Matrix4x4::IDENTITY = Matrix4x4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
 
 //-----------------------------------------------------------------------------
-Mat4::Mat4()
+Matrix4x4::Matrix4x4()
 {
 }
 
 //-----------------------------------------------------------------------------
-Mat4::Mat4(float r1c1, float r2c1, float r3c1, float r4c1, float r1c2, float r2c2, float r3c2, float r4c2,
-	float r1c3, float r2c3, float r3c3, float r4c3, float r1c4, float r2c4, float r3c4, float r4c4)
+Matrix4x4::Matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1,
+						float r1c2, float r2c2, float r3c2, float r4c2,
+						float r1c3, float r2c3, float r3c3, float r4c3,
+						float r1c4, float r2c4, float r3c4, float r4c4)
 {
 	m[0] = r1c1;
 	m[1] = r2c1;
@@ -66,7 +68,7 @@ Mat4::Mat4(float r1c1, float r2c1, float r3c1, float r4c1, float r1c2, float r2c
 }
 
 //-----------------------------------------------------------------------------
-Mat4::Mat4(const Quat& r, const Vec3& p)
+Matrix4x4::Matrix4x4(const Quaternion& r, const Vector3& p)
 {
 	const float& rx = r.v.x;
 	const float& ry = r.v.y;
@@ -92,7 +94,7 @@ Mat4::Mat4(const Quat& r, const Vec3& p)
 }
 
 //-----------------------------------------------------------------------------
-Mat4::Mat4(const float v[16])
+Matrix4x4::Matrix4x4(const float v[16])
 {
 	m[0] = v[0];
 	m[1] = v[1];
@@ -113,7 +115,7 @@ Mat4::Mat4(const float v[16])
 }
 
 //-----------------------------------------------------------------------------
-Mat4::Mat4(const Mat4& a)
+Matrix4x4::Matrix4x4(const Matrix4x4& a)
 {
 	m[0] = a.m[0];
 	m[1] = a.m[1];
@@ -134,7 +136,7 @@ Mat4::Mat4(const Mat4& a)
 }
 
 //-----------------------------------------------------------------------------
-Mat4& Mat4::operator=(const Mat4& a)
+Matrix4x4& Matrix4x4::operator=(const Matrix4x4& a)
 {
 	m[0] = a.m[0];
 	m[1] = a.m[1];
@@ -157,7 +159,7 @@ Mat4& Mat4::operator=(const Mat4& a)
 }
 
 //-----------------------------------------------------------------------------
-float Mat4::operator[](uint32_t i) const
+float Matrix4x4::operator[](uint32_t i) const
 {
 	CE_ASSERT(i < 16, "Index must be < 16");
 
@@ -165,7 +167,7 @@ float Mat4::operator[](uint32_t i) const
 }
 
 //-----------------------------------------------------------------------------
-float& Mat4::operator[](uint32_t i)
+float& Matrix4x4::operator[](uint32_t i)
 {
 	CE_ASSERT(i < 16, "Index must be < 16");
 
@@ -173,7 +175,7 @@ float& Mat4::operator[](uint32_t i)
 }
 
 //-----------------------------------------------------------------------------
-float Mat4::operator()(uint32_t row, uint32_t column) const
+float Matrix4x4::operator()(uint32_t row, uint32_t column) const
 {
 	CE_ASSERT(row < 4 && column < 4, "Row and column must be < 4");
 
@@ -181,9 +183,9 @@ float Mat4::operator()(uint32_t row, uint32_t column) const
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mat4::operator+(const Mat4& a) const
+Matrix4x4 Matrix4x4::operator+(const Matrix4x4& a) const
 {
-	Mat4 tmp;
+	Matrix4x4 tmp;
 
 	tmp.m[0] = m[0] + a.m[0];
 	tmp.m[1] = m[1] + a.m[1];
@@ -206,7 +208,7 @@ Mat4 Mat4::operator+(const Mat4& a) const
 }
 
 //-----------------------------------------------------------------------------
-Mat4& Mat4::operator+=(const Mat4& a)
+Matrix4x4& Matrix4x4::operator+=(const Matrix4x4& a)
 {
 	m[0] = m[0] + a.m[0];
 	m[1] = m[1] + a.m[1];
@@ -229,9 +231,9 @@ Mat4& Mat4::operator+=(const Mat4& a)
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mat4::operator-(const Mat4& a) const
+Matrix4x4 Matrix4x4::operator-(const Matrix4x4& a) const
 {
-	Mat4 tmp;
+	Matrix4x4 tmp;
 
 	tmp.m[0] = m[0] - a.m[0];
 	tmp.m[1] = m[1] - a.m[1];
@@ -254,7 +256,7 @@ Mat4 Mat4::operator-(const Mat4& a) const
 }
 
 //-----------------------------------------------------------------------------
-Mat4& Mat4::operator-=(const Mat4& a)
+Matrix4x4& Matrix4x4::operator-=(const Matrix4x4& a)
 {
 	m[0] = m[0] - a.m[0];
 	m[1] = m[1] - a.m[1];
@@ -277,9 +279,9 @@ Mat4& Mat4::operator-=(const Mat4& a)
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mat4::operator*(float k) const
+Matrix4x4 Matrix4x4::operator*(float k) const
 {
-	Mat4 tmp;
+	Matrix4x4 tmp;
 
 	tmp.m[0] = m[0] * k;
 	tmp.m[1] = m[1] * k;
@@ -302,7 +304,7 @@ Mat4 Mat4::operator*(float k) const
 }
 
 //-----------------------------------------------------------------------------
-Mat4& Mat4::operator*=(float k)
+Matrix4x4& Matrix4x4::operator*=(float k)
 {
 	m[0] *= k;
 	m[1] *= k;
@@ -325,9 +327,9 @@ Mat4& Mat4::operator*=(float k)
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mat4::operator/(float k) const
+Matrix4x4 Matrix4x4::operator/(float k) const
 {
-	Mat4 tmp;
+	Matrix4x4 tmp;
 
 	k = (float)1.0 / k;
 
@@ -352,7 +354,7 @@ Mat4 Mat4::operator/(float k) const
 }
 
 //-----------------------------------------------------------------------------
-Mat4& Mat4::operator/=(float k)
+Matrix4x4& Matrix4x4::operator/=(float k)
 {
 	k = (float)1.0 / k;
 
@@ -377,9 +379,9 @@ Mat4& Mat4::operator/=(float k)
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat4::operator*(const Vec3& v) const
+Vector3 Matrix4x4::operator*(const Vector3& v) const
 {
-	Vec3 tmp;
+	Vector3 tmp;
 
 	tmp.x = m[0] * v.x + m[4] * v.y + m[8] * v.z + m[12];
 	tmp.y = m[1] * v.x + m[5] * v.y + m[9] * v.z + m[13];
@@ -389,9 +391,9 @@ Vec3 Mat4::operator*(const Vec3& v) const
 }
 
 //-----------------------------------------------------------------------------
-Vec4 Mat4::operator*(const Vec4& v) const
+Vector4 Matrix4x4::operator*(const Vector4& v) const
 {
-	Vec4 tmp;
+	Vector4 tmp;
 
 	tmp.x = m[0] * v.x + m[4] * v.y + m[8] * v.z + m[12] * v.w;
 	tmp.y = m[1] * v.x + m[5] * v.y + m[9] * v.z + m[13] * v.w;
@@ -402,9 +404,9 @@ Vec4 Mat4::operator*(const Vec4& v) const
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mat4::operator*(const Mat4& a) const
+Matrix4x4 Matrix4x4::operator*(const Matrix4x4& a) const
 {
-	Mat4 tmp;
+	Matrix4x4 tmp;
 
 	tmp.m[0] = m[0] * a.m[0] + m[4] * a.m[1] + m[8] * a.m[2] + m[12] * a.m[3];
 	tmp.m[1] = m[1] * a.m[0] + m[5] * a.m[1] + m[9] * a.m[2] + m[13] * a.m[3];
@@ -430,9 +432,9 @@ Mat4 Mat4::operator*(const Mat4& a) const
 }
 
 //-----------------------------------------------------------------------------
-Mat4& Mat4::operator*=(const Mat4& a)
+Matrix4x4& Matrix4x4::operator*=(const Matrix4x4& a)
 {
-	Mat4 tmp;
+	Matrix4x4 tmp;
 
 	tmp.m[0] = m[0] * a.m[0] + m[4] * a.m[1] + m[8] * a.m[2] + m[12] * a.m[3];
 	tmp.m[1] = m[1] * a.m[0] + m[5] * a.m[1] + m[9] * a.m[2] + m[13] * a.m[3];
@@ -459,13 +461,13 @@ Mat4& Mat4::operator*=(const Mat4& a)
 	return *this;
 }
 
-Mat4 operator*(float k, const Mat4& a)
+Matrix4x4 operator*(float k, const Matrix4x4& a)
 {
 	return a * k;
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_rotation_x(float radians)
+void Matrix4x4::build_rotation_x(float radians)
 {
 	m[0] = 1.0;
 	m[1] = 0.0;
@@ -486,7 +488,7 @@ void Mat4::build_rotation_x(float radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_rotation_y(float radians)
+void Matrix4x4::build_rotation_y(float radians)
 {
 	m[0] = math::cos(radians);
 	m[1] = 0.0;
@@ -507,7 +509,7 @@ void Mat4::build_rotation_y(float radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_rotation_z(float radians)
+void Matrix4x4::build_rotation_z(float radians)
 {
 	m[0] = math::cos(radians);
 	m[1] = math::sin(radians);
@@ -528,7 +530,7 @@ void Mat4::build_rotation_z(float radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_rotation(const Vec3& n, float radians)
+void Matrix4x4::build_rotation(const Vector3& n, float radians)
 {
 	float a = (float)1.0 - math::cos(radians);
 	float sin_a = math::sin(radians);
@@ -553,7 +555,7 @@ void Mat4::build_rotation(const Vec3& n, float radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_projection_perspective_rh(float fovy, float aspect, float near, float far)
+void Matrix4x4::build_projection_perspective_rh(float fovy, float aspect, float near, float far)
 {
 	double top, right;
 
@@ -579,7 +581,7 @@ void Mat4::build_projection_perspective_rh(float fovy, float aspect, float near,
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_projection_perspective_lh(float fovy, float aspect, float near, float far)
+void Matrix4x4::build_projection_perspective_lh(float fovy, float aspect, float near, float far)
 {
 	double top, right;
 
@@ -605,7 +607,7 @@ void Mat4::build_projection_perspective_lh(float fovy, float aspect, float near,
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_projection_ortho_rh(float width, float height, float near, float far)
+void Matrix4x4::build_projection_ortho_rh(float width, float height, float near, float far)
 {
 	m[0] = (float)2.0 / width;
 	m[1] = 0.0;
@@ -626,7 +628,7 @@ void Mat4::build_projection_ortho_rh(float width, float height, float near, floa
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_projection_ortho_lh(float width, float height, float near, float far)
+void Matrix4x4::build_projection_ortho_lh(float width, float height, float near, float far)
 {
 	m[0] = (float)2.0 / width;
 	m[1] = 0.0;
@@ -647,7 +649,7 @@ void Mat4::build_projection_ortho_lh(float width, float height, float near, floa
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_projection_ortho_2d_rh(float width, float height, float near, float far)
+void Matrix4x4::build_projection_ortho_2d_rh(float width, float height, float near, float far)
 {
 	m[0] = (float)2.0 / width;
 	m[1] = 0.0;
@@ -668,7 +670,7 @@ void Mat4::build_projection_ortho_2d_rh(float width, float height, float near, f
 }
 
 //-----------------------------------------------------------------------------
-Mat4& Mat4::transpose()
+Matrix4x4& Matrix4x4::transpose()
 {
 	float tmp;
 
@@ -700,9 +702,9 @@ Mat4& Mat4::transpose()
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mat4::get_transposed() const
+Matrix4x4 Matrix4x4::get_transposed() const
 {
-	Mat4 tmp;
+	Matrix4x4 tmp;
 
 	tmp.m[0] = m[0];
 	tmp.m[1] = m[4];
@@ -725,13 +727,13 @@ Mat4 Mat4::get_transposed() const
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_look_at_rh(const Vec3& pos, const Vec3& target, const Vec3& up)
+void Matrix4x4::build_look_at_rh(const Vector3& pos, const Vector3& target, const Vector3& up)
 {
-	Vec3 zAxis =  pos - target;
+	Vector3 zAxis =  pos - target;
 	zAxis.normalize();
 
-	Vec3 xAxis = up.cross(zAxis);
-	Vec3 yAxis = zAxis.cross(xAxis);
+	Vector3 xAxis = up.cross(zAxis);
+	Vector3 yAxis = zAxis.cross(xAxis);
 
 	m[0] = xAxis.x;
 	m[1] = yAxis.x;
@@ -752,13 +754,13 @@ void Mat4::build_look_at_rh(const Vec3& pos, const Vec3& target, const Vec3& up)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_look_at_lh(const Vec3& pos, const Vec3& target, const Vec3& up)
+void Matrix4x4::build_look_at_lh(const Vector3& pos, const Vector3& target, const Vector3& up)
 {
-	Vec3 zAxis =  target - pos;
+	Vector3 zAxis =  target - pos;
 	zAxis.normalize();
 
-	Vec3 xAxis = up.cross(zAxis);
-	Vec3 yAxis = zAxis.cross(xAxis);
+	Vector3 xAxis = up.cross(zAxis);
+	Vector3 yAxis = zAxis.cross(xAxis);
 
 	m[0] = xAxis.x;
 	m[1] = yAxis.x;
@@ -779,13 +781,13 @@ void Mat4::build_look_at_lh(const Vec3& pos, const Vec3& target, const Vec3& up)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_viewpoint_billboard(const Vec3& pos, const Vec3& target, const Vec3& up)
+void Matrix4x4::build_viewpoint_billboard(const Vector3& pos, const Vector3& target, const Vector3& up)
 {
-	Vec3 zAxis = target - pos;
+	Vector3 zAxis = target - pos;
 	zAxis.normalize();
 
-	Vec3 xAxis = up.cross(zAxis).normalize();
-	Vec3 yAxis = zAxis.cross(xAxis).normalize();
+	Vector3 xAxis = up.cross(zAxis).normalize();
+	Vector3 yAxis = zAxis.cross(xAxis).normalize();
 
 	m[0] = xAxis.x;
 	m[1] = xAxis.y;
@@ -806,13 +808,13 @@ void Mat4::build_viewpoint_billboard(const Vec3& pos, const Vec3& target, const 
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::build_axis_billboard(const Vec3& pos, const Vec3& target, const Vec3& axis)
+void Matrix4x4::build_axis_billboard(const Vector3& pos, const Vector3& target, const Vector3& axis)
 {
-	Vec3 zAxis = target - pos;
+	Vector3 zAxis = target - pos;
 
-	Vec3 xAxis = axis.cross(zAxis).normalize();
+	Vector3 xAxis = axis.cross(zAxis).normalize();
 	zAxis = axis.cross(xAxis).normalize();
-	const Vec3& yAxis = axis;
+	const Vector3& yAxis = axis;
 
 	m[0] = xAxis.x;
 	m[1] = xAxis.y;
@@ -833,7 +835,7 @@ void Mat4::build_axis_billboard(const Vec3& pos, const Vec3& target, const Vec3&
 }
 
 //-----------------------------------------------------------------------------
-float Mat4::get_determinant() const
+float Matrix4x4::get_determinant() const
 {
 	float det;
 
@@ -853,9 +855,9 @@ float Mat4::get_determinant() const
 }
 
 //-----------------------------------------------------------------------------
-Mat4& Mat4::invert()
+Matrix4x4& Matrix4x4::invert()
 {
-	Mat4 mat;
+	Matrix4x4 mat;
 	float det;
 
 	float m01m06_m05m02 = m[1] * m[6] - m[5] * m[2];
@@ -919,40 +921,40 @@ Mat4& Mat4::invert()
 }
 
 //-----------------------------------------------------------------------------
-inline Mat4 Mat4::get_inverted() const
+inline Matrix4x4 Matrix4x4::get_inverted() const
 {
-	Mat4 tmp(*this);
+	Matrix4x4 tmp(*this);
 
 	return tmp.invert();
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::load_identity()
+void Matrix4x4::load_identity()
 {
 	m[0] = m[5] = m[10] = m[15] = 1.0;
 	m[1] = m[2] = m[3] = m[4] = m[6] = m[7] = m[8] = m[9] = m[11] = m[12] = m[13] = m[14] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat4::x() const
+Vector3 Matrix4x4::x() const
 {
-	return Vec3(m[0], m[1], m[2]);
+	return Vector3(m[0], m[1], m[2]);
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat4::y() const
+Vector3 Matrix4x4::y() const
 {
-	return Vec3(m[4], m[5], m[6]);
+	return Vector3(m[4], m[5], m[6]);
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat4::z() const
+Vector3 Matrix4x4::z() const
 {
-	return Vec3(m[8], m[9], m[10]);
+	return Vector3(m[8], m[9], m[10]);
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::set_x(const Vec3& x)
+void Matrix4x4::set_x(const Vector3& x)
 {
 	m[0] = x.x;
 	m[1] = x.y;
@@ -960,7 +962,7 @@ void Mat4::set_x(const Vec3& x)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::set_y(const Vec3& y)
+void Matrix4x4::set_y(const Vector3& y)
 {
 	m[4] = y.x;
 	m[5] = y.y;
@@ -968,7 +970,7 @@ void Mat4::set_y(const Vec3& y)
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::set_z(const Vec3& z)
+void Matrix4x4::set_z(const Vector3& z)
 {
 	m[8] = z.x;
 	m[9] = z.y;
@@ -976,9 +978,9 @@ void Mat4::set_z(const Vec3& z)
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat4::translation() const
+Vector3 Matrix4x4::translation() const
 {
-	Vec3 tmp;
+	Vector3 tmp;
 
 	tmp.x = m[12];
 	tmp.y = m[13];
@@ -988,7 +990,7 @@ Vec3 Mat4::translation() const
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::set_translation(const Vec3& trans)
+void Matrix4x4::set_translation(const Vector3& trans)
 {
 	m[12] = trans.x;
 	m[13] = trans.y;
@@ -996,9 +998,9 @@ void Mat4::set_translation(const Vec3& trans)
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat4::get_scale() const
+Vector3 Matrix4x4::get_scale() const
 {
-	Vec3 tmp;
+	Vector3 tmp;
 
 	tmp.x = m[0];
 	tmp.y = m[5];
@@ -1008,7 +1010,7 @@ Vec3 Mat4::get_scale() const
 }
 
 //-----------------------------------------------------------------------------
-void Mat4::set_scale(const Vec3& scale)
+void Matrix4x4::set_scale(const Vector3& scale)
 {
 	m[0] = scale.x;
 	m[5] = scale.y;
@@ -1016,21 +1018,21 @@ void Mat4::set_scale(const Vec3& scale)
 }
 
 //-----------------------------------------------------------------------------
-float* Mat4::to_float_ptr()
+float* Matrix4x4::to_float_ptr()
 {
 	return &m[0];
 }
 
 //-----------------------------------------------------------------------------
-const float* Mat4::to_float_ptr() const
+const float* Matrix4x4::to_float_ptr() const
 {
 	return &m[0];
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Mat4::to_mat3() const
+Matrix3x3 Matrix4x4::to_mat3() const
 {
-	Mat3 tmp;
+	Matrix3x3 tmp;
 
 	tmp.m[0] = m[0];
 	tmp.m[1] = m[1];
@@ -1046,9 +1048,9 @@ Mat3 Mat4::to_mat3() const
 }
 
 //-----------------------------------------------------------------------------
-Quat Mat4::to_quat() const
+Quaternion Matrix4x4::to_quat() const
 {
-	Quat tmp;
+	Quaternion tmp;
 	float fourWSquaredMinusOne = m[0] + m[5] + m[10];
 	float fourXSquaredMinusOne = m[0] - m[5] - m[10];
 	float fourYSquaredMinusOne = -m[0] + m[5] - m[10];

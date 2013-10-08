@@ -53,7 +53,7 @@ void World::shutdown()
 }
 
 //-----------------------------------------------------------------------------
-UnitId World::spawn_unit(const char* /*name*/, const Vec3& pos, const Quat& rot)
+UnitId World::spawn_unit(const char* /*name*/, const Vector3& pos, const Quaternion& rot)
 {
 	const UnitId unit = m_unit_table.create();
 
@@ -124,7 +124,7 @@ RenderWorld& World::render_world()
 }
 
 //-----------------------------------------------------------------------------
-CameraId World::create_camera(int32_t node, const Vec3& pos, const Quat& rot)
+CameraId World::create_camera(int32_t node, const Vector3& pos, const Quaternion& rot)
 {
 	CameraId camera = m_camera_table.create();
 
@@ -145,7 +145,7 @@ Mesh* World::mesh()
 }
 
 //-----------------------------------------------------------------------------
-SoundInstanceId World::play_sound(const char* name, const bool loop, const float volume, const Vec3& pos, const float range)
+SoundInstanceId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
 	SoundInstanceId id = m_sound_table.create();
 
@@ -177,18 +177,18 @@ void World::link_sound(SoundInstanceId sound, UnitId unit)
 	CE_ASSERT(m_unit_table.has(unit), "Unit does not exists");
 	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
 
-	Vec3 pos = m_units[unit.index].world_position();
+	Vector3 pos = m_units[unit.index].world_position();
 	device()->sound_renderer()->set_sound_position(m_sound[sound.index].m_sound, pos);
 }
 
 //-----------------------------------------------------------------------------
-void World::set_listener(const Vec3& pos, const Vec3& vel, const Vec3& or_up, const Vec3& or_at)
+void World::set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at)
 {
 	device()->sound_renderer()->set_listener(pos, vel, or_up, or_at);
 }
 
 //-----------------------------------------------------------------------------
-void World::set_sound_position(SoundInstanceId sound, const Vec3& pos)
+void World::set_sound_position(SoundInstanceId sound, const Vector3& pos)
 {
 	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
 

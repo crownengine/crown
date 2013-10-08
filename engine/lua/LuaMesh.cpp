@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Mesh.h"
-#include "Quat.h"
+#include "Quaternion.h"
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
 
@@ -39,7 +39,7 @@ CE_EXPORT int mesh_local_position(lua_State* L)
 
 	Mesh* mesh = stack.get_mesh(1);
 
-	stack.push_vec3(mesh->local_position());
+	stack.push_vector3(mesh->local_position());
 	return 1;
 }
 
@@ -50,7 +50,7 @@ CE_EXPORT int mesh_local_rotation(lua_State* L)
 
 	Mesh* mesh = stack.get_mesh(1);
 
-	stack.push_quat(mesh->local_rotation());
+	stack.push_quaternion(mesh->local_rotation());
 	return 1;
 }
 
@@ -61,7 +61,7 @@ CE_EXPORT int mesh_local_pose(lua_State* L)
 
 	Mesh* mesh = stack.get_mesh(1);
 
-	stack.push_mat4(mesh->local_pose());
+	stack.push_matrix4x4(mesh->local_pose());
 	return 1;
 }
 
@@ -72,7 +72,7 @@ CE_EXPORT int mesh_world_position(lua_State* L)
 
 	Mesh* mesh = stack.get_mesh(1);
 
-	stack.push_vec3(mesh->world_position());
+	stack.push_vector3(mesh->world_position());
 	return 1;
 }
 
@@ -83,7 +83,7 @@ CE_EXPORT int mesh_world_rotation(lua_State* L)
 
 	Mesh* mesh = stack.get_mesh(1);
 
-	stack.push_quat(mesh->world_rotation());
+	stack.push_quaternion(mesh->world_rotation());
 	return 1;
 }
 
@@ -94,7 +94,7 @@ CE_EXPORT int mesh_world_pose(lua_State* L)
 
 	Mesh* mesh = stack.get_mesh(1);
 
-	stack.push_mat4(mesh->world_pose());
+	stack.push_matrix4x4(mesh->world_pose());
 	return 1;
 }
 
@@ -104,7 +104,7 @@ CE_EXPORT int mesh_set_local_position(lua_State* L)
 	LuaStack stack(L);
 
 	Mesh* mesh = stack.get_mesh(1);
-	const Vec3 pos = stack.get_vec3(2);
+	const Vector3 pos = stack.get_vector3(2);
 
 	mesh->set_local_position(pos);
 	return 0;
@@ -116,7 +116,7 @@ CE_EXPORT int mesh_set_local_rotation(lua_State* L)
 	LuaStack stack(L);
 
 	Mesh* mesh = stack.get_mesh(1);
-	const Quat rot = stack.get_quat(2);
+	const Quaternion rot = stack.get_quaternion(2);
 
 	mesh->set_local_rotation(rot);
 	return 0;
@@ -128,7 +128,7 @@ CE_EXPORT int mesh_set_local_pose(lua_State* L)
 	LuaStack stack(L);
 
 	Mesh* mesh = stack.get_mesh(1);
-	const Mat4 pose = stack.get_mat4(2);
+	const Matrix4x4 pose = stack.get_matrix4x4(2);
 
 	mesh->set_local_pose(pose);
 	return 0;

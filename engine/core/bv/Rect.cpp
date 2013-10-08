@@ -33,7 +33,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-bool Rect::contains_point(const Vec2& point) const
+bool Rect::contains_point(const Vector2& point) const
 {
 	return (point.x >= m_min.x && point.y >= m_min.y &&
 			point.x <= m_max.x && point.y <= m_max.y);
@@ -48,7 +48,7 @@ bool Rect::intersects_rect(const Rect& rect) const
 }
 
 //-----------------------------------------------------------------------------
-void Rect::set_from_center_and_dimensions(Vec2 center, float width, float height)
+void Rect::set_from_center_and_dimensions(Vector2 center, float width, float height)
 {
 	m_min.x = (float)(center.x - width  / 2.0);
 	m_min.y = (float)(center.y - height / 2.0);
@@ -57,7 +57,7 @@ void Rect::set_from_center_and_dimensions(Vec2 center, float width, float height
 }
 
 //-----------------------------------------------------------------------------
-void Rect::vertices(Vec2 v[4]) const
+void Rect::vertices(Vector2 v[4]) const
 {
 	// 3 ---- 2
 	// |      |
@@ -74,27 +74,27 @@ void Rect::vertices(Vec2 v[4]) const
 }
 
 //-----------------------------------------------------------------------------
-Vec2 Rect::vertex(uint32_t index) const
+Vector2 Rect::vertex(uint32_t index) const
 {
 	CE_ASSERT(index < 4, "Index must be < 4");
 
 	switch (index)
 	{
 		case 0:
-			return Vec2(m_min.x, m_min.y);
+			return Vector2(m_min.x, m_min.y);
 		case 1:
-			return Vec2(m_max.x, m_min.y);
+			return Vector2(m_max.x, m_min.y);
 		case 2:
-			return Vec2(m_max.x, m_max.y);
+			return Vector2(m_max.x, m_max.y);
 		case 3:
-			return Vec2(m_min.x, m_max.y);
+			return Vector2(m_min.x, m_max.y);
 	}
 
-	return Vec2::ZERO;
+	return Vector2::ZERO;
 }
 
 //-----------------------------------------------------------------------------
-Vec2 Rect::center() const
+Vector2 Rect::center() const
 {
 	return (m_min + m_max) * 0.5;
 }
@@ -112,7 +112,7 @@ float Rect::area() const
 }
 
 //-----------------------------------------------------------------------------
-Vec2 Rect::size() const
+Vector2 Rect::size() const
 {
 	return (m_max - m_min);
 }

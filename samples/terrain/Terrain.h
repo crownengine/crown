@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Vec3.h"
+#include "Vector3.h"
 #include "Triangle.h"
 #include "Intersection.h"
 #include "Ray.h"
@@ -49,24 +49,24 @@ public:
 	void		CreateTerrain(uint32_t xSize, uint32_t zSize, uint32_t tilePerMeter, float initialHeight);
 
 	float		GetHeightAt(uint32_t x, uint32_t z) const;
-	float		GetHeightAt(const Vec3& xyz) const;
+	float		GetHeightAt(const Vector3& xyz) const;
 
 	void		SetHeightAt(uint32_t x, uint32_t z, float height);
-	void		SetHeightAt(const Vec3& xyz, float height);
+	void		SetHeightAt(const Vector3& xyz, float height);
 
-	void		WorldToHeight(const Vec3& xyz, uint32_t& x, uint32_t& z) const;
+	void		WorldToHeight(const Vector3& xyz, uint32_t& x, uint32_t& z) const;
 
 	void		UpdateVertexBuffer(bool recomputeNormals);
 
 	bool		TraceRay(const Ray& ray, Triangle& result, Triangle& tri2, float& dist);
 
-	uint32_t	SnapToGrid(const Vec3& vertex);
+	uint32_t	SnapToGrid(const Vector3& vertex);
 
 	void		BuildBrush(uint32_t width, uint32_t height, float smooth);
 	float		GaussDist(float x, float y, float sigma);
 
 	void		ApplyBrush(uint32_t x, uint32_t z, float scale);
-	void		ApplyBrush(const Vec3& xyz, float scale);
+	void		ApplyBrush(const Vector3& xyz, float scale);
 
 	void		PlotCircle(int32_t xx, int32_t yy, int32_t radius, int32_t i);
 
@@ -91,13 +91,13 @@ private:
 	float			mMaxHeight;
 
 	uint32_t		mVertexCount;
-	Vec3*			mVertices;
+	Vector3*			mVertices;
 
 	uint32_t		mNormalCount;
-	Vec3*			mNormals;
+	Vector3*			mNormals;
 
 	uint32_t		mTexCoordCount;
-	Vec2*			mTexCoords;
+	Vector2*			mTexCoords;
 
 	uint32_t		mIndexCount;
 	uint16_t*		mIndices;
