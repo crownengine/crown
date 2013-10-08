@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Frustum.h"
 #include "Types.h"
 #include "Intersection.h"
-#include "Mat4.h"
+#include "Matrix4x4.h"
 
 namespace crown
 {
@@ -49,7 +49,7 @@ Frustum::Frustum(const Frustum& frustum)
 }
 
 //-----------------------------------------------------------------------------
-bool Frustum::contains_point(const Vec3& point) const
+bool Frustum::contains_point(const Vector3& point) const
 {
 	if (m_planes[FP_LEFT].distance_to_point(point) < 0.0) return false;
 	if (m_planes[FP_RIGHT].distance_to_point(point) < 0.0) return false;
@@ -62,7 +62,7 @@ bool Frustum::contains_point(const Vec3& point) const
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Frustum::vertex(uint32_t index) const
+Vector3 Frustum::vertex(uint32_t index) const
 {
 	CE_ASSERT(index < 8, "Index must be < 8");
 
@@ -75,7 +75,7 @@ Vec3 Frustum::vertex(uint32_t index) const
 	// 6 = Far top right
 	// 7 = Far top left
 
-	Vec3 ip;
+	Vector3 ip;
 
 	switch (index)
 	{
@@ -103,7 +103,7 @@ Vec3 Frustum::vertex(uint32_t index) const
 }
 
 //-----------------------------------------------------------------------------
-void Frustum::from_matrix(const Mat4& m)
+void Frustum::from_matrix(const Matrix4x4& m)
 {
 	// Left plane
 	m_planes[FP_LEFT].n.x		= m.m[3] + m.m[0];
@@ -155,7 +155,7 @@ Box Frustum::to_box() const
 	Box tmp;
 	tmp.zero();
 
-	Vec3 vertices[8];
+	Vector3 vertices[8];
 	vertices[0] = vertex(0);
 	vertices[1] = vertex(1);
 	vertices[2] = vertex(2);

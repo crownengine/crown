@@ -24,15 +24,18 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Vec2.h"
+#include "Vector4.h"
+#include "Types.h"
 
 namespace crown
 {
 
-const Vec2 Vec2::ZERO	= Vec2(0.0, 0.0);
-const Vec2 Vec2::ONE	= Vec2(1.0, 1.0);
-const Vec2 Vec2::XAXIS	= Vec2(1.0, 0.0);
-const Vec2 Vec2::YAXIS	= Vec2(0.0, 1.0);
+const Vector4 Vector4::ZERO	= Vector4(0.0, 0.0, 0.0, 0.0);
+const Vector4 Vector4::ONE	= Vector4(1.0, 1.0, 1.0, 1.0);
+const Vector4 Vector4::XAXIS	= Vector4(1.0, 0.0, 0.0, 0.0);
+const Vector4 Vector4::YAXIS	= Vector4(0.0, 1.0, 0.0, 0.0);
+const Vector4 Vector4::ZAXIS	= Vector4(0.0, 0.0, 1.0, 0.0);
+const Vector4 Vector4::WAXIS	= Vector4(0.0, 0.0, 0.0, 1.0);
 
 } // namespace crown
 

@@ -82,7 +82,7 @@ CE_EXPORT int mouse_cursor_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
-	stack.push_vec2(device()->mouse()->cursor_xy());
+	stack.push_vector2(device()->mouse()->cursor_xy());
 
 	return 1;
 }
@@ -92,7 +92,7 @@ CE_EXPORT int mouse_set_cursor_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2& xy = stack.get_vec2(1);
+	Vector2& xy = stack.get_vector2(1);
 
 	device()->mouse()->set_cursor_xy(xy);
 
@@ -104,7 +104,7 @@ CE_EXPORT int mouse_cursor_relative_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
-	stack.push_vec2(device()->mouse()->cursor_relative_xy());
+	stack.push_vector2(device()->mouse()->cursor_relative_xy());
 
 	return 1;
 }
@@ -114,7 +114,7 @@ CE_EXPORT int mouse_set_cursor_relative_xy(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2& xy = stack.get_vec2(1);
+	Vector2& xy = stack.get_vector2(1);
 
 	device()->mouse()->set_cursor_relative_xy(xy);
 

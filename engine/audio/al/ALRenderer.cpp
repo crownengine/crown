@@ -70,10 +70,10 @@ public:
 		AL_CHECK(alDopplerVelocity(343.0f));
 
 		// Default listener
-		Vec3 pos(0.0f, 0.0f, 0.0f);
-		Vec3 vel(0.0f, 0.0f, 0.0f);
-		Vec3 at(0.0f, 0.0f, -1.0f);
-		Vec3 up(0.0f, 1.0f, 0.0f);
+		Vector3 pos(0.0f, 0.0f, 0.0f);
+		Vector3 vel(0.0f, 0.0f, 0.0f);
+		Vector3 at(0.0f, 0.0f, -1.0f);
+		Vector3 up(0.0f, 1.0f, 0.0f);
 
 		set_listener(pos, vel, at, up);		
 	}
@@ -86,7 +86,7 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	void set_listener(const Vec3& pos, const Vec3& vel, const Vec3& or_up, const Vec3& or_at)
+	void set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at)
 	{
 		AL_CHECK(alListener3f(AL_POSITION, pos.x, pos.y, pos.z));
 		AL_CHECK(alListener3f(AL_VELOCITY, vel.x, vel.y, vel.z));
@@ -160,7 +160,7 @@ uint32_t SoundRenderer::num_sounds()
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_listener(const Vec3& pos, const Vec3& vel, const Vec3& or_up, const Vec3& or_at) const
+void SoundRenderer::set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at) const
 {
 	m_impl->set_listener(pos, vel, or_up, or_at);
 }
@@ -230,7 +230,7 @@ void SoundRenderer::set_sound_max_distance(SoundId id, const float max_distance)
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_sound_position(SoundId id, const Vec3& pos)
+void SoundRenderer::set_sound_position(SoundId id, const Vector3& pos)
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
@@ -238,7 +238,7 @@ void SoundRenderer::set_sound_position(SoundId id, const Vec3& pos)
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_sound_velocity(SoundId id, const Vec3& vel)
+void SoundRenderer::set_sound_velocity(SoundId id, const Vector3& vel)
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
@@ -246,7 +246,7 @@ void SoundRenderer::set_sound_velocity(SoundId id, const Vec3& vel)
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_sound_direction(SoundId id, const Vec3& dir)
+void SoundRenderer::set_sound_direction(SoundId id, const Vector3& dir)
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
@@ -294,7 +294,7 @@ float SoundRenderer::sound_max_distance(SoundId id) const
 }
 
 //-----------------------------------------------------------------------------
-Vec3 SoundRenderer::sound_position(SoundId id) const
+Vector3 SoundRenderer::sound_position(SoundId id) const
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
@@ -302,7 +302,7 @@ Vec3 SoundRenderer::sound_position(SoundId id) const
 }
 
 //-----------------------------------------------------------------------------
-Vec3 SoundRenderer::sound_velocity(SoundId id) const
+Vector3 SoundRenderer::sound_velocity(SoundId id) const
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 
@@ -310,7 +310,7 @@ Vec3 SoundRenderer::sound_velocity(SoundId id) const
 }
 
 //-----------------------------------------------------------------------------
-Vec3 SoundRenderer::sound_direction(SoundId id) const
+Vector3 SoundRenderer::sound_direction(SoundId id) const
 {
 	CE_ASSERT(m_sounds_id_table.has(id), "Sound does not exists");
 

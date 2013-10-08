@@ -569,7 +569,7 @@ public:
 		m_submit->set_state(flags);
 	}
 
-	inline void set_pose(const Mat4& pose)
+	inline void set_pose(const Matrix4x4& pose)
 	{
 		m_submit->set_pose(pose);
 	}
@@ -609,12 +609,12 @@ public:
 		m_submit->set_layer_clear(layer, flags, color, depth);
 	}
 
-	inline void set_layer_view(uint8_t layer, const Mat4& view)
+	inline void set_layer_view(uint8_t layer, const Matrix4x4& view)
 	{
 		m_submit->set_layer_view(layer, view);
 	}
 
-	inline void set_layer_projection(uint8_t layer, const Mat4& projection)
+	inline void set_layer_projection(uint8_t layer, const Matrix4x4& projection)
 	{
 		m_submit->set_layer_projection(layer, projection);
 	}

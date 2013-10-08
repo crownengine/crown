@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Vec2.h"
+#include "Vector2.h"
 #include "MathUtils.h"
 
 namespace crown
@@ -46,12 +46,12 @@ public:
 					Circle();
 					
 	/// Constructs from @a center and @a radius.
-					Circle(const Vec2& center, float radius);	
+					Circle(const Vector2& center, float radius);	
 					Circle(const Circle& circle);				
 
-	const Vec2&		center() const;							
+	const Vector2&		center() const;							
 	float			radius() const;	
-	void			set_center(const Vec2& center);			
+	void			set_center(const Vector2& center);			
 	void			set_radius(float radius);				
 
 	float			area() const;						
@@ -61,7 +61,7 @@ public:
 
 private:
 
-	Vec2			m_center;
+	Vector2			m_center;
 	float			m_radius;
 };
 
@@ -71,7 +71,7 @@ inline Circle::Circle()
 }
 
 //-----------------------------------------------------------------------------
-inline Circle::Circle(const Vec2& center, float radius) : m_center(center), m_radius(radius)
+inline Circle::Circle(const Vector2& center, float radius) : m_center(center), m_radius(radius)
 {
 }
 
@@ -81,7 +81,7 @@ inline Circle::Circle(const Circle& circle) : m_center(circle.m_center), m_radiu
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec2& Circle::center() const
+inline const Vector2& Circle::center() const
 {
 	return m_center;
 }
@@ -93,7 +93,7 @@ inline float Circle::radius() const
 }
 
 //-----------------------------------------------------------------------------
-inline void Circle::set_center(const Vec2& center)
+inline void Circle::set_center(const Vector2& center)
 {
 	m_center = center;
 }

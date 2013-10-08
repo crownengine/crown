@@ -40,7 +40,7 @@ typedef 	Id 		SoundId;
 //-----------------------------------------------------------------------------
 class SoundRendererImpl;
 	class SoundResource;
-class Vec3;
+class Vector3;
 
 //-----------------------------------------------------------------------------
 class SoundRenderer
@@ -65,7 +65,7 @@ public:
 
 	/// Sets listener parameters. @a position affects audibility of sounds, 
 	/// @a velocity affects doppler shift and @a orientation affects how a sound could be heard
-	void					set_listener(const Vec3& pos, const Vec3& vel, const Vec3& or_up, const Vec3& or_at) const;
+	void					set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at) const;
 
 	/// Creates a sound of sound 
 	SoundId					create_sound(SoundResource* resource);
@@ -91,13 +91,13 @@ public:
 	void					set_sound_max_distance(SoundId id, const float max_distance);
 
 	/// Sets sound's @a position. It affects sound audibility
-	void					set_sound_position(SoundId id, const Vec3& pos);
+	void					set_sound_position(SoundId id, const Vector3& pos);
 
 	/// Sets sound's @a velocity. It affects doppler shift
-	void					set_sound_velocity(SoundId id, const Vec3& vel);
+	void					set_sound_velocity(SoundId id, const Vector3& vel);
 
 	/// Sets sound's @a direction. It affects how a sound could be heard
-	void					set_sound_direction(SoundId id, const Vec3& dir);
+	void					set_sound_direction(SoundId id, const Vector3& dir);
 
 	/// Sets sound's @a pitch.
 	void					set_sound_pitch(SoundId id, const float pitch);
@@ -115,13 +115,13 @@ public:
 	float					sound_max_distance(SoundId id) const;
 	
 	/// Returns position of @a id
-	Vec3					sound_position(SoundId id) const;
+	Vector3					sound_position(SoundId id) const;
 
 	/// Returns velocity of @a id
-	Vec3					sound_velocity(SoundId id) const;
+	Vector3					sound_velocity(SoundId id) const;
 
 	/// Returns direction of @a id
-	Vec3					sound_direction(SoundId id) const;
+	Vector3					sound_direction(SoundId id) const;
 
 	/// Returns pitch of @a id
 	float					sound_pitch(SoundId id) const;

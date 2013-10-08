@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "SoundRenderer.h"
 #include "SLESRenderer.h"
-#include "Vec3.h"
+#include "Vector3.h"
 
 namespace crown
 {
@@ -227,7 +227,7 @@ bool SoundRenderer::sound_playing(SoundId id)
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_listener(const Vec3& /*pos*/, const Vec3& /*vel*/, const Vec3& /*or_up*/, const Vec3& /*or_at*/) const
+void SoundRenderer::set_listener(const Vector3& /*pos*/, const Vector3& /*vel*/, const Vector3& /*or_up*/, const Vector3& /*or_at*/) const
 {
 	Log::w("Stub");
 }
@@ -245,19 +245,19 @@ void SoundRenderer::set_sound_max_distance(SoundId /*id*/,  const float /*max_di
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_sound_position(SoundId /*id*/, const Vec3& /*pos*/)
+void SoundRenderer::set_sound_position(SoundId /*id*/, const Vector3& /*pos*/)
 {
 	Log::w("Stub");
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_sound_velocity(SoundId /*id*/, const Vec3& /*vel*/)
+void SoundRenderer::set_sound_velocity(SoundId /*id*/, const Vector3& /*vel*/)
 {
 	Log::w("Stub");
 }
 
 //-----------------------------------------------------------------------------
-void SoundRenderer::set_sound_direction(SoundId /*id*/, const Vec3& /*dir*/)
+void SoundRenderer::set_sound_direction(SoundId /*id*/, const Vector3& /*dir*/)
 {
 	Log::w("Stub");
 }
@@ -297,27 +297,27 @@ float SoundRenderer::sound_max_distance(SoundId /*id*/) const
 }
 
 //-----------------------------------------------------------------------------
-Vec3 SoundRenderer::sound_position(SoundId /*id*/) const
+Vector3 SoundRenderer::sound_position(SoundId /*id*/) const
 {
 	Log::w("Stub");
 
-	return Vec3::ZERO;
+	return Vector3::ZERO;
 }
 
 //-----------------------------------------------------------------------------
-Vec3 SoundRenderer::sound_velocity(SoundId /*id*/) const
+Vector3 SoundRenderer::sound_velocity(SoundId /*id*/) const
 {
 	Log::w("Stub");
 
-	return Vec3::ZERO;
+	return Vector3::ZERO;
 }
 
 //-----------------------------------------------------------------------------
-Vec3 SoundRenderer::sound_direction(SoundId /*id*/) const
+Vector3 SoundRenderer::sound_direction(SoundId /*id*/) const
 {
 	Log::w("Stub");
 
-	return Vec3::ZERO;
+	return Vector3::ZERO;
 }
 
 //-----------------------------------------------------------------------------

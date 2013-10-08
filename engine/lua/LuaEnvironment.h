@@ -96,10 +96,10 @@ void load_int_setting(LuaEnvironment& env);
 void load_float_setting(LuaEnvironment& env);
 void load_string_setting(LuaEnvironment& env);
 
-void load_vec2(LuaEnvironment& env);
-void load_vec3(LuaEnvironment& env);
-void load_mat4(LuaEnvironment& env);
-void load_quat(LuaEnvironment& env);
+void load_vector2(LuaEnvironment& env);
+void load_vector3(LuaEnvironment& env);
+void load_matrix4x4(LuaEnvironment& env);
+void load_quaternion(LuaEnvironment& env);
 void load_math(LuaEnvironment& env);
 void load_mouse(LuaEnvironment& env);
 void load_keyboard(LuaEnvironment& env);

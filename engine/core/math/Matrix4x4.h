@@ -31,10 +31,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Mat3;
-class Quat;
-class Vec3;
-class Vec4;
+class Matrix3x3;
+class Quaternion;
+class Vector3;
+class Vector4;
 
 /// Column-major 4x4 matrix.
 /// 
@@ -58,7 +58,7 @@ class Vec4;
 /// 3 | Xz  Yz  Zz  Tz |
 /// 4 [ 0   0   0   1  ]
 ///     1   2   3   4
-class Mat4
+class Matrix4x4
 {
 
 public:
@@ -66,17 +66,17 @@ public:
 	float				m[16];
 
 	/// Does nothing for efficiency.
-						Mat4();	
+						Matrix4x4();	
 
 	/// Constructs from a set of float
-						Mat4(float r1c1, float r2c1, float r3c1, float r4c1, float r1c2, float r2c2, float r3c2, float r4c2, float r1c3, float r2c3, float r3c3, float r4c3, float r1c4, float r2c4, float r3c4, float r4c4);
+						Matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1, float r1c2, float r2c2, float r3c2, float r4c2, float r1c3, float r2c3, float r3c3, float r4c3, float r1c4, float r2c4, float r3c4, float r4c4);
 	
 	/// Contructs from the @a v array
-						Mat4(const float v[16]);						
-						Mat4(const Mat4& a);					
+						Matrix4x4(const float v[16]);						
+						Matrix4x4(const Matrix4x4& a);					
 
 	/// Assignment operator (copies the data)
-	Mat4&				operator=(const Mat4& a);					
+	Matrix4x4&			operator=(const Matrix4x4& a);					
 
 	/// Random access by index
 	float				operator[](uint32_t i) const;
@@ -86,21 +86,21 @@ public:
 
 	float				operator()(uint32_t row, uint32_t column) const;	//!< Random access by row/column pair
 
-	Mat4				operator+(const Mat4& a) const;
-	Mat4&				operator+=(const Mat4& a);					
-	Mat4				operator-(const Mat4& a) const;				
-	Mat4&				operator-=(const Mat4& a);					
-	Mat4				operator*(float k) const;				
-	Mat4&				operator*=(float k);							
-	Mat4				operator/(float k) const;					
-	Mat4&				operator/=(float k);							
-	Vec3				operator*(const Vec3& v) const;				
-	Vec4				operator*(const Vec4& v) const;				
-	Mat4				operator*(const Mat4& a) const;			
-	Mat4&				operator*=(const Mat4& a);
+	Matrix4x4			operator+(const Matrix4x4& a) const;
+	Matrix4x4&			operator+=(const Matrix4x4& a);					
+	Matrix4x4			operator-(const Matrix4x4& a) const;				
+	Matrix4x4&			operator-=(const Matrix4x4& a);					
+	Matrix4x4			operator*(float k) const;				
+	Matrix4x4&			operator*=(float k);							
+	Matrix4x4			operator/(float k) const;					
+	Matrix4x4&			operator/=(float k);							
+	Vector3				operator*(const Vector3& v) const;				
+	Vector4				operator*(const Vector4& v) const;				
+	Matrix4x4			operator*(const Matrix4x4& a) const;			
+	Matrix4x4&			operator*=(const Matrix4x4& a);
 
 	/// For simmetry
-	friend Mat4			operator*(float k, const Mat4& a);			
+	friend Matrix4x4	operator*(float k, const Matrix4x4& a);			
 
 	/// Builds a rotation matrix about the X axis of @a radians radians
 	void				build_rotation_x(float radians);
@@ -112,7 +112,7 @@ public:
 	void				build_rotation_z(float radians);		
 
 	/// Builds a rotation matrix about an arbitrary axis of "radians" radians		
-	void				build_rotation(const Vec3& n, float radians);
+	void				build_rotation(const Vector3& n, float radians);
 
 	/// Builds a perspetive projection matrix suited to Right-Handed coordinate systems
 	void				build_projection_perspective_rh(float fovy, float aspect, float near, float far);
@@ -130,55 +130,55 @@ public:
 	void				build_projection_ortho_2d_rh(float width, float height, float near, float far);	
 
 	/// Builds a "Righ-Handed look-at" matrix from a position, a target, and an up vector
-	void				build_look_at_rh(const Vec3& pos, const Vec3& target, const Vec3& up);
+	void				build_look_at_rh(const Vector3& pos, const Vector3& target, const Vector3& up);
 
 	/// Builds a "Left-Handed look-at" matrix from a position, a target, and an up vector	
-	void				build_look_at_lh(const Vec3& pos, const Vec3& target, const Vec3& up);
+	void				build_look_at_lh(const Vector3& pos, const Vector3& target, const Vector3& up);
 
 	/// Builds a "Viewpoint-Oriented billboard" matrix which can be used to make an object face a specific point in space	
-	void				build_viewpoint_billboard(const Vec3& pos, const Vec3& target, const Vec3& up);	
+	void				build_viewpoint_billboard(const Vector3& pos, const Vector3& target, const Vector3& up);	
 
 	/// Builds a "Arbitrary-Axis billboard" matrix which can be used to make an object face a specific point in space
-	void				build_axis_billboard(const Vec3& pos, const Vec3& target, const Vec3& axis);	
+	void				build_axis_billboard(const Vector3& pos, const Vector3& target, const Vector3& axis);	
 
-	Mat4&				transpose();								
-	Mat4				get_transposed() const;						
+	Matrix4x4&			transpose();								
+	Matrix4x4			get_transposed() const;						
 	float				get_determinant() const;					
-	Mat4&				invert();									
-	Mat4				get_inverted() const;						
+	Matrix4x4&			invert();									
+	Matrix4x4			get_inverted() const;						
 
 	/// Builds the identity matrix
 	void				load_identity();							
 
-	/// Returns a Vec3 containing the matrix's x base vector.
-	Vec3				x() const;
+	/// Returns a Vector3 containing the matrix's x base vector.
+	Vector3				x() const;
 
-	/// Returns a Vec3 containing the matrix's y base vector.
-	Vec3				y() const;
+	/// Returns a Vector3 containing the matrix's y base vector.
+	Vector3				y() const;
 
-	/// Returns a Vec3 containing the matrix's z base vector.
-	Vec3				z() const;
+	/// Returns a Vector3 containing the matrix's z base vector.
+	Vector3				z() const;
 
 	/// Sets the matrix's x base vector.
-	void				set_x(const Vec3& x);
+	void				set_x(const Vector3& x);
 
 	/// Sets the matrix's y base vector.
-	void				set_y(const Vec3& y);
+	void				set_y(const Vector3& y);
 
 	/// Sets the matrix's z base vector.
-	void				set_z(const Vec3& z);
+	void				set_z(const Vector3& z);
 
-	/// Returns a Vec3 containing the matrix's translation portion
-	Vec3				translation() const;	
+	/// Returns a Vector3 containing the matrix's translation portion
+	Vector3				translation() const;	
 
 	/// Fills the matrix's translation portion values contained in @a trans				
-	void				set_translation(const Vec3& trans);			
+	void				set_translation(const Vector3& trans);			
 
-	/// Returns a Vec3 containing the matrix's scale portion
-	Vec3				get_scale() const;
+	/// Returns a Vector3 containing the matrix's scale portion
+	Vector3				get_scale() const;
 
 	/// Fills the matrix's scale portion with the values contained in @a scale							
-	void				set_scale(const Vec3& scale);				
+	void				set_scale(const Vector3& scale);				
 
 	/// Returns the pointer to the matrix's data
 	float*				to_float_ptr();
@@ -187,12 +187,12 @@ public:
 	const float*		to_float_ptr() const;
 
 	/// Returns a 3x3 matrix according to the matrix's rotation portion						
-	Mat3				to_mat3() const;
+	Matrix3x3			to_mat3() const;
 
 	/// Returns a quaternion according to the matrix's rotation portion							
-	Quat				to_quat() const;							
+	Quaternion			to_quat() const;							
 
-	static const Mat4	IDENTITY;
+	static const Matrix4x4	IDENTITY;
 };
 
 } // namespace crown

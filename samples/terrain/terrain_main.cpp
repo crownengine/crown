@@ -80,7 +80,7 @@ public:
 	//{
 	//	crown::Renderer* renderer = crown::device()->renderer();
 	//	
-	//	Vec3 start = Vec3(0.0f, 10.0f, 0.0f);
+	//	Vector3 start = Vector3(0.0f, 10.0f, 0.0f);
 
 	//	// Add a movable camera
 	//	cam = CE_NEW(m_allocator, Camera)(start, 90.0f, 1.6f);
@@ -141,7 +141,7 @@ public:
 	//	/* Render the terrain */
 	//	renderer->set_ambient_light(Color4(0.5f, 0.5f, 0.5f, 1.0f));
 
-	//	renderer->set_matrix(MT_MODEL, Mat4::IDENTITY);
+	//	renderer->set_matrix(MT_MODEL, Matrix4x4::IDENTITY);
 
 	//	if (device()->is_loaded(grass))
 	//	{
@@ -157,7 +157,7 @@ public:
 	//	if (terrain.TraceRay(ray, tri, tri2, dist))
 	//	{
 	//		renderer->set_depth_test(false);
-	//		Vec3 intersectionPoint = ray.origin() + (ray.direction() * dist);
+	//		Vector3 intersectionPoint = ray.origin() + (ray.direction() * dist);
 	//		if (mouseLeftPressed)
 	//		{
 	//			terrain.ApplyBrush(intersectionPoint, 0.09f);
@@ -177,7 +177,7 @@ public:
 	//HeapAllocator m_allocator;
 	//FPSSystem* system;
 	//Camera* cam;
-	//Mat4 ortho;
+	//Matrix4x4 ortho;
 	//Terrain terrain;
 
 	//// Resources

@@ -32,7 +32,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Camera::Camera(const Vec3& position, float fov, float aspect) :
+Camera::Camera(const Vector3& position, float fov, float aspect) :
 	m_position(position),
 	m_look_at(0, 0, -1),
 	m_up(0, 1, 0),
@@ -52,13 +52,13 @@ Camera::Camera(const Vec3& position, float fov, float aspect) :
 }
 
 //-----------------------------------------------------------------------------
-const Vec3& Camera::position() const
+const Vector3& Camera::position() const
 {
 	return m_position;
 }
 
 //-----------------------------------------------------------------------------
-void Camera::set_position(const Vec3& position)
+void Camera::set_position(const Vector3& position)
 {
 	m_position = position;
 
@@ -66,13 +66,13 @@ void Camera::set_position(const Vec3& position)
 }
 
 //-----------------------------------------------------------------------------
-const Vec3& Camera::look_at() const
+const Vector3& Camera::look_at() const
 {
 	return m_look_at;
 }
 
 //-----------------------------------------------------------------------------
-void Camera::set_look_at(const Vec3& lookat)
+void Camera::set_look_at(const Vector3& lookat)
 {
 	m_look_at = lookat;
 
@@ -82,17 +82,17 @@ void Camera::set_look_at(const Vec3& lookat)
 //-----------------------------------------------------------------------
 void Camera::set_rotation(const float x, const float y)
 {
-	Vec3 right(1, 0, 0);
-	Vec3 look;
+	Vector3 right(1, 0, 0);
+	Vector3 look;
 
 	look.x = 0.0f;
 	look.y = math::sin(x);
 	look.z = -math::cos(x);
 
-	Vec3 up = right.cross(look);
+	Vector3 up = right.cross(look);
 	up.normalize();
 
-	Mat3 m;
+	Matrix3x3 m;
 	m.build_rotation_y(y);
 	look = m * look;
 	m_up = m * up;
@@ -101,7 +101,7 @@ void Camera::set_rotation(const float x, const float y)
 }
 
 //-----------------------------------------------------------------------------
-const Vec3& Camera::up() const
+const Vector3& Camera::up() const
 {
 	return m_up;
 }
@@ -163,13 +163,13 @@ void Camera::set_far_clip_distance(float far)
 }
 
 //-----------------------------------------------------------------------------
-const Mat4& Camera::projection_matrix() const
+const Matrix4x4& Camera::projection_matrix() const
 {
 	return m_projection;
 }
 
 //-----------------------------------------------------------------------------
-const Mat4& Camera::view_matrix() const
+const Matrix4x4& Camera::view_matrix() const
 {
 	return m_view;
 }
@@ -213,7 +213,7 @@ void Camera::move_backward(float meters)
 //-----------------------------------------------------------------------
 void Camera::strafe_left(float meters)
 {
-	Vec3 left = m_up.cross(m_look_at);
+	Vector3 left = m_up.cross(m_look_at);
 	left.normalize();
 
 	set_position(m_position + left * meters);
@@ -222,7 +222,7 @@ void Camera::strafe_left(float meters)
 //-----------------------------------------------------------------------
 void Camera::strafe_right(float meters)
 {
-	Vec3 left = m_up.cross(m_look_at);
+	Vector3 left = m_up.cross(m_look_at);
 	left.normalize();
 
 	set_position(m_position + left * -meters);

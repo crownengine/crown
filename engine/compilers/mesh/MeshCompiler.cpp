@@ -117,18 +117,18 @@ size_t MeshCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		MeshVertex v;
 
 		uint16_t p_idx = position_index[i] * 3;
-		v.position = Vec3(position_array[p_idx], position_array[p_idx + 1], position_array[p_idx + 2]);
+		v.position = Vector3(position_array[p_idx], position_array[p_idx + 1], position_array[p_idx + 2]);
 
 		if (m_has_normal)
 		{
 			uint16_t n_idx = normal_index[i] * 3;
-			v.normal = Vec3(normal_array[n_idx], normal_array[n_idx + 1], normal_array[n_idx + 2]);
+			v.normal = Vector3(normal_array[n_idx], normal_array[n_idx + 1], normal_array[n_idx + 2]);
 		}
 
 		if (m_has_texcoord)
 		{
 			uint16_t t_idx = texcoord_index[i] * 2;
-			v.texcoord = Vec2(texcoord_array[t_idx], texcoord_array[t_idx + 1]);
+			v.texcoord = Vector2(texcoord_array[t_idx], texcoord_array[t_idx + 1]);
 		}
 
 

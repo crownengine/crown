@@ -25,25 +25,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Assert.h"
-#include "Mat3.h"
+#include "Matrix3x3.h"
 #include "Types.h"
-#include "Mat4.h"
+#include "Matrix4x4.h"
 #include "MathUtils.h"
-#include "Quat.h"
-#include "Vec3.h"
+#include "Quaternion.h"
+#include "Vector3.h"
 
 namespace crown
 {
 
-const Mat3 Mat3::IDENTITY = Mat3(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+const Matrix3x3 Matrix3x3::IDENTITY = Matrix3x3(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
 
 //-----------------------------------------------------------------------------
-Mat3::Mat3()
+Matrix3x3::Matrix3x3()
 {
 }
 
 //-----------------------------------------------------------------------------
-Mat3::Mat3(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2,
+Matrix3x3::Matrix3x3(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2,
 	float r1c3, float r2c3, float r3c3)
 {
 	m[0] = r1c1;
@@ -58,7 +58,7 @@ Mat3::Mat3(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c
 }
 
 //-----------------------------------------------------------------------------
-Mat3::Mat3(const float v[9])
+Matrix3x3::Matrix3x3(const float v[9])
 {
 	m[0] = v[0];
 	m[1] = v[1];
@@ -72,7 +72,7 @@ Mat3::Mat3(const float v[9])
 }
 
 //-----------------------------------------------------------------------------
-Mat3::Mat3(const Mat3& a)
+Matrix3x3::Matrix3x3(const Matrix3x3& a)
 {
 	m[0] = a.m[0];
 	m[1] = a.m[1];
@@ -86,7 +86,7 @@ Mat3::Mat3(const Mat3& a)
 }
 
 //-----------------------------------------------------------------------------
-Mat3& Mat3::operator=(const Mat3& a)
+Matrix3x3& Matrix3x3::operator=(const Matrix3x3& a)
 {
 	m[0] = a.m[0];
 	m[1] = a.m[1];
@@ -102,7 +102,7 @@ Mat3& Mat3::operator=(const Mat3& a)
 }
 
 //-----------------------------------------------------------------------------
-float Mat3::operator[](uint32_t i) const
+float Matrix3x3::operator[](uint32_t i) const
 {
 	CE_ASSERT(i < 9, "Index must be < 9");
 
@@ -110,7 +110,7 @@ float Mat3::operator[](uint32_t i) const
 }
 
 //-----------------------------------------------------------------------------
-float& Mat3::operator[](uint32_t i)
+float& Matrix3x3::operator[](uint32_t i)
 {
 	CE_ASSERT(i < 9, "Index must be < 9");
 
@@ -118,7 +118,7 @@ float& Mat3::operator[](uint32_t i)
 }
 
 //-----------------------------------------------------------------------------
-float Mat3::operator()(uint32_t row, uint32_t column) const
+float Matrix3x3::operator()(uint32_t row, uint32_t column) const
 {
 	CE_ASSERT(row < 3 && column < 3, "Row and column must be < 3");
 
@@ -126,9 +126,9 @@ float Mat3::operator()(uint32_t row, uint32_t column) const
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Mat3::operator+(const Mat3& a) const
+Matrix3x3 Matrix3x3::operator+(const Matrix3x3& a) const
 {
-	Mat3 tmp;
+	Matrix3x3 tmp;
 
 	tmp.m[0] = m[0] + a.m[0];
 	tmp.m[1] = m[1] + a.m[1];
@@ -144,7 +144,7 @@ Mat3 Mat3::operator+(const Mat3& a) const
 }
 
 //-----------------------------------------------------------------------------
-Mat3& Mat3::operator+=(const Mat3& a)
+Matrix3x3& Matrix3x3::operator+=(const Matrix3x3& a)
 {
 	m[0] = m[0] + a.m[0];
 	m[1] = m[1] + a.m[1];
@@ -160,9 +160,9 @@ Mat3& Mat3::operator+=(const Mat3& a)
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Mat3::operator-(const Mat3& a) const
+Matrix3x3 Matrix3x3::operator-(const Matrix3x3& a) const
 {
-	Mat3 tmp;
+	Matrix3x3 tmp;
 
 	tmp.m[0] = m[0] - a.m[0];
 	tmp.m[1] = m[1] - a.m[1];
@@ -178,7 +178,7 @@ Mat3 Mat3::operator-(const Mat3& a) const
 }
 
 //-----------------------------------------------------------------------------
-Mat3& Mat3::operator-=(const Mat3& a)
+Matrix3x3& Matrix3x3::operator-=(const Matrix3x3& a)
 {
 	m[0] = m[0] - a.m[0];
 	m[1] = m[1] - a.m[1];
@@ -194,9 +194,9 @@ Mat3& Mat3::operator-=(const Mat3& a)
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Mat3::operator*(float k) const
+Matrix3x3 Matrix3x3::operator*(float k) const
 {
-	Mat3 tmp;
+	Matrix3x3 tmp;
 
 	tmp.m[0] = m[0] * k;
 	tmp.m[1] = m[1] * k;
@@ -212,7 +212,7 @@ Mat3 Mat3::operator*(float k) const
 }
 
 //-----------------------------------------------------------------------------
-Mat3& Mat3::operator*=(float k)
+Matrix3x3& Matrix3x3::operator*=(float k)
 {
 	m[0] *= k;
 	m[1] *= k;
@@ -228,9 +228,9 @@ Mat3& Mat3::operator*=(float k)
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Mat3::operator/(float k) const
+Matrix3x3 Matrix3x3::operator/(float k) const
 {
-	Mat3 tmp;
+	Matrix3x3 tmp;
 
 	k = (float)1.0 / k;
 
@@ -248,7 +248,7 @@ Mat3 Mat3::operator/(float k) const
 }
 
 //-----------------------------------------------------------------------------
-Mat3& Mat3::operator/=(float k)
+Matrix3x3& Matrix3x3::operator/=(float k)
 {
 	k = (float)1.0 / k;
 
@@ -266,9 +266,9 @@ Mat3& Mat3::operator/=(float k)
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat3::operator*(const Vec3& v) const
+Vector3 Matrix3x3::operator*(const Vector3& v) const
 {
-	Vec3 tmp;
+	Vector3 tmp;
 
 	tmp.x = m[0] * v.x + m[3] * v.y + m[6] * v.z;
 	tmp.y = m[1] * v.x + m[4] * v.y + m[7] * v.z;
@@ -278,9 +278,9 @@ Vec3 Mat3::operator*(const Vec3& v) const
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Mat3::operator*(const Mat3& a) const
+Matrix3x3 Matrix3x3::operator*(const Matrix3x3& a) const
 {
-	Mat3 tmp;
+	Matrix3x3 tmp;
 
 	tmp.m[0] = m[0] * a.m[0] + m[3] * a.m[1] + m[6] * a.m[2];
 	tmp.m[1] = m[1] * a.m[0] + m[4] * a.m[1] + m[7] * a.m[2];
@@ -298,9 +298,9 @@ Mat3 Mat3::operator*(const Mat3& a) const
 }
 
 //-----------------------------------------------------------------------------
-Mat3& Mat3::operator*=(const Mat3& a)
+Matrix3x3& Matrix3x3::operator*=(const Matrix3x3& a)
 {
-	Mat3 tmp;
+	Matrix3x3 tmp;
 
 	tmp.m[0] = m[0] * a.m[0] + m[3] * a.m[1] + m[6] * a.m[2];
 	tmp.m[1] = m[1] * a.m[0] + m[4] * a.m[1] + m[7] * a.m[2];
@@ -320,13 +320,13 @@ Mat3& Mat3::operator*=(const Mat3& a)
 }
 
 //-----------------------------------------------------------------------------
-Mat3 operator*(float k, const Mat3& a)
+Matrix3x3 operator*(float k, const Matrix3x3& a)
 {
 	return a * k;
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::build_rotation_x(float radians)
+void Matrix3x3::build_rotation_x(float radians)
 {
 	m[0] = 1.0;
 	m[1] = 0.0;
@@ -340,7 +340,7 @@ void Mat3::build_rotation_x(float radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::build_rotation_y(float radians)
+void Matrix3x3::build_rotation_y(float radians)
 {
 	m[0] = math::cos(radians);
 	m[1] = 0.0;
@@ -354,7 +354,7 @@ void Mat3::build_rotation_y(float radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::build_rotation_z(float radians)
+void Matrix3x3::build_rotation_z(float radians)
 {
 	m[0] = math::cos(radians);
 	m[1] = math::sin(radians);
@@ -368,7 +368,7 @@ void Mat3::build_rotation_z(float radians)
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::build_rotation(const Vec3& n, float radians)
+void Matrix3x3::build_rotation(const Vector3& n, float radians)
 {
 	float a = (float)1.0 - math::cos(radians);
 	float sin_a = math::sin(radians);
@@ -386,7 +386,7 @@ void Mat3::build_rotation(const Vec3& n, float radians)
 }
 
 //-----------------------------------------------------------------------------
-Mat3& Mat3::transpose()
+Matrix3x3& Matrix3x3::transpose()
 {
 	float tmp;
 
@@ -406,9 +406,9 @@ Mat3& Mat3::transpose()
 }
 
 //-----------------------------------------------------------------------------
-Mat3 Mat3::get_transposed() const
+Matrix3x3 Matrix3x3::get_transposed() const
 {
-	Mat3 tmp;
+	Matrix3x3 tmp;
 
 	tmp.m[0] = m[0];
 	tmp.m[1] = m[3];
@@ -424,7 +424,7 @@ Mat3 Mat3::get_transposed() const
 }
 
 //-----------------------------------------------------------------------------
-float Mat3::get_determinant() const
+float Matrix3x3::get_determinant() const
 {
 	float det;
 
@@ -436,9 +436,9 @@ float Mat3::get_determinant() const
 }
 
 //-----------------------------------------------------------------------------
-Mat3& Mat3::invert()
+Matrix3x3& Matrix3x3::invert()
 {
-	Mat3 mat;
+	Matrix3x3 mat;
 	float det;
 
 	mat.m[0] = (m[4] * m[8] - m[7] * m[5]);
@@ -469,40 +469,40 @@ Mat3& Mat3::invert()
 }
 
 //-----------------------------------------------------------------------------
-inline Mat3 Mat3::get_inverted() const
+inline Matrix3x3 Matrix3x3::get_inverted() const
 {
-	Mat3 tmp(*this);
+	Matrix3x3 tmp(*this);
 
 	return tmp.invert();
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::load_identity()
+void Matrix3x3::load_identity()
 {
 	m[0] = m[4] = m[8] = 1.0;
 	m[1] = m[2] = m[3] = m[5] = m[6] = m[7] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat3::x() const
+Vector3 Matrix3x3::x() const
 {
-	return Vec3(m[0], m[1], m[2]);
+	return Vector3(m[0], m[1], m[2]);
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat3::y() const
+Vector3 Matrix3x3::y() const
 {
-	return Vec3(m[3], m[4], m[5]);
+	return Vector3(m[3], m[4], m[5]);
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat3::z() const
+Vector3 Matrix3x3::z() const
 {
-	return Vec3(m[6], m[7], m[8]);
+	return Vector3(m[6], m[7], m[8]);
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::set_x(const Vec3& x)
+void Matrix3x3::set_x(const Vector3& x)
 {
 	m[0] = x.x;
 	m[1] = x.y;
@@ -510,7 +510,7 @@ void Mat3::set_x(const Vec3& x)
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::set_y(const Vec3& y)
+void Matrix3x3::set_y(const Vector3& y)
 {
 	m[3] = y.x;
 	m[4] = y.y;
@@ -518,7 +518,7 @@ void Mat3::set_y(const Vec3& y)
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::set_z(const Vec3& z)
+void Matrix3x3::set_z(const Vector3& z)
 {
 	m[6] = z.x;
 	m[7] = z.y;
@@ -526,9 +526,9 @@ void Mat3::set_z(const Vec3& z)
 }
 
 //-----------------------------------------------------------------------------
-Vec3 Mat3::get_scale() const
+Vector3 Matrix3x3::get_scale() const
 {
-	Vec3 tmp;
+	Vector3 tmp;
 
 	tmp.x = m[0];
 	tmp.y = m[4];
@@ -538,7 +538,7 @@ Vec3 Mat3::get_scale() const
 }
 
 //-----------------------------------------------------------------------------
-void Mat3::set_scale(const Vec3& scale)
+void Matrix3x3::set_scale(const Vector3& scale)
 {
 	m[0] = scale.x;
 	m[4] = scale.y;
@@ -546,21 +546,21 @@ void Mat3::set_scale(const Vec3& scale)
 }
 
 //-----------------------------------------------------------------------------
-float* Mat3::to_float_ptr()
+float* Matrix3x3::to_float_ptr()
 {
 	return &m[0];
 }
 
 //-----------------------------------------------------------------------------
-const float* Mat3::to_float_ptr() const
+const float* Matrix3x3::to_float_ptr() const
 {
 	return &m[0];
 }
 
 //-----------------------------------------------------------------------------
-Mat4 Mat3::to_mat4() const
+Matrix4x4 Matrix3x3::to_mat4() const
 {
-	Mat4 tmp;
+	Matrix4x4 tmp;
 
 	tmp.m[0] = m[0];
 	tmp.m[1] = m[1];
@@ -583,9 +583,9 @@ Mat4 Mat3::to_mat4() const
 }
 
 //-----------------------------------------------------------------------------
-Quat Mat3::to_quat() const
+Quaternion Matrix3x3::to_quat() const
 {
-	Quat tmp;
+	Quaternion tmp;
 
 	float fourWSquaredMinusOne = m[0] + m[4] + m[8];
 	float fourXSquaredMinusOne = m[0] - m[4] - m[8];

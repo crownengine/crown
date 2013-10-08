@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "TextureResource.h"
 #include "Resource.h"
-#include "Vec3.h"
+#include "Vector3.h"
 #include "Color4.h"
 #include "Bundle.h"
 #include "Allocator.h"

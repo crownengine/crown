@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "MathUtils.h"
-#include "Vec3.h"
+#include "Vector3.h"
 
 namespace crown
 {
@@ -45,28 +45,28 @@ public:
 					Sphere();
 
 	/// Constructs from @a center and @a radius.
-					Sphere(const Vec3& center, float radius);
+					Sphere(const Vector3& center, float radius);
 					Sphere(const Sphere& a);
 
-	const Vec3&		center() const;		
+	const Vector3&		center() const;		
 	float			radius() const;	
 	float			volume() const;	
 
-	void			set_center(const Vec3& center);
+	void			set_center(const Vector3& center);
 	void			set_radius(float radius);
 
 	/// Adds @a count @a points to the sphere expanding if necessary.
-	void			add_points(const Vec3* points, uint32_t count);	
+	void			add_points(const Vector3* points, uint32_t count);	
 
 	/// Adds @a count @a spheres expanding if necessary.
 	void			add_spheres(const Sphere* spheres, uint32_t count);	
 
 	/// Returns whether point @a p is contained into the sphere.
-	bool			contains_point(const Vec3& p) const;		
+	bool			contains_point(const Vector3& p) const;		
 
 private:
 
-	Vec3			m_center;
+	Vector3			m_center;
 	float			m_radius;
 };
 
@@ -76,7 +76,7 @@ inline Sphere::Sphere()
 }
 
 //-----------------------------------------------------------------------------
-inline Sphere::Sphere(const Vec3& center, float radius) : m_center(center), m_radius(radius)
+inline Sphere::Sphere(const Vector3& center, float radius) : m_center(center), m_radius(radius)
 {
 }
 
@@ -86,7 +86,7 @@ inline Sphere::Sphere(const Sphere& a) : m_center(a.m_center), m_radius(a.m_radi
 }
 
 //-----------------------------------------------------------------------------
-inline const Vec3& Sphere::center() const
+inline const Vector3& Sphere::center() const
 {
 	return m_center;
 }
@@ -104,7 +104,7 @@ inline float Sphere::volume() const
 }
 
 //-----------------------------------------------------------------------------
-inline void Sphere::set_center(const Vec3& center)
+inline void Sphere::set_center(const Vector3& center)
 {
 	m_center = center;
 }
@@ -116,11 +116,11 @@ inline void Sphere::set_radius(float radius)
 }
 
 //-----------------------------------------------------------------------------
-inline void Sphere::add_points(const Vec3* points, uint32_t count)
+inline void Sphere::add_points(const Vector3* points, uint32_t count)
 {
 	for (uint32_t i = 0; i < count; i++)
 	{
-		const Vec3& p = points[i];
+		const Vector3& p = points[i];
 
 		float dist = (p - m_center).squared_length();
 
@@ -151,7 +151,7 @@ inline void Sphere::add_spheres(const Sphere* spheres, uint32_t count)
 }
 
 //-----------------------------------------------------------------------------
-inline bool Sphere::contains_point(const Vec3& p) const
+inline bool Sphere::contains_point(const Vector3& p) const
 {
 	float dist = (p - m_center).squared_length();
 	return (dist < m_radius * m_radius);

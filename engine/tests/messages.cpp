@@ -1,6 +1,6 @@
 #include <cstdio>
 
-#include "Vec3.h"
+#include "Vector3.h"
 #include "OS.h"
 #include "NetAddress.h"
 #include "BitMessage.h"
@@ -220,8 +220,8 @@ void test_vec3()
   	network::BitMessage m = network::BitMessage(allocator);
 	
 	
-	Vec3 v(0.525f, 0.432f, 0.234f);
-	Vec3 res;
+	Vector3 v(0.525f, 0.432f, 0.234f);
+	Vector3 res;
 	
 	m.init(12);
 	m.write_vec3(v);

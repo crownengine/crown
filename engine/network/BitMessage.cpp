@@ -440,7 +440,7 @@ void BitMessage::write_float(float f)
 }
 
 //---------------------------------------------------------------------------------------------
-void BitMessage::write_vec3(const Vec3& v)
+void BitMessage::write_vec3(const Vector3& v)
 {
 	write_float(v.x);
 	write_float(v.y);
@@ -646,9 +646,9 @@ float BitMessage::read_float() const
 }
 
 //---------------------------------------------------------------------------------------------
-Vec3 BitMessage::read_vec3() const
+Vector3 BitMessage::read_vec3() const
 {
-	Vec3 v;
+	Vector3 v;
 	
 	v.x = read_float();
 	v.y = read_float();

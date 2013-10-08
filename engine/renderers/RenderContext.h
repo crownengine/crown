@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Color4.h"
-#include "Mat4.h"
+#include "Matrix4x4.h"
 #include "IdTable.h"
 #include "CommandBuffer.h"
 #include "ConstantBuffer.h"
@@ -131,7 +131,7 @@ struct RenderState
 	{
 		m_flags = STATE_NONE;
 
-		pose = Mat4::IDENTITY;
+		pose = Matrix4x4::IDENTITY;
 		program.id = INVALID_ID;
 		vb.id = INVALID_ID;
 		ib.id = INVALID_ID;
@@ -147,7 +147,7 @@ public:
 
 	uint64_t		m_flags;
 
-	Mat4			pose;
+	Matrix4x4			pose;
 	GPUProgramId	program;
 	VertexBufferId	vb;
 	IndexBufferId	ib;
@@ -188,7 +188,7 @@ struct RenderContext
 		m_state.m_flags = flags;
 	}
 
-	void set_pose(const Mat4& pose)
+	void set_pose(const Matrix4x4& pose)
 	{
 		m_state.pose = pose;
 	}
@@ -240,14 +240,14 @@ struct RenderContext
 		m_clears[layer].m_depth = depth;
 	}
 
-	void set_layer_view(uint8_t layer, const Mat4& view)
+	void set_layer_view(uint8_t layer, const Matrix4x4& view)
 	{
 		CE_ASSERT(layer < MAX_RENDER_LAYERS, "Layer out of bounds");
 
 		m_view_matrices[layer] = view;
 	}
 
-	void set_layer_projection(uint8_t layer, const Mat4& projection)
+	void set_layer_projection(uint8_t layer, const Matrix4x4& projection)
 	{
 		CE_ASSERT(layer < MAX_RENDER_LAYERS, "Layer out of bounds");
 
@@ -315,8 +315,8 @@ public:
 
 	// Per-layer data
 	RenderTargetId m_targets[MAX_RENDER_LAYERS];
-	Mat4 m_view_matrices[MAX_RENDER_LAYERS];
-	Mat4 m_projection_matrices[MAX_RENDER_LAYERS];
+	Matrix4x4 m_view_matrices[MAX_RENDER_LAYERS];
+	Matrix4x4 m_projection_matrices[MAX_RENDER_LAYERS];
 	ViewRect m_viewports[MAX_RENDER_LAYERS];
 	ViewRect m_scissors[MAX_RENDER_LAYERS];
 

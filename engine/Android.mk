@@ -46,13 +46,13 @@ LOCAL_SRC_FILES :=\
 	core/json/JSONParser.cpp\
 \
 	core/math/Color4.cpp\
-	core/math/Mat3.cpp\
-	core/math/Mat4.cpp\
+	core/math/Matrix3x3.cpp\
+	core/math/Matrix4x4.cpp\
 	core/math/Plane.cpp\
-	core/math/Quat.cpp\
-	core/math/Vec2.cpp\
-	core/math/Vec3.cpp\
-	core/math/Vec4.cpp\
+	core/math/Quaternion.cpp\
+	core/math/Vector2.cpp\
+	core/math/Vector3.cpp\
+	core/math/Vector4.cpp\
 \
 	core/mem/HeapAllocator.cpp\
 	core/mem/LinearAllocator.cpp\
@@ -91,13 +91,13 @@ LOCAL_SRC_FILES :=\
 	lua/LuaAccelerometer.cpp\
 	lua/LuaDevice.cpp\
 	lua/LuaKeyboard.cpp\
-	lua/LuaMat4.cpp\
+	lua/LuaMatrix4x4.cpp\
 	lua/LuaMath.cpp\
 	lua/LuaMouse.cpp\
-	lua/LuaQuat.cpp\
+	lua/LuaQuaternion.cpp\
 	lua/LuaTouch.cpp\
-	lua/LuaVec2.cpp\
-	lua/LuaVec3.cpp\
+	lua/LuaVector2.cpp\
+	lua/LuaVector3.cpp\
 	lua/LuaWindow.cpp\
 	lua/LuaIntSetting.cpp\
 	lua/LuaFloatSetting.cpp\

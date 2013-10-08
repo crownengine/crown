@@ -28,8 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Compiler.h"
 #include "MeshResource.h"
-#include "Vec3.h"
-#include "Vec2.h"
+#include "Vector3.h"
+#include "Vector2.h"
 #include "List.h"
 
 namespace crown
@@ -37,9 +37,9 @@ namespace crown
 
 struct MeshVertex
 {
-	Vec3 position;
-	Vec3 normal;
-	Vec2 texcoord;
+	Vector3 position;
+	Vector3 normal;
+	Vector2 texcoord;
 
 	bool operator==(const MeshVertex& other)
 	{

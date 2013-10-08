@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "SoundResource.h"
 #include "OggDecoder.h"
-#include "Vec3.h"
+#include "Vector3.h"
 #include "Log.h"
 
 namespace crown
@@ -204,19 +204,19 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	void set_position(const Vec3& pos)
+	void set_position(const Vector3& pos)
 	{
 		AL_CHECK(alSource3f(m_id, AL_POSITION, pos.x, pos.y, pos.z));
 	}
 
 	//-----------------------------------------------------------------------------
-	void set_velocity(const Vec3& vel)
+	void set_velocity(const Vector3& vel)
 	{
 		AL_CHECK(alSource3f(m_id, AL_VELOCITY, vel.x, vel.y, vel.z));
 	}
 
 	//-----------------------------------------------------------------------------
-	void set_direction(const Vec3& dir)
+	void set_direction(const Vector3& dir)
 	{
 		AL_CHECK(alSource3f(m_id, AL_DIRECTION, dir.x, dir.y, dir.z));
 	}
@@ -260,12 +260,12 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	Vec3 position() const
+	Vector3 position() const
 	{
 		ALfloat tmp[3];
 		alGetSourcefv(m_id, AL_POSITION, tmp);
 
-		Vec3 pos;
+		Vector3 pos;
 		pos.x = tmp[0];
 		pos.y = tmp[1];
 		pos.z = tmp[2];
@@ -274,12 +274,12 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	Vec3 velocity() const
+	Vector3 velocity() const
 	{
 		ALfloat tmp[3];
 		alGetSourcefv(m_id, AL_VELOCITY, tmp);
 
-		Vec3 vel;
+		Vector3 vel;
 		vel.x = tmp[0];
 		vel.y = tmp[1];
 		vel.z = tmp[2];
@@ -288,12 +288,12 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	Vec3 direction() const
+	Vector3 direction() const
 	{
 		ALfloat tmp[3];
 		alGetSourcefv(m_id, AL_DIRECTION, tmp);
 
-		Vec3 dir;
+		Vector3 dir;
 		dir.x = tmp[0];
 		dir.y = tmp[1];
 		dir.z = tmp[2];

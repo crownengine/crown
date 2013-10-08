@@ -29,8 +29,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Types.h"
 #include "MathUtils.h"
-#include "Vec2.h"
-#include "Vec3.h"
+#include "Vector2.h"
+#include "Vector3.h"
 
 namespace crown
 {
@@ -83,8 +83,8 @@ public:
 
 	int32_t*				to_int_ptr();						//! Returns the point32_ter to the point32_t's data
 	const int32_t*			to_int_ptr() const;					//! Returns the point32_ter to the point32_t's data
-	Vec2					to_vec2() const;					//! Returns a vector from this point32_t
-	Vec3					to_vec3() const;					//! Returns a vector from this point32_t
+	Vector2					to_vec2() const;					//! Returns a vector from this point32_t
+	Vector3					to_vec3() const;					//! Returns a vector from this point32_t
 
 	static const Point2		ZERO;
 	static const Point2		ONE;
@@ -290,15 +290,15 @@ inline const int32_t* Point2::to_int_ptr() const
 }
 
 //-----------------------------------------------------------------------------
-inline Vec2 Point2::to_vec2() const
+inline Vector2 Point2::to_vec2() const
 {
-	return Vec2((float)x, (float)y);
+	return Vector2((float)x, (float)y);
 }
 
 //-----------------------------------------------------------------------------
-inline Vec3 Point2::to_vec3() const
+inline Vector3 Point2::to_vec3() const
 {
-	return Vec3((float)x, (float)y, 0.0);
+	return Vector3((float)x, (float)y, 0.0);
 }
 
 } // namespace crown

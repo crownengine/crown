@@ -28,9 +28,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Frustum.h"
-#include "Mat4.h"
-#include "Mat3.h"
-#include "Vec3.h"
+#include "Matrix4x4.h"
+#include "Matrix3x3.h"
+#include "Vector3.h"
 
 namespace crown
 {
@@ -42,25 +42,25 @@ public:
 
 	/// Construct the camera placed at the given world-space @a position
 	/// with the given @a fov field of view and @a aspect ratio.
-					Camera(const Vec3& position, float fov, float aspect);
+					Camera(const Vector3& position, float fov, float aspect);
 
 	/// Returns the world-space position of the camera 
-	const Vec3&		position() const;
+	const Vector3&		position() const;
 
 	/// Sets the world-space @a position of the camera
-	void			set_position(const Vec3& position);
+	void			set_position(const Vector3& position);
 
 	/// Returns the lookat-point of the camera
-	const Vec3&		look_at() const;
+	const Vector3&		look_at() const;
 
 	/// Sets the lookat-point of the camera
-	void			set_look_at(const Vec3& lookat);
+	void			set_look_at(const Vector3& lookat);
 
 	/// Sets the rotation of the camera about the world's @a x axis and @a y axis
 	void			set_rotation(const float x, const float y);
 
 	/// Returns the up-vector of the camera
-	const Vec3&		up() const;
+	const Vector3&		up() const;
 
 	/// Returns the field of view of the camera in degrees
 	float			fov() const;
@@ -90,10 +90,10 @@ public:
 	const Frustum&	frustum() const;
 
 	/// Returns the renderer-independent projection matrix used by the camera
-	const Mat4&		projection_matrix() const;
+	const Matrix4x4&		projection_matrix() const;
 
 	/// Returns the renderer-independent view matrix used by the camera
-	const Mat4&		view_matrix() const;
+	const Matrix4x4&		view_matrix() const;
 
 	/// Moves the camera towards look direction by @a meters meters
 	void			move_forward(float meters);
@@ -113,16 +113,16 @@ protected:
 	void			update_view_matrix();
 	void			update_frustum();
 
-	Vec3			m_position;
-	Vec3			m_look_at;
-	Vec3			m_up;
+	Vector3			m_position;
+	Vector3			m_look_at;
+	Vector3			m_up;
 
-	Vec2			m_rot_factor;
+	Vector2			m_rot_factor;
 	float			m_angle_x;
 	float			m_angle_y;
 
-	Mat4			m_view;
-	Mat4			m_projection;
+	Matrix4x4			m_view;
+	Matrix4x4			m_projection;
 
 	Frustum			m_frustum;
 

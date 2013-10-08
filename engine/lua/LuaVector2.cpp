@@ -24,7 +24,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Vec2.h"
+#include "Vector2.h"
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
 
@@ -32,24 +32,24 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2(lua_State* L)
+CE_EXPORT int vector2(lua_State* L)
 {
 	LuaStack stack(L);
 
 	float x = stack.get_float(1);
 	float y = stack.get_float(2);
 
-	stack.push_vec2(Vec2(x, y));
+	stack.push_vector2(Vector2(x, y));
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_values(lua_State* L)
+CE_EXPORT int vector2_values(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2& a = stack.get_vec2(1);
+	Vector2& a = stack.get_vector2(1);
 
 	stack.push_float(a.x);
 	stack.push_float(a.y);
@@ -58,64 +58,64 @@ CE_EXPORT int vec2_values(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_add(lua_State* L)
+CE_EXPORT int vector2_add(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2& a = stack.get_vec2(1);
-	Vec2& b = stack.get_vec2(2);
+	Vector2& a = stack.get_vector2(1);
+	Vector2& b = stack.get_vector2(2);
 
-	stack.push_vec2(a + b);
+	stack.push_vector2(a + b);
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_subtract(lua_State* L)
+CE_EXPORT int vector2_subtract(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2& a = stack.get_vec2(1);
-	Vec2& b = stack.get_vec2(2);
+	Vector2& a = stack.get_vector2(1);
+	Vector2& b = stack.get_vector2(2);
 
-	stack.push_vec2(a - b);
+	stack.push_vector2(a - b);
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_multiply(lua_State* L)
+CE_EXPORT int vector2_multiply(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2& a = stack.get_vec2(1);
+	Vector2& a = stack.get_vector2(1);
 	float k = stack.get_float(2);
 
-	stack.push_vec2(a * k);
+	stack.push_vector2(a * k);
 
 	return 1;
 }			
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_divide(lua_State* L)
+CE_EXPORT int vector2_divide(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2& a = stack.get_vec2(1);
+	Vector2& a = stack.get_vector2(1);
 	float k = stack.get_float(2);
 
-	stack.push_vec2(a / k);
+	stack.push_vector2(a / k);
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_dot(lua_State* L)
+CE_EXPORT int vector2_dot(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2& a = stack.get_vec2(1);
-	Vec2& b = stack.get_vec2(2);
+	Vector2& a = stack.get_vector2(1);
+	Vector2& b = stack.get_vector2(2);
 
 	stack.push_float(a.dot(b));
 
@@ -123,12 +123,12 @@ CE_EXPORT int vec2_dot(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_equals(lua_State* L)
+CE_EXPORT int vector2_equals(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2& a = stack.get_vec2(1);
-	Vec2& b = stack.get_vec2(2);
+	Vector2& a = stack.get_vector2(1);
+	Vector2& b = stack.get_vector2(2);
 
 	stack.push_bool(a == b);
 
@@ -136,12 +136,12 @@ CE_EXPORT int vec2_equals(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_lower(lua_State* L)
+CE_EXPORT int vector2_lower(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2& a = stack.get_vec2(1);
-	Vec2& b = stack.get_vec2(2);
+	Vector2& a = stack.get_vector2(1);
+	Vector2& b = stack.get_vector2(2);
 
 	stack.push_bool(a < b);
 
@@ -149,12 +149,12 @@ CE_EXPORT int vec2_lower(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_greater(lua_State* L)
+CE_EXPORT int vector2_greater(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2& a = stack.get_vec2(1);
-	Vec2& b = stack.get_vec2(2);
+	Vector2& a = stack.get_vector2(1);
+	Vector2& b = stack.get_vector2(2);
 	
 	stack.push_bool(a > b);
 
@@ -162,11 +162,11 @@ CE_EXPORT int vec2_greater(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_length(lua_State* L)
+CE_EXPORT int vector2_length(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2& a = stack.get_vec2(1);
+	Vector2& a = stack.get_vector2(1);
 
 	stack.push_float(a.length());
 
@@ -174,11 +174,11 @@ CE_EXPORT int vec2_length(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_squared_length(lua_State* L)
+CE_EXPORT int vector2_squared_length(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2& a = stack.get_vec2(1);
+	Vector2& a = stack.get_vector2(1);
 
 	stack.push_float(a.squared_length());
 
@@ -186,11 +186,11 @@ CE_EXPORT int vec2_squared_length(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_set_length(lua_State* L)
+CE_EXPORT int vector2_set_length(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2& a = stack.get_vec2(1);
+	Vector2& a = stack.get_vector2(1);
 	float len = stack.get_float(2);
 
 	a.set_length(len);
@@ -199,36 +199,36 @@ CE_EXPORT int vec2_set_length(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_normalize(lua_State* L)
+CE_EXPORT int vector2_normalize(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2& a = stack.get_vec2(1);
+	Vector2& a = stack.get_vector2(1);
 
-	stack.push_vec2(a.normalize());
+	stack.push_vector2(a.normalize());
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_negate(lua_State* L)
+CE_EXPORT int vector2_negate(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2& a = stack.get_vec2(1);
+	Vector2& a = stack.get_vector2(1);
 
-	stack.push_vec2(a.negate());
+	stack.push_vector2(a.negate());
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_get_distance_to(lua_State* L)
+CE_EXPORT int vector2_get_distance_to(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2& a = stack.get_vec2(1);
-	Vec2& b = stack.get_vec2(2);
+	Vector2& a = stack.get_vector2(1);
+	Vector2& b = stack.get_vector2(2);
 
 	stack.push_float(a.get_distance_to(b));
 
@@ -236,12 +236,12 @@ CE_EXPORT int vec2_get_distance_to(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_get_angle_between(lua_State* L)
+CE_EXPORT int vector2_get_angle_between(lua_State* L)
 {
 	LuaStack stack(L);
 	
-	Vec2& a = stack.get_vec2(1);
-	Vec2& b = stack.get_vec2(2);
+	Vector2& a = stack.get_vector2(1);
+	Vector2& b = stack.get_vector2(2);
 
 	stack.push_float(a.get_angle_between(b));
 
@@ -249,11 +249,11 @@ CE_EXPORT int vec2_get_angle_between(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vec2_zero(lua_State* L)
+CE_EXPORT int vector2_zero(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Vec2& a = stack.get_vec2(1);
+	Vector2& a = stack.get_vector2(1);
 
 	a.zero();
 
@@ -261,26 +261,26 @@ CE_EXPORT int vec2_zero(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-void load_vec2(LuaEnvironment& env)
+void load_vector2(LuaEnvironment& env)
 {
-	env.load_module_function("Vec2", "new",					vec2);
-	env.load_module_function("Vec2", "val",					vec2_values);
-	env.load_module_function("Vec2", "add",					vec2_add);
-	env.load_module_function("Vec2", "sub",					vec2_subtract);
-	env.load_module_function("Vec2", "mul",					vec2_multiply);
-	env.load_module_function("Vec2", "div",					vec2_divide);
-	env.load_module_function("Vec2", "dot",					vec2_dot);
-	env.load_module_function("Vec2", "equals",				vec2_equals);
-	env.load_module_function("Vec2", "lower",				vec2_lower);
-	env.load_module_function("Vec2", "greater",				vec2_greater);
-	env.load_module_function("Vec2", "length",				vec2_length);
-	env.load_module_function("Vec2", "squared_length",		vec2_squared_length);
-	env.load_module_function("Vec2", "set_length",			vec2_set_length);
-	env.load_module_function("Vec2", "normalize",			vec2_normalize);
-	env.load_module_function("Vec2", "negate",				vec2_negate);
-	env.load_module_function("Vec2", "get_distance_to",		vec2_get_distance_to);
-	env.load_module_function("Vec2", "get_angle_between",	vec2_get_angle_between);
-	env.load_module_function("Vec2", "zero",				vec2_zero);
+	env.load_module_function("Vector2", "new",					vector2);
+	env.load_module_function("Vector2", "val",					vector2_values);
+	env.load_module_function("Vector2", "add",					vector2_add);
+	env.load_module_function("Vector2", "sub",					vector2_subtract);
+	env.load_module_function("Vector2", "mul",					vector2_multiply);
+	env.load_module_function("Vector2", "div",					vector2_divide);
+	env.load_module_function("Vector2", "dot",					vector2_dot);
+	env.load_module_function("Vector2", "equals",				vector2_equals);
+	env.load_module_function("Vector2", "lower",				vector2_lower);
+	env.load_module_function("Vector2", "greater",				vector2_greater);
+	env.load_module_function("Vector2", "length",				vector2_length);
+	env.load_module_function("Vector2", "squared_length",		vector2_squared_length);
+	env.load_module_function("Vector2", "set_length",			vector2_set_length);
+	env.load_module_function("Vector2", "normalize",			vector2_normalize);
+	env.load_module_function("Vector2", "negate",				vector2_negate);
+	env.load_module_function("Vector2", "get_distance_to",		vector2_get_distance_to);
+	env.load_module_function("Vector2", "get_angle_between",	vector2_get_angle_between);
+	env.load_module_function("Vector2", "zero",					vector2_zero);
 }
 
 } // namespace crown

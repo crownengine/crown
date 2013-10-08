@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Vec2.h"
+#include "Vector2.h"
 
 namespace crown
 {
@@ -63,11 +63,11 @@ struct Touch
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
-	Vec2 touch_xy(uint16_t id) const
+	Vector2 touch_xy(uint16_t id) const
 	{
 		const PointerData& data = m_pointers[id];
 
-		return Vec2(data.x, data.y);
+		return Vector2(data.x, data.y);
 	}
 
 	/// Returns the relative position of the pointer @a id in window space.
@@ -79,11 +79,11 @@ struct Touch
 	/// Relative coordinates are mapped to a float varying
 	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
 	/// maximum extent of the cosidered axis.
-	Vec2 touch_relative_xy(uint16_t id)
+	Vector2 touch_relative_xy(uint16_t id)
 	{
 		const PointerData& data = m_pointers[id];
 
-		return Vec2(data.relative_x, data.relative_y);
+		return Vector2(data.relative_x, data.relative_y);
 	}
 
 public:

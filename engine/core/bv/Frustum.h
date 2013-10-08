@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Box.h"
-#include "Vec3.h"
+#include "Vector3.h"
 #include "Plane.h"
 
 namespace crown
@@ -44,7 +44,7 @@ enum FrustumPlane
 	FP_FAR		= 5
 };
 
-class Mat4;
+class Matrix4x4;
 
 class Frustum
 {
@@ -55,13 +55,13 @@ public:
 				Frustum(const Frustum& frustum);
 
 	/// Returns whether @a point is contained into the frustum.
-	bool		contains_point(const Vec3& point) const;	
+	bool		contains_point(const Vector3& point) const;	
 
 	/// Returns one of the eight frustum's corners.
-	Vec3		vertex(uint32_t index) const;			
+	Vector3		vertex(uint32_t index) const;			
 
 	/// Builds the view frustum according to the matrix @a m.
-	void		from_matrix(const Mat4& m);				
+	void		from_matrix(const Matrix4x4& m);				
 
 	/// Returns a Box containing the frustum volume.
 	Box			to_box() const;							

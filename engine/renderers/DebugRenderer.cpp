@@ -44,7 +44,7 @@ DebugRenderer::~DebugRenderer()
 }
 
 //-----------------------------------------------------------------------------
-void DebugRenderer::add_line(const Vec3& start, const Vec3& end, const Color4& color, bool depth_write)
+void DebugRenderer::add_line(const Vector3& start, const Vector3& end, const Color4& color, bool depth_write)
 {
 	if (m_lines_count >= MAX_DEBUG_LINES)
 	{
@@ -64,7 +64,7 @@ void DebugRenderer::add_line(const Vec3& start, const Vec3& end, const Color4& c
 }
 
 //-----------------------------------------------------------------------------
-void DebugRenderer::add_sphere(const Vec3& center, const float radius, const Color4& color, bool depth_write)
+void DebugRenderer::add_sphere(const Vector3& center, const float radius, const Color4& color, bool depth_write)
 {
 	const uint32_t deg_step = 15;
 
@@ -74,8 +74,8 @@ void DebugRenderer::add_sphere(const Vec3& center, const float radius, const Col
 		float rad_0 = math::deg_to_rad(deg);
 		float rad_1 = math::deg_to_rad(deg + deg_step);
 
-		Vec3 start(math::cos(rad_0) * radius, 0, -math::sin(rad_0) * radius);
-		Vec3 end  (math::cos(rad_1) * radius, 0, -math::sin(rad_1) * radius);
+		Vector3 start(math::cos(rad_0) * radius, 0, -math::sin(rad_0) * radius);
+		Vector3 end  (math::cos(rad_1) * radius, 0, -math::sin(rad_1) * radius);
 
 		add_line(center + start, center + end, color, depth_write);
 	}
@@ -86,8 +86,8 @@ void DebugRenderer::add_sphere(const Vec3& center, const float radius, const Col
 		float rad_0 = math::deg_to_rad(deg);
 		float rad_1 = math::deg_to_rad(deg + deg_step);
 
-		Vec3 start(math::cos(rad_0) * radius, math::sin(rad_0) * radius, 0);
-		Vec3 end  (math::cos(rad_1) * radius, math::sin(rad_1) * radius, 0);
+		Vector3 start(math::cos(rad_0) * radius, math::sin(rad_0) * radius, 0);
+		Vector3 end  (math::cos(rad_1) * radius, math::sin(rad_1) * radius, 0);
 
 		add_line(center + start, center + end, color, depth_write);
 	}
@@ -98,37 +98,37 @@ void DebugRenderer::add_sphere(const Vec3& center, const float radius, const Col
 		float rad_0 = math::deg_to_rad(deg);
 		float rad_1 = math::deg_to_rad(deg + deg_step);
 
-		Vec3 start(0, math::sin(rad_0) * radius, -math::cos(rad_0) * radius);
-		Vec3 end  (0, math::sin(rad_1) * radius, -math::cos(rad_1) * radius);
+		Vector3 start(0, math::sin(rad_0) * radius, -math::cos(rad_0) * radius);
+		Vector3 end  (0, math::sin(rad_1) * radius, -math::cos(rad_1) * radius);
 
 		add_line(center + start, center + end, color, depth_write);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void DebugRenderer::add_box(const Vec3& min, const Vec3& max, const Color4& color, bool depth_write)
+void DebugRenderer::add_box(const Vector3& min, const Vector3& max, const Color4& color, bool depth_write)
 {
 	// Back lines
-	add_line(min                      , Vec3(max.x, min.y, min.z), color, depth_write);
-	add_line(Vec3(max.x, min.y, min.z), Vec3(max.x, max.y, min.z), color, depth_write);
-	add_line(Vec3(max.x, max.y, min.z), Vec3(min.x, max.y, min.z), color, depth_write);
-	add_line(Vec3(min.x, max.y, min.z), min                      , color, depth_write);
+	add_line(min                      , Vector3(max.x, min.y, min.z), color, depth_write);
+	add_line(Vector3(max.x, min.y, min.z), Vector3(max.x, max.y, min.z), color, depth_write);
+	add_line(Vector3(max.x, max.y, min.z), Vector3(min.x, max.y, min.z), color, depth_write);
+	add_line(Vector3(min.x, max.y, min.z), min                      , color, depth_write);
 
 	// Front lines
-	add_line(Vec3(min.x, min.y, max.z), Vec3(max.x, min.y, max.z), color, depth_write);
-	add_line(Vec3(max.x, min.y, max.z), Vec3(max.x, max.y, max.z), color, depth_write);
-	add_line(Vec3(max.x, max.y, max.z), Vec3(min.x, max.y, max.z), color, depth_write);
-	add_line(Vec3(min.x, max.y, max.z), Vec3(min.x, min.y, max.z), color, depth_write);
+	add_line(Vector3(min.x, min.y, max.z), Vector3(max.x, min.y, max.z), color, depth_write);
+	add_line(Vector3(max.x, min.y, max.z), Vector3(max.x, max.y, max.z), color, depth_write);
+	add_line(Vector3(max.x, max.y, max.z), Vector3(min.x, max.y, max.z), color, depth_write);
+	add_line(Vector3(min.x, max.y, max.z), Vector3(min.x, min.y, max.z), color, depth_write);
 
 	// Connect back and front vertices
-	add_line(min                      , Vec3(min.x, min.y, max.z), color, depth_write);
-	add_line(Vec3(max.x, min.y, min.z), Vec3(max.x, min.y, max.z), color, depth_write);
-	add_line(Vec3(max.x, max.y, min.z), Vec3(max.x, max.y, max.z), color, depth_write);
-	add_line(Vec3(min.x, max.y, min.z), Vec3(min.x, max.y, max.z), color, depth_write);
+	add_line(min                      , Vector3(min.x, min.y, max.z), color, depth_write);
+	add_line(Vector3(max.x, min.y, min.z), Vector3(max.x, min.y, max.z), color, depth_write);
+	add_line(Vector3(max.x, max.y, min.z), Vector3(max.x, max.y, max.z), color, depth_write);
+	add_line(Vector3(min.x, max.y, min.z), Vector3(min.x, max.y, max.z), color, depth_write);
 }
 
 //-----------------------------------------------------------------------------
-void DebugRenderer::add_pose(const Mat4& pose, bool depth_write)
+void DebugRenderer::add_pose(const Matrix4x4& pose, bool depth_write)
 {
 	add_line(pose.translation(), pose.translation() + pose.x(), Color4::RED, depth_write);
 	add_line(pose.translation(), pose.translation() + pose.y(), Color4::GREEN, depth_write);

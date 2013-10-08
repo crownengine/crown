@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Camera.h"
-#include "Vec2.h"
+#include "Vector2.h"
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
 

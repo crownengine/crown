@@ -24,8 +24,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Quat.h"
-#include "Vec3.h"
+#include "Quaternion.h"
+#include "Vector3.h"
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
 
@@ -34,24 +34,24 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quat(lua_State* L)
+CE_EXPORT int quaternion(lua_State* L)
 {
 	LuaStack stack(L);
 
 	float w = stack.get_float(1);
-	Vec3& v = stack.get_vec3(2);
+	Vector3& v = stack.get_vector3(2);
 
-	stack.push_quat(Quat(v, w));
+	stack.push_quaternion(Quaternion(v, w));
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quat_negate(lua_State* L)
+CE_EXPORT int quaternion_negate(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Quat& q = stack.get_quat(1);
+	Quaternion& q = stack.get_quaternion(1);
 
 	q.negate();
 
@@ -59,11 +59,11 @@ CE_EXPORT int quat_negate(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quat_load_identity(lua_State* L)
+CE_EXPORT int quaternion_load_identity(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Quat& q = stack.get_quat(1);
+	Quaternion& q = stack.get_quaternion(1);
 
 	q.load_identity();
 
@@ -71,11 +71,11 @@ CE_EXPORT int quat_load_identity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quat_length(lua_State* L)
+CE_EXPORT int quaternion_length(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Quat& q = stack.get_quat(1);
+	Quaternion& q = stack.get_quaternion(1);
 
 	stack.push_float(q.length());
 
@@ -83,80 +83,80 @@ CE_EXPORT int quat_length(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quat_conjugate(lua_State* L)
+CE_EXPORT int quaternion_conjugate(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Quat& q = stack.get_quat(1);
+	Quaternion& q = stack.get_quaternion(1);
 
-	stack.push_quat(q.get_conjugate());
+	stack.push_quaternion(q.get_conjugate());
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quat_inverse(lua_State* L)
+CE_EXPORT int quaternion_inverse(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Quat& q = stack.get_quat(1);
+	Quaternion& q = stack.get_quaternion(1);
 
-	stack.push_quat(q.get_inverse());
+	stack.push_quaternion(q.get_inverse());
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quat_cross(lua_State* L)
+CE_EXPORT int quaternion_cross(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Quat& q1 = stack.get_quat(1);
-	Quat& q2 = stack.get_quat(2);
+	Quaternion& q1 = stack.get_quaternion(1);
+	Quaternion& q2 = stack.get_quaternion(2);
 
-	stack.push_quat(q1 * q2);
+	stack.push_quaternion(q1 * q2);
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quat_multiply(lua_State* L)
+CE_EXPORT int quaternion_multiply(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Quat& q = stack.get_quat(1);
+	Quaternion& q = stack.get_quaternion(1);
 	float k = stack.get_float(2);
 
-	stack.push_quat(q * k);
+	stack.push_quaternion(q * k);
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quat_power(lua_State* L)
+CE_EXPORT int quaternion_power(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Quat& q = stack.get_quat(1);
+	Quaternion& q = stack.get_quaternion(1);
 	float k = stack.get_float(2);
 
-	stack.push_quat(q.power(k));
+	stack.push_quaternion(q.power(k));
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-void load_quat(LuaEnvironment& env)
+void load_quaternion(LuaEnvironment& env)
 {
-	env.load_module_function("Quat", "new",				quat);
-	env.load_module_function("Quat", "negate",			quat_negate);
-	env.load_module_function("Quat", "load_identity",	quat_load_identity);
-	env.load_module_function("Quat", "length",			quat_length);
-	env.load_module_function("Quat", "conjugate",		quat_conjugate);
-	env.load_module_function("Quat", "inverse",			quat_inverse);
-	env.load_module_function("Quat", "cross",			quat_cross);
-	env.load_module_function("Quat", "mul",				quat_multiply);
-	env.load_module_function("Quat", "pow",				quat_power);
+	env.load_module_function("Quaternion", "new",			quaternion);
+	env.load_module_function("Quaternion", "negate",		quaternion_negate);
+	env.load_module_function("Quaternion", "load_identity",	quaternion_load_identity);
+	env.load_module_function("Quaternion", "length",		quaternion_length);
+	env.load_module_function("Quaternion", "conjugate",		quaternion_conjugate);
+	env.load_module_function("Quaternion", "inverse",		quaternion_inverse);
+	env.load_module_function("Quaternion", "cross",			quaternion_cross);
+	env.load_module_function("Quaternion", "mul",			quaternion_multiply);
+	env.load_module_function("Quaternion", "pow",			quaternion_power);
 }
 
 } //namespace crown
