@@ -106,7 +106,6 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 		}
 
 		Log::i("%s <= %s", out_name, filename);
-		Log::flush();
 
 		bool result = false;
 		if (resource_type_hash == MESH_TYPE)

@@ -28,6 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "JSONParser.h"
 #include "RPCHandler.h"
+#include "TempAllocator.h"
+#include "StringStream.h"
 
 namespace crown
 {
@@ -122,6 +124,30 @@ void RPCServer::update()
 			update_client(id);
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+void RPCServer::log_to_all(const char* message, LogSeverity::Enum severity)
+{
+	TempAllocator2048 alloc;
+	StringStream json(alloc);
+
+	static const char* severity_to_text[] = { "info", "warning", "error", "debug" };
+
+	json << "{\"type\":\"message\",";
+	json << "\"severity\":\"" << severity_to_text[severity] << "\",";
+
+	char buf[1024];
+	string::strncpy(buf, message, 1024);
+	for (uint32_t i = 0; i < string::strlen(message); i++)
+	{
+		if (buf[i] == '"')
+			buf[i] = '\'';
+	}
+
+	json << "\"message\":\"" << buf << "\"}";
+
+	send_message_to_all(json.c_str());
 }
 
 //-----------------------------------------------------------------------------

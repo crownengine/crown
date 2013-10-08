@@ -34,12 +34,15 @@ namespace crown
 {
 
 /// Enumerates log levels.
-enum LogLevel
+struct LogSeverity
 {
-	LL_INFO		= 0,
-	LL_WARN		= 1,
-	LL_ERROR	= 2,
-	LL_DEBUG	= 3
+	enum Enum
+	{
+		INFO	= 0,
+		WARN	= 1,
+		ERROR	= 2,
+		DEBUG	= 3
+	};	
 };
 
 class RPCServer;
@@ -51,23 +54,21 @@ class CE_EXPORT Log
 public:
 
 	/// Returns the threshold used to filter out log messages.
-	static LogLevel		threshold();
+	static LogSeverity::Enum threshold();
 
 	/// Sets the thresold used to filter out log messages
-	static void			set_threshold(LogLevel threshold);
+	static void			set_threshold(LogSeverity::Enum threshold);
 
-	static void			log_message(LogLevel level, const char* message, ::va_list arg);
+	static void			log_message(LogSeverity::Enum severity, const char* message, ::va_list arg);
 
 	static void			d(const char* message, ...);
 	static void			e(const char* message, ...);
 	static void			w(const char* message, ...);
 	static void			i(const char* message, ...);
 
-	static void			flush();
-
 private:
 
-	static LogLevel		m_threshold;
+	static LogSeverity::Enum m_threshold;
 };
 
 } // namespace crown

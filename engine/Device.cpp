@@ -166,8 +166,8 @@ void Device::init()
 	m_sound_renderer->init();
 	Log::d("SoundRenderer created.");
 
-	Log::i("Crown Engine initialized.");
-	Log::i("Initializing Game...");
+	Log::d("Crown Engine initialized.");
+	Log::d("Initializing Game...");
 
 	m_is_init = true;
 	start();
@@ -205,7 +205,7 @@ void Device::shutdown()
 		CE_DELETE(m_allocator, m_sound_renderer);
 	}
 
-	Log::i("Releasing LuaEnvironment...");
+	Log::d("Releasing LuaEnvironment...");
 	if (m_lua_environment)
 	{
 		m_lua_environment->shutdown();
@@ -213,25 +213,25 @@ void Device::shutdown()
 		CE_DELETE(m_allocator, m_lua_environment);
 	}
 
-	Log::i("Releasing Input Devices...");
+	Log::d("Releasing Input Devices...");
 	CE_DELETE(m_allocator, m_touch);
 	CE_DELETE(m_allocator, m_mouse);
 	CE_DELETE(m_allocator, m_keyboard);
 
-	Log::i("Releasing DebugRenderer...");
+	Log::d("Releasing DebugRenderer...");
 	if (m_debug_renderer)
 	{
 		CE_DELETE(m_allocator, m_debug_renderer);
 	}
 
-	Log::i("Releasing Renderer...");
+	Log::d("Releasing Renderer...");
 	if (m_renderer)
 	{
 		m_renderer->shutdown();
 		CE_DELETE(m_allocator, m_renderer);
 	}
 
-	Log::i("Releasing ResourceManager...");
+	Log::d("Releasing ResourceManager...");
 	if (m_resource_manager)
 	{
 		CE_DELETE(m_allocator, m_resource_manager);
@@ -242,14 +242,13 @@ void Device::shutdown()
 		Bundle::destroy(m_allocator, m_resource_bundle);
 	}
 
-	Log::i("Releasing Filesystem...");
+	Log::d("Releasing Filesystem...");
 	if (m_filesystem)
 	{
 		CE_DELETE(m_allocator, m_filesystem);
 	}
 
 	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-		Log::flush();
 		m_rpc->execute_callbacks();
 		m_rpc->shutdown();
 		CE_DELETE(m_allocator, m_rpc);
@@ -416,7 +415,6 @@ void Device::frame()
 		m_sound_renderer->frame();
 	}
 
-	Log::flush();
 	m_rpc->execute_callbacks();
 
 	m_frame_count++;

@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Queue.h"
 #include "IdTable.h"
 #include "LinearAllocator.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -59,6 +60,8 @@ public:
 	void				shutdown();
 
 	void				update();
+
+	void				log_to_all(const char* message, LogSeverity::Enum severity);
 
 	void				send_message_to(ClientId client, const char* message);
 	void				send_message_to_all(const char* message);
