@@ -1,19 +1,57 @@
 using System;
 using Gtk;
+using Gdk;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Text;
+using Newtonsoft.Json.Linq;
 
 public partial class MainWindow: Gtk.Window
 {
 	private System.Net.Sockets.Socket m_sock = null;
+	private TextTag tagInfo;
+	private TextTag tagWarning;
+	private TextTag tagError;
+	private TextTag tagDebug;
 
+	// Console history
+	private const uint MAX_HISTORY_ITEMS = 256;
+	private uint history_size = 0;
+	private uint history_current = 0;
+	private string[] history = new string[MAX_HISTORY_ITEMS];
+
+	// Socket recv buffer
+	private byte [] m_byBuff = new byte[4096]; // Recieved data buffer
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MainWindow"/> class.
+	/// </summary>
 	public MainWindow (): base (Gtk.WindowType.Toplevel)
 	{
 		Build ();
 		Connect ();
 
+		// Create tags for color-formatted text
+		tagInfo = new Gtk.TextTag ("info");
+		tagInfo.BackgroundGdk = new Gdk.Color (255, 255, 255);
+
+		tagWarning = new Gtk.TextTag ("warning");
+		tagWarning.BackgroundGdk = new Gdk.Color (255, 255, 153);
+
+		tagError = new Gtk.TextTag ("error");
+		tagError.BackgroundGdk = new Gdk.Color (255, 153, 153);
+
+		tagDebug = new Gtk.TextTag ("debug");
+		tagDebug.BackgroundGdk = new Gdk.Color (224, 224, 224);
+
+		TextBuffer textbuffer1 = textview1.Buffer;
+		textbuffer1.TagTable.Add (tagInfo);
+		textbuffer1.TagTable.Add (tagWarning);
+		textbuffer1.TagTable.Add (tagError);
+		textbuffer1.TagTable.Add (tagDebug);
+
+		// Create completion dictionary
 		ListStore lua_api = new ListStore (typeof (string));
 
 		lua_api.AppendValues ("Device.frame_count");
@@ -243,6 +281,9 @@ public partial class MainWindow: Gtk.Window
 		entry1.Completion.TextColumn = 0;
 	}
 
+	/// <summary>
+	/// Connect this instance.
+	/// </summary>
 	public void Connect()
 	{
 		// Close the socket if it is still open
@@ -271,6 +312,10 @@ public partial class MainWindow: Gtk.Window
 		m_sock.BeginConnect( epServer, onconnect, m_sock );
 	}
 
+	/// <summary>
+	/// Raises the connect event.
+	/// </summary>
+	/// <param name="ar">Ar.</param>
 	public void OnConnect( IAsyncResult ar )
 	{
 		// Socket was the passed in object
@@ -291,7 +336,10 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 
-	private byte [] m_byBuff = new byte[256]; // Recieved data buffer
+	/// <summary>
+	/// Setups the recieve callback.
+	/// </summary>
+	/// <param name="sock">Sock.</param>
 	public void SetupRecieveCallback(System.Net.Sockets.Socket sock)
 	{
 		try
@@ -306,6 +354,10 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 
+	/// <summary>
+	/// Raises the recieved data event.
+	/// </summary>
+	/// <param name="ar">Ar.</param>
 	public void OnRecievedData( IAsyncResult ar )
 	{
 		// Socket was the passed in object
@@ -318,16 +370,38 @@ public partial class MainWindow: Gtk.Window
 			if( nBytesRec > 0 )
 			{
 				// Wrote the data to the List
-				string sRecieved = Encoding.ASCII.GetString( m_byBuff, 
-				                                            0, nBytesRec );
+				string sRecieved = Encoding.ASCII.GetString( m_byBuff, 0, nBytesRec );
 
-				// WARNING : The following line is NOT thread safe. Invoke is
-				// m_lbRecievedData.Items.Add( sRecieved );
-				Gtk.Application.Invoke (delegate {
-					TextIter mIter = textview1.Buffer.EndIter;
-					textview1.Buffer.Insert(ref mIter, sRecieved);
-					textview1.ScrollToMark(textview1.Buffer.CreateMark("bottom", textview1.Buffer.EndIter, false), 0, true, 0.0, 1.0);
-				});
+				Console.Write(sRecieved);
+
+				JObject obj = JObject.Parse(sRecieved);
+				if (obj["type"].ToString() == "message")
+				{
+					string severity = obj["severity"].ToString();
+					string message = obj["message"].ToString();
+
+					if (severity == "info")
+					{
+						WriteLog(message, tagInfo);
+					}
+					else if (severity == "warning")
+					{
+						WriteLog(message, tagWarning);
+					}
+					else if (severity == "error")
+					{
+						WriteLog(message, tagError);
+					}
+					else if (severity == "debug")
+					{
+						WriteLog(message, tagDebug);
+					}
+				}
+				else
+				{
+					WriteLog("Unknown response from server", tagInfo);
+				}
+
 				// If the connection is still usable restablish the callback
 				SetupRecieveCallback( sock );
 			}
@@ -344,6 +418,18 @@ public partial class MainWindow: Gtk.Window
 		{
 			Console.Write("Unusual error druing Recieve!");
 		}
+	}
+
+	protected void WriteLog(string text, TextTag tag)
+	{
+		Gtk.Application.Invoke (delegate
+		{
+			TextIter endIter = textview1.Buffer.EndIter;
+			textview1.Buffer.Insert(ref endIter, text);
+			endIter.BackwardChars(text.Length);
+			textview1.Buffer.ApplyTag(tag, endIter, textview1.Buffer.EndIter);
+			textview1.ScrollToMark(textview1.Buffer.CreateMark("bottom", textview1.Buffer.EndIter, false), 0, true, 0.0, 1.0);
+		});
 	}
 
 	protected void OnDeleteEvent (object sender, DeleteEventArgs a)
@@ -392,16 +478,68 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnEntryActivated (object sender, EventArgs e)
 	{
-		// Sanitize text entry
-		String data = entry1.Text;
-		data = data.Replace("\"", "\\\"");
-		data = data.Trim ();
-		entry1.Text = "";
+		string text = entry1.Text;
+		text = text.Trim ();
 
-		if (combobox1.Active == 0) {
-			SendScript (data);
-		} else {
-			SendCommand (data);
+		// Do processing only if we have text
+		if (text.Length > 0)
+		{
+			history [history_size % MAX_HISTORY_ITEMS] = text;
+			history_size++;
+			history_current = history_size;
+
+			// Log entered text
+			WriteLog ("> " + text + "\n", tagInfo);
+
+			// Sanitize text entry
+			text = text.Replace("\"", "\\\"");
+
+			if (combobox1.Active == 0) {
+				SendScript (text);
+			} else {
+				SendCommand (text);
+			}
 		}
+
+		entry1.Text = "";
+	}
+
+	protected void OnEntryKeyPressed (object o, KeyPressEventArgs args)
+	{
+		switch (args.Event.Key)
+		{
+			case Gdk.Key.Down:
+			{
+				if (history_current < history_size)
+				{
+					history_current++;
+				}
+				break;
+			}
+			case Gdk.Key.Up:
+			{
+				if (history_current > 0)
+				{
+					history_current--;
+				}
+				break;
+			}
+			default:
+			{
+				return;
+			}
+		}
+
+		if (history_size == history_current)
+		{
+			entry1.Text = "";
+		}
+		else
+		{
+			entry1.Text = history [history_current % MAX_HISTORY_ITEMS];
+			entry1.Position = entry1.Text.Length;
+		}
+
+		args.RetVal = true;
 	}
 }

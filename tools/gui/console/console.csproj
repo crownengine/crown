@@ -51,6 +51,9 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="Mono.Posix" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\Desktop\Net35\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">

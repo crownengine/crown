@@ -22,7 +22,7 @@
       </action>
     </action-group>
     <property name="MemberName" />
-    <property name="Title" translatable="yes">MainWindow</property>
+    <property name="Title" translatable="yes">Console</property>
     <property name="WindowPosition">CenterOnParent</property>
     <signal name="DeleteEvent" handler="OnDeleteEvent" />
     <child>
@@ -90,6 +90,7 @@ Command</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
                 <signal name="Activated" handler="OnEntryActivated" />
+                <signal name="KeyPressEvent" handler="OnEntryKeyPressed" />
               </widget>
               <packing>
                 <property name="Position">1</property>
