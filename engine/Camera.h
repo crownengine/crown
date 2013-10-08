@@ -29,8 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Frustum.h"
 #include "Mat4.h"
-#include "Mat3.h"
-#include "Vec3.h"
 
 namespace crown
 {
@@ -50,7 +48,7 @@ class Unit;
 /// Represents the point of view into the game world.
 struct Camera
 {
-	void					create(Unit& parent, int32_t node);
+	void					create(int32_t node, const Vec3& pos, const Quat& rot);
 
 	Vec3					local_position() const;
 	Quat					local_rotation() const;
@@ -85,8 +83,9 @@ public:
 
 public:
 
-	Unit*					m_parent;
 	int32_t					m_node;
+	Mat4					m_local_pose;
+	Mat4					m_world_pose;
 
 	ProjectionType::Enum	m_projection_type;
 	Mat4					m_projection;

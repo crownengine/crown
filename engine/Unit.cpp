@@ -49,7 +49,7 @@ void Unit::create(World& creator, const Vec3& pos, const Quat& rot)
 	m_root_node = m_scene_graph.create_node(-1, pos, rot);
 
 	int32_t camera_node = m_scene_graph.create_node(m_root_node, Vec3::ZERO, Quat::IDENTITY);
-	CameraId camera = m_creator->create_camera(*this, camera_node);
+	CameraId camera = m_creator->create_camera(camera_node);
 	m_camera = m_creator->lookup_camera(camera);
 }
 

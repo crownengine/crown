@@ -35,67 +35,72 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------
-void Camera::create(Unit& parent, int32_t node)
+void Camera::create(int32_t node, const Vec3& pos, const Quat& rot)
 {
-	m_parent = &parent;
 	m_node = node;
 	m_projection_type = ProjectionType::PERSPECTIVE;
 
+	set_local_position(pos);
+	set_local_rotation(rot);
 	update_projection_matrix();
 }
 
-//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 Vec3 Camera::local_position() const
 {
-	return m_parent->local_position(m_node);
+	return m_local_pose.translation();
 }
 
-//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 Quat Camera::local_rotation() const
 {
-	return m_parent->local_rotation(m_node);
+	return Quat(Vec3(1, 0, 0), 0.0f);
 }
 
-//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 Mat4 Camera::local_pose() const
 {
-	return m_parent->local_pose(m_node);
+	return m_local_pose;
 }
 
-//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 Vec3 Camera::world_position() const
 {
-	return m_parent->world_position(m_node);
+	return m_world_pose.translation();
 }
 
-//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 Quat Camera::world_rotation() const
 {
-	return m_parent->world_rotation(m_node);
+	return Quat(Vec3(1, 0, 0), 0.0f);
 }
 
-//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 Mat4 Camera::world_pose() const
 {
-	return m_parent->world_pose(m_node);
+	return m_world_pose;
 }
 
-//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void Camera::set_local_position(const Vec3& pos)
 {
-	m_parent->set_local_position(pos, m_node);
+	m_local_pose.set_translation(pos);
 }
 
-//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void Camera::set_local_rotation(const Quat& rot)
 {
-	m_parent->set_local_rotation(rot, m_node);
+	Mat4& local_pose = m_local_pose;
+
+	Vec3 local_translation = local_pose.translation();
+	local_pose = rot.to_mat4();
+	local_pose.set_translation(local_translation);
 }
 
-//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void Camera::set_local_pose(const Mat4& pose)
 {
-	m_parent->set_local_pose(pose, m_node);
+	m_local_pose = pose;
 }
 
 //-----------------------------------------------------------------------

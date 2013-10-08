@@ -120,12 +120,12 @@ RenderWorld::~RenderWorld()
 }
 
 //-----------------------------------------------------------------------------
-MeshId RenderWorld::create_mesh(const char* name)
+MeshId RenderWorld::create_mesh(const char* name, const Vec3& pos, const Quat& rot)
 {
 	MeshResource* mr = (MeshResource*) device()->resource_manager()->lookup("mesh", name);
 
 	MeshId mesh = allocate_mesh();
-	m_mesh[mesh.index].create(mr);
+	m_mesh[mesh.index].create(mr, pos, rot);
 
 	return mesh;
 }

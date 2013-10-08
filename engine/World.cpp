@@ -124,11 +124,11 @@ RenderWorld& World::render_world()
 }
 
 //-----------------------------------------------------------------------------
-CameraId World::create_camera(Unit& parent, int32_t node)
+CameraId World::create_camera(int32_t node, const Vec3& pos, const Quat& rot)
 {
 	CameraId camera = m_camera_table.create();
 
-	m_camera[camera.index].create(parent, node);
+	m_camera[camera.index].create(node, pos, rot);
 	return camera;
 }
 

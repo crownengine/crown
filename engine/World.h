@@ -74,7 +74,7 @@ public:
 	RenderWorld&			render_world();
 	void					update(Camera& camera, float dt);
 
-	CameraId				create_camera(Unit& parent, int32_t node);
+	CameraId				create_camera(int32_t node, const Vec3& pos = Vec3::ZERO, const Quat& rot = Quat::IDENTITY);
 	void					destroy_camera(CameraId camera);
 
 	Mesh*					mesh();
