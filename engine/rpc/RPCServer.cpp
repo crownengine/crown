@@ -37,10 +37,8 @@ namespace crown
 //-----------------------------------------------------------------------------
 RPCServer::RPCServer()
 	: m_num_clients(0)
-	, m_receive_allocator(default_allocator(), 16 * 1024)
-	, m_send_allocator(default_allocator(), 16 * 1024)
-	, m_receive_buffer(m_receive_allocator)
-	, m_send_buffer(m_send_allocator)
+	, m_receive_buffer(default_allocator())
+	, m_send_buffer(default_allocator())
 	, m_handlers_head(NULL)
 	, m_receive_callbacks(default_allocator())
 	, m_send_callbacks(default_allocator())
@@ -191,7 +189,6 @@ void RPCServer::execute_callbacks()
 
 	m_receive_callbacks.clear();
 	m_receive_buffer.clear();
-	m_receive_allocator.clear();
 
 	for (uint32_t i = 0; i < m_send_callbacks.size(); i++)
 	{
@@ -203,7 +200,6 @@ void RPCServer::execute_callbacks()
 
 	m_send_callbacks.clear();
 	m_send_buffer.clear();
-	m_send_allocator.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -223,6 +219,12 @@ void RPCServer::update_client(ClientId id)
 		{
 			if (result.received_bytes > 0)
 			{
+				for (uint32_t i = 0; i < result.received_bytes; i++)
+			 	{
+			 		printf("%c", buf[i]);
+			 	}
+			 	printf("\n");
+
 				m_receive_buffer.push(buf, result.received_bytes);
 				total_read += result.received_bytes;
 				continue;
@@ -247,6 +249,7 @@ void RPCServer::update_client(ClientId id)
 	if (total_read > 0)
 	{
 		JSONParser parser(&m_receive_buffer[message_index]);
+		Log::d("%s", &m_receive_buffer[message_index]);
 		JSONElement root = parser.root();
 		JSONElement type = root.key_or_nil("type");
 

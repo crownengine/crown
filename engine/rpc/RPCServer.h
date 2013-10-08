@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Queue.h"
 #include "IdTable.h"
-#include "LinearAllocator.h"
 #include "Log.h"
 
 namespace crown
@@ -86,8 +85,6 @@ private:
 	IdTable<MAX_RPC_CLIENTS> 	m_clients_table;
 	TCPSocket					m_clients[MAX_RPC_CLIENTS];
 
-	LinearAllocator				m_receive_allocator;
-	LinearAllocator				m_send_allocator;
 	List<char>					m_receive_buffer;
 	List<char>					m_send_buffer;
 
