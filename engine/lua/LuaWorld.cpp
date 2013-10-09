@@ -50,22 +50,11 @@ CE_EXPORT int world_spawn_unit(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_mesh(lua_State* L)
-{
-	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-
-	stack.push_mesh(world->mesh());
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
 CE_EXPORT int world_play_sound(lua_State* L)
 {
 	LuaStack stack(L);
 
-	World* world = (World*) stack.get_lightdata(1);
+	World* world = stack.get_world(1);
 	const char* name = stack.get_string(2);
 
 	const bool loop = stack.num_args() > 2 ? stack.get_bool(3) : false;
@@ -85,7 +74,7 @@ CE_EXPORT int world_pause_sound(lua_State* L)
 {
 	LuaStack stack(L);
 
-	World* world = (World*) stack.get_lightdata(1);
+	World* world = stack.get_world(1);
 
 	SoundInstanceId id;
 	id.decode(stack.get_int(2));
@@ -100,7 +89,7 @@ CE_EXPORT int world_link_sound(lua_State* L)
 {
 	LuaStack stack(L);
 
-	World* world = (World*) stack.get_lightdata(1);
+	World* world = stack.get_world(1);
 
 	SoundInstanceId sound;
 	sound.decode(stack.get_int(2));
@@ -118,7 +107,7 @@ CE_EXPORT int world_set_listener(lua_State* L)
 {
 	LuaStack stack(L);
 
-	World* world = (World*) stack.get_lightdata(1);
+	World* world = stack.get_world(1);
 
 	const Vector3& pos = stack.get_vector3(2);
 	const Vector3& vel = stack.get_vector3(3);
@@ -135,7 +124,7 @@ CE_EXPORT int world_set_sound_position(lua_State* L)
 {
 	LuaStack stack(L);
 
-	World* world = (World*) stack.get_lightdata(1);
+	World* world = stack.get_world(1);
 
 	SoundInstanceId id;
 	id.decode(stack.get_int(2));
@@ -152,7 +141,7 @@ CE_EXPORT int world_set_sound_range(lua_State* L)
 {
 	LuaStack stack(L);
 
-	World* world = (World*) stack.get_lightdata(1);
+	World* world = stack.get_world(1);
 
 	SoundInstanceId id;
 	id.decode(stack.get_int(2));
@@ -169,7 +158,7 @@ CE_EXPORT int world_set_sound_volume(lua_State* L)
 {
 	LuaStack stack(L);
 
-	World* world = (World*) stack.get_lightdata(1);
+	World* world = stack.get_world(1);
 
 	SoundInstanceId id;
 	id.decode(stack.get_int(2));
@@ -192,9 +181,6 @@ void load_world(LuaEnvironment& env)
 	env.load_module_function("World", "set_sound_position", world_set_sound_position);
 	env.load_module_function("World", "set_sound_range", 	world_set_sound_range);
 	env.load_module_function("World", "set_sound_volume", 	world_set_sound_volume);
-
-	// GARBAGE
-	env.load_module_function("World", "mesh", world_mesh);
 }
 
 } // namespace crown
