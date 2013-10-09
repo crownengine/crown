@@ -87,14 +87,14 @@ const GLenum TEXTURE_WRAP_TABLE[] =
 };
 
 //-----------------------------------------------------------------------------
-const GLTextureFormatInfo TEXTURE_FORMAT_TABLE[PIXEL_COUNT] =
+const GLTextureFormatInfo TEXTURE_FORMAT_TABLE[PixelFormat::COUNT] =
 {
 	{ GL_RGB, GL_RGB },
 	{ GL_RGBA, GL_RGBA}
 };
 
 // Keep in sync with ShaderAttrib
-const char* const SHADER_ATTRIB_NAMES[ATTRIB_COUNT] =
+const char* const SHADER_ATTRIB_NAMES[ShaderAttrib::COUNT] =
 {
 	"a_position",
 	"a_normal",
@@ -105,7 +105,7 @@ const char* const SHADER_ATTRIB_NAMES[ATTRIB_COUNT] =
 	"a_tex_coord3"
 };
 
-const char* const SHADER_UNIFORM_NAMES[] =
+const char* const SHADER_UNIFORM_NAMES[ShaderUniform::COUNT] =
 {
 	"u_view",
 	"u_model",
@@ -114,7 +114,7 @@ const char* const SHADER_UNIFORM_NAMES[] =
 	"u_time_since_start"
 };
 
-const size_t UNIFORM_SIZE_TABLE[UNIFORM_END] =
+const size_t UNIFORM_SIZE_TABLE[UniformType::END] =
 {
 	sizeof(int32_t) * 1,
 	sizeof(int32_t) * 2,
@@ -128,17 +128,17 @@ const size_t UNIFORM_SIZE_TABLE[UNIFORM_END] =
 	sizeof(float) * 16
 };
 
-ShaderUniform name_to_stock_uniform(const char* uniform)
+ShaderUniform::Enum name_to_stock_uniform(const char* uniform)
 {
-	for (uint8_t i = 0; i < UNIFORM_COUNT; i++)
+	for (uint8_t i = 0; i < ShaderUniform::COUNT; i++)
 	{
 		if (string::strcmp(uniform, SHADER_UNIFORM_NAMES[i]) == 0)
 		{
-			return (ShaderUniform) i;
+			return (ShaderUniform::Enum) i;
 		}
 	}
 
-	return UNIFORM_COUNT;
+	return ShaderUniform::COUNT;
 }
 
 /// OpenGL renderer
@@ -314,29 +314,29 @@ public:
 
 					switch (gpu_program.m_stock_uniforms[uniform])
 					{
-						case UNIFORM_VIEW:
+						case ShaderUniform::VIEW:
 						{
 							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, view.to_float_ptr()));
 							break;
 						}
-						case UNIFORM_MODEL:
+						case ShaderUniform::MODEL:
 						{
 							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, cur_state.pose.to_float_ptr()));
 							break;
 						}
-						case UNIFORM_MODEL_VIEW:
+						case ShaderUniform::MODEL_VIEW:
 						{
 							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, (view *
 															cur_state.pose).to_float_ptr()));
 							break;
 						}
-						case UNIFORM_MODEL_VIEW_PROJECTION:
+						case ShaderUniform::MODEL_VIEW_PROJECTION:
 						{
 							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, (projection * view *
 															cur_state.pose).to_float_ptr()));
 							break;
 						}
-						case UNIFORM_TIME_SINCE_START:
+						case ShaderUniform::TIME_SINCE_START:
 						{
 							GL_CHECK(glUniform1f(uniform_location, device()->time_since_start()));
 							break;
@@ -480,13 +480,13 @@ void Renderer::render_impl()
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::create_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat format, const void* vertices)
+void Renderer::create_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat::Enum format, const void* vertices)
 {
 	m_impl->m_vertex_buffers[id.index].create(count, format, vertices);
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::create_dynamic_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat format)
+void Renderer::create_dynamic_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat::Enum format)
 {
 	m_impl->m_vertex_buffers[id.index].create(count, format, NULL);
 }
@@ -528,7 +528,7 @@ void Renderer::destroy_index_buffer_impl(IndexBufferId id)
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::create_texture_impl(TextureId id, uint32_t width, uint32_t height, PixelFormat format, const void* data)
+void Renderer::create_texture_impl(TextureId id, uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data)
 {
 	m_impl->m_textures[id.index].create(width, height, format, data);
 }
@@ -546,7 +546,7 @@ void Renderer::destroy_texture_impl(TextureId id)
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::create_shader_impl(ShaderId id, ShaderType type, const char* text)
+void Renderer::create_shader_impl(ShaderId id, ShaderType::Enum type, const char* text)
 {
 	m_impl->m_shaders[id.index].create(type, text);
 }
@@ -572,7 +572,7 @@ void Renderer::destroy_gpu_program_impl(GPUProgramId id)
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::create_uniform_impl(UniformId id, const char* name, UniformType type, uint8_t num)
+void Renderer::create_uniform_impl(UniformId id, const char* name, UniformType::Enum type, uint8_t num)
 {
 	m_impl->m_uniforms[id.index].create(name, type, num);
 	m_impl->m_num_uniforms++;
@@ -592,7 +592,7 @@ void Renderer::destroy_uniform_impl(UniformId id)
 }
 
 // //-----------------------------------------------------------------------------
-// void Renderer::create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, RenderTargetFormat format)
+// void Renderer::create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, RenderTargetFormat::Enum format)
 // {
 
 // }

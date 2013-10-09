@@ -37,28 +37,28 @@ class Pixel
 public:
 
 	/// Returns the bytes occupied by @a format
-	static size_t bytes_per_pixel(PixelFormat format)
+	static size_t bytes_per_pixel(PixelFormat::Enum format)
 	{
 		switch (format)
 		{
-			case PIXEL_RGB_8:
+			case PixelFormat::RGB_8:
 			{
 				return 3;
 			}
-			case PIXEL_RGBA_8:
+			case PixelFormat::RGBA_8:
 			{
 				return 4;
 			}
 			default:
 			{
-				CE_ASSERT(false, "Oops, unknown pixel format");
+				CE_FATAL("Oops, unknown pixel format");
 				return 0;
 			}
 		}
 	}
 
 	/// Returns the bits occupied by @a format
-	static size_t bits_per_pixel(PixelFormat format)
+	static size_t bits_per_pixel(PixelFormat::Enum format)
 	{
 		return bytes_per_pixel(format) * 8;
 	}

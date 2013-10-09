@@ -39,74 +39,92 @@ typedef Id ShaderId;
 typedef Id GPUProgramId;
 typedef Id UniformId;
 
-enum ShaderType
+struct ShaderType
 {
-	SHADER_VERTEX,
-	SHADER_FRAGMENT
+	enum Enum
+	{
+		VERTEX,
+		FRAGMENT
+	};
 };
 
-enum UniformType
+struct UniformType
 {
-	UNIFORM_INTEGER_1,
-	UNIFORM_INTEGER_2,
-	UNIFORM_INTEGER_3,
-	UNIFORM_INTEGER_4,
-	UNIFORM_FLOAT_1,
-	UNIFORM_FLOAT_2,
-	UNIFORM_FLOAT_3,
-	UNIFORM_FLOAT_4,
-	UNIFORM_FLOAT_3_X_3,
-	UNIFORM_FLOAT_4_X_4,
-	UNIFORM_END
+	enum Enum
+	{
+		INTEGER_1,
+		INTEGER_2,
+		INTEGER_3,
+		INTEGER_4,
+		FLOAT_1,
+		FLOAT_2,
+		FLOAT_3,
+		FLOAT_4,
+		FLOAT_3x3,
+		FLOAT_4x4,
+		END
+	};
 };
 
-enum RenderTargetFormat
+struct RenderTargetFormat
 {
-	RTF_RGB_8,		///< RGB values, 8-bit each
-	RTF_RGBA_8,		///< RGBA values, 8-bit each
-	RTF_D24			///< Depth
+	enum Enum
+	{
+		RTF_RGB_8,		///< RGB values, 8-bit each
+		RTF_RGBA_8,		///< RGBA values, 8-bit each
+		RTF_D24			///< Depth
+	};
 };
 
-enum ShaderUniform
+struct ShaderUniform
 {
-	UNIFORM_VIEW					= 0,
-	UNIFORM_MODEL					= 1,
-	UNIFORM_MODEL_VIEW				= 2,
-	UNIFORM_MODEL_VIEW_PROJECTION	= 3,
-	UNIFORM_TIME_SINCE_START		= 4,
-	UNIFORM_COUNT
+	enum Enum
+	{
+		VIEW					= 0,
+		MODEL					= 1,
+		MODEL_VIEW				= 2,
+		MODEL_VIEW_PROJECTION	= 3,
+		TIME_SINCE_START		= 4,
+		COUNT
+	};
 };
 
-enum ShaderAttrib
+struct ShaderAttrib
 {
-	ATTRIB_POSITION			= 0,
-	ATTRIB_NORMAL			= 1,
-	ATTRIB_COLOR			= 2,
-	ATTRIB_TEX_COORD0		= 3,
-	ATTRIB_TEX_COORD1		= 4,
-	ATTRIB_TEX_COORD2		= 5,
-	ATTRIB_TEX_COORD3		= 6,
-	ATTRIB_COUNT
+	enum Enum
+	{
+		POSITION		= 0,
+		NORMAL			= 1,
+		COLOR			= 2,
+		TEX_COORD0		= 3,
+		TEX_COORD1		= 4,
+		TEX_COORD2		= 5,
+		TEX_COORD3		= 6,
+		COUNT
+	};
 };
 
-enum VertexFormat
+struct VertexFormat
 {
-	VERTEX_P2 = 0,
-	VERTEX_P2_N3,
-	VERTEX_P2_C4,
-	VERTEX_P2_T2,
-	VERTEX_P2_N3_C4,
-	VERTEX_P2_N3_C4_T2,
+	enum Enum
+	{
+		P2 = 0,
+		P2_N3,
+		P2_C4,
+		P2_T2,
+		P2_N3_C4,
+		P2_N3_C4_T2,
 
-	VERTEX_P3,
-	VERTEX_P3_N3,
-	VERTEX_P3_C4,
-	VERTEX_P3_T2,
-	VERTEX_P3_N3_C4,
-	VERTEX_P3_N3_T2,
-	VERTEX_P3_N3_C4_T2,
+		P3,
+		P3_N3,
+		P3_C4,
+		P3_T2,
+		P3_N3_C4,
+		P3_N3_T2,
+		P3_N3_C4_T2,
 
-	VERTEX_COUNT
+		COUNT
+	};
 };
 
 // [0 - 2]		-> 8-bit
@@ -119,43 +137,48 @@ enum VertexFormat
 // [36 - 39]	-> 128-bit
 // 40			-> Unknown (0-bit)
 /// Enumerates pixel formats.
-enum PixelFormat
+struct PixelFormat
 {
-	PIXEL_RGB_8 = 0,
-	PIXEL_RGBA_8,
-
-	PIXEL_COUNT
+	enum Enum
+	{
+		RGB_8 = 0,
+		RGBA_8,
+		COUNT
+	};
 };
 
-enum CommandType
+struct CommandType
 {
-	COMMAND_INIT_RENDERER,
-	COMMAND_SHUTDOWN_RENDERER,
+	enum Enum
+	{
+		INIT_RENDERER,
+		SHUTDOWN_RENDERER,
 
-	COMMAND_CREATE_VERTEX_BUFFER,
-	COMMAND_CREATE_DYNAMIC_VERTEX_BUFFER,
-	COMMAND_UPDATE_VERTEX_BUFFER,
-	COMMAND_DESTROY_VERTEX_BUFFER,
+		CREATE_VERTEX_BUFFER,
+		CREATE_DYNAMIC_VERTEX_BUFFER,
+		UPDATE_VERTEX_BUFFER,
+		DESTROY_VERTEX_BUFFER,
 
-	COMMAND_CREATE_INDEX_BUFFER,
-	COMMAND_CREATE_DYNAMIC_INDEX_BUFFER,
-	COMMAND_UPDATE_INDEX_BUFFER,
-	COMMAND_DESTROY_INDEX_BUFFER,
+		CREATE_INDEX_BUFFER,
+		CREATE_DYNAMIC_INDEX_BUFFER,
+		UPDATE_INDEX_BUFFER,
+		DESTROY_INDEX_BUFFER,
 
-	COMMAND_CREATE_TEXTURE,
-	COMMAND_UPDATE_TEXTURE,
-	COMMAND_DESTROY_TEXTURE,
+		CREATE_TEXTURE,
+		UPDATE_TEXTURE,
+		DESTROY_TEXTURE,
 
-	COMMAND_CREATE_SHADER,
-	COMMAND_DESTROY_SHADER,
+		CREATE_SHADER,
+		DESTROY_SHADER,
 
-	COMMAND_CREATE_GPU_PROGRAM,
-	COMMAND_DESTROY_GPU_PROGRAM,
+		CREATE_GPU_PROGRAM,
+		DESTROY_GPU_PROGRAM,
 
-	COMMAND_CREATE_UNIFORM,
-	COMMAND_DESTROY_UNIFORM,
+		CREATE_UNIFORM,
+		DESTROY_UNIFORM,
 
-	COMMAND_END
+		END
+	};
 };
 
 } // namespace crown

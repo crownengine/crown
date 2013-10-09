@@ -173,7 +173,7 @@ void MeshCompiler::write_impl(File* out_file)
 {
 	MeshData data;
 	data.vertices.num_vertices = m_vertices.size();
-	data.vertices.format = VERTEX_P3_N3_T2;
+	data.vertices.format = VertexFormat::P3_N3_T2;
 	data.vertices.offset = sizeof(MeshHeader) + sizeof(MeshData);
 
 	data.indices.num_indices = m_indices.size();

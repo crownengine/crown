@@ -43,29 +43,29 @@ const uint32_t MESH_VERSION = 1;
 
 struct MeshHeader
 {
-	uint32_t		version;
-	uint32_t		num_meshes;
-	uint32_t		num_joints;
-	uint32_t		padding[16];
+	uint32_t			version;
+	uint32_t			num_meshes;
+	uint32_t			num_joints;
+	uint32_t			padding[16];
 };
 
 struct VertexData
 {
-	uint32_t	    num_vertices;
-	VertexFormat	format;
-	uint32_t		offset;
+	uint32_t	    	num_vertices;
+	VertexFormat::Enum	format;
+	uint32_t			offset;
 };
 
 struct IndexData
 {
-	uint32_t		num_indices;
-	uint32_t		offset;
+	uint32_t			num_indices;
+	uint32_t			offset;
 };
 
 struct MeshData
 {
-	VertexData		vertices;
-	IndexData		indices;
+	VertexData			vertices;
+	IndexData			indices;
 };
 
 class MeshResource
@@ -121,7 +121,7 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	VertexFormat vertex_format()
+	VertexFormat::Enum vertex_format()
 	{
 		MeshData* data = (MeshData*) (m_data + sizeof(MeshHeader));
 		return data->vertices.format;

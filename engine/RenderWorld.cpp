@@ -90,13 +90,13 @@ RenderWorld::RenderWorld()
 {
 	Renderer* r = device()->renderer();
 
-	default_vs = r->create_shader(SHADER_VERTEX, default_vertex);
-	default_fs = r->create_shader(SHADER_FRAGMENT, default_fragment);
-	texture_fs = r->create_shader(SHADER_FRAGMENT, texture_fragment);
+	default_vs = r->create_shader(ShaderType::VERTEX, default_vertex);
+	default_fs = r->create_shader(ShaderType::FRAGMENT, default_fragment);
+	texture_fs = r->create_shader(ShaderType::FRAGMENT, texture_fragment);
 
-	u_albedo_0 = r->create_uniform("u_albedo_0", UNIFORM_INTEGER_1, 1);
-	u_lightmap_0 = r->create_uniform("u_lightmap_0", UNIFORM_INTEGER_1, 1);
-	u_brightness = r->create_uniform("u_brightness", UNIFORM_FLOAT_1, 1);
+	u_albedo_0 = r->create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
+	u_lightmap_0 = r->create_uniform("u_lightmap_0", UniformType::INTEGER_1, 1);
+	u_brightness = r->create_uniform("u_brightness", UniformType::FLOAT_1, 1);
 
 	default_program = r->create_gpu_program(default_vs, default_fs);
 	texture_program = r->create_gpu_program(default_vs, texture_fs);

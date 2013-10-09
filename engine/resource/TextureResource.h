@@ -100,9 +100,9 @@ public:
 
 public:
 
-	PixelFormat format() const
+	PixelFormat::Enum format() const
 	{
-		return (PixelFormat) m_header.format;
+		return (PixelFormat::Enum) m_header.format;
 	}
 
 	uint32_t width() const

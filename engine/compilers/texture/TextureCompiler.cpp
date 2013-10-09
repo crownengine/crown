@@ -76,7 +76,7 @@ size_t TextureCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		case 2:
 		case 3:
 		{
-			m_texture_header.format = PIXEL_RGB_8;
+			m_texture_header.format = PixelFormat::RGB_8;
 
 			m_texture_data_size = m_tga_size * 3;
 			m_texture_data = (uint8_t*)default_allocator().allocate(m_texture_data_size);
@@ -85,7 +85,7 @@ size_t TextureCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		}
 		case 4:
 		{
-			m_texture_header.format = PIXEL_RGBA_8;
+			m_texture_header.format = PixelFormat::RGBA_8;
 
 			m_texture_data_size = m_tga_size * m_tga_channels;
 			m_texture_data = (uint8_t*)default_allocator().allocate(m_texture_data_size);

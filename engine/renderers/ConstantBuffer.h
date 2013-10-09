@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-extern const size_t UNIFORM_SIZE_TABLE[UNIFORM_END];
+extern const size_t UNIFORM_SIZE_TABLE[UniformType::END];
 
 #define MAX_CONSTANT_BUFFER_SIZE 1024 * 1024
 
@@ -89,7 +89,7 @@ public:
 		m_size += size;		
 	}
 
-	void write_constant(UniformId id, UniformType type, void* data, uint8_t num)
+	void write_constant(UniformId id, UniformType::Enum type, void* data, uint8_t num)
 	{
 		size_t size = UNIFORM_SIZE_TABLE[type] * num;
 
@@ -101,7 +101,7 @@ public:
 
 	void commit()
 	{
-		write(UNIFORM_END);
+		write(UniformType::END);
 		m_size = 0;
 	}
 

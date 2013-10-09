@@ -208,7 +208,7 @@ struct RenderContext
 		m_state.ib = ib;
 	}
 
-	void set_uniform(UniformId id, UniformType type, void* value, uint8_t num)
+	void set_uniform(UniformId id, UniformType::Enum type, void* value, uint8_t num)
 	{
 		m_constants.write_constant(id, type, value, num);
 	}
@@ -221,7 +221,7 @@ struct RenderContext
 		sampler.sampler_id = texture;
 		sampler.flags |= SAMPLER_TEXTURE | flags;
 
-		set_uniform(sampler_uniform, UNIFORM_INTEGER_1, &unit, 1);
+		set_uniform(sampler_uniform, UniformType::INTEGER_1, &unit, 1);
 	}
 
 	void set_layer_render_target(uint8_t layer, RenderTargetId target)

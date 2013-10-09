@@ -57,11 +57,11 @@ struct GLTextureFormatInfo
 extern const GLenum TEXTURE_MIN_FILTER_TABLE[];
 extern const GLenum TEXTURE_MAG_FILTER_TABLE[];
 extern const GLenum TEXTURE_WRAP_TABLE[];
-extern const GLTextureFormatInfo TEXTURE_FORMAT_TABLE[PIXEL_COUNT];
-extern const char* const SHADER_ATTRIB_NAMES[ATTRIB_COUNT];
-extern const char* const SHADER_UNIFORM_NAMES[];
-extern const size_t UNIFORM_SIZE_TABLE[UNIFORM_END];
-extern ShaderUniform name_to_stock_uniform(const char* uniform);
+extern const GLTextureFormatInfo TEXTURE_FORMAT_TABLE[PixelFormat::COUNT];
+extern const char* const SHADER_ATTRIB_NAMES[ShaderAttrib::COUNT];
+extern const char* const SHADER_UNIFORM_NAMES[ShaderUniform::COUNT];
+extern const size_t UNIFORM_SIZE_TABLE[UniformType::END];
+extern ShaderUniform::Enum name_to_stock_uniform(const char* uniform);
 
 //-----------------------------------------------------------------------------
 static const char* gl_error_to_string(GLenum error)
@@ -91,7 +91,7 @@ static const char* gl_error_to_string(GLenum error)
 struct VertexBuffer
 {
 	//-----------------------------------------------------------------------------
-	void create(size_t count, VertexFormat format, const void* vertices)
+	void create(size_t count, VertexFormat::Enum format, const void* vertices)
 	{
 		GL_CHECK(glGenBuffers(1, &m_id));
 		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_id));
@@ -123,7 +123,7 @@ public:
 
 	GLuint			m_id;
 	size_t			m_count;
-	VertexFormat	m_format;
+	VertexFormat::Enum	m_format;
 };
 
 //-----------------------------------------------------------------------------
@@ -171,7 +171,7 @@ struct Uniform
 		string::strncpy(m_name, "", CROWN_MAX_UNIFORM_NAME_LENGTH);
 	}
 
-	void create(const char* name, UniformType type, uint8_t num)
+	void create(const char* name, UniformType::Enum type, uint8_t num)
 	{
 		string::strncpy(m_name, name, CROWN_MAX_UNIFORM_NAME_LENGTH);
 		m_type = type;
@@ -198,7 +198,7 @@ struct Uniform
 public:
 
 	char m_name[CROWN_MAX_UNIFORM_NAME_LENGTH];
-	UniformType m_type;
+	UniformType::Enum m_type;
 	uint8_t m_num;
 	void* m_data;
 };
@@ -207,9 +207,9 @@ public:
 struct Shader
 {
 	//-----------------------------------------------------------------------------
-	void create(ShaderType type, const char* text)
+	void create(ShaderType::Enum type, const char* text)
 	{
-		m_id = GL_CHECK(glCreateShader(type == SHADER_VERTEX ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER));
+		m_id = GL_CHECK(glCreateShader(type == ShaderType::VERTEX ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER));
 
 		GL_CHECK(glShaderSource(m_id, 1, &text, NULL));
 		GL_CHECK(glCompileShader(m_id));
@@ -240,7 +240,7 @@ public:
 struct Texture
 {
 	//-----------------------------------------------------------------------------
-	void create(uint32_t width, uint32_t height, PixelFormat format, const void* data)
+	void create(uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data)
 	{
 		GL_CHECK(glGenTextures(1, &m_id));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_id));
@@ -302,11 +302,11 @@ struct Texture
 
 public:
 
-	GLuint			m_id;
-	GLenum			m_target;      // Always GL_TEXTURE_2D
-	uint32_t		m_width;
-	uint32_t		m_height;
-	PixelFormat		m_format;
+	GLuint				m_id;
+	GLenum				m_target;      // Always GL_TEXTURE_2D
+	uint32_t			m_width;
+	uint32_t			m_height;
+	PixelFormat::Enum	m_format;
 };
 
 //-----------------------------------------------------------------------------
@@ -367,12 +367,12 @@ struct GPUProgram
 		}
 
 		m_num_active_attribs = 0;
-		for (uint32_t attrib = 0; attrib < ATTRIB_COUNT; attrib++)
+		for (uint32_t attrib = 0; attrib < ShaderAttrib::COUNT; attrib++)
 		{
 			GLint loc = GL_CHECK(glGetAttribLocation(m_id, SHADER_ATTRIB_NAMES[attrib]));
 			if (loc != -1)
 			{
-				m_active_attribs[m_num_active_attribs] = (ShaderAttrib) attrib;
+				m_active_attribs[m_num_active_attribs] = (ShaderAttrib::Enum) attrib;
 				m_num_active_attribs++;
 				m_attrib_locations[attrib] = loc;
 			}
@@ -388,8 +388,8 @@ struct GPUProgram
 			GL_CHECK(glGetActiveUniform(m_id, uniform, max_uniform_length, NULL, &uniform_size, &uniform_type, uniform_name));
 			GLint uniform_location = GL_CHECK(glGetUniformLocation(m_id, uniform_name));
 
-			ShaderUniform stock_uniform = name_to_stock_uniform(uniform_name);
-			if (stock_uniform != UNIFORM_COUNT)
+			ShaderUniform::Enum stock_uniform = name_to_stock_uniform(uniform_name);
+			if (stock_uniform != ShaderUniform::COUNT)
 			{
 				m_stock_uniforms[m_num_stock_uniforms] = stock_uniform;
 				m_stock_uniform_locations[m_num_stock_uniforms] = uniform_location;
@@ -410,7 +410,7 @@ struct GPUProgram
 			}
 
 			Log::d("Uniform %d: name = '%s' location = '%d' stock = %s", uniform, uniform_name, uniform_location,
-						(stock_uniform != UNIFORM_COUNT) ? "yes" : "no");
+						(stock_uniform != ShaderUniform::COUNT) ? "yes" : "no");
 		}
 	}
 
@@ -422,12 +422,12 @@ struct GPUProgram
 	}
 
 	//-----------------------------------------------------------------------------
-	void bind_attributes(VertexFormat format) const
+	void bind_attributes(VertexFormat::Enum format) const
 	{
 		// Bind all active attributes
 		for (uint8_t i = 0; i < m_num_active_attribs; i++)
 		{
-			ShaderAttrib attrib = m_active_attribs[i];
+			ShaderAttrib::Enum attrib = m_active_attribs[i];
 			GLint loc = m_attrib_locations[attrib];
 
 			const VertexFormatInfo& info = Vertex::info(format);
@@ -446,23 +446,23 @@ struct GPUProgram
 	{
 		for (uint8_t i = 0; i < m_num_uniforms; i++)
 		{
-			const UniformType type = m_uniforms[i];
+			const UniformType::Enum type = m_uniforms[i];
 			const GLint loc = m_uniform_info[i].loc;
 			const void* data = m_uniform_info[i].data;
 
 			switch (type)
 			{
-				case UNIFORM_INTEGER_1:   GL_CHECK(glUniform1iv(loc, 1, (const GLint*)data)); break;
-				case UNIFORM_INTEGER_2:   GL_CHECK(glUniform2iv(loc, 2, (const GLint*)data)); break;
-				case UNIFORM_INTEGER_3:   GL_CHECK(glUniform3iv(loc, 3, (const GLint*)data)); break;				
-				case UNIFORM_INTEGER_4:   GL_CHECK(glUniform4iv(loc, 4, (const GLint*)data)); break;
-				case UNIFORM_FLOAT_1:     GL_CHECK(glUniform1fv(loc, 1, (const GLfloat*)data)); break;
-				case UNIFORM_FLOAT_2:     GL_CHECK(glUniform2fv(loc, 2, (const GLfloat*)data)); break;
-				case UNIFORM_FLOAT_3:     GL_CHECK(glUniform3fv(loc, 3, (const GLfloat*)data)); break;
-				case UNIFORM_FLOAT_4:     GL_CHECK(glUniform4fv(loc, 4, (const GLfloat*)data)); break;
-				case UNIFORM_FLOAT_3_X_3: GL_CHECK(glUniformMatrix3fv(loc, 9, GL_FALSE, (const GLfloat*)data)); break;
-				case UNIFORM_FLOAT_4_X_4: GL_CHECK(glUniformMatrix4fv(loc, 16, GL_FALSE, (const GLfloat*)data)); break;
-				default: CE_ASSERT(false, "Oops, unknown uniform type"); break;
+				case UniformType::INTEGER_1:   GL_CHECK(glUniform1iv(loc, 1, (const GLint*)data)); break;
+				case UniformType::INTEGER_2:   GL_CHECK(glUniform2iv(loc, 2, (const GLint*)data)); break;
+				case UniformType::INTEGER_3:   GL_CHECK(glUniform3iv(loc, 3, (const GLint*)data)); break;				
+				case UniformType::INTEGER_4:   GL_CHECK(glUniform4iv(loc, 4, (const GLint*)data)); break;
+				case UniformType::FLOAT_1:     GL_CHECK(glUniform1fv(loc, 1, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_2:     GL_CHECK(glUniform2fv(loc, 2, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_3:     GL_CHECK(glUniform3fv(loc, 3, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_4:     GL_CHECK(glUniform4fv(loc, 4, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_3x3:   GL_CHECK(glUniformMatrix3fv(loc, 9, GL_FALSE, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_4x4:   GL_CHECK(glUniformMatrix4fv(loc, 16, GL_FALSE, (const GLfloat*)data)); break;
+				default: CE_FATAL("Oops, unknown uniform type"); break;
 			}
 		}
 	}
@@ -472,12 +472,12 @@ public:
 	GLuint				m_id;
 
 	uint8_t				m_num_active_attribs;
-	ShaderAttrib		m_active_attribs[ATTRIB_COUNT];
-	GLint				m_attrib_locations[ATTRIB_COUNT];
+	ShaderAttrib::Enum	m_active_attribs[ShaderAttrib::COUNT];
+	GLint				m_attrib_locations[ShaderAttrib::COUNT];
 
 	uint8_t				m_num_stock_uniforms;
-	ShaderUniform		m_stock_uniforms[UNIFORM_COUNT];
-	GLint				m_stock_uniform_locations[UNIFORM_COUNT];
+	ShaderUniform::Enum	m_stock_uniforms[ShaderUniform::COUNT];
+	GLint				m_stock_uniform_locations[ShaderUniform::COUNT];
 
 	struct LocAndData
 	{
@@ -486,7 +486,7 @@ public:
 	};
 
 	uint8_t				m_num_uniforms;
-	UniformType			m_uniforms[16];
+	UniformType::Enum	m_uniforms[16];
 	LocAndData			m_uniform_info[16];
 };
 

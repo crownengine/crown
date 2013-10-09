@@ -38,7 +38,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-extern ShaderUniform name_to_stock_uniform(const char* uniform);
+extern ShaderUniform::Enum name_to_stock_uniform(const char* uniform);
 class RendererImplementation;
 
 class Renderer
@@ -52,8 +52,8 @@ public:
 	void shutdown_impl();
 	void render_impl();
 
-	void create_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat format, const void* vertices);
-	void create_dynamic_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat format);
+	void create_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat::Enum format, const void* vertices);
+	void create_dynamic_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat::Enum format);
 	void update_vertex_buffer_impl(VertexBufferId id, size_t offset, size_t count, const void* vertices);
 	void destroy_vertex_buffer_impl(VertexBufferId id);
 
@@ -62,21 +62,21 @@ public:
 	void update_index_buffer_impl(IndexBufferId id, size_t offset, size_t count, const void* indices);
 	void destroy_index_buffer_impl(IndexBufferId id);
 
-	void create_texture_impl(TextureId id, uint32_t width, uint32_t height, PixelFormat format, const void* data);
+	void create_texture_impl(TextureId id, uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data);
 	void update_texture_impl(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data);
 	void destroy_texture_impl(TextureId id);
 
-	void create_shader_impl(ShaderId id, ShaderType type, const char* text);
+	void create_shader_impl(ShaderId id, ShaderType::Enum type, const char* text);
 	void destroy_shader_impl(ShaderId id);
 
 	void create_gpu_program_impl(GPUProgramId id, ShaderId vertex, ShaderId pixel);
 	void destroy_gpu_program_impl(GPUProgramId id);
 
-	void create_uniform_impl(UniformId id, const char* name, UniformType type, uint8_t num);
+	void create_uniform_impl(UniformId id, const char* name, UniformType::Enum type, uint8_t num);
 	void update_uniform_impl(UniformId id, size_t size, const void* data);
 	void destroy_uniform_impl(UniformId id);
 
-	void create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, RenderTargetFormat format);
+	void create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, RenderTargetFormat::Enum format);
 	void destroy_render_target_impl(RenderTargetId id);
 
 	inline void init()
@@ -84,7 +84,7 @@ public:
 		m_should_run = true;
 		m_thread.start(render_thread, this);
 
-		m_submit->m_commands.write(COMMAND_INIT_RENDERER);
+		m_submit->m_commands.write(CommandType::INIT_RENDERER);
 		frame();
 	}
 
@@ -92,7 +92,7 @@ public:
 	{
 		if (m_should_run)
 		{
-			m_submit->m_commands.write(COMMAND_SHUTDOWN_RENDERER);
+			m_submit->m_commands.write(CommandType::SHUTDOWN_RENDERER);
 			frame();
 
 			m_thread.stop();		
@@ -101,11 +101,11 @@ public:
 
 	/// Creates a new vertex buffer optimized for rendering static vertex data.
 	/// @a vertices is the array containig @a count vertex data elements of the given @a format.
-	inline VertexBufferId create_vertex_buffer(size_t count, VertexFormat format, const void* vertices)
+	inline VertexBufferId create_vertex_buffer(size_t count, VertexFormat::Enum format, const void* vertices)
 	{
 		const VertexBufferId id = m_vertex_buffers.create();
 
-		m_submit->m_commands.write(COMMAND_CREATE_VERTEX_BUFFER);
+		m_submit->m_commands.write(CommandType::CREATE_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(count);
 		m_submit->m_commands.write(format);
@@ -114,11 +114,11 @@ public:
 		return id;
 	}
 
-	inline VertexBufferId create_dynamic_vertex_buffer(size_t count, VertexFormat format)
+	inline VertexBufferId create_dynamic_vertex_buffer(size_t count, VertexFormat::Enum format)
 	{
 		const VertexBufferId id = m_vertex_buffers.create();
 
-		m_submit->m_commands.write(COMMAND_CREATE_DYNAMIC_VERTEX_BUFFER);
+		m_submit->m_commands.write(CommandType::CREATE_DYNAMIC_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(count);
 		m_submit->m_commands.write(format);
@@ -134,7 +134,7 @@ public:
 	/// at the creation of the buffer.
 	inline void update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices)
 	{
-		m_submit->m_commands.write(COMMAND_UPDATE_VERTEX_BUFFER);
+		m_submit->m_commands.write(CommandType::UPDATE_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(offset);
 		m_submit->m_commands.write(count);
@@ -144,7 +144,7 @@ public:
 	/// Destroys the given vertex buffer @a id.
 	inline void destroy_vertex_buffer(VertexBufferId id)
 	{
-		m_submit->m_commands.write(COMMAND_DESTROY_VERTEX_BUFFER);
+		m_submit->m_commands.write(CommandType::DESTROY_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
 	}
 
@@ -154,7 +154,7 @@ public:
 	{
 		const IndexBufferId id = m_index_buffers.create();
 
-		m_submit->m_commands.write(COMMAND_CREATE_INDEX_BUFFER);
+		m_submit->m_commands.write(CommandType::CREATE_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(count);
 		m_submit->m_commands.write(indices);
@@ -166,7 +166,7 @@ public:
 	{
 		const IndexBufferId id = m_index_buffers.create();
 
-		m_submit->m_commands.write(COMMAND_CREATE_DYNAMIC_INDEX_BUFFER);
+		m_submit->m_commands.write(CommandType::CREATE_DYNAMIC_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(count);
 
@@ -175,7 +175,7 @@ public:
 
 	inline void update_index_buffer(IndexBufferId id, size_t offset, size_t count, const void* indices)
 	{
-		m_submit->m_commands.write(COMMAND_UPDATE_INDEX_BUFFER);
+		m_submit->m_commands.write(CommandType::UPDATE_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(offset);
 		m_submit->m_commands.write(count);
@@ -185,15 +185,15 @@ public:
 	/// Destroys the @a id index buffer.
 	inline void destroy_index_buffer(IndexBufferId id)
 	{
-		m_submit->m_commands.write(COMMAND_DESTROY_INDEX_BUFFER);
+		m_submit->m_commands.write(CommandType::DESTROY_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
 	}
 
-	inline TextureId create_texture(uint32_t width, uint32_t height, PixelFormat format, const void* data)
+	inline TextureId create_texture(uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data)
 	{
 		const TextureId id = m_textures.create();
 
-		m_submit->m_commands.write(COMMAND_CREATE_TEXTURE);
+		m_submit->m_commands.write(CommandType::CREATE_TEXTURE);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(width);
 		m_submit->m_commands.write(height);
@@ -205,7 +205,7 @@ public:
 
 	inline void update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data)
 	{
-		m_submit->m_commands.write(COMMAND_UPDATE_TEXTURE);
+		m_submit->m_commands.write(CommandType::UPDATE_TEXTURE);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(x);
 		m_submit->m_commands.write(y);
@@ -216,15 +216,15 @@ public:
 
 	inline void destroy_texture(TextureId id)
 	{
-		m_submit->m_commands.write(COMMAND_DESTROY_TEXTURE);
+		m_submit->m_commands.write(CommandType::DESTROY_TEXTURE);
 		m_submit->m_commands.write(id);
 	}
 
-	inline ShaderId create_shader(ShaderType type, const char* text)
+	inline ShaderId create_shader(ShaderType::Enum type, const char* text)
 	{
 		const ShaderId id = m_shaders.create();
 
-		m_submit->m_commands.write(COMMAND_CREATE_SHADER);
+		m_submit->m_commands.write(CommandType::CREATE_SHADER);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(type);
 		m_submit->m_commands.write(text);
@@ -234,7 +234,7 @@ public:
 
 	inline void destroy_shader(ShaderId id)
 	{
-		m_submit->m_commands.write(COMMAND_DESTROY_SHADER);
+		m_submit->m_commands.write(CommandType::DESTROY_SHADER);
 		m_submit->m_commands.write(id);
 	}
 
@@ -242,7 +242,7 @@ public:
 	{
 		const GPUProgramId id = m_gpu_programs.create();
 
-		m_submit->m_commands.write(COMMAND_CREATE_GPU_PROGRAM);
+		m_submit->m_commands.write(CommandType::CREATE_GPU_PROGRAM);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(vertex);
 		m_submit->m_commands.write(pixel);
@@ -252,20 +252,20 @@ public:
 
 	inline void destroy_gpu_program(GPUProgramId id)
 	{
-		m_submit->m_commands.write(COMMAND_DESTROY_GPU_PROGRAM);
+		m_submit->m_commands.write(CommandType::DESTROY_GPU_PROGRAM);
 		m_submit->m_commands.write(id);
 	}
 
-	inline UniformId create_uniform(const char* name, UniformType type, uint8_t num)
+	inline UniformId create_uniform(const char* name, UniformType::Enum type, uint8_t num)
 	{
-		CE_ASSERT(name_to_stock_uniform(name) == UNIFORM_COUNT, "Uniform name '%s' is a stock uniform.", name);
+		CE_ASSERT(name_to_stock_uniform(name) == ShaderUniform::COUNT, "Uniform name '%s' is a stock uniform.", name);
 
 		const UniformId id = m_uniforms.create();
 		size_t len = string::strlen(name);
 
 		CE_ASSERT(len < CROWN_MAX_UNIFORM_NAME_LENGTH, "Max uniform name length is %d", CROWN_MAX_UNIFORM_NAME_LENGTH);
 
-		m_submit->m_commands.write(COMMAND_CREATE_UNIFORM);
+		m_submit->m_commands.write(CommandType::CREATE_UNIFORM);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(len);
 		m_submit->m_commands.write(name, len);
@@ -277,12 +277,12 @@ public:
 
 	inline void destroy_uniform(UniformId id)
 	{
-		m_submit->m_commands.write(COMMAND_DESTROY_UNIFORM);
+		m_submit->m_commands.write(CommandType::DESTROY_UNIFORM);
 		m_submit->m_commands.write(id);
 	}
 
 	// 
-	// RenderTargetId create_render_target(uint16_t width, uint16_t height, RenderTargetFormat format)
+	// RenderTargetId create_render_target(uint16_t width, uint16_t height, RenderTargetFormat::Enum format)
 	// {
 
 	// }
@@ -298,29 +298,29 @@ public:
 
 		do
 		{
-			CommandType command;
+			CommandType::Enum command;
 			cmds.read(command);
 
 			switch (command)
 			{
-				case COMMAND_INIT_RENDERER:
+				case CommandType::INIT_RENDERER:
 				{
 					init_impl();
 					m_is_initialized = true;
 					break;
 				}
-				case COMMAND_SHUTDOWN_RENDERER:
+				case CommandType::SHUTDOWN_RENDERER:
 				{
 					shutdown_impl();
 					m_is_initialized = false;
 					m_should_run = false;
 					break;
 				}
-				case COMMAND_CREATE_VERTEX_BUFFER:
+				case CommandType::CREATE_VERTEX_BUFFER:
 				{
 					VertexBufferId id;
 					size_t count;
-					VertexFormat format;
+					VertexFormat::Enum format;
 					void* vertices;
 
 					cmds.read(id);
@@ -331,11 +331,11 @@ public:
 					create_vertex_buffer_impl(id, count, format, vertices);
 					break;
 				}
-				case COMMAND_CREATE_DYNAMIC_VERTEX_BUFFER:
+				case CommandType::CREATE_DYNAMIC_VERTEX_BUFFER:
 				{
 					VertexBufferId id;
 					size_t count;
-					VertexFormat format;
+					VertexFormat::Enum format;
 
 					cmds.read(id);
 					cmds.read(count);
@@ -344,7 +344,7 @@ public:
 					create_dynamic_vertex_buffer_impl(id, count, format);
 					break;
 				}
-				case COMMAND_UPDATE_VERTEX_BUFFER:
+				case CommandType::UPDATE_VERTEX_BUFFER:
 				{
 					VertexBufferId id;
 					size_t offset;
@@ -359,7 +359,7 @@ public:
 					update_vertex_buffer_impl(id, offset, count, vertices);			
 					break;
 				}
-				case COMMAND_DESTROY_VERTEX_BUFFER:
+				case CommandType::DESTROY_VERTEX_BUFFER:
 				{
 					VertexBufferId id;
 					cmds.read(id);
@@ -367,7 +367,7 @@ public:
 					destroy_vertex_buffer_impl(id);
 					break;
 				}
-				case COMMAND_CREATE_INDEX_BUFFER:
+				case CommandType::CREATE_INDEX_BUFFER:
 				{
 					IndexBufferId id;
 					size_t count;
@@ -380,7 +380,7 @@ public:
 					create_index_buffer_impl(id, count, indices);
 					break;
 				}
-				case COMMAND_CREATE_DYNAMIC_INDEX_BUFFER:
+				case CommandType::CREATE_DYNAMIC_INDEX_BUFFER:
 				{
 					IndexBufferId id;
 					size_t count;
@@ -391,7 +391,7 @@ public:
 					create_dynamic_index_buffer_impl(id, count);
 					break;
 				}
-				case COMMAND_UPDATE_INDEX_BUFFER:
+				case CommandType::UPDATE_INDEX_BUFFER:
 				{
 					IndexBufferId id;
 					size_t offset;
@@ -406,7 +406,7 @@ public:
 					update_index_buffer_impl(id, offset, count, indices);
 					break;
 				}
-				case COMMAND_DESTROY_INDEX_BUFFER:
+				case CommandType::DESTROY_INDEX_BUFFER:
 				{
 					IndexBufferId id;
 					cmds.read(id);
@@ -414,12 +414,12 @@ public:
 					destroy_index_buffer_impl(id);
 					break;
 				}
-				case COMMAND_CREATE_TEXTURE:
+				case CommandType::CREATE_TEXTURE:
 				{
 					TextureId id;
 					uint32_t width;
 					uint32_t height;
-					PixelFormat format;
+					PixelFormat::Enum format;
 					void* data;
 
 					cmds.read(id);
@@ -431,7 +431,7 @@ public:
 					create_texture_impl(id, width, height, format, data);
 					break;
 				}
-				case COMMAND_UPDATE_TEXTURE:
+				case CommandType::UPDATE_TEXTURE:
 				{
 					TextureId id;
 					uint32_t x;
@@ -450,7 +450,7 @@ public:
 					update_texture_impl(id, x, y, width, height, data);
 					break;
 				}
-				case COMMAND_DESTROY_TEXTURE:
+				case CommandType::DESTROY_TEXTURE:
 				{
 					TextureId id;
 					cmds.read(id);
@@ -458,10 +458,10 @@ public:
 					destroy_texture_impl(id);
 					break;
 				}
-				case COMMAND_CREATE_SHADER:
+				case CommandType::CREATE_SHADER:
 				{
 					ShaderId id;
-					ShaderType type;
+					ShaderType::Enum type;
 					char* text;
 
 					cmds.read(id);
@@ -471,7 +471,7 @@ public:
 					create_shader_impl(id, type, text);
 					break;
 				}
-				case COMMAND_DESTROY_SHADER:
+				case CommandType::DESTROY_SHADER:
 				{
 					ShaderId id;
 					cmds.read(id);
@@ -479,7 +479,7 @@ public:
 					destroy_shader_impl(id);
 					break;
 				}
-				case COMMAND_CREATE_GPU_PROGRAM:
+				case CommandType::CREATE_GPU_PROGRAM:
 				{
 					GPUProgramId id;
 					ShaderId vertex;
@@ -492,7 +492,7 @@ public:
 					create_gpu_program_impl(id, vertex, pixel);
 					break;
 				}
-				case COMMAND_DESTROY_GPU_PROGRAM:
+				case CommandType::DESTROY_GPU_PROGRAM:
 				{
 					GPUProgramId id;
 					cmds.read(id);
@@ -500,12 +500,12 @@ public:
 					destroy_gpu_program_impl(id);
 					break;
 				}
-				case COMMAND_CREATE_UNIFORM:
+				case CommandType::CREATE_UNIFORM:
 				{
 					UniformId id;
 					size_t len;
 					char name[CROWN_MAX_UNIFORM_NAME_LENGTH];
-					UniformType type;
+					UniformType::Enum type;
 					uint8_t num;
 
 					cmds.read(id);
@@ -519,7 +519,7 @@ public:
 
 					break;
 				}
-				case COMMAND_DESTROY_UNIFORM:
+				case CommandType::DESTROY_UNIFORM:
 				{
 					UniformId id;
 					cmds.read(id);
@@ -528,7 +528,7 @@ public:
 
 					break;
 				}
-				case COMMAND_END:
+				case CommandType::END:
 				{
 					end = true;
 					break;
@@ -547,9 +547,9 @@ public:
 
 	inline void update_uniforms(ConstantBuffer& cbuf)
 	{
-		UniformType type;
+		UniformType::Enum type;
 
-		while ((type = (UniformType)cbuf.read()) != UNIFORM_END)
+		while ((type = (UniformType::Enum)cbuf.read()) != UniformType::END)
 		{
 			UniformId id;
 			size_t size;
@@ -589,7 +589,7 @@ public:
 		m_submit->set_index_buffer(ib);
 	}
 
-	inline void set_uniform(UniformId id, UniformType type, void* value, uint8_t num)
+	inline void set_uniform(UniformId id, UniformType::Enum type, void* value, uint8_t num)
 	{
 		m_submit->set_uniform(id, type, value, num);
 	}
@@ -647,7 +647,7 @@ public:
 
 	inline void swap_contexts()
 	{
-		// Ensure COMMAND_END at the end of submit command buffer
+		// Ensure CommandType::END at the end of submit command buffer
 		m_submit->push();
 
 		RenderContext* temp = m_submit;

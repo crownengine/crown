@@ -33,22 +33,22 @@ namespace crown
 
 struct VertexFormatInfo
 {
-	bool has_attrib(ShaderAttrib attrib) const
+	bool has_attrib(ShaderAttrib::Enum attrib) const
 	{
 		return sizes[attrib] != 0;
 	}
 
 	/// Returns the number of components per @a attrib
-	size_t num_components(ShaderAttrib attrib) const
+	size_t num_components(ShaderAttrib::Enum attrib) const
 	{
 		return (size_t) sizes[attrib];
 	}
 
 	/// Returns the byte offset between consecutive vertex @a attrib
-	size_t attrib_stride(ShaderAttrib /*attrib*/) const
+	size_t attrib_stride(ShaderAttrib::Enum /*attrib*/) const
 	{
 		size_t stride = 0;
-		for (uint8_t i = 0; i < ATTRIB_COUNT; i++)
+		for (uint8_t i = 0; i < ShaderAttrib::COUNT; i++)
 		{
 			stride += sizes[i];
 		}
@@ -57,7 +57,7 @@ struct VertexFormatInfo
 	}
 
 	/// Returns the byte offset of the first @a attrib in the format
-	size_t attrib_offset(ShaderAttrib attrib) const
+	size_t attrib_offset(ShaderAttrib::Enum attrib) const
 	{
 		size_t offset = 0;
 		for (uint8_t i = 0; i < attrib; i++)
@@ -70,11 +70,11 @@ struct VertexFormatInfo
 
 public:
 
-	uint8_t sizes[ATTRIB_COUNT];
+	uint8_t sizes[ShaderAttrib::COUNT];
 };
 
 // VertexFormat to VertexFormatInfo
-const VertexFormatInfo VERTEX_FORMAT_INFO[VERTEX_COUNT] =
+const VertexFormatInfo VERTEX_FORMAT_INFO[VertexFormat::COUNT] =
 {
 	{ 2, 0, 0, 0, 0, 0, 0 },
 	{ 2, 3, 0, 0, 0, 0, 0 },
@@ -97,12 +97,12 @@ class Vertex
 public:
 
 	/// Returns the bytes occupied by @a format
-	static size_t bytes_per_vertex(VertexFormat format)
+	static size_t bytes_per_vertex(VertexFormat::Enum format)
 	{
 		const VertexFormatInfo& info = VERTEX_FORMAT_INFO[format];
 		
 		size_t size = 0;
-		for (uint8_t i = 0; i < ATTRIB_COUNT; i++)
+		for (uint8_t i = 0; i < ShaderAttrib::COUNT; i++)
 		{
 			size += info.sizes[i];
 		}
@@ -112,12 +112,12 @@ public:
 	}
 
 	/// Returns the bits occupied by @a format
-	static size_t bits_per_vertex(VertexFormat format)
+	static size_t bits_per_vertex(VertexFormat::Enum format)
 	{
 		return bytes_per_vertex(format) * 8;
 	}
 
-	static const VertexFormatInfo& info(VertexFormat format)
+	static const VertexFormatInfo& info(VertexFormat::Enum format)
 	{
 		return VERTEX_FORMAT_INFO[format];
 	}

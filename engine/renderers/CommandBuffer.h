@@ -85,7 +85,7 @@ public:
 	//-----------------------------------------------------------------------------
 	void commit()
 	{
-		write(COMMAND_END);
+		write(CommandType::END);
 		m_size = 0;
 	}
 
