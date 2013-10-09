@@ -337,22 +337,12 @@ inline void Vector<T>::clear()
 template <typename T>
 inline const Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 {
-	if (m_array)
+	const uint32_t size = other.m_size;
+	resize(size);
+
+	for (uint32_t i = 0; i < size; i++)
 	{
-		m_allocator->deallocate(m_array);
-	}
-
-	m_size = other.m_size;
-	m_capacity = other.m_capacity;
-
-	if (m_capacity)
-	{
-		m_array = (T*)m_allocator->allocate(m_capacity * sizeof(T));
-
-		for (uint32_t i = 0; i < m_size; i++)
-		{
-			m_array[i] = other.m_array[i];
-		}
+		m_array[i] = other.m_array[i];
 	}
 
 	return *this;

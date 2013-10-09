@@ -316,20 +316,9 @@ inline void List<T>::clear()
 template <typename T>
 inline const List<T>& List<T>::operator=(const List<T>& other)
 {
-	if (m_array)
-	{
-		m_allocator->deallocate(m_array);
-	}
-
-	m_size = other.m_size;
-	m_capacity = other.m_capacity;
-
-	if (m_capacity)
-	{
-		m_array = (T*)m_allocator->allocate(m_capacity * sizeof(T), CE_ALIGNOF(T));
-
-		memcpy(m_array, other.m_array, m_size * sizeof(T));
-	}
+	const uint32_t size = other.m_size;
+	resize(size);
+	memcpy(m_array, other.m_array, sizeof(T) * size);
 
 	return *this;
 }
