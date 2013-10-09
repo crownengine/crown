@@ -41,12 +41,12 @@ struct Mesh
 	void			create(const MeshResource* mr, const Vector3& pos, const Quaternion& rot);
 
 	Vector3			local_position() const;
-	Quaternion			local_rotation() const;
-	Matrix4x4			local_pose() const;
+	Quaternion		local_rotation() const;
+	Matrix4x4		local_pose() const;
 
 	Vector3			world_position() const;
-	Quaternion			world_rotation() const;
-	Matrix4x4			world_pose() const;
+	Quaternion		world_rotation() const;
+	Matrix4x4		world_pose() const;
 
 	void			set_local_position(const Vector3& pos);
 	void			set_local_rotation(const Quaternion& rot);
