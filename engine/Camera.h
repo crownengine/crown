@@ -51,12 +51,12 @@ struct Camera
 	void					create(int32_t node, const Vector3& pos, const Quaternion& rot);
 
 	Vector3					local_position() const;
-	Quaternion					local_rotation() const;
-	Matrix4x4					local_pose() const;
+	Quaternion				local_rotation() const;
+	Matrix4x4				local_pose() const;
 
 	Vector3					world_position() const;
-	Quaternion					world_rotation() const;
-	Matrix4x4					world_pose() const;
+	Quaternion				world_rotation() const;
+	Matrix4x4				world_pose() const;
 
 	void					set_local_position(const Vector3& pos);
 	void					set_local_rotation(const Quaternion& rot);
@@ -84,11 +84,11 @@ public:
 public:
 
 	int32_t					m_node;
-	Matrix4x4					m_local_pose;
-	Matrix4x4					m_world_pose;
+	Matrix4x4				m_local_pose;
+	Matrix4x4				m_world_pose;
 
 	ProjectionType::Enum	m_projection_type;
-	Matrix4x4					m_projection;
+	Matrix4x4				m_projection;
 
 	Frustum					m_frustum;
 	float					m_FOV;
