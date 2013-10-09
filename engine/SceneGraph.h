@@ -47,19 +47,19 @@ struct SceneGraph
 	void			set_local_pose(int32_t node, const Matrix4x4& pose);
 
 	Vector3			local_position(int32_t node) const;
-	Quaternion			local_rotation(int32_t node) const;
-	Matrix4x4			local_pose(int32_t node) const;
+	Quaternion		local_rotation(int32_t node) const;
+	Matrix4x4		local_pose(int32_t node) const;
 
 	Vector3			world_position(int32_t node) const;
-	Quaternion			world_rotation(int32_t node) const;
-	Matrix4x4			world_pose(int32_t node) const;
+	Quaternion		world_rotation(int32_t node) const;
+	Matrix4x4		world_pose(int32_t node) const;
 
 	void			update();
 
 public:
 
-	List<Matrix4x4>		m_world_poses;
-	List<Matrix4x4>		m_local_poses;
+	List<Matrix4x4>	m_world_poses;
+	List<Matrix4x4>	m_local_poses;
 	List<int32_t>	m_parents;
 };
 
