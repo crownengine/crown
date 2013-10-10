@@ -47,21 +47,20 @@ public:
 	RenderWorld();
 	~RenderWorld();
 
-	MeshId create_mesh(const char* mesh, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	MeshId create_mesh(const char* mesh, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
 	void destroy_mesh(MeshId id);
+
+	Mesh* lookup_mesh(MeshId mesh);
 
 	void update(Camera& camera, float dt);
 
-	MeshId allocate_mesh();
+	MeshId allocate_mesh(MeshResource* mr, int32_t node, const Vector3& pos, const Quaternion& rot);
 	void deallocate_mesh(MeshId id);
-
-	Mesh* mesh() { return &m_mesh[0]; }
 
 private:
 
 	IdTable<MAX_MESHES>		m_mesh_table;
 	uint32_t				m_sparse_to_packed[MAX_MESHES];
-
 	List<Mesh>				m_mesh;
 };
 

@@ -100,8 +100,6 @@ RenderWorld::RenderWorld()
 
 	default_program = r->create_gpu_program(default_vs, default_fs);
 	texture_program = r->create_gpu_program(default_vs, texture_fs);
-
-	create_mesh("monkey");
 }
 
 //-----------------------------------------------------------------------------
@@ -120,12 +118,11 @@ RenderWorld::~RenderWorld()
 }
 
 //-----------------------------------------------------------------------------
-MeshId RenderWorld::create_mesh(const char* name, const Vector3& pos, const Quaternion& rot)
+MeshId RenderWorld::create_mesh(const char* name, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
 	MeshResource* mr = (MeshResource*) device()->resource_manager()->lookup("mesh", name);
 
-	MeshId mesh = allocate_mesh();
-	m_mesh[mesh.index].create(mr, pos, rot);
+	MeshId mesh = allocate_mesh(mr, node, pos, rot);
 
 	return mesh;
 }
@@ -136,11 +133,19 @@ void RenderWorld::destroy_mesh(MeshId /*id*/)
 }
 
 //-----------------------------------------------------------------------------
+Mesh* RenderWorld::lookup_mesh(MeshId mesh)
+{
+	CE_ASSERT(m_mesh_table.has(mesh), "Mesh does not exits");
+
+	return &m_mesh[m_sparse_to_packed[mesh.index]];
+}
+
+//-----------------------------------------------------------------------------
 void RenderWorld::update(Camera& camera, float /*dt*/)
 {
 	Renderer* r = device()->renderer();
 
-	Matrix4x4 camera_view = camera.local_pose();
+	Matrix4x4 camera_view = camera.world_pose();
 	camera_view.invert();
 
 	r->set_layer_view(0, camera_view);
@@ -169,16 +174,17 @@ void RenderWorld::update(Camera& camera, float /*dt*/)
 }
 
 //-----------------------------------------------------------------------------
-MeshId RenderWorld::allocate_mesh()
+MeshId RenderWorld::allocate_mesh(MeshResource* mr, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
-	MeshId mesh = m_mesh_table.create();
-	
-	if (m_mesh.size() <= mesh.index)
-	{
-		m_mesh.resize(1);
-	}
+	MeshId mesh_id = m_mesh_table.create();
 
-	return mesh;
+	Mesh mesh;
+	mesh.create(mr, node, pos, rot);
+
+	uint32_t index = m_mesh.push_back(mesh);
+	m_sparse_to_packed[mesh_id.index] = index;
+
+	return mesh_id;
 }
 
 //-----------------------------------------------------------------------------

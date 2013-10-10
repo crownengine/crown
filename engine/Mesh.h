@@ -38,7 +38,7 @@ class Quaternion;
 
 struct Mesh
 {
-	void			create(const MeshResource* mr, const Vector3& pos, const Quaternion& rot);
+	void			create(const MeshResource* mr, int32_t node, const Vector3& pos, const Quaternion& rot);
 
 	Vector3			local_position() const;
 	Quaternion		local_rotation() const;
