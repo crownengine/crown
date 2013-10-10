@@ -35,8 +35,9 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------
-void Camera::create(int32_t node, const Vector3& pos, const Quaternion& rot)
+void Camera::create(UnitId unit, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
+	m_unit = unit;
 	m_node = node;
 	m_projection_type = ProjectionType::PERSPECTIVE;
 

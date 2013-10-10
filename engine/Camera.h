@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Frustum.h"
 #include "Matrix4x4.h"
+#include "IdTable.h"
 
 namespace crown
 {
@@ -42,13 +43,14 @@ struct ProjectionType
 	};
 };
 
+typedef Id UnitId;
 class Quaternion;
 class Unit;
 
 /// Represents the point of view into the game world.
 struct Camera
 {
-	void					create(int32_t node, const Vector3& pos, const Quaternion& rot);
+	void					create(UnitId unit, int32_t node, const Vector3& pos, const Quaternion& rot);
 
 	Vector3					local_position() const;
 	Quaternion				local_rotation() const;
@@ -83,6 +85,7 @@ public:
 
 public:
 
+	UnitId					m_unit;
 	int32_t					m_node;
 	Matrix4x4				m_local_pose;
 	Matrix4x4				m_world_pose;
