@@ -193,7 +193,7 @@ void RPCServer::update_client(ClientId id)
 	{
 		ReadResult result = client.read(buf, 32);
 
-		if (result.error == ReadResult::NO_ERROR)
+		if (result.error == ReadResult::NO_RESULT_ERROR)
 		{
 			if (result.received_bytes > 0)
 			{

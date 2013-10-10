@@ -24,8 +24,11 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <windowsx.h>
-#include <winsock2.h>
 
 #define WM_USER_SET_WINDOW_SIZE     (WM_USER+0)
 #define WM_USER_TOGGLE_WINDOW_FRAME (WM_USER+1)
@@ -183,7 +186,7 @@ public:
 		init(argc, argv);
 
 		WSADATA WsaData;
-		CE_ASSERT(WSAStartup(MAKEWORD(2,2), &WsaData) == NO_ERROR, "Unable to initialize socket");
+		CE_ASSERT(WSAStartup(MAKEWORD(2,2), &WsaData) == 0L, "Unable to initialize socket");
 
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 

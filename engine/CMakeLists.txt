@@ -461,6 +461,7 @@ if (WINDOWS)
 	list (APPEND OS_HEADERS
 		os/win/OsFile.h
 		os/win/OsThread.h
+		os/win/OsSocket.h
 		os/win/OsWindow.h
 		os/win/Mutex.h
 		os/win/Cond.h

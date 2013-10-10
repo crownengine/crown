@@ -42,13 +42,13 @@ namespace crown
 
 struct ReadResult
 {
-	enum { NO_ERROR, UNKNOWN, REMOTE_CLOSED } error;
+	enum { NO_RESULT_ERROR, UNKNOWN, REMOTE_CLOSED } error;
 	size_t received_bytes;
 };
 
 struct WriteResult
 {
-	enum { NO_ERROR, UNKNOWN, REMOTE_CLOSED } error;
+	enum { NO_RESULT_ERROR, UNKNOWN, REMOTE_CLOSED } error;
 	size_t sent_bytes;
 };
 
@@ -120,7 +120,7 @@ public:
 
 		if (received_bytes == -1 && errno == EAGAIN)
 		{
-			result.error = ReadResult::NO_ERROR;
+			result.error = ReadResult::NO_RESULT_ERROR;
 			result.received_bytes = 0;
 		}
 		else if (received_bytes == 0)
@@ -129,7 +129,7 @@ public:
 		}
 		else
 		{
-			result.error = ReadResult::NO_ERROR;
+			result.error = ReadResult::NO_RESULT_ERROR;
 			result.received_bytes = received_bytes;
 		}
 
@@ -151,7 +151,7 @@ public:
 		}
 		else
 		{
-			result.error = WriteResult::NO_ERROR;
+			result.error = WriteResult::NO_RESULT_ERROR;
 			result.sent_bytes = sent_bytes;
 		}
 
@@ -316,7 +316,7 @@ public:
 
 		if (received_bytes == -1 && errno == EAGAIN)
 		{
-			result.error = ReadResult::NO_ERROR;
+			result.error = ReadResult::NO_RESULT_ERROR;
 			result.received_bytes = 0;
 		}
 		else if (received_bytes == 0)
@@ -325,7 +325,7 @@ public:
 		}
 		else
 		{
-			result.error = ReadResult::NO_ERROR;
+			result.error = ReadResult::NO_RESULT_ERROR;
 			result.received_bytes = received_bytes;
 		}
 
@@ -355,7 +355,7 @@ public:
 			return result;
 		}
 
-		result.error = WriteResult::NO_ERROR;
+		result.error = WriteResult::NO_RESULT_ERROR;
 		result.sent_bytes = sent_bytes;
 		return result;
 	}
