@@ -78,6 +78,8 @@ struct Camera
 	float					far_clip_distance() const;
 	void					set_far_clip_distance(float far);
 
+	void					set_orthographic_metrics(uint16_t width, uint16_t height);
+
 public:
 
 	void					update_projection_matrix();
@@ -98,6 +100,8 @@ public:
 	float					m_aspect;
 	float					m_near;
 	float					m_far;
+	uint16_t				m_width;
+	uint16_t				m_height;
 };
 
 } // namespace crown

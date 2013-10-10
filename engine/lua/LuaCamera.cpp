@@ -251,28 +251,41 @@ CE_EXPORT int camera_set_far_clip_distance(lua_State* L)
 	return 0;
 }
 
+CE_EXPORT int camera_set_orthographic_metrics(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Camera* camera = stack.get_camera(1);
+	const uint16_t width = stack.get_int(2);
+	const uint16_t height = stack.get_int(3);
+
+	camera->set_orthographic_metrics(width, height);
+	return 0;
+}
+
 //-----------------------------------------------------------------------------
 void load_camera(LuaEnvironment& env)
 {
-	env.load_module_function("Camera", "local_position",         camera_local_position);
-	env.load_module_function("Camera", "local_rotation",         camera_local_rotation);
-	env.load_module_function("Camera", "local_pose",             camera_local_pose);
-	env.load_module_function("Camera", "world_position",         camera_world_position);
-	env.load_module_function("Camera", "world_rotation",         camera_world_rotation);
-	env.load_module_function("Camera", "world_pose",             camera_world_pose);
-	env.load_module_function("Camera", "set_local_position",     camera_set_local_position);
-	env.load_module_function("Camera", "set_local_rotation",     camera_set_local_rotation);
-	env.load_module_function("Camera", "set_local_pose",         camera_set_local_pose);
-	env.load_module_function("Camera", "set_projection_type",    camera_set_projection_type);
-	env.load_module_function("Camera", "projection_type",        camera_projection_type);
-	env.load_module_function("Camera", "fov",                    camera_fov);
-	env.load_module_function("Camera", "set_fov",                camera_set_fov);
-	env.load_module_function("Camera", "aspect",                 camera_aspect);
-	env.load_module_function("Camera", "set_aspect",             camera_set_aspect);
-	env.load_module_function("Camera", "near_clip_distance",     camera_near_clip_distance);
-	env.load_module_function("Camera", "set_near_clip_distance", camera_set_near_clip_distance);
-	env.load_module_function("Camera", "far_clip_distance",      camera_far_clip_distance);
-	env.load_module_function("Camera", "set_far_clip_distance",  camera_set_far_clip_distance);
+	env.load_module_function("Camera", "local_position",            camera_local_position);
+	env.load_module_function("Camera", "local_rotation",            camera_local_rotation);
+	env.load_module_function("Camera", "local_pose",                camera_local_pose);
+	env.load_module_function("Camera", "world_position",            camera_world_position);
+	env.load_module_function("Camera", "world_rotation",            camera_world_rotation);
+	env.load_module_function("Camera", "world_pose",                camera_world_pose);
+	env.load_module_function("Camera", "set_local_position",        camera_set_local_position);
+	env.load_module_function("Camera", "set_local_rotation",        camera_set_local_rotation);
+	env.load_module_function("Camera", "set_local_pose",            camera_set_local_pose);
+	env.load_module_function("Camera", "set_projection_type",       camera_set_projection_type);
+	env.load_module_function("Camera", "projection_type",           camera_projection_type);
+	env.load_module_function("Camera", "fov",                       camera_fov);
+	env.load_module_function("Camera", "set_fov",                   camera_set_fov);
+	env.load_module_function("Camera", "aspect",                    camera_aspect);
+	env.load_module_function("Camera", "set_aspect",                camera_set_aspect);
+	env.load_module_function("Camera", "near_clip_distance",        camera_near_clip_distance);
+	env.load_module_function("Camera", "set_near_clip_distance",    camera_set_near_clip_distance);
+	env.load_module_function("Camera", "far_clip_distance",         camera_far_clip_distance);
+	env.load_module_function("Camera", "set_far_clip_distance",     camera_set_far_clip_distance);
+	env.load_module_function("Camera", "set_orthographic_metrics",  camera_set_orthographic_metrics);	
 
 	env.load_module_enum("Camera", "ORTHOGRAPHIC", ProjectionType::ORTHOGRAPHIC);
 	env.load_module_enum("Camera", "PERSPECTIVE", ProjectionType::PERSPECTIVE);

@@ -108,6 +108,7 @@ void Camera::set_local_pose(const Matrix4x4& pose)
 void Camera::set_projection_type(ProjectionType::Enum type)
 {
 	m_projection_type = type;
+	update_projection_matrix();
 }
 
 //-----------------------------------------------------------------------
@@ -169,13 +170,21 @@ void Camera::set_far_clip_distance(float far)
 }
 
 //-----------------------------------------------------------------------------
+void Camera::set_orthographic_metrics(uint16_t width, uint16_t height)
+{
+	m_width = width;
+	m_height = height;
+	update_projection_matrix();
+}
+
+//-----------------------------------------------------------------------------
 void Camera::update_projection_matrix()
 {
 	switch (m_projection_type)
 	{
 		case ProjectionType::ORTHOGRAPHIC:
 		{
-			CE_FATAL("TODO");
+			m_projection.build_projection_ortho_rh(m_width, m_height, m_near, m_far);
 			break;
 		}
 		case ProjectionType::PERSPECTIVE:
