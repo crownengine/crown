@@ -32,7 +32,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t unit_local_position(lua_State* L)
+CE_EXPORT int unit_local_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -43,7 +43,7 @@ CE_EXPORT int32_t unit_local_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t unit_local_rotation(lua_State* L)
+CE_EXPORT int unit_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -54,7 +54,7 @@ CE_EXPORT int32_t unit_local_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t unit_local_pose(lua_State* L)
+CE_EXPORT int unit_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -65,7 +65,7 @@ CE_EXPORT int32_t unit_local_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t unit_world_position(lua_State* L)
+CE_EXPORT int unit_world_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -76,7 +76,7 @@ CE_EXPORT int32_t unit_world_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t unit_world_rotation(lua_State* L)
+CE_EXPORT int unit_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -87,7 +87,7 @@ CE_EXPORT int32_t unit_world_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t unit_world_pose(lua_State* L)
+CE_EXPORT int unit_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -98,7 +98,7 @@ CE_EXPORT int32_t unit_world_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t unit_set_local_position(lua_State* L)
+CE_EXPORT int unit_set_local_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -110,7 +110,7 @@ CE_EXPORT int32_t unit_set_local_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t unit_set_local_rotation(lua_State* L)
+CE_EXPORT int unit_set_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -122,7 +122,7 @@ CE_EXPORT int32_t unit_set_local_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int32_t unit_set_local_pose(lua_State* L)
+CE_EXPORT int unit_set_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -134,39 +134,26 @@ CE_EXPORT int32_t unit_set_local_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT void unit_add_component(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const char* name = stack.get_string(2);
-	uint32_t type = stack.get_int(3);
-
-	ComponentId component;
-	component.decode(stack.get_int(4));
-
-	unit->add_component(name, type, component);
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT void unit_remove_component(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const char* name = stack.get_string(2);
-
-	unit->remove_component(name);
-}
-
-//-----------------------------------------------------------------------------
 CE_EXPORT int unit_camera(lua_State* L)
 {
 	LuaStack stack(L);
 
 	Unit* unit = stack.get_unit(1);
+	const char* camera_name = stack.get_string(2);
 
-	stack.push_camera(unit->camera("fixme"));
+	stack.push_camera(unit->camera(camera_name));
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int unit_mesh(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Unit* unit = stack.get_unit(1);
+	const char* mesh_name = stack.get_string(2);
+
+	stack.push_mesh(unit->mesh(mesh_name));
 	return 1;
 }
 
@@ -183,7 +170,8 @@ void load_unit(LuaEnvironment& env)
 	env.load_module_function("Unit", "set_local_rotation",		unit_set_local_rotation);
 	env.load_module_function("Unit", "set_local_pose",			unit_set_local_pose);
 
-	env.load_module_function("Unit", "camera", unit_camera);
+	env.load_module_function("Unit", "camera",					unit_camera);
+	env.load_module_function("Unit", "mesh",					unit_mesh);	
 }
 
 } // namespace crown
