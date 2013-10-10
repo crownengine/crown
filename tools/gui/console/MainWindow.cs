@@ -21,16 +21,18 @@ public partial class MainWindow: Gtk.Window
 	private uint history_current = 0;
 	private string[] history = new string[MAX_HISTORY_ITEMS];
 
-	// Socket recv buffer
+	// Connection
+	private string m_server_ip;
+	private int m_server_port;
 	private byte [] m_byBuff = new byte[4096]; // Recieved data buffer
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="MainWindow"/> class.
-	/// </summary>
+	
 	public MainWindow (): base (Gtk.WindowType.Toplevel)
 	{
 		Build ();
-		Connect ();
+
+		// Connection
+		m_server_ip = "127.0.0.1";
+		m_server_port = 10001;
 
 		// Create tags for color-formatted text
 		tagInfo = new Gtk.TextTag ("info");
@@ -325,10 +327,7 @@ public partial class MainWindow: Gtk.Window
 		entry1.Completion.Model = lua_api;
 		entry1.Completion.TextColumn = 0;
 	}
-
-	/// <summary>
-	/// Connect this instance.
-	/// </summary>
+	
 	public void Connect()
 	{
 		// Close the socket if it is still open
@@ -340,27 +339,17 @@ public partial class MainWindow: Gtk.Window
 		}
 
 		// Create the socket object
-		m_sock = new System.Net.Sockets.Socket( AddressFamily.InterNetwork, 
-		                                       SocketType.Stream, ProtocolType.Tcp );    
+		m_sock = new System.Net.Sockets.Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);    
 
 		// Define the Server address and port
-		IPEndPoint epServer = new IPEndPoint(  IPAddress.Parse("127.0.0.1"), 10001 );
-
-		// Connect to the server blocking method
-		// and setup callback for recieved data
-		// m_sock.Connect( epServer );
-		// SetupRecieveCallback( m_sock );
+		IPEndPoint epServer = new IPEndPoint(IPAddress.Parse(m_server_ip), m_server_port);
 
 		// Connect to server non-Blocking method
 		m_sock.Blocking = false;
 		AsyncCallback onconnect = new AsyncCallback( OnConnect );
 		m_sock.BeginConnect( epServer, onconnect, m_sock );
 	}
-
-	/// <summary>
-	/// Raises the connect event.
-	/// </summary>
-	/// <param name="ar">Ar.</param>
+	
 	public void OnConnect( IAsyncResult ar )
 	{
 		// Socket was the passed in object
@@ -369,41 +358,36 @@ public partial class MainWindow: Gtk.Window
 		// Check if we were sucessfull
 		try
 		{
-			//    sock.EndConnect( ar );
-			if( sock.Connected )
-				SetupRecieveCallback( sock );
+			if(sock.Connected)
+			{
+				SetupReceiveCallback(sock);
+				WriteLog("Connected to " + m_server_ip + ":" + m_server_port + "\n", tagInfo);
+			}
 			else
-				Console.Write("Unable to connect to remote machine");
+			{
+				WriteLog("Unable to connect to " + m_server_ip + ":" + m_server_port + "\n", tagInfo);
+			}
 		}
 		catch( Exception ex )
 		{
-			Console.Write("Unable to connect to remote machine");
+			WriteLog("Unable to connect to " + m_server_ip + ":" + m_server_port + "\n", tagInfo);
 		}
 	}
-
-	/// <summary>
-	/// Setups the recieve callback.
-	/// </summary>
-	/// <param name="sock">Sock.</param>
-	public void SetupRecieveCallback(System.Net.Sockets.Socket sock)
+	
+	public void SetupReceiveCallback(System.Net.Sockets.Socket sock)
 	{
 		try
 		{
-			AsyncCallback recieveData = new AsyncCallback( OnRecievedData );
-			sock.BeginReceive( m_byBuff, 0, m_byBuff.Length, 
-			                  SocketFlags.None, recieveData, sock );
+			AsyncCallback recieveData = new AsyncCallback( OnReceivedData );
+			sock.BeginReceive( m_byBuff, 0, m_byBuff.Length, SocketFlags.None, recieveData, sock );
 		}
 		catch( Exception ex )
 		{
 			Console.Write("Setup Recieve Callback failed!");
 		}
 	}
-
-	/// <summary>
-	/// Raises the recieved data event.
-	/// </summary>
-	/// <param name="ar">Ar.</param>
-	public void OnRecievedData( IAsyncResult ar )
+	
+	public void OnReceivedData( IAsyncResult ar )
 	{
 		// Socket was the passed in object
 		System.Net.Sockets.Socket sock = (System.Net.Sockets.Socket)ar.AsyncState;
@@ -415,11 +399,11 @@ public partial class MainWindow: Gtk.Window
 			if( nBytesRec > 0 )
 			{
 				// Wrote the data to the List
-				string sRecieved = Encoding.ASCII.GetString( m_byBuff, 0, nBytesRec );
+				string received = Encoding.ASCII.GetString( m_byBuff, 0, nBytesRec );
 
-				Console.Write(sRecieved);
+				Console.Write(received);
 
-				JObject obj = JObject.Parse(sRecieved);
+				JObject obj = JObject.Parse(received);
 				if (obj["type"].ToString() == "message")
 				{
 					string severity = obj["severity"].ToString();
@@ -444,24 +428,23 @@ public partial class MainWindow: Gtk.Window
 				}
 				else
 				{
-					WriteLog("Unknown response from server", tagInfo);
+					WriteLog("Unknown response from server\n", tagInfo);
 				}
 
 				// If the connection is still usable restablish the callback
-				SetupRecieveCallback( sock );
+				SetupReceiveCallback( sock );
 			}
 			else
 			{
 				// If no data was recieved then the connection is probably dead
-				Console.WriteLine( "Client {0}, disconnected", 
-				                  sock.RemoteEndPoint );
+				WriteLog ("Server closed connection\n", tagInfo);
 				sock.Shutdown( SocketShutdown.Both );
 				sock.Close();
 			}
 		}
 		catch( Exception ex )
 		{
-			Console.Write("Unusual error druing Recieve!");
+			WriteLog ("Unknown error during receive\n", tagInfo);
 		}
 	}
 
@@ -485,11 +468,12 @@ public partial class MainWindow: Gtk.Window
 
 	protected void SendScript(String script)
 	{
-		String json = "{\"type\":\"script\",\"script\":\"";
-		json += script;
-		json += "\"}";
-		Console.Write (json);
-		m_sock.Send (Encoding.ASCII.GetBytes (json));
+		string json = "{\"type\":\"script\",\"script\":\"" + script + "\"}";
+
+		if (m_sock.Connected)
+		{
+			m_sock.Send (Encoding.ASCII.GetBytes (json));
+		}
 	}
 
 	protected void SendCommand(String command)
@@ -501,19 +485,14 @@ public partial class MainWindow: Gtk.Window
 		string resource_type = words[1];
 		string resource_name = words[2];
 	
-		string json = "{\"type\":\"command\",\"command\":\"";
-		json += cmd;
-		json += "\",";
-		json += "\"resource_type\":";
-		json += "\"";
-		json += resource_type;
-		json += "\",";
-		json += "\"resource_name\":";
-		json +="\"";
-		json += resource_name;
-		json += "\"}";
-		Console.Write (json);
-		m_sock.Send (Encoding.ASCII.GetBytes (json));
+		string json = "{\"type\":\"command\",\"command\":\"" + cmd + "\","
+					+ "\"resource_type\":" + "\"" + resource_type + "\","
+					+ "\"resource_name\":" + "\"" + resource_name + "\"}";
+
+		if (m_sock.Connected)
+		{
+			m_sock.Send (Encoding.ASCII.GetBytes (json));
+		}
 	}
 
 	protected void OnConnectActivated (object sender, EventArgs e)
