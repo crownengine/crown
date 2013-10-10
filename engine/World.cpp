@@ -39,6 +39,8 @@ namespace crown
 World::World()
 	: m_allocator(default_allocator(), 1024 * 1024)
 	, m_is_init(false)
+	, m_units(default_allocator())
+	, m_camera(default_allocator())
 {
 }
 
@@ -55,13 +57,23 @@ void World::shutdown()
 //-----------------------------------------------------------------------------
 UnitId World::spawn_unit(const char* /*name*/, const Vector3& pos, const Quaternion& rot)
 {
-	const UnitId unit = m_unit_table.create();
+	const UnitId unit_id = m_unit_table.create();
 
-	m_units[unit.index].create(*this, pos, rot);
+	Unit unit;
+	unit.create(*this, m_scene_graph[unit_id.index], m_component[unit_id.index], unit_id, pos, rot);
 
-	// m_units[unit.index].load(ur);
+	// Test stuff
+	int32_t cam_node = unit.m_scene_graph->create_node(unit.m_root_node, pos, rot);
+	CameraId camera = create_camera(unit_id, cam_node);
 
-	return unit;
+	MeshId mesh = m_render_world.create_mesh("monkey");
+
+	unit.m_component->add_component("camera", ComponentType::CAMERA, camera);
+	unit.m_component->add_component("mesh", ComponentType::MESH, mesh);
+
+	m_units.push_back(unit);
+
+	return unit_id;
 }
 
 //-----------------------------------------------------------------------------
@@ -76,11 +88,6 @@ void World::link_unit(UnitId child, UnitId parent)
 {
 	CE_ASSERT(m_unit_table.has(child), "Child unit does not exist");
 	CE_ASSERT(m_unit_table.has(parent), "Parent unit does not exist");
-
-	Unit& child_unit = m_units[child.index];
-	Unit& parent_unit =  m_units[parent.index];
-
-	parent_unit.m_scene_graph.link(child_unit.m_root_node, parent_unit.m_root_node);
 }
 
 //-----------------------------------------------------------------------------
@@ -88,11 +95,6 @@ void World::unlink_unit(UnitId child, UnitId parent)
 {
 	CE_ASSERT(m_unit_table.has(child), "Child unit does not exist");
 	CE_ASSERT(m_unit_table.has(parent), "Parent unit does not exist");
-
-	Unit& child_unit = m_units[child.index];
-	Unit& parent_unit =  m_units[parent.index];
-
-	parent_unit.m_scene_graph.unlink(child_unit.m_root_node);		
 }
 
 //-----------------------------------------------------------------------------
@@ -112,8 +114,43 @@ Camera* World::lookup_camera(CameraId camera)
 }
 
 //-----------------------------------------------------------------------------
+Mesh* World::lookup_mesh(MeshId mesh)
+{
+	return m_render_world.lookup_mesh(mesh);
+}
+
+//-----------------------------------------------------------------------------
 void World::update(Camera& camera, float dt)
 {
+	// Feed the scene graph with camera local pose
+	for (uint cc = 0; cc < m_camera.size(); cc++)
+	{
+		Camera& cam = m_camera[cc];
+		SceneGraph& graph = m_scene_graph[cam.m_unit.index];
+
+		graph.set_local_pose(cam.m_node, cam.m_local_pose);
+	}
+
+	// Update all the units
+	for (uint32_t uu = 0; uu < m_units.size(); uu++)
+	{
+		Unit& unit = m_units[uu];
+		SceneGraph& graph = m_scene_graph[unit.m_id.index];
+
+		// Update unit's scene graph
+		graph.update();
+	}
+
+	// Fetch the camera world poses from scene graph
+	for (uint32_t cc = 0; cc < m_camera.size(); cc++)
+	{
+		Camera& cam = m_camera[cc];
+		SceneGraph& graph = m_scene_graph[cam.m_unit.index];
+
+		cam.m_world_pose = graph.world_pose(cam.m_node);
+	}
+
+	// Update render world
 	m_render_world.update(camera, dt);
 }
 
@@ -124,24 +161,22 @@ RenderWorld& World::render_world()
 }
 
 //-----------------------------------------------------------------------------
-CameraId World::create_camera(int32_t node, const Vector3& pos, const Quaternion& rot)
+CameraId World::create_camera(UnitId unit, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
-	CameraId camera = m_camera_table.create();
+	CameraId camera_id = m_camera_table.create();
 
-	m_camera[camera.index].create(node, pos, rot);
-	return camera;
+	Camera camera;
+	camera.create(unit, node, pos, rot);
+
+	m_camera.push_back(camera);
+
+	return camera_id;
 }
 
 //-----------------------------------------------------------------------------
 void World::destroy_camera(CameraId camera)
 {
 	m_camera_table.destroy(camera);
-}
-
-//-----------------------------------------------------------------------------
-Mesh* World::mesh()
-{
-	return m_render_world.mesh();
 }
 
 //-----------------------------------------------------------------------------

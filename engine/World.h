@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LinearAllocator.h"
 #include "Unit.h"
 #include "Camera.h"
+#include "Vector.h"
 #include "LinearAllocator.h"
 #include "RenderWorld.h"
 #include "SoundRenderer.h"
@@ -44,6 +45,7 @@ namespace crown
 
 typedef Id UnitId;
 typedef Id CameraId;
+typedef Id MeshId;
 typedef Id SoundInstanceId;
 
 struct SoundInstance
@@ -51,6 +53,7 @@ struct SoundInstance
 	SoundId m_sound;
 };
 
+class Mesh;
 class Vector3;
 class Quaternion;
 
@@ -70,14 +73,13 @@ public:
 
 	Unit*					lookup_unit(UnitId unit);
 	Camera*					lookup_camera(CameraId camera);
+	Mesh*					lookup_mesh(MeshId mesh);
 
 	RenderWorld&			render_world();
 	void					update(Camera& camera, float dt);
 
-	CameraId				create_camera(int32_t node, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	CameraId				create_camera(UnitId unit, int32_t node, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
 	void					destroy_camera(CameraId camera);
-
-	Mesh*					mesh();
 
 	SoundInstanceId			play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
 	void					pause_sound(SoundInstanceId sound);
@@ -90,14 +92,16 @@ public:
 private:
 
 	LinearAllocator			m_allocator;
+	bool					m_is_init : 1;
 
-	bool					m_is_init :1;
+	SceneGraph				m_scene_graph[MAX_UNITS];
+	ComponentList			m_component[MAX_UNITS];
 
 	IdTable<MAX_UNITS> 		m_unit_table;
-	Unit					m_units[MAX_UNITS];
+	List<Unit>				m_units;
 
 	IdTable<MAX_CAMERAS>	m_camera_table;
-	Camera					m_camera[MAX_CAMERAS];
+	List<Camera>			m_camera;
 
 	IdTable<MAX_SOUNDS> 	m_sound_table;
 	SoundInstance			m_sound[MAX_SOUNDS];
