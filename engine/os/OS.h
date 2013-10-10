@@ -48,6 +48,7 @@ namespace crown
 
 	#undef MK_SHIFT
 	#undef MK_ALT
+
 #elif defined(ANDROID)
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '/';
