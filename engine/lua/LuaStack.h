@@ -41,6 +41,8 @@ class Camera;
 class World;
 class Mesh;
 
+void clear_lua_temporaries();
+
 class LuaStack
 {
 public:

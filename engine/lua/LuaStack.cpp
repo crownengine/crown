@@ -83,6 +83,15 @@ static Quaternion* next_quat(const Quaternion& q)
 }
 
 //-----------------------------------------------------------------------------
+void clear_lua_temporaries()
+{
+	g_vec2_used = 0;
+	g_vec3_used = 0;
+	g_mat4_used = 0;
+	g_quat_used = 0;
+}
+
+//-----------------------------------------------------------------------------
 Vector2& LuaStack::get_vector2(int32_t index)
 {
 	void* v = lua_touserdata(m_state, index);

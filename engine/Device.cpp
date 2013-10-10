@@ -55,6 +55,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "RPCServer.h"
 #include "SoundRenderer.h"
 #include "World.h"
+#include "LuaStack.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -416,6 +417,8 @@ void Device::frame()
 	}
 
 	m_rpc->execute_callbacks();
+
+	clear_lua_temporaries();
 
 	m_frame_count++;
 }
