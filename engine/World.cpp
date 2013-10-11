@@ -66,10 +66,15 @@ UnitId World::spawn_unit(const char* /*name*/, const Vector3& pos, const Quatern
 	int32_t cam_node = unit.m_scene_graph->create_node(unit.m_root_node, pos, rot);
 	CameraId camera = create_camera(unit_id, cam_node);
 
-	MeshId mesh = m_render_world.create_mesh("monkey");
+	// MeshId mesh = m_render_world.create_mesh("monkey");
+
+	// unit.m_component->add_component("camera", ComponentType::CAMERA, camera);
+	// unit.m_component->add_component("mesh", ComponentType::MESH, mesh);
+
+	SpriteId sprite = m_render_world.create_sprite("textures/arcane_golem_1");
 
 	unit.m_component->add_component("camera", ComponentType::CAMERA, camera);
-	unit.m_component->add_component("mesh", ComponentType::MESH, mesh);
+	unit.m_component->add_component("sprite", ComponentType::SPRITE, sprite);
 
 	m_units.push_back(unit);
 
@@ -117,6 +122,12 @@ Camera* World::lookup_camera(CameraId camera)
 Mesh* World::lookup_mesh(MeshId mesh)
 {
 	return m_render_world.lookup_mesh(mesh);
+}
+
+//-----------------------------------------------------------------------------
+Sprite* World::lookup_sprite(SpriteId sprite)
+{
+	return m_render_world.lookup_sprite(sprite);
 }
 
 //-----------------------------------------------------------------------------

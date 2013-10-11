@@ -54,6 +54,7 @@ struct SoundInstance
 };
 
 class Mesh;
+class Sprite;
 class Vector3;
 class Quaternion;
 
@@ -74,6 +75,7 @@ public:
 	Unit*					lookup_unit(UnitId unit);
 	Camera*					lookup_camera(CameraId camera);
 	Mesh*					lookup_mesh(MeshId mesh);
+	Sprite*					lookup_sprite(SpriteId sprite);
 
 	RenderWorld&			render_world();
 	void					update(Camera& camera, float dt);
