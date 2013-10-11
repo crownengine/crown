@@ -345,6 +345,7 @@ set (LUA_SRC
 	lua/LuaUnit.cpp
 	lua/LuaCamera.cpp
 	lua/LuaMesh.cpp
+	lua/LuaSprite.cpp
 )
 
 set (LUA_HEADERS

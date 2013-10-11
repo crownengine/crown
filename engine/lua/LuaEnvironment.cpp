@@ -62,6 +62,7 @@ CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 	load_camera(*env);
 	load_world(*env);
 	load_mesh(*env);
+	load_sprite(*env);
 
 	return 1;
 }

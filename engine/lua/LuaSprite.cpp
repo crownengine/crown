@@ -89,7 +89,7 @@ CE_EXPORT int sprite_set_local_rotation(lua_State* L)
 	Sprite* sprite = stack.get_sprite(1);
 	Quaternion rot = stack.get_quaternion(2);
 
-	sprite->set_local_rotation(pos);
+	sprite->set_local_rotation(rot);
 
 	return 0;
 }
@@ -106,8 +106,9 @@ CE_EXPORT int sprite_set_local_pose(lua_State* L)
 
 	return 0;
 }
+
 //-----------------------------------------------------------------------------
-void load_mesh(LuaEnvironment& env)
+void load_sprite(LuaEnvironment& env)
 {
 	env.load_module_function("Sprite", "local_position", 		sprite_local_position);
 	env.load_module_function("Sprite", "local_rotation", 		sprite_local_rotation);
