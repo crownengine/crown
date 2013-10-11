@@ -28,16 +28,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "IdTable.h"
 #include "Mesh.h"
+#include "Sprite.h"
 #include "List.h"
 #include "Vector3.h"
 #include "Quaternion.h"
 
 #define MAX_MESHES 100
+#define MAX_SPRITES 256
 
 namespace crown
 {
 
 typedef Id MeshId;
+typedef Id SpriteId;
 struct Camera;
 
 class RenderWorld
@@ -47,21 +50,33 @@ public:
 	RenderWorld();
 	~RenderWorld();
 
-	MeshId create_mesh(const char* mesh, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
-	void destroy_mesh(MeshId id);
+	MeshId 		create_mesh(const char* mesh, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	void 		destroy_mesh(MeshId id);
+	Mesh* 		lookup_mesh(MeshId mesh);
 
-	Mesh* lookup_mesh(MeshId mesh);
+	void 		update(Camera& camera, float dt);
 
-	void update(Camera& camera, float dt);
+	MeshId 		allocate_mesh(MeshResource* mr, int32_t node, const Vector3& pos, const Quaternion& rot);
+	void 		deallocate_mesh(MeshId id);
 
-	MeshId allocate_mesh(MeshResource* mr, int32_t node, const Vector3& pos, const Quaternion& rot);
-	void deallocate_mesh(MeshId id);
+public:	// Sprites - Testing
+
+	SpriteId	create_sprite(const char* name, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	void		destroy_sprite(SpriteId id);
+	Sprite*		lookup_sprite(SpriteId id);
+
+	SpriteId	allocate_sprite(TextureResource* tr, int32_t node, const Vector3& pos, const Quaternion& rot);
+	void 		deallocate_sprite(SpriteId id);
 
 private:
 
 	IdTable<MAX_MESHES>		m_mesh_table;
 	uint32_t				m_sparse_to_packed[MAX_MESHES];
 	List<Mesh>				m_mesh;
+
+	IdTable<MAX_SPRITES>	m_sprite_table;
+	uint32_t				m_sprite_sparse_to_packed[MAX_SPRITES];
+	List<Sprite>			m_sprite;
 };
 
 } // namespace crown
