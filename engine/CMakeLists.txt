@@ -78,6 +78,7 @@ set (SRC
 	SceneGraph.cpp
 	RenderWorld.cpp
 	Mesh.cpp
+	Sprite.cpp
 )
 
 set (HEADERS
@@ -90,6 +91,7 @@ set (HEADERS
 	SceneGraph.h
 	RenderWorld.h
 	Mesh.h
+	Sprite.h
 )
 
 set (CORE_SRC
