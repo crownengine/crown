@@ -48,6 +48,7 @@ struct ComponentType
 		UNKNOWN,
 		CAMERA,
 		MESH,
+		SPRITE,
 		SOUND
 	};
 };
@@ -154,6 +155,7 @@ struct UnitResource
 
 class Camera;
 class Mesh;
+class Sprite;
 class World;
 
 struct Unit
@@ -180,6 +182,7 @@ struct Unit
 
 	Camera*			camera(const char* name);
 	Mesh*			mesh(const char* name);
+	Sprite*			sprite(const char* name);
 
 private:
 

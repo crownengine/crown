@@ -146,4 +146,12 @@ Mesh* Unit::mesh(const char* name)
 	return m_creator->lookup_mesh(c->component);
 }
 
+//-----------------------------------------------------------------------------
+Sprite*	Unit::sprite(const char* name)
+{
+	Component* c = m_component->get_component(name);
+
+	return m_creator->lookup_sprite(c->component);
+}
+
 } // namespace crown
