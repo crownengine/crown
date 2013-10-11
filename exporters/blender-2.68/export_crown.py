@@ -265,7 +265,7 @@ def write_file(filepath, objects, scene,
 
 					if f_smooth: # Use smoothed normals
 						for vi, v in f_v:
-							fw('%d, ' % (globalNormals[veckey3d(v.normal)]))
+							fw('%d,' % (globalNormals[veckey3d(v.normal)]))
 					else: # No smoothing, face normals
 						no = globalNormals[veckey3d(f.normal)]
 						for vi, v in f_v:
