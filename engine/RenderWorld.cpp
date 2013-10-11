@@ -174,11 +174,6 @@ void RenderWorld::update(Camera& camera, float /*dt*/)
 		r->commit(0);
 	}
 
-	r->set_layer_view(0, camera_view);
-	r->set_layer_projection(0, camera.m_projection);
-	r->set_layer_viewport(0, 0, 0, 1000, 625);
-	r->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
-
 	for (uint32_t s = 0; s < m_sprite.size(); s++)
 	{
 		const Sprite& sprite = m_sprite[s];
@@ -186,8 +181,8 @@ void RenderWorld::update(Camera& camera, float /*dt*/)
 		r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
 		r->set_vertex_buffer(sprite.m_vb);
 		r->set_index_buffer(sprite.m_ib);
-		r->set_program(sprite.m_prog);
-		r->set_texture(0, sprite.m_albedo, sprite.m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
+		r->set_program(sprite.m_program);
+		r->set_texture(0, sprite.m_uniform, sprite.m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
 
 		r->set_pose(sprite.m_local_pose);
 		r->commit(0);

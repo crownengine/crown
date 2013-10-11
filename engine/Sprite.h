@@ -64,9 +64,11 @@ public:
 
 	TextureId		m_texture;
 
-	GPUProgramId	m_prog;
+	ShaderId 		m_vertex;
+	ShaderId 		m_fragment;
+	GPUProgramId	m_program;
 
-	UniformId 		m_albedo;
+	UniformId 		m_uniform;
 
 };
 

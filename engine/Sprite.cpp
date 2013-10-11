@@ -64,8 +64,7 @@ static uint16_t quad_indices[] =
 };
 
 //-----------------------------------------------------------------------------
-static const char* default_vertex =
-	
+static const char* sprite_vs =
 	"uniform mat4      	u_model;"
 	"uniform mat4      	u_model_view_projection;"
 
@@ -85,15 +84,15 @@ static const char* default_vertex =
 	"}";
 
 //-----------------------------------------------------------------------------
-static const char* default_fragment = 
+static const char* sprite_fs = 
 	"in vec2            tex_coord0;"
 	"in vec4            color;"
 
-	"uniform sampler2D  u_asd_0;"
+	"uniform sampler2D  u_tex;"
 
 	"void main(void)"
 	"{"
-	"	gl_FragColor = texture(u_asd_0, tex_coord0) * color;"
+	"	gl_FragColor = texture(u_tex, tex_coord0) * color;"
 	"}";
 
 //-----------------------------------------------------------------------------
@@ -106,12 +105,13 @@ void Sprite::create(const TextureResource* tr, int32_t node, const Vector3& pos,
 	m_vb = r->create_vertex_buffer(4, VertexFormat::P2_N3_C4_T2, quad_vertices);
 	m_ib = r->create_index_buffer(6, quad_indices);
 
-	ShaderId vertex = r->create_shader(ShaderType::VERTEX, default_vertex);
-	ShaderId fragment = r->create_shader(ShaderType::FRAGMENT, default_fragment);
+	m_vertex = r->create_shader(ShaderType::VERTEX, sprite_vs);
+	m_fragment = r->create_shader(ShaderType::FRAGMENT, sprite_fs);
 
-	m_albedo = r->create_uniform("u_albedo_0", UniformType::INTEGER_1, 0);
+	m_program = r->create_gpu_program(m_vertex, m_fragment);
 
-	m_prog = r->create_gpu_program(vertex, fragment);
+	m_uniform = r->create_uniform("u_tex", UniformType::INTEGER_1, 1);
+
 
 	set_local_position(pos);
 	set_local_rotation(rot);
