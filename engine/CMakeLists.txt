@@ -206,6 +206,7 @@ set (MEM_SRC
 	core/mem/LinearAllocator.cpp
 	core/mem/StackAllocator.cpp
 	core/mem/ProxyAllocator.cpp
+	core/mem/PoolAllocator.cpp
 )
 
 set (MEM_HEADERS
@@ -216,6 +217,7 @@ set (MEM_HEADERS
 	core/mem/LinearAllocator.h
 	core/mem/StackAllocator.h
 	core/mem/ProxyAllocator.h
+	core/mem/PoolAllocator.h
 )
 
 set (COMPRESSORS_SRC

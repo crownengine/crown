@@ -80,6 +80,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LinearAllocator.h"
 #include "StackAllocator.h"
 #include "ProxyAllocator.h"
+#include "PoolAllocator.h"
 
 // Core/Filesystem
 #include "File.h"
