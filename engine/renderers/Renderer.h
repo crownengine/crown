@@ -79,6 +79,8 @@ public:
 	void create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, RenderTargetFormat::Enum format);
 	void destroy_render_target_impl(RenderTargetId id);
 
+	/// Initializes the renderer.
+	/// Should be the first call to the renderer.
 	inline void init()
 	{
 		m_should_run = true;
@@ -88,6 +90,8 @@ public:
 		frame();
 	}
 
+	/// Shutdowns the renderer.
+	/// Should be the last call to the renderer.
 	inline void shutdown()
 	{
 		if (m_should_run)
@@ -100,7 +104,7 @@ public:
 	}
 
 	/// Creates a new vertex buffer optimized for rendering static vertex data.
-	/// @a vertices is the array containig @a count vertex data elements of the given @a format.
+	/// @a vertices is the array containig @a count vertex data elements, each of the given @a format.
 	inline VertexBufferId create_vertex_buffer(size_t count, VertexFormat::Enum format, const void* vertices)
 	{
 		const VertexBufferId id = m_vertex_buffers.create();
@@ -114,6 +118,9 @@ public:
 		return id;
 	}
 
+	/// Creates a new vertex buffer optimized for renderering dynamic vertex data.
+	/// This function only allocates storage for @a count vertices, each of the given @a format;
+	/// use Renderer::update_vertex_buffer() to fill the buffer with actual data.
 	inline VertexBufferId create_dynamic_vertex_buffer(size_t count, VertexFormat::Enum format)
 	{
 		const VertexBufferId id = m_vertex_buffers.create();
@@ -126,13 +133,12 @@ public:
 		return id;
 	}
 
-	/// Updates the data associated with the given vertex buffer @a id.
-	/// @a vertices is the array containig @a count vertex data elements of the format
-	/// specified at the creation of the buffer.
+	/// Updates the vertex buffer data of @a id with @a count @a vertices starting
+	/// at the given @a offset. The @a vertices have to match the format specified at creation time.
 	/// @note
-	/// @a count and @a offset together do not have to exceed the number of elements specified
-	/// at the creation of the buffer.
-	inline void update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices)
+	/// @a count and @a offset together do not have to exceed the number of elements
+	/// originally specified to Renderer::create_vertex_buffer() (or Renderer::create_dynamic_vertex_buffer())
+	inline void update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const uint16_t* vertices)
 	{
 		m_submit->m_commands.write(CommandType::UPDATE_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
@@ -162,6 +168,9 @@ public:
 		return id;
 	}
 
+	/// Creates a new index buffer optimized for rendering dynamic index buffers.
+	/// This function only allocates storage for @a count indices;
+	/// use Renderer::update_index_buffer() to fill the buffer with actual data.
 	inline IndexBufferId create_dynamic_index_buffer(size_t count)
 	{
 		const IndexBufferId id = m_index_buffers.create();
@@ -173,6 +182,11 @@ public:
 		return id;
 	}
 
+	/// Updates the index buffer data of @a id with @a count @a indices starting
+	/// at the given @a offset.
+	/// @note
+	/// @a count and @a offset together do not have to exceed the number of elements
+	/// originally specified to Renderer::create_index_buffer() (or Renderer::create_dynamic_index_buffer())
 	inline void update_index_buffer(IndexBufferId id, size_t offset, size_t count, const void* indices)
 	{
 		m_submit->m_commands.write(CommandType::UPDATE_INDEX_BUFFER);
@@ -189,6 +203,8 @@ public:
 		m_submit->m_commands.write(id);
 	}
 
+	/// Creates a new texture of size @a width and @height.
+	/// The array @a data should contain @a width * @a height elements of the given @a format.
 	inline TextureId create_texture(uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data)
 	{
 		const TextureId id = m_textures.create();
@@ -203,6 +219,9 @@ public:
 		return id;
 	}
 
+	/// Updates the pixels of texture @a id at region defined by @a x, @a y, @a width, @a height.
+	/// The array @a data should contain @a width * @a height elements of the format originally specified
+	/// to Renderer::create_texture()
 	inline void update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data)
 	{
 		m_submit->m_commands.write(CommandType::UPDATE_TEXTURE);
@@ -214,12 +233,14 @@ public:
 		m_submit->m_commands.write(data);
 	}
 
+	/// Destroys the texture @æ id.
 	inline void destroy_texture(TextureId id)
 	{
 		m_submit->m_commands.write(CommandType::DESTROY_TEXTURE);
 		m_submit->m_commands.write(id);
 	}
 
+	/// Creates a new shader of the given @a type from the string @a text.
 	inline ShaderId create_shader(ShaderType::Enum type, const char* text)
 	{
 		const ShaderId id = m_shaders.create();
@@ -232,12 +253,14 @@ public:
 		return id;
 	}
 
+	/// Destroy the shader @a id.
 	inline void destroy_shader(ShaderId id)
 	{
 		m_submit->m_commands.write(CommandType::DESTROY_SHADER);
 		m_submit->m_commands.write(id);
 	}
 
+	/// Creates a new gpu program from @a vertex shader and @a pixel shader.
 	inline GPUProgramId create_gpu_program(ShaderId vertex, ShaderId pixel)
 	{
 		const GPUProgramId id = m_gpu_programs.create();
@@ -250,12 +273,15 @@ public:
 		return id;
 	}
 
+	/// Destroys the gpu program @a id.
 	inline void destroy_gpu_program(GPUProgramId id)
 	{
 		m_submit->m_commands.write(CommandType::DESTROY_GPU_PROGRAM);
 		m_submit->m_commands.write(id);
 	}
 
+	/// Creates a new uniform with the given @a name, with storage for exactly
+	/// @a num elements of the given @a type.
 	inline UniformId create_uniform(const char* name, UniformType::Enum type, uint8_t num)
 	{
 		CE_ASSERT(name_to_stock_uniform(name) == ShaderUniform::COUNT, "Uniform name '%s' is a stock uniform.", name);
@@ -275,6 +301,7 @@ public:
 		return id;
 	}
 
+	/// Destroys the uniform @a id.
 	inline void destroy_uniform(UniformId id)
 	{
 		m_submit->m_commands.write(CommandType::DESTROY_UNIFORM);
