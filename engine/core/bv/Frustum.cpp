@@ -40,23 +40,23 @@ Frustum::Frustum()
 //-----------------------------------------------------------------------------
 Frustum::Frustum(const Frustum& frustum)
 {
-	m_planes[FP_LEFT]		= frustum.m_planes[FP_LEFT];
-	m_planes[FP_RIGHT]		= frustum.m_planes[FP_RIGHT];
-	m_planes[FP_BOTTOM]		= frustum.m_planes[FP_BOTTOM];
-	m_planes[FP_TOP]		= frustum.m_planes[FP_TOP];
-	m_planes[FP_NEAR]		= frustum.m_planes[FP_NEAR];
-	m_planes[FP_FAR]		= frustum.m_planes[FP_FAR];
+	m_planes[FrustumPlane::LEFT]	= frustum.m_planes[FrustumPlane::LEFT];
+	m_planes[FrustumPlane::RIGHT]	= frustum.m_planes[FrustumPlane::RIGHT];
+	m_planes[FrustumPlane::BOTTOM]	= frustum.m_planes[FrustumPlane::BOTTOM];
+	m_planes[FrustumPlane::TOP]		= frustum.m_planes[FrustumPlane::TOP];
+	m_planes[FrustumPlane::NEAR]	= frustum.m_planes[FrustumPlane::NEAR];
+	m_planes[FrustumPlane::FAR]		= frustum.m_planes[FrustumPlane::FAR];
 }
 
 //-----------------------------------------------------------------------------
 bool Frustum::contains_point(const Vector3& point) const
 {
-	if (m_planes[FP_LEFT].distance_to_point(point) < 0.0) return false;
-	if (m_planes[FP_RIGHT].distance_to_point(point) < 0.0) return false;
-	if (m_planes[FP_BOTTOM].distance_to_point(point) < 0.0) return false;
-	if (m_planes[FP_TOP].distance_to_point(point) < 0.0) return false;
-	if (m_planes[FP_NEAR].distance_to_point(point) < 0.0) return false;
-	if (m_planes[FP_FAR].distance_to_point(point) < 0.0) return false;
+	if (m_planes[FrustumPlane::LEFT].distance_to_point(point) < 0.0) return false;
+	if (m_planes[FrustumPlane::RIGHT].distance_to_point(point) < 0.0) return false;
+	if (m_planes[FrustumPlane::BOTTOM].distance_to_point(point) < 0.0) return false;
+	if (m_planes[FrustumPlane::TOP].distance_to_point(point) < 0.0) return false;
+	if (m_planes[FrustumPlane::NEAR].distance_to_point(point) < 0.0) return false;
+	if (m_planes[FrustumPlane::FAR].distance_to_point(point) < 0.0) return false;
 
 	return true;
 }
@@ -106,47 +106,47 @@ Vector3 Frustum::vertex(uint32_t index) const
 void Frustum::from_matrix(const Matrix4x4& m)
 {
 	// Left plane
-	m_planes[FP_LEFT].n.x		= m.m[3] + m.m[0];
-	m_planes[FP_LEFT].n.y		= m.m[7] + m.m[4];
-	m_planes[FP_LEFT].n.z		= m.m[11] + m.m[8];
-	m_planes[FP_LEFT].d			= m.m[15] + m.m[12];
+	m_planes[FrustumPlane::LEFT].n.x	= m.m[3] + m.m[0];
+	m_planes[FrustumPlane::LEFT].n.y	= m.m[7] + m.m[4];
+	m_planes[FrustumPlane::LEFT].n.z	= m.m[11] + m.m[8];
+	m_planes[FrustumPlane::LEFT].d		= m.m[15] + m.m[12];
 
 	// Right plane
-	m_planes[FP_RIGHT].n.x		= m.m[3] - m.m[0];
-	m_planes[FP_RIGHT].n.y		= m.m[7] - m.m[4];
-	m_planes[FP_RIGHT].n.z		= m.m[11] - m.m[8];
-	m_planes[FP_RIGHT].d		= m.m[15] - m.m[12];
+	m_planes[FrustumPlane::RIGHT].n.x	= m.m[3] - m.m[0];
+	m_planes[FrustumPlane::RIGHT].n.y	= m.m[7] - m.m[4];
+	m_planes[FrustumPlane::RIGHT].n.z	= m.m[11] - m.m[8];
+	m_planes[FrustumPlane::RIGHT].d		= m.m[15] - m.m[12];
 
 	// Bottom plane
-	m_planes[FP_BOTTOM].n.x		= m.m[3] + m.m[1];
-	m_planes[FP_BOTTOM].n.y		= m.m[7] + m.m[5];
-	m_planes[FP_BOTTOM].n.z		= m.m[11] + m.m[9];
-	m_planes[FP_BOTTOM].d		= m.m[15] + m.m[13];
+	m_planes[FrustumPlane::BOTTOM].n.x	= m.m[3] + m.m[1];
+	m_planes[FrustumPlane::BOTTOM].n.y	= m.m[7] + m.m[5];
+	m_planes[FrustumPlane::BOTTOM].n.z	= m.m[11] + m.m[9];
+	m_planes[FrustumPlane::BOTTOM].d	= m.m[15] + m.m[13];
 
 	// Top plane
-	m_planes[FP_TOP].n.x		= m.m[3] - m.m[1];
-	m_planes[FP_TOP].n.y		= m.m[7] - m.m[5];
-	m_planes[FP_TOP].n.z		= m.m[11] - m.m[9];
-	m_planes[FP_TOP].d			= m.m[15] - m.m[13];
+	m_planes[FrustumPlane::TOP].n.x		= m.m[3] - m.m[1];
+	m_planes[FrustumPlane::TOP].n.y		= m.m[7] - m.m[5];
+	m_planes[FrustumPlane::TOP].n.z		= m.m[11] - m.m[9];
+	m_planes[FrustumPlane::TOP].d		= m.m[15] - m.m[13];
 
 	// Near plane
-	m_planes[FP_NEAR].n.x		= m.m[3] + m.m[2];
-	m_planes[FP_NEAR].n.y		= m.m[7] + m.m[6];
-	m_planes[FP_NEAR].n.z		= m.m[11] + m.m[10];
-	m_planes[FP_NEAR].d			= m.m[15] + m.m[14];
+	m_planes[FrustumPlane::NEAR].n.x	= m.m[3] + m.m[2];
+	m_planes[FrustumPlane::NEAR].n.y	= m.m[7] + m.m[6];
+	m_planes[FrustumPlane::NEAR].n.z	= m.m[11] + m.m[10];
+	m_planes[FrustumPlane::NEAR].d		= m.m[15] + m.m[14];
 
 	// Far plane
-	m_planes[FP_FAR].n.x		= m.m[3] - m.m[2];
-	m_planes[FP_FAR].n.y		= m.m[7] - m.m[6];
-	m_planes[FP_FAR].n.z		= m.m[11] - m.m[10];
-	m_planes[FP_FAR].d			= m.m[15] - m.m[14];
+	m_planes[FrustumPlane::FAR].n.x		= m.m[3] - m.m[2];
+	m_planes[FrustumPlane::FAR].n.y		= m.m[7] - m.m[6];
+	m_planes[FrustumPlane::FAR].n.z		= m.m[11] - m.m[10];
+	m_planes[FrustumPlane::FAR].d		= m.m[15] - m.m[14];
 
-	m_planes[FP_LEFT].normalize();
-	m_planes[FP_RIGHT].normalize();
-	m_planes[FP_BOTTOM].normalize();
-	m_planes[FP_TOP].normalize();
-	m_planes[FP_NEAR].normalize();
-	m_planes[FP_FAR].normalize();
+	m_planes[FrustumPlane::LEFT].normalize();
+	m_planes[FrustumPlane::RIGHT].normalize();
+	m_planes[FrustumPlane::BOTTOM].normalize();
+	m_planes[FrustumPlane::TOP].normalize();
+	m_planes[FrustumPlane::NEAR].normalize();
+	m_planes[FrustumPlane::FAR].normalize();
 }
 
 //-----------------------------------------------------------------------------

@@ -34,22 +34,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-enum FrustumPlane
+struct FrustumPlane
 {
-	FP_LEFT		= 0,
-	FP_RIGHT	= 1,
-	FP_BOTTOM	= 2,
-	FP_TOP		= 3,
-	FP_NEAR		= 4,
-	FP_FAR		= 5
+	enum Enum
+	{
+		LEFT	= 0,
+		RIGHT	= 1,
+		BOTTOM	= 2,
+		TOP		= 3,
+		NEAR	= 4,
+		FAR		= 5
+	};
 };
 
 class Matrix4x4;
 
-class Frustum
+struct Frustum
 {
-public:
-
 	/// Does nothing for efficiency.
 				Frustum();				
 				Frustum(const Frustum& frustum);
@@ -66,12 +67,9 @@ public:
 	/// Returns a Box containing the frustum volume.
 	Box			to_box() const;							
 
-private:
+public:
 
 	Plane		m_planes[6];
-
-	friend class Intersection;
 };
 
 } // namespace crown
-
