@@ -42,6 +42,9 @@ SceneGraph::SceneGraph()
 //-----------------------------------------------------------------------------
 int32_t SceneGraph::create_node(int32_t parent, const Vector3& pos, const Quaternion& rot)
 {
+	CE_ASSERT(parent >= -1, "Parent node must be >= -1");
+	CE_ASSERT(parent < (int32_t) m_local_poses.size(), "Parent node must be < child node");
+
 	Matrix4x4 pose(rot, pos);
 
 	m_world_poses.push_back(pose);
@@ -52,28 +55,35 @@ int32_t SceneGraph::create_node(int32_t parent, const Vector3& pos, const Quater
 }
 
 //-----------------------------------------------------------------------------
-void SceneGraph::destroy_node(int32_t id)
-{
-	(void)id;
-}
-
-//-----------------------------------------------------------------------------
 void SceneGraph::link(int32_t child, int32_t parent)
 {
+	CE_ASSERT(child < (int32_t) m_parents.size(), "Child node does not exist");
+	CE_ASSERT(parent < (int32_t) m_parents.size(), "Parent node does not exist");
+	CE_ASSERT(parent < child, "Parent must be < child");
+
+	m_world_poses[child] = Matrix4x4::IDENTITY;
+	m_local_poses[child] = Matrix4x4::IDENTITY;
 	m_parents[child] = parent;
 }
 
 //-----------------------------------------------------------------------------
 void SceneGraph::unlink(int32_t child)
 {
-	// Copy world pose before unlinking from parent
-	m_local_poses[child] = m_world_poses[m_parents[child]];
-	m_parents[child] = -1;
+	CE_ASSERT(child < (int32_t) m_parents.size(), "Child node does not exist");
+
+	if (m_parents[child] != -1)
+	{
+		// Copy world pose before unlinking from parent
+		m_local_poses[child] = m_world_poses[child];
+		m_parents[child] = -1;
+	}
 }
 
 //-----------------------------------------------------------------------------
 void SceneGraph::set_local_position(int32_t node, const Vector3& pos)
 {
+	CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
+
 	Matrix4x4& local_pose = m_local_poses[node];
 	local_pose.set_translation(pos);
 }
@@ -81,6 +91,8 @@ void SceneGraph::set_local_position(int32_t node, const Vector3& pos)
 //-----------------------------------------------------------------------------
 void SceneGraph::set_local_rotation(int32_t node, const Quaternion& rot)
 {
+	CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
+
 	Matrix4x4& local_pose = m_local_poses[node];
 
 	Vector3 local_translation = local_pose.translation();
@@ -91,43 +103,65 @@ void SceneGraph::set_local_rotation(int32_t node, const Quaternion& rot)
 //-----------------------------------------------------------------------------
 void SceneGraph::set_local_pose(int32_t node, const Matrix4x4& pose)
 {
+	CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
+
 	m_local_poses[node] = pose;
 }
 
 //-----------------------------------------------------------------------------
 Vector3 SceneGraph::local_position(int32_t node) const
 {
+	CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
+
 	return m_local_poses[node].translation();
 }
 
 //-----------------------------------------------------------------------------
 Quaternion SceneGraph::local_rotation(int32_t /*node*/) const
 {
+	//CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
+
 	return Quaternion(Vector3(1, 0, 0), 0.0f);
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 SceneGraph::local_pose(int32_t node) const
 {
+	CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
+
 	return m_local_poses[node];
 }
 
 //-----------------------------------------------------------------------------
 Vector3 SceneGraph::world_position(int32_t node) const
 {
+	CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
+
 	return m_world_poses[node].translation();
 }
 
 //-----------------------------------------------------------------------------
 Quaternion SceneGraph::world_rotation(int32_t /*node*/) const
 {
+	// CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
+
 	return Quaternion(Vector3(1, 0, 0), 0.0f);
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 SceneGraph::world_pose(int32_t node) const
 {
+	CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
+
 	return m_world_poses[node];
+}
+
+//-----------------------------------------------------------------------------
+void SceneGraph::clear()
+{
+	m_world_poses.clear();
+	m_local_poses.clear();
+	m_parents.clear();
 }
 
 //-----------------------------------------------------------------------------

@@ -36,10 +36,21 @@ namespace crown
 struct SceneGraph
 {
 					SceneGraph();
-	int32_t			create_node(int32_t parent, const Vector3& pos, const Quaternion& rot);
-	void			destroy_node(int32_t id);
 
+	/// Creates a new node with @a parent parent at position @a pos and rotation @a rot.
+	/// @note
+	/// The @a parent node must be either -1 (meaning no parent), or an index lesser
+	/// than the being created node.
+	int32_t			create_node(int32_t parent, const Vector3& pos, const Quaternion& rot);
+
+	/// Links the @a child node to the @a parent node.
+	/// After the linking the @a child pose is reset to identity.
+	/// @note
+	/// The @a parent node must be either -1 (meaning no parent), or an index lesser than child
 	void			link(int32_t child, int32_t parent);
+
+	/// Unlinks the @a child node from its parent if it has any.
+	/// After unlinking, the @child local pose is set to its previous world pose.
 	void			unlink(int32_t child);
 
 	void			set_local_position(int32_t node, const Vector3& pos);
@@ -54,6 +65,10 @@ struct SceneGraph
 	Quaternion		world_rotation(int32_t node) const;
 	Matrix4x4		world_pose(int32_t node) const;
 
+	// Clears the content of the scene graph.
+	void			clear();
+
+	/// Transforms local poses to world poses.
 	void			update();
 
 public:
