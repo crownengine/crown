@@ -127,7 +127,7 @@ public:
 	void				build_projection_perspective_lh(float fovy, float aspect, float near, float far);
 
 	/// Builds an orthographic projection matrix suited to Right-Handed coordinate systems	
-	void				build_projection_ortho_rh(float width, float height, float near, float far);
+	void				build_projection_ortho_rh(float left, float right, float bottom, float top, float near, float far);
 
 	/// Builds an orthographic projection matrix suited to Left-Handed coordinate systems		
 	void				build_projection_ortho_lh(float width, float height, float near, float far);	

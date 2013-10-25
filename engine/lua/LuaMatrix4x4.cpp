@@ -179,86 +179,6 @@ CE_EXPORT int matrix4x4_build_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_projection_perspective_rh(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	float fovy = stack.get_float(2);
-	float aspect = stack.get_float(3);
-	float near = stack.get_float(4);
-	float far = stack.get_float(5);
-
-	a.build_projection_perspective_rh(fovy, aspect, near, far);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_projection_perspective_lh(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	float fovy = stack.get_float(2);
-	float aspect = stack.get_float(3);
-	float near = stack.get_float(4);
-	float far = stack.get_float(5);
-
-	a.build_projection_perspective_lh(fovy, aspect, near, far);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_projection_ortho_rh(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	float width = stack.get_float(2);
-	float height = stack.get_float(3);
-	float near = stack.get_float(4);
-	float far = stack.get_float(5);
-
-	a.build_projection_ortho_rh(width, height, near, far);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_projection_ortho_lh(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	float width = stack.get_float(2);
-	float height = stack.get_float(3);
-	float near = stack.get_float(4);
-	float far = stack.get_float(5);
-
-	a.build_projection_ortho_lh(width, height, near, far);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_projection_ortho_2d_rh(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	float width = stack.get_float(2);
-	float height = stack.get_float(3);
-	float near = stack.get_float(4);
-	float far = stack.get_float(5);
-
-	a.build_projection_ortho_2d_rh(width, height, near, far);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
 CE_EXPORT int matrix4x4_build_look_at_rh(lua_State* L)
 {
 	LuaStack stack(L);
@@ -519,11 +439,6 @@ void load_matrix4x4(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4", "build_rotation_y", 				matrix4x4_build_rotation_y);
 	env.load_module_function("Matrix4x4", "build_rotation_z", 				matrix4x4_build_rotation_z);
 	env.load_module_function("Matrix4x4", "build_rotation", 				matrix4x4_build_rotation);
-	env.load_module_function("Matrix4x4", "build_projection_perspective_rh", matrix4x4_build_projection_perspective_rh);
-	env.load_module_function("Matrix4x4", "build_projection_perspective_lh", matrix4x4_build_projection_perspective_lh);
-	env.load_module_function("Matrix4x4", "build_projection_ortho_rh", 		matrix4x4_build_projection_ortho_rh);
-	env.load_module_function("Matrix4x4", "build_projection_ortho_lh", 		matrix4x4_build_projection_ortho_lh);
-	env.load_module_function("Matrix4x4", "build_projection_ortho_2d_rh", 	matrix4x4_build_projection_ortho_2d_rh);
 	env.load_module_function("Matrix4x4", "build_look_at_rh", 				matrix4x4_build_look_at_rh);
 	env.load_module_function("Matrix4x4", "build_look_at_lh", 				matrix4x4_build_look_at_rh);
 	env.load_module_function("Matrix4x4", "build_viewpoint_billboard", 		matrix4x4_build_viewpoint_billboard);
