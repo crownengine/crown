@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Frustum.h"
 #include "Matrix4x4.h"
+#include "Vector3.h"
 #include "IdTable.h"
 
 namespace crown
@@ -50,7 +51,7 @@ class Unit;
 /// Represents the point of view into the game world.
 struct Camera
 {
-	void					create(UnitId unit, int32_t node, const Vector3& pos, const Quaternion& rot);
+	void					create(int32_t node, const Vector3& pos, const Quaternion& rot);
 
 	Vector3					local_position() const;
 	Quaternion				local_rotation() const;
@@ -60,9 +61,9 @@ struct Camera
 	Quaternion				world_rotation() const;
 	Matrix4x4				world_pose() const;
 
-	void					set_local_position(const Vector3& pos);
-	void					set_local_rotation(const Quaternion& rot);
-	void					set_local_pose(const Matrix4x4& pose);
+	void					set_local_position(Unit* unit, const Vector3& pos);
+	void					set_local_rotation(Unit* unit, const Quaternion& rot);
+	void					set_local_pose(Unit* unit, const Matrix4x4& pose);
 
 	void					set_projection_type(ProjectionType::Enum type);
 	ProjectionType::Enum	projection_type() const;
@@ -78,7 +79,11 @@ struct Camera
 	float					far_clip_distance() const;
 	void					set_far_clip_distance(float far);
 
-	void					set_orthographic_metrics(uint16_t width, uint16_t height);
+	void					set_orthographic_metrics(float left, float right, float bottom, float top);
+	void 					set_viewport_metrics(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+
+	Vector3					screen_to_world(const Vector3& pos);
+	Vector3					world_to_screen(const Vector3& pos);
 
 public:
 
@@ -87,7 +92,6 @@ public:
 
 public:
 
-	UnitId					m_unit;
 	int32_t					m_node;
 	Matrix4x4				m_local_pose;
 	Matrix4x4				m_world_pose;
@@ -100,8 +104,17 @@ public:
 	float					m_aspect;
 	float					m_near;
 	float					m_far;
-	uint16_t				m_width;
-	uint16_t				m_height;
+
+	// Orthographic projection only
+	float					m_left;
+	float					m_right;
+	float					m_bottom;
+	float					m_top;
+
+	uint16_t				m_view_x;
+	uint16_t				m_view_y;
+	uint16_t				m_view_width;
+	uint16_t				m_view_height;
 };
 
 } // namespace crown

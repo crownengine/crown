@@ -30,20 +30,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Quaternion.h"
 #include "Unit.h"
 #include "Assert.h"
+#include "Vector4.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------
-void Camera::create(UnitId unit, int32_t node, const Vector3& pos, const Quaternion& rot)
+//-----------------------------------------------------------------------------
+void Camera::create(int32_t node, const Vector3& /*pos*/, const Quaternion& /*rot*/)
 {
-	m_unit = unit;
 	m_node = node;
 	m_projection_type = ProjectionType::PERSPECTIVE;
-
-	set_local_position(pos);
-	set_local_rotation(rot);
-	update_projection_matrix();
 }
 
 //-----------------------------------------------------------------------------
@@ -83,25 +79,31 @@ Matrix4x4 Camera::world_pose() const
 }
 
 //-----------------------------------------------------------------------------
-void Camera::set_local_position(const Vector3& pos)
+void Camera::set_local_position(Unit* unit, const Vector3& pos)
 {
 	m_local_pose.set_translation(pos);
+
+	unit->set_local_position(pos, m_node);
 }
 
 //-----------------------------------------------------------------------------
-void Camera::set_local_rotation(const Quaternion& rot)
+void Camera::set_local_rotation(Unit* unit, const Quaternion& rot)
 {
 	Matrix4x4& local_pose = m_local_pose;
 
 	Vector3 local_translation = local_pose.translation();
 	local_pose = rot.to_mat4();
 	local_pose.set_translation(local_translation);
+
+	unit->set_local_rotation(rot, m_node);
 }
 
 //-----------------------------------------------------------------------------
-void Camera::set_local_pose(const Matrix4x4& pose)
+void Camera::set_local_pose(Unit* unit, const Matrix4x4& pose)
 {
 	m_local_pose = pose;
+
+	unit->set_local_pose(pose, m_node);
 }
 
 //-----------------------------------------------------------------------
@@ -170,11 +172,54 @@ void Camera::set_far_clip_distance(float far)
 }
 
 //-----------------------------------------------------------------------------
-void Camera::set_orthographic_metrics(uint16_t width, uint16_t height)
+void Camera::set_orthographic_metrics(float left, float right, float bottom, float top)
 {
-	m_width = width;
-	m_height = height;
+	m_left = left;
+	m_right = right;
+	m_bottom = bottom;
+	m_top = top;
+
 	update_projection_matrix();
+}
+
+//-----------------------------------------------------------------------------
+void Camera::set_viewport_metrics(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+{
+	m_view_x = x;
+	m_view_y = y;
+	m_view_width = width;
+	m_view_height = height;
+}
+
+//-----------------------------------------------------------------------------
+Vector3 Camera::screen_to_world(const Vector3& pos)
+{
+	Matrix4x4 world_inv = m_world_pose;
+	world_inv.invert();
+	Matrix4x4 mvp = m_projection * world_inv;
+	mvp.invert();
+
+	Vector4 ndc( (2 * (pos.x - 0)) / m_view_width - 1,
+				 (2 * (pos.y - 0)) / m_view_height - 1,
+				 (2 * pos.z) - 1, 1);
+
+	Vector4 tmp = mvp * ndc;
+	tmp *= 1.0 / tmp.w;
+
+	return Vector3(tmp.x, tmp.y, tmp.z);
+}
+
+//-----------------------------------------------------------------------------
+Vector3 Camera::world_to_screen(const Vector3& pos)
+{
+	Matrix4x4 world_inv = m_world_pose;
+	world_inv.invert();
+
+	Vector3 ndc = (m_projection * world_inv) * pos;
+
+	return Vector3( (m_view_x + m_view_width * (ndc.x + 1.0)) / 2.0,
+					(m_view_y + m_view_height * (ndc.y + 1.0)) / 2.0,
+					(ndc.z + 1.0) / 2.0);
 }
 
 //-----------------------------------------------------------------------------
@@ -184,7 +229,7 @@ void Camera::update_projection_matrix()
 	{
 		case ProjectionType::ORTHOGRAPHIC:
 		{
-			m_projection.build_projection_ortho_rh(m_width, m_height, m_near, m_far);
+			m_projection.build_projection_ortho_rh(m_left, m_right, m_bottom, m_top, m_near, m_far);
 			break;
 		}
 		case ProjectionType::PERSPECTIVE:
