@@ -37,134 +37,29 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-typedef	Id ComponentId;
-typedef Id UnitId;
+typedef Id CameraId;
 
-//-----------------------------------------------------------------------------
-struct ComponentType
-{
-	enum Enum
-	{
-		UNKNOWN,
-		CAMERA,
-		MESH,
-		SOUND
-	};
-};
-
-//-----------------------------------------------------------------------------
 struct Component
 {
-	Id32				id;
-	ComponentType::Enum type;
-	ComponentId			component;
+	uint32_t name;
+	Id component;
 };
 
-struct ComponentList
-{
-	ComponentList()
-		: m_components(default_allocator())
-	{
-	}
-
-	//-----------------------------------------------------------------------------
-	bool next_free_component(uint32_t& index)
-	{
-		uint32_t i;
-		for (i = 0; i < m_components.size(); i++)
-		{
-			// id == 0 means free slot
-			if (m_components[i].id == 0)
-			{
-				index = i;
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	//-----------------------------------------------------------------------------
-	void add_component(const char* name, uint32_t type, ComponentId component)
-	{
-		CE_ASSERT_NOT_NULL(name);
-
-		uint32_t key = hash::murmur2_32(name, string::strlen(name), 0);
-
-		uint32_t free_index;
-
-		if (next_free_component(free_index))
-		{
-			m_components[free_index].id.key = key;
-			m_components[free_index].type = (ComponentType::Enum)type;
-			m_components[free_index].component = component;
-		}
-
-		Component comp;
-
-		comp.id.key = key;
-		comp.type = (ComponentType::Enum)type;
-		comp.component = component;
-
-		m_components.push_back(comp);
-	}
-
-	//-----------------------------------------------------------------------------
-	void remove_component(const char* name)
-	{
-		uint32_t hashed_name = hash::murmur2_32(name, string::strlen(name), 0);
-
-		for (uint32_t i = 0; i < m_components.size(); i++)
-		{
-			if (m_components[i].id == hashed_name)
-			{
-				m_components[i].id = 0;
-				return;
-			}
-		}
-
-		CE_FATAL("Component not found!");
-	}
-
-	//-----------------------------------------------------------------------------
-	Component* get_component(const char* name)
-	{
-		uint32_t hashed_name = hash::murmur2_32(name, string::strlen(name), 0);
-
-		for (uint32_t i = 0; i < m_components.size(); i++)
-		{
-			if (m_components[i].id == hashed_name)
-			{
-				return &m_components[i];
-			}
-		}
-
-		CE_FATAL("Component not found!");
-	}
-
-public:
-
-	List<Component> m_components;
-};
-
-//-----------------------------------------------------------------------------
-struct UnitResource
-{
-};
+typedef Id UnitId;
+typedef Id MeshId;
 
 class Camera;
 class Mesh;
 class World;
 
+#define MAX_CAMERA_COMPONENTS 8
+#define MAX_MESH_COMPONENTS 8
+
 struct Unit
 {
 					Unit();
-	void			create(World& creator, SceneGraph& graph, ComponentList& components, UnitId id, const Vector3& pos, const Quaternion& rot);
+	void			create(World& world, UnitId id, const Vector3& pos, const Quaternion& rot);
 	void			destroy();
-
-	void			load(UnitResource* ur);
-	void			unload();
-	void			reload(UnitResource* new_ur);
 
 	Vector3			local_position(int32_t node = 0) const;
 	Quaternion		local_rotation(int32_t node = 0) const;
@@ -178,22 +73,35 @@ struct Unit
 	void			set_local_rotation(const Quaternion& rot, int32_t node = 0);
 	void			set_local_pose(const Matrix4x4& pose, int32_t node = 0);
 
+	void			link_node(int32_t child, int32_t parent);
+	void			unlink_node(int32_t child);
+
+	void			add_component(const char* name, Id component, uint32_t& size, Component* array);
+	Id				find_component(const char* name, uint32_t size, Component* array);
+	Id				find_component(uint32_t index, uint32_t size, Component* array);
+
+	void			add_camera(const char* name, CameraId camera);
+	void			add_mesh(const char* name, MeshId mesh);
+
 	Camera*			camera(const char* name);
+	Camera*			camera(uint32_t i);
+
 	Mesh*			mesh(const char* name);
-
-private:
-
-	bool			next_free_component(uint32_t& index);
+	Mesh*			mesh(uint32_t i);
 
 public:
 
-	World*				m_creator;
-	UnitResource*		m_resource;
-	UnitId				m_id;
+	World*			m_world;
+	UnitId			m_id;
 
-	int32_t				m_root_node;
-	SceneGraph*			m_scene_graph;
-	ComponentList*		m_component;
+	int32_t			m_root_node;
+	SceneGraph		m_scene_graph;
+
+	uint32_t		m_num_cameras;
+	Component		m_cameras[MAX_CAMERA_COMPONENTS];
+
+	uint32_t		m_num_meshes;
+	Component		m_meshes[MAX_MESH_COMPONENTS];
 };
 
 } // namespace crown
