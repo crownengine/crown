@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "JSONParser.h"
 #include "TempAllocator.h"
 #include "StringUtils.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -193,27 +194,25 @@ static bool is_escapee(char c)
 
 //--------------------------------------------------------------------------
 JSONElement::JSONElement()
-	: m_parser(NULL), m_begin(NULL), m_at(NULL)
+	: m_begin(NULL), m_at(NULL)
 {
 }
 
 //--------------------------------------------------------------------------
-JSONElement::JSONElement(JSONParser& parser, const char* at)
-	: m_parser(&parser), m_begin(at), m_at(at)
+JSONElement::JSONElement(const char* at)
+	: m_begin(at), m_at(at)
 {
 }
 
 //--------------------------------------------------------------------------
 JSONElement::JSONElement(const JSONElement& other)
-	: m_parser(other.m_parser), m_begin(other.m_at), m_at(other.m_at)
+	: m_begin(other.m_at), m_at(other.m_at)
 {
 }
 
 //--------------------------------------------------------------------------
 JSONElement& JSONElement::operator=(const JSONElement& other)
 {
-	m_parser = other.m_parser;
-
 	// Our begin is the other's at
 	m_begin = other.m_at;
 	m_at = other.m_at;
@@ -222,22 +221,20 @@ JSONElement& JSONElement::operator=(const JSONElement& other)
 }
 
 //--------------------------------------------------------------------------
-JSONElement& JSONElement::operator[](uint32_t i)
+JSONElement JSONElement::operator[](uint32_t i)
 {
 	TempAllocator1024 alloc;
 	List<const char*> array(alloc);
 
-	JSONParser::parse_array(m_begin, array);
+	JSONParser::parse_array(m_at, array);
 
 	CE_ASSERT(i < array.size(), "Index out of bounds");
 
-	m_at = array[i];
-
-	return *this;
+	return JSONElement(array[i]);
 }
 
 //--------------------------------------------------------------------------
-JSONElement& JSONElement::index(uint32_t i)
+JSONElement JSONElement::index(uint32_t i)
 {
 	return this->operator[](i);
 }
@@ -250,30 +247,30 @@ JSONElement JSONElement::index_or_nil(uint32_t i)
 		TempAllocator1024 alloc;
 		List<const char*> array(alloc);
 
-		JSONParser::parse_array(m_begin, array);
+		JSONParser::parse_array(m_at, array);
 
 		if (i >= array.size())
 		{
 			return JSONElement();
 		}
 
-		m_at = array[i];
-		return *this;
+		return JSONElement(array[i]);
 	}
 
 	return JSONElement();
 }
 
 //--------------------------------------------------------------------------
-JSONElement& JSONElement::key(const char* k)
+JSONElement JSONElement::key(const char* k)
 {
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
 
-	JSONParser::parse_object(m_begin, object);
+	JSONParser::parse_object(m_at, object);
 
 	bool found = false;
 
+	const char* tmp_at = m_at;
 	for (uint32_t i = 0; i < object.size(); i++)
 	{
 		TempAllocator256 key_alloc;
@@ -283,14 +280,14 @@ JSONElement& JSONElement::key(const char* k)
 
 		if (string::strcmp(k, key.begin()) == 0)
 		{
-			m_at = object[i].val;
+			tmp_at = object[i].val;
 			found = true;
 		}
 	}
 
 	CE_ASSERT(found, "Key not found: '%s'", k);
 
-	return *this;
+	return JSONElement(tmp_at);
 }
 
 //--------------------------------------------------------------------------
@@ -301,10 +298,11 @@ JSONElement JSONElement::key_or_nil(const char* k)
 		TempAllocator1024 alloc;
 		List<JSONPair> object(alloc);
 
-		JSONParser::parse_object(m_begin, object);
+		JSONParser::parse_object(m_at, object);
 
 		bool found = false;
 
+		const char* tmp_at = m_at;
 		for (uint32_t i = 0; i < object.size(); i++)
 		{
 			TempAllocator256 key_alloc;
@@ -314,7 +312,7 @@ JSONElement JSONElement::key_or_nil(const char* k)
 
 			if (string::strcmp(k, key.begin()) == 0)
 			{
-				m_at = object[i].val;
+				tmp_at = object[i].val;
 				found = true;
 			}
 		}
@@ -324,7 +322,7 @@ JSONElement JSONElement::key_or_nil(const char* k)
 			return JSONElement();
 		}
 
-		return *this;
+		return JSONElement(tmp_at);
 	}
 
 	return JSONElement();
@@ -335,7 +333,7 @@ bool JSONElement::has_key(const char* k) const
 {
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
-	JSONParser::parse_object(m_begin, object);
+	JSONParser::parse_object(m_at, object);
 
 	for (uint32_t i = 0; i < object.size(); i++)
 	{
@@ -358,7 +356,7 @@ bool JSONElement::is_key_unique(const char* k) const
 {
 	TempAllocator1024 alloc;
 	List<JSONPair> object(alloc);
-	JSONParser::parse_object(m_begin, object);
+	JSONParser::parse_object(m_at, object);
 
 	bool found = false;
 
@@ -653,7 +651,7 @@ JSONParser::JSONParser(const char* s) :
 //--------------------------------------------------------------------------
 JSONElement JSONParser::root()
 {
-	return JSONElement(*this, skip_whites(m_document));
+	return JSONElement(skip_whites(m_document));
 }
 
 //-----------------------------------------------------------------------------

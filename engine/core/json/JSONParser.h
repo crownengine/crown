@@ -62,15 +62,16 @@ public:
 	/// Used to forward-instantiate elements or as a special
 	/// nil element.
 						JSONElement();
+	explicit			JSONElement(const char* at);
 						JSONElement(const JSONElement& other);
 
 	JSONElement&		operator=(const JSONElement& other);
 
 	/// Returns the @a i -th item of the current array.
-	JSONElement&		operator[](uint32_t i);
+	JSONElement			operator[](uint32_t i);
 
 	/// @copydoc JSONElement::operator[]
-	JSONElement&		index(uint32_t i);
+	JSONElement			index(uint32_t i);
 
 	/// Returns the @a i -th item of the current array or
 	/// the special nil JSONElement() if the index does not exist.
@@ -81,7 +82,7 @@ public:
 	/// @note
 	/// If the key is not unique in the object scope, the last
 	/// key in order of appearance will be selected.
-	JSONElement&		key(const char* k);
+	JSONElement			key(const char* k);
 
 	/// Returns the element corresponding to key @a k of the current
 	/// object, or the special nil JSONElement() if the key does not exist.
@@ -161,9 +162,6 @@ public:
 
 private:
 
-	explicit			JSONElement(JSONParser& parser, const char* at);
-
-	JSONParser*			m_parser;
 	const char*			m_begin;
 	const char*			m_at;
 
