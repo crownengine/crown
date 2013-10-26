@@ -42,10 +42,6 @@ void oswindow_set_window(Display* dpy, Window win);
 class OsWindow
 {
 public:
-
-	/// Creates the window with the given @a width and @a height.
-	/// When @a parent is != 0, it is interpreted as the OS-specific
-	/// handle of the parent window.
 					OsWindow();
 					~OsWindow();
 					
@@ -72,7 +68,7 @@ public:
 	char*			title();
 	void			set_title(const char* title);
 
-private:
+public:
 
 	uint32_t		m_x;
 	uint32_t		m_y;
@@ -81,7 +77,6 @@ private:
 	bool			m_resizable;
 
 	bool			m_x11_detectable_autorepeat;
-
 };
 
 } // namespace crown
