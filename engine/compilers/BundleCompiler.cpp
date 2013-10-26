@@ -97,7 +97,7 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 		uint32_t resource_type_hash = hash::murmur2_32(filename_extension, string::strlen(filename_extension), 0);
 
 		char out_name[65];
-		snprintf(out_name, 65, "%"PRIx64"", filename_hash);
+		snprintf(out_name, 65, "%.16"PRIx64"", filename_hash);
 
 		// Skip crown.config file
 		if (resource_type_hash == CONFIG_TYPE)
@@ -127,6 +127,10 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 		else if (resource_type_hash == PACKAGE_TYPE)
 		{
 			result = m_package.compile(source_dir, bundle_dir, filename, out_name);
+		}
+		else if (resource_type_hash == UNIT_TYPE)
+		{
+			result = m_unit.compile(source_dir, bundle_dir, filename, out_name);
 		}
 		else
 		{

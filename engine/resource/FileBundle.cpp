@@ -64,7 +64,7 @@ public:
 	{
 		// Convert name/type into strings
 		char resource_name[512];
-		snprintf(resource_name, 512, "%"PRIx64"", name.id);
+		snprintf(resource_name, 512, "%.16"PRIx64"", name.id);
 		
 		// Search the resource in the filesystem
 		// bool exists = m_filesystem.exists(resource_name);

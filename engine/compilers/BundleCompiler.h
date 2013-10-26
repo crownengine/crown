@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "DynamicString.h"
 #include "Vector.h"
 #include "DiskFilesystem.h"
+#include "UnitCompiler.h"
 
 namespace crown
 {
@@ -60,6 +61,7 @@ private:
 	LuaCompiler 	m_lua;
 	SoundCompiler	m_sound;
 	PackageCompiler m_package;
+	UnitCompiler	m_unit;
 };
 
 } // namespace crown
