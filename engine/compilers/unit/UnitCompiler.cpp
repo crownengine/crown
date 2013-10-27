@@ -95,7 +95,7 @@ void UnitCompiler::write_impl(File* out_file)
 
 	if (m_renderable.size() > 0)
 	{
-		out_file->write((char*) m_renderable.begin(), sizeof(ResourceId) * header.num_renderables);
+		out_file->write((char*) m_renderable.begin(), sizeof(UnitRenderable) * header.num_renderables);
 	}
 
 	// Cleanup
