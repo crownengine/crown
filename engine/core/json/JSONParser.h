@@ -122,20 +122,20 @@ public:
 	uint32_t			size() const;
 
 	/// Returns the boolean value of the element.
-	bool				bool_value();
+	bool				bool_value() const;
 
 	/// Returns the integer value of the element.
-	int32_t				int_value();
+	int32_t				int_value() const;
 
 	/// Returns the float value of the element.
-	float				float_value();
+	float				float_value() const;
 
 	/// Returns the string value of the element.
 	/// @warning
 	/// The returned string is kept internally until the next call to
 	/// this function, so it is highly unsafe to just keep the pointer
 	/// instead of copying its content somewhere else.
-	const char*			string_value();
+	const char*			string_value() const;
 
 	/// Returns the array value of the element.
 	/// @note
@@ -143,26 +143,25 @@ public:
 	/// array elements by JSONElement::operator[] and it is the very preferred way
 	/// for retrieving array elemets. However, you have to be sure that the array
 	/// contains only items of the given @array type.
-	void				array_value(List<bool>& array);
+	void				array_value(List<bool>& array) const;
 
 	/// @copydoc JSONElement::array_value(List<bool>&)
-	void				array_value(List<int16_t>& array);
+	void				array_value(List<int16_t>& array) const;
 
 	/// @copydoc JSONElement::array_value(List<bool>&)
-	void				array_value(List<uint16_t>& array);
+	void				array_value(List<uint16_t>& array) const;
 
 	/// @copydoc JSONElement::array_value(List<bool>&)
-	void				array_value(List<int32_t>& array);
+	void				array_value(List<int32_t>& array) const;
 
 	/// @copydoc JSONElement::array_value(List<bool>&)
-	void				array_value(List<uint32_t>& array);
+	void				array_value(List<uint32_t>& array) const;
 
 	/// @copydoc JSONElement::array_value(List<bool>&)
-	void				array_value(List<float>& array);
+	void				array_value(List<float>& array) const;
 
 private:
 
-	const char*			m_begin;
 	const char*			m_at;
 
 	friend class 		JSONParser;
