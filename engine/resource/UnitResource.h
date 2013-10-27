@@ -98,7 +98,7 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	const UnitRenderable& get_texture_id(uint32_t i) const
+	const UnitRenderable& get_renderable(uint32_t i) const
 	{
 		CE_ASSERT(i < num_renderables(), "Index out of bounds");
 
