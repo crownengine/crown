@@ -42,10 +42,12 @@ PackageCompiler::PackageCompiler()
 	: m_has_texture(false)
 	, m_has_lua(false)
 	, m_has_sound(false)
+	, m_has_unit(false)
 	, m_texture(default_allocator())
 	, m_script(default_allocator())
 	, m_sound(default_allocator())
 	, m_mesh(default_allocator())
+	, m_unit(default_allocator())
 {
 }
 
@@ -162,11 +164,38 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		}
 	}
 
+	// Check for units
+	if (root.has_key("unit"))
+	{
+		JSONElement unit_array = root.key("unit");
+		uint32_t unit_array_size = unit_array.size();
+
+		for (uint32_t i = 0; i < unit_array_size; i++)
+		{
+			TempAllocator256 alloc;
+			DynamicString unit_name(alloc);
+			unit_name += unit_array[i].string_value();
+			unit_name += ".unit";
+
+			if (!fs.is_file(unit_name.c_str()))
+			{
+				Log::e("Unit '%s' does not exist.", unit_name.c_str());
+				return 0;
+			}
+
+			ResourceId id;
+			id.id = hash::murmur2_64(unit_name.c_str(), string::strlen(unit_name.c_str()), 0);
+			m_unit.push_back(id);
+		}
+	}
+
+
 	return sizeof(PackageHeader) +
 			m_texture.size() * sizeof(ResourceId) +
 			m_script.size() * sizeof(ResourceId) +
 			m_sound.size() * sizeof(ResourceId) +
-			m_mesh.size() * sizeof(ResourceId);
+			m_mesh.size() * sizeof(ResourceId) +
+			m_unit.size() * sizeof(ResourceId);
 }
 
 //-----------------------------------------------------------------------------
@@ -177,11 +206,13 @@ void PackageCompiler::write_impl(File* out_file)
 	header.num_scripts = m_script.size();
 	header.num_sounds = m_sound.size();
 	header.num_meshes = m_mesh.size();
+	header.num_units = m_unit.size();
 
 	header.textures_offset = sizeof(PackageHeader);
 	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
 	header.sounds_offset = header.scripts_offset + sizeof(ResourceId) * header.num_scripts;
 	header.meshes_offset = header.sounds_offset + sizeof(ResourceId) * header.num_sounds;
+	header.units_offset = header.meshes_offset + sizeof(ResourceId) * header.num_meshes;
 
 	out_file->write((char*) &header, sizeof(PackageHeader));
 
@@ -201,12 +232,17 @@ void PackageCompiler::write_impl(File* out_file)
 	{
 		out_file->write((char*) m_mesh.begin(), sizeof(ResourceId) * header.num_meshes);
 	}
+	if (m_unit.size() > 0)
+	{
+		out_file->write((char*) m_unit.begin(), sizeof(ResourceId) * header.num_units);	
+	}
 
 	// Cleanup
 	m_texture.clear();
 	m_script.clear();
 	m_sound.clear();
 	m_mesh.clear();
+	m_unit.clear();
 }
 
 } // namespace crown

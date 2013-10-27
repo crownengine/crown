@@ -48,11 +48,13 @@ private:
 	bool m_has_lua;
 	bool m_has_sound;
 	bool m_has_mesh;
+	bool m_has_unit;
 
 	List<ResourceId> m_texture;
 	List<ResourceId> m_script;
 	List<ResourceId> m_sound;
 	List<ResourceId> m_mesh;
+	List<ResourceId> m_unit;
 };
 
 } // namespace crown
