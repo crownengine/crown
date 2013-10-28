@@ -359,7 +359,7 @@ public:
 			if (vb.id != INVALID_ID)
 			{
 				const VertexBuffer& vertex_buffer = m_vertex_buffers[vb.index];
-				glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer.m_id);
+				GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer.m_id));
 
 				const GPUProgram& gpu_program = m_gpu_programs[cur_state.program.index];
 				gpu_program.bind_attributes(vertex_buffer.m_format);
