@@ -50,6 +50,18 @@ CE_EXPORT int world_spawn_unit(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int world_destroy_unit(lua_State* L)
+{
+	LuaStack stack(L);
+
+	World* world = stack.get_world(1);
+	Unit* unit = stack.get_unit(2);
+
+	world->destroy_unit(unit);
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int world_play_sound(lua_State* L)
 {
 	LuaStack stack(L);
@@ -94,10 +106,10 @@ CE_EXPORT int world_link_sound(lua_State* L)
 	SoundInstanceId sound;
 	sound.decode(stack.get_int(2));
 
-	UnitId unit;
-	unit.decode(stack.get_int(3));
+	Unit* unit = stack.get_unit(3);
+	int32_t node = stack.get_int(4);
 
-	world->link_sound(sound, unit);
+	world->link_sound(sound, unit, node);
 
 	return 0;
 }
@@ -173,6 +185,7 @@ CE_EXPORT int world_set_sound_volume(lua_State* L)
 void load_world(LuaEnvironment& env)
 {
 	env.load_module_function("World", "spawn_unit",			world_spawn_unit);
+	env.load_module_function("World", "destroy_unit",       world_destroy_unit);
 
 	env.load_module_function("World", "play_sound",			world_play_sound);
 	env.load_module_function("World", "pause_sound", 		world_pause_sound);
