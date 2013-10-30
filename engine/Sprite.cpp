@@ -27,41 +27,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Sprite.h"
 #include "Vector3.h"
 #include "Quaternion.h"
-#include "TextureResource.h"
+#include "SpriteResource.h"
 #include "Device.h"
 #include "Renderer.h"
 
 namespace crown
 {
-
-static float quad_vertices[] =
-{
-	-1.0f, -1.0f, 
-	 0.0f, 0.0f, 1.0f,
-	 1.0f, 1.0f, 1.0f, 1.0f,
-	 0.0f, 0.0f,
-
-	 1.0f, -1.0f,
-	 0.0f, 0.0f, 1.0f,
-	 1.0f, 1.0f, 1.0f, 1.0f,
-	 1.0f, 0.0f,
-
-	 1.0f,  1.0f,
-	 0.0f, 0.0f, 1.0f,
-	 1.0f, 1.0f, 1.0f, 1.0f,
-	 1.0f, 1.0f,
-
-	-1.0f,  1.0f,
-	 0.0f, 0.0f, 1.0f,
-	 1.0f, 1.0f, 1.0f, 1.0f,
-	 0.0f, 1.0f
-};
-
-static uint16_t quad_indices[] =
-{
-	0, 1, 3,
-	1, 2, 3
-};
 
 //-----------------------------------------------------------------------------
 static const char* sprite_vs =
@@ -92,26 +63,22 @@ static const char* sprite_fs =
 
 	"void main(void)"
 	"{"
-	"	gl_FragColor = texture(u_tex, tex_coord0) * color;"
+	"	gl_FragColor = texture(u_tex, tex_coord0);"
 	"}";
 
 //-----------------------------------------------------------------------------
-void Sprite::create(const TextureResource* tr, int32_t node, const Vector3& pos, const Quaternion& rot)
+void Sprite::create(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
 	Renderer* r = device()->renderer();
 
-	m_texture = tr->m_texture;
-
-	m_vb = r->create_vertex_buffer(4, VertexFormat::P2_N3_C4_T2, quad_vertices);
-	m_ib = r->create_index_buffer(6, quad_indices);
+	m_vb = sr->m_vb;
+	m_ib = sr->m_ib;
+	m_texture = sr->m_texture;
 
 	m_vertex = r->create_shader(ShaderType::VERTEX, sprite_vs);
 	m_fragment = r->create_shader(ShaderType::FRAGMENT, sprite_fs);
-
 	m_program = r->create_gpu_program(m_vertex, m_fragment);
-
 	m_uniform = r->create_uniform("u_tex", UniformType::INTEGER_1, 1);
-
 
 	set_local_position(pos);
 	set_local_rotation(rot);

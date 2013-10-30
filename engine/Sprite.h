@@ -32,14 +32,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class TextureResource;
+class SpriteResource;
 class Vector3;
 class Quaternion;
 
 struct Sprite
 {
-	void			create(const TextureResource* tr, int32_t node, const Vector3& pos, const Quaternion& rot);
-
+	void			create(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot);
+	
 	Vector3			local_position() const;
 	Quaternion		local_rotation() const;
 	Matrix4x4		local_pose() const;
@@ -53,7 +53,7 @@ struct Sprite
 	void			set_local_pose(const Matrix4x4& pose);
 
 public:
-
+	
 	int32_t 		m_node;
 
 	Matrix4x4 		m_local_pose;
@@ -69,7 +69,6 @@ public:
 	GPUProgramId	m_program;
 
 	UniformId 		m_uniform;
-
 };
 
 } // namespace crown
