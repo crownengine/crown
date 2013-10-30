@@ -41,6 +41,7 @@ namespace crown
 
 typedef Id MeshId;
 typedef Id SpriteId;
+
 struct Camera;
 
 class RenderWorld
@@ -54,18 +55,16 @@ public:
 	void 		destroy_mesh(MeshId id);
 	Mesh* 		lookup_mesh(MeshId mesh);
 
+	SpriteId	create_sprite(const char* name, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	void		destroy_sprite(SpriteId id);
+	Sprite*		lookup_sprite(SpriteId id);
+
 	void 		update(Camera& camera, float dt);
 
 	MeshId 		allocate_mesh(MeshResource* mr, int32_t node, const Vector3& pos, const Quaternion& rot);
 	void 		deallocate_mesh(MeshId id);
 
-public:	// Sprites - Testing
-
-	SpriteId	create_sprite(const char* name, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
-	void		destroy_sprite(SpriteId id);
-	Sprite*		lookup_sprite(SpriteId id);
-
-	SpriteId	allocate_sprite(TextureResource* tr, int32_t node, const Vector3& pos, const Quaternion& rot);
+	SpriteId	allocate_sprite(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot);
 	void 		deallocate_sprite(SpriteId id);
 
 private:

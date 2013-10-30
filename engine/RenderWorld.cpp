@@ -31,6 +31,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "Camera.h"
 #include "Resource.h"
+#include "Log.h"
+#include "SpriteResource.h"
 
 namespace crown
 {
@@ -122,7 +124,7 @@ RenderWorld::~RenderWorld()
 //-----------------------------------------------------------------------------
 MeshId RenderWorld::create_mesh(const char* name, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
-	MeshResource* mr = (MeshResource*) device()->resource_manager()->lookup("mesh", name);
+	MeshResource* mr = (MeshResource*) device()->resource_manager()->lookup(MESH_EXTENSION, name);
 
 	MeshId mesh = allocate_mesh(mr, node, pos, rot);
 
@@ -140,6 +142,28 @@ Mesh* RenderWorld::lookup_mesh(MeshId mesh)
 	CE_ASSERT(m_mesh_table.has(mesh), "Mesh does not exits");
 
 	return &m_mesh[m_sparse_to_packed[mesh.index]];
+}
+
+//-----------------------------------------------------------------------------
+SpriteId RenderWorld::create_sprite(const char* name, int32_t node, const Vector3& pos, const Quaternion& rot)
+{
+	SpriteResource* sr = (SpriteResource*) device()->resource_manager()->lookup(SPRITE_EXTENSION, name);
+
+	SpriteId sprite = allocate_sprite(sr, node, pos, rot);
+
+	return sprite;
+}
+
+//-----------------------------------------------------------------------------
+void RenderWorld::destroy_sprite(SpriteId /*id*/)
+{
+	// Stub
+}
+
+//-----------------------------------------------------------------------------
+Sprite*	RenderWorld::lookup_sprite(SpriteId id)
+{
+	return &m_sprite[m_sprite_sparse_to_packed[id.index]];
 }
 
 //-----------------------------------------------------------------------------
@@ -176,7 +200,7 @@ void RenderWorld::update(Camera& camera, float /*dt*/)
 
 	for (uint32_t s = 0; s < m_sprite.size(); s++)
 	{
-		const Sprite& sprite = m_sprite[s];
+		Sprite& sprite = m_sprite[s];
 
 		r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
 		r->set_vertex_buffer(sprite.m_vb);
@@ -209,34 +233,12 @@ void RenderWorld::deallocate_mesh(MeshId /*id*/)
 }
 
 //-----------------------------------------------------------------------------
-SpriteId RenderWorld::create_sprite(const char* name, int32_t node, const Vector3& pos, const Quaternion& rot)
-{
-	TextureResource* tr = (TextureResource*) device()->resource_manager()->lookup(TEXTURE_EXTENSION, name);
-
-	SpriteId sprite = allocate_sprite(tr, node, pos, rot);
-
-	return sprite;
-}
-
-//-----------------------------------------------------------------------------
-void RenderWorld::destroy_sprite(SpriteId /*id*/)
-{
-	// Stub
-}
-
-//-----------------------------------------------------------------------------
-Sprite*	RenderWorld::lookup_sprite(SpriteId id)
-{
-	return &m_sprite[m_sprite_sparse_to_packed[id.index]];
-}
-
-//-----------------------------------------------------------------------------
-SpriteId RenderWorld::allocate_sprite(TextureResource* tr, int32_t node, const Vector3& pos, const Quaternion& rot)
+SpriteId RenderWorld::allocate_sprite(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
 	SpriteId id = m_sprite_table.create();
 
 	Sprite sprite;
-	sprite.create(tr, node, pos, rot);
+	sprite.create(sr, node, pos, rot);
 
 	uint32_t index = m_sprite.push_back(sprite);
 	m_sprite_sparse_to_packed[id.index] = index;
