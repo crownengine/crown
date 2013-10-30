@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextureResource.h"
 #include "MeshResource.h"
 #include "SoundResource.h"
+#include "SpriteResource.h"
 #include "PackageResource.h"
 
 namespace crown
@@ -40,6 +41,7 @@ static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 	{ TEXTURE_TYPE, TextureResource::load, TextureResource::unload, TextureResource::online, TextureResource::offline },
 	{ MESH_TYPE, MeshResource::load, MeshResource::unload, MeshResource::online, MeshResource::offline },
 	{ SOUND_TYPE, SoundResource::load, SoundResource::unload, SoundResource::online, SoundResource::offline },
+	{ SPRITE_TYPE, SpriteResource::load, SpriteResource::unload, SpriteResource::online, SpriteResource::offline},
 	{ PACKAGE_TYPE, PackageResource::load, PackageResource::unload, PackageResource::online, PackageResource::offline },	
 	{ 0, NULL, NULL, NULL, NULL }
 };
