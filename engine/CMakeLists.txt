@@ -68,6 +68,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/compilers/sound
 	${CMAKE_SOURCE_DIR}/engine/compilers/mesh
 	${CMAKE_SOURCE_DIR}/engine/compilers/package
+	${CMAKE_SOURCE_DIR}/engine/compilers/sprite
 )
 
 set (SRC
@@ -302,6 +303,7 @@ set (RESOURCE_HEADERS
 	resource/MaterialResource.h
 	resource/PackageResource.h
 	resource/ResourcePackage.h
+	resource/SpriteResource.h
 )
 
 set (RPC_SRC
@@ -368,6 +370,7 @@ set (COMPILER_SRC
 	compilers/texture/TextureCompiler.cpp
 	compilers/sound/SoundCompiler.cpp
 	compilers/package/PackageCompiler.cpp
+	compilers/sprite/SpriteCompiler.cpp
 )
 
 set (COMPILER_HEADER
@@ -378,6 +381,7 @@ set (COMPILER_HEADER
 	compilers/texture/TextureCompiler.h
 	compilers/sound/SoundCompiler.h
 	compilers/package/PackageCompiler.h
+	compilers/sprite/SpriteCompiler.h
 )
 
 set (CROWN_LIBRARIES)
