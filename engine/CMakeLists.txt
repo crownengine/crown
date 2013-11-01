@@ -93,6 +93,7 @@ set (HEADERS
 	RenderWorld.h
 	Mesh.h
 	Sprite.h
+	SpriteAnimator.h
 )
 
 set (CORE_SRC
