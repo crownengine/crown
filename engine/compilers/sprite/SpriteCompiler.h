@@ -46,6 +46,7 @@ struct SpriteHeader
 	char texture[128];
 	uint32_t length;
 	uint32_t frame_rate;
+	uint32_t playback_mode;
 };
 
 //-----------------------------------------------------------------------------

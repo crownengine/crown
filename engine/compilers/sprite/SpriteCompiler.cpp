@@ -67,6 +67,11 @@ size_t SpriteCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	JSONElement anim_frame_rate = root.key("frame_rate");
 	m_anim_header.frame_rate = anim_frame_rate.int_value();
 
+	JSONElement anim_playback_mode = root.key("playback_mode");
+	m_anim_header.playback_mode = anim_playback_mode.int_value();
+
+	Log::i("Playback mode: %d", m_anim_header.playback_mode);
+
 	List<float> t_positions(default_allocator());
 	JSONElement anim_vertices = root.key("positions");
 	anim_vertices.array_value(t_positions);
@@ -75,21 +80,25 @@ size_t SpriteCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	JSONElement anim_texcoords = root.key("texcoords");
 	anim_texcoords.array_value(t_texcoords);
 
-	for (uint32_t j = 0; j < t_positions.size(); j+=2)
+	for (uint32_t i = 0; i < t_texcoords.size(); i+=8)
 	{
-		SpriteAnimationData t_animation_data;	
-		t_animation_data.position.x = t_positions[j];
-		t_animation_data.position.y = t_positions[j+1];
+		for (uint32_t j = 0; j < t_positions.size(); j+=2)
+		{
+			SpriteAnimationData t_animation_data;
 
-		t_animation_data.texcoords.x = t_texcoords[j];
-		t_animation_data.texcoords.y = t_texcoords[j+1];
+			t_animation_data.position.x = t_positions[j];
+			t_animation_data.position.y = t_positions[j+1];
 
-		m_anim_data.push_back(t_animation_data);
+			t_animation_data.texcoords.x = t_texcoords[j+i];
+			t_animation_data.texcoords.y = t_texcoords[j+i+1];
+
+			m_anim_data.push_back(t_animation_data);
+		}
 	}
-	
+
 	fs.close(file);
 
-	return 	sizeof(SpriteHeader) + sizeof(SpriteAnimationData) * m_anim_data.size();
+	return sizeof(SpriteHeader) + sizeof(SpriteAnimationData) * m_anim_data.size();
 }
 
 //-----------------------------------------------------------------------------
