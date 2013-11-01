@@ -28,62 +28,38 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Quaternion.h"
 #include "SpriteResource.h"
-#include "Device.h"
-#include "Renderer.h"
+#include "Allocator.h"
+#include "SpriteAnimator.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-static const char* sprite_vs =
-	"uniform mat4      	u_model;"
-	"uniform mat4      	u_model_view_projection;"
-
-	"in vec4           	a_position;"
-	"in vec4           	a_normal;"
-	"in vec2           	a_tex_coord0;"
-	"in vec4           	a_color;"
-
-	"varying out vec2	tex_coord0;"
-	"varying out vec4	color;"
-
-	"void main(void)"
-	"{"
-	"	tex_coord0 = a_tex_coord0;"
-	"   color = a_color;"
-	"	gl_Position = u_model_view_projection * a_position;"
-	"}";
-
-//-----------------------------------------------------------------------------
-static const char* sprite_fs = 
-	"in vec2            tex_coord0;"
-	"in vec4            color;"
-
-	"uniform sampler2D  u_tex;"
-
-	"void main(void)"
-	"{"
-	"	gl_FragColor = texture(u_tex, tex_coord0);"
-	"}";
-
-//-----------------------------------------------------------------------------
 void Sprite::create(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
-	Renderer* r = device()->renderer();
-
 	m_vb = sr->m_vb;
 	m_ib = sr->m_ib;
 	m_texture = sr->m_texture;
-
-	m_vertex = r->create_shader(ShaderType::VERTEX, sprite_vs);
-	m_fragment = r->create_shader(ShaderType::FRAGMENT, sprite_fs);
-	m_program = r->create_gpu_program(m_vertex, m_fragment);
-	m_uniform = r->create_uniform("u_tex", UniformType::INTEGER_1, 1);
+	m_vertex = sr->m_vertex;
+	m_fragment = sr->m_fragment;
+	m_program = sr->m_program;
+	m_uniform = sr->m_uniform;
 
 	set_local_position(pos);
 	set_local_rotation(rot);
 
 	m_node = node;
+
+	m_animator = CE_NEW(default_allocator(), SpriteAnimator)(sr);
+}
+
+//-----------------------------------------------------------------------------
+void Sprite::destroy()
+{
+	if (m_animator)
+	{
+		CE_DELETE(default_allocator(), m_animator);
+	}
 }
 
 //-----------------------------------------------------------------------------

@@ -33,42 +33,44 @@ namespace crown
 {
 
 class SpriteResource;
+class SpriteAnimator;
 class Vector3;
 class Quaternion;
 
+//-----------------------------------------------------------------------------
 struct Sprite
 {
-	void			create(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot);
-	
-	Vector3			local_position() const;
-	Quaternion		local_rotation() const;
-	Matrix4x4		local_pose() const;
+	void				create(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot);
+	void				destroy();
 
-	Vector3			world_position() const;
-	Quaternion		world_rotation() const;
-	Matrix4x4		world_pose() const;
+	Vector3				local_position() const;
+	Quaternion			local_rotation() const;
+	Matrix4x4			local_pose() const;
 
-	void			set_local_position(const Vector3& pos);
-	void			set_local_rotation(const Quaternion& rot);
-	void			set_local_pose(const Matrix4x4& pose);
+	Vector3				world_position() const;
+	Quaternion			world_rotation() const;
+	Matrix4x4			world_pose() const;
+
+	void				set_local_position(const Vector3& pos);
+	void				set_local_rotation(const Quaternion& rot);
+	void				set_local_pose(const Matrix4x4& pose);
 
 public:
 	
-	int32_t 		m_node;
+	int32_t				m_node;
 
-	Matrix4x4 		m_local_pose;
-	Matrix4x4 		m_world_pose;
+	Matrix4x4			m_local_pose;
+	Matrix4x4			m_world_pose;
 
-	VertexBufferId	m_vb;
-	IndexBufferId	m_ib;
+	VertexBufferId		m_vb;
+	IndexBufferId		m_ib;
+	TextureId			m_texture;
+	ShaderId			m_vertex;
+	ShaderId			m_fragment;
+	GPUProgramId		m_program;
+	UniformId			m_uniform;
 
-	TextureId		m_texture;
-
-	ShaderId 		m_vertex;
-	ShaderId 		m_fragment;
-	GPUProgramId	m_program;
-
-	UniformId 		m_uniform;
+	SpriteAnimator*		m_animator;
 };
 
 } // namespace crown
