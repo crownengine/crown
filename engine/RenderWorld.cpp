@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "Log.h"
 #include "SpriteResource.h"
+#include "SpriteAnimator.h"
 
 namespace crown
 {
@@ -169,6 +170,8 @@ Sprite*	RenderWorld::lookup_sprite(SpriteId id)
 //-----------------------------------------------------------------------------
 void RenderWorld::update(Camera& camera, float /*dt*/)
 {
+	static uint64_t frames = 0;
+
 	Renderer* r = device()->renderer();
 
 	Matrix4x4 camera_view = camera.world_pose();
@@ -202,6 +205,11 @@ void RenderWorld::update(Camera& camera, float /*dt*/)
 	{
 		Sprite& sprite = m_sprite[s];
 
+		if (frames % sprite.m_animator->m_frame_rate == 0)
+		{
+			sprite.m_animator->play_frame();
+		}
+
 		r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
 		r->set_vertex_buffer(sprite.m_vb);
 		r->set_index_buffer(sprite.m_ib);
@@ -211,6 +219,8 @@ void RenderWorld::update(Camera& camera, float /*dt*/)
 		r->set_pose(sprite.m_local_pose);
 		r->commit(0);
 	}
+
+	frames++;
 }
 
 //-----------------------------------------------------------------------------
