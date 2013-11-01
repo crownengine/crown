@@ -58,7 +58,7 @@ public:
 		: m_vb(sr->m_vb)
 		, m_anim_length(sr->length())
 		, m_frame_rate(sr->frame_rate())
-		, m_playback_mode(sr->playback_mode())
+		, m_playback_mode((Enum)sr->playback_mode())
 		, m_cur_frame(0)
 		, m_random(os::microseconds())
 	{
