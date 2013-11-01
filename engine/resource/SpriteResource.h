@@ -36,17 +36,48 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Bundle.h"
 #include "Device.h"
+#include "ResourceManager.h"
 #include "RendererTypes.h"
 #include "Renderer.h"
-#include "ResourceManager.h"
 #include "TextureResource.h"
-#include "SpriteAnimator.h"
 
 #define MAX_SPRITE_ANIM_FRAMES 60
-#define MAX_VERTEX_SIZE_PER_FRAME 16
+#define SPRITE_VERTEX_FRAME_SIZE 16
 
 namespace crown
 {
+
+//-----------------------------------------------------------------------------
+static const char* sprite_vs =
+	"uniform mat4      	u_model;"
+	"uniform mat4      	u_model_view_projection;"
+
+	"in vec4           	a_position;"
+	"in vec4           	a_normal;"
+	"in vec2           	a_tex_coord0;"
+	"in vec4           	a_color;"
+
+	"varying out vec2	tex_coord0;"
+	"varying out vec4	color;"
+
+	"void main(void)"
+	"{"
+	"	tex_coord0 = a_tex_coord0;"
+	"   color = a_color;"
+	"	gl_Position = u_model_view_projection * a_position;"
+	"}";
+
+//-----------------------------------------------------------------------------
+static const char* sprite_fs = 
+	"in vec2            tex_coord0;"
+	"in vec4            color;"
+
+	"uniform sampler2D  u_tex;"
+
+	"void main(void)"
+	"{"
+	"	gl_FragColor = texture(u_tex, tex_coord0);"
+	"}";
 
 const uint32_t SPRITE_VERSION = 1;
 
@@ -57,7 +88,8 @@ struct SpriteResourceData
 	char 		m_texture[128];
 	uint32_t	m_length;
 	uint32_t	m_frame_rate;
-	float		m_vertices[MAX_SPRITE_ANIM_FRAMES * MAX_VERTEX_SIZE_PER_FRAME];
+	uint32_t	m_playback_mode;
+	float		m_vertices[MAX_SPRITE_ANIM_FRAMES * SPRITE_VERTEX_FRAME_SIZE];
 };
 
 //-----------------------------------------------------------------------------
@@ -89,9 +121,16 @@ public:
 
 		static uint16_t t_indices[] = {0, 1, 2, 0, 2, 3};
 
-		sr->m_vb = device()->renderer()->create_vertex_buffer(4, VertexFormat::P2_T2, sr->vertices());
-		sr->m_ib = device()->renderer()->create_index_buffer(6, t_indices);
+		Renderer* r = device()->renderer();
 
+		sr->m_vb = r->create_vertex_buffer(4, VertexFormat::P2_T2, sr->frame(0));
+		sr->m_ib = r->create_index_buffer(6, t_indices);
+		sr->m_vertex = r->create_shader(ShaderType::VERTEX, sprite_vs);
+		sr->m_fragment = r->create_shader(ShaderType::FRAGMENT, sprite_fs);
+		sr->m_program = r->create_gpu_program(sr->m_vertex, sr->m_fragment);
+		sr->m_uniform = r->create_uniform("u_tex", UniformType::INTEGER_1, 1);
+
+		// FIXME FIXME FIXME
 		TextureResource* res = (TextureResource*)device()->resource_manager()->lookup(TEXTURE_EXTENSION, sr->texture());
 		sr->m_texture = res->m_texture;
 	}
@@ -109,11 +148,12 @@ public:
 	{
 		SpriteResource* sprite = (SpriteResource*) resource;
 
-		device()->renderer()->destroy_vertex_buffer(sprite->m_vb);
-		device()->renderer()->destroy_index_buffer(sprite->m_ib);
+		Renderer* r = device()->renderer();
+
+		r->destroy_vertex_buffer(sprite->m_vb);
+		r->destroy_index_buffer(sprite->m_ib);
 	}
 
-private:
 	//-----------------------------------------------------------------------------
 	const char* name()
 	{
@@ -143,10 +183,24 @@ private:
 	}
 
 	//-----------------------------------------------------------------------------
-	float* vertices()
+	uint32_t playback_mode()
+	{
+		SpriteResourceData* t_data = (SpriteResourceData*)m_data;
+		return t_data->m_playback_mode;
+	}
+
+	//-----------------------------------------------------------------------------
+	float* animation()
 	{
 		SpriteResourceData* t_data = (SpriteResourceData*)m_data;
 		return t_data->m_vertices;
+	}
+
+	//-----------------------------------------------------------------------------
+	float* frame(uint32_t index)
+	{
+		SpriteResourceData* t_data = (SpriteResourceData*)m_data;
+		return t_data->m_vertices + SPRITE_VERTEX_FRAME_SIZE * index;
 	}
 
 public:
@@ -157,6 +211,10 @@ public:
 	TextureId 					m_texture;
 	VertexBufferId 				m_vb;
 	IndexBufferId 				m_ib;
+	ShaderId 					m_vertex;
+	ShaderId 					m_fragment;
+	GPUProgramId				m_program;
+	UniformId 					m_uniform;
 };
 
 } // namespace crown
