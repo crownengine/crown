@@ -58,34 +58,11 @@ public:
 		: m_vb(sr->m_vb)
 		, m_anim_length(sr->length())
 		, m_frame_rate(sr->frame_rate())
+		, m_playback_mode(sr->playback_mode())
 		, m_cur_frame(0)
 		, m_random(os::microseconds())
 	{
 		memcpy(m_vertices, sr->animation(), sizeof(float) * 16 * m_anim_length);
-
-		switch (sr->playback_mode())
-		{
-			case SEQUENTIAL_ONCE:
-			{
-				m_playback_mode = SEQUENTIAL_ONCE;
-				break;
-			}
-			case SEQUENTIAL_LOOP:
-			{
-				m_playback_mode = SEQUENTIAL_LOOP;
-				break;
-			}
-			case RANDOM_LOOP:
-			{
-				m_playback_mode = RANDOM_LOOP;
-				break;
-			}
-			default:
-			{
-				m_playback_mode = UNKNOWN;
-				break;
-			}
-		}
 	}
 
 	//-----------------------------------------------------------------------------
@@ -95,9 +72,7 @@ public:
 
 		update_frame();
 
-		Renderer* r = device()->renderer();
-
-		r->update_vertex_buffer(m_vb, 0, 4, m_vertices + 16 * m_cur_frame);
+		device()->renderer()->update_vertex_buffer(m_vb, 0, 4, m_vertices + 16 * m_cur_frame);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -108,13 +83,11 @@ public:
 			case SEQUENTIAL_ONCE:
 			{
 				m_cur_frame = ++m_cur_frame < m_anim_length ? m_cur_frame : m_anim_length - 1;
-
 				break;
 			}
 			case SEQUENTIAL_LOOP:
 			{
 				m_cur_frame = ++m_cur_frame < m_anim_length ? m_cur_frame : 0;
-
 				break;
 			}
 			case RANDOM_LOOP:
@@ -132,15 +105,14 @@ public:
 public:
 
 	VertexBufferId	m_vb;
+	float			m_vertices[MAX_SPRITE_ANIM_FRAMES*SPRITE_VERTEX_FRAME_SIZE];
 
 	uint32_t		m_anim_length;
 	uint32_t		m_frame_rate;
 	Enum			m_playback_mode;
-	float			m_vertices[60*16];
-
 	uint32_t		m_cur_frame;
 
-	Random 			m_random;	
+	Random 			m_random;
 };
 
 } // namespace crown 
