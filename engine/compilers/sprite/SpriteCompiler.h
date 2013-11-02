@@ -26,30 +26,50 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Compiler.h"
-#include "Resource.h"
+#include "Types.h"
 #include "List.h"
+#include "SpriteResource.h"
+#include "Compiler.h"
+#include "OS.h"
+#include "Vector2.h"
+
 
 namespace crown
 {
 
-class CE_EXPORT PackageCompiler : public Compiler
+class Filesystem;
+
+//-----------------------------------------------------------------------------
+struct SpriteHeader
+{
+	char name[128];
+	char texture[128];
+	uint32_t length;
+	uint32_t frame_rate;
+	uint32_t playback_mode;
+};
+
+//-----------------------------------------------------------------------------
+struct SpriteAnimationData
+{
+	Vector2 position;
+	Vector2 texcoords;
+};
+
+//-----------------------------------------------------------------------------
+class SpriteCompiler : public Compiler
 {
 public:
+							SpriteCompiler();
+							~SpriteCompiler();
 
-	PackageCompiler();
-
-	size_t compile_impl(Filesystem& fs, const char* resource_path);
-	void write_impl(File* out_file);
+	size_t					compile_impl(Filesystem& fs, const char* resource_path);
+	void					write_impl(File* out_file);
 
 private:
 
-	List<ResourceId> m_texture;
-	List<ResourceId> m_script;
-	List<ResourceId> m_sound;
-	List<ResourceId> m_mesh;
-	List<ResourceId> m_unit;
-	List<ResourceId> m_sprite;
+	SpriteHeader				m_anim_header;
+	List<SpriteAnimationData> 	m_anim_data;
 };
 
 } // namespace crown

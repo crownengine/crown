@@ -138,7 +138,7 @@ public:
 	/// @note
 	/// @a count and @a offset together do not have to exceed the number of elements
 	/// originally specified to Renderer::create_vertex_buffer() (or Renderer::create_dynamic_vertex_buffer())
-	inline void update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const uint16_t* vertices)
+	inline void update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices)
 	{
 		m_submit->m_commands.write(CommandType::UPDATE_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);

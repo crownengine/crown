@@ -30,6 +30,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Renderer.h"
 #include "Allocator.h"
 #include "Camera.h"
+#include "Resource.h"
+#include "Log.h"
+#include "SpriteResource.h"
+#include "SpriteAnimator.h"
 
 namespace crown
 {
@@ -86,7 +90,10 @@ static const char* texture_fragment =
 
 //-----------------------------------------------------------------------------
 RenderWorld::RenderWorld()
-	: m_mesh(default_allocator())
+	: m_mesh_pool(default_allocator(), MAX_MESHES, sizeof(Mesh))
+	, m_mesh(default_allocator())
+	, m_transform(default_allocator())
+	, m_sprite(default_allocator())
 {
 	Renderer* r = device()->renderer();
 
@@ -118,13 +125,18 @@ RenderWorld::~RenderWorld()
 }
 
 //-----------------------------------------------------------------------------
-MeshId RenderWorld::create_mesh(const char* name, int32_t node, const Vector3& pos, const Quaternion& rot)
+MeshId RenderWorld::create_mesh(ResourceId id, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
-	MeshResource* mr = (MeshResource*) device()->resource_manager()->lookup("mesh", name);
+	MeshResource* mr = (MeshResource*) device()->resource_manager()->data(id);
 
-	MeshId mesh = allocate_mesh(mr, node, pos, rot);
+	// Allocate memory for mesh
+	Mesh* mesh = (Mesh*) m_mesh_pool.allocate(sizeof(Mesh));
 
-	return mesh;
+	// Create mesh id
+	const MeshId mesh_id = m_mesh.create(mesh);
+	mesh->create(mr, node, pos, rot);
+
+	return mesh_id;
 }
 
 //-----------------------------------------------------------------------------
@@ -135,61 +147,109 @@ void RenderWorld::destroy_mesh(MeshId /*id*/)
 //-----------------------------------------------------------------------------
 Mesh* RenderWorld::lookup_mesh(MeshId mesh)
 {
-	CE_ASSERT(m_mesh_table.has(mesh), "Mesh does not exits");
+	CE_ASSERT(m_mesh.has(mesh), "Mesh does not exits");
 
-	return &m_mesh[m_sparse_to_packed[mesh.index]];
+	return m_mesh.lookup(mesh);
 }
 
 //-----------------------------------------------------------------------------
-void RenderWorld::update(Camera& camera, float /*dt*/)
+SpriteId RenderWorld::create_sprite(const char* name, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
+	SpriteResource* sr = (SpriteResource*) device()->resource_manager()->lookup(SPRITE_EXTENSION, name);
+
+	SpriteId sprite = allocate_sprite(sr, node, pos, rot);
+
+	return sprite;
+}
+
+//-----------------------------------------------------------------------------
+void RenderWorld::destroy_sprite(SpriteId /*id*/)
+{
+	// Stub
+}
+
+//-----------------------------------------------------------------------------
+Sprite*	RenderWorld::lookup_sprite(SpriteId id)
+{
+	return &m_sprite[m_sprite_sparse_to_packed[id.index]];
+}
+
+//-----------------------------------------------------------------------------
+void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height, float /*dt*/)
+{
+	static uint64_t frames = 0;
+
 	Renderer* r = device()->renderer();
 
-	Matrix4x4 camera_view = camera.world_pose();
-	camera_view.invert();
+	Matrix4x4 inv_view = view;
+	inv_view.invert();
 
-	r->set_layer_view(0, camera_view);
-	r->set_layer_projection(0, camera.m_projection);
-	r->set_layer_viewport(0, 0, 0, 1000, 625);
+	r->set_layer_view(0, inv_view);
+	r->set_layer_projection(0, projection);
+	r->set_layer_viewport(0, x, y, width, height);
 	r->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
 
 	r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_CULL_CCW);
 	r->commit(0);
 
 	// Draw all meshes
-	for (uint32_t m = 0; m < m_mesh.size(); m++)
+	const List<Mesh*>& meshes = m_mesh.m_objects;
+
+	for (uint32_t m = 0; m < meshes.size(); m++)
 	{
-		const Mesh& mesh = m_mesh[m];
+		const Mesh* mesh = meshes[m];
 
 		r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
-		r->set_vertex_buffer(mesh.m_vbuffer);
-		r->set_index_buffer(mesh.m_ibuffer);
+		r->set_vertex_buffer(mesh->m_vbuffer);
+		r->set_index_buffer(mesh->m_ibuffer);
 		r->set_program(default_program);
-/*		r->set_texture(0, u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
+		/*r->set_texture(0, u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
 		r->set_uniform(u_brightness, UNIFORM_FLOAT_1, &brightness, 1);*/
 
-		r->set_pose(mesh.m_local_pose);
+		r->set_pose(mesh->m_local_pose);
 		r->commit(0);
 	}
+
+	for (uint32_t s = 0; s < m_sprite.size(); s++)
+	{
+		Sprite& sprite = m_sprite[s];
+
+		if (frames % sprite.m_animator->m_frame_rate == 0)
+		{
+			sprite.m_animator->play_frame();
+		}
+
+		r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
+		r->set_vertex_buffer(sprite.m_vb);
+		r->set_index_buffer(sprite.m_ib);
+		r->set_program(sprite.m_program);
+		r->set_texture(0, sprite.m_uniform, sprite.m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
+
+		r->set_pose(sprite.m_local_pose);
+		r->commit(0);
+	}
+
+	frames++;
 }
 
 //-----------------------------------------------------------------------------
-MeshId RenderWorld::allocate_mesh(MeshResource* mr, int32_t node, const Vector3& pos, const Quaternion& rot)
+SpriteId RenderWorld::allocate_sprite(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
-	MeshId mesh_id = m_mesh_table.create();
+	SpriteId id = m_sprite_table.create();
 
-	Mesh mesh;
-	mesh.create(mr, node, pos, rot);
+	Sprite sprite;
+	sprite.create(sr, node, pos, rot);
 
-	uint32_t index = m_mesh.push_back(mesh);
-	m_sparse_to_packed[mesh_id.index] = index;
+	uint32_t index = m_sprite.push_back(sprite);
+	m_sprite_sparse_to_packed[id.index] = index;
 
-	return mesh_id;
+	return id;
 }
 
 //-----------------------------------------------------------------------------
-void RenderWorld::deallocate_mesh(MeshId /*id*/)
+void RenderWorld::deallocate_sprite(SpriteId /*id*/)
 {
+	// Stub
 }
 
 } // namespace crown

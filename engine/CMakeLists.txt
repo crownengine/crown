@@ -69,6 +69,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/compilers/mesh
 	${CMAKE_SOURCE_DIR}/engine/compilers/package
 	${CMAKE_SOURCE_DIR}/engine/compilers/unit
+	${CMAKE_SOURCE_DIR}/engine/compilers/sprite
 )
 
 set (SRC
@@ -79,6 +80,7 @@ set (SRC
 	SceneGraph.cpp
 	RenderWorld.cpp
 	Mesh.cpp
+	Sprite.cpp
 )
 
 set (HEADERS
@@ -91,6 +93,8 @@ set (HEADERS
 	SceneGraph.h
 	RenderWorld.h
 	Mesh.h
+	Sprite.h
+	SpriteAnimator.h
 )
 
 set (CORE_SRC
@@ -302,6 +306,7 @@ set (RESOURCE_HEADERS
 	resource/PackageResource.h
 	resource/UnitResource.h
 	resource/ResourcePackage.h
+	resource/SpriteResource.h
 )
 
 set (RPC_SRC
@@ -345,6 +350,7 @@ set (LUA_SRC
 	lua/LuaUnit.cpp
 	lua/LuaCamera.cpp
 	lua/LuaMesh.cpp
+	lua/LuaSprite.cpp
 )
 
 set (LUA_HEADERS
@@ -368,6 +374,7 @@ set (COMPILER_SRC
 	compilers/sound/SoundCompiler.cpp
 	compilers/package/PackageCompiler.cpp
 	compilers/unit/UnitCompiler.cpp
+	compilers/sprite/SpriteCompiler.cpp
 )
 
 set (COMPILER_HEADER
@@ -379,6 +386,7 @@ set (COMPILER_HEADER
 	compilers/sound/SoundCompiler.h
 	compilers/package/PackageCompiler.h
 	compilers/unit/UnitCompiler.h
+	compilers/sprite/SpriteCompiler.h
 )
 
 set (CROWN_LIBRARIES)

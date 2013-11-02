@@ -26,30 +26,51 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Compiler.h"
-#include "Resource.h"
-#include "List.h"
+#include "RendererTypes.h"
+#include "Matrix4x4.h"
 
 namespace crown
 {
 
-class CE_EXPORT PackageCompiler : public Compiler
+class SpriteResource;
+class SpriteAnimator;
+class Vector3;
+class Quaternion;
+
+//-----------------------------------------------------------------------------
+struct Sprite
 {
+	void				create(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot);
+	void				destroy();
+
+	Vector3				local_position() const;
+	Quaternion			local_rotation() const;
+	Matrix4x4			local_pose() const;
+
+	Vector3				world_position() const;
+	Quaternion			world_rotation() const;
+	Matrix4x4			world_pose() const;
+
+	void				set_local_position(const Vector3& pos);
+	void				set_local_rotation(const Quaternion& rot);
+	void				set_local_pose(const Matrix4x4& pose);
+
 public:
+	
+	int32_t				m_node;
 
-	PackageCompiler();
+	Matrix4x4			m_local_pose;
+	Matrix4x4			m_world_pose;
 
-	size_t compile_impl(Filesystem& fs, const char* resource_path);
-	void write_impl(File* out_file);
+	VertexBufferId		m_vb;
+	IndexBufferId		m_ib;
+	TextureId			m_texture;
+	ShaderId			m_vertex;
+	ShaderId			m_fragment;
+	GPUProgramId		m_program;
+	UniformId			m_uniform;
 
-private:
-
-	List<ResourceId> m_texture;
-	List<ResourceId> m_script;
-	List<ResourceId> m_sound;
-	List<ResourceId> m_mesh;
-	List<ResourceId> m_unit;
-	List<ResourceId> m_sprite;
+	SpriteAnimator*		m_animator;
 };
 
 } // namespace crown

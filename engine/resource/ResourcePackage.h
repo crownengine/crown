@@ -77,11 +77,21 @@ public:
 		{
 			m_resource_manager->load(UNIT_TYPE, m_package->get_unit_id(i));
 		}
+
+		for (uint32_t i = 0; i < m_package->num_sprites(); i++)
+		{
+			m_resource_manager->load(SPRITE_TYPE, m_package->get_sprite_id(i));
+		}
 	}
 
 	/// Unloads all the resources in the package.
 	void unload()
 	{
+		for (uint32_t i = 0; i < m_package->num_sprites(); i++)
+		{
+			m_resource_manager->unload(m_package->get_sprite_id(i));
+		}
+
 		for (uint32_t i = 0; i < m_package->num_units(); i++)
 		{
 			m_resource_manager->unload(m_package->get_unit_id(i));

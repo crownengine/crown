@@ -40,6 +40,7 @@ class Unit;
 class Camera;
 class World;
 class Mesh;
+class Sprite;
 
 void clear_lua_temporaries();
 
@@ -197,6 +198,18 @@ public:
 	Mesh* get_mesh(int32_t index)
 	{
 		return (Mesh*) lua_touserdata(m_state, index);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_sprite(Sprite* sprite)
+	{
+		lua_pushlightuserdata(m_state, sprite);
+	}
+
+	//-----------------------------------------------------------------------------
+	Sprite* get_sprite(int32_t index)
+	{
+		return (Sprite*) lua_touserdata(m_state, index);
 	}
 
 	Vector2& get_vector2(int32_t index);

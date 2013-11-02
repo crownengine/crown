@@ -37,80 +37,109 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 World::World()
-	: m_allocator(default_allocator(), 1024 * 1024)
-	, m_is_init(false)
+	: m_unit_pool(default_allocator(), MAX_UNITS, sizeof(Unit))
 	, m_units(default_allocator())
 	, m_camera(default_allocator())
+	, m_sounds(default_allocator())
+	, m_unit_to_camera(default_allocator())
+	, m_unit_to_sound_instance(default_allocator())
 {
 }
 
 //-----------------------------------------------------------------------------
-void World::init()
+UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion& rot)
 {
-}
+	// Allocate memory for unit
+	Unit* unit = CE_NEW(m_unit_pool, Unit)();
 
-//-----------------------------------------------------------------------------
-void World::shutdown()
-{
-}
+	// Fetch resource
+	UnitResource* ur = (UnitResource*) device()->resource_manager()->lookup(UNIT_EXTENSION, name);
 
-//-----------------------------------------------------------------------------
-UnitId World::spawn_unit(const char* /*name*/, const Vector3& pos, const Quaternion& rot)
-{
-	const UnitId unit_id = m_unit_table.create();
-
-	Unit unit;
-	unit.create(*this, m_scene_graph[unit_id.index], m_component[unit_id.index], unit_id, pos, rot);
-
-	// Test stuff
-	int32_t cam_node = unit.m_scene_graph->create_node(unit.m_root_node, pos, rot);
-	CameraId camera = create_camera(unit_id, cam_node);
-
-	MeshId mesh = m_render_world.create_mesh("monkey");
-
-	unit.m_component->add_component("camera", ComponentType::CAMERA, camera);
-	unit.m_component->add_component("mesh", ComponentType::MESH, mesh);
-
-	m_units.push_back(unit);
+	// Create Id for the unit
+	const UnitId unit_id = m_units.create(unit);
+	unit->create(*this, ur, unit_id, pos, rot);
 
 	return unit_id;
 }
 
 //-----------------------------------------------------------------------------
-void World::kill_unit(UnitId unit)
+void World::destroy_unit(UnitId unit)
 {
-	CE_ASSERT(m_unit_table.has(unit), "Unit does not exist");
-	(void)unit;
+	CE_ASSERT(m_units.has(unit), "Unit does not exist");
 }
 
 //-----------------------------------------------------------------------------
-void World::link_unit(UnitId child, UnitId parent)
+void World::destroy_unit(Unit* unit)
 {
-	CE_ASSERT(m_unit_table.has(child), "Child unit does not exist");
-	CE_ASSERT(m_unit_table.has(parent), "Parent unit does not exist");
+	CE_ASSERT_NOT_NULL(unit);
+	CE_DELETE(m_unit_pool, unit);
 }
 
 //-----------------------------------------------------------------------------
-void World::unlink_unit(UnitId child, UnitId parent)
+void World::link_unit(UnitId child, UnitId parent, int32_t node)
 {
-	CE_ASSERT(m_unit_table.has(child), "Child unit does not exist");
-	CE_ASSERT(m_unit_table.has(parent), "Parent unit does not exist");
+	CE_ASSERT(m_units.has(child), "Child unit does not exist");
+	CE_ASSERT(m_units.has(parent), "Parent unit does not exist");
+
+	Unit* child_unit = lookup_unit(child);
+	Unit* parent_unit = lookup_unit(parent);
+
+	parent_unit->link_node(child_unit->m_root_node, node);
+}
+
+//-----------------------------------------------------------------------------
+void World::unlink_unit(UnitId child)
+{
+	CE_ASSERT(m_units.has(child), "Child unit does not exist");
+}
+
+//-----------------------------------------------------------------------------
+void World::link_camera(CameraId camera, UnitId unit, int32_t node)
+{
+	UnitToCamera* utc = NULL;
+
+	for (uint32_t i = 0; i < m_unit_to_camera.size(); i++)
+	{
+		if (utc->camera == camera && utc->unit == unit)
+		{
+			utc = &m_unit_to_camera[i];
+		}
+	}
+
+	if (utc != NULL)
+	{
+		utc->node = node;
+	}
+	else
+	{
+		UnitToCamera new_utc;
+		new_utc.camera = camera;
+		new_utc.unit = unit;
+		new_utc.node = node;
+		m_unit_to_camera.push_back(new_utc);
+	}
+}
+
+//-----------------------------------------------------------------------------
+void World::unlink_camera(CameraId camera)
+{
+	(void)camera;
 }
 
 //-----------------------------------------------------------------------------
 Unit* World::lookup_unit(UnitId unit)
 {
-	CE_ASSERT(m_unit_table.has(unit), "Unit does not exist");
+	CE_ASSERT(m_units.has(unit), "Unit does not exist");
 
-	return &m_units[unit.index];
+	return m_units.lookup(unit);
 }
 
 //-----------------------------------------------------------------------------
 Camera* World::lookup_camera(CameraId camera)
 {
-	CE_ASSERT(m_camera_table.has(camera), "Camera does not exist");
+	CE_ASSERT(m_camera.has(camera), "Camera does not exist");
 
-	return &m_camera[camera.index];
+	return &m_camera.lookup(camera);
 }
 
 //-----------------------------------------------------------------------------
@@ -120,38 +149,67 @@ Mesh* World::lookup_mesh(MeshId mesh)
 }
 
 //-----------------------------------------------------------------------------
+Sprite* World::lookup_sprite(SpriteId sprite)
+{
+	return m_render_world.lookup_sprite(sprite);
+}
+
+//-----------------------------------------------------------------------------
 void World::update(Camera& camera, float dt)
 {
-	// Feed the scene graph with camera local pose
-	for (uint cc = 0; cc < m_camera.size(); cc++)
-	{
-		Camera& cam = m_camera[cc];
-		SceneGraph& graph = m_scene_graph[cam.m_unit.index];
-
-		graph.set_local_pose(cam.m_node, cam.m_local_pose);
-	}
-
 	// Update all the units
-	for (uint32_t uu = 0; uu < m_units.size(); uu++)
+	for (uint32_t uu = 0; uu < m_units.m_objects.size(); uu++)
 	{
-		Unit& unit = m_units[uu];
-		SceneGraph& graph = m_scene_graph[unit.m_id.index];
+		Unit& unit = *m_units.m_objects[uu];
+		SceneGraph& graph = unit.m_scene_graph;
 
 		// Update unit's scene graph
 		graph.update();
 	}
 
-	// Fetch the camera world poses from scene graph
-	for (uint32_t cc = 0; cc < m_camera.size(); cc++)
+	// Update camera poses
+	for (uint32_t i = 0; i < m_unit_to_camera.size(); i++)
 	{
-		Camera& cam = m_camera[cc];
-		SceneGraph& graph = m_scene_graph[cam.m_unit.index];
+		const UnitToCamera& utc = m_unit_to_camera[i];
 
-		cam.m_world_pose = graph.world_pose(cam.m_node);
+		Camera& cam = m_camera.lookup(utc.camera);
+		Unit* unit = m_units.lookup(utc.unit);
+
+		cam.m_world_pose = unit->m_scene_graph.world_pose(utc.node);
+	}
+
+	// Updates sound poses
+	for (uint32_t i = 0; i < m_unit_to_sound_instance.size(); i++)
+	{
+		const UnitToSoundInstance& uts = m_unit_to_sound_instance[i];
+
+		SoundInstance& sound = m_sounds.lookup(uts.sound);
+		Unit* unit = m_units.lookup(uts.unit);
+
+		sound.world = unit->m_scene_graph.world_pose(uts.node);
 	}
 
 	// Update render world
-	m_render_world.update(camera, dt);
+	m_render_world.update(camera.m_world_pose, camera.m_projection, camera.m_view_x, camera.m_view_y,
+							camera.m_view_width, camera.m_view_height, dt);
+
+	// Update sounds
+	List<SoundInstance>& sounds = m_sounds.m_objects; 
+	for (uint32_t i = 0; i < sounds.size(); i++)
+	{
+		SoundInstance& sound = sounds[i];
+
+		device()->sound_renderer()->set_sound_loop(sound.sound, sound.loop);
+		device()->sound_renderer()->set_sound_gain(sound.sound, sound.volume);
+		device()->sound_renderer()->set_sound_max_distance(sound.sound, sound.range);
+		device()->sound_renderer()->set_sound_position(sound.sound, sound.world.translation());
+
+		if (!sound.playing)
+		{
+			device()->sound_renderer()->play_sound(sound.sound);
+			sound.playing = true;
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -161,59 +219,84 @@ RenderWorld& World::render_world()
 }
 
 //-----------------------------------------------------------------------------
-CameraId World::create_camera(UnitId unit, int32_t node, const Vector3& pos, const Quaternion& rot)
+CameraId World::create_camera(int32_t node, const Vector3& pos, const Quaternion& rot)
 {
-	CameraId camera_id = m_camera_table.create();
-
 	Camera camera;
-	camera.create(unit, node, pos, rot);
+	camera.create(node, pos, rot);
 
-	m_camera.push_back(camera);
-
-	return camera_id;
+	return m_camera.create(camera);
 }
 
 //-----------------------------------------------------------------------------
 void World::destroy_camera(CameraId camera)
 {
-	m_camera_table.destroy(camera);
+	m_camera.destroy(camera);
 }
+
+//-----------------------------------------------------------------------------
+MeshId World::create_mesh(ResourceId id, int32_t node, const Vector3& pos, const Quaternion& rot)
+{
+	return m_render_world.create_mesh(id, node, pos, rot);
+}
+
+//-----------------------------------------------------------------------------
+void World::destroy_mesh(MeshId id)
+{
+	m_render_world.destroy_mesh(id);
+}
+
+//-----------------------------------------------------------------------------
+SpriteId World::create_sprite(const char* name, int32_t node, const Vector3& pos, const Quaternion& rot)
+{
+	return m_render_world.create_sprite(name, node, pos, rot);
+}
+
+//-----------------------------------------------------------------------------
+void World::destroy_sprite(SpriteId id)
+{
+	m_render_world.destroy_sprite(id);
+}
+
 
 //-----------------------------------------------------------------------------
 SoundInstanceId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
-	SoundInstanceId id = m_sound_table.create();
-
 	SoundResource* sound = (SoundResource*)device()->resource_manager()->lookup(SOUND_EXTENSION, name);
 
-	m_sound[id.index].m_sound = sound->m_id;
+	SoundInstance s;
+	s.sound = sound->m_id;
+	s.world = Matrix4x4(Quaternion::IDENTITY, pos);
+	s.volume = volume;
+	s.range = range;
+	s.loop = loop;
+	s.playing = false;
 
-	device()->sound_renderer()->set_sound_loop(m_sound[id.index].m_sound, loop);
-	device()->sound_renderer()->set_sound_gain(m_sound[id.index].m_sound, volume);
-	device()->sound_renderer()->set_sound_position(m_sound[id.index].m_sound, pos);
-	device()->sound_renderer()->set_sound_max_distance(m_sound[id.index].m_sound, range);
-
-	device()->sound_renderer()->play_sound(m_sound[id.index].m_sound);
+	SoundInstanceId id = m_sounds.create(s);
 
 	return id;
 }
 
 //-----------------------------------------------------------------------------
-void World::pause_sound(SoundInstanceId sound)
+void World::pause_sound(SoundInstanceId id)
 {
-	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+	CE_ASSERT(m_sounds.has(id), "SoundInstance does not exists");
 
-	device()->sound_renderer()->pause_sound(m_sound[sound.index].m_sound);
+	const SoundInstance& sound = m_sounds.lookup(id);
+	device()->sound_renderer()->pause_sound(sound.sound);
 }
 
 //-----------------------------------------------------------------------------
-void World::link_sound(SoundInstanceId sound, UnitId unit)
+void World::link_sound(SoundInstanceId id, Unit* unit, int32_t node)
 {
-	CE_ASSERT(m_unit_table.has(unit), "Unit does not exists");
-	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+	//CE_ASSERT(m_units.has(unit), "Unit does not exists");
+	CE_ASSERT(m_sounds.has(id), "SoundInstance does not exists");
 
-	Vector3 pos = m_units[unit.index].world_position();
-	device()->sound_renderer()->set_sound_position(m_sound[sound.index].m_sound, pos);
+	UnitToSoundInstance uts;
+	uts.sound = id;
+	uts.unit = unit->m_id;
+	uts.node = node;
+
+	m_unit_to_sound_instance.push_back(uts);
 }
 
 //-----------------------------------------------------------------------------
@@ -223,27 +306,30 @@ void World::set_listener(const Vector3& pos, const Vector3& vel, const Vector3& 
 }
 
 //-----------------------------------------------------------------------------
-void World::set_sound_position(SoundInstanceId sound, const Vector3& pos)
+void World::set_sound_position(SoundInstanceId id, const Vector3& pos)
 {
-	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+	CE_ASSERT(m_sounds.has(id), "SoundInstance does not exists");
 
-	device()->sound_renderer()->set_sound_position(m_sound[sound.index].m_sound, pos);
+	SoundInstance& sound = m_sounds.lookup(id);
+	sound.world = Matrix4x4(Quaternion::IDENTITY, pos);
 }
 
 //-----------------------------------------------------------------------------
-void World::set_sound_range(SoundInstanceId sound, const float range)
+void World::set_sound_range(SoundInstanceId id, const float range)
 {
-	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+	CE_ASSERT(m_sounds.has(id), "SoundInstance does not exists");
 
-	device()->sound_renderer()->set_sound_max_distance(m_sound[sound.index].m_sound, range);
+	SoundInstance& sound = m_sounds.lookup(id);
+	sound.range = range;
 }
 
 //-----------------------------------------------------------------------------
-void World::set_sound_volume(SoundInstanceId sound, const float vol)
+void World::set_sound_volume(SoundInstanceId id, const float vol)
 {
-	CE_ASSERT(m_sound_table.has(sound), "SoundInstance does not exists");
+	CE_ASSERT(m_sounds.has(id), "SoundInstance does not exists");
 
-	device()->sound_renderer()->set_sound_gain(m_sound[sound.index].m_sound, vol);
+	SoundInstance& sound = m_sounds.lookup(id);
+	sound.volume = vol;
 }
 
 } // namespace crown

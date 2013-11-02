@@ -39,6 +39,7 @@ namespace crown
 //-----------------------------------------------------------------------------
 UnitCompiler::UnitCompiler()
 	: m_renderable(default_allocator())
+	, m_camera(default_allocator())
 {
 }
 
@@ -57,8 +58,6 @@ size_t UnitCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	// Check for renderable
 	if (root.has_key("renderable"))
 	{
-		Log::d("Reading renderables");
-
 		JSONElement renderable_array = root.key("renderable");
 		uint32_t renderable_array_size = renderable_array.size();
 
@@ -80,7 +79,26 @@ size_t UnitCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		}
 	}
 
-	return sizeof(UnitHeader) + m_renderable.size() * sizeof(UnitRenderable);
+	// Check for cameras
+	if (root.has_key("camera"))
+	{
+		JSONElement camera = root.key("camera");
+		uint32_t num_cameras = camera.size();
+
+		for (uint32_t i = 0; i < num_cameras; i++)
+		{
+			JSONElement camera_name = camera[i].key("name");
+
+			UnitCamera uc;
+			uc.name = hash::murmur2_32(camera_name.string_value(), camera_name.size(), 0);
+
+			m_camera.push_back(uc);
+		}
+	}
+
+	return sizeof(UnitHeader) +
+			m_renderable.size() * sizeof(UnitRenderable) +
+			m_camera.size() * sizeof(UnitCamera);
 }
 
 //-----------------------------------------------------------------------------
@@ -88,8 +106,10 @@ void UnitCompiler::write_impl(File* out_file)
 {
 	UnitHeader header;
 	header.num_renderables = m_renderable.size();
+	header.num_cameras = m_camera.size();
 
 	header.renderables_offset = sizeof(UnitHeader);
+	header.cameras_offset = sizeof(UnitHeader) + sizeof(UnitRenderable) * header.num_renderables;
 
 	out_file->write((char*) &header, sizeof(UnitHeader));
 
@@ -98,8 +118,14 @@ void UnitCompiler::write_impl(File* out_file)
 		out_file->write((char*) m_renderable.begin(), sizeof(UnitRenderable) * header.num_renderables);
 	}
 
+	if (m_camera.size() > 0)
+	{
+		out_file->write((char*) m_camera.begin(), sizeof(UnitCamera) * header.num_cameras);
+	}
+
 	// Cleanup
 	m_renderable.clear();
+	m_camera.clear();
 }
 
 } // namespace crown

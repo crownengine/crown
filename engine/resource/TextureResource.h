@@ -120,7 +120,7 @@ public:
 		return m_data;
 	}
 
-private:
+public:
 
 	TextureHeader		m_header;
 	uint8_t*			m_data;

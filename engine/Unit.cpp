@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "World.h"
 #include "Allocator.h"
 #include "Log.h"
+#include "UnitResource.h"
 
 namespace crown
 {
@@ -43,10 +44,39 @@ Unit::Unit()
 }
 
 //-----------------------------------------------------------------------------
-void Unit::create(World& world, UnitId id, const Vector3& pos, const Quaternion& rot)
+void Unit::create(World& world, UnitResource* ur, UnitId id, const Vector3& pos, const Quaternion& rot)
 {
 	m_root_node = m_scene_graph.create_node(-1, pos, rot);
+
+	// Create renderables
+	for (uint32_t i = 0; i < ur->num_renderables(); i++)
+	{
+		int32_t node = m_scene_graph.create_node(m_root_node, Vector3::ZERO, Quaternion::IDENTITY);
+
+		UnitRenderable renderable = ur->get_renderable(i);
+		MeshId mesh = world.create_mesh(renderable.resource, node, Vector3::ZERO, Quaternion::IDENTITY);
+
+		add_mesh(renderable.name, mesh);
+	}
+
+	// Create cameras
+	for (uint32_t i = 0; i < ur->num_cameras(); i++)
+	{
+		int32_t cam_node = m_scene_graph.create_node(m_root_node, Vector3::ZERO, Quaternion::IDENTITY);
+
+		UnitCamera camera = ur->get_camera(i);
+		CameraId cam = world.create_camera(cam_node, Vector3::ZERO, Quaternion::IDENTITY);
+		
+		world.link_camera(cam, id, m_root_node);
+		add_camera(camera.name, cam);
+	}
+
+	// FIXME FIXME FIXME - TEST CODE - FIXME FIXME FIXME
+	SpriteId sprite = world.create_sprite("sprites/loading", m_root_node, Vector3::ZERO, Quaternion::IDENTITY);
+	add_sprite(hash::murmur2_32("sprite", 6, 0), sprite);
+
 	m_world = &world;
+	m_resource = ur;
 	m_id = id;
 }
 
@@ -122,10 +152,10 @@ void Unit::unlink_node(int32_t child)
 }
 
 //-----------------------------------------------------------------------------
-void Unit::add_component(const char* name, Id component, uint32_t& size, Component* array)
+void Unit::add_component(uint32_t name, Id component, uint32_t& size, Component* array)
 {
 	Component comp;
-	comp.name = hash::murmur2_32(name, string::strlen(name), 0);
+	comp.name = name;
 	comp.component = component;
 
 	array[size] = comp;
@@ -166,7 +196,7 @@ Id Unit::find_component(uint32_t index, uint32_t size, Component* array)
 }
 
 //-----------------------------------------------------------------------------
-void Unit::add_camera(const char* name, CameraId camera)
+void Unit::add_camera(uint32_t name, CameraId camera)
 {
 	CE_ASSERT(m_num_cameras < MAX_CAMERA_COMPONENTS, "Max camera number reached");
 
@@ -174,11 +204,19 @@ void Unit::add_camera(const char* name, CameraId camera)
 }
 
 //-----------------------------------------------------------------------------
-void Unit::add_mesh(const char* name, MeshId mesh)
+void Unit::add_mesh(uint32_t name, MeshId mesh)
 {
 	CE_ASSERT(m_num_meshes < MAX_MESH_COMPONENTS, "Max mesh number reached");
 
 	add_component(name, mesh, m_num_meshes, m_meshes);
+}
+
+//-----------------------------------------------------------------------------
+void Unit::add_sprite(uint32_t name, SpriteId sprite)
+{
+	CE_ASSERT(m_num_sprites < MAX_SPRITE_COMPONENTS, "Max sprite number reached");
+
+	add_component(name, sprite, m_num_sprites, m_sprites);
 }
 
 //-----------------------------------------------------------------------------
@@ -219,6 +257,26 @@ Mesh* Unit::mesh(uint32_t i)
 	CE_ASSERT(mesh.id != INVALID_ID, "Unit does not have mesh with index '%d'", i);
 
 	return m_world->lookup_mesh(mesh);
+}
+
+//-----------------------------------------------------------------------------
+Sprite*	Unit::sprite(const char* name)
+{
+	SpriteId sprite = find_component(name, m_num_sprites, m_sprites);
+
+	CE_ASSERT(sprite.id != INVALID_ID, "Unit does not have sprite with name '%s'", name);
+
+	return m_world->lookup_sprite(sprite);
+}
+
+//-----------------------------------------------------------------------------
+Sprite*	Unit::sprite(uint32_t i)
+{
+	SpriteId sprite = find_component(i, m_num_sprites, m_sprites);
+
+	CE_ASSERT(sprite.id != INVALID_ID, "Unit does not have sprite with index '%d'", i);
+
+	return m_world->lookup_sprite(sprite);
 }
 
 } // namespace crown

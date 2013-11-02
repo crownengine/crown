@@ -39,15 +39,12 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 PackageCompiler::PackageCompiler()
-	: m_has_texture(false)
-	, m_has_lua(false)
-	, m_has_sound(false)
-	, m_has_unit(false)
-	, m_texture(default_allocator())
+	: m_texture(default_allocator())
 	, m_script(default_allocator())
 	, m_sound(default_allocator())
 	, m_mesh(default_allocator())
 	, m_unit(default_allocator())
+	, m_sprite(default_allocator())
 {
 }
 
@@ -180,7 +177,6 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 			if (!fs.is_file(unit_name.c_str()))
 			{
 				Log::e("Unit '%s' does not exist.", unit_name.c_str());
-				return 0;
 			}
 
 			ResourceId id;
@@ -189,13 +185,38 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		}
 	}
 
+	// Check for meshes
+	if (root.has_key("sprite"))
+	{
+		JSONElement sprite_array = root.key("sprite");
+		uint32_t sprite_array_size = sprite_array.size();
+
+		for (uint32_t i = 0; i < sprite_array_size; i++)
+		{
+			TempAllocator256 alloc;
+			DynamicString sprite_name(alloc);
+			sprite_name += sprite_array[i].string_value();
+			sprite_name += ".sprite";
+
+			if (!fs.is_file(sprite_name.c_str()))
+			{
+				Log::e("Sprite '%s' does not exist.", sprite_name.c_str());
+				return 0;
+			}
+
+			ResourceId id;
+			id.id = hash::murmur2_64(sprite_name.c_str(), string::strlen(sprite_name.c_str()), 0);
+			m_sprite.push_back(id);
+		}
+	}
 
 	return sizeof(PackageHeader) +
 			m_texture.size() * sizeof(ResourceId) +
 			m_script.size() * sizeof(ResourceId) +
 			m_sound.size() * sizeof(ResourceId) +
 			m_mesh.size() * sizeof(ResourceId) +
-			m_unit.size() * sizeof(ResourceId);
+			m_unit.size() * sizeof(ResourceId) +
+			m_sprite.size() * sizeof(ResourceId);
 }
 
 //-----------------------------------------------------------------------------
@@ -207,12 +228,14 @@ void PackageCompiler::write_impl(File* out_file)
 	header.num_sounds = m_sound.size();
 	header.num_meshes = m_mesh.size();
 	header.num_units = m_unit.size();
+	header.num_sprites = m_sprite.size();
 
 	header.textures_offset = sizeof(PackageHeader);
 	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
 	header.sounds_offset = header.scripts_offset + sizeof(ResourceId) * header.num_scripts;
 	header.meshes_offset = header.sounds_offset + sizeof(ResourceId) * header.num_sounds;
 	header.units_offset = header.meshes_offset + sizeof(ResourceId) * header.num_meshes;
+	header.sprites_offset = header.units_offset + sizeof(ResourceId) * header.num_units;
 
 	out_file->write((char*) &header, sizeof(PackageHeader));
 
@@ -236,6 +259,10 @@ void PackageCompiler::write_impl(File* out_file)
 	{
 		out_file->write((char*) m_unit.begin(), sizeof(ResourceId) * header.num_units);	
 	}
+	if (m_sprite.size() > 0)
+	{
+		out_file->write((char*) m_sprite.begin(), sizeof(ResourceId) * header.num_sprites);
+	}
 
 	// Cleanup
 	m_texture.clear();
@@ -243,6 +270,7 @@ void PackageCompiler::write_impl(File* out_file)
 	m_sound.clear();
 	m_mesh.clear();
 	m_unit.clear();
+	m_sprite.clear();
 }
 
 } // namespace crown

@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextureCompiler.h"
 #include "LuaCompiler.h"
 #include "SoundCompiler.h"
+#include "SpriteCompiler.h"
 #include "PackageCompiler.h"
 #include "DynamicString.h"
 #include "Vector.h"
@@ -60,6 +61,7 @@ private:
 	TextureCompiler	m_texture;
 	LuaCompiler 	m_lua;
 	SoundCompiler	m_sound;
+	SpriteCompiler	m_sprite;
 	PackageCompiler m_package;
 	UnitCompiler	m_unit;
 };

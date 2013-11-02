@@ -38,6 +38,21 @@ namespace crown
 {
 
 typedef Id CameraId;
+typedef	Id ComponentId;
+typedef Id UnitId;
+
+//-----------------------------------------------------------------------------
+struct ComponentType
+{
+	enum Enum
+	{
+		UNKNOWN,
+		CAMERA,
+		MESH,
+		SPRITE,
+		SOUND
+	};
+};
 
 struct Component
 {
@@ -47,18 +62,22 @@ struct Component
 
 typedef Id UnitId;
 typedef Id MeshId;
+typedef Id SpriteId;
 
 class Camera;
 class Mesh;
+class Sprite;
 class World;
+struct UnitResource;
 
 #define MAX_CAMERA_COMPONENTS 8
 #define MAX_MESH_COMPONENTS 8
+#define MAX_SPRITE_COMPONENTS 8
 
 struct Unit
 {
 					Unit();
-	void			create(World& world, UnitId id, const Vector3& pos, const Quaternion& rot);
+	void			create(World& world, UnitResource* ur, UnitId id, const Vector3& pos, const Quaternion& rot);
 	void			destroy();
 
 	Vector3			local_position(int32_t node = 0) const;
@@ -76,12 +95,13 @@ struct Unit
 	void			link_node(int32_t child, int32_t parent);
 	void			unlink_node(int32_t child);
 
-	void			add_component(const char* name, Id component, uint32_t& size, Component* array);
+	void			add_component(uint32_t name, Id component, uint32_t& size, Component* array);
 	Id				find_component(const char* name, uint32_t size, Component* array);
 	Id				find_component(uint32_t index, uint32_t size, Component* array);
 
-	void			add_camera(const char* name, CameraId camera);
-	void			add_mesh(const char* name, MeshId mesh);
+	void			add_camera(uint32_t name, CameraId camera);
+	void			add_mesh(uint32_t name, MeshId mesh);
+	void			add_sprite(uint32_t name, SpriteId sprite);
 
 	Camera*			camera(const char* name);
 	Camera*			camera(uint32_t i);
@@ -89,9 +109,13 @@ struct Unit
 	Mesh*			mesh(const char* name);
 	Mesh*			mesh(uint32_t i);
 
+	Sprite*			sprite(const char* name);
+	Sprite*			sprite(uint32_t i);
+
 public:
 
 	World*			m_world;
+	UnitResource*	m_resource;
 	UnitId			m_id;
 
 	int32_t			m_root_node;
@@ -102,6 +126,9 @@ public:
 
 	uint32_t		m_num_meshes;
 	Component		m_meshes[MAX_MESH_COMPONENTS];
+
+	uint32_t		m_num_sprites;
+	Component		m_sprites[MAX_SPRITE_COMPONENTS];
 };
 
 } // namespace crown

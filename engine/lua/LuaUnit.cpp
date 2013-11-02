@@ -158,6 +158,18 @@ CE_EXPORT int unit_mesh(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int unit_sprite(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Unit* unit = stack.get_unit(1);
+	const char* sprite_name = stack.get_string(2);
+
+	stack.push_sprite(unit->sprite(sprite_name));
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_unit(LuaEnvironment& env)
 {
 	env.load_module_function("Unit", "local_position",			unit_local_position);
@@ -172,6 +184,7 @@ void load_unit(LuaEnvironment& env)
 
 	env.load_module_function("Unit", "camera",					unit_camera);
 	env.load_module_function("Unit", "mesh",					unit_mesh);	
+	env.load_module_function("Unit", "sprite",					unit_sprite);
 }
 
 } // namespace crown

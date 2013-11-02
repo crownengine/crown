@@ -40,6 +40,8 @@ struct UnitHeader
 {
 	uint32_t num_renderables;
 	uint32_t renderables_offset;
+	uint32_t num_cameras;
+	uint32_t cameras_offset;
 };
 
 struct UnitRenderable
@@ -47,6 +49,11 @@ struct UnitRenderable
 	ResourceId resource;
 	uint32_t name;
 	bool visible;
+};
+
+struct UnitCamera
+{
+	uint32_t name;
 };
 
 class UnitResource
@@ -103,6 +110,23 @@ public:
 		CE_ASSERT(i < num_renderables(), "Index out of bounds");
 
 		UnitRenderable* begin = (UnitRenderable*) (m_data + ((UnitHeader*)m_data)->renderables_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_cameras() const
+	{
+		CE_ASSERT_NOT_NULL(m_data);
+
+		return ((UnitHeader*)m_data)->num_cameras;
+	}
+
+	//-----------------------------------------------------------------------------
+	const UnitCamera& get_camera(uint32_t i) const
+	{
+		CE_ASSERT(i < num_cameras(), "Index out of bounds");
+
+		UnitCamera* begin = (UnitCamera*) (m_data + ((UnitHeader*)m_data)->cameras_offset);
 		return begin[i];
 	}
 

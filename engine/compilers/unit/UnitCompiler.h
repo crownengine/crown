@@ -34,11 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-struct UnitCamera
-{
-
-};
-
 class CE_EXPORT UnitCompiler : public Compiler
 {
 public:
@@ -51,6 +46,7 @@ public:
 private:
 
 	List<UnitRenderable> m_renderable;
+	List<UnitCamera> m_camera;
 };
 
 } // namespace crown

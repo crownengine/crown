@@ -48,6 +48,8 @@ struct PackageHeader
 	uint32_t meshes_offset;
 	uint32_t num_units;
 	uint32_t units_offset;
+	uint32_t num_sprites;
+	uint32_t sprites_offset;
 };
 
 class PackageResource
@@ -131,6 +133,14 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
+	uint32_t num_sprites() const
+	{
+		CE_ASSERT_NOT_NULL(m_data);
+
+		return ((PackageHeader*)m_data)->num_sprites;
+	}
+
+	//-----------------------------------------------------------------------------
 	ResourceId get_texture_id(uint32_t i) const
 	{
 		CE_ASSERT(i < num_textures(), "Index out of bounds");
@@ -172,6 +182,15 @@ public:
 		CE_ASSERT(i < num_units(), "Index out of bounds");
 
 		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->units_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_sprite_id(uint32_t i) const
+	{
+		CE_ASSERT(i < num_sprites(), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->sprites_offset);
 		return begin[i];
 	}
 

@@ -27,17 +27,24 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "IdTable.h"
+#include "IdArray.h"
 #include "Mesh.h"
+#include "Sprite.h"
 #include "List.h"
 #include "Vector3.h"
 #include "Quaternion.h"
+#include "PoolAllocator.h"
+#include "Resource.h"
 
 #define MAX_MESHES 100
+#define MAX_SPRITES 256
 
 namespace crown
 {
 
 typedef Id MeshId;
+typedef Id SpriteId;
+
 struct Camera;
 
 class RenderWorld
@@ -47,21 +54,33 @@ public:
 	RenderWorld();
 	~RenderWorld();
 
-	MeshId create_mesh(const char* mesh, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
-	void destroy_mesh(MeshId id);
+	MeshId		create_mesh(ResourceId id, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	void 		destroy_mesh(MeshId id);
+	Mesh* 		lookup_mesh(MeshId mesh);
 
-	Mesh* lookup_mesh(MeshId mesh);
+	SpriteId	create_sprite(const char* name, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	void		destroy_sprite(SpriteId id);
+	Sprite*		lookup_sprite(SpriteId id);
 
-	void update(Camera& camera, float dt);
+	MeshId 		allocate_mesh(MeshResource* mr, int32_t node, const Vector3& pos, const Quaternion& rot);
+	void 		deallocate_mesh(MeshId id);
 
-	MeshId allocate_mesh(MeshResource* mr, int32_t node, const Vector3& pos, const Quaternion& rot);
-	void deallocate_mesh(MeshId id);
+	SpriteId	allocate_sprite(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot);
+	void 		deallocate_sprite(SpriteId id);
+
+	void		update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height, float dt);
 
 private:
 
-	IdTable<MAX_MESHES>		m_mesh_table;
-	uint32_t				m_sparse_to_packed[MAX_MESHES];
-	List<Mesh>				m_mesh;
+	PoolAllocator					m_mesh_pool;
+	IdArray<MAX_MESHES, Mesh*>		m_mesh;
+
+	// Mesh transforms
+	IdArray<MAX_MESHES, Matrix4x4>	m_transform;
+
+	IdTable<MAX_SPRITES>	m_sprite_table;
+	uint32_t				m_sprite_sparse_to_packed[MAX_SPRITES];
+	List<Sprite>			m_sprite;
 };
 
 } // namespace crown

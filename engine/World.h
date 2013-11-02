@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "HeapAllocator.h"
 #include "IdTable.h"
+#include "IdArray.h"
 #include "LinearAllocator.h"
 #include "Unit.h"
 #include "Camera.h"
@@ -35,6 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LinearAllocator.h"
 #include "RenderWorld.h"
 #include "SoundRenderer.h"
+#include "PoolAllocator.h"
 
 namespace crown
 {
@@ -50,10 +52,30 @@ typedef Id SoundInstanceId;
 
 struct SoundInstance
 {
-	SoundId m_sound;
+	SoundId sound;
+	Matrix4x4 world;
+	float volume;
+	float range;
+	bool loop : 1;
+	bool playing : 1;
+};
+
+struct UnitToCamera
+{
+	UnitId unit;
+	int32_t node;
+	CameraId camera;
+};
+
+struct UnitToSoundInstance
+{
+	UnitId unit;
+	SoundInstanceId sound;
+	int32_t node;
 };
 
 class Mesh;
+class Sprite;
 class Vector3;
 class Quaternion;
 
@@ -62,51 +84,54 @@ class World
 public:
 							World();
 
-	void					init();
-	void					shutdown();
-
 	UnitId					spawn_unit(const char* name, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion(Vector3(0, 1, 0), 0.0f));
-	void					kill_unit(UnitId unit);
+	void					destroy_unit(UnitId unit);
+	void					destroy_unit(Unit* unit);
 
-	void					link_unit(UnitId child, UnitId parent);
-	void					unlink_unit(UnitId child, UnitId parent);
+	void					link_unit(UnitId child, UnitId parent, int32_t node);
+	void					unlink_unit(UnitId unit);
+
+	void					link_camera(CameraId camera, UnitId unit, int32_t node);
+	void					unlink_camera(CameraId camera);
 
 	Unit*					lookup_unit(UnitId unit);
 	Camera*					lookup_camera(CameraId camera);
 	Mesh*					lookup_mesh(MeshId mesh);
+	Sprite*					lookup_sprite(SpriteId sprite);
 
 	RenderWorld&			render_world();
 	void					update(Camera& camera, float dt);
 
-	CameraId				create_camera(UnitId unit, int32_t node, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	CameraId				create_camera(int32_t node, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
 	void					destroy_camera(CameraId camera);
+
+	MeshId					create_mesh(ResourceId id, int32_t node, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	void					destroy_mesh(MeshId id);
+
+	SpriteId				create_sprite(const char* name, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	void					destroy_sprite(SpriteId id);
 
 	SoundInstanceId			play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
 	void					pause_sound(SoundInstanceId sound);
-	void 					link_sound(SoundInstanceId sound, UnitId unit);
+	void 					link_sound(SoundInstanceId sound, Unit* unit, int32_t node);
 	void					set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at);
 	void					set_sound_position(SoundInstanceId sound, const Vector3& pos);
 	void					set_sound_range(SoundInstanceId sound, const float range);
 	void					set_sound_volume(SoundInstanceId sound, const float vol);
-	
+
 private:
 
-	LinearAllocator			m_allocator;
-	bool					m_is_init : 1;
+	PoolAllocator						m_unit_pool;
 
-	SceneGraph				m_scene_graph[MAX_UNITS];
-	ComponentList			m_component[MAX_UNITS];
+	IdArray<MAX_UNITS, Unit*>			m_units;
+	IdArray<MAX_CAMERAS, Camera>		m_camera;
+	IdArray<MAX_SOUNDS, SoundInstance> 	m_sounds;
 
-	IdTable<MAX_UNITS> 		m_unit_table;
-	List<Unit>				m_units;
+	// Connections
+	List<UnitToCamera>					m_unit_to_camera;
+	List<UnitToSoundInstance>			m_unit_to_sound_instance;
 
-	IdTable<MAX_CAMERAS>	m_camera_table;
-	List<Camera>			m_camera;
-
-	IdTable<MAX_SOUNDS> 	m_sound_table;
-	SoundInstance			m_sound[MAX_SOUNDS];
-
-	RenderWorld				m_render_world;
+	RenderWorld							m_render_world;
 };
 
 } // namespace crown

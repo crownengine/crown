@@ -124,6 +124,10 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 		{
 			result = m_sound.compile(source_dir, bundle_dir, filename, out_name);
 		}
+		else if(resource_type_hash == SPRITE_TYPE)
+		{
+			result = m_sprite.compile(source_dir, bundle_dir, filename, out_name);
+		}
 		else if (resource_type_hash == PACKAGE_TYPE)
 		{
 			result = m_package.compile(source_dir, bundle_dir, filename, out_name);

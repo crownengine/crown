@@ -29,50 +29,27 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Allocator.h"
 #include "Types.h"
+#include "IdTable.h"
+#include "List.h"
 
 namespace crown
 {
 
-#define INVALID_ID 65535
-
-struct Id
-{
-	uint16_t id;
-	uint16_t index;
-
-	void decode(uint32_t id_and_index)
-	{
-		id = (id_and_index & 0xFFFF0000) >> 16;
-		index = id_and_index & 0xFFFF;
-	}
-
-	uint32_t encode()
-	{
-		return (uint32_t(id) << 16) | uint32_t(index);
-	}
-
-	bool operator==(const Id& other)
-	{
-		return id == other.id && index == other.index;
-	}
-
-	bool operator!=(const Id& other)
-	{
-		return id != other.id || index != other.index;
-	}
-};
-
 /// Table of Ids.
-template <uint32_t MAX_NUM_ID>
-class IdTable
+template <uint32_t MAX_NUM_ID, typename T>
+class IdArray
 {
 public:
 
 	/// Creates the table for tracking exactly @a MAX_NUM_ID - 1 unique Ids.
-					IdTable();
+					IdArray(Allocator& a);
+
+	/// Random access by Id
+	T&				operator[](const Id& id);
+	const T&		operator[](const Id& id) const;
 
 	/// Returns a new Id.
-	Id				create();
+	Id				create(const T& object);
 
 	/// Destroys the specified @a id.
 	void			destroy(Id id);
@@ -80,93 +57,129 @@ public:
 	/// Returns whether the table has the specified @a id
 	bool			has(Id id) const;
 
-	const Id*		begin() const;
+	T&				lookup(const Id& id);
 
 private:
 
 	// Returns the next available unique id.
 	uint16_t		next_id();
 
-private:
+public:
 
-	// The index of the first unused id.
+	// The index of the first unused id
 	uint16_t		m_freelist;
 
-	// The index of the last id in the id table.
+	// The index of the last id in the id table
 	uint16_t		m_last_index;
 
-	// Next available unique id.
+	// Next available unique id
 	uint16_t		m_next_id;
 
-	// Table of ids.
+
 	// The last valid id is reserved and cannot be used to
-	// refer to Ids from the outside.
-	Id				m_ids[MAX_NUM_ID];
+	// refer to Ids from the outside
+	Id				m_sparse[MAX_NUM_ID];
+	uint16_t		m_sparse_to_dense[MAX_NUM_ID];
+	uint16_t		m_dense_to_sparse[MAX_NUM_ID];
+	List<T>			m_objects;
 };
 
 //-----------------------------------------------------------------------------
-template <uint32_t MAX_NUM_ID>
-inline IdTable<MAX_NUM_ID>::IdTable()
-	: m_freelist(MAX_NUM_ID), m_last_index(0), m_next_id(0)
+template <uint32_t MAX_NUM_ID, typename T>
+inline IdArray<MAX_NUM_ID, T>::IdArray(Allocator& a)
+	: m_freelist(MAX_NUM_ID)
+	, m_last_index(0)
+	, m_next_id(0)
+	, m_objects(a)
 {
 	for (uint32_t i = 0; i < MAX_NUM_ID; i++)
 	{
-		m_ids[i].id = INVALID_ID;
+		m_sparse[i].id = INVALID_ID;
 	}
 }
 
 //-----------------------------------------------------------------------------
-template <uint32_t MAX_NUM_ID>
-inline Id IdTable<MAX_NUM_ID>::create()
+template <uint32_t MAX_NUM_ID, typename T>
+inline T& IdArray<MAX_NUM_ID, T>::operator[](const Id& id)
+{
+	return lookup(id);
+}
+
+//-----------------------------------------------------------------------------
+template <uint32_t MAX_NUM_ID, typename T>
+inline const T& IdArray<MAX_NUM_ID, T>::operator[](const Id& id) const
+{
+	return lookup(id);
+}
+
+//-----------------------------------------------------------------------------
+template <uint32_t MAX_NUM_ID, typename T>
+inline Id IdArray<MAX_NUM_ID, T>::create(const T& object)
 {
 	// Obtain a new id
 	Id id;
 	id.id = next_id();
 
+	uint16_t dense_index;
+
 	// Recycle slot if there are any
 	if (m_freelist != MAX_NUM_ID)
 	{
 		id.index = m_freelist;
-		m_freelist = m_ids[m_freelist].id;
+		m_freelist = m_sparse[m_freelist].id;
+		m_objects[id.index] = object;
+		dense_index = id.index;
 	}
 	else
 	{
 		id.index = m_last_index++;
+		dense_index = m_objects.push_back(object);
 	}
 
-	m_ids[id.index] = id;
+	m_sparse[id.index] = id;
+	m_sparse_to_dense[id.index] = dense_index;
+	m_dense_to_sparse[dense_index] = id.index;
 
 	return id;
 }
 
 //-----------------------------------------------------------------------------
-template <uint32_t MAX_NUM_ID>
-inline void IdTable<MAX_NUM_ID>::destroy(Id id)
+template <uint32_t MAX_NUM_ID, typename T>
+inline void IdArray<MAX_NUM_ID, T>::destroy(Id id)
 {
-	CE_ASSERT(has(id), "IdTable does not have ID: %d,%d", id.id, id.index);
+	CE_ASSERT(has(id), "IdArray does not have ID: %d,%d", id.id, id.index);
 
-	m_ids[id.index].id = INVALID_ID;
-	m_ids[id.index].index = m_freelist;
+	m_sparse[id.index].id = INVALID_ID;
+	m_sparse[id.index].index = m_freelist;
 	m_freelist = id.index;
+
+	// Swap with last element
+	m_objects[m_sparse_to_dense[id.index]] = m_objects.back();
+	m_objects.pop_back();
+
+	// Update conversion tables
+	//m_sparse_to_dense[m_dense_to_sparse[m_dense.size() - 1]] = id.index;
 }
 
 //-----------------------------------------------------------------------------
-template <uint32_t MAX_NUM_ID>
-inline bool IdTable<MAX_NUM_ID>::has(Id id) const
+template <uint32_t MAX_NUM_ID, typename T>
+inline T& IdArray<MAX_NUM_ID, T>::lookup(const Id& id)
 {
-	return id.index < MAX_NUM_ID && m_ids[id.index].id == id.id;
+	CE_ASSERT(has(id), "IdArray does not have ID: %d,%d", id.id, id.index);
+
+	return m_objects[m_sparse_to_dense[id.index]];
 }
 
 //-----------------------------------------------------------------------------
-template <uint32_t MAX_NUM_ID>
-inline const Id* IdTable<MAX_NUM_ID>::begin() const
+template <uint32_t MAX_NUM_ID, typename T>
+inline bool IdArray<MAX_NUM_ID, T>::has(Id id) const
 {
-	return m_ids;
+	return id.index < MAX_NUM_ID && m_sparse[id.index].id == id.id;
 }
 
 //-----------------------------------------------------------------------------
-template <uint32_t MAX_NUM_ID>
-inline uint16_t IdTable<MAX_NUM_ID>::next_id()
+template <uint32_t MAX_NUM_ID, typename T>
+inline uint16_t IdArray<MAX_NUM_ID, T>::next_id()
 {
 	CE_ASSERT(m_next_id < MAX_NUM_ID, "Maximum number of IDs reached");
 
