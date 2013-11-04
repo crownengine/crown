@@ -74,9 +74,10 @@ CE_EXPORT int sprite_set_local_position(lua_State* L)
 	LuaStack stack(L);
 
 	Sprite* sprite = stack.get_sprite(1);
-	Vector3 pos = stack.get_vector3(2);
+	Unit* unit = stack.get_unit(2);
+	Vector3 pos = stack.get_vector3(3);
 
-	sprite->set_local_position(pos);
+	sprite->set_local_position(unit, pos);
 
 	return 0;
 }
@@ -87,9 +88,10 @@ CE_EXPORT int sprite_set_local_rotation(lua_State* L)
 	LuaStack stack(L);
 
 	Sprite* sprite = stack.get_sprite(1);
-	Quaternion rot = stack.get_quaternion(2);
+	Unit* unit = stack.get_unit(2);
+	Quaternion rot = stack.get_quaternion(3);
 
-	sprite->set_local_rotation(rot);
+	sprite->set_local_rotation(unit, rot);
 
 	return 0;
 }
@@ -100,9 +102,10 @@ CE_EXPORT int sprite_set_local_pose(lua_State* L)
 	LuaStack stack(L);
 
 	Sprite* sprite = stack.get_sprite(1);
-	Matrix4x4 pose = stack.get_matrix4x4(2);
+	Unit* unit = stack.get_unit(2);
+	Matrix4x4 pose = stack.get_matrix4x4(3);
 
-	sprite->set_local_pose(pose);
+	sprite->set_local_pose(unit, pose);
 
 	return 0;
 }
