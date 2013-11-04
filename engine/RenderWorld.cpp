@@ -50,23 +50,22 @@ UniformId				u_lightmap_0;
 UniformId				u_brightness;
 
 static const char* default_vertex =
-	"in vec4           a_position;"
-	"in vec4           a_normal;"
-	"in vec2           a_tex_coord0;"
-	"in vec4           a_color;"
+	"uniform mat4      	u_model;"
+	"uniform mat4      	u_model_view_projection;"
 
-	"uniform mat4      u_model;"
-	"uniform mat4      u_model_view_projection;"
+	"in vec4           	a_position;"
+	"in vec4           	a_normal;"
+	"in vec2           	a_tex_coord0;"
+	"in vec4           	a_color;"
 
-	"varying out vec2  tex_coord0;"
-	"varying out vec4  color;"
+	"varying out vec2	tex_coord0;"
+	"varying out vec4	color;"
 
 	"void main(void)"
 	"{"
 	"	tex_coord0 = a_tex_coord0;"
 	"   color = a_color;"
 	"	gl_Position = u_model_view_projection * a_position;"
-	"	gl_FrontColor = vec4(vec3(1, 0, 0), 1.0);"
 	"}";
 
 static const char* default_fragment = 
@@ -80,12 +79,10 @@ static const char* texture_fragment =
 	"in vec4            color;"
 
 	"uniform sampler2D  u_albedo_0;"
-	"uniform sampler2D  u_lightmap_0;"
-	"uniform float      u_brightness;"
 
 	"void main(void)"
 	"{"
-	"	gl_FragColor = texture(u_albedo_0, tex_coord0) * texture(u_lightmap_0, tex_coord0) * color * u_brightness;"
+	"	gl_FragColor = texture(u_albedo_0, tex_coord0);"
 	"}";
 
 //-----------------------------------------------------------------------------
@@ -102,8 +99,6 @@ RenderWorld::RenderWorld()
 	texture_fs = r->create_shader(ShaderType::FRAGMENT, texture_fragment);
 
 	u_albedo_0 = r->create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
-	u_lightmap_0 = r->create_uniform("u_lightmap_0", UniformType::INTEGER_1, 1);
-	u_brightness = r->create_uniform("u_brightness", UniformType::FLOAT_1, 1);
 
 	default_program = r->create_gpu_program(default_vs, default_fs);
 	texture_program = r->create_gpu_program(default_vs, texture_fs);
@@ -153,9 +148,9 @@ Mesh* RenderWorld::lookup_mesh(MeshId mesh)
 }
 
 //-----------------------------------------------------------------------------
-SpriteId RenderWorld::create_sprite(const char* name, int32_t node, const Vector3& pos, const Quaternion& rot)
+SpriteId RenderWorld::create_sprite(ResourceId id, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
-	SpriteResource* sr = (SpriteResource*) device()->resource_manager()->lookup(SPRITE_EXTENSION, name);
+	SpriteResource* sr = (SpriteResource*) device()->resource_manager()->data(id);
 
 	SpriteId sprite = allocate_sprite(sr, node, pos, rot);
 
@@ -222,10 +217,10 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
 		r->set_vertex_buffer(sprite.m_vb);
 		r->set_index_buffer(sprite.m_ib);
-		r->set_program(sprite.m_program);
-		r->set_texture(0, sprite.m_uniform, sprite.m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
+		r->set_program(texture_program);
+		r->set_texture(0, u_albedo_0, sprite.m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
 
-		r->set_pose(sprite.m_local_pose);
+		r->set_pose(sprite.m_world_pose);
 		r->commit(0);
 	}
 

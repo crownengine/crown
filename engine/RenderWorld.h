@@ -58,7 +58,7 @@ public:
 	void 		destroy_mesh(MeshId id);
 	Mesh* 		lookup_mesh(MeshId mesh);
 
-	SpriteId	create_sprite(const char* name, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	SpriteId	create_sprite(ResourceId id, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
 	void		destroy_sprite(SpriteId id);
 	Sprite*		lookup_sprite(SpriteId id);
 
