@@ -42,8 +42,8 @@ class DynamicString
 {
 public:
 
-						DynamicString(Allocator& allocator);
-						DynamicString(Allocator& allocator, const char* s);
+						DynamicString(Allocator& allocator = default_allocator());
+						DynamicString(const char* s, Allocator& allocator = default_allocator());
 
 						~DynamicString();
 
@@ -83,16 +83,19 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-inline DynamicString::DynamicString(Allocator& allocator) :
-	m_string(allocator)
+inline DynamicString::DynamicString(Allocator& allocator)
+	: m_string(allocator)
 {
 }
 
 //-----------------------------------------------------------------------------
-inline DynamicString::DynamicString(Allocator& allocator, const char* s) :
-	m_string(allocator)
+inline DynamicString::DynamicString(const char* s, Allocator& allocator)
+	: m_string(allocator)
 {
-	m_string.push(s, string::strlen(s));
+	if (s != NULL)
+	{
+		m_string.push(s, string::strlen(s));
+	}
 }
 
 //-----------------------------------------------------------------------------
