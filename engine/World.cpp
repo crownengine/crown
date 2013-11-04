@@ -37,12 +37,13 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 World::World()
-	: m_unit_pool(default_allocator(), MAX_UNITS, sizeof(Unit))
+	: m_unit_pool(default_allocator(), MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
 	, m_units(default_allocator())
 	, m_camera(default_allocator())
 	, m_sounds(default_allocator())
 	, m_unit_to_camera(default_allocator())
 	, m_unit_to_sound_instance(default_allocator())
+	, m_unit_to_sprite(default_allocator())
 {
 }
 
@@ -100,7 +101,7 @@ void World::link_camera(CameraId camera, UnitId unit, int32_t node)
 
 	for (uint32_t i = 0; i < m_unit_to_camera.size(); i++)
 	{
-		if (utc->camera == camera && utc->unit == unit)
+		if (m_unit_to_camera[i].camera == camera && m_unit_to_camera[i].unit == unit)
 		{
 			utc = &m_unit_to_camera[i];
 		}
@@ -124,6 +125,39 @@ void World::link_camera(CameraId camera, UnitId unit, int32_t node)
 void World::unlink_camera(CameraId camera)
 {
 	(void)camera;
+}
+
+//-----------------------------------------------------------------------------
+void World::link_sprite(SpriteId sprite, UnitId unit, int32_t node)
+{
+	UnitToSprite* uts = NULL;
+
+	for (uint32_t i = 0; i < m_unit_to_sprite.size(); i++)
+	{
+		if (m_unit_to_sprite[i].sprite == sprite && m_unit_to_sprite[i].unit == unit)
+		{
+			uts = &m_unit_to_sprite[i];
+		}
+	}
+
+	if (uts != NULL)
+	{
+		uts->node = node;
+	}
+	else
+	{
+		UnitToSprite new_uts;
+		new_uts.sprite = sprite;
+		new_uts.unit = unit;
+		new_uts.node = node;
+		m_unit_to_sprite.push_back(new_uts);
+	}	
+}
+
+//-----------------------------------------------------------------------------
+void World::unlink_sprite(SpriteId sprite)
+{
+	(void)sprite;
 }
 
 //-----------------------------------------------------------------------------
@@ -189,6 +223,17 @@ void World::update(Camera& camera, float dt)
 		sound.world = unit->m_scene_graph.world_pose(uts.node);
 	}
 
+	// Update sprites
+	for (uint32_t i = 0; i < m_unit_to_sprite.size(); i++)
+	{
+		const UnitToSprite& uts = m_unit_to_sprite[i];
+
+		Unit* unit = lookup_unit(uts.unit);
+		Sprite* sprite = lookup_sprite(uts.sprite);
+
+		sprite->m_world_pose = unit->m_scene_graph.world_pose(uts.node);
+	}
+
 	// Update render world
 	m_render_world.update(camera.m_world_pose, camera.m_projection, camera.m_view_x, camera.m_view_y,
 							camera.m_view_width, camera.m_view_height, dt);
@@ -246,9 +291,9 @@ void World::destroy_mesh(MeshId id)
 }
 
 //-----------------------------------------------------------------------------
-SpriteId World::create_sprite(const char* name, int32_t node, const Vector3& pos, const Quaternion& rot)
+SpriteId World::create_sprite(ResourceId id, int32_t node, const Vector3& pos, const Quaternion& rot)
 {
-	return m_render_world.create_sprite(name, node, pos, rot);
+	return m_render_world.create_sprite(id, node, pos, rot);
 }
 
 //-----------------------------------------------------------------------------
