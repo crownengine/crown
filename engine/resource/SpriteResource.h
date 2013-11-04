@@ -47,38 +47,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-static const char* sprite_vs =
-	"uniform mat4      	u_model;"
-	"uniform mat4      	u_model_view_projection;"
-
-	"in vec4           	a_position;"
-	"in vec4           	a_normal;"
-	"in vec2           	a_tex_coord0;"
-	"in vec4           	a_color;"
-
-	"varying out vec2	tex_coord0;"
-	"varying out vec4	color;"
-
-	"void main(void)"
-	"{"
-	"	tex_coord0 = a_tex_coord0;"
-	"   color = a_color;"
-	"	gl_Position = u_model_view_projection * a_position;"
-	"}";
-
-//-----------------------------------------------------------------------------
-static const char* sprite_fs = 
-	"in vec2            tex_coord0;"
-	"in vec4            color;"
-
-	"uniform sampler2D  u_tex;"
-
-	"void main(void)"
-	"{"
-	"	gl_FragColor = texture(u_tex, tex_coord0);"
-	"}";
-
 const uint32_t SPRITE_VERSION = 1;
 
 //-----------------------------------------------------------------------------
@@ -125,10 +93,6 @@ public:
 
 		sr->m_vb = r->create_vertex_buffer(4, VertexFormat::P2_T2, sr->frame(0));
 		sr->m_ib = r->create_index_buffer(6, t_indices);
-		sr->m_vertex = r->create_shader(ShaderType::VERTEX, sprite_vs);
-		sr->m_fragment = r->create_shader(ShaderType::FRAGMENT, sprite_fs);
-		sr->m_program = r->create_gpu_program(sr->m_vertex, sr->m_fragment);
-		sr->m_uniform = r->create_uniform("u_tex", UniformType::INTEGER_1, 1);
 
 		// FIXME FIXME FIXME
 		TextureResource* res = (TextureResource*)device()->resource_manager()->lookup(TEXTURE_EXTENSION, sr->texture());
