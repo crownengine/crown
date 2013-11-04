@@ -46,6 +46,7 @@ struct UnitHeader
 
 struct UnitRenderable
 {
+	enum { MESH, SPRITE } type;
 	ResourceId resource;
 	uint32_t name;
 	bool visible;
