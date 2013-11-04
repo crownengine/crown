@@ -63,16 +63,35 @@ size_t UnitCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 
 		for (uint32_t i = 0; i < renderable_array_size; i++)
 		{
-			DynamicString mesh_resource(default_allocator());
-			mesh_resource += renderable_array[i].key("resource").string_value();
-			mesh_resource += ".mesh";
-
-			DynamicString mesh_name(default_allocator());
-			mesh_name = renderable_array[i].key("name").string_value();
-
+			const char* type = renderable_array[i].key("type").string_value();
+						
 			UnitRenderable ur;
-			ur.resource.id = hash::murmur2_64(mesh_resource.c_str(), string::strlen(mesh_resource.c_str()), 0);
-			ur.name = hash::murmur2_32(mesh_name.c_str(), string::strlen(mesh_name.c_str()), 0);
+			DynamicString renderable;
+
+			if (string::strcmp(type, "mesh") == 0)
+			{
+				ur.type = UnitRenderable::MESH;
+				renderable += renderable_array[i].key("resource").string_value();
+				renderable += ".mesh";
+			}
+			else if (string::strcmp(type, "sprite") == 0)
+			{
+				ur.type = UnitRenderable::SPRITE;
+				renderable += renderable_array[i].key("resource").string_value();
+				renderable += ".sprite";
+			}
+			else
+			{
+				CE_ASSERT(false, "Oops, unknown renderable type: '%s'", type);
+			}
+
+			DynamicString renderable_name;
+			renderable_name = renderable_array[i].key("name").string_value();
+
+			Log::d("Renderable %s", renderable.c_str());
+
+			ur.resource.id = hash::murmur2_64(renderable.c_str(), string::strlen(renderable.c_str()), 0);
+			ur.name = hash::murmur2_32(renderable_name.c_str(), string::strlen(renderable_name.c_str()), 0);
 			ur.visible = renderable_array[i].key("visible").bool_value();
 
 			m_renderable.push_back(ur);
