@@ -35,6 +35,7 @@ namespace crown
 {
 
 typedef Id CameraId;
+typedef Id SpriteId;
 
 Unit::Unit()
 	: m_world(NULL)
@@ -54,9 +55,22 @@ void Unit::create(World& world, UnitResource* ur, UnitId id, const Vector3& pos,
 		int32_t node = m_scene_graph.create_node(m_root_node, Vector3::ZERO, Quaternion::IDENTITY);
 
 		UnitRenderable renderable = ur->get_renderable(i);
-		MeshId mesh = world.create_mesh(renderable.resource, node, Vector3::ZERO, Quaternion::IDENTITY);
 
-		add_mesh(renderable.name, mesh);
+		if (renderable.type == UnitRenderable::MESH)
+		{
+			MeshId mesh = world.create_mesh(renderable.resource, node, Vector3::ZERO, Quaternion::IDENTITY);
+			add_mesh(renderable.name, mesh);
+		}
+		else if (renderable.type == UnitRenderable::SPRITE)
+		{
+			SpriteId sprite = world.create_sprite(renderable.resource, node, Vector3::ZERO, Quaternion::IDENTITY);
+			world.link_sprite(sprite, id, m_root_node);
+			add_sprite(renderable.name, sprite);
+		}
+		else
+		{
+			CE_FATAL("Oops, bad renderable type");
+		}
 	}
 
 	// Create cameras
@@ -70,10 +84,6 @@ void Unit::create(World& world, UnitResource* ur, UnitId id, const Vector3& pos,
 		world.link_camera(cam, id, m_root_node);
 		add_camera(camera.name, cam);
 	}
-
-	// FIXME FIXME FIXME - TEST CODE - FIXME FIXME FIXME
-	SpriteId sprite = world.create_sprite("sprites/loading", m_root_node, Vector3::ZERO, Quaternion::IDENTITY);
-	add_sprite(hash::murmur2_32("sprite", 6, 0), sprite);
 
 	m_world = &world;
 	m_resource = ur;
