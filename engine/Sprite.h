@@ -36,6 +36,7 @@ class SpriteResource;
 class SpriteAnimator;
 class Vector3;
 class Quaternion;
+struct Unit;
 
 //-----------------------------------------------------------------------------
 struct Sprite
@@ -51,9 +52,9 @@ struct Sprite
 	Quaternion			world_rotation() const;
 	Matrix4x4			world_pose() const;
 
-	void				set_local_position(const Vector3& pos);
-	void				set_local_rotation(const Quaternion& rot);
-	void				set_local_pose(const Matrix4x4& pose);
+	void				set_local_position(Unit* unit, const Vector3& pos);
+	void				set_local_rotation(Unit* unit, const Quaternion& rot);
+	void				set_local_pose(Unit* unit, const Matrix4x4& pose);
 
 public:
 	
@@ -65,10 +66,6 @@ public:
 	VertexBufferId		m_vb;
 	IndexBufferId		m_ib;
 	TextureId			m_texture;
-	ShaderId			m_vertex;
-	ShaderId			m_fragment;
-	GPUProgramId		m_program;
-	UniformId			m_uniform;
 
 	SpriteAnimator*		m_animator;
 };

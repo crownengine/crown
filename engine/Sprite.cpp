@@ -30,24 +30,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SpriteResource.h"
 #include "Allocator.h"
 #include "SpriteAnimator.h"
+#include "Unit.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void Sprite::create(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot)
+void Sprite::create(SpriteResource* sr, int32_t node, const Vector3& /*pos*/, const Quaternion& /*rot*/)
 {
 	m_vb = sr->m_vb;
 	m_ib = sr->m_ib;
 	m_texture = sr->m_texture;
-	m_vertex = sr->m_vertex;
-	m_fragment = sr->m_fragment;
-	m_program = sr->m_program;
-	m_uniform = sr->m_uniform;
-
-	set_local_position(pos);
-	set_local_rotation(rot);
-
 	m_node = node;
 
 	m_animator = CE_NEW(default_allocator(), SpriteAnimator)(sr);
@@ -107,25 +100,31 @@ Matrix4x4 Sprite::world_pose() const
 }
 
 //-----------------------------------------------------------------------------
-void Sprite::set_local_position(const Vector3& pos)
+void Sprite::set_local_position(Unit* unit, const Vector3& pos)
 {
 	m_local_pose.set_translation(pos);
+
+	unit->set_local_position(pos, m_node);
 }
 
 //-----------------------------------------------------------------------------
-void Sprite::set_local_rotation(const Quaternion& rot)
+void Sprite::set_local_rotation(Unit* unit, const Quaternion& rot)
 {
 	Matrix4x4& local_pose = m_local_pose;
 
 	Vector3 local_translation = local_pose.translation();
 	local_pose = rot.to_mat4();
-	local_pose.set_translation(local_translation);	
+	local_pose.set_translation(local_translation);
+
+	unit->set_local_rotation(rot, m_node);
 }
 
 //-----------------------------------------------------------------------------
-void Sprite::set_local_pose(const Matrix4x4& pose)
+void Sprite::set_local_pose(Unit* unit, const Matrix4x4& pose)
 {
 	m_local_pose = pose;
+
+	unit->set_local_pose(pose, m_node);
 }
 
 
