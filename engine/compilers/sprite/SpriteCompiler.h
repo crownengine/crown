@@ -40,16 +40,6 @@ namespace crown
 class Filesystem;
 
 //-----------------------------------------------------------------------------
-struct SpriteHeader
-{
-	char name[128];
-	char texture[128];
-	uint32_t length;
-	uint32_t frame_rate;
-	uint32_t playback_mode;
-};
-
-//-----------------------------------------------------------------------------
 struct SpriteAnimationData
 {
 	Vector2 position;
