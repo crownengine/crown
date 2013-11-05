@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <cstring>
+#include <inttypes.h>
 
 #include "Types.h"
 #include "Allocator.h"
@@ -42,7 +43,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextureResource.h"
 
 #define MAX_SPRITE_ANIM_FRAMES 60
-#define SPRITE_VERTEX_FRAME_SIZE 16
+#define SPRITE_FRAME_SIZE 4 * 4 * 4
 
 namespace crown
 {
@@ -50,14 +51,13 @@ namespace crown
 const uint32_t SPRITE_VERSION = 1;
 
 //-----------------------------------------------------------------------------
-struct SpriteResourceData
+struct SpriteHeader
 {
-	char 		m_name[128];
-	char 		m_texture[128];
-	uint32_t	m_length;
-	uint32_t	m_frame_rate;
-	uint32_t	m_playback_mode;
-	float		m_vertices[MAX_SPRITE_ANIM_FRAMES * SPRITE_VERTEX_FRAME_SIZE];
+	char 		name[128];
+	ResourceId 	texture;
+	uint32_t 	num_frames;
+	uint32_t 	frame_rate;
+	uint32_t 	playback_mode;
 };
 
 //-----------------------------------------------------------------------------
@@ -89,14 +89,13 @@ public:
 
 		static uint16_t t_indices[] = {0, 1, 2, 0, 2, 3};
 
-		Renderer* r = device()->renderer();
+		sr->m_vb = device()->renderer()->create_vertex_buffer(4, VertexFormat::P2_T2, sr->frame(0));
+		sr->m_ib = device()->renderer()->create_index_buffer(6, t_indices);
 
-		sr->m_vb = r->create_vertex_buffer(4, VertexFormat::P2_T2, sr->frame(0));
-		sr->m_ib = r->create_index_buffer(6, t_indices);
-
-		// FIXME FIXME FIXME
-		TextureResource* res = (TextureResource*)device()->resource_manager()->lookup(TEXTURE_EXTENSION, sr->texture());
+		TextureResource* res = (TextureResource*)device()->resource_manager()->data(sr->texture());
 		sr->m_texture = res->m_texture;
+
+		Log::i("resource: " "%.16"PRIx64"", sr->texture().id);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -121,50 +120,47 @@ public:
 	//-----------------------------------------------------------------------------
 	const char* name()
 	{
-		SpriteResourceData* t_data = (SpriteResourceData*)m_data;
-		return t_data->m_name;
+		SpriteHeader* header = (SpriteHeader*)m_data;
+		return header->name;
 	}
 
 	//-----------------------------------------------------------------------------
-	const char* texture()
+	ResourceId texture()
 	{
-		SpriteResourceData* t_data = (SpriteResourceData*)m_data;
-		return t_data->m_texture;		
+		SpriteHeader* header = (SpriteHeader*)m_data;
+		return header->texture;
 	}
 
 	//-----------------------------------------------------------------------------
-	uint32_t length()
+	uint32_t num_frames()
 	{
-		SpriteResourceData* t_data = (SpriteResourceData*)m_data;
-		return t_data->m_length;
+		SpriteHeader* header = (SpriteHeader*)m_data;
+		return header->num_frames;
 	}
 
 	//-----------------------------------------------------------------------------
 	uint32_t frame_rate()
 	{
-		SpriteResourceData* t_data = (SpriteResourceData*)m_data;
-		return t_data->m_frame_rate;
+		SpriteHeader* header = (SpriteHeader*)m_data;
+		return header->frame_rate;
 	}
 
 	//-----------------------------------------------------------------------------
 	uint32_t playback_mode()
 	{
-		SpriteResourceData* t_data = (SpriteResourceData*)m_data;
-		return t_data->m_playback_mode;
+		SpriteHeader* header = (SpriteHeader*)m_data;
+		return header->playback_mode;
 	}
 
 	//-----------------------------------------------------------------------------
 	float* animation()
 	{
-		SpriteResourceData* t_data = (SpriteResourceData*)m_data;
-		return t_data->m_vertices;
+		return (float*)(m_data + sizeof(SpriteHeader));
 	}
 
-	//-----------------------------------------------------------------------------
 	float* frame(uint32_t index)
 	{
-		SpriteResourceData* t_data = (SpriteResourceData*)m_data;
-		return t_data->m_vertices + SPRITE_VERTEX_FRAME_SIZE * index;
+		return (float*)(m_data + sizeof(SpriteHeader) + SPRITE_FRAME_SIZE * index);
 	}
 
 public:
@@ -175,10 +171,6 @@ public:
 	TextureId 					m_texture;
 	VertexBufferId 				m_vb;
 	IndexBufferId 				m_ib;
-	ShaderId 					m_vertex;
-	ShaderId 					m_fragment;
-	GPUProgramId				m_program;
-	UniformId 					m_uniform;
 };
 
 } // namespace crown
