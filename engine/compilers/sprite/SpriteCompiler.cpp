@@ -25,11 +25,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <cstring>
+#include <inttypes.h>
 
 #include "Allocator.h"
 #include "Filesystem.h"
 #include "StringUtils.h"
 #include "SpriteCompiler.h"
+#include "Hash.h"
 
 namespace crown
 {
@@ -55,22 +57,18 @@ size_t SpriteCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	JSONParser json(buf);
 	JSONElement root = json.root();
 
-	JSONElement anim_name = root.key("name");
-	string::strncpy(m_anim_header.name, anim_name.string_value(), string::strlen(anim_name.string_value()) + 1);
+	string::strncpy(m_anim_header.name, root.key("name").string_value(), 128);
 
-	JSONElement anim_texture = root.key("texture");
-	string::strncpy(m_anim_header.texture, anim_texture.string_value(), string::strlen(anim_texture.string_value()) + 1);
+	DynamicString texture(root.key("texture").string_value());
+	texture += ".texture";
+	m_anim_header.texture.id = hash::murmur2_64(texture.c_str(), string::strlen(texture.c_str()), 0);
 
-	JSONElement anim_length = root.key("length");
-	m_anim_header.length = anim_length.int_value();
+	Log::i("resource in compiler: " "%.16"PRIx64"", m_anim_header.texture.id);
 
-	JSONElement anim_frame_rate = root.key("frame_rate");
-	m_anim_header.frame_rate = anim_frame_rate.int_value();
+	m_anim_header.num_frames = root.key("num_frames").int_value();
+	m_anim_header.frame_rate = root.key("frame_rate").int_value();
+	m_anim_header.playback_mode = root.key("playback_mode").int_value();
 
-	JSONElement anim_playback_mode = root.key("playback_mode");
-	m_anim_header.playback_mode = anim_playback_mode.int_value();
-
-	Log::i("Playback mode: %d", m_anim_header.playback_mode);
 
 	List<float> t_positions(default_allocator());
 	JSONElement anim_vertices = root.key("positions");
@@ -92,6 +90,7 @@ size_t SpriteCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 			t_animation_data.texcoords.x = t_texcoords[j+i];
 			t_animation_data.texcoords.y = t_texcoords[j+i+1];
 
+
 			m_anim_data.push_back(t_animation_data);
 		}
 	}
@@ -106,10 +105,9 @@ void SpriteCompiler::write_impl(File* out_file)
 {
 	out_file->write((char*)&m_anim_header, sizeof(SpriteHeader));
 
-	for (uint32_t j = 0; j < m_anim_data.size(); j++)
-	{
-		out_file->write((char*)&m_anim_data[j], sizeof(SpriteAnimationData));
-	}
+	out_file->write((char*)m_anim_data.begin(), sizeof(SpriteAnimationData) * m_anim_data.size());
+
+	m_anim_data.clear();
 }
 
 

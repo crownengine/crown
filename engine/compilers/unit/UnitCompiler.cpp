@@ -88,8 +88,6 @@ size_t UnitCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 			DynamicString renderable_name;
 			renderable_name = renderable_array[i].key("name").string_value();
 
-			Log::d("Renderable %s", renderable.c_str());
-
 			ur.resource.id = hash::murmur2_64(renderable.c_str(), string::strlen(renderable.c_str()), 0);
 			ur.name = hash::murmur2_32(renderable_name.c_str(), string::strlen(renderable_name.c_str()), 0);
 			ur.visible = renderable_array[i].key("visible").bool_value();

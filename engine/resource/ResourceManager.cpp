@@ -88,6 +88,7 @@ const void* ResourceManager::lookup(const char* type, const char* name) const
 	ResourceEntry* entry = find(id);
 
 	CE_ASSERT(entry != NULL, "Resource not loaded: type = '%s', name = '%s'", type, name);
+	CE_ASSERT(entry->resource != NULL, "Resource not loaded: type = '%s', name = '%s'", type, name);
 
 	return entry->resource;
 }
