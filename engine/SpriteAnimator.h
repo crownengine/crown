@@ -56,13 +56,13 @@ public:
 	//-----------------------------------------------------------------------------	
 	SpriteAnimator(SpriteResource* sr)
 		: m_vb(sr->m_vb)
-		, m_anim_length(sr->length())
+		, m_num_frames(sr->num_frames())
 		, m_frame_rate(sr->frame_rate())
 		, m_playback_mode((Enum)sr->playback_mode())
 		, m_cur_frame(0)
 		, m_random(os::microseconds())
 	{
-		memcpy(m_vertices, sr->animation(), sizeof(float) * 16 * m_anim_length);
+		memcpy(m_vertices, sr->animation(), 16 * 4 * m_num_frames);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -82,17 +82,17 @@ public:
 		{
 			case SEQUENTIAL_ONCE:
 			{
-				m_cur_frame = ++m_cur_frame < m_anim_length ? m_cur_frame : m_anim_length - 1;
+				m_cur_frame = ++m_cur_frame < m_num_frames ? m_cur_frame : m_num_frames - 1;
 				break;
 			}
 			case SEQUENTIAL_LOOP:
 			{
-				m_cur_frame = ++m_cur_frame < m_anim_length ? m_cur_frame : 0;
+				m_cur_frame = ++m_cur_frame < m_num_frames ? m_cur_frame : 0;
 				break;
 			}
 			case RANDOM_LOOP:
 			{
-				m_cur_frame = m_random.integer(m_anim_length);
+				m_cur_frame = m_random.integer(m_num_frames);
 				break;
 			}
 			default:
@@ -105,9 +105,9 @@ public:
 public:
 
 	VertexBufferId	m_vb;
-	float			m_vertices[MAX_SPRITE_ANIM_FRAMES*SPRITE_VERTEX_FRAME_SIZE];
+	float			m_vertices[MAX_SPRITE_ANIM_FRAMES*SPRITE_FRAME_SIZE];
 
-	uint32_t		m_anim_length;
+	uint32_t		m_num_frames;
 	uint32_t		m_frame_rate;
 	Enum			m_playback_mode;
 	uint32_t		m_cur_frame;
