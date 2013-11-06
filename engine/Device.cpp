@@ -474,33 +474,35 @@ void Device::compile(const char* , const char* , const char* )
 //-----------------------------------------------------------------------------
 void Device::reload(const char* type, const char* name)
 {
-	TempAllocator4096 temp;
-	DynamicString filename(temp);
-	filename += name;
-	filename += '.';
-	filename += type;
+	#if defined(LINUX) || defined(WINDOWS)
+		TempAllocator4096 temp;
+		DynamicString filename(temp);
+		filename += name;
+		filename += '.';
+		filename += type;
 
-	if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir, filename.c_str()))
-	{
-		Log::d("Compilation failed.");
-		return;
-	}
-
-	uint32_t type_hash = hash::murmur2_32(type, string::strlen(type), 0);
-
-	switch (type_hash)
-	{
-		case LUA_TYPE:
+		if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir, filename.c_str()))
 		{
-			m_lua_environment->load_and_execute(name);
-			break;
+			Log::d("Compilation failed.");
+			return;
 		}
-		default:
+
+		uint32_t type_hash = hash::murmur2_32(type, string::strlen(type), 0);
+
+		switch (type_hash)
 		{
-			CE_ASSERT(false, "Oops, unknown resource type: %s", type);
-			break;
+			case LUA_TYPE:
+			{
+				m_lua_environment->load_and_execute(name);
+				break;
+			}
+			default:
+			{
+				CE_ASSERT(false, "Oops, unknown resource type: %s", type);
+				break;
+			}
 		}
-	}
+	#endif
 }
 //-------------------------------------------------------------------------
 void Device::read_engine_settings()

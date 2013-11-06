@@ -58,6 +58,7 @@ LOCAL_SRC_FILES :=\
 	core/mem/LinearAllocator.cpp\
 	core/mem/ProxyAllocator.cpp\
 	core/mem/StackAllocator.cpp\
+	core/mem/PoolAllocator.cpp\
 	core/mem/Memory.cpp\
 \
 	core/settings/FloatSetting.cpp\
@@ -103,11 +104,22 @@ LOCAL_SRC_FILES :=\
 	lua/LuaFloatSetting.cpp\
 	lua/LuaStringSetting.cpp\
 	lua/LuaResourcePackage.cpp\
+	lua/LuaUnit.cpp\
+	lua/LuaCamera.cpp\
+	lua/LuaWorld.cpp\
+	lua/LuaMesh.cpp\
+	lua/LuaSprite.cpp\
 \
 	audio/sles/SLESRenderer.cpp\
 \
 	Camera.cpp\
 	Device.cpp\
+	Mesh.cpp\
+	RenderWorld.cpp\
+	SceneGraph.cpp\
+	Sprite.cpp\
+	Unit.cpp\
+	World.cpp\
 \
 
 LOCAL_C_INCLUDES	:=\
