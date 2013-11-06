@@ -37,6 +37,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+extern int vector3_add(lua_State* L);
+extern int vector3_subtract(lua_State* L);
+extern int vector3_multiply(lua_State* L);
+extern int vector3_divide(lua_State* L);
+extern int vector3_negate(lua_State* L);
+extern int vector3(lua_State* L);
+
 //-----------------------------------------------------------------------------
 CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 {
@@ -68,6 +75,36 @@ CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 }
 
 //-----------------------------------------------------------------------------
+static int crown_lua_lightuserdata_add(lua_State* L)
+{
+	return vector3_add(L);
+}
+
+//-----------------------------------------------------------------------------
+static int crown_lua_lightuserdata_sub(lua_State* L)
+{
+	return vector3_subtract(L);
+}
+
+//-----------------------------------------------------------------------------
+static int crown_lua_lightuserdata_mul(lua_State* L)
+{
+	return vector3_multiply(L);
+}
+
+//-----------------------------------------------------------------------------
+static int crown_lua_lightuserdata_div(lua_State* L)
+{
+	return vector3_divide(L);
+}
+
+//-----------------------------------------------------------------------------
+static int crown_lua_lightuserdata_unm(lua_State* L)
+{
+	return vector3_negate(L);
+}
+
+//-----------------------------------------------------------------------------
 static int crown_lua_require(lua_State* L)
 {
 	LuaStack stack(L);
@@ -87,7 +124,7 @@ static int crown_lua_require(lua_State* L)
 
 //-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment()
-	: m_state(luaL_newstate()), m_is_used(false)
+	: m_state(luaL_newstate())
 {
 }
 
@@ -118,14 +155,39 @@ void LuaEnvironment::init()
 
 	lua_pop(m_state, 1);
 
-	m_is_used = true;
+	// Create metatable for lightuserdata
+	lua_pushlightuserdata(m_state, (void*)0x0);
+	luaL_newmetatable(m_state, "Crown.lightuserdata.metatable");
+	lua_setmetatable(m_state, -2);
+	lua_pop(m_state, 1);
+
+	luaL_newmetatable(m_state, "Crown.lightuserdata.metatable");
+
+	lua_pushstring(m_state, "__add");
+	lua_pushcfunction(m_state, crown_lua_lightuserdata_add);
+	lua_settable(m_state, 1);
+
+	lua_pushstring(m_state, "__sub");
+	lua_pushcfunction(m_state, crown_lua_lightuserdata_sub);
+	lua_settable(m_state, 1);
+
+	lua_pushstring(m_state, "__mul");
+	lua_pushcfunction(m_state, crown_lua_lightuserdata_mul);
+	lua_settable(m_state, 1);
+
+	lua_pushstring(m_state, "__div");
+	lua_pushcfunction(m_state, crown_lua_lightuserdata_div);
+	lua_settable(m_state, 1);
+
+	lua_pushstring(m_state, "__unm");
+	lua_pushcfunction(m_state, crown_lua_lightuserdata_unm);
+	lua_settable(m_state, 1);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::shutdown()
 {
 	lua_close(m_state);
-	m_is_used = false;
 }
 
 //-----------------------------------------------------------------------------

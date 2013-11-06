@@ -85,11 +85,9 @@ private:
 	LuaEnvironment& 		operator=(const LuaEnvironment&);
 
 private:
-	/// Required by each Lua function
+
 	lua_State*				m_state;
 
-	/// LuaEnvironment is used right now?
-	bool					m_is_used;
 };
 
 void load_int_setting(LuaEnvironment& env);
