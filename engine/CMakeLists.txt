@@ -265,13 +265,11 @@ set (NETWORK_HEADERS
 )
 
 set (RENDERERS_SRC
-	renderers/DebugRenderer.cpp
 )
 
 set (RENDERERS_HEADERS
 	renderers/Renderer.h
 	renderers/RenderContext.h
-	renderers/DebugRenderer.h
 	renderers/PixelFormat.h
 	renderers/VertexFormat.h
 )

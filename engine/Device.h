@@ -41,7 +41,6 @@ class ResourceManager;
 class OsWindow;
 class Bundle;
 class Renderer;
-class DebugRenderer;
 class Keyboard;
 class Mouse;
 class Touch;
@@ -132,7 +131,6 @@ public:
 
 	OsWindow*				window();
 	Renderer*				renderer();
-	DebugRenderer*			debug_renderer();
 
 	SoundRenderer*			sound_renderer();
 
@@ -180,7 +178,6 @@ protected:
 
 	LuaEnvironment*			m_lua_environment;
 	Renderer*				m_renderer;
-	DebugRenderer*			m_debug_renderer;
 
 	SoundRenderer*			m_sound_renderer;
 

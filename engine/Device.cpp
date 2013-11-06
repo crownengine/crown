@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "Accelerometer.h"
 #include "Args.h"
-#include "DebugRenderer.h"
 #include "DiskFile.h"
 #include "DiskFilesystem.h"
 #include "JSONParser.h"
@@ -87,7 +86,6 @@ Device::Device()
 	, m_filesystem(NULL)
 	, m_lua_environment(NULL)
 	, m_renderer(NULL)
-	, m_debug_renderer(NULL)
 	, m_sound_renderer(NULL)
 
 	, m_bundle_compiler(NULL)
@@ -155,10 +153,6 @@ void Device::init()
 	m_renderer->init();
 	Log::d("Renderer created.");
 
-	// Create debug renderer
-	m_debug_renderer = CE_NEW(m_allocator, DebugRenderer)(*m_renderer);
-	Log::d("Debug renderer created.");
-
 	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)();
 	m_lua_environment->init();
 	Log::d("Lua environment created.");
@@ -218,12 +212,6 @@ void Device::shutdown()
 	CE_DELETE(m_allocator, m_touch);
 	CE_DELETE(m_allocator, m_mouse);
 	CE_DELETE(m_allocator, m_keyboard);
-
-	Log::d("Releasing DebugRenderer...");
-	if (m_debug_renderer)
-	{
-		CE_DELETE(m_allocator, m_debug_renderer);
-	}
 
 	Log::d("Releasing Renderer...");
 	if (m_renderer)
@@ -300,12 +288,6 @@ OsWindow* Device::window()
 Renderer* Device::renderer()
 {
 	return m_renderer;
-}
-
-//-----------------------------------------------------------------------------
-DebugRenderer* Device::debug_renderer()
-{
-	return m_debug_renderer;
 }
 
 //-----------------------------------------------------------------------------

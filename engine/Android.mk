@@ -77,7 +77,6 @@ LOCAL_SRC_FILES :=\
 \
 	renderers/gl/GLRenderer.cpp\
 	renderers/gl/egl/GLContext.cpp\
-	renderers/DebugRenderer.cpp\
 \
 	resource/FileBundle.cpp\
 	resource/ResourceLoader.cpp\
