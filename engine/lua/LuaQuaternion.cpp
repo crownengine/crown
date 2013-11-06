@@ -155,7 +155,7 @@ void load_quaternion(LuaEnvironment& env)
 	env.load_module_function("Quaternion", "conjugate",		quaternion_conjugate);
 	env.load_module_function("Quaternion", "inverse",		quaternion_inverse);
 	env.load_module_function("Quaternion", "cross",			quaternion_cross);
-	env.load_module_function("Quaternion", "mul",			quaternion_multiply);
+	env.load_module_function("Quaternion", "multiply",		quaternion_multiply);
 	env.load_module_function("Quaternion", "pow",			quaternion_power);
 }
 
