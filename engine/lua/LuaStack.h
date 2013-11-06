@@ -212,6 +212,10 @@ public:
 		return (Sprite*) lua_touserdata(m_state, index);
 	}
 
+	bool is_vector2(int32_t index);
+	bool is_vector3(int32_t index);
+	bool is_matrix4x4(int32_t index);
+	bool is_quaternion(int32_t index);
 	Vector2& get_vector2(int32_t index);
 	Vector3& get_vector3(int32_t index);
 	Matrix4x4& get_matrix4x4(int32_t index);

@@ -96,7 +96,7 @@ Vector2& LuaStack::get_vector2(int32_t index)
 {
 	void* v = lua_touserdata(m_state, index);
 
-	if (v < &g_vec2_buffer[0] || v > &g_vec2_buffer[LUA_VEC2_BUFFER_SIZE-1])
+	if (!is_vector2(index))
 	{
 		luaL_typerror(m_state, index, "Vector2");
 	}
@@ -109,7 +109,7 @@ Vector3& LuaStack::get_vector3(int32_t index)
 {
 	void* v = lua_touserdata(m_state, index);
 
-	if (v < &g_vec3_buffer[0] || v > &g_vec3_buffer[LUA_VEC3_BUFFER_SIZE-1])
+	if (!is_vector3(index))
 	{
 		luaL_typerror(m_state, index, "Vector3");
 	}
@@ -122,7 +122,7 @@ Matrix4x4& LuaStack::get_matrix4x4(int32_t index)
 {
 	void* m = lua_touserdata(m_state, index);
 
-	if (m < &g_mat4_buffer[0] || m > &g_mat4_buffer[LUA_MAT4_BUFFER_SIZE-1])
+	if (!is_matrix4x4(index))
 	{
 		luaL_typerror(m_state, index, "Matrix4x4");
 	}
@@ -135,7 +135,7 @@ Quaternion& LuaStack::get_quaternion(int32_t index)
 {
 	void* q = lua_touserdata(m_state, index);
 
-	if (q < &g_quat_buffer[0] || q > &g_quat_buffer[LUA_QUAT_BUFFER_SIZE-1])
+	if (!is_quaternion(index))
 	{
 		luaL_typerror(m_state, index, "Quaternion");
 	}
@@ -165,6 +165,38 @@ void LuaStack::push_matrix4x4(const Matrix4x4& m)
 void LuaStack::push_quaternion(const Quaternion& q)
 {
 	lua_pushlightuserdata(m_state, next_quat(q));
+}
+
+//-----------------------------------------------------------------------------
+bool LuaStack::is_vector2(int32_t index)
+{
+	void* type = lua_touserdata(m_state, index);
+
+	return (type >= &g_vec2_buffer[0] && type <= &g_vec2_buffer[LUA_VEC2_BUFFER_SIZE - 1]);
+}
+
+//-----------------------------------------------------------------------------
+bool LuaStack::is_vector3(int32_t index)
+{
+	void* type = lua_touserdata(m_state, index);
+
+	return (type >= &g_vec3_buffer[0] && type <= &g_vec3_buffer[LUA_VEC3_BUFFER_SIZE - 1]);
+}
+
+//-----------------------------------------------------------------------------
+bool LuaStack::is_matrix4x4(int32_t index)
+{
+	void* type = lua_touserdata(m_state, index);
+
+	return (type >= &g_mat4_buffer[0] && type <= &g_mat4_buffer[LUA_MAT4_BUFFER_SIZE - 1]);
+}
+
+//-----------------------------------------------------------------------------
+bool LuaStack::is_quaternion(int32_t index)
+{
+	void* type = lua_touserdata(m_state, index);
+
+	return (type >= &g_quat_buffer[0] && type <= &g_quat_buffer[LUA_QUAT_BUFFER_SIZE - 1]);
 }
 
 } // namespace crown
