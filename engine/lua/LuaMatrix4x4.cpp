@@ -97,32 +97,6 @@ CE_EXPORT int matrix4x4_multiply(lua_State* L)
 	stack.push_matrix4x4(a * b);
 
 	return 1;
-}	
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_multiply_by_scalar(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	float k = stack.get_float(2);
-
-	stack.push_matrix4x4(a * k);
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_divide_by_scalar(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	float k = stack.get_float(2);
-
-	stack.push_matrix4x4(a / k);
-
-	return 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -431,10 +405,8 @@ void load_matrix4x4(LuaEnvironment& env)
 {
 	env.load_module_function("Matrix4x4", "new", 							matrix4x4);
 	env.load_module_function("Matrix4x4", "add", 							matrix4x4_add);
-	env.load_module_function("Matrix4x4", "sub", 							matrix4x4_subtract);
-	env.load_module_function("Matrix4x4", "mul", 							matrix4x4_multiply);
-	env.load_module_function("Matrix4x4", "muls", 							matrix4x4_multiply_by_scalar);
-	env.load_module_function("Matrix4x4", "divs", 							matrix4x4_divide_by_scalar);
+	env.load_module_function("Matrix4x4", "subtract", 						matrix4x4_subtract);
+	env.load_module_function("Matrix4x4", "multiply", 						matrix4x4_multiply);
 	env.load_module_function("Matrix4x4", "build_rotation_x", 				matrix4x4_build_rotation_x);
 	env.load_module_function("Matrix4x4", "build_rotation_y", 				matrix4x4_build_rotation_y);
 	env.load_module_function("Matrix4x4", "build_rotation_z", 				matrix4x4_build_rotation_z);
