@@ -123,7 +123,7 @@ CE_EXPORT int vector2_dot(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_equals(lua_State* L)
+CE_EXPORT int vector2_equal(lua_State* L)
 {
 	LuaStack stack(L);
 	
@@ -264,13 +264,13 @@ CE_EXPORT int vector2_zero(lua_State* L)
 void load_vector2(LuaEnvironment& env)
 {
 	env.load_module_function("Vector2", "new",					vector2);
-	env.load_module_function("Vector2", "val",					vector2_values);
+	env.load_module_function("Vector2", "values",				vector2_values);
 	env.load_module_function("Vector2", "add",					vector2_add);
-	env.load_module_function("Vector2", "sub",					vector2_subtract);
-	env.load_module_function("Vector2", "mul",					vector2_multiply);
-	env.load_module_function("Vector2", "div",					vector2_divide);
+	env.load_module_function("Vector2", "subtract",				vector2_subtract);
+	env.load_module_function("Vector2", "multiply",				vector2_multiply);
+	env.load_module_function("Vector2", "divide",				vector2_divide);
 	env.load_module_function("Vector2", "dot",					vector2_dot);
-	env.load_module_function("Vector2", "equals",				vector2_equals);
+	env.load_module_function("Vector2", "equal",				vector2_equal);
 	env.load_module_function("Vector2", "lower",				vector2_lower);
 	env.load_module_function("Vector2", "greater",				vector2_greater);
 	env.load_module_function("Vector2", "length",				vector2_length);
