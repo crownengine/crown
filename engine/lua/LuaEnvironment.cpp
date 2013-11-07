@@ -42,7 +42,10 @@ extern int vector3_subtract(lua_State* L);
 extern int vector3_multiply(lua_State* L);
 extern int vector3_divide(lua_State* L);
 extern int vector3_negate(lua_State* L);
+extern int vector2(lua_State* L);
 extern int vector3(lua_State* L);
+extern int matrix4x4(lua_State* L);
+extern int quaternion(lua_State* L);
 
 //-----------------------------------------------------------------------------
 CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
@@ -72,6 +75,34 @@ CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 	load_sprite(*env);
 
 	return 1;
+}
+
+//-----------------------------------------------------------------------------
+static int crown_lua_vector2_call(lua_State* L)
+{
+	lua_remove(L, 1);
+	return vector2(L);
+}
+
+//-----------------------------------------------------------------------------
+static int crown_lua_vector3_call(lua_State* L)
+{
+	lua_remove(L, 1);
+	return vector3(L);
+}
+
+//-----------------------------------------------------------------------------
+static int crown_lua_matrix4x4_call(lua_State* L)
+{
+	lua_remove(L, 1);
+	return matrix4x4(L);
+}
+
+//-----------------------------------------------------------------------------
+static int crown_lua_quaternion_call(lua_State* L)
+{
+	lua_remove(L, 1);
+	return quaternion(L);
 }
 
 //-----------------------------------------------------------------------------
@@ -157,11 +188,11 @@ void LuaEnvironment::init()
 
 	// Create metatable for lightuserdata
 	lua_pushlightuserdata(m_state, (void*)0x0);
-	luaL_newmetatable(m_state, "Crown.lightuserdata.metatable");
+	luaL_newmetatable(m_state, "Lightuserdata_mt");
 	lua_setmetatable(m_state, -2);
 	lua_pop(m_state, 1);
 
-	luaL_newmetatable(m_state, "Crown.lightuserdata.metatable");
+	luaL_newmetatable(m_state, "Lightuserdata_mt");
 
 	lua_pushstring(m_state, "__add");
 	lua_pushcfunction(m_state, crown_lua_lightuserdata_add);
@@ -182,6 +213,50 @@ void LuaEnvironment::init()
 	lua_pushstring(m_state, "__unm");
 	lua_pushcfunction(m_state, crown_lua_lightuserdata_unm);
 	lua_settable(m_state, 1);
+
+	// Vector2 metatable
+	luaL_newmetatable(m_state, "Vector2_mt");
+	lua_pushvalue(m_state, -1);
+	lua_setfield(m_state, -2, "__index");
+	lua_pushcfunction(m_state, crown_lua_vector2_call);
+	lua_setfield(m_state, -2, "__call");
+
+	lua_getglobal(m_state, "Vector2");
+	lua_pushvalue(m_state, -2); // Duplicate metatable
+	lua_setmetatable(m_state, -2); // setmetatable(Vector2, Vector2_mt)
+
+	// Vector3 metatable
+	luaL_newmetatable(m_state, "Vector3_mt");
+	lua_pushvalue(m_state, -1);
+	lua_setfield(m_state, -2, "__index");
+	lua_pushcfunction(m_state, crown_lua_vector3_call);
+	lua_setfield(m_state, -2, "__call");
+
+	lua_getglobal(m_state, "Vector3");
+	lua_pushvalue(m_state, -2); // Duplicate metatable
+	lua_setmetatable(m_state, -2); // setmetatable(Vector3, Vector3_mt)
+
+	// Matrix4x4 metatable
+	luaL_newmetatable(m_state, "Matrix4x4_mt");
+	lua_pushvalue(m_state, -1);
+	lua_setfield(m_state, -2, "__index");
+	lua_pushcfunction(m_state, crown_lua_matrix4x4_call);
+	lua_setfield(m_state, -2, "__call");
+
+	lua_getglobal(m_state, "Matrix4x4");
+	lua_pushvalue(m_state, -2); // Duplicate metatable
+	lua_setmetatable(m_state, -2); // setmetatable(Matrix4x4, Matrix4x4_mt)
+
+	// Quaternion metatable
+	luaL_newmetatable(m_state, "Quaternion_mt");
+	lua_pushvalue(m_state, -1);
+	lua_setfield(m_state, -2, "__index");
+	lua_pushcfunction(m_state, crown_lua_quaternion_call);
+	lua_setfield(m_state, -2, "__call");
+
+	lua_getglobal(m_state, "Quaternion");
+	lua_pushvalue(m_state, -2); // Duplicate metatable
+	lua_setmetatable(m_state, -2); // setmetatable(Quaternion, Quaternion_mt)
 }
 
 //-----------------------------------------------------------------------------
