@@ -89,13 +89,13 @@ public:
 		m_size += size;		
 	}
 
-	void write_constant(UniformId id, UniformType::Enum type, void* data, uint8_t num)
+	void write_constant(UniformId id, UniformType::Enum type, const void* data, uint8_t num)
 	{
-		size_t size = UNIFORM_SIZE_TABLE[type] * num;
+		const uint32_t size = UNIFORM_SIZE_TABLE[type] * num;
 
 		write(type);
 		write(&id, sizeof(UniformId));
-		write(&size, sizeof(size_t));
+		write(&size, sizeof(uint32_t));
 		write(data, size);
 	}
 
