@@ -246,7 +246,8 @@ struct RenderContext
 		Log::d("Setting texture: sampler = %d.%d, texture = %d.%d, unit = %d", sampler_uniform.id, sampler_uniform.index
 			, texture.id, texture.index, unit);
 
-		set_uniform(sampler_uniform, UniformType::INTEGER_1, &unit, 1);
+		const uint32_t val = unit;
+		set_uniform(sampler_uniform, UniformType::INTEGER_1, &val, 1);
 	}
 
 	void set_layer_render_target(uint8_t layer, RenderTargetId target)
