@@ -91,11 +91,6 @@ public:
 
 		sr->m_vb = device()->renderer()->create_vertex_buffer(4, VertexFormat::P2_T2, sr->frame(0));
 		sr->m_ib = device()->renderer()->create_index_buffer(6, t_indices);
-
-		TextureResource* res = (TextureResource*)device()->resource_manager()->data(sr->texture());
-		sr->m_texture = res->m_texture;
-
-		Log::i("resource: " "%.16"PRIx64"", sr->texture().id);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -168,7 +163,6 @@ public:
 	uint8_t*					m_data;
 	size_t						m_data_size;
 
-	TextureId 					m_texture;
 	VertexBufferId 				m_vb;
 	IndexBufferId 				m_ib;
 };

@@ -62,12 +62,6 @@ public:
 	void		destroy_sprite(SpriteId id);
 	Sprite*		lookup_sprite(SpriteId id);
 
-	MeshId 		allocate_mesh(MeshResource* mr, int32_t node, const Vector3& pos, const Quaternion& rot);
-	void 		deallocate_mesh(MeshId id);
-
-	SpriteId	allocate_sprite(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot);
-	void 		deallocate_sprite(SpriteId id);
-
 	void		update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height, float dt);
 
 private:
@@ -75,9 +69,8 @@ private:
 	PoolAllocator					m_mesh_pool;
 	IdArray<MAX_MESHES, Mesh*>		m_mesh;
 
-	IdTable<MAX_SPRITES>	m_sprite_table;
-	uint32_t				m_sprite_sparse_to_packed[MAX_SPRITES];
-	List<Sprite>			m_sprite;
+	PoolAllocator					m_sprite_pool;
+	IdArray<MAX_SPRITES, Sprite*>	m_sprite;
 };
 
 } // namespace crown

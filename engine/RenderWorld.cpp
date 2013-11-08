@@ -89,6 +89,7 @@ static const char* texture_fragment =
 RenderWorld::RenderWorld()
 	: m_mesh_pool(default_allocator(), MAX_MESHES, sizeof(Mesh))
 	, m_mesh(default_allocator())
+	, m_sprite_pool(default_allocator(), MAX_SPRITES, sizeof(Sprite))
 	, m_sprite(default_allocator())
 {
 	Renderer* r = device()->renderer();
@@ -151,9 +152,14 @@ SpriteId RenderWorld::create_sprite(ResourceId id, int32_t node, const Vector3& 
 {
 	SpriteResource* sr = (SpriteResource*) device()->resource_manager()->data(id);
 
-	SpriteId sprite = allocate_sprite(sr, node, pos, rot);
+	// Allocate memory for sprite
+	Sprite* sprite = (Sprite*) m_sprite_pool.allocate(sizeof(Sprite));
 
-	return sprite;
+	// Create sprite id
+	const SpriteId sprite_id = m_sprite.create(sprite);
+	sprite->create(sr, node, pos, rot);
+
+	return sprite_id;
 }
 
 //-----------------------------------------------------------------------------
@@ -165,7 +171,9 @@ void RenderWorld::destroy_sprite(SpriteId /*id*/)
 //-----------------------------------------------------------------------------
 Sprite*	RenderWorld::lookup_sprite(SpriteId id)
 {
-	return &m_sprite[m_sprite_sparse_to_packed[id.index]];
+	CE_ASSERT(m_sprite.has(id), "Sprite does not exist");
+
+	return m_sprite.lookup(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -204,13 +212,14 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		r->commit(0);
 	}
 
-	for (uint32_t s = 0; s < m_sprite.size(); s++)
+	const List<Sprite*>& sprites = m_sprite.m_objects;
+	for (uint32_t s = 0; s < sprites.size(); s++)
 	{
-		Sprite& sprite = m_sprite[s];
+		Sprite* sprite = sprites[s];
 
-		if (frames % sprite.m_animator->m_frame_rate == 0)
+		if (frames % sprite->m_animator->m_frame_rate == 0)
 		{
-			sprite.m_animator->play_frame();
+			sprite->m_animator->play_frame();
 		}
 
 		r->set_state(STATE_DEPTH_WRITE 
@@ -219,36 +228,16 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 			| STATE_CULL_CW 
 			| STATE_BLEND_EQUATION_ADD 
 			| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
-		r->set_vertex_buffer(sprite.m_vb);
-		r->set_index_buffer(sprite.m_ib);
+		r->set_vertex_buffer(sprite->m_vb);
+		r->set_index_buffer(sprite->m_ib);
 		r->set_program(texture_program);
-		r->set_texture(0, u_albedo_0, sprite.m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
+		r->set_texture(0, u_albedo_0, sprite->m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
 
-		r->set_pose(sprite.m_world_pose);
+		r->set_pose(sprite->m_world_pose);
 		r->commit(0);
 	}
 
 	frames++;
-}
-
-//-----------------------------------------------------------------------------
-SpriteId RenderWorld::allocate_sprite(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot)
-{
-	SpriteId id = m_sprite_table.create();
-
-	Sprite sprite;
-	sprite.create(sr, node, pos, rot);
-
-	uint32_t index = m_sprite.push_back(sprite);
-	m_sprite_sparse_to_packed[id.index] = index;
-
-	return id;
-}
-
-//-----------------------------------------------------------------------------
-void RenderWorld::deallocate_sprite(SpriteId /*id*/)
-{
-	// Stub
 }
 
 } // namespace crown

@@ -40,7 +40,7 @@ void Sprite::create(SpriteResource* sr, int32_t node, const Vector3& /*pos*/, co
 {
 	m_vb = sr->m_vb;
 	m_ib = sr->m_ib;
-	m_texture = sr->m_texture;
+	m_texture = ((TextureResource*)device()->resource_manager()->data(sr->texture()))->m_texture;
 	m_node = node;
 
 	m_animator = CE_NEW(default_allocator(), SpriteAnimator)(sr);
