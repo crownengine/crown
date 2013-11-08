@@ -222,7 +222,7 @@ void LuaEnvironment::init()
 	lua_pop(m_state, 1);
 
 	// Create metatable for lightuserdata
-	lua_pushlightuserdata(m_state, (void*)0x0);
+	lua_pushlightuserdata(m_state, (void*)0x0); // Just dummy userdata
 	luaL_newmetatable(m_state, "Lightuserdata_mt");
 	lua_setmetatable(m_state, -2);
 	lua_pop(m_state, 1);
