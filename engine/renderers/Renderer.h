@@ -576,15 +576,19 @@ public:
 	{
 		UniformType::Enum type;
 
+		uint32_t num = 0;
+
 		while ((type = (UniformType::Enum)cbuf.read()) != UniformType::END)
 		{
 			UniformId id;
-			size_t size;
+			uint32_t size;
 
 			cbuf.read(&id, sizeof(UniformId));
-			cbuf.read(&size, sizeof(size_t));
+			cbuf.read(&size, sizeof(uint32_t));
 			const void* data = cbuf.read(size);
 
+			Log::d("Updating uniform: number = %d, ID = %d.%d, size = %d, data = %d", num, id.id, id.index, size, *((int32_t*)data));
+			num++;
 			update_uniform_impl(id, size, data);
 		}
 
@@ -616,7 +620,7 @@ public:
 		m_submit->set_index_buffer(ib);
 	}
 
-	inline void set_uniform(UniformId id, UniformType::Enum type, void* value, uint8_t num)
+	inline void set_uniform(UniformId id, UniformType::Enum type, const void* value, uint8_t num)
 	{
 		m_submit->set_uniform(id, type, value, num);
 	}

@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "CommandBuffer.h"
 #include "ConstantBuffer.h"
 #include "RendererTypes.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -229,7 +230,7 @@ struct RenderContext
 		m_state.ib = ib;
 	}
 
-	void set_uniform(UniformId id, UniformType::Enum type, void* value, uint8_t num)
+	void set_uniform(UniformId id, UniformType::Enum type, const void* value, uint8_t num)
 	{
 		m_constants.write_constant(id, type, value, num);
 	}
@@ -241,6 +242,9 @@ struct RenderContext
 		Sampler& sampler = m_state.samplers[unit];
 		sampler.sampler_id = texture;
 		sampler.flags |= SAMPLER_TEXTURE | flags;
+
+		Log::d("Setting texture: sampler = %d.%d, texture = %d.%d, unit = %d", sampler_uniform.id, sampler_uniform.index
+			, texture.id, texture.index, unit);
 
 		set_uniform(sampler_uniform, UniformType::INTEGER_1, &unit, 1);
 	}
