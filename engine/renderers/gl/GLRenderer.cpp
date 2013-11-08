@@ -93,6 +93,31 @@ const GLTextureFormatInfo TEXTURE_FORMAT_TABLE[PixelFormat::COUNT] =
 	{ GL_RGBA, GL_RGBA}
 };
 
+//-----------------------------------------------------------------------------
+const GLenum BLEND_FUNCTION_TABLE[] =
+{
+	0, // Unused
+	GL_ZERO,
+	GL_ONE,
+	GL_SRC_COLOR,
+	GL_ONE_MINUS_SRC_COLOR,
+	GL_DST_COLOR,
+	GL_ONE_MINUS_DST_COLOR,
+	GL_SRC_ALPHA,
+	GL_ONE_MINUS_SRC_ALPHA,
+	GL_DST_ALPHA,
+	GL_ONE_MINUS_DST_ALPHA
+};
+
+//-----------------------------------------------------------------------------
+const GLenum BLEND_EQUATION_TABLE[] =
+{
+	0, // Unused
+	GL_FUNC_ADD,
+	GL_FUNC_SUBTRACT,
+	GL_FUNC_REVERSE_SUBTRACT
+};
+
 // Keep in sync with ShaderAttrib
 const char* const SHADER_ATTRIB_NAMES[ShaderAttrib::COUNT] =
 {
@@ -194,10 +219,6 @@ public:
 		Log::d("Max Vertex Indices   : %d", m_max_vertex_indices);
 		Log::d("Max Vertex Vertices  : %d", m_max_vertex_vertices);
 
-		GL_CHECK(glDisable(GL_BLEND));
-		GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-		GL_CHECK(glBlendEquation(GL_FUNC_ADD));
-
 		#if defined(LINUX) || defined(WINDOWS)
 			// Point sprites enabled by default
 			GL_CHECK(glEnable(GL_POINT_SPRITE));
@@ -296,6 +317,23 @@ public:
 			else
 			{
 				GL_CHECK(glDisable(GL_CULL_FACE));
+			}
+
+			// Blending
+			if (flags & (STATE_BLEND_FUNC_MASK | STATE_BLEND_EQUATION_MASK))
+			{
+				uint32_t function = (flags & STATE_BLEND_FUNC_MASK) >> STATE_BLEND_FUNC_SHIFT;
+				uint32_t equation = (flags & STATE_BLEND_EQUATION_MASK) >> STATE_BLEND_EQUATION_SHIFT;
+				uint32_t src = (function >> 4) & 0xF;
+				uint32_t dst = function & 0xF;
+
+				GL_CHECK(glEnable(GL_BLEND));
+				GL_CHECK(glBlendFunc(BLEND_FUNCTION_TABLE[src], BLEND_FUNCTION_TABLE[dst]));
+				GL_CHECK(glBlendEquation(BLEND_EQUATION_TABLE[equation]));
+			}
+			else
+			{
+				GL_CHECK(glDisable(GL_BLEND));
 			}
 
 			// Bind GPU program
