@@ -75,9 +75,6 @@ private:
 	PoolAllocator					m_mesh_pool;
 	IdArray<MAX_MESHES, Mesh*>		m_mesh;
 
-	// Mesh transforms
-	IdArray<MAX_MESHES, Matrix4x4>	m_transform;
-
 	IdTable<MAX_SPRITES>	m_sprite_table;
 	uint32_t				m_sprite_sparse_to_packed[MAX_SPRITES];
 	List<Sprite>			m_sprite;

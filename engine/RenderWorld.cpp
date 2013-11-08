@@ -89,7 +89,6 @@ static const char* texture_fragment =
 RenderWorld::RenderWorld()
 	: m_mesh_pool(default_allocator(), MAX_MESHES, sizeof(Mesh))
 	, m_mesh(default_allocator())
-	, m_transform(default_allocator())
 	, m_sprite(default_allocator())
 {
 	Renderer* r = device()->renderer();
@@ -214,7 +213,12 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 			sprite.m_animator->play_frame();
 		}
 
-		r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
+		r->set_state(STATE_DEPTH_WRITE 
+			| STATE_COLOR_WRITE 
+			| STATE_ALPHA_WRITE 
+			| STATE_CULL_CW 
+			| STATE_BLEND_EQUATION_ADD 
+			| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
 		r->set_vertex_buffer(sprite.m_vb);
 		r->set_index_buffer(sprite.m_ib);
 		r->set_program(texture_program);
