@@ -243,9 +243,6 @@ struct RenderContext
 		sampler.sampler_id = texture;
 		sampler.flags |= SAMPLER_TEXTURE | flags;
 
-		Log::d("Setting texture: sampler = %d.%d, texture = %d.%d, unit = %d", sampler_uniform.id, sampler_uniform.index
-			, texture.id, texture.index, unit);
-
 		const uint32_t val = unit;
 		set_uniform(sampler_uniform, UniformType::INTEGER_1, &val, 1);
 	}

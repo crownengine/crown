@@ -576,8 +576,6 @@ public:
 	{
 		UniformType::Enum type;
 
-		uint32_t num = 0;
-
 		while ((type = (UniformType::Enum)cbuf.read()) != UniformType::END)
 		{
 			UniformId id;
@@ -587,8 +585,6 @@ public:
 			cbuf.read(&size, sizeof(uint32_t));
 			const void* data = cbuf.read(size);
 
-			Log::d("Updating uniform: number = %d, ID = %d.%d, size = %d, data = %d", num, id.id, id.index, size, *((int32_t*)data));
-			num++;
 			update_uniform_impl(id, size, data);
 		}
 
