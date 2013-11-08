@@ -37,6 +37,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+extern int vector2_add(lua_State* L);
+extern int vector2_subtract(lua_State* L);
+extern int vector2_multiply(lua_State* L);
+extern int vector2_divide(lua_State* L);
+extern int vector2_negate(lua_State* L);
 extern int vector3_add(lua_State* L);
 extern int vector3_subtract(lua_State* L);
 extern int vector3_multiply(lua_State* L);
@@ -108,31 +113,61 @@ static int crown_lua_quaternion_call(lua_State* L)
 //-----------------------------------------------------------------------------
 static int crown_lua_lightuserdata_add(lua_State* L)
 {
-	return vector3_add(L);
+	LuaStack stack(L);
+
+	if (stack.is_vector3(1))
+	{
+		return vector3_add(L);
+	}
+	return vector2_add(L);
 }
 
 //-----------------------------------------------------------------------------
 static int crown_lua_lightuserdata_sub(lua_State* L)
 {
-	return vector3_subtract(L);
+	LuaStack stack(L);
+
+	if (stack.is_vector3(1))
+	{
+		return vector3_subtract(L);
+	}
+	return vector2_subtract(L);
 }
 
 //-----------------------------------------------------------------------------
 static int crown_lua_lightuserdata_mul(lua_State* L)
 {
-	return vector3_multiply(L);
+	LuaStack stack(L);
+
+	if (stack.is_vector3(1))
+	{
+		return vector3_multiply(L);
+	}
+	return vector2_multiply(L);
 }
 
 //-----------------------------------------------------------------------------
 static int crown_lua_lightuserdata_div(lua_State* L)
 {
-	return vector3_divide(L);
+	LuaStack stack(L);
+
+	if (stack.is_vector3(1))
+	{
+		return vector3_divide(L);
+	}
+	return vector2_divide(L);
 }
 
 //-----------------------------------------------------------------------------
 static int crown_lua_lightuserdata_unm(lua_State* L)
 {
-	return vector3_negate(L);
+	LuaStack stack(L);
+
+	if (stack.is_vector3(1))
+	{
+		return vector3_negate(L);
+	}
+	return vector2_negate(L);
 }
 
 //-----------------------------------------------------------------------------
