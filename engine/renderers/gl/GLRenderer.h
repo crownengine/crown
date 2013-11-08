@@ -181,12 +181,12 @@ struct Uniform
 		m_data = default_allocator().allocate(size);
 		memset(m_data, 0, size);
 
-		// Log::d("Uniform created, name = %s, type = %d, num = %d, size = %d", m_name, type, num, size);
+		Log::d("Uniform created, name = %s, type = %d, num = %d, size = %ld", m_name, type, num, size);
 	}
 
 	void update(size_t size, const void* data)
 	{
-		// Log::d("Uniform updated, new size = %d, new ptr = %d", size, *((int32_t*)data));
+		Log::d("Uniform updated, new size = %ld, new ptr = %d", size, *((int32_t*)data));
 		memcpy(m_data, data, size);
 	}
 

@@ -173,8 +173,12 @@ public:
 
 	//-----------------------------------------------------------------------------
 	RendererImplementation()
-		: m_max_texture_size(0), m_max_texture_units(0), m_max_vertex_indices(0), m_max_vertex_vertices(0),
-			m_max_anisotropy(0.0f), m_num_uniforms(0)
+		: m_max_texture_size(0)
+		, m_max_texture_units(0)
+		, m_max_vertex_indices(0)
+		, m_max_vertex_vertices(0)
+		, m_max_anisotropy(0.0f)
+		, m_num_uniforms(0)
 	{
 		m_min_max_point_size[0] = 0.0f;
 		m_min_max_point_size[1] = 0.0f;
