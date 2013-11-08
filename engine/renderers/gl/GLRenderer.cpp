@@ -336,6 +336,35 @@ public:
 				GL_CHECK(glDisable(GL_BLEND));
 			}
 
+			// Bind textures
+			{
+				uint64_t flags = STATE_TEXTURE_0;
+				for (uint32_t unit = 0; unit < STATE_MAX_TEXTURES; unit++)
+				{
+					const Sampler& sampler = cur_state.samplers[unit];
+
+					if (sampler.sampler_id.id != INVALID_ID)
+					{
+						switch (sampler.flags & SAMPLER_MASK)
+						{
+							case SAMPLER_TEXTURE:
+							{
+								Texture& texture = m_textures[sampler.sampler_id.index];
+								texture.commit(unit, sampler.flags);
+								break;
+							}
+							default:
+							{
+								CE_ASSERT(false, "Oops, sampler unknown");
+								break;
+							}
+						}
+					}
+
+					flags <<= 1;
+				}
+			}
+
 			// Bind GPU program
 			if (cur_state.program.id != INVALID_ID)
 			{
@@ -421,34 +450,6 @@ public:
 				GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 			}
 
-			// Bind textures
-			{
-				uint64_t flags = STATE_TEXTURE_0;
-				for (uint32_t unit = 0; unit < STATE_MAX_TEXTURES; unit++)
-				{
-					const Sampler& sampler = cur_state.samplers[unit];
-
-					if (sampler.sampler_id.id != INVALID_ID)
-					{
-						switch (sampler.flags & SAMPLER_MASK)
-						{
-							case SAMPLER_TEXTURE:
-							{
-								Texture& texture = m_textures[sampler.sampler_id.index];
-								texture.commit(unit, sampler.flags);
-								break;
-							}
-							default:
-							{
-								CE_ASSERT(false, "Oops, sampler unknown");
-								break;
-							}
-						}
-					}
-
-					flags <<= 1;
-				}
-			}
 		}
 
 		GL_CHECK(glFinish());

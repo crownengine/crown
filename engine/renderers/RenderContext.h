@@ -168,7 +168,7 @@ public:
 
 	uint64_t		m_flags;
 
-	Matrix4x4			pose;
+	Matrix4x4		pose;
 	GPUProgramId	program;
 	VertexBufferId	vb;
 	IndexBufferId	ib;
