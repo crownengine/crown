@@ -63,8 +63,6 @@ size_t SpriteCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	texture += ".texture";
 	m_anim_header.texture.id = hash::murmur2_64(texture.c_str(), string::strlen(texture.c_str()), 0);
 
-	Log::i("resource in compiler: " "%.16"PRIx64"", m_anim_header.texture.id);
-
 	m_anim_header.num_frames = root.key("num_frames").int_value();
 	m_anim_header.frame_rate = root.key("frame_rate").int_value();
 	m_anim_header.playback_mode = root.key("playback_mode").int_value();
@@ -96,6 +94,7 @@ size_t SpriteCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	}
 
 	fs.close(file);
+	default_allocator().deallocate(buf);
 
 	return sizeof(SpriteHeader) + sizeof(SpriteAnimationData) * m_anim_data.size();
 }
