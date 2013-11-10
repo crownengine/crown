@@ -81,7 +81,7 @@ public:
 
 	/// Initializes the renderer.
 	/// Should be the first call to the renderer.
-	inline void init()
+	void init()
 	{
 		m_should_run = true;
 		m_thread.start(render_thread, this);
@@ -92,7 +92,7 @@ public:
 
 	/// Shutdowns the renderer.
 	/// Should be the last call to the renderer.
-	inline void shutdown()
+	void shutdown()
 	{
 		if (m_should_run)
 		{
@@ -105,7 +105,7 @@ public:
 
 	/// Creates a new vertex buffer optimized for rendering static vertex data.
 	/// @a vertices is the array containig @a count vertex data elements, each of the given @a format.
-	inline VertexBufferId create_vertex_buffer(size_t count, VertexFormat::Enum format, const void* vertices)
+	VertexBufferId create_vertex_buffer(size_t count, VertexFormat::Enum format, const void* vertices)
 	{
 		const VertexBufferId id = m_vertex_buffers.create();
 
@@ -121,7 +121,7 @@ public:
 	/// Creates a new vertex buffer optimized for renderering dynamic vertex data.
 	/// This function only allocates storage for @a count vertices, each of the given @a format;
 	/// use Renderer::update_vertex_buffer() to fill the buffer with actual data.
-	inline VertexBufferId create_dynamic_vertex_buffer(size_t count, VertexFormat::Enum format)
+	VertexBufferId create_dynamic_vertex_buffer(size_t count, VertexFormat::Enum format)
 	{
 		const VertexBufferId id = m_vertex_buffers.create();
 
@@ -138,7 +138,7 @@ public:
 	/// @note
 	/// @a count and @a offset together do not have to exceed the number of elements
 	/// originally specified to Renderer::create_vertex_buffer() (or Renderer::create_dynamic_vertex_buffer())
-	inline void update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices)
+	void update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices)
 	{
 		CE_ASSERT(m_vertex_buffers.has(id), "Vertex buffer does not exist");
 
@@ -150,7 +150,7 @@ public:
 	}
 
 	/// Destroys the given vertex buffer @a id.
-	inline void destroy_vertex_buffer(VertexBufferId id)
+	void destroy_vertex_buffer(VertexBufferId id)
 	{
 		CE_ASSERT(m_vertex_buffers.has(id), "Vertex buffer does not exist");
 
@@ -160,7 +160,7 @@ public:
 
 	/// Creates a new index buffer optimized for rendering static index buffers.
 	/// @a indices is the array containing @a count index data elements.
-	inline IndexBufferId create_index_buffer(size_t count, const void* indices)
+	IndexBufferId create_index_buffer(size_t count, const void* indices)
 	{
 		const IndexBufferId id = m_index_buffers.create();
 
@@ -175,7 +175,7 @@ public:
 	/// Creates a new index buffer optimized for rendering dynamic index buffers.
 	/// This function only allocates storage for @a count indices;
 	/// use Renderer::update_index_buffer() to fill the buffer with actual data.
-	inline IndexBufferId create_dynamic_index_buffer(size_t count)
+	IndexBufferId create_dynamic_index_buffer(size_t count)
 	{
 		const IndexBufferId id = m_index_buffers.create();
 
@@ -191,7 +191,7 @@ public:
 	/// @note
 	/// @a count and @a offset together do not have to exceed the number of elements
 	/// originally specified to Renderer::create_index_buffer() (or Renderer::create_dynamic_index_buffer())
-	inline void update_index_buffer(IndexBufferId id, size_t offset, size_t count, const void* indices)
+	void update_index_buffer(IndexBufferId id, size_t offset, size_t count, const void* indices)
 	{
 		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
 
@@ -203,7 +203,7 @@ public:
 	}
 
 	/// Destroys the @a id index buffer.
-	inline void destroy_index_buffer(IndexBufferId id)
+	void destroy_index_buffer(IndexBufferId id)
 	{
 		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
 
@@ -213,7 +213,7 @@ public:
 
 	/// Creates a new texture of size @a width and @height.
 	/// The array @a data should contain @a width * @a height elements of the given @a format.
-	inline TextureId create_texture(uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data)
+	TextureId create_texture(uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data)
 	{
 		const TextureId id = m_textures.create();
 
@@ -230,7 +230,7 @@ public:
 	/// Updates the pixels of texture @a id at region defined by @a x, @a y, @a width, @a height.
 	/// The array @a data should contain @a width * @a height elements of the format originally specified
 	/// to Renderer::create_texture()
-	inline void update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data)
+	void update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data)
 	{
 		CE_ASSERT(m_textures.has(id), "Texture does not exist");
 
@@ -244,7 +244,7 @@ public:
 	}
 
 	/// Destroys the texture @æ id.
-	inline void destroy_texture(TextureId id)
+	void destroy_texture(TextureId id)
 	{
 		CE_ASSERT(m_textures.has(id), "Texture does not exist");
 
@@ -253,7 +253,7 @@ public:
 	}
 
 	/// Creates a new shader of the given @a type from the string @a text.
-	inline ShaderId create_shader(ShaderType::Enum type, const char* text)
+	ShaderId create_shader(ShaderType::Enum type, const char* text)
 	{
 		const ShaderId id = m_shaders.create();
 
@@ -266,7 +266,7 @@ public:
 	}
 
 	/// Destroy the shader @a id.
-	inline void destroy_shader(ShaderId id)
+	void destroy_shader(ShaderId id)
 	{
 		CE_ASSERT(m_shaders.has(id), "Shader does not exist");
 
@@ -275,7 +275,7 @@ public:
 	}
 
 	/// Creates a new gpu program from @a vertex shader and @a pixel shader.
-	inline GPUProgramId create_gpu_program(ShaderId vertex, ShaderId pixel)
+	GPUProgramId create_gpu_program(ShaderId vertex, ShaderId pixel)
 	{
 		const GPUProgramId id = m_gpu_programs.create();
 
@@ -288,7 +288,7 @@ public:
 	}
 
 	/// Destroys the gpu program @a id.
-	inline void destroy_gpu_program(GPUProgramId id)
+	void destroy_gpu_program(GPUProgramId id)
 	{
 		CE_ASSERT(m_gpu_programs.has(id), "GPU program does not exist");
 
@@ -298,7 +298,7 @@ public:
 
 	/// Creates a new uniform with the given @a name, with storage for exactly
 	/// @a num elements of the given @a type.
-	inline UniformId create_uniform(const char* name, UniformType::Enum type, uint8_t num)
+	UniformId create_uniform(const char* name, UniformType::Enum type, uint8_t num)
 	{
 		CE_ASSERT(name_to_stock_uniform(name) == ShaderUniform::COUNT, "Uniform name '%s' is a stock uniform.", name);
 
@@ -318,7 +318,7 @@ public:
 	}
 
 	/// Destroys the uniform @a id.
-	inline void destroy_uniform(UniformId id)
+	void destroy_uniform(UniformId id)
 	{
 		CE_ASSERT(m_uniforms.has(id), "Uniform does not exist");
 
@@ -337,7 +337,7 @@ public:
 	// }
 
 	//-----------------------------------------------------------------------------
-	inline void execute_commands(CommandBuffer& cmds)
+	void execute_commands(CommandBuffer& cmds)
 	{
 		bool end = false;
 
@@ -590,7 +590,7 @@ public:
 		cmds.clear();
 	}
 
-	inline void update_uniforms(ConstantBuffer& cbuf)
+	void update_uniforms(ConstantBuffer& cbuf)
 	{
 		UniformType::Enum type;
 
@@ -609,80 +609,80 @@ public:
 		cbuf.clear();
 	}
 
-	inline void set_state(uint64_t flags)
+	void set_state(uint64_t flags)
 	{
 		m_submit->set_state(flags);
 	}
 
-	inline void set_pose(const Matrix4x4& pose)
+	void set_pose(const Matrix4x4& pose)
 	{
 		m_submit->set_pose(pose);
 	}
 
-	inline void set_program(GPUProgramId id)
+	void set_program(GPUProgramId id)
 	{
 		CE_ASSERT(m_gpu_programs.has(id), "GPU program does not exist");
 		m_submit->set_program(id);
 	}
 
-	inline void set_vertex_buffer(VertexBufferId id)
+	void set_vertex_buffer(VertexBufferId id)
 	{
 		CE_ASSERT(m_vertex_buffers.has(id), "Vertex buffer does not exist");
 		m_submit->set_vertex_buffer(id);
 	}
 
-	inline void set_index_buffer(IndexBufferId id)
+	void set_index_buffer(IndexBufferId id)
 	{
 		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
 		m_submit->set_index_buffer(id);
 	}
 
-	inline void set_uniform(UniformId id, UniformType::Enum type, const void* value, uint8_t num)
+	void set_uniform(UniformId id, UniformType::Enum type, const void* value, uint8_t num)
 	{
 		CE_ASSERT(m_uniforms.has(id), "Uniform does not exist");
 		CE_ASSERT_NOT_NULL(value);
 		m_submit->set_uniform(id, type, value, num);
 	}
 
-	inline void set_texture(uint8_t unit, UniformId sampler_uniform, TextureId texture, uint32_t flags)
+	void set_texture(uint8_t unit, UniformId sampler_uniform, TextureId texture, uint32_t flags)
 	{
 		CE_ASSERT(m_uniforms.has(sampler_uniform), "Uniform does not exist");
 		CE_ASSERT(m_textures.has(texture), "Texture does not exist");
 		m_submit->set_texture(unit, sampler_uniform, texture, flags);
 	}
 
-	inline void set_layer_render_target(uint8_t layer, RenderTargetId id)
+	void set_layer_render_target(uint8_t layer, RenderTargetId id)
 	{
 		CE_ASSERT(m_render_targets.has(id), "Render target does not exist");
 		m_submit->set_layer_render_target(layer, id);
 	}
 
-	inline void set_layer_clear(uint8_t layer, uint8_t flags, const Color4& color, float depth)
+	void set_layer_clear(uint8_t layer, uint8_t flags, const Color4& color, float depth)
 	{
 		m_submit->set_layer_clear(layer, flags, color, depth);
 	}
 
-	inline void set_layer_view(uint8_t layer, const Matrix4x4& view)
+	void set_layer_view(uint8_t layer, const Matrix4x4& view)
 	{
 		m_submit->set_layer_view(layer, view);
 	}
 
-	inline void set_layer_projection(uint8_t layer, const Matrix4x4& projection)
+	void set_layer_projection(uint8_t layer, const Matrix4x4& projection)
 	{
 		m_submit->set_layer_projection(layer, projection);
 	}
 
-	inline void set_layer_viewport(uint8_t layer, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+	void set_layer_viewport(uint8_t layer, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 	{
 		m_submit->set_layer_viewport(layer, x, y, width, height);
 	}
 
-	inline void set_layer_scissor(uint8_t layer, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+	void set_layer_scissor(uint8_t layer, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 	{
 		m_submit->set_layer_scissor(layer, x, y, width, height);
 	}
 
-	inline void commit(uint8_t layer)
+	void commit(uint8_t layer)
 	{
 		m_submit->commit(layer);
 	}
@@ -698,7 +698,7 @@ public:
 		return 0;
 	}
 
-	inline void swap_contexts()
+	void swap_contexts()
 	{
 		// Ensure CommandType::END at the end of submit command buffer
 		m_submit->push();
@@ -708,7 +708,7 @@ public:
 		m_draw = temp;
 	}
 
-	inline void frame()
+	void frame()
 	{
 		// Signal main thread finished updating
 		m_render_wait.post();
@@ -716,7 +716,7 @@ public:
 	}
 
 	// Do all the processing needed to render a frame
-	inline void render_all()
+	void render_all()
 	{
 		// Waits for main thread to finish update
 		m_render_wait.wait();
