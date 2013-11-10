@@ -152,6 +152,32 @@ public:
 		return lua_touserdata(m_state, index);	
 	}
 
+	/// Pushes an empty table onto the stack.
+	/// When you want to set keys on the table, you have to use LuaStack::push_key_begin()
+	/// and LuaStack::push_key_end() as in the following example:
+	///
+	/// LuaStack stack(L)
+	/// stack.push_table()
+	/// stack.push_key_begin("foo"); stack.push_foo(); stack.push_key_end()
+	/// stack.push_key_begin("bar"); stack.push_bar(); stack.push_key_end()
+	/// return 1;
+	void push_table()
+	{
+		lua_newtable(m_state);
+	}
+
+	/// See Stack::push_table()
+	void push_key_begin(const char* key)
+	{
+		lua_pushstring(m_state, key);
+	}
+
+	/// See Stack::push_table()
+	void push_key_end()
+	{
+		lua_settable(m_state, -3);
+	}
+
 	//-----------------------------------------------------------------------------
 	void push_world(World* world)
 	{
