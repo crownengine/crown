@@ -140,6 +140,8 @@ public:
 	/// originally specified to Renderer::create_vertex_buffer() (or Renderer::create_dynamic_vertex_buffer())
 	inline void update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices)
 	{
+		CE_ASSERT(m_vertex_buffers.has(id), "Vertex buffer does not exist");
+
 		m_submit->m_commands.write(CommandType::UPDATE_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(offset);
@@ -150,6 +152,8 @@ public:
 	/// Destroys the given vertex buffer @a id.
 	inline void destroy_vertex_buffer(VertexBufferId id)
 	{
+		CE_ASSERT(m_vertex_buffers.has(id), "Vertex buffer does not exist");
+
 		m_submit->m_commands.write(CommandType::DESTROY_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
 	}
@@ -189,6 +193,8 @@ public:
 	/// originally specified to Renderer::create_index_buffer() (or Renderer::create_dynamic_index_buffer())
 	inline void update_index_buffer(IndexBufferId id, size_t offset, size_t count, const void* indices)
 	{
+		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
+
 		m_submit->m_commands.write(CommandType::UPDATE_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(offset);
@@ -199,6 +205,8 @@ public:
 	/// Destroys the @a id index buffer.
 	inline void destroy_index_buffer(IndexBufferId id)
 	{
+		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
+
 		m_submit->m_commands.write(CommandType::DESTROY_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
 	}
@@ -224,6 +232,8 @@ public:
 	/// to Renderer::create_texture()
 	inline void update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data)
 	{
+		CE_ASSERT(m_textures.has(id), "Texture does not exist");
+
 		m_submit->m_commands.write(CommandType::UPDATE_TEXTURE);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(x);
@@ -236,6 +246,8 @@ public:
 	/// Destroys the texture @æ id.
 	inline void destroy_texture(TextureId id)
 	{
+		CE_ASSERT(m_textures.has(id), "Texture does not exist");
+
 		m_submit->m_commands.write(CommandType::DESTROY_TEXTURE);
 		m_submit->m_commands.write(id);
 	}
@@ -256,6 +268,8 @@ public:
 	/// Destroy the shader @a id.
 	inline void destroy_shader(ShaderId id)
 	{
+		CE_ASSERT(m_shaders.has(id), "Shader does not exist");
+
 		m_submit->m_commands.write(CommandType::DESTROY_SHADER);
 		m_submit->m_commands.write(id);
 	}
@@ -276,6 +290,8 @@ public:
 	/// Destroys the gpu program @a id.
 	inline void destroy_gpu_program(GPUProgramId id)
 	{
+		CE_ASSERT(m_gpu_programs.has(id), "GPU program does not exist");
+
 		m_submit->m_commands.write(CommandType::DESTROY_GPU_PROGRAM);
 		m_submit->m_commands.write(id);
 	}
@@ -304,6 +320,8 @@ public:
 	/// Destroys the uniform @a id.
 	inline void destroy_uniform(UniformId id)
 	{
+		CE_ASSERT(m_uniforms.has(id), "Uniform does not exist");
+
 		m_submit->m_commands.write(CommandType::DESTROY_UNIFORM);
 		m_submit->m_commands.write(id);
 	}
@@ -601,34 +619,42 @@ public:
 		m_submit->set_pose(pose);
 	}
 
-	inline void set_program(GPUProgramId program)
+	inline void set_program(GPUProgramId id)
 	{
-		m_submit->set_program(program);
+		CE_ASSERT(m_gpu_programs.has(id), "GPU program does not exist");
+		m_submit->set_program(id);
 	}
 
-	inline void set_vertex_buffer(VertexBufferId vb)
+	inline void set_vertex_buffer(VertexBufferId id)
 	{
-		m_submit->set_vertex_buffer(vb);
+		CE_ASSERT(m_vertex_buffers.has(id), "Vertex buffer does not exist");
+		m_submit->set_vertex_buffer(id);
 	}
 
-	inline void set_index_buffer(IndexBufferId ib)
+	inline void set_index_buffer(IndexBufferId id)
 	{
-		m_submit->set_index_buffer(ib);
+		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
+		m_submit->set_index_buffer(id);
 	}
 
 	inline void set_uniform(UniformId id, UniformType::Enum type, const void* value, uint8_t num)
 	{
+		CE_ASSERT(m_uniforms.has(id), "Uniform does not exist");
+		CE_ASSERT_NOT_NULL(value);
 		m_submit->set_uniform(id, type, value, num);
 	}
 
 	inline void set_texture(uint8_t unit, UniformId sampler_uniform, TextureId texture, uint32_t flags)
 	{
+		CE_ASSERT(m_uniforms.has(sampler_uniform), "Uniform does not exist");
+		CE_ASSERT(m_textures.has(texture), "Texture does not exist");
 		m_submit->set_texture(unit, sampler_uniform, texture, flags);
 	}
 
-	inline void set_layer_render_target(uint8_t layer, RenderTargetId target)
+	inline void set_layer_render_target(uint8_t layer, RenderTargetId id)
 	{
-		m_submit->set_layer_render_target(layer, target);
+		CE_ASSERT(m_render_targets.has(id), "Render target does not exist");
+		m_submit->set_layer_render_target(layer, id);
 	}
 
 	inline void set_layer_clear(uint8_t layer, uint8_t flags, const Color4& color, float depth)
@@ -728,7 +754,7 @@ protected:
 	IdTable<CROWN_MAX_SHADERS> m_shaders;
 	IdTable<CROWN_MAX_GPU_PROGRAMS> m_gpu_programs;
 	IdTable<CROWN_MAX_UNIFORMS> m_uniforms;
-	// IdTable<CROWN_MAX_RENDER_TARGETS> m_render_targets;
+	IdTable<CROWN_MAX_RENDER_TARGETS> m_render_targets;
 
 	bool m_is_initialized;
 	bool m_should_run;
