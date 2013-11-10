@@ -115,8 +115,6 @@ RenderWorld::~RenderWorld()
 	r->destroy_gpu_program(default_program);
 	r->destroy_gpu_program(texture_program);
 	r->destroy_uniform(u_albedo_0);
-	r->destroy_uniform(u_lightmap_0);
-	r->destroy_uniform(u_brightness);
 }
 
 //-----------------------------------------------------------------------------
