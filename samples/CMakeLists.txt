@@ -45,8 +45,6 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 include_directories(${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
 link_directories(${CROWN_BINARY_DIR} ${CROWN_THIRD_LIBS})
 
-#add_subdirectory(terrain)
-
 # Install samples
 install (DIRECTORY 01.hello-world DESTINATION samples)
 
