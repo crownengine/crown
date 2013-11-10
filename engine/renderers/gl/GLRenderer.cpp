@@ -245,11 +245,15 @@ public:
 		//old_rt.id = INVALID_ID;
 		uint8_t layer = 0xFF;
 
+		// Sort render keys
+		std::sort(context.m_keys, context.m_keys + context.m_num_states);
+
 		for (uint32_t s = 0; s < context.m_num_states; s++)
 		{
 			const uint64_t key_s = context.m_keys[s];
 			RenderKey key;
 			key.decode(key_s);
+
 			const RenderState& cur_state = context.m_states[s];
 			const uint64_t flags = cur_state.m_flags;
 			//const RenderTargetId& cur_rt = context.m_targets[layer];
