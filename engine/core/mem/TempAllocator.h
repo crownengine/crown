@@ -59,8 +59,11 @@ private:
 
 	Allocator&	m_backing;
 
-	size_t		m_allocated_size;
-	uint8_t		m_buffer[SIZE];
+	char*		m_begin;
+	char*		m_end;
+	char*		m_cur;
+	size_t		m_chunk_size;
+	char		m_buffer[SIZE];
 };
 
 typedef TempAllocator<256> TempAllocator256;
@@ -71,48 +74,72 @@ typedef TempAllocator<4096> TempAllocator4096;
 
 //-----------------------------------------------------------------------------
 template <size_t SIZE>
-inline TempAllocator<SIZE>::TempAllocator(Allocator& backing) :
-	m_backing(backing),
-	m_allocated_size(0)
+inline TempAllocator<SIZE>::TempAllocator(Allocator& backing)
+	: m_backing(backing)
+	, m_begin(&m_buffer[0])
+	, m_end(&m_buffer[SIZE - 1])
+	, m_cur(&m_buffer[0])
+	, m_chunk_size(4 * 1024)
 {
+	*(void**) m_begin = 0;
+	m_cur += sizeof(void*);
 }
 
 //-----------------------------------------------------------------------------
 template <size_t SIZE>
 inline TempAllocator<SIZE>::~TempAllocator()
 {
+	void *p = *(void **)m_buffer;
+	while (p)
+	{
+		void *next = *(void **)p;
+		m_backing.deallocate(p);
+		p = next;
+	}
 }
 
 //-----------------------------------------------------------------------------
 template <size_t SIZE>
 inline void* TempAllocator<SIZE>::allocate(size_t size, size_t align)
 {
-	size_t actual_size = size + align;
+	m_cur = (char*) memory::align_top(m_cur, align);
 
-	if (actual_size > (SIZE - m_allocated_size))
+	if (size > m_end - m_cur)
 	{
-		return m_backing.allocate(size, align);
+		uint32_t to_allocate = sizeof(void*) + size + align;
+
+		if (to_allocate < m_chunk_size)
+		{
+			to_allocate = m_chunk_size;
+		}
+
+		m_chunk_size *= 2;
+
+		void *p = m_backing.allocate(to_allocate);
+		*(void **)m_begin = p;
+		m_cur = m_begin = (char*) p;
+		m_end = m_begin + to_allocate;
+		*(void**) m_begin = 0;
+		m_cur += sizeof(void*);
+		memory::align_top(p, align);
 	}
 
-	void* user_ptr = memory::align_top((void*) &m_buffer[m_allocated_size], align);
-
-	m_allocated_size += actual_size;
-
-	return user_ptr;
+	void *result = m_cur;
+	m_cur += size;
+	return result;
 }
 
 //-----------------------------------------------------------------------------
 template <size_t SIZE>
-inline void TempAllocator<SIZE>::deallocate(void* data)
+inline void TempAllocator<SIZE>::deallocate(void* /*data*/)
 {
-	(void) data;
 }
 
 //-----------------------------------------------------------------------------
 template <size_t SIZE>
 inline size_t TempAllocator<SIZE>::allocated_size()
 {
-	return m_allocated_size;
+	return 0;
 }
 
 } // namespace crown
