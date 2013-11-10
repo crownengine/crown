@@ -346,8 +346,8 @@ struct GPUProgram
 		GL_CHECK(glGetProgramiv(m_id, GL_ACTIVE_ATTRIBUTES, &num_active_attribs));
 		GL_CHECK(glGetProgramiv(m_id, GL_ACTIVE_UNIFORMS, &num_active_uniforms));
 
-		Log::d("Found %d active attribs", num_active_attribs);
-		Log::d("Found %d active uniforms", num_active_uniforms);
+		// Log::d("Found %d active attribs", num_active_attribs);
+		// Log::d("Found %d active uniforms", num_active_uniforms);
 
 		// Find active attribs/uniforms max length
 		GLint max_attrib_length;
@@ -362,8 +362,8 @@ struct GPUProgram
 			char attrib_name[1024];
 			GL_CHECK(glGetActiveAttrib(m_id, attrib, max_attrib_length, NULL, &attrib_size, &attrib_type, attrib_name));
 
-			GLint attrib_location = GL_CHECK(glGetAttribLocation(m_id, attrib_name));
-			Log::d("Attrib %d: name = '%s' location = '%d'", attrib, attrib_name, attrib_location);
+			/* GLint attrib_location = */GL_CHECK(glGetAttribLocation(m_id, attrib_name));
+			// Log::d("Attrib %d: name = '%s' location = '%d'", attrib, attrib_name, attrib_location);
 		}
 
 		m_num_active_attribs = 0;
@@ -409,8 +409,8 @@ struct GPUProgram
 				}
 			}
 
-			Log::d("Uniform %d: name = '%s' location = '%d' stock = %s", uniform, uniform_name, uniform_location,
-						(stock_uniform != ShaderUniform::COUNT) ? "yes" : "no");
+			// Log::d("Uniform %d: name = '%s' location = '%d' stock = %s", uniform, uniform_name, uniform_location,
+						// (stock_uniform != ShaderUniform::COUNT) ? "yes" : "no");
 		}
 	}
 
