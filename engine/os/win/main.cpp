@@ -150,6 +150,7 @@ public:
 	void init(int argc, char** argv)
 	{
 		parse_command_line(argc, argv);
+		read_configuration();
 		check_preferred_settings();
 
 		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
@@ -802,6 +803,47 @@ public:
 		// 	Log::e("Window width and height must be greater than zero.");
 		// 	exit(EXIT_FAILURE);
 		// }
+	}
+
+	//-------------------------------------------------------------------------
+	void read_configuration()
+	{
+		DiskFilesystem fs(m_bundle_dir);
+
+		// crown.config is mandatory
+		CE_ASSERT(fs.is_file("crown.config"), "Unable to open crown.config");
+
+		File* config_file = fs.open("crown.config", FOM_READ);
+
+		TempAllocator4096 alloc;
+		char* json_string = (char*)alloc.allocate(config_file->size());
+		config_file->read(json_string, config_file->size());
+		fs.close(config_file);
+
+		// Parse crown.config
+		JSONParser parser(json_string);
+		JSONElement root = parser.root();
+
+		// Boot
+		if (root.has_key("boot"))
+		{
+			const char* boot = root.key("boot").string_value();
+			const size_t boot_length = string::strlen(boot);
+
+			string::strncpy(m_boot_file, boot, (boot_length > MAX_PATH_LENGTH) ? MAX_PATH_LENGTH : boot_length + 1);
+		}
+
+		// Window width
+		if (root.has_key("window_width"))
+		{
+			m_width = root.key("window_width").int_value();
+		}
+
+		// Window height
+		if (root.has_key("window_height"))
+		{
+			m_height = root.key("window_height").int_value();
+		}
 	}
 
 private:
