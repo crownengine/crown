@@ -130,9 +130,6 @@ void Device::init()
 	#endif
 	Log::d("Filesystem created.");
 
-	// Read settings from crown.config
-	read_engine_settings();
-
 	m_resource_bundle = Bundle::create(m_allocator, *m_filesystem);
 
 	// Create resource manager
@@ -485,51 +482,6 @@ void Device::reload(const char* type, const char* name)
 			}
 		}
 	#endif
-}
-//-------------------------------------------------------------------------
-void Device::read_engine_settings()
-{
-	// // Check crown.config existance
-	// CE_ASSERT(m_filesystem->is_file("crown.config"), "Unable to open crown.config");
-
-	// // Copy crown config in a buffer
-	// TempAllocator4096 allocator;
-
-	// File* config_file = m_filesystem->open("crown.config", FOM_READ);
-
-	// char* json_string = (char*)allocator.allocate(config_file->size());
-
-	// config_file->read(json_string, config_file->size());
-
-	// m_filesystem->close(config_file);
-
-	// // Parse crown.config
-	// JSONParser parser(json_string);
-
-	// JSONElement root = parser.root();
-
-	// // Boot
-	// if (root.has_key("boot"))
-	// {
-	// 	const char* boot = root.key("boot").string_value();
-	// 	const size_t boot_length = string::strlen(boot) + 1;
-
-	// 	string::strncpy(m_boot_file, boot, boot_length);
-	// }
-	// // Window width
-	// if (root.has_key("window_width"))
-	// {
-	// 	m_preferred_window_width = root.key("window_width").int_value();
-	// }
-	// // Window height
-	// if (root.has_key("window_height"))
-	// {
-	// 	m_preferred_window_height = root.key("window_height").int_value();
-	// }
-
-	// allocator.deallocate(json_string);
-
-	// Log::i("Configuration set");
 }
 
 static Device* g_device;

@@ -140,10 +140,6 @@ public:
 	Accelerometer*			accelerometer();
 	RPCServer*				rpc() { return m_rpc; }
 
-private:
-
-	void					read_engine_settings();
-
 protected:
 
 	// Used to allocate all subsystems
