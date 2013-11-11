@@ -1,0 +1,10 @@
+{
+	"renderable" : [
+		{
+			"type" : "sprite",
+			"resource" : "sprites/square",
+			"name" : "square",
+			"visible" : true
+		}
+	]
+}

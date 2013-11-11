@@ -1,0 +1,10 @@
+{
+	"renderable" : [
+		{
+			"type" : "sprite",
+			"resource" : "sprites/pentagon",
+			"name" : "pentagon",
+			"visible" : true
+		}
+	]
+}

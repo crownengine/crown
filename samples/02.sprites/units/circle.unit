@@ -1,0 +1,10 @@
+{
+	"renderable" : [
+		{
+			"type" : "sprite",
+			"resource" : "sprites/circle",
+			"name" : "circle",
+			"visible" : true
+		}
+	]
+}

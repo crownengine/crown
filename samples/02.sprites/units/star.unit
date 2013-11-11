@@ -1,0 +1,10 @@
+{
+	"renderable" : [
+		{
+			"type" : "sprite",
+			"resource" : "sprites/star",
+			"name" : "star",
+			"visible" : true
+		}
+	]
+}

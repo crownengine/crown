@@ -47,4 +47,4 @@ link_directories(${CROWN_BINARY_DIR} ${CROWN_THIRD_LIBS})
 
 # Install samples
 install (DIRECTORY 01.hello-world DESTINATION samples)
-
+install (DIRECTORY 02.sprites DESTINATION samples)
