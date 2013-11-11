@@ -528,6 +528,14 @@ Renderer::Renderer(Allocator& a)
 //-----------------------------------------------------------------------------
 Renderer::~Renderer()
 {
+	CE_ASSERT(m_vertex_buffers.size() == 0, "%d vertex buffers not freed", m_vertex_buffers.size());
+	CE_ASSERT(m_index_buffers.size() == 0, "%d index buffers not freed", m_index_buffers.size());
+	CE_ASSERT(m_textures.size() == 0, "%d textures not freed", m_textures.size());
+	CE_ASSERT(m_shaders.size() == 0, "%d shaders not freed", m_shaders.size());
+	CE_ASSERT(m_gpu_programs.size() == 0, "%d GPU programs not freed", m_gpu_programs.size());
+	CE_ASSERT(m_uniforms.size() == 0, "%d uniforms not freed", m_uniforms.size());
+	CE_ASSERT(m_render_targets.size() == 0, "%d render targets not freed", m_render_targets.size());
+
 	CE_DELETE(m_allocator, m_impl);
 }
 
