@@ -80,6 +80,8 @@ public:
 	/// Returns whether the table has the specified @a id
 	bool			has(Id id) const;
 
+	uint16_t		size() const;
+
 	const Id*		begin() const;
 
 private:
@@ -97,6 +99,7 @@ private:
 
 	// Next available unique id.
 	uint16_t		m_next_id;
+	uint16_t		m_size;
 
 	// Table of ids.
 	// The last valid id is reserved and cannot be used to
@@ -107,7 +110,10 @@ private:
 //-----------------------------------------------------------------------------
 template <uint32_t MAX_NUM_ID>
 inline IdTable<MAX_NUM_ID>::IdTable()
-	: m_freelist(MAX_NUM_ID), m_last_index(0), m_next_id(0)
+	: m_freelist(MAX_NUM_ID)
+	, m_last_index(0)
+	, m_next_id(0)
+	, m_size(0)
 {
 	for (uint32_t i = 0; i < MAX_NUM_ID; i++)
 	{
@@ -136,6 +142,8 @@ inline Id IdTable<MAX_NUM_ID>::create()
 
 	m_ids[id.index] = id;
 
+	m_size++;
+
 	return id;
 }
 
@@ -148,6 +156,7 @@ inline void IdTable<MAX_NUM_ID>::destroy(Id id)
 	m_ids[id.index].id = INVALID_ID;
 	m_ids[id.index].index = m_freelist;
 	m_freelist = id.index;
+	m_size--;
 }
 
 //-----------------------------------------------------------------------------
@@ -155,6 +164,13 @@ template <uint32_t MAX_NUM_ID>
 inline bool IdTable<MAX_NUM_ID>::has(Id id) const
 {
 	return id.index < MAX_NUM_ID && m_ids[id.index].id == id.id;
+}
+
+//-----------------------------------------------------------------------------
+template <uint32_t MAX_NUM_ID>
+inline uint16_t IdTable<MAX_NUM_ID>::size() const
+{
+	return m_size;
 }
 
 //-----------------------------------------------------------------------------
