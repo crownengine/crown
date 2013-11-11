@@ -5,7 +5,7 @@ end
 
 function frame(dt)
 	-- Stop the engine when the 'ESC' key is released
-	if Keyboard.key_released(Keyboard.KC_ESCAPE) then
+	if Keyboard.button_released(Keyboard.ESCAPE) then
 		Device.stop()
 	end
 end
