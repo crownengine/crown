@@ -150,7 +150,6 @@ public:
 	void init(int argc, char** argv)
 	{
 		parse_command_line(argc, argv);
-		read_configuration();
 		check_preferred_settings();
 
 		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
@@ -171,6 +170,8 @@ public:
 				}
 			}
 		#endif
+
+		read_configuration();
 	}
 
 	//-----------------------------------------------------------------------------
