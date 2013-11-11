@@ -94,6 +94,20 @@ const GLTextureFormatInfo TEXTURE_FORMAT_TABLE[PixelFormat::COUNT] =
 };
 
 //-----------------------------------------------------------------------------
+const GLenum DEPTH_FUNCTION_TABLE[] = 
+{
+	0, // Unused
+	GL_NEVER,
+	GL_LESS,
+	GL_EQUAL,
+	GL_LEQUAL,
+	GL_GREATER,
+	GL_NOTEQUAL,
+	GL_GEQUAL,
+	GL_ALWAYS
+};
+
+//-----------------------------------------------------------------------------
 const GLenum BLEND_FUNCTION_TABLE[] =
 {
 	0, // Unused
@@ -281,8 +295,19 @@ public:
 					#endif
 					GL_CHECK(glClear(gl_clear));
 				}
+			}
+
+			// Depth test
+			if (flags & STATE_DEPTH_TEST_MASK)
+			{
+				uint32_t depthf = (flags & STATE_DEPTH_TEST_MASK) >> STATE_DEPTH_TEST_SHIFT;
 
 				GL_CHECK(glEnable(GL_DEPTH_TEST));
+				GL_CHECK(glDepthFunc(DEPTH_FUNCTION_TABLE[depthf]));
+			}
+			else
+			{
+				GL_CHECK(glDisable(GL_DEPTH_TEST));
 			}
 
 			// Scissor
