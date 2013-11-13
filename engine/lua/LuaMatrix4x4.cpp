@@ -168,21 +168,6 @@ CE_EXPORT int matrix4x4_build_look_at_rh(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_look_at_lh(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	Vector3& pos = stack.get_vector3(2);
-	Vector3& target = stack.get_vector3(3);
-	Vector3& up = stack.get_vector3(4);
-
-	a.build_look_at_lh(pos, target, up);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
 CE_EXPORT int matrix4x4_build_viewpoint_billboard(lua_State* L)
 {
 	LuaStack stack(L);
@@ -412,7 +397,6 @@ void load_matrix4x4(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4", "build_rotation_z", 				matrix4x4_build_rotation_z);
 	env.load_module_function("Matrix4x4", "build_rotation", 				matrix4x4_build_rotation);
 	env.load_module_function("Matrix4x4", "build_look_at_rh", 				matrix4x4_build_look_at_rh);
-	env.load_module_function("Matrix4x4", "build_look_at_lh", 				matrix4x4_build_look_at_rh);
 	env.load_module_function("Matrix4x4", "build_viewpoint_billboard", 		matrix4x4_build_viewpoint_billboard);
 	env.load_module_function("Matrix4x4", "build_axis_billboard", 			matrix4x4_build_axis_billboard);
 	env.load_module_function("Matrix4x4", "transpose", 						matrix4x4_transpose);
