@@ -46,7 +46,7 @@ struct Id
 		index = id_and_index & 0xFFFF;
 	}
 
-	uint32_t encode()
+	uint32_t encode() const
 	{
 		return (uint32_t(id) << 16) | uint32_t(index);
 	}
