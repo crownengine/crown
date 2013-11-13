@@ -38,6 +38,7 @@ namespace crown
 //-----------------------------------------------------------------------------
 World::World()
 	: m_unit_pool(default_allocator(), MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
+	, m_camera_pool(default_allocator(), MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
 	, m_units(default_allocator())
 	, m_camera(default_allocator())
 	, m_sounds(default_allocator())
@@ -173,7 +174,7 @@ Camera* World::lookup_camera(CameraId camera)
 {
 	CE_ASSERT(m_camera.has(camera), "Camera does not exist");
 
-	return &m_camera.lookup(camera);
+	return m_camera.lookup(camera);
 }
 
 //-----------------------------------------------------------------------------
@@ -206,10 +207,10 @@ void World::update(Camera& camera, float dt)
 	{
 		const UnitToCamera& utc = m_unit_to_camera[i];
 
-		Camera& cam = m_camera.lookup(utc.camera);
+		Camera* cam = m_camera.lookup(utc.camera);
 		Unit* unit = m_units.lookup(utc.unit);
 
-		cam.m_world_pose = unit->m_scene_graph.world_pose(utc.node);
+		cam->m_world_pose = unit->m_scene_graph.world_pose(utc.node);
 	}
 
 	// Updates sound poses
@@ -266,10 +267,14 @@ RenderWorld& World::render_world()
 //-----------------------------------------------------------------------------
 CameraId World::create_camera(int32_t node, const Vector3& pos, const Quaternion& rot)
 {
-	Camera camera;
-	camera.create(node, pos, rot);
+	// Allocate memory for camera
+	Camera* camera = CE_NEW(m_camera_pool, Camera)();
 
-	return m_camera.create(camera);
+	// Create Id for the camera
+	const CameraId camera_id = m_camera.create(camera);
+	camera->create(node, pos, rot);
+
+	return camera_id;
 }
 
 //-----------------------------------------------------------------------------

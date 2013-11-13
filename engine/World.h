@@ -133,9 +133,10 @@ public:
 private:
 
 	PoolAllocator						m_unit_pool;
+	PoolAllocator						m_camera_pool;
 
 	IdArray<MAX_UNITS, Unit*>			m_units;
-	IdArray<MAX_CAMERAS, Camera>		m_camera;
+	IdArray<MAX_CAMERAS, Camera*>		m_camera;
 	IdArray<MAX_SOUNDS, SoundInstance> 	m_sounds;
 
 	// Connections
