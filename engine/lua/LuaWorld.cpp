@@ -76,8 +76,7 @@ CE_EXPORT int world_play_sound(lua_State* L)
 
 	SoundInstanceId id = world->play_sound(name, loop, volume, pos, range);
 
-	stack.push_int32(id.encode());
-
+	stack.push_sound_instance_id(id);
 	return 1;
 }
 
@@ -87,12 +86,9 @@ CE_EXPORT int world_pause_sound(lua_State* L)
 	LuaStack stack(L);
 
 	World* world = stack.get_world(1);
-
-	SoundInstanceId id;
-	id.decode(stack.get_int(2));
+	const SoundInstanceId id = stack.get_sound_instance_id(2);
 
 	world->pause_sound(id);
-
 	return 0;
 }
 
@@ -102,15 +98,11 @@ CE_EXPORT int world_link_sound(lua_State* L)
 	LuaStack stack(L);
 
 	World* world = stack.get_world(1);
-
-	SoundInstanceId sound;
-	sound.decode(stack.get_int(2));
-
+	const SoundInstanceId id = stack.get_sound_instance_id(2);
 	Unit* unit = stack.get_unit(3);
-	int32_t node = stack.get_int(4);
+	const int32_t node = stack.get_int(4);
 
-	world->link_sound(sound, unit, node);
-
+	world->link_sound(id, unit, node);
 	return 0;
 }
 
@@ -127,7 +119,6 @@ CE_EXPORT int world_set_listener(lua_State* L)
 	const Vector3& or_at = stack.get_vector3(5);
 
 	world->set_listener(pos, vel, or_up, or_at);
-
 	return 0;
 }
 
@@ -137,14 +128,10 @@ CE_EXPORT int world_set_sound_position(lua_State* L)
 	LuaStack stack(L);
 
 	World* world = stack.get_world(1);
-
-	SoundInstanceId id;
-	id.decode(stack.get_int(2));
-
+	const SoundInstanceId id = stack.get_sound_instance_id(2);
 	const Vector3& pos = stack.get_vector3(3);
 
 	world->set_sound_position(id, pos);
-
 	return 0;
 }
 
@@ -154,14 +141,10 @@ CE_EXPORT int world_set_sound_range(lua_State* L)
 	LuaStack stack(L);
 
 	World* world = stack.get_world(1);
-
-	SoundInstanceId id;
-	id.decode(stack.get_int(2));
-
+	const SoundInstanceId id = stack.get_sound_instance_id(2);
 	float range = stack.get_float(3);
 
 	world->set_sound_range(id, range);
-
 	return 0;
 }
 
@@ -171,13 +154,10 @@ CE_EXPORT int world_set_sound_volume(lua_State* L)
 	LuaStack stack(L);
 
 	World* world = stack.get_world(1);
-
-	SoundInstanceId id;
-	id.decode(stack.get_int(2));
+	const SoundInstanceId id = stack.get_sound_instance_id(2);
 	float vol = stack.get_float(3);
 
 	world->set_sound_volume(id, vol);
-
 	return 0;
 }
 

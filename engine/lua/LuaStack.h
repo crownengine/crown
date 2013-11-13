@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "lua.hpp"
 #include "Types.h"
+#include "IdTable.h"
 
 namespace crown
 {
@@ -41,6 +42,7 @@ class Camera;
 class World;
 class Mesh;
 class Sprite;
+typedef Id SoundInstanceId;
 
 void clear_lua_temporaries();
 
@@ -256,7 +258,8 @@ public:
 	{
 		uint32_t enc = (uint32_t) lua_touserdata(m_state, index);
 		SoundInstanceId id;
-		return id.decode(enc);
+		id.decode(enc);
+		return id;
 	}
 
 	bool is_vector2(int32_t index);
