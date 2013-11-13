@@ -401,8 +401,6 @@ public partial class MainWindow: Gtk.Window
 				// Wrote the data to the List
 				string received = Encoding.ASCII.GetString( m_byBuff, 0, nBytesRec );
 
-				Console.Write(received);
-
 				JObject obj = JObject.Parse(received);
 				if (obj["type"].ToString() == "message")
 				{
