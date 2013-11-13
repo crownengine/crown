@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "IdTable.h"
+#include "Types.h"
 
 namespace crown
 {

@@ -26,11 +26,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Types.h"
 #include "Vector3.h"
 #include "Quaternion.h"
 #include "Matrix4x4.h"
 #include "Hash.h"
-#include "IdTable.h"
 #include "SceneGraph.h"
 #include "StringUtils.h"
 

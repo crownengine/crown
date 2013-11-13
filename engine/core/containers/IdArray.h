@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Allocator.h"
 #include "Types.h"
-#include "IdTable.h"
 #include "List.h"
 
 namespace crown

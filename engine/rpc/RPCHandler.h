@@ -26,10 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Types.h"
 #include "Hash.h"
 #include "JSONParser.h"
 #include "StringUtils.h"
-#include "IdTable.h"
 
 namespace crown
 {

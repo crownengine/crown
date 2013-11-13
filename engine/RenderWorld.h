@@ -26,7 +26,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "IdTable.h"
 #include "IdArray.h"
 #include "Mesh.h"
 #include "Sprite.h"

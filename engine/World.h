@@ -26,14 +26,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Types.h"
 #include "HeapAllocator.h"
-#include "IdTable.h"
 #include "IdArray.h"
 #include "LinearAllocator.h"
 #include "Unit.h"
 #include "Camera.h"
 #include "Vector.h"
-#include "LinearAllocator.h"
 #include "RenderWorld.h"
 #include "SoundRenderer.h"
 #include "PoolAllocator.h"

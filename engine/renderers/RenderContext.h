@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Color4.h"
 #include "Matrix4x4.h"
-#include "IdTable.h"
 #include "CommandBuffer.h"
 #include "ConstantBuffer.h"
 #include "RendererTypes.h"

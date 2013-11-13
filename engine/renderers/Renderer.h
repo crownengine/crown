@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "RenderContext.h"
 #include "OsThread.h"
 #include "OS.h"
+#include "IdTable.h"
 
 namespace crown
 {

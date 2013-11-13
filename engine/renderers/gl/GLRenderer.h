@@ -36,8 +36,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#error "Oops, wrong platform"
 #endif
 
+#include "Types.h"
 #include "Renderer.h"
-#include "IdTable.h"
 #include "Resource.h"
 #include "GLContext.h"
 #include "HeapAllocator.h"

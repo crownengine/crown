@@ -25,7 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Unit.h"
-#include "IdTable.h"
 #include "World.h"
 #include "Allocator.h"
 #include "Log.h"
