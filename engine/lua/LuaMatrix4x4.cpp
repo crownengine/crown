@@ -371,6 +371,16 @@ CE_EXPORT int matrix4x4_set_scale(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int matrix4x4_identity(lua_State* L)
+{
+	LuaStack stack(L);
+
+	stack.push_matrix4x4(Matrix4x4::IDENTITY);
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int matrix4x4_print(lua_State* L)
 {
 	LuaStack stack(L);
@@ -413,6 +423,7 @@ void load_matrix4x4(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4", "set_translation", 				matrix4x4_set_translation);
 	env.load_module_function("Matrix4x4", "get_scale", 						matrix4x4_get_scale);
 	env.load_module_function("Matrix4x4", "set_scale", 						matrix4x4_set_scale);
+	env.load_module_function("Matrix4x4", "identity", 						matrix4x4_identity);	
 	env.load_module_function("Matrix4x4", "print", 							matrix4x4_print);
 }
 
