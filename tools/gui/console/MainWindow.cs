@@ -330,43 +330,41 @@ public partial class MainWindow: Gtk.Window
 	
 	public void Connect()
 	{
-		// Close the socket if it is still open
-		if( m_sock != null && m_sock.Connected )
-		{
-			m_sock.Shutdown( SocketShutdown.Both );
-			System.Threading.Thread.Sleep( 10 );
-			m_sock.Close();
-		}
-
-		// Create the socket object
-		m_sock = new System.Net.Sockets.Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);    
-
-		// Define the Server address and port
-		IPEndPoint epServer = new IPEndPoint(IPAddress.Parse(m_server_ip), m_server_port);
-
-		// Connect to server non-Blocking method
-		m_sock.Blocking = false;
-		AsyncCallback onconnect = new AsyncCallback( OnConnect );
-		m_sock.BeginConnect( epServer, onconnect, m_sock );
-	}
-	
-	public void OnConnect( IAsyncResult ar )
-	{
-		// Socket was the passed in object
-		System.Net.Sockets.Socket sock = (System.Net.Sockets.Socket)ar.AsyncState;
-
-		// Check if we were sucessfull
 		try
 		{
-			if(sock.Connected)
+			// Do nothing if connected
+			if( m_sock != null && m_sock.Connected )
 			{
-				SetupReceiveCallback(sock);
-				WriteLog("Connected to " + m_server_ip + ":" + m_server_port + "\n", tagInfo);
+				return;
 			}
-			else
-			{
-				WriteLog("Unable to connect to " + m_server_ip + ":" + m_server_port + "\n", tagInfo);
-			}
+
+			// Try to connect
+			m_sock = new System.Net.Sockets.Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+			// Define the Server address and port
+			IPEndPoint epServer = new IPEndPoint(IPAddress.Parse(m_server_ip), m_server_port);
+
+			// Connect to server non-Blocking method
+			m_sock.Blocking = false;
+			m_sock.BeginConnect(epServer, new AsyncCallback(OnConnected), m_sock);
+		}
+		catch(Exception e)
+		{
+			WriteLog("Unable to connect to " + m_server_ip + ":" + m_server_port + "\n", tagInfo);
+		}
+	}
+	
+	public void OnConnected(IAsyncResult ar)
+	{
+		try
+		{
+			System.Net.Sockets.Socket sock = (System.Net.Sockets.Socket)ar.AsyncState;
+
+			sock.EndConnect(ar);
+			WriteLog("Connected to " + sock.RemoteEndPoint.ToString() + "\n", tagInfo);
+
+			// Start receiving stuff
+			Receive(sock);
 		}
 		catch( Exception ex )
 		{
@@ -374,29 +372,27 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 	
-	public void SetupReceiveCallback(System.Net.Sockets.Socket sock)
+	public void Receive(System.Net.Sockets.Socket sock)
 	{
 		try
 		{
-			AsyncCallback recieveData = new AsyncCallback( OnReceivedData );
-			sock.BeginReceive( m_byBuff, 0, m_byBuff.Length, SocketFlags.None, recieveData, sock );
+			sock.BeginReceive(m_byBuff, 0, m_byBuff.Length, SocketFlags.None,
+			                  new AsyncCallback(OnReceived), sock);
 		}
 		catch( Exception ex )
 		{
-			Console.Write("Setup Recieve Callback failed!");
+			Console.Write("Receive failed!");
 		}
 	}
 	
-	public void OnReceivedData( IAsyncResult ar )
+	public void OnReceived(IAsyncResult ar)
 	{
-		// Socket was the passed in object
-		System.Net.Sockets.Socket sock = (System.Net.Sockets.Socket)ar.AsyncState;
-
-		// Check if we got any data
 		try
 		{
-			int nBytesRec = sock.EndReceive( ar );
-			if( nBytesRec > 0 )
+			System.Net.Sockets.Socket sock = (System.Net.Sockets.Socket)ar.AsyncState;
+
+			int nBytesRec = sock.EndReceive(ar);
+			if(nBytesRec > 0)
 			{
 				// Wrote the data to the List
 				string received = Encoding.ASCII.GetString( m_byBuff, 0, nBytesRec );
@@ -430,7 +426,7 @@ public partial class MainWindow: Gtk.Window
 				}
 
 				// If the connection is still usable restablish the callback
-				SetupReceiveCallback( sock );
+				Receive(sock);
 			}
 			else
 			{
@@ -464,14 +460,39 @@ public partial class MainWindow: Gtk.Window
 		a.RetVal = true;
 	}
 
+	private static void OnSent(IAsyncResult ar)
+	{
+		try
+		{
+			// Retrieve the socket from the state object.
+			System.Net.Sockets.Socket sock = (System.Net.Sockets.Socket) ar.AsyncState;
+
+			// Complete sending the data to the remote device.
+			sock.EndSend(ar);
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine(e.ToString());
+		}
+	}
+
+	protected void Send(string data)
+	{
+		try {
+			byte[] bytes = Encoding.ASCII.GetBytes (data);
+	
+			m_sock.BeginSend (bytes, 0, bytes.Length, 0,
+			                 new AsyncCallback (OnSent), m_sock);
+		} catch (Exception e) {
+			Console.WriteLine (e.ToString ());
+		}
+	}
+
 	protected void SendScript(String script)
 	{
 		string json = "{\"type\":\"script\",\"script\":\"" + script + "\"}";
 
-		if (m_sock.Connected)
-		{
-			m_sock.Send (Encoding.ASCII.GetBytes (json));
-		}
+		Send(json);
 	}
 
 	protected void SendCommand(String command)
@@ -487,10 +508,7 @@ public partial class MainWindow: Gtk.Window
 					+ "\"resource_type\":" + "\"" + resource_type + "\","
 					+ "\"resource_name\":" + "\"" + resource_name + "\"}";
 
-		if (m_sock.Connected)
-		{
-			m_sock.Send (Encoding.ASCII.GetBytes (json));
-		}
+		Send (json);
 	}
 
 	protected void OnConnectActivated (object sender, EventArgs e)
@@ -506,21 +524,25 @@ public partial class MainWindow: Gtk.Window
 		// Do processing only if we have text
 		if (text.Length > 0)
 		{
+			// Add command to history
 			history [history_size % MAX_HISTORY_ITEMS] = text;
 			history_size++;
 			history_current = history_size;
 
-			// Log entered text
-			WriteLog ("> " + text + "\n", tagInfo);
+			// Try to connect before sending any stuff
+			Connect();
 
-			// Sanitize text entry
-			text = text.Replace("\"", "\\\"");
+			// Sanitize entered text
+			string safe_text = text.Replace("\"", "\\\""); 
 
 			if (combobox1.Active == 0) {
-				SendScript (text);
+				SendScript (safe_text);
 			} else {
-				SendCommand (text);
+				SendCommand (safe_text);
 			}
+
+			// Log entered text
+			WriteLog ("> " + text + "\n", tagInfo);
 		}
 
 		entry1.Text = "";

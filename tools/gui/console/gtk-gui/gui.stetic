@@ -90,7 +90,6 @@ Command</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
                 <signal name="Activated" handler="OnEntryActivated" />
-                <signal name="KeyPressEvent" handler="OnEntryKeyPressed" />
               </widget>
               <packing>
                 <property name="Position">1</property>
