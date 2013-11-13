@@ -39,6 +39,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#define CE_INLINE inline
 #endif
 
+typedef uint32_t StringId32;
+typedef uint64_t StringId64;
+
 #define INVALID_ID 65535
 
 struct Id
