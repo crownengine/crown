@@ -173,6 +173,12 @@ public:
 	}
 
 	/// See Stack::push_table()
+	void push_key_begin(int32_t i)
+	{
+		lua_pushnumber(m_state, i);
+	}
+
+	/// See Stack::push_table()
 	void push_key_end()
 	{
 		lua_settable(m_state, -3);
