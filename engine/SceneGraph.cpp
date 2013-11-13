@@ -96,7 +96,7 @@ void SceneGraph::set_local_rotation(int32_t node, const Quaternion& rot)
 	Matrix4x4& local_pose = m_local_poses[node];
 
 	Vector3 local_translation = local_pose.translation();
-	local_pose = rot.to_mat4();
+	local_pose = rot.to_matrix4x4();
 	local_pose.set_translation(local_translation);
 }
 
@@ -117,11 +117,11 @@ Vector3 SceneGraph::local_position(int32_t node) const
 }
 
 //-----------------------------------------------------------------------------
-Quaternion SceneGraph::local_rotation(int32_t /*node*/) const
+Quaternion SceneGraph::local_rotation(int32_t node) const
 {
-	//CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
+	CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
 
-	return Quaternion(Vector3(1, 0, 0), 0.0f);
+	return m_local_poses[node].to_quaternion();
 }
 
 //-----------------------------------------------------------------------------
@@ -141,11 +141,11 @@ Vector3 SceneGraph::world_position(int32_t node) const
 }
 
 //-----------------------------------------------------------------------------
-Quaternion SceneGraph::world_rotation(int32_t /*node*/) const
+Quaternion SceneGraph::world_rotation(int32_t node) const
 {
-	// CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
+	CE_ASSERT(node < (int32_t) m_parents.size(), "Node does not exist");
 
-	return Quaternion(Vector3(1, 0, 0), 0.0f);
+	return m_world_poses[node].to_quaternion();
 }
 
 //-----------------------------------------------------------------------------

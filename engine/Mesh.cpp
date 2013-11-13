@@ -54,7 +54,7 @@ Vector3 Mesh::local_position() const
 //-----------------------------------------------------------------------------
 Quaternion Mesh::local_rotation() const
 {
-	return Quaternion(Vector3(1, 0, 0), 0.0f);
+	return m_local_pose.to_quaternion();
 }
 
 //-----------------------------------------------------------------------------
@@ -72,7 +72,7 @@ Vector3 Mesh::world_position() const
 //-----------------------------------------------------------------------------
 Quaternion Mesh::world_rotation() const
 {
-	return Quaternion(Vector3(1, 0, 0), 0.0f);
+	return m_world_pose.to_quaternion();
 }
 
 //-----------------------------------------------------------------------------
@@ -93,7 +93,7 @@ void Mesh::set_local_rotation(const Quaternion& rot)
 	Matrix4x4& local_pose = m_local_pose;
 
 	Vector3 local_translation = local_pose.translation();
-	local_pose = rot.to_mat4();
+	local_pose = rot.to_matrix4x4();
 	local_pose.set_translation(local_translation);
 }
 

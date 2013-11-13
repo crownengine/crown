@@ -58,17 +58,13 @@ void Sprite::destroy()
 //-----------------------------------------------------------------------------
 Vector3 Sprite::local_position() const
 {
-	Vector3 tmp = m_local_pose.translation();
-
-	return tmp;
+	return m_local_pose.translation();
 }
 
 //-----------------------------------------------------------------------------
 Quaternion Sprite::local_rotation() const
 {
-	Quaternion tmp = m_local_pose.to_quat();
-
-	return tmp;
+	return m_local_pose.to_quaternion();
 }
 
 //-----------------------------------------------------------------------------
@@ -80,17 +76,13 @@ Matrix4x4 Sprite::local_pose() const
 //-----------------------------------------------------------------------------
 Vector3 Sprite::world_position() const
 {
-	Vector3 tmp = m_world_pose.translation();
-
-	return tmp;
+	return m_world_pose.translation();
 }
 
 //-----------------------------------------------------------------------------
 Quaternion Sprite::world_rotation() const
 {
-	Quaternion tmp = m_world_pose.to_quat();
-
-	return tmp;
+	return m_world_pose.to_quaternion();
 }
 
 //-----------------------------------------------------------------------------
@@ -113,7 +105,7 @@ void Sprite::set_local_rotation(Unit* unit, const Quaternion& rot)
 	Matrix4x4& local_pose = m_local_pose;
 
 	Vector3 local_translation = local_pose.translation();
-	local_pose = rot.to_mat4();
+	local_pose = rot.to_matrix4x4();
 	local_pose.set_translation(local_translation);
 
 	unit->set_local_rotation(rot, m_node);
