@@ -40,7 +40,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Matrix4x4.h"
 #include "MathUtils.h"
 #include "Plane.h"
-#include "Point2.h"
 #include "Quaternion.h"
 #include "Random.h"
 #include "Ray.h"
