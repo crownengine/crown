@@ -581,32 +581,6 @@ void Matrix4x4::build_projection_perspective_rh(float fovy, float aspect, float 
 }
 
 //-----------------------------------------------------------------------------
-void Matrix4x4::build_projection_perspective_lh(float fovy, float aspect, float near, float far)
-{
-	double top, right;
-
-	top = math::tan((float)((double)fovy / 360.0 * math::PI)) * (double)near;
-	right = top * aspect;
-
-	m[0] = (float)(near / right);
-	m[1] = 0.0;
-	m[2] = 0.0;
-	m[3] = 0.0;
-	m[4] = 0.0;
-	m[5] = (float)(near / top);
-	m[6] = 0.0;
-	m[7] = 0.0;
-	m[8] = 0.0;
-	m[9] = 0.0;
-	m[10] = (float)(far / (far - near));
-	m[11] = 1.0;
-	m[12] = 0.0;
-	m[13] = 0.0;
-	m[14] = (float)((far * near) / (near - far));
-	m[15] = 0.0;
-}
-
-//-----------------------------------------------------------------------------
 void Matrix4x4::build_projection_ortho_rh(float left, float right, float bottom, float top, float near, float far)
 {
 	m[0] = 2.0 / (right - left);
@@ -625,27 +599,6 @@ void Matrix4x4::build_projection_ortho_rh(float left, float right, float bottom,
 	m[13] = -((top + bottom) / (top - bottom));
 	m[14] = -((far + near) / (far - near));
 	m[15] = 1.0;
-}
-
-//-----------------------------------------------------------------------------
-void Matrix4x4::build_projection_ortho_lh(float width, float height, float near, float far)
-{
-	m[0] = (float)2.0 / width;
-	m[1] = 0.0;
-	m[2] = 0.0;
-	m[3] = 0.0;
-	m[4] = 0.0;
-	m[5] = (float)2.0 / height;
-	m[6] = 0.0;
-	m[7] = 0.0;
-	m[8] = 0.0;
-	m[9] = 0.0;
-	m[10] = (float)2 / (far - near);
-	m[11] = 0.0;
-	m[12] = 0.0;
-	m[13] = 0.0;
-	m[14] = near / (near - far);
-	m[15] = (float)1.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -709,33 +662,6 @@ Matrix4x4 Matrix4x4::get_transposed() const
 void Matrix4x4::build_look_at_rh(const Vector3& pos, const Vector3& target, const Vector3& up)
 {
 	Vector3 zAxis =  pos - target;
-	zAxis.normalize();
-
-	Vector3 xAxis = up.cross(zAxis);
-	Vector3 yAxis = zAxis.cross(xAxis);
-
-	m[0] = xAxis.x;
-	m[1] = yAxis.x;
-	m[2] = zAxis.x;
-	m[3] = 0.0;
-	m[4] = xAxis.y;
-	m[5] = yAxis.y;
-	m[6] = zAxis.y;
-	m[7] = 0.0;
-	m[8] = xAxis.z;
-	m[9] = yAxis.z;
-	m[10] = zAxis.z;
-	m[11] = 0.0;
-	m[12] = -pos.dot(xAxis);
-	m[13] = -pos.dot(yAxis);
-	m[14] = -pos.dot(zAxis);
-	m[15] = 1.0;
-}
-
-//-----------------------------------------------------------------------------
-void Matrix4x4::build_look_at_lh(const Vector3& pos, const Vector3& target, const Vector3& up)
-{
-	Vector3 zAxis =  target - pos;
 	zAxis.normalize();
 
 	Vector3 xAxis = up.cross(zAxis);

@@ -123,20 +123,11 @@ public:
 	/// Builds a perspetive projection matrix suited to Right-Handed coordinate systems
 	void				build_projection_perspective_rh(float fovy, float aspect, float near, float far);
 
-	/// Builds a perspective projection matrix suited to Left-Handed coordinate systems	
-	void				build_projection_perspective_lh(float fovy, float aspect, float near, float far);
-
 	/// Builds an orthographic projection matrix suited to Right-Handed coordinate systems	
 	void				build_projection_ortho_rh(float left, float right, float bottom, float top, float near, float far);
 
-	/// Builds an orthographic projection matrix suited to Left-Handed coordinate systems		
-	void				build_projection_ortho_lh(float width, float height, float near, float far);	
-
 	/// Builds a "Righ-Handed look-at" matrix from a position, a target, and an up vector
 	void				build_look_at_rh(const Vector3& pos, const Vector3& target, const Vector3& up);
-
-	/// Builds a "Left-Handed look-at" matrix from a position, a target, and an up vector	
-	void				build_look_at_lh(const Vector3& pos, const Vector3& target, const Vector3& up);
 
 	/// Builds a "Viewpoint-Oriented billboard" matrix which can be used to make an object face a specific point in space	
 	void				build_viewpoint_billboard(const Vector3& pos, const Vector3& target, const Vector3& up);	
