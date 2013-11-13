@@ -132,9 +132,6 @@ public:
 	/// Builds an orthographic projection matrix suited to Left-Handed coordinate systems		
 	void				build_projection_ortho_lh(float width, float height, float near, float far);	
 
-	/// Builds a 2d orthographic projection matrix suited to Right-Handed coordinate systems	
-	void				build_projection_ortho_2d_rh(float width, float height, float near, float far);	
-
 	/// Builds a "Righ-Handed look-at" matrix from a position, a target, and an up vector
 	void				build_look_at_rh(const Vector3& pos, const Vector3& target, const Vector3& up);
 

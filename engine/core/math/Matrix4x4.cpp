@@ -649,27 +649,6 @@ void Matrix4x4::build_projection_ortho_lh(float width, float height, float near,
 }
 
 //-----------------------------------------------------------------------------
-void Matrix4x4::build_projection_ortho_2d_rh(float width, float height, float near, float far)
-{
-	m[0] = (float)2.0 / width;
-	m[1] = 0.0;
-	m[2] = 0.0;
-	m[3] = 0.0;
-	m[4] = 0.0;
-	m[5] = (float)-2.0 / height;
-	m[6] = 0.0;
-	m[7] = 0.0;
-	m[8] = 0.0;
-	m[9] = 0.0;
-	m[10] = (float)2.0 / (near - far);
-	m[11] = 0.0;
-	m[12] = (float)-1.0 + (m[0] * (float)0.375);		// Add 0.375 to acheive
-	m[13] =  (float)1.0 + (m[5] * (float)0.375);		// pixel-perfect 2d drawing
-	m[14] = near / (near - far);
-	m[15] = (float)1.0;
-}
-
-//-----------------------------------------------------------------------------
 Matrix4x4& Matrix4x4::transpose()
 {
 	float tmp;
