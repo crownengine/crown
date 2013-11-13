@@ -871,9 +871,6 @@ public:
 	bool m_started;
 	bool m_exit;
 
-	int32_t m_argc;
-	char**	m_argv;
-
 	uint32_t m_parent_window_handle;
 	int32_t m_fullscreen;
 	int32_t m_compile;

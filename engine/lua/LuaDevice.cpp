@@ -34,6 +34,26 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int device_argv(lua_State* L)
+{
+	LuaStack stack(L);
+
+	const int32_t argc = device()->argc();
+	const char** argv = device()->argv();
+
+	stack.push_table();
+	for (int32_t i = 0; i < argc; i++)
+	{
+		// Be friendly to Lua's one-indexed arrays
+		stack.push_key_begin(i + 1);
+			stack.push_string(argv[i]);
+		stack.push_key_end();
+	}
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int device_frame_count(lua_State* L)
 {
 	LuaStack stack(L);
@@ -131,6 +151,7 @@ CE_EXPORT int device_destroy_resource_package(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_device(LuaEnvironment& env)
 {
+	env.load_module_function("Device", "argv",                     device_argv);
 	env.load_module_function("Device", "frame_count",              device_frame_count);
 	env.load_module_function("Device", "last_delta_time",          device_last_delta_time);
 	env.load_module_function("Device", "start",                    device_start);

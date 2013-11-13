@@ -68,6 +68,15 @@ public:
 	/// Shutdowns the engine freeing all the allocated resources
 	void					shutdown();
 
+	/// Returns the number of command line arguments passed to
+	/// the engine executable.
+	int32_t					argc() const { return m_argc; }
+
+	/// Returns the string value of the command line arguments passed
+	/// to the engine executable.
+	/// The size of the returned array is given by Device::argc().
+	const char**			argv() const { return (const char**) m_argv; }
+
 	/// Returns wheter the engine is running (i.e. it is actually
 	/// doing work).
 	bool					is_running() const;
@@ -144,6 +153,9 @@ protected:
 
 	// Used to allocate all subsystems
 	LinearAllocator			m_allocator;
+
+	int32_t					m_argc;
+	char**					m_argv;
 
 	// Preferred settings
 	char					m_source_dir[MAX_PATH_LENGTH];

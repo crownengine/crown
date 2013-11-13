@@ -71,6 +71,10 @@ namespace crown
 //-----------------------------------------------------------------------------
 Device::Device()
 	: m_allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
+	
+	, m_argc(0)
+	, m_argv(NULL)
+
 	, m_is_init(false)
 	, m_is_running(false)
 	, m_is_paused(false)
