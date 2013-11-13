@@ -244,6 +244,21 @@ public:
 		return (Sprite*) lua_touserdata(m_state, index);
 	}
 
+	//-------------------------------------------------------------------------
+	void push_sound_instance_id(const SoundInstanceId id)
+	{
+		uint32_t enc = id.encode();
+		lua_pushlightuserdata(m_state, (void*)enc);
+	}
+
+	//-------------------------------------------------------------------------
+	SoundInstanceId get_sound_instance_id(int32_t index)
+	{
+		uint32_t enc = (uint32_t) lua_touserdata(m_state, index);
+		SoundInstanceId id;
+		return id.decode(enc);
+	}
+
 	bool is_vector2(int32_t index);
 	bool is_vector3(int32_t index);
 	bool is_matrix4x4(int32_t index);
