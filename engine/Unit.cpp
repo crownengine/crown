@@ -161,7 +161,7 @@ void Unit::unlink_node(int32_t child)
 }
 
 //-----------------------------------------------------------------------------
-void Unit::add_component(uint32_t name, Id component, uint32_t& size, Component* array)
+void Unit::add_component(StringId32 name, Id component, uint32_t& size, Component* array)
 {
 	Component comp;
 	comp.name = name;
@@ -205,7 +205,7 @@ Id Unit::find_component(uint32_t index, uint32_t size, Component* array)
 }
 
 //-----------------------------------------------------------------------------
-void Unit::add_camera(uint32_t name, CameraId camera)
+void Unit::add_camera(StringId32 name, CameraId camera)
 {
 	CE_ASSERT(m_num_cameras < MAX_CAMERA_COMPONENTS, "Max camera number reached");
 
@@ -213,7 +213,7 @@ void Unit::add_camera(uint32_t name, CameraId camera)
 }
 
 //-----------------------------------------------------------------------------
-void Unit::add_mesh(uint32_t name, MeshId mesh)
+void Unit::add_mesh(StringId32 name, MeshId mesh)
 {
 	CE_ASSERT(m_num_meshes < MAX_MESH_COMPONENTS, "Max mesh number reached");
 
@@ -221,7 +221,7 @@ void Unit::add_mesh(uint32_t name, MeshId mesh)
 }
 
 //-----------------------------------------------------------------------------
-void Unit::add_sprite(uint32_t name, SpriteId sprite)
+void Unit::add_sprite(StringId32 name, SpriteId sprite)
 {
 	CE_ASSERT(m_num_sprites < MAX_SPRITE_COMPONENTS, "Max sprite number reached");
 

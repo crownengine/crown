@@ -95,13 +95,13 @@ struct Unit
 	void			link_node(int32_t child, int32_t parent);
 	void			unlink_node(int32_t child);
 
-	void			add_component(uint32_t name, Id component, uint32_t& size, Component* array);
+	void			add_component(StringId32 name, Id component, uint32_t& size, Component* array);
 	Id				find_component(const char* name, uint32_t size, Component* array);
 	Id				find_component(uint32_t index, uint32_t size, Component* array);
 
-	void			add_camera(uint32_t name, CameraId camera);
-	void			add_mesh(uint32_t name, MeshId mesh);
-	void			add_sprite(uint32_t name, SpriteId sprite);
+	void			add_camera(StringId32 name, CameraId camera);
+	void			add_mesh(StringId32 name, MeshId mesh);
+	void			add_sprite(StringId32 name, SpriteId sprite);
 
 	Camera*			camera(const char* name);
 	Camera*			camera(uint32_t i);
