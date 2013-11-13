@@ -96,11 +96,11 @@ Quaternion Quaternion::get_inverse() const
 }
 
 //-----------------------------------------------------------------------------
-Matrix3x3 Quaternion::to_mat3() const
+Matrix3x3 Quaternion::to_matrix3x3() const
 {
-	const float& x = v.x;
-	const float& y = v.y;
-	const float& z = v.z;
+	const float x = v.x;
+	const float y = v.y;
+	const float z = v.z;
 
 	Matrix3x3 tmp;
 
@@ -118,11 +118,11 @@ Matrix3x3 Quaternion::to_mat3() const
 }
 
 //-----------------------------------------------------------------------------
-Matrix4x4 Quaternion::to_mat4() const
+Matrix4x4 Quaternion::to_matrix4x4() const
 {
-	const float& x = v.x;
-	const float& y = v.y;
-	const float& z = v.z;
+	const float x = v.x;
+	const float y = v.y;
+	const float z = v.z;
 
 	Matrix4x4 tmp;
 

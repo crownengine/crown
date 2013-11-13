@@ -558,7 +558,7 @@ const float* Matrix3x3::to_float_ptr() const
 }
 
 //-----------------------------------------------------------------------------
-Matrix4x4 Matrix3x3::to_mat4() const
+Matrix4x4 Matrix3x3::to_matrix4x4() const
 {
 	Matrix4x4 tmp;
 
@@ -583,7 +583,7 @@ Matrix4x4 Matrix3x3::to_mat4() const
 }
 
 //-----------------------------------------------------------------------------
-Quaternion Matrix3x3::to_quat() const
+Quaternion Matrix3x3::to_quaternion() const
 {
 	Quaternion tmp;
 

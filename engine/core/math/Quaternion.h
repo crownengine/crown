@@ -77,21 +77,21 @@ public:
 	void				conjugate();
 
 	/// Returns the quaternion's conjugate.
-	Quaternion				get_conjugate() const;
+	Quaternion			get_conjugate() const;
 
 	/// Quaternion's inverse				
-	Quaternion				get_inverse() const;
+	Quaternion			get_inverse() const;
 
-	Matrix3x3				to_mat3() const;
-	Matrix4x4				to_mat4() const;
+	Matrix3x3			to_matrix3x3() const;
+	Matrix4x4			to_matrix4x4() const;
 
 	/// Cross product
-	Quaternion				operator*(const Quaternion& b) const;
+	Quaternion			operator*(const Quaternion& b) const;
 
 	/// Multiplication by a scalar		
-	Quaternion				operator*(const float& k) const;
+	Quaternion			operator*(const float& k) const;
 
-	Quaternion				power(float exp);
+	Quaternion			power(float exp);
 
 public:
 

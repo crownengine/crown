@@ -177,14 +177,14 @@ public:
 	/// Returns the pointer to the matrix's data
 	float*				to_float_ptr();
 
-	/// Returns the pointer to the matrix's data								
+	/// Returns the pointer to the matrix's data
 	const float*		to_float_ptr() const;
 
-	/// Returns a 3x3 matrix according to the matrix's rotation portion						
-	Matrix3x3			to_mat3() const;
+	/// Returns a 3x3 matrix according to the matrix's rotation portion
+	Matrix3x3			to_matrix3x3() const;
 
-	/// Returns a quaternion according to the matrix's rotation portion							
-	Quaternion			to_quat() const;							
+	/// Returns a quaternion according to the matrix's rotation portion
+	Quaternion			to_quaternion() const;
 
 	static const Matrix4x4	IDENTITY;
 };

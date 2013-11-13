@@ -151,10 +151,10 @@ public:
 	const float*		to_float_ptr() const;
 
 	/// Returns a 4x4 matrix according to the matrix's rotation portion						
-	Matrix4x4			to_mat4() const;
+	Matrix4x4			to_matrix4x4() const;
 
 	/// Returns a quaternion according to the matrix's rotation portion							
-	Quaternion			to_quat() const;							
+	Quaternion			to_quaternion() const;							
 
 	static const Matrix3x3	IDENTITY;
 };
