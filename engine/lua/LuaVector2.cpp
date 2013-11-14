@@ -45,6 +45,52 @@ CE_EXPORT int vector2(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int vector2_x(lua_State* L)
+{
+	LuaStack stack(L);
+
+	const Vector2& a = stack.get_vector2(1);
+
+	stack.push_float(a.x);
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int vector2_y(lua_State* L)
+{
+	LuaStack stack(L);
+
+	const Vector2& a = stack.get_vector2(1);
+
+	stack.push_float(a.y);
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int vector2_set_x(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Vector2& a = stack.get_vector2(1);
+	const float val = stack.get_float(2);
+	
+	a.x = val;
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int vector2_set_y(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Vector2& a = stack.get_vector2(1);
+	const float val = stack.get_float(2);
+	
+	a.y = val;
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int vector2_values(lua_State* L)
 {
 	LuaStack stack(L);
@@ -264,6 +310,10 @@ CE_EXPORT int vector2_zero(lua_State* L)
 void load_vector2(LuaEnvironment& env)
 {
 	env.load_module_function("Vector2", "new",					vector2);
+	env.load_module_function("Vector2", "x", 					vector2_x);
+	env.load_module_function("Vector2", "y", 					vector2_y);
+	env.load_module_function("Vector2", "set_x", 				vector2_set_x);
+	env.load_module_function("Vector2", "set_y", 				vector2_set_y);
 	env.load_module_function("Vector2", "values",				vector2_values);
 	env.load_module_function("Vector2", "add",					vector2_add);
 	env.load_module_function("Vector2", "subtract",				vector2_subtract);
