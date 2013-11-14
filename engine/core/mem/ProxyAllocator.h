@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Memory.h"
 #include "Allocator.h"
+#include "ScopedMutex.h"
 
 namespace crown
 {

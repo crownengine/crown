@@ -33,6 +33,7 @@ namespace crown
 {
 
 static ProxyAllocator* g_proxy_allocators_head = NULL;
+static Mutex g_proxy_allocators_mutex;
 
 //-----------------------------------------------------------------------------
 ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator) :
@@ -41,6 +42,8 @@ ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator) :
 	m_total_allocated(0),
 	m_next(NULL)
 {
+	ScopedMutex sm(g_proxy_allocators_mutex);
+
 	CE_ASSERT(name != NULL, "Name must be != NULL");
 
 	if(g_proxy_allocators_head != NULL)
@@ -80,6 +83,8 @@ const char* ProxyAllocator::name() const
 //-----------------------------------------------------------------------------
 uint32_t ProxyAllocator::count()
 {
+	ScopedMutex sm(g_proxy_allocators_mutex);
+
 	const ProxyAllocator* head = g_proxy_allocators_head;
 	uint32_t count = 0;
 
@@ -95,6 +100,8 @@ uint32_t ProxyAllocator::count()
 //-----------------------------------------------------------------------------
 ProxyAllocator* ProxyAllocator::find(const char* name)
 {
+	ScopedMutex sm(g_proxy_allocators_mutex);
+
 	ProxyAllocator* head = g_proxy_allocators_head;
 
 	while (head != NULL)
