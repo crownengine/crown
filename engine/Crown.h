@@ -116,6 +116,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Engine/Os
 #include "OsThread.h"
 #include "Mutex.h"
+#include "ScopedMutex.h"
 #include "Cond.h"
 #include "OsFile.h"
 #include "OsWindow.h"

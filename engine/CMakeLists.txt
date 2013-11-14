@@ -323,6 +323,7 @@ set (OS_HEADERS
 	os/OsEventQueue.h
 	os/NetAddress.h
 	os/OsTypes.h
+	os/ScopedMutex.h
 )
 
 set (LUA_SRC
