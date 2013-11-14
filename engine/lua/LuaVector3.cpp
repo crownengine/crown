@@ -46,6 +46,75 @@ CE_EXPORT int vector3(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int vector3_x(lua_State* L)
+{
+	LuaStack stack(L);
+
+	const Vector3& a = stack.get_vector3(1);
+
+	stack.push_float(a.x);
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int vector3_y(lua_State* L)
+{
+	LuaStack stack(L);
+
+	const Vector3& a = stack.get_vector3(1);
+
+	stack.push_float(a.y);
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int vector3_z(lua_State* L)
+{
+	LuaStack stack(L);
+
+	const Vector3& a = stack.get_vector3(1);
+
+	stack.push_float(a.z);
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int vector3_set_x(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Vector3& a = stack.get_vector3(1);
+	const float val = stack.get_float(2);
+	
+	a.x = val;
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int vector3_set_y(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Vector3& a = stack.get_vector3(1);
+	const float val = stack.get_float(2);
+	
+	a.y = val;
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int vector3_set_z(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Vector3& a = stack.get_vector3(1);
+	const float val = stack.get_float(2);
+	
+	a.z = val;
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int vector3_values(lua_State* L)
 {
 	LuaStack stack(L);
@@ -279,6 +348,12 @@ CE_EXPORT int vector3_zero(lua_State* L)
 void load_vector3(LuaEnvironment& env)
 {
 	env.load_module_function("Vector3", "new", 				vector3);
+	env.load_module_function("Vector3", "x", 				vector3_x);
+	env.load_module_function("Vector3", "y", 				vector3_y);
+	env.load_module_function("Vector3", "z", 				vector3_z);
+	env.load_module_function("Vector3", "set_x", 			vector3_set_x);
+	env.load_module_function("Vector3", "set_y", 			vector3_set_y);
+	env.load_module_function("Vector3", "set_z", 			vector3_set_z);
 	env.load_module_function("Vector3", "values", 			vector3_values);
 	env.load_module_function("Vector3", "add", 				vector3_add);
 	env.load_module_function("Vector3", "subtract", 		vector3_subtract);
