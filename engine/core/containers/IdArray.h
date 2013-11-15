@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "Types.h"
 #include "List.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -57,6 +58,11 @@ public:
 	bool			has(Id id) const;
 
 	T&				lookup(const Id& id);
+
+	T*				begin();
+	const T*		begin() const;
+	T*				end();
+	const T*		end() const;
 
 private:
 
@@ -154,10 +160,14 @@ inline void IdArray<MAX_NUM_ID, T>::destroy(Id id)
 
 	// Swap with last element
 	m_objects[m_sparse_to_dense[id.index]] = m_objects.back();
+	uint32_t last = m_objects.size() - 1;
 	m_objects.pop_back();
 
-	// Update conversion tables
-	//m_sparse_to_dense[m_dense_to_sparse[m_dense.size() - 1]] = id.index;
+	// Update tables
+	uint16_t std = m_sparse_to_dense[id.index];
+	uint16_t dts = m_dense_to_sparse[last];
+	m_sparse_to_dense[dts] = std;
+	m_dense_to_sparse[std] = dts;
 }
 
 //-----------------------------------------------------------------------------
@@ -183,6 +193,34 @@ inline uint16_t IdArray<MAX_NUM_ID, T>::next_id()
 	CE_ASSERT(m_next_id < MAX_NUM_ID, "Maximum number of IDs reached");
 
 	return m_next_id++;
+}
+
+//-----------------------------------------------------------------------------
+template <uint32_t MAX_NUM_ID, typename T>
+inline T* IdArray<MAX_NUM_ID, T>::begin()
+{
+	return m_objects.begin();
+}
+
+//-----------------------------------------------------------------------------
+template <uint32_t MAX_NUM_ID, typename T>
+inline const T* IdArray<MAX_NUM_ID, T>::begin() const
+{
+	return m_objects.begin();
+}
+
+//-----------------------------------------------------------------------------
+template <uint32_t MAX_NUM_ID, typename T>
+inline T* IdArray<MAX_NUM_ID, T>::end()
+{
+	return m_objects.end();
+}
+
+//-----------------------------------------------------------------------------
+template <uint32_t MAX_NUM_ID, typename T>
+inline const T* IdArray<MAX_NUM_ID, T>::end() const
+{
+	return m_objects.end();
 }
 
 } // namespace crown
