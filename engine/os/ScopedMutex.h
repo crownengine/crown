@@ -31,18 +31,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// Automatically locks a mutex when created and unlocks when destroyed.
 class ScopedMutex
 {
 public:
 
-	//-------------------------------------------------------------------------
+	/// Locks the given @a m mutex.
 	ScopedMutex(Mutex& m)
 		: m_mutex(m)
 	{
 		m_mutex.lock();
 	}
 
-	//-------------------------------------------------------------------------
+	/// Unlocks the mutex passed to ScopedMutex::ScopedMutex()
 	~ScopedMutex()
 	{
 		m_mutex.unlock();
