@@ -92,6 +92,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Filesystem.h"
 
 // Core/Json
+#include "JSON.h"
 #include "JSONParser.h"
 
 // Core/Settings

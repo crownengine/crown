@@ -43,6 +43,7 @@ LOCAL_SRC_FILES :=\
 	core/filesystem/DiskFile.cpp\
 	core/filesystem/DiskFilesystem.cpp\
 \
+	core/json/JSON.cpp\
 	core/json/JSONParser.cpp\
 \
 	core/math/Color4.cpp\

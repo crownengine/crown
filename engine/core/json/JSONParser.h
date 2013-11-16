@@ -32,23 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-enum JSONType
-{
-	JT_NIL,
-	JT_OBJECT,
-	JT_ARRAY,
-	JT_STRING,
-	JT_NUMBER,
-	JT_BOOL
-};
-
-/// Represents a key-value pair in a JSON document.
-struct JSONPair
-{
-	const char* key;
-	const char* val;
-};
-
 class JSONParser;
 
 /// Represents a JSON element.
@@ -180,34 +163,6 @@ public:
 
 	/// Returns the root element of the JSON document.
 	JSONElement			root();
-
-public:
-
-	/// Returns the type of the @a s JSON text. 
-	static JSONType		type(const char* s);
-
-	/// Parses the @a s JSON string a puts its C representation into @a str.
-	static void			parse_string(const char* s, List<char>& str);
-
-	/// Returns the value of the @a s JSON number as double.
-	static double		parse_number(const char* s);
-
-	/// Returns the value of the @a s JSON boolean.
-	static bool			parse_bool(const char* s);
-
-	/// Returns the value of the @a s JSON number as signed integer.
-	static int32_t 		parse_int(const char* s);
-
-	/// Returns the value of the @a s JSON number as float.
-	static float		parse_float(const char* s);
-
-	/// Parses the @a s JSON array and puts it into @a array as pointers to
-	/// the corresponding items into the original @a s string.
-	static void			parse_array(const char* s, List<const char*>& array);
-
-	/// Parses the @a s JSON object and puts it into @a object as pointers to
-	/// the corresponding key/value pairs into the original @a s string.
-	static void			parse_object(const char* s, List<JSONPair>& object);
 
 private:
 
