@@ -43,7 +43,7 @@ HeapAllocator::HeapAllocator() :
 HeapAllocator::~HeapAllocator()
 {
 	CE_ASSERT(m_allocation_count == 0 && allocated_size() == 0,
-		"Missing %d deallocations causing a leak of %d bytes", m_allocation_count, allocated_size());
+		"Missing %d deallocations causing a leak of %ld bytes", m_allocation_count, allocated_size());
 }
 
 //-----------------------------------------------------------------------------
