@@ -249,14 +249,14 @@ public:
 	//-------------------------------------------------------------------------
 	void push_sound_instance_id(const SoundInstanceId id)
 	{
-		uint32_t enc = id.encode();
+		uintptr_t enc = id.encode();
 		lua_pushlightuserdata(m_state, (void*)enc);
 	}
 
 	//-------------------------------------------------------------------------
 	SoundInstanceId get_sound_instance_id(int32_t index)
 	{
-		uint32_t enc = (uint32_t) lua_touserdata(m_state, index);
+		uint32_t enc = (uintptr_t) lua_touserdata(m_state, index);
 		SoundInstanceId id;
 		id.decode(enc);
 		return id;
