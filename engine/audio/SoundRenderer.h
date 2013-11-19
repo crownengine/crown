@@ -30,17 +30,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "Types.h"
 
-#define	MAX_SOUNDS 64
+#define	MAX_SOUND_BUFFERS 64
+#define MAX_SOUND_SOURCES 64
 
 namespace crown
 {
 //-----------------------------------------------------------------------------
-typedef 	Id 		SoundId;
-
-//-----------------------------------------------------------------------------
 class SoundRendererImpl;
 class SoundResource;
 class Vector3;
+
+//-----------------------------------------------------------------------------
+typedef Id	SoundBufferId;
+typedef	Id	SoundSourceId;
 
 //-----------------------------------------------------------------------------
 class SoundRenderer
@@ -60,99 +62,72 @@ public:
 
 	void					frame();
 
-	/// Returns number of sounds actually in use
-	uint32_t				num_sounds();
-
-	/// Sets listener parameters. @a position affects audibility of sounds, 
-	/// @a velocity affects doppler shift and @a orientation affects how a sound could be heard
 	void					set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at) const;
 
-	/// Creates a sound of sound 
-	SoundId					create_sound(SoundResource* resource);
+	SoundBufferId			create_sound_buffer(void* data, size_t size, uint32_t sample_rate, uint32_t num_channels, uint16_t bits_ps);
 
-	/// Destroys a sound, specified by @a id, previously created
-	void					destroy_sound(SoundId id);
+	void					destroy_sound_buffer(SoundBufferId id);
 
-	/// Plays a sound, specified by sound @a sid and a buffer @a bid
-	void					play_sound(SoundId id);
+	SoundSourceId			create_sound_source();
 
-	/// Pauses a sound, specified by @a id
-	void					pause_sound(SoundId id);
+	void					destroy_sound_source(SoundSourceId id);
 
-	/// 
-	void					set_sound_loop(SoundId id, bool loop);
+	void					bind_buffer(SoundBufferId buffer, SoundSourceId source);
 
-	///	Sets sound's @a min_distance. From @a min_distance to @a max_distance, sound
-	/// scales from full volume to silence
-	void					set_sound_min_distance(SoundId id, const float min_distance);
+	void					unbind_buffer(SoundSourceId id);
 
-	///	Sets sound's @a max_distance. From @a min_distance to @a max_distance, sound
-	/// scales from full volume to silence
-	void					set_sound_max_distance(SoundId id, const float max_distance);
+	void					play_sound(SoundSourceId id);
 
-	/// Sets sound's @a position. It affects sound audibility
-	void					set_sound_position(SoundId id, const Vector3& pos);
+	void					pause_sound(SoundSourceId id);
 
-	/// Sets sound's @a velocity. It affects doppler shift
-	void					set_sound_velocity(SoundId id, const Vector3& vel);
+	void					set_sound_loop(SoundSourceId id, bool loop);
 
-	/// Sets sound's @a direction. It affects how a sound could be heard
-	void					set_sound_direction(SoundId id, const Vector3& dir);
+	void					set_sound_min_distance(SoundSourceId id, const float min_distance);
 
-	/// Sets sound's @a pitch.
-	void					set_sound_pitch(SoundId id, const float pitch);
+	void					set_sound_max_distance(SoundSourceId id, const float max_distance);
 
-	/// Sets sound's @a gain, that is measure sound's amplification
-	void					set_sound_gain(SoundId id, const float gain);
+	void					set_sound_position(SoundSourceId id, const Vector3& pos);
 
-	/// Sets sound's @a rolloff factor. Greater it is, greater sound's attenuation is
-	void					set_sound_rolloff(SoundId id, const float rolloff);
+	void					set_sound_velocity(SoundSourceId id, const Vector3& vel);
 
-	/// Returns minimum distance of @a id
-	float					sound_min_distance(SoundId id) const;
+	void					set_sound_direction(SoundSourceId id, const Vector3& dir);
 
-	/// Returns maximum distance of @a id
-	float					sound_max_distance(SoundId id) const;
+	void					set_sound_pitch(SoundSourceId id, const float pitch);
+
+	void					set_sound_gain(SoundSourceId id, const float gain);
+
+	void					set_sound_rolloff(SoundSourceId id, const float rolloff);
+
+	float					sound_min_distance(SoundSourceId id) const;
+
+	float					sound_max_distance(SoundSourceId id) const;
 	
-	/// Returns position of @a id
-	Vector3					sound_position(SoundId id) const;
+	Vector3					sound_position(SoundSourceId id) const;
 
-	/// Returns velocity of @a id
-	Vector3					sound_velocity(SoundId id) const;
+	Vector3					sound_velocity(SoundSourceId id) const;
 
-	/// Returns direction of @a id
-	Vector3					sound_direction(SoundId id) const;
+	Vector3					sound_direction(SoundSourceId id) const;
 
-	/// Returns pitch of @a id
-	float					sound_pitch(SoundId id) const;
+	float					sound_pitch(SoundSourceId id) const;
 
-	/// Returns gain of @a id
-	float					sound_gain(SoundId id) const;
+	float					sound_gain(SoundSourceId id) const;
 
-	/// Returns rolloff factor of @a id
-	/// Rolloff: perceived volume decreases at a fixed rate as a sound sound moves away from the listener
-	float					sound_rolloff(SoundId id) const;
+	float					sound_rolloff(SoundSourceId id) const;
 
-	/// Returns number of queued buffers of @a id
-	int32_t					sound_queued_buffers(SoundId id) const;
+	int32_t					sound_queued_buffers(SoundSourceId id) const;
 
-	/// Returns number of processed buffers of @a id
-	int32_t					sound_processed_buffers(SoundId id) const;
+	int32_t					sound_processed_buffers(SoundSourceId id) const;
 
-	/// Is sound @a id playing?
-	bool					sound_playing(SoundId id);
+	bool					sound_playing(SoundSourceId id);
 
 private:
 
-	Allocator& 				m_allocator;
+	Allocator& 					m_allocator;
+	SoundRendererImpl*			m_impl;
+	bool 						m_is_paused;
 
-	SoundRendererImpl*		m_impl;
-
-	bool 					m_is_paused;
-
-	IdTable<MAX_SOUNDS>		m_sounds_id_table;
-
-	uint32_t				m_num_sounds;
+	IdTable<MAX_SOUND_BUFFERS>	m_buffers_id_table;
+	IdTable<MAX_SOUND_SOURCES>	m_sources_id_table;
 };
 
 } // namespace crown
