@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <AL/alc.h>
 
 #include "SoundResource.h"
-#include "OggDecoder.h"
 #include "Vector3.h"
 #include "Log.h"
 
@@ -62,56 +61,27 @@ static const char* al_error_to_string(ALenum error)
 #endif
 
 //-----------------------------------------------------------------------------
-struct Sound
+struct SoundBuffer
 {
-public:
 	//-----------------------------------------------------------------------------
-	Sound()
-		: m_res(NULL)
-		, m_id(-1)
-		, m_created(false)
-		, m_playing(false)
-		, m_looping(false)
-		, m_streaming(false)
-		, m_positional(false)
-	{}
-
-	//-----------------------------------------------------------------------------
-	void create(SoundResource* resource)
+	void create(uint32_t sample_rate, uint32_t num_channels, uint16_t bits_ps)
 	{
-		CE_ASSERT_NOT_NULL(resource);
-
-		// Stores resource pointer
-		m_res = resource;
-
-		// Generates AL source
-		AL_CHECK(alGenSources(1, &m_id));
-
-		AL_CHECK(alSourcef(m_id, AL_PITCH, 1.0f));
-		AL_CHECK(alSourcef(m_id, AL_REFERENCE_DISTANCE, 0.1f));
-		AL_CHECK(alSourcef(m_id, AL_MAX_DISTANCE, 1000.0f));
-
 		// Generates AL buffers
-		AL_CHECK(alGenBuffers(3, m_buffer));
-		
-		bool stereo = (m_res->channels() > 1);
+		AL_CHECK(alGenBuffers(1, &m_id));
 
-		switch(m_res->bits_ps())
+		// TODO: check sample rate validity
+		m_sample_rate = sample_rate;
+		
+		switch(bits_ps)
 		{
 			case 8:
 			{
-				if (stereo)	
-					m_format = AL_FORMAT_STEREO8;
-				else
-					m_format = AL_FORMAT_MONO8;
+				m_format = num_channels > 1 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8;
 				break;
 			}
 			case 16:
 			{
-				if (stereo)
-					m_format = AL_FORMAT_STEREO16;
-				else
-					m_format = AL_FORMAT_MONO16;
+				m_format = num_channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 				break;
 			}
 			default:
@@ -119,50 +89,60 @@ public:
 				CE_ASSERT(false, "Wrong number of bits per sample.");
 			}
 		}
-
-		m_streaming = m_res->sound_type() == SoundType::OGG;
-		// Streams resource if is ogg 
-		if (m_streaming)
-		{
-			create_stream();
-		}
-		else
-		{
-			m_positional = true;
-
-			AL_CHECK(alBufferData(m_buffer[0], m_format, m_res->data(), m_res->size(), m_res->sample_rate()));
-
-			AL_CHECK(alSourceQueueBuffers(m_id, 1, &m_buffer[0]));
-		}
 	}
 
 	//-----------------------------------------------------------------------------
-	void update()
+	void update(void* data, size_t size)
 	{
-		if (m_playing)
-		{
-			if (m_streaming)
-			{
-				update_stream();
-			}
-			else if (m_positional)
-			{
-				// nothing right now
-			}
-		}
+		AL_CHECK(alBufferData(m_id, m_format, data, size, m_sample_rate));
 	}
 
 	//-----------------------------------------------------------------------------
 	void destroy()
 	{
-		if (m_streaming)
-		{
-			destroy_stream();
-		}
+		AL_CHECK(alDeleteBuffers(1, &m_id));
+	}
 
+public:
+
+	ALuint			m_id;
+	ALuint 			m_format;
+	uint32_t		m_sample_rate;
+};
+
+//-----------------------------------------------------------------------------
+struct SoundSource
+{
+	//-----------------------------------------------------------------------------
+	void create()
+	{
+		AL_CHECK(alGenSources(1, &m_id));
+
+		AL_CHECK(alSourcef(m_id, AL_PITCH, 1.0f));
+		AL_CHECK(alSourcef(m_id, AL_REFERENCE_DISTANCE, 0.1f));
+		AL_CHECK(alSourcef(m_id, AL_MAX_DISTANCE, 1000.0f));
+	}
+
+	//-----------------------------------------------------------------------------
+	void destroy()
+	{
 		AL_CHECK(alDeleteSources(1, &m_id));
+	}
 
-		AL_CHECK(alDeleteBuffers(3, m_buffer));
+	//-----------------------------------------------------------------------------
+	void bind_buffer(ALuint buffer)
+	{
+		AL_CHECK(alSourceQueueBuffers(m_id, 1, &buffer));
+	}
+
+	//-----------------------------------------------------------------------------
+	ALuint unbind_buffer()
+	{
+		ALuint buffer;
+
+		AL_CHECK(alSourceUnqueueBuffers(m_id, 1, &buffer));
+
+		return buffer;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -184,14 +164,9 @@ public:
 	//-----------------------------------------------------------------------------
 	void loop(bool loop)
 	{
-		if (loop && !m_streaming)
-		{
-			AL_CHECK(alSourcei(m_id, AL_LOOPING, AL_TRUE));
-		}
-		else if (!loop && !m_streaming)
-		{
-			AL_CHECK(alSourcei(m_id, AL_LOOPING, AL_FALSE));
-		}
+		ALint value = loop ? AL_TRUE : AL_FALSE;
+		
+		AL_CHECK(alSourcei(m_id, AL_LOOPING, value));
 
 		m_looping = loop;
 	}
@@ -360,69 +335,13 @@ public:
 		return processed;
 	}
 
-private:
-
-	//-----------------------------------------------------------------------------
-	void create_stream()
-	{
-		m_decoder.init((char*)m_res->data(), m_res->size());
-		m_decoder.stream();
-		AL_CHECK(alBufferData(m_buffer[0], m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
-		m_decoder.stream();
-		AL_CHECK(alBufferData(m_buffer[1], m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));			
-		m_decoder.stream();
-		AL_CHECK(alBufferData(m_buffer[2], m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
-
-		AL_CHECK(alSourceQueueBuffers(m_id, 3, m_buffer));
-	}
-
-	//-----------------------------------------------------------------------------
-	void update_stream()
-	{
-		uint32_t processed = processed_buffers();
-
-		while (processed--)
-		{
-			ALuint buffer;
-
-			AL_CHECK(alSourceUnqueueBuffers(m_id, 1, &buffer));
-
-			if (m_decoder.stream())
-			{
-				AL_CHECK(alBufferData(buffer, m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
-			}
-			else if (m_looping)
-			{
-				m_decoder.rewind();
-				m_decoder.stream();
-				AL_CHECK(alBufferData(buffer, m_format, m_decoder.data(), m_decoder.size(), m_res->sample_rate()));
-			}
-
-			AL_CHECK(alSourceQueueBuffers(m_id, 1, &buffer));
-		}
-	}
-
-	//-----------------------------------------------------------------------------
-	void destroy_stream()
-	{
-		m_decoder.shutdown();
-	}
-
 public:
 
-	SoundResource*	m_res;
-
 	ALuint			m_id;
-	ALuint			m_buffer[3];
-	ALuint 			m_format;
 
-	bool			m_created :1;
 	bool			m_playing :1;
 	bool			m_looping :1;
-	bool			m_streaming :1;
 	bool			m_positional :1;
-
-	OggDecoder		m_decoder;
 };
 
 } // namespace crown
