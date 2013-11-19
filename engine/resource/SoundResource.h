@@ -92,11 +92,11 @@ public:
 	{
 		CE_ASSERT(resource != NULL, "Resource not loaded");
 
-		SoundResource* sound = (SoundResource*)resource;
+		SoundResource* s = (SoundResource*)resource;
 
-		SoundId id = device()->sound_renderer()->create_sound(sound);
+		SoundBufferId id = device()->sound_renderer()->create_sound_buffer((void*)s->data(), s->size(), s->sample_rate(), s->channels(), s->bits_ps());
 
-		sound->m_id = id;
+		s->m_id = id;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -113,9 +113,9 @@ public:
 	{
 		CE_ASSERT(resource != NULL, "Resource not loaded");
 
-		SoundResource* sound = (SoundResource*)resource;
+		SoundResource* s = (SoundResource*)resource;
 
-		device()->sound_renderer()->destroy_sound(sound->m_id);
+		device()->sound_renderer()->destroy_sound_buffer(s->m_id);
 	}
 
 public:
@@ -134,7 +134,7 @@ public:
 
 	SoundHeader		m_header;
 	uint8_t*		m_data;
-	SoundId			m_id;
+	SoundBufferId	m_id;
 };
 
 } // namespace crown
