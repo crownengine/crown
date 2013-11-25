@@ -47,12 +47,14 @@ namespace crown
 typedef Id UnitId;
 typedef Id CameraId;
 typedef Id MeshId;
-typedef Id SoundInstanceId;
+typedef Id SoundId;
 typedef Id SpriteId;
 
-struct SoundInstance
+struct Sound
 {
-	SoundId sound;
+	SoundBufferId buffer;
+	SoundSourceId source;
+	
 	Matrix4x4 world;
 	float volume;
 	float range;
@@ -67,10 +69,10 @@ struct UnitToCamera
 	CameraId camera;
 };
 
-struct UnitToSoundInstance
+struct UnitToSound
 {
 	UnitId unit;
-	SoundInstanceId sound;
+	SoundId sound;
 	int32_t node;
 };
 
@@ -121,13 +123,13 @@ public:
 	SpriteId				create_sprite(ResourceId id, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
 	void					destroy_sprite(SpriteId id);
 
-	SoundInstanceId			play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
-	void					pause_sound(SoundInstanceId sound);
-	void 					link_sound(SoundInstanceId sound, Unit* unit, int32_t node);
+	SoundId					play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
+	void					stop_sound(SoundId sound);
+	void					link_sound(SoundId sound, Unit* unit, int32_t node);
 	void					set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at);
-	void					set_sound_position(SoundInstanceId sound, const Vector3& pos);
-	void					set_sound_range(SoundInstanceId sound, const float range);
-	void					set_sound_volume(SoundInstanceId sound, const float vol);
+	void					set_sound_position(SoundId sound, const Vector3& pos);
+	void					set_sound_range(SoundId sound, const float range);
+	void					set_sound_volume(SoundId sound, const float vol);
 
 private:
 
@@ -136,11 +138,11 @@ private:
 
 	IdArray<MAX_UNITS, Unit*>			m_units;
 	IdArray<MAX_CAMERAS, Camera*>		m_camera;
-	IdArray<MAX_SOUNDS, SoundInstance> 	m_sounds;
+	IdArray<MAX_SOUNDS, Sound> 			m_sounds;
 
 	// Connections
 	List<UnitToCamera>					m_unit_to_camera;
-	List<UnitToSoundInstance>			m_unit_to_sound_instance;
+	List<UnitToSound>					m_unit_to_sound;
 	List<UnitToSprite>					m_unit_to_sprite;
 
 	RenderWorld							m_render_world;

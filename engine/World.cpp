@@ -43,7 +43,7 @@ World::World()
 	, m_camera(default_allocator())
 	, m_sounds(default_allocator())
 	, m_unit_to_camera(default_allocator())
-	, m_unit_to_sound_instance(default_allocator())
+	, m_unit_to_sound(default_allocator())
 	, m_unit_to_sprite(default_allocator())
 {
 }
@@ -214,17 +214,17 @@ void World::update(Camera& camera, float dt)
 	}
 
 	// Updates sound poses
-	for (uint32_t i = 0; i < m_unit_to_sound_instance.size(); i++)
+	for (uint32_t i = 0; i < m_unit_to_sound.size(); i++)
 	{
-		const UnitToSoundInstance& uts = m_unit_to_sound_instance[i];
+		const UnitToSound& uts = m_unit_to_sound[i];
 
-		SoundInstance& sound = m_sounds.lookup(uts.sound);
+		Sound& sound = m_sounds.lookup(uts.sound);
 		Unit* unit = m_units.lookup(uts.unit);
 
 		sound.world = unit->m_scene_graph.world_pose(uts.node);
 	}
 
-	// Update sprites
+	// Update sprites poses
 	for (uint32_t i = 0; i < m_unit_to_sprite.size(); i++)
 	{
 		const UnitToSprite& uts = m_unit_to_sprite[i];
@@ -240,19 +240,20 @@ void World::update(Camera& camera, float dt)
 							camera.m_view_width, camera.m_view_height, dt);
 
 	// Update sounds
-	List<SoundInstance>& sounds = m_sounds.m_objects; 
+	List<Sound>& sounds = m_sounds.m_objects; 
 	for (uint32_t i = 0; i < sounds.size(); i++)
 	{
-		SoundInstance& sound = sounds[i];
+		Sound& sound = sounds[i];
+		SoundRenderer* sr = device()->sound_renderer();
 
-		device()->sound_renderer()->set_sound_loop(sound.sound, sound.loop);
-		device()->sound_renderer()->set_sound_gain(sound.sound, sound.volume);
-		device()->sound_renderer()->set_sound_max_distance(sound.sound, sound.range);
-		device()->sound_renderer()->set_sound_position(sound.sound, sound.world.translation());
+		sr->set_sound_loop(sound.source, sound.loop);
+		sr->set_sound_gain(sound.source, sound.volume);
+		sr->set_sound_max_distance(sound.source, sound.range);
+		sr->set_sound_position(sound.source, sound.world.translation());
 
 		if (!sound.playing)
 		{
-			device()->sound_renderer()->play_sound(sound.sound);
+			sr->play_sound(sound.source);
 			sound.playing = true;
 		}
 	}
@@ -307,46 +308,54 @@ void World::destroy_sprite(SpriteId id)
 	m_render_world.destroy_sprite(id);
 }
 
-
 //-----------------------------------------------------------------------------
-SoundInstanceId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
+SoundId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
 	SoundResource* sound = (SoundResource*)device()->resource_manager()->lookup(SOUND_EXTENSION, name);
 
-	SoundInstance s;
-	s.sound = sound->m_id;
+	Sound s;
+	s.buffer = sound->m_id;
+	s.source = device()->sound_renderer()->create_sound_source();
+	device()->sound_renderer()->bind_buffer(s.buffer, s.source);
+
 	s.world = Matrix4x4(Quaternion::IDENTITY, pos);
 	s.volume = volume;
 	s.range = range;
 	s.loop = loop;
 	s.playing = false;
 
-	SoundInstanceId id = m_sounds.create(s);
+	SoundId id = m_sounds.create(s);
 
 	return id;
 }
 
 //-----------------------------------------------------------------------------
-void World::pause_sound(SoundInstanceId id)
+void World::stop_sound(SoundId id)
 {
-	CE_ASSERT(m_sounds.has(id), "SoundInstance does not exists");
+	CE_ASSERT(m_sounds.has(id), "Sound does not exists");
 
-	const SoundInstance& sound = m_sounds.lookup(id);
-	device()->sound_renderer()->pause_sound(sound.sound);
+	const Sound& s = m_sounds.lookup(id);
+	SoundRenderer* sr = device()->sound_renderer();
+
+	sr->pause_sound(s.source);
+	sr->unbind_buffer(s.source);
+	sr->destroy_sound_source(s.source);
+
+	m_sounds.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
-void World::link_sound(SoundInstanceId id, Unit* unit, int32_t node)
+void World::link_sound(SoundId id, Unit* unit, int32_t node)
 {
 	//CE_ASSERT(m_units.has(unit), "Unit does not exists");
-	CE_ASSERT(m_sounds.has(id), "SoundInstance does not exists");
+	CE_ASSERT(m_sounds.has(id), "Sound does not exists");
 
-	UnitToSoundInstance uts;
+	UnitToSound uts;
 	uts.sound = id;
 	uts.unit = unit->m_id;
 	uts.node = node;
 
-	m_unit_to_sound_instance.push_back(uts);
+	m_unit_to_sound.push_back(uts);
 }
 
 //-----------------------------------------------------------------------------
@@ -356,29 +365,29 @@ void World::set_listener(const Vector3& pos, const Vector3& vel, const Vector3& 
 }
 
 //-----------------------------------------------------------------------------
-void World::set_sound_position(SoundInstanceId id, const Vector3& pos)
+void World::set_sound_position(SoundId id, const Vector3& pos)
 {
-	CE_ASSERT(m_sounds.has(id), "SoundInstance does not exists");
+	CE_ASSERT(m_sounds.has(id), "Sound does not exists");
 
-	SoundInstance& sound = m_sounds.lookup(id);
+	Sound& sound = m_sounds.lookup(id);
 	sound.world = Matrix4x4(Quaternion::IDENTITY, pos);
 }
 
 //-----------------------------------------------------------------------------
-void World::set_sound_range(SoundInstanceId id, const float range)
+void World::set_sound_range(SoundId id, const float range)
 {
-	CE_ASSERT(m_sounds.has(id), "SoundInstance does not exists");
+	CE_ASSERT(m_sounds.has(id), "Sound does not exists");
 
-	SoundInstance& sound = m_sounds.lookup(id);
+	Sound& sound = m_sounds.lookup(id);
 	sound.range = range;
 }
 
 //-----------------------------------------------------------------------------
-void World::set_sound_volume(SoundInstanceId id, const float vol)
+void World::set_sound_volume(SoundId id, const float vol)
 {
-	CE_ASSERT(m_sounds.has(id), "SoundInstance does not exists");
+	CE_ASSERT(m_sounds.has(id), "Sound does not exists");
 
-	SoundInstance& sound = m_sounds.lookup(id);
+	Sound& sound = m_sounds.lookup(id);
 	sound.volume = vol;
 }
 
