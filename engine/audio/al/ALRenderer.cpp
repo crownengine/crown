@@ -361,6 +361,22 @@ float SoundRenderer::sound_rolloff(SoundSourceId id) const
 }
 
 //-----------------------------------------------------------------------------
+int32_t SoundRenderer::sound_queued_buffers(SoundSourceId id) const
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+
+	return m_impl->m_sources[id.index].queued_buffers();
+}
+
+//-----------------------------------------------------------------------------
+int32_t SoundRenderer::sound_processed_buffers(SoundSourceId id) const
+{
+	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");
+
+	return m_impl->m_sources[id.index].processed_buffers();
+}
+
+//-----------------------------------------------------------------------------
 bool SoundRenderer::sound_playing(SoundSourceId id)
 {
 	CE_ASSERT(m_sources_id_table.has(id), "SoundSource does not exists");

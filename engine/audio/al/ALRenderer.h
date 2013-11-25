@@ -117,10 +117,11 @@ struct SoundSource
 	void create()
 	{
 		AL_CHECK(alGenSources(1, &m_id));
-
+/*
 		AL_CHECK(alSourcef(m_id, AL_PITCH, 1.0f));
 		AL_CHECK(alSourcef(m_id, AL_REFERENCE_DISTANCE, 0.1f));
 		AL_CHECK(alSourcef(m_id, AL_MAX_DISTANCE, 1000.0f));
+*/
 	}
 
 	//-----------------------------------------------------------------------------
