@@ -81,14 +81,14 @@ CE_EXPORT int world_play_sound(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_pause_sound(lua_State* L)
+CE_EXPORT int world_stop_sound(lua_State* L)
 {
 	LuaStack stack(L);
 
 	World* world = stack.get_world(1);
 	const SoundInstanceId id = stack.get_sound_instance_id(2);
 
-	world->pause_sound(id);
+	world->stop_sound(id);
 	return 0;
 }
 
@@ -168,7 +168,7 @@ void load_world(LuaEnvironment& env)
 	env.load_module_function("World", "destroy_unit",       world_destroy_unit);
 
 	env.load_module_function("World", "play_sound",			world_play_sound);
-	env.load_module_function("World", "pause_sound", 		world_pause_sound);
+	env.load_module_function("World", "stop_sound", 		world_stop_sound);
 	env.load_module_function("World", "link_sound",			world_link_sound);
 	env.load_module_function("World", "set_listener", 		world_set_listener);
 	env.load_module_function("World", "set_sound_position", world_set_sound_position);
