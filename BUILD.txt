@@ -18,15 +18,18 @@ engine on the currently supported platforms.
 		* GLEW
 		* Xlib
 		* Xrandr
+		* nVidia PhysX
 
 	- Android
 
 		* Android NDK and SDK
+		* nVidia PhysX
 
 	- Windows:
 
 		* zlib
 		* GLEW
+		* nVidia PhysX
 
 2. Building
 
