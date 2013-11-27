@@ -28,6 +28,23 @@ set (CROWN_THIRD_INCLUDES
 	${CROWN_THIRD}/zlib/include
 	${CROWN_THIRD}/oggvorbis/include
 	${CROWN_THIRD}/openAL/include
+	${CROWN_THIRD}/physx/include
+	${CROWN_THIRD}/physx/include/common
+	${CROWN_THIRD}/physx/include/characterkinematic
+	${CROWN_THIRD}/physx/include/cloth
+	${CROWN_THIRD}/physx/include/common
+	${CROWN_THIRD}/physx/include/cooking
+	${CROWN_THIRD}/physx/include/extensions
+	${CROWN_THIRD}/physx/include/foundation
+	${CROWN_THIRD}/physx/include/geometry
+	${CROWN_THIRD}/physx/include/particles
+	${CROWN_THIRD}/physx/include/physxprofilesdk
+	${CROWN_THIRD}/physx/include/physxvisualdebuggersdk
+	${CROWN_THIRD}/physx/include/pvd
+	${CROWN_THIRD}/physx/include/pxtask
+	${CROWN_THIRD}/physx/include/RepX
+	${CROWN_THIRD}/physx/include/RepXUpgrader
+	${CROWN_THIRD}/physx/include/vehicle
 )
 
 # architecture dependent libraries
@@ -37,6 +54,7 @@ set (CROWN_THIRD_LIBS
 	${CROWN_THIRD}/zlib/lib
 	${CROWN_THIRD}/oggvorbis/lib
 	${CROWN_THIRD}/openAL/lib
+	${CROWN_THIRD}/physx/lib
 )
 
 add_subdirectory(${CROWN_THIRD})
@@ -443,28 +461,47 @@ if (LINUX)
 		openal
 		vorbisfile
 		luajit-5.1
+
+		PhysX3
+		SimulationController
+		LowLevel
+		LowLevelCloth
+		PxTask
+		PhysXProfileSDK
+		PhysX3Extensions
+		SceneQuery
+		PhysX3Common
+		PhysX3CharacterKinematic
+		PhysX3Vehicle
+		PhysX3Cooking
+		PvdRuntime
+		RepX3
 	)
 
 	set (COMPILER_FLAGS
 		-pipe
 		-std=c++03
 		-ansi
-		-pedantic-errors
+		#-pedantic-errors
 		-Wall
 		-Wextra
-		-Werror
+		#-Werror
 		-Wno-long-long
 		-Wno-variadic-macros
+		-Wno-unknown-pragmas
+		-Wno-unused-parameter
+		-Wno-unused-local-typedefs
 		-fPIC
 		#-fvisibility=hidden
 	)
 
 	if (CROWN_DEBUG)
-		list (APPEND COMPILER_FLAGS -g -pg)
+		list (APPEND COMPILER_FLAGS -g -pg -D_DEBUG)
 	elseif (CROWN_DEVELOPMENT)
-		list (APPEND COMPILER_FLAGS -O2)
+		list (APPEND COMPILER_FLAGS -O2 -DNDEBUG)
 	elseif (CROWN_RELEASE)
 		list (APPEND COMPILER_FLAGS
+			-DNDEBUG
 			-O2
 			-Wno-unused-variable
 			-Wno-unused-parameter
