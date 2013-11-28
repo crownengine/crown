@@ -142,14 +142,12 @@ set (BV_HEADERS
 )
 
 set (CONTAINERS_SRC
-	core/containers/Generic.cpp
 )
 
 set (CONTAINERS_HEADERS
 	core/containers/Queue.h
 	core/containers/PriorityQueue.h
 	core/containers/Map.h
-	core/containers/Generic.h
 	core/containers/List.h
 	core/containers/Vector.h
 	core/containers/RBTree.h

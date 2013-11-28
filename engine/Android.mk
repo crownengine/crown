@@ -37,7 +37,6 @@ LOCAL_SRC_FILES :=\
 	core/bv/Rect.cpp\
 \
 	core/compressors/ZipCompressor.cpp\
-	core/containers/Generic.cpp\
 \
 	core/filesystem/File.cpp\
 	core/filesystem/DiskFile.cpp\
