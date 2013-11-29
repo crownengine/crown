@@ -39,9 +39,6 @@ namespace crown
 World::World()
 	: m_unit_pool(default_allocator(), MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
 	, m_camera_pool(default_allocator(), MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
-	, m_units(default_allocator())
-	, m_camera(default_allocator())
-	, m_sounds(default_allocator())
 	, m_unit_to_camera(default_allocator())
 	, m_unit_to_sound(default_allocator())
 	, m_unit_to_sprite(default_allocator())
@@ -193,7 +190,7 @@ Sprite* World::lookup_sprite(SpriteId sprite)
 void World::update(Camera& camera, float dt)
 {
 	// Update all the units
-	for (uint32_t uu = 0; uu < m_units.m_objects.size(); uu++)
+	for (uint32_t uu = 0; uu < m_units.size(); uu++)
 	{
 		Unit& unit = *m_units.m_objects[uu];
 		SceneGraph& graph = unit.m_scene_graph;
@@ -238,25 +235,6 @@ void World::update(Camera& camera, float dt)
 	// Update render world
 	m_render_world.update(camera.m_world_pose, camera.m_projection, camera.m_view_x, camera.m_view_y,
 							camera.m_view_width, camera.m_view_height, dt);
-
-	// Update sounds
-	List<Sound>& sounds = m_sounds.m_objects; 
-	for (uint32_t i = 0; i < sounds.size(); i++)
-	{
-		Sound& sound = sounds[i];
-		SoundRenderer* sr = device()->sound_renderer();
-
-		sr->set_sound_loop(sound.source, sound.loop);
-		sr->set_sound_gain(sound.source, sound.volume);
-		sr->set_sound_max_distance(sound.source, sound.range);
-		sr->set_sound_position(sound.source, sound.world.translation());
-
-		if (!sound.playing)
-		{
-			sr->play_sound(sound.source);
-			sound.playing = true;
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -312,12 +290,13 @@ void World::destroy_sprite(SpriteId id)
 SoundId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
 	SoundResource* sound = (SoundResource*)device()->resource_manager()->lookup(SOUND_EXTENSION, name);
+	SoundRenderer* sr = device()->sound_renderer();
+
+	const SoundSourceId source = sr->create_sound_source();
 
 	Sound s;
 	s.buffer = sound->m_id;
-	s.source = device()->sound_renderer()->create_sound_source();
-	device()->sound_renderer()->bind_buffer(s.buffer, s.source);
-
+	s.source = source;
 	s.world = Matrix4x4(Quaternion::IDENTITY, pos);
 	s.volume = volume;
 	s.range = range;
@@ -325,6 +304,13 @@ SoundId World::play_sound(const char* name, const bool loop, const float volume,
 	s.playing = false;
 
 	SoundId id = m_sounds.create(s);
+
+	sr->bind_buffer(s.buffer, s.source);
+	sr->set_sound_loop(s.source, s.loop);
+	sr->set_sound_gain(s.source, s.volume);
+	sr->set_sound_max_distance(s.source, s.range);
+	sr->set_sound_position(s.source, s.world.translation());
+	sr->play_sound(s.source);
 
 	return id;
 }

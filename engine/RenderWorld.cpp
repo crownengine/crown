@@ -88,9 +88,7 @@ static const char* texture_fragment =
 //-----------------------------------------------------------------------------
 RenderWorld::RenderWorld()
 	: m_mesh_pool(default_allocator(), MAX_MESHES, sizeof(Mesh))
-	, m_mesh(default_allocator())
 	, m_sprite_pool(default_allocator(), MAX_SPRITES, sizeof(Sprite))
-	, m_sprite(default_allocator())
 {
 	Renderer* r = device()->renderer();
 
@@ -193,11 +191,9 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	r->commit(0);
 
 	// Draw all meshes
-	const List<Mesh*>& meshes = m_mesh.m_objects;
-
-	for (uint32_t m = 0; m < meshes.size(); m++)
+	for (uint32_t m = 0; m < m_mesh.size(); m++)
 	{
-		const Mesh* mesh = meshes[m];
+		const Mesh* mesh = m_mesh.m_objects[m];
 
 		r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
 		r->set_vertex_buffer(mesh->m_vbuffer);
@@ -210,10 +206,9 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		r->commit(0);
 	}
 
-	const List<Sprite*>& sprites = m_sprite.m_objects;
-	for (uint32_t s = 0; s < sprites.size(); s++)
+	for (uint32_t s = 0; s < m_sprite.size(); s++)
 	{
-		Sprite* sprite = sprites[s];
+		Sprite* sprite = m_sprite.m_objects[s];
 
 		if (frames % sprite->m_animator->m_frame_rate == 0)
 		{
