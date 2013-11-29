@@ -42,6 +42,7 @@ class Camera;
 class World;
 class Mesh;
 class Sprite;
+class ResourcePackage;
 typedef Id SoundInstanceId;
 
 void clear_lua_temporaries();
@@ -119,12 +120,6 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	void push_lightdata(void* data)
-	{
-		lua_pushlightuserdata(m_state, data);
-	}
-
-	//-----------------------------------------------------------------------------
 	bool get_bool(int32_t index)
 	{
 		return (bool) lua_toboolean(m_state, index);
@@ -146,12 +141,6 @@ public:
 	const char* get_string(int32_t index)
 	{
 		return luaL_checkstring(m_state, index);
-	}
-
-	//-----------------------------------------------------------------------------
-	void* get_lightdata(int32_t index)
-	{
-		return lua_touserdata(m_state, index);	
 	}
 
 	/// Pushes an empty table onto the stack.
@@ -184,6 +173,18 @@ public:
 	void push_key_end()
 	{
 		lua_settable(m_state, -3);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_resource_package(ResourcePackage* package)
+	{
+		lua_pushlightuserdata(m_state, package);
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourcePackage* get_resource_package(int32_t index)
+	{
+		return (ResourcePackage*) lua_touserdata(m_state, index);
 	}
 
 	//-----------------------------------------------------------------------------

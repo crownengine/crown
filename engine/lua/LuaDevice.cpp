@@ -98,7 +98,7 @@ CE_EXPORT int device_create_world(lua_State* L)
 {
 	LuaStack stack(L);
 
-	stack.push_lightdata(device()->create_world());
+	stack.push_world(device()->create_world());
 
 	return 1;
 }
@@ -108,7 +108,7 @@ CE_EXPORT int device_destroy_world(lua_State* L)
 {
 	LuaStack stack(L);
 
-	device()->destroy_world((World*) stack.get_lightdata(1));
+	device()->destroy_world(stack.get_world(1));
 
 	return 0;
 }
@@ -132,7 +132,7 @@ CE_EXPORT int device_create_resource_package(lua_State* L)
 	LuaStack stack(L);
 
 	const char* package = stack.get_string(1);
-	stack.push_lightdata(device()->create_resource_package(package));
+	stack.push_resource_package(device()->create_resource_package(package));
 
 	return 1;
 }
@@ -142,7 +142,7 @@ CE_EXPORT int device_destroy_resource_package(lua_State* L)
 {
 	LuaStack stack(L);
 
-	ResourcePackage* package = (ResourcePackage*) stack.get_lightdata(1);
+	ResourcePackage* package = stack.get_resource_package(1);
 	device()->destroy_resource_package(package);
 
 	return 0;
