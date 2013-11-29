@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Assert.h"
-#include "Allocator.h"
 #include "Types.h"
 #include "List.h"
 #include "Log.h"
@@ -42,7 +41,7 @@ class IdArray
 public:
 
 	/// Creates the table for tracking exactly @a MAX_NUM_ID - 1 unique Ids.
-					IdArray(Allocator& a);
+					IdArray();
 
 	/// Random access by Id
 	T&				operator[](const Id& id);
@@ -56,6 +55,8 @@ public:
 
 	/// Returns whether the table has the specified @a id
 	bool			has(Id id) const;
+
+	uint32_t		size() const;
 
 	T&				lookup(const Id& id);
 
@@ -79,6 +80,7 @@ public:
 
 	// Next available unique id
 	uint16_t		m_next_id;
+	uint16_t		m_num_objects;
 
 
 	// The last valid id is reserved and cannot be used to
@@ -86,16 +88,16 @@ public:
 	Id				m_sparse[MAX_NUM_ID];
 	uint16_t		m_sparse_to_dense[MAX_NUM_ID];
 	uint16_t		m_dense_to_sparse[MAX_NUM_ID];
-	List<T>			m_objects;
+	T				m_objects[MAX_NUM_ID];
 };
 
 //-----------------------------------------------------------------------------
 template <uint32_t MAX_NUM_ID, typename T>
-inline IdArray<MAX_NUM_ID, T>::IdArray(Allocator& a)
-	: m_freelist(MAX_NUM_ID)
+inline IdArray<MAX_NUM_ID, T>::IdArray()
+	: m_freelist(INVALID_ID)
 	, m_last_index(0)
 	, m_next_id(0)
-	, m_objects(a)
+	, m_num_objects(0)
 {
 	for (uint32_t i = 0; i < MAX_NUM_ID; i++)
 	{
@@ -128,17 +130,19 @@ inline Id IdArray<MAX_NUM_ID, T>::create(const T& object)
 	uint16_t dense_index;
 
 	// Recycle slot if there are any
-	if (m_freelist != MAX_NUM_ID)
+	if (m_freelist != INVALID_ID)
 	{
 		id.index = m_freelist;
-		m_freelist = m_sparse[m_freelist].id;
+		m_freelist = m_sparse[m_freelist].index;
 		m_objects[id.index] = object;
 		dense_index = id.index;
 	}
 	else
 	{
 		id.index = m_last_index++;
-		dense_index = m_objects.push_back(object);
+		m_objects[m_num_objects] = object;
+		dense_index = m_num_objects;
+		m_num_objects++;
 	}
 
 	m_sparse[id.index] = id;
@@ -159,9 +163,9 @@ inline void IdArray<MAX_NUM_ID, T>::destroy(Id id)
 	m_freelist = id.index;
 
 	// Swap with last element
-	m_objects[m_sparse_to_dense[id.index]] = m_objects.back();
-	uint32_t last = m_objects.size() - 1;
-	m_objects.pop_back();
+	const uint32_t last = m_num_objects - 1;
+	m_objects[m_sparse_to_dense[id.index]] = m_objects[last];
+	m_num_objects--;
 
 	// Update tables
 	uint16_t std = m_sparse_to_dense[id.index];
@@ -188,6 +192,13 @@ inline bool IdArray<MAX_NUM_ID, T>::has(Id id) const
 
 //-----------------------------------------------------------------------------
 template <uint32_t MAX_NUM_ID, typename T>
+inline uint32_t IdArray<MAX_NUM_ID, T>::size() const
+{
+	return m_num_objects;
+}
+
+//-----------------------------------------------------------------------------
+template <uint32_t MAX_NUM_ID, typename T>
 inline uint16_t IdArray<MAX_NUM_ID, T>::next_id()
 {
 	CE_ASSERT(m_next_id < MAX_NUM_ID, "Maximum number of IDs reached");
@@ -199,28 +210,28 @@ inline uint16_t IdArray<MAX_NUM_ID, T>::next_id()
 template <uint32_t MAX_NUM_ID, typename T>
 inline T* IdArray<MAX_NUM_ID, T>::begin()
 {
-	return m_objects.begin();
+	return m_objects;
 }
 
 //-----------------------------------------------------------------------------
 template <uint32_t MAX_NUM_ID, typename T>
 inline const T* IdArray<MAX_NUM_ID, T>::begin() const
 {
-	return m_objects.begin();
+	return m_objects;
 }
 
 //-----------------------------------------------------------------------------
 template <uint32_t MAX_NUM_ID, typename T>
 inline T* IdArray<MAX_NUM_ID, T>::end()
 {
-	return m_objects.end();
+	return m_objects + m_num_objects;
 }
 
 //-----------------------------------------------------------------------------
 template <uint32_t MAX_NUM_ID, typename T>
 inline const T* IdArray<MAX_NUM_ID, T>::end() const
 {
-	return m_objects.end();
+	return m_objects + m_num_objects;
 }
 
 } // namespace crown

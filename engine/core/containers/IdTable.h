@@ -81,7 +81,7 @@ private:
 //-----------------------------------------------------------------------------
 template <uint32_t MAX_NUM_ID>
 inline IdTable<MAX_NUM_ID>::IdTable()
-	: m_freelist(MAX_NUM_ID)
+	: m_freelist(INVALID_ID)
 	, m_last_index(0)
 	, m_next_id(0)
 	, m_size(0)
@@ -101,10 +101,10 @@ inline Id IdTable<MAX_NUM_ID>::create()
 	id.id = next_id();
 
 	// Recycle slot if there are any
-	if (m_freelist != MAX_NUM_ID)
+	if (m_freelist != INVALID_ID)
 	{
 		id.index = m_freelist;
-		m_freelist = m_ids[m_freelist].id;
+		m_freelist = m_ids[m_freelist].index;
 	}
 	else
 	{
