@@ -98,6 +98,8 @@ public:
 	void								destroy_unit(UnitId id);
 	void								destroy_unit(Unit* unit);
 
+	uint32_t							num_units() const;
+
 	void								link_unit(UnitId child, UnitId parent, int32_t node);
 	void								unlink_unit(UnitId unit);
 

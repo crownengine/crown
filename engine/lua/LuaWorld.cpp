@@ -62,6 +62,17 @@ CE_EXPORT int world_destroy_unit(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int world_num_units(lua_State* L)
+{
+	LuaStack stack(L);
+
+	World* world = stack.get_world(1);
+
+	stack.push_uint32(world->num_units());
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int world_play_sound(lua_State* L)
 {
 	LuaStack stack(L);
@@ -166,6 +177,7 @@ void load_world(LuaEnvironment& env)
 {
 	env.load_module_function("World", "spawn_unit",			world_spawn_unit);
 	env.load_module_function("World", "destroy_unit",       world_destroy_unit);
+	env.load_module_function("World", "num_units",          world_num_units);
 
 	env.load_module_function("World", "play_sound",			world_play_sound);
 	env.load_module_function("World", "stop_sound", 		world_stop_sound);

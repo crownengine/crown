@@ -82,6 +82,12 @@ void World::destroy_unit(Unit* unit)
 }
 
 //-----------------------------------------------------------------------------
+uint32_t World::num_units() const
+{
+	return m_units.size();
+}
+
+//-----------------------------------------------------------------------------
 void World::link_unit(UnitId child, UnitId parent, int32_t node)
 {
 	CE_ASSERT(m_units.has(child), "Child unit does not exist");
