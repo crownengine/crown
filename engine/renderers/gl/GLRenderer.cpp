@@ -581,6 +581,7 @@ void Renderer::update_vertex_buffer_impl(VertexBufferId id, size_t offset, size_
 void Renderer::destroy_vertex_buffer_impl(VertexBufferId id)
 {
 	m_impl->m_vertex_buffers[id.index].destroy();
+	m_vertex_buffers.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -605,6 +606,7 @@ void Renderer::update_index_buffer_impl(IndexBufferId id, size_t offset, size_t 
 void Renderer::destroy_index_buffer_impl(IndexBufferId id)
 {
 	m_impl->m_index_buffers[id.index].destroy();
+	m_index_buffers.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -623,6 +625,7 @@ void Renderer::update_texture_impl(TextureId id, uint32_t x, uint32_t y, uint32_
 void Renderer::destroy_texture_impl(TextureId id)
 {
 	m_impl->m_textures[id.index].destroy();
+	m_textures.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -635,6 +638,7 @@ void Renderer::create_shader_impl(ShaderId id, ShaderType::Enum type, const char
 void Renderer::destroy_shader_impl(ShaderId id)
 {
 	m_impl->m_shaders[id.index].destroy();
+	m_shaders.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -649,6 +653,7 @@ void Renderer::create_gpu_program_impl(GPUProgramId id, ShaderId vertex, ShaderI
 void Renderer::destroy_gpu_program_impl(GPUProgramId id)
 {
 	m_impl->m_gpu_programs[id.index].destroy();
+	m_gpu_programs.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -669,6 +674,7 @@ void Renderer::destroy_uniform_impl(UniformId id)
 {
 	m_impl->m_uniforms[id.index].destroy();
 	m_impl->m_num_uniforms--;
+	m_uniforms.destroy(id);
 }
 
 // //-----------------------------------------------------------------------------
