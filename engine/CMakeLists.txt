@@ -96,6 +96,7 @@ set (SRC
 	World.cpp
 	Unit.cpp
 	SceneGraph.cpp
+	SceneGraphManager.cpp
 	RenderWorld.cpp
 	Mesh.cpp
 	Sprite.cpp
@@ -109,6 +110,7 @@ set (HEADERS
 	World.h
 	Unit.h
 	SceneGraph.h
+	SceneGraphManager.h
 	RenderWorld.h
 	Mesh.h
 	Sprite.h

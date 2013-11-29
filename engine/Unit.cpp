@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "Log.h"
 #include "UnitResource.h"
+#include "SceneGraphManager.h"
 
 namespace crown
 {
@@ -44,14 +45,19 @@ Unit::Unit()
 }
 
 //-----------------------------------------------------------------------------
-void Unit::create(World& world, UnitResource* ur, UnitId id, const Vector3& pos, const Quaternion& rot)
+void Unit::create(World& world, SceneGraphManager& sg_mgr, UnitResource* ur, UnitId id, const Vector3& pos, const Quaternion& rot)
 {
-	m_root_node = m_scene_graph.create_node(-1, pos, rot);
+	// Create the scene graph
+
+	m_scene_graph = sg_mgr.create_scene_graph();
+
+	// Create the root node
+	m_root_node = m_scene_graph->create_node(-1, pos, rot);
 
 	// Create renderables
 	for (uint32_t i = 0; i < ur->num_renderables(); i++)
 	{
-		int32_t node = m_scene_graph.create_node(m_root_node, Vector3::ZERO, Quaternion::IDENTITY);
+		int32_t node = m_scene_graph->create_node(m_root_node, Vector3::ZERO, Quaternion::IDENTITY);
 
 		UnitRenderable renderable = ur->get_renderable(i);
 
@@ -75,7 +81,7 @@ void Unit::create(World& world, UnitResource* ur, UnitId id, const Vector3& pos,
 	// Create cameras
 	for (uint32_t i = 0; i < ur->num_cameras(); i++)
 	{
-		int32_t cam_node = m_scene_graph.create_node(m_root_node, Vector3::ZERO, Quaternion::IDENTITY);
+		int32_t cam_node = m_scene_graph->create_node(m_root_node, Vector3::ZERO, Quaternion::IDENTITY);
 
 		UnitCamera camera = ur->get_camera(i);
 		CameraId cam = world.create_camera(cam_node, Vector3::ZERO, Quaternion::IDENTITY);
@@ -85,6 +91,7 @@ void Unit::create(World& world, UnitResource* ur, UnitId id, const Vector3& pos,
 	}
 
 	m_world = &world;
+	m_sg_manager = &sg_mgr;
 	m_resource = ur;
 	m_id = id;
 }
@@ -92,72 +99,92 @@ void Unit::create(World& world, UnitResource* ur, UnitId id, const Vector3& pos,
 //-----------------------------------------------------------------------------
 void Unit::destroy()
 {
+	// Destroy cameras
+	for (uint32_t i = 0; i < m_num_cameras; i++)
+	{
+		m_world->destroy_camera(m_cameras[i].component);
+	}
+
+	// Destroy meshes
+	for (uint32_t i = 0; i < m_num_meshes; i++)
+	{
+		m_world->destroy_mesh(m_meshes[i].component);
+	}
+
+	// Destroy sprites
+	for (uint32_t i = 0; i < m_num_sprites; i++)
+	{
+		m_world->destroy_sprite(m_sprites[i].component);
+	}
+
+	// Destroy scene graph
+	m_sg_manager->destroy_scene_graph(m_scene_graph);
 }
 
 //-----------------------------------------------------------------------------
 Vector3 Unit::local_position(int32_t node) const
 {
-	return m_scene_graph.local_position(node);
+	return m_scene_graph->local_position(node);
 }
 
 //-----------------------------------------------------------------------------
 Quaternion Unit::local_rotation(int32_t node) const
 {
-	return m_scene_graph.local_rotation(node);
+	return m_scene_graph->local_rotation(node);
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 Unit::local_pose(int32_t node) const
 {
-	return m_scene_graph.local_pose(node);
+	return m_scene_graph->local_pose(node);
 }
 
 //-----------------------------------------------------------------------------
 Vector3 Unit::world_position(int32_t node) const
 {
-	return m_scene_graph.world_position(node);
+	return m_scene_graph->world_position(node);
 }
 
 //-----------------------------------------------------------------------------
 Quaternion Unit::world_rotation(int32_t node) const
 {
-	return m_scene_graph.world_rotation(node);
+	return m_scene_graph->world_rotation(node);
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 Unit::world_pose(int32_t node) const
 {
-	return m_scene_graph.world_pose(node);
+	return m_scene_graph->world_pose(node);
 }
 
 //-----------------------------------------------------------------------------
 void Unit::set_local_position(const Vector3& pos, int32_t node)
 {
-	m_scene_graph.set_local_position(node, pos);
+	m_scene_graph->set_local_position(node, pos);
 }
 
 //-----------------------------------------------------------------------------
 void Unit::set_local_rotation(const Quaternion& rot, int32_t node)
 {
-	m_scene_graph.set_local_rotation(node, rot);
+	m_scene_graph->set_local_rotation(node, rot);
 }
 
 //-----------------------------------------------------------------------------
 void Unit::set_local_pose(const Matrix4x4& pose, int32_t node)
 {
-	m_scene_graph.set_local_pose(node, pose);
+	m_scene_graph->set_local_pose(node, pose);
 }
 
 //-----------------------------------------------------------------------------
 void Unit::link_node(int32_t child, int32_t parent)
 {
-	m_scene_graph.link(child, parent);
+	m_scene_graph->link(child, parent);
 }
 
 //-----------------------------------------------------------------------------
 void Unit::unlink_node(int32_t child)
 {
-	m_scene_graph.unlink(child);
+	m_scene_graph->unlink(child);
 }
 
 //-----------------------------------------------------------------------------

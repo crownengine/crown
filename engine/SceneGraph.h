@@ -35,7 +35,7 @@ namespace crown
 
 struct SceneGraph
 {
-					SceneGraph();
+					SceneGraph(uint32_t index);
 
 	/// Creates a new node with @a parent parent at position @a pos and rotation @a rot.
 	/// @note
@@ -72,6 +72,9 @@ struct SceneGraph
 	void			update();
 
 public:
+
+	/// Index into SceneGraphManager
+	uint32_t		m_index;
 
 	List<Matrix4x4>	m_world_poses;
 	List<Matrix4x4>	m_local_poses;

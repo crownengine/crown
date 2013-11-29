@@ -36,6 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "RenderWorld.h"
 #include "SoundRenderer.h"
 #include "PoolAllocator.h"
+#include "SceneGraphManager.h"
 
 namespace crown
 {
@@ -91,45 +92,45 @@ class Quaternion;
 class World
 {
 public:
-							World();
+										World();
 
-	UnitId					spawn_unit(const char* name, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion(Vector3(0, 1, 0), 0.0f));
-	void					destroy_unit(UnitId unit);
-	void					destroy_unit(Unit* unit);
+	UnitId								spawn_unit(const char* name, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion(Vector3(0, 1, 0), 0.0f));
+	void								destroy_unit(UnitId id);
+	void								destroy_unit(Unit* unit);
 
-	void					link_unit(UnitId child, UnitId parent, int32_t node);
-	void					unlink_unit(UnitId unit);
+	void								link_unit(UnitId child, UnitId parent, int32_t node);
+	void								unlink_unit(UnitId unit);
 
-	void					link_camera(CameraId camera, UnitId unit, int32_t node);
-	void					unlink_camera(CameraId camera);
+	void								link_camera(CameraId camera, UnitId unit, int32_t node);
+	void								unlink_camera(CameraId camera);
 
-	void					link_sprite(SpriteId sprite, UnitId unit, int32_t node);
-	void					unlink_sprite(SpriteId sprite);
+	void								link_sprite(SpriteId sprite, UnitId unit, int32_t node);
+	void								unlink_sprite(SpriteId sprite);
 
-	Unit*					lookup_unit(UnitId unit);
-	Camera*					lookup_camera(CameraId camera);
-	Mesh*					lookup_mesh(MeshId mesh);
-	Sprite*					lookup_sprite(SpriteId sprite);
+	Unit*								lookup_unit(UnitId unit);
+	Camera*								lookup_camera(CameraId camera);
+	Mesh*								lookup_mesh(MeshId mesh);
+	Sprite*								lookup_sprite(SpriteId sprite);
 
-	RenderWorld&			render_world();
-	void					update(Camera& camera, float dt);
+	RenderWorld&						render_world();
+	void								update(Camera& camera, float dt);
 
-	CameraId				create_camera(int32_t node, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
-	void					destroy_camera(CameraId camera);
+	CameraId							create_camera(int32_t node, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	void								destroy_camera(CameraId id);
 
-	MeshId					create_mesh(ResourceId id, int32_t node, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
-	void					destroy_mesh(MeshId id);
+	MeshId								create_mesh(ResourceId id, int32_t node, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	void								destroy_mesh(MeshId id);
 
-	SpriteId				create_sprite(ResourceId id, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
-	void					destroy_sprite(SpriteId id);
+	SpriteId							create_sprite(ResourceId id, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	void								destroy_sprite(SpriteId id);
 
-	SoundId					play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
-	void					stop_sound(SoundId sound);
-	void					link_sound(SoundId sound, Unit* unit, int32_t node);
-	void					set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at);
-	void					set_sound_position(SoundId sound, const Vector3& pos);
-	void					set_sound_range(SoundId sound, const float range);
-	void					set_sound_volume(SoundId sound, const float vol);
+	SoundId								play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
+	void								stop_sound(SoundId sound);
+	void								link_sound(SoundId sound, Unit* unit, int32_t node);
+	void								set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at);
+	void								set_sound_position(SoundId sound, const Vector3& pos);
+	void								set_sound_range(SoundId sound, const float range);
+	void								set_sound_volume(SoundId sound, const float vol);
 
 private:
 
@@ -139,6 +140,8 @@ private:
 	IdArray<MAX_UNITS, Unit*>			m_units;
 	IdArray<MAX_CAMERAS, Camera*>		m_camera;
 	IdArray<MAX_SOUNDS, Sound> 			m_sounds;
+
+	SceneGraphManager					m_graph_manager;
 
 	// Connections
 	List<UnitToCamera>					m_unit_to_camera;

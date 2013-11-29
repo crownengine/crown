@@ -87,8 +87,8 @@ static const char* texture_fragment =
 
 //-----------------------------------------------------------------------------
 RenderWorld::RenderWorld()
-	: m_mesh_pool(default_allocator(), MAX_MESHES, sizeof(Mesh))
-	, m_sprite_pool(default_allocator(), MAX_SPRITES, sizeof(Sprite))
+	: m_mesh_pool(default_allocator(), MAX_MESHES, sizeof(Mesh), CE_ALIGNOF(Mesh))
+	, m_sprite_pool(default_allocator(), MAX_SPRITES, sizeof(Sprite), CE_ALIGNOF(Sprite))
 {
 	Renderer* r = device()->renderer();
 
@@ -121,7 +121,7 @@ MeshId RenderWorld::create_mesh(ResourceId id, int32_t node, const Vector3& pos,
 	MeshResource* mr = (MeshResource*) device()->resource_manager()->data(id);
 
 	// Allocate memory for mesh
-	Mesh* mesh = (Mesh*) m_mesh_pool.allocate(sizeof(Mesh));
+	Mesh* mesh = CE_NEW(m_mesh_pool, Mesh);
 
 	// Create mesh id
 	const MeshId mesh_id = m_mesh.create(mesh);
@@ -131,8 +131,13 @@ MeshId RenderWorld::create_mesh(ResourceId id, int32_t node, const Vector3& pos,
 }
 
 //-----------------------------------------------------------------------------
-void RenderWorld::destroy_mesh(MeshId /*id*/)
+void RenderWorld::destroy_mesh(MeshId id)
 {
+	CE_ASSERT(m_mesh.has(id), "Mesh does not exist");
+
+	Mesh* mesh = m_mesh.lookup(id);
+	CE_DELETE(m_mesh_pool, mesh);
+	m_mesh.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -149,7 +154,7 @@ SpriteId RenderWorld::create_sprite(ResourceId id, int32_t node, const Vector3& 
 	SpriteResource* sr = (SpriteResource*) device()->resource_manager()->data(id);
 
 	// Allocate memory for sprite
-	Sprite* sprite = (Sprite*) m_sprite_pool.allocate(sizeof(Sprite));
+	Sprite* sprite = CE_NEW(m_sprite_pool, Sprite);
 
 	// Create sprite id
 	const SpriteId sprite_id = m_sprite.create(sprite);
@@ -159,9 +164,14 @@ SpriteId RenderWorld::create_sprite(ResourceId id, int32_t node, const Vector3& 
 }
 
 //-----------------------------------------------------------------------------
-void RenderWorld::destroy_sprite(SpriteId /*id*/)
+void RenderWorld::destroy_sprite(SpriteId id)
 {
-	// Stub
+	CE_ASSERT(m_sprite.has(id), "Sprite does not exist");
+
+	Sprite* sprite = m_sprite.lookup(id);
+	sprite->destroy();
+	CE_DELETE(m_sprite_pool, sprite);
+	m_sprite.destroy(id);
 }
 
 //-----------------------------------------------------------------------------

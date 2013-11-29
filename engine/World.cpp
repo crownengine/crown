@@ -56,22 +56,29 @@ UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion&
 
 	// Create Id for the unit
 	const UnitId unit_id = m_units.create(unit);
-	unit->create(*this, ur, unit_id, pos, rot);
+	unit->create(*this, m_graph_manager, ur, unit_id, pos, rot);
 
 	return unit_id;
 }
 
 //-----------------------------------------------------------------------------
-void World::destroy_unit(UnitId unit)
+void World::destroy_unit(UnitId id)
 {
-	CE_ASSERT(m_units.has(unit), "Unit does not exist");
+	CE_ASSERT(m_units.has(id), "Unit does not exist");
+
+	Unit* unit = m_units.lookup(id);
+
+	unit->destroy();
+	CE_DELETE(m_unit_pool, unit);
+	m_units.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
 void World::destroy_unit(Unit* unit)
 {
 	CE_ASSERT_NOT_NULL(unit);
-	CE_DELETE(m_unit_pool, unit);
+
+	destroy_unit(unit->m_id);
 }
 
 //-----------------------------------------------------------------------------
@@ -189,15 +196,8 @@ Sprite* World::lookup_sprite(SpriteId sprite)
 //-----------------------------------------------------------------------------
 void World::update(Camera& camera, float dt)
 {
-	// Update all the units
-	for (uint32_t uu = 0; uu < m_units.size(); uu++)
-	{
-		Unit& unit = *m_units.m_objects[uu];
-		SceneGraph& graph = unit.m_scene_graph;
-
-		// Update unit's scene graph
-		graph.update();
-	}
+	// Update scene graphs
+	m_graph_manager.update();
 
 	// Update camera poses
 	for (uint32_t i = 0; i < m_unit_to_camera.size(); i++)
@@ -207,7 +207,7 @@ void World::update(Camera& camera, float dt)
 		Camera* cam = m_camera.lookup(utc.camera);
 		Unit* unit = m_units.lookup(utc.unit);
 
-		cam->m_world_pose = unit->m_scene_graph.world_pose(utc.node);
+		cam->m_world_pose = unit->m_scene_graph->world_pose(utc.node);
 	}
 
 	// Updates sound poses
@@ -218,7 +218,7 @@ void World::update(Camera& camera, float dt)
 		Sound& sound = m_sounds.lookup(uts.sound);
 		Unit* unit = m_units.lookup(uts.unit);
 
-		sound.world = unit->m_scene_graph.world_pose(uts.node);
+		sound.world = unit->m_scene_graph->world_pose(uts.node);
 	}
 
 	// Update sprites poses
@@ -229,7 +229,7 @@ void World::update(Camera& camera, float dt)
 		Unit* unit = lookup_unit(uts.unit);
 		Sprite* sprite = lookup_sprite(uts.sprite);
 
-		sprite->m_world_pose = unit->m_scene_graph.world_pose(uts.node);
+		sprite->m_world_pose = unit->m_scene_graph->world_pose(uts.node);
 	}
 
 	// Update render world
@@ -257,9 +257,13 @@ CameraId World::create_camera(int32_t node, const Vector3& pos, const Quaternion
 }
 
 //-----------------------------------------------------------------------------
-void World::destroy_camera(CameraId camera)
+void World::destroy_camera(CameraId id)
 {
-	m_camera.destroy(camera);
+	CE_ASSERT(m_camera.has(id), "Camera does not exist");
+
+	Camera* camera = m_camera.lookup(id);
+	CE_DELETE(m_camera_pool, camera);
+	m_camera.destroy(id);
 }
 
 //-----------------------------------------------------------------------------

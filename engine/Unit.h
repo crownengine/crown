@@ -68,6 +68,7 @@ class Camera;
 class Mesh;
 class Sprite;
 class World;
+class SceneGraphManager;
 struct UnitResource;
 
 #define MAX_CAMERA_COMPONENTS 8
@@ -77,7 +78,7 @@ struct UnitResource;
 struct Unit
 {
 					Unit();
-	void			create(World& world, UnitResource* ur, UnitId id, const Vector3& pos, const Quaternion& rot);
+	void			create(World& world, SceneGraphManager& sg_mgr, UnitResource* ur, UnitId id, const Vector3& pos, const Quaternion& rot);
 	void			destroy();
 
 	Vector3			local_position(int32_t node = 0) const;
@@ -115,11 +116,12 @@ struct Unit
 public:
 
 	World*			m_world;
+	SceneGraphManager* m_sg_manager;
 	UnitResource*	m_resource;
 	UnitId			m_id;
 
 	int32_t			m_root_node;
-	SceneGraph		m_scene_graph;
+	SceneGraph*		m_scene_graph;
 
 	uint32_t		m_num_cameras;
 	Component		m_cameras[MAX_CAMERA_COMPONENTS];
