@@ -69,6 +69,9 @@ void World::destroy_unit(UnitId id)
 
 	Unit* unit = m_units.lookup(id);
 
+	// Destory unit's scene graph
+	m_graph_manager.destroy_scene_graph(&unit->m_scene_graph);
+
 	unit->destroy();
 	CE_DELETE(m_unit_pool, unit);
 	m_units.destroy(id);
