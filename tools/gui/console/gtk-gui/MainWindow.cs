@@ -97,5 +97,6 @@ public partial class MainWindow
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
 		this.ConnectAction.Activated += new global::System.EventHandler (this.OnConnectActivated);
 		this.entry1.Activated += new global::System.EventHandler (this.OnEntryActivated);
+		this.entry1.KeyPressEvent += new global::Gtk.KeyPressEventHandler (this.OnEntryKeyPressed);
 	}
 }
