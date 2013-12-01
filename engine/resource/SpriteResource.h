@@ -113,42 +113,42 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	const char* name()
+	const char* name() const
 	{
 		SpriteHeader* header = (SpriteHeader*)m_data;
 		return header->name;
 	}
 
 	//-----------------------------------------------------------------------------
-	ResourceId texture()
+	ResourceId texture() const
 	{
 		SpriteHeader* header = (SpriteHeader*)m_data;
 		return header->texture;
 	}
 
 	//-----------------------------------------------------------------------------
-	uint32_t num_frames()
+	uint32_t num_frames() const
 	{
 		SpriteHeader* header = (SpriteHeader*)m_data;
 		return header->num_frames;
 	}
 
 	//-----------------------------------------------------------------------------
-	uint32_t frame_rate()
+	uint32_t frame_rate() const
 	{
 		SpriteHeader* header = (SpriteHeader*)m_data;
 		return header->frame_rate;
 	}
 
 	//-----------------------------------------------------------------------------
-	uint32_t playback_mode()
+	uint32_t playback_mode() const
 	{
 		SpriteHeader* header = (SpriteHeader*)m_data;
 		return header->playback_mode;
 	}
 
 	//-----------------------------------------------------------------------------
-	float* animation()
+	float* animation() const
 	{
 		return (float*)(m_data + sizeof(SpriteHeader));
 	}
