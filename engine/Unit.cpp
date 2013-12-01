@@ -37,63 +37,74 @@ namespace crown
 typedef Id CameraId;
 typedef Id SpriteId;
 
-Unit::Unit()
-	: m_world(NULL)
+Unit::Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& pose)
+	: m_world(w)
+	, m_scene_graph(sg)
+	, m_resource(ur)
 	, m_num_cameras(0)
 	, m_num_meshes(0)
+	, m_num_sprites(0)
 {
+	create(pose);
 }
 
 //-----------------------------------------------------------------------------
-void Unit::create(World& world, SceneGraphManager& sg_mgr, UnitResource* ur, UnitId id, const Vector3& pos, const Quaternion& rot)
+void Unit::set_id(const UnitId id)
 {
-	// Create the scene graph
+	m_id = id;
+}
 
-	m_scene_graph = sg_mgr.create_scene_graph();
+//-----------------------------------------------------------------------------
+UnitId Unit::id()
+{
+	return m_id;
+}
 
+//-----------------------------------------------------------------------------
+void Unit::create(const Matrix4x4& pose)
+{
 	// Create the root node
-	m_root_node = m_scene_graph->create_node(-1, pos, rot);
+	int32_t root_node = m_scene_graph.create_node(-1, pose);
 
 	// Create renderables
-	for (uint32_t i = 0; i < ur->num_renderables(); i++)
+	for (uint32_t i = 0; i < m_resource->num_renderables(); i++)
 	{
-		int32_t node = m_scene_graph->create_node(m_root_node, Vector3::ZERO, Quaternion::IDENTITY);
+		int32_t node = m_scene_graph.create_node(root_node, Vector3::ZERO, Quaternion::IDENTITY);
 
-		UnitRenderable renderable = ur->get_renderable(i);
+		UnitRenderable renderable = m_resource->get_renderable(i);
 
-		if (renderable.type == UnitRenderable::MESH)
+		switch (renderable.type)
 		{
-			MeshId mesh = world.create_mesh(renderable.resource, node, Vector3::ZERO, Quaternion::IDENTITY);
-			add_mesh(renderable.name, mesh);
-		}
-		else if (renderable.type == UnitRenderable::SPRITE)
-		{
-			SpriteId sprite = world.create_sprite(renderable.resource, node, Vector3::ZERO, Quaternion::IDENTITY);
-			world.link_sprite(sprite, id, m_root_node);
-			add_sprite(renderable.name, sprite);
-		}
-		else
-		{
-			CE_FATAL("Oops, bad renderable type");
+			case UnitRenderable::MESH:
+			{
+				MeshId mesh = m_world.create_mesh(renderable.resource, m_scene_graph, node);
+				add_mesh(renderable.name, mesh);
+				break;
+			}
+			case UnitRenderable::SPRITE:
+			{
+				SpriteId sprite = m_world.create_sprite(renderable.resource, m_scene_graph, node);
+				add_sprite(renderable.name, sprite);
+				break;
+			}
+			default:
+			{
+				CE_FATAL("Oops, bad renderable type");
+				break;
+			}
 		}
 	}
 
 	// Create cameras
-	for (uint32_t i = 0; i < ur->num_cameras(); i++)
+	for (uint32_t i = 0; i < m_resource->num_cameras(); i++)
 	{
-		int32_t cam_node = m_scene_graph->create_node(m_root_node, Vector3::ZERO, Quaternion::IDENTITY);
+		const int32_t cam_node = m_scene_graph.create_node(root_node, Vector3::ZERO, Quaternion::IDENTITY);
 
-		UnitCamera camera = ur->get_camera(i);
-		CameraId cam = world.create_camera(cam_node, Vector3::ZERO, Quaternion::IDENTITY);
+		UnitCamera camera = m_resource->get_camera(i);
+		CameraId cam = m_world.create_camera(m_scene_graph, cam_node);
 		
-		world.link_camera(cam, id, m_root_node);
 		add_camera(camera.name, cam);
 	}
-
-	m_world = &world;
-	m_sg_manager = &sg_mgr;
-	m_resource = ur;
-	m_id = id;
 }
 
 //-----------------------------------------------------------------------------
@@ -102,89 +113,86 @@ void Unit::destroy()
 	// Destroy cameras
 	for (uint32_t i = 0; i < m_num_cameras; i++)
 	{
-		m_world->destroy_camera(m_cameras[i].component);
+		m_world.destroy_camera(m_cameras[i].component);
 	}
 
 	// Destroy meshes
 	for (uint32_t i = 0; i < m_num_meshes; i++)
 	{
-		m_world->destroy_mesh(m_meshes[i].component);
+		m_world.destroy_mesh(m_meshes[i].component);
 	}
 
 	// Destroy sprites
 	for (uint32_t i = 0; i < m_num_sprites; i++)
 	{
-		m_world->destroy_sprite(m_sprites[i].component);
+		m_world.destroy_sprite(m_sprites[i].component);
 	}
-
-	// Destroy scene graph
-	m_sg_manager->destroy_scene_graph(m_scene_graph);
 }
 
 //-----------------------------------------------------------------------------
 Vector3 Unit::local_position(int32_t node) const
 {
-	return m_scene_graph->local_position(node);
+	return m_scene_graph.local_position(node);
 }
 
 //-----------------------------------------------------------------------------
 Quaternion Unit::local_rotation(int32_t node) const
 {
-	return m_scene_graph->local_rotation(node);
+	return m_scene_graph.local_rotation(node);
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 Unit::local_pose(int32_t node) const
 {
-	return m_scene_graph->local_pose(node);
+	return m_scene_graph.local_pose(node);
 }
 
 //-----------------------------------------------------------------------------
 Vector3 Unit::world_position(int32_t node) const
 {
-	return m_scene_graph->world_position(node);
+	return m_scene_graph.world_position(node);
 }
 
 //-----------------------------------------------------------------------------
 Quaternion Unit::world_rotation(int32_t node) const
 {
-	return m_scene_graph->world_rotation(node);
+	return m_scene_graph.world_rotation(node);
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 Unit::world_pose(int32_t node) const
 {
-	return m_scene_graph->world_pose(node);
+	return m_scene_graph.world_pose(node);
 }
 
 //-----------------------------------------------------------------------------
-void Unit::set_local_position(const Vector3& pos, int32_t node)
+void Unit::set_local_position(int32_t node, const Vector3& pos)
 {
-	m_scene_graph->set_local_position(node, pos);
+	m_scene_graph.set_local_position(node, pos);
 }
 
 //-----------------------------------------------------------------------------
-void Unit::set_local_rotation(const Quaternion& rot, int32_t node)
+void Unit::set_local_rotation(int32_t node, const Quaternion& rot)
 {
-	m_scene_graph->set_local_rotation(node, rot);
+	m_scene_graph.set_local_rotation(node, rot);
 }
 
 //-----------------------------------------------------------------------------
-void Unit::set_local_pose(const Matrix4x4& pose, int32_t node)
+void Unit::set_local_pose(int32_t node, const Matrix4x4& pose)
 {
-	m_scene_graph->set_local_pose(node, pose);
+	m_scene_graph.set_local_pose(node, pose);
 }
 
 //-----------------------------------------------------------------------------
 void Unit::link_node(int32_t child, int32_t parent)
 {
-	m_scene_graph->link(child, parent);
+	m_scene_graph.link(child, parent);
 }
 
 //-----------------------------------------------------------------------------
 void Unit::unlink_node(int32_t child)
 {
-	m_scene_graph->unlink(child);
+	m_scene_graph.unlink(child);
 }
 
 //-----------------------------------------------------------------------------
@@ -262,7 +270,7 @@ Camera* Unit::camera(const char* name)
 
 	CE_ASSERT(cam.id != INVALID_ID, "Unit does not have camera with name '%s'", name);
 
-	return m_world->lookup_camera(cam);
+	return m_world.lookup_camera(cam);
 }
 
 //-----------------------------------------------------------------------------
@@ -272,7 +280,7 @@ Camera* Unit::camera(uint32_t i)
 
 	CE_ASSERT(cam.id != INVALID_ID, "Unit does not have camera with index '%d'", i);
 
-	return m_world->lookup_camera(cam);
+	return m_world.lookup_camera(cam);
 }
 
 //-----------------------------------------------------------------------------
@@ -282,7 +290,7 @@ Mesh* Unit::mesh(const char* name)
 
 	CE_ASSERT(mesh.id != INVALID_ID, "Unit does not have mesh with name '%s'", name);
 
-	return m_world->lookup_mesh(mesh);
+	return m_world.lookup_mesh(mesh);
 }
 
 //-----------------------------------------------------------------------------
@@ -292,7 +300,7 @@ Mesh* Unit::mesh(uint32_t i)
 
 	CE_ASSERT(mesh.id != INVALID_ID, "Unit does not have mesh with index '%d'", i);
 
-	return m_world->lookup_mesh(mesh);
+	return m_world.lookup_mesh(mesh);
 }
 
 //-----------------------------------------------------------------------------
@@ -302,7 +310,7 @@ Sprite*	Unit::sprite(const char* name)
 
 	CE_ASSERT(sprite.id != INVALID_ID, "Unit does not have sprite with name '%s'", name);
 
-	return m_world->lookup_sprite(sprite);
+	return m_world.lookup_sprite(sprite);
 }
 
 //-----------------------------------------------------------------------------
@@ -312,7 +320,7 @@ Sprite*	Unit::sprite(uint32_t i)
 
 	CE_ASSERT(sprite.id != INVALID_ID, "Unit does not have sprite with index '%d'", i);
 
-	return m_world->lookup_sprite(sprite);
+	return m_world.lookup_sprite(sprite);
 }
 
 } // namespace crown

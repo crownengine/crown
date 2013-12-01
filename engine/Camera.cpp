@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MathUtils.h"
 #include "Quaternion.h"
 #include "Unit.h"
+#include "SceneGraph.h"
 #include "Assert.h"
 #include "Vector4.h"
 
@@ -36,74 +37,65 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void Camera::create(int32_t node, const Vector3& /*pos*/, const Quaternion& /*rot*/)
+Camera::Camera(SceneGraph& sg, int32_t node)
+	: m_scene_graph(sg)
+	, m_node(node)
+	, m_projection_type(ProjectionType::PERSPECTIVE)
 {
-	m_node = node;
-	m_projection_type = ProjectionType::PERSPECTIVE;
 }
 
 //-----------------------------------------------------------------------------
 Vector3 Camera::local_position() const
 {
-	return m_local_pose.translation();
+	return m_scene_graph.local_position(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Quaternion Camera::local_rotation() const
 {
-	return m_local_pose.to_quaternion();
+	return m_scene_graph.local_rotation(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 Camera::local_pose() const
 {
-	return m_local_pose;
+	return m_scene_graph.local_pose(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Vector3 Camera::world_position() const
 {
-	return m_world_pose.translation();
+	return m_scene_graph.world_position(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Quaternion Camera::world_rotation() const
 {
-	return m_world_pose.to_quaternion();
+	return m_scene_graph.world_rotation(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 Camera::world_pose() const
 {
-	return m_world_pose;
+	return m_scene_graph.world_pose(m_node);
 }
 
 //-----------------------------------------------------------------------------
 void Camera::set_local_position(Unit* unit, const Vector3& pos)
 {
-	m_local_pose.set_translation(pos);
-
-	unit->set_local_position(pos, m_node);
+	unit->set_local_position(m_node, pos);
 }
 
 //-----------------------------------------------------------------------------
 void Camera::set_local_rotation(Unit* unit, const Quaternion& rot)
 {
-	Matrix4x4& local_pose = m_local_pose;
-
-	Vector3 local_translation = local_pose.translation();
-	local_pose = rot.to_matrix4x4();
-	local_pose.set_translation(local_translation);
-
-	unit->set_local_rotation(rot, m_node);
+	unit->set_local_rotation(m_node, rot);
 }
 
 //-----------------------------------------------------------------------------
 void Camera::set_local_pose(Unit* unit, const Matrix4x4& pose)
 {
-	m_local_pose = pose;
-
-	unit->set_local_pose(pose, m_node);
+	unit->set_local_pose(m_node, pose);
 }
 
 //-----------------------------------------------------------------------
@@ -117,6 +109,12 @@ void Camera::set_projection_type(ProjectionType::Enum type)
 ProjectionType::Enum Camera::projection_type() const
 {
 	return m_projection_type;
+}
+
+//-----------------------------------------------------------------------
+const Matrix4x4& Camera::projection_matrix() const
+{
+	return m_projection;
 }
 
 //-----------------------------------------------------------------------------
@@ -194,7 +192,7 @@ void Camera::set_viewport_metrics(uint16_t x, uint16_t y, uint16_t width, uint16
 //-----------------------------------------------------------------------------
 Vector3 Camera::screen_to_world(const Vector3& pos)
 {
-	Matrix4x4 world_inv = m_world_pose;
+	Matrix4x4 world_inv = world_pose();
 	world_inv.invert();
 	Matrix4x4 mvp = m_projection * world_inv;
 	mvp.invert();
@@ -212,7 +210,7 @@ Vector3 Camera::screen_to_world(const Vector3& pos)
 //-----------------------------------------------------------------------------
 Vector3 Camera::world_to_screen(const Vector3& pos)
 {
-	Matrix4x4 world_inv = m_world_pose;
+	Matrix4x4 world_inv = world_pose();
 	world_inv.invert();
 
 	Vector3 ndc = (m_projection * world_inv) * pos;

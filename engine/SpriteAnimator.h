@@ -54,7 +54,7 @@ public:
 
 public:
 	//-----------------------------------------------------------------------------	
-	SpriteAnimator(SpriteResource* sr)
+	SpriteAnimator(const SpriteResource* sr)
 		: m_vb(sr->m_vb)
 		, m_num_frames(sr->num_frames())
 		, m_frame_rate(sr->frame_rate())

@@ -39,24 +39,25 @@ namespace crown
 World::World()
 	: m_unit_pool(default_allocator(), MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
 	, m_camera_pool(default_allocator(), MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
-	, m_unit_to_camera(default_allocator())
 	, m_unit_to_sound(default_allocator())
-	, m_unit_to_sprite(default_allocator())
 {
 }
 
 //-----------------------------------------------------------------------------
 UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion& rot)
 {
-	// Allocate memory for unit
-	Unit* unit = CE_NEW(m_unit_pool, Unit)();
-
 	// Fetch resource
 	UnitResource* ur = (UnitResource*) device()->resource_manager()->lookup(UNIT_EXTENSION, name);
 
+	// Create a new scene graph
+	SceneGraph* graph = m_graph_manager.create_scene_graph();
+
+	// Allocate memory for unit
+	Unit* unit = CE_NEW(m_unit_pool, Unit)(*this, *graph, ur, Matrix4x4(rot, pos));
+
 	// Create Id for the unit
 	const UnitId unit_id = m_units.create(unit);
-	unit->create(*this, m_graph_manager, ur, unit_id, pos, rot);
+	unit->set_id(unit_id);
 
 	return unit_id;
 }
@@ -78,7 +79,7 @@ void World::destroy_unit(Unit* unit)
 {
 	CE_ASSERT_NOT_NULL(unit);
 
-	destroy_unit(unit->m_id);
+	destroy_unit(unit->id());
 }
 
 //-----------------------------------------------------------------------------
@@ -93,82 +94,14 @@ void World::link_unit(UnitId child, UnitId parent, int32_t node)
 	CE_ASSERT(m_units.has(child), "Child unit does not exist");
 	CE_ASSERT(m_units.has(parent), "Parent unit does not exist");
 
-	Unit* child_unit = lookup_unit(child);
 	Unit* parent_unit = lookup_unit(parent);
-
-	parent_unit->link_node(child_unit->m_root_node, node);
+	parent_unit->link_node(0, node);
 }
 
 //-----------------------------------------------------------------------------
 void World::unlink_unit(UnitId child)
 {
 	CE_ASSERT(m_units.has(child), "Child unit does not exist");
-}
-
-//-----------------------------------------------------------------------------
-void World::link_camera(CameraId camera, UnitId unit, int32_t node)
-{
-	UnitToCamera* utc = NULL;
-
-	for (uint32_t i = 0; i < m_unit_to_camera.size(); i++)
-	{
-		if (m_unit_to_camera[i].camera == camera && m_unit_to_camera[i].unit == unit)
-		{
-			utc = &m_unit_to_camera[i];
-		}
-	}
-
-	if (utc != NULL)
-	{
-		utc->node = node;
-	}
-	else
-	{
-		UnitToCamera new_utc;
-		new_utc.camera = camera;
-		new_utc.unit = unit;
-		new_utc.node = node;
-		m_unit_to_camera.push_back(new_utc);
-	}
-}
-
-//-----------------------------------------------------------------------------
-void World::unlink_camera(CameraId camera)
-{
-	(void)camera;
-}
-
-//-----------------------------------------------------------------------------
-void World::link_sprite(SpriteId sprite, UnitId unit, int32_t node)
-{
-	UnitToSprite* uts = NULL;
-
-	for (uint32_t i = 0; i < m_unit_to_sprite.size(); i++)
-	{
-		if (m_unit_to_sprite[i].sprite == sprite && m_unit_to_sprite[i].unit == unit)
-		{
-			uts = &m_unit_to_sprite[i];
-		}
-	}
-
-	if (uts != NULL)
-	{
-		uts->node = node;
-	}
-	else
-	{
-		UnitToSprite new_uts;
-		new_uts.sprite = sprite;
-		new_uts.unit = unit;
-		new_uts.node = node;
-		m_unit_to_sprite.push_back(new_uts);
-	}	
-}
-
-//-----------------------------------------------------------------------------
-void World::unlink_sprite(SpriteId sprite)
-{
-	(void)sprite;
 }
 
 //-----------------------------------------------------------------------------
@@ -205,41 +138,8 @@ void World::update(Camera& camera, float dt)
 	// Update scene graphs
 	m_graph_manager.update();
 
-	// Update camera poses
-	for (uint32_t i = 0; i < m_unit_to_camera.size(); i++)
-	{
-		const UnitToCamera& utc = m_unit_to_camera[i];
-
-		Camera* cam = m_camera.lookup(utc.camera);
-		Unit* unit = m_units.lookup(utc.unit);
-
-		cam->m_world_pose = unit->m_scene_graph->world_pose(utc.node);
-	}
-
-	// Updates sound poses
-	for (uint32_t i = 0; i < m_unit_to_sound.size(); i++)
-	{
-		const UnitToSound& uts = m_unit_to_sound[i];
-
-		Sound& sound = m_sounds.lookup(uts.sound);
-		Unit* unit = m_units.lookup(uts.unit);
-
-		sound.world = unit->m_scene_graph->world_pose(uts.node);
-	}
-
-	// Update sprites poses
-	for (uint32_t i = 0; i < m_unit_to_sprite.size(); i++)
-	{
-		const UnitToSprite& uts = m_unit_to_sprite[i];
-
-		Unit* unit = lookup_unit(uts.unit);
-		Sprite* sprite = lookup_sprite(uts.sprite);
-
-		sprite->m_world_pose = unit->m_scene_graph->world_pose(uts.node);
-	}
-
 	// Update render world
-	m_render_world.update(camera.m_world_pose, camera.m_projection, camera.m_view_x, camera.m_view_y,
+	m_render_world.update(camera.world_pose(), camera.m_projection, camera.m_view_x, camera.m_view_y,
 							camera.m_view_width, camera.m_view_height, dt);
 }
 
@@ -250,14 +150,13 @@ RenderWorld& World::render_world()
 }
 
 //-----------------------------------------------------------------------------
-CameraId World::create_camera(int32_t node, const Vector3& pos, const Quaternion& rot)
+CameraId World::create_camera(SceneGraph& sg, int32_t node)
 {
 	// Allocate memory for camera
-	Camera* camera = CE_NEW(m_camera_pool, Camera)();
+	Camera* camera = CE_NEW(m_camera_pool, Camera)(sg, node);
 
 	// Create Id for the camera
 	const CameraId camera_id = m_camera.create(camera);
-	camera->create(node, pos, rot);
 
 	return camera_id;
 }
@@ -269,13 +168,12 @@ void World::destroy_camera(CameraId id)
 
 	Camera* camera = m_camera.lookup(id);
 	CE_DELETE(m_camera_pool, camera);
-	m_camera.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
-MeshId World::create_mesh(ResourceId id, int32_t node, const Vector3& pos, const Quaternion& rot)
+MeshId World::create_mesh(ResourceId id, SceneGraph& sg, int32_t node)
 {
-	return m_render_world.create_mesh(id, node, pos, rot);
+	return m_render_world.create_mesh(id, sg, node);
 }
 
 //-----------------------------------------------------------------------------
@@ -285,9 +183,9 @@ void World::destroy_mesh(MeshId id)
 }
 
 //-----------------------------------------------------------------------------
-SpriteId World::create_sprite(ResourceId id, int32_t node, const Vector3& pos, const Quaternion& rot)
+SpriteId World::create_sprite(ResourceId id, SceneGraph& sg, int32_t node)
 {
-	return m_render_world.create_sprite(id, node, pos, rot);
+	return m_render_world.create_sprite(id, sg, node);
 }
 
 //-----------------------------------------------------------------------------

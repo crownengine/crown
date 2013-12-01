@@ -29,78 +29,74 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Matrix4x4.h"
 #include "Quaternion.h"
+#include "Unit.h"
+#include "SceneGraph.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void Mesh::create(const MeshResource* mr, int32_t node, const Vector3& pos, const Quaternion& rot)
+Mesh::Mesh(SceneGraph& sg, int32_t node, const MeshResource* mr)
+	: m_scene_graph(sg)
+	, m_node(node)
+	, m_resource(mr)
 {
 	m_vbuffer = mr->m_vbuffer;
 	m_ibuffer = mr->m_ibuffer;
-
-	set_local_position(pos);
-	set_local_rotation(rot);
-
-	m_node = node;
 }
 
 //-----------------------------------------------------------------------------
 Vector3 Mesh::local_position() const
 {
-	return m_local_pose.translation();
+	return m_scene_graph.local_position(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Quaternion Mesh::local_rotation() const
 {
-	return m_local_pose.to_quaternion();
+	return m_scene_graph.local_rotation(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 Mesh::local_pose() const
 {
-	return m_local_pose;
+	return m_scene_graph.local_pose(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Vector3 Mesh::world_position() const
 {
-	return m_world_pose.translation();
+	return m_scene_graph.world_position(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Quaternion Mesh::world_rotation() const
 {
-	return m_world_pose.to_quaternion();
+	return m_scene_graph.world_rotation(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 Mesh::world_pose() const
 {
-	return m_world_pose;
+	return m_scene_graph.world_pose(m_node);
 }
 
 //-----------------------------------------------------------------------------
-void Mesh::set_local_position(const Vector3& pos)
+void Mesh::set_local_position(Unit* unit, const Vector3& pos)
 {
-	m_local_pose.set_translation(pos);
+	unit->set_local_position(m_node, pos);
 }
 
 //-----------------------------------------------------------------------------
-void Mesh::set_local_rotation(const Quaternion& rot)
+void Mesh::set_local_rotation(Unit* unit, const Quaternion& rot)
 {
-	Matrix4x4& local_pose = m_local_pose;
-
-	Vector3 local_translation = local_pose.translation();
-	local_pose = rot.to_matrix4x4();
-	local_pose.set_translation(local_translation);
+	unit->set_local_rotation(m_node, rot);
 }
 
 //-----------------------------------------------------------------------------
-void Mesh::set_local_pose(const Matrix4x4& pose)
+void Mesh::set_local_pose(Unit* unit, const Matrix4x4& pose)
 {
-	m_local_pose = pose;
+	unit->set_local_pose(m_node, pose);
 }
 
 } // namespace crown

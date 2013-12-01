@@ -63,24 +63,10 @@ struct Sound
 	bool playing : 1;
 };
 
-struct UnitToCamera
-{
-	UnitId unit;
-	int32_t node;
-	CameraId camera;
-};
-
 struct UnitToSound
 {
 	UnitId unit;
 	SoundId sound;
-	int32_t node;
-};
-
-struct UnitToSprite
-{
-	UnitId unit;
-	SpriteId sprite;
 	int32_t node;
 };
 
@@ -103,12 +89,6 @@ public:
 	void								link_unit(UnitId child, UnitId parent, int32_t node);
 	void								unlink_unit(UnitId unit);
 
-	void								link_camera(CameraId camera, UnitId unit, int32_t node);
-	void								unlink_camera(CameraId camera);
-
-	void								link_sprite(SpriteId sprite, UnitId unit, int32_t node);
-	void								unlink_sprite(SpriteId sprite);
-
 	Unit*								lookup_unit(UnitId unit);
 	Camera*								lookup_camera(CameraId camera);
 	Mesh*								lookup_mesh(MeshId mesh);
@@ -117,13 +97,13 @@ public:
 	RenderWorld&						render_world();
 	void								update(Camera& camera, float dt);
 
-	CameraId							create_camera(int32_t node, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	CameraId							create_camera(SceneGraph& sg, int32_t node);
 	void								destroy_camera(CameraId id);
 
-	MeshId								create_mesh(ResourceId id, int32_t node, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	MeshId								create_mesh(ResourceId id, SceneGraph& sg, int32_t node);
 	void								destroy_mesh(MeshId id);
 
-	SpriteId							create_sprite(ResourceId id, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	SpriteId							create_sprite(ResourceId id, SceneGraph& sg, int32_t node);
 	void								destroy_sprite(SpriteId id);
 
 	SoundId								play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
@@ -146,9 +126,7 @@ private:
 	SceneGraphManager					m_graph_manager;
 
 	// Connections
-	List<UnitToCamera>					m_unit_to_camera;
 	List<UnitToSound>					m_unit_to_sound;
-	List<UnitToSprite>					m_unit_to_sprite;
 
 	RenderWorld							m_render_world;
 };

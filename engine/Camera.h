@@ -46,11 +46,12 @@ struct ProjectionType
 typedef Id UnitId;
 class Quaternion;
 class Unit;
+class SceneGraph;
 
 /// Represents the point of view into the game world.
 struct Camera
 {
-	void					create(int32_t node, const Vector3& pos, const Quaternion& rot);
+							Camera(SceneGraph& sg, int32_t node);
 
 	Vector3					local_position() const;
 	Quaternion				local_rotation() const;
@@ -66,6 +67,8 @@ struct Camera
 
 	void					set_projection_type(ProjectionType::Enum type);
 	ProjectionType::Enum	projection_type() const;
+
+	const Matrix4x4&		projection_matrix() const;
 
 	float					fov() const;
 	void					set_fov(float fov);
@@ -91,9 +94,8 @@ public:
 
 public:
 
+	SceneGraph&				m_scene_graph;
 	int32_t					m_node;
-	Matrix4x4				m_local_pose;
-	Matrix4x4				m_world_pose;
 
 	ProjectionType::Enum	m_projection_type;
 	Matrix4x4				m_projection;

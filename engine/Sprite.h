@@ -27,47 +27,46 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "RendererTypes.h"
+#include "Vector3.h"
 #include "Matrix4x4.h"
+#include "Quaternion.h"
 
 namespace crown
 {
 
 class SpriteResource;
 class SpriteAnimator;
-class Vector3;
-class Quaternion;
+class SceneGraph;
 struct Unit;
 
 //-----------------------------------------------------------------------------
 struct Sprite
 {
-	void				create(SpriteResource* sr, int32_t node, const Vector3& pos, const Quaternion& rot);
-	void				destroy();
+							Sprite(SceneGraph& sg, int32_t node, const SpriteResource* sr);
 
-	Vector3				local_position() const;
-	Quaternion			local_rotation() const;
-	Matrix4x4			local_pose() const;
+	Vector3					local_position() const;
+	Quaternion				local_rotation() const;
+	Matrix4x4				local_pose() const;
 
-	Vector3				world_position() const;
-	Quaternion			world_rotation() const;
-	Matrix4x4			world_pose() const;
+	Vector3					world_position() const;
+	Quaternion				world_rotation() const;
+	Matrix4x4				world_pose() const;
 
-	void				set_local_position(Unit* unit, const Vector3& pos);
-	void				set_local_rotation(Unit* unit, const Quaternion& rot);
-	void				set_local_pose(Unit* unit, const Matrix4x4& pose);
+	void					set_local_position(Unit* unit, const Vector3& pos);
+	void					set_local_rotation(Unit* unit, const Quaternion& rot);
+	void					set_local_pose(Unit* unit, const Matrix4x4& pose);
 
 public:
-	
-	int32_t				m_node;
 
-	Matrix4x4			m_local_pose;
-	Matrix4x4			m_world_pose;
+	SceneGraph&				m_scene_graph;	
+	int32_t					m_node;
+	const SpriteResource*	m_resource;
 
-	VertexBufferId		m_vb;
-	IndexBufferId		m_ib;
-	TextureId			m_texture;
+	VertexBufferId			m_vb;
+	IndexBufferId			m_ib;
+	TextureId				m_texture;
 
-	SpriteAnimator*		m_animator;
+	SpriteAnimator*			m_animator;
 };
 
 } // namespace crown

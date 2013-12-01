@@ -43,6 +43,12 @@ struct SceneGraph
 	/// than the being created node.
 	int32_t			create_node(int32_t parent, const Vector3& pos, const Quaternion& rot);
 
+	/// Creates a new node with @a parent parent with the given @a pose.
+	/// @note
+	/// The @a parent node must be either -1 (meaning no parent), or an index lesser
+	/// than the being created node.
+	int32_t			create_node(int32_t parent, const Matrix4x4& pose);
+
 	/// Links the @a child node to the @a parent node.
 	/// After the linking the @a child pose is reset to identity.
 	/// @note

@@ -77,60 +77,61 @@ struct UnitResource;
 
 struct Unit
 {
-					Unit();
-	void			create(World& world, SceneGraphManager& sg_mgr, UnitResource* ur, UnitId id, const Vector3& pos, const Quaternion& rot);
-	void			destroy();
+						Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& pose);
 
-	Vector3			local_position(int32_t node = 0) const;
-	Quaternion		local_rotation(int32_t node = 0) const;
-	Matrix4x4		local_pose(int32_t node = 0) const;
+	void				set_id(const UnitId id);
+	UnitId				id();
 
-	Vector3			world_position(int32_t node = 0) const;
-	Quaternion		world_rotation(int32_t node = 0) const;
-	Matrix4x4		world_pose(int32_t node = 0) const;
+	void				create(const Matrix4x4& pose);
+	void				destroy();
 
-	void			set_local_position(const Vector3& pos, int32_t node = 0);
-	void			set_local_rotation(const Quaternion& rot, int32_t node = 0);
-	void			set_local_pose(const Matrix4x4& pose, int32_t node = 0);
+	Vector3				local_position(int32_t node) const;
+	Quaternion			local_rotation(int32_t node) const;
+	Matrix4x4			local_pose(int32_t node) const;
 
-	void			link_node(int32_t child, int32_t parent);
-	void			unlink_node(int32_t child);
+	Vector3				world_position(int32_t node) const;
+	Quaternion			world_rotation(int32_t node) const;
+	Matrix4x4			world_pose(int32_t node) const;
 
-	void			add_component(StringId32 name, Id component, uint32_t& size, Component* array);
-	Id				find_component(const char* name, uint32_t size, Component* array);
-	Id				find_component(uint32_t index, uint32_t size, Component* array);
+	void				set_local_position(int32_t node, const Vector3& pos);
+	void				set_local_rotation(int32_t node, const Quaternion& rot);
+	void				set_local_pose(int32_t node, const Matrix4x4& pose);
 
-	void			add_camera(StringId32 name, CameraId camera);
-	void			add_mesh(StringId32 name, MeshId mesh);
-	void			add_sprite(StringId32 name, SpriteId sprite);
+	void				link_node(int32_t child, int32_t parent);
+	void				unlink_node(int32_t child);
 
-	Camera*			camera(const char* name);
-	Camera*			camera(uint32_t i);
+	void				add_component(StringId32 name, Id component, uint32_t& size, Component* array);
+	Id					find_component(const char* name, uint32_t size, Component* array);
+	Id					find_component(uint32_t index, uint32_t size, Component* array);
 
-	Mesh*			mesh(const char* name);
-	Mesh*			mesh(uint32_t i);
+	void				add_camera(StringId32 name, CameraId camera);
+	void				add_mesh(StringId32 name, MeshId mesh);
+	void				add_sprite(StringId32 name, SpriteId sprite);
 
-	Sprite*			sprite(const char* name);
-	Sprite*			sprite(uint32_t i);
+	Camera*				camera(const char* name);
+	Camera*				camera(uint32_t i);
+
+	Mesh*				mesh(const char* name);
+	Mesh*				mesh(uint32_t i);
+
+	Sprite*				sprite(const char* name);
+	Sprite*				sprite(uint32_t i);
 
 public:
 
-	World*			m_world;
-	SceneGraphManager* m_sg_manager;
-	UnitResource*	m_resource;
-	UnitId			m_id;
+	World&				m_world;
+	SceneGraph&			m_scene_graph;
+	const UnitResource*	m_resource;
+	UnitId				m_id;
 
-	int32_t			m_root_node;
-	SceneGraph*		m_scene_graph;
+	uint32_t			m_num_cameras;
+	Component			m_cameras[MAX_CAMERA_COMPONENTS];
 
-	uint32_t		m_num_cameras;
-	Component		m_cameras[MAX_CAMERA_COMPONENTS];
+	uint32_t			m_num_meshes;
+	Component			m_meshes[MAX_MESH_COMPONENTS];
 
-	uint32_t		m_num_meshes;
-	Component		m_meshes[MAX_MESH_COMPONENTS];
-
-	uint32_t		m_num_sprites;
-	Component		m_sprites[MAX_SPRITE_COMPONENTS];
+	uint32_t			m_num_sprites;
+	Component			m_sprites[MAX_SPRITE_COMPONENTS];
 };
 
 } // namespace crown

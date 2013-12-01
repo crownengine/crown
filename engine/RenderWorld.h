@@ -44,6 +44,7 @@ namespace crown
 typedef Id MeshId;
 typedef Id SpriteId;
 
+class SceneGraph;
 struct Camera;
 
 class RenderWorld
@@ -53,11 +54,11 @@ public:
 	RenderWorld();
 	~RenderWorld();
 
-	MeshId		create_mesh(ResourceId id, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	MeshId		create_mesh(ResourceId id, SceneGraph& sg, int32_t node);
 	void 		destroy_mesh(MeshId id);
 	Mesh* 		lookup_mesh(MeshId mesh);
 
-	SpriteId	create_sprite(ResourceId id, int32_t node = -1, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	SpriteId	create_sprite(ResourceId id, SceneGraph& sg, int32_t node);
 	void		destroy_sprite(SpriteId id);
 	Sprite*		lookup_sprite(SpriteId id);
 

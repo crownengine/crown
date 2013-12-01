@@ -30,94 +30,76 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SpriteResource.h"
 #include "Allocator.h"
 #include "SpriteAnimator.h"
+#include "SceneGraph.h"
 #include "Unit.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-void Sprite::create(SpriteResource* sr, int32_t node, const Vector3& /*pos*/, const Quaternion& /*rot*/)
+Sprite::Sprite(SceneGraph& sg, int32_t node, const SpriteResource* sr)
+	: m_scene_graph(sg)
+	, m_node(node)
+	, m_resource(sr)
 {
 	m_vb = sr->m_vb;
 	m_ib = sr->m_ib;
 	m_texture = ((TextureResource*)device()->resource_manager()->data(sr->texture()))->m_texture;
-	m_node = node;
-
 	m_animator = CE_NEW(default_allocator(), SpriteAnimator)(sr);
-}
-
-//-----------------------------------------------------------------------------
-void Sprite::destroy()
-{
-	if (m_animator)
-	{
-		CE_DELETE(default_allocator(), m_animator);
-	}
 }
 
 //-----------------------------------------------------------------------------
 Vector3 Sprite::local_position() const
 {
-	return m_local_pose.translation();
+	return m_scene_graph.local_position(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Quaternion Sprite::local_rotation() const
 {
-	return m_local_pose.to_quaternion();
+	return m_scene_graph.local_rotation(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 Sprite::local_pose() const
 {
-	return m_local_pose;
+	return m_scene_graph.local_pose(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Vector3 Sprite::world_position() const
 {
-	return m_world_pose.translation();
+	return m_scene_graph.world_position(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Quaternion Sprite::world_rotation() const
 {
-	return m_world_pose.to_quaternion();
+	return m_scene_graph.world_rotation(m_node);
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 Sprite::world_pose() const
 {
-	return m_world_pose;	
+	return m_scene_graph.world_pose(m_node);
 }
 
 //-----------------------------------------------------------------------------
 void Sprite::set_local_position(Unit* unit, const Vector3& pos)
 {
-	m_local_pose.set_translation(pos);
-
-	unit->set_local_position(pos, m_node);
+	unit->set_local_position(m_node, pos);
 }
 
 //-----------------------------------------------------------------------------
 void Sprite::set_local_rotation(Unit* unit, const Quaternion& rot)
 {
-	Matrix4x4& local_pose = m_local_pose;
-
-	Vector3 local_translation = local_pose.translation();
-	local_pose = rot.to_matrix4x4();
-	local_pose.set_translation(local_translation);
-
-	unit->set_local_rotation(rot, m_node);
+	unit->set_local_rotation(m_node, rot);
 }
 
 //-----------------------------------------------------------------------------
 void Sprite::set_local_pose(Unit* unit, const Matrix4x4& pose)
 {
-	m_local_pose = pose;
-
-	unit->set_local_pose(pose, m_node);
+	unit->set_local_pose(m_node, pose);
 }
-
 
 } // namespace crown

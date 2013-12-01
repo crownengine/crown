@@ -116,18 +116,14 @@ RenderWorld::~RenderWorld()
 }
 
 //-----------------------------------------------------------------------------
-MeshId RenderWorld::create_mesh(ResourceId id, int32_t node, const Vector3& pos, const Quaternion& rot)
+MeshId RenderWorld::create_mesh(ResourceId id, SceneGraph& sg, int32_t node)
 {
 	MeshResource* mr = (MeshResource*) device()->resource_manager()->data(id);
 
 	// Allocate memory for mesh
-	Mesh* mesh = CE_NEW(m_mesh_pool, Mesh);
+	Mesh* mesh = CE_NEW(m_mesh_pool, Mesh)(sg, node, mr);
 
-	// Create mesh id
-	const MeshId mesh_id = m_mesh.create(mesh);
-	mesh->create(mr, node, pos, rot);
-
-	return mesh_id;
+	return m_mesh.create(mesh);
 }
 
 //-----------------------------------------------------------------------------
@@ -149,18 +145,14 @@ Mesh* RenderWorld::lookup_mesh(MeshId mesh)
 }
 
 //-----------------------------------------------------------------------------
-SpriteId RenderWorld::create_sprite(ResourceId id, int32_t node, const Vector3& pos, const Quaternion& rot)
+SpriteId RenderWorld::create_sprite(ResourceId id, SceneGraph& sg, int32_t node)
 {
 	SpriteResource* sr = (SpriteResource*) device()->resource_manager()->data(id);
 
 	// Allocate memory for sprite
-	Sprite* sprite = CE_NEW(m_sprite_pool, Sprite);
+	Sprite* sprite = CE_NEW(m_sprite_pool, Sprite)(sg, node, sr);
 
-	// Create sprite id
-	const SpriteId sprite_id = m_sprite.create(sprite);
-	sprite->create(sr, node, pos, rot);
-
-	return sprite_id;
+	return m_sprite.create(sprite);
 }
 
 //-----------------------------------------------------------------------------
@@ -169,7 +161,6 @@ void RenderWorld::destroy_sprite(SpriteId id)
 	CE_ASSERT(m_sprite.has(id), "Sprite does not exist");
 
 	Sprite* sprite = m_sprite.lookup(id);
-	sprite->destroy();
 	CE_DELETE(m_sprite_pool, sprite);
 	m_sprite.destroy(id);
 }
@@ -212,7 +203,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		/*r->set_texture(0, u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
 		r->set_uniform(u_brightness, UNIFORM_FLOAT_1, &brightness, 1);*/
 
-		r->set_pose(mesh->m_local_pose);
+		r->set_pose(mesh->world_pose());
 		r->commit(0);
 	}
 
@@ -236,7 +227,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		r->set_program(texture_program);
 		r->set_texture(0, u_albedo_0, sprite->m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
 
-		r->set_pose(sprite->m_world_pose);
+		r->set_pose(sprite->world_pose());
 		r->commit(0);
 	}
 

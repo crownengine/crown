@@ -47,6 +47,14 @@ int32_t SceneGraph::create_node(int32_t parent, const Vector3& pos, const Quater
 	CE_ASSERT(parent < (int32_t) m_local_poses.size(), "Parent node must be < child node");
 
 	Matrix4x4 pose(rot, pos);
+	return create_node(parent, pose);
+}
+
+//-----------------------------------------------------------------------------
+int32_t SceneGraph::create_node(int32_t parent, const Matrix4x4& pose)
+{
+	CE_ASSERT(parent >= -1, "Parent node must be >= -1");
+	CE_ASSERT(parent < (int32_t) m_local_poses.size(), "Parent node must be < child node");
 
 	m_world_poses.push_back(pose);
 	m_local_poses.push_back(pose);
