@@ -104,9 +104,10 @@ CE_EXPORT int mesh_set_local_position(lua_State* L)
 	LuaStack stack(L);
 
 	Mesh* mesh = stack.get_mesh(1);
-	const Vector3 pos = stack.get_vector3(2);
+	Unit* unit = stack.get_unit(2);
+	const Vector3 pos = stack.get_vector3(3);
 
-	mesh->set_local_position(pos);
+	mesh->set_local_position(unit, pos);
 	return 0;
 }
 
@@ -116,9 +117,10 @@ CE_EXPORT int mesh_set_local_rotation(lua_State* L)
 	LuaStack stack(L);
 
 	Mesh* mesh = stack.get_mesh(1);
-	const Quaternion rot = stack.get_quaternion(2);
+	Unit* unit = stack.get_unit(2);
+	const Quaternion rot = stack.get_quaternion(3);
 
-	mesh->set_local_rotation(rot);
+	mesh->set_local_rotation(unit, rot);
 	return 0;
 }
 
@@ -128,9 +130,10 @@ CE_EXPORT int mesh_set_local_pose(lua_State* L)
 	LuaStack stack(L);
 
 	Mesh* mesh = stack.get_mesh(1);
-	const Matrix4x4 pose = stack.get_matrix4x4(2);
+	Unit* unit = stack.get_unit(2);
+	const Matrix4x4 pose = stack.get_matrix4x4(3);
 
-	mesh->set_local_pose(pose);
+	mesh->set_local_pose(unit, pose);
 	return 0;
 }
 
