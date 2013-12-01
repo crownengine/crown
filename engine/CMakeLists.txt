@@ -154,6 +154,8 @@ set (CONTAINERS_HEADERS
 	core/containers/Vector.h
 	core/containers/RBTree.h
 	core/containers/IdTable.h
+	core/containers/IdArray.h
+	core/containers/EventStream.h
 )
 
 set (MATH_SRC

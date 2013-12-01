@@ -63,6 +63,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Queue.h"
 #include "PriorityQueue.h"
 #include "IdTable.h"
+#include "IdArray.h"
+#include "EventStream.h"
 
 // Core/Strings
 #include "StringUtils.h"
