@@ -25,7 +25,7 @@ function init()
 	Camera.set_projection_type(camera, Camera.ORTHOGRAPHIC)
 	Camera.set_orthographic_metrics(camera, -6, 6, -6 / 1.6, 6 / 1.6)
 	Camera.set_viewport_metrics(camera, 0, 0, 1000, 625)
-	Unit.set_local_position(camera_unit, Vector3(0, 0, 1))
+	Unit.set_local_position(camera_unit, 0, Vector3(0, 0, 1))
 
 	local unit_names = { "units/star", "units/circle", "units/pentagon", "units/square" }
 	-- Spawn units randomly
@@ -51,7 +51,7 @@ function frame(dt)
 		local r = obj.rot_speed
 		obj.cur_rot = obj.cur_rot + r * dt
 
-		Unit.set_local_rotation(obj.unit, Quaternion(Vector3(0, 0, 1), obj.cur_rot))
+		Unit.set_local_rotation(obj.unit, 0, Quaternion(Vector3(0, 0, 1), obj.cur_rot))
 	end
 
 	Device.render_world(world, camera, dt)
