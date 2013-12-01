@@ -75,14 +75,6 @@ void World::destroy_unit(UnitId id)
 }
 
 //-----------------------------------------------------------------------------
-void World::destroy_unit(Unit* unit)
-{
-	CE_ASSERT_NOT_NULL(unit);
-
-	destroy_unit(unit->id());
-}
-
-//-----------------------------------------------------------------------------
 uint32_t World::num_units() const
 {
 	return m_units.size();

@@ -57,7 +57,7 @@ CE_EXPORT int world_destroy_unit(lua_State* L)
 	World* world = stack.get_world(1);
 	Unit* unit = stack.get_unit(2);
 
-	world->destroy_unit(unit);
+	world->destroy_unit(unit->id());
 	return 0;
 }
 

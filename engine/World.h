@@ -82,7 +82,6 @@ public:
 
 	UnitId								spawn_unit(const char* name, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion(Vector3(0, 1, 0), 0.0f));
 	void								destroy_unit(UnitId id);
-	void								destroy_unit(Unit* unit);
 
 	uint32_t							num_units() const;
 
