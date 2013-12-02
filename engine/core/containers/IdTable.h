@@ -54,6 +54,7 @@ public:
 	uint16_t		size() const;
 
 	const Id*		begin() const;
+	const Id*		end() const;
 
 private:
 
@@ -149,6 +150,13 @@ template <uint32_t MAX_NUM_ID>
 inline const Id* IdTable<MAX_NUM_ID>::begin() const
 {
 	return m_ids;
+}
+
+//-----------------------------------------------------------------------------
+template <uint32_t MAX_NUM_ID>
+inline const Id* IdTable<MAX_NUM_ID>::end() const
+{
+	return m_ids + MAX_NUM_ID;
 }
 
 //-----------------------------------------------------------------------------
