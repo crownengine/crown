@@ -94,7 +94,8 @@ public:
 	Sprite*								lookup_sprite(SpriteId sprite);
 
 	RenderWorld&						render_world();
-	void								update(Camera& camera, float dt);
+	void								update(float dt);
+	void								render(Camera* camera);
 
 	CameraId							create_camera(SceneGraph& sg, int32_t node);
 	void								destroy_camera(CameraId id);
@@ -119,7 +120,7 @@ private:
 	PoolAllocator						m_camera_pool;
 
 	IdArray<MAX_UNITS, Unit*>			m_units;
-	IdArray<MAX_CAMERAS, Camera*>		m_camera;
+	IdArray<MAX_CAMERAS, Camera*>		m_cameras;
 	IdArray<MAX_SOUNDS, Sound> 			m_sounds;
 
 	SceneGraphManager					m_graph_manager;

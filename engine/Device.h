@@ -53,6 +53,8 @@ class RPCServer;
 class World;
 class Camera;
 
+typedef Id CameraId;
+
 /// The Engine.
 /// It is the place where to look for accessing all of
 /// the engine subsystems and related stuff.
@@ -116,7 +118,10 @@ public:
 	void					frame();
 
 	/// Updates the given @a world and renders it from the given @a camera.
-	void					render_world(World& world, Camera& camera, float dt);
+	void					update_world(World* world, float dt);
+
+	/// Renders the given @a world from the point of view of the given @æ camera.
+	void					render_world(World* world, Camera* camera);
 
 	World*					create_world();
 	void					destroy_world(World* world);

@@ -110,9 +110,9 @@ Unit* World::lookup_unit(UnitId unit)
 //-----------------------------------------------------------------------------
 Camera* World::lookup_camera(CameraId camera)
 {
-	CE_ASSERT(m_camera.has(camera), "Camera does not exist");
+	CE_ASSERT(m_cameras.has(camera), "Camera does not exist");
 
-	return m_camera.lookup(camera);
+	return m_cameras.lookup(camera);
 }
 
 //-----------------------------------------------------------------------------
@@ -128,14 +128,17 @@ Sprite* World::lookup_sprite(SpriteId sprite)
 }
 
 //-----------------------------------------------------------------------------
-void World::update(Camera& camera, float dt)
+void World::update(float /*dt*/)
 {
 	// Update scene graphs
 	m_graph_manager.update();
+}
 
-	// Update render world
-	m_render_world.update(camera.world_pose(), camera.m_projection, camera.m_view_x, camera.m_view_y,
-							camera.m_view_width, camera.m_view_height, dt);
+//-----------------------------------------------------------------------------
+void World::render(Camera* camera)
+{
+	m_render_world.update(camera->world_pose(), camera->m_projection, camera->m_view_x, camera->m_view_y,
+							camera->m_view_width, camera->m_view_height);
 }
 
 //-----------------------------------------------------------------------------
@@ -151,7 +154,7 @@ CameraId World::create_camera(SceneGraph& sg, int32_t node)
 	Camera* camera = CE_NEW(m_camera_pool, Camera)(sg, node);
 
 	// Create Id for the camera
-	const CameraId camera_id = m_camera.create(camera);
+	const CameraId camera_id = m_cameras.create(camera);
 
 	return camera_id;
 }
@@ -159,9 +162,9 @@ CameraId World::create_camera(SceneGraph& sg, int32_t node)
 //-----------------------------------------------------------------------------
 void World::destroy_camera(CameraId id)
 {
-	CE_ASSERT(m_camera.has(id), "Camera does not exist");
+	CE_ASSERT(m_cameras.has(id), "Camera does not exist");
 
-	Camera* camera = m_camera.lookup(id);
+	Camera* camera = m_cameras.lookup(id);
 	CE_DELETE(m_camera_pool, camera);
 }
 

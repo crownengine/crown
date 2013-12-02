@@ -174,7 +174,7 @@ Sprite*	RenderWorld::lookup_sprite(SpriteId id)
 }
 
 //-----------------------------------------------------------------------------
-void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height, float /*dt*/)
+void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
 	static uint64_t frames = 0;
 

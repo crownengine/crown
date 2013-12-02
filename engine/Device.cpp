@@ -407,9 +407,15 @@ void Device::frame()
 }
 
 //-----------------------------------------------------------------------------
-void Device::render_world(World& world, Camera& camera, float dt)
+void Device::update_world(World* world, float dt)
 {
-	world.update(camera, dt);
+	world->update(dt);
+}
+
+//-----------------------------------------------------------------------------
+void Device::render_world(World* world, Camera* camera)
+{
+	world->render(camera);
 }
 
 //-----------------------------------------------------------------------------
