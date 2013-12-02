@@ -41,6 +41,9 @@ function init()
 end
 
 function frame(dt)
+	-- Update the world
+	Device.update_world(world, dt)
+
 	-- Stop the engine when the 'ESC' key is released
 	if Keyboard.button_released(Keyboard.ESCAPE) then
 		Device.stop()
@@ -54,7 +57,8 @@ function frame(dt)
 		Unit.set_local_rotation(obj.unit, 0, Quaternion(Vector3(0, 0, 1), obj.cur_rot))
 	end
 
-	Device.render_world(world, camera, dt)
+	-- Render the world
+	Device.render_world(world, camera)
 end
 
 function shutdown()
