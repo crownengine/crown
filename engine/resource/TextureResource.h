@@ -57,20 +57,15 @@ public:
 	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
+		const size_t file_size = file->size() - 12;
 
-		TextureResource* resource = (TextureResource*)allocator.allocate(sizeof(TextureResource));
-
-		file->read(&resource->m_header, sizeof(TextureHeader));
-
-		size_t size = resource->width() * resource->height() * Pixel::bytes_per_pixel(resource->format());
-
-		resource->m_data = (uint8_t*)allocator.allocate(sizeof(uint8_t) * size);
-
-		file->read(resource->m_data, size);
+		TextureResource* res = (TextureResource*) allocator.allocate(sizeof(TextureResource));
+		res->m_data = (char*) allocator.allocate(file_size);
+		file->read(res->m_data, file_size);
 
 		bundle.close(file);
 
-		return resource;
+		return res;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -102,30 +97,28 @@ public:
 
 	PixelFormat::Enum format() const
 	{
-		return (PixelFormat::Enum) m_header.format;
+		return (PixelFormat::Enum) ((TextureHeader*)m_data)->format;
 	}
 
 	uint32_t width() const
 	{
-		return m_header.width;
+		return ((TextureHeader*)m_data)->width;
 	}
 
 	uint32_t height() const
 	{
-		return m_header.height;
+		return ((TextureHeader*)m_data)->height;
 	}
 
-	const uint8_t* data() const
+	const char* data() const
 	{
-		return m_data;
+		return m_data + sizeof(TextureHeader);
 	}
 
 public:
 
-	TextureHeader		m_header;
-	uint8_t*			m_data;
-
-	TextureId m_texture;
+	char*				m_data;
+	TextureId			m_texture;
 };
 
 } // namespace crown
