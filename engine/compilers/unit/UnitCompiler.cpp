@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "UnitCompiler.h"
 #include "TempAllocator.h"
 #include "Log.h"
+#include "PhysicsTypes.h"
 
 namespace crown
 {

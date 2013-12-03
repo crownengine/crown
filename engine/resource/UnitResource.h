@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Bundle.h"
 #include "Allocator.h"
 #include "File.h"
+#include "PhysicsTypes.h"
 
 namespace crown
 {
