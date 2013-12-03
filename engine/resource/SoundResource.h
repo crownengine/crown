@@ -71,7 +71,7 @@ public:
 	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
-		const size_t file_size = file->size() - 12;
+		const size_t file_size = file->size();
 
 		void* res = allocator.allocate(file_size);
 		file->read(res, file_size);

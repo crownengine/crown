@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Compiler.h"
 #include "Filesystem.h"
 #include "DiskFilesystem.h"
-#include "ResourceFormat.h"
 #include "File.h"
 #include "Log.h"
 
@@ -48,25 +47,14 @@ bool Compiler::compile(const char* root_path, const char* dest_path, const char*
 		return false;
 	}
 
-	// Setup resource header
-	ResourceHeader resource_header;
-	resource_header.magic = RESOURCE_MAGIC_NUMBER;
-	resource_header.version = RESOURCE_VERSION;
-	resource_header.size = resource_size;
-
-	// Open destination file and write the header
+	// Open destination file
 	File* out_file = dest_fs.open(name_out, FOM_WRITE);
 
 	if (out_file)
 	{
-		// Write header
-		out_file->write((char*)&resource_header, sizeof(ResourceHeader));
-
-		// Write resource-specific data
+		// Write data
 		write_impl(out_file);
-
 		dest_fs.close(out_file);
-
 		cleanup();
 		return true;
 	}
