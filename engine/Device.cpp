@@ -162,6 +162,9 @@ void Device::init()
 	m_sound_renderer->init();
 	Log::d("SoundRenderer created.");
 
+	m_physx = CE_NEW(m_allocator, Physics)();
+	Log::d("Physics created.");
+
 	Log::d("Crown Engine initialized.");
 	Log::d("Initializing Game...");
 
@@ -192,6 +195,11 @@ void Device::shutdown()
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);
 
+	Log::d("Releasing Physics...");
+	if (m_physx)
+	{
+		CE_DELETE(m_allocator, m_physx);
+	}
 
 	Log::d("Releasing SoundRenderer...");
 	if (m_sound_renderer)

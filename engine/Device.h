@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LinearAllocator.h"
 #include "Resource.h"
 #include "RPCHandler.h"
+#include "Physics.h"
 
 namespace crown
 {
@@ -153,6 +154,7 @@ public:
 	Touch*					touch();
 	Accelerometer*			accelerometer();
 	RPCServer*				rpc() { return m_rpc; }
+	physx::PxPhysics*		physx() { return m_physx->m_physics; };
 
 protected:
 
@@ -204,6 +206,8 @@ protected:
 	RPCScriptHandler		m_script_handler;
 	RPCStatsHandler			m_stats_handler;
 	RPCPingHandler			m_ping_handler;
+
+	Physics*				m_physx;
 
 	bool 					m_renderer_init_request;
 
