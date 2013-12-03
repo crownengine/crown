@@ -62,8 +62,8 @@ struct UnitCamera
 struct UnitActor
 {
 	uint32_t name;
-	enum {STATIC, DYNAMIC, UNK_TYPE} type;
-	enum {SPHERE, BOX, PLANE, UNK_SHAPE} shape;
+	enum {STATIC, DYNAMIC} type;
+	enum {SPHERE, BOX, PLANE} shape;
 	bool active;
 };
 
