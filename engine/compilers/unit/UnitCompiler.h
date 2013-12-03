@@ -47,6 +47,7 @@ private:
 
 	List<UnitRenderable> m_renderable;
 	List<UnitCamera> m_camera;
+	List<UnitActor> m_actor;
 };
 
 } // namespace crown
