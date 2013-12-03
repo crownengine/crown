@@ -49,6 +49,12 @@ Sprite::Sprite(SceneGraph& sg, int32_t node, const SpriteResource* sr)
 }
 
 //-----------------------------------------------------------------------------
+Sprite::~Sprite()
+{
+	CE_DELETE(default_allocator(), m_animator);
+}
+
+//-----------------------------------------------------------------------------
 Vector3 Sprite::local_position() const
 {
 	return m_scene_graph.local_position(m_node);
