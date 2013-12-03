@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #undef min
 #undef max
 
-#include <cmath>
+#include <math.h>
 
 #include "Assert.h"
 #include "Types.h"
