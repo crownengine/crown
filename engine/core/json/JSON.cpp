@@ -188,6 +188,23 @@ static const char* skip_bool(const char* s)
 }
 
 //-----------------------------------------------------------------------------
+static const char* skip_null(const char* s)
+{
+	CE_ASSERT_NOT_NULL(s);
+
+	const char* ch = s;
+	if ((*ch) == 'n')
+	{
+		ch = next(ch, 'n');
+		ch = next(ch, 'u');
+		ch = next(ch, 'l');
+		ch = next(ch, 'l');
+	}
+
+	return ch;
+}
+
+//-----------------------------------------------------------------------------
 static bool is_escapee(char c)
 {
 	return c == '"' || c == '\\' || c == '/' || c == '\b' || c == '\f' || c == '\n' ||
@@ -392,6 +409,7 @@ void parse_array(const char* s, List<const char*>& array)
 			ch = skip_number(ch);
 			ch = skip_string(ch);
 			ch = skip_bool(ch);
+			ch = skip_null(ch);
 
 			ch = skip_whites(ch);
 
@@ -444,6 +462,7 @@ void parse_object(const char* s, List<JSONPair>& object)
 			ch = skip_number(ch);
 			ch = skip_string(ch);
 			ch = skip_bool(ch);
+			ch = skip_null(ch);
 
 			ch = skip_whites(ch);
 			ch = next(ch, ':');
@@ -458,6 +477,7 @@ void parse_object(const char* s, List<JSONPair>& object)
 			ch = skip_number(ch);
 			ch = skip_string(ch);
 			ch = skip_bool(ch);
+			ch = skip_null(ch);
 
 			ch = skip_whites(ch);
 
