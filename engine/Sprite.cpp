@@ -42,9 +42,9 @@ Sprite::Sprite(SceneGraph& sg, int32_t node, const SpriteResource* sr)
 	, m_node(node)
 	, m_resource(sr)
 {
-	m_vb = sr->m_vb;
-	m_ib = sr->m_ib;
-	m_texture = ((TextureResource*)device()->resource_manager()->data(sr->texture()))->m_texture;
+	m_vb = sr->vertex_buffer();
+	m_ib = sr->index_buffer();
+	m_texture = ((TextureResource*)device()->resource_manager()->data(sr->texture()))->texture();
 	m_animator = CE_NEW(default_allocator(), SpriteAnimator)(sr);
 }
 

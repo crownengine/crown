@@ -43,6 +43,8 @@ const uint32_t MESH_VERSION = 1;
 
 struct MeshHeader
 {
+	VertexBufferId		vbuffer;
+	IndexBufferId		ibuffer;
 	uint32_t			version;
 	uint32_t			num_meshes;
 	uint32_t			num_joints;
@@ -76,11 +78,10 @@ public:
 	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
-
 		const size_t file_size = file->size() - 12;
-		MeshResource* res = (MeshResource*) allocator.allocate(sizeof(MeshResource));
-		res->m_data = (uint8_t*) allocator.allocate(file_size);
-		file->read(res->m_data, file_size);
+
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
 
 		bundle.close(file);
 
@@ -91,69 +92,82 @@ public:
 	static void online(void* resource)
 	{
 		MeshResource* m = (MeshResource*) resource;
+		MeshHeader* h = (MeshHeader*) m;
 
-		m->m_vbuffer = device()->renderer()->create_vertex_buffer(m->num_vertices(), m->vertex_format(), m->vertices());
-		m->m_ibuffer = device()->renderer()->create_index_buffer(m->num_indices(), m->indices());
+		h->vbuffer = device()->renderer()->create_vertex_buffer(m->num_vertices(), m->vertex_format(), m->vertices());
+		h->ibuffer = device()->renderer()->create_index_buffer(m->num_indices(), m->indices());
 	}
 
 	//-----------------------------------------------------------------------------
 	static void unload(Allocator& a, void* res)
 	{
-		MeshResource* resource = (MeshResource*)res;
-		a.deallocate(resource->m_data);
-		a.deallocate(resource);
+		CE_ASSERT_NOT_NULL(res);
+		a.deallocate(res);
 	}
 
 	//-----------------------------------------------------------------------------
 	static void offline(void* resource)
 	{
 		MeshResource* m = (MeshResource*) resource;
+		MeshHeader* h = (MeshHeader*) m;
 
-		device()->renderer()->destroy_index_buffer(m->m_ibuffer);
-		device()->renderer()->destroy_vertex_buffer(m->m_vbuffer);
+		device()->renderer()->destroy_index_buffer(h->ibuffer);
+		device()->renderer()->destroy_vertex_buffer(h->vbuffer);
 	}
 
 	//-----------------------------------------------------------------------------
-	uint32_t num_vertices()
+	uint32_t num_vertices() const
 	{
-		MeshData* data = (MeshData*) (m_data + sizeof(MeshHeader));
+		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
 		return data->vertices.num_vertices;
 	}
 
 	//-----------------------------------------------------------------------------
-	VertexFormat::Enum vertex_format()
+	VertexFormat::Enum vertex_format() const
 	{
-		MeshData* data = (MeshData*) (m_data + sizeof(MeshHeader));
+		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
 		return data->vertices.format;
 	}
 
 	//-----------------------------------------------------------------------------
-	float* vertices()
+	float* vertices() const
 	{
-		MeshData* data = (MeshData*) (m_data + sizeof(MeshHeader));
-		return (float*) (m_data + data->vertices.offset);
+		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
+		return (float*) (((char*)this) + data->vertices.offset);
 	}
 
 	//-----------------------------------------------------------------------------
-	uint32_t num_indices()
+	uint32_t num_indices() const
 	{
-		MeshData* data = (MeshData*) (m_data + sizeof(MeshHeader));
+		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
 		return data->indices.num_indices;
 	}
 
 	//-----------------------------------------------------------------------------
-	uint16_t* indices()
+	uint16_t* indices() const
 	{
-		MeshData* data = (MeshData*) (m_data + sizeof(MeshHeader));
-		return (uint16_t*) (m_data + data->indices.offset);
+		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
+		return (uint16_t*) (((char*)this) + data->indices.offset);
 	}
 
-public:
+	//-----------------------------------------------------------------------------
+	VertexBufferId vertex_buffer() const
+	{
+		MeshHeader* h = (MeshHeader*) this;
+		return h->vbuffer;
+	}
 
-	uint8_t* m_data;
+	//-----------------------------------------------------------------------------
+	IndexBufferId index_buffer() const
+	{
+		MeshHeader* h = (MeshHeader*) this;
+		return h->ibuffer;
+	}
 
-	VertexBufferId m_vbuffer;
-	IndexBufferId m_ibuffer;
+private:
+
+	// Disable construction
+	MeshResource();
 };
 
 } // namespace crown

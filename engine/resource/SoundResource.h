@@ -52,18 +52,18 @@ const uint32_t SOUND_VERSION = 1;
 //-----------------------------------------------------------------------------
 struct SoundHeader
 {
-	uint32_t	version;	// Sound file version
-	uint32_t	size;
-	uint32_t	sample_rate;
-	uint32_t	avg_bytes_ps;
-	uint32_t	channels;
-	uint16_t	block_size;
-	uint16_t 	bits_ps;
-	uint8_t		sound_type;
+	SoundBufferId	sb;
+	uint32_t		version;	// Sound file version
+	uint32_t		size;
+	uint32_t		sample_rate;
+	uint32_t		avg_bytes_ps;
+	uint32_t		channels;
+	uint16_t		block_size;
+	uint16_t 		bits_ps;
+	uint8_t			sound_type;
 };
 
-
-class SoundResource
+struct SoundResource
 {
 public:
 
@@ -71,70 +71,94 @@ public:
 	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
+		const size_t file_size = file->size() - 12;
 
-		SoundResource* resource = (SoundResource*)allocator.allocate(sizeof(SoundResource));
-
-		file->read(&resource->m_header, sizeof(SoundHeader));
-
-		size_t size = resource->size();
-
-		resource->m_data = (uint8_t*)allocator.allocate(sizeof(uint8_t) * size);
-
-		file->read(resource->m_data, size);
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
 
 		bundle.close(file);
 
-		return resource;
+		return res;
 	}
 
 	//-----------------------------------------------------------------------------
 	static void online(void* resource)
 	{
-		CE_ASSERT(resource != NULL, "Resource not loaded");
+		CE_ASSERT_NOT_NULL(resource);
 
-		SoundResource* s = (SoundResource*)resource;
+		SoundResource* sr = (SoundResource*)resource;
+		SoundHeader* h = (SoundHeader*) sr;
 
-		SoundBufferId id = device()->sound_renderer()->create_sound_buffer((void*)s->data(), s->size(), s->sample_rate(), s->channels(), s->bits_ps());
-
-		s->m_id = id;
+		h->sb = device()->sound_renderer()->create_sound_buffer((void*)sr->data(), sr->size(), sr->sample_rate(), sr->channels(), sr->bits_ps());
 	}
 
 	//-----------------------------------------------------------------------------
 	static void unload(Allocator& allocator, void* resource)
 	{
-		CE_ASSERT(resource != NULL, "Resource not loaded");
-
-		allocator.deallocate(((SoundResource*)resource)->m_data);
+		CE_ASSERT_NOT_NULL(resource);
 		allocator.deallocate(resource);
 	}
 
 	//-----------------------------------------------------------------------------
 	static void offline(void* resource)
 	{
-		CE_ASSERT(resource != NULL, "Resource not loaded");
+		CE_ASSERT_NOT_NULL(resource);
 
-		SoundResource* s = (SoundResource*)resource;
-
-		device()->sound_renderer()->destroy_sound_buffer(s->m_id);
+		SoundHeader* s = (SoundHeader*) resource;
+		device()->sound_renderer()->destroy_sound_buffer(s->sb);
 	}
 
 public:
 
-	uint32_t 			size() const { return m_header.size; }
-	uint32_t			sample_rate() const { return m_header.sample_rate; }
-	uint32_t			avg_bytes_ps() const { return m_header.avg_bytes_ps; }
-	uint32_t			channels() const { return m_header.channels; }
-	uint16_t			block_size() const { return m_header.block_size; }
-	uint16_t			bits_ps() const { return m_header.bits_ps; }
-	uint8_t				sound_type() const { return m_header.sound_type; }
+	uint32_t size() const 
+	{
+		return ((SoundHeader*) this)->size;
+	}
 
-	const uint8_t*		data() const { return m_data; }
+	uint32_t sample_rate() const
+	{
+		return ((SoundHeader*) this)->sample_rate;
+	}
 
-public:
+	uint32_t avg_bytes_ps() const
+	{
+		return ((SoundHeader*) this)->avg_bytes_ps;
+	}
 
-	SoundHeader		m_header;
-	uint8_t*		m_data;
-	SoundBufferId	m_id;
+	uint32_t channels() const
+	{
+		return ((SoundHeader*) this)->channels;
+	}
+
+	uint16_t block_size() const
+	{
+		return ((SoundHeader*) this)->block_size;
+	}
+
+	uint16_t bits_ps() const
+	{
+		return ((SoundHeader*) this)->bits_ps;
+	}
+
+	uint8_t sound_type() const
+	{
+		return ((SoundHeader*) this)->sound_type;
+	}
+
+	const char* data() const
+	{
+		return ((char*) this) + sizeof(SoundHeader);
+	}
+
+	SoundBufferId sound_buffer() const
+	{
+		return ((SoundHeader*) this)->sb;
+	}
+
+private:
+
+	// Disable construction
+	SoundResource();
 };
 
 } // namespace crown

@@ -201,7 +201,7 @@ SoundId World::play_sound(const char* name, const bool loop, const float volume,
 	const SoundSourceId source = sr->create_sound_source();
 
 	Sound s;
-	s.buffer = sound->m_id;
+	s.buffer = sound->sound_buffer();
 	s.source = source;
 	s.world = Matrix4x4(Quaternion::IDENTITY, pos);
 	s.volume = volume;

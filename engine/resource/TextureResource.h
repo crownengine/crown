@@ -43,25 +43,23 @@ const uint32_t TEXTURE_VERSION = 1;
 
 struct TextureHeader
 {
+	TextureId	id;
 	uint32_t	version;	// Texture file version
 	uint32_t	format;		// Format of the pixels
 	uint32_t	width;		// Width in pixels
 	uint32_t	height;		// Height in pixels
 };
 
-class TextureResource
+struct TextureResource
 {
-public:
-
 	//-----------------------------------------------------------------------------
 	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
 		const size_t file_size = file->size() - 12;
 
-		TextureResource* res = (TextureResource*) allocator.allocate(sizeof(TextureResource));
-		res->m_data = (char*) allocator.allocate(file_size);
-		file->read(res->m_data, file_size);
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
 
 		bundle.close(file);
 
@@ -72,8 +70,9 @@ public:
 	static void online(void* resource)
 	{
 		TextureResource* t = (TextureResource*) resource;
+		TextureHeader* h = (TextureHeader*) t;
 
-		t->m_texture = device()->renderer()->create_texture(t->width(), t->height(), t->format(), t->data());
+		h->id = device()->renderer()->create_texture(t->width(), t->height(), t->format(), t->data());
 	}
 
 	//-----------------------------------------------------------------------------
@@ -81,7 +80,6 @@ public:
 	{
 		CE_ASSERT(resource != NULL, "Resource not loaded");
 
-		allocator.deallocate(((TextureResource*)resource)->m_data);
 		allocator.deallocate(resource);
 	}
 
@@ -90,35 +88,38 @@ public:
 	{
 		TextureResource* t = (TextureResource*) resource;
 
-		device()->renderer()->destroy_texture(t->m_texture);
+		device()->renderer()->destroy_texture(t->texture());
 	}
-
-public:
 
 	PixelFormat::Enum format() const
 	{
-		return (PixelFormat::Enum) ((TextureHeader*)m_data)->format;
+		return (PixelFormat::Enum) ((TextureHeader*) this)->format;
 	}
 
 	uint32_t width() const
 	{
-		return ((TextureHeader*)m_data)->width;
+		return ((TextureHeader*) this)->width;
 	}
 
 	uint32_t height() const
 	{
-		return ((TextureHeader*)m_data)->height;
+		return ((TextureHeader*) this)->height;
 	}
 
 	const char* data() const
 	{
-		return m_data + sizeof(TextureHeader);
+		return (char*)this + sizeof(TextureHeader);
 	}
 
-public:
+	TextureId texture() const
+	{
+		return ((TextureHeader*) this)->id;
+	}
 
-	char*				m_data;
-	TextureId			m_texture;
+private:
+
+	// Disable construction
+	TextureResource();
 };
 
 } // namespace crown

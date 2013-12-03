@@ -44,19 +44,16 @@ struct LuaHeader
 	uint32_t	size;		// Size of lua code
 };
 
-class LuaResource
+struct LuaResource
 {
-public:
-
 	//-----------------------------------------------------------------------------
 	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
-
 		const size_t file_size = file->size() - 12;
-		LuaResource* res = (LuaResource*) allocator.allocate(sizeof(LuaResource));
-		res->m_data = (uint8_t*) allocator.allocate(file_size);
-		file->read(res->m_data, file_size);
+
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
 
 		bundle.close(file);
 
@@ -64,35 +61,38 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* /*resource*/) {}
+	static void online(void* /*resource*/)
+	{
+	}
 
 	//-----------------------------------------------------------------------------
 	static void unload(Allocator& allocator, void* resource)
 	{
 		CE_ASSERT_NOT_NULL(resource);
-
-		allocator.deallocate(((LuaResource*)resource)->m_data);
 		allocator.deallocate(resource);
 	}
 
 	//-----------------------------------------------------------------------------
-	static void offline(void* /*resource*/) {}
-
-public:
-
-	uint32_t size() const
+	static void offline(void* /*resource*/)
 	{
-		return ((LuaHeader*) m_data)->size;
 	}
 
-	const uint8_t* code() const
+	/// Returns the size in bytes of the lua program.
+	uint32_t size() const
 	{
-		return m_data + sizeof(LuaHeader);
+		return ((LuaHeader*) this)->size;
+	}
+
+	/// Returns the lua program.
+	const char* program() const
+	{
+		return ((char*) this) + sizeof(LuaHeader);
 	}
 
 private:
 
-	uint8_t* m_data;
+	// Disable construction
+	LuaResource();
 };
 
 } // namespace crown

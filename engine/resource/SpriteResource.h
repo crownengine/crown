@@ -53,29 +53,26 @@ const uint32_t SPRITE_VERSION = 1;
 //-----------------------------------------------------------------------------
 struct SpriteHeader
 {
-	char 		name[128];
-	ResourceId 	texture;
-	uint32_t 	num_frames;
-	uint32_t 	frame_rate;
-	uint32_t 	playback_mode;
+	VertexBufferId 	vb;
+	IndexBufferId 	ib;
+	char 			name[128];
+	ResourceId 		texture;
+	uint32_t 		num_frames;
+	uint32_t 		frame_rate;
+	uint32_t 		playback_mode;
 };
 
 //-----------------------------------------------------------------------------
-class SpriteResource
+struct SpriteResource
 {
-public:
-
 	//-----------------------------------------------------------------------------
 	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
-
 		const size_t file_size = file->size() - 12;
 
-		SpriteResource* res = (SpriteResource*) allocator.allocate(sizeof(SpriteResource));
-		res->m_data = (uint8_t*) allocator.allocate(file_size);
-		res->m_data_size = file_size;
-		file->read(res->m_data, res->m_data_size);
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
 
 		bundle.close(file);
 
@@ -86,85 +83,91 @@ public:
 	static void online(void* resource)
 	{
 		SpriteResource* sr = (SpriteResource*)resource;
+		SpriteHeader* h = (SpriteHeader*) sr;
 
 		static uint16_t t_indices[] = {0, 1, 2, 0, 2, 3};
 
-		sr->m_vb = device()->renderer()->create_vertex_buffer(4, VertexFormat::P2_T2, sr->frame(0));
-		sr->m_ib = device()->renderer()->create_index_buffer(6, t_indices);
+		h->vb = device()->renderer()->create_vertex_buffer(4, VertexFormat::P2_T2, sr->frame(0));
+		h->ib = device()->renderer()->create_index_buffer(6, t_indices);
 	}
 
 	//-----------------------------------------------------------------------------
 	static void unload(Allocator& allocator, void* resource)
 	{
-		SpriteResource* res = (SpriteResource*)resource;
-		allocator.deallocate(res->m_data);
-		allocator.deallocate(res);
+		CE_ASSERT_NOT_NULL(resource);
+		allocator.deallocate(resource);
 	}
 
 	//-----------------------------------------------------------------------------
 	static void offline(void* resource)
 	{
-		SpriteResource* sprite = (SpriteResource*) resource;
+		CE_ASSERT_NOT_NULL(resource);
 
-		Renderer* r = device()->renderer();
+		SpriteResource* sr = (SpriteResource*) resource;
+		SpriteHeader* h = (SpriteHeader*) sr;
 
-		r->destroy_vertex_buffer(sprite->m_vb);
-		r->destroy_index_buffer(sprite->m_ib);
+		device()->renderer()->destroy_vertex_buffer(h->vb);
+		device()->renderer()->destroy_index_buffer(h->ib);
 	}
 
 	//-----------------------------------------------------------------------------
 	const char* name() const
 	{
-		SpriteHeader* header = (SpriteHeader*)m_data;
-		return header->name;
+		return ((SpriteHeader*) this)->name;
 	}
 
 	//-----------------------------------------------------------------------------
 	ResourceId texture() const
 	{
-		SpriteHeader* header = (SpriteHeader*)m_data;
-		return header->texture;
+		return ((SpriteHeader*) this)->texture;
 	}
 
 	//-----------------------------------------------------------------------------
 	uint32_t num_frames() const
 	{
-		SpriteHeader* header = (SpriteHeader*)m_data;
-		return header->num_frames;
+		return ((SpriteHeader*) this)->num_frames;
 	}
 
 	//-----------------------------------------------------------------------------
 	uint32_t frame_rate() const
 	{
-		SpriteHeader* header = (SpriteHeader*)m_data;
-		return header->frame_rate;
+		return ((SpriteHeader*) this)->frame_rate;
 	}
 
 	//-----------------------------------------------------------------------------
 	uint32_t playback_mode() const
 	{
-		SpriteHeader* header = (SpriteHeader*)m_data;
-		return header->playback_mode;
+		return ((SpriteHeader*) this)->playback_mode;
 	}
 
 	//-----------------------------------------------------------------------------
-	float* animation() const
+	const float* animation() const
 	{
-		return (float*)(m_data + sizeof(SpriteHeader));
+		return (float*) (((char*) this) + sizeof(SpriteHeader));
 	}
 
-	float* frame(uint32_t index)
+	//-----------------------------------------------------------------------------
+	const float* frame(uint32_t index) const
 	{
-		return (float*)(m_data + sizeof(SpriteHeader) + SPRITE_FRAME_SIZE * index);
+		return (float*) (((char*) this) + sizeof(SpriteHeader) + SPRITE_FRAME_SIZE * index);
 	}
 
-public:
+	//-----------------------------------------------------------------------------
+	VertexBufferId vertex_buffer() const
+	{
+		return ((SpriteHeader*) this)->vb;
+	}
 
-	uint8_t*					m_data;
-	size_t						m_data_size;
+	//-----------------------------------------------------------------------------
+	IndexBufferId index_buffer() const
+	{
+		return ((SpriteHeader*) this)->ib;
+	}
 
-	VertexBufferId 				m_vb;
-	IndexBufferId 				m_ib;
+private:
+
+	// Disable construction
+	SpriteResource();
 };
 
 } // namespace crown
