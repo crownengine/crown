@@ -34,6 +34,7 @@ namespace crown
 //-----------------------------------------------------------------------------
 SceneGraph::SceneGraph(uint32_t index)
 	: m_index(index)
+	, m_names(default_allocator())
 	, m_world_poses(default_allocator())
 	, m_local_poses(default_allocator())
 	, m_parents(default_allocator())

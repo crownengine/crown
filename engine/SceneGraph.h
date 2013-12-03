@@ -80,11 +80,12 @@ struct SceneGraph
 public:
 
 	/// Index into SceneGraphManager
-	uint32_t		m_index;
+	uint32_t			m_index;
 
-	List<Matrix4x4>	m_world_poses;
-	List<Matrix4x4>	m_local_poses;
-	List<int32_t>	m_parents;
+	List<StringId32>	m_names;
+	List<Matrix4x4>		m_world_poses;
+	List<Matrix4x4>		m_local_poses;
+	List<int32_t>		m_parents;
 };
 
 } // namespace crown
