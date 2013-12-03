@@ -47,6 +47,13 @@ Unit::Unit(World& w, SceneGraph& sg, PhysicsGraph& pg, const UnitResource* ur, c
 	, m_num_meshes(0)
 	, m_num_sprites(0)
 {
+	// Log debug info
+	Log::d("Creating unit...");
+	Log::d("Num renderables       = %d", ur->num_renderables());
+	Log::d("Num cameras           = %d", ur->num_cameras());
+	Log::d("Num actors            = %d", ur->num_actors());
+	Log::d("Num scene graph nodes = %d", ur->num_scene_graph_nodes());
+
 	create(pose);
 }
 
