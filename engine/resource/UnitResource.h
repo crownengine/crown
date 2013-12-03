@@ -65,11 +65,10 @@ public:
 	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
-
 		const size_t file_size = file->size() - 12;
-		UnitResource* res = (UnitResource*) allocator.allocate(sizeof(UnitResource));
-		res->m_data = (char*) allocator.allocate(file_size);
-		file->read(res->m_data, file_size);
+
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
 
 		bundle.close(file);
 
@@ -85,8 +84,6 @@ public:
 	static void unload(Allocator& allocator, void* resource)
 	{
 		CE_ASSERT_NOT_NULL(resource);
-
-		allocator.deallocate(((UnitResource*)resource)->m_data);
 		allocator.deallocate(resource);
 	}
 
@@ -100,40 +97,39 @@ public:
 	//-----------------------------------------------------------------------------
 	uint32_t num_renderables() const
 	{
-		CE_ASSERT_NOT_NULL(m_data);
-
-		return ((UnitHeader*)m_data)->num_renderables;
+		return ((UnitHeader*) this)->num_renderables;
 	}
 
 	//-----------------------------------------------------------------------------
-	const UnitRenderable& get_renderable(uint32_t i) const
+	UnitRenderable get_renderable(uint32_t i) const
 	{
 		CE_ASSERT(i < num_renderables(), "Index out of bounds");
 
-		UnitRenderable* begin = (UnitRenderable*) (m_data + ((UnitHeader*)m_data)->renderables_offset);
+		UnitHeader* h = (UnitHeader*) this;
+		UnitRenderable* begin = (UnitRenderable*) (((char*) this) + h->renderables_offset);
 		return begin[i];
 	}
 
 	//-----------------------------------------------------------------------------
 	uint32_t num_cameras() const
 	{
-		CE_ASSERT_NOT_NULL(m_data);
-
-		return ((UnitHeader*)m_data)->num_cameras;
+		return ((UnitHeader*) this)->num_cameras;
 	}
 
 	//-----------------------------------------------------------------------------
-	const UnitCamera& get_camera(uint32_t i) const
+	UnitCamera get_camera(uint32_t i) const
 	{
 		CE_ASSERT(i < num_cameras(), "Index out of bounds");
 
-		UnitCamera* begin = (UnitCamera*) (m_data + ((UnitHeader*)m_data)->cameras_offset);
+		UnitHeader* h = (UnitHeader*) this;
+		UnitCamera* begin = (UnitCamera*) (((char*) this) + h->cameras_offset);
 		return begin[i];
 	}
 
 private:
 
-	char* m_data;
+	// Disable construction
+	UnitResource();
 };
 
 } // namespace crown
