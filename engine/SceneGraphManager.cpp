@@ -56,6 +56,7 @@ void SceneGraphManager::destroy_scene_graph(SceneGraph* sg)
 	CE_ASSERT_NOT_NULL(sg);
 
 	m_graphs[sg->m_index] = m_graphs[m_graphs.size() - 1];
+	m_graphs[sg->m_index]->m_index = sg->m_index;
 	m_graphs.pop_back();
 
 	CE_DELETE(default_allocator(), sg);
