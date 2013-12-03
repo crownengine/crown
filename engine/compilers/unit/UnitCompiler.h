@@ -30,9 +30,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "UnitResource.h"
 #include "List.h"
+#include "Types.h"
+#include "Matrix4x4.h"
 
 namespace crown
 {
+
+struct ParentIndex
+{
+	StringId32 parent_name;
+	int32_t parent_index;
+	int32_t inner_index;
+
+	bool operator()(const ParentIndex& a, const ParentIndex& b)
+	{
+		return a.parent_index < b.parent_index;
+	}
+};
 
 class CE_EXPORT UnitCompiler : public Compiler
 {
@@ -45,9 +59,13 @@ public:
 
 private:
 
-	List<UnitRenderable> m_renderable;
-	List<UnitCamera> m_camera;
-	List<UnitActor> m_actor;
+	List<UnitRenderable>	m_renderable;
+	List<UnitCamera>		m_camera;
+	List<UnitActor>			m_actor;
+
+	List<StringId32>		m_node_names;
+	List<ParentIndex>		m_node_parents;
+	List<Matrix4x4>			m_node_poses;
 };
 
 } // namespace crown

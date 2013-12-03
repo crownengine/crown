@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "File.h"
 #include "PhysicsTypes.h"
+#include "Matrix4x4.h"
 
 namespace crown
 {
@@ -45,6 +46,10 @@ struct UnitHeader
 	uint32_t cameras_offset;
 	uint32_t num_actors;
 	uint32_t actors_offset;
+	uint32_t num_scene_graph_nodes;
+	uint32_t scene_graph_names_offset;
+	uint32_t scene_graph_poses_offset;
+	uint32_t scene_graph_parents_offset;
 };
 
 struct UnitRenderable
@@ -140,13 +145,40 @@ struct UnitResource
 	}
 
 	//-----------------------------------------------------------------------------
-	const UnitActor& get_actor(uint32_t i) const
+	UnitActor get_actor(uint32_t i) const
 	{
 		CE_ASSERT(i < num_actors(), "Index out of bounds");
 
 		UnitHeader* h = (UnitHeader*) this;
 		UnitActor* begin = (UnitActor*) (((char*) this) + h->actors_offset);
 		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_scene_graph_nodes() const
+	{
+		return ((UnitHeader*) this)->num_scene_graph_nodes;
+	}
+
+	//-----------------------------------------------------------------------------
+	const StringId32* scene_graph_names() const
+	{
+		UnitHeader* h = (UnitHeader*) this;
+		return (StringId32*) ((char*) this) + h->scene_graph_names_offset;
+	}
+
+	//-----------------------------------------------------------------------------
+	const Matrix4x4* scene_graph_poses() const
+	{
+		UnitHeader* h = (UnitHeader*) this;
+		return (Matrix4x4*) ((char*) this) + h->scene_graph_poses_offset;
+	}
+
+	//-----------------------------------------------------------------------------
+	const int32_t* scene_graph_parents() const
+	{
+		UnitHeader* h = (UnitHeader*) this;
+		return (int32_t*) ((char*) this) + h->scene_graph_parents_offset;
 	}
 
 private:
