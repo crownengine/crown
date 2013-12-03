@@ -57,10 +57,8 @@ struct UnitCamera
 	uint32_t name;
 };
 
-class UnitResource
+struct UnitResource
 {
-public:
-
 	//-----------------------------------------------------------------------------
 	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
@@ -91,8 +89,6 @@ public:
 	static void offline(void* /*resource*/)
 	{
 	}
-
-public:
 
 	//-----------------------------------------------------------------------------
 	uint32_t num_renderables() const
