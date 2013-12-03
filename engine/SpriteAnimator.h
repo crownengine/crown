@@ -55,7 +55,7 @@ public:
 public:
 	//-----------------------------------------------------------------------------	
 	SpriteAnimator(const SpriteResource* sr)
-		: m_vb(sr->m_vb)
+		: m_vb(sr->vertex_buffer())
 		, m_num_frames(sr->num_frames())
 		, m_frame_rate(sr->frame_rate())
 		, m_playback_mode((Enum)sr->playback_mode())

@@ -68,6 +68,11 @@ public:
 	{
 		// TODO
 	}
+
+private:
+
+	// Disable construction
+	MaterialResource();
 };
 
 } // namespace crown

@@ -52,19 +52,16 @@ struct PackageHeader
 	uint32_t sprites_offset;
 };
 
-class PackageResource
+struct PackageResource
 {
-public:
-
 	//-----------------------------------------------------------------------------
 	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
-
 		const size_t file_size = file->size() - 12;
-		PackageResource* res = (PackageResource*) allocator.allocate(sizeof(PackageResource));
-		res->m_data = (char*) allocator.allocate(file_size);
-		file->read(res->m_data, file_size);
+
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
 
 		bundle.close(file);
 
@@ -80,8 +77,6 @@ public:
 	static void unload(Allocator& allocator, void* resource)
 	{
 		CE_ASSERT_NOT_NULL(resource);
-
-		allocator.deallocate(((PackageResource*)resource)->m_data);
 		allocator.deallocate(resource);
 	}
 
@@ -90,54 +85,40 @@ public:
 	{
 	}
 
-public:
-
 	//-----------------------------------------------------------------------------
 	uint32_t num_textures() const
 	{
-		CE_ASSERT_NOT_NULL(m_data);
-
-		return ((PackageHeader*)m_data)->num_textures;
+		return ((PackageHeader*) this)->num_textures;
 	}
 
 	//-----------------------------------------------------------------------------
 	uint32_t num_scripts() const
 	{
-		CE_ASSERT_NOT_NULL(m_data);
-
-		return ((PackageHeader*)m_data)->num_scripts;
+		return ((PackageHeader*) this)->num_scripts;
 	}
 
 	//-----------------------------------------------------------------------------
 	uint32_t num_sounds() const
 	{
-		CE_ASSERT_NOT_NULL(m_data);
-
-		return ((PackageHeader*)m_data)->num_sounds;
+		return ((PackageHeader*) this)->num_sounds;
 	}
 
 	//-----------------------------------------------------------------------------
 	uint32_t num_meshes() const
 	{
-		CE_ASSERT_NOT_NULL(m_data);
-
-		return ((PackageHeader*)m_data)->num_meshes;
+		return ((PackageHeader*) this)->num_meshes;
 	}
 
 	//-----------------------------------------------------------------------------
 	uint32_t num_units() const
 	{
-		CE_ASSERT_NOT_NULL(m_data);
-
-		return ((PackageHeader*)m_data)->num_units;
+		return ((PackageHeader*) this)->num_units;
 	}
 
 	//-----------------------------------------------------------------------------
 	uint32_t num_sprites() const
 	{
-		CE_ASSERT_NOT_NULL(m_data);
-
-		return ((PackageHeader*)m_data)->num_sprites;
+		return ((PackageHeader*) this)->num_sprites;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -145,7 +126,7 @@ public:
 	{
 		CE_ASSERT(i < num_textures(), "Index out of bounds");
 
-		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->textures_offset);
+		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->textures_offset);
 		return begin[i];
 	}
 
@@ -154,7 +135,7 @@ public:
 	{
 		CE_ASSERT(i < num_scripts(), "Index out of bounds");
 
-		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->scripts_offset);
+		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->scripts_offset);
 		return begin[i];
 	}
 
@@ -163,7 +144,7 @@ public:
 	{
 		CE_ASSERT(i < num_sounds(), "Index out of bounds");
 
-		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->sounds_offset);
+		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->sounds_offset);
 		return begin[i];
 	}
 
@@ -172,7 +153,7 @@ public:
 	{
 		CE_ASSERT(i < num_meshes(), "Index out of bounds");
 
-		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->meshes_offset);
+		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->meshes_offset);
 		return begin[i];
 	}
 
@@ -181,7 +162,7 @@ public:
 	{
 		CE_ASSERT(i < num_units(), "Index out of bounds");
 
-		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->units_offset);
+		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->units_offset);
 		return begin[i];
 	}
 
@@ -190,13 +171,14 @@ public:
 	{
 		CE_ASSERT(i < num_sprites(), "Index out of bounds");
 
-		ResourceId* begin = (ResourceId*) (m_data + ((PackageHeader*)m_data)->sprites_offset);
+		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->sprites_offset);
 		return begin[i];
 	}
 
 private:
 
-	char* m_data;
+	// Disable construction
+	PackageResource();
 };
 
 } // namespace crown

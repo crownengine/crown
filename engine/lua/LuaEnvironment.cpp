@@ -181,7 +181,7 @@ static int crown_lua_require(lua_State* L)
 	device()->resource_manager()->flush();
 
 	const LuaResource* lr = (LuaResource*) device()->resource_manager()->data(lua_res);
-	luaL_loadbuffer(L, (const char*) lr->code(), lr->size(), "");
+	luaL_loadbuffer(L, (const char*) lr->program(), lr->size(), "");
 
 	device()->resource_manager()->unload(lua_res);
 
@@ -314,7 +314,7 @@ bool LuaEnvironment::load_and_execute(const char* res_name)
 	
 	lua_getglobal(m_state, "debug");
 	lua_getfield(m_state, -1, "traceback");
-	if (luaL_loadbuffer(m_state, (const char*) lr->code(), lr->size(), res_name) == 0)
+	if (luaL_loadbuffer(m_state, (const char*) lr->program(), lr->size(), res_name) == 0)
 	{
 		if (lua_pcall(m_state, 0, 0, -2) == 0)
 		{

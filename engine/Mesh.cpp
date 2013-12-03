@@ -41,8 +41,8 @@ Mesh::Mesh(SceneGraph& sg, int32_t node, const MeshResource* mr)
 	, m_node(node)
 	, m_resource(mr)
 {
-	m_vbuffer = mr->m_vbuffer;
-	m_ibuffer = mr->m_ibuffer;
+	m_vbuffer = mr->vertex_buffer();
+	m_ibuffer = mr->index_buffer();
 }
 
 //-----------------------------------------------------------------------------

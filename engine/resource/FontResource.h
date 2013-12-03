@@ -42,35 +42,32 @@ public:
 	static void* load(Allocator& /*allocator*/, Bundle& /*bundle*/, ResourceId /*id*/)
 	{
 		return NULL;
+		// TODO
 	}
 
 	//-----------------------------------------------------------------------------
 	static void online(void* resource)
 	{
 		(void)resource;
+		// TODO
 	}
 
 	//-----------------------------------------------------------------------------
 	static void unload(Allocator& /*allocator*/, void* /*resource*/)
 	{
+		// TODO
 	}
 
 	//-----------------------------------------------------------------------------
 	static void offline(void* /*resource*/)
 	{
+		// TODO
 	}
-
-public:
-
-	inline uint32_t			mat_text_heigth() { return m_max_text_height; }
-	inline uint32_t			max_character_height() { return m_max_character_height; }
-	inline uint32_t			max_character_width() { return m_max_character_width; }
 
 private:
 
-	uint32_t				m_max_text_height;
-	uint32_t				m_max_character_height;
-	uint32_t				m_max_character_width;
+	// Disable construction
+	FontResource();
 };
 
 } // namespace crown

@@ -43,6 +43,7 @@ struct Unit;
 struct Sprite
 {
 							Sprite(SceneGraph& sg, int32_t node, const SpriteResource* sr);
+							~Sprite();
 
 	Vector3					local_position() const;
 	Quaternion				local_rotation() const;
