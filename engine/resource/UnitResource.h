@@ -161,24 +161,27 @@ struct UnitResource
 	}
 
 	//-----------------------------------------------------------------------------
-	const StringId32* scene_graph_names() const
+	StringId32 scene_graph_name(uint32_t i) const
 	{
 		UnitHeader* h = (UnitHeader*) this;
-		return (StringId32*) ((char*) this) + h->scene_graph_names_offset;
+		StringId32* begin = (StringId32*) ((char*) this) + h->scene_graph_names_offset;
+		return begin[i];
 	}
 
 	//-----------------------------------------------------------------------------
-	const Matrix4x4* scene_graph_poses() const
+	Matrix4x4 scene_graph_pose(uint32_t i) const
 	{
 		UnitHeader* h = (UnitHeader*) this;
-		return (Matrix4x4*) ((char*) this) + h->scene_graph_poses_offset;
+		Matrix4x4* begin = (Matrix4x4*) ((char*) this) + h->scene_graph_poses_offset;
+		return begin[i];
 	}
 
 	//-----------------------------------------------------------------------------
-	const int32_t* scene_graph_parents() const
+	int32_t scene_graph_parent(uint32_t i) const
 	{
 		UnitHeader* h = (UnitHeader*) this;
-		return (int32_t*) ((char*) this) + h->scene_graph_parents_offset;
+		int32_t* begin = (int32_t*) ((char*) this) + h->scene_graph_parents_offset;
+		return begin[i];
 	}
 
 private:
