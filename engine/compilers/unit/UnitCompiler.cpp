@@ -129,11 +129,9 @@ size_t UnitCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 
 			UnitActor ua;
 			ua.name = hash::murmur2_32(actor_name.string_value(), actor_name.size(), 0);
-			ua.type = string::strcmp(actor_type.string_value(), "STATIC") == 0 ? UnitActor::STATIC :
-					string::strcmp(actor_type.string_value(), "DYNAMIC") == 0 ? UnitActor::DYNAMIC : UnitActor::UNK_TYPE;
+			ua.type = string::strcmp(actor_type.string_value(), "STATIC") == 0 ? UnitActor::STATIC : UnitActor::DYNAMIC;
 			ua.shape = string::strcmp(actor_shape.string_value(), "SPHERE") == 0 ? UnitActor::SPHERE :
-						string::strcmp(actor_shape.string_value(), "BOX") == 0 ? UnitActor::BOX :
-						string::strcmp(actor_shape.string_value(), "PLANE") == 0 ? UnitActor::PLANE : UnitActor::UNK_SHAPE;
+						string::strcmp(actor_shape.string_value(), "BOX") == 0 ? UnitActor::BOX : UnitActor::PLANE;
 			ua.active = actor_active.bool_value();
 
 			m_actor.push_back(ua);
