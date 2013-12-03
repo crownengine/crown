@@ -97,7 +97,7 @@ size_t LuaCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		return 0;
 	}
 
-	return sizeof(LuaHeader) + m_luajit_blob_size;
+	return 1;
 }
 
 //-----------------------------------------------------------------------------

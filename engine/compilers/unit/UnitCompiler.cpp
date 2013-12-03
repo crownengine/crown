@@ -200,13 +200,7 @@ size_t UnitCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	// Sort by link depth
 	std::sort(m_node_parents.begin(), m_node_parents.end(), ParentIndex());
 
-	return sizeof(UnitHeader) +
-			m_renderable.size() * sizeof(UnitRenderable) +
-			m_camera.size() * sizeof(UnitCamera) +
-			m_actor.size() * sizeof(UnitActor) +
-			m_node_names.size() * sizeof(StringId32) +
-			m_node_names.size() * sizeof(Matrix4x4) +
-			m_node_names.size() * sizeof(int32_t);
+	return 1;
 }
 
 //-----------------------------------------------------------------------------

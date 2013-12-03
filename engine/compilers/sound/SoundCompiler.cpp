@@ -64,7 +64,7 @@ size_t SoundCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		size = compile_if_ogg(fs, resource_path);
 	}
 	
-	return size;
+	return 1;
 }
 
 //-----------------------------------------------------------------------------

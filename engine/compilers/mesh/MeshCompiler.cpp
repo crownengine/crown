@@ -163,9 +163,7 @@ size_t MeshCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	default_allocator().deallocate(buf);
 	fs.close(file);
 
-	return sizeof(MeshHeader) + sizeof(MeshData) +
-	 		m_vertices.size() * sizeof(MeshVertex) +
-	 		m_indices.size() * sizeof(uint16_t);
+	return 1;
 }
 
 //-----------------------------------------------------------------------------

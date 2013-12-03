@@ -129,7 +129,7 @@ size_t TextureCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	fs.close(in_file);
 
 	// Return the total resource size
-	return sizeof(TextureHeader) + m_texture_data_size;
+	return 1;
 }
 
 //-----------------------------------------------------------------------------

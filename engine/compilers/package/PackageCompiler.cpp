@@ -210,13 +210,7 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		}
 	}
 
-	return sizeof(PackageHeader) +
-			m_texture.size() * sizeof(ResourceId) +
-			m_script.size() * sizeof(ResourceId) +
-			m_sound.size() * sizeof(ResourceId) +
-			m_mesh.size() * sizeof(ResourceId) +
-			m_unit.size() * sizeof(ResourceId) +
-			m_sprite.size() * sizeof(ResourceId);
+	return 1;
 }
 
 //-----------------------------------------------------------------------------

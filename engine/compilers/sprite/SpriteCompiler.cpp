@@ -96,7 +96,7 @@ size_t SpriteCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	fs.close(file);
 	default_allocator().deallocate(buf);
 
-	return sizeof(SpriteHeader) + sizeof(SpriteAnimationData) * m_anim_data.size();
+	return 1;
 }
 
 //-----------------------------------------------------------------------------
