@@ -42,6 +42,8 @@ struct UnitHeader
 	uint32_t renderables_offset;
 	uint32_t num_cameras;
 	uint32_t cameras_offset;
+	uint32_t num_actors;
+	uint32_t actors_offset;
 };
 
 struct UnitRenderable
@@ -55,6 +57,14 @@ struct UnitRenderable
 struct UnitCamera
 {
 	uint32_t name;
+};
+
+struct UnitActor
+{
+	uint32_t name;
+	enum {STATIC, DYNAMIC, UNK_TYPE} type;
+	enum {SPHERE, BOX, PLANE, UNK_SHAPE} shape;
+	bool active;
 };
 
 class UnitResource
@@ -128,6 +138,23 @@ public:
 		CE_ASSERT(i < num_cameras(), "Index out of bounds");
 
 		UnitCamera* begin = (UnitCamera*) (m_data + ((UnitHeader*)m_data)->cameras_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_actors() const
+	{
+		CE_ASSERT_NOT_NULL(m_data);
+
+		return ((UnitHeader*)m_data)->num_actors;
+	}
+
+	//-----------------------------------------------------------------------------
+	const UnitActor& get_actor(uint32_t i) const
+	{
+		CE_ASSERT(i < num_actors(), "Index out of bounds");
+
+		UnitActor* begin = (UnitActor*)(m_data + ((UnitHeader*)m_data)->actors_offset);
 		return begin[i];
 	}
 
