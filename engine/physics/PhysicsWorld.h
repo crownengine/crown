@@ -26,28 +26,42 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Compiler.h"
-#include "Resource.h"
-#include "UnitResource.h"
-#include "List.h"
+#include "IdArray.h"
+#include "PoolAllocator.h"
+#include "PhysicsTypes.h"
+
+#include "PxScene.h"
+
+#define MAX_ACTORS 1024
 
 namespace crown
 {
 
-class CE_EXPORT UnitCompiler : public Compiler
+typedef Id ActorId;
+
+class Vector3;
+class Actor;
+class PhysicsGraph;
+
+//-----------------------------------------------------------------------------
+class PhysicsWorld
 {
 public:
 
-	UnitCompiler();
+				PhysicsWorld();
+				~PhysicsWorld();
 
-	size_t compile_impl(Filesystem& fs, const char* resource_path);
-	void write_impl(File* out_file);
+	ActorId		create_actor(PhysicsGraph& pg, int32_t node, ActorType::Enum type);
+	void		destroy_actor(ActorId id);
+	Actor*		lookup_actor(ActorId id);
 
-private:
+	void		update(float dt);
 
-	List<UnitRenderable> m_renderable;
-	List<UnitCamera> m_camera;
-	List<UnitActor> m_actor;
+public:
+
+	physx::PxScene* m_scene;
+
+	PoolAllocator m_actor_pool;
+	IdArray<MAX_ACTORS, Actor*> m_actor;
 };
-
-} // namespace crown
+}

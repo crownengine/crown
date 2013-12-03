@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Bundle.h"
 #include "Allocator.h"
 #include "File.h"
+#include "PhysicsTypes.h"
 
 namespace crown
 {
@@ -42,6 +43,8 @@ struct UnitHeader
 	uint32_t renderables_offset;
 	uint32_t num_cameras;
 	uint32_t cameras_offset;
+	uint32_t num_actors;
+	uint32_t actors_offset;
 };
 
 struct UnitRenderable
@@ -55,6 +58,14 @@ struct UnitRenderable
 struct UnitCamera
 {
 	uint32_t name;
+};
+
+struct UnitActor
+{
+	uint32_t name;
+	enum {STATIC, DYNAMIC} type;
+	enum {SPHERE, BOX, PLANE} shape;
+	bool active;
 };
 
 struct UnitResource
@@ -119,6 +130,22 @@ struct UnitResource
 
 		UnitHeader* h = (UnitHeader*) this;
 		UnitCamera* begin = (UnitCamera*) (((char*) this) + h->cameras_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_actors() const
+	{
+		return ((UnitHeader*) this)->num_actors;
+	}
+
+	//-----------------------------------------------------------------------------
+	const UnitActor& get_actor(uint32_t i) const
+	{
+		CE_ASSERT(i < num_actors(), "Index out of bounds");
+
+		UnitHeader* h = (UnitHeader*) this;
+		UnitActor* begin = (UnitActor*) (((char*) this) + h->actors_offset);
 		return begin[i];
 	}
 

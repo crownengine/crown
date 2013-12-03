@@ -26,28 +26,33 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Compiler.h"
-#include "Resource.h"
-#include "UnitResource.h"
 #include "List.h"
 
 namespace crown
 {
 
-class CE_EXPORT UnitCompiler : public Compiler
+class PhysicsGraph;
+
+/// Manages a collection of physics graphs.
+class PhysicsGraphManager
 {
 public:
 
-	UnitCompiler();
+						PhysicsGraphManager();
+						~PhysicsGraphManager();
 
-	size_t compile_impl(Filesystem& fs, const char* resource_path);
-	void write_impl(File* out_file);
+	/// Creates a new physics graph
+	PhysicsGraph*		create_physics_graph();
+
+	/// Destroys the @a sg physics graph
+	void				destroy_physics_graph(PhysicsGraph* pg);
+
+	/// Updates all the physics graphs
+	void				update();
 
 private:
 
-	List<UnitRenderable> m_renderable;
-	List<UnitCamera> m_camera;
-	List<UnitActor> m_actor;
+	List<PhysicsGraph*>	m_graphs;
 };
 
 } // namespace crown

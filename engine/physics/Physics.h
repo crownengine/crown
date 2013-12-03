@@ -26,28 +26,51 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Compiler.h"
-#include "Resource.h"
-#include "UnitResource.h"
-#include "List.h"
+#include "PxFoundation.h"
+#include "PxPhysics.h"
+#include "PxCooking.h"
+#include "PxDefaultAllocator.h"
+#include "PxDefaultErrorCallback.h"
 
 namespace crown
 {
 
-class CE_EXPORT UnitCompiler : public Compiler
+static physx::PxDefaultErrorCallback 	g_physx_error_callback;
+static physx::PxDefaultAllocator 		g_physx_allocator_callback;
+
+struct Physics
 {
+	Physics();
+	~Physics();
+
 public:
 
-	UnitCompiler();
-
-	size_t compile_impl(Filesystem& fs, const char* resource_path);
-	void write_impl(File* out_file);
-
-private:
-
-	List<UnitRenderable> m_renderable;
-	List<UnitCamera> m_camera;
-	List<UnitActor> m_actor;
+	physx::PxFoundation* m_foundation;
+	physx::PxPhysics* m_physics;
+	physx::PxCooking* m_cooking;
 };
+
+//-----------------------------------------------------------------------------
+inline Physics::Physics()
+	: m_foundation(NULL)
+	, m_physics(NULL)
+	, m_cooking(NULL)
+{
+	m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION, g_physx_allocator_callback, g_physx_error_callback);
+	CE_ASSERT_NOT_NULL(m_foundation);
+
+	m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, physx::PxTolerancesScale());
+	CE_ASSERT_NOT_NULL(m_physics);
+
+	m_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_foundation, physx::PxCookingParams());
+	CE_ASSERT_NOT_NULL(m_cooking);
+}
+
+//-----------------------------------------------------------------------------
+inline Physics::~Physics()
+{
+	m_physics->release();
+	m_foundation->release();
+}
 
 } // namespace crown

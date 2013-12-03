@@ -24,30 +24,51 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "Compiler.h"
-#include "Resource.h"
-#include "UnitResource.h"
-#include "List.h"
+#include "PhysicsGraphManager.h"
+#include "PhysicsGraph.h"
 
 namespace crown
 {
 
-class CE_EXPORT UnitCompiler : public Compiler
+//-----------------------------------------------------------------------------
+PhysicsGraphManager::PhysicsGraphManager()
+	: m_graphs(default_allocator())
 {
-public:
 
-	UnitCompiler();
+}
 
-	size_t compile_impl(Filesystem& fs, const char* resource_path);
-	void write_impl(File* out_file);
+//-----------------------------------------------------------------------------
+PhysicsGraphManager::~PhysicsGraphManager()
+{
+}
 
-private:
+//-----------------------------------------------------------------------------
+PhysicsGraph* PhysicsGraphManager::create_physics_graph()
+{
+	uint32_t index = m_graphs.size();
+	PhysicsGraph* pg = CE_NEW(default_allocator(), PhysicsGraph)(index);
+	m_graphs.push_back(pg);
+	return pg;
+}
 
-	List<UnitRenderable> m_renderable;
-	List<UnitCamera> m_camera;
-	List<UnitActor> m_actor;
+//-----------------------------------------------------------------------------
+void PhysicsGraphManager::destroy_physics_graph(PhysicsGraph* pg)
+{
+	CE_ASSERT_NOT_NULL(pg);
+
+	m_graphs[pg->m_index] = m_graphs[m_graphs.size() - 1];
+	m_graphs.pop_back();
+
+	CE_DELETE(default_allocator(), pg);
+}
+
+//-----------------------------------------------------------------------------
+void PhysicsGraphManager::update()
+{
+	for (uint32_t i = 0; i < m_graphs.size(); i++)
+	{
+		m_graphs[i]->update();
+	}
+}
+
 };
-
-} // namespace crown

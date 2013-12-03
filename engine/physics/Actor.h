@@ -26,28 +26,47 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Compiler.h"
-#include "Resource.h"
-#include "UnitResource.h"
-#include "List.h"
+#include "Types.h"
+#include "PhysicsTypes.h"
+
+#include "PxPhysics.h"
+#include "PxScene.h"
+#include "PxRigidActor.h"
 
 namespace crown
 {
 
-class CE_EXPORT UnitCompiler : public Compiler
+class Vector3;
+class Quaternion;
+class Matrix4x4;
+class Unit;
+class PhysicsGraph;
+
+struct Actor
 {
+					Actor(PhysicsGraph& pg, int32_t node, ActorType::Enum type);
+
+	Vector3			local_position() const;
+	Quaternion		local_rotation() const;
+	Matrix4x4		local_pose() const;
+
+	Vector3			world_position() const;
+	Quaternion		world_rotation() const;
+	Matrix4x4		world_pose() const;
+
+	void			set_local_position(Unit* unit, const Vector3& pos);
+	void			set_local_rotation(Unit* unit, const Quaternion& rot);
+	void			set_local_pose(Unit* unit, const Matrix4x4& pose);
+
+	void			create_sphere(Vector3& position, float radius);
+
 public:
 
-	UnitCompiler();
+	physx::PxRigidActor* m_actor;
 
-	size_t compile_impl(Filesystem& fs, const char* resource_path);
-	void write_impl(File* out_file);
-
-private:
-
-	List<UnitRenderable> m_renderable;
-	List<UnitCamera> m_camera;
-	List<UnitActor> m_actor;
+	PhysicsGraph& m_physics_graph;
+	int32_t m_node;
+	ActorType::Enum m_type;
 };
 
 } // namespace crown

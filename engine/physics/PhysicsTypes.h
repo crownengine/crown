@@ -26,28 +26,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Compiler.h"
-#include "Resource.h"
-#include "UnitResource.h"
-#include "List.h"
-
-namespace crown
+//-----------------------------------------------------------------------------
+struct ActorType
 {
-
-class CE_EXPORT UnitCompiler : public Compiler
-{
-public:
-
-	UnitCompiler();
-
-	size_t compile_impl(Filesystem& fs, const char* resource_path);
-	void write_impl(File* out_file);
-
-private:
-
-	List<UnitRenderable> m_renderable;
-	List<UnitCamera> m_camera;
-	List<UnitActor> m_actor;
+	enum Enum
+	{
+		STATIC,
+		DYNAMIC
+	};
 };
 
-} // namespace crown
+//-----------------------------------------------------------------------------
+struct ShapeType
+{
+	enum Enum
+	{
+		SPHERE,
+		BOX,
+		PLANE
+	};
+};

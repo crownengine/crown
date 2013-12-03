@@ -50,10 +50,13 @@ UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion&
 	UnitResource* ur = (UnitResource*) device()->resource_manager()->lookup(UNIT_EXTENSION, name);
 
 	// Create a new scene graph
-	SceneGraph* graph = m_graph_manager.create_scene_graph();
+	SceneGraph* sg = m_scenegraph_manager.create_scene_graph();
+
+	// Create a new physics graph
+	PhysicsGraph* pg = m_physicsgraph_manager.create_physics_graph();
 
 	// Allocate memory for unit
-	Unit* unit = CE_NEW(m_unit_pool, Unit)(*this, *graph, ur, Matrix4x4(rot, pos));
+	Unit* unit = CE_NEW(m_unit_pool, Unit)(*this, *sg, *pg, ur, Matrix4x4(rot, pos));
 
 	// Create Id for the unit
 	const UnitId unit_id = m_units.create(unit);
@@ -69,8 +72,8 @@ void World::destroy_unit(UnitId id)
 
 	Unit* unit = m_units.lookup(id);
 
-	// Destory unit's scene graph
-	m_graph_manager.destroy_scene_graph(&unit->m_scene_graph);
+	// Destry unit's scene graph
+	m_scenegraph_manager.destroy_scene_graph(&unit->m_scene_graph);
 
 	unit->destroy();
 	CE_DELETE(m_unit_pool, unit);
@@ -128,10 +131,16 @@ Sprite* World::lookup_sprite(SpriteId sprite)
 }
 
 //-----------------------------------------------------------------------------
+Actor* World::lookup_actor(ActorId actor)
+{
+	return m_physics_world.lookup_actor(actor);
+}
+
+//-----------------------------------------------------------------------------
 void World::update(float /*dt*/)
 {
 	// Update scene graphs
-	m_graph_manager.update();
+	m_scenegraph_manager.update();
 }
 
 //-----------------------------------------------------------------------------
@@ -190,6 +199,18 @@ SpriteId World::create_sprite(ResourceId id, SceneGraph& sg, int32_t node)
 void World::destroy_sprite(SpriteId id)
 {
 	m_render_world.destroy_sprite(id);
+}
+
+//-----------------------------------------------------------------------------
+ActorId	World::create_actor(PhysicsGraph& pg, int32_t node, ActorType::Enum type)
+{
+	return m_physics_world.create_actor(pg, node, type);
+}
+
+//-----------------------------------------------------------------------------
+void World::destroy_actor(ActorId id)
+{
+	m_physics_world.destroy_actor(id);
 }
 
 //-----------------------------------------------------------------------------

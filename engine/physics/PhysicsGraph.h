@@ -26,28 +26,43 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Compiler.h"
-#include "Resource.h"
-#include "UnitResource.h"
+#include "Types.h"
+#include "Matrix4x4.h"
 #include "List.h"
 
 namespace crown
 {
 
-class CE_EXPORT UnitCompiler : public Compiler
+struct PhysicsGraph
 {
+					PhysicsGraph(int32_t index);
+
+	int32_t			create_node(int32_t node, const Vector3& pos, const Quaternion& rot);
+	int32_t			create_node(int32_t node, const Matrix4x4& pose);
+
+	Vector3			local_position(int32_t node) const;
+	Quaternion		local_rotation(int32_t node) const;
+	Matrix4x4		local_pose(int32_t node) const;
+
+	void			set_local_position(int32_t node, const Vector3& pos);
+	void			set_local_rotation(int32_t node, const Quaternion& rot);
+	void			set_local_pose(int32_t node, const Matrix4x4& pose);
+
+	Vector3			world_position(int32_t node) const;
+	Quaternion		world_rotation(int32_t node) const;
+	Matrix4x4		world_pose(int32_t node) const;
+
+	void			clear();
+
+	void			update();
+
 public:
 
-	UnitCompiler();
+	uint32_t		m_index;
 
-	size_t compile_impl(Filesystem& fs, const char* resource_path);
-	void write_impl(File* out_file);
-
-private:
-
-	List<UnitRenderable> m_renderable;
-	List<UnitCamera> m_camera;
-	List<UnitActor> m_actor;
+	List<Matrix4x4> m_local_poses;
+	List<Matrix4x4>	m_world_poses;
+	List<uint32_t> 	m_sg_nodes;
 };
 
 } // namespace crown

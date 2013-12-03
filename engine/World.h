@@ -34,9 +34,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Camera.h"
 #include "Vector.h"
 #include "RenderWorld.h"
+#include "PhysicsWorld.h"
 #include "SoundRenderer.h"
 #include "PoolAllocator.h"
 #include "SceneGraphManager.h"
+#include "PhysicsGraphManager.h"
+#include "PhysicsTypes.h"
 
 namespace crown
 {
@@ -50,6 +53,7 @@ typedef Id CameraId;
 typedef Id MeshId;
 typedef Id SoundId;
 typedef Id SpriteId;
+typedef Id ActorId;
 
 struct Sound
 {
@@ -72,6 +76,7 @@ struct UnitToSound
 
 class Mesh;
 class Sprite;
+class Actor;
 class Vector3;
 class Quaternion;
 
@@ -92,6 +97,7 @@ public:
 	Camera*								lookup_camera(CameraId camera);
 	Mesh*								lookup_mesh(MeshId mesh);
 	Sprite*								lookup_sprite(SpriteId sprite);
+	Actor*								lookup_actor(ActorId actor);
 
 	RenderWorld&						render_world();
 	void								update(float dt);
@@ -105,6 +111,9 @@ public:
 
 	SpriteId							create_sprite(ResourceId id, SceneGraph& sg, int32_t node);
 	void								destroy_sprite(SpriteId id);
+
+	ActorId								create_actor(PhysicsGraph& pg, int32_t node, ActorType::Enum type);
+	void								destroy_actor(ActorId id);
 
 	SoundId								play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
 	void								stop_sound(SoundId sound);
@@ -123,12 +132,14 @@ private:
 	IdArray<MAX_CAMERAS, Camera*>		m_cameras;
 	IdArray<MAX_SOUNDS, Sound> 			m_sounds;
 
-	SceneGraphManager					m_graph_manager;
+	SceneGraphManager					m_scenegraph_manager;
+	PhysicsGraphManager					m_physicsgraph_manager;
 
 	// Connections
 	List<UnitToSound>					m_unit_to_sound;
 
 	RenderWorld							m_render_world;
+	PhysicsWorld						m_physics_world;
 };
 
 } // namespace crown

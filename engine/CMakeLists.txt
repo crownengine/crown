@@ -88,6 +88,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/compilers/package
 	${CMAKE_SOURCE_DIR}/engine/compilers/unit
 	${CMAKE_SOURCE_DIR}/engine/compilers/sprite
+	${CMAKE_SOURCE_DIR}/engine/physics
 )
 
 set (SRC
@@ -384,6 +385,22 @@ set (AUDIO_HEADERS
 	audio/OggDecoder.h
 )
 
+set (PHYSICS_SRC
+	physics/PhysicsWorld.cpp
+	physics/PhysicsGraphManager.cpp
+	physics/PhysicsGraph.cpp
+	physics/Actor.cpp
+)
+
+set (PHYSICS_HEADERS
+	physics/PhysicsTypes.h
+	physics/Physics.h
+	physics/PhysicsWorld.h
+	physics/PhysicsGraphManager.h
+	physics/PhysicsGraph.h
+	physics/Actor.h
+)
+
 set (COMPILER_SRC
 	compilers/Compiler.cpp
 	compilers/BundleCompiler.cpp
@@ -592,10 +609,10 @@ set (CROWN_SOURCES
 	${RENDERERS_SRC}
 	${RESOURCE_SRC}
 	${RPC_SRC}
-#	${NETWORK_SRC}
 	${OS_SRC}
 	${LUA_SRC}
 	${AUDIO_SRC}
+	${PHYSICS_SRC}
 	${COMPILER_SRC}
 )
 
@@ -614,10 +631,10 @@ set (CROWN_HEADERS
 	${RENDERERS_HEADERS}
 	${RESOURCE_HEADERS}
 	${RPC_HEADERS}
-#	${NETWORK_HEADERS}
 	${OS_HEADERS}
 	${LUA_HEADERS}
 	${AUDIO_HEADERS}
+	${PHYSICS_HEADERS}
 	${COMPILER_HEADERS}
 )
 

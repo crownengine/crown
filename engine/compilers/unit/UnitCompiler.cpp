@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "UnitCompiler.h"
 #include "TempAllocator.h"
 #include "Log.h"
+#include "PhysicsTypes.h"
 
 namespace crown
 {
@@ -40,6 +41,7 @@ namespace crown
 UnitCompiler::UnitCompiler()
 	: m_renderable(default_allocator())
 	, m_camera(default_allocator())
+	, m_actor(default_allocator())
 {
 }
 
@@ -113,9 +115,34 @@ size_t UnitCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		}
 	}
 
+	// check for actors
+	if (root.has_key("actor"))
+	{
+		JSONElement actor = root.key("actor");
+		uint32_t num_actors = actor.size();
+
+		for (uint32_t i = 0; i < num_actors; i++)
+		{
+			JSONElement actor_name = actor[i].key("name");
+			JSONElement actor_type = actor[i].key("type");
+			JSONElement actor_shape = actor[i].key("shape");
+			JSONElement actor_active = actor[i].key("active");
+
+			UnitActor ua;
+			ua.name = hash::murmur2_32(actor_name.string_value(), actor_name.size(), 0);
+			ua.type = string::strcmp(actor_type.string_value(), "STATIC") == 0 ? UnitActor::STATIC : UnitActor::DYNAMIC;
+			ua.shape = string::strcmp(actor_shape.string_value(), "SPHERE") == 0 ? UnitActor::SPHERE :
+						string::strcmp(actor_shape.string_value(), "BOX") == 0 ? UnitActor::BOX : UnitActor::PLANE;
+			ua.active = actor_active.bool_value();
+
+			m_actor.push_back(ua);
+		}
+	}
+
 	return sizeof(UnitHeader) +
 			m_renderable.size() * sizeof(UnitRenderable) +
-			m_camera.size() * sizeof(UnitCamera);
+			m_camera.size() * sizeof(UnitCamera) +
+			m_actor.size() * sizeof(UnitActor);
 }
 
 //-----------------------------------------------------------------------------
