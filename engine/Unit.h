@@ -32,14 +32,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Matrix4x4.h"
 #include "Hash.h"
 #include "SceneGraph.h"
+#include "PhysicsGraph.h"
 #include "StringUtils.h"
 
 namespace crown
 {
-
-typedef Id CameraId;
-typedef	Id ComponentId;
-typedef Id UnitId;
 
 //-----------------------------------------------------------------------------
 struct ComponentType
@@ -50,7 +47,7 @@ struct ComponentType
 		CAMERA,
 		MESH,
 		SPRITE,
-		SOUND
+		ACTOR
 	};
 };
 
@@ -60,24 +57,32 @@ struct Component
 	Id component;
 };
 
+//-----------------------------------------------------------------------------
 typedef Id UnitId;
+typedef Id CameraId;
 typedef Id MeshId;
 typedef Id SpriteId;
+typedef Id ActorId;
+
+typedef	Id ComponentId;
 
 class Camera;
 class Mesh;
 class Sprite;
+class Actor;
 class World;
 class SceneGraphManager;
+class PhysicsGraphManager;
 struct UnitResource;
 
 #define MAX_CAMERA_COMPONENTS 8
 #define MAX_MESH_COMPONENTS 8
 #define MAX_SPRITE_COMPONENTS 8
+#define MAX_ACTOR_COMPONENTS 8
 
 struct Unit
 {
-						Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& pose);
+						Unit(World& w, SceneGraph& sg, PhysicsGraph& pg, const UnitResource* ur, const Matrix4x4& pose);
 
 	void				set_id(const UnitId id);
 	UnitId				id();
@@ -107,6 +112,7 @@ struct Unit
 	void				add_camera(StringId32 name, CameraId camera);
 	void				add_mesh(StringId32 name, MeshId mesh);
 	void				add_sprite(StringId32 name, SpriteId sprite);
+	void				add_actor(StringId32 name, ActorId actor);
 
 	Camera*				camera(const char* name);
 	Camera*				camera(uint32_t i);
@@ -117,10 +123,14 @@ struct Unit
 	Sprite*				sprite(const char* name);
 	Sprite*				sprite(uint32_t i);
 
+	Actor*				actor(const char* name);
+	Actor*				actor(uint32_t i);	
+
 public:
 
 	World&				m_world;
 	SceneGraph&			m_scene_graph;
+	PhysicsGraph&		m_physics_graph;
 	const UnitResource*	m_resource;
 	UnitId				m_id;
 
@@ -132,6 +142,9 @@ public:
 
 	uint32_t			m_num_sprites;
 	Component			m_sprites[MAX_SPRITE_COMPONENTS];
+
+	uint32_t			m_num_actors;
+	Component 			m_actors[MAX_ACTOR_COMPONENTS];
 };
 
 } // namespace crown

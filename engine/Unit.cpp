@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "UnitResource.h"
 #include "SceneGraphManager.h"
+#include "PhysicsGraphManager.h"
 
 namespace crown
 {
@@ -37,9 +38,10 @@ namespace crown
 typedef Id CameraId;
 typedef Id SpriteId;
 
-Unit::Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& pose)
+Unit::Unit(World& w, SceneGraph& sg, PhysicsGraph& pg, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)
 	, m_scene_graph(sg)
+	, m_physics_graph(pg)
 	, m_resource(ur)
 	, m_num_cameras(0)
 	, m_num_meshes(0)
@@ -65,6 +67,7 @@ void Unit::create(const Matrix4x4& pose)
 {
 	// Create the root node
 	int32_t root_node = m_scene_graph.create_node(-1, pose);
+	int32_t p_root_node = m_physics_graph.create_node(-1, pose);
 
 	// Create renderables
 	for (uint32_t i = 0; i < m_resource->num_renderables(); i++)
@@ -104,6 +107,16 @@ void Unit::create(const Matrix4x4& pose)
 		CameraId cam = m_world.create_camera(m_scene_graph, cam_node);
 		
 		add_camera(camera.name, cam);
+	}
+
+	// Create actors
+	for (uint32_t i = 0; i < m_resource->num_actors(); i++)
+	{
+		const int32_t actor_node = m_physics_graph.create_node(p_root_node, Vector3::ZERO, Quaternion::IDENTITY);
+		UnitActor actor = m_resource->get_actor(i);
+		ActorId actor_id = m_world.create_actor(m_physics_graph, actor_node, ActorType::DYNAMIC);
+
+		add_actor(actor.name, actor_id);
 	}
 }
 
@@ -264,6 +277,14 @@ void Unit::add_sprite(StringId32 name, SpriteId sprite)
 }
 
 //-----------------------------------------------------------------------------
+void Unit::add_actor(StringId32 name, ActorId actor)
+{
+	CE_ASSERT(m_num_actors < MAX_ACTOR_COMPONENTS, "Max actor number reached");
+
+	add_component(name, actor, m_num_actors, m_actors);
+}
+
+//-----------------------------------------------------------------------------
 Camera* Unit::camera(const char* name)
 {
 	CameraId cam = find_component(name, m_num_cameras, m_cameras);
@@ -322,5 +343,26 @@ Sprite*	Unit::sprite(uint32_t i)
 
 	return m_world.lookup_sprite(sprite);
 }
+
+//-----------------------------------------------------------------------------
+Actor* Unit::actor(const char* name)
+{
+	ActorId actor = find_component(name, m_num_actors, m_actors);
+
+	CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%s'", name);
+
+	return m_world.lookup_actor(actor);
+}
+
+//-----------------------------------------------------------------------------
+Actor* Unit::actor(uint32_t i)
+{
+	ActorId actor = find_component(i, m_num_actors, m_actors);
+
+	CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%d'", i);
+
+	return m_world.lookup_actor(actor);
+}	
+
 
 } // namespace crown
