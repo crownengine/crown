@@ -1,7 +1,16 @@
 {
-	"camera" : [
+	"cameras" : [
 		{
-			"name" : "camera"
+			"name" : "camera",
+			"node" : "root"
+		}
+	],
+	"nodes" : [
+		{
+			"name" : "root",
+			"parent" : null,
+			"position" : [0, 0, 1],
+			"rotation" : [0, 0, 1, 0]
 		}
 	]
 }

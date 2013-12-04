@@ -1,10 +1,19 @@
 {
-	"renderable" : [
+	"renderables" : [
 		{
+			"name" : "star",
+			"node" : "root",
 			"type" : "sprite",
 			"resource" : "sprites/star",
-			"name" : "star",
 			"visible" : true
+		}
+	],
+	"nodes" : [
+		{
+			"name" : "root",
+			"parent" : null,
+			"position" : [0, 0, 0],
+			"rotation" : [0, 0, 1, 0]
 		}
 	]
 }
