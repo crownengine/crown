@@ -143,6 +143,31 @@ CE_EXPORT int unit_set_local_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int unit_link_node(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Unit* unit = stack.get_unit(1);
+	const int32_t child = stack.get_int(2);
+	const int32_t parent = stack.get_int(3);
+
+	unit->link_node(child, parent);
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int unit_unlink_node(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Unit* unit = stack.get_unit(1);
+	const int32_t child = stack.get_int(2);
+
+	unit->unlink_node(child);
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int unit_camera(lua_State* L)
 {
 	LuaStack stack(L);
@@ -190,6 +215,8 @@ void load_unit(LuaEnvironment& env)
 	env.load_module_function("Unit", "set_local_position",		unit_set_local_position);
 	env.load_module_function("Unit", "set_local_rotation",		unit_set_local_rotation);
 	env.load_module_function("Unit", "set_local_pose",			unit_set_local_pose);
+	env.load_module_function("Unit", "link_node",				unit_link_node);
+	env.load_module_function("Unit", "unlink_node",				unit_unlink_node);
 
 	env.load_module_function("Unit", "camera",					unit_camera);
 	env.load_module_function("Unit", "mesh",					unit_mesh);	
