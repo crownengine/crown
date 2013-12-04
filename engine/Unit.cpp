@@ -75,6 +75,8 @@ void Unit::create(const Matrix4x4& pose)
 	// Create the scene graph
 	m_scene_graph.create(m_resource->num_scene_graph_nodes(), m_resource->scene_graph_names(),
 							m_resource->scene_graph_poses(), m_resource->scene_graph_parents());
+	// Set root node pose
+	m_scene_graph.set_local_pose(0, pose);
 
 	int32_t p_root_node = m_physics_graph.create_node(-1, pose);
 
