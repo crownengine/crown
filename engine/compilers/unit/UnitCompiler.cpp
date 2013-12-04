@@ -40,14 +40,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+const StringId32 NO_PARENT = 0xFFFFFFFF;
+
 //-----------------------------------------------------------------------------
 UnitCompiler::UnitCompiler()
-	: m_renderable(default_allocator())
-	, m_camera(default_allocator())
-	, m_actor(default_allocator())
-	, m_node_names(default_allocator())
-	, m_node_parents(default_allocator())
-	, m_node_poses(default_allocator())
+	: m_nodes(default_allocator())
+	, m_node_depths(default_allocator())
+	, m_cameras(default_allocator())
+	, m_renderables(default_allocator())
+	, m_actors(default_allocator())
 {
 }
 
@@ -63,88 +64,6 @@ size_t UnitCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	JSONParser json(file_buf);
 	JSONElement root = json.root();
 
-	// Check for renderable
-	if (root.has_key("renderable"))
-	{
-		JSONElement renderable_array = root.key("renderable");
-		uint32_t renderable_array_size = renderable_array.size();
-
-		for (uint32_t i = 0; i < renderable_array_size; i++)
-		{
-			const char* type = renderable_array[i].key("type").string_value();
-						
-			UnitRenderable ur;
-			DynamicString renderable;
-
-			if (string::strcmp(type, "mesh") == 0)
-			{
-				ur.type = UnitRenderable::MESH;
-				renderable += renderable_array[i].key("resource").string_value();
-				renderable += ".mesh";
-			}
-			else if (string::strcmp(type, "sprite") == 0)
-			{
-				ur.type = UnitRenderable::SPRITE;
-				renderable += renderable_array[i].key("resource").string_value();
-				renderable += ".sprite";
-			}
-			else
-			{
-				CE_ASSERT(false, "Oops, unknown renderable type: '%s'", type);
-			}
-
-			DynamicString renderable_name;
-			renderable_name = renderable_array[i].key("name").string_value();
-
-			ur.resource.id = hash::murmur2_64(renderable.c_str(), string::strlen(renderable.c_str()), 0);
-			ur.name = hash::murmur2_32(renderable_name.c_str(), string::strlen(renderable_name.c_str()), 0);
-			ur.visible = renderable_array[i].key("visible").bool_value();
-
-			m_renderable.push_back(ur);
-		}
-	}
-
-	// Check for cameras
-	if (root.has_key("camera"))
-	{
-		JSONElement camera = root.key("camera");
-		uint32_t num_cameras = camera.size();
-
-		for (uint32_t i = 0; i < num_cameras; i++)
-		{
-			JSONElement camera_name = camera[i].key("name");
-
-			UnitCamera uc;
-			uc.name = hash::murmur2_32(camera_name.string_value(), camera_name.size(), 0);
-
-			m_camera.push_back(uc);
-		}
-	}
-
-	// check for actors
-	if (root.has_key("actor"))
-	{
-		JSONElement actor = root.key("actor");
-		uint32_t num_actors = actor.size();
-
-		for (uint32_t i = 0; i < num_actors; i++)
-		{
-			JSONElement actor_name = actor[i].key("name");
-			JSONElement actor_type = actor[i].key("type");
-			JSONElement actor_shape = actor[i].key("shape");
-			JSONElement actor_active = actor[i].key("active");
-
-			UnitActor ua;
-			ua.name = hash::murmur2_32(actor_name.string_value(), actor_name.size(), 0);
-			ua.type = string::strcmp(actor_type.string_value(), "STATIC") == 0 ? UnitActor::STATIC : UnitActor::DYNAMIC;
-			ua.shape = string::strcmp(actor_shape.string_value(), "SPHERE") == 0 ? UnitActor::SPHERE :
-						string::strcmp(actor_shape.string_value(), "BOX") == 0 ? UnitActor::BOX : UnitActor::PLANE;
-			ua.active = actor_active.bool_value();
-
-			m_actor.push_back(ua);
-		}
-	}
-
 	// Check for nodes
 	if (root.has_key("nodes"))
 	{
@@ -153,114 +72,271 @@ size_t UnitCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 
 		for (uint32_t i = 0; i < num_nodes; i++)
 		{
-			JSONElement node = nodes[i];
-			JSONElement node_name = node.key("name");
-			JSONElement node_parent = node.key("parent");
-			JSONElement node_pos = node.key("position");
-			JSONElement node_rot = node.key("rotation");
-
-			// Read name and parent
-			m_node_names.push_back(hash::murmur2_32(node_name.string_value(), node_name.size(), 0));
-
-			ParentIndex pidx;
-			pidx.parent_index = -1;
-			pidx.inner_index = i;
-
-			if (node_parent.is_nil())
-			{
-				pidx.parent_name = 0xFFFFFFFF;
-			}
-			else
-			{
-				pidx.parent_name = hash::murmur2_32(node_parent.string_value(), node_parent.size(), 0);
-			}
-
-			m_node_parents.push_back(pidx);
-
-			// Read pose
-			const Vector3 pos = Vector3(node_pos[0].float_value(), node_pos[1].float_value(), node_pos[2].float_value());
-			const Quaternion rot = Quaternion(Vector3(node_rot[0].float_value(), node_rot[1].float_value(), node_rot[2].float_value()), node_rot[3].float_value());
-			m_node_poses.push_back(Matrix4x4(rot, pos));
+			parse_node(nodes[i]);
 		}
 	}
 
-	// Convert parent names into parent indices
-	for (uint32_t i = 0; i < m_node_parents.size(); i++)
+	for (uint32_t i = 0; i < m_nodes.size(); i++)
 	{
-		for (uint32_t j = 0; j < m_node_names.size(); j++)
+		m_node_depths[i].depth = compute_link_depth(m_nodes[i]);
+	}
+
+	std::sort(m_node_depths.begin(), m_node_depths.end(), GraphNodeDepth());
+
+	// Check for renderable
+	if (root.has_key("renderables"))
+	{
+		JSONElement renderables = root.key("renderables");
+		uint32_t renderables_size = renderables.size();
+
+		for (uint32_t i = 0; i < renderables_size; i++)
 		{
-			if (m_node_names[j] == m_node_parents[i].parent_name)
-			{
-				m_node_parents[i].parent_index = j;
-				break;
-			}
+			parse_renderable(renderables[i]);
 		}
 	}
 
-	// Sort by link depth
-	std::sort(m_node_parents.begin(), m_node_parents.end(), ParentIndex());
+	// Check for cameras
+	if (root.has_key("cameras"))
+	{
+		JSONElement cameras = root.key("cameras");
+		uint32_t num_cameras = cameras.size();
+
+		for (uint32_t i = 0; i < num_cameras; i++)
+		{
+			parse_camera(cameras[i]);
+		}
+	}
+
+	// check for actors
+	if (root.has_key("actors"))
+	{
+		JSONElement actors = root.key("actors");
+		uint32_t num_actors = actors.size();
+
+		for (uint32_t i = 0; i < num_actors; i++)
+		{
+			parse_actor(actors[i]);
+		}
+	}
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
+void UnitCompiler::parse_node(JSONElement e)
+{
+	JSONElement name = e.key("name");
+	JSONElement parent = e.key("parent");
+	JSONElement pos = e.key("position");
+	JSONElement rot = e.key("rotation");
+
+	GraphNode gn;
+	gn.name = hash::murmur2_32(name.string_value(), name.size(), 0);
+	gn.parent = parent.is_nil() ? NO_PARENT : hash::murmur2_32(parent.string_value(), parent.size(), 0);
+	gn.position = Vector3(pos[0].float_value(), pos[1].float_value(), pos[2].float_value());
+	gn.rotation = Quaternion(Vector3(rot[0].float_value(), rot[1].float_value(), rot[2].float_value()), rot[3].float_value());
+
+	GraphNodeDepth gnd;
+	gnd.name = gn.name;
+	gnd.index = m_nodes.size();
+	gnd.depth = 0;
+
+	m_nodes.push_back(gn);
+	m_node_depths.push_back(gnd);
+}
+
+//-----------------------------------------------------------------------------
+void UnitCompiler::parse_camera(JSONElement e)
+{
+	JSONElement name = e.key("name");
+	JSONElement node = e.key("node");
+
+	StringId32 node_name = hash::murmur2_32(node.string_value(), node.size(), 0);
+
+	UnitCamera cn;
+	cn.name = hash::murmur2_32(name.string_value(), name.size(), 0);
+	cn.node = find_node_index(node_name);
+
+	m_cameras.push_back(cn);
+}
+
+//-----------------------------------------------------------------------------
+void UnitCompiler::parse_renderable(JSONElement e)
+{
+	JSONElement name = e.key("name");
+	JSONElement node = e.key("node");
+	JSONElement type = e.key("type");
+	JSONElement res = e.key("resource");
+	JSONElement vis = e.key("visible");
+
+	StringId32 node_name = hash::murmur2_32(node.string_value(), node.size(), 0);
+
+	UnitRenderable rn;
+	rn.name = hash::murmur2_32(name.string_value(), name.size(), 0);
+	rn.node = find_node_index(node_name);
+	rn.visible = vis.bool_value();
+
+	const char* res_type = type.string_value();
+	DynamicString res_name;
+
+	if (string::strcmp(res_type, "mesh") == 0)
+	{
+		rn.type = UnitRenderable::MESH;
+		res_name += res.string_value();
+		res_name += ".mesh";
+	}
+	else if (string::strcmp(res_type, "sprite") == 0)
+	{
+		rn.type = UnitRenderable::SPRITE;
+		res_name += res.string_value();
+		res_name += ".sprite";
+	}
+	else
+	{
+		CE_ASSERT(false, "Oops, unknown renderable type: '%s'", res_type);
+	}
+	rn.resource.id = hash::murmur2_64(res_name.c_str(), string::strlen(res_name.c_str()), 0);
+
+	m_renderables.push_back(rn);
+}
+
+//-----------------------------------------------------------------------------
+void UnitCompiler::parse_actor(JSONElement e)
+{
+	JSONElement name = e.key("name");
+	JSONElement node = e.key("node");
+	JSONElement type = e.key("type");
+	JSONElement shape = e.key("shape");
+	JSONElement active = e.key("active");
+
+	StringId32 node_name = hash::murmur2_32(node.string_value(), node.size(), 0);
+
+	UnitActor an;
+	an.name = hash::murmur2_32(name.string_value(), name.size(), 0);
+	an.node = find_node_index(node_name);
+	an.type = string::strcmp(type.string_value(), "STATIC") == 0 ? UnitActor::STATIC : UnitActor::DYNAMIC;
+	an.shape = string::strcmp(shape.string_value(), "SPHERE") == 0 ? UnitActor::SPHERE :
+	 			string::strcmp(shape.string_value(), "BOX") == 0 ? UnitActor::BOX : UnitActor::PLANE;
+	an.active = active.bool_value();
+
+	m_actors.push_back(an);
+}
+
+//-----------------------------------------------------------------------------
+uint32_t UnitCompiler::compute_link_depth(GraphNode& node)
+{
+	if (node.parent == NO_PARENT) return 0;
+	else
+	{
+		for (uint32_t i = 0; i < m_nodes.size(); i++)
+		{
+			if (m_nodes[i].name == node.parent)
+			{
+				return 1 + compute_link_depth(m_nodes[i]);
+			}
+		}
+	}
+
+	CE_FATAL("Node not found");
+}
+
+//-----------------------------------------------------------------------------
+uint32_t UnitCompiler::find_node_index(StringId32 name)
+{
+	for (uint32_t i = 0; i < m_node_depths.size(); i++)
+	{
+		if (m_node_depths[i].name == name)
+		{
+			return i;
+		}
+	}
+
+	CE_FATAL("Node not found");
+}
+
+//-----------------------------------------------------------------------------
+int32_t UnitCompiler::find_node_parent_index(uint32_t node)
+{
+	StringId32 parent_name = m_nodes[m_node_depths[node].index].parent;
+
+	if (parent_name == NO_PARENT) return -1;
+	for (uint32_t i = 0; i < m_node_depths.size(); i++)
+	{
+		if (parent_name == m_node_depths[i].name)
+		{
+			return i;
+		}
+	}
+
+	CE_FATAL("Node not found");
+}
+
+//-----------------------------------------------------------------------------
 void UnitCompiler::write_impl(File* out_file)
 {
-	UnitHeader header;
-	header.num_renderables = m_renderable.size();
-	header.num_cameras = m_camera.size();
-	header.num_actors = m_actor.size();
-	header.num_scene_graph_nodes = m_node_names.size();
+	UnitHeader h;
+	h.num_renderables = m_renderables.size();
+	h.num_cameras = m_cameras.size();
+	h.num_actors = m_actors.size();
+	h.num_scene_graph_nodes = m_nodes.size();
 
-	header.renderables_offset = sizeof(UnitHeader);
-	header.cameras_offset = sizeof(UnitHeader) + sizeof(UnitRenderable) * header.num_renderables;
-	header.actors_offset = sizeof(UnitHeader) + sizeof(UnitCamera) * header.num_cameras;
-	header.scene_graph_names_offset = sizeof(UnitHeader) + sizeof(UnitActor) * header.num_actors;
-	header.scene_graph_poses_offset = sizeof(UnitHeader) + sizeof(StringId32) * header.num_scene_graph_nodes;
-	header.scene_graph_parents_offset = sizeof(UnitHeader) + sizeof(Matrix4x4) * header.num_scene_graph_nodes;
+	uint32_t offt = sizeof(UnitHeader);
+	h.renderables_offset         = offt; offt += sizeof(UnitRenderable) * h.num_renderables;
+	h.cameras_offset             = offt; offt += sizeof(UnitCamera) * h.num_cameras;
+	h.actors_offset              = offt; offt += sizeof(UnitActor) * h.num_actors;
+	h.scene_graph_names_offset   = offt; offt += sizeof(StringId32) * h.num_scene_graph_nodes;
+	h.scene_graph_poses_offset   = offt; offt += sizeof(Matrix4x4) * h.num_scene_graph_nodes;
+	h.scene_graph_parents_offset = offt; offt += sizeof(int32_t) * h.num_scene_graph_nodes;
 
-	out_file->write((char*) &header, sizeof(UnitHeader));
+	// Write header
+	out_file->write((char*) &h, sizeof(UnitHeader));
 
-	if (m_renderable.size() > 0)
-	{
-		out_file->write((char*) m_renderable.begin(), sizeof(UnitRenderable) * header.num_renderables);
-	}
+	Log::d("num renderables = %d", m_renderables.size());
+	// Write renderables
+	if (m_renderables.size())
+		out_file->write((char*) m_renderables.begin(), sizeof(UnitRenderable) * h.num_renderables);
 
-	if (m_camera.size() > 0)
-	{
-		out_file->write((char*) m_camera.begin(), sizeof(UnitCamera) * header.num_cameras);
-	}
+	// Write cameras
+	if (m_cameras.size())
+		out_file->write((char*) m_cameras.begin(), sizeof(UnitCamera) * h.num_cameras);
 
-	if (m_actor.size() > 0)
-	{
-		out_file->write((char*) m_actor.begin(), sizeof(UnitActor) * header.num_actors);
-	}
+	// Write actors
+	if (m_actors.size())
+		out_file->write((char*) m_actors.begin(), sizeof(UnitActor) * h.num_actors);
 
 	// Write node names
-	for (uint32_t i = 0; i < m_node_names.size(); i++)
+	for (uint32_t i = 0; i < h.num_scene_graph_nodes; i++)
 	{
-		out_file->write((char*) &m_node_names[m_node_parents[i].inner_index], sizeof(StringId32));
+		StringId32 name = m_node_depths[i].name;
+		out_file->write((char*) &name, sizeof(StringId32));
 	}
 
 	// Write node poses
-	for (uint32_t i = 0; i < m_node_names.size(); i++)
+	for (uint32_t i = 0; i < h.num_scene_graph_nodes; i++)
 	{
-		out_file->write((char*) &m_node_poses[m_node_parents[i].inner_index], sizeof(Matrix4x4));
+		uint32_t node_index = m_node_depths[i].index;
+		GraphNode& node = m_nodes[node_index];
+		Matrix4x4 pose(node.rotation, node.position);
+		printf("|%.1f|%.1f|%.1f|%.1f|\n", pose.m[0], pose.m[4], pose.m[8], pose.m[12]);
+		printf("|%.1f|%.1f|%.1f|%.1f|\n", pose.m[1], pose.m[5], pose.m[9], pose.m[13]);
+		printf("|%.1f|%.1f|%.1f|%.1f|\n", pose.m[2], pose.m[6], pose.m[10], pose.m[14]);
+		printf("|%.1f|%.1f|%.1f|%.1f|\n", pose.m[3], pose.m[7], pose.m[11], pose.m[15]);
+		out_file->write((char*) pose.to_float_ptr(), sizeof(float) * 16);
 	}
 
-	// Write node parents
-	for (uint32_t i = 0; i < m_node_names.size(); i++)
+	// Write parent hierarchy
+	for (uint32_t i = 0; i < h.num_scene_graph_nodes; i++)
 	{
-		out_file->write((char*) &m_node_parents[i].parent_index, sizeof(int32_t));
+		int32_t parent = find_node_parent_index(i);
+		out_file->write((char*) &parent, sizeof(int32_t));
 	}
 
-	// Cleanup
-	m_renderable.clear();
-	m_camera.clear();
-	m_actor.clear();
-	m_node_names.clear();
-	m_node_parents.clear();
-	m_node_poses.clear();
+	m_nodes.clear();
+	m_node_depths.clear();
+	m_renderables.clear();
+	m_cameras.clear();
+	m_actors.clear();
+	(void)out_file;
 }
 
 } // namespace crown

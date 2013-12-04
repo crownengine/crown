@@ -32,19 +32,29 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "List.h"
 #include "Types.h"
 #include "Matrix4x4.h"
+#include "Quaternion.h"
+#include "JSONParser.h"
 
 namespace crown
 {
 
-struct ParentIndex
+struct GraphNode
 {
-	StringId32 parent_name;
-	int32_t parent_index;
-	int32_t inner_index;
+	StringId32 name;
+	StringId32 parent;
+	Vector3 position;
+	Quaternion rotation;
+};
 
-	bool operator()(const ParentIndex& a, const ParentIndex& b)
+struct GraphNodeDepth
+{
+	StringId32 name;
+	uint32_t index;
+	uint32_t depth;
+
+	bool operator()(const GraphNodeDepth& a, const GraphNodeDepth& b)
 	{
-		return a.parent_index < b.parent_index;
+		return a.depth < b.depth;
 	}
 };
 
@@ -57,15 +67,23 @@ public:
 	size_t compile_impl(Filesystem& fs, const char* resource_path);
 	void write_impl(File* out_file);
 
+	void parse_node(JSONElement e);
+	void parse_camera(JSONElement e);
+	void parse_renderable(JSONElement e);
+	void parse_actor(JSONElement e);
+
+	uint32_t compute_link_depth(GraphNode& node);
+	uint32_t find_node_index(StringId32 name);
+	int32_t find_node_parent_index(StringId32 name);
+
 private:
 
-	List<UnitRenderable>	m_renderable;
-	List<UnitCamera>		m_camera;
-	List<UnitActor>			m_actor;
+	List<GraphNode>			m_nodes;
+	List<GraphNodeDepth>	m_node_depths;
 
-	List<StringId32>		m_node_names;
-	List<ParentIndex>		m_node_parents;
-	List<Matrix4x4>			m_node_poses;
+	List<UnitCamera>		m_cameras;
+	List<UnitRenderable>	m_renderables;
+	List<UnitActor>			m_actors;
 };
 
 } // namespace crown
