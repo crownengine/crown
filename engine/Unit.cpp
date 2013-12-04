@@ -72,28 +72,28 @@ UnitId Unit::id()
 //-----------------------------------------------------------------------------
 void Unit::create(const Matrix4x4& pose)
 {
-	// Create the root node
-	int32_t root_node = m_scene_graph.create_node(-1, pose);
+	// Create the scene graph
+	m_scene_graph.create(m_resource->num_scene_graph_nodes(), m_resource->scene_graph_names(),
+							m_resource->scene_graph_poses(), m_resource->scene_graph_parents());
+
 	int32_t p_root_node = m_physics_graph.create_node(-1, pose);
 
 	// Create renderables
 	for (uint32_t i = 0; i < m_resource->num_renderables(); i++)
 	{
-		int32_t node = m_scene_graph.create_node(root_node, Vector3::ZERO, Quaternion::IDENTITY);
-
 		UnitRenderable renderable = m_resource->get_renderable(i);
 
 		switch (renderable.type)
 		{
 			case UnitRenderable::MESH:
 			{
-				MeshId mesh = m_world.create_mesh(renderable.resource, m_scene_graph, node);
+				MeshId mesh = m_world.create_mesh(renderable.resource, m_scene_graph, renderable.node);
 				add_mesh(renderable.name, mesh);
 				break;
 			}
 			case UnitRenderable::SPRITE:
 			{
-				SpriteId sprite = m_world.create_sprite(renderable.resource, m_scene_graph, node);
+				SpriteId sprite = m_world.create_sprite(renderable.resource, m_scene_graph, renderable.node);
 				add_sprite(renderable.name, sprite);
 				break;
 			}
@@ -108,11 +108,9 @@ void Unit::create(const Matrix4x4& pose)
 	// Create cameras
 	for (uint32_t i = 0; i < m_resource->num_cameras(); i++)
 	{
-		const int32_t cam_node = m_scene_graph.create_node(root_node, Vector3::ZERO, Quaternion::IDENTITY);
-
 		UnitCamera camera = m_resource->get_camera(i);
-		CameraId cam = m_world.create_camera(m_scene_graph, cam_node);
-		
+		CameraId cam = m_world.create_camera(m_scene_graph, camera.node);
+
 		add_camera(camera.name, cam);
 	}
 
