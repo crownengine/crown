@@ -45,7 +45,7 @@ SceneGraphManager::~SceneGraphManager()
 SceneGraph* SceneGraphManager::create_scene_graph()
 {
 	uint32_t index = m_graphs.size();
-	SceneGraph* sg = CE_NEW(default_allocator(), SceneGraph)(index);
+	SceneGraph* sg = CE_NEW(default_allocator(), SceneGraph)(default_allocator(), index);
 	m_graphs.push_back(sg);
 	return sg;
 }

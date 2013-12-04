@@ -27,27 +27,27 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "Vector3.h"
 #include "Matrix4x4.h"
-#include "List.h"
+#include "Quaternion.h"
 
 namespace crown
 {
 
+class Allocator;
+
 struct SceneGraph
 {
-					SceneGraph(uint32_t index);
+					SceneGraph(Allocator& a, uint32_t index);
 
-	/// Creates a new node with @a parent parent at position @a pos and rotation @a rot.
-	/// @note
-	/// The @a parent node must be either -1 (meaning no parent), or an index lesser
-	/// than the being created node.
-	int32_t			create_node(int32_t parent, const Vector3& pos, const Quaternion& rot);
+	/// Creates the graph with @a count items.
+	/// @a name, @a local and @parent are the array containing the name of the nodes,
+	/// the local poses of the nodes and the links between the nodes respectively.
+	/// A parent of -1 means "no parent".
+	void			create(uint32_t count, const StringId32* name, const Matrix4x4* local, int32_t* parent);
 
-	/// Creates a new node with @a parent parent with the given @a pose.
-	/// @note
-	/// The @a parent node must be either -1 (meaning no parent), or an index lesser
-	/// than the being created node.
-	int32_t			create_node(int32_t parent, const Matrix4x4& pose);
+	/// Destroys the graph deallocating memory if necessary.
+	void			destroy();
 
 	/// Links the @a child node to the @a parent node.
 	/// After the linking the @a child pose is reset to identity.
@@ -71,21 +71,20 @@ struct SceneGraph
 	Quaternion		world_rotation(int32_t node) const;
 	Matrix4x4		world_pose(int32_t node) const;
 
-	// Clears the content of the scene graph.
-	void			clear();
-
 	/// Transforms local poses to world poses.
 	void			update();
 
 public:
 
 	/// Index into SceneGraphManager
-	uint32_t			m_index;
+	Allocator*		m_allocator;
+	uint32_t		m_index;
 
-	List<StringId32>	m_names;
-	List<Matrix4x4>		m_world_poses;
-	List<Matrix4x4>		m_local_poses;
-	List<int32_t>		m_parents;
+	uint32_t		m_num_nodes;
+	Matrix4x4*		m_world_poses;
+	Matrix4x4*		m_local_poses;
+	int32_t*		m_parents;
+	StringId32*		m_names;
 };
 
 } // namespace crown
