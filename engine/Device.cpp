@@ -51,7 +51,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Bundle.h"
 #include "TempAllocator.h"
 #include "ResourcePackage.h"
-#include "RPCServer.h"
+#include "ConsoleServer.h"
 #include "SoundRenderer.h"
 #include "World.h"
 #include "LuaStack.h"
@@ -93,7 +93,7 @@ Device::Device()
 	, m_sound_renderer(NULL)
 
 	, m_bundle_compiler(NULL)
-	, m_rpc(NULL)
+	, m_console(NULL)
 	, m_resource_manager(NULL)
 	, m_resource_bundle(NULL)
 
@@ -118,12 +118,8 @@ void Device::init()
 
 	// RPC only in debug or development builds
 	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-		m_rpc = CE_NEW(m_allocator, RPCServer);
-		m_rpc->add_handler(&m_command_handler);
-		m_rpc->add_handler(&m_script_handler);
-		m_rpc->add_handler(&m_stats_handler);
-		m_rpc->add_handler(&m_ping_handler);
-		m_rpc->init(false);
+		m_console = CE_NEW(m_allocator, ConsoleServer);
+		m_console->init(false);
 	#endif
 
 	// Default bundle filesystem
@@ -247,10 +243,10 @@ void Device::shutdown()
 	}
 
 	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-		m_rpc->execute_callbacks();
-		m_rpc->shutdown();
-		CE_DELETE(m_allocator, m_rpc);
-		m_rpc = NULL;
+		m_console->process_requests();
+		m_console->shutdown();
+		CE_DELETE(m_allocator, m_console);
+		m_console = NULL;
 	#endif
 
 	m_allocator.clear();
@@ -390,7 +386,7 @@ void Device::frame()
 	m_last_time = m_current_time;
 	m_time_since_start += m_last_delta_time;
 
-	m_rpc->update();
+	m_console->update();
 
 	if (!m_is_paused)
 	{
@@ -407,7 +403,7 @@ void Device::frame()
 		m_sound_renderer->frame();
 	}
 
-	m_rpc->execute_callbacks();
+	m_console->process_requests();
 
 	clear_lua_temporaries();
 

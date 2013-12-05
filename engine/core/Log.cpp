@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Log.h"
 #include "Device.h"
-#include "RPCServer.h"
+#include "ConsoleServer.h"
 
 namespace crown
 {
@@ -61,9 +61,9 @@ void Log::log_message(LogSeverity::Enum severity, const char* message, ::va_list
 	os::printf(buf);
 	::fflush(stdout);
 
-	if (device()->rpc() != NULL && string::strlen(buf) > 0)
+	if (device()->console() != NULL && string::strlen(buf) > 0)
 	{
-		device()->rpc()->log_to_all(buf, severity);
+		device()->console()->log_to_all(buf, severity);
 	}
 }
 

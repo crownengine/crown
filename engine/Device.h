@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "LinearAllocator.h"
 #include "Resource.h"
-#include "RPCHandler.h"
 #include "Physics.h"
 
 namespace crown
@@ -50,7 +49,7 @@ class LuaEnvironment;
 class SoundRenderer;
 class BundleCompiler;
 class ResourcePackage;
-class RPCServer;
+class ConsoleServer;
 class World;
 class Camera;
 
@@ -153,7 +152,7 @@ public:
 	Mouse*					mouse();
 	Touch*					touch();
 	Accelerometer*			accelerometer();
-	RPCServer*				rpc() { return m_rpc; }
+	ConsoleServer*			console() { return m_console; }
 	physx::PxPhysics*		physx() { return m_physx->m_physics; };
 
 protected:
@@ -198,14 +197,9 @@ protected:
 
 	// Private subsystems
 	BundleCompiler*			m_bundle_compiler;
-	RPCServer*				m_rpc;
+	ConsoleServer*			m_console;
 	ResourceManager*		m_resource_manager;
 	Bundle*					m_resource_bundle;
-
-	RPCCommandHandler		m_command_handler;
-	RPCScriptHandler		m_script_handler;
-	RPCStatsHandler			m_stats_handler;
-	RPCPingHandler			m_ping_handler;
 
 	Physics*				m_physx;
 

@@ -35,60 +35,60 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class RPCHandler;
 typedef Id ClientId;
-#define MAX_RPC_CLIENTS 16
+#define MAX_CONSOLE_CLIENTS 16
 
 struct RPCCallback
 {
-	RPCHandler* handler;
 	ClientId client;
 	uint32_t message_index;
 };
 
-class RPCServer
+class ConsoleServer
 {
 public:
 
-						RPCServer();
+								ConsoleServer();
 
-	void				add_handler(RPCHandler* handler);
-	void				remove_handler(RPCHandler* handler);
+	/// Initializes the system. If @a wait is true, this function
+	/// blocks until a client is connected.
+	void						init(bool wait);
+	void						shutdown();
 
-	void				init(bool wait);
-	void				shutdown();
+	void						log_to_all(const char* message, LogSeverity::Enum severity);
 
-	void				update();
+	void						send_message_to(ClientId client, const char* message);
+	void						send_message_to_all(const char* message);
 
-	void				log_to_all(const char* message, LogSeverity::Enum severity);
+	/// Collects requests from clients without processing them.
+	void						update();
 
-	void				send_message_to(ClientId client, const char* message);
-	void				send_message_to_all(const char* message);
-
-	void				execute_callbacks();
+	/// Processes all the requests collected by update() possibly accessing
+	/// global resources. It should be called only when "it is safe".
+	void						process_requests();
 
 private:
 
-	void				update_client(ClientId id);
-	void				add_client(TCPSocket& client);
-	void				remove_client(ClientId id);
+	void						update_client(ClientId id);
+	void						add_client(TCPSocket& client);
+	void						remove_client(ClientId id);
 
-	// Returns a handler for processing type messages or NULL.
-	RPCHandler*			find_handler(const char* type);
-	void				push_callback(RPCHandler* handler, ClientId client, uint32_t message_index);
+	void						add_request(ClientId client, uint32_t message_index);
+	void						process_ping(ClientId client, const char* msg);
+	void						process_script(ClientId client, const char* msg);
+	void						process_stats(ClientId client, const char* msg);
+	void						process_command(ClientId client, const char* msg);
 
 private:
 
 	TCPListener					m_listener;
 
 	uint8_t						m_num_clients;
-	IdTable<MAX_RPC_CLIENTS> 	m_clients_table;
-	TCPSocket					m_clients[MAX_RPC_CLIENTS];
+	IdTable<MAX_CONSOLE_CLIENTS>	m_clients_table;
+	TCPSocket					m_clients[MAX_CONSOLE_CLIENTS];
 
 	List<char>					m_receive_buffer;
 	List<char>					m_send_buffer;
-
-	RPCHandler*					m_handlers_head;
 
 	Queue<RPCCallback>			m_receive_callbacks;
 	Queue<RPCCallback>			m_send_callbacks;
