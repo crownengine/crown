@@ -41,6 +41,7 @@ World::World()
 	, m_camera_pool(default_allocator(), MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
 	, m_unit_to_sound(default_allocator())
 {
+	create_actor(0, ActorType::DYNAMIC);
 }
 
 //-----------------------------------------------------------------------------
@@ -52,11 +53,8 @@ UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion&
 	// Create a new scene graph
 	SceneGraph* sg = m_scenegraph_manager.create_scene_graph();
 
-	// Create a new physics graph
-	PhysicsGraph* pg = m_physicsgraph_manager.create_physics_graph();
-
 	// Allocate memory for unit
-	Unit* unit = CE_NEW(m_unit_pool, Unit)(*this, *sg, *pg, ur, Matrix4x4(rot, pos));
+	Unit* unit = CE_NEW(m_unit_pool, Unit)(*this, *sg, ur, Matrix4x4(rot, pos));
 
 	// Create Id for the unit
 	const UnitId unit_id = m_units.create(unit);
@@ -137,10 +135,13 @@ Actor* World::lookup_actor(ActorId actor)
 }
 
 //-----------------------------------------------------------------------------
-void World::update(float /*dt*/)
+void World::update(float dt)
 {
 	// Update scene graphs
 	m_scenegraph_manager.update();
+
+	// Update physics world
+	m_physics_world.update(dt);
 }
 
 //-----------------------------------------------------------------------------
@@ -202,9 +203,9 @@ void World::destroy_sprite(SpriteId id)
 }
 
 //-----------------------------------------------------------------------------
-ActorId	World::create_actor(PhysicsGraph& pg, int32_t node, ActorType::Enum type)
+ActorId	World::create_actor(int32_t node, ActorType::Enum type)
 {
-	return m_physics_world.create_actor(pg, node, type);
+	return m_physics_world.create_actor(node, type);
 }
 
 //-----------------------------------------------------------------------------

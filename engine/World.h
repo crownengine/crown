@@ -38,7 +38,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SoundRenderer.h"
 #include "PoolAllocator.h"
 #include "SceneGraphManager.h"
-#include "PhysicsGraphManager.h"
 #include "PhysicsTypes.h"
 
 namespace crown
@@ -112,7 +111,7 @@ public:
 	SpriteId							create_sprite(ResourceId id, SceneGraph& sg, int32_t node);
 	void								destroy_sprite(SpriteId id);
 
-	ActorId								create_actor(PhysicsGraph& pg, int32_t node, ActorType::Enum type);
+	ActorId								create_actor(int32_t node, ActorType::Enum type);
 	void								destroy_actor(ActorId id);
 
 	SoundId								play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
@@ -133,7 +132,6 @@ private:
 	IdArray<MAX_SOUNDS, Sound> 			m_sounds;
 
 	SceneGraphManager					m_scenegraph_manager;
-	PhysicsGraphManager					m_physicsgraph_manager;
 
 	// Connections
 	List<UnitToSound>					m_unit_to_sound;
