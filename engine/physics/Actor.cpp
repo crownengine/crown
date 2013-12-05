@@ -69,6 +69,9 @@ Actor::Actor(PhysicsGraph& pg, int32_t sg_node, ActorType::Enum type, const Vect
 	}
 
 	m_mat = device()->physx()->createMaterial(0.5f, 0.5f, 0.5f);
+
+	// FIXME
+	create_sphere(Vector3(0, 0, 0), 2.0f);
 }
 
 //-----------------------------------------------------------------------------
@@ -81,21 +84,21 @@ Actor::~Actor()
 }
 
 //-----------------------------------------------------------------------------
-void Actor::create_sphere(Vector3& position, float radius)
+void Actor::create_sphere(const Vector3& position, float radius)
 {
 	Shape shape(m_actor->createShape(physx::PxSphereGeometry(radius), *m_mat));
 	m_physics_graph.create(m_sg_node, shape);
 }
 
 //-----------------------------------------------------------------------------
-void Actor::create_box(Vector3& position, float a, float b, float c)
+void Actor::create_box(const Vector3& position, float a, float b, float c)
 {
 	Shape shape(m_actor->createShape(physx::PxBoxGeometry(a, b, c), *m_mat));
 	m_physics_graph.create(m_sg_node, shape);
 }
 
 //-----------------------------------------------------------------------------
-void Actor::create_plane(Vector3& position, Vector3& normal)
+void Actor::create_plane(const Vector3& position, const Vector3& normal)
 {
 	// TODO
 }

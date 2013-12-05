@@ -48,9 +48,9 @@ struct Actor
 					Actor(PhysicsGraph& pg, int32_t sg_node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot);
 					~Actor();
 
-	void			create_sphere(Vector3& position, float radius);
-	void			create_box(Vector3& position, float a, float b, float c);
-	void			create_plane(Vector3& position, Vector3& normal);
+	void			create_sphere(const Vector3& position, float radius);
+	void			create_box(const Vector3& position, float a, float b, float c);
+	void			create_plane(const Vector3& position, const Vector3& normal);
 
 	void			enable_gravity();
 	void			disable_gravity();
