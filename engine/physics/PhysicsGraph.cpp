@@ -34,102 +34,88 @@ namespace crown
 //-----------------------------------------------------------------------------
 PhysicsGraph::PhysicsGraph(int32_t index)
 	: m_index(index)
-	, m_local_poses(default_allocator()) 
-	, m_world_poses(default_allocator())
-	, m_sg_nodes(default_allocator())
+	, m_shapes(default_allocator())
+	, m_local_poses(default_allocator())
+	, m_nodes(default_allocator())
 {
 }
 
 //-----------------------------------------------------------------------------
-int32_t	PhysicsGraph::create_node(int32_t node, const Vector3& pos, const Quaternion& rot)
+int32_t	PhysicsGraph::create(int32_t graph_node, Shape shape)
 {
-	Matrix4x4 pose(rot, pos);
-	return create_node(node, pose);	
-}
-
-//-----------------------------------------------------------------------------
-int32_t PhysicsGraph::create_node(int32_t node, const Matrix4x4& pose)
-{
-	CE_ASSERT(node >= -1, "node must be >= -1");
-
-	m_world_poses.push_back(pose);
-	m_sg_nodes.push_back(node);
-
-	return m_world_poses.size() - 1;
+	m_shapes.push_back(shape);
+	m_local_poses.push_back(Matrix4x4::IDENTITY);
+	m_nodes.push_back(graph_node);
+	return m_nodes.size() - 1;
 }
 
 //-----------------------------------------------------------------------------
 Vector3	PhysicsGraph::local_position(int32_t node) const
 {
-	return m_local_poses[node].translation();
+	m_shapes[node].local_position();
+
 }
 
 //-----------------------------------------------------------------------------
 Quaternion PhysicsGraph::local_rotation(int32_t node) const
 {
-	return m_local_poses[node].to_quaternion();
-
+	m_shapes[node].local_rotation();
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 PhysicsGraph::local_pose(int32_t node) const
 {
-	return m_local_poses[node];
-}
-
-
-//-----------------------------------------------------------------------------
-void PhysicsGraph::set_local_position(int32_t node, const Vector3& pos)
-{
-	Matrix4x4& local_pose = m_local_poses[node];
-	local_pose.set_translation(pos);
-}
-
-//-----------------------------------------------------------------------------
-void PhysicsGraph::set_local_rotation(int32_t node, const Quaternion& rot)
-{
-	Matrix4x4& local_pose = m_local_poses[node];
-
-	Vector3 local_translation = local_pose.translation();
-	local_pose = rot.to_matrix4x4();
-	local_pose.set_translation(local_translation);
-}
-
-//-----------------------------------------------------------------------------
-void PhysicsGraph::set_local_pose(int32_t node, const Matrix4x4& pose)
-{
-	m_local_poses[node] = pose;
+	m_shapes[node].local_pose();
 }
 
 //-----------------------------------------------------------------------------
 Vector3	PhysicsGraph::world_position(int32_t node) const
 {
-	return m_world_poses[node].translation();
+	m_shapes[node].world_position();
 }
 
 //-----------------------------------------------------------------------------
 Quaternion PhysicsGraph::world_rotation(int32_t node) const
 {
-	return m_world_poses[node].to_quaternion();
+	m_shapes[node].world_rotation();
 }
 
 //-----------------------------------------------------------------------------
 Matrix4x4 PhysicsGraph::world_pose(int32_t node) const
 {
-	return m_world_poses[node];
+	m_shapes[node].world_pose();
 }
 
 //-----------------------------------------------------------------------------
-void PhysicsGraph::clear()
+void PhysicsGraph::set_local_position(int32_t node, const Vector3& position)
 {
-	m_world_poses.clear();
-	m_sg_nodes.clear();
+	m_shapes[node].set_local_position(position);
+}
+
+//-----------------------------------------------------------------------------
+void PhysicsGraph::set_local_rotation(int32_t node, const Quaternion& rotation)
+{
+	m_shapes[node].set_local_rotation(rotation);
+}
+
+//-----------------------------------------------------------------------------
+void PhysicsGraph::set_local_pose(int32_t node, const Matrix4x4& pose)
+{
+	m_shapes[node].set_local_pose(pose);
 }
 
 //-----------------------------------------------------------------------------
 void PhysicsGraph::update()
 {
-	// TODO
+	for (uint32_t i = 0; i < m_local_poses.size(); i++)
+	{
+		Matrix4x4 a = m_local_poses[i] = m_shapes[i].world_pose();
+		printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[0], a.m[4], a.m[8], a.m[12]);
+		printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[1], a.m[5], a.m[9], a.m[13]);
+		printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[2], a.m[6], a.m[10], a.m[14]);
+		printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[3], a.m[7], a.m[11], a.m[15]);
+	}
 }
+
 
 } // namespace crown

@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Matrix4x4.h"
 #include "List.h"
+#include "Shape.h"
 
 namespace crown
 {
@@ -37,32 +38,28 @@ struct PhysicsGraph
 {
 					PhysicsGraph(int32_t index);
 
-	int32_t			create_node(int32_t node, const Vector3& pos, const Quaternion& rot);
-	int32_t			create_node(int32_t node, const Matrix4x4& pose);
+	int32_t			create(int32_t graph_node, Shape shape);
 
 	Vector3			local_position(int32_t node) const;
 	Quaternion		local_rotation(int32_t node) const;
 	Matrix4x4		local_pose(int32_t node) const;
 
-	void			set_local_position(int32_t node, const Vector3& pos);
-	void			set_local_rotation(int32_t node, const Quaternion& rot);
-	void			set_local_pose(int32_t node, const Matrix4x4& pose);
-
 	Vector3			world_position(int32_t node) const;
 	Quaternion		world_rotation(int32_t node) const;
 	Matrix4x4		world_pose(int32_t node) const;
 
-	void			clear();
+	void			set_local_position(int32_t node, const Vector3& position);
+	void			set_local_rotation(int32_t node, const Quaternion& rotation);
+	void			set_local_pose(int32_t node, const Matrix4x4& pose);
 
 	void			update();
 
 public:
 
 	uint32_t		m_index;
-
+	List<Shape>		m_shapes;
 	List<Matrix4x4> m_local_poses;
-	List<Matrix4x4>	m_world_poses;
-	List<uint32_t> 	m_sg_nodes;
+	List<int32_t>	m_nodes;
 };
 
 } // namespace crown
