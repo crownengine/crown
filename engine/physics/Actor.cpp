@@ -98,9 +98,10 @@ void Actor::create_box(const Vector3& position, float a, float b, float c)
 }
 
 //-----------------------------------------------------------------------------
-void Actor::create_plane(const Vector3& position, const Vector3& normal)
+void Actor::create_plane(const Vector3& /*position*/, const Vector3& /*normal*/)
 {
-	// TODO
+	Shape shape(m_actor->createShape(physx::PxPlaneGeometry(), *m_mat));
+	m_physics_graph.create(m_sg_node, shape);
 }
 
 //-----------------------------------------------------------------------------
