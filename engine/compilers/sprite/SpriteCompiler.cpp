@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "SpriteCompiler.h"
 #include "Hash.h"
+#include "JSONParser.h"
 
 namespace crown
 {
