@@ -116,9 +116,29 @@ Matrix4x4 Shape::world_pose() const
 }
 
 //-----------------------------------------------------------------------------
+void Shape::set_local_position(const Vector3& p)
+{
+	physx::PxVec3 v(p.x, p.y, p.z);
+
+	physx::PxTransform t(v);
+
+	m_shape->setLocalPose(t);
+}
+
+//-----------------------------------------------------------------------------
+void Shape::set_local_rotation(const Quaternion& r)
+{
+	physx::PxQuat q(r.v.x, r.v.y, r.v.z, r.w);
+
+	physx::PxTransform t(q);
+
+	m_shape->setLocalPose(t);
+}
+
+//-----------------------------------------------------------------------------
 void Shape::set_local_pose(const Matrix4x4& pose)
 {
-	physx::PxMat44 m(const_cast<physx::PxReal*>(pose.to_float_ptr()));
+	physx::PxMat44 m((physx::PxReal*)(pose.to_float_ptr()));
 
 	physx::PxTransform t(m);
 	m_shape->setLocalPose(t);
