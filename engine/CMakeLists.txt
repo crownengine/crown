@@ -311,7 +311,6 @@ endif (CROWN_DEBUG OR CROWN_DEVELOPMENT)
 
 set (RESOURCE_HEADERS
 	resource/Resource.h
-	resource/ResourceFormat.h
 	resource/ResourceLoader.h
 	resource/ResourceManager.h
 	resource/ResourceRegistry.h
@@ -390,6 +389,7 @@ set (PHYSICS_SRC
 	physics/PhysicsGraphManager.cpp
 	physics/PhysicsGraph.cpp
 	physics/Actor.cpp
+	physics/Shape.cpp
 )
 
 set (PHYSICS_HEADERS
@@ -399,6 +399,7 @@ set (PHYSICS_HEADERS
 	physics/PhysicsGraphManager.h
 	physics/PhysicsGraph.h
 	physics/Actor.h
+	physics/Shape.h
 )
 
 set (COMPILER_SRC
