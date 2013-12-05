@@ -83,9 +83,6 @@ LOCAL_SRC_FILES :=\
 	resource/ResourceManager.cpp\
 	resource/ResourceRegistry.cpp\
 \
-	rpc/RPCServer.cpp\
-	rpc/RPCHandler.cpp\
-\
 	lua/LuaStack.cpp\
 	lua/LuaEnvironment.cpp\
 	lua/LuaAccelerometer.cpp\
@@ -119,6 +116,7 @@ LOCAL_SRC_FILES :=\
 	Sprite.cpp\
 	Unit.cpp\
 	World.cpp\
+	ConsoleServer.cpp\
 \
 
 LOCAL_C_INCLUDES	:=\

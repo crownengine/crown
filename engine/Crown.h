@@ -104,6 +104,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Engine
 #include "Camera.h"
 #include "Device.h"
+#include "ConsoleServer.h"
 
 // Engine/Input
 #include "Keyboard.h"

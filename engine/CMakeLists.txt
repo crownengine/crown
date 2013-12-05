@@ -101,6 +101,7 @@ set (SRC
 	RenderWorld.cpp
 	Mesh.cpp
 	Sprite.cpp
+	ConsoleServer.cpp
 )
 
 set (HEADERS
@@ -116,6 +117,7 @@ set (HEADERS
 	Mesh.h
 	Sprite.h
 	SpriteAnimator.h
+	ConsoleServer.h
 )
 
 set (CORE_SRC
@@ -325,16 +327,6 @@ set (RESOURCE_HEADERS
 	resource/UnitResource.h
 	resource/ResourcePackage.h
 	resource/SpriteResource.h
-)
-
-set (RPC_SRC
-	rpc/RPCHandler.cpp
-	rpc/RPCServer.cpp
-)
-
-set (RPC_HEADERS
-	rpc/RPCServer.h
-	rpc/RPCHandler.h
 )
 
 set (OS_SRC
@@ -609,7 +601,6 @@ set (CROWN_SOURCES
 	${INPUT_SRC}
 	${RENDERERS_SRC}
 	${RESOURCE_SRC}
-	${RPC_SRC}
 	${OS_SRC}
 	${LUA_SRC}
 	${AUDIO_SRC}
@@ -631,7 +622,6 @@ set (CROWN_HEADERS
 	${INPUT_HEADERS}
 	${RENDERERS_HEADERS}
 	${RESOURCE_HEADERS}
-	${RPC_HEADERS}
 	${OS_HEADERS}
 	${LUA_HEADERS}
 	${AUDIO_HEADERS}

@@ -24,62 +24,30 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "RPCServer.h"
-#include "Log.h"
+#include "ConsoleServer.h"
 #include "JSONParser.h"
-#include "RPCHandler.h"
 #include "TempAllocator.h"
 #include "StringStream.h"
+#include "Log.h"
+#include "Device.h"
+#include "ProxyAllocator.h"
+#include "LuaEnvironment.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-RPCServer::RPCServer()
+ConsoleServer::ConsoleServer()
 	: m_num_clients(0)
 	, m_receive_buffer(default_allocator())
 	, m_send_buffer(default_allocator())
-	, m_handlers_head(NULL)
 	, m_receive_callbacks(default_allocator())
 	, m_send_callbacks(default_allocator())
 {
 }
 
 //-----------------------------------------------------------------------------
-void RPCServer::add_handler(RPCHandler* handler)
-{
-	CE_ASSERT_NOT_NULL(handler);
-
-	if (m_handlers_head != NULL)
-	{
-		handler->m_next = m_handlers_head;
-	}
-
-	m_handlers_head = handler;
-}
-
-//-----------------------------------------------------------------------------
-void RPCServer::remove_handler(RPCHandler* handler)
-{
-	CE_ASSERT_NOT_NULL(handler);
-
-	RPCHandler* cur = m_handlers_head;
-	RPCHandler* prev = NULL;
-
-	for (; cur != NULL && cur != handler; prev = cur, cur = cur->m_next) ;
-
-	if (cur == m_handlers_head)
-	{
-		m_handlers_head = cur->m_next;
-	}
-	else
-	{
-		prev->m_next = cur->m_next;
-	}
-}
-
-//-----------------------------------------------------------------------------
-void RPCServer::init(bool wait)
+void ConsoleServer::init(bool wait)
 {
 	m_listener.open(10001);
 
@@ -93,9 +61,9 @@ void RPCServer::init(bool wait)
 }
 
 //-----------------------------------------------------------------------------
-void RPCServer::shutdown()
+void ConsoleServer::shutdown()
 {
-	for (uint32_t i = 0; i < MAX_RPC_CLIENTS; i++)
+	for (uint32_t i = 0; i < MAX_CONSOLE_CLIENTS; i++)
 	{
 		m_clients[i].close();
 	}
@@ -104,28 +72,7 @@ void RPCServer::shutdown()
 }
 
 //-----------------------------------------------------------------------------
-void RPCServer::update()
-{
-	// Check for new clients
-	TCPSocket client;
-	if (m_listener.listen(client))
-	{
-		add_client(client);
-	}
-
-	// Update all clients
-	for (uint32_t i = 0; i < MAX_RPC_CLIENTS; i++)
-	{
-		ClientId id = *(m_clients_table.begin() + i);
-		if (id.id != INVALID_ID)
-		{
-			update_client(id);
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-void RPCServer::log_to_all(const char* message, LogSeverity::Enum severity)
+void ConsoleServer::log_to_all(const char* message, LogSeverity::Enum severity)
 {
 	TempAllocator2048 alloc;
 	StringStream json(alloc);
@@ -149,10 +96,9 @@ void RPCServer::log_to_all(const char* message, LogSeverity::Enum severity)
 }
 
 //-----------------------------------------------------------------------------
-void RPCServer::send_message_to(ClientId client, const char* message)
+void ConsoleServer::send_message_to(ClientId client, const char* message)
 {
 	RPCCallback cb;
-	cb.handler = NULL;
 	cb.client = client;
 	cb.message_index = m_send_buffer.size();
 
@@ -163,10 +109,10 @@ void RPCServer::send_message_to(ClientId client, const char* message)
 }
 
 //-----------------------------------------------------------------------------
-void RPCServer::send_message_to_all(const char* message)
+void ConsoleServer::send_message_to_all(const char* message)
 {
 	// Update all clients
-	for (uint32_t i = 0; i < MAX_RPC_CLIENTS; i++)
+	for (uint32_t i = 0; i < MAX_CONSOLE_CLIENTS; i++)
 	{
 		ClientId id = *(m_clients_table.begin() + i);
 		if (id.id != INVALID_ID)
@@ -177,14 +123,45 @@ void RPCServer::send_message_to_all(const char* message)
 }
 
 //-----------------------------------------------------------------------------
-void RPCServer::execute_callbacks()
+void ConsoleServer::update()
+{
+	// Check for new clients
+	TCPSocket client;
+	if (m_listener.listen(client))
+	{
+		add_client(client);
+	}
+
+	// Update all clients
+	for (uint32_t i = 0; i < MAX_CONSOLE_CLIENTS; i++)
+	{
+		ClientId id = *(m_clients_table.begin() + i);
+		if (id.id != INVALID_ID)
+		{
+			update_client(id);
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+void ConsoleServer::process_requests()
 {
 	for (uint32_t i = 0; i < m_receive_callbacks.size(); i++)
 	{
 		RPCCallback cb = m_receive_callbacks.front();
 		m_receive_callbacks.pop_front();
 
-		cb.handler->execute_command(this, cb.client, &m_receive_buffer[cb.message_index]);
+		const char* request = &m_receive_buffer[cb.message_index];
+		JSONParser parser(request);
+		JSONElement request_type = parser.root().key("type");
+		const char* type = request_type.string_value();
+
+		// Determine request type
+		if (string::strcmp("ping", type) == 0) process_ping(cb.client, request);
+		else if (string::strcmp("script", type) == 0) process_script(cb.client, request);
+		else if (string::strcmp("stats", type) == 0) process_stats(cb.client, request);
+		else if (string::strcmp("command", type) == 0) process_command(cb.client, request);
+		else continue;
 	}
 
 	m_receive_callbacks.clear();
@@ -193,9 +170,9 @@ void RPCServer::execute_callbacks()
 	for (uint32_t i = 0; i < m_send_callbacks.size(); i++)
 	{
 		RPCCallback cb = m_send_callbacks.front();
-		m_send_callbacks.pop_front();
+	 	m_send_callbacks.pop_front();
 
-		m_clients[cb.client.index].write(&m_send_buffer[cb.message_index], string::strlen(&m_send_buffer[cb.message_index]));
+	 	m_clients[cb.client.index].write(&m_send_buffer[cb.message_index], string::strlen(&m_send_buffer[cb.message_index]));
 	}
 
 	m_send_callbacks.clear();
@@ -203,7 +180,7 @@ void RPCServer::execute_callbacks()
 }
 
 //-----------------------------------------------------------------------------
-void RPCServer::update_client(ClientId id)
+void ConsoleServer::update_client(ClientId id)
 {
 	size_t total_read = 0;
 	uint32_t message_index = m_receive_buffer.size();
@@ -239,32 +216,16 @@ void RPCServer::update_client(ClientId id)
 	m_receive_buffer.push_back('\0');
 
 	// Process only if received something
-	// TODO: Bad JSON strings crash
 	if (total_read > 0)
 	{
-		JSONParser parser(&m_receive_buffer[message_index]);
-		JSONElement root = parser.root();
-		JSONElement type = root.key_or_nil("type");
-
-		if (!type.is_nil())
-		{
-			RPCHandler* handler = find_handler(type.string_value());
-			if (handler != NULL)
-			{
-				push_callback(handler, id, message_index);
-			}
-		}
-		else
-		{
-			Log::d("Wrong message, type is nil");
-		}
+		add_request(id, message_index);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void RPCServer::add_client(TCPSocket& client)
+void ConsoleServer::add_client(TCPSocket& client)
 {
-	if (m_num_clients < MAX_RPC_CLIENTS)
+	if (m_num_clients < MAX_CONSOLE_CLIENTS)
 	{
 		ClientId id = m_clients_table.create();
 		m_clients[id.index] = client;
@@ -277,7 +238,7 @@ void RPCServer::add_client(TCPSocket& client)
 }
 
 //-----------------------------------------------------------------------------
-void RPCServer::remove_client(ClientId id)
+void ConsoleServer::remove_client(ClientId id)
 {
 	CE_ASSERT(m_num_clients > 0, "No client connected");
 
@@ -287,32 +248,84 @@ void RPCServer::remove_client(ClientId id)
 }
 
 //-----------------------------------------------------------------------------
-RPCHandler* RPCServer::find_handler(const char* type)
+void ConsoleServer::add_request(ClientId client, uint32_t message_index)
 {
-	const RPCHandler* handler = m_handlers_head;
-
-	while (handler != NULL)
-	{
-		if (handler->type() == hash::murmur2_32(type, string::strlen(type), 0))
-		{
-			return (RPCHandler*)handler;
-		}
-
-		handler = handler->m_next;
-	}
-
-	return NULL;
+	RPCCallback cb;
+	cb.client = client;
+	cb.message_index = message_index;
+	m_receive_callbacks.push_back(cb);
 }
 
 //-----------------------------------------------------------------------------
-void RPCServer::push_callback(RPCHandler* handler, ClientId client, uint32_t message_index)
+void ConsoleServer::process_ping(ClientId client, const char* /*msg*/)
 {
-	RPCCallback cb;
-	cb.handler = handler;
-	cb.client = client;
-	cb.message_index = message_index;
+	send_message_to(client, "{\"type\":\"pong\"}");
+}
 
-	m_receive_callbacks.push_back(cb);
+//-----------------------------------------------------------------------------
+void ConsoleServer::process_script(ClientId /*client*/, const char* msg)
+{
+	JSONParser parser(msg);
+	JSONElement root = parser.root();
+
+	const char* script = root.key("script").string_value();
+	device()->lua_environment()->execute_string(script);
+}
+
+//-----------------------------------------------------------------------------
+void ConsoleServer::process_stats(ClientId client, const char* /*msg*/)
+{
+	TempAllocator2048 alloc;
+	StringStream response(alloc);
+
+	response << "{\"type\":\"response\",";
+	response << "{\"allocators\":[";
+
+	// Walk all proxy allocators
+	ProxyAllocator* proxy = ProxyAllocator::begin();
+	while (proxy != NULL)
+	{
+		response << "{";
+		response << "\"name\":\"" << proxy->name() << "\",";
+		response << "\"allocated_size\":\"" << proxy->allocated_size() << "\"";
+		response << "},";
+
+		proxy = ProxyAllocator::next(proxy);
+	}
+
+	response << "]" << "}";
+
+	send_message_to(client, response.c_str());
+}
+
+//-----------------------------------------------------------------------------
+void ConsoleServer::process_command(ClientId /*client*/, const char* msg)
+{
+	JSONParser parser(msg);
+	JSONElement root = parser.root();
+	JSONElement command = root.key("command");
+
+	const char* cmd = command.string_value();
+
+	if (string::strcmp("reload", cmd) == 0)
+	{
+		JSONElement resource_type = root.key_or_nil("resource_type");
+		JSONElement resource_name = root.key_or_nil("resource_name");
+
+		char t[256];
+		char n[256];
+		string::strncpy(t, resource_type.string_value(), 256);
+		string::strncpy(n, resource_name.string_value(), 256);
+		device()->reload(t, n);
+	}
+	else if (string::strcmp("pause", cmd) == 0)
+	{
+		device()->pause();
+	}
+	else if (string::strcmp("unpause", cmd) == 0)
+	{
+		device()->unpause();
+	}
 }
 
 } // namespace crown
