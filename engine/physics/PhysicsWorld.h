@@ -29,8 +29,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IdArray.h"
 #include "PoolAllocator.h"
 #include "PhysicsTypes.h"
+#include "PhysicsGraphManager.h"
 
 #include "PxScene.h"
+#include "PxDefaultCpuDispatcher.h"
 
 #define MAX_ACTORS 1024
 
@@ -51,7 +53,7 @@ public:
 				PhysicsWorld();
 				~PhysicsWorld();
 
-	ActorId		create_actor(PhysicsGraph& pg, int32_t node, ActorType::Enum type);
+	ActorId		create_actor(int32_t sg_node, ActorType::Enum type);
 	void		destroy_actor(ActorId id);
 	Actor*		lookup_actor(ActorId id);
 
@@ -60,8 +62,10 @@ public:
 public:
 
 	physx::PxScene* m_scene;
+	physx::PxDefaultCpuDispatcher* m_cpu_dispatcher;
 
 	PoolAllocator m_actor_pool;
 	IdArray<MAX_ACTORS, Actor*> m_actor;
+	PhysicsGraphManager m_graph_manager;
 };
 }

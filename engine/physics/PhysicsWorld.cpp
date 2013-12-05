@@ -29,9 +29,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Actor.h"
 #include "Device.h"
 #include "Physics.h"
+#include "Quaternion.h"
+
+#include "PxPhysicsAPI.h"
 
 namespace crown
 {
+
+static physx::PxSimulationFilterShader g_default_filter_shader = physx::PxDefaultSimulationFilterShader;
 
 //-----------------------------------------------------------------------------
 PhysicsWorld::PhysicsWorld()
@@ -40,7 +45,20 @@ PhysicsWorld::PhysicsWorld()
 {
 	physx::PxSceneDesc scene_desc(device()->physx()->getTolerancesScale());
 	scene_desc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
+
+	 if(!scene_desc.cpuDispatcher) {
+		m_cpu_dispatcher = physx::PxDefaultCpuDispatcherCreate(1);
+		if(!m_cpu_dispatcher)
+		   CE_FATAL("Asd");
+		scene_desc.cpuDispatcher = m_cpu_dispatcher;
+	} 
+	if(!scene_desc.filterShader)
+		scene_desc.filterShader  = g_default_filter_shader;
+	
 	m_scene = device()->physx()->createScene(scene_desc);
+
+/*	m_scene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE,				 1.0);
+	m_scene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES,	1.0f);*/
 }
 
 //-----------------------------------------------------------------------------
@@ -50,10 +68,19 @@ PhysicsWorld::~PhysicsWorld()
 }
 
 //-----------------------------------------------------------------------------
-ActorId	PhysicsWorld::create_actor(PhysicsGraph& pg, int32_t node, ActorType::Enum type)
+ActorId	PhysicsWorld::create_actor(int32_t sg_node, ActorType::Enum type)
 {
-	Actor* actor = CE_NEW(m_actor_pool, Actor)(pg, node, type);
+	physx::PxReal d = 0.0f;
+	physx::PxTransform pose = physx::PxTransform(physx::PxVec3(0.0f, -5, 0.0f),physx::PxQuat(physx::PxHalfPi, physx::PxVec3(0.0f, 0.0f, 1.0f)));
 
+/*	physx::PxMaterial* mat = device()->physx()->createMaterial(0.5f, 0.5f, 1.0f);
+	physx::PxRigidStatic* plane = device()->physx()->createRigidStatic(pose);
+	physx::PxShape* shape = plane->createShape(physx::PxPlaneGeometry(), *mat);
+	m_scene->addActor(*plane);*/
+
+	PhysicsGraph* pg = m_graph_manager.create_physics_graph();
+
+	Actor* actor = CE_NEW(m_actor_pool, Actor)(*pg, sg_node, type, Vector3::ZERO, Quaternion::IDENTITY);
 	m_scene->addActor(*actor->m_actor);
 
 	return m_actor.create(actor);
@@ -84,9 +111,12 @@ Actor* PhysicsWorld::lookup_actor(ActorId id)
 //-----------------------------------------------------------------------------
 void PhysicsWorld::update(float dt)
 {
-	m_scene->simulate(dt);
+	Log::d("simulating..");
+	m_scene->simulate(0.015f);
 
 	while (!m_scene->fetchResults());
+
+	m_graph_manager.update();
 }
 
 } // namespace crown
