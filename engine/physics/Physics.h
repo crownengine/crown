@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PxCooking.h"
 #include "PxDefaultAllocator.h"
 #include "PxDefaultErrorCallback.h"
+#include "PxExtensionsAPI.h"
 
 namespace crown
 {
@@ -62,6 +63,9 @@ inline Physics::Physics()
 	m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, physx::PxTolerancesScale());
 	CE_ASSERT_NOT_NULL(m_physics);
 
+	bool extension = PxInitExtensions(*m_physics);
+	CE_ASSERT(extension, "Unable to initialize Physx extension");
+
 	m_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_foundation, physx::PxCookingParams());
 	CE_ASSERT_NOT_NULL(m_cooking);
 }
@@ -69,6 +73,7 @@ inline Physics::Physics()
 //-----------------------------------------------------------------------------
 inline Physics::~Physics()
 {
+	PxCloseExtensions();
 	m_physics->release();
 	m_foundation->release();
 }
