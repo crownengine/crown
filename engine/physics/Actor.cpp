@@ -32,6 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PhysicsGraph.h"
 #include "Device.h"
 #include "Physics.h"
+#include "Log.h"
+#include "SceneGraph.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -39,24 +41,25 @@ namespace crown
 {
 	
 //-----------------------------------------------------------------------------
-Actor::Actor(PhysicsGraph& pg, int32_t node, ActorType::Enum type)
+Actor::Actor(PhysicsGraph& pg, int32_t sg_node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot)
 	: m_physics_graph(pg)
-	, m_node(node)
+	, m_sg_node(sg_node)
 	, m_type(type)
 {
-	Vector3 pos = m_physics_graph.m_local_poses[node].translation();
-	physx::PxVec3 position(pos.x, pos.y, pos.z);
+	Matrix4x4 m(rot, pos);
+	physx::PxMat44 pose((physx::PxReal*)(m.to_float_ptr()));
 
 	switch (type)
 	{
 		case ActorType::STATIC:
 		{
-			m_actor = device()->physx()->createRigidStatic(physx::PxTransform(position));
+			m_actor = device()->physx()->createRigidStatic(physx::PxTransform(pose));
 			break;
 		}
 		case ActorType::DYNAMIC:
 		{
-			m_actor = device()->physx()->createRigidDynamic(physx::PxTransform(position));
+			m_actor = device()->physx()->createRigidDynamic(physx::PxTransform(pose));
+			Log::d("Created dynamic");
 			break;
 		}
 		default:
@@ -64,69 +67,128 @@ Actor::Actor(PhysicsGraph& pg, int32_t node, ActorType::Enum type)
 			CE_FATAL("Unable to recognize actor type");
 		}
 	}
+
+	m_mat = device()->physx()->createMaterial(0.5f, 0.5f, 0.5f);
 }
 
 //-----------------------------------------------------------------------------
-Vector3	Actor::local_position() const
+Actor::~Actor()
 {
-	return m_physics_graph.local_position(m_node);
-}
-
-//-----------------------------------------------------------------------------
-Quaternion Actor::local_rotation() const
-{
-	return m_physics_graph.local_rotation(m_node);
-}
-
-//-----------------------------------------------------------------------------
-Matrix4x4 Actor::local_pose() const
-{
-	return m_physics_graph.local_pose(m_node);
-}
-
-//-----------------------------------------------------------------------------
-Vector3	Actor::world_position() const
-{
-	return m_physics_graph.world_position(m_node);
-}
-
-//-----------------------------------------------------------------------------
-Quaternion Actor::world_rotation() const
-{
-	return m_physics_graph.world_rotation(m_node);
-}
-
-//-----------------------------------------------------------------------------
-Matrix4x4 Actor::world_pose() const
-{
-	return m_physics_graph.world_pose(m_node);
-}
-
-//-----------------------------------------------------------------------------
-void Actor::set_local_position(Unit* unit, const Vector3& pos)
-{
-	unit->set_local_position(m_node, pos);
-}
-
-//-----------------------------------------------------------------------------
-void Actor::set_local_rotation(Unit* unit, const Quaternion& rot)
-{
-	unit->set_local_rotation(m_node, rot);
-}
-
-//-----------------------------------------------------------------------------
-void Actor::set_local_pose(Unit* unit, const Matrix4x4& pose)
-{
-	unit->set_local_pose(m_node, pose);
+	if (m_actor)
+	{
+		m_actor->release();
+	}
 }
 
 //-----------------------------------------------------------------------------
 void Actor::create_sphere(Vector3& position, float radius)
 {
-	// FIXME FIXME FIXME
-	physx::PxMaterial* mat = device()->physx()->createMaterial(0.5f, 0.5f, 0.1f);
-	m_actor->createShape(physx::PxSphereGeometry(radius), *mat);
-	// physx::PxRigidBodyExt::updateMassAndInertia(*m_actor, 1.0f);
+	Shape shape(m_actor->createShape(physx::PxSphereGeometry(radius), *m_mat));
+	m_physics_graph.create(m_sg_node, shape);
 }
+
+//-----------------------------------------------------------------------------
+void Actor::create_box(Vector3& position, float a, float b, float c)
+{
+	Shape shape(m_actor->createShape(physx::PxBoxGeometry(a, b, c), *m_mat));
+	m_physics_graph.create(m_sg_node, shape);
+}
+
+//-----------------------------------------------------------------------------
+void Actor::create_plane(Vector3& position, Vector3& normal)
+{
+	// TODO
+}
+
+//-----------------------------------------------------------------------------
+void Actor::enable_gravity()
+{
+	m_actor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, false);
+}
+
+//-----------------------------------------------------------------------------
+void Actor::disable_gravity()
+{
+	m_actor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, true);
+}
+
+//-----------------------------------------------------------------------------
+bool Actor::is_static() const
+{
+	return m_type == ActorType::STATIC;
+}
+
+//-----------------------------------------------------------------------------
+bool Actor::is_dynamic() const
+{
+	return m_type == ActorType::DYNAMIC;
+}
+
+//-----------------------------------------------------------------------------
+float Actor::linear_damping() const
+{
+	return ((physx::PxRigidDynamic*)m_actor)->getLinearDamping();
+}
+
+//-----------------------------------------------------------------------------
+void Actor::set_linear_damping(float rate)
+{
+	((physx::PxRigidDynamic*)m_actor)->setLinearDamping(rate);
+}
+
+//-----------------------------------------------------------------------------
+float Actor::angular_damping() const
+{
+	return ((physx::PxRigidDynamic*)m_actor)->getAngularDamping();
+}
+
+//-----------------------------------------------------------------------------
+void Actor::set_angular_damping(float rate)
+{
+	((physx::PxRigidDynamic*)m_actor)->setAngularDamping(rate);
+}
+
+//-----------------------------------------------------------------------------
+Vector3 Actor::linear_velocity() const
+{
+	physx::PxVec3 vel = ((physx::PxRigidBody*)m_actor)->getLinearVelocity();
+	Vector3 velocity(vel.x, vel.y, vel.z);
+	return velocity;
+}
+
+//-----------------------------------------------------------------------------
+void Actor::set_linear_velocity(const Vector3& vel)
+{
+	physx::PxVec3 velocity(vel.x, vel.y, vel.z);
+	((physx::PxRigidBody*)m_actor)->setLinearVelocity(velocity);
+}
+
+//-----------------------------------------------------------------------------
+Vector3 Actor::angular_velocity() const
+{
+	physx::PxVec3 vel = ((physx::PxRigidBody*)m_actor)->getAngularVelocity();
+	Vector3 velocity(vel.x, vel.y, vel.z);
+	return velocity;
+}
+
+//-----------------------------------------------------------------------------
+void Actor::set_angular_velocity(const Vector3& vel)
+{
+	physx::PxVec3 velocity(vel.x, vel.y, vel.z);
+	((physx::PxRigidBody*)m_actor)->setAngularVelocity(velocity);
+}
+
+//-----------------------------------------------------------------------------
+bool Actor::is_sleeping()
+{
+	return ((physx::PxRigidDynamic*)m_actor)->isSleeping();
+}
+
+//-----------------------------------------------------------------------------
+void Actor::wake_up()
+{
+	((physx::PxRigidDynamic*)m_actor)->wakeUp();
+}
+
 
 } // namespace crown
