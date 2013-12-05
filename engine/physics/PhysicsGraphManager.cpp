@@ -34,7 +34,6 @@ namespace crown
 PhysicsGraphManager::PhysicsGraphManager()
 	: m_graphs(default_allocator())
 {
-
 }
 
 //-----------------------------------------------------------------------------

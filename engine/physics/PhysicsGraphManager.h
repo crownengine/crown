@@ -41,13 +41,9 @@ public:
 						PhysicsGraphManager();
 						~PhysicsGraphManager();
 
-	/// Creates a new physics graph
 	PhysicsGraph*		create_physics_graph();
-
-	/// Destroys the @a sg physics graph
 	void				destroy_physics_graph(PhysicsGraph* pg);
-
-	/// Updates all the physics graphs
+	
 	void				update();
 
 private:
