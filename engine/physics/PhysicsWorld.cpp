@@ -46,14 +46,15 @@ PhysicsWorld::PhysicsWorld()
 	physx::PxSceneDesc scene_desc(device()->physx()->getTolerancesScale());
 	scene_desc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
 
-	 if(!scene_desc.cpuDispatcher) {
+	if(!scene_desc.cpuDispatcher)
+	{
 		m_cpu_dispatcher = physx::PxDefaultCpuDispatcherCreate(1);
 		if(!m_cpu_dispatcher)
-		   CE_FATAL("Asd");
+			CE_FATAL("Asd");
 		scene_desc.cpuDispatcher = m_cpu_dispatcher;
-	} 
+	}
 	if(!scene_desc.filterShader)
-		scene_desc.filterShader  = g_default_filter_shader;
+		scene_desc.filterShader = g_default_filter_shader;
 	
 	m_scene = device()->physx()->createScene(scene_desc);
 
