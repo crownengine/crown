@@ -82,7 +82,7 @@ struct UnitResource;
 
 struct Unit
 {
-						Unit(World& w, SceneGraph& sg, PhysicsGraph& pg, const UnitResource* ur, const Matrix4x4& pose);
+						Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& pose);
 
 	void				set_id(const UnitId id);
 	UnitId				id();
@@ -130,7 +130,6 @@ public:
 
 	World&				m_world;
 	SceneGraph&			m_scene_graph;
-	PhysicsGraph&		m_physics_graph;
 	const UnitResource*	m_resource;
 	UnitId				m_id;
 

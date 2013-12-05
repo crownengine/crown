@@ -38,10 +38,9 @@ namespace crown
 typedef Id CameraId;
 typedef Id SpriteId;
 
-Unit::Unit(World& w, SceneGraph& sg, PhysicsGraph& pg, const UnitResource* ur, const Matrix4x4& pose)
+Unit::Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)
 	, m_scene_graph(sg)
-	, m_physics_graph(pg)
 	, m_resource(ur)
 	, m_num_cameras(0)
 	, m_num_meshes(0)
@@ -78,8 +77,6 @@ void Unit::create(const Matrix4x4& pose)
 	// Set root node pose
 	m_scene_graph.set_local_pose(0, pose);
 
-	int32_t p_root_node = m_physics_graph.create_node(-1, pose);
-
 	// Create renderables
 	for (uint32_t i = 0; i < m_resource->num_renderables(); i++)
 	{
@@ -114,16 +111,6 @@ void Unit::create(const Matrix4x4& pose)
 		CameraId cam = m_world.create_camera(m_scene_graph, camera.node);
 
 		add_camera(camera.name, cam);
-	}
-
-	// Create actors
-	for (uint32_t i = 0; i < m_resource->num_actors(); i++)
-	{
-		const int32_t actor_node = m_physics_graph.create_node(p_root_node, Vector3::ZERO, Quaternion::IDENTITY);
-		UnitActor actor = m_resource->get_actor(i);
-		ActorId actor_id = m_world.create_actor(m_physics_graph, actor_node, ActorType::DYNAMIC);
-
-		add_actor(actor.name, actor_id);
 	}
 }
 
