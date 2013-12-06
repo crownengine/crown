@@ -137,6 +137,24 @@ void Unit::destroy()
 }
 
 //-----------------------------------------------------------------------------
+int32_t Unit::node(const char* name) const
+{
+	return m_scene_graph.node(name);
+}
+
+//-----------------------------------------------------------------------------
+bool Unit::has_node(const char* name) const
+{
+	return m_scene_graph.has_node(name);
+}
+
+//-----------------------------------------------------------------------------
+uint32_t Unit::num_nodes() const
+{
+	return m_scene_graph.num_nodes();
+}
+
+//-----------------------------------------------------------------------------
 Vector3 Unit::local_position(int32_t node) const
 {
 	return m_scene_graph.local_position(node);

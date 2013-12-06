@@ -49,6 +49,15 @@ struct SceneGraph
 	/// Destroys the graph deallocating memory if necessary.
 	void			destroy();
 
+	/// Returns the index of the node with the given @a name
+	int32_t			node(const char* name) const;
+
+	/// Returns whether the graph has the node with the given @a name.
+	bool			has_node(const char* name) const;
+
+	/// Returns the number of nodes in the graph.
+	uint32_t		num_nodes() const;
+
 	/// Links the @a child node to the @a parent node.
 	/// After the linking the @a child pose is reset to identity.
 	/// @note

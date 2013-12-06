@@ -32,6 +32,41 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int unit_node(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Unit* unit = stack.get_unit(1);
+	const char* name = stack.get_string(2);
+
+	stack.push_int32(unit->node(name));
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int unit_has_node(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Unit* unit = stack.get_unit(1);
+	const char* name = stack.get_string(2);
+
+	stack.push_bool(unit->has_node(name));
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int unit_num_nodes(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Unit* unit = stack.get_unit(1);
+
+	stack.push_int32(unit->num_nodes());
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int unit_local_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -206,6 +241,10 @@ CE_EXPORT int unit_sprite(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_unit(LuaEnvironment& env)
 {
+	env.load_module_function("Unit", "node",					unit_node);
+	env.load_module_function("Unit", "has_node",				unit_has_node);
+	env.load_module_function("Unit", "num_nodes",				unit_num_nodes);
+
 	env.load_module_function("Unit", "local_position",			unit_local_position);
 	env.load_module_function("Unit", "local_rotation",			unit_local_rotation);
 	env.load_module_function("Unit", "local_pose",				unit_local_pose);

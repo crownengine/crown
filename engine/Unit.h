@@ -90,6 +90,10 @@ struct Unit
 	void				create(const Matrix4x4& pose);
 	void				destroy();
 
+	int32_t				node(const char* name) const;
+	bool				has_node(const char* name) const;
+	uint32_t			num_nodes() const;
+
 	Vector3				local_position(int32_t node) const;
 	Quaternion			local_rotation(int32_t node) const;
 	Matrix4x4			local_pose(int32_t node) const;

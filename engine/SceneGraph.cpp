@@ -28,7 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Quaternion.h"
 #include "Allocator.h"
 #include <string.h>
-#include "Log.h"
+#include "Hash.h"
+#include "StringUtils.h"
 
 namespace crown
 {
@@ -67,6 +68,44 @@ void SceneGraph::destroy()
 {
 	// m_world_poses is the start of allocated memory
 	m_allocator->deallocate(m_world_poses);
+}
+
+//-----------------------------------------------------------------------------
+int32_t SceneGraph::node(const char* name) const
+{
+	StringId32 name_hash = hash::murmur2_32(name, string::strlen(name), 0);
+
+	for (uint32_t i = 0; i < m_num_nodes; i++)
+	{
+		if (m_names[i] == name_hash)
+		{
+			return i;
+		}
+	}
+
+	CE_ASSERT(false, "Node not found: '%s'", name);
+}
+
+//-----------------------------------------------------------------------------
+bool SceneGraph::has_node(const char* name) const
+{
+	StringId32 name_hash = hash::murmur2_32(name, string::strlen(name), 0);
+
+	for (uint32_t i = 0; i < m_num_nodes; i++)
+	{
+		if (m_names[i] == name_hash)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+uint32_t SceneGraph::num_nodes() const
+{
+	return m_num_nodes;
 }
 
 //-----------------------------------------------------------------------------
