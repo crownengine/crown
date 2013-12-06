@@ -1,0 +1,11 @@
+{{% load filter %}
+	"frames" : [{% for sprite in allSprites %}
+		{
+			"name" : "{{sprite.trimmedName}}",{{sprite.frameRectRel.height|setHeightRel}}
+			"region" : [{{sprite.frameRectRel.x}}, {{sprite.frameRectRel.y|transformY}}, {{sprite.frameRectRel.width}}, {{sprite.frameRectRel.height}}],
+			"offset" : [0.0, 0.0],
+			"scale" : [1.0, 1.0],
+			"rotated" : {{sprite.rotated}}
+		}{% if not forloop.last %},{% endif %}{% endfor %}
+	]
+}

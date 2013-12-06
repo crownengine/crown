@@ -1,0 +1,49 @@
+<exporter version="1.0">
+  <!-- identifier of the exporter -->
+  <name>crown-sprite-exporter</name>
+ 
+  <!-- display name of the exporter for the combo box -->
+  <displayName>Crown - Sprite</displayName>
+ 
+  <!-- description of the exporter -->
+  <description>Official Crown Engine Sprite Exporter</description>
+ 
+  <!-- exporter version -->
+  <version>1.0</version>
+ 
+  <!-- currently only one file allowed -
+       more to come soon -->
+  <files>
+      <file>
+          <!-- name of this file variable -->
+          <name>maintext</name>
+ 
+          <!-- human readable name (for GUI) -->
+          <displayName>Crown Sprites</displayName>
+ 
+          <!-- file extension for the file -->
+          <fileExtension>sprite</fileExtension>
+ 
+          <!-- name of the template file -->
+          <template>template.txt</template>
+      </file>
+  </files>
+ 
+  <!-- target framework supports trimming -->
+  <supportsTrimming>no</supportsTrimming>
+ 
+  <!-- target framework supports rotated sprites -->
+  <supportsRotation>no</supportsRotation>
+ 
+  <!-- rotated sprites direction (cw/ccw) -->
+  <rotationDirection>cw</rotationDirection>
+ 
+  <!-- supports npot sizes -->
+  <supportsNPOT>no</supportsNPOT>
+ 
+  <!-- supports file name stripping (remove .png etc.) -->
+  <supportsTrimSpriteNames>yes</supportsTrimSpriteNames>
+ 
+  <!-- supports texture subpath -->
+  <supportsTextureSubPath>yes</supportsTextureSubPath>
+</exporter>
