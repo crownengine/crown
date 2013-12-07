@@ -116,7 +116,6 @@ set (HEADERS
 	RenderWorld.h
 	Mesh.h
 	Sprite.h
-	SpriteAnimator.h
 	ConsoleServer.h
 )
 
