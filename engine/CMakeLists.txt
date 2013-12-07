@@ -380,8 +380,6 @@ set (AUDIO_HEADERS
 
 set (PHYSICS_SRC
 	physics/PhysicsWorld.cpp
-	physics/PhysicsGraphManager.cpp
-	physics/PhysicsGraph.cpp
 	physics/Actor.cpp
 	physics/Shape.cpp
 )
@@ -390,8 +388,6 @@ set (PHYSICS_HEADERS
 	physics/PhysicsTypes.h
 	physics/Physics.h
 	physics/PhysicsWorld.h
-	physics/PhysicsGraphManager.h
-	physics/PhysicsGraph.h
 	physics/Actor.h
 	physics/Shape.h
 )
