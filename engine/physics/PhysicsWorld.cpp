@@ -130,13 +130,12 @@ void PhysicsWorld::set_gravity(const Vector3& g)
 }
 
 //-----------------------------------------------------------------------------
-void PhysicsWorld::update(float dt)
+void PhysicsWorld::update()
 {
+	// Run with fixed timestep
 	m_scene->simulate(1.0 / 60.0);
 
 	while (!m_scene->fetchResults());
-
-	m_graph_manager.update();
 }
 
 } // namespace crown
