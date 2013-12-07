@@ -30,8 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "UnitResource.h"
 #include "SceneGraphManager.h"
-#include "PhysicsGraphManager.h"
-
 #include "Actor.h"
 
 namespace crown

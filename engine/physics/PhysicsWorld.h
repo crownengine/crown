@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IdArray.h"
 #include "PoolAllocator.h"
 #include "PhysicsTypes.h"
-#include "PhysicsGraphManager.h"
 
 #include "PxScene.h"
 #include "PxDefaultCpuDispatcher.h"
@@ -70,6 +69,6 @@ public:
 
 	PoolAllocator m_actor_pool;
 	IdArray<MAX_ACTORS, Actor*> m_actor;
-	PhysicsGraphManager m_graph_manager;
 };
-}
+
+} // namespace crown

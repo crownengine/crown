@@ -32,7 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Matrix4x4.h"
 #include "Hash.h"
 #include "SceneGraph.h"
-#include "PhysicsGraph.h"
 #include "StringUtils.h"
 
 namespace crown

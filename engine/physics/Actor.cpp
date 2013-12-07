@@ -29,12 +29,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Quaternion.h"
 #include "Matrix4x4.h"
 #include "Unit.h"
-#include "PhysicsGraph.h"
 #include "Device.h"
 #include "Physics.h"
 #include "Log.h"
 #include "SceneGraph.h"
-
 #include "PxPhysicsAPI.h"
 
 using physx::PxRigidDynamicFlag;
