@@ -146,7 +146,7 @@ void Unit::create_renderable_objects()
 void Unit::create_physics_objects()
 {
 	const StringId32 name_hash = hash::murmur2_32("actor", string::strlen("actor"), 0);
-	add_actor(name_hash, m_world.create_actor(ActorType::DYNAMIC));
+	add_actor(name_hash, m_world.create_actor(ActorType::DYNAMIC_PHYSICAL));
 }
 
 //-----------------------------------------------------------------------------
