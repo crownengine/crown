@@ -111,7 +111,7 @@ public:
 	SpriteId							create_sprite(ResourceId id, SceneGraph& sg, int32_t node);
 	void								destroy_sprite(SpriteId id);
 
-	ActorId								create_actor(int32_t node, ActorType::Enum type);
+	ActorId								create_actor(ActorType::Enum type);
 	void								destroy_actor(ActorId id);
 
 	SoundId								play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
@@ -121,6 +121,8 @@ public:
 	void								set_sound_position(SoundId sound, const Vector3& pos);
 	void								set_sound_range(SoundId sound, const float range);
 	void								set_sound_volume(SoundId sound, const float vol);
+
+	PhysicsWorld*						physics_world();
 
 private:
 

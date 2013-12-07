@@ -41,7 +41,6 @@ World::World()
 	, m_camera_pool(default_allocator(), MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
 	, m_unit_to_sound(default_allocator())
 {
-	create_actor(0, ActorType::DYNAMIC);
 }
 
 //-----------------------------------------------------------------------------
@@ -73,7 +72,6 @@ void World::destroy_unit(UnitId id)
 	// Destry unit's scene graph
 	m_scenegraph_manager.destroy_scene_graph(&unit->m_scene_graph);
 
-	unit->destroy();
 	CE_DELETE(m_unit_pool, unit);
 	m_units.destroy(id);
 }
@@ -137,8 +135,14 @@ Actor* World::lookup_actor(ActorId actor)
 //-----------------------------------------------------------------------------
 void World::update(float dt)
 {
+	// Update units
+	for (Unit** uu = m_units.begin(); uu != m_units.end(); uu++)
+	{
+		(*uu)->update();
+	}
+
 	// Update scene graphs
-	m_scenegraph_manager.update();
+	//m_scenegraph_manager.update();
 
 	// Update physics world
 	m_physics_world.update(dt);
@@ -203,9 +207,9 @@ void World::destroy_sprite(SpriteId id)
 }
 
 //-----------------------------------------------------------------------------
-ActorId	World::create_actor(int32_t node, ActorType::Enum type)
+ActorId	World::create_actor(ActorType::Enum type)
 {
-	return m_physics_world.create_actor(node, type);
+	return m_physics_world.create_actor(type);
 }
 
 //-----------------------------------------------------------------------------
@@ -303,6 +307,12 @@ void World::set_sound_volume(SoundId id, const float vol)
 
 	Sound& sound = m_sounds.lookup(id);
 	sound.volume = vol;
+}
+
+//-----------------------------------------------------------------------------
+PhysicsWorld* World::physics_world()
+{
+	return &m_physics_world;
 }
 
 } // namespace crown
