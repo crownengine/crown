@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Quaternion.h"
 #include "SpriteResource.h"
 #include "Allocator.h"
-#include "SpriteAnimator.h"
 #include "SceneGraph.h"
 #include "Unit.h"
 
@@ -45,13 +44,11 @@ Sprite::Sprite(SceneGraph& sg, int32_t node, const SpriteResource* sr)
 	m_vb = sr->vertex_buffer();
 	m_ib = sr->index_buffer();
 	m_texture = ((TextureResource*)device()->resource_manager()->data(sr->texture()))->texture();
-	m_animator = CE_NEW(default_allocator(), SpriteAnimator)(sr);
 }
 
 //-----------------------------------------------------------------------------
 Sprite::~Sprite()
 {
-	CE_DELETE(default_allocator(), m_animator);
 }
 
 //-----------------------------------------------------------------------------
