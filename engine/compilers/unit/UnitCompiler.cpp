@@ -291,7 +291,6 @@ void UnitCompiler::write_impl(File* out_file)
 	// Write header
 	out_file->write((char*) &h, sizeof(UnitHeader));
 
-	Log::d("num renderables = %d", m_renderables.size());
 	// Write renderables
 	if (m_renderables.size())
 		out_file->write((char*) m_renderables.begin(), sizeof(UnitRenderable) * h.num_renderables);
@@ -317,10 +316,6 @@ void UnitCompiler::write_impl(File* out_file)
 		uint32_t node_index = m_node_depths[i].index;
 		GraphNode& node = m_nodes[node_index];
 		Matrix4x4 pose(node.rotation, node.position);
-		printf("|%.1f|%.1f|%.1f|%.1f|\n", pose.m[0], pose.m[4], pose.m[8], pose.m[12]);
-		printf("|%.1f|%.1f|%.1f|%.1f|\n", pose.m[1], pose.m[5], pose.m[9], pose.m[13]);
-		printf("|%.1f|%.1f|%.1f|%.1f|\n", pose.m[2], pose.m[6], pose.m[10], pose.m[14]);
-		printf("|%.1f|%.1f|%.1f|%.1f|\n", pose.m[3], pose.m[7], pose.m[11], pose.m[15]);
 		out_file->write((char*) pose.to_float_ptr(), sizeof(float) * 16);
 	}
 
