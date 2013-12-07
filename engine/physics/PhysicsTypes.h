@@ -32,7 +32,8 @@ struct ActorType
 	enum Enum
 	{
 		STATIC,
-		DYNAMIC
+		DYNAMIC_PHYSICAL,
+		DYNAMIC_KINEMATIC
 	};
 };
 
