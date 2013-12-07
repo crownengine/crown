@@ -53,9 +53,13 @@ public:
 				PhysicsWorld();
 				~PhysicsWorld();
 
-	ActorId		create_actor(int32_t sg_node, ActorType::Enum type);
+	ActorId		create_actor(ActorType::Enum type);
 	void		destroy_actor(ActorId id);
+
 	Actor*		lookup_actor(ActorId id);
+
+	Vector3		gravity() const;
+	void		set_gravity(const Vector3& g);
 
 	void		update(float dt);
 

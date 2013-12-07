@@ -33,6 +33,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "PxPhysicsAPI.h"
 
+using physx::PxSceneDesc;
+using physx::PxVec3;
+using physx::PxTransform;
+using physx::PxQuat;
+using physx::PxHalfPi;
+
+using physx::PxPlaneGeometry;
+using physx::PxMaterial;
+using physx::PxShape;
+using physx::PxRigidStatic;
+
 namespace crown
 {
 
@@ -43,23 +54,30 @@ PhysicsWorld::PhysicsWorld()
 	: m_scene(NULL)
 	, m_actor_pool(default_allocator(), MAX_ACTORS, sizeof(Actor), CE_ALIGNOF(Actor))
 {
-	physx::PxSceneDesc scene_desc(device()->physx()->getTolerancesScale());
-	scene_desc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
+	PxSceneDesc scene_desc(device()->physx()->getTolerancesScale());
+	scene_desc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 
 	if(!scene_desc.cpuDispatcher)
 	{
 		m_cpu_dispatcher = physx::PxDefaultCpuDispatcherCreate(1);
-		if(!m_cpu_dispatcher)
-			CE_FATAL("Asd");
+		CE_ASSERT(m_cpu_dispatcher != NULL, "Failed to create PhysX cpu dispatcher");
+
 		scene_desc.cpuDispatcher = m_cpu_dispatcher;
 	}
+
 	if(!scene_desc.filterShader)
 		scene_desc.filterShader = g_default_filter_shader;
 	
 	m_scene = device()->physx()->createScene(scene_desc);
 
-/*	m_scene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE,				 1.0);
-	m_scene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES,	1.0f);*/
+/*	m_scene->setVisualizationParameter(PxVisualizationParameter::eSCALE,				 1.0);
+	m_scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES,	1.0f);*/
+
+	PxTransform pose = PxTransform(PxVec3(0.0f, -3.75, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f)));
+	PxMaterial* mat = device()->physx()->createMaterial(0.5f, 0.5f, 1.0f);
+	PxRigidStatic* plane = device()->physx()->createRigidStatic(pose);
+	PxShape* shape = plane->createShape(PxPlaneGeometry(), *mat);
+	m_scene->addActor(*plane);
 }
 
 //-----------------------------------------------------------------------------
@@ -69,19 +87,9 @@ PhysicsWorld::~PhysicsWorld()
 }
 
 //-----------------------------------------------------------------------------
-ActorId	PhysicsWorld::create_actor(int32_t sg_node, ActorType::Enum type)
+ActorId	PhysicsWorld::create_actor(ActorType::Enum type)
 {
-	physx::PxReal d = 0.0f;
-	physx::PxTransform pose = physx::PxTransform(physx::PxVec3(0.0f, -5, 0.0f),physx::PxQuat(physx::PxHalfPi, physx::PxVec3(0.0f, 0.0f, 1.0f)));
-
-/*	physx::PxMaterial* mat = device()->physx()->createMaterial(0.5f, 0.5f, 1.0f);
-	physx::PxRigidStatic* plane = device()->physx()->createRigidStatic(pose);
-	physx::PxShape* shape = plane->createShape(physx::PxPlaneGeometry(), *mat);
-	m_scene->addActor(*plane);*/
-
-	PhysicsGraph* pg = m_graph_manager.create_physics_graph();
-
-	Actor* actor = CE_NEW(m_actor_pool, Actor)(*pg, sg_node, type, Vector3::ZERO, Quaternion::IDENTITY);
+	Actor* actor = CE_NEW(m_actor_pool, Actor)(type, Vector3::ZERO, Quaternion::IDENTITY);
 	m_scene->addActor(*actor->m_actor);
 
 	return m_actor.create(actor);
@@ -108,12 +116,23 @@ Actor* PhysicsWorld::lookup_actor(ActorId id)
 	return m_actor.lookup(id);
 }
 
+//-----------------------------------------------------------------------------
+Vector3 PhysicsWorld::gravity() const
+{
+	PxVec3 g = m_scene->getGravity();
+	return Vector3(g.x, g.y, g.z);
+}
+
+//-----------------------------------------------------------------------------
+void PhysicsWorld::set_gravity(const Vector3& g)
+{
+	m_scene->setGravity(PxVec3(g.x, g.y, g.z));
+}
 
 //-----------------------------------------------------------------------------
 void PhysicsWorld::update(float dt)
 {
-	Log::d("simulating..");
-	m_scene->simulate(0.015f);
+	m_scene->simulate(1.0 / 60.0);
 
 	while (!m_scene->fetchResults());
 
