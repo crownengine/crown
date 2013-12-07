@@ -221,7 +221,7 @@ void SceneGraph::update()
 		}
 		else
 		{
-			m_world_poses[i] = m_local_poses[m_parents[i]] * m_local_poses[i];
+			m_world_poses[i] = m_world_poses[m_parents[i]] * m_local_poses[i];
 		}
 	}
 }
