@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Compiler.h"
 #include "OS.h"
 #include "Vector2.h"
-
+#include "JSONParser.h"
 
 namespace crown
 {
@@ -40,10 +40,13 @@ namespace crown
 class Filesystem;
 
 //-----------------------------------------------------------------------------
-struct SpriteAnimationData
+struct FrameData
 {
-	Vector2 position;
-	Vector2 texcoords;
+	float x0, y0;
+	float x1, y1;
+
+	float scale_x, scale_y;
+	float offset_x, offset_y;
 };
 
 //-----------------------------------------------------------------------------
@@ -56,10 +59,13 @@ public:
 	size_t					compile_impl(Filesystem& fs, const char* resource_path);
 	void					write_impl(File* out_file);
 
+	void					parse_frame(JSONElement frame);
+
 private:
 
-	SpriteHeader				m_anim_header;
-	List<SpriteAnimationData> 	m_anim_data;
+	List<StringId32>		m_names;
+	List<FrameData> 		m_regions;
+	List<float>				m_vertices;
 };
 
 } // namespace crown

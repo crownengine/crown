@@ -39,7 +39,9 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 SpriteCompiler::SpriteCompiler()
-	: m_anim_data(default_allocator())
+	: m_names(default_allocator())
+	, m_regions(default_allocator())
+	, m_vertices(default_allocator())
 {
 }
 
@@ -58,40 +60,44 @@ size_t SpriteCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	JSONParser json(buf);
 	JSONElement root = json.root();
 
-	string::strncpy(m_anim_header.name, root.key("name").string_value(), 128);
-
-	DynamicString texture(root.key("texture").string_value());
-	texture += ".texture";
-	m_anim_header.texture.id = hash::murmur2_64(texture.c_str(), string::strlen(texture.c_str()), 0);
-
-	m_anim_header.num_frames = root.key("num_frames").int_value();
-	m_anim_header.frame_rate = root.key("frame_rate").int_value();
-	m_anim_header.playback_mode = root.key("playback_mode").int_value();
-
-
-	List<float> t_positions(default_allocator());
-	JSONElement anim_vertices = root.key("positions");
-	anim_vertices.array_value(t_positions);
-
-	List<float> t_texcoords(default_allocator());
-	JSONElement anim_texcoords = root.key("texcoords");
-	anim_texcoords.array_value(t_texcoords);
-
-	for (uint32_t i = 0; i < t_texcoords.size(); i+=8)
+	// Read frames
+	JSONElement frames = root.key("frames");
+	uint32_t num_frames = frames.size();
+	for (uint32_t i = 0; i < num_frames; i++)
 	{
-		for (uint32_t j = 0; j < t_positions.size(); j+=2)
-		{
-			SpriteAnimationData t_animation_data;
+		parse_frame(frames[i]);
+	}
 
-			t_animation_data.position.x = t_positions[j];
-			t_animation_data.position.y = t_positions[j+1];
+	for (uint32_t i = 0; i < num_frames; i++)
+	{
+		const FrameData& fd = m_regions[i];
 
-			t_animation_data.texcoords.x = t_texcoords[j+i];
-			t_animation_data.texcoords.y = t_texcoords[j+i+1];
+		// Compute uv coords
+		float u0 = fd.x0;
+		float v0 = fd.y0;
+		float u1 = fd.x0 + fd.x1;
+		float v1 = fd.y0 + fd.y1;
 
+		// Compute positions
+		float w = fd.x1;
+		float h = fd.y1;
 
-			m_anim_data.push_back(t_animation_data);
-		}
+		float x0 = fd.scale_x * (-w * 0.5) + fd.offset_x;
+		float y0 = fd.scale_y * (-h * 0.5) + fd.offset_y;
+		float x1 = fd.scale_x * ( w * 0.5) + fd.offset_x;
+		float y1 = fd.scale_y * ( h * 0.5) + fd.offset_y;
+
+		m_vertices.push_back(x0); m_vertices.push_back(y0); // position
+		m_vertices.push_back(u0); m_vertices.push_back(v0); // uv
+
+		m_vertices.push_back(x1); m_vertices.push_back(y0); // position
+		m_vertices.push_back(u1); m_vertices.push_back(v0); // uv
+
+		m_vertices.push_back(x1); m_vertices.push_back(y1); // position
+		m_vertices.push_back(u1); m_vertices.push_back(v1); // uv
+
+		m_vertices.push_back(x0); m_vertices.push_back(y1); // position
+		m_vertices.push_back(u0); m_vertices.push_back(v1); // uv
 	}
 
 	fs.close(file);
@@ -101,13 +107,46 @@ size_t SpriteCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 }
 
 //-----------------------------------------------------------------------------
+void SpriteCompiler::parse_frame(JSONElement frame)
+{
+	JSONElement name = frame.key("name");
+	JSONElement region = frame.key("region");
+	JSONElement offset = frame.key("offset");
+	JSONElement scale = frame.key("scale");
+
+	StringId32 name_hash = hash::murmur2_32(name.string_value(), name.size(), 0);
+	FrameData fd;
+	fd.x0 = region[0].float_value();
+	fd.y0 = region[1].float_value();
+	fd.x1 = region[2].float_value();
+	fd.y1 = region[3].float_value();
+	fd.offset_x = offset[0].float_value();
+	fd.offset_y = offset[1].float_value();
+	fd.scale_x = scale[0].float_value();
+	fd.scale_y = scale[1].float_value();
+
+	m_names.push_back(name_hash);
+	m_regions.push_back(fd);
+}
+
+//-----------------------------------------------------------------------------
 void SpriteCompiler::write_impl(File* out_file)
 {
-	out_file->write((char*)&m_anim_header, sizeof(SpriteHeader));
+	SpriteHeader h;
+	h.texture.id = hash::murmur2_64("textures/circle.texture", string::strlen("textures/circle.texture"), 0);
+	h.num_frames = m_names.size();
 
-	out_file->write((char*)m_anim_data.begin(), sizeof(SpriteAnimationData) * m_anim_data.size());
+	uint32_t offt = sizeof(SpriteHeader);
+	h.frame_names_offset    = offt; offt += sizeof(StringId32) * h.num_frames;
+	h.frame_vertices_offset = offt; // offt += sizeof(float) * 16 * h.num_frames; <- not necessary, just for future reference
 
-	m_anim_data.clear();
+	out_file->write((char*) &h, sizeof(SpriteHeader));
+	out_file->write((char*) m_names.begin(), sizeof(StringId32) * m_names.size());
+	out_file->write((char*) m_vertices.begin(), sizeof(float) * 16 * m_vertices.size());
+
+	m_names.clear();
+	m_regions.clear();
+	m_vertices.clear();
 }
 
 

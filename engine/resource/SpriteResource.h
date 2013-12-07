@@ -55,11 +55,10 @@ struct SpriteHeader
 {
 	VertexBufferId 	vb;
 	IndexBufferId 	ib;
-	char 			name[128];
 	ResourceId 		texture;
 	uint32_t 		num_frames;
-	uint32_t 		frame_rate;
-	uint32_t 		playback_mode;
+	uint32_t		frame_names_offset;
+	uint32_t		frame_vertices_offset;
 };
 
 //-----------------------------------------------------------------------------
@@ -111,12 +110,6 @@ struct SpriteResource
 	}
 
 	//-----------------------------------------------------------------------------
-	const char* name() const
-	{
-		return ((SpriteHeader*) this)->name;
-	}
-
-	//-----------------------------------------------------------------------------
 	ResourceId texture() const
 	{
 		return ((SpriteHeader*) this)->texture;
@@ -129,27 +122,17 @@ struct SpriteResource
 	}
 
 	//-----------------------------------------------------------------------------
-	uint32_t frame_rate() const
-	{
-		return ((SpriteHeader*) this)->frame_rate;
-	}
-
-	//-----------------------------------------------------------------------------
-	uint32_t playback_mode() const
-	{
-		return ((SpriteHeader*) this)->playback_mode;
-	}
-
-	//-----------------------------------------------------------------------------
 	const float* animation() const
 	{
-		return (float*) (((char*) this) + sizeof(SpriteHeader));
+		SpriteHeader* h = (SpriteHeader*) this;
+		return (float*) (((char*) this) + h->frame_vertices_offset);
 	}
 
 	//-----------------------------------------------------------------------------
 	const float* frame(uint32_t index) const
 	{
-		return (float*) (((char*) this) + sizeof(SpriteHeader) + SPRITE_FRAME_SIZE * index);
+		SpriteHeader* h = (SpriteHeader*) this;
+		return (float*) (((char*) this) + h->frame_vertices_offset + index * sizeof(float) * 4 * 4);
 	}
 
 	//-----------------------------------------------------------------------------
