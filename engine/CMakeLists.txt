@@ -362,6 +362,8 @@ set (LUA_SRC
 	lua/LuaCamera.cpp
 	lua/LuaMesh.cpp
 	lua/LuaSprite.cpp
+	lua/LuaActor.cpp
+	lua/LuaPhysicsWorld.cpp
 )
 
 set (LUA_HEADERS

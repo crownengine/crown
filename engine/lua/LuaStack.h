@@ -42,6 +42,8 @@ class Camera;
 class World;
 class Mesh;
 class Sprite;
+class PhysicsWorld;
+class Actor;
 class ResourcePackage;
 typedef Id SoundInstanceId;
 
@@ -246,6 +248,30 @@ public:
 	{
 		return (Sprite*) lua_touserdata(m_state, index);
 	}
+
+	//-----------------------------------------------------------------------------
+	PhysicsWorld* get_physics_world(int32_t index)
+	{
+		return (PhysicsWorld*) lua_touserdata(m_state, index);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_physics_world(PhysicsWorld* world)
+	{
+		lua_pushlightuserdata(m_state, world);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_actor(Actor* actor)
+	{
+		lua_pushlightuserdata(m_state, actor);
+	}
+
+	//-----------------------------------------------------------------------------
+	Actor* get_actor(int32_t index)
+	{
+		return (Actor*) lua_touserdata(m_state, index);
+	}	
 
 	//-------------------------------------------------------------------------
 	void push_sound_instance_id(const SoundInstanceId id)

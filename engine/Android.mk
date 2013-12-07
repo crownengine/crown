@@ -105,6 +105,8 @@ LOCAL_SRC_FILES :=\
 	lua/LuaWorld.cpp\
 	lua/LuaMesh.cpp\
 	lua/LuaSprite.cpp\
+	lua/LuaActor.cpp\
+	lua/LuaPhysicsWorld.cpp\
 \
 	audio/sles/SLESRenderer.cpp\
 \
