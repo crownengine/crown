@@ -98,7 +98,6 @@ public:
 	Sprite*								lookup_sprite(SpriteId sprite);
 	Actor*								lookup_actor(ActorId actor);
 
-	RenderWorld&						render_world();
 	void								update(float dt);
 	void								render(Camera* camera);
 
@@ -122,6 +121,7 @@ public:
 	void								set_sound_range(SoundId sound, const float range);
 	void								set_sound_volume(SoundId sound, const float vol);
 
+	RenderWorld&						render_world();
 	PhysicsWorld*						physics_world();
 
 private:

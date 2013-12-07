@@ -141,11 +141,11 @@ void World::update(float dt)
 		(*uu)->update();
 	}
 
-	// Update scene graphs
-	//m_scenegraph_manager.update();
-
 	// Update physics world
-	m_physics_world.update(dt);
+	m_physics_world.update();
+
+	// Update scene graphs
+	m_scenegraph_manager.update();
 }
 
 //-----------------------------------------------------------------------------
@@ -153,12 +153,6 @@ void World::render(Camera* camera)
 {
 	m_render_world.update(camera->world_pose(), camera->m_projection, camera->m_view_x, camera->m_view_y,
 							camera->m_view_width, camera->m_view_height);
-}
-
-//-----------------------------------------------------------------------------
-RenderWorld& World::render_world()
-{
-	return m_render_world;
 }
 
 //-----------------------------------------------------------------------------
@@ -307,6 +301,12 @@ void World::set_sound_volume(SoundId id, const float vol)
 
 	Sound& sound = m_sounds.lookup(id);
 	sound.volume = vol;
+}
+
+//-----------------------------------------------------------------------------
+RenderWorld& World::render_world()
+{
+	return m_render_world;
 }
 
 //-----------------------------------------------------------------------------
