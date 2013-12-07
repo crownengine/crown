@@ -32,12 +32,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SceneGraphManager.h"
 #include "PhysicsGraphManager.h"
 
+#include "Actor.h"
+
 namespace crown
 {
+
+static int count = 0;
 
 typedef Id CameraId;
 typedef Id SpriteId;
 
+//-----------------------------------------------------------------------------
 Unit::Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)
 	, m_scene_graph(sg)
@@ -48,12 +53,40 @@ Unit::Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& po
 {
 	// Log debug info
 	Log::d("Creating unit...");
+	Log::d("Num scene graph nodes = %d", ur->num_scene_graph_nodes());
 	Log::d("Num renderables       = %d", ur->num_renderables());
 	Log::d("Num cameras           = %d", ur->num_cameras());
 	Log::d("Num actors            = %d", ur->num_actors());
-	Log::d("Num scene graph nodes = %d", ur->num_scene_graph_nodes());
 
 	create(pose);
+}
+
+//-----------------------------------------------------------------------------
+Unit::~Unit()
+{
+	// Destroy cameras
+	for (uint32_t i = 0; i < m_num_cameras; i++)
+	{
+		m_world.destroy_camera(m_cameras[i].component);
+	}
+
+	// Destroy meshes
+	for (uint32_t i = 0; i < m_num_meshes; i++)
+	{
+		m_world.destroy_mesh(m_meshes[i].component);
+	}
+
+	// Destroy sprites
+	for (uint32_t i = 0; i < m_num_sprites; i++)
+	{
+		m_world.destroy_sprite(m_sprites[i].component);
+	}
+
+	// Destroy actors
+	for (uint32_t i = 0; i < m_num_actors; i++)
+	{
+		m_world.destroy_actor(m_actors[i].component);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -74,66 +107,46 @@ void Unit::create(const Matrix4x4& pose)
 	// Create the scene graph
 	m_scene_graph.create(m_resource->num_scene_graph_nodes(), m_resource->scene_graph_names(),
 							m_resource->scene_graph_poses(), m_resource->scene_graph_parents());
-	// Set root node pose
+	// Set root node's pose
 	m_scene_graph.set_local_pose(0, pose);
 
-	// Create renderables
-	for (uint32_t i = 0; i < m_resource->num_renderables(); i++)
-	{
-		UnitRenderable renderable = m_resource->get_renderable(i);
+	create_camera_objects();
+	create_renderable_objects();
+	create_physics_objects();
+}
 
-		switch (renderable.type)
-		{
-			case UnitRenderable::MESH:
-			{
-				MeshId mesh = m_world.create_mesh(renderable.resource, m_scene_graph, renderable.node);
-				add_mesh(renderable.name, mesh);
-				break;
-			}
-			case UnitRenderable::SPRITE:
-			{
-				SpriteId sprite = m_world.create_sprite(renderable.resource, m_scene_graph, renderable.node);
-				add_sprite(renderable.name, sprite);
-				break;
-			}
-			default:
-			{
-				CE_FATAL("Oops, bad renderable type");
-				break;
-			}
-		}
-	}
-
-	// Create cameras
+//-----------------------------------------------------------------------------
+void Unit::create_camera_objects()
+{
 	for (uint32_t i = 0; i < m_resource->num_cameras(); i++)
 	{
-		UnitCamera camera = m_resource->get_camera(i);
-		CameraId cam = m_world.create_camera(m_scene_graph, camera.node);
-
+		const UnitCamera camera = m_resource->get_camera(i);
+		const CameraId cam = m_world.create_camera(m_scene_graph, camera.node);
 		add_camera(camera.name, cam);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void Unit::destroy()
+void Unit::create_renderable_objects()
 {
-	// Destroy cameras
-	for (uint32_t i = 0; i < m_num_cameras; i++)
+	for (uint32_t i = 0; i < m_resource->num_renderables(); i++)
 	{
-		m_world.destroy_camera(m_cameras[i].component);
-	}
+		const UnitRenderable renderable = m_resource->get_renderable(i);
 
-	// Destroy meshes
-	for (uint32_t i = 0; i < m_num_meshes; i++)
-	{
-		m_world.destroy_mesh(m_meshes[i].component);
+		switch (renderable.type)
+		{
+			case UnitRenderable::MESH: add_mesh(renderable.name, m_world.create_mesh(renderable.resource, m_scene_graph, renderable.node)); break;
+			case UnitRenderable::SPRITE: add_sprite(renderable.name, m_world.create_sprite(renderable.resource, m_scene_graph, renderable.node)); break;
+			default: CE_FATAL("Oops, bad renderable type"); break;
+		}
 	}
+}
 
-	// Destroy sprites
-	for (uint32_t i = 0; i < m_num_sprites; i++)
-	{
-		m_world.destroy_sprite(m_sprites[i].component);
-	}
+//-----------------------------------------------------------------------------
+void Unit::create_physics_objects()
+{
+	const StringId32 name_hash = hash::murmur2_32("actor", string::strlen("actor"), 0);
+	add_actor(name_hash, m_world.create_actor(ActorType::DYNAMIC));
 }
 
 //-----------------------------------------------------------------------------
@@ -218,6 +231,11 @@ void Unit::link_node(int32_t child, int32_t parent)
 void Unit::unlink_node(int32_t child)
 {
 	m_scene_graph.unlink(child);
+}
+
+//-----------------------------------------------------------------------------
+void Unit::update()
+{
 }
 
 //-----------------------------------------------------------------------------

@@ -83,12 +83,12 @@ struct UnitResource;
 struct Unit
 {
 						Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& pose);
+						~Unit();
 
 	void				set_id(const UnitId id);
 	UnitId				id();
 
 	void				create(const Matrix4x4& pose);
-	void				destroy();
 
 	int32_t				node(const char* name) const;
 	bool				has_node(const char* name) const;
@@ -108,6 +108,8 @@ struct Unit
 
 	void				link_node(int32_t child, int32_t parent);
 	void				unlink_node(int32_t child);
+
+	void				update();
 
 	void				add_component(StringId32 name, Id component, uint32_t& size, Component* array);
 	Id					find_component(const char* name, uint32_t size, Component* array);
@@ -129,6 +131,12 @@ struct Unit
 
 	Actor*				actor(const char* name);
 	Actor*				actor(uint32_t i);	
+
+private:
+
+	void				create_camera_objects();
+	void				create_renderable_objects();
+	void				create_physics_objects();
 
 public:
 
