@@ -33,7 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "Log.h"
 #include "SpriteResource.h"
-#include "SpriteAnimator.h"
 
 namespace crown
 {
@@ -174,12 +173,21 @@ Sprite*	RenderWorld::lookup_sprite(SpriteId id)
 }
 
 //-----------------------------------------------------------------------------
-void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void RenderWorld::update(const Matrix4x4& , const Matrix4x4& , uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
 	static uint64_t frames = 0;
 
 	Renderer* r = device()->renderer();
 
+	Matrix4x4 projection;
+	float ovest = -6;
+	float east = 6;
+	float north = 6 / 1.6;
+	float south = -6 / 1.6;
+	projection.build_projection_ortho_rh(ovest, east, south, north, 0.1, 100.0);
+
+	Matrix4x4 view = Matrix4x4::IDENTITY;
+	view.set_translation(Vector3(0, 0, 1));
 	Matrix4x4 inv_view = view;
 	inv_view.invert();
 
@@ -211,11 +219,6 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	{
 		Sprite* sprite = m_sprite.m_objects[s];
 
-		if (frames % sprite->m_animator->m_frame_rate == 0)
-		{
-			sprite->m_animator->play_frame();
-		}
-
 		r->set_state(STATE_DEPTH_WRITE 
 			| STATE_COLOR_WRITE 
 			| STATE_ALPHA_WRITE 
@@ -228,6 +231,14 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		r->set_texture(0, u_albedo_0, sprite->m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
 
 		r->set_pose(sprite->world_pose());
+
+		Matrix4x4 a = sprite->world_pose();
+		printf("=====================\n");
+		printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[0], a.m[4], a.m[8], a.m[12]);
+		printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[1], a.m[5], a.m[9], a.m[13]);
+		printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[2], a.m[6], a.m[10], a.m[14]);
+		printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[3], a.m[7], a.m[11], a.m[15]);
+		printf("=====================\n");
 		r->commit(0);
 	}
 
