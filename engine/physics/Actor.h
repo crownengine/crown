@@ -29,10 +29,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "PhysicsTypes.h"
 #include "Vector3.h"
+#include "Matrix4x4.h"
+#include "Quaternion.h"
 
 #include "PxPhysics.h"
 #include "PxScene.h"
 #include "PxRigidActor.h"
+
+using physx::PxRigidActor;
+using physx::PxMaterial;
 
 namespace crown
 {
@@ -45,43 +50,51 @@ class SceneGraph;
 
 struct Actor
 {
-					Actor(PhysicsGraph& pg, int32_t sg_node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot);
-					~Actor();
+						Actor(ActorType::Enum type, const Vector3& pos, const Quaternion& rot);
+						~Actor();
 
-	void			create_sphere(const Vector3& position, float radius);
-	void			create_box(const Vector3& position, float a, float b, float c);
-	void			create_plane(const Vector3& position, const Vector3& normal);
+	void				create_sphere(const Vector3& position, float radius);
+	void				create_box(const Vector3& position, float a, float b, float c);
+	void				create_plane(const Vector3& position, const Vector3& normal);
 
-	void			enable_gravity();
-	void			disable_gravity();
-	bool			gravity_disabled() const;
+	Matrix4x4 world_pose()
+	{
+		physx::PxTransform t = m_actor->getGlobalPose();
 
-	bool			is_static() const;
-	bool			is_dynamic() const;
+		Vector3 pos(t.p.x, t.p.y, t.p.z);
+		Quaternion rot(t.q.x, t.q.y, t.q.z, t.q.w);
+		return Matrix4x4(rot, pos);
+	}
 
-	float			linear_damping() const;
-	void			set_linear_damping(float rate);
+	void				enable_gravity();
+	void				disable_gravity();
 
-	float			angular_damping() const;
-	void			set_angular_damping(float rate);
+	bool				is_static() const;
+	bool				is_dynamic() const;
 
-	Vector3			linear_velocity() const;
-	void			set_linear_velocity(const Vector3& vel);
+	bool				is_kinematic() const;
+	bool				is_physical() const;
 
-	Vector3			angular_velocity() const;
-	void			set_angular_velocity(const Vector3& vel);
+	float				linear_damping() const;
+	void				set_linear_damping(float rate);
 
-	bool			is_sleeping();
-	void			wake_up();
+	float				angular_damping() const;
+	void				set_angular_damping(float rate);
+
+	Vector3				linear_velocity() const;
+	void				set_linear_velocity(const Vector3& vel);
+
+	Vector3				angular_velocity() const;
+	void				set_angular_velocity(const Vector3& vel);
+
+	bool				is_sleeping();
+	void				wake_up();
 
 public:
 
-	physx::PxRigidActor* 	m_actor;
-	physx::PxMaterial* 		m_mat;
-
-	PhysicsGraph& 			m_physics_graph;
-	int32_t					m_sg_node;
-	ActorType::Enum 		m_type;
+	PxRigidActor* 		m_actor;
+	PxMaterial* 		m_mat;
+	ActorType::Enum 	m_type;
 };
 
 } // namespace crown
