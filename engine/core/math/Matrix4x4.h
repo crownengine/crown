@@ -120,6 +120,12 @@ public:
 	/// Builds a rotation matrix about an arbitrary axis of "radians" radians		
 	void				build_rotation(const Vector3& n, float radians);
 
+	/// Sets the rotation portion to the rotation described by @a rot.
+	void				set_rotation(const Quaternion& rot);
+
+	/// Sets the rotation portion to the rotation described by @a rot.
+	void				set_rotation(const Matrix3x3& rot);
+
 	/// Builds a perspetive projection matrix suited to Right-Handed coordinate systems
 	void				build_projection_perspective_rh(float fovy, float aspect, float near, float far);
 

@@ -555,6 +555,26 @@ void Matrix4x4::build_rotation(const Vector3& n, float radians)
 }
 
 //-----------------------------------------------------------------------------
+void Matrix4x4::set_rotation(const Quaternion& rot)
+{
+	set_rotation(rot.to_matrix3x3());
+}
+
+//-----------------------------------------------------------------------------
+void Matrix4x4::set_rotation(const Matrix3x3& rot)
+{
+	m[0] = rot.m[0];
+	m[1] = rot.m[1];
+	m[2] = rot.m[2];
+	m[4] = rot.m[3];
+	m[5] = rot.m[4];
+	m[6] = rot.m[5];
+	m[8] = rot.m[6];
+	m[9] = rot.m[7];
+	m[10] = rot.m[8];
+}
+
+//-----------------------------------------------------------------------------
 void Matrix4x4::build_projection_perspective_rh(float fovy, float aspect, float near, float far)
 {
 	double top, right;
