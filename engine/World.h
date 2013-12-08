@@ -110,7 +110,7 @@ public:
 	SpriteId							create_sprite(ResourceId id, SceneGraph& sg, int32_t node);
 	void								destroy_sprite(SpriteId id);
 
-	ActorId								create_actor(ActorType::Enum type);
+	ActorId								create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type);
 	void								destroy_actor(ActorId id);
 
 	SoundId								play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);

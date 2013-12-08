@@ -141,10 +141,12 @@ void World::update(float dt)
 		(*uu)->update();
 	}
 
+	// Update scene graphs
+	m_scenegraph_manager.update();
+
 	// Update physics world
 	m_physics_world.update();
 
-	// Update scene graphs
 	m_scenegraph_manager.update();
 }
 
@@ -201,9 +203,9 @@ void World::destroy_sprite(SpriteId id)
 }
 
 //-----------------------------------------------------------------------------
-ActorId	World::create_actor(ActorType::Enum type)
+ActorId	World::create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type)
 {
-	return m_physics_world.create_actor(type);
+	return m_physics_world.create_actor(sg, node, type);
 }
 
 //-----------------------------------------------------------------------------
