@@ -73,8 +73,8 @@ void SceneGraph::create(uint32_t count, const StringId32* name, const Matrix4x4*
 //-----------------------------------------------------------------------------
 void SceneGraph::destroy()
 {
-	// m_world_poses is the start of allocated memory
-	m_allocator->deallocate(m_world_poses);
+	// m_flags is the start of allocated memory
+	m_allocator->deallocate(m_flags);
 }
 
 //-----------------------------------------------------------------------------
