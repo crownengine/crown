@@ -231,14 +231,6 @@ void RenderWorld::update(const Matrix4x4& , const Matrix4x4& , uint16_t x, uint1
 		r->set_texture(0, u_albedo_0, sprite->m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
 
 		r->set_pose(sprite->world_pose());
-
-		Matrix4x4 a = sprite->world_pose();
-		printf("=====================\n");
-		printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[0], a.m[4], a.m[8], a.m[12]);
-		printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[1], a.m[5], a.m[9], a.m[13]);
-		printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[2], a.m[6], a.m[10], a.m[14]);
-		printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[3], a.m[7], a.m[11], a.m[15]);
-		printf("=====================\n");
 		r->commit(0);
 	}
 
