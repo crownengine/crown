@@ -50,21 +50,12 @@ class SceneGraph;
 
 struct Actor
 {
-						Actor(ActorType::Enum type, const Vector3& pos, const Quaternion& rot);
+						Actor(SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot);
 						~Actor();
 
 	void				create_sphere(const Vector3& position, float radius);
 	void				create_box(const Vector3& position, float a, float b, float c);
 	void				create_plane(const Vector3& position, const Vector3& normal);
-
-	Matrix4x4 world_pose()
-	{
-		physx::PxTransform t = m_actor->getGlobalPose();
-
-		Vector3 pos(t.p.x, t.p.y, t.p.z);
-		Quaternion rot(t.q.x, t.q.y, t.q.z, t.q.w);
-		return Matrix4x4(rot, pos);
-	}
 
 	void				enable_gravity();
 	void				disable_gravity();
@@ -90,8 +81,12 @@ struct Actor
 	bool				is_sleeping();
 	void				wake_up();
 
+	void				update(const Matrix4x4& pose);
+
 public:
 
+	SceneGraph&			m_scene_graph;
+	int32_t				m_node;
 	PxRigidActor* 		m_actor;
 	PxMaterial* 		m_mat;
 	ActorType::Enum 	m_type;

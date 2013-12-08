@@ -51,8 +51,10 @@ namespace crown
 {
 	
 //-----------------------------------------------------------------------------
-Actor::Actor(ActorType::Enum type, const Vector3& pos, const Quaternion& rot)
-	: m_type(type)
+Actor::Actor(SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot)
+	: m_scene_graph(sg)
+	, m_node(node)
+	, m_type(type)
 {
 	Matrix4x4 m(rot, pos);
 	m.transpose();
@@ -68,9 +70,10 @@ Actor::Actor(ActorType::Enum type, const Vector3& pos, const Quaternion& rot)
 		case ActorType::DYNAMIC_PHYSICAL:
 		case ActorType::DYNAMIC_KINEMATIC:
 		{
+			Log::d("Created dynamic");
 			m_actor = device()->physx()->createRigidDynamic(PxTransform(pose));
-			static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC,
-																			type == ActorType::DYNAMIC_KINEMATIC);
+			//static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC,
+			//																type == ActorType::DYNAMIC_KINEMATIC);
 			break;
 		}
 		default:
@@ -80,6 +83,7 @@ Actor::Actor(ActorType::Enum type, const Vector3& pos, const Quaternion& rot)
 		}
 	}
 
+	m_actor->userData = this;
 	m_mat = device()->physx()->createMaterial(0.5f, 0.5f, 0.5f);
 
 	// FIXME
@@ -215,5 +219,10 @@ void Actor::wake_up()
 	((PxRigidDynamic*)m_actor)->wakeUp();
 }
 
+//-----------------------------------------------------------------------------
+void Actor::update(const Matrix4x4& pose)
+{
+	m_scene_graph.set_world_pose(m_node, pose);
+}
 
 } // namespace crown
