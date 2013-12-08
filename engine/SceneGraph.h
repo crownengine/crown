@@ -68,16 +68,33 @@ struct SceneGraph
 	/// After unlinking, the @child local pose is set to its previous world pose.
 	void			unlink(int32_t child);
 
+	/// Sets the local position, rotation or pose of the given @a node.
 	void			set_local_position(int32_t node, const Vector3& pos);
+	/// @copydoc SceneGraph::set_local_position()
 	void			set_local_rotation(int32_t node, const Quaternion& rot);
+	/// @copydoc SceneGraph::set_local_position()
 	void			set_local_pose(int32_t node, const Matrix4x4& pose);
 
+	/// Returns the local position, rotation or pose of the given @a node.
 	Vector3			local_position(int32_t node) const;
+	/// @copydoc SceneGraph::local_position()
 	Quaternion		local_rotation(int32_t node) const;
+	/// @copydoc SceneGraph::local_position()
 	Matrix4x4		local_pose(int32_t node) const;
 
+	/// Sets the world position, rotation or pose of the given @a node.
+	/// @note This should never be called by user code.
+	void			set_world_position(int32_t node, const Vector3& pos);
+	/// @copydoc SceneGraph::set_world_position()
+	void			set_world_rotation(int32_t node, const Quaternion& rot);
+	/// @copydoc SceneGraph::set_world_position()
+	void			set_world_pose(int32_t node, const Matrix4x4& pose);
+
+	/// Returns the world position, rotation or pose of the given @a node.
 	Vector3			world_position(int32_t node) const;
+	/// @copydoc SceneGraph::world_position()
 	Quaternion		world_rotation(int32_t node) const;
+	/// @copydoc SceneGraph::world_position()
 	Matrix4x4		world_pose(int32_t node) const;
 
 	/// Transforms local poses to world poses.
@@ -90,6 +107,7 @@ public:
 	uint32_t		m_index;
 
 	uint32_t		m_num_nodes;
+	uint8_t*		m_flags;
 	Matrix4x4*		m_world_poses;
 	Matrix4x4*		m_local_poses;
 	int32_t*		m_parents;

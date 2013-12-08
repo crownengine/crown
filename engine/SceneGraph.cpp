@@ -31,6 +31,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Hash.h"
 #include "StringUtils.h"
 
+#define CLEAN		0
+#define LOCAL_DIRTY	1
+#define WORLD_DIRTY	1 << 2
+
 namespace crown
 {
 
@@ -39,6 +43,7 @@ SceneGraph::SceneGraph(Allocator& a, uint32_t index)
 	: m_allocator(&a)
 	, m_index(index)
 	, m_num_nodes(0)
+	, m_flags(0)
 	, m_world_poses(NULL)
 	, m_local_poses(NULL)
 	, m_parents(NULL)
@@ -49,18 +54,20 @@ SceneGraph::SceneGraph(Allocator& a, uint32_t index)
 //-----------------------------------------------------------------------------
 void SceneGraph::create(uint32_t count, const StringId32* name, const Matrix4x4* local, int32_t* parent)
 {
-	char* mem = (char*) m_allocator->allocate(count * (sizeof(StringId32) + sizeof(Matrix4x4) + sizeof(Matrix4x4) + sizeof(int32_t)));
+	char* mem = (char*) m_allocator->allocate(count * (sizeof(uint8_t) + sizeof(Matrix4x4) + sizeof(Matrix4x4) + sizeof(int32_t) + sizeof(StringId32)));
 
 	m_num_nodes = count;
 
+	m_flags = (uint8_t*) mem; mem += sizeof(uint8_t) * count;
 	m_world_poses = (Matrix4x4*) mem; mem += sizeof(Matrix4x4) * count;
 	m_local_poses = (Matrix4x4*) mem; mem += sizeof(Matrix4x4) * count;
 	m_parents = (int32_t*) mem; mem += sizeof(int32_t) * count;
 	m_names = (StringId32*) mem; mem += sizeof(StringId32) * count;
 
-	memcpy(m_local_poses, local, count* sizeof(Matrix4x4));
-	memcpy(m_parents, parent, count * sizeof(int32_t));
-	memcpy(m_names, name, count * sizeof(StringId32));
+	memset(m_flags, (int) LOCAL_DIRTY | WORLD_DIRTY, sizeof(uint8_t) * count);
+	memcpy(m_local_poses, local, sizeof(Matrix4x4) * count);
+	memcpy(m_parents, parent, sizeof(int32_t) * count);
+	memcpy(m_names, name, sizeof(StringId32) * count);
 }
 
 //-----------------------------------------------------------------------------
@@ -138,8 +145,8 @@ void SceneGraph::set_local_position(int32_t node, const Vector3& pos)
 {
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
-	Matrix4x4& local_pose = m_local_poses[node];
-	local_pose.set_translation(pos);
+	m_flags[node] |= LOCAL_DIRTY;
+	m_local_poses[node].set_translation(pos);
 }
 
 //-----------------------------------------------------------------------------
@@ -147,11 +154,8 @@ void SceneGraph::set_local_rotation(int32_t node, const Quaternion& rot)
 {
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
-	Matrix4x4& local_pose = m_local_poses[node];
-
-	Vector3 local_translation = local_pose.translation();
-	local_pose = rot.to_matrix4x4();
-	local_pose.set_translation(local_translation);
+	m_flags[node] |= LOCAL_DIRTY;
+	m_local_poses[node].set_rotation(rot);
 }
 
 //-----------------------------------------------------------------------------
@@ -159,6 +163,7 @@ void SceneGraph::set_local_pose(int32_t node, const Matrix4x4& pose)
 {
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
+	m_flags[node] |= LOCAL_DIRTY;
 	m_local_poses[node] = pose;
 }
 
@@ -184,6 +189,33 @@ Matrix4x4 SceneGraph::local_pose(int32_t node) const
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
 	return m_local_poses[node];
+}
+
+//-----------------------------------------------------------------------------
+void SceneGraph::set_world_position(int32_t node, const Vector3& pos)
+{
+	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
+
+	m_flags[node] |= WORLD_DIRTY;
+	m_world_poses[node].set_translation(pos);
+}
+
+//-----------------------------------------------------------------------------
+void SceneGraph::set_world_rotation(int32_t node, const Quaternion& rot)
+{
+	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
+
+	m_flags[node] |= WORLD_DIRTY;
+	m_world_poses[node].set_rotation(rot);
+}
+
+//-----------------------------------------------------------------------------
+void SceneGraph::set_world_pose(int32_t node, const Matrix4x4& pose)
+{
+	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
+
+	m_flags[node] |= WORLD_DIRTY;
+	m_world_poses[node] = pose;
 }
 
 //-----------------------------------------------------------------------------
@@ -215,13 +247,21 @@ void SceneGraph::update()
 {
 	for (uint32_t i = 0; i < m_num_nodes; i++)
 	{
-		if (m_parents[i] == -1)
+		const uint8_t my_flags = m_flags[i];
+		const uint8_t parent_flags = m_flags[m_parents[i]];
+
+		if (my_flags & LOCAL_DIRTY || parent_flags & WORLD_DIRTY)
 		{
-			m_world_poses[i] = m_local_poses[i];
-		}
-		else
-		{
-			m_world_poses[i] = m_world_poses[m_parents[i]] * m_local_poses[i];
+			if (m_parents[i] == -1)
+			{
+				m_world_poses[i] = m_local_poses[i];
+			}
+			else
+			{
+				m_world_poses[i] = m_world_poses[m_parents[i]] * m_local_poses[i];
+			}
+
+			m_flags[i] = CLEAN;
 		}
 	}
 }
