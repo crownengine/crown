@@ -42,7 +42,7 @@ typedef Id ActorId;
 
 class Vector3;
 class Actor;
-class PhysicsGraph;
+class SceneGraph;
 
 //-----------------------------------------------------------------------------
 class PhysicsWorld
@@ -52,7 +52,7 @@ public:
 				PhysicsWorld();
 				~PhysicsWorld();
 
-	ActorId		create_actor(ActorType::Enum type);
+	ActorId		create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type);
 	void		destroy_actor(ActorId id);
 
 	Actor*		lookup_actor(ActorId id);

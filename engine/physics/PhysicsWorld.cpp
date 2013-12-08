@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "Physics.h"
 #include "Quaternion.h"
+#include "SceneGraph.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -43,6 +44,9 @@ using physx::PxPlaneGeometry;
 using physx::PxMaterial;
 using physx::PxShape;
 using physx::PxRigidStatic;
+using physx::PxActiveTransform;
+using physx::PxU32;
+using physx::PxSceneFlag;
 
 namespace crown
 {
@@ -69,6 +73,7 @@ PhysicsWorld::PhysicsWorld()
 		scene_desc.filterShader = g_default_filter_shader;
 	
 	m_scene = device()->physx()->createScene(scene_desc);
+	m_scene->setFlag(PxSceneFlag::eENABLE_ACTIVETRANSFORMS, true);
 
 /*	m_scene->setVisualizationParameter(PxVisualizationParameter::eSCALE,				 1.0);
 	m_scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES,	1.0f);*/
@@ -87,9 +92,9 @@ PhysicsWorld::~PhysicsWorld()
 }
 
 //-----------------------------------------------------------------------------
-ActorId	PhysicsWorld::create_actor(ActorType::Enum type)
+ActorId	PhysicsWorld::create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type)
 {
-	Actor* actor = CE_NEW(m_actor_pool, Actor)(type, Vector3::ZERO, Quaternion::IDENTITY);
+	Actor* actor = CE_NEW(m_actor_pool, Actor)(sg, node, type, Vector3::ZERO, Quaternion::IDENTITY);
 	m_scene->addActor(*actor->m_actor);
 
 	return m_actor.create(actor);
@@ -136,6 +141,21 @@ void PhysicsWorld::update()
 	m_scene->simulate(1.0 / 60.0);
 
 	while (!m_scene->fetchResults());
+
+	// Update transforms
+	PxU32 num_active_transforms;
+	PxActiveTransform* active_transforms = m_scene->getActiveTransforms(num_active_transforms);
+
+	// Update each actor with its new transform
+	for (PxU32 i = 0; i < num_active_transforms; i++)
+	{
+		const PxTransform tr = active_transforms[i].actor2World;
+		const Vector3 pos(tr.p.x, tr.p.y, tr.p.z);
+		const Quaternion rot(tr.q.x, tr.q.y, tr.q.z, tr.q.w);
+
+		Actor* actor = static_cast<Actor*>(active_transforms[i].userData);
+		actor->update(Matrix4x4(rot, pos));
+	}
 }
 
 } // namespace crown
