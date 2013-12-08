@@ -35,8 +35,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-static int count = 0;
-
 typedef Id CameraId;
 typedef Id SpriteId;
 
@@ -144,7 +142,7 @@ void Unit::create_renderable_objects()
 void Unit::create_physics_objects()
 {
 	const StringId32 name_hash = hash::murmur2_32("actor", string::strlen("actor"), 0);
-	add_actor(name_hash, m_world.create_actor(ActorType::DYNAMIC_PHYSICAL));
+	add_actor(name_hash, m_world.create_actor(m_scene_graph, 0, ActorType::DYNAMIC_PHYSICAL));
 }
 
 //-----------------------------------------------------------------------------
