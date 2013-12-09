@@ -382,7 +382,6 @@ set (AUDIO_HEADERS
 set (PHYSICS_SRC
 	physics/PhysicsWorld.cpp
 	physics/Actor.cpp
-	physics/Shape.cpp
 )
 
 set (PHYSICS_HEADERS
@@ -390,7 +389,6 @@ set (PHYSICS_HEADERS
 	physics/Physics.h
 	physics/PhysicsWorld.h
 	physics/Actor.h
-	physics/Shape.h
 )
 
 set (COMPILER_SRC
