@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Physics.h"
 #include "Quaternion.h"
 #include "SceneGraph.h"
+#include "Controller.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -56,8 +57,11 @@ static physx::PxSimulationFilterShader g_default_filter_shader = physx::PxDefaul
 //-----------------------------------------------------------------------------
 PhysicsWorld::PhysicsWorld()
 	: m_scene(NULL)
-	, m_actor_pool(default_allocator(), MAX_ACTORS, sizeof(Actor), CE_ALIGNOF(Actor))
+	, m_actors_pool(default_allocator(), MAX_ACTORS, sizeof(Actor), CE_ALIGNOF(Actor))
+	, m_controllers_pool(default_allocator(), MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
 {
+	m_controller_manager = PxCreateControllerManager(device()->physx()->getFoundation());
+
 	PxSceneDesc scene_desc(device()->physx()->getTolerancesScale());
 	scene_desc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 
@@ -94,31 +98,53 @@ PhysicsWorld::~PhysicsWorld()
 //-----------------------------------------------------------------------------
 ActorId	PhysicsWorld::create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type)
 {
-	Actor* actor = CE_NEW(m_actor_pool, Actor)(sg, node, type, Vector3::ZERO, Quaternion::IDENTITY);
+	Actor* actor = CE_NEW(m_actors_pool, Actor)(sg, node, type, Vector3::ZERO, Quaternion::IDENTITY);
 	m_scene->addActor(*actor->m_actor);
 
-	return m_actor.create(actor);
+	return m_actors.create(actor);
 }
 
 //-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_actor(ActorId id)
 {
-	CE_ASSERT(m_actor.has(id), "Actor does not exist");
+	CE_ASSERT(m_actors.has(id), "Actor does not exist");
 
-	Actor* actor = m_actor.lookup(id);
-	CE_DELETE(m_actor_pool, actor);
+	Actor* actor = m_actors.lookup(id);
+	CE_DELETE(m_actors_pool, actor);
 
 	m_scene->removeActor(*actor->m_actor);
 
-	m_actor.destroy(id);
+	m_actors.destroy(id);
+}
+
+//-----------------------------------------------------------------------------
+ControllerId PhysicsWorld::create_controller(const PhysicsResource* pr)
+{
+	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, m_scene, m_controller_manager);
+	return m_controllers.create(controller);
+}
+
+//-----------------------------------------------------------------------------
+void PhysicsWorld::destroy_controller(ControllerId id)
+{
+	CE_ASSERT(m_controllers.has(id), "Controller does not exist");
+
+	CE_DELETE(m_controllers_pool, m_controllers.lookup(id));
+	m_controllers.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
 Actor* PhysicsWorld::lookup_actor(ActorId id)
 {
-	CE_ASSERT(m_actor.has(id), "Actor does not exist");
+	CE_ASSERT(m_actors.has(id), "Actor does not exist");
+	return m_actors.lookup(id);
+}
 
-	return m_actor.lookup(id);
+//-----------------------------------------------------------------------------
+Controller* PhysicsWorld::lookup_controller(ControllerId id)
+{
+	CE_ASSERT(m_controllers.has(id), "Controller does not exist");
+	return m_controllers.lookup(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -137,6 +163,12 @@ void PhysicsWorld::set_gravity(const Vector3& g)
 //-----------------------------------------------------------------------------
 void PhysicsWorld::update()
 {
+	// Update world pose of the actors
+	for (Actor** aa = m_actors.begin(); aa != m_actors.end(); aa++)
+	{
+		(*aa)->update_pose();
+	}
+
 	// Run with fixed timestep
 	m_scene->simulate(1.0 / 60.0);
 

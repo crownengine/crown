@@ -32,14 +32,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "PxScene.h"
 #include "PxDefaultCpuDispatcher.h"
+#include "PxControllerManager.h"
+
+using physx::PxControllerManager;
+using physx::PxScene;
+using physx::PxDefaultCpuDispatcher;
 
 #define MAX_ACTORS 1024
+#define MAX_CONTROLLERS 1024
 
 namespace crown
 {
 
 typedef Id ActorId;
+typedef Id ControllerId;
 
+struct PhysicsResource;
+struct Controller;
 class Vector3;
 class Actor;
 class SceneGraph;
@@ -49,26 +58,34 @@ class PhysicsWorld
 {
 public:
 
-				PhysicsWorld();
-				~PhysicsWorld();
+								PhysicsWorld();
+								~PhysicsWorld();
 
-	ActorId		create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type);
-	void		destroy_actor(ActorId id);
+	ActorId						create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type);
+	void						destroy_actor(ActorId id);
 
-	Actor*		lookup_actor(ActorId id);
+	ControllerId				create_controller(const PhysicsResource* pr);
+	void						destroy_controller(ControllerId id);
 
-	Vector3		gravity() const;
-	void		set_gravity(const Vector3& g);
+	Actor*						lookup_actor(ActorId id);
+	Controller*					lookup_controller(ControllerId id);
 
-	void		update();
+	Vector3						gravity() const;
+	void						set_gravity(const Vector3& g);
+
+	void						update();
 
 public:
 
-	physx::PxScene* m_scene;
-	physx::PxDefaultCpuDispatcher* m_cpu_dispatcher;
+	PxControllerManager*		m_controller_manager;
+	PxScene*					m_scene;
+	PxDefaultCpuDispatcher*		m_cpu_dispatcher;
+	
+	PoolAllocator				m_actors_pool;
+	IdArray<MAX_ACTORS, Actor*>	m_actors;
 
-	PoolAllocator m_actor_pool;
-	IdArray<MAX_ACTORS, Actor*> m_actor;
+	PoolAllocator				m_controllers_pool;
+	IdArray<MAX_CONTROLLERS, Controller*> m_controllers;
 };
 
 } // namespace crown

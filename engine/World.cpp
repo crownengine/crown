@@ -133,6 +133,12 @@ Actor* World::lookup_actor(ActorId actor)
 }
 
 //-----------------------------------------------------------------------------
+Controller* World::lookup_controller(ControllerId controller)
+{
+	return m_physics_world.lookup_controller(controller);
+}
+
+//-----------------------------------------------------------------------------
 void World::update(float dt)
 {
 	// Update units
@@ -212,6 +218,18 @@ ActorId	World::create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type)
 void World::destroy_actor(ActorId id)
 {
 	m_physics_world.destroy_actor(id);
+}
+
+//-----------------------------------------------------------------------------
+ControllerId World::create_controller(const PhysicsResource* pr)
+{
+	return m_physics_world.create_controller(pr);
+}
+
+//-----------------------------------------------------------------------------
+void World::destroy_controller(ControllerId id)
+{
+	m_physics_world.destroy_controller(id);
 }
 
 //-----------------------------------------------------------------------------

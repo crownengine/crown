@@ -78,6 +78,7 @@ class Sprite;
 class Actor;
 class Vector3;
 class Quaternion;
+struct PhysicsResource;
 
 class World
 {
@@ -97,6 +98,7 @@ public:
 	Mesh*								lookup_mesh(MeshId mesh);
 	Sprite*								lookup_sprite(SpriteId sprite);
 	Actor*								lookup_actor(ActorId actor);
+	Controller*							lookup_controller(ControllerId controller);
 
 	void								update(float dt);
 	void								render(Camera* camera);
@@ -112,6 +114,9 @@ public:
 
 	ActorId								create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type);
 	void								destroy_actor(ActorId id);
+
+	ControllerId						create_controller(const PhysicsResource* pr);
+	void								destroy_controller(ControllerId id);
 
 	SoundId								play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
 	void								stop_sound(SoundId sound);
