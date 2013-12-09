@@ -68,9 +68,6 @@ PoolAllocator::PoolAllocator(Allocator& backing, size_t num_blocks, size_t block
 PoolAllocator::~PoolAllocator()
 {
 	m_backing.deallocate(m_start);
-
-	CE_ASSERT(m_num_allocations == 0 && allocated_size() == 0,
-		"Missing %d deallocations causing a leak of %ld bytes", m_num_allocations, allocated_size());
 }
 
 //-----------------------------------------------------------------------------
