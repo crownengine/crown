@@ -77,10 +77,16 @@ void PhysicsCompiler::parse_controller(JSONElement controller)
 	JSONElement name = controller.key("name");
 	JSONElement height = controller.key("height");
 	JSONElement radius = controller.key("radius");
+	JSONElement slope_limit = controller.key("slope_limit");
+	JSONElement step_offset = controller.key("step_offset");
+	JSONElement contact_offset = controller.key("contact_offset");
 
 	m_controller.name = hash::murmur2_32(name.string_value(), name.size(), 0);
 	m_controller.height = height.float_value();
 	m_controller.radius = radius.float_value();
+	m_controller.slope_limit = slope_limit.float_value();
+	m_controller.step_offset = step_offset.float_value();
+	m_controller.contact_offset = contact_offset.float_value();
 }
 
 //-----------------------------------------------------------------------------

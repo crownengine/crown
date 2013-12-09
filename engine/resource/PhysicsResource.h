@@ -46,8 +46,11 @@ struct PhysicsHeader
 struct PhysicsController
 {
 	StringId32 name;
-	float height;
-	float radius;
+	float height;			// Height of the capsule
+	float radius;			// Radius of the capsule
+	float slope_limit;		// The maximum slope which the character can walk up in radians.
+	float step_offset;		// Maximum height of an obstacle which the character can climb.
+	float contact_offset;	// Skin around the object within which contacts will be generated. Use it to avoid numerical precision issues.
 };
 
 //-----------------------------------------------------------------------------
