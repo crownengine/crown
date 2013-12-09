@@ -81,6 +81,7 @@ struct Actor
 	bool				is_sleeping();
 	void				wake_up();
 
+	void				update_pose();
 	void				update(const Matrix4x4& pose);
 
 public:

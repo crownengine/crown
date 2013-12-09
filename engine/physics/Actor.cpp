@@ -70,10 +70,17 @@ Actor::Actor(SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& 
 		case ActorType::DYNAMIC_PHYSICAL:
 		case ActorType::DYNAMIC_KINEMATIC:
 		{
-			Log::d("Created dynamic");
 			m_actor = device()->physx()->createRigidDynamic(PxTransform(pose));
-			//static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC,
-			//																type == ActorType::DYNAMIC_KINEMATIC);
+
+			if (type == ActorType::DYNAMIC_KINEMATIC)
+			{
+				Log::d("KINEMATIC");
+				static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
+			}
+			else
+			{
+				Log::d("PHYSICAL");
+			}
 			break;
 		}
 		default:
@@ -220,9 +227,32 @@ void Actor::wake_up()
 }
 
 //-----------------------------------------------------------------------------
+void Actor::update_pose()
+{
+	// Read world pose
+	Matrix4x4 wp = m_scene_graph.world_pose(m_node);
+	Matrix4x4 a = wp;
+	const PxMat44 pose((PxReal*) (wp.to_float_ptr()));
+	const PxTransform world_transform(pose);
+
+	switch (m_type)
+	{
+		case ActorType::DYNAMIC_KINEMATIC:
+		{
+			static_cast<PxRigidDynamic*>(m_actor)->setKinematicTarget(world_transform);
+			break;
+		}
+		default: break;
+	}
+}
+
+//-----------------------------------------------------------------------------
 void Actor::update(const Matrix4x4& pose)
 {
-	m_scene_graph.set_world_pose(m_node, pose);
+	if (m_type == ActorType::DYNAMIC_PHYSICAL)
+	{
+		m_scene_graph.set_world_pose(m_node, pose);
+	}
 }
 
 } // namespace crown
