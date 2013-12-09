@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SpriteResource.h"
 #include "PackageResource.h"
 #include "UnitResource.h"
+#include "PhysicsResource.h"
 
 namespace crown
 {
@@ -45,6 +46,7 @@ static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 	{ UNIT_TYPE, UnitResource::load, UnitResource::unload, UnitResource::online, UnitResource::offline },
 	{ SPRITE_TYPE, SpriteResource::load, SpriteResource::unload, SpriteResource::online, SpriteResource::offline},
 	{ PACKAGE_TYPE, PackageResource::load, PackageResource::unload, PackageResource::online, PackageResource::offline },
+	{ PHYSICS_TYPE, PhysicsResource::load, PhysicsResource::unload, PhysicsResource::online, PhysicsResource::offline },
 	{ 0, NULL, NULL, NULL, NULL }
 };
 

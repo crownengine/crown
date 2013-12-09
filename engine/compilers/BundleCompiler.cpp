@@ -136,6 +136,10 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 		{
 			result = m_unit.compile(source_dir, bundle_dir, filename, out_name);
 		}
+		else if (resource_type_hash == PHYSICS_TYPE)
+		{
+			result = m_physics.compile(source_dir, bundle_dir, filename, out_name);
+		}
 		else
 		{
 			Log::e("Oops, unknown resource type!");

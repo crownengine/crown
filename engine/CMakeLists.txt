@@ -88,6 +88,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/compilers/package
 	${CMAKE_SOURCE_DIR}/engine/compilers/unit
 	${CMAKE_SOURCE_DIR}/engine/compilers/sprite
+	${CMAKE_SOURCE_DIR}/engine/compilers/physics
 	${CMAKE_SOURCE_DIR}/engine/physics
 )
 
@@ -326,6 +327,7 @@ set (RESOURCE_HEADERS
 	resource/UnitResource.h
 	resource/ResourcePackage.h
 	resource/SpriteResource.h
+	resource/PhysicsResource.h
 )
 
 set (OS_SRC
@@ -401,6 +403,7 @@ set (COMPILER_SRC
 	compilers/package/PackageCompiler.cpp
 	compilers/unit/UnitCompiler.cpp
 	compilers/sprite/SpriteCompiler.cpp
+	compilers/physics/PhysicsCompiler.cpp
 )
 
 set (COMPILER_HEADER
@@ -413,6 +416,7 @@ set (COMPILER_HEADER
 	compilers/package/PackageCompiler.h
 	compilers/unit/UnitCompiler.h
 	compilers/sprite/SpriteCompiler.h
+	compilers/physics/PhysicsCompiler.h
 )
 
 set (CROWN_LIBRARIES)

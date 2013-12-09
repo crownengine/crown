@@ -26,46 +26,32 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "MeshCompiler.h"
-#include "TextureCompiler.h"
-#include "LuaCompiler.h"
-#include "SoundCompiler.h"
-#include "SpriteCompiler.h"
-#include "PackageCompiler.h"
-#include "DynamicString.h"
-#include "Vector.h"
-#include "DiskFilesystem.h"
-#include "UnitCompiler.h"
-#include "PhysicsCompiler.h"
+#include "Types.h"
+#include "PhysicsResource.h"
+#include "Compiler.h"
+#include "JSONParser.h"
 
 namespace crown
 {
 
-class CE_EXPORT BundleCompiler
+class Filesystem;
+
+//-----------------------------------------------------------------------------
+class PhysicsCompiler : public Compiler
 {
 public:
+							PhysicsCompiler();
+							~PhysicsCompiler();
 
-	BundleCompiler();
+	size_t					compile_impl(Filesystem& fs, const char* resource_path);
+	void					write_impl(File* out_file);
 
-	/// Compiles all the resources found in @a source_dir and puts them in @a bundle_dir.
-	/// If @a resource is not NULL, only that particular resource is compiled.
-	/// Returns true on success, false otherwise.
-	bool compile(const char* bundle_dir, const char* source_dir, const char* resource = NULL);
-
-private:
-
-	static void scan(const char* source_dir, const char* cur_dir, Vector<DynamicString>& files);
+	void					parse_controller(JSONElement controller);
 
 private:
 
-	MeshCompiler	m_mesh;
-	TextureCompiler	m_texture;
-	LuaCompiler 	m_lua;
-	SoundCompiler	m_sound;
-	SpriteCompiler	m_sprite;
-	PackageCompiler m_package;
-	UnitCompiler	m_unit;
-	PhysicsCompiler m_physics;
+	bool					m_has_controller;
+	PhysicsController		m_controller;
 };
 
 } // namespace crown
