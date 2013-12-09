@@ -44,6 +44,7 @@ class Mesh;
 class Sprite;
 class PhysicsWorld;
 class Actor;
+class Controller;
 class ResourcePackage;
 typedef Id SoundInstanceId;
 
@@ -71,6 +72,12 @@ public:
 	int32_t num_args()
 	{
 		return lua_gettop(m_state);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_nil()
+	{
+		lua_pushnil(m_state);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -271,16 +278,28 @@ public:
 	Actor* get_actor(int32_t index)
 	{
 		return (Actor*) lua_touserdata(m_state, index);
-	}	
+	}
 
-	//-------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
+	void push_controller(Controller* controller)
+	{
+		lua_pushlightuserdata(m_state, controller);
+	}
+
+	//-----------------------------------------------------------------------------
+	Controller* get_controller(int32_t index)
+	{
+		return (Controller*) lua_touserdata(m_state, index);
+	}
+
+	//-----------------------------------------------------------------------------
 	void push_sound_instance_id(const SoundInstanceId id)
 	{
 		uintptr_t enc = id.encode();
 		lua_pushlightuserdata(m_state, (void*)enc);
 	}
 
-	//-------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
 	SoundInstanceId get_sound_instance_id(int32_t index)
 	{
 		uint32_t enc = (uintptr_t) lua_touserdata(m_state, index);

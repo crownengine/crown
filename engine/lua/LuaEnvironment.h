@@ -112,6 +112,7 @@ void load_world(LuaEnvironment& env);
 void load_mesh(LuaEnvironment& env);
 void load_sprite(LuaEnvironment& env);
 void load_actor(LuaEnvironment& env);
+void load_controller(LuaEnvironment& env);
 void load_physics_world(LuaEnvironment& env);
 
 CE_EXPORT int32_t luaopen_libcrown(lua_State* L);

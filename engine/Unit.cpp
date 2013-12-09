@@ -31,12 +31,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "UnitResource.h"
 #include "SceneGraphManager.h"
 #include "Actor.h"
+#include "Controller.h"
 
 namespace crown
 {
 
 typedef Id CameraId;
 typedef Id SpriteId;
+
+static int count = 0;
 
 //-----------------------------------------------------------------------------
 Unit::Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& pose)
@@ -54,6 +57,7 @@ Unit::Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& po
 	Log::d("Num cameras           = %d", ur->num_cameras());
 	Log::d("Num actors            = %d", ur->num_actors());
 
+	m_controller.component.id = INVALID_ID;
 	create(pose);
 }
 
@@ -142,7 +146,9 @@ void Unit::create_renderable_objects()
 void Unit::create_physics_objects()
 {
 	const StringId32 name_hash = hash::murmur2_32("actor", string::strlen("actor"), 0);
-	add_actor(name_hash, m_world.create_actor(m_scene_graph, 0, ActorType::DYNAMIC_PHYSICAL));
+	if (count != 0)
+	add_actor(name_hash, m_world.create_actor(m_scene_graph, 0, (count == 1) ? ActorType::DYNAMIC_KINEMATIC : ActorType::DYNAMIC_PHYSICAL));
+	count++;
 }
 
 //-----------------------------------------------------------------------------
@@ -311,6 +317,13 @@ void Unit::add_actor(StringId32 name, ActorId actor)
 }
 
 //-----------------------------------------------------------------------------
+void Unit::set_controller(StringId32 name, ControllerId controller)
+{
+	m_controller.name = name;
+	m_controller.component = controller;
+}
+
+//-----------------------------------------------------------------------------
 Camera* Unit::camera(const char* name)
 {
 	CameraId cam = find_component(name, m_num_cameras, m_cameras);
@@ -390,5 +403,15 @@ Actor* Unit::actor(uint32_t i)
 	return m_world.lookup_actor(actor);
 }	
 
+//-----------------------------------------------------------------------------
+Controller* Unit::controller()
+{
+	if (m_controller.component.id != INVALID_ID)
+	{
+		return m_world.lookup_controller(m_controller.component);
+	}
+
+	return NULL;
+}
 
 } // namespace crown

@@ -251,6 +251,18 @@ CE_EXPORT int unit_actor(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int unit_controller(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Unit* unit = stack.get_unit(1);
+
+	Controller* controller = unit->controller();
+	controller ? stack.push_controller(controller) : stack.push_nil();
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_unit(LuaEnvironment& env)
 {
 	env.load_module_function("Unit", "node",					unit_node);
@@ -273,6 +285,7 @@ void load_unit(LuaEnvironment& env)
 	env.load_module_function("Unit", "mesh",					unit_mesh);	
 	env.load_module_function("Unit", "sprite",					unit_sprite);
 	env.load_module_function("Unit", "actor",					unit_actor);
+	env.load_module_function("Unit", "controller",				unit_controller);
 }
 
 } // namespace crown

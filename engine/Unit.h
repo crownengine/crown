@@ -62,13 +62,14 @@ typedef Id CameraId;
 typedef Id MeshId;
 typedef Id SpriteId;
 typedef Id ActorId;
-
+typedef Id ControllerId;
 typedef	Id ComponentId;
 
 class Camera;
 class Mesh;
 class Sprite;
 class Actor;
+class Controller;
 class World;
 class SceneGraphManager;
 class PhysicsGraphManager;
@@ -118,6 +119,7 @@ struct Unit
 	void				add_mesh(StringId32 name, MeshId mesh);
 	void				add_sprite(StringId32 name, SpriteId sprite);
 	void				add_actor(StringId32 name, ActorId actor);
+	void				set_controller(StringId32 name, ControllerId controller);
 
 	Camera*				camera(const char* name);
 	Camera*				camera(uint32_t i);
@@ -129,7 +131,9 @@ struct Unit
 	Sprite*				sprite(uint32_t i);
 
 	Actor*				actor(const char* name);
-	Actor*				actor(uint32_t i);	
+	Actor*				actor(uint32_t i);
+
+	Controller*			controller();
 
 private:
 
@@ -155,6 +159,8 @@ public:
 
 	uint32_t			m_num_actors;
 	Component 			m_actors[MAX_ACTOR_COMPONENTS];
+
+	Component			m_controller;
 };
 
 } // namespace crown

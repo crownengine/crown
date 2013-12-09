@@ -79,6 +79,7 @@ CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 	load_mesh(*env);
 	load_sprite(*env);
 	load_actor(*env);
+	load_controller(*env);
 	load_physics_world(*env);
 
 	return 1;

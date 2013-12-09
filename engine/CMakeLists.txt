@@ -364,6 +364,7 @@ set (LUA_SRC
 	lua/LuaMesh.cpp
 	lua/LuaSprite.cpp
 	lua/LuaActor.cpp
+	lua/LuaController.cpp
 	lua/LuaPhysicsWorld.cpp
 )
 
@@ -382,6 +383,7 @@ set (AUDIO_HEADERS
 set (PHYSICS_SRC
 	physics/PhysicsWorld.cpp
 	physics/Actor.cpp
+	physics/Controller.cpp
 )
 
 set (PHYSICS_HEADERS
@@ -389,6 +391,7 @@ set (PHYSICS_HEADERS
 	physics/Physics.h
 	physics/PhysicsWorld.h
 	physics/Actor.h
+	physics/Controller.cpp
 )
 
 set (COMPILER_SRC
