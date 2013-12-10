@@ -45,6 +45,7 @@ PackageCompiler::PackageCompiler()
 	, m_mesh(default_allocator())
 	, m_unit(default_allocator())
 	, m_sprite(default_allocator())
+	, m_physics(default_allocator())
 {
 }
 
@@ -210,6 +211,31 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		}
 	}
 
+	// Check for physics
+	if (root.has_key("physics"))
+	{
+		JSONElement physics_array = root.key("physics");
+		uint32_t physics_array_size = physics_array.size();
+
+		for (uint32_t i = 0; i < physics_array_size; i++)
+		{
+			TempAllocator256 alloc;
+			DynamicString physics_name(alloc);
+			physics_name += physics_array[i].string_value();
+			physics_name += ".physics";
+
+			if (!fs.is_file(physics_name.c_str()))
+			{
+				Log::e("Physics '%s' does not exist.", physics_name.c_str());
+				return 0;
+			}
+
+			ResourceId id;
+			id.id = hash::murmur2_64(physics_name.c_str(), string::strlen(physics_name.c_str()), 0);
+			m_physics.push_back(id);
+		}	
+	}
+
 	return 1;
 }
 
@@ -223,6 +249,7 @@ void PackageCompiler::write_impl(File* out_file)
 	header.num_meshes = m_mesh.size();
 	header.num_units = m_unit.size();
 	header.num_sprites = m_sprite.size();
+	header.num_physics = m_physics.size();
 
 	header.textures_offset = sizeof(PackageHeader);
 	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
@@ -230,6 +257,7 @@ void PackageCompiler::write_impl(File* out_file)
 	header.meshes_offset = header.sounds_offset + sizeof(ResourceId) * header.num_sounds;
 	header.units_offset = header.meshes_offset + sizeof(ResourceId) * header.num_meshes;
 	header.sprites_offset = header.units_offset + sizeof(ResourceId) * header.num_units;
+	header.physics_offset = header.sprites_offset + sizeof(ResourceId) * header.num_sprites;
 
 	out_file->write((char*) &header, sizeof(PackageHeader));
 
@@ -257,6 +285,10 @@ void PackageCompiler::write_impl(File* out_file)
 	{
 		out_file->write((char*) m_sprite.begin(), sizeof(ResourceId) * header.num_sprites);
 	}
+	if (m_physics.size() > 0)
+	{
+		out_file->write((char*) m_physics.begin(), sizeof(ResourceId) * header.num_physics);
+	}
 
 	// Cleanup
 	m_texture.clear();
@@ -265,6 +297,7 @@ void PackageCompiler::write_impl(File* out_file)
 	m_mesh.clear();
 	m_unit.clear();
 	m_sprite.clear();
+	m_physics.clear();
 }
 
 } // namespace crown

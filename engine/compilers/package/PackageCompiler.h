@@ -50,6 +50,7 @@ private:
 	List<ResourceId> m_mesh;
 	List<ResourceId> m_unit;
 	List<ResourceId> m_sprite;
+	List<ResourceId> m_physics;
 };
 
 } // namespace crown
