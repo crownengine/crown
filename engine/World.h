@@ -95,28 +95,12 @@ public:
 
 	Unit*								lookup_unit(UnitId unit);
 	Camera*								lookup_camera(CameraId camera);
-	Mesh*								lookup_mesh(MeshId mesh);
-	Sprite*								lookup_sprite(SpriteId sprite);
-	Actor*								lookup_actor(ActorId actor);
-	Controller*							lookup_controller(ControllerId controller);
 
 	void								update(float dt);
 	void								render(Camera* camera);
 
 	CameraId							create_camera(SceneGraph& sg, int32_t node);
 	void								destroy_camera(CameraId id);
-
-	MeshId								create_mesh(ResourceId id, SceneGraph& sg, int32_t node);
-	void								destroy_mesh(MeshId id);
-
-	SpriteId							create_sprite(ResourceId id, SceneGraph& sg, int32_t node);
-	void								destroy_sprite(SpriteId id);
-
-	ActorId								create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type);
-	void								destroy_actor(ActorId id);
-
-	ControllerId						create_controller(const PhysicsResource* pr);
-	void								destroy_controller(ControllerId id);
 
 	SoundId								play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
 	void								stop_sound(SoundId sound);
@@ -126,7 +110,7 @@ public:
 	void								set_sound_range(SoundId sound, const float range);
 	void								set_sound_volume(SoundId sound, const float vol);
 
-	RenderWorld&						render_world();
+	RenderWorld*						render_world();
 	PhysicsWorld*						physics_world();
 
 private:

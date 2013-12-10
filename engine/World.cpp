@@ -115,30 +115,6 @@ Camera* World::lookup_camera(CameraId camera)
 }
 
 //-----------------------------------------------------------------------------
-Mesh* World::lookup_mesh(MeshId mesh)
-{
-	return m_render_world.lookup_mesh(mesh);
-}
-
-//-----------------------------------------------------------------------------
-Sprite* World::lookup_sprite(SpriteId sprite)
-{
-	return m_render_world.lookup_sprite(sprite);
-}
-
-//-----------------------------------------------------------------------------
-Actor* World::lookup_actor(ActorId actor)
-{
-	return m_physics_world.lookup_actor(actor);
-}
-
-//-----------------------------------------------------------------------------
-Controller* World::lookup_controller(ControllerId controller)
-{
-	return m_physics_world.lookup_controller(controller);
-}
-
-//-----------------------------------------------------------------------------
 void World::update(float dt)
 {
 	// Update units
@@ -182,54 +158,6 @@ void World::destroy_camera(CameraId id)
 
 	Camera* camera = m_cameras.lookup(id);
 	CE_DELETE(m_camera_pool, camera);
-}
-
-//-----------------------------------------------------------------------------
-MeshId World::create_mesh(ResourceId id, SceneGraph& sg, int32_t node)
-{
-	return m_render_world.create_mesh(id, sg, node);
-}
-
-//-----------------------------------------------------------------------------
-void World::destroy_mesh(MeshId id)
-{
-	m_render_world.destroy_mesh(id);
-}
-
-//-----------------------------------------------------------------------------
-SpriteId World::create_sprite(ResourceId id, SceneGraph& sg, int32_t node)
-{
-	return m_render_world.create_sprite(id, sg, node);
-}
-
-//-----------------------------------------------------------------------------
-void World::destroy_sprite(SpriteId id)
-{
-	m_render_world.destroy_sprite(id);
-}
-
-//-----------------------------------------------------------------------------
-ActorId	World::create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type)
-{
-	return m_physics_world.create_actor(sg, node, type);
-}
-
-//-----------------------------------------------------------------------------
-void World::destroy_actor(ActorId id)
-{
-	m_physics_world.destroy_actor(id);
-}
-
-//-----------------------------------------------------------------------------
-ControllerId World::create_controller(const PhysicsResource* pr)
-{
-	return m_physics_world.create_controller(pr);
-}
-
-//-----------------------------------------------------------------------------
-void World::destroy_controller(ControllerId id)
-{
-	m_physics_world.destroy_controller(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -324,9 +252,9 @@ void World::set_sound_volume(SoundId id, const float vol)
 }
 
 //-----------------------------------------------------------------------------
-RenderWorld& World::render_world()
+RenderWorld* World::render_world()
 {
-	return m_render_world;
+	return &m_render_world;
 }
 
 //-----------------------------------------------------------------------------
