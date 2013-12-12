@@ -46,9 +46,13 @@ World::World()
 //-----------------------------------------------------------------------------
 UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion& rot)
 {
-	// Fetch resource
 	UnitResource* ur = (UnitResource*) device()->resource_manager()->lookup(UNIT_EXTENSION, name);
+	return spawn_unit(ur, pos, rot);
+}
 
+//-----------------------------------------------------------------------------
+UnitId World::spawn_unit(UnitResource* ur, const Vector3& pos, const Quaternion& rot)
+{
 	// Create a new scene graph
 	SceneGraph* sg = m_scenegraph_manager.create_scene_graph();
 
@@ -163,13 +167,18 @@ void World::destroy_camera(CameraId id)
 //-----------------------------------------------------------------------------
 SoundId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
-	SoundResource* sound = (SoundResource*)device()->resource_manager()->lookup(SOUND_EXTENSION, name);
-	SoundRenderer* sr = device()->sound_renderer();
+	SoundResource* sr = (SoundResource*)device()->resource_manager()->lookup(SOUND_EXTENSION, name);
+	return play_sound(sr, loop, volume, pos, range);
+}
 
-	const SoundSourceId source = sr->create_sound_source();
+//-----------------------------------------------------------------------------
+SoundId World::play_sound(SoundResource* sr, bool loop, float volume, const Vector3& pos, float range)
+{
+	SoundRenderer* renderer = device()->sound_renderer();
+	const SoundSourceId source = renderer->create_sound_source();
 
 	Sound s;
-	s.buffer = sound->sound_buffer();
+	s.buffer = sr->sound_buffer();
 	s.source = source;
 	s.world = Matrix4x4(Quaternion::IDENTITY, pos);
 	s.volume = volume;
@@ -179,12 +188,12 @@ SoundId World::play_sound(const char* name, const bool loop, const float volume,
 
 	SoundId id = m_sounds.create(s);
 
-	sr->bind_buffer(s.buffer, s.source);
-	sr->set_sound_loop(s.source, s.loop);
-	sr->set_sound_gain(s.source, s.volume);
-	sr->set_sound_max_distance(s.source, s.range);
-	sr->set_sound_position(s.source, s.world.translation());
-	sr->play_sound(s.source);
+	renderer->bind_buffer(s.buffer, s.source);
+	renderer->set_sound_loop(s.source, s.loop);
+	renderer->set_sound_gain(s.source, s.volume);
+	renderer->set_sound_max_distance(s.source, s.range);
+	renderer->set_sound_position(s.source, s.world.translation());
+	renderer->play_sound(s.source);
 
 	return id;
 }

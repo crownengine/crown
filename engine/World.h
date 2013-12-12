@@ -85,7 +85,8 @@ class World
 public:
 										World();
 
-	UnitId								spawn_unit(const char* name, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion(Vector3(0, 1, 0), 0.0f));
+	UnitId								spawn_unit(const char* name, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	UnitId								spawn_unit(UnitResource* ur, const Vector3& pos, const Quaternion& rot);
 	void								destroy_unit(UnitId id);
 
 	uint32_t							num_units() const;
@@ -102,7 +103,8 @@ public:
 	CameraId							create_camera(SceneGraph& sg, int32_t node);
 	void								destroy_camera(CameraId id);
 
-	SoundId								play_sound(const char* name, const bool loop = false, const float volume = 1.0f, const Vector3& pos = Vector3::ZERO, const float range = 50.0f);
+	SoundId								play_sound(const char* name, bool loop = false, float volume = 1.0f, const Vector3& pos = Vector3::ZERO, float range = 50.0f);
+	SoundId								play_sound(SoundResource* sr, bool loop, float volume, const Vector3& pos, float range);
 	void								stop_sound(SoundId sound);
 	void								link_sound(SoundId sound, Unit* unit, int32_t node);
 	void								set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at);
