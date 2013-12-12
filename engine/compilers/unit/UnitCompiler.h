@@ -78,6 +78,8 @@ public:
 
 private:
 
+	ResourceId				m_physics_resource;
+
 	List<GraphNode>			m_nodes;
 	List<GraphNodeDepth>	m_node_depths;
 

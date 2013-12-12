@@ -119,6 +119,21 @@ size_t UnitCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		}
 	}
 
+	// Check if the unit has a .physics resource
+	DynamicString unit_name(resource_path);
+	unit_name.strip_trailing("unit");
+	unit_name += "physics";
+	Log::d("Checking %s", unit_name.c_str());
+	if (fs.is_file(unit_name.c_str()))
+	{
+		Log::d("YES");
+		m_physics_resource.id = hash::murmur2_64(unit_name.c_str(), string::strlen(unit_name.c_str()), 0);
+	}
+	else
+	{
+		m_physics_resource.id = 0;
+	}
+
 	return 1;
 }
 
@@ -275,6 +290,7 @@ int32_t UnitCompiler::find_node_parent_index(uint32_t node)
 void UnitCompiler::write_impl(File* out_file)
 {
 	UnitHeader h;
+	h.physics_resource = m_physics_resource;
 	h.num_renderables = m_renderables.size();
 	h.num_cameras = m_cameras.size();
 	h.num_actors = m_actors.size();

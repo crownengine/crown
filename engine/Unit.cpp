@@ -32,6 +32,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SceneGraphManager.h"
 #include "Actor.h"
 #include "Controller.h"
+#include "PhysicsResource.h"
+#include "Device.h"
+#include "ResourceManager.h"
 
 namespace crown
 {
@@ -73,19 +76,25 @@ Unit::~Unit()
 	// Destroy meshes
 	for (uint32_t i = 0; i < m_num_meshes; i++)
 	{
-		m_world.destroy_mesh(m_meshes[i].component);
+		m_world.render_world()->destroy_mesh(m_meshes[i].component);
 	}
 
 	// Destroy sprites
 	for (uint32_t i = 0; i < m_num_sprites; i++)
 	{
-		m_world.destroy_sprite(m_sprites[i].component);
+		m_world.render_world()->destroy_sprite(m_sprites[i].component);
 	}
 
 	// Destroy actors
 	for (uint32_t i = 0; i < m_num_actors; i++)
 	{
-		m_world.destroy_actor(m_actors[i].component);
+		m_world.physics_world()->destroy_actor(m_actors[i].component);
+	}
+
+	// Destroy controller
+	if (m_controller.component.id != INVALID_ID)
+	{
+		m_world.physics_world()->destroy_controller(m_controller.component);
 	}
 }
 
@@ -135,8 +144,8 @@ void Unit::create_renderable_objects()
 
 		switch (renderable.type)
 		{
-			case UnitRenderable::MESH: add_mesh(renderable.name, m_world.create_mesh(renderable.resource, m_scene_graph, renderable.node)); break;
-			case UnitRenderable::SPRITE: add_sprite(renderable.name, m_world.create_sprite(renderable.resource, m_scene_graph, renderable.node)); break;
+			case UnitRenderable::MESH: add_mesh(renderable.name, m_world.render_world()->create_mesh(renderable.resource, m_scene_graph, renderable.node)); break;
+			case UnitRenderable::SPRITE: add_sprite(renderable.name, m_world.render_world()->create_sprite(renderable.resource, m_scene_graph, renderable.node)); break;
 			default: CE_FATAL("Oops, bad renderable type"); break;
 		}
 	}
@@ -146,9 +155,19 @@ void Unit::create_renderable_objects()
 void Unit::create_physics_objects()
 {
 	const StringId32 name_hash = hash::murmur2_32("actor", string::strlen("actor"), 0);
-	if (count != 0)
-	add_actor(name_hash, m_world.create_actor(m_scene_graph, 0, (count == 1) ? ActorType::DYNAMIC_KINEMATIC : ActorType::DYNAMIC_PHYSICAL));
+	if (count > 1)
+	add_actor(name_hash, m_world.physics_world()->create_actor(m_scene_graph, 0, ActorType::DYNAMIC_PHYSICAL));
 	count++;
+
+	if (m_resource->physics_resource().id != 0)
+	{
+		const PhysicsResource* pr = (PhysicsResource*) device()->resource_manager()->data(m_resource->physics_resource());
+
+		if (pr->has_controller())
+		{
+			set_controller(pr->controller().name, m_world.physics_world()->create_controller(pr, m_scene_graph, 0));
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -350,7 +369,7 @@ Mesh* Unit::mesh(const char* name)
 
 	CE_ASSERT(mesh.id != INVALID_ID, "Unit does not have mesh with name '%s'", name);
 
-	return m_world.lookup_mesh(mesh);
+	return m_world.render_world()->lookup_mesh(mesh);
 }
 
 //-----------------------------------------------------------------------------
@@ -360,7 +379,7 @@ Mesh* Unit::mesh(uint32_t i)
 
 	CE_ASSERT(mesh.id != INVALID_ID, "Unit does not have mesh with index '%d'", i);
 
-	return m_world.lookup_mesh(mesh);
+	return m_world.render_world()->lookup_mesh(mesh);
 }
 
 //-----------------------------------------------------------------------------
@@ -370,7 +389,7 @@ Sprite*	Unit::sprite(const char* name)
 
 	CE_ASSERT(sprite.id != INVALID_ID, "Unit does not have sprite with name '%s'", name);
 
-	return m_world.lookup_sprite(sprite);
+	return m_world.render_world()->lookup_sprite(sprite);
 }
 
 //-----------------------------------------------------------------------------
@@ -380,7 +399,7 @@ Sprite*	Unit::sprite(uint32_t i)
 
 	CE_ASSERT(sprite.id != INVALID_ID, "Unit does not have sprite with index '%d'", i);
 
-	return m_world.lookup_sprite(sprite);
+	return m_world.render_world()->lookup_sprite(sprite);
 }
 
 //-----------------------------------------------------------------------------
@@ -390,7 +409,7 @@ Actor* Unit::actor(const char* name)
 
 	CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%s'", name);
 
-	return m_world.lookup_actor(actor);
+	return m_world.physics_world()->lookup_actor(actor);
 }
 
 //-----------------------------------------------------------------------------
@@ -400,7 +419,7 @@ Actor* Unit::actor(uint32_t i)
 
 	CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%d'", i);
 
-	return m_world.lookup_actor(actor);
+	return m_world.physics_world()->lookup_actor(actor);
 }	
 
 //-----------------------------------------------------------------------------
@@ -408,7 +427,7 @@ Controller* Unit::controller()
 {
 	if (m_controller.component.id != INVALID_ID)
 	{
-		return m_world.lookup_controller(m_controller.component);
+		return m_world.physics_world()->lookup_controller(m_controller.component);
 	}
 
 	return NULL;
