@@ -45,9 +45,21 @@ CE_EXPORT int controller_move(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int controller_position(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Controller* controller = stack.get_controller(1);
+
+	stack.push_vector3(controller->position());
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_controller(LuaEnvironment& env)
 {
-	env.load_module_function("Controller", "move",    controller_move);
+	env.load_module_function("Controller", "move",        controller_move);
+	env.load_module_function("Controller", "position",    controller_position);
 }
 
 } // namespace crown

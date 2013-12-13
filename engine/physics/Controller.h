@@ -36,18 +36,24 @@ namespace crown
 
 struct PhysicsResource;
 class Vector3;
+class SceneGraph;
 
 struct Controller
 {
-							Controller(const PhysicsResource* pr, PxScene* scene, PxControllerManager* manager);
+							Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxScene* scene, PxControllerManager* manager);
 							~Controller();
 
 	void					move(const Vector3& pos);
+
+	Vector3					position() const;
+	void					update();
 
 private:
 
 	const PhysicsResource*	m_resource;
 
+	SceneGraph&				m_scene_graph;
+	int32_t					m_node;
 	PxScene*				m_scene;
 	PxControllerManager*	m_manager;
 	PxController*			m_controller;
