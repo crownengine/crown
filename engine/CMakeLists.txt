@@ -82,15 +82,11 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/audio
 	${CMAKE_SOURCE_DIR}/engine/compilers
 	${CMAKE_SOURCE_DIR}/engine/physics
+	${CMAKE_SOURCE_DIR}/engine/world
 )
 
 set (SRC
-	Camera.cpp
 	Device.cpp
-	World.cpp
-	Unit.cpp
-	SceneGraph.cpp
-	SceneGraphManager.cpp
 	RenderWorld.cpp
 	Mesh.cpp
 	Sprite.cpp
@@ -98,14 +94,9 @@ set (SRC
 )
 
 set (HEADERS
-	Camera.h
 	Config.h
 	Crown.h
 	Device.h
-	World.h
-	Unit.h
-	SceneGraph.h
-	SceneGraphManager.h
 	RenderWorld.h
 	Mesh.h
 	Sprite.h
@@ -394,6 +385,22 @@ set (PHYSICS_HEADERS
 	physics/Controller.cpp
 )
 
+set (WORLD_SRC
+	world/Camera.cpp
+	world/SceneGraph.cpp
+	world/SceneGraphManager.cpp
+	world/Unit.cpp
+	world/World.cpp
+)
+
+set (WORLD_HEADERS
+	world/Camera.h
+	world/SceneGraph.h
+	world/SceneGraphManager.h
+	world/Unit.h
+	world/World.h
+)
+
 set (COMPILER_SRC
 	compilers/BundleCompiler.cpp
 )
@@ -589,6 +596,7 @@ set (CROWN_SOURCES
 	${LUA_SRC}
 	${AUDIO_SRC}
 	${PHYSICS_SRC}
+	${WORLD_SRC}
 	${COMPILER_SRC}
 )
 
@@ -610,6 +618,7 @@ set (CROWN_HEADERS
 	${LUA_HEADERS}
 	${AUDIO_HEADERS}
 	${PHYSICS_HEADERS}
+	${WORLD_HEADERS}
 	${COMPILER_HEADERS}
 )
 
