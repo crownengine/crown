@@ -131,7 +131,7 @@ void World::update(float dt)
 	m_scenegraph_manager.update();
 
 	// Update physics world
-	m_physics_world.update();
+	m_physics_world.update(dt);
 
 	m_scenegraph_manager.update();
 }

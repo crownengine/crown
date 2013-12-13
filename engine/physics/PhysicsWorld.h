@@ -73,7 +73,7 @@ public:
 	Vector3						gravity() const;
 	void						set_gravity(const Vector3& g);
 
-	void						update();
+	void						update(float dt);
 
 public:
 
