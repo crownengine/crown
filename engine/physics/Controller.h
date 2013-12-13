@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 using physx::PxController;
 using physx::PxControllerManager;
 using physx::PxScene;
+using physx::PxU32;
 
 namespace crown
 {
@@ -45,6 +46,10 @@ struct Controller
 
 	void					move(const Vector3& pos);
 
+	bool					collides_up() const;
+	bool					collides_down() const;
+	bool					collides_sides() const;
+
 	Vector3					position() const;
 	void					update();
 
@@ -57,6 +62,7 @@ private:
 	PxScene*				m_scene;
 	PxControllerManager*	m_manager;
 	PxController*			m_controller;
+	PxU32					m_flags;
 };
 
 } // namespace crown

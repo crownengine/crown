@@ -56,10 +56,46 @@ CE_EXPORT int controller_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int controller_collides_up(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Controller* controller = stack.get_controller(1);
+
+	stack.push_bool(controller->collides_up());
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int controller_collides_down(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Controller* controller = stack.get_controller(1);
+
+	stack.push_bool(controller->collides_down());
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int controller_collides_sides(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Controller* controller = stack.get_controller(1);
+
+	stack.push_bool(controller->collides_sides());
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_controller(LuaEnvironment& env)
 {
-	env.load_module_function("Controller", "move",        controller_move);
-	env.load_module_function("Controller", "position",    controller_position);
+	env.load_module_function("Controller", "move",           controller_move);
+	env.load_module_function("Controller", "position",       controller_position);
+	env.load_module_function("Controller", "collides_up",    controller_collides_up);
+	env.load_module_function("Controller", "collides_down",  controller_collides_down);
+	env.load_module_function("Controller", "collides_sides", controller_collides_sides);
 }
 
 } // namespace crown

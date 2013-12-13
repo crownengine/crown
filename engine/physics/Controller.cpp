@@ -35,7 +35,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 using physx::PxCapsuleClimbingMode;
 using physx::PxCapsuleController;
 using physx::PxCapsuleControllerDesc;
+using physx::PxCCTNonWalkableMode;
 using physx::PxControllerFilters;
+using physx::PxControllerFlag;
 using physx::PxExtendedVec3;
 using physx::PxVec3;
 
@@ -54,7 +56,8 @@ Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, 
 	const PhysicsController contr = pr->controller();
 
 	PxCapsuleControllerDesc desc;
-	desc.climbingMode = PxCapsuleClimbingMode::eEASY;
+	desc.climbingMode = PxCapsuleClimbingMode::eCONSTRAINED;
+	desc.nonWalkableMode = PxCCTNonWalkableMode::eFORCE_SLIDING;
 	desc.radius = math::cos(contr.radius);
 	desc.height = contr.height;
 	desc.slopeLimit = contr.slope_limit;
@@ -83,7 +86,7 @@ Controller::~Controller()
 void Controller::move(const Vector3& pos)
 {
 	PxVec3 disp(pos.x, pos.y, pos.z);
-	m_controller->move(disp, 0.01, 1.0 / 60.0, PxControllerFilters());
+	m_flags = m_controller->move(disp, 0.001, 1.0 / 60.0, PxControllerFilters());
 }
 
 //-----------------------------------------------------------------------------
@@ -91,6 +94,24 @@ Vector3 Controller::position() const
 {
 	PxExtendedVec3 pos = m_controller->getPosition();
 	return Vector3(pos.x, pos.y, pos.z);
+}
+
+//-----------------------------------------------------------------------------
+bool Controller::collides_up() const
+{
+	return m_flags & PxControllerFlag::eCOLLISION_UP;
+}
+
+//-----------------------------------------------------------------------------
+bool Controller::collides_down() const
+{
+	return m_flags & PxControllerFlag::eCOLLISION_DOWN;
+}
+
+//-----------------------------------------------------------------------------
+bool Controller::collides_sides() const
+{
+	return m_flags & PxControllerFlag::eCOLLISION_SIDES;
 }
 
 //-----------------------------------------------------------------------------
