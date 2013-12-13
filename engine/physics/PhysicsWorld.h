@@ -64,7 +64,7 @@ public:
 	ActorId						create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type);
 	void						destroy_actor(ActorId id);
 
-	ControllerId				create_controller(const PhysicsResource* pr);
+	ControllerId				create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node);
 	void						destroy_controller(ControllerId id);
 
 	Actor*						lookup_actor(ActorId id);

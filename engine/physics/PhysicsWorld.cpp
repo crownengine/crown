@@ -118,9 +118,9 @@ void PhysicsWorld::destroy_actor(ActorId id)
 }
 
 //-----------------------------------------------------------------------------
-ControllerId PhysicsWorld::create_controller(const PhysicsResource* pr)
+ControllerId PhysicsWorld::create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node)
 {
-	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, m_scene, m_controller_manager);
+	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, sg, node, m_scene, m_controller_manager);
 	return m_controllers.create(controller);
 }
 
@@ -163,6 +163,12 @@ void PhysicsWorld::set_gravity(const Vector3& g)
 //-----------------------------------------------------------------------------
 void PhysicsWorld::update()
 {
+	// Apply gravity to controllers
+	for (Controller** cc = m_controllers.begin(); cc != m_controllers.end(); cc++)
+	{
+		(*cc)->move(Vector3(0, -9.81, 0));
+	}
+
 	// Update world pose of the actors
 	for (Actor** aa = m_actors.begin(); aa != m_actors.end(); aa++)
 	{
@@ -186,8 +192,17 @@ void PhysicsWorld::update()
 		const Quaternion rot(tr.q.x, tr.q.y, tr.q.z, tr.q.w);
 
 		Actor* actor = static_cast<Actor*>(active_transforms[i].userData);
-		actor->update(Matrix4x4(rot, pos));
+		if (actor != NULL)
+		{
+			actor->update(Matrix4x4(rot, pos));
+		}
 	}
+
+	// Update controllers
+	for (Controller** cc = m_controllers.begin(); cc != m_controllers.end(); cc++)
+	{
+		(*cc)->update();
+	}	
 }
 
 } // namespace crown
