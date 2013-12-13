@@ -29,61 +29,44 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <errno.h>
 #include <vorbis/vorbisfile.h>
 
-#include "Config.h"
-#include "SoundCompiler.h"
 #include "Allocator.h"
-#include "Filesystem.h"
-#include "StringUtils.h"
+#include "Config.h"
 #include "DynamicString.h"
+#include "Filesystem.h"
 #include "OS.h"
+#include "SoundResource.h"
+#include "StringUtils.h"
 
 namespace crown
 {
-
-//-----------------------------------------------------------------------------
-SoundCompiler::SoundCompiler() 
-	: m_sound_data_size(0)
-	, m_sound_data(NULL)
+namespace sound_resource
 {
-}
 
 //-----------------------------------------------------------------------------
-SoundCompiler::~SoundCompiler()
+struct WAVHeader
 {
-}
+	char 			riff[4];				// Should contains 'RIFF'
+	int32_t			chunk_size;				// Not Needed
+	char 			wave[4];				// Should contains 'WAVE'
+	char 			fmt[4];					// Should contains 'fmt '
+	int32_t			fmt_size;				// Size of format chunk
+	int16_t			fmt_tag;				// Identifies way data is stored, 1 means no compression
+	int16_t			fmt_channels;			// Channel, 1 means mono, 2 means stereo
+	int32_t			fmt_sample_rate;		// Sample per second
+	int32_t			fmt_avarage;			// Avarage bytes per sample
+	int16_t			fmt_block_align;		// Block alignment
+	int16_t			fmt_bits_ps;			// Number of bits per sample
+	char 			data[4];				// Should contains 'data'
+	int32_t			data_size;				// Data dimension
+};
+
+SoundHeader			m_sound_header;
+size_t				m_sound_data_size = 0;
+uint8_t*			m_sound_data = NULL;
+
 
 //-----------------------------------------------------------------------------
-size_t SoundCompiler::compile_impl(Filesystem& fs, const char* resource_path)
-{
-	size_t size = 0;
-	
-	size = compile_if_wav(fs, resource_path);
-
-	if (size == 0)
-	{
-		size = compile_if_ogg(fs, resource_path);
-	}
-	
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-void SoundCompiler::write_impl(File* out_file)
-{
-	out_file->write((char*)&m_sound_header, sizeof(SoundHeader));
-	out_file->write((char*)m_sound_data, m_sound_data_size);
-
-	if (m_sound_data)
-	{
-
-		default_allocator().deallocate(m_sound_data);
-		m_sound_data_size = 0;
-		m_sound_data = NULL;
-	}
-}
-
-//-----------------------------------------------------------------------------
-size_t SoundCompiler::compile_if_wav(Filesystem& fs, const char* resource_path)
+size_t compile_if_wav(Filesystem& fs, const char* resource_path)
 {
 	File* in_file = fs.open(resource_path, FOM_READ);
 
@@ -123,7 +106,7 @@ size_t SoundCompiler::compile_if_wav(Filesystem& fs, const char* resource_path)
 }
 
 //-----------------------------------------------------------------------------
-size_t SoundCompiler::compile_if_ogg(Filesystem& fs, const char* resource_path)
+size_t compile_if_ogg(Filesystem& fs, const char* resource_path)
 {
 	// Retrieves resource absolute path
 	DynamicString s(default_allocator());
@@ -168,4 +151,29 @@ size_t SoundCompiler::compile_if_ogg(Filesystem& fs, const char* resource_path)
 	return sizeof(SoundHeader) + m_sound_data_size;
 }
 
+//-----------------------------------------------------------------------------
+void compile(Filesystem& fs, const char* resource_path, File* out_file)
+{
+	size_t size = 0;
+	
+	size = compile_if_wav(fs, resource_path);
+
+	if (size == 0)
+	{
+		size = compile_if_ogg(fs, resource_path);
+	}
+
+	out_file->write((char*)&m_sound_header, sizeof(SoundHeader));
+	out_file->write((char*)m_sound_data, m_sound_data_size);
+
+	if (m_sound_data)
+	{
+
+		default_allocator().deallocate(m_sound_data);
+		m_sound_data_size = 0;
+		m_sound_data = NULL;
+	}
+}
+
+} // namespace sound_resource
 } // namespace crown

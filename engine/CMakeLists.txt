@@ -81,14 +81,6 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/lua
 	${CMAKE_SOURCE_DIR}/engine/audio
 	${CMAKE_SOURCE_DIR}/engine/compilers
-	${CMAKE_SOURCE_DIR}/engine/compilers/lua
-	${CMAKE_SOURCE_DIR}/engine/compilers/texture
-	${CMAKE_SOURCE_DIR}/engine/compilers/sound
-	${CMAKE_SOURCE_DIR}/engine/compilers/mesh
-	${CMAKE_SOURCE_DIR}/engine/compilers/package
-	${CMAKE_SOURCE_DIR}/engine/compilers/unit
-	${CMAKE_SOURCE_DIR}/engine/compilers/sprite
-	${CMAKE_SOURCE_DIR}/engine/compilers/physics
 	${CMAKE_SOURCE_DIR}/engine/physics
 )
 
@@ -301,15 +293,15 @@ set (RESOURCE_SRC
 	resource/ResourceLoader.cpp
 	resource/ResourceManager.cpp
 	resource/ResourceRegistry.cpp
+	resource/UnitResource.cpp
+	resource/TextureResource.cpp
+	resource/SpriteResource.cpp
+	resource/SoundResource.cpp
+	resource/PhysicsResource.cpp
+	resource/PackageResource.cpp
+	resource/MeshResource.cpp
+	resource/LuaResource.cpp
 )
-
-if (CROWN_DEBUG OR CROWN_DEVELOPMENT)
-	list (APPEND RESOURCE_SRC resource/FileBundle.cpp)
-elseif (CROWN_RELEASE)
-	list (APPEND RESOURCE_SRC resource/ArchiveBundle.cpp)
-else ()
-	message (FATAL_ERROR "Oops, you should not be here")
-endif (CROWN_DEBUG OR CROWN_DEVELOPMENT)
 
 set (RESOURCE_HEADERS
 	resource/Resource.h
@@ -329,6 +321,14 @@ set (RESOURCE_HEADERS
 	resource/SpriteResource.h
 	resource/PhysicsResource.h
 )
+
+if (CROWN_DEBUG OR CROWN_DEVELOPMENT)
+	list (APPEND RESOURCE_SRC resource/FileBundle.cpp)
+elseif (CROWN_RELEASE)
+	list (APPEND RESOURCE_SRC resource/ArchiveBundle.cpp)
+else ()
+	message (FATAL_ERROR "Oops, you should not be here")
+endif (CROWN_DEBUG OR CROWN_DEVELOPMENT)
 
 set (OS_SRC
 )
@@ -395,29 +395,11 @@ set (PHYSICS_HEADERS
 )
 
 set (COMPILER_SRC
-	compilers/Compiler.cpp
 	compilers/BundleCompiler.cpp
-	compilers/mesh/MeshCompiler.cpp
-	compilers/lua/LuaCompiler.cpp
-	compilers/texture/TextureCompiler.cpp
-	compilers/sound/SoundCompiler.cpp
-	compilers/package/PackageCompiler.cpp
-	compilers/unit/UnitCompiler.cpp
-	compilers/sprite/SpriteCompiler.cpp
-	compilers/physics/PhysicsCompiler.cpp
 )
 
 set (COMPILER_HEADER
-	compilers/Compiler.h
 	compilers/BundleCompiler.h
-	compilers/mesh/MeshCompiler.h
-	compilers/lua/LuaCompiler.h
-	compilers/texture/TextureCompiler.h
-	compilers/sound/SoundCompiler.h
-	compilers/package/PackageCompiler.h
-	compilers/unit/UnitCompiler.h
-	compilers/sprite/SpriteCompiler.h
-	compilers/physics/PhysicsCompiler.h
 )
 
 set (CROWN_LIBRARIES)

@@ -39,6 +39,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+namespace mesh_resource { extern void compile(Filesystem&, const char*, File*); }
+namespace texture_resource { extern void compile(Filesystem&, const char*, File*); }
+namespace package_resource { extern void compile(Filesystem&, const char*, File*); }
+namespace lua_resource { extern void compile(Filesystem&, const char*, File*); }
+namespace physics_resource { extern void compile(Filesystem&, const char*, File*); }
+namespace unit_resource { extern void compile(Filesystem&, const char*, File*); }
+namespace sound_resource { extern void compile(Filesystem&, const char*, File*); }
+namespace sprite_resource { extern void compile(Filesystem&, const char*, File*); }
+
 //-----------------------------------------------------------------------------
 BundleCompiler::BundleCompiler()
 {
@@ -107,48 +116,53 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 
 		Log::i("%s <= %s", out_name, filename);
 
-		bool result = false;
-		if (resource_type_hash == MESH_TYPE)
-		{
-			result = m_mesh.compile(source_dir, bundle_dir, filename, out_name);
-		}
-		else if (resource_type_hash == TEXTURE_TYPE)
-		{
-			result = m_texture.compile(source_dir, bundle_dir, filename, out_name);
-		}
-		else if (resource_type_hash == LUA_TYPE)
-		{
-			result = m_lua.compile(source_dir, bundle_dir, filename, out_name);
-		}
-		else if(resource_type_hash == SOUND_TYPE)
-		{
-			result = m_sound.compile(source_dir, bundle_dir, filename, out_name);
-		}
-		else if(resource_type_hash == SPRITE_TYPE)
-		{
-			result = m_sprite.compile(source_dir, bundle_dir, filename, out_name);
-		}
-		else if (resource_type_hash == PACKAGE_TYPE)
-		{
-			result = m_package.compile(source_dir, bundle_dir, filename, out_name);
-		}
-		else if (resource_type_hash == UNIT_TYPE)
-		{
-			result = m_unit.compile(source_dir, bundle_dir, filename, out_name);
-		}
-		else if (resource_type_hash == PHYSICS_TYPE)
-		{
-			result = m_physics.compile(source_dir, bundle_dir, filename, out_name);
-		}
-		else
-		{
-			Log::e("Oops, unknown resource type!");
-			return false;
-		}
+		DiskFilesystem root_fs(source_dir);
+		DiskFilesystem dest_fs(bundle_dir);
 
-		if (!result)
+		// Open destination file
+		File* out_file = dest_fs.open(out_name, FOM_WRITE);
+
+		if (out_file)
 		{
-			return false;
+			if (resource_type_hash == MESH_TYPE)
+			{
+				mesh_resource::compile(root_fs, filename, out_file);
+			}
+			else if (resource_type_hash == TEXTURE_TYPE)
+			{
+				texture_resource::compile(root_fs, filename, out_file);
+			}
+			else if (resource_type_hash == LUA_TYPE)
+			{
+				lua_resource::compile(root_fs, filename, out_file);
+			}
+			else if(resource_type_hash == SOUND_TYPE)
+			{
+				sound_resource::compile(root_fs, filename, out_file);
+			}
+			else if(resource_type_hash == SPRITE_TYPE)
+			{
+				sprite_resource::compile(root_fs, filename, out_file);
+			}
+			else if (resource_type_hash == PACKAGE_TYPE)
+			{
+				package_resource::compile(root_fs, filename, out_file);
+			}
+			else if (resource_type_hash == UNIT_TYPE)
+			{
+				unit_resource::compile(root_fs, filename, out_file);
+			}
+			else if (resource_type_hash == PHYSICS_TYPE)
+			{
+				physics_resource::compile(root_fs, filename, out_file);
+			}
+			else
+			{
+				Log::e("Oops, unknown resource type!");
+				return false;
+			}
+
+			dest_fs.close(out_file);
 		}
 	}
 

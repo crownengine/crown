@@ -24,130 +24,52 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "TextureCompiler.h"
-#include "PixelFormat.h"
 #include "Allocator.h"
 #include "Filesystem.h"
+#include "PixelFormat.h"
+#include "TextureResource.h"
 
 namespace crown
 {
+namespace texture_resource
+{
+
+struct TGAHeader
+{
+
+	char		id_length;			// 00h  Size of Image ID field
+	char		color_map_type;		// 01h  Color map type
+	char		image_type;			// 02h  Image type code
+	char		c_map_spec[5];		// 03h  Color map origin 05h Color map length 07h Depth of color map entries
+	uint16_t	x_offset;			// 08h  X origin of image
+	uint16_t	y_offset;			// 0Ah  Y origin of image
+	uint16_t	width;				// 0Ch  Width of image
+	uint16_t	height;				// 0Eh  Height of image
+	char		pixel_depth;     	// 10h  Image pixel size
+	char		image_descriptor;	// 11h  Image descriptor byte
+};
+
+TGAHeader		m_tga_header;
+uint32_t		m_tga_channels;
+uint32_t		m_tga_size;
+
+TextureHeader	m_texture_header;
+size_t			m_texture_data_size = 0;
+uint8_t*		m_texture_data = NULL;
 
 //-----------------------------------------------------------------------------
-TextureCompiler::TextureCompiler() :
-	m_texture_data_size(0),
-	m_texture_data(NULL)
+void swap_red_blue()
 {
-}
-
-//-----------------------------------------------------------------------------
-TextureCompiler::~TextureCompiler()
-{
-}
-
-//-----------------------------------------------------------------------------
-size_t TextureCompiler::compile_impl(Filesystem& fs, const char* resource_path)
-{
-	File* in_file = fs.open(resource_path, FOM_READ);
-
-	if (!in_file)
+	for (uint64_t i = 0; i < m_tga_size * m_tga_channels; i += m_tga_channels)
 	{
-		Log::e("Unable to open file: %s", resource_path);
-		return 0;
-	}
-
-	// Read the header
-	in_file->read((char*)(char*)&m_tga_header, sizeof(TGAHeader));
-
-	// Skip TGA ID
-	in_file->skip(m_tga_header.id_length);
-
-	// Compute color channels
-	m_tga_channels = m_tga_header.pixel_depth / 8;
-	m_tga_size = m_tga_header.width * m_tga_header.height;
-
-	m_texture_header.version = TEXTURE_VERSION;
-	m_texture_header.width = m_tga_header.width;
-	m_texture_header.height = m_tga_header.height;
-
-	// Select the appropriate pixel format and allocate
-	// resource data based on tga size and channels
-	switch (m_tga_channels)
-	{
-		case 2:
-		case 3:
-		{
-			m_texture_header.format = PixelFormat::RGB_8;
-
-			m_texture_data_size = m_tga_size * 3;
-			m_texture_data = (uint8_t*)default_allocator().allocate(m_texture_data_size);
-
-			break;
-		}
-		case 4:
-		{
-			m_texture_header.format = PixelFormat::RGBA_8;
-
-			m_texture_data_size = m_tga_size * m_tga_channels;
-			m_texture_data = (uint8_t*)default_allocator().allocate(m_texture_data_size);
-			
-			break;
-		}
-		default:
-		{
-			Log::e("Unable to determine TGA channels.");
-			return 0;
-		}
-	}
-
-	// Determine image type (compressed/uncompressed) and call proper function to load TGA
-	switch (m_tga_header.image_type)
-	{
-		case 0:
-		{
-			Log::e("The file does not contain image data: %s", resource_path);
-			return 0;
-		}
-		case 2:
-		{
-			load_uncompressed(in_file);
-			break;
-		}
-
-		case 10:
-		{
-			load_compressed(in_file);
-			break;
-		}
-
-		default:
-		{
-			Log::e("Image type not supported.");
-			return 0;
-		}
-	}
-
-	fs.close(in_file);
-
-	// Return the total resource size
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-void TextureCompiler::write_impl(File* out_file)
-{
-	out_file->write((char*)&m_texture_header, sizeof(TextureHeader));
-	out_file->write((char*)m_texture_data, m_texture_data_size);
-
-	if (m_texture_data)
-	{
-		default_allocator().deallocate(m_texture_data);
-		m_texture_data_size = 0;
-		m_texture_data = NULL;
+		m_texture_data[i + 0] ^= m_texture_data[i + 2];
+		m_texture_data[i + 2] ^= m_texture_data[i + 0];
+		m_texture_data[i + 0] ^= m_texture_data[i + 2];
 	}
 }
 
 //-----------------------------------------------------------------------------
-void TextureCompiler::load_uncompressed(File* in_file)
+void load_uncompressed(File* in_file)
 {
 	uint64_t size = m_tga_header.width * m_tga_header.height;
 
@@ -177,7 +99,7 @@ void TextureCompiler::load_uncompressed(File* in_file)
 }
 
 //-----------------------------------------------------------------------------
-void TextureCompiler::load_compressed(File* in_file)
+void load_compressed(File* in_file)
 {
 	uint8_t rle_id = 0;
 	uint32_t i = 0;
@@ -240,14 +162,99 @@ void TextureCompiler::load_compressed(File* in_file)
 }
 
 //-----------------------------------------------------------------------------
-void TextureCompiler::swap_red_blue()
+void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
-	for (uint64_t i = 0; i < m_tga_size * m_tga_channels; i += m_tga_channels)
+	File* in_file = fs.open(resource_path, FOM_READ);
+
+	if (!in_file)
 	{
-		m_texture_data[i + 0] ^= m_texture_data[i + 2];
-		m_texture_data[i + 2] ^= m_texture_data[i + 0];
-		m_texture_data[i + 0] ^= m_texture_data[i + 2];
+		Log::e("Unable to open file: %s", resource_path);
+		return;
+	}
+
+	// Read the header
+	in_file->read((char*)(char*)&m_tga_header, sizeof(TGAHeader));
+
+	// Skip TGA ID
+	in_file->skip(m_tga_header.id_length);
+
+	// Compute color channels
+	m_tga_channels = m_tga_header.pixel_depth / 8;
+	m_tga_size = m_tga_header.width * m_tga_header.height;
+
+	m_texture_header.version = TEXTURE_VERSION;
+	m_texture_header.width = m_tga_header.width;
+	m_texture_header.height = m_tga_header.height;
+
+	// Select the appropriate pixel format and allocate
+	// resource data based on tga size and channels
+	switch (m_tga_channels)
+	{
+		case 2:
+		case 3:
+		{
+			m_texture_header.format = PixelFormat::RGB_8;
+
+			m_texture_data_size = m_tga_size * 3;
+			m_texture_data = (uint8_t*)default_allocator().allocate(m_texture_data_size);
+
+			break;
+		}
+		case 4:
+		{
+			m_texture_header.format = PixelFormat::RGBA_8;
+
+			m_texture_data_size = m_tga_size * m_tga_channels;
+			m_texture_data = (uint8_t*)default_allocator().allocate(m_texture_data_size);
+			
+			break;
+		}
+		default:
+		{
+			Log::e("Unable to determine TGA channels.");
+			return;
+		}
+	}
+
+	// Determine image type (compressed/uncompressed) and call proper function to load TGA
+	switch (m_tga_header.image_type)
+	{
+		case 0:
+		{
+			Log::e("The file does not contain image data: %s", resource_path);
+			return;
+		}
+		case 2:
+		{
+			load_uncompressed(in_file);
+			break;
+		}
+
+		case 10:
+		{
+			load_compressed(in_file);
+			break;
+		}
+
+		default:
+		{
+			Log::e("Image type not supported.");
+			return;
+		}
+	}
+
+	fs.close(in_file);
+
+	out_file->write((char*)&m_texture_header, sizeof(TextureHeader));
+	out_file->write((char*)m_texture_data, m_texture_data_size);
+
+	if (m_texture_data)
+	{
+		default_allocator().deallocate(m_texture_data);
+		m_texture_data_size = 0;
+		m_texture_data = NULL;
 	}
 }
 
+} // namespace texture_resource
 } // namespace crown

@@ -29,29 +29,51 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Allocator.h"
 #include "Filesystem.h"
-#include "StringUtils.h"
-#include "SpriteCompiler.h"
 #include "Hash.h"
 #include "JSONParser.h"
+#include "SpriteResource.h"
+#include "StringUtils.h"
 
 namespace crown
 {
+namespace sprite_resource
+{
 
 //-----------------------------------------------------------------------------
-SpriteCompiler::SpriteCompiler()
-	: m_names(default_allocator())
-	, m_regions(default_allocator())
-	, m_vertices(default_allocator())
+struct FrameData
 {
+	float x0, y0;
+	float x1, y1;
+
+	float scale_x, scale_y;
+	float offset_x, offset_y;
+};
+
+//-----------------------------------------------------------------------------
+void parse_frame(JSONElement frame, List<StringId32>& names, List<FrameData>& regions)
+{
+	JSONElement name = frame.key("name");
+	JSONElement region = frame.key("region");
+	JSONElement offset = frame.key("offset");
+	JSONElement scale = frame.key("scale");
+
+	StringId32 name_hash = hash::murmur2_32(name.string_value(), name.size(), 0);
+	FrameData fd;
+	fd.x0 = region[0].float_value();
+	fd.y0 = region[1].float_value();
+	fd.x1 = region[2].float_value();
+	fd.y1 = region[3].float_value();
+	fd.offset_x = offset[0].float_value();
+	fd.offset_y = offset[1].float_value();
+	fd.scale_x = scale[0].float_value();
+	fd.scale_y = scale[1].float_value();
+
+	names.push_back(name_hash);
+	regions.push_back(fd);
 }
 
 //-----------------------------------------------------------------------------
-SpriteCompiler::~SpriteCompiler()
-{
-}
-
-//-----------------------------------------------------------------------------
-size_t SpriteCompiler::compile_impl(Filesystem& fs, const char* resource_path)
+void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
 	char* buf = (char*)default_allocator().allocate(file->size());
@@ -60,12 +82,16 @@ size_t SpriteCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	JSONParser json(buf);
 	JSONElement root = json.root();
 
+	List<StringId32>		m_names(default_allocator());
+	List<FrameData> 		m_regions(default_allocator());
+	List<float>				m_vertices(default_allocator());
+
 	// Read frames
 	JSONElement frames = root.key("frames");
 	uint32_t num_frames = frames.size();
 	for (uint32_t i = 0; i < num_frames; i++)
 	{
-		parse_frame(frames[i]);
+		parse_frame(frames[i], m_names, m_regions);
 	}
 
 	for (uint32_t i = 0; i < num_frames; i++)
@@ -103,35 +129,6 @@ size_t SpriteCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	fs.close(file);
 	default_allocator().deallocate(buf);
 
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-void SpriteCompiler::parse_frame(JSONElement frame)
-{
-	JSONElement name = frame.key("name");
-	JSONElement region = frame.key("region");
-	JSONElement offset = frame.key("offset");
-	JSONElement scale = frame.key("scale");
-
-	StringId32 name_hash = hash::murmur2_32(name.string_value(), name.size(), 0);
-	FrameData fd;
-	fd.x0 = region[0].float_value();
-	fd.y0 = region[1].float_value();
-	fd.x1 = region[2].float_value();
-	fd.y1 = region[3].float_value();
-	fd.offset_x = offset[0].float_value();
-	fd.offset_y = offset[1].float_value();
-	fd.scale_x = scale[0].float_value();
-	fd.scale_y = scale[1].float_value();
-
-	m_names.push_back(name_hash);
-	m_regions.push_back(fd);
-}
-
-//-----------------------------------------------------------------------------
-void SpriteCompiler::write_impl(File* out_file)
-{
 	SpriteHeader h;
 	h.texture.id = hash::murmur2_64("textures/circle.texture", string::strlen("textures/circle.texture"), 0);
 	h.num_frames = m_names.size();
@@ -143,11 +140,7 @@ void SpriteCompiler::write_impl(File* out_file)
 	out_file->write((char*) &h, sizeof(SpriteHeader));
 	out_file->write((char*) m_names.begin(), sizeof(StringId32) * m_names.size());
 	out_file->write((char*) m_vertices.begin(), sizeof(float) * 16 * m_vertices.size());
-
-	m_names.clear();
-	m_regions.clear();
-	m_vertices.clear();
 }
 
-
+} // namespace sprite_resource
 } // namespace crown

@@ -26,26 +26,39 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Allocator.h"
 #include "Filesystem.h"
-#include "StringUtils.h"
-#include "PhysicsCompiler.h"
 #include "Hash.h"
 #include "JSONParser.h"
+#include "PhysicsResource.h"
+#include "StringUtils.h"
 
 namespace crown
 {
+namespace physics_resource
+{
+
+bool					m_has_controller = false;
+PhysicsController		m_controller;
 
 //-----------------------------------------------------------------------------
-PhysicsCompiler::PhysicsCompiler()
+void parse_controller(JSONElement controller)
 {
+	JSONElement name = controller.key("name");
+	JSONElement height = controller.key("height");
+	JSONElement radius = controller.key("radius");
+	JSONElement slope_limit = controller.key("slope_limit");
+	JSONElement step_offset = controller.key("step_offset");
+	JSONElement contact_offset = controller.key("contact_offset");
+
+	m_controller.name = hash::murmur2_32(name.string_value(), name.size(), 0);
+	m_controller.height = height.float_value();
+	m_controller.radius = radius.float_value();
+	m_controller.slope_limit = slope_limit.float_value();
+	m_controller.step_offset = step_offset.float_value();
+	m_controller.contact_offset = contact_offset.float_value();
 }
 
 //-----------------------------------------------------------------------------
-PhysicsCompiler::~PhysicsCompiler()
-{
-}
-
-//-----------------------------------------------------------------------------
-size_t PhysicsCompiler::compile_impl(Filesystem& fs, const char* resource_path)
+void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
 	char* buf = (char*)default_allocator().allocate(file->size());
@@ -68,30 +81,7 @@ size_t PhysicsCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 
 	fs.close(file);
 	default_allocator().deallocate(buf);
-	return 1;
-}
 
-//-----------------------------------------------------------------------------
-void PhysicsCompiler::parse_controller(JSONElement controller)
-{
-	JSONElement name = controller.key("name");
-	JSONElement height = controller.key("height");
-	JSONElement radius = controller.key("radius");
-	JSONElement slope_limit = controller.key("slope_limit");
-	JSONElement step_offset = controller.key("step_offset");
-	JSONElement contact_offset = controller.key("contact_offset");
-
-	m_controller.name = hash::murmur2_32(name.string_value(), name.size(), 0);
-	m_controller.height = height.float_value();
-	m_controller.radius = radius.float_value();
-	m_controller.slope_limit = slope_limit.float_value();
-	m_controller.step_offset = step_offset.float_value();
-	m_controller.contact_offset = contact_offset.float_value();
-}
-
-//-----------------------------------------------------------------------------
-void PhysicsCompiler::write_impl(File* out_file)
-{
 	PhysicsHeader h;
 	h.version = 1;
 	h.num_controllers = m_has_controller ? 1 : 0;
@@ -107,4 +97,5 @@ void PhysicsCompiler::write_impl(File* out_file)
 	}
 }
 
+} // namespace physics_resource
 } // namespace crown

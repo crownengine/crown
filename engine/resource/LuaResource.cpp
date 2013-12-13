@@ -25,16 +25,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Config.h"
-#include "LuaCompiler.h"
-#include "LuaResource.h"
-#include "TempAllocator.h"
 #include "DynamicString.h"
 #include "Filesystem.h"
-#include "OS.h"
 #include "Log.h"
-
-namespace crown
-{
+#include "LuaResource.h"
+#include "OS.h"
+#include "TempAllocator.h"
 
 #ifdef WINDOWS
 	#define LUAJIT_EXECUTABLE "luajit.exe"
@@ -48,21 +44,16 @@ namespace crown
 	#define LUAJIT_FLAGS "-b"
 #endif
 
-
-
-//-----------------------------------------------------------------------------
-LuaCompiler::LuaCompiler()
-	: m_luajit_blob_size(0), m_luajit_blob(NULL)
+namespace crown
 {
-}
-
-//-----------------------------------------------------------------------------
-LuaCompiler::~LuaCompiler()
+namespace lua_resource
 {
-}
+
+size_t			m_luajit_blob_size = 0;
+char*			m_luajit_blob = NULL;
 
 //-----------------------------------------------------------------------------
-size_t LuaCompiler::compile_impl(Filesystem& fs, const char* resource_path)
+void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	TempAllocator1024 alloc;
 	DynamicString res_abs_path(alloc);
@@ -94,15 +85,9 @@ size_t LuaCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	else
 	{
 		Log::e("Error while reading luajit bytecode");
-		return 0;
+		return;
 	}
 
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-void LuaCompiler::write_impl(File* out_file)
-{
 	LuaHeader header;
 	header.version = LUA_RESOURCE_VERSION;
 	header.size = m_luajit_blob_size;
@@ -115,4 +100,5 @@ void LuaCompiler::write_impl(File* out_file)
 	m_luajit_blob = NULL;
 }
 
+} // namespace lua_resource
 } // namespace crown

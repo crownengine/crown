@@ -29,116 +29,95 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Filesystem.h"
 #include "Hash.h"
 #include "JSONParser.h"
-#include "UnitCompiler.h"
-#include "TempAllocator.h"
+#include "List.h"
 #include "Log.h"
+#include "Matrix4x4.h"
 #include "PhysicsTypes.h"
 #include "Quaternion.h"
+#include "Resource.h"
+#include "TempAllocator.h"
+#include "Types.h"
+#include "UnitResource.h"
 #include "Vector3.h"
-#include "Matrix4x4.h"
 
 namespace crown
+{
+namespace unit_resource
 {
 
 const StringId32 NO_PARENT = 0xFFFFFFFF;
 
-//-----------------------------------------------------------------------------
-UnitCompiler::UnitCompiler()
-	: m_nodes(default_allocator())
-	, m_node_depths(default_allocator())
-	, m_cameras(default_allocator())
-	, m_renderables(default_allocator())
-	, m_actors(default_allocator())
+struct GraphNode
 {
-}
+	StringId32 name;
+	StringId32 parent;
+	Vector3 position;
+	Quaternion rotation;
+};
+
+struct GraphNodeDepth
+{
+	StringId32 name;
+	uint32_t index;
+	uint32_t depth;
+
+	bool operator()(const GraphNodeDepth& a, const GraphNodeDepth& b)
+	{
+		return a.depth < b.depth;
+	}
+};
 
 //-----------------------------------------------------------------------------
-size_t UnitCompiler::compile_impl(Filesystem& fs, const char* resource_path)
+uint32_t compute_link_depth(const GraphNode& node, const List<GraphNode>& nodes)
 {
-	File* file = fs.open(resource_path, FOM_READ);
-
-	char file_buf[4096];
-	file->read(file_buf, file->size());
-	fs.close(file);
-
-	JSONParser json(file_buf);
-	JSONElement root = json.root();
-
-	// Check for nodes
-	if (root.has_key("nodes"))
-	{
-		JSONElement nodes = root.key("nodes");
-		const uint32_t num_nodes = nodes.size();
-
-		for (uint32_t i = 0; i < num_nodes; i++)
-		{
-			parse_node(nodes[i]);
-		}
-	}
-
-	for (uint32_t i = 0; i < m_nodes.size(); i++)
-	{
-		m_node_depths[i].depth = compute_link_depth(m_nodes[i]);
-	}
-
-	std::sort(m_node_depths.begin(), m_node_depths.end(), GraphNodeDepth());
-
-	// Check for renderable
-	if (root.has_key("renderables"))
-	{
-		JSONElement renderables = root.key("renderables");
-		uint32_t renderables_size = renderables.size();
-
-		for (uint32_t i = 0; i < renderables_size; i++)
-		{
-			parse_renderable(renderables[i]);
-		}
-	}
-
-	// Check for cameras
-	if (root.has_key("cameras"))
-	{
-		JSONElement cameras = root.key("cameras");
-		uint32_t num_cameras = cameras.size();
-
-		for (uint32_t i = 0; i < num_cameras; i++)
-		{
-			parse_camera(cameras[i]);
-		}
-	}
-
-	// check for actors
-	if (root.has_key("actors"))
-	{
-		JSONElement actors = root.key("actors");
-		uint32_t num_actors = actors.size();
-
-		for (uint32_t i = 0; i < num_actors; i++)
-		{
-			parse_actor(actors[i]);
-		}
-	}
-
-	// Check if the unit has a .physics resource
-	DynamicString unit_name(resource_path);
-	unit_name.strip_trailing("unit");
-	unit_name += "physics";
-	Log::d("Checking %s", unit_name.c_str());
-	if (fs.is_file(unit_name.c_str()))
-	{
-		Log::d("YES");
-		m_physics_resource.id = hash::murmur2_64(unit_name.c_str(), string::strlen(unit_name.c_str()), 0);
-	}
+	if (node.parent == NO_PARENT) return 0;
 	else
 	{
-		m_physics_resource.id = 0;
+		for (uint32_t i = 0; i < nodes.size(); i++)
+		{
+			if (nodes[i].name == node.parent)
+			{
+				return 1 + compute_link_depth(nodes[i], nodes);
+			}
+		}
 	}
 
-	return 1;
+	CE_FATAL("Node not found");
 }
 
 //-----------------------------------------------------------------------------
-void UnitCompiler::parse_node(JSONElement e)
+uint32_t find_node_index(StringId32 name, const List<GraphNodeDepth>& node_depths)
+{
+	for (uint32_t i = 0; i < node_depths.size(); i++)
+	{
+		if (node_depths[i].name == name)
+		{
+			return i;
+		}
+	}
+
+	CE_FATAL("Node not found");
+}
+
+//-----------------------------------------------------------------------------
+int32_t find_node_parent_index(uint32_t node, const List<GraphNode>& nodes, const List<GraphNodeDepth>& node_depths)
+{
+	StringId32 parent_name = nodes[node_depths[node].index].parent;
+
+	if (parent_name == NO_PARENT) return -1;
+	for (uint32_t i = 0; i < node_depths.size(); i++)
+	{
+		if (parent_name == node_depths[i].name)
+		{
+			return i;
+		}
+	}
+
+	CE_FATAL("Node not found");
+}
+
+//-----------------------------------------------------------------------------
+void parse_node(JSONElement e, List<GraphNode>& nodes, List<GraphNodeDepth>& node_depths)
 {
 	JSONElement name = e.key("name");
 	JSONElement parent = e.key("parent");
@@ -153,15 +132,15 @@ void UnitCompiler::parse_node(JSONElement e)
 
 	GraphNodeDepth gnd;
 	gnd.name = gn.name;
-	gnd.index = m_nodes.size();
+	gnd.index = nodes.size();
 	gnd.depth = 0;
 
-	m_nodes.push_back(gn);
-	m_node_depths.push_back(gnd);
+	nodes.push_back(gn);
+	node_depths.push_back(gnd);
 }
 
 //-----------------------------------------------------------------------------
-void UnitCompiler::parse_camera(JSONElement e)
+void parse_camera(JSONElement e, List<UnitCamera>& cameras, const List<GraphNodeDepth>& node_depths)
 {
 	JSONElement name = e.key("name");
 	JSONElement node = e.key("node");
@@ -170,13 +149,13 @@ void UnitCompiler::parse_camera(JSONElement e)
 
 	UnitCamera cn;
 	cn.name = hash::murmur2_32(name.string_value(), name.size(), 0);
-	cn.node = find_node_index(node_name);
+	cn.node = find_node_index(node_name, node_depths);
 
-	m_cameras.push_back(cn);
+	cameras.push_back(cn);
 }
 
 //-----------------------------------------------------------------------------
-void UnitCompiler::parse_renderable(JSONElement e)
+void parse_renderable(JSONElement e, List<UnitRenderable>& renderables, const List<GraphNodeDepth>& node_depths)
 {
 	JSONElement name = e.key("name");
 	JSONElement node = e.key("node");
@@ -188,7 +167,7 @@ void UnitCompiler::parse_renderable(JSONElement e)
 
 	UnitRenderable rn;
 	rn.name = hash::murmur2_32(name.string_value(), name.size(), 0);
-	rn.node = find_node_index(node_name);
+	rn.node = find_node_index(node_name, node_depths);
 	rn.visible = vis.bool_value();
 
 	const char* res_type = type.string_value();
@@ -212,11 +191,11 @@ void UnitCompiler::parse_renderable(JSONElement e)
 	}
 	rn.resource.id = hash::murmur2_64(res_name.c_str(), string::strlen(res_name.c_str()), 0);
 
-	m_renderables.push_back(rn);
+	renderables.push_back(rn);
 }
 
 //-----------------------------------------------------------------------------
-void UnitCompiler::parse_actor(JSONElement e)
+void parse_actor(JSONElement e, List<UnitActor>& actors, const List<GraphNodeDepth>& node_depths)
 {
 	JSONElement name = e.key("name");
 	JSONElement node = e.key("node");
@@ -228,67 +207,102 @@ void UnitCompiler::parse_actor(JSONElement e)
 
 	UnitActor an;
 	an.name = hash::murmur2_32(name.string_value(), name.size(), 0);
-	an.node = find_node_index(node_name);
+	an.node = find_node_index(node_name, node_depths);
 	an.type = string::strcmp(type.string_value(), "STATIC") == 0 ? UnitActor::STATIC : UnitActor::DYNAMIC;
 	an.shape = string::strcmp(shape.string_value(), "SPHERE") == 0 ? UnitActor::SPHERE :
 	 			string::strcmp(shape.string_value(), "BOX") == 0 ? UnitActor::BOX : UnitActor::PLANE;
 	an.active = active.bool_value();
 
-	m_actors.push_back(an);
+	actors.push_back(an);
 }
 
 //-----------------------------------------------------------------------------
-uint32_t UnitCompiler::compute_link_depth(GraphNode& node)
+void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
-	if (node.parent == NO_PARENT) return 0;
+	File* file = fs.open(resource_path, FOM_READ);
+
+	char file_buf[4096];
+	file->read(file_buf, file->size());
+	fs.close(file);
+
+	JSONParser json(file_buf);
+	JSONElement root = json.root();
+
+	ResourceId				m_physics_resource;
+	List<GraphNode>			m_nodes(default_allocator());
+	List<GraphNodeDepth>	m_node_depths(default_allocator());
+	List<UnitCamera>		m_cameras(default_allocator());
+	List<UnitRenderable>	m_renderables(default_allocator());
+	List<UnitActor>			m_actors(default_allocator());
+
+	// Check for nodes
+	if (root.has_key("nodes"))
+	{
+		JSONElement nodes = root.key("nodes");
+		const uint32_t num_nodes = nodes.size();
+
+		for (uint32_t i = 0; i < num_nodes; i++)
+		{
+			parse_node(nodes[i], m_nodes, m_node_depths);
+		}
+	}
+
+	for (uint32_t i = 0; i < m_nodes.size(); i++)
+	{
+		m_node_depths[i].depth = compute_link_depth(m_nodes[i], m_nodes);
+	}
+
+	std::sort(m_node_depths.begin(), m_node_depths.end(), GraphNodeDepth());
+
+	// Check for renderable
+	if (root.has_key("renderables"))
+	{
+		JSONElement renderables = root.key("renderables");
+		uint32_t renderables_size = renderables.size();
+
+		for (uint32_t i = 0; i < renderables_size; i++)
+		{
+			parse_renderable(renderables[i], m_renderables, m_node_depths);
+		}
+	}
+
+	// Check for cameras
+	if (root.has_key("cameras"))
+	{
+		JSONElement cameras = root.key("cameras");
+		uint32_t num_cameras = cameras.size();
+
+		for (uint32_t i = 0; i < num_cameras; i++)
+		{
+			parse_camera(cameras[i], m_cameras, m_node_depths);
+		}
+	}
+
+	// check for actors
+	if (root.has_key("actors"))
+	{
+		JSONElement actors = root.key("actors");
+		uint32_t num_actors = actors.size();
+
+		for (uint32_t i = 0; i < num_actors; i++)
+		{
+			parse_actor(actors[i], m_actors, m_node_depths);
+		}
+	}
+
+	// Check if the unit has a .physics resource
+	DynamicString unit_name(resource_path);
+	unit_name.strip_trailing("unit");
+	unit_name += "physics";
+	if (fs.is_file(unit_name.c_str()))
+	{
+		m_physics_resource.id = hash::murmur2_64(unit_name.c_str(), string::strlen(unit_name.c_str()), 0);
+	}
 	else
 	{
-		for (uint32_t i = 0; i < m_nodes.size(); i++)
-		{
-			if (m_nodes[i].name == node.parent)
-			{
-				return 1 + compute_link_depth(m_nodes[i]);
-			}
-		}
+		m_physics_resource.id = 0;
 	}
 
-	CE_FATAL("Node not found");
-}
-
-//-----------------------------------------------------------------------------
-uint32_t UnitCompiler::find_node_index(StringId32 name)
-{
-	for (uint32_t i = 0; i < m_node_depths.size(); i++)
-	{
-		if (m_node_depths[i].name == name)
-		{
-			return i;
-		}
-	}
-
-	CE_FATAL("Node not found");
-}
-
-//-----------------------------------------------------------------------------
-int32_t UnitCompiler::find_node_parent_index(uint32_t node)
-{
-	StringId32 parent_name = m_nodes[m_node_depths[node].index].parent;
-
-	if (parent_name == NO_PARENT) return -1;
-	for (uint32_t i = 0; i < m_node_depths.size(); i++)
-	{
-		if (parent_name == m_node_depths[i].name)
-		{
-			return i;
-		}
-	}
-
-	CE_FATAL("Node not found");
-}
-
-//-----------------------------------------------------------------------------
-void UnitCompiler::write_impl(File* out_file)
-{
 	UnitHeader h;
 	h.physics_resource = m_physics_resource;
 	h.num_renderables = m_renderables.size();
@@ -338,16 +352,10 @@ void UnitCompiler::write_impl(File* out_file)
 	// Write parent hierarchy
 	for (uint32_t i = 0; i < h.num_scene_graph_nodes; i++)
 	{
-		int32_t parent = find_node_parent_index(i);
+		int32_t parent = find_node_parent_index(i, m_nodes, m_node_depths);
 		out_file->write((char*) &parent, sizeof(int32_t));
 	}
-
-	m_nodes.clear();
-	m_node_depths.clear();
-	m_renderables.clear();
-	m_cameras.clear();
-	m_actors.clear();
-	(void)out_file;
 }
 
+} // namespace unit_resource
 } // namespace crown

@@ -29,28 +29,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Filesystem.h"
 #include "Hash.h"
 #include "JSONParser.h"
-#include "PackageCompiler.h"
+#include "Log.h"
 #include "PackageResource.h"
 #include "TempAllocator.h"
-#include "Log.h"
 
 namespace crown
 {
-
-//-----------------------------------------------------------------------------
-PackageCompiler::PackageCompiler()
-	: m_texture(default_allocator())
-	, m_script(default_allocator())
-	, m_sound(default_allocator())
-	, m_mesh(default_allocator())
-	, m_unit(default_allocator())
-	, m_sprite(default_allocator())
-	, m_physics(default_allocator())
+namespace package_resource
 {
-}
 
 //-----------------------------------------------------------------------------
-size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
+void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
 
@@ -60,6 +49,14 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 
 	JSONParser json(file_buf);
 	JSONElement root = json.root();
+
+	List<ResourceId> m_texture(default_allocator());
+	List<ResourceId> m_script(default_allocator());
+	List<ResourceId> m_sound(default_allocator());
+	List<ResourceId> m_mesh(default_allocator());
+	List<ResourceId> m_unit(default_allocator());
+	List<ResourceId> m_sprite(default_allocator());
+	List<ResourceId> m_physics(default_allocator());
 
 	// Check for resource types
 	if (root.has_key("texture"))
@@ -77,7 +74,7 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 			if (!fs.is_file(texture_name.c_str()))
 			{
 				Log::e("Texture '%s' does not exist.", texture_name.c_str());
-				return 0;
+				return;
 			}
 
 			ResourceId id;
@@ -103,7 +100,7 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 			if (!fs.is_file(lua_name.c_str()))
 			{
 				Log::e("Lua script '%s' does not exist.", lua_name.c_str());
-				return 0;
+				return;
 			}
 
 			ResourceId id;
@@ -128,7 +125,7 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 			if (!fs.is_file(sound_name.c_str()))
 			{
 				Log::e("Sound '%s' does not exist.", sound_name.c_str());
-				return 0;
+				return;
 			}
 
 			ResourceId id;
@@ -153,7 +150,7 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 			if (!fs.is_file(mesh_name.c_str()))
 			{
 				Log::e("Mesh '%s' does not exist.", mesh_name.c_str());
-				return 0;
+				return;
 			}
 
 			ResourceId id;
@@ -202,7 +199,7 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 			if (!fs.is_file(sprite_name.c_str()))
 			{
 				Log::e("Sprite '%s' does not exist.", sprite_name.c_str());
-				return 0;
+				return;
 			}
 
 			ResourceId id;
@@ -227,7 +224,7 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 			if (!fs.is_file(physics_name.c_str()))
 			{
 				Log::e("Physics '%s' does not exist.", physics_name.c_str());
-				return 0;
+				return;
 			}
 
 			ResourceId id;
@@ -236,12 +233,6 @@ size_t PackageCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 		}	
 	}
 
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-void PackageCompiler::write_impl(File* out_file)
-{
 	PackageHeader header;
 	header.num_textures = m_texture.size();
 	header.num_scripts = m_script.size();
@@ -289,15 +280,7 @@ void PackageCompiler::write_impl(File* out_file)
 	{
 		out_file->write((char*) m_physics.begin(), sizeof(ResourceId) * header.num_physics);
 	}
-
-	// Cleanup
-	m_texture.clear();
-	m_script.clear();
-	m_sound.clear();
-	m_mesh.clear();
-	m_unit.clear();
-	m_sprite.clear();
-	m_physics.clear();
 }
 
+} // namespace package_resource
 } // namespace crown

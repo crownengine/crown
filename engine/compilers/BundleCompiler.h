@@ -26,17 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "MeshCompiler.h"
-#include "TextureCompiler.h"
-#include "LuaCompiler.h"
-#include "SoundCompiler.h"
-#include "SpriteCompiler.h"
-#include "PackageCompiler.h"
+#include "DiskFilesystem.h"
 #include "DynamicString.h"
 #include "Vector.h"
-#include "DiskFilesystem.h"
-#include "UnitCompiler.h"
-#include "PhysicsCompiler.h"
 
 namespace crown
 {
@@ -55,17 +47,6 @@ public:
 private:
 
 	static void scan(const char* source_dir, const char* cur_dir, Vector<DynamicString>& files);
-
-private:
-
-	MeshCompiler	m_mesh;
-	TextureCompiler	m_texture;
-	LuaCompiler 	m_lua;
-	SoundCompiler	m_sound;
-	SpriteCompiler	m_sprite;
-	PackageCompiler m_package;
-	UnitCompiler	m_unit;
-	PhysicsCompiler m_physics;
 };
 
 } // namespace crown

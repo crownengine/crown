@@ -24,29 +24,42 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "MeshCompiler.h"
 #include "DynamicString.h"
-#include "TempAllocator.h"
 #include "Filesystem.h"
 #include "JSONParser.h"
 #include "Log.h"
+#include "MeshResource.h"
+#include "TempAllocator.h"
+#include "Vector3.h"
 
 namespace crown
 {
-
-//-----------------------------------------------------------------------------
-MeshCompiler::MeshCompiler()
-	: m_vertices(default_allocator()), m_indices(default_allocator())
+namespace mesh_resource
 {
-}
 
-//-----------------------------------------------------------------------------
-MeshCompiler::~MeshCompiler()
+struct MeshVertex
 {
-}
+	Vector3 position;
+	Vector3 normal;
+	Vector2 texcoord;
+
+	bool operator==(const MeshVertex& other)
+	{
+		return position == other.position &&
+				normal == other.normal &&
+				texcoord == other.texcoord;
+	}
+};
+
+MeshHeader			m_mesh_header;
+bool				m_has_normal;
+bool				m_has_texcoord;
+
+List<MeshVertex>	m_vertices(default_allocator());
+List<uint16_t>		m_indices(default_allocator());
 
 //-----------------------------------------------------------------------------
-size_t MeshCompiler::compile_impl(Filesystem& fs, const char* resource_path)
+void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
 	char* buf = (char*)default_allocator().allocate(file->size());
@@ -66,7 +79,7 @@ size_t MeshCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	if (position.is_nil())
 	{
 		Log::e("Bad mesh: array 'position' not found.");
-		return 0;
+		return;
 	}
 	List<float> position_array(default_allocator());
 	position.array_value(position_array);
@@ -91,7 +104,7 @@ size_t MeshCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	if (index.is_nil())
 	{
 		Log::e("Bad mesh: array 'index' not found.");
-		return 0;
+		return;
 	}
 
 	List<uint16_t> position_index(default_allocator());
@@ -163,12 +176,6 @@ size_t MeshCompiler::compile_impl(Filesystem& fs, const char* resource_path)
 	default_allocator().deallocate(buf);
 	fs.close(file);
 
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-void MeshCompiler::write_impl(File* out_file)
-{
 	MeshData data;
 	data.vertices.num_vertices = m_vertices.size();
 	data.vertices.format = VertexFormat::P3_N3_T2;
@@ -194,4 +201,5 @@ void MeshCompiler::write_impl(File* out_file)
 	m_indices.clear();
 }
 
+} // namespace mesh_resource
 } // namespace crown
