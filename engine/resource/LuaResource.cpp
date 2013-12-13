@@ -49,9 +49,6 @@ namespace crown
 namespace lua_resource
 {
 
-size_t			m_luajit_blob_size = 0;
-char*			m_luajit_blob = NULL;
-
 //-----------------------------------------------------------------------------
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
@@ -73,12 +70,15 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	os::execute_process(luajit);
 
+	size_t program_size = 0;
+	char* program = NULL;
+
 	File* bc = fs.open(bc_abs_path.c_str(), FOM_READ);
 	if (bc != NULL)
 	{
-		m_luajit_blob_size = bc->size();
-		m_luajit_blob = (char*) default_allocator().allocate(m_luajit_blob_size);
-		bc->read(m_luajit_blob, m_luajit_blob_size);
+		program_size = bc->size();
+		program = (char*) default_allocator().allocate(program_size);
+		bc->read(program, program_size);
 		fs.close(bc);
 		fs.delete_file(bc_abs_path.c_str());
 	}
@@ -90,14 +90,12 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	LuaHeader header;
 	header.version = LUA_RESOURCE_VERSION;
-	header.size = m_luajit_blob_size;
+	header.size = program_size;
 
 	out_file->write((char*)&header, sizeof(LuaHeader));
-	out_file->write((char*)m_luajit_blob, m_luajit_blob_size);
+	out_file->write((char*)program, program_size);
 
-	default_allocator().deallocate(m_luajit_blob);
-	m_luajit_blob_size = 0;
-	m_luajit_blob = NULL;
+	default_allocator().deallocate(program);
 }
 
 } // namespace lua_resource

@@ -64,7 +64,6 @@ SoundHeader			m_sound_header;
 size_t				m_sound_data_size = 0;
 uint8_t*			m_sound_data = NULL;
 
-
 //-----------------------------------------------------------------------------
 size_t compile_if_wav(Filesystem& fs, const char* resource_path)
 {

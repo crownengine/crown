@@ -36,25 +36,22 @@ namespace crown
 namespace physics_resource
 {
 
-bool					m_has_controller = false;
-PhysicsController		m_controller;
-
 //-----------------------------------------------------------------------------
-void parse_controller(JSONElement controller)
+void parse_controller(JSONElement e, PhysicsController& controller)
 {
-	JSONElement name = controller.key("name");
-	JSONElement height = controller.key("height");
-	JSONElement radius = controller.key("radius");
-	JSONElement slope_limit = controller.key("slope_limit");
-	JSONElement step_offset = controller.key("step_offset");
-	JSONElement contact_offset = controller.key("contact_offset");
+	JSONElement name = e.key("name");
+	JSONElement height = e.key("height");
+	JSONElement radius = e.key("radius");
+	JSONElement slope_limit = e.key("slope_limit");
+	JSONElement step_offset = e.key("step_offset");
+	JSONElement contact_offset = e.key("contact_offset");
 
-	m_controller.name = hash::murmur2_32(name.string_value(), name.size(), 0);
-	m_controller.height = height.float_value();
-	m_controller.radius = radius.float_value();
-	m_controller.slope_limit = slope_limit.float_value();
-	m_controller.step_offset = step_offset.float_value();
-	m_controller.contact_offset = contact_offset.float_value();
+	controller.name = hash::murmur2_32(name.string_value(), name.size(), 0);
+	controller.height = height.float_value();
+	controller.radius = radius.float_value();
+	controller.slope_limit = slope_limit.float_value();
+	controller.step_offset = step_offset.float_value();
+	controller.contact_offset = contact_offset.float_value();
 }
 
 //-----------------------------------------------------------------------------
@@ -67,6 +64,9 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONParser json(buf);
 	JSONElement root = json.root();
 
+	bool m_has_controller = false;
+	PhysicsController m_controller;
+
 	// Read controller
 	JSONElement controller = root.key_or_nil("controller");
 	if (controller.is_nil())
@@ -75,7 +75,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	}
 	else
 	{
-		parse_controller(controller);
+		parse_controller(controller, m_controller);
 		m_has_controller = true;
 	}
 
