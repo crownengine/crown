@@ -26,27 +26,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Config.h"
 #include "Assert.h"
 #include "Types.h"
+#include "StringUtils.h"
 
 namespace crown
 {
-
-/// String hashing.
 namespace hash
 {
-
-// Constants
-const uint32_t FNV1A_OFFSET_BASIS_32		= 2166136261u;
-const uint32_t FNV1A_PRIME_32				= 16777619u;
-const uint64_t FNV1A_OFFSET_BASIS_64		= 14695981039346656037ull;
-const uint64_t FNV1A_PRIME_64				= 1099511628211ull;
-
-// Functions
-uint32_t murmur2_32(const void* key, size_t len, uint32_t seed);
-uint64_t murmur2_64(const void* key, size_t len, unsigned int seed);
-uint32_t fnv1a_32(const void* key, size_t len);
-uint64_t fnv1a_64(const void* key, size_t len);
 
 //-----------------------------------------------------------------------------
 /// MurmurHash2, by Austin Appleby
@@ -62,7 +50,7 @@ uint64_t fnv1a_64(const void* key, size_t len);
 /// 1. It will not work incrementally.
 /// 2. It will not produce the same results on little-endian and big-endian
 ///    machines.
-inline uint32_t murmur2_32(const void* key, size_t len, uint32_t seed)
+inline uint32_t murmur2_32(const void* key, size_t len, uint32_t seed = 0)
 {
 	CE_ASSERT_NOT_NULL(key);
 
@@ -98,7 +86,7 @@ inline uint32_t murmur2_32(const void* key, size_t len, uint32_t seed)
 		case 3: h ^= data[2] << 16;
 		case 2: h ^= data[1] << 8;
 		case 1: h ^= data[0];
-	        h *= m;
+			h *= m;
 	};
 
 	// Do a few final mixes of the hash to ensure the last few
@@ -111,7 +99,7 @@ inline uint32_t murmur2_32(const void* key, size_t len, uint32_t seed)
 }
 
 //-----------------------------------------------------------------------------
-inline uint64_t murmur2_64(const void* key, size_t len, unsigned int seed)
+inline uint64_t murmur2_64(const void* key, size_t len, unsigned int seed = 0)
 {
 	CE_ASSERT_NOT_NULL(key);
 
@@ -162,47 +150,24 @@ inline uint64_t murmur2_64(const void* key, size_t len, unsigned int seed)
 	h = (h << 32) | h2;
 
 	return h;
-} 
-
-//-----------------------------------------------------------------------------
-/// FNV-1a hash, 32 bit
-inline uint32_t fnv1a_32(const void* key, size_t len)
-{
-	CE_ASSERT(key != NULL, "Key must be != NULL");
-
-	// FNV-1a
-	uint32_t hash = FNV1A_OFFSET_BASIS_32;
-
-	for (size_t i = 0; i < len; i++)
-	{
-		unsigned char* k = (unsigned char*)key;
-
-		hash ^= k[i];
-		hash *= FNV1A_PRIME_32;
-	}
-
-	return hash;
 }
 
-//-----------------------------------------------------------------------------
-/// FNV-1a hash, 64 bit
-inline uint64_t fnv1a_64(const void* key, size_t len)
-{
-	CE_ASSERT(key != NULL, "Key must be != NULL");
-
-	// FNV-1a
-	uint64_t hash = FNV1A_OFFSET_BASIS_64;
-
-	for (size_t i = 0; i < len; i++)
+#ifdef CROWN_DEBUG
+	inline uint32_t HASH32(const char *s, uint32_t value)
 	{
-		unsigned char* k = (unsigned char*)key;
-		
-		hash ^= k[i];
-		hash *= FNV1A_PRIME_64;
+		CE_ASSERT(murmur2_32(s, string::strlen(s), 0) == value);
+		return value;
 	}
 
-	return hash;
-}
+	inline uint64_t HASH64(const char* s, uint64_t value)
+	{
+		CE_ASSERT(murmur2_64(s, string::strlen(s), 0) == value);
+		return value;
+	}
+#else
+	#define HASH32(s, v) (v)
+	#define HASH64(s, v) (v)
+#endif
 
 } // namespace hash
 } // namespace crown
