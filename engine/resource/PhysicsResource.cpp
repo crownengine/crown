@@ -36,6 +36,18 @@ namespace crown
 namespace physics_resource
 {
 
+static uint32_t shape_type_to_enum(const char* type)
+{
+	const StringId32 th = hash::murmur2_32(type, string::strlen(type));
+
+	if (th == hash::HASH32("sphere", 0x2eaa6850)) return PhysicsShapeType::SPHERE;
+	else if (th == hash::HASH32("capsule", 0xefe0dead)) return PhysicsShapeType::CAPSULE;
+	else if (th == hash::HASH32("box", 0x5af3a067)) return PhysicsShapeType::BOX;
+	else if (th == hash::HASH32("plane", 0xfb96769a)) return PhysicsShapeType::PLANE;
+
+	CE_FATAL("Bad shape type");
+}
+
 //-----------------------------------------------------------------------------
 void parse_controller(JSONElement e, PhysicsController& controller)
 {
@@ -46,12 +58,42 @@ void parse_controller(JSONElement e, PhysicsController& controller)
 	JSONElement step_offset = e.key("step_offset");
 	JSONElement contact_offset = e.key("contact_offset");
 
-	controller.name = hash::murmur2_32(name.string_value(), name.size(), 0);
+	controller.name = hash::murmur2_32(name.string_value(), name.size());
 	controller.height = height.float_value();
 	controller.radius = radius.float_value();
 	controller.slope_limit = slope_limit.float_value();
 	controller.step_offset = step_offset.float_value();
 	controller.contact_offset = contact_offset.float_value();
+}
+
+//-----------------------------------------------------------------------------
+void parse_shape(JSONElement e, PhysicsShape& shape)
+{
+	JSONElement name = e.key("name");
+	JSONElement type = e.key("type");
+
+	shape.name = hash::murmur2_32(name.string_value(), name.size());
+	shape.type = shape_type_to_enum(type.string_value());
+}
+
+//-----------------------------------------------------------------------------
+void parse_actor(JSONElement e, PhysicsActor& actor, List<PhysicsShape>& actor_shapes)
+{
+	JSONElement name = e.key("name");
+	JSONElement node = e.key("node");
+	JSONElement shapes = e.key("shapes");
+
+	actor.name = hash::murmur2_32(name.string_value(), name.size());
+	actor.node = hash::murmur2_32(node.string_value(), node.size());
+	actor.num_shapes = shapes.size();
+
+	uint32_t num_shapes = shapes.size();
+	for (uint32_t i = 0; i < num_shapes; i++)
+	{
+		PhysicsShape ps;
+		parse_shape(shapes[i], ps);
+		actor_shapes.push_back(ps);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -79,21 +121,44 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		m_has_controller = true;
 	}
 
+	// Read actors
+	List<PhysicsActor> m_actors(default_allocator());
+	List<PhysicsShape> m_shapes(default_allocator());
+	JSONElement actors = root.key_or_nil("actors");
+	if (!actors.is_nil())
+	{
+		for (uint32_t i = 0; i < actors.size(); i++)
+		{
+			PhysicsActor a;
+			parse_actor(actors[i], a, m_shapes);
+			m_actors.push_back(a);
+
+			Log::d("Actor parsed, name = %.8x, node = %.8x", a.name, a.node);
+		}
+	}
+
 	fs.close(file);
 	default_allocator().deallocate(buf);
 
 	PhysicsHeader h;
 	h.version = 1;
 	h.num_controllers = m_has_controller ? 1 : 0;
+	h.num_actors = m_actors.size();
 
 	uint32_t offt = sizeof(PhysicsHeader);
-	h.controller_offset = offt;
+	h.controller_offset = offt; offt += sizeof(PhysicsController) * h.num_controllers;
+	h.actors_offset = offt;
 
 	out_file->write((char*) &h, sizeof(PhysicsHeader));
 
 	if (m_has_controller)
 	{
 		out_file->write((char*) &m_controller, sizeof(PhysicsController));
+	}
+
+	if (m_actors.size())
+	{
+		out_file->write((char*) m_actors.begin(), sizeof(PhysicsActor) * m_actors.size());
 	}
 }
 

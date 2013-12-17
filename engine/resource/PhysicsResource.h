@@ -35,12 +35,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 struct PhysicsHeader
 {
 	uint32_t version;
 	uint32_t num_controllers;		// 0 or 1, ATM
 	uint32_t controller_offset;
+	uint32_t num_actors;
+	uint32_t actors_offset;
 };
 
 struct PhysicsController
@@ -51,6 +52,30 @@ struct PhysicsController
 	float slope_limit;		// The maximum slope which the character can walk up in radians.
 	float step_offset;		// Maximum height of an obstacle which the character can climb.
 	float contact_offset;	// Skin around the object within which contacts will be generated. Use it to avoid numerical precision issues.
+};
+
+struct PhysicsActor
+{
+	StringId32 name;
+	StringId32 node;
+	uint32_t num_shapes;
+};
+
+struct PhysicsShapeType
+{
+	enum Enum
+	{
+		SPHERE,
+		CAPSULE,
+		BOX,
+		PLANE
+	};
+};
+
+struct PhysicsShape
+{
+	StringId32 name;
+	uint32_t type;
 };
 
 //-----------------------------------------------------------------------------
@@ -90,16 +115,31 @@ struct PhysicsResource
 	//-----------------------------------------------------------------------------
 	bool has_controller() const
 	{
-		PhysicsHeader* ph = (PhysicsHeader*) this;
-		return ph->num_controllers == 1;
+		return ((PhysicsHeader*) this)->num_controllers == 1;
 	}
 
 	//-----------------------------------------------------------------------------
 	PhysicsController controller() const
 	{
-		PhysicsHeader* ph = (PhysicsHeader*) this;
+		CE_ASSERT(has_controller(), "Controller does not exist");
+		const PhysicsHeader* ph = (PhysicsHeader*) this;
 		PhysicsController* controller = (PhysicsController*) (((char*) this) + ph->controller_offset);
 		return *controller;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_actors() const
+	{
+		return ((PhysicsHeader*) this)->num_actors;
+	}
+
+	//-----------------------------------------------------------------------------
+	PhysicsActor actor(uint32_t i) const
+	{
+		CE_ASSERT(i < num_actors(), "Index out of bounds");
+		const PhysicsHeader* ph = (PhysicsHeader*) this;
+		PhysicsActor* actor = (PhysicsActor*) (((char*) this) + ph->actors_offset);
+		return actor[i];
 	}
 
 private:
