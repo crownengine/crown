@@ -173,21 +173,10 @@ Sprite*	RenderWorld::lookup_sprite(SpriteId id)
 }
 
 //-----------------------------------------------------------------------------
-void RenderWorld::update(const Matrix4x4& , const Matrix4x4& , uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
-	static uint64_t frames = 0;
-
 	Renderer* r = device()->renderer();
 
-	Matrix4x4 projection;
-	float ovest = -6;
-	float east = 6;
-	float north = 6 / 1.6;
-	float south = -6 / 1.6;
-	projection.build_projection_ortho_rh(ovest, east, south, north, 0.1, 100.0);
-
-	Matrix4x4 view = Matrix4x4::IDENTITY;
-	view.set_translation(Vector3(0, 0, 1));
 	Matrix4x4 inv_view = view;
 	inv_view.invert();
 
@@ -233,8 +222,6 @@ void RenderWorld::update(const Matrix4x4& , const Matrix4x4& , uint16_t x, uint1
 		r->set_pose(sprite->world_pose());
 		r->commit(0);
 	}
-
-	frames++;
 }
 
 } // namespace crown
