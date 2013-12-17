@@ -80,12 +80,7 @@ Actor::Actor(SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& 
 
 			if (type == ActorType::DYNAMIC_KINEMATIC)
 			{
-				Log::d("KINEMATIC");
 				static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
-			}
-			else
-			{
-				Log::d("PHYSICAL");
 			}
 			break;
 		}
@@ -101,7 +96,7 @@ Actor::Actor(SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& 
 	
 	create_box(Vector3(0, 0, 0), .5, .5, .5);
 
-	PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 10.0f);
+	PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 500.0f);
 
 	PxD6Joint* joint = PxD6JointCreate(*device()->physx(), m_actor, PxTransform(pose), NULL, PxTransform(pose));
 	joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);

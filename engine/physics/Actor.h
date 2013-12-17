@@ -53,10 +53,6 @@ struct Actor
 						Actor(SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot);
 						~Actor();
 
-	void				create_sphere(const Vector3& position, float radius);
-	void				create_box(const Vector3& position, float a, float b, float c);
-	void				create_plane(const Vector3& position, const Vector3& normal);
-
 	void				enable_gravity();
 	void				disable_gravity();
 
@@ -84,6 +80,12 @@ struct Actor
 	void				update_pose();
 	void				update(const Matrix4x4& pose);
 
+private:
+
+	void				create_sphere(const Vector3& position, float radius);
+	void				create_box(const Vector3& position, float a, float b, float c);
+	void				create_plane(const Vector3& position, const Vector3& normal);
+	
 public:
 
 	SceneGraph&			m_scene_graph;
