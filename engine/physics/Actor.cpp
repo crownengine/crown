@@ -46,6 +46,12 @@ using physx::PxRigidDynamic;
 using physx::PxPlaneGeometry;
 using physx::PxSphereGeometry;
 using physx::PxBoxGeometry;
+using physx::PxRigidBodyExt;
+
+using physx::PxD6Joint;
+using physx::PxD6JointCreate;
+using physx::PxD6Axis;
+using physx::PxD6Motion;
 
 namespace crown
 {
@@ -92,9 +98,17 @@ Actor::Actor(SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& 
 
 	m_actor->userData = this;
 	m_mat = device()->physx()->createMaterial(0.5f, 0.5f, 0.5f);
+	
+	create_box(Vector3(0, 0, 0), .5, .5, .5);
 
-	// FIXME
-	create_sphere(Vector3(0, 0, 0), 0.5f);
+	PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 10.0f);
+
+	PxD6Joint* joint = PxD6JointCreate(*device()->physx(), m_actor, PxTransform(pose), NULL, PxTransform(pose));
+	joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+	joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
+	//joint->setMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
+	//joint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
+	joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
 }
 
 //-----------------------------------------------------------------------------
