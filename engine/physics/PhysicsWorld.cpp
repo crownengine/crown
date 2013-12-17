@@ -163,12 +163,6 @@ void PhysicsWorld::set_gravity(const Vector3& g)
 //-----------------------------------------------------------------------------
 void PhysicsWorld::update(float dt)
 {
-	// Apply gravity to controllers
-	for (Controller** cc = m_controllers.begin(); cc != m_controllers.end(); cc++)
-	{
-		(*cc)->move(Vector3(0, -9.81 * dt, 0));
-	}
-
 	// Update world pose of the actors
 	for (Actor** aa = m_actors.begin(); aa != m_actors.end(); aa++)
 	{
