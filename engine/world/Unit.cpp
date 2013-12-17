@@ -42,8 +42,6 @@ namespace crown
 typedef Id CameraId;
 typedef Id SpriteId;
 
-static int count = 0;
-
 //-----------------------------------------------------------------------------
 Unit::Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)
@@ -154,18 +152,21 @@ void Unit::create_renderable_objects()
 //-----------------------------------------------------------------------------
 void Unit::create_physics_objects()
 {
-	const StringId32 name_hash = hash::murmur2_32("actor", string::strlen("actor"), 0);
-	if (count > 1)
-	add_actor(name_hash, m_world.physics_world()->create_actor(m_scene_graph, 0, ActorType::DYNAMIC_PHYSICAL));
-	count++;
-
 	if (m_resource->physics_resource().id != 0)
 	{
 		const PhysicsResource* pr = (PhysicsResource*) device()->resource_manager()->data(m_resource->physics_resource());
 
+		// Create controller if any
 		if (pr->has_controller())
 		{
 			set_controller(pr->controller().name, m_world.physics_world()->create_controller(pr, m_scene_graph, 0));
+		}
+
+		// Create actors if any
+		for (uint32_t i = 0; i < pr->num_actors(); i++)
+		{
+			const PhysicsActor actor = pr->actor(i);
+			add_actor(actor.name, m_world.physics_world()->create_actor(m_scene_graph, m_scene_graph.node(actor.node), ActorType::DYNAMIC_PHYSICAL));
 		}
 	}
 }
