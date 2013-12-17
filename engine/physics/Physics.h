@@ -58,21 +58,22 @@ inline Physics::Physics()
 	, m_cooking(NULL)
 {
 	m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION, g_physx_allocator_callback, g_physx_error_callback);
-	CE_ASSERT_NOT_NULL(m_foundation);
+	CE_ASSERT(m_foundation, "Unable to create PhysX Foundation");
 
 	m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, physx::PxTolerancesScale());
-	CE_ASSERT_NOT_NULL(m_physics);
+	CE_ASSERT(m_physics, "Unable to create PhysX Physics");
 
 	bool extension = PxInitExtensions(*m_physics);
-	CE_ASSERT(extension, "Unable to initialize Physx extension");
+	CE_ASSERT(extension, "Unable to initialize PhysX Extensions");
 
 	m_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_foundation, physx::PxCookingParams());
-	CE_ASSERT_NOT_NULL(m_cooking);
+	CE_ASSERT(m_cooking, "Unable to create PhysX Cooking");
 }
 
 //-----------------------------------------------------------------------------
 inline Physics::~Physics()
 {
+	m_cooking->release();
 	PxCloseExtensions();
 	m_physics->release();
 	m_foundation->release();
