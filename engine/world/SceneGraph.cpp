@@ -80,17 +80,21 @@ void SceneGraph::destroy()
 //-----------------------------------------------------------------------------
 int32_t SceneGraph::node(const char* name) const
 {
-	StringId32 name_hash = hash::murmur2_32(name, string::strlen(name), 0);
+	return node(hash::murmur2_32(name, string::strlen(name)));
+}
 
+//-----------------------------------------------------------------------------
+int32_t SceneGraph::node(StringId32 name) const
+{
 	for (uint32_t i = 0; i < m_num_nodes; i++)
 	{
-		if (m_names[i] == name_hash)
+		if (m_names[i] == name)
 		{
 			return i;
 		}
 	}
 
-	CE_ASSERT(false, "Node not found: '%s'", name);
+	CE_FATAL("Node not found");
 }
 
 //-----------------------------------------------------------------------------

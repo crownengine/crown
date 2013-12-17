@@ -52,6 +52,9 @@ struct SceneGraph
 	/// Returns the index of the node with the given @a name
 	int32_t			node(const char* name) const;
 
+	/// @copydoc SceneGraph::node()
+	int32_t			node(StringId32 name) const;
+
 	/// Returns whether the graph has the node with the given @a name.
 	bool			has_node(const char* name) const;
 
