@@ -66,9 +66,6 @@ Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, 
 	desc.upDirection = PxVec3(0.0, 1.0, 0.0);
 	desc.material = device()->physx()->createMaterial(0.5f, 0.5f, 0.5f);
 	desc.position = PxExtendedVec3(0, 0, 0);
-	desc.invisibleWallHeight	= 0.0f;
-	desc.maxJumpHeight			= 2.0f;
-	desc.scaleCoeff				= 0.9f;
 
 	CE_ASSERT(desc.isValid(), "Capsule is not valid");
 
