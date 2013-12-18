@@ -58,9 +58,9 @@ Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, 
 	PxCapsuleControllerDesc desc;
 	desc.climbingMode = PxCapsuleClimbingMode::eCONSTRAINED;
 	desc.nonWalkableMode = PxCCTNonWalkableMode::eFORCE_SLIDING;
-	desc.radius = math::cos(contr.radius);
+	desc.radius = contr.radius;
 	desc.height = contr.height;
-	desc.slopeLimit = contr.slope_limit;
+	desc.slopeLimit = math::cos(contr.slope_limit);
 	desc.stepOffset = contr.step_offset;
 	desc.contactOffset = contr.contact_offset;
 	desc.upDirection = PxVec3(0.0, 1.0, 0.0);
