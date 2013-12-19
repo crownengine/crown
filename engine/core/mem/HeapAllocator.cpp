@@ -67,6 +67,8 @@ void* HeapAllocator::allocate(size_t size, size_t align)
 //-----------------------------------------------------------------------------
 void HeapAllocator::deallocate(void* data)
 {
+	if (!data) return;
+
 	Header* h = header(data);
 
 	m_allocated_size -= h->size;
@@ -120,7 +122,7 @@ void HeapAllocator::pad(Header* header, void* data)
 {
 	uint32_t* p = (uint32_t*)(header + 1);
 
-	while (p != (uint32_t*)data)
+	while (p != data)
 	{
 		*p = memory::PADDING_VALUE;
 		p++;
