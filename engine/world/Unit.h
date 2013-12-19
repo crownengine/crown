@@ -88,9 +88,6 @@ struct Unit
 	void				set_id(const UnitId id);
 	UnitId				id();
 
-	void				create_objects(const Matrix4x4& pose);
-	void				destroy_objects();
-
 	int32_t				node(const char* name) const;
 	bool				has_node(const char* name) const;
 	uint32_t			num_nodes() const;
@@ -138,6 +135,8 @@ struct Unit
 
 private:
 
+	void				create_objects(const Matrix4x4& pose);
+	void				destroy_objects();
 	void				create_camera_objects();
 	void				create_renderable_objects();
 	void				create_physics_objects();
