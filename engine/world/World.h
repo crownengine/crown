@@ -84,6 +84,7 @@ class World
 {
 public:
 										World();
+										~World();
 
 	UnitId								spawn_unit(const char* name, const Vector3& pos = Vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
 	UnitId								spawn_unit(UnitResource* ur, const Vector3& pos, const Quaternion& rot);
@@ -112,6 +113,7 @@ public:
 	void								set_sound_range(SoundId sound, const float range);
 	void								set_sound_volume(SoundId sound, const float vol);
 
+	SceneGraphManager*					scene_graph_manager();
 	RenderWorld*						render_world();
 	PhysicsWorld*						physics_world();
 
@@ -124,11 +126,10 @@ private:
 	IdArray<MAX_CAMERAS, Camera*>		m_cameras;
 	IdArray<MAX_SOUNDS, Sound> 			m_sounds;
 
-	SceneGraphManager					m_scenegraph_manager;
-
 	// Connections
 	List<UnitToSound>					m_unit_to_sound;
 
+	SceneGraphManager					m_scenegraph_manager;
 	RenderWorld							m_render_world;
 	PhysicsWorld						m_physics_world;
 };

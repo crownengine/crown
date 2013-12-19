@@ -44,6 +44,16 @@ World::World()
 }
 
 //-----------------------------------------------------------------------------
+World::~World()
+{
+	// Destroy all units
+	for (Unit** uu = m_units.begin(); uu != m_units.end(); uu++)
+	{
+		CE_DELETE(m_unit_pool, (*uu));
+	}
+}
+
+//-----------------------------------------------------------------------------
 UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion& rot)
 {
 	UnitResource* ur = (UnitResource*) device()->resource_manager()->lookup(UNIT_EXTENSION, name);
@@ -53,11 +63,8 @@ UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion&
 //-----------------------------------------------------------------------------
 UnitId World::spawn_unit(UnitResource* ur, const Vector3& pos, const Quaternion& rot)
 {
-	// Create a new scene graph
-	SceneGraph* sg = m_scenegraph_manager.create_scene_graph();
-
 	// Allocate memory for unit
-	Unit* unit = CE_NEW(m_unit_pool, Unit)(*this, *sg, ur, Matrix4x4(rot, pos));
+	Unit* unit = CE_NEW(m_unit_pool, Unit)(*this, ur, Matrix4x4(rot, pos));
 
 	// Create Id for the unit
 	const UnitId unit_id = m_units.create(unit);
@@ -71,12 +78,7 @@ void World::destroy_unit(UnitId id)
 {
 	CE_ASSERT(m_units.has(id), "Unit does not exist");
 
-	Unit* unit = m_units.lookup(id);
-
-	// Destry unit's scene graph
-	m_scenegraph_manager.destroy_scene_graph(&unit->m_scene_graph);
-
-	CE_DELETE(m_unit_pool, unit);
+	CE_DELETE(m_unit_pool, m_units.lookup(id));
 	m_units.destroy(id);
 }
 
@@ -160,8 +162,8 @@ void World::destroy_camera(CameraId id)
 {
 	CE_ASSERT(m_cameras.has(id), "Camera does not exist");
 
-	Camera* camera = m_cameras.lookup(id);
-	CE_DELETE(m_camera_pool, camera);
+	CE_DELETE(m_camera_pool, m_cameras.lookup(id));
+	m_cameras.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -260,6 +262,11 @@ void World::set_sound_volume(SoundId id, const float vol)
 	sound.volume = vol;
 }
 
+//-----------------------------------------------------------------------------
+SceneGraphManager* World::scene_graph_manager()
+{
+	return &m_scenegraph_manager;
+}
 //-----------------------------------------------------------------------------
 RenderWorld* World::render_world()
 {
