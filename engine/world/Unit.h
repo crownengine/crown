@@ -82,13 +82,14 @@ struct UnitResource;
 
 struct Unit
 {
-						Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& pose);
+						Unit(World& w, const UnitResource* ur, const Matrix4x4& pose);
 						~Unit();
 
 	void				set_id(const UnitId id);
 	UnitId				id();
 
-	void				create(const Matrix4x4& pose);
+	void				create_objects(const Matrix4x4& pose);
+	void				destroy_objects();
 
 	int32_t				node(const char* name) const;
 	bool				has_node(const char* name) const;

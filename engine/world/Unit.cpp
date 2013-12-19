@@ -43,20 +43,56 @@ typedef Id CameraId;
 typedef Id SpriteId;
 
 //-----------------------------------------------------------------------------
-Unit::Unit(World& w, SceneGraph& sg, const UnitResource* ur, const Matrix4x4& pose)
+Unit::Unit(World& w, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)
-	, m_scene_graph(sg)
+	, m_scene_graph(*w.scene_graph_manager()->create_scene_graph())
 	, m_resource(ur)
 	, m_num_cameras(0)
 	, m_num_meshes(0)
 	, m_num_sprites(0)
 {
 	m_controller.component.id = INVALID_ID;
-	create(pose);
+	create_objects(pose);
 }
 
 //-----------------------------------------------------------------------------
 Unit::~Unit()
+{
+	destroy_objects();
+
+	// Destroy scene graph
+	m_scene_graph.destroy();
+	m_world.scene_graph_manager()->destroy_scene_graph(&m_scene_graph);
+}
+
+//-----------------------------------------------------------------------------
+void Unit::set_id(const UnitId id)
+{
+	m_id = id;
+}
+
+//-----------------------------------------------------------------------------
+UnitId Unit::id()
+{
+	return m_id;
+}
+
+//-----------------------------------------------------------------------------
+void Unit::create_objects(const Matrix4x4& pose)
+{
+	// Create the scene graph
+	m_scene_graph.create(m_resource->num_scene_graph_nodes(), m_resource->scene_graph_names(),
+							m_resource->scene_graph_poses(), m_resource->scene_graph_parents());
+	// Set root node's pose
+	m_scene_graph.set_local_pose(0, pose);
+
+	create_camera_objects();
+	create_renderable_objects();
+	create_physics_objects();
+}
+
+//-----------------------------------------------------------------------------
+void Unit::destroy_objects()
 {
 	// Destroy cameras
 	for (uint32_t i = 0; i < m_num_cameras; i++)
@@ -87,32 +123,6 @@ Unit::~Unit()
 	{
 		m_world.physics_world()->destroy_controller(m_controller.component);
 	}
-}
-
-//-----------------------------------------------------------------------------
-void Unit::set_id(const UnitId id)
-{
-	m_id = id;
-}
-
-//-----------------------------------------------------------------------------
-UnitId Unit::id()
-{
-	return m_id;
-}
-
-//-----------------------------------------------------------------------------
-void Unit::create(const Matrix4x4& pose)
-{
-	// Create the scene graph
-	m_scene_graph.create(m_resource->num_scene_graph_nodes(), m_resource->scene_graph_names(),
-							m_resource->scene_graph_poses(), m_resource->scene_graph_parents());
-	// Set root node's pose
-	m_scene_graph.set_local_pose(0, pose);
-
-	create_camera_objects();
-	create_renderable_objects();
-	create_physics_objects();
 }
 
 //-----------------------------------------------------------------------------
