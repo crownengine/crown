@@ -60,8 +60,7 @@ PhysicsWorld::PhysicsWorld()
 	, m_actors_pool(default_allocator(), MAX_ACTORS, sizeof(Actor), CE_ALIGNOF(Actor))
 	, m_controllers_pool(default_allocator(), MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
 {
-	m_controller_manager = PxCreateControllerManager(device()->physx()->getFoundation());
-
+	// Create scene
 	PxSceneDesc scene_desc(device()->physx()->getTolerancesScale());
 	scene_desc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 
@@ -79,8 +78,9 @@ PhysicsWorld::PhysicsWorld()
 	m_scene = device()->physx()->createScene(scene_desc);
 	m_scene->setFlag(PxSceneFlag::eENABLE_ACTIVETRANSFORMS, true);
 
-/*	m_scene->setVisualizationParameter(PxVisualizationParameter::eSCALE,				 1.0);
-	m_scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES,	1.0f);*/
+	// Create controller manager
+	m_controller_manager = PxCreateControllerManager(device()->physx()->getFoundation());
+	CE_ASSERT(m_controller_manager != NULL, "Failed to create PhysX controller manager");
 
 	PxTransform pose = PxTransform(PxVec3(0.0f, -3.75, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f)));
 	PxMaterial* mat = device()->physx()->createMaterial(0.5f, 0.5f, 1.0f);
@@ -92,15 +92,15 @@ PhysicsWorld::PhysicsWorld()
 //-----------------------------------------------------------------------------
 PhysicsWorld::~PhysicsWorld()
 {
+	m_cpu_dispatcher->release();
+	m_controller_manager->release();
 	m_scene->release();
 }
 
 //-----------------------------------------------------------------------------
 ActorId	PhysicsWorld::create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type)
 {
-	Actor* actor = CE_NEW(m_actors_pool, Actor)(sg, node, type, Vector3::ZERO, Quaternion::IDENTITY);
-	m_scene->addActor(*actor->m_actor);
-
+	Actor* actor = CE_NEW(m_actors_pool, Actor)(m_scene, sg, node, type, Vector3::ZERO, Quaternion::IDENTITY);
 	return m_actors.create(actor);
 }
 
@@ -109,11 +109,7 @@ void PhysicsWorld::destroy_actor(ActorId id)
 {
 	CE_ASSERT(m_actors.has(id), "Actor does not exist");
 
-	Actor* actor = m_actors.lookup(id);
-	CE_DELETE(m_actors_pool, actor);
-
-	m_scene->removeActor(*actor->m_actor);
-
+	CE_DELETE(m_actors_pool, m_actors.lookup(id));
 	m_actors.destroy(id);
 }
 

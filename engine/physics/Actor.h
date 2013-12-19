@@ -38,6 +38,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 using physx::PxRigidActor;
 using physx::PxMaterial;
+using physx::PxScene;
 
 namespace crown
 {
@@ -50,7 +51,7 @@ class SceneGraph;
 
 struct Actor
 {
-						Actor(SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot);
+						Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot);
 						~Actor();
 
 	void				enable_gravity();
@@ -88,6 +89,7 @@ private:
 	
 public:
 
+	PxScene*			m_scene;
 	SceneGraph&			m_scene_graph;
 	int32_t				m_node;
 	PxRigidActor* 		m_actor;

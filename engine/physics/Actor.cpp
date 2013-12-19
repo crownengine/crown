@@ -57,8 +57,9 @@ namespace crown
 {
 	
 //-----------------------------------------------------------------------------
-Actor::Actor(SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot)
-	: m_scene_graph(sg)
+Actor::Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot)
+	: m_scene(scene)
+	, m_scene_graph(sg)
 	, m_node(node)
 	, m_type(type)
 {
@@ -104,6 +105,8 @@ Actor::Actor(SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& 
 	//joint->setMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
 	//joint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
 	joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
+
+	m_scene->addActor(*m_actor);
 }
 
 //-----------------------------------------------------------------------------
@@ -111,6 +114,7 @@ Actor::~Actor()
 {
 	if (m_actor)
 	{
+		m_scene->removeActor(*m_actor);
 		m_actor->release();
 	}
 }
