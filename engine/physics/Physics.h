@@ -26,6 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "ProxyAllocator.h"
+
 #include "PxFoundation.h"
 #include "PxPhysics.h"
 #include "PxCooking.h"
@@ -33,11 +35,74 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PxDefaultErrorCallback.h"
 #include "PxExtensionsAPI.h"
 
+#include "Log.h"
+
+using physx::PxAllocatorCallback;
+using physx::PxErrorCallback;
+using physx::PxErrorCode;
+
 namespace crown
 {
 
-static physx::PxDefaultErrorCallback 	g_physx_error_callback;
-static physx::PxDefaultAllocator 		g_physx_allocator_callback;
+class PhysXAllocator : public PxAllocatorCallback
+{
+public:
+
+	PhysXAllocator(Allocator& a)
+		: m_backing(a)
+	{
+	}
+
+	void* allocate(size_t size, const char*, const char*, int)
+	{
+		return m_backing.allocate(size, 16);
+	}
+
+	void deallocate(void* p)
+	{
+		m_backing.deallocate(p);
+	}
+
+private:
+
+	Allocator& m_backing;
+};
+
+class PhysXError : public PxErrorCallback
+{
+public:
+
+	void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
+	{
+		switch (code)
+		{
+			case PxErrorCode::eDEBUG_INFO:
+			{
+				Log::i("In %s:%d: %s", file, line, message);
+				break;
+			}
+			case PxErrorCode::eDEBUG_WARNING: 
+			case PxErrorCode::ePERF_WARNING:
+			{
+				Log::w("In %s:%d: %s", file, line, message);
+				break;
+			}
+			case PxErrorCode::eINVALID_PARAMETER:
+			case PxErrorCode::eINVALID_OPERATION:
+			case PxErrorCode::eOUT_OF_MEMORY:
+			case PxErrorCode::eINTERNAL_ERROR:
+			case PxErrorCode::eABORT:
+			{
+				Log::e("In %s:%d: %s", file, line, message);
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+	}
+};
 
 struct Physics
 {
@@ -46,6 +111,9 @@ struct Physics
 
 public:
 
+	ProxyAllocator m_allocator;
+	PhysXAllocator m_px_allocator;
+	PhysXError m_error;
 	physx::PxFoundation* m_foundation;
 	physx::PxPhysics* m_physics;
 	physx::PxCooking* m_cooking;
@@ -53,11 +121,13 @@ public:
 
 //-----------------------------------------------------------------------------
 inline Physics::Physics()
-	: m_foundation(NULL)
+	: m_allocator("physics", default_allocator())
+	, m_px_allocator(m_allocator)
+	, m_foundation(NULL)
 	, m_physics(NULL)
 	, m_cooking(NULL)
 {
-	m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION, g_physx_allocator_callback, g_physx_error_callback);
+	m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_px_allocator, m_error);
 	CE_ASSERT(m_foundation, "Unable to create PhysX Foundation");
 
 	m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, physx::PxTolerancesScale());
