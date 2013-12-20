@@ -244,7 +244,6 @@ void Actor::update_pose()
 {
 	// Read world pose
 	Matrix4x4 wp = m_scene_graph.world_pose(m_node);
-	Matrix4x4 a = wp;
 	const PxMat44 pose((PxReal*) (wp.to_float_ptr()));
 	const PxTransform world_transform(pose);
 
