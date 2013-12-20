@@ -48,9 +48,9 @@ World::World()
 World::~World()
 {
 	// Destroy all units
-	for (Unit** uu = m_units.begin(); uu != m_units.end(); uu++)
+	for (uint32_t i = 0; i < m_units.size(); i++)
 	{
-		CE_DELETE(m_unit_pool, (*uu));
+		CE_DELETE(m_unit_pool, m_units[i]);
 	}
 }
 
@@ -148,12 +148,6 @@ Camera* World::lookup_camera(CameraId camera)
 //-----------------------------------------------------------------------------
 void World::update(float dt)
 {
-	// Update units
-	for (Unit** uu = m_units.begin(); uu != m_units.end(); uu++)
-	{
-		(*uu)->update();
-	}
-
 	// Update scene graphs
 	m_scenegraph_manager.update();
 
