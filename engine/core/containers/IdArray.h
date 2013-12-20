@@ -34,7 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// Table of Ids.
+/// Packed array of objects with lookup table.
 template <uint32_t MAX_NUM_ID, typename T>
 class IdArray
 {
@@ -43,21 +43,24 @@ public:
 	/// Creates the table for tracking exactly @a MAX_NUM_ID - 1 unique Ids.
 					IdArray();
 
-	/// Random access by Id
-	T&				operator[](const Id& id);
-	const T&		operator[](const Id& id) const;
+	/// Random access by index.
+	T&				operator[](uint32_t i);
+	/// Random access by index.
+	const T&		operator[](uint32_t i) const;
 
 	/// Returns a new Id.
 	Id				create(const T& object);
 
-	/// Destroys the specified @a id.
+	/// Destroys the object with the given @a id.
 	void			destroy(Id id);
 
-	/// Returns whether the table has the specified @a id
+	/// Returns whether the table has the object with the given @a id
 	bool			has(Id id) const;
 
+	/// Returns the number of objects in the array.
 	uint32_t		size() const;
 
+	/// Returns the object with the given @a id.
 	T&				lookup(const Id& id);
 
 	T*				begin();
@@ -107,16 +110,18 @@ inline IdArray<MAX_NUM_ID, T>::IdArray()
 
 //-----------------------------------------------------------------------------
 template <uint32_t MAX_NUM_ID, typename T>
-inline T& IdArray<MAX_NUM_ID, T>::operator[](const Id& id)
+inline T& IdArray<MAX_NUM_ID, T>::operator[](uint32_t i)
 {
-	return lookup(id);
+	CE_ASSERT(i < m_num_objects, "Index out of bounds");
+	return m_objects[i];
 }
 
 //-----------------------------------------------------------------------------
 template <uint32_t MAX_NUM_ID, typename T>
-inline const T& IdArray<MAX_NUM_ID, T>::operator[](const Id& id) const
+inline const T& IdArray<MAX_NUM_ID, T>::operator[](uint32_t i) const
 {
-	return lookup(id);
+	CE_ASSERT(i < m_num_objects, "Index out of bounds");
+	return m_objects[i];
 }
 
 //-----------------------------------------------------------------------------
@@ -142,9 +147,9 @@ inline Id IdArray<MAX_NUM_ID, T>::create(const T& object)
 		id.index = m_last_index++;
 		m_objects[m_num_objects] = object;
 		dense_index = m_num_objects;
-		m_num_objects++;
 	}
 
+	m_num_objects++;
 	m_sparse[id.index] = id;
 	m_sparse_to_dense[id.index] = dense_index;
 	m_dense_to_sparse[dense_index] = id.index;
