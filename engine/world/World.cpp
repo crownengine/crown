@@ -41,6 +41,7 @@ World::World()
 	, m_camera_pool(default_allocator(), MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
 	, m_unit_to_sound(default_allocator())
 {
+	m_id.id = INVALID_ID;
 }
 
 //-----------------------------------------------------------------------------
@@ -51,6 +52,18 @@ World::~World()
 	{
 		CE_DELETE(m_unit_pool, (*uu));
 	}
+}
+
+//-----------------------------------------------------------------------------
+WorldId World::id() const
+{
+	return m_id;
+}
+
+//-----------------------------------------------------------------------------
+void World::set_id(WorldId id)
+{
+	m_id = id;
 }
 
 //-----------------------------------------------------------------------------
@@ -80,6 +93,18 @@ void World::destroy_unit(UnitId id)
 
 	CE_DELETE(m_unit_pool, m_units.lookup(id));
 	m_units.destroy(id);
+}
+
+//-----------------------------------------------------------------------------
+void World::reload_units(UnitResource* old_ur, UnitResource* new_ur)
+{
+	for (uint32_t i = 0; i < m_units.size(); i++)
+	{
+		if (m_units[i]->resource() == old_ur)
+		{
+			m_units[i]->reload(new_ur);
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
