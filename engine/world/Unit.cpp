@@ -279,10 +279,8 @@ void Unit::update()
 void Unit::reload(UnitResource* new_ur)
 {
 	Matrix4x4 m = m_scene_graph.world_pose(0);
-	Log::d("Destroying objects");
 	destroy_objects();
 	m_resource = new_ur;
-	Log::d("Creating object");
 	create_objects(m);
 }
 
