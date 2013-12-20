@@ -50,6 +50,7 @@ Unit::Unit(World& w, const UnitResource* ur, const Matrix4x4& pose)
 	, m_num_cameras(0)
 	, m_num_meshes(0)
 	, m_num_sprites(0)
+	, m_num_actors(0)
 {
 	m_controller.component.id = INVALID_ID;
 	create_objects(pose);
@@ -59,9 +60,6 @@ Unit::Unit(World& w, const UnitResource* ur, const Matrix4x4& pose)
 Unit::~Unit()
 {
 	destroy_objects();
-
-	// Destroy scene graph
-	m_scene_graph.destroy();
 	m_world.scene_graph_manager()->destroy_scene_graph(&m_scene_graph);
 }
 
@@ -75,6 +73,12 @@ void Unit::set_id(const UnitId id)
 UnitId Unit::id()
 {
 	return m_id;
+}
+
+//-----------------------------------------------------------------------------
+const UnitResource*	Unit::resource() const
+{
+	return m_resource;
 }
 
 //-----------------------------------------------------------------------------
@@ -99,30 +103,38 @@ void Unit::destroy_objects()
 	{
 		m_world.destroy_camera(m_cameras[i].component);
 	}
+	m_num_cameras = 0;
 
 	// Destroy meshes
 	for (uint32_t i = 0; i < m_num_meshes; i++)
 	{
 		m_world.render_world()->destroy_mesh(m_meshes[i].component);
 	}
+	m_num_meshes = 0;
 
 	// Destroy sprites
 	for (uint32_t i = 0; i < m_num_sprites; i++)
 	{
 		m_world.render_world()->destroy_sprite(m_sprites[i].component);
 	}
+	m_num_sprites = 0;
 
 	// Destroy actors
 	for (uint32_t i = 0; i < m_num_actors; i++)
 	{
 		m_world.physics_world()->destroy_actor(m_actors[i].component);
 	}
+	m_num_actors = 0;
 
 	// Destroy controller
 	if (m_controller.component.id != INVALID_ID)
 	{
 		m_world.physics_world()->destroy_controller(m_controller.component);
+		m_controller.component.id = INVALID_ID;
 	}
+
+	// Destroy scene graph
+	m_scene_graph.destroy();
 }
 
 //-----------------------------------------------------------------------------
@@ -261,6 +273,17 @@ void Unit::unlink_node(int32_t child)
 //-----------------------------------------------------------------------------
 void Unit::update()
 {
+}
+
+//-----------------------------------------------------------------------------
+void Unit::reload(UnitResource* new_ur)
+{
+	Matrix4x4 m = m_scene_graph.world_pose(0);
+	Log::d("Destroying objects");
+	destroy_objects();
+	m_resource = new_ur;
+	Log::d("Creating object");
+	create_objects(m);
 }
 
 //-----------------------------------------------------------------------------

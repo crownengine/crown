@@ -88,6 +88,8 @@ struct Unit
 	void				set_id(const UnitId id);
 	UnitId				id();
 
+	const UnitResource*	resource() const;
+
 	int32_t				node(const char* name) const;
 	bool				has_node(const char* name) const;
 	uint32_t			num_nodes() const;
@@ -108,6 +110,7 @@ struct Unit
 	void				unlink_node(int32_t child);
 
 	void				update();
+	void				reload(UnitResource* new_ur);
 
 	void				add_component(StringId32 name, Id component, uint32_t& size, Component* array);
 	Id					find_component(const char* name, uint32_t size, Component* array);
