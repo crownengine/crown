@@ -52,8 +52,10 @@ class ResourcePackage;
 class ConsoleServer;
 class World;
 class Camera;
+class WorldManager;
 
 typedef Id CameraId;
+typedef Id WorldId;
 
 /// The Engine.
 /// It is the place where to look for accessing all of
@@ -123,8 +125,8 @@ public:
 	/// Renders the given @a world from the point of view of the given @æ camera.
 	void					render_world(World* world, Camera* camera);
 
-	World*					create_world();
-	void					destroy_world(World* world);
+	WorldId					create_world();
+	void					destroy_world(WorldId world);
 
 	/// Returns the resource package with the given @a package_name name.
 	ResourcePackage*		create_resource_package(const char* name);
@@ -154,6 +156,7 @@ public:
 	Accelerometer*			accelerometer();
 	ConsoleServer*			console() { return m_console; }
 	physx::PxPhysics*		physx() { return m_physx->m_physics; };
+	WorldManager*			world_manager() { return m_world_manager; }
 
 protected:
 
@@ -202,6 +205,7 @@ protected:
 	Bundle*					m_resource_bundle;
 
 	Physics*				m_physx;
+	WorldManager*			m_world_manager;
 
 	bool 					m_renderer_init_request;
 

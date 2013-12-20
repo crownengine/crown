@@ -55,6 +55,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SoundRenderer.h"
 #include "World.h"
 #include "LuaStack.h"
+#include "WorldManager.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -97,6 +98,9 @@ Device::Device()
 	, m_resource_manager(NULL)
 	, m_resource_bundle(NULL)
 
+	, m_physx(NULL)
+	, m_world_manager(NULL)
+
 	, m_renderer_init_request(false)
 {
 	// Bundle dir is current dir by default.
@@ -136,6 +140,10 @@ void Device::init()
 	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, 0);
 	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
+
+	// Create world manager
+	m_world_manager = CE_NEW(m_allocator, WorldManager)();
+	Log::d("World manager created.");
 
 	// Create window
 	m_window = CE_NEW(m_allocator, OsWindow);
@@ -224,6 +232,9 @@ void Device::shutdown()
 		m_renderer->shutdown();
 		CE_DELETE(m_allocator, m_renderer);
 	}
+
+	Log::d("Releasing WorldManager...");
+	CE_DELETE(m_allocator, m_world_manager);
 
 	Log::d("Releasing ResourceManager...");
 	if (m_resource_manager)
@@ -423,17 +434,15 @@ void Device::render_world(World* world, Camera* camera)
 }
 
 //-----------------------------------------------------------------------------
-World* Device::create_world()
+WorldId Device::create_world()
 {
-	return CE_NEW(default_allocator(), World);
+	return m_world_manager->create_world();
 }
 
 //-----------------------------------------------------------------------------
-void Device::destroy_world(World* world)
+void Device::destroy_world(WorldId world)
 {
-	CE_ASSERT_NOT_NULL(world);
-
-	CE_DELETE(default_allocator(), world);
+	m_world_manager->destroy_world(world);
 }
 
 //-----------------------------------------------------------------------------
@@ -474,19 +483,30 @@ void Device::reload(const char* type, const char* name)
 		filename += '.';
 		filename += type;
 
+		const void* old_res = m_resource_manager->lookup(type, name);
+
 		if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir, filename.c_str()))
 		{
 			Log::d("Compilation failed.");
 			return;
 		}
 
+		ResourceId res_id = m_resource_manager->load(type, name);
+		m_resource_manager->flush();
+		const void* new_res = m_resource_manager->data(res_id);
+
 		uint32_t type_hash = hash::murmur2_32(type, string::strlen(type), 0);
 
 		switch (type_hash)
 		{
-			case LUA_TYPE:
+			case UNIT_TYPE:
 			{
-				m_lua_environment->load_and_execute(name);
+				Log::d("Reloading unit: %s", name);
+				/// Reload unit in all worlds
+				for (uint32_t i = 0; i < m_world_manager->worlds().size(); i++)
+				{
+					m_world_manager->worlds()[i]->reload_units((UnitResource*) old_res, (UnitResource*) new_res);
+				}
 				break;
 			}
 			default:

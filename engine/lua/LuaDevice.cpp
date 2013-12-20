@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "ResourcePackage.h"
 #include "World.h"
+#include "WorldManager.h"
 #include "LuaEnvironment.h"
 #include "LuaStack.h"
 
@@ -97,9 +98,8 @@ CE_EXPORT int device_stop(lua_State* /*L*/)
 CE_EXPORT int device_create_world(lua_State* L)
 {
 	LuaStack stack(L);
-
-	stack.push_world(device()->create_world());
-
+	const WorldId world_id = device()->create_world();
+	stack.push_world(device()->world_manager()->lookup_world(world_id));
 	return 1;
 }
 
@@ -107,9 +107,7 @@ CE_EXPORT int device_create_world(lua_State* L)
 CE_EXPORT int device_destroy_world(lua_State* L)
 {
 	LuaStack stack(L);
-
-	device()->destroy_world(stack.get_world(1));
-
+	device()->destroy_world(stack.get_world(1)->id());
 	return 0;
 }
 
