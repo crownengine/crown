@@ -391,6 +391,7 @@ set (WORLD_SRC
 	world/SceneGraphManager.cpp
 	world/Unit.cpp
 	world/World.cpp
+	world/WorldManager.cpp
 )
 
 set (WORLD_HEADERS
@@ -399,6 +400,7 @@ set (WORLD_HEADERS
 	world/SceneGraphManager.h
 	world/Unit.h
 	world/World.h
+	world/WorldManager.h
 )
 
 set (COMPILER_SRC
