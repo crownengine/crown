@@ -65,7 +65,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#include "ApkFilesystem.h"
 #endif
 
-#define MAX_SUBSYSTEMS_HEAP 16 * 1024 * 1024
+#define MAX_SUBSYSTEMS_HEAP 8 * 1024 * 1024
 
 namespace crown
 {
