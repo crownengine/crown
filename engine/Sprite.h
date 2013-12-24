@@ -35,7 +35,6 @@ namespace crown
 {
 
 class SpriteResource;
-class SpriteAnimator;
 class SceneGraph;
 class Renderer;
 class RenderWorld;
@@ -75,7 +74,6 @@ public:
 	MaterialId				m_material;
 	VertexBufferId			m_vb;
 	IndexBufferId			m_ib;
-	SpriteAnimator*			m_animator;
 };
 
 } // namespace crown
