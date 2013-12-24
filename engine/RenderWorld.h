@@ -27,25 +27,29 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "IdArray.h"
-#include "Mesh.h"
-#include "Sprite.h"
 #include "List.h"
-#include "Vector3.h"
-#include "Quaternion.h"
 #include "PoolAllocator.h"
 #include "Resource.h"
+#include "Matrix4x4.h"
 
 #define MAX_MESHES 100
 #define MAX_SPRITES 256
+#define MAX_MATERIALS 256
 
 namespace crown
 {
 
 typedef Id MeshId;
 typedef Id SpriteId;
+typedef Id MaterialId;
 
-class SceneGraph;
-struct Camera;
+struct Material;
+struct MaterialResource;
+struct Mesh;
+struct MeshResource;
+struct SceneGraph;
+struct Sprite;
+struct SpriteResource;
 
 class RenderWorld
 {
@@ -54,23 +58,29 @@ public:
 	RenderWorld();
 	~RenderWorld();
 
-	MeshId		create_mesh(ResourceId id, SceneGraph& sg, int32_t node);
+	MeshId		create_mesh(MeshResource* mr, SceneGraph& sg, int32_t node);
 	void 		destroy_mesh(MeshId id);
 	Mesh* 		lookup_mesh(MeshId mesh);
 
-	SpriteId	create_sprite(ResourceId id, SceneGraph& sg, int32_t node);
+	SpriteId	create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node);
 	void		destroy_sprite(SpriteId id);
 	Sprite*		lookup_sprite(SpriteId id);
+
+	MaterialId	create_material(MaterialResource* mr);
+	void		destroy_material(MaterialId id);
+	Material*	lookup_material(MaterialId id);
 
 	void		update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 
 private:
 
-	PoolAllocator					m_mesh_pool;
-	IdArray<MAX_MESHES, Mesh*>		m_mesh;
+	PoolAllocator						m_mesh_pool;
+	PoolAllocator						m_sprite_pool;
+	PoolAllocator						m_material_pool;
 
-	PoolAllocator					m_sprite_pool;
-	IdArray<MAX_SPRITES, Sprite*>	m_sprite;
+	IdArray<MAX_MESHES, Mesh*>			m_mesh;
+	IdArray<MAX_SPRITES, Sprite*>		m_sprite;
+	IdArray<MAX_MATERIALS, Material*>	m_materials;
 };
 
 } // namespace crown

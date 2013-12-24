@@ -26,13 +26,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "RenderWorld.h"
 #include "Device.h"
-#include "ResourceManager.h"
 #include "Renderer.h"
 #include "Allocator.h"
 #include "Camera.h"
 #include "Resource.h"
 #include "Log.h"
 #include "SpriteResource.h"
+#include "Mesh.h"
+#include "Sprite.h"
+#include "Material.h"
 
 namespace crown
 {
@@ -88,6 +90,7 @@ static const char* texture_fragment =
 RenderWorld::RenderWorld()
 	: m_mesh_pool(default_allocator(), MAX_MESHES, sizeof(Mesh), CE_ALIGNOF(Mesh))
 	, m_sprite_pool(default_allocator(), MAX_SPRITES, sizeof(Sprite), CE_ALIGNOF(Sprite))
+	, m_material_pool(default_allocator(), MAX_MATERIALS, sizeof(Material), CE_ALIGNOF(Material))
 {
 	Renderer* r = device()->renderer();
 
@@ -115,13 +118,9 @@ RenderWorld::~RenderWorld()
 }
 
 //-----------------------------------------------------------------------------
-MeshId RenderWorld::create_mesh(ResourceId id, SceneGraph& sg, int32_t node)
+MeshId RenderWorld::create_mesh(MeshResource* mr, SceneGraph& sg, int32_t node)
 {
-	MeshResource* mr = (MeshResource*) device()->resource_manager()->data(id);
-
-	// Allocate memory for mesh
 	Mesh* mesh = CE_NEW(m_mesh_pool, Mesh)(sg, node, mr);
-
 	return m_mesh.create(mesh);
 }
 
@@ -144,13 +143,9 @@ Mesh* RenderWorld::lookup_mesh(MeshId mesh)
 }
 
 //-----------------------------------------------------------------------------
-SpriteId RenderWorld::create_sprite(ResourceId id, SceneGraph& sg, int32_t node)
+SpriteId RenderWorld::create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node)
 {
-	SpriteResource* sr = (SpriteResource*) device()->resource_manager()->data(id);
-
-	// Allocate memory for sprite
-	Sprite* sprite = CE_NEW(m_sprite_pool, Sprite)(sg, node, sr);
-
+	Sprite* sprite = CE_NEW(m_sprite_pool, Sprite)(*this, sg, node, sr);
 	return m_sprite.create(sprite);
 }
 
@@ -170,6 +165,26 @@ Sprite*	RenderWorld::lookup_sprite(SpriteId id)
 	CE_ASSERT(m_sprite.has(id), "Sprite does not exist");
 
 	return m_sprite.lookup(id);
+}
+
+//-----------------------------------------------------------------------------
+MaterialId RenderWorld::create_material(MaterialResource* mr)
+{
+	Material* mat = CE_NEW(m_material_pool, Material)(mr);
+	return m_materials.create(mat);
+}
+
+//-----------------------------------------------------------------------------
+void RenderWorld::destroy_material(MaterialId id)
+{
+	CE_DELETE(m_material_pool, m_materials.lookup(id));
+	m_materials.destroy(id);
+}
+
+//-----------------------------------------------------------------------------
+Material* RenderWorld::lookup_material(MaterialId id)
+{
+	return m_materials.lookup(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -217,7 +232,9 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		r->set_vertex_buffer(sprite->m_vb);
 		r->set_index_buffer(sprite->m_ib);
 		r->set_program(texture_program);
-		r->set_texture(0, u_albedo_0, sprite->m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
+		//r->set_texture(0, u_albedo_0, sprite->m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
+
+		sprite->render(*r, u_albedo_0);
 
 		r->set_pose(sprite->world_pose());
 		r->commit(0);
