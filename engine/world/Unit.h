@@ -64,6 +64,7 @@ typedef Id SpriteId;
 typedef Id ActorId;
 typedef Id ControllerId;
 typedef	Id ComponentId;
+typedef Id MaterialId;
 
 class Camera;
 class Mesh;
@@ -74,11 +75,13 @@ class World;
 class SceneGraphManager;
 class PhysicsGraphManager;
 struct UnitResource;
+class Material;
 
 #define MAX_CAMERA_COMPONENTS 8
 #define MAX_MESH_COMPONENTS 8
 #define MAX_SPRITE_COMPONENTS 8
 #define MAX_ACTOR_COMPONENTS 8
+#define MAX_MATERIAL_COMPONENTS 8
 
 struct Unit
 {
@@ -121,6 +124,7 @@ struct Unit
 	void				add_sprite(StringId32 name, SpriteId sprite);
 	void				add_actor(StringId32 name, ActorId actor);
 	void				set_controller(StringId32 name, ControllerId controller);
+	void				add_material(StringId32 name, MaterialId material);
 
 	Camera*				camera(const char* name);
 	Camera*				camera(uint32_t i);
@@ -134,6 +138,9 @@ struct Unit
 	Actor*				actor(const char* name);
 	Actor*				actor(uint32_t i);
 
+	Material*			material(const char* name);
+	Material*			material(uint32_t i);
+
 	Controller*			controller();
 
 private:
@@ -143,6 +150,7 @@ private:
 	void				create_camera_objects();
 	void				create_renderable_objects();
 	void				create_physics_objects();
+	void				set_default_material();
 
 public:
 
@@ -162,6 +170,9 @@ public:
 
 	uint32_t			m_num_actors;
 	Component 			m_actors[MAX_ACTOR_COMPONENTS];
+
+	uint32_t			m_num_materials;
+	Component			m_materials[MAX_MATERIAL_COMPONENTS];
 
 	Component			m_controller;
 };
