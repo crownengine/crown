@@ -119,6 +119,17 @@ void Sprite::render(Renderer& r, UniformId uniform)
 {
 	Material* material = m_render_world.lookup_material(m_material);
 	material->bind(r, uniform);
+
+	r.set_state(STATE_DEPTH_WRITE 
+		| STATE_COLOR_WRITE 
+		| STATE_ALPHA_WRITE 
+		| STATE_CULL_CW 
+		| STATE_BLEND_EQUATION_ADD 
+		| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
+	r.set_vertex_buffer(m_vb);
+	r.set_index_buffer(m_ib);
+	r.set_pose(world_pose());
+	r.commit(0);
 }
 
 } // namespace crown

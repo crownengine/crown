@@ -221,23 +221,8 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 
 	for (uint32_t s = 0; s < m_sprite.size(); s++)
 	{
-		Sprite* sprite = m_sprite.m_objects[s];
-
-		r->set_state(STATE_DEPTH_WRITE 
-			| STATE_COLOR_WRITE 
-			| STATE_ALPHA_WRITE 
-			| STATE_CULL_CW 
-			| STATE_BLEND_EQUATION_ADD 
-			| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
-		r->set_vertex_buffer(sprite->m_vb);
-		r->set_index_buffer(sprite->m_ib);
 		r->set_program(texture_program);
-		//r->set_texture(0, u_albedo_0, sprite->m_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
-
-		sprite->render(*r, u_albedo_0);
-
-		r->set_pose(sprite->world_pose());
-		r->commit(0);
+		m_sprite[s]->render(*r, u_albedo_0);
 	}
 }
 
