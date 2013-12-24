@@ -41,6 +41,7 @@ namespace crown
 struct UnitHeader
 {
 	ResourceId physics_resource;
+	ResourceId material_resource;
 	uint32_t num_renderables;
 	uint32_t renderables_offset;
 	uint32_t num_cameras;
@@ -114,6 +115,12 @@ struct UnitResource
 	ResourceId physics_resource() const
 	{
 		return ((UnitHeader*) this)->physics_resource;
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId material_resource() const
+	{
+		return ((UnitHeader*) this)->material_resource;
 	}
 
 	//-----------------------------------------------------------------------------

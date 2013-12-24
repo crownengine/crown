@@ -229,6 +229,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONElement root = json.root();
 
 	ResourceId				m_physics_resource;
+	ResourceId				m_material_resource;
 	List<GraphNode>			m_nodes(default_allocator());
 	List<GraphNodeDepth>	m_node_depths(default_allocator());
 	List<UnitCamera>		m_cameras(default_allocator());
@@ -293,18 +294,33 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	// Check if the unit has a .physics resource
 	DynamicString unit_name(resource_path);
 	unit_name.strip_trailing("unit");
-	unit_name += "physics";
-	if (fs.is_file(unit_name.c_str()))
+	DynamicString physics_name = unit_name;
+	physics_name += "physics";
+	if (fs.is_file(physics_name.c_str()))
 	{
-		m_physics_resource.id = hash::murmur2_64(unit_name.c_str(), string::strlen(unit_name.c_str()), 0);
+		m_physics_resource.id = hash::murmur2_64(physics_name.c_str(), string::strlen(physics_name.c_str()), 0);
 	}
 	else
 	{
 		m_physics_resource.id = 0;
 	}
 
+	// Check if the unit has a .material resource
+	DynamicString material_name = unit_name;
+	material_name += "material";
+	if (fs.is_file(material_name.c_str()))
+	{
+		m_material_resource.id = hash::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
+	}
+	else
+	{
+		m_material_resource.id = 0;
+	}
+
+
 	UnitHeader h;
 	h.physics_resource = m_physics_resource;
+	h.material_resource = m_material_resource;
 	h.num_renderables = m_renderables.size();
 	h.num_cameras = m_cameras.size();
 	h.num_actors = m_actors.size();
