@@ -52,6 +52,8 @@ struct PackageHeader
 	uint32_t sprites_offset;
 	uint32_t num_physics;
 	uint32_t physics_offset;
+	uint32_t num_materials;
+	uint32_t materials_offset;
 };
 
 struct PackageResource
@@ -130,6 +132,12 @@ struct PackageResource
 	}
 
 	//-----------------------------------------------------------------------------
+	uint32_t num_materials() const
+	{
+		return ((PackageHeader*) this)->num_materials;
+	}
+
+	//-----------------------------------------------------------------------------
 	ResourceId get_texture_id(uint32_t i) const
 	{
 		CE_ASSERT(i < num_textures(), "Index out of bounds");
@@ -190,7 +198,16 @@ struct PackageResource
 
 		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->physics_offset);
 		return begin[i];
-	}	
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_material_id(uint32_t i) const
+	{
+		CE_ASSERT(i < num_materials(), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->materials_offset);
+		return begin[i];
+	}
 
 private:
 

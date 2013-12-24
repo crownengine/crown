@@ -37,6 +37,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+struct MaterialHeader
+{
+	uint32_t num_texture_layers;
+	uint32_t texture_layers_offset;
+};
+
 /// A material describes the visual properties of a surface.
 /// It is primarly intended for rendering purposes but can
 /// also be used to drive other types of systems such as sounds or physics.
@@ -45,28 +51,48 @@ class MaterialResource
 public:
 
 	//-----------------------------------------------------------------------------
-	static void* load(Allocator& /*allocator*/, Bundle& /*bundle*/, ResourceId /*id*/)
+	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
-		return NULL;
+		File* file = bundle.open(id);
+		const size_t file_size = file->size();
+
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
+
+		bundle.close(file);
+
+		return res;
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* material)
+	static void online(void* /*resource*/)
 	{
-		(void)material;
-		// TODO
 	}
 
 	//-----------------------------------------------------------------------------
-	static void unload(Allocator& /*allocator*/, void* /*material*/)
+	static void unload(Allocator& a, void* res)
 	{
-		// TODO
+		CE_ASSERT_NOT_NULL(res);
+		a.deallocate(res);
 	}
 
 	//-----------------------------------------------------------------------------
 	static void offline(void* /*resource*/)
 	{
-		// TODO
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_texture_layers() const
+	{
+		return ((MaterialHeader*) this)->num_texture_layers;
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_texture_layer(uint32_t i) const
+	{
+		MaterialHeader* h = (MaterialHeader*) this;
+		ResourceId* begin = (ResourceId*) (((char*) this) + h->texture_layers_offset);
+		return begin[i];
 	}
 
 private:

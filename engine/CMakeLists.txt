@@ -90,6 +90,7 @@ set (SRC
 	RenderWorld.cpp
 	Mesh.cpp
 	Sprite.cpp
+	Material.cpp
 	ConsoleServer.cpp
 )
 
@@ -100,6 +101,7 @@ set (HEADERS
 	RenderWorld.h
 	Mesh.h
 	Sprite.h
+	Material.h
 	ConsoleServer.h
 )
 
@@ -288,6 +290,7 @@ set (RESOURCE_SRC
 	resource/TextureResource.cpp
 	resource/SpriteResource.cpp
 	resource/SoundResource.cpp
+	resource/MaterialResource.cpp
 	resource/PhysicsResource.cpp
 	resource/PackageResource.cpp
 	resource/MeshResource.cpp

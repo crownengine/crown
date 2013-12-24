@@ -87,11 +87,21 @@ public:
 		{
 			m_resource_manager->load(PHYSICS_TYPE, m_package->get_physics_id(i));
 		}
+
+		for (uint32_t i = 0; i < m_package->num_materials(); i++)
+		{
+			m_resource_manager->load(MATERIAL_TYPE, m_package->get_material_id(i));
+		}
 	}
 
 	/// Unloads all the resources in the package.
 	void unload()
 	{
+		for (uint32_t i = 0; i < m_package->num_materials(); i++)
+		{
+			m_resource_manager->unload(m_package->get_material_id(i));
+		}
+
 		for (uint32_t i = 0; i < m_package->num_physics(); i++)
 		{
 			m_resource_manager->unload(m_package->get_physics_id(i));

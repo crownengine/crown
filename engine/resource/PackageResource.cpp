@@ -57,6 +57,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	List<ResourceId> m_unit(default_allocator());
 	List<ResourceId> m_sprite(default_allocator());
 	List<ResourceId> m_physics(default_allocator());
+	List<ResourceId> m_materials(default_allocator());
 
 	// Check for resource types
 	if (root.has_key("texture"))
@@ -233,6 +234,31 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		}	
 	}
 
+	// Check for materials
+	if (root.has_key("material"))
+	{
+		JSONElement materials_array = root.key("material");
+		uint32_t materials_array_size = materials_array.size();
+
+		for (uint32_t i = 0; i < materials_array_size; i++)
+		{
+			TempAllocator256 alloc;
+			DynamicString materials_name(alloc);
+			materials_name += materials_array[i].string_value();
+			materials_name += ".material";
+
+			if (!fs.is_file(materials_name.c_str()))
+			{
+				Log::e("Material '%s' does not exist.", materials_name.c_str());
+				return;
+			}
+
+			ResourceId id;
+			id.id = hash::murmur2_64(materials_name.c_str(), string::strlen(materials_name.c_str()), 0);
+			m_materials.push_back(id);
+		}
+	}
+
 	PackageHeader header;
 	header.num_textures = m_texture.size();
 	header.num_scripts = m_script.size();
@@ -241,6 +267,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	header.num_units = m_unit.size();
 	header.num_sprites = m_sprite.size();
 	header.num_physics = m_physics.size();
+	header.num_materials = m_materials.size();
 
 	header.textures_offset = sizeof(PackageHeader);
 	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
@@ -249,6 +276,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	header.units_offset = header.meshes_offset + sizeof(ResourceId) * header.num_meshes;
 	header.sprites_offset = header.units_offset + sizeof(ResourceId) * header.num_units;
 	header.physics_offset = header.sprites_offset + sizeof(ResourceId) * header.num_sprites;
+	header.materials_offset = header.physics_offset + sizeof(ResourceId) * header.num_physics;
 
 	out_file->write((char*) &header, sizeof(PackageHeader));
 
@@ -279,6 +307,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	if (m_physics.size() > 0)
 	{
 		out_file->write((char*) m_physics.begin(), sizeof(ResourceId) * header.num_physics);
+	}
+	if (m_materials.size() > 0)
+	{
+		out_file->write((char*) m_materials.begin(), sizeof(ResourceId) * header.num_materials);
 	}
 }
 
