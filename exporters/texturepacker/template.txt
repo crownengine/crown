@@ -1,4 +1,6 @@
 {{% load filter %}
+	"width" : {{texture.size.width}},
+	"height" : {{texture.size.height}},
 	"frames" : [{% for sprite in allSprites %}
 		{
 			"name" : "{{sprite.trimmedName}}",{{sprite.frameRectRel.height|setHeightRel}}
