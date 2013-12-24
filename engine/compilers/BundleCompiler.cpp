@@ -47,6 +47,7 @@ namespace physics_resource { extern void compile(Filesystem&, const char*, File*
 namespace unit_resource { extern void compile(Filesystem&, const char*, File*); }
 namespace sound_resource { extern void compile(Filesystem&, const char*, File*); }
 namespace sprite_resource { extern void compile(Filesystem&, const char*, File*); }
+namespace material_resource { extern void compile(Filesystem&, const char*, File*); }
 
 //-----------------------------------------------------------------------------
 BundleCompiler::BundleCompiler()
@@ -155,6 +156,10 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 			else if (resource_type_hash == PHYSICS_TYPE)
 			{
 				physics_resource::compile(root_fs, filename, out_file);
+			}
+			else if (resource_type_hash == MATERIAL_TYPE)
+			{
+				material_resource::compile(root_fs, filename, out_file);
 			}
 			else
 			{
