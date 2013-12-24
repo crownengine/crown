@@ -55,7 +55,6 @@ struct SpriteHeader
 {
 	VertexBufferId 	vb;
 	IndexBufferId 	ib;
-	ResourceId 		texture;
 	uint32_t 		num_frames;
 	uint32_t		frame_names_offset;
 	uint32_t		frame_vertices_offset;
@@ -107,12 +106,6 @@ struct SpriteResource
 
 		device()->renderer()->destroy_vertex_buffer(h->vb);
 		device()->renderer()->destroy_index_buffer(h->ib);
-	}
-
-	//-----------------------------------------------------------------------------
-	ResourceId texture() const
-	{
-		return ((SpriteHeader*) this)->texture;
 	}
 
 	//-----------------------------------------------------------------------------

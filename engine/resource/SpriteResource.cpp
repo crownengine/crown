@@ -82,9 +82,15 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONParser json(buf);
 	JSONElement root = json.root();
 
+	float width;
+	float height;
 	List<StringId32>		m_names(default_allocator());
 	List<FrameData> 		m_regions(default_allocator());
 	List<float>				m_vertices(default_allocator());
+
+	// Read width/height
+	width = root.key("width").float_value();
+	height = root.key("height").float_value();
 
 	// Read frames
 	JSONElement frames = root.key("frames");
@@ -104,9 +110,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		float u1 = fd.x0 + fd.x1;
 		float v1 = fd.y0 + fd.y1;
 
+		float aspect = (fd.x1 * width) / (fd.y1 * height);
+
 		// Compute positions
-		float w = fd.x1;
-		float h = fd.y1;
+		float w = aspect;
+		float h = 1;
 
 		float x0 = fd.scale_x * (-w * 0.5) + fd.offset_x;
 		float y0 = fd.scale_y * (-h * 0.5) + fd.offset_y;
@@ -130,7 +138,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	default_allocator().deallocate(buf);
 
 	SpriteHeader h;
-	h.texture.id = hash::murmur2_64("textures/circle.texture", string::strlen("textures/circle.texture"), 0);
 	h.num_frames = m_names.size();
 
 	uint32_t offt = sizeof(SpriteHeader);
