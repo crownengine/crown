@@ -37,12 +37,17 @@ namespace crown
 class SpriteResource;
 class SpriteAnimator;
 class SceneGraph;
+class Renderer;
+class RenderWorld;
 struct Unit;
+
+typedef Id MaterialId;
+typedef Id UniformId;
 
 //-----------------------------------------------------------------------------
 struct Sprite
 {
-							Sprite(SceneGraph& sg, int32_t node, const SpriteResource* sr);
+							Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const SpriteResource* sr);
 							~Sprite();
 
 	Vector3					local_position() const;
@@ -57,16 +62,19 @@ struct Sprite
 	void					set_local_rotation(Unit* unit, const Quaternion& rot);
 	void					set_local_pose(Unit* unit, const Matrix4x4& pose);
 
+	void					set_material(MaterialId mat);
+	void					render(Renderer& r, UniformId uniform);
+
 public:
 
+	RenderWorld&			m_render_world;
 	SceneGraph&				m_scene_graph;	
 	int32_t					m_node;
 	const SpriteResource*	m_resource;
 
+	MaterialId				m_material;
 	VertexBufferId			m_vb;
 	IndexBufferId			m_ib;
-	TextureId				m_texture;
-
 	SpriteAnimator*			m_animator;
 };
 

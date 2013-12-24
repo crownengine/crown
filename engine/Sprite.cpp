@@ -31,19 +31,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "SceneGraph.h"
 #include "Unit.h"
+#include "Renderer.h"
+#include "Material.h"
+#include "RenderWorld.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Sprite::Sprite(SceneGraph& sg, int32_t node, const SpriteResource* sr)
-	: m_scene_graph(sg)
+Sprite::Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const SpriteResource* sr)
+	: m_render_world(render_world)
+	, m_scene_graph(sg)
 	, m_node(node)
 	, m_resource(sr)
 {
 	m_vb = sr->vertex_buffer();
 	m_ib = sr->index_buffer();
-	m_texture = ((TextureResource*)device()->resource_manager()->data(sr->texture()))->texture();
 }
 
 //-----------------------------------------------------------------------------
@@ -103,6 +106,19 @@ void Sprite::set_local_rotation(Unit* unit, const Quaternion& rot)
 void Sprite::set_local_pose(Unit* unit, const Matrix4x4& pose)
 {
 	unit->set_local_pose(m_node, pose);
+}
+
+//-----------------------------------------------------------------------------
+void Sprite::set_material(MaterialId mat)
+{
+	m_material = mat;
+}
+
+//-----------------------------------------------------------------------------
+void Sprite::render(Renderer& r, UniformId uniform)
+{
+	Material* material = m_render_world.lookup_material(m_material);
+	material->bind(r, uniform);
 }
 
 } // namespace crown
