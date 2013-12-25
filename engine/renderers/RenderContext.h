@@ -183,6 +183,8 @@ public:
 	GPUProgramId	program;
 	VertexBufferId	vb;
 	IndexBufferId	ib;
+	uint32_t		start_index;
+	uint32_t		num_indices;
 	Sampler			samplers[STATE_MAX_TEXTURES];
 };
 
@@ -235,9 +237,11 @@ struct RenderContext
 		m_state.vb = vb;
 	}
 
-	void set_index_buffer(IndexBufferId ib)
+	void set_index_buffer(IndexBufferId ib, uint32_t start_index, uint32_t num_indices)
 	{
 		m_state.ib = ib;
+		m_state.start_index = start_index;
+		m_state.num_indices = num_indices;
 	}
 
 	void set_uniform(UniformId id, UniformType::Enum type, const void* value, uint8_t num)

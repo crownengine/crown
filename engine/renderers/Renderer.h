@@ -632,10 +632,10 @@ public:
 		m_submit->set_vertex_buffer(id);
 	}
 
-	void set_index_buffer(IndexBufferId id)
+	void set_index_buffer(IndexBufferId id, uint32_t start_index = 0, uint32_t num_indices = UINT32_MAX)
 	{
 		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
-		m_submit->set_index_buffer(id);
+		m_submit->set_index_buffer(id, start_index, num_indices);
 	}
 
 	void set_uniform(UniformId id, UniformType::Enum type, const void* value, uint8_t num)
