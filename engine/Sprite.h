@@ -61,6 +61,7 @@ struct Sprite
 	void					set_local_rotation(Unit* unit, const Quaternion& rot);
 	void					set_local_pose(Unit* unit, const Matrix4x4& pose);
 
+	void					set_frame(uint32_t i);
 	void					set_material(MaterialId mat);
 	void					render(Renderer& r, UniformId uniform);
 
@@ -70,6 +71,7 @@ public:
 	SceneGraph&				m_scene_graph;	
 	int32_t					m_node;
 	const SpriteResource*	m_resource;
+	uint32_t				m_frame;
 
 	MaterialId				m_material;
 	VertexBufferId			m_vb;
