@@ -56,8 +56,10 @@ struct SpriteHeader
 	VertexBufferId 	vb;
 	IndexBufferId 	ib;
 	uint32_t 		num_frames;
-	uint32_t		frame_names_offset;
-	uint32_t		frame_vertices_offset;
+	uint32_t		num_vertices;
+	uint32_t		vertices_offset;
+	uint32_t		num_indices;
+	uint32_t		indices_offset;
 };
 
 //-----------------------------------------------------------------------------
@@ -80,13 +82,13 @@ struct SpriteResource
 	//-----------------------------------------------------------------------------
 	static void online(void* resource)
 	{
-		SpriteResource* sr = (SpriteResource*)resource;
-		SpriteHeader* h = (SpriteHeader*) sr;
+		SpriteHeader* h = (SpriteHeader*) resource;
 
-		static uint16_t t_indices[] = {0, 1, 2, 0, 2, 3};
+		const float* vertices = (float*) (((char*) resource) + h->vertices_offset);
+		const uint16_t* indices = (uint16_t*) (((char*) resource) + h->indices_offset);
 
-		h->vb = device()->renderer()->create_vertex_buffer(4, VertexFormat::P2_T2, sr->frame(0));
-		h->ib = device()->renderer()->create_index_buffer(6, t_indices);
+		h->vb = device()->renderer()->create_vertex_buffer(h->num_vertices, VertexFormat::P2_T2, vertices);
+		h->ib = device()->renderer()->create_index_buffer(h->num_indices, indices);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -112,20 +114,6 @@ struct SpriteResource
 	uint32_t num_frames() const
 	{
 		return ((SpriteHeader*) this)->num_frames;
-	}
-
-	//-----------------------------------------------------------------------------
-	const float* animation() const
-	{
-		SpriteHeader* h = (SpriteHeader*) this;
-		return (float*) (((char*) this) + h->frame_vertices_offset);
-	}
-
-	//-----------------------------------------------------------------------------
-	const float* frame(uint32_t index) const
-	{
-		SpriteHeader* h = (SpriteHeader*) this;
-		return (float*) (((char*) this) + h->frame_vertices_offset + index * sizeof(float) * 4 * 4);
 	}
 
 	//-----------------------------------------------------------------------------
