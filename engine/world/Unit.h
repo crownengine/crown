@@ -33,6 +33,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Hash.h"
 #include "SceneGraph.h"
 #include "StringUtils.h"
+#include "PhysicsTypes.h"
+#include "WorldTypes.h"
 
 namespace crown
 {
@@ -57,12 +59,8 @@ struct Component
 };
 
 //-----------------------------------------------------------------------------
-typedef Id UnitId;
-typedef Id CameraId;
 typedef Id MeshId;
 typedef Id SpriteId;
-typedef Id ActorId;
-typedef Id ControllerId;
 typedef	Id ComponentId;
 typedef Id MaterialId;
 

@@ -40,7 +40,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-typedef Id CameraId;
 typedef Id SpriteId;
 
 //-----------------------------------------------------------------------------

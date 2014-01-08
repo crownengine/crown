@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Frustum.h"
 #include "Matrix4x4.h"
 #include "Vector3.h"
+#include "WorldTypes.h"
 
 namespace crown
 {
@@ -43,7 +44,6 @@ struct ProjectionType
 	};
 };
 
-typedef Id UnitId;
 struct Quaternion;
 struct Unit;
 class SceneGraph;

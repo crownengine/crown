@@ -403,6 +403,7 @@ set (WORLD_HEADERS
 	world/Unit.h
 	world/World.h
 	world/WorldManager.h
+	world/WorldTypes.h
 )
 
 set (COMPILER_SRC

@@ -39,6 +39,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PoolAllocator.h"
 #include "SceneGraphManager.h"
 #include "PhysicsTypes.h"
+#include "WorldTypes.h"
 
 namespace crown
 {
@@ -47,13 +48,9 @@ namespace crown
 #define	MAX_SOUNDS 64
 #define MAX_CAMERAS 16
 
-typedef Id UnitId;
-typedef Id CameraId;
 typedef Id MeshId;
 typedef Id SoundId;
 typedef Id SpriteId;
-typedef Id ActorId;
-typedef Id WorldId;
 
 struct Sound
 {

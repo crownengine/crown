@@ -44,9 +44,6 @@ using physx::PxDefaultCpuDispatcher;
 namespace crown
 {
 
-typedef Id ActorId;
-typedef Id ControllerId;
-
 struct PhysicsResource;
 struct Controller;
 struct Vector3;

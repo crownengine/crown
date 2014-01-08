@@ -26,32 +26,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Types.h"
+
 namespace crown
 {
 
-typedef Id ActorId;
-typedef Id ControllerId;
-
-//-----------------------------------------------------------------------------
-struct ActorType
-{
-	enum Enum
-	{
-		STATIC,
-		DYNAMIC_PHYSICAL,
-		DYNAMIC_KINEMATIC
-	};
-};
-
-//-----------------------------------------------------------------------------
-struct ShapeType
-{
-	enum Enum
-	{
-		SPHERE,
-		BOX,
-		PLANE
-	};
-};
+typedef Id UnitId;
+typedef Id WorldId;
+typedef Id CameraId;
 
 } // namespace crown

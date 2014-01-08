@@ -32,33 +32,30 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LinearAllocator.h"
 #include "Resource.h"
 #include "Physics.h"
+#include "WorldTypes.h"
 
 namespace crown
 {
 
-class Filesystem;
-class ResourceManager;
-class OsWindow;
-class Bundle;
-class Renderer;
-class Keyboard;
-class Mouse;
-class Touch;
 class Accelerometer;
-class LuaEnvironment;
-class SoundRenderer;
+class Bundle;
 class BundleCompiler;
-class ResourcePackage;
 class ConsoleServer;
+class Filesystem;
+class Keyboard;
+class LuaEnvironment;
+class Mouse;
+class OsWindow;
+class Renderer;
+class ResourceManager;
+class ResourcePackage;
+class SoundRenderer;
+class Touch;
 class World;
-struct Camera;
 class WorldManager;
+struct Camera;
 
-typedef Id CameraId;
-typedef Id WorldId;
-
-/// The Engine.
-/// It is the place where to look for accessing all of
+/// This is the place where to look for accessing all of
 /// the engine subsystems and related stuff.
 class CE_EXPORT Device
 {
