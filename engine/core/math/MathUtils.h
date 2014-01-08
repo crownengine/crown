@@ -34,8 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Types.h"
 
-#define BIT(i) (1 << i)
-
 namespace crown
 {
 
@@ -72,24 +70,6 @@ inline bool equals(float a, float b, float precision  = FLOAT_PRECISION)
 inline bool equals(double a, double b, double precision  = DOUBLE_PRECISION)
 {
 	return ((b <= (a + precision)) && (b >= (a - precision)));
-}
-
-//-----------------------------------------------------------------------------
-inline bool test_bitmask(int32_t value, int32_t bitmask)
-{
-	return (value & bitmask) == bitmask;
-}
-
-//-----------------------------------------------------------------------------
-inline int32_t set_bitmask(int32_t value, int32_t bitmask)
-{
-	return value | bitmask;
-}
-
-//-----------------------------------------------------------------------------
-inline int32_t unset_bitmask(int32_t value, int32_t bitmask)
-{
-	return value & (~bitmask);
 }
 
 //-----------------------------------------------------------------------------
