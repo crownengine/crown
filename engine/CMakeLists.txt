@@ -283,6 +283,7 @@ set (RENDERERS_SRC
 
 set (RENDERERS_HEADERS
 	renderers/RenderWorld.h
+	renderers/RenderWorldTypes.h
 	renderers/Mesh.h
 	renderers/Sprite.h
 	renderers/Material.h

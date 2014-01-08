@@ -26,19 +26,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Types.h"
+#include "Camera.h"
 #include "HeapAllocator.h"
 #include "IdArray.h"
 #include "LinearAllocator.h"
-#include "Unit.h"
-#include "Camera.h"
-#include "Vector.h"
-#include "RenderWorld.h"
-#include "PhysicsWorld.h"
-#include "SoundRenderer.h"
-#include "PoolAllocator.h"
-#include "SceneGraphManager.h"
 #include "PhysicsTypes.h"
+#include "PhysicsWorld.h"
+#include "PoolAllocator.h"
+#include "RenderWorld.h"
+#include "RenderWorldTypes.h"
+#include "SceneGraphManager.h"
+#include "SoundRenderer.h"
+#include "Types.h"
+#include "Unit.h"
+#include "Vector.h"
 #include "WorldTypes.h"
 
 namespace crown
@@ -48,9 +49,7 @@ namespace crown
 #define	MAX_SOUNDS 64
 #define MAX_CAMERAS 16
 
-typedef Id MeshId;
 typedef Id SoundId;
-typedef Id SpriteId;
 
 struct Sound
 {

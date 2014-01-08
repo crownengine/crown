@@ -40,8 +40,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-typedef Id SpriteId;
-
 //-----------------------------------------------------------------------------
 Unit::Unit(World& w, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)

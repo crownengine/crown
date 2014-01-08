@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "PhysicsTypes.h"
 #include "WorldTypes.h"
+#include "RenderWorldTypes.h"
 
 namespace crown
 {
@@ -52,17 +53,14 @@ struct ComponentType
 	};
 };
 
+typedef	Id ComponentId;
+
 struct Component
 {
 	uint32_t name;
-	Id component;
+	ComponentId component;
 };
 
-//-----------------------------------------------------------------------------
-typedef Id MeshId;
-typedef Id SpriteId;
-typedef	Id ComponentId;
-typedef Id MaterialId;
 
 class Material;
 class SceneGraphManager;

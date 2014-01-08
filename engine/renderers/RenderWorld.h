@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PoolAllocator.h"
 #include "Resource.h"
 #include "Matrix4x4.h"
+#include "RenderWorldTypes.h"
 
 #define MAX_MESHES 100
 #define MAX_SPRITES 256
@@ -38,10 +39,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-
-typedef Id MeshId;
-typedef Id SpriteId;
-typedef Id MaterialId;
 
 struct Material;
 struct MaterialResource;

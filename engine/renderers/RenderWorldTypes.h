@@ -26,42 +26,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "RendererTypes.h"
-#include "Matrix4x4.h"
-
 namespace crown
 {
 
-class SceneGraph;
-struct MeshResource;
-struct Quaternion;
-struct Unit;
-struct Vector3;
-
-struct Mesh
-{
-							Mesh(SceneGraph& sg, int32_t node, const MeshResource* mr);
-
-	Vector3					local_position() const;
-	Quaternion				local_rotation() const;
-	Matrix4x4				local_pose() const;
-
-	Vector3					world_position() const;
-	Quaternion				world_rotation() const;
-	Matrix4x4				world_pose() const;
-
-	void					set_local_position(Unit* unit, const Vector3& pos);
-	void					set_local_rotation(Unit* unit, const Quaternion& rot);
-	void					set_local_pose(Unit* unit, const Matrix4x4& pose);
-
-public:
-
-	SceneGraph&				m_scene_graph;
-	int32_t					m_node;
-	const MeshResource*		m_resource;
-
-	VertexBufferId			m_vbuffer;
-	IndexBufferId			m_ibuffer;
-};
+typedef Id MeshId;
+typedef Id SpriteId;
+typedef Id MaterialId;
 
 } // namespace crown

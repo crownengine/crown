@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "RendererTypes.h"
+#include "RenderWorldTypes.h"
 #include "Vector3.h"
 #include "Matrix4x4.h"
 #include "Quaternion.h"
@@ -34,14 +35,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-struct SpriteResource;
-class SceneGraph;
 class Renderer;
 class RenderWorld;
+class SceneGraph;
+struct SpriteResource;
 struct Unit;
-
-typedef Id MaterialId;
-typedef Id UniformId;
 
 //-----------------------------------------------------------------------------
 struct Sprite
