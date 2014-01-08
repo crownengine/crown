@@ -46,7 +46,6 @@ namespace crown
 struct Quaternion;
 struct Matrix4x4;
 struct Unit;
-class PhysicsGraph;
 class SceneGraph;
 
 struct Actor

@@ -66,16 +66,15 @@ typedef Id ControllerId;
 typedef	Id ComponentId;
 typedef Id MaterialId;
 
+class Material;
+class SceneGraphManager;
+class World;
+struct Actor;
 struct Camera;
+struct Controller;
 struct Mesh;
 struct Sprite;
-struct Actor;
-struct Controller;
-class World;
-class SceneGraphManager;
-class PhysicsGraphManager;
 struct UnitResource;
-class Material;
 
 #define MAX_CAMERA_COMPONENTS 8
 #define MAX_MESH_COMPONENTS 8
