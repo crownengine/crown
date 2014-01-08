@@ -31,9 +31,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Matrix4x4;
-class Quaternion;
-class Vector3;
+struct Matrix4x4;
+struct Quaternion;
+struct Vector3;
 
 /// Column major 3x3 matrix.
 /// 
@@ -55,7 +55,7 @@ class Vector3;
 /// 2 | Xy  Yy  Zy |
 /// 3 [ Xz  Yz  Zz ]
 ///     1   2   3
-class Matrix3x3
+struct Matrix3x3
 {
 
 public:

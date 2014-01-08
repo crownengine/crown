@@ -37,7 +37,7 @@ namespace crown
 ///	3D Triangle.
 ///
 /// Used mainly for collision detection.
-class Triangle
+struct Triangle
 {
 public:
 

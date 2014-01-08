@@ -32,7 +32,7 @@ namespace crown
 ///	Pseudo-random number generator.
 ///
 ///	Uses LCG algorithm: fast and compatible with the standard C rand().
-class Random
+struct Random
 {
 public:
 

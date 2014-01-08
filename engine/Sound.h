@@ -32,10 +32,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class SoundResource;
-class Vector3;
-class Quaternion;
-class Unit;
+struct SoundResource;
+struct Vector3;
+struct Quaternion;
+struct Unit;
 
 struct Sound
 {

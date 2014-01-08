@@ -37,8 +37,8 @@ namespace crown
 {
 //-----------------------------------------------------------------------------
 class SoundRendererImpl;
-class SoundResource;
-class Vector3;
+struct SoundResource;
+struct Vector3;
 
 //-----------------------------------------------------------------------------
 typedef Id	SoundBufferId;

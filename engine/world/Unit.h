@@ -66,11 +66,11 @@ typedef Id ControllerId;
 typedef	Id ComponentId;
 typedef Id MaterialId;
 
-class Camera;
-class Mesh;
-class Sprite;
-class Actor;
-class Controller;
+struct Camera;
+struct Mesh;
+struct Sprite;
+struct Actor;
+struct Controller;
 class World;
 class SceneGraphManager;
 class PhysicsGraphManager;

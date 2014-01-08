@@ -46,7 +46,7 @@ struct MaterialHeader
 /// A material describes the visual properties of a surface.
 /// It is primarly intended for rendering purposes but can
 /// also be used to drive other types of systems such as sounds or physics.
-class MaterialResource
+struct MaterialResource
 {
 public:
 

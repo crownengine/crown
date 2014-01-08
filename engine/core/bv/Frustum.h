@@ -47,7 +47,7 @@ struct FrustumPlane
 	};
 };
 
-class Matrix4x4;
+struct Matrix4x4;
 
 struct Frustum
 {

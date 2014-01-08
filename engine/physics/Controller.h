@@ -36,7 +36,7 @@ namespace crown
 {
 
 struct PhysicsResource;
-class Vector3;
+struct Vector3;
 class SceneGraph;
 
 struct Controller

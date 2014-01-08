@@ -33,18 +33,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Vector2;
-class Vector3;
-class Matrix4x4;
-class Quaternion;
-class Unit;
-class Camera;
+struct Vector2;
+struct Vector3;
+struct Matrix4x4;
+struct Quaternion;
+struct Unit;
+struct Camera;
 class World;
-class Mesh;
-class Sprite;
+struct Mesh;
+struct Sprite;
 class PhysicsWorld;
-class Actor;
-class Controller;
+struct Actor;
+struct Controller;
 class ResourcePackage;
 typedef Id SoundInstanceId;
 

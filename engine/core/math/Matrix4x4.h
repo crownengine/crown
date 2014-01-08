@@ -31,10 +31,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Matrix3x3;
-class Quaternion;
-class Vector3;
-class Vector4;
+struct Matrix3x3;
+struct Quaternion;
+struct Vector3;
+struct Vector4;
 
 /// Column-major 4x4 matrix.
 /// 
@@ -58,7 +58,7 @@ class Vector4;
 /// 3 | Xz  Yz  Zz  Tz |
 /// 4 [ 0   0   0   1  ]
 ///     1   2   3   4
-class Matrix4x4
+struct Matrix4x4
 {
 
 public:

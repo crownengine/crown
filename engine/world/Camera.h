@@ -44,8 +44,8 @@ struct ProjectionType
 };
 
 typedef Id UnitId;
-class Quaternion;
-class Unit;
+struct Quaternion;
+struct Unit;
 class SceneGraph;
 
 /// Represents the point of view into the game world.

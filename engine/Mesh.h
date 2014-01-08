@@ -33,9 +33,9 @@ namespace crown
 {
 
 struct MeshResource;
-class Vector3;
-class Quaternion;
-class Unit;
+struct Vector3;
+struct Quaternion;
+struct Unit;
 class SceneGraph;
 
 struct Mesh

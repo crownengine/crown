@@ -70,7 +70,7 @@ struct MeshData
 	IndexData			indices;
 };
 
-class MeshResource
+struct MeshResource
 {
 public:
 

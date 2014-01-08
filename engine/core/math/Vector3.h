@@ -35,7 +35,7 @@ namespace crown
 {
 
 /// 3D column vector.
-class Vector3
+struct Vector3
 {
 public:
 

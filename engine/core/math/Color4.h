@@ -41,7 +41,7 @@ namespace crown
 /// totally transparent while a value of 1.0 means totally opaque.
 /// 
 /// It also offers a set of color name constants compliant with SVG 1.0.
-class Color4
+struct Color4
 {
 public:
 

@@ -32,8 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Matrix3x3;
-class Matrix4x4;
+struct Matrix3x3;
+struct Matrix4x4;
 
 /// Quaternion.
 ///
@@ -46,7 +46,7 @@ class Matrix4x4;
 /// p' = (ba)p(ba)^-1 where p is the point and (ba) the concatenation of two successive rotations
 /// In this case, the point p is first rotated by the quaternion a and then by the quaternion b.
 /// The transformation order is reversed.
-class Quaternion
+struct Quaternion
 {
 public:
 

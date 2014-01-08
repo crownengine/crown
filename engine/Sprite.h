@@ -34,7 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class SpriteResource;
+struct SpriteResource;
 class SceneGraph;
 class Renderer;
 class RenderWorld;

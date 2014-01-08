@@ -34,7 +34,7 @@ namespace crown
 {
 
 /// 4D column vector.
-class Vector4
+struct Vector4
 {
 public:
 

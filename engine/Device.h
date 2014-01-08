@@ -51,7 +51,7 @@ class BundleCompiler;
 class ResourcePackage;
 class ConsoleServer;
 class World;
-class Camera;
+struct Camera;
 class WorldManager;
 
 typedef Id CameraId;

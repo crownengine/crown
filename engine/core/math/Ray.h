@@ -35,7 +35,7 @@ namespace crown
 /// 3D Ray.
 ///
 /// Defined by the origin and the unit-length direction vector.
-class Ray
+struct Ray
 {
 public:
 

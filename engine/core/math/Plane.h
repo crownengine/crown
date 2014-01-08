@@ -37,7 +37,7 @@ namespace crown
 /// 
 /// The form is ax + by + cz + d = 0
 /// where: d = -n.Dot(p)
-class Plane
+struct Plane
 {
 public:
 

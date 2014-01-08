@@ -74,11 +74,11 @@ struct UnitToSound
 	int32_t node;
 };
 
-class Mesh;
-class Sprite;
-class Actor;
-class Vector3;
-class Quaternion;
+struct Mesh;
+struct Sprite;
+struct Actor;
+struct Vector3;
+struct Quaternion;
 struct PhysicsResource;
 
 class World

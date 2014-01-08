@@ -43,9 +43,9 @@ using physx::PxScene;
 namespace crown
 {
 
-class Quaternion;
-class Matrix4x4;
-class Unit;
+struct Quaternion;
+struct Matrix4x4;
+struct Unit;
 class PhysicsGraph;
 class SceneGraph;
 

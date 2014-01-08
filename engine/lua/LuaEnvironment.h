@@ -38,7 +38,7 @@ enum LuaArgumentType
 	ARGUMENT_FLOAT
 };
 
-class LuaResource;
+struct LuaResource;
 
 /// LuaEnvironment is a wrapper of a subset of Lua functions and 
 /// provides utilities for extending Lua

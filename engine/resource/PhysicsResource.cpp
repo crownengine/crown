@@ -87,8 +87,7 @@ void parse_actor(JSONElement e, PhysicsActor& actor, List<PhysicsShape>& actor_s
 	actor.node = hash::murmur2_32(node.string_value(), node.size());
 	actor.num_shapes = shapes.size();
 
-	uint32_t num_shapes = shapes.size();
-	for (uint32_t i = 0; i < num_shapes; i++)
+	for (uint32_t i = 0; i < actor.num_shapes; i++)
 	{
 		PhysicsShape ps;
 		parse_shape(shapes[i], ps);
@@ -123,17 +122,25 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	// Read actors
 	List<PhysicsActor> m_actors(default_allocator());
+	List<uint32_t> m_shape_index(default_allocator());
 	List<PhysicsShape> m_shapes(default_allocator());
 	JSONElement actors = root.key_or_nil("actors");
 	if (!actors.is_nil())
 	{
 		for (uint32_t i = 0; i < actors.size(); i++)
 		{
+			if (m_shapes.size() == 0)
+			{
+				m_shape_index.push_back(0);
+			}
+			else
+			{
+				m_shape_index.push_back(m_shapes.size() - 1);
+			}
+			
 			PhysicsActor a;
 			parse_actor(actors[i], a, m_shapes);
 			m_actors.push_back(a);
-
-			Log::d("Actor parsed, name = %.8x, node = %.8x", a.name, a.node);
 		}
 	}
 

@@ -49,8 +49,8 @@ typedef Id ControllerId;
 
 struct PhysicsResource;
 struct Controller;
-class Vector3;
-class Actor;
+struct Vector3;
+struct Actor;
 class SceneGraph;
 
 //-----------------------------------------------------------------------------
