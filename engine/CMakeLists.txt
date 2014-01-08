@@ -159,7 +159,6 @@ set (MATH_SRC
 
 set (MATH_HEADERS
 	core/math/Color4.h
-	core/math/Interpolation.h
 	core/math/Intersection.h
 	core/math/Matrix3x3.h
 	core/math/Matrix4x4.h

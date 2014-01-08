@@ -34,7 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 // Core/Math
 #include "Color4.h"
-#include "Interpolation.h"
 #include "Intersection.h"
 #include "Matrix3x3.h"
 #include "Matrix4x4.h"
