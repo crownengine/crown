@@ -75,6 +75,7 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/os
 	${CMAKE_SOURCE_DIR}/engine/input
 	${CMAKE_SOURCE_DIR}/engine/renderers
+	${CMAKE_SOURCE_DIR}/engine/renderers/backend
 	${CMAKE_SOURCE_DIR}/engine/resource
 	${CMAKE_SOURCE_DIR}/engine/rpc
 	${CMAKE_SOURCE_DIR}/engine/network
@@ -87,10 +88,6 @@ set (CROWN_INCLUDES
 
 set (SRC
 	Device.cpp
-	RenderWorld.cpp
-	Mesh.cpp
-	Sprite.cpp
-	Material.cpp
 	ConsoleServer.cpp
 )
 
@@ -98,10 +95,6 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
-	RenderWorld.h
-	Mesh.h
-	Sprite.h
-	Material.h
 	ConsoleServer.h
 )
 
@@ -271,15 +264,30 @@ set (NETWORK_HEADERS
 	network/BitMessage.h
 )
 
+set (RENDERERS_BACKEND_SRC
+)
+
+set (RENDERERS_BACKEND_HEADERS
+	renderers/backend/Renderer.h
+	renderers/backend/RenderContext.h
+	renderers/backend/PixelFormat.h
+	renderers/backend/VertexFormat.h
+)
+
 set (RENDERERS_SRC
+	renderers/RenderWorld.cpp
+	renderers/Mesh.cpp
+	renderers/Sprite.cpp
+	renderers/Material.cpp
 )
 
 set (RENDERERS_HEADERS
-	renderers/Renderer.h
-	renderers/RenderContext.h
-	renderers/PixelFormat.h
-	renderers/VertexFormat.h
+	renderers/RenderWorld.h
+	renderers/Mesh.h
+	renderers/Sprite.h
+	renderers/Material.h
 )
+
 
 set (RESOURCE_SRC
 	resource/ResourceLoader.cpp
@@ -420,8 +428,7 @@ set (CROWN_LIBRARIES)
 if (LINUX)
 	list (APPEND CROWN_INCLUDES
 		${CMAKE_SOURCE_DIR}/engine/os/linux
-		${CMAKE_SOURCE_DIR}/engine/renderers/gl/glx
-		${CMAKE_SOURCE_DIR}/engine/renderers/al
+		${CMAKE_SOURCE_DIR}/engine/renderers/backend/gl/glx
 	)
 
 	list (APPEND OS_HEADERS
@@ -440,13 +447,13 @@ if (LINUX)
 	)
 
 	list (APPEND RENDERERS_SRC
-		renderers/gl/GLRenderer.cpp
-		renderers/gl/glx/GLContext.cpp
+		renderers/backend/gl/GLRenderer.cpp
+		renderers/backend/gl/glx/GLContext.cpp
 	)
 
 	list (APPEND RENDERERS_HEADERS
-		renderers/gl/GLRenderer.h
-		renderers/gl/glx/GLContext.h
+		renderers/backend/gl/GLRenderer.h
+		renderers/backend/gl/glx/GLContext.h
 	)
 
 	list (APPEND AUDIO_SRC
@@ -527,7 +534,7 @@ endif (LINUX)
 if (WINDOWS)
 	list (APPEND CROWN_INCLUDES
 		${CMAKE_SOURCE_DIR}/engine/os/win
-		${CMAKE_SOURCE_DIR}/engine/renderers/gl/wgl
+		${CMAKE_SOURCE_DIR}/engine/renderers/backend/gl/wgl
 	)
 
 	list (APPEND OS_HEADERS
@@ -549,14 +556,14 @@ if (WINDOWS)
 	)
 
 	list (APPEND RENDERERS_SRC
-		renderers/gl/GLRenderer.cpp
-		renderers/gl/wgl/GLContext.cpp
+		renderers/backend/gl/GLRenderer.cpp
+		renderers/backend/gl/wgl/GLContext.cpp
 	)
 
 	list (APPEND RENDERERS_HEADERS
-		renderers/gl/GLRenderer.h
-		renderers/gl/wgl/GLContext.h
-		renderers/gl/wgl/wglext.h
+		renderers/backend/gl/GLRenderer.h
+		renderers/backend/gl/wgl/GLContext.h
+		renderers/backend/gl/wgl/wglext.h
 	)
 
 	list (APPEND AUDIO_SRC
@@ -595,6 +602,7 @@ set (CROWN_SOURCES
 	${COMPRESSORS_SRC}
 	${SETTINGS_SRC}
 	${INPUT_SRC}
+	${RENDERERS_BACKEND_SRC}
 	${RENDERERS_SRC}
 	${RESOURCE_SRC}
 	${OS_SRC}
@@ -617,6 +625,7 @@ set (CROWN_HEADERS
 	${COMPRESSORS_HEADERS}
 	${SETTINGS_HEADERS}
 	${INPUT_HEADERS}
+	${RENDERERS_BACKEND_HEADERS}
 	${RENDERERS_HEADERS}
 	${RESOURCE_HEADERS}
 	${OS_HEADERS}
