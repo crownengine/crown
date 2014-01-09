@@ -475,7 +475,7 @@ public:
 				const IndexBuffer& index_buffer = m_index_buffers[ib.index];
 				const uint32_t prim_type = (flags & STATE_PRIMITIVE_MASK) >> STATE_PRIMITIVE_SHIFT;
 				const GLenum gl_prim_type = PRIMITIVE_TYPE_TABLE[prim_type];
-				const uint32_t num_indices = cur_state.num_indices == UINT32_MAX ? index_buffer.m_index_count : cur_state.num_indices;
+				const uint32_t num_indices = cur_state.num_indices == 0xFFFFFFFF ? index_buffer.m_index_count : cur_state.num_indices;
 
 				GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer.m_id));
 				GL_CHECK(glDrawElements(gl_prim_type, num_indices, GL_UNSIGNED_SHORT, (void*) (uintptr_t) (cur_state.start_index * sizeof(uint16_t))));

@@ -294,7 +294,7 @@ struct Texture
 	void commit(uint8_t unit, uint32_t flags)
 	{
 		GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
-		GL_CHECK(glEnable(m_target));
+		//GL_CHECK(glEnable(m_target));
 		GL_CHECK(glBindTexture(m_target, m_id));
 
 		set_sampler_state(flags);
