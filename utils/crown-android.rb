@@ -38,6 +38,7 @@ $manifest			= "../engine/os/android/AndroidManifest.xml"
 
 $luajit				= "../engine/third/ARMv7/luajit"
 $oggvorbis			= "../engine/third/ARMv7/oggvorbis"
+$physx				= "../engine/third/ARMv7/physx"
 
 #------------------------------------------------------------------------------
 def validate_command_line(args)
@@ -163,6 +164,22 @@ def fill_android_project(res, path)
 	FileUtils.cp($oggvorbis + "/lib/libogg.a", engine_dest + "/libogg.a")
 	FileUtils.cp($oggvorbis + "/lib/libvorbis.a", engine_dest + "/libvorbis.a")
 	print "Copied oggvorbis libs to " + engine_dest + "\n"
+
+	# Copy physx lib
+	FileUtils.cp($physx + "/lib/libPhysX3.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libSimulationController.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libLowLevel.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libLowLevelCloth.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libPxTask.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libPhysXProfileSDK.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libPhysX3Extensions.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libSceneQuery.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libPhysX3Common.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libPhysX3CharacterKinematic.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libPhysX3Vehicle.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libPhysX3Cooking.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libPvdRuntime.a", engine_dest)
+	FileUtils.cp($physx + "/lib/libRepX3.a", engine_dest)
 
 	# Copy Java files
 	FileUtils.cp_r(Dir.glob($android_src), android_dest, :remove_destination => true)
