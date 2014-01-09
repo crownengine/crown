@@ -505,6 +505,7 @@ if (LINUX)
 		-Wno-unused-local-typedefs
 		-fPIC
 		#-fvisibility=hidden
+		-fno-exceptions
 	)
 
 	if (CROWN_DEBUG)
