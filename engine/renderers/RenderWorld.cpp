@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mesh.h"
 #include "Sprite.h"
 #include "Material.h"
+#include "Config.h"
 
 namespace crown
 {
@@ -54,13 +55,12 @@ static const char* default_vertex =
 	"uniform mat4      	u_model;"
 	"uniform mat4      	u_model_view_projection;"
 
-	"in vec4           	a_position;"
-	"in vec4           	a_normal;"
-	"in vec2           	a_tex_coord0;"
-	"in vec4           	a_color;"
+	"attribute vec4    	a_position;"
+	"attribute vec2    	a_tex_coord0;"
+	"attribute vec4    	a_color;"
 
-	"varying out vec2	tex_coord0;"
-	"varying out vec4	color;"
+	"varying vec2		tex_coord0;"
+	"varying vec4		color;"
 
 	"void main(void)"
 	"{"
@@ -76,14 +76,14 @@ static const char* default_fragment =
 	"}";
 
 static const char* texture_fragment = 
-	"in vec2            tex_coord0;"
-	"in vec4            color;"
+	"varying vec2       tex_coord0;"
+	"varying vec4       color;"
 
 	"uniform sampler2D  u_albedo_0;"
 
 	"void main(void)"
 	"{"
-	"	gl_FragColor = texture(u_albedo_0, tex_coord0);"
+	"	gl_FragColor = texture2D(u_albedo_0, tex_coord0);"
 	"}";
 
 //-----------------------------------------------------------------------------
@@ -219,6 +219,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		r->commit(0);
 	}
 
+	// Draw all sprites
 	for (uint32_t s = 0; s < m_sprite.size(); s++)
 	{
 		r->set_program(texture_program);
