@@ -478,20 +478,16 @@ if (LINUX)
 		vorbisfile
 		luajit-5.1
 
-		PhysX3
-		SimulationController
 		LowLevel
 		LowLevelCloth
-		PxTask
-		PhysXProfileSDK
-		PhysX3Extensions
-		SceneQuery
-		PhysX3Common
+		PhysX3
 		PhysX3CharacterKinematic
-		PhysX3Vehicle
-		PhysX3Cooking
-		PvdRuntime
-		RepX3
+		PhysX3Common
+		PhysX3Extensions
+		PhysXProfileSDK
+		PxTask
+		SceneQuery
+		SimulationController
 	)
 
 	set (COMPILER_FLAGS
