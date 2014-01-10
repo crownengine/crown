@@ -73,9 +73,17 @@ struct OsKeyboardEvent
 /// Represents an event fired by touch screen.
 struct OsTouchEvent
 {
+	enum Enum
+	{
+		POINTER,
+		MOVE
+	};
+
+	OsTouchEvent::Enum type;
 	uint8_t pointer_id;
 	uint16_t x;
 	uint16_t y;
+	bool pressed;
 };
 
 /// Represents an event fired by accelerometer.

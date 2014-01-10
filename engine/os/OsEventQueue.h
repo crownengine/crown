@@ -82,6 +82,33 @@ struct OsEventQueue
 	}
 
 	//-----------------------------------------------------------------------------
+	void push_touch_event(uint16_t x, uint16_t y, uint8_t pointer_id)
+	{
+		OsEvent ev;
+		ev.type = OsEvent::TOUCH;
+		ev.touch.type = OsTouchEvent::MOVE;
+		ev.touch.x = x;
+		ev.touch.y = y;
+		ev.touch.pointer_id = pointer_id;
+
+		push_event(&ev);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_touch_event(uint16_t x, uint16_t y, uint8_t pointer_id, bool pressed)
+	{
+		OsEvent ev;
+		ev.type = OsEvent::TOUCH;
+		ev.touch.type = OsTouchEvent::POINTER;
+		ev.touch.x = x;
+		ev.touch.y = y;
+		ev.touch.pointer_id = pointer_id;
+		ev.touch.pressed = pressed;
+
+		push_event(&ev);
+	}
+
+	//-----------------------------------------------------------------------------
 	void push_exit_event(int32_t code)
 	{
 		OsEvent ev;
