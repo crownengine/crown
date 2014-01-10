@@ -344,30 +344,31 @@ set (OS_HEADERS
 )
 
 set (LUA_SRC
-	lua/LuaStack.cpp
+	lua/LuaAccelerometer.cpp
+	lua/LuaActor.cpp
+	lua/LuaCamera.cpp
+	lua/LuaController.cpp
+	lua/LuaDevice.cpp
 	lua/LuaEnvironment.cpp
-	lua/LuaIntSetting.cpp
 	lua/LuaFloatSetting.cpp
+	lua/LuaIntSetting.cpp
+	lua/LuaKeyboard.cpp
+	lua/LuaMath.cpp
+	lua/LuaMatrix4x4.cpp
+	lua/LuaMesh.cpp
+	lua/LuaMouse.cpp
+	lua/LuaPhysicsWorld.cpp
+	lua/LuaQuaternion.cpp
+	lua/LuaResourcePackage.cpp
+	lua/LuaSprite.cpp
+	lua/LuaStack.cpp
 	lua/LuaStringSetting.cpp
+	lua/LuaTouch.cpp
+	lua/LuaUnit.cpp
 	lua/LuaVector2.cpp
 	lua/LuaVector3.cpp
-	lua/LuaMatrix4x4.cpp
-	lua/LuaQuaternion.cpp
-	lua/LuaMath.cpp
-	lua/LuaMouse.cpp
-	lua/LuaKeyboard.cpp
-	lua/LuaAccelerometer.cpp
-	lua/LuaDevice.cpp
 	lua/LuaWindow.cpp
-	lua/LuaResourcePackage.cpp
 	lua/LuaWorld.cpp
-	lua/LuaUnit.cpp
-	lua/LuaCamera.cpp
-	lua/LuaMesh.cpp
-	lua/LuaSprite.cpp
-	lua/LuaActor.cpp
-	lua/LuaController.cpp
-	lua/LuaPhysicsWorld.cpp
 )
 
 set (LUA_HEADERS
