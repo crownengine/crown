@@ -21,3 +21,9 @@ test-results
 *.swp
 *.userprefs
 *.pidb
+
+# Ignore some third party dirs
+/engine/third/ARMv7/physx/include
+/engine/third/ARMv7/physx/lib
+/engine/third/x86_64/physx/include
+/engine/third/x86_64/physx/lib
