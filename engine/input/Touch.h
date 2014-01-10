@@ -34,62 +34,98 @@ namespace crown
 
 const uint32_t MAX_POINTER_IDS = 4;
 
-struct PointerData
+/// Interface for accessing mouse input device.
+class Touch
 {
-	uint32_t	x;
-	uint32_t	y;
-	float		relative_x;
-	float		relative_y;
-	bool		up;
-};
+public:
 
-/// Interface for accessing touch input device.
-struct Touch
-{
-	/// Returns whether the touch pointer @a id is up.
-	bool touch_up(uint16_t id) const
+	//-----------------------------------------------------------------------------
+	Touch()
+		: m_last_pointer(0xFF)
 	{
-		return m_pointers[id].up == true;
+		memset(m_last_state, 0, MAX_POINTER_IDS);
+		memset(m_current_state, 0, MAX_POINTER_IDS);
 	}
 
-	/// Returns whether the touch pointer @a id is down.
-	bool touch_down(uint16_t id) const
+	/// Returns whether the @a p pointer is pressed in the current frame.
+	bool pointer_down(uint8_t p)
 	{
-		return m_pointers[id].up == false;
+		if (p >= MAX_POINTER_IDS) return false;
+		return bool(~m_last_state[p] & m_current_state[p]);
 	}
 
-	/// Returns the position of the pointer @a id in windows space.
+	/// Returns whether the @a p pointer is released in the current frame.
+	bool pointer_up(uint8_t p)
+	{
+		if (p >= MAX_POINTER_IDS) return false;
+		return bool(m_last_state[p] & ~m_current_state[p]);
+	}
+
+	/// Returns wheter any pointer is pressed in the current frame.
+	bool any_down()
+	{
+		return pointer_down(m_last_pointer);
+	}
+
+	/// Returns whether any pointer is released in the current frame.
+	bool any_up()
+	{
+		return pointer_up(m_last_pointer);
+	}
+
+	/// Returns the position of the pointer @a p in window space.
 	/// @note
 	/// Coordinates in window space have the origin at the
 	/// upper-left corner of the window. +X extends from left
 	/// to right and +Y extends from top to bottom.
-	Vector2 touch_xy(uint16_t id) const
+	Vector2 pointer_xy(uint8_t p)
 	{
-		const PointerData& data = m_pointers[id];
-
-		return Vector2(data.x, data.y);
+		if (p >= MAX_POINTER_IDS) return Vector2::ZERO;
+		return Vector2(m_x[p], m_y[p]);
 	}
 
-	/// Returns the relative position of the pointer @a id in window space.
-	/// @note
-	/// Coordinates in window space have the origin at the
-	/// upper-left corner of the window. +X extends from left
-	/// to right and +Y extends from top to bottom.
-	/// @note
-	/// Relative coordinates are mapped to a float varying
-	/// from 0.0 to 1.0 where 0.0 is the origin and 1.0 the
-	/// maximum extent of the cosidered axis.
-	Vector2 touch_relative_xy(uint16_t id)
+	//-----------------------------------------------------------------------------
+	void set_position(uint8_t p, uint16_t x, uint16_t y)
 	{
-		const PointerData& data = m_pointers[id];
+		if (p >= MAX_POINTER_IDS) return;
+		m_x[p] = x;
+		m_y[p] = y;
+	}
 
-		return Vector2(data.relative_x, data.relative_y);
+	//-----------------------------------------------------------------------------
+	void set_metrics(uint16_t width, uint16_t height)
+	{
+		m_width = width;
+		m_height = height;
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_pointer_state(uint16_t x, uint16_t y, uint8_t p, bool state)
+	{
+		set_position(p, x, y);
+
+		m_last_pointer = p;
+		m_current_state[p] = state;
+	}
+
+	//-----------------------------------------------------------------------------
+	void update()
+	{
+		memcpy(m_last_state, m_current_state, MAX_POINTER_IDS);
 	}
 
 public:
 
-	PointerData		m_pointers[MAX_POINTER_IDS];
+	uint8_t m_last_pointer;
+	uint8_t m_last_state[MAX_POINTER_IDS];
+	uint8_t m_current_state[MAX_POINTER_IDS];
+
+	uint16_t m_x[MAX_POINTER_IDS];
+	uint16_t m_y[MAX_POINTER_IDS];
+
+	// Window size
+	uint16_t m_width;
+	uint16_t m_height;
 };
 
-}
-
+} // namespace crown
