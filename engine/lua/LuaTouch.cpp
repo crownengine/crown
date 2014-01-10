@@ -24,3 +24,78 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "LuaStack.h"
+#include "Device.h"
+#include "LuaEnvironment.h"
+#include "Touch.h"
+
+namespace crown
+{
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int touch_pointer_down(lua_State* L)
+{
+	LuaStack stack(L);
+
+	int32_t pointer = stack.get_int(1);
+
+	stack.push_bool(device()->touch()->pointer_down((uint8_t) pointer));
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int touch_pointer_up(lua_State* L)
+{
+	LuaStack stack(L);
+
+	int32_t pointer = stack.get_int(1);
+
+	stack.push_bool(device()->touch()->pointer_up((uint8_t) pointer));
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int touch_any_down(lua_State* L)
+{
+	LuaStack stack(L);
+
+	stack.push_bool(device()->touch()->any_down());
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int touch_any_up(lua_State* L)
+{
+	LuaStack stack(L);
+
+	stack.push_bool(device()->touch()->any_up());
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int touch_pointer_xy(lua_State* L)
+{
+	LuaStack stack(L);
+
+	int32_t pointer = stack.get_int(1);
+
+	stack.push_vector2(device()->touch()->pointer_xy((uint8_t) pointer));
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+void load_touch(LuaEnvironment& env)
+{
+	env.load_module_function("Touch", "pointer_down",	touch_pointer_down);
+	env.load_module_function("Touch", "pointer_up",		touch_pointer_up);
+	env.load_module_function("Touch", "any_down",		touch_any_down);
+	env.load_module_function("Touch", "any_up",			touch_any_up);
+	env.load_module_function("Touch", "pointer_xy",		touch_pointer_xy);
+}
+
+} // namespace crown
