@@ -309,30 +309,5 @@ void execute_process(const char* args[])
 }
 
 } // namespace os
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushTouchEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jint pointer_id, jint x, jint y)
-{	
-	OsTouchEvent event;
-
-	event.pointer_id = pointer_id;
-	event.x = x;
-	event.y = y;
-
-	//os_event_buffer()->push_event((OsEventType)type, &event, sizeof(OsTouchEvent));
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushAccelerometerEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jfloat x, jfloat y, jfloat z)
-{
-	OsAccelerometerEvent event;
-
-	event.x = x;
-	event.y = y;
-	event.z = z;
-
-	//os_event_buffer()->push_event((OsEventType)type, &event, sizeof(OsAccelerometerEvent));
-}
-
 } // namespace crown
 

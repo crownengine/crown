@@ -52,7 +52,7 @@ public class CrownLib
 	public static native boolean	isDeviceRunning();
 	public static native boolean	isDevicePaused();
 
-	public static native void 		frame();
+	public static native int		run();
 
 	// AssetManager functions
 	public static native void 		initAssetManager(AssetManager assetManager);
@@ -70,6 +70,7 @@ public class CrownLib
 	public static native void		unpauseSoundRenderer();
 
 	// InputManager functions
-	public static native void 		pushTouchEvent(int type, int pointer_id, int x, int y);
+	public static native void 		pushTouchEventMove(int pointer_id, int x, int y);
+	public static native void		pushTouchEventPointer(int pointer_id, int x, int y, int pressed);
 	public static native void 		pushAccelerometerEvent(int type, float x, float y, float z);	
 }

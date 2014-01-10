@@ -25,11 +25,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <jni.h>
+#include "Allocator.h"
 #include "Device.h"
+#include "Log.h"
+#include "OsEventQueue.h"
 #include "Renderer.h"
 #include "SoundRenderer.h"
-#include "Log.h"
-#include "Allocator.h"
+#include "Touch.h"
 
 namespace crown
 {
@@ -40,8 +42,67 @@ public:
 
 	int32_t run(int, char**)
 	{
-		// Do nothing, the game loop is java-side
+		process_events();
+		Device::frame();
+		m_touch->update();
+		return 0;
 	}
+
+	//-----------------------------------------------------------------------------
+	bool process_events()
+	{
+		OsEvent event;
+		do
+		{
+			m_queue.pop_event(&event);
+
+			if (event.type == OsEvent::NONE) continue;
+
+			switch (event.type)
+			{
+				case OsEvent::TOUCH:
+				{
+					const OsTouchEvent& ev = event.touch;
+					switch (ev.type)
+					{
+						case OsTouchEvent::POINTER: m_touch->set_pointer_state(ev.x, ev.y, ev.pointer_id, ev.pressed); break;
+						case OsTouchEvent::MOVE: m_touch->set_position(ev.pointer_id, ev.x, ev.y); break;
+						default: CE_FATAL("Oops, unknown touch event type"); break;
+					}
+
+					break;
+				}
+				case OsEvent::EXIT:
+				{
+					return true;
+				}
+				default:
+				{
+					CE_FATAL("Unknown Os Event");
+					break;
+				}
+			}
+		}
+		while (event.type != OsEvent::NONE);
+
+		return false;
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_touch_event(uint16_t x, uint16_t y, uint8_t pointer_id)
+	{
+		m_queue.push_touch_event(x, y, pointer_id);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_touch_event(uint16_t x, uint16_t y, uint8_t pointer_id, bool pressed)
+	{
+		m_queue.push_touch_event(x, y, pointer_id, pressed);
+	}
+
+private:
+
+	OsEventQueue m_queue;
 };
 
 static AndroidDevice* g_engine;
@@ -112,9 +173,9 @@ extern "C" JNIEXPORT bool JNICALL Java_crown_android_CrownLib_isDevicePaused(JNI
 }
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_frame(JNIEnv* /*env*/, jobject /*obj*/)
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_run(JNIEnv* /*env*/, jobject /*obj*/)
 {
-	device()->frame();
+	g_engine->run(0, NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -139,7 +200,23 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pauseSoundRenderer
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_unpauseSoundRenderer(JNIEnv* /*env*/, jobject /*obj*/)
 {
 	device()->sound_renderer()->unpause();
+}
 
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushTouchEventMove(JNIEnv * /*env*/, jobject /*obj*/, jint pointer_id, jint x, jint y)
+{
+	g_engine->push_touch_event(x, y, pointer_id);
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushTouchEventPointer(JNIEnv * /*env*/, jobject /*obj*/, jint pointer_id, jint x, jint y, jint pressed)
+{
+	g_engine->push_touch_event(x, y, pointer_id, pressed);
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushAccelerometerEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jfloat x, jfloat y, jfloat z)
+{
 }
 
 } // namespace crown

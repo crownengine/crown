@@ -62,7 +62,7 @@ public class CrownMainThread extends Thread
 
 		while (CrownLib.isDeviceRunning() && !CrownLib.isDevicePaused())
 		{
-			CrownLib.frame();
+			CrownLib.run();
 		}
 	}
 }

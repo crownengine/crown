@@ -62,26 +62,27 @@ public class CrownTouch
 			case MotionEvent.ACTION_DOWN:
 			case MotionEvent.ACTION_POINTER_DOWN:
 			{
-				CrownLib.pushTouchEvent(CrownEnum.OSET_TOUCH_DOWN, pointerId, (int)x, (int)y);
+				CrownLib.pushTouchEventPointer(pointerId, (int) x, (int) y, 1);
 				break;			
 			}
-
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_POINTER_UP:
+			{
+				CrownLib.pushTouchEventPointer(pointerId, (int) x, (int) y, 0);
+				break;
+			}
 			case MotionEvent.ACTION_OUTSIDE:
 			case MotionEvent.ACTION_CANCEL:
 			{
-				CrownLib.pushTouchEvent(CrownEnum.OSET_TOUCH_UP, pointerId, (int)x, (int)y);
+				CrownLib.pushTouchEventPointer(pointerId, (int)x, (int)y, 0);
 				break;			
 			}
-			
 			case MotionEvent.ACTION_MOVE:
 			{
 				for (int index = 0; index < pointerCount; index++)
 				{
-					CrownLib.pushTouchEvent(CrownEnum.OSET_TOUCH_MOVE, event.getPointerId(index), (int)event.getX(index), (int)event.getY(index));
+					CrownLib.pushTouchEventMove(event.getPointerId(index), (int)event.getX(index), (int)event.getY(index));
 				}
-
 				break;
 			}
 		}
