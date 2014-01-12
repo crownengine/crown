@@ -71,9 +71,9 @@ public:
 	//-----------------------------------------------------------------------------
 	bool open(const NetAddress& destination, uint16_t port)
 	{
-		int sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		int sock_id = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-		if (sd <= 0)
+		if (sock_id <= 0)
 		{
 			os::printf("Failed to open socket\n");
 			m_socket = 0;
@@ -81,20 +81,22 @@ public:
 			return false;
 		}
 
-		m_socket = sd;
+		m_socket = sock_id;
 
 		sockaddr_in address;
 		address.sin_family = AF_INET;
 		address.sin_addr.s_addr =  htonl(destination.address());
 		address.sin_port = htons(port);
 
-		if (::connect(sd, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0)
+		if (::connect(sock_id, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0)
 		{
 			os::printf("Failed to connect socket\n");
 			close();
 
 			return false;
 		}
+
+		fcntl(sock_id, F_SETFL, O_NONBLOCK);
 
 		return true;
 	}
