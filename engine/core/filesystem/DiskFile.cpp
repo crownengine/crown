@@ -143,13 +143,13 @@ bool DiskFile::copy_to(File& file, size_t size)
 }
 
 //-----------------------------------------------------------------------------
-bool DiskFile::end_of_file() const
+bool DiskFile::end_of_file()
 {
 	return position() == size();
 }
 
 //-----------------------------------------------------------------------------
-bool DiskFile::is_valid() const
+bool DiskFile::is_valid()
 {
 	return m_file.is_open();
 }
@@ -163,7 +163,7 @@ void DiskFile::flush()
 }
 
 //-----------------------------------------------------------------------------
-size_t DiskFile::position() const
+size_t DiskFile::position()
 {
 	check_valid();
 
@@ -171,7 +171,7 @@ size_t DiskFile::position() const
 }
 
 //-----------------------------------------------------------------------------
-size_t DiskFile::size() const
+size_t DiskFile::size()
 {
 	check_valid();
 	

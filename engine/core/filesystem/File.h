@@ -90,18 +90,18 @@ public:
 	/// A file is valid when the buffer where it operates
 	/// exists. (i.e. a file descriptor is attached to the file, 
 	/// a memory area is attached to the file etc.)
-	virtual bool		is_valid() const = 0;
+	virtual bool		is_valid() = 0;
 
 	/// Returns whether the position is at end of file.
-	virtual bool		end_of_file() const = 0;
+	virtual bool		end_of_file() = 0;
 
 	/// Returns the size of file in bytes.
-	virtual size_t		size() const = 0;
+	virtual size_t		size() = 0;
 
 	/// Returns the current position in file.
 	/// Generally, for binary data, it means the number of bytes
 	/// from the beginning of the file.
-	virtual size_t		position() const = 0;
+	virtual size_t		position() = 0;
 
 	/// Returns whether the file can be read.
 	virtual bool		can_read() const = 0;
