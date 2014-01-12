@@ -66,6 +66,8 @@ private:
 	char		m_buffer[SIZE];
 };
 
+typedef TempAllocator<64> TempAllocator64;
+typedef TempAllocator<128> TempAllocator128;
 typedef TempAllocator<256> TempAllocator256;
 typedef TempAllocator<512> TempAllocator512;
 typedef TempAllocator<1024> TempAllocator1024;
