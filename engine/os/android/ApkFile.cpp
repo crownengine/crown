@@ -113,25 +113,25 @@ void ApkFile::flush()
 }
 
 //-----------------------------------------------------------------------------
-bool ApkFile::is_valid() const
+bool ApkFile::is_valid()
 {
 	return m_asset != NULL;
 }
 
 //-----------------------------------------------------------------------------
-bool ApkFile::end_of_file() const
+bool ApkFile::end_of_file()
 {
 	return AAsset_getRemainingLength(m_asset) == 0;
 }
 
 //-----------------------------------------------------------------------------
-size_t ApkFile::size() const
+size_t ApkFile::size()
 {
 	return AAsset_getLength(m_asset);
 }
 
 //-----------------------------------------------------------------------------
-size_t ApkFile::position() const
+size_t ApkFile::position()
 {
 	return (size_t) (AAsset_getLength(m_asset) - AAsset_getRemainingLength(m_asset));
 }

@@ -61,16 +61,16 @@ public:
 	void		flush();
 
 	/// @copydoc File::is_valid()
-	bool		is_valid() const;
+	bool		is_valid();
 
 	/// @copydoc File::end_of_file()
-	bool		end_of_file() const;
+	bool		end_of_file();
 
 	/// @copydoc File::size()
-	size_t		size() const;
+	size_t		size();
 
 	/// @copydoc File::position()
-	size_t		position() const;
+	size_t		position();
 
 	/// @copydoc File::can_read()
 	bool		can_read() const;
