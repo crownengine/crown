@@ -36,7 +36,7 @@ namespace crown
 {
 
 typedef Id ClientId;
-#define MAX_CONSOLE_CLIENTS 16
+#define MAX_CONSOLE_CLIENTS 100
 
 struct RPCCallback
 {
@@ -48,7 +48,8 @@ class ConsoleServer
 {
 public:
 
-								ConsoleServer();
+	/// Listens on the given @a port.
+								ConsoleServer(uint16_t port);
 
 	/// Initializes the system. If @a wait is true, this function
 	/// blocks until a client is connected.
@@ -60,15 +61,12 @@ public:
 	void						send_message_to(ClientId client, const char* message);
 	void						send_message_to_all(const char* message);
 
-	/// Collects requests from clients without processing them.
+	/// Collects requests from clients and processes them all.
 	void						update();
-
-	/// Processes all the requests collected by update() possibly accessing
-	/// global resources. It should be called only when "it is safe".
-	void						process_requests();
 
 private:
 
+	void						process_requests();
 	void						update_client(ClientId id);
 	void						add_client(TCPSocket& client);
 	void						remove_client(ClientId id);
@@ -78,9 +76,11 @@ private:
 	void						process_script(ClientId client, const char* msg);
 	void						process_stats(ClientId client, const char* msg);
 	void						process_command(ClientId client, const char* msg);
+	void						processs_filesystem(ClientId client, const char* msg);
 
 private:
 
+	uint16_t					m_port;
 	TCPListener					m_listener;
 
 	uint8_t						m_num_clients;
@@ -88,10 +88,7 @@ private:
 	TCPSocket					m_clients[MAX_CONSOLE_CLIENTS];
 
 	List<char>					m_receive_buffer;
-	List<char>					m_send_buffer;
-
 	Queue<RPCCallback>			m_receive_callbacks;
-	Queue<RPCCallback>			m_send_callbacks;
 };
 
 } // namespace crown
