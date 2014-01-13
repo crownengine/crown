@@ -253,10 +253,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 		for (uint32_t i = 0; i < guis_array_size; i++)
 		{
-			TempAllocator256 alloc;
-			DynamicString guis_name(alloc);
-			guis_name += guis_array[i].string_value();
-			guis_name += ".gui";
+			DynamicString guis_name;
+			guis_array[i].string_value(guis_name); guis_name += ".gui";
 
 			if (!fs.is_file(guis_name.c_str()))
 			{
@@ -265,7 +263,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			}
 
 			ResourceId id;
-			id.id = hash::murmur2_64(guis_name.c_str(), string::strlen(guis_name.c_str()), 0);
+			id.id = hash::murmur2_64(guis_name.c_str(), guis_name.length(), 0);
 			m_guis.push_back(id);
 		}
 	}	
