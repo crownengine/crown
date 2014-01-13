@@ -70,7 +70,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		{
 			DynamicString texture_name;
 			texture_array[i].string_value(texture_name); texture_name += ".texture";
-			Log::d("texture name = %s", texture_name.c_str());
 
 			if (!fs.is_file(texture_name.c_str()))
 			{
