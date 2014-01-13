@@ -43,7 +43,7 @@ $physx				= "../engine/third/ARMv7/physx"
 #------------------------------------------------------------------------------
 def validate_command_line(args)
 
-	if args.length != 8
+	if args.length != 6
 		return false
 	end
 
@@ -55,11 +55,7 @@ def validate_command_line(args)
 		return false
 	end
 
-	if args[4] != "--res"
-		return false
-	end
-
-	if args[6] != "--path"
+	if args[4] != "--path"
 		return false
 	end
 
@@ -188,11 +184,6 @@ def fill_android_project(res, path)
 	# Copy Android Manifest
 	FileUtils.cp($manifest, path)
 	print "Copied Android Manifest to " + path  + "\n"
-
-	#Copy resources
-	FileUtils.cp_r(res + "/.", resources_dest, :remove_destination => true)
-	print "Resources copied to " + resources_dest  + "\n"
-
 end
 
 #------------------------------------------------------------------------------
