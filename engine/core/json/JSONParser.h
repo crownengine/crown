@@ -33,6 +33,7 @@ namespace crown
 {
 
 class JSONParser;
+class DynamicString;
 
 /// Represents a JSON element.
 /// The objects of this class are valid until the parser
@@ -118,7 +119,7 @@ public:
 	/// The returned string is kept internally until the next call to
 	/// this function, so it is highly unsafe to just keep the pointer
 	/// instead of copying its content somewhere else.
-	const char*			string_value() const;
+	void				string_value(DynamicString& str) const;
 
 	/// Returns the array value of the element.
 	/// @note

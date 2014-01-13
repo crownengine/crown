@@ -124,9 +124,23 @@ void parse_node(JSONElement e, List<GraphNode>& nodes, List<GraphNodeDepth>& nod
 	JSONElement pos = e.key("position");
 	JSONElement rot = e.key("rotation");
 
+	DynamicString node_name;
+	name.string_value(node_name);
+
 	GraphNode gn;
-	gn.name = hash::murmur2_32(name.string_value(), name.size(), 0);
-	gn.parent = parent.is_nil() ? NO_PARENT : hash::murmur2_32(parent.string_value(), parent.size(), 0);
+	gn.name = hash::murmur2_32(node_name.c_str(), node_name.length(), 0);
+
+	if (parent.is_nil())
+	{
+		gn.parent = NO_PARENT;
+	}
+	else
+	{
+		DynamicString parent_name;
+		parent.string_value(parent_name);
+		hash::murmur2_32(parent_name.c_str(), parent_name.length(), 0);
+	}
+
 	gn.position = Vector3(pos[0].float_value(), pos[1].float_value(), pos[2].float_value());
 	gn.rotation = Quaternion(Vector3(rot[0].float_value(), rot[1].float_value(), rot[2].float_value()), rot[3].float_value());
 
@@ -145,11 +159,16 @@ void parse_camera(JSONElement e, List<UnitCamera>& cameras, const List<GraphNode
 	JSONElement name = e.key("name");
 	JSONElement node = e.key("node");
 
-	StringId32 node_name = hash::murmur2_32(node.string_value(), node.size(), 0);
+	DynamicString node_name;
+	DynamicString camera_name;
+	node.string_value(node_name);
+	name.string_value(camera_name);
+
+	StringId32 node_name_hash = hash::murmur2_32(node_name.c_str(), node_name.length(), 0);
 
 	UnitCamera cn;
-	cn.name = hash::murmur2_32(name.string_value(), name.size(), 0);
-	cn.node = find_node_index(node_name, node_depths);
+	cn.name = hash::murmur2_32(camera_name.c_str(), camera_name.length(), 0);
+	cn.node = find_node_index(node_name_hash, node_depths);
 
 	cameras.push_back(cn);
 }
@@ -163,33 +182,41 @@ void parse_renderable(JSONElement e, List<UnitRenderable>& renderables, const Li
 	JSONElement res = e.key("resource");
 	JSONElement vis = e.key("visible");
 
-	StringId32 node_name = hash::murmur2_32(node.string_value(), node.size(), 0);
+	DynamicString renderable_name;
+	DynamicString node_name;
+	name.string_value(renderable_name);
+	node.string_value(node_name);
+
+	StringId32 node_name_hash = hash::murmur2_32(node_name.c_str(), node_name.length(), 0);
 
 	UnitRenderable rn;
-	rn.name = hash::murmur2_32(name.string_value(), name.size(), 0);
-	rn.node = find_node_index(node_name, node_depths);
+	rn.name = hash::murmur2_32(renderable_name.c_str(), renderable_name.length(), 0);
+	rn.node = find_node_index(node_name_hash, node_depths);
 	rn.visible = vis.bool_value();
 
-	const char* res_type = type.string_value();
+	DynamicString res_type;
+	DynamicString resource_name;
+	type.string_value(res_type);
+	res.string_value(resource_name);
 	DynamicString res_name;
 
-	if (string::strcmp(res_type, "mesh") == 0)
+	if (res_type == "mesh")
 	{
 		rn.type = UnitRenderable::MESH;
-		res_name += res.string_value();
+		res_name += resource_name;
 		res_name += ".mesh";
 	}
-	else if (string::strcmp(res_type, "sprite") == 0)
+	else if (res_type == "sprite")
 	{
 		rn.type = UnitRenderable::SPRITE;
-		res_name += res.string_value();
+		res_name += resource_name;
 		res_name += ".sprite";
 	}
 	else
 	{
-		CE_ASSERT(false, "Oops, unknown renderable type: '%s'", res_type);
+		CE_ASSERT(false, "Oops, unknown renderable type: '%s'", res_type.c_str());
 	}
-	rn.resource.id = hash::murmur2_64(res_name.c_str(), string::strlen(res_name.c_str()), 0);
+	rn.resource.id = hash::murmur2_64(res_name.c_str(), res_name.length(), 0);
 
 	renderables.push_back(rn);
 }
@@ -203,14 +230,23 @@ void parse_actor(JSONElement e, List<UnitActor>& actors, const List<GraphNodeDep
 	JSONElement shape = e.key("shape");
 	JSONElement active = e.key("active");
 
-	StringId32 node_name = hash::murmur2_32(node.string_value(), node.size(), 0);
+	DynamicString actor_name;
+	DynamicString node_name;
+	DynamicString type_name;
+	DynamicString shape_name;
+	name.string_value(actor_name);
+	node.string_value(node_name);
+	type.string_value(type_name);
+	shape.string_value(shape_name);
+
+	StringId32 node_name_hash = hash::murmur2_32(node_name.c_str(), node_name.length(), 0);
 
 	UnitActor an;
-	an.name = hash::murmur2_32(name.string_value(), name.size(), 0);
-	an.node = find_node_index(node_name, node_depths);
-	an.type = string::strcmp(type.string_value(), "STATIC") == 0 ? UnitActor::STATIC : UnitActor::DYNAMIC;
-	an.shape = string::strcmp(shape.string_value(), "SPHERE") == 0 ? UnitActor::SPHERE :
-	 			string::strcmp(shape.string_value(), "BOX") == 0 ? UnitActor::BOX : UnitActor::PLANE;
+	an.name = hash::murmur2_32(actor_name.c_str(), actor_name.length(), 0);
+	an.node = find_node_index(node_name_hash, node_depths);
+	an.type = type_name == "STATIC" ? UnitActor::STATIC : UnitActor::DYNAMIC;
+	an.shape = shape_name == "SPHERE" ? UnitActor::SPHERE :
+	 			shape_name == "BOX" ? UnitActor::BOX : UnitActor::PLANE;
 	an.active = active.bool_value();
 
 	actors.push_back(an);

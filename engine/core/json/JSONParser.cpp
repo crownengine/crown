@@ -59,15 +59,13 @@ JSONElement& JSONElement::operator=(const JSONElement& other)
 {
 	// Our begin is the other's at
 	m_at = other.m_at;
-
 	return *this;
 }
 
 //--------------------------------------------------------------------------
 JSONElement JSONElement::operator[](uint32_t i)
 {
-	TempAllocator1024 alloc;
-	List<const char*> array(alloc);
+	List<const char*> array(default_allocator());
 
 	json::parse_array(m_at, array);
 
@@ -87,8 +85,7 @@ JSONElement JSONElement::index_or_nil(uint32_t i)
 {
 	if (m_at != NULL)
 	{
-		TempAllocator1024 alloc;
-		List<const char*> array(alloc);
+		List<const char*> array(default_allocator());
 
 		json::parse_array(m_at, array);
 
@@ -106,8 +103,7 @@ JSONElement JSONElement::index_or_nil(uint32_t i)
 //--------------------------------------------------------------------------
 JSONElement JSONElement::key(const char* k)
 {
-	TempAllocator1024 alloc;
-	List<JSONPair> object(alloc);
+	List<JSONPair> object(default_allocator());
 
 	json::parse_object(m_at, object);
 
@@ -116,12 +112,10 @@ JSONElement JSONElement::key(const char* k)
 	const char* tmp_at = m_at;
 	for (uint32_t i = 0; i < object.size(); i++)
 	{
-		TempAllocator256 key_alloc;
-		List<char> key(key_alloc);
-
+		DynamicString key;
 		json::parse_string(object[i].key, key);
 
-		if (string::strcmp(k, key.begin()) == 0)
+		if (key == k)
 		{
 			tmp_at = object[i].val;
 			found = true;
@@ -138,8 +132,7 @@ JSONElement JSONElement::key_or_nil(const char* k)
 {
 	if (m_at != NULL)
 	{
-		TempAllocator1024 alloc;
-		List<JSONPair> object(alloc);
+		List<JSONPair> object(default_allocator());
 
 		json::parse_object(m_at, object);
 
@@ -148,12 +141,10 @@ JSONElement JSONElement::key_or_nil(const char* k)
 		const char* tmp_at = m_at;
 		for (uint32_t i = 0; i < object.size(); i++)
 		{
-			TempAllocator256 key_alloc;
-			List<char> key(key_alloc);
-
+			DynamicString key;
 			json::parse_string(object[i].key, key);
 
-			if (string::strcmp(k, key.begin()) == 0)
+			if (key == k)
 			{
 				tmp_at = object[i].val;
 				found = true;
@@ -174,18 +165,15 @@ JSONElement JSONElement::key_or_nil(const char* k)
 //--------------------------------------------------------------------------
 bool JSONElement::has_key(const char* k) const
 {
-	TempAllocator1024 alloc;
-	List<JSONPair> object(alloc);
+	List<JSONPair> object(default_allocator());
 	json::parse_object(m_at, object);
 
 	for (uint32_t i = 0; i < object.size(); i++)
 	{
-		TempAllocator256 key_alloc;
-		List<char> key(key_alloc);
-
+		DynamicString key;
 		json::parse_string(object[i].key, key);
 
-		if (string::strcmp(k, key.begin()) == 0)
+		if (key == k)
 		{
 			return true;
 		}
@@ -197,20 +185,17 @@ bool JSONElement::has_key(const char* k) const
 //--------------------------------------------------------------------------
 bool JSONElement::is_key_unique(const char* k) const
 {
-	TempAllocator1024 alloc;
-	List<JSONPair> object(alloc);
+	List<JSONPair> object(default_allocator());
 	json::parse_object(m_at, object);
 
 	bool found = false;
 
 	for (uint32_t i = 0; i < object.size(); i++)
 	{
-		TempAllocator256 key_alloc;
-		List<char> key(key_alloc);
-
+		DynamicString key;
 		json::parse_string(object[i].key, key);
 
-		if (string::strcmp(k, key.begin()) == 0)
+		if (key == k)
 		{
 			if (found == true)
 			{
@@ -246,23 +231,15 @@ float JSONElement::float_value() const
 }
 
 //--------------------------------------------------------------------------
-const char* JSONElement::string_value() const
+void JSONElement::string_value(DynamicString& str) const
 {
-	static TempAllocator1024 alloc;
-	static List<char> string(alloc);
-
-	string.clear();
-
-	json::parse_string(m_at, string);
-
-	return string.begin();
+	json::parse_string(m_at, str);
 }
 
 //--------------------------------------------------------------------------
 void JSONElement::array_value(List<bool>& array) const
 {
-	TempAllocator1024 alloc;
-	List<const char*> temp(alloc);
+	List<const char*> temp(default_allocator());
 
 	json::parse_array(m_at, temp);
 
@@ -275,8 +252,7 @@ void JSONElement::array_value(List<bool>& array) const
 //--------------------------------------------------------------------------
 void JSONElement::array_value(List<int16_t>& array) const
 {
-	TempAllocator1024 alloc;
-	List<const char*> temp(alloc);
+	List<const char*> temp(default_allocator());
 
 	json::parse_array(m_at, temp);
 
@@ -289,8 +265,7 @@ void JSONElement::array_value(List<int16_t>& array) const
 //--------------------------------------------------------------------------
 void JSONElement::array_value(List<uint16_t>& array) const
 {
-	TempAllocator1024 alloc;
-	List<const char*> temp(alloc);
+	List<const char*> temp(default_allocator());
 
 	json::parse_array(m_at, temp);
 
@@ -303,8 +278,7 @@ void JSONElement::array_value(List<uint16_t>& array) const
 //--------------------------------------------------------------------------
 void JSONElement::array_value(List<int32_t>& array) const
 {
-	TempAllocator1024 alloc;
-	List<const char*> temp(alloc);
+	List<const char*> temp(default_allocator());
 
 	json::parse_array(m_at, temp);
 
@@ -317,8 +291,7 @@ void JSONElement::array_value(List<int32_t>& array) const
 //--------------------------------------------------------------------------
 void JSONElement::array_value(List<uint32_t>& array) const
 {
-	TempAllocator1024 alloc;
-	List<const char*> temp(alloc);
+	List<const char*> temp(default_allocator());
 
 	json::parse_array(m_at, temp);
 
@@ -331,8 +304,7 @@ void JSONElement::array_value(List<uint32_t>& array) const
 //--------------------------------------------------------------------------
 void JSONElement::array_value(List<float>& array) const
 {
-	TempAllocator1024 alloc;
-	List<const char*> temp(alloc);
+	List<const char*> temp(default_allocator());
 
 	json::parse_array(m_at, temp);
 
@@ -424,27 +396,23 @@ uint32_t JSONElement::size() const
 		}
 		case JSONType::OBJECT:
 		{
-			TempAllocator1024 alloc;
-			List<JSONPair> object(alloc);
+			List<JSONPair> object(default_allocator());
 			json::parse_object(m_at, object);
 
 			return object.size();
 		}
 		case JSONType::ARRAY:
 		{
-			TempAllocator1024 alloc;
-			List<const char*> array(alloc);
+			List<const char*> array(default_allocator());
 			json::parse_array(m_at, array);
 
 			return array.size();
 		}
 		case JSONType::STRING:
 		{
-			TempAllocator1024 alloc;
-			List<char> string(alloc);
+			DynamicString string;
 			json::parse_string(m_at, string);
-
-			return string::strlen(string.begin());
+			return string.length();
 		}
 		case JSONType::NUMBER:
 		{

@@ -57,7 +57,10 @@ void parse_frame(JSONElement frame, List<StringId32>& names, List<FrameData>& re
 	JSONElement offset = frame.key("offset");
 	JSONElement scale = frame.key("scale");
 
-	StringId32 name_hash = hash::murmur2_32(name.string_value(), name.size(), 0);
+	DynamicString frame_name;
+	name.string_value(frame_name);
+
+	StringId32 name_hash = hash::murmur2_32(frame_name.c_str(), frame_name.length(), 0);
 	FrameData fd;
 	fd.x0 = region[0].float_value();
 	fd.y0 = region[1].float_value();

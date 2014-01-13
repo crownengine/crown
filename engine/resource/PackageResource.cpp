@@ -67,10 +67,9 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 		for (uint32_t i = 0; i < texture_array_size; i++)
 		{
-			TempAllocator256 alloc;
-			DynamicString texture_name(alloc);
-			texture_name += texture_array[i].string_value();
-			texture_name += ".texture";
+			DynamicString texture_name;
+			texture_array[i].string_value(texture_name); texture_name += ".texture";
+			Log::d("texture name = %s", texture_name.c_str());
 
 			if (!fs.is_file(texture_name.c_str()))
 			{
@@ -79,7 +78,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			}
 
 			ResourceId id;
-			id.id = hash::murmur2_64(texture_name.c_str(), string::strlen(texture_name.c_str()), 0);
+			id.id = hash::murmur2_64(texture_name.c_str(), texture_name.length(), 0);
 			m_texture.push_back(id);
 		}
 	}
@@ -93,10 +92,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 		for (uint32_t i = 0; i < lua_array_size; i++)
 		{
-			TempAllocator256 alloc;
-			DynamicString lua_name(alloc);
-			lua_name += lua_array[i].string_value();
-			lua_name += ".lua";
+			DynamicString lua_name;
+			lua_array[i].string_value(lua_name); lua_name += ".lua";
 
 			if (!fs.is_file(lua_name.c_str()))
 			{
@@ -105,7 +102,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			}
 
 			ResourceId id;
-			id.id = hash::murmur2_64(lua_name.c_str(), string::strlen(lua_name.c_str()), 0);
+			id.id = hash::murmur2_64(lua_name.c_str(), lua_name.length(), 0);
 			m_script.push_back(id);
 		}
 	}
@@ -118,10 +115,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 		for (uint32_t i = 0; i < sound_array_size; i++)
 		{
-			TempAllocator256 alloc;
-			DynamicString sound_name(alloc);
-			sound_name += sound_array[i].string_value();
-			sound_name += ".sound";
+			DynamicString sound_name;
+			sound_array[i].string_value(sound_name); sound_name += ".sound";
 
 			if (!fs.is_file(sound_name.c_str()))
 			{
@@ -143,10 +138,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 		for (uint32_t i = 0; i < mesh_array_size; i++)
 		{
-			TempAllocator256 alloc;
-			DynamicString mesh_name(alloc);
-			mesh_name += mesh_array[i].string_value();
-			mesh_name += ".mesh";
+			DynamicString mesh_name;
+			mesh_array[i].string_value(mesh_name); mesh_name += ".mesh";
 
 			if (!fs.is_file(mesh_name.c_str()))
 			{
@@ -155,7 +148,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			}
 
 			ResourceId id;
-			id.id = hash::murmur2_64(mesh_name.c_str(), string::strlen(mesh_name.c_str()), 0);
+			id.id = hash::murmur2_64(mesh_name.c_str(), mesh_name.length(), 0);
 			m_mesh.push_back(id);
 		}
 	}
@@ -168,10 +161,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 		for (uint32_t i = 0; i < unit_array_size; i++)
 		{
-			TempAllocator256 alloc;
-			DynamicString unit_name(alloc);
-			unit_name += unit_array[i].string_value();
-			unit_name += ".unit";
+			DynamicString unit_name;
+			unit_array[i].string_value(unit_name); unit_name += ".unit";
 
 			if (!fs.is_file(unit_name.c_str()))
 			{
@@ -179,7 +170,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			}
 
 			ResourceId id;
-			id.id = hash::murmur2_64(unit_name.c_str(), string::strlen(unit_name.c_str()), 0);
+			id.id = hash::murmur2_64(unit_name.c_str(), unit_name.length(), 0);
 			m_unit.push_back(id);
 		}
 	}
@@ -192,10 +183,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 		for (uint32_t i = 0; i < sprite_array_size; i++)
 		{
-			TempAllocator256 alloc;
-			DynamicString sprite_name(alloc);
-			sprite_name += sprite_array[i].string_value();
-			sprite_name += ".sprite";
+			DynamicString sprite_name;
+			sprite_array[i].string_value(sprite_name); sprite_name += ".sprite";
 
 			if (!fs.is_file(sprite_name.c_str()))
 			{
@@ -204,7 +193,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			}
 
 			ResourceId id;
-			id.id = hash::murmur2_64(sprite_name.c_str(), string::strlen(sprite_name.c_str()), 0);
+			id.id = hash::murmur2_64(sprite_name.c_str(), sprite_name.length(), 0);
 			m_sprite.push_back(id);
 		}
 	}
@@ -217,10 +206,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 		for (uint32_t i = 0; i < physics_array_size; i++)
 		{
-			TempAllocator256 alloc;
-			DynamicString physics_name(alloc);
-			physics_name += physics_array[i].string_value();
-			physics_name += ".physics";
+			DynamicString physics_name;
+			physics_array[i].string_value(physics_name); physics_name += ".physics";
 
 			if (!fs.is_file(physics_name.c_str()))
 			{
@@ -229,7 +216,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			}
 
 			ResourceId id;
-			id.id = hash::murmur2_64(physics_name.c_str(), string::strlen(physics_name.c_str()), 0);
+			id.id = hash::murmur2_64(physics_name.c_str(), physics_name.length(), 0);
 			m_physics.push_back(id);
 		}	
 	}
@@ -242,10 +229,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 		for (uint32_t i = 0; i < materials_array_size; i++)
 		{
-			TempAllocator256 alloc;
-			DynamicString materials_name(alloc);
-			materials_name += materials_array[i].string_value();
-			materials_name += ".material";
+			DynamicString materials_name;
+			materials_array[i].string_value(materials_name); materials_name += ".material";
 
 			if (!fs.is_file(materials_name.c_str()))
 			{
@@ -254,7 +239,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			}
 
 			ResourceId id;
-			id.id = hash::murmur2_64(materials_name.c_str(), string::strlen(materials_name.c_str()), 0);
+			id.id = hash::murmur2_64(materials_name.c_str(), materials_name.length(), 0);
 			m_materials.push_back(id);
 		}
 	}

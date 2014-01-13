@@ -52,8 +52,9 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONElement tl = root.key("texture_layers");
 	for (uint32_t i = 0; i < tl.size(); i++)
 	{
-		DynamicString tex; tex = tl[i].string_value(); tex += ".texture";
-		ResourceId tex_id; tex_id.id = hash::murmur2_64(tex.c_str(), string::strlen(tex.c_str()), 0);
+		DynamicString tex;
+		tl[i].string_value(tex); tex += ".texture";
+		ResourceId tex_id; tex_id.id = hash::murmur2_64(tex.c_str(), tex.length(), 0);
 		texture_layers.push_back(tex_id);
 	}
 

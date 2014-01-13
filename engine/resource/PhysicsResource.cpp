@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "JSONParser.h"
 #include "PhysicsResource.h"
 #include "StringUtils.h"
+#include "DynamicString.h"
 
 namespace crown
 {
@@ -58,7 +59,9 @@ void parse_controller(JSONElement e, PhysicsController& controller)
 	JSONElement step_offset = e.key("step_offset");
 	JSONElement contact_offset = e.key("contact_offset");
 
-	controller.name = hash::murmur2_32(name.string_value(), name.size());
+	DynamicString contr_name;
+	name.string_value(contr_name);
+	controller.name = hash::murmur2_32(contr_name.c_str(), contr_name.length());
 	controller.height = height.float_value();
 	controller.radius = radius.float_value();
 	controller.slope_limit = slope_limit.float_value();
@@ -72,8 +75,13 @@ void parse_shape(JSONElement e, PhysicsShape& shape)
 	JSONElement name = e.key("name");
 	JSONElement type = e.key("type");
 
-	shape.name = hash::murmur2_32(name.string_value(), name.size());
-	shape.type = shape_type_to_enum(type.string_value());
+	DynamicString shape_name;
+	DynamicString shape_type;
+	name.string_value(shape_name);
+	type.string_value(shape_type);
+
+	shape.name = hash::murmur2_32(shape_name.c_str(), shape_name.length());
+	shape.type = shape_type_to_enum(shape_type.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -83,8 +91,13 @@ void parse_actor(JSONElement e, PhysicsActor& actor, List<PhysicsShape>& actor_s
 	JSONElement node = e.key("node");
 	JSONElement shapes = e.key("shapes");
 
-	actor.name = hash::murmur2_32(name.string_value(), name.size());
-	actor.node = hash::murmur2_32(node.string_value(), node.size());
+	DynamicString actor_name;
+	DynamicString actor_node;
+	name.string_value(actor_name);
+	node.string_value(actor_node);
+
+	actor.name = hash::murmur2_32(actor_name.c_str(), actor_name.length());
+	actor.node = hash::murmur2_32(actor_node.c_str(), actor_node.length());
 	actor.num_shapes = shapes.size();
 
 	for (uint32_t i = 0; i < actor.num_shapes; i++)

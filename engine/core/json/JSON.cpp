@@ -26,8 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "JSON.h"
 #include "List.h"
-#include "TempAllocator.h"
 #include "StringUtils.h"
+#include "DynamicString.h"
 
 namespace crown
 {
@@ -229,7 +229,7 @@ JSONType::Enum type(const char* s)
 }
 
 //-----------------------------------------------------------------------------
-void parse_string(const char* s, List<char>& str)
+void parse_string(const char* s, DynamicString& str)
 {
 	CE_ASSERT_NOT_NULL(s);
 
@@ -243,7 +243,6 @@ void parse_string(const char* s, List<char>& str)
 			if ((*ch) == '"')
 			{
 				ch = next(ch);
-				str.push_back('\0');
 				return;
 			}
 			else if ((*ch) == '\\')
@@ -256,7 +255,7 @@ void parse_string(const char* s, List<char>& str)
 				}
 				else if (is_escapee(*ch))
 				{
-					str.push_back(*ch);
+					str += (*ch);
 				}
 				else
 				{
@@ -266,7 +265,7 @@ void parse_string(const char* s, List<char>& str)
 			}
 			else
 			{
-				str.push_back(*ch);
+				str += (*ch);
 			}
 		}
 	}
@@ -281,8 +280,7 @@ double parse_number(const char* s)
 
 	const char* ch = s;
 
-	TempAllocator1024 allocator;
- 	List<char> str(allocator);
+ 	List<char> str(default_allocator());
 
 	if ((*ch) == '-')
 	{

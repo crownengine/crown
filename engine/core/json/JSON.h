@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Types.h"
+#include "DynamicString.h"
 
 #pragma once
 
@@ -33,6 +34,7 @@ namespace crown
 
 template<typename T>
 class List;
+class DynamicString;
 
 namespace json
 {
@@ -63,7 +65,7 @@ struct JSONPair
 JSONType::Enum type(const char* s);
 
 /// Parses the @a s JSON string a puts its C representation into @a str.
-void parse_string(const char* s, List<char>& str);
+void parse_string(const char* s, DynamicString& str);
 
 /// Returns the value of the @a s JSON number as double.
 double parse_number(const char* s);
