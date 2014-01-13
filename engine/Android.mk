@@ -106,6 +106,8 @@ LOCAL_SRC_FILES :=\
 	core/filesystem/DiskFile.cpp\
 	core/filesystem/DiskFilesystem.cpp\
 	core/filesystem/File.cpp\
+	core/filesystem/NetworkFile.cpp\
+	core/filesystem/NetworkFilesystem.cpp\
 \
 	core/json/JSON.cpp\
 	core/json/JSONParser.cpp\
@@ -143,6 +145,7 @@ LOCAL_SRC_FILES :=\
 	physics/Actor.cpp\
 	physics/Controller.cpp\
 	physics/PhysicsWorld.cpp\
+	physics/Trigger.cpp\
 \
 	renderers/backend/gl/egl/GLContext.cpp\
 	renderers/backend/gl/GLRenderer.cpp\
@@ -164,6 +167,7 @@ LOCAL_SRC_FILES :=\
 	lua/LuaDevice.cpp\
 	lua/LuaEnvironment.cpp\
 	lua/LuaFloatSetting.cpp\
+	lua/LuaGui.cpp\
 	lua/LuaIntSetting.cpp\
 	lua/LuaKeyboard.cpp\
 	lua/LuaMath.cpp\
@@ -192,6 +196,7 @@ LOCAL_SRC_FILES :=\
 \
 	ConsoleServer.cpp\
 	Device.cpp\
+	Gui.cpp\
 \
 	audio/sles/SLESRenderer.cpp\
 
