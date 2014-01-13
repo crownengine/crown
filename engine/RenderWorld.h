@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define MAX_MESHES 100
 #define MAX_SPRITES 256
 #define MAX_MATERIALS 256
+#define MAX_GUIS 8
 
 namespace crown
 {
@@ -42,6 +43,7 @@ namespace crown
 typedef Id MeshId;
 typedef Id SpriteId;
 typedef Id MaterialId;
+typedef Id GuiId;
 
 struct Material;
 struct MaterialResource;
@@ -50,6 +52,10 @@ struct MeshResource;
 struct SceneGraph;
 struct Sprite;
 struct SpriteResource;
+struct Gui;
+struct Vector2;
+struct Vector3;
+struct GuiResource;
 
 class RenderWorld
 {
@@ -70,6 +76,10 @@ public:
 	void		destroy_material(MaterialId id);
 	Material*	lookup_material(MaterialId id);
 
+	GuiId		create_gui(GuiResource* gr);
+	void		destroy_gui(GuiId id);
+	Gui*		lookup_gui(GuiId id);
+
 	void		update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 
 private:
@@ -77,10 +87,12 @@ private:
 	PoolAllocator						m_mesh_pool;
 	PoolAllocator						m_sprite_pool;
 	PoolAllocator						m_material_pool;
+	PoolAllocator						m_gui_pool;
 
 	IdArray<MAX_MESHES, Mesh*>			m_mesh;
 	IdArray<MAX_SPRITES, Sprite*>		m_sprite;
 	IdArray<MAX_MATERIALS, Material*>	m_materials;
+	IdArray<MAX_GUIS, Gui*>				m_guis;
 };
 
 } // namespace crown
