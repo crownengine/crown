@@ -91,6 +91,7 @@ set (SRC
 	Mesh.cpp
 	Sprite.cpp
 	Material.cpp
+	Gui.cpp
 	ConsoleServer.cpp
 )
 
@@ -102,6 +103,7 @@ set (HEADERS
 	Mesh.h
 	Sprite.h
 	Material.h
+	Gui.h
 	ConsoleServer.h
 )
 
@@ -294,6 +296,7 @@ set (RESOURCE_SRC
 	resource/PackageResource.cpp
 	resource/MeshResource.cpp
 	resource/LuaResource.cpp
+	resource/GuiResource.cpp
 )
 
 set (RESOURCE_HEADERS
@@ -313,6 +316,7 @@ set (RESOURCE_HEADERS
 	resource/ResourcePackage.h
 	resource/SpriteResource.h
 	resource/PhysicsResource.h
+	resource/GuiResource.h
 )
 
 if (CROWN_DEBUG OR CROWN_DEVELOPMENT)
@@ -359,6 +363,7 @@ set (LUA_SRC
 	lua/LuaActor.cpp
 	lua/LuaController.cpp
 	lua/LuaPhysicsWorld.cpp
+	lua/LuaGui.cpp
 )
 
 set (LUA_HEADERS
