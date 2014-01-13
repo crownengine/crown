@@ -167,6 +167,8 @@ protected:
 	char					m_source_dir[MAX_PATH_LENGTH];
 	char 					m_bundle_dir[MAX_PATH_LENGTH];
 	char 					m_boot_file[MAX_PATH_LENGTH];
+	int32_t					m_fileserver;
+	uint16_t				m_console_port;
 
 	bool					m_is_init		: 1;
 	bool					m_is_running	: 1;

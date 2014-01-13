@@ -478,8 +478,10 @@ public:
 			"\nAvailable only in debug and development builds:\n\n"
 
 			"  --source-dir <path>        Use <path> as the source directory for resource compilation.\n"
-			"  --compile                  Run the engine as resource compiler.\n"
-			"  --continue                 Do a full compile of the resources and continue the execution.\n";
+			"  --compile                  Do a full compile of the resources.\n"
+			"  --continue                 Continue the execution after the resource compilation step.\n"
+			"  --file-server              Read resources from a remote engine instance.\n"
+			"  --console-port             Set the network port of the console server.\n";
 
 		static ArgsOption options[] = 
 		{
@@ -492,6 +494,8 @@ public:
 			{ "height",           AOA_REQUIRED_ARGUMENT, NULL,        'h' },
 			{ "fullscreen",       AOA_NO_ARGUMENT,       &m_fullscreen, 1 },
 			{ "parent-window",    AOA_REQUIRED_ARGUMENT, NULL,        'p' },
+			{ "file-server",      AOA_NO_ARGUMENT,       &m_fileserver, 1 },
+			{ "console-port",     AOA_REQUIRED_ARGUMENT, NULL,        'c' },
 			{ NULL, 0, NULL, 0 }
 		};
 
@@ -534,6 +538,12 @@ public:
 				case 'p':
 				{
 					m_parent_window_handle = string::parse_uint(args.optarg());
+					break;
+				}
+				// Console port
+				case 'c':
+				{
+					m_console_port = string::parse_uint(args.optarg());
 					break;
 				}
 				case 'i':
@@ -600,10 +610,10 @@ public:
 		// Boot
 		if (root.has_key("boot"))
 		{
-			const char* boot = root.key("boot").string_value();
-			const size_t boot_length = string::strlen(boot);
+			DynamicString boot;
+			root.key("boot").string_value(boot);
 
-			string::strncpy(m_boot_file, boot, (boot_length > MAX_PATH_LENGTH) ? MAX_PATH_LENGTH : boot_length + 1);
+			string::strncpy(m_boot_file, boot.c_str(), (boot.length() > MAX_PATH_LENGTH) ? MAX_PATH_LENGTH : boot.length() + 1);
 		}
 
 		// Window width

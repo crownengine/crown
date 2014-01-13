@@ -56,6 +56,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "World.h"
 #include "LuaStack.h"
 #include "WorldManager.h"
+#include "NetworkFilesystem.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -75,6 +76,9 @@ Device::Device()
 	
 	, m_argc(0)
 	, m_argv(NULL)
+
+	, m_fileserver(0)
+	, m_console_port(10001)
 
 	, m_is_init(false)
 	, m_is_running(false)
@@ -122,15 +126,29 @@ void Device::init()
 
 	// RPC only in debug or development builds
 	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-		m_console = CE_NEW(m_allocator, ConsoleServer);
+		m_console = CE_NEW(m_allocator, ConsoleServer)(m_console_port);
 		m_console->init(false);
 	#endif
 
 	// Default bundle filesystem
 	#if defined (LINUX) || defined(WINDOWS)
-		m_filesystem = CE_NEW(m_allocator, DiskFilesystem)(m_bundle_dir);
+		if (m_fileserver == 1)
+		{
+			m_filesystem = CE_NEW(m_allocator, NetworkFilesystem)(NetAddress(127, 0, 0, 1), 10001);
+		}
+		else
+		{
+			m_filesystem = CE_NEW(m_allocator, DiskFilesystem)(m_bundle_dir);
+		}
 	#elif defined(ANDROID)
-		m_filesystem = CE_NEW(m_allocator, ApkFilesystem)();
+		if (m_fileserver == 1)
+		{
+			m_filesystem = CE_NEW(m_allocator, NetworkFilesystem)(NetAddress(192, 168, 0, 7), 10001);
+		}
+		else
+		{
+			m_filesystem = CE_NEW(m_allocator, ApkFilesystem)();
+		}
 	#endif
 	Log::d("Filesystem created.");
 
@@ -254,7 +272,6 @@ void Device::shutdown()
 	}
 
 	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-		m_console->process_requests();
 		m_console->shutdown();
 		CE_DELETE(m_allocator, m_console);
 		m_console = NULL;
@@ -413,8 +430,6 @@ void Device::frame()
 		// FIXME: SoundRenderer should not be updated each frame
 		m_sound_renderer->frame();
 	}
-
-	m_console->process_requests();
 
 	clear_lua_temporaries();
 

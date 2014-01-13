@@ -40,6 +40,15 @@ class AndroidDevice : public Device
 {
 public:
 
+	//-----------------------------------------------------------------------------
+	AndroidDevice()
+	{
+		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+			m_fileserver = 1;
+		#endif
+	}
+
+	//-----------------------------------------------------------------------------
 	int32_t run(int, char**)
 	{
 		process_events();
