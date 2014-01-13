@@ -46,7 +46,10 @@ class PhysicsWorld;
 struct Actor;
 struct Controller;
 class ResourcePackage;
+struct Gui;
+
 typedef Id SoundInstanceId;
+typedef Id GuiId;
 
 void clear_lua_temporaries();
 
@@ -306,6 +309,34 @@ public:
 		SoundInstanceId id;
 		id.decode(enc);
 		return id;
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_gui_id(GuiId id)
+	{
+		uintptr_t enc = id.encode();
+		lua_pushlightuserdata(m_state, (void*)enc);
+	}
+
+	//-----------------------------------------------------------------------------
+	GuiId get_gui_id(int32_t index)
+	{
+		uint32_t enc = (uintptr_t) lua_touserdata(m_state, index);
+		GuiId id;
+		id.decode(enc);
+		return id;
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_gui(Gui* gui)
+	{
+		lua_pushlightuserdata(m_state, gui);
+	}
+
+	//-----------------------------------------------------------------------------
+	Gui* get_gui(int32_t index)
+	{
+		return (Gui*) lua_touserdata(m_state, index);
 	}
 
 	bool is_vector2(int32_t index);

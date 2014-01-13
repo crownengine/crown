@@ -24,14 +24,33 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "Gui.h"
+#include "LuaEnvironment.h"
+#include "LuaStack.h"
+#include "Vector3.h"
 
 namespace crown
 {
 
-typedef Id MeshId;
-typedef Id SpriteId;
-typedef Id MaterialId;
-typedef Id GuiId;
+//-----------------------------------------------------------------------------
+CE_EXPORT int gui_move(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Gui* gui = stack.get_gui(1);
+
+	const Vector3 pos = stack.get_vector3(2);
+
+	gui->move(pos);
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+void load_gui(LuaEnvironment& env)
+{
+	env.load_module_function("Gui", "move",	gui_move);
+}
+
 
 } // namespace crown

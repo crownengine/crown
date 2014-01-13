@@ -173,6 +173,45 @@ CE_EXPORT int world_set_sound_volume(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int world_create_window_gui(lua_State* L)
+{
+	LuaStack stack(L);
+
+	World* world = stack.get_world(1);
+
+	GuiId gui = world->create_window_gui(stack.get_string(2));
+	stack.push_gui_id(gui);
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int world_destroy_gui(lua_State* L)
+{
+	LuaStack stack(L);
+
+	World* world = stack.get_world(1);
+
+	world->destroy_gui(stack.get_gui_id(2));
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int world_lookup_gui(lua_State* L)
+{
+	LuaStack stack(L);
+
+	World* world = stack.get_world(1);
+
+	Gui* gui = world->lookup_gui(stack.get_gui_id(2));
+
+	stack.push_gui(gui);
+
+	return 1;	
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int world_physics_world(lua_State* L)
 {
 	LuaStack stack(L);
@@ -197,6 +236,10 @@ void load_world(LuaEnvironment& env)
 	env.load_module_function("World", "set_sound_position", world_set_sound_position);
 	env.load_module_function("World", "set_sound_range", 	world_set_sound_range);
 	env.load_module_function("World", "set_sound_volume", 	world_set_sound_volume);
+
+	env.load_module_function("World", "create_window_gui",	world_create_window_gui);
+	env.load_module_function("World", "destroy_gui",		world_destroy_gui);
+	env.load_module_function("World", "lookup_gui",			world_lookup_gui);
 
 	env.load_module_function("World", "physics_world",		world_physics_world);
 }

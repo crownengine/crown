@@ -36,6 +36,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Sprite.h"
 #include "Material.h"
 #include "Config.h"
+#include "Gui.h"
+#include "GuiResource.h"
 
 namespace crown
 {
@@ -91,6 +93,7 @@ RenderWorld::RenderWorld()
 	: m_mesh_pool(default_allocator(), MAX_MESHES, sizeof(Mesh), CE_ALIGNOF(Mesh))
 	, m_sprite_pool(default_allocator(), MAX_SPRITES, sizeof(Sprite), CE_ALIGNOF(Sprite))
 	, m_material_pool(default_allocator(), MAX_MATERIALS, sizeof(Material), CE_ALIGNOF(Material))
+	, m_gui_pool(default_allocator(), MAX_GUIS, sizeof(Gui), CE_ALIGNOF(Gui))
 {
 	Renderer* r = device()->renderer();
 
@@ -188,6 +191,31 @@ Material* RenderWorld::lookup_material(MaterialId id)
 }
 
 //-----------------------------------------------------------------------------
+GuiId RenderWorld::create_gui(GuiResource* gr)
+{
+	Renderer* r = device()->renderer();
+	Gui* gui = CE_NEW(m_gui_pool, Gui)(*this, gr, *r);
+	return m_guis.create(gui);
+}
+
+//-----------------------------------------------------------------------------
+void RenderWorld::destroy_gui(GuiId id)
+{
+	CE_ASSERT(m_guis.has(id), "Gui does not exist");
+
+	CE_DELETE(m_gui_pool, m_guis.lookup(id));
+	m_guis.destroy(id);
+}
+
+//-----------------------------------------------------------------------------
+Gui* RenderWorld::lookup_gui(GuiId id)
+{
+	CE_ASSERT(m_guis.has(id), "Gui does not exist");
+	
+	return m_guis.lookup(id);
+}
+
+//-----------------------------------------------------------------------------
 void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
 	Renderer* r = device()->renderer();
@@ -212,8 +240,8 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		r->set_vertex_buffer(mesh->m_vbuffer);
 		r->set_index_buffer(mesh->m_ibuffer);
 		r->set_program(default_program);
-		/*r->set_texture(0, u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
-		r->set_uniform(u_brightness, UNIFORM_FLOAT_1, &brightness, 1);*/
+		// r->set_texture(0, u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
+		// r->set_uniform(u_brightness, UNIFORM_FLOAT_1, &brightness, 1);
 
 		r->set_pose(mesh->world_pose());
 		r->commit(0);
@@ -224,6 +252,12 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	{
 		r->set_program(texture_program);
 		m_sprite[s]->render(*r, u_albedo_0);
+	}
+
+	// Draw all guis
+	for (uint32_t g = 0; g < m_guis.size(); g++)
+	{
+		m_guis[g]->render(*r, u_albedo_0);
 	}
 }
 

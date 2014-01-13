@@ -26,12 +26,41 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Matrix4x4.h"
+#include "RendererTypes.h"
+
 namespace crown
 {
 
-typedef Id MeshId;
-typedef Id SpriteId;
 typedef Id MaterialId;
-typedef Id GuiId;
+typedef Id UniformId;
+typedef Id VertexBufferId;
+typedef Id IndexBufferId;
+
+struct Renderer;
+struct RenderWorld;
+struct Vector3;
+struct GuiResource;
+
+struct Gui
+{
+						Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r);
+						~Gui();
+	void				move(const Vector3& pos);
+	void				render(Renderer& r, UniformId uniform);
+
+public:
+
+	RenderWorld&		m_render_world;
+	const GuiResource*	m_resource;
+	Renderer&			m_r;
+
+	Matrix4x4			m_projection;
+	Matrix4x4			m_pose;
+
+	ShaderId			m_default_vs;
+	ShaderId			m_default_fs;
+	GPUProgramId		m_default_program;
+};
 
 } // namespace crown

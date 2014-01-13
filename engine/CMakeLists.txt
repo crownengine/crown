@@ -88,6 +88,7 @@ set (CROWN_INCLUDES
 
 set (SRC
 	Device.cpp
+	Gui.cpp
 	ConsoleServer.cpp
 )
 
@@ -95,6 +96,7 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
+	Gui.h
 	ConsoleServer.h
 )
 
@@ -303,6 +305,7 @@ set (RESOURCE_SRC
 	resource/PackageResource.cpp
 	resource/MeshResource.cpp
 	resource/LuaResource.cpp
+	resource/GuiResource.cpp
 )
 
 set (RESOURCE_HEADERS
@@ -322,6 +325,7 @@ set (RESOURCE_HEADERS
 	resource/ResourcePackage.h
 	resource/SpriteResource.h
 	resource/PhysicsResource.h
+	resource/GuiResource.h
 )
 
 if (CROWN_DEBUG OR CROWN_DEVELOPMENT)
@@ -351,6 +355,7 @@ set (LUA_SRC
 	lua/LuaDevice.cpp
 	lua/LuaEnvironment.cpp
 	lua/LuaFloatSetting.cpp
+	lua/LuaGui.cpp
 	lua/LuaIntSetting.cpp
 	lua/LuaKeyboard.cpp
 	lua/LuaMath.cpp

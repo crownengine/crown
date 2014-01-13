@@ -114,6 +114,10 @@ public:
 	void								set_sound_range(SoundId sound, const float range);
 	void								set_sound_volume(SoundId sound, const float vol);
 
+	GuiId								create_window_gui(const char* name);
+	void								destroy_gui(GuiId id);
+	Gui*								lookup_gui(GuiId id);
+
 	SceneGraphManager*					scene_graph_manager();
 	RenderWorld*						render_world();
 	PhysicsWorld*						physics_world();
