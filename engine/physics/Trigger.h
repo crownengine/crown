@@ -26,33 +26,38 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Types.h"
+#include "PhysicsTypes.h"
+#include "Vector3.h"
+#include "Matrix4x4.h"
+#include "Quaternion.h"
+
+#include "PxPhysics.h"
+#include "PxScene.h"
+#include "PxRigidActor.h"
+
+using physx::PxRigidActor;
+using physx::PxMaterial;
+using physx::PxScene;
+
 namespace crown
 {
 
-typedef Id ActorId;
-typedef Id ControllerId;
-typedef Id TriggerId;
+struct Quaternion;
+struct Matrix4x4;
+struct Unit;
+class SceneGraph;
 
-//-----------------------------------------------------------------------------
-struct ActorType
+struct Trigger
 {
-	enum Enum
-	{
-		STATIC,
-		DYNAMIC_PHYSICAL,
-		DYNAMIC_KINEMATIC
-	};
-};
+						Trigger(PxScene* scene, const Vector3& half_extents, const Vector3& pos, const Quaternion& rot);
+						~Trigger();
 
-//-----------------------------------------------------------------------------
-struct ShapeType
-{
-	enum Enum
-	{
-		SPHERE,
-		BOX,
-		PLANE
-	};
+public:
+
+	PxScene*			m_scene;
+	PxRigidActor* 		m_actor;
+	PxMaterial* 		m_mat;
 };
 
 } // namespace crown

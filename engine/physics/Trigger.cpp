@@ -24,35 +24,59 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "Device.h"
+#include "Matrix4x4.h"
+#include "Physics.h"
+#include "PxPhysicsAPI.h"
+#include "Quaternion.h"
+#include "Trigger.h"
+#include "Vector3.h"
+
+using physx::PxRigidDynamicFlag;
+using physx::PxMat44;
+using physx::PxTransform;
+using physx::PxActorFlag;
+using physx::PxVec3;
+using physx::PxReal;
+using physx::PxRigidBody;
+using physx::PxRigidDynamic;
+using physx::PxPlaneGeometry;
+using physx::PxSphereGeometry;
+using physx::PxBoxGeometry;
+using physx::PxRigidBodyExt;
+using physx::PxShape;
+using physx::PxShapeFlag;
 
 namespace crown
 {
+	
+//-----------------------------------------------------------------------------
+Trigger::Trigger(PxScene* scene, const Vector3& half_extents, const Vector3& pos, const Quaternion& rot)
+	: m_scene(scene)
+{
+	Matrix4x4 m(rot, pos);
+	m.transpose();
+	PxMat44 pose((PxReal*)(m.to_float_ptr()));
 
-typedef Id ActorId;
-typedef Id ControllerId;
-typedef Id TriggerId;
+	m_actor = device()->physx()->createRigidStatic(PxTransform(pose));
+	m_actor->userData = NULL;
+
+	m_mat = device()->physx()->createMaterial(0.5f, 0.5f, 0.5f);
+	PxShape* shape = m_actor->createShape(PxBoxGeometry(half_extents.x, half_extents.y, half_extents.z), *m_mat);
+	shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+	shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+
+	m_scene->addActor(*m_actor);
+}
 
 //-----------------------------------------------------------------------------
-struct ActorType
+Trigger::~Trigger()
 {
-	enum Enum
+	if (m_actor)
 	{
-		STATIC,
-		DYNAMIC_PHYSICAL,
-		DYNAMIC_KINEMATIC
-	};
-};
-
-//-----------------------------------------------------------------------------
-struct ShapeType
-{
-	enum Enum
-	{
-		SPHERE,
-		BOX,
-		PLANE
-	};
-};
+		m_scene->removeActor(*m_actor);
+		m_actor->release();
+	}
+}
 
 } // namespace crown

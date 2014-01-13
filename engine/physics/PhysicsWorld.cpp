@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Quaternion.h"
 #include "SceneGraph.h"
 #include "Controller.h"
+#include "Trigger.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -59,6 +60,7 @@ PhysicsWorld::PhysicsWorld()
 	: m_scene(NULL)
 	, m_actors_pool(default_allocator(), MAX_ACTORS, sizeof(Actor), CE_ALIGNOF(Actor))
 	, m_controllers_pool(default_allocator(), MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
+	, m_triggers_pool(default_allocator(), MAX_TRIGGERS, sizeof(Trigger), CE_ALIGNOF(Trigger))
 {
 	// Create scene
 	PxSceneDesc scene_desc(device()->physx()->getTolerancesScale());
@@ -87,6 +89,9 @@ PhysicsWorld::PhysicsWorld()
 	PxRigidStatic* plane = device()->physx()->createRigidStatic(pose);
 	PxShape* shape = plane->createShape(PxPlaneGeometry(), *mat);
 	m_scene->addActor(*plane);
+
+	// FIXME FIXME FIXME
+	create_trigger(Vector3(.5, .5, .5), Vector3(5.0, -3.0, 3), Quaternion::IDENTITY);
 }
 
 //-----------------------------------------------------------------------------
@@ -130,6 +135,22 @@ void PhysicsWorld::destroy_controller(ControllerId id)
 }
 
 //-----------------------------------------------------------------------------
+TriggerId PhysicsWorld::create_trigger(const Vector3& half_extents, const Vector3& pos, const Quaternion& rot)
+{
+	Trigger* trigger = CE_NEW(m_triggers_pool, Trigger)(m_scene, half_extents, pos, rot);
+	return m_triggers.create(trigger);
+}
+
+//-----------------------------------------------------------------------------
+void PhysicsWorld::destroy_trigger(TriggerId id)
+{
+	CE_ASSERT(m_triggers.has(id), "Trigger does not exist");
+
+	CE_DELETE(m_triggers_pool, m_triggers.lookup(id));
+	m_triggers.destroy(id);
+}
+
+//-----------------------------------------------------------------------------
 Actor* PhysicsWorld::lookup_actor(ActorId id)
 {
 	CE_ASSERT(m_actors.has(id), "Actor does not exist");
@@ -143,6 +164,12 @@ Controller* PhysicsWorld::lookup_controller(ControllerId id)
 	return m_controllers.lookup(id);
 }
 
+//-----------------------------------------------------------------------------
+Trigger* PhysicsWorld::lookup_trigger(TriggerId id)
+{
+	CE_ASSERT(m_triggers.has(id), "Trigger does not exist");
+	return m_triggers.lookup(id);
+}
 //-----------------------------------------------------------------------------
 Vector3 PhysicsWorld::gravity() const
 {

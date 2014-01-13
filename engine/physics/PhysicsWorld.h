@@ -40,6 +40,7 @@ using physx::PxDefaultCpuDispatcher;
 
 #define MAX_ACTORS 1024
 #define MAX_CONTROLLERS 1024
+#define MAX_TRIGGERS 1024
 
 namespace crown
 {
@@ -48,6 +49,8 @@ struct PhysicsResource;
 struct Controller;
 struct Vector3;
 struct Actor;
+struct Trigger;
+struct Quaternion;
 class SceneGraph;
 
 //-----------------------------------------------------------------------------
@@ -64,8 +67,12 @@ public:
 	ControllerId				create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node);
 	void						destroy_controller(ControllerId id);
 
+	TriggerId					create_trigger(const Vector3& half_extents, const Vector3& pos, const Quaternion& rot);
+	void						destroy_trigger(TriggerId id);
+
 	Actor*						lookup_actor(ActorId id);
 	Controller*					lookup_controller(ControllerId id);
+	Trigger*					lookup_trigger(TriggerId id);
 
 	Vector3						gravity() const;
 	void						set_gravity(const Vector3& g);
@@ -83,6 +90,9 @@ public:
 
 	PoolAllocator				m_controllers_pool;
 	IdArray<MAX_CONTROLLERS, Controller*> m_controllers;
+
+	PoolAllocator				m_triggers_pool;
+	IdArray<MAX_TRIGGERS, Trigger*> m_triggers;
 };
 
 } // namespace crown
