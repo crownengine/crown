@@ -39,13 +39,13 @@ static const char* default_vertex =
 	"uniform mat4      	u_model;"
 	"uniform mat4      	u_model_view_projection;"
 
-	"in vec4           	a_position;"
-	"in vec4           	a_normal;"
-	"in vec2           	a_tex_coord0;"
-	"in vec4           	a_color;"
+	"attribute vec4    	a_position;"
+	"attribute vec4    	a_normal;"
+	"attribute vec2    	a_tex_coord0;"
+	"attribute vec4    	a_color;"
 
-	"varying out vec2	tex_coord0;"
-	"varying out vec4	color;"
+	"varying vec2		tex_coord0;"
+	"varying vec4		color;"
 
 	"void main(void)"
 	"{"
@@ -55,8 +55,8 @@ static const char* default_vertex =
 	"}";
 
 static const char* default_fragment =
-	"in vec2            tex_coord0;"
-	"in vec4            color;"
+	"varying vec2            tex_coord0;"
+	"varying vec4            color;"
 
 	"uniform sampler2D  u_albedo_0;"
 
