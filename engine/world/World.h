@@ -51,6 +51,7 @@ namespace crown
 typedef Id MeshId;
 typedef Id SoundId;
 typedef Id SpriteId;
+typedef Id GuiId;
 
 struct Sound
 {
@@ -114,6 +115,10 @@ public:
 	void								set_sound_position(SoundId sound, const Vector3& pos);
 	void								set_sound_range(SoundId sound, const float range);
 	void								set_sound_volume(SoundId sound, const float vol);
+
+	GuiId								create_window_gui(const char* name);
+	void								destroy_gui(GuiId id);
+	Gui*								lookup_gui(GuiId id);
 
 	SceneGraphManager*					scene_graph_manager();
 	RenderWorld*						render_world();

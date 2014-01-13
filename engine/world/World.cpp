@@ -282,6 +282,25 @@ void World::set_sound_volume(SoundId id, const float vol)
 }
 
 //-----------------------------------------------------------------------------
+GuiId World::create_window_gui(const char* name)
+{
+	GuiResource* gr = (GuiResource*)device()->resource_manager()->lookup(GUI_EXTENSION, name);
+	return m_render_world.create_gui(gr);
+}
+
+//-----------------------------------------------------------------------------
+void World::destroy_gui(GuiId id)
+{
+	m_render_world.destroy_gui(id);
+}
+
+//-----------------------------------------------------------------------------
+Gui* World::lookup_gui(GuiId id)
+{
+	return m_render_world.lookup_gui(id);
+}
+
+//-----------------------------------------------------------------------------
 SceneGraphManager* World::scene_graph_manager()
 {
 	return &m_scenegraph_manager;
