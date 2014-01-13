@@ -42,13 +42,13 @@ namespace crown
 
 struct ReadResult
 {
-	enum { NO_RESULT_ERROR, UNKNOWN, REMOTE_CLOSED } error;
+	enum { NO_ERROR, UNKNOWN, REMOTE_CLOSED } error;
 	size_t received_bytes;
 };
 
 struct WriteResult
 {
-	enum { NO_RESULT_ERROR, UNKNOWN, REMOTE_CLOSED } error;
+	enum { NO_ERROR, UNKNOWN, REMOTE_CLOSED } error;
 	size_t sent_bytes;
 };
 
@@ -96,8 +96,6 @@ public:
 			return false;
 		}
 
-		fcntl(sock_id, F_SETFL, O_NONBLOCK);
-
 		return true;
 	}
 
@@ -112,30 +110,69 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	ReadResult read(void* data, size_t size)
+	ReadResult read_nonblock(void* data, size_t size)
 	{
-		CE_ASSERT_NOT_NULL(data);
-
-		ssize_t received_bytes = ::read(m_socket, (char*) data, size);
+		fcntl(m_socket, F_SETFL, O_NONBLOCK);
+		ssize_t read_bytes = ::read(m_socket, (char*) data, size);
 
 		ReadResult result;
-
-		if (received_bytes == -1 && errno == EAGAIN)
+		if (read_bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
 		{
-			result.error = ReadResult::NO_RESULT_ERROR;
+			result.error = ReadResult::NO_ERROR;
 			result.received_bytes = 0;
 		}
-		else if (received_bytes == 0)
+		else if (read_bytes == 0)
 		{
 			result.error = ReadResult::REMOTE_CLOSED;
 		}
 		else
 		{
-			result.error = ReadResult::NO_RESULT_ERROR;
-			result.received_bytes = received_bytes;
+			result.error = ReadResult::NO_ERROR;
+			result.received_bytes = read_bytes;
 		}
 
+		return result;		
+	}
+
+	//-----------------------------------------------------------------------------
+	ReadResult read(void* data, size_t size)
+	{
+		CE_ASSERT_NOT_NULL(data);
+
+		int flags = fcntl(m_socket, F_GETFL, 0);
+		fcntl(m_socket, F_SETFL, flags & ~O_NONBLOCK);
+
+		// Ensure all data is read
+		char* buf = (char*) data;
+		size_t to_read = size;
+		ReadResult result;
+		result.received_bytes = 0;
+		result.error = ReadResult::NO_ERROR;
+
+		while (to_read > 0)
+		{
+			ssize_t read_bytes = ::read(m_socket, buf, to_read);
+			
+			if (read_bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) continue;
+			else if (read_bytes == 0)
+			{
+				result.error = ReadResult::REMOTE_CLOSED;
+				return result;
+			}
+
+			buf += read_bytes;
+			to_read -= read_bytes;
+			result.received_bytes += read_bytes;
+		}
+
+		result.error = ReadResult::NO_ERROR;
 		return result;
+	}
+
+	//-----------------------------------------------------------------------------
+	WriteResult write_nonblock(const void* data, size_t size)
+	{
+		CE_ASSERT_NOT_NULL(data);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -143,20 +180,40 @@ public:
 	{
 		CE_ASSERT_NOT_NULL(data);
 
-		ssize_t sent_bytes = ::send(m_socket, (const char*) data, size, 0);
-
+		const char* buf = (const char*) data;
+		size_t to_send = size;
 		WriteResult result;
+		result.sent_bytes = 0;
+		result.error = WriteResult::NO_ERROR;
 
-		if (sent_bytes == -1)
+		// Ensure all data is sent
+		while (to_send > 0)
 		{
-			result.error = WriteResult::UNKNOWN;
-		}
-		else
-		{
-			result.error = WriteResult::NO_RESULT_ERROR;
-			result.sent_bytes = sent_bytes;
+			ssize_t sent_bytes = ::send(m_socket, (const char*) buf, to_send, 0);
+
+			// Check for errors
+			if (sent_bytes == -1)
+			{
+				switch (errno)
+				{
+					case EAGAIN:
+					{
+						continue;
+					}
+					default:
+					{
+						result.error = WriteResult::UNKNOWN;
+						return result;
+					}
+				}
+			}
+
+			buf += sent_bytes;
+			to_send -= sent_bytes;
+			result.sent_bytes += sent_bytes;
 		}
 
+		result.error = WriteResult::NO_ERROR;
 		return result;
 	}
 
@@ -215,7 +272,6 @@ public:
 			return false;
 		}
 
-		fcntl(asd, F_SETFL, O_NONBLOCK);
 		c.m_socket = asd;
 
 		return true;
@@ -312,7 +368,7 @@ public:
 
 		if (received_bytes == -1 && errno == EAGAIN)
 		{
-			result.error = ReadResult::NO_RESULT_ERROR;
+			result.error = ReadResult::NO_ERROR;
 			result.received_bytes = 0;
 		}
 		else if (received_bytes == 0)
@@ -321,7 +377,7 @@ public:
 		}
 		else
 		{
-			result.error = ReadResult::NO_RESULT_ERROR;
+			result.error = ReadResult::NO_ERROR;
 			result.received_bytes = received_bytes;
 		}
 
@@ -351,7 +407,7 @@ public:
 			return result;
 		}
 
-		result.error = WriteResult::NO_RESULT_ERROR;
+		result.error = WriteResult::NO_ERROR;
 		result.sent_bytes = sent_bytes;
 		return result;
 	}
