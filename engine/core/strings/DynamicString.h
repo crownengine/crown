@@ -58,6 +58,9 @@ public:
 	bool				operator==(DynamicString& s);
 	bool				operator==(const char* s);
 
+	// Returns the length of the string.
+	uint32_t			length();
+
 	/// Removes the leading string @a s.
 	/// @note
 	/// The string must start with @a s.
@@ -169,6 +172,12 @@ inline bool DynamicString::operator==(const char* s)
 	CE_ASSERT_NOT_NULL(s);
 
 	return string::strcmp(c_str(), s) == 0;
+}
+
+//-----------------------------------------------------------------------------
+inline uint32_t DynamicString::length()
+{
+	return string::strlen(this->c_str());
 }
 
 //-----------------------------------------------------------------------------
