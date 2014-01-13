@@ -169,21 +169,25 @@ set (MATH_HEADERS
 )
 
 set (FILESYSTEM_SRC
-	core/filesystem/File.cpp
 	core/filesystem/DiskFile.cpp
 	core/filesystem/DiskFilesystem.cpp
+	core/filesystem/File.cpp
+	core/filesystem/NetworkFile.cpp
+	core/filesystem/NetworkFilesystem.cpp
 )
 
 set (FILESYSTEM_HEADERS
-	core/filesystem/File.h
-	core/filesystem/NullFile.h
-	core/filesystem/DiskFile.h
 	core/filesystem/BinaryReader.h
 	core/filesystem/BinaryWriter.h
+	core/filesystem/DiskFile.h
+	core/filesystem/DiskFilesystem.h
+	core/filesystem/File.h
+	core/filesystem/Filesystem.h
+	core/filesystem/NetworkFile.h
+	core/filesystem/NetworkFilesystem.h
+	core/filesystem/NullFile.h
 	core/filesystem/TextReader.h
 	core/filesystem/TextWriter.h
-	core/filesystem/Filesystem.h
-	core/filesystem/DiskFilesystem.h
 )
 
 set (JSON_SRC
@@ -389,17 +393,19 @@ set (AUDIO_HEADERS
 )
 
 set (PHYSICS_SRC
-	physics/PhysicsWorld.cpp
 	physics/Actor.cpp
 	physics/Controller.cpp
+	physics/PhysicsWorld.cpp
+	physics/Trigger.cpp
 )
 
 set (PHYSICS_HEADERS
-	physics/PhysicsTypes.h
-	physics/Physics.h
-	physics/PhysicsWorld.h
 	physics/Actor.h
 	physics/Controller.cpp
+	physics/Physics.h
+	physics/PhysicsTypes.h
+	physics/PhysicsWorld.h
+	physics/Trigger.h
 )
 
 set (WORLD_SRC
