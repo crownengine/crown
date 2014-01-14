@@ -260,7 +260,7 @@ public:
 		uint8_t layer = 0xFF;
 
 		// Sort render keys
-		std::sort(context.m_keys, context.m_keys + context.m_num_states);
+		context.sort();
 
 		for (uint32_t s = 0; s < context.m_num_states; s++)
 		{
