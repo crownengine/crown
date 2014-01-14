@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "File.h"
 #include "OsSocket.h"
 #include "File.h"
-#include "HeapAllocator.h"
 
 namespace crown
 {

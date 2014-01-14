@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Camera.h"
-#include "HeapAllocator.h"
 #include "IdArray.h"
 #include "LinearAllocator.h"
 #include "PhysicsTypes.h"

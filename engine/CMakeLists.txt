@@ -213,7 +213,6 @@ set (STRINGS_HEADERS
 
 set (MEM_SRC
 	core/mem/Memory.cpp
-	core/mem/HeapAllocator.cpp
 	core/mem/LinearAllocator.cpp
 	core/mem/StackAllocator.cpp
 	core/mem/ProxyAllocator.cpp
@@ -223,7 +222,6 @@ set (MEM_SRC
 set (MEM_HEADERS
 	core/mem/Memory.h
 	core/mem/Allocator.h
-	core/mem/HeapAllocator.h
 	core/mem/TempAllocator.h
 	core/mem/LinearAllocator.h
 	core/mem/StackAllocator.h

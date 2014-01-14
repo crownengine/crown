@@ -121,7 +121,6 @@ LOCAL_SRC_FILES :=\
 	core/math/Vector3.cpp\
 	core/math/Vector4.cpp\
 \
-	core/mem/HeapAllocator.cpp\
 	core/mem/LinearAllocator.cpp\
 	core/mem/Memory.cpp\
 	core/mem/PoolAllocator.cpp\

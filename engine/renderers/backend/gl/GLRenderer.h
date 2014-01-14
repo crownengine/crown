@@ -40,7 +40,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Renderer.h"
 #include "Resource.h"
 #include "GLContext.h"
-#include "HeapAllocator.h"
 #include "VertexFormat.h"
 #include "Allocator.h"
 
