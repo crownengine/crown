@@ -257,7 +257,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	// Draw all guis
 	for (uint32_t g = 0; g < m_guis.size(); g++)
 	{
-		m_guis[g]->render(*r, u_albedo_0);
+		m_guis[g]->render();
 	}
 }
 
