@@ -52,6 +52,11 @@ struct WriteResult
 	size_t bytes_wrote;
 };
 
+struct AcceptResult
+{
+	enum { NO_ERROR, NO_CONNECTION, UNKNOWN } error;
+};
+
 class TCPSocket
 {
 public:
@@ -271,40 +276,54 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	bool accept_nonblock(TCPSocket& c)
+	AcceptResult accept_nonblock(TCPSocket& c)
 	{
 		m_server.set_blocking(false);
 
 		sockaddr_in client;
 		size_t client_size = sizeof(client);
-		int asd = ::accept(m_server.m_socket, (sockaddr*) &client, (socklen_t*) &client_size);
+		int sock = ::accept(m_server.m_socket, (sockaddr*) &client, (socklen_t*) &client_size);
 
-		if (asd == -1 && errno == EWOULDBLOCK)
+		AcceptResult result;
+		if (sock == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
 		{
-			return false;
+			result.error = AcceptResult::NO_CONNECTION;
+		}
+		else if (sock == -1)
+		{
+			result.error = AcceptResult::UNKNOWN;
+		}
+		else
+		{
+			result.error = AcceptResult::NO_ERROR;
+			c.m_socket = sock;
 		}
 
-		c.m_socket = asd;
-		return true;
+		return result;
 	}
 
 	//-----------------------------------------------------------------------------
-	bool accept(TCPSocket& c)
+	AcceptResult accept(TCPSocket& c)
 	{
 		m_server.set_blocking(true);
 
 		sockaddr_in client;
 		size_t client_size = sizeof(client);
 
-		int asd = ::accept(m_server.m_socket, (sockaddr*) &client, (socklen_t*) &client_size);
+		int sock = ::accept(m_server.m_socket, (sockaddr*) &client, (socklen_t*) &client_size);
 
-		if (asd == -1 && errno == EWOULDBLOCK)
+		AcceptResult result;
+		if (sock == -1)
 		{
-			return false;
+			result.error = AcceptResult::UNKNOWN;
+		}
+		else
+		{
+			result.error = AcceptResult::NO_ERROR;
+			c.m_socket = sock;
 		}
 
-		c.m_socket = asd;
-		return true;
+		return result;
 	}
 
 	//-----------------------------------------------------------------------------
