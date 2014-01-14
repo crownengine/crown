@@ -49,6 +49,8 @@ HeapAllocator::~HeapAllocator()
 //-----------------------------------------------------------------------------
 void* HeapAllocator::allocate(size_t size, size_t align)
 {
+	ScopedMutex sm(m_mutex);
+
 	size_t actual_size = actual_allocation_size(size, align);
 
 	Header* h = (Header*)malloc(actual_size);
@@ -67,6 +69,8 @@ void* HeapAllocator::allocate(size_t size, size_t align)
 //-----------------------------------------------------------------------------
 void HeapAllocator::deallocate(void* data)
 {
+	ScopedMutex sm(m_mutex);
+
 	if (!data) return;
 
 	Header* h = header(data);
@@ -80,14 +84,15 @@ void HeapAllocator::deallocate(void* data)
 //-----------------------------------------------------------------------------
 size_t HeapAllocator::allocated_size()
 {
+	ScopedMutex sm(m_mutex);
 	return m_allocated_size;
 }
 
 //-----------------------------------------------------------------------------
 size_t HeapAllocator::get_size(void* data)
 {
+	ScopedMutex sm(m_mutex);
 	Header* h = header(data);
-
 	return h->size;
 }
 

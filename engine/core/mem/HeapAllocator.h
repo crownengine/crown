@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Allocator.h"
+#include "ScopedMutex.h"
 
 namespace crown
 {
@@ -64,6 +65,9 @@ private:
 	void*		data(Header* header, size_t align);
 	void		pad(Header* header, void* data);
 
+private:
+
+	Mutex		m_mutex;
 	size_t		m_allocated_size;
 	uint32_t	m_allocation_count;
 };
