@@ -50,6 +50,7 @@ struct Gui;
 
 typedef Id SoundInstanceId;
 typedef Id GuiId;
+typedef Id GuiComponentId;
 
 void clear_lua_temporaries();
 
@@ -338,6 +339,23 @@ public:
 	{
 		return (Gui*) lua_touserdata(m_state, index);
 	}
+
+	//-----------------------------------------------------------------------------
+	void push_gui_component_id(GuiComponentId id)
+	{
+		uintptr_t enc = id.encode();
+		lua_pushlightuserdata(m_state, (void*)enc);		
+	}
+
+	//-----------------------------------------------------------------------------
+	GuiComponentId get_gui_component_id(int32_t index)
+	{
+		uint32_t enc = (uintptr_t) lua_touserdata(m_state, index);
+		GuiComponentId id;
+		id.decode(enc);
+		return id;	
+	}
+
 
 	bool is_vector2(int32_t index);
 	bool is_vector3(int32_t index);
