@@ -27,27 +27,50 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Matrix4x4.h"
-#include "RendererTypes.h"
+#include "IdTable.h"
+#include "IdArray.h"
+#include "PoolAllocator.h"
+#include "Vector2.h"
+
+#define MAX_GUI_RECTS 64
+#define MAX_GUI_TRIANGLES 64
+#define MAX_GUI_IMAGES 64
 
 namespace crown
 {
 
-typedef Id MaterialId;
 typedef Id UniformId;
-typedef Id VertexBufferId;
-typedef Id IndexBufferId;
+typedef Id GuiRectId;
+typedef Id GuiTriangleId;
+typedef Id GuiImageId;
 
 struct Renderer;
 struct RenderWorld;
 struct Vector3;
 struct GuiResource;
+struct GuiRect;
+struct GuiTriangle;
+struct GuiImage;
+struct Vector3;
+struct Vector2;
+struct Color4;
 
 struct Gui
 {
 						Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r);
 						~Gui();
+
 	void				move(const Vector3& pos);
-	void				render(Renderer& r, UniformId uniform);
+
+	GuiRectId			create_rect(const Vector3& pos, const Vector2& size, const Color4& color);
+	void				update_rect(GuiRectId id, const Vector3& pos, const Vector2& size, const Color4& color);
+	void				destroy_rect(GuiRectId id);
+
+	GuiTriangleId		create_triangle(const Vector2& p1, const Vector2& p2, const Vector2& p3, const Color4& color);
+	void				update_triangle(GuiTriangleId id, const Vector2& p1, const Vector2& p2, const Vector2& p3, const Color4& color);
+	void				destroy_triangle(GuiTriangleId id);
+
+	void				render();
 
 public:
 
@@ -58,9 +81,11 @@ public:
 	Matrix4x4			m_projection;
 	Matrix4x4			m_pose;
 
-	ShaderId			m_default_vs;
-	ShaderId			m_default_fs;
-	GPUProgramId		m_default_program;
+	PoolAllocator		m_rect_pool;
+	PoolAllocator		m_triangle_pool;
+
+	IdArray<MAX_GUI_RECTS, GuiRect*> m_rects;
+	IdArray<MAX_GUI_TRIANGLES, GuiTriangle*> m_triangles;
 };
 
 } // namespace crown
