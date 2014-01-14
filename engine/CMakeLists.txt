@@ -84,11 +84,11 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/compilers
 	${CMAKE_SOURCE_DIR}/engine/physics
 	${CMAKE_SOURCE_DIR}/engine/world
+	${CMAKE_SOURCE_DIR}/engine/gui
 )
 
 set (SRC
 	Device.cpp
-	Gui.cpp
 	ConsoleServer.cpp
 )
 
@@ -96,7 +96,6 @@ set (HEADERS
 	Config.h
 	Crown.h
 	Device.h
-	Gui.h
 	ConsoleServer.h
 )
 
@@ -435,6 +434,15 @@ set (COMPILER_HEADER
 	compilers/BundleCompiler.h
 )
 
+set (GUI_SRC
+	gui/Gui.cpp
+)
+
+set (GUI_HEADERS
+	gui/Gui.h
+	gui/GuiRect.h
+)
+
 set (CROWN_LIBRARIES)
 
 # Platform specific stuff
@@ -621,6 +629,7 @@ set (CROWN_SOURCES
 	${PHYSICS_SRC}
 	${WORLD_SRC}
 	${COMPILER_SRC}
+	${GUI_SRC}
 )
 
 set (CROWN_HEADERS
@@ -644,6 +653,7 @@ set (CROWN_HEADERS
 	${PHYSICS_HEADERS}
 	${WORLD_HEADERS}
 	${COMPILER_HEADERS}
+	${GUI_HEADERS}
 )
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
