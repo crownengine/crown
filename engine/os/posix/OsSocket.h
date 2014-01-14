@@ -69,26 +69,17 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	bool open(const NetAddress& destination, uint16_t port)
+	bool connect(const NetAddress& destination, uint16_t port)
 	{
-		int sock_id = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		CE_ASSERT(m_socket > 0, "Failed to create socket");
 
-		if (sock_id <= 0)
-		{
-			os::printf("Failed to open socket\n");
-			m_socket = 0;
+		sockaddr_in addr_in;
+		addr_in.sin_family = AF_INET;
+		addr_in.sin_addr.s_addr = htonl(destination.address());
+		addr_in.sin_port = htons(port);
 
-			return false;
-		}
-
-		m_socket = sock_id;
-
-		sockaddr_in address;
-		address.sin_family = AF_INET;
-		address.sin_addr.s_addr =  htonl(destination.address());
-		address.sin_port = htons(port);
-
-		if (::connect(sock_id, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0)
+		if (::connect(m_socket, (const sockaddr*)&addr_in, sizeof(sockaddr_in)) < 0)
 		{
 			os::printf("Failed to connect socket\n");
 			close();
@@ -112,7 +103,7 @@ public:
 	//-----------------------------------------------------------------------------
 	ReadResult read_nonblock(void* data, size_t size)
 	{
-		fcntl(m_socket, F_SETFL, O_NONBLOCK);
+		set_blocking(false);
 		ssize_t read_bytes = ::read(m_socket, (char*) data, size);
 
 		ReadResult result;
@@ -137,10 +128,7 @@ public:
 	//-----------------------------------------------------------------------------
 	ReadResult read(void* data, size_t size)
 	{
-		CE_ASSERT_NOT_NULL(data);
-
-		int flags = fcntl(m_socket, F_GETFL, 0);
-		fcntl(m_socket, F_SETFL, flags & ~O_NONBLOCK);
+		set_blocking(true);
 
 		// Ensure all data is read
 		char* buf = (char*) data;
@@ -172,13 +160,31 @@ public:
 	//-----------------------------------------------------------------------------
 	WriteResult write_nonblock(const void* data, size_t size)
 	{
-		CE_ASSERT_NOT_NULL(data);
+		set_blocking(false);
+		ssize_t sent_bytes = ::send(m_socket, data, size, 0);
+
+		WriteResult result;
+		if (sent_bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+		{
+			result.error = WriteResult::NO_ERROR;
+			result.sent_bytes = 0;
+		}
+		else if (sent_bytes == 0)
+		{
+			result.error = WriteResult::REMOTE_CLOSED;
+		}
+		else
+		{
+			result.error = WriteResult::UNKNOWN;
+		}
+
+		return result;
 	}
 
 	//-----------------------------------------------------------------------------
 	WriteResult write(const void* data, size_t size)
 	{
-		CE_ASSERT_NOT_NULL(data);
+		set_blocking(true);
 
 		const char* buf = (const char*) data;
 		size_t to_send = size;
@@ -217,24 +223,27 @@ public:
 		return result;
 	}
 
+	//-----------------------------------------------------------------------------
+	void set_blocking(bool blocking)
+	{
+		int flags = fcntl(m_socket, F_GETFL, 0);
+		fcntl(m_socket, F_SETFL, blocking ? (flags & ~O_NONBLOCK) : O_NONBLOCK);
+	}
+
 public:
 
 	int m_socket;
 };
 
-class TCPListener
+class TCPServer
 {
 public:
 
 	//-----------------------------------------------------------------------------
 	bool open(uint16_t port)
 	{
-		int& sock_id = m_listener.m_socket;
-
-		sock_id = socket(AF_INET, SOCK_STREAM, 0);
-		CE_ASSERT(sock_id != -1, "Failed to open socket: errno: %d", errno);
-
-		fcntl(sock_id, F_SETFL, O_NONBLOCK);
+		m_server.m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		CE_ASSERT(m_server.m_socket > 0, "Failed to create socket");
 
 		// Bind socket
 		sockaddr_in address;
@@ -242,11 +251,8 @@ public:
 		address.sin_addr.s_addr = htonl(INADDR_ANY);
 		address.sin_port = htons(port);
 
-		int bind_ret = bind(sock_id, (const sockaddr*) &address, sizeof(sockaddr_in));
+		int bind_ret = bind(m_server.m_socket, (const sockaddr*) &address, sizeof(sockaddr_in));
 		CE_ASSERT(bind_ret != -1, "Failed to bind socket: errno: %d", errno);
-
-		int listen_ret = ::listen(sock_id, 5);
-		CE_ASSERT(listen_ret != -1, "Failed to listen on socket: errno: %d", errno);
 
 		return true;
 	}
@@ -254,18 +260,24 @@ public:
 	//-----------------------------------------------------------------------------
 	void close()
 	{
-		m_listener.close();
+		m_server.close();
 	}
 
 	//-----------------------------------------------------------------------------
-	bool listen(TCPSocket& c)
+	void listen(uint32_t max)
 	{
-		int& sock_id = m_listener.m_socket;
+		int listen_ret = ::listen(m_server.m_socket, max);
+		CE_ASSERT(listen_ret != -1, "Failed to listen on socket: errno: %d", errno);
+	}
+
+	//-----------------------------------------------------------------------------
+	bool accept_nonblock(TCPSocket& c)
+	{
+		m_server.set_blocking(false);
 
 		sockaddr_in client;
-		size_t client_length = sizeof(client);
-
-		int asd = accept(sock_id, (sockaddr*)&client, (socklen_t*)&client_length);
+		size_t client_size = sizeof(client);
+		int asd = ::accept(m_server.m_socket, (sockaddr*) &client, (socklen_t*) &client_size);
 
 		if (asd == -1 && errno == EWOULDBLOCK)
 		{
@@ -273,25 +285,55 @@ public:
 		}
 
 		c.m_socket = asd;
-
 		return true;
+	}
+
+	//-----------------------------------------------------------------------------
+	bool accept(TCPSocket& c)
+	{
+		m_server.set_blocking(true);
+
+		sockaddr_in client;
+		size_t client_size = sizeof(client);
+
+		int asd = ::accept(m_server.m_socket, (sockaddr*) &client, (socklen_t*) &client_size);
+
+		if (asd == -1 && errno == EWOULDBLOCK)
+		{
+			return false;
+		}
+
+		c.m_socket = asd;
+		return true;
+	}
+
+	//-----------------------------------------------------------------------------
+	ReadResult read_nonblock(void* data, size_t size)
+	{
+		return m_server.read_nonblock(data, size);
 	}
 
 	//-----------------------------------------------------------------------------
 	ReadResult read(void* data, size_t size)
 	{
-		return m_listener.read(data, size);
+		return m_server.read(data, size);
+	}
+
+	//-----------------------------------------------------------------------------
+	WriteResult write_nonblock(void* data, size_t size)
+	{
+		return m_server.write_nonblock(data, size);
 	}
 
 	//-----------------------------------------------------------------------------
 	WriteResult write(const void* data, size_t size)
 	{
-		return m_listener.write(data, size);
+		return m_server.write(data, size);
 	}
 
 private:
 
-	TCPSocket m_listener;
+	TCPSocket m_server;
 };
 
 class UDPSocket
