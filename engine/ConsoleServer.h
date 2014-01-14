@@ -81,7 +81,7 @@ private:
 private:
 
 	uint16_t					m_port;
-	TCPListener					m_listener;
+	TCPServer					m_server;
 
 	uint8_t						m_num_clients;
 	IdTable<MAX_CONSOLE_CLIENTS>	m_clients_table;

@@ -51,13 +51,13 @@ ConsoleServer::ConsoleServer(uint16_t port)
 //-----------------------------------------------------------------------------
 void ConsoleServer::init(bool wait)
 {
-	m_listener.open(m_port);
+	m_server.open(m_port);
+	m_server.listen(5);
 
 	if (wait)
 	{
 		TCPSocket client;
-		while (!m_listener.listen(client)) ;
-
+		m_server.accept(client);
 		add_client(client);
 	}
 }
@@ -70,7 +70,7 @@ void ConsoleServer::shutdown()
 		m_clients[i].close();
 	}
 
-	m_listener.close();
+	m_server.close();
 }
 
 //-----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ void ConsoleServer::update()
 {
 	// Check for new clients
 	TCPSocket client;
-	if (m_listener.listen(client))
+	if (m_server.accept_nonblock(client))
 	{
 		add_client(client);
 	}
@@ -180,13 +180,17 @@ void ConsoleServer::update_client(ClientId id)
 
 	// If no data received, return
 	if (rr.error == ReadResult::NO_ERROR && rr.received_bytes == 0) return;
-	if (rr.error == ReadResult::REMOTE_CLOSED) return;
+	if (rr.error == ReadResult::REMOTE_CLOSED)
+	{
+		remove_client(id);
+		return;
+	}
 
 	// Else read the message
 	List<char> msg_buf(default_allocator());
 	msg_buf.resize(msg_len);
 	ReadResult msg_result = client.read(msg_buf.begin(), msg_len);
-	
+
 	uint32_t message_index = m_receive_buffer.size();
 	m_receive_buffer.push(msg_buf.begin(), msg_result.received_bytes);
 	m_receive_buffer.push_back('\0');

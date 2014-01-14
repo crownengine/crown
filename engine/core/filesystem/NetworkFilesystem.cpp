@@ -107,7 +107,7 @@ void NetworkFilesystem::get_absolute_path(const char* path, DynamicString& os_pa
 TCPSocket NetworkFilesystem::new_connection()
 {
 	TCPSocket socket;
-	socket.open(m_address, m_port);
+	socket.connect(m_address, m_port);
 	return socket;
 }
 
