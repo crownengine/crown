@@ -179,7 +179,7 @@ void ConsoleServer::update_client(ClientId id)
 	ReadResult rr = client.read_nonblock(&msg_len, 4);
 
 	// If no data received, return
-	if (rr.error == ReadResult::NO_ERROR && rr.received_bytes == 0) return;
+	if (rr.error == ReadResult::NO_ERROR && rr.bytes_read == 0) return;
 	if (rr.error == ReadResult::REMOTE_CLOSED)
 	{
 		remove_client(id);
@@ -192,7 +192,7 @@ void ConsoleServer::update_client(ClientId id)
 	ReadResult msg_result = client.read(msg_buf.begin(), msg_len);
 
 	uint32_t message_index = m_receive_buffer.size();
-	m_receive_buffer.push(msg_buf.begin(), msg_result.received_bytes);
+	m_receive_buffer.push(msg_buf.begin(), msg_result.bytes_read);
 	m_receive_buffer.push_back('\0');
 	add_request(id, message_index);
 }

@@ -43,13 +43,13 @@ namespace crown
 struct ReadResult
 {
 	enum { NO_ERROR, UNKNOWN, REMOTE_CLOSED } error;
-	size_t received_bytes;
+	size_t bytes_read;
 };
 
 struct WriteResult
 {
 	enum { NO_ERROR, UNKNOWN, REMOTE_CLOSED } error;
-	size_t sent_bytes;
+	size_t bytes_wrote;
 };
 
 class TCPSocket
@@ -110,7 +110,7 @@ public:
 		if (read_bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
 		{
 			result.error = ReadResult::NO_ERROR;
-			result.received_bytes = 0;
+			result.bytes_read = 0;
 		}
 		else if (read_bytes == 0)
 		{
@@ -119,7 +119,7 @@ public:
 		else
 		{
 			result.error = ReadResult::NO_ERROR;
-			result.received_bytes = read_bytes;
+			result.bytes_read = read_bytes;
 		}
 
 		return result;		
@@ -134,7 +134,7 @@ public:
 		char* buf = (char*) data;
 		size_t to_read = size;
 		ReadResult result;
-		result.received_bytes = 0;
+		result.bytes_read = 0;
 		result.error = ReadResult::NO_ERROR;
 
 		while (to_read > 0)
@@ -150,7 +150,7 @@ public:
 
 			buf += read_bytes;
 			to_read -= read_bytes;
-			result.received_bytes += read_bytes;
+			result.bytes_read += read_bytes;
 		}
 
 		result.error = ReadResult::NO_ERROR;
@@ -161,15 +161,15 @@ public:
 	WriteResult write_nonblock(const void* data, size_t size)
 	{
 		set_blocking(false);
-		ssize_t sent_bytes = ::send(m_socket, data, size, 0);
+		ssize_t bytes_wrote = ::send(m_socket, data, size, 0);
 
 		WriteResult result;
-		if (sent_bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+		if (bytes_wrote == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
 		{
 			result.error = WriteResult::NO_ERROR;
-			result.sent_bytes = 0;
+			result.bytes_wrote = 0;
 		}
-		else if (sent_bytes == 0)
+		else if (bytes_wrote == 0)
 		{
 			result.error = WriteResult::REMOTE_CLOSED;
 		}
@@ -189,16 +189,16 @@ public:
 		const char* buf = (const char*) data;
 		size_t to_send = size;
 		WriteResult result;
-		result.sent_bytes = 0;
+		result.bytes_wrote = 0;
 		result.error = WriteResult::NO_ERROR;
 
 		// Ensure all data is sent
 		while (to_send > 0)
 		{
-			ssize_t sent_bytes = ::send(m_socket, (const char*) buf, to_send, 0);
+			ssize_t bytes_wrote = ::send(m_socket, (const char*) buf, to_send, 0);
 
 			// Check for errors
-			if (sent_bytes == -1)
+			if (bytes_wrote == -1)
 			{
 				switch (errno)
 				{
@@ -214,9 +214,9 @@ public:
 				}
 			}
 
-			buf += sent_bytes;
-			to_send -= sent_bytes;
-			result.sent_bytes += sent_bytes;
+			buf += bytes_wrote;
+			to_send -= bytes_wrote;
+			result.bytes_wrote += bytes_wrote;
 		}
 
 		result.error = WriteResult::NO_ERROR;
@@ -411,7 +411,7 @@ public:
 		if (received_bytes == -1 && errno == EAGAIN)
 		{
 			result.error = ReadResult::NO_ERROR;
-			result.received_bytes = 0;
+			result.bytes_read = 0;
 		}
 		else if (received_bytes == 0)
 		{
@@ -420,7 +420,7 @@ public:
 		else
 		{
 			result.error = ReadResult::NO_ERROR;
-			result.received_bytes = received_bytes;
+			result.bytes_read = received_bytes;
 		}
 
 		sender.set(ntohl(from.sin_addr.s_addr));
@@ -439,18 +439,18 @@ public:
 		address.sin_addr.s_addr = htonl(receiver.address());
 		address.sin_port = htons(port);
 
-		ssize_t sent_bytes = sendto(m_socket, (const char*) data, size, 0, (sockaddr*) &address, sizeof(sockaddr_in));
+		ssize_t bytes_wrote = sendto(m_socket, (const char*) data, size, 0, (sockaddr*) &address, sizeof(sockaddr_in));
 
 		WriteResult result;
 
-		if (sent_bytes < 0)
+		if (bytes_wrote < 0)
 		{
 			result.error = WriteResult::UNKNOWN;
 			return result;
 		}
 
 		result.error = WriteResult::NO_ERROR;
-		result.sent_bytes = sent_bytes;
+		result.bytes_wrote = bytes_wrote;
 		return result;
 	}
 
