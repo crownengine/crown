@@ -52,19 +52,36 @@ struct GuiHeader
 {
 	uint32_t position[2];
 	uint32_t size[2];
-
-	VertexBufferId rect_vb;
-	IndexBufferId rect_ib;
-	VertexBufferId triangle_vb;
-	IndexBufferId triangle_ib;
-
 	uint32_t num_rects;
 	uint32_t num_triangles;
+	uint32_t num_images;
+	uint32_t rects_offset;
+	uint32_t triangles_offset;
+	uint32_t images_offset;
+};
 
-	uint32_t rect_vertices_off;
-	uint32_t rect_indices_off;
-	uint32_t triangle_vertices_off;
-	uint32_t triangle_indices_off;
+//-----------------------------------------------------------------------------
+struct GuiRectData
+{
+	float		position[3];
+	float		size[2];
+	float		color[4];
+};
+
+//-----------------------------------------------------------------------------
+struct GuiTriangleData
+{
+	float		points[6];
+	float		color[4];
+};
+
+//-----------------------------------------------------------------------------
+struct GuiImageData
+{
+	ResourceId 	material;
+	float		position[3];
+	float		size[2];
+	float		color[4];
 };
 
 //-----------------------------------------------------------------------------
@@ -85,21 +102,8 @@ struct GuiResource
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* resource)
+	static void online(void* /*resource*/)
 	{
-		GuiHeader* h = (GuiHeader*) resource;
-
-		const float* rect_vertices = (float*) (((char*) resource) + h->rect_vertices_off);
-		const uint16_t* rect_indices = (uint16_t*) (((char*) resource) + h->rect_indices_off);
-
-		h->rect_vb = device()->renderer()->create_vertex_buffer(h->num_rects * 4, VertexFormat::P2_C4, rect_vertices);
-		h->rect_ib = device()->renderer()->create_index_buffer(h->num_rects * 8, rect_indices);
-
-		const float* triangle_vertices = (float*) (((char*) resource) + h->triangle_vertices_off);
-		const uint16_t* triangle_indices = (uint16_t*) (((char*) resource) + h->triangle_indices_off);
-
-		h->triangle_vb = device()->renderer()->create_vertex_buffer(h->num_triangles * 3, VertexFormat::P2_C4, triangle_vertices);
-		h->triangle_ib = device()->renderer()->create_index_buffer(h->num_triangles * 6, triangle_indices);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -110,17 +114,8 @@ struct GuiResource
 	}
 
 	//-----------------------------------------------------------------------------
-	static void offline(void* resource)
+	static void offline(void* /*resource*/)
 	{
-		CE_ASSERT_NOT_NULL(resource);
-
-		GuiResource* gr = (GuiResource*) resource;
-		GuiHeader* h = (GuiHeader*) gr;
-
-		device()->renderer()->destroy_vertex_buffer(h->triangle_vb);
-		device()->renderer()->destroy_index_buffer(h->triangle_ib);
-		device()->renderer()->destroy_vertex_buffer(h->rect_vb);
-		device()->renderer()->destroy_index_buffer(h->rect_ib);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -147,29 +142,52 @@ struct GuiResource
 	}
 
 	//-----------------------------------------------------------------------------
-	VertexBufferId rect_vertex_buffer() const
+	uint32_t num_rects() const
 	{
-		return ((GuiHeader*)this)->rect_vb;
+		return ((GuiHeader*)this)->num_rects;
 	}
 
 	//-----------------------------------------------------------------------------
-	IndexBufferId rect_index_buffer() const
+	GuiRectData get_rect(uint32_t index) const
 	{
-		return ((GuiHeader*)this)->rect_ib;
+		CE_ASSERT(index < num_rects(), "Index out of bounds");
+
+		GuiHeader* h = (GuiHeader*) this;
+		GuiRectData* begin = (GuiRectData*) (((char*) this) + h->rects_offset);
+		return begin[index];	
 	}
 
 	//-----------------------------------------------------------------------------
-	VertexBufferId triangle_vertex_buffer() const
+	uint32_t num_triangles() const
 	{
-		return ((GuiHeader*)this)->triangle_vb;
+		return ((GuiHeader*)this)->num_triangles;
 	}
 
 	//-----------------------------------------------------------------------------
-	IndexBufferId triangle_index_buffer() const
+	GuiTriangleData get_triangle(uint32_t index) const
 	{
-		return ((GuiHeader*)this)->triangle_ib;
+		CE_ASSERT(index < num_triangles(), "Index out of bounds");
+
+		GuiHeader* h = (GuiHeader*) this;
+		GuiTriangleData* begin = (GuiTriangleData*) (((char*) this) + h->triangles_offset);
+		return begin[index];
 	}
 
+	//-----------------------------------------------------------------------------
+	uint32_t num_images() const
+	{
+		return ((GuiHeader*)this)->num_images;
+	}
+
+	//-----------------------------------------------------------------------------
+	GuiImageData get_image(uint32_t index) const
+	{
+		CE_ASSERT(index < num_images(), "Index out of bounds");
+
+		GuiHeader* h = (GuiHeader*) this;
+		GuiImageData* begin = (GuiImageData*) (((char*) this) + h->images_offset);
+		return begin[index];
+	}
 
 private:
 	

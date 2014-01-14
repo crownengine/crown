@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstring>
 #include <inttypes.h>
 
+#include "Types.h"
 #include "Allocator.h"
 #include "Filesystem.h"
 #include "Hash.h"
@@ -55,12 +56,30 @@ void parse_rect(JSONElement rect, List<float>& positions, List<float>& sizes, Li
 }
 
 //-----------------------------------------------------------------------------
-void parse_triangle(JSONElement rect, List<float>& points, List<float>& colors)
+void parse_triangle(JSONElement triangle, List<float>& points, List<float>& colors)
 {
-	JSONElement point	= rect.key("points");
-	JSONElement color 	= rect.key("color");
+	JSONElement point	= triangle.key("points");
+	JSONElement color 	= triangle.key("color");
 
 	point.array_value(points);
+	color.array_value(colors);
+}
+
+//-----------------------------------------------------------------------------
+void parse_image(JSONElement image, StringId64& material, List<float>& positions, List<float>& sizes, List<float>& colors)
+{
+	JSONElement mat			= image.key("material");
+	JSONElement position 	= image.key("position");
+	JSONElement size 		= image.key("size");
+	JSONElement color 		= image.key("color");
+
+	DynamicString material_name;
+	mat.string_value(material_name);
+	material_name += "material";
+
+	material = hash::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
+	position.array_value(positions);
+	size.array_value(sizes);
 	color.array_value(colors);
 }
 
@@ -71,6 +90,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	char* buf = (char*)default_allocator().allocate(file->size());
 	file->read(buf, file->size());
 
+	// Out buffer
+	List<GuiRectData> 		m_gui_rects(default_allocator());
+	List<GuiTriangleData> 	m_gui_triangles(default_allocator());
+	List<GuiImageData> 		m_gui_images(default_allocator());
+
 	JSONParser json(buf);
 	JSONElement root = json.root();
 
@@ -80,147 +104,116 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	root.key("position").array_value(m_gui_position);
 	root.key("size").array_value(m_gui_size);
 
+	// Parse & compile all rects
 	List<float> 		m_rect_positions(default_allocator());
 	List<float> 		m_rect_sizes(default_allocator());
 	List<float> 		m_rect_colors(default_allocator());
 
-	// Parse all rects
 	JSONElement rects = root.key("rects");
 	uint32_t num_rects = rects.size();
 
 	for (uint32_t i = 0; i < num_rects; i++)
 	{
 		parse_rect(rects[i], m_rect_positions, m_rect_sizes, m_rect_colors);
+
+		GuiRectData rect;
+		rect.position[0] = m_rect_positions[0];
+		rect.position[1] = m_rect_positions[1];
+		rect.size[0] = m_rect_sizes[0];
+		rect.size[1] = m_rect_sizes[1];
+		rect.color[0] = m_rect_colors[0];
+		rect.color[1] = m_rect_colors[1];
+		rect.color[2] = m_rect_colors[2];
+		rect.color[3] = m_rect_colors[3];
+
+		m_gui_rects.push_back(rect);
+
+		m_rect_positions.clear();
+		m_rect_sizes.clear();
+		m_rect_colors.clear();
 	}
 
-	// Compile all rects
-	List<float>	m_rect_vertices(default_allocator());
-	List<uint16_t> m_rect_indices(default_allocator());
-
-	uint32_t rprx = 0;
-	uint32_t rclx = 0;
-	uint32_t ridx = 0;
-	for (uint32_t i = 0; i < num_rects; i++)
-	{
-		// first vertex
-		m_rect_vertices.push_back(m_rect_positions[rprx]);
-		m_rect_vertices.push_back(m_rect_positions[rprx+1]);
-		m_rect_vertices.push_back(m_rect_colors[rclx]);
-		m_rect_vertices.push_back(m_rect_colors[rclx+1]);
-		m_rect_vertices.push_back(m_rect_colors[rclx+2]);
-		m_rect_vertices.push_back(m_rect_colors[rclx+3]);
-
-		// second vertex
-		m_rect_vertices.push_back(m_rect_positions[rprx] + m_rect_sizes[rprx]);
-		m_rect_vertices.push_back(m_rect_positions[rprx+1]);
-		m_rect_vertices.push_back(m_rect_colors[rclx]);
-		m_rect_vertices.push_back(m_rect_colors[rclx+1]);
-		m_rect_vertices.push_back(m_rect_colors[rclx+2]);
-		m_rect_vertices.push_back(m_rect_colors[rclx+3]);
-
-		// third vertex
-		m_rect_vertices.push_back(m_rect_positions[rprx] + m_rect_sizes[rprx]);
-		m_rect_vertices.push_back(m_rect_positions[rprx+1] - m_rect_sizes[rprx+1]);
-		m_rect_vertices.push_back(m_rect_colors[rclx]);
-		m_rect_vertices.push_back(m_rect_colors[rclx+1]);
-		m_rect_vertices.push_back(m_rect_colors[rclx+2]);
-		m_rect_vertices.push_back(m_rect_colors[rclx+3]);
-
-		// fourth vertex
-		m_rect_vertices.push_back(m_rect_positions[rprx]);
-		m_rect_vertices.push_back(m_rect_positions[rprx+1] - m_rect_sizes[rprx+1]);
-		m_rect_vertices.push_back(m_rect_colors[rclx]);
-		m_rect_vertices.push_back(m_rect_colors[rclx+1]);
-		m_rect_vertices.push_back(m_rect_colors[rclx+2]);
-		m_rect_vertices.push_back(m_rect_colors[rclx+3]);
-
-		// indices
-		m_rect_indices.push_back(ridx); m_rect_indices.push_back(ridx+1);
-		m_rect_indices.push_back(ridx+1); m_rect_indices.push_back(ridx+2);
-		m_rect_indices.push_back(ridx+2); m_rect_indices.push_back(ridx+3);
-		m_rect_indices.push_back(ridx+3); m_rect_indices.push_back(ridx);
-
-		rprx += 2;
-		rclx += 4;
-		ridx += 4;
-	}
-
-	// Parse all triangles
+	// Parse & compile all triangles
 	List<float> m_triangle_points(default_allocator());
 	List<float> m_triangle_colors(default_allocator());
 
 	JSONElement triangles = root.key("triangles");
 	uint32_t num_triangles = triangles.size();
+
 	for (uint32_t i = 0; i < num_triangles; i++)
 	{
 		parse_triangle(triangles[i], m_triangle_points, m_triangle_colors);
+
+		GuiTriangleData triangle;
+		triangle.points[0] = m_triangle_points[0];
+		triangle.points[1] = m_triangle_points[1];
+		triangle.points[2] = m_triangle_points[2];
+		triangle.points[3] = m_triangle_points[3];
+		triangle.points[4] = m_triangle_points[4];
+		triangle.points[5] = m_triangle_points[5];
+		triangle.color[0] = m_triangle_colors[0];
+		triangle.color[1] = m_triangle_colors[1];
+		triangle.color[2] = m_triangle_colors[2];
+		triangle.color[3] = m_triangle_colors[3];
+
+		m_gui_triangles.push_back(triangle);
+
+		m_triangle_points.clear();
+		m_triangle_colors.clear();
 	}
 
-	// Compile all triangles
-	List<float>	m_triangle_vertices(default_allocator());
-	List<uint16_t> m_triangle_indices(default_allocator());
+	// Parse & compile all images
+	StringId64			m_image_material = 0;
+	List<float> 		m_image_positions(default_allocator());
+	List<float> 		m_image_sizes(default_allocator());
+	List<float> 		m_image_colors(default_allocator());
 
-	uint32_t tpnx = 0;
-	uint32_t tclx = 0;
-	uint32_t tidx = 0;
-	for (uint32_t i = 0; i < num_triangles; i++)
+	JSONElement images = root.key("images");
+	uint32_t num_images = images.size();
+
+	for (uint32_t i = 0; i < num_images; i++)
 	{
-		// first vertex
-		m_triangle_vertices.push_back(m_triangle_points[tpnx]);
-		m_triangle_vertices.push_back(m_triangle_points[tpnx+1]);
-		m_triangle_vertices.push_back(m_triangle_colors[tclx]);
-		m_triangle_vertices.push_back(m_triangle_colors[tclx+1]);
-		m_triangle_vertices.push_back(m_triangle_colors[tclx+2]);
-		m_triangle_vertices.push_back(m_triangle_colors[tclx+3]);
+		parse_image(images[i], m_image_material, m_image_positions, m_image_sizes, m_image_colors);
 
-		// second vertex
-		m_triangle_vertices.push_back(m_triangle_points[tpnx+2]);
-		m_triangle_vertices.push_back(m_triangle_points[tpnx+3]);
-		m_triangle_vertices.push_back(m_triangle_colors[tclx]);
-		m_triangle_vertices.push_back(m_triangle_colors[tclx+1]);
-		m_triangle_vertices.push_back(m_triangle_colors[tclx+2]);
-		m_triangle_vertices.push_back(m_triangle_colors[tclx+3]);
+		GuiImageData image;
+		image.material.id 	= m_image_material;
+		image.position[0] 	= m_image_positions[0];
+		image.position[1] 	= m_image_positions[1];
+		image.size[0] 		= m_image_sizes[0];
+		image.size[1] 		= m_image_sizes[1];
+		image.color[0] 		= m_image_colors[0];
+		image.color[1] 		= m_image_colors[1];
+		image.color[2] 		= m_image_colors[2];
+		image.color[3] 		= m_image_colors[3];
 
-		// third vertex
-		m_triangle_vertices.push_back(m_triangle_points[tpnx+4]);
-		m_triangle_vertices.push_back(m_triangle_points[tpnx+5]);
-		m_triangle_vertices.push_back(m_triangle_colors[tclx]);
-		m_triangle_vertices.push_back(m_triangle_colors[tclx+1]);
-		m_triangle_vertices.push_back(m_triangle_colors[tclx+2]);
-		m_triangle_vertices.push_back(m_triangle_colors[tclx+3]);
+		m_gui_images.push_back(image);
 
-		m_triangle_indices.push_back(tidx); m_triangle_indices.push_back(tidx+1);
-		m_triangle_indices.push_back(tidx+1); m_triangle_indices.push_back(tidx+2);
-		m_triangle_indices.push_back(tidx+2); m_triangle_indices.push_back(tidx);
-
-		tpnx += 6;
-		tclx += 4;
-		tidx += 3;
+		m_image_positions.clear();
+		m_image_sizes.clear();
+		m_image_colors.clear();
 	}
 
 	fs.close(file);
 	default_allocator().deallocate(buf);
 
-	// Write compiled resource to out_file
+	// Fill resource header
 	GuiHeader h;
 	h.position[0] = m_gui_position[0];
 	h.position[1] = m_gui_position[1];
 	h.size[0] = m_gui_size[0];
 	h.size[1] = m_gui_size[1];
-
 	h.num_rects = num_rects;
 	h.num_triangles = num_triangles;
+	h.num_images = num_images;
+	h.rects_offset 	= sizeof(GuiHeader);
+	h.triangles_offset = h.rects_offset + sizeof(GuiRectData) * m_gui_rects.size();
+	h.images_offset = h.triangles_offset + sizeof(GuiTriangleData) * m_gui_triangles.size();
 
-	h.rect_vertices_off = sizeof(GuiHeader);
-	h.rect_indices_off = h.rect_vertices_off + sizeof(float) * m_rect_vertices.size();
-	h.triangle_vertices_off = h.rect_indices_off + sizeof(uint16_t) * m_rect_indices.size();
-	h.triangle_indices_off = h.triangle_vertices_off + sizeof(float) * m_triangle_vertices.size();
-
+	// Write compiled resource
 	out_file->write((char*) &h, sizeof(GuiHeader));
-	out_file->write((char*) m_rect_vertices.begin(), sizeof(float) * m_rect_vertices.size());
-	out_file->write((char*) m_rect_indices.begin(), sizeof(uint16_t) * m_rect_indices.size());
-	out_file->write((char*) m_triangle_vertices.begin(), sizeof(float) * m_triangle_vertices.size());
-	out_file->write((char*) m_triangle_indices.begin(), sizeof(uint16_t) * m_triangle_indices.size());
+	out_file->write((char*) m_gui_rects.begin(), sizeof(GuiRectData) * h.num_rects);
+	out_file->write((char*) m_gui_triangles.begin(), sizeof(GuiTriangleData) * h.num_triangles);
+	out_file->write((char*) m_gui_images.begin(), sizeof(GuiImageData) * h.num_images);
 }
 
 } // namespace gui_resource
