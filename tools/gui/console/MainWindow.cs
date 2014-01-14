@@ -24,7 +24,8 @@ public partial class MainWindow: Gtk.Window
 	// Connection
 	private string m_server_ip;
 	private int m_server_port;
-	private byte [] m_byBuff = new byte[4096]; // Recieved data buffer
+	private byte[] m_msg_header = new byte[4];
+	private byte[] m_byBuff = new byte[4096]; // Recieved data buffer
 	
 	public MainWindow (): base (Gtk.WindowType.Toplevel)
 	{
@@ -376,7 +377,7 @@ public partial class MainWindow: Gtk.Window
 	{
 		try
 		{
-			sock.BeginReceive(m_byBuff, 0, m_byBuff.Length, SocketFlags.None,
+			sock.BeginReceive(m_msg_header, 0, 4, SocketFlags.None,
 			                  new AsyncCallback(OnReceived), sock);
 		}
 		catch( Exception ex )
@@ -394,8 +395,10 @@ public partial class MainWindow: Gtk.Window
 			int nBytesRec = sock.EndReceive(ar);
 			if(nBytesRec > 0)
 			{
+				// Read the message
+				int bytesRead = sock.Receive(m_byBuff, BitConverter.ToInt32(m_msg_header, 0), SocketFlags.None);
 				// Wrote the data to the List
-				string received = Encoding.ASCII.GetString( m_byBuff, 0, nBytesRec );
+				string received = Encoding.ASCII.GetString( m_byBuff, 0, bytesRead );
 
 				JObject obj = JObject.Parse(received);
 				if (obj["type"].ToString() == "message")
@@ -479,10 +482,8 @@ public partial class MainWindow: Gtk.Window
 	protected void Send(string data)
 	{
 		try {
-			byte[] bytes = Encoding.ASCII.GetBytes (data);
-	
-			m_sock.BeginSend (bytes, 0, bytes.Length, 0,
-			                 new AsyncCallback (OnSent), m_sock);
+			m_sock.Send(BitConverter.GetBytes(data.Length));
+			m_sock.Send(Encoding.ASCII.GetBytes (data));
 		} catch (Exception e) {
 			Console.WriteLine (e.ToString ());
 		}
