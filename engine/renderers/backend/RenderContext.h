@@ -36,8 +36,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-#define MAX_RENDER_LAYERS						32
+#define MAX_RENDER_LAYERS						8
 #define MAX_RENDER_STATES						1024
+
+// Layer flags
+#define RENDER_LAYER_MASK						0xE000000000000000
+#define RENDER_LAYER_SHIFT						61
 
 // State flags
 #define STATE_NONE								0x0000000000000000
@@ -140,6 +144,7 @@ struct ClearState
 {
 	void clear()
 	{
+		m_flags = 0;
 		m_color = Color4::GRAY;
 		m_depth = 1.0f;
 	}
@@ -197,12 +202,12 @@ struct RenderKey
 
 	uint64_t encode()
 	{
-		return uint64_t(m_layer) << 56;
+		return uint64_t(m_layer) << RENDER_LAYER_SHIFT;
 	}
 
 	void decode(uint64_t key)
 	{
-		m_layer = (key >> 56) & 0xFF;
+		m_layer = (key & RENDER_LAYER_MASK) >> RENDER_LAYER_SHIFT;
 	}
 
 public:
@@ -313,6 +318,7 @@ struct RenderContext
 
 	void commit(uint8_t layer)
 	{
+		CE_ASSERT(layer < MAX_RENDER_LAYERS, "Layer out of bounds");
 		m_render_key.m_layer = layer;
 
 		m_states[m_num_states] = m_state;
@@ -347,7 +353,6 @@ public:
 	// Per-state data
 	uint32_t m_num_states;
 	RenderState m_states[MAX_RENDER_STATES];
-	ClearState m_clears[MAX_RENDER_STATES];
 	uint64_t m_keys[MAX_RENDER_STATES];
 
 	// Per-layer data
@@ -356,6 +361,7 @@ public:
 	Matrix4x4 m_projection_matrices[MAX_RENDER_LAYERS];
 	ViewRect m_viewports[MAX_RENDER_LAYERS];
 	ViewRect m_scissors[MAX_RENDER_LAYERS];
+	ClearState m_clears[MAX_RENDER_LAYERS];
 
 	CommandBuffer m_commands;
 	ConstantBuffer m_constants;
