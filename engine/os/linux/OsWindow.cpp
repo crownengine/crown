@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OsWindow.h"
 #include "Assert.h"
 #include "StringUtils.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -49,6 +50,13 @@ OsWindow::OsWindow()
 	, m_x11_detectable_autorepeat(false)
 {
 	set_title("");
+
+	XWindowAttributes win_attr;
+
+	XGetWindowAttributes(m_x11_display, m_x11_window, &win_attr);
+	
+	m_width = win_attr.width;
+	m_height = win_attr.height;
 }
 
 //-----------------------------------------------------------------------------
