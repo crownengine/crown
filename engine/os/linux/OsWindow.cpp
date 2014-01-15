@@ -42,21 +42,12 @@ void oswindow_set_window(Display* dpy, Window win)
 
 //-----------------------------------------------------------------------------
 OsWindow::OsWindow()
-	: m_x(0)
-	, m_y(0)
-	, m_width(0)
-	, m_height(0)
-	, m_resizable(true)
+	: m_resizable(true)
 	, m_x11_detectable_autorepeat(false)
 {
 	set_title("");
 
-	XWindowAttributes win_attr;
-
-	XGetWindowAttributes(m_x11_display, m_x11_window, &win_attr);
-	
-	m_width = win_attr.width;
-	m_height = win_attr.height;
+	XGetWindowAttributes(m_x11_display, m_x11_window, &m_win_attr);
 }
 
 //-----------------------------------------------------------------------------
@@ -79,15 +70,19 @@ void OsWindow::hide()
 //-----------------------------------------------------------------------------
 void OsWindow::get_size(uint32_t& width, uint32_t& height)
 {
-	width = m_width;
-	height = m_height;
+	XGetWindowAttributes(m_x11_display, m_x11_window, &m_win_attr);
+
+	width = m_win_attr.width;
+	height = m_win_attr.height;
 }
 
 //-----------------------------------------------------------------------------
 void OsWindow::get_position(uint32_t& x, uint32_t& y)
 {
-	x = m_x;
-	y = m_y;
+	XGetWindowAttributes(m_x11_display, m_x11_window, &m_win_attr);
+
+	x = m_win_attr.x;
+	y = m_win_attr.y;
 }
 
 //-----------------------------------------------------------------------------
@@ -125,10 +120,10 @@ void OsWindow::set_resizable(bool resizable)
 {
 	XSizeHints hints;
 	hints.flags = PMinSize | PMaxSize;
-	hints.min_width = resizable ? 1 : m_width;
-	hints.min_height = resizable ? 1 : m_height;
-	hints.max_width = resizable ? 65535 : m_width;
-	hints.max_height = resizable ? 65535 : m_height;
+	hints.min_width = resizable ? 1 : m_win_attr.width;
+	hints.min_height = resizable ? 1 : m_win_attr.height;
+	hints.max_width = resizable ? 65535 : m_win_attr.width;
+	hints.max_height = resizable ? 65535 : m_win_attr.height;
 
 	XSetWMNormalHints(m_x11_display, m_x11_window, &hints);
 
