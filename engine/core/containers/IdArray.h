@@ -128,31 +128,28 @@ inline const T& IdArray<MAX_NUM_ID, T>::operator[](uint32_t i) const
 template <uint32_t MAX_NUM_ID, typename T>
 inline Id IdArray<MAX_NUM_ID, T>::create(const T& object)
 {
+	CE_ASSERT(m_num_objects < MAX_NUM_ID, "Object list full");
+
 	// Obtain a new id
 	Id id;
 	id.id = next_id();
-
-	uint16_t dense_index;
 
 	// Recycle slot if there are any
 	if (m_freelist != INVALID_ID)
 	{
 		id.index = m_freelist;
 		m_freelist = m_sparse[m_freelist].index;
-		m_objects[id.index] = object;
-		dense_index = id.index;
 	}
 	else
 	{
 		id.index = m_last_index++;
-		m_objects[m_num_objects] = object;
-		dense_index = m_num_objects;
 	}
 
-	m_num_objects++;
 	m_sparse[id.index] = id;
-	m_sparse_to_dense[id.index] = dense_index;
-	m_dense_to_sparse[dense_index] = id.index;
+	m_sparse_to_dense[id.index] = m_num_objects;
+	m_dense_to_sparse[m_num_objects] = id.index;
+	m_objects[m_num_objects] = object;
+	m_num_objects++;
 
 	return id;
 }
@@ -169,14 +166,15 @@ inline void IdArray<MAX_NUM_ID, T>::destroy(Id id)
 
 	// Swap with last element
 	const uint32_t last = m_num_objects - 1;
+	CE_ASSERT(last >= m_sparse_to_dense[id.index], "Swapping with previous item");
 	m_objects[m_sparse_to_dense[id.index]] = m_objects[last];
-	m_num_objects--;
 
 	// Update tables
 	uint16_t std = m_sparse_to_dense[id.index];
 	uint16_t dts = m_dense_to_sparse[last];
 	m_sparse_to_dense[dts] = std;
 	m_dense_to_sparse[std] = dts;
+	m_num_objects--;
 }
 
 //-----------------------------------------------------------------------------
@@ -206,8 +204,6 @@ inline uint32_t IdArray<MAX_NUM_ID, T>::size() const
 template <uint32_t MAX_NUM_ID, typename T>
 inline uint16_t IdArray<MAX_NUM_ID, T>::next_id()
 {
-	CE_ASSERT(m_next_id < MAX_NUM_ID, "Maximum number of IDs reached");
-
 	return m_next_id++;
 }
 
