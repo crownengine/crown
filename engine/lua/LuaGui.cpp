@@ -144,6 +144,54 @@ CE_EXPORT int gui_destroy_triangle(lua_State* L)
 	return 0;
 }
 
+//-------------------------------------------------------------------------
+CE_EXPORT int gui_create_image(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Gui* gui = stack.get_gui(1);
+	const char* mat_name = stack.get_string(2);
+	const Vector3 pos = stack.get_vector3(3);
+	const Vector2 size = stack.get_vector2(4);
+
+	ResourceId mat_id;
+	mat_id.id = hash::murmur2_64(mat_name, string::strlen(mat_name), 0);
+
+	GuiImageId image_id = gui->create_image(mat_id, pos, size);
+
+	stack.push_gui_component_id(image_id);
+
+	return 1;
+}
+
+//-------------------------------------------------------------------------
+CE_EXPORT int gui_update_image(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Gui* gui = stack.get_gui(1);
+	GuiComponentId image_id = stack.get_gui_component_id(2);
+	const Vector3 pos = stack.get_vector3(3);
+	const Vector2 size = stack.get_vector2(4);
+
+	gui->update_image(image_id, pos, size);
+
+	return 0;
+}
+
+//-------------------------------------------------------------------------
+CE_EXPORT int gui_destroy_image(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Gui* gui = stack.get_gui(1);
+	GuiComponentId image_id = stack.get_gui_component_id(2);
+
+	gui->destroy_image(image_id);
+
+	return 0;
+}
+
 //-----------------------------------------------------------------------------
 void load_gui(LuaEnvironment& env)
 {
@@ -154,7 +202,9 @@ void load_gui(LuaEnvironment& env)
 	env.load_module_function("Gui", "create_triangle",	gui_create_triangle);
 	env.load_module_function("Gui", "update_triangle",	gui_update_triangle);
 	env.load_module_function("Gui", "destroy_triangle",	gui_destroy_triangle);
-
+	env.load_module_function("Gui", "create_image",		gui_create_image);
+	env.load_module_function("Gui", "update_image",		gui_update_image);
+	env.load_module_function("Gui", "destroy_image",	gui_destroy_image);
 }
 
 
