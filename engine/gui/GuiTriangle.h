@@ -34,6 +34,7 @@ namespace crown
 
 struct GuiTriangle
 {
+	//-------------------------------------------------------------------------
 	GuiTriangle(Renderer& r, const Vector2& p1, const Vector2& p2, const Vector2& p3, const Color4& color)
 		: m_r(r)
 	{
@@ -43,12 +44,14 @@ struct GuiTriangle
 		m_ib = m_r.create_index_buffer(6, m_indices);
 	}
 
+	//-------------------------------------------------------------------------
 	~GuiTriangle()
 	{
 		m_r.destroy_vertex_buffer(m_vb);
 		m_r.destroy_index_buffer(m_ib);
 	}
 
+	//-------------------------------------------------------------------------
 	void update(const Vector2& p1, const Vector2& p2, const Vector2& p3, const Color4& color)
 	{
 		m_vertices[0] = p1.x; m_vertices[1] = p1.y;
@@ -68,6 +71,7 @@ struct GuiTriangle
 		m_indices[4] = 2; m_indices[5] = 0;
 	}
 
+	//-------------------------------------------------------------------------
 	void render()
 	{
 		m_r.set_vertex_buffer(m_vb);
