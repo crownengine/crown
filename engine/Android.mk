@@ -134,6 +134,8 @@ LOCAL_SRC_FILES :=\
 	core/Args.cpp\
 	core/Log.cpp\
 \
+	gui/Gui.cpp\
+\
 	os/android/AndroidDevice.cpp\
 	os/android/AndroidOS.cpp\
 	os/android/ApkFile.cpp\
@@ -195,36 +197,36 @@ LOCAL_SRC_FILES :=\
 \
 	ConsoleServer.cpp\
 	Device.cpp\
-	Gui.cpp\
 \
 	audio/sles/SLESRenderer.cpp\
 
 LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/\
-	$(LOCAL_PATH)/core\
+	$(LOCAL_PATH)/audio\
 	$(LOCAL_PATH)/core/bv\
 	$(LOCAL_PATH)/core/compressors\
 	$(LOCAL_PATH)/core/containers\
 	$(LOCAL_PATH)/core/filesystem\
-	$(LOCAL_PATH)/core/math\
-	$(LOCAL_PATH)/core/mem\
 	$(LOCAL_PATH)/core/filesystem\
 	$(LOCAL_PATH)/core/json\
+	$(LOCAL_PATH)/core/math\
+	$(LOCAL_PATH)/core/mem\
 	$(LOCAL_PATH)/core/settings\
 	$(LOCAL_PATH)/core/strings\
-	$(LOCAL_PATH)/resource\
+	$(LOCAL_PATH)/core\
+	$(LOCAL_PATH)/gui\
 	$(LOCAL_PATH)/input\
 	$(LOCAL_PATH)/lua\
-	$(LOCAL_PATH)/audio\
 	$(LOCAL_PATH)/network\
-	$(LOCAL_PATH)/os\
 	$(LOCAL_PATH)/os/android\
 	$(LOCAL_PATH)/os/posix\
+	$(LOCAL_PATH)/os\
 	$(LOCAL_PATH)/physics\
-	$(LOCAL_PATH)/renderers\
-	$(LOCAL_PATH)/renderers/backend\
-	$(LOCAL_PATH)/renderers/backend/gl\
 	$(LOCAL_PATH)/renderers/backend/gl/egl\
+	$(LOCAL_PATH)/renderers/backend/gl\
+	$(LOCAL_PATH)/renderers/backend\
+	$(LOCAL_PATH)/renderers\
+	$(LOCAL_PATH)/resource\
 	$(LOCAL_PATH)/world\
 \
 	$(LOCAL_PATH)/third/ARMv7/luajit/include/luajit-2.0\
