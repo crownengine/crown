@@ -41,10 +41,10 @@ static uint32_t shape_type_to_enum(const char* type)
 {
 	const StringId32 th = hash::murmur2_32(type, string::strlen(type));
 
-	if (th == hash::HASH32("sphere", 0x2eaa6850)) return PhysicsShapeType::SPHERE;
-	else if (th == hash::HASH32("capsule", 0xefe0dead)) return PhysicsShapeType::CAPSULE;
-	else if (th == hash::HASH32("box", 0x5af3a067)) return PhysicsShapeType::BOX;
-	else if (th == hash::HASH32("plane", 0xfb96769a)) return PhysicsShapeType::PLANE;
+	if (string::strcmp("sphere", type) == 0) return PhysicsShapeType::SPHERE;
+	else if (string::strcmp("capsule", type) == 0) return PhysicsShapeType::CAPSULE;
+	else if (string::strcmp("box", type) == 0) return PhysicsShapeType::BOX;
+	else if (string::strcmp("plane", type) == 0) return PhysicsShapeType::PLANE;
 
 	CE_FATAL("Bad shape type");
 }
