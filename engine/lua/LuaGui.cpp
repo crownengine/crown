@@ -28,10 +28,25 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaEnvironment.h"
 #include "LuaStack.h"
 #include "Vector3.h"
+#include "Quaternion.h"
 #include "Color4.h"
 
 namespace crown
 {
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int gui_resolution(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Gui* gui = stack.get_gui(1);
+	const Vector2 resolution = gui->resolution();
+
+	stack.push_int32((uint32_t)resolution.x);
+	stack.push_int32((uint32_t)resolution.y);
+
+	return 2;
+}
 
 //-----------------------------------------------------------------------------
 CE_EXPORT int gui_move(lua_State* L)
@@ -55,8 +70,8 @@ CE_EXPORT int gui_create_rect(lua_State* L)
 	Gui* gui = stack.get_gui(1);
 	const Vector3 pos = stack.get_vector3(2);
 	const Vector2 size = stack.get_vector2(3);
-	// TMP FIXME FIXME FIXME
-	const Color4 color(1.0f, 1.0f, 1.0f, 1.0f);
+	const Quaternion col = stack.get_quaternion(4);
+	const Color4 color(col.v.x, col.v.y, col.v.z, col.w);
 
 	GuiComponentId rect_id = gui->create_rect(pos, size, color);
 	stack.push_gui_component_id(rect_id);
@@ -73,8 +88,8 @@ CE_EXPORT int gui_update_rect(lua_State* L)
 	GuiComponentId rect_id = stack.get_gui_component_id(2);
 	const Vector3 pos = stack.get_vector3(3);
 	const Vector2 size = stack.get_vector2(4);
-	// TMP FIXME FIXME FIXME
-	const Color4 color(1.0f, 1.0f, 1.0f, 1.0f);
+	const Quaternion col = stack.get_quaternion(4);
+	const Color4 color(col.v.x, col.v.y, col.v.z, col.w);
 
 	gui->update_rect(rect_id, pos, size, color);
 
@@ -103,8 +118,8 @@ CE_EXPORT int gui_create_triangle(lua_State* L)
 	const Vector2 p1 = stack.get_vector2(2);
 	const Vector2 p2 = stack.get_vector2(3);
 	const Vector2 p3 = stack.get_vector2(3);
-	// TMP FIXME FIXME FIXME
-	const Color4 color(1.0f, 1.0f, 1.0f, 1.0f);
+	const Quaternion col = stack.get_quaternion(4);
+	const Color4 color(col.v.x, col.v.y, col.v.z, col.w);
 
 	GuiComponentId triangle_id = gui->create_triangle(p1, p2, p3, color);
 
@@ -123,8 +138,8 @@ CE_EXPORT int gui_update_triangle(lua_State* L)
 	const Vector2 p1 = stack.get_vector2(3);
 	const Vector2 p2 = stack.get_vector2(4);
 	const Vector2 p3 = stack.get_vector2(5);
-	// TMP FIXME FIXME FIXME
-	const Color4 color(1.0f, 1.0f, 1.0f, 1.0f);
+	const Quaternion col = stack.get_quaternion(4);
+	const Color4 color(col.v.x, col.v.y, col.v.z, col.w);
 
 	gui->update_triangle(triangle_id, p1, p2, p3, color);
 
@@ -195,6 +210,7 @@ CE_EXPORT int gui_destroy_image(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_gui(LuaEnvironment& env)
 {
+	env.load_module_function("Gui", "resolution",		gui_resolution);
 	env.load_module_function("Gui", "move",				gui_move);
 	env.load_module_function("Gui", "create_rect",		gui_create_rect);
 	env.load_module_function("Gui", "update_rect",		gui_update_rect);
@@ -206,6 +222,5 @@ void load_gui(LuaEnvironment& env)
 	env.load_module_function("Gui", "update_image",		gui_update_image);
 	env.load_module_function("Gui", "destroy_image",	gui_destroy_image);
 }
-
 
 } // namespace crown
