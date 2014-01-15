@@ -487,17 +487,6 @@ if (LINUX)
 		openal
 		vorbisfile
 		luajit-5.1
-
-		LowLevel
-		LowLevelCloth
-		PhysX3
-		PhysX3CharacterKinematic
-		PhysX3Common
-		PhysX3Extensions
-		PhysXProfileSDK
-		PxTask
-		SceneQuery
-		SimulationController
 	)
 
 	set (COMPILER_FLAGS
@@ -519,9 +508,37 @@ if (LINUX)
 	)
 
 	if (CROWN_DEBUG)
-		list (APPEND COMPILER_FLAGS -g -pg -D_DEBUG)
+		list (APPEND COMPILER_FLAGS -g -D_DEBUG)
+		list (APPEND CROWN_LIBRARIES
+			LowLevelCHECKED
+			LowLevelClothCHECKED
+			PhysX3CharacterKinematicCHECKED
+			PhysX3CHECKED
+			PhysX3CommonCHECKED
+			PhysX3ExtensionsCHECKED
+			PhysXProfileSDKCHECKED
+			PhysXVisualDebuggerSDKCHECKED
+			PvdRuntimeCHECKED
+			PxTaskCHECKED
+			SceneQueryCHECKED
+			SimulationControllerCHECKED
+		)
 	elseif (CROWN_DEVELOPMENT)
 		list (APPEND COMPILER_FLAGS -O2 -DNDEBUG)
+		list (APPEND CROWN_LIBRARIES
+			LowLevelPROFILE
+			LowLevelClothPROFILE
+			PhysX3CharacterKinematicPROFILE
+			PhysX3PROFILE
+			PhysX3CommonPROFILE
+			PhysX3ExtensionsPROFILE
+			PhysXProfileSDKPROFILE
+			PhysXVisualDebuggerSDKPROFILE
+			PvdRuntimePROFILE
+			PxTaskPROFILE
+			SceneQueryPROFILE
+			SimulationControllerPROFILE
+		)
 	elseif (CROWN_RELEASE)
 		list (APPEND COMPILER_FLAGS
 			-DNDEBUG
@@ -531,6 +548,20 @@ if (LINUX)
 			-Wno-maybe-uninitialized
 			-Wno-unused-but-set-variable
 			-Wno-unused-function
+		)
+		list (APPEND CROWN_LIBRARIES
+			LowLevel
+			LowLevelCloth
+			PhysX3CharacterKinematic
+			PhysX3
+			PhysX3Common
+			PhysX3Extensions
+			PhysXProfileSDK
+			PhysXVisualDebuggerSDK
+			PvdRuntime
+			PxTask
+			SceneQuery
+			SimulationController
 		)
 	else ()
 		message (FATAL_ERROR "Oops, you should not be here")
