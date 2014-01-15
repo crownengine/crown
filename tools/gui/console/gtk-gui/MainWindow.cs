@@ -10,8 +10,6 @@ public partial class MainWindow
 	private global::Gtk.MenuBar menubar1;
 	private global::Gtk.ScrolledWindow scrolledwindow1;
 	private global::Gtk.TextView textview1;
-	private global::Gtk.HBox hbox2;
-	private global::Gtk.ComboBox combobox1;
 	private global::Gtk.Entry entry1;
 
 	protected virtual void Build ()
@@ -59,34 +57,17 @@ public partial class MainWindow
 		global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.scrolledwindow1]));
 		w4.Position = 1;
 		// Container child vbox1.Gtk.Box+BoxChild
-		this.hbox2 = new global::Gtk.HBox ();
-		this.hbox2.Name = "hbox2";
-		this.hbox2.Spacing = 6;
-		// Container child hbox2.Gtk.Box+BoxChild
-		this.combobox1 = global::Gtk.ComboBox.NewText ();
-		this.combobox1.AppendText (global::Mono.Unix.Catalog.GetString ("Script"));
-		this.combobox1.AppendText (global::Mono.Unix.Catalog.GetString ("Command"));
-		this.combobox1.Name = "combobox1";
-		this.combobox1.Active = 0;
-		this.hbox2.Add (this.combobox1);
-		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.combobox1]));
-		w5.Position = 0;
-		w5.Expand = false;
-		w5.Fill = false;
-		// Container child hbox2.Gtk.Box+BoxChild
 		this.entry1 = new global::Gtk.Entry ();
 		this.entry1.CanFocus = true;
 		this.entry1.Name = "entry1";
 		this.entry1.IsEditable = true;
 		this.entry1.InvisibleChar = '●';
-		this.hbox2.Add (this.entry1);
-		global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.entry1]));
-		w6.Position = 1;
-		this.vbox1.Add (this.hbox2);
-		global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
-		w7.Position = 2;
-		w7.Expand = false;
-		w7.Fill = false;
+		this.vbox1.Add (this.entry1);
+		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.entry1]));
+		w5.PackType = ((global::Gtk.PackType)(1));
+		w5.Position = 2;
+		w5.Expand = false;
+		w5.Fill = false;
 		this.Add (this.vbox1);
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();

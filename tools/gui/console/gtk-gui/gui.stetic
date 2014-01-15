@@ -65,40 +65,16 @@
           </packing>
         </child>
         <child>
-          <widget class="Gtk.HBox" id="hbox2">
+          <widget class="Gtk.Entry" id="entry1">
             <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <child>
-              <widget class="Gtk.ComboBox" id="combobox1">
-                <property name="MemberName" />
-                <property name="IsTextCombo">True</property>
-                <property name="Items" translatable="yes">Script
-Command</property>
-                <property name="Active">0</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.Entry" id="entry1">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="IsEditable">True</property>
-                <property name="InvisibleChar">●</property>
-                <signal name="Activated" handler="OnEntryActivated" />
-                <signal name="KeyPressEvent" handler="OnEntryKeyPressed" />
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">True</property>
-              </packing>
-            </child>
+            <property name="CanFocus">True</property>
+            <property name="IsEditable">True</property>
+            <property name="InvisibleChar">●</property>
+            <signal name="Activated" handler="OnEntryActivated" />
+            <signal name="KeyPressEvent" handler="OnEntryKeyPressed" />
           </widget>
           <packing>
+            <property name="PackType">End</property>
             <property name="Position">2</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
