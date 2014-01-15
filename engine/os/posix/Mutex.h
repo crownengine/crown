@@ -49,6 +49,7 @@ public:
 private:
 
 	pthread_mutex_t		m_mutex;
+	pthread_mutexattr_t m_attr;
 
 private:
 
@@ -63,33 +64,38 @@ private:
 inline Mutex::Mutex()
 {
 	memset(&m_mutex, 0, sizeof(pthread_mutex_t));
+	int result;
 
-	int32_t result = pthread_mutex_init(&m_mutex, NULL);
-
+	result = pthread_mutexattr_init(&m_attr);
+	CE_ASSERT(result == 0, "Failed to init mutex attr. errno: %d", result);
+	result = pthread_mutexattr_settype(&m_attr, PTHREAD_MUTEX_ERRORCHECK);
+	CE_ASSERT(result == 0, "Failed to set mutex type. errno: %d", result);
+	result = pthread_mutex_init(&m_mutex, &m_attr);
 	CE_ASSERT(result == 0, "Failed to init mutex. errno: %d", result);
 }
 
 //-----------------------------------------------------------------------------
 inline Mutex::~Mutex()
 {
-	int32_t result = pthread_mutex_destroy(&m_mutex);
+	int result;
 
+	result = pthread_mutex_destroy(&m_mutex);
 	CE_ASSERT(result == 0, "Failed to destroy mutex. errno: %d", result);
+	result = pthread_mutexattr_destroy(&m_attr);
+	CE_ASSERT(result == 0, "Failed to destroy mutex attr. errno: %d", result);
 }
 
 //-----------------------------------------------------------------------------
 inline void Mutex::lock()
 {
-	int32_t result = pthread_mutex_lock(&m_mutex);
-
+	int result = pthread_mutex_lock(&m_mutex);
 	CE_ASSERT(result == 0, "Failed to acquire lock. errno: %d", result);
 }
 
 //-----------------------------------------------------------------------------
 inline void Mutex::unlock()
 {
-	int32_t result = pthread_mutex_unlock(&m_mutex);
-
+	int result = pthread_mutex_unlock(&m_mutex);
 	CE_ASSERT(result == 0, "Failed to release lock. errno: %d", result);
 }
 

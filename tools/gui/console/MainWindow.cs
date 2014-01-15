@@ -492,7 +492,6 @@ public partial class MainWindow: Gtk.Window
 	protected void SendScript(String script)
 	{
 		string json = "{\"type\":\"script\",\"script\":\"" + script + "\"}";
-
 		Send(json);
 	}
 
@@ -534,12 +533,12 @@ public partial class MainWindow: Gtk.Window
 			Connect();
 
 			// Sanitize entered text
-			string safe_text = text.Replace("\"", "\\\""); 
+			string safe_text = text.Replace("\"", "\\\"");
 
-			if (combobox1.Active == 0) {
-				SendScript (safe_text);
+			if (safe_text[0] == '\\') {
+				SendCommand (safe_text.Substring(1));
 			} else {
-				SendCommand (safe_text);
+				SendScript (safe_text);	
 			}
 
 			// Log entered text

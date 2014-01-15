@@ -26,6 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <algorithm>
+
 #include "Color4.h"
 #include "Matrix4x4.h"
 #include "CommandBuffer.h"
@@ -162,6 +164,7 @@ struct Sampler
 	uint32_t	flags;
 };
 
+/// Maintains the states necessary for a single draw call.
 struct RenderState
 {
 	void clear()
@@ -342,6 +345,11 @@ struct RenderContext
 	{
 		m_commands.commit();
 		m_constants.commit();
+	}
+
+	void sort()
+	{
+		std::sort(m_keys, m_keys + m_num_states);
 	}
 
 public:

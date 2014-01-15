@@ -29,20 +29,26 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OsSocket.h"
 #include "List.h"
 #include "Queue.h"
-#include "IdTable.h"
+#include "IdArray.h"
 #include "Log.h"
+
+#define MAX_CONSOLE_CLIENTS 32
 
 namespace crown
 {
 
-typedef Id ClientId;
-#define MAX_CONSOLE_CLIENTS 100
-
-struct RPCCallback
+struct Client
 {
-	ClientId client;
-	uint32_t message_index;
+	Id id;
+	TCPSocket socket;
+
+	void close()
+	{
+		socket.close();
+	}
 };
+
+typedef IdArray<MAX_CONSOLE_CLIENTS, Client> ClientArray;
 
 class ConsoleServer
 {
@@ -58,37 +64,29 @@ public:
 
 	void						log_to_all(const char* message, LogSeverity::Enum severity);
 
-	void						send_message_to(ClientId client, const char* message);
-	void						send_message_to_all(const char* message);
-
 	/// Collects requests from clients and processes them all.
 	void						update();
 
 private:
 
-	void						process_requests();
-	void						update_client(ClientId id);
-	void						add_client(TCPSocket& client);
-	void						remove_client(ClientId id);
+	void						send(TCPSocket client, const char* message);
+	void						send_to_all(const char* message);
 
-	void						add_request(ClientId client, uint32_t message_index);
-	void						process_ping(ClientId client, const char* msg);
-	void						process_script(ClientId client, const char* msg);
-	void						process_stats(ClientId client, const char* msg);
-	void						process_command(ClientId client, const char* msg);
-	void						processs_filesystem(ClientId client, const char* msg);
+	void						add_client(TCPSocket socket);
+	ReadResult					update_client(TCPSocket client);
+	void						process(TCPSocket client, const char* request);
+
+	void						process_ping(TCPSocket client, const char* msg);
+	void						process_script(TCPSocket client, const char* msg);
+	void						process_stats(TCPSocket client, const char* msg);
+	void						process_command(TCPSocket client, const char* msg);
+	void						processs_filesystem(TCPSocket client, const char* msg);
 
 private:
 
 	uint16_t					m_port;
 	TCPServer					m_server;
-
-	uint8_t						m_num_clients;
-	IdTable<MAX_CONSOLE_CLIENTS>	m_clients_table;
-	TCPSocket					m_clients[MAX_CONSOLE_CLIENTS];
-
-	List<char>					m_receive_buffer;
-	Queue<RPCCallback>			m_receive_callbacks;
+	ClientArray					m_clients;
 };
 
 } // namespace crown

@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "File.h"
 #include "Types.h"
 #include "Compressor.h"
-#include "HeapAllocator.h"
 
 namespace crown
 {
@@ -35,8 +34,7 @@ namespace crown
 //-----------------------------------------------------------------------------
 bool File::compress_to(File& file, size_t size, size_t& zipped_size, Compressor& compressor)
 {
-	HeapAllocator allocator;
-	void* in_buffer = (void*)allocator.allocate(size);
+	void* in_buffer = (void*) default_allocator().allocate(size);
 
 	read(in_buffer, size);
 
@@ -50,10 +48,8 @@ bool File::compress_to(File& file, size_t size, size_t& zipped_size, Compressor&
 //-----------------------------------------------------------------------------
 bool File::uncompress_to(File& file, size_t& unzipped_size, Compressor& compressor)
 {
-	HeapAllocator allocator;
-
 	size_t file_size = size();
-	void* in_buffer = (void*)allocator.allocate(file_size);
+	void* in_buffer = (void*) default_allocator().allocate(file_size);
 
 	read(in_buffer, file_size);
 
