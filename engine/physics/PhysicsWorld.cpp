@@ -76,9 +76,10 @@ PhysicsWorld::PhysicsWorld()
 
 	if(!scene_desc.filterShader)
 		scene_desc.filterShader = g_default_filter_shader;
+
+	scene_desc.flags = PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
 	
 	m_scene = device()->physx()->createScene(scene_desc);
-	m_scene->setFlag(PxSceneFlag::eENABLE_ACTIVETRANSFORMS, true);
 
 	// Create controller manager
 	m_controller_manager = PxCreateControllerManager(device()->physx()->getFoundation());
