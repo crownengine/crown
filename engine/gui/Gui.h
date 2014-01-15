@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IdArray.h"
 #include "PoolAllocator.h"
 #include "Vector2.h"
+#include "Resource.h"
 
 #define MAX_GUI_RECTS 64
 #define MAX_GUI_TRIANGLES 64
@@ -70,6 +71,10 @@ struct Gui
 	void				update_triangle(GuiTriangleId id, const Vector2& p1, const Vector2& p2, const Vector2& p3, const Color4& color);
 	void				destroy_triangle(GuiTriangleId id);
 
+	GuiImageId			create_image(ResourceId material, const Vector3& pos, const Vector2& size);
+	void				update_image(GuiImageId id, const Vector3& pos, const Vector2& size);
+	void				destroy_image(GuiImageId);
+
 	void				render();
 
 public:
@@ -83,9 +88,11 @@ public:
 
 	PoolAllocator		m_rect_pool;
 	PoolAllocator		m_triangle_pool;
+	PoolAllocator		m_image_pool;
 
 	IdArray<MAX_GUI_RECTS, GuiRect*> m_rects;
 	IdArray<MAX_GUI_TRIANGLES, GuiTriangle*> m_triangles;
+	IdArray<MAX_GUI_IMAGES, GuiImage*> m_images;
 };
 
 } // namespace crown

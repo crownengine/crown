@@ -38,7 +38,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "GuiRect.h"
 #include "GuiTriangle.h"
-
+#include "GuiImage.h"
 
 namespace crown
 {
@@ -94,6 +94,7 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 	, m_r(r)
 	, m_rect_pool(default_allocator(), MAX_GUI_RECTS, sizeof(GuiRect), CE_ALIGNOF(GuiRect))
 	, m_triangle_pool(default_allocator(), MAX_GUI_TRIANGLES, sizeof(GuiTriangle), CE_ALIGNOF(GuiTriangle))
+	, m_image_pool(default_allocator(), MAX_GUI_IMAGES, sizeof(GuiImage), CE_ALIGNOF(GuiImage))
 {
 	// orthographic projection
 	Vector2 size = m_resource->gui_size();
@@ -133,6 +134,16 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 
 		create_triangle(p1, p2, p3, color);
 	}
+
+	for (uint32_t i = 0; i < m_resource->num_images(); i++)
+	{
+		GuiImageData data = m_resource->get_image(i);
+		ResourceId mat = data.material;
+		Vector3 pos(data.position[0], data.position[1], 0);
+		Vector2 size(data.size[0], data.size[1]);
+
+		create_image(mat, pos, size);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -148,6 +159,12 @@ Gui::~Gui()
 		CE_DELETE(m_triangle_pool, m_triangles[i]);
 	}
 
+	for (uint32_t i = 0; i < m_resource->num_images(); i++)
+	{
+		CE_DELETE(m_image_pool, m_images[i]);
+	}
+
+	// FIXME FIXME FIXME -- Shaders destruction should not be here
 	m_r.destroy_uniform(gui_albedo_0);
 	m_r.destroy_gpu_program(gui_texture_program);
 	m_r.destroy_gpu_program(gui_default_program);
@@ -216,6 +233,32 @@ void Gui::destroy_triangle(GuiTriangleId id)
 }
 
 //-----------------------------------------------------------------------------
+GuiImageId Gui::create_image(ResourceId material, const Vector3& pos, const Vector2& size)
+{
+	GuiImage* image = CE_NEW(m_image_pool, GuiImage)(m_render_world, m_r, material, pos, size);
+	return m_images.create(image);
+}
+
+//-----------------------------------------------------------------------------
+void Gui::update_image(GuiImageId id, const Vector3& pos, const Vector2& size)
+{
+	CE_ASSERT(m_images.has(id), "GuiImage does not exists");
+
+	GuiImage* image = m_images.lookup(id);
+	image->update(pos, size);
+}
+
+//-----------------------------------------------------------------------------
+void Gui::destroy_image(GuiImageId id)
+{
+	CE_ASSERT(m_images.has(id), "GuiImage does not exists");
+
+	GuiImage* image = m_images.lookup(id);
+	CE_DELETE(m_image_pool, image);
+	m_images.destroy(id);
+}
+
+//-----------------------------------------------------------------------------
 void Gui::render()
 {
 	Vector2 size = m_resource->gui_size();
@@ -254,6 +297,20 @@ void Gui::render()
 		m_r.set_pose(m_pose);
 
 		m_triangles[i]->render();
+	}
+
+	for (uint32_t i = 0; i < m_images.size(); i++)
+	{
+		m_r.set_program(gui_default_program);
+		m_r.set_state(STATE_DEPTH_WRITE 
+		| STATE_COLOR_WRITE 
+		| STATE_ALPHA_WRITE 
+		| STATE_CULL_CW 
+		| STATE_BLEND_EQUATION_ADD 
+		| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
+		m_r.set_pose(m_pose);
+
+		m_images[i]->render(gui_albedo_0);
 	}
 }
 
