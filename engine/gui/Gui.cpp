@@ -301,11 +301,12 @@ void Gui::render()
 
 	for (uint32_t i = 0; i < m_images.size(); i++)
 	{
-		m_r.set_program(gui_default_program);
+		m_r.set_program(gui_texture_program);
 		m_r.set_state(STATE_DEPTH_WRITE 
 		| STATE_COLOR_WRITE 
 		| STATE_ALPHA_WRITE 
-		| STATE_CULL_CW 
+		| STATE_CULL_CW
+		| STATE_PRIMITIVE_TRIANGLES
 		| STATE_BLEND_EQUATION_ADD 
 		| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
 		m_r.set_pose(m_pose);

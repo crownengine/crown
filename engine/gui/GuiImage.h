@@ -30,9 +30,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "RendererTypes.h"
 
 // FIXME FIXME FIXME
-// #include "Device.h"
-// #include "ResourceManager.h"
-// #include "Material.h"
+#include "Device.h"
+#include "ResourceManager.h"
+#include "Material.h"
 
 namespace crown
 {
@@ -47,11 +47,11 @@ struct GuiImage
 		update(pos, size);
 
 		// FIXME FIXME FIXME
-/*		MaterialResource* mat = (MaterialResource*) device()->resource_manager()->data(material);
-		m_material = m_render_world.create_material(mat);*/
+		MaterialResource* mat = (MaterialResource*) device()->resource_manager()->data(material);
+		m_material = m_render_world.create_material(mat);
 
-		m_vb = m_r.create_vertex_buffer(4, VertexFormat::P2_C4, m_vertices);
-		m_ib = m_r.create_index_buffer(8, m_indices);
+		m_vb = m_r.create_vertex_buffer(4, VertexFormat::P2_T2, m_vertices);
+		m_ib = m_r.create_index_buffer(6, m_indices);
 	}
 
 	//-------------------------------------------------------------------------
@@ -60,54 +60,35 @@ struct GuiImage
 		m_r.destroy_vertex_buffer(m_vb);
 		m_r.destroy_index_buffer(m_ib);
 
-		// m_render_world.destroy_material(m_material);
+		m_render_world.destroy_material(m_material);
 	}
 
 	//-------------------------------------------------------------------------
 	void update(const Vector3& pos, const Vector2& size)
 	{
-		// m_vertices[0] = pos.x; m_vertices[1] = pos.y;
-		// m_vertices[2] = 0; m_vertices[3] = 0;
-
-		// m_vertices[4] = pos.x + size.x; m_vertices[5] = pos.y;
-		// m_vertices[6] = 1; m_vertices[7] = 0;
-
-		// m_vertices[8] = pos.x + size.x; m_vertices[9] = pos.y - size.y;
-		// m_vertices[10] = 1;	m_vertices[11] = 1;
-
-		// m_vertices[12] = pos.x; m_vertices[13] = pos.y - size.y;
-		// m_vertices[14] = 0;	m_vertices[15] = 1;
-
-		// m_indices[0] = 0; m_indices[1] = 1;
-		// m_indices[2] = 1; m_indices[3] = 2;
-		// m_indices[4] = 2; m_indices[5] = 3;
-		// m_indices[6] = 3; m_indices[7] = 0;
-
 		m_vertices[0] = pos.x; m_vertices[1] = pos.y;
-		m_vertices[2] = 1.0f; m_vertices[3] = 0.0f;
-		m_vertices[4] = 1.0f; m_vertices[5] = 1.0f;
-		m_vertices[6] = pos.x + size.x; m_vertices[7] = pos.y;
-		m_vertices[8] = 1.0f; m_vertices[9] = 0.0f;
-		m_vertices[10] = 0.0f; m_vertices[11] = 1.0f;
-		m_vertices[12] = pos.x + size.x; m_vertices[13] = pos.y - size.y;
-		m_vertices[14] = 1.0f; m_vertices[15] = 0.0f;
-		m_vertices[16] = 0.0f; m_vertices[17] = 1.0f;
-		m_vertices[18] = pos.x; m_vertices[19] = pos.y - size.y;
-		m_vertices[20] = 1.0f; m_vertices[21] = 0.0f;
-		m_vertices[22] = 0.0f; m_vertices[23] = 1.0f;
+		m_vertices[2] = 0; m_vertices[3] = 0;
+
+		m_vertices[4] = pos.x + size.x; m_vertices[5] = pos.y;
+		m_vertices[6] = 1; m_vertices[7] = 0;
+
+		m_vertices[8] = pos.x + size.x; m_vertices[9] = pos.y - size.y;
+		m_vertices[10] = 1;	m_vertices[11] = 1;
+
+		m_vertices[12] = pos.x; m_vertices[13] = pos.y - size.y;
+		m_vertices[14] = 0;	m_vertices[15] = 1;
 
 		m_indices[0] = 0; m_indices[1] = 1;
-		m_indices[2] = 1; m_indices[3] = 2;
+		m_indices[2] = 2; m_indices[3] = 0;
 		m_indices[4] = 2; m_indices[5] = 3;
-		m_indices[6] = 3; m_indices[7] = 0;
 	}
 
 	//-------------------------------------------------------------------------
-	void render(UniformId /*uniform*/)
+	void render(UniformId uniform)
 	{
-		// Material* material = m_render_world.lookup_material(m_material);
-		// material->bind(m_r, uniform);
-
+		Material* material = m_render_world.lookup_material(m_material);
+		material->bind(m_r, uniform);
+		
 		m_r.set_vertex_buffer(m_vb);
 		m_r.set_index_buffer(m_ib);
 		m_r.commit(1);
@@ -118,10 +99,10 @@ public:
 	RenderWorld& m_render_world;
 	Renderer& m_r;
 
-	float m_vertices[/*4*4*/6*4];
-	uint16_t m_indices[2*4];
+	float m_vertices[6*4];
+	uint16_t m_indices[2*3];
 
-	// MaterialId m_material;
+	MaterialId m_material;
 	VertexBufferId m_vb;
 	IndexBufferId m_ib;
 };
