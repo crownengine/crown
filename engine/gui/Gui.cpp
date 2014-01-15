@@ -174,6 +174,12 @@ Gui::~Gui()
 }
 
 //-----------------------------------------------------------------------------
+Vector2 Gui::resolution() const
+{
+	return m_resource->get_size();
+}
+
+//-----------------------------------------------------------------------------
 void Gui::move(const Vector3& pos)
 {
 	m_pose.load_identity();

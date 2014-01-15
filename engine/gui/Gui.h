@@ -61,6 +61,7 @@ struct Gui
 						Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r);
 						~Gui();
 
+	Vector2				resolution() const;
 	void				move(const Vector3& pos);
 
 	GuiRectId			create_rect(const Vector3& pos, const Vector2& size, const Color4& color);
