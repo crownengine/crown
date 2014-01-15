@@ -439,6 +439,8 @@ set (GUI_SRC
 set (GUI_HEADERS
 	gui/Gui.h
 	gui/GuiRect.h
+	gui/GuiTriangle.h
+	gui/GuiImage.h
 )
 
 set (CROWN_LIBRARIES)
