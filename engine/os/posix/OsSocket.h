@@ -235,6 +235,13 @@ public:
 		fcntl(m_socket, F_SETFL, blocking ? (flags & ~O_NONBLOCK) : O_NONBLOCK);
 	}
 
+	//-----------------------------------------------------------------------------
+	void set_resuse_address(bool reuse)
+	{
+		int optval = (int) reuse;
+		setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+	}
+
 public:
 
 	int m_socket;
@@ -249,6 +256,8 @@ public:
 	{
 		m_server.m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		CE_ASSERT(m_server.m_socket > 0, "Failed to create socket");
+
+		m_server.set_resuse_address(true);
 
 		// Bind socket
 		sockaddr_in address;
