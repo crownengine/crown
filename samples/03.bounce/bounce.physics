@@ -1,0 +1,10 @@
+{
+	"controller" : {
+		"name" : "controller",
+		"height" : 0.01,
+		"radius" : 0.5,
+		"slope_limit" : 0.707,
+		"step_offset" : 0.1,
+		"contact_offset" : 0.01
+	}
+}
