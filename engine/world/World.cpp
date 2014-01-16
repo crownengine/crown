@@ -289,6 +289,12 @@ GuiId World::create_window_gui(const char* name)
 }
 
 //-----------------------------------------------------------------------------
+GuiId World::create_world_gui(const Matrix4x4 pose, const uint32_t width, const uint32_t height)
+{
+	// Must be implemented
+}
+
+//-----------------------------------------------------------------------------
 void World::destroy_gui(GuiId id)
 {
 	m_render_world.destroy_gui(id);

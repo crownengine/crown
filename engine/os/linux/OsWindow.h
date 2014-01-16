@@ -70,8 +70,10 @@ public:
 
 public:
 
-	XWindowAttributes m_win_attr;
-
+	uint32_t		m_x;
+	uint32_t		m_y;
+	uint32_t		m_width;
+	uint32_t		m_height;
 	bool			m_resizable;
 
 	bool			m_x11_detectable_autorepeat;

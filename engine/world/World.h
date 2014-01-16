@@ -114,6 +114,7 @@ public:
 	void								set_sound_volume(SoundId sound, const float vol);
 
 	GuiId								create_window_gui(const char* name);
+	GuiId								create_world_gui(const Matrix4x4 pose, const uint32_t width, const uint32_t height);
 	void								destroy_gui(GuiId id);
 	Gui*								lookup_gui(GuiId id);
 
