@@ -46,6 +46,7 @@ namespace crown
 {
 
 struct PhysicsResource;
+struct PhysicsActor;
 struct Controller;
 struct Vector3;
 struct Actor;
@@ -61,7 +62,7 @@ public:
 								PhysicsWorld();
 								~PhysicsWorld();
 
-	ActorId						create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type);
+	ActorId						create_actor(const PhysicsActor& resource, SceneGraph& sg, int32_t node);
 	void						destroy_actor(ActorId id);
 
 	ControllerId				create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node);

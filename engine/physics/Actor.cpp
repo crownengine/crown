@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "Physics.h"
 #include "Log.h"
+#include "PhysicsResource.h"
 #include "SceneGraph.h"
 #include "PxPhysicsAPI.h"
 
@@ -58,17 +59,17 @@ namespace crown
 {
 	
 //-----------------------------------------------------------------------------
-Actor::Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot)
-	: m_scene(scene)
+Actor::Actor(const PhysicsActor& resource, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
+	: m_resource(resource)
+	, m_scene(scene)
 	, m_scene_graph(sg)
 	, m_node(node)
-	, m_type(type)
 {
 	Matrix4x4 m = sg.world_pose(node);
 
 	PxMat44 pose((PxReal*)(m.to_float_ptr()));
 
-	switch (type)
+	switch (m_resource.type)
 	{
 		case ActorType::STATIC:
 		{
@@ -80,7 +81,7 @@ Actor::Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type,
 		{
 			m_actor = device()->physx()->createRigidDynamic(PxTransform(pose));
 
-			if (type == ActorType::DYNAMIC_KINEMATIC)
+			if (m_resource.type == ActorType::DYNAMIC_KINEMATIC)
 			{
 				static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
 			}
@@ -98,7 +99,7 @@ Actor::Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type,
 	
 	create_box(Vector3(0, 0, 0), .5, .5, .5);
 
-	if (type == ActorType::DYNAMIC_PHYSICAL || type == ActorType::DYNAMIC_KINEMATIC)
+	if (m_resource.type == ActorType::DYNAMIC_PHYSICAL || m_resource.type == ActorType::DYNAMIC_KINEMATIC)
 	{
 		PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 500.0f);
 
@@ -132,6 +133,7 @@ void Actor::create_sphere(const Vector3& position, float radius)
 //-----------------------------------------------------------------------------
 void Actor::create_box(const Vector3& position, float a, float b, float c)
 {
+	Log::i("x: %f, y: %f, z; %f", a, b, c);
 	m_actor->createShape(PxBoxGeometry(a, b, c), *m_mat);
 }
 
@@ -156,25 +158,25 @@ void Actor::disable_gravity()
 //-----------------------------------------------------------------------------
 bool Actor::is_static() const
 {
-	return m_type == ActorType::STATIC;
+	return m_resource.type == ActorType::STATIC;
 }
 
 //-----------------------------------------------------------------------------
 bool Actor::is_dynamic() const
 {
-	return m_type == ActorType::DYNAMIC_PHYSICAL || m_type == ActorType::DYNAMIC_KINEMATIC;
+	return m_resource.type == ActorType::DYNAMIC_PHYSICAL || m_resource.type == ActorType::DYNAMIC_KINEMATIC;
 }
 
 //-----------------------------------------------------------------------------
 bool Actor::is_kinematic() const
 {
-	return m_type == ActorType::DYNAMIC_KINEMATIC;
+	return m_resource.type == ActorType::DYNAMIC_KINEMATIC;
 }
 
 //-----------------------------------------------------------------------------
 bool Actor::is_physical() const
 {
-	return m_type == ActorType::DYNAMIC_PHYSICAL;
+	return m_resource.type == ActorType::DYNAMIC_PHYSICAL;
 }
 
 //-----------------------------------------------------------------------------
@@ -251,7 +253,7 @@ void Actor::update_pose()
 	const PxMat44 pose((PxReal*) (wp.to_float_ptr()));
 	const PxTransform world_transform(pose);
 
-	switch (m_type)
+	switch (m_resource.type)
 	{
 		case ActorType::STATIC:
 		{
@@ -274,7 +276,7 @@ void Actor::update_pose()
 void Actor::update(const Matrix4x4& pose)
 {
 
-	if (m_type == ActorType::DYNAMIC_PHYSICAL)
+	if (m_resource.type == ActorType::DYNAMIC_PHYSICAL)
 	{
 		m_scene_graph.set_world_pose(m_node, pose);
 	}

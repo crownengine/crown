@@ -104,9 +104,9 @@ PhysicsWorld::~PhysicsWorld()
 }
 
 //-----------------------------------------------------------------------------
-ActorId	PhysicsWorld::create_actor(SceneGraph& sg, int32_t node, ActorType::Enum type)
+ActorId	PhysicsWorld::create_actor(const PhysicsActor& resource, SceneGraph& sg, int32_t node)
 {
-	Actor* actor = CE_NEW(m_actors_pool, Actor)(m_scene, sg, node, type, Vector3::ZERO, Quaternion::IDENTITY);
+	Actor* actor = CE_NEW(m_actors_pool, Actor)(resource, m_scene, sg, node, Vector3::ZERO, Quaternion::IDENTITY);
 	return m_actors.create(actor);
 }
 

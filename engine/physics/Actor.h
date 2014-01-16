@@ -43,6 +43,7 @@ using physx::PxScene;
 namespace crown
 {
 
+struct PhysicsActor;
 struct Quaternion;
 struct Matrix4x4;
 struct Unit;
@@ -50,7 +51,7 @@ class SceneGraph;
 
 struct Actor
 {
-						Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot);
+						Actor(const PhysicsActor& resource, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot);
 						~Actor();
 
 	void				enable_gravity();
@@ -88,12 +89,13 @@ private:
 	
 public:
 
-	PxScene*			m_scene;
-	SceneGraph&			m_scene_graph;
-	int32_t				m_node;
-	PxRigidActor* 		m_actor;
-	PxMaterial* 		m_mat;
-	ActorType::Enum 	m_type;
+	const PhysicsActor&		m_resource;
+
+	PxScene*				m_scene;
+	SceneGraph&				m_scene_graph;
+	int32_t					m_node;
+	PxRigidActor* 			m_actor;
+	PxMaterial* 			m_mat;
 };
 
 } // namespace crown
