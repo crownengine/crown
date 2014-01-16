@@ -325,10 +325,10 @@ public:
 				{
 					const OsMetricsEvent& ev = event.metrics;
 					m_mouse->set_metrics(ev.width, ev.height);
-					m_window->m_win_attr.x = ev.x;
-					m_window->m_win_attr.y = ev.y;
-					m_window->m_win_attr.width = ev.width;
-					m_window->m_win_attr.height = ev.height;
+					m_window->m_x = ev.x;
+					m_window->m_y = ev.y;
+					m_window->m_width = ev.width;
+					m_window->m_height = ev.height;
 					break;
 				}
 				case OsEvent::EXIT:

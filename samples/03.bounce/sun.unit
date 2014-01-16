@@ -1,0 +1,19 @@
+{
+	"renderables" : [
+		{
+			"name" : "sun",
+			"node" : "root",
+			"type" : "sprite",
+			"resource" : "sprites/sun",
+			"visible" : true
+		}
+	],
+	"nodes" : [
+		{
+			"name" : "root",
+			"parent" : null,
+			"position" : [0, 0, 0],
+			"rotation" : [0, 0, 1, 0]
+		}
+	]
+}

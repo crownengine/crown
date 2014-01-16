@@ -34,8 +34,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "RenderWorldTypes.h"
 
 #define MAX_MESHES 100
-#define MAX_SPRITES 256
-#define MAX_MATERIALS 256
+#define MAX_SPRITES 512
+#define MAX_MATERIALS 512
 #define MAX_GUIS 8
 
 namespace crown

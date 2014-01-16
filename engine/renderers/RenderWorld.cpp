@@ -123,6 +123,7 @@ RenderWorld::~RenderWorld()
 //-----------------------------------------------------------------------------
 MeshId RenderWorld::create_mesh(MeshResource* mr, SceneGraph& sg, int32_t node)
 {
+	Log::i("create mesh omfg");
 	Mesh* mesh = CE_NEW(m_mesh_pool, Mesh)(sg, node, mr);
 	return m_mesh.create(mesh);
 }

@@ -54,10 +54,21 @@ struct PhysicsController
 	float contact_offset;	// Skin around the object within which contacts will be generated. Use it to avoid numerical precision issues.
 };
 
+struct PhysicsActorType
+{
+	enum Enum
+	{
+		STATIC,
+		DYNAMIC_PHYSICAL,
+		DYNAMIC_KINEMATIC
+	};
+};
+
 struct PhysicsActor
 {
 	StringId32 name;
 	StringId32 node;
+	uint32_t type;
 	uint32_t num_shapes;
 };
 

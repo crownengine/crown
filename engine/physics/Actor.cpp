@@ -43,6 +43,7 @@ using physx::PxVec3;
 using physx::PxReal;
 using physx::PxRigidBody;
 using physx::PxRigidDynamic;
+using physx::PxRigidStatic;
 using physx::PxPlaneGeometry;
 using physx::PxSphereGeometry;
 using physx::PxBoxGeometry;
@@ -64,6 +65,7 @@ Actor::Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type,
 	, m_type(type)
 {
 	Matrix4x4 m = sg.world_pose(node);
+
 	PxMat44 pose((PxReal*)(m.to_float_ptr()));
 
 	switch (type)
@@ -96,14 +98,17 @@ Actor::Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type,
 	
 	create_box(Vector3(0, 0, 0), .5, .5, .5);
 
-	PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 500.0f);
+	if (type == ActorType::DYNAMIC_PHYSICAL || type == ActorType::DYNAMIC_KINEMATIC)
+	{
+		PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 500.0f);
 
-	PxD6Joint* joint = PxD6JointCreate(*device()->physx(), m_actor, PxTransform(pose), NULL, PxTransform(pose));
-	joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
-	joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
-	//joint->setMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
-	//joint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
-	joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
+		PxD6Joint* joint = PxD6JointCreate(*device()->physx(), m_actor, PxTransform(pose), NULL, PxTransform(pose));
+		joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+		joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
+		//joint->setMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
+		//joint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
+		joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
+	}
 
 	m_scene->addActor(*m_actor);
 }
@@ -248,6 +253,14 @@ void Actor::update_pose()
 
 	switch (m_type)
 	{
+		case ActorType::STATIC:
+		{
+			// m_actor->setGlobalPose(world_transform);
+		}
+		case ActorType::DYNAMIC_PHYSICAL:
+		{
+			break;
+		}
 		case ActorType::DYNAMIC_KINEMATIC:
 		{
 			static_cast<PxRigidDynamic*>(m_actor)->setKinematicTarget(world_transform);
@@ -260,6 +273,7 @@ void Actor::update_pose()
 //-----------------------------------------------------------------------------
 void Actor::update(const Matrix4x4& pose)
 {
+
 	if (m_type == ActorType::DYNAMIC_PHYSICAL)
 	{
 		m_scene_graph.set_world_pose(m_node, pose);

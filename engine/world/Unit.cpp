@@ -207,7 +207,8 @@ void Unit::create_physics_objects()
 		for (uint32_t i = 0; i < pr->num_actors(); i++)
 		{
 			const PhysicsActor actor = pr->actor(i);
-			add_actor(actor.name, m_world.physics_world()->create_actor(m_scene_graph, m_scene_graph.node(actor.node), ActorType::DYNAMIC_PHYSICAL));
+			Log::i("node: %d", m_scene_graph.node(actor.node));
+			add_actor(actor.name, m_world.physics_world()->create_actor(m_scene_graph, m_scene_graph.node(actor.node), (ActorType::Enum)actor.type));
 		}
 	}
 }

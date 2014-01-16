@@ -37,6 +37,15 @@ namespace crown
 namespace physics_resource
 {
 
+static uint32_t actor_type_to_enum(const char* type)
+{
+	if (string::strcmp("static", type) == 0) return PhysicsActorType::STATIC;
+	else if (string::strcmp("dynamic_physical", type) == 0) return PhysicsActorType::DYNAMIC_PHYSICAL;
+	else if (string::strcmp("dynamic_kinematic", type) == 0) return PhysicsActorType::DYNAMIC_KINEMATIC;
+
+	CE_FATAL("Bad actor type");
+}
+
 static uint32_t shape_type_to_enum(const char* type)
 {
 	const StringId32 th = hash::murmur2_32(type, string::strlen(type));
@@ -89,15 +98,19 @@ void parse_actor(JSONElement e, PhysicsActor& actor, List<PhysicsShape>& actor_s
 {
 	JSONElement name = e.key("name");
 	JSONElement node = e.key("node");
+	JSONElement type = e.key("type");
 	JSONElement shapes = e.key("shapes");
 
 	DynamicString actor_name;
 	DynamicString actor_node;
+	DynamicString actor_type;
 	name.string_value(actor_name);
 	node.string_value(actor_node);
+	type.string_value(actor_type);
 
 	actor.name = hash::murmur2_32(actor_name.c_str(), actor_name.length());
 	actor.node = hash::murmur2_32(actor_node.c_str(), actor_node.length());
+	actor.type = actor_type_to_enum(actor_type.c_str());
 	actor.num_shapes = shapes.size();
 
 	for (uint32_t i = 0; i < actor.num_shapes; i++)

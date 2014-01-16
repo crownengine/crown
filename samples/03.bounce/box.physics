@@ -1,0 +1,16 @@
+{
+	"actors" : [
+		{
+			"name" : "actor_0",
+			"node" : "root",
+			"type" : "static",
+			"shapes" : [
+				{
+					"name" : "shape_0",
+					"type" : "sphere",
+					"radius" : 0.5
+				}
+			]
+		}
+	]
+}
