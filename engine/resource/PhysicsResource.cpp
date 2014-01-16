@@ -83,6 +83,10 @@ void parse_shape(JSONElement e, PhysicsShape& shape)
 {
 	JSONElement name = e.key("name");
 	JSONElement type = e.key("type");
+	JSONElement x = e.key("x");
+	JSONElement y = e.key("y");
+	JSONElement z = e.key("z");
+	JSONElement w = e.key("w");
 
 	DynamicString shape_name;
 	DynamicString shape_type;
@@ -91,6 +95,10 @@ void parse_shape(JSONElement e, PhysicsShape& shape)
 
 	shape.name = hash::murmur2_32(shape_name.c_str(), shape_name.length());
 	shape.type = shape_type_to_enum(shape_type.c_str());
+	shape.x = x.float_value();
+	shape.y = y.float_value();
+	shape.z = z.float_value();
+	shape.w = w.float_value();
 }
 
 //-----------------------------------------------------------------------------
