@@ -39,7 +39,6 @@ namespace crown
 World::World()
 	: m_unit_pool(default_allocator(), MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
 	, m_camera_pool(default_allocator(), MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
-	, m_unit_to_sound(default_allocator())
 {
 	m_id.id = INVALID_ID;
 }
@@ -188,97 +187,41 @@ void World::destroy_camera(CameraId id)
 //-----------------------------------------------------------------------------
 SoundId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
-	SoundResource* sr = (SoundResource*)device()->resource_manager()->lookup(SOUND_EXTENSION, name);
-	return play_sound(sr, loop, volume, pos, range);
 }
 
 //-----------------------------------------------------------------------------
 SoundId World::play_sound(SoundResource* sr, bool loop, float volume, const Vector3& pos, float range)
 {
-	SoundRenderer* renderer = device()->sound_renderer();
-	const SoundSourceId source = renderer->create_sound_source();
-
-	Sound s;
-	s.buffer = sr->sound_buffer();
-	s.source = source;
-	s.world = Matrix4x4(Quaternion::IDENTITY, pos);
-	s.volume = volume;
-	s.range = range;
-	s.loop = loop;
-	s.playing = false;
-
-	SoundId id = m_sounds.create(s);
-
-	renderer->bind_buffer(s.buffer, s.source);
-	renderer->set_sound_loop(s.source, s.loop);
-	renderer->set_sound_gain(s.source, s.volume);
-	renderer->set_sound_max_distance(s.source, s.range);
-	renderer->set_sound_position(s.source, s.world.translation());
-	renderer->play_sound(s.source);
-
-	return id;
 }
 
 //-----------------------------------------------------------------------------
 void World::stop_sound(SoundId id)
 {
-	CE_ASSERT(m_sounds.has(id), "Sound does not exists");
-
-	const Sound& s = m_sounds.lookup(id);
-	SoundRenderer* sr = device()->sound_renderer();
-
-	sr->pause_sound(s.source);
-	sr->unbind_buffer(s.source);
-	sr->destroy_sound_source(s.source);
-
-	m_sounds.destroy(id);
 }
 
 //-----------------------------------------------------------------------------
 void World::link_sound(SoundId id, Unit* unit, int32_t node)
 {
-	//CE_ASSERT(m_units.has(unit), "Unit does not exists");
-	CE_ASSERT(m_sounds.has(id), "Sound does not exists");
-
-	UnitToSound uts;
-	uts.sound = id;
-	uts.unit = unit->m_id;
-	uts.node = node;
-
-	m_unit_to_sound.push_back(uts);
 }
 
 //-----------------------------------------------------------------------------
 void World::set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at)
 {
-	device()->sound_renderer()->set_listener(pos, vel, or_up, or_at);
 }
 
 //-----------------------------------------------------------------------------
 void World::set_sound_position(SoundId id, const Vector3& pos)
 {
-	CE_ASSERT(m_sounds.has(id), "Sound does not exists");
-
-	Sound& sound = m_sounds.lookup(id);
-	sound.world = Matrix4x4(Quaternion::IDENTITY, pos);
 }
 
 //-----------------------------------------------------------------------------
 void World::set_sound_range(SoundId id, const float range)
 {
-	CE_ASSERT(m_sounds.has(id), "Sound does not exists");
-
-	Sound& sound = m_sounds.lookup(id);
-	sound.range = range;
 }
 
 //-----------------------------------------------------------------------------
 void World::set_sound_volume(SoundId id, const float vol)
 {
-	CE_ASSERT(m_sounds.has(id), "Sound does not exists");
-
-	Sound& sound = m_sounds.lookup(id);
-	sound.volume = vol;
 }
 
 //-----------------------------------------------------------------------------

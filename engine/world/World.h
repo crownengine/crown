@@ -45,29 +45,9 @@ namespace crown
 {
 
 #define MAX_UNITS 65000
-#define	MAX_SOUNDS 64
 #define MAX_CAMERAS 16
 
 typedef Id SoundId;
-
-struct Sound
-{
-	SoundBufferId buffer;
-	SoundSourceId source;
-	
-	Matrix4x4 world;
-	float volume;
-	float range;
-	bool loop : 1;
-	bool playing : 1;
-};
-
-struct UnitToSound
-{
-	UnitId unit;
-	SoundId sound;
-	int32_t node;
-};
 
 struct Mesh;
 struct Sprite;
@@ -128,10 +108,6 @@ private:
 
 	IdArray<MAX_UNITS, Unit*>			m_units;
 	IdArray<MAX_CAMERAS, Camera*>		m_cameras;
-	IdArray<MAX_SOUNDS, Sound> 			m_sounds;
-
-	// Connections
-	List<UnitToSound>					m_unit_to_sound;
 
 	SceneGraphManager					m_scenegraph_manager;
 	RenderWorld							m_render_world;

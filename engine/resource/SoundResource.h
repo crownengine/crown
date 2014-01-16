@@ -52,7 +52,6 @@ const uint32_t SOUND_VERSION = 1;
 //-----------------------------------------------------------------------------
 struct SoundHeader
 {
-	SoundBufferId	sb;
 	uint32_t		version;	// Sound file version
 	uint32_t		size;
 	uint32_t		sample_rate;
@@ -84,12 +83,6 @@ public:
 	//-----------------------------------------------------------------------------
 	static void online(void* resource)
 	{
-		CE_ASSERT_NOT_NULL(resource);
-
-		SoundResource* sr = (SoundResource*)resource;
-		SoundHeader* h = (SoundHeader*) sr;
-
-		h->sb = device()->sound_renderer()->create_sound_buffer((void*)sr->data(), sr->size(), sr->sample_rate(), sr->channels(), sr->bits_ps());
 	}
 
 	//-----------------------------------------------------------------------------
@@ -102,10 +95,6 @@ public:
 	//-----------------------------------------------------------------------------
 	static void offline(void* resource)
 	{
-		CE_ASSERT_NOT_NULL(resource);
-
-		SoundHeader* s = (SoundHeader*) resource;
-		device()->sound_renderer()->destroy_sound_buffer(s->sb);
 	}
 
 public:
@@ -148,11 +137,6 @@ public:
 	const char* data() const
 	{
 		return ((char*) this) + sizeof(SoundHeader);
-	}
-
-	SoundBufferId sound_buffer() const
-	{
-		return ((SoundHeader*) this)->sb;
 	}
 
 private:
