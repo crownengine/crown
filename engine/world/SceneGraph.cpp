@@ -64,7 +64,7 @@ void SceneGraph::create(uint32_t count, const StringId32* name, const Matrix4x4*
 	m_parents = (int32_t*) mem; mem += sizeof(int32_t) * count;
 	m_names = (StringId32*) mem; mem += sizeof(StringId32) * count;
 
-	memset(m_flags, (int) LOCAL_DIRTY | WORLD_DIRTY, sizeof(uint8_t) * count);
+	memset(m_flags, (int) CLEAN, sizeof(uint8_t) * count);
 	memcpy(m_local_poses, local, sizeof(Matrix4x4) * count);
 	memcpy(m_parents, parent, sizeof(int32_t) * count);
 	memcpy(m_names, name, sizeof(StringId32) * count);

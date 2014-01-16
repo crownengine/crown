@@ -63,8 +63,7 @@ Actor::Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type,
 	, m_node(node)
 	, m_type(type)
 {
-	Matrix4x4 m(rot, pos);
-	m.transpose();
+	Matrix4x4 m = sg.world_pose(node);
 	PxMat44 pose((PxReal*)(m.to_float_ptr()));
 
 	switch (type)
