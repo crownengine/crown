@@ -42,6 +42,10 @@ struct PhysicsHeader
 	uint32_t controller_offset;
 	uint32_t num_actors;
 	uint32_t actors_offset;
+	uint32_t num_shapes_indices;
+	uint32_t shapes_indices_offset;
+	uint32_t num_shapes;
+	uint32_t shapes_offset;
 };
 
 struct PhysicsController
@@ -155,6 +159,38 @@ struct PhysicsResource
 		const PhysicsHeader* ph = (PhysicsHeader*) this;
 		PhysicsActor* actor = (PhysicsActor*) (((char*) this) + ph->actors_offset);
 		return actor[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_shapes_indices() const
+	{
+		return ((PhysicsHeader*) this)->num_shapes_indices;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t shape_index(uint32_t i) const
+	{
+		CE_ASSERT(i < num_shapes_indices(), "Index out of bounds");
+
+		const PhysicsHeader* ph = (PhysicsHeader*) this;
+		uint32_t* index = (uint32_t*) (((char*) this) + ph->shapes_indices_offset);
+		return index[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_shapes() const
+	{
+		return ((PhysicsHeader*) this)->num_shapes;
+	}
+
+	//-----------------------------------------------------------------------------
+	PhysicsShape shape(uint32_t i) const
+	{
+		CE_ASSERT(i < num_shapes(), "Index out of bounds");
+
+		const PhysicsHeader* ph = (PhysicsHeader*) this;
+		PhysicsShape* shape = (PhysicsShape*) (((char*) this) + ph->shapes_offset);
+		return shape[i];
 	}
 
 private:

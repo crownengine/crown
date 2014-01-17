@@ -95,6 +95,7 @@ void parse_shape(JSONElement e, PhysicsShape& shape)
 
 	shape.name = hash::murmur2_32(shape_name.c_str(), shape_name.length());
 	shape.type = shape_type_to_enum(shape_type.c_str());
+
 	shape.x = x.float_value();
 	shape.y = y.float_value();
 	shape.z = z.float_value();
@@ -119,6 +120,7 @@ void parse_actor(JSONElement e, PhysicsActor& actor, List<PhysicsShape>& actor_s
 	actor.name = hash::murmur2_32(actor_name.c_str(), actor_name.length());
 	actor.node = hash::murmur2_32(actor_node.c_str(), actor_node.length());
 	actor.type = actor_type_to_enum(actor_type.c_str());
+
 	actor.num_shapes = shapes.size();
 
 	for (uint32_t i = 0; i < actor.num_shapes; i++)
@@ -156,7 +158,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	// Read actors
 	List<PhysicsActor> m_actors(default_allocator());
-	List<uint32_t> m_shape_index(default_allocator());
+	List<uint32_t> m_shapes_indices(default_allocator());
 	List<PhysicsShape> m_shapes(default_allocator());
 	JSONElement actors = root.key_or_nil("actors");
 	if (!actors.is_nil())
@@ -165,13 +167,13 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		{
 			if (m_shapes.size() == 0)
 			{
-				m_shape_index.push_back(0);
+				m_shapes_indices.push_back(0);
 			}
 			else
 			{
-				m_shape_index.push_back(m_shapes.size() - 1);
+				m_shapes_indices.push_back(m_shapes.size());
 			}
-			
+
 			PhysicsActor a;
 			parse_actor(actors[i], a, m_shapes);
 			m_actors.push_back(a);
@@ -185,10 +187,14 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	h.version = 1;
 	h.num_controllers = m_has_controller ? 1 : 0;
 	h.num_actors = m_actors.size();
+	h.num_shapes_indices = m_shapes_indices.size();
+	h.num_shapes = m_shapes.size();
 
 	uint32_t offt = sizeof(PhysicsHeader);
 	h.controller_offset = offt; offt += sizeof(PhysicsController) * h.num_controllers;
-	h.actors_offset = offt;
+	h.actors_offset = offt; offt += sizeof(PhysicsActor) * h.num_actors;
+	h.shapes_indices_offset = offt; offt += sizeof(uint32_t) * h.num_shapes_indices;
+	h.shapes_offset = offt;
 
 	out_file->write((char*) &h, sizeof(PhysicsHeader));
 
@@ -200,6 +206,16 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	if (m_actors.size())
 	{
 		out_file->write((char*) m_actors.begin(), sizeof(PhysicsActor) * m_actors.size());
+	}
+
+	if (m_shapes_indices.size())
+	{
+		out_file->write((char*) m_shapes_indices.begin(), sizeof(uint32_t) * m_shapes_indices.size());
+	}
+
+	if (m_shapes.size())
+	{
+		out_file->write((char*) m_shapes.begin(), sizeof(PhysicsShape) * m_shapes.size());
 	}
 }
 
