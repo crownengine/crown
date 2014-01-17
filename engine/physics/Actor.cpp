@@ -59,17 +59,20 @@ namespace crown
 {
 	
 //-----------------------------------------------------------------------------
-Actor::Actor(const PhysicsActor& resource, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
-	: m_resource(resource)
+Actor::Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
+	: m_resource(res)
+	, m_index(i)
 	, m_scene(scene)
 	, m_scene_graph(sg)
 	, m_node(node)
 {
-	Matrix4x4 m = sg.world_pose(node);
+	const PhysicsActor& a = m_resource->actor(m_index);
 
+	// Creates actor
+	Matrix4x4 m = sg.world_pose(node);
 	PxMat44 pose((PxReal*)(m.to_float_ptr()));
 
-	switch (m_resource.type)
+	switch (a.type)
 	{
 		case ActorType::STATIC:
 		{
@@ -81,7 +84,7 @@ Actor::Actor(const PhysicsActor& resource, PxScene* scene, SceneGraph& sg, int32
 		{
 			m_actor = device()->physx()->createRigidDynamic(PxTransform(pose));
 
-			if (m_resource.type == ActorType::DYNAMIC_KINEMATIC)
+			if (a.type == ActorType::DYNAMIC_KINEMATIC)
 			{
 				static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
 			}
@@ -95,11 +98,41 @@ Actor::Actor(const PhysicsActor& resource, PxScene* scene, SceneGraph& sg, int32
 	}
 
 	m_actor->userData = this;
-	m_mat = device()->physx()->createMaterial(0.5f, 0.5f, 0.5f);
-	
-	create_box(Vector3(0, 0, 0), .5, .5, .5);
+	m_mat = device()->physx()->createMaterial(0.5f, 0.5f, 1.0f);
 
-	if (m_resource.type == ActorType::DYNAMIC_PHYSICAL || m_resource.type == ActorType::DYNAMIC_KINEMATIC)
+	// Creates shapes
+	uint32_t index = m_resource->shape_index(m_index);
+	for (uint32_t i = 0; i < a.num_shapes; i++)
+	{
+		PhysicsShape shape = m_resource->shape(index);
+		Vector3 pos = sg.world_position(node);
+
+		switch(shape.type)
+		{
+			case PhysicsShapeType::SPHERE:
+			{
+				create_sphere(pos, shape.x);
+				break;
+			}
+			case PhysicsShapeType::BOX:
+			{
+				create_box(pos, shape.x, shape.y, shape.z);
+				break;
+			}
+			case PhysicsShapeType::PLANE:
+			{
+				create_plane(pos, Vector3(shape.x, shape.y, shape.z));
+				break;
+			}
+			default:
+			{
+				CE_FATAL("Oops, unknown shape type");
+			}
+		}
+		index++;
+	}
+
+	if (a.type == ActorType::DYNAMIC_PHYSICAL || a.type == ActorType::DYNAMIC_KINEMATIC)
 	{
 		PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 500.0f);
 
@@ -133,13 +166,13 @@ void Actor::create_sphere(const Vector3& position, float radius)
 //-----------------------------------------------------------------------------
 void Actor::create_box(const Vector3& position, float a, float b, float c)
 {
-	Log::i("x: %f, y: %f, z; %f", a, b, c);
 	m_actor->createShape(PxBoxGeometry(a, b, c), *m_mat);
 }
 
 //-----------------------------------------------------------------------------
-void Actor::create_plane(const Vector3& /*position*/, const Vector3& /*normal*/)
+void Actor::create_plane(const Vector3& position, const Vector3& /*normal*/)
 {
+	Log::i("CREATE PLANE");
 	m_actor->createShape(PxPlaneGeometry(), *m_mat);
 }
 
@@ -158,25 +191,33 @@ void Actor::disable_gravity()
 //-----------------------------------------------------------------------------
 bool Actor::is_static() const
 {
-	return m_resource.type == ActorType::STATIC;
+	const PhysicsActor& a = m_resource->actor(m_index);
+
+	return a.type == ActorType::STATIC;
 }
 
 //-----------------------------------------------------------------------------
 bool Actor::is_dynamic() const
 {
-	return m_resource.type == ActorType::DYNAMIC_PHYSICAL || m_resource.type == ActorType::DYNAMIC_KINEMATIC;
+	const PhysicsActor& a = m_resource->actor(m_index);
+
+	return a.type == ActorType::DYNAMIC_PHYSICAL || a.type == ActorType::DYNAMIC_KINEMATIC;
 }
 
 //-----------------------------------------------------------------------------
 bool Actor::is_kinematic() const
 {
-	return m_resource.type == ActorType::DYNAMIC_KINEMATIC;
+	const PhysicsActor& a = m_resource->actor(m_index);
+
+	return a.type == ActorType::DYNAMIC_KINEMATIC;
 }
 
 //-----------------------------------------------------------------------------
 bool Actor::is_physical() const
 {
-	return m_resource.type == ActorType::DYNAMIC_PHYSICAL;
+	const PhysicsActor& a = m_resource->actor(m_index);
+
+	return a.type == ActorType::DYNAMIC_PHYSICAL;
 }
 
 //-----------------------------------------------------------------------------
@@ -253,7 +294,9 @@ void Actor::update_pose()
 	const PxMat44 pose((PxReal*) (wp.to_float_ptr()));
 	const PxTransform world_transform(pose);
 
-	switch (m_resource.type)
+	const PhysicsActor& a = m_resource->actor(m_index);
+
+	switch (a.type)
 	{
 		case ActorType::STATIC:
 		{
@@ -275,8 +318,9 @@ void Actor::update_pose()
 //-----------------------------------------------------------------------------
 void Actor::update(const Matrix4x4& pose)
 {
+	const PhysicsActor& a = m_resource->actor(m_index);
 
-	if (m_resource.type == ActorType::DYNAMIC_PHYSICAL)
+	if (a.type == ActorType::DYNAMIC_PHYSICAL)
 	{
 		m_scene_graph.set_world_pose(m_node, pose);
 	}
