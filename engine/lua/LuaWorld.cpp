@@ -81,9 +81,9 @@ CE_EXPORT int world_play_sound(lua_State* L)
 	const char* name = stack.get_string(2);
 
 	const bool loop = stack.num_args() > 2 ? stack.get_bool(3) : false;
-	const float volume = stack.num_args() > 3 ? stack.get_float(4) : 1.0f; // test value
+	const float volume = stack.num_args() > 3 ? stack.get_float(4) : 1.0f;
 	const Vector3& pos = stack.num_args() > 4 ? stack.get_vector3(5) : Vector3::ZERO;
-	const float range = stack.num_args() > 5 ? stack.get_float(6) : 1000.0f; // test value
+	const float range = stack.num_args() > 5 ? stack.get_float(6) : 1000.0f;
 
 	SoundInstanceId id = world->play_sound(name, loop, volume, pos, range);
 
@@ -118,18 +118,13 @@ CE_EXPORT int world_link_sound(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_set_listener(lua_State* L)
+CE_EXPORT int world_set_listener_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
 	World* world = stack.get_world(1);
 
-	const Vector3& pos = stack.get_vector3(2);
-	const Vector3& vel = stack.get_vector3(3);
-	const Vector3& or_up = stack.get_vector3(4);
-	const Vector3& or_at = stack.get_vector3(5);
-
-	world->set_listener(pos, vel, or_up, or_at);
+	world->set_listener_pose(stack.get_matrix4x4(2));
 	return 0;
 }
 
@@ -232,7 +227,7 @@ void load_world(LuaEnvironment& env)
 	env.load_module_function("World", "play_sound",			world_play_sound);
 	env.load_module_function("World", "stop_sound", 		world_stop_sound);
 	env.load_module_function("World", "link_sound",			world_link_sound);
-	env.load_module_function("World", "set_listener", 		world_set_listener);
+	env.load_module_function("World", "set_listener_pose", 	world_set_listener_pose);
 	env.load_module_function("World", "set_sound_position", world_set_sound_position);
 	env.load_module_function("World", "set_sound_range", 	world_set_sound_range);
 	env.load_module_function("World", "set_sound_volume", 	world_set_sound_volume);

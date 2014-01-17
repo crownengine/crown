@@ -35,19 +35,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "RenderWorld.h"
 #include "RenderWorldTypes.h"
 #include "SceneGraphManager.h"
-#include "SoundRenderer.h"
 #include "Types.h"
 #include "Unit.h"
 #include "Vector.h"
 #include "WorldTypes.h"
+#include "SoundWorld.h"
 
 namespace crown
 {
 
 #define MAX_UNITS 65000
 #define MAX_CAMERAS 16
-
-typedef Id SoundId;
 
 struct Mesh;
 struct Sprite;
@@ -84,14 +82,13 @@ public:
 	CameraId							create_camera(SceneGraph& sg, int32_t node);
 	void								destroy_camera(CameraId id);
 
-	SoundId								play_sound(const char* name, bool loop = false, float volume = 1.0f, const Vector3& pos = Vector3::ZERO, float range = 50.0f);
-	SoundId								play_sound(SoundResource* sr, bool loop, float volume, const Vector3& pos, float range);
-	void								stop_sound(SoundId sound);
-	void								link_sound(SoundId sound, Unit* unit, int32_t node);
-	void								set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at);
-	void								set_sound_position(SoundId sound, const Vector3& pos);
-	void								set_sound_range(SoundId sound, const float range);
-	void								set_sound_volume(SoundId sound, const float vol);
+	SoundInstanceId						play_sound(const char* name, bool loop = false, float volume = 1.0f, const Vector3& pos = Vector3::ZERO, float range = 50.0f);
+	void								stop_sound(SoundInstanceId sound);
+	void								link_sound(SoundInstanceId sound, Unit* unit, int32_t node);
+	void								set_listener_pose(const Matrix4x4& pose);
+	void								set_sound_position(SoundInstanceId sound, const Vector3& pos);
+	void								set_sound_range(SoundInstanceId sound, float range);
+	void								set_sound_volume(SoundInstanceId sound, float vol);
 
 	GuiId								create_window_gui(const char* name);
 	GuiId								create_world_gui(const Matrix4x4 pose, const uint32_t width, const uint32_t height);
@@ -113,6 +110,7 @@ private:
 	SceneGraphManager					m_scenegraph_manager;
 	RenderWorld							m_render_world;
 	PhysicsWorld						m_physics_world;
+	SoundWorld*							m_sound_world;
 
 	WorldId								m_id;
 };

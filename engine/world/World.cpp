@@ -29,8 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "Device.h"
 #include "ResourceManager.h"
-#include "SoundRenderer.h"
-#include "SoundResource.h"
 
 namespace crown
 {
@@ -41,6 +39,7 @@ World::World()
 	, m_camera_pool(default_allocator(), MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
 {
 	m_id.id = INVALID_ID;
+	m_sound_world = SoundWorld::create(default_allocator());
 }
 
 //-----------------------------------------------------------------------------
@@ -51,6 +50,8 @@ World::~World()
 	{
 		CE_DELETE(m_unit_pool, m_units[i]);
 	}
+
+	SoundWorld::destroy(default_allocator(), m_sound_world);
 }
 
 //-----------------------------------------------------------------------------
@@ -154,6 +155,8 @@ void World::update(float dt)
 	m_physics_world.update(dt);
 
 	m_scenegraph_manager.update();
+
+	m_sound_world->update();
 }
 
 //-----------------------------------------------------------------------------
@@ -185,43 +188,43 @@ void World::destroy_camera(CameraId id)
 }
 
 //-----------------------------------------------------------------------------
-SoundId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
+SoundInstanceId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
+{
+	m_sound_world->play(name, loop, volume);
+}
+
+//-----------------------------------------------------------------------------
+void World::stop_sound(SoundInstanceId id)
+{
+	m_sound_world->stop(id);
+}
+
+//-----------------------------------------------------------------------------
+void World::link_sound(SoundInstanceId id, Unit* unit, int32_t node)
 {
 }
 
 //-----------------------------------------------------------------------------
-SoundId World::play_sound(SoundResource* sr, bool loop, float volume, const Vector3& pos, float range)
+void World::set_listener_pose(const Matrix4x4& pose)
+{
+	m_sound_world->set_listener_pose(pose);
+}
+
+//-----------------------------------------------------------------------------
+void World::set_sound_position(SoundInstanceId id, const Vector3& pos)
+{
+	m_sound_world->set_sound_positions(1, &id, &pos);
+}
+
+//-----------------------------------------------------------------------------
+void World::set_sound_range(SoundInstanceId id, float range)
 {
 }
 
 //-----------------------------------------------------------------------------
-void World::stop_sound(SoundId id)
+void World::set_sound_volume(SoundInstanceId id, float vol)
 {
-}
-
-//-----------------------------------------------------------------------------
-void World::link_sound(SoundId id, Unit* unit, int32_t node)
-{
-}
-
-//-----------------------------------------------------------------------------
-void World::set_listener(const Vector3& pos, const Vector3& vel, const Vector3& or_up, const Vector3& or_at)
-{
-}
-
-//-----------------------------------------------------------------------------
-void World::set_sound_position(SoundId id, const Vector3& pos)
-{
-}
-
-//-----------------------------------------------------------------------------
-void World::set_sound_range(SoundId id, const float range)
-{
-}
-
-//-----------------------------------------------------------------------------
-void World::set_sound_volume(SoundId id, const float vol)
-{
+	m_sound_world->set_sound_volumes(1, &id, &vol);
 }
 
 //-----------------------------------------------------------------------------

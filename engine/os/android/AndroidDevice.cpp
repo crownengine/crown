@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 #include "OsEventQueue.h"
 #include "Renderer.h"
-#include "SoundRenderer.h"
 #include "Touch.h"
 
 namespace crown
@@ -202,13 +201,13 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownRenderer(J
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pauseSoundRenderer(JNIEnv* /*env*/, jobject /*obj*/)
 {
-	device()->sound_renderer()->pause();
+	//device()->sound_renderer()->pause();
 }
 
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_unpauseSoundRenderer(JNIEnv* /*env*/, jobject /*obj*/)
 {
-	device()->sound_renderer()->unpause();
+	//device()->sound_renderer()->unpause();
 }
 
 //-----------------------------------------------------------------------------

@@ -140,5 +140,5 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "FontResource.h"
 
 // Engine/Audio
-#include "SoundRenderer.h"
+#include "SoundWorld.h"
 #include "OggDecoder.h"

@@ -97,6 +97,9 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := crown
 LOCAL_SRC_FILES :=\
+\
+	audio/backend/SLESSoundWorld.cpp\
+\
 	core/bv/Circle.cpp\
 	core/bv/Frustum.cpp\
 	core/bv/Rect.cpp\
@@ -197,8 +200,6 @@ LOCAL_SRC_FILES :=\
 \
 	ConsoleServer.cpp\
 	Device.cpp\
-\
-	audio/sles/SLESRenderer.cpp\
 
 LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/\

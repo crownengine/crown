@@ -32,7 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "File.h"
 #include "Device.h"
-#include "SoundRenderer.h"
 
 namespace crown
 {

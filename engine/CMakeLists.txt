@@ -385,7 +385,7 @@ set (LUA_HEADERS
 set (AUDIO_SRC)
 
 set (AUDIO_HEADERS
-	audio/SoundRenderer.h
+	audio/SoundWorld.h
 	audio/OggDecoder.h
 )
 
@@ -478,11 +478,7 @@ if (LINUX)
 	)
 
 	list (APPEND AUDIO_SRC
-		audio/al/ALRenderer.cpp
-	)
-
-	list (APPEND AUDIO_HEADERS
-		audio/al/ALRenderer.h
+		audio/backend/ALSoundWorld.cpp
 	)
 
 	list (APPEND CROWN_LIBRARIES

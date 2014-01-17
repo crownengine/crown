@@ -52,7 +52,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TempAllocator.h"
 #include "ResourcePackage.h"
 #include "ConsoleServer.h"
-#include "SoundRenderer.h"
 #include "World.h"
 #include "LuaStack.h"
 #include "WorldManager.h"
@@ -95,7 +94,6 @@ Device::Device()
 	, m_filesystem(NULL)
 	, m_lua_environment(NULL)
 	, m_renderer(NULL)
-	, m_sound_renderer(NULL)
 
 	, m_bundle_compiler(NULL)
 	, m_console(NULL)
@@ -180,10 +178,6 @@ void Device::init()
 	m_lua_environment->init();
 	Log::d("Lua environment created.");
 
-	m_sound_renderer = CE_NEW(m_allocator, SoundRenderer)(m_allocator);
-	m_sound_renderer->init();
-	Log::d("SoundRenderer created.");
-
 	m_physx = CE_NEW(m_allocator, Physics)();
 	Log::d("Physics created.");
 
@@ -221,14 +215,6 @@ void Device::shutdown()
 	if (m_physx)
 	{
 		CE_DELETE(m_allocator, m_physx);
-	}
-
-	Log::d("Releasing SoundRenderer...");
-	if (m_sound_renderer)
-	{
-		m_sound_renderer->shutdown();
-
-		CE_DELETE(m_allocator, m_sound_renderer);
 	}
 
 	Log::d("Releasing LuaEnvironment...");
@@ -321,12 +307,6 @@ OsWindow* Device::window()
 Renderer* Device::renderer()
 {
 	return m_renderer;
-}
-
-//-----------------------------------------------------------------------------
-SoundRenderer* Device::sound_renderer()
-{
-	return m_sound_renderer;
 }
 
 //-----------------------------------------------------------------------------
@@ -426,9 +406,6 @@ void Device::frame()
 		}
 
 		m_renderer->frame();
-
-		// FIXME: SoundRenderer should not be updated each frame
-		m_sound_renderer->frame();
 	}
 
 	clear_lua_temporaries();
