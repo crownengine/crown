@@ -1,0 +1,13 @@
+{
+	"width" : 128,
+	"height" : 128,
+	"frames" : [
+		{
+			"name" : "bounce",
+			"region" : [0.0, 0.0, 1.0, 1.0],
+			"offset" : [0.0, 0.0],
+			"scale" : [1.0, 1.0],
+			"rotated" : false
+		}
+	]
+}

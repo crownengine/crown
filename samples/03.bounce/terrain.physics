@@ -1,0 +1,19 @@
+{
+	"actors" : [
+		{
+			"name" : "actor_terrain",
+			"node" : "root",
+			"type" : "static",
+			"shapes" : [
+				{
+					"name" : "shape_terrain",
+					"type" : "plane",
+					"x" : 1.0,
+					"y" : 0.0,
+					"z" : 0.0,
+					"w" : 0.0
+				}
+			]
+		}
+	]
+}

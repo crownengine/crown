@@ -1,0 +1,34 @@
+{
+	"texture" : [
+		"textures/bounce",
+		"textures/box",
+		"textures/sun"
+	],
+	"unit" : [
+		"camera",
+		"bounce",
+		"box",
+		"sun",
+		"terrain"
+	],
+	"sprite" : [
+		"sprites/bounce",
+		"sprites/box",
+		"sprites/sun"
+	],
+	"sound" : [
+		"sounds/gunshoot",
+		"sounds/footsteps",
+		"sounds/jump"
+	],
+	"physics" : [
+		"bounce",
+		"box",
+		"terrain"
+	],
+	"material" : [
+		"bounce",
+		"box",
+		"sun"
+	]
+}
