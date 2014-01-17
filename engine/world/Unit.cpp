@@ -206,8 +206,9 @@ void Unit::create_physics_objects()
 		// Create actors if any
 		for (uint32_t i = 0; i < pr->num_actors(); i++)
 		{
-			const PhysicsActor actor = pr->actor(i);
-			add_actor(actor.name, m_world.physics_world()->create_actor(actor, m_scene_graph, m_scene_graph.node(actor.node)));
+			const PhysicsActor& actor = pr->actor(i);
+
+			add_actor(actor.name, m_world.physics_world()->create_actor(pr, i, m_scene_graph, m_scene_graph.node(actor.node)));
 		}
 	}
 }
