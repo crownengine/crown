@@ -172,7 +172,6 @@ void Actor::create_box(const Vector3& position, float a, float b, float c)
 //-----------------------------------------------------------------------------
 void Actor::create_plane(const Vector3& position, const Vector3& /*normal*/)
 {
-	Log::i("CREATE PLANE");
 	m_actor->createShape(PxPlaneGeometry(), *m_mat);
 }
 
