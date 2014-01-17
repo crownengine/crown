@@ -85,12 +85,6 @@ PhysicsWorld::PhysicsWorld()
 	m_controller_manager = PxCreateControllerManager(device()->physx()->getFoundation());
 	CE_ASSERT(m_controller_manager != NULL, "Failed to create PhysX controller manager");
 
-	PxTransform pose = PxTransform(PxVec3(0.0f, -3.75, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f)));
-	PxMaterial* mat = device()->physx()->createMaterial(0.5f, 0.5f, 1.0f);
-	PxRigidStatic* plane = device()->physx()->createRigidStatic(pose);
-	PxShape* shape = plane->createShape(PxPlaneGeometry(), *mat);
-	m_scene->addActor(*plane);
-
 	// FIXME FIXME FIXME
 	create_trigger(Vector3(.5, .5, .5), Vector3(5.0, -3.0, 3), Quaternion::IDENTITY);
 }
@@ -104,9 +98,9 @@ PhysicsWorld::~PhysicsWorld()
 }
 
 //-----------------------------------------------------------------------------
-ActorId	PhysicsWorld::create_actor(const PhysicsActor& resource, SceneGraph& sg, int32_t node)
+ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node)
 {
-	Actor* actor = CE_NEW(m_actors_pool, Actor)(resource, m_scene, sg, node, Vector3::ZERO, Quaternion::IDENTITY);
+	Actor* actor = CE_NEW(m_actors_pool, Actor)(res, index, m_scene, sg, node, Vector3::ZERO, Quaternion::IDENTITY);
 	return m_actors.create(actor);
 }
 
