@@ -254,6 +254,12 @@ struct SoundInstance
 		check_sles_errors(result);
 	}
 
+	void resume()
+	{
+		SLresult res = (*m_player_play)->SetPlayState(m_player_play, SL_PLAYSTATE_PLAYING);
+		check_sles_errors(res);
+	}
+
 	void stop()
 	{
 		SLresult res = (*m_player_play)->SetPlayState(m_player_play, SL_PLAYSTATE_STOPPED);
@@ -331,7 +337,6 @@ class SLESSoundWorld : public SoundWorld
 public:
 
 	SLESSoundWorld()
-		: m_to_stop(default_allocator())
 	{
 		sles_sound_world::init();
 		SLresult result;
@@ -359,7 +364,7 @@ public:
 		sles_sound_world::shutdown();
 	}
 
-	virtual SoundInstanceId play(const char* name, bool loop, float volume)
+	virtual SoundInstanceId play(const char* name, bool loop, float volume, const Vector3& /*pos*/)
 	{
 		return play((SoundResource*) device()->resource_manager()->lookup(SOUND_EXTENSION, name), loop, volume);
 	}
@@ -379,6 +384,30 @@ public:
 		SoundInstance& instance = m_playing_sounds.lookup(id);
 		instance.destroy();
 		m_playing_sounds.destroy(id);
+	}
+
+	virtual void stop_all()
+	{
+		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		{
+			m_playing_sounds[i].stop();
+		}
+	}
+
+	virtual void pause_all()
+	{
+		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		{
+			m_playing_sounds[i].pause();
+		}
+	}
+
+	virtual void resume_all()
+	{
+		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		{
+			m_playing_sounds[i].resume();
+		}
 	}
 
 	virtual void set_sound_positions(uint32_t count, const SoundInstanceId* ids, const Vector3* positions)
@@ -438,7 +467,6 @@ private:
 
 	IdArray<MAX_SOUND_INSTANCES, SoundInstance> m_playing_sounds;
 	Matrix4x4 m_listener_pose;
-	Queue<SoundInstanceId> m_to_stop;
 
 	SLObjectItf m_sl_object;
 	SLEngineItf m_sl_engine;
