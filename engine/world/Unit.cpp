@@ -208,7 +208,11 @@ void Unit::create_physics_objects()
 		{
 			const PhysicsActor& actor = pr->actor(i);
 
-			add_actor(actor.name, m_world.physics_world()->create_actor(pr, i, m_scene_graph, m_scene_graph.node(actor.node)));
+			ActorId id = m_world.physics_world()->create_actor(pr, i, m_scene_graph, m_scene_graph.node(actor.node));
+			// FIXME FIXME -- need JSONElement::array_value(String)
+			m_world.physics_world()->set_filtering(id, actor.group, FilterGroup::GROUP_0 | FilterGroup::GROUP_1);
+			
+			add_actor(actor.name, id);
 		}
 	}
 }
