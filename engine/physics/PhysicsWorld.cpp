@@ -188,9 +188,9 @@ void PhysicsWorld::set_gravity(const Vector3& g)
 void PhysicsWorld::update(float dt)
 {
 	// Update world pose of the actors
-	for (Actor** aa = m_actors.begin(); aa != m_actors.end(); aa++)
+	for (uint32_t i = 0; i < m_actors.size(); i++)
 	{
-		(*aa)->update_pose();
+		m_actors[i]->update_pose();
 	}
 
 	// Run with fixed timestep
@@ -217,10 +217,10 @@ void PhysicsWorld::update(float dt)
 	}
 
 	// Update controllers
-	for (Controller** cc = m_controllers.begin(); cc != m_controllers.end(); cc++)
+	for (uint32_t i = 0; i < m_controllers.size(); i++)
 	{
-		(*cc)->update();
-	}	
+		m_controllers[i]->update();
+	}
 }
 
 } // namespace crown
