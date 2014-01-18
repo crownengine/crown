@@ -198,7 +198,7 @@ Vector3 Camera::screen_to_world(const Vector3& pos)
 	mvp.invert();
 
 	Vector4 ndc( (2 * (pos.x - 0)) / m_view_width - 1,
-				 (2 * (pos.y - 0)) / m_view_height - 1,
+				 (2 * (m_view_height - pos.y)) / m_view_height - 1,
 				 (2 * pos.z) - 1, 1);
 
 	Vector4 tmp = mvp * ndc;
