@@ -64,36 +64,6 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-struct FilterGroup
-{
-	enum Enum
-	{
-		eACTOR 			= (1 << 0),
-		eHEIGHTFIELD 	= (1 << 1)
-	};
-};
-
-//-----------------------------------------------------------------------------
-static void setup_filtering(PxRigidActor* actor, PxU32 filterGroup, PxU32 filterMask)
-{
-	PxFilterData filterData;
-	filterData.word0 = filterGroup;	// word0 = own ID
-	filterData.word1 = filterMask;	// word1 = ID mask to filter pairs that trigger a contact callback;
-
-	const PxU32 num_shapes = actor->getNbShapes();
-	PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
-	actor->getShapes(shapes, num_shapes);
-
-	for(PxU32 i = 0; i < num_shapes; i++)
-	{
-		PxShape* shape = shapes[i];
-		shape->setSimulationFilterData(filterData);
-	}
-
-	default_allocator().deallocate(shapes);
-}
-
-//-----------------------------------------------------------------------------
 Actor::Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
 	: m_resource(res)
 	, m_index(i)
@@ -124,6 +94,15 @@ Actor::Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph&
 				static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
 			}
 			break;
+
+			PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 500.0f);
+
+			PxD6Joint* joint = PxD6JointCreate(*device()->physx(), m_actor, PxTransform(pose), NULL, PxTransform(pose));
+			joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+			joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
+			//joint->setMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
+			//joint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
+			joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
 		}
 		default:
 		{
@@ -133,7 +112,9 @@ Actor::Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph&
 	}
 
 	m_actor->userData = this;
-	m_mat = device()->physx()->createMaterial(0.5f, 0.5f, 1.0f);
+
+	// Creates material
+	m_mat = device()->physx()->createMaterial(a.static_friction, a.dynamic_friction, a.restitution);
 
 	// Creates shapes
 	uint32_t index = m_resource->shape_index(m_index);
@@ -167,21 +148,7 @@ Actor::Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph&
 		index++;
 	}
 
-	if (a.type == ActorType::DYNAMIC_PHYSICAL || a.type == ActorType::DYNAMIC_KINEMATIC)
-	{
-		PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 500.0f);
-
-		PxD6Joint* joint = PxD6JointCreate(*device()->physx(), m_actor, PxTransform(pose), NULL, PxTransform(pose));
-		joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
-		joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
-		//joint->setMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
-		//joint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
-		joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
-	}
-
 	m_actor->setActorFlag(PxActorFlag::eSEND_SLEEP_NOTIFIES, true);
-	setup_filtering(m_actor, FilterGroup::eACTOR, FilterGroup::eACTOR);
-	// static_cast<PxRigidBody*>(m_actor)->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
 	m_scene->addActor(*m_actor);
 }
 
@@ -198,17 +165,13 @@ Actor::~Actor()
 //-----------------------------------------------------------------------------
 void Actor::create_sphere(const Vector3& position, float radius)
 {
-	PxShape* shape = m_actor->createShape(PxSphereGeometry(radius), *m_mat);
-	// shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
-	// shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+	/*PxShape* shape = */m_actor->createShape(PxSphereGeometry(radius), *m_mat);
 }
 
 //-----------------------------------------------------------------------------
-void Actor::create_box(const Vector3& position, float a, float b, float c)
+void Actor::create_box(const Vector3& position, float half_x, float half_y, float half_z)
 {
-	PxShape* shape = m_actor->createShape(PxBoxGeometry(a, b, c), *m_mat);
-	// shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
-	// shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+	/*PxShape* shape = */m_actor->createShape(PxBoxGeometry(half_x, half_y, half_z), *m_mat);
 }
 
 //-----------------------------------------------------------------------------

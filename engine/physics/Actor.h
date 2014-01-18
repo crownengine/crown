@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Matrix4x4.h"
 #include "Quaternion.h"
+#include "CollisionFilter.h"
 
 #include "PxPhysics.h"
 #include "PxScene.h"
@@ -99,6 +100,8 @@ public:
 	int32_t					m_node;
 	PxRigidActor* 			m_actor;
 	PxMaterial* 			m_mat;
+
+	CollisionFilter*		m_filter;
 };
 
 } // namespace crown
