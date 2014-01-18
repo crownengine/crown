@@ -25,7 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Assert.h"
-#include <X11/Xlib.h>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
@@ -47,7 +46,7 @@ namespace crown
 namespace os
 {
 
-static timespec base_time;
+timespec g_base_time;
 
 //-----------------------------------------------------------------------------
 void printf(const char* string, ...)
@@ -57,44 +56,6 @@ void printf(const char* string, ...)
 	va_start(args, string);
 	::vprintf(string, args);
 	va_end(args);
-}
-
-//-----------------------------------------------------------------------------
-void vprintf(const char* string, va_list arg)
-{
-	::vprintf(string, arg);
-}
-
-//-----------------------------------------------------------------------------
-void log_debug(const char* string, va_list arg)
-{
-	printf("D: ");
-	vprintf(string, arg);
-	printf("\n");
-}
-
-//-----------------------------------------------------------------------------
-void log_error(const char* string, va_list arg)
-{
-	printf("E: ");
-	vprintf(string, arg);
-	printf("\n");
-}
-
-//-----------------------------------------------------------------------------
-void log_warning(const char* string, va_list arg)
-{
-	printf("W: ");
-	vprintf(string, arg);
-	printf("\n");
-}
-
-//-----------------------------------------------------------------------------
-void log_info(const char* string, va_list arg)
-{
-	printf("I: ");
-	vprintf(string, arg);
-	printf("\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -272,20 +233,13 @@ const char* get_env(const char* env)
 }
 
 //-----------------------------------------------------------------------------
-void init_os()
-{
-	// Initilize the base time
-	clock_gettime(CLOCK_MONOTONIC, &base_time);
-}
-
-//-----------------------------------------------------------------------------
 uint64_t milliseconds()
 {
 	timespec tmp;
 
 	clock_gettime(CLOCK_MONOTONIC, &tmp);
 
-	return (tmp.tv_sec - base_time.tv_sec) * 1000 + (tmp.tv_nsec - base_time.tv_nsec) / 1000000;
+	return (tmp.tv_sec - g_base_time.tv_sec) * 1000 + (tmp.tv_nsec - g_base_time.tv_nsec) / 1000000;
 }
 
 //-----------------------------------------------------------------------------
@@ -293,7 +247,7 @@ uint64_t microseconds()
 {
 	timespec tmp;
 	clock_gettime(CLOCK_MONOTONIC, &tmp);
-	return (tmp.tv_sec - base_time.tv_sec) * 1000000 + (tmp.tv_nsec - base_time.tv_nsec) / 1000;
+	return (tmp.tv_sec - g_base_time.tv_sec) * 1000000 + (tmp.tv_nsec - g_base_time.tv_nsec) / 1000;
 }
 
 //-----------------------------------------------------------------------------

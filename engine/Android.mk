@@ -139,12 +139,13 @@ LOCAL_SRC_FILES :=\
 \
 	gui/Gui.cpp\
 \
+	os/android/Android.cpp\
 	os/android/AndroidDevice.cpp\
-	os/android/AndroidOS.cpp\
 	os/android/ApkFile.cpp\
 	os/android/ApkFilesystem.cpp\
 	os/android/OsWindow.cpp\
 	os/posix/OsFile.cpp\
+	os/posix/Posix.cpp\
 \
 	physics/Actor.cpp\
 	physics/Controller.cpp\

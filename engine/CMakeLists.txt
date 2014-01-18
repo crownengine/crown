@@ -462,9 +462,10 @@ if (LINUX)
 	)
 
 	list (APPEND OS_SRC
-		os/linux/LinuxOS.cpp
+		os/linux/Linux.cpp
 		os/linux/OsWindow.cpp
 		os/posix/OsFile.cpp
+		os/posix/Posix.cpp
 	)
 
 	list (APPEND RENDERERS_SRC
