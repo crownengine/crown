@@ -475,13 +475,16 @@ void Device::reload(const char* type, const char* name)
 		filename += '.';
 		filename += type;
 
-		const void* old_res = m_resource_manager->lookup(type, name);
 
 		if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir, filename.c_str()))
 		{
 			Log::d("Compilation failed.");
 			return;
 		}
+
+		ResourceId old_res_id = m_resource_manager->resource_id(type, name);
+		const void* old_res = m_resource_manager->data(old_res_id);
+		m_resource_manager->unload(old_res_id, true);
 
 		ResourceId res_id = m_resource_manager->load(type, name);
 		m_resource_manager->flush();
@@ -498,6 +501,15 @@ void Device::reload(const char* type, const char* name)
 				for (uint32_t i = 0; i < m_world_manager->worlds().size(); i++)
 				{
 					m_world_manager->worlds()[i]->reload_units((UnitResource*) old_res, (UnitResource*) new_res);
+				}
+				break;
+			}
+			case SOUND_TYPE:
+			{
+				Log::d("Reloading sound: %s", name);
+				for (uint32_t i = 0; i < m_world_manager->worlds().size(); i++)
+				{
+					m_world_manager->worlds()[i]->sound_world()->reload_sounds((SoundResource*) old_res, (SoundResource*) new_res);
 				}
 				break;
 			}
