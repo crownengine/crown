@@ -29,12 +29,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdlib>
 #include <cstdio>
 #include "Config.h"
+#include "Error.h"
 
 #if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-	#define CE_ASSERT(condition, ...) do { if (!(condition)) {\
-		printf("Assertion failed: %s\n", #condition);\
-		printf("\t" __VA_ARGS__);\
-		printf("\n\n\tIn %s:%d\n\n", __FILE__, __LINE__); abort();} } while (0)
+	#define CE_ASSERT(condition, msg, ...) do { if (!(condition)) {\
+		crown::error::abort(__FILE__, __LINE__, "\nAssertion failed: %s\n\t" msg "\n", #condition, ##__VA_ARGS__); }} while (0)
 #else
 	#define CE_ASSERT(...) ((void)0)
 #endif

@@ -155,13 +155,13 @@ inline uint64_t murmur2_64(const void* key, size_t len, unsigned int seed = 0)
 #ifdef CROWN_DEBUG
 	inline uint32_t HASH32(const char *s, uint32_t value)
 	{
-		CE_ASSERT(murmur2_32(s, string::strlen(s), 0) == value);
+		CE_ASSERT(murmur2_32(s, string::strlen(s), 0) == value, "Hash mismatch");
 		return value;
 	}
 
 	inline uint64_t HASH64(const char* s, uint64_t value)
 	{
-		CE_ASSERT(murmur2_64(s, string::strlen(s), 0) == value);
+		CE_ASSERT(murmur2_64(s, string::strlen(s), 0) == value, "Hash mismatch");
 		return value;
 	}
 #else
