@@ -90,31 +90,32 @@ private:
 
 };
 
-void load_int_setting(LuaEnvironment& env);
-void load_float_setting(LuaEnvironment& env);
-void load_string_setting(LuaEnvironment& env);
 
+void load_accelerometer(LuaEnvironment& env);
+void load_actor(LuaEnvironment& env);
+void load_camera(LuaEnvironment& env);
+void load_controller(LuaEnvironment& env);
+void load_device(LuaEnvironment& env);
+void load_float_setting(LuaEnvironment& env);
+void load_gui(LuaEnvironment& env);
+void load_int_setting(LuaEnvironment& env);
+void load_keyboard(LuaEnvironment& env);
+void load_math(LuaEnvironment& env);
+void load_matrix4x4(LuaEnvironment& env);
+void load_mesh(LuaEnvironment& env);
+void load_mouse(LuaEnvironment& env);
+void load_physics_world(LuaEnvironment& env);
+void load_quaternion(LuaEnvironment& env);
+void load_resource_package(LuaEnvironment& env);
+void load_sound_world(LuaEnvironment& env);
+void load_sprite(LuaEnvironment& env);
+void load_string_setting(LuaEnvironment& env);
+void load_touch(LuaEnvironment& env);
+void load_unit(LuaEnvironment& env);
 void load_vector2(LuaEnvironment& env);
 void load_vector3(LuaEnvironment& env);
-void load_matrix4x4(LuaEnvironment& env);
-void load_quaternion(LuaEnvironment& env);
-void load_math(LuaEnvironment& env);
-void load_mouse(LuaEnvironment& env);
-void load_keyboard(LuaEnvironment& env);
-void load_touch(LuaEnvironment& env);
-void load_accelerometer(LuaEnvironment& env);
-void load_device(LuaEnvironment& env);
 void load_window(LuaEnvironment& env);
-void load_resource_package(LuaEnvironment& env);
-void load_unit(LuaEnvironment& env);
-void load_camera(LuaEnvironment& env);
 void load_world(LuaEnvironment& env);
-void load_mesh(LuaEnvironment& env);
-void load_sprite(LuaEnvironment& env);
-void load_actor(LuaEnvironment& env);
-void load_controller(LuaEnvironment& env);
-void load_physics_world(LuaEnvironment& env);
-void load_gui(LuaEnvironment& env);
 
 CE_EXPORT int32_t luaopen_libcrown(lua_State* L);
 

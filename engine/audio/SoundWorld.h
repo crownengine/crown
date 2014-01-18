@@ -47,11 +47,20 @@ public:
 
 	/// Plays the sound @a name at the given @a volume [0 .. 1].
 	/// If loop is true the sound will be played looping.
-	virtual SoundInstanceId play(const char* name, bool loop, float volume) = 0;
+	virtual SoundInstanceId play(const char* name, bool loop, float volume, const Vector3& pos) = 0;
 
 	/// Stops the sound with the given @a id.
 	/// After this call, the instance will be destroyed.
 	virtual void stop(SoundInstanceId id) = 0;
+
+	/// Stops all the sounds in the world.
+	virtual void stop_all() = 0;
+
+	/// Pauses all the sounds in the world
+	virtual void pause_all() = 0;
+
+	/// Resumes all previously paused sounds in the world.
+	virtual void resume_all() = 0;
 
 	/// Sets the @a positions (in world space) of @a count sound instances @a ids.
 	virtual void set_sound_positions(uint32_t count, const SoundInstanceId* ids, const Vector3* positions) = 0;

@@ -190,7 +190,7 @@ void World::destroy_camera(CameraId id)
 //-----------------------------------------------------------------------------
 SoundInstanceId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
-	m_sound_world->play(name, loop, volume);
+	m_sound_world->play(name, loop, volume, pos);
 }
 
 //-----------------------------------------------------------------------------
@@ -219,6 +219,7 @@ void World::set_sound_position(SoundInstanceId id, const Vector3& pos)
 //-----------------------------------------------------------------------------
 void World::set_sound_range(SoundInstanceId id, float range)
 {
+	m_sound_world->set_sound_ranges(1, &id, &range);
 }
 
 //-----------------------------------------------------------------------------

@@ -218,6 +218,17 @@ CE_EXPORT int world_physics_world(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int world_sound_world(lua_State* L)
+{
+	LuaStack stack(L);
+
+	World* world = stack.get_world(1);
+
+	stack.push_sound_world(world->sound_world());
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_world(LuaEnvironment& env)
 {
 	env.load_module_function("World", "spawn_unit",			world_spawn_unit);
@@ -237,6 +248,7 @@ void load_world(LuaEnvironment& env)
 	env.load_module_function("World", "lookup_gui",			world_lookup_gui);
 
 	env.load_module_function("World", "physics_world",		world_physics_world);
+	env.load_module_function("World", "sound_world",        world_sound_world);
 }
 
 } // namespace crown

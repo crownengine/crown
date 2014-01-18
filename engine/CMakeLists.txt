@@ -366,6 +366,7 @@ set (LUA_SRC
 	lua/LuaPhysicsWorld.cpp
 	lua/LuaQuaternion.cpp
 	lua/LuaResourcePackage.cpp
+	lua/LuaSoundWorld.cpp
 	lua/LuaSprite.cpp
 	lua/LuaStack.cpp
 	lua/LuaStringSetting.cpp

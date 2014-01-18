@@ -33,20 +33,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+class PhysicsWorld;
+class SoundWorld;
+class World;
+struct Actor;
+struct Camera;
+struct Controller;
+struct Gui;
+struct Matrix4x4;
+struct Mesh;
+struct Quaternion;
+struct ResourcePackage;
+struct Sprite;
+struct Unit;
 struct Vector2;
 struct Vector3;
-struct Matrix4x4;
-struct Quaternion;
-struct Unit;
-struct Camera;
-class World;
-struct Mesh;
-struct Sprite;
-class PhysicsWorld;
-struct Actor;
-struct Controller;
-class ResourcePackage;
-struct Gui;
 
 typedef Id SoundInstanceId;
 typedef Id GuiId;
@@ -210,6 +211,18 @@ public:
 	World* get_world(int32_t index)
 	{
 		return (World*) lua_touserdata(m_state, index);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_sound_world(SoundWorld* sw)
+	{
+		lua_pushlightuserdata(m_state, sw);
+	}
+
+	//-----------------------------------------------------------------------------
+	SoundWorld* get_sound_world(int32_t index)
+	{
+		return (SoundWorld*) lua_touserdata(m_state, index);
 	}
 
 	//-----------------------------------------------------------------------------

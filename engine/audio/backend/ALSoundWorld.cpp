@@ -68,9 +68,10 @@ static const char* al_error_to_string(ALenum error)
 //-----------------------------------------------------------------------------
 struct SoundInstance
 {
-	void create(SoundResource* sr)
+	void create(SoundResource* sr, const Vector3& pos)
 	{
 		AL_CHECK(alGenSources(1, &m_source));
+		CE_ASSERT(alIsSource(m_source), "Bad OpenAL source");
 
 		// AL_CHECK(alSourcef(m_source, AL_PITCH, 1.0f));
 		// AL_CHECK(alSourcef(m_source, AL_REFERENCE_DISTANCE, 0.1f));
@@ -78,6 +79,7 @@ struct SoundInstance
 
 		// Generates AL buffers
 		AL_CHECK(alGenBuffers(1, &m_buffer));
+		CE_ASSERT(alIsBuffer(m_buffer), "Bad OpenAL buffer");
 
 		ALenum format;
 		switch (sr->bits_ps())
@@ -89,11 +91,13 @@ struct SoundInstance
 		AL_CHECK(alBufferData(m_buffer, format, sr->data(), sr->size(), sr->sample_rate()));
 
 		m_resource = sr;
+		set_position(pos);
 	}
 
 	void destroy()
 	{
 		stop();
+		AL_CHECK(alSourcei(m_source, AL_BUFFER, 0));
 		AL_CHECK(alDeleteBuffers(1, &m_buffer));
 		AL_CHECK(alDeleteSources(1, &m_source));
 	}
@@ -101,7 +105,7 @@ struct SoundInstance
 	void reload(SoundResource* new_sr)
 	{
 		destroy();
-		create(new_sr);
+		create(new_sr, m_position);
 	}
 
 	void play(bool loop, float volume)
@@ -117,26 +121,41 @@ struct SoundInstance
 		AL_CHECK(alSourcePause(m_source));
 	}
 
+	void resume()
+	{
+		AL_CHECK(alSourcePlay(m_source));
+	}
+
 	void stop()
 	{
-		ALuint buffer;
-		AL_CHECK(alSourceUnqueueBuffers(m_source, 1, &buffer));
+		AL_CHECK(alSourceStop(m_source));
+		AL_CHECK(alSourceRewind(m_source)); // Workaround
+		ALint processed;
+		AL_CHECK(alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processed));
+
+		if (processed > 0)
+		{
+			ALuint removed;
+			AL_CHECK(alSourceUnqueueBuffers(m_source, 1, &removed));
+		}
 	}
 
 	bool finished()
 	{
 		ALint state;
 		AL_CHECK(alGetSourcei(m_source, AL_SOURCE_STATE, &state));
-		return !(state == AL_PLAYING);
+		return (state != AL_PLAYING && state != AL_PAUSED);
 	}
 
 	void set_position(const Vector3& pos)
 	{
 		AL_CHECK(alSourcefv(m_source, AL_POSITION, pos.to_float_ptr()));
+		m_position = pos;
 	}
 
 	void set_range(float range)
 	{
+		AL_CHECK(alSourcef(m_source, AL_MAX_DISTANCE, range));
 	}
 
 	void set_volume(float volume)
@@ -153,6 +172,7 @@ public:
 
 	SoundInstanceId m_id;
 	SoundResource* m_resource;
+	Vector3 m_position;
 	ALuint m_buffer;
 	ALuint m_source;
 };
@@ -185,18 +205,19 @@ public:
 	    alcCloseDevice(m_device);
 	}
 
-	virtual SoundInstanceId play(const char* name, bool loop, float volume)
+	virtual SoundInstanceId play(const char* name, bool loop, float volume, const Vector3& pos)
 	{
-		return play((SoundResource*) device()->resource_manager()->lookup(SOUND_EXTENSION, name), loop, volume);
+		return play((SoundResource*) device()->resource_manager()->lookup(SOUND_EXTENSION, name), loop, volume, pos);
 	}
 
-	SoundInstanceId play(SoundResource* sr, bool loop, float volume)
+	SoundInstanceId play(SoundResource* sr, bool loop, float volume, const Vector3& pos)
 	{
 		SoundInstance instance;
-		instance.create(sr);
+		instance.create(sr, pos);
 		SoundInstanceId id = m_playing_sounds.create(instance);
 		m_playing_sounds.lookup(id).m_id = id;
 		instance.play(loop, volume);
+		return id;
 	}
 
 	virtual void stop(SoundInstanceId id)
@@ -204,6 +225,30 @@ public:
 		SoundInstance& instance = m_playing_sounds.lookup(id);
 		instance.destroy();
 		m_playing_sounds.destroy(id);
+	}
+
+	virtual void stop_all()
+	{
+		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		{
+			m_playing_sounds[i].stop();
+		}
+	}
+
+	virtual void pause_all()
+	{
+		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		{
+			m_playing_sounds[i].pause();
+		}
+	}
+
+	virtual void resume_all()
+	{
+		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		{
+			m_playing_sounds[i].resume();
+		}
 	}
 
 	virtual void set_sound_positions(uint32_t count, const SoundInstanceId* ids, const Vector3* positions)
@@ -245,7 +290,7 @@ public:
 	{
 		const Vector3 pos = pose.translation();
 		const Vector3 up = pose.y();
-		const Vector3 at = -pose.z();
+		const Vector3 at = pose.z();
 
 		AL_CHECK(alListener3f(AL_POSITION, pos.x, pos.y, pos.z));
 		//AL_CHECK(alListener3f(AL_VELOCITY, vel.x, vel.y, vel.z));
