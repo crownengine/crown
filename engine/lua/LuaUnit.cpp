@@ -274,7 +274,7 @@ void load_unit(LuaEnvironment& env)
 	env.load_module_function("Unit", "local_pose",				unit_local_pose);
 	env.load_module_function("Unit", "world_position",			unit_world_position);
 	env.load_module_function("Unit", "world_rotation",			unit_world_rotation);
-	env.load_module_function("Unit", "world_pose",				unit_local_pose);
+	env.load_module_function("Unit", "world_pose",				unit_world_pose);
 	env.load_module_function("Unit", "set_local_position",		unit_set_local_position);
 	env.load_module_function("Unit", "set_local_rotation",		unit_set_local_rotation);
 	env.load_module_function("Unit", "set_local_pose",			unit_set_local_pose);
