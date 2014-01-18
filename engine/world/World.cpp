@@ -269,4 +269,10 @@ PhysicsWorld* World::physics_world()
 	return &m_physics_world;
 }
 
+//-----------------------------------------------------------------------------
+SoundWorld* World::sound_world()
+{
+	return m_sound_world;
+}
+
 } // namespace crown

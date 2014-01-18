@@ -98,6 +98,7 @@ public:
 	SceneGraphManager*					scene_graph_manager();
 	RenderWorld*						render_world();
 	PhysicsWorld*						physics_world();
+	SoundWorld*							sound_world();
 
 private:
 
