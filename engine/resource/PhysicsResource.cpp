@@ -50,10 +50,10 @@ static uint32_t shape_type_to_enum(const char* type)
 {
 	const StringId32 th = hash::murmur2_32(type, string::strlen(type));
 
-	if (string::strcmp("sphere", type) == 0) return PhysicsShapeType::SPHERE;
-	else if (string::strcmp("capsule", type) == 0) return PhysicsShapeType::CAPSULE;
-	else if (string::strcmp("box", type) == 0) return PhysicsShapeType::BOX;
-	else if (string::strcmp("plane", type) == 0) return PhysicsShapeType::PLANE;
+	if (string::strcmp("sphere", type) == 0) 		return PhysicsShapeType::SPHERE;
+	else if (string::strcmp("capsule", type) == 0) 	return PhysicsShapeType::CAPSULE;
+	else if (string::strcmp("box", type) == 0) 		return PhysicsShapeType::BOX;
+	else if (string::strcmp("plane", type) == 0) 	return PhysicsShapeType::PLANE;
 
 	CE_FATAL("Bad shape type");
 }
@@ -83,10 +83,10 @@ void parse_shape(JSONElement e, PhysicsShape& shape)
 {
 	JSONElement name = e.key("name");
 	JSONElement type = e.key("type");
-	JSONElement x = e.key("x");
+/*	JSONElement x = e.key("x");
 	JSONElement y = e.key("y");
 	JSONElement z = e.key("z");
-	JSONElement w = e.key("w");
+	JSONElement w = e.key("w");*/
 
 	DynamicString shape_name;
 	DynamicString shape_type;
@@ -96,10 +96,37 @@ void parse_shape(JSONElement e, PhysicsShape& shape)
 	shape.name = hash::murmur2_32(shape_name.c_str(), shape_name.length());
 	shape.type = shape_type_to_enum(shape_type.c_str());
 
-	shape.x = x.float_value();
-	shape.y = y.float_value();
-	shape.z = z.float_value();
-	shape.w = w.float_value();
+	switch (shape.type)
+	{
+		case PhysicsShapeType::SPHERE:
+		{
+			JSONElement radius = e.key("radius");
+			shape.data_0 = radius.float_value();
+			break;
+		}
+		case PhysicsShapeType::CAPSULE:
+		{
+			// TODO
+			break;
+		}
+		case PhysicsShapeType::BOX:
+		{
+			JSONElement half_x = e.key("half_x");
+			JSONElement half_y = e.key("half_y");
+			JSONElement half_z = e.key("half_z");
+
+			shape.data_0 = half_x.float_value();
+			shape.data_1 = half_y.float_value();
+			shape.data_2 = half_z.float_value();
+
+			break;
+		}
+		case PhysicsShapeType::PLANE:
+		{
+			// TODO
+			break;
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------

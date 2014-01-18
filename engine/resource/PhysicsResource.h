@@ -91,10 +91,11 @@ struct PhysicsShape
 {
 	StringId32 name;
 	uint32_t type;
-	float x;
-	float y;
-	float z;
-	float w;
+
+	float data_0;
+	float data_1;
+	float data_2;
+	float data_3;
 };
 
 //-----------------------------------------------------------------------------
