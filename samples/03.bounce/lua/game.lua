@@ -34,12 +34,6 @@ function spawn_obstacles(dim)
 	end
 end
 
-function spawn_suns(x, y, dim)
-	for t=0, dim, 10 do
-		World.spawn_unit(world, "sun", Vector3(x + t, math.random(-3, 6) , 0))
-	end	
-end
-
 function update_player(world, unit, dt)
 
 	-- 3 m/s
@@ -47,9 +41,13 @@ function update_player(world, unit, dt)
 
 	if (Keyboard.button_pressed(Keyboard.w)) then up_pressed = true end
 	if (Keyboard.button_pressed(Keyboard.s)) then down_pressed = true end
+	if (Keyboard.button_pressed(Keyboard.a)) then left_pressed = true end
+	if (Keyboard.button_pressed(Keyboard.d)) then right_pressed = true end
 
 	if (Keyboard.button_released(Keyboard.w)) then up_pressed = false end
 	if (Keyboard.button_released(Keyboard.s)) then down_pressed = false end
+	if (Keyboard.button_released(Keyboard.a)) then left_pressed = 	false end
+	if (Keyboard.button_released(Keyboard.d)) then right_pressed = 	false end
 
 	if (Touch.pointer_down(1)) then up_pressed = true end
 	if (Touch.pointer_up(1)) then up_pressed = false end
@@ -60,9 +58,20 @@ function update_player(world, unit, dt)
 	if up_pressed then
 		spd_y = speed * dt
 	end
+	if right_pressed then
+		spd_x = speed * dt
+	end
+	if left_pressed then
+		spd_x = -speed * dt
+	end
 
-	spd_x = speed * dt
+	if not left_pressed and not right_pressed then
+		spd_x = 0
+	end
 
+	if not up_pressed and not down_pressed then
+		spd_y = 0
+	end
 	Controller.move(contr, Vector3(spd_x, spd_y, 0.0))
 
 	spd_y = spd_y - 0.5 * dt
@@ -102,7 +111,8 @@ function init()
 	-- Spawn bounce
 	bounce = World.spawn_unit(world, "bounce")
 
-	spawn_suns(15, -2, 400)
+	sun = World.spawn_unit(world, "sun", Vector3(5, 3, 0))
+
 	spawn_obstacles(400)
 
 	Camera.set_near_clip_distance(camera, 0.01)

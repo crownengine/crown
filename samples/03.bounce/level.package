@@ -24,7 +24,8 @@
 	"physics" : [
 		"bounce",
 		"box",
-		"terrain"
+		"terrain",
+		"sun"
 	],
 	"material" : [
 		"bounce",
