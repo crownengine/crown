@@ -42,6 +42,7 @@ using physx::PxTransform;
 using physx::PxActorFlag;
 using physx::PxVec3;
 using physx::PxReal;
+using physx::PxRigidActor;
 using physx::PxRigidBody;
 using physx::PxRigidDynamic;
 using physx::PxRigidStatic;
@@ -49,6 +50,10 @@ using physx::PxPlaneGeometry;
 using physx::PxSphereGeometry;
 using physx::PxBoxGeometry;
 using physx::PxRigidBodyExt;
+using physx::PxShape;
+using physx::PxShapeFlag;
+using physx::PxU32;
+using physx::PxFilterData;
 
 using physx::PxD6Joint;
 using physx::PxD6JointCreate;
@@ -57,7 +62,37 @@ using physx::PxD6Motion;
 
 namespace crown
 {
-	
+
+//-----------------------------------------------------------------------------
+struct FilterGroup
+{
+	enum Enum
+	{
+		eACTOR 			= (1 << 0),
+		eHEIGHTFIELD 	= (1 << 1)
+	};
+};
+
+//-----------------------------------------------------------------------------
+static void setup_filtering(PxRigidActor* actor, PxU32 filterGroup, PxU32 filterMask)
+{
+	PxFilterData filterData;
+	filterData.word0 = filterGroup;	// word0 = own ID
+	filterData.word1 = filterMask;	// word1 = ID mask to filter pairs that trigger a contact callback;
+
+	const PxU32 num_shapes = actor->getNbShapes();
+	PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
+	actor->getShapes(shapes, num_shapes);
+
+	for(PxU32 i = 0; i < num_shapes; i++)
+	{
+		PxShape* shape = shapes[i];
+		shape->setSimulationFilterData(filterData);
+	}
+
+	default_allocator().deallocate(shapes);
+}
+
 //-----------------------------------------------------------------------------
 Actor::Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
 	: m_resource(res)
@@ -111,17 +146,17 @@ Actor::Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph&
 		{
 			case PhysicsShapeType::SPHERE:
 			{
-				create_sphere(pos, shape.x);
+				create_sphere(pos, shape.data_0);
 				break;
 			}
 			case PhysicsShapeType::BOX:
 			{
-				create_box(pos, shape.x, shape.y, shape.z);
+				create_box(pos, shape.data_0, shape.data_1, shape.data_2);
 				break;
 			}
 			case PhysicsShapeType::PLANE:
 			{
-				create_plane(pos, Vector3(shape.x, shape.y, shape.z));
+				create_plane(pos, Vector3(shape.data_0, shape.data_1, shape.data_2));
 				break;
 			}
 			default:
@@ -144,6 +179,9 @@ Actor::Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph&
 		joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
 	}
 
+	m_actor->setActorFlag(PxActorFlag::eSEND_SLEEP_NOTIFIES, true);
+	setup_filtering(m_actor, FilterGroup::eACTOR, FilterGroup::eACTOR);
+	// static_cast<PxRigidBody*>(m_actor)->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
 	m_scene->addActor(*m_actor);
 }
 
@@ -160,13 +198,17 @@ Actor::~Actor()
 //-----------------------------------------------------------------------------
 void Actor::create_sphere(const Vector3& position, float radius)
 {
-	m_actor->createShape(PxSphereGeometry(radius), *m_mat);
+	PxShape* shape = m_actor->createShape(PxSphereGeometry(radius), *m_mat);
+	// shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+	// shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
 }
 
 //-----------------------------------------------------------------------------
 void Actor::create_box(const Vector3& position, float a, float b, float c)
 {
-	m_actor->createShape(PxBoxGeometry(a, b, c), *m_mat);
+	PxShape* shape = m_actor->createShape(PxBoxGeometry(a, b, c), *m_mat);
+	// shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+	// shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
 }
 
 //-----------------------------------------------------------------------------
