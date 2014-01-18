@@ -34,9 +34,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PxDefaultCpuDispatcher.h"
 #include "PxControllerManager.h"
 
+#include "Log.h"
+
 using physx::PxControllerManager;
 using physx::PxScene;
 using physx::PxDefaultCpuDispatcher;
+using physx::PxActor;
 
 #define MAX_ACTORS 1024
 #define MAX_CONTROLLERS 1024
@@ -53,6 +56,7 @@ struct Actor;
 struct Trigger;
 struct Quaternion;
 class SceneGraph;
+class PhysicsCallback;
 
 //-----------------------------------------------------------------------------
 class PhysicsWorld
@@ -85,6 +89,7 @@ public:
 	PxControllerManager*		m_controller_manager;
 	PxScene*					m_scene;
 	PxDefaultCpuDispatcher*		m_cpu_dispatcher;
+	PhysicsCallback*			m_callback;
 	
 	PoolAllocator				m_actors_pool;
 	IdArray<MAX_ACTORS, Actor*>	m_actors;

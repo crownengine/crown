@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SceneGraph.h"
 #include "Controller.h"
 #include "Trigger.h"
+#include "PhysicsCallback.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -49,11 +50,42 @@ using physx::PxRigidStatic;
 using physx::PxActiveTransform;
 using physx::PxU32;
 using physx::PxSceneFlag;
+using physx::PxFilterFlags;
+using physx::PxFilterData;
+using physx::PxPairFlags;
+using physx::PxFilterObjectAttributes;
+using physx::PxFilterObjectIsTrigger;
+using physx::PxPairFlag;
+using physx::PxFilterFlag;
 
 namespace crown
 {
 
-static physx::PxSimulationFilterShader g_default_filter_shader = physx::PxDefaultSimulationFilterShader;
+PxFilterFlags PhysicsFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, 
+								PxFilterObjectAttributes attributes1, PxFilterData filterData1,
+								PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
+{
+	// let triggers through
+	if(PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
+	{
+		pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+		return PxFilterFlag::eDEFAULT;
+	}
+
+	// generate contacts for all that were not filtered above
+	pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+
+	// trigger the contact callback for pairs (A,B) where 
+	// the filtermask of A contains the ID of B and vice versa.
+	if((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+	{
+		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
+	}
+
+	return PxFilterFlag::eDEFAULT;
+}
+
+static physx::PxSimulationFilterShader g_default_filter_shader = PhysicsFilterShader;
 
 //-----------------------------------------------------------------------------
 PhysicsWorld::PhysicsWorld()
@@ -62,7 +94,6 @@ PhysicsWorld::PhysicsWorld()
 	, m_controllers_pool(default_allocator(), MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
 	, m_triggers_pool(default_allocator(), MAX_TRIGGERS, sizeof(Trigger), CE_ALIGNOF(Trigger))
 {
-	// Create scene
 	PxSceneDesc scene_desc(device()->physx()->getTolerancesScale());
 	scene_desc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 
@@ -74,24 +105,34 @@ PhysicsWorld::PhysicsWorld()
 		scene_desc.cpuDispatcher = m_cpu_dispatcher;
 	}
 
-	if(!scene_desc.filterShader)
-		scene_desc.filterShader = g_default_filter_shader;
-
+	// Set filter shader
+	scene_desc.filterShader = g_default_filter_shader;
+	// Enable active transformation
 	scene_desc.flags = PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
+	// Enable collision detection
+	// scene_desc.flags |= PxSceneFlag::eENABLE_CCD;
+
+	// Set simulation event callback
+	m_callback = CE_NEW(default_allocator(), PhysicsCallback)();
+	scene_desc.simulationEventCallback = m_callback;
 	
+	// Create scene
 	m_scene = device()->physx()->createScene(scene_desc);
+
+	m_scene->setFlag(PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS, true);
 
 	// Create controller manager
 	m_controller_manager = PxCreateControllerManager(device()->physx()->getFoundation());
 	CE_ASSERT(m_controller_manager != NULL, "Failed to create PhysX controller manager");
 
 	// FIXME FIXME FIXME
-	create_trigger(Vector3(.5, .5, .5), Vector3(5.0, -3.0, 3), Quaternion::IDENTITY);
+	//create_trigger(Vector3(.5, .5, .5), Vector3(5.0, -3.0, 3), Quaternion::IDENTITY);
 }
 
 //-----------------------------------------------------------------------------
 PhysicsWorld::~PhysicsWorld()
 {
+	CE_DELETE(default_allocator(), m_callback);
 	m_cpu_dispatcher->release();
 	m_controller_manager->release();
 	m_scene->release();
