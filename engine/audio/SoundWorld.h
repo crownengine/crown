@@ -36,6 +36,7 @@ namespace crown
 class Allocator;
 struct Vector3;
 struct Matrix4x4;
+struct SoundResource;
 typedef Id SoundInstanceId;
 
 class SoundWorld
@@ -60,6 +61,8 @@ public:
 
 	/// Sets the @a volumes of @a count sound instances @a ids.
 	virtual void set_sound_volumes(uint32_t count, const SoundInstanceId* ids, const float* volumes) = 0;
+
+	virtual void reload_sounds(SoundResource* old_sr, SoundResource* new_sr) = 0;
 
 	/// Sets the @a pose of the listener in world space.
 	virtual void set_listener_pose(const Matrix4x4& pose) = 0;

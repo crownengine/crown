@@ -98,6 +98,12 @@ struct SoundInstance
 		AL_CHECK(alDeleteSources(1, &m_source));
 	}
 
+	void reload(SoundResource* new_sr)
+	{
+		destroy();
+		create(new_sr);
+	}
+
 	void play(bool loop, float volume)
 	{
 		set_volume(volume);
@@ -136,6 +142,11 @@ struct SoundInstance
 	void set_volume(float volume)
 	{
 		AL_CHECK(alSourcef(m_source, AL_GAIN, volume));
+	}
+
+	SoundResource* resource()
+	{
+		return m_resource;
 	}
 
 public:
@@ -217,6 +228,17 @@ public:
 		{
 			m_playing_sounds[i].set_volume(volumes[i]);
 		}		
+	}
+
+	virtual void reload_sounds(SoundResource* old_sr, SoundResource* new_sr)
+	{
+		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		{
+			if (m_playing_sounds[i].resource() == old_sr)
+			{
+				m_playing_sounds[i].reload(new_sr);
+			}
+		}
 	}
 
 	virtual void set_listener_pose(const Matrix4x4& pose)
