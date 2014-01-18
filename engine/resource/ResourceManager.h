@@ -71,7 +71,11 @@ public:
 
 	/// Unloads the resource @a name, freeing up all the memory associated by it
 	/// and eventually any global object associated with it.
-	void					unload(ResourceId name);
+	/// If @a force is true, the resource is unloaded even if its reference count
+	/// is greater than 1.
+	/// @warning
+	/// Use @a force option only if you know - exactly - what you are doing.
+	void					unload(ResourceId name, bool force = false);
 
 	/// Returns the resource instance associated to the given @a type and @a name.
 	const void*				lookup(const char* type, const char* name) const;
@@ -100,9 +104,10 @@ public:
 	/// Returns the seed used to generate resource name hashes.
 	uint32_t				seed() const;
 
+	ResourceId				resource_id(const char* type, const char* name) const;
+
 private:
 
-	ResourceId				resource_id(const char* type, const char* name) const;
 
 	// Returns the entry of the given id.
 	ResourceEntry*			find(ResourceId id) const;

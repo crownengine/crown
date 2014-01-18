@@ -61,7 +61,7 @@ ResourceId ResourceManager::load(const char* type, const char* name)
 }
 
 //-----------------------------------------------------------------------------
-void ResourceManager::unload(ResourceId name)
+void ResourceManager::unload(ResourceId name, bool force)
 {
 	CE_ASSERT(has(name), "Resource not loaded: " "%.16"PRIx64"", name.id);
 
@@ -69,7 +69,7 @@ void ResourceManager::unload(ResourceId name)
 
 	entry->references--;
 	
-	if (entry->references == 0)
+	if (entry->references == 0 || force)
 	{
 		resource_on_offline(entry->type, entry->resource);
 		resource_on_unload(entry->type, m_resource_heap, entry->resource);
