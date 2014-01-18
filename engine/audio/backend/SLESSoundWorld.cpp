@@ -165,8 +165,7 @@ struct SoundInstance
 			case 192000: format_pcm.samplesPerSec = SL_SAMPLINGRATE_192; break;
 			default: CE_FATAL("Oops, sample rate not supported"); break;
 		}	
-		
-		format_pcm.samplesPerSec = SL_SAMPLINGRATE_44_1;
+
 		format_pcm.bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;
 		format_pcm.containerSize = SL_PCMSAMPLEFORMAT_FIXED_16;
 		format_pcm.endianness = SL_BYTEORDER_LITTLEENDIAN;
@@ -238,6 +237,10 @@ struct SoundInstance
 		(*m_player_obj)->Destroy(m_player_obj);
 	}
 
+	void reload(SoundResource* new_sr)
+	{
+	}
+
 	void play(bool loop, float volume)
 	{
 		set_volume(volume);
@@ -299,6 +302,11 @@ struct SoundInstance
 		// 		s->pause();
 		// 	}
 		// }
+	}
+
+	SoundResource* resource()
+	{
+		return m_resource;
 	}
 
 public:
@@ -394,6 +402,17 @@ public:
 		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
 		{
 			m_playing_sounds[i].set_volume(volumes[i]);
+		}
+	}
+
+	virtual void reload_sounds(SoundResource* old_sr, SoundResource* new_sr)
+	{
+		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		{
+			if (m_playing_sounds[i].resource() == old_sr)
+			{
+				m_playing_sounds[i].reload(new_sr);
+			}
 		}
 	}
 
