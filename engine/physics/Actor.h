@@ -27,6 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "IdTable.h"
+#include "IdArray.h"
 #include "PhysicsTypes.h"
 #include "Vector3.h"
 #include "Matrix4x4.h"
@@ -43,6 +45,7 @@ using physx::PxScene;
 namespace crown
 {
 
+struct PhysicsResource;
 struct Quaternion;
 struct Matrix4x4;
 struct Unit;
@@ -50,7 +53,7 @@ class SceneGraph;
 
 struct Actor
 {
-						Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot);
+						Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot);
 						~Actor();
 
 	void				enable_gravity();
@@ -88,12 +91,14 @@ private:
 	
 public:
 
-	PxScene*			m_scene;
-	SceneGraph&			m_scene_graph;
-	int32_t				m_node;
-	PxRigidActor* 		m_actor;
-	PxMaterial* 		m_mat;
-	ActorType::Enum 	m_type;
+	const PhysicsResource*	m_resource;
+	uint32_t				m_index;
+
+	PxScene*				m_scene;
+	SceneGraph&				m_scene_graph;
+	int32_t					m_node;
+	PxRigidActor* 			m_actor;
+	PxMaterial* 			m_mat;
 };
 
 } // namespace crown

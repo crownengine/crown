@@ -7,8 +7,10 @@
 			"shapes" : [
 				{
 					"name" : "shape_0",
-					"type" : "sphere",
-					"radius" : 0.5
+					"type" : "box",
+					"half_x" : 0.5,
+					"half_y" : 2.0,
+					"half_z" : 0.5
 				}
 			]
 		}

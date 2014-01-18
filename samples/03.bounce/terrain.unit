@@ -1,0 +1,10 @@
+{
+	"nodes" : [
+		{
+			"name" : "root",
+			"parent" : null,
+			"position" : [0, -3.5, 0],
+			"rotation" : [0, 0, 1, 1.57]
+		}
+	]
+}

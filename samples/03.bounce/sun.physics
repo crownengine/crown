@@ -1,0 +1,16 @@
+{
+	"actors" : [
+		{
+			"name" : "actor_sun",
+			"node" : "root",
+			"type" : "dynamic_physical",
+			"shapes" : [
+				{
+					"name" : "shape_0",
+					"type" : "sphere",
+					"radius" : 0.5
+				}
+			]
+		}
+	]
+}

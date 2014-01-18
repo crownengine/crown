@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "Physics.h"
 #include "Log.h"
+#include "PhysicsResource.h"
 #include "SceneGraph.h"
 #include "PxPhysicsAPI.h"
 
@@ -41,6 +42,7 @@ using physx::PxTransform;
 using physx::PxActorFlag;
 using physx::PxVec3;
 using physx::PxReal;
+using physx::PxRigidActor;
 using physx::PxRigidBody;
 using physx::PxRigidDynamic;
 using physx::PxRigidStatic;
@@ -48,6 +50,10 @@ using physx::PxPlaneGeometry;
 using physx::PxSphereGeometry;
 using physx::PxBoxGeometry;
 using physx::PxRigidBodyExt;
+using physx::PxShape;
+using physx::PxShapeFlag;
+using physx::PxU32;
+using physx::PxFilterData;
 
 using physx::PxD6Joint;
 using physx::PxD6JointCreate;
@@ -56,19 +62,52 @@ using physx::PxD6Motion;
 
 namespace crown
 {
-	
+
 //-----------------------------------------------------------------------------
-Actor::Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type, const Vector3& pos, const Quaternion& rot)
-	: m_scene(scene)
+struct FilterGroup
+{
+	enum Enum
+	{
+		eACTOR 			= (1 << 0),
+		eHEIGHTFIELD 	= (1 << 1)
+	};
+};
+
+//-----------------------------------------------------------------------------
+static void setup_filtering(PxRigidActor* actor, PxU32 filterGroup, PxU32 filterMask)
+{
+	PxFilterData filterData;
+	filterData.word0 = filterGroup;	// word0 = own ID
+	filterData.word1 = filterMask;	// word1 = ID mask to filter pairs that trigger a contact callback;
+
+	const PxU32 num_shapes = actor->getNbShapes();
+	PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
+	actor->getShapes(shapes, num_shapes);
+
+	for(PxU32 i = 0; i < num_shapes; i++)
+	{
+		PxShape* shape = shapes[i];
+		shape->setSimulationFilterData(filterData);
+	}
+
+	default_allocator().deallocate(shapes);
+}
+
+//-----------------------------------------------------------------------------
+Actor::Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
+	: m_resource(res)
+	, m_index(i)
+	, m_scene(scene)
 	, m_scene_graph(sg)
 	, m_node(node)
-	, m_type(type)
 {
-	Matrix4x4 m = sg.world_pose(node);
+	const PhysicsActor& a = m_resource->actor(m_index);
 
+	// Creates actor
+	Matrix4x4 m = sg.world_pose(node);
 	PxMat44 pose((PxReal*)(m.to_float_ptr()));
 
-	switch (type)
+	switch (a.type)
 	{
 		case ActorType::STATIC:
 		{
@@ -80,7 +119,7 @@ Actor::Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type,
 		{
 			m_actor = device()->physx()->createRigidDynamic(PxTransform(pose));
 
-			if (type == ActorType::DYNAMIC_KINEMATIC)
+			if (a.type == ActorType::DYNAMIC_KINEMATIC)
 			{
 				static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
 			}
@@ -94,11 +133,41 @@ Actor::Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type,
 	}
 
 	m_actor->userData = this;
-	m_mat = device()->physx()->createMaterial(0.5f, 0.5f, 0.5f);
-	
-	create_box(Vector3(0, 0, 0), .5, .5, .5);
+	m_mat = device()->physx()->createMaterial(0.5f, 0.5f, 1.0f);
 
-	if (type == ActorType::DYNAMIC_PHYSICAL || type == ActorType::DYNAMIC_KINEMATIC)
+	// Creates shapes
+	uint32_t index = m_resource->shape_index(m_index);
+	for (uint32_t i = 0; i < a.num_shapes; i++)
+	{
+		PhysicsShape shape = m_resource->shape(index);
+		Vector3 pos = sg.world_position(node);
+
+		switch(shape.type)
+		{
+			case PhysicsShapeType::SPHERE:
+			{
+				create_sphere(pos, shape.data_0);
+				break;
+			}
+			case PhysicsShapeType::BOX:
+			{
+				create_box(pos, shape.data_0, shape.data_1, shape.data_2);
+				break;
+			}
+			case PhysicsShapeType::PLANE:
+			{
+				create_plane(pos, Vector3(shape.data_0, shape.data_1, shape.data_2));
+				break;
+			}
+			default:
+			{
+				CE_FATAL("Oops, unknown shape type");
+			}
+		}
+		index++;
+	}
+
+	if (a.type == ActorType::DYNAMIC_PHYSICAL || a.type == ActorType::DYNAMIC_KINEMATIC)
 	{
 		PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 500.0f);
 
@@ -110,6 +179,9 @@ Actor::Actor(PxScene* scene, SceneGraph& sg, int32_t node, ActorType::Enum type,
 		joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
 	}
 
+	m_actor->setActorFlag(PxActorFlag::eSEND_SLEEP_NOTIFIES, true);
+	setup_filtering(m_actor, FilterGroup::eACTOR, FilterGroup::eACTOR);
+	// static_cast<PxRigidBody*>(m_actor)->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
 	m_scene->addActor(*m_actor);
 }
 
@@ -126,17 +198,21 @@ Actor::~Actor()
 //-----------------------------------------------------------------------------
 void Actor::create_sphere(const Vector3& position, float radius)
 {
-	m_actor->createShape(PxSphereGeometry(radius), *m_mat);
+	PxShape* shape = m_actor->createShape(PxSphereGeometry(radius), *m_mat);
+	// shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+	// shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
 }
 
 //-----------------------------------------------------------------------------
 void Actor::create_box(const Vector3& position, float a, float b, float c)
 {
-	m_actor->createShape(PxBoxGeometry(a, b, c), *m_mat);
+	PxShape* shape = m_actor->createShape(PxBoxGeometry(a, b, c), *m_mat);
+	// shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+	// shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
 }
 
 //-----------------------------------------------------------------------------
-void Actor::create_plane(const Vector3& /*position*/, const Vector3& /*normal*/)
+void Actor::create_plane(const Vector3& position, const Vector3& /*normal*/)
 {
 	m_actor->createShape(PxPlaneGeometry(), *m_mat);
 }
@@ -156,25 +232,33 @@ void Actor::disable_gravity()
 //-----------------------------------------------------------------------------
 bool Actor::is_static() const
 {
-	return m_type == ActorType::STATIC;
+	const PhysicsActor& a = m_resource->actor(m_index);
+
+	return a.type == ActorType::STATIC;
 }
 
 //-----------------------------------------------------------------------------
 bool Actor::is_dynamic() const
 {
-	return m_type == ActorType::DYNAMIC_PHYSICAL || m_type == ActorType::DYNAMIC_KINEMATIC;
+	const PhysicsActor& a = m_resource->actor(m_index);
+
+	return a.type == ActorType::DYNAMIC_PHYSICAL || a.type == ActorType::DYNAMIC_KINEMATIC;
 }
 
 //-----------------------------------------------------------------------------
 bool Actor::is_kinematic() const
 {
-	return m_type == ActorType::DYNAMIC_KINEMATIC;
+	const PhysicsActor& a = m_resource->actor(m_index);
+
+	return a.type == ActorType::DYNAMIC_KINEMATIC;
 }
 
 //-----------------------------------------------------------------------------
 bool Actor::is_physical() const
 {
-	return m_type == ActorType::DYNAMIC_PHYSICAL;
+	const PhysicsActor& a = m_resource->actor(m_index);
+
+	return a.type == ActorType::DYNAMIC_PHYSICAL;
 }
 
 //-----------------------------------------------------------------------------
@@ -251,7 +335,9 @@ void Actor::update_pose()
 	const PxMat44 pose((PxReal*) (wp.to_float_ptr()));
 	const PxTransform world_transform(pose);
 
-	switch (m_type)
+	const PhysicsActor& a = m_resource->actor(m_index);
+
+	switch (a.type)
 	{
 		case ActorType::STATIC:
 		{
@@ -273,8 +359,9 @@ void Actor::update_pose()
 //-----------------------------------------------------------------------------
 void Actor::update(const Matrix4x4& pose)
 {
+	const PhysicsActor& a = m_resource->actor(m_index);
 
-	if (m_type == ActorType::DYNAMIC_PHYSICAL)
+	if (a.type == ActorType::DYNAMIC_PHYSICAL)
 	{
 		m_scene_graph.set_world_pose(m_node, pose);
 	}

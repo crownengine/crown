@@ -16,31 +16,38 @@ spd_x = 0
 spd_y = 0
 
 footsteps = nil
-speed = 3
+speed = 12
 
-
-function spawn_terrain(x, y, dim)
-	for t = 0, dim, 2 do
-		World.spawn_unit(world, "box", Vector3(x + t, math.random(-3, 6) , 0))
+function spawn_obstacle(pos)
+	if math.random(0, 10) >= 0 and math.random(0, 10) <= 3 then
+		World.spawn_unit(world, "box", Vector3(pos, -2, 0))
+	elseif math.random(0, 10) > 3 and math.random(0, 10) <=7 then
+		World.spawn_unit(world, "box", Vector3(pos, 6, 0))
+	else
+		World.spawn_unit(world, "box", Vector3(pos, 3, 0))
 	end
 end
 
-function spawn_suns(x, y, dim)
-	for t=0, dim, 7 do
-		World.spawn_unit(world, "sun", Vector3(x + t, math.random(-3, 6) , 0))
-	end	
+function spawn_obstacles(dim)
+	for t = 0, dim, 15 do
+		spawn_obstacle(t)
+	end
 end
 
 function update_player(world, unit, dt)
 
 	-- 3 m/s
-	speed = speed + 0.1 * dt;
+	-- speed = speed + 0.1 * dt;
 
 	if (Keyboard.button_pressed(Keyboard.w)) then up_pressed = true end
 	if (Keyboard.button_pressed(Keyboard.s)) then down_pressed = true end
+	if (Keyboard.button_pressed(Keyboard.a)) then left_pressed = true end
+	if (Keyboard.button_pressed(Keyboard.d)) then right_pressed = true end
 
 	if (Keyboard.button_released(Keyboard.w)) then up_pressed = false end
 	if (Keyboard.button_released(Keyboard.s)) then down_pressed = false end
+	if (Keyboard.button_released(Keyboard.a)) then left_pressed = 	false end
+	if (Keyboard.button_released(Keyboard.d)) then right_pressed = 	false end
 
 	if (Touch.pointer_down(1)) then up_pressed = true end
 	if (Touch.pointer_up(1)) then up_pressed = false end
@@ -51,9 +58,20 @@ function update_player(world, unit, dt)
 	if up_pressed then
 		spd_y = speed * dt
 	end
+	if right_pressed then
+		spd_x = speed * dt
+	end
+	if left_pressed then
+		spd_x = -speed * dt
+	end
 
-	spd_x = speed * dt
+	if not left_pressed and not right_pressed then
+		spd_x = 0
+	end
 
+	if not up_pressed and not down_pressed then
+		spd_y = 0
+	end
 	Controller.move(contr, Vector3(spd_x, spd_y, 0.0))
 
 	spd_y = spd_y - 0.5 * dt
@@ -87,11 +105,15 @@ function init()
 	camera_unit = World.spawn_unit(world, "camera")
 	camera = Unit.camera(camera_unit, "camera")
 
-	-- Spawn dragon
-	dragon = World.spawn_unit(world, "bounce")
+	-- Spawn terrain
+	terrain = World.spawn_unit(world, "terrain", Vector3(0, -3.75, 0), Quaternion(Vector3(0, 0, 1), 1.57))
 
-	spawn_suns(15, -2, 400)
-	spawn_terrain(10, -3, 400)
+	-- Spawn bounce
+	bounce = World.spawn_unit(world, "bounce")
+
+	sun = World.spawn_unit(world, "sun", Vector3(5, 3, 0))
+
+	spawn_obstacles(400)
 
 	Camera.set_near_clip_distance(camera, 0.01)
 	Camera.set_far_clip_distance(camera, 1000)
@@ -132,21 +154,16 @@ function frame(dt)
 	end
 
 	-- Update the player
-	update_player(world, dragon, dt)
+	update_player(world, bounce, dt)
 
 	-- Update the camera
-	update_camera(dragon, camera_unit, camera)
+	update_camera(bounce, camera_unit, camera)
 
 	-- Render world
 	Device.render_world(world, camera)
 end
 
 function shutdown()
-
-	--World.destroy_unit(world, dragon)
-	--World.destroy_unit(world, button)
-	--World.destroy_unit(world, camera_unit)
-	
 	ResourcePackage.unload(package)
 	Device.destroy_resource_package(package)
 	Device.destroy_world(world)

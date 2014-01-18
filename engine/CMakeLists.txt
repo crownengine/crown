@@ -404,6 +404,7 @@ set (PHYSICS_HEADERS
 	physics/PhysicsTypes.h
 	physics/PhysicsWorld.h
 	physics/Trigger.h
+	physics/PhysicsCallback.h
 )
 
 set (WORLD_SRC

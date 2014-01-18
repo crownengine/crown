@@ -8,7 +8,8 @@
 		"camera",
 		"bounce",
 		"box",
-		"sun"
+		"sun",
+		"terrain"
 	],
 	"sprite" : [
 		"sprites/bounce",
@@ -16,14 +17,15 @@
 		"sprites/sun"
 	],
 	"sound" : [
-		"sounds/beep",
 		"sounds/gunshoot",
 		"sounds/footsteps",
 		"sounds/jump"
 	],
 	"physics" : [
 		"bounce",
-		"box"
+		"box",
+		"terrain",
+		"sun"
 	],
 	"material" : [
 		"bounce",
