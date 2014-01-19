@@ -295,10 +295,10 @@ public:
 	bool process_events()
 	{
 		OsEvent event;
-		do
-		{
-			m_queue.pop_event(&event);
+		bool exit = false;
 
+		while(m_queue.pop_event(&event))
+		{
 			if (event.type == OsEvent::NONE) continue;
 
 			switch (event.type)
@@ -333,7 +333,8 @@ public:
 				}
 				case OsEvent::EXIT:
 				{
-					return true;
+					exit = true;
+					break;
 				}
 				default:
 				{
@@ -342,9 +343,8 @@ public:
 				}
 			}
 		}
-		while (event.type != OsEvent::NONE);
 
-		return false;
+		return exit;
 	}
 
 	//-----------------------------------------------------------------------------
