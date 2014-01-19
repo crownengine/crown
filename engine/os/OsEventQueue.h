@@ -27,10 +27,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <cstring>
-#include "Queue.h"
-#include "Mutex.h"
-#include "ProxyAllocator.h"
 #include "OsTypes.h"
+#include "AtomicInt.h"
+
+#define MAX_OS_EVENTS 64
 
 namespace crown
 {
@@ -38,8 +38,9 @@ namespace crown
 struct OsEventQueue
 {
 	//-----------------------------------------------------------------------------
-	OsEventQueue() 
-		: m_allocator("os-event-queue", default_allocator()), m_queue(m_allocator)
+	OsEventQueue()
+		: m_tail(0)
+		, m_head(0)
 	{
 	}
 
@@ -119,6 +120,22 @@ struct OsEventQueue
 	}
 
 	//-----------------------------------------------------------------------------
+	void push_pause_event()
+	{
+		OsEvent ev;
+		ev.type = OsEvent::PAUSE;
+		push_event(&ev);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_resume_event()
+	{
+		OsEvent ev;
+		ev.type = OsEvent::RESUME;
+		push_event(&ev);
+	}
+
+	//-----------------------------------------------------------------------------
 	void push_metrics_event(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 	{
 		OsEvent ev;
@@ -132,38 +149,55 @@ struct OsEventQueue
 	}
 
 	//-----------------------------------------------------------------------------
-	void push_event(OsEvent* ev)
+	void push_none_event()
 	{
-		CE_ASSERT_NOT_NULL(ev);
+		OsEvent ev;
+		ev.type = OsEvent::NONE;
 
-		m_mutex.lock();
-		m_queue.push(ev, sizeof(OsEvent));
-		m_mutex.unlock();
+		push_event(&ev);
 	}
 
 	//-----------------------------------------------------------------------------
-	void pop_event(OsEvent* ev)
+	bool push_event(OsEvent* ev)
 	{
 		CE_ASSERT_NOT_NULL(ev);
 
-		m_mutex.lock();
-		if (m_queue.size() > 0)
+		int cur_tail = m_tail.load();
+		int next_tail = increment(cur_tail);
+		if(next_tail != m_head.load())                         
 		{
-			memcpy(ev, m_queue.begin(), sizeof(OsEvent));
-			m_queue.pop(sizeof(OsEvent));
+			m_queue[cur_tail] = (*ev);
+			m_tail.store(next_tail);
+			return true;
 		}
-		else
-		{
-			ev->type = OsEvent::NONE;
-		}
-		m_mutex.unlock();
+
+		return false;
+	}
+
+	//-----------------------------------------------------------------------------
+	bool pop_event(OsEvent* ev)
+	{
+		CE_ASSERT_NOT_NULL(ev);
+
+		const int cur_head = m_head.load();
+		if(cur_head == m_tail.load()) return false;
+
+		(*ev) = m_queue[cur_head];
+		m_head.store(increment(cur_head)); 
+		return true;
+	}
+
+	//-----------------------------------------------------------------------------
+	int increment(int idx) const
+	{
+	  return (idx + 1) % MAX_OS_EVENTS;
 	}
 
 private:
 
-	ProxyAllocator m_allocator;
-	Queue<OsEvent> m_queue;
-	Mutex m_mutex;
+	OsEvent m_queue[MAX_OS_EVENTS];
+	AtomicInt m_tail;
+	AtomicInt m_head;
 };
 
 } // namespace crown

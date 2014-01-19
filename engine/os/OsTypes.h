@@ -107,6 +107,8 @@ struct OsEvent
 		ACCELEROMETER	= 4,
 
 		METRICS,
+		PAUSE,
+		RESUME,
 		// Exit from program
 		EXIT
 	};
