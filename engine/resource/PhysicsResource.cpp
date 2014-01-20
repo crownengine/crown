@@ -169,27 +169,33 @@ void parse_actor(JSONElement e, PhysicsActor& actor, List<PhysicsShape>& actor_s
 	JSONElement type = e.key("type");
 	JSONElement material = e.key("material");
 	JSONElement group = e.key("group");
+	JSONElement mask = e.key("mask");
 	JSONElement shapes = e.key("shapes");
 
 	DynamicString actor_name;
 	DynamicString actor_node;
 	DynamicString actor_type;
-	DynamicString actor_group;
 	List<float> actor_material(default_allocator());
+	DynamicString actor_group;
+	Vector<DynamicString> actor_mask(default_allocator());
 	name.string_value(actor_name);
 	node.string_value(actor_node);
 	type.string_value(actor_type);
 	material.array_value(actor_material);
 	group.string_value(actor_group);
+	mask.array_value(actor_mask);
 
 	actor.name = hash::murmur2_32(actor_name.c_str(), actor_name.length());
 	actor.node = hash::murmur2_32(actor_node.c_str(), actor_node.length());
 	actor.type = actor_type_to_enum(actor_type.c_str());
-	Log::i("s:%f d:%f r: %f", actor_material[0], actor_material[1], actor_material[2]);
 	actor.static_friction = actor_material[0];
 	actor.dynamic_friction = actor_material[1];
 	actor.restitution = actor_material[2];
 	actor.group = actor_group_to_enum(actor_group.c_str());
+	for (uint32_t i = 0; i < actor_mask.size(); i++)
+	{
+		actor.mask |= actor_group_to_enum(actor_mask[i].c_str());
+	}
 
 	actor.num_shapes = shapes.size();
 
