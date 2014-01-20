@@ -36,10 +36,11 @@ ANativeWindow* g_android_window = NULL;
 
 //-----------------------------------------------------------------------------
 OsWindow::OsWindow()
-	: m_x(0), m_y(0), m_width(0), m_height(0)
+	: m_x(0)
+	, m_y(0)
+	, m_width(0)
+	, m_height(0)
 {
-	m_width = ANativeWindow_getWidth(g_android_window);
-	m_height = ANativeWindow_getHeight(g_android_window);
 }
 
 //-----------------------------------------------------------------------------

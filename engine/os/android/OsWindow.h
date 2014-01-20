@@ -89,7 +89,7 @@ public:
 	/// Stub method, does nothing under Android.
 	void			frame();
 
-private:
+public:
 
 	uint32_t		m_x;
 	uint32_t		m_y;

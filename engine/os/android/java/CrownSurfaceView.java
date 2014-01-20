@@ -37,47 +37,14 @@ public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 {
 	private final String TAG = "crown";
 
-	private CrownMainThread mThread;
-
 	private boolean mSurfaceCreated;
 
-//-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
 	public CrownSurfaceView(Context context)
 	{
 		super(context);
-
 		getHolder().addCallback(this);
-
 		setFocusable(true);
-
-		mSurfaceCreated = false;
-	}
-
-//-----------------------------------------------------------------------------
-	public boolean isSurfaceCreated()
-	{
-		return mSurfaceCreated;
-	}
-
-//-----------------------------------------------------------------------------
-	public void createThread(SurfaceHolder holder)
-	{
-		mThread = new CrownMainThread(holder);
-		mThread.start();
-	}
-
-//-----------------------------------------------------------------------------
-	public void destroyThread()
-	{
-        try
-        {
-        	CrownLib.pauseDevice();
-            mThread.join();
-        }
-        catch (InterruptedException e)
-        {
-            Log.e("crown", "terminateThread corrupts");
-        }     
 	}
 
 	//-----------------------------------------------------------------------------
@@ -85,13 +52,10 @@ public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 	public void surfaceCreated(SurfaceHolder holder) 
 	{
 		Log.d(TAG, "Crown Surface created");
+		mSurfaceCreated = true;
 
-		if (!mSurfaceCreated)
-		{
-			mSurfaceCreated = true;
-
-			createThread(holder);
-		}
+		CrownLib.createWindow(holder.getSurface());
+		CrownLib.run();
 	}
 
 	//-----------------------------------------------------------------------------
@@ -99,15 +63,6 @@ public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 	public void surfaceDestroyed(SurfaceHolder holder) 
 	{
 		mSurfaceCreated = false;
-
-		destroyThread();
-
-		CrownLib.pauseDevice();
-
-		CrownLib.destroyWindow();
-
-		CrownLib.shutdownRenderer();
-
 		Log.d(TAG, "Crown Surface destroyed");
 	}
 
@@ -115,6 +70,7 @@ public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) 
 	{
+		CrownLib.pushMetricsEvent(0, 0, width, height);
 		Log.d(TAG, "Crown Surface changed");
 	}
 }

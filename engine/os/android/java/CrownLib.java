@@ -40,17 +40,6 @@ public class CrownLib
 	// Crown functions
 	public static native void		initCrown();
 	public static native void		shutdownCrown();
-	
-	// Device functions
-	public static native void 		initDevice();
-	public static native void		shutdownDevice();
-	public static native void		pauseDevice();
-	public static native void		unpauseDevice();
-	public static native void		stopDevice();
-
-	public static native boolean 	isDeviceInit();
-	public static native boolean	isDeviceRunning();
-	public static native boolean	isDevicePaused();
 
 	public static native int		run();
 
@@ -61,16 +50,13 @@ public class CrownLib
 	public static native void		createWindow(Surface window);
 	public static native void		destroyWindow();
 
-	// Renderer functions
-	public static native void		initRenderer();
-	public static native void		shutdownRenderer();
-
-	// SoundRenderer functions
-	public static native void		pauseSoundRenderer();
-	public static native void		unpauseSoundRenderer();
-
-	// InputManager functions
+	// Os events
+	public static native void		pushKeyboardEvent(int modifier, int b, int pressed);
 	public static native void 		pushTouchEventMove(int pointer_id, int x, int y);
 	public static native void		pushTouchEventPointer(int pointer_id, int x, int y, int pressed);
-	public static native void 		pushAccelerometerEvent(int type, float x, float y, float z);	
+	public static native void		pushMetricsEvent(int x, int y, int width, int height);
+	public static native void 		pushAccelerometerEvent(int type, float x, float y, float z);
+	public static native void		pushPauseEvent();
+	public static native void		pushResumeEvent();
+	public static native void		pushExitEvent(int code);
 }

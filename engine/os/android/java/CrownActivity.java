@@ -42,12 +42,8 @@ import android.view.View;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
+import android.view.KeyEvent;
 
-import crown.android.CrownEnum;
-
-/**
-*	BootStrap of Android Application
-*/
 public class CrownActivity extends Activity
 {
 	// Debug
@@ -55,15 +51,10 @@ public class CrownActivity extends Activity
 
 	// Resource attributes
     static AssetManager 		mAssetManager;
-
-	// Input attributes
-	private CrownTouch 			mTouch;
-	private CrownSensor			mSensor;
-
 	private CrownSurfaceView 	mView;
 
 
-//-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -79,53 +70,105 @@ public class CrownActivity extends Activity
 		mView = new CrownSurfaceView(this);
         setContentView(mView);
 
-		// Init Input
-		mTouch = new CrownTouch(this);
-		mSensor = new CrownSensor(this);
-
 		Log.i(TAG, "Crown Activity created");
     }
 
-//-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
 	public void onResume()
 	{
 		super.onResume();
-		
-		if (CrownLib.isDeviceInit())
-		{
-			CrownLib.unpauseSoundRenderer();
-		}
-		// init accelerometer
-		mSensor.startListening(this);
-
+		CrownLib.pushResumeEvent();
 		Log.i(TAG, "Crown Activity resumed");
 	}
 
-//-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
 	public void onPause()
 	{
 		super.onPause();
-
-		CrownLib.pauseSoundRenderer();
-		// stop accelerometer
-		mSensor.stopListening();
-
+		CrownLib.pushPauseEvent();
 		Log.i(TAG, "Crown Activity paused");
 	}
 
-//-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
 	public void onDestroy()
 	{
 		super.onDestroy();
-
-		CrownLib.shutdownDevice();
+		CrownLib.pushExitEvent(0);
 		CrownLib.shutdownCrown();
+		Log.i(TAG, "Crown Activity destroyed");
 	}
 
-//-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
+	public void onBackPressed()
+	{
+		// Simulate ESCAPE key
+		CrownLib.pushKeyboardEvent(0, 0x1B, 1);
+	}
+
+	//-----------------------------------------------------------------------------
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event)
+	{
+		if ((keyCode == KeyEvent.KEYCODE_BACK))
+		{
+			CrownLib.pushKeyboardEvent(0, 0x1B, 1);
+		}
+		return super.onKeyUp(keyCode, event);
+	}
+
+	//-----------------------------------------------------------------------------
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event)
+	{
+		if ((keyCode == KeyEvent.KEYCODE_BACK))
+		{
+			CrownLib.pushKeyboardEvent(0, 0x1B, 0);
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	//-----------------------------------------------------------------------------
 	public boolean onTouchEvent(MotionEvent event)
 	{
-		mTouch.onTouch(event);
+		final int pointerIndex = event.getActionIndex();
+		final int pointerCount = event.getPointerCount();
+
+		final int pointerId = event.getPointerId(pointerIndex);
+		final float x = event.getX(pointerIndex);
+		final float y = event.getY(pointerIndex);
+
+		final int actionMasked = event.getActionMasked();
+
+		switch (actionMasked) 
+		{	
+			case MotionEvent.ACTION_DOWN:
+			case MotionEvent.ACTION_POINTER_DOWN:
+			{
+				CrownLib.pushTouchEventPointer(pointerId, (int) x, (int) y, 1);
+				break;			
+			}
+			case MotionEvent.ACTION_UP:
+			case MotionEvent.ACTION_POINTER_UP:
+			{
+				CrownLib.pushTouchEventPointer(pointerId, (int) x, (int) y, 0);
+				break;
+			}
+			case MotionEvent.ACTION_OUTSIDE:
+			case MotionEvent.ACTION_CANCEL:
+			{
+				CrownLib.pushTouchEventPointer(pointerId, (int)x, (int)y, 0);
+				break;			
+			}
+			case MotionEvent.ACTION_MOVE:
+			{
+				for (int index = 0; index < pointerCount; index++)
+				{
+					CrownLib.pushTouchEventMove(event.getPointerId(index), (int)event.getX(index), (int)event.getY(index));
+				}
+				break;
+			}
+		}
+
         return super.onTouchEvent(event);
 	}
 }

@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OsEventQueue.h"
 #include "Renderer.h"
 #include "Touch.h"
+#include "OsWindow.h"
 
 namespace crown
 {
@@ -41,6 +42,7 @@ public:
 
 	//-----------------------------------------------------------------------------
 	AndroidDevice()
+		: m_game_thread("game_thread")
 	{
 		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
 			m_fileserver = 1;
@@ -50,20 +52,41 @@ public:
 	//-----------------------------------------------------------------------------
 	int32_t run(int, char**)
 	{
-		process_events();
-		Device::frame();
-		m_touch->update();
+		m_game_thread.start(main_loop, (void*)this);
+
+		//while (true) {}
 		return 0;
+	}
+
+	//-----------------------------------------------------------------------------
+	int32_t loop()
+	{
+		Device::init();
+
+		while (is_running() && !process_events())
+		{
+			Device::frame();
+			m_touch->update();
+			m_keyboard->update();
+		}
+
+		Device::shutdown();
+		return 0;
+	}
+
+	//-----------------------------------------------------------------------------
+	static int32_t main_loop(void* thiz)
+	{
+		return ((AndroidDevice*) thiz)->loop();
 	}
 
 	//-----------------------------------------------------------------------------
 	bool process_events()
 	{
 		OsEvent event;
-		do
-		{
-			m_queue.pop_event(&event);
 
+		while (m_queue.pop_event(&event))
+		{
 			if (event.type == OsEvent::NONE) continue;
 
 			switch (event.type)
@@ -80,9 +103,39 @@ public:
 
 					break;
 				}
+				case OsEvent::KEYBOARD:
+				{
+					const OsKeyboardEvent& ev = event.keyboard;
+					m_keyboard->set_button_state(ev.button, ev.pressed);
+					Log::i("KEYBOARD EVENT RECEIVED");
+					break;
+				}
+				case OsEvent::METRICS:
+				{
+					const OsMetricsEvent& ev = event.metrics;
+					m_window->m_x = 0;
+					m_window->m_y = 0;
+					m_window->m_width = ev.width;
+					m_window->m_height = ev.height;
+					Log::i("METRICS EVENT RECEIVED");
+					break;
+				}
 				case OsEvent::EXIT:
 				{
+					Log::i("EXIT EVENT RECEIVED");
 					return true;
+				}
+				case OsEvent::PAUSE:
+				{
+					Log::i("PAUSE EVENT RECEIVED, pausing...");
+					pause();
+					break;
+				}
+				case OsEvent::RESUME:
+				{
+					Log::i("RESUME EVENT RECEIVED, resuming...");
+					unpause();
+					break;
 				}
 				default:
 				{
@@ -91,9 +144,14 @@ public:
 				}
 			}
 		}
-		while (event.type != OsEvent::NONE);
 
 		return false;
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_keyboard_event(uint32_t modifier, KeyboardButton::Enum b, bool pressed)
+	{
+		m_queue.push_keyboard_event(modifier, b, pressed);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -108,9 +166,33 @@ public:
 		m_queue.push_touch_event(x, y, pointer_id, pressed);
 	}
 
+	void push_metrics_event(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+	{
+		m_queue.push_metrics_event(x, y, width, height);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_pause_event()
+	{
+		m_queue.push_pause_event();
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_resume_event()
+	{
+		m_queue.push_resume_event();
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_exit_event(int32_t code)
+	{
+		m_queue.push_exit_event(code);
+	}
+
 private:
 
 	OsEventQueue m_queue;
+	OsThread m_game_thread;
 };
 
 static AndroidDevice* g_engine;
@@ -133,81 +215,15 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownCrown(JNIE
 }
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initDevice(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	device()->init();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_stopDevice(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	device()->stop();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownDevice(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	device()->shutdown();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pauseDevice(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	device()->pause();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_unpauseDevice(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	device()->unpause();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT bool JNICALL Java_crown_android_CrownLib_isDeviceInit(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	return device()->is_init();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT bool JNICALL Java_crown_android_CrownLib_isDeviceRunning(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	return device()->is_running();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT bool JNICALL Java_crown_android_CrownLib_isDevicePaused(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	return device()->is_paused();
-}
-
-//-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_run(JNIEnv* /*env*/, jobject /*obj*/)
 {
 	g_engine->run(0, NULL);
 }
 
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initRenderer(JNIEnv* /*env*/, jobject /*obj*/)
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushKeyboardEvent(JNIEnv * /*env*/, jobject /*obj*/, jint modifier, jint b, jint pressed)
 {
-	device()->renderer()->init();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownRenderer(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	device()->renderer()->shutdown();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pauseSoundRenderer(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	//device()->sound_renderer()->pause();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_unpauseSoundRenderer(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	//device()->sound_renderer()->unpause();
+	g_engine->push_keyboard_event(modifier, (KeyboardButton::Enum) b, pressed);
 }
 
 //-----------------------------------------------------------------------------
@@ -225,6 +241,29 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushTouchEventPoin
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushAccelerometerEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jfloat x, jfloat y, jfloat z)
 {
+}
+
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushMetricsEvent(JNIEnv * /*env*/, jobject /*obj*/, jint x, jint y, jint width, jint height)
+{
+	g_engine->push_metrics_event(x, y, width, height);
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushPauseEvent(JNIEnv * /*env*/, jobject /*obj*/)
+{
+	g_engine->push_pause_event();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushResumeEvent(JNIEnv * /*env*/, jobject /*obj*/)
+{
+	g_engine->push_resume_event();
+}
+
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushExitEvent(JNIEnv * /*env*/, jobject /*obj*/, jint code)
+{
+	g_engine->push_exit_event(code);
 }
 
 } // namespace crown
