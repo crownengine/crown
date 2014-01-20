@@ -58,7 +58,6 @@ void vprintf(const char* string, va_list arg)
 //-----------------------------------------------------------------------------
 void log_debug(const char* string, va_list arg)
 {
-	printf("D: ");
 	vprintf(string, arg);
 	printf("\n");
 }
@@ -66,7 +65,6 @@ void log_debug(const char* string, va_list arg)
 //-----------------------------------------------------------------------------
 void log_error(const char* string, va_list arg)
 {
-	printf("E: ");
 	vprintf(string, arg);
 	printf("\n");
 }
@@ -74,7 +72,6 @@ void log_error(const char* string, va_list arg)
 //-----------------------------------------------------------------------------
 void log_warning(const char* string, va_list arg)
 {
-	printf("W: ");
 	vprintf(string, arg);
 	printf("\n");
 }
@@ -82,7 +79,6 @@ void log_warning(const char* string, va_list arg)
 //-----------------------------------------------------------------------------
 void log_info(const char* string, va_list arg)
 {
-	printf("I: ");
 	vprintf(string, arg);
 	printf("\n");
 }
