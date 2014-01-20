@@ -4,8 +4,9 @@
 			"name" : "actor_sun",
 			"node" : "root",
 			"type" : "dynamic_physical",
-			"material" : [0.5, 0.5, 0.5],
+			"material" : [0.5, 0.5, 1.0],
 			"group" : "GROUP_0",
+			"mask" : ["GROUP_0", "GROUP_1"],
 			"shapes" : [
 				{
 					"name" : "shape_0",

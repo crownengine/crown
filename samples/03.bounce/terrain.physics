@@ -4,8 +4,9 @@
 			"name" : "actor_terrain",
 			"node" : "root",
 			"type" : "static",
-			"material" : [0.5, 0.5, 0.5],
+			"material" : [0.5, 0.5, 1.0],
 			"group" : "GROUP_1",
+			"mask" : ["GROUP_0"],
 			"shapes" : [
 				{
 					"name" : "shape_terrain",

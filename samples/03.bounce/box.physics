@@ -6,6 +6,8 @@
 			"type" : "static",
 			"material" : [0.5, 0.5, 0.5],
 			"group" : "GROUP_1",
+			"mask" : ["GROUP_0"],
+
 			"shapes" : [
 				{
 					"name" : "shape_0",
