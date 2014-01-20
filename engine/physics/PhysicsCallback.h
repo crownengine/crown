@@ -27,24 +27,31 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "PxSimulationEventCallback.h"
+#include "PxController.h"
 
 using physx::PxSimulationEventCallback;
 using physx::PxContactPairHeader;
 using physx::PxContactPair;
 using physx::PxConstraintInfo;
 using physx::PxTriggerPair;
+using physx::PxActor;
 using physx::PxU32;
+
+using physx::PxUserControllerHitReport;
+using physx::PxControllerShapeHit;
+using physx::PxControllersHit;
+using physx::PxControllerObstacleHit;
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-class PhysicsCallback : public PxSimulationEventCallback
+class PhysicsSimulationCallback : public PxSimulationEventCallback
 {
 public:
 
 	//-----------------------------------------------------------------------------
-	PhysicsCallback() {}
+	PhysicsSimulationCallback() {}
 
 	//-----------------------------------------------------------------------------
 	void onConstraintBreak(PxConstraintInfo* /*constraints*/, PxU32 /*count*/)
@@ -74,6 +81,28 @@ public:
 	void onSleep(PxActor** /*actors*/, PxU32 /*count*/)
 	{
 		Log::i("SLEEP");
+	}
+};
+
+//-----------------------------------------------------------------------------
+class PhysicsControllerCallback : public PxUserControllerHitReport
+{
+	//-----------------------------------------------------------------------------
+	void onShapeHit(const PxControllerShapeHit& hit)
+	{
+		Log::i("SHAPE HIT");
+	}
+
+	//-----------------------------------------------------------------------------
+	void onControllerHit(const PxControllersHit& hit)
+	{
+		Log::i("CONTROLLER HIT");
+	}
+
+	//-----------------------------------------------------------------------------
+	void onObstacleHit(const PxControllerObstacleHit& hit)
+	{
+		Log::i("OBSTACLE HIT");
 	}
 };
 
