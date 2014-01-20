@@ -315,6 +315,21 @@ void JSONElement::array_value(List<float>& array) const
 }
 
 //--------------------------------------------------------------------------
+void JSONElement::array_value(Vector<DynamicString>& array) const
+{
+	List<const char*> temp(default_allocator());
+
+	json::parse_array(m_at, temp);
+
+	for (uint32_t i = 0; i < temp.size(); i++)
+	{
+		DynamicString str;
+		json::parse_string(temp[i], str);
+		array.push_back(str);
+	}
+}
+
+//--------------------------------------------------------------------------
 bool JSONElement::is_nil() const
 {
 	if (m_at != NULL)
