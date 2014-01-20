@@ -46,10 +46,46 @@ static uint32_t actor_type_to_enum(const char* type)
 	CE_FATAL("Bad actor type");
 }
 
+static uint32_t actor_group_to_enum(const char* group)
+{
+	if (string::strcmp("GROUP_0", group) == 0) 	return PhysicsActorGroup::GROUP_0;
+	if (string::strcmp("GROUP_1", group) == 0) 	return PhysicsActorGroup::GROUP_1;
+	if (string::strcmp("GROUP_2", group) == 0) 	return PhysicsActorGroup::GROUP_2;
+	if (string::strcmp("GROUP_3", group) == 0) 	return PhysicsActorGroup::GROUP_3;
+	if (string::strcmp("GROUP_4", group) == 0) 	return PhysicsActorGroup::GROUP_4;
+	if (string::strcmp("GROUP_5", group) == 0) 	return PhysicsActorGroup::GROUP_5;
+	if (string::strcmp("GROUP_6", group) == 0) 	return PhysicsActorGroup::GROUP_6;
+	if (string::strcmp("GROUP_7", group) == 0) 	return PhysicsActorGroup::GROUP_7;
+	if (string::strcmp("GROUP_8", group) == 0) 	return PhysicsActorGroup::GROUP_8;
+	if (string::strcmp("GROUP_9", group) == 0) 	return PhysicsActorGroup::GROUP_9;
+	if (string::strcmp("GROUP_10", group) == 0) return PhysicsActorGroup::GROUP_10;
+	if (string::strcmp("GROUP_11", group) == 0) return PhysicsActorGroup::GROUP_11;
+	if (string::strcmp("GROUP_12", group) == 0) return PhysicsActorGroup::GROUP_12;
+	if (string::strcmp("GROUP_13", group) == 0) return PhysicsActorGroup::GROUP_13;
+	if (string::strcmp("GROUP_14", group) == 0) return PhysicsActorGroup::GROUP_14;
+	if (string::strcmp("GROUP_15", group) == 0) return PhysicsActorGroup::GROUP_15;
+	if (string::strcmp("GROUP_16", group) == 0) return PhysicsActorGroup::GROUP_16;
+	if (string::strcmp("GROUP_17", group) == 0) return PhysicsActorGroup::GROUP_17;
+	if (string::strcmp("GROUP_18", group) == 0) return PhysicsActorGroup::GROUP_18;
+	if (string::strcmp("GROUP_19", group) == 0) return PhysicsActorGroup::GROUP_19;
+	if (string::strcmp("GROUP_20", group) == 0) return PhysicsActorGroup::GROUP_20;
+	if (string::strcmp("GROUP_21", group) == 0) return PhysicsActorGroup::GROUP_21;
+	if (string::strcmp("GROUP_22", group) == 0) return PhysicsActorGroup::GROUP_22;
+	if (string::strcmp("GROUP_23", group) == 0) return PhysicsActorGroup::GROUP_23;
+	if (string::strcmp("GROUP_24", group) == 0) return PhysicsActorGroup::GROUP_24;
+	if (string::strcmp("GROUP_25", group) == 0) return PhysicsActorGroup::GROUP_25;
+	if (string::strcmp("GROUP_26", group) == 0) return PhysicsActorGroup::GROUP_26;
+	if (string::strcmp("GROUP_27", group) == 0) return PhysicsActorGroup::GROUP_27;
+	if (string::strcmp("GROUP_28", group) == 0) return PhysicsActorGroup::GROUP_28;
+	if (string::strcmp("GROUP_29", group) == 0) return PhysicsActorGroup::GROUP_29;
+	if (string::strcmp("GROUP_30", group) == 0) return PhysicsActorGroup::GROUP_30;
+	if (string::strcmp("GROUP_31", group) == 0) return PhysicsActorGroup::GROUP_31;
+
+	CE_FATAL("Bad actor group");
+}
+
 static uint32_t shape_type_to_enum(const char* type)
 {
-	const StringId32 th = hash::murmur2_32(type, string::strlen(type));
-
 	if (string::strcmp("sphere", type) == 0) 		return PhysicsShapeType::SPHERE;
 	else if (string::strcmp("capsule", type) == 0) 	return PhysicsShapeType::CAPSULE;
 	else if (string::strcmp("box", type) == 0) 		return PhysicsShapeType::BOX;
@@ -83,10 +119,6 @@ void parse_shape(JSONElement e, PhysicsShape& shape)
 {
 	JSONElement name = e.key("name");
 	JSONElement type = e.key("type");
-/*	JSONElement x = e.key("x");
-	JSONElement y = e.key("y");
-	JSONElement z = e.key("z");
-	JSONElement w = e.key("w");*/
 
 	DynamicString shape_name;
 	DynamicString shape_type;
@@ -135,18 +167,35 @@ void parse_actor(JSONElement e, PhysicsActor& actor, List<PhysicsShape>& actor_s
 	JSONElement name = e.key("name");
 	JSONElement node = e.key("node");
 	JSONElement type = e.key("type");
+	JSONElement material = e.key("material");
+	JSONElement group = e.key("group");
+	JSONElement mask = e.key("mask");
 	JSONElement shapes = e.key("shapes");
 
 	DynamicString actor_name;
 	DynamicString actor_node;
 	DynamicString actor_type;
+	List<float> actor_material(default_allocator());
+	DynamicString actor_group;
+	Vector<DynamicString> actor_mask(default_allocator());
 	name.string_value(actor_name);
 	node.string_value(actor_node);
 	type.string_value(actor_type);
+	material.array_value(actor_material);
+	group.string_value(actor_group);
+	mask.array_value(actor_mask);
 
 	actor.name = hash::murmur2_32(actor_name.c_str(), actor_name.length());
 	actor.node = hash::murmur2_32(actor_node.c_str(), actor_node.length());
 	actor.type = actor_type_to_enum(actor_type.c_str());
+	actor.static_friction = actor_material[0];
+	actor.dynamic_friction = actor_material[1];
+	actor.restitution = actor_material[2];
+	actor.group = actor_group_to_enum(actor_group.c_str());
+	for (uint32_t i = 0; i < actor_mask.size(); i++)
+	{
+		actor.mask |= actor_group_to_enum(actor_mask[i].c_str());
+	}
 
 	actor.num_shapes = shapes.size();
 

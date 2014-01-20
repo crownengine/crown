@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PhysicsResource.h"
 #include "SceneGraph.h"
 #include "Vector3.h"
+#include "PhysicsCallback.h"
 
 #include "PxCapsuleController.h"
 using physx::PxCapsuleClimbingMode;
@@ -68,6 +69,8 @@ Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, 
 	desc.position = PxExtendedVec3(0, 0, 0);
 
 	CE_ASSERT(desc.isValid(), "Capsule is not valid");
+	m_callback = CE_NEW(default_allocator(), PhysicsControllerCallback)();
+	desc.callback = m_callback;
 
 	m_controller = manager->createController(*device()->physx(), scene, desc);
 	CE_ASSERT(m_controller, "Failed to create controller");
@@ -76,6 +79,7 @@ Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, 
 //-----------------------------------------------------------------------------
 Controller::~Controller()
 {
+	CE_DELETE(default_allocator(), m_callback);
 	m_controller->release();
 }
 

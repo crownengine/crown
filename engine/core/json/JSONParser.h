@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "List.h"
+#include "Vector.h"
 
 namespace crown
 {
@@ -143,6 +144,9 @@ public:
 
 	/// @copydoc JSONElement::array_value(List<bool>&)
 	void				array_value(List<float>& array) const;
+
+	/// @copydoc JSONElement::array_value(List<bool>&)
+	void				array_value(Vector<DynamicString>& array) const;
 
 private:
 

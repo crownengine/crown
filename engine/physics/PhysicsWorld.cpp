@@ -109,13 +109,11 @@ PhysicsWorld::PhysicsWorld()
 	scene_desc.filterShader = g_default_filter_shader;
 	// Enable active transformation
 	scene_desc.flags = PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
-	// Enable collision detection
-	// scene_desc.flags |= PxSceneFlag::eENABLE_CCD;
 
 	// Set simulation event callback
-	m_callback = CE_NEW(default_allocator(), PhysicsCallback)();
+	m_callback = CE_NEW(default_allocator(), PhysicsSimulationCallback)();
 	scene_desc.simulationEventCallback = m_callback;
-	
+
 	// Create scene
 	m_scene = device()->physx()->createScene(scene_desc);
 
@@ -124,9 +122,6 @@ PhysicsWorld::PhysicsWorld()
 	// Create controller manager
 	m_controller_manager = PxCreateControllerManager(device()->physx()->getFoundation());
 	CE_ASSERT(m_controller_manager != NULL, "Failed to create PhysX controller manager");
-
-	// FIXME FIXME FIXME
-	//create_trigger(Vector3(.5, .5, .5), Vector3(5.0, -3.0, 3), Quaternion::IDENTITY);
 }
 
 //-----------------------------------------------------------------------------
@@ -217,6 +212,30 @@ Vector3 PhysicsWorld::gravity() const
 void PhysicsWorld::set_gravity(const Vector3& g)
 {
 	m_scene->setGravity(PxVec3(g.x, g.y, g.z));
+}
+
+//-----------------------------------------------------------------------------
+void PhysicsWorld::set_filtering(ActorId id, uint32_t group, uint32_t mask)
+{
+	Actor* actor_instance = lookup_actor(id);
+	PxRigidActor* actor = actor_instance->m_actor;
+
+	PxFilterData filter_data;
+	filter_data.word0 = (PxU32) group;	// word0 = own ID
+	filter_data.word1 = (PxU32) mask;	// word1 = ID mask to filter pairs that trigger a contact callback;
+
+	const PxU32 num_shapes = actor->getNbShapes();
+
+	PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
+	actor->getShapes(shapes, num_shapes);
+
+	for(PxU32 i = 0; i < num_shapes; i++)
+	{
+		PxShape* shape = shapes[i];
+		shape->setSimulationFilterData(filter_data);
+	}
+
+	default_allocator().deallocate(shapes);
 }
 
 //-----------------------------------------------------------------------------
