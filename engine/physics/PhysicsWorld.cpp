@@ -111,7 +111,7 @@ PhysicsWorld::PhysicsWorld()
 	scene_desc.flags = PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
 
 	// Set simulation event callback
-	m_callback = CE_NEW(default_allocator(), PhysicsCallback)();
+	m_callback = CE_NEW(default_allocator(), PhysicsSimulationCallback)();
 	scene_desc.simulationEventCallback = m_callback;
 
 	// Create scene

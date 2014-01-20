@@ -57,7 +57,7 @@ struct Actor;
 struct Trigger;
 struct Quaternion;
 class SceneGraph;
-class PhysicsCallback;
+class PhysicsSimulationCallback;
 
 //-----------------------------------------------------------------------------
 struct FilterGroup
@@ -132,7 +132,7 @@ public:
 	PxControllerManager*		m_controller_manager;
 	PxScene*					m_scene;
 	PxDefaultCpuDispatcher*		m_cpu_dispatcher;
-	PhysicsCallback*			m_callback;
+	PhysicsSimulationCallback*	m_callback;
 
 	PoolAllocator				m_actors_pool;
 	IdArray<MAX_ACTORS, Actor*>	m_actors;
