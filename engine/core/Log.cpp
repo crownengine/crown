@@ -53,14 +53,26 @@ void Log::log_message(LogSeverity::Enum severity, const char* message, ::va_list
 		return;
 	}
 
+	va_list arg_copy;
+	__va_copy(arg_copy, arg);
+
 	char buf[1024];
 	int len = vsnprintf(buf, 1024 - 2, message, arg);
 	buf[len] = '\n';
 	buf[len + 1] = '\0';
 
-	os::printf(buf);
-	::fflush(stdout);
+	// Log on local device
+	switch (severity)
+	{
+		case LogSeverity::DEBUG: os::log_debug(message, arg_copy); break;
+		case LogSeverity::WARN: os::log_warning(message, arg_copy); break;
+		case LogSeverity::ERROR: os::log_error(message, arg_copy); break;
+		case LogSeverity::INFO: os::log_info(message, arg_copy); break;
+		default: break;
+	}
+	va_end(arg_copy);
 
+	// Log to remote clients
 	if (device()->console() != NULL && string::strlen(buf) > 0)
 	{
 		device()->console()->log_to_all(buf, severity);
