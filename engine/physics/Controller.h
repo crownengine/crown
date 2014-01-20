@@ -24,6 +24,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#pragma once
+
 #include "PxController.h"
 #include "PxControllerManager.h"
 
@@ -38,6 +40,7 @@ namespace crown
 struct PhysicsResource;
 struct Vector3;
 class SceneGraph;
+class PhysicsControllerCallback;
 
 struct Controller
 {
@@ -63,6 +66,8 @@ private:
 	PxControllerManager*	m_manager;
 	PxController*			m_controller;
 	PxU32					m_flags;
+
+	PhysicsControllerCallback* m_callback;
 };
 
 } // namespace crown
