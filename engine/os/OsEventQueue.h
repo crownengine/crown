@@ -53,7 +53,7 @@ struct OsEventQueue
 		ev.mouse.x = x;
 		ev.mouse.y = y;
 
-		push_event(&ev);
+		push_event(ev);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ struct OsEventQueue
 		ev.mouse.button = b;
 		ev.mouse.pressed = pressed;
 
-		push_event(&ev);
+		push_event(ev);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ struct OsEventQueue
 		ev.keyboard.modifier = modifier;
 		ev.keyboard.pressed = pressed;
 
-		push_event(&ev);
+		push_event(ev);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -92,7 +92,7 @@ struct OsEventQueue
 		ev.touch.y = y;
 		ev.touch.pointer_id = pointer_id;
 
-		push_event(&ev);
+		push_event(ev);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ struct OsEventQueue
 		ev.touch.pointer_id = pointer_id;
 		ev.touch.pressed = pressed;
 
-		push_event(&ev);
+		push_event(ev);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ struct OsEventQueue
 		ev.type = OsEvent::EXIT;
 		ev.exit.code = code;
 
-		push_event(&ev);
+		push_event(ev);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ struct OsEventQueue
 	{
 		OsEvent ev;
 		ev.type = OsEvent::PAUSE;
-		push_event(&ev);
+		push_event(ev);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ struct OsEventQueue
 	{
 		OsEvent ev;
 		ev.type = OsEvent::RESUME;
-		push_event(&ev);
+		push_event(ev);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -145,7 +145,7 @@ struct OsEventQueue
 		ev.metrics.width = width;
 		ev.metrics.height = height;
 
-		push_event(&ev);
+		push_event(ev);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -154,19 +154,17 @@ struct OsEventQueue
 		OsEvent ev;
 		ev.type = OsEvent::NONE;
 
-		push_event(&ev);
+		push_event(ev);
 	}
 
 	//-----------------------------------------------------------------------------
-	bool push_event(OsEvent* ev)
+	bool push_event(const OsEvent& ev)
 	{
-		CE_ASSERT_NOT_NULL(ev);
-
 		int cur_tail = m_tail.load();
 		int next_tail = increment(cur_tail);
 		if(next_tail != m_head.load())                         
 		{
-			m_queue[cur_tail] = (*ev);
+			m_queue[cur_tail] = ev;
 			m_tail.store(next_tail);
 			return true;
 		}
@@ -175,14 +173,12 @@ struct OsEventQueue
 	}
 
 	//-----------------------------------------------------------------------------
-	bool pop_event(OsEvent* ev)
+	bool pop_event(OsEvent& ev)
 	{
-		CE_ASSERT_NOT_NULL(ev);
-
 		const int cur_head = m_head.load();
 		if(cur_head == m_tail.load()) return false;
 
-		(*ev) = m_queue[cur_head];
+		ev = m_queue[cur_head];
 		m_head.store(increment(cur_head)); 
 		return true;
 	}

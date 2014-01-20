@@ -297,7 +297,7 @@ public:
 		OsEvent event;
 		bool exit = false;
 
-		while(m_queue.pop_event(&event))
+		while(m_queue.pop_event(event))
 		{
 			if (event.type == OsEvent::NONE) continue;
 
