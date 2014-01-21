@@ -100,7 +100,6 @@ Device::Device()
 	, m_resource_manager(NULL)
 	, m_resource_bundle(NULL)
 
-	, m_physx(NULL)
 	, m_world_manager(NULL)
 
 	, m_renderer_init_request(false)
@@ -128,6 +127,7 @@ void Device::init()
 		m_console->init(false);
 	#endif
 
+	Log::d("Creating filesystem...");
 	// Default bundle filesystem
 	#if defined (LINUX) || defined(WINDOWS)
 		if (m_fileserver == 1)
@@ -148,20 +148,20 @@ void Device::init()
 			m_filesystem = CE_NEW(m_allocator, ApkFilesystem)();
 		}
 	#endif
-	Log::d("Filesystem created.");
 
 	m_resource_bundle = Bundle::create(m_allocator, *m_filesystem);
 
 	// Create resource manager
+	Log::d("Creating resource manager...");
 	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, 0);
-	Log::d("Resource manager created.");
 	Log::d("Resource seed: %d", m_resource_manager->seed());
 
 	// Create world manager
+	Log::d("Creating world manager...");
 	m_world_manager = CE_NEW(m_allocator, WorldManager)();
-	Log::d("World manager created.");
 
 	// Create window
+	Log::d("Creating main window...");
 	m_window = CE_NEW(m_allocator, OsWindow);
 
 	// Create input devices
@@ -170,16 +170,19 @@ void Device::init()
 	m_touch = CE_NEW(m_allocator, Touch);
 
 	// Create renderer
+	Log::d("Creating renderer...");
 	m_renderer = CE_NEW(m_allocator, Renderer)(m_allocator);
 	m_renderer->init();
-	Log::d("Renderer created.");
 
+	Log::d("Creating lua environment...");
 	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)();
 	m_lua_environment->init();
-	Log::d("Lua environment created.");
 
-	m_physx = CE_NEW(m_allocator, Physics)();
-	Log::d("Physics created.");
+	Log::d("Creating physics...");
+	physics_system::init();
+
+	Log::d("Creating audio...");
+	audio_system::init();
 
 	Log::d("Crown Engine initialized.");
 	Log::d("Initializing Game...");
@@ -211,11 +214,11 @@ void Device::shutdown()
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);
 
+	Log::d("Releasing audio...");
+	audio_system::shutdown();
+
 	Log::d("Releasing Physics...");
-	if (m_physx)
-	{
-		CE_DELETE(m_allocator, m_physx);
-	}
+	physics_system::shutdown();
 
 	Log::d("Releasing LuaEnvironment...");
 	if (m_lua_environment)

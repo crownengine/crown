@@ -400,7 +400,6 @@ set (PHYSICS_SRC
 set (PHYSICS_HEADERS
 	physics/Actor.h
 	physics/Controller.cpp
-	physics/Physics.h
 	physics/PhysicsTypes.h
 	physics/PhysicsWorld.h
 	physics/Trigger.h
@@ -694,21 +693,21 @@ link_libraries(${CROWN_LIBRARIES})
 
 add_definitions(${COMPILER_FLAGS})
 
-add_library(crown SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
+add_library(crown-lib SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
+set_target_properties (crown-lib PROPERTIES OUTPUT_NAME ${CROWN_LIBRARY_NAME})
 
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
-target_link_libraries(${CROWN_EXECUTABLE_NAME} crown)
+target_link_libraries(${CROWN_EXECUTABLE_NAME} crown-lib)
 
 if (CROWN_BUILD_TESTS)
 	add_subdirectory(tests)
 endif (CROWN_BUILD_TESTS)
 
 
-install (TARGETS crown DESTINATION bin)
+install (TARGETS crown-lib DESTINATION bin)
+install (TARGETS crown-lib DESTINATION test)
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
-
-install (TARGETS crown DESTINATION test)
 
 #install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
 

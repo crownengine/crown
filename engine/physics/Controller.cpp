@@ -25,7 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Controller.h"
-#include "Device.h"
 #include "MathUtils.h"
 #include "PhysicsResource.h"
 #include "SceneGraph.h"
@@ -33,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PhysicsCallback.h"
 
 #include "PxCapsuleController.h"
+#include "PxPhysicsAPI.h"
 using physx::PxCapsuleClimbingMode;
 using physx::PxCapsuleController;
 using physx::PxCapsuleControllerDesc;
@@ -46,7 +46,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxScene* scene, PxControllerManager* manager)
+Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxScene* scene, PxControllerManager* manager)
 	: m_resource(pr)
 	, m_scene_graph(sg)
 	, m_node(node)
@@ -65,14 +65,14 @@ Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, 
 	desc.stepOffset = contr.step_offset;
 	desc.contactOffset = contr.contact_offset;
 	desc.upDirection = PxVec3(0.0, 1.0, 0.0);
-	desc.material = device()->physx()->createMaterial(0.5f, 0.5f, 0.5f);
+	desc.material = physics->createMaterial(0.5f, 0.5f, 0.5f);
 	desc.position = PxExtendedVec3(0, 0, 0);
 
 	CE_ASSERT(desc.isValid(), "Capsule is not valid");
 	m_callback = CE_NEW(default_allocator(), PhysicsControllerCallback)();
 	desc.callback = m_callback;
 
-	m_controller = manager->createController(*device()->physx(), scene, desc);
+	m_controller = manager->createController(*physics, scene, desc);
 	CE_ASSERT(m_controller, "Failed to create controller");
 }
 

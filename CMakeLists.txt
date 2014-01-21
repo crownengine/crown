@@ -65,6 +65,7 @@ endif (CROWN_BUILD MATCHES "linux-debug-32")
 
 # executable name
 set (CROWN_EXECUTABLE_NAME crown-${CROWN_BUILD})
+set (CROWN_LIBRARY_NAME crown-${CROWN_BUILD})
 
 # always build the engine
 add_subdirectory(engine)

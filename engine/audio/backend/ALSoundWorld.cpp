@@ -56,7 +56,7 @@ static const char* al_error_to_string(ALenum error)
 }
 
 //-----------------------------------------------------------------------------
-#ifdef CROWN_DEBUG
+#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
 	#define AL_CHECK(function)\
 		function;\
 		do { ALenum error; CE_ASSERT((error = alGetError()) == AL_NO_ERROR,\
@@ -64,6 +64,38 @@ static const char* al_error_to_string(ALenum error)
 #else
 	#define AL_CHECK(function) function;
 #endif
+
+/// Global audio-related functions
+namespace audio_system
+{
+	static ALCdevice* s_al_device;
+	static ALCcontext* s_al_context;
+
+	void init()
+	{
+		s_al_device = alcOpenDevice(NULL);
+		CE_ASSERT(s_al_device, "Cannot open OpenAL audio device");
+
+		s_al_context = alcCreateContext(s_al_device, NULL);
+		CE_ASSERT(s_al_context, "Cannot create OpenAL context");
+
+		AL_CHECK(alcMakeContextCurrent(s_al_context));
+
+		Log::d("OpenAL Vendor   : %s", alGetString(AL_VENDOR));
+		Log::d("OpenAL Version  : %s", alGetString(AL_VERSION));
+		Log::d("OpenAL Renderer : %s", alGetString(AL_RENDERER));
+
+		AL_CHECK(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
+		AL_CHECK(alDopplerFactor(1.0f));
+		AL_CHECK(alDopplerVelocity(343.0f));
+	}
+
+	void shutdown()
+	{
+		alcDestroyContext(s_al_context);
+	    alcCloseDevice(s_al_device);
+	}
+}
 
 //-----------------------------------------------------------------------------
 struct SoundInstance
@@ -105,7 +137,7 @@ struct SoundInstance
 	void reload(SoundResource* new_sr)
 	{
 		destroy();
-		create(new_sr, m_position);
+		create(new_sr, position());
 	}
 
 	void play(bool loop, float volume)
@@ -147,10 +179,16 @@ struct SoundInstance
 		return (state != AL_PLAYING && state != AL_PAUSED);
 	}
 
+	Vector3 position()
+	{
+		ALfloat pos[3];
+		AL_CHECK(alGetSourcefv(m_source, AL_POSITION, pos));
+		return Vector3(pos[0], pos[1], pos[2]);
+	}
+
 	void set_position(const Vector3& pos)
 	{
 		AL_CHECK(alSourcefv(m_source, AL_POSITION, pos.to_float_ptr()));
-		m_position = pos;
 	}
 
 	void set_range(float range)
@@ -172,7 +210,6 @@ public:
 
 	SoundInstanceId m_id;
 	SoundResource* m_resource;
-	Vector3 m_position;
 	ALuint m_buffer;
 	ALuint m_source;
 };
@@ -183,26 +220,11 @@ public:
 
 	ALSoundWorld()
 	{
-		m_device = alcOpenDevice(NULL);
-		CE_ASSERT(m_device, "Cannot open OpenAL audio device");
-
-		m_context = alcCreateContext(m_device, NULL);
-		CE_ASSERT(m_context, "Cannot create OpenAL context");
-
-		AL_CHECK(alcMakeContextCurrent(m_context));
-
-		AL_CHECK(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
-
-		AL_CHECK(alDopplerFactor(1.0f));
-		AL_CHECK(alDopplerVelocity(343.0f));
-
 		set_listener_pose(Matrix4x4::IDENTITY);
 	}
 
 	virtual ~ALSoundWorld()
 	{
-		alcDestroyContext(m_context);
-	    alcCloseDevice(m_device);
 	}
 
 	virtual SoundInstanceId play(const char* name, bool loop, float volume, const Vector3& pos)
@@ -326,9 +348,6 @@ private:
 
 	IdArray<MAX_SOUND_INSTANCES, SoundInstance> m_playing_sounds;
 	Matrix4x4 m_listener_pose;
-
-	ALCdevice* m_device;
-	ALCcontext* m_context;
 };
 
 SoundWorld* SoundWorld::create(Allocator& a)

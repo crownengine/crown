@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "IdTable.h"
 #include "IdArray.h"
 #include "PhysicsTypes.h"
 #include "Vector3.h"
@@ -41,6 +40,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 using physx::PxRigidActor;
 using physx::PxMaterial;
 using physx::PxScene;
+using physx::PxPhysics;
 
 namespace crown
 {
@@ -53,7 +53,7 @@ class SceneGraph;
 
 struct Actor
 {
-						Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot);
+						Actor(const PhysicsResource* res, uint32_t i, PxPhysics* physics, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot);
 						~Actor();
 
 	void				enable_gravity();
