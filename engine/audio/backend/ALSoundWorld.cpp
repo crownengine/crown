@@ -137,7 +137,7 @@ struct SoundInstance
 	void reload(SoundResource* new_sr)
 	{
 		destroy();
-		create(new_sr, m_position);
+		create(new_sr, position());
 	}
 
 	void play(bool loop, float volume)
@@ -179,10 +179,16 @@ struct SoundInstance
 		return (state != AL_PLAYING && state != AL_PAUSED);
 	}
 
+	Vector3 position()
+	{
+		ALfloat pos[3];
+		AL_CHECK(alGetSourcefv(m_source, AL_POSITION, pos));
+		return Vector3(pos[0], pos[1], pos[2]);
+	}
+
 	void set_position(const Vector3& pos)
 	{
 		AL_CHECK(alSourcefv(m_source, AL_POSITION, pos.to_float_ptr()));
-		m_position = pos;
 	}
 
 	void set_range(float range)
@@ -204,7 +210,6 @@ public:
 
 	SoundInstanceId m_id;
 	SoundResource* m_resource;
-	Vector3 m_position;
 	ALuint m_buffer;
 	ALuint m_source;
 };
