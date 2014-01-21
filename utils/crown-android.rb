@@ -26,16 +26,48 @@ require 'optparse'
 require 'ostruct'
 require 'fileutils'
 
+$crown_version =
+"
+#define CROWN_VERSION_MAJOR 0
+#define CROWN_VERSION_MINOR 1
+#define CROWN_VERSION_MICRO 13
+"
+
+$config_h = 
+"
+#define PRId64 \"lld\"
+#define PRIu64 \"llu\"
+#define PRIi64 \"lli\"
+#define PRIx64 \"llx\"
+
+#define CROWN_MAX_TEXTURE_UNITS		8
+#define CROWN_MAX_TEXTURES			32
+#define CROWN_MAX_RENDER_TARGETS	32
+#define CROWN_MAX_VERTEX_BUFFERS	1024
+#define CROWN_MAX_INDEX_BUFFERS		1024
+#define CROWN_MAX_SHADERS			1024
+#define CROWN_MAX_GPU_PROGRAMS		1024
+#define CROWN_MAX_UNIFORMS			128
+
+#define CROWN_MAX_UNIFORM_NAME_LENGTH	64
+"
+
+$application_mk =
+"
+APP_STL := gnustl_static
+APP_ABI := armeabi-v7a
+"
+
+# Commands
 $android_create 	= "android create project"
 $android_update 	= "android update project"
 $activity			= "CrownActivity"
 $package			= "crown.android"
 
+# Paths
 $engine_src 		= "../engine/."
 $android_src		= "../engine/os/android/java/."
-$config_src			= "../engine/os/android/Config.h"
-$manifest			= "../engine/os/android/AndroidManifest.xml"
-
+$android_manifest	= "../engine/os/android/AndroidManifest.xml"
 $luajit				= "../engine/third/ARMv7/luajit"
 $oggvorbis			= "../engine/third/ARMv7/oggvorbis"
 $physx				= "../engine/third/ARMv7/physx"
@@ -43,19 +75,19 @@ $physx				= "../engine/third/ARMv7/physx"
 #------------------------------------------------------------------------------
 def validate_command_line(args)
 
-	if args.length != 6
+	if args.length != 8
+		return false 
+	end
+	if args[0] != "--build"
 		return false
 	end
-
-	if args[0] != "--target"
+	if args[2] != "--target"
 		return false
 	end
-
-	if args[2] != "--name"
+	if args[4] != "--name"
 		return false
 	end
-
-	if args[4] != "--path"
+	if args[6] != "--path"
 		return false
 	end
 
@@ -65,7 +97,7 @@ end
 #------------------------------------------------------------------------------
 def parse_command_line(args)
 
-	banner = "Usage: crown-android.rb --target <android-target> --name <project-name> --path <project-path>\n"
+	banner = "Usage: crown-android.rb --build <crown-build> --target <android-target> --name <project-name> --path <project-path>\n"
 
 	if not validate_command_line(args)
 		print banner
@@ -76,6 +108,10 @@ def parse_command_line(args)
 
 	OptionParser.new do |opts|
 		opts.banner = banner
+
+		opts.on("-b", "--build BUILD", "Crown build") do |b|
+			options.build = b
+		end
 
 		opts.on("-t", "--target TARGET", "Android target") do |t|
 			options.target = t
@@ -103,8 +139,30 @@ def parse_command_line(args)
 end
 
 #------------------------------------------------------------------------------
-def create_android_project(target, name, path)
+def generate_config_h(build, dest)
+	if build == "debug"
+		$config_h << "#define CROWN_DEBUG"
+	elsif build == "development"
+		$config_h << "#define CROWN_DEVELOPMENT"
+	elsif build == "release"
+		$config_h << "#define CROWN_RELEASE"
+	end
 
+	f = File.new(dest, File::WRONLY|File::CREAT|File::TRUNC, 0644)
+	f.write($config_h)
+	f.close()
+end
+
+#------------------------------------------------------------------------------
+def generate_application_mk(target, dest)
+	f = File.new(dest, File::WRONLY|File::CREAT|File::TRUNC, 0644)
+	f.write($application_mk)
+	f.write("APP_ABI := " + target)
+	f.close()
+end
+
+#------------------------------------------------------------------------------
+def create_android_project(target, name, path)
 	engine_dest 	= path + "/jni"
 	android_dest	= path + "/src/crown/android"
 	assets_dest		= path + "/assets"
@@ -138,7 +196,7 @@ def create_android_project(target, name, path)
 end
 
 #------------------------------------------------------------------------------
-def fill_android_project(res, path)
+def fill_android_project(build, target, res, path)
 
 	engine_dest 	= path + "/jni"
 	android_dest	= path + "/src/crown/android"
@@ -146,20 +204,19 @@ def fill_android_project(res, path)
 
 	# Copy Engine files
 	FileUtils.cp_r($engine_src, engine_dest, :remove_destination => true)
-	print "Copied Engine to " + engine_dest + "\n"
 
-	# Copy android Config.h
-	FileUtils.cp($config_src, engine_dest)
-	print "Copied Config.h to " + engine_dest + "\n"
+	# Generate android Config.h
+	generate_config_h(build, engine_dest + "/Config.h")
 
+	# Generate Application.mk
+	generate_application_mk(target, engine_dest + "/Application.mk")
+	
 	# Copy luajit lib
 	FileUtils.cp($luajit + "/lib/libluajit-5.1.so.2.0.2", engine_dest + "/libluajit-5.1.so")
-	print "Copied luajit lib to " + engine_dest + "\n"
 
 	# Copy oggvorbis lib
 	FileUtils.cp($oggvorbis + "/lib/libogg.a", engine_dest + "/libogg.a")
 	FileUtils.cp($oggvorbis + "/lib/libvorbis.a", engine_dest + "/libvorbis.a")
-	print "Copied oggvorbis libs to " + engine_dest + "\n"
 
 	# Copy physx lib
 	FileUtils.cp($physx + "/lib/libPhysX3.a", engine_dest)
@@ -177,13 +234,11 @@ def fill_android_project(res, path)
 	FileUtils.cp($physx + "/lib/libPvdRuntime.a", engine_dest)
 	FileUtils.cp($physx + "/lib/libRepX3.a", engine_dest)
 
-	# Copy Java files
+	# Copy java files
 	FileUtils.cp_r(Dir.glob($android_src), android_dest, :remove_destination => true)
-	print "Copied Java files to " + android_dest + "\n"
 
-	# Copy Android Manifest
-	FileUtils.cp($manifest, path)
-	print "Copied Android Manifest to " + path  + "\n"
+	# Copy android manifest
+	FileUtils.cp($android_manifest, path)
 end
 
 #------------------------------------------------------------------------------
@@ -206,5 +261,5 @@ end
 opts = parse_command_line(ARGV)
 
 create_android_project(opts.target, opts.name, opts.path)
-fill_android_project(opts.res, opts.path)
+fill_android_project(opts.build, opts.target, opts.res, opts.path)
 build_android_project(opts.path)
