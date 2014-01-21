@@ -37,8 +37,6 @@ public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 {
 	private final String TAG = "crown";
 
-	private boolean mSurfaceCreated;
-
 	//-----------------------------------------------------------------------------
 	public CrownSurfaceView(Context context)
 	{
@@ -52,9 +50,7 @@ public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 	public void surfaceCreated(SurfaceHolder holder) 
 	{
 		Log.d(TAG, "Crown Surface created");
-		mSurfaceCreated = true;
-
-		CrownLib.createWindow(holder.getSurface());
+		CrownLib.acquireWindow(holder.getSurface());
 		CrownLib.run();
 	}
 
@@ -62,7 +58,6 @@ public class CrownSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) 
 	{
-		mSurfaceCreated = false;
 		Log.d(TAG, "Crown Surface destroyed");
 	}
 
