@@ -169,8 +169,6 @@ protected:
 	bool					m_is_running	: 1;
 	bool					m_is_paused		: 1;
 
-	bool 					m_is_really_paused :1;
-
 	uint64_t				m_frame_count;
 
 	uint64_t				m_last_time;
