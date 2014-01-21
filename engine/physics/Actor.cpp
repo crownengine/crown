@@ -52,11 +52,13 @@ using physx::PxShape;
 using physx::PxShapeFlag;
 using physx::PxU32;
 using physx::PxFilterData;
+using physx::PxForceMode;
 
 using physx::PxD6Joint;
 using physx::PxD6JointCreate;
 using physx::PxD6Axis;
 using physx::PxD6Motion;
+
 
 namespace crown
 {
@@ -91,8 +93,6 @@ Actor::Actor(const PhysicsResource* res, uint32_t i, PxPhysics* physics, PxScene
 			{
 				static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
 			}
-			//break;
-
 			//PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 500.0f);
 
 			PxD6Joint* joint = PxD6JointCreate(*physics, m_actor, PxTransform(pose), NULL, PxTransform(pose));
@@ -101,6 +101,7 @@ Actor::Actor(const PhysicsResource* res, uint32_t i, PxPhysics* physics, PxScene
 			//joint->setMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
 			//joint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
 			joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
+
 			break;
 		}
 		default:
@@ -147,6 +148,13 @@ Actor::Actor(const PhysicsResource* res, uint32_t i, PxPhysics* physics, PxScene
 		index++;
 	}
 
+	m_group = a.group;
+	m_mask = a.mask;
+
+	// FIXME collisions works only if enable_collision() is called here first
+	// collision enabled by default
+	enable_collision();
+
 	m_actor->setActorFlag(PxActorFlag::eSEND_SLEEP_NOTIFIES, true);
 	m_scene->addActor(*m_actor);
 }
@@ -164,13 +172,13 @@ Actor::~Actor()
 //-----------------------------------------------------------------------------
 void Actor::create_sphere(const Vector3& position, float radius)
 {
-	/*PxShape* shape = */m_actor->createShape(PxSphereGeometry(radius), *m_mat);
+	m_actor->createShape(PxSphereGeometry(radius), *m_mat);
 }
 
 //-----------------------------------------------------------------------------
 void Actor::create_box(const Vector3& position, float half_x, float half_y, float half_z)
 {
-	/*PxShape* shape = */m_actor->createShape(PxBoxGeometry(half_x, half_y, half_z), *m_mat);
+	m_actor->createShape(PxBoxGeometry(half_x, half_y, half_z), *m_mat);
 }
 
 //-----------------------------------------------------------------------------
@@ -189,6 +197,48 @@ void Actor::enable_gravity()
 void Actor::disable_gravity()
 {
 	m_actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+}
+
+//-----------------------------------------------------------------------------
+void Actor::enable_collision()
+{
+	PxFilterData filter_data;
+	filter_data.word0 = (PxU32) m_group;
+	filter_data.word1 = (PxU32) m_mask;
+
+	const PxU32 num_shapes = m_actor->getNbShapes();
+
+	PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
+	m_actor->getShapes(shapes, num_shapes);
+
+	for(PxU32 i = 0; i < num_shapes; i++)
+	{
+		PxShape* shape = shapes[i];
+		shape->setSimulationFilterData(filter_data);
+	}
+
+	default_allocator().deallocate(shapes);
+}
+
+//-----------------------------------------------------------------------------
+void Actor::disable_collision()
+{
+	PxFilterData filter_data;
+	filter_data.word0 = (PxU32) CollisionGroup::GROUP_0;
+	filter_data.word1 = (PxU32) CollisionGroup::GROUP_0;
+
+	const PxU32 num_shapes = m_actor->getNbShapes();
+
+	PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
+	m_actor->getShapes(shapes, num_shapes);
+
+	for(PxU32 i = 0; i < num_shapes; i++)
+	{
+		PxShape* shape = shapes[i];
+		shape->setSimulationFilterData(filter_data);
+	}
+
+	default_allocator().deallocate(shapes);	
 }
 
 //-----------------------------------------------------------------------------
@@ -276,6 +326,43 @@ void Actor::set_angular_velocity(const Vector3& vel)
 	PxVec3 velocity(vel.x, vel.y, vel.z);
 	((PxRigidBody*)m_actor)->setAngularVelocity(velocity);
 }
+
+//-----------------------------------------------------------------------------
+void Actor::add_impulse(const Vector3& impulse)
+{
+	Vector3 p = m_scene_graph.world_pose(m_node).translation();
+
+	PxRigidBodyExt::addForceAtPos(*static_cast<PxRigidDynamic*>(m_actor),
+								  PxVec3(impulse.x, impulse.y, impulse.z),
+								  PxVec3(p.x, p.y, p.z),
+								  PxForceMode::eIMPULSE,
+								  true);
+}
+
+//-----------------------------------------------------------------------------
+void Actor::add_impulse_at(const Vector3& impulse, const Vector3& pos)
+{
+	PxRigidBodyExt::addForceAtLocalPos(*static_cast<PxRigidDynamic*>(m_actor),
+									   PxVec3(impulse.x, impulse.y, impulse.z),
+									   PxVec3(pos.x, pos.y, pos.z),
+									   PxForceMode::eIMPULSE,
+									   true);
+}
+
+//-----------------------------------------------------------------------------
+void Actor::push(const Vector3& vel, const float mass)
+{
+	// FIXME FIXME FIXME
+	Vector3 p = m_scene_graph.world_pose(m_node).translation();
+
+	Vector3 mq(vel.x * mass, vel.y * mass, vel.z * mass);
+	Vector3 f(mq.x / 0.017, mq.y / 0.017, mq.z / 0.017);
+
+	PxRigidBodyExt::addForceAtPos(*static_cast<PxRigidDynamic*>(m_actor),
+								  PxVec3(f.x, f.y, f.z),
+								  PxVec3(p.x, p.y, p.z));
+}
+
 
 //-----------------------------------------------------------------------------
 bool Actor::is_sleeping()

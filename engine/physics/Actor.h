@@ -59,6 +59,9 @@ struct Actor
 	void				enable_gravity();
 	void				disable_gravity();
 
+	void				enable_collision();
+	void				disable_collision();
+
 	bool				is_static() const;
 	bool				is_dynamic() const;
 
@@ -76,6 +79,10 @@ struct Actor
 
 	Vector3				angular_velocity() const;
 	void				set_angular_velocity(const Vector3& vel);
+
+	void				add_impulse(const Vector3& impulse);
+	void				add_impulse_at(const Vector3& impulse, const Vector3& pos);
+	void				push(const Vector3& vel, const float mass);
 
 	bool				is_sleeping();
 	void				wake_up();
@@ -99,6 +106,8 @@ public:
 	int32_t					m_node;
 	PxRigidActor* 			m_actor;
 	PxMaterial* 			m_mat;
+	uint32_t				m_group;
+	uint32_t				m_mask;
 };
 
 } // namespace crown
