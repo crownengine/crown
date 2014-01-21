@@ -322,30 +322,6 @@ void PhysicsWorld::set_gravity(const Vector3& g)
 }
 
 //-----------------------------------------------------------------------------
-void PhysicsWorld::set_filtering(ActorId id, uint32_t group, uint32_t mask)
-{
-	Actor* actor_instance = lookup_actor(id);
-	PxRigidActor* actor = actor_instance->m_actor;
-
-	PxFilterData filter_data;
-	filter_data.word0 = (PxU32) group;	// word0 = own ID
-	filter_data.word1 = (PxU32) mask;	// word1 = ID mask to filter pairs that trigger a contact callback;
-
-	const PxU32 num_shapes = actor->getNbShapes();
-
-	PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
-	actor->getShapes(shapes, num_shapes);
-
-	for(PxU32 i = 0; i < num_shapes; i++)
-	{
-		PxShape* shape = shapes[i];
-		shape->setSimulationFilterData(filter_data);
-	}
-
-	default_allocator().deallocate(shapes);
-}
-
-//-----------------------------------------------------------------------------
 void PhysicsWorld::update(float dt)
 {
 	// Update world pose of the actors
