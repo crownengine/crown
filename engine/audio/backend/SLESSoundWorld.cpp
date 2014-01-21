@@ -43,6 +43,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+//-----------------------------------------------------------------------------
 static const char* sles_error_to_string(SLresult result)
 {
 	switch (result)
@@ -59,15 +60,18 @@ static const char* sles_error_to_string(SLresult result)
 	case SL_RESULT_CONTENT_NOT_FOUND: return "SL_RESULT_CONTENT_NOT_FOUND";
 	case SL_RESULT_PERMISSION_DENIED: return "SL_RESULT_PERMISSION_DENIED";
 	case SL_RESULT_BUFFER_INSUFFICIENT: return "SL_RESULT_BUFFER_INSUFFICIENT";
-	default: return "SL_RESULT_UNKNOWN";
+	default: return "UNKNOWN_SL_ERROR";
 	}
 }
 
 //-----------------------------------------------------------------------------
-void check_sles_errors(SLresult result)
-{
-	CE_ASSERT(result == SL_RESULT_SUCCESS, "SL_ERROR_CODE: %s", sles_error_to_string(result));
-}
+#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	#define SL_CHECK(function)\
+		do { SLresult result = function;\
+				CE_ASSERT(result == SL_RESULT_SUCCESS, "OpenSL|ES error: %s", sles_error_to_string(result)); } while (0)
+#else
+	#define SL_CHECK(function) function;
+#endif
 
 namespace sles_sound_world
 {
@@ -189,21 +193,13 @@ struct SoundInstance
 		const SLInterfaceID ids[] = {SL_IID_PLAY, SL_IID_BUFFERQUEUE, SL_IID_VOLUME};
 		const SLboolean reqs[] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
-		SLresult result = (*m_sl_engine)->CreateAudioPlayer(m_sl_engine, &m_player_obj, &audio_source, &audio_sink, 3, ids, reqs);
-		check_sles_errors(result);
-
-		result = (*m_player_obj)->Realize(m_player_obj, SL_BOOLEAN_FALSE);
-		check_sles_errors(result);
+		SL_CHECK((*m_sl_engine)->CreateAudioPlayer(m_sl_engine, &m_player_obj, &audio_source, &audio_sink, 3, ids, reqs));
+		SL_CHECK((*m_player_obj)->Realize(m_player_obj, SL_BOOLEAN_FALSE));
 
 		// Gets interfaces
-		result = (*m_player_obj)->GetInterface(m_player_obj, SL_IID_PLAY, &m_player_play);
-		check_sles_errors(result);
-
-		result = (*m_player_obj)->GetInterface(m_player_obj, SL_IID_BUFFERQUEUE, &m_player_bufferqueue);
-		check_sles_errors(result);
-
-		result = (*m_player_obj)->GetInterface(m_player_obj, SL_IID_VOLUME, &m_player_volume);
-		check_sles_errors(result);
+		SL_CHECK((*m_player_obj)->GetInterface(m_player_obj, SL_IID_PLAY, &m_player_play));
+		SL_CHECK((*m_player_obj)->GetInterface(m_player_obj, SL_IID_BUFFERQUEUE, &m_player_bufferqueue));
+		SL_CHECK((*m_player_obj)->GetInterface(m_player_obj, SL_IID_VOLUME, &m_player_volume));
 
 		//(*m_player_bufferqueue)->RegisterCallback(m_player_bufferqueue, SoundInstance::buffer_callback, this);
 		(*m_player_play)->SetCallbackEventsMask(m_player_play, SL_PLAYEVENT_HEADATEND);
@@ -244,26 +240,22 @@ struct SoundInstance
 	void play(bool loop, float volume)
 	{
 		set_volume(volume);
-		SLresult result = (*m_player_play)->SetPlayState(m_player_play, SL_PLAYSTATE_PLAYING);
-		check_sles_errors(result);
+		SL_CHECK((*m_player_play)->SetPlayState(m_player_play, SL_PLAYSTATE_PLAYING));
 	}
 
 	void pause()
 	{
-		SLresult result = (*m_player_play)->SetPlayState(m_player_play, SL_PLAYSTATE_PAUSED);
-		check_sles_errors(result);
+		SL_CHECK((*m_player_play)->SetPlayState(m_player_play, SL_PLAYSTATE_PAUSED));
 	}
 
 	void resume()
 	{
-		SLresult res = (*m_player_play)->SetPlayState(m_player_play, SL_PLAYSTATE_PLAYING);
-		check_sles_errors(res);
+		SL_CHECK((*m_player_play)->SetPlayState(m_player_play, SL_PLAYSTATE_PLAYING));
 	}
 
 	void stop()
 	{
-		SLresult res = (*m_player_play)->SetPlayState(m_player_play, SL_PLAYSTATE_STOPPED);
-		check_sles_errors(res);
+		SL_CHECK((*m_player_play)->SetPlayState(m_player_play, SL_PLAYSTATE_STOPPED));
 	}
 
 	bool finished()
@@ -273,8 +265,7 @@ struct SoundInstance
 
 	void set_volume(float volume)
 	{
-		SLresult res = (*m_player_volume)->SetVolumeLevel(m_player_volume, sles_sound_world::gain_to_attenuation(m_player_volume, volume));
-		check_sles_errors(res);
+		SL_CHECK((*m_player_volume)->SetVolumeLevel(m_player_volume, sles_sound_world::gain_to_attenuation(m_player_volume, volume)));
 	}
 
 	void set_range(float range)
@@ -339,22 +330,24 @@ public:
 	SLESSoundWorld()
 	{
 		sles_sound_world::init();
-		SLresult result;
 
 		const SLInterfaceID ids[] = {SL_IID_ENGINE};
 		const SLboolean reqs[] = {SL_BOOLEAN_TRUE};
 		const SLEngineOption opts[] = { (SLuint32) SL_ENGINEOPTION_THREADSAFE, (SLuint32) SL_BOOLEAN_TRUE };
 
-		result = slCreateEngine(&m_sl_object, 1, opts, 1, ids, reqs);
-		result = (*m_sl_object)->Realize(m_sl_object, SL_BOOLEAN_FALSE);
+		SL_CHECK(slCreateEngine(&m_sl_object, 1, opts, 1, ids, reqs));
+		SL_CHECK((*m_sl_object)->Realize(m_sl_object, SL_BOOLEAN_FALSE));
 
-		result = (*m_sl_object)->GetInterface(m_sl_object, SL_IID_ENGINE, &m_sl_engine);
+		SL_CHECK((*m_sl_object)->GetInterface(m_sl_object, SL_IID_ENGINE, &m_sl_engine));
 
 		const SLInterfaceID ids1[] = {SL_IID_VOLUME};
 		const SLboolean reqs1[] = {SL_BOOLEAN_FALSE};
 
-		result = (*m_sl_engine)->CreateOutputMix(m_sl_engine, &m_out_mix_obj, 1, ids1, reqs1); 
-		result = (*m_out_mix_obj)->Realize(m_out_mix_obj, SL_BOOLEAN_FALSE);
+		SL_CHECK((*m_sl_engine)->CreateOutputMix(m_sl_engine, &m_out_mix_obj, 1, ids1, reqs1)); 
+		SL_CHECK((*m_out_mix_obj)->Realize(m_out_mix_obj, SL_BOOLEAN_FALSE));
+
+		// result = (*m_sl_engine)->CreateListener(m_sl_engine, &m_listener, 0, NULL, NULL);
+		// result = (*m_listener)->Realize(m_listener, SL_BOOLEAN_FALSE);
 	}
 
 	virtual ~SLESSoundWorld()
@@ -471,6 +464,7 @@ private:
 	SLObjectItf m_sl_object;
 	SLEngineItf m_sl_engine;
 	SLObjectItf m_out_mix_obj;
+	// SLObjectItf m_listener;
 };
 
 SoundWorld* SoundWorld::create(Allocator& a)
