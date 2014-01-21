@@ -100,7 +100,6 @@ Device::Device()
 	, m_resource_manager(NULL)
 	, m_resource_bundle(NULL)
 
-	, m_physx(NULL)
 	, m_world_manager(NULL)
 
 	, m_renderer_init_request(false)
@@ -180,7 +179,7 @@ void Device::init()
 	m_lua_environment->init();
 
 	Log::d("Creating physics...");
-	m_physx = CE_NEW(m_allocator, Physics)();
+	physics_system::init();
 
 	Log::d("Creating audio...");
 	audio_system::init();
@@ -215,13 +214,11 @@ void Device::shutdown()
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);
 
+	Log::d("Releasing audio...");
 	audio_system::shutdown();
 
 	Log::d("Releasing Physics...");
-	if (m_physx)
-	{
-		CE_DELETE(m_allocator, m_physx);
-	}
+	physics_system::shutdown();
 
 	Log::d("Releasing LuaEnvironment...");
 	if (m_lua_environment)

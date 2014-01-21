@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "LinearAllocator.h"
 #include "Resource.h"
-#include "Physics.h"
 #include "WorldTypes.h"
 
 namespace crown
@@ -149,7 +148,6 @@ public:
 	Touch*					touch();
 	Accelerometer*			accelerometer();
 	ConsoleServer*			console() { return m_console; }
-	physx::PxPhysics*		physx() { return m_physx->m_physics; };
 	WorldManager*			world_manager() { return m_world_manager; }
 
 protected:
@@ -198,7 +196,6 @@ protected:
 	ResourceManager*		m_resource_manager;
 	Bundle*					m_resource_bundle;
 
-	Physics*				m_physx;
 	WorldManager*			m_world_manager;
 
 	bool 					m_renderer_init_request;

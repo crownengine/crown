@@ -39,6 +39,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 using physx::PxRigidActor;
 using physx::PxMaterial;
 using physx::PxScene;
+using physx::PxPhysics;
 
 namespace crown
 {
@@ -50,7 +51,7 @@ class SceneGraph;
 
 struct Trigger
 {
-						Trigger(PxScene* scene, const Vector3& half_extents, const Vector3& pos, const Quaternion& rot);
+						Trigger(PxPhysics* physics, PxScene* scene, const Vector3& half_extents, const Vector3& pos, const Quaternion& rot);
 						~Trigger();
 
 public:

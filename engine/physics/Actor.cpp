@@ -29,8 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Quaternion.h"
 #include "Matrix4x4.h"
 #include "Unit.h"
-#include "Device.h"
-#include "Physics.h"
 #include "Log.h"
 #include "PhysicsResource.h"
 #include "SceneGraph.h"
@@ -64,7 +62,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Actor::Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
+Actor::Actor(const PhysicsResource* res, uint32_t i, PxPhysics* physics, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
 	: m_resource(res)
 	, m_index(i)
 	, m_scene(scene)
@@ -81,28 +79,29 @@ Actor::Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph&
 	{
 		case ActorType::STATIC:
 		{
-			m_actor = device()->physx()->createRigidStatic(PxTransform(pose));
+			m_actor = physics->createRigidStatic(PxTransform(pose));
 			break;
 		}
 		case ActorType::DYNAMIC_PHYSICAL:
 		case ActorType::DYNAMIC_KINEMATIC:
 		{
-			m_actor = device()->physx()->createRigidDynamic(PxTransform(pose));
+			m_actor = physics->createRigidDynamic(PxTransform(pose));
 
 			if (a.type == ActorType::DYNAMIC_KINEMATIC)
 			{
 				static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
 			}
-			break;
+			//break;
 
-			PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 500.0f);
+			//PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 500.0f);
 
-			PxD6Joint* joint = PxD6JointCreate(*device()->physx(), m_actor, PxTransform(pose), NULL, PxTransform(pose));
+			PxD6Joint* joint = PxD6JointCreate(*physics, m_actor, PxTransform(pose), NULL, PxTransform(pose));
 			joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
 			joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
 			//joint->setMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
 			//joint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
 			joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
+			break;
 		}
 		default:
 		{
@@ -114,7 +113,7 @@ Actor::Actor(const PhysicsResource* res, uint32_t i, PxScene* scene, SceneGraph&
 	m_actor->userData = this;
 
 	// Creates material
-	m_mat = device()->physx()->createMaterial(a.static_friction, a.dynamic_friction, a.restitution);
+	m_mat = physics->createMaterial(a.static_friction, a.dynamic_friction, a.restitution);
 
 	// Creates shapes
 	uint32_t index = m_resource->shape_index(m_index);

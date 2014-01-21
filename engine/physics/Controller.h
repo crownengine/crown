@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 using physx::PxController;
 using physx::PxControllerManager;
+using physx::PxPhysics;
 using physx::PxScene;
 using physx::PxU32;
 
@@ -44,7 +45,7 @@ class PhysicsControllerCallback;
 
 struct Controller
 {
-							Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxScene* scene, PxControllerManager* manager);
+							Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxScene* scene, PxControllerManager* manager);
 							~Controller();
 
 	void					move(const Vector3& pos);

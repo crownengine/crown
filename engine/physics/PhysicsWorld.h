@@ -48,6 +48,17 @@ using physx::PxActor;
 namespace crown
 {
 
+/// Global physics-related functions
+namespace physics_system
+{
+	/// Initializes the physics system.
+	/// This is the place where to create and initialize per-application objects.
+	void init();
+
+	/// It should reverse the actions performed by audio_system::init().
+	void shutdown();
+} // namespace physics_system
+
 //-----------------------------------------------------------------------------
 struct PhysicsResource;
 struct PhysicsActor;

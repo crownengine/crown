@@ -400,7 +400,6 @@ set (PHYSICS_SRC
 set (PHYSICS_HEADERS
 	physics/Actor.h
 	physics/Controller.cpp
-	physics/Physics.h
 	physics/PhysicsTypes.h
 	physics/PhysicsWorld.h
 	physics/Trigger.h

@@ -28,12 +28,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Actor.h"
 #include "Device.h"
-#include "Physics.h"
 #include "Quaternion.h"
 #include "SceneGraph.h"
 #include "Controller.h"
 #include "Trigger.h"
 #include "PhysicsCallback.h"
+#include "ProxyAllocator.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -60,6 +60,108 @@ using physx::PxFilterFlag;
 
 namespace crown
 {
+
+namespace physics_system
+{
+	using physx::PxFoundation;
+	using physx::PxPhysics;
+	using physx::PxAllocatorCallback;
+	using physx::PxErrorCallback;
+	using physx::PxErrorCode;
+
+	//-----------------------------------------------------------------------------
+	class PhysXAllocator : public PxAllocatorCallback
+	{
+	public:
+
+		PhysXAllocator()
+			: m_backing("physics", default_allocator())
+		{
+		}
+
+		void* allocate(size_t size, const char*, const char*, int)
+		{
+			return m_backing.allocate(size, 16);
+		}
+
+		void deallocate(void* p)
+		{
+			m_backing.deallocate(p);
+		}
+
+	private:
+
+		ProxyAllocator m_backing;
+	};
+
+	//-----------------------------------------------------------------------------
+	class PhysXError : public PxErrorCallback
+	{
+	public:
+
+		void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
+		{
+			switch (code)
+			{
+				case PxErrorCode::eDEBUG_INFO:
+				{
+					Log::i("In %s:%d: %s", file, line, message);
+					break;
+				}
+				case PxErrorCode::eDEBUG_WARNING: 
+				case PxErrorCode::ePERF_WARNING:
+				{
+					Log::w("In %s:%d: %s", file, line, message);
+					break;
+				}
+				case PxErrorCode::eINVALID_PARAMETER:
+				case PxErrorCode::eINVALID_OPERATION:
+				case PxErrorCode::eOUT_OF_MEMORY:
+				case PxErrorCode::eINTERNAL_ERROR:
+				case PxErrorCode::eABORT:
+				{
+					CE_ASSERT(false, "In %s:%d: %s", file, line, message);
+					break;
+				}
+				default:
+				{
+					CE_FATAL("Oops, unknown physx error");
+					break;
+				}
+			}
+		}
+	};
+
+	static PhysXAllocator* s_px_allocator;
+	static PhysXError* s_px_error;
+	static PxFoundation* s_foundation;
+	static PxPhysics* s_physics;
+
+	void init()
+	{
+		s_px_allocator = CE_NEW(default_allocator(), PhysXAllocator)();
+		s_px_error = CE_NEW(default_allocator(), PhysXError)();
+
+		s_foundation = PxCreateFoundation(PX_PHYSICS_VERSION, *s_px_allocator, *s_px_error);
+		CE_ASSERT(s_foundation, "Unable to create PhysX Foundation");
+
+		s_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *s_foundation, physx::PxTolerancesScale());
+		CE_ASSERT(s_physics, "Unable to create PhysX Physics");
+
+		bool extension = PxInitExtensions(*s_physics);
+		CE_ASSERT(extension, "Unable to initialize PhysX Extensions");
+	}
+
+	void shutdown()
+	{
+		PxCloseExtensions();
+		s_physics->release();
+		s_foundation->release();
+
+		CE_DELETE(default_allocator(), s_px_error);
+		CE_DELETE(default_allocator(), s_px_allocator);
+	}
+} // namespace physics_system
 
 PxFilterFlags PhysicsFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, 
 								PxFilterObjectAttributes attributes1, PxFilterData filterData1,
@@ -94,7 +196,7 @@ PhysicsWorld::PhysicsWorld()
 	, m_controllers_pool(default_allocator(), MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
 	, m_triggers_pool(default_allocator(), MAX_TRIGGERS, sizeof(Trigger), CE_ALIGNOF(Trigger))
 {
-	PxSceneDesc scene_desc(device()->physx()->getTolerancesScale());
+	PxSceneDesc scene_desc(physics_system::s_physics->getTolerancesScale());
 	scene_desc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 
 	if(!scene_desc.cpuDispatcher)
@@ -115,12 +217,12 @@ PhysicsWorld::PhysicsWorld()
 	scene_desc.simulationEventCallback = m_callback;
 
 	// Create scene
-	m_scene = device()->physx()->createScene(scene_desc);
+	m_scene = physics_system::s_physics->createScene(scene_desc);
 
 	m_scene->setFlag(PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS, true);
 
 	// Create controller manager
-	m_controller_manager = PxCreateControllerManager(device()->physx()->getFoundation());
+	m_controller_manager = PxCreateControllerManager(*physics_system::s_foundation);
 	CE_ASSERT(m_controller_manager != NULL, "Failed to create PhysX controller manager");
 }
 
@@ -136,7 +238,7 @@ PhysicsWorld::~PhysicsWorld()
 //-----------------------------------------------------------------------------
 ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node)
 {
-	Actor* actor = CE_NEW(m_actors_pool, Actor)(res, index, m_scene, sg, node, Vector3::ZERO, Quaternion::IDENTITY);
+	Actor* actor = CE_NEW(m_actors_pool, Actor)(res, index, physics_system::s_physics, m_scene, sg, node, Vector3::ZERO, Quaternion::IDENTITY);
 	return m_actors.create(actor);
 }
 
@@ -152,7 +254,7 @@ void PhysicsWorld::destroy_actor(ActorId id)
 //-----------------------------------------------------------------------------
 ControllerId PhysicsWorld::create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node)
 {
-	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, sg, node, m_scene, m_controller_manager);
+	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, sg, node, physics_system::s_physics, m_scene, m_controller_manager);
 	return m_controllers.create(controller);
 }
 
@@ -168,7 +270,7 @@ void PhysicsWorld::destroy_controller(ControllerId id)
 //-----------------------------------------------------------------------------
 TriggerId PhysicsWorld::create_trigger(const Vector3& half_extents, const Vector3& pos, const Quaternion& rot)
 {
-	Trigger* trigger = CE_NEW(m_triggers_pool, Trigger)(m_scene, half_extents, pos, rot);
+	Trigger* trigger = CE_NEW(m_triggers_pool, Trigger)(physics_system::s_physics, m_scene, half_extents, pos, rot);
 	return m_triggers.create(trigger);
 }
 

@@ -24,9 +24,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Device.h"
 #include "Matrix4x4.h"
-#include "Physics.h"
 #include "PxPhysicsAPI.h"
 #include "Quaternion.h"
 #include "Trigger.h"
@@ -51,17 +49,17 @@ namespace crown
 {
 	
 //-----------------------------------------------------------------------------
-Trigger::Trigger(PxScene* scene, const Vector3& half_extents, const Vector3& pos, const Quaternion& rot)
+Trigger::Trigger(PxPhysics* physics, PxScene* scene, const Vector3& half_extents, const Vector3& pos, const Quaternion& rot)
 	: m_scene(scene)
 {
 	Matrix4x4 m(rot, pos);
 	m.transpose();
 	PxMat44 pose((PxReal*)(m.to_float_ptr()));
 
-	m_actor = device()->physx()->createRigidStatic(PxTransform(pose));
+	m_actor = physics->createRigidStatic(PxTransform(pose));
 	m_actor->userData = NULL;
 
-	m_mat = device()->physx()->createMaterial(0.5f, 0.5f, 0.5f);
+	m_mat = physics->createMaterial(0.5f, 0.5f, 0.5f);
 	PxShape* shape = m_actor->createShape(PxBoxGeometry(half_extents.x, half_extents.y, half_extents.z), *m_mat);
 	shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
 	shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
