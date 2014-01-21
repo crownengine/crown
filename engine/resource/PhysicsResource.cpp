@@ -185,6 +185,7 @@ void parse_actor(JSONElement e, PhysicsActor& actor, List<PhysicsShape>& actor_s
 	group.string_value(actor_group);
 	mask.array_value(actor_mask);
 
+	memset(&actor, 0, sizeof(PhysicsActor));
 	actor.name = hash::murmur2_32(actor_name.c_str(), actor_name.length());
 	actor.node = hash::murmur2_32(actor_node.c_str(), actor_node.length());
 	actor.type = actor_type_to_enum(actor_type.c_str());
