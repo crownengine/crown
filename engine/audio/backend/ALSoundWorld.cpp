@@ -56,7 +56,7 @@ static const char* al_error_to_string(ALenum error)
 }
 
 //-----------------------------------------------------------------------------
-#ifdef CROWN_DEBUG
+#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
 	#define AL_CHECK(function)\
 		function;\
 		do { ALenum error; CE_ASSERT((error = alGetError()) == AL_NO_ERROR,\
@@ -190,6 +190,10 @@ public:
 		CE_ASSERT(m_context, "Cannot create OpenAL context");
 
 		AL_CHECK(alcMakeContextCurrent(m_context));
+
+		Log::d("OpenAL Vendor   : %s", alGetString(AL_VENDOR));
+		Log::d("OpenAL Version  : %s", alGetString(AL_VERSION));
+		Log::d("OpenAL Renderer : %s", alGetString(AL_RENDERER));
 
 		AL_CHECK(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
 
