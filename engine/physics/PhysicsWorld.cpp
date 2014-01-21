@@ -57,6 +57,7 @@ using physx::PxFilterObjectAttributes;
 using physx::PxFilterObjectIsTrigger;
 using physx::PxPairFlag;
 using physx::PxFilterFlag;
+using physx::PxSceneLimits;
 
 namespace crown
 {
@@ -196,8 +197,13 @@ PhysicsWorld::PhysicsWorld()
 	, m_controllers_pool(default_allocator(), MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
 	, m_triggers_pool(default_allocator(), MAX_TRIGGERS, sizeof(Trigger), CE_ALIGNOF(Trigger))
 {
+	PxSceneLimits scene_limits;
+	scene_limits.maxNbActors = MAX_ACTORS;
+	CE_ASSERT(scene_limits.isValid(), "Scene limits is not valid");
+
 	PxSceneDesc scene_desc(physics_system::s_physics->getTolerancesScale());
 	scene_desc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	scene_desc.limits = scene_limits;
 
 	if(!scene_desc.cpuDispatcher)
 	{
@@ -209,17 +215,16 @@ PhysicsWorld::PhysicsWorld()
 
 	// Set filter shader
 	scene_desc.filterShader = g_default_filter_shader;
-	// Enable active transformation
-	scene_desc.flags = PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
+	scene_desc.flags = PxSceneFlag::eENABLE_ACTIVETRANSFORMS | PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS;
 
 	// Set simulation event callback
 	m_callback = CE_NEW(default_allocator(), PhysicsSimulationCallback)();
 	scene_desc.simulationEventCallback = m_callback;
 
+	CE_ASSERT(scene_desc.isValid(), "Scene is not valid");
+
 	// Create scene
 	m_scene = physics_system::s_physics->createScene(scene_desc);
-
-	m_scene->setFlag(PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS, true);
 
 	// Create controller manager
 	m_controller_manager = PxCreateControllerManager(*physics_system::s_foundation);
