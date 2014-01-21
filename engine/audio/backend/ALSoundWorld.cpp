@@ -65,6 +65,38 @@ static const char* al_error_to_string(ALenum error)
 	#define AL_CHECK(function) function;
 #endif
 
+/// Global audio-related functions
+namespace audio_system
+{
+	static ALCdevice* s_al_device;
+	static ALCcontext* s_al_context;
+
+	void init()
+	{
+		s_al_device = alcOpenDevice(NULL);
+		CE_ASSERT(s_al_device, "Cannot open OpenAL audio device");
+
+		s_al_context = alcCreateContext(s_al_device, NULL);
+		CE_ASSERT(s_al_context, "Cannot create OpenAL context");
+
+		AL_CHECK(alcMakeContextCurrent(s_al_context));
+
+		Log::d("OpenAL Vendor   : %s", alGetString(AL_VENDOR));
+		Log::d("OpenAL Version  : %s", alGetString(AL_VERSION));
+		Log::d("OpenAL Renderer : %s", alGetString(AL_RENDERER));
+
+		AL_CHECK(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
+		AL_CHECK(alDopplerFactor(1.0f));
+		AL_CHECK(alDopplerVelocity(343.0f));
+	}
+
+	void shutdown()
+	{
+		alcDestroyContext(s_al_context);
+	    alcCloseDevice(s_al_device);
+	}
+}
+
 //-----------------------------------------------------------------------------
 struct SoundInstance
 {
@@ -183,30 +215,11 @@ public:
 
 	ALSoundWorld()
 	{
-		m_device = alcOpenDevice(NULL);
-		CE_ASSERT(m_device, "Cannot open OpenAL audio device");
-
-		m_context = alcCreateContext(m_device, NULL);
-		CE_ASSERT(m_context, "Cannot create OpenAL context");
-
-		AL_CHECK(alcMakeContextCurrent(m_context));
-
-		Log::d("OpenAL Vendor   : %s", alGetString(AL_VENDOR));
-		Log::d("OpenAL Version  : %s", alGetString(AL_VERSION));
-		Log::d("OpenAL Renderer : %s", alGetString(AL_RENDERER));
-
-		AL_CHECK(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
-
-		AL_CHECK(alDopplerFactor(1.0f));
-		AL_CHECK(alDopplerVelocity(343.0f));
-
 		set_listener_pose(Matrix4x4::IDENTITY);
 	}
 
 	virtual ~ALSoundWorld()
 	{
-		alcDestroyContext(m_context);
-	    alcCloseDevice(m_device);
 	}
 
 	virtual SoundInstanceId play(const char* name, bool loop, float volume, const Vector3& pos)
@@ -330,9 +343,6 @@ private:
 
 	IdArray<MAX_SOUND_INSTANCES, SoundInstance> m_playing_sounds;
 	Matrix4x4 m_listener_pose;
-
-	ALCdevice* m_device;
-	ALCcontext* m_context;
 };
 
 SoundWorld* SoundWorld::create(Allocator& a)
