@@ -35,10 +35,10 @@ namespace crown
 CE_EXPORT int actor_enable_gravity(lua_State* L)
 {
 	LuaStack stack(L);
-
 	Actor* actor = stack.get_actor(1);
 
 	actor->enable_gravity();
+
 	return 0;
 }
 
@@ -49,6 +49,28 @@ CE_EXPORT int actor_disable_gravity(lua_State* L)
 	Actor* actor = stack.get_actor(1);
 
 	actor->disable_gravity();
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int actor_enable_collision(lua_State* L)
+{
+	LuaStack stack(L);
+	Actor* actor = stack.get_actor(1);
+
+	actor->enable_collision();
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int actor_disable_collision(lua_State* L)
+{
+	LuaStack stack(L);
+	Actor* actor = stack.get_actor(1);
+
+	actor->disable_collision();
+
 	return 0;
 }
 
@@ -167,6 +189,47 @@ CE_EXPORT int actor_set_angular_velocity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int actor_add_impulse(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Actor* actor = stack.get_actor(1);
+	const Vector3& impulse = stack.get_vector3(2);	
+
+	actor->add_impulse(impulse);
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int actor_add_impulse_at(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Actor* actor = stack.get_actor(1);
+	const Vector3& impulse = stack.get_vector3(2);
+	const Vector3& pos = stack.get_vector3(3);
+
+	actor->add_impulse_at(impulse, pos);
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int actor_push(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Actor* actor = stack.get_actor(1);
+	const Vector3& vel = stack.get_vector3(2);
+	const float mass = stack.get_float(3);
+
+	actor->push(vel, mass);
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int actor_is_sleeping(lua_State* L)
 {
 	LuaStack stack(L);
@@ -193,6 +256,8 @@ void load_actor(LuaEnvironment& env)
 {
 	env.load_module_function("Actor", "enable_gravity",			actor_enable_gravity);
 	env.load_module_function("Actor", "disable_gravity",		actor_disable_gravity);
+	env.load_module_function("Actor", "enable_collision",		actor_enable_collision);
+	env.load_module_function("Actor", "disable_collision",		actor_disable_collision);
 	env.load_module_function("Actor", "is_static",				actor_is_static);
 	env.load_module_function("Actor", "is_dynamic",				actor_is_dynamic);
 	env.load_module_function("Actor", "linear_damping",			actor_linear_damping);
@@ -203,6 +268,9 @@ void load_actor(LuaEnvironment& env)
 	env.load_module_function("Actor", "set_linear_velocity",	actor_set_linear_velocity);
 	env.load_module_function("Actor", "angular_velocity",		actor_angular_velocity);
 	env.load_module_function("Actor", "set_angular_velocity",	actor_set_angular_velocity);
+	env.load_module_function("Actor", "add_impulse",			actor_add_impulse);
+	env.load_module_function("Actor", "add_impulse_at",			actor_add_impulse_at);
+	env.load_module_function("Actor", "push",					actor_push);
 	env.load_module_function("Actor", "is_sleeping",			actor_is_sleeping);
 	env.load_module_function("Actor", "wake_up",				actor_wake_up);
 }
