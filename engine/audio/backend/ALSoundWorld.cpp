@@ -172,6 +172,13 @@ struct SoundInstance
 		}
 	}
 
+	bool is_playing()
+	{
+		ALint state;
+		AL_CHECK(alGetSourcei(m_source, AL_SOURCE_STATE, &state));
+		return state == AL_PLAYING;
+	}
+
 	bool finished()
 	{
 		ALint state;
@@ -247,6 +254,11 @@ public:
 		SoundInstance& instance = m_playing_sounds.lookup(id);
 		instance.destroy();
 		m_playing_sounds.destroy(id);
+	}
+
+	virtual bool is_playing(SoundInstanceId id)
+	{
+		return m_playing_sounds.has(id) && m_playing_sounds.lookup(id).is_playing();
 	}
 
 	virtual void stop_all()

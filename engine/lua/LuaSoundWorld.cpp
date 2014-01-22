@@ -51,6 +51,7 @@ CE_EXPORT int sound_world_pause_all(lua_State* L)
 	return 0;
 }
 
+//-----------------------------------------------------------------------------
 CE_EXPORT int sound_world_resume_all(lua_State* L)
 {
 	LuaStack stack(L);
@@ -61,11 +62,23 @@ CE_EXPORT int sound_world_resume_all(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int sound_world_is_playing(lua_State* L)
+{
+	LuaStack stack(L);
+
+	SoundWorld* sw = stack.get_sound_world(1);
+	SoundInstanceId id = stack.get_sound_instance_id(2);
+	stack.push_bool(sw->is_playing(id));
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_sound_world(LuaEnvironment& env)
 {
 	env.load_module_function("SoundWorld", "stop_all",    sound_world_stop_all);
 	env.load_module_function("SoundWorld", "pause_all",   sound_world_pause_all);
 	env.load_module_function("SoundWorld", "resume_all",  sound_world_resume_all);
+	env.load_module_function("SoundWorld", "is_playing",  sound_world_is_playing);
 }
 
 } // namespace crown

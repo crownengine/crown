@@ -287,6 +287,13 @@ struct SoundInstance
 		SL_CHECK((*play_itf())->SetPlayState(play_itf(), SL_PLAYSTATE_STOPPED));
 	}
 
+	bool is_playing()
+	{
+		SLuint32 state;
+		SL_CHECK((*play_itf())->GetPlayState(play_itf(), &state));
+		return state == SL_PLAYSTATE_PLAYING;	
+	}
+
 	bool finished()
 	{
 		return m_finished;
@@ -391,6 +398,11 @@ public:
 		SoundInstance& instance = m_playing_sounds.lookup(id);
 		instance.destroy();
 		m_playing_sounds.destroy(id);
+	}
+
+	virtual bool is_playing(SoundInstanceId id)
+	{
+		return m_playing_sounds.has(id) && m_playing_sounds.lookup(id).is_playing();
 	}
 
 	virtual void stop_all()

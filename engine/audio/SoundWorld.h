@@ -64,6 +64,9 @@ public:
 	/// After this call, the instance will be destroyed.
 	virtual void stop(SoundInstanceId id) = 0;
 
+	/// Returns wheter the sound @a id is playing.
+	virtual bool is_playing(SoundInstanceId id) = 0;
+
 	/// Stops all the sounds in the world.
 	virtual void stop_all() = 0;
 
