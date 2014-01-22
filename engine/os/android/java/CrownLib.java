@@ -47,8 +47,8 @@ public class CrownLib
 	public static native void 		initAssetManager(AssetManager assetManager);
 
 	// Window functions
-	public static native void		createWindow(Surface window);
-	public static native void		destroyWindow();
+	public static native void		acquireWindow(Surface window);
+	public static native void		releaseWindow();
 
 	// Os events
 	public static native void		pushKeyboardEvent(int modifier, int b, int pressed);

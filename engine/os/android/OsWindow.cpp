@@ -32,8 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-ANativeWindow* g_android_window = NULL;
-
 //-----------------------------------------------------------------------------
 OsWindow::OsWindow()
 	: m_x(0)
@@ -46,10 +44,6 @@ OsWindow::OsWindow()
 //-----------------------------------------------------------------------------
 OsWindow::~OsWindow()
 {
-	if (g_android_window)
-	{
-		ANativeWindow_release(g_android_window);
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -136,22 +130,6 @@ void OsWindow::set_title(const char* /*title*/)
 //-----------------------------------------------------------------------------
 void OsWindow::frame()
 {
-}
-
-//-----------------------------------------------------------------------------
-extern "C" void Java_crown_android_CrownLib_createWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
-{
-    // obtain a native window from a Java surface
-	CE_ASSERT(surface != 0, "Unable to get Android window");
-    g_android_window = ANativeWindow_fromSurface(env, surface);
-    Log::i("Window created");
-}
-
-//-----------------------------------------------------------------------------
-extern "C" void Java_crown_android_CrownLib_destroyWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
-{
-    ANativeWindow_release(g_android_window);
-    Log::i("Window destroyed");
 }
 
 } // namespace crown

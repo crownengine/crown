@@ -26,15 +26,12 @@ require 'optparse'
 require 'ostruct'
 require 'fileutils'
 
-$crown_version =
+$config_h = 
 "
 #define CROWN_VERSION_MAJOR 0
 #define CROWN_VERSION_MINOR 1
 #define CROWN_VERSION_MICRO 13
-"
 
-$config_h = 
-"
 #define PRId64 \"lld\"
 #define PRIu64 \"llu\"
 #define PRIi64 \"lli\"
@@ -157,7 +154,7 @@ end
 def generate_application_mk(target, dest)
 	f = File.new(dest, File::WRONLY|File::CREAT|File::TRUNC, 0644)
 	f.write($application_mk)
-	f.write("APP_ABI := " + target)
+	f.write("APP_APPLICATION := " + target)
 	f.close()
 end
 

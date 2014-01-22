@@ -196,6 +196,7 @@ private:
 };
 
 static AndroidDevice* g_engine;
+ANativeWindow* g_android_window;
 
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initCrown(JNIEnv* /*env*/, jobject /*obj*/)
@@ -218,6 +219,23 @@ extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownCrown(JNIE
 extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_run(JNIEnv* /*env*/, jobject /*obj*/)
 {
 	g_engine->run(0, NULL);
+}
+
+//-----------------------------------------------------------------------------
+extern "C" void Java_crown_android_CrownLib_acquireWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
+{
+    // Obtain a native window from a Java surface
+	CE_ASSERT(surface != 0, "Unable to get Android window");
+    g_android_window = ANativeWindow_fromSurface(env, surface);
+    ANativeWindow_acquire(g_android_window);
+    Log::i("Window acquired");
+}
+
+//-----------------------------------------------------------------------------
+extern "C" void Java_crown_android_CrownLib_releaseWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
+{
+    ANativeWindow_release(g_android_window);
+    Log::i("Window released");
 }
 
 //-----------------------------------------------------------------------------

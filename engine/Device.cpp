@@ -82,7 +82,6 @@ Device::Device()
 	, m_is_init(false)
 	, m_is_running(false)
 	, m_is_paused(false)
-	, m_is_really_paused(false)
 
 	, m_frame_count(0)
 

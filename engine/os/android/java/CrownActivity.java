@@ -94,6 +94,7 @@ public class CrownActivity extends Activity
 	{
 		super.onDestroy();
 		CrownLib.pushExitEvent(0);
+		CrownLib.releaseWindow();
 		CrownLib.shutdownCrown();
 		Log.i(TAG, "Crown Activity destroyed");
 	}
