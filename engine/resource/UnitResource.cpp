@@ -138,7 +138,7 @@ void parse_node(JSONElement e, List<GraphNode>& nodes, List<GraphNodeDepth>& nod
 	{
 		DynamicString parent_name;
 		parent.string_value(parent_name);
-		hash::murmur2_32(parent_name.c_str(), parent_name.length(), 0);
+		gn.parent = hash::murmur2_32(parent_name.c_str(), parent_name.length(), 0);
 	}
 
 	gn.position = Vector3(pos[0].float_value(), pos[1].float_value(), pos[2].float_value());
