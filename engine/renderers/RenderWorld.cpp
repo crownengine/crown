@@ -216,7 +216,7 @@ Gui* RenderWorld::lookup_gui(GuiId id)
 }
 
 //-----------------------------------------------------------------------------
-void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height, float dt)
 {
 	Renderer* r = device()->renderer();
 
@@ -251,7 +251,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	for (uint32_t s = 0; s < m_sprite.size(); s++)
 	{
 		r->set_program(texture_program);
-		m_sprite[s]->render(*r, u_albedo_0);
+		m_sprite[s]->render(*r, u_albedo_0, dt);
 	}
 
 	// Draw all guis

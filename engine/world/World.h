@@ -40,6 +40,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector.h"
 #include "WorldTypes.h"
 #include "SoundWorld.h"
+#include "EventStream.h"
 
 namespace crown
 {
@@ -114,6 +115,8 @@ private:
 	SoundWorld*							m_sound_world;
 
 	WorldId								m_id;
+
+	EventStream							m_events;
 };
 
 } // namespace crown

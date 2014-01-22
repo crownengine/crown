@@ -37,6 +37,7 @@ namespace crown
 World::World()
 	: m_unit_pool(default_allocator(), MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
 	, m_camera_pool(default_allocator(), MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
+	, m_events(default_allocator())
 {
 	m_id.id = INVALID_ID;
 	m_sound_world = SoundWorld::create(default_allocator());
@@ -83,6 +84,10 @@ UnitId World::spawn_unit(UnitResource* ur, const Vector3& pos, const Quaternion&
 	const UnitId unit_id = m_units.create(unit);
 	unit->set_id(unit_id);
 
+	// SpawnUnitEvent ev;
+	// ev.unit = unit_id;
+	// event_stream::write(m_events, EventType::SPAWN, ev);
+
 	return unit_id;
 }
 
@@ -93,6 +98,10 @@ void World::destroy_unit(UnitId id)
 
 	CE_DELETE(m_unit_pool, m_units.lookup(id));
 	m_units.destroy(id);
+
+	// DestroyUnitEvent ev;
+	// ev.unit = id;
+	// event_stream::write(m_events, EventType::DESTROY, ev);
 }
 
 //-----------------------------------------------------------------------------
@@ -163,7 +172,7 @@ void World::update(float dt)
 void World::render(Camera* camera)
 {
 	m_render_world.update(camera->world_pose(), camera->m_projection, camera->m_view_x, camera->m_view_y,
-							camera->m_view_width, camera->m_view_height);
+							camera->m_view_width, camera->m_view_height, device()->last_delta_time());
 }
 
 //-----------------------------------------------------------------------------
