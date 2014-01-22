@@ -75,6 +75,28 @@ CE_EXPORT int actor_disable_collision(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int actor_set_kinematic(lua_State* L)
+{
+	LuaStack stack(L);
+	Actor* actor = stack.get_actor(1);
+
+	actor->set_kinematic();
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int actor_clear_kinematic(lua_State* L)
+{
+	LuaStack stack(L);
+	Actor* actor = stack.get_actor(1);
+
+	actor->clear_kinematic();
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 CE_EXPORT int actor_is_static(lua_State* L)
 {
 	LuaStack stack(L);
@@ -258,6 +280,8 @@ void load_actor(LuaEnvironment& env)
 	env.load_module_function("Actor", "disable_gravity",		actor_disable_gravity);
 	env.load_module_function("Actor", "enable_collision",		actor_enable_collision);
 	env.load_module_function("Actor", "disable_collision",		actor_disable_collision);
+	env.load_module_function("Actor", "set_kinematic",			actor_set_kinematic);
+	env.load_module_function("Actor", "clear_kinematic",		actor_clear_kinematic);
 	env.load_module_function("Actor", "is_static",				actor_is_static);
 	env.load_module_function("Actor", "is_dynamic",				actor_is_dynamic);
 	env.load_module_function("Actor", "linear_damping",			actor_linear_damping);

@@ -242,6 +242,18 @@ void Actor::disable_collision()
 }
 
 //-----------------------------------------------------------------------------
+void Actor::set_kinematic()
+{
+	static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
+}
+
+//-----------------------------------------------------------------------------
+void Actor::clear_kinematic()
+{
+	static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, false);
+}
+
+//-----------------------------------------------------------------------------
 bool Actor::is_static() const
 {
 	const PhysicsActor& a = m_resource->actor(m_index);

@@ -62,6 +62,9 @@ struct Actor
 	void				enable_collision();
 	void				disable_collision();
 
+	void				set_kinematic();
+	void				clear_kinematic();
+
 	bool				is_static() const;
 	bool				is_dynamic() const;
 
