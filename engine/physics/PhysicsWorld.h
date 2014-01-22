@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "IdArray.h"
 #include "PoolAllocator.h"
 #include "PhysicsTypes.h"
+#include "PhysicsCallback.h"
 
 #include "PxScene.h"
 #include "PxDefaultCpuDispatcher.h"
@@ -68,7 +69,6 @@ struct Actor;
 struct Trigger;
 struct Quaternion;
 class SceneGraph;
-class PhysicsSimulationCallback;
 
 //-----------------------------------------------------------------------------
 class PhysicsWorld
@@ -101,7 +101,8 @@ public:
 	PxControllerManager*		m_controller_manager;
 	PxScene*					m_scene;
 	PxDefaultCpuDispatcher*		m_cpu_dispatcher;
-	PhysicsSimulationCallback*	m_callback;
+
+	PhysicsSimulationCallback	m_callback;
 
 	PoolAllocator				m_actors_pool;
 	IdArray<MAX_ACTORS, Actor*>	m_actors;

@@ -100,19 +100,19 @@ namespace physics_system
 	{
 	public:
 
-		void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
+		void reportError(PxErrorCode::Enum code, const char* message, const char* /*file*/, int /*line*/)
 		{
 			switch (code)
 			{
 				case PxErrorCode::eDEBUG_INFO:
 				{
-					Log::i("In %s:%d: %s", file, line, message);
+					Log::i("PhysX: %s", message);
 					break;
 				}
 				case PxErrorCode::eDEBUG_WARNING: 
 				case PxErrorCode::ePERF_WARNING:
 				{
-					Log::w("In %s:%d: %s", file, line, message);
+					Log::w("PhysX: %s", message);
 					break;
 				}
 				case PxErrorCode::eINVALID_PARAMETER:
@@ -121,7 +121,7 @@ namespace physics_system
 				case PxErrorCode::eINTERNAL_ERROR:
 				case PxErrorCode::eABORT:
 				{
-					CE_ASSERT(false, "In %s:%d: %s", file, line, message);
+					CE_ASSERT(false, "PhysX: %s", message);
 					break;
 				}
 				default:
@@ -133,6 +133,33 @@ namespace physics_system
 		}
 	};
 
+	//-----------------------------------------------------------------------------
+	PxFilterFlags FilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, 
+									PxFilterObjectAttributes attributes1, PxFilterData filterData1,
+									PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
+	{
+		// let triggers through
+		if(PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
+		{
+			pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+			return PxFilterFlag::eDEFAULT;
+		}
+
+		// generate contacts for all that were not filtered above
+		pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+
+		// trigger the contact callback for pairs (A,B) where 
+		// the filtermask of A contains the ID of B and vice versa.
+		if((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+		{
+			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
+			return PxFilterFlag::eDEFAULT;
+		}
+
+		return PxFilterFlag::eDEFAULT;
+	}
+
+	// Global PhysX objects
 	static PhysXAllocator* s_px_allocator;
 	static PhysXError* s_px_error;
 	static PxFoundation* s_foundation;
@@ -164,32 +191,6 @@ namespace physics_system
 	}
 } // namespace physics_system
 
-PxFilterFlags PhysicsFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, 
-								PxFilterObjectAttributes attributes1, PxFilterData filterData1,
-								PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
-{
-	// let triggers through
-	if(PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
-	{
-		pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
-		return PxFilterFlag::eDEFAULT;
-	}
-
-	// generate contacts for all that were not filtered above
-	pairFlags = PxPairFlag::eCONTACT_DEFAULT;
-
-	// trigger the contact callback for pairs (A,B) where 
-	// the filtermask of A contains the ID of B and vice versa.
-	if((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
-	{
-		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
-	}
-
-	return PxFilterFlag::eDEFAULT;
-}
-
-static physx::PxSimulationFilterShader g_default_filter_shader = PhysicsFilterShader;
-
 //-----------------------------------------------------------------------------
 PhysicsWorld::PhysicsWorld()
 	: m_scene(NULL)
@@ -197,6 +198,7 @@ PhysicsWorld::PhysicsWorld()
 	, m_controllers_pool(default_allocator(), MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
 	, m_triggers_pool(default_allocator(), MAX_TRIGGERS, sizeof(Trigger), CE_ALIGNOF(Trigger))
 {
+	// Create the scene
 	PxSceneLimits scene_limits;
 	scene_limits.maxNbActors = MAX_ACTORS;
 	CE_ASSERT(scene_limits.isValid(), "Scene limits is not valid");
@@ -204,6 +206,9 @@ PhysicsWorld::PhysicsWorld()
 	PxSceneDesc scene_desc(physics_system::s_physics->getTolerancesScale());
 	scene_desc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 	scene_desc.limits = scene_limits;
+	scene_desc.filterShader = physics_system::FilterShader;
+	scene_desc.simulationEventCallback = &m_callback;
+	scene_desc.flags = PxSceneFlag::eENABLE_ACTIVETRANSFORMS | PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS | PxSceneFlag::eENABLE_KINEMATIC_PAIRS;
 
 	if(!scene_desc.cpuDispatcher)
 	{
@@ -213,17 +218,7 @@ PhysicsWorld::PhysicsWorld()
 		scene_desc.cpuDispatcher = m_cpu_dispatcher;
 	}
 
-	// Set filter shader
-	scene_desc.filterShader = g_default_filter_shader;
-	scene_desc.flags = PxSceneFlag::eENABLE_ACTIVETRANSFORMS | PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS;
-
-	// Set simulation event callback
-	m_callback = CE_NEW(default_allocator(), PhysicsSimulationCallback)();
-	scene_desc.simulationEventCallback = m_callback;
-
 	CE_ASSERT(scene_desc.isValid(), "Scene is not valid");
-
-	// Create scene
 	m_scene = physics_system::s_physics->createScene(scene_desc);
 
 	// Create controller manager
@@ -234,7 +229,6 @@ PhysicsWorld::PhysicsWorld()
 //-----------------------------------------------------------------------------
 PhysicsWorld::~PhysicsWorld()
 {
-	CE_DELETE(default_allocator(), m_callback);
 	m_cpu_dispatcher->release();
 	m_controller_manager->release();
 	m_scene->release();
