@@ -54,7 +54,7 @@ inline void write(EventStream& s, uint32_t type, uint32_t size, const void* even
 	header.size = size;
 
 	s.push((char*) &header, sizeof(Header));
-	s.push((char*) event, (size_t) header.size);
+	s.push((char*) event, (size_t) size);
 }
 
 /// Appends the @a event of the given @a type to the stream @a s
