@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "File.h"
 #include "Bundle.h"
 #include "ResourceManager.h"
+#include "Vector3.h"
 
 namespace crown
 {
@@ -172,15 +173,17 @@ struct PhysicsJoint
 	uint32_t type;
 	StringId32 actor_0;
 	StringId32 actor_1;
+	Vector3 anchor_0;
+	Vector3 anchor_1;
+
+	bool breakable;
+	float break_force;
+	float break_torque;
 
 	float restitution;
 	float spring;
 	float damping;
 	float distance;
-
-	bool  breakable;
-	float break_force;
-	float break_torque;
 };
 
 //-----------------------------------------------------------------------------

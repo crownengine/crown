@@ -231,6 +231,8 @@ void parse_joint(JSONElement e, PhysicsJoint& joint)
 	JSONElement type = e.key("type");
 	JSONElement actor_0 = e.key("actor_0");
 	JSONElement actor_1 = e.key("actor_1");
+	JSONElement anchor_0 = e.key("anchor_0");
+	JSONElement anchor_1 = e.key("anchor_1");
 	JSONElement restitution = e.key("restitution");
 	JSONElement spring = e.key("spring");
 	JSONElement damping = e.key("damping");
@@ -243,16 +245,22 @@ void parse_joint(JSONElement e, PhysicsJoint& joint)
 	DynamicString joint_type;
 	DynamicString joint_actor_0;
 	DynamicString joint_actor_1;
+	List<float> joint_anchor_0(default_allocator());
+	List<float> joint_anchor_1(default_allocator());
 	
 	name.string_value(joint_name);
 	type.string_value(joint_type);
 	actor_0.string_value(joint_actor_0);
 	actor_1.string_value(joint_actor_1);
+	anchor_0.array_value(joint_anchor_0);
+	anchor_1.array_value(joint_anchor_1);
 
 	joint.name = hash::murmur2_32(joint_name.c_str(), joint_name.length());
 	joint.type = joint_type_to_enum(joint_type.c_str());
 	joint.actor_0 = hash::murmur2_32(joint_actor_0.c_str(), joint_actor_0.length());
 	joint.actor_1 = hash::murmur2_32(joint_actor_1.c_str(), joint_actor_1.length());
+	joint.anchor_0 = Vector3(joint_anchor_0.begin());
+	joint.anchor_1 = Vector3(joint_anchor_1.begin());
 	joint.restitution = restitution.float_value();
 	joint.spring = spring.float_value();
 	joint.damping = damping.float_value();
