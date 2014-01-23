@@ -145,6 +145,7 @@ struct PhysicsShape
 {
 	StringId32 name;
 	uint32_t type;
+	bool trigger;
 
 	float data_0;
 	float data_1;

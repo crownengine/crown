@@ -135,6 +135,7 @@ void parse_shape(JSONElement e, PhysicsShape& shape)
 {
 	JSONElement name = e.key("name");
 	JSONElement type = e.key("type");
+	JSONElement trigger = e.key("trigger");
 
 	DynamicString shape_name;
 	DynamicString shape_type;
@@ -143,6 +144,7 @@ void parse_shape(JSONElement e, PhysicsShape& shape)
 
 	shape.name = hash::murmur2_32(shape_name.c_str(), shape_name.length());
 	shape.type = shape_type_to_enum(shape_type.c_str());
+	shape.trigger = trigger.bool_value();
 
 	switch (shape.type)
 	{
