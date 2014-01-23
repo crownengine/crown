@@ -26,6 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "Vector3.h"
+
 namespace crown
 {
 
@@ -33,6 +35,8 @@ typedef Id ActorId;
 typedef Id ControllerId;
 typedef Id TriggerId;
 typedef Id JointId;
+
+struct Actor;
 
 //-----------------------------------------------------------------------------
 struct ActorType
@@ -109,5 +113,22 @@ struct CollisionGroup
 		GROUP_31	= (1<<31)
 	};
 };
+
+namespace physics_world
+{
+	struct EventType
+	{
+		enum Enum
+		{
+			COLLISION
+		};
+	};
+
+	struct CollisionEvent
+	{
+		Actor* actors[2];
+		Vector3 where;
+	};
+}
 
 } // namespace crown

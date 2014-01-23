@@ -35,4 +35,25 @@ typedef Id UnitId;
 typedef Id WorldId;
 typedef Id CameraId;
 
+struct EventType
+{
+	enum Enum
+	{
+		SPAWN,
+		DESTROY
+	};
+};
+
+struct SpawnUnitEvent
+{
+	/// The unit being spawned
+	UnitId unit;
+};
+
+struct DestroyUnitEvent
+{
+	/// The unit being unspawned
+	UnitId unit;
+};
+
 } // namespace crown

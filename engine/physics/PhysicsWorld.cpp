@@ -156,7 +156,7 @@ namespace physics_system
 		// the filtermask of A contains the ID of B and vice versa.
 		if((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
 		{
-			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
+			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_CONTACT_POINTS;
 			return PxFilterFlag::eDEFAULT;
 		}
 
@@ -202,6 +202,8 @@ PhysicsWorld::PhysicsWorld()
 	, m_controllers_pool(default_allocator(), MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
 	, m_triggers_pool(default_allocator(), MAX_TRIGGERS, sizeof(Trigger), CE_ALIGNOF(Trigger))
 	, m_joints_pool(default_allocator(), MAX_JOINTS, sizeof(Joint), CE_ALIGNOF(Joint))
+	, m_events(default_allocator())
+	, m_callback(m_events)
 {
 	// Create the scene
 	PxSceneLimits scene_limits;

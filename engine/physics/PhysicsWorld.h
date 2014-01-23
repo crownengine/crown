@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PoolAllocator.h"
 #include "PhysicsTypes.h"
 #include "PhysicsCallback.h"
+#include "EventStream.h"
 
 #include "PxScene.h"
 #include "PxDefaultCpuDispatcher.h"
@@ -111,19 +112,23 @@ public:
 	PxScene*					m_scene;
 	PxDefaultCpuDispatcher*		m_cpu_dispatcher;
 
-	PhysicsSimulationCallback	m_callback;
-
 	PoolAllocator				m_actors_pool;
-	IdArray<MAX_ACTORS, Actor*>	m_actors;
-
 	PoolAllocator				m_controllers_pool;
-	IdArray<MAX_CONTROLLERS, Controller*> m_controllers;
-
 	PoolAllocator				m_triggers_pool;
-	IdArray<MAX_TRIGGERS, Trigger*> m_triggers;
-
 	PoolAllocator				m_joints_pool;
+
+	IdArray<MAX_ACTORS, Actor*>	m_actors;
+	IdArray<MAX_CONTROLLERS, Controller*> m_controllers;
+	IdArray<MAX_TRIGGERS, Trigger*> m_triggers;
 	IdArray<MAX_JOINTS, Joint*> m_joints;
+
+	// Events management
+	EventStream m_events;
+	PhysicsSimulationCallback m_callback;
+
+public:
+
+	friend class PhysicsSimulationCallback;
 };
 
 } // namespace crown
