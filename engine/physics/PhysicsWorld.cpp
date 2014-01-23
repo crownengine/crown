@@ -37,6 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ProxyAllocator.h"
 #include "Hash.h"
 #include "StringUtils.h"
+#include "Actor.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -290,9 +291,9 @@ void PhysicsWorld::destroy_trigger(TriggerId id)
 }
 
 //-----------------------------------------------------------------------------
-JointId	PhysicsWorld::create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& a1, const Actor& a2)
+JointId	PhysicsWorld::create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1)
 {
-	Joint* joint = CE_NEW(m_joints_pool, Joint)(physics_system::s_physics, pr, index, a1, a2);
+	Joint* joint = CE_NEW(m_joints_pool, Joint)(physics_system::s_physics, pr, index, actor_0, actor_1);
 	return m_joints.create(joint);
 }
 

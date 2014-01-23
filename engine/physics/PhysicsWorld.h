@@ -72,6 +72,7 @@ struct Trigger;
 struct Joint;
 struct Quaternion;
 class SceneGraph;
+struct Actor;
 
 //-----------------------------------------------------------------------------
 class PhysicsWorld
@@ -90,7 +91,7 @@ public:
 	TriggerId					create_trigger(const Vector3& half_extents, const Vector3& pos, const Quaternion& rot);
 	void						destroy_trigger(TriggerId id);
 
-	JointId						create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& a1, const Actor& a2);
+	JointId						create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1);
 	void						destroy_joint(JointId id);
 
 	Actor*						lookup_actor(StringId32 name);
