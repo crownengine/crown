@@ -42,23 +42,22 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-struct Actor;
 struct PhysicsResource;
+class Actor;
 
 //-----------------------------------------------------------------------------
 struct Joint
 {
-	Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index, const Actor& a1, const Actor& a2);
+	Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1);
 	~Joint();
 
 public:
 
-	const PhysicsResource* m_resource;
-	const uint32_t m_index;
+	const PhysicsResource* 	m_resource;
+	const uint32_t 			m_index;
 
 	PxJoint* 			m_joint;
 	PxMaterial* 		m_mat;
-
 };
 
 } // namespace crown

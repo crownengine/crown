@@ -44,6 +44,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PxPrismaticJoint.h"
 #include "PxDistanceJoint.h"
 #include "PxJointLimit.h"
+#include "Actor.h"
 
 using physx::PxPhysics;
 using physx::PxScene;
@@ -83,23 +84,22 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index, const Actor& a1, const Actor& a2)
+Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1)
 	: m_resource(pr)
 	, m_index(index)
 {
 	const PhysicsJoint& joint = m_resource->joint(m_index);
 
-	Matrix4x4 m1 = a1.m_scene_graph.world_pose(a1.m_node);
-	PxMat44 pose1((PxReal*)(m1.to_float_ptr()));
-
-	Matrix4x4 m2 = a2.m_scene_graph.world_pose(a2.m_node);
-	PxMat44 pose2((PxReal*)(m2.to_float_ptr()));
+	PxVec3 anchor_0(joint.anchor_0.x, joint.anchor_0.y, joint.anchor_0.z);
+	PxVec3 anchor_1(joint.anchor_1.x, joint.anchor_1.y, joint.anchor_1.z);
 
 	switch(joint.type)
 	{
 		case JointType::FIXED:
 		{
-			m_joint = PxFixedJointCreate(*physics, a1.m_actor, PxTransform(pose1), a2.m_actor, PxTransform(pose2));
+			m_joint = PxFixedJointCreate(*physics, actor_0.m_actor, PxTransform(anchor_0), actor_1.m_actor, PxTransform(anchor_1));
+
+			static_cast<PxFixedJoint*>(m_joint)->setProjectionLinearTolerance(0.5f);
 
 			break;
 		}
@@ -111,9 +111,12 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 			limit_cone.damping = joint.damping;
 			limit_cone.contactDistance = joint.distance;
 
-			m_joint = PxSphericalJointCreate(*physics, a1.m_actor, PxTransform(pose1), a2.m_actor, PxTransform(pose2));	
+			m_joint = PxSphericalJointCreate(*physics, actor_0.m_actor, PxTransform(anchor_0), actor_1.m_actor, PxTransform(anchor_1));
+
 			static_cast<PxSphericalJoint*>(m_joint)->setLimitCone(limit_cone);
 			static_cast<PxSphericalJoint*>(m_joint)->setSphericalJointFlag(PxSphericalJointFlag::eLIMIT_ENABLED, true);
+
+			static_cast<PxSphericalJoint*>(m_joint)->setProjectionLinearTolerance(0.5f);
 
 			break;
 		}
@@ -123,11 +126,13 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 			limit_pair.spring = joint.spring;
 			limit_pair.damping = joint.damping;
 
-			m_joint = PxRevoluteJointCreate(*physics, a1.m_actor, PxTransform(pose1), a2.m_actor, PxTransform(pose2));
+			m_joint = PxRevoluteJointCreate(*physics, actor_0.m_actor, PxTransform(anchor_0), actor_1.m_actor, PxTransform(anchor_1));
 			static_cast<PxRevoluteJoint*>(m_joint)->setLimit(limit_pair);
 			static_cast<PxRevoluteJoint*>(m_joint)->setRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, true);
 			static_cast<PxRevoluteJoint*>(m_joint)->setDriveVelocity(10.0f);
 			static_cast<PxRevoluteJoint*>(m_joint)->setRevoluteJointFlag(PxRevoluteJointFlag::eDRIVE_ENABLED, true);
+
+			static_cast<PxRevoluteJoint*>(m_joint)->setProjectionLinearTolerance(0.5f);
 
 			break;
 		}
@@ -137,7 +142,7 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 			limit_pair.spring = joint.spring;
 			limit_pair.damping = joint.damping;
 
-			m_joint = PxPrismaticJointCreate(*physics, a1.m_actor, PxTransform(pose1), a2.m_actor, PxTransform(pose2));
+			m_joint = PxPrismaticJointCreate(*physics, actor_0.m_actor, PxTransform(anchor_0), actor_1.m_actor, PxTransform(anchor_1));
 			static_cast<PxPrismaticJoint*>(m_joint)->setLimit(limit_pair);
 			static_cast<PxPrismaticJoint*>(m_joint)->setPrismaticJointFlag(PxPrismaticJointFlag::eLIMIT_ENABLED, true);
 
@@ -145,7 +150,7 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 		}
 		case JointType::DISTANCE:
 		{
-			m_joint = PxDistanceJointCreate(*physics, a1.m_actor, PxTransform(pose1), a2.m_actor, PxTransform(pose2));
+			m_joint = PxDistanceJointCreate(*physics, actor_0.m_actor, PxTransform(anchor_0), actor_1.m_actor, PxTransform(anchor_1));
 			static_cast<PxDistanceJoint*>(m_joint)->setMaxDistance(10.0f);
 			static_cast<PxDistanceJoint*>(m_joint)->setDistanceJointFlag(PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
 
