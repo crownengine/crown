@@ -211,6 +211,17 @@ void Unit::create_physics_objects()
 			ActorId id = m_world.physics_world()->create_actor(pr, i, m_scene_graph, m_scene_graph.node(actor.node));
 			add_actor(actor.name, id);
 		}
+
+		// Create joints if any
+		for (uint32_t i = 0; i < pr->num_joints(); i++)
+		{
+			const PhysicsJoint& joint = pr->joint(i);
+
+			Actor* a1 = actor_by_index(joint.actor_0);
+			Actor* a2 = actor_by_index(joint.actor_1);
+
+			JointId id = m_world.physics_world()->create_joint(pr, i, *a1, *a2);
+		}
 	}
 }
 
@@ -369,6 +380,23 @@ Id Unit::find_component(uint32_t index, uint32_t size, Component* array)
 }
 
 //-----------------------------------------------------------------------------
+Id Unit::find_component_by_index(StringId32 name, uint32_t size, Component* array)
+{
+	Id comp;
+	comp.id = INVALID_ID;
+
+	for (uint32_t i = 0; i < size; i++)
+	{
+		if (name == array[i].name)
+		{
+			comp = array[i].component;
+		}
+	}
+
+	return comp;
+}
+
+//-----------------------------------------------------------------------------
 void Unit::add_camera(StringId32 name, CameraId camera)
 {
 	CE_ASSERT(m_num_cameras < MAX_CAMERA_COMPONENTS, "Max camera number reached");
@@ -494,6 +522,16 @@ Actor* Unit::actor(uint32_t i)
 
 	return m_world.physics_world()->lookup_actor(actor);
 }	
+
+//-----------------------------------------------------------------------------
+Actor* Unit::actor_by_index(StringId32 name)
+{
+	ActorId actor = find_component_by_index(name, m_num_actors, m_actors);
+
+	// CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%d'", name);
+
+	return m_world.physics_world()->lookup_actor(actor);
+}
 
 //-----------------------------------------------------------------------------
 Controller* Unit::controller()

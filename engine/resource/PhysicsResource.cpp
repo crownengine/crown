@@ -37,6 +37,7 @@ namespace crown
 namespace physics_resource
 {
 
+//-----------------------------------------------------------------------------
 static uint32_t actor_type_to_enum(const char* type)
 {
 	if (string::strcmp("static", type) == 0) return PhysicsActorType::STATIC;
@@ -46,6 +47,7 @@ static uint32_t actor_type_to_enum(const char* type)
 	CE_FATAL("Bad actor type");
 }
 
+//-----------------------------------------------------------------------------
 static uint32_t actor_group_to_enum(const char* group)
 {
 	if (string::strcmp("GROUP_0", group) == 0) 	return PhysicsActorGroup::GROUP_0;
@@ -84,6 +86,7 @@ static uint32_t actor_group_to_enum(const char* group)
 	CE_FATAL("Bad actor group");
 }
 
+//-----------------------------------------------------------------------------
 static uint32_t shape_type_to_enum(const char* type)
 {
 	if (string::strcmp("sphere", type) == 0) 		return PhysicsShapeType::SPHERE;
@@ -92,6 +95,19 @@ static uint32_t shape_type_to_enum(const char* type)
 	else if (string::strcmp("plane", type) == 0) 	return PhysicsShapeType::PLANE;
 
 	CE_FATAL("Bad shape type");
+}
+
+//-----------------------------------------------------------------------------
+static uint32_t joint_type_to_enum(const char* type)
+{
+	if (string::strcmp("fixed", type) == 0) 			return PhysicsJointType::FIXED;
+	else if (string::strcmp("spherical", type) == 0) 	return PhysicsJointType::SPHERICAL;
+	else if (string::strcmp("revolute", type) == 0) 	return PhysicsJointType::REVOLUTE;
+	else if (string::strcmp("prismatic", type) == 0) 	return PhysicsJointType::PRISMATIC;
+	else if (string::strcmp("distance", type) == 0) 	return PhysicsJointType::DISTANCE;
+	else if (string::strcmp("d6", type) == 0) 			return PhysicsJointType::D6;	
+
+	CE_FATAL("Bad joint type");
 }
 
 //-----------------------------------------------------------------------------
@@ -209,6 +225,44 @@ void parse_actor(JSONElement e, PhysicsActor& actor, List<PhysicsShape>& actor_s
 }
 
 //-----------------------------------------------------------------------------
+void parse_joint(JSONElement e, PhysicsJoint& joint)
+{
+	JSONElement name = e.key("name");
+	JSONElement type = e.key("type");
+	JSONElement actor_0 = e.key("actor_0");
+	JSONElement actor_1 = e.key("actor_1");
+	JSONElement restitution = e.key("restitution");
+	JSONElement spring = e.key("spring");
+	JSONElement damping = e.key("damping");
+	JSONElement distance = e.key("distance");
+	JSONElement breakable = e.key("breakable");
+	JSONElement break_force = e.key("break_force");
+	JSONElement break_torque = e.key("break_torque");
+
+	DynamicString joint_name;
+	DynamicString joint_type;
+	DynamicString joint_actor_0;
+	DynamicString joint_actor_1;
+	
+	name.string_value(joint_name);
+	type.string_value(joint_type);
+	actor_0.string_value(joint_actor_0);
+	actor_1.string_value(joint_actor_1);
+
+	joint.name = hash::murmur2_32(joint_name.c_str(), joint_name.length());
+	joint.type = joint_type_to_enum(joint_type.c_str());
+	joint.actor_0 = hash::murmur2_32(joint_actor_0.c_str(), joint_actor_0.length());
+	joint.actor_1 = hash::murmur2_32(joint_actor_1.c_str(), joint_actor_1.length());
+	joint.restitution = restitution.float_value();
+	joint.spring = spring.float_value();
+	joint.damping = damping.float_value();
+	joint.distance = distance.float_value();
+	joint.breakable = breakable.bool_value();
+	joint.break_force = break_force.float_value();
+	joint.break_torque = break_torque.float_value();
+}
+
+//-----------------------------------------------------------------------------
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
@@ -257,6 +311,19 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		}
 	}
 
+	// Read joints
+	List<PhysicsJoint> m_joints(default_allocator());
+	JSONElement joints = root.key_or_nil("joints");
+	if (!joints.is_nil())
+	{
+		for (uint32_t i = 0; i < joints.size(); i++)
+		{
+			PhysicsJoint j;
+			parse_joint(joints[i], j);
+			m_joints.push_back(j);
+		}
+	}
+
 	fs.close(file);
 	default_allocator().deallocate(buf);
 
@@ -266,12 +333,14 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	h.num_actors = m_actors.size();
 	h.num_shapes_indices = m_shapes_indices.size();
 	h.num_shapes = m_shapes.size();
+	h.num_joints = m_joints.size();
 
 	uint32_t offt = sizeof(PhysicsHeader);
 	h.controller_offset = offt; offt += sizeof(PhysicsController) * h.num_controllers;
 	h.actors_offset = offt; offt += sizeof(PhysicsActor) * h.num_actors;
 	h.shapes_indices_offset = offt; offt += sizeof(uint32_t) * h.num_shapes_indices;
-	h.shapes_offset = offt;
+	h.shapes_offset = offt; offt += sizeof(PhysicsShape) * h.num_shapes;
+	h.joints_offset = offt;
 
 	out_file->write((char*) &h, sizeof(PhysicsHeader));
 
@@ -293,6 +362,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	if (m_shapes.size())
 	{
 		out_file->write((char*) m_shapes.begin(), sizeof(PhysicsShape) * m_shapes.size());
+	}
+
+	if (m_joints.size())
+	{
+		out_file->write((char*) m_joints.begin(), sizeof(PhysicsJoint) * m_joints.size());
 	}
 }
 

@@ -389,6 +389,13 @@ void Actor::wake_up()
 }
 
 //-----------------------------------------------------------------------------
+StringId32 Actor::name()
+{
+	const PhysicsActor& a = m_resource->actor(m_index);
+	return a.name;
+}
+
+//-----------------------------------------------------------------------------
 void Actor::update_pose()
 {
 	// Read world pose

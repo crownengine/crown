@@ -47,6 +47,8 @@ struct PhysicsHeader
 	uint32_t shapes_indices_offset;
 	uint32_t num_shapes;
 	uint32_t shapes_offset;
+	uint32_t num_joints;
+	uint32_t joints_offset;
 };
 
 //-----------------------------------------------------------------------------
@@ -150,6 +152,38 @@ struct PhysicsShape
 };
 
 //-----------------------------------------------------------------------------
+struct PhysicsJointType
+{
+	enum Enum
+	{
+		FIXED,
+		SPHERICAL,
+		REVOLUTE,
+		PRISMATIC,
+		DISTANCE,
+		D6
+	};
+};
+
+//-----------------------------------------------------------------------------
+struct PhysicsJoint
+{
+	StringId32 name;
+	uint32_t type;
+	StringId32 actor_0;
+	StringId32 actor_1;
+
+	float restitution;
+	float spring;
+	float damping;
+	float distance;
+
+	bool  breakable;
+	float break_force;
+	float break_torque;
+};
+
+//-----------------------------------------------------------------------------
 struct PhysicsResource
 {
 	//-----------------------------------------------------------------------------
@@ -243,6 +277,22 @@ struct PhysicsResource
 		const PhysicsHeader* ph = (PhysicsHeader*) this;
 		PhysicsShape* shape = (PhysicsShape*) (((char*) this) + ph->shapes_offset);
 		return shape[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_joints() const
+	{
+		return ((PhysicsHeader*) this)->num_joints;
+	}
+
+	//-----------------------------------------------------------------------------
+	PhysicsJoint joint(uint32_t i) const
+	{
+		CE_ASSERT(i < num_joints(), "Index out of bounds");
+
+		const PhysicsHeader* ph = (PhysicsHeader*) this;
+		PhysicsJoint* joint = (PhysicsJoint*) (((char*) this) + ph->joints_offset);
+		return joint[i];		
 	}
 
 private:

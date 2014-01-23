@@ -56,31 +56,31 @@ public:
 	//-----------------------------------------------------------------------------
 	void onConstraintBreak(PxConstraintInfo* /*constraints*/, PxU32 /*count*/)
 	{
-		Log::i("COSTRAINTBREAK");
+		// Log::i("COSTRAINTBREAK");
 	}
 
 	//-----------------------------------------------------------------------------
 	void onContact(const PxContactPairHeader& /*pairHeader*/, const PxContactPair* /*pairs*/, PxU32 /*nbPairs*/)
 	{
-		Log::i("CONTACT");
+		// Log::i("CONTACT");
 	}
 
 	//-----------------------------------------------------------------------------
 	void onTrigger(PxTriggerPair* /*pairs*/, PxU32 /*count*/)
 	{
-		Log::i("TRIGGER");
+		// Log::i("TRIGGER");
 	}
 
 	//-----------------------------------------------------------------------------
 	void onWake(PxActor** /*actors*/, PxU32 /*count*/)
 	{
-		Log::i("WAKE");
+		// Log::i("WAKE");
 	}
 
 	//-----------------------------------------------------------------------------
 	void onSleep(PxActor** /*actors*/, PxU32 /*count*/)
 	{
-		Log::i("SLEEP");
+		// Log::i("SLEEP");
 	}
 };
 
@@ -90,19 +90,19 @@ class PhysicsControllerCallback : public PxUserControllerHitReport
 	//-----------------------------------------------------------------------------
 	void onShapeHit(const PxControllerShapeHit& hit)
 	{
-		Log::i("SHAPE HIT");
+		// Log::i("SHAPE HIT");
 	}
 
 	//-----------------------------------------------------------------------------
 	void onControllerHit(const PxControllersHit& hit)
 	{
-		Log::i("CONTROLLER HIT");
+		// Log::i("CONTROLLER HIT");
 	}
 
 	//-----------------------------------------------------------------------------
 	void onObstacleHit(const PxControllerObstacleHit& hit)
 	{
-		Log::i("OBSTACLE HIT");
+		// Log::i("OBSTACLE HIT");
 	}
 };
 

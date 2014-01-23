@@ -32,8 +32,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SceneGraph.h"
 #include "Controller.h"
 #include "Trigger.h"
+#include "Joint.h"
 #include "PhysicsCallback.h"
 #include "ProxyAllocator.h"
+#include "Hash.h"
+#include "StringUtils.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -58,6 +61,7 @@ using physx::PxFilterObjectIsTrigger;
 using physx::PxPairFlag;
 using physx::PxFilterFlag;
 using physx::PxSceneLimits;
+using physx::PxVisualizationParameter;
 
 namespace crown
 {
@@ -197,6 +201,7 @@ PhysicsWorld::PhysicsWorld()
 	, m_actors_pool(default_allocator(), MAX_ACTORS, sizeof(Actor), CE_ALIGNOF(Actor))
 	, m_controllers_pool(default_allocator(), MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
 	, m_triggers_pool(default_allocator(), MAX_TRIGGERS, sizeof(Trigger), CE_ALIGNOF(Trigger))
+	, m_joints_pool(default_allocator(), MAX_JOINTS, sizeof(Joint), CE_ALIGNOF(Joint))
 {
 	// Create the scene
 	PxSceneLimits scene_limits;
@@ -220,7 +225,7 @@ PhysicsWorld::PhysicsWorld()
 
 	CE_ASSERT(scene_desc.isValid(), "Scene is not valid");
 	m_scene = physics_system::s_physics->createScene(scene_desc);
-
+	
 	// Create controller manager
 	m_controller_manager = PxCreateControllerManager(*physics_system::s_foundation);
 	CE_ASSERT(m_controller_manager != NULL, "Failed to create PhysX controller manager");
@@ -283,6 +288,36 @@ void PhysicsWorld::destroy_trigger(TriggerId id)
 }
 
 //-----------------------------------------------------------------------------
+JointId	PhysicsWorld::create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& a1, const Actor& a2)
+{
+	Joint* joint = CE_NEW(m_joints_pool, Joint)(physics_system::s_physics, pr, index, a1, a2);
+	return m_joints.create(joint);
+}
+
+//-----------------------------------------------------------------------------
+void PhysicsWorld::destroy_joint(JointId id)
+{
+	CE_ASSERT(m_joints.has(id), "Joint does not exist");
+
+	CE_DELETE(m_joints_pool, m_joints.lookup(id));
+	m_joints.destroy(id);
+}
+
+//-----------------------------------------------------------------------------
+Actor* PhysicsWorld::lookup_actor(StringId32 name)
+{
+	for (uint32_t i = 0; i < m_actors.size(); i++)
+	{
+		Actor* actor = m_actors[i];
+
+		if (actor->name() == name)
+		{
+			return actor;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 Actor* PhysicsWorld::lookup_actor(ActorId id)
 {
 	CE_ASSERT(m_actors.has(id), "Actor does not exist");
@@ -314,6 +349,21 @@ void PhysicsWorld::set_gravity(const Vector3& g)
 {
 	m_scene->setGravity(PxVec3(g.x, g.y, g.z));
 }
+
+//-----------------------------------------------------------------------------
+void PhysicsWorld::set_kinematic(ActorId id)
+{
+	Actor* actor = lookup_actor(id);
+	actor->set_kinematic();
+}
+
+//-----------------------------------------------------------------------------
+void PhysicsWorld::clear_kinematic(ActorId id)
+{
+	Actor* actor = lookup_actor(id);
+	actor->clear_kinematic();
+}
+
 
 //-----------------------------------------------------------------------------
 void PhysicsWorld::update(float dt)

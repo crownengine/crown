@@ -90,6 +90,8 @@ struct Actor
 	bool				is_sleeping();
 	void				wake_up();
 
+	StringId32			name();
+
 	void				update_pose();
 	void				update(const Matrix4x4& pose);
 

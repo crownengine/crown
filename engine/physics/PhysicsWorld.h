@@ -45,6 +45,7 @@ using physx::PxActor;
 #define MAX_ACTORS 1024
 #define MAX_CONTROLLERS 1024
 #define MAX_TRIGGERS 1024
+#define MAX_JOINTS 512
 
 namespace crown
 {
@@ -67,6 +68,7 @@ struct Controller;
 struct Vector3;
 struct Actor;
 struct Trigger;
+struct Joint;
 struct Quaternion;
 class SceneGraph;
 
@@ -87,12 +89,19 @@ public:
 	TriggerId					create_trigger(const Vector3& half_extents, const Vector3& pos, const Quaternion& rot);
 	void						destroy_trigger(TriggerId id);
 
+	JointId						create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& a1, const Actor& a2);
+	void						destroy_joint(JointId id);
+
+	Actor*						lookup_actor(StringId32 name);
 	Actor*						lookup_actor(ActorId id);
 	Controller*					lookup_controller(ControllerId id);
 	Trigger*					lookup_trigger(TriggerId id);
 
 	Vector3						gravity() const;
 	void						set_gravity(const Vector3& g);
+
+	void						set_kinematic(ActorId id);
+	void						clear_kinematic(ActorId id);
 
 	void						update(float dt);
 
@@ -112,6 +121,9 @@ public:
 
 	PoolAllocator				m_triggers_pool;
 	IdArray<MAX_TRIGGERS, Trigger*> m_triggers;
+
+	PoolAllocator				m_joints_pool;
+	IdArray<MAX_JOINTS, Joint*> m_joints;
 };
 
 } // namespace crown

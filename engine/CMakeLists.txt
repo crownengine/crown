@@ -395,6 +395,7 @@ set (PHYSICS_SRC
 	physics/Controller.cpp
 	physics/PhysicsWorld.cpp
 	physics/Trigger.cpp
+	physics/Joint.cpp
 )
 
 set (PHYSICS_HEADERS
@@ -403,6 +404,7 @@ set (PHYSICS_HEADERS
 	physics/PhysicsTypes.h
 	physics/PhysicsWorld.h
 	physics/Trigger.h
+	physics/Joint.h
 	physics/PhysicsCallback.h
 )
 

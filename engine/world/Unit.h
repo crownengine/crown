@@ -113,6 +113,7 @@ struct Unit
 	void				add_component(StringId32 name, Id component, uint32_t& size, Component* array);
 	Id					find_component(const char* name, uint32_t size, Component* array);
 	Id					find_component(uint32_t index, uint32_t size, Component* array);
+	Id 					find_component_by_index(StringId32 name, uint32_t size, Component* array);
 
 	void				add_camera(StringId32 name, CameraId camera);
 	void				add_mesh(StringId32 name, MeshId mesh);
@@ -132,6 +133,7 @@ struct Unit
 
 	Actor*				actor(const char* name);
 	Actor*				actor(uint32_t i);
+	Actor*				actor_by_index(StringId32 name);
 
 	Material*			material(const char* name);
 	Material*			material(uint32_t i);
