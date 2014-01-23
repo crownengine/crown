@@ -120,31 +120,11 @@ Actor::Actor(const PhysicsResource* res, uint32_t index, PxPhysics* physics, PxS
 	uint32_t shape_index = m_resource->shape_index(m_index);
 	for (uint32_t i = 0; i < a.num_shapes; i++)
 	{
-		PhysicsShape shape = m_resource->shape(shape_index);
+		const PhysicsShape& shape = m_resource->shape(shape_index);
 		Vector3 pos = sg.world_position(node);
 
-		switch(shape.type)
-		{
-			case PhysicsShapeType::SPHERE:
-			{
-				create_sphere(pos, shape.data_0);
-				break;
-			}
-			case PhysicsShapeType::BOX:
-			{
-				create_box(pos, shape.data_0, shape.data_1, shape.data_2);
-				break;
-			}
-			case PhysicsShapeType::PLANE:
-			{
-				create_plane(pos, Vector3(shape.data_0, shape.data_1, shape.data_2));
-				break;
-			}
-			default:
-			{
-				CE_FATAL("Oops, unknown shape type");
-			}
-		}
+		create_shape(pos, shape);
+
 		shape_index++;
 	}
 
@@ -170,21 +150,39 @@ Actor::~Actor()
 }
 
 //-----------------------------------------------------------------------------
-void Actor::create_sphere(const Vector3& position, float radius)
+void Actor::create_shape(const Vector3& position, const PhysicsShape& s)
 {
-	m_actor->createShape(PxSphereGeometry(radius), *m_mat);
-}
+	PxShape* shape;
 
-//-----------------------------------------------------------------------------
-void Actor::create_box(const Vector3& position, float half_x, float half_y, float half_z)
-{
-	m_actor->createShape(PxBoxGeometry(half_x, half_y, half_z), *m_mat);
-}
+	switch(s.type)
+	{
+		case PhysicsShapeType::SPHERE:
+		{
+			shape = m_actor->createShape(PxSphereGeometry(s.data_0), *m_mat);
+			break;
+		}
+		case PhysicsShapeType::BOX:
+		{
+			shape = m_actor->createShape(PxBoxGeometry(s.data_0, s.data_1, s.data_2), *m_mat);
+			break;
+		}
+		case PhysicsShapeType::PLANE:
+		{
+			// FIXME
+			shape = m_actor->createShape(PxPlaneGeometry(), *m_mat);
+			break;
+		}
+		default:
+		{
+			CE_FATAL("Oops, unknown shape type");
+		}
+	}
 
-//-----------------------------------------------------------------------------
-void Actor::create_plane(const Vector3& position, const Vector3& /*normal*/)
-{
-	m_actor->createShape(PxPlaneGeometry(), *m_mat);
+	if (s.trigger)
+	{
+		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+		shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);		
+	}
 }
 
 //-----------------------------------------------------------------------------

@@ -49,6 +49,7 @@ struct PhysicsResource;
 struct Quaternion;
 struct Matrix4x4;
 struct Unit;
+struct PhysicsShape;
 class SceneGraph;
 
 struct Actor
@@ -97,9 +98,7 @@ struct Actor
 
 private:
 
-	void				create_sphere(const Vector3& position, float radius);
-	void				create_box(const Vector3& position, float a, float b, float c);
-	void				create_plane(const Vector3& position, const Vector3& normal);
+	void				create_shape(const Vector3& position, const PhysicsShape& s);
 	
 public:
 
