@@ -157,10 +157,6 @@ Camera* World::lookup_camera(CameraId camera)
 //-----------------------------------------------------------------------------
 void World::update(float dt)
 {
-	// Update scene graphs
-	m_scenegraph_manager.update();
-
-	// Update physics world
 	m_physics_world.update(dt);
 
 	m_scenegraph_manager.update();
