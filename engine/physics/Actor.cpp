@@ -64,9 +64,9 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Actor::Actor(const PhysicsResource* res, uint32_t i, PxPhysics* physics, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
+Actor::Actor(const PhysicsResource* res, uint32_t index, PxPhysics* physics, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
 	: m_resource(res)
-	, m_index(i)
+	, m_index(index)
 	, m_scene(scene)
 	, m_scene_graph(sg)
 	, m_node(node)
@@ -117,10 +117,10 @@ Actor::Actor(const PhysicsResource* res, uint32_t i, PxPhysics* physics, PxScene
 	m_mat = physics->createMaterial(a.static_friction, a.dynamic_friction, a.restitution);
 
 	// Creates shapes
-	uint32_t index = m_resource->shape_index(m_index);
+	uint32_t shape_index = m_resource->shape_index(m_index);
 	for (uint32_t i = 0; i < a.num_shapes; i++)
 	{
-		PhysicsShape shape = m_resource->shape(index);
+		PhysicsShape shape = m_resource->shape(shape_index);
 		Vector3 pos = sg.world_position(node);
 
 		switch(shape.type)
@@ -145,7 +145,7 @@ Actor::Actor(const PhysicsResource* res, uint32_t i, PxPhysics* physics, PxScene
 				CE_FATAL("Oops, unknown shape type");
 			}
 		}
-		index++;
+		shape_index++;
 	}
 
 	m_group = a.group;

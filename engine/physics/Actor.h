@@ -53,7 +53,7 @@ class SceneGraph;
 
 struct Actor
 {
-						Actor(const PhysicsResource* res, uint32_t i, PxPhysics* physics, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot);
+						Actor(const PhysicsResource* res, uint32_t index, PxPhysics* physics, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot);
 						~Actor();
 
 	void				enable_gravity();
