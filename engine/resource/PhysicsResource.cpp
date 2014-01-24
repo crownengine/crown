@@ -235,13 +235,15 @@ void parse_joint(JSONElement e, PhysicsJoint& joint)
 	JSONElement actor_1 = e.key("actor_1");
 	JSONElement anchor_0 = e.key("anchor_0");
 	JSONElement anchor_1 = e.key("anchor_1");
+
+	JSONElement breakable = e.key("breakable");
+	JSONElement break_force = e.key("break_force");
+	JSONElement break_torque = e.key("break_torque");
+
 	JSONElement restitution = e.key("restitution");
 	JSONElement spring = e.key("spring");
 	JSONElement damping = e.key("damping");
 	JSONElement distance = e.key("distance");
-	JSONElement breakable = e.key("breakable");
-	JSONElement break_force = e.key("break_force");
-	JSONElement break_torque = e.key("break_torque");
 
 	DynamicString joint_name;
 	DynamicString joint_type;
@@ -249,7 +251,7 @@ void parse_joint(JSONElement e, PhysicsJoint& joint)
 	DynamicString joint_actor_1;
 	List<float> joint_anchor_0(default_allocator());
 	List<float> joint_anchor_1(default_allocator());
-	
+
 	name.string_value(joint_name);
 	type.string_value(joint_type);
 	actor_0.string_value(joint_actor_0);
@@ -263,13 +265,62 @@ void parse_joint(JSONElement e, PhysicsJoint& joint)
 	joint.actor_1 = hash::murmur2_32(joint_actor_1.c_str(), joint_actor_1.length());
 	joint.anchor_0 = Vector3(joint_anchor_0.begin());
 	joint.anchor_1 = Vector3(joint_anchor_1.begin());
+
+	joint.breakable = breakable.bool_value();
+	joint.break_force = break_force.float_value();
+	joint.break_torque = break_torque.float_value();
+
+	switch (joint.type)
+	{
+		case PhysicsJointType::FIXED:
+		{
+			return;
+		}
+		case PhysicsJointType::SPHERICAL:
+		{
+			JSONElement y_limit_angle = e.key("y_limit_angle");
+			JSONElement z_limit_angle = e.key("z_limit_angle");
+			JSONElement contact_dist = e.key("contact_dist");
+
+			joint.y_limit_angle = y_limit_angle.float_value();
+			joint.z_limit_angle = z_limit_angle.float_value();
+			joint.contact_dist = contact_dist.float_value();
+
+			break;
+		}
+		case PhysicsJointType::REVOLUTE:
+		case PhysicsJointType::PRISMATIC:
+		{
+			JSONElement lower_limit = e.key("lower_limit");
+			JSONElement upper_limit = e.key("upper_limit");
+			JSONElement contact_dist = e.key("contact_dist");
+
+			joint.lower_limit = lower_limit.float_value();
+			joint.upper_limit = upper_limit.float_value();
+			joint.contact_dist = contact_dist.float_value();
+
+			break;
+		}
+		case PhysicsJointType::DISTANCE:
+		{
+			JSONElement max_distance = e.key("max_distance");
+			joint.max_distance = max_distance.float_value();
+
+			break;
+		}
+		case PhysicsJointType::D6:
+		{
+			// Must be implemented
+
+			break;
+		}
+	}
+
 	joint.restitution = restitution.float_value();
 	joint.spring = spring.float_value();
 	joint.damping = damping.float_value();
 	joint.distance = distance.float_value();
-	joint.breakable = breakable.bool_value();
-	joint.break_force = break_force.float_value();
-	joint.break_torque = break_torque.float_value();
+
 }
 
 //-----------------------------------------------------------------------------
