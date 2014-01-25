@@ -46,8 +46,6 @@ struct UnitHeader
 	uint32_t renderables_offset;
 	uint32_t num_cameras;
 	uint32_t cameras_offset;
-	uint32_t num_actors;
-	uint32_t actors_offset;
 	uint32_t num_scene_graph_nodes;
 	uint32_t scene_graph_names_offset;
 	uint32_t scene_graph_poses_offset;
@@ -67,15 +65,6 @@ struct UnitCamera
 {
 	uint32_t name;
 	int32_t node;
-};
-
-struct UnitActor
-{
-	StringId32 name;
-	int32_t node;
-	enum {STATIC, DYNAMIC} type;
-	enum {SPHERE, BOX, PLANE} shape;
-	bool active;
 };
 
 struct UnitResource
@@ -152,22 +141,6 @@ struct UnitResource
 
 		UnitHeader* h = (UnitHeader*) this;
 		UnitCamera* begin = (UnitCamera*) (((char*) this) + h->cameras_offset);
-		return begin[i];
-	}
-
-	//-----------------------------------------------------------------------------
-	uint32_t num_actors() const
-	{
-		return ((UnitHeader*) this)->num_actors;
-	}
-
-	//-----------------------------------------------------------------------------
-	UnitActor get_actor(uint32_t i) const
-	{
-		CE_ASSERT(i < num_actors(), "Index out of bounds");
-
-		UnitHeader* h = (UnitHeader*) this;
-		UnitActor* begin = (UnitActor*) (((char*) this) + h->actors_offset);
 		return begin[i];
 	}
 
