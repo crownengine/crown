@@ -237,6 +237,15 @@ void JSONElement::string_value(DynamicString& str) const
 }
 
 //--------------------------------------------------------------------------
+StringId32 JSONElement::string_id_value() const
+{
+	TempAllocator1024 alloc;
+	DynamicString str(alloc);
+	json::parse_string(m_at, str);
+	return str.to_string_id();
+}
+
+//--------------------------------------------------------------------------
 void JSONElement::array_value(List<bool>& array) const
 {
 	List<const char*> temp(default_allocator());
@@ -326,6 +335,20 @@ void JSONElement::array_value(Vector<DynamicString>& array) const
 		DynamicString str;
 		json::parse_string(temp[i], str);
 		array.push_back(str);
+	}
+}
+
+//--------------------------------------------------------------------------
+void JSONElement::key_value(Vector<DynamicString>& keys) const
+{
+	List<JSONPair> object(default_allocator());
+	json::parse_object(m_at, object);
+
+	for (uint32_t i = 0; i < object.size(); i++)
+	{
+		DynamicString key;
+		json::parse_string(object[i].key, key);
+		keys.push_back(key);
 	}
 }
 

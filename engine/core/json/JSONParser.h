@@ -116,11 +116,10 @@ public:
 	float				float_value() const;
 
 	/// Returns the string value of the element.
-	/// @warning
-	/// The returned string is kept internally until the next call to
-	/// this function, so it is highly unsafe to just keep the pointer
-	/// instead of copying its content somewhere else.
 	void				string_value(DynamicString& str) const;
+
+	/// Returns the string id value hashed to hash::murmur2_32() of the element.
+	StringId32			string_id_value() const;
 
 	/// Returns the array value of the element.
 	/// @note
@@ -147,6 +146,9 @@ public:
 
 	/// @copydoc JSONElement::array_value(List<bool>&)
 	void				array_value(Vector<DynamicString>& array) const;
+
+	/// Returns all the keys of the element.
+	void				key_value(Vector<DynamicString>& keys) const;
 
 private:
 
