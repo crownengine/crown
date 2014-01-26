@@ -127,6 +127,20 @@ struct PhysicsJoint
 	float break_force;
 	float break_torque;
 
+	// Revolute/Prismatic Joint Limits
+	float lower_limit;
+	float upper_limit;
+
+	// Spherical Joint Limits
+	float y_limit_angle;
+	float z_limit_angle;
+
+	// Distance Joint Limits
+	float max_distance;
+
+	// JointLimitPair/cone param
+	float contact_dist;
+
 	float restitution;
 	float spring;
 	float damping;

@@ -204,6 +204,52 @@ void parse_joints(JSONElement e, List<PhysicsJoint>& joints)
 		pj.break_force = break_force.is_nil() 	? 3000.0 : break_force.float_value();
 		pj.break_torque = break_torque.is_nil() ? 1000.0 : break_torque.float_value();
 
+		switch (pj.type)
+		{
+			case PhysicsJointType::FIXED:
+			{
+				return;
+			}
+			case PhysicsJointType::SPHERICAL:
+			{
+				JSONElement y_limit_angle = joint.key_or_nil("y_limit_angle");
+				JSONElement z_limit_angle = joint.key_or_nil("z_limit_angle");
+				JSONElement contact_dist = joint.key_or_nil("contact_dist");
+
+				pj.y_limit_angle = y_limit_angle.is_nil() ? math::HALF_PI : y_limit_angle.float_value();
+				pj.z_limit_angle = z_limit_angle.is_nil() ? math::HALF_PI : z_limit_angle.float_value();
+				pj.contact_dist = contact_dist.is_nil() ? 0.0 : contact_dist.float_value();
+
+				break;
+			}
+			case PhysicsJointType::REVOLUTE:
+			case PhysicsJointType::PRISMATIC:
+			{
+				JSONElement lower_limit = joint.key_or_nil("lower_limit");
+				JSONElement upper_limit = joint.key_or_nil("upper_limit");
+				JSONElement contact_dist = joint.key_or_nil("contact_dist");
+
+				pj.lower_limit = lower_limit.is_nil() ? 0.0 : lower_limit.float_value();
+				pj.upper_limit = upper_limit.is_nil() ? 0.0 : upper_limit.float_value();
+				pj.contact_dist = contact_dist.is_nil() ? 0.0 : contact_dist.float_value();
+
+				break;
+			}
+			case PhysicsJointType::DISTANCE:
+			{
+				JSONElement max_distance = joint.key_or_nil("max_distance");
+				pj.max_distance = max_distance.is_nil() ? 0.0 : max_distance.float_value();
+
+				break;
+			}
+			case PhysicsJointType::D6:
+			{
+				// Must be implemented
+
+				break;
+			}
+		}
+
 		joints.push_back(pj);
 	}
 }
