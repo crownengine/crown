@@ -107,19 +107,19 @@ public:
 	uint32_t			size() const;
 
 	/// Returns the boolean value of the element.
-	bool				bool_value() const;
+	bool				to_bool() const;
 
 	/// Returns the integer value of the element.
-	int32_t				int_value() const;
+	int32_t				to_int() const;
 
 	/// Returns the float value of the element.
-	float				float_value() const;
+	float				to_float() const;
 
 	/// Returns the string value of the element.
-	void				string_value(DynamicString& str) const;
+	void				to_string(DynamicString& str) const;
 
 	/// Returns the string id value hashed to hash::murmur2_32() of the element.
-	StringId32			string_id_value() const;
+	StringId32			to_string_id() const;
 
 	/// Returns the array value of the element.
 	/// @note
@@ -127,28 +127,28 @@ public:
 	/// array elements by JSONElement::operator[] and it is the very preferred way
 	/// for retrieving array elemets. However, you have to be sure that the array
 	/// contains only items of the given @array type.
-	void				array_value(List<bool>& array) const;
+	void				to_array(List<bool>& array) const;
 
-	/// @copydoc JSONElement::array_value(List<bool>&)
-	void				array_value(List<int16_t>& array) const;
+	/// @copydoc JSONElement::to_array(List<bool>&)
+	void				to_array(List<int16_t>& array) const;
 
-	/// @copydoc JSONElement::array_value(List<bool>&)
-	void				array_value(List<uint16_t>& array) const;
+	/// @copydoc JSONElement::to_array(List<bool>&)
+	void				to_array(List<uint16_t>& array) const;
 
-	/// @copydoc JSONElement::array_value(List<bool>&)
-	void				array_value(List<int32_t>& array) const;
+	/// @copydoc JSONElement::to_array(List<bool>&)
+	void				to_array(List<int32_t>& array) const;
 
-	/// @copydoc JSONElement::array_value(List<bool>&)
-	void				array_value(List<uint32_t>& array) const;
+	/// @copydoc JSONElement::to_array(List<bool>&)
+	void				to_array(List<uint32_t>& array) const;
 
-	/// @copydoc JSONElement::array_value(List<bool>&)
-	void				array_value(List<float>& array) const;
+	/// @copydoc JSONElement::to_array(List<bool>&)
+	void				to_array(List<float>& array) const;
 
-	/// @copydoc JSONElement::array_value(List<bool>&)
-	void				array_value(Vector<DynamicString>& array) const;
+	/// @copydoc JSONElement::to_array(List<bool>&)
+	void				to_array(Vector<DynamicString>& array) const;
 
 	/// Returns all the keys of the element.
-	void				key_value(Vector<DynamicString>& keys) const;
+	void				to_keys(Vector<DynamicString>& keys) const;
 
 private:
 
