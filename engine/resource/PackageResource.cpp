@@ -69,7 +69,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		for (uint32_t i = 0; i < texture_array_size; i++)
 		{
 			DynamicString texture_name;
-			texture_array[i].string_value(texture_name); texture_name += ".texture";
+			texture_array[i].to_string(texture_name); texture_name += ".texture";
 
 			if (!fs.is_file(texture_name.c_str()))
 			{
@@ -93,7 +93,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		for (uint32_t i = 0; i < lua_array_size; i++)
 		{
 			DynamicString lua_name;
-			lua_array[i].string_value(lua_name); lua_name += ".lua";
+			lua_array[i].to_string(lua_name); lua_name += ".lua";
 
 			if (!fs.is_file(lua_name.c_str()))
 			{
@@ -116,7 +116,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		for (uint32_t i = 0; i < sound_array_size; i++)
 		{
 			DynamicString sound_name;
-			sound_array[i].string_value(sound_name); sound_name += ".sound";
+			sound_array[i].to_string(sound_name); sound_name += ".sound";
 
 			if (!fs.is_file(sound_name.c_str()))
 			{
@@ -139,7 +139,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		for (uint32_t i = 0; i < mesh_array_size; i++)
 		{
 			DynamicString mesh_name;
-			mesh_array[i].string_value(mesh_name); mesh_name += ".mesh";
+			mesh_array[i].to_string(mesh_name); mesh_name += ".mesh";
 
 			if (!fs.is_file(mesh_name.c_str()))
 			{
@@ -162,7 +162,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		for (uint32_t i = 0; i < unit_array_size; i++)
 		{
 			DynamicString unit_name;
-			unit_array[i].string_value(unit_name); unit_name += ".unit";
+			unit_array[i].to_string(unit_name); unit_name += ".unit";
 
 			if (!fs.is_file(unit_name.c_str()))
 			{
@@ -184,7 +184,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		for (uint32_t i = 0; i < sprite_array_size; i++)
 		{
 			DynamicString sprite_name;
-			sprite_array[i].string_value(sprite_name); sprite_name += ".sprite";
+			sprite_array[i].to_string(sprite_name); sprite_name += ".sprite";
 
 			if (!fs.is_file(sprite_name.c_str()))
 			{
@@ -207,7 +207,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		for (uint32_t i = 0; i < physics_array_size; i++)
 		{
 			DynamicString physics_name;
-			physics_array[i].string_value(physics_name); physics_name += ".physics";
+			physics_array[i].to_string(physics_name); physics_name += ".physics";
 
 			if (!fs.is_file(physics_name.c_str()))
 			{
@@ -230,7 +230,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		for (uint32_t i = 0; i < materials_array_size; i++)
 		{
 			DynamicString materials_name;
-			materials_array[i].string_value(materials_name); materials_name += ".material";
+			materials_array[i].to_string(materials_name); materials_name += ".material";
 
 			if (!fs.is_file(materials_name.c_str()))
 			{
@@ -253,7 +253,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		for (uint32_t i = 0; i < guis_array_size; i++)
 		{
 			DynamicString guis_name;
-			guis_array[i].string_value(guis_name); guis_name += ".gui";
+			guis_array[i].to_string(guis_name); guis_name += ".gui";
 
 			if (!fs.is_file(guis_name.c_str()))
 			{

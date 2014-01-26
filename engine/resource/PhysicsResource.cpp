@@ -75,20 +75,20 @@ void parse_controller(JSONElement e, PhysicsController& controller)
 	JSONElement contact_offset 		= e.key("contact_offset");
 	JSONElement collision_filter 	= e.key("collision_filter");
 
-	controller.name = name.string_id_value();
-	controller.height = height.float_value();
-	controller.radius = radius.float_value();
-	controller.slope_limit = slope_limit.float_value();
-	controller.step_offset = step_offset.float_value();
-	controller.contact_offset = contact_offset.float_value();
-	controller.collision_filter = collision_filter.string_id_value();
+	controller.name = name.to_string_id();
+	controller.height = height.to_float();
+	controller.radius = radius.to_float();
+	controller.slope_limit = slope_limit.to_float();
+	controller.step_offset = step_offset.to_float();
+	controller.contact_offset = contact_offset.to_float();
+	controller.collision_filter = collision_filter.to_string_id();
 }
 
 //-----------------------------------------------------------------------------
 void parse_shapes(JSONElement e, List<PhysicsShape>& shapes)
 {
 	Vector<DynamicString> keys(default_allocator());
-	e.key_value(keys);
+	e.to_keys(keys);
 
 	for (uint32_t k = 0; k < keys.size(); k++)
 	{
@@ -99,9 +99,9 @@ void parse_shapes(JSONElement e, List<PhysicsShape>& shapes)
 
 		PhysicsShape ps;
 		ps.name = keys[k].to_string_id();
-		ps.shape_class = clasz.string_id_value();
-		ps.material = material.string_id_value();
-		DynamicString stype; type.string_value(stype);
+		ps.shape_class = clasz.to_string_id();
+		ps.material = material.to_string_id();
+		DynamicString stype; type.to_string(stype);
 		ps.type = shape_type_to_enum(stype.c_str());
 
 		switch (ps.type)
@@ -109,7 +109,7 @@ void parse_shapes(JSONElement e, List<PhysicsShape>& shapes)
 			case PhysicsShapeType::SPHERE:
 			{
 				JSONElement radius = shape.key("radius");
-				ps.data_0 = radius.float_value();
+				ps.data_0 = radius.to_float();
 				break;
 			}
 			case PhysicsShapeType::CAPSULE:
@@ -123,9 +123,9 @@ void parse_shapes(JSONElement e, List<PhysicsShape>& shapes)
 				JSONElement half_y = shape.key("half_y");
 				JSONElement half_z = shape.key("half_z");
 
-				ps.data_0 = half_x.float_value();
-				ps.data_1 = half_y.float_value();
-				ps.data_2 = half_z.float_value();
+				ps.data_0 = half_x.to_float();
+				ps.data_1 = half_y.to_float();
+				ps.data_2 = half_z.to_float();
 
 				break;
 			}
@@ -144,7 +144,7 @@ void parse_shapes(JSONElement e, List<PhysicsShape>& shapes)
 void parse_actors(JSONElement e, List<PhysicsActor>& actors, List<PhysicsShape>& actor_shapes, List<uint32_t>& shape_indices)
 {
 	Vector<DynamicString> keys(default_allocator());
-	e.key_value(keys);
+	e.to_keys(keys);
 
 	for (uint32_t k = 0; k < keys.size(); k++)
 	{
@@ -155,8 +155,8 @@ void parse_actors(JSONElement e, List<PhysicsActor>& actors, List<PhysicsShape>&
 
 		PhysicsActor pa;
 		pa.name = keys[k].to_string_id();
-		pa.node = node.string_id_value();
-		pa.actor_class = clasz.string_id_value();
+		pa.node = node.to_string_id();
+		pa.actor_class = clasz.to_string_id();
 		pa.num_shapes = shapes.size();
 
 		actors.push_back(pa);
@@ -170,7 +170,7 @@ void parse_actors(JSONElement e, List<PhysicsActor>& actors, List<PhysicsShape>&
 void parse_joints(JSONElement e, List<PhysicsJoint>& joints)
 {
 	Vector<DynamicString> keys(default_allocator());
-	e.key_value(keys);
+	e.to_keys(keys);
 
 	for (uint32_t k = 0; k < keys.size(); k++)
 	{
@@ -190,19 +190,19 @@ void parse_joints(JSONElement e, List<PhysicsJoint>& joints)
 
 		PhysicsJoint pj;
 		pj.name = keys[k].to_string_id();
-		DynamicString jtype; type.string_value(jtype);
+		DynamicString jtype; type.to_string(jtype);
 		pj.type = joint_type_to_enum(jtype.c_str());
-		pj.actor_0 = actor_0.string_id_value();
-		pj.actor_1 = actor_1.string_id_value();
-		pj.anchor_0 = Vector3(anchor_0[0].float_value(), anchor_0[1].float_value(), anchor_0[2].float_value());
-		pj.anchor_1 = Vector3(anchor_1[0].float_value(), anchor_1[1].float_value(), anchor_1[2].float_value());
-		pj.restitution = restitution.is_nil() 	? 0.5 : restitution.float_value();
-		pj.spring = spring.is_nil() 			? 100.0 : spring.float_value();
-		pj.damping = damping.is_nil() 			? 0.0 : damping.float_value();
-		pj.distance = distance.is_nil() 		? 1.0 : distance.float_value();
-		pj.breakable = breakable.is_nil() 		? false : breakable.bool_value();
-		pj.break_force = break_force.is_nil() 	? 3000.0 : break_force.float_value();
-		pj.break_torque = break_torque.is_nil() ? 1000.0 : break_torque.float_value();
+		pj.actor_0 = actor_0.to_string_id();
+		pj.actor_1 = actor_1.to_string_id();
+		pj.anchor_0 = Vector3(anchor_0[0].to_float(), anchor_0[1].to_float(), anchor_0[2].to_float());
+		pj.anchor_1 = Vector3(anchor_1[0].to_float(), anchor_1[1].to_float(), anchor_1[2].to_float());
+		pj.restitution = restitution.is_nil() 	? 0.5 : restitution.to_float();
+		pj.spring = spring.is_nil() 			? 100.0 : spring.to_float();
+		pj.damping = damping.is_nil() 			? 0.0 : damping.to_float();
+		pj.distance = distance.is_nil() 		? 1.0 : distance.to_float();
+		pj.breakable = breakable.is_nil() 		? false : breakable.to_bool();
+		pj.break_force = break_force.is_nil() 	? 3000.0 : break_force.to_float();
+		pj.break_torque = break_torque.is_nil() ? 1000.0 : break_torque.to_float();
 
 		switch (pj.type)
 		{
@@ -216,9 +216,9 @@ void parse_joints(JSONElement e, List<PhysicsJoint>& joints)
 				JSONElement z_limit_angle = joint.key_or_nil("z_limit_angle");
 				JSONElement contact_dist = joint.key_or_nil("contact_dist");
 
-				pj.y_limit_angle = y_limit_angle.is_nil() ? math::HALF_PI : y_limit_angle.float_value();
-				pj.z_limit_angle = z_limit_angle.is_nil() ? math::HALF_PI : z_limit_angle.float_value();
-				pj.contact_dist = contact_dist.is_nil() ? 0.0 : contact_dist.float_value();
+				pj.y_limit_angle = y_limit_angle.is_nil() ? math::HALF_PI : y_limit_angle.to_float();
+				pj.z_limit_angle = z_limit_angle.is_nil() ? math::HALF_PI : z_limit_angle.to_float();
+				pj.contact_dist = contact_dist.is_nil() ? 0.0 : contact_dist.to_float();
 
 				break;
 			}
@@ -229,16 +229,16 @@ void parse_joints(JSONElement e, List<PhysicsJoint>& joints)
 				JSONElement upper_limit = joint.key_or_nil("upper_limit");
 				JSONElement contact_dist = joint.key_or_nil("contact_dist");
 
-				pj.lower_limit = lower_limit.is_nil() ? 0.0 : lower_limit.float_value();
-				pj.upper_limit = upper_limit.is_nil() ? 0.0 : upper_limit.float_value();
-				pj.contact_dist = contact_dist.is_nil() ? 0.0 : contact_dist.float_value();
+				pj.lower_limit = lower_limit.is_nil() ? 0.0 : lower_limit.to_float();
+				pj.upper_limit = upper_limit.is_nil() ? 0.0 : upper_limit.to_float();
+				pj.contact_dist = contact_dist.is_nil() ? 0.0 : contact_dist.to_float();
 
 				break;
 			}
 			case PhysicsJointType::DISTANCE:
 			{
 				JSONElement max_distance = joint.key_or_nil("max_distance");
-				pj.max_distance = max_distance.is_nil() ? 0.0 : max_distance.float_value();
+				pj.max_distance = max_distance.is_nil() ? 0.0 : max_distance.to_float();
 
 				break;
 			}
@@ -384,7 +384,7 @@ namespace physics_config_resource
 	void parse_materials(JSONElement e, List<ObjectName>& names, List<PhysicsMaterial>& objects)
 	{
 		Vector<DynamicString> keys(default_allocator());
-		e.key_value(keys);
+		e.to_keys(keys);
 
 		for (uint32_t i = 0; i < keys.size(); i++)
 		{
@@ -400,9 +400,9 @@ namespace physics_config_resource
 
 			// Read material object
 			PhysicsMaterial mat;
-			mat.static_friction = static_friction.float_value();
-			mat.dynamic_friction = dynamic_friction.float_value();
-			mat.restitution = restitution.float_value();
+			mat.static_friction = static_friction.to_float();
+			mat.dynamic_friction = dynamic_friction.to_float();
+			mat.restitution = restitution.to_float();
 
 			names.push_back(mat_name);
 			objects.push_back(mat);
@@ -412,7 +412,7 @@ namespace physics_config_resource
 	void parse_shapes(JSONElement e, List<NameToMask>& name_to_mask, List<ObjectName>& names, List<PhysicsShape2>& objects)
 	{
 		Vector<DynamicString> keys(default_allocator());
-		e.key_value(keys);
+		e.to_keys(keys);
 
 		for (uint32_t i = 0; i < keys.size(); i++)
 		{
@@ -427,8 +427,8 @@ namespace physics_config_resource
 
 			// Read shape object
 			PhysicsShape2 ps2;
-			ps2.trigger = trigger.bool_value();
-			DynamicString cfilter; collision_filter.string_value(cfilter);
+			ps2.trigger = trigger.to_bool();
+			DynamicString cfilter; collision_filter.to_string(cfilter);
 			ps2.collision_filter = collision_filter_to_mask(cfilter.c_str(), name_to_mask);
 
 			names.push_back(shape_name);
@@ -439,7 +439,7 @@ namespace physics_config_resource
 	void parse_actors(JSONElement e, List<ObjectName>& names, List<PhysicsActor2>& objects)
 	{
 		Vector<DynamicString> keys(default_allocator());
-		e.key_value(keys);
+		e.to_keys(keys);
 
 		for (uint32_t i = 0; i < keys.size(); i++)
 		{
@@ -458,20 +458,20 @@ namespace physics_config_resource
 			// Read actor object
 			PhysicsActor2 pa2;
 			//actor.collision_filter = coll_filter.to_string_id();
-			pa2.linear_damping = linear_damping.is_nil() ? 0.0 : linear_damping.float_value();
-			pa2.angular_damping = angular_damping.is_nil() ? 0.05 : angular_damping.float_value();
+			pa2.linear_damping = linear_damping.is_nil() ? 0.0 : linear_damping.to_float();
+			pa2.angular_damping = angular_damping.is_nil() ? 0.05 : angular_damping.to_float();
 			pa2.flags = 0;
 			if (!dynamic.is_nil())
 			{
-				pa2.flags |= dynamic.bool_value() ? : 0;
+				pa2.flags |= dynamic.to_bool() ? : 0;
 			}
 			if (!kinematic.is_nil())
 			{
-				pa2.flags |= kinematic.bool_value() ? PhysicsActor2::KINEMATIC : 0;
+				pa2.flags |= kinematic.to_bool() ? PhysicsActor2::KINEMATIC : 0;
 			}
 			if (!disable_gravity.is_nil())
 			{
-				pa2.flags |= disable_gravity.bool_value() ? PhysicsActor2::DISABLE_GRAVITY : 0;
+				pa2.flags |= disable_gravity.to_bool() ? PhysicsActor2::DISABLE_GRAVITY : 0;
 			}
 
 			names.push_back(actor_name);
@@ -482,7 +482,7 @@ namespace physics_config_resource
 	void parse_collision_filters(JSONElement e, List<ObjectName>& names, List<PhysicsCollisionFilter>& objects, List<NameToMask>& name_to_mask)
 	{
 		Vector<DynamicString> keys(default_allocator());
-		e.key_value(keys);
+		e.to_keys(keys);
 
 		// Assign a unique mask to each collision filter
 		for (uint32_t i = 0; i < keys.size(); i++)
@@ -505,7 +505,7 @@ namespace physics_config_resource
 
 			// Build mask
 			Vector<DynamicString> collides_with_vector(default_allocator());
-			collides_with.array_value(collides_with_vector);
+			collides_with.to_array(collides_with_vector);
 
 			PhysicsCollisionFilter pcf;
 			pcf.mask = collides_with_to_mask(collides_with_vector, name_to_mask);

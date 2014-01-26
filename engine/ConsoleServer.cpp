@@ -187,7 +187,7 @@ void ConsoleServer::process(TCPSocket client, const char* request)
 {
 	JSONParser parser(request);
 	DynamicString type; 
-	parser.root().key("type").string_value(type);
+	parser.root().key("type").to_string(type);
 
 	// Determine request type
 	if (type == "ping") process_ping(client, request);
@@ -211,7 +211,7 @@ void ConsoleServer::process_script(TCPSocket /*client*/, const char* msg)
 	JSONElement root = parser.root();
 
 	DynamicString script;
-	root.key("script").string_value(script);
+	root.key("script").to_string(script);
 	device()->lua_environment()->execute_string(script.c_str());
 }
 
@@ -249,7 +249,7 @@ void ConsoleServer::process_command(TCPSocket /*client*/, const char* msg)
 	JSONElement command = root.key("command");
 
 	DynamicString cmd;
-	command.string_value(cmd);
+	command.to_string(cmd);
 
 	if (cmd == "reload")
 	{
@@ -258,8 +258,8 @@ void ConsoleServer::process_command(TCPSocket /*client*/, const char* msg)
 
 		DynamicString resource_type;
 		DynamicString resource_name;
-		type.string_value(resource_type);
-		name.string_value(resource_name);
+		type.to_string(resource_type);
+		name.to_string(resource_name);
 
 		char t[256];
 		char n[256];
@@ -285,12 +285,12 @@ void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
 	JSONElement filesystem = root.key("filesystem");
 
 	DynamicString cmd;
-	filesystem.string_value(cmd);
+	filesystem.to_string(cmd);
 
 	if (cmd == "size")
 	{
 		DynamicString file_name;
-		root.key("file").string_value(file_name);
+		root.key("file").to_string(file_name);
 
 		File* file = device()->filesystem()->open(file_name.c_str(), FOM_READ);
 		size_t file_size = file->size();
@@ -308,18 +308,18 @@ void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
 		JSONElement file_size = root.key("size");
 
 		DynamicString file_name;
-		root.key("file").string_value(file_name);
+		root.key("file").to_string(file_name);
 
 		// Read the file data
 		File* file = device()->filesystem()->open(file_name.c_str(), FOM_READ);
-		char* bytes = (char*) default_allocator().allocate((size_t) file_size.int_value());
-		file->seek((size_t) file_position.int_value());
-		file->read(bytes, (size_t) file_size.int_value());
+		char* bytes = (char*) default_allocator().allocate((size_t) file_size.to_int());
+		file->seek((size_t) file_position.to_int());
+		file->read(bytes, (size_t) file_size.to_int());
 		device()->filesystem()->close(file);
 
 		// Encode data to base64
 		size_t dummy;
-		char* bytes_encoded = math::base64_encode((unsigned char*) bytes, (size_t) file_size.int_value(), &dummy);
+		char* bytes_encoded = math::base64_encode((unsigned char*) bytes, (size_t) file_size.to_int(), &dummy);
 
 		// Send data
 		TempAllocator4096 alloc;

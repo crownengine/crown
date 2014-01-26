@@ -82,21 +82,21 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		return;
 	}
 	List<float> position_array(default_allocator());
-	position.array_value(position_array);
+	position.to_array(position_array);
 
 
 	List<float> normal_array(default_allocator());
 	if (!normal.is_nil())
 	{
 		m_has_normal = true;
-		normal.array_value(normal_array);
+		normal.to_array(normal_array);
 	}
 
 	List<float> texcoord_array(default_allocator());
 	if (!texcoord.is_nil())
 	{
 		m_has_texcoord = true;
-		texcoord.array_value(texcoord_array);
+		texcoord.to_array(texcoord_array);
 	}
 
 	// Read index arrays
@@ -111,16 +111,16 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	List<uint16_t> normal_index(default_allocator());
 	List<uint16_t> texcoord_index(default_allocator());
 
-	index[0].array_value(position_index);
+	index[0].to_array(position_index);
 
 	if (m_has_normal)
 	{
-		index[1].array_value(normal_index);
+		index[1].to_array(normal_index);
 	}
 
 	if (m_has_texcoord)
 	{
-		index[2].array_value(texcoord_index);
+		index[2].to_array(texcoord_index);
 	}
 
 	// Generate vb/ib

@@ -58,18 +58,18 @@ void parse_frame(JSONElement frame, List<StringId32>& names, List<FrameData>& re
 	JSONElement scale = frame.key("scale");
 
 	DynamicString frame_name;
-	name.string_value(frame_name);
+	name.to_string(frame_name);
 
 	StringId32 name_hash = hash::murmur2_32(frame_name.c_str(), frame_name.length(), 0);
 	FrameData fd;
-	fd.x0 = region[0].float_value();
-	fd.y0 = region[1].float_value();
-	fd.x1 = region[2].float_value();
-	fd.y1 = region[3].float_value();
-	fd.offset_x = offset[0].float_value();
-	fd.offset_y = offset[1].float_value();
-	fd.scale_x = scale[0].float_value();
-	fd.scale_y = scale[1].float_value();
+	fd.x0 = region[0].to_float();
+	fd.y0 = region[1].to_float();
+	fd.x1 = region[2].to_float();
+	fd.y1 = region[3].to_float();
+	fd.offset_x = offset[0].to_float();
+	fd.offset_y = offset[1].to_float();
+	fd.scale_x = scale[0].to_float();
+	fd.scale_y = scale[1].to_float();
 
 	names.push_back(name_hash);
 	regions.push_back(fd);
@@ -93,8 +93,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	List<uint16_t>			m_indices(default_allocator());
 
 	// Read width/height
-	width = root.key("width").float_value();
-	height = root.key("height").float_value();
+	width = root.key("width").to_float();
+	height = root.key("height").to_float();
 
 	// Read frames
 	JSONElement frames = root.key("frames");
