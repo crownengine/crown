@@ -52,22 +52,23 @@ SceneGraph::SceneGraph(Allocator& a, uint32_t index)
 }
 
 //-----------------------------------------------------------------------------
-void SceneGraph::create(const Matrix4x4& root, uint32_t count, const StringId32* name, const Matrix4x4* local, int32_t* parent)
+void SceneGraph::create(const Matrix4x4& root, uint32_t count, UnitNode* nodes)
 {
-	char* mem = (char*) m_allocator->allocate(count * (sizeof(uint8_t) + sizeof(Matrix4x4) + sizeof(Matrix4x4) + sizeof(int32_t) + sizeof(StringId32)));
-
 	m_num_nodes = count;
 
-	m_flags = (uint8_t*) mem; mem += sizeof(uint8_t) * count;
-	m_world_poses = (Matrix4x4*) mem; mem += sizeof(Matrix4x4) * count;
-	m_local_poses = (Matrix4x4*) mem; mem += sizeof(Matrix4x4) * count;
-	m_parents = (int32_t*) mem; mem += sizeof(int32_t) * count;
-	m_names = (StringId32*) mem; mem += sizeof(StringId32) * count;
+	m_flags = (uint8_t*) m_allocator->allocate(sizeof(uint8_t) * count);
+	m_world_poses = (Matrix4x4*) m_allocator->allocate(sizeof(Matrix4x4) * count);
+	m_local_poses = (Matrix4x4*) m_allocator->allocate(sizeof(Matrix4x4) * count);
+	m_parents = (int32_t*) m_allocator->allocate(sizeof(int32_t) * count);
+	m_names = (StringId32*) m_allocator->allocate(sizeof(StringId32) * count);
 
-	memset(m_flags, (int) CLEAN, sizeof(uint8_t) * count);
-	memcpy(m_local_poses, local, sizeof(Matrix4x4) * count);
-	memcpy(m_parents, parent, sizeof(int32_t) * count);
-	memcpy(m_names, name, sizeof(StringId32) * count);
+	for (uint32_t i = 0; i < count; i++)
+	{
+		m_flags[i] = (int) CLEAN;
+		m_local_poses[i] = nodes[i].pose;
+		m_parents[i] = -1;
+		m_names[i] = nodes[i].name;
+	}
 
 	// Compute initial world poses
 	for (uint32_t i = 1; i < m_num_nodes; i++)
@@ -84,8 +85,11 @@ void SceneGraph::create(const Matrix4x4& root, uint32_t count, const StringId32*
 //-----------------------------------------------------------------------------
 void SceneGraph::destroy()
 {
-	// m_flags is the start of allocated memory
 	m_allocator->deallocate(m_flags);
+	m_allocator->deallocate(m_world_poses);
+	m_allocator->deallocate(m_local_poses);
+	m_allocator->deallocate(m_parents);
+	m_allocator->deallocate(m_names);
 }
 
 //-----------------------------------------------------------------------------
