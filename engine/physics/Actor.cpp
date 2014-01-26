@@ -34,102 +34,73 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SceneGraph.h"
 #include "PxPhysicsAPI.h"
 
-using physx::PxRigidDynamicFlag;
-using physx::PxMat44;
-using physx::PxTransform;
+#include "Device.h"
+#include "ResourceManager.h"
+
+
 using physx::PxActorFlag;
-using physx::PxVec3;
+using physx::PxActorType;
+using physx::PxBoxGeometry;
+using physx::PxD6Axis;
+using physx::PxD6Joint;
+using physx::PxD6JointCreate;
+using physx::PxD6Motion;
+using physx::PxFilterData;
+using physx::PxForceMode;
+using physx::PxMat44;
+using physx::PxPlaneGeometry;
 using physx::PxReal;
 using physx::PxRigidActor;
 using physx::PxRigidBody;
-using physx::PxRigidDynamic;
-using physx::PxRigidStatic;
-using physx::PxPlaneGeometry;
-using physx::PxSphereGeometry;
-using physx::PxBoxGeometry;
 using physx::PxRigidBodyExt;
+using physx::PxRigidDynamic;
+using physx::PxRigidDynamicFlag;
+using physx::PxRigidStatic;
 using physx::PxShape;
 using physx::PxShapeFlag;
+using physx::PxSphereGeometry;
+using physx::PxTransform;
 using physx::PxU32;
-using physx::PxFilterData;
-using physx::PxForceMode;
-
-using physx::PxD6Joint;
-using physx::PxD6JointCreate;
-using physx::PxD6Axis;
-using physx::PxD6Motion;
-
+using physx::PxVec3;
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Actor::Actor(const PhysicsResource* res, uint32_t index, PxPhysics* physics, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
+Actor::Actor(const PhysicsResource* res, const PhysicsConfigResource* config, uint32_t index, PxPhysics* physics, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
 	: m_resource(res)
+	, m_config(config)
 	, m_index(index)
 	, m_scene(scene)
 	, m_scene_graph(sg)
 	, m_node(node)
 {
-	const PhysicsActor& a = m_resource->actor(m_index);
+	const PhysicsActor& actor = m_resource->actor(m_index);
+	const PhysicsActor2& actor_class = config->actor(actor.actor_class);
 
-	// Creates actor
-	Matrix4x4 m = sg.world_pose(node);
-	PxMat44 pose((PxReal*)(m.to_float_ptr()));
+	const PxMat44 pose((PxReal*) (sg.world_pose(node).to_float_ptr()));
 
-	switch (a.type)
+	if (actor_class.flags & PhysicsActor2::DYNAMIC)
 	{
-		case ActorType::STATIC:
+		m_actor = physics->createRigidDynamic(PxTransform(pose));
+		if (actor_class.flags & PhysicsActor2::KINEMATIC)
 		{
-			m_actor = physics->createRigidStatic(PxTransform(pose));
-			break;
+			static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
 		}
-		case ActorType::DYNAMIC_PHYSICAL:
-		case ActorType::DYNAMIC_KINEMATIC:
-		{
-			m_actor = physics->createRigidDynamic(PxTransform(pose));
 
-			if (a.type == ActorType::DYNAMIC_KINEMATIC)
-			{
-				static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
-			}
-			//PxRigidBodyExt::setMassAndUpdateInertia(*static_cast<PxRigidDynamic*>(m_actor), 500.0f);
-
-			PxD6Joint* joint = PxD6JointCreate(*physics, m_actor, PxTransform(pose), NULL, PxTransform(pose));
-			joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
-			joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
-			//joint->setMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
-			//joint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eFREE);
-			joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
-
-			break;
-		}
-		default:
-		{
-			CE_FATAL("Oops, unknown actor type");
-			break;
-		}
+		PxD6Joint* joint = PxD6JointCreate(*physics, m_actor, PxTransform(pose), NULL, PxTransform(pose));
+		joint->setMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+		joint->setMotion(PxD6Axis::eY, PxD6Motion::eFREE);
+		joint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
+	}
+	else
+	{
+		m_actor = physics->createRigidStatic(PxTransform(pose));
 	}
 
 	m_actor->userData = this;
 
-	// Creates material
-	m_mat = physics->createMaterial(a.static_friction, a.dynamic_friction, a.restitution);
-
-	// Creates shapes
-	uint32_t shape_index = m_resource->shape_index(m_index);
-	for (uint32_t i = 0; i < a.num_shapes; i++)
-	{
-		const PhysicsShape& shape = m_resource->shape(shape_index);
-		Vector3 pos = sg.world_position(node);
-
-		create_shape(pos, shape);
-
-		shape_index++;
-	}
-
-	m_group = a.group;
-	m_mask = a.mask;
+	create_shapes(res, config, physics);
 
 	// FIXME collisions works only if enable_collision() is called here first
 	// collision enabled by default
@@ -150,39 +121,56 @@ Actor::~Actor()
 }
 
 //-----------------------------------------------------------------------------
-void Actor::create_shape(const Vector3& position, const PhysicsShape& s)
+void Actor::create_shapes(const PhysicsResource* res, const PhysicsConfigResource* config, PxPhysics* physics)
 {
-	PxShape* shape;
-
-	switch(s.type)
+	const PhysicsActor& actor = m_resource->actor(m_index);
+	uint32_t shape_index = m_resource->shape_index(m_index);
+	for (uint32_t i = 0; i < actor.num_shapes; i++)
 	{
-		case PhysicsShapeType::SPHERE:
+		const PhysicsShape& shape = m_resource->shape(shape_index);
+		const PhysicsShape2& shape_class = config->shape(shape.shape_class);
+		const PhysicsMaterial& material = config->material(shape.material);
+
+		PxMaterial* mat = physics->createMaterial(material.static_friction, material.dynamic_friction, material.restitution);
+
+		PxShape* px_shape = NULL;
+		switch(shape.type)
 		{
-			shape = m_actor->createShape(PxSphereGeometry(s.data_0), *m_mat);
-			break;
+			case PhysicsShapeType::SPHERE:
+			{
+				px_shape = m_actor->createShape(PxSphereGeometry(shape.data_0), *mat);
+				break;
+			}
+			case PhysicsShapeType::BOX:
+			{
+				px_shape = m_actor->createShape(PxBoxGeometry(shape.data_0, shape.data_1, shape.data_2), *mat);
+				break;
+			}
+			case PhysicsShapeType::PLANE:
+			{
+				// FIXME
+				px_shape = m_actor->createShape(PxPlaneGeometry(), *mat);
+				break;
+			}
+			default:
+			{
+				CE_FATAL("Oops, unknown shape type");
+			}
 		}
-		case PhysicsShapeType::BOX:
+
+		if (shape_class.trigger)
 		{
-			shape = m_actor->createShape(PxBoxGeometry(s.data_0, s.data_1, s.data_2), *m_mat);
-			break;
+			px_shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+			px_shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);		
 		}
-		case PhysicsShapeType::PLANE:
-		{
-			// FIXME
-			shape = m_actor->createShape(PxPlaneGeometry(), *m_mat);
-			break;
-		}
-		default:
-		{
-			CE_FATAL("Oops, unknown shape type");
-		}
+
+		shape_index++;
 	}
 
-	if (s.trigger)
-	{
-		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
-		shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);		
-	}
+	// PxFilterData filter;
+	// filter.word0 = (PxU32) m_group;
+	// filter.word1 = (PxU32) m_mask;
+	// shape->SetSimulationFilterData()
 }
 
 //-----------------------------------------------------------------------------
@@ -200,43 +188,43 @@ void Actor::disable_gravity()
 //-----------------------------------------------------------------------------
 void Actor::enable_collision()
 {
-	PxFilterData filter_data;
-	filter_data.word0 = (PxU32) m_group;
-	filter_data.word1 = (PxU32) m_mask;
+	// PxFilterData filter_data;
+	// filter_data.word0 = (PxU32) m_group;
+	// filter_data.word1 = (PxU32) m_mask;
 
-	const PxU32 num_shapes = m_actor->getNbShapes();
+	// const PxU32 num_shapes = m_actor->getNbShapes();
 
-	PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
-	m_actor->getShapes(shapes, num_shapes);
+	// PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
+	// m_actor->getShapes(shapes, num_shapes);
 
-	for(PxU32 i = 0; i < num_shapes; i++)
-	{
-		PxShape* shape = shapes[i];
-		shape->setSimulationFilterData(filter_data);
-	}
+	// for(PxU32 i = 0; i < num_shapes; i++)
+	// {
+	// 	PxShape* shape = shapes[i];
+	// 	shape->setSimulationFilterData(filter_data);
+	// }
 
-	default_allocator().deallocate(shapes);
+	// default_allocator().deallocate(shapes);
 }
 
 //-----------------------------------------------------------------------------
 void Actor::disable_collision()
 {
-	PxFilterData filter_data;
-	filter_data.word0 = (PxU32) CollisionGroup::GROUP_0;
-	filter_data.word1 = (PxU32) CollisionGroup::GROUP_0;
+	// PxFilterData filter_data;
+	// filter_data.word0 = (PxU32) CollisionGroup::GROUP_0;
+	// filter_data.word1 = (PxU32) CollisionGroup::GROUP_0;
 
-	const PxU32 num_shapes = m_actor->getNbShapes();
+	// const PxU32 num_shapes = m_actor->getNbShapes();
 
-	PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
-	m_actor->getShapes(shapes, num_shapes);
+	// PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
+	// m_actor->getShapes(shapes, num_shapes);
 
-	for(PxU32 i = 0; i < num_shapes; i++)
-	{
-		PxShape* shape = shapes[i];
-		shape->setSimulationFilterData(filter_data);
-	}
+	// for(PxU32 i = 0; i < num_shapes; i++)
+	// {
+	// 	PxShape* shape = shapes[i];
+	// 	shape->setSimulationFilterData(filter_data);
+	// }
 
-	default_allocator().deallocate(shapes);	
+	// default_allocator().deallocate(shapes);	
 }
 
 //-----------------------------------------------------------------------------
@@ -254,33 +242,20 @@ void Actor::clear_kinematic()
 //-----------------------------------------------------------------------------
 bool Actor::is_static() const
 {
-	const PhysicsActor& a = m_resource->actor(m_index);
-
-	return a.type == ActorType::STATIC;
+	return m_actor->getType() & PxActorType::eRIGID_STATIC;
 }
 
 //-----------------------------------------------------------------------------
 bool Actor::is_dynamic() const
 {
-	const PhysicsActor& a = m_resource->actor(m_index);
-
-	return a.type == ActorType::DYNAMIC_PHYSICAL || a.type == ActorType::DYNAMIC_KINEMATIC;
+	return m_actor->getType() & PxActorType::eRIGID_DYNAMIC;
 }
 
 //-----------------------------------------------------------------------------
 bool Actor::is_kinematic() const
 {
-	const PhysicsActor& a = m_resource->actor(m_index);
-
-	return a.type == ActorType::DYNAMIC_KINEMATIC;
-}
-
-//-----------------------------------------------------------------------------
-bool Actor::is_physical() const
-{
-	const PhysicsActor& a = m_resource->actor(m_index);
-
-	return a.type == ActorType::DYNAMIC_PHYSICAL;
+	if (!is_dynamic()) return false;
+	return static_cast<PxRigidDynamic*>(m_actor)->getRigidDynamicFlags() & PxRigidDynamicFlag::eKINEMATIC;
 }
 
 //-----------------------------------------------------------------------------
@@ -394,43 +369,9 @@ StringId32 Actor::name()
 }
 
 //-----------------------------------------------------------------------------
-void Actor::update_pose()
-{
-	// Read world pose
-	Matrix4x4 wp = m_scene_graph.world_pose(m_node);
-	const PxMat44 pose((PxReal*) (wp.to_float_ptr()));
-	const PxTransform world_transform(pose);
-
-	const PhysicsActor& a = m_resource->actor(m_index);
-
-	switch (a.type)
-	{
-		case ActorType::STATIC:
-		{
-			// m_actor->setGlobalPose(world_transform);
-		}
-		case ActorType::DYNAMIC_PHYSICAL:
-		{
-			break;
-		}
-		case ActorType::DYNAMIC_KINEMATIC:
-		{
-			static_cast<PxRigidDynamic*>(m_actor)->setKinematicTarget(world_transform);
-			break;
-		}
-		default: break;
-	}
-}
-
-//-----------------------------------------------------------------------------
 void Actor::update(const Matrix4x4& pose)
 {
-	const PhysicsActor& a = m_resource->actor(m_index);
-
-	if (a.type == ActorType::DYNAMIC_PHYSICAL)
-	{
-		m_scene_graph.set_world_pose(m_node, pose);
-	}
+	m_scene_graph.set_world_pose(m_node, pose);
 }
 
 } // namespace crown

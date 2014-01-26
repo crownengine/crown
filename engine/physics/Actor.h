@@ -46,15 +46,15 @@ namespace crown
 {
 
 struct PhysicsResource;
+struct PhysicsConfigResource;
 struct Quaternion;
 struct Matrix4x4;
 struct Unit;
-struct PhysicsShape;
 class SceneGraph;
 
 struct Actor
 {
-						Actor(const PhysicsResource* res, uint32_t index, PxPhysics* physics, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot);
+						Actor(const PhysicsResource* res, const PhysicsConfigResource* config, uint32_t index, PxPhysics* physics, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot);
 						~Actor();
 
 	void				enable_gravity();
@@ -68,9 +68,7 @@ struct Actor
 
 	bool				is_static() const;
 	bool				is_dynamic() const;
-
 	bool				is_kinematic() const;
-	bool				is_physical() const;
 
 	float				linear_damping() const;
 	void				set_linear_damping(float rate);
@@ -93,23 +91,22 @@ struct Actor
 
 	StringId32			name();
 
-	void				update_pose();
 	void				update(const Matrix4x4& pose);
 
 private:
 
-	void				create_shape(const Vector3& position, const PhysicsShape& s);
+	void				create_shapes(const PhysicsResource* res, const PhysicsConfigResource* config, PxPhysics* physics);
 	
 public:
 
 	const PhysicsResource*	m_resource;
+	const PhysicsConfigResource* m_config;
 	uint32_t				m_index;
 
 	PxScene*				m_scene;
 	SceneGraph&				m_scene_graph;
 	int32_t					m_node;
 	PxRigidActor* 			m_actor;
-	PxMaterial* 			m_mat;
 	uint32_t				m_group;
 	uint32_t				m_mask;
 };

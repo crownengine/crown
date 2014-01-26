@@ -50,7 +50,8 @@ static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 	{ PACKAGE_TYPE, PackageResource::load, PackageResource::unload, PackageResource::online, PackageResource::offline },
 	{ PHYSICS_TYPE, PhysicsResource::load, PhysicsResource::unload, PhysicsResource::online, PhysicsResource::offline },
 	{ MATERIAL_TYPE, MaterialResource::load, MaterialResource::unload, MaterialResource::online, MaterialResource::offline },
-	{ GUI_TYPE, GuiResource::load, GuiResource::unload, GuiResource::online, GuiResource::offline },	
+	{ GUI_TYPE, GuiResource::load, GuiResource::unload, GuiResource::online, GuiResource::offline },
+	{ PHYSICS_CONFIG_TYPE, PhysicsConfigResource::load, PhysicsConfigResource::unload, PhysicsConfigResource::online, PhysicsConfigResource::offline },
 	{ 0, NULL, NULL, NULL, NULL }
 };
 

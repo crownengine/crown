@@ -34,31 +34,33 @@ namespace crown
 {
 
 /// Hashed values for supported resource types
-const char* const TEXTURE_EXTENSION			= "texture";
-const char* const MESH_EXTENSION			= "mesh";
-const char* const LUA_EXTENSION				= "lua";
-const char* const TEXT_EXTENSION			= "text";
-const char* const MATERIAL_EXTENSION		= "material";
-const char* const SOUND_EXTENSION			= "sound";
-const char* const SPRITE_EXTENSION			= "sprite";
-const char* const CONFIG_EXTENSION			= "config";
-const char* const PACKAGE_EXTENSION			= "package";
-const char* const UNIT_EXTENSION			= "unit";
-const char* const PHYSICS_EXTENSION			= "physics";
-const char* const GUI_EXTENSION				= "gui";
+#define TEXTURE_EXTENSION			"texture"
+#define MESH_EXTENSION				"mesh"
+#define LUA_EXTENSION				"lua"
+#define TEXT_EXTENSION				"text"
+#define MATERIAL_EXTENSION			"material"
+#define SOUND_EXTENSION				"sound"
+#define SPRITE_EXTENSION			"sprite"
+#define CONFIG_EXTENSION			"config"
+#define PACKAGE_EXTENSION			"package"
+#define UNIT_EXTENSION				"unit"
+#define PHYSICS_EXTENSION			"physics"
+#define GUI_EXTENSION				"gui"
+#define PHYSICS_CONFIG_EXTENSION	"physics_config"
 
-const uint32_t TEXTURE_TYPE					= 0x0DEED4F7;
-const uint32_t MESH_TYPE					= 0x742FBC9A;
-const uint32_t LUA_TYPE						= 0xD96E7C37;
-const uint32_t TEXT_TYPE					= 0x045CC650;
-const uint32_t MATERIAL_TYPE				= 0x46807A92;
-const uint32_t SOUND_TYPE					= 0xD196AB6E;
-const uint32_t SPRITE_TYPE					= 0x5DD272E5;
-const uint32_t CONFIG_TYPE					= 0x17DEA5E1;
-const uint32_t PACKAGE_TYPE					= 0xC0A2212C;
-const uint32_t UNIT_TYPE					= 0x516224CF;
-const uint32_t PHYSICS_TYPE					= 0xFA32C012;
-const uint32_t GUI_TYPE						= 0x2C56149A;
+#define TEXTURE_TYPE				0x0DEED4F7
+#define MESH_TYPE					0x742FBC9A
+#define LUA_TYPE					0xD96E7C37
+#define TEXT_TYPE					0x045CC650
+#define MATERIAL_TYPE				0x46807A92
+#define SOUND_TYPE					0xD196AB6E
+#define SPRITE_TYPE					0x5DD272E5
+#define CONFIG_TYPE					0x17DEA5E1
+#define PACKAGE_TYPE				0xC0A2212C
+#define UNIT_TYPE					0x516224CF
+#define PHYSICS_TYPE				0xFA32C012
+#define GUI_TYPE					0x2C56149A
+#define PHYSICS_CONFIG_TYPE			0x514F14A1
 
 /// ResourceId uniquely identifies a resource by its name and type.
 /// In order to speed up the lookup by the manager, it also keeps

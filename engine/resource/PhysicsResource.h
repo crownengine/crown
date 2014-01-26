@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <algorithm>
 #include "Types.h"
 #include "Allocator.h"
 #include "File.h"
@@ -56,76 +57,21 @@ struct PhysicsHeader
 struct PhysicsController
 {
 	StringId32 name;
-	float height;			// Height of the capsule
-	float radius;			// Radius of the capsule
-	float slope_limit;		// The maximum slope which the character can walk up in radians.
-	float step_offset;		// Maximum height of an obstacle which the character can climb.
-	float contact_offset;	// Skin around the object within which contacts will be generated. Use it to avoid numerical precision issues.
-};
-
-//-----------------------------------------------------------------------------
-struct PhysicsActorType
-{
-	enum Enum
-	{
-		STATIC,
-		DYNAMIC_PHYSICAL,
-		DYNAMIC_KINEMATIC
-	};
-};
-
-//-----------------------------------------------------------------------------
-struct PhysicsActorGroup
-{
-	enum Enum
-	{
-		GROUP_0		= (1<<0),
-		GROUP_1		= (1<<1),
-		GROUP_2		= (1<<2),
-		GROUP_3		= (1<<3),
-		GROUP_4		= (1<<4),
-		GROUP_5		= (1<<5),
-		GROUP_6		= (1<<6),
-		GROUP_7		= (1<<7),
-		GROUP_8		= (1<<8),
-		GROUP_9		= (1<<9),
-		GROUP_10	= (1<<10),
-		GROUP_11	= (1<<11),
-		GROUP_12	= (1<<12),
-		GROUP_13	= (1<<13),
-		GROUP_14	= (1<<14),
-		GROUP_15	= (1<<15),
-		GROUP_16	= (1<<16),
-		GROUP_17	= (1<<17),
-		GROUP_18	= (1<<18),
-		GROUP_19	= (1<<19),
-		GROUP_20	= (1<<20),
-		GROUP_21	= (1<<21),
-		GROUP_22	= (1<<22),
-		GROUP_23	= (1<<23),
-		GROUP_24	= (1<<24),
-		GROUP_25	= (1<<25),
-		GROUP_26	= (1<<26),
-		GROUP_27	= (1<<27),
-		GROUP_28	= (1<<28),
-		GROUP_29	= (1<<29),
-		GROUP_30	= (1<<30),
-		GROUP_31	= (1<<31)
-	};
+	float height;				// Height of the capsule
+	float radius;				// Radius of the capsule
+	float slope_limit;			// The maximum slope which the character can walk up in radians.
+	float step_offset;			// Maximum height of an obstacle which the character can climb.
+	float contact_offset;		// Skin around the object within which contacts will be generated. Use it to avoid numerical precision issues.
+	StringId32 collision_filter;// Collision filter from global.physics_config
 };
 
 //-----------------------------------------------------------------------------
 struct PhysicsActor
 {
-	StringId32 name;
-	StringId32 node;
-	uint32_t type;
-	uint32_t group;
-	uint32_t mask;
-	float static_friction;
-	float dynamic_friction;
-	float restitution;
-	uint32_t num_shapes;
+	StringId32 name;			// Name of the actor
+	StringId32 node;			// Node from .unit file
+	StringId32 actor_class;		// Actor from global.physics
+	uint32_t num_shapes;		// Number of shapes
 };
 
 //-----------------------------------------------------------------------------
@@ -143,10 +89,10 @@ struct PhysicsShapeType
 //-----------------------------------------------------------------------------
 struct PhysicsShape
 {
-	StringId32 name;
-	uint32_t type;
-	bool trigger;
-
+	StringId32 name;			// Name of the shape
+	StringId32 shape_class;		// Shape class from global.physics_config
+	StringId32 type;			// Type of the shape
+	StringId32 material;		// Material from global.physics_config
 	float data_0;
 	float data_1;
 	float data_2;
@@ -303,6 +249,171 @@ private:
 
 	// Disable construction
 	PhysicsResource();
+};
+
+struct PhysicsConfigHeader
+{
+	uint32_t num_materials;
+	uint32_t materials_offset;
+	uint32_t num_shapes;
+	uint32_t shapes_offset;
+	uint32_t num_actors;
+	uint32_t actors_offset;
+	uint32_t num_filters;
+	uint32_t filters_offset;
+};
+
+struct PhysicsMaterial
+{
+	float static_friction;
+	float dynamic_friction;
+	float restitution;
+	// uint8_t restitution_combine_mode;
+	// uint8_t friction_combine_mode;
+};
+
+struct PhysicsCollisionFilter
+{
+	uint32_t me;
+	uint32_t mask;
+};
+
+struct PhysicsShape2
+{
+	uint32_t collision_filter;
+	bool trigger;
+};
+
+struct PhysicsActor2
+{
+	enum
+	{
+		DYNAMIC			= (1 << 0),
+		KINEMATIC		= (1 << 1),
+		DISABLE_GRAVITY	= (1 << 2)
+	};
+
+	uint32_t collision_filter;
+	float linear_damping;
+	float angular_damping;
+	uint8_t flags;
+};
+
+//-----------------------------------------------------------------------------
+struct PhysicsConfigResource
+{
+	//-----------------------------------------------------------------------------
+	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	{
+		File* file = bundle.open(id);
+		const size_t file_size = file->size();
+
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
+
+		bundle.close(file);
+
+		return res;
+	}
+
+	//-----------------------------------------------------------------------------
+	static void online(void* resource)
+	{
+	}
+
+	//-----------------------------------------------------------------------------
+	static void unload(Allocator& allocator, void* resource)
+	{
+		CE_ASSERT_NOT_NULL(resource);
+		allocator.deallocate(resource);
+	}
+
+	//-----------------------------------------------------------------------------
+	static void offline(void* resource)
+	{
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_materials() const
+	{
+		return ((PhysicsConfigHeader*) this)->num_materials;
+	}
+
+	/// Returns the material with the given @a name
+	PhysicsMaterial material(StringId32 name) const
+	{
+		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
+		StringId32* begin = (StringId32*) (((char*) this) + h->materials_offset);
+		StringId32* end = begin + num_materials();
+		StringId32* id = std::find(begin, end, name);
+		CE_ASSERT(id != end, "Material not found");
+		return material_by_index(id - begin);
+	}
+
+	PhysicsMaterial material_by_index(uint32_t i) const
+	{
+		CE_ASSERT(i < num_materials(), "Index out of bounds");
+		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
+		const PhysicsMaterial* base = (PhysicsMaterial*) (((char*) this) + h->materials_offset + sizeof(StringId32) * num_materials());
+		return base[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_shapes() const
+	{
+		return ((PhysicsConfigHeader*) this)->num_shapes;
+	}
+
+	//-----------------------------------------------------------------------------
+	PhysicsShape2 shape(StringId32 name) const
+	{
+		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
+		StringId32* begin = (StringId32*) (((char*) this) + h->shapes_offset);
+		StringId32* end = begin + num_shapes();
+		StringId32* id = std::find(begin, end, name);
+		CE_ASSERT(id != end, "Shape not found");
+		return shape_by_index(id - begin);
+	}
+
+	//-----------------------------------------------------------------------------
+	PhysicsShape2 shape_by_index(uint32_t i) const
+	{
+		CE_ASSERT(i < num_shapes(), "Index out of bounds");
+		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
+		const PhysicsShape2* base = (PhysicsShape2*) (((char*) this) + h->shapes_offset + sizeof(StringId32) * num_shapes());
+		return base[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_actors() const
+	{
+		return ((PhysicsConfigHeader*) this)->num_actors;
+	}
+
+	/// Returns the actor with the given @a name
+	PhysicsActor2 actor(StringId32 name) const
+	{
+		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
+		StringId32* begin = (StringId32*) (((char*) this) + h->actors_offset);
+		StringId32* end = begin + num_actors();
+		StringId32* id = std::find(begin, end, name);
+		CE_ASSERT(id != end, "Actor not found");
+		return actor_by_index(id - begin);
+	}
+
+	//-----------------------------------------------------------------------------
+	PhysicsActor2 actor_by_index(uint32_t i) const
+	{
+		CE_ASSERT(i < num_actors(), "Index out of bounds");
+		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
+		const PhysicsActor2* base = (PhysicsActor2*) (((char*) this) + h->actors_offset + sizeof(StringId32) * num_actors());
+		return base[i];
+	}
+
+private:
+
+	// Disable construction
+	PhysicsConfigResource();
 };
 
 } // namespace crown

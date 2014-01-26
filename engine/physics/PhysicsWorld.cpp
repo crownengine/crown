@@ -38,6 +38,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Hash.h"
 #include "StringUtils.h"
 #include "Actor.h"
+#include "ResourceManager.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -245,7 +246,8 @@ PhysicsWorld::~PhysicsWorld()
 //-----------------------------------------------------------------------------
 ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node)
 {
-	Actor* actor = CE_NEW(m_actors_pool, Actor)(res, index, physics_system::s_physics, m_scene, sg, node, Vector3::ZERO, Quaternion::IDENTITY);
+	PhysicsConfigResource* config = (PhysicsConfigResource*) device()->resource_manager()->lookup("physics_config", "global");
+	Actor* actor = CE_NEW(m_actors_pool, Actor)(res, config, index, physics_system::s_physics, m_scene, sg, node, Vector3::ZERO, Quaternion::IDENTITY);
 	return m_actors.create(actor);
 }
 
@@ -367,16 +369,9 @@ void PhysicsWorld::clear_kinematic(ActorId id)
 	actor->clear_kinematic();
 }
 
-
 //-----------------------------------------------------------------------------
 void PhysicsWorld::update(float dt)
 {
-	// Update world pose of the actors
-	for (uint32_t i = 0; i < m_actors.size(); i++)
-	{
-		m_actors[i]->update_pose();
-	}
-
 	// Run with fixed timestep
 	m_scene->simulate(1.0 / 60.0);
 
@@ -389,15 +384,14 @@ void PhysicsWorld::update(float dt)
 	// Update each actor with its new transform
 	for (PxU32 i = 0; i < num_active_transforms; i++)
 	{
+		// Actors with userData == NULL are controllers
+		if (active_transforms[i].userData == NULL) continue;
+
 		const PxTransform tr = active_transforms[i].actor2World;
 		const Vector3 pos(tr.p.x, tr.p.y, tr.p.z);
 		const Quaternion rot(tr.q.x, tr.q.y, tr.q.z, tr.q.w);
 
-		Actor* actor = static_cast<Actor*>(active_transforms[i].userData);
-		if (actor != NULL)
-		{
-			actor->update(Matrix4x4(rot, pos));
-		}
+		static_cast<Actor*>(active_transforms[i].userData)->update(Matrix4x4(rot, pos));
 	}
 
 	// Update controllers

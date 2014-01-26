@@ -193,10 +193,10 @@ protected:
 	ConsoleServer*			m_console;
 	ResourceManager*		m_resource_manager;
 	Bundle*					m_resource_bundle;
-
 	WorldManager*			m_world_manager;
 
-	bool 					m_renderer_init_request;
+	// Configuration resources
+	ResourceId				m_physics_config;
 
 private:
 

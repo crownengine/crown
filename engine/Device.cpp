@@ -100,8 +100,6 @@ Device::Device()
 	, m_resource_bundle(NULL)
 
 	, m_world_manager(NULL)
-
-	, m_renderer_init_request(false)
 {
 	// Bundle dir is current dir by default.
 	string::strncpy(m_bundle_dir, os::get_cwd(), MAX_PATH_LENGTH);
@@ -186,6 +184,9 @@ void Device::init()
 	Log::d("Crown Engine initialized.");
 	Log::d("Initializing Game...");
 
+	m_physics_config = m_resource_manager->load(PHYSICS_CONFIG_EXTENSION, "global");
+	m_resource_manager->flush();
+
 	m_is_init = true;
 	start();
 
@@ -213,13 +214,15 @@ void Device::shutdown()
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);
 
+	m_resource_manager->unload(m_physics_config);
+
 	Log::d("Releasing audio...");
 	audio_system::shutdown();
 
-	Log::d("Releasing Physics...");
+	Log::d("Releasing physics...");
 	physics_system::shutdown();
 
-	Log::d("Releasing LuaEnvironment...");
+	Log::d("Releasing lua environment...");
 	if (m_lua_environment)
 	{
 		m_lua_environment->shutdown();
@@ -227,22 +230,22 @@ void Device::shutdown()
 		CE_DELETE(m_allocator, m_lua_environment);
 	}
 
-	Log::d("Releasing Input Devices...");
+	Log::d("Releasing input devices...");
 	CE_DELETE(m_allocator, m_touch);
 	CE_DELETE(m_allocator, m_mouse);
 	CE_DELETE(m_allocator, m_keyboard);
 
-	Log::d("Releasing Renderer...");
+	Log::d("Releasing renderer...");
 	if (m_renderer)
 	{
 		m_renderer->shutdown();
 		CE_DELETE(m_allocator, m_renderer);
 	}
 
-	Log::d("Releasing WorldManager...");
+	Log::d("Releasing world manager...");
 	CE_DELETE(m_allocator, m_world_manager);
 
-	Log::d("Releasing ResourceManager...");
+	Log::d("Releasing resource manager...");
 	if (m_resource_manager)
 	{
 		CE_DELETE(m_allocator, m_resource_manager);
@@ -253,7 +256,7 @@ void Device::shutdown()
 		Bundle::destroy(m_allocator, m_resource_bundle);
 	}
 
-	Log::d("Releasing Filesystem...");
+	Log::d("Releasing filesystem...");
 	if (m_filesystem)
 	{
 		CE_DELETE(m_allocator, m_filesystem);

@@ -44,6 +44,7 @@ namespace texture_resource { extern void compile(Filesystem&, const char*, File*
 namespace package_resource { extern void compile(Filesystem&, const char*, File*); }
 namespace lua_resource { extern void compile(Filesystem&, const char*, File*); }
 namespace physics_resource { extern void compile(Filesystem&, const char*, File*); }
+namespace physics_config_resource { extern void compile(Filesystem&, const char*, File*); }
 namespace unit_resource { extern void compile(Filesystem&, const char*, File*); }
 namespace sound_resource { extern void compile(Filesystem&, const char*, File*); }
 namespace sprite_resource { extern void compile(Filesystem&, const char*, File*); }
@@ -165,6 +166,10 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 			else if (resource_type_hash == GUI_TYPE)
 			{
 				gui_resource::compile(root_fs, filename, out_file);
+			}
+			else if (resource_type_hash == PHYSICS_CONFIG_TYPE)
+			{
+				physics_config_resource::compile(root_fs, filename, out_file);
 			}
 			else
 			{
