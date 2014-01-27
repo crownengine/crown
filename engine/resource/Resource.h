@@ -47,6 +47,7 @@ namespace crown
 #define PHYSICS_EXTENSION			"physics"
 #define GUI_EXTENSION				"gui"
 #define PHYSICS_CONFIG_EXTENSION	"physics_config"
+#define FONT_EXTENSION				"font"
 
 #define TEXTURE_TYPE				0x0DEED4F7
 #define MESH_TYPE					0x742FBC9A
@@ -61,6 +62,7 @@ namespace crown
 #define PHYSICS_TYPE				0xFA32C012
 #define GUI_TYPE					0x2C56149A
 #define PHYSICS_CONFIG_TYPE			0x514F14A1
+#define FONT_TYPE					0x536DC7D4
 
 /// ResourceId uniquely identifies a resource by its name and type.
 /// In order to speed up the lookup by the manager, it also keeps

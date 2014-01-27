@@ -59,6 +59,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	List<ResourceId> m_physics(default_allocator());
 	List<ResourceId> m_materials(default_allocator());
 	List<ResourceId> m_guis(default_allocator());
+	List<ResourceId> m_fonts(default_allocator());
 
 	// Check for resource types
 	if (root.has_key("texture"))
@@ -265,7 +266,30 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			id.id = hash::murmur2_64(guis_name.c_str(), guis_name.length(), 0);
 			m_guis.push_back(id);
 		}
-	}	
+	}
+
+	// Check for fonts
+	if (root.has_key("font"))
+	{
+		JSONElement fonts_array = root.key("font");
+		uint32_t fonts_array_size = fonts_array.size();
+
+		for (uint32_t i = 0; i < fonts_array_size; i++)
+		{
+			DynamicString font_name;
+			fonts_array[i].string_value(font_name); font_name += ".font";
+
+			if (!fs.is_file(font_name.c_str()))
+			{
+				Log::e("font '%s' does not exist.", font_name.c_str());
+				return;				
+			}
+
+			ResourceId id;
+			id.id = hash::murmur2_64(font_name.c_str(), font_name.length(), 0);
+			m_fonts.push_back(id);
+		}
+	}
 
 	PackageHeader header;
 	header.num_textures = m_texture.size();
@@ -277,6 +301,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	header.num_physics = m_physics.size();
 	header.num_materials = m_materials.size();
 	header.num_guis = m_guis.size();
+	header.num_fonts = m_fonts.size();
 
 	header.textures_offset = sizeof(PackageHeader);
 	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
@@ -287,6 +312,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	header.physics_offset = header.sprites_offset + sizeof(ResourceId) * header.num_sprites;
 	header.materials_offset = header.physics_offset + sizeof(ResourceId) * header.num_physics;
 	header.guis_offset = header.materials_offset + sizeof(ResourceId) * header.num_materials;
+	header.fonts_offset = header.guis_offset + sizeof(ResourceId) * header.num_guis;
 
 	out_file->write((char*) &header, sizeof(PackageHeader));
 
@@ -325,6 +351,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	if (m_guis.size() > 0)
 	{
 		out_file->write((char*) m_guis.begin(), sizeof(ResourceId) * header.num_guis);
+	}
+	if (m_fonts.size() > 0)
+	{
+		out_file->write((char*) m_fonts.begin(), sizeof(ResourceId) * header.num_fonts);
 	}
 }
 

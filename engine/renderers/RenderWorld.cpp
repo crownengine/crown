@@ -105,6 +105,8 @@ RenderWorld::RenderWorld()
 
 	default_program = r->create_gpu_program(default_vs, default_fs);
 	texture_program = r->create_gpu_program(default_vs, texture_fs);
+
+	Log::i("hash: %.8X", hash::murmur2_32("font", 4, 0));
 }
 
 //-----------------------------------------------------------------------------
