@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "PxController.h"
 #include "PxControllerManager.h"
+#include "PhysicsCallback.h"
 
 using physx::PxController;
 using physx::PxControllerManager;
@@ -45,10 +46,11 @@ class PhysicsControllerCallback;
 
 struct Controller
 {
-							Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxScene* scene, PxControllerManager* manager);
+							Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxControllerManager* manager);
 							~Controller();
 
 	void					move(const Vector3& pos);
+	void					set_height(float height);
 
 	bool					collides_up() const;
 	bool					collides_down() const;
@@ -63,12 +65,11 @@ private:
 
 	SceneGraph&				m_scene_graph;
 	int32_t					m_node;
-	PxScene*				m_scene;
 	PxControllerManager*	m_manager;
 	PxController*			m_controller;
 	PxU32					m_flags;
 
-	PhysicsControllerCallback* m_callback;
+	PhysicsControllerCallback m_callback;
 };
 
 } // namespace crown
