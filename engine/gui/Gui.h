@@ -36,6 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define MAX_GUI_RECTS 64
 #define MAX_GUI_TRIANGLES 64
 #define MAX_GUI_IMAGES 64
+#define MAX_GUI_TEXTS 64
 
 namespace crown
 {
@@ -44,17 +45,19 @@ typedef Id UniformId;
 typedef Id GuiRectId;
 typedef Id GuiTriangleId;
 typedef Id GuiImageId;
+typedef Id GuiTextId;
 
 struct Renderer;
 struct RenderWorld;
-struct Vector3;
 struct GuiResource;
 struct GuiRect;
 struct GuiTriangle;
 struct GuiImage;
+struct GuiText;
 struct Vector3;
 struct Vector2;
 struct Color4;
+struct FontResource;
 
 struct Gui
 {
@@ -76,6 +79,10 @@ struct Gui
 	void				update_image(GuiImageId id, const Vector3& pos, const Vector2& size);
 	void				destroy_image(GuiImageId);
 
+	GuiTextId			create_text(const char* str, const FontResource* font, uint32_t font_size, const Vector3& pos);
+	void				update_text(GuiTextId id);
+	void				destroy_text(GuiTextId id);
+
 	void				render();
 
 public:
@@ -90,10 +97,12 @@ public:
 	PoolAllocator		m_rect_pool;
 	PoolAllocator		m_triangle_pool;
 	PoolAllocator		m_image_pool;
+	PoolAllocator		m_text_pool;
 
 	IdArray<MAX_GUI_RECTS, GuiRect*> m_rects;
 	IdArray<MAX_GUI_TRIANGLES, GuiTriangle*> m_triangles;
 	IdArray<MAX_GUI_IMAGES, GuiImage*> m_images;
+	IdArray<MAX_GUI_TEXTS, GuiText*> m_texts;
 };
 
 } // namespace crown

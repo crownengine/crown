@@ -446,6 +446,7 @@ set (GUI_HEADERS
 	gui/GuiRect.h
 	gui/GuiTriangle.h
 	gui/GuiImage.h
+	gui/GuiText.h
 )
 
 set (CROWN_LIBRARIES)
