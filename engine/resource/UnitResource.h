@@ -47,9 +47,7 @@ struct UnitHeader
 	uint32_t num_cameras;
 	uint32_t cameras_offset;
 	uint32_t num_scene_graph_nodes;
-	uint32_t scene_graph_names_offset;
-	uint32_t scene_graph_poses_offset;
-	uint32_t scene_graph_parents_offset;
+	uint32_t scene_graph_nodes_offset;
 };
 
 struct UnitRenderable
@@ -65,6 +63,13 @@ struct UnitCamera
 {
 	uint32_t name;
 	int32_t node;
+};
+
+struct UnitNode
+{
+	StringId32 name;
+	Matrix4x4 pose;
+	int32_t parent;
 };
 
 struct UnitResource
@@ -151,48 +156,10 @@ struct UnitResource
 	}
 
 	//-----------------------------------------------------------------------------
-	StringId32* scene_graph_names() const
+	UnitNode* scene_graph_nodes() const
 	{
 		UnitHeader* h = (UnitHeader*) this;
-		return (StringId32*) (((char*) this) + h->scene_graph_names_offset);
-	}
-
-	//-----------------------------------------------------------------------------
-	Matrix4x4* scene_graph_poses() const
-	{
-		UnitHeader* h = (UnitHeader*) this;
-		return (Matrix4x4*) (((char*) this) + h->scene_graph_poses_offset);
-	}
-
-	//-----------------------------------------------------------------------------
-	int32_t* scene_graph_parents() const
-	{
-		UnitHeader* h = (UnitHeader*) this;
-		return (int32_t*) (((char*) this) + h->scene_graph_parents_offset);
-	}
-
-	//-----------------------------------------------------------------------------
-	StringId32 scene_graph_name(uint32_t i) const
-	{
-		UnitHeader* h = (UnitHeader*) this;
-		StringId32* begin = (StringId32*) (((char*) this) + h->scene_graph_names_offset);
-		return begin[i];
-	}
-
-	//-----------------------------------------------------------------------------
-	Matrix4x4 scene_graph_pose(uint32_t i) const
-	{
-		UnitHeader* h = (UnitHeader*) this;
-		Matrix4x4* begin = (Matrix4x4*) (((char*) this) + h->scene_graph_poses_offset);
-		return begin[i];
-	}
-
-	//-----------------------------------------------------------------------------
-	int32_t scene_graph_parent(uint32_t i) const
-	{
-		UnitHeader* h = (UnitHeader*) this;
-		int32_t* begin = (int32_t*) (((char*) this) + h->scene_graph_parents_offset);
-		return begin[i];
+		return (UnitNode*) (((char*) this) + h->scene_graph_nodes_offset);
 	}
 
 private:

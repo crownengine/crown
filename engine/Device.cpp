@@ -203,7 +203,7 @@ void Device::init()
 		pause();
 	}
 
-	Log::d("Total allocated size: %llu", m_allocator.allocated_size());
+	Log::d("Total allocated size: %ld", m_allocator.allocated_size());
 }
 
 //-----------------------------------------------------------------------------

@@ -50,9 +50,9 @@ void parse_rect(JSONElement rect, List<float>& positions, List<float>& sizes, Li
 	JSONElement size 		= rect.key("size");
 	JSONElement color 		= rect.key("color");
 
-	position.array_value(positions);
-	size.array_value(sizes);
-	color.array_value(colors);
+	position.to_array(positions);
+	size.to_array(sizes);
+	color.to_array(colors);
 }
 
 //-----------------------------------------------------------------------------
@@ -61,8 +61,8 @@ void parse_triangle(JSONElement triangle, List<float>& points, List<float>& colo
 	JSONElement point	= triangle.key("points");
 	JSONElement color 	= triangle.key("color");
 
-	point.array_value(points);
-	color.array_value(colors);
+	point.to_array(points);
+	color.to_array(colors);
 }
 
 //-----------------------------------------------------------------------------
@@ -73,12 +73,12 @@ void parse_image(JSONElement image, StringId64& material, List<float>& positions
 	JSONElement size 		= image.key("size");
 
 	DynamicString material_name;
-	mat.string_value(material_name);
+	mat.to_string(material_name);
 	material_name += ".material";
 
 	material = hash::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
-	position.array_value(positions);
-	size.array_value(sizes);
+	position.to_array(positions);
+	size.to_array(sizes);
 }
 
 //-----------------------------------------------------------------------------
@@ -100,8 +100,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	List<float>			m_gui_position(default_allocator());
 	List<float>			m_gui_size(default_allocator());
 
-	root.key("position").array_value(m_gui_position);
-	root.key("size").array_value(m_gui_size);
+	root.key("position").to_array(m_gui_position);
+	root.key("size").to_array(m_gui_size);
 
 	// Parse & compile all rects
 	if (root.has_key("rects"))

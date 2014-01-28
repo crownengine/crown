@@ -84,8 +84,7 @@ const UnitResource*	Unit::resource() const
 void Unit::create_objects(const Matrix4x4& pose)
 {
 	// Create the scene graph
-	m_scene_graph.create(pose, m_resource->num_scene_graph_nodes(), m_resource->scene_graph_names(),
-							m_resource->scene_graph_poses(), m_resource->scene_graph_parents());
+	m_scene_graph.create(pose, m_resource->num_scene_graph_nodes(), m_resource->scene_graph_nodes());
 
 	create_camera_objects();
 	create_renderable_objects();

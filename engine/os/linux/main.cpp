@@ -611,7 +611,7 @@ public:
 		if (root.has_key("boot"))
 		{
 			DynamicString boot;
-			root.key("boot").string_value(boot);
+			root.key("boot").to_string(boot);
 
 			string::strncpy(m_boot_file, boot.c_str(), (boot.length() > MAX_PATH_LENGTH) ? MAX_PATH_LENGTH : boot.length() + 1);
 		}
@@ -619,13 +619,13 @@ public:
 		// Window width
 		if (root.has_key("window_width"))
 		{
-			m_width = root.key("window_width").int_value();
+			m_width = root.key("window_width").to_int();
 		}
 
 		// Window height
 		if (root.has_key("window_height"))
 		{
-			m_height = root.key("window_height").int_value();
+			m_height = root.key("window_height").to_int();
 		}
 	}
 

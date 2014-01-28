@@ -97,7 +97,7 @@ void NetworkFile::read(void* buffer, size_t size)
 	JSONElement root = json.root();
 
 	DynamicString data_base64;
-	root.key("data").string_value(data_base64);
+	root.key("data").to_string(data_base64);
 
 	size_t out_len = 0;
 	unsigned char* data = math::base64_decode(data_base64.c_str(), data_base64.length(), &out_len);
@@ -160,7 +160,7 @@ size_t NetworkFile::size()
 	JSONParser parser(response.begin());
 	JSONElement root = parser.root();
 
-	return (size_t) root.key("size").int_value();
+	return (size_t) root.key("size").to_int();
 }
 
 //-----------------------------------------------------------------------------

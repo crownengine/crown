@@ -210,34 +210,34 @@ bool JSONElement::is_key_unique(const char* k) const
 }
 
 //--------------------------------------------------------------------------
-bool JSONElement::bool_value() const
+bool JSONElement::to_bool() const
 {
 	const bool value = json::parse_bool(m_at);
 	return value;
 }
 
 //--------------------------------------------------------------------------
-int32_t JSONElement::int_value() const
+int32_t JSONElement::to_int() const
 {
 	const int32_t value = json::parse_int(m_at);
 	return value;
 }
 
 //--------------------------------------------------------------------------
-float JSONElement::float_value() const
+float JSONElement::to_float() const
 {
 	const float value = json::parse_float(m_at);
 	return value;
 }
 
 //--------------------------------------------------------------------------
-void JSONElement::string_value(DynamicString& str) const
+void JSONElement::to_string(DynamicString& str) const
 {
 	json::parse_string(m_at, str);
 }
 
 //--------------------------------------------------------------------------
-StringId32 JSONElement::string_id_value() const
+StringId32 JSONElement::to_string_id() const
 {
 	TempAllocator1024 alloc;
 	DynamicString str(alloc);
@@ -246,7 +246,7 @@ StringId32 JSONElement::string_id_value() const
 }
 
 //--------------------------------------------------------------------------
-void JSONElement::array_value(List<bool>& array) const
+void JSONElement::to_array(List<bool>& array) const
 {
 	List<const char*> temp(default_allocator());
 
@@ -259,7 +259,7 @@ void JSONElement::array_value(List<bool>& array) const
 }
 
 //--------------------------------------------------------------------------
-void JSONElement::array_value(List<int16_t>& array) const
+void JSONElement::to_array(List<int16_t>& array) const
 {
 	List<const char*> temp(default_allocator());
 
@@ -272,7 +272,7 @@ void JSONElement::array_value(List<int16_t>& array) const
 }
 
 //--------------------------------------------------------------------------
-void JSONElement::array_value(List<uint16_t>& array) const
+void JSONElement::to_array(List<uint16_t>& array) const
 {
 	List<const char*> temp(default_allocator());
 
@@ -285,7 +285,7 @@ void JSONElement::array_value(List<uint16_t>& array) const
 }
 
 //--------------------------------------------------------------------------
-void JSONElement::array_value(List<int32_t>& array) const
+void JSONElement::to_array(List<int32_t>& array) const
 {
 	List<const char*> temp(default_allocator());
 
@@ -298,7 +298,7 @@ void JSONElement::array_value(List<int32_t>& array) const
 }
 
 //--------------------------------------------------------------------------
-void JSONElement::array_value(List<uint32_t>& array) const
+void JSONElement::to_array(List<uint32_t>& array) const
 {
 	List<const char*> temp(default_allocator());
 
@@ -311,7 +311,7 @@ void JSONElement::array_value(List<uint32_t>& array) const
 }
 
 //--------------------------------------------------------------------------
-void JSONElement::array_value(List<float>& array) const
+void JSONElement::to_array(List<float>& array) const
 {
 	List<const char*> temp(default_allocator());
 
@@ -324,7 +324,7 @@ void JSONElement::array_value(List<float>& array) const
 }
 
 //--------------------------------------------------------------------------
-void JSONElement::array_value(Vector<DynamicString>& array) const
+void JSONElement::to_array(Vector<DynamicString>& array) const
 {
 	List<const char*> temp(default_allocator());
 
@@ -339,7 +339,7 @@ void JSONElement::array_value(Vector<DynamicString>& array) const
 }
 
 //--------------------------------------------------------------------------
-void JSONElement::key_value(Vector<DynamicString>& keys) const
+void JSONElement::to_keys(Vector<DynamicString>& keys) const
 {
 	List<JSONPair> object(default_allocator());
 	json::parse_object(m_at, object);

@@ -122,7 +122,7 @@ int32_t find_node_parent_index(uint32_t node, const List<GraphNode>& nodes, cons
 void parse_nodes(JSONElement e, List<GraphNode>& nodes, List<GraphNodeDepth>& node_depths)
 {
 	Vector<DynamicString> keys(default_allocator());
-	e.key_value(keys);
+	e.to_keys(keys);
 
 	for (uint32_t k = 0; k < keys.size(); k++)
 	{
@@ -136,14 +136,14 @@ void parse_nodes(JSONElement e, List<GraphNode>& nodes, List<GraphNodeDepth>& no
 		if (!node.key("parent").is_nil())
 		{
 			DynamicString parent_name;
-			node.key("parent").string_value(parent_name);
+			node.key("parent").to_string(parent_name);
 			gn.parent = hash::murmur2_32(parent_name.c_str(), parent_name.length(), 0);
 		}
 
 		JSONElement pos = node.key("position");
 		JSONElement rot = node.key("rotation");
-		gn.position = Vector3(pos[0].float_value(), pos[1].float_value(), pos[2].float_value());
-		gn.rotation = Quaternion(Vector3(rot[0].float_value(), rot[1].float_value(), rot[2].float_value()), rot[3].float_value());
+		gn.position = Vector3(pos[0].to_float(), pos[1].to_float(), pos[2].to_float());
+		gn.rotation = Quaternion(Vector3(rot[0].to_float(), rot[1].to_float(), rot[2].to_float()), rot[3].to_float());
 
 		GraphNodeDepth gnd;
 		gnd.name = gn.name;
@@ -159,7 +159,7 @@ void parse_nodes(JSONElement e, List<GraphNode>& nodes, List<GraphNodeDepth>& no
 void parse_cameras(JSONElement e, List<UnitCamera>& cameras, const List<GraphNodeDepth>& node_depths)
 {
 	Vector<DynamicString> keys(default_allocator());
-	e.key_value(keys);
+	e.to_keys(keys);
 
 	for (uint32_t k = 0; k < keys.size(); k++)
 	{
@@ -167,7 +167,7 @@ void parse_cameras(JSONElement e, List<UnitCamera>& cameras, const List<GraphNod
 		JSONElement camera = e.key(camera_name);
 
 		DynamicString node_name;
-		camera.key("node").string_value(node_name);
+		camera.key("node").to_string(node_name);
 
 		StringId32 node_name_hash = hash::murmur2_32(node_name.c_str(), node_name.length());
 
@@ -183,23 +183,23 @@ void parse_cameras(JSONElement e, List<UnitCamera>& cameras, const List<GraphNod
 void parse_renderables(JSONElement e, List<UnitRenderable>& renderables, const List<GraphNodeDepth>& node_depths)
 {
 	Vector<DynamicString> keys(default_allocator());
-	e.key_value(keys);
+	e.to_keys(keys);
 
 	for (uint32_t k = 0; k < keys.size(); k++)
 	{
 		const char* renderable_name = keys[k].c_str();
 		JSONElement renderable = e.key(renderable_name);
 
-		DynamicString node_name; renderable.key("node").string_value(node_name);
+		DynamicString node_name; renderable.key("node").to_string(node_name);
 		StringId32 node_name_hash = hash::murmur2_32(node_name.c_str(), node_name.length(), 0);
 
 		UnitRenderable rn;
 		rn.name = hash::murmur2_32(renderable_name, string::strlen(renderable_name), 0);
 		rn.node = find_node_index(node_name_hash, node_depths);
-		rn.visible = renderable.key("visible").bool_value();
+		rn.visible = renderable.key("visible").to_bool();
 
-		DynamicString res_type; renderable.key("type").string_value(res_type);
-		DynamicString resource_name; renderable.key("resource").string_value(resource_name);
+		DynamicString res_type; renderable.key("type").to_string(res_type);
+		DynamicString resource_name; renderable.key("resource").to_string(resource_name);
 		DynamicString res_name;
 
 		if (res_type == "mesh")
@@ -293,9 +293,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	uint32_t offt = sizeof(UnitHeader);
 	h.renderables_offset         = offt; offt += sizeof(UnitRenderable) * h.num_renderables;
 	h.cameras_offset             = offt; offt += sizeof(UnitCamera) * h.num_cameras;
-	h.scene_graph_names_offset   = offt; offt += sizeof(StringId32) * h.num_scene_graph_nodes;
-	h.scene_graph_poses_offset   = offt; offt += sizeof(Matrix4x4) * h.num_scene_graph_nodes;
-	h.scene_graph_parents_offset = offt; offt += sizeof(int32_t) * h.num_scene_graph_nodes;
+	h.scene_graph_nodes_offset   = offt; offt += sizeof(UnitNode) * h.num_scene_graph_nodes;
 
 	// Write header
 	out_file->write((char*) &h, sizeof(UnitHeader));
@@ -308,27 +306,16 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	if (m_cameras.size())
 		out_file->write((char*) m_cameras.begin(), sizeof(UnitCamera) * h.num_cameras);
 
-	// Write node names
-	for (uint32_t i = 0; i < h.num_scene_graph_nodes; i++)
-	{
-		StringId32 name = m_node_depths[i].name;
-		out_file->write((char*) &name, sizeof(StringId32));
-	}
-
 	// Write node poses
 	for (uint32_t i = 0; i < h.num_scene_graph_nodes; i++)
 	{
 		uint32_t node_index = m_node_depths[i].index;
 		GraphNode& node = m_nodes[node_index];
-		Matrix4x4 pose(node.rotation, node.position);
-		out_file->write((char*) pose.to_float_ptr(), sizeof(float) * 16);
-	}
-
-	// Write parent hierarchy
-	for (uint32_t i = 0; i < h.num_scene_graph_nodes; i++)
-	{
-		int32_t parent = find_node_parent_index(i, m_nodes, m_node_depths);
-		out_file->write((char*) &parent, sizeof(int32_t));
+		UnitNode un;
+		un.name = node.name;
+		un.parent = find_node_parent_index(i, m_nodes, m_node_depths);
+		un.pose = Matrix4x4(node.rotation, node.position);
+		out_file->write((char*) &un, sizeof(UnitNode));
 	}
 }
 

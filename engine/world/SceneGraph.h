@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Matrix4x4.h"
 #include "Quaternion.h"
+#include "UnitResource.h"
 
 namespace crown
 {
@@ -44,7 +45,7 @@ struct SceneGraph
 	/// @a name, @a local and @parent are the array containing the name of the nodes,
 	/// the local poses of the nodes and the links between the nodes respectively.
 	/// A parent of -1 means "no parent".
-	void			create(const Matrix4x4& root, uint32_t count, const StringId32* name, const Matrix4x4* local, int32_t* parent);
+	void			create(const Matrix4x4& root, uint32_t count, UnitNode* nodes);
 
 	/// Destroys the graph deallocating memory if necessary.
 	void			destroy();
