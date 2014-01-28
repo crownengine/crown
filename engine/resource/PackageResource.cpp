@@ -277,7 +277,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		for (uint32_t i = 0; i < fonts_array_size; i++)
 		{
 			DynamicString font_name;
-			fonts_array[i].string_value(font_name); font_name += ".font";
+			fonts_array[i].to_string(font_name); font_name += ".font";
 
 			if (!fs.is_file(font_name.c_str()))
 			{

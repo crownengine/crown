@@ -48,16 +48,16 @@ void parse_glyph(JSONElement e, FontGlyphData& glyph)
 	JSONElement height = e.key("height");
 	JSONElement x_offset = e.key("x_offset");
 	JSONElement y_offset = e.key("y_offset");
-	JSONElement advance = e.key("advance");
+	JSONElement x_advance = e.key("x_advance");
 
-	glyph.id = id.int_value();
-	glyph.x = x.int_value();
-	glyph.y = y.int_value();
-	glyph.width = width.int_value();
-	glyph.height = height.int_value();
-	glyph.x_offset = x_offset.float_value();
-	glyph.y_offset = y_offset.float_value();
-	glyph.x_advance = advance.float_value();
+	glyph.id = id.to_int();
+	glyph.x = x.to_int();
+	glyph.y = y.to_int();
+	glyph.width = width.to_int();
+	glyph.height = height.to_int();
+	glyph.x_offset = x_offset.to_float();
+	glyph.y_offset = y_offset.to_float();
+	glyph.x_advance = x_advance.to_float();
 }
 
 //-----------------------------------------------------------------------------
@@ -79,10 +79,12 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONElement glyphs = root.key("glyphs");
 
 	DynamicString material_name;
-	mat.string_value(material_name);
+	mat.to_string(material_name);
 	material_name += ".material";
+
+	uint32_t num_glyphs = count.to_int();
 	
-	for (uint32_t i = 0; i < count.int_value(); i++)
+	for (uint32_t i = 0; i < num_glyphs; i++)
 	{
 		FontGlyphData data;
 		parse_glyph(glyphs[i], data);

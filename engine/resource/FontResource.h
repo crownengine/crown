@@ -32,9 +32,40 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "File.h"
 #include "Assert.h"
+#include "Log.h"
 
 namespace crown
 {
+
+// Glyph metrics:
+// --------------
+//
+//                   x_min|<-------- width -------->|x_max
+//                        |                         |
+//              |   	  +-------------------------+--------------- y_max
+//              |         |    ggggggggg   ggggg    |     ^        ^
+//              |         |   g:::::::::ggg::::g    |     |        |
+//              |         |  g:::::::::::::::::g    |     |        |
+//              |         | g::::::ggggg::::::gg    |     |        |
+//              |         | g:::::g     g:::::g     |     |        |
+//    x_offset -|-------->| g:::::g     g:::::g     |  y_offset    |
+//              |         | g:::::g     g:::::g     |     |        |
+//              |         | g::::::g    g:::::g     |     |        |
+//              |         | g:::::::ggggg:::::g     |     |        |
+//              |         |  g::::::::::::::::g     |     |      height
+//              |         |   gg::::::::::::::g     |     |        |
+//  baseline ---*---------|---- gggggggg::::::g-----*--------      |
+//            / |         |             g:::::g     |              |
+//     origin   |         | gggggg      g:::::g     |              |
+//              |         | g:::::gg   gg:::::g     |              |
+//              |         |  g::::::ggg:::::::g     |              |
+//              |         |   gg:::::::::::::g      |              |
+//              |         |     ggg::::::ggg        |              |
+//              |         |         gggggg          |              v
+//              |         +-------------------------+--------------- y_min
+//              |                                   |
+//              |------------- x_advance ---------->|
+
 
 //-----------------------------------------------------------------------------
 struct FontHeader
@@ -96,18 +127,33 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
+	ResourceId material() const
+	{
+		return ((FontHeader*) this)->material;
+	}
+
+	//-----------------------------------------------------------------------------
 	uint32_t num_glyphs() const
 	{
 		return ((FontHeader*)this)->num_glyphs;
 	}
 
 	//-----------------------------------------------------------------------------
-	FontGlyphData get_glyph(uint32_t index) const
+	FontGlyphData get_glyph(const uint8_t index) const
 	{
 		CE_ASSERT(index < num_glyphs(), "Index out of bounds");
 
 		FontGlyphData* begin = (FontGlyphData*) (((char*) this) + sizeof(FontHeader));
-		return begin[index];
+
+		for (uint32_t i = 0; i < num_glyphs(); i++)
+		{
+			if (begin[i].id == index)
+			{
+				return begin[i];
+			}
+		}
+
+		CE_FATAL("Glyph not found");
 	}
 
 private:
