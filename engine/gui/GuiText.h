@@ -28,34 +28,71 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Matrix4x4.h"
 #include "RendererTypes.h"
-
-// FIXME FIXME FIXME
-#include "Device.h"
-#include "ResourceManager.h"
-#include "Material.h"
+#include "StringUtils.h"
+#include "Log.h"
+#include "FontResource.h"
 
 namespace crown
 {
 
-struct GuiImage
+struct Vector3;
+struct Vector2;
+struct Color4;
+
+struct GuiText
 {
 	//-------------------------------------------------------------------------
-	GuiImage(RenderWorld& render_world, Renderer& r, ResourceId material, const Vector3& pos, const Vector2& size)
+	GuiText(RenderWorld& render_world, Renderer& r, const FontResource* fr, const char* str, uint32_t font_size, const Vector3& pos)
 		: m_render_world(render_world)
 		, m_r(r)
+		, m_resource(fr)
 	{
-		update(pos, size);
-
-		// FIXME FIXME FIXME
-		MaterialResource* mat = (MaterialResource*) device()->resource_manager()->data(material);
+		MaterialResource* mat = (MaterialResource*) device()->resource_manager()->data(m_resource->material());
 		m_material = m_render_world.create_material(mat);
 
-		m_vb = m_r.create_vertex_buffer(4 * Vertex::bytes_per_vertex(VertexFormat::P2_T2), m_vertices, VertexFormat::P2_T2);
-		m_ib = m_r.create_index_buffer(6 * sizeof(uint16_t), m_indices);
+		FontGlyphData g = m_resource->get_glyph(str[0]);
+
+		// update(pos, Vector2(100, 100));
+		float x 		= (float) g.x / 512.0f;
+		float y 		= (float) (512 - g.y) / 512.0f;
+		float width 	= (float) g.width / 512.0f;
+		float height 	= (float) g.height / 512.0f;
+
+		float u0 = x;
+		float v0 = y;
+		float u1 = x + width;
+		float v1 = y - height;
+
+		m_vertices[0] = pos.x;
+		m_vertices[1] = pos.y;
+		m_vertices[2] = u0;
+		m_vertices[3] = v1;
+
+		m_vertices[4] = pos.x + font_size;
+		m_vertices[5] = pos.y;
+		m_vertices[6] = u1; 
+		m_vertices[7] = v1;
+
+		m_vertices[8] = pos.x + font_size; 
+		m_vertices[9] = pos.y - font_size;
+		m_vertices[10] = u1;
+		m_vertices[11] = v0;
+
+		m_vertices[12] = pos.x; 
+		m_vertices[13] = pos.y - font_size;
+		m_vertices[14] = u0;
+		m_vertices[15] = v0;
+
+		m_indices[0] = 0; m_indices[1] = 1;
+		m_indices[2] = 2; m_indices[3] = 0;
+		m_indices[4] = 2; m_indices[5] = 3;
+
+		m_vb = m_r.create_vertex_buffer(4, VertexFormat::P2_T2, m_vertices);
+		m_ib = m_r.create_index_buffer(6, m_indices);
 	}
 
 	//-------------------------------------------------------------------------
-	~GuiImage()
+	~GuiText()
 	{
 		m_r.destroy_vertex_buffer(m_vb);
 		m_r.destroy_index_buffer(m_ib);
@@ -66,21 +103,6 @@ struct GuiImage
 	//-------------------------------------------------------------------------
 	void update(const Vector3& pos, const Vector2& size)
 	{
-		m_vertices[0] = pos.x; m_vertices[1] = pos.y;
-		m_vertices[2] = 0; m_vertices[3] = 0;
-
-		m_vertices[4] = pos.x + size.x; m_vertices[5] = pos.y;
-		m_vertices[6] = 1; m_vertices[7] = 0;
-
-		m_vertices[8] = pos.x + size.x; m_vertices[9] = pos.y - size.y;
-		m_vertices[10] = 1;	m_vertices[11] = 1;
-
-		m_vertices[12] = pos.x; m_vertices[13] = pos.y - size.y;
-		m_vertices[14] = 0;	m_vertices[15] = 1;
-
-		m_indices[0] = 0; m_indices[1] = 1;
-		m_indices[2] = 2; m_indices[3] = 0;
-		m_indices[4] = 2; m_indices[5] = 3;
 	}
 
 	//-------------------------------------------------------------------------
@@ -88,7 +110,7 @@ struct GuiImage
 	{
 		Material* material = m_render_world.lookup_material(m_material);
 		material->bind(m_r, uniform);
-		
+
 		m_r.set_vertex_buffer(m_vb);
 		m_r.set_index_buffer(m_ib);
 		m_r.commit(1);
@@ -98,13 +120,15 @@ public:
 
 	RenderWorld& m_render_world;
 	Renderer& m_r;
+	const FontResource* m_resource;
 
 	float m_vertices[4*4];
 	uint16_t m_indices[2*3];
 
-	MaterialId m_material;
 	VertexBufferId m_vb;
 	IndexBufferId m_ib;
+	MaterialId m_material;
 };
 
 } // namespace crown
+

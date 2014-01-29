@@ -35,10 +35,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Vector2.h"
 #include "Color4.h"
+#include "FontResource.h"
 
 #include "GuiRect.h"
 #include "GuiTriangle.h"
 #include "GuiImage.h"
+#include "GuiText.h"
 
 namespace crown
 {
@@ -50,8 +52,12 @@ GPUProgramId		gui_default_program;
 GPUProgramId		gui_texture_program;
 UniformId			gui_albedo_0;
 
+ShaderId			font_vs;
+ShaderId			font_fs;
+GPUProgramId		font_program;
+UniformId			font_uniform;
+
 static const char* default_vertex =
-	"uniform mat4      	u_model;"
 	"uniform mat4      	u_model_view_projection;"
 
 	"attribute vec4    	a_position;"
@@ -87,6 +93,37 @@ static const char* texture_fragment =
 	"	gl_FragColor = texture2D(u_albedo_0, tex_coord0);"
 	"}";
 
+static const char* sdf_vertex =
+	"uniform mat4      	u_model_view_projection;"
+
+	"attribute vec4		a_position;"
+	"attribute vec2		a_tex_coord0;"
+	"attribute vec4		a_color;"
+
+	"varying vec2		v_tex_coord;"
+	"varying vec4		v_color;"
+
+	"void main(void)"
+	"{"
+	"	gl_Position = u_model_view_projection * a_position;"
+	"	v_tex_coord = a_tex_coord0;"
+	"	v_color = vec4(1, 1, 1, 1);"
+	"}";
+
+static const char* sdf_fragment =
+	"uniform sampler2D u_texture;"
+
+	"varying vec4 v_color;"
+	"varying vec2 v_tex_coord;"
+
+	"const float smoothing = 1.0/16.0;"
+
+	"void main() {"
+		"float distance = texture2D(u_texture, v_tex_coord).a;"
+		"float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, distance);"
+		"gl_FragColor = vec4(v_color.rgb, alpha);"
+	"}";
+
 //-----------------------------------------------------------------------------
 Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 	: m_render_world(render_world)
@@ -95,6 +132,7 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 	, m_rect_pool(default_allocator(), MAX_GUI_RECTS, sizeof(GuiRect), CE_ALIGNOF(GuiRect))
 	, m_triangle_pool(default_allocator(), MAX_GUI_TRIANGLES, sizeof(GuiTriangle), CE_ALIGNOF(GuiTriangle))
 	, m_image_pool(default_allocator(), MAX_GUI_IMAGES, sizeof(GuiImage), CE_ALIGNOF(GuiImage))
+	, m_text_pool(default_allocator(), MAX_GUI_TEXTS, sizeof(GuiText), CE_ALIGNOF(GuiText))
 {
 	// orthographic projection
 	Vector2 size = m_resource->gui_size();
@@ -112,6 +150,13 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 	gui_default_program = m_r.create_gpu_program(gui_default_vs, gui_default_fs);
 	gui_texture_program = m_r.create_gpu_program(gui_default_vs, gui_texture_fs);
 	gui_albedo_0 = m_r.create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
+
+	// FIXME FIXME FIXME -- Shaders init should not be here
+	font_vs = m_r.create_shader(ShaderType::VERTEX, sdf_vertex);
+	font_fs = m_r.create_shader(ShaderType::FRAGMENT, sdf_fragment);
+	font_program = m_r.create_gpu_program(font_vs, font_fs);
+	font_uniform = m_r.create_uniform("u_texture", UniformType::INTEGER_1, 1);
+
 
 	// Gui's rects creation
 	for (uint32_t i = 0; i < m_resource->num_rects(); i++)
@@ -144,24 +189,34 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 
 		create_image(mat, pos, size);
 	}
+
+	// Manage texts creation
+
+	FontResource* res = (FontResource*) device()->resource_manager()->lookup("font", "fonts/veramobi_sdf");
+	create_text("&", res, 100, Vector3(300, 400, 0));
 }
 
 //-----------------------------------------------------------------------------
 Gui::~Gui()
 {
-	for (uint32_t i = 0; i < m_resource->num_rects(); i++)
+	for (uint32_t i = 0; i < m_rects.size(); i++)
 	{
 		CE_DELETE(m_rect_pool, m_rects[i]);
 	}
 
-	for (uint32_t i = 0; i < m_resource->num_triangles(); i++)
+	for (uint32_t i = 0; i < m_triangles.size(); i++)
 	{
 		CE_DELETE(m_triangle_pool, m_triangles[i]);
 	}
 
-	for (uint32_t i = 0; i < m_resource->num_images(); i++)
+	for (uint32_t i = 0; i < m_images.size(); i++)
 	{
 		CE_DELETE(m_image_pool, m_images[i]);
+	}
+
+	for (uint32_t i = 0; i < m_texts.size(); i++)
+	{
+		CE_DELETE(m_text_pool, m_texts[i]);
 	}
 
 	// FIXME FIXME FIXME -- Shaders destruction should not be here
@@ -171,6 +226,12 @@ Gui::~Gui()
 	m_r.destroy_shader(gui_texture_fs);
 	m_r.destroy_shader(gui_default_fs);
 	m_r.destroy_shader(gui_default_vs);
+
+	// FIXME FIXME FIXME -- Shaders destruction should not be here
+	m_r.destroy_uniform(font_uniform);
+	m_r.destroy_gpu_program(font_program);
+	m_r.destroy_shader(font_vs);
+	m_r.destroy_shader(font_fs);
 }
 
 //-----------------------------------------------------------------------------
@@ -265,6 +326,29 @@ void Gui::destroy_image(GuiImageId id)
 }
 
 //-----------------------------------------------------------------------------
+GuiTextId Gui::create_text(const char* str, const FontResource* font, uint32_t font_size, const Vector3& pos)
+{
+	GuiText* text = CE_NEW(m_text_pool, GuiText)(m_render_world, m_r, font, str, font_size, pos);
+	return m_texts.create(text);
+}
+
+//-----------------------------------------------------------------------------
+void Gui::update_text(GuiTextId id)
+{
+	// Must be implemented
+}
+
+//-----------------------------------------------------------------------------
+void Gui::destroy_text(GuiTextId id)
+{
+	CE_ASSERT(m_texts.has(id), "GuiText does not exists");
+
+	GuiText* text = m_texts.lookup(id);
+	CE_DELETE(m_text_pool, text);
+	m_texts.destroy(id);
+}
+
+//-----------------------------------------------------------------------------
 void Gui::render()
 {
 	Vector2 size = m_resource->gui_size();
@@ -318,6 +402,21 @@ void Gui::render()
 		m_r.set_pose(m_pose);
 
 		m_images[i]->render(gui_albedo_0);
+	}
+
+	for (uint32_t i = 0; i < m_texts.size(); i++)
+	{
+		m_r.set_program(font_program);
+		m_r.set_state(STATE_DEPTH_WRITE 
+		| STATE_COLOR_WRITE 
+		| STATE_ALPHA_WRITE 
+		| STATE_CULL_CW
+		| STATE_PRIMITIVE_TRIANGLES
+		| STATE_BLEND_EQUATION_ADD 
+		| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
+		m_r.set_pose(m_pose);
+
+		m_texts[i]->render(gui_albedo_0);
 	}
 }
 

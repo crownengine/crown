@@ -97,11 +97,21 @@ public:
 		{
 			m_resource_manager->load(GUI_TYPE, m_package->get_gui_id(i));
 		}
+
+		for (uint32_t i = 0; i < m_package->num_fonts(); i++)
+		{
+			m_resource_manager->load(FONT_TYPE, m_package->get_font_id(i));
+		}
 	}
 
 	/// Unloads all the resources in the package.
 	void unload()
 	{
+		for (uint32_t i = 0; i < m_package->num_fonts(); i++)
+		{
+			m_resource_manager->unload(m_package->get_font_id(i));
+		}
+
 		for (uint32_t i = 0; i < m_package->num_guis(); i++)
 		{
 			m_resource_manager->unload(m_package->get_gui_id(i));

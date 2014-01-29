@@ -307,6 +307,7 @@ set (RESOURCE_SRC
 	resource/MeshResource.cpp
 	resource/LuaResource.cpp
 	resource/GuiResource.cpp
+	resource/FontResource.cpp
 )
 
 set (RESOURCE_HEADERS
@@ -327,6 +328,7 @@ set (RESOURCE_HEADERS
 	resource/SpriteResource.h
 	resource/PhysicsResource.h
 	resource/GuiResource.h
+	resource/FontResource.h
 )
 
 if (CROWN_DEBUG OR CROWN_DEVELOPMENT)
@@ -444,6 +446,7 @@ set (GUI_HEADERS
 	gui/GuiRect.h
 	gui/GuiTriangle.h
 	gui/GuiImage.h
+	gui/GuiText.h
 )
 
 set (CROWN_LIBRARIES)

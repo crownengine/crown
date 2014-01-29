@@ -61,8 +61,8 @@ public:
 	~RenderWorld();
 
 	MeshId		create_mesh(MeshResource* mr, SceneGraph& sg, int32_t node);
-	void 		destroy_mesh(MeshId id);
-	Mesh* 		lookup_mesh(MeshId mesh);
+	void		destroy_mesh(MeshId id);
+	Mesh*		lookup_mesh(MeshId mesh);
 
 	SpriteId	create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node);
 	void		destroy_sprite(SpriteId id);
