@@ -66,8 +66,13 @@ struct Actor
 	void				set_kinematic();
 	void				clear_kinematic();
 
+	/// Returns whether the actor is static (i.e. immovable).
 	bool				is_static() const;
+
+	/// Returns whether the actor is dynamic (i.e. driven dy physics).
 	bool				is_dynamic() const;
+
+	/// Returns whether the actor is kinematic (i.e. driven by the user).
 	bool				is_kinematic() const;
 
 	float				linear_damping() const;
@@ -91,10 +96,9 @@ struct Actor
 
 	StringId32			name();
 
-	void				update(const Matrix4x4& pose);
-
 private:
 
+	void				update(const Matrix4x4& pose);
 	void				create_shapes(const PhysicsResource* res, const PhysicsConfigResource* config, PxPhysics* physics);
 	
 public:
@@ -109,6 +113,10 @@ public:
 	PxRigidActor* 			m_actor;
 	uint32_t				m_group;
 	uint32_t				m_mask;
+
+private:
+
+	friend class PhysicsWorld;
 };
 
 } // namespace crown
