@@ -52,16 +52,15 @@ struct GuiText
 
 		FontGlyphData g = m_resource->get_glyph(str[0]);
 
-		// update(pos, Vector2(100, 100));
-		float x 		= (float) g.x / 512.0f;
-		float y 		= (float) (512 - g.y) / 512.0f;
-		float width 	= (float) g.width / 512.0f;
-		float height 	= (float) g.height / 512.0f;
+		const float x		= (float) g.x / fr->size();
+		const float y		= (float) g.y / fr->size();
+		const float width	= (float) g.width / fr->size();
+		const float height	= (float) g.height / fr->size();
 
-		float u0 = x;
-		float v0 = y;
-		float u1 = x + width;
-		float v1 = y - height;
+		const float u0 = x;
+		const float v0 = y;
+		const float u1 = x + width;
+		const float v1 = y - height;
 
 		m_vertices[0] = pos.x;
 		m_vertices[1] = pos.y;
@@ -73,7 +72,7 @@ struct GuiText
 		m_vertices[6] = u1; 
 		m_vertices[7] = v1;
 
-		m_vertices[8] = pos.x + font_size; 
+		m_vertices[8] = pos.x + font_size;
 		m_vertices[9] = pos.y - font_size;
 		m_vertices[10] = u1;
 		m_vertices[11] = v0;
