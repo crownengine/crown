@@ -76,6 +76,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	JSONElement mat = root.key("material");
 	JSONElement count = root.key("count");
+	JSONElement size = root.key("size");
 	JSONElement glyphs = root.key("glyphs");
 
 	DynamicString material_name;
@@ -96,6 +97,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	h.material.id = hash::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
 	h.num_glyphs = m_glyphs.size();
+	h.size = size.to_int();
 
 	out_file->write((char*) &h, sizeof(FontHeader));
 
