@@ -42,13 +42,13 @@ namespace crown
 
 struct ReadResult
 {
-	enum { NO_ERROR, UNKNOWN, REMOTE_CLOSED } error;
+	enum { NO_ERROR, REMOTE_CLOSED, TIMEOUT, UNKNOWN } error;
 	size_t bytes_read;
 };
 
 struct WriteResult
 {
-	enum { NO_ERROR, UNKNOWN, REMOTE_CLOSED } error;
+	enum { NO_ERROR, REMOTE_CLOSED, TIMEOUT, UNKNOWN } error;
 	size_t bytes_wrote;
 };
 
@@ -117,6 +117,10 @@ public:
 			result.error = ReadResult::NO_ERROR;
 			result.bytes_read = 0;
 		}
+		else if (read_bytes == -1 && errno == ETIMEDOUT)
+		{
+			result.error = ReadResult::TIMEOUT;
+		}
 		else if (read_bytes == 0)
 		{
 			result.error = ReadResult::REMOTE_CLOSED;
@@ -147,6 +151,11 @@ public:
 			ssize_t read_bytes = ::read(m_socket, buf, to_read);
 			
 			if (read_bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) continue;
+			else if (read_bytes == -1 && errno == ETIMEDOUT)
+			{
+				result.error = ReadResult::TIMEOUT;
+				return result;
+			}
 			else if (read_bytes == 0)
 			{
 				result.error = ReadResult::REMOTE_CLOSED;
@@ -173,6 +182,10 @@ public:
 		{
 			result.error = WriteResult::NO_ERROR;
 			result.bytes_wrote = 0;
+		}
+		else if (bytes_wrote == -1 && errno == ETIMEDOUT)
+		{
+			result.error = WriteResult::TIMEOUT;
 		}
 		else if (bytes_wrote == 0)
 		{
@@ -211,6 +224,11 @@ public:
 					{
 						continue;
 					}
+					case ETIMEDOUT:
+					{
+						result.error = WriteResult::TIMEOUT;
+						return result;
+					}
 					default:
 					{
 						result.error = WriteResult::UNKNOWN;
@@ -240,6 +258,19 @@ public:
 	{
 		int optval = (int) reuse;
 		setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_timeout(uint32_t seconds)
+	{
+		struct timeval timeout;
+		timeout.tv_sec = seconds;
+		timeout.tv_usec = 0;
+		int res;
+		res = setsockopt (m_socket, SOL_SOCKET, SO_RCVTIMEO, (char*) &timeout, sizeof(timeout));
+		CE_ASSERT(res == 0, "Failed to set timeout on socket: errno: %d", errno);
+		res = setsockopt (m_socket, SOL_SOCKET, SO_SNDTIMEO, (char*) &timeout, sizeof(timeout));
+		CE_ASSERT(res == 0, "Failed to set timeout on socket: errno: %d", errno);
 	}
 
 public:
