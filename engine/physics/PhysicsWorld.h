@@ -43,11 +43,6 @@ using physx::PxScene;
 using physx::PxDefaultCpuDispatcher;
 using physx::PxActor;
 
-#define MAX_ACTORS 1024
-#define MAX_CONTROLLERS 1024
-#define MAX_TRIGGERS 1024
-#define MAX_JOINTS 512
-
 namespace crown
 {
 
@@ -118,10 +113,10 @@ public:
 	PoolAllocator				m_triggers_pool;
 	PoolAllocator				m_joints_pool;
 
-	IdArray<MAX_ACTORS, Actor*>	m_actors;
-	IdArray<MAX_CONTROLLERS, Controller*> m_controllers;
-	IdArray<MAX_TRIGGERS, Trigger*> m_triggers;
-	IdArray<MAX_JOINTS, Joint*> m_joints;
+	IdArray<CE_MAX_ACTORS, Actor*>	m_actors;
+	IdArray<CE_MAX_CONTROLLERS, Controller*> m_controllers;
+	IdArray<CE_MAX_TRIGGERS, Trigger*> m_triggers;
+	IdArray<CE_MAX_JOINTS, Joint*> m_joints;
 
 	// Events management
 	EventStream m_events;

@@ -484,7 +484,7 @@ public:
 
 private:
 
-	IdArray<MAX_SOUND_INSTANCES, SoundInstance> m_playing_sounds;
+	IdArray<CE_MAX_SOUND_INSTANCES, SoundInstance> m_playing_sounds;
 	Matrix4x4 m_listener_pose;
 };
 

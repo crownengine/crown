@@ -90,11 +90,11 @@ public:
 		m_submit->m_commands.write(CommandType::INIT_RENDERER);
 		frame();
 
-		m_submit->m_transient_vb = create_transient_vertex_buffer(2 * 1024);
-		m_submit->m_transient_ib = create_transient_index_buffer(2 * 1024);
+		m_submit->m_transient_vb = create_transient_vertex_buffer(CE_TRANSIENT_VERTEX_BUFFER_SIZE);
+		m_submit->m_transient_ib = create_transient_index_buffer(CE_TRANSIENT_INDEX_BUFFER_SIZE);
 		frame();
-		m_submit->m_transient_vb = create_transient_vertex_buffer(2 * 1024);
-		m_submit->m_transient_ib = create_transient_index_buffer(2 * 1024);
+		m_submit->m_transient_vb = create_transient_vertex_buffer(CE_TRANSIENT_VERTEX_BUFFER_SIZE);
+		m_submit->m_transient_ib = create_transient_index_buffer(CE_TRANSIENT_INDEX_BUFFER_SIZE);
 		frame();
 	}
 
@@ -404,7 +404,7 @@ public:
 		const UniformId id = m_uniforms.create();
 		size_t len = string::strlen(name);
 
-		CE_ASSERT(len < CROWN_MAX_UNIFORM_NAME_LENGTH, "Max uniform name length is %d", CROWN_MAX_UNIFORM_NAME_LENGTH);
+		CE_ASSERT(len < CE_MAX_UNIFORM_NAME_LENGTH, "Max uniform name length is %d", CE_MAX_UNIFORM_NAME_LENGTH);
 
 		m_submit->m_commands.write(CommandType::CREATE_UNIFORM);
 		m_submit->m_commands.write(id);
@@ -646,7 +646,7 @@ public:
 				{
 					UniformId id;
 					size_t len;
-					char name[CROWN_MAX_UNIFORM_NAME_LENGTH];
+					char name[CE_MAX_UNIFORM_NAME_LENGTH];
 					UniformType::Enum type;
 					uint8_t num;
 
@@ -856,13 +856,13 @@ protected:
 	RenderContext* m_draw;
 
 	// Id tables
-	IdTable<CROWN_MAX_VERTEX_BUFFERS> m_vertex_buffers;
-	IdTable<CROWN_MAX_INDEX_BUFFERS> m_index_buffers;
-	IdTable<CROWN_MAX_TEXTURES> m_textures;
-	IdTable<CROWN_MAX_SHADERS> m_shaders;
-	IdTable<CROWN_MAX_GPU_PROGRAMS> m_gpu_programs;
-	IdTable<CROWN_MAX_UNIFORMS> m_uniforms;
-	IdTable<CROWN_MAX_RENDER_TARGETS> m_render_targets;
+	IdTable<CE_MAX_VERTEX_BUFFERS> m_vertex_buffers;
+	IdTable<CE_MAX_INDEX_BUFFERS> m_index_buffers;
+	IdTable<CE_MAX_TEXTURES> m_textures;
+	IdTable<CE_MAX_SHADERS> m_shaders;
+	IdTable<CE_MAX_GPU_PROGRAMS> m_gpu_programs;
+	IdTable<CE_MAX_UNIFORMS> m_uniforms;
+	IdTable<CE_MAX_RENDER_TARGETS> m_render_targets;
 
 	bool m_is_initialized;
 	bool m_should_run;

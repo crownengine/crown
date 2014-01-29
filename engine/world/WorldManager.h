@@ -34,7 +34,6 @@ namespace crown
 
 typedef Id WorldId;
 class World;
-#define MAX_WORLDS 1024
 
 /// Manages a number of worlds.
 class WorldManager
@@ -50,12 +49,12 @@ public:
 	World*			lookup_world(WorldId id);
 
 	/// Return the array of worlds.
-	IdArray<MAX_WORLDS, World*>& worlds();
+	IdArray<CE_MAX_WORLDS, World*>& worlds();
 
 private:
 
 	ProxyAllocator m_allocator;
-	IdArray<MAX_WORLDS, World*> m_worlds;
+	IdArray<CE_MAX_WORLDS, World*> m_worlds;
 };
 
 } // namespace crown

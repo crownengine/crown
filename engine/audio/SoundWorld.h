@@ -28,8 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 
-#define MAX_SOUND_INSTANCES 64
-
 namespace crown
 {
 
