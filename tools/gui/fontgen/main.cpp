@@ -483,15 +483,14 @@ int save_png_SDFont(
 		fprintf(fp, "{\n");
 		fprintf(fp, "\"material\": \"%s\",\n", font_name);
 		fprintf(fp, "\"count\":%i,\n", packed_glyphs.size());
-		fprintf(fp, "\"width\":%i,\n", img_width);
-		fprintf(fp, "\"height\":%i,\n", img_height);
+		fprintf(fp, "\"size\":%i,\n", img_width);
 		fprintf(fp, "\"glyphs\" : [\n");
 		for(unsigned int i = 0; i < packed_glyphs.size()-1; ++i)
 		{
 			fprintf( fp, "\t{\"id\":%i, \"x\":%i, \"y\":%i, \"width\":%i, \"height\":%i,",
 				packed_glyphs[i].ID,
 				packed_glyphs[i].x,
-				packed_glyphs[i].y,
+				img_height - packed_glyphs[i].y,
 				packed_glyphs[i].width,
 				packed_glyphs[i].height
 				);
@@ -505,7 +504,7 @@ int save_png_SDFont(
 		fprintf( fp, "\t{\"id\":%i, \"x\":%i, \"y\":%i, \"width\":%i, \"height\":%i,",
 			packed_glyphs[packed_glyphs.size()-1].ID,
 			packed_glyphs[packed_glyphs.size()-1].x,
-			packed_glyphs[packed_glyphs.size()-1].y,
+			img_height - packed_glyphs[packed_glyphs.size()-1].y,
 			packed_glyphs[packed_glyphs.size()-1].width,
 			packed_glyphs[packed_glyphs.size()-1].height
 			);
@@ -514,7 +513,7 @@ int save_png_SDFont(
 			packed_glyphs[packed_glyphs.size()-1].yoff,
 			packed_glyphs[packed_glyphs.size()-1].xadv
 			);
-		fprintf(fp, "]\n");
+		fprintf(fp, "\t]\n");
 		fprintf(fp, "}");
 		fclose( fp );
 	}
