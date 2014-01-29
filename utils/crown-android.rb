@@ -37,16 +37,26 @@ $config_h =
 #define PRIi64 \"lli\"
 #define PRIx64 \"llx\"
 
-#define CROWN_MAX_TEXTURE_UNITS		8
-#define CROWN_MAX_TEXTURES			32
-#define CROWN_MAX_RENDER_TARGETS	32
-#define CROWN_MAX_VERTEX_BUFFERS	1024
-#define CROWN_MAX_INDEX_BUFFERS		1024
-#define CROWN_MAX_SHADERS			1024
-#define CROWN_MAX_GPU_PROGRAMS		1024
-#define CROWN_MAX_UNIFORMS			128
+#define CE_MAX_TEXTURE_UNITS				8
+#define CE_MAX_TEXTURES						32
+#define CE_MAX_RENDER_TARGETS				32
+#define CE_MAX_VERTEX_BUFFERS				1024
+#define CE_MAX_INDEX_BUFFERS				1024
+#define CE_MAX_SHADERS						1024
+#define CE_MAX_GPU_PROGRAMS					1024
+#define CE_MAX_UNIFORMS						128
+#define CE_TRANSIENT_VERTEX_BUFFER_SIZE		2 * 1024	// In bytes
+#define CE_TRANSIENT_INDEX_BUFFER_SIZE		2 * 1024	// In bytes
+#define CE_MAX_UNIFORM_NAME_LENGTH			64			// Including NUL character
 
-#define CROWN_MAX_UNIFORM_NAME_LENGTH	64
+#define CE_MAX_WORLDS						1024
+#define CE_MAX_UNITS						65000		// Per world
+#define CE_MAX_CAMERAS						16			// Per world
+#define CE_MAX_ACTORS						1024		// Per world
+#define CE_MAX_CONTROLLERS					1024		// Per world
+#define CE_MAX_TRIGGERS						1024		// Per world
+#define CE_MAX_JOINTS						512			// Per world
+#define CE_MAX_SOUND_INSTANCES				64			// Per world
 "
 
 $application_mk =
