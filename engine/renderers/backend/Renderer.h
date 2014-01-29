@@ -120,7 +120,7 @@ public:
 	}
 
 	/// Creates a new vertex buffer optimized for rendering static vertex data.
-	/// @a vertices is the array containig @a count vertex data elements, each of the given @a format.
+	/// @a data is the array containig @a size bytes of vertex data in the given @a format.
 	VertexBufferId create_vertex_buffer(size_t size, const void* data, VertexFormat::Enum format)
 	{
 		const VertexBufferId id = m_vertex_buffers.create();
@@ -135,7 +135,7 @@ public:
 	}
 
 	/// Creates a new vertex buffer optimized for renderering dynamic vertex data.
-	/// This function only allocates storage for @a count vertices, each of the given @a format;
+	/// This function only allocates storage for @a size bytes of vertex data.
 	/// use Renderer::update_vertex_buffer() to fill the buffer with actual data.
 	VertexBufferId create_dynamic_vertex_buffer(size_t size)
 	{
@@ -185,11 +185,8 @@ public:
 		tvb->format = format;
 	}
 
-	/// Updates the vertex buffer data of @a id with @a count @a vertices starting
-	/// at the given @a offset. The @a vertices have to match the format specified at creation time.
-	/// @note
-	/// @a count and @a offset together do not have to exceed the number of elements
-	/// originally specified to Renderer::create_vertex_buffer() (or Renderer::create_dynamic_vertex_buffer())
+	/// Updates the vertex buffer data of @a id with @a size bytes of vertex @a data starting
+	/// at the given @a offset.
 	void update_vertex_buffer(VertexBufferId id, size_t offset, size_t size, const void* data)
 	{
 		CE_ASSERT(m_vertex_buffers.has(id), "Vertex buffer does not exist");
@@ -220,7 +217,7 @@ public:
 	}
 
 	/// Creates a new index buffer optimized for rendering static index buffers.
-	/// @a indices is the array containing @a count index data elements.
+	/// @a data is the array containing @a size bytes of index data.
 	IndexBufferId create_index_buffer(size_t size, const void* data)
 	{
 		const IndexBufferId id = m_index_buffers.create();
@@ -234,7 +231,7 @@ public:
 	}
 
 	/// Creates a new index buffer optimized for rendering dynamic index buffers.
-	/// This function only allocates storage for @a count indices;
+	/// This function only allocates storage for @a size bytes of index data.
 	/// use Renderer::update_index_buffer() to fill the buffer with actual data.
 	IndexBufferId create_dynamic_index_buffer(size_t size)
 	{
@@ -282,11 +279,8 @@ public:
 		tib->size = sizeof(uint16_t) * num;
 	}
 
-	/// Updates the index buffer data of @a id with @a count @a indices starting
+	/// Updates the index buffer data of @a id with @a size bytes of index @data starting
 	/// at the given @a offset.
-	/// @note
-	/// @a count and @a offset together do not have to exceed the number of elements
-	/// originally specified to Renderer::create_index_buffer() (or Renderer::create_dynamic_index_buffer())
 	void update_index_buffer(IndexBufferId id, size_t offset, size_t size, const void* data)
 	{
 		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
