@@ -192,8 +192,8 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 
 	// Manage texts creation
 
-	FontResource* res = (FontResource*) device()->resource_manager()->lookup("font", "fonts/veramobi_sdf");
-	create_text("&", res, 100, Vector3(300, 400, 0));
+	FontResource* res = (FontResource*) device()->resource_manager()->lookup("font", "fonts/veramobi");
+	create_text("A", res, 400, Vector3(300, 400, 0));
 }
 
 //-----------------------------------------------------------------------------
@@ -406,7 +406,7 @@ void Gui::render()
 
 	for (uint32_t i = 0; i < m_texts.size(); i++)
 	{
-		m_r.set_program(font_program);
+		m_r.set_program(font_program/*gui_texture_program*/);
 		m_r.set_state(STATE_DEPTH_WRITE 
 		| STATE_COLOR_WRITE 
 		| STATE_ALPHA_WRITE 
@@ -416,7 +416,7 @@ void Gui::render()
 		| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
 		m_r.set_pose(m_pose);
 
-		m_texts[i]->render(gui_albedo_0);
+		m_texts[i]->render(font_uniform/*gui_albedo_0*/);
 	}
 }
 
