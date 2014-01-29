@@ -29,24 +29,26 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "EventStream.h"
 #include "PhysicsTypes.h"
 #include "PxActor.h"
+#include "PxRigidActor.h"
 #include "PxController.h"
 #include "PxSimulationEventCallback.h"
 
-using physx::PxSimulationEventCallback;
-using physx::PxContactPairHeader;
-using physx::PxContactPair;
-using physx::PxConstraintInfo;
-using physx::PxTriggerPair;
-using physx::PxActor;
-using physx::PxU32;
 
-using physx::PxUserControllerHitReport;
-using physx::PxControllerShapeHit;
-using physx::PxControllersHit;
-using physx::PxControllerObstacleHit;
+using physx::PxActor;
+using physx::PxConstraintInfo;
+using physx::PxContactPair;
+using physx::PxContactPairHeader;
 using physx::PxContactPairHeader;
 using physx::PxContactPairHeaderFlag;
 using physx::PxContactPairPoint;
+using physx::PxControllerObstacleHit;
+using physx::PxControllerShapeHit;
+using physx::PxControllersHit;
+using physx::PxSimulationEventCallback;
+using physx::PxTriggerPair;
+using physx::PxTriggerPairFlag;
+using physx::PxU32;
+using physx::PxUserControllerHitReport;
 using physx::PxVec3;
 
 namespace crown
@@ -106,9 +108,21 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	void onTrigger(PxTriggerPair* /*pairs*/, PxU32 /*count*/)
+	void onTrigger(PxTriggerPair* pairs, PxU32 count)
 	{
-		Log::i("TRIGGER");
+		// printf("TRIGGER\n");
+		// printf("Num pairs = %d\n", count);
+
+		for (PxU32 pp = 0; pp < count; pp++)
+		{
+			const PxTriggerPair& pair = pairs[pp];
+			// Do not report event if either trigger ot other shape has been deleted
+			if (pair.flags & PxTriggerPairFlag::eDELETED_SHAPE_TRIGGER || pair.flags & PxTriggerPairFlag::eDELETED_SHAPE_OTHER) continue;
+
+			// TODO
+			physics_world::TriggerEvent ev;
+			event_stream::write(m_events, physics_world::EventType::TRIGGER, ev);
+		}
 	}
 
 	//-----------------------------------------------------------------------------
