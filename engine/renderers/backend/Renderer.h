@@ -306,7 +306,7 @@ public:
 	{
 		CE_ASSERT(tib != NULL, "Transient buffer must be != NULL");
 
-		destroy_vertex_buffer(tib->ib);
+		destroy_index_buffer(tib->ib);
 		default_allocator().deallocate(tib);
 	}
 
