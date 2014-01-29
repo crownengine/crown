@@ -53,14 +53,14 @@ public:
 	void shutdown_impl();
 	void render_impl();
 
-	void create_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat::Enum format, const void* vertices);
-	void create_dynamic_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat::Enum format);
-	void update_vertex_buffer_impl(VertexBufferId id, size_t offset, size_t count, const void* vertices);
+	void create_vertex_buffer_impl(VertexBufferId id, size_t size, const void* data, VertexFormat::Enum format);
+	void create_dynamic_vertex_buffer_impl(VertexBufferId id, size_t size);
+	void update_vertex_buffer_impl(VertexBufferId id, size_t offset, size_t size, const void* data);
 	void destroy_vertex_buffer_impl(VertexBufferId id);
 
-	void create_index_buffer_impl(IndexBufferId id, size_t count, const void* indices);
-	void create_dynamic_index_buffer_impl(IndexBufferId id, size_t count);
-	void update_index_buffer_impl(IndexBufferId id, size_t offset, size_t count, const void* indices);
+	void create_index_buffer_impl(IndexBufferId id, size_t size, const void* data);
+	void create_dynamic_index_buffer_impl(IndexBufferId id, size_t size);
+	void update_index_buffer_impl(IndexBufferId id, size_t offset, size_t size, const void* data);
 	void destroy_index_buffer_impl(IndexBufferId id);
 
 	void create_texture_impl(TextureId id, uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data);
@@ -85,9 +85,16 @@ public:
 	void init()
 	{
 		m_should_run = true;
-		m_thread.start(render_thread, this);
+		// m_thread.start(render_thread, this);
 
 		m_submit->m_commands.write(CommandType::INIT_RENDERER);
+		frame();
+
+		m_submit->m_transient_vb = create_transient_vertex_buffer(2 * 1024);
+		m_submit->m_transient_ib = create_transient_index_buffer(2 * 1024);
+		frame();
+		m_submit->m_transient_vb = create_transient_vertex_buffer(2 * 1024);
+		m_submit->m_transient_ib = create_transient_index_buffer(2 * 1024);
 		frame();
 	}
 
@@ -97,57 +104,98 @@ public:
 	{
 		if (m_should_run)
 		{
+			destroy_transient_index_buffer(m_submit->m_transient_ib);
+			destroy_transient_vertex_buffer(m_submit->m_transient_vb);
+			frame();
+
+			destroy_transient_index_buffer(m_submit->m_transient_ib);
+			destroy_transient_vertex_buffer(m_submit->m_transient_vb);
+			frame();
+
 			m_submit->m_commands.write(CommandType::SHUTDOWN_RENDERER);
 			frame();
 
-			m_thread.stop();		
+			//m_thread.stop();		
 		}
 	}
 
 	/// Creates a new vertex buffer optimized for rendering static vertex data.
-	/// @a vertices is the array containig @a count vertex data elements, each of the given @a format.
-	VertexBufferId create_vertex_buffer(size_t count, VertexFormat::Enum format, const void* vertices)
+	/// @a data is the array containig @a size bytes of vertex data in the given @a format.
+	VertexBufferId create_vertex_buffer(size_t size, const void* data, VertexFormat::Enum format)
 	{
 		const VertexBufferId id = m_vertex_buffers.create();
 
 		m_submit->m_commands.write(CommandType::CREATE_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
-		m_submit->m_commands.write(count);
+		m_submit->m_commands.write(size);
+		m_submit->m_commands.write(data);
 		m_submit->m_commands.write(format);
-		m_submit->m_commands.write(vertices);
 
 		return id;
 	}
 
 	/// Creates a new vertex buffer optimized for renderering dynamic vertex data.
-	/// This function only allocates storage for @a count vertices, each of the given @a format;
+	/// This function only allocates storage for @a size bytes of vertex data.
 	/// use Renderer::update_vertex_buffer() to fill the buffer with actual data.
-	VertexBufferId create_dynamic_vertex_buffer(size_t count, VertexFormat::Enum format)
+	VertexBufferId create_dynamic_vertex_buffer(size_t size)
 	{
 		const VertexBufferId id = m_vertex_buffers.create();
 
 		m_submit->m_commands.write(CommandType::CREATE_DYNAMIC_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
-		m_submit->m_commands.write(count);
-		m_submit->m_commands.write(format);
+		m_submit->m_commands.write(size);
 
 		return id;
 	}
 
-	/// Updates the vertex buffer data of @a id with @a count @a vertices starting
-	/// at the given @a offset. The @a vertices have to match the format specified at creation time.
+	/// Creates a new transient vertex buffer with storage for exactly @a size bytes.
+	/// Transient vertex buffers are useful when you have to render highly dynamic vertex data, such as font glyphs.
 	/// @note
-	/// @a count and @a offset together do not have to exceed the number of elements
-	/// originally specified to Renderer::create_vertex_buffer() (or Renderer::create_dynamic_vertex_buffer())
-	void update_vertex_buffer(VertexBufferId id, size_t offset, size_t count, const void* vertices)
+	/// This call is tipically only performed by the backend to allocate a common large generic transient buffer
+	/// that can be used to carve out smaller transient buffers by calling Renderer::reserve_transient_vertex_buffer().
+	TransientVertexBuffer* create_transient_vertex_buffer(size_t size)
+	{
+		VertexBufferId vb = create_dynamic_vertex_buffer(size);
+		TransientVertexBuffer* tvb = NULL;
+
+		tvb = (TransientVertexBuffer*) default_allocator().allocate(sizeof(TransientVertexBuffer) + size);
+		tvb->vb = vb;
+		tvb->data = (char*) &tvb[1]; // Nice trick
+		tvb->size = size;
+
+		return tvb;
+	}
+
+	/// Reserves a portion of the common transient vertex buffer for exactly @a num vertices
+	/// of the given @a format.
+	/// @note
+	/// The returned @a tvb transient buffer is valid for one frame only!
+	void reserve_transient_vertex_buffer(TransientVertexBuffer* tvb, uint32_t num, VertexFormat::Enum format)
+	{
+		CE_ASSERT(tvb != NULL, "Transient buffer must be != NULL");
+
+		TransientVertexBuffer& tvb_shared = *m_submit->m_transient_vb;
+
+		const uint32_t offset = m_submit->reserve_transient_vertex_buffer(num, format);
+
+		tvb->vb = tvb_shared.vb;
+		tvb->data = &tvb_shared.data[offset];
+		tvb->start_vertex = offset / Vertex::bytes_per_vertex(format);
+		tvb->size = Vertex::bytes_per_vertex(format) * num;
+		tvb->format = format;
+	}
+
+	/// Updates the vertex buffer data of @a id with @a size bytes of vertex @a data starting
+	/// at the given @a offset.
+	void update_vertex_buffer(VertexBufferId id, size_t offset, size_t size, const void* data)
 	{
 		CE_ASSERT(m_vertex_buffers.has(id), "Vertex buffer does not exist");
 
 		m_submit->m_commands.write(CommandType::UPDATE_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(offset);
-		m_submit->m_commands.write(count);
-		m_submit->m_commands.write(vertices);			
+		m_submit->m_commands.write(size);
+		m_submit->m_commands.write(data);	
 	}
 
 	/// Destroys the given vertex buffer @a id.
@@ -159,48 +207,89 @@ public:
 		m_submit->m_commands.write(id);
 	}
 
+	/// Destroys the given @a tvb transient buffer
+	void destroy_transient_vertex_buffer(TransientVertexBuffer* tvb)
+	{
+		CE_ASSERT(tvb != NULL, "Transient buffer must be != NULL");
+
+		destroy_vertex_buffer(tvb->vb);
+		default_allocator().deallocate(tvb);
+	}
+
 	/// Creates a new index buffer optimized for rendering static index buffers.
-	/// @a indices is the array containing @a count index data elements.
-	IndexBufferId create_index_buffer(size_t count, const void* indices)
+	/// @a data is the array containing @a size bytes of index data.
+	IndexBufferId create_index_buffer(size_t size, const void* data)
 	{
 		const IndexBufferId id = m_index_buffers.create();
 
 		m_submit->m_commands.write(CommandType::CREATE_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
-		m_submit->m_commands.write(count);
-		m_submit->m_commands.write(indices);
+		m_submit->m_commands.write(size);
+		m_submit->m_commands.write(data);
 
 		return id;
 	}
 
 	/// Creates a new index buffer optimized for rendering dynamic index buffers.
-	/// This function only allocates storage for @a count indices;
+	/// This function only allocates storage for @a size bytes of index data.
 	/// use Renderer::update_index_buffer() to fill the buffer with actual data.
-	IndexBufferId create_dynamic_index_buffer(size_t count)
+	IndexBufferId create_dynamic_index_buffer(size_t size)
 	{
 		const IndexBufferId id = m_index_buffers.create();
 
 		m_submit->m_commands.write(CommandType::CREATE_DYNAMIC_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
-		m_submit->m_commands.write(count);
+		m_submit->m_commands.write(size);
 
 		return id;
 	}
 
-	/// Updates the index buffer data of @a id with @a count @a indices starting
-	/// at the given @a offset.
+	/// Creates a new transient index buffer with storage for exactly @a size bytes.
+	/// Transient index buffers are useful when you have to render highly dynamic index data, such as font glyphs.
 	/// @note
-	/// @a count and @a offset together do not have to exceed the number of elements
-	/// originally specified to Renderer::create_index_buffer() (or Renderer::create_dynamic_index_buffer())
-	void update_index_buffer(IndexBufferId id, size_t offset, size_t count, const void* indices)
+	/// This call is tipically only performed by the backend to allocate a common large generic transient buffer
+	/// that can be used to carve out smaller transient buffers by calling Renderer::reserve_transient_index_buffer().
+	TransientIndexBuffer* create_transient_index_buffer(size_t size)
+	{
+		IndexBufferId ib = create_dynamic_index_buffer(size);
+		TransientIndexBuffer* tib = NULL;
+
+		tib = (TransientIndexBuffer*) default_allocator().allocate(sizeof(TransientIndexBuffer) + size);
+		tib->ib = ib;
+		tib->data = (char*) &tib[1]; // Same as before
+		tib->size = size;
+
+		return tib;
+	}
+
+	/// Reserves a portion of the common transient index buffer for exactly @a num indices.
+	/// @note
+	/// The returned @a tvb transient buffer is valid for one frame only!
+	void reserve_transient_index_buffer(TransientIndexBuffer* tib, uint32_t num)
+	{
+		CE_ASSERT(tib != NULL, "Transient buffer must be != NULL");
+
+		TransientIndexBuffer& tib_shared = *m_submit->m_transient_ib;
+
+		const uint32_t offset = m_submit->reserve_transient_index_buffer(num);
+
+		tib->ib = tib_shared.ib;
+		tib->data = &tib_shared.data[offset];
+		tib->start_index = offset / sizeof(uint16_t);
+		tib->size = sizeof(uint16_t) * num;
+	}
+
+	/// Updates the index buffer data of @a id with @a size bytes of index @data starting
+	/// at the given @a offset.
+	void update_index_buffer(IndexBufferId id, size_t offset, size_t size, const void* data)
 	{
 		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
 
 		m_submit->m_commands.write(CommandType::UPDATE_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(offset);
-		m_submit->m_commands.write(count);
-		m_submit->m_commands.write(indices);
+		m_submit->m_commands.write(size);
+		m_submit->m_commands.write(data);
 	}
 
 	/// Destroys the @a id index buffer.
@@ -210,6 +299,15 @@ public:
 
 		m_submit->m_commands.write(CommandType::DESTROY_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
+	}
+
+	/// Destroys the given @a tvi transient buffer
+	void destroy_transient_index_buffer(TransientIndexBuffer* tib)
+	{
+		CE_ASSERT(tib != NULL, "Transient buffer must be != NULL");
+
+		destroy_vertex_buffer(tib->ib);
+		default_allocator().deallocate(tib);
 	}
 
 	/// Creates a new texture of size @a width and @height.
@@ -365,44 +463,42 @@ public:
 				case CommandType::CREATE_VERTEX_BUFFER:
 				{
 					VertexBufferId id;
-					size_t count;
+					size_t size;
+					const void* data;
 					VertexFormat::Enum format;
-					void* vertices;
 
 					cmds.read(id);
-					cmds.read(count);
+					cmds.read(size);
+					cmds.read(data);
 					cmds.read(format);
-					cmds.read(vertices);
 
-					create_vertex_buffer_impl(id, count, format, vertices);
+					create_vertex_buffer_impl(id, size, data, format);
 					break;
 				}
 				case CommandType::CREATE_DYNAMIC_VERTEX_BUFFER:
 				{
 					VertexBufferId id;
-					size_t count;
-					VertexFormat::Enum format;
+					size_t size;
 
 					cmds.read(id);
-					cmds.read(count);
-					cmds.read(format);
+					cmds.read(size);
 
-					create_dynamic_vertex_buffer_impl(id, count, format);
+					create_dynamic_vertex_buffer_impl(id, size);
 					break;
 				}
 				case CommandType::UPDATE_VERTEX_BUFFER:
 				{
 					VertexBufferId id;
 					size_t offset;
-					size_t count;
-					void* vertices;
+					size_t size;
+					void* data;
 
 					cmds.read(id);
 					cmds.read(offset);
-					cmds.read(count);
-					cmds.read(vertices);
+					cmds.read(size);
+					cmds.read(data);
 
-					update_vertex_buffer_impl(id, offset, count, vertices);			
+					update_vertex_buffer_impl(id, offset, size, data);			
 					break;
 				}
 				case CommandType::DESTROY_VERTEX_BUFFER:
@@ -416,40 +512,40 @@ public:
 				case CommandType::CREATE_INDEX_BUFFER:
 				{
 					IndexBufferId id;
-					size_t count;
-					void* indices;
+					size_t size;
+					void* data;
 
 					cmds.read(id);
-					cmds.read(count);
-					cmds.read(indices);
+					cmds.read(size);
+					cmds.read(data);
 
-					create_index_buffer_impl(id, count, indices);
+					create_index_buffer_impl(id, size, data);
 					break;
 				}
 				case CommandType::CREATE_DYNAMIC_INDEX_BUFFER:
 				{
 					IndexBufferId id;
-					size_t count;
+					size_t size;
 
 					cmds.read(id);
-					cmds.read(count);
+					cmds.read(size);
 
-					create_dynamic_index_buffer_impl(id, count);
+					create_dynamic_index_buffer_impl(id, size);
 					break;
 				}
 				case CommandType::UPDATE_INDEX_BUFFER:
 				{
 					IndexBufferId id;
 					size_t offset;
-					size_t count;
-					void* indices;
+					size_t size;
+					void* data;
 
 					cmds.read(id);
 					cmds.read(offset);
-					cmds.read(count);
-					cmds.read(indices);
+					cmds.read(size);
+					cmds.read(data);
 
-					update_index_buffer_impl(id, offset, count, indices);
+					update_index_buffer_impl(id, offset, size, data);
 					break;
 				}
 				case CommandType::DESTROY_INDEX_BUFFER:
@@ -626,16 +722,26 @@ public:
 		m_submit->set_program(id);
 	}
 
-	void set_vertex_buffer(VertexBufferId id)
+	void set_vertex_buffer(VertexBufferId id, uint32_t num_vertices = 0xFFFFFFFF)
 	{
 		CE_ASSERT(m_vertex_buffers.has(id), "Vertex buffer does not exist");
-		m_submit->set_vertex_buffer(id);
+		m_submit->set_vertex_buffer(id, num_vertices);
+	}
+
+	void set_vertex_buffer(const TransientVertexBuffer& tvb, uint32_t num_vertices = 0xFFFFFFFF)
+	{
+		m_submit->set_vertex_buffer(tvb, num_vertices);
 	}
 
 	void set_index_buffer(IndexBufferId id, uint32_t start_index = 0, uint32_t num_indices = 0xFFFFFFFF)
 	{
 		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
 		m_submit->set_index_buffer(id, start_index, num_indices);
+	}
+
+	void set_index_buffer(const TransientIndexBuffer& tib, uint32_t num_indices = 0xFFFFFFFF)
+	{
+		m_submit->set_index_buffer(tib, num_indices);
 	}
 
 	void set_uniform(UniformId id, UniformType::Enum type, const void* value, uint8_t num)
@@ -690,11 +796,11 @@ public:
 
 	static int32_t render_thread(void* thiz)
 	{
-		Renderer* renderer = (Renderer*)thiz;
-		while (renderer->m_should_run)
-		{
-			renderer->render_all();
-		}
+		// Renderer* renderer = (Renderer*)thiz;
+		// while (renderer->m_should_run)
+		// {
+		// 	renderer->render_all();
+		// }
 
 		return 0;
 	}
@@ -712,15 +818,16 @@ public:
 	void frame()
 	{
 		// Signal main thread finished updating
-		m_render_wait.post();
-		m_main_wait.wait();
+		// m_render_wait.post();
+		// m_main_wait.wait();
+		render_all();
 	}
 
 	// Do all the processing needed to render a frame
 	void render_all()
 	{
 		// Waits for main thread to finish update
-		m_render_wait.wait();
+		// m_render_wait.wait();
 
 		swap_contexts();
 
@@ -732,7 +839,7 @@ public:
 			render_impl();
 		}
 
-		m_main_wait.post();
+		// m_main_wait.post();
 	}
 
 protected:

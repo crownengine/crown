@@ -86,8 +86,8 @@ struct GuiText
 		m_indices[2] = 2; m_indices[3] = 0;
 		m_indices[4] = 2; m_indices[5] = 3;
 
-		m_vb = m_r.create_vertex_buffer(4, VertexFormat::P2_T2, m_vertices);
-		m_ib = m_r.create_index_buffer(6, m_indices);
+		m_vb = m_r.create_vertex_buffer(4 * Vertex::bytes_per_vertex(VertexFormat::P2_T2), m_vertices, VertexFormat::P2_T2);
+		m_ib = m_r.create_index_buffer(6 * sizeof(uint16_t), m_indices);
 	}
 
 	//-------------------------------------------------------------------------

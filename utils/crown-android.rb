@@ -229,7 +229,6 @@ def fill_android_project(build, target, res, path)
 	FileUtils.cp($physx + "/lib/libPhysX3Vehicle.a", engine_dest)
 	FileUtils.cp($physx + "/lib/libPhysX3Cooking.a", engine_dest)
 	FileUtils.cp($physx + "/lib/libPvdRuntime.a", engine_dest)
-	FileUtils.cp($physx + "/lib/libRepX3.a", engine_dest)
 
 	# Copy java files
 	FileUtils.cp_r(Dir.glob($android_src), android_dest, :remove_destination => true)

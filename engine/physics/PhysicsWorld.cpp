@@ -231,7 +231,7 @@ PhysicsWorld::PhysicsWorld()
 	m_scene = physics_system::s_physics->createScene(scene_desc);
 	
 	// Create controller manager
-	m_controller_manager = PxCreateControllerManager(*physics_system::s_foundation);
+	m_controller_manager = PxCreateControllerManager(*m_scene);
 	CE_ASSERT(m_controller_manager != NULL, "Failed to create PhysX controller manager");
 }
 
@@ -263,7 +263,7 @@ void PhysicsWorld::destroy_actor(ActorId id)
 //-----------------------------------------------------------------------------
 ControllerId PhysicsWorld::create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node)
 {
-	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, sg, node, physics_system::s_physics, m_scene, m_controller_manager);
+	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, sg, node, physics_system::s_physics, m_controller_manager);
 	return m_controllers.create(controller);
 }
 
@@ -379,7 +379,7 @@ void PhysicsWorld::update(float dt)
 
 	// Update transforms
 	PxU32 num_active_transforms;
-	PxActiveTransform* active_transforms = m_scene->getActiveTransforms(num_active_transforms);
+	const PxActiveTransform* active_transforms = m_scene->getActiveTransforms(num_active_transforms);
 
 	// Update each actor with its new transform
 	for (PxU32 i = 0; i < num_active_transforms; i++)

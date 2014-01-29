@@ -44,6 +44,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PxPrismaticJoint.h"
 #include "PxDistanceJoint.h"
 #include "PxJointLimit.h"
+#include "PxTolerancesScale.h"
 #include "Actor.h"
 
 using physx::PxPhysics;
@@ -61,7 +62,6 @@ using physx::PxConstraintFlag;
 using physx::PxJoint;
 using physx::PxFixedJoint;
 using physx::PxFixedJointCreate;
-using physx::PxJointLimitPair;
 
 using physx::PxSphericalJoint;
 using physx::PxSphericalJointCreate;
@@ -79,6 +79,9 @@ using physx::PxPrismaticJointFlag;
 using physx::PxDistanceJoint;
 using physx::PxDistanceJointCreate;
 using physx::PxDistanceJointFlag;
+using physx::PxJointLinearLimitPair;
+using physx::PxTolerancesScale;
+using physx::PxJointAngularLimitPair;
 
 namespace crown
 {
@@ -105,7 +108,6 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 		{
 			PxJointLimitCone limit_cone(joint.y_limit_angle, joint.z_limit_angle, joint.contact_dist);
 			limit_cone.restitution = joint.restitution;
-			limit_cone.spring = joint.spring;
 			limit_cone.damping = joint.damping;
 			limit_cone.contactDistance = joint.distance;
 
@@ -117,8 +119,7 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 		}
 		case JointType::REVOLUTE:
 		{
-			PxJointLimitPair limit_pair(joint.lower_limit, joint.upper_limit, joint.contact_dist);
-			limit_pair.spring = joint.spring;
+			PxJointAngularLimitPair limit_pair(joint.lower_limit, joint.upper_limit, joint.contact_dist);
 			limit_pair.damping = joint.damping;
 
 			m_joint = PxRevoluteJointCreate(*physics, actor_0.m_actor, PxTransform(anchor_0), actor_1.m_actor, PxTransform(anchor_1));
@@ -132,8 +133,7 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 		}
 		case JointType::PRISMATIC:
 		{
-			PxJointLimitPair limit_pair(joint.lower_limit, joint.upper_limit, joint.contact_dist);
-			limit_pair.spring = joint.spring;
+			PxJointLinearLimitPair limit_pair(PxTolerancesScale(), joint.lower_limit, joint.upper_limit, joint.contact_dist);
 			limit_pair.damping = joint.damping;
 
 			m_joint = PxPrismaticJointCreate(*physics, actor_0.m_actor, PxTransform(anchor_0), actor_1.m_actor, PxTransform(anchor_1));

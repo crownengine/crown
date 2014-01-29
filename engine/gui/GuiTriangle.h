@@ -40,8 +40,8 @@ struct GuiTriangle
 	{
 		update(p1, p2, p3, color);
 
-		m_vb = m_r.create_vertex_buffer(3, VertexFormat::P2_C4, m_vertices);
-		m_ib = m_r.create_index_buffer(6, m_indices);
+		m_vb = m_r.create_vertex_buffer(3 * Vertex::bytes_per_vertex(VertexFormat::P2_C4), m_vertices, VertexFormat::P2_C4);
+		m_ib = m_r.create_index_buffer(6 * sizeof(uint16_t), m_indices);
 	}
 
 	//-------------------------------------------------------------------------

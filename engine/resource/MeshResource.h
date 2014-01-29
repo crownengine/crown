@@ -94,8 +94,8 @@ public:
 		MeshResource* m = (MeshResource*) resource;
 		MeshHeader* h = (MeshHeader*) m;
 
-		h->vbuffer = device()->renderer()->create_vertex_buffer(m->num_vertices(), m->vertex_format(), m->vertices());
-		h->ibuffer = device()->renderer()->create_index_buffer(m->num_indices(), m->indices());
+		h->vbuffer = device()->renderer()->create_vertex_buffer(m->num_vertices() * Vertex::bytes_per_vertex(m->vertex_format()), m->vertices(), m->vertex_format());
+		h->ibuffer = device()->renderer()->create_index_buffer(m->num_indices() * sizeof(uint16_t), m->indices());
 	}
 
 	//-----------------------------------------------------------------------------

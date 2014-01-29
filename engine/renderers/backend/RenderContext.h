@@ -175,6 +175,11 @@ struct RenderState
 		program.id = INVALID_ID;
 		vb.id = INVALID_ID;
 		ib.id = INVALID_ID;
+		start_vertex = 0;
+		num_vertices = 0xFFFFFFFF;
+		start_index = 0;
+		num_indices = 0xFFFFFFFF;
+		vertex_format = VertexFormat::COUNT;
 
 		for (uint32_t i = 0; i < STATE_MAX_TEXTURES; i++)
 		{
@@ -191,8 +196,11 @@ public:
 	GPUProgramId	program;
 	VertexBufferId	vb;
 	IndexBufferId	ib;
+	uint32_t		start_vertex;
+	uint32_t		num_vertices;
 	uint32_t		start_index;
 	uint32_t		num_indices;
+	VertexFormat::Enum vertex_format;
 	Sampler			samplers[STATE_MAX_TEXTURES];
 };
 
@@ -218,11 +226,44 @@ public:
 	uint8_t m_layer;
 };
 
+/// A vertex buffer valid for one frame only
+struct TransientVertexBuffer
+{
+	VertexBufferId vb;
+	VertexFormat::Enum format;
+	uint32_t start_vertex;
+	size_t size;
+	char* data;
+};
+
+/// An index buffer valid for one frame only
+struct TransientIndexBuffer
+{
+	IndexBufferId ib;
+	uint32_t start_index;
+	size_t size;
+	char* data;
+};
+
 struct RenderContext
 {
 	RenderContext()
 	{
 		clear();
+	}
+
+	uint32_t reserve_transient_vertex_buffer(uint32_t num, VertexFormat::Enum format)
+	{
+		const uint32_t offset = m_tvb_offset;
+		m_tvb_offset = offset + Vertex::bytes_per_vertex(format) * num;
+		return offset;
+	}
+
+	uint32_t reserve_transient_index_buffer(uint32_t num)
+	{
+		const uint32_t offset = m_tib_offset;
+		m_tib_offset = offset + sizeof(uint16_t) * num;
+		return offset;
 	}
 
 	void set_state(uint64_t flags)
@@ -240,9 +281,19 @@ struct RenderContext
 		m_state.program = program;
 	}
 
-	void set_vertex_buffer(VertexBufferId vb)
+	void set_vertex_buffer(VertexBufferId vb, uint32_t num_vertices)
 	{
 		m_state.vb = vb;
+		m_state.start_vertex = 0;
+		m_state.num_vertices = num_vertices;
+	}
+
+	void set_vertex_buffer(const TransientVertexBuffer& tvb, uint32_t num_vertices)
+	{
+		m_state.vb = tvb.vb;
+		m_state.start_vertex = tvb.start_vertex;
+		m_state.num_vertices = math::min((uint32_t) tvb.size / (uint32_t) Vertex::bytes_per_vertex(tvb.format), num_vertices);
+		m_state.vertex_format = tvb.format;
 	}
 
 	void set_index_buffer(IndexBufferId ib, uint32_t start_index, uint32_t num_indices)
@@ -250,6 +301,13 @@ struct RenderContext
 		m_state.ib = ib;
 		m_state.start_index = start_index;
 		m_state.num_indices = num_indices;
+	}
+
+	void set_index_buffer(const TransientIndexBuffer& tib, uint32_t num_indices)
+	{
+		m_state.ib = tib.ib;
+		m_state.start_index = tib.start_index;
+		m_state.num_indices = math::min((uint32_t) tib.size / (uint32_t) sizeof(uint16_t), num_indices);
 	}
 
 	void set_uniform(UniformId id, UniformType::Enum type, const void* value, uint8_t num)
@@ -339,6 +397,9 @@ struct RenderContext
 
 		m_num_states = 0;
 		m_state.clear();
+
+		m_tvb_offset = 0;
+		m_tib_offset = 0;
 	}
 
 	void push()
@@ -373,6 +434,11 @@ public:
 
 	CommandBuffer m_commands;
 	ConstantBuffer m_constants;
+
+	uint32_t m_tvb_offset;
+	uint32_t m_tib_offset;
+	TransientVertexBuffer* m_transient_vb;
+	TransientIndexBuffer* m_transient_ib;
 };
 
 } // namespace crown

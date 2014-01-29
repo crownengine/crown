@@ -46,11 +46,10 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxScene* scene, PxControllerManager* manager)
+Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxControllerManager* manager)
 	: m_resource(pr)
 	, m_scene_graph(sg)
 	, m_node(node)
-	, m_scene(scene)
 	, m_manager(manager)
 	, m_controller(NULL)
 {
@@ -67,27 +66,30 @@ Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, 
 	desc.upDirection = PxVec3(0.0, 1.0, 0.0);
 	desc.material = physics->createMaterial(0.5f, 0.5f, 0.5f);
 	desc.position = PxExtendedVec3(0, 0, 0);
-
+	desc.reportCallback = &m_callback;
 	CE_ASSERT(desc.isValid(), "Capsule is not valid");
-	m_callback = CE_NEW(default_allocator(), PhysicsControllerCallback)();
-	desc.callback = m_callback;
 
-	m_controller = manager->createController(*physics, scene, desc);
+	m_controller = manager->createController(desc);
 	CE_ASSERT(m_controller, "Failed to create controller");
 }
 
 //-----------------------------------------------------------------------------
 Controller::~Controller()
 {
-	CE_DELETE(default_allocator(), m_callback);
 	m_controller->release();
 }
 
 //-----------------------------------------------------------------------------
 void Controller::move(const Vector3& pos)
 {
-	PxVec3 disp(pos.x, pos.y, pos.z);
+	const PxVec3 disp(pos.x, pos.y, pos.z);
 	m_flags = m_controller->move(disp, 0.001, 1.0 / 60.0, PxControllerFilters());
+}
+
+//-----------------------------------------------------------------------------
+void Controller::set_height(float height)
+{
+	m_controller->resize(height);
 }
 
 //-----------------------------------------------------------------------------

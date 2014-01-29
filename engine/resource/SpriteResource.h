@@ -87,8 +87,8 @@ struct SpriteResource
 		const float* vertices = (float*) (((char*) resource) + h->vertices_offset);
 		const uint16_t* indices = (uint16_t*) (((char*) resource) + h->indices_offset);
 
-		h->vb = device()->renderer()->create_vertex_buffer(h->num_vertices, VertexFormat::P2_T2, vertices);
-		h->ib = device()->renderer()->create_index_buffer(h->num_indices, indices);
+		h->vb = device()->renderer()->create_vertex_buffer(h->num_vertices * Vertex::bytes_per_vertex(VertexFormat::P2_T2), vertices, VertexFormat::P2_T2);
+		h->ib = device()->renderer()->create_index_buffer(h->num_indices * sizeof(uint16_t), indices);
 	}
 
 	//-----------------------------------------------------------------------------

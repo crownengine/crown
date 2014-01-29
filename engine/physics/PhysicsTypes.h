@@ -120,7 +120,8 @@ namespace physics_world
 	{
 		enum Enum
 		{
-			COLLISION
+			COLLISION,
+			TRIGGER
 		};
 	};
 
@@ -128,6 +129,11 @@ namespace physics_world
 	{
 		Actor* actors[2];
 		Vector3 where;
+	};
+
+	struct TriggerEvent
+	{
+		Actor* actor;
 	};
 }
 
