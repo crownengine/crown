@@ -80,7 +80,7 @@ struct Gui
 	void				destroy_image(GuiImageId);
 
 	GuiTextId			create_text(const char* str, const FontResource* font, uint32_t font_size, const Vector3& pos);
-	void				update_text(GuiTextId id);
+	void				update_text(GuiTextId id, const char* str, uint32_t font_size, const Vector3& pos);
 	void				destroy_text(GuiTextId id);
 
 	void				render();

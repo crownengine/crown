@@ -192,8 +192,8 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 
 	// Manage texts creation
 
-	FontResource* res = (FontResource*) device()->resource_manager()->lookup("font", "fonts/veramobi");
-	create_text("A", res, 400, Vector3(300, 400, 0));
+/*	FontResource* res = (FontResource*) device()->resource_manager()->lookup("font", "fonts/veramobi");
+	create_text("ciaO mAngOZOide", res, 30, Vector3(300, 400, 0));*/
 }
 
 //-----------------------------------------------------------------------------
@@ -292,7 +292,7 @@ void Gui::update_triangle(GuiTriangleId id, const Vector2& p1, const Vector2& p2
 //-----------------------------------------------------------------------------
 void Gui::destroy_triangle(GuiTriangleId id)
 {
-	CE_ASSERT(m_triangles.has(id), "Guitriangle does not exist");
+	CE_ASSERT(m_triangles.has(id), "GuiTriangle does not exist");
 
 	GuiTriangle* triangle = m_triangles.lookup(id);
 	CE_DELETE(m_triangle_pool, triangle);
@@ -328,14 +328,17 @@ void Gui::destroy_image(GuiImageId id)
 //-----------------------------------------------------------------------------
 GuiTextId Gui::create_text(const char* str, const FontResource* font, uint32_t font_size, const Vector3& pos)
 {
-	GuiText* text = CE_NEW(m_text_pool, GuiText)(m_render_world, m_r, font, str, font_size, pos);
+	GuiText* text = CE_NEW(m_text_pool, GuiText)(m_render_world, m_r, str, font, font_size, pos);
 	return m_texts.create(text);
 }
 
 //-----------------------------------------------------------------------------
-void Gui::update_text(GuiTextId id)
+void Gui::update_text(GuiTextId id, const char* str, uint32_t font_size, const Vector3& pos)
 {
-	// Must be implemented
+	CE_ASSERT(m_texts.has(id), "GuiText does not exists");
+
+	GuiText* text = m_texts.lookup(id);
+	text->update(str, font_size, pos);
 }
 
 //-----------------------------------------------------------------------------
@@ -389,6 +392,7 @@ void Gui::render()
 		m_triangles[i]->render();
 	}
 
+	// Render all Images
 	for (uint32_t i = 0; i < m_images.size(); i++)
 	{
 		m_r.set_program(gui_texture_program);
@@ -404,9 +408,10 @@ void Gui::render()
 		m_images[i]->render(gui_albedo_0);
 	}
 
+	// Render all Texts
 	for (uint32_t i = 0; i < m_texts.size(); i++)
 	{
-		m_r.set_program(font_program/*gui_texture_program*/);
+		m_r.set_program(font_program);
 		m_r.set_state(STATE_DEPTH_WRITE 
 		| STATE_COLOR_WRITE 
 		| STATE_ALPHA_WRITE 
@@ -416,7 +421,7 @@ void Gui::render()
 		| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
 		m_r.set_pose(m_pose);
 
-		m_texts[i]->render(font_uniform/*gui_albedo_0*/);
+		m_texts[i]->render(font_uniform);
 	}
 }
 
