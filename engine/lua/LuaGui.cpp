@@ -30,6 +30,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Quaternion.h"
 #include "Color4.h"
+#include "Device.h"
+#include "ResourceManager.h"
+#include "FontResource.h"
 
 namespace crown
 {
@@ -207,6 +210,55 @@ CE_EXPORT int gui_destroy_image(lua_State* L)
 	return 0;
 }
 
+//-------------------------------------------------------------------------
+CE_EXPORT int gui_create_text(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Gui* gui = stack.get_gui(1);
+	const char* str = stack.get_string(2);
+	const char* font = stack.get_string(3);
+	uint32_t font_size = stack.get_int(4);
+	Vector3 pos = stack.get_vector3(5);
+
+	FontResource* fr = (FontResource*) device()->resource_manager()->lookup("font", font);
+
+	GuiTextId text_id = gui->create_text(str, fr, font_size, pos);
+
+	stack.push_gui_component_id(text_id);
+
+	return 1;
+}
+
+//-------------------------------------------------------------------------
+CE_EXPORT int gui_update_text(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Gui* gui = stack.get_gui(1);
+	GuiComponentId text_id = stack.get_gui_component_id(2);
+	const char* str = stack.get_string(3);
+	uint32_t font_size = stack.get_int(4);
+	Vector3 pos = stack.get_vector3(5);
+
+	gui->update_text(text_id, str, font_size, pos);
+
+	return 0;
+}
+
+//-------------------------------------------------------------------------
+CE_EXPORT int gui_destroy_text(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Gui* gui = stack.get_gui(1);
+	GuiComponentId text_id = stack.get_gui_component_id(2);
+
+	gui->destroy_text(text_id);
+
+	return 0;
+}
+
 //-----------------------------------------------------------------------------
 void load_gui(LuaEnvironment& env)
 {
@@ -221,6 +273,9 @@ void load_gui(LuaEnvironment& env)
 	env.load_module_function("Gui", "create_image",		gui_create_image);
 	env.load_module_function("Gui", "update_image",		gui_update_image);
 	env.load_module_function("Gui", "destroy_image",	gui_destroy_image);
+	env.load_module_function("Gui", "create_text", 		gui_create_text);
+	env.load_module_function("Gui", "update_text", 		gui_update_text);
+	env.load_module_function("Gui", "destroy_text",		gui_destroy_text);
 }
 
 } // namespace crown
