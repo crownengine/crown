@@ -39,69 +39,47 @@ struct Vector3;
 struct Vector2;
 struct Color4;
 
+struct VertexData
+{
+	float x;
+	float y;
+	float u;
+	float v;
+};
+
+struct IndexData
+{
+	uint16_t a;
+	uint16_t b;
+};
+
 struct GuiText
 {
 	//-------------------------------------------------------------------------
-	GuiText(RenderWorld& render_world, Renderer& r, const FontResource* fr, const char* str, uint32_t font_size, const Vector3& pos)
+	GuiText(RenderWorld& render_world, Renderer& r, const char* str, const FontResource* fr, uint32_t font_size, const Vector3& pos)
 		: m_render_world(render_world)
 		, m_r(r)
 		, m_resource(fr)
+		, m_str(str)
+		, m_font_size(font_size)
+		, m_pos(pos)
 	{
 		MaterialResource* mat = (MaterialResource*) device()->resource_manager()->data(m_resource->material());
 		m_material = m_render_world.create_material(mat);
-
-		FontGlyphData g = m_resource->get_glyph(str[0]);
-
-		const float x		= (float) g.x / fr->size();
-		const float y		= (float) g.y / fr->size();
-		const float width	= (float) g.width / fr->size();
-		const float height	= (float) g.height / fr->size();
-
-		const float u0 = x;
-		const float v0 = y;
-		const float u1 = x + width;
-		const float v1 = y - height;
-
-		m_vertices[0] = pos.x;
-		m_vertices[1] = pos.y;
-		m_vertices[2] = u0;
-		m_vertices[3] = v1;
-
-		m_vertices[4] = pos.x + font_size;
-		m_vertices[5] = pos.y;
-		m_vertices[6] = u1; 
-		m_vertices[7] = v1;
-
-		m_vertices[8] = pos.x + font_size;
-		m_vertices[9] = pos.y - font_size;
-		m_vertices[10] = u1;
-		m_vertices[11] = v0;
-
-		m_vertices[12] = pos.x; 
-		m_vertices[13] = pos.y - font_size;
-		m_vertices[14] = u0;
-		m_vertices[15] = v0;
-
-		m_indices[0] = 0; m_indices[1] = 1;
-		m_indices[2] = 2; m_indices[3] = 0;
-		m_indices[4] = 2; m_indices[5] = 3;
-
-		m_vb = m_r.create_vertex_buffer(4 * Vertex::bytes_per_vertex(VertexFormat::P2_T2), m_vertices, VertexFormat::P2_T2);
-		m_ib = m_r.create_index_buffer(6 * sizeof(uint16_t), m_indices);
 	}
 
 	//-------------------------------------------------------------------------
 	~GuiText()
 	{
-		m_r.destroy_vertex_buffer(m_vb);
-		m_r.destroy_index_buffer(m_ib);
-
 		m_render_world.destroy_material(m_material);
 	}
 
 	//-------------------------------------------------------------------------
-	void update(const Vector3& pos, const Vector2& size)
+	void update(const char* str, uint32_t font_size, const Vector3& pos)
 	{
+		m_str = str;
+		m_font_size = font_size;
+		m_pos = pos;
 	}
 
 	//-------------------------------------------------------------------------
@@ -110,23 +88,88 @@ struct GuiText
 		Material* material = m_render_world.lookup_material(m_material);
 		material->bind(m_r, uniform);
 
-		m_r.set_vertex_buffer(m_vb);
-		m_r.set_index_buffer(m_ib);
+		const char* str = m_str.c_str();
+
+		TransientVertexBuffer vb;
+		TransientIndexBuffer ib;
+
+		m_r.reserve_transient_vertex_buffer(&vb, 4 * string::strlen(str), VertexFormat::P2_T2);
+		m_r.reserve_transient_index_buffer(&ib, 6 * string::strlen(str));
+
+		uint16_t index = 0;
+		float advance = 0.0f;
+		for (uint32_t i = 0; i < string::strlen(str); i++)
+		{
+			FontGlyphData g = m_resource->get_glyph(str[i]);
+
+			const float x		= (float) g.x / m_resource->size();
+			const float y		= (float) g.y / m_resource->size();
+			const float width	= (float) g.width / m_resource->size();
+			const float height	= (float) g.height / m_resource->size();
+
+			const float u0 = x;
+			const float v0 = y;
+			const float u1 = x + width;
+			const float v1 = y - height;
+
+			(*(VertexData*)(vb.data)).x		= m_pos.x + advance;
+			(*(VertexData*)(vb.data)).y		= m_pos.y;
+			(*(VertexData*)(vb.data)).u		= u0;
+			(*(VertexData*)(vb.data)).v		= v1;
+			vb.data += sizeof(VertexData);
+
+			(*(VertexData*)(vb.data)).x		= m_pos.x + m_font_size + advance;
+			(*(VertexData*)(vb.data)).y		= m_pos.y;
+			(*(VertexData*)(vb.data)).u		= u1; 
+			(*(VertexData*)(vb.data)).v		= v1;
+			vb.data += sizeof(VertexData);
+
+			(*(VertexData*)(vb.data)).x		= m_pos.x + m_font_size + advance;
+			(*(VertexData*)(vb.data)).y		= m_pos.y - m_font_size;
+			(*(VertexData*)(vb.data)).u		= u1;
+			(*(VertexData*)(vb.data)).v		= v0;
+			vb.data += sizeof(VertexData);
+
+			(*(VertexData*)(vb.data)).x		= m_pos.x + advance;
+			(*(VertexData*)(vb.data)).y		= m_pos.y - m_font_size;
+			(*(VertexData*)(vb.data)).u		= u0;
+			(*(VertexData*)(vb.data)).v		= v0;
+			vb.data += sizeof(VertexData);
+
+
+			(*(IndexData*)(ib.data)).a		= index;
+			(*(IndexData*)(ib.data)).b		= index + 1;
+			ib.data += sizeof(IndexData);
+
+			(*(IndexData*)(ib.data)).a		= index + 2;
+			(*(IndexData*)(ib.data)).b		= index;
+			ib.data += sizeof(IndexData);
+
+			(*(IndexData*)(ib.data)).a		= index + 2;
+			(*(IndexData*)(ib.data)).b		= index + 3;
+			ib.data += sizeof(IndexData);
+
+			index += 4;
+
+			advance += g.x_advance;
+		}
+
+		m_r.set_vertex_buffer(vb);
+		m_r.set_index_buffer(ib);
 		m_r.commit(1);
 	}
 
 public:
 
-	RenderWorld& m_render_world;
-	Renderer& m_r;
+	RenderWorld& 		m_render_world;
+	Renderer& 			m_r;
 	const FontResource* m_resource;
 
-	float m_vertices[4*4];
-	uint16_t m_indices[2*3];
+	DynamicString		m_str;
+	uint32_t			m_font_size;
+	Vector3				m_pos;
 
-	VertexBufferId m_vb;
-	IndexBufferId m_ib;
-	MaterialId m_material;
+	MaterialId 			m_material;
 };
 
 } // namespace crown
