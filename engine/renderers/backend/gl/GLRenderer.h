@@ -90,24 +90,23 @@ static const char* gl_error_to_string(GLenum error)
 struct VertexBuffer
 {
 	//-----------------------------------------------------------------------------
-	void create(size_t count, VertexFormat::Enum format, const void* vertices)
+	void create(size_t size, const void* data, VertexFormat::Enum format)
 	{
 		GL_CHECK(glGenBuffers(1, &m_id));
+		CE_ASSERT(m_id != 0, "Failed to create buffer");
 		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_id));
-		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, count * Vertex::bytes_per_vertex(format), vertices,
-			(vertices == NULL) ? GL_STREAM_DRAW : GL_STATIC_DRAW));
+		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, size, data, (data == NULL) ? GL_STREAM_DRAW : GL_STATIC_DRAW));
 		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-		m_count = count;
+		m_size = size;
 		m_format = format;
 	}
 
 	//-----------------------------------------------------------------------------
-	void update(size_t offset, size_t count, const void* vertices)
+	void update(size_t offset, size_t size, const void* data)
 	{
 		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_id));
-		GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, offset * Vertex::bytes_per_vertex(m_format),
-									count * Vertex::bytes_per_vertex(m_format), vertices));
+		GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, offset, size, data));
 		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
 
@@ -120,32 +119,31 @@ struct VertexBuffer
 
 public:
 
-	GLuint			m_id;
-	size_t			m_count;
-	VertexFormat::Enum	m_format;
+	GLuint m_id;
+	size_t m_size;
+	VertexFormat::Enum m_format;
 };
 
 //-----------------------------------------------------------------------------
 struct IndexBuffer
 {
 	//-----------------------------------------------------------------------------
-	void create(size_t count, const void* indices)
+	void create(size_t size, const void* data)
 	{
 		GL_CHECK(glGenBuffers(1, &m_id));
+		CE_ASSERT(m_id != 0, "Failed to create buffer");
 		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id));
-		GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLushort), indices,
-					(indices == NULL) ? GL_STREAM_DRAW : GL_STATIC_DRAW));
+		GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, (data == NULL) ? GL_STREAM_DRAW : GL_STATIC_DRAW));
 		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-		m_index_count = count;
+		m_size = size;
 	}
 
 	//-----------------------------------------------------------------------------
-	void update(size_t offset, size_t count, const void* indices)
+	void update(size_t offset, size_t size, const void* data)
 	{
 		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id));
-		GL_CHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(uint16_t),
-									count * sizeof(uint16_t), indices));
+		GL_CHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data));
 		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
 
@@ -159,7 +157,7 @@ struct IndexBuffer
 public:
 
 	GLuint		m_id;
-	uint32_t	m_index_count;
+	uint32_t	m_size;
 };
 
 //-----------------------------------------------------------------------------
@@ -421,7 +419,7 @@ struct GPUProgram
 	}
 
 	//-----------------------------------------------------------------------------
-	void bind_attributes(VertexFormat::Enum format) const
+	void bind_attributes(VertexFormat::Enum format, uint32_t start_vertex) const
 	{
 		// Bind all active attributes
 		for (uint8_t i = 0; i < m_num_active_attribs; i++)
@@ -434,8 +432,9 @@ struct GPUProgram
 			if (loc != -1 && info.has_attrib(attrib))
 			{
 				GL_CHECK(glEnableVertexAttribArray(loc));
+				uint32_t base_vertex = start_vertex * info.attrib_stride(attrib) + info.attrib_offset(attrib);
 				GL_CHECK(glVertexAttribPointer(loc, info.num_components(attrib), GL_FLOAT, GL_FALSE, info.attrib_stride(attrib),
-										(GLvoid*)(uintptr_t) info.attrib_offset(attrib)));
+										(GLvoid*)(uintptr_t) base_vertex));
 			}
 		}
 	}

@@ -262,6 +262,16 @@ public:
 		// Sort render keys
 		context.sort();
 
+		// Update transient buffers
+		if (context.m_tvb_offset)
+		{
+			m_vertex_buffers[context.m_transient_vb->vb.index].update(0, context.m_tvb_offset, context.m_transient_vb->data);
+		}
+		if (context.m_tib_offset)
+		{
+			m_index_buffers[context.m_transient_ib->ib.index].update(0, context.m_tib_offset, context.m_transient_ib->data);
+		}
+
 		for (uint32_t s = 0; s < context.m_num_states; s++)
 		{
 			const uint64_t key_s = context.m_keys[s];
@@ -462,7 +472,8 @@ public:
 				GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer.m_id));
 
 				const GPUProgram& gpu_program = m_gpu_programs[cur_state.program.index];
-				gpu_program.bind_attributes(vertex_buffer.m_format);
+				const VertexFormat::Enum format = vertex_buffer.m_format == VertexFormat::COUNT ? cur_state.vertex_format : vertex_buffer.m_format;
+				gpu_program.bind_attributes(format, cur_state.start_vertex);
 			}
 			else
 			{
@@ -475,7 +486,7 @@ public:
 				const IndexBuffer& index_buffer = m_index_buffers[ib.index];
 				const uint32_t prim_type = (flags & STATE_PRIMITIVE_MASK) >> STATE_PRIMITIVE_SHIFT;
 				const GLenum gl_prim_type = PRIMITIVE_TYPE_TABLE[prim_type];
-				const uint32_t num_indices = cur_state.num_indices == 0xFFFFFFFF ? index_buffer.m_index_count : cur_state.num_indices;
+				const uint32_t num_indices = cur_state.num_indices == 0xFFFFFFFF ? index_buffer.m_size : cur_state.num_indices;
 
 				GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer.m_id));
 				GL_CHECK(glDrawElements(gl_prim_type, num_indices, GL_UNSIGNED_SHORT, (void*) (uintptr_t) (cur_state.start_index * sizeof(uint16_t))));
@@ -561,21 +572,21 @@ void Renderer::render_impl()
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::create_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat::Enum format, const void* vertices)
+void Renderer::create_vertex_buffer_impl(VertexBufferId id, size_t size, const void* data, VertexFormat::Enum format)
 {
-	m_impl->m_vertex_buffers[id.index].create(count, format, vertices);
+	m_impl->m_vertex_buffers[id.index].create(size, data, format);
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::create_dynamic_vertex_buffer_impl(VertexBufferId id, size_t count, VertexFormat::Enum format)
+void Renderer::create_dynamic_vertex_buffer_impl(VertexBufferId id, size_t size)
 {
-	m_impl->m_vertex_buffers[id.index].create(count, format, NULL);
+	m_impl->m_vertex_buffers[id.index].create(size, NULL, VertexFormat::COUNT);
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::update_vertex_buffer_impl(VertexBufferId id, size_t offset, size_t count, const void* vertices)
+void Renderer::update_vertex_buffer_impl(VertexBufferId id, size_t offset, size_t size, const void* data)
 {
-	m_impl->m_vertex_buffers[id.index].update(offset, count, vertices);
+	m_impl->m_vertex_buffers[id.index].update(offset, size, data);
 }
 
 //-----------------------------------------------------------------------------
@@ -586,21 +597,21 @@ void Renderer::destroy_vertex_buffer_impl(VertexBufferId id)
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::create_index_buffer_impl(IndexBufferId id, size_t count, const void* indices)
+void Renderer::create_index_buffer_impl(IndexBufferId id, size_t size, const void* data)
 {
-	m_impl->m_index_buffers[id.index].create(count, indices);
+	m_impl->m_index_buffers[id.index].create(size, data);
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::create_dynamic_index_buffer_impl(IndexBufferId id, size_t count)
+void Renderer::create_dynamic_index_buffer_impl(IndexBufferId id, size_t size)
 {
-	m_impl->m_index_buffers[id.index].create(count, NULL);
+	m_impl->m_index_buffers[id.index].create(size, NULL);
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::update_index_buffer_impl(IndexBufferId id, size_t offset, size_t count, const void* indices)
+void Renderer::update_index_buffer_impl(IndexBufferId id, size_t offset, size_t size, const void* data)
 {
-	m_impl->m_index_buffers[id.index].update(offset, count, indices);	
+	m_impl->m_index_buffers[id.index].update(offset, size, data);
 }
 
 //-----------------------------------------------------------------------------

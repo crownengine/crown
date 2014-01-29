@@ -45,8 +45,8 @@ struct GuiRect
 	{
 		update(pos, size, color);
 
-		m_vb = m_r.create_vertex_buffer(4, VertexFormat::P2_C4, m_vertices);
-		m_ib = m_r.create_index_buffer(8, m_indices);
+		m_vb = m_r.create_vertex_buffer(4 * Vertex::bytes_per_vertex(VertexFormat::P2_C4), m_vertices, VertexFormat::P2_C4);
+		m_ib = m_r.create_index_buffer(8 * sizeof(uint16_t), m_indices);
 	}
 
 	//-------------------------------------------------------------------------

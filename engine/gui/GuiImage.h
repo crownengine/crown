@@ -50,8 +50,8 @@ struct GuiImage
 		MaterialResource* mat = (MaterialResource*) device()->resource_manager()->data(material);
 		m_material = m_render_world.create_material(mat);
 
-		m_vb = m_r.create_vertex_buffer(4, VertexFormat::P2_T2, m_vertices);
-		m_ib = m_r.create_index_buffer(6, m_indices);
+		m_vb = m_r.create_vertex_buffer(4 * Vertex::bytes_per_vertex(VertexFormat::P2_T2), m_vertices, VertexFormat::P2_T2);
+		m_ib = m_r.create_index_buffer(6 * sizeof(uint16_t), m_indices);
 	}
 
 	//-------------------------------------------------------------------------
