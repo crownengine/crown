@@ -515,14 +515,14 @@ private:
 	float				m_min_max_point_size[2];
 	float				m_min_max_line_width[2];
 
-	VertexBuffer		m_vertex_buffers[CROWN_MAX_VERTEX_BUFFERS];
-	IndexBuffer			m_index_buffers[CROWN_MAX_INDEX_BUFFERS];
-	Texture				m_textures[CROWN_MAX_TEXTURES];
-	Shader				m_shaders[CROWN_MAX_SHADERS];
-	GPUProgram			m_gpu_programs[CROWN_MAX_GPU_PROGRAMS];
+	VertexBuffer		m_vertex_buffers[CE_MAX_VERTEX_BUFFERS];
+	IndexBuffer			m_index_buffers[CE_MAX_INDEX_BUFFERS];
+	Texture				m_textures[CE_MAX_TEXTURES];
+	Shader				m_shaders[CE_MAX_SHADERS];
+	GPUProgram			m_gpu_programs[CE_MAX_GPU_PROGRAMS];
 	uint32_t			m_num_uniforms;
-	Uniform				m_uniforms[CROWN_MAX_UNIFORMS];
-	RenderTarget		m_render_targets[CROWN_MAX_RENDER_TARGETS];
+	Uniform				m_uniforms[CE_MAX_UNIFORMS];
+	RenderTarget		m_render_targets[CE_MAX_RENDER_TARGETS];
 
 private:
 

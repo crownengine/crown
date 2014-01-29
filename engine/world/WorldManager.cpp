@@ -64,7 +64,7 @@ World* WorldManager::lookup_world(WorldId id)
 }
 
 //-----------------------------------------------------------------------------
-IdArray<MAX_WORLDS, World*>& WorldManager::worlds()
+IdArray<CE_MAX_WORLDS, World*>& WorldManager::worlds()
 {
 	return m_worlds;
 }

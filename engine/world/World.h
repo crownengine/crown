@@ -45,9 +45,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-#define MAX_UNITS 65000
-#define MAX_CAMERAS 16
-
 struct Mesh;
 struct Sprite;
 struct Actor;
@@ -106,8 +103,8 @@ private:
 	PoolAllocator						m_unit_pool;
 	PoolAllocator						m_camera_pool;
 
-	IdArray<MAX_UNITS, Unit*>			m_units;
-	IdArray<MAX_CAMERAS, Camera*>		m_cameras;
+	IdArray<CE_MAX_UNITS, Unit*>			m_units;
+	IdArray<CE_MAX_CAMERAS, Camera*>		m_cameras;
 
 	SceneGraphManager					m_scenegraph_manager;
 	RenderWorld							m_render_world;

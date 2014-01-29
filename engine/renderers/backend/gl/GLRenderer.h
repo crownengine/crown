@@ -165,12 +165,12 @@ struct Uniform
 {
 	Uniform()
 	{
-		string::strncpy(m_name, "", CROWN_MAX_UNIFORM_NAME_LENGTH);
+		string::strncpy(m_name, "", CE_MAX_UNIFORM_NAME_LENGTH);
 	}
 
 	void create(const char* name, UniformType::Enum type, uint8_t num)
 	{
-		string::strncpy(m_name, name, CROWN_MAX_UNIFORM_NAME_LENGTH);
+		string::strncpy(m_name, name, CE_MAX_UNIFORM_NAME_LENGTH);
 		m_type = type;
 		m_num = num;
 
@@ -194,7 +194,7 @@ struct Uniform
 
 public:
 
-	char m_name[CROWN_MAX_UNIFORM_NAME_LENGTH];
+	char m_name[CE_MAX_UNIFORM_NAME_LENGTH];
 	UniformType::Enum m_type;
 	uint8_t m_num;
 	void* m_data;

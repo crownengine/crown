@@ -200,16 +200,16 @@ namespace physics_system
 //-----------------------------------------------------------------------------
 PhysicsWorld::PhysicsWorld()
 	: m_scene(NULL)
-	, m_actors_pool(default_allocator(), MAX_ACTORS, sizeof(Actor), CE_ALIGNOF(Actor))
-	, m_controllers_pool(default_allocator(), MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
-	, m_triggers_pool(default_allocator(), MAX_TRIGGERS, sizeof(Trigger), CE_ALIGNOF(Trigger))
-	, m_joints_pool(default_allocator(), MAX_JOINTS, sizeof(Joint), CE_ALIGNOF(Joint))
+	, m_actors_pool(default_allocator(), CE_MAX_ACTORS, sizeof(Actor), CE_ALIGNOF(Actor))
+	, m_controllers_pool(default_allocator(), CE_MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
+	, m_triggers_pool(default_allocator(), CE_MAX_TRIGGERS, sizeof(Trigger), CE_ALIGNOF(Trigger))
+	, m_joints_pool(default_allocator(), CE_MAX_JOINTS, sizeof(Joint), CE_ALIGNOF(Joint))
 	, m_events(default_allocator())
 	, m_callback(m_events)
 {
 	// Create the scene
 	PxSceneLimits scene_limits;
-	scene_limits.maxNbActors = MAX_ACTORS;
+	scene_limits.maxNbActors = CE_MAX_ACTORS;
 	CE_ASSERT(scene_limits.isValid(), "Scene limits is not valid");
 
 	PxSceneDesc scene_desc(physics_system::s_physics->getTolerancesScale());
