@@ -53,6 +53,45 @@ struct IndexData
 	uint16_t b;
 };
 
+#define UTF8_ACCEPT 0
+#define UTF8_REJECT 1
+
+//-------------------------------------------------------------------------
+static const uint8_t s_utf8d[364] =
+{
+	// The first part of the table maps bytes to character classes that
+	// to reduce the size of the transition table and create bitmasks.
+	 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,  9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,
+	 7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+	 8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	10,3,3,3,3,3,3,3,3,3,3,3,3,4,3,3, 11,6,6,6,5,8,8,8,8,8,8,8,8,8,8,8,
+
+	// The second part is a transition table that maps a combination
+	// of a state of the automaton and a character class to a state.
+	 0,12,24,36,60,96,84,12,12,12,48,72, 12,12,12,12,12,12,12,12,12,12,12,12,
+	12, 0,12,12,12,12,12, 0,12, 0,12,12, 12,24,12,12,12,12,12,24,12,24,12,12,
+	12,12,12,12,12,12,12,24,12,12,12,12, 12,24,12,12,12,12,12,12,12,24,12,12,
+	12,12,12,12,12,12,12,36,12,36,12,12, 12,36,12,12,12,12,12,36,12,36,12,12,
+	12,36,12,12,12,12,12,12,12,12,12,12
+};
+
+//-------------------------------------------------------------------------
+uint32_t utf8_decode(uint32_t* state, uint32_t* code_point, uint8_t character)
+{
+	uint32_t byte = character;
+	uint32_t type = s_utf8d[byte];
+
+	*code_point = (*state != UTF8_ACCEPT) ? (byte & 0x3fu) | (*code_point << 6) : (0xff >> type) & (byte);
+	*state = s_utf8d[256 + *state + type];
+
+	return *state;
+}
+
+//-------------------------------------------------------------------------
 struct GuiText
 {
 	//-------------------------------------------------------------------------
@@ -97,66 +136,79 @@ struct GuiText
 		m_r.reserve_transient_index_buffer(&ib, 6 * string::strlen(str));
 
 		uint16_t index = 0;
-		float advance = 0.0f;
+		float pen_advance = 0.0f;
+
+		uint32_t state = 0;
+		uint32_t code_point = 0;
 		for (uint32_t i = 0; i < string::strlen(str); i++)
-		{
-			FontGlyphData g = m_resource->get_glyph(str[i]);
+		{		
+			if (utf8_decode(&state, &code_point, str[i]) == UTF8_ACCEPT)
+			{
+				FontGlyphData g = m_resource->get_glyph(code_point);
 
-			const float x		= (float) g.x / m_resource->size();
-			const float y		= (float) g.y / m_resource->size();
-			const float width	= (float) g.width / m_resource->size();
-			const float height	= (float) g.height / m_resource->size();
+				// Textures coords
+				const float u0 = (float) g.x / m_resource->size();
+				const float v0 = (float) g.y / m_resource->size();
+				const float u1 = u0 + ((float) g.width) / m_resource->size();
+				const float v1 = v0 - ((float) g.height) / m_resource->size();
 
-			const float u0 = x;
-			const float v0 = y;
-			const float u1 = x + width;
-			const float v1 = y - height;
+				// Set pen position
+				m_pen.x = m_pos.x + g.x_offset;
+				m_pen.y = m_pos.y + (g.height - g.y_offset);
 
-			(*(VertexData*)(vb.data)).x		= m_pos.x + advance;
-			(*(VertexData*)(vb.data)).y		= m_pos.y;
-			(*(VertexData*)(vb.data)).u		= u0;
-			(*(VertexData*)(vb.data)).v		= v1;
-			vb.data += sizeof(VertexData);
+				// Fill vertex buffer
+				(*(VertexData*)(vb.data)).x		= m_pen.x + pen_advance;
+				(*(VertexData*)(vb.data)).y		= m_pen.y;
+				(*(VertexData*)(vb.data)).u		= u0;
+				(*(VertexData*)(vb.data)).v		= v1;
+				vb.data += sizeof(VertexData);
 
-			(*(VertexData*)(vb.data)).x		= m_pos.x + m_font_size + advance;
-			(*(VertexData*)(vb.data)).y		= m_pos.y;
-			(*(VertexData*)(vb.data)).u		= u1; 
-			(*(VertexData*)(vb.data)).v		= v1;
-			vb.data += sizeof(VertexData);
+				(*(VertexData*)(vb.data)).x		= m_pen.x + g.width + pen_advance;
+				(*(VertexData*)(vb.data)).y		= m_pen.y;
+				(*(VertexData*)(vb.data)).u		= u1; 
+				(*(VertexData*)(vb.data)).v		= v1;
+				vb.data += sizeof(VertexData);
 
-			(*(VertexData*)(vb.data)).x		= m_pos.x + m_font_size + advance;
-			(*(VertexData*)(vb.data)).y		= m_pos.y - m_font_size;
-			(*(VertexData*)(vb.data)).u		= u1;
-			(*(VertexData*)(vb.data)).v		= v0;
-			vb.data += sizeof(VertexData);
+				(*(VertexData*)(vb.data)).x		= m_pen.x + g.width + pen_advance;
+				(*(VertexData*)(vb.data)).y		= m_pen.y - g.height;
+				(*(VertexData*)(vb.data)).u		= u1;
+				(*(VertexData*)(vb.data)).v		= v0;
+				vb.data += sizeof(VertexData);
 
-			(*(VertexData*)(vb.data)).x		= m_pos.x + advance;
-			(*(VertexData*)(vb.data)).y		= m_pos.y - m_font_size;
-			(*(VertexData*)(vb.data)).u		= u0;
-			(*(VertexData*)(vb.data)).v		= v0;
-			vb.data += sizeof(VertexData);
+				(*(VertexData*)(vb.data)).x		= m_pen.x + pen_advance;
+				(*(VertexData*)(vb.data)).y		= m_pen.y - g.height;
+				(*(VertexData*)(vb.data)).u		= u0;
+				(*(VertexData*)(vb.data)).v		= v0;
+				vb.data += sizeof(VertexData);
 
+				// Fill index buffer
+				(*(IndexData*)(ib.data)).a		= index;
+				(*(IndexData*)(ib.data)).b		= index + 1;
+				ib.data += sizeof(IndexData);
 
-			(*(IndexData*)(ib.data)).a		= index;
-			(*(IndexData*)(ib.data)).b		= index + 1;
-			ib.data += sizeof(IndexData);
+				(*(IndexData*)(ib.data)).a		= index + 2;
+				(*(IndexData*)(ib.data)).b		= index;
+				ib.data += sizeof(IndexData);
 
-			(*(IndexData*)(ib.data)).a		= index + 2;
-			(*(IndexData*)(ib.data)).b		= index;
-			ib.data += sizeof(IndexData);
+				(*(IndexData*)(ib.data)).a		= index + 2;
+				(*(IndexData*)(ib.data)).b		= index + 3;
+				ib.data += sizeof(IndexData);
 
-			(*(IndexData*)(ib.data)).a		= index + 2;
-			(*(IndexData*)(ib.data)).b		= index + 3;
-			ib.data += sizeof(IndexData);
+				// Advance pen position
+				pen_advance += g.x_advance;
 
-			index += 4;
-
-			advance += g.x_advance;
+				index += 4;
+			}
 		}
 
 		m_r.set_vertex_buffer(vb);
 		m_r.set_index_buffer(ib);
 		m_r.commit(1);
+	}
+
+	//-------------------------------------------------------------------------
+	void set_pen()
+	{
 	}
 
 public:
@@ -167,7 +219,10 @@ public:
 
 	DynamicString		m_str;
 	uint32_t			m_font_size;
+
+	// position states
 	Vector3				m_pos;
+	Vector2				m_pen;
 
 	MaterialId 			m_material;
 };
