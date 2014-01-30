@@ -98,7 +98,6 @@ static const char* sdf_vertex =
 
 	"attribute vec4		a_position;"
 	"attribute vec2		a_tex_coord0;"
-	"attribute vec4		a_color;"
 
 	"varying vec2		v_tex_coord;"
 	"varying vec4		v_color;"

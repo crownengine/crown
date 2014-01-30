@@ -54,7 +54,6 @@ struct IndexData
 };
 
 #define UTF8_ACCEPT 0
-#define UTF8_REJECT 1
 
 //-------------------------------------------------------------------------
 static const uint8_t s_utf8d[364] =
@@ -204,11 +203,6 @@ struct GuiText
 		m_r.set_vertex_buffer(vb);
 		m_r.set_index_buffer(ib);
 		m_r.commit(1);
-	}
-
-	//-------------------------------------------------------------------------
-	void set_pen()
-	{
 	}
 
 public:
