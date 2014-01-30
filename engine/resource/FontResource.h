@@ -146,7 +146,7 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	FontGlyphData get_glyph(const uint8_t index) const
+	FontGlyphData get_glyph(const uint32_t index) const
 	{
 		CE_ASSERT(index < num_glyphs(), "Index out of bounds");
 
