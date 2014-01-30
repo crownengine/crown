@@ -55,3 +55,5 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define CE_MAX_TRIGGERS						1024		// Per world
 #define CE_MAX_JOINTS						512			// Per world
 #define CE_MAX_SOUND_INSTANCES				64			// Per world
+
+#define CE_MAX_CONSOLE_CLIENTS				32
