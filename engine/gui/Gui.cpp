@@ -168,6 +168,7 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 		create_rect(pos, size, color);	
 	}
 
+	// Gui's triangles creation
 	for (uint32_t i = 0; i < m_resource->num_triangles(); i++)
 	{
 		GuiTriangleData data = m_resource->get_triangle(i);
@@ -179,6 +180,7 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 		create_triangle(p1, p2, p3, color);
 	}
 
+	// Gui's images creation
 	for (uint32_t i = 0; i < m_resource->num_images(); i++)
 	{
 		GuiImageData data = m_resource->get_image(i);
@@ -189,7 +191,7 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 		create_image(mat, pos, size);
 	}
 
-	// Manage texts creation
+	// Gui's texts creation
 
 /*	FontResource* res = (FontResource*) device()->resource_manager()->lookup("font", "fonts/veramobi");
 	create_text("ciaO mAngOZOide", res, 30, Vector3(300, 400, 0));*/

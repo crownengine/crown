@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Matrix4x4.h"
+#include "Quaternion.h"
 #include "RendererTypes.h"
 #include "StringUtils.h"
 #include "Log.h"
@@ -39,6 +40,7 @@ struct Vector3;
 struct Vector2;
 struct Color4;
 
+//-------------------------------------------------------------------------
 struct VertexData
 {
 	float x;
@@ -47,6 +49,7 @@ struct VertexData
 	float v;
 };
 
+//-------------------------------------------------------------------------
 struct IndexData
 {
 	uint16_t a;
@@ -60,13 +63,13 @@ static const uint8_t s_utf8d[364] =
 {
 	// The first part of the table maps bytes to character classes that
 	// to reduce the size of the transition table and create bitmasks.
-	 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,  9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,
-	 7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
-	 8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,  9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,
+	7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+	8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
 	10,3,3,3,3,3,3,3,3,3,3,3,3,4,3,3, 11,6,6,6,5,8,8,8,8,8,8,8,8,8,8,8,
 
 	// The second part is a transition table that maps a combination
@@ -127,6 +130,7 @@ struct GuiText
 		material->bind(m_r, uniform);
 
 		const char* str = m_str.c_str();
+		const float scale = ((float)m_font_size / (float)m_resource->font_size());
 
 		TransientVertexBuffer vb;
 		TransientIndexBuffer ib;
@@ -135,47 +139,69 @@ struct GuiText
 		m_r.reserve_transient_index_buffer(&ib, 6 * string::strlen(str));
 
 		uint16_t index = 0;
-		float pen_advance = 0.0f;
+		float x_pen_advance = 0.0f;
+		float y_pen_advance = 0.0f;
 
 		uint32_t state = 0;
 		uint32_t code_point = 0;
 		for (uint32_t i = 0; i < string::strlen(str); i++)
-		{		
+		{
+			switch (str[i])
+			{
+				case '\n':
+				{
+					x_pen_advance = 0.0f;
+					y_pen_advance += m_resource->font_size();
+					continue;
+				}
+				case '\t':
+				{
+					x_pen_advance += m_font_size * 4;
+					continue;
+				}
+			}
+			
 			if (utf8_decode(&state, &code_point, str[i]) == UTF8_ACCEPT)
 			{
 				FontGlyphData g = m_resource->get_glyph(code_point);
-
-				// Textures coords
-				const float u0 = (float) g.x / m_resource->size();
-				const float v0 = (float) g.y / m_resource->size();
-				const float u1 = u0 + ((float) g.width) / m_resource->size();
-				const float v1 = v0 - ((float) g.height) / m_resource->size();
 
 				// Set pen position
 				m_pen.x = m_pos.x + g.x_offset;
 				m_pen.y = m_pos.y + (g.height - g.y_offset);
 
+				// Position coords
+				const float x0 = (m_pen.x + x_pen_advance) * scale;
+				const float y0 = (m_pen.y + y_pen_advance) * scale;
+				const float x1 = (m_pen.x + g.width + x_pen_advance) * scale;
+				const float y1 = (m_pen.y - g.height + y_pen_advance) * scale;
+
+				// Texture coords
+				const float u0 = (float) g.x / m_resource->texture_size();
+				const float v0 = (float) g.y / m_resource->texture_size();
+				const float u1 = u0 + ((float) g.width) / m_resource->texture_size();
+				const float v1 = v0 - ((float) g.height) / m_resource->texture_size();
+
 				// Fill vertex buffer
-				(*(VertexData*)(vb.data)).x		= m_pen.x + pen_advance;
-				(*(VertexData*)(vb.data)).y		= m_pen.y;
+				(*(VertexData*)(vb.data)).x		= x0;
+				(*(VertexData*)(vb.data)).y		= y0;
 				(*(VertexData*)(vb.data)).u		= u0;
 				(*(VertexData*)(vb.data)).v		= v1;
 				vb.data += sizeof(VertexData);
 
-				(*(VertexData*)(vb.data)).x		= m_pen.x + g.width + pen_advance;
-				(*(VertexData*)(vb.data)).y		= m_pen.y;
+				(*(VertexData*)(vb.data)).x		= x1;
+				(*(VertexData*)(vb.data)).y		= y0;
 				(*(VertexData*)(vb.data)).u		= u1; 
 				(*(VertexData*)(vb.data)).v		= v1;
 				vb.data += sizeof(VertexData);
 
-				(*(VertexData*)(vb.data)).x		= m_pen.x + g.width + pen_advance;
-				(*(VertexData*)(vb.data)).y		= m_pen.y - g.height;
+				(*(VertexData*)(vb.data)).x		= x1;
+				(*(VertexData*)(vb.data)).y		= y1;
 				(*(VertexData*)(vb.data)).u		= u1;
 				(*(VertexData*)(vb.data)).v		= v0;
 				vb.data += sizeof(VertexData);
 
-				(*(VertexData*)(vb.data)).x		= m_pen.x + pen_advance;
-				(*(VertexData*)(vb.data)).y		= m_pen.y - g.height;
+				(*(VertexData*)(vb.data)).x		= x0;
+				(*(VertexData*)(vb.data)).y		= y1;
 				(*(VertexData*)(vb.data)).u		= u0;
 				(*(VertexData*)(vb.data)).v		= v0;
 				vb.data += sizeof(VertexData);
@@ -194,7 +220,7 @@ struct GuiText
 				ib.data += sizeof(IndexData);
 
 				// Advance pen position
-				pen_advance += g.x_advance;
+				x_pen_advance += g.x_advance;
 
 				index += 4;
 			}
