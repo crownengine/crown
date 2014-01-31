@@ -72,7 +72,8 @@ struct FontHeader
 {
 	ResourceId material;
 	uint32_t num_glyphs;
-	uint32_t size;			// Font texture size -- pow of 2
+	uint32_t texture_size;			// Font texture size -- pow of 2
+	uint32_t font_size;
 };
 
 //-----------------------------------------------------------------------------
@@ -140,9 +141,15 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	uint32_t size() const
+	uint32_t texture_size() const
 	{
-		return ((FontHeader*)this)->size;
+		return ((FontHeader*)this)->texture_size;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t font_size() const
+	{
+		return ((FontHeader*)this)->font_size;
 	}
 
 	//-----------------------------------------------------------------------------
