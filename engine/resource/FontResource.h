@@ -72,7 +72,8 @@ struct FontHeader
 {
 	ResourceId material;
 	uint32_t num_glyphs;
-	uint32_t size;			// Font texture size -- pow of 2
+	uint32_t texture_size;			// Font texture size -- pow of 2
+	uint32_t font_size;
 };
 
 //-----------------------------------------------------------------------------
@@ -140,13 +141,19 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	uint32_t size() const
+	uint32_t texture_size() const
 	{
-		return ((FontHeader*)this)->size;
+		return ((FontHeader*)this)->texture_size;
 	}
 
 	//-----------------------------------------------------------------------------
-	FontGlyphData get_glyph(const uint8_t index) const
+	uint32_t font_size() const
+	{
+		return ((FontHeader*)this)->font_size;
+	}
+
+	//-----------------------------------------------------------------------------
+	FontGlyphData get_glyph(const uint32_t index) const
 	{
 		CE_ASSERT(index < num_glyphs(), "Index out of bounds");
 

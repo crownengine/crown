@@ -60,6 +60,8 @@ int save_c_header_SDFont(
 		const std::vector< unsigned char > &img_data,
 		const std::vector< sdf_glyph > &packed_glyphs );
 
+static int font_size = 4;
+
 //	number of rendered pixels per SDF pixel
 const int scaler = 16;
 //	(larger value means higher quality, up to a point)
@@ -314,37 +316,37 @@ bool render_signed_distance_font(
 		printf( "\nDetermining ideal font pixel size: " );
 		std::vector< sdf_glyph > all_glyphs;
 		//	initial guess for the size of the Signed Distance Field font
-		//	(intentionally low, the first trial will be at sz*2, so 8x8)
-		int sz = 4;
+		//	(intentionally low, the first trial will be at font_size*2, so 8x8)
+
 		bool keep_going = true;
 		while( keep_going )
 		{
-			sz <<= 1;
-			printf( " %i", sz );
-			keep_going = gen_pack_list( ft_face, sz, texture_size, render_list, all_glyphs );
+			font_size <<= 1;
+			printf( " %i", font_size );
+			keep_going = gen_pack_list( ft_face, font_size, texture_size, render_list, all_glyphs );
 		}
-		int sz_step = sz >> 2;
-		while( sz_step )
+		int font_size_step = font_size >> 2;
+		while( font_size_step )
 		{
 			if( keep_going )
 			{
-				sz += sz_step;
+				font_size += font_size_step;
 			} else
 			{
-				sz -= sz_step;
+				font_size -= font_size_step;
 			}
-			printf( " %i", sz );
-			sz_step >>= 1;
-			keep_going = gen_pack_list( ft_face, sz, texture_size, render_list, all_glyphs );
+			printf( " %i", font_size );
+			font_size_step >>= 1;
+			keep_going = gen_pack_list( ft_face, font_size, texture_size, render_list, all_glyphs );
 		}
 		//	just in case
-		while( (!keep_going) && (sz > 1) )
+		while( (!keep_going) && (font_size > 1) )
 		{
-			--sz;
-			printf( " %i", sz );
-			keep_going = gen_pack_list( ft_face, sz, texture_size, render_list, all_glyphs );
+			--font_size;
+			printf( " %i", font_size );
+			keep_going = gen_pack_list( ft_face, font_size, texture_size, render_list, all_glyphs );
 		}
-		printf( "\nResult = %i pixels\n", sz );
+		printf( "\nResult = %i pixels\n", font_size );
 
 		if( !keep_going )
 		{
@@ -484,6 +486,7 @@ int save_png_SDFont(
 		fprintf(fp, "\"material\": \"%s\",\n", font_name);
 		fprintf(fp, "\"count\":%i,\n", packed_glyphs.size());
 		fprintf(fp, "\"size\":%i,\n", img_width);
+		fprintf(fp, "\"font_size\": %i, \n", font_size);
 		fprintf(fp, "\"glyphs\" : [\n");
 		for(unsigned int i = 0; i < packed_glyphs.size()-1; ++i)
 		{
