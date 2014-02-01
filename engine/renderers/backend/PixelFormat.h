@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "RendererTypes.h"
+#include "Assert.h"
 
 namespace crown
 {
