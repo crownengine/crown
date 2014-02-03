@@ -132,10 +132,10 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 	, m_r(r)
 	, m_resolution(1000, 625)
 	, m_visible(true)
-	, m_rect_pool(default_allocator(), MAX_GUI_RECTS, sizeof(GuiRect), CE_ALIGNOF(GuiRect))
-	, m_triangle_pool(default_allocator(), MAX_GUI_TRIANGLES, sizeof(GuiTriangle), CE_ALIGNOF(GuiTriangle))
-	, m_image_pool(default_allocator(), MAX_GUI_IMAGES, sizeof(GuiImage), CE_ALIGNOF(GuiImage))
-	, m_text_pool(default_allocator(), MAX_GUI_TEXTS, sizeof(GuiText), CE_ALIGNOF(GuiText))
+	, m_rect_pool(default_allocator(), CE_MAX_GUI_RECTS, sizeof(GuiRect), CE_ALIGNOF(GuiRect))
+	, m_triangle_pool(default_allocator(), CE_MAX_GUI_TRIANGLES, sizeof(GuiTriangle), CE_ALIGNOF(GuiTriangle))
+	, m_image_pool(default_allocator(), CE_MAX_GUI_IMAGES, sizeof(GuiImage), CE_ALIGNOF(GuiImage))
+	, m_text_pool(default_allocator(), CE_MAX_GUI_TEXTS, sizeof(GuiText), CE_ALIGNOF(GuiText))
 {
 	// orthographic projection
 	m_projection.build_projection_ortho_rh(0, m_resolution.x, m_resolution.y, 0, -0.01f, 100.0f);

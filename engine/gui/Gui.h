@@ -32,11 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PoolAllocator.h"
 #include "Vector2.h"
 #include "Resource.h"
-
-#define MAX_GUI_RECTS 64
-#define MAX_GUI_TRIANGLES 64
-#define MAX_GUI_IMAGES 64
-#define MAX_GUI_TEXTS 64
+#include "Config.h"
 
 namespace crown
 {
@@ -111,10 +107,10 @@ public:
 	PoolAllocator		m_image_pool;
 	PoolAllocator		m_text_pool;
 
-	IdArray<MAX_GUI_RECTS, GuiRect*> m_rects;
-	IdArray<MAX_GUI_TRIANGLES, GuiTriangle*> m_triangles;
-	IdArray<MAX_GUI_IMAGES, GuiImage*> m_images;
-	IdArray<MAX_GUI_TEXTS, GuiText*> m_texts;
+	IdArray<CE_MAX_GUI_RECTS, GuiRect*> m_rects;
+	IdArray<CE_MAX_GUI_TRIANGLES, GuiTriangle*> m_triangles;
+	IdArray<CE_MAX_GUI_IMAGES, GuiImage*> m_images;
+	IdArray<CE_MAX_GUI_TEXTS, GuiText*> m_texts;
 };
 
 } // namespace crown
