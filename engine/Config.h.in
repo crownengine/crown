@@ -55,3 +55,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define CE_MAX_TRIGGERS						1024		// Per world
 #define CE_MAX_JOINTS						512			// Per world
 #define CE_MAX_SOUND_INSTANCES				64			// Per world
+
+#define CE_MAX_GUI_RECTS 					64			// Per Gui
+#define CE_MAX_GUI_TRIANGLES 				64			// Per Gui
+#define CE_MAX_GUI_IMAGES 					64			// Per Gui
+#define CE_MAX_GUI_TEXTS 					64			// Per Gui
