@@ -51,7 +51,6 @@ const uint32_t GUI_RESOURCE_VERSION = 1;
 struct GuiHeader
 {
 	uint32_t position[2];
-	uint32_t size[2];
 	uint32_t num_rects;
 	uint32_t num_triangles;
 	uint32_t num_images;
@@ -127,17 +126,6 @@ struct GuiResource
 		pos.z = 0.0f;
 
 		return pos;
-	}
-
-	//-----------------------------------------------------------------------------
-	Vector2 gui_size() const
-	{
-		Vector2 size;
-
-		size.x = ((GuiHeader*)this)->size[0];
-		size.y = ((GuiHeader*)this)->size[1];
-
-		return size;
 	}
 
 	//-----------------------------------------------------------------------------
