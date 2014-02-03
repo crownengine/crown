@@ -85,6 +85,12 @@ struct Gui
 
 	void				render();
 
+private:
+
+	// FIXME FIXME FIXME -- tmp way
+	void 				create_gfx();
+	void 				destroy_gfx();
+
 public:
 
 	RenderWorld&		m_render_world;
@@ -93,6 +99,7 @@ public:
 
 	Matrix4x4			m_projection;
 	Matrix4x4			m_pose;
+	Vector2				m_resolution;
 
 	PoolAllocator		m_rect_pool;
 	PoolAllocator		m_triangle_pool;
