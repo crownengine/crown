@@ -323,12 +323,15 @@ public:
 				}
 				case OsEvent::METRICS:
 				{
+					Log::i("METRICS CALLED");
 					const OsMetricsEvent& ev = event.metrics;
 					m_mouse->set_metrics(ev.width, ev.height);
 					m_window->m_x = ev.x;
 					m_window->m_y = ev.y;
 					m_window->m_width = ev.width;
 					m_window->m_height = ev.height;
+					Log::i("width; %d, height: %d", m_window->m_width, m_window->m_height);
+
 					break;
 				}
 				case OsEvent::EXIT:
@@ -432,7 +435,7 @@ public:
 	//				// Text input part
 	//				if (event.type == KeyPress && len > 0)
 	//				{
-	//					//crownEvent.event_type = ET_TEXT;
+	//					//crownEvent.event_type = ET_TEXT;m_queue
 	//					//crownEvent.text.type = TET_TEXT_INPUT;
 	//					strncpy(keyboardEvent.text, string, 4);
 
