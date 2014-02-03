@@ -15,6 +15,7 @@
 using namespace std;
 
 static int font_size = 4;
+static char font_name[100];
 
 //-----------------------------------------------------------------------------
 struct sdf_glyph
@@ -30,24 +31,25 @@ struct sdf_glyph
 bool render_signed_distance_font(FT_Library &ft_lib, const char* font_file, int texture_size, bool export_c_header);
 unsigned char get_SDF_radial(unsigned char *fontmap, int w, int h, int x, int y, int max_radius);
 bool gen_pack_list(FT_Face &ft_face, int pixel_size, int pack_tex_size, const std::vector<int> &render_list, std::vector<sdf_glyph> &packed_glyphs);
-int save_png_SDFont(const char* orig_filename, const char* font_name, int img_width, int img_height, const std::vector<unsigned char> &img_data, 
-					const std::vector<sdf_glyph> &packed_glyphs);
+int save_png_SDFont(const char* orig_filename, int img_width, int img_height, const std::vector<unsigned char> &img_data, const std::vector<sdf_glyph> &packed_glyphs);
 
 //	number of rendered pixels per SDF pixel (larger value means higher quality, up to a point)
-const int scaler = 16;						
+const int scaler = 16;
 
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
 	printf( "Crown Font Generator\n\n" );
-	if(argc != 3)
+	if(argc != 4)
 	{
-		printf( "Usage: ./fontgen <src> <texture_dim>" );
+		printf( "Usage: ./fontgen <src> <name> <texture_dim>" );
 		return -1;
 	}
 
 	const char* src = argv[1];
-	int texture_size = atoi(argv[2]);
+	const char* name = argv[2];
+	strncpy(font_name, name, strlen(name));
+	int texture_size = atoi(argv[3]);
 
 	bool export_c_header = false;
 
@@ -208,7 +210,7 @@ bool render_signed_distance_font(FT_Library &ft_lib, const char* font_file, int 
 		printf("Done. %.3f seconds.\n", ((float)tin) / CLOCKS_PER_SEC);
 
 		printf("Compressing to PNG... ");
-		tin = save_png_SDFont(font_file, ft_face->family_name, texture_size, texture_size, pdata, all_glyphs);
+		tin = save_png_SDFont(font_file, texture_size, texture_size, pdata, all_glyphs);
 		printf("Done. %.3f seconds.\n", ((float)tin) / CLOCKS_PER_SEC);
 
 		//	clean up my data
@@ -222,23 +224,28 @@ bool render_signed_distance_font(FT_Library &ft_lib, const char* font_file, int 
 }
 
 //-----------------------------------------------------------------------------
-int save_png_SDFont(const char* orig_filename, const char* font_name, int img_width, int img_height, const std::vector<unsigned char> &img_data, const std::vector< sdf_glyph > &packed_glyphs)
+int save_png_SDFont(const char* orig_filename, int img_width, int img_height, const std::vector<unsigned char> &img_data, const std::vector< sdf_glyph > &packed_glyphs)
 {
 	//	save my image
-	int fn_size = strlen( orig_filename ) + 100;
-	char *fn = new char[ fn_size ];
-	sprintf( fn, "%s.png", orig_filename );
+	string dest(orig_filename);
+	unsigned offs = dest.find(".ttf");
+	dest.replace(offs, 4, "");
+	dest += ".png";
+
 	LodePNG::Encoder encoder;
 	encoder.getSettings().zlibsettings.windowSize = 512; //	faster, not much worse compression
 	std::vector<unsigned char> buffer;
 	int tin = clock();
-	encoder.encode( buffer, img_data.empty() ? 0 : &img_data[0], img_width, img_height );
-	LodePNG::saveFile( buffer, fn );
+	encoder.encode(buffer, img_data.empty() ? 0 : &img_data[0], img_width, img_height);
+	LodePNG::saveFile(buffer, dest.c_str());
 	tin = clock() - tin;
 
 	//	now save the acompanying info
-	sprintf( fn, "%s.font", orig_filename );
-	FILE *fp = fopen( fn, "w" );
+	offs = dest.find(".png");
+	dest.replace(offs, 4, "");
+	dest += ".font";
+	FILE *fp = fopen(dest.c_str(), "w");
+
 	// EDITED by CROWN DEVELOPERS -- json output
 	if( fp )
 	{
@@ -280,7 +287,7 @@ int save_png_SDFont(const char* orig_filename, const char* font_name, int img_wi
 		fprintf(fp, "}");
 		fclose( fp );
 	}
-	delete [] fn;
+
 	return tin;
 }
 
