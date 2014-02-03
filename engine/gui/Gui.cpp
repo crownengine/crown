@@ -130,7 +130,8 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 	: m_render_world(render_world)
 	, m_resource(gr)
 	, m_r(r)
-	, m_resolution(1000, 625) // hardcoded -> must be == Application::resolution()
+	, m_resolution(1000, 625)
+	, m_visible(true)
 	, m_rect_pool(default_allocator(), MAX_GUI_RECTS, sizeof(GuiRect), CE_ALIGNOF(GuiRect))
 	, m_triangle_pool(default_allocator(), MAX_GUI_TRIANGLES, sizeof(GuiTriangle), CE_ALIGNOF(GuiTriangle))
 	, m_image_pool(default_allocator(), MAX_GUI_IMAGES, sizeof(GuiImage), CE_ALIGNOF(GuiImage))
@@ -210,7 +211,7 @@ Gui::~Gui()
 //-----------------------------------------------------------------------------
 Vector2 Gui::resolution() const
 {
-	return Vector2(1000, 625);
+	return m_resolution;
 }
 
 //-----------------------------------------------------------------------------
@@ -218,6 +219,18 @@ void Gui::move(const Vector3& pos)
 {
 	m_pose.load_identity();
 	m_pose.set_translation(pos);
+}
+
+//-----------------------------------------------------------------------------
+void Gui::show()
+{
+	m_visible = true;
+}
+
+//-----------------------------------------------------------------------------
+void Gui::hide()
+{
+	m_visible = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -337,6 +350,8 @@ void Gui::render()
 	m_r.set_layer_view(1, Matrix4x4::IDENTITY);
 	m_r.set_layer_projection(1, m_projection);
 	m_r.set_layer_viewport(1, m_pose.translation().x, m_pose.translation().y, m_resolution.x, m_resolution.y);
+
+	if (!m_visible) return;
 
 	// Render all Rects
 	for (uint32_t i = 0; i < m_rects.size(); i++)

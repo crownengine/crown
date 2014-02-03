@@ -67,6 +67,9 @@ struct Gui
 	Vector2				resolution() const;
 	void				move(const Vector3& pos);
 
+	void				show();
+	void				hide();
+
 	GuiRectId			create_rect(const Vector3& pos, const Vector2& size, const Color4& color);
 	void				update_rect(GuiRectId id, const Vector3& pos, const Vector2& size, const Color4& color);
 	void				destroy_rect(GuiRectId id);
@@ -100,6 +103,8 @@ public:
 	Matrix4x4			m_projection;
 	Matrix4x4			m_pose;
 	Vector2				m_resolution;
+
+	bool				m_visible;
 
 	PoolAllocator		m_rect_pool;
 	PoolAllocator		m_triangle_pool;
