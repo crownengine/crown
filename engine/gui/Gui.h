@@ -32,11 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PoolAllocator.h"
 #include "Vector2.h"
 #include "Resource.h"
-
-#define MAX_GUI_RECTS 64
-#define MAX_GUI_TRIANGLES 64
-#define MAX_GUI_IMAGES 64
-#define MAX_GUI_TEXTS 64
+#include "Config.h"
 
 namespace crown
 {
@@ -67,6 +63,9 @@ struct Gui
 	Vector2				resolution() const;
 	void				move(const Vector3& pos);
 
+	void				show();
+	void				hide();
+
 	GuiRectId			create_rect(const Vector3& pos, const Vector2& size, const Color4& color);
 	void				update_rect(GuiRectId id, const Vector3& pos, const Vector2& size, const Color4& color);
 	void				destroy_rect(GuiRectId id);
@@ -85,6 +84,12 @@ struct Gui
 
 	void				render();
 
+private:
+
+	// FIXME FIXME FIXME -- tmp way
+	void 				create_gfx();
+	void 				destroy_gfx();
+
 public:
 
 	RenderWorld&		m_render_world;
@@ -93,16 +98,19 @@ public:
 
 	Matrix4x4			m_projection;
 	Matrix4x4			m_pose;
+	Vector2				m_resolution;
+
+	bool				m_visible;
 
 	PoolAllocator		m_rect_pool;
 	PoolAllocator		m_triangle_pool;
 	PoolAllocator		m_image_pool;
 	PoolAllocator		m_text_pool;
 
-	IdArray<MAX_GUI_RECTS, GuiRect*> m_rects;
-	IdArray<MAX_GUI_TRIANGLES, GuiTriangle*> m_triangles;
-	IdArray<MAX_GUI_IMAGES, GuiImage*> m_images;
-	IdArray<MAX_GUI_TEXTS, GuiText*> m_texts;
+	IdArray<CE_MAX_GUI_RECTS, GuiRect*> m_rects;
+	IdArray<CE_MAX_GUI_TRIANGLES, GuiTriangle*> m_triangles;
+	IdArray<CE_MAX_GUI_IMAGES, GuiImage*> m_images;
+	IdArray<CE_MAX_GUI_TEXTS, GuiText*> m_texts;
 };
 
 } // namespace crown

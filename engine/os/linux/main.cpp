@@ -329,6 +329,7 @@ public:
 					m_window->m_y = ev.y;
 					m_window->m_width = ev.width;
 					m_window->m_height = ev.height;
+
 					break;
 				}
 				case OsEvent::EXIT:
@@ -432,7 +433,7 @@ public:
 	//				// Text input part
 	//				if (event.type == KeyPress && len > 0)
 	//				{
-	//					//crownEvent.event_type = ET_TEXT;
+	//					//crownEvent.event_type = ET_TEXT;m_queue
 	//					//crownEvent.text.type = TET_TEXT_INPUT;
 	//					strncpy(keyboardEvent.text, string, 4);
 

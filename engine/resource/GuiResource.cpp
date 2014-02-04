@@ -97,11 +97,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONParser json(buf);
 	JSONElement root = json.root();
 
-	List<float>			m_gui_position(default_allocator());
-	List<float>			m_gui_size(default_allocator());
-
+	List<float>	m_gui_position(default_allocator());
 	root.key("position").to_array(m_gui_position);
-	root.key("size").to_array(m_gui_size);
 
 	// Parse & compile all rects
 	if (root.has_key("rects"))
@@ -201,8 +198,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	// Fill resource header
 	h.position[0] = m_gui_position[0];
 	h.position[1] = m_gui_position[1];
-	h.size[0] = m_gui_size[0];
-	h.size[1] = m_gui_size[1];
 	h.num_rects = m_gui_rects.size();
 	h.num_triangles = m_gui_triangles.size();
 	h.num_images = m_gui_images.size();

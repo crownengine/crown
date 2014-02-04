@@ -36,6 +36,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector2.h"
 #include "Color4.h"
 #include "FontResource.h"
+#include "Device.h"
+#include "OsWindow.h"
 
 #include "GuiRect.h"
 #include "GuiTriangle.h"
@@ -128,34 +130,22 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 	: m_render_world(render_world)
 	, m_resource(gr)
 	, m_r(r)
-	, m_rect_pool(default_allocator(), MAX_GUI_RECTS, sizeof(GuiRect), CE_ALIGNOF(GuiRect))
-	, m_triangle_pool(default_allocator(), MAX_GUI_TRIANGLES, sizeof(GuiTriangle), CE_ALIGNOF(GuiTriangle))
-	, m_image_pool(default_allocator(), MAX_GUI_IMAGES, sizeof(GuiImage), CE_ALIGNOF(GuiImage))
-	, m_text_pool(default_allocator(), MAX_GUI_TEXTS, sizeof(GuiText), CE_ALIGNOF(GuiText))
+	, m_resolution(1000, 625)
+	, m_visible(true)
+	, m_rect_pool(default_allocator(), CE_MAX_GUI_RECTS, sizeof(GuiRect), CE_ALIGNOF(GuiRect))
+	, m_triangle_pool(default_allocator(), CE_MAX_GUI_TRIANGLES, sizeof(GuiTriangle), CE_ALIGNOF(GuiTriangle))
+	, m_image_pool(default_allocator(), CE_MAX_GUI_IMAGES, sizeof(GuiImage), CE_ALIGNOF(GuiImage))
+	, m_text_pool(default_allocator(), CE_MAX_GUI_TEXTS, sizeof(GuiText), CE_ALIGNOF(GuiText))
 {
 	// orthographic projection
-	Vector2 size = m_resource->gui_size();
-	m_projection.build_projection_ortho_rh(0, size.x, size.y, 0, -0.01f, 100.0f);
+	m_projection.build_projection_ortho_rh(0, m_resolution.x, m_resolution.y, 0, -0.01f, 100.0f);
 
 	// pose
 	Vector3 pos = m_resource->gui_position();
 	m_pose.load_identity();
 	m_pose.set_translation(pos);
 
-	// FIXME FIXME FIXME -- Shaders init should not be here
-	gui_default_vs = m_r.create_shader(ShaderType::VERTEX, default_vertex);
-	gui_default_fs = m_r.create_shader(ShaderType::FRAGMENT, default_fragment);
-	gui_texture_fs = m_r.create_shader(ShaderType::FRAGMENT, texture_fragment);
-	gui_default_program = m_r.create_gpu_program(gui_default_vs, gui_default_fs);
-	gui_texture_program = m_r.create_gpu_program(gui_default_vs, gui_texture_fs);
-	gui_albedo_0 = m_r.create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
-
-	// FIXME FIXME FIXME -- Shaders init should not be here
-	font_vs = m_r.create_shader(ShaderType::VERTEX, sdf_vertex);
-	font_fs = m_r.create_shader(ShaderType::FRAGMENT, sdf_fragment);
-	font_program = m_r.create_gpu_program(font_vs, font_fs);
-	font_uniform = m_r.create_uniform("u_texture", UniformType::INTEGER_1, 1);
-
+	create_gfx();
 
 	// Gui's rects creation
 	for (uint32_t i = 0; i < m_resource->num_rects(); i++)
@@ -190,11 +180,6 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 
 		create_image(mat, pos, size);
 	}
-
-	// Gui's texts creation
-
-/*	FontResource* res = (FontResource*) device()->resource_manager()->lookup("font", "fonts/veramobi");
-	create_text("ciaO mAngOZOide", res, 30, Vector3(300, 400, 0));*/
 }
 
 //-----------------------------------------------------------------------------
@@ -220,25 +205,13 @@ Gui::~Gui()
 		CE_DELETE(m_text_pool, m_texts[i]);
 	}
 
-	// FIXME FIXME FIXME -- Shaders destruction should not be here
-	m_r.destroy_uniform(gui_albedo_0);
-	m_r.destroy_gpu_program(gui_texture_program);
-	m_r.destroy_gpu_program(gui_default_program);
-	m_r.destroy_shader(gui_texture_fs);
-	m_r.destroy_shader(gui_default_fs);
-	m_r.destroy_shader(gui_default_vs);
-
-	// FIXME FIXME FIXME -- Shaders destruction should not be here
-	m_r.destroy_uniform(font_uniform);
-	m_r.destroy_gpu_program(font_program);
-	m_r.destroy_shader(font_vs);
-	m_r.destroy_shader(font_fs);
+	destroy_gfx();
 }
 
 //-----------------------------------------------------------------------------
 Vector2 Gui::resolution() const
 {
-	return m_resource->gui_size();
+	return m_resolution;
 }
 
 //-----------------------------------------------------------------------------
@@ -246,6 +219,18 @@ void Gui::move(const Vector3& pos)
 {
 	m_pose.load_identity();
 	m_pose.set_translation(pos);
+}
+
+//-----------------------------------------------------------------------------
+void Gui::show()
+{
+	m_visible = true;
+}
+
+//-----------------------------------------------------------------------------
+void Gui::hide()
+{
+	m_visible = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -355,11 +340,18 @@ void Gui::destroy_text(GuiTextId id)
 //-----------------------------------------------------------------------------
 void Gui::render()
 {
-	Vector2 size = m_resource->gui_size();
+	// resolution
+	uint32_t width = 0;
+	uint32_t height = 0;
+	device()->window()->get_size(width, height);
+	m_resolution.x = width;
+	m_resolution.y = height;
 
 	m_r.set_layer_view(1, Matrix4x4::IDENTITY);
 	m_r.set_layer_projection(1, m_projection);
-	m_r.set_layer_viewport(1, m_pose.translation().x, m_pose.translation().y, size.x, size.y);
+	m_r.set_layer_viewport(1, m_pose.translation().x, m_pose.translation().y, m_resolution.x, m_resolution.y);
+
+	if (!m_visible) return;
 
 	// Render all Rects
 	for (uint32_t i = 0; i < m_rects.size(); i++)
@@ -424,6 +416,38 @@ void Gui::render()
 
 		m_texts[i]->render(font_uniform);
 	}
+}
+
+//-----------------------------------------------------------------------------
+void Gui::create_gfx()
+{
+	gui_default_vs = m_r.create_shader(ShaderType::VERTEX, default_vertex);
+	gui_default_fs = m_r.create_shader(ShaderType::FRAGMENT, default_fragment);
+	gui_texture_fs = m_r.create_shader(ShaderType::FRAGMENT, texture_fragment);
+	gui_default_program = m_r.create_gpu_program(gui_default_vs, gui_default_fs);
+	gui_texture_program = m_r.create_gpu_program(gui_default_vs, gui_texture_fs);
+	gui_albedo_0 = m_r.create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
+
+	font_vs = m_r.create_shader(ShaderType::VERTEX, sdf_vertex);
+	font_fs = m_r.create_shader(ShaderType::FRAGMENT, sdf_fragment);
+	font_program = m_r.create_gpu_program(font_vs, font_fs);
+	font_uniform = m_r.create_uniform("u_texture", UniformType::INTEGER_1, 1);
+}
+
+//-----------------------------------------------------------------------------
+void Gui::destroy_gfx()
+{
+	m_r.destroy_uniform(gui_albedo_0);
+	m_r.destroy_gpu_program(gui_texture_program);
+	m_r.destroy_gpu_program(gui_default_program);
+	m_r.destroy_shader(gui_texture_fs);
+	m_r.destroy_shader(gui_default_fs);
+	m_r.destroy_shader(gui_default_vs);
+
+	m_r.destroy_uniform(font_uniform);
+	m_r.destroy_gpu_program(font_program);
+	m_r.destroy_shader(font_vs);
+	m_r.destroy_shader(font_fs);
 }
 
 } // namespace crown
