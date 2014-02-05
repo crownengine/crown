@@ -282,6 +282,7 @@ set (RENDERERS_SRC
 	renderers/Mesh.cpp
 	renderers/Sprite.cpp
 	renderers/Material.cpp
+	renderers/Particles.cpp
 )
 
 set (RENDERERS_HEADERS
@@ -290,6 +291,7 @@ set (RENDERERS_HEADERS
 	renderers/Mesh.h
 	renderers/Sprite.h
 	renderers/Material.h
+	renderers/Particles.h
 )
 
 
