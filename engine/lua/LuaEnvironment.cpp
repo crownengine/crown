@@ -86,6 +86,8 @@ CE_EXPORT int luaopen_libcrown(lua_State* /*L*/)
 
 	load_gui(*env);
 
+	load_debug_line(*env);
+
 	return 1;
 }
 

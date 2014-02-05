@@ -51,6 +51,7 @@ struct Actor;
 struct Vector3;
 struct Quaternion;
 struct PhysicsResource;
+struct DebugLine;
 
 class World
 {
@@ -93,6 +94,9 @@ public:
 	void								destroy_gui(GuiId id);
 	Gui*								lookup_gui(GuiId id);
 
+	DebugLine*							create_debug_line(bool depth_test);
+	void								destroy_debug_line(DebugLine* line);
+
 	SceneGraphManager*					scene_graph_manager();
 	RenderWorld*						render_world();
 	PhysicsWorld*						physics_world();
@@ -103,8 +107,8 @@ private:
 	PoolAllocator						m_unit_pool;
 	PoolAllocator						m_camera_pool;
 
-	IdArray<CE_MAX_UNITS, Unit*>			m_units;
-	IdArray<CE_MAX_CAMERAS, Camera*>		m_cameras;
+	IdArray<CE_MAX_UNITS, Unit*>		m_units;
+	IdArray<CE_MAX_CAMERAS, Camera*>	m_cameras;
 
 	SceneGraphManager					m_scenegraph_manager;
 	RenderWorld							m_render_world;

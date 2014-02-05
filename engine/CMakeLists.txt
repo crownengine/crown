@@ -282,6 +282,7 @@ set (RENDERERS_SRC
 	renderers/Mesh.cpp
 	renderers/Sprite.cpp
 	renderers/Material.cpp
+	renderers/DebugLine.cpp
 )
 
 set (RENDERERS_HEADERS
@@ -290,8 +291,8 @@ set (RENDERERS_HEADERS
 	renderers/Mesh.h
 	renderers/Sprite.h
 	renderers/Material.h
+	renderers/DebugLine.h
 )
-
 
 set (RESOURCE_SRC
 	resource/ResourceLoader.cpp
@@ -355,6 +356,7 @@ set (LUA_SRC
 	lua/LuaActor.cpp
 	lua/LuaCamera.cpp
 	lua/LuaController.cpp
+	lua/LuaDebugLine.cpp
 	lua/LuaDevice.cpp
 	lua/LuaEnvironment.cpp
 	lua/LuaFloatSetting.cpp

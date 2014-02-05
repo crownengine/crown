@@ -229,6 +229,30 @@ CE_EXPORT int world_sound_world(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int world_create_debug_line(lua_State* L)
+{
+	LuaStack stack(L);
+
+	World* world = stack.get_world(1);
+	const bool depth_test = stack.get_bool(2);
+
+	stack.push_debug_line(world->create_debug_line(depth_test));
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+CE_EXPORT int world_destroy_debug_line(lua_State* L)
+{
+	LuaStack stack(L);
+
+	World* world = stack.get_world(1);
+	DebugLine* line = stack.get_debug_line(2);
+
+	world->destroy_debug_line(line);
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 void load_world(LuaEnvironment& env)
 {
 	env.load_module_function("World", "spawn_unit",			world_spawn_unit);
@@ -249,6 +273,9 @@ void load_world(LuaEnvironment& env)
 
 	env.load_module_function("World", "physics_world",		world_physics_world);
 	env.load_module_function("World", "sound_world",        world_sound_world);
+
+	env.load_module_function("World", "create_debug_line",  world_create_debug_line);
+	env.load_module_function("World", "destroy_debug_line", world_destroy_debug_line);
 }
 
 } // namespace crown

@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "Device.h"
 #include "ResourceManager.h"
+#include "DebugLine.h"
 
 namespace crown
 {
@@ -256,6 +257,18 @@ void World::destroy_gui(GuiId id)
 Gui* World::lookup_gui(GuiId id)
 {
 	return m_render_world.lookup_gui(id);
+}
+
+//-----------------------------------------------------------------------------
+DebugLine* World::create_debug_line(bool depth_test)
+{
+	return CE_NEW(default_allocator(), DebugLine)(depth_test);
+}
+
+//-----------------------------------------------------------------------------
+void World::destroy_debug_line(DebugLine* line)
+{
+	CE_DELETE(default_allocator(), line);
 }
 
 //-----------------------------------------------------------------------------
