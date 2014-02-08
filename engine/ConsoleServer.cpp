@@ -121,7 +121,7 @@ void ConsoleServer::send_to_all(const char* message)
 void ConsoleServer::update()
 {
 	// Check for new clients only if we have room for them
-	if (m_clients.size() < MAX_CONSOLE_CLIENTS - 1)
+	if (m_clients.size() < CE_MAX_CONSOLE_CLIENTS - 1)
 	{
 		TCPSocket client;
 		AcceptResult result = m_server.accept_nonblock(client);

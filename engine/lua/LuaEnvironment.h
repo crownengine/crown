@@ -46,50 +46,49 @@ class LuaEnvironment
 {
 
 public:
-	/// Constructor
-							LuaEnvironment();
+
+	LuaEnvironment();
+	
 	/// Init Lua state and open libraries. Must be called first
-	void					init();
+	void init();
 	/// Close Lua state and shutdown LuaEnvironment
-	void					shutdown();
+	void shutdown();
 
 	/// Loads and execute the given @a res_name Lua resource, returns
 	/// true if success, false otherwise.
-	bool					load_and_execute(const char* res_name);
+	bool load_and_execute(const char* res_name);
 
-	bool					execute_string(const char* s);
+	bool execute_string(const char* s);
 
 	/// Load a function which will be used in Lua. @a module is the name of table contenitor,
 	/// @a name is the name of function in module and @func is the pointer to the function.
 	/// _func_ must be a C/lua function (__int32_t function_name(lua_State* L)__)
-	void					load_module_function(const char* module, const char* name, const lua_CFunction func);
+	void load_module_function(const char* module, const char* name, const lua_CFunction func);
 
 	/// Load a enum's value which will be used in Lua. 
 	/// @a module is the name of table contenitor, generally take  enum's name
 	/// @a name is module's name that refears _value_ and @value is an unsigned integer
-	void					load_module_enum(const char* module, const char* name, uint32_t value);
+	void load_module_enum(const char* module, const char* name, uint32_t value);
 
 	/// Calls the global function @a func with @a argc argument number.
 	/// Each argument is a pair (type, value).
 	/// Example call:
 	/// call_global("myfunc", 1, ARGUMENT_FLOAT, 3.14f)
 	/// Returns true if success, false otherwise
-	bool					call_global(const char* func, uint8_t argc, ...);
+	bool call_global(const char* func, uint8_t argc, ...);
 
-	void					error();
+	void error();
 
 private:
 
 	// Disable copying
-							LuaEnvironment(const LuaEnvironment&);
-	LuaEnvironment& 		operator=(const LuaEnvironment&);
+	LuaEnvironment(const LuaEnvironment&);
+	LuaEnvironment& operator=(const LuaEnvironment&);
 
 private:
 
-	lua_State*				m_state;
-
+	lua_State* m_state;
 };
-
 
 void load_accelerometer(LuaEnvironment& env);
 void load_actor(LuaEnvironment& env);
@@ -116,6 +115,7 @@ void load_vector2(LuaEnvironment& env);
 void load_vector3(LuaEnvironment& env);
 void load_window(LuaEnvironment& env);
 void load_world(LuaEnvironment& env);
+void load_debug_line(LuaEnvironment& env);
 
 CE_EXPORT int32_t luaopen_libcrown(lua_State* L);
 

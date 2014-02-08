@@ -269,12 +269,13 @@ struct Texture
 	//-----------------------------------------------------------------------------
 	void set_sampler_state(uint32_t flags)
 	{
-		GLenum min_filter = TEXTURE_MIN_FILTER_TABLE[(flags & TEXTURE_FILTER_MASK) >> TEXTURE_FILTER_SHIFT];
-		GLenum mag_filter = TEXTURE_MAG_FILTER_TABLE[(flags & TEXTURE_FILTER_MASK) >> TEXTURE_FILTER_SHIFT];
-		GLenum wrap = TEXTURE_WRAP_TABLE[(flags & TEXTURE_WRAP_MASK) >> TEXTURE_WRAP_SHIFT];
+		const GLenum min_filter = TEXTURE_MIN_FILTER_TABLE[(flags & TEXTURE_FILTER_MASK) >> TEXTURE_FILTER_SHIFT];
+		const GLenum mag_filter = TEXTURE_MAG_FILTER_TABLE[(flags & TEXTURE_FILTER_MASK) >> TEXTURE_FILTER_SHIFT];
+		const GLenum wrap_s = TEXTURE_WRAP_TABLE[(flags & TEXTURE_WRAP_U_MASK) >> TEXTURE_WRAP_U_SHIFT];
+		const GLenum wrap_t = TEXTURE_WRAP_TABLE[(flags & TEXTURE_WRAP_V_MASK) >> TEXTURE_WRAP_V_SHIFT];
 
-		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_WRAP_S, wrap));
-		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_WRAP_T, wrap));
+		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_WRAP_S, wrap_s));
+		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_WRAP_T, wrap_t));
 
 		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, min_filter));
 		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, mag_filter));

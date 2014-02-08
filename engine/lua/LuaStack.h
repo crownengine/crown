@@ -48,6 +48,7 @@ struct Sprite;
 struct Unit;
 struct Vector2;
 struct Vector3;
+struct DebugLine;
 
 typedef Id SoundInstanceId;
 typedef Id GuiId;
@@ -369,6 +370,17 @@ public:
 		return id;	
 	}
 
+	//-----------------------------------------------------------------------------
+	void push_debug_line(DebugLine* line)
+	{
+		lua_pushlightuserdata(m_state, line);
+	}
+
+	//-----------------------------------------------------------------------------
+	DebugLine* get_debug_line(int32_t index)
+	{
+		return (DebugLine*) lua_touserdata(m_state, index);
+	}
 
 	bool is_vector2(int32_t index);
 	bool is_vector3(int32_t index);

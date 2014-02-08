@@ -31,8 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Queue.h"
 #include "IdArray.h"
 #include "Log.h"
-
-#define MAX_CONSOLE_CLIENTS 32
+#include "Config.h"
 
 namespace crown
 {
@@ -48,7 +47,7 @@ struct Client
 	}
 };
 
-typedef IdArray<MAX_CONSOLE_CLIENTS, Client> ClientArray;
+typedef IdArray<CE_MAX_CONSOLE_CLIENTS, Client> ClientArray;
 
 class ConsoleServer
 {

@@ -24,40 +24,68 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Material.h"
-#include "MaterialResource.h"
-#include "Renderer.h"
-#include "Device.h"
-#include "ResourceManager.h"
-#include "TextureResource.h"
+#include "LuaStack.h"
+#include "LuaEnvironment.h"
+#include "DebugLine.h"
+#include "Vector3.h"
+#include "Color4.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Material::Material(const MaterialResource* mr)
-	: m_resource(mr)
+CE_EXPORT int debug_line_add_line(lua_State* L)
 {
+	LuaStack stack(L);
+
+	DebugLine* line = stack.get_debug_line(1);
+	const Vector3& start = stack.get_vector3(2);
+	const Vector3& end = stack.get_vector3(3);
+
+	line->add_line(Color4::RED, start, end);
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
-Material::~Material()
+CE_EXPORT int debug_line_add_sphere(lua_State* L)
 {
+	LuaStack stack(L);
+
+	DebugLine* line = stack.get_debug_line(1);
+	const Vector3& center = stack.get_vector3(2);
+	const float radius = stack.get_float(3);
+
+	line->add_sphere(Color4::RED, center, radius);
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
-const MaterialResource* Material::resource()
+CE_EXPORT int debug_line_clear(lua_State* L)
 {
-	return m_resource;
+	LuaStack stack(L);
+
+	DebugLine* line = stack.get_debug_line(1);
+	line->clear();
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
-void Material::bind(Renderer& r, UniformId uniform)
+CE_EXPORT int debug_line_commit(lua_State* L)
 {
-	const ResourceId tr_id = m_resource->get_texture_layer(0);
-	const TextureResource* tr = (TextureResource*) device()->resource_manager()->data(tr_id);
+	LuaStack stack(L);
 
-	r.set_texture(0, uniform, tr->texture(), TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);
+	DebugLine* line = stack.get_debug_line(1);
+	line->commit();
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+void load_debug_line(LuaEnvironment& env)
+{
+	env.load_module_function("DebugLine", "add_line",    debug_line_add_line);
+	env.load_module_function("DebugLine", "add_sphere",  debug_line_add_sphere);
+	env.load_module_function("DebugLine", "clear",       debug_line_clear);
+	env.load_module_function("DebugLine", "commit",      debug_line_commit);
 }
 
 } // namespace crown

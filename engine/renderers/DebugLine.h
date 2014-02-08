@@ -27,48 +27,48 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "RendererTypes.h"
-#include "Assert.h"
+#include "Config.h"
 
 namespace crown
 {
 
-class Pixel
+struct Color4;
+struct Matrix4x4;
+struct Vector3;
+
+struct DebugLine
 {
-public:
+	/// Whether to enable @a depth_test
+	DebugLine(bool depth_test);
 
-	/// Returns the bytes occupied by @a format
-	static size_t bytes_per_pixel(PixelFormat::Enum format)
-	{
-		switch (format)
-		{
-			case PixelFormat::RGB_8:
-			{
-				return 3;
-			}
-			case PixelFormat::RGBA_8:
-			{
-				return 4;
-			}
-			default:
-			{
-				CE_FATAL("Oops, unknown pixel format");
-				return 0;
-			}
-		}
-	}
+	/// Adds a line from @start to @end with the given @a color.
+	void add_line(const Color4& color, const Vector3& start, const Vector3& end);
 
-	/// Returns the bits occupied by @a format
-	static size_t bits_per_pixel(PixelFormat::Enum format)
-	{
-		return bytes_per_pixel(format) * 8;
-	}
+	/// Adds a sphere at @a center with the given @a radius and @a color.
+	void add_sphere(const Color4& color, const Vector3& center, const float radius);
+
+	/// Adds a @a pose with the given @a color
+	//void add_pose(const Color4& color, const Matrix4x4& pose);
+
+	/// Clears all the lines.
+	void clear();
+
+	/// Sends the lines to renderer for drawing.
+	void commit();
 
 private:
 
-	// Disable construction
-	Pixel();
+	struct Line
+	{
+		float position_0[3];
+		float color_0[4];
+		float position_1[3];
+		float color_1[4];
+	};
+
+	bool m_depth_test;
+	uint32_t m_num_lines;
+	Line m_lines[CE_MAX_DEBUG_LINES];
 };
 
 } // namespace crown
-
