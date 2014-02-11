@@ -483,7 +483,6 @@ if (LINUX)
 	)
 
 	list (APPEND RENDERERS_HEADERS
-		renderers/backend/gl/GLRenderer.h
 		renderers/backend/gl/glx/GLContext.h
 	)
 
@@ -616,7 +615,6 @@ if (WINDOWS)
 	)
 
 	list (APPEND RENDERERS_HEADERS
-		renderers/backend/gl/GLRenderer.h
 		renderers/backend/gl/wgl/GLContext.h
 		renderers/backend/gl/wgl/wglext.h
 	)
