@@ -185,8 +185,8 @@ LOCAL_SRC_FILES :=\
 	lua/LuaResourcePackage.cpp\
 	lua/LuaSoundWorld.cpp\
 	lua/LuaSprite.cpp\
-	lua/LuaStack.cpp\
 	lua/LuaStringSetting.cpp\
+	lua/LuaSystem.cpp\
 	lua/LuaTouch.cpp\
 	lua/LuaUnit.cpp\
 	lua/LuaVector2.cpp\

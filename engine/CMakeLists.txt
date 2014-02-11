@@ -372,8 +372,8 @@ set (LUA_SRC
 	lua/LuaResourcePackage.cpp
 	lua/LuaSoundWorld.cpp
 	lua/LuaSprite.cpp
-	lua/LuaStack.cpp
 	lua/LuaStringSetting.cpp
+	lua/LuaSystem.cpp
 	lua/LuaTouch.cpp
 	lua/LuaUnit.cpp
 	lua/LuaVector2.cpp
@@ -383,8 +383,9 @@ set (LUA_SRC
 )
 
 set (LUA_HEADERS
-	lua/LuaStack.h
 	lua/LuaEnvironment.h
+	lua/LuaStack.h
+	lua/LuaSystem.h
 )
 
 set (AUDIO_SRC)
