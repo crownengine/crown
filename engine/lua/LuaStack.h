@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "lua.hpp"
 #include "Types.h"
-#include "IdTable.h"
 
 namespace crown
 {
