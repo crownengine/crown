@@ -56,6 +56,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaStack.h"
 #include "WorldManager.h"
 #include "NetworkFilesystem.h"
+#include "LuaSystem.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -171,9 +172,9 @@ void Device::init()
 	m_renderer = CE_NEW(m_allocator, Renderer)(m_allocator);
 	m_renderer->init();
 
-	Log::d("Creating lua environment...");
-	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)();
-	m_lua_environment->init();
+	Log::d("Creating lua system...");
+	lua_system::init();
+	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)(lua_system::state());
 
 	Log::d("Creating physics...");
 	physics_system::init();
@@ -222,11 +223,10 @@ void Device::shutdown()
 	Log::d("Releasing physics...");
 	physics_system::shutdown();
 
-	Log::d("Releasing lua environment...");
+	Log::d("Releasing lua system...");
+	lua_system::shutdown();
 	if (m_lua_environment)
 	{
-		m_lua_environment->shutdown();
-		
 		CE_DELETE(m_allocator, m_lua_environment);
 	}
 
@@ -413,7 +413,7 @@ void Device::frame()
 		m_renderer->frame();
 	}
 
-	clear_lua_temporaries();
+	lua_system::clear_temporaries();
 
 	m_frame_count++;
 }

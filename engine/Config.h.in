@@ -64,3 +64,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define CE_MAX_GUI_TEXTS 					64					// Per Gui
 
 #define CE_MAX_DEBUG_LINES					2 * 1024			// Per DebugLine
+
+#define CE_MAX_LUA_VECTOR2					4096
+#define CE_MAX_LUA_VECTOR3					4096
+#define CE_MAX_LUA_MATRIX4X4				4096
+#define CE_MAX_LUA_QUATERNION				4096

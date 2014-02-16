@@ -44,16 +44,10 @@ struct LuaResource;
 /// provides utilities for extending Lua
 class LuaEnvironment
 {
-
 public:
-
-	LuaEnvironment();
 	
-	/// Init Lua state and open libraries. Must be called first
-	void init();
-	/// Close Lua state and shutdown LuaEnvironment
-	void shutdown();
-
+	LuaEnvironment(lua_State* L);
+	
 	/// Loads and execute the given @a res_name Lua resource, returns
 	/// true if success, false otherwise.
 	bool load_and_execute(const char* res_name);

@@ -54,6 +54,7 @@ Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, 
 	, m_controller(NULL)
 {
 	const PhysicsController contr = pr->controller();
+	const Vector3 pos = sg.world_position(m_node);
 
 	PxCapsuleControllerDesc desc;
 	desc.climbingMode = PxCapsuleClimbingMode::eCONSTRAINED;
@@ -65,7 +66,7 @@ Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, 
 	desc.contactOffset = contr.contact_offset;
 	desc.upDirection = PxVec3(0.0, 1.0, 0.0);
 	desc.material = physics->createMaterial(0.5f, 0.5f, 0.5f);
-	desc.position = PxExtendedVec3(0, 0, 0);
+	desc.position = PxExtendedVec3(pos.x, pos.y, pos.z);
 	desc.reportCallback = &m_callback;
 	CE_ASSERT(desc.isValid(), "Capsule is not valid");
 

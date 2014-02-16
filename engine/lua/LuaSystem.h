@@ -24,19 +24,42 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "Types.h"
+#include "lua.hpp"
 
-#include <cstdlib>
-#include <cstdio>
-#include "Config.h"
-#include "Error.h"
+namespace crown
+{
 
-#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-	#define CE_ASSERT(condition, msg, ...) do { if (!(condition)) {\
-		crown::error::abort(__FILE__, __LINE__, "\nAssertion failed: %s\n\t" msg "\n", #condition, ##__VA_ARGS__); }} while (0)
-#else
-	#define CE_ASSERT(...) ((void)0)
-#endif
+struct Vector2;
+struct Vector3;
+struct Matrix4x4;
+struct Quaternion;
 
-#define CE_ASSERT_NOT_NULL(x) CE_ASSERT(x != NULL, #x "must be not null")
-#define CE_FATAL(msg) CE_ASSERT(false, msg)
+/// Global lua-related functions
+namespace lua_system
+{
+	/// Initializes the lua system.
+	/// This is the place where to create and initialize per-application objects.
+	void init();
+
+	/// It should reverse the actions performed by lua_system::init().
+	void shutdown();
+
+	lua_State* state();
+
+	/// Clears temporary objects (Vector3, Matrix4x4, ...).
+	void clear_temporaries();
+
+	/// Returns a new temporary Vector2, Vector3, Matrix4x4 or Quaternion
+	Vector2* next_vector2(const Vector2& v);
+	Vector3* next_vector3(const Vector3& v);
+	Matrix4x4* next_matrix4x4(const Matrix4x4& m);
+	Quaternion* next_quaternion(const Quaternion& q);
+
+	/// Returns whether the object at stack @a index is a Vector2, Vector3, Matrix4x4 or Quaternion
+	bool is_vector2(int32_t index);
+	bool is_vector3(int32_t index);
+	bool is_matrix4x4(int32_t index);
+	bool is_quaternion(int32_t index);
+} // namespace lua_system
+} // namespace crown

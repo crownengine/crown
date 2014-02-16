@@ -374,8 +374,8 @@ set (LUA_SRC
 	lua/LuaResourcePackage.cpp
 	lua/LuaSoundWorld.cpp
 	lua/LuaSprite.cpp
-	lua/LuaStack.cpp
 	lua/LuaStringSetting.cpp
+	lua/LuaSystem.cpp
 	lua/LuaTouch.cpp
 	lua/LuaUnit.cpp
 	lua/LuaVector2.cpp
@@ -385,8 +385,9 @@ set (LUA_SRC
 )
 
 set (LUA_HEADERS
-	lua/LuaStack.h
 	lua/LuaEnvironment.h
+	lua/LuaStack.h
+	lua/LuaSystem.h
 )
 
 set (AUDIO_SRC)
@@ -484,7 +485,6 @@ if (LINUX)
 	)
 
 	list (APPEND RENDERERS_HEADERS
-		renderers/backend/gl/GLRenderer.h
 		renderers/backend/gl/glx/GLContext.h
 	)
 
@@ -617,7 +617,6 @@ if (WINDOWS)
 	)
 
 	list (APPEND RENDERERS_HEADERS
-		renderers/backend/gl/GLRenderer.h
 		renderers/backend/gl/wgl/GLContext.h
 		renderers/backend/gl/wgl/wglext.h
 	)

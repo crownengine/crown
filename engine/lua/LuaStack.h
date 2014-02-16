@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "lua.hpp"
 #include "Types.h"
-#include "IdTable.h"
+#include "LuaSystem.h"
 
 namespace crown
 {
@@ -382,18 +382,81 @@ public:
 		return (DebugLine*) lua_touserdata(m_state, index);
 	}
 
-	bool is_vector2(int32_t index);
-	bool is_vector3(int32_t index);
-	bool is_matrix4x4(int32_t index);
-	bool is_quaternion(int32_t index);
-	Vector2& get_vector2(int32_t index);
-	Vector3& get_vector3(int32_t index);
-	Matrix4x4& get_matrix4x4(int32_t index);
-	Quaternion& get_quaternion(int32_t index);
-	void push_vector2(const Vector2& v);
-	void push_vector3(const Vector3& v);
-	void push_matrix4x4(const Matrix4x4& m);
-	void push_quaternion(const Quaternion& q);
+	//-----------------------------------------------------------------------------
+	Vector2& get_vector2(int32_t index)
+	{
+		void* v = lua_touserdata(m_state, index);
+
+		if (!lua_system::is_vector2(index))
+		{
+			luaL_typerror(m_state, index, "Vector2");
+		}
+
+		return *(Vector2*)v;
+	}
+
+	//-----------------------------------------------------------------------------
+	Vector3& get_vector3(int32_t index)
+	{
+		void* v = lua_touserdata(m_state, index);
+
+		if (!lua_system::is_vector3(index))
+		{
+			luaL_typerror(m_state, index, "Vector3");
+		}
+
+		return *(Vector3*)v;
+	}
+
+	//-----------------------------------------------------------------------------
+	Matrix4x4& get_matrix4x4(int32_t index)
+	{
+		void* m = lua_touserdata(m_state, index);
+
+		if (!lua_system::is_matrix4x4(index))
+		{
+			luaL_typerror(m_state, index, "Matrix4x4");
+		}
+
+		return *(Matrix4x4*)m;
+	}
+
+	//-----------------------------------------------------------------------------
+	Quaternion& get_quaternion(int32_t index)
+	{
+		void* q = lua_touserdata(m_state, index);
+
+		if (!lua_system::is_quaternion(index))
+		{
+			luaL_typerror(m_state, index, "Quaternion");
+		}
+
+		return *(Quaternion*)q;
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_vector2(const Vector2& v)
+	{
+		lua_pushlightuserdata(m_state, lua_system::next_vector2(v));
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_vector3(const Vector3& v)
+	{
+		lua_pushlightuserdata(m_state, lua_system::next_vector3(v));
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_matrix4x4(const Matrix4x4& m)
+	{
+		lua_pushlightuserdata(m_state, lua_system::next_matrix4x4(m));
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_quaternion(const Quaternion& q)
+	{
+		lua_pushlightuserdata(m_state, lua_system::next_quaternion(q));
+	}
 
 private:
 
