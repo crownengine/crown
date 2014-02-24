@@ -1,0 +1,20 @@
+{
+	"actors" : {{% for actor in bodies %}
+		"{{actor.name}}" : {
+			"node" : "{{actor.node}}",
+			"type" : "{{actor.class}}",
+			"shapes" : {{% for shape in actor.fixtures %}
+				{{shape.name}} : {
+					"class" : "{{shape.class}}",
+					"material" : "default",	{% if shape.is_box %}
+					"type" : "box",
+					"coords" : [{% for point in shape.hull%}
+						{{point.x}}, {{point.y}}{% if not forloop.last %},{% endif %} {% endfor %}
+					] {% endif %}{% if shape.is_circle %}
+					"type" : "circle",
+					"radius" : {{shape.radius}}	{% endif %}
+				} {% if not forloop.last %},{% endif %} {% endfor %}
+			}
+		}
+	}{% if not forloop.last %}, {% endif %} {% endfor %}
+}
