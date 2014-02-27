@@ -72,6 +72,9 @@ namespace physics_system
 {
 	using physx::PxFoundation;
 	using physx::PxPhysics;
+	using physx::PxCooking;
+	using physx::PxCookingParams;
+	using physx::PxTolerancesScale;
 	using physx::PxAllocatorCallback;
 	using physx::PxErrorCallback;
 	using physx::PxErrorCode;
@@ -170,6 +173,7 @@ namespace physics_system
 	static PhysXError* s_px_error;
 	static PxFoundation* s_foundation;
 	static PxPhysics* s_physics;
+	static PxCooking* s_cooking;
 
 	void init()
 	{
@@ -184,11 +188,15 @@ namespace physics_system
 
 		bool extension = PxInitExtensions(*s_physics);
 		CE_ASSERT(extension, "Unable to initialize PhysX Extensions");
+
+		s_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *s_foundation, PxCookingParams(PxTolerancesScale()));
+		CE_ASSERT(s_cooking, "Unable to create PhysX Cooking");
 	}
 
 	void shutdown()
 	{
 		PxCloseExtensions();
+		s_cooking->release();
 		s_physics->release();
 		s_foundation->release();
 

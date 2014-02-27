@@ -532,6 +532,7 @@ if (LINUX)
 			PhysX3CharacterKinematicCHECKED
 			PhysX3CHECKED
 			PhysX3CommonCHECKED
+			PhysX3CookingCHECKED
 			PhysX3ExtensionsCHECKED
 			PhysXProfileSDKCHECKED
 			PhysXVisualDebuggerSDKCHECKED
@@ -548,6 +549,7 @@ if (LINUX)
 			PhysX3CharacterKinematicPROFILE
 			PhysX3PROFILE
 			PhysX3CommonPROFILE
+			PhysX3CookingPROFILE
 			PhysX3ExtensionsPROFILE
 			PhysXProfileSDKPROFILE
 			PhysXVisualDebuggerSDKPROFILE
@@ -572,6 +574,7 @@ if (LINUX)
 			PhysX3CharacterKinematic
 			PhysX3
 			PhysX3Common
+			PhysX3Cooking
 			PhysX3Extensions
 			PhysXProfileSDK
 			PhysXVisualDebuggerSDK
