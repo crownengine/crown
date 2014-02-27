@@ -42,21 +42,35 @@ $config_h =
 #define CE_MAX_RENDER_TARGETS				32
 #define CE_MAX_VERTEX_BUFFERS				1024
 #define CE_MAX_INDEX_BUFFERS				1024
-#define CE_MAX_SHADERS						1024
-#define CE_MAX_GPU_PROGRAMS					1024
+#define CE_MAX_SHADERS						512
+#define CE_MAX_GPU_PROGRAMS					512
 #define CE_MAX_UNIFORMS						128
-#define CE_TRANSIENT_VERTEX_BUFFER_SIZE		2 * 1024	// In bytes
-#define CE_TRANSIENT_INDEX_BUFFER_SIZE		2 * 1024	// In bytes
-#define CE_MAX_UNIFORM_NAME_LENGTH			64			// Including NUL character
+#define CE_TRANSIENT_VERTEX_BUFFER_SIZE		6 * 1024 * 1024		// In bytes
+#define CE_TRANSIENT_INDEX_BUFFER_SIZE		2 * 1024 * 1024		// In bytes
+#define CE_MAX_UNIFORM_NAME_LENGTH			64					// Including NUL character
 
 #define CE_MAX_WORLDS						1024
-#define CE_MAX_UNITS						65000		// Per world
-#define CE_MAX_CAMERAS						16			// Per world
-#define CE_MAX_ACTORS						1024		// Per world
-#define CE_MAX_CONTROLLERS					1024		// Per world
-#define CE_MAX_TRIGGERS						1024		// Per world
-#define CE_MAX_JOINTS						512			// Per world
-#define CE_MAX_SOUND_INSTANCES				64			// Per world
+#define CE_MAX_UNITS						65000				// Per world
+#define CE_MAX_CAMERAS						16					// Per world
+#define CE_MAX_ACTORS						1024				// Per world
+#define CE_MAX_CONTROLLERS					16					// Per world
+#define CE_MAX_TRIGGERS						1024				// Per world
+#define CE_MAX_JOINTS						512					// Per world
+#define CE_MAX_SOUND_INSTANCES				64					// Per world
+
+#define CE_MAX_CONSOLE_CLIENTS				32
+
+#define CE_MAX_GUI_RECTS 					64					// Per Gui
+#define CE_MAX_GUI_TRIANGLES 				64					// Per Gui
+#define CE_MAX_GUI_IMAGES 					64					// Per Gui
+#define CE_MAX_GUI_TEXTS 					64					// Per Gui
+
+#define CE_MAX_DEBUG_LINES					2 * 1024			// Per DebugLine
+
+#define CE_MAX_LUA_VECTOR2					4096
+#define CE_MAX_LUA_VECTOR3					4096
+#define CE_MAX_LUA_MATRIX4X4				4096
+#define CE_MAX_LUA_QUATERNION				4096
 "
 
 $application_mk =
