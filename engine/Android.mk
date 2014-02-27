@@ -156,6 +156,7 @@ LOCAL_SRC_FILES :=\
 	renderers/backend/gl/egl/GLContext.cpp\
 	renderers/backend/gl/GLRenderer.cpp\
 \
+	renderers/DebugLine.cpp\
 	renderers/Material.cpp\
 	renderers/Mesh.cpp\
 	renderers/RenderWorld.cpp\
@@ -170,6 +171,7 @@ LOCAL_SRC_FILES :=\
 	lua/LuaActor.cpp\
 	lua/LuaCamera.cpp\
 	lua/LuaController.cpp\
+	lua/LuaDebugLine.cpp\
 	lua/LuaDevice.cpp\
 	lua/LuaEnvironment.cpp\
 	lua/LuaFloatSetting.cpp\
