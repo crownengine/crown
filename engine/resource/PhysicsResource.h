@@ -82,7 +82,8 @@ struct PhysicsShapeType
 		SPHERE,
 		CAPSULE,
 		BOX,
-		PLANE
+		PLANE,
+		CONVEX_MESH
 	};
 };
 
@@ -93,6 +94,7 @@ struct PhysicsShape
 	StringId32 shape_class;		// Shape class from global.physics_config
 	StringId32 type;			// Type of the shape
 	StringId32 material;		// Material from global.physics_config
+	StringId32 resource;		// Resource such as .mesh or .heightmap
 	float data_0;
 	float data_1;
 	float data_2;
@@ -256,7 +258,7 @@ struct PhysicsResource
 
 		const PhysicsHeader* ph = (PhysicsHeader*) this;
 		PhysicsJoint* joint = (PhysicsJoint*) (((char*) this) + ph->joints_offset);
-		return joint[i];		
+		return joint[i];
 	}
 
 private:

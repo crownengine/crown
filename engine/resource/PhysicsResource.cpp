@@ -110,11 +110,17 @@ void parse_shapes(JSONElement e, List<PhysicsShape>& shapes)
 			{
 				JSONElement radius = shape.key("radius");
 				ps.data_0 = radius.to_float();
+				
 				break;
 			}
 			case PhysicsShapeType::CAPSULE:
 			{
-				// TODO
+				JSONElement radius = shape.key("radius");
+				JSONElement half_height = shape.key("half_height");
+
+				ps.data_0 = radius.to_float();
+				ps.data_1 = half_height.to_float();
+
 				break;
 			}
 			case PhysicsShapeType::BOX:
@@ -131,7 +137,23 @@ void parse_shapes(JSONElement e, List<PhysicsShape>& shapes)
 			}
 			case PhysicsShapeType::PLANE:
 			{
-				// TODO
+				JSONElement n_x = shape.key("n_x");
+				JSONElement n_y = shape.key("n_y");
+				JSONElement n_z = shape.key("n_z");
+				JSONElement distance = shape.key("distance");
+
+				ps.data_0 = n_x.to_float();
+				ps.data_1 = n_y.to_float();
+				ps.data_2 = n_z.to_float();
+				ps.data_3 = distance.to_float();
+
+				break;
+			}
+			case PhysicsShapeType::CONVEX_MESH:
+			{
+				JSONElement resource = shape.key("mesh");
+				ps.resource = resource.to_string_id();
+
 				break;
 			}
 		}
