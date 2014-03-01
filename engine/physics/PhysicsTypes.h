@@ -55,8 +55,10 @@ struct ShapeType
 	enum Enum
 	{
 		SPHERE,
+		CAPSULE,
 		BOX,
-		PLANE
+		PLANE,
+		CONVEX_MESH
 	};
 };
 
