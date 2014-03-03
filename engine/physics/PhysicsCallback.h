@@ -32,6 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PxRigidActor.h"
 #include "PxController.h"
 #include "PxSimulationEventCallback.h"
+#include "PxQueryReport.h"
+#include "PxQueryFiltering.h"
 
 
 using physx::PxActor;
@@ -50,6 +52,9 @@ using physx::PxTriggerPairFlag;
 using physx::PxU32;
 using physx::PxUserControllerHitReport;
 using physx::PxVec3;
+using physx::PxRaycastCallback;
+using physx::PxAgain;
+using physx::PxRaycastHit;
 
 namespace crown
 {
@@ -163,5 +168,30 @@ class PhysicsControllerCallback : public PxUserControllerHitReport
 		// printf("OBSTACLE HIT\n");
 	}
 };
+
+// //-----------------------------------------------------------------------------
+// struct PhysicsRaycastCallback : public PxRaycastCallback
+// {
+// 	PhysicsRaycastCallback(PxRaycastHit* touches, PxU32 max_touches) : PxRaycastCallback(touches, max_touches)
+// 	{
+// 	}
+
+// 	//-----------------------------------------------------------------------------
+// 	virtual PxAgain processTouches(const PxRaycastHit* buffer, PxU32 nbHits)
+// 	{
+// 		for (PxU32 i = 0; i < nbHits; i++)
+// 		{
+// 			printf("buffer['%d']=(%f, %f)\n", i, buffer[i].u, buffer[i].v);
+// 		}
+
+// 		return false;
+// 	}
+
+// 	//-----------------------------------------------------------------------------
+// 	virtual void finalizeQuery()
+// 	{
+// 		printf("Raycast query finalized\n");
+// 	}
+// };
 
 } // namespace crown

@@ -116,6 +116,28 @@ struct CollisionGroup
 	};
 };
 
+//-----------------------------------------------------------------------------
+struct RaycastMode
+{
+	enum Enum
+	{
+		CLOSEST,
+		ANY,
+		ALL
+	};
+};
+
+//-----------------------------------------------------------------------------
+struct RaycastFilter
+{
+	enum Enum
+	{
+		STATIC,
+		DYNAMIC,
+		BOTH
+	};
+};
+
 namespace physics_world
 {
 	struct EventType

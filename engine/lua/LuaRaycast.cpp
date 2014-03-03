@@ -24,59 +24,41 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "LuaEnvironment.h"
 #include "LuaStack.h"
-#include "PhysicsWorld.h"
+#include "LuaEnvironment.h"
 #include "Raycast.h"
-#include "Vector3.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int physics_world_gravity(lua_State* L)
+CE_EXPORT int raycast_cast(lua_State* L)
 {
 	LuaStack stack(L);
 
-	PhysicsWorld* world = stack.get_physics_world(1);
+	Raycast* raycast = stack.get_raycast(1);
+	Vector3 from = stack.get_vector3(2);
+	Vector3 dir = stack.get_vector3(3);
+	float length = stack.get_float(4);
 
-	stack.push_vector3(world->gravity());
+	bool status = raycast->cast(from, dir, length);
+
+	stack.push_bool(status);
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int physics_world_set_gravity(lua_State* L)
+void load_raycast(LuaEnvironment& env)
 {
-	LuaStack stack(L);
+	env.load_module_function("Raycast", "cast",	raycast_cast);
 
-	PhysicsWorld* world = stack.get_physics_world(1);
-	const Vector3& gravity = stack.get_vector3(2);
+	env.load_module_enum("Raycast", "CLOSEST",	RaycastMode::CLOSEST);
+	env.load_module_enum("Raycast", "ANY",		RaycastMode::ANY);
+	env.load_module_enum("Raycast", "ALL",		RaycastMode::ALL);
 
-	world->set_gravity(gravity);
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int physics_world_make_raycast(lua_State* L)
-{
-	LuaStack stack(L);
-
-	PhysicsWorld* world = stack.get_physics_world(1);
-	int mode = stack.get_int(2);
-	int filter = stack.get_int(3);
-
-	Raycast* raycast = world->make_raycast((RaycastMode::Enum) mode, (RaycastFilter::Enum) filter);
-
-	stack.push_raycast(raycast);
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-void load_physics_world(LuaEnvironment& env)
-{
-	env.load_module_function("PhysicsWorld", "gravity",			physics_world_gravity);
-	env.load_module_function("PhysicsWorld", "set_gravity",		physics_world_set_gravity);
-	env.load_module_function("PhysicsWorld", "make_raycast",	physics_world_make_raycast);
+	env.load_module_enum("Raycast", "STATIC",	RaycastFilter::STATIC);
+	env.load_module_enum("Raycast", "DYNAMIC",	RaycastFilter::DYNAMIC);
+	env.load_module_enum("Raycast", "BOTH",		RaycastFilter::BOTH);
 }
 
 } // namespace crown

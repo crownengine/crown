@@ -39,6 +39,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "Actor.h"
 #include "ResourceManager.h"
+#include "Raycast.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -225,7 +226,9 @@ PhysicsWorld::PhysicsWorld()
 	scene_desc.limits = scene_limits;
 	scene_desc.filterShader = physics_system::FilterShader;
 	scene_desc.simulationEventCallback = &m_callback;
-	scene_desc.flags = PxSceneFlag::eENABLE_ACTIVETRANSFORMS | PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS | PxSceneFlag::eENABLE_KINEMATIC_PAIRS;
+	scene_desc.flags = 	PxSceneFlag::eENABLE_ACTIVETRANSFORMS 
+					  | PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS
+					  | PxSceneFlag::eENABLE_KINEMATIC_PAIRS;
 
 	if(!scene_desc.cpuDispatcher)
 	{
@@ -375,6 +378,12 @@ void PhysicsWorld::clear_kinematic(ActorId id)
 {
 	Actor* actor = lookup_actor(id);
 	actor->clear_kinematic();
+}
+
+//-----------------------------------------------------------------------------
+Raycast* PhysicsWorld::make_raycast(RaycastMode::Enum mode, RaycastFilter::Enum filter)
+{
+	return CE_NEW(default_allocator(), Raycast)(m_scene, mode, filter);
 }
 
 //-----------------------------------------------------------------------------

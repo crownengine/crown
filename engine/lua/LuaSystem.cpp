@@ -212,6 +212,7 @@ namespace lua_system
 		load_sound_world(env);
 		load_gui(env);
 		load_debug_line(env);
+		load_raycast(env);
 
 		// Register custom loader
 		lua_getfield(s_L, LUA_GLOBALSINDEX, "package");

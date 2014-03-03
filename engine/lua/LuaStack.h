@@ -49,6 +49,7 @@ struct Unit;
 struct Vector2;
 struct Vector3;
 struct DebugLine;
+struct Raycast;
 
 typedef Id SoundInstanceId;
 typedef Id GuiId;
@@ -308,6 +309,18 @@ public:
 	Controller* get_controller(int32_t index)
 	{
 		return (Controller*) lua_touserdata(m_state, index);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_raycast(Raycast* raycast)
+	{
+		lua_pushlightuserdata(m_state, raycast);
+	}
+
+	//-----------------------------------------------------------------------------
+	Raycast* get_raycast(int32_t index)
+	{
+		return (Raycast*) lua_touserdata(m_state, index);
 	}
 
 	//-----------------------------------------------------------------------------

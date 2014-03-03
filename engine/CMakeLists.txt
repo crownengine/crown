@@ -369,6 +369,7 @@ set (LUA_SRC
 	lua/LuaMouse.cpp
 	lua/LuaPhysicsWorld.cpp
 	lua/LuaQuaternion.cpp
+	lua/LuaRaycast.cpp
 	lua/LuaResourcePackage.cpp
 	lua/LuaSoundWorld.cpp
 	lua/LuaSprite.cpp
@@ -410,6 +411,7 @@ set (PHYSICS_HEADERS
 	physics/PhysicsWorld.h
 	physics/Trigger.h
 	physics/Joint.h
+	physics/Raycast.h
 	physics/PhysicsCallback.h
 )
 

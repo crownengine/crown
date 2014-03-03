@@ -110,6 +110,7 @@ void load_vector3(LuaEnvironment& env);
 void load_window(LuaEnvironment& env);
 void load_world(LuaEnvironment& env);
 void load_debug_line(LuaEnvironment& env);
+void load_raycast(LuaEnvironment& env);
 
 CE_EXPORT int32_t luaopen_libcrown(lua_State* L);
 
