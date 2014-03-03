@@ -110,7 +110,7 @@ void parse_shapes(JSONElement e, List<PhysicsShape>& shapes)
 			{
 				JSONElement radius = shape.key("radius");
 				ps.data_0 = radius.to_float();
-				
+
 				break;
 			}
 			case PhysicsShapeType::CAPSULE:
@@ -152,7 +152,13 @@ void parse_shapes(JSONElement e, List<PhysicsShape>& shapes)
 			case PhysicsShapeType::CONVEX_MESH:
 			{
 				JSONElement resource = shape.key("mesh");
-				ps.resource = resource.to_string_id();
+				DynamicString mesh_name;
+				resource.to_string(mesh_name);
+				mesh_name += ".mesh";
+
+				StringId64 mesh_id = hash::murmur2_64(mesh_name.c_str(), string::strlen(mesh_name.c_str()), 0);
+
+				ps.resource.id = mesh_id;
 
 				break;
 			}

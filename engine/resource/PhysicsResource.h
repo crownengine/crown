@@ -94,7 +94,7 @@ struct PhysicsShape
 	StringId32 shape_class;		// Shape class from global.physics_config
 	StringId32 type;			// Type of the shape
 	StringId32 material;		// Material from global.physics_config
-	StringId32 resource;		// Resource such as .mesh or .heightmap
+	ResourceId resource;		// Resource such as .mesh or .heightmap
 	float data_0;
 	float data_1;
 	float data_2;
