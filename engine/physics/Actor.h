@@ -36,14 +36,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PxPhysics.h"
 #include "PxScene.h"
 #include "PxRigidActor.h"
+#include "PxCooking.h"
 
 using physx::PxRigidActor;
 using physx::PxMaterial;
 using physx::PxScene;
 using physx::PxPhysics;
+using physx::PxCooking;
 
 namespace crown
 {
+
+#define MAX_PHYSX_VERTICES 256
 
 struct PhysicsResource;
 struct PhysicsConfigResource;
@@ -54,7 +58,8 @@ class SceneGraph;
 
 struct Actor
 {
-						Actor(const PhysicsResource* res, const PhysicsConfigResource* config, uint32_t index, PxPhysics* physics, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot);
+						Actor(const PhysicsResource* res, const PhysicsConfigResource* config, uint32_t index, PxPhysics* physics, PxCooking* cooking,
+								PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot);
 						~Actor();
 
 	void				enable_gravity();
@@ -99,7 +104,7 @@ struct Actor
 private:
 
 	void				update(const Matrix4x4& pose);
-	void				create_shapes(const PhysicsResource* res, const PhysicsConfigResource* config, PxPhysics* physics);
+	void				create_shapes(const PhysicsResource* res, const PhysicsConfigResource* config, PxPhysics* physics, PxCooking* cooking);
 	
 public:
 

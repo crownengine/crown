@@ -25,22 +25,28 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Actor.h"
-#include "Vector3.h"
-#include "Quaternion.h"
-#include "Matrix4x4.h"
-#include "Unit.h"
-#include "Log.h"
-#include "PhysicsResource.h"
-#include "SceneGraph.h"
-#include "PxPhysicsAPI.h"
-
 #include "Device.h"
+#include "Log.h"
+#include "Matrix4x4.h"
+#include "MeshResource.h"
+#include "PhysicsResource.h"
+#include "PxPhysicsAPI.h"
+#include "Quaternion.h"
 #include "ResourceManager.h"
+#include "SceneGraph.h"
+#include "Unit.h"
+#include "Vector3.h"
+#include "PxCooking.h"
+#include "PxDefaultStreams.h"
 
 
 using physx::PxActorFlag;
 using physx::PxActorType;
 using physx::PxBoxGeometry;
+using physx::PxCapsuleGeometry;
+using physx::PxConvexFlag;
+using physx::PxConvexMesh;
+using physx::PxConvexMeshDesc;
 using physx::PxD6Axis;
 using physx::PxD6Joint;
 using physx::PxD6JointCreate;
@@ -61,13 +67,18 @@ using physx::PxShapeFlag;
 using physx::PxSphereGeometry;
 using physx::PxTransform;
 using physx::PxU32;
+using physx::PxU16;
 using physx::PxVec3;
+using physx::PxDefaultMemoryOutputStream;
+using physx::PxDefaultMemoryInputData;
+using physx::PxConvexMeshGeometry;
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Actor::Actor(const PhysicsResource* res, const PhysicsConfigResource* config, uint32_t index, PxPhysics* physics, PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
+Actor::Actor(const PhysicsResource* res, const PhysicsConfigResource* config, uint32_t index, PxPhysics* physics, PxCooking* cooking,
+								PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
 	: m_resource(res)
 	, m_config(config)
 	, m_index(index)
@@ -100,7 +111,7 @@ Actor::Actor(const PhysicsResource* res, const PhysicsConfigResource* config, ui
 
 	m_actor->userData = this;
 
-	create_shapes(res, config, physics);
+	create_shapes(res, config, physics, cooking);
 
 	// FIXME collisions works only if enable_collision() is called here first
 	// collision enabled by default
@@ -121,7 +132,7 @@ Actor::~Actor()
 }
 
 //-----------------------------------------------------------------------------
-void Actor::create_shapes(const PhysicsResource* res, const PhysicsConfigResource* config, PxPhysics* physics)
+void Actor::create_shapes(const PhysicsResource* res, const PhysicsConfigResource* config, PxPhysics* physics, PxCooking* cooking)
 {
 	const PhysicsActor& actor = m_resource->actor(m_index);
 	uint32_t shape_index = m_resource->shape_index(m_index);
@@ -141,6 +152,11 @@ void Actor::create_shapes(const PhysicsResource* res, const PhysicsConfigResourc
 				px_shape = m_actor->createShape(PxSphereGeometry(shape.data_0), *mat);
 				break;
 			}
+			case PhysicsShapeType::CAPSULE:
+			{
+				px_shape = m_actor->createShape(PxCapsuleGeometry(shape.data_0, shape.data_1), *mat);
+				break;
+			}
 			case PhysicsShapeType::BOX:
 			{
 				px_shape = m_actor->createShape(PxBoxGeometry(shape.data_0, shape.data_1, shape.data_2), *mat);
@@ -148,8 +164,31 @@ void Actor::create_shapes(const PhysicsResource* res, const PhysicsConfigResourc
 			}
 			case PhysicsShapeType::PLANE:
 			{
-				// FIXME
 				px_shape = m_actor->createShape(PxPlaneGeometry(), *mat);
+				break;
+			}
+			case PhysicsShapeType::CONVEX_MESH:
+			{
+				MeshResource* resource = (MeshResource*) device()->resource_manager()->data(shape.resource);
+
+				PxConvexMeshDesc convex_mesh_desc;
+				convex_mesh_desc.points.count		= resource->num_vertices();
+				convex_mesh_desc.points.stride		= sizeof(PxVec3);
+				convex_mesh_desc.points.data		= (PxVec3*) resource->vertices();
+				convex_mesh_desc.triangles.count	= resource->num_indices();
+				convex_mesh_desc.triangles.stride	= 3 * sizeof(PxU16);
+				convex_mesh_desc.triangles.data 	= (PxU16*) resource->indices();
+				convex_mesh_desc.flags				= PxConvexFlag::eCOMPUTE_CONVEX;
+				convex_mesh_desc.vertexLimit		= MAX_PHYSX_VERTICES;
+
+				PxDefaultMemoryOutputStream buf;
+				if(!cooking->cookConvexMesh(convex_mesh_desc, buf))
+					CE_FATAL();
+				PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+				PxConvexMesh* convex_mesh = physics->createConvexMesh(input);
+
+				px_shape = m_actor->createShape(PxConvexMeshGeometry(convex_mesh), *mat);
+
 				break;
 			}
 			default:
@@ -161,7 +200,7 @@ void Actor::create_shapes(const PhysicsResource* res, const PhysicsConfigResourc
 		if (shape_class.trigger)
 		{
 			px_shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
-			px_shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);		
+			px_shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
 		}
 
 		shape_index++;
