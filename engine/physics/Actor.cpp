@@ -263,7 +263,7 @@ void Actor::disable_collision()
 	// 	shape->setSimulationFilterData(filter_data);
 	// }
 
-	// default_allocator().deallocate(shapes);	
+	// default_allocator().deallocate(shapes);
 }
 
 //-----------------------------------------------------------------------------
@@ -276,6 +276,30 @@ void Actor::set_kinematic()
 void Actor::clear_kinematic()
 {
 	static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, false);
+
+	m_scene_graph.set_world_pose(m_node, get_kinematic_pose());
+}
+
+//-----------------------------------------------------------------------------
+void Actor::move(const Matrix4x4& pose)
+{
+	CE_ASSERT(is_kinematic(), "Cannot call 'move' method for non-kinematic actor");
+
+	Vector3 tmp = pose.translation();
+	PxVec3 pos(tmp.x, tmp.y, tmp.z);
+	static_cast<PxRigidDynamic*>(m_actor)->setKinematicTarget(PxTransform(pos));
+}
+
+//-----------------------------------------------------------------------------
+Matrix4x4 Actor::get_kinematic_pose() const
+{
+	PxTransform transform;
+	static_cast<PxRigidDynamic*>(m_actor)->getKinematicTarget(transform);
+
+	Quaternion rot(transform.q.x, transform.q.y, transform.q.z, transform.q.w);
+	Vector3 pos(transform.p.x, transform.p.y, transform.p.z);
+	
+	return Matrix4x4(rot, pos);
 }
 
 //-----------------------------------------------------------------------------

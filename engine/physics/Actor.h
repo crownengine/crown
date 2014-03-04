@@ -70,6 +70,8 @@ struct Actor
 
 	void				set_kinematic();
 	void				clear_kinematic();
+	void				move(const Matrix4x4& pose);
+	Matrix4x4			get_kinematic_pose() const;
 
 	/// Returns whether the actor is static (i.e. immovable).
 	bool				is_static() const;
