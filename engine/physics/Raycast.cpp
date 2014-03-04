@@ -82,10 +82,10 @@ void Raycast::cast(const Vector3& from, const Vector3& dir, const float length)
 		ev.normal.z = rh.normal.z;
 		ev.actor = (Actor*)(rh.actor->userData);
 
-		// Log::i("callback: %s", ev.callback);
-		// Log::i("position: (%f, %f, %f)", ev.position.x, ev.position.y, ev.position.z);
-		// Log::i("normal: (%f, %f, %f)", ev.normal.x, ev.normal.y, ev.normal.z);
-		// Log::i("distance: %f", ev.distance);
+		Log::i("callback: %s", ev.callback);
+		Log::i("position: (%f, %f, %f)", ev.position.x, ev.position.y, ev.position.z);
+		Log::i("normal: (%f, %f, %f)", ev.normal.x, ev.normal.y, ev.normal.z);
+		Log::i("distance: %f", ev.distance);
 
 		event_stream::write(m_events, physics_world::EventType::RAYCAST, ev);
 	}

@@ -30,6 +30,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PxScene.h"
 #include "PxVec3.h"
 #include "EventStream.h"
+// workaround
+#include "Matrix4x4.h"
 
 using physx::PxQueryFilterData;
 using physx::PxQueryFlag;
@@ -40,7 +42,7 @@ using physx::PxRaycastBuffer;
 using physx::PxScene;
 using physx::PxVec3;
 
-#define MAX_RAYCAST_INTERSECTIONS 32
+#define MAX_RAYCAST_INTERSECTIONS 8
 
 namespace crown
 {
