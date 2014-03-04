@@ -108,16 +108,16 @@ private:
 	
 public:
 
-	const PhysicsResource*	m_resource;
-	const PhysicsConfigResource* m_config;
-	uint32_t				m_index;
+	const PhysicsResource*			m_resource;
+	const PhysicsConfigResource* 	m_config;
+	uint32_t						m_index;
 
-	PxScene*				m_scene;
-	SceneGraph&				m_scene_graph;
-	int32_t					m_node;
-	PxRigidActor* 			m_actor;
-	uint32_t				m_group;
-	uint32_t				m_mask;
+	PxScene*						m_scene;
+	SceneGraph&						m_scene_graph;
+	int32_t							m_node;
+	PxRigidActor* 					m_actor;
+	uint32_t						m_group;
+	uint32_t						m_mask;
 
 private:
 

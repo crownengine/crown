@@ -40,11 +40,10 @@ CE_EXPORT int raycast_cast(lua_State* L)
 	Vector3 from = stack.get_vector3(2);
 	Vector3 dir = stack.get_vector3(3);
 	float length = stack.get_float(4);
+	
+	raycast->cast(from, dir, length);
 
-	bool status = raycast->cast(from, dir, length);
-
-	stack.push_bool(status);
-	return 1;
+	return 0;
 }
 
 //-----------------------------------------------------------------------------

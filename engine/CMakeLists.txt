@@ -402,6 +402,7 @@ set (PHYSICS_SRC
 	physics/PhysicsWorld.cpp
 	physics/Trigger.cpp
 	physics/Joint.cpp
+	physics/Raycast.cpp
 )
 
 set (PHYSICS_HEADERS

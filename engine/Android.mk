@@ -152,6 +152,7 @@ LOCAL_SRC_FILES :=\
 	physics/PhysicsWorld.cpp\
 	physics/Trigger.cpp\
 	physics/Joint.cpp\
+	physics/Raycast.cpp\
 \
 	renderers/backend/gl/egl/GLContext.cpp\
 	renderers/backend/gl/GLRenderer.cpp\

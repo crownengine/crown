@@ -101,7 +101,7 @@ public:
 	void						set_kinematic(ActorId id);
 	void						clear_kinematic(ActorId id);
 
-	Raycast*					make_raycast(RaycastMode::Enum mode, RaycastFilter::Enum filter);
+	Raycast*					make_raycast(const char* callback, RaycastMode::Enum mode, RaycastFilter::Enum filter);
 
 	void						update(float dt);
 

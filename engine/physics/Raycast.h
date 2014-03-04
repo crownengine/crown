@@ -25,16 +25,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "Log.h"
-#include "PhysicsCallback.h"
 #include "PhysicsTypes.h"
 #include "PxQueryFiltering.h"
 #include "PxScene.h"
 #include "PxVec3.h"
+#include "EventStream.h"
 
 using physx::PxQueryFilterData;
 using physx::PxQueryFlag;
 using physx::PxHitFlag;
 using physx::PxHitFlags;
+using physx::PxRaycastHit;
 using physx::PxRaycastBuffer;
 using physx::PxScene;
 using physx::PxVec3;
@@ -44,47 +45,13 @@ using physx::PxVec3;
 namespace crown
 {
 
+struct Vector3;
+
 struct Raycast
 {
-	//-------------------------------------------------------------------------
-	Raycast(PxScene* scene, RaycastMode::Enum mode, RaycastFilter::Enum filter)
-		: m_scene(scene)
-		, m_buffer(m_hits, MAX_RAYCAST_INTERSECTIONS)
-		, m_mode(mode)
-		, m_filter(filter)
-	{
-		switch (m_filter)
-		{
-			case RaycastFilter::BOTH: break;
-			case RaycastFilter::STATIC: m_fd.flags = PxQueryFlag::eSTATIC; break;
-			case RaycastFilter::DYNAMIC: m_fd.flags = PxQueryFlag::eDYNAMIC; break;
-		}
+			Raycast(PxScene* scene, EventStream& events, const char* callback, RaycastMode::Enum mode, RaycastFilter::Enum filter);
 
-		switch (m_mode)
-		{
-			case RaycastMode::CLOSEST: break;
-			case RaycastMode::ANY: m_fd.flags |= PxQueryFlag::eANY_HIT; break;
-			case RaycastMode::ALL: break;
-		}
-	}
-
-	//-------------------------------------------------------------------------
-	bool cast(const Vector3& from, const Vector3& dir, const float length)
-	{
-		// Log::i("from: (%f, %f, %f)", from.x, from.y, from.z);
-		// Log::i("dir: (%f, %f, %f)", dir.x, dir.y, dir.z);
-		// Log::i("length: %f", length);
-
-		bool status = m_scene->raycast(PxVec3(from.x, from.y, from.z)
-									 , PxVec3(dir.x, dir.y, dir.z)
-									 , length
-									 , m_buffer
-									 , PxHitFlags(PxHitFlag::eDEFAULT)
-									 , m_fd);
-
-		if (status)	Log::i("Raycast YES");
-		return status;
-	}
+	void	cast(const Vector3& from, const Vector3& dir, const float length);
 
 private:
 
@@ -93,7 +60,8 @@ private:
 	PxRaycastBuffer			m_buffer;
 	PxQueryFilterData 		m_fd;
 
-	// PhysicsRaycastCallback	m_callback;
+	EventStream&			m_events;
+	const char*				m_callback;
 
 	RaycastMode::Enum		m_mode;
 	RaycastFilter::Enum		m_filter;

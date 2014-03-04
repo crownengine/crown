@@ -381,9 +381,9 @@ void PhysicsWorld::clear_kinematic(ActorId id)
 }
 
 //-----------------------------------------------------------------------------
-Raycast* PhysicsWorld::make_raycast(RaycastMode::Enum mode, RaycastFilter::Enum filter)
+Raycast* PhysicsWorld::make_raycast(const char* callback, RaycastMode::Enum mode, RaycastFilter::Enum filter)
 {
-	return CE_NEW(default_allocator(), Raycast)(m_scene, mode, filter);
+	return CE_NEW(default_allocator(), Raycast)(m_scene, m_events, callback, mode, filter);
 }
 
 //-----------------------------------------------------------------------------

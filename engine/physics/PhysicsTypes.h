@@ -140,25 +140,42 @@ struct RaycastFilter
 
 namespace physics_world
 {
-	struct EventType
+//-----------------------------------------------------------------------------	
+struct EventType
+{
+	enum Enum
 	{
-		enum Enum
-		{
-			COLLISION,
-			TRIGGER
-		};
+		COLLISION,
+		TRIGGER,
+		RAYCAST
 	};
+};
 
-	struct CollisionEvent
-	{
-		Actor* actors[2];
-		Vector3 where;
-	};
+//-----------------------------------------------------------------------------
+struct CollisionEvent
+{
+	Actor* actors[2];
+	Vector3 where;
+};
 
-	struct TriggerEvent
-	{
-		Actor* actor;
-	};
+//-----------------------------------------------------------------------------
+struct TriggerEvent
+{
+	Actor* actor;
+};
+
+//-----------------------------------------------------------------------------
+struct RaycastEvent
+{
+	bool 				hit;
+	char* 				callback;
+	RaycastMode::Enum 	mode;
+	Vector3 			position;
+	float				distance;
+	Vector3 			normal;
+	Actor*				actor;
+};
+
 }
 
 } // namespace crown

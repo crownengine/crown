@@ -62,10 +62,11 @@ CE_EXPORT int physics_world_make_raycast(lua_State* L)
 	LuaStack stack(L);
 
 	PhysicsWorld* world = stack.get_physics_world(1);
-	int mode = stack.get_int(2);
-	int filter = stack.get_int(3);
+	const char* callback = stack.get_string(2);
+	int mode = stack.get_int(3);
+	int filter = stack.get_int(4);
 
-	Raycast* raycast = world->make_raycast((RaycastMode::Enum) mode, (RaycastFilter::Enum) filter);
+	Raycast* raycast = world->make_raycast(callback, (RaycastMode::Enum) mode, (RaycastFilter::Enum) filter);
 
 	stack.push_raycast(raycast);
 	return 1;
