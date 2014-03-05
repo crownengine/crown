@@ -281,13 +281,12 @@ void Actor::clear_kinematic()
 }
 
 //-----------------------------------------------------------------------------
-void Actor::move(const Matrix4x4& pose)
+void Actor::move(const Vector3& pos)
 {
 	CE_ASSERT(is_kinematic(), "Cannot call 'move' method for non-kinematic actor");
 
-	Vector3 tmp = pose.translation();
-	PxVec3 pos(tmp.x, tmp.y, tmp.z);
-	static_cast<PxRigidDynamic*>(m_actor)->setKinematicTarget(PxTransform(pos));
+	PxVec3 position(pos.x, pos.y, pos.z);
+	static_cast<PxRigidDynamic*>(m_actor)->setKinematicTarget(PxTransform(position));
 }
 
 //-----------------------------------------------------------------------------

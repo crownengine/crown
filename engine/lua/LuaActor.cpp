@@ -101,9 +101,9 @@ CE_EXPORT int actor_move(lua_State* L)
 {
 	LuaStack stack(L);
 	Actor* actor = stack.get_actor(1);
-	Matrix4x4 pose = stack.get_matrix4x4(2);
+	Vector3 pos = stack.get_vector3(2);
 
-	actor->move(pose);
+	actor->move(pos);
 
 	return 0;
 }
