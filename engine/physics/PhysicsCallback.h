@@ -169,29 +169,4 @@ class PhysicsControllerCallback : public PxUserControllerHitReport
 	}
 };
 
-// //-----------------------------------------------------------------------------
-// struct PhysicsRaycastCallback : public PxRaycastCallback
-// {
-// 	PhysicsRaycastCallback(PxRaycastHit* touches, PxU32 max_touches) : PxRaycastCallback(touches, max_touches)
-// 	{
-// 	}
-
-// 	//-----------------------------------------------------------------------------
-// 	virtual PxAgain processTouches(const PxRaycastHit* buffer, PxU32 nbHits)
-// 	{
-// 		for (PxU32 i = 0; i < nbHits; i++)
-// 		{
-// 			printf("buffer['%d']=(%f, %f)\n", i, buffer[i].u, buffer[i].v);
-// 		}
-
-// 		return false;
-// 	}
-
-// 	//-----------------------------------------------------------------------------
-// 	virtual void finalizeQuery()
-// 	{
-// 		printf("Raycast query finalized\n");
-// 	}
-// };
-
 } // namespace crown

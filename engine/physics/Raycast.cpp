@@ -37,7 +37,7 @@ namespace crown
 //-------------------------------------------------------------------------
 Raycast::Raycast(PxScene* scene, EventStream& events, const char* callback, RaycastMode::Enum mode, RaycastFilter::Enum filter)
 	: m_scene(scene)
-	, m_buffer(m_hits, MAX_RAYCAST_INTERSECTIONS)
+	, m_buffer(m_hits, CE_MAX_RAY_INTERSECTIONS)
 	, m_events(events)
 	, m_callback(callback)
 	, m_mode(mode)

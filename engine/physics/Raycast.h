@@ -30,8 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PxScene.h"
 #include "PxVec3.h"
 #include "EventStream.h"
-// workaround
-#include "Matrix4x4.h"
 
 using physx::PxQueryFilterData;
 using physx::PxQueryFlag;
@@ -42,8 +40,6 @@ using physx::PxRaycastBuffer;
 using physx::PxScene;
 using physx::PxVec3;
 
-#define MAX_RAYCAST_INTERSECTIONS 8
-
 namespace crown
 {
 
@@ -51,14 +47,22 @@ struct Vector3;
 
 struct Raycast
 {
+	/// Constructor
 			Raycast(PxScene* scene, EventStream& events, const char* callback, RaycastMode::Enum mode, RaycastFilter::Enum filter);
 
+	/// Performs a raycast against objects in the scene. The ray is casted from position @a from, has direction @a dir and is long @a length
+	/// If any actor is hit along the ray, @a EventStream is filled according to @a mode previously specified and callback will be called for processing.
+	/// @a RaycastMode::ANY: the callback is called with just true or false depending on whether the ray hit anything or not.
+	/// @a RaycastMode::CLOSEST: the first argument will tell if there was a hit or not, as before. 
+	/// If there was a hit, the callback will also be called with the position of the hit, the distance from the origin, the normal of the surface that 
+	/// was hit and the actor that was hit.
+	/// @a RaycastMode::ALL: as @a RaycastMode::CLOSEST, with more tuples
 	void	cast(const Vector3& from, const Vector3& dir, const float length);
 
 private:
 
 	PxScene* 				m_scene;
-	PxRaycastHit 			m_hits[MAX_RAYCAST_INTERSECTIONS];	
+	PxRaycastHit 			m_hits[CE_MAX_RAY_INTERSECTIONS];	
 	PxRaycastBuffer			m_buffer;
 	PxQueryFilterData 		m_fd;
 

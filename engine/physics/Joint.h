@@ -41,7 +41,6 @@ using physx::PxMaterial;
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 struct PhysicsResource;
 class Actor;
 
