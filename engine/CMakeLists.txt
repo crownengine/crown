@@ -400,7 +400,6 @@ set (PHYSICS_SRC
 	physics/Actor.cpp
 	physics/Controller.cpp
 	physics/PhysicsWorld.cpp
-	physics/Trigger.cpp
 	physics/Joint.cpp
 	physics/Raycast.cpp
 )
@@ -410,7 +409,6 @@ set (PHYSICS_HEADERS
 	physics/Controller.cpp
 	physics/PhysicsTypes.h
 	physics/PhysicsWorld.h
-	physics/Trigger.h
 	physics/Joint.h
 	physics/Raycast.h
 	physics/PhysicsCallback.h

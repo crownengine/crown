@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Quaternion.h"
 #include "SceneGraph.h"
 #include "Controller.h"
-#include "Trigger.h"
 #include "Joint.h"
 #include "PhysicsCallback.h"
 #include "ProxyAllocator.h"
@@ -211,7 +210,6 @@ PhysicsWorld::PhysicsWorld()
 	: m_scene(NULL)
 	, m_actors_pool(default_allocator(), CE_MAX_ACTORS, sizeof(Actor), CE_ALIGNOF(Actor))
 	, m_controllers_pool(default_allocator(), CE_MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
-	, m_triggers_pool(default_allocator(), CE_MAX_TRIGGERS, sizeof(Trigger), CE_ALIGNOF(Trigger))
 	, m_joints_pool(default_allocator(), CE_MAX_JOINTS, sizeof(Joint), CE_ALIGNOF(Joint))
 	, m_events(default_allocator())
 	, m_callback(m_events)
@@ -288,22 +286,6 @@ void PhysicsWorld::destroy_controller(ControllerId id)
 }
 
 //-----------------------------------------------------------------------------
-TriggerId PhysicsWorld::create_trigger(const Vector3& half_extents, const Vector3& pos, const Quaternion& rot)
-{
-	Trigger* trigger = CE_NEW(m_triggers_pool, Trigger)(physics_system::s_physics, m_scene, half_extents, pos, rot);
-	return m_triggers.create(trigger);
-}
-
-//-----------------------------------------------------------------------------
-void PhysicsWorld::destroy_trigger(TriggerId id)
-{
-	CE_ASSERT(m_triggers.has(id), "Trigger does not exist");
-
-	CE_DELETE(m_triggers_pool, m_triggers.lookup(id));
-	m_triggers.destroy(id);
-}
-
-//-----------------------------------------------------------------------------
 JointId	PhysicsWorld::create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1)
 {
 	Joint* joint = CE_NEW(m_joints_pool, Joint)(physics_system::s_physics, pr, index, actor_0, actor_1);
@@ -347,12 +329,6 @@ Controller* PhysicsWorld::lookup_controller(ControllerId id)
 	return m_controllers.lookup(id);
 }
 
-//-----------------------------------------------------------------------------
-Trigger* PhysicsWorld::lookup_trigger(TriggerId id)
-{
-	CE_ASSERT(m_triggers.has(id), "Trigger does not exist");
-	return m_triggers.lookup(id);
-}
 //-----------------------------------------------------------------------------
 Vector3 PhysicsWorld::gravity() const
 {

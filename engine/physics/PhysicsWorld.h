@@ -63,7 +63,6 @@ struct PhysicsActor;
 struct Controller;
 struct Vector3;
 struct Actor;
-struct Trigger;
 struct Joint;
 struct Quaternion;
 class SceneGraph;
@@ -84,16 +83,12 @@ public:
 	ControllerId				create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node);
 	void						destroy_controller(ControllerId id);
 
-	TriggerId					create_trigger(const Vector3& half_extents, const Vector3& pos, const Quaternion& rot);
-	void						destroy_trigger(TriggerId id);
-
 	JointId						create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1);
 	void						destroy_joint(JointId id);
 
 	Actor*						lookup_actor(StringId32 name);
 	Actor*						lookup_actor(ActorId id);
 	Controller*					lookup_controller(ControllerId id);
-	Trigger*					lookup_trigger(TriggerId id);
 
 	Vector3						gravity() const;
 	void						set_gravity(const Vector3& g);
@@ -113,12 +108,10 @@ public:
 
 	PoolAllocator				m_actors_pool;
 	PoolAllocator				m_controllers_pool;
-	PoolAllocator				m_triggers_pool;
 	PoolAllocator				m_joints_pool;
 
 	IdArray<CE_MAX_ACTORS, Actor*>	m_actors;
 	IdArray<CE_MAX_CONTROLLERS, Controller*> m_controllers;
-	IdArray<CE_MAX_TRIGGERS, Trigger*> m_triggers;
 	IdArray<CE_MAX_JOINTS, Joint*> m_joints;
 
 	// Events management
