@@ -35,7 +35,7 @@ namespace crown
 {
 
 //-------------------------------------------------------------------------
-Raycast::Raycast(PxScene* scene, EventStream& events, const char* callback, RaycastMode::Enum mode, RaycastFilter::Enum filter)
+Raycast::Raycast(PxScene* scene, EventStream& events, const char* callback, SceneQueryMode::Enum mode, SceneQueryFilter::Enum filter)
 	: m_scene(scene)
 	, m_buffer(m_hits, CE_MAX_RAY_INTERSECTIONS)
 	, m_events(events)
@@ -45,16 +45,16 @@ Raycast::Raycast(PxScene* scene, EventStream& events, const char* callback, Rayc
 {
 	switch (m_filter)
 	{
-		case RaycastFilter::BOTH: break;
-		case RaycastFilter::STATIC: m_fd.flags = PxQueryFlag::eSTATIC; break;
-		case RaycastFilter::DYNAMIC: m_fd.flags = PxQueryFlag::eDYNAMIC; break;
+		case SceneQueryFilter::BOTH: break;
+		case SceneQueryFilter::STATIC: m_fd.flags = PxQueryFlag::eSTATIC; break;
+		case SceneQueryFilter::DYNAMIC: m_fd.flags = PxQueryFlag::eDYNAMIC; break;
 	}
 
 	switch (m_mode)
 	{
-		case RaycastMode::CLOSEST: break;
-		case RaycastMode::ANY: m_fd.flags |= PxQueryFlag::eANY_HIT; break;
-		case RaycastMode::ALL: break;
+		case SceneQueryMode::CLOSEST: break;
+		case SceneQueryMode::ANY: m_fd.flags |= PxQueryFlag::eANY_HIT; break;
+		case SceneQueryMode::ALL: break;
 	}
 }
 

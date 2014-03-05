@@ -86,7 +86,7 @@ public:
 	JointId						create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1);
 	void						destroy_joint(JointId id);
 
-	RaycastId					create_raycast(const char* callback, RaycastMode::Enum mode, RaycastFilter::Enum filter);
+	RaycastId					create_raycast(const char* callback, SceneQueryMode::Enum mode, SceneQueryFilter::Enum filter);
 	void						destroy_raycast(RaycastId id);
 
 	Actor*						lookup_actor(StringId32 name);
@@ -99,7 +99,6 @@ public:
 
 	void						set_kinematic(ActorId id);
 	void						clear_kinematic(ActorId id);
-
 
 	void						update(float dt);
 

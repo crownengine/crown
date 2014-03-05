@@ -118,7 +118,7 @@ struct CollisionGroup
 };
 
 //-----------------------------------------------------------------------------
-struct RaycastMode
+struct SceneQueryMode
 {
 	enum Enum
 	{
@@ -129,7 +129,7 @@ struct RaycastMode
 };
 
 //-----------------------------------------------------------------------------
-struct RaycastFilter
+struct SceneQueryFilter
 {
 	enum Enum
 	{
@@ -170,7 +170,7 @@ struct RaycastEvent
 {
 	bool 				hit;
 	char* 				callback;
-	RaycastMode::Enum 	mode;
+	SceneQueryMode::Enum 	mode;
 	Vector3 			position;
 	float				distance;
 	Vector3 			normal;
