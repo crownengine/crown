@@ -35,6 +35,7 @@ typedef Id ActorId;
 typedef Id ControllerId;
 typedef Id TriggerId;
 typedef Id JointId;
+typedef Id RaycastId;
 
 struct Actor;
 

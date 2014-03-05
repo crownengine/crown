@@ -211,6 +211,7 @@ PhysicsWorld::PhysicsWorld()
 	, m_actors_pool(default_allocator(), CE_MAX_ACTORS, sizeof(Actor), CE_ALIGNOF(Actor))
 	, m_controllers_pool(default_allocator(), CE_MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
 	, m_joints_pool(default_allocator(), CE_MAX_JOINTS, sizeof(Joint), CE_ALIGNOF(Joint))
+	, m_raycasts_pool(default_allocator(), CE_MAX_RAYCASTS, sizeof(Raycast), CE_ALIGNOF(Raycast))
 	, m_events(default_allocator())
 	, m_callback(m_events)
 {
@@ -302,6 +303,22 @@ void PhysicsWorld::destroy_joint(JointId id)
 }
 
 //-----------------------------------------------------------------------------
+RaycastId PhysicsWorld::create_raycast(const char* callback, RaycastMode::Enum mode, RaycastFilter::Enum filter)
+{
+	Raycast* raycast = CE_NEW(m_raycasts_pool, Raycast)(m_scene, m_events, callback, mode, filter);
+	return m_raycasts.create(raycast);
+}
+
+//-----------------------------------------------------------------------------
+void PhysicsWorld::destroy_raycast(RaycastId id)
+{
+	CE_ASSERT(m_raycasts.has(id), "Raycast does not exists");
+
+	CE_DELETE(m_raycasts_pool, m_raycasts.lookup(id));
+	m_raycasts.destroy(id);
+}
+
+//-----------------------------------------------------------------------------
 Actor* PhysicsWorld::lookup_actor(StringId32 name)
 {
 	for (uint32_t i = 0; i < m_actors.size(); i++)
@@ -330,6 +347,13 @@ Controller* PhysicsWorld::lookup_controller(ControllerId id)
 }
 
 //-----------------------------------------------------------------------------
+Raycast* PhysicsWorld::lookup_raycast(RaycastId id)
+{
+	CE_ASSERT(m_raycasts.has(id), "Raycast does not exists");
+	return m_raycasts.lookup(id);
+}
+
+//-----------------------------------------------------------------------------
 Vector3 PhysicsWorld::gravity() const
 {
 	PxVec3 g = m_scene->getGravity();
@@ -354,12 +378,6 @@ void PhysicsWorld::clear_kinematic(ActorId id)
 {
 	Actor* actor = lookup_actor(id);
 	actor->clear_kinematic();
-}
-
-//-----------------------------------------------------------------------------
-Raycast* PhysicsWorld::make_raycast(const char* callback, RaycastMode::Enum mode, RaycastFilter::Enum filter)
-{
-	return CE_NEW(default_allocator(), Raycast)(m_scene, m_events, callback, mode, filter);
 }
 
 //-----------------------------------------------------------------------------

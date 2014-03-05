@@ -66,9 +66,9 @@ CE_EXPORT int physics_world_make_raycast(lua_State* L)
 	int mode = stack.get_int(3);
 	int filter = stack.get_int(4);
 
-	Raycast* raycast = world->make_raycast(callback, (RaycastMode::Enum) mode, (RaycastFilter::Enum) filter);
+	RaycastId raycast = world->create_raycast(callback, (RaycastMode::Enum) mode, (RaycastFilter::Enum) filter);
 
-	stack.push_raycast(raycast);
+	stack.push_raycast(world->lookup_raycast(raycast));
 	return 1;
 }
 

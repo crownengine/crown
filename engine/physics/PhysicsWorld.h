@@ -86,9 +86,13 @@ public:
 	JointId						create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1);
 	void						destroy_joint(JointId id);
 
+	RaycastId					create_raycast(const char* callback, RaycastMode::Enum mode, RaycastFilter::Enum filter);
+	void						destroy_raycast(RaycastId id);
+
 	Actor*						lookup_actor(StringId32 name);
 	Actor*						lookup_actor(ActorId id);
 	Controller*					lookup_controller(ControllerId id);
+	Raycast*					lookup_raycast(RaycastId id);
 
 	Vector3						gravity() const;
 	void						set_gravity(const Vector3& g);
@@ -96,7 +100,6 @@ public:
 	void						set_kinematic(ActorId id);
 	void						clear_kinematic(ActorId id);
 
-	Raycast*					make_raycast(const char* callback, RaycastMode::Enum mode, RaycastFilter::Enum filter);
 
 	void						update(float dt);
 
@@ -109,10 +112,12 @@ public:
 	PoolAllocator				m_actors_pool;
 	PoolAllocator				m_controllers_pool;
 	PoolAllocator				m_joints_pool;
+	PoolAllocator				m_raycasts_pool;
 
 	IdArray<CE_MAX_ACTORS, Actor*>	m_actors;
 	IdArray<CE_MAX_CONTROLLERS, Controller*> m_controllers;
 	IdArray<CE_MAX_JOINTS, Joint*> m_joints;
+	IdArray<CE_MAX_RAYCASTS, Raycast*> m_raycasts;
 
 	// Events management
 	EventStream m_events;
