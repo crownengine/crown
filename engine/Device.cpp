@@ -192,17 +192,8 @@ void Device::init()
 	start();
 
 	// Execute lua boot file
-	if (m_lua_environment->load_and_execute(m_boot_file))
-	{
-		if (!m_lua_environment->call_global("init", 0))
-		{
-			pause();
-		}
-	}
-	else
-	{
-		pause();
-	}
+	m_lua_environment->load_and_execute(m_boot_file);
+	m_lua_environment->call_global("init", 0);
 
 	Log::d("Total allocated size: %ld", m_allocator.allocated_size());
 }
@@ -405,10 +396,7 @@ void Device::frame()
 	{
 		m_resource_manager->poll_resource_loader();
 
-		if (!m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time()))
-		{
-			pause();
-		}
+		m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time());
 
 		m_renderer->frame();
 	}
