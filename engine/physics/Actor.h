@@ -71,7 +71,6 @@ struct Actor
 	void				set_kinematic();
 	void				clear_kinematic();
 	void				move(const Matrix4x4& pose);
-	Matrix4x4			get_kinematic_pose() const;
 
 	/// Returns whether the actor is static (i.e. immovable).
 	bool				is_static() const;
@@ -107,7 +106,8 @@ private:
 
 	void				update(const Matrix4x4& pose);
 	void				create_shapes(const PhysicsResource* res, const PhysicsConfigResource* config, PxPhysics* physics, PxCooking* cooking);
-	
+	Matrix4x4			get_kinematic_pose() const;
+
 public:
 
 	const PhysicsResource*			m_resource;
