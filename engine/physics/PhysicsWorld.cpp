@@ -64,6 +64,9 @@ using physx::PxPairFlag;
 using physx::PxFilterFlag;
 using physx::PxSceneLimits;
 using physx::PxVisualizationParameter;
+using physx::PxSphereGeometry;
+using physx::PxCapsuleGeometry;
+using physx::PxBoxGeometry;
 
 namespace crown
 {
@@ -208,6 +211,7 @@ namespace physics_system
 //-----------------------------------------------------------------------------
 PhysicsWorld::PhysicsWorld()
 	: m_scene(NULL)
+	, m_buffer(m_hits, 64)
 	, m_actors_pool(default_allocator(), CE_MAX_ACTORS, sizeof(Actor), CE_ALIGNOF(Actor))
 	, m_controllers_pool(default_allocator(), CE_MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
 	, m_joints_pool(default_allocator(), CE_MAX_JOINTS, sizeof(Joint), CE_ALIGNOF(Joint))
@@ -378,6 +382,54 @@ void PhysicsWorld::clear_kinematic(ActorId id)
 {
 	Actor* actor = lookup_actor(id);
 	actor->clear_kinematic();
+}
+
+//-----------------------------------------------------------------------------
+void PhysicsWorld::overlap_test(const char* callback, SceneQueryMode::Enum mode, SceneQueryFilter::Enum filter,
+								ShapeType::Enum type, const Vector3& pos, const Quaternion& rot, const Vector3& size)
+{
+	bool hit = false;
+	PxTransform transform(PxVec3(pos.x, pos.y, pos.x), PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w));
+
+	switch(type)
+	{
+		case ShapeType::SPHERE:	
+		{
+			PxSphereGeometry geometry(size.x);
+			hit = m_scene->overlap(geometry, transform, m_buffer);
+			break;
+		}
+		case ShapeType::CAPSULE:
+		{
+			PxCapsuleGeometry geometry(size.x, size.y);
+			hit = m_scene->overlap(geometry, transform, m_buffer);
+			break;
+		}
+		case ShapeType::BOX:
+		{
+			PxBoxGeometry geometry(size.x, size.y, size.z);
+			hit = m_scene->overlap(geometry, transform, m_buffer);
+			break;
+		}
+		default: CE_FATAL("Only spheres, capsules and boxs are supported in overlap test"); break;
+	}
+
+	for (uint32_t i = 0; i < m_buffer.getNbAnyHits(); i++)
+	{
+		PxOverlapHit oh = m_buffer.getAnyHit(i);
+
+		physics_world::SceneQueryEvent ev;
+
+		ev.type = SceneQueryType::OVERLAP;
+		ev.mode = mode;
+		ev.hit = hit;
+		ev.callback = callback;
+		ev.actor = (Actor*)(oh.actor->userData);
+
+		event_stream::write(m_events, physics_world::EventType::SCENE_QUERY, ev);
+
+		Log::i("callback: %s, type: %d, mode: %d, hit: %s", ev.callback, ev.type, ev.mode, ev.hit ? "true" : "false");
+	}
 }
 
 //-----------------------------------------------------------------------------

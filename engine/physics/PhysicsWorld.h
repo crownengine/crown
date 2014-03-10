@@ -42,6 +42,8 @@ using physx::PxControllerManager;
 using physx::PxScene;
 using physx::PxDefaultCpuDispatcher;
 using physx::PxActor;
+using physx::PxOverlapHit;
+using physx::PxOverlapBuffer;
 
 namespace crown
 {
@@ -62,6 +64,7 @@ struct PhysicsResource;
 struct PhysicsActor;
 struct Controller;
 struct Vector3;
+struct Matrix4x4;
 struct Actor;
 struct Joint;
 struct Quaternion;
@@ -100,6 +103,9 @@ public:
 	void						set_kinematic(ActorId id);
 	void						clear_kinematic(ActorId id);
 
+	void						overlap_test(const char* callback, SceneQueryMode::Enum mode, SceneQueryFilter::Enum filter,
+											ShapeType::Enum type, const Vector3& pos, const Quaternion& rot, const Vector3& size);
+
 	void						update(float dt);
 
 public:
@@ -107,6 +113,9 @@ public:
 	PxControllerManager*		m_controller_manager;
 	PxScene*					m_scene;
 	PxDefaultCpuDispatcher*		m_cpu_dispatcher;
+
+	PxOverlapHit 				m_hits[64]; // hardcoded	
+	PxOverlapBuffer 			m_buffer;
 
 	PoolAllocator				m_actors_pool;
 	PoolAllocator				m_controllers_pool;

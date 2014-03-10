@@ -118,6 +118,16 @@ struct CollisionGroup
 };
 
 //-----------------------------------------------------------------------------
+struct SceneQueryType
+{
+	enum Enum
+	{
+		RAYCAST,
+		OVERLAP
+	};
+};
+
+//-----------------------------------------------------------------------------
 struct SceneQueryMode
 {
 	enum Enum
@@ -148,7 +158,7 @@ struct EventType
 	{
 		COLLISION,
 		TRIGGER,
-		RAYCAST
+		SCENE_QUERY
 	};
 };
 
@@ -166,15 +176,16 @@ struct TriggerEvent
 };
 
 //-----------------------------------------------------------------------------
-struct RaycastEvent
+struct SceneQueryEvent
 {
-	bool 				hit;
-	char* 				callback;
-	SceneQueryMode::Enum 	mode;
-	Vector3 			position;
-	float				distance;
-	Vector3 			normal;
-	Actor*				actor;
+	const char*				callback;
+	SceneQueryType::Enum	type;
+	SceneQueryMode::Enum	mode;
+	bool					hit;
+	Vector3					position;
+	float					distance;
+	Vector3					normal;
+	Actor*					actor;
 };
 
 }

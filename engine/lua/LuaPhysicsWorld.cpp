@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PhysicsWorld.h"
 #include "Raycast.h"
 #include "Vector3.h"
+#include "Quaternion.h"
 
 namespace crown
 {
@@ -73,11 +74,32 @@ CE_EXPORT int physics_world_make_raycast(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int physics_world_overlap_test(lua_State* L)
+{
+	LuaStack stack(L);
+
+	PhysicsWorld* world = stack.get_physics_world(1);
+	const char* callback = stack.get_string(2);
+	int mode = stack.get_int(3);
+	int filter = stack.get_int(4);
+	int shape_type = stack.get_int(5);
+	Vector3 pos = stack.get_vector3(6);
+	Quaternion rot = stack.get_quaternion(7);
+	Vector3 size = stack.get_vector3(8);
+
+	world->overlap_test(callback, (SceneQueryMode::Enum) mode, (SceneQueryFilter::Enum) filter,
+						(ShapeType::Enum) shape_type, pos, rot, size);
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 void load_physics_world(LuaEnvironment& env)
 {
 	env.load_module_function("PhysicsWorld", "gravity",			physics_world_gravity);
 	env.load_module_function("PhysicsWorld", "set_gravity",		physics_world_set_gravity);
 	env.load_module_function("PhysicsWorld", "make_raycast",	physics_world_make_raycast);
+	env.load_module_function("PhysicsWorld", "overlap_test",	physics_world_overlap_test);
 }
 
 } // namespace crown

@@ -68,11 +68,12 @@ void Raycast::cast(const Vector3& from, const Vector3& dir, const float length)
 	{
 		PxRaycastHit rh = m_buffer.getAnyHit(i);
 
-		physics_world::RaycastEvent ev;
-		
+		physics_world::SceneQueryEvent ev;
+
+		ev.type = SceneQueryType::RAYCAST;
+		ev.mode = m_mode;	
 		ev.hit = hit;
-		string::strncpy(ev.callback, m_callback, string::strlen(m_callback)+1);
-		ev.mode = m_mode;
+		ev.callback = m_callback;
 		ev.position.x = rh.position.x;
 		ev.position.y = rh.position.y;
 		ev.position.z = rh.position.z;
@@ -82,12 +83,12 @@ void Raycast::cast(const Vector3& from, const Vector3& dir, const float length)
 		ev.normal.z = rh.normal.z;
 		ev.actor = (Actor*)(rh.actor->userData);
 
+		event_stream::write(m_events, physics_world::EventType::SCENE_QUERY, ev);
+
 		Log::i("callback: %s", ev.callback);
 		Log::i("position: (%f, %f, %f)", ev.position.x, ev.position.y, ev.position.z);
 		Log::i("normal: (%f, %f, %f)", ev.normal.x, ev.normal.y, ev.normal.z);
 		Log::i("distance: %f", ev.distance);
-
-		event_stream::write(m_events, physics_world::EventType::RAYCAST, ev);
 	}
 }
 
