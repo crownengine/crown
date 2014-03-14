@@ -60,7 +60,7 @@ struct Actor
 {
 	/// Constructor
 						Actor(const PhysicsResource* res, const PhysicsConfigResource* config, uint32_t index, PxPhysics* physics, PxCooking* cooking,
-								PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot);
+								PxScene* scene, SceneGraph& sg, int32_t node, Unit* unit, const Vector3& pos, const Quaternion& rot);
 	/// Destructor
 						~Actor();
 
@@ -153,6 +153,9 @@ struct Actor
 	/// Returns actor's name
 	StringId32			name();
 
+	/// Returns the unit that owns this actor
+	Unit*				unit();
+
 private:
 
 	void				update(const Matrix4x4& pose);
@@ -164,6 +167,8 @@ public:
 	const PhysicsResource*			m_resource;
 	const PhysicsConfigResource* 	m_config;
 	uint32_t						m_index;
+
+	Unit*							m_unit;
 
 	PxScene*						m_scene;
 	SceneGraph&						m_scene_graph;

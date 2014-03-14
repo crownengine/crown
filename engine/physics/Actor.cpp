@@ -78,10 +78,11 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 Actor::Actor(const PhysicsResource* res, const PhysicsConfigResource* config, uint32_t index, PxPhysics* physics, PxCooking* cooking,
-								PxScene* scene, SceneGraph& sg, int32_t node, const Vector3& pos, const Quaternion& rot)
+				PxScene* scene, SceneGraph& sg, int32_t node, Unit* unit, const Vector3& pos, const Quaternion& rot)
 	: m_resource(res)
 	, m_config(config)
 	, m_index(index)
+	, m_unit(unit)
 	, m_scene(scene)
 	, m_scene_graph(sg)
 	, m_node(node)
@@ -428,6 +429,12 @@ StringId32 Actor::name()
 {
 	const PhysicsActor& a = m_resource->actor(m_index);
 	return a.name;
+}
+
+//-----------------------------------------------------------------------------
+Unit* Actor::unit()
+{
+	return m_unit;
 }
 
 //-----------------------------------------------------------------------------
