@@ -47,9 +47,28 @@ CE_EXPORT int raycast_cast(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+CE_EXPORT int raycast_sync_cast(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Raycast* raycast = stack.get_raycast(1);
+	Vector3 from = stack.get_vector3(2);
+	Vector3 dir = stack.get_vector3(3);
+	float length = stack.get_float(4);
+	
+	Actor* actor = raycast->sync_cast(from, dir, length);
+
+	if (actor) stack.push_actor(actor);
+	else stack.push_nil();
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_raycast(LuaEnvironment& env)
 {
 	env.load_module_function("Raycast", "cast",	raycast_cast);
+	env.load_module_function("Raycast", "sync_cast", raycast_sync_cast);
 
 	env.load_module_enum("Raycast", "CLOSEST",	SceneQueryMode::CLOSEST);
 	env.load_module_enum("Raycast", "ANY",		SceneQueryMode::ANY);

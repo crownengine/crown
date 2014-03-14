@@ -296,6 +296,18 @@ CE_EXPORT int actor_wake_up(lua_State* L)
 	return 0;
 }
 
+CE_EXPORT int actor_unit(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Actor* actor = stack.get_actor(1);
+
+	Unit* unit = actor->unit();
+
+	stack.push_unit(unit);
+	return 1;
+}
+
 //-----------------------------------------------------------------------------
 void load_actor(LuaEnvironment& env)
 {
@@ -322,6 +334,7 @@ void load_actor(LuaEnvironment& env)
 	env.load_module_function("Actor", "push",					actor_push);
 	env.load_module_function("Actor", "is_sleeping",			actor_is_sleeping);
 	env.load_module_function("Actor", "wake_up",				actor_wake_up);
+	env.load_module_function("Actor", "unit",					actor_unit);
 }
 
 } // namespace crown
