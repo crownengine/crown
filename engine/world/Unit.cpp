@@ -205,7 +205,7 @@ void Unit::create_physics_objects()
 		{
 			const PhysicsActor& actor = pr->actor(i);
 
-			ActorId id = m_world.physics_world()->create_actor(pr, i, m_scene_graph, m_scene_graph.node(actor.node));
+			ActorId id = m_world.physics_world()->create_actor(pr, i, m_scene_graph, m_scene_graph.node(actor.node), this);
 			add_actor(actor.name, id);
 		}
 
