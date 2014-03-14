@@ -39,6 +39,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Actor.h"
 #include "ResourceManager.h"
 #include "Raycast.h"
+#include "Unit.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -258,10 +259,10 @@ PhysicsWorld::~PhysicsWorld()
 }
 
 //-----------------------------------------------------------------------------
-ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node)
+ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, Unit* unit)
 {
 	PhysicsConfigResource* config = (PhysicsConfigResource*) device()->resource_manager()->lookup("physics_config", "global");
-	Actor* actor = CE_NEW(m_actors_pool, Actor)(res, config, index, physics_system::s_physics, physics_system::s_cooking, m_scene, sg, node, Vector3::ZERO, Quaternion::IDENTITY);
+	Actor* actor = CE_NEW(m_actors_pool, Actor)(res, config, index, physics_system::s_physics, physics_system::s_cooking, m_scene, sg, node, unit, Vector3::ZERO, Quaternion::IDENTITY);
 	return m_actors.create(actor);
 }
 
@@ -429,6 +430,47 @@ void PhysicsWorld::overlap_test(const char* callback, SceneQueryMode::Enum mode,
 		event_stream::write(m_events, physics_world::EventType::SCENE_QUERY, ev);
 
 		Log::i("callback: %s, type: %d, mode: %d, hit: %s", ev.callback, ev.type, ev.mode, ev.hit ? "true" : "false");
+	}
+}
+
+//-----------------------------------------------------------------------------
+Actor* PhysicsWorld::sync_overlap_test(const char* callback, SceneQueryMode::Enum mode, SceneQueryFilter::Enum filter,
+									ShapeType::Enum type, const Vector3& pos, const Quaternion& rot, const Vector3& size)
+{
+	bool hit = false;
+	PxTransform transform(PxVec3(pos.x, pos.y, pos.x), PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w));
+
+	switch(type)
+	{
+		case ShapeType::SPHERE:	
+		{
+			PxSphereGeometry geometry(size.x);
+			hit = m_scene->overlap(geometry, transform, m_buffer);
+			break;
+		}
+		case ShapeType::CAPSULE:
+		{
+			PxCapsuleGeometry geometry(size.x, size.y);
+			hit = m_scene->overlap(geometry, transform, m_buffer);
+			break;
+		}
+		case ShapeType::BOX:
+		{
+			PxBoxGeometry geometry(size.x, size.y, size.z);
+			hit = m_scene->overlap(geometry, transform, m_buffer);
+			break;
+		}
+		default: CE_FATAL("Only spheres, capsules and boxs are supported in overlap test"); break;
+	}
+
+	if (hit)
+	{
+		PxOverlapHit oh = m_buffer.getAnyHit(0);
+		return (Actor*)(oh.actor->userData);
+	} 
+	else
+	{
+		return NULL;
 	}
 }
 

@@ -60,27 +60,30 @@ namespace physics_system
 } // namespace physics_system
 
 //-----------------------------------------------------------------------------
-struct PhysicsResource;
-struct PhysicsActor;
-struct Controller;
-struct Vector3;
-struct Matrix4x4;
-struct Actor;
-struct Joint;
-struct Quaternion;
 class SceneGraph;
 struct Actor;
+struct Actor;
+struct Controller;
+struct Joint;
+struct Matrix4x4;
+struct PhysicsActor;
+struct PhysicsResource;
+struct Quaternion;
 struct Raycast;
+struct Unit;
+struct Vector3;
 
 //-----------------------------------------------------------------------------
 class PhysicsWorld
 {
 public:
 
+	/// Constructor
 								PhysicsWorld();
+	/// Destroyer
 								~PhysicsWorld();
 
-	ActorId						create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node);
+	ActorId						create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, Unit* unit);
 	void						destroy_actor(ActorId id);
 
 	ControllerId				create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node);
@@ -103,7 +106,11 @@ public:
 	void						set_kinematic(ActorId id);
 	void						clear_kinematic(ActorId id);
 
+	/// Finds all actors in the physics world that are in a particular shape (supported: spheres, capsules and boxes)
 	void						overlap_test(const char* callback, SceneQueryMode::Enum mode, SceneQueryFilter::Enum filter,
+											ShapeType::Enum type, const Vector3& pos, const Quaternion& rot, const Vector3& size);
+
+	Actor*						sync_overlap_test(const char* callback, SceneQueryMode::Enum mode, SceneQueryFilter::Enum filter,
 											ShapeType::Enum type, const Vector3& pos, const Quaternion& rot, const Vector3& size);
 
 	void						update(float dt);
