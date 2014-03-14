@@ -44,6 +44,7 @@ namespace crown
 {
 
 struct Vector3;
+struct Actor;
 
 struct Raycast
 {
@@ -58,6 +59,8 @@ struct Raycast
 	/// was hit and the actor that was hit.
 	/// @a SceneQueryMode::ALL: as @a SceneQueryMode::CLOSEST, with more tuples
 	void	cast(const Vector3& from, const Vector3& dir, const float length);
+
+	Actor*	sync_cast(const Vector3& from, const Vector3& dir, const float length);
 
 private:
 

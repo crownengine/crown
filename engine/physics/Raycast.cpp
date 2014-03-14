@@ -92,4 +92,19 @@ void Raycast::cast(const Vector3& from, const Vector3& dir, const float length)
 	}
 }
 
+//-------------------------------------------------------------------------
+Actor* Raycast::sync_cast(const Vector3& from, const Vector3& dir, const float length)
+{
+	bool hit = m_scene->raycast(PxVec3(from.x, from.y, from.z), PxVec3(dir.x, dir.y, dir.z), length,
+								m_buffer, PxHitFlags(PxHitFlag::eDEFAULT), m_fd);
+
+	if (hit)
+	{
+		PxRaycastHit rh = m_buffer.getAnyHit(0);
+		return (Actor*)(rh.actor->userData);
+	}
+	else return NULL;
+}
+
+
 } // namespace crown
