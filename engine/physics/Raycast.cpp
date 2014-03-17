@@ -101,6 +101,11 @@ Actor* Raycast::sync_cast(const Vector3& from, const Vector3& dir, const float l
 	if (hit)
 	{
 		PxRaycastHit rh = m_buffer.getAnyHit(0);
+
+		Log::i("callback: %s", m_callback);
+		Log::i("position: (%f, %f, %f)", rh.position.x, rh.position.y, rh.position.z);
+		Log::i("distance: %f", rh.distance);
+
 		return (Actor*)(rh.actor->userData);
 	}
 	else return NULL;
