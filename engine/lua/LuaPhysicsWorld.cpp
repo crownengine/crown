@@ -27,8 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaEnvironment.h"
 #include "LuaStack.h"
 #include "PhysicsWorld.h"
-#include "Raycast.h"
-#include "Vector3.h"
 #include "Quaternion.h"
 
 namespace crown
@@ -121,11 +119,37 @@ CE_EXPORT int physics_world_sync_overlap_test(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_physics_world(LuaEnvironment& env)
 {
-	env.load_module_function("PhysicsWorld", "gravity",			physics_world_gravity);
-	env.load_module_function("PhysicsWorld", "set_gravity",		physics_world_set_gravity);
-	env.load_module_function("PhysicsWorld", "make_raycast",	physics_world_make_raycast);
-	env.load_module_function("PhysicsWorld", "overlap_test",	physics_world_overlap_test);
+	env.load_module_function("PhysicsWorld", "gravity",				physics_world_gravity);
+	env.load_module_function("PhysicsWorld", "set_gravity",			physics_world_set_gravity);
+	env.load_module_function("PhysicsWorld", "make_raycast",		physics_world_make_raycast);
+	env.load_module_function("PhysicsWorld", "overlap_test",		physics_world_overlap_test);
 	env.load_module_function("PhysicsWorld", "sync_overlap_test",	physics_world_sync_overlap_test);
+
+	// Actor types
+	env.load_module_enum("ActorType", "STATIC",						ActorType::STATIC);
+	env.load_module_enum("ActorType", "DYNAMIC_PHYSICAL",			ActorType::DYNAMIC_PHYSICAL);
+	env.load_module_enum("ActorType", "DYNAMIC_KINEMATIC",			ActorType::DYNAMIC_KINEMATIC);
+
+	// Shape types
+	env.load_module_enum("ShapeType", "SPHERE",						ShapeType::SPHERE);
+	env.load_module_enum("ShapeType", "CAPSULE",					ShapeType::CAPSULE);
+	env.load_module_enum("ShapeType", "BOX",						ShapeType::BOX);
+	env.load_module_enum("ShapeType", "PLANE",						ShapeType::PLANE);
+	env.load_module_enum("ShapeType", "CONVEX_MESH",				ShapeType::CONVEX_MESH);
+
+	// SceneQuery types
+	env.load_module_enum("SceneQueryType", "RAYCAST",				SceneQueryType::RAYCAST);
+	env.load_module_enum("SceneQueryType", "OVERLAP",				SceneQueryType::OVERLAP);
+
+	// SceneQuery modes
+	env.load_module_enum("SceneQueryMode", "CLOSEST",				SceneQueryMode::CLOSEST);
+	env.load_module_enum("SceneQueryMode", "ANY",					SceneQueryMode::ANY);
+	env.load_module_enum("SceneQueryMode", "ALL",					SceneQueryMode::ALL);
+
+	// SceneQuery filters
+	env.load_module_enum("SceneQueryFilter", "STATIC",				SceneQueryFilter::STATIC);
+	env.load_module_enum("SceneQueryFilter", "DYNAMIC",				SceneQueryFilter::DYNAMIC);
+	env.load_module_enum("SceneQueryFilter", "BOTH",				SceneQueryFilter::BOTH);
 }
 
 } // namespace crown

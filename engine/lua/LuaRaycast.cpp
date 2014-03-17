@@ -69,14 +69,6 @@ void load_raycast(LuaEnvironment& env)
 {
 	env.load_module_function("Raycast", "cast",	raycast_cast);
 	env.load_module_function("Raycast", "sync_cast", raycast_sync_cast);
-
-	env.load_module_enum("Raycast", "CLOSEST",	SceneQueryMode::CLOSEST);
-	env.load_module_enum("Raycast", "ANY",		SceneQueryMode::ANY);
-	env.load_module_enum("Raycast", "ALL",		SceneQueryMode::ALL);
-
-	env.load_module_enum("Raycast", "STATIC",	SceneQueryFilter::STATIC);
-	env.load_module_enum("Raycast", "DYNAMIC",	SceneQueryFilter::DYNAMIC);
-	env.load_module_enum("Raycast", "BOTH",		SceneQueryFilter::BOTH);
 }
 
 } // namespace crown
