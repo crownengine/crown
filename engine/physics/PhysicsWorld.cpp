@@ -390,7 +390,7 @@ void PhysicsWorld::overlap_test(const char* callback, SceneQueryMode::Enum mode,
 								ShapeType::Enum type, const Vector3& pos, const Quaternion& rot, const Vector3& size)
 {
 	bool hit = false;
-	PxTransform transform(PxVec3(pos.x, pos.y, pos.x), PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w));
+	PxTransform transform(PxVec3(pos.x, pos.y, pos.z), PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w));
 
 	switch(type)
 	{
@@ -438,7 +438,7 @@ Actor* PhysicsWorld::sync_overlap_test(const char* callback, SceneQueryMode::Enu
 									ShapeType::Enum type, const Vector3& pos, const Quaternion& rot, const Vector3& size)
 {
 	bool hit = false;
-	PxTransform transform(PxVec3(pos.x, pos.y, pos.x), PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w));
+	PxTransform transform(PxVec3(pos.x, pos.y, pos.z), PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w));
 
 	switch(type)
 	{

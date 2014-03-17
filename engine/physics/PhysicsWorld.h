@@ -121,7 +121,7 @@ public:
 	PxScene*					m_scene;
 	PxDefaultCpuDispatcher*		m_cpu_dispatcher;
 
-	PxOverlapHit 				m_hits[64]; // hardcoded	
+	PxOverlapHit 				m_hits[64]; // hardcoded
 	PxOverlapBuffer 			m_buffer;
 
 	PoolAllocator				m_actors_pool;
