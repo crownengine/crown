@@ -110,8 +110,20 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 }
 
 //-----------------------------------------------------------
-void LuaEnvironment::load_module_enum(const char* /*module*/, const char* name, uint32_t value)
+void LuaEnvironment::load_module_enum(const char* module, const char* name, uint32_t value)
 {
+	// Checks table existance
+	lua_pushstring(m_state, module);
+	lua_rawget(m_state, LUA_GLOBALSINDEX);
+	if (!lua_istable(m_state, -1)) // If not exixts
+	{
+		// Creates table
+		lua_newtable(m_state);
+		lua_setglobal(m_state, module);
+	}
+
+	// Adds field to table
+	lua_getglobal(m_state, module);
 	lua_pushinteger(m_state, value);
 	lua_setfield(m_state, -2, name);
 }
