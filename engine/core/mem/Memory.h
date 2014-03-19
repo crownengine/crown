@@ -65,32 +65,5 @@ inline void* align_top(void* p, size_t align)
 	return (void*) ptr;
 }
 
-// /// Dumps the memory content pointed by @a p
-// inline void dump(void* p, size_t size, size_t word_size)
-// {
-// 	uint8_t* mem = (uint8_t*) p;
-
-// 	for (size_t i = 0; i < size; i++, mem++)
-// 	{
-// 		if (i % word_size == 0)
-// 		{
-// 			os::printf("\n");
-// 			os::printf("[.. %.4X] ", (size_t)mem);
-// 		}
-
-// 		os::printf("%.2X ", *mem);
-// 	}
-
-// 	os::printf("\n");
-// }
-
-#ifdef _MSC_VER
-	#define CE_ALIGNOF(x) __alignof(x)
-#elif defined __GNUG__
-	#define CE_ALIGNOF(x) __alignof__(x)
-#else
-	#error "Compiler not supported."
-#endif
-
 } // namespace memory
 } // namespace crown

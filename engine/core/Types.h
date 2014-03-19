@@ -28,16 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cstddef>
 #include <stdint.h>
-
 #include "Config.h"
-
-#ifdef WINDOWS
-	#define CE_EXPORT __declspec(dllexport)
-	#define CE_INLINE __inline
-#else
-	#define CE_EXPORT __attribute__ ((visibility("default")))
-	#define CE_INLINE inline
-#endif
 
 typedef uint32_t StringId32;
 typedef uint64_t StringId64;
