@@ -296,6 +296,7 @@ CE_EXPORT int actor_wake_up(lua_State* L)
 	return 0;
 }
 
+//-----------------------------------------------------------------------------
 CE_EXPORT int actor_unit(lua_State* L)
 {
 	LuaStack stack(L);
@@ -304,7 +305,7 @@ CE_EXPORT int actor_unit(lua_State* L)
 
 	Unit* unit = actor->unit();
 
-	stack.push_unit(unit);
+	unit == NULL ? stack.push_nil() : stack.push_unit(unit);
 	return 1;
 }
 
