@@ -396,7 +396,7 @@ Id Unit::find_component_by_index(StringId32 name, uint32_t size, Component* arra
 //-----------------------------------------------------------------------------
 void Unit::add_camera(StringId32 name, CameraId camera)
 {
-	CE_ASSERT(m_num_cameras < MAX_CAMERA_COMPONENTS, "Max camera number reached");
+	CE_ASSERT(m_num_cameras < CE_MAX_CAMERA_COMPONENTS, "Max camera number reached");
 
 	add_component(name, camera, m_num_cameras, m_cameras);
 }
@@ -404,7 +404,7 @@ void Unit::add_camera(StringId32 name, CameraId camera)
 //-----------------------------------------------------------------------------
 void Unit::add_mesh(StringId32 name, MeshId mesh)
 {
-	CE_ASSERT(m_num_meshes < MAX_MESH_COMPONENTS, "Max mesh number reached");
+	CE_ASSERT(m_num_meshes < CE_MAX_MESH_COMPONENTS, "Max mesh number reached");
 
 	add_component(name, mesh, m_num_meshes, m_meshes);
 }
@@ -412,7 +412,7 @@ void Unit::add_mesh(StringId32 name, MeshId mesh)
 //-----------------------------------------------------------------------------
 void Unit::add_sprite(StringId32 name, SpriteId sprite)
 {
-	CE_ASSERT(m_num_sprites < MAX_SPRITE_COMPONENTS, "Max sprite number reached");
+	CE_ASSERT(m_num_sprites < CE_MAX_SPRITE_COMPONENTS, "Max sprite number reached");
 
 	add_component(name, sprite, m_num_sprites, m_sprites);
 }
@@ -420,7 +420,7 @@ void Unit::add_sprite(StringId32 name, SpriteId sprite)
 //-----------------------------------------------------------------------------
 void Unit::add_actor(StringId32 name, ActorId actor)
 {
-	CE_ASSERT(m_num_actors < MAX_ACTOR_COMPONENTS, "Max actor number reached");
+	CE_ASSERT(m_num_actors < CE_MAX_ACTOR_COMPONENTS, "Max actor number reached");
 
 	add_component(name, actor, m_num_actors, m_actors);
 }
@@ -428,7 +428,7 @@ void Unit::add_actor(StringId32 name, ActorId actor)
 //-----------------------------------------------------------------------------
 void Unit::add_material(StringId32 name, MaterialId material)
 {
-	CE_ASSERT(m_num_materials < MAX_MATERIAL_COMPONENTS, "Max material number reached");
+	CE_ASSERT(m_num_materials < CE_MAX_MATERIAL_COMPONENTS, "Max material number reached");
 
 	add_component(name, material, m_num_materials, m_materials);
 }

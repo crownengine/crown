@@ -36,6 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PhysicsTypes.h"
 #include "WorldTypes.h"
 #include "RenderWorldTypes.h"
+#include "Config.h"
 
 namespace crown
 {
@@ -71,12 +72,6 @@ struct Controller;
 struct Mesh;
 struct Sprite;
 struct UnitResource;
-
-#define MAX_CAMERA_COMPONENTS 16
-#define MAX_MESH_COMPONENTS 16
-#define MAX_SPRITE_COMPONENTS 16
-#define MAX_ACTOR_COMPONENTS 16
-#define MAX_MATERIAL_COMPONENTS 16
 
 struct Unit
 {
@@ -157,19 +152,19 @@ public:
 	UnitId				m_id;
 
 	uint32_t			m_num_cameras;
-	Component			m_cameras[MAX_CAMERA_COMPONENTS];
+	Component			m_cameras[CE_MAX_CAMERA_COMPONENTS];
 
 	uint32_t			m_num_meshes;
-	Component			m_meshes[MAX_MESH_COMPONENTS];
+	Component			m_meshes[CE_MAX_MESH_COMPONENTS];
 
 	uint32_t			m_num_sprites;
-	Component			m_sprites[MAX_SPRITE_COMPONENTS];
+	Component			m_sprites[CE_MAX_SPRITE_COMPONENTS];
 
 	uint32_t			m_num_actors;
-	Component 			m_actors[MAX_ACTOR_COMPONENTS];
+	Component 			m_actors[CE_MAX_ACTOR_COMPONENTS];
 
 	uint32_t			m_num_materials;
-	Component			m_materials[MAX_MATERIAL_COMPONENTS];
+	Component			m_materials[CE_MAX_MATERIAL_COMPONENTS];
 
 	Component			m_controller;
 };
