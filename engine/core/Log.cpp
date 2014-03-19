@@ -72,11 +72,11 @@ void Log::log_message(LogSeverity::Enum severity, const char* message, ::va_list
 	}
 	va_end(arg_copy);
 
-	// Log to remote clients
-	if (device()->console() != NULL && string::strlen(buf) > 0)
-	{
-		device()->console()->log_to_all(buf, severity);
-	}
+	// // Log to remote clients
+	// if (device()->console() != NULL && string::strlen(buf) > 0)
+	// {
+	// 	device()->console()->log_to_all(buf, severity);
+	// }
 }
 
 //-----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ void Log::d(const char* message, ...)
 {
 	va_list args;
 	va_start (args, message);
-	log_message(LogSeverity::DEBUG, message, args);
+	Log::d1(message, args);
 	va_end (args);
 }
 
@@ -93,7 +93,7 @@ void Log::e(const char* message, ...)
 {
 	va_list args;
 	va_start (args, message);
-	log_message(LogSeverity::ERROR, message, args);
+	Log::e1(message, args);
 	va_end (args);
 }
 
@@ -102,7 +102,7 @@ void Log::w(const char* message, ...)
 {
 	va_list args;
 	va_start (args, message);
-	log_message(LogSeverity::WARN, message, args);
+	Log::w1(message, args);
 	va_end (args);
 }
 
@@ -111,8 +111,44 @@ void Log::i(const char* message, ...)
 {
 	va_list args;
 	va_start (args, message);
-	log_message(LogSeverity::INFO, message, args);
+	Log::i1(message, args);
 	va_end (args);
+}
+
+//-----------------------------------------------------------------------------
+void Log::d1(const char* message, ::va_list args)
+{
+	va_list arg_copy;
+	__va_copy(arg_copy, args);
+	log_message(LogSeverity::DEBUG, message, arg_copy);
+	va_end(arg_copy);
+}
+
+//-----------------------------------------------------------------------------
+void Log::e1(const char* message, ::va_list args)
+{
+	va_list arg_copy;
+	__va_copy(arg_copy, args);
+	log_message(LogSeverity::ERROR, message, arg_copy);
+	va_end(arg_copy);
+}
+
+//-----------------------------------------------------------------------------
+void Log::w1(const char* message, ::va_list args)
+{
+	va_list arg_copy;
+	__va_copy(arg_copy, args);
+	log_message(LogSeverity::WARN, message, arg_copy);
+	va_end(arg_copy);
+}
+
+//-----------------------------------------------------------------------------
+void Log::i1(const char* message, ::va_list args)
+{
+	va_list arg_copy;
+	__va_copy(arg_copy, args);
+	log_message(LogSeverity::INFO, message, arg_copy);
+	va_end(arg_copy);
 }
 
 } // namespace crown

@@ -65,8 +65,13 @@ public:
 	static void			e(const char* message, ...);
 	static void			w(const char* message, ...);
 	static void			i(const char* message, ...);
+	static void			d1(const char* message, ::va_list args);
+	static void			e1(const char* message, ::va_list args);
+	static void			w1(const char* message, ::va_list args);
+	static void			i1(const char* message, ::va_list args);
 
 private:
+
 
 	static LogSeverity::Enum m_threshold;
 };
