@@ -100,15 +100,17 @@ set (HEADERS
 )
 
 set (CORE_SRC
-	core/Log.cpp
 	core/Args.cpp
+	core/Log.cpp
 )
 
 set (CORE_HEADERS
-	core/Assert.h
-	core/Types.h
 	core/Args.h
+	core/Assert.h
 	core/Log.h
+	core/Macros.h
+	core/Profiler.h
+	core/Types.h
 )
 
 set (BV_SRC
