@@ -31,14 +31,14 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Args::Args(int argc, char** argv, const char* shortopts, const ArgsOption* longopts) :
-	m_argc(argc),
-	m_argv(argv),
-	m_shortopts(shortopts),
-	m_longopts(longopts),
-	m_optind(1),				// Do not consider argv[0]
-	m_scope(argc),
-	m_optarg(NULL)
+Args::Args(int argc, char** argv, const char* shortopts, const ArgsOption* longopts)
+	: m_argc(argc)
+	, m_argv(argv)
+	, m_shortopts(shortopts)
+	, m_longopts(longopts)
+	, m_optind(1)				// Do not consider argv[0]
+	, m_scope(argc)
+	, m_optarg(NULL)
 {
 	CE_ASSERT(argv != NULL, "Argument vector must be != NULL");
 	CE_ASSERT(shortopts != NULL, "Short argument list must be != NULL");
