@@ -1,6 +1,15 @@
 crown - Lightweight cross-platform game engine that tries to Keep It Simple.
 =====
 
+##What is it?
+
+Lightweight cross-platform game engine.
+You can write games in Lua and/or C++ for Linux, Android and Windows with it.
+
+##Y u do dis, there's UE4 for 19$ a month.
+
+Because it's fun.
+
 ##Dependencies
 
 Crown Engine depends on a number of third-party libraries.
