@@ -1,4 +1,4 @@
-crown - Lightweight cross-platform game engine that tries to Keep It Simple.
+crown - Lightweight, cross-platform game engine that tries to Keep It Simple.
 =====
 
 ##What is it?
