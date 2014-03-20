@@ -105,7 +105,7 @@ Android:
 
 ##Examples
 
-When running a sample you current directory has to be <install-path>/bin.
+When running a sample you current directory has to be `<install-path>/bin`.
 To run a sample:
 
 	$ ./crown-linux-debug-64 --source-dir <full-sample-path> --bundle-dir <full-destination-path> --compile --continue
