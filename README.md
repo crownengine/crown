@@ -45,9 +45,7 @@ Linux:
 
 	$ mkdir build
 	$ cd build
-	$ cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/your/install/dir -DCROWN_BUILD=<build>
-		   (read below for valid build strings)
-	$ make
+	$ cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/your/install/dir -DCROWN_BUILD=<read-below>
 	$ make install
 
 'CROWN_BUILD' valid values are:
@@ -64,7 +62,7 @@ Windows:
 	Create a folder named 'build'
 	Open a terminal and:
 	cd build
-	cmake.exe .. -DCMAKE_INSTALL_PREFIX=C:/your/install/dir -DCROWN_BUILD=<build>
+	cmake.exe .. -DCMAKE_INSTALL_PREFIX=C:/your/install/dir -DCROWN_BUILD=<read-below>
 	Open the generated Visual Studio solution and build/install from there
 
 'CROWN_BUILD' valid values are:
