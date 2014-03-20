@@ -102,3 +102,15 @@ Android:
 * Android 2.3.3+
 * ARMv7 CPU
 * OpenGL|ES 2 compatible GPU
+
+##Examples
+
+When running a sample you current directory has to be <install-path>/bin.
+To run a sample:
+
+	$ ./crown-linux-debug-64 --source-dir <full-sample-path> --bundle-dir <full-destination-path> --compile --continue
+
+###[01.hello-world](https://github.com/taylor001/crown/tree/master/samples/01.hello-world)
+
+Engine initialization and shutdown.
+
