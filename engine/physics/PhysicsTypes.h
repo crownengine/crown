@@ -129,16 +129,6 @@ struct CollisionType
 };
 
 //-----------------------------------------------------------------------------
-struct SceneQueryType
-{
-	enum Enum
-	{
-		RAYCAST,
-		OVERLAP
-	};
-};
-
-//-----------------------------------------------------------------------------
 struct CollisionMode
 {
 	enum Enum

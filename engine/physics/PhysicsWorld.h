@@ -108,7 +108,7 @@ public:
 
 	/// Finds all actors in the physics world that are in a particular shape (supported: spheres, capsules and boxes)
 	void						overlap_test(const char* callback, CollisionType::Enum filter, ShapeType::Enum type,
-											const Vector3& pos, const Quaternion& rot, const Vector3& size, List<Actor*> actors);
+											const Vector3& pos, const Quaternion& rot, const Vector3& size, List<Actor*>& actors);
 
 	void						update(float dt);
 

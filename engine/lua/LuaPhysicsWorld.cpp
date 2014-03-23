@@ -91,7 +91,7 @@ CE_EXPORT int physics_world_overlap_test(lua_State* L)
 	stack.push_table();
 	for (uint32_t i = 0; i < actors.size(); i++)
 	{
-		stack.push_key_begin(i);
+		stack.push_key_begin(i+1);
 		stack.push_actor(actors[i]);
 		stack.push_key_end();
 	}
@@ -118,10 +118,6 @@ void load_physics_world(LuaEnvironment& env)
 	env.load_module_enum("ShapeType", "BOX",						ShapeType::BOX);
 	env.load_module_enum("ShapeType", "PLANE",						ShapeType::PLANE);
 	env.load_module_enum("ShapeType", "CONVEX_MESH",				ShapeType::CONVEX_MESH);
-
-	// SceneQuery types
-	env.load_module_enum("SceneQueryType", "RAYCAST",				SceneQueryType::RAYCAST);
-	env.load_module_enum("SceneQueryType", "OVERLAP",				SceneQueryType::OVERLAP);
 
 	// SceneQuery modes
 	env.load_module_enum("CollisionMode", "CLOSEST",				CollisionMode::CLOSEST);
