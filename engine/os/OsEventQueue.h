@@ -35,6 +35,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// Single Producer Single Consumer event queue.
+/// Used only to pass events from os thread to main thread.
 struct OsEventQueue
 {
 	//-----------------------------------------------------------------------------
