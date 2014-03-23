@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "wglext.h"
 
 #include "Types.h"
+#include "Macros.h"
 
 namespace crown
 {

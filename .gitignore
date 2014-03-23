@@ -27,3 +27,7 @@ test-results
 /engine/third/ARMv7/physx/lib
 /engine/third/x86_64/physx/include
 /engine/third/x86_64/physx/lib
+/engine/third/win32/physx
+/engine/third/win32/zlib
+/engine/third/win32/freetype/include
+/engine/third/win32/freetype/lib

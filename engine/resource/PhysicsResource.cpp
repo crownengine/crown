@@ -491,7 +491,7 @@ namespace physics_config_resource
 			pa2.flags = 0;
 			if (!dynamic.is_nil())
 			{
-				pa2.flags |= dynamic.to_bool() ? : 0;
+				pa2.flags |= dynamic.to_bool() ? 1 : 0;
 			}
 			if (!kinematic.is_nil())
 			{
