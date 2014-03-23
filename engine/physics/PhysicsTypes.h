@@ -139,7 +139,7 @@ struct SceneQueryMode
 };
 
 //-----------------------------------------------------------------------------
-struct SceneQueryFilter
+struct CollisionType
 {
 	enum Enum
 	{

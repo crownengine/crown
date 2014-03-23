@@ -49,7 +49,7 @@ struct Actor;
 struct Raycast
 {
 	/// Constructor
-			Raycast(PxScene* scene, EventStream& events, const char* callback, SceneQueryMode::Enum mode, SceneQueryFilter::Enum filter);
+			Raycast(PxScene* scene, EventStream& events, const char* callback, SceneQueryMode::Enum mode, CollisionType::Enum filter);
 
 	/// Performs a raycast against objects in the scene. The ray is casted from position @a from, has direction @a dir and is long @a length
 	/// If any actor is hit along the ray, @a EventStream is filled according to @a mode previously specified and callback will be called for processing.
@@ -73,7 +73,7 @@ private:
 	const char*				m_callback;
 
 	SceneQueryMode::Enum		m_mode;
-	SceneQueryFilter::Enum		m_filter;
+	CollisionType::Enum		m_filter;
 };
 
 } // namespace crown
