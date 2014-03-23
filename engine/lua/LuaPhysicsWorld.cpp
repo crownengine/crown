@@ -65,7 +65,7 @@ CE_EXPORT int physics_world_make_raycast(lua_State* L)
 	int mode = stack.get_int(3);
 	int filter = stack.get_int(4);
 
-	RaycastId raycast = world->create_raycast(callback, (SceneQueryMode::Enum) mode, (CollisionType::Enum) filter);
+	RaycastId raycast = world->create_raycast(callback, (CollisionMode::Enum) mode, (CollisionType::Enum) filter);
 
 	stack.push_raycast(world->lookup_raycast(raycast));
 	return 1;
@@ -124,9 +124,9 @@ void load_physics_world(LuaEnvironment& env)
 	env.load_module_enum("SceneQueryType", "OVERLAP",				SceneQueryType::OVERLAP);
 
 	// SceneQuery modes
-	env.load_module_enum("SceneQueryMode", "CLOSEST",				SceneQueryMode::CLOSEST);
-	env.load_module_enum("SceneQueryMode", "ANY",					SceneQueryMode::ANY);
-	env.load_module_enum("SceneQueryMode", "ALL",					SceneQueryMode::ALL);
+	env.load_module_enum("CollisionMode", "CLOSEST",				CollisionMode::CLOSEST);
+	env.load_module_enum("CollisionMode", "ANY",					CollisionMode::ANY);
+	env.load_module_enum("CollisionMode", "ALL",					CollisionMode::ALL);
 
 	// SceneQuery filters
 	env.load_module_enum("CollisionType", "STATIC",					CollisionType::STATIC);

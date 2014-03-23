@@ -118,6 +118,17 @@ struct CollisionGroup
 };
 
 //-----------------------------------------------------------------------------
+struct CollisionType
+{
+	enum Enum
+	{
+		STATIC,
+		DYNAMIC,
+		BOTH
+	};
+};
+
+//-----------------------------------------------------------------------------
 struct SceneQueryType
 {
 	enum Enum
@@ -128,24 +139,13 @@ struct SceneQueryType
 };
 
 //-----------------------------------------------------------------------------
-struct SceneQueryMode
+struct CollisionMode
 {
 	enum Enum
 	{
 		CLOSEST,
 		ANY,
 		ALL
-	};
-};
-
-//-----------------------------------------------------------------------------
-struct CollisionType
-{
-	enum Enum
-	{
-		STATIC,
-		DYNAMIC,
-		BOTH
 	};
 };
 
@@ -180,7 +180,7 @@ struct SceneQueryEvent
 {
 	const char*				callback;
 	SceneQueryType::Enum	type;
-	SceneQueryMode::Enum	mode;
+	CollisionMode::Enum	mode;
 	bool					hit;
 	Vector3					position;
 	float					distance;

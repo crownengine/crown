@@ -308,7 +308,7 @@ void PhysicsWorld::destroy_joint(JointId id)
 }
 
 //-----------------------------------------------------------------------------
-RaycastId PhysicsWorld::create_raycast(const char* callback, SceneQueryMode::Enum mode, CollisionType::Enum filter)
+RaycastId PhysicsWorld::create_raycast(const char* callback, CollisionMode::Enum mode, CollisionType::Enum filter)
 {
 	Raycast* raycast = CE_NEW(m_raycasts_pool, Raycast)(m_scene, m_events, callback, mode, filter);
 	return m_raycasts.create(raycast);

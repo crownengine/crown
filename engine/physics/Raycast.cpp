@@ -35,7 +35,7 @@ namespace crown
 {
 
 //-------------------------------------------------------------------------
-Raycast::Raycast(PxScene* scene, EventStream& events, const char* callback, SceneQueryMode::Enum mode, CollisionType::Enum filter)
+Raycast::Raycast(PxScene* scene, EventStream& events, const char* callback, CollisionMode::Enum mode, CollisionType::Enum filter)
 	: m_scene(scene)
 	, m_buffer(m_hits, CE_MAX_RAY_INTERSECTIONS)
 	, m_events(events)
@@ -52,9 +52,9 @@ Raycast::Raycast(PxScene* scene, EventStream& events, const char* callback, Scen
 
 	switch (m_mode)
 	{
-		case SceneQueryMode::CLOSEST: break;
-		case SceneQueryMode::ANY: m_fd.flags |= PxQueryFlag::eANY_HIT; break;
-		case SceneQueryMode::ALL: break;
+		case CollisionMode::CLOSEST: break;
+		case CollisionMode::ANY: m_fd.flags |= PxQueryFlag::eANY_HIT; break;
+		case CollisionMode::ALL: break;
 	}
 }
 

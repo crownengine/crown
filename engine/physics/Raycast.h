@@ -49,15 +49,15 @@ struct Actor;
 struct Raycast
 {
 	/// Constructor
-			Raycast(PxScene* scene, EventStream& events, const char* callback, SceneQueryMode::Enum mode, CollisionType::Enum filter);
+			Raycast(PxScene* scene, EventStream& events, const char* callback, CollisionMode::Enum mode, CollisionType::Enum filter);
 
 	/// Performs a raycast against objects in the scene. The ray is casted from position @a from, has direction @a dir and is long @a length
 	/// If any actor is hit along the ray, @a EventStream is filled according to @a mode previously specified and callback will be called for processing.
-	/// @a SceneQueryMode::ANY: the callback is called with just true or false depending on whether the ray hit anything or not.
-	/// @a SceneQueryMode::CLOSEST: the first argument will tell if there was a hit or not, as before. 
+	/// @a CollisionMode::ANY: the callback is called with just true or false depending on whether the ray hit anything or not.
+	/// @a CollisionMode::CLOSEST: the first argument will tell if there was a hit or not, as before. 
 	/// If there was a hit, the callback will also be called with the position of the hit, the distance from the origin, the normal of the surface that 
 	/// was hit and the actor that was hit.
-	/// @a SceneQueryMode::ALL: as @a SceneQueryMode::CLOSEST, with more tuples
+	/// @a CollisionMode::ALL: as @a CollisionMode::CLOSEST, with more tuples
 	void	cast(const Vector3& from, const Vector3& dir, const float length);
 
 	Actor*	sync_cast(const Vector3& from, const Vector3& dir, const float length);
@@ -72,7 +72,7 @@ private:
 	EventStream&			m_events;
 	const char*				m_callback;
 
-	SceneQueryMode::Enum		m_mode;
+	CollisionMode::Enum		m_mode;
 	CollisionType::Enum		m_filter;
 };
 
