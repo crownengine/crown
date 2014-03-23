@@ -65,7 +65,7 @@ CE_EXPORT int physics_world_make_raycast(lua_State* L)
 	int mode = stack.get_int(3);
 	int filter = stack.get_int(4);
 
-	RaycastId raycast = world->create_raycast(callback, (SceneQueryMode::Enum) mode, (SceneQueryFilter::Enum) filter);
+	RaycastId raycast = world->create_raycast(callback, (CollisionMode::Enum) mode, (CollisionType::Enum) filter);
 
 	stack.push_raycast(world->lookup_raycast(raycast));
 	return 1;
@@ -78,41 +78,24 @@ CE_EXPORT int physics_world_overlap_test(lua_State* L)
 
 	PhysicsWorld* world = stack.get_physics_world(1);
 	const char* callback = stack.get_string(2);
-	int mode = stack.get_int(3);
-	int filter = stack.get_int(4);
-	int shape_type = stack.get_int(5);
-	Vector3 pos = stack.get_vector3(6);
-	Quaternion rot = stack.get_quaternion(7);
-	Vector3 size = stack.get_vector3(8);
+	CollisionType::Enum filter = (CollisionType::Enum) stack.get_int(3);
+	ShapeType::Enum shape_type = (ShapeType::Enum) stack.get_int(4);
+	Vector3 pos = stack.get_vector3(5);
+	Quaternion rot = stack.get_quaternion(6);
+	Vector3 size = stack.get_vector3(7);
 
-	world->overlap_test(callback, (SceneQueryMode::Enum) mode, (SceneQueryFilter::Enum) filter,
-						(ShapeType::Enum) shape_type, pos, rot, size);
+	List<Actor*> actors(default_allocator());
 
-	return 0;
-}
+	world->overlap_test(callback, filter, shape_type, pos, rot, size, actors);
 
-//-----------------------------------------------------------------------------
-CE_EXPORT int physics_world_sync_overlap_test(lua_State* L)
-{
-	LuaStack stack(L);
+	stack.push_table();
+	for (uint32_t i = 0; i < actors.size(); i++)
+	{
+		stack.push_key_begin(i+1);
+		stack.push_actor(actors[i]);
+		stack.push_key_end();
+	}
 
-	PhysicsWorld* world = stack.get_physics_world(1);
-	const char* callback = stack.get_string(2);
-	int mode = stack.get_int(3);
-	int filter = stack.get_int(4);
-	int shape_type = stack.get_int(5);
-	Vector3 pos = stack.get_vector3(6);
-	Quaternion rot = stack.get_quaternion(7);
-	Vector3 size = stack.get_vector3(8);
-
-	Actor* actor = world->sync_overlap_test(callback, (SceneQueryMode::Enum) mode, (SceneQueryFilter::Enum) filter,
-										(ShapeType::Enum) shape_type, pos, rot, size);
-
-	if (actor)
-		stack.push_actor(actor);
-	else
-		stack.push_nil();
-	
 	return 1;
 }
 
@@ -123,7 +106,6 @@ void load_physics_world(LuaEnvironment& env)
 	env.load_module_function("PhysicsWorld", "set_gravity",			physics_world_set_gravity);
 	env.load_module_function("PhysicsWorld", "make_raycast",		physics_world_make_raycast);
 	env.load_module_function("PhysicsWorld", "overlap_test",		physics_world_overlap_test);
-	env.load_module_function("PhysicsWorld", "sync_overlap_test",	physics_world_sync_overlap_test);
 
 	// Actor types
 	env.load_module_enum("ActorType", "STATIC",						ActorType::STATIC);
@@ -137,19 +119,15 @@ void load_physics_world(LuaEnvironment& env)
 	env.load_module_enum("ShapeType", "PLANE",						ShapeType::PLANE);
 	env.load_module_enum("ShapeType", "CONVEX_MESH",				ShapeType::CONVEX_MESH);
 
-	// SceneQuery types
-	env.load_module_enum("SceneQueryType", "RAYCAST",				SceneQueryType::RAYCAST);
-	env.load_module_enum("SceneQueryType", "OVERLAP",				SceneQueryType::OVERLAP);
-
 	// SceneQuery modes
-	env.load_module_enum("SceneQueryMode", "CLOSEST",				SceneQueryMode::CLOSEST);
-	env.load_module_enum("SceneQueryMode", "ANY",					SceneQueryMode::ANY);
-	env.load_module_enum("SceneQueryMode", "ALL",					SceneQueryMode::ALL);
+	env.load_module_enum("CollisionMode", "CLOSEST",				CollisionMode::CLOSEST);
+	env.load_module_enum("CollisionMode", "ANY",					CollisionMode::ANY);
+	env.load_module_enum("CollisionMode", "ALL",					CollisionMode::ALL);
 
 	// SceneQuery filters
-	env.load_module_enum("SceneQueryFilter", "STATIC",				SceneQueryFilter::STATIC);
-	env.load_module_enum("SceneQueryFilter", "DYNAMIC",				SceneQueryFilter::DYNAMIC);
-	env.load_module_enum("SceneQueryFilter", "BOTH",				SceneQueryFilter::BOTH);
+	env.load_module_enum("CollisionType", "STATIC",					CollisionType::STATIC);
+	env.load_module_enum("CollisionType", "DYNAMIC",				CollisionType::DYNAMIC);
+	env.load_module_enum("CollisionType", "BOTH",					CollisionType::BOTH);
 }
 
 } // namespace crown

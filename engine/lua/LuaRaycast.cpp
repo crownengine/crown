@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
 #include "Raycast.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -41,25 +42,50 @@ CE_EXPORT int raycast_cast(lua_State* L)
 	Vector3 dir = stack.get_vector3(3);
 	float length = stack.get_float(4);
 	
-	raycast->cast(from, dir, length);
+	List<RaycastHit> hits(default_allocator());
 
-	return 0;
-}
+	raycast->cast(from, dir, length, hits);
 
-//-----------------------------------------------------------------------------
-CE_EXPORT int raycast_sync_cast(lua_State* L)
-{
-	LuaStack stack(L);
+	switch(raycast->mode())
+	{
+		case CollisionMode::CLOSEST:
+		{
+			bool hit = hits.size() > 0 ? true : false;
+			stack.push_bool(hit);
+			break;
+		}
+		case CollisionMode::ANY:
+		{
+			bool hit = hits.size() > 0 ? true : false;
+			stack.push_bool(hit);
+			if (hit)
+			{
+				stack.push_vector3(hits[0].position);
+				stack.push_float(hits[0].distance);
+				stack.push_vector3(hits[0].normal);
+				stack.push_actor(hits[0].actor);
+				return 5;
+			}
+			break;
+		}
+		case CollisionMode::ALL:
+		{
+			stack.push_table();
+			for (uint32_t i = 0; i < hits.size(); i++)
+			{
+				stack.push_key_begin(i+1);
+				
+				stack.push_table();
+				stack.push_key_begin("position"); stack.push_vector3(hits[i].position);	stack.push_key_end();
+				stack.push_key_begin("distance"); stack.push_float(hits[i].distance); stack.push_key_end();
+				stack.push_key_begin("normal"); stack.push_vector3(hits[i].normal); stack.push_key_end();
+				stack.push_key_begin("actor"); stack.push_actor(hits[i].actor); stack.push_key_end();
 
-	Raycast* raycast = stack.get_raycast(1);
-	Vector3 from = stack.get_vector3(2);
-	Vector3 dir = stack.get_vector3(3);
-	float length = stack.get_float(4);
-	
-	Actor* actor = raycast->sync_cast(from, dir, length);
-
-	if (actor) stack.push_actor(actor);
-	else stack.push_nil();
+				stack.push_key_end();
+			}
+			break;
+		}
+	}
 
 	return 1;
 }
@@ -68,7 +94,6 @@ CE_EXPORT int raycast_sync_cast(lua_State* L)
 void load_raycast(LuaEnvironment& env)
 {
 	env.load_module_function("Raycast", "cast",	raycast_cast);
-	env.load_module_function("Raycast", "sync_cast", raycast_sync_cast);
 }
 
 } // namespace crown

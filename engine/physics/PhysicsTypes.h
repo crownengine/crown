@@ -118,34 +118,24 @@ struct CollisionGroup
 };
 
 //-----------------------------------------------------------------------------
-struct SceneQueryType
-{
-	enum Enum
-	{
-		RAYCAST,
-		OVERLAP
-	};
-};
-
-//-----------------------------------------------------------------------------
-struct SceneQueryMode
-{
-	enum Enum
-	{
-		CLOSEST,
-		ANY,
-		ALL
-	};
-};
-
-//-----------------------------------------------------------------------------
-struct SceneQueryFilter
+struct CollisionType
 {
 	enum Enum
 	{
 		STATIC,
 		DYNAMIC,
 		BOTH
+	};
+};
+
+//-----------------------------------------------------------------------------
+struct CollisionMode
+{
+	enum Enum
+	{
+		CLOSEST,
+		ANY,
+		ALL
 	};
 };
 
@@ -157,8 +147,7 @@ struct EventType
 	enum Enum
 	{
 		COLLISION,
-		TRIGGER,
-		SCENE_QUERY
+		TRIGGER
 	};
 };
 
@@ -175,19 +164,6 @@ struct TriggerEvent
 	Actor* actor;
 };
 
-//-----------------------------------------------------------------------------
-struct SceneQueryEvent
-{
-	const char*				callback;
-	SceneQueryType::Enum	type;
-	SceneQueryMode::Enum	mode;
-	bool					hit;
-	Vector3					position;
-	float					distance;
-	Vector3					normal;
-	Actor*					actor;
-};
-
-}
+} // namespace physics_world
 
 } // namespace crown
