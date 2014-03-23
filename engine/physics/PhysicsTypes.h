@@ -157,8 +157,7 @@ struct EventType
 	enum Enum
 	{
 		COLLISION,
-		TRIGGER,
-		SCENE_QUERY
+		TRIGGER
 	};
 };
 
@@ -175,19 +174,6 @@ struct TriggerEvent
 	Actor* actor;
 };
 
-//-----------------------------------------------------------------------------
-struct SceneQueryEvent
-{
-	const char*				callback;
-	SceneQueryType::Enum	type;
-	CollisionMode::Enum	mode;
-	bool					hit;
-	Vector3					position;
-	float					distance;
-	Vector3					normal;
-	Actor*					actor;
-};
-
-}
+} // namespace physics_world
 
 } // namespace crown
