@@ -41,8 +41,9 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Unit::Unit(World& w, const UnitResource* ur, const Matrix4x4& pose)
+Unit::Unit(World& w, const char* name, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)
+	, m_unit_name(name)
 	, m_scene_graph(*w.scene_graph_manager()->create_scene_graph())
 	, m_resource(ur)
 	, m_num_cameras(0)
@@ -560,5 +561,12 @@ Material* Unit::material(uint32_t i)
 
 	return m_world.render_world()->lookup_material(material);
 }
+
+//-----------------------------------------------------------------------------
+bool Unit::is_a(const char* name)
+{
+	return string::strcmp(name, m_unit_name) == 0;
+}
+
 
 } // namespace crown

@@ -75,7 +75,7 @@ struct UnitResource;
 
 struct Unit
 {
-						Unit(World& w, const UnitResource* ur, const Matrix4x4& pose);
+						Unit(World& w, const char* name, const UnitResource* ur, const Matrix4x4& pose);
 						~Unit();
 
 	void				set_id(const UnitId id);
@@ -135,6 +135,7 @@ struct Unit
 
 	Controller*			controller();
 
+	bool				is_a(const char* name);
 private:
 
 	void				create_objects(const Matrix4x4& pose);
@@ -167,6 +168,8 @@ public:
 	Component			m_materials[CE_MAX_MATERIAL_COMPONENTS];
 
 	Component			m_controller;
+
+	const char* 		m_unit_name;
 };
 
 } // namespace crown
