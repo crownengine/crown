@@ -57,13 +57,14 @@ $config_h =
 #define CE_MAX_TRIGGERS						1024				// Per world
 #define CE_MAX_JOINTS						512					// Per world
 #define CE_MAX_SOUND_INSTANCES				64					// Per world
+#define CE_MAX_RAYCASTS						8					// Per World
 #define CE_MAX_RAY_INTERSECTIONS			16
 
 #define CE_MAX_CAMERA_COMPONENTS			16					// Per unit
 #define CE_MAX_MESH_COMPONENTS				16					// Per unit
 #define CE_MAX_SPRITE_COMPONENTS			16					// Per unit
 #define CE_MAX_ACTOR_COMPONENTS				16					// Per unit
-#define CE_MAX_MATERIAL_COMPONENTS			16					// Per unit
+#define CE_MAX_MATERIAL_COMPONENTS			16					// Per unit				
 
 #define CE_MAX_CONSOLE_CLIENTS				32
 
