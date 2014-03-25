@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#define NOMINMAX
 #include <cstddef>
 #include <stdint.h>
 #include "Config.h"

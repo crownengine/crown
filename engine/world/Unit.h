@@ -63,7 +63,6 @@ struct Component
 };
 
 
-class Material;
 class SceneGraphManager;
 class World;
 struct Actor;
@@ -71,6 +70,7 @@ struct Camera;
 struct Controller;
 struct Mesh;
 struct Sprite;
+struct Material;
 struct UnitResource;
 
 struct Unit

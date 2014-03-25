@@ -31,6 +31,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Macros.h"
 
+#ifdef WINDOWS
+#undef ERROR
+#endif
+
 namespace crown
 {
 

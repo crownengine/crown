@@ -63,13 +63,13 @@ void NetworkFilesystem::close(File* file)
 //-----------------------------------------------------------------------------
 bool NetworkFilesystem::is_directory(const char* path)
 {
-
+  return false;
 }
 
 //-----------------------------------------------------------------------------
 bool NetworkFilesystem::is_file(const char* path)
 {
-
+  return false;
 }
 
 //-----------------------------------------------------------------------------

@@ -196,7 +196,7 @@ void World::destroy_camera(CameraId id)
 //-----------------------------------------------------------------------------
 SoundInstanceId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
-	m_sound_world->play(name, loop, volume, pos);
+	return m_sound_world->play(name, loop, volume, pos);
 }
 
 //-----------------------------------------------------------------------------
@@ -245,6 +245,7 @@ GuiId World::create_window_gui(const char* name)
 GuiId World::create_world_gui(const Matrix4x4 pose, const uint32_t width, const uint32_t height)
 {
 	// Must be implemented
+	return GuiId();
 }
 
 //-----------------------------------------------------------------------------

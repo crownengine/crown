@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <windows.h>
 
 #include "Types.h"
+#include "Macros.h"
 
 namespace crown
 {
