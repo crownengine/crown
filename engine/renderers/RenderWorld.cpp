@@ -195,7 +195,9 @@ GuiId RenderWorld::create_gui(GuiResource* gr)
 {
 	Renderer* r = device()->renderer();
 	Gui* gui = CE_NEW(m_gui_pool, Gui)(*this, gr, *r);
-	return m_guis.create(gui);
+	GuiId id = m_guis.create(gui);
+	gui->set_id(id);
+	return id;
 }
 
 //-----------------------------------------------------------------------------
