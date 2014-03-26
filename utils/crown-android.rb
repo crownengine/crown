@@ -104,7 +104,7 @@ $physx				= "../engine/third/ARMv7/physx"
 #------------------------------------------------------------------------------
 def validate_command_line(args)
 
-	if args.length != 8
+	if args.length < 8
 		return false 
 	end
 	if args[0] != "--build"
@@ -126,7 +126,7 @@ end
 #------------------------------------------------------------------------------
 def parse_command_line(args)
 
-	banner = "Usage: crown-android.rb --build <crown-build> --target <android-target> --name <project-name> --path <project-path>\n"
+	banner = "Usage: crown-android.rb --build BUILD --target TARGET --name NAME --path PATH [--res RES]\n"
 
 	if not validate_command_line(args)
 		print banner
@@ -150,12 +150,12 @@ def parse_command_line(args)
 			options.name = n
 		end
 
-		opts.on("-r", "--res RES", "Android project compiled resources") do |r|
-			options.res = r
-		end
-
 		opts.on("-p", "--path PATH", "Android project path") do |p|
 			options.path = p
+		end
+
+		opts.on("-r", "--res RES", "Android project compiled resources") do |r|
+			options.res = r
 		end
 
 	    opts.on_tail("-h", "--help", "Show this message") do
@@ -198,29 +198,35 @@ def create_android_project(target, name, path)
 
 	# Creates path if not exists
 	if not Dir.exists?(path)
+		print "Creating directory " + path + "..."
 		FileUtils.mkdir_p(path)
+		print "OK!\n"
 	end
 
-	# Project path is empty
-	if Dir[path + "/*"].empty?
-		# Creates android project
-		system($android_create + " --target " + target + " --name " + name + " --path " + path + 
-				" --activity " + $activity + " --package " + $package)
-	else
-		# Updates android project
-		system($android_update + " --target " + target + " --name " + name + " --path " + path)
+	# Project path is not empty
+	if not Dir["#{path}/."].empty?
+		print "Cleaning directory " + path + "..."
+		FileUtils.rm_rf("#{path}/.", :secure => true)
+		print "OK!\n"
 	end
+
+	# Creates android project
+	print "Creating android project...\n"
+	system($android_create + " --target " + target + " --name " + name + " --path " + path + " --activity " + $activity + " --package " + $package)
+	print "OK!\n"
 	
 	# if jni dir does not exists, create it!
 	if not Dir.exists?(engine_dest)
+		print "Creating directory " + engine_dest + "..."
 		FileUtils.mkdir_p(engine_dest)
-		print "Created directory " + engine_dest + "\n"
+		print "OK!\n"
 	end
 
 	# if assets dir does not exists, create it!
 	if not Dir.exists?(assets_dest)
+		print "Creating directory " + assets_dest + "..."
 		FileUtils.mkdir_p(assets_dest)
-		print "Created directory " + assets_dest + "\n"
+		print "OK!\n"
 	end
 end
 
@@ -231,6 +237,7 @@ def fill_android_project(build, target, res, path)
 	android_dest	= path + "/src/crown/android"
 	resources_dest	= path + "/assets"
 
+	print "Filling Android project..."
 	# Copy Engine files
 	FileUtils.cp_r($engine_src, engine_dest, :remove_destination => true)
 
@@ -267,10 +274,17 @@ def fill_android_project(build, target, res, path)
 
 	# Copy android manifest
 	FileUtils.cp($android_manifest, path)
+
+	if build == "release"
+		FileUtils.cp_r(res + "/.", resources_dest)
+	end
+
+	print "OK!\n"
 end
 
 #------------------------------------------------------------------------------
 def build_android_project(path)
+	print "Building...\n"
 	# Move to root directory of Android project
 	Dir.chdir(path)
 	# Build libraries
@@ -278,10 +292,16 @@ def build_android_project(path)
 		print "Critical error: Unable to build crown libraries"
 		return
 	end
+
 	# Build apk
+	# FIXME: it's convenient to build apk in debug mode because we avoid apk signature.
+	# In a near future, we'll manage the build process in release mode
+	# N.B: you can build crown in release mode and run 'ant debug' for achieving the same result of a final product
 	if not system("ant debug")
 		print "Critical error: Unable to build crown project"
 		return
+	else
+		print "Done!\n"
 	end
 end
 
