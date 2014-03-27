@@ -387,7 +387,7 @@ void PhysicsWorld::clear_kinematic(ActorId id)
 
 //-----------------------------------------------------------------------------
 void PhysicsWorld::overlap_test(const char* callback, CollisionType::Enum filter, ShapeType::Enum type,
-								const Vector3& pos, const Quaternion& rot, const Vector3& size, List<Actor*>& actors)
+								const Vector3& pos, const Quaternion& rot, const Vector3& size, Array<Actor*>& actors)
 {
 	PxTransform transform(PxVec3(pos.x, pos.y, pos.z), PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w));
 
@@ -418,7 +418,7 @@ void PhysicsWorld::overlap_test(const char* callback, CollisionType::Enum filter
 	{
 		PxOverlapHit oh = m_buffer.getAnyHit(i);
 
-		actors.push_back((Actor*)(oh.actor->userData));
+		array::push_back(actors, (Actor*)(oh.actor->userData));
 	}
 }
 

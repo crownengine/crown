@@ -69,7 +69,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	// Out buffer
 	FontHeader h;
-	List<FontGlyphData> m_glyphs(default_allocator());
+	Array<FontGlyphData> m_glyphs(default_allocator());
 
 	JSONParser json(buf);
 	JSONElement root = json.root();
@@ -90,22 +90,22 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	{
 		FontGlyphData data;
 		parse_glyph(glyphs[i], data);
-		m_glyphs.push_back(data);
+		array::push_back(m_glyphs, data);
 	}
 
 	fs.close(file);
 	default_allocator().deallocate(buf);
 
 	h.material.id = hash::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
-	h.num_glyphs = m_glyphs.size();
+	h.num_glyphs = array::size(m_glyphs);
 	h.texture_size = size.to_int();
 	h.font_size = font_size.to_int();
 
 	out_file->write((char*) &h, sizeof(FontHeader));
 
-	if (m_glyphs.size() > 0)
+	if (array::size(m_glyphs) > 0)
 	{
-		out_file->write((char*) m_glyphs.begin(), sizeof(FontGlyphData) * h.num_glyphs);
+		out_file->write((char*) array::begin(m_glyphs), sizeof(FontGlyphData) * h.num_glyphs);
 	}
 }
 

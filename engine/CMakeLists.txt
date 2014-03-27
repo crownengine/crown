@@ -131,15 +131,17 @@ set (CONTAINERS_SRC
 )
 
 set (CONTAINERS_HEADERS
-	core/containers/Queue.h
-	core/containers/PriorityQueue.h
-	core/containers/Map.h
-	core/containers/List.h
-	core/containers/Vector.h
-	core/containers/RBTree.h
-	core/containers/IdTable.h
-	core/containers/IdArray.h
+	core/containers/Array.h
+	core/containers/ContainerTypes.h
 	core/containers/EventStream.h
+	core/containers/Hash.h
+	core/containers/IdArray.h
+	core/containers/IdTable.h
+	core/containers/Map.h
+	core/containers/PriorityQueue.h
+	core/containers/Queue.h
+	core/containers/RBTree.h
+	core/containers/Vector.h
 )
 
 set (MATH_SRC

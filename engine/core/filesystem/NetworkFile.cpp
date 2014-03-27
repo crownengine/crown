@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "JSONParser.h"
-#include "List.h"
+#include "ContainerTypes.h"
 #include "Log.h"
 #include "MathUtils.h"
 #include "NetworkFile.h"
@@ -89,11 +89,11 @@ void NetworkFile::read(void* buffer, size_t size)
 	network_filesystem::send(m_socket, command.c_str());
 
 	// Wait for response
-	List<char> response(default_allocator());
+	Array<char> response(default_allocator());
 	network_filesystem::read_response(m_socket, response);
 
 	// Parse the response
-	JSONParser json(response.begin());
+	JSONParser json(array::begin(response));
 	JSONElement root = json.root();
 
 	DynamicString data_base64;
@@ -154,10 +154,10 @@ size_t NetworkFile::size()
 	network_filesystem::send(m_socket, command.c_str());
 
 	// Wait for response
-	List<char> response(default_allocator());
+	Array<char> response(default_allocator());
 	network_filesystem::read_response(m_socket, response);
 
-	JSONParser parser(response.begin());
+	JSONParser parser(array::begin(response));
 	JSONElement root = parser.root();
 
 	return (size_t) root.key("size").to_int();

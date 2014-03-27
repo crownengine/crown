@@ -27,156 +27,52 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <algorithm>
-#include "List.h"
+#include "ContainerTypes.h"
 
 namespace crown
 {
-
-template <typename T>
-class PriorityQueue
+namespace priority_queue
 {
-public:
-
-	/// Does not allocate memory.
-					PriorityQueue(Allocator& a);
-					~PriorityQueue();
-
-	/// Returns whether the queue is empty.
-	bool			empty() const;
-
-	/// Returns the number of items in the queue.
-	uint32_t		size() const;
-
 	/// Returns the first item in the queue.
-	const T&		top() const;
+	template <typename T> const T& top(const PriorityQueue<T>& q);
 
 	/// Inserts @a item into the queue.
-	void			push(const T& item);
+	template <typename T> void push(PriorityQueue<T>& q, const T& item);
 
 	/// Removes the first item from the queue.
-	void			pop();
+	template <typename T> void pop(PriorityQueue<T>& q);
+} // namespace priority_queue
 
-	T*				begin();
-	const T*		begin() const;
-	T*				end();
-	const T*		end() const;
-
-	T&				front();
-	const T&		front() const;
-	T&				back();
-	const T&		back() const;
-
-private:
-
-	List<T>			m_queue;
-};
-
-//-----------------------------------------------------------------------------
-template <typename T>
-PriorityQueue<T>::PriorityQueue(Allocator& a) :
-	m_queue(a)
+namespace priority_queue
 {
-}
+	//-----------------------------------------------------------------------------
+	template <typename T>
+	const T& top(const PriorityQueue<T>& q)
+	{
+		return q.m_queue.front();
+	}
 
-//-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
+	template <typename T>
+	void push(PriorityQueue<T>& q, const T& item)
+	{
+		array::push_back(q.m_queue, item);
+		std::push_heap(array::begin(q.m_queue), array::end(q.m_queue));
+	}
+
+	//-----------------------------------------------------------------------------
+	template <typename T>
+	void pop(PriorityQueue<T>& q)
+	{
+		std::pop_heap(array::begin(q.m_queue), array::end(q.m_queue));
+		array::pop_back(q.m_queue);
+	}
+} // namespace priority_queue
+
 template <typename T>
-PriorityQueue<T>::~PriorityQueue()
+PriorityQueue<T>::PriorityQueue(Allocator& a)
+	: m_queue(a)
 {
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-bool PriorityQueue<T>::empty() const
-{
-	return m_queue.empty();
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-uint32_t PriorityQueue<T>::size() const
-{
-	return m_queue.size();
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-const T& PriorityQueue<T>::top() const
-{
-	return m_queue.front();
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-void PriorityQueue<T>::push(const T& item)
-{
-	m_queue.push_back(item);
-
-	std::push_heap(begin(), end());
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-void PriorityQueue<T>::pop()
-{
-	std::pop_heap(begin(), end());
-
-	m_queue.pop_back();
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-const T* PriorityQueue<T>::begin() const
-{
-	return m_queue.begin();
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-T* PriorityQueue<T>::begin()
-{
-	return m_queue.begin();
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-const T* PriorityQueue<T>::end() const
-{
-	return m_queue.end();
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-T* PriorityQueue<T>::end()
-{
-	return m_queue.end();
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-const T& PriorityQueue<T>::front() const
-{
-	return m_queue.front();
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-T& PriorityQueue<T>::front()
-{
-	return m_queue.front();
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-const T& PriorityQueue<T>::back() const
-{
-	return m_queue.back();
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-T& PriorityQueue<T>::back()
-{
-	return m_queue.back();
 }
 
 } // namespace crown

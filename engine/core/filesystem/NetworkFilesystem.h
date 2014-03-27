@@ -35,17 +35,17 @@ namespace crown
 {
 namespace network_filesystem
 {
-	inline void read_response(TCPSocket socket, List<char>& response)
+	inline void read_response(TCPSocket socket, Array<char>& response)
 	{
 		// Read message length
 		uint32_t msg_len = 0;
 		socket.read(&msg_len, 4);
 
-		response.resize(msg_len);
-		socket.read(response.begin(), msg_len);
+		array::resize(response, msg_len);
+		socket.read(array::begin(response), msg_len);
 
 		// Ensure NUL-terminated
-		response.push_back('\0');
+		array::push_back(response, '\0');
 	}
 
 	inline void send(TCPSocket socket, const char* msg)

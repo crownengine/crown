@@ -36,7 +36,7 @@ namespace crown
 /// Dynamic array of objects.
 /// @note
 /// Calls constructors and destructors, not suitable for performance-critical stuff.
-/// If your data is POD, use List<T> instead.
+/// If your data is POD, use Array<T> instead.
 template <typename T>
 class Vector
 {

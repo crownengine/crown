@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Hash.h"
 #include "TempAllocator.h"
 #include "DynamicString.h"
+#include "Queue.h"
 
 namespace crown
 {
@@ -75,9 +76,9 @@ void ResourceManager::unload(ResourceId name, bool force)
 		resource_on_unload(entry->type, m_resource_heap, entry->resource);
 
 		// Swap with last
-		ResourceEntry temp = m_resources[m_resources.size() - 1];
+		ResourceEntry temp = m_resources[array::size(m_resources) - 1];
 		(*entry) = temp;
-		m_resources.pop_back();
+		array::pop_back(m_resources);
 	}
 }
 
@@ -128,7 +129,7 @@ uint32_t ResourceManager::references(ResourceId name) const
 //-----------------------------------------------------------------------------
 void ResourceManager::flush()
 {
-	while (!m_pendings.empty())
+	while (!queue::empty(m_pendings))
 	{
 		poll_resource_loader();
 	}
@@ -158,21 +159,21 @@ ResourceId ResourceManager::resource_id(const char* type, const char* name) cons
 //-----------------------------------------------------------------------------
 ResourceEntry* ResourceManager::find(ResourceId id) const
 {
-	const ResourceEntry* entry = std::find(m_resources.begin(), m_resources.end(), id);
+	const ResourceEntry* entry = std::find(array::begin(m_resources), array::end(m_resources), id);
 
-	return entry != m_resources.end() ? const_cast<ResourceEntry*>(entry) : NULL;
+	return entry != array::end(m_resources) ? const_cast<ResourceEntry*>(entry) : NULL;
 }
 
 //-----------------------------------------------------------------------------
 void ResourceManager::poll_resource_loader()
 {
-	if (!m_pendings.empty())
+	if (!queue::empty(m_pendings))
 	{
-		PendingRequest request = m_pendings.front();
+		PendingRequest request = queue::front(m_pendings);
 
 		if (m_loader.load_resource_status(request.id) == LRS_LOADED)
 		{
-			m_pendings.pop_front();
+			queue::pop_front(m_pendings);
 
 			void* data = m_loader.load_resource_data(request.id);
 			online(request.resource, data);
@@ -196,14 +197,14 @@ ResourceId ResourceManager::load(uint32_t type, ResourceId name)
 		entry.references = 1;
 		entry.resource = NULL;
 
-		m_resources.push_back(entry);
+		array::push_back(m_resources, entry);
 
 		// Issue request to resource loader
 		PendingRequest pr;
 		pr.resource = name;
 		pr.id = m_loader.load_resource(type, name);
 
-		m_pendings.push_back(pr);
+		queue::push_back(m_pendings, pr);
 
 		return name;
 	}

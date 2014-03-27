@@ -36,7 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "ResourceManager.h"
 #include "SoundResource.h"
-#include "List.h"
+#include "ContainerTypes.h"
 #include "TempAllocator.h"
 
 namespace crown
@@ -337,7 +337,7 @@ public:
 	virtual void update()
 	{
 		TempAllocator256 alloc;
-		List<SoundInstanceId> to_delete(alloc);
+		Array<SoundInstanceId> to_delete(alloc);
 
 		// Check what sounds finished playing
 		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
@@ -345,12 +345,12 @@ public:
 			SoundInstance& instance = m_playing_sounds[i];
 			if (instance.finished())
 			{
-				to_delete.push_back(instance.m_id);
+				array::push_back(to_delete, instance.m_id);
 			}
 		}
 
 		// Destroy instances which finished playing
-		for (uint32_t i = 0; i < to_delete.size(); i++)
+		for (uint32_t i = 0; i < array::size(to_delete); i++)
 		{
 			stop(to_delete[i]);
 		}

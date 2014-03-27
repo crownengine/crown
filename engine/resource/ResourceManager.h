@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "List.h"
+#include "ContainerTypes.h"
 #include "Resource.h"
 #include "ProxyAllocator.h"
 #include "ResourceLoader.h"
@@ -126,7 +126,7 @@ private:
 	uint32_t				m_seed;
 
 	Queue<PendingRequest>	m_pendings;
-	List<ResourceEntry>		m_resources;
+	Array<ResourceEntry>		m_resources;
 
 private:
 

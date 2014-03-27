@@ -59,7 +59,7 @@ Raycast::Raycast(PxScene* scene, EventStream& events, const char* callback, Coll
 }
 
 //-------------------------------------------------------------------------
-void Raycast::cast(const Vector3& from, const Vector3& dir, const float length, List<RaycastHit>& hits)
+void Raycast::cast(const Vector3& from, const Vector3& dir, const float length, Array<RaycastHit>& hits)
 {
 	m_scene->raycast(PxVec3(from.x, from.y, from.z), PxVec3(dir.x, dir.y, dir.z), length, m_buffer, PxHitFlags(PxHitFlag::eDEFAULT), m_fd);
 
@@ -78,7 +78,7 @@ void Raycast::cast(const Vector3& from, const Vector3& dir, const float length, 
 		hit.normal.z = rh.normal.z;
 		hit.actor = (Actor*)(rh.actor->userData);
 
-		hits.push_back(hit);
+		array::push_back(hits, hit);
 	}
 }
 

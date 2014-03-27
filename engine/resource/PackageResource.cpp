@@ -50,16 +50,16 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONParser json(file_buf);
 	JSONElement root = json.root();
 
-	List<ResourceId> m_texture(default_allocator());
-	List<ResourceId> m_script(default_allocator());
-	List<ResourceId> m_sound(default_allocator());
-	List<ResourceId> m_mesh(default_allocator());
-	List<ResourceId> m_unit(default_allocator());
-	List<ResourceId> m_sprite(default_allocator());
-	List<ResourceId> m_physics(default_allocator());
-	List<ResourceId> m_materials(default_allocator());
-	List<ResourceId> m_guis(default_allocator());
-	List<ResourceId> m_fonts(default_allocator());
+	Array<ResourceId> m_texture(default_allocator());
+	Array<ResourceId> m_script(default_allocator());
+	Array<ResourceId> m_sound(default_allocator());
+	Array<ResourceId> m_mesh(default_allocator());
+	Array<ResourceId> m_unit(default_allocator());
+	Array<ResourceId> m_sprite(default_allocator());
+	Array<ResourceId> m_physics(default_allocator());
+	Array<ResourceId> m_materials(default_allocator());
+	Array<ResourceId> m_guis(default_allocator());
+	Array<ResourceId> m_fonts(default_allocator());
 
 	// Check for resource types
 	if (root.has_key("texture"))
@@ -80,7 +80,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(texture_name.c_str(), texture_name.length(), 0);
-			m_texture.push_back(id);
+			array::push_back(m_texture, id);
 		}
 	}
 
@@ -104,7 +104,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(lua_name.c_str(), lua_name.length(), 0);
-			m_script.push_back(id);
+			array::push_back(m_script, id);
 		}
 	}
 
@@ -127,7 +127,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(sound_name.c_str(), string::strlen(sound_name.c_str()), 0);
-			m_sound.push_back(id);
+			array::push_back(m_sound, id);
 		}
 	}
 
@@ -150,7 +150,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(mesh_name.c_str(), mesh_name.length(), 0);
-			m_mesh.push_back(id);
+			array::push_back(m_mesh, id);
 		}
 	}
 
@@ -172,7 +172,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(unit_name.c_str(), unit_name.length(), 0);
-			m_unit.push_back(id);
+			array::push_back(m_unit, id);
 		}
 	}
 
@@ -195,7 +195,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(sprite_name.c_str(), sprite_name.length(), 0);
-			m_sprite.push_back(id);
+			array::push_back(m_sprite, id);
 		}
 	}
 
@@ -218,7 +218,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(physics_name.c_str(), physics_name.length(), 0);
-			m_physics.push_back(id);
+			array::push_back(m_physics, id);
 		}	
 	}
 
@@ -241,7 +241,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(materials_name.c_str(), materials_name.length(), 0);
-			m_materials.push_back(id);
+			array::push_back(m_materials, id);
 		}
 	}
 
@@ -264,7 +264,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(guis_name.c_str(), guis_name.length(), 0);
-			m_guis.push_back(id);
+			array::push_back(m_guis, id);
 		}
 	}
 
@@ -287,21 +287,21 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			ResourceId id;
 			id.id = hash::murmur2_64(font_name.c_str(), font_name.length(), 0);
-			m_fonts.push_back(id);
+			array::push_back(m_fonts, id);
 		}
 	}
 
 	PackageHeader header;
-	header.num_textures = m_texture.size();
-	header.num_scripts = m_script.size();
-	header.num_sounds = m_sound.size();
-	header.num_meshes = m_mesh.size();
-	header.num_units = m_unit.size();
-	header.num_sprites = m_sprite.size();
-	header.num_physics = m_physics.size();
-	header.num_materials = m_materials.size();
-	header.num_guis = m_guis.size();
-	header.num_fonts = m_fonts.size();
+	header.num_textures = array::size(m_texture);
+	header.num_scripts = array::size(m_script);
+	header.num_sounds = array::size(m_sound);
+	header.num_meshes = array::size(m_mesh);
+	header.num_units = array::size(m_unit);
+	header.num_sprites = array::size(m_sprite);
+	header.num_physics = array::size(m_physics);
+	header.num_materials = array::size(m_materials);
+	header.num_guis = array::size(m_guis);
+	header.num_fonts = array::size(m_fonts);
 
 	header.textures_offset = sizeof(PackageHeader);
 	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
@@ -316,45 +316,45 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	out_file->write((char*) &header, sizeof(PackageHeader));
 
-	if (m_texture.size() > 0)
+	if (array::size(m_texture) > 0)
 	{
-		out_file->write((char*) m_texture.begin(), sizeof(ResourceId) * header.num_textures);		
+		out_file->write((char*) array::begin(m_texture), sizeof(ResourceId) * header.num_textures);		
 	}
-	if (m_script.size() > 0)
+	if (array::size(m_script) > 0)
 	{
-		out_file->write((char*) m_script.begin(), sizeof(ResourceId) * header.num_scripts);
+		out_file->write((char*) array::begin(m_script), sizeof(ResourceId) * header.num_scripts);
 	}
-	if (m_sound.size() > 0)
+	if (array::size(m_sound) > 0)
 	{
-		out_file->write((char*) m_sound.begin(), sizeof(ResourceId) * header.num_sounds);
+		out_file->write((char*) array::begin(m_sound), sizeof(ResourceId) * header.num_sounds);
 	}
-	if (m_mesh.size() > 0)
+	if (array::size(m_mesh) > 0)
 	{
-		out_file->write((char*) m_mesh.begin(), sizeof(ResourceId) * header.num_meshes);
+		out_file->write((char*) array::begin(m_mesh), sizeof(ResourceId) * header.num_meshes);
 	}
-	if (m_unit.size() > 0)
+	if (array::size(m_unit) > 0)
 	{
-		out_file->write((char*) m_unit.begin(), sizeof(ResourceId) * header.num_units);	
+		out_file->write((char*) array::begin(m_unit), sizeof(ResourceId) * header.num_units);	
 	}
-	if (m_sprite.size() > 0)
+	if (array::size(m_sprite) > 0)
 	{
-		out_file->write((char*) m_sprite.begin(), sizeof(ResourceId) * header.num_sprites);
+		out_file->write((char*) array::begin(m_sprite), sizeof(ResourceId) * header.num_sprites);
 	}
-	if (m_physics.size() > 0)
+	if (array::size(m_physics) > 0)
 	{
-		out_file->write((char*) m_physics.begin(), sizeof(ResourceId) * header.num_physics);
+		out_file->write((char*) array::begin(m_physics), sizeof(ResourceId) * header.num_physics);
 	}
-	if (m_materials.size() > 0)
+	if (array::size(m_materials) > 0)
 	{
-		out_file->write((char*) m_materials.begin(), sizeof(ResourceId) * header.num_materials);
+		out_file->write((char*) array::begin(m_materials), sizeof(ResourceId) * header.num_materials);
 	}
-	if (m_guis.size() > 0)
+	if (array::size(m_guis) > 0)
 	{
-		out_file->write((char*) m_guis.begin(), sizeof(ResourceId) * header.num_guis);
+		out_file->write((char*) array::begin(m_guis), sizeof(ResourceId) * header.num_guis);
 	}
-	if (m_fonts.size() > 0)
+	if (array::size(m_fonts) > 0)
 	{
-		out_file->write((char*) m_fonts.begin(), sizeof(ResourceId) * header.num_fonts);
+		out_file->write((char*) array::begin(m_fonts), sizeof(ResourceId) * header.num_fonts);
 	}
 }
 

@@ -27,42 +27,39 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Assert.h"
-#include "Allocator.h"
-#include "List.h"
+#include "Array.h"
 
 namespace crown
 {
 
-typedef List<char> EventStream;
+typedef Array<char> EventStream;
 
-/// Functions for operating on a List<char> as a stream of events of the form:
+/// Functions for operating on a Array<char> as a stream of events of the form:
 /// [event_header_0][event_data_0][event_header_1][event_data_1] ...
 namespace event_stream
 {
+	struct Header
+	{
+		uint32_t type;
+		uint32_t size;
+	};
 
-struct Header
-{
-	uint32_t type;
-	uint32_t size;
-};
+	/// Appends the @a event of the given @a type and @a size to the stream @a s. 
+	inline void write(EventStream& s, uint32_t type, uint32_t size, const void* event)
+	{
+		Header header;
+		header.type = type;
+		header.size = size;
 
-/// Appends the @a event of the given @a type and @a size to the stream @a s. 
-inline void write(EventStream& s, uint32_t type, uint32_t size, const void* event)
-{
-	Header header;
-	header.type = type;
-	header.size = size;
+		array::push(s, (char*) &header, sizeof(Header));
+		array::push(s, (char*) event, (size_t) size);
+	}
 
-	s.push((char*) &header, sizeof(Header));
-	s.push((char*) event, (size_t) size);
-}
-
-/// Appends the @a event of the given @a type to the stream @a s
-template <typename T>
-inline void write(EventStream& s, uint32_t type, const T& event)
-{
-	event_stream::write(s, type, sizeof(T), &event);
-}
-
+	/// Appends the @a event of the given @a type to the stream @a s
+	template <typename T>
+	inline void write(EventStream& s, uint32_t type, const T& event)
+	{
+		event_stream::write(s, type, sizeof(T), &event);
+	}
 } // namespace event_stream
 } // namespace crown

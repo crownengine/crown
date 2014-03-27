@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "SceneGraphManager.h"
 #include "SceneGraph.h"
+#include "Array.h"
 
 namespace crown
 {
@@ -44,9 +45,9 @@ SceneGraphManager::~SceneGraphManager()
 //-----------------------------------------------------------------------------
 SceneGraph* SceneGraphManager::create_scene_graph()
 {
-	uint32_t index = m_graphs.size();
+	uint32_t index = array::size(m_graphs);
 	SceneGraph* sg = CE_NEW(default_allocator(), SceneGraph)(default_allocator(), index);
-	m_graphs.push_back(sg);
+	array::push_back(m_graphs, sg);
 	return sg;
 }
 
@@ -55,9 +56,9 @@ void SceneGraphManager::destroy_scene_graph(SceneGraph* sg)
 {
 	CE_ASSERT_NOT_NULL(sg);
 
-	m_graphs[sg->m_index] = m_graphs[m_graphs.size() - 1];
+	m_graphs[sg->m_index] = m_graphs[array::size(m_graphs) - 1];
 	m_graphs[sg->m_index]->m_index = sg->m_index;
-	m_graphs.pop_back();
+	array::pop_back(m_graphs);
 
 	CE_DELETE(default_allocator(), sg);
 }
@@ -65,7 +66,7 @@ void SceneGraphManager::destroy_scene_graph(SceneGraph* sg)
 //-----------------------------------------------------------------------------
 void SceneGraphManager::update()
 {
-	for (uint32_t i = 0; i < m_graphs.size(); i++)
+	for (uint32_t i = 0; i < array::size(m_graphs); i++)
 	{
 		m_graphs[i]->update();
 	}

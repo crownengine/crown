@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "JSON.h"
-#include "List.h"
+#include "ContainerTypes.h"
 #include "StringUtils.h"
 #include "DynamicString.h"
 
@@ -280,49 +280,49 @@ double parse_number(const char* s)
 
 	const char* ch = s;
 
- 	List<char> str(default_allocator());
+ 	Array<char> str(default_allocator());
 
 	if ((*ch) == '-')
 	{
-		str.push_back('-');
+		array::push_back(str, '-');
 		ch = next(ch, '-');
 	}
 	while ((*ch) >= '0' && (*ch) <= '9')
 	{
-		str.push_back((*ch));
+		array::push_back(str, (*ch));
 		ch = next(ch);
 	}
 
 	if ((*ch) == '.')
 	{
-		str.push_back('.');
+		array::push_back(str, '.');
 		while ((*(ch = next(ch))) && (*ch) >= '0' && (*ch) <= '9')
 		{
-			str.push_back(*ch);
+			array::push_back(str, *ch);
 		}
 	}
 
 	if ((*ch) == 'e' || (*ch) == 'E')
 	{
-		str.push_back(*ch);
+		array::push_back(str, *ch);
 		ch = next(ch);
 
 		if ((*ch) == '-' || (*ch) == '+')
 		{
-			str.push_back(*ch);
+			array::push_back(str, *ch);
 			ch = next(ch);
 		}
 		while ((*ch) >= '0' && (*ch) <= '9')
 		{
-			str.push_back(*ch);
+			array::push_back(str, *ch);
 			ch = next(ch);
 		}
 	}
 
 	// Ensure null terminated
-	str.push_back('\0');
+	array::push_back(str, '\0');
 
-	return string::parse_double(str.begin());
+	return string::parse_double(array::begin(str));
 }
 
 //-----------------------------------------------------------------------------
@@ -376,7 +376,7 @@ float parse_float(const char* s)
 }
 
 //-----------------------------------------------------------------------------
-void parse_array(const char* s, List<const char*>& array)
+void parse_array(const char* s, Array<const char*>& array)
 {
 	CE_ASSERT_NOT_NULL(s);
 
@@ -400,7 +400,7 @@ void parse_array(const char* s, List<const char*>& array)
 
 		while (*ch)
 		{
-			array.push_back(ch);
+			array::push_back(array, ch);
 
 			ch = skip_array(ch);
 			ch = skip_object(ch);
@@ -430,7 +430,7 @@ void parse_array(const char* s, List<const char*>& array)
 }
 
 //-----------------------------------------------------------------------------
-void parse_object(const char* s, List<JSONPair>& object)
+void parse_object(const char* s, Array<JSONPair>& object)
 {
 	CE_ASSERT_NOT_NULL(s);
 
@@ -467,7 +467,7 @@ void parse_object(const char* s, List<JSONPair>& object)
 			ch = skip_whites(ch);
 
 			pair.val = ch;
-			object.push_back(pair);
+			array::push_back(object, pair);
 
 			// Skip any value
 			ch = skip_array(ch);

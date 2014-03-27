@@ -43,7 +43,7 @@ void basename(const char* path, char* str, size_t len);
 void extension(const char* path, char* str, size_t len);
 void filename_without_extension(const char* path, char* str, size_t len);
 
-//bool segments(const char* path, List<Str>& ret);
+//bool segments(const char* path, Array<Str>& ret);
 inline void strip_trailing_separator(const char* path, char* ret, size_t len);
 
 /// Returns whether the segment is valid.
@@ -114,7 +114,7 @@ inline bool is_valid_path(const char* path)
 //		return true;
 //	}
 
-//	List<Str> segmentList;
+//	Array<Str> segmentList;
 //	if (!get_segments(Str(path), segmentList))
 //	{
 //		return false;
@@ -260,7 +260,7 @@ inline void filename_without_extension(const char* path, char* str, size_t len)
 }
 
 /// Returns the segments contained in path.
-//bool segments(const char* path, List<Str>& ret)
+//bool segments(const char* path, Array<Str>& ret)
 //{
 //	path.Split(os::PATH_SEPARATOR, ret);
 

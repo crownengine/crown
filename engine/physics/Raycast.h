@@ -68,7 +68,7 @@ struct Raycast
 	/// If there was a hit, the callback will also be called with the position of the hit, the distance from the origin, the normal of the surface that 
 	/// was hit and the actor that was hit.
 	/// @a CollisionMode::ALL: as @a CollisionMode::CLOSEST, with more tuples
-	void					cast(const Vector3& from, const Vector3& dir, const float length, List<RaycastHit>& hits);
+	void					cast(const Vector3& from, const Vector3& dir, const float length, Array<RaycastHit>& hits);
 
 	CollisionMode::Enum 	mode() const;
 

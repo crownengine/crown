@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <stdio.h>
-#include "List.h"
+#include "ContainerTypes.h"
 #include "StringUtils.h"
 #include "OS.h"
 
@@ -62,7 +62,7 @@ private:
 
 private:
 
-	List<char>			m_string;
+	Array<char>			m_string;
 };
 
 //-----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ inline StringStream::StringStream(Allocator& allocator)
 //-----------------------------------------------------------------------------
 inline void StringStream::clear()
 {
-	m_string.clear();
+	array::clear(m_string);
 }
 
 //-----------------------------------------------------------------------------
@@ -128,7 +128,7 @@ inline StringStream& StringStream::operator<<(double val)
 //-----------------------------------------------------------------------------
 inline StringStream& StringStream::operator<<(const char* s)
 {
-	m_string.push(s, string::strlen(s));
+	array::push(m_string, s, string::strlen(s));
 
 	return *this;
 }
@@ -136,10 +136,10 @@ inline StringStream& StringStream::operator<<(const char* s)
 //-----------------------------------------------------------------------------
 inline const char* StringStream::c_str()
 {
-	m_string.push_back('\0');
-	m_string.pop_back();
+	array::push_back(m_string, '\0');
+	array::pop_back(m_string);
 
-	return m_string.begin();
+	return array::begin(m_string);
 }
 
 //-----------------------------------------------------------------------------

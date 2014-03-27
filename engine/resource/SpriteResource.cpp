@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "JSONParser.h"
 #include "SpriteResource.h"
 #include "StringUtils.h"
+#include "Array.h"
 
 namespace crown
 {
@@ -50,7 +51,7 @@ struct FrameData
 };
 
 //-----------------------------------------------------------------------------
-void parse_frame(JSONElement frame, List<StringId32>& names, List<FrameData>& regions)
+void parse_frame(JSONElement frame, Array<StringId32>& names, Array<FrameData>& regions)
 {
 	JSONElement name = frame.key("name");
 	JSONElement region = frame.key("region");
@@ -71,8 +72,8 @@ void parse_frame(JSONElement frame, List<StringId32>& names, List<FrameData>& re
 	fd.scale_x = scale[0].to_float();
 	fd.scale_y = scale[1].to_float();
 
-	names.push_back(name_hash);
-	regions.push_back(fd);
+	array::push_back(names, name_hash);
+	array::push_back(regions, fd);
 }
 
 //-----------------------------------------------------------------------------
@@ -87,10 +88,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	float width;
 	float height;
-	List<StringId32>		m_names(default_allocator());
-	List<FrameData> 		m_regions(default_allocator());
-	List<float>				m_vertices(default_allocator());
-	List<uint16_t>			m_indices(default_allocator());
+	Array<StringId32>		m_names(default_allocator());
+	Array<FrameData> 		m_regions(default_allocator());
+	Array<float>			m_vertices(default_allocator());
+	Array<uint16_t>			m_indices(default_allocator());
 
 	// Read width/height
 	width = root.key("width").to_float();
@@ -126,20 +127,20 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		const float x1 = fd.scale_x * ( w * 0.5) + fd.offset_x;
 		const float y1 = fd.scale_y * ( h * 0.5) + fd.offset_y;
 
-		m_vertices.push_back(x0); m_vertices.push_back(y0); // position
-		m_vertices.push_back(u0); m_vertices.push_back(v0); // uv
+		array::push_back(m_vertices, x0); array::push_back(m_vertices, y0); // position
+		array::push_back(m_vertices, u0); array::push_back(m_vertices, v0); // uv
 
-		m_vertices.push_back(x1); m_vertices.push_back(y0); // position
-		m_vertices.push_back(u1); m_vertices.push_back(v0); // uv
+		array::push_back(m_vertices, x1); array::push_back(m_vertices, y0); // position
+		array::push_back(m_vertices, u1); array::push_back(m_vertices, v0); // uv
 
-		m_vertices.push_back(x1); m_vertices.push_back(y1); // position
-		m_vertices.push_back(u1); m_vertices.push_back(v1); // uv
+		array::push_back(m_vertices, x1); array::push_back(m_vertices, y1); // position
+		array::push_back(m_vertices, u1); array::push_back(m_vertices, v1); // uv
 
-		m_vertices.push_back(x0); m_vertices.push_back(y1); // position
-		m_vertices.push_back(u0); m_vertices.push_back(v1); // uv
+		array::push_back(m_vertices, x0); array::push_back(m_vertices, y1); // position
+		array::push_back(m_vertices, u0); array::push_back(m_vertices, v1); // uv
 
-		m_indices.push_back(num_idx); m_indices.push_back(num_idx + 1); m_indices.push_back(num_idx + 2);
-		m_indices.push_back(num_idx); m_indices.push_back(num_idx + 2); m_indices.push_back(num_idx + 3);
+		array::push_back(m_indices, uint16_t(num_idx)); array::push_back(m_indices, uint16_t(num_idx + 1)); array::push_back(m_indices, uint16_t(num_idx + 2));
+		array::push_back(m_indices, uint16_t(num_idx)); array::push_back(m_indices, uint16_t(num_idx + 2)); array::push_back(m_indices, uint16_t(num_idx + 3));
 		num_idx += 4;
 	}
 
@@ -147,19 +148,19 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	default_allocator().deallocate(buf);
 
 	SpriteHeader h;
-	h.num_frames = m_names.size();
-	h.num_vertices = m_vertices.size() / 4; // 4 components per vertex
-	h.num_indices = m_indices.size();
+	h.num_frames = array::size(m_names);
+	h.num_vertices = array::size(m_vertices) / 4; // 4 components per vertex
+	h.num_indices = array::size(m_indices);
 
 	uint32_t offt = sizeof(SpriteHeader);
 	/*h.frame_names_offset    = offt*/; offt += sizeof(StringId32) * h.num_frames;
-	h.vertices_offset = offt; offt += sizeof(float) * m_vertices.size();
-	h.indices_offset = offt; offt += sizeof(uint16_t) * m_indices.size();
+	h.vertices_offset = offt; offt += sizeof(float) * array::size(m_vertices);
+	h.indices_offset = offt; offt += sizeof(uint16_t) * array::size(m_indices);
 
 	out_file->write((char*) &h, sizeof(SpriteHeader));
-	out_file->write((char*) m_names.begin(), sizeof(StringId32) * m_names.size());
-	out_file->write((char*) m_vertices.begin(), sizeof(float) * m_vertices.size());
-	out_file->write((char*) m_indices.begin(), sizeof(uint16_t) * m_indices.size());
+	out_file->write((char*) array::begin(m_names), sizeof(StringId32) * array::size(m_names));
+	out_file->write((char*) array::begin(m_vertices), sizeof(float) * array::size(m_vertices));
+	out_file->write((char*) array::begin(m_indices), sizeof(uint16_t) * array::size(m_indices));
 }
 
 } // namespace sprite_resource

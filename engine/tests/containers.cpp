@@ -8,7 +8,7 @@ int main()
 {
 	HeapAllocator allocator;
 
-	List<int> int_list(allocator);
+	Array<int> int_list(allocator);
 
 	CE_ASSERT(int_list.size() == 0, "Size differs from expected value");
 

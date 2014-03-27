@@ -72,7 +72,7 @@ namespace profiler
 		double time;
 	};
 
-	static List<char> g_buffer(default_allocator());
+	static Array<char> g_buffer(default_allocator());
 	static Mutex g_buffer_mutex;
 
 	#define THREAD_BUFFER_SIZE 1024

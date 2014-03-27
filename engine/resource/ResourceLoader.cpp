@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceLoader.h"
 #include "ResourceRegistry.h"
 #include "Log.h"
+#include "Queue.h"
 
 namespace crown
 {
@@ -59,7 +60,7 @@ LoadResourceId ResourceLoader::load_resource(uint32_t type, ResourceId resource)
 	lr.type = type;
 	lr.resource = resource;
 
-	m_requests.push_back(lr);
+	queue::push_back(m_requests, lr);
 
 	m_results[lr_id % MAX_LOAD_REQUESTS].status = LRS_QUEUED;
 
@@ -98,15 +99,15 @@ int32_t ResourceLoader::run()
 	while (m_should_run)
 	{
 		m_requests_mutex.lock();
-		while (m_requests.empty() && m_should_run)
+		while (queue::empty(m_requests) && m_should_run)
 		{
 			m_full.wait(m_requests_mutex);
 		}
 
 		if (m_should_run)
 		{
-			LoadResource request = m_requests.front();
-			m_requests.pop_front();
+			LoadResource request = queue::front(m_requests);
+			queue::pop_front(m_requests);
 
 			m_requests_mutex.unlock();
 

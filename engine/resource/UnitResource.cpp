@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Filesystem.h"
 #include "Hash.h"
 #include "JSONParser.h"
-#include "List.h"
+#include "ContainerTypes.h"
 #include "Log.h"
 #include "Matrix4x4.h"
 #include "PhysicsTypes.h"
@@ -68,12 +68,12 @@ struct GraphNodeDepth
 };
 
 //-----------------------------------------------------------------------------
-uint32_t compute_link_depth(const GraphNode& node, const List<GraphNode>& nodes)
+uint32_t compute_link_depth(const GraphNode& node, const Array<GraphNode>& nodes)
 {
 	if (node.parent == NO_PARENT) return 0;
 	else
 	{
-		for (uint32_t i = 0; i < nodes.size(); i++)
+		for (uint32_t i = 0; i < array::size(nodes); i++)
 		{
 			if (nodes[i].name == node.parent)
 			{
@@ -86,9 +86,9 @@ uint32_t compute_link_depth(const GraphNode& node, const List<GraphNode>& nodes)
 }
 
 //-----------------------------------------------------------------------------
-uint32_t find_node_index(StringId32 name, const List<GraphNodeDepth>& node_depths)
+uint32_t find_node_index(StringId32 name, const Array<GraphNodeDepth>& node_depths)
 {
-	for (uint32_t i = 0; i < node_depths.size(); i++)
+	for (uint32_t i = 0; i < array::size(node_depths); i++)
 	{
 		if (node_depths[i].name == name)
 		{
@@ -101,12 +101,12 @@ uint32_t find_node_index(StringId32 name, const List<GraphNodeDepth>& node_depth
 }
 
 //-----------------------------------------------------------------------------
-int32_t find_node_parent_index(uint32_t node, const List<GraphNode>& nodes, const List<GraphNodeDepth>& node_depths)
+int32_t find_node_parent_index(uint32_t node, const Array<GraphNode>& nodes, const Array<GraphNodeDepth>& node_depths)
 {
 	StringId32 parent_name = nodes[node_depths[node].index].parent;
 
 	if (parent_name == NO_PARENT) return -1;
-	for (uint32_t i = 0; i < node_depths.size(); i++)
+	for (uint32_t i = 0; i < array::size(node_depths); i++)
 	{
 		if (parent_name == node_depths[i].name)
 		{
@@ -119,7 +119,7 @@ int32_t find_node_parent_index(uint32_t node, const List<GraphNode>& nodes, cons
 }
 
 //-----------------------------------------------------------------------------
-void parse_nodes(JSONElement e, List<GraphNode>& nodes, List<GraphNodeDepth>& node_depths)
+void parse_nodes(JSONElement e, Array<GraphNode>& nodes, Array<GraphNodeDepth>& node_depths)
 {
 	Vector<DynamicString> keys(default_allocator());
 	e.to_keys(keys);
@@ -147,16 +147,16 @@ void parse_nodes(JSONElement e, List<GraphNode>& nodes, List<GraphNodeDepth>& no
 
 		GraphNodeDepth gnd;
 		gnd.name = gn.name;
-		gnd.index = nodes.size();
+		gnd.index = array::size(nodes);
 		gnd.depth = 0;
 
-		nodes.push_back(gn);
-		node_depths.push_back(gnd);
+		array::push_back(nodes, gn);
+		array::push_back(node_depths, gnd);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void parse_cameras(JSONElement e, List<UnitCamera>& cameras, const List<GraphNodeDepth>& node_depths)
+void parse_cameras(JSONElement e, Array<UnitCamera>& cameras, const Array<GraphNodeDepth>& node_depths)
 {
 	Vector<DynamicString> keys(default_allocator());
 	e.to_keys(keys);
@@ -175,12 +175,12 @@ void parse_cameras(JSONElement e, List<UnitCamera>& cameras, const List<GraphNod
 		cn.name = hash::murmur2_32(camera_name, string::strlen(camera_name));
 		cn.node = find_node_index(node_name_hash, node_depths);
 
-		cameras.push_back(cn);
+		array::push_back(cameras, cn);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void parse_renderables(JSONElement e, List<UnitRenderable>& renderables, const List<GraphNodeDepth>& node_depths)
+void parse_renderables(JSONElement e, Array<UnitRenderable>& renderables, const Array<GraphNodeDepth>& node_depths)
 {
 	Vector<DynamicString> keys(default_allocator());
 	e.to_keys(keys);
@@ -220,7 +220,7 @@ void parse_renderables(JSONElement e, List<UnitRenderable>& renderables, const L
 		}
 		rn.resource.id = hash::murmur2_64(res_name.c_str(), res_name.length(), 0);
 
-		renderables.push_back(rn);
+		array::push_back(renderables, rn);
 	}
 }
 
@@ -238,20 +238,20 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	ResourceId				m_physics_resource;
 	ResourceId				m_material_resource;
-	List<GraphNode>			m_nodes(default_allocator());
-	List<GraphNodeDepth>	m_node_depths(default_allocator());
-	List<UnitCamera>		m_cameras(default_allocator());
-	List<UnitRenderable>	m_renderables(default_allocator());
+	Array<GraphNode>			m_nodes(default_allocator());
+	Array<GraphNodeDepth>	m_node_depths(default_allocator());
+	Array<UnitCamera>		m_cameras(default_allocator());
+	Array<UnitRenderable>	m_renderables(default_allocator());
 
 	// Check for nodes
 	if (root.has_key("nodes")) parse_nodes(root.key("nodes"), m_nodes, m_node_depths);
 
-	for (uint32_t i = 0; i < m_nodes.size(); i++)
+	for (uint32_t i = 0; i < array::size(m_nodes); i++)
 	{
 		m_node_depths[i].depth = compute_link_depth(m_nodes[i], m_nodes);
 	}
 
-	std::sort(m_node_depths.begin(), m_node_depths.end(), GraphNodeDepth());
+	std::sort(array::begin(m_node_depths), array::end(m_node_depths), GraphNodeDepth());
 
 	if (root.has_key("renderables")) parse_renderables(root.key("renderables"), m_renderables, m_node_depths);
 	if (root.has_key("cameras")) parse_cameras(root.key("cameras"), m_cameras, m_node_depths);
@@ -286,9 +286,9 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	UnitHeader h;
 	h.physics_resource = m_physics_resource;
 	h.material_resource = m_material_resource;
-	h.num_renderables = m_renderables.size();
-	h.num_cameras = m_cameras.size();
-	h.num_scene_graph_nodes = m_nodes.size();
+	h.num_renderables = array::size(m_renderables);
+	h.num_cameras = array::size(m_cameras);
+	h.num_scene_graph_nodes = array::size(m_nodes);
 
 	uint32_t offt = sizeof(UnitHeader);
 	h.renderables_offset         = offt; offt += sizeof(UnitRenderable) * h.num_renderables;
@@ -299,12 +299,12 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	out_file->write((char*) &h, sizeof(UnitHeader));
 
 	// Write renderables
-	if (m_renderables.size())
-		out_file->write((char*) m_renderables.begin(), sizeof(UnitRenderable) * h.num_renderables);
+	if (array::size(m_renderables))
+		out_file->write((char*) array::begin(m_renderables), sizeof(UnitRenderable) * h.num_renderables);
 
 	// Write cameras
-	if (m_cameras.size())
-		out_file->write((char*) m_cameras.begin(), sizeof(UnitCamera) * h.num_cameras);
+	if (array::size(m_cameras))
+		out_file->write((char*) array::begin(m_cameras), sizeof(UnitCamera) * h.num_cameras);
 
 	// Write node poses
 	for (uint32_t i = 0; i < h.num_scene_graph_nodes; i++)

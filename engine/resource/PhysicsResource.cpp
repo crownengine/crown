@@ -85,7 +85,7 @@ void parse_controller(JSONElement e, PhysicsController& controller)
 }
 
 //-----------------------------------------------------------------------------
-void parse_shapes(JSONElement e, List<PhysicsShape>& shapes)
+void parse_shapes(JSONElement e, Array<PhysicsShape>& shapes)
 {
 	Vector<DynamicString> keys(default_allocator());
 	e.to_keys(keys);
@@ -164,12 +164,12 @@ void parse_shapes(JSONElement e, List<PhysicsShape>& shapes)
 			}
 		}
 
-		shapes.push_back(ps);
+		array::push_back(shapes, ps);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void parse_actors(JSONElement e, List<PhysicsActor>& actors, List<PhysicsShape>& actor_shapes, List<uint32_t>& shape_indices)
+void parse_actors(JSONElement e, Array<PhysicsActor>& actors, Array<PhysicsShape>& actor_shapes, Array<uint32_t>& shape_indices)
 {
 	Vector<DynamicString> keys(default_allocator());
 	e.to_keys(keys);
@@ -187,15 +187,15 @@ void parse_actors(JSONElement e, List<PhysicsActor>& actors, List<PhysicsShape>&
 		pa.actor_class = clasz.to_string_id();
 		pa.num_shapes = shapes.size();
 
-		actors.push_back(pa);
-		shape_indices.push_back(shape_indices.size());
+		array::push_back(actors, pa);
+		array::push_back(shape_indices, array::size(shape_indices));
 
 		parse_shapes(shapes, actor_shapes);
 	}
 }
 
 //-----------------------------------------------------------------------------
-void parse_joints(JSONElement e, List<PhysicsJoint>& joints)
+void parse_joints(JSONElement e, Array<PhysicsJoint>& joints)
 {
 	Vector<DynamicString> keys(default_allocator());
 	e.to_keys(keys);
@@ -278,7 +278,7 @@ void parse_joints(JSONElement e, List<PhysicsJoint>& joints)
 			}
 		}
 
-		joints.push_back(pj);
+		array::push_back(joints, pj);
 	}
 }
 
@@ -307,10 +307,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		m_has_controller = true;
 	}
 
-	List<PhysicsActor> m_actors(default_allocator());
-	List<uint32_t> m_shapes_indices(default_allocator());
-	List<PhysicsShape> m_shapes(default_allocator());
-	List<PhysicsJoint> m_joints(default_allocator());
+	Array<PhysicsActor> m_actors(default_allocator());
+	Array<uint32_t> m_shapes_indices(default_allocator());
+	Array<PhysicsShape> m_shapes(default_allocator());
+	Array<PhysicsJoint> m_joints(default_allocator());
 
 	if (root.has_key("actors")) parse_actors(root.key("actors"), m_actors, m_shapes, m_shapes_indices);
 	if (root.has_key("joints")) parse_joints(root.key("joints"), m_joints);
@@ -321,10 +321,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	PhysicsHeader h;
 	h.version = 1;
 	h.num_controllers = m_has_controller ? 1 : 0;
-	h.num_actors = m_actors.size();
-	h.num_shapes_indices = m_shapes_indices.size();
-	h.num_shapes = m_shapes.size();
-	h.num_joints = m_joints.size();
+	h.num_actors = array::size(m_actors);
+	h.num_shapes_indices = array::size(m_shapes_indices);
+	h.num_shapes = array::size(m_shapes);
+	h.num_joints = array::size(m_joints);
 
 	uint32_t offt = sizeof(PhysicsHeader);
 	h.controller_offset = offt; offt += sizeof(PhysicsController) * h.num_controllers;
@@ -340,24 +340,24 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		out_file->write((char*) &m_controller, sizeof(PhysicsController));
 	}
 
-	if (m_actors.size())
+	if (array::size(m_actors))
 	{
-		out_file->write((char*) m_actors.begin(), sizeof(PhysicsActor) * m_actors.size());
+		out_file->write((char*) array::begin(m_actors), sizeof(PhysicsActor) * array::size(m_actors));
 	}
 
-	if (m_shapes_indices.size())
+	if (array::size(m_shapes_indices))
 	{
-		out_file->write((char*) m_shapes_indices.begin(), sizeof(uint32_t) * m_shapes_indices.size());
+		out_file->write((char*) array::begin(m_shapes_indices), sizeof(uint32_t) * array::size(m_shapes_indices));
 	}
 
-	if (m_shapes.size())
+	if (array::size(m_shapes))
 	{
-		out_file->write((char*) m_shapes.begin(), sizeof(PhysicsShape) * m_shapes.size());
+		out_file->write((char*) array::begin(m_shapes), sizeof(PhysicsShape) * array::size(m_shapes));
 	}
 
-	if (m_joints.size())
+	if (array::size(m_joints))
 	{
-		out_file->write((char*) m_joints.begin(), sizeof(PhysicsJoint) * m_joints.size());
+		out_file->write((char*) array::begin(m_joints), sizeof(PhysicsJoint) * array::size(m_joints));
 	}
 }
 } // namespace physics_resource
@@ -381,14 +381,14 @@ namespace physics_config_resource
 		uint32_t mask;
 	};
 
-	uint32_t collides_with_to_mask(Vector<DynamicString>& collides_with, List<NameToMask>& name_to_mask)
+	uint32_t collides_with_to_mask(Vector<DynamicString>& collides_with, Array<NameToMask>& name_to_mask)
 	{
 		uint32_t mask = 0;
 
 		for (uint32_t i = 0; i < collides_with.size(); i++)
 		{
 			StringId32 cur_name = collides_with[i].to_string_id();
-			for (uint32_t j = 0; j < name_to_mask.size(); j++)
+			for (uint32_t j = 0; j < array::size(name_to_mask); j++)
 			{
 				if (cur_name == name_to_mask[j].name) mask |= name_to_mask[j].mask;
 			}
@@ -397,10 +397,10 @@ namespace physics_config_resource
 		return mask;
 	}
 
-	uint32_t collision_filter_to_mask(const char* filter, List<NameToMask> name_to_mask)
+	uint32_t collision_filter_to_mask(const char* filter, Array<NameToMask> name_to_mask)
 	{
 		StringId32 filter_hash = hash::murmur2_32(filter, string::strlen(filter));
-		for (uint32_t i = 0; i < name_to_mask.size(); i++)
+		for (uint32_t i = 0; i < array::size(name_to_mask); i++)
 		{
 			if (name_to_mask[i].name == filter_hash) return name_to_mask[i].mask;
 		}
@@ -409,7 +409,7 @@ namespace physics_config_resource
 		return 0;
 	}
 
-	void parse_materials(JSONElement e, List<ObjectName>& names, List<PhysicsMaterial>& objects)
+	void parse_materials(JSONElement e, Array<ObjectName>& names, Array<PhysicsMaterial>& objects)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
@@ -432,12 +432,12 @@ namespace physics_config_resource
 			mat.dynamic_friction = dynamic_friction.to_float();
 			mat.restitution = restitution.to_float();
 
-			names.push_back(mat_name);
-			objects.push_back(mat);
+			array::push_back(names, mat_name);
+			array::push_back(objects, mat);
 		}
 	}
 
-	void parse_shapes(JSONElement e, List<NameToMask>& name_to_mask, List<ObjectName>& names, List<PhysicsShape2>& objects)
+	void parse_shapes(JSONElement e, Array<NameToMask>& name_to_mask, Array<ObjectName>& names, Array<PhysicsShape2>& objects)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
@@ -459,12 +459,12 @@ namespace physics_config_resource
 			DynamicString cfilter; collision_filter.to_string(cfilter);
 			ps2.collision_filter = collision_filter_to_mask(cfilter.c_str(), name_to_mask);
 
-			names.push_back(shape_name);
-			objects.push_back(ps2);
+			array::push_back(names, shape_name);
+			array::push_back(objects, ps2);
 		}
 	}
 
-	void parse_actors(JSONElement e, List<ObjectName>& names, List<PhysicsActor2>& objects)
+	void parse_actors(JSONElement e, Array<ObjectName>& names, Array<PhysicsActor2>& objects)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
@@ -502,12 +502,12 @@ namespace physics_config_resource
 				pa2.flags |= disable_gravity.to_bool() ? PhysicsActor2::DISABLE_GRAVITY : 0;
 			}
 
-			names.push_back(actor_name);
-			objects.push_back(pa2);
+			array::push_back(names, actor_name);
+			array::push_back(objects, pa2);
 		}
 	}
 
-	void parse_collision_filters(JSONElement e, List<ObjectName>& names, List<PhysicsCollisionFilter>& objects, List<NameToMask>& name_to_mask)
+	void parse_collision_filters(JSONElement e, Array<ObjectName>& names, Array<PhysicsCollisionFilter>& objects, Array<NameToMask>& name_to_mask)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
@@ -518,7 +518,7 @@ namespace physics_config_resource
 			NameToMask ntm;
 			ntm.name = keys[i].to_string_id();
 			ntm.mask = 1 << i;
-			name_to_mask.push_back(ntm);
+			array::push_back(name_to_mask, ntm);
 		}
 
 		for (uint32_t i = 0; i < keys.size(); i++)
@@ -540,8 +540,8 @@ namespace physics_config_resource
 
 			printf("FILTER: %s, mask = %X\n", keys[i].c_str(), pcf.mask);
 
-			names.push_back(filter_name);
-			objects.push_back(pcf);
+			array::push_back(names, filter_name);
+			array::push_back(objects, pcf);
 		}		
 	}
 
@@ -554,15 +554,15 @@ namespace physics_config_resource
 		JSONParser json(buf);
 		JSONElement root = json.root();
 
-		List<ObjectName> material_names(default_allocator());
-		List<PhysicsMaterial> material_objects(default_allocator());
-		List<ObjectName> shape_names(default_allocator());
-		List<PhysicsShape2> shape_objects(default_allocator());
-		List<ObjectName> actor_names(default_allocator());
-		List<PhysicsActor2> actor_objects(default_allocator());
-		List<ObjectName> filter_names(default_allocator());
-		List<PhysicsCollisionFilter> filter_objects(default_allocator());
-		List<NameToMask> name_to_mask(default_allocator());
+		Array<ObjectName> material_names(default_allocator());
+		Array<PhysicsMaterial> material_objects(default_allocator());
+		Array<ObjectName> shape_names(default_allocator());
+		Array<PhysicsShape2> shape_objects(default_allocator());
+		Array<ObjectName> actor_names(default_allocator());
+		Array<PhysicsActor2> actor_objects(default_allocator());
+		Array<ObjectName> filter_names(default_allocator());
+		Array<PhysicsCollisionFilter> filter_objects(default_allocator());
+		Array<NameToMask> name_to_mask(default_allocator());
 
 		// Parse materials
 		if (root.has_key("collision_filters")) parse_collision_filters(root.key("collision_filters"), filter_names, filter_objects, name_to_mask);
@@ -574,17 +574,17 @@ namespace physics_config_resource
 		fs.close(file);
 
 		// Sort objects by name
-		std::sort(material_names.begin(), material_names.end(), ObjectName());
-		std::sort(shape_names.begin(), shape_names.end(), ObjectName());
-		std::sort(actor_names.begin(), actor_names.end(), ObjectName());
-		std::sort(filter_names.begin(), filter_names.end(), ObjectName());
+		std::sort(array::begin(material_names), array::end(material_names), ObjectName());
+		std::sort(array::begin(shape_names), array::end(shape_names), ObjectName());
+		std::sort(array::begin(actor_names), array::end(actor_names), ObjectName());
+		std::sort(array::begin(filter_names), array::end(filter_names), ObjectName());
 
 		// Setup struct for writing
 		PhysicsConfigHeader header;
-		header.num_materials = material_names.size();
-		header.num_shapes = shape_names.size();
-		header.num_actors = actor_names.size();
-		header.num_filters = filter_names.size();
+		header.num_materials = array::size(material_names);
+		header.num_shapes = array::size(shape_names);
+		header.num_actors = array::size(actor_names);
+		header.num_filters = array::size(filter_names);
 
 		uint32_t offt = sizeof(PhysicsConfigHeader);
 		header.materials_offset = offt;
@@ -609,13 +609,13 @@ namespace physics_config_resource
 		if (header.num_materials)
 		{
 			// Write material names
-			for (uint32_t i = 0; i < material_names.size(); i++)
+			for (uint32_t i = 0; i < array::size(material_names); i++)
 			{
 				out_file->write((char*) &material_names[i].name, sizeof(StringId32));
 			}
 
 			// Write material objects
-			for (uint32_t i = 0; i < material_names.size(); i++)
+			for (uint32_t i = 0; i < array::size(material_names); i++)
 			{
 				out_file->write((char*) &material_objects[material_names[i].index], sizeof(PhysicsMaterial));
 			}
@@ -624,13 +624,13 @@ namespace physics_config_resource
 		if (header.num_shapes)
 		{
 			// Write shape names
-			for (uint32_t i = 0; i < shape_names.size(); i++)
+			for (uint32_t i = 0; i < array::size(shape_names); i++)
 			{
 				out_file->write((char*) &shape_names[i].name, sizeof(StringId32));
 			}
 
 			// Write material objects
-			for (uint32_t i = 0; i < shape_names.size(); i++)
+			for (uint32_t i = 0; i < array::size(shape_names); i++)
 			{
 				out_file->write((char*) &shape_objects[shape_names[i].index], sizeof(PhysicsShape2));
 			}
@@ -639,13 +639,13 @@ namespace physics_config_resource
 		if (header.num_actors)
 		{
 			// Write shape names
-			for (uint32_t i = 0; i < actor_names.size(); i++)
+			for (uint32_t i = 0; i < array::size(actor_names); i++)
 			{
 				out_file->write((char*) &actor_names[i].name, sizeof(StringId32));
 			}
 
 			// Write material objects
-			for (uint32_t i = 0; i < actor_names.size(); i++)
+			for (uint32_t i = 0; i < array::size(actor_names); i++)
 			{
 				out_file->write((char*) &actor_objects[actor_names[i].index], sizeof(PhysicsActor2));
 			}
@@ -654,13 +654,13 @@ namespace physics_config_resource
 		if (header.num_filters)
 		{
 			// Write shape names
-			for (uint32_t i = 0; i < filter_names.size(); i++)
+			for (uint32_t i = 0; i < array::size(filter_names); i++)
 			{
 				out_file->write((char*) &filter_names[i].name, sizeof(StringId32));
 			}
 
 			// Write material objects
-			for (uint32_t i = 0; i < filter_names.size(); i++)
+			for (uint32_t i = 0; i < array::size(filter_names); i++)
 			{
 				out_file->write((char*) &filter_objects[filter_names[i].index], sizeof(PhysicsCollisionFilter));
 			}

@@ -47,7 +47,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONElement root = json.root();
 
 	// Read texture layers
-	List<ResourceId> texture_layers(default_allocator());
+	Array<ResourceId> texture_layers(default_allocator());
 
 	JSONElement tl = root.key("texture_layers");
 	for (uint32_t i = 0; i < tl.size(); i++)
@@ -55,7 +55,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		DynamicString tex;
 		tl[i].to_string(tex); tex += ".texture";
 		ResourceId tex_id; tex_id.id = hash::murmur2_64(tex.c_str(), tex.length(), 0);
-		texture_layers.push_back(tex_id);
+		array::push_back(texture_layers, tex_id);
 	}
 
 	fs.close(file);
@@ -63,7 +63,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	// Write resource
 	MaterialHeader mh;
-	mh.num_texture_layers = texture_layers.size();
+	mh.num_texture_layers = array::size(texture_layers);
 
 	uint32_t offt = sizeof(MaterialHeader);
 	mh.texture_layers_offset = offt;
@@ -72,7 +72,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	if (mh.num_texture_layers)
 	{
-		out_file->write((char*) texture_layers.begin(), sizeof(ResourceId) * texture_layers.size());
+		out_file->write((char*) array::begin(texture_layers), sizeof(ResourceId) * array::size(texture_layers));
 	}
 }
 

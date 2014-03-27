@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Allocator.h"
 #include "StringUtils.h"
-#include "List.h"
+#include "Array.h"
 #include "Hash.h"
 
 namespace crown
@@ -86,7 +86,7 @@ public:
 
 private:
 
-	List<char>			m_string;
+	Array<char>			m_string;
 };
 
 //-----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ inline DynamicString::DynamicString(const char* s, Allocator& allocator)
 {
 	if (s != NULL)
 	{
-		m_string.push(s, string::strlen(s));
+		array::push(m_string, s, string::strlen(s));
 	}
 }
 
@@ -123,7 +123,7 @@ inline DynamicString& DynamicString::operator+=(const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
 
-	m_string.push(s, string::strlen(s));
+	array::push(m_string, s, string::strlen(s));
 
 	return *this;
 }
@@ -131,7 +131,7 @@ inline DynamicString& DynamicString::operator+=(const char* s)
 //-----------------------------------------------------------------------------
 inline DynamicString& DynamicString::operator+=(const char c)
 {
-	m_string.push_back(c);
+	array::push_back(m_string, c);
 
 	return *this;
 }
@@ -149,8 +149,8 @@ inline DynamicString& DynamicString::operator=(const char* s)
 {
 	CE_ASSERT_NOT_NULL(s);
 
-	m_string.clear();
-	m_string.push(s, string::strlen(s));
+	array::clear(m_string);
+	array::push(m_string, s, string::strlen(s));
 
 	return *this;
 }
@@ -158,8 +158,8 @@ inline DynamicString& DynamicString::operator=(const char* s)
 //-----------------------------------------------------------------------------
 inline DynamicString& DynamicString::operator=(const char c)
 {
-	m_string.clear();
-	m_string.push_back(c);
+	array::clear(m_string);
+	array::push_back(m_string, c);
 
 	return *this;
 }
@@ -193,8 +193,8 @@ inline void DynamicString::strip_leading(const char* s)
 	const size_t my_len = string::strlen(c_str());
 	const size_t s_len = string::strlen(s);
 
-	memmove(m_string.begin(), m_string.begin() + s_len, (my_len - s_len));
-	m_string.resize(my_len - s_len);
+	memmove(array::begin(m_string), array::begin(m_string) + s_len, (my_len - s_len));
+	array::resize(m_string, my_len - s_len);
 }
 
 //-----------------------------------------------------------------------------
@@ -206,7 +206,7 @@ inline void DynamicString::strip_trailing(const char* s)
 	const size_t my_len = string::strlen(c_str());
 	const size_t s_len = string::strlen(s);
 
-	m_string.resize(my_len - s_len);
+	array::resize(m_string, my_len - s_len);
 }
 
 //-----------------------------------------------------------------------------
@@ -227,7 +227,7 @@ inline bool DynamicString::ends_with(const char* s)
 
 	if (my_len >= s_len)
 	{
-		return string::strncmp(m_string.begin() + (my_len - s_len), s, s_len) == 0;
+		return string::strncmp(array::begin(m_string) + (my_len - s_len), s, s_len) == 0;
 	}
 
 	return false;
@@ -242,10 +242,10 @@ inline StringId32 DynamicString::to_string_id()
 //-----------------------------------------------------------------------------
 inline const char* DynamicString::c_str()
 {
-	m_string.push_back('\0');
-	m_string.pop_back();
+	array::push_back(m_string, '\0');
+	array::pop_back(m_string);
 
-	return m_string.begin();
+	return array::begin(m_string);
 }
 
 } // namespace crown

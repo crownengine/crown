@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "List.h"
+#include "ContainerTypes.h"
 
 namespace crown
 {
@@ -52,7 +52,7 @@ public:
 
 private:
 
-	List<SceneGraph*>	m_graphs;
+	Array<SceneGraph*>	m_graphs;
 };
 
 } // namespace crown

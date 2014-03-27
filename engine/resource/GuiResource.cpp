@@ -44,7 +44,7 @@ namespace gui_resource
 {
 
 //-----------------------------------------------------------------------------
-void parse_rect(JSONElement rect, List<float>& positions, List<float>& sizes, List<float>& colors)
+void parse_rect(JSONElement rect, Array<float>& positions, Array<float>& sizes, Array<float>& colors)
 {
 	JSONElement position 	= rect.key("position");
 	JSONElement size 		= rect.key("size");
@@ -56,7 +56,7 @@ void parse_rect(JSONElement rect, List<float>& positions, List<float>& sizes, Li
 }
 
 //-----------------------------------------------------------------------------
-void parse_triangle(JSONElement triangle, List<float>& points, List<float>& colors)
+void parse_triangle(JSONElement triangle, Array<float>& points, Array<float>& colors)
 {
 	JSONElement point	= triangle.key("points");
 	JSONElement color 	= triangle.key("color");
@@ -66,7 +66,7 @@ void parse_triangle(JSONElement triangle, List<float>& points, List<float>& colo
 }
 
 //-----------------------------------------------------------------------------
-void parse_image(JSONElement image, StringId64& material, List<float>& positions, List<float>& sizes)
+void parse_image(JSONElement image, StringId64& material, Array<float>& positions, Array<float>& sizes)
 {
 	JSONElement mat			= image.key("material");
 	JSONElement position 	= image.key("position");
@@ -90,22 +90,22 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	// Out buffer
 	GuiHeader h;
-	List<GuiRectData> 		m_gui_rects(default_allocator());
-	List<GuiTriangleData> 	m_gui_triangles(default_allocator());
-	List<GuiImageData> 		m_gui_images(default_allocator());
+	Array<GuiRectData> 		m_gui_rects(default_allocator());
+	Array<GuiTriangleData> 	m_gui_triangles(default_allocator());
+	Array<GuiImageData> 		m_gui_images(default_allocator());
 
 	JSONParser json(buf);
 	JSONElement root = json.root();
 
-	List<float>	m_gui_position(default_allocator());
+	Array<float>	m_gui_position(default_allocator());
 	root.key("position").to_array(m_gui_position);
 
 	// Parse & compile all rects
 	if (root.has_key("rects"))
 	{
-		List<float> 		m_rect_positions(default_allocator());
-		List<float> 		m_rect_sizes(default_allocator());
-		List<float> 		m_rect_colors(default_allocator());
+		Array<float> 		m_rect_positions(default_allocator());
+		Array<float> 		m_rect_sizes(default_allocator());
+		Array<float> 		m_rect_colors(default_allocator());
 
 		JSONElement rects = root.key("rects");
 		uint32_t num_rects = rects.size();
@@ -124,19 +124,19 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			rect.color[2] = m_rect_colors[2];
 			rect.color[3] = m_rect_colors[3];
 
-			m_gui_rects.push_back(rect);
+			array::push_back(m_gui_rects, rect);
 
-			m_rect_positions.clear();
-			m_rect_sizes.clear();
-			m_rect_colors.clear();
+			array::clear(m_rect_positions);
+			array::clear(m_rect_sizes);
+			array::clear(m_rect_colors);
 		}
 	}
 
 	// Parse & compile all triangles
 	if (root.has_key("triangles"))
 	{
-		List<float> m_triangle_points(default_allocator());
-		List<float> m_triangle_colors(default_allocator());
+		Array<float> m_triangle_points(default_allocator());
+		Array<float> m_triangle_colors(default_allocator());
 
 		JSONElement triangles = root.key("triangles");
 		uint32_t num_triangles = triangles.size();
@@ -157,10 +157,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			triangle.color[2] = m_triangle_colors[2];
 			triangle.color[3] = m_triangle_colors[3];
 
-			m_gui_triangles.push_back(triangle);
+			array::push_back(m_gui_triangles, triangle);
 
-			m_triangle_points.clear();
-			m_triangle_colors.clear();
+			array::clear(m_triangle_points);
+			array::clear(m_triangle_colors);
 		}
 	}
 
@@ -168,8 +168,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	if (root.has_key("images"))
 	{
 		StringId64			m_image_material = 0;
-		List<float> 		m_image_positions(default_allocator());
-		List<float> 		m_image_sizes(default_allocator());
+		Array<float> 		m_image_positions(default_allocator());
+		Array<float> 		m_image_sizes(default_allocator());
 
 		JSONElement images = root.key("images");
 		uint32_t num_images = images.size();
@@ -185,10 +185,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			image.size[0] 		= m_image_sizes[0];
 			image.size[1] 		= m_image_sizes[1];
 
-			m_gui_images.push_back(image);
+			array::push_back(m_gui_images, image);
 
-			m_image_positions.clear();
-			m_image_sizes.clear();
+			array::clear(m_image_positions);
+			array::clear(m_image_sizes);
 		}
 	}
 
@@ -198,26 +198,26 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	// Fill resource header
 	h.position[0] = m_gui_position[0];
 	h.position[1] = m_gui_position[1];
-	h.num_rects = m_gui_rects.size();
-	h.num_triangles = m_gui_triangles.size();
-	h.num_images = m_gui_images.size();
+	h.num_rects = array::size(m_gui_rects);
+	h.num_triangles = array::size(m_gui_triangles);
+	h.num_images = array::size(m_gui_images);
 	h.rects_offset 	= sizeof(GuiHeader);
-	h.triangles_offset = h.rects_offset + sizeof(GuiRectData) * m_gui_rects.size();
-	h.images_offset = h.triangles_offset + sizeof(GuiTriangleData) * m_gui_triangles.size();
+	h.triangles_offset = h.rects_offset + sizeof(GuiRectData) * array::size(m_gui_rects);
+	h.images_offset = h.triangles_offset + sizeof(GuiTriangleData) * array::size(m_gui_triangles);
 
 	// Write compiled resource
 	out_file->write((char*) &h, sizeof(GuiHeader));
-	if (m_gui_rects.size() > 0)
+	if (array::size(m_gui_rects) > 0)
 	{
-		out_file->write((char*) m_gui_rects.begin(), sizeof(GuiRectData) * h.num_rects);
+		out_file->write((char*) array::begin(m_gui_rects), sizeof(GuiRectData) * h.num_rects);
 	}
-	if (m_gui_triangles.size() > 0)
+	if (array::size(m_gui_triangles) > 0)
 	{
-		out_file->write((char*) m_gui_triangles.begin(), sizeof(GuiTriangleData) * h.num_triangles);
+		out_file->write((char*) array::begin(m_gui_triangles), sizeof(GuiTriangleData) * h.num_triangles);
 	}
-	if (m_gui_images.size() > 0)
+	if (array::size(m_gui_images) > 0)
 	{
-		out_file->write((char*) m_gui_images.begin(), sizeof(GuiImageData) * h.num_images);
+		out_file->write((char*) array::begin(m_gui_images), sizeof(GuiImageData) * h.num_images);
 	}
 }
 

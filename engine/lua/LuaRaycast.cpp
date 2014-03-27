@@ -42,7 +42,7 @@ CE_EXPORT int raycast_cast(lua_State* L)
 	Vector3 dir = stack.get_vector3(3);
 	float length = stack.get_float(4);
 	
-	List<RaycastHit> hits(default_allocator());
+	Array<RaycastHit> hits(default_allocator());
 
 	raycast->cast(from, dir, length, hits);
 
@@ -50,13 +50,13 @@ CE_EXPORT int raycast_cast(lua_State* L)
 	{
 		case CollisionMode::CLOSEST:
 		{
-			bool hit = hits.size() > 0 ? true : false;
+			bool hit = array::size(hits) > 0 ? true : false;
 			stack.push_bool(hit);
 			break;
 		}
 		case CollisionMode::ANY:
 		{
-			bool hit = hits.size() > 0 ? true : false;
+			bool hit = array::size(hits) > 0 ? true : false;
 			stack.push_bool(hit);
 			if (hit)
 			{
@@ -71,7 +71,7 @@ CE_EXPORT int raycast_cast(lua_State* L)
 		case CollisionMode::ALL:
 		{
 			stack.push_table();
-			for (uint32_t i = 0; i < hits.size(); i++)
+			for (uint32_t i = 0; i < array::size(hits); i++)
 			{
 				stack.push_key_begin(i+1);
 				

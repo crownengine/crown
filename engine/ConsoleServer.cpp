@@ -136,17 +136,17 @@ void ConsoleServer::update()
 	}
 
 	TempAllocator256 alloc;
-	List<Id> to_remove(alloc);
+	Array<Id> to_remove(alloc);
 
 	// Update all clients
 	for (uint32_t i = 0; i < m_clients.size(); i++)
 	{
 		ReadResult rr = update_client(m_clients[i].socket);
-		if (rr.error != ReadResult::NO_ERROR) to_remove.push_back(m_clients[i].id);
+		if (rr.error != ReadResult::NO_ERROR) array::push_back(to_remove, m_clients[i].id);
 	}
 
 	// Remove clients
-	for (uint32_t i = 0; i < to_remove.size(); i++)
+	for (uint32_t i = 0; i < array::size(to_remove); i++)
 	{
 		m_clients.lookup(to_remove[i]).socket.close();
 		m_clients.destroy(to_remove[i]);
@@ -174,15 +174,15 @@ ReadResult ConsoleServer::update_client(TCPSocket client)
 	if (rr.error != ReadResult::NO_ERROR) return rr;
 
 	// Else read the message
-	List<char> msg_buf(default_allocator());
-	msg_buf.resize(msg_len);
-	ReadResult msg_result = client.read(msg_buf.begin(), msg_len);
-	msg_buf.push_back('\0');
+	Array<char> msg_buf(default_allocator());
+	array::resize(msg_buf, msg_len);
+	ReadResult msg_result = client.read(array::begin(msg_buf), msg_len);
+	array::push_back(msg_buf, '\0');
 
 	if (msg_result.error == ReadResult::REMOTE_CLOSED) return msg_result;
 	if (msg_result.error != ReadResult::NO_ERROR) return msg_result;
 
-	process(client, msg_buf.begin());
+	process(client, array::begin(msg_buf));
 	return msg_result;
 }
 

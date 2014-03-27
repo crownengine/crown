@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "IdArray.h"
-#include "List.h"
+#include "ContainerTypes.h"
 #include "PoolAllocator.h"
 #include "Resource.h"
 #include "Matrix4x4.h"

@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "List.h"
+#include "ContainerTypes.h"
 #include "Vector.h"
 
 namespace crown
@@ -127,24 +127,24 @@ public:
 	/// array elements by JSONElement::operator[] and it is the very preferred way
 	/// for retrieving array elemets. However, you have to be sure that the array
 	/// contains only items of the given @array type.
-	void				to_array(List<bool>& array) const;
+	void				to_array(Array<bool>& array) const;
 
-	/// @copydoc JSONElement::to_array(List<bool>&)
-	void				to_array(List<int16_t>& array) const;
+	/// @copydoc JSONElement::to_array(Array<bool>&)
+	void				to_array(Array<int16_t>& array) const;
 
-	/// @copydoc JSONElement::to_array(List<bool>&)
-	void				to_array(List<uint16_t>& array) const;
+	/// @copydoc JSONElement::to_array(Array<bool>&)
+	void				to_array(Array<uint16_t>& array) const;
 
-	/// @copydoc JSONElement::to_array(List<bool>&)
-	void				to_array(List<int32_t>& array) const;
+	/// @copydoc JSONElement::to_array(Array<bool>&)
+	void				to_array(Array<int32_t>& array) const;
 
-	/// @copydoc JSONElement::to_array(List<bool>&)
-	void				to_array(List<uint32_t>& array) const;
+	/// @copydoc JSONElement::to_array(Array<bool>&)
+	void				to_array(Array<uint32_t>& array) const;
 
-	/// @copydoc JSONElement::to_array(List<bool>&)
-	void				to_array(List<float>& array) const;
+	/// @copydoc JSONElement::to_array(Array<bool>&)
+	void				to_array(Array<float>& array) const;
 
-	/// @copydoc JSONElement::to_array(List<bool>&)
+	/// @copydoc JSONElement::to_array(Array<bool>&)
 	void				to_array(Vector<DynamicString>& array) const;
 
 	/// Returns all the keys of the element.

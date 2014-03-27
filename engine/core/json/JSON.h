@@ -81,11 +81,11 @@ float parse_float(const char* s);
 
 /// Parses the @a s JSON array and puts it into @a array as pointers to
 /// the corresponding items into the original @a s string.
-void parse_array(const char* s, List<const char*>& array);
+void parse_array(const char* s, Array<const char*>& array);
 
 /// Parses the @a s JSON object and puts it into @a object as pointers to
 /// the corresponding key/value pairs into the original @a s string.
-void parse_object(const char* s, List<JSONPair>& object);
+void parse_object(const char* s, Array<JSONPair>& object);
 
 } // namespace json
 } // namespace crown

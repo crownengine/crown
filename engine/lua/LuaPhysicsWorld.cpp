@@ -84,12 +84,12 @@ CE_EXPORT int physics_world_overlap_test(lua_State* L)
 	Quaternion rot = stack.get_quaternion(6);
 	Vector3 size = stack.get_vector3(7);
 
-	List<Actor*> actors(default_allocator());
+	Array<Actor*> actors(default_allocator());
 
 	world->overlap_test(callback, filter, shape_type, pos, rot, size, actors);
 
 	stack.push_table();
-	for (uint32_t i = 0; i < actors.size(); i++)
+	for (uint32_t i = 0; i < array::size(actors); i++)
 	{
 		stack.push_key_begin(i+1);
 		stack.push_actor(actors[i]);
