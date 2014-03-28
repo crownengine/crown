@@ -374,6 +374,7 @@ set (LUA_SRC
 	lua/LuaUnit.cpp
 	lua/LuaVector2.cpp
 	lua/LuaVector3.cpp
+	lua/LuaVector3Box.cpp
 	lua/LuaWindow.cpp
 	lua/LuaWorld.cpp
 )

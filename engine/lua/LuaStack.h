@@ -29,6 +29,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "lua.hpp"
 #include "Types.h"
 #include "LuaSystem.h"
+#include "Vector3.h"
+#include "Vector2.h"
+#include "Quaternion.h"
+#include "Matrix4x4.h"
 
 namespace crown
 {
@@ -455,6 +459,44 @@ public:
 		lua_pushlightuserdata(m_state, lua_system::next_quaternion(q));
 	}
 
+	/// Allocates a new Vector3Box (full userdata)
+	Vector3& push_vector3box()
+	{
+		return *(Vector3*) lua_newuserdata(m_state, sizeof(Vector3));
+	}
+
+	/// Retrieves Vector3Box (full userdata)
+	Vector3& get_vector3box(uint32_t index)
+	{
+		CE_ASSERT(lua_isuserdata(m_state, index), "Unable to retrieve Vector3Box (wrong index)");
+		return *(Vector3*) lua_touserdata(m_state, index);
+	}
+
+	/// Allocates a new QuaternionBox (full userdata)
+	Quaternion& push_quaternionbox()
+	{
+		return *(Quaternion*) lua_newuserdata(m_state, sizeof(Quaternion));
+	}
+
+	/// Retrieves QuaternionBox (full userdata)
+	Quaternion& get_quaternionbox(uint32_t index)
+	{
+		CE_ASSERT(lua_isuserdata(m_state, index), "Unable to retrieve QuaternionBox (wrong index)");
+		return *(Quaternion*) lua_touserdata(m_state, index);
+	}
+
+	/// Allocates a new Matrix4x4Box (full userdata)
+	Matrix4x4& push_matrix4x4box()
+	{
+		return *(Matrix4x4*) lua_newuserdata(m_state, sizeof(Matrix4x4));
+	}
+
+	/// Retrieves QuaternionBox (full userdata)
+	Matrix4x4& get_matrix4x4box(uint32_t index)
+	{
+		CE_ASSERT(lua_isuserdata(m_state, index), "Unable to retrieve Matrix4x4Box (wrong index)");
+		return *(Matrix4x4*) lua_touserdata(m_state, index);
+	}
 private:
 
 	lua_State* m_state;
