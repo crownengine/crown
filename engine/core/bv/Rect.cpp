@@ -90,7 +90,7 @@ Vector2 Rect::vertex(uint32_t index) const
 			return Vector2(m_min.x, m_max.y);
 	}
 
-	return Vector2::ZERO;
+	return vector2::ZERO;
 }
 
 //-----------------------------------------------------------------------------
@@ -102,7 +102,7 @@ Vector2 Rect::center() const
 //-----------------------------------------------------------------------------
 float Rect::radius() const
 {
-	return (m_max - (m_min + m_max) * 0.5).length();
+	return vector2::length((m_max - (m_min + m_max) * 0.5));
 }
 
 //-----------------------------------------------------------------------------

@@ -24,15 +24,28 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Vector2.h"
+#pragma once
 
 namespace crown
 {
 
-const Vector2 Vector2::ZERO	= Vector2(0.0, 0.0);
-const Vector2 Vector2::ONE	= Vector2(1.0, 1.0);
-const Vector2 Vector2::XAXIS	= Vector2(1.0, 0.0);
-const Vector2 Vector2::YAXIS	= Vector2(0.0, 1.0);
+struct Vector2
+{
+	Vector2();
+	Vector2(float val);
+	Vector2(float nx, float ny);
+	Vector2(const float v[2]);
+	Vector2(const Vector2& a);
+
+	float operator[](uint32_t i) const;
+	float& operator[](uint32_t i);
+
+	Vector2& operator+=(const Vector2& a);
+	Vector2& operator-=(const Vector2& a);
+	Vector2& operator*=(float k);
+	Vector2& operator/=(float k);
+
+	float x, y;
+};
 
 } // namespace crown
-

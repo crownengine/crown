@@ -150,7 +150,6 @@ set (MATH_SRC
 	core/math/Matrix4x4.cpp
 	core/math/Plane.cpp
 	core/math/Quaternion.cpp
-	core/math/Vector2.cpp
 	core/math/Vector3.cpp
 	core/math/Vector4.cpp
 )
@@ -158,9 +157,10 @@ set (MATH_SRC
 set (MATH_HEADERS
 	core/math/Color4.h
 	core/math/Intersection.h
+	core/math/MathTypes.h
+	core/math/MathUtils.h
 	core/math/Matrix3x3.h
 	core/math/Matrix4x4.h
-	core/math/MathUtils.h
 	core/math/Plane.h
 	core/math/Quaternion.h
 	core/math/Random.h

@@ -656,7 +656,7 @@ inline bool Intersection::test_frustum_box(const Frustum& f, const Box& b)
 inline bool Intersection::test_circle_circle(const Circle& c1, const Circle& c2, Vector2& penetration)
 {
 	Vector2 distance = c1.center() - c2.center();
-	float distanceLen2 = distance.squared_length();
+	float distanceLen2 = vector2::squared_length(distance);
 	float radiusSum = c1.radius() + c2.radius();
 	if (distanceLen2 > radiusSum*radiusSum)
 	{
@@ -681,7 +681,7 @@ inline bool Intersection::test_dynamic_circle_circle(const Circle& c1, const Vec
 	// c1 == static circle
 	// c2 == moving circle
 	Vector2 d = d2 - d1;
-	d.normalize();
+	vector2::normalize(d);
 
 	const Vector2& cs = c1.center();
 	const Vector2& cm = c2.center();
@@ -690,15 +690,15 @@ inline bool Intersection::test_dynamic_circle_circle(const Circle& c1, const Vec
 	float r = c1.radius() + c2.radius();
 
 	// If ||e|| < r, int32_tersection occurs at t = 0
-	if (e.length() < r)
+	if (vector2::length(e) < r)
 	{
 		it = 0.0;
 		return true;
 	}
 
 	// it == Intersection Time
-	float ed = e.dot(d);
-	float squared = (ed * ed) + (r * r) - e.dot(e);
+	float ed = vector2::dot(e, d);
+	float squared = (ed * ed) + (r * r) - vector2::dot(e, e);
 
 	// If the value inside the square root is neg, then no int32_tersection
 	if (squared < 0.0)
@@ -707,7 +707,7 @@ inline bool Intersection::test_dynamic_circle_circle(const Circle& c1, const Vec
 	}
 
 	float t = ed - math::sqrt(squared);
-	float l = (d2 - d1).length();
+	float l = vector2::length(d2 - d1);
 
 	// If t < 0 || t > l, then non int32_tersection in the considered period of time
 	if (t < 0.0 || t > l)
@@ -829,7 +829,7 @@ inline bool Intersection::test_circle_rect(const Circle& c1, const Rect& r2, Vec
 	else
 	{
 		penetration += Vector2(c1.radius(), c1.radius());
-		float len = math::sqrt(penetration.squared_length());
+		float len = math::sqrt(vector2::squared_length(penetration));
 		if (len > c1.radius())
 		{
 			return false;

@@ -29,107 +29,174 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Types.h"
 #include "MathUtils.h"
+#include "MathTypes.h"
 
 namespace crown
 {
 
-/// 2D column vector.
-struct Vector2
+/// Negates @a a and returns the result.	
+Vector2 operator-(const Vector2& a);
+
+/// Adds the vector @a to @b and returns the result.
+Vector2 operator+(Vector2 a, const Vector2& b);
+
+/// Subtracts the vector @a b from @a a and returns the result.
+Vector2 operator-(Vector2 a, const Vector2& b);
+
+/// Multiplies the vector @a a by the scalar @a k and returns the result.
+Vector2 operator*(Vector2 a, float k);
+
+/// @copydoc operator*(Vector2, float)
+Vector2 operator*(float k, Vector2 a);
+
+/// Divides the vector @a a by the scalar @a k and returns the result.
+Vector2 operator/(Vector2 a, float k);
+
+/// Returns true whether the vectors @a a and @a b are equal.
+bool operator==(const Vector2& a, const Vector2& b);
+
+namespace vector2
 {
-public:
+	const Vector2 ZERO = Vector2(0, 0);
 
-	float				x, y;
-
-	/// Does nothing for efficiency.
-						Vector2();		
-
-	/// Initializes all the components to val							
-						Vector2(float val);	
-
-	/// Constructs from two components						
-						Vector2(float nx, float ny);
-
-	/// Constructs from array
-						Vector2(const float v[2]);
-						Vector2(const Vector2& a);					
-
-	/// Random access by index
-	float				operator[](uint32_t i) const;
-
-	/// Random access by index			
-	float&				operator[](uint32_t i);					
-
-	Vector2				operator+(const Vector2& a) const;			
-	Vector2&			operator+=(const Vector2& a);				
-	Vector2 			operator-(const Vector2& a) const;			
-	Vector2&			operator-=(const Vector2& a);				
-	Vector2				operator*(float k) const;				
-	Vector2&			operator*=(float k);						
-	Vector2				operator/(float k) const;				
-	Vector2&			operator/=(float k);
-
-	/// Dot product						
-	float				dot(const Vector2& a) const;				
-
-	/// For simmetry
-	friend Vector2		operator*(float k, const Vector2& a);		
-
-	bool				operator==(const Vector2& other) const;	
-	bool				operator!=(const Vector2& other) const;
-
-	/// Returns whether all the components of this vector are smaller than all of the @a other vector	
-	bool				operator<(const Vector2& other) const;		
-
-	/// Returns whether all the components of this vector are greater than all of the @a other vector
-	bool				operator>(const Vector2& other) const;		
+	/// Dot product
+	float dot(const Vector2& a, const Vector2& b);
 
 	/// Returns the vector's length
-	float				length() const;
+	float length(const Vector2& a);
 
 	/// Returns the vector's squared length							
-	float				squared_length() const;
+	float squared_length(const Vector2& a);
 
 	/// Sets the vector's length					
-	void				set_length(float len);					
-	float				get_angle() const;
-	float				get_angle_2d() const;
+	void set_length(Vector2& a, float len);
 
 	/// Normalizes the vector
-	Vector2&			normalize();
-
-	/// Returns the normalized vector							
-	Vector2				get_normalized() const;
-
-	/// Negates the vector (i.e. builds the inverse)					
-	Vector2&			negate();
-
-	/// Negates the vector (i.e. builds the inverse)								
-	Vector2				operator-() const;						
+	Vector2 normalize(Vector2& a);
 
 	/// Returns the distance
-	float				get_distance_to(const Vector2& a) const;
+	float distance(const Vector2& a, const Vector2& b);
 
-	/// Returns the angle in radian	
-	float				get_angle_between(const Vector2& a) const;
-
-	/// Sets all components to zero
-	void				zero();
+	/// Returns the angle between
+	float angle(const Vector2& a, const Vector2& b);
 
 	/// Returns the pointer to the vector's data
-	float*				to_float_ptr();	
+	float* to_float_ptr(Vector2& a);
 
-	/// Returns the pointer to the vector's data						
-	const float*		to_float_ptr() const;					
+	/// Returns the pointer to the vector's data
+	const float* to_float_ptr(const Vector2& a);
+} // namespace vector2
 
-	static const Vector2	ZERO;
-	static const Vector2	ONE;
-	static const Vector2	XAXIS;
-	static const Vector2	YAXIS;
-};
+inline Vector2 operator-(const Vector2& a)
+{
+	return Vector2(-a.x, -a.y);
+}
+
+inline Vector2 operator+(Vector2 a, const Vector2& b)
+{
+	a += b;
+	return a;
+}
+
+inline Vector2 operator-(Vector2 a, const Vector2& b)
+{
+	a -= b;
+	return a;
+}
+
+inline Vector2 operator*(Vector2 a, float k)
+{
+	a *= k;
+	return a;
+}
+
+inline Vector2 operator*(float k, Vector2 a)
+{
+	a *= k;
+	return a;
+}
+
+inline Vector2 operator/(Vector2 a, float k)
+{
+	a /= k;
+	return a;
+}
+
+inline bool operator==(const Vector2& a, const Vector2& b)
+{
+	return math::equals(a.x, b.x) && math::equals(a.y, b.y);
+}
+
+namespace vector2
+{
+
+	//-----------------------------------------------------------------------------
+	inline float dot(const Vector2& a, const Vector2& b)
+	{
+		return a.x * b.x + a.y * b.y;
+	}
+
+	//-----------------------------------------------------------------------------
+	inline float length(const Vector2& a)
+	{
+		return math::sqrt(a.x * a.x + a.y * a.y);
+	}
+
+	//-----------------------------------------------------------------------------
+	inline float squared_length(const Vector2& a)
+	{
+		return a.x * a.x + a.y * a.y;
+	}
+
+	//-----------------------------------------------------------------------------
+	inline void set_length(Vector2& a, float len)
+	{
+		normalize(a);
+
+		a.x *= len;
+		a.y *= len;
+	}
+
+	//-----------------------------------------------------------------------------
+	inline Vector2 normalize(Vector2& a)
+	{
+		float inv_len = 1.0 / length(a);
+
+		a.x *= inv_len;
+		a.y *= inv_len;
+
+		return a;
+	}
+
+	//-----------------------------------------------------------------------------
+	inline float distance(const Vector2& a, const Vector2& b)
+	{
+		return length(b - a);
+	}
+
+	//-----------------------------------------------------------------------------
+	inline float angle(const Vector2& a, const Vector2& b)
+	{
+		return math::acos(dot(a, b) / (length(a) * length(b)));
+	}
+
+	//-----------------------------------------------------------------------------
+	inline float* to_float_ptr(Vector2& a)
+	{
+		return &a.x;
+	}
+
+	//-----------------------------------------------------------------------------
+	inline const float* to_float_ptr(const Vector2& a)
+	{
+		return &a.x;
+	}
+} // namespace vector2
 
 //-----------------------------------------------------------------------------
 inline Vector2::Vector2()
 {
+	// Do not initialize
 }
 
 //-----------------------------------------------------------------------------
@@ -169,24 +236,12 @@ inline float& Vector2::operator[](uint32_t i)
 }
 
 //-----------------------------------------------------------------------------
-inline Vector2 Vector2::operator+(const Vector2& a) const
-{
-	return Vector2(x + a.x, y + a.y);
-}
-
-//-----------------------------------------------------------------------------
 inline Vector2& Vector2::operator+=(const Vector2& a)
 {
 	x += a.x;
 	y += a.y;
 
 	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector2 Vector2::operator-(const Vector2& a) const
-{
-	return Vector2(x - a.x, y - a.y);
 }
 
 //-----------------------------------------------------------------------------
@@ -199,28 +254,12 @@ inline Vector2& Vector2::operator-=(const Vector2& a)
 }
 
 //-----------------------------------------------------------------------------
-inline Vector2 Vector2::operator*(float k) const
-{
-	return Vector2(x * k, y * k);
-}
-
-//-----------------------------------------------------------------------------
 inline Vector2& Vector2::operator*=(float k)
 {
 	x *= k;
 	y *= k;
 
 	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector2 Vector2::operator/(float k) const
-{
-	CE_ASSERT(k != (float)0.0, "Division by zero");
-
-	float inv = (float)(1.0 / k);
-
-	return Vector2(x * inv, y * inv);
 }
 
 //-----------------------------------------------------------------------------
@@ -236,160 +275,4 @@ inline Vector2& Vector2::operator/=(float k)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
-inline float Vector2::dot(const Vector2& a) const
-{
-	return x * a.x + y * a.y;
-}
-
-//-----------------------------------------------------------------------------
-inline bool Vector2::operator==(const Vector2& other) const
-{
-	return math::equals(x, other.x) && math::equals(y, other.y);
-}
-
-//-----------------------------------------------------------------------------
-inline bool Vector2::operator!=(const Vector2& other) const
-{
-	return !math::equals(x, other.x) || !math::equals(y, other.y);
-}
-
-//-----------------------------------------------------------------------------
-inline bool Vector2::operator<(const Vector2& other) const
-{
-	return ((x < other.x) && (y < other.y));
-}
-
-//-----------------------------------------------------------------------------
-inline bool Vector2::operator>(const Vector2& other) const
-{
-	return ((x > other.x) && (y > other.y));
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector2::length() const
-{
-	return math::sqrt(x * x + y * y);
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector2::squared_length() const
-{
-	return x * x + y * y;
-}
-
-//-----------------------------------------------------------------------------
-inline void Vector2::set_length(float len)
-{
-	normalize();
-
-	x *= len;
-	y *= len;
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector2::get_angle() const
-{
-	return math::atan2(y, x);
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector2::get_angle_2d() const
-{
-	return math::atan2(-y, x);
-}
-
-//-----------------------------------------------------------------------------
-inline Vector2& Vector2::normalize()
-{
-	float len = length();
-
-	if (math::equals(len, (float)0.0))
-	{
-		return *this;
-	}
-
-	x /= len;
-	y /= len;
-
-	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector2 Vector2::get_normalized() const
-{
-	Vector2 tmp(x, y);
-
-	return tmp.normalize();
-}
-
-//-----------------------------------------------------------------------------
-inline Vector2& Vector2::negate()
-{
-	x = -x;
-	y = -y;
-
-	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector2 Vector2::operator-() const
-{
-	return Vector2(-x, -y);
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector2::get_distance_to(const Vector2& a) const
-{
-	return (*this - a).length();
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector2::get_angle_between(const Vector2& a) const
-{
-	return math::acos(this->dot(a) / (this->length() * a.length()));
-}
-
-//-----------------------------------------------------------------------------
-inline void Vector2::zero()
-{
-	x = 0.0;
-	y = 0.0;
-}
-
-//-----------------------------------------------------------------------------
-inline float* Vector2::to_float_ptr()
-{
-	return &x;
-}
-
-//-----------------------------------------------------------------------------
-inline const float* Vector2::to_float_ptr() const
-{
-	return &x;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector2 get_projected_parallel(const Vector2& v, const Vector2& n)
-{
-	float n_len_q;
-	n_len_q = n.length();
-	n_len_q = n_len_q * n_len_q;
-
-	return n * (v.dot(n) / n_len_q);
-}
-
-//-----------------------------------------------------------------------------
-inline Vector2 get_projected_perpendicular(const Vector2& v, const Vector2& n)
-{
-	return v - get_projected_parallel(v, n);
-}
-
-//-----------------------------------------------------------------------------
-inline Vector2 operator*(float k, const Vector2& a)
-{
-	return a * k;
-}
-
 } // namespace crown
-

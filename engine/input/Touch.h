@@ -80,7 +80,7 @@ public:
 	/// to right and +Y extends from top to bottom.
 	Vector2 pointer_xy(uint8_t p)
 	{
-		if (p >= MAX_POINTER_IDS) return Vector2::ZERO;
+		if (p >= MAX_POINTER_IDS) return vector2::ZERO;
 		return Vector2(m_x[p], m_y[p]);
 	}
 

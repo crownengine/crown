@@ -51,7 +51,7 @@ extern int vector3_subtract(lua_State* L);
 extern int vector3_multiply(lua_State* L);
 extern int vector3_divide(lua_State* L);
 extern int vector3_negate(lua_State* L);
-extern int vector2(lua_State* L);
+extern int vector2_new(lua_State* L);
 extern int vector3(lua_State* L);
 extern int matrix4x4(lua_State* L);
 extern int quaternion(lua_State* L);
@@ -60,7 +60,7 @@ extern int quaternion(lua_State* L);
 static int crown_lua_vector2_call(lua_State* L)
 {
 	lua_remove(L, 1);
-	return vector2(L);
+	return vector2_new(L);
 }
 
 //-----------------------------------------------------------------------------
