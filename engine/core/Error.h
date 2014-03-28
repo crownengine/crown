@@ -84,13 +84,13 @@ inline void log_backtrace()
 			int status;
 			char* real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
 
-			Log::e("\t[%d] %s: (%s)+%s %s\n", i, messages[i], (status == 0 ? real_name : mangled_name), offset_begin, offset_end);
+			Log::e("\t[%d] %s: (%s)+%s %s", i, messages[i], (status == 0 ? real_name : mangled_name), offset_begin, offset_end);
 			free(real_name);
 		}
 		// otherwise, print the whole line
 		else
 		{
-			Log::e("\t[%d] %s\n", i, messages[i]);
+			Log::e("\t[%d] %s", i, messages[i]);
 		}
 	}
 	free(messages);
@@ -105,8 +105,8 @@ inline void abort(const char* file, int line, const char* message, ...)
 	va_start(ap, message);
 	Log::e1(message, ap);
 	va_end(ap);
-	Log::e("\tIn: %s:%d\n\n", file, line);
-	Log::e("Backtrace:\n\n");
+	Log::e("\tIn: %s:%d\n", file, line);
+	Log::e("Backtrace:");
 	//fflush(0);
 	log_backtrace();
 	exit(EXIT_FAILURE);

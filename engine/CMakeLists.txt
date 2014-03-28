@@ -311,6 +311,7 @@ set (RESOURCE_SRC
 	resource/LuaResource.cpp
 	resource/GuiResource.cpp
 	resource/FontResource.cpp
+	resource/FileBundle.cpp
 )
 
 set (RESOURCE_HEADERS
@@ -333,14 +334,6 @@ set (RESOURCE_HEADERS
 	resource/GuiResource.h
 	resource/FontResource.h
 )
-
-if (CROWN_DEBUG OR CROWN_DEVELOPMENT)
-	list (APPEND RESOURCE_SRC resource/FileBundle.cpp)
-elseif (CROWN_RELEASE)
-	list (APPEND RESOURCE_SRC resource/ArchiveBundle.cpp)
-else ()
-	message (FATAL_ERROR "Oops, you should not be here")
-endif (CROWN_DEBUG OR CROWN_DEVELOPMENT)
 
 set (OS_SRC
 )

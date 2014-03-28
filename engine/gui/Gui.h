@@ -38,6 +38,8 @@ namespace crown
 {
 
 typedef Id UniformId;
+
+typedef Id GuiId;
 typedef Id GuiRectId;
 typedef Id GuiTriangleId;
 typedef Id GuiImageId;
@@ -59,6 +61,9 @@ struct Gui
 {
 						Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r);
 						~Gui();
+
+	const GuiId 		id() const;
+	void				set_id(const GuiId id);
 
 	Vector2				resolution() const;
 	void				move(const Vector3& pos);
@@ -95,6 +100,7 @@ public:
 	RenderWorld&		m_render_world;
 	const GuiResource*	m_resource;
 	Renderer&			m_r;
+	GuiId				m_id;
 
 	Matrix4x4			m_projection;
 	Matrix4x4			m_pose;

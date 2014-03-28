@@ -301,7 +301,7 @@ CE_EXPORT int vector3_negate(lua_State* L)
 
 	Vector3& a = stack.get_vector3(1);
 
-	stack.push_vector3(-a);
+	stack.push_vector3(a.negate());
 
 	return 1;
 }

@@ -60,6 +60,7 @@ GPUProgramId		font_program;
 UniformId			font_uniform;
 
 static const char* default_vertex =
+	"precision mediump float;"
 	"uniform mat4      	u_model_view_projection;"
 
 	"attribute vec4    	a_position;"
@@ -77,6 +78,7 @@ static const char* default_vertex =
 	"}";
 
 static const char* default_fragment =
+	"precision mediump float;"
 	"varying vec4            color;"
 
 	"void main(void)"
@@ -85,6 +87,7 @@ static const char* default_fragment =
 	"}";
 
 static const char* texture_fragment = 
+	"precision mediump float;"
 	"varying vec2       tex_coord0;"
 	"varying vec4       color;"
 
@@ -96,6 +99,7 @@ static const char* texture_fragment =
 	"}";
 
 static const char* sdf_vertex =
+	"precision mediump float;"
 	"uniform mat4      	u_model_view_projection;"
 
 	"attribute vec4		a_position;"
@@ -112,6 +116,7 @@ static const char* sdf_vertex =
 	"}";
 
 static const char* sdf_fragment =
+	"precision mediump float;"
 	"uniform sampler2D u_texture;"
 
 	"varying vec4 v_color;"
@@ -206,6 +211,18 @@ Gui::~Gui()
 	}
 
 	destroy_gfx();
+}
+
+//-----------------------------------------------------------------------------
+const GuiId Gui::id() const
+{
+	return m_id;
+}
+
+//-----------------------------------------------------------------------------
+void Gui::set_id(const GuiId id)
+{
+	m_id = id;
 }
 
 //-----------------------------------------------------------------------------

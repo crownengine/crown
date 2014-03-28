@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
 #include "World.h"
+#include "Gui.h"
 #include "Device.h"
 
 namespace crown
@@ -173,10 +174,9 @@ CE_EXPORT int world_create_window_gui(lua_State* L)
 	LuaStack stack(L);
 
 	World* world = stack.get_world(1);
+	GuiId id = world->create_window_gui(stack.get_string(2));
 
-	GuiId gui = world->create_window_gui(stack.get_string(2));
-	stack.push_gui_id(gui);
-
+	stack.push_gui(world->lookup_gui(id));
 	return 1;
 }
 
@@ -186,24 +186,11 @@ CE_EXPORT int world_destroy_gui(lua_State* L)
 	LuaStack stack(L);
 
 	World* world = stack.get_world(1);
+	Gui* gui = stack.get_gui(2);
 
-	world->destroy_gui(stack.get_gui_id(2));
+	world->destroy_gui(gui->id());
 
 	return 0;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int world_lookup_gui(lua_State* L)
-{
-	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-
-	Gui* gui = world->lookup_gui(stack.get_gui_id(2));
-
-	stack.push_gui(gui);
-
-	return 1;	
 }
 
 //-----------------------------------------------------------------------------
@@ -269,7 +256,6 @@ void load_world(LuaEnvironment& env)
 
 	env.load_module_function("World", "create_window_gui",	world_create_window_gui);
 	env.load_module_function("World", "destroy_gui",		world_destroy_gui);
-	env.load_module_function("World", "lookup_gui",			world_lookup_gui);
 
 	env.load_module_function("World", "physics_world",		world_physics_world);
 	env.load_module_function("World", "sound_world",        world_sound_world);

@@ -84,6 +84,7 @@ PhysX_libraries :=\
 	PhysX3\
 	PhysX3CharacterKinematic\
 	PhysX3Common\
+	PhysX3Cooking\
 	PhysX3Extensions\
 	PhysXProfileSDK\
 	PxTask\
@@ -150,7 +151,6 @@ LOCAL_SRC_FILES :=\
 	physics/Actor.cpp\
 	physics/Controller.cpp\
 	physics/PhysicsWorld.cpp\
-	physics/Trigger.cpp\
 	physics/Joint.cpp\
 	physics/Raycast.cpp\
 \
@@ -185,6 +185,7 @@ LOCAL_SRC_FILES :=\
 	lua/LuaMouse.cpp\
 	lua/LuaPhysicsWorld.cpp\
 	lua/LuaQuaternion.cpp\
+	lua/LuaRaycast.cpp\
 	lua/LuaResourcePackage.cpp\
 	lua/LuaSoundWorld.cpp\
 	lua/LuaSprite.cpp\

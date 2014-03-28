@@ -162,7 +162,7 @@ void Sprite::render(Renderer& r, UniformId uniform, float dt)
 		| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
 	r.set_vertex_buffer(m_vb);
 	const uint32_t start_index = m_cur_frame * 6;
-	r.set_index_buffer(m_ib, start_index, 6);
+	r.set_index_buffer(m_ib, 0, 6);
 	r.set_pose(world_pose());
 	r.commit(0);
 

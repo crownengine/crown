@@ -41,9 +41,10 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Unit::Unit(World& w, const UnitResource* ur, const Matrix4x4& pose)
+Unit::Unit(World& w, const ResourceId id, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)
 	, m_scene_graph(*w.scene_graph_manager()->create_scene_graph())
+	, m_resource_id(id)
 	, m_resource(ur)
 	, m_num_cameras(0)
 	, m_num_meshes(0)
@@ -560,5 +561,15 @@ Material* Unit::material(uint32_t i)
 
 	return m_world.render_world()->lookup_material(material);
 }
+
+//-----------------------------------------------------------------------------
+bool Unit::is_a(const char* name)
+{
+	DynamicString unit(name);
+	unit += ".unit";
+
+	return m_resource_id.id == hash::murmur2_64(unit.c_str(), string::strlen(unit.c_str()), 0);
+}
+
 
 } // namespace crown

@@ -390,7 +390,9 @@ void Device::frame()
 	m_last_time = m_current_time;
 	m_time_since_start += m_last_delta_time;
 
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
 	m_console->update();
+	#endif
 
 	if (!m_is_paused)
 	{

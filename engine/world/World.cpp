@@ -72,14 +72,15 @@ void World::set_id(WorldId id)
 UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion& rot)
 {
 	UnitResource* ur = (UnitResource*) device()->resource_manager()->lookup(UNIT_EXTENSION, name);
-	return spawn_unit(ur, pos, rot);
+	ResourceId id = device()->resource_manager()->resource_id(UNIT_EXTENSION, name);
+	return spawn_unit(id, ur, pos, rot);
 }
 
 //-----------------------------------------------------------------------------
-UnitId World::spawn_unit(UnitResource* ur, const Vector3& pos, const Quaternion& rot)
+UnitId World::spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& pos, const Quaternion& rot)
 {
 	// Allocate memory for unit
-	Unit* unit = CE_NEW(m_unit_pool, Unit)(*this, ur, Matrix4x4(rot, pos));
+	Unit* unit = CE_NEW(m_unit_pool, Unit)(*this, id, ur, Matrix4x4(rot, pos));
 
 	// Create Id for the unit
 	const UnitId unit_id = m_units.create(unit);

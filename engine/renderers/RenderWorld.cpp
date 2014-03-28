@@ -54,6 +54,7 @@ UniformId				u_lightmap_0;
 UniformId				u_brightness;
 
 static const char* default_vertex =
+	"precision mediump float;"
 	"uniform mat4      	u_model;"
 	"uniform mat4      	u_model_view_projection;"
 
@@ -72,12 +73,14 @@ static const char* default_vertex =
 	"}";
 
 static const char* default_fragment = 
+	"precision mediump float;"
 	"void main(void)"
 	"{"
 	"	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);"
 	"}";
 
 static const char* texture_fragment = 
+	"precision mediump float;"
 	"varying vec2       tex_coord0;"
 	"varying vec4       color;"
 
@@ -195,7 +198,9 @@ GuiId RenderWorld::create_gui(GuiResource* gr)
 {
 	Renderer* r = device()->renderer();
 	Gui* gui = CE_NEW(m_gui_pool, Gui)(*this, gr, *r);
-	return m_guis.create(gui);
+	GuiId id = m_guis.create(gui);
+	gui->set_id(id);
+	return id;
 }
 
 //-----------------------------------------------------------------------------
