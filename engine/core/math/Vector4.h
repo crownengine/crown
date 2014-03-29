@@ -29,103 +29,185 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Types.h"
 #include "MathUtils.h"
+#include "Vector3.h"
 
 namespace crown
 {
 
-/// 4D column vector.
-struct Vector4
+/// Negates @a a and returns the result.
+Vector4 operator-(const Vector4& a);
+
+/// Adds the vector @a a to @a b and returns the result.
+Vector4 operator+(Vector4 a, const Vector4& b);
+
+/// Subtracts the vector @a b from @a a and returns the result.
+Vector4 operator-(Vector4 a, const Vector4& b);
+
+/// Multiplies the vector @a a by the scalar @a k and returns the result.
+Vector4 operator*(Vector4 a, float k);
+
+/// @copydoc operator*(Vector4, float)
+Vector4 operator*(float k, Vector4 a);
+
+/// Divides the vector @a a by the scalar @a k and returns the result.
+Vector4 operator/(Vector4 a, float k);
+
+/// Returns true whether the vectors @a a and @a b are equal.
+bool operator==(const Vector4& a, const Vector4& b);
+
+namespace vector4
 {
-public:
+	const Vector4 ZERO = Vector4(0, 0, 0, 0);
+	const Vector4 XAXIS = Vector4(1, 0, 0, 0);
+	const Vector4 YAXIS = Vector4(0, 1, 0, 0);
+	const Vector4 ZAXIS = Vector4(0, 0, 1, 0);
+	const Vector4 WAXIS = Vector4(0, 0, 0, 1);
 
-	float				x, y, z, w;
+	/// Returns the dot product between the vectors @a a and @a b.
+	float dot(const Vector4& a, const Vector4& b);
 
-	/// Does nothing for efficiency.
-						Vector4();	
+	/// Returns the lenght of @a a.
+	float length(const Vector4& a);
 
-	/// Initializes all the components to val						
-						Vector4(float val);
+	/// Returns the squared length of @a a.
+	float squared_length(const Vector4& a);
 
-	/// Constructs from four components								
-						Vector4(float nx, float ny, float nz, float nw);
+	/// Sets the lenght of @a a to @a len.
+	void set_length(Vector4& a, float len);
 
-	/// Constructs from array	
-						Vector4(const float v[4]);						
-						Vector4(const Vector4& a);
+	/// Normalizes @a a and returns the result.
+	Vector4 normalize(Vector4& a);
 
-	/// Random access by index
-	float				operator[](uint32_t i) const;	
+	/// Returns the distance between the points @a a and @a b.
+	float distance(const Vector4& a, const Vector4& b);
 
-	/// Random access by index
-	float&				operator[](uint32_t i);						
+	/// Returns the angle between the vectors @a a and @a b.
+	float angle(const Vector4& a, const Vector4& b);
 
-	Vector4				operator+(const Vector4& a) const;				
-	Vector4&			operator+=(const Vector4& a);					
-	Vector4 			operator-(const Vector4& a) const;				
-	Vector4&			operator-=(const Vector4& a);					
-	Vector4				operator*(float k) const;					
-	Vector4&			operator*=(float k);							
-	Vector4				operator/(float k) const;					
-	Vector4&			operator/=(float k);
+	/// Returns the pointer to the data of @a a.
+	float* to_float_ptr(Vector4& a);
 
-	/// Dot product							
-	float				dot(const Vector4& a) const;					
+	/// @copydoc to_float_ptr(Vector4&)
+	const float* to_float_ptr(const Vector4& a);
 
-	/// For simmetry
-	friend Vector4		operator*(float k, const Vector4& a);			
+	/// Returns the Vector3 portion of @a a. (i.e. truncates w)
+	Vector3 to_vector3(const Vector4& a);
+} // namespace vector4
 
-	bool				operator==(const Vector4& other) const;		
-	bool				operator!=(const Vector4& other) const;
+inline Vector4 operator-(const Vector4& a)
+{
+	return Vector4(-a.x, -a.y, -a.z, -a.w);
+}
 
-	/// Returns whether all the components of this vector are smaller than all of the @a other vector	
-	bool				operator<(const Vector4& other) const;	
+inline Vector4 operator+(Vector4 a, const Vector4& b)
+{
+	a += b;
+	return a;
+}
 
-	/// Returns whether all the components of this vector are greater than all of the @a other vector		
-	bool				operator>(const Vector4& other) const;			
+inline Vector4 operator-(Vector4 a, const Vector4& b)
+{
+	a -= b;
+	return a;
+}
 
-	/// Returns the vector's length
-	float				length() const;	
+inline Vector4 operator*(Vector4 a, float k)
+{
+	a *= k;
+	return a;
+}
 
-	/// Returns the vector's squared length							
-	float				squared_length() const;
+inline Vector4 operator*(float k, Vector4 a)
+{
+	a *= k;
+	return a;
+}
 
-	/// Sets the vector's length						
-	void				set_length(float len);
+inline Vector4 operator/(Vector4 a, float k)
+{
+	a /= k;
+	return a;
+}
 
-	/// Normalizes the vector						
-	Vector4&			normalize();
+inline bool operator==(const Vector4& a, const Vector4& b)
+{
+	return math::equals(a.x, b.x) && math::equals(a.y, b.y) && math::equals(a.z, b.z) && math::equals(a.w, b.w);
+}
 
-	/// Returns the normalized vector								
-	Vector4				get_normalized() const;
+namespace vector4
+{
+	//-----------------------------------------------------------------------------
+	inline float dot(const Vector4& a, const Vector4& b)
+	{
+		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+	}
 
-	/// Negates the vector (i.e. builds the inverse)						
-	Vector4&			negate();	
+	//-----------------------------------------------------------------------------
+	inline float length(const Vector4& a)
+	{
+		return math::sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
+	}
 
-	/// Negates the vector (i.e. builds the inverse)								
-	Vector4				operator-() const;							
+	//-----------------------------------------------------------------------------
+	inline float squared_length(const Vector4& a)
+	{
+		return a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
+	}
 
-	/// Returns the distance
-	float				get_distance_to(const Vector4& a) const;
+	//-----------------------------------------------------------------------------
+	inline void set_length(Vector4& a, float len)
+	{
+		normalize(a);
 
-	/// Returns the angle in radians		
-	float				get_angle_between(const Vector4& a) const;		
+		a.x *= len;
+		a.y *= len;
+		a.z *= len;
+		a.w *= len;
+	}
 
-	/// Sets all components to zero
-	void				zero();										
+	//-----------------------------------------------------------------------------
+	inline Vector4 normalize(Vector4& a)
+	{
+		float inv_len = 1.0 / length(a);
 
-	/// Returns the pointer to the vector's data
-	float*				to_float_ptr();	
+		a.x *= inv_len;
+		a.y *= inv_len;
+		a.z *= inv_len;
+		a.w *= inv_len;
 
-	/// Returns the pointer to the vector's data							
-	const float*		to_float_ptr() const;						
+		return a;
+	}
 
-	static const Vector4	ZERO;
-	static const Vector4	ONE;
-	static const Vector4	XAXIS;
-	static const Vector4	YAXIS;
-	static const Vector4	ZAXIS;
-	static const Vector4	WAXIS;
-};
+	//-----------------------------------------------------------------------------
+	inline float distance(const Vector4& a, const Vector4& b)
+	{
+		return length(b - a);
+	}
+
+	//-----------------------------------------------------------------------------
+	inline float angle(const Vector4& a, const Vector4& b)
+	{
+		return math::acos(dot(a, b) / (length(a) * length(b)));
+	}
+
+	//-----------------------------------------------------------------------------
+	inline float* to_float_ptr(Vector4& a)
+	{
+		return &a.x;
+	}
+
+	//-----------------------------------------------------------------------------
+	inline const float* to_float_ptr(const Vector4& a)
+	{
+		return &a.x;
+	}
+
+	//-----------------------------------------------------------------------------
+	inline Vector3 to_vector3(const Vector4& a)
+	{
+		return Vector3(a.x, a.y, a.z);
+	}	
+}
 
 //-----------------------------------------------------------------------------
 inline Vector4::Vector4()
@@ -169,12 +251,6 @@ inline float& Vector4::operator[](uint32_t i)
 }
 
 //-----------------------------------------------------------------------------
-inline Vector4 Vector4::operator+(const Vector4& a) const
-{
-	return Vector4(x + a.x, y + a.y, z + a.z, w + a.w);
-}
-
-//-----------------------------------------------------------------------------
 inline Vector4& Vector4::operator+=(const Vector4& a)
 {
 	x += a.x;
@@ -183,12 +259,6 @@ inline Vector4& Vector4::operator+=(const Vector4& a)
 	w += a.w;
 
 	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector4 Vector4::operator-(const Vector4& a) const
-{
-	return Vector4(x - a.x, y - a.y, z - a.z, w - a.w);
 }
 
 //-----------------------------------------------------------------------------
@@ -203,12 +273,6 @@ inline Vector4& Vector4::operator-=(const Vector4& a)
 }
 
 //-----------------------------------------------------------------------------
-inline Vector4 Vector4::operator*(float k) const
-{
-	return Vector4(x * k, y * k, z * k, w * k);
-}
-
-//-----------------------------------------------------------------------------
 inline Vector4& Vector4::operator*=(float k)
 {
 	x *= k;
@@ -217,16 +281,6 @@ inline Vector4& Vector4::operator*=(float k)
 	w *= k;
 
 	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector4 Vector4::operator/(float k) const
-{
-	CE_ASSERT(k != (float)0.0, "Division by zero");
-
-	float inv = (float)(1.0 / k);
-
-	return Vector4(x * inv, y * inv, z * inv, w * inv);
 }
 
 //-----------------------------------------------------------------------------
@@ -244,131 +298,4 @@ inline Vector4& Vector4::operator/=(float k)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
-inline float Vector4::dot(const Vector4& a) const
-{
-	return x * a.x + y * a.y + z * a.z + w * a.w;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector4 operator*(float k, const Vector4& a)
-{
-	return a * k;
-}
-
-//-----------------------------------------------------------------------------
-inline bool Vector4::operator==(const Vector4& other) const
-{
-	return math::equals(x, other.x) && math::equals(y, other.y) && math::equals(z, other.z) && math::equals(w, other.w);
-}
-
-//-----------------------------------------------------------------------------
-inline bool Vector4::operator!=(const Vector4& other) const
-{
-	return !math::equals(x, other.x) || !math::equals(y, other.y) || !math::equals(z, other.z) || !math::equals(w, other.w);
-}
-
-//-----------------------------------------------------------------------------
-inline bool Vector4::operator<(const Vector4& other) const
-{
-	return ((x < other.x) && (y < other.y) && (z < other.z) && (w < other.w));
-}
-
-//-----------------------------------------------------------------------------
-inline bool Vector4::operator>(const Vector4& other) const
-{
-	return ((x > other.x) && (y > other.y) && (z > other.z) && (w > other.w));
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector4::length() const
-{
-	return math::sqrt(x * x + y * y + z * z + w * w);
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector4::squared_length() const
-{
-	return x * x + y * y + z * z + w * w;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector4& Vector4::normalize()
-{
-	float len = length();
-
-	if (math::equals(len, (float)0.0))
-	{
-		return *this;
-	}
-
-	len = (float)(1.0 / len);
-
-	x *= len;
-	y *= len;
-	z *= len;
-	w *= len;
-
-	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector4 Vector4::get_normalized() const
-{
-	Vector4 tmp(x, y, z, w);
-
-	return tmp.normalize();
-}
-
-//-----------------------------------------------------------------------------
-inline Vector4& Vector4::negate()
-{
-	x = -x;
-	y = -y;
-	z = -z;
-	w = -w;
-
-	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector4 Vector4::operator-() const
-{
-	return Vector4(-x, -y, -z, -w);
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector4::get_distance_to(const Vector4& a) const
-{
-	return (*this - a).length();
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector4::get_angle_between(const Vector4& a) const
-{
-	return math::acos(this->dot(a) / (this->length() * a.length()));
-}
-
-//-----------------------------------------------------------------------------
-inline void Vector4::zero()
-{
-	x = 0.0;
-	y = 0.0;
-	z = 0.0;
-	w = 0.0;
-}
-
-//-----------------------------------------------------------------------------
-inline float* Vector4::to_float_ptr()
-{
-	return &x;
-}
-
-//-----------------------------------------------------------------------------
-inline const float* Vector4::to_float_ptr() const
-{
-	return &x;
-}
-
 } // namespace crown
-
