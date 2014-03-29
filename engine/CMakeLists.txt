@@ -161,7 +161,6 @@ set (MATH_HEADERS
 	core/math/Plane.h
 	core/math/Quaternion.h
 	core/math/Random.h
-	core/math/Ray.h
 	core/math/Triangle.h
 	core/math/Vector2.h
 	core/math/Vector3.h

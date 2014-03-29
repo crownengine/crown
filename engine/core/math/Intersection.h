@@ -32,7 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Frustum.h"
 #include "MathUtils.h"
 #include "Types.h"
-#include "Triangle.h"
 #include "Circle.h"
 #include "Rect.h"
 
@@ -41,21 +40,20 @@ namespace crown
 
 /// Intersection test utils.
 /// Table of Intersection tests (3d)
-/// +----------+----------+----------+----------+----------+----------+----------+
-/// |          | Ray      | Plane    | Sphere   | Box      | Frustum  | Triangle |
-/// +----------+----------+----------+----------+----------+----------+----------+
-/// | Ray      | No       | Yes      | Yes      | No       | No       | Yes      |
-/// +----------+----------+----------+----------+----------+----------+----------+
-/// | Plane    | -        | Yes (1)  | Yes (+)  | No       | No       | No       |
-/// +----------+----------+----------+----------+----------+----------+----------+
-/// | Sphere   | -        | -        | Yes (+)  | No       | Yes      | Yes (+)  |
-/// +----------+----------+----------+----------+----------+----------+----------+
-/// | Box      | -        | -        | -        | Yes (+)  | Yes      | No       |
-/// +----------+----------+----------+----------+----------+----------+----------+
-/// | Frustum  | -        | -        | -        | -        | No       | No       |
-/// +----------+----------+----------+----------+----------+----------+----------+
-/// | Triangle | -        | -        | -        | -        | -        | No       |
-/// +----------+----------+----------+----------+----------+----------+----------+
+/// +----------+----------+----------+----------+----------+----------+
+/// |          | Ray      | Plane    | Sphere   | Box      | Frustum  |
+/// +----------+----------+----------+----------+----------+----------+
+/// | Ray      | No       | Yes      | Yes      | No       | No       |
+/// +----------+----------+----------+----------+----------+----------+
+/// | Plane    | -        | Yes (1)  | Yes (+)  | No       | No       |
+/// +----------+----------+----------+----------+----------+----------+
+/// | Sphere   | -        | -        | Yes (+)  | No       | Yes      |
+/// +----------+----------+----------+----------+----------+----------+
+/// | Box      | -        | -        | -        | Yes (+)  | Yes      |
+/// +----------+----------+----------+----------+----------+----------+
+/// | Frustum  | -        | -        | -        | -        | No       |
+/// +----------+----------+----------+----------+----------+----------+
+//
 /// Notes:
 /// (1): Intersection of three planes
 /// (-): Static intersection only
@@ -85,14 +83,12 @@ public:
 	static bool test_ray_plane(const Ray& r, const Plane& p, float& distance, Vector3& inttersectionPoint_t);
 	static bool test_ray_sphere(const Ray& r, const Sphere& s, float& distance, Vector3& intersectionPoint);
 	static bool test_ray_box(const Ray& r, const Box& b, float& distance, Vector3& intersectionPoint);
-	static bool test_ray_triangle(const Ray& r, const Triangle& t, float& distance, Vector3& intersectionPoint);
 
 	static bool test_plane_3(const Plane& p1, const Plane& p2, const Plane& p3, Vector3& ip);
 
 	static bool test_static_sphere_plane(const Sphere& s, const Plane& p);
 	static bool test_static_sphere_sphere(const Sphere& a, const Sphere& b);
 	static bool test_dynamic_sphere_plane(const Sphere& s, const Vector3& d, const Plane& p, float& it, Vector3& intersectionPoint);
-	static bool test_dynamic_sphere_triangle(const Sphere& s, const Vector3& d, const Triangle& tri, float& it, Vector3& intersectionPoint);
 	static bool test_dynamic_sphere_sphere(const Sphere& s1, const Vector3& d1, const Sphere& s2, const Vector3& d2, float& it, Vector3& intersectionPoint);
 
 	static bool test_static_box_box(const Box& b1, const Box& b2);
@@ -208,20 +204,6 @@ inline bool Intersection::test_ray_box(const Ray& r, const Box& b, float& /*dist
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::test_ray_triangle(const Ray& r, const Triangle& t, float& distance, Vector3& intersectionPoint)
-{
-	if (Intersection::test_ray_plane(r, t.to_plane(), distance, intersectionPoint))
-	{
-		if (t.contains_point(intersectionPoint))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-//-----------------------------------------------------------------------------
 inline bool Intersection::test_plane_3(const Plane& p1, const Plane& p2, const Plane& p3, Vector3& ip)
 {
 	const Vector3& n1 = p1.n;
@@ -305,156 +287,6 @@ inline bool Intersection::test_dynamic_sphere_plane(const Sphere& s, const Vecto
 	}
 
 	return false;
-}
-
-//-----------------------------------------------------------------------------
-inline bool Intersection::test_dynamic_sphere_triangle(const Sphere& s, const Vector3& d, const Triangle& tri, float& it, Vector3& intersectionPoint)
-{
-	Plane triPlane = tri.to_plane();
-
-	// Test against the plane containing the triangle
-	float spherePlaneIt;
-	if (!test_dynamic_sphere_plane(s, d, triPlane, spherePlaneIt, intersectionPoint))
-	{
-		return false;
-	}
-
-	// Check if the int32_tersection point32_t lies inside the triangle
-	if (tri.contains_point(intersectionPoint))
-	{
-		it = spherePlaneIt;
-		// intersectionPoint is already returned by the above call to test_dynamic_sphere_plane
-		return true;
-	}
-
-	it = spherePlaneIt;
-
-	// Sweep test
-	// Check for collision against the vertices
-	bool collisionFound = false;
-	float a, b, c;
-	float x1, x2;
-
-	// v1
-	a = vector3::dot(d, d);
-	b = 2.0 * (vector3::dot(d, s.center() - tri.m_vertex[0]));
-	c = vector3::dot(tri.m_vertex[0] - s.center(), tri.m_vertex[0] - s.center()) - (s.radius() * s.radius());
-
-	if (math::solve_quadratic_equation(a, b, c, x1, x2))
-	{
-		it = math::min(x1, it);
-		intersectionPoint = tri.m_vertex[0];
-		collisionFound = true;
-	}
-
-	// v2
-	b = 2.0 * (vector3::dot(d, s.center() - tri.m_vertex[1]));
-	c = vector3::dot(tri.m_vertex[1] - s.center(), tri.m_vertex[1] - s.center()) - (s.radius() * s.radius());
-
-	if (math::solve_quadratic_equation(a, b, c, x1, x2))
-	{
-		it = math::min(x1, it);
-		intersectionPoint = tri.m_vertex[1];
-		collisionFound = true;
-	}
-
-	// v3
-	b = 2.0 * (vector3::dot(d, s.center() - tri.m_vertex[2]));
-	c = vector3::dot(tri.m_vertex[2] - s.center(), tri.m_vertex[2] - s.center()) - (s.radius() * s.radius());
-
-	if (math::solve_quadratic_equation(a, b, c, x1, x2))
-	{
-		it = math::min(x1, it);
-		intersectionPoint = tri.m_vertex[2];
-		collisionFound = true;
-	}
-
-	// Check for collisions against the edges
-	Vector3 edge;
-	Vector3 centerToVertex;
-	float edgeDotVelocity;
-	float edgeDotCenterToVertex;
-	float edgeSquaredLength;
-	float velocitySquaredLength;
-
-	velocitySquaredLength = vector3::squared_length(d);
-
-	// e1
-	edge = tri.m_vertex[1] - tri.m_vertex[0];
-	centerToVertex = tri.m_vertex[0] - s.center();
-	edgeDotVelocity = vector3::dot(edge, d);
-	edgeDotCenterToVertex = vector3::dot(edge, centerToVertex);
-	edgeSquaredLength = vector3::squared_length(edge);
-
-
-	a = edgeSquaredLength * -velocitySquaredLength + edgeDotVelocity * edgeDotVelocity;
-	b = edgeSquaredLength * (2.0 * vector3::dot(d, centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
-
-	c = edgeSquaredLength * s.radius() * s.radius() - vector3::squared_length(centerToVertex) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
-
-	if (math::solve_quadratic_equation(a, b, c, x1, x2))
-	{
-		float f0 = (edgeDotVelocity * x1 - edgeDotCenterToVertex) / edgeSquaredLength;
-
-		if (f0 >= 0.0 && f0 <= 1.0)
-		{
-			it = math::min(x1, it);
-			intersectionPoint = tri.m_vertex[0] + f0 * edge;
-			collisionFound = true;
-		}
-	}
-
-	// e2
-	edge = tri.m_vertex[2] - tri.m_vertex[1];
-	centerToVertex = tri.m_vertex[1] - s.center();
-	edgeDotVelocity = vector3::dot(edge, d);
-	edgeDotCenterToVertex = vector3::dot(edge, centerToVertex);
-	edgeSquaredLength = vector3::squared_length(edge);
-
-
-	a = edgeSquaredLength * -velocitySquaredLength + edgeDotVelocity * edgeDotVelocity;
-	b = edgeSquaredLength * 2.0 * vector3::dot(d, centerToVertex) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
-
-	c = edgeSquaredLength * ((s.radius() * s.radius()) - vector3::squared_length(centerToVertex)) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
-
-	if (math::solve_quadratic_equation(a, b, c, x1, x2))
-	{
-		float f0 = (edgeDotVelocity * x1 - edgeDotCenterToVertex) / edgeSquaredLength;
-
-		if (f0 >= 0.0 && f0 <= 1.0)
-		{
-			it = math::min(x1, it);
-			intersectionPoint = tri.m_vertex[1] + f0 * edge;
-			collisionFound = true;
-		}
-	}
-
-	// e3
-	edge = tri.m_vertex[0] - tri.m_vertex[2];
-	centerToVertex = tri.m_vertex[2] - s.center();
-	edgeDotVelocity = vector3::dot(edge, d);
-	edgeDotCenterToVertex = vector3::dot(edge, centerToVertex);
-	edgeSquaredLength = vector3::squared_length(edge);
-
-
-	a = edgeSquaredLength * -velocitySquaredLength + edgeDotVelocity * edgeDotVelocity;
-	b = edgeSquaredLength * (2.0 * vector3::dot(d, centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
-
-	c = edgeSquaredLength * ((s.radius() * s.radius()) - vector3::squared_length(centerToVertex)) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
-
-	if (math::solve_quadratic_equation(a, b, c, x1, x2))
-	{
-		float f0 = (edgeDotVelocity * x1 - edgeDotCenterToVertex) / edgeSquaredLength;
-
-		if (f0 >= 0.0 && f0 <= 1.0)
-		{
-			it = math::min(x1, it);
-			intersectionPoint = tri.m_vertex[2] + f0 * edge;
-			collisionFound = true;
-		}
-	}
-
-	return collisionFound;
 }
 
 //-----------------------------------------------------------------------------
