@@ -113,15 +113,6 @@ set (CORE_HEADERS
 	core/Types.h
 )
 
-set (BV_SRC
-	core/bv/Frustum.cpp
-)
-
-set (BV_HEADERS
-	core/bv/Frustum.h
-	core/bv/Sphere.h
-)
-
 set (CONTAINERS_SRC
 )
 
@@ -141,6 +132,7 @@ set (CONTAINERS_HEADERS
 
 set (MATH_SRC
 	core/math/Color4.cpp
+	core/math/Frustum.cpp
 	core/math/Matrix3x3.cpp
 	core/math/Matrix4x4.cpp
 	core/math/Plane.cpp
@@ -149,6 +141,7 @@ set (MATH_SRC
 set (MATH_HEADERS
 	core/math/AABB.h
 	core/math/Color4.h
+	core/math/Frustum.h
 	core/math/Intersection.h
 	core/math/MathTypes.h
 	core/math/MathUtils.h
@@ -157,6 +150,7 @@ set (MATH_HEADERS
 	core/math/Plane.h
 	core/math/Quaternion.h
 	core/math/Random.h
+	core/math/Sphere.h
 	core/math/Vector2.h
 	core/math/Vector3.h
 	core/math/Vector4.h
@@ -705,7 +699,6 @@ endif(WINDOWS)
 set (CROWN_SOURCES
 	${SRC}
 	${CORE_SRC}
-	${BV_SRC}
 	${CONTAINERS_SRC}
 	${MATH_SRC}
 	${FILESYSTEM_SRC}
@@ -729,7 +722,6 @@ set (CROWN_SOURCES
 set (CROWN_HEADERS
 	${HEADERS}
 	${CORE_HEADERS}
-	${BV_HEADERS}
 	${CONTAINERS_HEADERS}
 	${MATH_HEADERS}
 	${FILESYSTEM_HEADERS}

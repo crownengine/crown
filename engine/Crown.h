@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Math
 #include "AABB.h"
 #include "Color4.h"
+#include "Frustum.h"
 #include "Intersection.h"
 #include "MathUtils.h"
 #include "Matrix3x3.h"
@@ -43,13 +44,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Quaternion.h"
 #include "Random.h"
 #include "Ray.h"
+#include "Sphere.h"
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
-
-// Core/Bv
-#include "Frustum.h"
-#include "Sphere.h"
 
 // Core/Containers
 #include "Map.h"
