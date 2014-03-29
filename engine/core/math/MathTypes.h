@@ -86,4 +86,15 @@ struct Vector4
 	float x, y, z, w;
 };
 
+struct Quaternion
+{
+	Quaternion();
+	Quaternion(float nx, float ny, float nz, float nw);
+	Quaternion(const Vector3& axis, float angle);
+
+	Quaternion& operator*=(const Quaternion& a);
+
+	float x, y, z, w;
+};
+
 } // namespace crown

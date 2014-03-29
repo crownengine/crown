@@ -28,75 +28,192 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Vector3.h"
+#include "MathTypes.h"
+#include "Matrix3x3.h"
+#include "Matrix4x4.h"
 
 namespace crown
 {
 
-struct Matrix3x3;
-struct Matrix4x4;
+/// Negates the quaternion @a q and returns the result.
+Quaternion operator-(const Quaternion& q);
 
-/// Quaternion.
-///
-/// @a Note:
-/// This implementation uses the standard quaternion
-/// multiplication equation, so, the order of multiplication
-/// for multiple rotations is in a reverse fashion:
-/// p' = qpq^-1 where p is the point and q the rotation quaternion
-/// 
-/// p' = (ba)p(ba)^-1 where p is the point and (ba) the concatenation of two successive rotations
-/// In this case, the point p is first rotated by the quaternion a and then by the quaternion b.
-/// The transformation order is reversed.
-struct Quaternion
+/// Multiplies the quaternions @a and @a b. (i.e. rotates first by @a a then by @a b).
+Quaternion operator*(Quaternion a, const Quaternion& b);
+
+/// Multiplies the quaternion @a a by the scalar @a k.
+Quaternion operator*(const Quaternion& a, float k);
+
+namespace quaternion
 {
-public:
+	const Quaternion IDENTITY = Quaternion(0.0, 0.0, 0.0, 1.0);
 
-	Vector3		v;
-	float		w;
+	/// Returns the dot product between quaternions @a a and @a b.
+	float dot(const Quaternion& a, const Quaternion& b);
 
-public:
+	/// Returns the length of @a q.
+	float length(const Quaternion& q);
 
-	/// Does nothing
-						Quaternion();
+	/// Returns the conjugate of quaternion @a q.
+	Quaternion conjugate(const Quaternion& q);
 
-	/// Constructs from individual components.
-						Quaternion(float nx, float ny, float nz, float nw);
+	/// Returns the inverse of quaternion @a q.
+	Quaternion inverse(const Quaternion& q);
 
-	/// Builds the quaternion from an @a axis and a @a angle.							
-						Quaternion(const Vector3& axis, float angle);	
+	/// Returns the quaternion @a q raised to the power of @a exp.
+	Quaternion power(const Quaternion& q, float exp);
 
-	/// Negates the quaternion.
-	void				negate();
+	/// Returns the Matrix3x3 representation of the quaternion @a q.
+	Matrix3x3 to_matrix3x3(const Quaternion& q);
 
-	/// Builds the identity quaternion.
-	void				load_identity();
+	/// Returns the Matrix4x4 representation of the quaternion @a q.
+	Matrix4x4 to_matrix4x4(const Quaternion& q);
 
-	/// Returns the lenght of the quaternion.
-	float				length() const;		
+} // namespace quaternion
 
-	/// Conjugates the quaternion.
-	void				conjugate();
+inline Quaternion operator-(const Quaternion& q)
+{
+	return Quaternion(-q.x, -q.y, -q.z, -q.w);
+}
 
-	/// Returns the quaternion's conjugate.
-	Quaternion			get_conjugate() const;
+inline Quaternion operator*(Quaternion a, const Quaternion& b)
+{
+	a *= b;
+	return a;
+}
 
-	/// Quaternion's inverse				
-	Quaternion			get_inverse() const;
+inline Quaternion operator*(const Quaternion& a, float k)
+{
+	return Quaternion(a.x * k, a.y * k, a.z * k, a.w * k);
+}
 
-	Matrix3x3			to_matrix3x3() const;
-	Matrix4x4			to_matrix4x4() const;
+namespace quaternion
+{
+	//-----------------------------------------------------------------------------
+	inline float dot(const Quaternion& a, const Quaternion& b)
+	{
+		return a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z;
+	}
 
-	/// Cross product
-	Quaternion			operator*(const Quaternion& b) const;
+	//-----------------------------------------------------------------------------
+	inline float length(const Quaternion& q)
+	{
+		return math::sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+	}
 
-	/// Multiplication by a scalar		
-	Quaternion			operator*(const float& k) const;
+	inline Quaternion conjugate(const Quaternion& q)
+	{
+		return Quaternion(-q.x, -q.y, -q.z, q.w);
+	}
 
-	Quaternion			power(float exp);
+	inline Quaternion inverse(const Quaternion& q)
+	{
+		return conjugate(q) * (1.0 / length(q));
+	}
 
-public:
+	inline Quaternion power(const Quaternion& q, float exp)
+	{
+		if (math::abs(q.w) < 0.9999)
+		{
+			Quaternion tmp;
+			float alpha = math::acos(q.w); // alpha = theta/2
+			float new_alpha = alpha * exp;
+			tmp.w = math::cos(new_alpha);
+			float mult = math::sin(new_alpha) / math::sin(alpha);
+			tmp.x = q.x * mult;
+			tmp.y = q.y * mult;
+			tmp.z = q.z * mult;
+			return tmp;
+		}
 
-	static const Quaternion	IDENTITY;
-};
+		return q;
+	}
+
+	inline Matrix3x3 to_matrix3x3(const Quaternion& q)
+	{
+		const float x = q.x;
+		const float y = q.y;
+		const float z = q.z;
+		const float w = q.w;
+
+		Matrix3x3 tmp;
+
+		tmp.m[0] = (float)(1.0 - 2.0*y*y - 2.0*z*z);
+		tmp.m[1] = (float)(2.0*x*y + 2.0*w*z);
+		tmp.m[2] = (float)(2.0*x*z - 2.0*w*y);
+		tmp.m[3] = (float)(2.0*x*y - 2.0*w*z);
+		tmp.m[4] = (float)(1.0 - 2.0*x*x - 2.0*z*z);
+		tmp.m[5] = (float)(2.0*y*z + 2.0*w*x);
+		tmp.m[6] = (float)(2.0*x*z + 2.0*w*y);
+		tmp.m[7] = (float)(2.0*y*z - 2.0*w*x);
+		tmp.m[8] = (float)(1.0 - 2.0*x*x - 2.0*y*y);
+
+		return tmp;
+	}
+
+	inline Matrix4x4 to_matrix4x4(const Quaternion& q)
+	{
+		const float x = q.x;
+		const float y = q.y;
+		const float z = q.z;
+		const float w = q.w;
+
+		Matrix4x4 tmp;
+
+		tmp.m[0] = (float)(1.0 - 2.0*y*y - 2.0*z*z);
+		tmp.m[1] = (float)(2.0*x*y + 2.0*w*z);
+		tmp.m[2] = (float)(2.0*x*z - 2.0*w*y);
+		tmp.m[3] = 0;
+		tmp.m[4] = (float)(2.0*x*y - 2.0*w*z);
+		tmp.m[5] = (float)(1.0 - 2.0*x*x - 2.0*z*z);
+		tmp.m[6] = (float)(2.0*y*z + 2.0*w*x);
+		tmp.m[7] = 0.0;
+		tmp.m[8] = (float)(2.0*x*z + 2.0*w*y);
+		tmp.m[9] = (float)(2.0*y*z - 2.0*w*x);
+		tmp.m[10] = (float)(1.0 - 2.0*x*x - 2.0*y*y);
+		tmp.m[11] = 0.0;
+		tmp.m[12] = 0.0;
+		tmp.m[13] = 0.0;
+		tmp.m[14] = 0.0;
+		tmp.m[15] = 1.0;
+
+		return tmp;
+	}
+} // namespace quaternion
+
+//-----------------------------------------------------------------------------
+inline Quaternion::Quaternion()
+{
+}
+
+//-----------------------------------------------------------------------------
+inline Quaternion::Quaternion(float nx, float ny, float nz, float nw)
+	: x(nx)
+	, y(ny)
+	, z(nz)
+	, w(nw)
+{
+}
+
+//-----------------------------------------------------------------------------
+inline Quaternion::Quaternion(const Vector3& axis, float angle)
+	: x(axis.x * math::sin(angle * 0.5))
+	, y(axis.y * math::sin(angle * 0.5))
+	, z(axis.z * math::sin(angle * 0.5))
+	, w(math::cos(angle * 0.5))
+{
+}
+
+//-----------------------------------------------------------------------------
+inline Quaternion& Quaternion::operator*=(const Quaternion& a)
+{
+	w = w * a.w - x * a.x - y * a.y - z * a.z;
+	x = w * a.x + x * a.w + z * a.y - y * a.z;
+	y = w * a.y + y * a.w + x * a.z - z * a.x;
+	z = w * a.z + z * a.w + y * a.x - x * a.y;
+
+	return *this;
+}
 
 } // namespace crown
 

@@ -42,7 +42,7 @@ CE_EXPORT int world_spawn_unit(lua_State* L)
 	const char* name = stack.get_string(2);
 
 	const Vector3& pos = stack.num_args() > 2 ? stack.get_vector3(3) : vector3::ZERO;
-	const Quaternion& rot = stack.num_args() > 3 ? stack.get_quaternion(4) : Quaternion::IDENTITY;
+	const Quaternion& rot = stack.num_args() > 3 ? stack.get_quaternion(4) : quaternion::IDENTITY;
 
 	UnitId unit = world->spawn_unit(name, pos, rot);
 

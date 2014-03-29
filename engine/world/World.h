@@ -62,7 +62,7 @@ public:
 	WorldId								id() const;
 	void								set_id(WorldId id);
 
-	UnitId								spawn_unit(const char* name, const Vector3& pos = vector3::ZERO, const Quaternion& rot = Quaternion::IDENTITY);
+	UnitId								spawn_unit(const char* name, const Vector3& pos = vector3::ZERO, const Quaternion& rot = quaternion::IDENTITY);
 	UnitId								spawn_unit(const char* name, UnitResource* ur, const Vector3& pos, const Quaternion& rot);
 	void								destroy_unit(UnitId id);
 	void								reload_units(UnitResource* old_ur, UnitResource* new_ur);

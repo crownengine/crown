@@ -98,7 +98,7 @@ CE_EXPORT int gui_create_rect(lua_State* L)
 	const Vector3 pos = stack.get_vector3(2);
 	const Vector2 size = stack.get_vector2(3);
 	const Quaternion col = stack.get_quaternion(4);
-	const Color4 color(col.v.x, col.v.y, col.v.z, col.w);
+	const Color4 color(col.x, col.y, col.z, col.w);
 
 	GuiComponentId rect_id = gui->create_rect(pos, size, color);
 	stack.push_gui_component_id(rect_id);
@@ -116,7 +116,7 @@ CE_EXPORT int gui_update_rect(lua_State* L)
 	const Vector3 pos = stack.get_vector3(3);
 	const Vector2 size = stack.get_vector2(4);
 	const Quaternion col = stack.get_quaternion(4);
-	const Color4 color(col.v.x, col.v.y, col.v.z, col.w);
+	const Color4 color(col.x, col.y, col.z, col.w);
 
 	gui->update_rect(rect_id, pos, size, color);
 
@@ -146,7 +146,7 @@ CE_EXPORT int gui_create_triangle(lua_State* L)
 	const Vector2 p2 = stack.get_vector2(3);
 	const Vector2 p3 = stack.get_vector2(3);
 	const Quaternion col = stack.get_quaternion(4);
-	const Color4 color(col.v.x, col.v.y, col.v.z, col.w);
+	const Color4 color(col.x, col.y, col.z, col.w);
 
 	GuiComponentId triangle_id = gui->create_triangle(p1, p2, p3, color);
 
@@ -166,7 +166,7 @@ CE_EXPORT int gui_update_triangle(lua_State* L)
 	const Vector2 p2 = stack.get_vector2(4);
 	const Vector2 p3 = stack.get_vector2(5);
 	const Quaternion col = stack.get_quaternion(4);
-	const Color4 color(col.v.x, col.v.y, col.v.z, col.w);
+	const Color4 color(col.x, col.y, col.z, col.w);
 
 	gui->update_triangle(triangle_id, p1, p2, p3, color);
 

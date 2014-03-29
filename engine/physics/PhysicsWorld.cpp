@@ -262,7 +262,7 @@ PhysicsWorld::~PhysicsWorld()
 ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, Unit* unit)
 {
 	PhysicsConfigResource* config = (PhysicsConfigResource*) device()->resource_manager()->lookup("physics_config", "global");
-	Actor* actor = CE_NEW(m_actors_pool, Actor)(res, config, index, physics_system::s_physics, physics_system::s_cooking, m_scene, sg, node, unit, vector3::ZERO, Quaternion::IDENTITY);
+	Actor* actor = CE_NEW(m_actors_pool, Actor)(res, config, index, physics_system::s_physics, physics_system::s_cooking, m_scene, sg, node, unit, vector3::ZERO, quaternion::IDENTITY);
 	return m_actors.create(actor);
 }
 
@@ -389,7 +389,7 @@ void PhysicsWorld::clear_kinematic(ActorId id)
 void PhysicsWorld::overlap_test(const char* callback, CollisionType::Enum filter, ShapeType::Enum type,
 								const Vector3& pos, const Quaternion& rot, const Vector3& size, Array<Actor*>& actors)
 {
-	PxTransform transform(PxVec3(pos.x, pos.y, pos.z), PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w));
+	PxTransform transform(PxVec3(pos.x, pos.y, pos.z), PxQuat(rot.x, rot.y, rot.z, rot.w));
 
 	switch(type)
 	{

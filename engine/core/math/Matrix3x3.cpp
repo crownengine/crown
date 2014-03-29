@@ -619,27 +619,27 @@ Quaternion Matrix3x3::to_quaternion() const
 	{
 		case 0:
 			tmp.w = biggest;
-			tmp.v.x = (-m[7] + m[5]) * mult;
-			tmp.v.y = (-m[2] + m[6]) * mult;
-			tmp.v.z = (-m[3] + m[1]) * mult;
+			tmp.x = (-m[7] + m[5]) * mult;
+			tmp.y = (-m[2] + m[6]) * mult;
+			tmp.z = (-m[3] + m[1]) * mult;
 			break;
 		case 1:
-			tmp.v.x = biggest;
+			tmp.x = biggest;
 			tmp.w = (-m[7] + m[5]) * mult;
-			tmp.v.y = (-m[3] - m[1]) * mult;
-			tmp.v.z = (-m[2] - m[6]) * mult;
+			tmp.y = (-m[3] - m[1]) * mult;
+			tmp.z = (-m[2] - m[6]) * mult;
 			break;
 		case 2:
-			tmp.v.y = biggest;
+			tmp.y = biggest;
 			tmp.w = (-m[2] + m[6]) * mult;
-			tmp.v.x = (-m[3] - m[1]) * mult;
-			tmp.v.z = (-m[7] - m[5]) * mult;
+			tmp.x = (-m[3] - m[1]) * mult;
+			tmp.z = (-m[7] - m[5]) * mult;
 			break;
 		case 3:
-			tmp.v.z = biggest;
+			tmp.z = biggest;
 			tmp.w = (-m[3] + m[1]) * mult;
-			tmp.v.x = (-m[2] - m[6]) * mult;
-			tmp.v.y = (-m[7] - m[5]) * mult;
+			tmp.x = (-m[2] - m[6]) * mult;
+			tmp.y = (-m[7] - m[5]) * mult;
 			break;
 	}
 

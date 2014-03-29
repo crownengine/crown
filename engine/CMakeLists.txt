@@ -149,7 +149,6 @@ set (MATH_SRC
 	core/math/Matrix3x3.cpp
 	core/math/Matrix4x4.cpp
 	core/math/Plane.cpp
-	core/math/Quaternion.cpp
 )
 
 set (MATH_HEADERS

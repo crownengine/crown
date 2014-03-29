@@ -70,10 +70,10 @@ Matrix4x4::Matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1,
 //-----------------------------------------------------------------------------
 Matrix4x4::Matrix4x4(const Quaternion& r, const Vector3& p)
 {
-	const float& rx = r.v.x;
-	const float& ry = r.v.y;
-	const float& rz = r.v.z;
-	const float& rw = r.w;
+	const float rx = r.x;
+	const float ry = r.y;
+	const float rz = r.z;
+	const float rw = r.w;
 
 	m[0] = 1.0 - 2.0 * ry * ry - 2.0 * rz * rz;
 	m[1] = 2.0 * rx * ry + 2.0 * rw * rz;
@@ -557,7 +557,7 @@ void Matrix4x4::build_rotation(const Vector3& n, float radians)
 //-----------------------------------------------------------------------------
 void Matrix4x4::set_rotation(const Quaternion& rot)
 {
-	set_rotation(rot.to_matrix3x3());
+	set_rotation(quaternion::to_matrix3x3(rot));
 }
 
 //-----------------------------------------------------------------------------
@@ -1012,27 +1012,27 @@ Quaternion Matrix4x4::to_quaternion() const
 	{
 		case 0:
 			tmp.w = biggest;
-			tmp.v.x = (-m[9] + m[6]) * mult;
-			tmp.v.y = (-m[2] + m[8]) * mult;
-			tmp.v.z = (-m[4] + m[1]) * mult;
+			tmp.x = (-m[9] + m[6]) * mult;
+			tmp.y = (-m[2] + m[8]) * mult;
+			tmp.z = (-m[4] + m[1]) * mult;
 			break;
 		case 1:
-			tmp.v.x = biggest;
+			tmp.x = biggest;
 			tmp.w = (-m[9] + m[6]) * mult;
-			tmp.v.y = (-m[4] - m[1]) * mult;
-			tmp.v.z = (-m[2] - m[8]) * mult;
+			tmp.y = (-m[4] - m[1]) * mult;
+			tmp.z = (-m[2] - m[8]) * mult;
 			break;
 		case 2:
-			tmp.v.y = biggest;
+			tmp.y = biggest;
 			tmp.w = (-m[2] + m[8]) * mult;
-			tmp.v.x = (-m[4] - m[1]) * mult;
-			tmp.v.z = (-m[9] - m[6]) * mult;
+			tmp.x = (-m[4] - m[1]) * mult;
+			tmp.z = (-m[9] - m[6]) * mult;
 			break;
 		case 3:
-			tmp.v.z = biggest;
+			tmp.z = biggest;
 			tmp.w = (-m[4] + m[1]) * mult;
-			tmp.v.x = (-m[2] - m[8]) * mult;
-			tmp.v.y = (-m[9] - m[6]) * mult;
+			tmp.x = (-m[2] - m[8]) * mult;
+			tmp.y = (-m[9] - m[6]) * mult;
 			break;
 	}
 
