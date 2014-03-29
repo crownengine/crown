@@ -207,10 +207,15 @@ inline Quaternion::Quaternion(const Vector3& axis, float angle)
 //-----------------------------------------------------------------------------
 inline Quaternion& Quaternion::operator*=(const Quaternion& a)
 {
-	w = w * a.w - x * a.x - y * a.y - z * a.z;
-	x = w * a.x + x * a.w + z * a.y - y * a.z;
-	y = w * a.y + y * a.w + x * a.z - z * a.x;
-	z = w * a.z + z * a.w + y * a.x - x * a.y;
+	const float t_x = w * a.x + x * a.w + z * a.y - y * a.z;
+	const float t_y = w * a.y + y * a.w + x * a.z - z * a.x;
+	const float t_z = w * a.z + z * a.w + y * a.x - x * a.y;
+	const float t_w = w * a.w - x * a.x - y * a.y - z * a.z;
+
+	x = t_x;
+	y = t_y;
+	z = t_z;
+	w = t_w;
 
 	return *this;
 }
