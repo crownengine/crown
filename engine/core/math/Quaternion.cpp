@@ -59,7 +59,7 @@ Quaternion::Quaternion(const Vector3& axis, float angle) :
 void Quaternion::negate()
 {
 	w = -w;
-	v.negate();
+	v = -v;
 }
 
 //-----------------------------------------------------------------------------
@@ -151,8 +151,8 @@ Quaternion Quaternion::operator*(const Quaternion& b) const
 {
 	Quaternion tmp;
 
-	tmp.w = w * b.w - v.dot(b.v);
-	tmp.v = w * b.v + b.w * v + b.v.cross(v);
+	tmp.w = w * b.w - vector3::dot(v, b.v);
+	tmp.v = w * b.v + b.w * v + vector3::cross(b.v, v);
 
 	return tmp;
 }
@@ -199,7 +199,7 @@ the vector dot product; the larger the absolute value of the Quaternion dot prod
 //-----------------------------------------------------------------------------
 float dot(const Quaternion& a, const Quaternion& b)
 {
-	return a.w * b.w + a.v.dot(b.v);
+	return a.w * b.w + vector3::dot(a.v, b.v);
 }
 
 // Spherical Linear interpolation

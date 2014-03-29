@@ -89,7 +89,8 @@ inline Triangle::~Triangle()
 //-----------------------------------------------------------------------------
 inline float Triangle::area() const
 {
-	return ((m_vertex[1] - m_vertex[0]).cross(m_vertex[2] - m_vertex[0])).length() * (float)0.5;
+	Vector3 cr = vector3::cross(m_vertex[1] - m_vertex[0], m_vertex[2] - m_vertex[0]);
+	return vector3::length(cr * 0.5);
 }
 
 //-----------------------------------------------------------------------------
@@ -109,14 +110,14 @@ inline Vector3 Triangle::barycentric_coords(const Vector3& p) const
 	Vector3 d2 = p - m_vertex[1];
 	Vector3 d3 = p - m_vertex[2];
 
-	Vector3 n = e1.cross(e2) / e1.cross(e2).length();
+	Vector3 n = vector3::cross(e1, e2) / vector3::length(vector3::cross(e1, e2));
 
 	// Signed areas
-	float at = (float)(e1.cross(e2).dot(n) * 0.5);
+	float at = (float)(vector3::dot(vector3::cross(e1, e2), n) * 0.5);
 
-	float at1 = (float)(e1.cross(d3).dot(n) * 0.5);
-	float at2 = (float)(e2.cross(d1).dot(n) * 0.5);
-	float at3 = (float)(e3.cross(d2).dot(n) * 0.5);
+	float at1 = (float)(vector3::dot(vector3::cross(e1, d3), n) * 0.5);
+	float at2 = (float)(vector3::dot(vector3::cross(e2, d1), n) * 0.5);
+	float at3 = (float)(vector3::dot(vector3::cross(e3, d2), n) * 0.5);
 
 	float oneOverAt = (float)(1.0 / at);
 
@@ -142,8 +143,9 @@ inline Plane Triangle::to_plane() const
 	Vector3 e1 = m_vertex[2] - m_vertex[1];
 	Vector3 e2 = m_vertex[1] - m_vertex[0];
 
-	Vector3 n = e2.cross(e1).normalize();
-	float d = -n.dot(m_vertex[0]);
+	Vector3 e2xe1 = vector3::cross(e2, e1);
+	Vector3 n = vector3::normalize(e2xe1);
+	float d = -vector3::dot(n, m_vertex[0]);
 
 	return Plane(n, d);
 }

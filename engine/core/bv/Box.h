@@ -49,8 +49,8 @@ public:
 					Box(const Vector3& min, const Vector3& max);			
 					Box(const Box& box);
 
-	const Vector3&		min() const;
-	const Vector3&		max() const;
+	const Vector3&	min() const;
+	const Vector3&	max() const;
 	void			set_min(const Vector3& min);
 	void			set_max(const Vector3& max);
 
@@ -221,7 +221,7 @@ inline Vector3 Box::center() const
 //-----------------------------------------------------------------------------
 inline float Box::radius() const
 {
-	return (m_max - (m_min + m_max) * 0.5).length();
+	return vector3::length(m_max - (m_min + m_max) * 0.5);
 }
 
 //-----------------------------------------------------------------------------
@@ -325,8 +325,8 @@ inline float Box::volume() const
 //-----------------------------------------------------------------------------
 inline void Box::zero()
 {
-	m_min.zero();
-	m_max.zero();
+	m_min = vector3::ZERO;
+	m_max = vector3::ZERO;
 }
 
 //-----------------------------------------------------------------------------

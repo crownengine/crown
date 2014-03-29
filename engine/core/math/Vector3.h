@@ -30,112 +30,196 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "MathUtils.h"
 #include "Vector2.h"
+#include "MathTypes.h"
 
 namespace crown
 {
 
-/// 3D column vector.
-struct Vector3
+/// Negates @a a and returns the result.
+Vector3 operator-(const Vector3& a);
+
+/// Adds the vector @a a to @a b and returns the result.
+Vector3 operator+(Vector3 a, const Vector3& b);
+
+/// Subtracts the vector @a b from @a a and returns the result.
+Vector3 operator-(Vector3 a, const Vector3& b);
+
+/// Multiplies the vector @a a by the scalar @a k and returns the result.
+Vector3 operator*(Vector3 a, float k);
+
+/// @copydoc operator*(Vector3, float)
+Vector3 operator*(float k, Vector3 a);
+
+/// Divides the vector @a a by the scalar @a k and returns the result.
+Vector3 operator/(Vector3 a, float k);
+
+/// Returns true whether the vectors @a a and @a b are equal.
+bool operator==(const Vector3& a, const Vector3& b);
+
+namespace vector3
 {
-public:
+	const Vector3 ZERO = Vector3(0, 0, 0);
+	const Vector3 XAXIS = Vector3(1, 0, 0);
+	const Vector3 YAXIS = Vector3(0, 1, 0);
+	const Vector3 ZAXIS = Vector3(0, 0, 1);
 
-	float				x, y, z;
+	/// Returns the dot product between the vectors @a a and @a b.
+	float dot(const Vector3& a, const Vector3& b);
 
-	/// Does nothing for efficiency.
-						Vector3();	
+	/// Returns the cross product between the vectors @a a and @a b.
+	Vector3 cross(const Vector3& a, const Vector3& b);
 
-	/// Initializes all the components to val								
-						Vector3(float val);	
+	/// Returns the lenght of @a a.
+	float length(const Vector3& a);
 
-	/// Constructs from three components						
-						Vector3(float nx, float ny, float nz);
-						
-	/// Constructs from array		
-						Vector3(const float v[3]);					
-						Vector3(const Vector3& a);	
+	/// Returns the squared length of @a a.
+	float squared_length(const Vector3& a);
 
-	/// Random access by index
-	float				operator[](uint32_t i) const;
+	/// Sets the lenght of @a a to @a len.
+	void set_length(Vector3& a, float len);
 
-	/// Random access by index			
-	float&				operator[](uint32_t i);					
+	/// Normalizes @a a and returns the result.
+	Vector3 normalize(Vector3& a);
 
-	Vector3				operator+(const Vector3& a) const;			
-	Vector3&			operator+=(const Vector3& a);				
-	Vector3 			operator-(const Vector3& a) const;			
-	Vector3&			operator-=(const Vector3& a);				
-	Vector3				operator*(float k) const;				
-	Vector3&			operator*=(float k);						
-	Vector3				operator/(float k) const;				
-	Vector3&			operator/=(float k);
+	/// Returns the distance between the points @a a and @a b.
+	float distance(const Vector3& a, const Vector3& b);
 
-	/// Dot product						
-	float				dot(const Vector3& a) const;
+	/// Returns the angle between the vectors @a a and @a b.
+	float angle(const Vector3& a, const Vector3& b);
 
-	/// Cross product				
-	Vector3				cross(const Vector3& a) const;				
+	/// Returns the pointer to the data of @a a.
+	float* to_float_ptr(Vector3& a);
 
-	/// For simmetry
-	friend Vector3		operator*(float k, const Vector3& a);		
+	/// @copydoc to_float_ptr(Vector3&)
+	const float* to_float_ptr(const Vector3& a);
 
-	bool				operator==(const Vector3& other) const;	
-	bool				operator!=(const Vector3& other) const;
+	/// Returns the Vector2 portion of @a a. (i.e. truncates z)
+	Vector2 to_vector2(const Vector3& a);
+} // namespace vector3
 
-	/// Returns whether all the components of this vector are smaller than all of the "other" vector	
-	bool				operator<(const Vector3& other) const;
+inline Vector3 operator-(const Vector3& a)
+{
+	return Vector3(-a.x, -a.y, -a.z);
+}
 
-	/// Returns whether all the components of this vector are greater than all of the "other" vector		
-	bool				operator>(const Vector3& other) const;		
+inline Vector3 operator+(Vector3 a, const Vector3& b)
+{
+	a += b;
+	return a;
+}
 
-	/// Returns the vector's length
-	float				length() const;	
+inline Vector3 operator-(Vector3 a, const Vector3& b)
+{
+	a -= b;
+	return a;
+}
 
-	/// Returns the vector's squared length						
-	float				squared_length() const;
+inline Vector3 operator*(Vector3 a, float k)
+{
+	a *= k;
+	return a;
+}
 
-	/// Sets the vector's length					
-	void				set_length(float len);
+inline Vector3 operator*(float k, Vector3 a)
+{
+	a *= k;
+	return a;
+}
 
-	/// Normalizes the vector					
-	Vector3&			normalize();
+inline Vector3 operator/(Vector3 a, float k)
+{
+	a /= k;
+	return a;
+}
 
-	/// Returns the normalized vector							
-	Vector3				get_normalized() const;		
+inline bool operator==(const Vector3& a, const Vector3& b)
+{
+	return math::equals(a.x, b.x) && math::equals(a.y, b.y) && math::equals(a.z, b.z);
+}
 
-	/// Negates the vector (i.e. builds the inverse)			
-	Vector3&			negate();
+namespace vector3
+{
+	//-----------------------------------------------------------------------------
+	inline float dot(const Vector3& a, const Vector3& b)
+	{
+		return a.x * b.x + a.y * b.y + a.z * b.z;
+	}
 
-	/// Negates the vector (i.e. builds the inverse)								
-	Vector3				operator-() const;						
+	//-----------------------------------------------------------------------------
+	inline Vector3 cross(const Vector3& a, const Vector3& b)
+	{
+		return Vector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+	}
 
-	/// Returns the distance
-	float				get_distance_to(const Vector3& a) const;	
+	//-----------------------------------------------------------------------------
+	inline float length(const Vector3& a)
+	{
+		return math::sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+	}
 
-	/// Returns the angle in radians
-	float				get_angle_between(const Vector3& a) const;	
+	//-----------------------------------------------------------------------------
+	inline float squared_length(const Vector3& a)
+	{
+		return a.x * a.x + a.y * a.y + a.z * a.z;
+	}
 
-	/// Sets all components to zero
-	void				zero();									
+	//-----------------------------------------------------------------------------
+	inline void set_length(Vector3& a, float len)
+	{
+		normalize(a);
 
-	/// Returns the pointer to the vector's data
-	float*				to_float_ptr();	
+		a.x *= len;
+		a.y *= len;
+		a.z *= len;
+	}
 
-	/// Returns the pointer to the vector's data						
-	const float*		to_float_ptr() const;
+	//-----------------------------------------------------------------------------
+	inline Vector3 normalize(Vector3& a)
+	{
+		float inv_len = 1.0 / length(a);
 
-	/// Returns a Vector2 with only x and y coordinates					
-	Vector2				to_vec2() const;						
+		a.x *= inv_len;
+		a.y *= inv_len;
+		a.z *= inv_len;
 
-	static const Vector3	ZERO;
-	static const Vector3	ONE;
-	static const Vector3	XAXIS;
-	static const Vector3	YAXIS;
-	static const Vector3	ZAXIS;
-};
+		return a;
+	}
+
+	//-----------------------------------------------------------------------------
+	inline float distance(const Vector3& a, const Vector3& b)
+	{
+		return length(b - a);
+	}
+
+	//-----------------------------------------------------------------------------
+	inline float angle(const Vector3& a, const Vector3& b)
+	{
+		return math::acos(dot(a, b) / (length(a) * length(b)));
+	}
+
+	//-----------------------------------------------------------------------------
+	inline float* to_float_ptr(Vector3& a)
+	{
+		return &a.x;
+	}
+
+	//-----------------------------------------------------------------------------
+	inline const float* to_float_ptr(const Vector3& a)
+	{
+		return &a.x;
+	}
+
+	//-----------------------------------------------------------------------------
+	inline Vector2 to_vector2(const Vector3& a)
+	{
+		return Vector2(a.x, a.y);
+	}
+} // namespace vector3
 
 //-----------------------------------------------------------------------------
 inline Vector3::Vector3()
 {
+	// Do not initialize
 }
 
 //-----------------------------------------------------------------------------
@@ -175,12 +259,6 @@ inline float& Vector3::operator[](uint32_t i)
 }
 
 //-----------------------------------------------------------------------------
-inline Vector3 Vector3::operator+(const Vector3& a) const
-{
-	return Vector3(x + a.x, y + a.y, z + a.z);
-}
-
-//-----------------------------------------------------------------------------
 inline Vector3& Vector3::operator+=(const Vector3& a)
 {
 	x += a.x;
@@ -188,12 +266,6 @@ inline Vector3& Vector3::operator+=(const Vector3& a)
 	z += a.z;
 
 	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector3 Vector3::operator-(const Vector3& a) const
-{
-	return Vector3(x - a.x, y - a.y, z - a.z);
 }
 
 //-----------------------------------------------------------------------------
@@ -207,12 +279,6 @@ inline Vector3& Vector3::operator-=(const Vector3& a)
 }
 
 //-----------------------------------------------------------------------------
-inline Vector3 Vector3::operator*(float k) const
-{
-	return Vector3(x * k, y * k, z * k);
-}
-
-//-----------------------------------------------------------------------------
 inline Vector3& Vector3::operator*=(float k)
 {
 	x *= k;
@@ -220,16 +286,6 @@ inline Vector3& Vector3::operator*=(float k)
 	z *= k;
 
 	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector3 Vector3::operator/(float k) const
-{
-	CE_ASSERT(k != (float)0.0, "Division by zero");
-
-	float inv = (float)(1.0 / k);
-
-	return Vector3(x * inv, y * inv, z * inv);
 }
 
 //-----------------------------------------------------------------------------
@@ -246,168 +302,4 @@ inline Vector3& Vector3::operator/=(float k)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
-inline float Vector3::dot(const Vector3& a) const
-{
-	return x * a.x + y * a.y + z * a.z;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector3 Vector3::cross(const Vector3& a) const
-{
-	return Vector3(y * a.z - z * a.y, z * a.x - x * a.z, x * a.y - y * a.x);
-}
-
-//-----------------------------------------------------------------------------
-inline Vector3 operator*(float k, const Vector3& a)
-{
-	return a * k;
-}
-
-//-----------------------------------------------------------------------------
-inline bool Vector3::operator==(const Vector3& other) const
-{
-	return math::equals(x, other.x) && math::equals(y, other.y) && math::equals(z, other.z);
-}
-
-//-----------------------------------------------------------------------------
-inline bool Vector3::operator!=(const Vector3& other) const
-{
-	return !math::equals(x, other.x) || !math::equals(y, other.y) || !math::equals(z, other.z);
-}
-
-//-----------------------------------------------------------------------------
-inline bool Vector3::operator<(const Vector3& other) const
-{
-	return ((x < other.x) && (y < other.y) && (z < other.z));
-}
-
-//-----------------------------------------------------------------------------
-inline bool Vector3::operator>(const Vector3& other) const
-{
-	return ((x > other.x) && (y > other.y) && (z > other.z));
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector3::length() const
-{
-	return math::sqrt(x * x + y * y + z * z);
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector3::squared_length() const
-{
-	return x * x + y * y + z * z;
-}
-
-//-----------------------------------------------------------------------------
-inline void Vector3::set_length(float len)
-{
-	normalize();
-
-	x *= len;
-	y *= len;
-	z *= len;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector3& Vector3::normalize()
-{
-	float len = length();
-
-	if (math::equals(len, (float)0.0))
-	{
-		return *this;
-	}
-
-	len = (float)(1.0 / len); 
-
-	x *= len;
-	y *= len;
-	z *= len;
-
-	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector3 Vector3::get_normalized() const
-{
-	Vector3 tmp(x, y, z);
-
-	return tmp.normalize();
-}
-
-//-----------------------------------------------------------------------------
-inline Vector3& Vector3::negate()
-{
-	x = -x;
-	y = -y;
-	z = -z;
-
-	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector3 Vector3::operator-() const
-{
-	return Vector3(-x, -y, -z);
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector3::get_distance_to(const Vector3& a) const
-{
-	return (*this - a).length();
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector3::get_angle_between(const Vector3& a) const
-{
-	return math::acos(this->dot(a) / (this->length() * a.length()));
-}
-
-//-----------------------------------------------------------------------------
-inline void Vector3::zero()
-{
-	x = 0.0;
-	y = 0.0;
-	z = 0.0;
-}
-
-//-----------------------------------------------------------------------------
-inline float* Vector3::to_float_ptr()
-{
-	return &x;
-}
-
-//-----------------------------------------------------------------------------
-inline const float* Vector3::to_float_ptr() const
-{
-	return &x;
-}
-
-//-----------------------------------------------------------------------------
-inline Vector2 Vector3::to_vec2() const
-{
-	return Vector2(x, y);
-}
-
-//-----------------------------------------------------------------------------
-/// Returns the parallel portion of "v" projected onto "n"
-inline Vector3 get_projected_parallel(const Vector3& v, const Vector3& n)
-{
-	float n_len_q;
-	n_len_q = n.length();
-	n_len_q = n_len_q * n_len_q;
-
-	return n * (v.dot(n) / n_len_q);
-}
-
-//-----------------------------------------------------------------------------
-/// Returns the perpendicular portion of "v" projected onto "n"
-inline Vector3 get_projected_perpendicular(const Vector3& v, const Vector3& n)
-{
-	return v - get_projected_parallel(v, n);
-}
-
 } // namespace crown
-

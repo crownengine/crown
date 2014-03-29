@@ -41,7 +41,7 @@ CE_EXPORT int world_spawn_unit(lua_State* L)
 	World* world = stack.get_world(1);
 	const char* name = stack.get_string(2);
 
-	const Vector3& pos = stack.num_args() > 2 ? stack.get_vector3(3) : Vector3::ZERO;
+	const Vector3& pos = stack.num_args() > 2 ? stack.get_vector3(3) : vector3::ZERO;
 	const Quaternion& rot = stack.num_args() > 3 ? stack.get_quaternion(4) : Quaternion::IDENTITY;
 
 	UnitId unit = world->spawn_unit(name, pos, rot);
@@ -83,7 +83,7 @@ CE_EXPORT int world_play_sound(lua_State* L)
 
 	const bool loop = stack.num_args() > 2 ? stack.get_bool(3) : false;
 	const float volume = stack.num_args() > 3 ? stack.get_float(4) : 1.0f;
-	const Vector3& pos = stack.num_args() > 4 ? stack.get_vector3(5) : Vector3::ZERO;
+	const Vector3& pos = stack.num_args() > 4 ? stack.get_vector3(5) : vector3::ZERO;
 	const float range = stack.num_args() > 5 ? stack.get_float(6) : 1000.0f;
 
 	SoundInstanceId id = world->play_sound(name, loop, volume, pos, range);

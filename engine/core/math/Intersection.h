@@ -115,8 +115,8 @@ private:
 //-----------------------------------------------------------------------------
 inline bool Intersection::test_ray_plane(const Ray& r, const Plane& p, float& distance, Vector3& intersectionPoint)
 {
-	float nd = r.direction().dot(p.n);
-	float orpn = r.origin().dot(p.n);
+	float nd = vector3::dot(r.direction(), p.n);
+	float orpn = vector3::dot(r.origin(), p.n);
 
 	if (nd < 0.0)
 	{
@@ -136,8 +136,8 @@ inline bool Intersection::test_ray_plane(const Ray& r, const Plane& p, float& di
 inline bool Intersection::test_ray_sphere(const Ray& r, const Sphere& s, float& distance, Vector3& intersectionPoint)
 {
 	Vector3 v = s.center() - r.origin();
-	float b = v.dot(r.direction());
-	float det = (s.radius() * s.radius()) - v.dot(v) + (b * b);
+	float b = vector3::dot(v, r.direction());
+	float det = (s.radius() * s.radius()) - vector3::dot(v, v) + (b * b);
 
 	if (det < 0.0 || b < s.radius())
 	{
@@ -228,14 +228,14 @@ inline bool Intersection::test_plane_3(const Plane& p1, const Plane& p2, const P
 	const Vector3& n2 = p2.n;
 	const Vector3& n3 = p3.n;
 
-	float den = -n1.cross(n2).dot(n3);
+	float den = -vector3::dot(vector3::cross(n1, n2), n3);
 
 	if (math::equals(den, (float)0.0))
 	{
 		return false;
 	}
 
-	Vector3 res = p1.d * n2.cross(n3) + p2.d * n3.cross(n1) + p3.d * n1.cross(n2);
+	Vector3 res = p1.d * vector3::cross(n2, n3) + p2.d * vector3::cross(n3, n1) + p3.d * vector3::cross(n1, n2);
 	ip = res / den;
 
 	return true;
@@ -255,7 +255,7 @@ inline bool Intersection::test_static_sphere_plane(const Sphere& s, const Plane&
 //-----------------------------------------------------------------------------
 inline bool Intersection::test_static_sphere_sphere(const Sphere& a, const Sphere& b)
 {
-	float dist = (b.center() - a.center()).squared_length();
+	float dist = vector3::squared_length(b.center() - a.center());
 	return (dist < (b.radius() + a.radius()) * (b.radius() + a.radius()));
 }
 
@@ -269,7 +269,7 @@ inline bool Intersection::test_dynamic_sphere_plane(const Sphere& s, const Vecto
 	float t1;	// Time at which the sphere int32_tersects the plane remaining at the back side of the plane
 
 	float sphereToPlaneDistance = p.distance_to_point(sphereCenter);
-	float planeNormalDotVelocity = p.n.dot(d);
+	float planeNormalDotVelocity = vector3::dot(p.n, d);
 
 	if (planeNormalDotVelocity > 0.0)
 	{
@@ -336,9 +336,9 @@ inline bool Intersection::test_dynamic_sphere_triangle(const Sphere& s, const Ve
 	float x1, x2;
 
 	// v1
-	a = d.dot(d);
-	b = 2.0 * (d.dot(s.center() - tri.m_vertex[0]));
-	c = (tri.m_vertex[0] - s.center()).dot(tri.m_vertex[0] - s.center()) - (s.radius() * s.radius());
+	a = vector3::dot(d, d);
+	b = 2.0 * (vector3::dot(d, s.center() - tri.m_vertex[0]));
+	c = vector3::dot(tri.m_vertex[0] - s.center(), tri.m_vertex[0] - s.center()) - (s.radius() * s.radius());
 
 	if (math::solve_quadratic_equation(a, b, c, x1, x2))
 	{
@@ -348,8 +348,8 @@ inline bool Intersection::test_dynamic_sphere_triangle(const Sphere& s, const Ve
 	}
 
 	// v2
-	b = 2.0 * (d.dot(s.center() - tri.m_vertex[1]));
-	c = (tri.m_vertex[1] - s.center()).dot(tri.m_vertex[1] - s.center()) - (s.radius() * s.radius());
+	b = 2.0 * (vector3::dot(d, s.center() - tri.m_vertex[1]));
+	c = vector3::dot(tri.m_vertex[1] - s.center(), tri.m_vertex[1] - s.center()) - (s.radius() * s.radius());
 
 	if (math::solve_quadratic_equation(a, b, c, x1, x2))
 	{
@@ -359,8 +359,8 @@ inline bool Intersection::test_dynamic_sphere_triangle(const Sphere& s, const Ve
 	}
 
 	// v3
-	b = 2.0 * (d.dot(s.center() - tri.m_vertex[2]));
-	c = (tri.m_vertex[2] - s.center()).dot(tri.m_vertex[2] - s.center()) - (s.radius() * s.radius());
+	b = 2.0 * (vector3::dot(d, s.center() - tri.m_vertex[2]));
+	c = vector3::dot(tri.m_vertex[2] - s.center(), tri.m_vertex[2] - s.center()) - (s.radius() * s.radius());
 
 	if (math::solve_quadratic_equation(a, b, c, x1, x2))
 	{
@@ -377,20 +377,20 @@ inline bool Intersection::test_dynamic_sphere_triangle(const Sphere& s, const Ve
 	float edgeSquaredLength;
 	float velocitySquaredLength;
 
-	velocitySquaredLength = d.squared_length();
+	velocitySquaredLength = vector3::squared_length(d);
 
 	// e1
 	edge = tri.m_vertex[1] - tri.m_vertex[0];
 	centerToVertex = tri.m_vertex[0] - s.center();
-	edgeDotVelocity = edge.dot(d);
-	edgeDotCenterToVertex = edge.dot(centerToVertex);
-	edgeSquaredLength = edge.squared_length();
+	edgeDotVelocity = vector3::dot(edge, d);
+	edgeDotCenterToVertex = vector3::dot(edge, centerToVertex);
+	edgeSquaredLength = vector3::squared_length(edge);
 
 
 	a = edgeSquaredLength * -velocitySquaredLength + edgeDotVelocity * edgeDotVelocity;
-	b = edgeSquaredLength * (2.0 * d.dot(centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
+	b = edgeSquaredLength * (2.0 * vector3::dot(d, centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
 
-	c = edgeSquaredLength * ((s.radius() * s.radius()) - centerToVertex.squared_length()) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
+	c = edgeSquaredLength * s.radius() * s.radius() - vector3::squared_length(centerToVertex) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
 
 	if (math::solve_quadratic_equation(a, b, c, x1, x2))
 	{
@@ -407,15 +407,15 @@ inline bool Intersection::test_dynamic_sphere_triangle(const Sphere& s, const Ve
 	// e2
 	edge = tri.m_vertex[2] - tri.m_vertex[1];
 	centerToVertex = tri.m_vertex[1] - s.center();
-	edgeDotVelocity = edge.dot(d);
-	edgeDotCenterToVertex = edge.dot(centerToVertex);
-	edgeSquaredLength = edge.squared_length();
+	edgeDotVelocity = vector3::dot(edge, d);
+	edgeDotCenterToVertex = vector3::dot(edge, centerToVertex);
+	edgeSquaredLength = vector3::squared_length(edge);
 
 
 	a = edgeSquaredLength * -velocitySquaredLength + edgeDotVelocity * edgeDotVelocity;
-	b = edgeSquaredLength * (2.0 * d.dot(centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
+	b = edgeSquaredLength * 2.0 * vector3::dot(d, centerToVertex) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
 
-	c = edgeSquaredLength * ((s.radius() * s.radius()) - centerToVertex.squared_length()) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
+	c = edgeSquaredLength * ((s.radius() * s.radius()) - vector3::squared_length(centerToVertex)) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
 
 	if (math::solve_quadratic_equation(a, b, c, x1, x2))
 	{
@@ -432,15 +432,15 @@ inline bool Intersection::test_dynamic_sphere_triangle(const Sphere& s, const Ve
 	// e3
 	edge = tri.m_vertex[0] - tri.m_vertex[2];
 	centerToVertex = tri.m_vertex[2] - s.center();
-	edgeDotVelocity = edge.dot(d);
-	edgeDotCenterToVertex = edge.dot(centerToVertex);
-	edgeSquaredLength = edge.squared_length();
+	edgeDotVelocity = vector3::dot(edge, d);
+	edgeDotCenterToVertex = vector3::dot(edge, centerToVertex);
+	edgeSquaredLength = vector3::squared_length(edge);
 
 
 	a = edgeSquaredLength * -velocitySquaredLength + edgeDotVelocity * edgeDotVelocity;
-	b = edgeSquaredLength * (2.0 * d.dot(centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
+	b = edgeSquaredLength * (2.0 * vector3::dot(d, centerToVertex)) - (2.0 * edgeDotVelocity * edgeDotCenterToVertex);
 
-	c = edgeSquaredLength * ((s.radius() * s.radius()) - centerToVertex.squared_length()) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
+	c = edgeSquaredLength * ((s.radius() * s.radius()) - vector3::squared_length(centerToVertex)) + (edgeDotCenterToVertex * edgeDotCenterToVertex);
 
 	if (math::solve_quadratic_equation(a, b, c, x1, x2))
 	{
@@ -463,7 +463,7 @@ inline bool Intersection::test_dynamic_sphere_sphere(const Sphere& s1, const Vec
 	// s1 == static sphere
 	// s2 == moving sphere
 	Vector3 d = d2 - d1;
-	d.normalize();
+	vector3::normalize(d);
 
 	const Vector3& cs = s1.center();
 	const Vector3& cm = s2.center();
@@ -472,15 +472,15 @@ inline bool Intersection::test_dynamic_sphere_sphere(const Sphere& s1, const Vec
 	float r = s1.radius() + s2.radius();
 
 	// If ||e|| < r, int32_tersection occurs at t = 0
-	if (e.length() < r)
+	if (vector3::length(e) < r)
 	{
 		it = 0.0;
 		return true;
 	}
 
 	// it == Intersection Time
-	float ed = e.dot(d);
-	float squared = (ed * ed) + (r * r) - e.dot(e);
+	float ed = vector3::dot(e, d);
+	float squared = (ed * ed) + (r * r) - vector3::dot(e, e);
 
 	// If the value inside the square root is neg, then no int32_tersection
 	if (squared < 0.0)
@@ -489,7 +489,7 @@ inline bool Intersection::test_dynamic_sphere_sphere(const Sphere& s1, const Vec
 	}
 
 	float t = ed - math::sqrt(squared);
-	float l = (d2 - d1).length();
+	float l = vector3::length(d2 - d1);
 
 	// If t < 0 || t > l, then non int32_tersection in the considered period of time
 	if (t < 0.0 || t > l)

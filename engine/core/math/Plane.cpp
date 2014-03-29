@@ -31,10 +31,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-const Plane Plane::ZERO = Plane(Vector3::ZERO, 0.0);
-const Plane	Plane::XAXIS = Plane(Vector3::XAXIS, 0.0);
-const Plane	Plane::YAXIS = Plane(Vector3::YAXIS, 0.0);
-const Plane	Plane::ZAXIS = Plane(Vector3::ZAXIS, 0.0);
+const Plane Plane::ZERO = Plane(vector3::ZERO, 0.0);
+const Plane	Plane::XAXIS = Plane(vector3::XAXIS, 0.0);
+const Plane	Plane::YAXIS = Plane(vector3::YAXIS, 0.0);
+const Plane	Plane::ZAXIS = Plane(vector3::ZAXIS, 0.0);
 
 //-----------------------------------------------------------------------------
 Plane::Plane()
@@ -54,7 +54,7 @@ Plane::Plane(const Vector3& normal, float dist) : n(normal), d(dist)
 //-----------------------------------------------------------------------------
 Plane& Plane::normalize()
 {
-	float len = n.length();
+	float len = vector3::length(n);
 
 	if (math::equals(len, (float)0.0))
 	{
@@ -72,13 +72,13 @@ Plane& Plane::normalize()
 //-----------------------------------------------------------------------------
 float Plane::distance_to_point(const Vector3& p) const
 {
-	return n.dot(p) + d;
+	return vector3::dot(n, p) + d;
 }
 
 //-----------------------------------------------------------------------------
 bool Plane::contains_point(const Vector3& p) const
 {
-	return math::equals(n.dot(p) + d, (float)0.0);
+	return math::equals(vector3::dot(n, p) + d, (float)0.0);
 }
 
 } // namespace crown

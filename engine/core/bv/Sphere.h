@@ -48,7 +48,7 @@ public:
 					Sphere(const Vector3& center, float radius);
 					Sphere(const Sphere& a);
 
-	const Vector3&		center() const;		
+	const Vector3&	center() const;		
 	float			radius() const;	
 	float			volume() const;	
 
@@ -122,7 +122,7 @@ inline void Sphere::add_points(const Vector3* points, uint32_t count)
 	{
 		const Vector3& p = points[i];
 
-		float dist = (p - m_center).squared_length();
+		float dist = vector3::squared_length(p - m_center);
 
 		if (dist >= m_radius * m_radius)
 		{
@@ -138,7 +138,7 @@ inline void Sphere::add_spheres(const Sphere* spheres, uint32_t count)
 	{
 		const Sphere& s = spheres[i];
 
-		float dist = (s.m_center - m_center).squared_length();
+		float dist = vector3::squared_length(s.m_center - m_center);
 
 		if (dist < (s.m_radius + m_radius) * (s.m_radius + m_radius))
 		{
@@ -153,7 +153,7 @@ inline void Sphere::add_spheres(const Sphere* spheres, uint32_t count)
 //-----------------------------------------------------------------------------
 inline bool Sphere::contains_point(const Vector3& p) const
 {
-	float dist = (p - m_center).squared_length();
+	float dist = vector3::squared_length(p - m_center);
 	return (dist < m_radius * m_radius);
 }
 

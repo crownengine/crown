@@ -195,7 +195,7 @@ struct SoundInstance
 
 	void set_position(const Vector3& pos)
 	{
-		AL_CHECK(alSourcefv(m_source, AL_POSITION, pos.to_float_ptr()));
+		AL_CHECK(alSourcefv(m_source, AL_POSITION, vector3::to_float_ptr(pos)));
 	}
 
 	void set_range(float range)

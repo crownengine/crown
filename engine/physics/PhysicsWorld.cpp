@@ -262,7 +262,7 @@ PhysicsWorld::~PhysicsWorld()
 ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, Unit* unit)
 {
 	PhysicsConfigResource* config = (PhysicsConfigResource*) device()->resource_manager()->lookup("physics_config", "global");
-	Actor* actor = CE_NEW(m_actors_pool, Actor)(res, config, index, physics_system::s_physics, physics_system::s_cooking, m_scene, sg, node, unit, Vector3::ZERO, Quaternion::IDENTITY);
+	Actor* actor = CE_NEW(m_actors_pool, Actor)(res, config, index, physics_system::s_physics, physics_system::s_cooking, m_scene, sg, node, unit, vector3::ZERO, Quaternion::IDENTITY);
 	return m_actors.create(actor);
 }
 

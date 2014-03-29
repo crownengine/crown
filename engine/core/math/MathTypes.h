@@ -48,4 +48,23 @@ struct Vector2
 	float x, y;
 };
 
+struct Vector3
+{
+	Vector3();
+	Vector3(float val);
+	Vector3(float nx, float ny, float nz);
+	Vector3(const float v[3]);
+	Vector3(const Vector3& a);
+
+	float operator[](uint32_t i) const;
+	float& operator[](uint32_t i);
+
+	Vector3& operator+=(const Vector3& a);
+	Vector3& operator-=(const Vector3& a);
+	Vector3& operator*=(float k);
+	Vector3& operator/=(float k);
+
+	float x, y, z;
+};
+
 } // namespace crown

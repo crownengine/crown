@@ -150,7 +150,6 @@ set (MATH_SRC
 	core/math/Matrix4x4.cpp
 	core/math/Plane.cpp
 	core/math/Quaternion.cpp
-	core/math/Vector3.cpp
 	core/math/Vector4.cpp
 )
 

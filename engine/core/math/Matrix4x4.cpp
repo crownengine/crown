@@ -682,10 +682,10 @@ Matrix4x4 Matrix4x4::get_transposed() const
 void Matrix4x4::build_look_at_rh(const Vector3& pos, const Vector3& target, const Vector3& up)
 {
 	Vector3 zAxis =  pos - target;
-	zAxis.normalize();
+	vector3::normalize(zAxis);
 
-	Vector3 xAxis = up.cross(zAxis);
-	Vector3 yAxis = zAxis.cross(xAxis);
+	Vector3 xAxis = vector3::cross(up, zAxis);
+	Vector3 yAxis = vector3::cross(zAxis, xAxis);
 
 	m[0] = xAxis.x;
 	m[1] = yAxis.x;
@@ -699,9 +699,9 @@ void Matrix4x4::build_look_at_rh(const Vector3& pos, const Vector3& target, cons
 	m[9] = yAxis.z;
 	m[10] = zAxis.z;
 	m[11] = 0.0;
-	m[12] = -pos.dot(xAxis);
-	m[13] = -pos.dot(yAxis);
-	m[14] = -pos.dot(zAxis);
+	m[12] = -vector3::dot(pos, xAxis);
+	m[13] = -vector3::dot(pos, yAxis);
+	m[14] = -vector3::dot(pos, zAxis);
 	m[15] = 1.0;
 }
 
@@ -709,10 +709,12 @@ void Matrix4x4::build_look_at_rh(const Vector3& pos, const Vector3& target, cons
 void Matrix4x4::build_viewpoint_billboard(const Vector3& pos, const Vector3& target, const Vector3& up)
 {
 	Vector3 zAxis = target - pos;
-	zAxis.normalize();
+	vector3::normalize(zAxis);
 
-	Vector3 xAxis = up.cross(zAxis).normalize();
-	Vector3 yAxis = zAxis.cross(xAxis).normalize();
+	Vector3 xAxis = vector3::cross(up, zAxis);
+	Vector3 yAxis = vector3::cross(zAxis, xAxis);
+	vector3::normalize(xAxis);
+	vector3::normalize(yAxis);
 
 	m[0] = xAxis.x;
 	m[1] = xAxis.y;
@@ -737,8 +739,10 @@ void Matrix4x4::build_axis_billboard(const Vector3& pos, const Vector3& target, 
 {
 	Vector3 zAxis = target - pos;
 
-	Vector3 xAxis = axis.cross(zAxis).normalize();
-	zAxis = axis.cross(xAxis).normalize();
+	Vector3 xAxis = vector3::cross(axis, zAxis);
+	zAxis = vector3::cross(axis, xAxis);
+	vector3::normalize(xAxis);
+	vector3::normalize(zAxis);
 	const Vector3& yAxis = axis;
 
 	m[0] = xAxis.x;

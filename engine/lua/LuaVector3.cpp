@@ -32,7 +32,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector3(lua_State* L)
+CE_EXPORT int vector3_new(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -188,7 +188,7 @@ CE_EXPORT int vector3_dot(lua_State* L)
 	Vector3& a = stack.get_vector3(1);
 	Vector3& b = stack.get_vector3(2);
 
-	stack.push_float(a.dot(b));
+	stack.push_float(vector3::dot(a, b));
 
 	return 1;
 }
@@ -201,7 +201,7 @@ CE_EXPORT int vector3_cross(lua_State* L)
 	Vector3& a = stack.get_vector3(1);
 	Vector3& b = stack.get_vector3(2);
 
-	stack.push_vector3(a.cross(b));
+	stack.push_vector3(vector3::cross(a, b));
 
 	return 1;
 }
@@ -220,39 +220,13 @@ CE_EXPORT int vector3_equal(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector3_lower(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Vector3& a = stack.get_vector3(1);
-	Vector3& b = stack.get_vector3(2);
-
-	stack.push_bool(a < b);
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int vector3_greater(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Vector3& a = stack.get_vector3(1);
-	Vector3& b = stack.get_vector3(2);
-
-	stack.push_bool(a > b);
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
 CE_EXPORT int vector3_length(lua_State* L)
 {
 	LuaStack stack(L);
 
 	Vector3& a = stack.get_vector3(1);
 
-	stack.push_float(a.length());
+	stack.push_float(vector3::length(a));
 
 	return 1;
 }
@@ -264,7 +238,7 @@ CE_EXPORT int vector3_squared_length(lua_State* L)
 
 	Vector3& a = stack.get_vector3(1);
 
-	stack.push_float(a.squared_length());
+	stack.push_float(vector3::squared_length(a));
 
 	return 1;
 }
@@ -277,7 +251,7 @@ CE_EXPORT int vector3_set_length(lua_State* L)
 	Vector3& a = stack.get_vector3(1);
 	float len = stack.get_float(2);
 
-	a.set_length(len);
+	vector3::set_length(a, len);
 
 	return 0;
 }
@@ -288,10 +262,10 @@ CE_EXPORT int vector3_normalize(lua_State* L)
 	LuaStack stack(L);
 
 	Vector3& a = stack.get_vector3(1);
+	
+	stack.push_vector3(vector3::normalize(a));
 
-	a.normalize();
-
-	return 0;
+	return 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -301,53 +275,41 @@ CE_EXPORT int vector3_negate(lua_State* L)
 
 	Vector3& a = stack.get_vector3(1);
 
-	stack.push_vector3(a.negate());
+	stack.push_vector3(-a);
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector3_get_distance_to(lua_State* L)
+CE_EXPORT int vector3_distance(lua_State* L)
 {
 	LuaStack stack(L);
 
 	Vector3& a = stack.get_vector3(1);
 	Vector3& b = stack.get_vector3(2);
 
-	stack.push_float(a.get_distance_to(b));
+	stack.push_float(vector3::distance(a, b));
 
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector3_get_angle_between(lua_State* L)
+CE_EXPORT int vector3_angle(lua_State* L)
 {
 	LuaStack stack(L);
 
 	Vector3& a = stack.get_vector3(1);
 	Vector3& b = stack.get_vector3(2);
 
-	stack.push_float(a.get_angle_between(b));
+	stack.push_float(vector3::angle(a, b));
 
 	return 1;
 }
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int vector3_zero(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Vector3& a = stack.get_vector3(1);
-
-	a.zero();
-
-	return 0;
-}	
 
 //-----------------------------------------------------------------------------
 void load_vector3(LuaEnvironment& env)
 {
-	env.load_module_function("Vector3", "new", 				vector3);
+	env.load_module_function("Vector3", "new", 				vector3_new);
 	env.load_module_function("Vector3", "x", 				vector3_x);
 	env.load_module_function("Vector3", "y", 				vector3_y);
 	env.load_module_function("Vector3", "z", 				vector3_z);
@@ -362,16 +324,13 @@ void load_vector3(LuaEnvironment& env)
 	env.load_module_function("Vector3", "dot", 				vector3_dot);
 	env.load_module_function("Vector3", "cross", 			vector3_cross);
 	env.load_module_function("Vector3", "equal", 			vector3_equal);
-	env.load_module_function("Vector3", "lower", 			vector3_lower);
-	env.load_module_function("Vector3", "greater", 			vector3_greater);
 	env.load_module_function("Vector3", "length", 			vector3_length);
 	env.load_module_function("Vector3", "squared_length", 	vector3_squared_length);
 	env.load_module_function("Vector3", "set_length", 		vector3_set_length);
 	env.load_module_function("Vector3", "normalize", 		vector3_normalize);
 	env.load_module_function("Vector3", "negate", 			vector3_negate);
-	env.load_module_function("Vector3", "get_distance_to", 	vector3_get_distance_to);
-	env.load_module_function("Vector3", "get_angle_between",vector3_get_angle_between);
-	env.load_module_function("Vector3", "zero", 			vector3_zero);	
+	env.load_module_function("Vector3", "distance", 		vector3_distance);
+	env.load_module_function("Vector3", "angle",			vector3_angle);
 }
 
 } // namespace crown
