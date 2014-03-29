@@ -48,9 +48,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector4.h"
 
 // Core/Bv
-#include "Circle.h"
 #include "Frustum.h"
-#include "Rect.h"
 #include "Sphere.h"
 
 // Core/Containers

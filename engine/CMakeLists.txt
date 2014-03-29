@@ -114,16 +114,11 @@ set (CORE_HEADERS
 )
 
 set (BV_SRC
-	core/bv/Circle.cpp
 	core/bv/Frustum.cpp
-	core/bv/Rect.cpp
 )
 
 set (BV_HEADERS
-	core/bv/Box.h
-	core/bv/Circle.h
 	core/bv/Frustum.h
-	core/bv/Rect.h
 	core/bv/Sphere.h
 )
 
@@ -152,6 +147,7 @@ set (MATH_SRC
 )
 
 set (MATH_HEADERS
+	core/math/AABB.h
 	core/math/Color4.h
 	core/math/Intersection.h
 	core/math/MathTypes.h
@@ -161,7 +157,6 @@ set (MATH_HEADERS
 	core/math/Plane.h
 	core/math/Quaternion.h
 	core/math/Random.h
-	core/math/Triangle.h
 	core/math/Vector2.h
 	core/math/Vector3.h
 	core/math/Vector4.h
