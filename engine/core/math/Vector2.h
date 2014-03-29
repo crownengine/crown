@@ -34,10 +34,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// Negates @a a and returns the result.	
+/// Negates @a a and returns the result.
 Vector2 operator-(const Vector2& a);
 
-/// Adds the vector @a to @b and returns the result.
+/// Adds the vector @a a to @a b and returns the result.
 Vector2 operator+(Vector2 a, const Vector2& b);
 
 /// Subtracts the vector @a b from @a a and returns the result.
@@ -59,31 +59,31 @@ namespace vector2
 {
 	const Vector2 ZERO = Vector2(0, 0);
 
-	/// Dot product
+	/// Returns the dot product between the vectors @a a and @a b.
 	float dot(const Vector2& a, const Vector2& b);
 
-	/// Returns the vector's length
+	/// Returns the lenght of @a a.
 	float length(const Vector2& a);
 
-	/// Returns the vector's squared length							
+	/// Returns the squared length of @a a.
 	float squared_length(const Vector2& a);
 
-	/// Sets the vector's length					
+	/// Sets the lenght of @a a to @a len.
 	void set_length(Vector2& a, float len);
 
-	/// Normalizes the vector
+	/// Normalizes @a a and returns the result.
 	Vector2 normalize(Vector2& a);
 
-	/// Returns the distance
+	/// Returns the distance between the points @a a and @a b.
 	float distance(const Vector2& a, const Vector2& b);
 
-	/// Returns the angle between
+	/// Returns the angle between the vectors @a a and @a b.
 	float angle(const Vector2& a, const Vector2& b);
 
-	/// Returns the pointer to the vector's data
+	/// Returns the pointer to the data of @a a.
 	float* to_float_ptr(Vector2& a);
 
-	/// Returns the pointer to the vector's data
+	/// @copydoc to_float_ptr(Vector2&)
 	const float* to_float_ptr(const Vector2& a);
 } // namespace vector2
 
