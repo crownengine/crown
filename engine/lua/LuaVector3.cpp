@@ -328,7 +328,6 @@ void load_vector3(LuaEnvironment& env)
 	env.load_module_function("Vector3", "squared_length", 	vector3_squared_length);
 	env.load_module_function("Vector3", "set_length", 		vector3_set_length);
 	env.load_module_function("Vector3", "normalize", 		vector3_normalize);
-	env.load_module_function("Vector3", "negate", 			vector3_negate);
 	env.load_module_function("Vector3", "distance", 		vector3_distance);
 	env.load_module_function("Vector3", "angle",			vector3_angle);
 }
