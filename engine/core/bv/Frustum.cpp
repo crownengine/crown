@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Intersection.h"
 #include "Matrix4x4.h"
+#include "AABB.h"
 
 namespace crown
 {
@@ -150,10 +151,10 @@ void Frustum::from_matrix(const Matrix4x4& m)
 }
 
 //-----------------------------------------------------------------------------
-Box Frustum::to_box() const
+AABB Frustum::to_aabb() const
 {
-	Box tmp;
-	tmp.zero();
+	AABB tmp;
+	aabb::reset(tmp);
 
 	Vector3 vertices[8];
 	vertices[0] = vertex(0);
@@ -165,7 +166,7 @@ Box Frustum::to_box() const
 	vertices[6] = vertex(6);
 	vertices[7] = vertex(7);
 
-	tmp.add_points(vertices, 8);
+	aabb::add_points(tmp, 8, vertices);
 
 	return tmp;
 }

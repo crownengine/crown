@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Box.h"
+#include "MathTypes.h"
 #include "Vector3.h"
 #include "Plane.h"
 
@@ -70,7 +70,7 @@ struct Frustum
 	void		from_matrix(const Matrix4x4& m);				
 
 	/// Returns a Box containing the frustum volume.
-	Box			to_box() const;							
+	AABB		to_aabb() const;							
 
 public:
 

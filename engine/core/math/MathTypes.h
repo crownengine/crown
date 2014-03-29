@@ -97,4 +97,15 @@ struct Quaternion
 	float x, y, z, w;
 };
 
+struct AABB
+{
+	AABB();
+
+	/// Constructs from @a min and @a max.
+	AABB(const Vector3& min, const Vector3& max);			
+
+	Vector3 min;
+	Vector3 max;
+};
+
 } // namespace crown

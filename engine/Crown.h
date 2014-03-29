@@ -33,11 +33,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Log.h"
 
 // Core/Math
+#include "AABB.h"
 #include "Color4.h"
 #include "Intersection.h"
+#include "MathUtils.h"
 #include "Matrix3x3.h"
 #include "Matrix4x4.h"
-#include "MathUtils.h"
 #include "Plane.h"
 #include "Quaternion.h"
 #include "Random.h"
@@ -47,7 +48,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector4.h"
 
 // Core/Bv
-#include "Box.h"
 #include "Circle.h"
 #include "Frustum.h"
 #include "Rect.h"

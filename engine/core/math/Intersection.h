@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Circle.h"
 #include "Rect.h"
+#include "AABB.h"
 
 namespace crown
 {
@@ -41,7 +42,7 @@ namespace crown
 /// Intersection test utils.
 /// Table of Intersection tests (3d)
 /// +----------+----------+----------+----------+----------+----------+
-/// |          | Ray      | Plane    | Sphere   | Box      | Frustum  |
+/// |          | Ray      | Plane    | Sphere   | AABB      | Frustum  |
 /// +----------+----------+----------+----------+----------+----------+
 /// | Ray      | No       | Yes      | Yes      | No       | No       |
 /// +----------+----------+----------+----------+----------+----------+
@@ -49,7 +50,7 @@ namespace crown
 /// +----------+----------+----------+----------+----------+----------+
 /// | Sphere   | -        | -        | Yes (+)  | No       | Yes      |
 /// +----------+----------+----------+----------+----------+----------+
-/// | Box      | -        | -        | -        | Yes (+)  | Yes      |
+/// | AABB      | -        | -        | -        | Yes (+)  | Yes      |
 /// +----------+----------+----------+----------+----------+----------+
 /// | Frustum  | -        | -        | -        | -        | No       |
 /// +----------+----------+----------+----------+----------+----------+
@@ -82,7 +83,7 @@ public:
 
 	static bool test_ray_plane(const Ray& r, const Plane& p, float& distance, Vector3& inttersectionPoint_t);
 	static bool test_ray_sphere(const Ray& r, const Sphere& s, float& distance, Vector3& intersectionPoint);
-	static bool test_ray_box(const Ray& r, const Box& b, float& distance, Vector3& intersectionPoint);
+	static bool test_ray_box(const Ray& r, const AABB& b, float& distance, Vector3& intersectionPoint);
 
 	static bool test_plane_3(const Plane& p1, const Plane& p2, const Plane& p3, Vector3& ip);
 
@@ -91,11 +92,11 @@ public:
 	static bool test_dynamic_sphere_plane(const Sphere& s, const Vector3& d, const Plane& p, float& it, Vector3& intersectionPoint);
 	static bool test_dynamic_sphere_sphere(const Sphere& s1, const Vector3& d1, const Sphere& s2, const Vector3& d2, float& it, Vector3& intersectionPoint);
 
-	static bool test_static_box_box(const Box& b1, const Box& b2);
-	static bool test_dynamic_box_box(const Box& b1, const Vector3& v1, const Box& b2, const Vector3& v2, float& it);
+	static bool test_static_box_box(const AABB& b1, const AABB& b2);
+	static bool test_dynamic_box_box(const AABB& b1, const Vector3& v1, const AABB& b2, const Vector3& v2, float& it);
 
 	static bool test_frustum_sphere(const Frustum& f, const Sphere& s);
-	static bool test_frustum_box(const Frustum& f, const Box& box);
+	static bool test_frustum_box(const Frustum& f, const AABB& box);
 
 	static bool test_circle_circle(const Circle& c1, const Circle& c2, Vector2& penetration);
 	static bool test_dynamic_circle_circle(const Circle& c1, const Vector2& d1, const Circle& c2, const Vector2& d2, float& it);
@@ -147,9 +148,9 @@ inline bool Intersection::test_ray_sphere(const Ray& r, const Sphere& s, float& 
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::test_ray_box(const Ray& r, const Box& b, float& /*distance*/, Vector3& /*intersectionPoint*/)
+inline bool Intersection::test_ray_box(const Ray& r, const AABB& b, float& /*distance*/, Vector3& /*intersectionPoint*/)
 {
-	if (r.origin().x < b.min().x)
+	if (r.origin().x < b.min.x)
 	{
 		if (r.direction().x < 0.0)
 		{
@@ -157,7 +158,7 @@ inline bool Intersection::test_ray_box(const Ray& r, const Box& b, float& /*dist
 		}
 	}
 
-	if (r.origin().x > b.max().x)
+	if (r.origin().x > b.max.x)
 	{
 		if (r.direction().x > 0.0)
 		{
@@ -165,7 +166,7 @@ inline bool Intersection::test_ray_box(const Ray& r, const Box& b, float& /*dist
 		}
 	}
 
-	if (r.origin().y < b.min().y)
+	if (r.origin().y < b.min.y)
 	{
 		if (r.direction().y < 0.0)
 		{
@@ -173,7 +174,7 @@ inline bool Intersection::test_ray_box(const Ray& r, const Box& b, float& /*dist
 		}
 	}
 
-	if (r.origin().y > b.max().y)
+	if (r.origin().y > b.max.y)
 	{
 		if (r.direction().y > 0.0)
 		{
@@ -181,7 +182,7 @@ inline bool Intersection::test_ray_box(const Ray& r, const Box& b, float& /*dist
 		}
 	}
 
-	if (r.origin().z < b.min().z)
+	if (r.origin().z < b.min.z)
 	{
 		if (r.direction().z < 0.0)
 		{
@@ -189,7 +190,7 @@ inline bool Intersection::test_ray_box(const Ray& r, const Box& b, float& /*dist
 		}
 	}
 
-	if (r.origin().z > b.max().z)
+	if (r.origin().z > b.max.z)
 	{
 		if (r.direction().z > 0.0)
 		{
@@ -334,19 +335,19 @@ inline bool Intersection::test_dynamic_sphere_sphere(const Sphere& s1, const Vec
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::test_static_box_box(const Box& b1, const Box& b2)
+inline bool Intersection::test_static_box_box(const AABB& b1, const AABB& b2)
 {
-	if (b1.min().x > b2.max().x || b1.max().x < b2.min().x)
+	if (b1.min.x > b2.max.x || b1.max.x < b2.min.x)
 	{
 		return false;
 	}
 
-	if (b1.min().y > b2.max().y || b1.max().y < b2.min().y)
+	if (b1.min.y > b2.max.y || b1.max.y < b2.min.y)
 	{
 		return false;
 	}
 
-	if (b1.min().z > b2.max().z || b1.max().z < b2.min().z)
+	if (b1.min.z > b2.max.z || b1.max.z < b2.min.z)
 	{
 		return false;
 	}
@@ -355,7 +356,7 @@ inline bool Intersection::test_static_box_box(const Box& b1, const Box& b2)
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::test_dynamic_box_box(const Box& b1, const Vector3& v1, const Box& b2, const Vector3& v2, float& it)
+inline bool Intersection::test_dynamic_box_box(const AABB& b1, const Vector3& v1, const AABB& b2, const Vector3& v2, float& it)
 {
 	// b1 == static box
 	// b2 == moving box
@@ -369,7 +370,7 @@ inline bool Intersection::test_dynamic_box_box(const Box& b1, const Vector3& v1,
 	// If the resulting displacement equals zero, then fallback to static int32_tersection test
 	if (math::equals(d.x, (float)0.0))
 	{
-		if (b1.min().x > b2.max().x || b1.max().x < b2.min().x)
+		if (b1.min.x > b2.max.x || b1.max.x < b2.min.x)
 		{
 			return false;
 		}
@@ -377,7 +378,7 @@ inline bool Intersection::test_dynamic_box_box(const Box& b1, const Vector3& v1,
 
 	if (math::equals(d.y, (float)0.0))
 	{
-		if (b1.min().y > b2.max().y || b1.max().y < b2.min().y)
+		if (b1.min.y > b2.max.y || b1.max.y < b2.min.y)
 		{
 			return false;
 		}
@@ -385,7 +386,7 @@ inline bool Intersection::test_dynamic_box_box(const Box& b1, const Vector3& v1,
 
 	if (math::equals(d.z, (float)0.0))
 	{
-		if (b1.min().z > b2.max().z || b1.max().z < b2.min().z)
+		if (b1.min.z > b2.max.z || b1.max.z < b2.min.z)
 		{
 			return false;
 		}
@@ -393,16 +394,16 @@ inline bool Intersection::test_dynamic_box_box(const Box& b1, const Vector3& v1,
 
 	// Otherwise, compute the enter/leave times aint64_t each axis
 	float oneOverD = (float)(1.0 / d.x);
-	tEnterXYZ.x = (b1.min().x - b2.max().x) * oneOverD;
-	tLeaveXYZ.x = (b1.max().x - b2.min().x) * oneOverD;
+	tEnterXYZ.x = (b1.min.x - b2.max.x) * oneOverD;
+	tLeaveXYZ.x = (b1.max.x - b2.min.x) * oneOverD;
 
 	oneOverD = (float)(1.0 / d.y);
-	tEnterXYZ.y = (b1.min().y - b2.max().y) * oneOverD;
-	tLeaveXYZ.y = (b1.max().y - b2.min().y) * oneOverD;
+	tEnterXYZ.y = (b1.min.y - b2.max.y) * oneOverD;
+	tLeaveXYZ.y = (b1.max.y - b2.min.y) * oneOverD;
 
 	oneOverD = (float)(1.0 / d.z);
-	tEnterXYZ.z = (b1.min().z - b2.max().z) * oneOverD;
-	tLeaveXYZ.z = (b1.max().z - b2.min().z) * oneOverD;
+	tEnterXYZ.z = (b1.min.z - b2.max.z) * oneOverD;
+	tLeaveXYZ.z = (b1.max.z - b2.min.z) * oneOverD;
 
 	// We must ensure that enter time < leave time
 	if (tLeaveXYZ.x < tEnterXYZ.x)
@@ -457,7 +458,7 @@ inline bool Intersection::test_frustum_sphere(const Frustum& f, const Sphere& s)
 }
 
 //-----------------------------------------------------------------------------
-inline bool Intersection::test_frustum_box(const Frustum& f, const Box& b)
+inline bool Intersection::test_frustum_box(const Frustum& f, const AABB& b)
 {
 	uint32_t vertexOutCount;
 
@@ -467,7 +468,7 @@ inline bool Intersection::test_frustum_box(const Frustum& f, const Box& b)
 
 		for (uint32_t j = 0; j < 8; j++)
 		{
-			if (f.m_planes[i].distance_to_point(b.vertex(j)) < 0.0)
+			if (f.m_planes[i].distance_to_point(aabb::vertex(b, j)) < 0.0)
 			{
 				vertexOutCount++;
 			}
