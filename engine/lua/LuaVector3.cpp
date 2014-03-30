@@ -295,18 +295,6 @@ CE_EXPORT int vector3_normalize(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector3_negate(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Vector3& a = stack.get_vector3(1);
-
-	stack.push_vector3(a.negate());
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
 CE_EXPORT int vector3_get_distance_to(lua_State* L)
 {
 	LuaStack stack(L);
@@ -368,7 +356,6 @@ void load_vector3(LuaEnvironment& env)
 	env.load_module_function("Vector3", "squared_length", 	vector3_squared_length);
 	env.load_module_function("Vector3", "set_length", 		vector3_set_length);
 	env.load_module_function("Vector3", "normalize", 		vector3_normalize);
-	env.load_module_function("Vector3", "negate", 			vector3_negate);
 	env.load_module_function("Vector3", "get_distance_to", 	vector3_get_distance_to);
 	env.load_module_function("Vector3", "get_angle_between",vector3_get_angle_between);
 	env.load_module_function("Vector3", "zero", 			vector3_zero);	
