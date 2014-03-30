@@ -224,7 +224,7 @@ public:
 		lua_setfield(m_state, -2, key);		
 	}
 
-	/// Sets table's __index metamethod to its self
+	/// Sets table's __index metamethod to itself
 	void set_self_index()
 	{
 		lua_pushvalue(m_state, -1);
