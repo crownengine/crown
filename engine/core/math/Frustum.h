@@ -41,16 +41,26 @@ namespace crown
 {
 namespace frustum
 {
-	/// Returns whether @a point is contained into the frustum.
+	/// Returns whether the frustum @a f contains the point @a p.
 	bool contains_point(const Frustum& f, const Vector3& p);
 
-	/// Returns one of the eight frustum's corners.
-	Vector3 vertex(uint32_t index);
+	/// Returns the corner @a index of the frustum @a f.
+	/// @note
+	/// Index to corner table:
+	/// 0 = Near bottom left
+	/// 1 = Near bottom right
+	/// 2 = Near top right
+	/// 3 = Near top left
+	/// 4 = Far bottom left
+	/// 5 = Far bottom right
+	/// 6 = Far top right
+	/// 7 = Far top left
+	Vector3 vertex(const Frustum& f, uint32_t index);
 
-	/// Builds the view frustum according to the matrix @a m.
+	/// Builds the frustum @a f from the view matrix @a m.
 	void from_matrix(Frustum& f, const Matrix4x4& m);
 
-	/// Returns a Box containing the frustum volume.
+	/// Returns the AABB enclosing the frustum @a f.
 	AABB to_aabb(const Frustum& f);
 } // namespace frustum
 
