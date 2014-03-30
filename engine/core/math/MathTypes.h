@@ -102,10 +102,24 @@ struct AABB
 	AABB();
 
 	/// Constructs from @a min and @a max.
-	AABB(const Vector3& min, const Vector3& max);			
+	AABB(const Vector3& min, const Vector3& max);
 
 	Vector3 min;
 	Vector3 max;
+};
+
+/// 3D Plane.
+/// The form is ax + by + cz + d = 0
+/// where: d = -vector3::dot(n, p)
+struct Plane
+{
+	/// Does nothing for efficiency.
+	Plane();						
+	Plane(const Vector3& n, float d);
+	Plane(const Plane& p);
+
+	Vector3 n;
+	float d;
 };
 
 } // namespace crown

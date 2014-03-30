@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Intersection.h"
 #include "Matrix4x4.h"
 #include "AABB.h"
+#include "Plane.h"
 
 namespace crown
 {
@@ -52,12 +53,12 @@ Frustum::Frustum(const Frustum& frustum)
 //-----------------------------------------------------------------------------
 bool Frustum::contains_point(const Vector3& point) const
 {
-	if (m_planes[FrustumPlane::LEFT].distance_to_point(point) < 0.0) return false;
-	if (m_planes[FrustumPlane::RIGHT].distance_to_point(point) < 0.0) return false;
-	if (m_planes[FrustumPlane::BOTTOM].distance_to_point(point) < 0.0) return false;
-	if (m_planes[FrustumPlane::TOP].distance_to_point(point) < 0.0) return false;
-	if (m_planes[FrustumPlane::NEAR].distance_to_point(point) < 0.0) return false;
-	if (m_planes[FrustumPlane::FAR].distance_to_point(point) < 0.0) return false;
+	if (plane::distance_to_point(m_planes[FrustumPlane::LEFT], point) < 0.0) return false;
+	if (plane::distance_to_point(m_planes[FrustumPlane::RIGHT], point) < 0.0) return false;
+	if (plane::distance_to_point(m_planes[FrustumPlane::BOTTOM], point) < 0.0) return false;
+	if (plane::distance_to_point(m_planes[FrustumPlane::TOP], point) < 0.0) return false;
+	if (plane::distance_to_point(m_planes[FrustumPlane::NEAR], point) < 0.0) return false;
+	if (plane::distance_to_point(m_planes[FrustumPlane::FAR], point) < 0.0) return false;
 
 	return true;
 }
@@ -80,24 +81,15 @@ Vector3 Frustum::vertex(uint32_t index) const
 
 	switch (index)
 	{
-		case 0:
-			return Intersection::test_plane_3(m_planes[4], m_planes[0], m_planes[2], ip);
-		case 1:
-			return Intersection::test_plane_3(m_planes[4], m_planes[1], m_planes[2], ip);
-		case 2:
-			return Intersection::test_plane_3(m_planes[4], m_planes[1], m_planes[3], ip);
-		case 3:
-			return Intersection::test_plane_3(m_planes[4], m_planes[0], m_planes[3], ip);
-		case 4:
-			return Intersection::test_plane_3(m_planes[5], m_planes[0], m_planes[2], ip);
-		case 5:
-			return Intersection::test_plane_3(m_planes[5], m_planes[1], m_planes[2], ip);
-		case 6:
-			return Intersection::test_plane_3(m_planes[5], m_planes[1], m_planes[3], ip);
-		case 7:
-			return Intersection::test_plane_3(m_planes[5], m_planes[0], m_planes[3], ip);
-		default:
-			break;
+		case 0: return Intersection::test_plane_3(m_planes[4], m_planes[0], m_planes[2], ip);
+		case 1: return Intersection::test_plane_3(m_planes[4], m_planes[1], m_planes[2], ip);
+		case 2: return Intersection::test_plane_3(m_planes[4], m_planes[1], m_planes[3], ip);
+		case 3: return Intersection::test_plane_3(m_planes[4], m_planes[0], m_planes[3], ip);
+		case 4: return Intersection::test_plane_3(m_planes[5], m_planes[0], m_planes[2], ip);
+		case 5: return Intersection::test_plane_3(m_planes[5], m_planes[1], m_planes[2], ip);
+		case 6: return Intersection::test_plane_3(m_planes[5], m_planes[1], m_planes[3], ip);
+		case 7: return Intersection::test_plane_3(m_planes[5], m_planes[0], m_planes[3], ip);
+		default: break;
 	}
 
 	return ip;
@@ -142,12 +134,12 @@ void Frustum::from_matrix(const Matrix4x4& m)
 	m_planes[FrustumPlane::FAR].n.z		= m.m[11] - m.m[10];
 	m_planes[FrustumPlane::FAR].d		= m.m[15] - m.m[14];
 
-	m_planes[FrustumPlane::LEFT].normalize();
-	m_planes[FrustumPlane::RIGHT].normalize();
-	m_planes[FrustumPlane::BOTTOM].normalize();
-	m_planes[FrustumPlane::TOP].normalize();
-	m_planes[FrustumPlane::NEAR].normalize();
-	m_planes[FrustumPlane::FAR].normalize();
+	plane::normalize(m_planes[FrustumPlane::LEFT]);
+	plane::normalize(m_planes[FrustumPlane::RIGHT]);
+	plane::normalize(m_planes[FrustumPlane::BOTTOM]);
+	plane::normalize(m_planes[FrustumPlane::TOP]);
+	plane::normalize(m_planes[FrustumPlane::NEAR]);
+	plane::normalize(m_planes[FrustumPlane::FAR]);
 }
 
 //-----------------------------------------------------------------------------
@@ -172,4 +164,3 @@ AABB Frustum::to_aabb() const
 }
 
 } // namespace crown
-

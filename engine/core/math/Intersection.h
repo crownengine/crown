@@ -181,7 +181,7 @@ inline bool Intersection::test_plane_3(const Plane& p1, const Plane& p2, const P
 //-----------------------------------------------------------------------------
 inline bool Intersection::test_static_sphere_plane(const Sphere& s, const Plane& p)
 {
-	if (math::abs(p.distance_to_point(s.center())) < s.radius())
+	if (math::abs(plane::distance_to_point(p, s.center())) < s.radius())
 	{
 		return true;
 	}
@@ -205,7 +205,7 @@ inline bool Intersection::test_dynamic_sphere_plane(const Sphere& s, const Vecto
 	float t0;	// Time at which the sphere int32_tersects the plane remaining at the front side of the plane
 	float t1;	// Time at which the sphere int32_tersects the plane remaining at the back side of the plane
 
-	float sphereToPlaneDistance = p.distance_to_point(sphereCenter);
+	float sphereToPlaneDistance = plane::distance_to_point(p, sphereCenter);
 	float planeNormalDotVelocity = vector3::dot(p.n, d);
 
 	if (planeNormalDotVelocity > 0.0)
@@ -393,17 +393,20 @@ inline bool Intersection::test_dynamic_box_box(const AABB& b1, const Vector3& v1
 //-----------------------------------------------------------------------------
 inline bool Intersection::test_frustum_sphere(const Frustum& f, const Sphere& s)
 {
-	if (f.m_planes[0].distance_to_point(s.center()) < -s.radius() || f.m_planes[1].distance_to_point(s.center()) < -s.radius())
+	if (plane::distance_to_point(f.m_planes[0], s.center()) < -s.radius() ||
+		plane::distance_to_point(f.m_planes[1], s.center()) < -s.radius())
 	{
 		return false;
 	}
 
-	if (f.m_planes[2].distance_to_point(s.center()) < -s.radius() || f.m_planes[3].distance_to_point(s.center()) < -s.radius())
+	if (plane::distance_to_point(f.m_planes[2], s.center()) < -s.radius() ||
+		plane::distance_to_point(f.m_planes[3], s.center()) < -s.radius())
 	{
 		return false;
 	}
 
-	if (f.m_planes[4].distance_to_point(s.center()) < -s.radius() || f.m_planes[5].distance_to_point(s.center()) < -s.radius())
+	if (plane::distance_to_point(f.m_planes[4], s.center()) < -s.radius() ||
+		plane::distance_to_point(f.m_planes[5], s.center()) < -s.radius())
 	{
 		return false;
 	}
@@ -422,7 +425,7 @@ inline bool Intersection::test_frustum_box(const Frustum& f, const AABB& b)
 
 		for (uint32_t j = 0; j < 8; j++)
 		{
-			if (f.m_planes[i].distance_to_point(aabb::vertex(b, j)) < 0.0)
+			if (plane::distance_to_point(f.m_planes[i], aabb::vertex(b, j)) < 0.0)
 			{
 				vertexOutCount++;
 			}

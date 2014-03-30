@@ -29,44 +29,69 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Sphere.h"
 #include "Vector3.h"
+#include "MathTypes.h"
 
 namespace crown
 {
 
-/// 3D Plane.
-/// 
-/// The form is ax + by + cz + d = 0
-/// where: d = -n.Dot(p)
-struct Plane
+namespace plane
 {
-public:
+	/// Normalizes the plane @æ p and returns its result.
+	Plane& normalize(Plane& p);
 
-	Vector3				n;
-	float				d;
+	/// Returns the signed distance between plane @a p and point @a point.
+	float distance_to_point(const Plane& p, const Vector3& point);
 
-public:
+} // namespace plane
 
-	/// Does nothing for efficiency.
-						Plane();						
-						Plane(const Plane& p);
+namespace plane
+{
+	const Plane ZERO = Plane(vector3::ZERO, 0.0);
+	const Plane	XAXIS = Plane(vector3::XAXIS, 0.0);
+	const Plane	YAXIS = Plane(vector3::YAXIS, 0.0);
+	const Plane	ZAXIS = Plane(vector3::ZAXIS, 0.0);
 
-	/// Constructs from a normal and distance factor						
-						Plane(const Vector3& normal, float dist);		
+	//-----------------------------------------------------------------------------
+	inline Plane& normalize(Plane& p)
+	{
+		float len = vector3::length(p.n);
 
-	/// Normalizes the plane
-	Plane&				normalize();							
+		if (math::equals(len, (float) 0.0))
+		{
+			return p;
+		}
 
-	/// Returns the signed distance between point @a p and the plane
-	float				distance_to_point(const Vector3& p) const;	
+		const float inv_len = (float) 1.0 / len;
 
-	/// Returns whether the plane contains the point @a p	
-	bool				contains_point(const Vector3& p) const;		
+		p.n *= inv_len;
+		p.d *= inv_len;
 
-	static const Plane	ZERO;
-	static const Plane	XAXIS;
-	static const Plane	YAXIS;
-	static const Plane	ZAXIS;
-};
+		return p;
+	}
+
+	//-----------------------------------------------------------------------------
+	inline float distance_to_point(const Plane& p, const Vector3& point)
+	{
+		return vector3::dot(p.n, point) + p.d;
+	}
+} // namespace plane
+
+//-----------------------------------------------------------------------------
+inline Plane::Plane()
+{
+	// Do not initialize
+}
+
+//-----------------------------------------------------------------------------
+inline Plane::Plane(const Plane& p)
+	: n(p.n), d(p.d)
+{
+}
+
+//-----------------------------------------------------------------------------
+inline Plane::Plane(const Vector3& normal, float dist)
+	: n(normal), d(dist)
+{
+}
 
 } // namespace crown
-

@@ -135,7 +135,6 @@ set (MATH_SRC
 	core/math/Frustum.cpp
 	core/math/Matrix3x3.cpp
 	core/math/Matrix4x4.cpp
-	core/math/Plane.cpp
 )
 
 set (MATH_HEADERS
