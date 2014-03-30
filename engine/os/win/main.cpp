@@ -429,7 +429,7 @@ public:
 		OsEvent event;
 		do
 		{
-			m_queue.pop_event(&event);
+			m_queue.pop_event(event);
 
 			if (event.type != OsEvent::NONE)
 			{
@@ -841,7 +841,7 @@ public:
 			DynamicString boot;
 			root.key("boot").to_string(boot);
 
-			string::strncpy(m_boot_file, boot, (boot.length() > MAX_PATH_LENGTH) ? MAX_PATH_LENGTH : boot.length() + 1);
+			string::strncpy(m_boot_file, boot.c_str(), (boot.length() > MAX_PATH_LENGTH) ? MAX_PATH_LENGTH : boot.length() + 1);
 		}
 
 		// Window width
