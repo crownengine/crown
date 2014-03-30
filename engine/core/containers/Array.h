@@ -79,9 +79,6 @@ namespace array
 	/// the number of items in the list for efficiency.
 	template <typename T> void clear(Array<T>& a);
 
-	/// Copies the content of the @a other list into this one.
-
-
 	template <typename T> T* begin(Array<T>& a);
 	template <typename T> const T* begin(const Array<T>& a);
 	template <typename T> T* end(Array<T>& a);
