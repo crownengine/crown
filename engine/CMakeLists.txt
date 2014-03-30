@@ -246,14 +246,6 @@ set (INPUT_HEADERS
 	input/Touch.h
 )
 
-set (NETWORK_SRC
-	network/BitMessage.cpp
-)
-
-set (NETWORK_HEADERS
-	network/BitMessage.h
-)
-
 set (RENDERERS_BACKEND_SRC
 )
 
@@ -778,6 +770,5 @@ install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
 #
 #install (FILES ${INPUT_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/input)
 #install (FILES ${RENDERERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/renderers)
-#install (FILES ${NETWORK_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/network)
 #install (FILES ${OS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/os)
 #install (FILES ${LUA_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/lua)
