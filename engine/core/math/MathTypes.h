@@ -122,4 +122,17 @@ struct Plane
 	float d;
 };
 
+struct Frustum
+{
+	Frustum();
+	Frustum(const Frustum& f);
+
+	Plane left;
+	Plane right;
+	Plane bottom;
+	Plane top;
+	Plane near;
+	Plane far;
+};
+
 } // namespace crown

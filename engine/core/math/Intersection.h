@@ -393,20 +393,20 @@ inline bool Intersection::test_dynamic_box_box(const AABB& b1, const Vector3& v1
 //-----------------------------------------------------------------------------
 inline bool Intersection::test_frustum_sphere(const Frustum& f, const Sphere& s)
 {
-	if (plane::distance_to_point(f.m_planes[0], s.center()) < -s.radius() ||
-		plane::distance_to_point(f.m_planes[1], s.center()) < -s.radius())
+	if (plane::distance_to_point(f.left, s.center()) < -s.radius() ||
+		plane::distance_to_point(f.right, s.center()) < -s.radius())
 	{
 		return false;
 	}
 
-	if (plane::distance_to_point(f.m_planes[2], s.center()) < -s.radius() ||
-		plane::distance_to_point(f.m_planes[3], s.center()) < -s.radius())
+	if (plane::distance_to_point(f.bottom, s.center()) < -s.radius() ||
+		plane::distance_to_point(f.top, s.center()) < -s.radius())
 	{
 		return false;
 	}
 
-	if (plane::distance_to_point(f.m_planes[4], s.center()) < -s.radius() ||
-		plane::distance_to_point(f.m_planes[5], s.center()) < -s.radius())
+	if (plane::distance_to_point(f.near, s.center()) < -s.radius() ||
+		plane::distance_to_point(f.far, s.center()) < -s.radius())
 	{
 		return false;
 	}
@@ -417,28 +417,77 @@ inline bool Intersection::test_frustum_sphere(const Frustum& f, const Sphere& s)
 //-----------------------------------------------------------------------------
 inline bool Intersection::test_frustum_box(const Frustum& f, const AABB& b)
 {
-	uint32_t vertexOutCount;
+	uint8_t out;
 
-	for (uint32_t i = 0; i < 6; i++)
-	{
-		vertexOutCount = 0;
+	out = 0;
+	if (plane::distance_to_point(f.left, aabb::vertex(b, 0)) < 0.0) out++;
+	if (plane::distance_to_point(f.left, aabb::vertex(b, 1)) < 0.0) out++;
+	if (plane::distance_to_point(f.left, aabb::vertex(b, 2)) < 0.0) out++;
+	if (plane::distance_to_point(f.left, aabb::vertex(b, 3)) < 0.0) out++;
+	if (plane::distance_to_point(f.left, aabb::vertex(b, 4)) < 0.0) out++;
+	if (plane::distance_to_point(f.left, aabb::vertex(b, 5)) < 0.0) out++;
+	if (plane::distance_to_point(f.left, aabb::vertex(b, 6)) < 0.0) out++;
+	if (plane::distance_to_point(f.left, aabb::vertex(b, 7)) < 0.0) out++;
 
-		for (uint32_t j = 0; j < 8; j++)
-		{
-			if (plane::distance_to_point(f.m_planes[i], aabb::vertex(b, j)) < 0.0)
-			{
-				vertexOutCount++;
-			}
-		}
+	// If all vertices are outside one face, then the box doesn't intersect the frustum
+	if (out == 8) return false;
 
-		// If all vertices are outside one face, then the box doesn't int32_tersect the frustum
-		if (vertexOutCount == 8)
-		{
-			return false;
-		}
-	}
+	out = 0;
+	if (plane::distance_to_point(f.right, aabb::vertex(b, 0)) < 0.0) out++;
+	if (plane::distance_to_point(f.right, aabb::vertex(b, 1)) < 0.0) out++;
+	if (plane::distance_to_point(f.right, aabb::vertex(b, 2)) < 0.0) out++;
+	if (plane::distance_to_point(f.right, aabb::vertex(b, 3)) < 0.0) out++;
+	if (plane::distance_to_point(f.right, aabb::vertex(b, 4)) < 0.0) out++;
+	if (plane::distance_to_point(f.right, aabb::vertex(b, 5)) < 0.0) out++;
+	if (plane::distance_to_point(f.right, aabb::vertex(b, 6)) < 0.0) out++;
+	if (plane::distance_to_point(f.right, aabb::vertex(b, 7)) < 0.0) out++;
+	if (out == 8) return false;
 
-	// If we are here, is because either the box int32_tersects or it is contained in the frustum
+	out = 0;
+	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 0)) < 0.0) out++;
+	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 1)) < 0.0) out++;
+	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 2)) < 0.0) out++;
+	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 3)) < 0.0) out++;
+	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 4)) < 0.0) out++;
+	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 5)) < 0.0) out++;
+	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 6)) < 0.0) out++;
+	if (plane::distance_to_point(f.bottom, aabb::vertex(b, 7)) < 0.0) out++;
+	if (out == 8) return false;
+
+	out = 0;
+	if (plane::distance_to_point(f.top, aabb::vertex(b, 0)) < 0.0) out++;
+	if (plane::distance_to_point(f.top, aabb::vertex(b, 1)) < 0.0) out++;
+	if (plane::distance_to_point(f.top, aabb::vertex(b, 2)) < 0.0) out++;
+	if (plane::distance_to_point(f.top, aabb::vertex(b, 3)) < 0.0) out++;
+	if (plane::distance_to_point(f.top, aabb::vertex(b, 4)) < 0.0) out++;
+	if (plane::distance_to_point(f.top, aabb::vertex(b, 5)) < 0.0) out++;
+	if (plane::distance_to_point(f.top, aabb::vertex(b, 6)) < 0.0) out++;
+	if (plane::distance_to_point(f.top, aabb::vertex(b, 7)) < 0.0) out++;
+	if (out == 8) return false;
+
+	out = 0;
+	if (plane::distance_to_point(f.near, aabb::vertex(b, 0)) < 0.0) out++;
+	if (plane::distance_to_point(f.near, aabb::vertex(b, 1)) < 0.0) out++;
+	if (plane::distance_to_point(f.near, aabb::vertex(b, 2)) < 0.0) out++;
+	if (plane::distance_to_point(f.near, aabb::vertex(b, 3)) < 0.0) out++;
+	if (plane::distance_to_point(f.near, aabb::vertex(b, 4)) < 0.0) out++;
+	if (plane::distance_to_point(f.near, aabb::vertex(b, 5)) < 0.0) out++;
+	if (plane::distance_to_point(f.near, aabb::vertex(b, 6)) < 0.0) out++;
+	if (plane::distance_to_point(f.near, aabb::vertex(b, 7)) < 0.0) out++;
+	if (out == 8) return false;
+
+	out = 0;
+	if (plane::distance_to_point(f.far, aabb::vertex(b, 0)) < 0.0) out++;
+	if (plane::distance_to_point(f.far, aabb::vertex(b, 1)) < 0.0) out++;
+	if (plane::distance_to_point(f.far, aabb::vertex(b, 2)) < 0.0) out++;
+	if (plane::distance_to_point(f.far, aabb::vertex(b, 3)) < 0.0) out++;
+	if (plane::distance_to_point(f.far, aabb::vertex(b, 4)) < 0.0) out++;
+	if (plane::distance_to_point(f.far, aabb::vertex(b, 5)) < 0.0) out++;
+	if (plane::distance_to_point(f.far, aabb::vertex(b, 6)) < 0.0) out++;
+	if (plane::distance_to_point(f.far, aabb::vertex(b, 7)) < 0.0) out++;
+	if (out == 8) return false;
+
+	// If we are here, it is because either the box intersects or it is contained in the frustum
 	return true;
 }
 
