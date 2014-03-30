@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector2.h"
 #include "Quaternion.h"
 #include "Matrix4x4.h"
+#include "StringUtils.h"
 
 namespace crown
 {
@@ -44,20 +45,18 @@ struct Actor;
 struct Camera;
 struct Controller;
 struct Gui;
-struct Matrix4x4;
 struct Mesh;
-struct Quaternion;
 struct ResourcePackage;
 struct Sprite;
 struct Unit;
-struct Vector2;
-struct Vector3;
 struct DebugLine;
 struct Raycast;
 
 typedef Id SoundInstanceId;
 typedef Id GuiId;
 typedef Id GuiComponentId;
+
+typedef int (*MetamethodFunction)(lua_State*);
 
 void clear_lua_temporaries();
 
@@ -193,6 +192,61 @@ public:
 	void push_key_end()
 	{
 		lua_settable(m_state, -3);
+	}
+
+	/// Pushes an empty metatable onto the stack.
+	/// When you want to associate a metamethod to a function, you have to use 
+	/// LuaStack::set_metamethod_function(const char* key, MetamethodFunction func).
+	/// Call LuaStack::end_metatable() to associate this metatable to userdata of any kind.
+	///
+	/// stack.push_userdata(); // Could be Vector3Box or a table
+	/// stack.begin_metatable("Foo_mt");
+	/// stack.set_metamethod_function("__index", function_ptr);
+	/// stack.set_metamethod_function("__newindex", another_function_ptr);
+	/// stack.end_metatable();
+	void create_metatable(const char* name)
+	{
+		luaL_newmetatable(m_state, name);
+	}
+
+	/// See LuaStack::begin_metatable()
+	void set_metatable_function(const char* key, MetamethodFunction func)
+	{
+		lua_pushcfunction(m_state, func);
+		lua_setfield(m_state, -2, key);
+	}
+
+	///	Sets table on top of stack to metafield @a key of another table.
+	/// Only '__index' and '__newindex' metamethods are available.
+	void set_metatable_table(const char* key)
+	{
+		CE_ASSERT(string::strcmp(key, "__index") == 0 || string::strcmp(key, "__newindex") == 0, "Illegal metamethod");
+		lua_setfield(m_state, -2, key);		
+	}
+
+	/// Sets table's __index metamethod to its self
+	void set_self_index()
+	{
+		lua_pushvalue(m_state, -1);
+		lua_setfield(m_state, -2, "__index");
+	}
+
+	/// See LuaStack::begin_metatable()
+	void set_metatable()
+	{
+		lua_setmetatable(m_state, -2);
+	}
+
+	///
+	void get_global(const char* name)
+	{
+		lua_getglobal(m_state, name);
+	}
+
+	///
+	void get_global_metatable(const char* name)
+	{
+		luaL_getmetatable(m_state, name);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -468,8 +522,9 @@ public:
 	/// Retrieves Vector3Box (full userdata)
 	Vector3& get_vector3box(uint32_t index)
 	{
-		CE_ASSERT(lua_isuserdata(m_state, index), "Unable to retrieve Vector3Box (wrong index)");
-		return *(Vector3*) lua_touserdata(m_state, index);
+		CE_ASSERT(lua_isuserdata(m_state, index), "Unable to retrieve 'Vector3Box' (wrong index)");
+		Vector3* ud = (Vector3*) luaL_checkudata(m_state, index, "Vector3Box_i_mt");
+		return *ud;
 	}
 
 	/// Allocates a new QuaternionBox (full userdata)
@@ -482,7 +537,8 @@ public:
 	Quaternion& get_quaternionbox(uint32_t index)
 	{
 		CE_ASSERT(lua_isuserdata(m_state, index), "Unable to retrieve QuaternionBox (wrong index)");
-		return *(Quaternion*) lua_touserdata(m_state, index);
+		Quaternion* ud = (Quaternion*) luaL_checkudata(m_state, index, "QuaternionBox_i_mt");
+		return *ud;
 	}
 
 	/// Allocates a new Matrix4x4Box (full userdata)
@@ -495,8 +551,10 @@ public:
 	Matrix4x4& get_matrix4x4box(uint32_t index)
 	{
 		CE_ASSERT(lua_isuserdata(m_state, index), "Unable to retrieve Matrix4x4Box (wrong index)");
-		return *(Matrix4x4*) lua_touserdata(m_state, index);
+		Matrix4x4* ud = (Matrix4x4*) luaL_checkudata(m_state, index, "Matrix4x4Box_i_mt");
+		return *ud;
 	}
+
 private:
 
 	lua_State* m_state;
