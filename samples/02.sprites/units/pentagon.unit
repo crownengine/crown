@@ -1,19 +1,13 @@
 {
-	"renderables" : [
-		{
-			"name" : "pentagon",
+	"renderables" : {
+		"pentagon" : {
 			"node" : "root",
 			"type" : "sprite",
 			"resource" : "sprites/pentagon",
 			"visible" : true
 		}
-	],
-	"nodes" : [
-		{
-			"name" : "root",
-			"parent" : null,
-			"position" : [0, 0, 0],
-			"rotation" : [0, 0, 1, 0]
-		}
-	]
+	},
+	"nodes" : {
+		"root" : { "parent" : null, "position" : [0, 0, 0], "rotation" : [0, 0, 1, 0] }
+	}
 }

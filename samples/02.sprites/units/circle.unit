@@ -1,19 +1,8 @@
 {
-	"renderables" : [
-		{
-			"name" : "circle",
-			"node" : "root",
-			"type" : "sprite",
-			"resource" : "sprites/circle",
-			"visible" : true
-		}
-	],
-	"nodes" : [
-		{
-			"name" : "root",
-			"parent" : null,
-			"position" : [0, 0, 0],
-			"rotation" : [0, 0, 1, 0]
-		}
-	]
+	"renderables" : {
+		"circle" : { "node" : "root", "type" : "sprite", "resource" : "sprites/circle", "visible" : true }
+	},
+	"nodes" : {
+		"root" : { "parent" : null, "position" : [0, 0, 0], "rotation" : [0, 0, 1, 0] }
+	}
 }

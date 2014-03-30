@@ -1,21 +1,13 @@
 {
-	"name" : "circle",
-	"texture" : "textures/shapes",
-	"num_frames" : 1,
-	"frame_rate" : 1,
-	"playback_mode" : 2,
-	"positions" :
-	[
-		-0.5, -0.5,
-		 0.5, -0.5,
-		 0.5,  0.5,
-		-0.5,  0.5
-	],
-	"texcoords" : 
-	[
-		0.5, 0.5,
-		1.0, 0.5,
-		1.0, 1.0,
-		0.5, 1.0
+	"width" : 256,
+	"height" : 256,
+	"frames" : [
+		{
+			"name" : "circle",
+			"region" : [0.5, 0.5, 0.5, 0.5],
+			"offset" : [0.0, 0.0],
+			"scale" : [1.0, 1.0],
+			"rotated" : false
+		}
 	]
 }

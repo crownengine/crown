@@ -15,5 +15,12 @@
 		"sprites/circle",
 		"sprites/pentagon",
 		"sprites/square"
+	],
+	"material" :
+	[
+		"units/star",
+		"units/circle",
+		"units/pentagon",
+		"units/square"
 	]
 }
