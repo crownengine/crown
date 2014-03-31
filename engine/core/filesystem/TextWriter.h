@@ -30,6 +30,8 @@ namespace crown
 class File;
 
 /// A reader that offers a convenient way to write text to a File
+///
+/// @ingroup Filesystem
 class TextWriter
 {
 public:

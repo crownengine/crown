@@ -46,6 +46,8 @@ class Compressor;
 /// A File is an abstraction to interact with these in an uniform way; every file
 /// comes with a convenient set of methods to facilitate reading from it, writing to
 /// it and so on.
+///
+/// @ingroup Filesystem
 class File
 {
 public:

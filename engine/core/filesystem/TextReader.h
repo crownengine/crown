@@ -32,6 +32,8 @@ namespace crown
 class File;
 
 /// A reader that offers a convenient way to read text from a File
+///
+/// @ingroup Filesystem
 class TextReader
 {
 public:

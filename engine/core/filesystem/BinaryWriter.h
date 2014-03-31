@@ -32,6 +32,8 @@ namespace crown
 class File;
 
 /// A writer that offers a convenient way to write to a File
+///
+/// @ingroup Filesystem
 class BinaryWriter
 {
 public:

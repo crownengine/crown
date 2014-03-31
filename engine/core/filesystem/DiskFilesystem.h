@@ -38,6 +38,8 @@ namespace crown
 /// to its absolute counterpart based on the file source's root path.
 /// Accessing files using absolute path directly is also possible,
 /// but platform-specific and thus generally not recommended.
+///
+/// @ingroup Filesystem
 class CE_EXPORT  DiskFilesystem : public Filesystem
 {
 public:

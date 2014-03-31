@@ -62,6 +62,8 @@ namespace network_filesystem
 /// to its absolute counterpart based on the file server's root path.
 /// Accessing files using absolute path directly is also possible,
 /// but platform-specific and thus generally not recommended.
+///
+/// @ingroup Filesystem
 class NetworkFilesystem : public Filesystem
 {
 public:

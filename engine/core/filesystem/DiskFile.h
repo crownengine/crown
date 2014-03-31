@@ -34,6 +34,8 @@ namespace crown
 {
 
 /// Provides common facilities to access files on disk.
+///
+/// @ingroup Filesystem
 class DiskFile: public File
 {
 public:

@@ -35,6 +35,8 @@ namespace crown
 {
 
 /// Access file on a remote file server.
+///
+/// @ingroup Filesystem
 class NetworkFile: public File
 {
 public:

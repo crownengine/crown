@@ -34,6 +34,8 @@ namespace crown
 
 /// Bit bucket file.
 /// Discards all data written to it and provides null data reading from it; plain and simple.
+///
+/// @ingroup Filesystem
 class NullFile: public File
 {
 public:
