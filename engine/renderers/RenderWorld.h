@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "Matrix4x4.h"
 #include "RenderWorldTypes.h"
+#include "RendererTypes.h"
 
 #define MAX_MESHES 100
 #define MAX_SPRITES 512
@@ -89,6 +90,15 @@ private:
 	IdArray<MAX_SPRITES, Sprite*>		m_sprite;
 	IdArray<MAX_MATERIALS, Material*>	m_materials;
 	IdArray<MAX_GUIS, Gui*>				m_guis;
+
+	TextureId m_grass_texture;
+	TextureId m_lightmap_texture;
+	UniformId m_u_albedo_0;
+	ShaderId m_default_vs;
+	ShaderId m_default_fs;
+	ShaderId m_texture_fs;
+	GPUProgramId m_default_program;
+	GPUProgramId m_texture_program;
 };
 
 } // namespace crown

@@ -42,17 +42,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-TextureId				grass_texture;
-TextureId				lightmap_texture;
-ShaderId				default_vs;
-ShaderId				default_fs;
-ShaderId				texture_fs;
-GPUProgramId			default_program;
-GPUProgramId			texture_program;
-UniformId				u_albedo_0;
-UniformId				u_lightmap_0;
-UniformId				u_brightness;
-
 static const char* default_vertex =
 	"precision mediump float;"
 	"uniform mat4      	u_model;"
@@ -100,14 +89,14 @@ RenderWorld::RenderWorld()
 {
 	Renderer* r = device()->renderer();
 
-	default_vs = r->create_shader(ShaderType::VERTEX, default_vertex);
-	default_fs = r->create_shader(ShaderType::FRAGMENT, default_fragment);
-	texture_fs = r->create_shader(ShaderType::FRAGMENT, texture_fragment);
+	m_default_vs = r->create_shader(ShaderType::VERTEX, default_vertex);
+	m_default_fs = r->create_shader(ShaderType::FRAGMENT, default_fragment);
+	m_texture_fs = r->create_shader(ShaderType::FRAGMENT, texture_fragment);
 
-	u_albedo_0 = r->create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
+	m_u_albedo_0 = r->create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
 
-	default_program = r->create_gpu_program(default_vs, default_fs);
-	texture_program = r->create_gpu_program(default_vs, texture_fs);
+	m_default_program = r->create_gpu_program(m_default_vs, m_default_fs);
+	m_texture_program = r->create_gpu_program(m_default_vs, m_texture_fs);
 }
 
 //-----------------------------------------------------------------------------
@@ -115,12 +104,12 @@ RenderWorld::~RenderWorld()
 {
 	Renderer* r = device()->renderer();
 
-	r->destroy_shader(default_vs);
-	r->destroy_shader(default_fs);
-	r->destroy_shader(texture_fs);
-	r->destroy_gpu_program(default_program);
-	r->destroy_gpu_program(texture_program);
-	r->destroy_uniform(u_albedo_0);
+	r->destroy_gpu_program(m_texture_program);
+	r->destroy_gpu_program(m_default_program);
+	r->destroy_uniform(m_u_albedo_0);
+	r->destroy_shader(m_default_vs);
+	r->destroy_shader(m_default_fs);
+	r->destroy_shader(m_texture_fs);
 }
 
 //-----------------------------------------------------------------------------
@@ -244,8 +233,8 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
 		r->set_vertex_buffer(mesh->m_vbuffer);
 		r->set_index_buffer(mesh->m_ibuffer);
-		r->set_program(default_program);
-		// r->set_texture(0, u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
+		r->set_program(m_default_program);
+		// r->set_texture(0, m_u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
 		// r->set_uniform(u_brightness, UNIFORM_FLOAT_1, &brightness, 1);
 
 		r->set_pose(mesh->world_pose());
@@ -255,15 +244,15 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	// Draw all sprites
 	for (uint32_t s = 0; s < m_sprite.size(); s++)
 	{
-		r->set_program(texture_program);
-		m_sprite[s]->render(*r, u_albedo_0, dt);
+		r->set_program(m_texture_program);
+		m_sprite[s]->render(*r, m_u_albedo_0, dt);
 	}
 
-	// Draw all guis
-	for (uint32_t g = 0; g < m_guis.size(); g++)
-	{
-		m_guis[g]->render();
-	}
+	// // Draw all guis
+	// for (uint32_t g = 0; g < m_guis.size(); g++)
+	// {
+	// 	m_guis[g]->render();
+	// }
 }
 
 } // namespace crown
