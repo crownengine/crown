@@ -35,7 +35,6 @@ namespace crown
 {
 
 typedef Id GPUProgramId;
-extern GPUProgramId default_program;
 
 //-----------------------------------------------------------------------------
 DebugLine::DebugLine(bool depth_test)
@@ -124,7 +123,7 @@ void DebugLine::commit()
 	r->set_state((m_depth_test ? 0 : STATE_DEPTH_TEST_ALWAYS) | STATE_COLOR_WRITE | STATE_CULL_CW | STATE_PRIMITIVE_LINES);
 	r->set_vertex_buffer(tvb);
 	r->set_index_buffer(tib);
-	r->set_program(default_program);
+	//r->set_program(default_program);
 	r->set_pose(Matrix4x4::IDENTITY);
 	r->commit(0);
 }
