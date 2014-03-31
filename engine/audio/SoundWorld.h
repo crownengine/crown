@@ -32,6 +32,8 @@ namespace crown
 {
 
 /// Global audio-related functions
+///
+/// @ingroup Audio
 namespace audio_system
 {
 	/// Initializes the audio system.
@@ -48,6 +50,8 @@ struct Matrix4x4;
 struct SoundResource;
 typedef Id SoundInstanceId;
 
+///
+/// @ingroup Audio
 class SoundWorld
 {
 public:
