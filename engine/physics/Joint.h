@@ -44,7 +44,8 @@ namespace crown
 struct PhysicsResource;
 class Actor;
 
-//-----------------------------------------------------------------------------
+///
+/// @ingroup Physics
 struct Joint
 {
 	Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1);

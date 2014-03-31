@@ -48,6 +48,8 @@ using physx::PxOverlapBuffer;
 namespace crown
 {
 
+/// @defgroup Physics Physics
+
 /// Global physics-related functions
 namespace physics_system
 {
@@ -73,7 +75,9 @@ struct Raycast;
 struct Unit;
 struct Vector3;
 
-//-----------------------------------------------------------------------------
+/// Manages physics objects in a World.
+///
+/// @ingroup Physics
 class PhysicsWorld
 {
 public:

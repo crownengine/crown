@@ -44,6 +44,8 @@ struct Vector3;
 class SceneGraph;
 class PhysicsControllerCallback;
 
+///
+/// @ingroup Physics
 struct Controller
 {
 							Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxControllerManager* manager);

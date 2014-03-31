@@ -46,7 +46,8 @@ namespace crown
 struct Vector3;
 struct Actor;
 
-//-----------------------------------------------------------------------------
+///
+/// @ingroup Physics
 struct RaycastHit
 {
 	Vector3					position;
@@ -55,7 +56,8 @@ struct RaycastHit
 	Actor*					actor;
 };
 
-//-----------------------------------------------------------------------------
+///
+/// @ingroup Physics
 struct Raycast
 {
 	/// Constructor

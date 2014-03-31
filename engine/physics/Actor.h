@@ -56,6 +56,8 @@ struct Matrix4x4;
 struct Unit;
 class SceneGraph;
 
+///
+/// @ingroup Physics
 struct Actor
 {
 	/// Constructor
