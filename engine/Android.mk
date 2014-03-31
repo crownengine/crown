@@ -101,10 +101,6 @@ LOCAL_SRC_FILES :=\
 \
 	audio/backend/SLESSoundWorld.cpp\
 \
-	core/bv/Circle.cpp\
-	core/bv/Frustum.cpp\
-	core/bv/Rect.cpp\
-\
 	core/compressors/ZipCompressor.cpp\
 \
 	core/filesystem/DiskFile.cpp\
@@ -119,11 +115,6 @@ LOCAL_SRC_FILES :=\
 	core/math/Color4.cpp\
 	core/math/Matrix3x3.cpp\
 	core/math/Matrix4x4.cpp\
-	core/math/Plane.cpp\
-	core/math/Quaternion.cpp\
-	core/math/Vector2.cpp\
-	core/math/Vector3.cpp\
-	core/math/Vector4.cpp\
 \
 	core/mem/LinearAllocator.cpp\
 	core/mem/Memory.cpp\
@@ -181,7 +172,6 @@ LOCAL_SRC_FILES :=\
 	lua/LuaKeyboard.cpp\
 	lua/LuaMath.cpp\
 	lua/LuaMatrix4x4.cpp\
-	lua/LuaMatrix4x4.cpp\
 	lua/LuaMesh.cpp\
 	lua/LuaMouse.cpp\
 	lua/LuaPhysicsWorld.cpp\
@@ -200,6 +190,7 @@ LOCAL_SRC_FILES :=\
 	lua/LuaVector3Box.cpp\
 	lua/LuaWindow.cpp\
 	lua/LuaWorld.cpp\
+	lua/LuaMatrix4x4Box.cpp\
 \
 	world/Camera.cpp\
 	world/SceneGraph.cpp\

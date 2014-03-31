@@ -126,8 +126,7 @@ namespace sles_sound_world
 	{
 		SoundInstanceId id;
 		id.decode((uint32_t) context);
-
-		s_stop_queue->push_back(id);
+		queue::push_back(*s_stop_queue, id);
 	}
 
 	static SLmillibel gain_to_attenuation(SLVolumeItf vol_itf, float volume)
@@ -471,11 +470,11 @@ public:
 
 	virtual void update()
 	{
-		const uint32_t num_to_stop = sles_sound_world::s_stop_queue->size();
+		const uint32_t num_to_stop = queue::size(*sles_sound_world::s_stop_queue);
 		for (uint32_t i = 0; i < num_to_stop; i++)
 		{
-			const SoundInstanceId id = sles_sound_world::s_stop_queue->front();
-			sles_sound_world::s_stop_queue->pop_front();
+			const SoundInstanceId id = queue::front(*sles_sound_world::s_stop_queue);
+			queue::pop_front(*sles_sound_world::s_stop_queue);
 
 			if (!m_playing_sounds.has(id)) continue;
 			stop(id);
