@@ -32,51 +32,55 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+
+/// Functions to manipulate Array.
+///
+/// @ingroup Containers
 namespace array
 {
-	/// Returns whether the list is empty
+	/// Returns whether the array @a a is empty.
 	template <typename T> bool empty(const Array<T>& a);
 
-	/// Returns the number of items in the list
+	/// Returns the number of items in the array @a a.
 	template <typename T> uint32_t size(const Array<T>& a);
 
-	/// Returns the maximum number of items the array can hold
+	/// Returns the maximum number of items the array @a can hold.
 	template <typename T> uint32_t capacity(const Array<T>& a);
 
-	/// Resizes the list to the given @a size.
+	/// Resizes the array @a a to the given @a size.
 	/// @note
-	/// Old items will be copied to the newly created list.
+	/// Old items will be copied to the newly created array.
 	/// If the new capacity is smaller than the previous one, the
-	/// list will be truncated.
+	/// array will be truncated.
 	template <typename T> void resize(Array<T>& a, uint32_t size);
 
-	/// Reserves space in the list for at least @a capacity items.
+	/// Reserves space in the array @a a for at least @a capacity items.
 	template <typename T> void reserve(uint32_t capacity);
 
-	/// Sets the list capacity
+	/// Sets the capacity of array @a a.
 	template <typename T> void set_capacity(Array<T>& a, uint32_t capacity);
 
-	/// Grows the list to contain at least @a min_capacity items
+	/// Grows the array @a a to contain at least @a min_capacity items.
 	template <typename T> void grow(Array<T>& a, uint32_t min_capacity);
 
-	/// Condenses the array so that the capacity matches the actual number
-	/// of items in the list.
+	/// Condenses the array @a a so that its capacity matches the actual number
+	/// of items in the array.
 	template <typename T> void condense(Array<T>& a);
 
-	/// Appends an item to the list and returns its index.
+	/// Appends an item to the array @a a and returns its index.
 	template <typename T> uint32_t push_back(Array<T>& a, const T& item);
 
-	/// Removes the last item from the list.
+	/// Removes the last item from the array @a a.
 	template <typename T> void pop_back(Array<T>& a);
 
-	/// Appends @a count @a items to the list and returns the number
-	/// of items in the list after the append operation.
+	/// Appends @a count @a items to the array @a a and returns the number
+	/// of items in the array after the append operation.
 	template <typename T> uint32_t push(Array<T>& a, const T* items, uint32_t count);
 
-	/// Clears the content of the list.
+	/// Clears the content of the array @a.
 	/// @note
 	/// Does not free memory nor call destructors, it only zeroes
-	/// the number of items in the list for efficiency.
+	/// the number of items in the array.
 	template <typename T> void clear(Array<T>& a);
 
 	template <typename T> T* begin(Array<T>& a);
@@ -194,7 +198,7 @@ namespace array
 	template <typename T>
 	inline void pop_back(Array<T>& a)
 	{
-		CE_ASSERT(a.m_size > 0, "The list is empty");
+		CE_ASSERT(a.m_size > 0, "The array is empty");
 
 		a.m_size--;
 	}
@@ -246,7 +250,7 @@ namespace array
 	template <typename T>
 	inline T& front(Array<T>& a)
 	{
-		CE_ASSERT(a.m_size > 0, "The list is empty");
+		CE_ASSERT(a.m_size > 0, "The array is empty");
 
 		return a.m_array[0];
 	}
@@ -254,7 +258,7 @@ namespace array
 	template <typename T>
 	inline const T& front(const Array<T>& a)
 	{
-		CE_ASSERT(a.m_size > 0, "The list is empty");
+		CE_ASSERT(a.m_size > 0, "The array is empty");
 
 		return a.m_array[0];
 	}
@@ -262,7 +266,7 @@ namespace array
 	template <typename T>
 	inline T& back(Array<T>& a)
 	{
-		CE_ASSERT(a.m_size > 0, "The list is empty");
+		CE_ASSERT(a.m_size > 0, "The array is empty");
 
 		return a.m_array[a.m_size - 1];
 	}
@@ -270,7 +274,7 @@ namespace array
 	template <typename T>
 	inline const T& back(const Array<T>& a)
 	{
-		CE_ASSERT(a.m_size > 0, "The list is empty");
+		CE_ASSERT(a.m_size > 0, "The array is empty");
 
 		return a.m_array[a.m_size - 1];
 	}

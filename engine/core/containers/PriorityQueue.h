@@ -31,6 +31,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+
+/// Functions to manipulate PriorityQueue.
+///
+/// @ingroup Containers
 namespace priority_queue
 {
 	/// Returns the first item in the queue.

@@ -35,6 +35,8 @@ namespace crown
 {
 
 /// Packed array of objects with lookup table.
+///
+/// @ingroup Containers
 template <uint32_t MAX_NUM_ID, typename T>
 class IdArray
 {

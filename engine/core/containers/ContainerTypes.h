@@ -32,9 +32,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// @defgroup Containers Containers
+
 /// Dynamic array of POD items.
 /// @note
 /// Does not call constructors/destructors so it is not very suitable for non-POD items.
+///
+/// @ingroup Containers
 template <typename T>
 struct Array
 {
@@ -60,6 +64,8 @@ struct Array
 /// Circular buffer double-ended queue of POD items.
 /// @note
 /// Does not call constructors/destructors so it is not very suitable for non-POD items.
+///
+/// @ingroup Containers
 template <typename T>
 struct Queue
 {
@@ -77,6 +83,8 @@ struct Queue
 };
 
 /// Priority queue of POD items.
+///
+/// @ingroup Containers
 template <typename T>
 struct PriorityQueue
 {
@@ -87,6 +95,8 @@ struct PriorityQueue
 
 /// Hash from an uint64_t to POD items. If you want to use a generic key
 /// item, use a hash function to map that item to an uint64_t.
+///
+/// @ingroup Containers
 template<typename T>
 struct Hash
 {

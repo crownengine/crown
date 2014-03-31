@@ -33,6 +33,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+
+/// Functions to manipulate Queue.
+///
+/// @ingroup Containers
 namespace queue
 {
 	/// Returns whether the queue is empty.

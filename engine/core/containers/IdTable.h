@@ -34,6 +34,8 @@ namespace crown
 {
 
 /// Table of Ids.
+///
+/// @ingroup Containers
 template <uint32_t MAX_NUM_ID>
 class IdTable
 {

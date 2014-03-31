@@ -32,6 +32,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// Array of generic event structs.
+/// 
+/// @ingroup Containers
 typedef Array<char> EventStream;
 
 /// Functions for operating on a Array<char> as a stream of events of the form:
