@@ -29,6 +29,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// @defgroup Math Math
+
+/// @ingroup Math
 struct Vector2
 {
 	Vector2();
@@ -48,6 +51,7 @@ struct Vector2
 	float x, y;
 };
 
+/// @ingroup Math
 struct Vector3
 {
 	Vector3();
@@ -67,6 +71,7 @@ struct Vector3
 	float x, y, z;
 };
 
+/// @ingroup Math
 struct Vector4
 {
 	Vector4();
@@ -86,6 +91,7 @@ struct Vector4
 	float x, y, z, w;
 };
 
+/// @ingroup Math
 struct Quaternion
 {
 	Quaternion();
@@ -97,6 +103,7 @@ struct Quaternion
 	float x, y, z, w;
 };
 
+/// @ingroup Math
 struct AABB
 {
 	AABB();
@@ -111,6 +118,8 @@ struct AABB
 /// 3D Plane.
 /// The form is ax + by + cz + d = 0
 /// where: d = -vector3::dot(n, p)
+///
+/// @ingroup Math
 struct Plane
 {
 	/// Does nothing for efficiency.
@@ -122,6 +131,7 @@ struct Plane
 	float d;
 };
 
+/// @ingroup Math
 struct Frustum
 {
 	Frustum();

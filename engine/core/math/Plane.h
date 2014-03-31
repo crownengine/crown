@@ -34,6 +34,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// Functions to manipulate Plane.
+///
+/// @ingroup Math
 namespace plane
 {
 	/// Normalizes the plane @æ p and returns its result.

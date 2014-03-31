@@ -36,6 +36,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// Functions to manipulate AABB.
+///
+/// @ingroup Math
 namespace aabb
 {
 	void reset(AABB& b);

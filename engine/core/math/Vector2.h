@@ -55,6 +55,9 @@ Vector2 operator/(Vector2 a, float k);
 /// Returns true whether the vectors @a a and @a b are equal.
 bool operator==(const Vector2& a, const Vector2& b);
 
+/// Functions to manipulate Vector2.
+///
+/// @ingroup Math
 namespace vector2
 {
 	const Vector2 ZERO = Vector2(0, 0);

@@ -39,6 +39,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+
+/// Functions to manipulate Frustum.
+///
+/// @ingroup Math
 namespace frustum
 {
 	/// Returns whether the frustum @a f contains the point @a p.

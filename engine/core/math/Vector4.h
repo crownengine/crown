@@ -55,6 +55,9 @@ Vector4 operator/(Vector4 a, float k);
 /// Returns true whether the vectors @a a and @a b are equal.
 bool operator==(const Vector4& a, const Vector4& b);
 
+/// Functions to manipulate Vector4.
+///
+/// @ingroup Math
 namespace vector4
 {
 	const Vector4 ZERO = Vector4(0, 0, 0, 0);

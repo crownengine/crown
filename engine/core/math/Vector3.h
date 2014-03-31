@@ -56,6 +56,9 @@ Vector3 operator/(Vector3 a, float k);
 /// Returns true whether the vectors @a a and @a b are equal.
 bool operator==(const Vector3& a, const Vector3& b);
 
+/// Functions to manipulate Vector3.
+///
+/// @ingroup Math
 namespace vector3
 {
 	const Vector3 ZERO = Vector3(0, 0, 0);

@@ -44,6 +44,9 @@ Quaternion operator*(Quaternion a, const Quaternion& b);
 /// Multiplies the quaternion @a a by the scalar @a k.
 Quaternion operator*(const Quaternion& a, float k);
 
+/// Functions to manipulate Quaternion.
+///
+/// @ingroup Math
 namespace quaternion
 {
 	const Quaternion IDENTITY = Quaternion(0.0, 0.0, 0.0, 1.0);
