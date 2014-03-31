@@ -33,6 +33,8 @@ namespace crown
 
 /// Allocates memory linearly from a predefined chunk
 /// and frees all the allocations with a single call to clear()
+///
+/// @ingroup Memory
 class LinearAllocator : public Allocator
 {
 public:

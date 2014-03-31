@@ -35,6 +35,8 @@ namespace crown
 {
 
 /// Base class for memory allocators.
+///
+/// @ingroup Memory
 class Allocator
 {
 public:

@@ -35,6 +35,8 @@ namespace crown
 
 /// Allocates fixed-size memory blocks from a fixed memory pool.
 /// The backing allocator is used to allocate the memory pool.
+///
+/// @ingroup Memory
 class PoolAllocator : public Allocator
 {
 public:

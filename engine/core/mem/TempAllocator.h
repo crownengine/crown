@@ -35,6 +35,8 @@ namespace crown
 /// When the internal memory is exhausted or the allocation size exceeds
 /// the remainig internal storage, the backing allocator is used instead.
 /// The memory is automatically freed when the allocator is destroyed.
+///
+/// @ingroup Memory
 template <size_t SIZE>
 class TempAllocator : public Allocator
 {

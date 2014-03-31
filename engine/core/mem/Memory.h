@@ -31,6 +31,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+
+/// @defgroup Memory Memory
 namespace memory
 {
 
