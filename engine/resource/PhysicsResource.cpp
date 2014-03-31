@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <algorithm>
 #include "Allocator.h"
 #include "Filesystem.h"
-#include "Hash.h"
+#include "StringUtils.h"
 #include "JSONParser.h"
 #include "PhysicsResource.h"
 #include "StringUtils.h"
@@ -156,7 +156,7 @@ void parse_shapes(JSONElement e, Array<PhysicsShape>& shapes)
 				resource.to_string(mesh_name);
 				mesh_name += ".mesh";
 
-				StringId64 mesh_id = hash::murmur2_64(mesh_name.c_str(), string::strlen(mesh_name.c_str()), 0);
+				StringId64 mesh_id = string::murmur2_64(mesh_name.c_str(), string::strlen(mesh_name.c_str()), 0);
 
 				ps.resource.id = mesh_id;
 
@@ -399,7 +399,7 @@ namespace physics_config_resource
 
 	uint32_t collision_filter_to_mask(const char* filter, Array<NameToMask> name_to_mask)
 	{
-		StringId32 filter_hash = hash::murmur2_32(filter, string::strlen(filter));
+		StringId32 filter_hash = string::murmur2_32(filter, string::strlen(filter));
 		for (uint32_t i = 0; i < array::size(name_to_mask); i++)
 		{
 			if (name_to_mask[i].name == filter_hash) return name_to_mask[i].mask;

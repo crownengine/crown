@@ -197,7 +197,7 @@ CE_EXPORT int gui_create_image(lua_State* L)
 	const Vector2 size = stack.get_vector2(4);
 
 	ResourceId mat_id;
-	mat_id.id = hash::murmur2_64(mat_name, string::strlen(mat_name), 0);
+	mat_id.id = string::murmur2_64(mat_name, string::strlen(mat_name), 0);
 
 	GuiImageId image_id = gui->create_image(mat_id, pos, size);
 

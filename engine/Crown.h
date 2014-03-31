@@ -63,7 +63,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Core/Strings
 #include "StringUtils.h"
 #include "StringStream.h"
-#include "Hash.h"
+#include "StringUtils.h"
 #include "Path.h"
 
 // Core/Mem

@@ -39,7 +39,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Device.h"
 #include "GLContext.h"
-#include "Hash.h"
+#include "StringUtils.h"
 #include "Log.h"
 #include "Matrix3x3.h"
 #include "Matrix4x4.h"

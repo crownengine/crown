@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Allocator.h"
 #include "Filesystem.h"
-#include "Hash.h"
+#include "StringUtils.h"
 #include "JSONParser.h"
 #include "GuiResource.h"
 #include "StringUtils.h"
@@ -76,7 +76,7 @@ void parse_image(JSONElement image, StringId64& material, Array<float>& position
 	mat.to_string(material_name);
 	material_name += ".material";
 
-	material = hash::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
+	material = string::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
 	position.to_array(positions);
 	size.to_array(sizes);
 }

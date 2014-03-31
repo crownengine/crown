@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "File.h"
 #include "Filesystem.h"
-#include "Hash.h"
+#include "StringUtils.h"
 #include "JSONParser.h"
 #include "ContainerTypes.h"
 #include "Log.h"
@@ -130,14 +130,14 @@ void parse_nodes(JSONElement e, Array<GraphNode>& nodes, Array<GraphNodeDepth>& 
 		JSONElement node = e.key(node_name);
 
 		GraphNode gn;
-		gn.name = hash::murmur2_32(node_name, string::strlen(node_name));
+		gn.name = string::murmur2_32(node_name, string::strlen(node_name));
 		gn.parent = NO_PARENT;
 
 		if (!node.key("parent").is_nil())
 		{
 			DynamicString parent_name;
 			node.key("parent").to_string(parent_name);
-			gn.parent = hash::murmur2_32(parent_name.c_str(), parent_name.length(), 0);
+			gn.parent = string::murmur2_32(parent_name.c_str(), parent_name.length(), 0);
 		}
 
 		JSONElement pos = node.key("position");
@@ -169,10 +169,10 @@ void parse_cameras(JSONElement e, Array<UnitCamera>& cameras, const Array<GraphN
 		DynamicString node_name;
 		camera.key("node").to_string(node_name);
 
-		StringId32 node_name_hash = hash::murmur2_32(node_name.c_str(), node_name.length());
+		StringId32 node_name_hash = string::murmur2_32(node_name.c_str(), node_name.length());
 
 		UnitCamera cn;
-		cn.name = hash::murmur2_32(camera_name, string::strlen(camera_name));
+		cn.name = string::murmur2_32(camera_name, string::strlen(camera_name));
 		cn.node = find_node_index(node_name_hash, node_depths);
 
 		array::push_back(cameras, cn);
@@ -191,10 +191,10 @@ void parse_renderables(JSONElement e, Array<UnitRenderable>& renderables, const 
 		JSONElement renderable = e.key(renderable_name);
 
 		DynamicString node_name; renderable.key("node").to_string(node_name);
-		StringId32 node_name_hash = hash::murmur2_32(node_name.c_str(), node_name.length(), 0);
+		StringId32 node_name_hash = string::murmur2_32(node_name.c_str(), node_name.length(), 0);
 
 		UnitRenderable rn;
-		rn.name = hash::murmur2_32(renderable_name, string::strlen(renderable_name), 0);
+		rn.name = string::murmur2_32(renderable_name, string::strlen(renderable_name), 0);
 		rn.node = find_node_index(node_name_hash, node_depths);
 		rn.visible = renderable.key("visible").to_bool();
 
@@ -218,7 +218,7 @@ void parse_renderables(JSONElement e, Array<UnitRenderable>& renderables, const 
 		{
 			CE_ASSERT(false, "Oops, unknown renderable type: '%s'", res_type.c_str());
 		}
-		rn.resource.id = hash::murmur2_64(res_name.c_str(), res_name.length(), 0);
+		rn.resource.id = string::murmur2_64(res_name.c_str(), res_name.length(), 0);
 
 		array::push_back(renderables, rn);
 	}
@@ -263,7 +263,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	physics_name += "physics";
 	if (fs.is_file(physics_name.c_str()))
 	{
-		m_physics_resource.id = hash::murmur2_64(physics_name.c_str(), string::strlen(physics_name.c_str()), 0);
+		m_physics_resource.id = string::murmur2_64(physics_name.c_str(), string::strlen(physics_name.c_str()), 0);
 	}
 	else
 	{
@@ -275,7 +275,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	material_name += "material";
 	if (fs.is_file(material_name.c_str()))
 	{
-		m_material_resource.id = hash::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
+		m_material_resource.id = string::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
 	}
 	else
 	{

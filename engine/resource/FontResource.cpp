@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "JSONParser.h"
 #include "Allocator.h"
 #include "Filesystem.h"
-#include "Hash.h"
+#include "StringUtils.h"
 #include "Bundle.h"
 #include "Types.h"
 
@@ -96,7 +96,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	fs.close(file);
 	default_allocator().deallocate(buf);
 
-	h.material.id = hash::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
+	h.material.id = string::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
 	h.num_glyphs = array::size(m_glyphs);
 	h.texture_size = size.to_int();
 	h.font_size = font_size.to_int();

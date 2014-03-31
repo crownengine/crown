@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Allocator.h"
 #include "Filesystem.h"
-#include "Hash.h"
+#include "StringUtils.h"
 #include "JSONParser.h"
 #include "SpriteResource.h"
 #include "StringUtils.h"
@@ -61,7 +61,7 @@ void parse_frame(JSONElement frame, Array<StringId32>& names, Array<FrameData>& 
 	DynamicString frame_name;
 	name.to_string(frame_name);
 
-	StringId32 name_hash = hash::murmur2_32(frame_name.c_str(), frame_name.length(), 0);
+	StringId32 name_hash = string::murmur2_32(frame_name.c_str(), frame_name.length(), 0);
 	FrameData fd;
 	fd.x0 = region[0].to_float();
 	fd.y0 = region[1].to_float();

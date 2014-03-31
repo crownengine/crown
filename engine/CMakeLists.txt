@@ -193,7 +193,6 @@ set (STRINGS_HEADERS
 	core/strings/Path.h
 	core/strings/StringUtils.h
 	core/strings/StringStream.h
-	core/strings/Hash.h
 	core/strings/DynamicString.h
 )
 

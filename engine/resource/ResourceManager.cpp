@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceManager.h"
 #include "ResourceRegistry.h"
 #include "StringUtils.h"
-#include "Hash.h"
+#include "StringUtils.h"
 #include "TempAllocator.h"
 #include "DynamicString.h"
 #include "Queue.h"
@@ -58,7 +58,7 @@ ResourceManager::~ResourceManager()
 //-----------------------------------------------------------------------------
 ResourceId ResourceManager::load(const char* type, const char* name)
 {
-	return load(hash::murmur2_32(type, string::strlen(type), 0), resource_id(type, name));
+	return load(string::murmur2_32(type, string::strlen(type), 0), resource_id(type, name));
 }
 
 //-----------------------------------------------------------------------------
@@ -151,7 +151,7 @@ ResourceId ResourceManager::resource_id(const char* type, const char* name) cons
 	res_name += type;
 
 	ResourceId res_id;
-	res_id.id = hash::murmur2_64(res_name.c_str(), string::strlen(res_name.c_str()), m_seed);
+	res_id.id = string::murmur2_64(res_name.c_str(), string::strlen(res_name.c_str()), m_seed);
 
 	return res_id;
 }

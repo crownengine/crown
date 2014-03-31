@@ -34,7 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Joint.h"
 #include "PhysicsCallback.h"
 #include "ProxyAllocator.h"
-#include "Hash.h"
+#include "StringUtils.h"
 #include "StringUtils.h"
 #include "Actor.h"
 #include "ResourceManager.h"

@@ -118,7 +118,7 @@ public:
 	/// Returns the string value of the element.
 	void				to_string(DynamicString& str) const;
 
-	/// Returns the string id value hashed to hash::murmur2_32() of the element.
+	/// Returns the string id value hashed to string::murmur2_32() of the element.
 	StringId32			to_string_id() const;
 
 	/// Returns the array value of the element.

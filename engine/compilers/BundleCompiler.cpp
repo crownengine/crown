@@ -103,11 +103,11 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 	{
 		const char* filename = files[i].c_str();
 
-		uint64_t filename_hash = hash::murmur2_64(filename, string::strlen(filename), 0);
+		uint64_t filename_hash = string::murmur2_64(filename, string::strlen(filename), 0);
 
 		char filename_extension[32];
 		path::extension(filename, filename_extension, 32);
-		uint32_t resource_type_hash = hash::murmur2_32(filename_extension, string::strlen(filename_extension), 0);
+		uint32_t resource_type_hash = string::murmur2_32(filename_extension, string::strlen(filename_extension), 0);
 
 		char out_name[65];
 		snprintf(out_name, 65, "%.16"PRIx64"", filename_hash);

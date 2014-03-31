@@ -24,11 +24,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <string.h>
 #include "SceneGraph.h"
 #include "Quaternion.h"
 #include "Allocator.h"
-#include <string.h>
-#include "Hash.h"
 #include "StringUtils.h"
 
 #define CLEAN		0
@@ -95,7 +94,7 @@ void SceneGraph::destroy()
 //-----------------------------------------------------------------------------
 int32_t SceneGraph::node(const char* name) const
 {
-	return node(hash::murmur2_32(name, string::strlen(name)));
+	return node(string::murmur2_32(name, string::strlen(name)));
 }
 
 //-----------------------------------------------------------------------------
@@ -115,7 +114,7 @@ int32_t SceneGraph::node(StringId32 name) const
 //-----------------------------------------------------------------------------
 bool SceneGraph::has_node(const char* name) const
 {
-	StringId32 name_hash = hash::murmur2_32(name, string::strlen(name), 0);
+	StringId32 name_hash = string::murmur2_32(name, string::strlen(name), 0);
 
 	for (uint32_t i = 0; i < m_num_nodes; i++)
 	{

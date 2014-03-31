@@ -485,7 +485,7 @@ void Device::reload(const char* type, const char* name)
 		m_resource_manager->flush();
 		const void* new_res = m_resource_manager->data(res_id);
 
-		uint32_t type_hash = hash::murmur2_32(type, string::strlen(type), 0);
+		uint32_t type_hash = string::murmur2_32(type, string::strlen(type), 0);
 
 		switch (type_hash)
 		{

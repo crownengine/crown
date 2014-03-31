@@ -33,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "StringUtils.h"
 #include "Array.h"
-#include "Hash.h"
+#include "StringUtils.h"
 
 namespace crown
 {
@@ -78,7 +78,7 @@ public:
 	/// Returns wheterh the string ends with the given @æ s string.
 	bool				ends_with(const char* s);
 
-	/// Returns the string hashed to hash::murmur2_32.
+	/// Returns the string hashed to string::murmur2_32.
 	StringId32			to_string_id();
 
 	///
@@ -236,7 +236,7 @@ inline bool DynamicString::ends_with(const char* s)
 //-----------------------------------------------------------------------------
 inline StringId32 DynamicString::to_string_id()
 {
-	return hash::murmur2_32(c_str(), length());
+	return string::murmur2_32(c_str(), length());
 }
 
 //-----------------------------------------------------------------------------

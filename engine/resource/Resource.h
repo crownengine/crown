@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Hash.h"
+#include "StringUtils.h"
 #include "StringUtils.h"
 
 namespace crown

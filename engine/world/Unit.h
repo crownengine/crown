@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Quaternion.h"
 #include "Matrix4x4.h"
-#include "Hash.h"
+#include "StringUtils.h"
 #include "SceneGraph.h"
 #include "StringUtils.h"
 #include "PhysicsTypes.h"
