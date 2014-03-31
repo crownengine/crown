@@ -55,7 +55,7 @@ namespace physics_system
 	/// This is the place where to create and initialize per-application objects.
 	void init();
 
-	/// It should reverse the actions performed by audio_system::init().
+	/// It should reverse the actions performed by physics_system::init().
 	void shutdown();
 } // namespace physics_system
 
