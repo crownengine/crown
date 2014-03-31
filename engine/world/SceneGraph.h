@@ -37,6 +37,8 @@ namespace crown
 
 class Allocator;
 
+///
+/// @ingroup World
 struct SceneGraph
 {
 					SceneGraph(Allocator& a, uint32_t index);

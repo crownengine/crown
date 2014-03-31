@@ -49,6 +49,8 @@ struct Unit;
 class SceneGraph;
 
 /// Represents the point of view into the game world.
+///
+/// @ingroup World
 struct Camera
 {
 							Camera(SceneGraph& sg, int32_t node);

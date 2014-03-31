@@ -73,6 +73,9 @@ struct Sprite;
 struct Material;
 struct UnitResource;
 
+/// Represents a game entity.
+///
+/// @ingroup World
 struct Unit
 {
 						Unit(World& w, const ResourceId id, const UnitResource* ur, const Matrix4x4& pose);

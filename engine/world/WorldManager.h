@@ -36,6 +36,8 @@ typedef Id WorldId;
 class World;
 
 /// Manages a number of worlds.
+///
+/// @ingroup World
 class WorldManager
 {
 public:

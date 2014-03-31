@@ -34,6 +34,8 @@ namespace crown
 class SceneGraph;
 
 /// Manages a collection of scene graphs.
+///
+/// @ingroup World
 class SceneGraphManager
 {
 public:
