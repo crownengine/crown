@@ -37,6 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceManager.h"
 #include "LuaResource.h"
 #include "LuaEnvironment.h"
+#include "LuaStack.h"
 
 namespace crown
 {
@@ -55,6 +56,12 @@ extern int vector2_new(lua_State* L);
 extern int vector3_new(lua_State* L);
 extern int matrix4x4(lua_State* L);
 extern int quaternion_new(lua_State* L);
+
+extern int matrix4x4box(lua_State* L);
+extern int quaternionbox(lua_State* L);
+extern int vector3box(lua_State* L);
+extern int vector3box_get_value(lua_State* L);
+extern int vector3box_set_value(lua_State* L);
 
 //-----------------------------------------------------------------------------
 static int crown_lua_vector2_call(lua_State* L)
@@ -145,6 +152,27 @@ static int crown_lua_lightuserdata_unm(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int crown_lua_vector3box_call(lua_State* L)
+{
+	lua_remove(L, 1);
+	return vector3box(L);
+}
+
+//-----------------------------------------------------------------------------
+static int crown_lua_quaternionbox_call(lua_State* L)
+{
+	lua_remove(L, 1);
+	return quaternionbox(L);
+}
+
+//-----------------------------------------------------------------------------
+static int crown_lua_matrix4x4box_call(lua_State* L)
+{
+	lua_remove(L, 1);
+	return matrix4x4box(L);	
+}
+
+//-----------------------------------------------------------------------------
 static int crown_lua_require(lua_State* L)
 {
 	LuaStack stack(L);
@@ -175,6 +203,7 @@ namespace lua_system
 	static uint32_t 		s_quat_used = 0;
 	static Quaternion 		s_quat_buffer[CE_MAX_LUA_QUATERNION];
 
+	//-----------------------------------------------------------------------------
 	void init()
 	{
 		s_L = luaL_newstate();
@@ -186,33 +215,34 @@ namespace lua_system
 		// Register crown libraries
 		LuaEnvironment env(s_L);
 
-		load_int_setting(env);
+		load_accelerometer(env);
+		load_actor(env);
+		load_camera(env);
+		load_controller(env);
+		load_debug_line(env);
+		load_device(env);
 		load_float_setting(env);
+		load_gui(env);
+		load_int_setting(env);
+		load_keyboard(env);
+		load_math(env);
+		load_matrix4x4(env);
+		load_mesh(env);
+		load_mouse(env);
+		load_physics_world(env);
+		load_quaternion(env);
+		load_raycast(env);
+		load_resource_package(env);
+		load_sound_world(env);
+		load_sprite(env);
 		load_string_setting(env);
+		load_touch(env);
+		load_unit(env);
 		load_vector2(env);
 		load_vector3(env);
-		load_matrix4x4(env);
-		load_quaternion(env);
-		load_math(env);
+		load_vector3box(env);
 		load_window(env);
-		load_mouse(env);
-		load_keyboard(env);
-		load_touch(env);
-		load_accelerometer(env);
-		load_device(env);
-		load_resource_package(env);
-		load_unit(env);
-		load_camera(env);
 		load_world(env);
-		load_mesh(env);
-		load_sprite(env);
-		load_actor(env);
-		load_controller(env);
-		load_physics_world(env);
-		load_sound_world(env);
-		load_gui(env);
-		load_debug_line(env);
-		load_raycast(env);
 
 		// Register custom loader
 		lua_getfield(s_L, LUA_GLOBALSINDEX, "package");
@@ -232,103 +262,104 @@ namespace lua_system
 		lua_rawset(s_L, -3);
 		lua_pop(s_L, 1);
 
+
+		LuaStack stack(s_L);
+
 		// Create metatable for lightuserdata
 		lua_pushlightuserdata(s_L, (void*)0x0); // Just dummy userdata
-		luaL_newmetatable(s_L, "Lightuserdata_mt");
-		lua_setmetatable(s_L, -2);
-		lua_pop(s_L, -1);
+		stack.create_metatable("Lightuserdata_mt");
+		stack.set_metatable();
+		lua_pop(s_L, -1); // Pop dummy userdata
 
-		luaL_newmetatable(s_L, "Lightuserdata_mt");
-
-		lua_pushstring(s_L, "__add");
-		lua_pushcfunction(s_L, crown_lua_lightuserdata_add);
-		lua_settable(s_L, 1);
-
-		lua_pushstring(s_L, "__sub");
-		lua_pushcfunction(s_L, crown_lua_lightuserdata_sub);
-		lua_settable(s_L, 1);
-
-		lua_pushstring(s_L, "__mul");
-		lua_pushcfunction(s_L, crown_lua_lightuserdata_mul);
-		lua_settable(s_L, 1);
-
-		lua_pushstring(s_L, "__div");
-		lua_pushcfunction(s_L, crown_lua_lightuserdata_div);
-		lua_settable(s_L, 1);
-
-		lua_pushstring(s_L, "__unm");
-		lua_pushcfunction(s_L, crown_lua_lightuserdata_unm);
-		lua_settable(s_L, 1);
-
-		//lua_pop(s_L, -1); // pop Lightuserdata_mt
-
-		Log::d("Stacksize = %d", lua_gettop(s_L));
+		stack.get_global_metatable("Lightuserdata_mt");
+		stack.set_metatable_function("__add", crown_lua_lightuserdata_add);
+		stack.set_metatable_function("__sub", crown_lua_lightuserdata_sub);
+		stack.set_metatable_function("__mul", crown_lua_lightuserdata_mul);
+		stack.set_metatable_function("__div", crown_lua_lightuserdata_div);
+		stack.set_metatable_function("__unm", crown_lua_lightuserdata_unm);
 
 		// Vector2 metatable
-		luaL_newmetatable(s_L, "Vector2_mt");
-		lua_pushvalue(s_L, -1);
-		lua_setfield(s_L, -2, "__index");
-		lua_pushcfunction(s_L, crown_lua_vector2_call);
-		lua_setfield(s_L, -2, "__call");
-		//lua_pop(s_L, -1); // pop Vector2_mt
-
-		lua_getglobal(s_L, "Vector2");
-		lua_pushvalue(s_L, -2); // Duplicate metatable
-		lua_setmetatable(s_L, -2); // setmetatable(Vector2, Vector2_mt)
-		//lua_pop(s_L, -1); // pop Vector2
+		stack.get_global("Vector2");
+		stack.create_metatable("Vector2_mt");
+		stack.set_self_index();
+		stack.set_metatable_function("__call", crown_lua_vector2_call);
+		stack.set_metatable();
 
 		// Vector3 metatable
-		luaL_newmetatable(s_L, "Vector3_mt");
-		lua_pushvalue(s_L, -1);
-		lua_setfield(s_L, -2, "__index");
-		lua_pushcfunction(s_L, crown_lua_vector3_call);
-		lua_setfield(s_L, -2, "__call");
-		//lua_pop(s_L, -1);
-
-		lua_getglobal(s_L, "Vector3");
-		lua_pushvalue(s_L, -2); // Duplicate metatable
-		lua_setmetatable(s_L, -2); // setmetatable(Vector3, Vector3_mt)
-		//lua_pop(s_L, -1);
+		stack.get_global("Vector3");
+		stack.create_metatable("Vector3_mt");
+		stack.set_self_index();
+		stack.set_metatable_function("__call", crown_lua_vector3_call);
+		stack.set_metatable();
 
 		// Matrix4x4 metatable
-		luaL_newmetatable(s_L, "Matrix4x4_mt");
-		lua_pushvalue(s_L, -1);
-		lua_setfield(s_L, -2, "__index");
-		lua_pushcfunction(s_L, crown_lua_matrix4x4_call);
-		lua_setfield(s_L, -2, "__call");
-		lua_pop(s_L, -1);
-
-		lua_getglobal(s_L, "Matrix4x4");
-		lua_pushvalue(s_L, -2); // Duplicate metatable
-		lua_setmetatable(s_L, -2); // setmetatable(Matrix4x4, Matrix4x4_mt)
-		//lua_pop(s_L, -1);
+		stack.get_global("Matrix4x4");
+		stack.create_metatable("Matrix4x4_mt");
+		stack.set_self_index();
+		stack.set_metatable_function("__call", crown_lua_matrix4x4_call);
+		stack.set_metatable();
 
 		// Quaternion metatable
-		luaL_newmetatable(s_L, "Quaternion_mt");
-		lua_pushvalue(s_L, -1);
-		lua_setfield(s_L, -2, "__index");
-		lua_pushcfunction(s_L, crown_lua_quaternion_call);
-		lua_setfield(s_L, -2, "__call");
-		//lua_pop(s_L, -1);
+		stack.get_global("Quaternion");
+		stack.create_metatable("Quaternion_mt");
+		stack.set_self_index();
+		stack.set_metatable_function("__call", crown_lua_quaternion_call);
+		stack.set_metatable();
 
-		lua_getglobal(s_L, "Quaternion");
-		lua_pushvalue(s_L, -2); // Duplicate metatable
-		lua_setmetatable(s_L, -2); // setmetatable(Quaternion, Quaternion_mt)
-		//lua_pop(s_L, -1);
+		// Create and attach metatable to global table Vector3Box
+		stack.get_global("Vector3Box");
+		stack.create_metatable("Vector3Box_g_mt");
+		stack.set_self_index();
+		stack.set_metatable_function("__call", crown_lua_vector3box_call);
+		stack.set_metatable();
 
-		Log::d("Stacksize = %d", lua_gettop(s_L));
+		// Create metatable for userdata Vector3Box (instance)
+		// Used for type checking and also provide access facilities to data
+		// e.g: 
+		// inst = Vector3Box(0, 0, 0)
+		// print (inst.x)	<= cannot do it without the following code
+		stack.create_metatable("Vector3Box_i_mt");
+		stack.set_metatable_function("__index", vector3box_get_value);
+		stack.set_metatable_function("__newindex", vector3box_set_value);
+
+		// Create and attach metatable to global table Quaternion
+		stack.get_global("QuaternionBox");
+		stack.create_metatable("QuaternionBox_g_mt");
+		stack.set_self_index();
+		stack.set_metatable_function("__call", crown_lua_quaternionbox_call);
+		stack.set_metatable();
+
+		// Create metatable for userdata QuaternionBox (instance)
+		// Used for type checking
+		stack.create_metatable("QuaternionBox_i_mt");
+
+		// Create and attach metatable to global table Matrix4x4
+		stack.get_global("Matrix4x4");
+		stack.create_metatable("Matrix4x4_g_mt");
+		stack.set_self_index();
+		stack.set_metatable_function("__call", crown_lua_matrix4x4box_call);
+		stack.set_metatable();
+
+		// Create metatable for userdata QuaternionBox (instance)
+		// Used for type checking
+		stack.create_metatable("Matrix4x4_i_mt");
+
+		Log::d("Lua stack size = %d", lua_gettop(s_L));
 	}
 
+	//-----------------------------------------------------------------------------
 	void shutdown()
 	{
 		lua_close(s_L);
 	}
 
+	//-----------------------------------------------------------------------------
 	lua_State* state()
 	{
 		return s_L;
 	}
 
+	//-----------------------------------------------------------------------------
 	Vector2* next_vector2(const Vector2& v)
 	{
 		CE_ASSERT(s_vec2_used < CE_MAX_LUA_VECTOR2, "Maximum number of Vector2 reached");
@@ -336,6 +367,7 @@ namespace lua_system
 		return &(s_vec2_buffer[s_vec2_used++] = v);
 	}
 
+	//-----------------------------------------------------------------------------
 	Vector3* next_vector3(const Vector3& v)
 	{
 		CE_ASSERT(s_vec3_used < CE_MAX_LUA_VECTOR3, "Maximum number of Vector3 reached");
@@ -343,6 +375,7 @@ namespace lua_system
 		return &(s_vec3_buffer[s_vec3_used++] = v);
 	}
 
+	//-----------------------------------------------------------------------------
 	Matrix4x4* next_matrix4x4(const Matrix4x4& m)
 	{
 		CE_ASSERT(s_mat4_used < CE_MAX_LUA_MATRIX4X4, "Maximum number of Matrix4x4 reached");
@@ -350,36 +383,42 @@ namespace lua_system
 		return &(s_mat4_buffer[s_mat4_used++] = m);
 	}
 
+	//-----------------------------------------------------------------------------
 	Quaternion* next_quaternion(const Quaternion& q)
 	{
 		CE_ASSERT(s_quat_used < CE_MAX_LUA_QUATERNION, "Maximum number of Quaternion reached");
 		return &(s_quat_buffer[s_quat_used++] = q);
 	}
 
+	//-----------------------------------------------------------------------------
 	bool is_vector2(int32_t index)
 	{
 		void* type = lua_touserdata(s_L, index);
 		return (type >= &s_vec2_buffer[0] && type <= &s_vec2_buffer[CE_MAX_LUA_VECTOR2 - 1]);
 	}
 
+	//-----------------------------------------------------------------------------
 	bool is_vector3(int32_t index)
 	{
 		void* type = lua_touserdata(s_L, index);
 		return (type >= &s_vec3_buffer[0] && type <= &s_vec3_buffer[CE_MAX_LUA_VECTOR3 - 1]);
 	}
 
+	//-----------------------------------------------------------------------------
 	bool is_matrix4x4(int32_t index)
 	{
 		void* type = lua_touserdata(s_L, index);
 		return (type >= &s_mat4_buffer[0] && type <= &s_mat4_buffer[CE_MAX_LUA_MATRIX4X4 - 1]);
 	}
 
+	//-----------------------------------------------------------------------------
 	bool is_quaternion(int32_t index)
 	{
 		void* type = lua_touserdata(s_L, index);
 		return (type >= &s_quat_buffer[0] && type <= &s_quat_buffer[CE_MAX_LUA_QUATERNION - 1]);
 	}
 
+	//-----------------------------------------------------------------------------
 	void clear_temporaries()
 	{
 		s_vec2_used = 0;

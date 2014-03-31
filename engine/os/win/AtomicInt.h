@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
+#include "windows.h"
 
 namespace crown
 {
@@ -38,35 +39,19 @@ struct AtomicInt
 		m_value = value;
 	}
 
-	AtomicInt& operator+=(int32_t value)
+	int load() const
 	{
-		InterlockedAdd(&m_value, value);
-		return *this;
-	}
-
-	AtomicInt& operator++(void)
-	{
-		InterlockedIncrement(&m_value);
-	}
-
-	AtomicInt& operator--(void)
-	{
-		InterlockedDecrement(&m_value);
-	}
-
-	AtomicInt& operator=(int32_t value)
-	{
-		InterlockedExchange(&m_value, value);
-	}
-
-	operator int32_t()
-	{
+		InterlockedExchangeAdd(&m_value, (int32_t)0);
 		return m_value;
 	}
 
-private:
+	void store(int val)
+	{
+		InterlockedExchange(&m_value, val);
+	}
 
-	LONG m_value;
+private:
+	mutable LONG m_value;
 };
 
 } // namespace crown

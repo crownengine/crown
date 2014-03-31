@@ -337,10 +337,12 @@ set (LUA_SRC
 	lua/LuaKeyboard.cpp
 	lua/LuaMath.cpp
 	lua/LuaMatrix4x4.cpp
+	lua/LuaMatrix4x4Box.cpp
 	lua/LuaMesh.cpp
 	lua/LuaMouse.cpp
 	lua/LuaPhysicsWorld.cpp
 	lua/LuaQuaternion.cpp
+	lua/LuaQuaternionBox.cpp
 	lua/LuaRaycast.cpp
 	lua/LuaResourcePackage.cpp
 	lua/LuaSoundWorld.cpp
@@ -351,6 +353,7 @@ set (LUA_SRC
 	lua/LuaUnit.cpp
 	lua/LuaVector2.cpp
 	lua/LuaVector3.cpp
+	lua/LuaVector3Box.cpp
 	lua/LuaWindow.cpp
 	lua/LuaWorld.cpp
 )

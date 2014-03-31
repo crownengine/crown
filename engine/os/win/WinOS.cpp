@@ -141,7 +141,9 @@ bool is_directory(const char* path)
 //-----------------------------------------------------------------------------
 bool is_file(const char* path)
 {
-	return !is_directory(path);
+	DWORD fileAttr;
+	fileAttr = GetFileAttributes(path);
+	return (fileAttr != INVALID_FILE_ATTRIBUTES && (fileAttr & FILE_ATTRIBUTE_DIRECTORY) == 0);
 }
 
 //-----------------------------------------------------------------------------

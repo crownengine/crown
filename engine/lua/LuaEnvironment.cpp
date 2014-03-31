@@ -109,7 +109,7 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 	luaL_register(m_state, module, entry);
 }
 
-//-----------------------------------------------------------
+//-----------------------------------------------------------------------------
 void LuaEnvironment::load_module_enum(const char* module, const char* name, uint32_t value)
 {
 	// Checks table existance
