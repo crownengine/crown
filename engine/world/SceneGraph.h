@@ -37,6 +37,7 @@ namespace crown
 
 class Allocator;
 
+/// Represents a collection of nodes, possibly linked together to form a tree.
 ///
 /// @ingroup World
 struct SceneGraph
