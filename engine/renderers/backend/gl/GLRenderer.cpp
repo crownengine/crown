@@ -306,7 +306,7 @@ struct Uniform
 		m_data = default_allocator().allocate(size);
 		memset(m_data, 0, size);
 
-		// Log::d("Uniform created, name = %s, type = %d, num = %d, size = %ld", m_name, type, num, size);
+		// Log::d("Uniform created, name = %s, type = %d, num = %d, size = %ld, ptr = %p", m_name, type, num, size, m_data);
 	}
 
 	void update(size_t size, const void* data)
@@ -318,6 +318,8 @@ struct Uniform
 	void destroy()
 	{
 		default_allocator().deallocate(m_data);
+		string::strncpy(m_name, "", CE_MAX_UNIFORM_NAME_LENGTH); // <- this is a temporary fix
+		// Log::d("Uniform destroyed, name = %s, type = %d, num = %d, ptr = %p", m_name, m_type, m_num, m_data);
 	}
 
 public:
@@ -536,7 +538,7 @@ struct GPUProgram
 			}
 
 			// Log::d("Uniform %d: name = '%s' location = '%d' stock = %s", uniform, uniform_name, uniform_location,
-						// (stock_uniform != ShaderUniform::COUNT) ? "yes" : "no");
+			// 			 (stock_uniform != ShaderUniform::COUNT) ? "yes" : "no");
 		}
 	}
 
@@ -1200,8 +1202,8 @@ void Renderer::update_uniform_impl(UniformId id, size_t size, const void* data)
 void Renderer::destroy_uniform_impl(UniformId id)
 {
 	m_impl->m_uniforms[id.index].destroy();
-	m_impl->m_num_uniforms--;
 	m_uniforms.destroy(id);
+	m_impl->m_num_uniforms--;
 }
 
 // //-----------------------------------------------------------------------------
