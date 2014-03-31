@@ -165,8 +165,6 @@ inline const Id* IdTable<MAX_NUM_ID>::end() const
 template <uint32_t MAX_NUM_ID>
 inline uint16_t IdTable<MAX_NUM_ID>::next_id()
 {
-	CE_ASSERT(m_next_id < MAX_NUM_ID, "Maximum number of IDs reached");
-
 	return m_next_id++;
 }
 
