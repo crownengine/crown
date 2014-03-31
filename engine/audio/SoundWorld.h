@@ -31,6 +31,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// @defgroup Audio Audio
+
 /// Global audio-related functions
 ///
 /// @ingroup Audio
@@ -50,6 +52,7 @@ struct Matrix4x4;
 struct SoundResource;
 typedef Id SoundInstanceId;
 
+/// Manages sound objects in a World.
 ///
 /// @ingroup Audio
 class SoundWorld
@@ -97,6 +100,5 @@ public:
 	static SoundWorld* create(Allocator& a);
 	static void destroy(Allocator& a, SoundWorld* sw);
 };
-
 
 } // namespace crown 
