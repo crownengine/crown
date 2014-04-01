@@ -350,12 +350,14 @@ void Device::stop()
 void Device::pause()
 {
 	m_is_paused = true;
+	Log::i("Engine paused.");
 }
 
 //-----------------------------------------------------------------------------
 void Device::unpause()
 {
 	m_is_paused = false;
+	Log::i("Engine unpaused.");
 }
 
 //-----------------------------------------------------------------------------
