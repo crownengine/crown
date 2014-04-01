@@ -35,6 +35,8 @@ namespace crown {
 	///
 	/// When items are removed, the array-list is repacked to always keep
 	/// it tightly ordered.
+	///
+	/// @ingroup Containers
 	namespace hash
 	{
 		/// Returns true if the specified key exists in the hash.
@@ -63,6 +65,9 @@ namespace crown {
 		template<typename T> const typename Hash<T>::Entry *end(const Hash<T> &h);
 	}
 
+	/// Functions to manipulate Hash as a multi-hash.
+	///
+	/// @ingroup Containers
 	namespace multi_hash
 	{
 		/// Finds the first entry with the specified key.

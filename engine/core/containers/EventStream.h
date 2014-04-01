@@ -37,8 +37,12 @@ namespace crown
 /// @ingroup Containers
 typedef Array<char> EventStream;
 
-/// Functions for operating on a Array<char> as a stream of events of the form:
+/// Functions to manipulate EventStream.
+///
+/// The events are stored in the following form:
 /// [event_header_0][event_data_0][event_header_1][event_data_1] ...
+///
+/// @ingroup Containers
 namespace event_stream
 {
 	struct Header
