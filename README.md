@@ -77,7 +77,7 @@ Windows:
 Android:
 
 	$ cd utils
-	$ ruby crown-android.rb --target <android-target> --name <project-name> --path <project-path>
+	$ ruby crown-android.rb --target <android-target> --name <project-name> --path <project-path> [--res <res-path>]
 
 You can also use the GUI front-end of CMake which can, less or more, simplify the overall 'complexity' of building from the terminal.
 
