@@ -39,6 +39,8 @@ class DynamicString;
 /// Represents a JSON element.
 /// The objects of this class are valid until the parser
 /// which has generated them, will exist.
+///
+/// @ingroup JSON
 class CE_EXPORT JSONElement
 {
 public:
@@ -158,6 +160,8 @@ private:
 };
 
 /// Parses JSON documents.
+///
+/// @ingroup JSON
 class CE_EXPORT JSONParser
 {
 public:

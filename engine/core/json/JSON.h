@@ -36,10 +36,17 @@ template<typename T>
 class List;
 class DynamicString;
 
+/// @defgroup JSON
+
+/// Functions to parse JSON
+///
+/// @ingroup JSON
 namespace json
 {
 
 /// Enumerates JSON value types.
+///
+/// @ingroup JSON
 struct JSONType
 {
 	enum Enum
@@ -54,12 +61,13 @@ struct JSONType
 };
 
 /// Represents a key-value pair in a JSON document.
+///
+/// @ingroup JSON
 struct JSONPair
 {
 	const char* key;
 	const char* val;
 };
-
 
 /// Returns the type of the @a s JSON text. 
 JSONType::Enum type(const char* s);
