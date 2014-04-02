@@ -24,7 +24,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <windows.h>
+#include "WinHeaders.h"
 #include <cstdio>
 #include <cstdarg>
 #include "StringUtils.h"

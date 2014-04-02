@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-//Undefined in Frustum.h, but winsock2 ecc need it.
+//Undefined in WinHeaders.h, but winsock2 ecc need it.
 #ifndef NEAR
 #define NEAR
 #endif
@@ -35,7 +35,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 #include <winsock2.h>
-#include <windows.h>
+#include "WinHeaders.h"
+
+//Re-undef NEAR and FAR after use
+#undef NEAR
+#undef FAR
 
 #include "NetAddress.h"
 #include "Assert.h"
@@ -43,7 +47,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 
 #pragma comment(lib, "Ws2_32.lib")
-#undef NO_ERROR
 
 namespace crown
 {

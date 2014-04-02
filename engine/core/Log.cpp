@@ -28,11 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "ConsoleServer.h"
 
-#ifdef WINDOWS
-#undef ERROR
-#define __va_copy(dest, src) (dest = src)
-#endif
-
 namespace crown
 {
 

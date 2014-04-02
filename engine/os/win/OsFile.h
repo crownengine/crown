@@ -26,12 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
 #include <cstdio>
-#include <windows.h>
+#include "WinHeaders.h"
 #include "Types.h"
 #include "File.h"
 

@@ -32,11 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Plane.h"
 #include "Intersection.h"
 
-#ifdef WINDOWS
-#undef NEAR
-#undef FAR
-#endif
-
 namespace crown
 {
 

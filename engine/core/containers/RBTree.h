@@ -25,8 +25,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #pragma once
-#undef min
-#undef max
 
 #include <cstdlib>
 
