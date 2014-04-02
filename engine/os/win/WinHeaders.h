@@ -43,5 +43,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 #undef min
 #undef max
 
-#define snprintf _snprintf
 #define __va_copy(dest, src) (dest = src)

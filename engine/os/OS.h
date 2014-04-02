@@ -43,6 +43,7 @@ namespace crown
 #elif defined(WINDOWS)
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '\\';
+	#define snprintf _snprintf
 #elif defined(ANDROID)
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '/';
