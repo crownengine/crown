@@ -39,6 +39,8 @@ namespace crown
 {
 
 /// Math utilities.
+///
+/// @ingroup Math
 namespace math
 {
 
