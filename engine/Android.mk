@@ -126,6 +126,8 @@ LOCAL_SRC_FILES :=\
 	core/settings/IntSetting.cpp\
 	core/settings/StringSetting.cpp\
 \
+	core/strings/Path.cpp\
+\
 	core/Args.cpp\
 	core/Log.cpp\
 \
@@ -205,7 +207,6 @@ LOCAL_SRC_FILES :=\
 LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/\
 	$(LOCAL_PATH)/audio\
-	$(LOCAL_PATH)/core/bv\
 	$(LOCAL_PATH)/core/compressors\
 	$(LOCAL_PATH)/core/containers\
 	$(LOCAL_PATH)/core/filesystem\
