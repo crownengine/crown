@@ -34,7 +34,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4(lua_State* L)
+static int matrix4x4_new(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -60,8 +60,16 @@ CE_EXPORT int matrix4x4(lua_State* L)
 	return 1;
 }
 
+//-----------------------------------------------------------------------------
+static int matrix4x4_ctor(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.remove(1); // Remove table
+	return matrix4x4_new(L);
+}
+
 //-----------------------------------------------------------------------------					
-CE_EXPORT int matrix4x4_add(lua_State* L)
+static int matrix4x4_add(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -74,7 +82,7 @@ CE_EXPORT int matrix4x4_add(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_subtract(lua_State* L)
+static int matrix4x4_subtract(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -87,7 +95,7 @@ CE_EXPORT int matrix4x4_subtract(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_multiply(lua_State* L)
+static int matrix4x4_multiply(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -100,7 +108,7 @@ CE_EXPORT int matrix4x4_multiply(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_rotation_x(lua_State* L)
+static int matrix4x4_build_rotation_x(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -113,7 +121,7 @@ CE_EXPORT int matrix4x4_build_rotation_x(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_rotation_y(lua_State* L)
+static int matrix4x4_build_rotation_y(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -126,7 +134,7 @@ CE_EXPORT int matrix4x4_build_rotation_y(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_rotation_z(lua_State* L)
+static int matrix4x4_build_rotation_z(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -139,7 +147,7 @@ CE_EXPORT int matrix4x4_build_rotation_z(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_rotation(lua_State* L)
+static int matrix4x4_build_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -153,7 +161,7 @@ CE_EXPORT int matrix4x4_build_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_look_at_rh(lua_State* L)
+static int matrix4x4_build_look_at_rh(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -168,7 +176,7 @@ CE_EXPORT int matrix4x4_build_look_at_rh(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_viewpoint_billboard(lua_State* L)
+static int matrix4x4_build_viewpoint_billboard(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -183,7 +191,7 @@ CE_EXPORT int matrix4x4_build_viewpoint_billboard(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_build_axis_billboard(lua_State* L)
+static int matrix4x4_build_axis_billboard(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -198,7 +206,7 @@ CE_EXPORT int matrix4x4_build_axis_billboard(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_transpose(lua_State* L)
+static int matrix4x4_transpose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -210,7 +218,7 @@ CE_EXPORT int matrix4x4_transpose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_determinant(lua_State* L)
+static int matrix4x4_determinant(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -222,7 +230,7 @@ CE_EXPORT int matrix4x4_determinant(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_invert(lua_State* L)
+static int matrix4x4_invert(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -234,7 +242,7 @@ CE_EXPORT int matrix4x4_invert(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_load_identity(lua_State* L)
+static int matrix4x4_load_identity(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -246,7 +254,7 @@ CE_EXPORT int matrix4x4_load_identity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_x(lua_State* L)
+static int matrix4x4_x(lua_State* L)
 {	
 	LuaStack stack(L);
 
@@ -258,7 +266,7 @@ CE_EXPORT int matrix4x4_x(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_y(lua_State* L)
+static int matrix4x4_y(lua_State* L)
 {	
 	LuaStack stack(L);
 
@@ -270,7 +278,7 @@ CE_EXPORT int matrix4x4_y(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_z(lua_State* L)
+static int matrix4x4_z(lua_State* L)
 {	
 	LuaStack stack(L);
 
@@ -282,7 +290,7 @@ CE_EXPORT int matrix4x4_z(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_set_x(lua_State* L)
+static int matrix4x4_set_x(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -295,7 +303,7 @@ CE_EXPORT int matrix4x4_set_x(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_set_y(lua_State* L)
+static int matrix4x4_set_y(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -308,7 +316,7 @@ CE_EXPORT int matrix4x4_set_y(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_set_z(lua_State* L)
+static int matrix4x4_set_z(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -321,7 +329,7 @@ CE_EXPORT int matrix4x4_set_z(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_translation(lua_State* L)
+static int matrix4x4_translation(lua_State* L)
 {	
 	LuaStack stack(L);
 
@@ -333,7 +341,7 @@ CE_EXPORT int matrix4x4_translation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_set_translation(lua_State* L)
+static int matrix4x4_set_translation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -346,7 +354,7 @@ CE_EXPORT int matrix4x4_set_translation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_get_scale(lua_State* L)
+static int matrix4x4_get_scale(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -358,7 +366,7 @@ CE_EXPORT int matrix4x4_get_scale(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_set_scale(lua_State* L)
+static int matrix4x4_set_scale(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -371,7 +379,7 @@ CE_EXPORT int matrix4x4_set_scale(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_identity(lua_State* L)
+static int matrix4x4_identity(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -381,7 +389,7 @@ CE_EXPORT int matrix4x4_identity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4_print(lua_State* L)
+static int matrix4x4_print(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -398,7 +406,7 @@ CE_EXPORT int matrix4x4_print(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_matrix4x4(LuaEnvironment& env)
 {
-	env.load_module_function("Matrix4x4", "new", 							matrix4x4);
+	env.load_module_function("Matrix4x4", "new", 							matrix4x4_new);
 	env.load_module_function("Matrix4x4", "add", 							matrix4x4_add);
 	env.load_module_function("Matrix4x4", "subtract", 						matrix4x4_subtract);
 	env.load_module_function("Matrix4x4", "multiply", 						matrix4x4_multiply);
@@ -425,6 +433,8 @@ void load_matrix4x4(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4", "set_scale", 						matrix4x4_set_scale);
 	env.load_module_function("Matrix4x4", "identity", 						matrix4x4_identity);	
 	env.load_module_function("Matrix4x4", "print", 							matrix4x4_print);
+
+	env.load_module_constructor("Matrix4x4",								matrix4x4_ctor);
 }
 
 } //namespace crown

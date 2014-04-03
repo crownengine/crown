@@ -34,35 +34,38 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4box(lua_State* L)
+static int matrix4x4box_new(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Matrix4x4& m = stack.push_matrix4x4box();
+	const Matrix4x4& tm = stack.get_matrix4x4(1);
 
-	stack.get_global_metatable("Matrix4x4_i_mt");
-	stack.set_metatable();
-
-	Matrix4x4 tm = stack.get_matrix4x4(1);
-
-	m = tm;
+	stack.push_matrix4x4box(tm);
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4box_store(lua_State* L)
+static int matrix4x4box_ctor(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.remove(1); // Remove table
+	return matrix4x4box_new(L);
+}
+
+//-----------------------------------------------------------------------------
+static int matrix4x4box_store(lua_State* L)
 {
 	LuaStack stack(L);
 
 	Matrix4x4& m = stack.get_matrix4x4box(1);
-	Matrix4x4 tm = stack.get_matrix4x4(2);
+	const Matrix4x4 tm = stack.get_matrix4x4(2);
 
 	m = tm;
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int matrix4x4box_unbox(lua_State* L)
+static int matrix4x4box_unbox(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -73,11 +76,23 @@ CE_EXPORT int matrix4x4box_unbox(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int matrix4x4box_tostring(lua_State* L)
+{
+	LuaStack stack(L);
+	Matrix4x4& m = stack.get_matrix4x4box(1);
+	stack.push_fstring("Matrix4x4Box (%p)", &m);
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_matrix4x4box(LuaEnvironment& env)
 {
-	env.load_module_function("Matrix4x4Box", "new", matrix4x4box);
-	env.load_module_function("Matrix4x4Box", "store", matrix4x4box_store);
-	env.load_module_function("Matrix4x4Box", "unbox", matrix4x4box_unbox);
+	env.load_module_function("Matrix4x4Box", "new",			matrix4x4box_new);
+	env.load_module_function("Matrix4x4Box", "store",		matrix4x4box_store);
+	env.load_module_function("Matrix4x4Box", "unbox",		matrix4x4box_unbox);
+	env.load_module_function("Matrix4x4Box", "__tostring",	matrix4x4box_tostring);
+
+	env.load_module_constructor("Matrix4x4Box",				matrix4x4box_ctor);
 }
 
 } // namespace crown

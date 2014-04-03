@@ -33,7 +33,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int physics_world_gravity(lua_State* L)
+static int physics_world_gravity(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -44,7 +44,7 @@ CE_EXPORT int physics_world_gravity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int physics_world_set_gravity(lua_State* L)
+static int physics_world_set_gravity(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -56,7 +56,7 @@ CE_EXPORT int physics_world_set_gravity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int physics_world_make_raycast(lua_State* L)
+static int physics_world_make_raycast(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -72,7 +72,7 @@ CE_EXPORT int physics_world_make_raycast(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int physics_world_overlap_test(lua_State* L)
+static int physics_world_overlap_test(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -100,12 +100,23 @@ CE_EXPORT int physics_world_overlap_test(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int physics_world_tostring(lua_State* L)
+{
+	LuaStack stack(L);
+	PhysicsWorld* pw = stack.get_physics_world(1);
+	stack.push_fstring("PhysicsWorld (%p)", pw);
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_physics_world(LuaEnvironment& env)
 {
 	env.load_module_function("PhysicsWorld", "gravity",				physics_world_gravity);
 	env.load_module_function("PhysicsWorld", "set_gravity",			physics_world_set_gravity);
 	env.load_module_function("PhysicsWorld", "make_raycast",		physics_world_make_raycast);
 	env.load_module_function("PhysicsWorld", "overlap_test",		physics_world_overlap_test);
+	env.load_module_function("PhysicsWorld", "__index",				"PhysicsWorld");
+	env.load_module_function("PhysicsWorld", "__tostring",			physics_world_tostring);
 
 	// Actor types
 	env.load_module_enum("ActorType", "STATIC",						ActorType::STATIC);

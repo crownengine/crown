@@ -32,7 +32,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_new(lua_State* L)
+static int vector2_new(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -45,7 +45,15 @@ CE_EXPORT int vector2_new(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_x(lua_State* L)
+static int vector2_ctor(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.remove(1); // Remove table
+	return vector2_new(L);
+}
+
+//-----------------------------------------------------------------------------
+static int vector2_x(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -56,7 +64,7 @@ CE_EXPORT int vector2_x(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_y(lua_State* L)
+static int vector2_y(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -67,7 +75,7 @@ CE_EXPORT int vector2_y(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_set_x(lua_State* L)
+static int vector2_set_x(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -79,7 +87,7 @@ CE_EXPORT int vector2_set_x(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_set_y(lua_State* L)
+static int vector2_set_y(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -91,7 +99,7 @@ CE_EXPORT int vector2_set_y(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_values(lua_State* L)
+static int vector2_values(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -104,7 +112,7 @@ CE_EXPORT int vector2_values(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_add(lua_State* L)
+static int vector2_add(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -117,7 +125,7 @@ CE_EXPORT int vector2_add(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_subtract(lua_State* L)
+static int vector2_subtract(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -130,7 +138,7 @@ CE_EXPORT int vector2_subtract(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_multiply(lua_State* L)
+static int vector2_multiply(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -143,7 +151,7 @@ CE_EXPORT int vector2_multiply(lua_State* L)
 }			
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_divide(lua_State* L)
+static int vector2_divide(lua_State* L)
 {
 	LuaStack stack(L);
 	
@@ -156,7 +164,7 @@ CE_EXPORT int vector2_divide(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_dot(lua_State* L)
+static int vector2_dot(lua_State* L)
 {
 	LuaStack stack(L);
 	
@@ -169,7 +177,7 @@ CE_EXPORT int vector2_dot(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_equal(lua_State* L)
+static int vector2_equal(lua_State* L)
 {
 	LuaStack stack(L);
 	
@@ -182,7 +190,7 @@ CE_EXPORT int vector2_equal(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_length(lua_State* L)
+static int vector2_length(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -194,7 +202,7 @@ CE_EXPORT int vector2_length(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_squared_length(lua_State* L)
+static int vector2_squared_length(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -206,7 +214,7 @@ CE_EXPORT int vector2_squared_length(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_set_length(lua_State* L)
+static int vector2_set_length(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -219,7 +227,7 @@ CE_EXPORT int vector2_set_length(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_normalize(lua_State* L)
+static int vector2_normalize(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -231,7 +239,7 @@ CE_EXPORT int vector2_normalize(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_negate(lua_State* L)
+static int vector2_negate(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -243,7 +251,7 @@ CE_EXPORT int vector2_negate(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_distance(lua_State* L)
+static int vector2_distance(lua_State* L)
 {
 	LuaStack stack(L);
 	
@@ -256,7 +264,7 @@ CE_EXPORT int vector2_distance(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector2_angle(lua_State* L)
+static int vector2_angle(lua_State* L)
 {
 	LuaStack stack(L);
 	
@@ -289,6 +297,8 @@ void load_vector2(LuaEnvironment& env)
 	env.load_module_function("Vector2", "normalize",			vector2_normalize);
 	env.load_module_function("Vector2", "distance",				vector2_distance);
 	env.load_module_function("Vector2", "angle",				vector2_angle);
+
+	env.load_module_constructor("Vector2",						vector2_ctor);
 }
 
 } // namespace crown

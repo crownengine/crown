@@ -33,7 +33,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int accelerometer_orientation(lua_State* L)
+static int accelerometer_orientation(lua_State* L)
 {
 	LuaStack stack(L);
 

@@ -33,7 +33,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_show(lua_State* L)
+static int window_show(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -43,7 +43,7 @@ CE_EXPORT int window_show(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_hide(lua_State* L)
+static int window_hide(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -53,7 +53,7 @@ CE_EXPORT int window_hide(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_get_size(lua_State* L)
+static int window_get_size(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -68,7 +68,7 @@ CE_EXPORT int window_get_size(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_get_position(lua_State* L)
+static int window_get_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -83,7 +83,7 @@ CE_EXPORT int window_get_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_resize(lua_State* L)
+static int window_resize(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -96,7 +96,7 @@ CE_EXPORT int window_resize(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_move(lua_State* L)
+static int window_move(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -109,21 +109,21 @@ CE_EXPORT int window_move(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_minimize(lua_State* /*L*/)
+static int window_minimize(lua_State* /*L*/)
 {
 	device()->window()->minimize();
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_restore(lua_State* /*L*/)
+static int window_restore(lua_State* /*L*/)
 {
 	device()->window()->restore();
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_is_resizable(lua_State* L)
+static int window_is_resizable(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -133,7 +133,7 @@ CE_EXPORT int window_is_resizable(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_set_resizable(lua_State* L)
+static int window_set_resizable(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -143,7 +143,7 @@ CE_EXPORT int window_set_resizable(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_title(lua_State* L)
+static int window_title(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -155,7 +155,7 @@ CE_EXPORT int window_title(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int window_set_title(lua_State* L)
+static int window_set_title(lua_State* L)
 {
 	LuaStack stack(L);
 

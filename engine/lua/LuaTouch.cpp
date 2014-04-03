@@ -33,7 +33,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int touch_pointer_down(lua_State* L)
+static int touch_pointer_down(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -45,7 +45,7 @@ CE_EXPORT int touch_pointer_down(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int touch_pointer_up(lua_State* L)
+static int touch_pointer_up(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -57,7 +57,7 @@ CE_EXPORT int touch_pointer_up(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int touch_any_down(lua_State* L)
+static int touch_any_down(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -67,7 +67,7 @@ CE_EXPORT int touch_any_down(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int touch_any_up(lua_State* L)
+static int touch_any_up(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -77,7 +77,7 @@ CE_EXPORT int touch_any_up(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int touch_pointer_xy(lua_State* L)
+static int touch_pointer_xy(lua_State* L)
 {
 	LuaStack stack(L);
 

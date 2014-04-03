@@ -35,7 +35,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int device_argv(lua_State* L)
+static int device_argv(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -55,7 +55,7 @@ CE_EXPORT int device_argv(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int device_frame_count(lua_State* L)
+static int device_frame_count(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -67,7 +67,7 @@ CE_EXPORT int device_frame_count(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int device_last_delta_time(lua_State* L)
+static int device_last_delta_time(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -79,7 +79,7 @@ CE_EXPORT int device_last_delta_time(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int device_start(lua_State* /*L*/)
+static int device_start(lua_State* /*L*/)
 {
 	device()->start();
 
@@ -87,7 +87,7 @@ CE_EXPORT int device_start(lua_State* /*L*/)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int device_stop(lua_State* /*L*/)
+static int device_stop(lua_State* /*L*/)
 {
 	device()->stop();
 
@@ -95,7 +95,7 @@ CE_EXPORT int device_stop(lua_State* /*L*/)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int device_create_world(lua_State* L)
+static int device_create_world(lua_State* L)
 {
 	LuaStack stack(L);
 	const WorldId world_id = device()->create_world();
@@ -104,7 +104,7 @@ CE_EXPORT int device_create_world(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int device_destroy_world(lua_State* L)
+static int device_destroy_world(lua_State* L)
 {
 	LuaStack stack(L);
 	device()->destroy_world(stack.get_world(1)->id());
@@ -112,7 +112,7 @@ CE_EXPORT int device_destroy_world(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int device_update_world(lua_State* L)
+static int device_update_world(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -124,7 +124,7 @@ CE_EXPORT int device_update_world(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int device_render_world(lua_State* L)
+static int device_render_world(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -136,7 +136,7 @@ CE_EXPORT int device_render_world(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int device_create_resource_package(lua_State* L)
+static int device_create_resource_package(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -147,7 +147,7 @@ CE_EXPORT int device_create_resource_package(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int device_destroy_resource_package(lua_State* L)
+static int device_destroy_resource_package(lua_State* L)
 {
 	LuaStack stack(L);
 

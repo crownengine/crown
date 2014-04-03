@@ -35,7 +35,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_local_position(lua_State* L)
+static int camera_local_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -46,7 +46,7 @@ CE_EXPORT int camera_local_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_local_rotation(lua_State* L)
+static int camera_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -57,7 +57,7 @@ CE_EXPORT int camera_local_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_local_pose(lua_State* L)
+static int camera_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -68,7 +68,7 @@ CE_EXPORT int camera_local_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_world_position(lua_State* L)
+static int camera_world_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -79,7 +79,7 @@ CE_EXPORT int camera_world_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_world_rotation(lua_State* L)
+static int camera_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -90,7 +90,7 @@ CE_EXPORT int camera_world_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_world_pose(lua_State* L)
+static int camera_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -101,7 +101,7 @@ CE_EXPORT int camera_world_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_set_local_position(lua_State* L)
+static int camera_set_local_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -114,7 +114,7 @@ CE_EXPORT int camera_set_local_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_set_local_rotation(lua_State* L)
+static int camera_set_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -127,7 +127,7 @@ CE_EXPORT int camera_set_local_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_set_local_pose(lua_State* L)
+static int camera_set_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -140,7 +140,7 @@ CE_EXPORT int camera_set_local_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_set_projection_type(lua_State* L)
+static int camera_set_projection_type(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -152,7 +152,7 @@ CE_EXPORT int camera_set_projection_type(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_projection_type(lua_State* L)
+static int camera_projection_type(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -163,7 +163,7 @@ CE_EXPORT int camera_projection_type(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_fov(lua_State* L)
+static int camera_fov(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -174,7 +174,7 @@ CE_EXPORT int camera_fov(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_set_fov(lua_State* L)
+static int camera_set_fov(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -186,7 +186,7 @@ CE_EXPORT int camera_set_fov(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_aspect(lua_State* L)
+static int camera_aspect(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -197,7 +197,7 @@ CE_EXPORT int camera_aspect(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_set_aspect(lua_State* L)
+static int camera_set_aspect(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -209,7 +209,7 @@ CE_EXPORT int camera_set_aspect(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_near_clip_distance(lua_State* L)
+static int camera_near_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -220,7 +220,7 @@ CE_EXPORT int camera_near_clip_distance(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_set_near_clip_distance(lua_State* L)
+static int camera_set_near_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -232,7 +232,7 @@ CE_EXPORT int camera_set_near_clip_distance(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_far_clip_distance(lua_State* L)
+static int camera_far_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -243,7 +243,7 @@ CE_EXPORT int camera_far_clip_distance(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_set_far_clip_distance(lua_State* L)
+static int camera_set_far_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -255,7 +255,7 @@ CE_EXPORT int camera_set_far_clip_distance(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_set_orthographic_metrics(lua_State* L)
+static int camera_set_orthographic_metrics(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -270,7 +270,7 @@ CE_EXPORT int camera_set_orthographic_metrics(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_set_viewport_metrics(lua_State* L)
+static int camera_set_viewport_metrics(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -285,7 +285,7 @@ CE_EXPORT int camera_set_viewport_metrics(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_screen_to_world(lua_State* L)
+static int camera_screen_to_world(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -297,7 +297,7 @@ CE_EXPORT int camera_screen_to_world(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int camera_world_to_screen(lua_State* L)
+static int camera_world_to_screen(lua_State* L)
 {
 	LuaStack stack(L);
 

@@ -38,7 +38,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_resolution(lua_State* L)
+static int gui_resolution(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -52,7 +52,7 @@ CE_EXPORT int gui_resolution(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_move(lua_State* L)
+static int gui_move(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -66,7 +66,7 @@ CE_EXPORT int gui_move(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_show(lua_State* L)
+static int gui_show(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -78,7 +78,7 @@ CE_EXPORT int gui_show(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_hide(lua_State* L)
+static int gui_hide(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -90,7 +90,7 @@ CE_EXPORT int gui_hide(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_create_rect(lua_State* L)
+static int gui_create_rect(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -107,7 +107,7 @@ CE_EXPORT int gui_create_rect(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_update_rect(lua_State* L)
+static int gui_update_rect(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -124,7 +124,7 @@ CE_EXPORT int gui_update_rect(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_destroy_rect(lua_State* L)
+static int gui_destroy_rect(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -137,7 +137,7 @@ CE_EXPORT int gui_destroy_rect(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_create_triangle(lua_State* L)
+static int gui_create_triangle(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -156,7 +156,7 @@ CE_EXPORT int gui_create_triangle(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_update_triangle(lua_State* L)
+static int gui_update_triangle(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -174,7 +174,7 @@ CE_EXPORT int gui_update_triangle(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_destroy_triangle(lua_State* L)
+static int gui_destroy_triangle(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -187,7 +187,7 @@ CE_EXPORT int gui_destroy_triangle(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_create_image(lua_State* L)
+static int gui_create_image(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -207,7 +207,7 @@ CE_EXPORT int gui_create_image(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_update_image(lua_State* L)
+static int gui_update_image(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -222,7 +222,7 @@ CE_EXPORT int gui_update_image(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_destroy_image(lua_State* L)
+static int gui_destroy_image(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -235,7 +235,7 @@ CE_EXPORT int gui_destroy_image(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_create_text(lua_State* L)
+static int gui_create_text(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -255,7 +255,7 @@ CE_EXPORT int gui_create_text(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_update_text(lua_State* L)
+static int gui_update_text(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -271,7 +271,7 @@ CE_EXPORT int gui_update_text(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int gui_destroy_text(lua_State* L)
+static int gui_destroy_text(lua_State* L)
 {
 	LuaStack stack(L);
 

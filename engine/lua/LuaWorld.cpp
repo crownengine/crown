@@ -29,12 +29,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "World.h"
 #include "Gui.h"
 #include "Device.h"
+#include "LuaSystem.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_spawn_unit(lua_State* L)
+static int world_spawn_unit(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -51,7 +52,7 @@ CE_EXPORT int world_spawn_unit(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_destroy_unit(lua_State* L)
+static int world_destroy_unit(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -63,7 +64,7 @@ CE_EXPORT int world_destroy_unit(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_num_units(lua_State* L)
+static int world_num_units(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -74,7 +75,7 @@ CE_EXPORT int world_num_units(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_play_sound(lua_State* L)
+static int world_play_sound(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -93,7 +94,7 @@ CE_EXPORT int world_play_sound(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_stop_sound(lua_State* L)
+static int world_stop_sound(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -105,7 +106,7 @@ CE_EXPORT int world_stop_sound(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_link_sound(lua_State* L)
+static int world_link_sound(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -119,7 +120,7 @@ CE_EXPORT int world_link_sound(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_set_listener_pose(lua_State* L)
+static int world_set_listener_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -130,7 +131,7 @@ CE_EXPORT int world_set_listener_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_set_sound_position(lua_State* L)
+static int world_set_sound_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -143,7 +144,7 @@ CE_EXPORT int world_set_sound_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_set_sound_range(lua_State* L)
+static int world_set_sound_range(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -156,7 +157,7 @@ CE_EXPORT int world_set_sound_range(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_set_sound_volume(lua_State* L)
+static int world_set_sound_volume(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -169,7 +170,7 @@ CE_EXPORT int world_set_sound_volume(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_create_window_gui(lua_State* L)
+static int world_create_window_gui(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -181,7 +182,7 @@ CE_EXPORT int world_create_window_gui(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_destroy_gui(lua_State* L)
+static int world_destroy_gui(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -194,7 +195,7 @@ CE_EXPORT int world_destroy_gui(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_physics_world(lua_State* L)
+static int world_physics_world(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -205,7 +206,7 @@ CE_EXPORT int world_physics_world(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_sound_world(lua_State* L)
+static int world_sound_world(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -216,7 +217,7 @@ CE_EXPORT int world_sound_world(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_create_debug_line(lua_State* L)
+static int world_create_debug_line(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -228,7 +229,7 @@ CE_EXPORT int world_create_debug_line(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int world_destroy_debug_line(lua_State* L)
+static int world_destroy_debug_line(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -237,6 +238,15 @@ CE_EXPORT int world_destroy_debug_line(lua_State* L)
 
 	world->destroy_debug_line(line);
 	return 0;
+}
+
+//-----------------------------------------------------------------------------
+static int world_tostring(lua_State* L)
+{
+	LuaStack stack(L);
+	World* w = stack.get_world(1);
+	stack.push_fstring("World (%p)", w);
+	return 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -262,6 +272,9 @@ void load_world(LuaEnvironment& env)
 
 	env.load_module_function("World", "create_debug_line",  world_create_debug_line);
 	env.load_module_function("World", "destroy_debug_line", world_destroy_debug_line);
+
+	env.load_module_function("World", "__index",			"World");
+	env.load_module_function("World", "__tostring",			world_tostring);
 }
 
 } // namespace crown

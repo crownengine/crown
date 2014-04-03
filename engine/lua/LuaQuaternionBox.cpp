@@ -33,16 +33,12 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quaternionbox(lua_State* L)
+static int quaternionbox_new(lua_State* L)
 {
 	LuaStack stack(L);
 
-	Quaternion& q = stack.push_quaternionbox();
-
-	stack.get_global_metatable("Quaternion_i_mt");
-	stack.set_metatable();
-
-	if (stack.num_args() == 3)
+	Quaternion q;
+	if (stack.num_args() == 2)
 	{
 		const Vector3& v = stack.get_vector3(1);
 		q.x = v.x;
@@ -50,18 +46,28 @@ CE_EXPORT int quaternionbox(lua_State* L)
 		q.z = v.z;
 		q.w = stack.get_float(2);
 	}
-	else if (stack.num_args() == 5)
+	else if (stack.num_args() == 4)
 	{
 		q.x = stack.get_float(1);
 		q.y = stack.get_float(2);
 		q.z = stack.get_float(3);
 		q.w = stack.get_float(4);
 	}
+
+	stack.push_quaternionbox(q);
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quaternionbox_store(lua_State* L)
+static int quaternionbox_ctor(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.remove(1); // Remove table
+	return quaternionbox_new(L);
+}
+
+//-----------------------------------------------------------------------------
+static int quaternionbox_store(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -86,7 +92,7 @@ CE_EXPORT int quaternionbox_store(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quaternionbox_unbox(lua_State* L)
+static int quaternionbox_unbox(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -97,11 +103,23 @@ CE_EXPORT int quaternionbox_unbox(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int quaternionbox_tostring(lua_State* L)
+{
+	LuaStack stack(L);
+	Quaternion& q = stack.get_quaternionbox(1);
+	stack.push_fstring("QuaternionBox (%p)", &q);
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_quaternionbox(LuaEnvironment& env)
 {
-	env.load_module_function("QuaternionBox", "new", quaternionbox);
-	env.load_module_function("QuaternionBox", "store", quaternionbox_store);
-	env.load_module_function("QuaternionBox", "unbox", quaternionbox_unbox);
+	env.load_module_function("QuaternionBox", "new",        quaternionbox_new);
+	env.load_module_function("QuaternionBox", "store",      quaternionbox_store);
+	env.load_module_function("QuaternionBox", "unbox",      quaternionbox_unbox);
+	env.load_module_function("QuaternionBox", "__tostring", quaternionbox_tostring);
+
+	env.load_module_constructor("QuaternionBox",			quaternionbox_ctor);
 }
 
 } // namespace crown

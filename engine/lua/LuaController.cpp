@@ -33,7 +33,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int controller_move(lua_State* L)
+static int controller_move(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -45,7 +45,7 @@ CE_EXPORT int controller_move(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int controller_position(lua_State* L)
+static int controller_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -56,7 +56,7 @@ CE_EXPORT int controller_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int controller_collides_up(lua_State* L)
+static int controller_collides_up(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -67,7 +67,7 @@ CE_EXPORT int controller_collides_up(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int controller_collides_down(lua_State* L)
+static int controller_collides_down(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -78,7 +78,7 @@ CE_EXPORT int controller_collides_down(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int controller_collides_sides(lua_State* L)
+static int controller_collides_sides(lua_State* L)
 {
 	LuaStack stack(L);
 

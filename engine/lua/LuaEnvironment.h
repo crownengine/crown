@@ -49,20 +49,18 @@ public:
 	
 	LuaEnvironment(lua_State* L);
 	
-	/// Loads and execute the given @a res_name Lua resource, returns
-	/// true if success, false otherwise.
-	bool load_and_execute(const char* res_name);
+	/// Loads and execute the given @a res_name Lua resource.
+	void load_and_execute(const char* res_name);
 
-	bool execute_string(const char* s);
+	/// Loads and executes the given @a s lua string.
+	void execute_string(const char* s);
 
-	/// Load a function which will be used in Lua. @a module is the name of table contenitor,
-	/// @a name is the name of function in module and @func is the pointer to the function.
-	/// _func_ must be a C/lua function (__int32_t function_name(lua_State* L)__)
+	/// Loads the function with the given @a name and @a func into the table @a module.
 	void load_module_function(const char* module, const char* name, const lua_CFunction func);
+	void load_module_function(const char* module, const char* name, const char* value);
+	void load_module_constructor(const char* module, const lua_CFunction func);
 
-	/// Load a enum's value which will be used in Lua. 
-	/// @a module is the name of table contenitor, generally take  enum's name
-	/// @a name is module's name that refears _value_ and @value is an unsigned integer
+	/// Loads the enum with the given @a name and @a value into the table @a module.
 	void load_module_enum(const char* module, const char* name, uint32_t value);
 
 	/// Calls the global function @a func with @a argc argument number.
@@ -70,9 +68,7 @@ public:
 	/// Example call:
 	/// call_global("myfunc", 1, ARGUMENT_FLOAT, 3.14f)
 	/// Returns true if success, false otherwise
-	bool call_global(const char* func, uint8_t argc, ...);
-
-	void error();
+	void call_global(const char* func, uint8_t argc, ...);
 
 private:
 
@@ -82,40 +78,7 @@ private:
 
 private:
 
-	lua_State* m_state;
+	lua_State* m_L;
 };
-
-void load_accelerometer(LuaEnvironment& env);
-void load_actor(LuaEnvironment& env);
-void load_camera(LuaEnvironment& env);
-void load_controller(LuaEnvironment& env);
-void load_debug_line(LuaEnvironment& env);
-void load_device(LuaEnvironment& env);
-void load_float_setting(LuaEnvironment& env);
-void load_gui(LuaEnvironment& env);
-void load_int_setting(LuaEnvironment& env);
-void load_keyboard(LuaEnvironment& env);
-void load_math(LuaEnvironment& env);
-void load_matrix4x4(LuaEnvironment& env);
-void load_matrix4x4box(LuaEnvironment& env);
-void load_mesh(LuaEnvironment& env);
-void load_mouse(LuaEnvironment& env);
-void load_physics_world(LuaEnvironment& env);
-void load_quaternion(LuaEnvironment& env);
-void load_quaternionbox(LuaEnvironment& env);
-void load_raycast(LuaEnvironment& env);
-void load_resource_package(LuaEnvironment& env);
-void load_sound_world(LuaEnvironment& env);
-void load_sprite(LuaEnvironment& env);
-void load_string_setting(LuaEnvironment& env);
-void load_touch(LuaEnvironment& env);
-void load_unit(LuaEnvironment& env);
-void load_vector2(LuaEnvironment& env);
-void load_vector3(LuaEnvironment& env);
-void load_vector3box(LuaEnvironment& env);
-void load_window(LuaEnvironment& env);
-void load_world(LuaEnvironment& env);
-
-CE_EXPORT int32_t luaopen_libcrown(lua_State* L);
 
 } // namespace crown

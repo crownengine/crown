@@ -33,7 +33,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int mesh_local_position(lua_State* L)
+static int mesh_local_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -44,7 +44,7 @@ CE_EXPORT int mesh_local_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int mesh_local_rotation(lua_State* L)
+static int mesh_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -55,7 +55,7 @@ CE_EXPORT int mesh_local_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int mesh_local_pose(lua_State* L)
+static int mesh_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -66,7 +66,7 @@ CE_EXPORT int mesh_local_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int mesh_world_position(lua_State* L)
+static int mesh_world_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -77,7 +77,7 @@ CE_EXPORT int mesh_world_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int mesh_world_rotation(lua_State* L)
+static int mesh_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -88,7 +88,7 @@ CE_EXPORT int mesh_world_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int mesh_world_pose(lua_State* L)
+static int mesh_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -99,7 +99,7 @@ CE_EXPORT int mesh_world_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int mesh_set_local_position(lua_State* L)
+static int mesh_set_local_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -112,7 +112,7 @@ CE_EXPORT int mesh_set_local_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int mesh_set_local_rotation(lua_State* L)
+static int mesh_set_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -125,7 +125,7 @@ CE_EXPORT int mesh_set_local_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int mesh_set_local_pose(lua_State* L)
+static int mesh_set_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
 

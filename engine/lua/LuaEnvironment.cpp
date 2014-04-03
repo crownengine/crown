@@ -38,17 +38,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+namespace lua_system { extern int error_handler(lua_State*); }
+
 //-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment(lua_State* L)
-	: m_state(L)
+	: m_L(L)
 {
 }
 
 //-----------------------------------------------------------------------------
-bool LuaEnvironment::load_and_execute(const char* res_name)
+void LuaEnvironment::load_and_execute(const char* res_name)
 {
-	CE_ASSERT_NOT_NULL(res_name);
-
 	ResourceManager* resman = device()->resource_manager();
 
 	// Load the resource
@@ -56,49 +56,26 @@ bool LuaEnvironment::load_and_execute(const char* res_name)
 	resman->flush();
 	LuaResource* lr = (LuaResource*) resman->data(res_id);
 	
-	lua_getglobal(m_state, "debug");
-	lua_getfield(m_state, -1, "traceback");
-	if (luaL_loadbuffer(m_state, (const char*) lr->program(), lr->size(), res_name) == 0)
-	{
-		if (lua_pcall(m_state, 0, 0, -2) == 0)
-		{
-			// Unloading is OK since the script data has been copied to Lua
-			resman->unload(res_id);
-			lua_pop(m_state, 2); // Pop debug.traceback
-			return true;
-		}
-	}
+	lua_pushcfunction(m_L, lua_system::error_handler);
+	luaL_loadbuffer(m_L, (const char*) lr->program(), lr->size(), res_name);
+	lua_pcall(m_L, 0, 0, -2);
 
-	error();
-	lua_pop(m_state, 2); // Pop debug.traceback
-	return false;
+	// Unloading is OK since the script data has been copied to Lua
+	resman->unload(res_id);
 }
 
 //-----------------------------------------------------------------------------
-bool LuaEnvironment::execute_string(const char* s)
+void LuaEnvironment::execute_string(const char* s)
 {
-	CE_ASSERT_NOT_NULL(s);
-
-	lua_getglobal(m_state, "debug");
-	lua_getfield(m_state, -1, "traceback");
-	if (luaL_loadstring(m_state, s) == 0)
-	{
-		if (lua_pcall(m_state, 0, 0, -2) == 0)
-		{
-			// Unloading is OK since the script data has been copied to Lua
-			lua_pop(m_state, 2); // Pop debug.traceback
-			return true;
-		}
-	}
-
-	error();
-	lua_pop(m_state, 2); // Pop debug.traceback
-	return false;
+	lua_pushcfunction(m_L, lua_system::error_handler);
+	luaL_loadstring(m_L, s);
+	lua_pcall(m_L, 0, 0, -2);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_module_function(const char* module, const char* name, const lua_CFunction func)
 {
+	luaL_newmetatable(m_L, module);
 	luaL_Reg entry[2];
 
 	entry[0].name = name;
@@ -106,41 +83,65 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 	entry[1].name = NULL;
 	entry[1].func = NULL;
 
-	luaL_register(m_state, module, entry);
+	luaL_register(m_L, NULL, entry);
+	lua_setglobal(m_L, module);
+	lua_pop(m_L, -1);
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::load_module_function(const char* module, const char* name, const char* value)
+{
+	luaL_newmetatable(m_L, module);
+	lua_getglobal(m_L, value);
+	lua_setfield(m_L, -2, name);
+	lua_setglobal(m_L, module);
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::load_module_constructor(const char* module, const lua_CFunction func)
+{
+	// Create dummy tables to be used as module's metatable
+	lua_createtable(m_L, 0, 1);
+	lua_pushstring(m_L, "__call");
+	lua_pushcfunction(m_L, func);
+	lua_settable(m_L, 1); // dummy.__call = func
+	lua_getglobal(m_L, module);
+	lua_pushvalue(m_L, -2); // Duplicate dummy metatable
+	lua_setmetatable(m_L, -2); // setmetatable(module, dummy)
+	lua_pop(m_L, -1);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_module_enum(const char* module, const char* name, uint32_t value)
 {
 	// Checks table existance
-	lua_pushstring(m_state, module);
-	lua_rawget(m_state, LUA_GLOBALSINDEX);
-	if (!lua_istable(m_state, -1)) // If not exixts
+	lua_pushstring(m_L, module);
+	lua_rawget(m_L, LUA_GLOBALSINDEX);
+	if (!lua_istable(m_L, -1)) // If not exixts
 	{
 		// Creates table
-		lua_newtable(m_state);
-		lua_setglobal(m_state, module);
+		lua_newtable(m_L);
+		lua_setglobal(m_L, module);
 	}
 
 	// Adds field to table
-	lua_getglobal(m_state, module);
-	lua_pushinteger(m_state, value);
-	lua_setfield(m_state, -2, name);
+	lua_getglobal(m_L, module);
+	lua_pushinteger(m_L, value);
+	lua_setfield(m_L, -2, name);
 }
 
 //-----------------------------------------------------------------------------
-bool LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
+void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 {
 	CE_ASSERT_NOT_NULL(func);
 
-	LuaStack stack(m_state);
+	LuaStack stack(m_L);
 
 	va_list vl;
 	va_start(vl, argc);
 
-	lua_getglobal(m_state, "debug");
-	lua_getfield(m_state, -1, "traceback");
-	lua_getglobal(m_state, func);
+	lua_pushcfunction(m_L, lua_system::error_handler);
+	lua_getglobal(m_L, func);
 
 	for (uint8_t i = 0; i < argc; i++)
 	{
@@ -161,25 +162,7 @@ bool LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 	}
 
 	va_end(vl);
-
-	if (lua_pcall(m_state, argc, 0, -argc - 2) != 0)
-	{
-		error();
-		lua_pop(m_state, 2); // Pop debug.traceback
-		return false;
-	}
-
-	lua_pop(m_state, 2); // Pop debug.traceback
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-void LuaEnvironment::error()
-{
-	const char* msg = lua_tostring(m_state, -1);
-	Log::e(msg);
-	lua_pop(m_state, 1);
+	lua_pcall(m_L, argc, 0, -argc - 2);
 }
 
 } // namespace crown

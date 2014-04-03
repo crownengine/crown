@@ -34,7 +34,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quaternion_new(lua_State* L)
+static int quaternion_new(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -47,7 +47,15 @@ CE_EXPORT int quaternion_new(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quaternion_negate(lua_State* L)
+static int quaternion_ctor(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.remove(1); // Remove table
+	return quaternion_new(L);
+}
+
+//-----------------------------------------------------------------------------
+static int quaternion_negate(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -59,7 +67,7 @@ CE_EXPORT int quaternion_negate(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quaternion_identity(lua_State* L)
+static int quaternion_identity(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -68,7 +76,7 @@ CE_EXPORT int quaternion_identity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quaternion_length(lua_State* L)
+static int quaternion_length(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -80,7 +88,7 @@ CE_EXPORT int quaternion_length(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quaternion_conjugate(lua_State* L)
+static int quaternion_conjugate(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -92,7 +100,7 @@ CE_EXPORT int quaternion_conjugate(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quaternion_inverse(lua_State* L)
+static int quaternion_inverse(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -104,7 +112,7 @@ CE_EXPORT int quaternion_inverse(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quaternion_multiply(lua_State* L)
+static int quaternion_multiply(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -117,7 +125,7 @@ CE_EXPORT int quaternion_multiply(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quaternion_multiply_by_scalar(lua_State* L)
+static int quaternion_multiply_by_scalar(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -130,7 +138,7 @@ CE_EXPORT int quaternion_multiply_by_scalar(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int quaternion_power(lua_State* L)
+static int quaternion_power(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -154,6 +162,8 @@ void load_quaternion(LuaEnvironment& env)
 	env.load_module_function("Quaternion", "conjugate",				quaternion_conjugate);
 	env.load_module_function("Quaternion", "inverse",				quaternion_inverse);
 	env.load_module_function("Quaternion", "power",					quaternion_power);
+
+	env.load_module_constructor("Quaternion",						quaternion_ctor);
 }
 
 } //namespace crown

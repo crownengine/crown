@@ -33,7 +33,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int raycast_cast(lua_State* L)
+static int raycast_cast(lua_State* L)
 {
 	LuaStack stack(L);
 

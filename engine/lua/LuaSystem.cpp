@@ -42,153 +42,37 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-extern int vector2_add(lua_State* L);
-extern int vector2_subtract(lua_State* L);
-extern int vector2_multiply(lua_State* L);
-extern int vector2_divide(lua_State* L);
-extern int vector2_negate(lua_State* L);
-extern int vector3_add(lua_State* L);
-extern int vector3_subtract(lua_State* L);
-extern int vector3_multiply(lua_State* L);
-extern int vector3_divide(lua_State* L);
-extern int vector3_negate(lua_State* L);
-extern int vector2_new(lua_State* L);
-extern int vector3_new(lua_State* L);
-extern int matrix4x4(lua_State* L);
-extern int quaternion_new(lua_State* L);
-
-extern int matrix4x4box(lua_State* L);
-extern int quaternionbox(lua_State* L);
-extern int vector3box(lua_State* L);
-extern int vector3box_get_value(lua_State* L);
-extern int vector3box_set_value(lua_State* L);
-
-//-----------------------------------------------------------------------------
-static int crown_lua_vector2_call(lua_State* L)
-{
-	lua_remove(L, 1);
-	return vector2_new(L);
-}
-
-//-----------------------------------------------------------------------------
-static int crown_lua_vector3_call(lua_State* L)
-{
-	lua_remove(L, 1);
-	return vector3_new(L);
-}
-
-//-----------------------------------------------------------------------------
-static int crown_lua_matrix4x4_call(lua_State* L)
-{
-	lua_remove(L, 1);
-	return matrix4x4(L);
-}
-
-//-----------------------------------------------------------------------------
-static int crown_lua_quaternion_call(lua_State* L)
-{
-	lua_remove(L, 1);
-	return quaternion_new(L);
-}
-
-//-----------------------------------------------------------------------------
-static int crown_lua_lightuserdata_add(lua_State* L)
-{
-	LuaStack stack(L);
-
-	if (lua_system::is_vector3(1))
-	{
-		return vector3_add(L);
-	}
-	return vector2_add(L);
-}
-
-//-----------------------------------------------------------------------------
-static int crown_lua_lightuserdata_sub(lua_State* L)
-{
-	LuaStack stack(L);
-
-	if (lua_system::is_vector3(1))
-	{
-		return vector3_subtract(L);
-	}
-	return vector2_subtract(L);
-}
-
-//-----------------------------------------------------------------------------
-static int crown_lua_lightuserdata_mul(lua_State* L)
-{
-	LuaStack stack(L);
-
-	if (lua_system::is_vector3(1))
-	{
-		return vector3_multiply(L);
-	}
-	return vector2_multiply(L);
-}
-
-//-----------------------------------------------------------------------------
-static int crown_lua_lightuserdata_div(lua_State* L)
-{
-	LuaStack stack(L);
-
-	if (lua_system::is_vector3(1))
-	{
-		return vector3_divide(L);
-	}
-	return vector2_divide(L);
-}
-
-//-----------------------------------------------------------------------------
-static int crown_lua_lightuserdata_unm(lua_State* L)
-{
-	LuaStack stack(L);
-
-	if (lua_system::is_vector3(1))
-	{
-		return vector3_negate(L);
-	}
-	return vector2_negate(L);
-}
-
-//-----------------------------------------------------------------------------
-static int crown_lua_vector3box_call(lua_State* L)
-{
-	lua_remove(L, 1);
-	return vector3box(L);
-}
-
-//-----------------------------------------------------------------------------
-static int crown_lua_quaternionbox_call(lua_State* L)
-{
-	lua_remove(L, 1);
-	return quaternionbox(L);
-}
-
-//-----------------------------------------------------------------------------
-static int crown_lua_matrix4x4box_call(lua_State* L)
-{
-	lua_remove(L, 1);
-	return matrix4x4box(L);	
-}
-
-//-----------------------------------------------------------------------------
-static int crown_lua_require(lua_State* L)
-{
-	LuaStack stack(L);
-
-	const char* filename = stack.get_string(1);
-
-	const ResourceId lua_res = device()->resource_manager()->load("lua", filename);
-	device()->resource_manager()->flush();
-
-	const LuaResource* lr = (LuaResource*) device()->resource_manager()->data(lua_res);
-	luaL_loadbuffer(L, (const char*) lr->program(), lr->size(), "");
-
-	device()->resource_manager()->unload(lua_res);
-
-	return 1;
-}
+// Lua modules
+extern void load_accelerometer(LuaEnvironment& env);
+extern void load_actor(LuaEnvironment& env);
+extern void load_camera(LuaEnvironment& env);
+extern void load_controller(LuaEnvironment& env);
+extern void load_debug_line(LuaEnvironment& env);
+extern void load_device(LuaEnvironment& env);
+extern void load_float_setting(LuaEnvironment& env);
+extern void load_gui(LuaEnvironment& env);
+extern void load_int_setting(LuaEnvironment& env);
+extern void load_keyboard(LuaEnvironment& env);
+extern void load_math(LuaEnvironment& env);
+extern void load_matrix4x4(LuaEnvironment& env);
+extern void load_matrix4x4box(LuaEnvironment& env);
+extern void load_mesh(LuaEnvironment& env);
+extern void load_mouse(LuaEnvironment& env);
+extern void load_physics_world(LuaEnvironment& env);
+extern void load_quaternion(LuaEnvironment& env);
+extern void load_quaternionbox(LuaEnvironment& env);
+extern void load_raycast(LuaEnvironment& env);
+extern void load_resource_package(LuaEnvironment& env);
+extern void load_sound_world(LuaEnvironment& env);
+extern void load_sprite(LuaEnvironment& env);
+extern void load_string_setting(LuaEnvironment& env);
+extern void load_touch(LuaEnvironment& env);
+extern void load_unit(LuaEnvironment& env);
+extern void load_vector2(LuaEnvironment& env);
+extern void load_vector3(LuaEnvironment& env);
+extern void load_vector3box(LuaEnvironment& env);
+extern void load_window(LuaEnvironment& env);
+extern void load_world(LuaEnvironment& env);
 
 namespace lua_system
 {
@@ -203,7 +87,144 @@ namespace lua_system
 	static uint32_t 		s_quat_used = 0;
 	static Quaternion 		s_quat_buffer[CE_MAX_LUA_QUATERNION];
 
+	// When an error occurs, logs the error message and pauses the engine.
+	int error_handler(lua_State* L)
+	{
+		lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+		if (!lua_istable(L, -1))
+		{
+			lua_pop(L, 1);
+			return 0;
+		}
+
+		lua_getfield(L, -1, "traceback");
+		if (!lua_isfunction(L, -1))
+		{
+			lua_pop(L, 2);
+			return 0;
+		}
+
+		lua_pushvalue(L, 1); // Pass error message
+		lua_pushinteger(L, 2);
+		lua_call(L, 2, 1); // Call debug.traceback
+
+		Log::e(lua_tostring(L, -1)); // Print error message
+		lua_pop(L, 1); // Remove error message from stack
+		lua_pop(L, 1); // Remove debug.traceback from stack
+
+		device()->pause();
+		return 0;
+	}
+
+	// Redirects require to the resource manager.
+	static int require(lua_State* L)
+	{
+		LuaStack stack(L);
+
+		const char* filename = stack.get_string(1);
+
+		const ResourceId lua_res = device()->resource_manager()->load("lua", filename);
+		device()->resource_manager()->flush();
+
+		const LuaResource* lr = (LuaResource*) device()->resource_manager()->data(lua_res);
+		luaL_loadbuffer(L, (const char*) lr->program(), lr->size(), "");
+
+		device()->resource_manager()->unload(lua_res);
+
+		return 1;
+	}
+
 	//-----------------------------------------------------------------------------
+	static int lightuserdata_add(lua_State* L)
+	{
+		LuaStack stack(L);
+
+		if (lua_system::is_vector3(1))
+		{
+			const Vector3& a = stack.get_vector3(1);
+			const Vector3& b = stack.get_vector3(2);
+			stack.push_vector3(a + b);
+			return 1;
+		}
+
+		const Vector2& a = stack.get_vector2(1);
+		const Vector2& b = stack.get_vector2(2);
+		stack.push_vector2(a + b);
+		return 1;
+	}
+
+	//-----------------------------------------------------------------------------
+	static int lightuserdata_sub(lua_State* L)
+	{
+		LuaStack stack(L);
+
+		if (lua_system::is_vector3(1))
+		{
+			const Vector3& a = stack.get_vector3(1);
+			const Vector3& b = stack.get_vector3(2);
+			stack.push_vector3(a - b);
+			return 1;
+		}
+
+		const Vector2& a = stack.get_vector2(1);
+		const Vector2& b = stack.get_vector2(2);
+		stack.push_vector2(a - b);
+		return 1;
+	}
+
+	//-----------------------------------------------------------------------------
+	static int lightuserdata_mul(lua_State* L)
+	{
+		LuaStack stack(L);
+
+		if (lua_system::is_vector3(1))
+		{
+			const Vector3& a = stack.get_vector3(1);
+			const float b = stack.get_float(2);
+			stack.push_vector3(a * b);
+			return 1;
+		}
+
+		const Vector2& a = stack.get_vector2(1);
+		const float b = stack.get_float(2);
+		stack.push_vector2(a * b);
+		return 1;
+	}
+
+	//-----------------------------------------------------------------------------
+	static int lightuserdata_div(lua_State* L)
+	{
+		LuaStack stack(L);
+
+		if (lua_system::is_vector3(1))
+		{
+			const Vector3& a = stack.get_vector3(1);
+			const float b = stack.get_float(2);
+			stack.push_vector3(a / b);
+			return 1;
+		}
+
+		const Vector2& a = stack.get_vector2(1);
+		const float b = stack.get_float(2);
+		stack.push_vector2(a / b);
+		return 1;
+	}
+
+	//-----------------------------------------------------------------------------
+	static int lightuserdata_unm(lua_State* L)
+	{
+		LuaStack stack(L);
+
+		if (lua_system::is_vector3(1))
+		{
+			stack.push_vector3(-stack.get_vector3(1));
+			return 1;
+		}
+		stack.push_vector2(-stack.get_vector2(1));
+		return 1;
+	}
+
+	// Initializes lua subsystem
 	void init()
 	{
 		s_L = luaL_newstate();
@@ -214,7 +235,6 @@ namespace lua_system
 
 		// Register crown libraries
 		LuaEnvironment env(s_L);
-
 		load_accelerometer(env);
 		load_actor(env);
 		load_camera(env);
@@ -256,95 +276,37 @@ namespace lua_system
 			lua_pop(s_L, 1);
 			num_loaders++;
 		}
-
 		lua_pushinteger(s_L, num_loaders + 1);
-		lua_pushcfunction(s_L, crown_lua_require);
+		lua_pushcfunction(s_L, require);
 		lua_rawset(s_L, -3);
 		lua_pop(s_L, 1);
 
-
-		LuaStack stack(s_L);
-
 		// Create metatable for lightuserdata
-		lua_pushlightuserdata(s_L, (void*)0x0); // Just dummy userdata
-		stack.create_metatable("Lightuserdata_mt");
-		stack.set_metatable();
-		lua_pop(s_L, -1); // Pop dummy userdata
+		luaL_newmetatable(s_L, "Lightuserdata_mt");
+		lua_pushstring(s_L, "__add");
+		lua_pushcfunction(s_L, lightuserdata_add);
+		lua_settable(s_L, 1);
 
-		stack.get_global_metatable("Lightuserdata_mt");
-		stack.set_metatable_function("__add", crown_lua_lightuserdata_add);
-		stack.set_metatable_function("__sub", crown_lua_lightuserdata_sub);
-		stack.set_metatable_function("__mul", crown_lua_lightuserdata_mul);
-		stack.set_metatable_function("__div", crown_lua_lightuserdata_div);
-		stack.set_metatable_function("__unm", crown_lua_lightuserdata_unm);
+		lua_pushstring(s_L, "__sub");
+		lua_pushcfunction(s_L, lightuserdata_sub);
+		lua_settable(s_L, 1);
 
-		// Vector2 metatable
-		stack.get_global("Vector2");
-		stack.create_metatable("Vector2_mt");
-		stack.set_self_index();
-		stack.set_metatable_function("__call", crown_lua_vector2_call);
-		stack.set_metatable();
+		lua_pushstring(s_L, "__mul");
+		lua_pushcfunction(s_L, lightuserdata_mul);
+		lua_settable(s_L, 1);
 
-		// Vector3 metatable
-		stack.get_global("Vector3");
-		stack.create_metatable("Vector3_mt");
-		stack.set_self_index();
-		stack.set_metatable_function("__call", crown_lua_vector3_call);
-		stack.set_metatable();
+		lua_pushstring(s_L, "__div");
+		lua_pushcfunction(s_L, lightuserdata_div);
+		lua_settable(s_L, 1);
 
-		// Matrix4x4 metatable
-		stack.get_global("Matrix4x4");
-		stack.create_metatable("Matrix4x4_mt");
-		stack.set_self_index();
-		stack.set_metatable_function("__call", crown_lua_matrix4x4_call);
-		stack.set_metatable();
+		lua_pushstring(s_L, "__unm");
+		lua_pushcfunction(s_L, lightuserdata_unm);
+		lua_settable(s_L, 1);
 
-		// Quaternion metatable
-		stack.get_global("Quaternion");
-		stack.create_metatable("Quaternion_mt");
-		stack.set_self_index();
-		stack.set_metatable_function("__call", crown_lua_quaternion_call);
-		stack.set_metatable();
+		lua_pop(s_L, 1); // Pop Lightuserdata_mt
 
-		// Create and attach metatable to global table Vector3Box
-		stack.get_global("Vector3Box");
-		stack.create_metatable("Vector3Box_g_mt");
-		stack.set_self_index();
-		stack.set_metatable_function("__call", crown_lua_vector3box_call);
-		stack.set_metatable();
-
-		// Create metatable for userdata Vector3Box (instance)
-		// Used for type checking and also provide access facilities to data
-		// e.g: 
-		// inst = Vector3Box(0, 0, 0)
-		// print (inst.x)	<= cannot do it without the following code
-		stack.create_metatable("Vector3Box_i_mt");
-		stack.set_metatable_function("__index", vector3box_get_value);
-		stack.set_metatable_function("__newindex", vector3box_set_value);
-
-		// Create and attach metatable to global table Quaternion
-		stack.get_global("QuaternionBox");
-		stack.create_metatable("QuaternionBox_g_mt");
-		stack.set_self_index();
-		stack.set_metatable_function("__call", crown_lua_quaternionbox_call);
-		stack.set_metatable();
-
-		// Create metatable for userdata QuaternionBox (instance)
-		// Used for type checking
-		stack.create_metatable("QuaternionBox_i_mt");
-
-		// Create and attach metatable to global table Matrix4x4
-		stack.get_global("Matrix4x4");
-		stack.create_metatable("Matrix4x4_g_mt");
-		stack.set_self_index();
-		stack.set_metatable_function("__call", crown_lua_matrix4x4box_call);
-		stack.set_metatable();
-
-		// Create metatable for userdata QuaternionBox (instance)
-		// Used for type checking
-		stack.create_metatable("Matrix4x4_i_mt");
-
-		Log::d("Lua stack size = %d", lua_gettop(s_L));
+		// Ensure stack is clean
+		CE_ASSERT(lua_gettop(s_L) == 0, "Stack not clean");
 	}
 
 	//-----------------------------------------------------------------------------

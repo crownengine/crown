@@ -33,7 +33,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int sprite_local_position(lua_State* L)
+static int sprite_local_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -45,7 +45,7 @@ CE_EXPORT int sprite_local_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int sprite_local_rotation(lua_State* L)
+static int sprite_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -57,7 +57,7 @@ CE_EXPORT int sprite_local_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int sprite_local_pose(lua_State* L)
+static int sprite_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -69,7 +69,7 @@ CE_EXPORT int sprite_local_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int sprite_set_local_position(lua_State* L)
+static int sprite_set_local_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -83,7 +83,7 @@ CE_EXPORT int sprite_set_local_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int sprite_set_local_rotation(lua_State* L)
+static int sprite_set_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -97,7 +97,7 @@ CE_EXPORT int sprite_set_local_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int sprite_set_local_pose(lua_State* L)
+static int sprite_set_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -111,7 +111,7 @@ CE_EXPORT int sprite_set_local_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int sprite_play_animation(lua_State* L)
+static int sprite_play_animation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -126,7 +126,7 @@ CE_EXPORT int sprite_play_animation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int sprite_stop_animation(lua_State* L)
+static int sprite_stop_animation(lua_State* L)
 {
 	LuaStack stack(L);
 

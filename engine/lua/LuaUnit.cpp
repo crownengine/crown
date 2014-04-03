@@ -32,7 +32,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_node(lua_State* L)
+static int unit_node(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -44,7 +44,7 @@ CE_EXPORT int unit_node(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_has_node(lua_State* L)
+static int unit_has_node(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -56,7 +56,7 @@ CE_EXPORT int unit_has_node(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_num_nodes(lua_State* L)
+static int unit_num_nodes(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -67,7 +67,7 @@ CE_EXPORT int unit_num_nodes(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_local_position(lua_State* L)
+static int unit_local_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -79,7 +79,7 @@ CE_EXPORT int unit_local_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_local_rotation(lua_State* L)
+static int unit_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -91,7 +91,7 @@ CE_EXPORT int unit_local_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_local_pose(lua_State* L)
+static int unit_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -103,7 +103,7 @@ CE_EXPORT int unit_local_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_world_position(lua_State* L)
+static int unit_world_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -115,7 +115,7 @@ CE_EXPORT int unit_world_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_world_rotation(lua_State* L)
+static int unit_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -127,7 +127,7 @@ CE_EXPORT int unit_world_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_world_pose(lua_State* L)
+static int unit_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -139,7 +139,7 @@ CE_EXPORT int unit_world_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_set_local_position(lua_State* L)
+static int unit_set_local_position(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -152,7 +152,7 @@ CE_EXPORT int unit_set_local_position(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_set_local_rotation(lua_State* L)
+static int unit_set_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -165,7 +165,7 @@ CE_EXPORT int unit_set_local_rotation(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_set_local_pose(lua_State* L)
+static int unit_set_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -178,7 +178,7 @@ CE_EXPORT int unit_set_local_pose(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_link_node(lua_State* L)
+static int unit_link_node(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -191,7 +191,7 @@ CE_EXPORT int unit_link_node(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_unlink_node(lua_State* L)
+static int unit_unlink_node(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -203,7 +203,7 @@ CE_EXPORT int unit_unlink_node(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_camera(lua_State* L)
+static int unit_camera(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -215,7 +215,7 @@ CE_EXPORT int unit_camera(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_mesh(lua_State* L)
+static int unit_mesh(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -227,7 +227,7 @@ CE_EXPORT int unit_mesh(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_sprite(lua_State* L)
+static int unit_sprite(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -239,7 +239,7 @@ CE_EXPORT int unit_sprite(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_actor(lua_State* L)
+static int unit_actor(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -251,7 +251,7 @@ CE_EXPORT int unit_actor(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_controller(lua_State* L)
+static int unit_controller(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -263,7 +263,7 @@ CE_EXPORT int unit_controller(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int unit_is_a(lua_State* L)
+static int unit_is_a(lua_State* L)
 {
 	LuaStack stack(L);
 

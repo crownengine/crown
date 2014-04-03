@@ -32,7 +32,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_enable_gravity(lua_State* L)
+static int actor_enable_gravity(lua_State* L)
 {
 	LuaStack stack(L);
 	Actor* actor = stack.get_actor(1);
@@ -43,7 +43,7 @@ CE_EXPORT int actor_enable_gravity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_disable_gravity(lua_State* L)
+static int actor_disable_gravity(lua_State* L)
 {
 	LuaStack stack(L);
 	Actor* actor = stack.get_actor(1);
@@ -53,7 +53,7 @@ CE_EXPORT int actor_disable_gravity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_enable_collision(lua_State* L)
+static int actor_enable_collision(lua_State* L)
 {
 	LuaStack stack(L);
 	Actor* actor = stack.get_actor(1);
@@ -64,7 +64,7 @@ CE_EXPORT int actor_enable_collision(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_disable_collision(lua_State* L)
+static int actor_disable_collision(lua_State* L)
 {
 	LuaStack stack(L);
 	Actor* actor = stack.get_actor(1);
@@ -75,7 +75,7 @@ CE_EXPORT int actor_disable_collision(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_set_kinematic(lua_State* L)
+static int actor_set_kinematic(lua_State* L)
 {
 	LuaStack stack(L);
 	Actor* actor = stack.get_actor(1);
@@ -86,7 +86,7 @@ CE_EXPORT int actor_set_kinematic(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_clear_kinematic(lua_State* L)
+static int actor_clear_kinematic(lua_State* L)
 {
 	LuaStack stack(L);
 	Actor* actor = stack.get_actor(1);
@@ -97,7 +97,7 @@ CE_EXPORT int actor_clear_kinematic(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_move(lua_State* L)
+static int actor_move(lua_State* L)
 {
 	LuaStack stack(L);
 	Actor* actor = stack.get_actor(1);
@@ -109,7 +109,7 @@ CE_EXPORT int actor_move(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_is_static(lua_State* L)
+static int actor_is_static(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -120,7 +120,7 @@ CE_EXPORT int actor_is_static(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_is_dynamic(lua_State* L)
+static int actor_is_dynamic(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -131,7 +131,7 @@ CE_EXPORT int actor_is_dynamic(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_is_kinematic(lua_State* L)
+static int actor_is_kinematic(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -142,7 +142,7 @@ CE_EXPORT int actor_is_kinematic(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_linear_damping(lua_State* L)
+static int actor_linear_damping(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -153,7 +153,7 @@ CE_EXPORT int actor_linear_damping(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_set_linear_damping(lua_State* L)
+static int actor_set_linear_damping(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -165,7 +165,7 @@ CE_EXPORT int actor_set_linear_damping(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_angular_damping(lua_State* L)
+static int actor_angular_damping(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -176,7 +176,7 @@ CE_EXPORT int actor_angular_damping(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_set_angular_damping(lua_State* L)
+static int actor_set_angular_damping(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -188,7 +188,7 @@ CE_EXPORT int actor_set_angular_damping(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_linear_velocity(lua_State* L)
+static int actor_linear_velocity(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -199,7 +199,7 @@ CE_EXPORT int actor_linear_velocity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_set_linear_velocity(lua_State* L)
+static int actor_set_linear_velocity(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -211,7 +211,7 @@ CE_EXPORT int actor_set_linear_velocity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_angular_velocity(lua_State* L)
+static int actor_angular_velocity(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -222,7 +222,7 @@ CE_EXPORT int actor_angular_velocity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_set_angular_velocity(lua_State* L)
+static int actor_set_angular_velocity(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -234,7 +234,7 @@ CE_EXPORT int actor_set_angular_velocity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_add_impulse(lua_State* L)
+static int actor_add_impulse(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -247,7 +247,7 @@ CE_EXPORT int actor_add_impulse(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_add_impulse_at(lua_State* L)
+static int actor_add_impulse_at(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -261,7 +261,7 @@ CE_EXPORT int actor_add_impulse_at(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_push(lua_State* L)
+static int actor_push(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -275,7 +275,7 @@ CE_EXPORT int actor_push(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_is_sleeping(lua_State* L)
+static int actor_is_sleeping(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -286,7 +286,7 @@ CE_EXPORT int actor_is_sleeping(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_wake_up(lua_State* L)
+static int actor_wake_up(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -297,7 +297,7 @@ CE_EXPORT int actor_wake_up(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int actor_unit(lua_State* L)
+static int actor_unit(lua_State* L)
 {
 	LuaStack stack(L);
 

@@ -33,7 +33,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int keyboard_modifier_pressed(lua_State* L)
+static int keyboard_modifier_pressed(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -45,7 +45,7 @@ CE_EXPORT int keyboard_modifier_pressed(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int keyboard_button_pressed(lua_State* L)
+static int keyboard_button_pressed(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -57,7 +57,7 @@ CE_EXPORT int keyboard_button_pressed(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int keyboard_button_released(lua_State* L)
+static int keyboard_button_released(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -69,7 +69,7 @@ CE_EXPORT int keyboard_button_released(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int keyboard_any_pressed(lua_State* L)
+static int keyboard_any_pressed(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -79,7 +79,7 @@ CE_EXPORT int keyboard_any_pressed(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int keyboard_any_released(lua_State* L)
+static int keyboard_any_released(lua_State* L)
 {
 	LuaStack stack(L);
 

@@ -33,7 +33,37 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector3box_get_value(lua_State* L)
+static int vector3box_new(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Vector3 v;
+	if (stack.num_args() == 2)
+	{
+		const Vector3 tv = stack.get_vector3(1);
+		v = tv;
+	}
+	else if (stack.num_args() == 4)
+	{
+		v.x = stack.get_float(1);
+		v.y = stack.get_float(2);
+		v.z = stack.get_float(3);
+	}
+
+	stack.push_vector3box(v);
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+static int vector3box_ctor(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.remove(1); // Remove table
+	return vector3box_new(L);
+}
+
+//-----------------------------------------------------------------------------
+static int vector3box_get_value(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -61,7 +91,7 @@ CE_EXPORT int vector3box_get_value(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector3box_set_value(lua_State* L)
+static int vector3box_set_value(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -86,33 +116,7 @@ CE_EXPORT int vector3box_set_value(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector3box(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Vector3& v = stack.push_vector3box();
-
-	// Associates a metatable to userdata
-	stack.get_global_metatable("Vector3Box_i_mt");
-	stack.set_metatable();
-
-	if (stack.num_args() == 2)
-	{
-		Vector3 tv = stack.get_vector3(1);
-
-		v = tv;
-	}
-	else if (stack.num_args() == 4)
-	{
-		v.x = stack.get_float(1);
-		v.y = stack.get_float(2);
-		v.z = stack.get_float(3);
-	}
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-CE_EXPORT int vector3box_store(lua_State* L)
+static int vector3box_store(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -134,7 +138,7 @@ CE_EXPORT int vector3box_store(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int vector3box_unbox(lua_State* L)
+static int vector3box_unbox(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -145,11 +149,25 @@ CE_EXPORT int vector3box_unbox(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int vector3box_tostring(lua_State* L)
+{
+	LuaStack stack(L);
+	Vector3& v = stack.get_vector3box(1);
+	stack.push_fstring("Vector3Box (%p)", &v);
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_vector3box(LuaEnvironment& env)
 {
-	env.load_module_function("Vector3Box", "new", vector3box);
-	env.load_module_function("Vector3Box", "store", vector3box_store);
-	env.load_module_function("Vector3Box", "unbox", vector3box_unbox);
+	env.load_module_function("Vector3Box", "new",			vector3box_new);
+	env.load_module_function("Vector3Box", "store",			vector3box_store);
+	env.load_module_function("Vector3Box", "unbox",			vector3box_unbox);
+	env.load_module_function("Vector3Box", "__index",		vector3box_get_value);
+	env.load_module_function("Vector3Box", "__newindex",	vector3box_set_value);
+	env.load_module_function("Vector3Box", "__tostring",	vector3box_tostring);
+
+	env.load_module_constructor("Vector3Box",				vector3box_ctor);
 }
 
 } // namespace crown

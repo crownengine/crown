@@ -34,7 +34,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int debug_line_add_line(lua_State* L)
+static int debug_line_add_line(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -47,7 +47,7 @@ CE_EXPORT int debug_line_add_line(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int debug_line_add_sphere(lua_State* L)
+static int debug_line_add_sphere(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -60,7 +60,7 @@ CE_EXPORT int debug_line_add_sphere(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int debug_line_clear(lua_State* L)
+static int debug_line_clear(lua_State* L)
 {
 	LuaStack stack(L);
 
@@ -70,7 +70,7 @@ CE_EXPORT int debug_line_clear(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-CE_EXPORT int debug_line_commit(lua_State* L)
+static int debug_line_commit(lua_State* L)
 {
 	LuaStack stack(L);
 
