@@ -77,6 +77,8 @@ void NetworkFile::skip(size_t bytes)
 //-----------------------------------------------------------------------------
 void NetworkFile::read(void* buffer, size_t size)
 {
+	using namespace string_stream;
+
 	TempAllocator1024 alloc;
 	StringStream command(alloc);
 
@@ -86,7 +88,7 @@ void NetworkFile::read(void* buffer, size_t size)
 	command << "\"position\":" << m_position << ",";
 	command << "\"size\":" << size << "}";
 
-	network_filesystem::send(m_socket, command.c_str());
+	network_filesystem::send(m_socket, c_str(command));
 
 	// Wait for response
 	Array<char> response(default_allocator());
@@ -144,6 +146,8 @@ size_t NetworkFile::position()
 //-----------------------------------------------------------------------------
 size_t NetworkFile::size()
 {
+	using namespace string_stream;
+
 	TempAllocator1024 alloc;
 	StringStream command(alloc);
 
@@ -151,7 +155,7 @@ size_t NetworkFile::size()
 	command << "{\"type\":\"filesystem\",\"filesystem\":\"size\",";
 	command << "\"file\":\"" << m_filename << "\"}";
 
-	network_filesystem::send(m_socket, command.c_str());
+	network_filesystem::send(m_socket, c_str(command));
 
 	// Wait for response
 	Array<char> response(default_allocator());

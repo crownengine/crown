@@ -79,6 +79,8 @@ void ConsoleServer::shutdown()
 //-----------------------------------------------------------------------------
 void ConsoleServer::log_to_all(const char* message, LogSeverity::Enum severity)
 {
+	using namespace string_stream;
+
 	TempAllocator2048 alloc;
 	StringStream json(alloc);
 
@@ -97,7 +99,7 @@ void ConsoleServer::log_to_all(const char* message, LogSeverity::Enum severity)
 
 	json << "\"message\":\"" << buf << "\"}";
 
-	send_to_all(json.c_str());
+	send_to_all(c_str(json));
 }
 
 //-----------------------------------------------------------------------------
@@ -218,6 +220,8 @@ void ConsoleServer::process_script(TCPSocket /*client*/, const char* msg)
 //-----------------------------------------------------------------------------
 void ConsoleServer::process_stats(TCPSocket client, const char* /*msg*/)
 {
+	using namespace string_stream;
+
 	TempAllocator2048 alloc;
 	StringStream response(alloc);
 
@@ -238,7 +242,7 @@ void ConsoleServer::process_stats(TCPSocket client, const char* /*msg*/)
 
 	response << "]" << "}";
 
-	send(client, response.c_str());
+	send(client, c_str(response));
 }
 
 //-----------------------------------------------------------------------------
@@ -280,6 +284,8 @@ void ConsoleServer::process_command(TCPSocket /*client*/, const char* msg)
 //-----------------------------------------------------------------------------
 void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
 {
+	using namespace string_stream;
+
 	JSONParser parser(msg);
 	JSONElement root = parser.root();
 	JSONElement filesystem = root.key("filesystem");
@@ -300,7 +306,7 @@ void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
 		StringStream response(alloc);
 		response << "{\"type\":\"file\",\"size\":" << file_size << "}";
 
-		send(client, response.c_str());
+		send(client, c_str(response));
 	}
 	else if (cmd == "read")
 	{
@@ -328,7 +334,7 @@ void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
 		response << "{\"type\":\"file\",";
 		response << "\"data\":\"" << bytes_encoded << "\"}";
 
-		send(client, response.c_str());
+		send(client, c_str(response));
 
 		// Cleanup
 		default_allocator().deallocate(bytes_encoded);

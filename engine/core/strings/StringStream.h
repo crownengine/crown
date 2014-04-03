@@ -34,122 +34,104 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class StringStream
+/// Stream of characters.
+typedef Array<char> StringStream;
+
+/// Functions to operate on StringStream.
+namespace string_stream
 {
-public:
+	/// Appends @a val to the stream @a s using appropriate formatting.
+	StringStream& operator<<(StringStream& s, int16_t val);
+	StringStream& operator<<(StringStream& s, uint16_t val);
+	StringStream& operator<<(StringStream& s, int32_t val);
+	StringStream& operator<<(StringStream& s, uint32_t val);
+	StringStream& operator<<(StringStream& s, int64_t val);
+	StringStream& operator<<(StringStream& s, uint64_t val);
+	StringStream& operator<<(StringStream& s, float val);
+	StringStream& operator<<(StringStream& s, double val);
 
-						StringStream(Allocator& allocator);
+	/// Appends the string @a string to the stream @a s.
+	StringStream& operator<<(StringStream& s, const char* string);
 
-	void				clear();
+	/// Returns the stream as a NULL-terminated string.
+	const char* c_str(StringStream& s);
 
-	StringStream&		operator<<(int16_t val);
-	StringStream&		operator<<(uint16_t val);
-	StringStream&		operator<<(int32_t val);
-	StringStream&		operator<<(uint32_t val);
-	StringStream&		operator<<(int64_t val);
-	StringStream&		operator<<(uint64_t val);
-	StringStream&		operator<<(float val);
-	StringStream&		operator<<(double val);
+	template <typename T> StringStream& stream_printf(StringStream& s, const char* format, T& val);
 
-	StringStream&		operator<<(const char* s);
+} // namespace string_stream
 
-	const char*			c_str();
+namespace string_stream
+{
+	//-----------------------------------------------------------------------------
+	inline StringStream& operator<<(StringStream& s, int16_t val)
+	{
+		return stream_printf(s, "%hd", val);
+	}
 
-private:
+	//-----------------------------------------------------------------------------
+	inline StringStream& operator<<(StringStream& s, uint16_t val)
+	{
+		return stream_printf(s, "%hu", val);
+	}
 
+	//-----------------------------------------------------------------------------
+	inline StringStream& operator<<(StringStream& s, int32_t val)
+	{
+		return stream_printf(s, "%d", val);
+	}
+
+	//-----------------------------------------------------------------------------
+	inline StringStream& operator<<(StringStream& s, uint32_t val)
+	{
+		return stream_printf(s, "%u", val);
+	}
+
+	//-----------------------------------------------------------------------------
+	inline StringStream& operator<<(StringStream& s, int64_t val)
+	{
+		return stream_printf(s, "%lld", val);
+	}
+
+	//-----------------------------------------------------------------------------
+	inline StringStream& operator<<(StringStream& s, uint64_t val)
+	{
+		return stream_printf(s, "%llu", val);
+	}
+
+	//-----------------------------------------------------------------------------
+	inline StringStream& operator<<(StringStream& s, float val)
+	{
+		return stream_printf(s, "%g", val);
+	}
+
+	//-----------------------------------------------------------------------------
+	inline StringStream& operator<<(StringStream& s, double val)
+	{
+		return stream_printf(s, "%g", val);
+	}
+
+	//-----------------------------------------------------------------------------
+	inline StringStream& operator<<(StringStream& s, const char* string)
+	{
+		array::push(s, string, string::strlen(string));
+		return s;
+	}
+
+	//-----------------------------------------------------------------------------
+	inline const char* c_str(StringStream& s)
+	{
+		array::push_back(s, '\0');
+		array::pop_back(s);
+		return array::begin(s);
+	}
+
+	//-----------------------------------------------------------------------------
 	template <typename T>
-	StringStream&		stream_printf(const char* format, T& val);
-
-private:
-
-	Array<char>			m_string;
-};
-
-//-----------------------------------------------------------------------------
-inline StringStream::StringStream(Allocator& allocator)
-	: m_string(allocator)
-{
-}
-
-//-----------------------------------------------------------------------------
-inline void StringStream::clear()
-{
-	array::clear(m_string);
-}
-
-//-----------------------------------------------------------------------------
-inline StringStream& StringStream::operator<<(int16_t val)
-{
-	return stream_printf("%hd", val);
-}
-
-//-----------------------------------------------------------------------------
-inline StringStream& StringStream::operator<<(uint16_t val)
-{
-	return stream_printf("%hu", val);
-}
-
-//-----------------------------------------------------------------------------
-inline StringStream& StringStream::operator<<(int32_t val)
-{
-	return stream_printf("%d", val);
-}
-
-//-----------------------------------------------------------------------------
-inline StringStream& StringStream::operator<<(uint32_t val)
-{
-	return stream_printf("%u", val);
-}
-
-//-----------------------------------------------------------------------------
-inline StringStream& StringStream::operator<<(int64_t val)
-{
-	return stream_printf("%lld", val);
-}
-
-//-----------------------------------------------------------------------------
-inline StringStream& StringStream::operator<<(uint64_t val)
-{
-	return stream_printf("%llu", val);
-}
-
-//-----------------------------------------------------------------------------
-inline StringStream& StringStream::operator<<(float val)
-{
-	return stream_printf("%g", val);
-}
-
-//-----------------------------------------------------------------------------
-inline StringStream& StringStream::operator<<(double val)
-{
-	return stream_printf("%g", val);
-}
-
-//-----------------------------------------------------------------------------
-inline StringStream& StringStream::operator<<(const char* s)
-{
-	array::push(m_string, s, string::strlen(s));
-
-	return *this;
-}
-
-//-----------------------------------------------------------------------------
-inline const char* StringStream::c_str()
-{
-	array::push_back(m_string, '\0');
-	array::pop_back(m_string);
-
-	return array::begin(m_string);
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline StringStream& StringStream::stream_printf(const char* format, T& val)
-{
-	char buf[32];
-	snprintf(buf, 32, format, val);
-
-	return *this << buf;
-}
-
+	inline StringStream& stream_printf(StringStream& s, const char* format, T& val)
+	{
+		char buf[32];
+		snprintf(buf, 32, format, val);
+		return s << buf;
+	}
+} // namespace string_stream
 } // namespace crown
