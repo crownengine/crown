@@ -33,9 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-using json::JSONType;
-using json::JSONPair;
-
 //--------------------------------------------------------------------------
 JSONElement::JSONElement()
 	: m_at(NULL)
