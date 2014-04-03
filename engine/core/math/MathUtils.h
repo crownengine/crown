@@ -26,9 +26,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#undef min
-#undef max
-
 #include <math.h>
 
 #include "Assert.h"

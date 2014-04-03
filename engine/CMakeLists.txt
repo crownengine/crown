@@ -570,6 +570,7 @@ if (WINDOWS)
 	)
 
 	list (APPEND OS_HEADERS
+		os/win/WinHeaders.h
 		os/win/OsFile.h
 		os/win/OsThread.h
 		os/win/OsSocket.h

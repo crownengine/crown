@@ -24,10 +24,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
 #include <windowsx.h>
 
 #define WM_USER_SET_WINDOW_SIZE     (WM_USER+0)
@@ -427,53 +423,56 @@ public:
 	bool process_events()
 	{
 		OsEvent event;
-		do
+		bool exit = false;
+
+		while(m_queue.pop_event(event))
 		{
-			m_queue.pop_event(event);
+			if (event.type == OsEvent::NONE) continue;
 
-			if (event.type != OsEvent::NONE)
+			switch (event.type)
 			{
-				switch (event.type)
+				case OsEvent::MOUSE:
 				{
-					case OsEvent::MOUSE:
+					const OsMouseEvent& ev = event.mouse;
+					switch (ev.type)
 					{
-						const OsMouseEvent& ev = event.mouse;
-						switch (ev.type)
-						{
-							case OsMouseEvent::BUTTON: m_mouse->set_button_state(ev.x, ev.y, ev.button, ev.pressed); break;
-							case OsMouseEvent::MOVE: m_mouse->set_position(ev.x, ev.y); break;
-							default: CE_FATAL("Oops, unknown mouse event type"); break;
-						}
+						case OsMouseEvent::BUTTON: m_mouse->set_button_state(ev.x, ev.y, ev.button, ev.pressed); break;
+						case OsMouseEvent::MOVE: m_mouse->set_position(ev.x, ev.y); break;
+						default: CE_FATAL("Oops, unknown mouse event type"); break;
+					}
 
-						break;
-					}
-					case OsEvent::KEYBOARD:
-					{
-						const OsKeyboardEvent& ev = event.keyboard;
-						m_keyboard->set_button_state(ev.button, ev.pressed);
-						break;
-					}
-					case OsEvent::METRICS:
-					{
-						const OsMetricsEvent& ev = event.metrics;
-						m_mouse->set_metrics(ev.width, ev.height);
-						break;
-					}
-					case OsEvent::EXIT:
-					{
-						return true;
-					}
-					default:
-					{
-						Log::d("Unmanaged");
-						break;
-					}
+					break;
+				}
+				case OsEvent::KEYBOARD:
+				{
+					const OsKeyboardEvent& ev = event.keyboard;
+					m_keyboard->set_button_state(ev.button, ev.pressed);
+					break;
+				}
+				case OsEvent::METRICS:
+				{
+					const OsMetricsEvent& ev = event.metrics;
+					m_mouse->set_metrics(ev.width, ev.height);
+					//m_window->m_x = ev.x;
+					//m_window->m_y = ev.y;
+					//m_window->m_width = ev.width;
+					//m_window->m_height = ev.height;
+					break;
+				}
+				case OsEvent::EXIT:
+				{
+					exit = true;
+					break;
+				}
+				default:
+				{
+					CE_FATAL("Unknown Os Event");
+					break;
 				}
 			}
 		}
-		while (event.type != OsEvent::NONE);
 
-		return false;
+		return exit;
 	}
 
 	//-----------------------------------------------------------------------------

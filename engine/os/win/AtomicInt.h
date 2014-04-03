@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "windows.h"
+#include "WinHeaders.h"
 
 namespace crown
 {

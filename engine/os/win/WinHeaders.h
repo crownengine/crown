@@ -26,56 +26,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cstdio>
-#include <cstdarg>
-#include "Types.h"
-#include "Macros.h"
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 
-namespace crown
-{
+#include "Windows.h"
 
-/// Enumerates log levels.
-struct LogSeverity
-{
-	enum Enum
-	{
-		INFO	= 0,
-		WARN	= 1,
-		ERROR	= 2,
-		DEBUG	= 3
-	};	
-};
+#undef NEAR
+#undef FAR
+#undef near
+#undef far
+#undef NO_ERROR
+#undef ERROR
+#undef MK_SHIFT
+#undef MK_ALT
+#undef min
+#undef max
 
-class RPCServer;
-
-/// Used to log messages.
-class CE_EXPORT Log
-{
-
-public:
-
-	/// Returns the threshold used to filter out log messages.
-	static LogSeverity::Enum threshold();
-
-	/// Sets the thresold used to filter out log messages
-	static void			set_threshold(LogSeverity::Enum threshold);
-
-	static void			log_message(LogSeverity::Enum severity, const char* message, ::va_list arg);
-
-	static void			d(const char* message, ...);
-	static void			e(const char* message, ...);
-	static void			w(const char* message, ...);
-	static void			i(const char* message, ...);
-	static void			d1(const char* message, ::va_list args);
-	static void			e1(const char* message, ::va_list args);
-	static void			w1(const char* message, ::va_list args);
-	static void			i1(const char* message, ::va_list args);
-
-private:
-
-
-	static LogSeverity::Enum m_threshold;
-};
-
-} // namespace crown
-
+#define __va_copy(dest, src) (dest = src)

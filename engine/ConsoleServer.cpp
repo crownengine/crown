@@ -36,10 +36,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Filesystem.h"
 #include "MathUtils.h"
 
-#ifdef WINDOWS
-#undef NO_ERROR
-#endif
-
 namespace crown
 {
 
