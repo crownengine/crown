@@ -33,11 +33,14 @@ namespace crown
 
 typedef Id ActorId;
 typedef Id ControllerId;
-typedef Id TriggerId;
 typedef Id JointId;
 typedef Id RaycastId;
 
 struct Actor;
+struct Controller;
+struct Joint;
+struct Raycast;
+class PhysicsWorld;
 
 //-----------------------------------------------------------------------------
 struct ActorType

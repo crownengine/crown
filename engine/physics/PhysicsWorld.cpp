@@ -210,8 +210,9 @@ namespace physics_system
 } // namespace physics_system
 
 //-----------------------------------------------------------------------------
-PhysicsWorld::PhysicsWorld()
-	: m_scene(NULL)
+PhysicsWorld::PhysicsWorld(World& world)
+	: m_world(world)
+	, m_scene(NULL)
 	, m_buffer(m_hits, 64)
 	, m_actors_pool(default_allocator(), CE_MAX_ACTORS, sizeof(Actor), CE_ALIGNOF(Actor))
 	, m_controllers_pool(default_allocator(), CE_MAX_CONTROLLERS, sizeof(Controller), CE_ALIGNOF(Controller))
@@ -248,6 +249,8 @@ PhysicsWorld::PhysicsWorld()
 	// Create controller manager
 	m_controller_manager = PxCreateControllerManager(*m_scene);
 	CE_ASSERT(m_controller_manager != NULL, "Failed to create PhysX controller manager");
+
+	m_resource = (PhysicsConfigResource*) device()->resource_manager()->lookup("physics_config", "global");
 }
 
 //-----------------------------------------------------------------------------
@@ -259,10 +262,10 @@ PhysicsWorld::~PhysicsWorld()
 }
 
 //-----------------------------------------------------------------------------
-ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, Unit* unit)
+ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, UnitId unit_id)
 {
 	PhysicsConfigResource* config = (PhysicsConfigResource*) device()->resource_manager()->lookup("physics_config", "global");
-	Actor* actor = CE_NEW(m_actors_pool, Actor)(res, config, index, physics_system::s_physics, physics_system::s_cooking, m_scene, sg, node, unit, vector3::ZERO, quaternion::IDENTITY);
+	Actor* actor = CE_NEW(m_actors_pool, Actor)(*this, res, index, sg, node, unit_id);
 	return m_actors.create(actor);
 }
 
@@ -453,5 +456,9 @@ void PhysicsWorld::update(float dt)
 		m_controllers[i]->update();
 	}
 }
+
+PxPhysics* PhysicsWorld::physx_physics() { return physics_system::s_physics; }
+PxCooking* PhysicsWorld::physx_cooking() { return physics_system::s_cooking; }
+PxScene* PhysicsWorld::physx_scene() { return m_scene; }
 
 } // namespace crown

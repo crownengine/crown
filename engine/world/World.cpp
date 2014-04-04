@@ -38,6 +38,7 @@ namespace crown
 World::World()
 	: m_unit_pool(default_allocator(), CE_MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
 	, m_camera_pool(default_allocator(), CE_MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
+	, m_physics_world(*this)
 	, m_events(default_allocator())
 {
 	m_id.id = INVALID_ID;
@@ -79,12 +80,9 @@ UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion&
 //-----------------------------------------------------------------------------
 UnitId World::spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& pos, const Quaternion& rot)
 {
-	// Allocate memory for unit
-	Unit* unit = CE_NEW(m_unit_pool, Unit)(*this, id, ur, Matrix4x4(rot, pos));
-
-	// Create Id for the unit
-	const UnitId unit_id = m_units.create(unit);
-	unit->set_id(unit_id);
+	Unit* u = (Unit*) m_unit_pool.allocate(sizeof(Unit), CE_ALIGNOF(Unit));
+	const UnitId unit_id = m_units.create(u);
+	new (u) Unit(*this, unit_id, id, ur, Matrix4x4(rot, pos));
 
 	// SpawnUnitEvent ev;
 	// ev.unit = unit_id;

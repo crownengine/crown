@@ -31,8 +31,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PhysicsTypes.h"
 #include "PhysicsCallback.h"
 #include "EventStream.h"
-
+#include "PhysicsTypes.h"
+#include "MathTypes.h"
+#include "WorldTypes.h"
 #include "PxScene.h"
+#include "PxCooking.h"
 #include "PxDefaultCpuDispatcher.h"
 #include "PxControllerManager.h"
 
@@ -44,6 +47,10 @@ using physx::PxDefaultCpuDispatcher;
 using physx::PxActor;
 using physx::PxOverlapHit;
 using physx::PxOverlapBuffer;
+using physx::PxMaterial;
+using physx::PxShape;
+using physx::PxPhysics;
+using physx::PxCooking;
 
 namespace crown
 {
@@ -63,17 +70,10 @@ namespace physics_system
 
 //-----------------------------------------------------------------------------
 class SceneGraph;
-struct Actor;
-struct Actor;
-struct Controller;
-struct Joint;
-struct Matrix4x4;
-struct PhysicsActor;
+class World;
 struct PhysicsResource;
-struct Quaternion;
-struct Raycast;
+struct PhysicsConfigResource;
 struct Unit;
-struct Vector3;
 
 /// Manages physics objects in a World.
 ///
@@ -82,42 +82,51 @@ class PhysicsWorld
 {
 public:
 
-	/// Constructor
-								PhysicsWorld();
-	/// Destroyer
-								~PhysicsWorld();
+	PhysicsWorld(World& world);
+	~PhysicsWorld();
 
-	ActorId						create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, Unit* unit);
-	void						destroy_actor(ActorId id);
+	ActorId create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, UnitId unit_id);
+	void destroy_actor(ActorId id);
 
-	ControllerId				create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node);
-	void						destroy_controller(ControllerId id);
+	ControllerId create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node);
+	void destroy_controller(ControllerId id);
 
-	JointId						create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1);
-	void						destroy_joint(JointId id);
+	JointId create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1);
+	void destroy_joint(JointId id);
 
-	RaycastId					create_raycast(const char* callback, CollisionMode::Enum mode, CollisionType::Enum filter);
-	void						destroy_raycast(RaycastId id);
+	RaycastId create_raycast(const char* callback, CollisionMode::Enum mode, CollisionType::Enum filter);
+	void destroy_raycast(RaycastId id);
 
-	Actor*						lookup_actor(StringId32 name);
-	Actor*						lookup_actor(ActorId id);
-	Controller*					lookup_controller(ControllerId id);
-	Raycast*					lookup_raycast(RaycastId id);
 
-	Vector3						gravity() const;
-	void						set_gravity(const Vector3& g);
+	Vector3 gravity() const;
+	void set_gravity(const Vector3& g);
 
-	void						set_kinematic(ActorId id);
-	void						clear_kinematic(ActorId id);
+	void set_kinematic(ActorId id);
+	void clear_kinematic(ActorId id);
 
 	/// Finds all actors in the physics world that are in a particular shape (supported: spheres, capsules and boxes)
-	void						overlap_test(const char* callback, CollisionType::Enum filter, ShapeType::Enum type,
+	void overlap_test(const char* callback, CollisionType::Enum filter, ShapeType::Enum type,
 											const Vector3& pos, const Quaternion& rot, const Vector3& size, Array<Actor*>& actors);
 
-	void						update(float dt);
+	void update(float dt);
+
+	Actor* lookup_actor(StringId32 name);
+	Actor* lookup_actor(ActorId id);
+	Controller* lookup_controller(ControllerId id);
+	Raycast* lookup_raycast(RaycastId id);
+
+	World& world() { return m_world; }
 
 public:
 
+	PxPhysics* physx_physics();
+	PxCooking* physx_cooking();
+	PxScene* physx_scene();
+	const PhysicsConfigResource* resource() { return m_resource; }
+
+private:
+
+	World&						m_world;
 	PxControllerManager*		m_controller_manager;
 	PxScene*					m_scene;
 	PxDefaultCpuDispatcher*		m_cpu_dispatcher;
@@ -139,9 +148,7 @@ public:
 	EventStream m_events;
 	PhysicsSimulationCallback m_callback;
 
-public:
-
-	friend class PhysicsSimulationCallback;
+	const PhysicsConfigResource* m_resource;
 };
 
 } // namespace crown

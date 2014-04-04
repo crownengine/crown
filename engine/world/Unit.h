@@ -78,7 +78,7 @@ struct UnitResource;
 /// @ingroup World
 struct Unit
 {
-						Unit(World& w, const ResourceId id, const UnitResource* ur, const Matrix4x4& pose);
+						Unit(World& w, UnitId unit_id, const ResourceId id, const UnitResource* ur, const Matrix4x4& pose);
 						~Unit();
 
 	void				set_id(const UnitId id);

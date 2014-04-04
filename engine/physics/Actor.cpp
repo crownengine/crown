@@ -36,6 +36,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SceneGraph.h"
 #include "Unit.h"
 #include "Vector3.h"
+#include "World.h"
+#include "PhysicsWorld.h"
 #include "PxCooking.h"
 #include "PxDefaultStreams.h"
 
@@ -77,20 +79,35 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Actor::Actor(const PhysicsResource* res, const PhysicsConfigResource* config, uint32_t index, PxPhysics* physics, PxCooking* cooking,
-				PxScene* scene, SceneGraph& sg, int32_t node, Unit* unit, const Vector3& pos, const Quaternion& rot)
-	: m_resource(res)
-	, m_config(config)
-	, m_index(index)
-	, m_unit(unit)
-	, m_scene(scene)
+Actor::Actor(PhysicsWorld& pw, const PhysicsResource* res, uint32_t actor_idx, SceneGraph& sg, int32_t node, UnitId unit_id)
+	: m_world(pw)
+	, m_resource(res)
+	, m_index(actor_idx)
 	, m_scene_graph(sg)
 	, m_node(node)
+	, m_unit(unit_id)
+{
+	create_objects();
+}
+
+//-----------------------------------------------------------------------------
+Actor::~Actor()
+{
+	destroy_objects();
+}
+
+//-----------------------------------------------------------------------------
+void Actor::create_objects()
 {
 	const PhysicsActor& actor = m_resource->actor(m_index);
+
+	PxScene* scene = m_world.physx_scene();
+	PxPhysics* physics = m_world.physx_physics();
+	const PhysicsConfigResource* config = m_world.resource();
 	const PhysicsActor2& actor_class = config->actor(actor.actor_class);
 
-	const PxMat44 pose((PxReal*) (sg.world_pose(node).to_float_ptr()));
+	// Create rigid body
+	const PxMat44 pose((PxReal*) (m_scene_graph.world_pose(m_node).to_float_ptr()));
 
 	if (actor_class.flags & PhysicsActor2::DYNAMIC)
 	{
@@ -110,32 +127,7 @@ Actor::Actor(const PhysicsResource* res, const PhysicsConfigResource* config, ui
 		m_actor = physics->createRigidStatic(PxTransform(pose));
 	}
 
-	m_actor->userData = this;
-
-	create_shapes(res, config, physics, cooking);
-
-	// FIXME collisions works only if enable_collision() is called here first
-	// collision enabled by default
-	enable_collision();
-
-	m_actor->setActorFlag(PxActorFlag::eSEND_SLEEP_NOTIFIES, true);
-	m_scene->addActor(*m_actor);
-}
-
-//-----------------------------------------------------------------------------
-Actor::~Actor()
-{
-	if (m_actor)
-	{
-		m_scene->removeActor(*m_actor);
-		m_actor->release();
-	}
-}
-
-//-----------------------------------------------------------------------------
-void Actor::create_shapes(const PhysicsResource* res, const PhysicsConfigResource* config, PxPhysics* physics, PxCooking* cooking)
-{
-	const PhysicsActor& actor = m_resource->actor(m_index);
+	// Create shapes
 	uint32_t shape_index = m_resource->shape_index(m_index);
 	for (uint32_t i = 0; i < actor.num_shapes; i++)
 	{
@@ -183,13 +175,12 @@ void Actor::create_shapes(const PhysicsResource* res, const PhysicsConfigResourc
 				convex_mesh_desc.vertexLimit		= MAX_PHYSX_VERTICES;
 
 				PxDefaultMemoryOutputStream buf;
-				if(!cooking->cookConvexMesh(convex_mesh_desc, buf))
+				if(!m_world.physx_cooking()->cookConvexMesh(convex_mesh_desc, buf))
 					CE_FATAL();
 				PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
 				PxConvexMesh* convex_mesh = physics->createConvexMesh(input);
 
 				px_shape = m_actor->createShape(PxConvexMeshGeometry(convex_mesh), *mat);
-
 				break;
 			}
 			default:
@@ -207,10 +198,18 @@ void Actor::create_shapes(const PhysicsResource* res, const PhysicsConfigResourc
 		shape_index++;
 	}
 
-	// PxFilterData filter;
-	// filter.word0 = (PxU32) m_group;
-	// filter.word1 = (PxU32) m_mask;
-	// shape->SetSimulationFilterData()
+	m_actor->userData = this;
+	scene->addActor(*m_actor);
+}
+
+//-----------------------------------------------------------------------------
+void Actor::destroy_objects()
+{
+	if (m_actor)
+	{
+		m_world.physx_scene()->removeActor(*m_actor);
+		m_actor->release();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -434,7 +433,7 @@ StringId32 Actor::name()
 //-----------------------------------------------------------------------------
 Unit* Actor::unit()
 {
-	return m_unit;
+	return (m_unit.id == INVALID_ID) ? NULL : m_world.world().lookup_unit(m_unit);
 }
 
 //-----------------------------------------------------------------------------

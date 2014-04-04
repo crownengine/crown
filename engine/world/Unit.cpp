@@ -41,11 +41,12 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Unit::Unit(World& w, const ResourceId id, const UnitResource* ur, const Matrix4x4& pose)
+Unit::Unit(World& w, UnitId unit_id, const ResourceId id, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)
 	, m_scene_graph(*w.scene_graph_manager()->create_scene_graph())
 	, m_resource_id(id)
 	, m_resource(ur)
+	, m_id(unit_id)
 	, m_num_cameras(0)
 	, m_num_meshes(0)
 	, m_num_sprites(0)
@@ -206,7 +207,7 @@ void Unit::create_physics_objects()
 		{
 			const PhysicsActor& actor = pr->actor(i);
 
-			ActorId id = m_world.physics_world()->create_actor(pr, i, m_scene_graph, m_scene_graph.node(actor.node), this);
+			ActorId id = m_world.physics_world()->create_actor(pr, i, m_scene_graph, m_scene_graph.node(actor.node), m_id);
 			add_actor(actor.name, id);
 		}
 
