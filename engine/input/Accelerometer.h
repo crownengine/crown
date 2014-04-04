@@ -33,6 +33,8 @@ namespace crown
 {
 
 /// Interface for accessing accelerometer input device.
+///
+/// @ingroup Input
 struct Accelerometer
 {
 	//-----------------------------------------------------------------------------

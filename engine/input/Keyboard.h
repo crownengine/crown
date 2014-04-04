@@ -34,7 +34,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// @defgroup Input Input
+
 /// Enumerates modifier keys.
+///
+/// @ingroup Input
 struct ModifierButton
 {
 	enum Enum
@@ -46,6 +50,8 @@ struct ModifierButton
 };
 
 /// Interface for accessing keyboard input device.
+///
+/// @ingroup Input
 struct Keyboard
 {
 	Keyboard()
@@ -58,7 +64,7 @@ struct Keyboard
 	/// Returns whether the specified @a modifier is pressed.
 	/// @note
 	/// A modifier is a special key that modifies the normal action
-	/// of another key when the two are pressed in combination. (Thanks wikipedia.)
+	/// of another key when the two are pressed in combination.
 	/// @note
 	/// Crown currently supports three different modifier keys: Shift, Ctrl and Alt.
 	bool modifier_pressed(ModifierButton::Enum modifier) const

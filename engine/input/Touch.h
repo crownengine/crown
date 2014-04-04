@@ -32,9 +32,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+/// Maximum number of pointers supported by Touch.
+///
+/// @ingroup Input
 const uint32_t MAX_POINTER_IDS = 4;
 
 /// Interface for accessing mouse input device.
+///
+/// @ingroup Input
 class Touch
 {
 public:

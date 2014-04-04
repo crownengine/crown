@@ -30,6 +30,8 @@ namespace crown
 {
 
 /// Uniquely identifies a button on the keyboard.
+///
+/// @ingroup Input
 struct KeyboardButton
 {
 	enum Enum

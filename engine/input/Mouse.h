@@ -34,6 +34,8 @@ namespace crown
 {
 
 /// Enumerates mouse buttons.
+///
+/// @ingroup Input
 struct MouseButton
 {
 	enum Enum
@@ -47,6 +49,8 @@ struct MouseButton
 };
 
 /// Interface for accessing mouse input device.
+///
+/// @ingroup Input
 class Mouse
 {
 public:
