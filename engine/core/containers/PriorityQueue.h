@@ -53,7 +53,7 @@ namespace priority_queue
 	template <typename T>
 	const T& top(const PriorityQueue<T>& q)
 	{
-		return q.m_queue.front();
+		return array::front(q.m_queue);
 	}
 
 	//-----------------------------------------------------------------------------
