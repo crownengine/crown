@@ -90,7 +90,7 @@ void parse_shapes(JSONElement e, Array<PhysicsShape>& shapes)
 	Vector<DynamicString> keys(default_allocator());
 	e.to_keys(keys);
 
-	for (uint32_t k = 0; k < keys.size(); k++)
+	for (uint32_t k = 0; k < vector::size(keys); k++)
 	{
 		JSONElement shape 		= e.key(keys[k].c_str());
 		JSONElement clasz		= shape.key("class");
@@ -174,7 +174,7 @@ void parse_actors(JSONElement e, Array<PhysicsActor>& actors, Array<PhysicsShape
 	Vector<DynamicString> keys(default_allocator());
 	e.to_keys(keys);
 
-	for (uint32_t k = 0; k < keys.size(); k++)
+	for (uint32_t k = 0; k < vector::size(keys); k++)
 	{
 		JSONElement actor 	= e.key(keys[k].c_str());
 		JSONElement node 	= actor.key("node");
@@ -200,7 +200,7 @@ void parse_joints(JSONElement e, Array<PhysicsJoint>& joints)
 	Vector<DynamicString> keys(default_allocator());
 	e.to_keys(keys);
 
-	for (uint32_t k = 0; k < keys.size(); k++)
+	for (uint32_t k = 0; k < vector::size(keys); k++)
 	{
 		JSONElement joint			= e.key(keys[k].c_str());
 		JSONElement type 			= joint.key("type");
@@ -385,7 +385,7 @@ namespace physics_config_resource
 	{
 		uint32_t mask = 0;
 
-		for (uint32_t i = 0; i < collides_with.size(); i++)
+		for (uint32_t i = 0; i < vector::size(collides_with); i++)
 		{
 			StringId32 cur_name = collides_with[i].to_string_id();
 			for (uint32_t j = 0; j < array::size(name_to_mask); j++)
@@ -414,7 +414,7 @@ namespace physics_config_resource
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
 
-		for (uint32_t i = 0; i < keys.size(); i++)
+		for (uint32_t i = 0; i < vector::size(keys); i++)
 		{
 			JSONElement material 			= e.key(keys[i].c_str());
 			JSONElement static_friction 	= material.key("static_friction");
@@ -442,7 +442,7 @@ namespace physics_config_resource
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
 
-		for (uint32_t i = 0; i < keys.size(); i++)
+		for (uint32_t i = 0; i < vector::size(keys); i++)
 		{
 			JSONElement shape				= e.key(keys[i].c_str());
 			JSONElement collision_filter 	= shape.key("collision_filter");
@@ -469,7 +469,7 @@ namespace physics_config_resource
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
 
-		for (uint32_t i = 0; i < keys.size(); i++)
+		for (uint32_t i = 0; i < vector::size(keys); i++)
 		{
 			JSONElement actor			= e.key(keys[i].c_str());
 			JSONElement linear_damping	= actor.key_or_nil("linear_damping");
@@ -513,7 +513,7 @@ namespace physics_config_resource
 		e.to_keys(keys);
 
 		// Assign a unique mask to each collision filter
-		for (uint32_t i = 0; i < keys.size(); i++)
+		for (uint32_t i = 0; i < vector::size(keys); i++)
 		{
 			NameToMask ntm;
 			ntm.name = keys[i].to_string_id();
@@ -521,7 +521,7 @@ namespace physics_config_resource
 			array::push_back(name_to_mask, ntm);
 		}
 
-		for (uint32_t i = 0; i < keys.size(); i++)
+		for (uint32_t i = 0; i < vector::size(keys); i++)
 		{
 			JSONElement filter			= e.key(keys[i].c_str());
 			JSONElement collides_with	= filter.key("collides_with");

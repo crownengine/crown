@@ -61,6 +61,29 @@ struct Array
 	T* m_array;
 };
 
+/// Dynamic array of objects.
+/// @note
+/// Calls constructors and destructors, not suitable for performance-critical stuff.
+/// If your data is POD, use Array<T> instead.
+///
+/// @ingroup Containers
+template <typename T>
+struct Vector
+{
+	Vector(Allocator& allocator);
+	Vector(Allocator& allocator, uint32_t capacity);
+	Vector(const Vector<T>& other);
+	~Vector();
+
+	/// Random access by index
+	T& operator[](uint32_t index);
+	const T& operator[](uint32_t index) const;
+
+	const Vector<T>& operator=(const Vector<T>& other);
+
+	Array<T> m_array;
+};
+
 /// Circular buffer double-ended queue of POD items.
 /// @note
 /// Does not call constructors/destructors so it is not very suitable for non-POD items.

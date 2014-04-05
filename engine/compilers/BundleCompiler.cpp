@@ -95,11 +95,11 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 	{
 		DynamicString filename(default_allocator());
 		filename = resource;
-		files.push_back(filename);
+		vector::push_back(files, filename);
 	}
 
 	// Compile all resources
-	for (uint32_t i = 0; i < files.size(); i++)
+	for (uint32_t i = 0; i < vector::size(files); i++)
 	{
 		const char* filename = files[i].c_str();
 
@@ -196,7 +196,7 @@ void BundleCompiler::scan(const char* source_dir, const char* cur_dir, Vector<Dy
 	DiskFilesystem fs(source_dir);
 	fs.list_files(cur_dir, my_files);
 
-	for (uint32_t i = 0; i < my_files.size(); i++)
+	for (uint32_t i = 0; i < vector::size(my_files); i++)
 	{
 		DynamicString file_i(default_allocator());
 
@@ -213,7 +213,7 @@ void BundleCompiler::scan(const char* source_dir, const char* cur_dir, Vector<Dy
 		}
 		else // Assume a regular file
 		{
-			files.push_back(file_i);
+			vector::push_back(files, file_i);
 		}
 	}
 }

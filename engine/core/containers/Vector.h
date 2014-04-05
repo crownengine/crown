@@ -26,121 +26,259 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "Allocator.h"
 #include "Types.h"
 #include "Assert.h"
+#include "Array.h"
 
 namespace crown
 {
 
-/// Dynamic array of objects.
-/// @note
-/// Calls constructors and destructors, not suitable for performance-critical stuff.
-/// If your data is POD, use Array<T> instead.
-template <typename T>
-class Vector
+/// Functions to manipulate Vector.
+///
+/// @ingroup Containers
+namespace vector
 {
-public:
+	/// Returns whether the vector @a v is empty.
+	template <typename T> bool empty(const Vector<T>& v);
 
-	/// Does not allocate memory.
-						Vector(Allocator& allocator);
+	/// Returns the number of items in the vector @a v.
+	template <typename T> uint32_t size(const Vector<T>& v);
 
-	/// Allocates capacity * sizeof(T) bytes.
-						Vector(Allocator& allocator, uint32_t capacity);
-						Vector(const Vector<T>& other);
-						~Vector();
+	/// Returns the maximum number of items the vector @a v can hold.
+	template <typename T> uint32_t capacity(const Vector<T>& v);
 
-	/// Random access by index
-	T&					operator[](uint32_t index);
-
-	/// Random access by index
-	const T&			operator[](uint32_t index) const;
-
-	/// Returns whether the vector is empty
-	bool				empty() const;
-
-	/// Returns the number of items in the vector
-	uint32_t			size() const;
-
-	/// Returns the maximum number of items the array can hold
-	uint32_t			capacity() const;
-
-	/// Resizes the vector to the given @a size.
+	/// Resizes the vector @a v to the given @a size.
 	/// @note
 	/// Old items will be copied to the newly created vector.
 	/// If the new capacity is smaller than the previous one, the
 	/// vector will be truncated.
-	void				resize(uint32_t size);
+	template <typename T> void resize(Vector<T>& v, uint32_t size);
 
-	/// Reserves space in the vector for at least @a capacity items.
-	void				reserve(uint32_t capacity);
+	/// Reserves space in the vector @a v for at least @a capacity items.
+	template <typename T> void reserve(Vector<T>& v, uint32_t capacity);
 
-	/// Sets the vector capacity
-	void				set_capacity(uint32_t capacity);
+	/// Sets the capacity of vector @a v.
+	template <typename T> void set_capacity(Vector<T>& v, uint32_t capacity);
 
-	/// Grows the vector to contain at least @a min_capacity items
-	void				grow(uint32_t min_capacity);
+	/// Grows the vector @a v to contain at least @a min_capacity items.
+	template <typename T> void grow(Vector<T>& v, uint32_t min_capacity);
 
-	/// Condenses the array so that the capacity matches the actual number
+	/// Condenses the vector @a v so that its capacity matches the actual number
 	/// of items in the vector.
-	void				condense();
+	template <typename T> void condense(Vector<T>& v);
 
-	/// Appends an item to the vector and returns its index.
-	uint32_t			push_back(const T& item);
+	/// Appends an item to the vector @a v and returns its index.
+	template <typename T> uint32_t push_back(Vector<T>& v, const T& item);
 
-	/// Removes the last item from the vector.
-	void				pop_back();
+	/// Removes the last item from the vector @a v.
+	template <typename T> void pop_back(Vector<T>& v);
 
-	/// Appends @a count @a items to the vector and returns the number
+	/// Appends @a count @a items to the vector @a v and returns the number
 	/// of items in the vector after the append operation.
-	uint32_t			push(const T* items, uint32_t count);
+	template <typename T> uint32_t push(Vector<T>& v, const T* items, uint32_t count);
 
-	/// Clears the content of the vector.
+	/// Clears the content of the vector @a v.
 	/// @note
-	/// Does not free memory nor call destructors, it only zeroes
-	/// the number of items in the vector for efficiency.
-	void				clear();
+	/// Calls destructor on the items.
+	template <typename T> void clear(Vector<T>& v);
 
-	/// Copies the content of the @a other vector into this one.
-	const Vector<T>&		operator=(const Vector<T>& other);
+	template <typename T> T* begin(Vector<T>& v);
+	template <typename T> const T* begin(const Vector<T>& v);
+	template <typename T> T* end(Vector<T>& v);
+	template <typename T> const T* end(const Vector<T>& v);
 
-	T*					begin();
-	const T*			begin() const;
-	T*					end();
-	const T*			end() const;
+	template <typename T> T& front(Vector<T>& v);
+	template <typename T> const T& front(const Vector<T>& v);
+	template <typename T> T& back(Vector<T>& v);
+	template <typename T> const T& back(const Vector<T>& v);
+} // namespace vector
 
-	T&					front();
-	const T&			front() const;
-	T&					back();
-	const T&			back() const;
+namespace vector
+{
+	template <typename T>
+	bool empty(const Vector<T>& v)
+	{
+		return array::empty(v.m_array);
+	}
 
-private:
+	template <typename T>
+	uint32_t size(const Vector<T>& v)
+	{
+		return array::size(v.m_array);
+	}
 
-	Allocator*			m_allocator;
-	uint32_t			m_capacity;
-	uint32_t			m_size;
-	T*					m_array;
-};
+	template <typename T>
+	uint32_t capacity(const Vector<T>& v)
+	{
+		return array::capacity(v.m_array);
+	}
+
+	template <typename T>
+	void resize(Vector<T>& v, uint32_t size)
+	{
+		array::resize(v.m_array, size);
+	}
+
+	template <typename T>
+	void reserve(Vector<T>& v, uint32_t capacity)
+	{
+		array::reserve(v.m_array, capacity);
+	}
+
+	template <typename T>
+	void set_capacity(Vector<T>& v, uint32_t capacity)
+	{
+		if (capacity == v.m_array.m_capacity)
+			return;
+
+		if (capacity < v.m_array.m_size)
+			resize(v, capacity);
+
+		if (capacity > 0)
+		{
+			Array<T> arr = v.m_array;
+
+			T* tmp = arr.m_array;
+			arr.m_capacity = capacity;
+
+			arr.m_array = (T*)arr.m_allocator->allocate(capacity * sizeof(T));
+
+			for (uint32_t i = 0; i < arr.m_size; i++)
+			{
+				new (arr.m_array + i) T(tmp[i]);
+			}
+
+			if (tmp)
+			{
+				for (uint32_t i = 0; i < arr.m_size; i++)
+				{
+					tmp[i].~T();
+				}
+				arr.m_allocator->deallocate(tmp);
+			}
+		}
+	}
+
+	template <typename T>
+	void grow(Vector<T>& v, uint32_t min_capacity)
+	{
+		return array::grow(v.m_array, min_capacity);
+	}
+
+	template <typename T>
+	void condense(Vector<T>& v)
+	{
+		return array::condense(v.m_array);
+	}
+
+	template <typename T>
+	uint32_t push_back(Vector<T>& v, const T& item)
+	{
+		if (v.m_array.m_capacity == v.m_array.m_size)
+			grow(v, 0);
+
+		new (v.m_array.m_array + v.m_array.m_size) T(item);
+
+		return v.m_array.m_size++;
+	}
+
+	template <typename T>
+	void pop_back(Vector<T>& v)
+	{
+		CE_ASSERT(vector::size(v) > 0, "The vector is empty");
+
+		v.m_array.m_array[v.m_array.m_size - 1].~T();
+		v.m_array.m_size--;
+	}
+
+	template <typename T>
+	uint32_t push(Vector<T>& v, const T* items, uint32_t count)
+	{
+		if (v.m_array.m_capacity <= v.m_array.m_size + count)
+			grow(v, v.m_array.m_size + count);
+
+		T* arr = &v.m_array.m_array[v.m_array.m_size];
+		for (uint32_t i = 0; i < count; i++)
+		{
+			arr[i] = items[i];
+		}
+
+		v.m_array.m_size += count;
+		return v.m_array.m_size;
+	}
+
+	template <typename T>
+	void clear(Vector<T>& v)
+	{
+		for (uint32_t i = 0; i < v.m_array.m_size; i++)
+		{
+			v.m_array.m_array[i].~T();
+		}
+
+		v.m_array.m_size = 0;
+	}
+
+	template <typename T>
+	T* begin(Vector<T>& v)
+	{
+		return array::begin(v.m_array);
+	}
+	template <typename T>
+	const T* begin(const Vector<T>& v)
+	{
+		return array::begin(v.m_array);
+	}
+	template <typename T>
+	T* end(Vector<T>& v)
+	{
+		return array::end(v.m_array);
+	}
+	template <typename T>
+	const T* end(const Vector<T>& v)
+	{
+		return array::end(v.m_array);
+	}
+
+	template <typename T>
+	T& front(Vector<T>& v)
+	{
+		return array::front(v.m_array);
+	}
+	template <typename T>
+	const T& front(const Vector<T>& v)
+	{
+		return array::front(v.m_array);
+	}
+	template <typename T>
+	T& back(Vector<T>& v)
+	{
+		return array::back(v.m_array);
+	}
+	template <typename T>
+	const T& back(const Vector<T>& v)
+	{
+		return array::back(v.m_array);
+	}
+} // namespace vector
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline Vector<T>::Vector(Allocator& allocator)
-	: m_allocator(&allocator), m_capacity(0), m_size(0), m_array(NULL)
+	: m_array(allocator)
 {
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline Vector<T>::Vector(Allocator& allocator, uint32_t capacity)
-	: m_allocator(&allocator), m_capacity(0), m_size(0), m_array(NULL)
+	: m_array(allocator)
 {
-	resize(capacity);
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline Vector<T>::Vector(const Vector<T>& other)
-	: m_allocator(other.m_allocator), m_capacity(0), m_size(0), m_array(NULL)
+	: m_array(other.m_array.allocator)
 {
 	*this = other;
 }
@@ -149,13 +287,9 @@ inline Vector<T>::Vector(const Vector<T>& other)
 template <typename T>
 inline Vector<T>::~Vector()
 {
-	if (m_array)
+	for (uint32_t i = 0; i < array::size(m_array); i++)
 	{
-		for (uint32_t i = 0; i < m_size; i++)
-		{
-			m_array[i].~T();
-		}
-		m_allocator->deallocate(m_array);
+		m_array[i].~T();
 	}
 }
 
@@ -163,8 +297,6 @@ inline Vector<T>::~Vector()
 template <typename T>
 inline T& Vector<T>::operator[](uint32_t index)
 {
-	CE_ASSERT(index < m_size, "Index out of bounds");
-
 	return m_array[index];
 }
 
@@ -172,173 +304,15 @@ inline T& Vector<T>::operator[](uint32_t index)
 template <typename T>
 inline const T& Vector<T>::operator[](uint32_t index) const
 {
-	CE_ASSERT(index < m_size, "Index out of bounds");
-
 	return m_array[index];
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline bool Vector<T>::empty() const
-{
-	return m_size == 0;
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline uint32_t Vector<T>::size() const
-{
-	return m_size;
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline uint32_t Vector<T>::capacity() const
-{
-	return m_capacity;
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline void Vector<T>::resize(uint32_t size)
-{
-	if (size > m_capacity)
-	{
-		set_capacity(size);
-	}
-
-	m_size = size;
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline void Vector<T>::reserve(uint32_t capacity)
-{
-	if (capacity > m_capacity)
-	{
-		grow(capacity);
-	}
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline void Vector<T>::set_capacity(uint32_t capacity)
-{
-	if (capacity == m_capacity)
-	{
-		return;
-	}
-
-	if (capacity < m_size)
-	{
-		resize(capacity);
-	}
-
-	if (capacity > 0)
-	{
-		T* tmp = m_array;
-		m_capacity = capacity;
-
-		m_array = (T*)m_allocator->allocate(capacity * sizeof(T));
-
-		for (uint32_t i = 0; i < m_size; i++)
-		{
-			new (m_array + i) T(tmp[i]);
-		}
-
-		if (tmp)
-		{
-			for (uint32_t i = 0; i < m_size; i++)
-			{
-				tmp[i].~T();
-			}
-			m_allocator->deallocate(tmp);
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline void Vector<T>::grow(uint32_t min_capacity)
-{
-	uint32_t new_capacity = m_capacity * 2 + 1;
-
-	if (new_capacity < min_capacity)
-	{
-		new_capacity = min_capacity;
-	}
-
-	set_capacity(new_capacity);
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline void Vector<T>::condense()
-{
-	resize(m_size);
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline uint32_t Vector<T>::push_back(const T& item)
-{
-	if (m_capacity == m_size)
-	{
-		grow(0);
-	}
-
-	new (m_array + m_size) T(item);
-
-	return m_size++;
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline void Vector<T>::pop_back()
-{
-	CE_ASSERT(m_size > 0, "The vector is empty");
-
-	m_size--;
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline uint32_t Vector<T>::push(const T* items, uint32_t count)
-{
-	if (m_capacity <= m_size + count)
-	{
-		grow(m_size + count);
-	}
-
-	T* arr = &m_array[m_size];
-	for (uint32_t i = 0; i < count; i++)
-	{
-		arr[i] = items[i];
-	}
-
-	m_size += count;
-
-	return m_size;
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline void Vector<T>::clear()
-{
-	for (uint32_t i = 0; i < m_size; i++)
-	{
-		m_array[i].~T();
-	}
-
-	m_size = 0;
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline const Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 {
-	const uint32_t size = other.m_size;
-	resize(size);
+	const uint32_t size = vector::size(other);
+	vector::resize(*this, size);
 
 	for (uint32_t i = 0; i < size; i++)
 	{
@@ -348,69 +322,4 @@ inline const Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
-template <typename T>
-inline const T* Vector<T>::begin() const
-{
-	return m_array;
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline T* Vector<T>::begin()
-{
-	return m_array;
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline const T* Vector<T>::end() const
-{
-	return m_array + m_size;
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline T* Vector<T>::end()
-{
-	return m_array + m_size;
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline T& Vector<T>::front()
-{
-	CE_ASSERT(m_size > 0, "The vector is empty");
-
-	return m_array[0];
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline const T& Vector<T>::front() const
-{
-	CE_ASSERT(m_size > 0, "The vector is empty");
-
-	return m_array[0];
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline T& Vector<T>::back()
-{
-	CE_ASSERT(m_size > 0, "The vector is empty");
-
-	return m_array[m_size - 1];
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline const T& Vector<T>::back() const
-{
-	CE_ASSERT(m_size > 0, "The vector is empty");
-
-	return m_array[m_size - 1];
-}
-
 } // namespace crown
-

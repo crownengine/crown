@@ -162,7 +162,7 @@ void list_files(const char* path, Vector<DynamicString>& files)
 		DynamicString filename(default_allocator());
 
 		filename = entry->d_name;
-		files.push_back(filename);
+		vector::push_back(files, filename);
 	}
 
 	closedir(dir);

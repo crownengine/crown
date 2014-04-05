@@ -124,7 +124,7 @@ void parse_nodes(JSONElement e, Array<GraphNode>& nodes, Array<GraphNodeDepth>& 
 	Vector<DynamicString> keys(default_allocator());
 	e.to_keys(keys);
 
-	for (uint32_t k = 0; k < keys.size(); k++)
+	for (uint32_t k = 0; k < vector::size(keys); k++)
 	{
 		const char* node_name = keys[k].c_str();
 		JSONElement node = e.key(node_name);
@@ -161,7 +161,7 @@ void parse_cameras(JSONElement e, Array<UnitCamera>& cameras, const Array<GraphN
 	Vector<DynamicString> keys(default_allocator());
 	e.to_keys(keys);
 
-	for (uint32_t k = 0; k < keys.size(); k++)
+	for (uint32_t k = 0; k < vector::size(keys); k++)
 	{
 		const char* camera_name = keys[k].c_str();
 		JSONElement camera = e.key(camera_name);
@@ -185,7 +185,7 @@ void parse_renderables(JSONElement e, Array<UnitRenderable>& renderables, const 
 	Vector<DynamicString> keys(default_allocator());
 	e.to_keys(keys);
 
-	for (uint32_t k = 0; k < keys.size(); k++)
+	for (uint32_t k = 0; k < vector::size(keys); k++)
 	{
 		const char* renderable_name = keys[k].c_str();
 		JSONElement renderable = e.key(renderable_name);

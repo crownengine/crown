@@ -331,7 +331,7 @@ void JSONElement::to_array(Vector<DynamicString>& array) const
 	{
 		DynamicString str;
 		json::parse_string(temp[i], str);
-		array.push_back(str);
+		vector::push_back(array, str);
 	}
 }
 
@@ -345,7 +345,7 @@ void JSONElement::to_keys(Vector<DynamicString>& keys) const
 	{
 		DynamicString key;
 		json::parse_string(object[i].key, key);
-		keys.push_back(key);
+		vector::push_back(keys, key);
 	}
 }
 

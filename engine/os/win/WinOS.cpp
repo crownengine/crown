@@ -235,7 +235,7 @@ void list_files(const char* path, Vector<DynamicString>& files)
 		DynamicString filename(default_allocator());
 
 		filename = ffd.cFileName;
-		files.push_back(filename);
+		vector::push_back(files, filename);
 	}
 	while (FindNextFile(file, &ffd) != 0);
 
