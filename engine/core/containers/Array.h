@@ -44,7 +44,7 @@ namespace array
 	/// Returns the number of items in the array @a a.
 	template <typename T> uint32_t size(const Array<T>& a);
 
-	/// Returns the maximum number of items the array @a can hold.
+	/// Returns the maximum number of items the array @a a can hold.
 	template <typename T> uint32_t capacity(const Array<T>& a);
 
 	/// Resizes the array @a a to the given @a size.
@@ -77,7 +77,7 @@ namespace array
 	/// of items in the array after the append operation.
 	template <typename T> uint32_t push(Array<T>& a, const T* items, uint32_t count);
 
-	/// Clears the content of the array @a.
+	/// Clears the content of the array @a a.
 	/// @note
 	/// Does not free memory nor call destructors, it only zeroes
 	/// the number of items in the array.
