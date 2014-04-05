@@ -759,7 +759,6 @@ endif (CROWN_BUILD_TESTS)
 
 
 install (TARGETS crown-lib DESTINATION bin)
-install (TARGETS crown-lib DESTINATION test)
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
 
 #install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
