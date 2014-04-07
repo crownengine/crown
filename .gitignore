@@ -31,3 +31,6 @@ test-results
 /engine/third/win32/zlib
 /engine/third/win32/freetype/include
 /engine/third/win32/freetype/lib
+
+/engine/third/win32/freetype-2.5.3
+/engine/third/win32/freetype-2.4.9
