@@ -251,6 +251,7 @@ namespace lua_system
 		load_mouse(env);
 		load_physics_world(env);
 		load_quaternion(env);
+		load_quaternionbox(env);
 		load_raycast(env);
 		load_resource_package(env);
 		load_sound_world(env);
