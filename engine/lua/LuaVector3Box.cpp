@@ -38,12 +38,12 @@ static int vector3box_new(lua_State* L)
 	LuaStack stack(L);
 
 	Vector3 v;
-	if (stack.num_args() == 2)
+	if (stack.num_args() == 1)
 	{
 		const Vector3 tv = stack.get_vector3(1);
 		v = tv;
 	}
-	else if (stack.num_args() == 4)
+	else if (stack.num_args() == 3)
 	{
 		v.x = stack.get_float(1);
 		v.y = stack.get_float(2);
