@@ -157,14 +157,18 @@ struct EventType
 //-----------------------------------------------------------------------------
 struct CollisionEvent
 {
+	enum { BEGIN_TOUCH, END_TOUCH } type;
 	Actor* actors[2];
 	Vector3 where;
+	Vector3 normal;
 };
 
 //-----------------------------------------------------------------------------
 struct TriggerEvent
 {
-	Actor* actor;
+	enum { BEGIN_TOUCH, END_TOUCH } type;
+	Actor* trigger;
+	Actor* other;
 };
 
 } // namespace physics_world
