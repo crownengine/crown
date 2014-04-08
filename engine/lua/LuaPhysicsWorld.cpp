@@ -65,7 +65,7 @@ static int physics_world_make_raycast(lua_State* L)
 	int mode = stack.get_int(3);
 	int filter = stack.get_int(4);
 
-	RaycastId raycast = world->create_raycast(callback, (CollisionMode::Enum) mode, (CollisionType::Enum) filter);
+	RaycastId raycast = world->create_raycast((CollisionMode::Enum) mode, (CollisionType::Enum) filter);
 
 	stack.push_raycast(world->lookup_raycast(raycast));
 	return 1;
@@ -86,7 +86,7 @@ static int physics_world_overlap_test(lua_State* L)
 
 	Array<Actor*> actors(default_allocator());
 
-	world->overlap_test(callback, filter, shape_type, pos, rot, size, actors);
+	world->overlap_test(filter, shape_type, pos, rot, size, actors);
 
 	stack.push_table();
 	for (uint32_t i = 0; i < array::size(actors); i++)
