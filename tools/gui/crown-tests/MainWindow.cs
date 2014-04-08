@@ -12,31 +12,11 @@ public partial class MainWindow : Gtk.Window
     Title = "Test Browser";
     SetSizeRequest(500, 300);
     
-    // Create a column for the artist name
-    Gtk.TreeViewColumn artistColumn = new Gtk.TreeViewColumn();
-    artistColumn.Title = "Name";
-
-    // Create a column for the song title
-    Gtk.TreeViewColumn songColumn = new Gtk.TreeViewColumn();
-    songColumn.Title = "Description";
-
-    // Add the columns to the TreeView
     Gtk.TreeView treeview1 = new Gtk.TreeView();
-    Add(treeview1);
-    treeview1.AppendColumn(artistColumn);
-    treeview1.AppendColumn(songColumn);
-
+    treeview1.AppendColumn("Name", new Gtk.CellRendererText(), "text", 0);
+    treeview1.AppendColumn("Description", new Gtk.CellRendererText(), "text", 1);
     treeview1.Model = LoadData();
-
-    Gtk.CellRendererText testNameCell = new Gtk.CellRendererText();
-    artistColumn.PackStart(testNameCell, true);
-
-    Gtk.CellRendererText testDescriptionCell = new Gtk.CellRendererText();
-    songColumn.PackStart(testDescriptionCell, true);
-
-    // Tell the Cell Renderers which items in the model to display
-    artistColumn.AddAttribute(testNameCell, "text", 0);
-    songColumn.AddAttribute(testDescriptionCell, "text", 1);
+    Add(treeview1);
 
     LoadData();
   }
