@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ContainerTypes.h"
 #include "StringUtils.h"
 #include "DynamicString.h"
+#include "Map.h"
 
 namespace crown
 {
@@ -429,7 +430,7 @@ namespace json
 	}
 
 	//-----------------------------------------------------------------------------
-	void parse_object(const char* s, Array<JSONPair>& object)
+	void parse_object(const char* s, Map<DynamicString, const char*>& object)
 	{
 		CE_ASSERT_NOT_NULL(s);
 
@@ -449,9 +450,8 @@ namespace json
 
 			while (*ch)
 			{
-				JSONPair pair;
-
-				pair.key = ch;
+				DynamicString key;
+				parse_string(ch, key);
 
 				// Skip any value
 				ch = skip_array(ch);
@@ -465,8 +465,7 @@ namespace json
 				ch = next(ch, ':');
 				ch = skip_whites(ch);
 
-				pair.val = ch;
-				array::push_back(object, pair);
+				map::set(object, key, ch);
 
 				// Skip any value
 				ch = skip_array(ch);

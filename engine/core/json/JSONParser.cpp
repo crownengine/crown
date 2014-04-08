@@ -28,7 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "JSON.h"
 #include "TempAllocator.h"
 #include "StringUtils.h"
-#include "Log.h"
+#include "Vector.h"
+#include "Map.h"
 
 namespace crown
 {
@@ -100,28 +101,13 @@ JSONElement JSONElement::index_or_nil(uint32_t i)
 //--------------------------------------------------------------------------
 JSONElement JSONElement::key(const char* k)
 {
-	Array<JSONPair> object(default_allocator());
-
+	Map<DynamicString, const char*> object(default_allocator());
 	json::parse_object(m_at, object);
 
-	bool found = false;
+	const char* value = map::get(object, DynamicString(k), (const char*) NULL);
+	CE_ASSERT(value != NULL, "Key not found: '%s'", k);
 
-	const char* tmp_at = m_at;
-	for (uint32_t i = 0; i < array::size(object); i++)
-	{
-		DynamicString key;
-		json::parse_string(object[i].key, key);
-
-		if (key == k)
-		{
-			tmp_at = object[i].val;
-			found = true;
-		}
-	}
-
-	CE_ASSERT(found, "Key not found: '%s'", k);
-
-	return JSONElement(tmp_at);
+	return JSONElement(value);
 }
 
 //--------------------------------------------------------------------------
@@ -129,31 +115,13 @@ JSONElement JSONElement::key_or_nil(const char* k)
 {
 	if (m_at != NULL)
 	{
-		Array<JSONPair> object(default_allocator());
-
+		Map<DynamicString, const char*> object(default_allocator());
 		json::parse_object(m_at, object);
 
-		bool found = false;
+		const char* value = map::get(object, DynamicString(k), (const char*) NULL);
 
-		const char* tmp_at = m_at;
-		for (uint32_t i = 0; i < array::size(object); i++)
-		{
-			DynamicString key;
-			json::parse_string(object[i].key, key);
-
-			if (key == k)
-			{
-				tmp_at = object[i].val;
-				found = true;
-			}
-		}
-
-		if (!found)
-		{
-			return JSONElement();
-		}
-
-		return JSONElement(tmp_at);
+		if (value)
+			return JSONElement(value);
 	}
 
 	return JSONElement();
@@ -162,48 +130,10 @@ JSONElement JSONElement::key_or_nil(const char* k)
 //--------------------------------------------------------------------------
 bool JSONElement::has_key(const char* k) const
 {
-	Array<JSONPair> object(default_allocator());
+	Map<DynamicString, const char*> object(default_allocator());
 	json::parse_object(m_at, object);
 
-	for (uint32_t i = 0; i < array::size(object); i++)
-	{
-		DynamicString key;
-		json::parse_string(object[i].key, key);
-
-		if (key == k)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-//--------------------------------------------------------------------------
-bool JSONElement::is_key_unique(const char* k) const
-{
-	Array<JSONPair> object(default_allocator());
-	json::parse_object(m_at, object);
-
-	bool found = false;
-
-	for (uint32_t i = 0; i < array::size(object); i++)
-	{
-		DynamicString key;
-		json::parse_string(object[i].key, key);
-
-		if (key == k)
-		{
-			if (found == true)
-			{
-				return false;
-			}
-
-			found = true;
-		}
-	}
-
-	return found;
+	return map::has(object, DynamicString(k));
 }
 
 //--------------------------------------------------------------------------
@@ -338,14 +268,14 @@ void JSONElement::to_array(Vector<DynamicString>& array) const
 //--------------------------------------------------------------------------
 void JSONElement::to_keys(Vector<DynamicString>& keys) const
 {
-	Array<JSONPair> object(default_allocator());
+	Map<DynamicString, const char*> object(default_allocator());
 	json::parse_object(m_at, object);
 
-	for (uint32_t i = 0; i < array::size(object); i++)
+	const typename Map<DynamicString, const char*>::Node* it = map::begin(object);
+	while (it != map::end(object))
 	{
-		DynamicString key;
-		json::parse_string(object[i].key, key);
-		vector::push_back(keys, key);
+		vector::push_back(keys, (*it).key);
+		it++;
 	}
 }
 
@@ -431,10 +361,9 @@ uint32_t JSONElement::size() const
 		}
 		case JSONType::OBJECT:
 		{
-			Array<JSONPair> object(default_allocator());
+			Map<DynamicString, const char*> object(default_allocator());
 			json::parse_object(m_at, object);
-
-			return array::size(object);
+			return map::size(object);
 		}
 		case JSONType::ARRAY:
 		{

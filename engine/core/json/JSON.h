@@ -26,6 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "DynamicString.h"
+#include "ContainerTypes.h"
 
 #pragma once
 
@@ -48,15 +49,6 @@ struct JSONType
 		BOOL,
 		NIL
 	};
-};
-
-/// Represents a key-value pair in a JSON document.
-///
-/// @ingroup JSON
-struct JSONPair
-{
-	const char* key;
-	const char* val;
 };
 
 /// Functions to parse JSON-encoded strings.
@@ -86,8 +78,8 @@ namespace json
 	/// the corresponding items into the original @a s string.
 	void parse_array(const char* s, Array<const char*>& array);
 
-	/// Parses the @a s JSON object and puts it into @a object as pointers to
-	/// the corresponding key/value pairs into the original @a s string.
-	void parse_object(const char* s, Array<JSONPair>& object);
+	/// Parses the JSON object @a s and puts it into @a object as map from
+	/// key to pointer to the corresponding value into the original string @a s.
+	void parse_object(const char* s, Map<DynamicString, const char*>& object);
 } // namespace json
 } // namespace crown
