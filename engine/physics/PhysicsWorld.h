@@ -58,6 +58,8 @@ namespace crown
 /// @defgroup Physics Physics
 
 /// Global physics-related functions
+///
+/// @ingroup Physics
 namespace physics_system
 {
 	/// Initializes the physics system.
@@ -94,7 +96,7 @@ public:
 	JointId create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1);
 	void destroy_joint(JointId id);
 
-	RaycastId create_raycast(const char* callback, CollisionMode::Enum mode, CollisionType::Enum filter);
+	RaycastId create_raycast(CollisionMode::Enum mode, CollisionType::Enum filter);
 	void destroy_raycast(RaycastId id);
 
 
@@ -105,8 +107,8 @@ public:
 	void clear_kinematic(ActorId id);
 
 	/// Finds all actors in the physics world that are in a particular shape (supported: spheres, capsules and boxes)
-	void overlap_test(const char* callback, CollisionType::Enum filter, ShapeType::Enum type,
-											const Vector3& pos, const Quaternion& rot, const Vector3& size, Array<Actor*>& actors);
+	void overlap_test(CollisionType::Enum filter, ShapeType::Enum type,
+						const Vector3& pos, const Quaternion& rot, const Vector3& size, Array<Actor*>& actors);
 
 	void update(float dt);
 
@@ -116,6 +118,7 @@ public:
 	Raycast* lookup_raycast(RaycastId id);
 
 	World& world() { return m_world; }
+	EventStream& events() { return m_events; }
 
 public:
 
