@@ -136,4 +136,28 @@ struct Hash
 	Array<Entry> _data;
 };
 
+/// Map from key to value. Uses a Vector internally, so, definitely
+/// not suited to performance-critical stuff.
+///
+/// @ingroup Containers
+template <typename TKey, typename TValue>
+struct Map
+{
+	Map(Allocator& a);
+
+	struct Node
+	{
+		TKey key;
+		TValue value;
+		uint32_t left;
+		uint32_t right;
+		uint32_t parent;
+		uint32_t color;
+	};
+
+	uint32_t m_root;
+	uint32_t m_sentinel;
+	Vector<Node> m_data;
+};
+
 } // namespace crown
