@@ -56,12 +56,13 @@ struct RaycastHit
 	Actor*					actor;
 };
 
+
 ///
 /// @ingroup Physics
 struct Raycast
 {
 	/// Constructor
-	Raycast(PxScene* scene, EventStream& events, const char* callback, CollisionMode::Enum mode, CollisionType::Enum type);
+	Raycast(PxScene* scene, CollisionMode::Enum mode, CollisionType::Enum type);
 
 	/// Performs a raycast against objects in the scene. The ray is casted from position @a from, has direction @a dir and is long @a length
 	/// If any actor is hit along the ray, @a EventStream is filled according to @a mode previously specified and callback will be called for processing.
@@ -79,13 +80,9 @@ struct Raycast
 private:
 
 	PxScene* 				m_scene;
-	PxRaycastHit 			m_hits[CE_MAX_RAY_INTERSECTIONS];	
+	PxRaycastHit 			m_hits[CE_MAX_RAY_INTERSECTIONS];
 	PxRaycastBuffer			m_buffer;
 	PxQueryFilterData 		m_fd;
-
-	EventStream&			m_events;
-	const char*				m_callback;
-
 	CollisionMode::Enum		m_mode;
 	CollisionType::Enum		m_type;
 };
