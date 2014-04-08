@@ -154,7 +154,7 @@ namespace physics_system
 		// let triggers through
 		if(PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
 		{
-			pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+			pairFlags = PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_LOST;
 			return PxFilterFlag::eDEFAULT;
 		}
 
@@ -163,9 +163,11 @@ namespace physics_system
 
 		// trigger the contact callback for pairs (A,B) where 
 		// the filtermask of A contains the ID of B and vice versa.
-		if((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+		//if((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
 		{
-			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_CONTACT_POINTS;
+			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND
+						| PxPairFlag::eNOTIFY_TOUCH_LOST
+						| PxPairFlag::eNOTIFY_CONTACT_POINTS;
 			return PxFilterFlag::eDEFAULT;
 		}
 
@@ -311,9 +313,9 @@ void PhysicsWorld::destroy_joint(JointId id)
 }
 
 //-----------------------------------------------------------------------------
-RaycastId PhysicsWorld::create_raycast(const char* callback, CollisionMode::Enum mode, CollisionType::Enum filter)
+RaycastId PhysicsWorld::create_raycast(CollisionMode::Enum mode, CollisionType::Enum filter)
 {
-	Raycast* raycast = CE_NEW(m_raycasts_pool, Raycast)(m_scene, m_events, callback, mode, filter);
+	Raycast* raycast = CE_NEW(m_raycasts_pool, Raycast)(m_scene, mode, filter);
 	return m_raycasts.create(raycast);
 }
 
@@ -389,7 +391,7 @@ void PhysicsWorld::clear_kinematic(ActorId id)
 }
 
 //-----------------------------------------------------------------------------
-void PhysicsWorld::overlap_test(const char* callback, CollisionType::Enum filter, ShapeType::Enum type,
+void PhysicsWorld::overlap_test(CollisionType::Enum filter, ShapeType::Enum type,
 								const Vector3& pos, const Quaternion& rot, const Vector3& size, Array<Actor*>& actors)
 {
 	PxTransform transform(PxVec3(pos.x, pos.y, pos.z), PxQuat(rot.x, rot.y, rot.z, rot.w));
