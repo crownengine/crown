@@ -31,6 +31,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Macros.h"
 
+// HACK
+#include "MathTypes.h"
+
 namespace crown
 {
 
@@ -40,6 +43,9 @@ enum LuaArgumentType
 };
 
 struct LuaResource;
+// HACK
+struct Actor;
+struct Unit;
 
 /// LuaEnvironment is a wrapper of a subset of Lua functions and 
 /// provides utilities for extending Lua
@@ -69,6 +75,9 @@ public:
 	/// call_global("myfunc", 1, ARGUMENT_FLOAT, 3.14f)
 	/// Returns true if success, false otherwise
 	void call_global(const char* func, uint8_t argc, ...);
+
+	// HACK
+	void call_physics_callback(Actor* actor_0, Actor* actor_1, Unit* unit_0, Unit* unit_1, const Vector3& where, const Vector3& normal, const char* type);
 
 private:
 
