@@ -80,6 +80,8 @@ if (CROWN_BUILD_SAMPLES)
 	add_subdirectory(samples)
 endif (CROWN_BUILD_SAMPLES)
 
+add_subdirectory(tests)
+
 # add a target to generate API documentation with Doxygen
 if (CROWN_BUILD_DOC)
   find_package(Doxygen)

@@ -13,5 +13,12 @@ namespace crown_tests.tests
     public String Name;
     [JsonProperty]
     public String Description;
+
+    public int LastResult;
+
+    public String GetFunctionName()
+    {
+      return "test_" + Name.ToLower().Replace(' ', '_');
+    }
   }
 }
