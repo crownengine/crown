@@ -38,20 +38,19 @@ static int quaternionbox_new(lua_State* L)
 	LuaStack stack(L);
 
 	Quaternion q;
+	if (stack.num_args() == 1)
+	{
+		q = stack.get_quaternion(1);
+	}
 	if (stack.num_args() == 2)
 	{
-		const Vector3& v = stack.get_vector3(1);
-		q.x = v.x;
-		q.y = v.y;
-		q.z = v.z;
-		q.w = stack.get_float(2);
+		Quaternion quat(stack.get_vector3(1), stack.get_float(2));
+		q = quat;
 	}
 	else if (stack.num_args() == 4)
 	{
-		q.x = stack.get_float(1);
-		q.y = stack.get_float(2);
-		q.z = stack.get_float(3);
-		q.w = stack.get_float(4);
+		Quaternion quat(stack.get_float(1), stack.get_float(2),	stack.get_float(3),	stack.get_float(4));
+		q = quat;
 	}
 
 	stack.push_quaternionbox(q);
@@ -73,20 +72,19 @@ static int quaternionbox_store(lua_State* L)
 
 	Quaternion& q = stack.get_quaternionbox(1);
 	
+	if (stack.num_args() == 2)
+	{
+		q = stack.get_quaternion(2);
+	}
 	if (stack.num_args() == 3)
 	{
-		const Vector3& v = stack.get_vector3(1);
-		q.x = v.x;
-		q.y = v.y;
-		q.z = v.z;
-		q.w = stack.get_float(2);
+		Quaternion quat(stack.get_vector3(2), stack.get_float(3));
+		q = quat;
 	}
 	else if (stack.num_args() == 5)
 	{
-		q.x = stack.get_float(1);
-		q.y = stack.get_float(2);
-		q.z = stack.get_float(3);
-		q.w = stack.get_float(4);
+		Quaternion quat(stack.get_float(2), stack.get_float(3),	stack.get_float(4),	stack.get_float(5));
+		q = quat;
 	}
 	return 0;
 }

@@ -278,7 +278,7 @@ inline Vector<T>::Vector(Allocator& allocator, uint32_t capacity)
 //-----------------------------------------------------------------------------
 template <typename T>
 inline Vector<T>::Vector(const Vector<T>& other)
-	: m_array(other.m_array.allocator)
+	: m_array(other.m_array)
 {
 	*this = other;
 }

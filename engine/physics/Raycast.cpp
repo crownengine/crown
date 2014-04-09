@@ -35,11 +35,9 @@ namespace crown
 {
 
 //-------------------------------------------------------------------------
-Raycast::Raycast(PxScene* scene, EventStream& events, const char* callback, CollisionMode::Enum mode, CollisionType::Enum type)
+Raycast::Raycast(PxScene* scene, CollisionMode::Enum mode, CollisionType::Enum type)
 	: m_scene(scene)
 	, m_buffer(m_hits, CE_MAX_RAY_INTERSECTIONS)
-	, m_events(events)
-	, m_callback(callback)
 	, m_mode(mode)
 	, m_type(type)
 {

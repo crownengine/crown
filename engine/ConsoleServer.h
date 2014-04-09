@@ -53,12 +53,9 @@ class ConsoleServer
 {
 public:
 
-	/// Listens on the given @a port.
-								ConsoleServer(uint16_t port);
-
-	/// Initializes the system. If @a wait is true, this function
+	/// Listens on the given @a port. If @a wait is true, this function
 	/// blocks until a client is connected.
-	void						init(bool wait);
+	void						init(uint16_t port, bool wait);
 	void						shutdown();
 
 	void						log_to_all(const char* message, LogSeverity::Enum severity);
@@ -83,7 +80,6 @@ private:
 
 private:
 
-	uint16_t					m_port;
 	TCPServer					m_server;
 	ClientArray					m_clients;
 };

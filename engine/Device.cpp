@@ -121,8 +121,8 @@ void Device::init()
 
 	// RPC only in debug or development builds
 	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-		m_console = CE_NEW(m_allocator, ConsoleServer)(m_console_port);
-		m_console->init(false);
+		m_console = CE_NEW(m_allocator, ConsoleServer)();
+		m_console->init(m_console_port, false);
 	#endif
 
 	Log::d("Creating filesystem...");

@@ -55,6 +55,8 @@ using physx::PxVec3;
 using physx::PxRaycastCallback;
 using physx::PxAgain;
 using physx::PxRaycastHit;
+using physx::PxPairFlag;
+using physx::PxContactPairFlag;
 
 namespace crown
 {
@@ -81,51 +83,62 @@ public:
 	//-----------------------------------------------------------------------------
 	void onContact(const PxContactPairHeader& pair_header, const PxContactPair* pairs, PxU32 num_pairs)
 	{
-		// printf("CONTACT\n");
+		// Do not report contact if either actor0 or actor1 or both have been deleted
+		if (pair_header.flags & PxContactPairHeaderFlag::eDELETED_ACTOR_0 ||
+			pair_header.flags & PxContactPairHeaderFlag::eDELETED_ACTOR_1) return;
 
-		// Do not report contact if either actor0 or actor1 has been deleted
-		if (pair_header.flags & PxContactPairHeaderFlag::eDELETED_ACTOR_0 || pair_header.flags & PxContactPairHeaderFlag::eDELETED_ACTOR_1) return;
-
-		// printf("ACTOR0 = %.4X\n", pair_header.actors[0]->userData);
-		// printf("ACTOR1 = %.4X\n", pair_header.actors[1]->userData);
-
-		PxVec3 where;
-
-		// printf("Num pairs = %d\n", num_pairs);
 		for (PxU32 pp = 0; pp < num_pairs; pp++)
 		{
-			PxContactPairPoint points[8];
-			const PxU32 num_points = pairs[pp].extractContacts(points, 8);
-			// printf("Num points = %d\n", num_points);
+			const PxContactPair& cp = pairs[pp];
 
+			// We are only interested in touch found or lost
+			if (!cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND ||
+				!cp.events & PxPairFlag::eNOTIFY_TOUCH_LOST) continue;
+
+			// Skip if either shape0 or shape1 or both have been deleted
+			if (cp.flags & PxContactPairFlag::eDELETED_SHAPE_0 ||
+				cp.flags & PxContactPairFlag::eDELETED_SHAPE_1) continue;
+			
+			PxContactPairPoint points[8];
+			const PxU32 num_points = cp.extractContacts(points, 8);
+			
+			PxVec3 where;
+			PxVec3 normal;
 			for (PxU32 i = 0; i < num_points; i++)
 			{
 				where = points[i].position;
-				// printf("where = %.2f %.2f %.2f\n", where.x, where.y, where.z);
+				normal = points[i].normal;
 			}
-		}
 
-		physics_world::CollisionEvent ev;
-		ev.actors[0] = (Actor*) pair_header.actors[0]->userData;
-		ev.actors[1] = (Actor*) pair_header.actors[1]->userData;
-		ev.where = Vector3(where.x, where.y, where.z);
-		event_stream::write(m_events, physics_world::EventType::COLLISION, ev);
+			physics_world::CollisionEvent ev;
+			ev.type = (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND) ?
+						physics_world::CollisionEvent::BEGIN_TOUCH :
+						physics_world::CollisionEvent::END_TOUCH;
+			ev.actors[0] = (Actor*) pair_header.actors[0]->userData;
+			ev.actors[1] = (Actor*) pair_header.actors[1]->userData;
+			ev.where = Vector3(where.x, where.y, where.z);
+			ev.normal = Vector3(normal.x, normal.y, normal.z);
+			event_stream::write(m_events, physics_world::EventType::COLLISION, ev);
+		}
 	}
 
 	//-----------------------------------------------------------------------------
 	void onTrigger(PxTriggerPair* pairs, PxU32 count)
 	{
-		// printf("TRIGGER\n");
-		// printf("Num pairs = %d\n", count);
-
 		for (PxU32 pp = 0; pp < count; pp++)
 		{
-			const PxTriggerPair& pair = pairs[pp];
-			// Do not report event if either trigger ot other shape has been deleted
-			if (pair.flags & PxTriggerPairFlag::eDELETED_SHAPE_TRIGGER || pair.flags & PxTriggerPairFlag::eDELETED_SHAPE_OTHER) continue;
+			const PxTriggerPair& tp = pairs[pp];
 
-			// TODO
+			// Do not report event if either trigger ot other shape or both have been deleted
+			if (tp.flags & PxTriggerPairFlag::eDELETED_SHAPE_TRIGGER ||
+				tp.flags & PxTriggerPairFlag::eDELETED_SHAPE_OTHER) continue;
+
 			physics_world::TriggerEvent ev;
+			ev.type = (tp.status & PxPairFlag::eNOTIFY_TOUCH_FOUND ?
+						physics_world::TriggerEvent::BEGIN_TOUCH : physics_world::TriggerEvent::END_TOUCH);
+			ev.trigger = (Actor*) tp.triggerActor->userData;
+			ev.other = (Actor*) tp.otherActor->userData;
+
 			event_stream::write(m_events, physics_world::EventType::TRIGGER, ev);
 		}
 	}
@@ -133,13 +146,11 @@ public:
 	//-----------------------------------------------------------------------------
 	void onWake(PxActor** /*actors*/, PxU32 /*count*/)
 	{
-		// printf("WAKE\n");
 	}
 
 	//-----------------------------------------------------------------------------
 	void onSleep(PxActor** /*actors*/, PxU32 /*count*/)
 	{
-		// printf("SLEEP\n");
 	}
 
 private:
@@ -151,21 +162,18 @@ private:
 class PhysicsControllerCallback : public PxUserControllerHitReport
 {
 	//-----------------------------------------------------------------------------
-	void onShapeHit(const PxControllerShapeHit& hit)
+	void onShapeHit(const PxControllerShapeHit& /*hit*/)
 	{
-		// printf("SHAPE HIT\n");
 	}
 
 	//-----------------------------------------------------------------------------
-	void onControllerHit(const PxControllersHit& hit)
+	void onControllerHit(const PxControllersHit& /*hit*/)
 	{
-		// printf("CONTROLLER HIT\n");
 	}
 
 	//-----------------------------------------------------------------------------
-	void onObstacleHit(const PxControllerObstacleHit& hit)
+	void onObstacleHit(const PxControllerObstacleHit& /*hit*/)
 	{
-		// printf("OBSTACLE HIT\n");
 	}
 };
 

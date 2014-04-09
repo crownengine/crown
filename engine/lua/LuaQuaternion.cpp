@@ -151,6 +151,19 @@ static int quaternion_power(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int quaternion_elements(lua_State* L)
+{
+	LuaStack stack(L);
+	const Quaternion& q = stack.get_quaternion(1);
+
+	stack.push_float(q.x);
+	stack.push_float(q.y);
+	stack.push_float(q.z);
+	stack.push_float(q.w);
+	return 4;
+}
+
+//-----------------------------------------------------------------------------
 void load_quaternion(LuaEnvironment& env)
 {
 	env.load_module_function("Quaternion", "new",					quaternion_new);
@@ -162,6 +175,7 @@ void load_quaternion(LuaEnvironment& env)
 	env.load_module_function("Quaternion", "conjugate",				quaternion_conjugate);
 	env.load_module_function("Quaternion", "inverse",				quaternion_inverse);
 	env.load_module_function("Quaternion", "power",					quaternion_power);
+	env.load_module_function("Quaternion", "elements",				quaternion_elements);
 
 	env.load_module_constructor("Quaternion",						quaternion_ctor);
 }

@@ -126,7 +126,6 @@ set (CONTAINERS_HEADERS
 	core/containers/Map.h
 	core/containers/PriorityQueue.h
 	core/containers/Queue.h
-	core/containers/RBTree.h
 	core/containers/Vector.h
 )
 

@@ -30,6 +30,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "ResourceManager.h"
 #include "DebugLine.h"
+#include "Actor.h"
+#include "LuaEnvironment.h"
 
 namespace crown
 {
@@ -162,6 +164,8 @@ void World::update(float dt)
 	m_scenegraph_manager.update();
 
 	m_sound_world->update();
+
+	process_physics_events();
 }
 
 //-----------------------------------------------------------------------------
@@ -292,6 +296,72 @@ PhysicsWorld* World::physics_world()
 SoundWorld* World::sound_world()
 {
 	return m_sound_world;
+}
+
+//-----------------------------------------------------------------------------
+void World::process_physics_events()
+{
+	EventStream& events = m_physics_world.events();
+
+	// Read all events
+	const char* ee = array::begin(events);
+	while (ee != array::end(events))
+	{
+		event_stream::Header h = *(event_stream::Header*) ee;
+
+		// Log::d("=== PHYSICS EVENT ===");
+		// Log::d("type = %d", h.type);
+		// Log::d("size = %d", h.size);
+
+		const char* event = ee + sizeof(event_stream::Header);
+
+		switch (h.type)
+		{
+			case physics_world::EventType::COLLISION:
+			{
+				physics_world::CollisionEvent coll_ev = *(physics_world::CollisionEvent*) event;
+
+				// Log::d("type    = %s", coll_ev.type == physics_world::CollisionEvent::BEGIN_TOUCH ? "begin" : "end");
+				// Log::d("actor_0 = (%p)", coll_ev.actors[0]);
+				// Log::d("actor_1 = (%p)", coll_ev.actors[1]);
+				// Log::d("unit_0  = (%p)", coll_ev.actors[0]->unit());
+				// Log::d("unit_1  = (%p)", coll_ev.actors[1]->unit());
+				// Log::d("where   = (%f %f %f)", coll_ev.where.x, coll_ev.where.y, coll_ev.where.z);
+				// Log::d("normal  = (%f %f %f)", coll_ev.normal.x, coll_ev.normal.y, coll_ev.normal.z);
+
+				device()->lua_environment()->call_physics_callback(
+					coll_ev.actors[0],
+					coll_ev.actors[1],
+					coll_ev.actors[0]->unit(),
+					coll_ev.actors[1]->unit(),
+					coll_ev.where,
+					coll_ev.normal,
+					(coll_ev.type == physics_world::CollisionEvent::BEGIN_TOUCH) ? "begin" : "end");
+				break;
+			}
+			case physics_world::EventType::TRIGGER:
+			{
+				physics_world::TriggerEvent trigg_ev = *(physics_world::TriggerEvent*) event;
+
+				// Log::d("type    = %s", trigg_ev.type == physics_world::TriggerEvent::BEGIN_TOUCH ? "begin" : "end");
+				// Log::d("trigger = (%p)", trigg_ev.trigger);
+				// Log::d("other   = (%p)", trigg_ev.other);
+				break;
+			}
+			default:
+			{
+				CE_FATAL("Unknown Physics event");
+				break;
+			}
+		}
+
+		// Log::d("=====================");
+
+		// Next event
+		ee += sizeof(event_stream::Header) + h.size;
+	}
+
+	array::clear(events);
 }
 
 } // namespace crown

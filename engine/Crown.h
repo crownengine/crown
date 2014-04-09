@@ -50,15 +50,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector4.h"
 
 // Core/Containers
-#include "Map.h"
-#include "RBTree.h"
 #include "ContainerTypes.h"
-#include "Vector.h"
-#include "Queue.h"
-#include "PriorityQueue.h"
-#include "IdTable.h"
-#include "IdArray.h"
 #include "EventStream.h"
+#include "Hash.h"
+#include "IdArray.h"
+#include "IdTable.h"
+#include "Map.h"
+#include "PriorityQueue.h"
+#include "Queue.h"
+#include "Vector.h"
 
 // Core/Strings
 #include "StringUtils.h"

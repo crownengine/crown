@@ -61,77 +61,82 @@ struct DebugLine;
 class World
 {
 public:
-										World();
-										~World();
+	
+	World();
+	~World();
 
-	WorldId								id() const;
-	void								set_id(WorldId id);
+	WorldId id() const;
+	void set_id(WorldId id);
 
 	/// Spawns a new instance of the unit @a name at the given @a position and @a rotation.
-	UnitId								spawn_unit(const char* name, const Vector3& position = vector3::ZERO, const Quaternion& rotation = quaternion::IDENTITY);
-	UnitId								spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& pos, const Quaternion& rot);
+	UnitId spawn_unit(const char* name, const Vector3& position = vector3::ZERO, const Quaternion& rotation = quaternion::IDENTITY);
+	UnitId spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& pos, const Quaternion& rot);
 
 	/// Destroys the unit with the given @a id.
-	void								destroy_unit(UnitId id);
-	void								reload_units(UnitResource* old_ur, UnitResource* new_ur);
+	void destroy_unit(UnitId id);
+	void reload_units(UnitResource* old_ur, UnitResource* new_ur);
 
 	/// Returns the number of units in the world.
-	uint32_t							num_units() const;
+	uint32_t num_units() const;
 
 	/// Links the unit @a child to the @a node of the unit @a parent.
 	/// After this call, @a child will follow the @a parent unit.
-	void								link_unit(UnitId child, UnitId parent, int32_t node);
+	void link_unit(UnitId child, UnitId parent, int32_t node);
 
 	/// Unlinks the unit @a unit from its parent if it has any.
-	void								unlink_unit(UnitId unit);
+	void unlink_unit(UnitId unit);
 
-	Unit*								lookup_unit(UnitId unit);
-	Camera*								lookup_camera(CameraId camera);
+	Unit* lookup_unit(UnitId unit);
+	Camera* lookup_camera(CameraId camera);
 
 	/// Updates all units and sub-systems with the given @a dt delta time.
-	void								update(float dt);
+	void update(float dt);
 
 	/// Renders the world form the point of view of the given @a camera.
-	void								render(Camera* camera);
+	void render(Camera* camera);
 
-	CameraId							create_camera(SceneGraph& sg, int32_t node);
-	void								destroy_camera(CameraId id);
+	CameraId create_camera(SceneGraph& sg, int32_t node);
+	void destroy_camera(CameraId id);
 
 	/// Plays the sound with the given @æ name at the given @a position, with the given
 	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
-	SoundInstanceId						play_sound(const char* name, bool loop = false, float volume = 1.0f, const Vector3& position = vector3::ZERO, float range = 50.0f);
+	SoundInstanceId play_sound(const char* name, bool loop = false, float volume = 1.0f, const Vector3& position = vector3::ZERO, float range = 50.0f);
 
 	/// Stops the sound with the given @a id.
-	void								stop_sound(SoundInstanceId id);
+	void stop_sound(SoundInstanceId id);
 
 	/// Links the sound @a if to the @a node of the given @æ unit.
 	/// After this call, the sound @a id will follow the unit @æ unit.
-	void								link_sound(SoundInstanceId id, Unit* unit, int32_t node);
+	void link_sound(SoundInstanceId id, Unit* unit, int32_t node);
 
 	/// Sets the @a pose of the listener.
-	void								set_listener_pose(const Matrix4x4& pose);
+	void set_listener_pose(const Matrix4x4& pose);
 
 	/// Sets the @a position of the sound @a id.
-	void								set_sound_position(SoundInstanceId id, const Vector3& position);
+	void set_sound_position(SoundInstanceId id, const Vector3& position);
 
 	/// Sets the @a range of the sound @a id.
-	void								set_sound_range(SoundInstanceId id, float range);
+	void set_sound_range(SoundInstanceId id, float range);
 
 	/// Sets the @a volume of the sound @a id.
-	void								set_sound_volume(SoundInstanceId id, float volume);
+	void set_sound_volume(SoundInstanceId id, float volume);
 
-	GuiId								create_window_gui(const char* name);
-	GuiId								create_world_gui(const Matrix4x4 pose, const uint32_t width, const uint32_t height);
-	void								destroy_gui(GuiId id);
-	Gui*								lookup_gui(GuiId id);
+	GuiId create_window_gui(const char* name);
+	GuiId create_world_gui(const Matrix4x4 pose, const uint32_t width, const uint32_t height);
+	void destroy_gui(GuiId id);
+	Gui* lookup_gui(GuiId id);
 
-	DebugLine*							create_debug_line(bool depth_test);
-	void								destroy_debug_line(DebugLine* line);
+	DebugLine* create_debug_line(bool depth_test);
+	void destroy_debug_line(DebugLine* line);
 
-	SceneGraphManager*					scene_graph_manager();
-	RenderWorld*						render_world();
-	PhysicsWorld*						physics_world();
-	SoundWorld*							sound_world();
+	SceneGraphManager* scene_graph_manager();
+	RenderWorld* render_world();
+	PhysicsWorld* physics_world();
+	SoundWorld* sound_world();
+
+private:
+
+	void process_physics_events();
 
 private:
 
