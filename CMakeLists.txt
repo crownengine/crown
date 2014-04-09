@@ -9,6 +9,7 @@ set (CROWN_VERSION_MICRO 13)
 option (CROWN_BUILD_SAMPLES "Whether to build the samples" ON)
 option (CROWN_BUILD_TOOLS "Whether to build the tools" ON)
 option (CROWN_BUILD_TESTS "Whether to build unit tests" ON)
+option (CROWN_BUILD_DOC "Whether to build docs" ON)
 
 # build configuration variables
 if (CROWN_BUILD MATCHES "linux-debug-32")
@@ -80,11 +81,13 @@ if (CROWN_BUILD_SAMPLES)
 endif (CROWN_BUILD_SAMPLES)
 
 # add a target to generate API documentation with Doxygen
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
-	add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-						WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-						COMMENT "Generating API documentation with Doxygen" VERBATIM)
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/documentation/html DESTINATION documentation)
-endif(DOXYGEN_FOUND)
+if (CROWN_BUILD_DOC)
+  find_package(Doxygen)
+  if(DOXYGEN_FOUND)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+              WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+              COMMENT "Generating API documentation with Doxygen" VERBATIM)
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/documentation/html DESTINATION documentation)
+  endif(DOXYGEN_FOUND)
+endif (CROWN_BUILD_DOC)
