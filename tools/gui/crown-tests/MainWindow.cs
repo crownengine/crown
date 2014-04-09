@@ -19,35 +19,47 @@ public partial class MainWindow : Gtk.Window
     Title = "Test Browser";
     SetSizeRequest(500, 300);
 
-    var table = new Gtk.Table(1, 2, false);
+    var table = new Gtk.Table(2, 2, false);
 
     var configTable = new Gtk.Table(1, 1, false);
+    configTable.RowSpacing = 2;
+    configTable.ColumnSpacing = 2;
     mEntryTestFolder = new Gtk.Entry();
     configTable.Attach(mEntryTestFolder, 1, 2, 0, 1);
     mEntryCrownTestsExe = new Gtk.Entry();
     configTable.Attach(mEntryCrownTestsExe, 1, 2, 1, 2);
     var label1 = new Gtk.Label("Tests folder");
-    configTable.Attach(label1, 0, 1, 0, 1);
+    configTable.Attach(label1, 0, 1, 0, 1, AttachOptions.Shrink, AttachOptions.Shrink, 0, 0);
     var label2 = new Gtk.Label("crown-tests executable");
-    configTable.Attach(label2, 0, 1, 1, 2);
-    table.Attach(configTable, 0, 2, 0, 1);
+    configTable.Attach(label2, 0, 1, 1, 2, AttachOptions.Shrink, AttachOptions.Shrink, 0, 0);
+    table.Attach(configTable, 0, 2, 0, 1, AttachOptions.Expand | AttachOptions.Fill, AttachOptions.Shrink, 10, 10);
     
     mTreeView = new Gtk.TreeView();
     mTreeView.AppendColumn("Name", new Gtk.CellRendererText(), "text", 0);
     mTreeView.AppendColumn("State", new Gtk.CellRendererText(), "text", 1);
     //treeview1.AppendColumn("Description", new Gtk.CellRendererText(), "text", 1);
     
-    table.Attach(mTreeView, 0, 1, 1, 3);
+    table.Attach(mTreeView, 0, 1, 1, 2);
+
+    var frameAlign = new Gtk.Alignment(0, 0, 0, 0);
+    var frame = new Gtk.Frame("Operations");
+    var frameContentVBox = new Gtk.VBox();
+    frame.Child = frameContentVBox;
+    frame.WidthRequest = 120;
 
     Gtk.Button btnCreate = new Gtk.Button();
     btnCreate.Label = "Create";
     btnCreate.Clicked += btnCreate_Click;
-    table.Attach(btnCreate, 1, 2, 1, 2);
+    //table.Attach(btnCreate, 1, 2, 1, 2, AttachOptions.Shrink, AttachOptions.Shrink, 0, 0);
+    frameContentVBox.PackStart(btnCreate);
 
     Gtk.Button btnExecute = new Gtk.Button();
     btnExecute.Label = "Execute";
     btnExecute.Clicked += btnExecute_Click;
-    table.Attach(btnExecute, 1, 2, 2, 3);
+    //table.Attach(btnExecute, 1, 2, 2, 3, AttachOptions.Shrink, AttachOptions.Shrink, 0, 0);
+    frameContentVBox.PackStart(btnExecute);
+    frameAlign.Child = frame;
+    table.Attach(frameAlign, 1, 2, 1, 2, AttachOptions.Shrink, AttachOptions.Expand | AttachOptions.Fill, 10, 0);
 
     Add(table);
 
