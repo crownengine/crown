@@ -224,6 +224,80 @@ namespace lua_system
 		return 1;
 	}
 
+	//-----------------------------------------------------------------------------
+	static int lightuserdata_index(lua_State* L)
+	{
+		LuaStack stack(L);
+
+		if (lua_system::is_vector3(1))
+		{
+			Vector3& v = stack.get_vector3(1);
+			const char* s = stack.get_string(2);
+
+			if (string::strcmp(s, "x") == 0)
+			{
+				stack.push_float(v.x);
+				return 1;
+			}
+			else if (string::strcmp(s, "y") == 0)
+			{
+				stack.push_float(v.y);
+				return 1;
+			}
+			else if (string::strcmp(s, "z") == 0)
+			{
+				stack.push_float(v.z);
+				return 1;
+			}
+		}
+		else if (lua_system::is_vector2(1))
+		{
+			Vector2& v = stack.get_vector2(1);
+			const char* s = stack.get_string(2);
+
+			if (string::strcmp(s, "x") == 0)
+			{
+				stack.push_float(v.x);
+				return 1;
+			}
+			else if (string::strcmp(s, "y") == 0)
+			{
+				stack.push_float(v.y);
+				return 1;
+			}
+		}
+
+		return 0;
+	}
+
+	//-----------------------------------------------------------------------------
+	static int lightuserdata_newindex(lua_State* L)
+	{
+		LuaStack stack(L);
+
+		if (lua_system::is_vector3(1))
+		{
+			Vector3& v = stack.get_vector3(1);
+			const char* s = stack.get_string(2);
+			const float value = stack.get_float(3);
+
+			if (string::strcmp(s, "x") == 0) v.x = value;
+			else if (string::strcmp(s, "y") == 0) v.y = value;
+			else if (string::strcmp(s, "z") == 0) v.z = value;
+		}
+		else if (lua_system::is_vector2(1))
+		{
+			Vector2& v = stack.get_vector2(1);
+			const char* s = stack.get_string(2);
+			const float value = stack.get_float(3);
+
+			if (string::strcmp(s, "x") == 0) v.x = value;
+			else if (string::strcmp(s, "y") == 0) v.y = value;
+		}
+
+		return 0;
+	}
+
 	// Initializes lua subsystem
 	void init()
 	{
@@ -302,6 +376,14 @@ namespace lua_system
 
 		lua_pushstring(s_L, "__unm");
 		lua_pushcfunction(s_L, lightuserdata_unm);
+		lua_settable(s_L, 1);
+
+		lua_pushstring(s_L, "__index");
+		lua_pushcfunction(s_L, lightuserdata_index);
+		lua_settable(s_L, 1);
+
+		lua_pushstring(s_L, "__newindex");
+		lua_pushcfunction(s_L, lightuserdata_newindex);
 		lua_settable(s_L, 1);
 
 		lua_pop(s_L, 1); // Pop Lightuserdata_mt
