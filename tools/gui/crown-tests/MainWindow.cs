@@ -1,118 +1,78 @@
 ﻿using System;
 using Gtk;
-using Newtonsoft.Json;
 using crown_tests.tests;
+using Newtonsoft.Json;
 
-public partial class MainWindow : Gtk.Window
+namespace crown_tests
 {
-  Gtk.TreeStore mTreeStore;
-  Gtk.TreeView mTreeView;
-  Gtk.Entry mEntryTestFolder;
-  Gtk.Entry mEntryCrownTestsExe;
+	public partial class MainWindow : Gtk.Window
+	{
+		private TestContainer mContainer;
 
-  private TestContainer mContainer;
+		public MainWindow () : 
+			base (Gtk.WindowType.Toplevel)
+		{
+			this.Build ();
 
-  public MainWindow(): base(Gtk.WindowType.Toplevel)
-  {
-    //Glade.XML gxml = new Glade.XML("main1.glade", "MyWindow", null);
-    //gxml.Autoconnect(this);
-    Title = "Test Browser";
-    SetSizeRequest(500, 300);
+			twTests.AppendColumn("Name", new Gtk.CellRendererText(), "text", 0);
+			twTests.AppendColumn("State", new Gtk.CellRendererText(), "text", 1);
 
-    var table = new Gtk.Table(2, 2, false);
+			LoadConfigData ();
+			LoadTestsData ();
+		}
 
-    var configTable = new Gtk.Table(1, 1, false);
-    configTable.RowSpacing = 2;
-    configTable.ColumnSpacing = 2;
-    mEntryTestFolder = new Gtk.Entry();
-    configTable.Attach(mEntryTestFolder, 1, 2, 0, 1);
-    mEntryCrownTestsExe = new Gtk.Entry();
-    configTable.Attach(mEntryCrownTestsExe, 1, 2, 1, 2);
-    var label1 = new Gtk.Label("Tests folder");
-    configTable.Attach(label1, 0, 1, 0, 1, AttachOptions.Shrink, AttachOptions.Shrink, 0, 0);
-    var label2 = new Gtk.Label("crown-tests executable");
-    configTable.Attach(label2, 0, 1, 1, 2, AttachOptions.Shrink, AttachOptions.Shrink, 0, 0);
-    table.Attach(configTable, 0, 2, 0, 1, AttachOptions.Expand | AttachOptions.Fill, AttachOptions.Shrink, 10, 10);
-    
-    mTreeView = new Gtk.TreeView();
-    mTreeView.AppendColumn("Name", new Gtk.CellRendererText(), "text", 0);
-    mTreeView.AppendColumn("State", new Gtk.CellRendererText(), "text", 1);
-    //treeview1.AppendColumn("Description", new Gtk.CellRendererText(), "text", 1);
-    
-    table.Attach(mTreeView, 0, 1, 1, 2);
+		protected void OnDeleteEvent (object sender, DeleteEventArgs a)
+		{
+			Application.Quit ();
+			a.RetVal = true;
+		}
 
-    var frameAlign = new Gtk.Alignment(0, 0, 0, 0);
-    var frame = new Gtk.Frame("Operations");
-    var frameContentVBox = new Gtk.VBox();
-    frame.Child = frameContentVBox;
-    frame.WidthRequest = 120;
+		#region "My Code"
+		private void btnCreate_Click(object o, EventArgs args)
+		{
+			var creator = new TestSourceCreator(mContainer, txtTestFolder.Text);
+			creator.Create();
+		}
 
-    Gtk.Button btnCreate = new Gtk.Button();
-    btnCreate.Label = "Create";
-    btnCreate.Clicked += btnCreate_Click;
-    //table.Attach(btnCreate, 1, 2, 1, 2, AttachOptions.Shrink, AttachOptions.Shrink, 0, 0);
-    frameContentVBox.PackStart(btnCreate);
+		private void btnExecute_Click(object o, EventArgs args)
+		{
+			var executor = new TestExecutor(mContainer, txtCrownTestsExe.Text);
+			executor.ExecuteAll();
+			RefreshData();
+		}
 
-    Gtk.Button btnExecute = new Gtk.Button();
-    btnExecute.Label = "Execute";
-    btnExecute.Clicked += btnExecute_Click;
-    //table.Attach(btnExecute, 1, 2, 2, 3, AttachOptions.Shrink, AttachOptions.Shrink, 0, 0);
-    frameContentVBox.PackStart(btnExecute);
-    frameAlign.Child = frame;
-    table.Attach(frameAlign, 1, 2, 1, 2, AttachOptions.Shrink, AttachOptions.Expand | AttachOptions.Fill, 10, 0);
+		private void LoadConfigData()
+		{
+			txtTestFolder.Text = @"..\..\..\..\..\tests\";
+			txtCrownTestsExe.Text = @"..\..\..\..\..\build\tests\Debug\crown-tests.exe";
+		}
 
-    Add(table);
+		private void LoadTestsData()
+		{
+			var testsJsonFullfileName = System.IO.Path.Combine(txtTestFolder.Text, "tests.json");
+			mContainer = JsonConvert.DeserializeObject<TestContainer>(System.IO.File.ReadAllText(testsJsonFullfileName));
 
-    LoadConfigData();
-    LoadTestsData();
-  }
+			RefreshData();
+		}
 
-  private void btnCreate_Click(object o, EventArgs args)
-  {
-    var creator = new TestSourceCreator(mContainer, mEntryTestFolder.Text);
-    creator.Create();
-  }
+		private void RefreshData()
+		{
+			var treeStore = twTests.Model as Gtk.TreeStore; // new Gtk.TreeStore(typeof(string), typeof(string));
+			if (treeStore == null)
+				treeStore = new Gtk.TreeStore(typeof(string), typeof(string));
+			treeStore.Clear();
+			foreach (var category in mContainer.Categories)
+			{
+				var iter = treeStore.AppendValues(category.Name);
+				foreach (var test in category.Tests)
+				{
+					treeStore.AppendValues(iter, test.Name, test.LastResult == 0 ? "Passed" : "Failed");
+				}
+			}
 
-  private void btnExecute_Click(object o, EventArgs args)
-  {
-    var executor = new TestExecutor(mContainer, mEntryCrownTestsExe.Text);
-    executor.ExecuteAll();
-    RefreshData();
-  }
-
-  private void LoadConfigData()
-  {
-    mEntryTestFolder.Text = @"..\..\..\..\..\tests\";
-    mEntryCrownTestsExe.Text = @"..\..\..\..\..\build\tests\Debug\crown-tests.exe";
-  }
-
-  private void LoadTestsData()
-  {
-    var testsJsonFullfileName = System.IO.Path.Combine(mEntryTestFolder.Text, "tests.json");
-    mContainer = JsonConvert.DeserializeObject<TestContainer>(System.IO.File.ReadAllText(testsJsonFullfileName));
-
-    RefreshData();
-  }
-
-  private void RefreshData()
-  {
-    mTreeStore = new Gtk.TreeStore(typeof(string), typeof(string));
-    //mTreeStore.Clear();
-    foreach (var category in mContainer.Categories)
-    {
-      var iter = mTreeStore.AppendValues(category.Name);
-      foreach (var test in category.Tests)
-      {
-        mTreeStore.AppendValues(iter, test.Name, test.LastResult == 0 ? "Passed" : "Failed");
-      }
-    }
-
-    mTreeView.Model = mTreeStore;
-  }
-
-  protected override bool OnDeleteEvent(Gdk.Event evnt)
-  {
-    Application.Quit();
-    return base.OnDeleteEvent(evnt);
-  }
+			twTests.Model = treeStore;
+		}
+		#endregion
+	}
 }
+
