@@ -94,7 +94,10 @@ inline TempAllocator<SIZE>::TempAllocator(Allocator& backing)
 template <size_t SIZE>
 inline TempAllocator<SIZE>::~TempAllocator()
 {
-	void *p = *(void **)m_buffer;
+	union { char* as_char; void** as_dvoid; };
+	as_char = m_buffer;
+
+	void *p = *(void **)as_dvoid;
 	while (p)
 	{
 		void *next = *(void **)p;
