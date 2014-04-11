@@ -105,7 +105,7 @@ void ApkFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 	{
 		DynamicString name(default_allocator());
 		name = filename;
-		files.push_back(name);
+		vector::push_back(files, name);
 	}
 
 	AAssetDir_close(root_dir);
