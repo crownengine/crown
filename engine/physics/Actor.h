@@ -59,6 +59,27 @@ struct Actor
 	Actor(PhysicsWorld& pw, const PhysicsResource* res, uint32_t actor_idx, SceneGraph& sg, int32_t node, UnitId unit_id);
 	~Actor();
 
+	/// Sets the world position of the actor.
+	Vector3 world_position() const;
+
+	/// Sets the world rotation of the actor.
+	Quaternion world_rotation() const;
+
+	/// Sets the world pose of the actor.
+	Matrix4x4 world_pose() const;
+
+	/// Teleports the actor to the given world position.
+	void teleport_world_position(const Vector3& p);
+
+	/// Teleports the actor to the given world rotation.
+	void teleport_world_rotation(const Quaternion& r);
+
+	/// Teleports the actor to the given world pose.
+	void teleport_world_pose(const Matrix4x4& m);
+
+	/// Returns the center of mass of the actor.
+	Vector3 center_of_mass() const;
+
 	/// Makes the actor subject to gravity
 	void enable_gravity();
 
@@ -68,85 +89,81 @@ struct Actor
 	void enable_collision();
 	void disable_collision();
 
-	/// Makes the actor kinematic (keyframed)
-	/// @note
-	/// Works only for dynamic actors
-	void set_kinematic();
+	/// Sets the collision filter of the actor.
+	void set_collision_filter(const char* filter);
+	void set_collision_filter(StringId32 filter);
 
-	/// Makes the actor dynamic
-	/// @note
-	/// Works only for kinematic actors
-	void clear_kinematic();
+	/// Sets whether the actor is kinematic or not.
+	/// @note This call has no effect on static actors.
+	void set_kinematic(bool kinematic);
 
 	/// Moves the actor to @a pos
-	/// @note
-	/// Works only for kinematic actors
+	/// @note This call only affects nonkinematic actors.
 	void move(const Vector3& pos);
 
-	/// Returns whether the actor is static (i.e. immovable).
+	/// Returns whether the actor is static.
 	bool is_static() const;
 
-	/// Returns whether the actor is dynamic (i.e. driven dy physics).
+	/// Returns whether the actor is dynamic.
 	bool is_dynamic() const;
 
-	/// Returns whether the actor is kinematic (i.e. driven by the user).
+	/// Returns whether the actor is kinematic (keyframed).
 	bool is_kinematic() const;
 
-	/// Returns the rate at which rigid bodies dissipate linear momentum
+	/// Returns whether the actor is nonkinematic (i.e. dynamic and not kinematic).
+	bool is_nonkinematic() const;
+
+	/// Returns the linear damping of the actor.
 	float linear_damping() const;
 
-	/// Sets the rate at which rigid bodies dissipate linear momentum
+	/// Sets the linear damping of the actor.
 	void set_linear_damping(float rate);
 
-	/// Returns the rate at which rigid bodies dissipate angular momentum
+	/// Returns the angular damping of the actor.
 	float angular_damping() const;
 
-	/// Sets the rate at which rigid bodies dissipate angular momentum
+	/// Sets the angular damping of the actor.
 	void set_angular_damping(float rate);
  
-	/// Returns linear velocity of the actor
-	/// @note
-	/// If actor is sleeping, linear velocity must be 0
+	/// Returns the linear velocity of the actor.
 	Vector3 linear_velocity() const;
 
-	/// Sets linear velocity of the actor
-	/// @note
-	/// If actor is sleeping, this will wake it up
+	/// Sets the linear velocity of the actor.
+	/// @note This call only affects nonkinematic actors.
 	void set_linear_velocity(const Vector3& vel);
 
-	/// Returns angular velocity of the actor
-	/// @note
-	/// If actor is sleeping, angular velocity must be 0
+	/// Returns the angular velocity of the actor.
 	Vector3 angular_velocity() const;
 
-	/// Sets angular velocity of the actor
-	/// @note
-	/// If actor is sleeping, this will wake it up
+	/// Sets the angular velocity of the actor.
+	/// @note This call only affects nonkinematic actors.
 	void set_angular_velocity(const Vector3& vel);
 
-	/// Applies a force (or impulse) defined in the global coordinate frame, acting at a particular point in global coordinates, to the actor.
-	/// @note
-	/// If the force does not act along the center of mass of the actor, this will also add the corresponding torque.
-	/// Because forces are reset at the end of every timestep, you can maintain a total external force on an object by calling this once every frame.
+	/// Adds a linear impulse (acting along the center of mass) to the actor.
+	/// @note This call only affects nonkinematic actors.
 	void add_impulse(const Vector3& impulse);
 
-	/// Applies a force (or impulse) defined in the global coordinate frame, acting at a particular point in local coordinates, to the actor.
-	/// @note
-	/// If the force does not act along the center of mass of the actor, this will also add the corresponding torque.
-	/// Because forces are reset at the end of every timestep, you can maintain a total external force on an object by calling this once every frame. 
+	/// Adds a linear impulse (acting along the world position @a pos) to the actor.
+	/// @note This call only affects nonkinematic actors.
 	void add_impulse_at(const Vector3& impulse, const Vector3& pos);
 
-	/// Applies a force, evaluated by actor's @a mass and @a velocity that will be achieved, to the actor
-	void push(const Vector3& vel, const float mass);
+	/// Adds a torque impulse to the actor.
+	void add_torque_impulse(const Vector3& i);
 
-	/// Returns true if tha actor is sleeping, false otherwise
+	/// Pushes the actor as if it was hit by a point object with the given @a mass
+	/// travelling at the given @a velocity.
+	/// @note This call only affects nonkinematic actors.
+	void push(const Vector3& vel, float mass);
+
+	/// Like push() but applies the force at the world position @a pos.
+	/// @note This call only affects nonkinematic actors.
+	void push_at(const Vector3& vel, float mass, const Vector3& pos);
+
+	/// Returns whether the actor is sleeping.
 	bool is_sleeping();
 
-	/// Forces the actor to wake up
+	/// Wakes the actor up.
 	void wake_up();
-
-	/// Returns actor's name
-	StringId32 name();
 
 	/// Returns the unit that owns the actor.
 	Unit* unit();
@@ -159,7 +176,6 @@ private:
 	void destroy_objects();
 
 	void update(const Matrix4x4& pose);
-	Matrix4x4 get_kinematic_pose() const;
 
 public:
 
