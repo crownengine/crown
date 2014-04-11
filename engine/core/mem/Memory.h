@@ -26,18 +26,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <new>
 #include "Types.h"
 #include "Assert.h"
+#include "Allocator.h"
 
 namespace crown
 {
+
+CE_EXPORT Allocator& default_allocator();
 
 /// @defgroup Memory Memory
 namespace memory
 {
 
-const uint32_t	PADDING_VALUE	= 0xFFFFFFFFu;	//!< Value used to fill unused memory
-const size_t	DEFAULT_ALIGN	= 4;			//!< Default memory alignment in bytes
+/// Value used to fill unused memory
+const uint32_t PADDING_VALUE = 0xFFFFFFFFu;
 
 /// Constructs the initial default allocators.
 /// @note
@@ -67,5 +71,27 @@ inline void* align_top(void* p, size_t align)
 	return (void*) ptr;
 }
 
+/// Respects standard behaviour when calling on NULL @a ptr
+template <typename T>
+inline void call_destructor_and_deallocate(Allocator& a, T* ptr)
+{
+	if (!ptr)
+		return;
+
+	ptr->~T();
+	a.deallocate(ptr);
+}
+
+/// Allocates memory with @a allocator for the given @a T type
+/// and calls constructor on it.
+/// @note
+/// @a allocator must be a reference to an existing allocator.
+#define CE_NEW(allocator, T) new ((allocator).allocate(sizeof(T), CE_ALIGNOF(T))) T
+
+/// Calls destructor on @a ptr and deallocates memory using the
+/// given @a allocator.
+/// @note
+/// @a allocator must be a reference to an existing allocator.
+#define CE_DELETE(allocator, ptr) crown::memory::call_destructor_and_deallocate(allocator, ptr)
 } // namespace memory
 } // namespace crown

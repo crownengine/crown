@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Allocator.h"
+#include "Memory.h"
 
 namespace crown
 {
@@ -44,28 +45,28 @@ public:
 
 	/// Uses the @a backing allocator when internal memory is exahusted
 	/// or the allocation size exceeds the remaining storage.
-				TempAllocator(Allocator& backing = default_allocator());
-				~TempAllocator();
+	TempAllocator(Allocator& backing = default_allocator());
+	~TempAllocator();
 
 	/// @copydoc Allocator::allocate()
-	void*		allocate(size_t size, size_t align = memory::DEFAULT_ALIGN);
+	void* allocate(size_t size, size_t align = Allocator::DEFAULT_ALIGN);
 
 	/// Does nothing, the memory is automatically freed when the
 	/// allocator is destroyed.
-	void		deallocate(void* data);
+	void deallocate(void* data);
 
 	/// @copydoc Allocator::allocated_size()
-	size_t		allocated_size();
+	size_t allocated_size();
 
 private:
 
 	Allocator&	m_backing;
 
-	char*		m_begin;
-	char*		m_end;
-	char*		m_cur;
-	size_t		m_chunk_size;
-	char		m_buffer[SIZE];
+	char* m_begin;
+	char* m_end;
+	char* m_cur;
+	size_t m_chunk_size;
+	char m_buffer[SIZE];
 };
 
 typedef TempAllocator<64> TempAllocator64;

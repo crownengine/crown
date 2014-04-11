@@ -25,17 +25,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "StackAllocator.h"
-#include "OS.h"
+#include "Memory.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-StackAllocator::StackAllocator(void* start, size_t size) :
-	m_physical_start(start),
-	m_total_size(size),
-	m_top(start),
-	m_allocation_count(0)
+StackAllocator::StackAllocator(void* start, size_t size)
+	: m_physical_start(start)
+	, m_total_size(size)
+	, m_top(start)
+	, m_allocation_count(0)
 {
 }
 

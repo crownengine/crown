@@ -26,8 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Assert.h"
 #include "ProxyAllocator.h"
-#include "Allocator.h"
 #include "StringUtils.h"
+#include "ScopedMutex.h"
 
 namespace crown
 {
@@ -36,11 +36,11 @@ static ProxyAllocator* g_proxy_allocators_head = NULL;
 static Mutex g_proxy_allocators_mutex;
 
 //-----------------------------------------------------------------------------
-ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator) :
-	m_allocator(allocator),
-	m_name(name),
-	m_total_allocated(0),
-	m_next(NULL)
+ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator)
+	: m_allocator(allocator)
+	, m_name(name)
+	, m_total_allocated(0)
+	, m_next(NULL)
 {
 	ScopedMutex sm(g_proxy_allocators_mutex);
 
