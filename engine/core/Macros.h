@@ -24,6 +24,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#pragma once
+
 #ifdef _MSC_VER
 	#define CE_ALIGNOF(x) __alignof(x)
 	#define CE_EXPORT __declspec(dllexport)
