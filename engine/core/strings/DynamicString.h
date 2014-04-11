@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstring>
 
 #include "Assert.h"
-#include "Allocator.h"
+#include "Memory.h"
 #include "StringUtils.h"
 #include "Array.h"
 #include "StringUtils.h"

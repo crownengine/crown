@@ -35,7 +35,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 #include <algorithm>
-#include "Allocator.h"
 #include "Assert.h"
 #include "Device.h"
 #include "GLContext.h"
@@ -48,6 +47,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "Types.h"
 #include "Vector4.h"
+#include "Memory.h"
 #include "VertexFormat.h"
 
 //-----------------------------------------------------------------------------

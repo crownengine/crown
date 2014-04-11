@@ -71,6 +71,7 @@ struct PhysicsActor
 	StringId32 name;			// Name of the actor
 	StringId32 node;			// Node from .unit file
 	StringId32 actor_class;		// Actor from global.physics
+	float mass;					// Mass of the actor
 	uint32_t num_shapes;		// Number of shapes
 };
 
@@ -296,7 +297,7 @@ struct PhysicsCollisionFilter
 
 struct PhysicsShape2
 {
-	uint32_t collision_filter;
+	StringId32 collision_filter;
 	bool trigger;
 };
 
@@ -309,7 +310,6 @@ struct PhysicsActor2
 		DISABLE_GRAVITY	= (1 << 2)
 	};
 
-	uint32_t collision_filter;
 	float linear_damping;
 	float angular_damping;
 	uint8_t flags;
@@ -423,6 +423,29 @@ struct PhysicsConfigResource
 		CE_ASSERT(i < num_actors(), "Index out of bounds");
 		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
 		const PhysicsActor2* base = (PhysicsActor2*) (((char*) this) + h->actors_offset + sizeof(StringId32) * num_actors());
+		return base[i];
+	}
+
+	uint32_t num_filters() const
+	{
+		return ((PhysicsConfigHeader*) this)->num_filters;	
+	}
+
+	PhysicsCollisionFilter filter(StringId32 name) const
+	{
+		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
+		StringId32* begin = (StringId32*) (((char*) this) + h->filters_offset);
+		StringId32* end = begin + num_filters();
+		StringId32* id = std::find(begin, end, name);
+		CE_ASSERT(id != end, "Filter not found");
+		return filter_by_index(id - begin);
+	}
+
+	PhysicsCollisionFilter filter_by_index(uint32_t i) const
+	{
+		CE_ASSERT(i < num_filters(), "Index out of bounds");
+		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
+		const PhysicsCollisionFilter* base = (PhysicsCollisionFilter*) (((char*) this) + h->filters_offset + sizeof(StringId32) * num_filters());
 		return base[i];
 	}
 

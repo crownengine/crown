@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "File.h"
 #include "Types.h"
 #include "Compressor.h"
+#include "Memory.h"
 
 namespace crown
 {

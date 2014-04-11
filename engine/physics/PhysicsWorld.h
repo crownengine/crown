@@ -99,12 +99,8 @@ public:
 	RaycastId create_raycast(CollisionMode::Enum mode, CollisionType::Enum filter);
 	void destroy_raycast(RaycastId id);
 
-
 	Vector3 gravity() const;
 	void set_gravity(const Vector3& g);
-
-	void set_kinematic(ActorId id);
-	void clear_kinematic(ActorId id);
 
 	/// Finds all actors in the physics world that are in a particular shape (supported: spheres, capsules and boxes)
 	void overlap_test(CollisionType::Enum filter, ShapeType::Enum type,
@@ -112,7 +108,6 @@ public:
 
 	void update(float dt);
 
-	Actor* lookup_actor(StringId32 name);
 	Actor* lookup_actor(ActorId id);
 	Controller* lookup_controller(ControllerId id);
 	Raycast* lookup_raycast(RaycastId id);

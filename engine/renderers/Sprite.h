@@ -59,14 +59,6 @@ struct Sprite
 	void					set_local_rotation(Unit* unit, const Quaternion& rot);
 	void					set_local_pose(Unit* unit, const Matrix4x4& pose);
 
-	/// Plays the animation from frame @a start to frame @a.
-	/// @a time is for how long the animation has to be played.
-	void					play_animation(uint32_t start, uint32_t end, float time, bool loop);
-
-	/// Stops the current animation.
-	void					stop_animation();
-
-	void					set_frame(uint32_t i);
 	void					set_material(MaterialId mat);
 	void					render(Renderer& r, UniformId uniform, float dt);
 
@@ -76,14 +68,6 @@ public:
 	SceneGraph&				m_scene_graph;	
 	int32_t					m_node;
 	const SpriteResource*	m_resource;
-
-	uint32_t				m_start_frame;
-	uint32_t				m_cur_frame;
-	uint32_t				m_end_frame;
-	float 					m_tot_time;
-	float					m_anim_time;
-	bool					m_loop;
-	bool					m_is_playing;
 
 	MaterialId				m_material;
 	VertexBufferId			m_vb;

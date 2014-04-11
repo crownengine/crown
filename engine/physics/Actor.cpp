@@ -38,6 +38,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "World.h"
 #include "PhysicsWorld.h"
+#include "Quaternion.h"
+#include "StringUtils.h"
 #include "PxCooking.h"
 #include "PxDefaultStreams.h"
 
@@ -74,6 +76,7 @@ using physx::PxVec3;
 using physx::PxDefaultMemoryOutputStream;
 using physx::PxDefaultMemoryInputData;
 using physx::PxConvexMeshGeometry;
+using physx::PxRigidBodyFlag;
 
 namespace crown
 {
@@ -189,6 +192,11 @@ void Actor::create_objects()
 			}
 		}
 
+		PxFilterData filter_data;
+		filter_data.word0 = config->filter(shape_class.collision_filter).me;
+		filter_data.word1 = config->filter(shape_class.collision_filter).mask;
+		px_shape->setSimulationFilterData(filter_data);
+
 		if (shape_class.trigger)
 		{
 			px_shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
@@ -198,6 +206,10 @@ void Actor::create_objects()
 		shape_index++;
 	}
 
+	if (is_dynamic())
+	{
+		PxRigidBodyExt::updateMassAndInertia(*static_cast<PxRigidBody*>(m_actor), actor.mass);
+	}
 	m_actor->userData = this;
 	scene->addActor(*m_actor);
 }
@@ -210,6 +222,68 @@ void Actor::destroy_objects()
 		m_world.physx_scene()->removeActor(*m_actor);
 		m_actor->release();
 	}
+}
+
+//-----------------------------------------------------------------------------
+Vector3 Actor::world_position() const
+{
+	const PxTransform tr = m_actor->getGlobalPose();
+	return Vector3(tr.p.x, tr.p.y, tr.p.z);
+}
+
+//-----------------------------------------------------------------------------
+Quaternion Actor::world_rotation() const
+{
+	const PxTransform tr = m_actor->getGlobalPose();
+	return Quaternion(tr.q.x, tr.q.y, tr.q.z, tr.q.w);
+}
+
+//-----------------------------------------------------------------------------
+Matrix4x4 Actor::world_pose() const
+{
+	const PxTransform tr = m_actor->getGlobalPose();
+	return Matrix4x4(Quaternion(tr.q.x, tr.q.y, tr.q.z, tr.q.w), Vector3(tr.p.x, tr.p.y, tr.p.z));
+}
+
+//-----------------------------------------------------------------------------
+void Actor::teleport_world_position(const Vector3& p)
+{
+	PxTransform tr = m_actor->getGlobalPose();
+	tr.p.x = p.x;
+	tr.p.y = p.y;
+	tr.p.z = p.z;
+	m_actor->setGlobalPose(tr);
+}
+
+//-----------------------------------------------------------------------------
+void Actor::teleport_world_rotation(const Quaternion& r)
+{
+	PxTransform tr = m_actor->getGlobalPose();
+	tr.q.x = r.x;
+	tr.q.y = r.y;
+	tr.q.z = r.z;
+	tr.q.w = r.w;
+	m_actor->setGlobalPose(tr);
+}
+
+//-----------------------------------------------------------------------------
+void Actor::teleport_world_pose(const Matrix4x4& m)
+{
+	const PxVec3 x(m.x().x, m.x().y, m.x().z);
+	const PxVec3 y(m.y().x, m.y().y, m.y().z);
+	const PxVec3 z(m.z().x, m.z().y, m.z().z);
+	const PxVec3 t(m.translation().x, m.translation().y, m.translation().z);
+	m_actor->setGlobalPose(PxTransform(PxMat44(x, y, z, t)));
+}
+
+//-----------------------------------------------------------------------------
+Vector3 Actor::center_of_mass() const
+{
+	if (is_static())
+		return Vector3(0, 0, 0);
+
+	const PxTransform tr = static_cast<PxRigidBody*>(m_actor)->getCMassLocalPose();
+	return Vector3(tr.p.x, tr.p.y, tr.p.z);
 }
 
 //-----------------------------------------------------------------------------
@@ -227,78 +301,79 @@ void Actor::disable_gravity()
 //-----------------------------------------------------------------------------
 void Actor::enable_collision()
 {
-	// PxFilterData filter_data;
-	// filter_data.word0 = (PxU32) m_group;
-	// filter_data.word1 = (PxU32) m_mask;
-
 	// const PxU32 num_shapes = m_actor->getNbShapes();
+	// PxU32 idx = 0;
 
-	// PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
-	// m_actor->getShapes(shapes, num_shapes);
-
-	// for(PxU32 i = 0; i < num_shapes; i++)
+	// while (idx != num_shapes)
 	// {
-	// 	PxShape* shape = shapes[i];
-	// 	shape->setSimulationFilterData(filter_data);
-	// }
+	// 	PxShape* shapes[8];
+	// 	const PxU32 written = m_actor->getShapes(shapes, 8, idx);
 
-	// default_allocator().deallocate(shapes);
+	// 	for (PxU32 i = 0; i < written; i++)
+	// 	{
+	// 		PxFilterData fdata;
+	// 		fdata.word0 = 0;
+	// 		fdata.word1 = 0;
+	// 		shapes[i]->setSimulationFilterData(fdata);
+	// 	}
+
+	// 	idx += written;
+	// }
 }
 
 //-----------------------------------------------------------------------------
 void Actor::disable_collision()
 {
-	// PxFilterData filter_data;
-	// filter_data.word0 = (PxU32) CollisionGroup::GROUP_0;
-	// filter_data.word1 = (PxU32) CollisionGroup::GROUP_0;
-
-	// const PxU32 num_shapes = m_actor->getNbShapes();
-
-	// PxShape** shapes = (PxShape**) default_allocator().allocate((sizeof(PxShape*) * num_shapes));
-	// m_actor->getShapes(shapes, num_shapes);
-
-	// for(PxU32 i = 0; i < num_shapes; i++)
-	// {
-	// 	PxShape* shape = shapes[i];
-	// 	shape->setSimulationFilterData(filter_data);
-	// }
-
-	// default_allocator().deallocate(shapes);
 }
 
 //-----------------------------------------------------------------------------
-void Actor::set_kinematic()
+void Actor::set_collision_filter(const char* name)
 {
-	static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
+	set_collision_filter(string::murmur2_32(name, string::strlen(name)));
 }
 
 //-----------------------------------------------------------------------------
-void Actor::clear_kinematic()
+void Actor::set_collision_filter(StringId32 filter)
 {
-	static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, false);
+	const PhysicsCollisionFilter& pcf = m_world.resource()->filter(filter);
 
-	m_scene_graph.set_world_pose(m_node, get_kinematic_pose());
+	const PxU32 num_shapes = m_actor->getNbShapes();
+	PxU32 idx = 0;
+
+	while (idx != num_shapes)
+	{
+		PxShape* shapes[8];
+		const PxU32 written = m_actor->getShapes(shapes, 8, idx);
+
+		for (PxU32 i = 0; i < written; i++)
+		{
+			PxFilterData fdata;
+			fdata.word0 = pcf.me;
+			fdata.word1 = pcf.mask;
+			shapes[i]->setSimulationFilterData(fdata);
+		}
+
+		idx += written;
+	}
+}
+
+//-----------------------------------------------------------------------------
+void Actor::set_kinematic(bool kinematic)
+{
+	if (is_static())
+		return;
+
+	static_cast<PxRigidBody*>(m_actor)->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, kinematic);
 }
 
 //-----------------------------------------------------------------------------
 void Actor::move(const Vector3& pos)
 {
-	CE_ASSERT(is_kinematic(), "Cannot call 'move' method for non-kinematic actor");
+	if (!is_kinematic())
+		return;
 
-	PxVec3 position(pos.x, pos.y, pos.z);
+	const PxVec3 position(pos.x, pos.y, pos.z);
 	static_cast<PxRigidDynamic*>(m_actor)->setKinematicTarget(PxTransform(position));
-}
-
-//-----------------------------------------------------------------------------
-Matrix4x4 Actor::get_kinematic_pose() const
-{
-	PxTransform transform;
-	static_cast<PxRigidDynamic*>(m_actor)->getKinematicTarget(transform);
-
-	Quaternion rot(transform.q.x, transform.q.y, transform.q.z, transform.q.w);
-	Vector3 pos(transform.p.x, transform.p.y, transform.p.z);
-	
-	return Matrix4x4(rot, pos);
 }
 
 //-----------------------------------------------------------------------------
@@ -316,118 +391,152 @@ bool Actor::is_dynamic() const
 //-----------------------------------------------------------------------------
 bool Actor::is_kinematic() const
 {
-	if (!is_dynamic()) return false;
+	if (!is_dynamic())
+		return false;
+
 	return static_cast<PxRigidDynamic*>(m_actor)->getRigidDynamicFlags() & PxRigidDynamicFlag::eKINEMATIC;
+}
+
+//-----------------------------------------------------------------------------
+bool Actor::is_nonkinematic() const
+{
+	return is_dynamic() && !is_kinematic();
 }
 
 //-----------------------------------------------------------------------------
 float Actor::linear_damping() const
 {
-	return ((PxRigidDynamic*)m_actor)->getLinearDamping();
+	if (is_static())
+		return 0;
+
+	return static_cast<PxRigidDynamic*>(m_actor)->getLinearDamping();
 }
 
 //-----------------------------------------------------------------------------
 void Actor::set_linear_damping(float rate)
 {
-	((PxRigidDynamic*)m_actor)->setLinearDamping(rate);
+	if (is_static())
+		return;
+
+	static_cast<PxRigidDynamic*>(m_actor)->setLinearDamping(rate);
 }
 
 //-----------------------------------------------------------------------------
 float Actor::angular_damping() const
 {
-	return ((PxRigidDynamic*)m_actor)->getAngularDamping();
+	if (is_static())
+		return 0;
+
+	return static_cast<PxRigidDynamic*>(m_actor)->getAngularDamping();
 }
 
 //-----------------------------------------------------------------------------
 void Actor::set_angular_damping(float rate)
 {
-	((PxRigidDynamic*)m_actor)->setAngularDamping(rate);
+	if (is_static())
+		return;
+
+	static_cast<PxRigidDynamic*>(m_actor)->setAngularDamping(rate);
 }
 
 //-----------------------------------------------------------------------------
 Vector3 Actor::linear_velocity() const
 {
-	PxVec3 vel = ((PxRigidBody*)m_actor)->getLinearVelocity();
-	Vector3 velocity(vel.x, vel.y, vel.z);
-	return velocity;
+	if (is_static())
+		return Vector3(0, 0, 0);
+
+	const PxVec3 vel = static_cast<PxRigidBody*>(m_actor)->getLinearVelocity();
+	return Vector3(vel.x, vel.y, vel.z);
 }
 
 //-----------------------------------------------------------------------------
 void Actor::set_linear_velocity(const Vector3& vel)
 {
-	PxVec3 velocity(vel.x, vel.y, vel.z);
-	((PxRigidBody*)m_actor)->setLinearVelocity(velocity);
+	if (!is_nonkinematic())
+		return;
+
+	const PxVec3 velocity(vel.x, vel.y, vel.z);
+	static_cast<PxRigidBody*>(m_actor)->setLinearVelocity(velocity);
 }
 
 //-----------------------------------------------------------------------------
 Vector3 Actor::angular_velocity() const
 {
-	PxVec3 vel = ((PxRigidBody*)m_actor)->getAngularVelocity();
-	Vector3 velocity(vel.x, vel.y, vel.z);
-	return velocity;
+	if (is_static())
+		return Vector3(0, 0, 0);
+
+	const PxVec3 vel = static_cast<PxRigidBody*>(m_actor)->getAngularVelocity();
+	return Vector3(vel.x, vel.y, vel.z);
 }
 
 //-----------------------------------------------------------------------------
 void Actor::set_angular_velocity(const Vector3& vel)
 {
-	PxVec3 velocity(vel.x, vel.y, vel.z);
-	((PxRigidBody*)m_actor)->setAngularVelocity(velocity);
+	if (!is_nonkinematic())
+		return;
+
+	const PxVec3 velocity(vel.x, vel.y, vel.z);
+	static_cast<PxRigidBody*>(m_actor)->setAngularVelocity(velocity);
 }
 
 //-----------------------------------------------------------------------------
 void Actor::add_impulse(const Vector3& impulse)
 {
-	Vector3 p = m_scene_graph.world_pose(m_node).translation();
+	if (!is_nonkinematic())
+		return;
 
-	PxRigidBodyExt::addForceAtPos(*static_cast<PxRigidDynamic*>(m_actor),
-								  PxVec3(impulse.x, impulse.y, impulse.z),
-								  PxVec3(p.x, p.y, p.z),
-								  PxForceMode::eIMPULSE,
-								  true);
+	static_cast<PxRigidDynamic*>(m_actor)->addForce(PxVec3(impulse.x, impulse.y, impulse.z), PxForceMode::eIMPULSE);
 }
 
 //-----------------------------------------------------------------------------
 void Actor::add_impulse_at(const Vector3& impulse, const Vector3& pos)
 {
-	PxRigidBodyExt::addForceAtLocalPos(*static_cast<PxRigidDynamic*>(m_actor),
+	if (!is_nonkinematic())
+		return;
+
+	PxRigidBodyExt::addForceAtPos(*static_cast<PxRigidDynamic*>(m_actor),
 									   PxVec3(impulse.x, impulse.y, impulse.z),
 									   PxVec3(pos.x, pos.y, pos.z),
-									   PxForceMode::eIMPULSE,
-									   true);
+									   PxForceMode::eIMPULSE);
 }
 
 //-----------------------------------------------------------------------------
-void Actor::push(const Vector3& vel, const float mass)
+void Actor::add_torque_impulse(const Vector3& i)
 {
-	// FIXME FIXME FIXME
-	Vector3 p = m_scene_graph.world_pose(m_node).translation();
+	if (!is_nonkinematic())
+		return;
 
-	Vector3 mq(vel.x * mass, vel.y * mass, vel.z * mass);
-	Vector3 f(mq.x / 0.017, mq.y / 0.017, mq.z / 0.017);
-
-	PxRigidBodyExt::addForceAtPos(*static_cast<PxRigidDynamic*>(m_actor),
-								  PxVec3(f.x, f.y, f.z),
-								  PxVec3(p.x, p.y, p.z));
+	static_cast<PxRigidBody*>(m_actor)->addTorque(PxVec3(i.x, i.y, i.z), PxForceMode::eIMPULSE);
 }
 
+//-----------------------------------------------------------------------------
+void Actor::push(const Vector3& vel, float mass)
+{
+	add_impulse(vel * mass);
+}
+
+//-----------------------------------------------------------------------------
+void Actor::push_at(const Vector3& vel, float mass, const Vector3& pos)
+{
+	add_impulse_at(vel * mass, pos);
+}
 
 //-----------------------------------------------------------------------------
 bool Actor::is_sleeping()
 {
-	return ((PxRigidDynamic*)m_actor)->isSleeping();
+	if (is_static())
+		return true;
+
+	return static_cast<PxRigidDynamic*>(m_actor)->isSleeping();
 }
 
 //-----------------------------------------------------------------------------
 void Actor::wake_up()
 {
-	((PxRigidDynamic*)m_actor)->wakeUp();
-}
+	if (is_static())
+		return;
 
-//-----------------------------------------------------------------------------
-StringId32 Actor::name()
-{
-	const PhysicsActor& a = m_resource->actor(m_index);
-	return a.name;
+	static_cast<PxRigidDynamic*>(m_actor)->wakeUp();
 }
 
 //-----------------------------------------------------------------------------

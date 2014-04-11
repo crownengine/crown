@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PhysicsResource.h"
 #include "StringUtils.h"
 #include "DynamicString.h"
+#include "Map.h"
 
 namespace crown
 {
@@ -180,11 +181,13 @@ void parse_actors(JSONElement e, Array<PhysicsActor>& actors, Array<PhysicsShape
 		JSONElement node 	= actor.key("node");
 		JSONElement clasz	= actor.key("class");
 		JSONElement shapes	= actor.key("shapes");
+		JSONElement mass	= actor.key("mass");
 
 		PhysicsActor pa;
 		pa.name = keys[k].to_string_id();
 		pa.node = node.to_string_id();
 		pa.actor_class = clasz.to_string_id();
+		pa.mass = mass.to_float();
 		pa.num_shapes = shapes.size();
 
 		array::push_back(actors, pa);
@@ -364,6 +367,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 namespace physics_config_resource
 {
+	static Map<DynamicString, uint32_t>* s_ftm = NULL;
+
 	struct ObjectName
 	{
 		StringId32 name;
@@ -374,40 +379,6 @@ namespace physics_config_resource
 			return a.name < b.name;
 		}
 	};
-
-	struct NameToMask
-	{
-		StringId32 name;
-		uint32_t mask;
-	};
-
-	uint32_t collides_with_to_mask(Vector<DynamicString>& collides_with, Array<NameToMask>& name_to_mask)
-	{
-		uint32_t mask = 0;
-
-		for (uint32_t i = 0; i < vector::size(collides_with); i++)
-		{
-			StringId32 cur_name = collides_with[i].to_string_id();
-			for (uint32_t j = 0; j < array::size(name_to_mask); j++)
-			{
-				if (cur_name == name_to_mask[j].name) mask |= name_to_mask[j].mask;
-			}
-		}
-
-		return mask;
-	}
-
-	uint32_t collision_filter_to_mask(const char* filter, Array<NameToMask> name_to_mask)
-	{
-		StringId32 filter_hash = string::murmur2_32(filter, string::strlen(filter));
-		for (uint32_t i = 0; i < array::size(name_to_mask); i++)
-		{
-			if (name_to_mask[i].name == filter_hash) return name_to_mask[i].mask;
-		}
-
-		CE_ASSERT(false, "Collision filter '%s' not found", filter);
-		return 0;
-	}
 
 	void parse_materials(JSONElement e, Array<ObjectName>& names, Array<PhysicsMaterial>& objects)
 	{
@@ -437,7 +408,7 @@ namespace physics_config_resource
 		}
 	}
 
-	void parse_shapes(JSONElement e, Array<NameToMask>& name_to_mask, Array<ObjectName>& names, Array<PhysicsShape2>& objects)
+	void parse_shapes(JSONElement e, Array<ObjectName>& names, Array<PhysicsShape2>& objects)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
@@ -456,8 +427,7 @@ namespace physics_config_resource
 			// Read shape object
 			PhysicsShape2 ps2;
 			ps2.trigger = trigger.to_bool();
-			DynamicString cfilter; collision_filter.to_string(cfilter);
-			ps2.collision_filter = collision_filter_to_mask(cfilter.c_str(), name_to_mask);
+			ps2.collision_filter = collision_filter.to_string_id();
 
 			array::push_back(names, shape_name);
 			array::push_back(objects, ps2);
@@ -485,7 +455,6 @@ namespace physics_config_resource
 
 			// Read actor object
 			PhysicsActor2 pa2;
-			//actor.collision_filter = coll_filter.to_string_id();
 			pa2.linear_damping = linear_damping.is_nil() ? 0.0 : linear_damping.to_float();
 			pa2.angular_damping = angular_damping.is_nil() ? 0.05 : angular_damping.to_float();
 			pa2.flags = 0;
@@ -507,19 +476,41 @@ namespace physics_config_resource
 		}
 	}
 
-	void parse_collision_filters(JSONElement e, Array<ObjectName>& names, Array<PhysicsCollisionFilter>& objects, Array<NameToMask>& name_to_mask)
+	uint32_t new_filter_mask()
+	{
+		static uint32_t mask = 1;
+		CE_ASSERT(mask != 0x80000000u, "Too many collision filters");
+		uint32_t tmp = mask;
+		mask = mask << 1;
+		return tmp;
+	}
+
+	uint32_t filter_to_mask(const char* f)
+	{
+		if (map::has(*s_ftm, DynamicString(f)))
+			return map::get(*s_ftm, DynamicString(f), 0u);
+
+		uint32_t new_filter = new_filter_mask();
+		map::set(*s_ftm, DynamicString(f), new_filter);
+		return new_filter;
+	}
+
+	uint32_t collides_with_to_mask(const Vector<DynamicString>& coll_with)
+	{
+		uint32_t mask = 0;
+
+		for (uint32_t i = 0; i < vector::size(coll_with); i++)
+		{
+			mask |= filter_to_mask(coll_with[i].c_str());
+		}
+
+		return mask;
+	}
+
+	void parse_collision_filters(JSONElement e, Array<ObjectName>& names, Array<PhysicsCollisionFilter>& objects)
 	{
 		Vector<DynamicString> keys(default_allocator());
 		e.to_keys(keys);
-
-		// Assign a unique mask to each collision filter
-		for (uint32_t i = 0; i < vector::size(keys); i++)
-		{
-			NameToMask ntm;
-			ntm.name = keys[i].to_string_id();
-			ntm.mask = 1 << i;
-			array::push_back(name_to_mask, ntm);
-		}
 
 		for (uint32_t i = 0; i < vector::size(keys); i++)
 		{
@@ -536,9 +527,10 @@ namespace physics_config_resource
 			collides_with.to_array(collides_with_vector);
 
 			PhysicsCollisionFilter pcf;
-			pcf.mask = collides_with_to_mask(collides_with_vector, name_to_mask);
+			pcf.me = filter_to_mask(keys[i].c_str());
+			pcf.mask = collides_with_to_mask(collides_with_vector);
 
-			printf("FILTER: %s, mask = %X\n", keys[i].c_str(), pcf.mask);
+			printf("FILTER: %s (me = %X, mask = %X\n", keys[i].c_str(), pcf.me, pcf.mask);
 
 			array::push_back(names, filter_name);
 			array::push_back(objects, pcf);
@@ -554,6 +546,9 @@ namespace physics_config_resource
 		JSONParser json(buf);
 		JSONElement root = json.root();
 
+		typedef Map<DynamicString, uint32_t> FilterMap;
+		s_ftm = CE_NEW(default_allocator(), FilterMap)(default_allocator());
+
 		Array<ObjectName> material_names(default_allocator());
 		Array<PhysicsMaterial> material_objects(default_allocator());
 		Array<ObjectName> shape_names(default_allocator());
@@ -562,12 +557,11 @@ namespace physics_config_resource
 		Array<PhysicsActor2> actor_objects(default_allocator());
 		Array<ObjectName> filter_names(default_allocator());
 		Array<PhysicsCollisionFilter> filter_objects(default_allocator());
-		Array<NameToMask> name_to_mask(default_allocator());
 
 		// Parse materials
-		if (root.has_key("collision_filters")) parse_collision_filters(root.key("collision_filters"), filter_names, filter_objects, name_to_mask);
+		if (root.has_key("collision_filters")) parse_collision_filters(root.key("collision_filters"), filter_names, filter_objects);
 		if (root.has_key("materials")) parse_materials(root.key("materials"), material_names, material_objects);
-		if (root.has_key("shapes")) parse_shapes(root.key("shapes"), name_to_mask, shape_names, shape_objects);
+		if (root.has_key("shapes")) parse_shapes(root.key("shapes"), shape_names, shape_objects);
 		if (root.has_key("actors")) parse_actors(root.key("actors"), actor_names, actor_objects);
 
 		default_allocator().deallocate(buf);
@@ -638,13 +632,13 @@ namespace physics_config_resource
 
 		if (header.num_actors)
 		{
-			// Write shape names
+			// Write actor names
 			for (uint32_t i = 0; i < array::size(actor_names); i++)
 			{
 				out_file->write((char*) &actor_names[i].name, sizeof(StringId32));
 			}
 
-			// Write material objects
+			// Write actor objects
 			for (uint32_t i = 0; i < array::size(actor_names); i++)
 			{
 				out_file->write((char*) &actor_objects[actor_names[i].index], sizeof(PhysicsActor2));
@@ -653,18 +647,20 @@ namespace physics_config_resource
 
 		if (header.num_filters)
 		{
-			// Write shape names
+			// Write filter names
 			for (uint32_t i = 0; i < array::size(filter_names); i++)
 			{
 				out_file->write((char*) &filter_names[i].name, sizeof(StringId32));
 			}
 
-			// Write material objects
+			// Write filter objects
 			for (uint32_t i = 0; i < array::size(filter_names); i++)
 			{
 				out_file->write((char*) &filter_objects[filter_names[i].index], sizeof(PhysicsCollisionFilter));
 			}
 		}
+
+		CE_DELETE(default_allocator(), s_ftm);
 	}
 
 } // namespace physics_config_resource

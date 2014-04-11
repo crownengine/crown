@@ -168,6 +168,7 @@ public:
 		}
 
 		CE_FATAL("Glyph not found");
+		return FontGlyphData();
 	}
 
 private:

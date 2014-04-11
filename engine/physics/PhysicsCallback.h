@@ -102,8 +102,8 @@ public:
 			PxContactPairPoint points[8];
 			const PxU32 num_points = cp.extractContacts(points, 8);
 			
-			PxVec3 where;
-			PxVec3 normal;
+			PxVec3 where(0, 0, 0);
+			PxVec3 normal(0, 0, 0);
 			for (PxU32 i = 0; i < num_points; i++)
 			{
 				where = points[i].position;

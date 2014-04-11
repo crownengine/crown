@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Types.h"
 #include "Log.h"
 #include "MathUtils.h"
-#include "Allocator.h"
+#include "Memory.h"
 
 namespace crown
 {

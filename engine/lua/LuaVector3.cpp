@@ -277,18 +277,6 @@ static int vector3_normalize(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-static int vector3_negate(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Vector3& a = stack.get_vector3(1);
-
-	stack.push_vector3(-a);
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
 static int vector3_distance(lua_State* L)
 {
 	LuaStack stack(L);

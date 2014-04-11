@@ -219,7 +219,7 @@ void Unit::create_physics_objects()
 			Actor* a1 = actor_by_index(joint.actor_0);
 			Actor* a2 = actor_by_index(joint.actor_1);
 
-			JointId id = m_world.physics_world()->create_joint(pr, i, *a1, *a2);
+			m_world.physics_world()->create_joint(pr, i, *a1, *a2);
 		}
 	}
 }

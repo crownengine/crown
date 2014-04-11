@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <stdio.h>
 #include <inttypes.h>
 
-#include "Allocator.h"
+#include "Memory.h"
 #include "Bundle.h"
 #include "Filesystem.h"
 #include "Resource.h"
