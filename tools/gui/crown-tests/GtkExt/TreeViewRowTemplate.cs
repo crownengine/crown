@@ -16,18 +16,18 @@ namespace crown_tests.GtkExt
 
 		public static TreeViewRowTemplate Create(Type targetType)
 		{
-			return new TreeViewRowTemplate (targetType);
+			return new TreeViewRowTemplate(targetType);
 		}
 
 		public TreeViewRowTemplate SetBinding(String colName, String path)
 		{
-			ColumnBindings.Add (colName, new Binding () { Path = path });
+			ColumnBindings.Add(colName, new Binding() { Path = path });
 			return this;
 		}
 
 		public TreeViewRowTemplate SetBinding(String colName, String path, Func<object, object> Converter)
 		{
-			ColumnBindings.Add (colName, new Binding () { Path = path, Converter = Converter });
+			ColumnBindings.Add(colName, new Binding() { Path = path, Converter = Converter });
 			return this;
 		}
 	}

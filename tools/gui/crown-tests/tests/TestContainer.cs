@@ -6,15 +6,15 @@ using System.Text;
 
 namespace crown_tests.tests
 {
-  [JsonObject(MemberSerialization.OptIn)]
-  public class TestContainer
-  {
-    [JsonProperty]
+	[JsonObject(MemberSerialization.OptIn)]
+	public class TestContainer
+	{
+		[JsonProperty]
 		public List<TestCategory> Categories { get; set; }
 
-    public TestContainer()
-    {
-      Categories = new List<TestCategory>();
-    }
-  }
+		public TestContainer()
+		{
+			Categories = new List<TestCategory>();
+		}
+	}
 }

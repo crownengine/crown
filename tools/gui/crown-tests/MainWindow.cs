@@ -10,30 +10,30 @@ namespace crown_tests
 	{
 		private TestContainer mContainer;
 
-		public MainWindow () : 
-			base (Gtk.WindowType.Toplevel)
+		public MainWindow() : 
+			base(Gtk.WindowType.Toplevel)
 		{
-			this.Build ();
+			this.Build();
 
-			twTests.AppendColumn ("Name", new Gtk.CellRendererText ());
-			twTests.AppendColumn ("State", new Gtk.CellRendererText ());
+			twTests.AppendColumn("Name", new Gtk.CellRendererText());
+			twTests.AppendColumn("State", new Gtk.CellRendererText());
 			TreeViewTemplating.AddRowTemplate(twTests, 
-																				TreeViewRowTemplate.Create (typeof (TestCategory))
-																				.SetBinding ("Name", "Name"));
+				TreeViewRowTemplate.Create(typeof(TestCategory))
+																				.SetBinding("Name", "Name"));
 			TreeViewTemplating.AddRowTemplate(twTests, 
-																				TreeViewRowTemplate.Create (typeof (Test))
-																				.SetBinding ("Name", "Name")
-																				.SetBinding ("State", "LastResult", (x) => object.Equals(x, 0) ? "Passed" : "Failed"));
-			TreeViewTemplating.ApplyTemplating (twTests);
+				TreeViewRowTemplate.Create(typeof(Test))
+																				.SetBinding("Name", "Name")
+																				.SetBinding("State", "LastResult", (x) => object.Equals(x, 0) ? "Passed" : "Failed"));
+			TreeViewTemplating.ApplyTemplating(twTests);
 
 
-			LoadConfigData ();
-			LoadTestsData ();
+			LoadConfigData();
+			LoadTestsData();
 		}
 
 		protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 		{
-			Application.Quit ();
+			Application.Quit();
 			a.RetVal = true;
 		}
 
@@ -41,15 +41,15 @@ namespace crown_tests
 
 		private void btnCreate_Click(object o, EventArgs args)
 		{
-			var creator = new TestSourceCreator (mContainer, txtTestFolder.Text);
-			creator.Create ();
+			var creator = new TestSourceCreator(mContainer, txtTestFolder.Text);
+			creator.Create();
 		}
 
 		private void btnExecute_Click(object o, EventArgs args)
 		{
-			var executor = new TestExecutor (mContainer, txtCrownTestsExe.Text);
-			executor.ExecuteAll ();
-			RefreshData ();
+			var executor = new TestExecutor(mContainer, txtCrownTestsExe.Text);
+			executor.ExecuteAll();
+			RefreshData();
 		}
 
 		private void LoadConfigData()
@@ -60,22 +60,22 @@ namespace crown_tests
 
 		private void LoadTestsData()
 		{
-			var testsJsonFullfileName = System.IO.Path.Combine (txtTestFolder.Text, "tests.json");
-			mContainer = JsonConvert.DeserializeObject<TestContainer> (System.IO.File.ReadAllText (testsJsonFullfileName));
+			var testsJsonFullfileName = System.IO.Path.Combine(txtTestFolder.Text, "tests.json");
+			mContainer = JsonConvert.DeserializeObject<TestContainer>(System.IO.File.ReadAllText(testsJsonFullfileName));
 
-			RefreshData ();
+			RefreshData();
 		}
 
 		private void RefreshData()
 		{
 			var treeStore = twTests.Model as Gtk.TreeStore;
 			if (treeStore == null)
-				treeStore = new Gtk.TreeStore (typeof(object));
-			treeStore.Clear ();
+				treeStore = new Gtk.TreeStore(typeof(object));
+			treeStore.Clear();
 			foreach (var category in mContainer.Categories) {
-				var iter = treeStore.AppendValues (category);
+				var iter = treeStore.AppendValues(category);
 				foreach (var test in category.Tests) {
-					treeStore.AppendValues (iter, test);
+					treeStore.AppendValues(iter, test);
 				}
 			}
 
