@@ -44,12 +44,6 @@ Sprite::Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const Sp
 	, m_scene_graph(sg)
 	, m_node(node)
 	, m_resource(sr)
-	, m_start_frame(0)
-	, m_cur_frame(0)
-	, m_tot_time(1.0)
-	, m_anim_time(0.0)
-	, m_loop(false)
-	, m_is_playing(false)
 {
 	m_vb = sr->vertex_buffer();
 	m_ib = sr->index_buffer();
@@ -115,29 +109,6 @@ void Sprite::set_local_pose(Unit* unit, const Matrix4x4& pose)
 }
 
 //-----------------------------------------------------------------------------
-void Sprite::play_animation(uint32_t start, uint32_t end, float time, bool loop)
-{
-	m_start_frame = start;
-	m_end_frame = end;
-	m_tot_time = time;
-	m_anim_time = 0.0;
-	m_loop = loop;
-}
-
-//-----------------------------------------------------------------------------
-void Sprite::stop_animation()
-{
-	m_cur_frame = 0;
-}
-
-//-----------------------------------------------------------------------------
-void Sprite::set_frame(uint32_t i)
-{
-	CE_ASSERT(i < m_resource->num_frames(), "Frame out of bounds"); 
-	m_cur_frame = i;
-}
-
-//-----------------------------------------------------------------------------
 void Sprite::set_material(MaterialId mat)
 {
 	m_material = mat;
@@ -146,11 +117,6 @@ void Sprite::set_material(MaterialId mat)
 //-----------------------------------------------------------------------------
 void Sprite::render(Renderer& r, UniformId uniform, float dt)
 {
-	// Compute current frame
-	uint32_t cur_frame = ((m_end_frame - m_start_frame) / m_tot_time) * m_anim_time;
-	m_cur_frame = cur_frame > m_end_frame ? m_end_frame : cur_frame;
-	m_anim_time += dt;
-
 	Material* material = m_render_world.lookup_material(m_material);
 	material->bind(r, uniform);
 
@@ -161,16 +127,9 @@ void Sprite::render(Renderer& r, UniformId uniform, float dt)
 		| STATE_BLEND_EQUATION_ADD 
 		| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
 	r.set_vertex_buffer(m_vb);
-	const uint32_t start_index = m_cur_frame * 6;
 	r.set_index_buffer(m_ib, 0, 6);
 	r.set_pose(world_pose());
 	r.commit(0);
-
-	if (m_cur_frame == m_end_frame && m_loop)
-	{
-		m_anim_time = 0.0;
-		m_cur_frame = m_start_frame;
-	}
 }
 
 } // namespace crown
