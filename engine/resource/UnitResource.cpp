@@ -83,6 +83,7 @@ uint32_t compute_link_depth(const GraphNode& node, const Array<GraphNode>& nodes
 	}
 
 	CE_FATAL("Node not found");
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
