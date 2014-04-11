@@ -70,6 +70,8 @@
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="gtk-gui\crown_tests.MainWindow.cs" />
     <Compile Include="MainWindow.cs" />
+    <Compile Include="GtkExt\TreeViewTemplating.cs" />
+    <Compile Include="GtkExt\TreeViewRowTemplate.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -83,5 +85,8 @@
     <EmbeddedResource Include="gtk-gui\gui.stetic">
       <LogicalName>gui.stetic</LogicalName>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="GtkExt\" />
   </ItemGroup>
 </Project>

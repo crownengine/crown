@@ -10,7 +10,7 @@ namespace crown_tests.tests
   public class TestContainer
   {
     [JsonProperty]
-    public List<TestCategory> Categories;
+		public List<TestCategory> Categories { get; set; }
 
     public TestContainer()
     {

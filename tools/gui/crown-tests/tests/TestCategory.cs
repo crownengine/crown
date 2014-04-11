@@ -10,11 +10,11 @@ namespace crown_tests.tests
   public class TestCategory
   {
     [JsonProperty]
-    public String Name;
+		public String Name { get; set; }
     [JsonProperty]
-    public String Description;
+		public String Description { get; set; }
     [JsonProperty]
-    public List<Test> Tests;
+		public List<Test> Tests { get; set; }
 
     public TestCategory(String name, String description)
     {

@@ -10,11 +10,11 @@ namespace crown_tests.tests
   public class Test
   {
     [JsonProperty]
-    public String Name;
+		public String Name { get; set; }
     [JsonProperty]
-    public String Description;
+		public String Description { get; set; }
 
-    public int LastResult;
+		public int LastResult { get; set; }
 
     public String GetFunctionName()
     {
