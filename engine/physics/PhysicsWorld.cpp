@@ -264,7 +264,6 @@ PhysicsWorld::~PhysicsWorld()
 //-----------------------------------------------------------------------------
 ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, UnitId unit_id)
 {
-	PhysicsConfigResource* config = (PhysicsConfigResource*) device()->resource_manager()->lookup("physics_config", "global");
 	Actor* actor = CE_NEW(m_actors_pool, Actor)(*this, res, index, sg, node, unit_id);
 	return m_actors.create(actor);
 }
