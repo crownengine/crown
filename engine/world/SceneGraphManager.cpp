@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SceneGraphManager.h"
 #include "SceneGraph.h"
 #include "Array.h"
+#include "Memory.h"
 
 namespace crown
 {

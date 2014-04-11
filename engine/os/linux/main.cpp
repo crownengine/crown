@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OsTypes.h"
 #include "OsEventQueue.h"
 #include "BundleCompiler.h"
+#include "Memory.h"
 
 namespace crown
 {

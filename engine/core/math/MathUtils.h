@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Assert.h"
 #include "Types.h"
-#include "Allocator.h"
+#include "Memory.h"
 
 namespace crown
 {

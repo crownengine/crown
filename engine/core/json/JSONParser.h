@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "ContainerTypes.h"
+#include "Macros.h"
 
 namespace crown
 {
