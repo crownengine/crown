@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "TempAllocator.h"
 #include "DiskFile.h"
-#include "OS.h"
+#include "Vector.h"
 
 namespace crown
 {
