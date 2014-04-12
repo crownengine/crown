@@ -26,10 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <cstring>
 #include "ContainerTypes.h"
 #include "Array.h"
 #include "Assert.h"
-#include <cstring>
 
 namespace crown
 {

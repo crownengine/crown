@@ -61,7 +61,7 @@ static int physics_world_make_raycast(lua_State* L)
 	LuaStack stack(L);
 
 	PhysicsWorld* world = stack.get_physics_world(1);
-	const char* callback = stack.get_string(2);
+	/* const char* callback = */ stack.get_string(2);
 	int mode = stack.get_int(3);
 	int filter = stack.get_int(4);
 
@@ -77,12 +77,12 @@ static int physics_world_overlap_test(lua_State* L)
 	LuaStack stack(L);
 
 	PhysicsWorld* world = stack.get_physics_world(1);
-	const char* callback = stack.get_string(2);
-	CollisionType::Enum filter = (CollisionType::Enum) stack.get_int(3);
-	ShapeType::Enum shape_type = (ShapeType::Enum) stack.get_int(4);
-	Vector3 pos = stack.get_vector3(5);
-	Quaternion rot = stack.get_quaternion(6);
-	Vector3 size = stack.get_vector3(7);
+	CollisionType::Enum filter = (CollisionType::Enum) stack.get_int(2);
+	ShapeType::Enum shape_type = (ShapeType::Enum) stack.get_int(3);
+	Vector3 pos = stack.get_vector3(4);
+	Quaternion rot = stack.get_quaternion(5);
+	Vector3 size = stack.get_vector3(6);
+
 
 	Array<Actor*> actors(default_allocator());
 

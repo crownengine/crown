@@ -158,20 +158,18 @@ namespace physics_system
 			return PxFilterFlag::eDEFAULT;
 		}
 
-		// generate contacts for all that were not filtered above
-		pairFlags = PxPairFlag::eCONTACT_DEFAULT;
-
 		// trigger the contact callback for pairs (A,B) where 
 		// the filtermask of A contains the ID of B and vice versa.
-		//if((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+		if((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
 		{
-			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND
-						| PxPairFlag::eNOTIFY_TOUCH_LOST
-						| PxPairFlag::eNOTIFY_CONTACT_POINTS;
+			pairFlags |= PxPairFlag::eCONTACT_DEFAULT
+			 		  | PxPairFlag::eNOTIFY_TOUCH_FOUND
+					  | PxPairFlag::eNOTIFY_TOUCH_LOST
+					  | PxPairFlag::eNOTIFY_CONTACT_POINTS;
 			return PxFilterFlag::eDEFAULT;
 		}
 
-		return PxFilterFlag::eDEFAULT;
+		return PxFilterFlag::eSUPPRESS;
 	}
 
 	// Global PhysX objects
@@ -266,7 +264,6 @@ PhysicsWorld::~PhysicsWorld()
 //-----------------------------------------------------------------------------
 ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, UnitId unit_id)
 {
-	PhysicsConfigResource* config = (PhysicsConfigResource*) device()->resource_manager()->lookup("physics_config", "global");
 	Actor* actor = CE_NEW(m_actors_pool, Actor)(*this, res, index, sg, node, unit_id);
 	return m_actors.create(actor);
 }
@@ -329,20 +326,6 @@ void PhysicsWorld::destroy_raycast(RaycastId id)
 }
 
 //-----------------------------------------------------------------------------
-Actor* PhysicsWorld::lookup_actor(StringId32 name)
-{
-	for (uint32_t i = 0; i < m_actors.size(); i++)
-	{
-		Actor* actor = m_actors[i];
-
-		if (actor->name() == name)
-		{
-			return actor;
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
 Actor* PhysicsWorld::lookup_actor(ActorId id)
 {
 	CE_ASSERT(m_actors.has(id), "Actor does not exist");
@@ -377,20 +360,6 @@ void PhysicsWorld::set_gravity(const Vector3& g)
 }
 
 //-----------------------------------------------------------------------------
-void PhysicsWorld::set_kinematic(ActorId id)
-{
-	Actor* actor = lookup_actor(id);
-	actor->set_kinematic();
-}
-
-//-----------------------------------------------------------------------------
-void PhysicsWorld::clear_kinematic(ActorId id)
-{
-	Actor* actor = lookup_actor(id);
-	actor->clear_kinematic();
-}
-
-//-----------------------------------------------------------------------------
 void PhysicsWorld::overlap_test(CollisionType::Enum filter, ShapeType::Enum type,
 								const Vector3& pos, const Quaternion& rot, const Vector3& size, Array<Actor*>& actors)
 {
@@ -398,7 +367,7 @@ void PhysicsWorld::overlap_test(CollisionType::Enum filter, ShapeType::Enum type
 
 	switch(type)
 	{
-		case ShapeType::SPHERE:	
+		case ShapeType::SPHERE:
 		{
 			PxSphereGeometry geometry(size.x);
 			m_scene->overlap(geometry, transform, m_buffer);

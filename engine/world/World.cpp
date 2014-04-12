@@ -24,6 +24,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <new>
 #include "Assert.h"
 #include "World.h"
 #include "Allocator.h"
@@ -341,7 +342,7 @@ void World::process_physics_events()
 			}
 			case physics_world::EventType::TRIGGER:
 			{
-				physics_world::TriggerEvent trigg_ev = *(physics_world::TriggerEvent*) event;
+				// physics_world::TriggerEvent trigg_ev = *(physics_world::TriggerEvent*) event;
 
 				// Log::d("type    = %s", trigg_ev.type == physics_world::TriggerEvent::BEGIN_TOUCH ? "begin" : "end");
 				// Log::d("trigger = (%p)", trigg_ev.trigger);

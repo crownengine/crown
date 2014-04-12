@@ -25,13 +25,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "LinearAllocator.h"
+#include "Memory.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
 LinearAllocator::LinearAllocator(Allocator& backing, size_t size)
-	: m_backing(&backing), m_physical_start(NULL), m_total_size(size), m_offset(0)
+	: m_backing(&backing)
+	, m_physical_start(NULL)
+	, m_total_size(size)
+	, m_offset(0)
 {
 	m_physical_start = backing.allocate(size);
 }

@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "File.h"
-#include "Vector.h"
+#include "ContainerTypes.h"
 #include "DynamicString.h"
 
 namespace crown
@@ -86,8 +86,8 @@ class Filesystem
 {
 public:
 
-						Filesystem() {};
-	virtual				~Filesystem() {};
+	Filesystem() {};
+	virtual ~Filesystem() {};
 
 	/// Opens the file at the given @a path with the given @a mode.
 	virtual File* open(const char* path, FileOpenMode mode) = 0;
@@ -119,7 +119,7 @@ public:
 	/// Returns the absolute path of the given @a path based on
 	/// the root path of the file source. If @a path is absolute,
 	/// the given path is returned.
-	virtual void		get_absolute_path(const char* path, DynamicString& os_path) = 0;
+	virtual void get_absolute_path(const char* path, DynamicString& os_path) = 0;
 
 private:
 

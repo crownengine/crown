@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Filesystem.h"
 #include "StringUtils.h"
 #include "JSONParser.h"
-#include "ContainerTypes.h"
+#include "Vector.h"
 #include "Log.h"
 #include "Matrix4x4.h"
 #include "PhysicsTypes.h"
@@ -83,6 +83,7 @@ uint32_t compute_link_depth(const GraphNode& node, const Array<GraphNode>& nodes
 	}
 
 	CE_FATAL("Node not found");
+	return 0;
 }
 
 //-----------------------------------------------------------------------------

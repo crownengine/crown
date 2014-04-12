@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "File.h"
 #include "Filesystem.h"
 #include "MathUtils.h"
+#include "Memory.h"
 
 namespace crown
 {

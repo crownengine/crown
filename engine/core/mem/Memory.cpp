@@ -79,7 +79,7 @@ public:
 	}
 
 	/// @copydoc Allocator::allocate()
-	void* allocate(size_t size, size_t align = memory::DEFAULT_ALIGN)
+	void* allocate(size_t size, size_t align = Allocator::DEFAULT_ALIGN)
 	{
 		ScopedMutex sm(m_mutex);
 

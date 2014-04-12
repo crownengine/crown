@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cstring>
 #include "Assert.h"
 #include "ContainerTypes.h"
+#include "Allocator.h"
 
 namespace crown
 {

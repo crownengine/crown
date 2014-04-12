@@ -109,6 +109,7 @@ int32_t SceneGraph::node(StringId32 name) const
 	}
 
 	CE_FATAL("Node not found");
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
