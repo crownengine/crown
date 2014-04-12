@@ -30,5 +30,6 @@ namespace crown
 {
 
 class Filesystem;
+class File;
 
 } // namespace crown
