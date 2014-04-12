@@ -168,6 +168,7 @@ set (FILESYSTEM_HEADERS
 	core/filesystem/DiskFilesystem.h
 	core/filesystem/File.h
 	core/filesystem/Filesystem.h
+	core/filesystem/FilesystemTypes.h
 	core/filesystem/NetworkFile.h
 	core/filesystem/NetworkFilesystem.h
 	core/filesystem/NullFile.h
