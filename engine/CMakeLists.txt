@@ -197,21 +197,22 @@ set (STRINGS_HEADERS
 )
 
 set (MEM_SRC
-	core/mem/Memory.cpp
 	core/mem/LinearAllocator.cpp
-	core/mem/StackAllocator.cpp
-	core/mem/ProxyAllocator.cpp
+	core/mem/Memory.cpp
 	core/mem/PoolAllocator.cpp
+	core/mem/ProxyAllocator.cpp
+	core/mem/StackAllocator.cpp
 )
 
 set (MEM_HEADERS
-	core/mem/Memory.h
 	core/mem/Allocator.h
-	core/mem/TempAllocator.h
 	core/mem/LinearAllocator.h
-	core/mem/StackAllocator.h
-	core/mem/ProxyAllocator.h
+	core/mem/Memory.h
+	core/mem/MemoryTypes.h
 	core/mem/PoolAllocator.h
+	core/mem/ProxyAllocator.h
+	core/mem/StackAllocator.h
+	core/mem/TempAllocator.h
 )
 
 set (COMPRESSORS_SRC
