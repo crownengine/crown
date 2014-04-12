@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Allocator.h"
+#include "MemoryTypes.h"
 
 namespace crown
 {

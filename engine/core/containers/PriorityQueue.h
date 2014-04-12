@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <algorithm>
 #include "ContainerTypes.h"
+#include "Array.h"
 
 namespace crown
 {

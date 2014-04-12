@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Types.h"
 #include "ContainerTypes.h"
-#include "Log.h"
 
 namespace crown
 {
