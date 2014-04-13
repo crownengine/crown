@@ -271,7 +271,7 @@ void JSONElement::to_keys(Vector<DynamicString>& keys) const
 	Map<DynamicString, const char*> object(default_allocator());
 	json::parse_object(m_at, object);
 
-	const typename Map<DynamicString, const char*>::Node* it = map::begin(object);
+	const Map<DynamicString, const char*>::Node* it = map::begin(object);
 	while (it != map::end(object))
 	{
 		vector::push_back(keys, (*it).key);
