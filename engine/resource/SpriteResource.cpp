@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SpriteResource.h"
 #include "StringUtils.h"
 #include "Array.h"
+#include "Config.h"
 
 namespace crown
 {
@@ -116,11 +117,9 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		const float u1 = fd.x0 + fd.x1;
 		const float v1 = fd.y0 + fd.y1;
 
-		const float aspect = (fd.x1 * width) / (fd.y1 * height);
-
 		// Compute positions
-		const float w = aspect;
-		const float h = 1;
+		const float w = (fd.x1 - fd.x0) * (width / CE_PIXELS_PER_METER);
+		const float h = (fd.y1 - fd.y0) * (height / CE_PIXELS_PER_METER);
 
 		const float x0 = fd.scale_x * (-w * 0.5) + fd.offset_x;
 		const float y0 = fd.scale_y * (-h * 0.5) + fd.offset_y;

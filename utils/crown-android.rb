@@ -37,6 +37,8 @@ $config_h =
 #define PRIi64 \"lli\"
 #define PRIx64 \"llx\"
 
+#define CE_PIXELS_PER_METER					32
+
 #define CE_MAX_TEXTURE_UNITS				8
 #define CE_MAX_TEXTURES						32
 #define CE_MAX_RENDER_TARGETS				32
