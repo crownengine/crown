@@ -72,6 +72,9 @@
     <Compile Include="MainWindow.cs" />
     <Compile Include="GtkExt\TreeViewTemplating.cs" />
     <Compile Include="GtkExt\TreeViewRowTemplate.cs" />
+    <Compile Include="GtkExt\IPropertyChanged.cs" />
+    <Compile Include="GtkExt\ViewModelBase.cs" />
+    <Compile Include="GtkExt\BindingEngine.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

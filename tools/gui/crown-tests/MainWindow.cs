@@ -49,7 +49,6 @@ namespace crown_tests
 		{
 			var executor = new TestExecutor(mContainer, txtCrownTestsExe.Text);
 			executor.ExecuteAll();
-			RefreshData();
 		}
 
 		private void LoadConfigData()

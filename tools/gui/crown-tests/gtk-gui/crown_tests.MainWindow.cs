@@ -28,6 +28,8 @@ namespace crown_tests
 			this.Name = "crown_tests.MainWindow";
 			this.Title = global::Mono.Unix.Catalog.GetString ("Test Browser");
 			this.WindowPosition = ((global::Gtk.WindowPosition)(4));
+			this.DefaultWidth = 500;
+			this.DefaultHeight = 350;
 			// Container child crown_tests.MainWindow.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox ();
 			this.vbox1.Name = "vbox1";
@@ -159,8 +161,6 @@ namespace crown_tests
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
-			this.DefaultWidth = 400;
-			this.DefaultHeight = 300;
 			this.Show ();
 			this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
 			this.btnCreate.Clicked += new global::System.EventHandler (this.btnCreate_Click);

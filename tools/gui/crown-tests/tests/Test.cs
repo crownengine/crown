@@ -6,19 +6,30 @@ using System.Text;
 
 namespace crown_tests.tests
 {
-  [JsonObject(MemberSerialization.OptIn)]
-  public class Test
-  {
-    [JsonProperty]
+	[JsonObject(MemberSerialization.OptIn)]
+	public class Test: ViewModelBase
+	{
+		[JsonProperty]
 		public String Name { get; set; }
-    [JsonProperty]
+
+		[JsonProperty]
 		public String Description { get; set; }
 
-		public int LastResult { get; set; }
+		int mLastResult;
 
-    public String GetFunctionName()
-    {
-      return "test_" + Name.ToLower().Replace(' ', '_');
-    }
-  }
+		public int LastResult { 
+			get { return mLastResult; }
+			set {
+				if (mLastResult != value) {
+					mLastResult = value;
+					Notify("LastResult");
+				}
+			}
+		}
+
+		public String GetFunctionName()
+		{
+			return "test_" + Name.ToLower().Replace(' ', '_');
+		}
+	}
 }

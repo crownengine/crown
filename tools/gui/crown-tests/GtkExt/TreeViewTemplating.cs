@@ -36,7 +36,8 @@ namespace crown_tests.GtkExt
 
 		private static void ValuePropertyDataFunc(Gtk.TreeViewColumn column, Gtk.CellRenderer cell, Gtk.TreeModel model, Gtk.TreeIter iter)
 		{
-			var info = GetInfo((Gtk.TreeView)column.TreeView);
+			var treeView = (Gtk.TreeView)column.TreeView;
+			var info = GetInfo(treeView);
 
 			var textCell = (cell as Gtk.CellRendererText);
 			textCell.Text = string.Empty;
@@ -46,17 +47,16 @@ namespace crown_tests.GtkExt
 
 			foreach (var rowTemplate in info.RowTemplates) {
 				if (value.GetType() == rowTemplate.TargetType) {
-					Binding binding = null;
-					if (!rowTemplate.ColumnBindings.TryGetValue(column.Title, out binding))
+					//Here we have a value, which is the source for Binding, and a BindingInfo that is given by rowTemplate.ColumnBindings[column.Title] .
+					//The instance of the BindingInfo is shared among all values (rows), since it was defined once in the rowTemplate.
+
+					BindingInfo bindingInfo = null;
+					if (!rowTemplate.ColumnBindings.TryGetValue(column.Title, out bindingInfo))
 						return;
 
-					var propInfo = value.GetType().GetProperty(binding.Path);
-					if (propInfo == null)
-						return;
-
-					var propValue = propInfo.GetValue(value, null);
-					if (binding.Converter != null)
-						propValue = binding.Converter(propValue);
+					//The actual binding, on the other hand, is specific to the current (row,column) pair.
+					Binding binding = BindingEngine.GetOrCreateBinding(value, new TreeViewIterBindingTarget(treeView, iter, column), bindingInfo);
+					var propValue = binding.GetSourceValue();
 					textCell.Text = propValue == null ? String.Empty : propValue.ToString();
 					return;
 				}
@@ -66,6 +66,42 @@ namespace crown_tests.GtkExt
 		private class TreeViewTemplateInfo
 		{
 			public List<TreeViewRowTemplate> RowTemplates = new List<TreeViewRowTemplate>();
+		}
+
+		private class TreeViewIterBindingTarget: IBindingTarget
+		{
+			private Gtk.TreeIter mIter;
+			private Gtk.TreeView mTreeView;
+			private Gtk.TreeViewColumn mColumn;
+
+			public TreeViewIterBindingTarget(Gtk.TreeView treeView, Gtk.TreeIter iter, Gtk.TreeViewColumn column)
+			{
+				mTreeView = treeView;
+				mIter = iter;
+				mColumn = column;
+			}
+
+			public override bool Equals(object obj)
+			{
+				var other = obj as TreeViewIterBindingTarget;
+				if (other == null)
+					return false;
+				return other.mIter.Equals(mIter) && (mTreeView == other.mTreeView) && (mColumn == other.mColumn);
+			}
+
+			public override int GetHashCode()
+			{
+				return mIter.GetHashCode();
+			}
+
+			#region IBindingTarget implementation
+
+			public void Update(Binding binding, object newValue)
+			{
+				mTreeView.Model.EmitRowChanged(mTreeView.Model.GetPath(mIter), mIter);
+			}
+
+			#endregion
 		}
 	}
 }

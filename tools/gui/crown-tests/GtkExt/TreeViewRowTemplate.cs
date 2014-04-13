@@ -6,12 +6,12 @@ namespace crown_tests.GtkExt
 	public class TreeViewRowTemplate
 	{
 		public Type TargetType;
-		public Dictionary<String, Binding> ColumnBindings;
+		public Dictionary<String, BindingInfo> ColumnBindings;
 
 		public TreeViewRowTemplate(Type targetType)
 		{
 			this.TargetType = targetType;
-			this.ColumnBindings = new Dictionary<string, Binding>();
+			this.ColumnBindings = new Dictionary<string, BindingInfo>();
 		}
 
 		public static TreeViewRowTemplate Create(Type targetType)
@@ -21,20 +21,14 @@ namespace crown_tests.GtkExt
 
 		public TreeViewRowTemplate SetBinding(String colName, String path)
 		{
-			ColumnBindings.Add(colName, new Binding() { Path = path });
+			ColumnBindings.Add(colName, new BindingInfo() { Path = path });
 			return this;
 		}
 
 		public TreeViewRowTemplate SetBinding(String colName, String path, Func<object, object> Converter)
 		{
-			ColumnBindings.Add(colName, new Binding() { Path = path, Converter = Converter });
+			ColumnBindings.Add(colName, new BindingInfo() { Path = path, Converter = Converter });
 			return this;
 		}
-	}
-
-	public class Binding
-	{
-		public String Path;
-		public Func<object, object> Converter;
 	}
 }
