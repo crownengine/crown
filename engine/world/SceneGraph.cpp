@@ -24,11 +24,14 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <string.h>
 #include "SceneGraph.h"
 #include "Quaternion.h"
+#include "Vector3.h"
+#include "Matrix4x4.h"
 #include "Allocator.h"
 #include "StringUtils.h"
+
+#include <string.h>
 
 #define CLEAN		0
 #define LOCAL_DIRTY	1
