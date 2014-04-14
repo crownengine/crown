@@ -1,16 +1,25 @@
-heightRel = 0;
+height = 0;
+spriteHeight = 0;
  
-var SetHeightRel = function(input)
+var SetHeight = function(input)
 {
-    heightRel = input;
+    height = input;
     return "";
 };
-SetHeightRel.filterName = "setHeightRel";
-Library.addFilter("SetHeightRel");
+SetHeight.filterName = "setHeight";
+Library.addFilter("SetHeight");
+
+var SetSpriteHeight = function(input)
+{
+	spriteHeight = input;
+	return "";
+};
+SetSpriteHeight.filterName = "setSpriteHeight";
+Library.addFilter("SetSpriteHeight")
  
 var TransformY = function(input)
 {
-    return String(1.0 - input - heightRel);
+    return String(height - input - spriteHeight);
 };
 TransformY.filterName = "transformY";
 Library.addFilter("TransformY");
