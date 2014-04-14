@@ -95,7 +95,7 @@ public:
 	/// Renders the world form the point of view of the given @a camera.
 	void render(Camera* camera);
 
-	CameraId create_camera(SceneGraph& sg, int32_t node);
+	CameraId create_camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far);
 	void destroy_camera(CameraId id);
 
 	/// Plays the sound with the given @æ name at the given @a position, with the given

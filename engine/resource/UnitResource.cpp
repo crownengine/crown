@@ -37,13 +37,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "TempAllocator.h"
 #include "Types.h"
-#include "UnitResource.h"
 #include "Vector3.h"
+#include "Camera.h"
+#include "UnitResource.h"
 
 namespace crown
 {
 namespace unit_resource
 {
+
+static ProjectionType::Enum projection_name_to_enum(const char* name)
+{
+	if (string::strcmp(name, "perspective") == 0) return ProjectionType::PERSPECTIVE;
+	else if (string::strcmp(name, "orthographic") == 0) return ProjectionType::ORTHOGRAPHIC;
+
+	CE_FATAL("Unknown projection type");
+	return (ProjectionType::Enum) 0;
+}
 
 const StringId32 NO_PARENT = 0xFFFFFFFF;
 
@@ -166,15 +176,26 @@ void parse_cameras(JSONElement e, Array<UnitCamera>& cameras, const Array<GraphN
 	{
 		const char* camera_name = keys[k].c_str();
 		JSONElement camera = e.key(camera_name);
+		JSONElement node = camera.key("node");
+		JSONElement type = camera.key("type");
+		JSONElement fov = camera.key_or_nil("fov");
+		JSONElement near = camera.key_or_nil("near_clip_distance");
+		JSONElement far = camera.key_or_nil("far_clip_distance");
 
 		DynamicString node_name;
-		camera.key("node").to_string(node_name);
+		node.to_string(node_name);
+		DynamicString camera_type;
+		type.to_string(camera_type);
 
 		StringId32 node_name_hash = string::murmur2_32(node_name.c_str(), node_name.length());
 
 		UnitCamera cn;
 		cn.name = string::murmur2_32(camera_name, string::strlen(camera_name));
 		cn.node = find_node_index(node_name_hash, node_depths);
+		cn.type = projection_name_to_enum(camera_type.c_str());
+		cn.fov = fov.is_nil() ? 16.0 / 9.0 : fov.to_float();
+		cn.near = near.is_nil() ? 0.01 : near.to_float();
+		cn.far = far.is_nil() ? 1000 : far.to_float();
 
 		array::push_back(cameras, cn);
 	}

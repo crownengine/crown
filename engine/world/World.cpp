@@ -177,10 +177,10 @@ void World::render(Camera* camera)
 }
 
 //-----------------------------------------------------------------------------
-CameraId World::create_camera(SceneGraph& sg, int32_t node)
+CameraId World::create_camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far)
 {
 	// Allocate memory for camera
-	Camera* camera = CE_NEW(m_camera_pool, Camera)(sg, node);
+	Camera* camera = CE_NEW(m_camera_pool, Camera)(sg, node, type, near, far);
 
 	// Create Id for the camera
 	const CameraId camera_id = m_cameras.create(camera);

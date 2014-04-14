@@ -38,11 +38,14 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Camera::Camera(SceneGraph& sg, int32_t node)
+Camera::Camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far)
 	: m_scene_graph(sg)
 	, m_node(node)
-	, m_projection_type(ProjectionType::PERSPECTIVE)
+	, m_projection_type(type)
+	, m_near(near)
+	, m_far(far)
 {
+	update_projection_matrix();
 }
 
 //-----------------------------------------------------------------------------

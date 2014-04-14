@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "File.h"
 #include "PhysicsTypes.h"
 #include "Matrix4x4.h"
+#include "Camera.h"
 
 namespace crown
 {
@@ -63,6 +64,11 @@ struct UnitCamera
 {
 	uint32_t name;
 	int32_t node;
+
+	ProjectionType::Enum type;
+	float fov;
+	float near;
+	float far;
 };
 
 struct UnitNode

@@ -149,9 +149,9 @@ void Unit::create_camera_objects()
 {
 	for (uint32_t i = 0; i < m_resource->num_cameras(); i++)
 	{
-		const UnitCamera camera = m_resource->get_camera(i);
-		const CameraId cam = m_world.create_camera(m_scene_graph, camera.node);
-		add_camera(camera.name, cam);
+		const UnitCamera cam = m_resource->get_camera(i);
+		const CameraId id = m_world.create_camera(m_scene_graph, cam.node, cam.type, cam.near, cam.far);
+		add_camera(cam.name, id);
 	}
 }
 
