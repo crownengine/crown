@@ -220,7 +220,7 @@ inline Vector2::Vector2(const float a[2]) : x(a[0]), y(a[1])
 //-----------------------------------------------------------------------------
 inline const float& Vector2::operator[](uint32_t i) const
 {
-	CE_ASSERT(i < 2, "Index must be < 2");
+	CE_ASSERT(i < 2, "Index out of bounds");
 
 	return (&x)[i];
 }
@@ -228,7 +228,7 @@ inline const float& Vector2::operator[](uint32_t i) const
 //-----------------------------------------------------------------------------
 inline float& Vector2::operator[](uint32_t i)
 {
-	CE_ASSERT(i < 2, "Index must be < 2");
+	CE_ASSERT(i < 2, "Index out of bounds");
 
 	return (&x)[i];
 }

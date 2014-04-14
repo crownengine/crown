@@ -169,12 +169,14 @@ inline Quaternion::Quaternion(const Vector3& axis, float angle)
 //-----------------------------------------------------------------------------	
 inline float& Quaternion::operator[](uint32_t i)
 {
+	CE_ASSERT(i < 4, "Index out of bounds");
 	return (&x)[i];
 }
 
 //-----------------------------------------------------------------------------	
 inline const float& Quaternion::operator[](uint32_t i) const
 {
+	CE_ASSERT(i < 4, "Index out of bounds");
 	return (&x)[i];
 }
 
