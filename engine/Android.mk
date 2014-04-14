@@ -113,8 +113,6 @@ LOCAL_SRC_FILES :=\
 	core/json/JSONParser.cpp\
 \
 	core/math/Color4.cpp\
-	core/math/Matrix3x3.cpp\
-	core/math/Matrix4x4.cpp\
 \
 	core/mem/LinearAllocator.cpp\
 	core/mem/Memory.cpp\

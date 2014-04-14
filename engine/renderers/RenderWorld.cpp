@@ -215,7 +215,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	Renderer* r = device()->renderer();
 
 	Matrix4x4 inv_view = view;
-	inv_view.invert();
+	matrix4x4::invert(inv_view);
 
 	r->set_layer_view(0, inv_view);
 	r->set_layer_projection(0, projection);

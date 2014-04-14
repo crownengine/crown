@@ -47,6 +47,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+using namespace matrix4x4;
+
 ShaderId			gui_default_vs;
 ShaderId			gui_default_fs;
 ShaderId			gui_texture_fs;
@@ -143,12 +145,12 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 	, m_text_pool(default_allocator(), CE_MAX_GUI_TEXTS, sizeof(GuiText), CE_ALIGNOF(GuiText))
 {
 	// orthographic projection
-	m_projection.build_projection_ortho_rh(0, m_resolution.x, m_resolution.y, 0, -0.01f, 100.0f);
+	set_orthographic_rh(m_projection, 0, m_resolution.x, m_resolution.y, 0, -0.01f, 100.0f);
 
 	// pose
 	Vector3 pos = m_resource->gui_position();
-	m_pose.load_identity();
-	m_pose.set_translation(pos);
+	set_identity(m_pose);
+	set_translation(m_pose, pos);
 
 	create_gfx();
 
@@ -234,8 +236,8 @@ Vector2 Gui::resolution() const
 //-----------------------------------------------------------------------------
 void Gui::move(const Vector3& pos)
 {
-	m_pose.load_identity();
-	m_pose.set_translation(pos);
+	set_identity(m_pose);
+	set_translation(m_pose, pos);
 }
 
 //-----------------------------------------------------------------------------
@@ -364,9 +366,9 @@ void Gui::render()
 	m_resolution.x = width;
 	m_resolution.y = height;
 
-	m_r.set_layer_view(1, Matrix4x4::IDENTITY);
+	m_r.set_layer_view(1, matrix4x4::IDENTITY);
 	m_r.set_layer_projection(1, m_projection);
-	m_r.set_layer_viewport(1, m_pose.translation().x, m_pose.translation().y, m_resolution.x, m_resolution.y);
+	m_r.set_layer_viewport(1, translation(m_pose).x, translation(m_pose).y, m_resolution.x, m_resolution.y);
 
 	if (!m_visible) return;
 

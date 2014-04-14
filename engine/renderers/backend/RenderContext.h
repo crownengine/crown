@@ -175,7 +175,7 @@ struct RenderState
 	{
 		m_flags = STATE_NONE;
 
-		pose = Matrix4x4::IDENTITY;
+		pose = matrix4x4::IDENTITY;
 		program.id = INVALID_ID;
 		vb.id = INVALID_ID;
 		ib.id = INVALID_ID;

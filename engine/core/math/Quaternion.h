@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "MathTypes.h"
 #include "Matrix3x3.h"
-#include "Matrix4x4.h"
 
 namespace crown
 {
@@ -134,53 +133,12 @@ namespace quaternion
 
 	inline Matrix3x3 to_matrix3x3(const Quaternion& q)
 	{
-		const float x = q.x;
-		const float y = q.y;
-		const float z = q.z;
-		const float w = q.w;
-
-		Matrix3x3 tmp;
-
-		tmp.m[0] = (float)(1.0 - 2.0*y*y - 2.0*z*z);
-		tmp.m[1] = (float)(2.0*x*y + 2.0*w*z);
-		tmp.m[2] = (float)(2.0*x*z - 2.0*w*y);
-		tmp.m[3] = (float)(2.0*x*y - 2.0*w*z);
-		tmp.m[4] = (float)(1.0 - 2.0*x*x - 2.0*z*z);
-		tmp.m[5] = (float)(2.0*y*z + 2.0*w*x);
-		tmp.m[6] = (float)(2.0*x*z + 2.0*w*y);
-		tmp.m[7] = (float)(2.0*y*z - 2.0*w*x);
-		tmp.m[8] = (float)(1.0 - 2.0*x*x - 2.0*y*y);
-
-		return tmp;
+		return Matrix3x3(q);
 	}
 
 	inline Matrix4x4 to_matrix4x4(const Quaternion& q)
 	{
-		const float x = q.x;
-		const float y = q.y;
-		const float z = q.z;
-		const float w = q.w;
-
-		Matrix4x4 tmp;
-
-		tmp.m[0] = (float)(1.0 - 2.0*y*y - 2.0*z*z);
-		tmp.m[1] = (float)(2.0*x*y + 2.0*w*z);
-		tmp.m[2] = (float)(2.0*x*z - 2.0*w*y);
-		tmp.m[3] = 0;
-		tmp.m[4] = (float)(2.0*x*y - 2.0*w*z);
-		tmp.m[5] = (float)(1.0 - 2.0*x*x - 2.0*z*z);
-		tmp.m[6] = (float)(2.0*y*z + 2.0*w*x);
-		tmp.m[7] = 0.0;
-		tmp.m[8] = (float)(2.0*x*z + 2.0*w*y);
-		tmp.m[9] = (float)(2.0*y*z - 2.0*w*x);
-		tmp.m[10] = (float)(1.0 - 2.0*x*x - 2.0*y*y);
-		tmp.m[11] = 0.0;
-		tmp.m[12] = 0.0;
-		tmp.m[13] = 0.0;
-		tmp.m[14] = 0.0;
-		tmp.m[15] = 1.0;
-
-		return tmp;
+		return Matrix4x4(q, Vector3(0, 0, 0));
 	}
 } // namespace quaternion
 

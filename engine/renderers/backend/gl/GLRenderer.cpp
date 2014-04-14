@@ -943,24 +943,22 @@ public:
 					{
 						case ShaderUniform::VIEW:
 						{
-							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, view.to_float_ptr()));
+							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, matrix4x4::to_float_ptr(view)));
 							break;
 						}
 						case ShaderUniform::MODEL:
 						{
-							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, cur_state.pose.to_float_ptr()));
+							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, matrix4x4::to_float_ptr(cur_state.pose)));
 							break;
 						}
 						case ShaderUniform::MODEL_VIEW:
 						{
-							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, (view *
-															cur_state.pose).to_float_ptr()));
+							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, matrix4x4::to_float_ptr(view * cur_state.pose)));
 							break;
 						}
 						case ShaderUniform::MODEL_VIEW_PROJECTION:
 						{
-							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, (projection * view *
-															cur_state.pose).to_float_ptr()));
+							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, matrix4x4::to_float_ptr(projection * view * cur_state.pose)));
 							break;
 						}
 						case ShaderUniform::TIME_SINCE_START:

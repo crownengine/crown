@@ -131,8 +131,6 @@ set (CONTAINERS_HEADERS
 
 set (MATH_SRC
 	core/math/Color4.cpp
-	core/math/Matrix3x3.cpp
-	core/math/Matrix4x4.cpp
 )
 
 set (MATH_HEADERS
@@ -488,7 +486,7 @@ if (LINUX)
 		#-pedantic-errors
 		-Wall
 		-Wextra
-		-Werror
+		#-Werror
 		-Wno-long-long
 		-Wno-variadic-macros
 		-Wno-unknown-pragmas

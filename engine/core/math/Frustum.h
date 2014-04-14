@@ -114,35 +114,35 @@ namespace frustum
 	//-----------------------------------------------------------------------------
 	inline void from_matrix(Frustum& f, const Matrix4x4& m)
 	{
-		f.left.n.x		= m.m[3] + m.m[0];
-		f.left.n.y		= m.m[7] + m.m[4];
-		f.left.n.z		= m.m[11] + m.m[8];
-		f.left.d		= m.m[15] + m.m[12];
+		f.left.n.x		= m[3] + m[0];
+		f.left.n.y		= m[7] + m[4];
+		f.left.n.z		= m[11] + m[8];
+		f.left.d		= m[15] + m[12];
 
-		f.right.n.x		= m.m[3] - m.m[0];
-		f.right.n.y		= m.m[7] - m.m[4];
-		f.right.n.z		= m.m[11] - m.m[8];
-		f.right.d		= m.m[15] - m.m[12];
+		f.right.n.x		= m[3] - m[0];
+		f.right.n.y		= m[7] - m[4];
+		f.right.n.z		= m[11] - m[8];
+		f.right.d		= m[15] - m[12];
 
-		f.bottom.n.x	= m.m[3] + m.m[1];
-		f.bottom.n.y	= m.m[7] + m.m[5];
-		f.bottom.n.z	= m.m[11] + m.m[9];
-		f.bottom.d		= m.m[15] + m.m[13];
+		f.bottom.n.x	= m[3] + m[1];
+		f.bottom.n.y	= m[7] + m[5];
+		f.bottom.n.z	= m[11] + m[9];
+		f.bottom.d		= m[15] + m[13];
 
-		f.top.n.x		= m.m[3] - m.m[1];
-		f.top.n.y		= m.m[7] - m.m[5];
-		f.top.n.z		= m.m[11] - m.m[9];
-		f.top.d			= m.m[15] - m.m[13];
+		f.top.n.x		= m[3] - m[1];
+		f.top.n.y		= m[7] - m[5];
+		f.top.n.z		= m[11] - m[9];
+		f.top.d			= m[15] - m[13];
 
-		f.near.n.x		= m.m[3] + m.m[2];
-		f.near.n.y		= m.m[7] + m.m[6];
-		f.near.n.z		= m.m[11] + m.m[10];
-		f.near.d		= m.m[15] + m.m[14];
+		f.near.n.x		= m[3] + m[2];
+		f.near.n.y		= m[7] + m[6];
+		f.near.n.z		= m[11] + m[10];
+		f.near.d		= m[15] + m[14];
 
-		f.far.n.x		= m.m[3] - m.m[2];
-		f.far.n.y		= m.m[7] - m.m[6];
-		f.far.n.z		= m.m[11] - m.m[10];
-		f.far.d			= m.m[15] - m.m[14];
+		f.far.n.x		= m[3] - m[2];
+		f.far.n.y		= m[7] - m[6];
+		f.far.n.z		= m[11] - m[10];
+		f.far.d			= m[15] - m[14];
 
 		plane::normalize(f.left);
 		plane::normalize(f.right);
@@ -177,17 +177,7 @@ namespace frustum
 //-----------------------------------------------------------------------------
 inline Frustum::Frustum()
 {
-}
-
-//-----------------------------------------------------------------------------
-inline Frustum::Frustum(const Frustum& f)
-{
-	left	= f.left;
-	right	= f.right;
-	bottom	= f.bottom;
-	top		= f.top;
-	near	= f.near;
-	far		= f.far;
+	// Do not initialize
 }
 
 } // namespace crown

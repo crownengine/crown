@@ -227,7 +227,7 @@ public:
 
 	ALSoundWorld()
 	{
-		set_listener_pose(Matrix4x4::IDENTITY);
+		set_listener_pose(matrix4x4::IDENTITY);
 	}
 
 	virtual ~ALSoundWorld()
@@ -322,9 +322,9 @@ public:
 
 	virtual void set_listener_pose(const Matrix4x4& pose)
 	{
-		const Vector3 pos = pose.translation();
-		const Vector3 up = pose.y();
-		const Vector3 at = pose.z();
+		const Vector3 pos = matrix4x4::translation(pose);
+		const Vector3 up = matrix4x4::y(pose);
+		const Vector3 at = matrix4x4::z(pose);
 
 		AL_CHECK(alListener3f(AL_POSITION, pos.x, pos.y, pos.z));
 		//AL_CHECK(alListener3f(AL_VELOCITY, vel.x, vel.y, vel.z));

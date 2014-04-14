@@ -124,7 +124,7 @@ void DebugLine::commit()
 	r->set_vertex_buffer(tvb);
 	r->set_index_buffer(tib);
 	//r->set_program(default_program);
-	r->set_pose(Matrix4x4::IDENTITY);
+	r->set_pose(matrix4x4::IDENTITY);
 	r->commit(0);
 }
 

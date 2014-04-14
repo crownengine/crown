@@ -40,9 +40,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PhysicsWorld.h"
 #include "Quaternion.h"
 #include "StringUtils.h"
+
 #include "PxCooking.h"
 #include "PxDefaultStreams.h"
-
 
 using physx::PxActorFlag;
 using physx::PxActorType;
@@ -110,7 +110,7 @@ void Actor::create_objects()
 	const PhysicsActor2& actor_class = config->actor(actor.actor_class);
 
 	// Create rigid body
-	const PxMat44 pose((PxReal*) (m_scene_graph.world_pose(m_node).to_float_ptr()));
+	const PxMat44 pose((PxReal*) matrix4x4::to_float_ptr(m_scene_graph.world_pose(m_node)));
 
 	if (actor_class.flags & PhysicsActor2::DYNAMIC)
 	{
@@ -269,10 +269,12 @@ void Actor::teleport_world_rotation(const Quaternion& r)
 //-----------------------------------------------------------------------------
 void Actor::teleport_world_pose(const Matrix4x4& m)
 {
-	const PxVec3 x(m.x().x, m.x().y, m.x().z);
-	const PxVec3 y(m.y().x, m.y().y, m.y().z);
-	const PxVec3 z(m.z().x, m.z().y, m.z().z);
-	const PxVec3 t(m.translation().x, m.translation().y, m.translation().z);
+	using namespace matrix4x4;
+
+	const PxVec3 x(m.x.x, m.x.y, m.x.z);
+	const PxVec3 y(m.y.x, m.y.y, m.y.z);
+	const PxVec3 z(m.z.x, m.z.y, m.z.z);
+	const PxVec3 t(translation(m).x, translation(m).y, translation(m).z);
 	m_actor->setGlobalPose(PxTransform(PxMat44(x, y, z, t)));
 }
 

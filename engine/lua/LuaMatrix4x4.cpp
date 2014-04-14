@@ -30,8 +30,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaEnvironment.h"
 #include "OS.h"
 
+
 namespace crown
 {
+
+using namespace matrix4x4;
 
 //-----------------------------------------------------------------------------
 static int matrix4x4_new(lua_State* L)
@@ -66,6 +69,40 @@ static int matrix4x4_ctor(lua_State* L)
 	LuaStack stack(L);
 	stack.remove(1); // Remove table
 	return matrix4x4_new(L);
+}
+
+//-----------------------------------------------------------------------------
+static int matrix4x4_from_quaternion(lua_State* L)
+{
+	LuaStack stack(L);
+	const Quaternion& q = stack.get_quaternion(1);
+	stack.push_matrix4x4(Matrix4x4(q, Vector3(0, 0, 0)));
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+static int matrix4x4_from_translation(lua_State* L)
+{
+	LuaStack stack(L);
+	const Vector3& t = stack.get_vector3(1);
+	stack.push_matrix4x4(Matrix4x4(quaternion::IDENTITY, t));
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+static int matrix4x4_from_quaternion_translation(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_matrix4x4(Matrix4x4(stack.get_quaternion(1), stack.get_vector3(2)));
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+static int matrix4x4_from_axes(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_matrix4x4(Matrix4x4(stack.get_vector3(1), stack.get_vector3(2), stack.get_vector3(3), stack.get_vector3(4)));
+	return 1;
 }
 
 //-----------------------------------------------------------------------------					
@@ -108,111 +145,13 @@ static int matrix4x4_multiply(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-static int matrix4x4_build_rotation_x(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	float k = stack.get_float(2);
-
-	a.build_rotation_x(k);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int matrix4x4_build_rotation_y(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	float k = stack.get_float(2);
-
-	a.build_rotation_y(k);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int matrix4x4_build_rotation_z(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	float k = stack.get_float(2);
-
-	a.build_rotation_z(k);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int matrix4x4_build_rotation(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	Vector3& d = stack.get_vector3(2);
-	float k = stack.get_float(3);
-
-	a.build_rotation(d, k);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int matrix4x4_build_look_at_rh(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	Vector3& pos = stack.get_vector3(2);
-	Vector3& target = stack.get_vector3(3);
-	Vector3& up = stack.get_vector3(4);
-
-	a.build_look_at_rh(pos, target, up);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int matrix4x4_build_viewpoint_billboard(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	Vector3& pos = stack.get_vector3(2);
-	Vector3& target = stack.get_vector3(3);
-	Vector3& up = stack.get_vector3(4);
-
-	a.build_viewpoint_billboard(pos, target, up);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int matrix4x4_build_axis_billboard(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	Vector3& pos = stack.get_vector3(2);
-	Vector3& target = stack.get_vector3(3);
-	Vector3& up = stack.get_vector3(4);
-
-	a.build_axis_billboard(pos, target, up);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
 static int matrix4x4_transpose(lua_State* L)
 {
 	LuaStack stack(L);
 
 	Matrix4x4& a = stack.get_matrix4x4(1);
 
-	stack.push_matrix4x4(a.transpose());
+	stack.push_matrix4x4(transpose(a));
 
 	return 1;
 }
@@ -224,7 +163,7 @@ static int matrix4x4_determinant(lua_State* L)
 
 	Matrix4x4& a = stack.get_matrix4x4(1);
 
-	stack.push_float(a.get_determinant());
+	stack.push_float(determinant(a));
 
 	return 1;
 }
@@ -236,21 +175,9 @@ static int matrix4x4_invert(lua_State* L)
 
 	Matrix4x4& a = stack.get_matrix4x4(1);
 
-	stack.push_matrix4x4(a.invert());
+	stack.push_matrix4x4(invert(a));
 
 	return 1;
-}
-
-//-----------------------------------------------------------------------------
-static int matrix4x4_load_identity(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-
-	a.load_identity();
-
-	return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -260,7 +187,7 @@ static int matrix4x4_x(lua_State* L)
 
 	Matrix4x4& a = stack.get_matrix4x4(1);
 
-	stack.push_vector3(a.x());
+	stack.push_vector3(x(a));
 
 	return 1;
 }
@@ -272,7 +199,7 @@ static int matrix4x4_y(lua_State* L)
 
 	Matrix4x4& a = stack.get_matrix4x4(1);
 
-	stack.push_vector3(a.y());
+	stack.push_vector3(y(a));
 
 	return 1;
 }
@@ -284,7 +211,7 @@ static int matrix4x4_z(lua_State* L)
 
 	Matrix4x4& a = stack.get_matrix4x4(1);
 
-	stack.push_vector3(a.z());
+	stack.push_vector3(z(a));
 
 	return 1;
 }
@@ -297,7 +224,7 @@ static int matrix4x4_set_x(lua_State* L)
 	Matrix4x4& a = stack.get_matrix4x4(1);
 	Vector3& x = stack.get_vector3(2);
 
-	a.set_x(x);
+	set_x(a, x);
 
 	return 0;
 }
@@ -310,7 +237,7 @@ static int matrix4x4_set_y(lua_State* L)
 	Matrix4x4& a = stack.get_matrix4x4(1);
 	Vector3& y = stack.get_vector3(2);
 
-	a.set_y(y);
+	set_y(a, y);
 
 	return 0;
 }
@@ -323,7 +250,7 @@ static int matrix4x4_set_z(lua_State* L)
 	Matrix4x4& a = stack.get_matrix4x4(1);
 	Vector3& z = stack.get_vector3(2);
 
-	a.set_z(z);
+	set_z(a, z);
 
 	return 0;
 }
@@ -335,7 +262,7 @@ static int matrix4x4_translation(lua_State* L)
 
 	Matrix4x4& a = stack.get_matrix4x4(1);
 
-	stack.push_vector3(a.translation());
+	stack.push_vector3(translation(a));
 
 	return 1;
 }
@@ -348,32 +275,7 @@ static int matrix4x4_set_translation(lua_State* L)
 	Matrix4x4& a = stack.get_matrix4x4(1);
 	Vector3& trans = stack.get_vector3(2);
 
-	a.set_translation(trans);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int matrix4x4_get_scale(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-
-	stack.push_vector3(a.get_scale());
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-static int matrix4x4_set_scale(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Matrix4x4& a = stack.get_matrix4x4(1);
-	Vector3& scale = stack.get_vector3(2);
-
-	a.set_scale(scale);
+	set_translation(a, trans);
 
 	return 0;
 }
@@ -383,7 +285,7 @@ static int matrix4x4_identity(lua_State* L)
 {
 	LuaStack stack(L);
 
-	stack.push_matrix4x4(Matrix4x4::IDENTITY);
+	stack.push_matrix4x4(matrix4x4::IDENTITY);
 
 	return 1;
 }
@@ -395,10 +297,10 @@ static int matrix4x4_print(lua_State* L)
 
 	Matrix4x4& a = stack.get_matrix4x4(1);
 
-	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[0], a.m[4], a.m[8], a.m[12]);
-	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[1], a.m[5], a.m[9], a.m[13]);
-	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[2], a.m[6], a.m[10], a.m[14]);
-	os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[3], a.m[7], a.m[11], a.m[15]);
+	// os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[0], a.m[4], a.m[8], a.m[12]);
+	// os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[1], a.m[5], a.m[9], a.m[13]);
+	// os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[2], a.m[6], a.m[10], a.m[14]);
+	// os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[3], a.m[7], a.m[11], a.m[15]);
 
 	return 0;
 }
@@ -407,20 +309,16 @@ static int matrix4x4_print(lua_State* L)
 void load_matrix4x4(LuaEnvironment& env)
 {
 	env.load_module_function("Matrix4x4", "new", 							matrix4x4_new);
+	env.load_module_function("Matrix4x4", "from_quaternion",				matrix4x4_from_quaternion);
+	env.load_module_function("Matrix4x4", "from_translation",				matrix4x4_from_translation);
+	env.load_module_function("Matrix4x4", "from_quaternion_translation",	matrix4x4_from_quaternion_translation);
+	env.load_module_function("Matrix4x4", "from_axes",						matrix4x4_from_axes);
 	env.load_module_function("Matrix4x4", "add", 							matrix4x4_add);
 	env.load_module_function("Matrix4x4", "subtract", 						matrix4x4_subtract);
 	env.load_module_function("Matrix4x4", "multiply", 						matrix4x4_multiply);
-	env.load_module_function("Matrix4x4", "build_rotation_x", 				matrix4x4_build_rotation_x);
-	env.load_module_function("Matrix4x4", "build_rotation_y", 				matrix4x4_build_rotation_y);
-	env.load_module_function("Matrix4x4", "build_rotation_z", 				matrix4x4_build_rotation_z);
-	env.load_module_function("Matrix4x4", "build_rotation", 				matrix4x4_build_rotation);
-	env.load_module_function("Matrix4x4", "build_look_at_rh", 				matrix4x4_build_look_at_rh);
-	env.load_module_function("Matrix4x4", "build_viewpoint_billboard", 		matrix4x4_build_viewpoint_billboard);
-	env.load_module_function("Matrix4x4", "build_axis_billboard", 			matrix4x4_build_axis_billboard);
 	env.load_module_function("Matrix4x4", "transpose", 						matrix4x4_transpose);
 	env.load_module_function("Matrix4x4", "determinant", 					matrix4x4_determinant);
 	env.load_module_function("Matrix4x4", "invert", 						matrix4x4_invert);
-	env.load_module_function("Matrix4x4", "load_identity", 					matrix4x4_load_identity);
 	env.load_module_function("Matrix4x4", "x",								matrix4x4_x);
 	env.load_module_function("Matrix4x4", "y",								matrix4x4_y);
 	env.load_module_function("Matrix4x4", "z",								matrix4x4_z);
@@ -429,9 +327,7 @@ void load_matrix4x4(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4", "set_z",							matrix4x4_set_z);
 	env.load_module_function("Matrix4x4", "translation", 					matrix4x4_translation);
 	env.load_module_function("Matrix4x4", "set_translation", 				matrix4x4_set_translation);
-	env.load_module_function("Matrix4x4", "get_scale", 						matrix4x4_get_scale);
-	env.load_module_function("Matrix4x4", "set_scale", 						matrix4x4_set_scale);
-	env.load_module_function("Matrix4x4", "identity", 						matrix4x4_identity);	
+	env.load_module_function("Matrix4x4", "identity", 						matrix4x4_identity);
 	env.load_module_function("Matrix4x4", "print", 							matrix4x4_print);
 
 	env.load_module_constructor("Matrix4x4",								matrix4x4_ctor);
