@@ -41,8 +41,8 @@ struct Vector2
 	Vector2(float nx, float ny);
 	Vector2(const float v[2]);
 
-	float operator[](uint32_t i) const;
 	float& operator[](uint32_t i);
+	const float& operator[](uint32_t i) const;
 
 	Vector2& operator+=(const Vector2& a);
 	Vector2& operator-=(const Vector2& a);
@@ -60,8 +60,8 @@ struct Vector3
 	Vector3(float nx, float ny, float nz);
 	Vector3(const float v[3]);
 
-	float operator[](uint32_t i) const;
 	float& operator[](uint32_t i);
+	const float& operator[](uint32_t i) const;
 
 	Vector3& operator+=(const Vector3& a);
 	Vector3& operator-=(const Vector3& a);
@@ -80,8 +80,8 @@ struct Vector4
 	Vector4(float nx, float ny, float nz, float nw);
 	Vector4(const float v[3]);
 
-	float operator[](uint32_t i) const;
 	float& operator[](uint32_t i);
+	const float& operator[](uint32_t i) const;
 
 	Vector4& operator+=(const Vector4& a);
 	Vector4& operator-=(const Vector4& a);

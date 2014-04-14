@@ -239,7 +239,7 @@ inline Vector4::Vector4(const float a[4]) : x(a[0]), y(a[1]), z(a[2]), w(a[3])
 }
 
 //-----------------------------------------------------------------------------
-inline float Vector4::operator[](uint32_t i) const
+inline const float& Vector4::operator[](uint32_t i) const
 {
 	CE_ASSERT(i < 4, "Index must be < 4");
 

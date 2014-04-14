@@ -241,7 +241,7 @@ inline Vector3::Vector3(const float v[3]) : x(v[0]), y(v[1]), z(v[2])
 }
 
 //-----------------------------------------------------------------------------
-inline float Vector3::operator[](uint32_t i) const
+inline const float& Vector3::operator[](uint32_t i) const
 {
 	CE_ASSERT(i < 3, "Index must be < 3");
 
