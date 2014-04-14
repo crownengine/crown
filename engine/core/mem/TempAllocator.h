@@ -112,7 +112,7 @@ inline void* TempAllocator<SIZE>::allocate(size_t size, size_t align)
 {
 	m_cur = (char*) memory::align_top(m_cur, align);
 
-	if (size > m_end - m_cur)
+	if (size > size_t(m_end - m_cur))
 	{
 		uint32_t to_allocate = sizeof(void*) + size + align;
 
