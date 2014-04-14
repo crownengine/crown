@@ -62,10 +62,12 @@ struct SceneGraph
 	/// Returns the number of nodes in the graph.
 	uint32_t num_nodes() const;
 
+	/// Returns whether the node @a child can be linked to @a parent.
+	bool can_link(int32_t child, int32_t parent) const;
+
 	/// Links the @a child node to the @a parent node.
 	/// After the linking the @a child pose is reset to identity.
-	/// @note
-	/// The @a parent node must be either -1 (meaning no parent), or an index lesser than child
+	/// @note The @a parent node must be either -1 (meaning no parent), or an index lesser than child.
 	void link(int32_t child, int32_t parent);
 
 	/// Unlinks the @a child node from its parent if it has any.

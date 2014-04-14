@@ -140,11 +140,17 @@ uint32_t SceneGraph::num_nodes() const
 }
 
 //-----------------------------------------------------------------------------
+bool SceneGraph::can_link(int32_t child, int32_t parent) const
+{
+	return parent < child;
+}
+
+//-----------------------------------------------------------------------------
 void SceneGraph::link(int32_t child, int32_t parent)
 {
 	CE_ASSERT(child < (int32_t) m_num_nodes, "Child node does not exist");
 	CE_ASSERT(parent < (int32_t) m_num_nodes, "Parent node does not exist");
-	CE_ASSERT(parent < child, "Parent must be < child");
+	CE_ASSERT(can_link(child, parent), "Parent must be < child");
 
 	m_world_poses[child] = matrix4x4::IDENTITY;
 	m_local_poses[child] = matrix4x4::IDENTITY;
