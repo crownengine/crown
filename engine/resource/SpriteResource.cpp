@@ -112,14 +112,14 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		const FrameData& fd = m_regions[i];
 
 		// Compute uv coords
-		const float u0 = fd.x0;
-		const float v0 = fd.y0;
-		const float u1 = fd.x0 + fd.x1;
-		const float v1 = fd.y0 + fd.y1;
+		const float u0 = fd.x0 / width;
+		const float v0 = fd.y0 / height;
+		const float u1 = (fd.x0 + fd.x1) / width;
+		const float v1 = (fd.y0 + fd.y1) / height;
 
 		// Compute positions
-		const float w = (fd.x1 - fd.x0) * (width / CE_PIXELS_PER_METER);
-		const float h = (fd.y1 - fd.y0) * (height / CE_PIXELS_PER_METER);
+		const float w = fd.x1 / CE_PIXELS_PER_METER;
+		const float h = fd.y1 / CE_PIXELS_PER_METER;
 
 		const float x0 = fd.scale_x * (-w * 0.5) + fd.offset_x;
 		const float y0 = fd.scale_y * (-h * 0.5) + fd.offset_y;
