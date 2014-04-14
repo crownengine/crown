@@ -27,9 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Frustum.h"
-#include "Matrix4x4.h"
-#include "Vector3.h"
+#include "MathTypes.h"
 #include "WorldTypes.h"
 
 namespace crown

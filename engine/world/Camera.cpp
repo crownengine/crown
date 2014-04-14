@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SceneGraph.h"
 #include "Assert.h"
 #include "Vector4.h"
+#include "Frustum.h"
 
 namespace crown
 {

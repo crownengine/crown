@@ -46,10 +46,8 @@ namespace crown
 
 struct PhysicsResource;
 struct PhysicsConfigResource;
-struct Quaternion;
-struct Matrix4x4;
 struct Unit;
-class SceneGraph;
+struct SceneGraph;
 
 /// Represents a rigid body.
 ///
