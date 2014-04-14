@@ -124,15 +124,15 @@ static int vector3box_store(lua_State* L)
 	
 	if (stack.num_args() == 2)
 	{
-		Vector3 tv = stack.get_vector3(1);
+		Vector3 tv = stack.get_vector3(2);
 
 		v = tv;
 	}
 	else if (stack.num_args() == 4)
 	{
-		v.x = stack.get_float(1);
-		v.y = stack.get_float(2);
-		v.z = stack.get_float(3);
+		v.x = stack.get_float(2);
+		v.y = stack.get_float(3);
+		v.z = stack.get_float(4);
 	}
 	return 0;
 }
