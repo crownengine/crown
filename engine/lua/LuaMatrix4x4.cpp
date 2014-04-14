@@ -28,8 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "LuaStack.h"
 #include "LuaEnvironment.h"
-#include "OS.h"
-
 
 namespace crown
 {
@@ -291,18 +289,16 @@ static int matrix4x4_identity(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-static int matrix4x4_print(lua_State* L)
+static int matrix4x4_to_string(lua_State* L)
 {
 	LuaStack stack(L);
 
 	Matrix4x4& a = stack.get_matrix4x4(1);
 
-	// os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[0], a.m[4], a.m[8], a.m[12]);
-	// os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[1], a.m[5], a.m[9], a.m[13]);
-	// os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[2], a.m[6], a.m[10], a.m[14]);
-	// os::printf("|%.1f|%.1f|%.1f|%.1f|\n", a.m[3], a.m[7], a.m[11], a.m[15]);
+	stack.push_fstring("%.1f, %.1f, %.1f, %.1f\n%.1f, %.1f, %.1f, %.1f\n%.1f, %.1f, %.1f, %.1f\n%.1f, %.1f, %.1f, %.1f\n",
+						a[0], a[4], a[8], a[12], a[1], a[5], a[9], a[13], a[2], a[6], a[10], a[14], a[3], a[7], a[11], a[15]);
 
-	return 0;
+	return 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -328,7 +324,7 @@ void load_matrix4x4(LuaEnvironment& env)
 	env.load_module_function("Matrix4x4", "translation", 					matrix4x4_translation);
 	env.load_module_function("Matrix4x4", "set_translation", 				matrix4x4_set_translation);
 	env.load_module_function("Matrix4x4", "identity", 						matrix4x4_identity);
-	env.load_module_function("Matrix4x4", "print", 							matrix4x4_print);
+	env.load_module_function("Matrix4x4", "to_string",						matrix4x4_to_string);
 
 	env.load_module_constructor("Matrix4x4",								matrix4x4_ctor);
 }
