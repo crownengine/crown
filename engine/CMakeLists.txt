@@ -486,7 +486,7 @@ if (LINUX)
 		#-pedantic-errors
 		-Wall
 		-Wextra
-		#-Werror
+		-Werror
 		-Wno-long-long
 		-Wno-variadic-macros
 		-Wno-unknown-pragmas
