@@ -166,6 +166,18 @@ inline Quaternion::Quaternion(const Vector3& axis, float angle)
 {
 }
 
+//-----------------------------------------------------------------------------	
+inline float& Quaternion::operator[](uint32_t i)
+{
+	return (&x)[i];
+}
+
+//-----------------------------------------------------------------------------	
+inline const float& Quaternion::operator[](uint32_t i) const
+{
+	return (&x)[i];
+}
+
 //-----------------------------------------------------------------------------
 inline Quaternion& Quaternion::operator*=(const Quaternion& a)
 {

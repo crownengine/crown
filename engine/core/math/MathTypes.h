@@ -98,6 +98,9 @@ struct Quaternion
 	Quaternion(float nx, float ny, float nz, float nw);
 	Quaternion(const Vector3& axis, float angle);
 
+	float& operator[](uint32_t i);
+	const float& operator[](uint32_t i) const;
+
 	Quaternion& operator*=(const Quaternion& a);
 
 	float x, y, z, w;
