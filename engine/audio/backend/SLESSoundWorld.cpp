@@ -390,6 +390,8 @@ public:
 		SoundInstance& instance = m_playing_sounds.lookup(id);
 		instance.create(audio_system::s_sl_engine_itf, audio_system::s_sl_output_mix, id, sr);
 		instance.play(loop, volume);
+
+		return id;
 	}
 
 	virtual void stop(SoundInstanceId id)
