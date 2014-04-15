@@ -76,6 +76,7 @@ class World;
 struct PhysicsResource;
 struct PhysicsConfigResource;
 struct Unit;
+struct DebugLine;
 
 /// Manages physics objects in a World.
 ///
@@ -124,18 +125,18 @@ public:
 
 private:
 
-	World&						m_world;
-	PxControllerManager*		m_controller_manager;
-	PxScene*					m_scene;
-	PxDefaultCpuDispatcher*		m_cpu_dispatcher;
+	World& m_world;
+	PxControllerManager* m_controller_manager;
+	PxScene* m_scene;
+	PxDefaultCpuDispatcher* m_cpu_dispatcher;
 
-	PxOverlapHit 				m_hits[64]; // hardcoded
-	PxOverlapBuffer 			m_buffer;
+	PxOverlapHit m_hits[64]; // hardcoded
+	PxOverlapBuffer m_buffer;
 
-	PoolAllocator				m_actors_pool;
-	PoolAllocator				m_controllers_pool;
-	PoolAllocator				m_joints_pool;
-	PoolAllocator				m_raycasts_pool;
+	PoolAllocator m_actors_pool;
+	PoolAllocator m_controllers_pool;
+	PoolAllocator m_joints_pool;
+	PoolAllocator m_raycasts_pool;
 
 	IdArray<CE_MAX_ACTORS, Actor*>	m_actors;
 	IdArray<CE_MAX_CONTROLLERS, Controller*> m_controllers;
@@ -147,6 +148,10 @@ private:
 	PhysicsSimulationCallback m_callback;
 
 	const PhysicsConfigResource* m_resource;
+
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		DebugLine* m_debug_line;
+	#endif
 };
 
 } // namespace crown

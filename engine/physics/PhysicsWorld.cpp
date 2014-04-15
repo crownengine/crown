@@ -40,6 +40,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceManager.h"
 #include "Raycast.h"
 #include "Unit.h"
+#include "Config.h"
+#include "World.h"
+#include "DebugLine.h"
+#include "Color4.h"
+#include "IntSetting.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -68,9 +73,13 @@ using physx::PxVisualizationParameter;
 using physx::PxSphereGeometry;
 using physx::PxCapsuleGeometry;
 using physx::PxBoxGeometry;
+using physx::PxRenderBuffer;
+using physx::PxDebugLine;
 
 namespace crown
 {
+
+static IntSetting g_physics_debug("physics.debug", "Enable physics debug rendering.", 0, 0, 1);
 
 namespace physics_system
 {
@@ -207,6 +216,22 @@ namespace physics_system
 		CE_DELETE(default_allocator(), s_px_error);
 		CE_DELETE(default_allocator(), s_px_allocator);
 	}
+
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		void draw_debug_lines(PxScene* scene, DebugLine& line)
+		{
+			const PxRenderBuffer& rb = scene->getRenderBuffer();
+			for(PxU32 i = 0; i < rb.getNbLines(); i++)
+			{
+				const PxDebugLine& pxline = rb.getLines()[i];
+				line.add_line(Color4(pxline.color0), Vector3(pxline.pos0.x, pxline.pos0.y, pxline.pos0.z),
+								Vector3(pxline.pos1.x, pxline.pos1.y, pxline.pos1.z));
+			}
+
+			line.commit();
+			line.clear();
+		}
+	#endif
 } // namespace physics_system
 
 //-----------------------------------------------------------------------------
@@ -220,6 +245,10 @@ PhysicsWorld::PhysicsWorld(World& world)
 	, m_raycasts_pool(default_allocator(), CE_MAX_RAYCASTS, sizeof(Raycast), CE_ALIGNOF(Raycast))
 	, m_events(default_allocator())
 	, m_callback(m_events)
+
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		, m_debug_line(NULL)
+	#endif
 {
 	// Create the scene
 	PxSceneLimits scene_limits;
@@ -251,6 +280,13 @@ PhysicsWorld::PhysicsWorld(World& world)
 	CE_ASSERT(m_controller_manager != NULL, "Failed to create PhysX controller manager");
 
 	m_resource = (PhysicsConfigResource*) device()->resource_manager()->lookup("physics_config", "global");
+
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		m_scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1);
+		m_scene->setVisualizationParameter(PxVisualizationParameter::eACTOR_AXES, 1);
+		m_scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+		m_debug_line = world.create_debug_line(false);
+	#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -259,6 +295,8 @@ PhysicsWorld::~PhysicsWorld()
 	m_cpu_dispatcher->release();
 	m_controller_manager->release();
 	m_scene->release();
+
+	m_world.destroy_debug_line(m_debug_line);
 }
 
 //-----------------------------------------------------------------------------
@@ -426,6 +464,11 @@ void PhysicsWorld::update(float dt)
 	{
 		m_controllers[i]->update();
 	}
+
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		if (g_physics_debug)
+			physics_system::draw_debug_lines(m_scene, *m_debug_line);
+	#endif
 }
 
 PxPhysics* PhysicsWorld::physx_physics() { return physics_system::s_physics; }
