@@ -170,7 +170,7 @@ void LuaEnvironment::call_physics_callback(Actor* actor_0, Actor* actor_1, Unit*
 	LuaStack stack(m_L);
 
 	lua_pushcfunction(m_L, lua_system::error_handler);
-	lua_getglobal(m_L, "physics_callback");
+	lua_getglobal(m_L, "g_physics_callback");
 
 	stack.push_table();
 	stack.push_key_begin("actor_0"); stack.push_actor(actor_0); stack.push_key_end();
