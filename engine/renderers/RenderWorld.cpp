@@ -88,6 +88,7 @@ namespace render_world_globals
 	ShaderId texture_fs;
 	GPUProgramId texture_program;
 	GPUProgramId def_program;
+	UniformId u_albedo_0;
 	uint32_t num_refs = 0;
 
 	void init()
@@ -103,6 +104,7 @@ namespace render_world_globals
 		texture_fs = r->create_shader(ShaderType::FRAGMENT, texture_fragment);
 		def_program = r->create_gpu_program(default_vs, default_fs);
 		texture_program = r->create_gpu_program(default_vs, texture_fs);
+		u_albedo_0 = r->create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
 	}
 
 	void shutdown()
@@ -118,6 +120,7 @@ namespace render_world_globals
 		r->destroy_shader(default_vs);
 		r->destroy_shader(default_fs);
 		r->destroy_shader(texture_fs);
+		r->destroy_uniform(u_albedo_0);
 	}
 
 	GPUProgramId default_program()
@@ -139,17 +142,11 @@ RenderWorld::RenderWorld()
 	, m_gui_pool(default_allocator(), MAX_GUIS, sizeof(Gui), CE_ALIGNOF(Gui))
 {
 	render_world_globals::init();
-
-	Renderer* r = device()->renderer();
-	m_u_albedo_0 = r->create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
 }
 
 //-----------------------------------------------------------------------------
 RenderWorld::~RenderWorld()
 {
-	Renderer* r = device()->renderer();
-	r->destroy_uniform(m_u_albedo_0);
-
 	render_world_globals::shutdown();
 }
 
@@ -275,7 +272,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		r->set_vertex_buffer(mesh->m_vbuffer);
 		r->set_index_buffer(mesh->m_ibuffer);
 		r->set_program(render_world_globals::default_program());
-		// r->set_texture(0, m_u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
+		// r->set_texture(0, render_world_globals::u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
 		// r->set_uniform(u_brightness, UNIFORM_FLOAT_1, &brightness, 1);
 
 		r->set_pose(mesh->world_pose());
@@ -286,7 +283,8 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	for (uint32_t s = 0; s < m_sprite.size(); s++)
 	{
 		r->set_program(render_world_globals::default_texture_program());
-		m_sprite[s]->render(*r, m_u_albedo_0, dt);
+		m_sprite[s]->update(dt);
+		m_sprite[s]->render(*r, render_world_globals::u_albedo_0, dt);
 	}
 
 	// Draw all guis
