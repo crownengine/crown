@@ -42,43 +42,94 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-static const char* default_vertex =
-	"precision mediump float;"
-	"uniform mat4      	u_model;"
-	"uniform mat4      	u_model_view_projection;"
+namespace render_world_globals
+{
+	static const char* default_vertex =
+		"precision mediump float;"
+		"uniform mat4      	u_model;"
+		"uniform mat4      	u_model_view_projection;"
 
-	"attribute vec4    	a_position;"
-	"attribute vec2    	a_tex_coord0;"
-	"attribute vec4    	a_color;"
+		"attribute vec4    	a_position;"
+		"attribute vec2    	a_tex_coord0;"
+		"attribute vec4    	a_color;"
 
-	"varying vec2		tex_coord0;"
-	"varying vec4		color;"
+		"varying vec2		tex_coord0;"
+		"varying vec4		color;"
 
-	"void main(void)"
-	"{"
-	"	tex_coord0 = a_tex_coord0;"
-	"   color = a_color;"
-	"	gl_Position = u_model_view_projection * a_position;"
-	"}";
+		"void main(void)"
+		"{"
+		"	tex_coord0 = a_tex_coord0;"
+		"   color = a_color;"
+		"	gl_Position = u_model_view_projection * a_position;"
+		"}";
 
-static const char* default_fragment = 
-	"precision mediump float;"
-	"void main(void)"
-	"{"
-	"	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);"
-	"}";
+	static const char* default_fragment = 
+		"precision mediump float;"
+		"varying vec4 color;"
+		"void main(void)"
+		"{"
+		"	gl_FragColor = color;"
+		"}";
 
-static const char* texture_fragment = 
-	"precision mediump float;"
-	"varying vec2       tex_coord0;"
-	"varying vec4       color;"
+	static const char* texture_fragment = 
+		"precision mediump float;"
+		"varying vec2       tex_coord0;"
+		"varying vec4       color;"
 
-	"uniform sampler2D  u_albedo_0;"
+		"uniform sampler2D  u_albedo_0;"
 
-	"void main(void)"
-	"{"
-	"	gl_FragColor = texture2D(u_albedo_0, tex_coord0);"
-	"}";
+		"void main(void)"
+		"{"
+		"	gl_FragColor = texture2D(u_albedo_0, tex_coord0);"
+		"}";
+
+	ShaderId default_vs;
+	ShaderId default_fs;
+	ShaderId texture_fs;
+	GPUProgramId texture_program;
+	GPUProgramId def_program;
+	uint32_t num_refs = 0;
+
+	void init()
+	{
+		if (num_refs)
+			return;
+
+		num_refs++;
+
+		Renderer* r = device()->renderer();
+		default_vs = r->create_shader(ShaderType::VERTEX, default_vertex);
+		default_fs = r->create_shader(ShaderType::FRAGMENT, default_fragment);
+		texture_fs = r->create_shader(ShaderType::FRAGMENT, texture_fragment);
+		def_program = r->create_gpu_program(default_vs, default_fs);
+		texture_program = r->create_gpu_program(default_vs, texture_fs);
+	}
+
+	void shutdown()
+	{
+		num_refs--;
+
+		if (num_refs)
+			return;
+
+		Renderer* r = device()->renderer();
+		r->destroy_gpu_program(texture_program);
+		r->destroy_gpu_program(def_program);
+		r->destroy_shader(default_vs);
+		r->destroy_shader(default_fs);
+		r->destroy_shader(texture_fs);
+	}
+
+	GPUProgramId default_program()
+	{
+		return def_program;
+	}
+
+	GPUProgramId default_texture_program()
+	{
+		return texture_program;
+	}
+};
 
 //-----------------------------------------------------------------------------
 RenderWorld::RenderWorld()
@@ -87,29 +138,19 @@ RenderWorld::RenderWorld()
 	, m_material_pool(default_allocator(), MAX_MATERIALS, sizeof(Material), CE_ALIGNOF(Material))
 	, m_gui_pool(default_allocator(), MAX_GUIS, sizeof(Gui), CE_ALIGNOF(Gui))
 {
+	render_world_globals::init();
+
 	Renderer* r = device()->renderer();
-
-	m_default_vs = r->create_shader(ShaderType::VERTEX, default_vertex);
-	m_default_fs = r->create_shader(ShaderType::FRAGMENT, default_fragment);
-	m_texture_fs = r->create_shader(ShaderType::FRAGMENT, texture_fragment);
-
 	m_u_albedo_0 = r->create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
-
-	m_default_program = r->create_gpu_program(m_default_vs, m_default_fs);
-	m_texture_program = r->create_gpu_program(m_default_vs, m_texture_fs);
 }
 
 //-----------------------------------------------------------------------------
 RenderWorld::~RenderWorld()
 {
 	Renderer* r = device()->renderer();
-
-	r->destroy_gpu_program(m_texture_program);
-	r->destroy_gpu_program(m_default_program);
 	r->destroy_uniform(m_u_albedo_0);
-	r->destroy_shader(m_default_vs);
-	r->destroy_shader(m_default_fs);
-	r->destroy_shader(m_texture_fs);
+
+	render_world_globals::shutdown();
 }
 
 //-----------------------------------------------------------------------------
@@ -220,7 +261,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	r->set_layer_view(0, inv_view);
 	r->set_layer_projection(0, projection);
 	r->set_layer_viewport(0, x, y, width, height);
-	r->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
+	r->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4(0x353839FF), 1.0f);
 
 	r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_CULL_CCW);
 	r->commit(0);
@@ -233,7 +274,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
 		r->set_vertex_buffer(mesh->m_vbuffer);
 		r->set_index_buffer(mesh->m_ibuffer);
-		r->set_program(m_default_program);
+		r->set_program(render_world_globals::default_program());
 		// r->set_texture(0, m_u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
 		// r->set_uniform(u_brightness, UNIFORM_FLOAT_1, &brightness, 1);
 
@@ -244,7 +285,8 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	// Draw all sprites
 	for (uint32_t s = 0; s < m_sprite.size(); s++)
 	{
-		r->set_program(m_texture_program);
+		r->set_program(render_world_globals::default_texture_program());
+		m_sprite[s]->update(dt);
 		m_sprite[s]->render(*r, m_u_albedo_0, dt);
 	}
 

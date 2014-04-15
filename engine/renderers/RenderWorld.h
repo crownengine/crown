@@ -54,6 +54,15 @@ struct Vector2;
 struct Vector3;
 struct GuiResource;
 
+namespace render_world_globals
+{
+	void init();
+	void shutdown();
+
+	GPUProgramId default_program();
+	GPUProgramId default_texture_program();
+};
+
 class RenderWorld
 {
 public:
@@ -61,44 +70,37 @@ public:
 	RenderWorld();
 	~RenderWorld();
 
-	MeshId		create_mesh(MeshResource* mr, SceneGraph& sg, int32_t node);
-	void		destroy_mesh(MeshId id);
-	Mesh*		lookup_mesh(MeshId mesh);
+	MeshId create_mesh(MeshResource* mr, SceneGraph& sg, int32_t node);
+	void destroy_mesh(MeshId id);
+	Mesh* lookup_mesh(MeshId mesh);
 
-	SpriteId	create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node);
-	void		destroy_sprite(SpriteId id);
-	Sprite*		lookup_sprite(SpriteId id);
+	SpriteId create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node);
+	void destroy_sprite(SpriteId id);
+	Sprite* lookup_sprite(SpriteId id);
 
-	MaterialId	create_material(MaterialResource* mr);
-	void		destroy_material(MaterialId id);
-	Material*	lookup_material(MaterialId id);
+	MaterialId create_material(MaterialResource* mr);
+	void destroy_material(MaterialId id);
+	Material* lookup_material(MaterialId id);
 
-	GuiId		create_gui(GuiResource* gr);
-	void		destroy_gui(GuiId id);
-	Gui*		lookup_gui(GuiId id);
+	GuiId create_gui(GuiResource* gr);
+	void destroy_gui(GuiId id);
+	Gui* lookup_gui(GuiId id);
 
-	void		update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height, float dt);
+	void update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height, float dt);
 
 private:
 
-	PoolAllocator						m_mesh_pool;
-	PoolAllocator						m_sprite_pool;
-	PoolAllocator						m_material_pool;
-	PoolAllocator						m_gui_pool;
+	PoolAllocator m_mesh_pool;
+	PoolAllocator m_sprite_pool;
+	PoolAllocator m_material_pool;
+	PoolAllocator m_gui_pool;
 
-	IdArray<MAX_MESHES, Mesh*>			m_mesh;
-	IdArray<MAX_SPRITES, Sprite*>		m_sprite;
-	IdArray<MAX_MATERIALS, Material*>	m_materials;
-	IdArray<MAX_GUIS, Gui*>				m_guis;
+	IdArray<MAX_MESHES, Mesh*> m_mesh;
+	IdArray<MAX_SPRITES, Sprite*> m_sprite;
+	IdArray<MAX_MATERIALS, Material*> m_materials;
+	IdArray<MAX_GUIS, Gui*> m_guis;
 
-	TextureId m_grass_texture;
-	TextureId m_lightmap_texture;
 	UniformId m_u_albedo_0;
-	ShaderId m_default_vs;
-	ShaderId m_default_fs;
-	ShaderId m_texture_fs;
-	GPUProgramId m_default_program;
-	GPUProgramId m_texture_program;
 };
 
 } // namespace crown
