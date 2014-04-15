@@ -286,7 +286,6 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	for (uint32_t s = 0; s < m_sprite.size(); s++)
 	{
 		r->set_program(render_world_globals::default_texture_program());
-		m_sprite[s]->update(dt);
 		m_sprite[s]->render(*r, m_u_albedo_0, dt);
 	}
 
