@@ -208,9 +208,14 @@ static int unit_camera(lua_State* L)
 	LuaStack stack(L);
 
 	Unit* unit = stack.get_unit(1);
-	const char* camera_name = stack.get_string(2);
 
-	stack.push_camera(unit->camera(camera_name));
+	if (stack.is_number(2))
+	{
+		stack.push_camera(unit->camera((uint32_t) stack.get_int(2)));
+		return 1;
+	}
+
+	stack.push_camera(unit->camera(stack.get_string(2)));
 	return 1;
 }
 
@@ -220,9 +225,14 @@ static int unit_mesh(lua_State* L)
 	LuaStack stack(L);
 
 	Unit* unit = stack.get_unit(1);
-	const char* mesh_name = stack.get_string(2);
 
-	stack.push_mesh(unit->mesh(mesh_name));
+	if (stack.is_number(2))
+	{
+		stack.push_mesh(unit->mesh((uint32_t) stack.get_int(2)));
+		return 1;
+	}
+
+	stack.push_mesh(unit->mesh(stack.get_string(2)));
 	return 1;
 }
 
@@ -232,9 +242,14 @@ static int unit_sprite(lua_State* L)
 	LuaStack stack(L);
 
 	Unit* unit = stack.get_unit(1);
-	const char* sprite_name = stack.get_string(2);
 
-	stack.push_sprite(unit->sprite(sprite_name));
+	if (stack.is_number(2))
+	{
+		stack.push_sprite(unit->sprite((uint32_t) stack.get_int(2)));
+		return 1;
+	}
+
+	stack.push_sprite(unit->sprite(stack.get_string(2)));
 	return 1;
 }
 
@@ -244,9 +259,14 @@ static int unit_actor(lua_State* L)
 	LuaStack stack(L);
 
 	Unit* unit = stack.get_unit(1);
-	const char* actor_name = stack.get_string(2);
 
-	stack.push_actor(unit->actor(actor_name));
+	if (stack.is_number(2))
+	{
+		stack.push_actor(unit->actor((uint32_t) stack.get_int(2)));
+		return 1;
+	}
+
+	stack.push_actor(unit->actor(stack.get_string(2)));
 	return 1;
 }
 
