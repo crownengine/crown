@@ -510,6 +510,22 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
+	void push_vector2box(const Vector2& v)
+	{
+		Vector2* vec = (Vector2*) lua_newuserdata(m_L, sizeof(Vector2));
+		luaL_getmetatable(m_L, "Vector2Box");
+		lua_setmetatable(m_L, -2);
+		*vec = v;
+	}
+
+	//-----------------------------------------------------------------------------
+	Vector2& get_vector2box(uint32_t index)
+	{
+		Vector2* v = (Vector2*) CHECKUDATA(m_L, index, "Vector2Box");
+		return *v;
+	}
+
+	//-----------------------------------------------------------------------------
 	void push_vector3box(const Vector3& v)
 	{
 		Vector3* vec = (Vector3*) lua_newuserdata(m_L, sizeof(Vector3));

@@ -351,6 +351,7 @@ set (LUA_SRC
 	lua/LuaTouch.cpp
 	lua/LuaUnit.cpp
 	lua/LuaVector2.cpp
+	lua/LuaVector2Box.cpp
 	lua/LuaVector3.cpp
 	lua/LuaVector3Box.cpp
 	lua/LuaWindow.cpp

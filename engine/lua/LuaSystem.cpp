@@ -69,6 +69,7 @@ extern void load_string_setting(LuaEnvironment& env);
 extern void load_touch(LuaEnvironment& env);
 extern void load_unit(LuaEnvironment& env);
 extern void load_vector2(LuaEnvironment& env);
+extern void load_vector2box(LuaEnvironment& env);
 extern void load_vector3(LuaEnvironment& env);
 extern void load_vector3box(LuaEnvironment& env);
 extern void load_window(LuaEnvironment& env);
@@ -334,6 +335,7 @@ namespace lua_system
 		load_touch(env);
 		load_unit(env);
 		load_vector2(env);
+		load_vector2box(env);
 		load_vector3(env);
 		load_vector3box(env);
 		load_window(env);
