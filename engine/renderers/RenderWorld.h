@@ -99,8 +99,6 @@ private:
 	IdArray<MAX_SPRITES, Sprite*> m_sprite;
 	IdArray<MAX_MATERIALS, Material*> m_materials;
 	IdArray<MAX_GUIS, Gui*> m_guis;
-
-	UniformId m_u_albedo_0;
 };
 
 } // namespace crown
