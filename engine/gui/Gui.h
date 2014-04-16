@@ -89,12 +89,6 @@ struct Gui
 
 	void				render(UniformId font, UniformId albedo);
 
-private:
-
-	// FIXME FIXME FIXME -- tmp way
-	void 				create_gfx();
-	void 				destroy_gfx();
-
 public:
 
 	RenderWorld&		m_render_world;
