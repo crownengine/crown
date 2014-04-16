@@ -348,24 +348,12 @@ void Unit::add_component(StringId32 name, Id component, uint32_t& size, Componen
 //-----------------------------------------------------------------------------
 Id Unit::find_component(const char* name, uint32_t size, Component* array)
 {
-	uint32_t name_hash = string::murmur2_32(name, string::strlen(name), 0);
-
-	Id comp;
-	comp.id = INVALID_ID;
-
-	for (uint32_t i = 0; i < size; i++)
-	{
-		if (name_hash == array[i].name)
-		{
-			comp = array[i].component;
-		}
-	}
-
-	return comp;
+	const uint32_t name_hash = string::murmur2_32(name, string::strlen(name), 0);
+	return find_component_by_name(name_hash, size, array);
 }
 
 //-----------------------------------------------------------------------------
-Id Unit::find_component(uint32_t index, uint32_t size, Component* array)
+Id Unit::find_component_by_index(uint32_t index, uint32_t size, Component* array)
 {
 	Id comp;
 	comp.id = INVALID_ID;
@@ -379,7 +367,7 @@ Id Unit::find_component(uint32_t index, uint32_t size, Component* array)
 }
 
 //-----------------------------------------------------------------------------
-Id Unit::find_component_by_index(StringId32 name, uint32_t size, Component* array)
+Id Unit::find_component_by_name(StringId32 name, uint32_t size, Component* array)
 {
 	Id comp;
 	comp.id = INVALID_ID;
@@ -455,7 +443,7 @@ Camera* Unit::camera(const char* name)
 //-----------------------------------------------------------------------------
 Camera* Unit::camera(uint32_t i)
 {
-	CameraId cam = find_component(i, m_num_cameras, m_cameras);
+	CameraId cam = find_component_by_index(i, m_num_cameras, m_cameras);
 
 	CE_ASSERT(cam.id != INVALID_ID, "Unit does not have camera with index '%d'", i);
 
@@ -475,7 +463,7 @@ Mesh* Unit::mesh(const char* name)
 //-----------------------------------------------------------------------------
 Mesh* Unit::mesh(uint32_t i)
 {
-	MeshId mesh = find_component(i, m_num_meshes, m_meshes);
+	MeshId mesh = find_component_by_index(i, m_num_meshes, m_meshes);
 
 	CE_ASSERT(mesh.id != INVALID_ID, "Unit does not have mesh with index '%d'", i);
 
@@ -495,7 +483,7 @@ Sprite*	Unit::sprite(const char* name)
 //-----------------------------------------------------------------------------
 Sprite*	Unit::sprite(uint32_t i)
 {
-	SpriteId sprite = find_component(i, m_num_sprites, m_sprites);
+	SpriteId sprite = find_component_by_index(i, m_num_sprites, m_sprites);
 
 	CE_ASSERT(sprite.id != INVALID_ID, "Unit does not have sprite with index '%d'", i);
 
@@ -515,9 +503,9 @@ Actor* Unit::actor(const char* name)
 //-----------------------------------------------------------------------------
 Actor* Unit::actor(uint32_t i)
 {
-	ActorId actor = find_component(i, m_num_actors, m_actors);
+	ActorId actor = find_component_by_index(i, m_num_actors, m_actors);
 
-	CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%d'", i);
+	CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with index '%d'", i);
 
 	return m_world.physics_world()->lookup_actor(actor);
 }	
@@ -525,7 +513,7 @@ Actor* Unit::actor(uint32_t i)
 //-----------------------------------------------------------------------------
 Actor* Unit::actor_by_index(StringId32 name)
 {
-	ActorId actor = find_component_by_index(name, m_num_actors, m_actors);
+	ActorId actor = find_component_by_name(name, m_num_actors, m_actors);
 
 	// CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%d'", name);
 
@@ -556,7 +544,7 @@ Material* Unit::material(const char* name)
 //-----------------------------------------------------------------------------
 Material* Unit::material(uint32_t i)
 {
-	MaterialId material = find_component(i, m_num_materials, m_materials);
+	MaterialId material = find_component_by_index(i, m_num_materials, m_materials);
 
 	CE_ASSERT(material.id != INVALID_ID, "Unit does not have material with name '%d'", i);
 
@@ -571,6 +559,5 @@ bool Unit::is_a(const char* name)
 
 	return m_resource_id.id == string::murmur2_64(unit.c_str(), string::strlen(unit.c_str()), 0);
 }
-
 
 } // namespace crown
