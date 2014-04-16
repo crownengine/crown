@@ -61,6 +61,7 @@ namespace render_world_globals
 
 	GPUProgramId default_program();
 	GPUProgramId default_texture_program();
+	GPUProgramId default_font_program();
 };
 
 class RenderWorld

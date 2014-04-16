@@ -45,50 +45,86 @@ namespace crown
 namespace render_world_globals
 {
 	static const char* default_vertex =
-		"precision mediump float;"
-		"uniform mat4      	u_model;"
-		"uniform mat4      	u_model_view_projection;"
+		"precision mediump float;\n"
+		"uniform mat4      	u_model_view_projection;\n"
 
-		"attribute vec4    	a_position;"
-		"attribute vec2    	a_tex_coord0;"
-		"attribute vec4    	a_color;"
+		"attribute vec4    	a_position;\n"
+		"attribute vec2    	a_tex_coord0;\n"
+		"attribute vec4    	a_color;\n"
 
-		"varying vec2		tex_coord0;"
-		"varying vec4		color;"
+		"varying vec2		tex_coord0;\n"
+		"varying vec4		color;\n"
 
-		"void main(void)"
-		"{"
-		"	tex_coord0 = a_tex_coord0;"
-		"   color = a_color;"
-		"	gl_Position = u_model_view_projection * a_position;"
-		"}";
+		"void main(void)\n"
+		"{\n"
+		"	tex_coord0 = a_tex_coord0;\n"
+		"   color = a_color;\n"
+		"	gl_Position = u_model_view_projection * a_position;\n"
+		"}\n";
 
 	static const char* default_fragment = 
-		"precision mediump float;"
-		"varying vec4 color;"
-		"void main(void)"
-		"{"
-		"	gl_FragColor = color;"
-		"}";
+		"precision mediump float;\n"
+		"varying vec4 color;\n"
+		"void main(void)\n"
+		"{\n"
+		"	gl_FragColor = color;\n"
+		"}\n";
 
 	static const char* texture_fragment = 
-		"precision mediump float;"
-		"varying vec2       tex_coord0;"
-		"varying vec4       color;"
+		"precision mediump float;\n"
+		"varying vec2       tex_coord0;\n"
+		"varying vec4       color;\n"
 
-		"uniform sampler2D  u_albedo_0;"
+		"uniform sampler2D  u_albedo_0;\n"
 
-		"void main(void)"
-		"{"
-		"	gl_FragColor = texture2D(u_albedo_0, tex_coord0);"
-		"}";
+		"void main(void)\n"
+		"{\n"
+		"	gl_FragColor = texture2D(u_albedo_0, tex_coord0);\n"
+		"}\n";
+
+	static const char* sdf_vertex =
+		"precision mediump float;\n"
+		"uniform mat4      	u_model_view_projection;\n"
+
+		"attribute vec4		a_position;\n"
+		"attribute vec2		a_tex_coord0;\n"
+
+		"varying vec2		v_tex_coord;\n"
+		"varying vec4		v_color;\n"
+
+		"void main(void)\n"
+		"{\n"
+		"	gl_Position = u_model_view_projection * a_position;\n"
+		"	v_tex_coord = a_tex_coord0;\n"
+		"	v_color = vec4(1, 1, 1, 1);\n"
+		"}\n";
+
+	static const char* sdf_fragment =
+		"precision mediump float;\n"
+		"uniform sampler2D u_texture;\n"
+
+		"varying vec4 v_color;\n"
+		"varying vec2 v_tex_coord;\n"
+
+		"const float smoothing = 1.0/16.0;\n"
+
+		"void main() {\n"
+			"float distance = texture2D(u_texture, v_tex_coord).a;\n"
+			"float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, distance);\n"
+			"gl_FragColor = vec4(v_color.rgb, alpha);\n"
+		"}\n";
+
 
 	ShaderId default_vs;
 	ShaderId default_fs;
 	ShaderId texture_fs;
+	ShaderId font_vs;
+	ShaderId font_fs;
 	GPUProgramId texture_program;
 	GPUProgramId def_program;
+	GPUProgramId font_program;
 	UniformId u_albedo_0;
+	UniformId u_font;
 	uint32_t num_refs = 0;
 
 	void init()
@@ -99,11 +135,17 @@ namespace render_world_globals
 		num_refs++;
 
 		Renderer* r = device()->renderer();
+
 		default_vs = r->create_shader(ShaderType::VERTEX, default_vertex);
 		default_fs = r->create_shader(ShaderType::FRAGMENT, default_fragment);
 		texture_fs = r->create_shader(ShaderType::FRAGMENT, texture_fragment);
+		font_vs = r->create_shader(ShaderType::VERTEX, sdf_vertex);
+		font_fs = r->create_shader(ShaderType::FRAGMENT, sdf_fragment);
+
 		def_program = r->create_gpu_program(default_vs, default_fs);
 		texture_program = r->create_gpu_program(default_vs, texture_fs);
+		font_program = r->create_gpu_program(font_vs, font_fs);
+		u_font = r->create_uniform("u_font", UniformType::INTEGER_1, 1);
 		u_albedo_0 = r->create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
 	}
 
@@ -117,10 +159,14 @@ namespace render_world_globals
 		Renderer* r = device()->renderer();
 		r->destroy_gpu_program(texture_program);
 		r->destroy_gpu_program(def_program);
+		r->destroy_gpu_program(font_program);
 		r->destroy_shader(default_vs);
 		r->destroy_shader(default_fs);
 		r->destroy_shader(texture_fs);
+		r->destroy_shader(font_vs);
+		r->destroy_shader(font_fs);
 		r->destroy_uniform(u_albedo_0);
+		r->destroy_uniform(u_font);
 	}
 
 	GPUProgramId default_program()
@@ -131,6 +177,11 @@ namespace render_world_globals
 	GPUProgramId default_texture_program()
 	{
 		return texture_program;
+	}
+
+	GPUProgramId default_font_program()
+	{
+		return font_program;
 	}
 };
 
@@ -290,7 +341,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	// Draw all guis
 	for (uint32_t g = 0; g < m_guis.size(); g++)
 	{
-		m_guis[g]->render();
+		m_guis[g]->render(render_world_globals::u_font, render_world_globals::u_albedo_0);
 	}
 }
 

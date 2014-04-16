@@ -87,7 +87,7 @@ struct Gui
 	void				update_text(GuiTextId id, const char* str, uint32_t font_size, const Vector3& pos);
 	void				destroy_text(GuiTextId id);
 
-	void				render();
+	void				render(UniformId font, UniformId albedo);
 
 private:
 

@@ -49,89 +49,6 @@ namespace crown
 
 using namespace matrix4x4;
 
-ShaderId			gui_default_vs;
-ShaderId			gui_default_fs;
-ShaderId			gui_texture_fs;
-GPUProgramId		gui_default_program;
-GPUProgramId		gui_texture_program;
-UniformId			gui_albedo_0;
-
-ShaderId			font_vs;
-ShaderId			font_fs;
-GPUProgramId		font_program;
-UniformId			font_uniform;
-
-static const char* default_vertex =
-	"precision mediump float;"
-	"uniform mat4      	u_model_view_projection;"
-
-	"attribute vec4    	a_position;"
-	"attribute vec2    	a_tex_coord0;"
-	"attribute vec4    	a_color;"
-
-	"varying vec2		tex_coord0;"
-	"varying vec4		color;"
-
-	"void main(void)"
-	"{"
-	"	tex_coord0 = a_tex_coord0;"
-	"   color = a_color;"
-	"	gl_Position = u_model_view_projection * a_position;"
-	"}";
-
-static const char* default_fragment =
-	"precision mediump float;"
-	"varying vec4            color;"
-
-	"void main(void)"
-	"{"
-	"	gl_FragColor = color;"
-	"}";
-
-static const char* texture_fragment = 
-	"precision mediump float;"
-	"varying vec2       tex_coord0;"
-	"varying vec4       color;"
-
-	"uniform sampler2D  u_albedo_0;"
-
-	"void main(void)"
-	"{"
-	"	gl_FragColor = texture2D(u_albedo_0, tex_coord0);"
-	"}";
-
-static const char* sdf_vertex =
-	"precision mediump float;"
-	"uniform mat4      	u_model_view_projection;"
-
-	"attribute vec4		a_position;"
-	"attribute vec2		a_tex_coord0;"
-
-	"varying vec2		v_tex_coord;"
-	"varying vec4		v_color;"
-
-	"void main(void)"
-	"{"
-	"	gl_Position = u_model_view_projection * a_position;"
-	"	v_tex_coord = a_tex_coord0;"
-	"	v_color = vec4(1, 1, 1, 1);"
-	"}";
-
-static const char* sdf_fragment =
-	"precision mediump float;"
-	"uniform sampler2D u_texture;"
-
-	"varying vec4 v_color;"
-	"varying vec2 v_tex_coord;"
-
-	"const float smoothing = 1.0/16.0;"
-
-	"void main() {"
-		"float distance = texture2D(u_texture, v_tex_coord).a;"
-		"float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, distance);"
-		"gl_FragColor = vec4(v_color.rgb, alpha);"
-	"}";
-
 //-----------------------------------------------------------------------------
 Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 	: m_render_world(render_world)
@@ -151,8 +68,6 @@ Gui::Gui(RenderWorld& render_world, GuiResource* gr, Renderer& r)
 	Vector3 pos = m_resource->gui_position();
 	set_identity(m_pose);
 	set_translation(m_pose, pos);
-
-	create_gfx();
 
 	// Gui's rects creation
 	for (uint32_t i = 0; i < m_resource->num_rects(); i++)
@@ -211,8 +126,6 @@ Gui::~Gui()
 	{
 		CE_DELETE(m_text_pool, m_texts[i]);
 	}
-
-	destroy_gfx();
 }
 
 //-----------------------------------------------------------------------------
@@ -357,7 +270,7 @@ void Gui::destroy_text(GuiTextId id)
 }
 
 //-----------------------------------------------------------------------------
-void Gui::render()
+void Gui::render(UniformId font, UniformId albedo)
 {
 	// resolution
 	uint32_t width = 0;
@@ -375,7 +288,7 @@ void Gui::render()
 	// Render all Rects
 	for (uint32_t i = 0; i < m_rects.size(); i++)
 	{
-		m_r.set_program(gui_default_program);
+		m_r.set_program(render_world_globals::default_program());
 		m_r.set_state(STATE_DEPTH_WRITE 
 		| STATE_COLOR_WRITE
 		| STATE_ALPHA_WRITE
@@ -391,7 +304,7 @@ void Gui::render()
 	// Render all Triangles
 	for (uint32_t i = 0; i < m_triangles.size(); i++)
 	{
-		m_r.set_program(gui_default_program);
+		m_r.set_program(render_world_globals::default_program());
 		m_r.set_state(STATE_DEPTH_WRITE 
 		| STATE_COLOR_WRITE
 		| STATE_ALPHA_WRITE
@@ -407,7 +320,7 @@ void Gui::render()
 	// Render all Images
 	for (uint32_t i = 0; i < m_images.size(); i++)
 	{
-		m_r.set_program(gui_texture_program);
+		m_r.set_program(render_world_globals::default_texture_program());
 		m_r.set_state(STATE_DEPTH_WRITE 
 		| STATE_COLOR_WRITE 
 		| STATE_ALPHA_WRITE 
@@ -417,13 +330,13 @@ void Gui::render()
 		| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
 		m_r.set_pose(m_pose);
 
-		m_images[i]->render(gui_albedo_0);
+		m_images[i]->render(albedo);
 	}
 
 	// Render all Texts
 	for (uint32_t i = 0; i < m_texts.size(); i++)
 	{
-		m_r.set_program(font_program);
+		m_r.set_program(render_world_globals::default_font_program());
 		m_r.set_state(STATE_DEPTH_WRITE 
 		| STATE_COLOR_WRITE 
 		| STATE_ALPHA_WRITE 
@@ -433,40 +346,8 @@ void Gui::render()
 		| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
 		m_r.set_pose(m_pose);
 
-		m_texts[i]->render(font_uniform);
+		m_texts[i]->render(font);
 	}
-}
-
-//-----------------------------------------------------------------------------
-void Gui::create_gfx()
-{
-	gui_default_vs = m_r.create_shader(ShaderType::VERTEX, default_vertex);
-	gui_default_fs = m_r.create_shader(ShaderType::FRAGMENT, default_fragment);
-	gui_texture_fs = m_r.create_shader(ShaderType::FRAGMENT, texture_fragment);
-	gui_default_program = m_r.create_gpu_program(gui_default_vs, gui_default_fs);
-	gui_texture_program = m_r.create_gpu_program(gui_default_vs, gui_texture_fs);
-	gui_albedo_0 = m_r.create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
-
-	font_vs = m_r.create_shader(ShaderType::VERTEX, sdf_vertex);
-	font_fs = m_r.create_shader(ShaderType::FRAGMENT, sdf_fragment);
-	font_program = m_r.create_gpu_program(font_vs, font_fs);
-	font_uniform = m_r.create_uniform("u_texture", UniformType::INTEGER_1, 1);
-}
-
-//-----------------------------------------------------------------------------
-void Gui::destroy_gfx()
-{
-	m_r.destroy_uniform(gui_albedo_0);
-	m_r.destroy_gpu_program(gui_texture_program);
-	m_r.destroy_gpu_program(gui_default_program);
-	m_r.destroy_shader(gui_texture_fs);
-	m_r.destroy_shader(gui_default_fs);
-	m_r.destroy_shader(gui_default_vs);
-
-	m_r.destroy_uniform(font_uniform);
-	m_r.destroy_gpu_program(font_program);
-	m_r.destroy_shader(font_vs);
-	m_r.destroy_shader(font_fs);
 }
 
 } // namespace crown
