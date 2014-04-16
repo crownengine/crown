@@ -79,6 +79,9 @@ public:
 	/// Returns the number of units in the world.
 	uint32_t num_units() const;
 
+	/// Returns all the the units in the world.
+	void units(Array<UnitId>& units) const;
+
 	/// Links the unit @a child to the @a node of the unit @a parent.
 	/// After this call, @a child will follow the @a parent unit.
 	void link_unit(UnitId child, UnitId parent, int32_t node);

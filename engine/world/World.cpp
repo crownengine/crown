@@ -126,6 +126,15 @@ uint32_t World::num_units() const
 }
 
 //-----------------------------------------------------------------------------
+void World::units(Array<UnitId>& units) const
+{
+	for (uint32_t i = 0; i < m_units.size(); i++)
+	{
+		array::push_back(units, m_units[i]->id());
+	}
+}
+
+//-----------------------------------------------------------------------------
 void World::link_unit(UnitId child, UnitId parent, int32_t node)
 {
 	CE_ASSERT(m_units.has(child), "Child unit does not exist");
