@@ -102,6 +102,9 @@ void DebugLine::clear()
 //-----------------------------------------------------------------------------
 void DebugLine::commit()
 {
+	if (!m_num_lines)
+		return;
+
 	Renderer* r = device()->renderer();
 
 	TransientVertexBuffer tvb;
