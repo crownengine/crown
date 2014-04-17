@@ -464,7 +464,11 @@ void PhysicsWorld::update(float dt)
 	{
 		m_controllers[i]->update();
 	}
+}
 
+//-----------------------------------------------------------------------------
+void PhysicsWorld::draw_debug()
+{
 	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
 		if (g_physics_debug)
 			physics_system::draw_debug_lines(m_scene, *m_debug_line);

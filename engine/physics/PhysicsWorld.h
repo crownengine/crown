@@ -107,7 +107,11 @@ public:
 	void overlap_test(CollisionType::Enum filter, ShapeType::Enum type,
 						const Vector3& pos, const Quaternion& rot, const Vector3& size, Array<Actor*>& actors);
 
+	/// Updates the physics simulation.
 	void update(float dt);
+
+	/// Draws debug lines.
+	void draw_debug();
 
 	Actor* lookup_actor(ActorId id);
 	Controller* lookup_controller(ControllerId id);
