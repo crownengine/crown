@@ -296,7 +296,9 @@ PhysicsWorld::~PhysicsWorld()
 	m_controller_manager->release();
 	m_scene->release();
 
-	m_world.destroy_debug_line(m_debug_line);
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		m_world.destroy_debug_line(m_debug_line);
+	#endif
 }
 
 //-----------------------------------------------------------------------------
