@@ -230,6 +230,17 @@ public:
 	uint8_t m_layer;
 };
 
+struct SortKey
+{
+	uint64_t key;
+	uint16_t state;
+
+	bool operator()(const SortKey& a, const SortKey& b)
+	{
+		return a.key < b.key;
+	}
+};
+
 /// A vertex buffer valid for one frame only
 struct TransientVertexBuffer
 {
@@ -258,7 +269,9 @@ struct RenderContext
 
 	uint32_t reserve_transient_vertex_buffer(uint32_t num, VertexFormat::Enum format)
 	{
-		const uint32_t offset = m_tvb_offset;
+		const uint32_t stride = Vertex::bytes_per_vertex(format);
+		uint32_t offset = m_tvb_offset;
+		offset = offset + (stride - (offset % stride)) % stride;
 		m_tvb_offset = offset + Vertex::bytes_per_vertex(format) * num;
 		return offset;
 	}
@@ -387,7 +400,8 @@ struct RenderContext
 		m_render_key.m_layer = layer;
 
 		m_states[m_num_states] = m_state;
-		m_keys[m_num_states] = m_render_key.encode();
+		m_keys[m_num_states].key = m_render_key.encode();
+		m_keys[m_num_states].state = m_num_states;
 		m_num_states++;
 
 		m_render_key.clear();
@@ -414,7 +428,7 @@ struct RenderContext
 
 	void sort()
 	{
-		std::sort(m_keys, m_keys + m_num_states);
+		std::sort(m_keys, m_keys + m_num_states, SortKey());
 	}
 
 public:
@@ -424,9 +438,10 @@ public:
 	RenderState m_state;
 
 	// Per-state data
+	SortKey m_keys[MAX_RENDER_STATES];
+
 	uint32_t m_num_states;
 	RenderState m_states[MAX_RENDER_STATES];
-	uint64_t m_keys[MAX_RENDER_STATES];
 
 	// Per-layer data
 	RenderTargetId m_targets[MAX_RENDER_LAYERS];
