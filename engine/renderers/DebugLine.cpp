@@ -120,7 +120,7 @@ void DebugLine::commit()
 		indices[i] = i;
 	}
 
-	r->set_state((m_depth_test ? 0 : STATE_DEPTH_TEST_ALWAYS) | STATE_COLOR_WRITE | STATE_CULL_CW | STATE_PRIMITIVE_LINES);
+	r->set_state((m_depth_test ? STATE_DEPTH_TEST_LESS : 0) | STATE_COLOR_WRITE | STATE_CULL_CW | STATE_PRIMITIVE_LINES);
 	r->set_vertex_buffer(tvb);
 	r->set_index_buffer(tib);
 	r->set_program(render_world_globals::default_program());
