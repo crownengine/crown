@@ -42,6 +42,11 @@ namespace crown
 extern ShaderUniform::Enum name_to_stock_uniform(const char* uniform);
 class RendererImplementation;
 
+/// @defgroup Graphics Graphics
+
+/// Renderer interface.
+///
+/// @ingroup Graphics
 class Renderer
 {
 public:
@@ -160,6 +165,7 @@ public:
 
 		tvb = (TransientVertexBuffer*) default_allocator().allocate(sizeof(TransientVertexBuffer) + size);
 		tvb->vb = vb;
+		tvb->start_vertex = 0;
 		tvb->data = (char*) &tvb[1]; // Nice trick
 		tvb->size = size;
 
@@ -256,6 +262,7 @@ public:
 
 		tib = (TransientIndexBuffer*) default_allocator().allocate(sizeof(TransientIndexBuffer) + size);
 		tib->ib = ib;
+		tib->start_index = 0;
 		tib->data = (char*) &tib[1]; // Same as before
 		tib->size = size;
 
