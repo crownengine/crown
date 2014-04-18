@@ -560,12 +560,19 @@ struct GPUProgram
 
 			const VertexFormatInfo& info = Vertex::info(format);
 
-			if (loc != -1 && info.has_attrib(attrib))
+			if (loc == -1)
+				return;
+
+			if (info.has_attrib(attrib))
 			{
 				GL_CHECK(glEnableVertexAttribArray(loc));
 				uint32_t base_vertex = start_vertex * info.attrib_stride(attrib) + info.attrib_offset(attrib);
 				GL_CHECK(glVertexAttribPointer(loc, info.num_components(attrib), GL_FLOAT, GL_FALSE, info.attrib_stride(attrib),
 										(GLvoid*)(uintptr_t) base_vertex));
+			}
+			else
+			{
+				GL_CHECK(glDisableVertexAttribArray(loc));
 			}
 		}
 	}
@@ -791,11 +798,11 @@ public:
 
 		for (uint32_t s = 0; s < context.m_num_states; s++)
 		{
-			const uint64_t key_s = context.m_keys[s];
+			const uint64_t key_s = context.m_keys[s].key;
 			RenderKey key;
 			key.decode(key_s);
 
-			const RenderState& cur_state = context.m_states[s];
+			const RenderState& cur_state = context.m_states[context.m_keys[s].state];
 			const uint64_t flags = cur_state.m_flags;
 			//const RenderTargetId& cur_rt = context.m_targets[layer];
 
