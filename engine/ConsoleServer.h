@@ -55,33 +55,33 @@ public:
 
 	/// Listens on the given @a port. If @a wait is true, this function
 	/// blocks until a client is connected.
-	void						init(uint16_t port, bool wait);
-	void						shutdown();
+	void init(uint16_t port, bool wait);
+	void shutdown();
 
-	void						log_to_all(const char* message, LogSeverity::Enum severity);
+	void log_to_all(const char* message, LogSeverity::Enum severity);
 
 	/// Collects requests from clients and processes them all.
-	void						update();
+	void update();
 
 private:
 
-	void						send(TCPSocket client, const char* message);
-	void						send_to_all(const char* message);
+	void send(TCPSocket client, const char* message);
+	void send_to_all(const char* message);
 
-	void						add_client(TCPSocket socket);
-	ReadResult					update_client(TCPSocket client);
-	void						process(TCPSocket client, const char* request);
+	void add_client(TCPSocket socket);
+	ReadResult update_client(TCPSocket client);
+	void process(TCPSocket client, const char* request);
 
-	void						process_ping(TCPSocket client, const char* msg);
-	void						process_script(TCPSocket client, const char* msg);
-	void						process_stats(TCPSocket client, const char* msg);
-	void						process_command(TCPSocket client, const char* msg);
-	void						processs_filesystem(TCPSocket client, const char* msg);
+	void process_ping(TCPSocket client, const char* msg);
+	void process_script(TCPSocket client, const char* msg);
+	void process_stats(TCPSocket client, const char* msg);
+	void process_command(TCPSocket client, const char* msg);
+	void processs_filesystem(TCPSocket client, const char* msg);
 
 private:
 
-	TCPServer					m_server;
-	ClientArray					m_clients;
+	TCPServer m_server;
+	ClientArray m_clients;
 };
 
 } // namespace crown
