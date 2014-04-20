@@ -71,7 +71,8 @@ public:
 		}
 
 		Device::shutdown();
-		return 0;
+		exit(0);
+		return 0; // Just to not get a warning
 	}
 
 	//-----------------------------------------------------------------------------

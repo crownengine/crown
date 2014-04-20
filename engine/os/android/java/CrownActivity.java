@@ -107,28 +107,6 @@ public class CrownActivity extends Activity
 	}
 
 	//-----------------------------------------------------------------------------
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event)
-	{
-		if ((keyCode == KeyEvent.KEYCODE_BACK))
-		{
-			CrownLib.pushKeyboardEvent(0, 0x1B, 1);
-		}
-		return super.onKeyUp(keyCode, event);
-	}
-
-	//-----------------------------------------------------------------------------
-	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event)
-	{
-		if ((keyCode == KeyEvent.KEYCODE_BACK))
-		{
-			CrownLib.pushKeyboardEvent(0, 0x1B, 0);
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-
-	//-----------------------------------------------------------------------------
 	public boolean onTouchEvent(MotionEvent event)
 	{
 		final int pointerIndex = event.getActionIndex();
