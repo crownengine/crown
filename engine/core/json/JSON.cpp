@@ -204,6 +204,21 @@ namespace json
 		return ch;
 	}
 
+	static const char* skip_value(const char* s)
+	{
+		CE_ASSERT_NOT_NULL(s);
+
+		const char* ch = s;
+		ch = skip_array(ch);
+		ch = skip_object(ch);
+		ch = skip_number(ch);
+		ch = skip_string(ch);
+		ch = skip_bool(ch);
+		ch = skip_null(ch);
+
+		return ch;
+	}
+
 	//-----------------------------------------------------------------------------
 	static bool is_escapee(char c)
 	{
@@ -402,13 +417,7 @@ namespace json
 			{
 				array::push_back(array, ch);
 
-				ch = skip_array(ch);
-				ch = skip_object(ch);
-				ch = skip_number(ch);
-				ch = skip_string(ch);
-				ch = skip_bool(ch);
-				ch = skip_null(ch);
-
+				ch = skip_value(ch);
 				ch = skip_whites(ch);
 
 				// Closing bracket (top-most array)
@@ -453,28 +462,14 @@ namespace json
 				DynamicString key;
 				parse_string(ch, key);
 
-				// Skip any value
-				ch = skip_array(ch);
-				ch = skip_object(ch);
-				ch = skip_number(ch);
 				ch = skip_string(ch);
-				ch = skip_bool(ch);
-				ch = skip_null(ch);
-
 				ch = skip_whites(ch);
 				ch = next(ch, ':');
 				ch = skip_whites(ch);
 
 				map::set(object, key, ch);
 
-				// Skip any value
-				ch = skip_array(ch);
-				ch = skip_object(ch);
-				ch = skip_number(ch);
-				ch = skip_string(ch);
-				ch = skip_bool(ch);
-				ch = skip_null(ch);
-
+				ch = skip_value(ch);
 				ch = skip_whites(ch);
 
 				if ((*ch) == '}')
