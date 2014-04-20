@@ -256,20 +256,22 @@ set (RENDERERS_BACKEND_HEADERS
 )
 
 set (RENDERERS_SRC
-	renderers/RenderWorld.cpp
-	renderers/Mesh.cpp
-	renderers/Sprite.cpp
-	renderers/Material.cpp
 	renderers/DebugLine.cpp
+	renderers/Gui.cpp
+	renderers/Material.cpp
+	renderers/Mesh.cpp
+	renderers/RenderWorld.cpp
+	renderers/Sprite.cpp
 )
 
 set (RENDERERS_HEADERS
+	renderers/DebugLine.h
+	renderers/Gui.h
+	renderers/Material.h
+	renderers/Mesh.h
 	renderers/RenderWorld.h
 	renderers/RenderWorldTypes.h
-	renderers/Mesh.h
 	renderers/Sprite.h
-	renderers/Material.h
-	renderers/DebugLine.h
 )
 
 set (RESOURCE_SRC
@@ -414,18 +416,6 @@ set (COMPILER_SRC
 
 set (COMPILER_HEADER
 	compilers/BundleCompiler.h
-)
-
-set (GUI_SRC
-	gui/Gui.cpp
-)
-
-set (GUI_HEADERS
-	gui/Gui.h
-	gui/GuiRect.h
-	gui/GuiTriangle.h
-	gui/GuiImage.h
-	gui/GuiText.h
 )
 
 set (CROWN_LIBRARIES)
@@ -711,7 +701,6 @@ set (CROWN_SOURCES
 	${PHYSICS_SRC}
 	${WORLD_SRC}
 	${COMPILER_SRC}
-	${GUI_SRC}
 )
 
 set (CROWN_HEADERS
@@ -735,7 +724,6 @@ set (CROWN_HEADERS
 	${PHYSICS_HEADERS}
 	${WORLD_HEADERS}
 	${COMPILER_HEADERS}
-	${GUI_HEADERS}
 )
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)

@@ -129,8 +129,6 @@ LOCAL_SRC_FILES :=\
 	core/Args.cpp\
 	core/Log.cpp\
 \
-	gui/Gui.cpp\
-\
 	os/android/Android.cpp\
 	os/android/AndroidDevice.cpp\
 	os/android/ApkFile.cpp\
@@ -153,6 +151,7 @@ LOCAL_SRC_FILES :=\
 	renderers/Mesh.cpp\
 	renderers/RenderWorld.cpp\
 	renderers/Sprite.cpp\
+	renderers/Gui.cpp\
 \
 	resource/FileBundle.cpp\
 	resource/ResourceLoader.cpp\
@@ -172,6 +171,7 @@ LOCAL_SRC_FILES :=\
 	lua/LuaKeyboard.cpp\
 	lua/LuaMath.cpp\
 	lua/LuaMatrix4x4.cpp\
+	lua/LuaMatrix4x4Box.cpp\
 	lua/LuaMesh.cpp\
 	lua/LuaMouse.cpp\
 	lua/LuaPhysicsWorld.cpp\
@@ -186,11 +186,11 @@ LOCAL_SRC_FILES :=\
 	lua/LuaTouch.cpp\
 	lua/LuaUnit.cpp\
 	lua/LuaVector2.cpp\
+	lua/LuaVector2Box.cpp\
 	lua/LuaVector3.cpp\
 	lua/LuaVector3Box.cpp\
 	lua/LuaWindow.cpp\
 	lua/LuaWorld.cpp\
-	lua/LuaMatrix4x4Box.cpp\
 \
 	world/Camera.cpp\
 	world/SceneGraph.cpp\

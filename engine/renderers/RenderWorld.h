@@ -62,6 +62,8 @@ namespace render_world_globals
 	GPUProgramId default_program();
 	GPUProgramId default_texture_program();
 	GPUProgramId default_font_program();
+	UniformId default_albedo_uniform();
+	UniformId default_font_uniform();
 };
 
 class RenderWorld
@@ -83,7 +85,7 @@ public:
 	void destroy_material(MaterialId id);
 	Material* lookup_material(MaterialId id);
 
-	GuiId create_gui(GuiResource* gr);
+	GuiId create_gui(uint16_t width, uint16_t height);
 	void destroy_gui(GuiId id);
 	Gui* lookup_gui(GuiId id);
 

@@ -124,8 +124,10 @@ public:
 	/// Sets the @a volume of the sound @a id.
 	void set_sound_volume(SoundInstanceId id, float volume);
 
-	GuiId create_window_gui(const char* name);
-	GuiId create_world_gui(const Matrix4x4 pose, const uint32_t width, const uint32_t height);
+	/// Creates a new window-space Gui of size @width and @a height.
+	GuiId create_window_gui(uint16_t width, uint16_t height);
+
+	/// Destroys the gui with the given @a id.
 	void destroy_gui(GuiId id);
 	Gui* lookup_gui(GuiId id);
 

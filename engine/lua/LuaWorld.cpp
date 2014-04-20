@@ -198,7 +198,7 @@ static int world_create_window_gui(lua_State* L)
 	LuaStack stack(L);
 
 	World* world = stack.get_world(1);
-	GuiId id = world->create_window_gui(stack.get_string(2));
+	GuiId id = world->create_window_gui(stack.get_int(2), stack.get_int(3));
 
 	stack.push_gui(world->lookup_gui(id));
 	return 1;

@@ -250,17 +250,9 @@ void World::set_sound_volume(SoundInstanceId id, float vol)
 }
 
 //-----------------------------------------------------------------------------
-GuiId World::create_window_gui(const char* name)
+GuiId World::create_window_gui(uint16_t width, uint16_t height)
 {
-	GuiResource* gr = (GuiResource*)device()->resource_manager()->lookup(GUI_EXTENSION, name);
-	return m_render_world.create_gui(gr);
-}
-
-//-----------------------------------------------------------------------------
-GuiId World::create_world_gui(const Matrix4x4 pose, const uint32_t width, const uint32_t height)
-{
-	// Must be implemented
-	return GuiId();
+	return m_render_world.create_gui(width, height);
 }
 
 //-----------------------------------------------------------------------------

@@ -183,6 +183,16 @@ namespace render_world_globals
 	{
 		return font_program;
 	}
+
+	UniformId default_albedo_uniform()
+	{
+		return u_albedo_0;
+	}
+
+	UniformId default_font_uniform()
+	{
+		return u_font;
+	}
 };
 
 //-----------------------------------------------------------------------------
@@ -272,10 +282,9 @@ Material* RenderWorld::lookup_material(MaterialId id)
 }
 
 //-----------------------------------------------------------------------------
-GuiId RenderWorld::create_gui(GuiResource* gr)
+GuiId RenderWorld::create_gui(uint16_t width, uint16_t height)
 {
-	Renderer* r = device()->renderer();
-	Gui* gui = CE_NEW(m_gui_pool, Gui)(*this, gr, *r);
+	Gui* gui = CE_NEW(m_gui_pool, Gui)(*this, width, height);
 	GuiId id = m_guis.create(gui);
 	gui->set_id(id);
 	return id;
@@ -336,12 +345,6 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		r->set_program(render_world_globals::default_texture_program());
 		// m_sprite[s]->update(dt);
 		m_sprite[s]->render(*r, render_world_globals::u_albedo_0, dt);
-	}
-
-	// Draw all guis
-	for (uint32_t g = 0; g < m_guis.size(); g++)
-	{
-		m_guis[g]->render(render_world_globals::u_font, render_world_globals::u_albedo_0);
 	}
 }
 
