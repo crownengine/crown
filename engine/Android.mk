@@ -161,6 +161,7 @@ LOCAL_SRC_FILES :=\
 	lua/LuaAccelerometer.cpp\
 	lua/LuaActor.cpp\
 	lua/LuaCamera.cpp\
+	lua/LuaColor4.cpp\
 	lua/LuaController.cpp\
 	lua/LuaDebugLine.cpp\
 	lua/LuaDevice.cpp\

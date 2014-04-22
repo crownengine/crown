@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Quaternion.h"
 #include "Matrix4x4.h"
 #include "StringUtils.h"
+#include "Color4.h"
 
 //-----------------------------------------------------------------------------
 #if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
@@ -487,6 +488,14 @@ public:
 	{
 		void* q = CHECKLIGHTDATA(m_L, index, lua_system::is_quaternion, "Quaternion");
 		return *(Quaternion*)q;
+	}
+
+	Color4 get_color4(int32_t index)
+	{
+		// Color4 represented as Quaternion
+		void* c = CHECKLIGHTDATA(m_L, index, lua_system::is_quaternion, "Color4");
+		Quaternion& q = *(Quaternion*)c;
+		return Color4(q.x, q.y, q.z, q.w);
 	}
 
 	//-----------------------------------------------------------------------------
