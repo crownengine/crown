@@ -589,15 +589,15 @@ struct GPUProgram
 			switch (type)
 			{
 				case UniformType::INTEGER_1:   GL_CHECK(glUniform1iv(loc, 1, (const GLint*)data)); break;
-				case UniformType::INTEGER_2:   GL_CHECK(glUniform2iv(loc, 2, (const GLint*)data)); break;
-				case UniformType::INTEGER_3:   GL_CHECK(glUniform3iv(loc, 3, (const GLint*)data)); break;				
-				case UniformType::INTEGER_4:   GL_CHECK(glUniform4iv(loc, 4, (const GLint*)data)); break;
+				case UniformType::INTEGER_2:   GL_CHECK(glUniform2iv(loc, 1, (const GLint*)data)); break;
+				case UniformType::INTEGER_3:   GL_CHECK(glUniform3iv(loc, 1, (const GLint*)data)); break;				
+				case UniformType::INTEGER_4:   GL_CHECK(glUniform4iv(loc, 1, (const GLint*)data)); break;
 				case UniformType::FLOAT_1:     GL_CHECK(glUniform1fv(loc, 1, (const GLfloat*)data)); break;
-				case UniformType::FLOAT_2:     GL_CHECK(glUniform2fv(loc, 2, (const GLfloat*)data)); break;
-				case UniformType::FLOAT_3:     GL_CHECK(glUniform3fv(loc, 3, (const GLfloat*)data)); break;
-				case UniformType::FLOAT_4:     GL_CHECK(glUniform4fv(loc, 4, (const GLfloat*)data)); break;
-				case UniformType::FLOAT_3x3:   GL_CHECK(glUniformMatrix3fv(loc, 9, GL_FALSE, (const GLfloat*)data)); break;
-				case UniformType::FLOAT_4x4:   GL_CHECK(glUniformMatrix4fv(loc, 16, GL_FALSE, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_2:     GL_CHECK(glUniform2fv(loc, 1, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_3:     GL_CHECK(glUniform3fv(loc, 1, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_4:     GL_CHECK(glUniform4fv(loc, 1, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_3x3:   GL_CHECK(glUniformMatrix3fv(loc, 1, GL_FALSE, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_4x4:   GL_CHECK(glUniformMatrix4fv(loc, 1, GL_FALSE, (const GLfloat*)data)); break;
 				default: CE_FATAL("Oops, unknown uniform type"); break;
 			}
 		}
