@@ -89,13 +89,22 @@ static int gui_hide(lua_State* L)
 	return 0;
 }
 
+static int gui_draw_rectangle(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Gui* gui = stack.get_gui(1);
+	gui->draw_rectangle(stack.get_vector3(2), stack.get_vector2(3), stack.get_color4(4));
+	return 0;
+}
+
 //-----------------------------------------------------------------------------
 static int gui_draw_image(lua_State* L)
 {
 	LuaStack stack(L);
 
 	Gui* gui = stack.get_gui(1);
-	gui->draw_image(stack.get_string(2), stack.get_vector3(3), stack.get_vector2(4));
+	gui->draw_image(stack.get_string(2), stack.get_vector3(3), stack.get_vector2(4), stack.get_color4(5));
 	return 0;
 }
 
@@ -105,7 +114,7 @@ static int gui_draw_text(lua_State* L)
 	LuaStack stack(L);
 
 	Gui* gui = stack.get_gui(1);
-	gui->draw_text(stack.get_string(2), stack.get_string(3), stack.get_int(4), stack.get_vector3(5));
+	gui->draw_text(stack.get_string(2), stack.get_string(3), stack.get_int(4), stack.get_vector3(5), stack.get_color4(6));
 	return 0;
 }
 
@@ -117,6 +126,7 @@ void load_gui(LuaEnvironment& env)
 	env.load_module_function("Gui", "show",				gui_show);
 	env.load_module_function("Gui", "hide",				gui_hide);
 
+	env.load_module_function("Gui", "draw_rectangle",	gui_draw_rectangle);
 	env.load_module_function("Gui", "draw_image",		gui_draw_image);
 	env.load_module_function("Gui", "draw_text",		gui_draw_text);
 }

@@ -148,7 +148,53 @@ void Gui::hide()
 }
 
 //-----------------------------------------------------------------------------
-void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& size)
+void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& color)
+{
+	Renderer* r = device()->renderer();
+	TransientVertexBuffer tvb;
+	TransientIndexBuffer tib;
+
+	r->reserve_transient_vertex_buffer(&tvb, 4, VertexFormat::P2);
+	r->reserve_transient_index_buffer(&tib, 6);
+
+	float* verts = (float*) tvb.data;
+	verts[0] = pos.x;
+	verts[1] = pos.y;
+
+	verts[2] = pos.x + size.x;
+	verts[3] = pos.y;
+
+	verts[4] = pos.x + size.x;
+	verts[5] = pos.y - size.y;
+
+	verts[6] = pos.x;
+	verts[7] = pos.y - size.y;
+
+	uint16_t* inds = (uint16_t*) tib.data;
+	inds[0] = 0;
+	inds[1] = 1;
+	inds[2] = 2;
+	inds[3] = 0;
+	inds[4] = 2;
+	inds[5] = 3;
+
+	r->set_layer_view(1, matrix4x4::IDENTITY);
+	r->set_layer_projection(1, m_projection);
+	r->set_layer_viewport(1, 0, 0, m_width, m_height);
+	r->set_state(STATE_COLOR_WRITE
+					| STATE_CULL_CW
+					| STATE_BLEND_EQUATION_ADD 
+					| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
+
+	r->set_program(render_world_globals::default_program());
+	r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
+	r->set_vertex_buffer(tvb);
+	r->set_index_buffer(tib);
+	r->commit(1);
+}
+
+//-----------------------------------------------------------------------------
+void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color)
 {
 	Renderer* r = device()->renderer();
 	TransientVertexBuffer tvb;
@@ -200,13 +246,14 @@ void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& si
 	r->set_program(render_world_globals::default_texture_program());
 	r->set_texture(0, render_world_globals::default_albedo_uniform(), tr->texture(),
 					TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);
+	r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
 	r->set_vertex_buffer(tvb);
 	r->set_index_buffer(tib);
 	r->commit(1);
 }
 
 //-----------------------------------------------------------------------------
-void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos)
+void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos, const Color4& color)
 {
 	Renderer* r = device()->renderer();
 
@@ -324,6 +371,7 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 	r->set_program(render_world_globals::default_font_program());
 	r->set_texture(0, render_world_globals::default_font_uniform(), tr->texture(),
 					TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);
+	r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
 	r->set_vertex_buffer(vb);
 	r->set_index_buffer(ib);
 	r->commit(1);

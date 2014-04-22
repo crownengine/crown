@@ -48,8 +48,9 @@ struct Gui
 	void show();
 	void hide();
 
-	void draw_image(const char* material, const Vector3& pos, const Vector2& size);
-	void draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos);
+	void draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& color = Color4::WHITE);
+	void draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color = Color4::WHITE);
+	void draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos, const Color4& color = Color4::WHITE);
 
 public:
 
