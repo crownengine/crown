@@ -64,6 +64,7 @@ namespace render_world_globals
 	GPUProgramId default_font_program();
 	UniformId default_albedo_uniform();
 	UniformId default_font_uniform();
+	UniformId default_color_uniform();
 };
 
 class RenderWorld
