@@ -219,7 +219,7 @@ namespace crown {
 
 		template<typename T> void rehash(Hash<T> &h, uint32_t new_size)
 		{
-			Hash<T> nh(*h._hash._allocator);
+			Hash<T> nh(*h._hash.m_allocator);
 			array::resize(nh._hash, new_size);
 			array::reserve(nh._data, array::size(h._data));
 			for (uint32_t i=0; i<new_size; ++i)
@@ -229,7 +229,7 @@ namespace crown {
 				multi_hash::insert(nh, e.key, e.value);
 			}
 
-			Hash<T> empty(*h._hash._allocator);
+			Hash<T> empty(*h._hash.m_allocator);
 			h.~Hash<T>();
 			memcpy(&h, &nh, sizeof(Hash<T>));
 			memcpy(&nh, &empty, sizeof(Hash<T>));
