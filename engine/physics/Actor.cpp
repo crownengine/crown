@@ -542,6 +542,12 @@ void Actor::wake_up()
 }
 
 //-----------------------------------------------------------------------------
+UnitId Actor::unit_id() const
+{
+	return m_unit;
+}
+
+//-----------------------------------------------------------------------------
 Unit* Actor::unit()
 {
 	return (m_unit.id == INVALID_ID) ? NULL : m_world.world().lookup_unit(m_unit);

@@ -163,6 +163,9 @@ struct Actor
 	/// Wakes the actor up.
 	void wake_up();
 
+	/// Returns the id of the unit that owns the actor.
+	UnitId unit_id() const;
+
 	/// Returns the unit that owns the actor.
 	Unit* unit();
 
