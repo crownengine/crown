@@ -62,6 +62,7 @@ namespace render_world_globals
 	GPUProgramId default_program();
 	GPUProgramId default_texture_program();
 	GPUProgramId default_font_program();
+	GPUProgramId default_color_program();
 	UniformId default_albedo_uniform();
 	UniformId default_font_uniform();
 	UniformId default_color_uniform();

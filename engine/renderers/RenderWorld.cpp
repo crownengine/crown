@@ -102,27 +102,36 @@ namespace render_world_globals
 	static const char* sdf_fragment =
 		"precision mediump float;\n"
 		"uniform sampler2D u_texture;\n"
+		"uniform vec4 u_color;\n"
 
 		"varying vec2 v_tex_coord;\n"
-		"varying vec4 v_color;\n"
 
 		"const float smoothing = 1.0/16.0;\n"
 
 		"void main() {\n"
 			"float distance = texture2D(u_texture, v_tex_coord).a;\n"
 			"float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, distance);\n"
-			"gl_FragColor = vec4(v_color.rgb, alpha);\n"
+			"gl_FragColor = vec4(u_color.rgb, alpha);\n"
 		"}\n";
 
+	static const char* default_color_fragment =
+		"precision mediump float;\n"
+		"uniform vec4 u_color;\n"
+		"void main(void)\n"
+		"{\n"
+		"	gl_FragColor = u_color;\n"
+		"}\n";
 
 	ShaderId default_vs;
 	ShaderId default_fs;
 	ShaderId texture_fs;
 	ShaderId font_vs;
 	ShaderId font_fs;
+	ShaderId color_fs;
 	GPUProgramId texture_program;
 	GPUProgramId def_program;
 	GPUProgramId font_program;
+	GPUProgramId color_program;
 	UniformId u_albedo_0;
 	UniformId u_font;
 	UniformId u_color;
@@ -146,10 +155,12 @@ namespace render_world_globals
 		texture_fs = r->create_shader(ShaderType::FRAGMENT, texture_fragment);
 		font_vs = r->create_shader(ShaderType::VERTEX, sdf_vertex);
 		font_fs = r->create_shader(ShaderType::FRAGMENT, sdf_fragment);
+		color_fs = r->create_shader(ShaderType::FRAGMENT, default_color_fragment);
 
 		def_program = r->create_gpu_program(default_vs, default_fs);
 		texture_program = r->create_gpu_program(default_vs, texture_fs);
 		font_program = r->create_gpu_program(font_vs, font_fs);
+		color_program = r->create_gpu_program(default_vs, color_fs);
 	}
 
 	void shutdown()
@@ -166,11 +177,13 @@ namespace render_world_globals
 		r->destroy_gpu_program(texture_program);
 		r->destroy_gpu_program(def_program);
 		r->destroy_gpu_program(font_program);
+		r->destroy_gpu_program(color_program);
 		r->destroy_shader(default_vs);
 		r->destroy_shader(default_fs);
 		r->destroy_shader(texture_fs);
 		r->destroy_shader(font_vs);
 		r->destroy_shader(font_fs);
+		r->destroy_shader(color_fs);
 	}
 
 	GPUProgramId default_program()
@@ -186,6 +199,11 @@ namespace render_world_globals
 	GPUProgramId default_font_program()
 	{
 		return font_program;
+	}
+
+	GPUProgramId default_color_program()
+	{
+		return color_program;
 	}
 
 	UniformId default_albedo_uniform()
@@ -352,7 +370,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	for (uint32_t s = 0; s < m_sprite.size(); s++)
 	{
 		r->set_program(render_world_globals::default_texture_program());
-		//m_sprite[s]->update(dt);
+		// m_sprite[s]->update(dt);
 		m_sprite[s]->render(*r, render_world_globals::u_albedo_0, dt);
 	}
 }
