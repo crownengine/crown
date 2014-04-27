@@ -1,64 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 
-# detect architecture
-if (CROWN_ARCH MATCHES "x86")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/x86)
-endif (CROWN_ARCH MATCHES "x86")
-
-if (CROWN_ARCH MATCHES "x86_64")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/x86_64)
-endif (CROWN_ARCH MATCHES "x86_64")
-
-if (CROWN_ARCH MATCHES "win32")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/win32)
-endif (CROWN_ARCH MATCHES "win32")
-
-if (CROWN_ARCH MATCHES "win64")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/win64)
-endif (CROWN_ARCH MATCHES "win64")
-
-if (CROWN_ARCH MATCHES "ARMv7")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/ARMv7)
-endif (CROWN_ARCH MATCHES "ARMv7")
-
-# architecture dependent includes
-set (CROWN_THIRD_INCLUDES
-	${CROWN_THIRD}/luajit/include/luajit-2.0
-	${CROWN_THIRD}/glew-1.9.0/include
-	${CROWN_THIRD}/zlib/include
-	${CROWN_THIRD}/oggvorbis/include
-	${CROWN_THIRD}/openAL/include
-	${CROWN_THIRD}/physx/include
-	${CROWN_THIRD}/physx/include/common
-	${CROWN_THIRD}/physx/include/characterkinematic
-	${CROWN_THIRD}/physx/include/cloth
-	${CROWN_THIRD}/physx/include/common
-	${CROWN_THIRD}/physx/include/cooking
-	${CROWN_THIRD}/physx/include/extensions
-	${CROWN_THIRD}/physx/include/foundation
-	${CROWN_THIRD}/physx/include/geometry
-	${CROWN_THIRD}/physx/include/particles
-	${CROWN_THIRD}/physx/include/physxprofilesdk
-	${CROWN_THIRD}/physx/include/physxvisualdebuggersdk
-	${CROWN_THIRD}/physx/include/pvd
-	${CROWN_THIRD}/physx/include/pxtask
-	${CROWN_THIRD}/physx/include/RepX
-	${CROWN_THIRD}/physx/include/RepXUpgrader
-	${CROWN_THIRD}/physx/include/vehicle
-)
-
-# architecture dependent libraries
-set (CROWN_THIRD_LIBS
-	${CROWN_THIRD}/luajit/lib
-	${CROWN_THIRD}/glew-1.9.0/lib
-	${CROWN_THIRD}/zlib/lib
-	${CROWN_THIRD}/oggvorbis/lib
-	${CROWN_THIRD}/openAL/lib
-	${CROWN_THIRD}/physx/lib
-)
-
-add_subdirectory(${CROWN_THIRD})
-
 # platform independent includes
 set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine
@@ -84,7 +25,6 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/compilers
 	${CMAKE_SOURCE_DIR}/engine/physics
 	${CMAKE_SOURCE_DIR}/engine/world
-	${CMAKE_SOURCE_DIR}/engine/gui
 )
 
 set (SRC
