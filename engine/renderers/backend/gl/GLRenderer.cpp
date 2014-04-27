@@ -49,6 +49,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector4.h"
 #include "Memory.h"
 #include "VertexFormat.h"
+#include "Hash.h"
 
 //-----------------------------------------------------------------------------
 static const char* gl_error_to_string(GLenum error)
@@ -214,6 +215,25 @@ ShaderUniform::Enum name_to_stock_uniform(const char* uniform)
 	return ShaderUniform::COUNT;
 }
 
+UniformType::Enum gl_enum_to_uniform_type(GLenum type)
+{
+	switch (type)
+	{
+		case GL_INT: return UniformType::INTEGER_1;
+		case GL_INT_VEC2: return UniformType::INTEGER_2; 
+		case GL_INT_VEC3: return UniformType::INTEGER_3;
+		case GL_INT_VEC4: return UniformType::INTEGER_4;
+		case GL_FLOAT: return UniformType::FLOAT_1;
+		case GL_FLOAT_VEC2: return UniformType::FLOAT_2;
+		case GL_FLOAT_VEC3: return UniformType::FLOAT_3;
+		case GL_FLOAT_VEC4: return UniformType::FLOAT_4;
+		case GL_FLOAT_MAT3: return UniformType::FLOAT_3x3;
+		case GL_FLOAT_MAT4: return UniformType::FLOAT_4x4;
+		case GL_SAMPLER_2D: return UniformType::INTEGER_1;
+		default: CE_FATAL("Oops, unknown uniform type"); return UniformType::END;
+	}
+}
+
 //-----------------------------------------------------------------------------
 struct VertexBuffer
 {
@@ -286,48 +306,6 @@ public:
 
 	GLuint		m_id;
 	uint32_t	m_size;
-};
-
-//-----------------------------------------------------------------------------
-struct Uniform
-{
-	Uniform()
-	{
-		string::strncpy(m_name, "", CE_MAX_UNIFORM_NAME_LENGTH);
-	}
-
-	void create(const char* name, UniformType::Enum type, uint8_t num)
-	{
-		string::strncpy(m_name, name, CE_MAX_UNIFORM_NAME_LENGTH);
-		m_type = type;
-		m_num = num;
-
-		size_t size = UNIFORM_SIZE_TABLE[type] * num;
-		m_data = default_allocator().allocate(size);
-		memset(m_data, 0, size);
-
-		// Log::d("Uniform created, name = %s, type = %d, num = %d, size = %ld, ptr = %p", m_name, type, num, size, m_data);
-	}
-
-	void update(size_t size, const void* data)
-	{
-		// Log::d("Uniform updated, new size = %ld, new ptr = %d", size, *((int32_t*)data));
-		memcpy(m_data, data, size);
-	}
-
-	void destroy()
-	{
-		default_allocator().deallocate(m_data);
-		string::strncpy(m_name, "", CE_MAX_UNIFORM_NAME_LENGTH); // <- this is a temporary fix
-		// Log::d("Uniform destroyed, name = %s, type = %d, num = %d, ptr = %p", m_name, m_type, m_num, m_data);
-	}
-
-public:
-
-	char m_name[CE_MAX_UNIFORM_NAME_LENGTH];
-	UniformType::Enum m_type;
-	uint8_t m_num;
-	void* m_data;
 };
 
 //-----------------------------------------------------------------------------
@@ -441,7 +419,7 @@ public:
 struct GPUProgram
 {
 	//-----------------------------------------------------------------------------
-	void create(const Shader& vertex, const Shader& pixel, uint32_t num_uniforms, Uniform* uniforms)
+	void create(const Shader& vertex, const Shader& pixel, const Hash<void*>& registry)
 	{
 		m_id = GL_CHECK(glCreateProgram());
 
@@ -525,16 +503,15 @@ struct GPUProgram
 			}
 			else
 			{
-				for (uint32_t i = 0; i < num_uniforms; i++)
-				{
-					if (string::strcmp(uniforms[i].m_name, uniform_name) == 0)
-					{
-						m_uniforms[m_num_uniforms] = uniforms[i].m_type;
-						m_uniform_info[m_num_uniforms].loc = uniform_location;
-						m_uniform_info[m_num_uniforms].data = uniforms[i].m_data;
-						m_num_uniforms++;
-					}
-				}
+				void* data = hash::get(registry, string::murmur2_64(uniform_name, string::strlen(uniform_name)), (void*) NULL);
+
+				if (data == NULL)
+					continue;
+
+				m_uniforms[m_num_uniforms] = gl_enum_to_uniform_type(uniform_type);
+				m_uniform_info[m_num_uniforms].loc = uniform_location;
+				m_uniform_info[m_num_uniforms].data = data;
+				m_num_uniforms++;
 			}
 
 			// Log::d("Uniform %d: name = '%s' location = '%d' stock = %s", uniform, uniform_name, uniform_location,
@@ -710,13 +687,14 @@ class RendererImplementation
 public:
 
 	//-----------------------------------------------------------------------------
-	RendererImplementation()
-		: m_max_texture_size(0)
+	RendererImplementation(Renderer* renderer)
+		: m_renderer(renderer)
+		, m_max_texture_size(0)
 		, m_max_texture_units(0)
 		, m_max_vertex_indices(0)
 		, m_max_vertex_vertices(0)
 		, m_max_anisotropy(0.0f)
-		, m_num_uniforms(0)
+		, m_uniform_registry(default_allocator())
 	{
 		m_min_max_point_size[0] = 0.0f;
 		m_min_max_point_size[1] = 0.0f;
@@ -932,6 +910,8 @@ public:
 				}
 			}
 
+			m_renderer->update_uniforms(context.m_constants, cur_state.begin_uniform, cur_state.end_uniform);
+
 			// Bind GPU program
 			if (cur_state.program.id != INVALID_ID)
 			{
@@ -1025,6 +1005,7 @@ public:
 
 private:
 
+	Renderer*			m_renderer;
 	GLContext			m_gl_context;
 
 	// Limits
@@ -1042,8 +1023,8 @@ private:
 	Texture				m_textures[CE_MAX_TEXTURES];
 	Shader				m_shaders[CE_MAX_SHADERS];
 	GPUProgram			m_gpu_programs[CE_MAX_GPU_PROGRAMS];
-	uint32_t			m_num_uniforms;
-	Uniform				m_uniforms[CE_MAX_UNIFORMS];
+	Hash<void*>			m_uniform_registry;
+	void*				m_uniforms[CE_MAX_UNIFORMS];
 	RenderTarget		m_render_targets[CE_MAX_RENDER_TARGETS];
 
 private:
@@ -1056,7 +1037,7 @@ Renderer::Renderer(Allocator& a)
 	: m_allocator(a), m_impl(NULL), m_thread("render-thread"), m_submit(&m_contexts[0]), m_draw(&m_contexts[1]),
 		m_is_initialized(false), m_should_run(false)
 {
-	m_impl = CE_NEW(a, RendererImplementation);
+	m_impl = CE_NEW(a, RendererImplementation)(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -1067,7 +1048,7 @@ Renderer::~Renderer()
 	CE_ASSERT(m_textures.size() == 0, "%d textures not freed", m_textures.size());
 	CE_ASSERT(m_shaders.size() == 0, "%d shaders not freed", m_shaders.size());
 	CE_ASSERT(m_gpu_programs.size() == 0, "%d GPU programs not freed", m_gpu_programs.size());
-	CE_ASSERT(m_uniforms.size() == 0, "%d uniforms not freed", m_uniforms.size());
+	// CE_ASSERT(m_uniforms.size() == 0, "%d uniforms not freed", m_uniforms.size());
 	CE_ASSERT(m_render_targets.size() == 0, "%d render targets not freed", m_render_targets.size());
 
 	CE_DELETE(m_allocator, m_impl);
@@ -1180,7 +1161,7 @@ void Renderer::create_gpu_program_impl(GPUProgramId id, ShaderId vertex, ShaderI
 {
 	Shader& vs = m_impl->m_shaders[vertex.index];
 	Shader& ps = m_impl->m_shaders[pixel.index];
-	m_impl->m_gpu_programs[id.index].create(vs, ps, m_impl->m_num_uniforms, m_impl->m_uniforms);
+	m_impl->m_gpu_programs[id.index].create(vs, ps, m_impl->m_uniform_registry);
 }
 
 //-----------------------------------------------------------------------------
@@ -1193,22 +1174,23 @@ void Renderer::destroy_gpu_program_impl(GPUProgramId id)
 //-----------------------------------------------------------------------------
 void Renderer::create_uniform_impl(UniformId id, const char* name, UniformType::Enum type, uint8_t num)
 {
-	m_impl->m_uniforms[id.index].create(name, type, num);
-	m_impl->m_num_uniforms++;
+	const size_t size = UNIFORM_SIZE_TABLE[type] * num;
+	m_impl->m_uniforms[id.index] = default_allocator().allocate(size);
+	hash::set(m_impl->m_uniform_registry, string::murmur2_64(name, string::strlen(name)), m_impl->m_uniforms[id.index]);
+	memset(m_impl->m_uniforms[id.index], 0, size);
 }
 
 //-----------------------------------------------------------------------------
 void Renderer::update_uniform_impl(UniformId id, size_t size, const void* data)
 {
-	m_impl->m_uniforms[id.index].update(size, data);
+	memcpy(m_impl->m_uniforms[id.index], data, size);
 }
 
 //-----------------------------------------------------------------------------
 void Renderer::destroy_uniform_impl(UniformId id)
 {
-	m_impl->m_uniforms[id.index].destroy();
+	default_allocator().deallocate(m_impl->m_uniforms[id.index]);
 	m_uniforms.destroy(id);
-	m_impl->m_num_uniforms--;
 }
 
 // //-----------------------------------------------------------------------------

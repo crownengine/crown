@@ -184,6 +184,8 @@ struct RenderState
 		start_index = 0;
 		num_indices = 0xFFFFFFFF;
 		vertex_format = VertexFormat::COUNT;
+		begin_uniform = 0;
+		end_uniform = 0;
 
 		for (uint32_t i = 0; i < STATE_MAX_TEXTURES; i++)
 		{
@@ -205,6 +207,8 @@ public:
 	uint32_t		start_index;
 	uint32_t		num_indices;
 	VertexFormat::Enum vertex_format;
+	uint32_t		begin_uniform;
+	uint32_t		end_uniform;
 	Sampler			samplers[STATE_MAX_TEXTURES];
 };
 
@@ -399,6 +403,9 @@ struct RenderContext
 		CE_ASSERT(layer < MAX_RENDER_LAYERS, "Layer out of bounds");
 		m_render_key.m_layer = layer;
 
+		m_state.begin_uniform = m_last_uniform_offset;
+		m_state.end_uniform = m_constants.position();
+		m_last_uniform_offset = m_constants.position();
 		m_states[m_num_states] = m_state;
 		m_keys[m_num_states].key = m_render_key.encode();
 		m_keys[m_num_states].state = m_num_states;
@@ -416,6 +423,9 @@ struct RenderContext
 		m_num_states = 0;
 		m_state.clear();
 
+		m_commands.clear();
+		m_last_uniform_offset = 0;
+		m_constants.clear();
 		m_tvb_offset = 0;
 		m_tib_offset = 0;
 	}
@@ -423,6 +433,7 @@ struct RenderContext
 	void push()
 	{
 		m_commands.commit();
+		m_last_uniform_offset = 0;
 		m_constants.commit();
 	}
 
@@ -452,6 +463,8 @@ public:
 	ClearState m_clears[MAX_RENDER_LAYERS];
 
 	CommandBuffer m_commands;
+
+	uint32_t m_last_uniform_offset;
 	ConstantBuffer m_constants;
 
 	uint32_t m_tvb_offset;

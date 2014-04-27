@@ -694,12 +694,17 @@ public:
 		cmds.clear();
 	}
 
-	void update_uniforms(ConstantBuffer& cbuf)
+	void update_uniforms(ConstantBuffer& cbuf, uint32_t begin, uint32_t end)
 	{
-		UniformType::Enum type;
+		cbuf.reset(begin);
 
-		while ((type = (UniformType::Enum)cbuf.read()) != UniformType::END)
+		while (cbuf.position() < end)
 		{
+			UniformType::Enum type = (UniformType::Enum) cbuf.read();
+
+			if (type == UniformType::END)
+				break;
+
 			UniformId id;
 			uint32_t size;
 
@@ -709,8 +714,6 @@ public:
 
 			update_uniform_impl(id, size, data);
 		}
-
-		cbuf.clear();
 	}
 
 	void set_state(uint64_t flags)
@@ -839,7 +842,6 @@ public:
 		swap_contexts();
 
 		execute_commands(m_draw->m_commands);
-		update_uniforms(m_draw->m_constants);
 
 		if (m_is_initialized)
 		{

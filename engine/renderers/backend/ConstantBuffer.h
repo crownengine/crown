@@ -51,6 +51,16 @@ public:
 		m_size = 0;
 	}
 
+	uint32_t position() const
+	{
+		return m_size;
+	}
+
+	void reset(uint32_t begin)
+	{
+		m_size = begin;
+	}
+
 	void write(uint32_t data)
 	{
 		write(&data, sizeof(uint32_t));
