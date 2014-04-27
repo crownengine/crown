@@ -158,7 +158,7 @@ LOCAL_SRC_FILES :=\
 	resource/ResourceManager.cpp\
 	resource/ResourceRegistry.cpp\
 \
-	lua/LuaAccelerometer.cpp\
+lua/LuaAccelerometer.cpp\
 	lua/LuaActor.cpp\
 	lua/LuaCamera.cpp\
 	lua/LuaColor4.cpp\

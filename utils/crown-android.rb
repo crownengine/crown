@@ -99,9 +99,9 @@ $package			= "crown.android"
 $engine_src 		= "../engine/."
 $android_src		= "../engine/os/android/java/."
 $android_manifest	= "../engine/os/android/AndroidManifest.xml"
-$luajit				= "../engine/third/ARMv7/luajit"
-$oggvorbis			= "../engine/third/ARMv7/oggvorbis"
-$physx				= "../engine/third/ARMv7/physx"
+$luajit				= "../third/ARMv7/luajit"
+$oggvorbis			= "../third/ARMv7/oggvorbis"
+$physx				= "../third/ARMv7/physx"
 
 #------------------------------------------------------------------------------
 def validate_command_line(args)
@@ -242,6 +242,7 @@ def fill_android_project(build, target, res, path)
 	print "Filling Android project..."
 	# Copy Engine files
 	FileUtils.cp_r($engine_src, engine_dest, :remove_destination => true)
+	FileUtils.cp_r($engine_src + "/../third", engine_dest, :remove_destination => true)
 
 	# Generate android Config.h
 	generate_config_h(build, engine_dest + "/Config.h")
