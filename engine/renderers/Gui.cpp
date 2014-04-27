@@ -186,7 +186,7 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 					| STATE_BLEND_EQUATION_ADD 
 					| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
 
-	r->set_program(render_world_globals::default_program());
+	r->set_program(render_world_globals::default_color_program());
 	r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
 	r->set_vertex_buffer(tvb);
 	r->set_index_buffer(tib);
