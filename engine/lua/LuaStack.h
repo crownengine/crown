@@ -139,6 +139,12 @@ public:
 		return lua_isnumber(m_L, index);
 	}
 
+	/// Wraps lua_type.
+	int value_type(uint32_t index)
+	{
+		return lua_type(m_L, index);
+	}
+
 	//-----------------------------------------------------------------------------
 	void push_nil()
 	{
