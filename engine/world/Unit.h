@@ -138,6 +138,20 @@ struct Unit
 
 	bool is_a(const char* name);
 
+	void play_sprite_animation(const char* name, bool loop);
+	void stop_sprite_animation();
+
+	bool has_key(const char* k) const;
+	ValueType::Enum value_type(const char* k);
+	bool get_key(const char* k, bool& v) const;
+	bool get_key(const char* k, float& v) const;
+	bool get_key(const char* k, StringId32& v) const;
+	bool get_key(const char* k, Vector3& v) const;
+	void set_key(const char* k, bool v);
+	void set_key(const char* k, float v);
+	void set_key(const char* k, const char* v);
+	void set_key(const char* k, const Vector3& v);
+
 private:
 
 	void create_objects(const Matrix4x4& pose);
@@ -171,6 +185,8 @@ public:
 	Component m_materials[CE_MAX_MATERIAL_COMPONENTS];
 
 	Component m_controller;
+
+	char* m_values;
 };
 
 } // namespace crown

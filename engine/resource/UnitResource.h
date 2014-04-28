@@ -49,6 +49,8 @@ struct UnitHeader
 	uint32_t cameras_offset;
 	uint32_t num_scene_graph_nodes;
 	uint32_t scene_graph_nodes_offset;
+	uint32_t keys_offset;
+	uint32_t values_offset;
 };
 
 struct UnitRenderable
@@ -76,6 +78,24 @@ struct UnitNode
 	StringId32 name;
 	Matrix4x4 pose;
 	int32_t parent;
+};
+
+struct ValueType
+{
+	enum Enum
+	{
+		BOOL,
+		FLOAT,
+		STRING,
+		VECTOR3
+	};
+};
+
+struct Key
+{
+	StringId32 name;
+	uint32_t type;
+	uint32_t offset;
 };
 
 struct UnitResource
@@ -166,6 +186,57 @@ struct UnitResource
 	{
 		UnitHeader* h = (UnitHeader*) this;
 		return (UnitNode*) (((char*) this) + h->scene_graph_nodes_offset);
+	}
+
+	//-----------------------------------------------------------------------------
+	bool has_key(const char* k) const
+	{
+		UnitHeader* h = (UnitHeader*) this;
+		uint32_t num_keys = *(uint32_t*)(((char*) this) + h->keys_offset);
+		Key* begin = (Key*) (((char*) this) + h->keys_offset + sizeof(uint32_t));
+
+		for (uint32_t i = 0; i < num_keys; i++)
+		{
+			if (begin[i].name == string::murmur2_32(k, string::strlen(k)))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	//-----------------------------------------------------------------------------
+	bool get_key(const char* k, Key& out_k) const
+	{
+		UnitHeader* h = (UnitHeader*) this;
+		uint32_t num_keys = *(uint32_t*)(((char*) this) + h->keys_offset);
+		Key* begin = (Key*) (((char*) this) + h->keys_offset + sizeof(uint32_t));
+
+		for (uint32_t i = 0; i < num_keys; i++)
+		{
+			if (begin[i].name == string::murmur2_32(k, string::strlen(k)))
+			{
+				out_k = begin[i];
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t values_size() const
+	{
+		UnitHeader* h = (UnitHeader*) this;
+		return *(uint32_t*)(((char*) this) + h->values_offset);
+	}
+
+	//-----------------------------------------------------------------------------
+	const char* values() const
+	{
+		UnitHeader* h = (UnitHeader*) this;
+		return ((char*) this) + h->values_offset + sizeof(uint32_t);
 	}
 
 private:

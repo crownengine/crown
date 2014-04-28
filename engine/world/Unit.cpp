@@ -52,6 +52,7 @@ Unit::Unit(World& w, UnitId unit_id, const ResourceId id, const UnitResource* ur
 	, m_num_sprites(0)
 	, m_num_actors(0)
 	, m_num_materials(0)
+	, m_values(NULL)
 {
 	m_controller.component.id = INVALID_ID;
 	create_objects(pose);
@@ -93,11 +94,16 @@ void Unit::create_objects(const Matrix4x4& pose)
 	create_physics_objects();
 
 	set_default_material();
+
+	m_values = (char*) default_allocator().allocate(m_resource->values_size());
+	memcpy(m_values, m_resource->values(), m_resource->values_size());
 }
 
 //-----------------------------------------------------------------------------
 void Unit::destroy_objects()
 {
+	default_allocator().deallocate(m_values);
+
 	// Destroy cameras
 	for (uint32_t i = 0; i < m_num_cameras; i++)
 	{
@@ -558,6 +564,100 @@ bool Unit::is_a(const char* name)
 	unit += ".unit";
 
 	return m_resource_id.id == string::murmur2_64(unit.c_str(), string::strlen(unit.c_str()), 0);
+}
+
+//-----------------------------------------------------------------------------
+void Unit::play_sprite_animation(const char* name, bool loop)
+{
+	// sprite((uint32_t) 0)->play_animation(name, loop);
+}
+
+//-----------------------------------------------------------------------------
+void Unit::stop_sprite_animation()
+{
+	// sprite((uint32_t) 0)->stop_animation();
+}
+
+//-----------------------------------------------------------------------------
+bool Unit::has_key(const char* k) const
+{
+	return m_resource->has_key(k);
+}
+
+//-----------------------------------------------------------------------------
+ValueType::Enum Unit::value_type(const char* k)
+{
+	Key key;
+	m_resource->get_key(k, key);
+	return (ValueType::Enum) key.type;
+}
+
+//-----------------------------------------------------------------------------
+bool Unit::get_key(const char* k, bool& v) const
+{
+	Key key;
+	bool has = m_resource->get_key(k, key);
+	v = *(uint32_t*)(m_values + key.offset);
+	return has;
+}
+
+//-----------------------------------------------------------------------------
+bool Unit::get_key(const char* k, float& v) const
+{
+	Key key;
+	bool has = m_resource->get_key(k, key);
+	v = *(float*)(m_values + key.offset);
+	return has;
+}
+
+//-----------------------------------------------------------------------------
+bool Unit::get_key(const char* k, StringId32& v) const
+{
+	Key key;
+	bool has = m_resource->get_key(k, key);
+	v = *(StringId32*)(m_values + key.offset);
+	return has;
+}
+
+//-----------------------------------------------------------------------------
+bool Unit::get_key(const char* k, Vector3& v) const
+{
+	Key key;
+	bool has = m_resource->get_key(k, key);
+	v = *(Vector3*)(m_values + key.offset);
+	return has;
+}
+
+//-----------------------------------------------------------------------------
+void Unit::set_key(const char* k, bool v)
+{
+	Key key;
+	m_resource->get_key(k, key);
+	*(uint32_t*)(m_values + key.offset) = v;
+}
+
+//-----------------------------------------------------------------------------
+void Unit::set_key(const char* k, float v)
+{
+	Key key;
+	m_resource->get_key(k, key);
+	*(float*)(m_values + key.offset) = v;
+}
+
+//-----------------------------------------------------------------------------
+void Unit::set_key(const char* k, const char* v)
+{
+	Key key;
+	m_resource->get_key(k, key);
+	*(StringId32*)(m_values + key.offset) = string::murmur2_32(v, string::strlen(v));
+}
+
+//-----------------------------------------------------------------------------
+void Unit::set_key(const char* k, const Vector3& v)
+{
+	Key key;
+	m_resource->get_key(k, key);
+	*(Vector3*)(m_values + key.offset) = v;
 }
 
 } // namespace crown

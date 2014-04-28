@@ -247,6 +247,69 @@ void parse_renderables(JSONElement e, Array<UnitRenderable>& renderables, const 
 }
 
 //-----------------------------------------------------------------------------
+void parse_keys(JSONElement e, Array<Key>& generic_keys, Array<char>& values)
+{
+	Vector<DynamicString> keys(default_allocator());
+	e.to_keys(keys);
+
+	for (uint32_t k = 0; k < vector::size(keys); k++)
+	{
+		const char* key = keys[k].c_str();
+		JSONElement value = e.key(key);
+
+		Key out_key;
+		out_key.name = string::murmur2_32(key, string::strlen(key));
+		out_key.offset = array::size(values);
+
+		if (value.is_bool()) out_key.type = ValueType::BOOL;
+		else if (value.is_number()) out_key.type = ValueType::FLOAT;
+		else if (value.is_string()) out_key.type = ValueType::STRING;
+		else if (value.is_array() && value.size() == 3) out_key.type = ValueType::VECTOR3;
+		else CE_FATAL("Value type not supported");
+
+		array::push_back(generic_keys, out_key);
+
+		switch (out_key.type)
+		{
+			case ValueType::BOOL:
+			{
+				uint32_t val = value.to_bool();
+				array::push(values, (char*) &val, sizeof(uint32_t));
+				break;
+			}
+			case ValueType::FLOAT:
+			{
+				float val = value.to_float();
+				array::push(values, (char*) &val, sizeof(float));
+				break;
+			}
+			case ValueType::STRING:
+			{
+				DynamicString val;
+				value.to_string(val);
+				StringId32 val_hash = string::murmur2_32(val.c_str(), val.length());
+				array::push(values, (char*) &val_hash, sizeof(StringId32));
+				break;
+			}
+			case ValueType::VECTOR3:
+			{
+				float val[3];
+				val[0] = value[0].to_float();
+				val[1] = value[1].to_float();
+				val[2] = value[2].to_float();
+				array::push(values, (char*) val, sizeof(float) * 3);
+				break;
+			}
+			default:
+			{
+				CE_FATAL("Oops, you should not be here");
+				return;
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
@@ -260,10 +323,12 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	ResourceId				m_physics_resource;
 	ResourceId				m_material_resource;
-	Array<GraphNode>			m_nodes(default_allocator());
+	Array<GraphNode>		m_nodes(default_allocator());
 	Array<GraphNodeDepth>	m_node_depths(default_allocator());
 	Array<UnitCamera>		m_cameras(default_allocator());
 	Array<UnitRenderable>	m_renderables(default_allocator());
+	Array<Key>				m_keys(default_allocator());
+	Array<char>				m_values(default_allocator());
 
 	// Check for nodes
 	if (root.has_key("nodes")) parse_nodes(root.key("nodes"), m_nodes, m_node_depths);
@@ -277,6 +342,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	if (root.has_key("renderables")) parse_renderables(root.key("renderables"), m_renderables, m_node_depths);
 	if (root.has_key("cameras")) parse_cameras(root.key("cameras"), m_cameras, m_node_depths);
+	if (root.has_key("keys")) parse_keys(root.key("keys"), m_keys, m_values);
 
 	// Check if the unit has a .physics resource
 	DynamicString unit_name(resource_path);
@@ -316,6 +382,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	h.renderables_offset         = offt; offt += sizeof(UnitRenderable) * h.num_renderables;
 	h.cameras_offset             = offt; offt += sizeof(UnitCamera) * h.num_cameras;
 	h.scene_graph_nodes_offset   = offt; offt += sizeof(UnitNode) * h.num_scene_graph_nodes;
+	h.keys_offset                = offt; offt += sizeof(uint32_t) + sizeof(Key) * array::size(m_keys);
+	h.values_offset              = offt; offt += array::size(m_values);
 
 	// Write header
 	out_file->write((char*) &h, sizeof(UnitHeader));
@@ -338,6 +406,18 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		un.parent = find_node_parent_index(i, m_nodes, m_node_depths);
 		un.pose = Matrix4x4(node.rotation, node.position);
 		out_file->write((char*) &un, sizeof(UnitNode));
+	}
+
+	// Write key/values
+	if (array::size(m_keys))
+	{
+		const uint32_t num_keys = array::size(m_keys);
+		out_file->write((char*) &num_keys, sizeof(uint32_t));
+		out_file->write((char*) array::begin(m_keys), sizeof(Key) * num_keys);
+
+		const uint32_t values_size = array::size(m_values);
+		out_file->write((char*) &values_size, sizeof(uint32_t));
+		out_file->write((char*) array::begin(m_values), array::size(m_values));
 	}
 }
 
