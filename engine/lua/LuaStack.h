@@ -441,22 +441,6 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	void push_gui_component_id(GuiComponentId id)
-	{
-		uintptr_t enc = id.encode();
-		lua_pushlightuserdata(m_L, (void*)enc);		
-	}
-
-	//-----------------------------------------------------------------------------
-	GuiComponentId get_gui_component_id(int32_t index)
-	{
-		uint32_t enc = (uintptr_t) CHECKLIGHTDATA(m_L, index, always_true, "GuiComponentId");
-		GuiComponentId id;
-		id.decode(enc);
-		return id;	
-	}
-
-	//-----------------------------------------------------------------------------
 	void push_debug_line(DebugLine* line)
 	{
 		lua_pushlightuserdata(m_L, line);
