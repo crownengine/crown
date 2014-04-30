@@ -377,13 +377,15 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	h.num_renderables = array::size(m_renderables);
 	h.num_cameras = array::size(m_cameras);
 	h.num_scene_graph_nodes = array::size(m_nodes);
+	h.num_keys = array::size(m_keys);
+	h.values_size = array::size(m_values);
 
 	uint32_t offt = sizeof(UnitHeader);
 	h.renderables_offset         = offt; offt += sizeof(UnitRenderable) * h.num_renderables;
 	h.cameras_offset             = offt; offt += sizeof(UnitCamera) * h.num_cameras;
 	h.scene_graph_nodes_offset   = offt; offt += sizeof(UnitNode) * h.num_scene_graph_nodes;
-	h.keys_offset                = offt; offt += sizeof(uint32_t) + sizeof(Key) * array::size(m_keys);
-	h.values_offset              = offt; offt += array::size(m_values);
+	h.keys_offset                = offt; offt += sizeof(Key) * h.num_keys;
+	h.values_offset              = offt;
 
 	// Write header
 	out_file->write((char*) &h, sizeof(UnitHeader));
@@ -411,12 +413,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	// Write key/values
 	if (array::size(m_keys))
 	{
-		const uint32_t num_keys = array::size(m_keys);
-		out_file->write((char*) &num_keys, sizeof(uint32_t));
-		out_file->write((char*) array::begin(m_keys), sizeof(Key) * num_keys);
-
-		const uint32_t values_size = array::size(m_values);
-		out_file->write((char*) &values_size, sizeof(uint32_t));
+		out_file->write((char*) array::begin(m_keys), sizeof(Key) * h.num_keys);
 		out_file->write((char*) array::begin(m_values), array::size(m_values));
 	}
 }

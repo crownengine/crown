@@ -49,7 +49,9 @@ struct UnitHeader
 	uint32_t cameras_offset;
 	uint32_t num_scene_graph_nodes;
 	uint32_t scene_graph_nodes_offset;
+	uint32_t num_keys;
 	uint32_t keys_offset;
+	uint32_t values_size;
 	uint32_t values_offset;
 };
 
@@ -189,13 +191,19 @@ struct UnitResource
 	}
 
 	//-----------------------------------------------------------------------------
+	uint32_t num_keys() const
+	{
+		return ((UnitHeader*) this)->num_keys;
+	}
+
+	//-----------------------------------------------------------------------------
 	bool has_key(const char* k) const
 	{
 		UnitHeader* h = (UnitHeader*) this;
-		uint32_t num_keys = *(uint32_t*)(((char*) this) + h->keys_offset);
-		Key* begin = (Key*) (((char*) this) + h->keys_offset + sizeof(uint32_t));
+		const uint32_t nk = num_keys();
+		Key* begin = (Key*) (((char*) this) + h->keys_offset);
 
-		for (uint32_t i = 0; i < num_keys; i++)
+		for (uint32_t i = 0; i < nk; i++)
 		{
 			if (begin[i].name == string::murmur2_32(k, string::strlen(k)))
 			{
@@ -210,10 +218,10 @@ struct UnitResource
 	bool get_key(const char* k, Key& out_k) const
 	{
 		UnitHeader* h = (UnitHeader*) this;
-		uint32_t num_keys = *(uint32_t*)(((char*) this) + h->keys_offset);
-		Key* begin = (Key*) (((char*) this) + h->keys_offset + sizeof(uint32_t));
+		const uint32_t nk = num_keys();
+		Key* begin = (Key*) (((char*) this) + h->keys_offset);
 
-		for (uint32_t i = 0; i < num_keys; i++)
+		for (uint32_t i = 0; i < nk; i++)
 		{
 			if (begin[i].name == string::murmur2_32(k, string::strlen(k)))
 			{
@@ -228,15 +236,14 @@ struct UnitResource
 	//-----------------------------------------------------------------------------
 	uint32_t values_size() const
 	{
-		UnitHeader* h = (UnitHeader*) this;
-		return *(uint32_t*)(((char*) this) + h->values_offset);
+		return ((UnitHeader*) this)->values_size;
 	}
 
 	//-----------------------------------------------------------------------------
 	const char* values() const
 	{
 		UnitHeader* h = (UnitHeader*) this;
-		return ((char*) this) + h->values_offset + sizeof(uint32_t);
+		return ((char*) this) + h->values_offset;
 	}
 
 private:
