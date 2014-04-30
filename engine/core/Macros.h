@@ -39,3 +39,5 @@ OTHER DEALINGS IN THE SOFTWARE.
 #else
 	#error "Compiler not supported"
 #endif
+
+#define CE_UNUSED(x) (void)(x)
