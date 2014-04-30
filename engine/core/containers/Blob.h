@@ -37,7 +37,7 @@ namespace crown
 /// @ingroup Containers
 struct Blob
 {
-	size_t m_size;
+	uint32_t m_size;
 	uintptr_t m_data;
 };
 
@@ -47,31 +47,31 @@ struct Blob
 namespace blob
 {
 	/// Returns the size of the blob @a b.
-	size_t size(const Blob& b);
+	uint32_t size(const Blob& b);
 
 	/// Retuns a pointer to the byte at the given absolute @a offset into the blob @a b.
-	template <typename T> const T* get(const Blob& b, size_t offset);
+	template <typename T> const T* get(const Blob& b, uint32_t offset);
 
-	/// @copydoc blob::get<T>(const Blob&, size_t)
-	template <typename T> T* get(Blob& b, size_t offset);
+	/// @copydoc blob::get<T>(const Blob&, uint32_t)
+	template <typename T> T* get(Blob& b, uint32_t offset);
 } // namespace blob
 
 namespace blob
 {
-	inline size_t size(const Blob& b)
+	inline uint32_t size(const Blob& b)
 	{
 		return b.m_size;
 	}
 
 	template <typename T>
-	inline const T* get(const Blob& b, size_t offset)
+	inline const T* get(const Blob& b, uint32_t offset)
 	{
 		CE_ASSERT(offset < b.m_size, "Overflow (size = %d, offset = %d", b.m_size, offset);
 		return (T*) b.m_data + offset;
 	}
 
 	template <typename T>
-	inline T* get(Blob& b, size_t offset)
+	inline T* get(Blob& b, uint32_t offset)
 	{
 		CE_ASSERT(offset < b.m_size, "Overflow (size = %d, offset = %d", b.m_size, offset);
 		return (T*) b.m_data + offset;
