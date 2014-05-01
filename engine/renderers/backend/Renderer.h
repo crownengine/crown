@@ -82,7 +82,7 @@ public:
 	void update_uniform_impl(UniformId id, size_t size, const void* data);
 	void destroy_uniform_impl(UniformId id);
 
-	void create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, RenderTargetFormat::Enum format);
+	void create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, PixelFormat::Enum format, uint32_t flags);
 	void destroy_render_target_impl(RenderTargetId id);
 
 	/// Initializes the renderer.
@@ -432,15 +432,29 @@ public:
 		m_submit->m_commands.write(id);
 	}
 
-	// 
-	// RenderTargetId create_render_target(uint16_t width, uint16_t height, RenderTargetFormat::Enum format)
-	// {
+	/// Creates a new render target of size @a width and @a height with the given @a format.
+	RenderTargetId create_render_target(uint16_t width, uint16_t height, PixelFormat::Enum format, uint32_t flags = 0)
+	{
+		const RenderTargetId id = m_render_targets.create();
 
-	// }
-	// void destroy_render_target(RenderTargetId id)
-	// {
+		m_submit->m_commands.write(CommandType::CREATE_RENDER_TARGET);
+		m_submit->m_commands.write(id);
+		m_submit->m_commands.write(width);
+		m_submit->m_commands.write(height);
+		m_submit->m_commands.write(format);
+		m_submit->m_commands.write(flags);
 
-	// }
+		return id;
+	}
+
+	/// Destroys the render target @a id.
+	void destroy_render_target(RenderTargetId id)
+	{
+		CE_ASSERT(m_render_targets.has(id), "Render target does not exist");
+
+		m_submit->m_commands.write(CommandType::DESTROY_RENDER_TARGET);
+		m_submit->m_commands.write(id);
+	}
 
 	//-----------------------------------------------------------------------------
 	void execute_commands(CommandBuffer& cmds)
@@ -677,6 +691,31 @@ public:
 
 					break;
 				}
+				case CommandType::CREATE_RENDER_TARGET:
+				{
+					RenderTargetId id;
+					uint16_t width;
+					uint16_t height;
+					PixelFormat::Enum format;
+					uint32_t flags;
+
+					cmds.read(id);
+					cmds.read(width);
+					cmds.read(height);
+					cmds.read(format);
+					cmds.read(flags);
+
+					create_render_target_impl(id, width, height, format, flags);
+					break;
+				}
+				case CommandType::DESTROY_RENDER_TARGET:
+				{
+					RenderTargetId id;
+					cmds.read(id);
+
+					destroy_render_target_impl(id);
+					break;
+				}
 				case CommandType::END:
 				{
 					end = true;
@@ -766,6 +805,13 @@ public:
 		CE_ASSERT(m_uniforms.has(sampler_uniform), "Uniform does not exist");
 		CE_ASSERT(m_textures.has(texture), "Texture does not exist");
 		m_submit->set_texture(unit, sampler_uniform, texture, flags);
+	}
+
+	void set_texture(uint8_t unit, UniformId sampler_uniform, RenderTargetId texture, uint8_t attachment, uint32_t texture_flags)
+	{
+		CE_ASSERT(m_uniforms.has(sampler_uniform), "Uniform does not exist");
+		CE_ASSERT(m_render_targets.has(texture), "Render target does not exist");
+		m_submit->set_texture(unit, sampler_uniform, texture, attachment, texture_flags);
 	}
 
 	void set_layer_render_target(uint8_t layer, RenderTargetId id)

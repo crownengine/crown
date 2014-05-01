@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#include <GL/glew.h>
 #elif defined(ANDROID)
 	#include <GLES2/gl2.h>
+	#include <GLES2/gl2ext.h>
 #else
 	#error "Oops, wrong platform"
 #endif
@@ -75,6 +76,16 @@ static const char* gl_error_to_string(GLenum error)
 		function;
 #endif
 
+#ifdef ANDROID
+	#define GL_DEPTH_STENCIL GL_DEPTH_STENCIL_OES
+	#ifndef GL_DEPTH_STENCIL_ATTACHMENT
+		#define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
+	#endif // GL_DEPTH_STENCIL_ATTACHMENT
+	#define GL_DEPTH_COMPONENT24 GL_DEPTH_COMPONENT24_OES
+	#define GL_DEPTH_COMPONENT32 GL_DEPTH_COMPONENT32_OES
+	#define GL_DEPTH24_STENCIL8 GL_DEPTH24_STENCIL8_OES
+#endif // ANDROID
+
 namespace crown
 {
 
@@ -115,18 +126,53 @@ const GLenum TEXTURE_WRAP_TABLE[] =
 };
 
 //-----------------------------------------------------------------------------
-struct GLTextureFormatInfo
+struct TextureFormatInfo
 {
 	GLenum internal_format;
 	GLenum format;
 };
 
 //-----------------------------------------------------------------------------
-const GLTextureFormatInfo TEXTURE_FORMAT_TABLE[PixelFormat::COUNT] =
+const TextureFormatInfo TEXTURE_FORMAT_TABLE[PixelFormat::COUNT] =
 {
 	{ GL_RGB, GL_RGB },
-	{ GL_RGBA, GL_RGBA}
+	{ GL_RGBA, GL_RGBA},
+	{ GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT},
+	{ GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT},
+	{ GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT},
+	{ GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL}
 };
+
+//-----------------------------------------------------------------------------
+static bool is_depth(const GLenum format)
+{
+	switch (format)
+	{
+		case GL_DEPTH_COMPONENT16:
+		case GL_DEPTH_COMPONENT24:
+		case GL_DEPTH_COMPONENT32:
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+static bool is_color(const GLenum format)
+{
+	switch (format)
+	{
+		case GL_RGB:
+		case GL_RGBA:
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 
 //-----------------------------------------------------------------------------
 const GLenum DEPTH_FUNCTION_TABLE[] = 
@@ -215,12 +261,12 @@ ShaderUniform::Enum name_to_stock_uniform(const char* uniform)
 	return ShaderUniform::COUNT;
 }
 
-UniformType::Enum gl_enum_to_uniform_type(GLenum type)
+static UniformType::Enum gl_enum_to_uniform_type(GLenum type)
 {
 	switch (type)
 	{
 		case GL_INT: return UniformType::INTEGER_1;
-		case GL_INT_VEC2: return UniformType::INTEGER_2; 
+		case GL_INT_VEC2: return UniformType::INTEGER_2;
 		case GL_INT_VEC3: return UniformType::INTEGER_3;
 		case GL_INT_VEC4: return UniformType::INTEGER_4;
 		case GL_FLOAT: return UniformType::FLOAT_1;
@@ -348,6 +394,7 @@ struct Texture
 	void create(uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data)
 	{
 		GL_CHECK(glGenTextures(1, &m_id));
+		CE_ASSERT(m_id != 0, "Failed to create texture");
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_id));
 
 		#if defined(LINUX) || defined(WINDOWS)
@@ -606,79 +653,74 @@ public:
 //-----------------------------------------------------------------------------
 struct RenderTarget
 {
-	void create(uint16_t /*width*/, uint16_t /*height*/, RenderTargetFormat /*format*/)
+	void create(uint16_t width, uint16_t height, PixelFormat::Enum format, uint32_t flags)
 	{
-		// // Create and bind FBO
-		// GL_CHECK(glGenFramebuffersEXT(1, &m_gl_fbo));
-		// GL_CHECK(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_gl_fbo));
+		m_width = width;
+		m_height = height;
+		m_format = format;
+		m_col_texture = 0;
+		m_fbo = 0;
+		m_rbo = 0;
 
-		// GLuint renderedTexture;
-		// glGenTextures(1, &renderedTexture);
-		 
-		// // "Bind" the newly created texture : all future texture functions will modify this texture
-		// glBindTexture(GL_TEXTURE_2D, renderedTexture);
-		 
-		// // Give an empty image to OpenGL ( the last "0" )
-		// glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, 1024, 768, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
-		 
-		// // Poor filtering. Needed !
-		// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		GL_CHECK(glGenFramebuffers(1, &m_fbo));
+		CE_ASSERT(m_fbo != 0, "Failed to create frame buffer");
+		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, m_fbo));
 
+		const bool no_texture = (flags & RENDER_TARGET_NO_TEXTURE) >> RENDER_TARGET_SHIFT;
+		const TextureFormatInfo& tif = TEXTURE_FORMAT_TABLE[format];
 
-		// // Create color/depth attachments
-		// switch (format)
-		// {
-		// 	case RTF_RGBA_8:
-		// 	case RTF_D24:
-		// 	{
-		// 		if (format == RTF_RGBA_8)
-		// 		{
-		// 			GL_CHECK(glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-  //                      GL_COLOR_ATTACHMENT0_EXT,
-  //                      GL_TEXTURE_2D,
-  //                      renderedTexture,
-  //                      0));
-		// 			break;
-		// 		}
-		// 		else if (format == RTF_D24)
-		// 		{
-		// 			GL_CHECK(glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, width, height));
-		// 			GL_CHECK(glFramebufferRenderbufferEXT(GL_DRAW_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, m_gl_rbo));
-		// 		}
+		const GLenum attachment = is_depth(tif.internal_format) ? GL_DEPTH_ATTACHMENT :
+									is_color(tif.internal_format) ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_STENCIL_ATTACHMENT;
 
-		// 		break;
-		// 	}
-		// 	default:
-		// 	{
-		// 		CE_ASSERT(false, "Oops, render target format not supported!");
-		// 		break;
-		// 	}
-		// }
+		if (!no_texture)
+		{
+			GL_CHECK(glGenTextures(1, &m_col_texture));
+			CE_ASSERT(m_col_texture != 0, "Failed to create texture");
+			GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_col_texture));
+			GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, tif.internal_format, width, height, 0, tif.format, GL_UNSIGNED_BYTE, 0));
 
-		// GLenum status = glCheckFramebufferStatusEXT(GL_DRAW_FRAMEBUFFER_EXT);
-		// CE_ASSERT(status == GL_FRAMEBUFFER_COMPLETE_EXT, "Oops, framebuffer incomplete!");
+			GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+			GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	
+			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER,
+											attachment,
+											GL_TEXTURE_2D,
+											m_col_texture,
+											0));
 
-		// GL_CHECK(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0));
+			GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
+		}
+		else
+		{
+			GL_CHECK(glGenRenderbuffers(1, &m_rbo));
+			CE_ASSERT(m_rbo != 0, "Failed to create renderbuffer");
+			GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, m_rbo));
+			GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, tif.internal_format, width, height));
+			GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, m_rbo));
+			GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, 0));
+		}
 
-		// m_width = width;
-		// m_height = height;
-		// m_format = format;
+		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		CE_ASSERT(status == GL_FRAMEBUFFER_COMPLETE, "Oops, framebuffer incomplete!");
+		CE_UNUSED(status);
+
+		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 	}
 
 	void destroy()
 	{
-		// GL_CHECK(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0));
-		// GL_CHECK(glDeleteFramebuffersEXT(1, &m_gl_fbo));
-
-		// GL_CHECK(glDeleteRenderbuffersEXT(1, &m_gl_rbo));
+		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+		GL_CHECK(glDeleteTextures(1, &m_col_texture));
+		GL_CHECK(glDeleteFramebuffers(1, &m_fbo));
+		GL_CHECK(glDeleteRenderbuffers(1, &m_rbo));
 	}
 
 	uint16_t m_width;
 	uint16_t m_height;
-	RenderTargetFormat m_format;
-	GLuint m_gl_fbo;
-	GLuint m_gl_rbo;
+	PixelFormat::Enum m_format;
+	GLuint m_col_texture;
+	GLuint m_fbo;
+	GLuint m_rbo;
 };
 
 /// OpenGL renderer
@@ -757,8 +799,8 @@ public:
 	//-----------------------------------------------------------------------------
 	void render(RenderContext& context)
 	{
-		//RenderTargetId old_rt;
-		//old_rt.id = INVALID_ID;
+		RenderTargetId cur_rt;
+		cur_rt.id = INVALID_ID;
 		uint8_t layer = 0xFF;
 
 		// Sort render keys
@@ -774,6 +816,9 @@ public:
 			m_index_buffers[context.m_transient_ib->ib.index].update(0, context.m_tib_offset, context.m_transient_ib->data);
 		}
 
+		// Bind default framebuffer
+		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
 		for (uint32_t s = 0; s < context.m_num_states; s++)
 		{
 			const uint64_t key_s = context.m_keys[s].key;
@@ -788,6 +833,13 @@ public:
 			if (key.m_layer != layer)
 			{
 				layer = key.m_layer;
+
+				// Switch render target if necessary
+				if (cur_rt != context.m_targets[layer])
+				{
+					cur_rt = context.m_targets[layer];
+					glBindFramebuffer(GL_FRAMEBUFFER, m_render_targets[cur_rt.index].m_fbo);
+				}
 
 				// Viewport
 				const ViewRect& viewport = context.m_viewports[layer];
@@ -896,6 +948,13 @@ public:
 							{
 								Texture& texture = m_textures[sampler.sampler_id.index];
 								texture.commit(unit, sampler.flags);
+								break;
+							}
+							case SAMPLER_RENDER_TARGET:
+							{
+								RenderTarget& rt = m_render_targets[sampler.sampler_id.index];
+								GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+								GL_CHECK(glBindTexture(GL_TEXTURE_2D, rt.m_col_texture));
 								break;
 							}
 							default:
@@ -1048,7 +1107,6 @@ Renderer::~Renderer()
 	CE_ASSERT(m_textures.size() == 0, "%d textures not freed", m_textures.size());
 	CE_ASSERT(m_shaders.size() == 0, "%d shaders not freed", m_shaders.size());
 	CE_ASSERT(m_gpu_programs.size() == 0, "%d GPU programs not freed", m_gpu_programs.size());
-	// CE_ASSERT(m_uniforms.size() == 0, "%d uniforms not freed", m_uniforms.size());
 	CE_ASSERT(m_render_targets.size() == 0, "%d render targets not freed", m_render_targets.size());
 
 	CE_DELETE(m_allocator, m_impl);
@@ -1193,16 +1251,17 @@ void Renderer::destroy_uniform_impl(UniformId id)
 	m_uniforms.destroy(id);
 }
 
-// //-----------------------------------------------------------------------------
-// void Renderer::create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, RenderTargetFormat::Enum format)
-// {
+//-----------------------------------------------------------------------------
+void Renderer::create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, PixelFormat::Enum format, uint32_t flags)
+{
+	m_impl->m_render_targets[id.index].create(width, height, format, flags);
+}
 
-// }
-
-// //-----------------------------------------------------------------------------
-// void Renderer::destroy_render_target_impl(RenderTargetId id)
-// {
-
-// }
+//-----------------------------------------------------------------------------
+void Renderer::destroy_render_target_impl(RenderTargetId id)
+{
+	m_impl->m_render_targets[id.index].destroy();
+	m_render_targets.destroy(id);
+}
 
 } // namespace crown

@@ -66,16 +66,6 @@ struct UniformType
 	};
 };
 
-struct RenderTargetFormat
-{
-	enum Enum
-	{
-		RTF_RGB_8,		///< RGB values, 8-bit each
-		RTF_RGBA_8,		///< RGBA values, 8-bit each
-		RTF_D24			///< Depth
-	};
-};
-
 struct ShaderUniform
 {
 	enum Enum
@@ -143,6 +133,10 @@ struct PixelFormat
 	{
 		RGB_8 = 0,
 		RGBA_8,
+		D16,
+		D24,
+		D32,
+		D24S8,
 		COUNT
 	};
 };
@@ -176,6 +170,9 @@ struct CommandType
 
 		CREATE_UNIFORM,
 		DESTROY_UNIFORM,
+
+		CREATE_RENDER_TARGET,
+		DESTROY_RENDER_TARGET,
 
 		END
 	};

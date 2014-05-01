@@ -100,30 +100,35 @@ namespace crown
 
 #define STATE_BLEND_FUNC(src, dst) (uint64_t(src << 4) | uint64_t(dst))
 
-#define CLEAR_COLOR					0x1
-#define CLEAR_DEPTH					0x2
+#define CLEAR_COLOR								0x1
+#define CLEAR_DEPTH								0x2
 
 // Texture flags
-#define TEXTURE_FILTER_NEAREST		0x00000001
-#define TEXTURE_FILTER_LINEAR		0x00000002
-#define TEXTURE_FILTER_BILINEAR		0x00000003
-#define TEXTURE_FILTER_TRILINEAR	0x00000004
-#define TEXTURE_FILTER_MASK			0x0000000F
-#define TEXTURE_FILTER_SHIFT		0
+#define TEXTURE_FILTER_NEAREST					0x00000001
+#define TEXTURE_FILTER_LINEAR					0x00000002
+#define TEXTURE_FILTER_BILINEAR					0x00000003
+#define TEXTURE_FILTER_TRILINEAR				0x00000004
+#define TEXTURE_FILTER_MASK						0x0000000F
+#define TEXTURE_FILTER_SHIFT					0
 
-#define TEXTURE_WRAP_U_CLAMP_EDGE	0x00000010
-#define TEXTURE_WRAP_U_CLAMP_REPEAT	0x00000020
-#define TEXTURE_WRAP_U_MASK			0x00000030
-#define TEXTURE_WRAP_U_SHIFT		4
-#define TEXTURE_WRAP_V_CLAMP_EDGE	0x00000100
-#define TEXTURE_WRAP_V_CLAMP_REPEAT	0x00000200
-#define TEXTURE_WRAP_V_MASK			0x00000300
-#define TEXTURE_WRAP_V_SHIFT		8
+#define TEXTURE_WRAP_U_CLAMP_EDGE				0x00000010
+#define TEXTURE_WRAP_U_CLAMP_REPEAT				0x00000020
+#define TEXTURE_WRAP_U_MASK						0x00000030
+#define TEXTURE_WRAP_U_SHIFT					4
+#define TEXTURE_WRAP_V_CLAMP_EDGE				0x00000100
+#define TEXTURE_WRAP_V_CLAMP_REPEAT				0x00000200
+#define TEXTURE_WRAP_V_MASK						0x00000300
+#define TEXTURE_WRAP_V_SHIFT					8
+
+#define RENDER_TARGET_NO_TEXTURE				0x00000001
+#define RENDER_TARGET_MASK						0x0000000F
+#define RENDER_TARGET_SHIFT						0
 
 // Sampler flags
-#define SAMPLER_TEXTURE				0x10000000
-#define SAMPLER_MASK				0xF0000000
-#define SAMPLER_SHIFT				28
+#define SAMPLER_TEXTURE							0x10000000
+#define SAMPLER_RENDER_TARGET					0x20000000
+#define SAMPLER_MASK							0xF0000000
+#define SAMPLER_SHIFT							28
 
 struct ViewRect
 {
@@ -190,7 +195,7 @@ struct RenderState
 		for (uint32_t i = 0; i < STATE_MAX_TEXTURES; i++)
 		{
 			samplers[i].sampler_id.id = INVALID_ID;
-			samplers[i].flags = SAMPLER_TEXTURE;
+			samplers[i].flags = 0;
 		}
 	}
 
@@ -338,11 +343,25 @@ struct RenderContext
 
 	void set_texture(uint8_t unit, UniformId sampler_uniform, TextureId texture, uint32_t flags)
 	{
+		CE_ASSERT(unit < STATE_MAX_TEXTURES, "Texture unit out of bounds");
 		m_flags |= STATE_TEXTURE_0 << unit;
 
 		Sampler& sampler = m_state.samplers[unit];
 		sampler.sampler_id = texture;
 		sampler.flags |= SAMPLER_TEXTURE | flags;
+
+		const uint32_t val = unit;
+		set_uniform(sampler_uniform, UniformType::INTEGER_1, &val, 1);
+	}
+
+	void set_texture(uint8_t unit, UniformId sampler_uniform, RenderTargetId texture, uint8_t attachment, uint32_t texture_flags)
+	{
+		CE_ASSERT(unit < STATE_MAX_TEXTURES, "Texture unit out of bounds");
+		m_flags |= STATE_TEXTURE_0 << unit;
+
+		Sampler& sampler = m_state.samplers[unit];
+		sampler.sampler_id = texture;
+		sampler.flags |= SAMPLER_RENDER_TARGET | texture_flags;
 
 		const uint32_t val = unit;
 		set_uniform(sampler_uniform, UniformType::INTEGER_1, &val, 1);
@@ -422,6 +441,17 @@ struct RenderContext
 
 		m_num_states = 0;
 		m_state.clear();
+
+		memset(m_targets, 0xFF, sizeof(m_targets));
+		memset(m_viewports, 0, sizeof(m_viewports));
+		memset(m_scissors, 0, sizeof(m_scissors));
+		memset(m_clears, 0, sizeof(m_clears));
+
+		for (uint32_t i = 0; i < MAX_RENDER_LAYERS; i++)
+		{
+			m_projection_matrices[i] = matrix4x4::IDENTITY;
+			m_view_matrices[i] = matrix4x4::IDENTITY;
+		}
 
 		m_commands.clear();
 		m_last_uniform_offset = 0;
