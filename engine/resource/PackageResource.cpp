@@ -60,6 +60,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	Array<ResourceId> m_materials(default_allocator());
 	Array<ResourceId> m_guis(default_allocator());
 	Array<ResourceId> m_fonts(default_allocator());
+	Array<ResourceId> m_levels(default_allocator());
 
 	// Check for resource types
 	if (root.has_key("texture"))
@@ -291,6 +292,29 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		}
 	}
 
+	// Check for fonts
+	if (root.has_key("level"))
+	{
+		JSONElement levels_array = root.key("level");
+		uint32_t levels_array_size = levels_array.size();
+
+		for (uint32_t i = 0; i < levels_array_size; i++)
+		{
+			DynamicString level_name;
+			levels_array[i].to_string(level_name); level_name += ".level";
+
+			if (!fs.is_file(level_name.c_str()))
+			{
+				Log::e("level '%s' does not exist.", level_name.c_str());
+				return;				
+			}
+
+			ResourceId id;
+			id.id = string::murmur2_64(level_name.c_str(), level_name.length(), 0);
+			array::push_back(m_levels, id);
+		}
+	}
+
 	PackageHeader header;
 	header.num_textures = array::size(m_texture);
 	header.num_scripts = array::size(m_script);
@@ -302,6 +326,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	header.num_materials = array::size(m_materials);
 	header.num_guis = array::size(m_guis);
 	header.num_fonts = array::size(m_fonts);
+	header.num_levels = array::size(m_levels);
 
 	header.textures_offset = sizeof(PackageHeader);
 	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
@@ -313,6 +338,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	header.materials_offset = header.physics_offset + sizeof(ResourceId) * header.num_physics;
 	header.guis_offset = header.materials_offset + sizeof(ResourceId) * header.num_materials;
 	header.fonts_offset = header.guis_offset + sizeof(ResourceId) * header.num_guis;
+	header.levels_offset = header.fonts_offset + sizeof(ResourceId) * header.num_fonts;
 
 	out_file->write((char*) &header, sizeof(PackageHeader));
 
@@ -355,6 +381,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	if (array::size(m_fonts) > 0)
 	{
 		out_file->write((char*) array::begin(m_fonts), sizeof(ResourceId) * header.num_fonts);
+	}
+	if (array::size(m_levels) > 0)
+	{
+		out_file->write((char*) array::begin(m_levels), sizeof(ResourceId) * header.num_levels);
 	}
 }
 

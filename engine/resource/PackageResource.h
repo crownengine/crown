@@ -58,6 +58,8 @@ struct PackageHeader
 	uint32_t guis_offset;
 	uint32_t num_fonts;
 	uint32_t fonts_offset;
+	uint32_t num_levels;
+	uint32_t levels_offset;
 };
 
 struct PackageResource
@@ -154,6 +156,12 @@ struct PackageResource
 	}
 
 	//-----------------------------------------------------------------------------
+	uint32_t num_levels() const
+	{
+		return ((PackageHeader*) this)->num_levels;
+	}
+
+	//-----------------------------------------------------------------------------
 	ResourceId get_texture_id(uint32_t i) const
 	{
 		CE_ASSERT(i < num_textures(), "Index out of bounds");
@@ -240,6 +248,15 @@ struct PackageResource
 		CE_ASSERT(i < num_fonts(), "Index out of bounds");
 
 		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->fonts_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_level_id(uint32_t i) const
+	{
+		CE_ASSERT(i < num_levels(), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->levels_offset);
 		return begin[i];
 	}
 

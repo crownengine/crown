@@ -51,6 +51,7 @@ namespace sprite_resource { extern void compile(Filesystem&, const char*, File*)
 namespace material_resource { extern void compile(Filesystem&, const char*, File*); }
 namespace gui_resource { extern void compile(Filesystem&, const char*, File*); }
 namespace font_resource { extern void compile(Filesystem&, const char*, File*); }
+namespace level_resource { extern void compile(Filesystem&, const char*, File*); }
 
 //-----------------------------------------------------------------------------
 BundleCompiler::BundleCompiler()
@@ -175,6 +176,10 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 			else if (resource_type_hash == FONT_TYPE)
 			{
 				font_resource::compile(root_fs, filename, out_file);
+			}
+			else if (resource_type_hash == LEVEL_TYPE)
+			{
+				level_resource::compile(root_fs, filename, out_file);
 			}
 			else
 			{

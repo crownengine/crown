@@ -215,42 +215,44 @@ set (RENDERERS_HEADERS
 )
 
 set (RESOURCE_SRC
+	resource/FileBundle.cpp
+	resource/FontResource.cpp
+	resource/GuiResource.cpp
+	resource/LevelResource.cpp
+	resource/LuaResource.cpp
+	resource/MaterialResource.cpp
+	resource/MeshResource.cpp
+	resource/PackageResource.cpp
+	resource/PhysicsResource.cpp
 	resource/ResourceLoader.cpp
 	resource/ResourceManager.cpp
 	resource/ResourceRegistry.cpp
-	resource/UnitResource.cpp
-	resource/TextureResource.cpp
-	resource/SpriteResource.cpp
 	resource/SoundResource.cpp
-	resource/MaterialResource.cpp
-	resource/PhysicsResource.cpp
-	resource/PackageResource.cpp
-	resource/MeshResource.cpp
-	resource/LuaResource.cpp
-	resource/GuiResource.cpp
-	resource/FontResource.cpp
-	resource/FileBundle.cpp
+	resource/SpriteResource.cpp
+	resource/TextureResource.cpp
+	resource/UnitResource.cpp
 )
 
 set (RESOURCE_HEADERS
+	resource/Bundle.h
+	resource/FontResource.h
+	resource/FontResource.h
+	resource/GuiResource.h
+	resource/LevelResource.h
+	resource/LuaResource.h
+	resource/MaterialResource.h
+	resource/MeshResource.h
+	resource/PackageResource.h
+	resource/PhysicsResource.h
 	resource/Resource.h
 	resource/ResourceLoader.h
 	resource/ResourceManager.h
-	resource/ResourceRegistry.h
-	resource/Bundle.h
-	resource/LuaResource.h
-	resource/TextureResource.h
-	resource/MeshResource.h
-	resource/FontResource.h
-	resource/SoundResource.h
-	resource/MaterialResource.h
-	resource/PackageResource.h
-	resource/UnitResource.h
 	resource/ResourcePackage.h
+	resource/ResourceRegistry.h
+	resource/SoundResource.h
 	resource/SpriteResource.h
-	resource/PhysicsResource.h
-	resource/GuiResource.h
-	resource/FontResource.h
+	resource/TextureResource.h
+	resource/UnitResource.h
 )
 
 set (OS_SRC
