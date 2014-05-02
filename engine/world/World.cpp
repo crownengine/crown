@@ -289,12 +289,10 @@ void World::destroy_debug_line(DebugLine* line)
 //-----------------------------------------------------------------------------
 void World::load_level(const char* name)
 {
-	Log::d("Loading level...");
 	const LevelResource* res = (LevelResource*) device()->resource_manager()->lookup(LEVEL_EXTENSION, name);
 
 	for (uint32_t i = 0; i < res->num_units(); i++)
 	{
-		Log::d("Loading ...");
 		const LevelUnit* lu = res->get_unit(i);
 		spawn_unit(lu->name, lu->position, lu->rotation);
 	}
