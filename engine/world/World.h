@@ -70,6 +70,7 @@ public:
 
 	/// Spawns a new instance of the unit @a name at the given @a position and @a rotation.
 	UnitId spawn_unit(const char* name, const Vector3& position = vector3::ZERO, const Quaternion& rotation = quaternion::IDENTITY);
+	UnitId spawn_unit(ResourceId id, const Vector3& pos, const Quaternion& rot);
 	UnitId spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& pos, const Quaternion& rot);
 
 	/// Destroys the unit with the given @a id.
@@ -133,6 +134,9 @@ public:
 
 	DebugLine* create_debug_line(bool depth_test);
 	void destroy_debug_line(DebugLine* line);
+
+	/// Loads the level @a name into the world.
+	void load_level(const char* name);
 
 	SceneGraphManager* scene_graph_manager();
 	RenderWorld* render_world();

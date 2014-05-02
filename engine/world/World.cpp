@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "DebugLine.h"
 #include "Actor.h"
 #include "LuaEnvironment.h"
+#include "LevelResource.h"
 
 namespace crown
 {
@@ -75,8 +76,14 @@ void World::set_id(WorldId id)
 //-----------------------------------------------------------------------------
 UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion& rot)
 {
-	UnitResource* ur = (UnitResource*) device()->resource_manager()->lookup(UNIT_EXTENSION, name);
-	ResourceId id = device()->resource_manager()->resource_id(UNIT_EXTENSION, name);
+	const ResourceId id = device()->resource_manager()->resource_id(UNIT_EXTENSION, name);
+	return spawn_unit(id, pos, rot);
+}
+
+//-----------------------------------------------------------------------------
+UnitId World::spawn_unit(ResourceId id, const Vector3& pos, const Quaternion& rot)
+{
+	UnitResource* ur = (UnitResource*) device()->resource_manager()->data(id);
 	return spawn_unit(id, ur, pos, rot);
 }
 
@@ -277,6 +284,20 @@ DebugLine* World::create_debug_line(bool depth_test)
 void World::destroy_debug_line(DebugLine* line)
 {
 	CE_DELETE(default_allocator(), line);
+}
+
+//-----------------------------------------------------------------------------
+void World::load_level(const char* name)
+{
+	Log::d("Loading level...");
+	const LevelResource* res = (LevelResource*) device()->resource_manager()->lookup(LEVEL_EXTENSION, name);
+
+	for (uint32_t i = 0; i < res->num_units(); i++)
+	{
+		Log::d("Loading ...");
+		const LevelUnit* lu = res->get_unit(i);
+		spawn_unit(lu->name, lu->position, lu->rotation);
+	}
 }
 
 //-----------------------------------------------------------------------------

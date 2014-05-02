@@ -264,6 +264,16 @@ static int world_destroy_debug_line(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int world_load_level(lua_State* L)
+{
+	LuaStack stack(L);
+
+	World* world = stack.get_world(1);
+	world->load_level(stack.get_string(2));
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 static int world_tostring(lua_State* L)
 {
 	LuaStack stack(L);
@@ -296,6 +306,8 @@ void load_world(LuaEnvironment& env)
 
 	env.load_module_function("World", "create_debug_line",  world_create_debug_line);
 	env.load_module_function("World", "destroy_debug_line", world_destroy_debug_line);
+
+	env.load_module_function("World", "load_level",			world_load_level);
 
 	env.load_module_function("World", "__index",			"World");
 	env.load_module_function("World", "__tostring",			world_tostring);
