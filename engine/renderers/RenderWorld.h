@@ -68,6 +68,9 @@ namespace render_world_globals
 	UniformId default_color_uniform();
 };
 
+/// Manages graphics objects in a World.
+///
+/// @ingroup Graphics
 class RenderWorld
 {
 public:
