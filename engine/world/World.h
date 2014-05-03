@@ -45,14 +45,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-struct Mesh;
-struct Sprite;
-struct Actor;
-struct Vector3;
-struct Quaternion;
-struct PhysicsResource;
-struct DebugLine;
-
 /// @defgroup World World
 
 /// Represents a game world.
