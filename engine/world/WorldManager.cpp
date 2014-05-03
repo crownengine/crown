@@ -45,7 +45,7 @@ WorldManager::~WorldManager()
 WorldId WorldManager::create_world()
 {
 	World* w = CE_NEW(m_allocator, World)();
-	const WorldId w_id = m_worlds.create(w);
+	const WorldId w_id = id_array::create(m_worlds, w);
 	w->set_id(w_id);
 	return w_id;
 }
@@ -53,14 +53,14 @@ WorldId WorldManager::create_world()
 //-----------------------------------------------------------------------------
 void WorldManager::destroy_world(WorldId id)
 {
-	CE_DELETE(m_allocator, m_worlds.lookup(id));
-	m_worlds.destroy(id);
+	CE_DELETE(m_allocator, id_array::get(m_worlds, id));
+	id_array::destroy(m_worlds, id);
 }
 
 //-----------------------------------------------------------------------------
 World* WorldManager::lookup_world(WorldId id)
 {
-	return m_worlds.lookup(id);
+	return id_array::get(m_worlds, id);
 }
 
 //-----------------------------------------------------------------------------

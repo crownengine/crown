@@ -242,77 +242,68 @@ RenderWorld::~RenderWorld()
 MeshId RenderWorld::create_mesh(MeshResource* mr, SceneGraph& sg, int32_t node)
 {
 	Mesh* mesh = CE_NEW(m_mesh_pool, Mesh)(sg, node, mr);
-	return m_mesh.create(mesh);
+	return id_array::create(m_mesh, mesh);
 }
 
 //-----------------------------------------------------------------------------
 void RenderWorld::destroy_mesh(MeshId id)
 {
-	CE_ASSERT(m_mesh.has(id), "Mesh does not exist");
-
-	Mesh* mesh = m_mesh.lookup(id);
+	Mesh* mesh = id_array::get(m_mesh, id);
 	CE_DELETE(m_mesh_pool, mesh);
-	m_mesh.destroy(id);
+	id_array::destroy(m_mesh, id);
 }
 
 //-----------------------------------------------------------------------------
 Mesh* RenderWorld::lookup_mesh(MeshId mesh)
 {
-	CE_ASSERT(m_mesh.has(mesh), "Mesh does not exits");
-
-	return m_mesh.lookup(mesh);
+	return id_array::get(m_mesh, mesh);
 }
 
 //-----------------------------------------------------------------------------
 SpriteId RenderWorld::create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node)
 {
 	Sprite* sprite = CE_NEW(m_sprite_pool, Sprite)(*this, sg, node, sr);
-	return m_sprite.create(sprite);
+	return id_array::create(m_sprite, sprite);
 }
 
 //-----------------------------------------------------------------------------
 void RenderWorld::destroy_sprite(SpriteId id)
 {
-	CE_ASSERT(m_sprite.has(id), "Sprite does not exist");
-
-	Sprite* sprite = m_sprite.lookup(id);
-	CE_DELETE(m_sprite_pool, sprite);
-	m_sprite.destroy(id);
+	CE_DELETE(m_sprite_pool, id_array::get(m_sprite, id));
+	id_array::destroy(m_sprite, id);
 }
 
 //-----------------------------------------------------------------------------
 Sprite*	RenderWorld::lookup_sprite(SpriteId id)
 {
-	CE_ASSERT(m_sprite.has(id), "Sprite does not exist");
-
-	return m_sprite.lookup(id);
+	return id_array::get(m_sprite, id);
 }
 
 //-----------------------------------------------------------------------------
 MaterialId RenderWorld::create_material(MaterialResource* mr)
 {
 	Material* mat = CE_NEW(m_material_pool, Material)(mr);
-	return m_materials.create(mat);
+	return id_array::create(m_materials, mat);
 }
 
 //-----------------------------------------------------------------------------
 void RenderWorld::destroy_material(MaterialId id)
 {
-	CE_DELETE(m_material_pool, m_materials.lookup(id));
-	m_materials.destroy(id);
+	CE_DELETE(m_material_pool, id_array::get(m_materials, id));
+	id_array::destroy(m_materials, id);
 }
 
 //-----------------------------------------------------------------------------
 Material* RenderWorld::lookup_material(MaterialId id)
 {
-	return m_materials.lookup(id);
+	return id_array::get(m_materials, id);
 }
 
 //-----------------------------------------------------------------------------
 GuiId RenderWorld::create_gui(uint16_t width, uint16_t height)
 {
 	Gui* gui = CE_NEW(m_gui_pool, Gui)(*this, width, height);
-	GuiId id = m_guis.create(gui);
+	GuiId id = id_array::create(m_guis, gui);
 	gui->set_id(id);
 	return id;
 }
@@ -320,18 +311,14 @@ GuiId RenderWorld::create_gui(uint16_t width, uint16_t height)
 //-----------------------------------------------------------------------------
 void RenderWorld::destroy_gui(GuiId id)
 {
-	CE_ASSERT(m_guis.has(id), "Gui does not exist");
-
-	CE_DELETE(m_gui_pool, m_guis.lookup(id));
-	m_guis.destroy(id);
+	CE_DELETE(m_gui_pool, id_array::get(m_guis, id));
+	id_array::destroy(m_guis, id);
 }
 
 //-----------------------------------------------------------------------------
 Gui* RenderWorld::lookup_gui(GuiId id)
 {
-	CE_ASSERT(m_guis.has(id), "Gui does not exist");
-	
-	return m_guis.lookup(id);
+	return id_array::get(m_guis, id);
 }
 
 //-----------------------------------------------------------------------------
@@ -351,7 +338,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	r->commit(0);
 
 	// Draw all meshes
-	for (uint32_t m = 0; m < m_mesh.size(); m++)
+	for (uint32_t m = 0; m < id_array::size(m_mesh); m++)
 	{
 		const Mesh* mesh = m_mesh.m_objects[m];
 
@@ -367,7 +354,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	}
 
 	// Draw all sprites
-	for (uint32_t s = 0; s < m_sprite.size(); s++)
+	for (uint32_t s = 0; s < id_array::size(m_sprite); s++)
 	{
 		r->set_program(render_world_globals::default_texture_program());
 		// m_sprite[s]->update(dt);

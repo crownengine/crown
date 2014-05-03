@@ -128,7 +128,7 @@ public:
 	/// @a data is the array containig @a size bytes of vertex data in the given @a format.
 	VertexBufferId create_vertex_buffer(size_t size, const void* data, VertexFormat::Enum format)
 	{
-		const VertexBufferId id = m_vertex_buffers.create();
+		const VertexBufferId id = id_table::create(m_vertex_buffers);
 
 		m_submit->m_commands.write(CommandType::CREATE_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
@@ -144,7 +144,7 @@ public:
 	/// use Renderer::update_vertex_buffer() to fill the buffer with actual data.
 	VertexBufferId create_dynamic_vertex_buffer(size_t size)
 	{
-		const VertexBufferId id = m_vertex_buffers.create();
+		const VertexBufferId id = id_table::create(m_vertex_buffers);
 
 		m_submit->m_commands.write(CommandType::CREATE_DYNAMIC_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
@@ -195,7 +195,7 @@ public:
 	/// at the given @a offset.
 	void update_vertex_buffer(VertexBufferId id, size_t offset, size_t size, const void* data)
 	{
-		CE_ASSERT(m_vertex_buffers.has(id), "Vertex buffer does not exist");
+		CE_ASSERT(id_table::has(m_vertex_buffers, id), "Vertex buffer does not exist");
 
 		m_submit->m_commands.write(CommandType::UPDATE_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
@@ -207,7 +207,7 @@ public:
 	/// Destroys the given vertex buffer @a id.
 	void destroy_vertex_buffer(VertexBufferId id)
 	{
-		CE_ASSERT(m_vertex_buffers.has(id), "Vertex buffer does not exist");
+		CE_ASSERT(id_table::has(m_vertex_buffers, id), "Vertex buffer does not exist");
 
 		m_submit->m_commands.write(CommandType::DESTROY_VERTEX_BUFFER);
 		m_submit->m_commands.write(id);
@@ -226,7 +226,7 @@ public:
 	/// @a data is the array containing @a size bytes of index data.
 	IndexBufferId create_index_buffer(size_t size, const void* data)
 	{
-		const IndexBufferId id = m_index_buffers.create();
+		const IndexBufferId id = id_table::create(m_index_buffers);
 
 		m_submit->m_commands.write(CommandType::CREATE_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
@@ -241,7 +241,7 @@ public:
 	/// use Renderer::update_index_buffer() to fill the buffer with actual data.
 	IndexBufferId create_dynamic_index_buffer(size_t size)
 	{
-		const IndexBufferId id = m_index_buffers.create();
+		const IndexBufferId id = id_table::create(m_index_buffers);
 
 		m_submit->m_commands.write(CommandType::CREATE_DYNAMIC_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
@@ -290,7 +290,7 @@ public:
 	/// at the given @a offset.
 	void update_index_buffer(IndexBufferId id, size_t offset, size_t size, const void* data)
 	{
-		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
+		CE_ASSERT(id_table::has(m_index_buffers, id), "Index buffer does not exist");
 
 		m_submit->m_commands.write(CommandType::UPDATE_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
@@ -302,7 +302,7 @@ public:
 	/// Destroys the @a id index buffer.
 	void destroy_index_buffer(IndexBufferId id)
 	{
-		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
+		CE_ASSERT(id_table::has(m_index_buffers, id), "Index buffer does not exist");
 
 		m_submit->m_commands.write(CommandType::DESTROY_INDEX_BUFFER);
 		m_submit->m_commands.write(id);
@@ -321,7 +321,7 @@ public:
 	/// The array @a data should contain @a width * @a height elements of the given @a format.
 	TextureId create_texture(uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data)
 	{
-		const TextureId id = m_textures.create();
+		const TextureId id = id_table::create(m_textures);
 
 		m_submit->m_commands.write(CommandType::CREATE_TEXTURE);
 		m_submit->m_commands.write(id);
@@ -338,7 +338,7 @@ public:
 	/// to Renderer::create_texture()
 	void update_texture(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data)
 	{
-		CE_ASSERT(m_textures.has(id), "Texture does not exist");
+		CE_ASSERT(id_table::has(m_textures, id), "Texture does not exist");
 
 		m_submit->m_commands.write(CommandType::UPDATE_TEXTURE);
 		m_submit->m_commands.write(id);
@@ -352,7 +352,7 @@ public:
 	/// Destroys the texture @æ id.
 	void destroy_texture(TextureId id)
 	{
-		CE_ASSERT(m_textures.has(id), "Texture does not exist");
+		CE_ASSERT(id_table::has(m_textures, id), "Texture does not exist");
 
 		m_submit->m_commands.write(CommandType::DESTROY_TEXTURE);
 		m_submit->m_commands.write(id);
@@ -361,7 +361,7 @@ public:
 	/// Creates a new shader of the given @a type from the string @a text.
 	ShaderId create_shader(ShaderType::Enum type, const char* text)
 	{
-		const ShaderId id = m_shaders.create();
+		const ShaderId id = id_table::create(m_shaders);
 
 		m_submit->m_commands.write(CommandType::CREATE_SHADER);
 		m_submit->m_commands.write(id);
@@ -374,7 +374,7 @@ public:
 	/// Destroy the shader @a id.
 	void destroy_shader(ShaderId id)
 	{
-		CE_ASSERT(m_shaders.has(id), "Shader does not exist");
+		CE_ASSERT(id_table::has(m_shaders, id), "Shader does not exist");
 
 		m_submit->m_commands.write(CommandType::DESTROY_SHADER);
 		m_submit->m_commands.write(id);
@@ -383,7 +383,7 @@ public:
 	/// Creates a new gpu program from @a vertex shader and @a pixel shader.
 	GPUProgramId create_gpu_program(ShaderId vertex, ShaderId pixel)
 	{
-		const GPUProgramId id = m_gpu_programs.create();
+		const GPUProgramId id = id_table::create(m_gpu_programs);
 
 		m_submit->m_commands.write(CommandType::CREATE_GPU_PROGRAM);
 		m_submit->m_commands.write(id);
@@ -396,7 +396,7 @@ public:
 	/// Destroys the gpu program @a id.
 	void destroy_gpu_program(GPUProgramId id)
 	{
-		CE_ASSERT(m_gpu_programs.has(id), "GPU program does not exist");
+		CE_ASSERT(id_table::has(m_gpu_programs, id), "GPU program does not exist");
 
 		m_submit->m_commands.write(CommandType::DESTROY_GPU_PROGRAM);
 		m_submit->m_commands.write(id);
@@ -408,7 +408,7 @@ public:
 	{
 		CE_ASSERT(name_to_stock_uniform(name) == ShaderUniform::COUNT, "Uniform name '%s' is a stock uniform.", name);
 
-		const UniformId id = m_uniforms.create();
+		const UniformId id = id_table::create(m_uniforms);
 		size_t len = string::strlen(name);
 
 		CE_ASSERT(len < CE_MAX_UNIFORM_NAME_LENGTH, "Max uniform name length is %d", CE_MAX_UNIFORM_NAME_LENGTH);
@@ -426,7 +426,7 @@ public:
 	/// Destroys the uniform @a id.
 	void destroy_uniform(UniformId id)
 	{
-		CE_ASSERT(m_uniforms.has(id), "Uniform does not exist");
+		CE_ASSERT(id_table::has(m_uniforms, id), "Uniform does not exist");
 
 		m_submit->m_commands.write(CommandType::DESTROY_UNIFORM);
 		m_submit->m_commands.write(id);
@@ -435,7 +435,7 @@ public:
 	/// Creates a new render target of size @a width and @a height with the given @a format.
 	RenderTargetId create_render_target(uint16_t width, uint16_t height, PixelFormat::Enum format, uint32_t flags = 0)
 	{
-		const RenderTargetId id = m_render_targets.create();
+		const RenderTargetId id = id_table::create(m_render_targets);
 
 		m_submit->m_commands.write(CommandType::CREATE_RENDER_TARGET);
 		m_submit->m_commands.write(id);
@@ -450,7 +450,7 @@ public:
 	/// Destroys the render target @a id.
 	void destroy_render_target(RenderTargetId id)
 	{
-		CE_ASSERT(m_render_targets.has(id), "Render target does not exist");
+		CE_ASSERT(id_table::has(m_render_targets, id), "Render target does not exist");
 
 		m_submit->m_commands.write(CommandType::DESTROY_RENDER_TARGET);
 		m_submit->m_commands.write(id);
@@ -767,13 +767,13 @@ public:
 
 	void set_program(GPUProgramId id)
 	{
-		CE_ASSERT(m_gpu_programs.has(id), "GPU program does not exist");
+		CE_ASSERT(id_table::has(m_gpu_programs, id), "GPU program does not exist");
 		m_submit->set_program(id);
 	}
 
 	void set_vertex_buffer(VertexBufferId id, uint32_t num_vertices = 0xFFFFFFFF)
 	{
-		CE_ASSERT(m_vertex_buffers.has(id), "Vertex buffer does not exist");
+		CE_ASSERT(id_table::has(m_vertex_buffers, id), "Vertex buffer does not exist");
 		m_submit->set_vertex_buffer(id, num_vertices);
 	}
 
@@ -784,7 +784,7 @@ public:
 
 	void set_index_buffer(IndexBufferId id, uint32_t start_index = 0, uint32_t num_indices = 0xFFFFFFFF)
 	{
-		CE_ASSERT(m_index_buffers.has(id), "Index buffer does not exist");
+		CE_ASSERT(id_table::has(m_index_buffers, id), "Index buffer does not exist");
 		m_submit->set_index_buffer(id, start_index, num_indices);
 	}
 
@@ -795,28 +795,28 @@ public:
 
 	void set_uniform(UniformId id, UniformType::Enum type, const void* value, uint8_t num)
 	{
-		CE_ASSERT(m_uniforms.has(id), "Uniform does not exist");
+		CE_ASSERT(id_table::has(m_uniforms, id), "Uniform does not exist");
 		CE_ASSERT_NOT_NULL(value);
 		m_submit->set_uniform(id, type, value, num);
 	}
 
 	void set_texture(uint8_t unit, UniformId sampler_uniform, TextureId texture, uint32_t flags)
 	{
-		CE_ASSERT(m_uniforms.has(sampler_uniform), "Uniform does not exist");
-		CE_ASSERT(m_textures.has(texture), "Texture does not exist");
+		CE_ASSERT(id_table::has(m_uniforms, sampler_uniform), "Uniform does not exist");
+		CE_ASSERT(id_table::has(m_textures, texture), "Texture does not exist");
 		m_submit->set_texture(unit, sampler_uniform, texture, flags);
 	}
 
 	void set_texture(uint8_t unit, UniformId sampler_uniform, RenderTargetId texture, uint8_t attachment, uint32_t texture_flags)
 	{
-		CE_ASSERT(m_uniforms.has(sampler_uniform), "Uniform does not exist");
-		CE_ASSERT(m_render_targets.has(texture), "Render target does not exist");
+		CE_ASSERT(id_table::has(m_uniforms, sampler_uniform), "Uniform does not exist");
+		CE_ASSERT(id_table::has(m_render_targets, texture), "Render target does not exist");
 		m_submit->set_texture(unit, sampler_uniform, texture, attachment, texture_flags);
 	}
 
 	void set_layer_render_target(uint8_t layer, RenderTargetId id)
 	{
-		CE_ASSERT(m_render_targets.has(id), "Render target does not exist");
+		CE_ASSERT(id_table::has(m_render_targets, id), "Render target does not exist");
 		m_submit->set_layer_render_target(layer, id);
 	}
 

@@ -53,7 +53,7 @@ World::World()
 World::~World()
 {
 	// Destroy all units
-	for (uint32_t i = 0; i < m_units.size(); i++)
+	for (uint32_t i = 0; i < id_array::size(m_units); i++)
 	{
 		CE_DELETE(m_unit_pool, m_units[i]);
 	}
@@ -91,7 +91,7 @@ UnitId World::spawn_unit(ResourceId id, const Vector3& pos, const Quaternion& ro
 UnitId World::spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& pos, const Quaternion& rot)
 {
 	Unit* u = (Unit*) m_unit_pool.allocate(sizeof(Unit), CE_ALIGNOF(Unit));
-	const UnitId unit_id = m_units.create(u);
+	const UnitId unit_id = id_array::create(m_units, u);
 	new (u) Unit(*this, unit_id, id, ur, Matrix4x4(rot, pos));
 
 	// SpawnUnitEvent ev;
@@ -104,10 +104,8 @@ UnitId World::spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& p
 //-----------------------------------------------------------------------------
 void World::destroy_unit(UnitId id)
 {
-	CE_ASSERT(m_units.has(id), "Unit does not exist");
-
-	CE_DELETE(m_unit_pool, m_units.lookup(id));
-	m_units.destroy(id);
+	CE_DELETE(m_unit_pool, id_array::get(m_units, id));
+	id_array::destroy(m_units, id);
 
 	// DestroyUnitEvent ev;
 	// ev.unit = id;
@@ -117,7 +115,7 @@ void World::destroy_unit(UnitId id)
 //-----------------------------------------------------------------------------
 void World::reload_units(UnitResource* old_ur, UnitResource* new_ur)
 {
-	for (uint32_t i = 0; i < m_units.size(); i++)
+	for (uint32_t i = 0; i < id_array::size(m_units); i++)
 	{
 		if (m_units[i]->resource() == old_ur)
 		{
@@ -129,13 +127,13 @@ void World::reload_units(UnitResource* old_ur, UnitResource* new_ur)
 //-----------------------------------------------------------------------------
 uint32_t World::num_units() const
 {
-	return m_units.size();
+	return id_array::size(m_units);
 }
 
 //-----------------------------------------------------------------------------
 void World::units(Array<UnitId>& units) const
 {
-	for (uint32_t i = 0; i < m_units.size(); i++)
+	for (uint32_t i = 0; i < id_array::size(m_units); i++)
 	{
 		array::push_back(units, m_units[i]->id());
 	}
@@ -144,33 +142,25 @@ void World::units(Array<UnitId>& units) const
 //-----------------------------------------------------------------------------
 void World::link_unit(UnitId child, UnitId parent, int32_t node)
 {
-	CE_ASSERT(m_units.has(child), "Child unit does not exist");
-	CE_ASSERT(m_units.has(parent), "Parent unit does not exist");
-
 	Unit* parent_unit = lookup_unit(parent);
 	parent_unit->link_node(0, node);
 }
 
 //-----------------------------------------------------------------------------
-void World::unlink_unit(UnitId child)
+void World::unlink_unit(UnitId /*child*/)
 {
-	CE_ASSERT(m_units.has(child), "Child unit does not exist");
 }
 
 //-----------------------------------------------------------------------------
-Unit* World::lookup_unit(UnitId unit)
+Unit* World::lookup_unit(UnitId id)
 {
-	CE_ASSERT(m_units.has(unit), "Unit does not exist");
-
-	return m_units.lookup(unit);
+	return id_array::get(m_units, id);
 }
 
 //-----------------------------------------------------------------------------
-Camera* World::lookup_camera(CameraId camera)
+Camera* World::lookup_camera(CameraId id)
 {
-	CE_ASSERT(m_cameras.has(camera), "Camera does not exist");
-
-	return m_cameras.lookup(camera);
+	return id_array::get(m_cameras, id);
 }
 
 //-----------------------------------------------------------------------------
@@ -197,22 +187,16 @@ void World::render(Camera* camera)
 //-----------------------------------------------------------------------------
 CameraId World::create_camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far)
 {
-	// Allocate memory for camera
 	Camera* camera = CE_NEW(m_camera_pool, Camera)(sg, node, type, near, far);
 
-	// Create Id for the camera
-	const CameraId camera_id = m_cameras.create(camera);
-
-	return camera_id;
+	return id_array::create(m_cameras, camera);
 }
 
 //-----------------------------------------------------------------------------
 void World::destroy_camera(CameraId id)
 {
-	CE_ASSERT(m_cameras.has(id), "Camera does not exist");
-
-	CE_DELETE(m_camera_pool, m_cameras.lookup(id));
-	m_cameras.destroy(id);
+	CE_DELETE(m_camera_pool, id_array::get(m_cameras, id));
+	id_array::destroy(m_cameras, id);
 }
 
 //-----------------------------------------------------------------------------

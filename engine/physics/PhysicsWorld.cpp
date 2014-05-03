@@ -305,85 +305,74 @@ PhysicsWorld::~PhysicsWorld()
 ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, UnitId unit_id)
 {
 	Actor* actor = CE_NEW(m_actors_pool, Actor)(*this, res, index, sg, node, unit_id);
-	return m_actors.create(actor);
+	return id_array::create(m_actors, actor);
 }
 
 //-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_actor(ActorId id)
 {
-	CE_ASSERT(m_actors.has(id), "Actor does not exist");
-
-	CE_DELETE(m_actors_pool, m_actors.lookup(id));
-	m_actors.destroy(id);
+	CE_DELETE(m_actors_pool, id_array::get(m_actors, id));
+	id_array::destroy(m_actors, id);
 }
 
 //-----------------------------------------------------------------------------
 ControllerId PhysicsWorld::create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node)
 {
 	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, sg, node, physics_system::s_physics, m_controller_manager);
-	return m_controllers.create(controller);
+	return id_array::create(m_controllers, controller);
 }
 
 //-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_controller(ControllerId id)
 {
-	CE_ASSERT(m_controllers.has(id), "Controller does not exist");
-
-	CE_DELETE(m_controllers_pool, m_controllers.lookup(id));
-	m_controllers.destroy(id);
+	CE_DELETE(m_controllers_pool, id_array::get(m_controllers, id));
+	id_array::destroy(m_controllers, id);
 }
 
 //-----------------------------------------------------------------------------
 JointId	PhysicsWorld::create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1)
 {
 	Joint* joint = CE_NEW(m_joints_pool, Joint)(physics_system::s_physics, pr, index, actor_0, actor_1);
-	return m_joints.create(joint);
+	return id_array::create(m_joints, joint);
 }
 
 //-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_joint(JointId id)
 {
-	CE_ASSERT(m_joints.has(id), "Joint does not exist");
-
-	CE_DELETE(m_joints_pool, m_joints.lookup(id));
-	m_joints.destroy(id);
+	CE_DELETE(m_joints_pool, id_array::get(m_joints, id));
+	id_array::destroy(m_joints, id);
 }
 
 //-----------------------------------------------------------------------------
 RaycastId PhysicsWorld::create_raycast(CollisionMode::Enum mode, CollisionType::Enum filter)
 {
 	Raycast* raycast = CE_NEW(m_raycasts_pool, Raycast)(m_scene, mode, filter);
-	return m_raycasts.create(raycast);
+	return id_array::create(m_raycasts, raycast);
 }
 
 //-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_raycast(RaycastId id)
 {
-	CE_ASSERT(m_raycasts.has(id), "Raycast does not exists");
-
-	CE_DELETE(m_raycasts_pool, m_raycasts.lookup(id));
-	m_raycasts.destroy(id);
+	CE_DELETE(m_raycasts_pool, id_array::get(m_raycasts, id));
+	id_array::destroy(m_raycasts, id);
 }
 
 //-----------------------------------------------------------------------------
 Actor* PhysicsWorld::lookup_actor(ActorId id)
 {
-	CE_ASSERT(m_actors.has(id), "Actor does not exist");
-	return m_actors.lookup(id);
+	return id_array::get(m_actors, id);
 }
 
 //-----------------------------------------------------------------------------
 Controller* PhysicsWorld::lookup_controller(ControllerId id)
 {
-	CE_ASSERT(m_controllers.has(id), "Controller does not exist");
-	return m_controllers.lookup(id);
+	return id_array::get(m_controllers, id);
 }
 
 //-----------------------------------------------------------------------------
 Raycast* PhysicsWorld::lookup_raycast(RaycastId id)
 {
-	CE_ASSERT(m_raycasts.has(id), "Raycast does not exists");
-	return m_raycasts.lookup(id);
+	return id_array::get(m_raycasts, id);
 }
 
 //-----------------------------------------------------------------------------
@@ -462,7 +451,7 @@ void PhysicsWorld::update(float dt)
 	}
 
 	// Update controllers
-	for (uint32_t i = 0; i < m_controllers.size(); i++)
+	for (uint32_t i = 0; i < id_array::size(m_controllers); i++)
 	{
 		m_controllers[i]->update();
 	}

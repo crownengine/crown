@@ -87,11 +87,11 @@ public:
 	/// After this call, @a child will follow the @a parent unit.
 	void link_unit(UnitId child, UnitId parent, int32_t node);
 
-	/// Unlinks the unit @a unit from its parent if it has any.
-	void unlink_unit(UnitId unit);
+	/// Unlinks the unit @a id from its parent if it has any.
+	void unlink_unit(UnitId id);
 
-	Unit* lookup_unit(UnitId unit);
-	Camera* lookup_camera(CameraId camera);
+	Unit* lookup_unit(UnitId id);
+	Camera* lookup_camera(CameraId id);
 
 	/// Updates all units and sub-systems with the given @a dt delta time.
 	void update(float dt);

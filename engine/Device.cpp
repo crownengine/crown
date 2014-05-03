@@ -495,7 +495,7 @@ void Device::reload(const char* type, const char* name)
 			{
 				Log::d("Reloading unit: %s", name);
 				/// Reload unit in all worlds
-				for (uint32_t i = 0; i < m_world_manager->worlds().size(); i++)
+				for (uint32_t i = 0; i < id_array::size(m_world_manager->worlds()); i++)
 				{
 					m_world_manager->worlds()[i]->reload_units((UnitResource*) old_res, (UnitResource*) new_res);
 				}
@@ -504,7 +504,7 @@ void Device::reload(const char* type, const char* name)
 			case SOUND_TYPE:
 			{
 				Log::d("Reloading sound: %s", name);
-				for (uint32_t i = 0; i < m_world_manager->worlds().size(); i++)
+				for (uint32_t i = 0; i < id_array::size(m_world_manager->worlds()); i++)
 				{
 					m_world_manager->worlds()[i]->sound_world()->reload_sounds((SoundResource*) old_res, (SoundResource*) new_res);
 				}
