@@ -30,6 +30,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "Vector.h"
 #include "Map.h"
+#include "Vector3.h"
+#include "Quaternion.h"
 
 namespace crown
 {
