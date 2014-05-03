@@ -550,7 +550,7 @@ UnitId Actor::unit_id() const
 //-----------------------------------------------------------------------------
 Unit* Actor::unit()
 {
-	return (m_unit.id == INVALID_ID) ? NULL : m_world.world().lookup_unit(m_unit);
+	return (m_unit.id == INVALID_ID) ? NULL : m_world.world().get_unit(m_unit);
 }
 
 //-----------------------------------------------------------------------------

@@ -237,7 +237,7 @@ void Unit::set_default_material()
 
 	for (uint32_t i = 0; i < m_num_sprites; i++)
 	{
-		Sprite* s = m_world.render_world()->lookup_sprite(m_sprites[i].component);
+		Sprite* s = m_world.render_world()->get_sprite(m_sprites[i].component);
 		s->set_material(m_materials[0].component);
 	}
 }
@@ -443,7 +443,7 @@ Camera* Unit::camera(const char* name)
 
 	CE_ASSERT(cam.id != INVALID_ID, "Unit does not have camera with name '%s'", name);
 
-	return m_world.lookup_camera(cam);
+	return m_world.get_camera(cam);
 }
 
 //-----------------------------------------------------------------------------
@@ -453,7 +453,7 @@ Camera* Unit::camera(uint32_t i)
 
 	CE_ASSERT(cam.id != INVALID_ID, "Unit does not have camera with index '%d'", i);
 
-	return m_world.lookup_camera(cam);
+	return m_world.get_camera(cam);
 }
 
 //-----------------------------------------------------------------------------
@@ -463,7 +463,7 @@ Mesh* Unit::mesh(const char* name)
 
 	CE_ASSERT(mesh.id != INVALID_ID, "Unit does not have mesh with name '%s'", name);
 
-	return m_world.render_world()->lookup_mesh(mesh);
+	return m_world.render_world()->get_mesh(mesh);
 }
 
 //-----------------------------------------------------------------------------
@@ -473,7 +473,7 @@ Mesh* Unit::mesh(uint32_t i)
 
 	CE_ASSERT(mesh.id != INVALID_ID, "Unit does not have mesh with index '%d'", i);
 
-	return m_world.render_world()->lookup_mesh(mesh);
+	return m_world.render_world()->get_mesh(mesh);
 }
 
 //-----------------------------------------------------------------------------
@@ -483,7 +483,7 @@ Sprite*	Unit::sprite(const char* name)
 
 	CE_ASSERT(sprite.id != INVALID_ID, "Unit does not have sprite with name '%s'", name);
 
-	return m_world.render_world()->lookup_sprite(sprite);
+	return m_world.render_world()->get_sprite(sprite);
 }
 
 //-----------------------------------------------------------------------------
@@ -493,7 +493,7 @@ Sprite*	Unit::sprite(uint32_t i)
 
 	CE_ASSERT(sprite.id != INVALID_ID, "Unit does not have sprite with index '%d'", i);
 
-	return m_world.render_world()->lookup_sprite(sprite);
+	return m_world.render_world()->get_sprite(sprite);
 }
 
 //-----------------------------------------------------------------------------
@@ -503,7 +503,7 @@ Actor* Unit::actor(const char* name)
 
 	CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%s'", name);
 
-	return m_world.physics_world()->lookup_actor(actor);
+	return m_world.physics_world()->get_actor(actor);
 }
 
 //-----------------------------------------------------------------------------
@@ -513,7 +513,7 @@ Actor* Unit::actor(uint32_t i)
 
 	CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with index '%d'", i);
 
-	return m_world.physics_world()->lookup_actor(actor);
+	return m_world.physics_world()->get_actor(actor);
 }	
 
 //-----------------------------------------------------------------------------
@@ -523,7 +523,7 @@ Actor* Unit::actor_by_index(StringId32 name)
 
 	// CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%d'", name);
 
-	return m_world.physics_world()->lookup_actor(actor);
+	return m_world.physics_world()->get_actor(actor);
 }
 
 //-----------------------------------------------------------------------------
@@ -531,7 +531,7 @@ Controller* Unit::controller()
 {
 	if (m_controller.component.id != INVALID_ID)
 	{
-		return m_world.physics_world()->lookup_controller(m_controller.component);
+		return m_world.physics_world()->get_controller(m_controller.component);
 	}
 
 	return NULL;
@@ -544,7 +544,7 @@ Material* Unit::material(const char* name)
 
 	CE_ASSERT(material.id != INVALID_ID, "Unit does not have material with name '%s'", name);
 
-	return m_world.render_world()->lookup_material(material);
+	return m_world.render_world()->get_material(material);
 }
 
 //-----------------------------------------------------------------------------
@@ -554,7 +554,7 @@ Material* Unit::material(uint32_t i)
 
 	CE_ASSERT(material.id != INVALID_ID, "Unit does not have material with name '%d'", i);
 
-	return m_world.render_world()->lookup_material(material);
+	return m_world.render_world()->get_material(material);
 }
 
 //-----------------------------------------------------------------------------

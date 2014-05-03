@@ -67,7 +67,7 @@ static int physics_world_make_raycast(lua_State* L)
 
 	RaycastId raycast = world->create_raycast((CollisionMode::Enum) mode, (CollisionType::Enum) filter);
 
-	stack.push_raycast(world->lookup_raycast(raycast));
+	stack.push_raycast(world->get_raycast(raycast));
 	return 1;
 }
 

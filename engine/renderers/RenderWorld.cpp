@@ -254,7 +254,7 @@ void RenderWorld::destroy_mesh(MeshId id)
 }
 
 //-----------------------------------------------------------------------------
-Mesh* RenderWorld::lookup_mesh(MeshId mesh)
+Mesh* RenderWorld::get_mesh(MeshId mesh)
 {
 	return id_array::get(m_mesh, mesh);
 }
@@ -274,7 +274,7 @@ void RenderWorld::destroy_sprite(SpriteId id)
 }
 
 //-----------------------------------------------------------------------------
-Sprite*	RenderWorld::lookup_sprite(SpriteId id)
+Sprite*	RenderWorld::get_sprite(SpriteId id)
 {
 	return id_array::get(m_sprite, id);
 }
@@ -294,7 +294,7 @@ void RenderWorld::destroy_material(MaterialId id)
 }
 
 //-----------------------------------------------------------------------------
-Material* RenderWorld::lookup_material(MaterialId id)
+Material* RenderWorld::get_material(MaterialId id)
 {
 	return id_array::get(m_materials, id);
 }
@@ -316,7 +316,7 @@ void RenderWorld::destroy_gui(GuiId id)
 }
 
 //-----------------------------------------------------------------------------
-Gui* RenderWorld::lookup_gui(GuiId id)
+Gui* RenderWorld::get_gui(GuiId id)
 {
 	return id_array::get(m_guis, id);
 }

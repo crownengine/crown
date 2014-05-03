@@ -93,10 +93,10 @@ public:
 	void unlink_unit(UnitId id);
 
 	/// Returns the unit @a id.
-	Unit* lookup_unit(UnitId id);
+	Unit* get_unit(UnitId id);
 
 	/// Returns the camera @a id.
-	Camera* lookup_camera(CameraId id);
+	Camera* get_camera(CameraId id);
 
 	/// Updates all units and sub-systems with the given @a dt delta time.
 	void update(float dt);
@@ -139,7 +139,7 @@ public:
 	void destroy_gui(GuiId id);
 
 	/// Returns the gui @a id.
-	Gui* lookup_gui(GuiId id);
+	Gui* get_gui(GuiId id);
 
 	DebugLine* create_debug_line(bool depth_test);
 	void destroy_debug_line(DebugLine* line);

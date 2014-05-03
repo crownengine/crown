@@ -113,9 +113,9 @@ public:
 	/// Draws debug lines.
 	void draw_debug();
 
-	Actor* lookup_actor(ActorId id);
-	Controller* lookup_controller(ControllerId id);
-	Raycast* lookup_raycast(RaycastId id);
+	Actor* get_actor(ActorId id);
+	Controller* get_controller(ControllerId id);
+	Raycast* get_raycast(RaycastId id);
 
 	World& world() { return m_world; }
 	EventStream& events() { return m_events; }

@@ -47,7 +47,7 @@ static int world_spawn_unit(lua_State* L)
 
 	UnitId unit = world->spawn_unit(name, pos, rot);
 
-	stack.push_unit(world->lookup_unit(unit));
+	stack.push_unit(world->get_unit(unit));
 	return 1;
 }
 
@@ -90,7 +90,7 @@ static int world_units(lua_State* L)
 	for (uint32_t i = 0; i < array::size(all_units); i++)
 	{
 		stack.push_key_begin((int32_t) i + 1);
-		stack.push_unit(world->lookup_unit(all_units[i]));
+		stack.push_unit(world->get_unit(all_units[i]));
 		stack.push_key_end();
 	}
 
@@ -200,7 +200,7 @@ static int world_create_window_gui(lua_State* L)
 	World* world = stack.get_world(1);
 	GuiId id = world->create_window_gui(stack.get_int(2), stack.get_int(3));
 
-	stack.push_gui(world->lookup_gui(id));
+	stack.push_gui(world->get_gui(id));
 	return 1;
 }
 

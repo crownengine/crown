@@ -142,7 +142,7 @@ void World::units(Array<UnitId>& units) const
 //-----------------------------------------------------------------------------
 void World::link_unit(UnitId child, UnitId parent, int32_t node)
 {
-	Unit* parent_unit = lookup_unit(parent);
+	Unit* parent_unit = get_unit(parent);
 	parent_unit->link_node(0, node);
 }
 
@@ -152,13 +152,13 @@ void World::unlink_unit(UnitId /*child*/)
 }
 
 //-----------------------------------------------------------------------------
-Unit* World::lookup_unit(UnitId id)
+Unit* World::get_unit(UnitId id)
 {
 	return id_array::get(m_units, id);
 }
 
 //-----------------------------------------------------------------------------
-Camera* World::lookup_camera(CameraId id)
+Camera* World::get_camera(CameraId id)
 {
 	return id_array::get(m_cameras, id);
 }
@@ -253,9 +253,9 @@ void World::destroy_gui(GuiId id)
 }
 
 //-----------------------------------------------------------------------------
-Gui* World::lookup_gui(GuiId id)
+Gui* World::get_gui(GuiId id)
 {
-	return m_render_world.lookup_gui(id);
+	return m_render_world.get_gui(id);
 }
 
 //-----------------------------------------------------------------------------

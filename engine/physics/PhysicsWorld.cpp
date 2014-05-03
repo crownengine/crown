@@ -358,19 +358,19 @@ void PhysicsWorld::destroy_raycast(RaycastId id)
 }
 
 //-----------------------------------------------------------------------------
-Actor* PhysicsWorld::lookup_actor(ActorId id)
+Actor* PhysicsWorld::get_actor(ActorId id)
 {
 	return id_array::get(m_actors, id);
 }
 
 //-----------------------------------------------------------------------------
-Controller* PhysicsWorld::lookup_controller(ControllerId id)
+Controller* PhysicsWorld::get_controller(ControllerId id)
 {
 	return id_array::get(m_controllers, id);
 }
 
 //-----------------------------------------------------------------------------
-Raycast* PhysicsWorld::lookup_raycast(RaycastId id)
+Raycast* PhysicsWorld::get_raycast(RaycastId id)
 {
 	return id_array::get(m_raycasts, id);
 }
