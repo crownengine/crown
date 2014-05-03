@@ -76,15 +76,27 @@ public:
 	~RenderWorld();
 
 	MeshId create_mesh(MeshResource* mr, SceneGraph& sg, int32_t node);
+
+	/// Destroys the mesh @a id.
 	void destroy_mesh(MeshId id);
+
+	/// Returns the mesh @a id.
 	Mesh* get_mesh(MeshId mesh);
 
 	SpriteId create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node);
+
+	/// Destroys the sprite @a id.
 	void destroy_sprite(SpriteId id);
+
+	/// Creates the sprite @a id.
 	Sprite* get_sprite(SpriteId id);
 
 	MaterialId create_material(MaterialResource* mr);
+
+	/// Destroys the material @a id.
 	void destroy_material(MaterialId id);
+
+	/// Returns the material @a id.
 	Material* get_material(MaterialId id);
 
 	GuiId create_gui(uint16_t width, uint16_t height);
