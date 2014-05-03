@@ -75,6 +75,8 @@ public:
 
 	/// Destroys the unit with the given @a id.
 	void destroy_unit(UnitId id);
+
+	/// Reloads all the units with the associated resource @a old_ur.
 	void reload_units(UnitResource* old_ur, UnitResource* new_ur);
 
 	/// Returns the number of units in the world.
@@ -90,7 +92,10 @@ public:
 	/// Unlinks the unit @a id from its parent if it has any.
 	void unlink_unit(UnitId id);
 
+	/// Returns the unit @a id.
 	Unit* lookup_unit(UnitId id);
+
+	/// Returns the camera @a id.
 	Camera* lookup_camera(CameraId id);
 
 	/// Updates all units and sub-systems with the given @a dt delta time.
@@ -100,6 +105,8 @@ public:
 	void render(Camera* camera);
 
 	CameraId create_camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far);
+
+	/// Destroys the camera @a id.
 	void destroy_camera(CameraId id);
 
 	/// Plays the sound with the given @æ name at the given @a position, with the given
@@ -130,6 +137,8 @@ public:
 
 	/// Destroys the gui with the given @a id.
 	void destroy_gui(GuiId id);
+
+	/// Returns the gui @a id.
 	Gui* lookup_gui(GuiId id);
 
 	DebugLine* create_debug_line(bool depth_test);
@@ -139,8 +148,14 @@ public:
 	void load_level(const char* name);
 
 	SceneGraphManager* scene_graph_manager();
+
+	/// Returns the rendering sub-world.
 	RenderWorld* render_world();
+
+	/// Returns the physics sub-world.
 	PhysicsWorld* physics_world();
+
+	/// Returns the sound sub-world.
 	SoundWorld* sound_world();
 
 private:
