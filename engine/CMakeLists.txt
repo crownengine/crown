@@ -429,6 +429,7 @@ if (LINUX)
 		-fPIC
 		#-fvisibility=hidden
 		-fno-exceptions
+		-fno-rtti
 	)
 
 	if (CROWN_DEBUG)
