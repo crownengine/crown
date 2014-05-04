@@ -43,20 +43,20 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-static const char* al_error_to_string(ALenum error)
-{
-	switch (error)
-	{
-		case AL_INVALID_ENUM: return "AL_INVALID_ENUM";
-		case AL_INVALID_VALUE: return "AL_INVALID_VALUE";
-		case AL_INVALID_OPERATION: return "AL_INVALID_OPERATION";
-		case AL_OUT_OF_MEMORY: return "AL_OUT_OF_MEMORY";
-		default: return "UNKNOWN_AL_ERROR";
-	}
-}
-
-//-----------------------------------------------------------------------------
 #if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+
+	static const char* al_error_to_string(ALenum error)
+	{
+		switch (error)
+		{
+			case AL_INVALID_ENUM: return "AL_INVALID_ENUM";
+			case AL_INVALID_VALUE: return "AL_INVALID_VALUE";
+			case AL_INVALID_OPERATION: return "AL_INVALID_OPERATION";
+			case AL_OUT_OF_MEMORY: return "AL_OUT_OF_MEMORY";
+			default: return "UNKNOWN_AL_ERROR";
+		}
+	}
+
 	#define AL_CHECK(function)\
 		function;\
 		do { ALenum error; CE_ASSERT((error = alGetError()) == AL_NO_ERROR,\

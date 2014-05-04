@@ -72,6 +72,7 @@ inline Mutex::Mutex()
 	CE_ASSERT(result == 0, "Failed to set mutex type. errno: %d", result);
 	result = pthread_mutex_init(&m_mutex, &m_attr);
 	CE_ASSERT(result == 0, "Failed to init mutex. errno: %d", result);
+	CE_UNUSED(result);
 }
 
 //-----------------------------------------------------------------------------
@@ -83,6 +84,7 @@ inline Mutex::~Mutex()
 	CE_ASSERT(result == 0, "Failed to destroy mutex. errno: %d", result);
 	result = pthread_mutexattr_destroy(&m_attr);
 	CE_ASSERT(result == 0, "Failed to destroy mutex attr. errno: %d", result);
+	CE_UNUSED(result);
 }
 
 //-----------------------------------------------------------------------------
@@ -90,6 +92,7 @@ inline void Mutex::lock()
 {
 	int result = pthread_mutex_lock(&m_mutex);
 	CE_ASSERT(result == 0, "Failed to acquire lock. errno: %d", result);
+	CE_UNUSED(result);
 }
 
 //-----------------------------------------------------------------------------
@@ -97,6 +100,7 @@ inline void Mutex::unlock()
 {
 	int result = pthread_mutex_unlock(&m_mutex);
 	CE_ASSERT(result == 0, "Failed to release lock. errno: %d", result);
+	CE_UNUSED(result);
 }
 
 } // namespace crown

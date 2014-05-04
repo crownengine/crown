@@ -201,6 +201,7 @@ namespace physics_system
 
 		bool extension = PxInitExtensions(*s_physics);
 		CE_ASSERT(extension, "Unable to initialize PhysX Extensions");
+		CE_UNUSED(extension);
 
 		s_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *s_foundation, PxCookingParams(PxTolerancesScale()));
 		CE_ASSERT(s_cooking, "Unable to create PhysX Cooking");

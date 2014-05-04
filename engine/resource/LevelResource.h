@@ -30,9 +30,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Bundle.h"
 #include "File.h"
-#include "MathTypes.h"
 #include "Resource.h"
 #include "Types.h"
+#include "Vector3.h"
+#include "Quaternion.h"
 
 namespace crown
 {

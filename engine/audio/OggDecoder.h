@@ -133,26 +133,27 @@ long int ogg_buffer_tell(void* src)
     return ob->cur_ptr - ob->buffer_ptr;
 }
 
-//-----------------------------------------------------------------------------
-static const char* ov_error_to_string(int32_t error)
-{
-	CE_LOGI("error: %d", error);
-	switch (error)
+#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	static const char* ov_error_to_string(int32_t error)
 	{
-	case OV_FALSE: return "OV_FALSE";
-	case OV_HOLE: return "OV_HOLE";
-	case OV_EREAD: return "OV_EREAD";
-	case OV_EFAULT: return "OV_EFAULT";
-	case OV_EIMPL: return "OV_EIMPL";
-	case OV_EINVAL: return "OV_EINVAL";
-	case OV_ENOTVORBIS: return "OV_ENOTVORBIS";
-	case OV_EBADHEADER: return "OV_EBADHEADER";
-	case OV_EVERSION: return "OV_EVERSION";
-	case OV_EBADLINK: return "OV_EBADLINK";
-	case OV_ENOSEEK: return "OV_ENOSEEK";
-	default: return "OV_UNKNOWN"; // this case is never reached
+		CE_LOGI("error: %d", error);
+		switch (error)
+		{
+		case OV_FALSE: return "OV_FALSE";
+		case OV_HOLE: return "OV_HOLE";
+		case OV_EREAD: return "OV_EREAD";
+		case OV_EFAULT: return "OV_EFAULT";
+		case OV_EIMPL: return "OV_EIMPL";
+		case OV_EINVAL: return "OV_EINVAL";
+		case OV_ENOTVORBIS: return "OV_ENOTVORBIS";
+		case OV_EBADHEADER: return "OV_EBADHEADER";
+		case OV_EVERSION: return "OV_EVERSION";
+		case OV_EBADLINK: return "OV_EBADLINK";
+		case OV_ENOSEEK: return "OV_ENOSEEK";
+		default: return "OV_UNKNOWN"; // this case is never reached
+		}
 	}
-}
+#endif
 
 //-----------------------------------------------------------------------------
 void check_ov_error(int32_t result)

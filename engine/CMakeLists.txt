@@ -469,11 +469,8 @@ if (LINUX)
 		list (APPEND COMPILER_FLAGS
 			-DNDEBUG
 			-O2
-			-Wno-unused-variable
-			-Wno-unused-parameter
 			-Wno-maybe-uninitialized
 			-Wno-unused-but-set-variable
-			-Wno-unused-function
 		)
 		list (APPEND CROWN_LIBRARIES
 			LowLevel
@@ -595,11 +592,8 @@ if (WINDOWS)
 		list (APPEND COMPILER_FLAGS
 			#-DNDEBUG
 			#-O2
-			#-Wno-unused-variable
-			#-Wno-unused-parameter
 			#-Wno-maybe-uninitialized
 			#-Wno-unused-but-set-variable
-			#-Wno-unused-function
 		)
 		list (APPEND CROWN_LIBRARIES
 			#LowLevel

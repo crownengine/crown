@@ -52,21 +52,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexFormat.h"
 #include "Hash.h"
 
-//-----------------------------------------------------------------------------
-static const char* gl_error_to_string(GLenum error)
-{
-	switch (error)
-	{
-		case GL_INVALID_ENUM: return "GL_INVALID_ENUM";
-		case GL_INVALID_VALUE: return "GL_INVALID_VALUE";
-		case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION";
-		case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
-		default: return "UNKNOWN_GL_ERROR";
-	}
-}
-
-//-----------------------------------------------------------------------------
 #if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+
+	static const char* gl_error_to_string(GLenum error)
+	{
+		switch (error)
+		{
+			case GL_INVALID_ENUM: return "GL_INVALID_ENUM";
+			case GL_INVALID_VALUE: return "GL_INVALID_VALUE";
+			case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION";
+			case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
+			default: return "UNKNOWN_GL_ERROR";
+		}
+	}
+
 	#define GL_CHECK(function)\
 		function;\
 		do { GLenum error; CE_ASSERT((error = glGetError()) == GL_NO_ERROR,\
@@ -757,6 +756,7 @@ public:
 		#if defined(LINUX) || defined(WINDOWS)
 			GLenum err = glewInit();
 			CE_ASSERT(err == GLEW_OK, "Failed to initialize GLEW");
+			CE_UNUSED(err);
 		#endif
 
 		GL_CHECK(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size));
@@ -800,6 +800,7 @@ public:
 	void render(RenderContext& context)
 	{
 		RenderTargetId cur_rt;
+		cur_rt.index = 0xFFFF;
 		cur_rt.id = INVALID_ID;
 		uint8_t layer = 0xFF;
 
