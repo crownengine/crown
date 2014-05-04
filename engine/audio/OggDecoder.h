@@ -136,7 +136,7 @@ long int ogg_buffer_tell(void* src)
 //-----------------------------------------------------------------------------
 static const char* ov_error_to_string(int32_t error)
 {
-	Log::i("error: %d", error);
+	CE_LOGI("error: %d", error);
 	switch (error)
 	{
 	case OV_FALSE: return "OV_FALSE";

@@ -117,15 +117,9 @@ Device::~Device()
 void Device::init()
 {
 	// Initialize
-	Log::i("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
+	CE_LOGI("Initializing Crown Engine %d.%d.%d...", CROWN_VERSION_MAJOR, CROWN_VERSION_MINOR, CROWN_VERSION_MICRO);
 
-	// RPC only in debug or development builds
-	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-		m_console = CE_NEW(m_allocator, ConsoleServer)();
-		m_console->init(m_console_port, false);
-	#endif
-
-	Log::d("Creating filesystem...");
+	CE_LOGD("Creating filesystem...");
 	// Default bundle filesystem
 	#if defined (LINUX) || defined(WINDOWS)
 		if (m_fileserver == 1)
@@ -150,16 +144,16 @@ void Device::init()
 	m_resource_bundle = Bundle::create(m_allocator, *m_filesystem);
 
 	// Create resource manager
-	Log::d("Creating resource manager...");
+	CE_LOGD("Creating resource manager...");
 	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, 0);
-	Log::d("Resource seed: %d", m_resource_manager->seed());
+	CE_LOGD("Resource seed: %d", m_resource_manager->seed());
 
 	// Create world manager
-	Log::d("Creating world manager...");
+	CE_LOGD("Creating world manager...");
 	m_world_manager = CE_NEW(m_allocator, WorldManager)();
 
 	// Create window
-	Log::d("Creating main window...");
+	CE_LOGD("Creating main window...");
 	m_window = CE_NEW(m_allocator, OsWindow);
 
 	// Create input devices
@@ -168,22 +162,22 @@ void Device::init()
 	m_touch = CE_NEW(m_allocator, Touch);
 
 	// Create renderer
-	Log::d("Creating renderer...");
+	CE_LOGD("Creating renderer...");
 	m_renderer = CE_NEW(m_allocator, Renderer)(m_allocator);
 	m_renderer->init();
 
-	Log::d("Creating lua system...");
+	CE_LOGD("Creating lua system...");
 	lua_system::init();
 	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)(lua_system::state());
 
-	Log::d("Creating physics...");
+	CE_LOGD("Creating physics...");
 	physics_system::init();
 
-	Log::d("Creating audio...");
+	CE_LOGD("Creating audio...");
 	audio_system::init();
 
-	Log::d("Crown Engine initialized.");
-	Log::d("Initializing Game...");
+	CE_LOGD("Crown Engine initialized.");
+	CE_LOGD("Initializing Game...");
 
 	m_physics_config = m_resource_manager->load(PHYSICS_CONFIG_EXTENSION, "global");
 	m_resource_manager->flush();
@@ -195,7 +189,7 @@ void Device::init()
 	m_lua_environment->load_and_execute(m_boot_file);
 	m_lua_environment->call_global("init", 0);
 
-	Log::d("Total allocated size: %ld", m_allocator.allocated_size());
+	CE_LOGD("Total allocated size: %ld", m_allocator.allocated_size());
 }
 
 //-----------------------------------------------------------------------------
@@ -208,35 +202,35 @@ void Device::shutdown()
 
 	m_resource_manager->unload(m_physics_config);
 
-	Log::d("Releasing audio...");
+	CE_LOGD("Releasing audio...");
 	audio_system::shutdown();
 
-	Log::d("Releasing physics...");
+	CE_LOGD("Releasing physics...");
 	physics_system::shutdown();
 
-	Log::d("Releasing lua system...");
+	CE_LOGD("Releasing lua system...");
 	lua_system::shutdown();
 	if (m_lua_environment)
 	{
 		CE_DELETE(m_allocator, m_lua_environment);
 	}
 
-	Log::d("Releasing input devices...");
+	CE_LOGD("Releasing input devices...");
 	CE_DELETE(m_allocator, m_touch);
 	CE_DELETE(m_allocator, m_mouse);
 	CE_DELETE(m_allocator, m_keyboard);
 
-	Log::d("Releasing renderer...");
+	CE_LOGD("Releasing renderer...");
 	if (m_renderer)
 	{
 		m_renderer->shutdown();
 		CE_DELETE(m_allocator, m_renderer);
 	}
 
-	Log::d("Releasing world manager...");
+	CE_LOGD("Releasing world manager...");
 	CE_DELETE(m_allocator, m_world_manager);
 
-	Log::d("Releasing resource manager...");
+	CE_LOGD("Releasing resource manager...");
 	if (m_resource_manager)
 	{
 		CE_DELETE(m_allocator, m_resource_manager);
@@ -247,17 +241,11 @@ void Device::shutdown()
 		Bundle::destroy(m_allocator, m_resource_bundle);
 	}
 
-	Log::d("Releasing filesystem...");
+	CE_LOGD("Releasing filesystem...");
 	if (m_filesystem)
 	{
 		CE_DELETE(m_allocator, m_filesystem);
 	}
-
-	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-		m_console->shutdown();
-		CE_DELETE(m_allocator, m_console);
-		m_console = NULL;
-	#endif
 
 	m_allocator.clear();
 	m_is_init = false;
@@ -350,14 +338,14 @@ void Device::stop()
 void Device::pause()
 {
 	m_is_paused = true;
-	Log::i("Engine paused.");
+	CE_LOGI("Engine paused.");
 }
 
 //-----------------------------------------------------------------------------
 void Device::unpause()
 {
 	m_is_paused = false;
-	Log::i("Engine unpaused.");
+	CE_LOGI("Engine unpaused.");
 }
 
 //-----------------------------------------------------------------------------
@@ -391,10 +379,6 @@ void Device::frame()
 	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
 	m_last_time = m_current_time;
 	m_time_since_start += m_last_delta_time;
-
-	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-	m_console->update();
-	#endif
 
 	if (!m_is_paused)
 	{
@@ -475,7 +459,7 @@ void Device::reload(const char* type, const char* name)
 
 		if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir, filename.c_str()))
 		{
-			Log::d("Compilation failed.");
+			CE_LOGD("Compilation failed.");
 			return;
 		}
 
@@ -493,7 +477,7 @@ void Device::reload(const char* type, const char* name)
 		{
 			case UNIT_TYPE:
 			{
-				Log::d("Reloading unit: %s", name);
+				CE_LOGD("Reloading unit: %s", name);
 				/// Reload unit in all worlds
 				for (uint32_t i = 0; i < id_array::size(m_world_manager->worlds()); i++)
 				{
@@ -503,7 +487,7 @@ void Device::reload(const char* type, const char* name)
 			}
 			case SOUND_TYPE:
 			{
-				Log::d("Reloading sound: %s", name);
+				CE_LOGD("Reloading sound: %s", name);
 				for (uint32_t i = 0; i < id_array::size(m_world_manager->worlds()); i++)
 				{
 					m_world_manager->worlds()[i]->sound_world()->reload_sounds((SoundResource*) old_res, (SoundResource*) new_res);

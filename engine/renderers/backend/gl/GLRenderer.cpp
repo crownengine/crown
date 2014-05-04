@@ -499,8 +499,8 @@ struct GPUProgram
 		GL_CHECK(glGetProgramiv(m_id, GL_ACTIVE_ATTRIBUTES, &num_active_attribs));
 		GL_CHECK(glGetProgramiv(m_id, GL_ACTIVE_UNIFORMS, &num_active_uniforms));
 
-		// Log::d("Found %d active attribs", num_active_attribs);
-		// Log::d("Found %d active uniforms", num_active_uniforms);
+		// CE_LOGD("Found %d active attribs", num_active_attribs);
+		// CE_LOGD("Found %d active uniforms", num_active_uniforms);
 
 		// Find active attribs/uniforms max length
 		GLint max_attrib_length;
@@ -516,7 +516,7 @@ struct GPUProgram
 			GL_CHECK(glGetActiveAttrib(m_id, attrib, max_attrib_length, NULL, &attrib_size, &attrib_type, attrib_name));
 
 			/* GLint attrib_location = */GL_CHECK(glGetAttribLocation(m_id, attrib_name));
-			// Log::d("Attrib %d: name = '%s' location = '%d'", attrib, attrib_name, attrib_location);
+			// CE_LOGD("Attrib %d: name = '%s' location = '%d'", attrib, attrib_name, attrib_location);
 		}
 
 		m_num_active_attribs = 0;
@@ -561,7 +561,7 @@ struct GPUProgram
 				m_num_uniforms++;
 			}
 
-			// Log::d("Uniform %d: name = '%s' location = '%d' stock = %s", uniform, uniform_name, uniform_location,
+			// CE_LOGD("Uniform %d: name = '%s' location = '%d' stock = %s", uniform, uniform_name, uniform_location,
 			// 			 (stock_uniform != ShaderUniform::COUNT) ? "yes" : "no");
 		}
 	}
@@ -767,19 +767,19 @@ public:
 		GL_CHECK(glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &m_min_max_point_size[0]));
 		// GL_CHECK(glGetFloatv(GL_LINE_WIDTH_RANGE, &m_min_max_line_width[0]));
 
-		Log::i("OpenGL Vendor        : %s", glGetString(GL_VENDOR));
-		Log::i("OpenGL Renderer      : %s", glGetString(GL_RENDERER));
-		Log::i("OpenGL Version       : %s", glGetString(GL_VERSION));
-		Log::i("GLSL Version         : %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+		CE_LOGI("OpenGL Vendor        : %s", glGetString(GL_VENDOR));
+		CE_LOGI("OpenGL Renderer      : %s", glGetString(GL_RENDERER));
+		CE_LOGI("OpenGL Version       : %s", glGetString(GL_VERSION));
+		CE_LOGI("GLSL Version         : %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-		Log::d("Min Point Size       : %f", m_min_max_point_size[0]);
-		Log::d("Max Point Size       : %f", m_min_max_point_size[1]);
-		Log::d("Min Line Width       : %f", m_min_max_line_width[0]);
-		Log::d("Max Line Width       : %f", m_min_max_line_width[1]);
-		Log::d("Max Texture Size     : %dx%d", m_max_texture_size, m_max_texture_size);
-		Log::d("Max Texture Units    : %d", m_max_texture_units);
-		Log::d("Max Vertex Indices   : %d", m_max_vertex_indices);
-		Log::d("Max Vertex Vertices  : %d", m_max_vertex_vertices);
+		CE_LOGD("Min Point Size       : %f", m_min_max_point_size[0]);
+		CE_LOGD("Max Point Size       : %f", m_min_max_point_size[1]);
+		CE_LOGD("Min Line Width       : %f", m_min_max_line_width[0]);
+		CE_LOGD("Max Line Width       : %f", m_min_max_line_width[1]);
+		CE_LOGD("Max Texture Size     : %dx%d", m_max_texture_size, m_max_texture_size);
+		CE_LOGD("Max Texture Units    : %d", m_max_texture_units);
+		CE_LOGD("Max Vertex Indices   : %d", m_max_vertex_indices);
+		CE_LOGD("Max Vertex Vertices  : %d", m_max_vertex_vertices);
 
 		#if defined(LINUX) || defined(WINDOWS)
 			// Point sprites enabled by default
@@ -787,7 +787,7 @@ public:
 			GL_CHECK(glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE));
 		#endif
 
-		Log::i("OpenGL Renderer initialized.");
+		CE_LOGI("OpenGL Renderer initialized.");
 	}
 
 	//-----------------------------------------------------------------------------

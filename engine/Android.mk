@@ -127,7 +127,6 @@ LOCAL_SRC_FILES :=\
 	core/strings/Path.cpp\
 \
 	core/Args.cpp\
-	core/Log.cpp\
 \
 	os/android/Android.cpp\
 	os/android/AndroidDevice.cpp\

@@ -168,7 +168,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	if (!in_file)
 	{
-		Log::e("Unable to open file: %s", resource_path);
+		CE_LOGE("Unable to open file: %s", resource_path);
 		return;
 	}
 
@@ -211,7 +211,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		}
 		default:
 		{
-			Log::e("Unable to determine TGA channels.");
+			CE_LOGE("Unable to determine TGA channels.");
 			return;
 		}
 	}
@@ -221,7 +221,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	{
 		case 0:
 		{
-			Log::e("The file does not contain image data: %s", resource_path);
+			CE_LOGE("The file does not contain image data: %s", resource_path);
 			return;
 		}
 		case 2:
@@ -238,7 +238,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 		default:
 		{
-			Log::e("Image type not supported.");
+			CE_LOGE("Image type not supported.");
 			return;
 		}
 	}

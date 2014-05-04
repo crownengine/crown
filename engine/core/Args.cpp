@@ -141,7 +141,7 @@ int32_t Args::long_option(const char* option)
 				}
 				else
 				{
-					Log::e("%s: option requires an argument -- '%s'", m_argv[0], current_option->name);
+					// CE_LOGE("%s: option requires an argument -- '%s'", m_argv[0], current_option->name);
 
 					// Missing option
 					m_optind += 1;
@@ -170,7 +170,7 @@ int32_t Args::long_option(const char* option)
 	}
 
 	// Found a long option but was not included in longopts
-	Log::e("%s: invalid option -- '%s'", m_argv[0], &option[2]);
+	// CE_LOGE("%s: invalid option -- '%s'", m_argv[0], &option[2]);
 	m_optind++;
 	return '?';
 }
@@ -180,7 +180,7 @@ int32_t Args::short_option(const char* option)
 {
 	(void)option;
 
-	Log::e("%s: invalid option -- '%s'", m_argv[0], &option[1]);
+	// CE_LOGE("%s: invalid option -- '%s'", m_argv[0], &option[1]);
 	m_optind++;
 	return '?';
 }

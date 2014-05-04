@@ -81,9 +81,9 @@ namespace audio_system
 
 		AL_CHECK(alcMakeContextCurrent(s_al_context));
 
-		Log::d("OpenAL Vendor   : %s", alGetString(AL_VENDOR));
-		Log::d("OpenAL Version  : %s", alGetString(AL_VERSION));
-		Log::d("OpenAL Renderer : %s", alGetString(AL_RENDERER));
+		CE_LOGD("OpenAL Vendor   : %s", alGetString(AL_VENDOR));
+		CE_LOGD("OpenAL Version  : %s", alGetString(AL_VERSION));
+		CE_LOGD("OpenAL Renderer : %s", alGetString(AL_RENDERER));
 
 		AL_CHECK(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
 		AL_CHECK(alDopplerFactor(1.0f));

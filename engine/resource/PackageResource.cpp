@@ -75,7 +75,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(texture_name.c_str()))
 			{
-				Log::e("Texture '%s' does not exist.", texture_name.c_str());
+				CE_LOGE("Texture '%s' does not exist.", texture_name.c_str());
 				return;
 			}
 
@@ -99,7 +99,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(lua_name.c_str()))
 			{
-				Log::e("Lua script '%s' does not exist.", lua_name.c_str());
+				CE_LOGE("Lua script '%s' does not exist.", lua_name.c_str());
 				return;
 			}
 
@@ -122,7 +122,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(sound_name.c_str()))
 			{
-				Log::e("Sound '%s' does not exist.", sound_name.c_str());
+				CE_LOGE("Sound '%s' does not exist.", sound_name.c_str());
 				return;
 			}
 
@@ -145,7 +145,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(mesh_name.c_str()))
 			{
-				Log::e("Mesh '%s' does not exist.", mesh_name.c_str());
+				CE_LOGE("Mesh '%s' does not exist.", mesh_name.c_str());
 				return;
 			}
 
@@ -168,7 +168,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(unit_name.c_str()))
 			{
-				Log::e("Unit '%s' does not exist.", unit_name.c_str());
+				CE_LOGE("Unit '%s' does not exist.", unit_name.c_str());
 			}
 
 			ResourceId id;
@@ -190,7 +190,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(sprite_name.c_str()))
 			{
-				Log::e("Sprite '%s' does not exist.", sprite_name.c_str());
+				CE_LOGE("Sprite '%s' does not exist.", sprite_name.c_str());
 				return;
 			}
 
@@ -213,7 +213,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(physics_name.c_str()))
 			{
-				Log::e("Physics '%s' does not exist.", physics_name.c_str());
+				CE_LOGE("Physics '%s' does not exist.", physics_name.c_str());
 				return;
 			}
 
@@ -236,7 +236,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(materials_name.c_str()))
 			{
-				Log::e("Material '%s' does not exist.", materials_name.c_str());
+				CE_LOGE("Material '%s' does not exist.", materials_name.c_str());
 				return;
 			}
 
@@ -259,7 +259,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(guis_name.c_str()))
 			{
-				Log::e("gui '%s' does not exist.", guis_name.c_str());
+				CE_LOGE("gui '%s' does not exist.", guis_name.c_str());
 				return;
 			}
 
@@ -282,7 +282,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(font_name.c_str()))
 			{
-				Log::e("font '%s' does not exist.", font_name.c_str());
+				CE_LOGE("font '%s' does not exist.", font_name.c_str());
 				return;				
 			}
 
@@ -305,7 +305,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(level_name.c_str()))
 			{
-				Log::e("level '%s' does not exist.", level_name.c_str());
+				CE_LOGE("level '%s' does not exist.", level_name.c_str());
 				return;				
 			}
 

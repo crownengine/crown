@@ -41,7 +41,6 @@ set (HEADERS
 
 set (CORE_SRC
 	core/Args.cpp
-	core/Log.cpp
 )
 
 set (CORE_HEADERS

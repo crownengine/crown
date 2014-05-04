@@ -88,7 +88,7 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 		}
 		else
 		{
-			Log::d("'crown.config' does not exist.");
+			CE_LOGD("'crown.config' does not exist.");
 			return false;
 		}
 	}
@@ -119,7 +119,7 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 			continue;
 		}
 
-		Log::i("%s <= %s", out_name, filename);
+		CE_LOGI("%s <= %s", out_name, filename);
 
 		DiskFilesystem root_fs(source_dir);
 		DiskFilesystem dest_fs(bundle_dir);
@@ -183,7 +183,7 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 			}
 			else
 			{
-				Log::e("Oops, unknown resource type!");
+				CE_LOGE("Oops, unknown resource type!");
 				return false;
 			}
 

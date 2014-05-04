@@ -110,7 +110,7 @@ namespace lua_system
 		lua_pushinteger(L, 2);
 		lua_call(L, 2, 1); // Call debug.traceback
 
-		Log::e(lua_tostring(L, -1)); // Print error message
+		CE_LOGE(lua_tostring(L, -1)); // Print error message
 		lua_pop(L, 1); // Remove error message from stack
 		lua_pop(L, 1); // Remove debug.traceback from stack
 

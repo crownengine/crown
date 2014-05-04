@@ -96,7 +96,7 @@ void GLContext::create_context()
 	EGLBoolean init_success = EGL_CHECK(eglInitialize(display, &egl_major, &egl_minor));
 	CE_ASSERT(init_success == EGL_TRUE, "Failed to initialize EGL");
 
-	Log::d("EGL Initialized: major = %d, minor = %d", egl_major, egl_minor);
+	CE_LOGD("EGL Initialized: major = %d, minor = %d", egl_major, egl_minor);
 
 	EGLBoolean bind_success = EGL_CHECK(eglBindAPI(EGL_OPENGL_ES_API));
 	CE_ASSERT(bind_success != EGL_FALSE, "Failed to bind OpenGL|ES API");
@@ -117,7 +117,7 @@ void GLContext::create_context()
 
 	EGL_CHECK(eglMakeCurrent(display, surface, surface, context));
 
-	Log::d("EGL context created");
+	CE_LOGD("EGL context created");
 }
 
 //-----------------------------------------------------------------------------
@@ -129,7 +129,7 @@ void GLContext::destroy_context()
 	EGL_CHECK(eglTerminate(display));
     display = EGL_NO_DISPLAY;
 
-	Log::i("EGL context destroyed");
+	CE_LOGI("EGL context destroyed");
 }
 
 //-----------------------------------------------------------------------------

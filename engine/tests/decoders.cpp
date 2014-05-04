@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 
 	while(decoder.stream())
 	{
-		Log::i("size: %d", decoder.size());
+		CE_LOGI("size: %d", decoder.size());
 	}
 
 	engine->shutdown();

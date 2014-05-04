@@ -72,26 +72,52 @@ void ConsoleServer::shutdown()
 }
 
 //-----------------------------------------------------------------------------
-void ConsoleServer::log_to_all(const char* message, LogSeverity::Enum severity)
+void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, ...)
+{
+	va_list args;
+	va_start(args, message);
+	log_to_all(severity, message, args);
+	va_end(args);
+}
+
+//-----------------------------------------------------------------------------
+void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, ::va_list arg)
 {
 	using namespace string_stream;
+	static const char* stt[] = { "info", "warning", "error", "debug" };
 
-	TempAllocator2048 alloc;
-	StringStream json(alloc);
-
-	static const char* severity_to_text[] = { "info", "warning", "error", "debug" };
-
-	json << "{\"type\":\"message\",";
-	json << "\"severity\":\"" << severity_to_text[severity] << "\",";
+	// Log to stdout
+	va_list arg_copy;
+	__va_copy(arg_copy, arg);
 
 	char buf[1024];
-	string::strncpy(buf, message, 1024);
+	int len = vsnprintf(buf, 1024 - 2, message, arg);
+	buf[len] = '\n';
+	buf[len + 1] = '\0';
+
 	for (uint32_t i = 0; i < string::strlen(message); i++)
 	{
 		if (buf[i] == '"')
 			buf[i] = '\'';
 	}
 
+	// Log on local device
+	switch (severity)
+	{
+		case LogSeverity::DEBUG: os::log_debug(message, arg_copy); break;
+		case LogSeverity::WARN: os::log_warning(message, arg_copy); break;
+		case LogSeverity::ERROR: os::log_error(message, arg_copy); break;
+		case LogSeverity::INFO: os::log_info(message, arg_copy); break;
+		default: break;
+	}
+	va_end(arg_copy);
+
+	// Build json message
+	TempAllocator2048 alloc;
+	StringStream json(alloc);
+
+	json << "{\"type\":\"message\",";
+	json << "\"severity\":\"" << stt[severity] << "\",";
 	json << "\"message\":\"" << buf << "\"}";
 
 	send_to_all(c_str(json));

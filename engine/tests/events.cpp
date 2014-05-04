@@ -29,7 +29,7 @@
 // 	ome.pressed = true;
 
 // 	g_write->push_event((uint32_t)OsEvent::MOUSE, &ome, sizeof(OsMouseEvent));
-// 	Log::i("Event pushed");
+// 	CE_LOGI("Event pushed");
 // }
 
 // //-----------------------------------------------------------------------------
@@ -41,7 +41,7 @@
 // 	g_write = g_read;
 // 	g_read = tmp;
 
-// 	Log::i("Buffers swapped");
+// 	CE_LOGI("Buffers swapped");
 // }
 
 // //-----------------------------------------------------------------------------
@@ -54,7 +54,7 @@
 
 // 	while (true)
 // 	{
-// 		Log::i("%p", g_read);
+// 		CE_LOGI("%p", g_read);
 		
 // 		do
 // 		{
@@ -62,7 +62,7 @@
 
 // 			if (result != NULL)
 // 			{
-// 				Log::d("x: %d, y: %d", result->x, result->y);
+// 				CE_LOGD("x: %d, y: %d", result->x, result->y);
 // 			}
 // 		}
 // 		while (result != NULL);

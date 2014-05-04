@@ -316,9 +316,9 @@ void World::process_physics_events()
 	{
 		event_stream::Header h = *(event_stream::Header*) ee;
 
-		// Log::d("=== PHYSICS EVENT ===");
-		// Log::d("type = %d", h.type);
-		// Log::d("size = %d", h.size);
+		// CE_LOGD("=== PHYSICS EVENT ===");
+		// CE_LOGD("type = %d", h.type);
+		// CE_LOGD("size = %d", h.size);
 
 		const char* event = ee + sizeof(event_stream::Header);
 
@@ -328,13 +328,13 @@ void World::process_physics_events()
 			{
 				physics_world::CollisionEvent coll_ev = *(physics_world::CollisionEvent*) event;
 
-				// Log::d("type    = %s", coll_ev.type == physics_world::CollisionEvent::BEGIN_TOUCH ? "begin" : "end");
-				// Log::d("actor_0 = (%p)", coll_ev.actors[0]);
-				// Log::d("actor_1 = (%p)", coll_ev.actors[1]);
-				// Log::d("unit_0  = (%p)", coll_ev.actors[0]->unit());
-				// Log::d("unit_1  = (%p)", coll_ev.actors[1]->unit());
-				// Log::d("where   = (%f %f %f)", coll_ev.where.x, coll_ev.where.y, coll_ev.where.z);
-				// Log::d("normal  = (%f %f %f)", coll_ev.normal.x, coll_ev.normal.y, coll_ev.normal.z);
+				// CE_LOGD("type    = %s", coll_ev.type == physics_world::CollisionEvent::BEGIN_TOUCH ? "begin" : "end");
+				// CE_LOGD("actor_0 = (%p)", coll_ev.actors[0]);
+				// CE_LOGD("actor_1 = (%p)", coll_ev.actors[1]);
+				// CE_LOGD("unit_0  = (%p)", coll_ev.actors[0]->unit());
+				// CE_LOGD("unit_1  = (%p)", coll_ev.actors[1]->unit());
+				// CE_LOGD("where   = (%f %f %f)", coll_ev.where.x, coll_ev.where.y, coll_ev.where.z);
+				// CE_LOGD("normal  = (%f %f %f)", coll_ev.normal.x, coll_ev.normal.y, coll_ev.normal.z);
 
 				device()->lua_environment()->call_physics_callback(
 					coll_ev.actors[0],
@@ -350,9 +350,9 @@ void World::process_physics_events()
 			{
 				// physics_world::TriggerEvent trigg_ev = *(physics_world::TriggerEvent*) event;
 
-				// Log::d("type    = %s", trigg_ev.type == physics_world::TriggerEvent::BEGIN_TOUCH ? "begin" : "end");
-				// Log::d("trigger = (%p)", trigg_ev.trigger);
-				// Log::d("other   = (%p)", trigg_ev.other);
+				// CE_LOGD("type    = %s", trigg_ev.type == physics_world::TriggerEvent::BEGIN_TOUCH ? "begin" : "end");
+				// CE_LOGD("trigger = (%p)", trigg_ev.trigger);
+				// CE_LOGD("other   = (%p)", trigg_ev.other);
 				break;
 			}
 			default:
@@ -362,7 +362,7 @@ void World::process_physics_events()
 			}
 		}
 
-		// Log::d("=====================");
+		// CE_LOGD("=====================");
 
 		// Next event
 		ee += sizeof(event_stream::Header) + h.size;

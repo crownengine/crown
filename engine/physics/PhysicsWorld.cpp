@@ -128,13 +128,13 @@ namespace physics_system
 			{
 				case PxErrorCode::eDEBUG_INFO:
 				{
-					Log::i("PhysX: %s", message);
+					CE_LOGI("PhysX: %s", message);
 					break;
 				}
 				case PxErrorCode::eDEBUG_WARNING: 
 				case PxErrorCode::ePERF_WARNING:
 				{
-					Log::w("PhysX: %s", message);
+					CE_LOGW("PhysX: %s", message);
 					break;
 				}
 				case PxErrorCode::eINVALID_PARAMETER:

@@ -26,56 +26,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cstdio>
-#include <cstdarg>
-#include "Types.h"
-#include "Macros.h"
+#include "Device.h"
+#include "ConsoleServer.h"
 
-namespace crown
-{
-
-/// Enumerates log levels.
-struct LogSeverity
-{
-	enum Enum
-	{
-		INFO	= 0,
-		WARN	= 1,
-		ERROR	= 2,
-		DEBUG	= 3
-	};	
-};
-
-class RPCServer;
-
-/// Used to log messages.
-class CE_EXPORT Log
-{
-
-public:
-
-	/// Returns the threshold used to filter out log messages.
-	static LogSeverity::Enum threshold();
-
-	/// Sets the thresold used to filter out log messages
-	static void			set_threshold(LogSeverity::Enum threshold);
-
-	static void			log_message(LogSeverity::Enum severity, const char* message, ::va_list arg);
-
-	static void			d(const char* message, ...);
-	static void			e(const char* message, ...);
-	static void			w(const char* message, ...);
-	static void			i(const char* message, ...);
-	static void			d1(const char* message, ::va_list args);
-	static void			e1(const char* message, ::va_list args);
-	static void			w1(const char* message, ::va_list args);
-	static void			i1(const char* message, ::va_list args);
-
-private:
-
-
-	static LogSeverity::Enum m_threshold;
-};
-
-} // namespace crown
-
+#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	#define CE_LOGI(msg, ...) crown::device()->console()->log_to_all(LogSeverity::INFO, msg, ##__VA_ARGS__)
+	#define CE_LOGD(msg, ...) crown::device()->console()->log_to_all(LogSeverity::DEBUG, msg, ##__VA_ARGS__)
+	#define CE_LOGE(msg, ...) crown::device()->console()->log_to_all(LogSeverity::ERROR, msg, ##__VA_ARGS__)
+	#define CE_LOGW(msg, ...) crown::device()->console()->log_to_all(LogSeverity::WARN, msg, ##__VA_ARGS__)
+#else
+	#define CE_LOGI(msg, ...) ((void)0)
+	#define CE_LOGD(msg, ...) ((void)0)
+	#define CE_LOGE(msg, ...) ((void)0)
+	#define CE_LOGW(msg, ...) ((void)0)
+#endif

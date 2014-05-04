@@ -61,16 +61,31 @@ public:
 	//-----------------------------------------------------------------------------
 	int32_t loop()
 	{
+		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+			m_console = CE_NEW(default_allocator(), ConsoleServer)();
+			m_console->init(m_console_port, false);
+		#endif
+
 		Device::init();
 
 		while (is_running() && !process_events())
 		{
+			#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+				m_console->update();
+			#endif
+
 			Device::frame();
 			m_touch->update();
 			m_keyboard->update();
 		}
 
 		Device::shutdown();
+
+		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+			m_console->shutdown();
+			CE_DELETE(default_allocator(), m_console);
+		#endif
+
 		exit(0);
 		return 0; // Just to not get a warning
 	}
@@ -108,7 +123,6 @@ public:
 				{
 					const OsKeyboardEvent& ev = event.keyboard;
 					m_keyboard->set_button_state(ev.button, ev.pressed);
-					Log::i("KEYBOARD EVENT RECEIVED");
 					break;
 				}
 				case OsEvent::METRICS:
@@ -118,23 +132,19 @@ public:
 					m_window->m_y = 0;
 					m_window->m_width = ev.width;
 					m_window->m_height = ev.height;
-					Log::i("METRICS EVENT RECEIVED");
 					break;
 				}
 				case OsEvent::EXIT:
 				{
-					Log::i("EXIT EVENT RECEIVED");
 					return true;
 				}
 				case OsEvent::PAUSE:
 				{
-					Log::i("PAUSE EVENT RECEIVED, pausing...");
 					pause();
 					break;
 				}
 				case OsEvent::RESUME:
 				{
-					Log::i("RESUME EVENT RECEIVED, resuming...");
 					unpause();
 					break;
 				}
@@ -229,14 +239,12 @@ extern "C" void Java_crown_android_CrownLib_acquireWindow(JNIEnv *env, jclass /*
 	CE_ASSERT(surface != 0, "Unable to get Android window");
     g_android_window = ANativeWindow_fromSurface(env, surface);
     ANativeWindow_acquire(g_android_window);
-    Log::i("Window acquired");
 }
 
 //-----------------------------------------------------------------------------
 extern "C" void Java_crown_android_CrownLib_releaseWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
 {
     ANativeWindow_release(g_android_window);
-    Log::i("Window released");
 }
 
 //-----------------------------------------------------------------------------
