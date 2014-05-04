@@ -141,22 +141,19 @@ bool JSONElement::has_key(const char* k) const
 //--------------------------------------------------------------------------
 bool JSONElement::to_bool() const
 {
-	const bool value = json::parse_bool(m_at);
-	return value;
+	return json::parse_bool(m_at);
 }
 
 //--------------------------------------------------------------------------
 int32_t JSONElement::to_int() const
 {
-	const int32_t value = json::parse_int(m_at);
-	return value;
+	return json::parse_int(m_at);
 }
 
 //--------------------------------------------------------------------------
 float JSONElement::to_float() const
 {
-	const float value = json::parse_float(m_at);
-	return value;
+	return json::parse_float(m_at);
 }
 
 //--------------------------------------------------------------------------
