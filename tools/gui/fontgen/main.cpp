@@ -7,7 +7,7 @@
 
 #include "BinPacker.hpp"
 #include "lodepng.h"
-#include "stb_image.h"
+#include "stb_image.c"
 
 using namespace std;
 
