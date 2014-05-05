@@ -443,13 +443,17 @@ public:
 	//-----------------------------------------------------------------------------
 	void push_debug_line(DebugLine* line)
 	{
-		lua_pushlightuserdata(m_L, line);
+		DebugLine** l = (DebugLine**) lua_newuserdata(m_L, sizeof(DebugLine*));
+		*l = line;
+		luaL_getmetatable(m_L, "DebugLine");
+		lua_setmetatable(m_L, -2);
 	}
 
 	//-----------------------------------------------------------------------------
 	DebugLine* get_debug_line(int32_t index)
 	{
-		return (DebugLine*) CHECKLIGHTDATA(m_L, index, always_true, "DebugLine");
+		DebugLine* l = *(DebugLine**) CHECKUDATA(m_L, index, "DebugLine");
+		return l;
 	}
 
 	//-----------------------------------------------------------------------------
