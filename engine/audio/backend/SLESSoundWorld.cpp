@@ -379,7 +379,7 @@ public:
 
 	virtual SoundInstanceId play(const char* name, bool loop, float volume, const Vector3& /*pos*/)
 	{
-		return play((SoundResource*) device()->resource_manager()->lookup(SOUND_EXTENSION, name), loop, volume);
+		return play((SoundResource*) device()->resource_manager()->get(SOUND_EXTENSION, name), loop, volume);
 	}
 
 	SoundInstanceId play(SoundResource* sr, bool loop, float volume)

@@ -54,7 +54,7 @@ void LuaEnvironment::load_and_execute(const char* res_name)
 	// Load the resource
 	ResourceId res_id = resman->load("lua", res_name);
 	resman->flush();
-	LuaResource* lr = (LuaResource*) resman->data(res_id);
+	LuaResource* lr = (LuaResource*) resman->get(res_id);
 	
 	lua_pushcfunction(m_L, lua_system::error_handler);
 	luaL_loadbuffer(m_L, (const char*) lr->program(), lr->size(), res_name);

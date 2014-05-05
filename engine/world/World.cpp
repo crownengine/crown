@@ -83,7 +83,7 @@ UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion&
 //-----------------------------------------------------------------------------
 UnitId World::spawn_unit(ResourceId id, const Vector3& pos, const Quaternion& rot)
 {
-	UnitResource* ur = (UnitResource*) device()->resource_manager()->data(id);
+	UnitResource* ur = (UnitResource*) device()->resource_manager()->get(id);
 	return spawn_unit(id, ur, pos, rot);
 }
 
@@ -273,7 +273,7 @@ void World::destroy_debug_line(DebugLine* line)
 //-----------------------------------------------------------------------------
 void World::load_level(const char* name)
 {
-	const LevelResource* res = (LevelResource*) device()->resource_manager()->lookup(LEVEL_EXTENSION, name);
+	const LevelResource* res = (LevelResource*) device()->resource_manager()->get(LEVEL_EXTENSION, name);
 
 	for (uint32_t i = 0; i < res->num_units(); i++)
 	{

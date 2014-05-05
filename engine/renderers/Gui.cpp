@@ -232,8 +232,8 @@ void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& si
 	inds[4] = 2;
 	inds[5] = 3;
 
-	const MaterialResource* mr = (MaterialResource*) device()->resource_manager()->lookup("material", material);
-	const TextureResource* tr = (TextureResource*) device()->resource_manager()->data(mr->get_texture_layer(0));
+	const MaterialResource* mr = (MaterialResource*) device()->resource_manager()->get("material", material);
+	const TextureResource* tr = (TextureResource*) device()->resource_manager()->get(mr->get_texture_layer(0));
 
 	r->set_layer_view(1, matrix4x4::IDENTITY);
 	r->set_layer_projection(1, m_projection);
@@ -257,7 +257,7 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 {
 	Renderer* r = device()->renderer();
 
-	const FontResource* resource = (FontResource*) device()->resource_manager()->lookup("font", font);
+	const FontResource* resource = (FontResource*) device()->resource_manager()->get("font", font);
 	Vector2 m_pen;
 
 	const float scale = ((float)font_size / (float)resource->font_size());
@@ -357,8 +357,8 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 		}
 	}
 
-	const MaterialResource* mr = (MaterialResource*) device()->resource_manager()->data(resource->material());
-	const TextureResource* tr = (TextureResource*) device()->resource_manager()->data(mr->get_texture_layer(0));
+	const MaterialResource* mr = (MaterialResource*) device()->resource_manager()->get(resource->material());
+	const TextureResource* tr = (TextureResource*) device()->resource_manager()->get(mr->get_texture_layer(0));
 
 	r->set_layer_view(1, matrix4x4::IDENTITY);
 	r->set_layer_projection(1, m_projection);

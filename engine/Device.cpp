@@ -426,7 +426,7 @@ ResourcePackage* Device::create_resource_package(const char* name)
 	ResourceId package_id = m_resource_manager->load("package", name);
 	m_resource_manager->flush();
 
-	PackageResource* package_res = (PackageResource*) m_resource_manager->data(package_id);
+	PackageResource* package_res = (PackageResource*) m_resource_manager->get(package_id);
 	ResourcePackage* package = CE_NEW(default_allocator(), ResourcePackage)(*m_resource_manager, package_id, package_res);
 
 	return package;
@@ -464,12 +464,12 @@ void Device::reload(const char* type, const char* name)
 		}
 
 		ResourceId old_res_id = m_resource_manager->resource_id(type, name);
-		const void* old_res = m_resource_manager->data(old_res_id);
+		const void* old_res = m_resource_manager->get(old_res_id);
 		m_resource_manager->unload(old_res_id, true);
 
 		ResourceId res_id = m_resource_manager->load(type, name);
 		m_resource_manager->flush();
-		const void* new_res = m_resource_manager->data(res_id);
+		const void* new_res = m_resource_manager->get(res_id);
 
 		uint32_t type_hash = string::murmur2_32(type, string::strlen(type), 0);
 

@@ -128,7 +128,7 @@ namespace lua_system
 		const ResourceId lua_res = device()->resource_manager()->load("lua", filename);
 		device()->resource_manager()->flush();
 
-		const LuaResource* lr = (LuaResource*) device()->resource_manager()->data(lua_res);
+		const LuaResource* lr = (LuaResource*) device()->resource_manager()->get(lua_res);
 		luaL_loadbuffer(L, (const char*) lr->program(), lr->size(), "");
 
 		device()->resource_manager()->unload(lua_res);

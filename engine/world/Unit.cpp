@@ -171,13 +171,13 @@ void Unit::create_renderable_objects()
 
 		if (renderable.type == UnitRenderable::MESH)
 		{
-			MeshResource* mr = (MeshResource*) device()->resource_manager()->data(renderable.resource);
+			MeshResource* mr = (MeshResource*) device()->resource_manager()->get(renderable.resource);
 			MeshId mesh = m_world.render_world()->create_mesh(mr, m_scene_graph, renderable.node);
 			add_mesh(renderable.name, mesh);
 		}
 		else if (renderable.type == UnitRenderable::SPRITE)
 		{
-			SpriteResource* sr = (SpriteResource*) device()->resource_manager()->data(renderable.resource);
+			SpriteResource* sr = (SpriteResource*) device()->resource_manager()->get(renderable.resource);
 			SpriteId sprite = m_world.render_world()->create_sprite(sr, m_scene_graph, renderable.node);
 			add_sprite(renderable.name, sprite);
 		}
@@ -190,7 +190,7 @@ void Unit::create_renderable_objects()
 	// Create materials
 	if (m_resource->material_resource().id != 0)
 	{
-		MaterialResource* mr = (MaterialResource*) device()->resource_manager()->data(m_resource->material_resource());
+		MaterialResource* mr = (MaterialResource*) device()->resource_manager()->get(m_resource->material_resource());
 		add_material(string::murmur2_32("default", string::strlen("default"), 0), m_world.render_world()->create_material(mr));
 	}
 }
@@ -200,7 +200,7 @@ void Unit::create_physics_objects()
 {
 	if (m_resource->physics_resource().id != 0)
 	{
-		const PhysicsResource* pr = (PhysicsResource*) device()->resource_manager()->data(m_resource->physics_resource());
+		const PhysicsResource* pr = (PhysicsResource*) device()->resource_manager()->get(m_resource->physics_resource());
 
 		// Create controller if any
 		if (pr->has_controller())

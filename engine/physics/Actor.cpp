@@ -165,7 +165,7 @@ void Actor::create_objects()
 			}
 			case PhysicsShapeType::CONVEX_MESH:
 			{
-				MeshResource* resource = (MeshResource*) device()->resource_manager()->data(shape.resource);
+				MeshResource* resource = (MeshResource*) device()->resource_manager()->get(shape.resource);
 
 				PxConvexMeshDesc convex_mesh_desc;
 				convex_mesh_desc.points.count		= resource->num_vertices();

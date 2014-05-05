@@ -61,13 +61,13 @@ class ResourceManager
 public:
 
 	/// The resources will be loaded from @a bundle.
-							ResourceManager(Bundle& bundle, uint32_t seed);
-							~ResourceManager();
+	ResourceManager(Bundle& bundle, uint32_t seed);
+	~ResourceManager();
 
 	/// Loads the resource by @a type and @a name and returns its ResourceId.
 	/// @note
 	/// You have to call is_loaded() to check if the loading process is actually completed.
-	ResourceId				load(const char* type, const char* name);
+	ResourceId load(const char* type, const char* name);
 
 	/// Unloads the resource @a name, freeing up all the memory associated by it
 	/// and eventually any global object associated with it.
@@ -75,63 +75,63 @@ public:
 	/// is greater than 1.
 	/// @warning
 	/// Use @a force option only if you know - exactly - what you are doing.
-	void					unload(ResourceId name, bool force = false);
-
-	/// Returns the resource instance associated to the given @a type and @a name.
-	const void*				lookup(const char* type, const char* name) const;
+	void unload(ResourceId name, bool force = false);
 
 	/// Returns whether the manager has the @a name resource into
 	/// its list of resources.
 	/// @warning
 	/// Having a resource does not mean that the resource is
 	/// ready to be used; See is_loaded().
-	bool					has(ResourceId name) const;
+	bool has(ResourceId name) const;
+
+	/// Returns the resource instance associated to the given @a type and @a name.
+	const void* get(const char* type, const char* name) const;
 
 	/// Returns the data associated with the @a name resource.
 	/// You will have to cast the returned pointer accordingly.
-	const void*				data(ResourceId name) const;
-	
+	const void* get(ResourceId name) const;
+
 	/// Returns whether the @a name resource is loaded (i.e. whether
 	/// you can use the data associated with it).
-	bool					is_loaded(ResourceId name) const;
+	bool is_loaded(ResourceId name) const;
 
 	/// Returns the number of references to the resource @a name;
-	uint32_t				references(ResourceId name) const;
+	uint32_t references(ResourceId name) const;
 
 	/// Forces all of the loading requests to complete before preceeding.
-	void					flush();
+	void flush();
 
 	/// Returns the seed used to generate resource name hashes.
-	uint32_t				seed() const;
+	uint32_t seed() const;
 
-	ResourceId				resource_id(const char* type, const char* name) const;
+	ResourceId resource_id(const char* type, const char* name) const;
 
 private:
 
 
 	// Returns the entry of the given id.
-	ResourceEntry*			find(ResourceId id) const;
+	ResourceEntry* find(ResourceId id) const;
 
 	// Polls the resource loader for loaded resources.
-	void					poll_resource_loader();
+	void poll_resource_loader();
 
 	// Loads the resource by name and type and returns its ResourceId.
-	ResourceId				load(uint32_t type, ResourceId name);
-	void					online(ResourceId name, void* resource);
+	ResourceId load(uint32_t type, ResourceId name);
+	void online(ResourceId name, void* resource);
 
 private:
 
-	ProxyAllocator			m_resource_heap;
-	ResourceLoader			m_loader;
-	uint32_t				m_seed;
+	ProxyAllocator m_resource_heap;
+	ResourceLoader m_loader;
+	uint32_t m_seed;
 
-	Queue<PendingRequest>	m_pendings;
-	Array<ResourceEntry>		m_resources;
+	Queue<PendingRequest> m_pendings;
+	Array<ResourceEntry> m_resources;
 
 private:
 
-	friend class			ResourcePackage;
-	friend class			Device;
+	friend class ResourcePackage;
+	friend class Device;
 };
 
 } // namespace crown

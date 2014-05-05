@@ -83,7 +83,15 @@ void ResourceManager::unload(ResourceId name, bool force)
 }
 
 //-----------------------------------------------------------------------------
-const void* ResourceManager::lookup(const char* type, const char* name) const
+bool ResourceManager::has(ResourceId name) const
+{
+	ResourceEntry* entry = find(name);
+
+	return entry != NULL;
+}
+
+//-----------------------------------------------------------------------------
+const void* ResourceManager::get(const char* type, const char* name) const
 {
 	ResourceId id = resource_id(type, name);
 	ResourceEntry* entry = find(id);
@@ -95,15 +103,7 @@ const void* ResourceManager::lookup(const char* type, const char* name) const
 }
 
 //-----------------------------------------------------------------------------
-bool ResourceManager::has(ResourceId name) const
-{
-	ResourceEntry* entry = find(name);
-
-	return entry != NULL;
-}
-
-//-----------------------------------------------------------------------------
-const void* ResourceManager::data(ResourceId name) const
+const void* ResourceManager::get(ResourceId name) const
 {
 	CE_ASSERT(has(name), "Resource not loaded: " "%.16"PRIx64"", name.id);
 
