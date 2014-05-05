@@ -1,12 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 
-include(FindFreetype)
-
-if (FREETYPE_FOUND)
-	include_directories(${FREETYPE_INCLUDE_DIRS})
-	link_libraries(${FREETYPE_LIBRARIES})
-endif (FREETYPE_FOUND)
-
 set (FONTGEN_SRC
 	BinPacker.cpp
 	lodepng.cpp
@@ -19,5 +12,6 @@ set (FONTGEN_HEADERS
 	stb_image.h
 )
 
+include_directories(${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
 add_executable(crown-fontgen main.cpp ${FONTGEN_SRC} ${FONTGEN_HEADERS})
 install (TARGETS crown-fontgen DESTINATION bin)

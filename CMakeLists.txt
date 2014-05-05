@@ -113,6 +113,7 @@ set (CROWN_THIRD_INCLUDES
 	${CROWN_THIRD}/physx/include/RepX
 	${CROWN_THIRD}/physx/include/RepXUpgrader
 	${CROWN_THIRD}/physx/include/vehicle
+	${CMAKE_SOURCE_DIR}/third/freetype
 )
 
 # architecture dependent libraries
