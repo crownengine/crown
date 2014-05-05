@@ -79,9 +79,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(texture_name.c_str(), texture_name.length(), 0);
-			array::push_back(m_texture, id);
+			array::push_back(m_texture, ResourceId(texture_name.c_str()));
 		}
 	}
 
@@ -103,9 +101,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(lua_name.c_str(), lua_name.length(), 0);
-			array::push_back(m_script, id);
+			array::push_back(m_script, ResourceId(lua_name.c_str()));
 		}
 	}
 
@@ -126,9 +122,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(sound_name.c_str(), string::strlen(sound_name.c_str()), 0);
-			array::push_back(m_sound, id);
+			array::push_back(m_sound, ResourceId(sound_name.c_str()));
 		}
 	}
 
@@ -149,9 +143,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(mesh_name.c_str(), mesh_name.length(), 0);
-			array::push_back(m_mesh, id);
+			array::push_back(m_mesh, ResourceId(mesh_name.c_str()));
 		}
 	}
 
@@ -171,9 +163,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 				CE_LOGE("Unit '%s' does not exist.", unit_name.c_str());
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(unit_name.c_str(), unit_name.length(), 0);
-			array::push_back(m_unit, id);
+			array::push_back(m_unit, ResourceId(unit_name.c_str()));
 		}
 	}
 
@@ -194,9 +184,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(sprite_name.c_str(), sprite_name.length(), 0);
-			array::push_back(m_sprite, id);
+			array::push_back(m_sprite, ResourceId(sprite_name.c_str()));
 		}
 	}
 
@@ -217,10 +205,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(physics_name.c_str(), physics_name.length(), 0);
-			array::push_back(m_physics, id);
-		}	
+			array::push_back(m_physics, ResourceId(physics_name.c_str()));
+		}
 	}
 
 	// Check for materials
@@ -240,9 +226,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(materials_name.c_str(), materials_name.length(), 0);
-			array::push_back(m_materials, id);
+			array::push_back(m_materials, ResourceId(materials_name.c_str()));
 		}
 	}
 
@@ -263,9 +247,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(guis_name.c_str(), guis_name.length(), 0);
-			array::push_back(m_guis, id);
+			array::push_back(m_guis, ResourceId(guis_name.c_str()));
 		}
 	}
 
@@ -286,9 +268,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 				return;				
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(font_name.c_str(), font_name.length(), 0);
-			array::push_back(m_fonts, id);
+			array::push_back(m_fonts, ResourceId(font_name.c_str()));
 		}
 	}
 
@@ -309,9 +289,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 				return;				
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(level_name.c_str(), level_name.length(), 0);
-			array::push_back(m_levels, id);
+			array::push_back(m_levels, ResourceId(level_name.c_str()));
 		}
 	}
 

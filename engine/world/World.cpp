@@ -76,7 +76,7 @@ void World::set_id(WorldId id)
 //-----------------------------------------------------------------------------
 UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion& rot)
 {
-	const ResourceId id = device()->resource_manager()->resource_id(UNIT_EXTENSION, name);
+	const ResourceId id(UNIT_EXTENSION, name);
 	return spawn_unit(id, pos, rot);
 }
 

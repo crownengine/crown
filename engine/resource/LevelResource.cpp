@@ -49,8 +49,8 @@ void parse_units(JSONElement root, Array<LevelUnit>& units)
 		DynamicString name;
 		e.key("name").to_string(name);
 		name += ".unit";
-		ResourceId id; id.id = string::murmur2_64(name.c_str(), name.length());
-		lu.name = id;
+
+		lu.name = ResourceId(name.c_str());
 		lu.position = e.key("position").to_vector3();
 		lu.rotation = e.key("rotation").to_quaternion();
 

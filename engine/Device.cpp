@@ -463,7 +463,7 @@ void Device::reload(const char* type, const char* name)
 			return;
 		}
 
-		ResourceId old_res_id = m_resource_manager->resource_id(type, name);
+		ResourceId old_res_id(type, name);
 		const void* old_res = m_resource_manager->get(old_res_id);
 		m_resource_manager->unload(old_res_id, true);
 

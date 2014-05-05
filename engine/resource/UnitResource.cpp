@@ -240,7 +240,7 @@ void parse_renderables(JSONElement e, Array<UnitRenderable>& renderables, const 
 		{
 			CE_ASSERT(false, "Oops, unknown renderable type: '%s'", res_type.c_str());
 		}
-		rn.resource.id = string::murmur2_64(res_name.c_str(), res_name.length(), 0);
+		rn.resource = ResourceId(res_name.c_str());
 
 		array::push_back(renderables, rn);
 	}
@@ -351,11 +351,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	physics_name += "physics";
 	if (fs.is_file(physics_name.c_str()))
 	{
-		m_physics_resource.id = string::murmur2_64(physics_name.c_str(), string::strlen(physics_name.c_str()), 0);
+		m_physics_resource = ResourceId(physics_name.c_str());
 	}
 	else
 	{
-		m_physics_resource.id = 0;
+		m_physics_resource = ResourceId();
 	}
 
 	// Check if the unit has a .material resource
@@ -363,11 +363,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	material_name += "material";
 	if (fs.is_file(material_name.c_str()))
 	{
-		m_material_resource.id = string::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
+		m_material_resource = ResourceId(material_name.c_str());
 	}
 	else
 	{
-		m_material_resource.id = 0;
+		m_material_resource = ResourceId();
 	}
 
 

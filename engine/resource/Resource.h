@@ -66,12 +66,11 @@ namespace crown
 #define FONT_TYPE					0x536DC7D4
 #define LEVEL_TYPE					0x349657F7
 
-/// ResourceId uniquely identifies a resource by its name and type.
-/// In order to speed up the lookup by the manager, it also keeps
-/// the index to the resource list where it is stored.
 struct ResourceId
 {
-	bool operator==(const ResourceId& b) const { return id == b.id; }
+	ResourceId() : id(0) {}
+	ResourceId(const char* type, const char* name);
+	ResourceId(const char* name);
 
 	uint64_t id;
 };
