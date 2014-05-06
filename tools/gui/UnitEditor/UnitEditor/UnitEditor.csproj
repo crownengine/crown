@@ -55,6 +55,8 @@
       <Private>False</Private>
       <Package>monodevelop</Package>
     </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">

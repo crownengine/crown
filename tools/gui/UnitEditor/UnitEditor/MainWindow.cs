@@ -11,6 +11,7 @@ public partial class MainWindow: Gtk.Window
 		VBox box = new VBox (false, 2);
 
 		UnitEditor.MainMenu mb = new UnitEditor.MainMenu ();
+		this.AddAccelGroup (mb.uim.AccelGroup);
 		box.PackStart(mb.instance, false, false, 0);
 
 		List<UnitEditor.Renderable> renderables = new List<UnitEditor.Renderable> ();
