@@ -30,60 +30,6 @@
       <placeholder />
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="UnitEditor.MainMenu" design-size="672 37">
-    <action-group name="Default">
-      <action id="FileAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">File</property>
-        <property name="ShortLabel" translatable="yes">File</property>
-      </action>
-      <action id="EditAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Edit</property>
-        <property name="ShortLabel" translatable="yes">Edit</property>
-      </action>
-      <action id="newAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">New</property>
-        <property name="ShortLabel" translatable="yes">New</property>
-        <property name="StockId">gtk-new</property>
-      </action>
-      <action id="openAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Open</property>
-        <property name="ShortLabel" translatable="yes">Open</property>
-        <property name="StockId">gtk-open</property>
-      </action>
-      <action id="saveAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Save</property>
-        <property name="ShortLabel" translatable="yes">Save</property>
-        <property name="StockId">gtk-save</property>
-      </action>
-      <action id="saveAsAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Save as...</property>
-        <property name="ShortLabel" translatable="yes">Save as...</property>
-        <property name="StockId">gtk-save-as</property>
-      </action>
-      <action id="quitAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Exit</property>
-        <property name="ShortLabel" translatable="yes">Exit</property>
-        <property name="StockId">gtk-quit</property>
-      </action>
-      <action id="FileAction1">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">File</property>
-        <property name="ShortLabel" translatable="yes">File</property>
-      </action>
-    </action-group>
-    <property name="MemberName" />
-    <property name="Visible">False</property>
-    <child>
-      <placeholder />
-    </child>
-  </widget>
   <widget class="Gtk.Bin" id="UnitEditor.MainMenu" design-size="300 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
