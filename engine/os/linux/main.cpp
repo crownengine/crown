@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
+#include <X11/extensions/Xrandr.h>
 #include "Config.h"
 #include "Crown.h"
 #include "Device.h"
@@ -128,6 +129,7 @@ public:
 		, m_x11_window(None)
 		, m_x11_parent_window(None)
 		, m_x11_hidden_cursor(None)
+		, m_screen_config(NULL)
 		, m_exit(false)
 		, m_x(0)
 		, m_y(0)
@@ -184,6 +186,41 @@ public:
 			m_console->shutdown();
 			CE_DELETE(default_allocator(), m_console);
 		#endif
+	}
+
+	//-----------------------------------------------------------------------------
+	void display_modes(Array<DisplayMode>& modes)
+	{
+		int num_rrsizes = 0;
+		XRRScreenSize* rrsizes = XRRConfigSizes(m_screen_config, &num_rrsizes);
+
+		for (int i = 0; i < num_rrsizes; i++)
+		{
+			DisplayMode dm;
+			dm.id = (uint32_t) i;
+			dm.width = rrsizes[i].width;
+			dm.height = rrsizes[i].height;
+			array::push_back(modes, dm);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_display_mode(uint32_t id)
+	{
+		// Check if id is valid
+		int num_rrsizes = 0;
+		XRRScreenSize* rrsizes = XRRConfigSizes(m_screen_config, &num_rrsizes);
+		(void) rrsizes;
+
+		if ((int) id >= num_rrsizes)
+			return;
+
+		XRRSetScreenConfig(m_x11_display,
+							m_screen_config,
+							RootWindow(m_x11_display, DefaultScreen(m_x11_display)),
+							(int) id,
+							RR_Rotate_0,
+							CurrentTime);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -256,6 +293,12 @@ public:
 		oswindow_set_window(m_x11_display, m_x11_window);
 		set_x11_display_and_window(m_x11_display, m_x11_window);
 
+		// Get screen configuration
+		m_screen_config = XRRGetScreenInfo(m_x11_display, RootWindow(m_x11_display, screen));
+
+		Rotation rr_old_rot;
+		const SizeID rr_old_sizeid = XRRConfigCurrentConfiguration(m_screen_config, &rr_old_rot);
+
 		OsThread game_thread("game-thread");
 		game_thread.start(main_loop, (void*)this);
 
@@ -265,6 +308,21 @@ public:
 		}
 
 		game_thread.stop();
+
+		// Restore previous screen configuration if changed
+		Rotation rr_cur_rot;
+		const SizeID rr_cur_sizeid = XRRConfigCurrentConfiguration(m_screen_config, &rr_cur_rot);
+
+		if (rr_cur_rot != rr_old_rot || rr_cur_sizeid != rr_old_sizeid)
+		{
+			XRRSetScreenConfig(m_x11_display,
+								m_screen_config,
+								RootWindow(m_x11_display, screen),
+								rr_old_sizeid,
+								rr_old_rot,
+								CurrentTime);
+		}
+		XRRFreeScreenConfigInfo(m_screen_config);
 
 		LinuxDevice::shutdown();
 		XDestroyWindow(m_x11_display, m_x11_window);
@@ -651,6 +709,8 @@ private:
 	Window m_x11_parent_window;
 	Cursor m_x11_hidden_cursor;
 	Atom m_wm_delete_message;
+
+	XRRScreenConfiguration* m_screen_config;
 
 	bool m_exit;
 	uint32_t m_x;
