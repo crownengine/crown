@@ -57,6 +57,10 @@
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\..\Scaricati\jsondotnet\Bin\Net35\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -74,6 +78,7 @@
     <Compile Include="Types.cs" />
     <Compile Include="MainMenu.cs" />
     <Compile Include="gtk-gui\UnitEditor.MainMenu.cs" />
+    <Compile Include="UnitFile.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

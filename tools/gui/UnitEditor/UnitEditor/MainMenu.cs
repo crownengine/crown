@@ -3,6 +3,10 @@ using Gtk;
 using System.Xml;
 using System.Xml.Linq;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using System.IO;
+using Newtonsoft.Json;
+using System.Data;
 
 namespace UnitEditor
 {
@@ -167,7 +171,9 @@ namespace UnitEditor
 
 			if (fc.Run() == (int)ResponseType.Ok)
 			{
-				Console.WriteLine(fc.Filename);
+				UnitFile u = new UnitFile (fc.Filename);
+				u.deserialize ();
+				u.serialize ();
 			}
 
 			//Don't forget to call Destroy() or the FileChooserDialog window won't get closed.

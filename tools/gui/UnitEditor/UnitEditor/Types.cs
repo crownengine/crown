@@ -1,6 +1,8 @@
+using System.Collections.Generic;
+
 namespace UnitEditor
 {
-
+	
 //------------------------------------------------------------------------------
 public class Renderable
 {
@@ -16,6 +18,19 @@ public class Renderable
 	public string type { set; get; }
 	public string resource { set; get; }
 	public bool visible { set; get; }
+
+	public override string ToString()
+	{
+		return "node: " + node + ", type: " + type + ", resource: " + resource + ", visible: " + visible + "\n";
+	}
+}
+
+//------------------------------------------------------------------------------
+public class Node
+{
+	public string parent { set; get; }
+	public float[] position = new float[3];
+	public float[] rotation = new float[4];
 }
 
 } // namespace UnitEditor
