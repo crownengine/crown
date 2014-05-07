@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Array.h"
 #include "ContainerTypes.h"
-#include <algorithm>
 
 namespace crown {
 
@@ -103,7 +102,7 @@ namespace crown {
 			uint32_t hash_i;
 			uint32_t data_prev;
 			uint32_t data_i;
-		};	
+		};
 
 		template<typename T> uint32_t add_entry(Hash<T> &h, uint64_t key)
 		{
