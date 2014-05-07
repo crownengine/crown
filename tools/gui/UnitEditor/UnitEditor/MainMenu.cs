@@ -132,13 +132,7 @@ namespace UnitEditor
 			Guid guid = Guid.NewGuid ();
 			// Recreate the UIManager that links the action entries with controls (widgets) created from an XML definition.
 			uim = new Gtk.UIManager ();
-			// Create a blank action group.
-			/*			 WARNING:
 
-            You cannot use the same name for a new Gtk.ActionGroup if you intend on pushing changes to keys;
-            it will use your previous keys everytime except where null exists on your Gtk.ActionEntry.
-            Clearly a bug.
-          */
 			Gtk.ActionGroup actions = new Gtk.ActionGroup ("MenuBarActions" + guid.ToString ());
 			// Get all the action entries (that is, actions for menu items, toggled menu items, radio menu items).
 			actions.Add (getActionEntries ());
@@ -150,16 +144,16 @@ namespace UnitEditor
 			instance = (Gtk.MenuBar)uim.GetWidget ("/menubar");
 			// Mark everything on the menubar to be shown.
 			instance.ShowAll ();
-		}
 
-		// ACTIONS CALLBACKS
+			Console.Write (instance.Name);
+		}
 
 		static void exit_cb (object o, EventArgs args)
 		{
 			Application.Quit ();
 		}
 
-		static void open_cb(object sender, System.EventArgs e)
+		static void open_cb(object sender, System.EventArgs args)
 		{
 			Gtk.FileChooserDialog fc = new Gtk.FileChooserDialog("Open file", null, FileChooserAction.Open);
 			fc.AddButton(Stock.Cancel, ResponseType.Cancel);
@@ -169,11 +163,10 @@ namespace UnitEditor
 			fc.Filter.AddPattern("*.material");
 			fc.Filter.AddPattern("*.physics");
 
+			Console.Write (args.ToString ());
 			if (fc.Run() == (int)ResponseType.Ok)
 			{
-				UnitFile u = new UnitFile (fc.Filename);
-				u.deserialize ();
-				u.serialize ();
+				UnitEditor.MainClass.g_win.open_unit (fc.Filename);
 			}
 
 			//Don't forget to call Destroy() or the FileChooserDialog window won't get closed.

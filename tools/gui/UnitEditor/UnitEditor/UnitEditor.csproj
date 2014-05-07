@@ -79,8 +79,8 @@
     <Compile Include="MainMenu.cs" />
     <Compile Include="gtk-gui\UnitEditor.MainMenu.cs" />
     <Compile Include="UnitFile.cs" />
-    <Compile Include="UnitNotebook.cs" />
-    <Compile Include="gtk-gui\UnitEditor.UnitNotebook.cs" />
+    <Compile Include="UnitForm.cs" />
+    <Compile Include="gtk-gui\UnitEditor.UnitForm.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

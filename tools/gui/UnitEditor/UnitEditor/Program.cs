@@ -5,14 +5,14 @@ namespace UnitEditor
 {
 	class MainClass
 	{
+		public static MainWindow g_win;
+
 		public static void Main (string[] args)
 		{
 			Application.Init ();
-			MainWindow win = new MainWindow ();
-
-			win.ShowAll ();
+			g_win = new MainWindow ();
+			g_win.ShowAll ();
 			Application.Run ();
 		}
 	}
-
 }

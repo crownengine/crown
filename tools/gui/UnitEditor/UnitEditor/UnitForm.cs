@@ -5,16 +5,16 @@ using Gtk;
 namespace UnitEditor
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class UnitNotebook : Gtk.EventBox
+	public partial class UnitForm : Gtk.EventBox
 	{
 		public Notebook instance;
 
 
-		public UnitNotebook (string file_name)
+		public UnitForm (string unit_file_name)
 		{
 			instance = new Notebook ();
 
-			UnitEditor.RenderablesList renderables_list = new UnitEditor.RenderablesList (file_name);
+			UnitEditor.RenderablesList renderables_list = new UnitEditor.RenderablesList (unit_file_name);
 			instance.AppendPage (renderables_list, new Label("Renderables"));
 		}
 	}
