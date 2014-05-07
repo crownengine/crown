@@ -43,7 +43,9 @@ struct Gui
 	void set_id(const GuiId id);
 
 	Vector2 resolution() const;
-	void move(const Vector3& pos);
+	void move(const Vector2& pos);
+
+	Vector2 screen_to_gui(const Vector2& pos);
 
 	void show();
 	void hide();

@@ -107,7 +107,7 @@ Gui::Gui(RenderWorld& render_world, uint16_t width, uint16_t height)
 	, m_height(height)
 	, m_visible(true)
 {
-	set_orthographic_rh(m_projection, 0, width, height, 0, -0.01f, 100.0f);
+	set_orthographic_rh(m_projection, 0, width, 0, height, -0.01f, 100.0f);
 }
 
 //-----------------------------------------------------------------------------
@@ -129,10 +129,16 @@ Vector2 Gui::resolution() const
 }
 
 //-----------------------------------------------------------------------------
-void Gui::move(const Vector3& pos)
+void Gui::move(const Vector2& pos)
 {
 	set_identity(m_pose);
-	set_translation(m_pose, pos);
+	set_translation(m_pose, Vector3(pos.x, pos.y, 0));
+}
+
+//-----------------------------------------------------------------------------
+Vector2 Gui::screen_to_gui(const Vector2& pos)
+{
+	return Vector2(pos.x, m_height - pos.y);
 }
 
 //-----------------------------------------------------------------------------
@@ -165,10 +171,10 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 	verts[3] = pos.y;
 
 	verts[4] = pos.x + size.x;
-	verts[5] = pos.y - size.y;
+	verts[5] = pos.y + size.y;
 
 	verts[6] = pos.x;
-	verts[7] = pos.y - size.y;
+	verts[7] = pos.y + size.y;
 
 	uint16_t* inds = (uint16_t*) tib.data;
 	inds[0] = 0;
@@ -185,7 +191,7 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 					| STATE_CULL_CW
 					| STATE_BLEND_EQUATION_ADD 
 					| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
-
+	r->set_pose(m_pose);
 	r->set_program(render_world_globals::default_color_program());
 	r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
 	r->set_vertex_buffer(tvb);
@@ -215,12 +221,12 @@ void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& si
 	verts[7] = 0;
 
 	verts[8] = pos.x + size.x;
-	verts[9] = pos.y - size.y;
+	verts[9] = pos.y + size.y;
 	verts[10] = 1;
 	verts[11] = 1;
 
 	verts[12] = pos.x;
-	verts[13] = pos.y - size.y;
+	verts[13] = pos.y + size.y;
 	verts[14] = 0;
 	verts[15] = 1;
 
@@ -242,7 +248,7 @@ void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& si
 					| STATE_CULL_CW
 					| STATE_BLEND_EQUATION_ADD 
 					| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
-
+	r->set_pose(m_pose);
 	r->set_program(render_world_globals::default_texture_program());
 	r->set_texture(0, render_world_globals::default_albedo_uniform(), tr->texture(),
 					TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);
@@ -282,7 +288,7 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 			case '\n':
 			{
 				x_pen_advance = 0.0f;
-				y_pen_advance += resource->font_size();
+				y_pen_advance -= resource->font_size();
 				continue;
 			}
 			case '\t':
@@ -296,15 +302,17 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 		{
 			FontGlyphData g = resource->get_glyph(code_point);
 
+			const float baseline = g.height - g.y_offset;
+
 			// Set pen position
 			m_pen.x = pos.x + g.x_offset;
-			m_pen.y = pos.y + (g.height - g.y_offset);
+			m_pen.y = pos.y - baseline;
 
 			// Position coords
 			const float x0 = (m_pen.x + x_pen_advance) * scale;
 			const float y0 = (m_pen.y + y_pen_advance) * scale;
 			const float x1 = (m_pen.x + g.width + x_pen_advance) * scale;
-			const float y1 = (m_pen.y - g.height + y_pen_advance) * scale;
+			const float y1 = (m_pen.y + g.height + y_pen_advance) * scale;
 
 			// Texture coords
 			const float u0 = (float) g.x / 512;
@@ -321,7 +329,7 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 
 			(*(VertexData*)(vb.data)).x		= x1;
 			(*(VertexData*)(vb.data)).y		= y0;
-			(*(VertexData*)(vb.data)).u		= u1; 
+			(*(VertexData*)(vb.data)).u		= u1;
 			(*(VertexData*)(vb.data)).v		= v1;
 			vb.data += sizeof(VertexData);
 
@@ -367,7 +375,7 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 					| STATE_CULL_CW
 					| STATE_BLEND_EQUATION_ADD 
 					| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
-
+	r->set_pose(m_pose);
 	r->set_program(render_world_globals::default_font_program());
 	r->set_texture(0, render_world_globals::default_font_uniform(), tr->texture(),
 					TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);

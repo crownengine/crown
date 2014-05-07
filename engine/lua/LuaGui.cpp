@@ -57,12 +57,18 @@ static int gui_move(lua_State* L)
 	LuaStack stack(L);
 
 	Gui* gui = stack.get_gui(1);
-
-	const Vector3 pos = stack.get_vector3(2);
-
-	gui->move(pos);
-
+	gui->move(stack.get_vector2(2));
 	return 0;
+}
+
+//-----------------------------------------------------------------------------
+static int gui_screen_to_gui(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Gui* gui = stack.get_gui(1);
+	stack.push_vector2(gui->screen_to_gui(stack.get_vector2(2)));
+	return 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -89,6 +95,7 @@ static int gui_hide(lua_State* L)
 	return 0;
 }
 
+//-----------------------------------------------------------------------------
 static int gui_draw_rectangle(lua_State* L)
 {
 	LuaStack stack(L);
@@ -123,6 +130,7 @@ void load_gui(LuaEnvironment& env)
 {
 	env.load_module_function("Gui", "resolution",		gui_resolution);
 	env.load_module_function("Gui", "move",				gui_move);
+	env.load_module_function("Gui", "screen_to_gui",	gui_screen_to_gui);
 	env.load_module_function("Gui", "show",				gui_show);
 	env.load_module_function("Gui", "hide",				gui_hide);
 
