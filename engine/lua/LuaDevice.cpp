@@ -191,6 +191,13 @@ static int device_set_display_mode(lua_State* L)
 	return 0;
 }
 
+//-----------------------------------------------------------------------------
+static int device_set_fullscreen(lua_State* L)
+{
+	LuaStack stack(L);
+	device()->set_fullscreen(stack.get_bool(1));
+	return 0;
+}
 
 //-----------------------------------------------------------------------------
 void load_device(LuaEnvironment& env)
@@ -208,6 +215,7 @@ void load_device(LuaEnvironment& env)
 	env.load_module_function("Device", "destroy_resource_package", device_destroy_resource_package);
 	env.load_module_function("Device", "display_modes",            device_display_modes);
 	env.load_module_function("Device", "set_display_mode",         device_set_display_mode);
+	env.load_module_function("Device", "set_fullscreen",           device_set_fullscreen);
 }
 
 } // namespace crown

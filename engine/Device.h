@@ -133,6 +133,9 @@ public:
 	/// @note See video_modes().
 	virtual void set_display_mode(uint32_t id) = 0;
 
+	/// Sets whether in fullscreen or not.
+	virtual void set_fullscreen(bool full) = 0;
+
 	/// Updates all the subsystems
 	void frame();
 
