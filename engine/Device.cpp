@@ -145,8 +145,7 @@ void Device::init()
 
 	// Create resource manager
 	CE_LOGD("Creating resource manager...");
-	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle, 0);
-	CE_LOGD("Resource seed: %d", m_resource_manager->seed());
+	m_resource_manager = CE_NEW(m_allocator, ResourceManager)(*m_resource_bundle);
 
 	// Create world manager
 	CE_LOGD("Creating world manager...");
