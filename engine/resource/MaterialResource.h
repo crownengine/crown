@@ -90,6 +90,7 @@ public:
 	//-----------------------------------------------------------------------------
 	ResourceId get_texture_layer(uint32_t i) const
 	{
+		CE_ASSERT(i < num_texture_layers(), "Index out of bounds");
 		MaterialHeader* h = (MaterialHeader*) this;
 		ResourceId* begin = (ResourceId*) (((char*) this) + h->texture_layers_offset);
 		return begin[i];
