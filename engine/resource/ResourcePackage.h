@@ -42,7 +42,10 @@ public:
 
 	//-----------------------------------------------------------------------------
 	ResourcePackage(ResourceManager& resman, const ResourceId id, const PackageResource* package)
-		: m_resource_manager(&resman), m_package_id(id), m_package(package), m_has_loaded(false)
+		: m_resource_manager(&resman)
+		, m_package_id(id)
+		, m_package(package)
+		, m_has_loaded(false)
 	{
 		CE_ASSERT_NOT_NULL(package);
 	}
