@@ -14,12 +14,8 @@ public partial class MainWindow: Gtk.Window
 		this.AddAccelGroup (mb.uim.AccelGroup);
 		box.PackStart(mb.instance, false, false, 0);
 
-		List<UnitEditor.Renderable> renderables = new List<UnitEditor.Renderable> ();
-		renderables.Add (new UnitEditor.Renderable ("a", "b", "c", true));
-
-		UnitEditor.RenderablesList renderables_list = new UnitEditor.RenderablesList (renderables);
-		box.PackStart(renderables_list, false, false, 0);
-
+		UnitEditor.UnitNotebook unb = new UnitEditor.UnitNotebook ("/home/mikymod/samples/doodles/blue_doodle.unit");
+		box.PackStart (unb.instance, false, false, 0);
 		Add (box);
 
 		ShowAll ();

@@ -37,4 +37,11 @@
       <placeholder />
     </child>
   </widget>
+  <widget class="Gtk.Bin" id="UnitEditor.UnitNotebook" design-size="644 503">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <placeholder />
+    </child>
+  </widget>
 </stetic-interface>

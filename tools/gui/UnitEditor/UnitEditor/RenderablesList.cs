@@ -8,56 +8,74 @@ namespace UnitEditor
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class RenderablesList : Gtk.EventBox
 	{
-		private ListStore renderablesStore;
-		private List<Renderable> renderables;
+		private UnitFile m_unit_file;
 
-		public RenderablesList (List<Renderable> renderables)
+		private ListStore m_renderables_store;
+
+		private List<string> m_renderables_names;
+		private List<Renderable> m_renderables;
+
+		public RenderablesList (string file_name)
 		{
-			this.renderables = new List<Renderable> (renderables);
-			this.renderablesStore = new ListStore (typeof (string), typeof (string), typeof(string), typeof(bool));
+			m_unit_file = new UnitFile (file_name);
 
-			// Create our TreeView
+			m_renderables_names = new List<string> (m_unit_file.renderables_names());
+			m_renderables = new List<Renderable> (m_unit_file.renderables());
+
+			Console.Write (m_renderables_names[0]);
+			m_renderables_store = new ListStore (typeof (string), typeof (string), typeof (string), typeof(string), typeof(bool));
+
 			TreeView tree = new TreeView ();
-
-			// Add our tree to the window
 			this.Add (tree);
 
-			// Create a column for the artist name
+			TreeViewColumn nameColumn = new TreeViewColumn ();
+			nameColumn.Title = "Name";
+			nameColumn.Alignment = 0.5f;
+
 			TreeViewColumn nodeColumn = new TreeViewColumn ();
 			nodeColumn.Title = "Node";
 			nodeColumn.Alignment = 0.5f;
 
-			// Create a column for the song title
 			TreeViewColumn typeColumn = new TreeViewColumn ();
 			typeColumn.Title = "Type";
 			typeColumn.Alignment = 0.5f;
 
-			// Create a column for the artist name
 			TreeViewColumn resourceColumn = new TreeViewColumn ();
 			resourceColumn.Title = "Resource";
 			resourceColumn.Alignment = 0.5f;
 
-			// Create a column for the song title
 			TreeViewColumn visibleColumn = new TreeViewColumn ();
 			visibleColumn.Title = "Visible";
 			visibleColumn.Alignment = 0.5f;
 
 			// Assign the model to the TreeView
-			tree.Model = renderablesStore;
+			tree.Model = m_renderables_store;
 
-			// Create the text cell that will display the node and add cell to the column
+			CellRendererText nameCell = new CellRendererText ();
+			nameCell.Editable = true;
+			nameCell.Edited += delegate (object o, EditedArgs e) { 
+				TreePath path = new TreePath (e.Path);
+				TreeIter iter;
+				m_renderables_store.GetIter (out iter, path);
+				int i = path.Indices[0];
+
+				string r = e.NewText;
+				m_renderables_names[i] = r;
+				m_renderables_store.SetValue (iter, 0, r);
+			};
+			nameColumn.PackStart (nameCell, true);
+
 			CellRendererText nodeCell = new CellRendererText ();
 			nodeCell.Editable = true;
 			nodeCell.Edited += delegate (object o, EditedArgs e) { 
 				TreePath path = new TreePath (e.Path);
 				TreeIter iter;
-				renderablesStore.GetIter (out iter, path);
+				m_renderables_store.GetIter (out iter, path);
 				int i = path.Indices[0];
 
-				Renderable r = renderables[i];
+				Renderable r = m_renderables[i];
 				r.node = e.NewText;
-				renderablesStore.SetValue (iter, 0, r.node);
-				Console.WriteLine("node:{0}, type:{1}, resource:{2}, visible:{3}", r.node, r.type, r.resource, r.visible);
+				m_renderables_store.SetValue (iter, 1, r.node);
 			};
 			nodeColumn.PackStart (nodeCell, true);
 
@@ -66,13 +84,12 @@ namespace UnitEditor
 			typeCell.Edited += delegate (object o, EditedArgs e) { 
 				TreePath path = new TreePath (e.Path);
 				TreeIter iter;
-				renderablesStore.GetIter (out iter, path);
+				m_renderables_store.GetIter (out iter, path);
 				int i = path.Indices[0];
 
-				Renderable r = renderables[i];
+				Renderable r = m_renderables[i];
 				r.type = e.NewText;
-				renderablesStore.SetValue (iter, 1, r.type);
-				Console.WriteLine("node:{0}, type:{1}, resource:{2}, visible:{3}", r.node, r.type, r.resource, r.visible);
+				m_renderables_store.SetValue (iter, 2, r.type);
 			};
 			typeColumn.PackStart (typeCell, true);
 
@@ -81,13 +98,12 @@ namespace UnitEditor
 			resourceCell.Edited += delegate (object o, EditedArgs e) { 
 				TreePath path = new TreePath (e.Path);
 				TreeIter iter;
-				renderablesStore.GetIter (out iter, path);
+				m_renderables_store.GetIter (out iter, path);
 				int i = path.Indices[0];
 
-				Renderable r = renderables[i];
+				Renderable r = m_renderables[i];
 				r.resource = e.NewText;
-				renderablesStore.SetValue (iter, 2, r.resource);
-				Console.WriteLine("node:{0}, type:{1}, resource:{2}, visible:{3}", r.node, r.type, r.resource, r.visible);
+				m_renderables_store.SetValue (iter, 3, r.resource);
 			};
 			resourceColumn.PackStart (resourceCell, true);
 
@@ -96,22 +112,24 @@ namespace UnitEditor
 			visibleCell.Toggled += delegate (object o, ToggledArgs e) {
 				TreePath path = new TreePath (e.Path);
 				TreeIter iter;
-				renderablesStore.GetIter (out iter, path);
+				m_renderables_store.GetIter (out iter, path);
 				int i = path.Indices[0];
 
-				Renderable r = renderables[i];
-				bool old = (bool) renderablesStore.GetValue(iter, 3);
+				Renderable r = m_renderables[i];
+				bool old = (bool) m_renderables_store.GetValue(iter, 4);
 				r.visible = !old;
-				renderablesStore.SetValue(iter, 3, !old);
-				Console.WriteLine("node:{0}, type:{1}, resource:{2}, visible:{3}", r.node, r.type, r.resource, r.visible);					
+				m_renderables_store.SetValue(iter, 4, !old);
 			};
 			visibleColumn.PackStart (visibleCell, true);
 
 			// Add the columns to the TreeView
-			nodeColumn.AddAttribute (nodeCell, "text", 0);
-			typeColumn.AddAttribute (typeCell, "text", 1);
-			resourceColumn.AddAttribute (resourceCell, "text", 2);
-			visibleColumn.AddAttribute (visibleCell, "active", 3);
+			nameColumn.AddAttribute (nameCell, "text", 0);
+			nodeColumn.AddAttribute (nodeCell, "text", 1);
+			typeColumn.AddAttribute (typeCell, "text", 2);
+			resourceColumn.AddAttribute (resourceCell, "text", 3);
+			visibleColumn.AddAttribute (visibleCell, "active", 4);
+
+			tree.AppendColumn (nameColumn);
 			tree.AppendColumn (nodeColumn);
 			tree.AppendColumn (typeColumn);
 			tree.AppendColumn (resourceColumn);
@@ -125,18 +143,16 @@ namespace UnitEditor
 
 		void create_model()
 		{
-			foreach (Renderable renderable in this.renderables.ToArray())
+			for (int i = 0; i < m_renderables.Count; i++)
 			{
-				add_renderable(renderable);
+				m_renderables_store.AppendValues (
+						m_renderables_names[i],
+						m_renderables[i].node,
+						m_renderables[i].type,
+						m_renderables[i].resource,
+						m_renderables[i].visible);
 			}
 		}
-
-		public void add_renderable (Renderable r)
-		{
-			this.renderables.Add (r);
-			this.renderablesStore.AppendValues (r.node, r.type, r.resource, r.visible);
-		}
-
 
 		static void delete_event (object obj, DeleteEventArgs args)
 		{

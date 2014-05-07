@@ -10,9 +10,9 @@ namespace UnitEditor
 {
 	public class UnitFile
 	{
-		private JObject root;
-		private Dictionary<string, Renderable> renderables;
-		private Dictionary<string, Node> nodes;
+		private JObject m_root;
+		private Dictionary<string, Renderable> m_renderables;
+		private Dictionary<string, Node> m_nodes;
 
 		public UnitFile (string file_name)
 		{
@@ -21,27 +21,39 @@ namespace UnitEditor
 			using (StreamReader streamReader = new StreamReader(file_name))
 			{            
 				json_string = streamReader.ReadToEnd();
-				root = JObject.Parse (json_string);
+				m_root = JObject.Parse (json_string);
 			}
+
+			deserialize ();
+		}
+
+		public string[] renderables_names()
+		{
+			return m_renderables.Keys.ToArray ();
+		}
+
+		public Renderable[] renderables()
+		{
+			return m_renderables.Values.ToArray ();
 		}
 
 		public void deserialize()
 		{
 			// Deserialize renderables
-			JToken renderables_token = root ["renderables"];
-			renderables = JsonConvert.DeserializeObject<Dictionary<string, Renderable>>(renderables_token.ToString());
+			JToken renderables_token = m_root ["renderables"];
+			m_renderables = JsonConvert.DeserializeObject<Dictionary<string, Renderable>>(renderables_token.ToString());
 
 			// Deserialize Nodes
-			JToken nodes_token = root ["nodes"];
-			nodes = JsonConvert.DeserializeObject<Dictionary<string, Node>> (nodes_token.ToString ());
+			JToken nodes_token = m_root ["nodes"];
+			m_nodes = JsonConvert.DeserializeObject<Dictionary<string, Node>> (nodes_token.ToString ());
 		}
 
 		public void serialize()
 		{
 			string json_string = "{";
 			json_string += "\"renderables\": {";
-			string last = renderables.Keys.Last ();
-			foreach (var r in renderables)
+			string last = m_renderables.Keys.Last ();
+			foreach (var r in m_renderables)
 			{
 				var k = r.Key;
 				var v = r.Value;
@@ -53,7 +65,7 @@ namespace UnitEditor
 			json_string += "},\n";
 
 			json_string += "\"nodes\": {";
-			foreach (var n in nodes)
+			foreach (var n in m_nodes)
 			{
 				var k = n.Key;
 				var v = n.Value;
