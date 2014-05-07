@@ -528,7 +528,7 @@ namespace physics_config_resource
 			pcf.me = filter_to_mask(keys[i].c_str());
 			pcf.mask = collides_with_to_mask(collides_with_vector);
 
-			printf("FILTER: %s (me = %X, mask = %X\n", keys[i].c_str(), pcf.me, pcf.mask);
+			// printf("FILTER: %s (me = %X, mask = %X\n", keys[i].c_str(), pcf.me, pcf.mask);
 
 			array::push_back(names, filter_name);
 			array::push_back(objects, pcf);

@@ -53,150 +53,172 @@ class World;
 class WorldManager;
 struct Camera;
 
+/// @defgroup Device Device.
+
+/// Holds data for a display mode.
+///
+/// @ingroup Device
+struct DisplayMode
+{
+	uint32_t id;
+	uint16_t width;
+	uint16_t height;
+};
+
 /// This is the place where to look for accessing all of
 /// the engine subsystems and related stuff.
+///
+/// @ingroup Device
 class CE_EXPORT Device
 {
 public:
 
-							Device();
-							~Device();
+	Device();
+	~Device();
 
-	void					init();
+	void init();
 
 	/// Shutdowns the engine freeing all the allocated resources
-	void					shutdown();
+	void shutdown();
 
 	/// Returns the number of command line arguments passed to
 	/// the engine executable.
-	int32_t					argc() const { return m_argc; }
+	int32_t argc() const { return m_argc; }
 
 	/// Returns the string value of the command line arguments passed
 	/// to the engine executable.
 	/// The size of the returned array is given by Device::argc().
-	const char**			argv() const { return (const char**) m_argv; }
+	const char** argv() const { return (const char**) m_argv; }
 
 	/// Returns wheter the engine is running (i.e. it is actually
 	/// doing work).
-	bool					is_running() const;
+	bool is_running() const;
 
 	/// Returns whether the engine is correctly initialized
-	bool					is_init() const;
+	bool is_init() const;
 
 	/// Returns wheter the engine is paused
-	bool 					is_paused() const;
+	bool is_paused() const;
 
 	/// Return the number of frames rendered from the first
 	/// call to Device::start()
-	uint64_t				frame_count() const;
+	uint64_t frame_count() const;
 
 	/// Returns the time in seconds needed to render the last frame
-	float					last_delta_time() const;
+	float last_delta_time() const;
 
 	/// Returns the time in seconds since the first call to start().
-	double					time_since_start() const;
+	double time_since_start() const;
 
 	/// Forces the engine to actually start doing work.
-	void					start();
+	void start();
 
 	/// Forces the engine to stop all the work it is doing
 	/// and normally terminates the program.
-	void					stop();
+	void stop();
 
 	/// Pauses the engine
-	void					pause();
+	void pause();
 
 	/// Unpauses the engine
-	void					unpause();
+	void unpause();
 
-	virtual int32_t			run(int argc, char** argv) = 0;
+	virtual int32_t run(int argc, char** argv) = 0;
+
+	/// Returns an array of video @a modes.
+	/// Each DisplayMode has an id that can be passed to set_video_mode().
+	virtual void display_modes(Array<DisplayMode>& modes) = 0;
+
+	/// Sets the video mode @a id.
+	/// @note See video_modes().
+	virtual void set_display_mode(uint32_t id) = 0;
 
 	/// Updates all the subsystems
-	void					frame();
+	void frame();
 
 	/// Updates the given @a world and renders it from the given @a camera.
-	void					update_world(World* world, float dt);
+	void update_world(World* world, float dt);
 
 	/// Renders the given @a world from the point of view of the given @æ camera.
-	void					render_world(World* world, Camera* camera);
+	void render_world(World* world, Camera* camera);
 
-	WorldId					create_world();
-	void					destroy_world(WorldId world);
+	WorldId create_world();
+	void destroy_world(WorldId world);
 
 	/// Returns the resource package with the given @a package_name name.
-	ResourcePackage*		create_resource_package(const char* name);
+	ResourcePackage* create_resource_package(const char* name);
 
 	/// Destroy a previously created resource @a package.
 	/// @note
 	/// To unload the resources loaded by the package, you have to call
 	/// ResourcePackage::unload() first.
-	void					destroy_resource_package(ResourcePackage* package);
+	void destroy_resource_package(ResourcePackage* package);
 
-	void					compile(const char* bundle_dir, const char* source_dir, const char* resource);
+	void compile(const char* bundle_dir, const char* source_dir, const char* resource);
 
-	void					reload(const char* type, const char* name);
+	void reload(const char* type, const char* name);
 
-	Filesystem*				filesystem();
-	ResourceManager*		resource_manager();
-	LuaEnvironment*			lua_environment();
+	Filesystem* filesystem();
+	ResourceManager* resource_manager();
+	LuaEnvironment* lua_environment();
 
-	OsWindow*				window();
-	Renderer*				renderer();
+	OsWindow* window();
+	Renderer* renderer();
 
-	Keyboard*				keyboard();
-	Mouse*					mouse();
-	Touch*					touch();
-	Accelerometer*			accelerometer();
-	ConsoleServer*			console() { return m_console; }
-	WorldManager*			world_manager() { return m_world_manager; }
+	Keyboard* keyboard();
+	Mouse* mouse();
+	Touch* touch();
+	Accelerometer* accelerometer();
+	ConsoleServer* console() { return m_console; }
+	WorldManager* world_manager() { return m_world_manager; }
 
 protected:
 
 	// Used to allocate all subsystems
-	LinearAllocator			m_allocator;
+	LinearAllocator m_allocator;
 
-	int32_t					m_argc;
-	char**					m_argv;
+	int32_t m_argc;
+	char** m_argv;
 
 	// Preferred settings
-	char					m_source_dir[MAX_PATH_LENGTH];
-	char 					m_bundle_dir[MAX_PATH_LENGTH];
-	char 					m_boot_file[MAX_PATH_LENGTH];
-	int32_t					m_fileserver;
-	uint16_t				m_console_port;
+	char m_source_dir[MAX_PATH_LENGTH];
+	char m_bundle_dir[MAX_PATH_LENGTH];
+	char m_boot_file[MAX_PATH_LENGTH];
+	int32_t m_fileserver;
+	uint16_t m_console_port;
 
-	bool					m_is_init		: 1;
-	bool					m_is_running	: 1;
-	bool					m_is_paused		: 1;
+	bool m_is_init		: 1;
+	bool m_is_running	: 1;
+	bool m_is_paused	: 1;
 
-	uint64_t				m_frame_count;
+	uint64_t m_frame_count;
 
-	uint64_t				m_last_time;
-	uint64_t				m_current_time;
-	float					m_last_delta_time;
-	double					m_time_since_start;
+	uint64_t m_last_time;
+	uint64_t m_current_time;
+	float m_last_delta_time;
+	double m_time_since_start;
 
 	// Public subsystems
-	Filesystem*				m_filesystem;
+	Filesystem* m_filesystem;
 
-	OsWindow*				m_window;
+	OsWindow* m_window;
 
-	Keyboard*				m_keyboard;
-	Mouse*					m_mouse;
-	Touch*					m_touch;
+	Keyboard* m_keyboard;
+	Mouse* m_mouse;
+	Touch* m_touch;
 
-	LuaEnvironment*			m_lua_environment;
-	Renderer*				m_renderer;
+	LuaEnvironment* m_lua_environment;
+	Renderer* m_renderer;
 
 	// Private subsystems
-	BundleCompiler*			m_bundle_compiler;
-	ConsoleServer*			m_console;
-	ResourceManager*		m_resource_manager;
-	Bundle*					m_resource_bundle;
-	WorldManager*			m_world_manager;
+	BundleCompiler* m_bundle_compiler;
+	ConsoleServer* m_console;
+	ResourceManager* m_resource_manager;
+	Bundle* m_resource_bundle;
+	WorldManager* m_world_manager;
 
 	// Configuration resources
-	ResourceId				m_physics_config;
+	ResourceId m_physics_config;
 
 private:
 
