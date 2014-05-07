@@ -105,6 +105,7 @@ Gui::Gui(RenderWorld& render_world, uint16_t width, uint16_t height)
 	: m_render_world(render_world)
 	, m_width(width)
 	, m_height(height)
+	, m_pose(matrix4x4::IDENTITY)
 	, m_visible(true)
 {
 	set_orthographic_rh(m_projection, 0, width, 0, height, -0.01f, 100.0f);
