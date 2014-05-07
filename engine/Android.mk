@@ -126,8 +126,6 @@ LOCAL_SRC_FILES :=\
 \
 	core/strings/Path.cpp\
 \
-	core/Args.cpp\
-\
 	os/android/Android.cpp\
 	os/android/AndroidDevice.cpp\
 	os/android/ApkFile.cpp\
