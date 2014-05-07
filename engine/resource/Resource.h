@@ -72,6 +72,8 @@ struct ResourceId
 	ResourceId(const char* type, const char* name);
 	ResourceId(const char* name);
 
+	bool operator==(const ResourceId& a) const { return id == a.id; }
+
 	uint64_t id;
 };
 

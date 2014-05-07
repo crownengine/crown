@@ -31,16 +31,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "ProxyAllocator.h"
 #include "ResourceLoader.h"
-#include "Hash.h"
 
 namespace crown
 {
 
 struct ResourceEntry
 {
-	uint32_t type;
-	uint32_t references;
-	void* resource;
+	bool operator==(const ResourceId& resource) const { return id == resource; }
+	bool operator==(const ResourceEntry& b) const { return id == b.id; }
+
+	ResourceId		id;
+	uint32_t		type;
+	uint32_t		references;
+	void*			resource;
 };
 
 struct PendingRequest
@@ -52,17 +55,13 @@ struct PendingRequest
 
 class Bundle;
 
-/// @defgroup Resource Resource.
-
 /// Keeps track and manages resources loaded by ResourceLoader.
-///
-/// @ingroup Resource
 class ResourceManager
 {
 public:
 
 	/// The resources will be loaded from @a bundle.
-	ResourceManager(Bundle& bundle, uint32_t seed);
+	ResourceManager(Bundle& bundle);
 	~ResourceManager();
 
 	/// Loads the resource by @a type and @a name and returns its ResourceId.
@@ -102,11 +101,10 @@ public:
 	/// Forces all of the loading requests to complete before preceeding.
 	void flush();
 
-	/// Returns the seed used to generate resource name hashes.
-	uint32_t seed() const;
-
 private:
 
+
+	// Returns the entry of the given id.
 	ResourceEntry* find(ResourceId id) const;
 
 	// Polls the resource loader for loaded resources.
@@ -123,7 +121,7 @@ private:
 	uint32_t m_seed;
 
 	Queue<PendingRequest> m_pendings;
-	Hash<ResourceEntry> m_resources;
+	Array<ResourceEntry> m_resources;
 
 private:
 
