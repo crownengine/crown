@@ -7,7 +7,8 @@ using UnitEditor;
 public partial class MainWindow: Gtk.Window
 {
 	private VBox box;
-	private UnitForm unb = null;
+	private Notebook nb;
+	private UnitForm uf = null;
 
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
@@ -20,16 +21,18 @@ public partial class MainWindow: Gtk.Window
 		this.AddAccelGroup (mb.uim.AccelGroup);
 		box.PackStart(mb.instance, false, false, 0);
 
-		MaterialFile mf = new MaterialFile ("/home/mikymod/samples/doodles/opensans.material");
-		mf.serialize ();
+		nb = new Notebook ();
+		box.PackStart (nb, false, false, 0);
+
 		ShowAll ();
 	}
 
 	public void open_unit(string file_name)
 	{
-		unb = new UnitEditor.UnitForm (file_name);
-		box.PackStart (unb.instance, false, false, 0);
-		box.ShowAll ();
+		uf = new UnitEditor.UnitForm (file_name);
+		nb.AppendPage (uf.instance, new Label (file_name));
+
+		ShowAll ();
 	}
 
 	protected void OnDeleteEvent (object sender, DeleteEventArgs a)

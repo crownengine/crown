@@ -9,12 +9,12 @@ namespace UnitEditor
 	{
 		public Notebook instance;
 
-
-		public UnitForm (string unit_file_name)
+		//------------------------------------------------------------------------------
+		public UnitForm (string file_name)
 		{
 			instance = new Notebook ();
 
-			UnitEditor.RenderablesList renderables_list = new UnitEditor.RenderablesList (unit_file_name);
+			UnitEditor.RenderablesList renderables_list = new UnitEditor.RenderablesList (file_name);
 			instance.AppendPage (renderables_list, new Label("Renderables"));
 		}
 	}
