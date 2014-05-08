@@ -209,7 +209,10 @@ public:
 		init(argc, argv);
 
 		WSADATA WsaData;
-		CE_ASSERT(WSAStartup(MAKEWORD(2,2), &WsaData) == 0L, "Unable to initialize socket");
+		int res = WSAStartup(MAKEWORD(2,2), &WsaData);
+		CE_ASSERT(res == 0, "Unable to initialize socket");
+		CE_UNUSED(WsaData);
+		CE_UNUSED(res);
 
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 
