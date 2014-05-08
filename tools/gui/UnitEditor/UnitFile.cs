@@ -52,6 +52,7 @@ namespace UnitEditor
 		{
 			string json_string = "{";
 			json_string += "\"renderables\": {";
+
 			string last = m_renderables.Keys.Last ();
 			foreach (var r in m_renderables)
 			{

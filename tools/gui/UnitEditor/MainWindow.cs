@@ -20,7 +20,8 @@ public partial class MainWindow: Gtk.Window
 		this.AddAccelGroup (mb.uim.AccelGroup);
 		box.PackStart(mb.instance, false, false, 0);
 
-
+		MaterialFile mf = new MaterialFile ("/home/mikymod/samples/doodles/opensans.material");
+		mf.serialize ();
 		ShowAll ();
 	}
 

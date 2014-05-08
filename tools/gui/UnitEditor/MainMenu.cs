@@ -102,7 +102,7 @@ namespace UnitEditor
 				new Gtk.ActionEntry ("SaveAll", null, "Save All", (keys.ContainsKey ("SaveAll")) ? keys ["SaveAll"] : null, null, null),
 				new Gtk.ActionEntry ("Close", null, "Close", (keys.ContainsKey ("Close")) ? keys ["Close"] : null, null, null),
 				new Gtk.ActionEntry ("CloseAll", null, "Close All", (keys.ContainsKey ("CloseAll")) ? keys ["CloseAll"] : null, null, null),
-				new Gtk.ActionEntry ("Quit", null, "Quit", (keys.ContainsKey ("Quit")) ? keys ["Quit"] : null, null, null),
+				new Gtk.ActionEntry ("Quit", null, "Quit", (keys.ContainsKey ("Quit")) ? keys ["Quit"] : null, null, exit_cb),
 
 				new Gtk.ActionEntry ("EditMenu", null, "_Edit", null, null, null),
 				new Gtk.ActionEntry ("Undo", null, "Undo", (keys.ContainsKey ("Undo")) ? keys ["Undo"] : null, null, null),
@@ -144,8 +144,6 @@ namespace UnitEditor
 			instance = (Gtk.MenuBar)uim.GetWidget ("/menubar");
 			// Mark everything on the menubar to be shown.
 			instance.ShowAll ();
-
-			Console.Write (instance.Name);
 		}
 
 		static void exit_cb (object o, EventArgs args)
@@ -171,6 +169,11 @@ namespace UnitEditor
 
 			//Don't forget to call Destroy() or the FileChooserDialog window won't get closed.
 			fc.Destroy();
+		}
+
+		static void save_cb(object sender, DeleteEventArgs args)
+		{
+
 		}
 	}
 }

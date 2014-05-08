@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitEditor", "UnitEditor\UnitEditor.csproj", "{5F034BDB-0B44-4ED5-A95A-72BF1701F05C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitEditor", "UnitEditor.csproj", "{5F034BDB-0B44-4ED5-A95A-72BF1701F05C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +15,6 @@ Global
 		{5F034BDB-0B44-4ED5-A95A-72BF1701F05C}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = UnitEditor\UnitEditor.csproj
+		StartupItem = UnitEditor.csproj
 	EndGlobalSection
 EndGlobal

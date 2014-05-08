@@ -81,6 +81,8 @@
     <Compile Include="UnitFile.cs" />
     <Compile Include="UnitForm.cs" />
     <Compile Include="gtk-gui\UnitEditor.UnitForm.cs" />
+    <Compile Include="MaterialFile.cs" />
+    <Compile Include="PhysicsFile.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
