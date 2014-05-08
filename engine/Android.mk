@@ -250,7 +250,21 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/third/ARMv7/physx/include/RepXUpgrader\
 	$(LOCAL_PATH)/third/ARMv7/physx/include/vehicle\
 	
-LOCAL_CPPFLAGS := -fno-rtti -fno-exceptions -std=c++03 -ansi -Wall -Wextra -Wno-long-long -Wno-variadic-macros -Wno-missing-braces -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format
+LOCAL_CPPFLAGS :=\
+	-fno-rtti\
+	-fno-exceptions 
+	-std=c++03\
+	-ansi\
+	-Wall\
+	-Wextra\
+	-Wno-long-long\
+	-Wno-variadic-macros\
+	-Wno-missing-braces\
+	-Wno-unused-parameter\
+	-Wno-unknown-pragmas\
+	-Wno-format\
+	-Wno-unused-but-set-variable\
+
 LOCAL_LDLIBS := -L$(LOCAL_PATH) -Wl,--start-group $(addprefix -l, $(PhysX_libraries)) -Wl,--end-group -llog -landroid -lEGL -lGLESv2 -lz -lOpenSLES
 LOCAL_SHARED_LIBRARIES := luajit-5.1
 LOCAL_STATIC_LIBRARIES := android_native_app_glue ogg vorbis

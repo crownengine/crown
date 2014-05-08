@@ -44,28 +44,27 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-static const char* sles_error_to_string(SLresult result)
-{
-	switch (result)
-	{
-		case SL_RESULT_SUCCESS: return "SL_RESULT_SUCCESS";
-		case SL_RESULT_PARAMETER_INVALID: return "SL_RESULT_PARAMETER_INVALID";
-		case SL_RESULT_MEMORY_FAILURE: return "SL_RESULT_MEMORY_FAILURE";
-		case SL_RESULT_FEATURE_UNSUPPORTED: return "SL_RESULT_FEATURE_UNSUPPORTED";
-		case SL_RESULT_RESOURCE_ERROR: return "SL_RESULT_RESOURCE_ERROR";
-		case SL_RESULT_IO_ERROR: return "SL_RESULT_IO_ERROR";
-		case SL_RESULT_PRECONDITIONS_VIOLATED: return "SL_RESULT_PRECONDITIONS_VIOLATED";
-		case SL_RESULT_CONTENT_CORRUPTED: return "SL_RESULT_CONTENT_CORRUPTED";
-		case SL_RESULT_CONTENT_UNSUPPORTED: return "SL_RESULT_CONTENT_UNSUPPORTED";
-		case SL_RESULT_CONTENT_NOT_FOUND: return "SL_RESULT_CONTENT_NOT_FOUND";
-		case SL_RESULT_PERMISSION_DENIED: return "SL_RESULT_PERMISSION_DENIED";
-		case SL_RESULT_BUFFER_INSUFFICIENT: return "SL_RESULT_BUFFER_INSUFFICIENT";
-		default: return "UNKNOWN_SL_ERROR";
-	}
-}
-
-//-----------------------------------------------------------------------------
 #if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	static const char* sles_error_to_string(SLresult result)
+	{
+		switch (result)
+		{
+			case SL_RESULT_SUCCESS: return "SL_RESULT_SUCCESS";
+			case SL_RESULT_PARAMETER_INVALID: return "SL_RESULT_PARAMETER_INVALID";
+			case SL_RESULT_MEMORY_FAILURE: return "SL_RESULT_MEMORY_FAILURE";
+			case SL_RESULT_FEATURE_UNSUPPORTED: return "SL_RESULT_FEATURE_UNSUPPORTED";
+			case SL_RESULT_RESOURCE_ERROR: return "SL_RESULT_RESOURCE_ERROR";
+			case SL_RESULT_IO_ERROR: return "SL_RESULT_IO_ERROR";
+			case SL_RESULT_PRECONDITIONS_VIOLATED: return "SL_RESULT_PRECONDITIONS_VIOLATED";
+			case SL_RESULT_CONTENT_CORRUPTED: return "SL_RESULT_CONTENT_CORRUPTED";
+			case SL_RESULT_CONTENT_UNSUPPORTED: return "SL_RESULT_CONTENT_UNSUPPORTED";
+			case SL_RESULT_CONTENT_NOT_FOUND: return "SL_RESULT_CONTENT_NOT_FOUND";
+			case SL_RESULT_PERMISSION_DENIED: return "SL_RESULT_PERMISSION_DENIED";
+			case SL_RESULT_BUFFER_INSUFFICIENT: return "SL_RESULT_BUFFER_INSUFFICIENT";
+			default: return "UNKNOWN_SL_ERROR";
+		}
+	}
+
 	#define SL_CHECK(function)\
 		do { SLresult result = function;\
 				CE_ASSERT(result == SL_RESULT_SUCCESS, "OpenSL|ES error: %s", sles_error_to_string(result)); } while (0)

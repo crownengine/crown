@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <android/asset_manager_jni.h>
 #include "ApkFile.h"
 #include "Assert.h"
+#include "Macros.h"
 
 static AAssetManager* g_android_asset_manager = NULL;
 
@@ -68,6 +69,7 @@ void ApkFile::seek(size_t position)
 {
 	off_t seek_result = AAsset_seek(m_asset, (off_t)position, SEEK_SET);
 	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
+	CE_UNUSED(seek_result);
 }
 
 //-----------------------------------------------------------------------------
@@ -75,6 +77,7 @@ void ApkFile::seek_to_end()
 {
 	off_t seek_result = AAsset_seek(m_asset, 0, SEEK_END);
 	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek to end");
+	CE_UNUSED(seek_result);
 }
 
 //-----------------------------------------------------------------------------
@@ -82,6 +85,7 @@ void ApkFile::skip(size_t bytes)
 {
 	off_t seek_result = AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR);
 	CE_ASSERT(seek_result != (off_t) -1, "Failed to skip");
+	CE_UNUSED(seek_result);
 }
 
 //-----------------------------------------------------------------------------
@@ -91,6 +95,7 @@ void ApkFile::read(void* buffer, size_t size)
 
 	size_t bytes_read = (size_t) AAsset_read(m_asset, buffer, size);
 	CE_ASSERT(bytes_read == size, "Failed to read from file: requested: %lu, read: %lu", size, bytes_read);
+	CE_UNUSED(bytes_read);
 }
 
 //-----------------------------------------------------------------------------
