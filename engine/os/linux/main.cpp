@@ -224,6 +224,20 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
+	void set_fullscreen(bool full)
+	{
+		XEvent e;
+		e.xclient.type = ClientMessage;
+		e.xclient.window = m_x11_window;
+		e.xclient.message_type = XInternAtom(m_x11_display, "_NET_WM_STATE", False );
+		e.xclient.format = 32;
+		e.xclient.data.l[0] = full ? 1 : 0;
+		e.xclient.data.l[1] = XInternAtom(m_x11_display, "_NET_WM_STATE_FULLSCREEN", False);
+
+		XSendEvent(m_x11_display, DefaultRootWindow(m_x11_display), False, SubstructureNotifyMask, &e);
+	}
+
+	//-----------------------------------------------------------------------------
 	int32_t run(int argc, char** argv)
 	{
 		init(argc, argv);

@@ -226,17 +226,21 @@ struct RenderKey
 
 	uint64_t encode()
 	{
-		return uint64_t(m_layer) << RENDER_LAYER_SHIFT;
+		const uint64_t a = uint64_t(m_layer) << RENDER_LAYER_SHIFT;
+		const uint64_t b = m_depth;
+		return a | b;
 	}
 
 	void decode(uint64_t key)
 	{
 		m_layer = (key & RENDER_LAYER_MASK) >> RENDER_LAYER_SHIFT;
+		m_depth = (key & 0xFFFFFFFF);
 	}
 
 public:
 
 	uint8_t m_layer;
+	int32_t m_depth;
 };
 
 struct SortKey
@@ -417,10 +421,11 @@ struct RenderContext
 		m_scissors[layer].m_height = height;
 	}
 
-	void commit(uint8_t layer)
+	void commit(uint8_t layer, int32_t depth)
 	{
 		CE_ASSERT(layer < MAX_RENDER_LAYERS, "Layer out of bounds");
 		m_render_key.m_layer = layer;
+		m_render_key.m_depth = depth;
 
 		m_state.begin_uniform = m_last_uniform_offset;
 		m_state.end_uniform = m_constants.position();

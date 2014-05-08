@@ -35,6 +35,9 @@ namespace crown
 
 class RenderWorld;
 
+/// Manages the rendering of GUI objects.
+///
+/// @ingroup Graphics
 struct Gui
 {
 	Gui(RenderWorld& render_world, uint16_t width, uint16_t height);
@@ -47,11 +50,16 @@ struct Gui
 
 	Vector2 screen_to_gui(const Vector2& pos);
 
-	void show();
-	void hide();
-
+	/// Draws a rectangle of size @a size at @a pos.
+	/// @note Higher values of pos.z make the object appear in front of other objects.
 	void draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& color = Color4::WHITE);
+
+	/// Draws an image with the given @a material.
+	/// @note Higher values of pos.z make the object appear in front of other objects.
 	void draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color = Color4::WHITE);
+
+	/// Draws the text @a str with the given @a font and @a font_size.
+	/// @note Higher values of pos.z make the object appear in front of other objects.
 	void draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos, const Color4& color = Color4::WHITE);
 
 public:
@@ -64,8 +72,6 @@ public:
 
 	Matrix4x4 m_projection;
 	Matrix4x4 m_pose;
-
-	bool m_visible;
 };
 
 } // namespace crown

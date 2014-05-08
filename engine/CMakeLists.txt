@@ -40,7 +40,6 @@ set (HEADERS
 )
 
 set (CORE_SRC
-	core/Args.cpp
 )
 
 set (CORE_HEADERS

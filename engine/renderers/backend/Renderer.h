@@ -845,9 +845,9 @@ public:
 		m_submit->set_layer_scissor(layer, x, y, width, height);
 	}
 
-	void commit(uint8_t layer)
+	void commit(uint8_t layer, int32_t depth = 0)
 	{
-		m_submit->commit(layer);
+		m_submit->commit(layer, depth);
 	}
 
 	static int32_t render_thread(void* thiz)

@@ -106,7 +106,6 @@ Gui::Gui(RenderWorld& render_world, uint16_t width, uint16_t height)
 	, m_width(width)
 	, m_height(height)
 	, m_pose(matrix4x4::IDENTITY)
-	, m_visible(true)
 {
 	set_orthographic_rh(m_projection, 0, width, 0, height, -0.01f, 100.0f);
 }
@@ -140,18 +139,6 @@ void Gui::move(const Vector2& pos)
 Vector2 Gui::screen_to_gui(const Vector2& pos)
 {
 	return Vector2(pos.x, m_height - pos.y);
-}
-
-//-----------------------------------------------------------------------------
-void Gui::show()
-{
-	m_visible = true;
-}
-
-//-----------------------------------------------------------------------------
-void Gui::hide()
-{
-	m_visible = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -197,7 +184,7 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 	r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
 	r->set_vertex_buffer(tvb);
 	r->set_index_buffer(tib);
-	r->commit(1);
+	r->commit(1, (int32_t) pos.z);
 }
 
 //-----------------------------------------------------------------------------
@@ -256,7 +243,7 @@ void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& si
 	r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
 	r->set_vertex_buffer(tvb);
 	r->set_index_buffer(tib);
-	r->commit(1);
+	r->commit(1, (int32_t) pos.z);
 }
 
 //-----------------------------------------------------------------------------
@@ -383,7 +370,7 @@ void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const
 	r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
 	r->set_vertex_buffer(vb);
 	r->set_index_buffer(ib);
-	r->commit(1);
+	r->commit(1, (int32_t) pos.z);
 }
 
 } // namespace crown
