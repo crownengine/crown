@@ -30,10 +30,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ApkFile.h"
 #include "OS.h"
 
-extern AAssetManager* get_android_asset_manager();
-
 namespace crown
 {
+
+extern AAssetManager* get_android_asset_manager();
 
 //-----------------------------------------------------------------------------
 ApkFilesystem::ApkFilesystem()

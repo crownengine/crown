@@ -24,27 +24,22 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <android/asset_manager_jni.h>
 #include "ApkFile.h"
 #include "Assert.h"
 #include "Macros.h"
+#include "Log.h"
+#include <android/asset_manager.h>
 
-static AAssetManager* g_android_asset_manager = NULL;
+namespace crown
+{
+
+extern AAssetManager* g_android_asset_manager;
 
 //-----------------------------------------------------------------------------
 AAssetManager* get_android_asset_manager()
 {
 	return g_android_asset_manager;
 }
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initAssetManager(JNIEnv* env, jobject obj, jobject assetManager)
-{
-	g_android_asset_manager = AAssetManager_fromJava(env, assetManager);
-}
-
-namespace crown
-{
 
 //-----------------------------------------------------------------------------
 ApkFile::ApkFile(const char* path)

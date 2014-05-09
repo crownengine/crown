@@ -96,7 +96,7 @@ PhysX_libraries :=\
 ###############################################################################
 include $(CLEAR_VARS)
 
-LOCAL_MODULE    := crown
+LOCAL_MODULE := crown
 LOCAL_SRC_FILES :=\
 \
 	audio/backend/SLESSoundWorld.cpp\
@@ -251,8 +251,6 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/third/ARMv7/physx/include/vehicle\
 	
 LOCAL_CPPFLAGS :=\
-	-fno-rtti\
-	-fno-exceptions 
 	-std=c++03\
 	-ansi\
 	-Wall\
@@ -264,6 +262,8 @@ LOCAL_CPPFLAGS :=\
 	-Wno-unknown-pragmas\
 	-Wno-format\
 	-Wno-unused-but-set-variable\
+	-fno-rtti\
+	-fno-exceptions\
 
 LOCAL_LDLIBS := -L$(LOCAL_PATH) -Wl,--start-group $(addprefix -l, $(PhysX_libraries)) -Wl,--end-group -llog -landroid -lEGL -lGLESv2 -lz -lOpenSLES
 LOCAL_SHARED_LIBRARIES := luajit-5.1
