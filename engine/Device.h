@@ -53,7 +53,7 @@ class World;
 class WorldManager;
 struct Camera;
 
-/// @defgroup Device Device.
+/// @defgroup Device Device
 
 /// Holds data for a display mode.
 ///
