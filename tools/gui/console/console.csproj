@@ -53,7 +53,6 @@
     <Reference Include="Mono.Posix" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\..\..\..\Desktop\Net35\Newtonsoft.Json.dll</HintPath>
-      <Package>monodevelop</Package>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -3,22 +3,39 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using crown_tests.GtkExt;
 
 namespace crown_tests.tests
 {
-  [JsonObject(MemberSerialization.OptIn)]
-  public class Test
-  {
-    [JsonProperty]
-    public String Name;
-    [JsonProperty]
-    public String Description;
+	public enum ETestResult {
+		Unknown = 0,
+		Failed = 1,
+		Passed = 2
+	}
 
-    public int LastResult;
+	[JsonObject(MemberSerialization.OptIn)]
+	public class Test: ViewModelBase
+	{
+		[JsonProperty]
+		public String Name { get; set; }
 
-    public String GetFunctionName()
-    {
-      return "test_" + Name.ToLower().Replace(' ', '_');
-    }
-  }
+		[JsonProperty]
+		public String Description { get; set; }
+
+		ETestResult mLastResult;
+		public ETestResult LastResult { 
+			get { return mLastResult; }
+			set {
+				if (mLastResult != value) {
+					mLastResult = value;
+					Notify("LastResult");
+				}
+			}
+		}
+
+		public String GetFunctionName()
+		{
+			return "test_" + Name.ToLower().Replace(' ', '_');
+		}
+	}
 }
