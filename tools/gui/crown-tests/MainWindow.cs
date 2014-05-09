@@ -19,11 +19,11 @@ namespace crown_tests
 			twTests.AppendColumn("State", new Gtk.CellRendererText());
 			TreeViewTemplating.AddRowTemplate(twTests, 
 				TreeViewRowTemplate.Create(typeof(TestCategory))
-																				.SetBinding("Name", "Name"));
+													 .SetBinding("Name", "Name"));
 			TreeViewTemplating.AddRowTemplate(twTests, 
 				TreeViewRowTemplate.Create(typeof(Test))
-																				.SetBinding("Name", "Name")
-																				.SetBinding("State", "LastResult", (x) => object.Equals(x, 0) ? "Passed" : "Failed"));
+													 .SetBinding("Name", "Name")
+													 .SetBinding("State", "LastResult"));
 			TreeViewTemplating.ApplyTemplating(twTests);
 
 

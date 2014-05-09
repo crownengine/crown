@@ -26,7 +26,7 @@ namespace crown_tests.tests
 					p.StartInfo.Arguments = string.Format("/test:\"{0}\"", test.Name);
 					p.Start();
 					p.WaitForExit();
-					test.LastResult = p.ExitCode;
+					test.LastResult = (p.ExitCode == 0) ? ETestResult.Passed : ETestResult.Failed;
 					System.Threading.Thread.Sleep(1500);
 				}
 			}

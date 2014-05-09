@@ -6,6 +6,12 @@ using System.Text;
 
 namespace crown_tests.tests
 {
+	public enum ETestResult {
+		Unknown = 0,
+		Failed = 1,
+		Passed = 2
+	}
+
 	[JsonObject(MemberSerialization.OptIn)]
 	public class Test: ViewModelBase
 	{
@@ -15,9 +21,8 @@ namespace crown_tests.tests
 		[JsonProperty]
 		public String Description { get; set; }
 
-		int mLastResult;
-
-		public int LastResult { 
+		ETestResult mLastResult;
+		public ETestResult LastResult { 
 			get { return mLastResult; }
 			set {
 				if (mLastResult != value) {
