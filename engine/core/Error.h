@@ -24,7 +24,11 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Log.h"
+#pragma once
+
+#include "Config.h"
+#include "Types.h"
+#include "Macros.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -33,10 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#include <cxxabi.h>
 	#include <execinfo.h>
 #endif
-
-#include "Config.h"
-
-#pragma once
 
 namespace crown
 {
@@ -84,13 +84,13 @@ inline void log_backtrace()
 			int status;
 			char* real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
 
-			Log::e("\t[%d] %s: (%s)+%s %s", i, messages[i], (status == 0 ? real_name : mangled_name), offset_begin, offset_end);
+			printf("\t[%d] %s: (%s)+%s %s\n", i, messages[i], (status == 0 ? real_name : mangled_name), offset_begin, offset_end);
 			free(real_name);
 		}
 		// otherwise, print the whole line
 		else
 		{
-			Log::e("\t[%d] %s", i, messages[i]);
+			printf("\t[%d] %s\n", i, messages[i]);
 		}
 	}
 	free(messages);
@@ -103,10 +103,10 @@ inline void abort(const char* file, int line, const char* message, ...)
 {
 	va_list ap;
 	va_start(ap, message);
-	Log::e1(message, ap);
+	vprintf(message, ap);
 	va_end(ap);
-	Log::e("\tIn: %s:%d\n", file, line);
-	Log::e("Backtrace:");
+	printf("\tIn: %s:%d\n", file, line);
+	printf("Backtrace:\n");
 	//fflush(0);
 	log_backtrace();
 	exit(EXIT_FAILURE);

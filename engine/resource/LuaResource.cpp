@@ -84,7 +84,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	}
 	else
 	{
-		Log::e("Error while reading luajit bytecode");
+		CE_LOGE("Error while reading luajit bytecode");
 		return;
 	}
 

@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
+#include <X11/extensions/Xrandr.h>
 #include "Config.h"
 #include "Crown.h"
 #include "Device.h"
@@ -128,6 +129,7 @@ public:
 		, m_x11_window(None)
 		, m_x11_parent_window(None)
 		, m_x11_hidden_cursor(None)
+		, m_screen_config(NULL)
 		, m_exit(false)
 		, m_x(0)
 		, m_y(0)
@@ -137,6 +139,7 @@ public:
 		, m_fullscreen(0)
 		, m_compile(0)
 		, m_continue(0)
+		, m_wait_console(0)
 	{
 	}
 
@@ -147,13 +150,16 @@ public:
 		check_preferred_settings();
 
 		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+			m_console = CE_NEW(default_allocator(), ConsoleServer)();
+			m_console->init(m_console_port, (bool) m_wait_console);
+
 			if (m_compile == 1)
 			{
 				m_bundle_compiler = CE_NEW(default_allocator(), BundleCompiler);
 				if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir))
 				{
 					CE_DELETE(default_allocator(), m_bundle_compiler);
-					Log::e("Exiting.");
+					CE_LOGE("Exiting.");
 					exit(EXIT_FAILURE);
 				}
 
@@ -176,7 +182,59 @@ public:
 	{
 		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
 			CE_DELETE(default_allocator(), m_bundle_compiler);
+
+			m_console->shutdown();
+			CE_DELETE(default_allocator(), m_console);
 		#endif
+	}
+
+	//-----------------------------------------------------------------------------
+	void display_modes(Array<DisplayMode>& modes)
+	{
+		int num_rrsizes = 0;
+		XRRScreenSize* rrsizes = XRRConfigSizes(m_screen_config, &num_rrsizes);
+
+		for (int i = 0; i < num_rrsizes; i++)
+		{
+			DisplayMode dm;
+			dm.id = (uint32_t) i;
+			dm.width = rrsizes[i].width;
+			dm.height = rrsizes[i].height;
+			array::push_back(modes, dm);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_display_mode(uint32_t id)
+	{
+		// Check if id is valid
+		int num_rrsizes = 0;
+		XRRScreenSize* rrsizes = XRRConfigSizes(m_screen_config, &num_rrsizes);
+		(void) rrsizes;
+
+		if ((int) id >= num_rrsizes)
+			return;
+
+		XRRSetScreenConfig(m_x11_display,
+							m_screen_config,
+							RootWindow(m_x11_display, DefaultScreen(m_x11_display)),
+							(int) id,
+							RR_Rotate_0,
+							CurrentTime);
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_fullscreen(bool full)
+	{
+		XEvent e;
+		e.xclient.type = ClientMessage;
+		e.xclient.window = m_x11_window;
+		e.xclient.message_type = XInternAtom(m_x11_display, "_NET_WM_STATE", False );
+		e.xclient.format = 32;
+		e.xclient.data.l[0] = full ? 1 : 0;
+		e.xclient.data.l[1] = XInternAtom(m_x11_display, "_NET_WM_STATE_FULLSCREEN", False);
+
+		XSendEvent(m_x11_display, DefaultRootWindow(m_x11_display), False, SubstructureNotifyMask, &e);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -249,6 +307,12 @@ public:
 		oswindow_set_window(m_x11_display, m_x11_window);
 		set_x11_display_and_window(m_x11_display, m_x11_window);
 
+		// Get screen configuration
+		m_screen_config = XRRGetScreenInfo(m_x11_display, RootWindow(m_x11_display, screen));
+
+		Rotation rr_old_rot;
+		const SizeID rr_old_sizeid = XRRConfigCurrentConfiguration(m_screen_config, &rr_old_rot);
+
 		OsThread game_thread("game-thread");
 		game_thread.start(main_loop, (void*)this);
 
@@ -258,6 +322,21 @@ public:
 		}
 
 		game_thread.stop();
+
+		// Restore previous screen configuration if changed
+		Rotation rr_cur_rot;
+		const SizeID rr_cur_sizeid = XRRConfigCurrentConfiguration(m_screen_config, &rr_cur_rot);
+
+		if (rr_cur_rot != rr_old_rot || rr_cur_sizeid != rr_old_sizeid)
+		{
+			XRRSetScreenConfig(m_x11_display,
+								m_screen_config,
+								RootWindow(m_x11_display, screen),
+								rr_old_sizeid,
+								rr_old_rot,
+								CurrentTime);
+		}
+		XRRFreeScreenConfigInfo(m_screen_config);
 
 		LinuxDevice::shutdown();
 		XDestroyWindow(m_x11_display, m_x11_window);
@@ -273,6 +352,10 @@ public:
 
 		while(!process_events() && is_running())
 		{
+			#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+				m_console->update();
+			#endif
+
 			Device::frame();
 
 			m_keyboard->update();
@@ -483,21 +566,23 @@ public:
 			"  --compile                  Do a full compile of the resources.\n"
 			"  --continue                 Continue the execution after the resource compilation step.\n"
 			"  --file-server              Read resources from a remote engine instance.\n"
-			"  --console-port             Set the network port of the console server.\n";
+			"  --console-port             Set the network port of the console server.\n"
+			"  --wait-console             Wait for a console connection before starting up.\n";
 
 		static ArgsOption options[] = 
 		{
-			{ "help",             AOA_NO_ARGUMENT,       NULL,        'i' },
-			{ "source-dir",       AOA_REQUIRED_ARGUMENT, NULL,        's' },
-			{ "bundle-dir",       AOA_REQUIRED_ARGUMENT, NULL,        'b' },
-			{ "compile",          AOA_NO_ARGUMENT,       &m_compile,   1 },
-			{ "continue",         AOA_NO_ARGUMENT,       &m_continue,  1 },
-			{ "width",            AOA_REQUIRED_ARGUMENT, NULL,        'w' },
-			{ "height",           AOA_REQUIRED_ARGUMENT, NULL,        'h' },
-			{ "fullscreen",       AOA_NO_ARGUMENT,       &m_fullscreen, 1 },
-			{ "parent-window",    AOA_REQUIRED_ARGUMENT, NULL,        'p' },
-			{ "file-server",      AOA_NO_ARGUMENT,       &m_fileserver, 1 },
-			{ "console-port",     AOA_REQUIRED_ARGUMENT, NULL,        'c' },
+			{ "help",             AOA_NO_ARGUMENT,       NULL,           'i' },
+			{ "source-dir",       AOA_REQUIRED_ARGUMENT, NULL,           's' },
+			{ "bundle-dir",       AOA_REQUIRED_ARGUMENT, NULL,           'b' },
+			{ "compile",          AOA_NO_ARGUMENT,       &m_compile,       1 },
+			{ "continue",         AOA_NO_ARGUMENT,       &m_continue,      1 },
+			{ "width",            AOA_REQUIRED_ARGUMENT, NULL,           'w' },
+			{ "height",           AOA_REQUIRED_ARGUMENT, NULL,           'h' },
+			{ "fullscreen",       AOA_NO_ARGUMENT,       &m_fullscreen,    1 },
+			{ "parent-window",    AOA_REQUIRED_ARGUMENT, NULL,           'p' },
+			{ "file-server",      AOA_NO_ARGUMENT,       &m_fileserver,    1 },
+			{ "console-port",     AOA_REQUIRED_ARGUMENT, NULL,           'c' },
+			{ "wait-console",     AOA_NO_ARGUMENT,       &m_wait_console,  1 },
 			{ NULL, 0, NULL, 0 }
 		};
 
@@ -566,26 +651,26 @@ public:
 		{
 			if (string::strcmp(m_source_dir, "") == 0)
 			{
-				Log::e("You have to specify the source directory when running in compile mode.");
+				CE_LOGE("You have to specify the source directory when running in compile mode.");
 				exit(EXIT_FAILURE);
 			}
 
 			if (!os::is_absolute_path(m_source_dir))
 			{
-				Log::e("The source directory must be absolute.");
+				CE_LOGE("The source directory must be absolute.");
 				exit(EXIT_FAILURE);
 			}
 		}
 
 		if (!os::is_absolute_path(m_bundle_dir))
 		{
-			Log::e("The bundle directory must be absolute.");
+			CE_LOGE("The bundle directory must be absolute.");
 			exit(EXIT_FAILURE);
 		}
 
 		if (m_width == 0 || m_height == 0)
 		{
-			Log::e("Window width and height must be greater than zero.");
+			CE_LOGE("Window width and height must be greater than zero.");
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -639,6 +724,8 @@ private:
 	Cursor m_x11_hidden_cursor;
 	Atom m_wm_delete_message;
 
+	XRRScreenConfiguration* m_screen_config;
+
 	bool m_exit;
 	uint32_t m_x;
 	uint32_t m_y;
@@ -650,6 +737,7 @@ private:
 	int32_t m_fullscreen;
 	int32_t m_compile;
 	int32_t m_continue;
+	int32_t m_wait_console;
 
 	OsEventQueue m_queue;
 };

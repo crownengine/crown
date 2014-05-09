@@ -32,16 +32,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "SceneGraph.h"
 #include "Assert.h"
 #include "Vector4.h"
+#include "Frustum.h"
 
 namespace crown
 {
 
 //-----------------------------------------------------------------------------
-Camera::Camera(SceneGraph& sg, int32_t node)
+Camera::Camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far)
 	: m_scene_graph(sg)
 	, m_node(node)
-	, m_projection_type(ProjectionType::PERSPECTIVE)
+	, m_projection_type(type)
+	, m_near(near)
+	, m_far(far)
 {
+	update_projection_matrix();
 }
 
 //-----------------------------------------------------------------------------
@@ -192,10 +196,12 @@ void Camera::set_viewport_metrics(uint16_t x, uint16_t y, uint16_t width, uint16
 //-----------------------------------------------------------------------------
 Vector3 Camera::screen_to_world(const Vector3& pos)
 {
+	using namespace matrix4x4;
+
 	Matrix4x4 world_inv = world_pose();
-	world_inv.invert();
+	invert(world_inv);
 	Matrix4x4 mvp = m_projection * world_inv;
-	mvp.invert();
+	invert(mvp);
 
 	Vector4 ndc( (2 * (pos.x - 0)) / m_view_width - 1,
 				 (2 * (m_view_height - pos.y)) / m_view_height - 1,
@@ -210,8 +216,10 @@ Vector3 Camera::screen_to_world(const Vector3& pos)
 //-----------------------------------------------------------------------------
 Vector3 Camera::world_to_screen(const Vector3& pos)
 {
+	using namespace matrix4x4;
+
 	Matrix4x4 world_inv = world_pose();
-	world_inv.invert();
+	invert(world_inv);
 
 	Vector3 ndc = (m_projection * world_inv) * pos;
 
@@ -227,12 +235,12 @@ void Camera::update_projection_matrix()
 	{
 		case ProjectionType::ORTHOGRAPHIC:
 		{
-			m_projection.build_projection_ortho_rh(m_left, m_right, m_bottom, m_top, m_near, m_far);
+			matrix4x4::set_orthographic_rh(m_projection, m_left, m_right, m_bottom, m_top, m_near, m_far);
 			break;
 		}
 		case ProjectionType::PERSPECTIVE:
 		{
-			m_projection.build_projection_perspective_rh(m_FOV, m_aspect, m_near, m_far);
+			matrix4x4::set_perspective_rh(m_projection, m_FOV, m_aspect, m_near, m_far);
 			break;
 		}
 		default:

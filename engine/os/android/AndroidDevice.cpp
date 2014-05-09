@@ -25,6 +25,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <jni.h>
+#include <android/sensor.h>
+#include <android_native_app_glue.h>
 #include "Allocator.h"
 #include "Device.h"
 #include "Log.h"
@@ -35,6 +37,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+
+ANativeWindow* g_android_window;
+AAssetManager* g_android_asset_manager;
 
 class AndroidDevice : public Device
 {
@@ -50,27 +55,85 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
+	void display_modes(Array<DisplayMode>& /*modes*/)
+	{
+		// Do nothing
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_display_mode(uint32_t /*id*/)
+	{
+		// Do nothing
+	}
+
+	//-----------------------------------------------------------------------------
+	void set_fullscreen(bool /*full*/)
+	{
+		// Do nothing
+	}
+
+	void run(struct android_app* app)
+	{
+		app->userData = this;
+		app->onAppCmd = crown::AndroidDevice::on_app_cmd;
+		app->onInputEvent = crown::AndroidDevice::on_input_event;
+		g_android_asset_manager = app->activity->assetManager;
+
+		while (app->destroyRequested == 0)
+		{
+			int32_t num;
+			android_poll_source* source;
+			/*int32_t id =*/ ALooper_pollAll(-1, NULL, &num, (void**)&source);
+
+			if (NULL != source)
+			{
+				source->process(app, source);
+			}
+		}
+
+		m_game_thread.stop();
+	}
+
+	//-----------------------------------------------------------------------------
 	int32_t run(int, char**)
 	{
-		m_game_thread.start(main_loop, (void*)this);
-
-		//while (true) {}
 		return 0;
 	}
 
 	//-----------------------------------------------------------------------------
 	int32_t loop()
 	{
+		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+			m_console = CE_NEW(default_allocator(), ConsoleServer)();
+			m_console->init(m_console_port, false);
+		#endif
+
 		Device::init();
+
+		// Push metrics here since Android does not trigger APP_CMD_WINDOW_RESIZED
+		const int32_t width = ANativeWindow_getWidth(g_android_window);
+		const int32_t height = ANativeWindow_getHeight(g_android_window);
+		m_queue.push_metrics_event(0, 0, width, height);
 
 		while (is_running() && !process_events())
 		{
+			#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+				m_console->update();
+			#endif
+
 			Device::frame();
 			m_touch->update();
 			m_keyboard->update();
 		}
 
 		Device::shutdown();
+
+		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+			m_console->shutdown();
+			CE_DELETE(default_allocator(), m_console);
+		#endif
+
+		exit(EXIT_SUCCESS);
 		return 0;
 	}
 
@@ -107,33 +170,28 @@ public:
 				{
 					const OsKeyboardEvent& ev = event.keyboard;
 					m_keyboard->set_button_state(ev.button, ev.pressed);
-					Log::i("KEYBOARD EVENT RECEIVED");
 					break;
 				}
 				case OsEvent::METRICS:
 				{
 					const OsMetricsEvent& ev = event.metrics;
-					m_window->m_x = 0;
-					m_window->m_y = 0;
+					m_window->m_x = ev.x;
+					m_window->m_y = ev.y;
 					m_window->m_width = ev.width;
 					m_window->m_height = ev.height;
-					Log::i("METRICS EVENT RECEIVED");
 					break;
 				}
 				case OsEvent::EXIT:
 				{
-					Log::i("EXIT EVENT RECEIVED");
 					return true;
 				}
 				case OsEvent::PAUSE:
 				{
-					Log::i("PAUSE EVENT RECEIVED, pausing...");
 					pause();
 					break;
 				}
 				case OsEvent::RESUME:
 				{
-					Log::i("RESUME EVENT RECEIVED, resuming...");
 					unpause();
 					break;
 				}
@@ -149,44 +207,127 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	void push_keyboard_event(uint32_t modifier, KeyboardButton::Enum b, bool pressed)
+	static void on_app_cmd(struct android_app* app, int32_t cmd)
 	{
-		m_queue.push_keyboard_event(modifier, b, pressed);
+		((AndroidDevice*) app->userData)->process_command(app, cmd);
 	}
 
 	//-----------------------------------------------------------------------------
-	void push_touch_event(uint16_t x, uint16_t y, uint8_t pointer_id)
+	void process_command(struct android_app* app, int32_t cmd)
 	{
-		m_queue.push_touch_event(x, y, pointer_id);
+		switch (cmd)
+		{
+			case APP_CMD_SAVE_STATE:
+			{
+				// // The system has asked us to save our current state.  Do so.
+				// engine->app->savedState = malloc(sizeof(struct saved_state));
+				// *((struct saved_state*)engine->app->savedState) = engine->state;
+				// engine->app->savedStateSize = sizeof(struct saved_state);
+				break;
+			}
+			case APP_CMD_INIT_WINDOW:
+			{
+				CE_ASSERT(app->window != NULL, "Android window is NULL");
+				g_android_window = app->window;
+				m_game_thread.start(main_loop, (void*)this);
+				break;
+			}
+			case APP_CMD_TERM_WINDOW:
+			{
+				// The window is being hidden or closed, clean it up.
+				break;
+			}
+			case APP_CMD_WINDOW_RESIZED:
+			{
+				// Not triggered by Android
+				break;
+			}
+			case APP_CMD_GAINED_FOCUS:
+			{
+				break;
+			}
+			case APP_CMD_LOST_FOCUS:
+			{
+				break;
+			}
+			case APP_CMD_DESTROY:
+			{
+				m_queue.push_exit_event(0);
+				break;
+			}
+		}
 	}
 
 	//-----------------------------------------------------------------------------
-	void push_touch_event(uint16_t x, uint16_t y, uint8_t pointer_id, bool pressed)
+	static int32_t on_input_event(struct android_app* app, AInputEvent* event)
 	{
-		m_queue.push_touch_event(x, y, pointer_id, pressed);
-	}
-
-	void push_metrics_event(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
-	{
-		m_queue.push_metrics_event(x, y, width, height);
+		return ((AndroidDevice*) app->userData)->process_input(app, event);
 	}
 
 	//-----------------------------------------------------------------------------
-	void push_pause_event()
+	int32_t process_input(struct android_app* app, AInputEvent* event)
 	{
-		m_queue.push_pause_event();
-	}
+		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
+		{
+			const int32_t action = AMotionEvent_getAction(event);
+			const int32_t pointerIndex = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+			const int32_t pointerCount = AMotionEvent_getPointerCount(event);
 
-	//-----------------------------------------------------------------------------
-	void push_resume_event()
-	{
-		m_queue.push_resume_event();
-	}
+			const int32_t pointerId = AMotionEvent_getPointerId(event, pointerIndex);
+			const float x = AMotionEvent_getX(event, pointerIndex);
+			const float y = AMotionEvent_getY(event, pointerIndex);
 
-	//-----------------------------------------------------------------------------
-	void push_exit_event(int32_t code)
-	{
-		m_queue.push_exit_event(code);
+			const int32_t actionMasked = (action & AMOTION_EVENT_ACTION_MASK);
+
+			switch (actionMasked)
+			{	
+				case AMOTION_EVENT_ACTION_DOWN:
+				case AMOTION_EVENT_ACTION_POINTER_DOWN:
+				{
+					m_queue.push_touch_event((uint16_t) x, (uint16_t) y, (uint8_t) pointerId, true);
+					break;			
+				}
+				case AMOTION_EVENT_ACTION_UP:
+				case AMOTION_EVENT_ACTION_POINTER_UP:
+				{
+					m_queue.push_touch_event((uint16_t) x, (uint16_t) y, (uint8_t) pointerId, false);
+					break;
+				}
+				case AMOTION_EVENT_ACTION_OUTSIDE:
+				case AMOTION_EVENT_ACTION_CANCEL:
+				{
+					m_queue.push_touch_event((uint16_t) x, (uint16_t) y, (uint8_t) pointerId, false);
+					break;			
+				}
+				case AMOTION_EVENT_ACTION_MOVE:
+				{
+					for (int index = 0; index < pointerCount; index++)
+					{
+						const float xx = AMotionEvent_getX(event, index);
+						const float yy = AMotionEvent_getY(event, index);
+						const int32_t id = AMotionEvent_getPointerId(event, index);
+						m_queue.push_touch_event((uint16_t) xx, (uint16_t) yy, (uint8_t) id);
+					}
+					break;
+				}
+			}
+
+			return 1;
+		}
+		else if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY)
+		{
+			const int32_t keycode = AKeyEvent_getKeyCode(event);
+			const int32_t keyaction = AKeyEvent_getAction(event);
+
+			if (keycode == AKEYCODE_BACK)
+			{
+				m_queue.push_keyboard_event(0, KeyboardButton::ESCAPE, keyaction == AKEY_EVENT_ACTION_DOWN ? true : false);
+			}
+
+			return 1;
+		}
+
+		return 0;
 	}
 
 private:
@@ -195,93 +336,20 @@ private:
 	OsThread m_game_thread;
 };
 
-static AndroidDevice* g_engine;
-ANativeWindow* g_android_window;
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_initCrown(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	memory::init();
-	os::init_os();
-
-	g_engine = CE_NEW(default_allocator(), AndroidDevice);
-	set_device(g_engine);
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_shutdownCrown(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	CE_DELETE(default_allocator(), g_engine);
-	memory::shutdown();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_run(JNIEnv* /*env*/, jobject /*obj*/)
-{
-	g_engine->run(0, NULL);
-}
-
-//-----------------------------------------------------------------------------
-extern "C" void Java_crown_android_CrownLib_acquireWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
-{
-    // Obtain a native window from a Java surface
-	CE_ASSERT(surface != 0, "Unable to get Android window");
-    g_android_window = ANativeWindow_fromSurface(env, surface);
-    ANativeWindow_acquire(g_android_window);
-    Log::i("Window acquired");
-}
-
-//-----------------------------------------------------------------------------
-extern "C" void Java_crown_android_CrownLib_releaseWindow(JNIEnv *env, jclass /*clazz*/, jobject surface)
-{
-    ANativeWindow_release(g_android_window);
-    Log::i("Window released");
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushKeyboardEvent(JNIEnv * /*env*/, jobject /*obj*/, jint modifier, jint b, jint pressed)
-{
-	g_engine->push_keyboard_event(modifier, (KeyboardButton::Enum) b, pressed);
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushTouchEventMove(JNIEnv * /*env*/, jobject /*obj*/, jint pointer_id, jint x, jint y)
-{
-	g_engine->push_touch_event(x, y, pointer_id);
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushTouchEventPointer(JNIEnv * /*env*/, jobject /*obj*/, jint pointer_id, jint x, jint y, jint pressed)
-{
-	g_engine->push_touch_event(x, y, pointer_id, pressed);
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushAccelerometerEvent(JNIEnv * /*env*/, jobject /*obj*/, jint type, jfloat x, jfloat y, jfloat z)
-{
-}
-
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushMetricsEvent(JNIEnv * /*env*/, jobject /*obj*/, jint x, jint y, jint width, jint height)
-{
-	g_engine->push_metrics_event(x, y, width, height);
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushPauseEvent(JNIEnv * /*env*/, jobject /*obj*/)
-{
-	g_engine->push_pause_event();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushResumeEvent(JNIEnv * /*env*/, jobject /*obj*/)
-{
-	g_engine->push_resume_event();
-}
-
-//-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_crown_android_CrownLib_pushExitEvent(JNIEnv * /*env*/, jobject /*obj*/, jint code)
-{
-	g_engine->push_exit_event(code);
-}
-
 } // namespace crown
+
+void android_main(struct android_app* app)
+{
+	// Make sure glue isn't stripped.
+	app_dummy();
+
+	crown::memory::init();
+	crown::os::init_os();
+	crown::AndroidDevice* engine = CE_NEW(crown::default_allocator(), crown::AndroidDevice)();
+	crown::set_device(engine);
+
+	engine->run(app);
+
+	CE_DELETE(crown::default_allocator(), engine);
+	crown::memory::shutdown();
+}

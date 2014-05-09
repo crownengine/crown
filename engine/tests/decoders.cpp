@@ -12,13 +12,13 @@ int main(int argc, char** argv)
 	ResourceId rid = engine->resource_manager()->load("sound", "sounds/untrue");
 	engine->resource_manager()->flush();
 
-	SoundResource* stream = (SoundResource*)engine->resource_manager()->data(rid);
+	SoundResource* stream = (SoundResource*)engine->resource_manager()->get(rid);
 
 	OggDecoder decoder((char*)stream->data(), stream->size());
 
 	while(decoder.stream())
 	{
-		Log::i("size: %d", decoder.size());
+		CE_LOGI("size: %d", decoder.size());
 	}
 
 	engine->shutdown();

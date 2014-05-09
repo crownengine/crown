@@ -42,7 +42,10 @@ public:
 
 	//-----------------------------------------------------------------------------
 	ResourcePackage(ResourceManager& resman, const ResourceId id, const PackageResource* package)
-		: m_resource_manager(&resman), m_package_id(id), m_package(package), m_has_loaded(false)
+		: m_resource_manager(&resman)
+		, m_package_id(id)
+		, m_package(package)
+		, m_has_loaded(false)
 	{
 		CE_ASSERT_NOT_NULL(package);
 	}
@@ -102,11 +105,21 @@ public:
 		{
 			m_resource_manager->load(FONT_TYPE, m_package->get_font_id(i));
 		}
+
+		for (uint32_t i = 0; i < m_package->num_levels(); i++)
+		{
+			m_resource_manager->load(LEVEL_TYPE, m_package->get_level_id(i));
+		}
 	}
 
 	/// Unloads all the resources in the package.
 	void unload()
 	{
+		for (uint32_t i = 0; i < m_package->num_levels(); i++)
+		{
+			m_resource_manager->unload(m_package->get_level_id(i));
+		}
+
 		for (uint32_t i = 0; i < m_package->num_fonts(); i++)
 		{
 			m_resource_manager->unload(m_package->get_font_id(i));

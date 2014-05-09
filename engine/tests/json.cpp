@@ -33,9 +33,9 @@ int main()
 
     CE_ASSERT(root.has_key("glossary"), "'glossary' not found!");
 
-    Log::i("%s", root.key("glossary").key("GlossDiv").key("title").to_string());
-    Log::i("%s", root.key("glossary").key("title").to_string());
-    Log::i("%s", root.key("glossary").key("GlossDiv").key("GlossList").key("GlossEntry").key("GlossTerm").to_string());
+    CE_LOGI("%s", root.key("glossary").key("GlossDiv").key("title").to_string());
+    CE_LOGI("%s", root.key("glossary").key("title").to_string());
+    CE_LOGI("%s", root.key("glossary").key("GlossDiv").key("GlossList").key("GlossEntry").key("GlossTerm").to_string());
 
 
 	return 0;

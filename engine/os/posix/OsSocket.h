@@ -298,6 +298,7 @@ public:
 
 		int bind_ret = bind(m_server.m_socket, (const sockaddr*) &address, sizeof(sockaddr_in));
 		CE_ASSERT(bind_ret != -1, "Failed to bind socket: errno: %d", errno);
+		CE_UNUSED(bind_ret);
 
 		return true;
 	}
@@ -313,6 +314,7 @@ public:
 	{
 		int listen_ret = ::listen(m_server.m_socket, max);
 		CE_ASSERT(listen_ret != -1, "Failed to listen on socket: errno: %d", errno);
+		CE_UNUSED(listen_ret);
 	}
 
 	//-----------------------------------------------------------------------------

@@ -60,6 +60,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	Array<ResourceId> m_materials(default_allocator());
 	Array<ResourceId> m_guis(default_allocator());
 	Array<ResourceId> m_fonts(default_allocator());
+	Array<ResourceId> m_levels(default_allocator());
 
 	// Check for resource types
 	if (root.has_key("texture"))
@@ -74,13 +75,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(texture_name.c_str()))
 			{
-				Log::e("Texture '%s' does not exist.", texture_name.c_str());
+				CE_LOGE("Texture '%s' does not exist.", texture_name.c_str());
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(texture_name.c_str(), texture_name.length(), 0);
-			array::push_back(m_texture, id);
+			array::push_back(m_texture, ResourceId(texture_name.c_str()));
 		}
 	}
 
@@ -98,13 +97,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(lua_name.c_str()))
 			{
-				Log::e("Lua script '%s' does not exist.", lua_name.c_str());
+				CE_LOGE("Lua script '%s' does not exist.", lua_name.c_str());
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(lua_name.c_str(), lua_name.length(), 0);
-			array::push_back(m_script, id);
+			array::push_back(m_script, ResourceId(lua_name.c_str()));
 		}
 	}
 
@@ -121,13 +118,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(sound_name.c_str()))
 			{
-				Log::e("Sound '%s' does not exist.", sound_name.c_str());
+				CE_LOGE("Sound '%s' does not exist.", sound_name.c_str());
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(sound_name.c_str(), string::strlen(sound_name.c_str()), 0);
-			array::push_back(m_sound, id);
+			array::push_back(m_sound, ResourceId(sound_name.c_str()));
 		}
 	}
 
@@ -144,13 +139,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(mesh_name.c_str()))
 			{
-				Log::e("Mesh '%s' does not exist.", mesh_name.c_str());
+				CE_LOGE("Mesh '%s' does not exist.", mesh_name.c_str());
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(mesh_name.c_str(), mesh_name.length(), 0);
-			array::push_back(m_mesh, id);
+			array::push_back(m_mesh, ResourceId(mesh_name.c_str()));
 		}
 	}
 
@@ -167,12 +160,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(unit_name.c_str()))
 			{
-				Log::e("Unit '%s' does not exist.", unit_name.c_str());
+				CE_LOGE("Unit '%s' does not exist.", unit_name.c_str());
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(unit_name.c_str(), unit_name.length(), 0);
-			array::push_back(m_unit, id);
+			array::push_back(m_unit, ResourceId(unit_name.c_str()));
 		}
 	}
 
@@ -189,13 +180,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(sprite_name.c_str()))
 			{
-				Log::e("Sprite '%s' does not exist.", sprite_name.c_str());
+				CE_LOGE("Sprite '%s' does not exist.", sprite_name.c_str());
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(sprite_name.c_str(), sprite_name.length(), 0);
-			array::push_back(m_sprite, id);
+			array::push_back(m_sprite, ResourceId(sprite_name.c_str()));
 		}
 	}
 
@@ -212,14 +201,12 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(physics_name.c_str()))
 			{
-				Log::e("Physics '%s' does not exist.", physics_name.c_str());
+				CE_LOGE("Physics '%s' does not exist.", physics_name.c_str());
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(physics_name.c_str(), physics_name.length(), 0);
-			array::push_back(m_physics, id);
-		}	
+			array::push_back(m_physics, ResourceId(physics_name.c_str()));
+		}
 	}
 
 	// Check for materials
@@ -235,13 +222,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(materials_name.c_str()))
 			{
-				Log::e("Material '%s' does not exist.", materials_name.c_str());
+				CE_LOGE("Material '%s' does not exist.", materials_name.c_str());
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(materials_name.c_str(), materials_name.length(), 0);
-			array::push_back(m_materials, id);
+			array::push_back(m_materials, ResourceId(materials_name.c_str()));
 		}
 	}
 
@@ -258,13 +243,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(guis_name.c_str()))
 			{
-				Log::e("gui '%s' does not exist.", guis_name.c_str());
+				CE_LOGE("gui '%s' does not exist.", guis_name.c_str());
 				return;
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(guis_name.c_str(), guis_name.length(), 0);
-			array::push_back(m_guis, id);
+			array::push_back(m_guis, ResourceId(guis_name.c_str()));
 		}
 	}
 
@@ -281,13 +264,32 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 			if (!fs.is_file(font_name.c_str()))
 			{
-				Log::e("font '%s' does not exist.", font_name.c_str());
+				CE_LOGE("font '%s' does not exist.", font_name.c_str());
 				return;				
 			}
 
-			ResourceId id;
-			id.id = string::murmur2_64(font_name.c_str(), font_name.length(), 0);
-			array::push_back(m_fonts, id);
+			array::push_back(m_fonts, ResourceId(font_name.c_str()));
+		}
+	}
+
+	// Check for fonts
+	if (root.has_key("level"))
+	{
+		JSONElement levels_array = root.key("level");
+		uint32_t levels_array_size = levels_array.size();
+
+		for (uint32_t i = 0; i < levels_array_size; i++)
+		{
+			DynamicString level_name;
+			levels_array[i].to_string(level_name); level_name += ".level";
+
+			if (!fs.is_file(level_name.c_str()))
+			{
+				CE_LOGE("level '%s' does not exist.", level_name.c_str());
+				return;				
+			}
+
+			array::push_back(m_levels, ResourceId(level_name.c_str()));
 		}
 	}
 
@@ -302,6 +304,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	header.num_materials = array::size(m_materials);
 	header.num_guis = array::size(m_guis);
 	header.num_fonts = array::size(m_fonts);
+	header.num_levels = array::size(m_levels);
 
 	header.textures_offset = sizeof(PackageHeader);
 	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
@@ -313,6 +316,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	header.materials_offset = header.physics_offset + sizeof(ResourceId) * header.num_physics;
 	header.guis_offset = header.materials_offset + sizeof(ResourceId) * header.num_materials;
 	header.fonts_offset = header.guis_offset + sizeof(ResourceId) * header.num_guis;
+	header.levels_offset = header.fonts_offset + sizeof(ResourceId) * header.num_fonts;
 
 	out_file->write((char*) &header, sizeof(PackageHeader));
 
@@ -355,6 +359,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	if (array::size(m_fonts) > 0)
 	{
 		out_file->write((char*) array::begin(m_fonts), sizeof(ResourceId) * header.num_fonts);
+	}
+	if (array::size(m_levels) > 0)
+	{
+		out_file->write((char*) array::begin(m_levels), sizeof(ResourceId) * header.num_levels);
 	}
 }
 

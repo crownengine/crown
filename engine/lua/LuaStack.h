@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Quaternion.h"
 #include "Matrix4x4.h"
 #include "StringUtils.h"
+#include "Color4.h"
 
 //-----------------------------------------------------------------------------
 #if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
@@ -124,6 +125,24 @@ public:
 	void remove(int32_t index)
 	{
 		lua_remove(m_L, index);
+	}
+
+	//-----------------------------------------------------------------------------
+	bool is_nil(int32_t index)
+	{
+		return lua_isnil(m_L, index);
+	}
+
+	//-----------------------------------------------------------------------------
+	bool is_number(int32_t index)
+	{
+		return lua_isnumber(m_L, index);
+	}
+
+	/// Wraps lua_type.
+	int value_type(uint32_t index)
+	{
+		return lua_type(m_L, index);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -422,31 +441,19 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	void push_gui_component_id(GuiComponentId id)
-	{
-		uintptr_t enc = id.encode();
-		lua_pushlightuserdata(m_L, (void*)enc);		
-	}
-
-	//-----------------------------------------------------------------------------
-	GuiComponentId get_gui_component_id(int32_t index)
-	{
-		uint32_t enc = (uintptr_t) CHECKLIGHTDATA(m_L, index, always_true, "GuiComponentId");
-		GuiComponentId id;
-		id.decode(enc);
-		return id;	
-	}
-
-	//-----------------------------------------------------------------------------
 	void push_debug_line(DebugLine* line)
 	{
-		lua_pushlightuserdata(m_L, line);
+		DebugLine** l = (DebugLine**) lua_newuserdata(m_L, sizeof(DebugLine*));
+		*l = line;
+		luaL_getmetatable(m_L, "DebugLine");
+		lua_setmetatable(m_L, -2);
 	}
 
 	//-----------------------------------------------------------------------------
 	DebugLine* get_debug_line(int32_t index)
 	{
-		return (DebugLine*) CHECKLIGHTDATA(m_L, index, always_true, "DebugLine");
+		DebugLine* l = *(DebugLine**) CHECKUDATA(m_L, index, "DebugLine");
+		return l;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -475,6 +482,14 @@ public:
 	{
 		void* q = CHECKLIGHTDATA(m_L, index, lua_system::is_quaternion, "Quaternion");
 		return *(Quaternion*)q;
+	}
+
+	Color4 get_color4(int32_t index)
+	{
+		// Color4 represented as Quaternion
+		void* c = CHECKLIGHTDATA(m_L, index, lua_system::is_quaternion, "Color4");
+		Quaternion& q = *(Quaternion*)c;
+		return Color4(q.x, q.y, q.z, q.w);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -507,6 +522,22 @@ public:
 		lua_pushlightuserdata(m_L, lua_system::next_quaternion(q));
 		luaL_getmetatable(m_L, "Lightuserdata_mt");
 		lua_setmetatable(m_L, -2);
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_vector2box(const Vector2& v)
+	{
+		Vector2* vec = (Vector2*) lua_newuserdata(m_L, sizeof(Vector2));
+		luaL_getmetatable(m_L, "Vector2Box");
+		lua_setmetatable(m_L, -2);
+		*vec = v;
+	}
+
+	//-----------------------------------------------------------------------------
+	Vector2& get_vector2box(uint32_t index)
+	{
+		Vector2* v = (Vector2*) CHECKUDATA(m_L, index, "Vector2Box");
+		return *v;
 	}
 
 	//-----------------------------------------------------------------------------

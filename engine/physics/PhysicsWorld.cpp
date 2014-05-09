@@ -40,6 +40,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceManager.h"
 #include "Raycast.h"
 #include "Unit.h"
+#include "Config.h"
+#include "World.h"
+#include "DebugLine.h"
+#include "Color4.h"
+#include "IntSetting.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -68,9 +73,13 @@ using physx::PxVisualizationParameter;
 using physx::PxSphereGeometry;
 using physx::PxCapsuleGeometry;
 using physx::PxBoxGeometry;
+using physx::PxRenderBuffer;
+using physx::PxDebugLine;
 
 namespace crown
 {
+
+static IntSetting g_physics_debug("physics.debug", "Enable physics debug rendering.", 0, 0, 1);
 
 namespace physics_system
 {
@@ -119,13 +128,13 @@ namespace physics_system
 			{
 				case PxErrorCode::eDEBUG_INFO:
 				{
-					Log::i("PhysX: %s", message);
+					CE_LOGI("PhysX: %s", message);
 					break;
 				}
 				case PxErrorCode::eDEBUG_WARNING: 
 				case PxErrorCode::ePERF_WARNING:
 				{
-					Log::w("PhysX: %s", message);
+					CE_LOGW("PhysX: %s", message);
 					break;
 				}
 				case PxErrorCode::eINVALID_PARAMETER:
@@ -192,6 +201,7 @@ namespace physics_system
 
 		bool extension = PxInitExtensions(*s_physics);
 		CE_ASSERT(extension, "Unable to initialize PhysX Extensions");
+		CE_UNUSED(extension);
 
 		s_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *s_foundation, PxCookingParams(PxTolerancesScale()));
 		CE_ASSERT(s_cooking, "Unable to create PhysX Cooking");
@@ -207,6 +217,22 @@ namespace physics_system
 		CE_DELETE(default_allocator(), s_px_error);
 		CE_DELETE(default_allocator(), s_px_allocator);
 	}
+
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		void draw_debug_lines(PxScene* scene, DebugLine& line)
+		{
+			const PxRenderBuffer& rb = scene->getRenderBuffer();
+			for(PxU32 i = 0; i < rb.getNbLines(); i++)
+			{
+				const PxDebugLine& pxline = rb.getLines()[i];
+				line.add_line(Color4(pxline.color0), Vector3(pxline.pos0.x, pxline.pos0.y, pxline.pos0.z),
+								Vector3(pxline.pos1.x, pxline.pos1.y, pxline.pos1.z));
+			}
+
+			line.commit();
+			line.clear();
+		}
+	#endif
 } // namespace physics_system
 
 //-----------------------------------------------------------------------------
@@ -220,6 +246,10 @@ PhysicsWorld::PhysicsWorld(World& world)
 	, m_raycasts_pool(default_allocator(), CE_MAX_RAYCASTS, sizeof(Raycast), CE_ALIGNOF(Raycast))
 	, m_events(default_allocator())
 	, m_callback(m_events)
+
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		, m_debug_line(NULL)
+	#endif
 {
 	// Create the scene
 	PxSceneLimits scene_limits;
@@ -250,7 +280,14 @@ PhysicsWorld::PhysicsWorld(World& world)
 	m_controller_manager = PxCreateControllerManager(*m_scene);
 	CE_ASSERT(m_controller_manager != NULL, "Failed to create PhysX controller manager");
 
-	m_resource = (PhysicsConfigResource*) device()->resource_manager()->lookup("physics_config", "global");
+	m_resource = (PhysicsConfigResource*) device()->resource_manager()->get("physics_config", "global");
+
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		m_scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1);
+		m_scene->setVisualizationParameter(PxVisualizationParameter::eACTOR_AXES, 1);
+		m_scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+		m_debug_line = world.create_debug_line(false);
+	#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -259,91 +296,84 @@ PhysicsWorld::~PhysicsWorld()
 	m_cpu_dispatcher->release();
 	m_controller_manager->release();
 	m_scene->release();
+
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		m_world.destroy_debug_line(m_debug_line);
+	#endif
 }
 
 //-----------------------------------------------------------------------------
 ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, UnitId unit_id)
 {
 	Actor* actor = CE_NEW(m_actors_pool, Actor)(*this, res, index, sg, node, unit_id);
-	return m_actors.create(actor);
+	return id_array::create(m_actors, actor);
 }
 
 //-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_actor(ActorId id)
 {
-	CE_ASSERT(m_actors.has(id), "Actor does not exist");
-
-	CE_DELETE(m_actors_pool, m_actors.lookup(id));
-	m_actors.destroy(id);
+	CE_DELETE(m_actors_pool, id_array::get(m_actors, id));
+	id_array::destroy(m_actors, id);
 }
 
 //-----------------------------------------------------------------------------
 ControllerId PhysicsWorld::create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node)
 {
 	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, sg, node, physics_system::s_physics, m_controller_manager);
-	return m_controllers.create(controller);
+	return id_array::create(m_controllers, controller);
 }
 
 //-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_controller(ControllerId id)
 {
-	CE_ASSERT(m_controllers.has(id), "Controller does not exist");
-
-	CE_DELETE(m_controllers_pool, m_controllers.lookup(id));
-	m_controllers.destroy(id);
+	CE_DELETE(m_controllers_pool, id_array::get(m_controllers, id));
+	id_array::destroy(m_controllers, id);
 }
 
 //-----------------------------------------------------------------------------
 JointId	PhysicsWorld::create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1)
 {
 	Joint* joint = CE_NEW(m_joints_pool, Joint)(physics_system::s_physics, pr, index, actor_0, actor_1);
-	return m_joints.create(joint);
+	return id_array::create(m_joints, joint);
 }
 
 //-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_joint(JointId id)
 {
-	CE_ASSERT(m_joints.has(id), "Joint does not exist");
-
-	CE_DELETE(m_joints_pool, m_joints.lookup(id));
-	m_joints.destroy(id);
+	CE_DELETE(m_joints_pool, id_array::get(m_joints, id));
+	id_array::destroy(m_joints, id);
 }
 
 //-----------------------------------------------------------------------------
 RaycastId PhysicsWorld::create_raycast(CollisionMode::Enum mode, CollisionType::Enum filter)
 {
 	Raycast* raycast = CE_NEW(m_raycasts_pool, Raycast)(m_scene, mode, filter);
-	return m_raycasts.create(raycast);
+	return id_array::create(m_raycasts, raycast);
 }
 
 //-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_raycast(RaycastId id)
 {
-	CE_ASSERT(m_raycasts.has(id), "Raycast does not exists");
-
-	CE_DELETE(m_raycasts_pool, m_raycasts.lookup(id));
-	m_raycasts.destroy(id);
+	CE_DELETE(m_raycasts_pool, id_array::get(m_raycasts, id));
+	id_array::destroy(m_raycasts, id);
 }
 
 //-----------------------------------------------------------------------------
-Actor* PhysicsWorld::lookup_actor(ActorId id)
+Actor* PhysicsWorld::get_actor(ActorId id)
 {
-	CE_ASSERT(m_actors.has(id), "Actor does not exist");
-	return m_actors.lookup(id);
+	return id_array::get(m_actors, id);
 }
 
 //-----------------------------------------------------------------------------
-Controller* PhysicsWorld::lookup_controller(ControllerId id)
+Controller* PhysicsWorld::get_controller(ControllerId id)
 {
-	CE_ASSERT(m_controllers.has(id), "Controller does not exist");
-	return m_controllers.lookup(id);
+	return id_array::get(m_controllers, id);
 }
 
 //-----------------------------------------------------------------------------
-Raycast* PhysicsWorld::lookup_raycast(RaycastId id)
+Raycast* PhysicsWorld::get_raycast(RaycastId id)
 {
-	CE_ASSERT(m_raycasts.has(id), "Raycast does not exists");
-	return m_raycasts.lookup(id);
+	return id_array::get(m_raycasts, id);
 }
 
 //-----------------------------------------------------------------------------
@@ -422,10 +452,19 @@ void PhysicsWorld::update(float dt)
 	}
 
 	// Update controllers
-	for (uint32_t i = 0; i < m_controllers.size(); i++)
+	for (uint32_t i = 0; i < id_array::size(m_controllers); i++)
 	{
 		m_controllers[i]->update();
 	}
+}
+
+//-----------------------------------------------------------------------------
+void PhysicsWorld::draw_debug()
+{
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		if (g_physics_debug)
+			physics_system::draw_debug_lines(m_scene, *m_debug_line);
+	#endif
 }
 
 PxPhysics* PhysicsWorld::physx_physics() { return physics_system::s_physics; }

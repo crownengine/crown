@@ -96,7 +96,7 @@ PhysX_libraries :=\
 ###############################################################################
 include $(CLEAR_VARS)
 
-LOCAL_MODULE    := crown
+LOCAL_MODULE := crown
 LOCAL_SRC_FILES :=\
 \
 	audio/backend/SLESSoundWorld.cpp\
@@ -113,8 +113,6 @@ LOCAL_SRC_FILES :=\
 	core/json/JSONParser.cpp\
 \
 	core/math/Color4.cpp\
-	core/math/Matrix3x3.cpp\
-	core/math/Matrix4x4.cpp\
 \
 	core/mem/LinearAllocator.cpp\
 	core/mem/Memory.cpp\
@@ -127,11 +125,6 @@ LOCAL_SRC_FILES :=\
 	core/settings/StringSetting.cpp\
 \
 	core/strings/Path.cpp\
-\
-	core/Args.cpp\
-	core/Log.cpp\
-\
-	gui/Gui.cpp\
 \
 	os/android/Android.cpp\
 	os/android/AndroidDevice.cpp\
@@ -155,15 +148,17 @@ LOCAL_SRC_FILES :=\
 	renderers/Mesh.cpp\
 	renderers/RenderWorld.cpp\
 	renderers/Sprite.cpp\
+	renderers/Gui.cpp\
 \
 	resource/FileBundle.cpp\
 	resource/ResourceLoader.cpp\
 	resource/ResourceManager.cpp\
 	resource/ResourceRegistry.cpp\
 \
-	lua/LuaAccelerometer.cpp\
+lua/LuaAccelerometer.cpp\
 	lua/LuaActor.cpp\
 	lua/LuaCamera.cpp\
+	lua/LuaColor4.cpp\
 	lua/LuaController.cpp\
 	lua/LuaDebugLine.cpp\
 	lua/LuaDevice.cpp\
@@ -174,6 +169,7 @@ LOCAL_SRC_FILES :=\
 	lua/LuaKeyboard.cpp\
 	lua/LuaMath.cpp\
 	lua/LuaMatrix4x4.cpp\
+	lua/LuaMatrix4x4Box.cpp\
 	lua/LuaMesh.cpp\
 	lua/LuaMouse.cpp\
 	lua/LuaPhysicsWorld.cpp\
@@ -188,11 +184,11 @@ LOCAL_SRC_FILES :=\
 	lua/LuaTouch.cpp\
 	lua/LuaUnit.cpp\
 	lua/LuaVector2.cpp\
+	lua/LuaVector2Box.cpp\
 	lua/LuaVector3.cpp\
 	lua/LuaVector3Box.cpp\
 	lua/LuaWindow.cpp\
 	lua/LuaWorld.cpp\
-	lua/LuaMatrix4x4Box.cpp\
 \
 	world/Camera.cpp\
 	world/SceneGraph.cpp\
@@ -254,7 +250,21 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/third/ARMv7/physx/include/RepXUpgrader\
 	$(LOCAL_PATH)/third/ARMv7/physx/include/vehicle\
 	
-LOCAL_CPPFLAGS := -fno-rtti -fno-exceptions -std=c++03 -ansi -Wall -Wextra -Wno-long-long -Wno-variadic-macros -Wno-missing-braces -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format
+LOCAL_CPPFLAGS :=\
+	-std=c++03\
+	-ansi\
+	-Wall\
+	-Wextra\
+	-Wno-long-long\
+	-Wno-variadic-macros\
+	-Wno-missing-braces\
+	-Wno-unused-parameter\
+	-Wno-unknown-pragmas\
+	-Wno-format\
+	-Wno-unused-but-set-variable\
+	-fno-rtti\
+	-fno-exceptions\
+
 LOCAL_LDLIBS := -L$(LOCAL_PATH) -Wl,--start-group $(addprefix -l, $(PhysX_libraries)) -Wl,--end-group -llog -landroid -lEGL -lGLESv2 -lz -lOpenSLES
 LOCAL_SHARED_LIBRARIES := luajit-5.1
 LOCAL_STATIC_LIBRARIES := android_native_app_glue ogg vorbis

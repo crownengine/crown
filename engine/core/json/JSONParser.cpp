@@ -30,6 +30,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "Vector.h"
 #include "Map.h"
+#include "Vector3.h"
+#include "Quaternion.h"
 
 namespace crown
 {
@@ -139,28 +141,50 @@ bool JSONElement::has_key(const char* k) const
 //--------------------------------------------------------------------------
 bool JSONElement::to_bool() const
 {
-	const bool value = json::parse_bool(m_at);
-	return value;
+	return json::parse_bool(m_at);
 }
 
 //--------------------------------------------------------------------------
 int32_t JSONElement::to_int() const
 {
-	const int32_t value = json::parse_int(m_at);
-	return value;
+	return json::parse_int(m_at);
 }
 
 //--------------------------------------------------------------------------
 float JSONElement::to_float() const
 {
-	const float value = json::parse_float(m_at);
-	return value;
+	return json::parse_float(m_at);
 }
 
 //--------------------------------------------------------------------------
 void JSONElement::to_string(DynamicString& str) const
 {
 	json::parse_string(m_at, str);
+}
+
+//--------------------------------------------------------------------------
+Vector3 JSONElement::to_vector3() const
+{
+	TempAllocator64 alloc;
+	Array<const char*> array(alloc);
+	json::parse_array(m_at, array);
+
+	return Vector3(json::parse_float(array[0]),
+					json::parse_float(array[1]),
+					json::parse_float(array[2]));
+}
+
+//--------------------------------------------------------------------------
+Quaternion JSONElement::to_quaternion() const
+{
+	TempAllocator64 alloc;
+	Array<const char*> array(alloc);
+	json::parse_array(m_at, array);
+
+	return Quaternion(json::parse_float(array[0]),
+					json::parse_float(array[1]),
+					json::parse_float(array[2]),
+					json::parse_float(array[3]));
 }
 
 //--------------------------------------------------------------------------

@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "File.h"
 #include "PhysicsTypes.h"
 #include "Matrix4x4.h"
+#include "Camera.h"
 
 namespace crown
 {
@@ -48,6 +49,10 @@ struct UnitHeader
 	uint32_t cameras_offset;
 	uint32_t num_scene_graph_nodes;
 	uint32_t scene_graph_nodes_offset;
+	uint32_t num_keys;
+	uint32_t keys_offset;
+	uint32_t values_size;
+	uint32_t values_offset;
 };
 
 struct UnitRenderable
@@ -63,6 +68,11 @@ struct UnitCamera
 {
 	uint32_t name;
 	int32_t node;
+
+	ProjectionType::Enum type;
+	float fov;
+	float near;
+	float far;
 };
 
 struct UnitNode
@@ -70,6 +80,24 @@ struct UnitNode
 	StringId32 name;
 	Matrix4x4 pose;
 	int32_t parent;
+};
+
+struct ValueType
+{
+	enum Enum
+	{
+		BOOL,
+		FLOAT,
+		STRING,
+		VECTOR3
+	};
+};
+
+struct Key
+{
+	StringId32 name;
+	uint32_t type;
+	uint32_t offset;
 };
 
 struct UnitResource
@@ -160,6 +188,62 @@ struct UnitResource
 	{
 		UnitHeader* h = (UnitHeader*) this;
 		return (UnitNode*) (((char*) this) + h->scene_graph_nodes_offset);
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_keys() const
+	{
+		return ((UnitHeader*) this)->num_keys;
+	}
+
+	//-----------------------------------------------------------------------------
+	bool has_key(const char* k) const
+	{
+		UnitHeader* h = (UnitHeader*) this;
+		const uint32_t nk = num_keys();
+		Key* begin = (Key*) (((char*) this) + h->keys_offset);
+
+		for (uint32_t i = 0; i < nk; i++)
+		{
+			if (begin[i].name == string::murmur2_32(k, string::strlen(k)))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	//-----------------------------------------------------------------------------
+	bool get_key(const char* k, Key& out_k) const
+	{
+		UnitHeader* h = (UnitHeader*) this;
+		const uint32_t nk = num_keys();
+		Key* begin = (Key*) (((char*) this) + h->keys_offset);
+
+		for (uint32_t i = 0; i < nk; i++)
+		{
+			if (begin[i].name == string::murmur2_32(k, string::strlen(k)))
+			{
+				out_k = begin[i];
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t values_size() const
+	{
+		return ((UnitHeader*) this)->values_size;
+	}
+
+	//-----------------------------------------------------------------------------
+	const char* values() const
+	{
+		UnitHeader* h = (UnitHeader*) this;
+		return ((char*) this) + h->values_offset;
 	}
 
 private:

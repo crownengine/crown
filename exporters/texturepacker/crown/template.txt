@@ -1,10 +1,10 @@
 {{% load filter %}
 	"width" : {{texture.size.width}},
-	"height" : {{texture.size.height}},
+	"height" : {{texture.size.height}},{{texture.size.height|setHeight}}
 	"frames" : [{% for sprite in allSprites %}
 		{
-			"name" : "{{sprite.trimmedName}}",{{sprite.frameRectRel.height|setHeightRel}}
-			"region" : [{{sprite.frameRectRel.x}}, {{sprite.frameRectRel.y|transformY}}, {{sprite.frameRectRel.width}}, {{sprite.frameRectRel.height}}],
+			"name" : "{{sprite.trimmedName}}",{{sprite.frameRect.height|setSpriteHeight}}
+			"region" : [{{sprite.frameRect.x}}, {{sprite.frameRect.y|transformY}}, {{sprite.frameRect.width}}, {{sprite.frameRect.height}}],
 			"offset" : [0.0, 0.0],
 			"scale" : [1.0, 1.0],
 			"rotated" : {{sprite.rotated}}

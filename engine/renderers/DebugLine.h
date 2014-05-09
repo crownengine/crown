@@ -28,13 +28,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Config.h"
+#include "MathTypes.h"
+#include "Color4.h"
 
 namespace crown
 {
-
-struct Color4;
-struct Matrix4x4;
-struct Vector3;
 
 struct DebugLine
 {
@@ -46,9 +44,6 @@ struct DebugLine
 
 	/// Adds a sphere at @a center with the given @a radius and @a color.
 	void add_sphere(const Color4& color, const Vector3& center, const float radius);
-
-	/// Adds a @a pose with the given @a color
-	//void add_pose(const Color4& color, const Matrix4x4& pose);
 
 	/// Clears all the lines.
 	void clear();

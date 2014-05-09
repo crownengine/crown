@@ -30,11 +30,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Device.h"
 #include "Renderer.h"
+#include "RenderWorld.h"
 
 namespace crown
 {
-
-typedef Id GPUProgramId;
 
 //-----------------------------------------------------------------------------
 DebugLine::DebugLine(bool depth_test)
@@ -47,9 +46,7 @@ DebugLine::DebugLine(bool depth_test)
 void DebugLine::add_line(const Color4& color, const Vector3& start, const Vector3& end)
 {
 	if (m_num_lines >= CE_MAX_DEBUG_LINES)
-	{
 		 return;
-	}
 
 	m_lines[m_num_lines].position_0[0] = start.x;
 	m_lines[m_num_lines].position_0[1] = start.y;
@@ -105,6 +102,9 @@ void DebugLine::clear()
 //-----------------------------------------------------------------------------
 void DebugLine::commit()
 {
+	if (!m_num_lines)
+		return;
+
 	Renderer* r = device()->renderer();
 
 	TransientVertexBuffer tvb;
@@ -120,11 +120,11 @@ void DebugLine::commit()
 		indices[i] = i;
 	}
 
-	r->set_state((m_depth_test ? 0 : STATE_DEPTH_TEST_ALWAYS) | STATE_COLOR_WRITE | STATE_CULL_CW | STATE_PRIMITIVE_LINES);
+	r->set_state((m_depth_test ? STATE_DEPTH_TEST_LESS : 0) | STATE_COLOR_WRITE | STATE_CULL_CW | STATE_PRIMITIVE_LINES);
 	r->set_vertex_buffer(tvb);
 	r->set_index_buffer(tib);
-	//r->set_program(default_program);
-	r->set_pose(Matrix4x4::IDENTITY);
+	r->set_program(render_world_globals::default_program());
+	r->set_pose(matrix4x4::IDENTITY);
 	r->commit(0);
 }
 

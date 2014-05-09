@@ -3,14 +3,12 @@
 #include <cstdio>
 #include <vector>
 #include <cstdlib>
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
+#include <freetype.h>
+#include <stdint.h>
+#include <stb_image.c>
+#include <string>
 
 #include "BinPacker.hpp"
-#include "lodepng.h"
-#include "stb_image.h"
 
 using namespace std;
 
@@ -209,7 +207,7 @@ bool render_signed_distance_font(FT_Library &ft_lib, const char* font_file, int 
 		tin = clock() - tin;
 		printf("Done. %.3f seconds.\n", ((float)tin) / CLOCKS_PER_SEC);
 
-		printf("Compressing to PNG... ");
+		printf("Exporting... ");
 		tin = save_png_SDFont(font_file, texture_size, texture_size, pdata, all_glyphs);
 		printf("Done. %.3f seconds.\n", ((float)tin) / CLOCKS_PER_SEC);
 
@@ -230,18 +228,50 @@ int save_png_SDFont(const char* orig_filename, int img_width, int img_height, co
 	string dest(orig_filename);
 	unsigned offs = dest.find(".ttf");
 	dest.replace(offs, 4, "");
-	dest += ".png";
+	dest += ".tga";
 
-	LodePNG::Encoder encoder;
-	encoder.getSettings().zlibsettings.windowSize = 512; //	faster, not much worse compression
-	std::vector<unsigned char> buffer;
 	int tin = clock();
-	encoder.encode(buffer, img_data.empty() ? 0 : &img_data[0], img_width, img_height);
-	LodePNG::saveFile(buffer, dest.c_str());
+	FILE* file = fopen(dest.c_str(), "wb");
+	if ( NULL != file )
+	{
+		uint8_t type = 2;
+		uint8_t bpp = 32;
+		uint8_t xorig = 0;
+		uint8_t yorig = 0;
+
+		putc(0, file);
+		putc(0, file);
+		putc(type, file);
+		putc(0, file); 
+		putc(0, file);
+		putc(0, file); 
+		putc(0, file);
+		putc(0, file);
+		putc(0, file); 
+		putc(xorig, file);
+		putc(0, file); 
+		putc(yorig, file);
+		putc(img_width&0xff, file);
+		putc( (img_width>>8)&0xff, file);
+		putc(img_height&0xff, file);
+		putc( (img_height>>8)&0xff, file);
+		putc(bpp, file);
+		putc(32, file);
+
+		uint32_t width = img_width * bpp / 8;
+		uint8_t* data = (uint8_t*)img_data.data();
+		for (uint32_t yy = 0; yy < img_height; ++yy)
+		{
+			fwrite(data, width, 1, file);
+			data += width;
+		}
+
+		fclose(file);
+	}
 	tin = clock() - tin;
 
 	//	now save the acompanying info
-	offs = dest.find(".png");
+	offs = dest.find(".tga");
 	dest.replace(offs, 4, "");
 	dest += ".font";
 	FILE *fp = fopen(dest.c_str(), "w");

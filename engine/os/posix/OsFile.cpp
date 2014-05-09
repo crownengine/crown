@@ -83,6 +83,7 @@ size_t OsFile::size() const
 
 	fseek_result = fseek(m_file_handle, (long) pos, SEEK_SET);
 	CE_ASSERT(fseek_result == 0, "Failed to seek");
+	CE_UNUSED(fseek_result);
 
 	return size;
 }
@@ -108,6 +109,7 @@ void OsFile::seek(size_t position)
 {
 	int fseek_result = fseek(m_file_handle, (long) position, SEEK_SET);
 	CE_ASSERT(fseek_result == 0, "Failed to seek");
+	CE_UNUSED(fseek_result);
 }
 
 //-----------------------------------------------------------------------------
@@ -115,6 +117,7 @@ void OsFile::seek_to_end()
 {
 	int fseek_result = fseek(m_file_handle, 0, SEEK_END);
 	CE_ASSERT(fseek_result == 0, "Failed to seek");
+	CE_UNUSED(fseek_result);
 }
 
 //-----------------------------------------------------------------------------
@@ -122,6 +125,7 @@ void OsFile::skip(size_t bytes)
 {
 	int fseek_result = fseek(m_file_handle, bytes, SEEK_CUR);
 	CE_ASSERT(fseek_result == 0, "Failed to seek");
+	CE_UNUSED(fseek_result);
 }
 
 //-----------------------------------------------------------------------------

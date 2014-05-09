@@ -1,64 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 
-# detect architecture
-if (CROWN_ARCH MATCHES "x86")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/x86)
-endif (CROWN_ARCH MATCHES "x86")
-
-if (CROWN_ARCH MATCHES "x86_64")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/x86_64)
-endif (CROWN_ARCH MATCHES "x86_64")
-
-if (CROWN_ARCH MATCHES "win32")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/win32)
-endif (CROWN_ARCH MATCHES "win32")
-
-if (CROWN_ARCH MATCHES "win64")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/win64)
-endif (CROWN_ARCH MATCHES "win64")
-
-if (CROWN_ARCH MATCHES "ARMv7")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/engine/third/ARMv7)
-endif (CROWN_ARCH MATCHES "ARMv7")
-
-# architecture dependent includes
-set (CROWN_THIRD_INCLUDES
-	${CROWN_THIRD}/luajit/include/luajit-2.0
-	${CROWN_THIRD}/glew-1.9.0/include
-	${CROWN_THIRD}/zlib/include
-	${CROWN_THIRD}/oggvorbis/include
-	${CROWN_THIRD}/openAL/include
-	${CROWN_THIRD}/physx/include
-	${CROWN_THIRD}/physx/include/common
-	${CROWN_THIRD}/physx/include/characterkinematic
-	${CROWN_THIRD}/physx/include/cloth
-	${CROWN_THIRD}/physx/include/common
-	${CROWN_THIRD}/physx/include/cooking
-	${CROWN_THIRD}/physx/include/extensions
-	${CROWN_THIRD}/physx/include/foundation
-	${CROWN_THIRD}/physx/include/geometry
-	${CROWN_THIRD}/physx/include/particles
-	${CROWN_THIRD}/physx/include/physxprofilesdk
-	${CROWN_THIRD}/physx/include/physxvisualdebuggersdk
-	${CROWN_THIRD}/physx/include/pvd
-	${CROWN_THIRD}/physx/include/pxtask
-	${CROWN_THIRD}/physx/include/RepX
-	${CROWN_THIRD}/physx/include/RepXUpgrader
-	${CROWN_THIRD}/physx/include/vehicle
-)
-
-# architecture dependent libraries
-set (CROWN_THIRD_LIBS
-	${CROWN_THIRD}/luajit/lib
-	${CROWN_THIRD}/glew-1.9.0/lib
-	${CROWN_THIRD}/zlib/lib
-	${CROWN_THIRD}/oggvorbis/lib
-	${CROWN_THIRD}/openAL/lib
-	${CROWN_THIRD}/physx/lib
-)
-
-add_subdirectory(${CROWN_THIRD})
-
 # platform independent includes
 set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine
@@ -84,7 +25,6 @@ set (CROWN_INCLUDES
 	${CMAKE_SOURCE_DIR}/engine/compilers
 	${CMAKE_SOURCE_DIR}/engine/physics
 	${CMAKE_SOURCE_DIR}/engine/world
-	${CMAKE_SOURCE_DIR}/engine/gui
 )
 
 set (SRC
@@ -100,8 +40,6 @@ set (HEADERS
 )
 
 set (CORE_SRC
-	core/Args.cpp
-	core/Log.cpp
 )
 
 set (CORE_HEADERS
@@ -131,8 +69,6 @@ set (CONTAINERS_HEADERS
 
 set (MATH_SRC
 	core/math/Color4.cpp
-	core/math/Matrix3x3.cpp
-	core/math/Matrix4x4.cpp
 )
 
 set (MATH_HEADERS
@@ -258,59 +194,63 @@ set (RENDERERS_BACKEND_HEADERS
 )
 
 set (RENDERERS_SRC
-	renderers/RenderWorld.cpp
-	renderers/Mesh.cpp
-	renderers/Sprite.cpp
-	renderers/Material.cpp
 	renderers/DebugLine.cpp
+	renderers/Gui.cpp
+	renderers/Material.cpp
+	renderers/Mesh.cpp
+	renderers/RenderWorld.cpp
+	renderers/Sprite.cpp
 )
 
 set (RENDERERS_HEADERS
+	renderers/DebugLine.h
+	renderers/Gui.h
+	renderers/Material.h
+	renderers/Mesh.h
 	renderers/RenderWorld.h
 	renderers/RenderWorldTypes.h
-	renderers/Mesh.h
 	renderers/Sprite.h
-	renderers/Material.h
-	renderers/DebugLine.h
 )
 
 set (RESOURCE_SRC
+	resource/FileBundle.cpp
+	resource/FontResource.cpp
+	resource/GuiResource.cpp
+	resource/LevelResource.cpp
+	resource/LuaResource.cpp
+	resource/MaterialResource.cpp
+	resource/MeshResource.cpp
+	resource/PackageResource.cpp
+	resource/PhysicsResource.cpp
 	resource/ResourceLoader.cpp
 	resource/ResourceManager.cpp
 	resource/ResourceRegistry.cpp
-	resource/UnitResource.cpp
-	resource/TextureResource.cpp
-	resource/SpriteResource.cpp
 	resource/SoundResource.cpp
-	resource/MaterialResource.cpp
-	resource/PhysicsResource.cpp
-	resource/PackageResource.cpp
-	resource/MeshResource.cpp
-	resource/LuaResource.cpp
-	resource/GuiResource.cpp
-	resource/FontResource.cpp
-	resource/FileBundle.cpp
+	resource/SpriteResource.cpp
+	resource/TextureResource.cpp
+	resource/UnitResource.cpp
 )
 
 set (RESOURCE_HEADERS
+	resource/Bundle.h
+	resource/FontResource.h
+	resource/FontResource.h
+	resource/GuiResource.h
+	resource/LevelResource.h
+	resource/LuaResource.h
+	resource/MaterialResource.h
+	resource/MeshResource.h
+	resource/PackageResource.h
+	resource/PhysicsResource.h
 	resource/Resource.h
 	resource/ResourceLoader.h
 	resource/ResourceManager.h
-	resource/ResourceRegistry.h
-	resource/Bundle.h
-	resource/LuaResource.h
-	resource/TextureResource.h
-	resource/MeshResource.h
-	resource/FontResource.h
-	resource/SoundResource.h
-	resource/MaterialResource.h
-	resource/PackageResource.h
-	resource/UnitResource.h
 	resource/ResourcePackage.h
+	resource/ResourceRegistry.h
+	resource/SoundResource.h
 	resource/SpriteResource.h
-	resource/PhysicsResource.h
-	resource/GuiResource.h
-	resource/FontResource.h
+	resource/TextureResource.h
+	resource/UnitResource.h
 )
 
 set (OS_SRC
@@ -328,6 +268,7 @@ set (LUA_SRC
 	lua/LuaAccelerometer.cpp
 	lua/LuaActor.cpp
 	lua/LuaCamera.cpp
+	lua/LuaColor4.cpp
 	lua/LuaController.cpp
 	lua/LuaDebugLine.cpp
 	lua/LuaDevice.cpp
@@ -353,6 +294,7 @@ set (LUA_SRC
 	lua/LuaTouch.cpp
 	lua/LuaUnit.cpp
 	lua/LuaVector2.cpp
+	lua/LuaVector2Box.cpp
 	lua/LuaVector3.cpp
 	lua/LuaVector3Box.cpp
 	lua/LuaWindow.cpp
@@ -415,18 +357,6 @@ set (COMPILER_SRC
 
 set (COMPILER_HEADER
 	compilers/BundleCompiler.h
-)
-
-set (GUI_SRC
-	gui/Gui.cpp
-)
-
-set (GUI_HEADERS
-	gui/Gui.h
-	gui/GuiRect.h
-	gui/GuiTriangle.h
-	gui/GuiImage.h
-	gui/GuiText.h
 )
 
 set (CROWN_LIBRARIES)
@@ -497,6 +427,7 @@ if (LINUX)
 		-fPIC
 		#-fvisibility=hidden
 		-fno-exceptions
+		-fno-rtti
 	)
 
 	if (CROWN_DEBUG)
@@ -537,11 +468,8 @@ if (LINUX)
 		list (APPEND COMPILER_FLAGS
 			-DNDEBUG
 			-O2
-			-Wno-unused-variable
-			-Wno-unused-parameter
 			-Wno-maybe-uninitialized
 			-Wno-unused-but-set-variable
-			-Wno-unused-function
 		)
 		list (APPEND CROWN_LIBRARIES
 			LowLevel
@@ -663,11 +591,8 @@ if (WINDOWS)
 		list (APPEND COMPILER_FLAGS
 			#-DNDEBUG
 			#-O2
-			#-Wno-unused-variable
-			#-Wno-unused-parameter
 			#-Wno-maybe-uninitialized
 			#-Wno-unused-but-set-variable
-			#-Wno-unused-function
 		)
 		list (APPEND CROWN_LIBRARIES
 			#LowLevel
@@ -712,7 +637,6 @@ set (CROWN_SOURCES
 	${PHYSICS_SRC}
 	${WORLD_SRC}
 	${COMPILER_SRC}
-	${GUI_SRC}
 )
 
 set (CROWN_HEADERS
@@ -736,7 +660,6 @@ set (CROWN_HEADERS
 	${PHYSICS_HEADERS}
 	${WORLD_HEADERS}
 	${COMPILER_HEADERS}
-	${GUI_HEADERS}
 )
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)

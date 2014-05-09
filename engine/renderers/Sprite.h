@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Matrix4x4.h"
 #include "Quaternion.h"
+// #include "SpriteAnimator.h"
 
 namespace crown
 {
@@ -44,23 +45,29 @@ struct Unit;
 //-----------------------------------------------------------------------------
 struct Sprite
 {
-							Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const SpriteResource* sr);
-							~Sprite();
+	Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const SpriteResource* sr);
+	~Sprite();
 
-	Vector3					local_position() const;
-	Quaternion				local_rotation() const;
-	Matrix4x4				local_pose() const;
+	Vector3 local_position() const;
+	Quaternion local_rotation() const;
+	Matrix4x4 local_pose() const;
 
-	Vector3					world_position() const;
-	Quaternion				world_rotation() const;
-	Matrix4x4				world_pose() const;
+	Vector3 world_position() const;
+	Quaternion world_rotation() const;
+	Matrix4x4 world_pose() const;
 
-	void					set_local_position(Unit* unit, const Vector3& pos);
-	void					set_local_rotation(Unit* unit, const Quaternion& rot);
-	void					set_local_pose(Unit* unit, const Matrix4x4& pose);
+	void set_local_position(Unit* unit, const Vector3& pos);
+	void set_local_rotation(Unit* unit, const Quaternion& rot);
+	void set_local_pose(Unit* unit, const Matrix4x4& pose);
 
-	void					set_material(MaterialId mat);
-	void					render(Renderer& r, UniformId uniform, float dt);
+	void set_material(MaterialId mat);
+	void render(Renderer& r, UniformId uniform, float dt);
+	void set_frame(uint32_t i);
+
+	void play_animation(const char* name, bool loop);
+	void stop_animation();
+
+	void update(float dt);
 
 public:
 
@@ -69,9 +76,12 @@ public:
 	int32_t					m_node;
 	const SpriteResource*	m_resource;
 
+	uint32_t				m_frame;
 	MaterialId				m_material;
 	VertexBufferId			m_vb;
 	IndexBufferId			m_ib;
+
+	// SpriteAnimator m_animator;
 };
 
 } // namespace crown

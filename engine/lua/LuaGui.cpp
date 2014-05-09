@@ -57,229 +57,47 @@ static int gui_move(lua_State* L)
 	LuaStack stack(L);
 
 	Gui* gui = stack.get_gui(1);
-
-	const Vector3 pos = stack.get_vector3(2);
-
-	gui->move(pos);
-
+	gui->move(stack.get_vector2(2));
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
-static int gui_show(lua_State* L)
+static int gui_screen_to_gui(lua_State* L)
 {
 	LuaStack stack(L);
 
 	Gui* gui = stack.get_gui(1);
-
-	gui->show();
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int gui_hide(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Gui* gui = stack.get_gui(1);
-
-	gui->hide();
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int gui_create_rect(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Gui* gui = stack.get_gui(1);
-	const Vector3 pos = stack.get_vector3(2);
-	const Vector2 size = stack.get_vector2(3);
-	const Quaternion col = stack.get_quaternion(4);
-	const Color4 color(col.x, col.y, col.z, col.w);
-
-	GuiComponentId rect_id = gui->create_rect(pos, size, color);
-	stack.push_gui_component_id(rect_id);
-
+	stack.push_vector2(gui->screen_to_gui(stack.get_vector2(2)));
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-static int gui_update_rect(lua_State* L)
+static int gui_draw_rectangle(lua_State* L)
 {
 	LuaStack stack(L);
 
 	Gui* gui = stack.get_gui(1);
-	GuiComponentId rect_id = stack.get_gui_component_id(2);
-	const Vector3 pos = stack.get_vector3(3);
-	const Vector2 size = stack.get_vector2(4);
-	const Quaternion col = stack.get_quaternion(4);
-	const Color4 color(col.x, col.y, col.z, col.w);
-
-	gui->update_rect(rect_id, pos, size, color);
-
+	gui->draw_rectangle(stack.get_vector3(2), stack.get_vector2(3), stack.get_color4(4));
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
-static int gui_destroy_rect(lua_State* L)
+static int gui_draw_image(lua_State* L)
 {
 	LuaStack stack(L);
 
 	Gui* gui = stack.get_gui(1);
-	GuiComponentId rect_id = stack.get_gui_component_id(2);
-
-	gui->destroy_rect(rect_id);
-
+	gui->draw_image(stack.get_string(2), stack.get_vector3(3), stack.get_vector2(4), stack.get_color4(5));
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
-static int gui_create_triangle(lua_State* L)
+static int gui_draw_text(lua_State* L)
 {
 	LuaStack stack(L);
 
 	Gui* gui = stack.get_gui(1);
-	const Vector2 p1 = stack.get_vector2(2);
-	const Vector2 p2 = stack.get_vector2(3);
-	const Vector2 p3 = stack.get_vector2(3);
-	const Quaternion col = stack.get_quaternion(4);
-	const Color4 color(col.x, col.y, col.z, col.w);
-
-	GuiComponentId triangle_id = gui->create_triangle(p1, p2, p3, color);
-
-	stack.push_gui_component_id(triangle_id);
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-static int gui_update_triangle(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Gui* gui = stack.get_gui(1);
-	GuiComponentId triangle_id = stack.get_gui_component_id(2);
-	const Vector2 p1 = stack.get_vector2(3);
-	const Vector2 p2 = stack.get_vector2(4);
-	const Vector2 p3 = stack.get_vector2(5);
-	const Quaternion col = stack.get_quaternion(4);
-	const Color4 color(col.x, col.y, col.z, col.w);
-
-	gui->update_triangle(triangle_id, p1, p2, p3, color);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int gui_destroy_triangle(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Gui* gui = stack.get_gui(1);
-	GuiComponentId triangle_id = stack.get_gui_component_id(2);
-
-	gui->destroy_triangle(triangle_id);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int gui_create_image(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Gui* gui = stack.get_gui(1);
-	const char* mat_name = stack.get_string(2);
-	const Vector3 pos = stack.get_vector3(3);
-	const Vector2 size = stack.get_vector2(4);
-
-	ResourceId mat_id;
-	mat_id.id = string::murmur2_64(mat_name, string::strlen(mat_name), 0);
-
-	GuiImageId image_id = gui->create_image(mat_id, pos, size);
-
-	stack.push_gui_component_id(image_id);
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-static int gui_update_image(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Gui* gui = stack.get_gui(1);
-	GuiComponentId image_id = stack.get_gui_component_id(2);
-	const Vector3 pos = stack.get_vector3(3);
-	const Vector2 size = stack.get_vector2(4);
-
-	gui->update_image(image_id, pos, size);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int gui_destroy_image(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Gui* gui = stack.get_gui(1);
-	GuiComponentId image_id = stack.get_gui_component_id(2);
-
-	gui->destroy_image(image_id);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int gui_create_text(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Gui* gui = stack.get_gui(1);
-	const char* str = stack.get_string(2);
-	const char* font = stack.get_string(3);
-	uint32_t font_size = stack.get_int(4);
-	Vector3 pos = stack.get_vector3(5);
-
-	FontResource* fr = (FontResource*) device()->resource_manager()->lookup("font", font);
-
-	GuiTextId text_id = gui->create_text(str, fr, font_size, pos);
-
-	stack.push_gui_component_id(text_id);
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-static int gui_update_text(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Gui* gui = stack.get_gui(1);
-	GuiComponentId text_id = stack.get_gui_component_id(2);
-	const char* str = stack.get_string(3);
-	uint32_t font_size = stack.get_int(4);
-	Vector3 pos = stack.get_vector3(5);
-
-	gui->update_text(text_id, str, font_size, pos);
-
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int gui_destroy_text(lua_State* L)
-{
-	LuaStack stack(L);
-
-	Gui* gui = stack.get_gui(1);
-	GuiComponentId text_id = stack.get_gui_component_id(2);
-
-	gui->destroy_text(text_id);
-
+	gui->draw_text(stack.get_string(2), stack.get_string(3), stack.get_int(4), stack.get_vector3(5), stack.get_color4(6));
 	return 0;
 }
 
@@ -288,20 +106,11 @@ void load_gui(LuaEnvironment& env)
 {
 	env.load_module_function("Gui", "resolution",		gui_resolution);
 	env.load_module_function("Gui", "move",				gui_move);
-	env.load_module_function("Gui", "show",				gui_show);
-	env.load_module_function("Gui", "hide",				gui_hide);
-	env.load_module_function("Gui", "create_rect",		gui_create_rect);
-	env.load_module_function("Gui", "update_rect",		gui_update_rect);
-	env.load_module_function("Gui", "destroy_rect",		gui_destroy_rect);
-	env.load_module_function("Gui", "create_triangle",	gui_create_triangle);
-	env.load_module_function("Gui", "update_triangle",	gui_update_triangle);
-	env.load_module_function("Gui", "destroy_triangle",	gui_destroy_triangle);
-	env.load_module_function("Gui", "create_image",		gui_create_image);
-	env.load_module_function("Gui", "update_image",		gui_update_image);
-	env.load_module_function("Gui", "destroy_image",	gui_destroy_image);
-	env.load_module_function("Gui", "create_text", 		gui_create_text);
-	env.load_module_function("Gui", "update_text", 		gui_update_text);
-	env.load_module_function("Gui", "destroy_text",		gui_destroy_text);
+	env.load_module_function("Gui", "screen_to_gui",	gui_screen_to_gui);
+
+	env.load_module_function("Gui", "draw_rectangle",	gui_draw_rectangle);
+	env.load_module_function("Gui", "draw_image",		gui_draw_image);
+	env.load_module_function("Gui", "draw_text",		gui_draw_text);
 }
 
 } // namespace crown

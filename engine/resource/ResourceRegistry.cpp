@@ -36,6 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MaterialResource.h"
 #include "GuiResource.h"
 #include "FontResource.h"
+#include "LevelResource.h"
 
 namespace crown
 {
@@ -54,6 +55,7 @@ static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 	{ GUI_TYPE, GuiResource::load, GuiResource::unload, GuiResource::online, GuiResource::offline },
 	{ PHYSICS_CONFIG_TYPE, PhysicsConfigResource::load, PhysicsConfigResource::unload, PhysicsConfigResource::online, PhysicsConfigResource::offline },
 	{ FONT_TYPE, FontResource::load, FontResource::unload, FontResource::online, FontResource::offline },
+	{ LEVEL_TYPE, LevelResource::load, LevelResource::unload, LevelResource::online, LevelResource::offline },
 	{ 0, NULL, NULL, NULL, NULL }
 };
 

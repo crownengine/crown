@@ -63,7 +63,7 @@ void ConsoleServer::init(uint16_t port, bool wait)
 //-----------------------------------------------------------------------------
 void ConsoleServer::shutdown()
 {
-	for (uint32_t i = 0; i < m_clients.size(); i++)
+	for (uint32_t i = 0; i < id_array::size(m_clients); i++)
 	{
 		m_clients[i].close();
 	}
@@ -72,26 +72,52 @@ void ConsoleServer::shutdown()
 }
 
 //-----------------------------------------------------------------------------
-void ConsoleServer::log_to_all(const char* message, LogSeverity::Enum severity)
+void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, ...)
+{
+	va_list args;
+	va_start(args, message);
+	log_to_all(severity, message, args);
+	va_end(args);
+}
+
+//-----------------------------------------------------------------------------
+void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, ::va_list arg)
 {
 	using namespace string_stream;
+	static const char* stt[] = { "info", "warning", "error", "debug" };
 
-	TempAllocator2048 alloc;
-	StringStream json(alloc);
-
-	static const char* severity_to_text[] = { "info", "warning", "error", "debug" };
-
-	json << "{\"type\":\"message\",";
-	json << "\"severity\":\"" << severity_to_text[severity] << "\",";
+	// Log to stdout
+	va_list arg_copy;
+	__va_copy(arg_copy, arg);
 
 	char buf[1024];
-	string::strncpy(buf, message, 1024);
+	int len = vsnprintf(buf, 1024 - 2, message, arg);
+	buf[len] = '\n';
+	buf[len + 1] = '\0';
+
 	for (uint32_t i = 0; i < string::strlen(message); i++)
 	{
 		if (buf[i] == '"')
 			buf[i] = '\'';
 	}
 
+	// Log on local device
+	switch (severity)
+	{
+		case LogSeverity::DEBUG: os::log_debug(message, arg_copy); break;
+		case LogSeverity::WARN: os::log_warning(message, arg_copy); break;
+		case LogSeverity::ERROR: os::log_error(message, arg_copy); break;
+		case LogSeverity::INFO: os::log_info(message, arg_copy); break;
+		default: break;
+	}
+	va_end(arg_copy);
+
+	// Build json message
+	TempAllocator2048 alloc;
+	StringStream json(alloc);
+
+	json << "{\"type\":\"message\",";
+	json << "\"severity\":\"" << stt[severity] << "\",";
 	json << "\"message\":\"" << buf << "\"}";
 
 	send_to_all(c_str(json));
@@ -108,7 +134,7 @@ void ConsoleServer::send(TCPSocket client, const char* message)
 //-----------------------------------------------------------------------------
 void ConsoleServer::send_to_all(const char* message)
 {
-	for (uint32_t i = 0; i < m_clients.size(); i++)
+	for (uint32_t i = 0; i < id_array::size(m_clients); i++)
 	{
 		send(m_clients[i].socket, message);
 	}
@@ -118,7 +144,7 @@ void ConsoleServer::send_to_all(const char* message)
 void ConsoleServer::update()
 {
 	// Check for new clients only if we have room for them
-	if (m_clients.size() < CE_MAX_CONSOLE_CLIENTS - 1)
+	if (id_array::size(m_clients) < CE_MAX_CONSOLE_CLIENTS - 1)
 	{
 		TCPSocket client;
 		AcceptResult result = m_server.accept_nonblock(client);
@@ -132,7 +158,7 @@ void ConsoleServer::update()
 	Array<Id> to_remove(alloc);
 
 	// Update all clients
-	for (uint32_t i = 0; i < m_clients.size(); i++)
+	for (uint32_t i = 0; i < id_array::size(m_clients); i++)
 	{
 		ReadResult rr = update_client(m_clients[i].socket);
 		if (rr.error != ReadResult::NO_ERROR) array::push_back(to_remove, m_clients[i].id);
@@ -141,8 +167,8 @@ void ConsoleServer::update()
 	// Remove clients
 	for (uint32_t i = 0; i < array::size(to_remove); i++)
 	{
-		m_clients.lookup(to_remove[i]).socket.close();
-		m_clients.destroy(to_remove[i]);
+		id_array::get(m_clients, to_remove[i]).socket.close();
+		id_array::destroy(m_clients, to_remove[i]);
 	}
 }
 
@@ -151,8 +177,8 @@ void ConsoleServer::add_client(TCPSocket socket)
 {
 	Client client;
 	client.socket = socket;
-	Id id = m_clients.create(client);
-	m_clients.lookup(id).id = id;
+	Id id = id_array::create(m_clients, client);
+	id_array::get(m_clients, id).id = id;
 }
 
 //-----------------------------------------------------------------------------

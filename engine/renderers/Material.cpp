@@ -55,7 +55,7 @@ const MaterialResource* Material::resource()
 void Material::bind(Renderer& r, UniformId uniform)
 {
 	const ResourceId tr_id = m_resource->get_texture_layer(0);
-	const TextureResource* tr = (TextureResource*) device()->resource_manager()->data(tr_id);
+	const TextureResource* tr = (TextureResource*) device()->resource_manager()->get(tr_id);
 
 	r.set_texture(0, uniform, tr->texture(), TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);
 }

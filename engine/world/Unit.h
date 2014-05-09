@@ -27,9 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Vector3.h"
-#include "Quaternion.h"
-#include "Matrix4x4.h"
+#include "MathTypes.h"
 #include "StringUtils.h"
 #include "SceneGraph.h"
 #include "StringUtils.h"
@@ -78,101 +76,117 @@ struct UnitResource;
 /// @ingroup World
 struct Unit
 {
-						Unit(World& w, UnitId unit_id, const ResourceId id, const UnitResource* ur, const Matrix4x4& pose);
-						~Unit();
+	Unit(World& w, UnitId unit_id, const ResourceId id, const UnitResource* ur, const Matrix4x4& pose);
+	~Unit();
 
-	void				set_id(const UnitId id);
-	UnitId				id();
+	void set_id(const UnitId id);
+	UnitId id();
 
 	const UnitResource*	resource() const;
 
-	int32_t				node(const char* name) const;
-	bool				has_node(const char* name) const;
-	uint32_t			num_nodes() const;
+	int32_t node(const char* name) const;
+	bool has_node(const char* name) const;
+	uint32_t num_nodes() const;
 
-	Vector3				local_position(int32_t node) const;
-	Quaternion			local_rotation(int32_t node) const;
-	Matrix4x4			local_pose(int32_t node) const;
+	Vector3 local_position(int32_t node) const;
+	Quaternion local_rotation(int32_t node) const;
+	Matrix4x4 local_pose(int32_t node) const;
 
-	Vector3				world_position(int32_t node) const;
-	Quaternion			world_rotation(int32_t node) const;
-	Matrix4x4			world_pose(int32_t node) const;
+	Vector3 world_position(int32_t node) const;
+	Quaternion world_rotation(int32_t node) const;
+	Matrix4x4 world_pose(int32_t node) const;
 
-	void				set_local_position(int32_t node, const Vector3& pos);
-	void				set_local_rotation(int32_t node, const Quaternion& rot);
-	void				set_local_pose(int32_t node, const Matrix4x4& pose);
+	void set_local_position(int32_t node, const Vector3& pos);
+	void set_local_rotation(int32_t node, const Quaternion& rot);
+	void set_local_pose(int32_t node, const Matrix4x4& pose);
 
-	void				link_node(int32_t child, int32_t parent);
-	void				unlink_node(int32_t child);
+	void link_node(int32_t child, int32_t parent);
+	void unlink_node(int32_t child);
 
-	void				update();
-	void				reload(UnitResource* new_ur);
+	void update();
+	void reload(UnitResource* new_ur);
 
-	void				add_component(StringId32 name, Id component, uint32_t& size, Component* array);
-	Id					find_component(const char* name, uint32_t size, Component* array);
-	Id					find_component(uint32_t index, uint32_t size, Component* array);
-	Id 					find_component_by_index(StringId32 name, uint32_t size, Component* array);
+	void add_component(StringId32 name, Id component, uint32_t& size, Component* array);
+	Id find_component(const char* name, uint32_t size, Component* array);
+	Id find_component_by_index(uint32_t index, uint32_t size, Component* array);
+	Id find_component_by_name(StringId32 name, uint32_t size, Component* array);
 
-	void				add_camera(StringId32 name, CameraId camera);
-	void				add_mesh(StringId32 name, MeshId mesh);
-	void				add_sprite(StringId32 name, SpriteId sprite);
-	void				add_actor(StringId32 name, ActorId actor);
-	void				set_controller(StringId32 name, ControllerId controller);
-	void				add_material(StringId32 name, MaterialId material);
+	void add_camera(StringId32 name, CameraId camera);
+	void add_mesh(StringId32 name, MeshId mesh);
+	void add_sprite(StringId32 name, SpriteId sprite);
+	void add_actor(StringId32 name, ActorId actor);
+	void set_controller(StringId32 name, ControllerId controller);
+	void add_material(StringId32 name, MaterialId material);
 
-	Camera*				camera(const char* name);
-	Camera*				camera(uint32_t i);
+	Camera* camera(const char* name);
+	Camera* camera(uint32_t i);
 
-	Mesh*				mesh(const char* name);
-	Mesh*				mesh(uint32_t i);
+	Mesh* mesh(const char* name);
+	Mesh* mesh(uint32_t i);
 
-	Sprite*				sprite(const char* name);
-	Sprite*				sprite(uint32_t i);
+	Sprite* sprite(const char* name);
+	Sprite* sprite(uint32_t i);
 
-	Actor*				actor(const char* name);
-	Actor*				actor(uint32_t i);
-	Actor*				actor_by_index(StringId32 name);
+	Actor* actor(const char* name);
+	Actor* actor(uint32_t i);
+	Actor* actor_by_index(StringId32 name);
 
-	Material*			material(const char* name);
-	Material*			material(uint32_t i);
+	Material* material(const char* name);
+	Material* material(uint32_t i);
 
-	Controller*			controller();
+	Controller* controller();
 
-	bool				is_a(const char* name);
+	bool is_a(const char* name);
+
+	void play_sprite_animation(const char* name, bool loop);
+	void stop_sprite_animation();
+
+	bool has_key(const char* k) const;
+	ValueType::Enum value_type(const char* k);
+	bool get_key(const char* k, bool& v) const;
+	bool get_key(const char* k, float& v) const;
+	bool get_key(const char* k, StringId32& v) const;
+	bool get_key(const char* k, Vector3& v) const;
+	void set_key(const char* k, bool v);
+	void set_key(const char* k, float v);
+	void set_key(const char* k, const char* v);
+	void set_key(const char* k, const Vector3& v);
 
 private:
 
-	void				create_objects(const Matrix4x4& pose);
-	void				destroy_objects();
-	void				create_camera_objects();
-	void				create_renderable_objects();
-	void				create_physics_objects();
-	void				set_default_material();
+	void create_objects(const Matrix4x4& pose);
+	void destroy_objects();
+	void create_camera_objects();
+	void create_renderable_objects();
+	void create_physics_objects();
+	void set_default_material();
 
 public:
 
-	World&				m_world;
-	SceneGraph&			m_scene_graph;
-	const ResourceId	m_resource_id;
+	World& m_world;
+	SceneGraph& m_scene_graph;
+	const ResourceId m_resource_id;
 	const UnitResource*	m_resource;
-	UnitId				m_id;
+	UnitId m_id;
 
-	uint32_t			m_num_cameras;
-	Component			m_cameras[CE_MAX_CAMERA_COMPONENTS];
+	uint32_t m_num_cameras;
+	Component m_cameras[CE_MAX_CAMERA_COMPONENTS];
 
-	uint32_t			m_num_meshes;
-	Component			m_meshes[CE_MAX_MESH_COMPONENTS];
+	uint32_t m_num_meshes;
+	Component m_meshes[CE_MAX_MESH_COMPONENTS];
 
-	uint32_t			m_num_sprites;
-	Component			m_sprites[CE_MAX_SPRITE_COMPONENTS];
+	uint32_t m_num_sprites;
+	Component m_sprites[CE_MAX_SPRITE_COMPONENTS];
 
-	uint32_t			m_num_actors;
-	Component 			m_actors[CE_MAX_ACTOR_COMPONENTS];
+	uint32_t m_num_actors;
+	Component m_actors[CE_MAX_ACTOR_COMPONENTS];
 
-	uint32_t			m_num_materials;
-	Component			m_materials[CE_MAX_MATERIAL_COMPONENTS];
+	uint32_t m_num_materials;
+	Component m_materials[CE_MAX_MATERIAL_COMPONENTS];
 
-	Component			m_controller;
+	Component m_controller;
+
+	char* m_values;
 };
 
 } // namespace crown

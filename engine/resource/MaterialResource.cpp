@@ -54,8 +54,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	{
 		DynamicString tex;
 		tl[i].to_string(tex); tex += ".texture";
-		ResourceId tex_id; tex_id.id = string::murmur2_64(tex.c_str(), tex.length(), 0);
-		array::push_back(texture_layers, tex_id);
+
+		array::push_back(texture_layers, ResourceId(tex.c_str()));
 	}
 
 	fs.close(file);

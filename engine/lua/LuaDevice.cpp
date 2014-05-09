@@ -30,6 +30,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "WorldManager.h"
 #include "LuaEnvironment.h"
 #include "LuaStack.h"
+#include "TempAllocator.h"
+#include "Array.h"
 
 namespace crown
 {
@@ -158,6 +160,46 @@ static int device_destroy_resource_package(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int device_display_modes(lua_State* L)
+{
+	LuaStack stack(L);
+
+	TempAllocator512 alloc;
+	Array<DisplayMode> modes(alloc);
+
+	device()->display_modes(modes);
+
+	stack.push_table();
+	for (uint32_t i = 0; i < array::size(modes); i++)
+	{
+		stack.push_key_begin((int32_t) i + 1);
+		stack.push_table();
+		stack.push_key_begin("id"); stack.push_uint32(modes[i].id); stack.push_key_end();
+		stack.push_key_begin("width"); stack.push_uint32(modes[i].width); stack.push_key_end();
+		stack.push_key_begin("height"); stack.push_uint32(modes[i].height); stack.push_key_end();
+		stack.push_key_end();
+	}
+
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+static int device_set_display_mode(lua_State* L)
+{
+	LuaStack stack(L);
+	device()->set_display_mode(stack.get_int(1));
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+static int device_set_fullscreen(lua_State* L)
+{
+	LuaStack stack(L);
+	device()->set_fullscreen(stack.get_bool(1));
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 void load_device(LuaEnvironment& env)
 {
 	env.load_module_function("Device", "argv",                     device_argv);
@@ -171,6 +213,9 @@ void load_device(LuaEnvironment& env)
 	env.load_module_function("Device", "render_world",             device_render_world);
 	env.load_module_function("Device", "create_resource_package",  device_create_resource_package);
 	env.load_module_function("Device", "destroy_resource_package", device_destroy_resource_package);
+	env.load_module_function("Device", "display_modes",            device_display_modes);
+	env.load_module_function("Device", "set_display_mode",         device_set_display_mode);
+	env.load_module_function("Device", "set_fullscreen",           device_set_fullscreen);
 }
 
 } // namespace crown

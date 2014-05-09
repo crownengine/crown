@@ -76,6 +76,7 @@ class World;
 struct PhysicsResource;
 struct PhysicsConfigResource;
 struct Unit;
+struct DebugLine;
 
 /// Manages physics objects in a World.
 ///
@@ -106,11 +107,15 @@ public:
 	void overlap_test(CollisionType::Enum filter, ShapeType::Enum type,
 						const Vector3& pos, const Quaternion& rot, const Vector3& size, Array<Actor*>& actors);
 
+	/// Updates the physics simulation.
 	void update(float dt);
 
-	Actor* lookup_actor(ActorId id);
-	Controller* lookup_controller(ControllerId id);
-	Raycast* lookup_raycast(RaycastId id);
+	/// Draws debug lines.
+	void draw_debug();
+
+	Actor* get_actor(ActorId id);
+	Controller* get_controller(ControllerId id);
+	Raycast* get_raycast(RaycastId id);
 
 	World& world() { return m_world; }
 	EventStream& events() { return m_events; }
@@ -124,18 +129,18 @@ public:
 
 private:
 
-	World&						m_world;
-	PxControllerManager*		m_controller_manager;
-	PxScene*					m_scene;
-	PxDefaultCpuDispatcher*		m_cpu_dispatcher;
+	World& m_world;
+	PxControllerManager* m_controller_manager;
+	PxScene* m_scene;
+	PxDefaultCpuDispatcher* m_cpu_dispatcher;
 
-	PxOverlapHit 				m_hits[64]; // hardcoded
-	PxOverlapBuffer 			m_buffer;
+	PxOverlapHit m_hits[64]; // hardcoded
+	PxOverlapBuffer m_buffer;
 
-	PoolAllocator				m_actors_pool;
-	PoolAllocator				m_controllers_pool;
-	PoolAllocator				m_joints_pool;
-	PoolAllocator				m_raycasts_pool;
+	PoolAllocator m_actors_pool;
+	PoolAllocator m_controllers_pool;
+	PoolAllocator m_joints_pool;
+	PoolAllocator m_raycasts_pool;
 
 	IdArray<CE_MAX_ACTORS, Actor*>	m_actors;
 	IdArray<CE_MAX_CONTROLLERS, Controller*> m_controllers;
@@ -147,6 +152,10 @@ private:
 	PhysicsSimulationCallback m_callback;
 
 	const PhysicsConfigResource* m_resource;
+
+	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		DebugLine* m_debug_line;
+	#endif
 };
 
 } // namespace crown

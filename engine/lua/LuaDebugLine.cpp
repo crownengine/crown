@@ -80,12 +80,23 @@ static int debug_line_commit(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int debug_line_tostring(lua_State* L)
+{
+	LuaStack stack(L);
+	DebugLine* dl = stack.get_debug_line(1);
+	stack.push_fstring("DebugLine (%p)", dl);
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
 void load_debug_line(LuaEnvironment& env)
 {
 	env.load_module_function("DebugLine", "add_line",    debug_line_add_line);
 	env.load_module_function("DebugLine", "add_sphere",  debug_line_add_sphere);
 	env.load_module_function("DebugLine", "clear",       debug_line_clear);
 	env.load_module_function("DebugLine", "commit",      debug_line_commit);
+	env.load_module_function("DebugLine", "__index",	 "DebugLine");
+	env.load_module_function("DebugLine", "__tostring",  debug_line_tostring);
 }
 
 } // namespace crown

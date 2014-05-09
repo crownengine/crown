@@ -43,20 +43,20 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-static const char* al_error_to_string(ALenum error)
-{
-	switch (error)
-	{
-		case AL_INVALID_ENUM: return "AL_INVALID_ENUM";
-		case AL_INVALID_VALUE: return "AL_INVALID_VALUE";
-		case AL_INVALID_OPERATION: return "AL_INVALID_OPERATION";
-		case AL_OUT_OF_MEMORY: return "AL_OUT_OF_MEMORY";
-		default: return "UNKNOWN_AL_ERROR";
-	}
-}
-
-//-----------------------------------------------------------------------------
 #if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+
+	static const char* al_error_to_string(ALenum error)
+	{
+		switch (error)
+		{
+			case AL_INVALID_ENUM: return "AL_INVALID_ENUM";
+			case AL_INVALID_VALUE: return "AL_INVALID_VALUE";
+			case AL_INVALID_OPERATION: return "AL_INVALID_OPERATION";
+			case AL_OUT_OF_MEMORY: return "AL_OUT_OF_MEMORY";
+			default: return "UNKNOWN_AL_ERROR";
+		}
+	}
+
 	#define AL_CHECK(function)\
 		function;\
 		do { ALenum error; CE_ASSERT((error = alGetError()) == AL_NO_ERROR,\
@@ -81,9 +81,9 @@ namespace audio_system
 
 		AL_CHECK(alcMakeContextCurrent(s_al_context));
 
-		Log::d("OpenAL Vendor   : %s", alGetString(AL_VENDOR));
-		Log::d("OpenAL Version  : %s", alGetString(AL_VERSION));
-		Log::d("OpenAL Renderer : %s", alGetString(AL_RENDERER));
+		CE_LOGD("OpenAL Vendor   : %s", alGetString(AL_VENDOR));
+		CE_LOGD("OpenAL Version  : %s", alGetString(AL_VERSION));
+		CE_LOGD("OpenAL Renderer : %s", alGetString(AL_RENDERER));
 
 		AL_CHECK(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
 		AL_CHECK(alDopplerFactor(1.0f));
@@ -227,7 +227,7 @@ public:
 
 	ALSoundWorld()
 	{
-		set_listener_pose(Matrix4x4::IDENTITY);
+		set_listener_pose(matrix4x4::IDENTITY);
 	}
 
 	virtual ~ALSoundWorld()
@@ -236,34 +236,34 @@ public:
 
 	virtual SoundInstanceId play(const char* name, bool loop, float volume, const Vector3& pos)
 	{
-		return play((SoundResource*) device()->resource_manager()->lookup(SOUND_EXTENSION, name), loop, volume, pos);
+		return play((SoundResource*) device()->resource_manager()->get(SOUND_EXTENSION, name), loop, volume, pos);
 	}
 
 	SoundInstanceId play(SoundResource* sr, bool loop, float volume, const Vector3& pos)
 	{
 		SoundInstance instance;
 		instance.create(sr, pos);
-		SoundInstanceId id = m_playing_sounds.create(instance);
-		m_playing_sounds.lookup(id).m_id = id;
+		SoundInstanceId id = id_array::create(m_playing_sounds, instance);
+		id_array::get(m_playing_sounds, id).m_id = id;
 		instance.play(loop, volume);
 		return id;
 	}
 
 	virtual void stop(SoundInstanceId id)
 	{
-		SoundInstance& instance = m_playing_sounds.lookup(id);
+		SoundInstance& instance = id_array::get(m_playing_sounds, id);
 		instance.destroy();
-		m_playing_sounds.destroy(id);
+		id_array::destroy(m_playing_sounds, id);
 	}
 
 	virtual bool is_playing(SoundInstanceId id)
 	{
-		return m_playing_sounds.has(id) && m_playing_sounds.lookup(id).is_playing();
+		return id_array::has(m_playing_sounds, id) && id_array::get(m_playing_sounds, id).is_playing();
 	}
 
 	virtual void stop_all()
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			m_playing_sounds[i].stop();
 		}
@@ -271,7 +271,7 @@ public:
 
 	virtual void pause_all()
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			m_playing_sounds[i].pause();
 		}
@@ -279,7 +279,7 @@ public:
 
 	virtual void resume_all()
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			m_playing_sounds[i].resume();
 		}
@@ -287,7 +287,7 @@ public:
 
 	virtual void set_sound_positions(uint32_t count, const SoundInstanceId* ids, const Vector3* positions)
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			m_playing_sounds[i].set_position(positions[i]);
 		}
@@ -295,7 +295,7 @@ public:
 
 	virtual void set_sound_ranges(uint32_t count, const SoundInstanceId* ids, const float* ranges)
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			m_playing_sounds[i].set_range(ranges[i]);
 		}
@@ -303,7 +303,7 @@ public:
 
 	virtual void set_sound_volumes(uint32_t count, const SoundInstanceId* ids, const float* volumes)
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			m_playing_sounds[i].set_volume(volumes[i]);
 		}		
@@ -311,7 +311,7 @@ public:
 
 	virtual void reload_sounds(SoundResource* old_sr, SoundResource* new_sr)
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			if (m_playing_sounds[i].resource() == old_sr)
 			{
@@ -322,9 +322,9 @@ public:
 
 	virtual void set_listener_pose(const Matrix4x4& pose)
 	{
-		const Vector3 pos = pose.translation();
-		const Vector3 up = pose.y();
-		const Vector3 at = pose.z();
+		const Vector3 pos = matrix4x4::translation(pose);
+		const Vector3 up = matrix4x4::y(pose);
+		const Vector3 at = matrix4x4::z(pose);
 
 		AL_CHECK(alListener3f(AL_POSITION, pos.x, pos.y, pos.z));
 		//AL_CHECK(alListener3f(AL_VELOCITY, vel.x, vel.y, vel.z));
@@ -340,7 +340,7 @@ public:
 		Array<SoundInstanceId> to_delete(alloc);
 
 		// Check what sounds finished playing
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			SoundInstance& instance = m_playing_sounds[i];
 			if (instance.finished())

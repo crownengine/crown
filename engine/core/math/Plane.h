@@ -86,12 +86,6 @@ inline Plane::Plane()
 }
 
 //-----------------------------------------------------------------------------
-inline Plane::Plane(const Plane& p)
-	: n(p.n), d(p.d)
-{
-}
-
-//-----------------------------------------------------------------------------
 inline Plane::Plane(const Vector3& normal, float dist)
 	: n(normal), d(dist)
 {

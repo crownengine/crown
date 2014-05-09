@@ -52,6 +52,7 @@ Unit::Unit(World& w, UnitId unit_id, const ResourceId id, const UnitResource* ur
 	, m_num_sprites(0)
 	, m_num_actors(0)
 	, m_num_materials(0)
+	, m_values(NULL)
 {
 	m_controller.component.id = INVALID_ID;
 	create_objects(pose);
@@ -93,11 +94,16 @@ void Unit::create_objects(const Matrix4x4& pose)
 	create_physics_objects();
 
 	set_default_material();
+
+	m_values = (char*) default_allocator().allocate(m_resource->values_size());
+	memcpy(m_values, m_resource->values(), m_resource->values_size());
 }
 
 //-----------------------------------------------------------------------------
 void Unit::destroy_objects()
 {
+	default_allocator().deallocate(m_values);
+
 	// Destroy cameras
 	for (uint32_t i = 0; i < m_num_cameras; i++)
 	{
@@ -149,9 +155,9 @@ void Unit::create_camera_objects()
 {
 	for (uint32_t i = 0; i < m_resource->num_cameras(); i++)
 	{
-		const UnitCamera camera = m_resource->get_camera(i);
-		const CameraId cam = m_world.create_camera(m_scene_graph, camera.node);
-		add_camera(camera.name, cam);
+		const UnitCamera cam = m_resource->get_camera(i);
+		const CameraId id = m_world.create_camera(m_scene_graph, cam.node, cam.type, cam.near, cam.far);
+		add_camera(cam.name, id);
 	}
 }
 
@@ -165,13 +171,13 @@ void Unit::create_renderable_objects()
 
 		if (renderable.type == UnitRenderable::MESH)
 		{
-			MeshResource* mr = (MeshResource*) device()->resource_manager()->data(renderable.resource);
+			MeshResource* mr = (MeshResource*) device()->resource_manager()->get(renderable.resource);
 			MeshId mesh = m_world.render_world()->create_mesh(mr, m_scene_graph, renderable.node);
 			add_mesh(renderable.name, mesh);
 		}
 		else if (renderable.type == UnitRenderable::SPRITE)
 		{
-			SpriteResource* sr = (SpriteResource*) device()->resource_manager()->data(renderable.resource);
+			SpriteResource* sr = (SpriteResource*) device()->resource_manager()->get(renderable.resource);
 			SpriteId sprite = m_world.render_world()->create_sprite(sr, m_scene_graph, renderable.node);
 			add_sprite(renderable.name, sprite);
 		}
@@ -184,7 +190,7 @@ void Unit::create_renderable_objects()
 	// Create materials
 	if (m_resource->material_resource().id != 0)
 	{
-		MaterialResource* mr = (MaterialResource*) device()->resource_manager()->data(m_resource->material_resource());
+		MaterialResource* mr = (MaterialResource*) device()->resource_manager()->get(m_resource->material_resource());
 		add_material(string::murmur2_32("default", string::strlen("default"), 0), m_world.render_world()->create_material(mr));
 	}
 }
@@ -194,7 +200,7 @@ void Unit::create_physics_objects()
 {
 	if (m_resource->physics_resource().id != 0)
 	{
-		const PhysicsResource* pr = (PhysicsResource*) device()->resource_manager()->data(m_resource->physics_resource());
+		const PhysicsResource* pr = (PhysicsResource*) device()->resource_manager()->get(m_resource->physics_resource());
 
 		// Create controller if any
 		if (pr->has_controller())
@@ -231,7 +237,7 @@ void Unit::set_default_material()
 
 	for (uint32_t i = 0; i < m_num_sprites; i++)
 	{
-		Sprite* s = m_world.render_world()->lookup_sprite(m_sprites[i].component);
+		Sprite* s = m_world.render_world()->get_sprite(m_sprites[i].component);
 		s->set_material(m_materials[0].component);
 	}
 }
@@ -348,24 +354,12 @@ void Unit::add_component(StringId32 name, Id component, uint32_t& size, Componen
 //-----------------------------------------------------------------------------
 Id Unit::find_component(const char* name, uint32_t size, Component* array)
 {
-	uint32_t name_hash = string::murmur2_32(name, string::strlen(name), 0);
-
-	Id comp;
-	comp.id = INVALID_ID;
-
-	for (uint32_t i = 0; i < size; i++)
-	{
-		if (name_hash == array[i].name)
-		{
-			comp = array[i].component;
-		}
-	}
-
-	return comp;
+	const uint32_t name_hash = string::murmur2_32(name, string::strlen(name), 0);
+	return find_component_by_name(name_hash, size, array);
 }
 
 //-----------------------------------------------------------------------------
-Id Unit::find_component(uint32_t index, uint32_t size, Component* array)
+Id Unit::find_component_by_index(uint32_t index, uint32_t size, Component* array)
 {
 	Id comp;
 	comp.id = INVALID_ID;
@@ -379,7 +373,7 @@ Id Unit::find_component(uint32_t index, uint32_t size, Component* array)
 }
 
 //-----------------------------------------------------------------------------
-Id Unit::find_component_by_index(StringId32 name, uint32_t size, Component* array)
+Id Unit::find_component_by_name(StringId32 name, uint32_t size, Component* array)
 {
 	Id comp;
 	comp.id = INVALID_ID;
@@ -449,17 +443,17 @@ Camera* Unit::camera(const char* name)
 
 	CE_ASSERT(cam.id != INVALID_ID, "Unit does not have camera with name '%s'", name);
 
-	return m_world.lookup_camera(cam);
+	return m_world.get_camera(cam);
 }
 
 //-----------------------------------------------------------------------------
 Camera* Unit::camera(uint32_t i)
 {
-	CameraId cam = find_component(i, m_num_cameras, m_cameras);
+	CameraId cam = find_component_by_index(i, m_num_cameras, m_cameras);
 
 	CE_ASSERT(cam.id != INVALID_ID, "Unit does not have camera with index '%d'", i);
 
-	return m_world.lookup_camera(cam);
+	return m_world.get_camera(cam);
 }
 
 //-----------------------------------------------------------------------------
@@ -469,17 +463,17 @@ Mesh* Unit::mesh(const char* name)
 
 	CE_ASSERT(mesh.id != INVALID_ID, "Unit does not have mesh with name '%s'", name);
 
-	return m_world.render_world()->lookup_mesh(mesh);
+	return m_world.render_world()->get_mesh(mesh);
 }
 
 //-----------------------------------------------------------------------------
 Mesh* Unit::mesh(uint32_t i)
 {
-	MeshId mesh = find_component(i, m_num_meshes, m_meshes);
+	MeshId mesh = find_component_by_index(i, m_num_meshes, m_meshes);
 
 	CE_ASSERT(mesh.id != INVALID_ID, "Unit does not have mesh with index '%d'", i);
 
-	return m_world.render_world()->lookup_mesh(mesh);
+	return m_world.render_world()->get_mesh(mesh);
 }
 
 //-----------------------------------------------------------------------------
@@ -489,17 +483,17 @@ Sprite*	Unit::sprite(const char* name)
 
 	CE_ASSERT(sprite.id != INVALID_ID, "Unit does not have sprite with name '%s'", name);
 
-	return m_world.render_world()->lookup_sprite(sprite);
+	return m_world.render_world()->get_sprite(sprite);
 }
 
 //-----------------------------------------------------------------------------
 Sprite*	Unit::sprite(uint32_t i)
 {
-	SpriteId sprite = find_component(i, m_num_sprites, m_sprites);
+	SpriteId sprite = find_component_by_index(i, m_num_sprites, m_sprites);
 
 	CE_ASSERT(sprite.id != INVALID_ID, "Unit does not have sprite with index '%d'", i);
 
-	return m_world.render_world()->lookup_sprite(sprite);
+	return m_world.render_world()->get_sprite(sprite);
 }
 
 //-----------------------------------------------------------------------------
@@ -509,27 +503,27 @@ Actor* Unit::actor(const char* name)
 
 	CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%s'", name);
 
-	return m_world.physics_world()->lookup_actor(actor);
+	return m_world.physics_world()->get_actor(actor);
 }
 
 //-----------------------------------------------------------------------------
 Actor* Unit::actor(uint32_t i)
 {
-	ActorId actor = find_component(i, m_num_actors, m_actors);
+	ActorId actor = find_component_by_index(i, m_num_actors, m_actors);
 
-	CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%d'", i);
+	CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with index '%d'", i);
 
-	return m_world.physics_world()->lookup_actor(actor);
+	return m_world.physics_world()->get_actor(actor);
 }	
 
 //-----------------------------------------------------------------------------
 Actor* Unit::actor_by_index(StringId32 name)
 {
-	ActorId actor = find_component_by_index(name, m_num_actors, m_actors);
+	ActorId actor = find_component_by_name(name, m_num_actors, m_actors);
 
 	// CE_ASSERT(actor.id != INVALID_ID, "Unit does not have actor with name '%d'", name);
 
-	return m_world.physics_world()->lookup_actor(actor);
+	return m_world.physics_world()->get_actor(actor);
 }
 
 //-----------------------------------------------------------------------------
@@ -537,7 +531,7 @@ Controller* Unit::controller()
 {
 	if (m_controller.component.id != INVALID_ID)
 	{
-		return m_world.physics_world()->lookup_controller(m_controller.component);
+		return m_world.physics_world()->get_controller(m_controller.component);
 	}
 
 	return NULL;
@@ -550,17 +544,17 @@ Material* Unit::material(const char* name)
 
 	CE_ASSERT(material.id != INVALID_ID, "Unit does not have material with name '%s'", name);
 
-	return m_world.render_world()->lookup_material(material);
+	return m_world.render_world()->get_material(material);
 }
 
 //-----------------------------------------------------------------------------
 Material* Unit::material(uint32_t i)
 {
-	MaterialId material = find_component(i, m_num_materials, m_materials);
+	MaterialId material = find_component_by_index(i, m_num_materials, m_materials);
 
 	CE_ASSERT(material.id != INVALID_ID, "Unit does not have material with name '%d'", i);
 
-	return m_world.render_world()->lookup_material(material);
+	return m_world.render_world()->get_material(material);
 }
 
 //-----------------------------------------------------------------------------
@@ -572,5 +566,98 @@ bool Unit::is_a(const char* name)
 	return m_resource_id.id == string::murmur2_64(unit.c_str(), string::strlen(unit.c_str()), 0);
 }
 
+//-----------------------------------------------------------------------------
+void Unit::play_sprite_animation(const char* name, bool loop)
+{
+	// sprite((uint32_t) 0)->play_animation(name, loop);
+}
+
+//-----------------------------------------------------------------------------
+void Unit::stop_sprite_animation()
+{
+	// sprite((uint32_t) 0)->stop_animation();
+}
+
+//-----------------------------------------------------------------------------
+bool Unit::has_key(const char* k) const
+{
+	return m_resource->has_key(k);
+}
+
+//-----------------------------------------------------------------------------
+ValueType::Enum Unit::value_type(const char* k)
+{
+	Key key;
+	m_resource->get_key(k, key);
+	return (ValueType::Enum) key.type;
+}
+
+//-----------------------------------------------------------------------------
+bool Unit::get_key(const char* k, bool& v) const
+{
+	Key key;
+	bool has = m_resource->get_key(k, key);
+	v = *(uint32_t*)(m_values + key.offset);
+	return has;
+}
+
+//-----------------------------------------------------------------------------
+bool Unit::get_key(const char* k, float& v) const
+{
+	Key key;
+	bool has = m_resource->get_key(k, key);
+	v = *(float*)(m_values + key.offset);
+	return has;
+}
+
+//-----------------------------------------------------------------------------
+bool Unit::get_key(const char* k, StringId32& v) const
+{
+	Key key;
+	bool has = m_resource->get_key(k, key);
+	v = *(StringId32*)(m_values + key.offset);
+	return has;
+}
+
+//-----------------------------------------------------------------------------
+bool Unit::get_key(const char* k, Vector3& v) const
+{
+	Key key;
+	bool has = m_resource->get_key(k, key);
+	v = *(Vector3*)(m_values + key.offset);
+	return has;
+}
+
+//-----------------------------------------------------------------------------
+void Unit::set_key(const char* k, bool v)
+{
+	Key key;
+	m_resource->get_key(k, key);
+	*(uint32_t*)(m_values + key.offset) = v;
+}
+
+//-----------------------------------------------------------------------------
+void Unit::set_key(const char* k, float v)
+{
+	Key key;
+	m_resource->get_key(k, key);
+	*(float*)(m_values + key.offset) = v;
+}
+
+//-----------------------------------------------------------------------------
+void Unit::set_key(const char* k, const char* v)
+{
+	Key key;
+	m_resource->get_key(k, key);
+	*(StringId32*)(m_values + key.offset) = string::murmur2_32(v, string::strlen(v));
+}
+
+//-----------------------------------------------------------------------------
+void Unit::set_key(const char* k, const Vector3& v)
+{
+	Key key;
+	m_resource->get_key(k, key);
+	*(Vector3*)(m_values + key.offset) = v;
+}
 
 } // namespace crown

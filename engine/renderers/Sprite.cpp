@@ -44,6 +44,8 @@ Sprite::Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const Sp
 	, m_scene_graph(sg)
 	, m_node(node)
 	, m_resource(sr)
+	, m_frame(0)
+	// , m_animator(this)
 {
 	m_vb = sr->vertex_buffer();
 	m_ib = sr->index_buffer();
@@ -115,9 +117,33 @@ void Sprite::set_material(MaterialId mat)
 }
 
 //-----------------------------------------------------------------------------
+void Sprite::set_frame(uint32_t i)
+{
+	m_frame = i;
+}
+
+//-----------------------------------------------------------------------------
+void Sprite::play_animation(const char* name, bool loop)
+{
+	// m_animator.play_animation(name, loop);
+}
+
+//-----------------------------------------------------------------------------
+void Sprite::stop_animation()
+{
+	// m_animator.stop_animation();
+}
+
+//-----------------------------------------------------------------------------
+void Sprite::update(float dt)
+{
+	// m_animator.update(dt);
+}
+
+//-----------------------------------------------------------------------------
 void Sprite::render(Renderer& r, UniformId uniform, float dt)
 {
-	Material* material = m_render_world.lookup_material(m_material);
+	Material* material = m_render_world.get_material(m_material);
 	material->bind(r, uniform);
 
 	r.set_state(STATE_DEPTH_WRITE 
@@ -127,7 +153,7 @@ void Sprite::render(Renderer& r, UniformId uniform, float dt)
 		| STATE_BLEND_EQUATION_ADD 
 		| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
 	r.set_vertex_buffer(m_vb);
-	r.set_index_buffer(m_ib, 0, 6);
+	r.set_index_buffer(m_ib, m_frame * 6, 6);
 	r.set_pose(world_pose());
 	r.commit(0);
 }

@@ -38,13 +38,28 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+ResourceId::ResourceId(const char* type, const char* name)
+{
+	TempAllocator256 alloc;
+	DynamicString res_name(alloc);
+	res_name += name;
+	res_name += '.';
+	res_name += type;
+
+	id = string::murmur2_64(res_name.c_str(), res_name.length(), 0);
+}
+
+ResourceId::ResourceId(const char* name)
+{
+	id = string::murmur2_64(name, string::strlen(name), 0);
+}
+
 //-----------------------------------------------------------------------------
-ResourceManager::ResourceManager(Bundle& bundle, uint32_t seed) :
-	m_resource_heap("resource", default_allocator()),
-	m_loader(bundle, m_resource_heap),
-	m_seed(seed),
-	m_pendings(default_allocator()),
-	m_resources(default_allocator())
+ResourceManager::ResourceManager(Bundle& bundle)
+	: m_resource_heap("resource", default_allocator())
+	, m_loader(bundle, m_resource_heap)
+	, m_pendings(default_allocator())
+	, m_resources(default_allocator())
 {
 	m_loader.start();
 }
@@ -58,7 +73,7 @@ ResourceManager::~ResourceManager()
 //-----------------------------------------------------------------------------
 ResourceId ResourceManager::load(const char* type, const char* name)
 {
-	return load(string::murmur2_32(type, string::strlen(type), 0), resource_id(type, name));
+	return load(string::murmur2_32(type, string::strlen(type), 0), ResourceId(type, name));
 }
 
 //-----------------------------------------------------------------------------
@@ -69,7 +84,7 @@ void ResourceManager::unload(ResourceId name, bool force)
 	ResourceEntry* entry = find(name);
 
 	entry->references--;
-	
+
 	if (entry->references == 0 || force)
 	{
 		resource_on_offline(entry->type, entry->resource);
@@ -83,18 +98,6 @@ void ResourceManager::unload(ResourceId name, bool force)
 }
 
 //-----------------------------------------------------------------------------
-const void* ResourceManager::lookup(const char* type, const char* name) const
-{
-	ResourceId id = resource_id(type, name);
-	ResourceEntry* entry = find(id);
-
-	CE_ASSERT(entry != NULL, "Resource not loaded: type = '%s', name = '%s'", type, name);
-	CE_ASSERT(entry->resource != NULL, "Resource not loaded: type = '%s', name = '%s'", type, name);
-
-	return entry->resource;
-}
-
-//-----------------------------------------------------------------------------
 bool ResourceManager::has(ResourceId name) const
 {
 	ResourceEntry* entry = find(name);
@@ -103,7 +106,18 @@ bool ResourceManager::has(ResourceId name) const
 }
 
 //-----------------------------------------------------------------------------
-const void* ResourceManager::data(ResourceId name) const
+const void* ResourceManager::get(const char* type, const char* name) const
+{
+	ResourceEntry* entry = find(ResourceId(type, name));
+
+	CE_ASSERT(entry != NULL, "Resource not loaded: type = '%s', name = '%s'", type, name);
+	CE_ASSERT(entry->resource != NULL, "Resource not loaded: type = '%s', name = '%s'", type, name);
+
+	return entry->resource;
+}
+
+//-----------------------------------------------------------------------------
+const void* ResourceManager::get(ResourceId name) const
 {
 	CE_ASSERT(has(name), "Resource not loaded: " "%.16"PRIx64"", name.id);
 
@@ -133,27 +147,6 @@ void ResourceManager::flush()
 	{
 		poll_resource_loader();
 	}
-}
-
-//-----------------------------------------------------------------------------
-uint32_t ResourceManager::seed() const
-{
-	return m_seed;
-}
-
-//-----------------------------------------------------------------------------
-ResourceId ResourceManager::resource_id(const char* type, const char* name) const
-{
-	TempAllocator256 alloc;
-	DynamicString res_name(alloc);
-	res_name += name;
-	res_name += '.';
-	res_name += type;
-
-	ResourceId res_id;
-	res_id.id = string::murmur2_64(res_name.c_str(), string::strlen(res_name.c_str()), m_seed);
-
-	return res_id;
 }
 
 //-----------------------------------------------------------------------------
@@ -211,7 +204,7 @@ ResourceId ResourceManager::load(uint32_t type, ResourceId name)
 
 	// Else, increment its reference count
 	entry->references++;
-	
+
 	return entry->id;
 }
 

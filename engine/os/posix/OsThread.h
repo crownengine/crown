@@ -100,7 +100,6 @@ inline void OsThread::start(ThreadFunction func, void* data, size_t stack_size)
 	int32_t result = pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-
 	CE_ASSERT(result == 0, "pthread_attr_init failed. errno: %d", result);
 
 	if (m_stack_size != 0)
@@ -115,6 +114,7 @@ inline void OsThread::start(ThreadFunction func, void* data, size_t stack_size)
 	// Free attr memory
 	result = pthread_attr_destroy(&attr);
 	CE_ASSERT(result == 0, "pthread_attr_destroy failed. errno: %d", result);
+	CE_UNUSED(result);
 
 	m_is_running = true;
 
@@ -128,6 +128,7 @@ inline void OsThread::stop()
 	
 	int32_t result = pthread_join(m_handle, NULL);
 	CE_ASSERT(result == 0, "OsThread join failed. errno: %d", result);
+	CE_UNUSED(result);
 
 	m_is_running = false;
 	m_handle = 0;

@@ -69,10 +69,12 @@ extern void load_string_setting(LuaEnvironment& env);
 extern void load_touch(LuaEnvironment& env);
 extern void load_unit(LuaEnvironment& env);
 extern void load_vector2(LuaEnvironment& env);
+extern void load_vector2box(LuaEnvironment& env);
 extern void load_vector3(LuaEnvironment& env);
 extern void load_vector3box(LuaEnvironment& env);
 extern void load_window(LuaEnvironment& env);
 extern void load_world(LuaEnvironment& env);
+extern void load_color4(LuaEnvironment& env);
 
 namespace lua_system
 {
@@ -108,7 +110,7 @@ namespace lua_system
 		lua_pushinteger(L, 2);
 		lua_call(L, 2, 1); // Call debug.traceback
 
-		Log::e(lua_tostring(L, -1)); // Print error message
+		CE_LOGE(lua_tostring(L, -1)); // Print error message
 		lua_pop(L, 1); // Remove error message from stack
 		lua_pop(L, 1); // Remove debug.traceback from stack
 
@@ -126,7 +128,7 @@ namespace lua_system
 		const ResourceId lua_res = device()->resource_manager()->load("lua", filename);
 		device()->resource_manager()->flush();
 
-		const LuaResource* lr = (LuaResource*) device()->resource_manager()->data(lua_res);
+		const LuaResource* lr = (LuaResource*) device()->resource_manager()->get(lua_res);
 		luaL_loadbuffer(L, (const char*) lr->program(), lr->size(), "");
 
 		device()->resource_manager()->unload(lua_res);
@@ -334,10 +336,12 @@ namespace lua_system
 		load_touch(env);
 		load_unit(env);
 		load_vector2(env);
+		load_vector2box(env);
 		load_vector3(env);
 		load_vector3box(env);
 		load_window(env);
 		load_world(env);
+		load_color4(env);
 
 		// Register custom loader
 		lua_getfield(s_L, LUA_GLOBALSINDEX, "package");

@@ -303,6 +303,7 @@ void execute_process(const char* args[])
 	{
 		int res = execv(args[0], (char* const*)args);
 		CE_ASSERT(res != -1, "Unable to exec '%s'. errno %d", args[0], res);
+		CE_UNUSED(res);
 		exit(EXIT_SUCCESS);
 	}
 }

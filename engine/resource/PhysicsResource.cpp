@@ -157,9 +157,7 @@ void parse_shapes(JSONElement e, Array<PhysicsShape>& shapes)
 				resource.to_string(mesh_name);
 				mesh_name += ".mesh";
 
-				StringId64 mesh_id = string::murmur2_64(mesh_name.c_str(), string::strlen(mesh_name.c_str()), 0);
-
-				ps.resource.id = mesh_id;
+				ps.resource = ResourceId(mesh_name.c_str());
 
 				break;
 			}
@@ -530,7 +528,7 @@ namespace physics_config_resource
 			pcf.me = filter_to_mask(keys[i].c_str());
 			pcf.mask = collides_with_to_mask(collides_with_vector);
 
-			printf("FILTER: %s (me = %X, mask = %X\n", keys[i].c_str(), pcf.me, pcf.mask);
+			// printf("FILTER: %s (me = %X, mask = %X\n", keys[i].c_str(), pcf.me, pcf.mask);
 
 			array::push_back(names, filter_name);
 			array::push_back(objects, pcf);

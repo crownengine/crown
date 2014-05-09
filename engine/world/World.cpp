@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "DebugLine.h"
 #include "Actor.h"
 #include "LuaEnvironment.h"
+#include "LevelResource.h"
 
 namespace crown
 {
@@ -52,7 +53,7 @@ World::World()
 World::~World()
 {
 	// Destroy all units
-	for (uint32_t i = 0; i < m_units.size(); i++)
+	for (uint32_t i = 0; i < id_array::size(m_units); i++)
 	{
 		CE_DELETE(m_unit_pool, m_units[i]);
 	}
@@ -75,8 +76,14 @@ void World::set_id(WorldId id)
 //-----------------------------------------------------------------------------
 UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion& rot)
 {
-	UnitResource* ur = (UnitResource*) device()->resource_manager()->lookup(UNIT_EXTENSION, name);
-	ResourceId id = device()->resource_manager()->resource_id(UNIT_EXTENSION, name);
+	const ResourceId id(UNIT_EXTENSION, name);
+	return spawn_unit(id, pos, rot);
+}
+
+//-----------------------------------------------------------------------------
+UnitId World::spawn_unit(ResourceId id, const Vector3& pos, const Quaternion& rot)
+{
+	UnitResource* ur = (UnitResource*) device()->resource_manager()->get(id);
 	return spawn_unit(id, ur, pos, rot);
 }
 
@@ -84,7 +91,7 @@ UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion&
 UnitId World::spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& pos, const Quaternion& rot)
 {
 	Unit* u = (Unit*) m_unit_pool.allocate(sizeof(Unit), CE_ALIGNOF(Unit));
-	const UnitId unit_id = m_units.create(u);
+	const UnitId unit_id = id_array::create(m_units, u);
 	new (u) Unit(*this, unit_id, id, ur, Matrix4x4(rot, pos));
 
 	// SpawnUnitEvent ev;
@@ -97,10 +104,8 @@ UnitId World::spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& p
 //-----------------------------------------------------------------------------
 void World::destroy_unit(UnitId id)
 {
-	CE_ASSERT(m_units.has(id), "Unit does not exist");
-
-	CE_DELETE(m_unit_pool, m_units.lookup(id));
-	m_units.destroy(id);
+	CE_DELETE(m_unit_pool, id_array::get(m_units, id));
+	id_array::destroy(m_units, id);
 
 	// DestroyUnitEvent ev;
 	// ev.unit = id;
@@ -110,7 +115,7 @@ void World::destroy_unit(UnitId id)
 //-----------------------------------------------------------------------------
 void World::reload_units(UnitResource* old_ur, UnitResource* new_ur)
 {
-	for (uint32_t i = 0; i < m_units.size(); i++)
+	for (uint32_t i = 0; i < id_array::size(m_units); i++)
 	{
 		if (m_units[i]->resource() == old_ur)
 		{
@@ -122,39 +127,40 @@ void World::reload_units(UnitResource* old_ur, UnitResource* new_ur)
 //-----------------------------------------------------------------------------
 uint32_t World::num_units() const
 {
-	return m_units.size();
+	return id_array::size(m_units);
+}
+
+//-----------------------------------------------------------------------------
+void World::units(Array<UnitId>& units) const
+{
+	for (uint32_t i = 0; i < id_array::size(m_units); i++)
+	{
+		array::push_back(units, m_units[i]->id());
+	}
 }
 
 //-----------------------------------------------------------------------------
 void World::link_unit(UnitId child, UnitId parent, int32_t node)
 {
-	CE_ASSERT(m_units.has(child), "Child unit does not exist");
-	CE_ASSERT(m_units.has(parent), "Parent unit does not exist");
-
-	Unit* parent_unit = lookup_unit(parent);
+	Unit* parent_unit = get_unit(parent);
 	parent_unit->link_node(0, node);
 }
 
 //-----------------------------------------------------------------------------
-void World::unlink_unit(UnitId child)
+void World::unlink_unit(UnitId /*child*/)
 {
-	CE_ASSERT(m_units.has(child), "Child unit does not exist");
 }
 
 //-----------------------------------------------------------------------------
-Unit* World::lookup_unit(UnitId unit)
+Unit* World::get_unit(UnitId id)
 {
-	CE_ASSERT(m_units.has(unit), "Unit does not exist");
-
-	return m_units.lookup(unit);
+	return id_array::get(m_units, id);
 }
 
 //-----------------------------------------------------------------------------
-Camera* World::lookup_camera(CameraId camera)
+Camera* World::get_camera(CameraId id)
 {
-	CE_ASSERT(m_cameras.has(camera), "Camera does not exist");
-
-	return m_cameras.lookup(camera);
+	return id_array::get(m_cameras, id);
 }
 
 //-----------------------------------------------------------------------------
@@ -174,27 +180,23 @@ void World::render(Camera* camera)
 {
 	m_render_world.update(camera->world_pose(), camera->m_projection, camera->m_view_x, camera->m_view_y,
 							camera->m_view_width, camera->m_view_height, device()->last_delta_time());
+
+	m_physics_world.draw_debug();
 }
 
 //-----------------------------------------------------------------------------
-CameraId World::create_camera(SceneGraph& sg, int32_t node)
+CameraId World::create_camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far)
 {
-	// Allocate memory for camera
-	Camera* camera = CE_NEW(m_camera_pool, Camera)(sg, node);
+	Camera* camera = CE_NEW(m_camera_pool, Camera)(sg, node, type, near, far);
 
-	// Create Id for the camera
-	const CameraId camera_id = m_cameras.create(camera);
-
-	return camera_id;
+	return id_array::create(m_cameras, camera);
 }
 
 //-----------------------------------------------------------------------------
 void World::destroy_camera(CameraId id)
 {
-	CE_ASSERT(m_cameras.has(id), "Camera does not exist");
-
-	CE_DELETE(m_camera_pool, m_cameras.lookup(id));
-	m_cameras.destroy(id);
+	CE_DELETE(m_camera_pool, id_array::get(m_cameras, id));
+	id_array::destroy(m_cameras, id);
 }
 
 //-----------------------------------------------------------------------------
@@ -239,17 +241,9 @@ void World::set_sound_volume(SoundInstanceId id, float vol)
 }
 
 //-----------------------------------------------------------------------------
-GuiId World::create_window_gui(const char* name)
+GuiId World::create_window_gui(uint16_t width, uint16_t height)
 {
-	GuiResource* gr = (GuiResource*)device()->resource_manager()->lookup(GUI_EXTENSION, name);
-	return m_render_world.create_gui(gr);
-}
-
-//-----------------------------------------------------------------------------
-GuiId World::create_world_gui(const Matrix4x4 pose, const uint32_t width, const uint32_t height)
-{
-	// Must be implemented
-	return GuiId();
+	return m_render_world.create_gui(width, height);
 }
 
 //-----------------------------------------------------------------------------
@@ -259,9 +253,9 @@ void World::destroy_gui(GuiId id)
 }
 
 //-----------------------------------------------------------------------------
-Gui* World::lookup_gui(GuiId id)
+Gui* World::get_gui(GuiId id)
 {
-	return m_render_world.lookup_gui(id);
+	return m_render_world.get_gui(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -274,6 +268,18 @@ DebugLine* World::create_debug_line(bool depth_test)
 void World::destroy_debug_line(DebugLine* line)
 {
 	CE_DELETE(default_allocator(), line);
+}
+
+//-----------------------------------------------------------------------------
+void World::load_level(const char* name)
+{
+	const LevelResource* res = (LevelResource*) device()->resource_manager()->get(LEVEL_EXTENSION, name);
+
+	for (uint32_t i = 0; i < res->num_units(); i++)
+	{
+		const LevelUnit* lu = res->get_unit(i);
+		spawn_unit(lu->name, lu->position, lu->rotation);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -310,9 +316,9 @@ void World::process_physics_events()
 	{
 		event_stream::Header h = *(event_stream::Header*) ee;
 
-		// Log::d("=== PHYSICS EVENT ===");
-		// Log::d("type = %d", h.type);
-		// Log::d("size = %d", h.size);
+		// CE_LOGD("=== PHYSICS EVENT ===");
+		// CE_LOGD("type = %d", h.type);
+		// CE_LOGD("size = %d", h.size);
 
 		const char* event = ee + sizeof(event_stream::Header);
 
@@ -322,13 +328,13 @@ void World::process_physics_events()
 			{
 				physics_world::CollisionEvent coll_ev = *(physics_world::CollisionEvent*) event;
 
-				// Log::d("type    = %s", coll_ev.type == physics_world::CollisionEvent::BEGIN_TOUCH ? "begin" : "end");
-				// Log::d("actor_0 = (%p)", coll_ev.actors[0]);
-				// Log::d("actor_1 = (%p)", coll_ev.actors[1]);
-				// Log::d("unit_0  = (%p)", coll_ev.actors[0]->unit());
-				// Log::d("unit_1  = (%p)", coll_ev.actors[1]->unit());
-				// Log::d("where   = (%f %f %f)", coll_ev.where.x, coll_ev.where.y, coll_ev.where.z);
-				// Log::d("normal  = (%f %f %f)", coll_ev.normal.x, coll_ev.normal.y, coll_ev.normal.z);
+				// CE_LOGD("type    = %s", coll_ev.type == physics_world::CollisionEvent::BEGIN_TOUCH ? "begin" : "end");
+				// CE_LOGD("actor_0 = (%p)", coll_ev.actors[0]);
+				// CE_LOGD("actor_1 = (%p)", coll_ev.actors[1]);
+				// CE_LOGD("unit_0  = (%p)", coll_ev.actors[0]->unit());
+				// CE_LOGD("unit_1  = (%p)", coll_ev.actors[1]->unit());
+				// CE_LOGD("where   = (%f %f %f)", coll_ev.where.x, coll_ev.where.y, coll_ev.where.z);
+				// CE_LOGD("normal  = (%f %f %f)", coll_ev.normal.x, coll_ev.normal.y, coll_ev.normal.z);
 
 				device()->lua_environment()->call_physics_callback(
 					coll_ev.actors[0],
@@ -344,9 +350,9 @@ void World::process_physics_events()
 			{
 				// physics_world::TriggerEvent trigg_ev = *(physics_world::TriggerEvent*) event;
 
-				// Log::d("type    = %s", trigg_ev.type == physics_world::TriggerEvent::BEGIN_TOUCH ? "begin" : "end");
-				// Log::d("trigger = (%p)", trigg_ev.trigger);
-				// Log::d("other   = (%p)", trigg_ev.other);
+				// CE_LOGD("type    = %s", trigg_ev.type == physics_world::TriggerEvent::BEGIN_TOUCH ? "begin" : "end");
+				// CE_LOGD("trigger = (%p)", trigg_ev.trigger);
+				// CE_LOGD("other   = (%p)", trigg_ev.other);
 				break;
 			}
 			default:
@@ -356,7 +362,7 @@ void World::process_physics_events()
 			}
 		}
 
-		// Log::d("=====================");
+		// CE_LOGD("=====================");
 
 		// Next event
 		ee += sizeof(event_stream::Header) + h.size;

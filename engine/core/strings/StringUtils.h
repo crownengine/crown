@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "Types.h"
 #include "Config.h"
+#include "Macros.h"
 
 namespace crown
 {
@@ -201,6 +202,7 @@ inline int32_t parse_int(const char* string)
 	int ok = sscanf(string, "%d", &val);
 
 	CE_ASSERT(ok == 1, "Failed to parse int: %s", string);
+	CE_UNUSED(ok);
 
 	return val;
 }
@@ -212,6 +214,7 @@ inline uint32_t parse_uint(const char* string)
 	int ok = sscanf(string, "%u", &val);
 
 	CE_ASSERT(ok == 1, "Failed to parse uint: %s", string);
+	CE_UNUSED(ok);
 
 	return val;
 }
@@ -223,6 +226,7 @@ inline float parse_float(const char* string)
 	int ok = sscanf(string, "%f", &val);
 
 	CE_ASSERT(ok == 1, "Failed to parse float: %s", string);
+	CE_UNUSED(ok);
 
 	return val;
 }
@@ -234,6 +238,7 @@ inline float parse_double(const char* string)
 	int ok = sscanf(string, "%lf", &val);
 
 	CE_ASSERT(ok == 1, "Failed to parse float: %s", string);
+	CE_UNUSED(ok);
 
 	return val;
 }

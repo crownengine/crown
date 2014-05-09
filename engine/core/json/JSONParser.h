@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "ContainerTypes.h"
+#include "MathTypes.h"
 #include "Macros.h"
 
 namespace crown
@@ -115,6 +116,14 @@ public:
 
 	/// Returns the string value of the element.
 	void				to_string(DynamicString& str) const;
+
+	/// Rerutns the Vector3 value of the element.
+	/// @note Vector3 = [x, y, z]
+	Vector3				to_vector3() const;
+
+	/// Returns the Quaternion value of the element.
+	/// @note Quaternion = [x, y, z, w]
+	Quaternion			to_quaternion() const;
 
 	/// Returns the string id value hashed to string::murmur2_32() of the element.
 	StringId32			to_string_id() const;

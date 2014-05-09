@@ -24,11 +24,14 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <string.h>
 #include "SceneGraph.h"
 #include "Quaternion.h"
+#include "Vector3.h"
+#include "Matrix4x4.h"
 #include "Allocator.h"
 #include "StringUtils.h"
+
+#include <string.h>
 
 #define CLEAN		0
 #define LOCAL_DIRTY	1
@@ -36,6 +39,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+
+using namespace matrix4x4;
 
 //-----------------------------------------------------------------------------
 SceneGraph::SceneGraph(Allocator& a, uint32_t index)
@@ -135,14 +140,20 @@ uint32_t SceneGraph::num_nodes() const
 }
 
 //-----------------------------------------------------------------------------
+bool SceneGraph::can_link(int32_t child, int32_t parent) const
+{
+	return parent < child;
+}
+
+//-----------------------------------------------------------------------------
 void SceneGraph::link(int32_t child, int32_t parent)
 {
 	CE_ASSERT(child < (int32_t) m_num_nodes, "Child node does not exist");
 	CE_ASSERT(parent < (int32_t) m_num_nodes, "Parent node does not exist");
-	CE_ASSERT(parent < child, "Parent must be < child");
+	CE_ASSERT(can_link(child, parent), "Parent must be < child");
 
-	m_world_poses[child] = Matrix4x4::IDENTITY;
-	m_local_poses[child] = Matrix4x4::IDENTITY;
+	m_world_poses[child] = matrix4x4::IDENTITY;
+	m_local_poses[child] = matrix4x4::IDENTITY;
 	m_parents[child] = parent;
 }
 
@@ -165,7 +176,7 @@ void SceneGraph::set_local_position(int32_t node, const Vector3& pos)
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
 	m_flags[node] |= LOCAL_DIRTY;
-	m_local_poses[node].set_translation(pos);
+	set_translation(m_local_poses[node], pos);
 }
 
 //-----------------------------------------------------------------------------
@@ -174,7 +185,7 @@ void SceneGraph::set_local_rotation(int32_t node, const Quaternion& rot)
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
 	m_flags[node] |= LOCAL_DIRTY;
-	m_local_poses[node].set_rotation(rot);
+	set_rotation(m_local_poses[node], rot);
 }
 
 //-----------------------------------------------------------------------------
@@ -191,7 +202,7 @@ Vector3 SceneGraph::local_position(int32_t node) const
 {
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
-	return m_local_poses[node].translation();
+	return translation(m_local_poses[node]);
 }
 
 //-----------------------------------------------------------------------------
@@ -199,7 +210,7 @@ Quaternion SceneGraph::local_rotation(int32_t node) const
 {
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
-	return m_local_poses[node].to_quaternion();
+	return to_quaternion(m_local_poses[node]);
 }
 
 //-----------------------------------------------------------------------------
@@ -216,7 +227,7 @@ void SceneGraph::set_world_position(int32_t node, const Vector3& pos)
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
 	m_flags[node] |= WORLD_DIRTY;
-	m_world_poses[node].set_translation(pos);
+	set_translation(m_world_poses[node], pos);
 }
 
 //-----------------------------------------------------------------------------
@@ -225,7 +236,7 @@ void SceneGraph::set_world_rotation(int32_t node, const Quaternion& rot)
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
 	m_flags[node] |= WORLD_DIRTY;
-	m_world_poses[node].set_rotation(rot);
+	set_rotation(m_world_poses[node], rot);
 }
 
 //-----------------------------------------------------------------------------
@@ -242,7 +253,7 @@ Vector3 SceneGraph::world_position(int32_t node) const
 {
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
-	return m_world_poses[node].translation();
+	return translation(m_world_poses[node]);
 }
 
 //-----------------------------------------------------------------------------
@@ -250,7 +261,7 @@ Quaternion SceneGraph::world_rotation(int32_t node) const
 {
 	CE_ASSERT(node < (int32_t) m_num_nodes, "Node does not exist");
 
-	return m_world_poses[node].to_quaternion();
+	return to_quaternion(m_world_poses[node]);
 }
 
 //-----------------------------------------------------------------------------

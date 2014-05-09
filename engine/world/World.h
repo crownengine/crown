@@ -45,14 +45,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-struct Mesh;
-struct Sprite;
-struct Actor;
-struct Vector3;
-struct Quaternion;
-struct PhysicsResource;
-struct DebugLine;
-
 /// @defgroup World World
 
 /// Represents a game world.
@@ -70,24 +62,33 @@ public:
 
 	/// Spawns a new instance of the unit @a name at the given @a position and @a rotation.
 	UnitId spawn_unit(const char* name, const Vector3& position = vector3::ZERO, const Quaternion& rotation = quaternion::IDENTITY);
+	UnitId spawn_unit(ResourceId id, const Vector3& pos, const Quaternion& rot);
 	UnitId spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& pos, const Quaternion& rot);
 
 	/// Destroys the unit with the given @a id.
 	void destroy_unit(UnitId id);
+
+	/// Reloads all the units with the associated resource @a old_ur.
 	void reload_units(UnitResource* old_ur, UnitResource* new_ur);
 
 	/// Returns the number of units in the world.
 	uint32_t num_units() const;
 
+	/// Returns all the the units in the world.
+	void units(Array<UnitId>& units) const;
+
 	/// Links the unit @a child to the @a node of the unit @a parent.
 	/// After this call, @a child will follow the @a parent unit.
 	void link_unit(UnitId child, UnitId parent, int32_t node);
 
-	/// Unlinks the unit @a unit from its parent if it has any.
-	void unlink_unit(UnitId unit);
+	/// Unlinks the unit @a id from its parent if it has any.
+	void unlink_unit(UnitId id);
 
-	Unit* lookup_unit(UnitId unit);
-	Camera* lookup_camera(CameraId camera);
+	/// Returns the unit @a id.
+	Unit* get_unit(UnitId id);
+
+	/// Returns the camera @a id.
+	Camera* get_camera(CameraId id);
 
 	/// Updates all units and sub-systems with the given @a dt delta time.
 	void update(float dt);
@@ -95,7 +96,9 @@ public:
 	/// Renders the world form the point of view of the given @a camera.
 	void render(Camera* camera);
 
-	CameraId create_camera(SceneGraph& sg, int32_t node);
+	CameraId create_camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far);
+
+	/// Destroys the camera @a id.
 	void destroy_camera(CameraId id);
 
 	/// Plays the sound with the given @æ name at the given @a position, with the given
@@ -121,17 +124,30 @@ public:
 	/// Sets the @a volume of the sound @a id.
 	void set_sound_volume(SoundInstanceId id, float volume);
 
-	GuiId create_window_gui(const char* name);
-	GuiId create_world_gui(const Matrix4x4 pose, const uint32_t width, const uint32_t height);
+	/// Creates a new window-space Gui of size @width and @a height.
+	GuiId create_window_gui(uint16_t width, uint16_t height);
+
+	/// Destroys the gui with the given @a id.
 	void destroy_gui(GuiId id);
-	Gui* lookup_gui(GuiId id);
+
+	/// Returns the gui @a id.
+	Gui* get_gui(GuiId id);
 
 	DebugLine* create_debug_line(bool depth_test);
 	void destroy_debug_line(DebugLine* line);
 
+	/// Loads the level @a name into the world.
+	void load_level(const char* name);
+
 	SceneGraphManager* scene_graph_manager();
+
+	/// Returns the rendering sub-world.
 	RenderWorld* render_world();
+
+	/// Returns the physics sub-world.
 	PhysicsWorld* physics_world();
+
+	/// Returns the sound sub-world.
 	SoundWorld* sound_world();
 
 private:

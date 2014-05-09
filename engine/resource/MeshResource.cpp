@@ -78,7 +78,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	if (position.is_nil())
 	{
-		Log::e("Bad mesh: array 'position' not found.");
+		CE_LOGE("Bad mesh: array 'position' not found.");
 		return;
 	}
 	Array<float> position_array(default_allocator());
@@ -103,7 +103,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONElement index = root.key_or_nil("index");
 	if (index.is_nil())
 	{
-		Log::e("Bad mesh: array 'index' not found.");
+		CE_LOGE("Bad mesh: array 'index' not found.");
 		return;
 	}
 

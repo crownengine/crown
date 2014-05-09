@@ -215,6 +215,12 @@ namespace vector4
 //-----------------------------------------------------------------------------
 inline Vector4::Vector4()
 {
+	// Do not initialize
+}
+
+//-----------------------------------------------------------------------------
+inline Vector4::Vector4(const Vector3& a, float w) : x(a.x), y(a.y), z(a.z), w(w)
+{
 }
 
 //-----------------------------------------------------------------------------
@@ -233,14 +239,9 @@ inline Vector4::Vector4(const float a[4]) : x(a[0]), y(a[1]), z(a[2]), w(a[3])
 }
 
 //-----------------------------------------------------------------------------
-inline Vector4::Vector4(const Vector4& a) : x(a.x), y(a.y), z(a.z), w(a.w)
+inline const float& Vector4::operator[](uint32_t i) const
 {
-}
-
-//-----------------------------------------------------------------------------
-inline float Vector4::operator[](uint32_t i) const
-{
-	CE_ASSERT(i < 4, "Index must be < 4");
+	CE_ASSERT(i < 4, "Index out of bounds");
 
 	return (&x)[i];
 }
@@ -248,7 +249,7 @@ inline float Vector4::operator[](uint32_t i) const
 //-----------------------------------------------------------------------------
 inline float& Vector4::operator[](uint32_t i)
 {
-	CE_ASSERT(i < 4, "Index must be < 4");
+	CE_ASSERT(i < 4, "Index out of bounds");
 
 	return (&x)[i];
 }

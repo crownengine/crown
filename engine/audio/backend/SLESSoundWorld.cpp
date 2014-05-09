@@ -44,28 +44,27 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-static const char* sles_error_to_string(SLresult result)
-{
-	switch (result)
-	{
-		case SL_RESULT_SUCCESS: return "SL_RESULT_SUCCESS";
-		case SL_RESULT_PARAMETER_INVALID: return "SL_RESULT_PARAMETER_INVALID";
-		case SL_RESULT_MEMORY_FAILURE: return "SL_RESULT_MEMORY_FAILURE";
-		case SL_RESULT_FEATURE_UNSUPPORTED: return "SL_RESULT_FEATURE_UNSUPPORTED";
-		case SL_RESULT_RESOURCE_ERROR: return "SL_RESULT_RESOURCE_ERROR";
-		case SL_RESULT_IO_ERROR: return "SL_RESULT_IO_ERROR";
-		case SL_RESULT_PRECONDITIONS_VIOLATED: return "SL_RESULT_PRECONDITIONS_VIOLATED";
-		case SL_RESULT_CONTENT_CORRUPTED: return "SL_RESULT_CONTENT_CORRUPTED";
-		case SL_RESULT_CONTENT_UNSUPPORTED: return "SL_RESULT_CONTENT_UNSUPPORTED";
-		case SL_RESULT_CONTENT_NOT_FOUND: return "SL_RESULT_CONTENT_NOT_FOUND";
-		case SL_RESULT_PERMISSION_DENIED: return "SL_RESULT_PERMISSION_DENIED";
-		case SL_RESULT_BUFFER_INSUFFICIENT: return "SL_RESULT_BUFFER_INSUFFICIENT";
-		default: return "UNKNOWN_SL_ERROR";
-	}
-}
-
-//-----------------------------------------------------------------------------
 #if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	static const char* sles_error_to_string(SLresult result)
+	{
+		switch (result)
+		{
+			case SL_RESULT_SUCCESS: return "SL_RESULT_SUCCESS";
+			case SL_RESULT_PARAMETER_INVALID: return "SL_RESULT_PARAMETER_INVALID";
+			case SL_RESULT_MEMORY_FAILURE: return "SL_RESULT_MEMORY_FAILURE";
+			case SL_RESULT_FEATURE_UNSUPPORTED: return "SL_RESULT_FEATURE_UNSUPPORTED";
+			case SL_RESULT_RESOURCE_ERROR: return "SL_RESULT_RESOURCE_ERROR";
+			case SL_RESULT_IO_ERROR: return "SL_RESULT_IO_ERROR";
+			case SL_RESULT_PRECONDITIONS_VIOLATED: return "SL_RESULT_PRECONDITIONS_VIOLATED";
+			case SL_RESULT_CONTENT_CORRUPTED: return "SL_RESULT_CONTENT_CORRUPTED";
+			case SL_RESULT_CONTENT_UNSUPPORTED: return "SL_RESULT_CONTENT_UNSUPPORTED";
+			case SL_RESULT_CONTENT_NOT_FOUND: return "SL_RESULT_CONTENT_NOT_FOUND";
+			case SL_RESULT_PERMISSION_DENIED: return "SL_RESULT_PERMISSION_DENIED";
+			case SL_RESULT_BUFFER_INSUFFICIENT: return "SL_RESULT_BUFFER_INSUFFICIENT";
+			default: return "UNKNOWN_SL_ERROR";
+		}
+	}
+
 	#define SL_CHECK(function)\
 		do { SLresult result = function;\
 				CE_ASSERT(result == SL_RESULT_SUCCESS, "OpenSL|ES error: %s", sles_error_to_string(result)); } while (0)
@@ -379,34 +378,35 @@ public:
 
 	virtual SoundInstanceId play(const char* name, bool loop, float volume, const Vector3& /*pos*/)
 	{
-		return play((SoundResource*) device()->resource_manager()->lookup(SOUND_EXTENSION, name), loop, volume);
+		return play((SoundResource*) device()->resource_manager()->get(SOUND_EXTENSION, name), loop, volume);
 	}
 
 	SoundInstanceId play(SoundResource* sr, bool loop, float volume)
 	{
 		SoundInstance dummy;
-		SoundInstanceId id = m_playing_sounds.create(dummy);
+		SoundInstanceId id = id_array::create(m_playing_sounds, dummy);
 
-		SoundInstance& instance = m_playing_sounds.lookup(id);
+		SoundInstance& instance = id_array::get(m_playing_sounds, id);
 		instance.create(audio_system::s_sl_engine_itf, audio_system::s_sl_output_mix, id, sr);
 		instance.play(loop, volume);
+
+		return id;
 	}
 
 	virtual void stop(SoundInstanceId id)
 	{
-		SoundInstance& instance = m_playing_sounds.lookup(id);
-		instance.destroy();
-		m_playing_sounds.destroy(id);
+		id_array::get(m_playing_sounds, id).destroy();
+		id_array::destroy(m_playing_sounds, id);
 	}
 
 	virtual bool is_playing(SoundInstanceId id)
 	{
-		return m_playing_sounds.has(id) && m_playing_sounds.lookup(id).is_playing();
+		return id_array::has(m_playing_sounds, id) && id_array::get(m_playing_sounds, id).is_playing();
 	}
 
 	virtual void stop_all()
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			m_playing_sounds[i].stop();
 		}
@@ -414,7 +414,7 @@ public:
 
 	virtual void pause_all()
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			m_playing_sounds[i].pause();
 		}
@@ -422,7 +422,7 @@ public:
 
 	virtual void resume_all()
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			m_playing_sounds[i].resume();
 		}
@@ -430,7 +430,7 @@ public:
 
 	virtual void set_sound_positions(uint32_t count, const SoundInstanceId* ids, const Vector3* positions)
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			m_playing_sounds[i].set_position(positions[i]);
 		}
@@ -438,7 +438,7 @@ public:
 
 	virtual void set_sound_ranges(uint32_t count, const SoundInstanceId* ids, const float* ranges)
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			m_playing_sounds[i].set_range(ranges[i]);
 		}
@@ -446,7 +446,7 @@ public:
 
 	virtual void set_sound_volumes(uint32_t count, const SoundInstanceId* ids, const float* volumes)
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			m_playing_sounds[i].set_volume(volumes[i]);
 		}
@@ -454,7 +454,7 @@ public:
 
 	virtual void reload_sounds(SoundResource* old_sr, SoundResource* new_sr)
 	{
-		for (uint32_t i = 0; i < m_playing_sounds.size(); i++)
+		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
 		{
 			if (m_playing_sounds[i].resource() == old_sr)
 			{
@@ -476,7 +476,7 @@ public:
 			const SoundInstanceId id = queue::front(*sles_sound_world::s_stop_queue);
 			queue::pop_front(*sles_sound_world::s_stop_queue);
 
-			if (!m_playing_sounds.has(id)) continue;
+			if (!id_array::has(m_playing_sounds, id)) continue;
 			stop(id);
 		}
 	}

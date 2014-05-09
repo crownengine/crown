@@ -23,14 +23,14 @@ test-results
 *.pidb
 
 # Ignore some third party dirs
-/engine/third/ARMv7/physx/include
-/engine/third/ARMv7/physx/lib
-/engine/third/x86_64/physx/include
-/engine/third/x86_64/physx/lib
-/engine/third/win32/physx
-/engine/third/win32/zlib
-/engine/third/win32/freetype/include
-/engine/third/win32/freetype/lib
+/third/ARMv7/physx/include
+/third/ARMv7/physx/lib
+/third/x86_64/physx/include
+/third/x86_64/physx/lib
+/third/win32/physx
+/third/win32/zlib
+/third/win32/freetype/include
+/third/win32/freetype/lib
 
-/engine/third/win32/freetype-2.5.3
-/engine/third/win32/freetype-2.4.9
+/third/win32/freetype-2.5.3
+/third/win32/freetype-2.4.9

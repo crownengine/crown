@@ -37,13 +37,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "TempAllocator.h"
 #include "Types.h"
-#include "UnitResource.h"
 #include "Vector3.h"
+#include "Camera.h"
+#include "UnitResource.h"
 
 namespace crown
 {
 namespace unit_resource
 {
+
+static ProjectionType::Enum projection_name_to_enum(const char* name)
+{
+	if (string::strcmp(name, "perspective") == 0) return ProjectionType::PERSPECTIVE;
+	else if (string::strcmp(name, "orthographic") == 0) return ProjectionType::ORTHOGRAPHIC;
+
+	CE_FATAL("Unknown projection type");
+	return (ProjectionType::Enum) 0;
+}
 
 const StringId32 NO_PARENT = 0xFFFFFFFF;
 
@@ -166,15 +176,26 @@ void parse_cameras(JSONElement e, Array<UnitCamera>& cameras, const Array<GraphN
 	{
 		const char* camera_name = keys[k].c_str();
 		JSONElement camera = e.key(camera_name);
+		JSONElement node = camera.key("node");
+		JSONElement type = camera.key("type");
+		JSONElement fov = camera.key_or_nil("fov");
+		JSONElement near = camera.key_or_nil("near_clip_distance");
+		JSONElement far = camera.key_or_nil("far_clip_distance");
 
 		DynamicString node_name;
-		camera.key("node").to_string(node_name);
+		node.to_string(node_name);
+		DynamicString camera_type;
+		type.to_string(camera_type);
 
 		StringId32 node_name_hash = string::murmur2_32(node_name.c_str(), node_name.length());
 
 		UnitCamera cn;
 		cn.name = string::murmur2_32(camera_name, string::strlen(camera_name));
 		cn.node = find_node_index(node_name_hash, node_depths);
+		cn.type = projection_name_to_enum(camera_type.c_str());
+		cn.fov = fov.is_nil() ? 16.0 / 9.0 : fov.to_float();
+		cn.near = near.is_nil() ? 0.01 : near.to_float();
+		cn.far = far.is_nil() ? 1000 : far.to_float();
 
 		array::push_back(cameras, cn);
 	}
@@ -219,9 +240,72 @@ void parse_renderables(JSONElement e, Array<UnitRenderable>& renderables, const 
 		{
 			CE_ASSERT(false, "Oops, unknown renderable type: '%s'", res_type.c_str());
 		}
-		rn.resource.id = string::murmur2_64(res_name.c_str(), res_name.length(), 0);
+		rn.resource = ResourceId(res_name.c_str());
 
 		array::push_back(renderables, rn);
+	}
+}
+
+//-----------------------------------------------------------------------------
+void parse_keys(JSONElement e, Array<Key>& generic_keys, Array<char>& values)
+{
+	Vector<DynamicString> keys(default_allocator());
+	e.to_keys(keys);
+
+	for (uint32_t k = 0; k < vector::size(keys); k++)
+	{
+		const char* key = keys[k].c_str();
+		JSONElement value = e.key(key);
+
+		Key out_key;
+		out_key.name = string::murmur2_32(key, string::strlen(key));
+		out_key.offset = array::size(values);
+
+		if (value.is_bool()) out_key.type = ValueType::BOOL;
+		else if (value.is_number()) out_key.type = ValueType::FLOAT;
+		else if (value.is_string()) out_key.type = ValueType::STRING;
+		else if (value.is_array() && value.size() == 3) out_key.type = ValueType::VECTOR3;
+		else CE_FATAL("Value type not supported");
+
+		array::push_back(generic_keys, out_key);
+
+		switch (out_key.type)
+		{
+			case ValueType::BOOL:
+			{
+				uint32_t val = value.to_bool();
+				array::push(values, (char*) &val, sizeof(uint32_t));
+				break;
+			}
+			case ValueType::FLOAT:
+			{
+				float val = value.to_float();
+				array::push(values, (char*) &val, sizeof(float));
+				break;
+			}
+			case ValueType::STRING:
+			{
+				DynamicString val;
+				value.to_string(val);
+				StringId32 val_hash = string::murmur2_32(val.c_str(), val.length());
+				array::push(values, (char*) &val_hash, sizeof(StringId32));
+				break;
+			}
+			case ValueType::VECTOR3:
+			{
+				float val[3];
+				val[0] = value[0].to_float();
+				val[1] = value[1].to_float();
+				val[2] = value[2].to_float();
+				array::push(values, (char*) val, sizeof(float) * 3);
+				break;
+			}
+			default:
+			{
+				CE_FATAL("Oops, you should not be here");
+				return;
+			}
+		}
 	}
 }
 
@@ -239,10 +323,12 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	ResourceId				m_physics_resource;
 	ResourceId				m_material_resource;
-	Array<GraphNode>			m_nodes(default_allocator());
+	Array<GraphNode>		m_nodes(default_allocator());
 	Array<GraphNodeDepth>	m_node_depths(default_allocator());
 	Array<UnitCamera>		m_cameras(default_allocator());
 	Array<UnitRenderable>	m_renderables(default_allocator());
+	Array<Key>				m_keys(default_allocator());
+	Array<char>				m_values(default_allocator());
 
 	// Check for nodes
 	if (root.has_key("nodes")) parse_nodes(root.key("nodes"), m_nodes, m_node_depths);
@@ -256,6 +342,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	if (root.has_key("renderables")) parse_renderables(root.key("renderables"), m_renderables, m_node_depths);
 	if (root.has_key("cameras")) parse_cameras(root.key("cameras"), m_cameras, m_node_depths);
+	if (root.has_key("keys")) parse_keys(root.key("keys"), m_keys, m_values);
 
 	// Check if the unit has a .physics resource
 	DynamicString unit_name(resource_path);
@@ -264,11 +351,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	physics_name += "physics";
 	if (fs.is_file(physics_name.c_str()))
 	{
-		m_physics_resource.id = string::murmur2_64(physics_name.c_str(), string::strlen(physics_name.c_str()), 0);
+		m_physics_resource = ResourceId(physics_name.c_str());
 	}
 	else
 	{
-		m_physics_resource.id = 0;
+		m_physics_resource = ResourceId();
 	}
 
 	// Check if the unit has a .material resource
@@ -276,11 +363,11 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	material_name += "material";
 	if (fs.is_file(material_name.c_str()))
 	{
-		m_material_resource.id = string::murmur2_64(material_name.c_str(), string::strlen(material_name.c_str()), 0);
+		m_material_resource = ResourceId(material_name.c_str());
 	}
 	else
 	{
-		m_material_resource.id = 0;
+		m_material_resource = ResourceId();
 	}
 
 
@@ -290,11 +377,15 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	h.num_renderables = array::size(m_renderables);
 	h.num_cameras = array::size(m_cameras);
 	h.num_scene_graph_nodes = array::size(m_nodes);
+	h.num_keys = array::size(m_keys);
+	h.values_size = array::size(m_values);
 
 	uint32_t offt = sizeof(UnitHeader);
 	h.renderables_offset         = offt; offt += sizeof(UnitRenderable) * h.num_renderables;
 	h.cameras_offset             = offt; offt += sizeof(UnitCamera) * h.num_cameras;
 	h.scene_graph_nodes_offset   = offt; offt += sizeof(UnitNode) * h.num_scene_graph_nodes;
+	h.keys_offset                = offt; offt += sizeof(Key) * h.num_keys;
+	h.values_offset              = offt;
 
 	// Write header
 	out_file->write((char*) &h, sizeof(UnitHeader));
@@ -317,6 +408,13 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		un.parent = find_node_parent_index(i, m_nodes, m_node_depths);
 		un.pose = Matrix4x4(node.rotation, node.position);
 		out_file->write((char*) &un, sizeof(UnitNode));
+	}
+
+	// Write key/values
+	if (array::size(m_keys))
+	{
+		out_file->write((char*) array::begin(m_keys), sizeof(Key) * h.num_keys);
+		out_file->write((char*) array::begin(m_values), array::size(m_values));
 	}
 }
 

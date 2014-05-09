@@ -40,9 +40,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PhysicsWorld.h"
 #include "Quaternion.h"
 #include "StringUtils.h"
+
 #include "PxCooking.h"
 #include "PxDefaultStreams.h"
-
 
 using physx::PxActorFlag;
 using physx::PxActorType;
@@ -110,7 +110,7 @@ void Actor::create_objects()
 	const PhysicsActor2& actor_class = config->actor(actor.actor_class);
 
 	// Create rigid body
-	const PxMat44 pose((PxReal*) (m_scene_graph.world_pose(m_node).to_float_ptr()));
+	const PxMat44 pose((PxReal*) matrix4x4::to_float_ptr(m_scene_graph.world_pose(m_node)));
 
 	if (actor_class.flags & PhysicsActor2::DYNAMIC)
 	{
@@ -165,7 +165,7 @@ void Actor::create_objects()
 			}
 			case PhysicsShapeType::CONVEX_MESH:
 			{
-				MeshResource* resource = (MeshResource*) device()->resource_manager()->data(shape.resource);
+				MeshResource* resource = (MeshResource*) device()->resource_manager()->get(shape.resource);
 
 				PxConvexMeshDesc convex_mesh_desc;
 				convex_mesh_desc.points.count		= resource->num_vertices();
@@ -269,10 +269,12 @@ void Actor::teleport_world_rotation(const Quaternion& r)
 //-----------------------------------------------------------------------------
 void Actor::teleport_world_pose(const Matrix4x4& m)
 {
-	const PxVec3 x(m.x().x, m.x().y, m.x().z);
-	const PxVec3 y(m.y().x, m.y().y, m.y().z);
-	const PxVec3 z(m.z().x, m.z().y, m.z().z);
-	const PxVec3 t(m.translation().x, m.translation().y, m.translation().z);
+	using namespace matrix4x4;
+
+	const PxVec3 x(m.x.x, m.x.y, m.x.z);
+	const PxVec3 y(m.y.x, m.y.y, m.y.z);
+	const PxVec3 z(m.z.x, m.z.y, m.z.z);
+	const PxVec3 t(translation(m).x, translation(m).y, translation(m).z);
 	m_actor->setGlobalPose(PxTransform(PxMat44(x, y, z, t)));
 }
 
@@ -540,9 +542,15 @@ void Actor::wake_up()
 }
 
 //-----------------------------------------------------------------------------
+UnitId Actor::unit_id() const
+{
+	return m_unit;
+}
+
+//-----------------------------------------------------------------------------
 Unit* Actor::unit()
 {
-	return (m_unit.id == INVALID_ID) ? NULL : m_world.world().lookup_unit(m_unit);
+	return (m_unit.id == INVALID_ID) ? NULL : m_world.world().get_unit(m_unit);
 }
 
 //-----------------------------------------------------------------------------

@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#include <GL/glew.h>
 #elif defined(ANDROID)
 	#include <GLES2/gl2.h>
+	#include <GLES2/gl2ext.h>
 #else
 	#error "Oops, wrong platform"
 #endif
@@ -49,22 +50,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector4.h"
 #include "Memory.h"
 #include "VertexFormat.h"
+#include "Hash.h"
 
-//-----------------------------------------------------------------------------
-static const char* gl_error_to_string(GLenum error)
-{
-	switch (error)
-	{
-		case GL_INVALID_ENUM: return "GL_INVALID_ENUM";
-		case GL_INVALID_VALUE: return "GL_INVALID_VALUE";
-		case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION";
-		case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
-		default: return "UNKNOWN_GL_ERROR";
-	}
-}
-
-//-----------------------------------------------------------------------------
 #if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+
+	static const char* gl_error_to_string(GLenum error)
+	{
+		switch (error)
+		{
+			case GL_INVALID_ENUM: return "GL_INVALID_ENUM";
+			case GL_INVALID_VALUE: return "GL_INVALID_VALUE";
+			case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION";
+			case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
+			default: return "UNKNOWN_GL_ERROR";
+		}
+	}
+
 	#define GL_CHECK(function)\
 		function;\
 		do { GLenum error; CE_ASSERT((error = glGetError()) == GL_NO_ERROR,\
@@ -73,6 +74,26 @@ static const char* gl_error_to_string(GLenum error)
 	#define GL_CHECK(function)\
 		function;
 #endif
+
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+	#define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT 0x83F1
+#endif
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
+	#define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT 0x83F2
+#endif
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
+	#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3
+#endif
+
+#ifdef ANDROID
+	#define GL_DEPTH_STENCIL GL_DEPTH_STENCIL_OES
+	#ifndef GL_DEPTH_STENCIL_ATTACHMENT
+		#define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
+	#endif // GL_DEPTH_STENCIL_ATTACHMENT
+	#define GL_DEPTH_COMPONENT24 GL_DEPTH_COMPONENT24_OES
+	#define GL_DEPTH_COMPONENT32 GL_DEPTH_COMPONENT32_OES
+	#define GL_DEPTH24_STENCIL8 GL_DEPTH24_STENCIL8_OES
+#endif // ANDROID
 
 namespace crown
 {
@@ -114,17 +135,58 @@ const GLenum TEXTURE_WRAP_TABLE[] =
 };
 
 //-----------------------------------------------------------------------------
-struct GLTextureFormatInfo
+struct TextureFormatInfo
 {
 	GLenum internal_format;
 	GLenum format;
 };
 
 //-----------------------------------------------------------------------------
-const GLTextureFormatInfo TEXTURE_FORMAT_TABLE[PixelFormat::COUNT] =
+const TextureFormatInfo TEXTURE_FORMAT_TABLE[PixelFormat::COUNT] =
 {
-	{ GL_RGB, GL_RGB },
-	{ GL_RGBA, GL_RGBA}
+	{ GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT },
+	{ GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT },
+	{ GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT },
+	{ GL_RGB,                           GL_RGB                           },
+	{ GL_RGBA,                          GL_RGBA                          },
+	{ GL_DEPTH_COMPONENT16,             GL_DEPTH_COMPONENT               },
+	{ GL_DEPTH_COMPONENT24,             GL_DEPTH_COMPONENT               },
+	{ GL_DEPTH_COMPONENT32,             GL_DEPTH_COMPONENT               },
+	{ GL_DEPTH24_STENCIL8,              GL_DEPTH_STENCIL                 }
+};
+
+//-----------------------------------------------------------------------------
+static bool is_compressed(PixelFormat::Enum fmt)
+{
+	return fmt < PixelFormat::RGB_8;
+}
+
+//-----------------------------------------------------------------------------
+static bool is_color(PixelFormat::Enum fmt)
+{
+	return fmt >= PixelFormat::RGB_8 && fmt < PixelFormat::D16;
+}
+
+//-----------------------------------------------------------------------------
+static bool is_depth(PixelFormat::Enum fmt)
+{
+	return fmt >= PixelFormat::D16 && fmt < PixelFormat::COUNT;
+}
+
+//-----------------------------------------------------------------------------
+static uint32_t PIXEL_FORMAT_SIZES[PixelFormat::COUNT] =
+{
+	8,  // DXT1,
+	16, // DXT3,
+	16, // DXT5,
+
+	3, // RGB_8,
+	4, // RGBA_8,
+
+	2, // D16,
+	3, // D24,
+	4, // D32,
+	4, // D24S8,
 };
 
 //-----------------------------------------------------------------------------
@@ -214,6 +276,25 @@ ShaderUniform::Enum name_to_stock_uniform(const char* uniform)
 	return ShaderUniform::COUNT;
 }
 
+static UniformType::Enum gl_enum_to_uniform_type(GLenum type)
+{
+	switch (type)
+	{
+		case GL_INT: return UniformType::INTEGER_1;
+		case GL_INT_VEC2: return UniformType::INTEGER_2;
+		case GL_INT_VEC3: return UniformType::INTEGER_3;
+		case GL_INT_VEC4: return UniformType::INTEGER_4;
+		case GL_FLOAT: return UniformType::FLOAT_1;
+		case GL_FLOAT_VEC2: return UniformType::FLOAT_2;
+		case GL_FLOAT_VEC3: return UniformType::FLOAT_3;
+		case GL_FLOAT_VEC4: return UniformType::FLOAT_4;
+		case GL_FLOAT_MAT3: return UniformType::FLOAT_3x3;
+		case GL_FLOAT_MAT4: return UniformType::FLOAT_4x4;
+		case GL_SAMPLER_2D: return UniformType::INTEGER_1;
+		default: CE_FATAL("Oops, unknown uniform type"); return UniformType::END;
+	}
+}
+
 //-----------------------------------------------------------------------------
 struct VertexBuffer
 {
@@ -289,48 +370,6 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-struct Uniform
-{
-	Uniform()
-	{
-		string::strncpy(m_name, "", CE_MAX_UNIFORM_NAME_LENGTH);
-	}
-
-	void create(const char* name, UniformType::Enum type, uint8_t num)
-	{
-		string::strncpy(m_name, name, CE_MAX_UNIFORM_NAME_LENGTH);
-		m_type = type;
-		m_num = num;
-
-		size_t size = UNIFORM_SIZE_TABLE[type] * num;
-		m_data = default_allocator().allocate(size);
-		memset(m_data, 0, size);
-
-		// Log::d("Uniform created, name = %s, type = %d, num = %d, size = %ld, ptr = %p", m_name, type, num, size, m_data);
-	}
-
-	void update(size_t size, const void* data)
-	{
-		// Log::d("Uniform updated, new size = %ld, new ptr = %d", size, *((int32_t*)data));
-		memcpy(m_data, data, size);
-	}
-
-	void destroy()
-	{
-		default_allocator().deallocate(m_data);
-		string::strncpy(m_name, "", CE_MAX_UNIFORM_NAME_LENGTH); // <- this is a temporary fix
-		// Log::d("Uniform destroyed, name = %s, type = %d, num = %d, ptr = %p", m_name, m_type, m_num, m_data);
-	}
-
-public:
-
-	char m_name[CE_MAX_UNIFORM_NAME_LENGTH];
-	UniformType::Enum m_type;
-	uint8_t m_num;
-	void* m_data;
-};
-
-//-----------------------------------------------------------------------------
 struct Shader
 {
 	//-----------------------------------------------------------------------------
@@ -370,29 +409,73 @@ struct Texture
 	void create(uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data)
 	{
 		GL_CHECK(glGenTextures(1, &m_id));
+		CE_ASSERT(m_id != 0, "Failed to create texture");
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_id));
 
 		#if defined(LINUX) || defined(WINDOWS)
 			GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
 		#endif
 
-		GLenum internal_fmt = TEXTURE_FORMAT_TABLE[format].internal_format;
-		GLenum fmt = TEXTURE_FORMAT_TABLE[format].format;
+		const GLenum internal_fmt = TEXTURE_FORMAT_TABLE[format].internal_format;
+		const GLenum fmt = TEXTURE_FORMAT_TABLE[format].format;
 
-		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, internal_fmt, width, height, 0,
-					 			fmt, GL_UNSIGNED_BYTE, data));
+		if (is_compressed(format))
+		{
+			GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_2D,
+						0,
+						internal_fmt,
+						width, height,
+						0,
+					 	width * height * PIXEL_FORMAT_SIZES[format],
+					 	data));
+		}
+		else
+		{
+			GL_CHECK(glTexImage2D(GL_TEXTURE_2D,
+						0,
+						internal_fmt,
+						width, height,
+						0,
+					 	fmt,
+					 	GL_UNSIGNED_BYTE,
+					 	data));
+		}
+
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 
 		m_target = GL_TEXTURE_2D;
+		m_width = width;
+		m_height = height;
 		m_format = format;
+		m_gl_fmt = fmt;
 	}
 
 	//-----------------------------------------------------------------------------
 	void update(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data)
 	{
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_id));
-		GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA,
-									GL_UNSIGNED_BYTE, data));
+
+		if (is_compressed(m_format))
+		{
+			GL_CHECK(glCompressedTexSubImage2D(GL_TEXTURE_2D,
+				0,
+				x, y,
+				width, height,
+				m_gl_fmt,
+				width * height * PIXEL_FORMAT_SIZES[m_format],
+				data));
+		}
+		else
+		{
+			GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D,
+				0,
+				x, y,
+				width, height,
+				GL_RGBA,
+				GL_UNSIGNED_BYTE,
+				data));
+		}
+
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 	}
 
@@ -430,18 +513,19 @@ struct Texture
 
 public:
 
-	GLuint				m_id;
-	GLenum				m_target;      // Always GL_TEXTURE_2D
-	uint32_t			m_width;
-	uint32_t			m_height;
-	PixelFormat::Enum	m_format;
+	GLuint m_id;
+	GLenum m_target;      // Always GL_TEXTURE_2D
+	uint32_t m_width;
+	uint32_t m_height;
+	PixelFormat::Enum m_format;
+	GLenum m_gl_fmt;
 };
 
 //-----------------------------------------------------------------------------
 struct GPUProgram
 {
 	//-----------------------------------------------------------------------------
-	void create(const Shader& vertex, const Shader& pixel, uint32_t num_uniforms, Uniform* uniforms)
+	void create(const Shader& vertex, const Shader& pixel, const Hash<void*>& registry)
 	{
 		m_id = GL_CHECK(glCreateProgram());
 
@@ -474,8 +558,8 @@ struct GPUProgram
 		GL_CHECK(glGetProgramiv(m_id, GL_ACTIVE_ATTRIBUTES, &num_active_attribs));
 		GL_CHECK(glGetProgramiv(m_id, GL_ACTIVE_UNIFORMS, &num_active_uniforms));
 
-		// Log::d("Found %d active attribs", num_active_attribs);
-		// Log::d("Found %d active uniforms", num_active_uniforms);
+		// CE_LOGD("Found %d active attribs", num_active_attribs);
+		// CE_LOGD("Found %d active uniforms", num_active_uniforms);
 
 		// Find active attribs/uniforms max length
 		GLint max_attrib_length;
@@ -491,7 +575,7 @@ struct GPUProgram
 			GL_CHECK(glGetActiveAttrib(m_id, attrib, max_attrib_length, NULL, &attrib_size, &attrib_type, attrib_name));
 
 			/* GLint attrib_location = */GL_CHECK(glGetAttribLocation(m_id, attrib_name));
-			// Log::d("Attrib %d: name = '%s' location = '%d'", attrib, attrib_name, attrib_location);
+			// CE_LOGD("Attrib %d: name = '%s' location = '%d'", attrib, attrib_name, attrib_location);
 		}
 
 		m_num_active_attribs = 0;
@@ -525,19 +609,18 @@ struct GPUProgram
 			}
 			else
 			{
-				for (uint32_t i = 0; i < num_uniforms; i++)
-				{
-					if (string::strcmp(uniforms[i].m_name, uniform_name) == 0)
-					{
-						m_uniforms[m_num_uniforms] = uniforms[i].m_type;
-						m_uniform_info[m_num_uniforms].loc = uniform_location;
-						m_uniform_info[m_num_uniforms].data = uniforms[i].m_data;
-						m_num_uniforms++;
-					}
-				}
+				void* data = hash::get(registry, string::murmur2_64(uniform_name, string::strlen(uniform_name)), (void*) NULL);
+
+				if (data == NULL)
+					continue;
+
+				m_uniforms[m_num_uniforms] = gl_enum_to_uniform_type(uniform_type);
+				m_uniform_info[m_num_uniforms].loc = uniform_location;
+				m_uniform_info[m_num_uniforms].data = data;
+				m_num_uniforms++;
 			}
 
-			// Log::d("Uniform %d: name = '%s' location = '%d' stock = %s", uniform, uniform_name, uniform_location,
+			// CE_LOGD("Uniform %d: name = '%s' location = '%d' stock = %s", uniform, uniform_name, uniform_location,
 			// 			 (stock_uniform != ShaderUniform::COUNT) ? "yes" : "no");
 		}
 	}
@@ -560,12 +643,19 @@ struct GPUProgram
 
 			const VertexFormatInfo& info = Vertex::info(format);
 
-			if (loc != -1 && info.has_attrib(attrib))
+			if (loc == -1)
+				return;
+
+			if (info.has_attrib(attrib))
 			{
 				GL_CHECK(glEnableVertexAttribArray(loc));
 				uint32_t base_vertex = start_vertex * info.attrib_stride(attrib) + info.attrib_offset(attrib);
 				GL_CHECK(glVertexAttribPointer(loc, info.num_components(attrib), GL_FLOAT, GL_FALSE, info.attrib_stride(attrib),
 										(GLvoid*)(uintptr_t) base_vertex));
+			}
+			else
+			{
+				GL_CHECK(glDisableVertexAttribArray(loc));
 			}
 		}
 	}
@@ -582,15 +672,15 @@ struct GPUProgram
 			switch (type)
 			{
 				case UniformType::INTEGER_1:   GL_CHECK(glUniform1iv(loc, 1, (const GLint*)data)); break;
-				case UniformType::INTEGER_2:   GL_CHECK(glUniform2iv(loc, 2, (const GLint*)data)); break;
-				case UniformType::INTEGER_3:   GL_CHECK(glUniform3iv(loc, 3, (const GLint*)data)); break;				
-				case UniformType::INTEGER_4:   GL_CHECK(glUniform4iv(loc, 4, (const GLint*)data)); break;
+				case UniformType::INTEGER_2:   GL_CHECK(glUniform2iv(loc, 1, (const GLint*)data)); break;
+				case UniformType::INTEGER_3:   GL_CHECK(glUniform3iv(loc, 1, (const GLint*)data)); break;				
+				case UniformType::INTEGER_4:   GL_CHECK(glUniform4iv(loc, 1, (const GLint*)data)); break;
 				case UniformType::FLOAT_1:     GL_CHECK(glUniform1fv(loc, 1, (const GLfloat*)data)); break;
-				case UniformType::FLOAT_2:     GL_CHECK(glUniform2fv(loc, 2, (const GLfloat*)data)); break;
-				case UniformType::FLOAT_3:     GL_CHECK(glUniform3fv(loc, 3, (const GLfloat*)data)); break;
-				case UniformType::FLOAT_4:     GL_CHECK(glUniform4fv(loc, 4, (const GLfloat*)data)); break;
-				case UniformType::FLOAT_3x3:   GL_CHECK(glUniformMatrix3fv(loc, 9, GL_FALSE, (const GLfloat*)data)); break;
-				case UniformType::FLOAT_4x4:   GL_CHECK(glUniformMatrix4fv(loc, 16, GL_FALSE, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_2:     GL_CHECK(glUniform2fv(loc, 1, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_3:     GL_CHECK(glUniform3fv(loc, 1, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_4:     GL_CHECK(glUniform4fv(loc, 1, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_3x3:   GL_CHECK(glUniformMatrix3fv(loc, 1, GL_FALSE, (const GLfloat*)data)); break;
+				case UniformType::FLOAT_4x4:   GL_CHECK(glUniformMatrix4fv(loc, 1, GL_FALSE, (const GLfloat*)data)); break;
 				default: CE_FATAL("Oops, unknown uniform type"); break;
 			}
 		}
@@ -622,79 +712,74 @@ public:
 //-----------------------------------------------------------------------------
 struct RenderTarget
 {
-	void create(uint16_t /*width*/, uint16_t /*height*/, RenderTargetFormat /*format*/)
+	void create(uint16_t width, uint16_t height, PixelFormat::Enum format, uint32_t flags)
 	{
-		// // Create and bind FBO
-		// GL_CHECK(glGenFramebuffersEXT(1, &m_gl_fbo));
-		// GL_CHECK(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_gl_fbo));
+		m_width = width;
+		m_height = height;
+		m_format = format;
+		m_col_texture = 0;
+		m_fbo = 0;
+		m_rbo = 0;
 
-		// GLuint renderedTexture;
-		// glGenTextures(1, &renderedTexture);
-		 
-		// // "Bind" the newly created texture : all future texture functions will modify this texture
-		// glBindTexture(GL_TEXTURE_2D, renderedTexture);
-		 
-		// // Give an empty image to OpenGL ( the last "0" )
-		// glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, 1024, 768, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
-		 
-		// // Poor filtering. Needed !
-		// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		GL_CHECK(glGenFramebuffers(1, &m_fbo));
+		CE_ASSERT(m_fbo != 0, "Failed to create frame buffer");
+		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, m_fbo));
 
+		const bool no_texture = (flags & RENDER_TARGET_NO_TEXTURE) >> RENDER_TARGET_SHIFT;
+		const TextureFormatInfo& tif = TEXTURE_FORMAT_TABLE[format];
 
-		// // Create color/depth attachments
-		// switch (format)
-		// {
-		// 	case RTF_RGBA_8:
-		// 	case RTF_D24:
-		// 	{
-		// 		if (format == RTF_RGBA_8)
-		// 		{
-		// 			GL_CHECK(glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-  //                      GL_COLOR_ATTACHMENT0_EXT,
-  //                      GL_TEXTURE_2D,
-  //                      renderedTexture,
-  //                      0));
-		// 			break;
-		// 		}
-		// 		else if (format == RTF_D24)
-		// 		{
-		// 			GL_CHECK(glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, width, height));
-		// 			GL_CHECK(glFramebufferRenderbufferEXT(GL_DRAW_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, m_gl_rbo));
-		// 		}
+		const GLenum attachment = is_depth(format) ? GL_DEPTH_ATTACHMENT :
+									is_color(format) ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_STENCIL_ATTACHMENT;
 
-		// 		break;
-		// 	}
-		// 	default:
-		// 	{
-		// 		CE_ASSERT(false, "Oops, render target format not supported!");
-		// 		break;
-		// 	}
-		// }
+		if (!no_texture)
+		{
+			GL_CHECK(glGenTextures(1, &m_col_texture));
+			CE_ASSERT(m_col_texture != 0, "Failed to create texture");
+			GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_col_texture));
+			GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, tif.internal_format, width, height, 0, tif.format, GL_UNSIGNED_BYTE, 0));
 
-		// GLenum status = glCheckFramebufferStatusEXT(GL_DRAW_FRAMEBUFFER_EXT);
-		// CE_ASSERT(status == GL_FRAMEBUFFER_COMPLETE_EXT, "Oops, framebuffer incomplete!");
+			GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+			GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	
+			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER,
+											attachment,
+											GL_TEXTURE_2D,
+											m_col_texture,
+											0));
 
-		// GL_CHECK(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0));
+			GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
+		}
+		else
+		{
+			GL_CHECK(glGenRenderbuffers(1, &m_rbo));
+			CE_ASSERT(m_rbo != 0, "Failed to create renderbuffer");
+			GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, m_rbo));
+			GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, tif.internal_format, width, height));
+			GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, m_rbo));
+			GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, 0));
+		}
 
-		// m_width = width;
-		// m_height = height;
-		// m_format = format;
+		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		CE_ASSERT(status == GL_FRAMEBUFFER_COMPLETE, "Oops, framebuffer incomplete!");
+		CE_UNUSED(status);
+
+		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 	}
 
 	void destroy()
 	{
-		// GL_CHECK(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0));
-		// GL_CHECK(glDeleteFramebuffersEXT(1, &m_gl_fbo));
-
-		// GL_CHECK(glDeleteRenderbuffersEXT(1, &m_gl_rbo));
+		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+		GL_CHECK(glDeleteTextures(1, &m_col_texture));
+		GL_CHECK(glDeleteFramebuffers(1, &m_fbo));
+		GL_CHECK(glDeleteRenderbuffers(1, &m_rbo));
 	}
 
 	uint16_t m_width;
 	uint16_t m_height;
-	RenderTargetFormat m_format;
-	GLuint m_gl_fbo;
-	GLuint m_gl_rbo;
+	PixelFormat::Enum m_format;
+	GLuint m_col_texture;
+	GLuint m_fbo;
+	GLuint m_rbo;
 };
 
 /// OpenGL renderer
@@ -703,13 +788,14 @@ class RendererImplementation
 public:
 
 	//-----------------------------------------------------------------------------
-	RendererImplementation()
-		: m_max_texture_size(0)
+	RendererImplementation(Renderer* renderer)
+		: m_renderer(renderer)
+		, m_max_texture_size(0)
 		, m_max_texture_units(0)
 		, m_max_vertex_indices(0)
 		, m_max_vertex_vertices(0)
 		, m_max_anisotropy(0.0f)
-		, m_num_uniforms(0)
+		, m_uniform_registry(default_allocator())
 	{
 		m_min_max_point_size[0] = 0.0f;
 		m_min_max_point_size[1] = 0.0f;
@@ -730,6 +816,7 @@ public:
 		#if defined(LINUX) || defined(WINDOWS)
 			GLenum err = glewInit();
 			CE_ASSERT(err == GLEW_OK, "Failed to initialize GLEW");
+			CE_UNUSED(err);
 		#endif
 
 		GL_CHECK(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size));
@@ -740,19 +827,19 @@ public:
 		GL_CHECK(glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &m_min_max_point_size[0]));
 		// GL_CHECK(glGetFloatv(GL_LINE_WIDTH_RANGE, &m_min_max_line_width[0]));
 
-		Log::i("OpenGL Vendor        : %s", glGetString(GL_VENDOR));
-		Log::i("OpenGL Renderer      : %s", glGetString(GL_RENDERER));
-		Log::i("OpenGL Version       : %s", glGetString(GL_VERSION));
-		Log::i("GLSL Version         : %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+		CE_LOGI("OpenGL Vendor        : %s", glGetString(GL_VENDOR));
+		CE_LOGI("OpenGL Renderer      : %s", glGetString(GL_RENDERER));
+		CE_LOGI("OpenGL Version       : %s", glGetString(GL_VERSION));
+		CE_LOGI("GLSL Version         : %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-		Log::d("Min Point Size       : %f", m_min_max_point_size[0]);
-		Log::d("Max Point Size       : %f", m_min_max_point_size[1]);
-		Log::d("Min Line Width       : %f", m_min_max_line_width[0]);
-		Log::d("Max Line Width       : %f", m_min_max_line_width[1]);
-		Log::d("Max Texture Size     : %dx%d", m_max_texture_size, m_max_texture_size);
-		Log::d("Max Texture Units    : %d", m_max_texture_units);
-		Log::d("Max Vertex Indices   : %d", m_max_vertex_indices);
-		Log::d("Max Vertex Vertices  : %d", m_max_vertex_vertices);
+		CE_LOGD("Min Point Size       : %f", m_min_max_point_size[0]);
+		CE_LOGD("Max Point Size       : %f", m_min_max_point_size[1]);
+		CE_LOGD("Min Line Width       : %f", m_min_max_line_width[0]);
+		CE_LOGD("Max Line Width       : %f", m_min_max_line_width[1]);
+		CE_LOGD("Max Texture Size     : %dx%d", m_max_texture_size, m_max_texture_size);
+		CE_LOGD("Max Texture Units    : %d", m_max_texture_units);
+		CE_LOGD("Max Vertex Indices   : %d", m_max_vertex_indices);
+		CE_LOGD("Max Vertex Vertices  : %d", m_max_vertex_vertices);
 
 		#if defined(LINUX) || defined(WINDOWS)
 			// Point sprites enabled by default
@@ -760,7 +847,7 @@ public:
 			GL_CHECK(glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE));
 		#endif
 
-		Log::i("OpenGL Renderer initialized.");
+		CE_LOGI("OpenGL Renderer initialized.");
 	}
 
 	//-----------------------------------------------------------------------------
@@ -772,8 +859,9 @@ public:
 	//-----------------------------------------------------------------------------
 	void render(RenderContext& context)
 	{
-		//RenderTargetId old_rt;
-		//old_rt.id = INVALID_ID;
+		RenderTargetId cur_rt;
+		cur_rt.index = 0xFFFF;
+		cur_rt.id = INVALID_ID;
 		uint8_t layer = 0xFF;
 
 		// Sort render keys
@@ -789,13 +877,16 @@ public:
 			m_index_buffers[context.m_transient_ib->ib.index].update(0, context.m_tib_offset, context.m_transient_ib->data);
 		}
 
+		// Bind default framebuffer
+		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
 		for (uint32_t s = 0; s < context.m_num_states; s++)
 		{
-			const uint64_t key_s = context.m_keys[s];
+			const uint64_t key_s = context.m_keys[s].key;
 			RenderKey key;
 			key.decode(key_s);
 
-			const RenderState& cur_state = context.m_states[s];
+			const RenderState& cur_state = context.m_states[context.m_keys[s].state];
 			const uint64_t flags = cur_state.m_flags;
 			//const RenderTargetId& cur_rt = context.m_targets[layer];
 
@@ -803,6 +894,13 @@ public:
 			if (key.m_layer != layer)
 			{
 				layer = key.m_layer;
+
+				// Switch render target if necessary
+				if (cur_rt != context.m_targets[layer])
+				{
+					cur_rt = context.m_targets[layer];
+					glBindFramebuffer(GL_FRAMEBUFFER, m_render_targets[cur_rt.index].m_fbo);
+				}
 
 				// Viewport
 				const ViewRect& viewport = context.m_viewports[layer];
@@ -913,6 +1011,13 @@ public:
 								texture.commit(unit, sampler.flags);
 								break;
 							}
+							case SAMPLER_RENDER_TARGET:
+							{
+								RenderTarget& rt = m_render_targets[sampler.sampler_id.index];
+								GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+								GL_CHECK(glBindTexture(GL_TEXTURE_2D, rt.m_col_texture));
+								break;
+							}
 							default:
 							{
 								CE_ASSERT(false, "Oops, sampler unknown");
@@ -924,6 +1029,8 @@ public:
 					flags <<= 1;
 				}
 			}
+
+			m_renderer->update_uniforms(context.m_constants, cur_state.begin_uniform, cur_state.end_uniform);
 
 			// Bind GPU program
 			if (cur_state.program.id != INVALID_ID)
@@ -943,24 +1050,22 @@ public:
 					{
 						case ShaderUniform::VIEW:
 						{
-							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, view.to_float_ptr()));
+							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, matrix4x4::to_float_ptr(view)));
 							break;
 						}
 						case ShaderUniform::MODEL:
 						{
-							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, cur_state.pose.to_float_ptr()));
+							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, matrix4x4::to_float_ptr(cur_state.pose)));
 							break;
 						}
 						case ShaderUniform::MODEL_VIEW:
 						{
-							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, (view *
-															cur_state.pose).to_float_ptr()));
+							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, matrix4x4::to_float_ptr(view * cur_state.pose)));
 							break;
 						}
 						case ShaderUniform::MODEL_VIEW_PROJECTION:
 						{
-							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, (projection * view *
-															cur_state.pose).to_float_ptr()));
+							GL_CHECK(glUniformMatrix4fv(uniform_location, 1, GL_FALSE, matrix4x4::to_float_ptr(projection * view * cur_state.pose)));
 							break;
 						}
 						case ShaderUniform::TIME_SINCE_START:
@@ -1020,6 +1125,7 @@ public:
 
 private:
 
+	Renderer*			m_renderer;
 	GLContext			m_gl_context;
 
 	// Limits
@@ -1037,8 +1143,8 @@ private:
 	Texture				m_textures[CE_MAX_TEXTURES];
 	Shader				m_shaders[CE_MAX_SHADERS];
 	GPUProgram			m_gpu_programs[CE_MAX_GPU_PROGRAMS];
-	uint32_t			m_num_uniforms;
-	Uniform				m_uniforms[CE_MAX_UNIFORMS];
+	Hash<void*>			m_uniform_registry;
+	void*				m_uniforms[CE_MAX_UNIFORMS];
 	RenderTarget		m_render_targets[CE_MAX_RENDER_TARGETS];
 
 private:
@@ -1051,19 +1157,18 @@ Renderer::Renderer(Allocator& a)
 	: m_allocator(a), m_impl(NULL), m_thread("render-thread"), m_submit(&m_contexts[0]), m_draw(&m_contexts[1]),
 		m_is_initialized(false), m_should_run(false)
 {
-	m_impl = CE_NEW(a, RendererImplementation);
+	m_impl = CE_NEW(a, RendererImplementation)(this);
 }
 
 //-----------------------------------------------------------------------------
 Renderer::~Renderer()
 {
-	CE_ASSERT(m_vertex_buffers.size() == 0, "%d vertex buffers not freed", m_vertex_buffers.size());
-	CE_ASSERT(m_index_buffers.size() == 0, "%d index buffers not freed", m_index_buffers.size());
-	CE_ASSERT(m_textures.size() == 0, "%d textures not freed", m_textures.size());
-	CE_ASSERT(m_shaders.size() == 0, "%d shaders not freed", m_shaders.size());
-	CE_ASSERT(m_gpu_programs.size() == 0, "%d GPU programs not freed", m_gpu_programs.size());
-	CE_ASSERT(m_uniforms.size() == 0, "%d uniforms not freed", m_uniforms.size());
-	CE_ASSERT(m_render_targets.size() == 0, "%d render targets not freed", m_render_targets.size());
+	CE_ASSERT(id_table::size(m_vertex_buffers) == 0, "%d vertex buffers not freed", id_table::size(m_vertex_buffers));
+	CE_ASSERT(id_table::size(m_index_buffers) == 0, "%d index buffers not freed", id_table::size(m_index_buffers));
+	CE_ASSERT(id_table::size(m_textures) == 0, "%d textures not freed", id_table::size(m_textures));
+	CE_ASSERT(id_table::size(m_shaders) == 0, "%d shaders not freed", id_table::size(m_shaders));
+	CE_ASSERT(id_table::size(m_gpu_programs) == 0, "%d GPU programs not freed", id_table::size(m_gpu_programs));
+	CE_ASSERT(id_table::size(m_render_targets) == 0, "%d render targets not freed", id_table::size(m_render_targets));
 
 	CE_DELETE(m_allocator, m_impl);
 }
@@ -1110,7 +1215,7 @@ void Renderer::update_vertex_buffer_impl(VertexBufferId id, size_t offset, size_
 void Renderer::destroy_vertex_buffer_impl(VertexBufferId id)
 {
 	m_impl->m_vertex_buffers[id.index].destroy();
-	m_vertex_buffers.destroy(id);
+	id_table::destroy(m_vertex_buffers, id);
 }
 
 //-----------------------------------------------------------------------------
@@ -1135,7 +1240,7 @@ void Renderer::update_index_buffer_impl(IndexBufferId id, size_t offset, size_t 
 void Renderer::destroy_index_buffer_impl(IndexBufferId id)
 {
 	m_impl->m_index_buffers[id.index].destroy();
-	m_index_buffers.destroy(id);
+	id_table::destroy(m_index_buffers, id);
 }
 
 //-----------------------------------------------------------------------------
@@ -1154,7 +1259,7 @@ void Renderer::update_texture_impl(TextureId id, uint32_t x, uint32_t y, uint32_
 void Renderer::destroy_texture_impl(TextureId id)
 {
 	m_impl->m_textures[id.index].destroy();
-	m_textures.destroy(id);
+	id_table::destroy(m_textures, id);
 }
 
 //-----------------------------------------------------------------------------
@@ -1167,7 +1272,7 @@ void Renderer::create_shader_impl(ShaderId id, ShaderType::Enum type, const char
 void Renderer::destroy_shader_impl(ShaderId id)
 {
 	m_impl->m_shaders[id.index].destroy();
-	m_shaders.destroy(id);
+	id_table::destroy(m_shaders, id);
 }
 
 //-----------------------------------------------------------------------------
@@ -1175,47 +1280,49 @@ void Renderer::create_gpu_program_impl(GPUProgramId id, ShaderId vertex, ShaderI
 {
 	Shader& vs = m_impl->m_shaders[vertex.index];
 	Shader& ps = m_impl->m_shaders[pixel.index];
-	m_impl->m_gpu_programs[id.index].create(vs, ps, m_impl->m_num_uniforms, m_impl->m_uniforms);
+	m_impl->m_gpu_programs[id.index].create(vs, ps, m_impl->m_uniform_registry);
 }
 
 //-----------------------------------------------------------------------------
 void Renderer::destroy_gpu_program_impl(GPUProgramId id)
 {
 	m_impl->m_gpu_programs[id.index].destroy();
-	m_gpu_programs.destroy(id);
+	id_table::destroy(m_gpu_programs, id);
 }
 
 //-----------------------------------------------------------------------------
 void Renderer::create_uniform_impl(UniformId id, const char* name, UniformType::Enum type, uint8_t num)
 {
-	m_impl->m_uniforms[id.index].create(name, type, num);
-	m_impl->m_num_uniforms++;
+	const size_t size = UNIFORM_SIZE_TABLE[type] * num;
+	m_impl->m_uniforms[id.index] = default_allocator().allocate(size);
+	hash::set(m_impl->m_uniform_registry, string::murmur2_64(name, string::strlen(name)), m_impl->m_uniforms[id.index]);
+	memset(m_impl->m_uniforms[id.index], 0, size);
 }
 
 //-----------------------------------------------------------------------------
 void Renderer::update_uniform_impl(UniformId id, size_t size, const void* data)
 {
-	m_impl->m_uniforms[id.index].update(size, data);
+	memcpy(m_impl->m_uniforms[id.index], data, size);
 }
 
 //-----------------------------------------------------------------------------
 void Renderer::destroy_uniform_impl(UniformId id)
 {
-	m_impl->m_uniforms[id.index].destroy();
-	m_uniforms.destroy(id);
-	m_impl->m_num_uniforms--;
+	default_allocator().deallocate(m_impl->m_uniforms[id.index]);
+	id_table::destroy(m_uniforms, id);
 }
 
-// //-----------------------------------------------------------------------------
-// void Renderer::create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, RenderTargetFormat::Enum format)
-// {
+//-----------------------------------------------------------------------------
+void Renderer::create_render_target_impl(RenderTargetId id, uint16_t width, uint16_t height, PixelFormat::Enum format, uint32_t flags)
+{
+	m_impl->m_render_targets[id.index].create(width, height, format, flags);
+}
 
-// }
-
-// //-----------------------------------------------------------------------------
-// void Renderer::destroy_render_target_impl(RenderTargetId id)
-// {
-
-// }
+//-----------------------------------------------------------------------------
+void Renderer::destroy_render_target_impl(RenderTargetId id)
+{
+	m_impl->m_render_targets[id.index].destroy();
+	id_table::destroy(m_render_targets, id);
+}
 
 } // namespace crown

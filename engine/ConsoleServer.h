@@ -30,11 +30,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ContainerTypes.h"
 #include "Queue.h"
 #include "IdArray.h"
-#include "Log.h"
 #include "Config.h"
 
 namespace crown
 {
+
+/// Enumerates log levels.
+struct LogSeverity
+{
+	enum Enum
+	{
+		INFO	= 0,
+		WARN	= 1,
+		ERROR	= 2,
+		DEBUG	= 3
+	};	
+};
 
 struct Client
 {
@@ -55,33 +66,34 @@ public:
 
 	/// Listens on the given @a port. If @a wait is true, this function
 	/// blocks until a client is connected.
-	void						init(uint16_t port, bool wait);
-	void						shutdown();
+	void init(uint16_t port, bool wait);
+	void shutdown();
 
-	void						log_to_all(const char* message, LogSeverity::Enum severity);
+	void log_to_all(LogSeverity::Enum severity, const char* message, ...);
+	void log_to_all(LogSeverity::Enum severity, const char* message, ::va_list arg);
 
 	/// Collects requests from clients and processes them all.
-	void						update();
+	void update();
 
 private:
 
-	void						send(TCPSocket client, const char* message);
-	void						send_to_all(const char* message);
+	void send(TCPSocket client, const char* message);
+	void send_to_all(const char* message);
 
-	void						add_client(TCPSocket socket);
-	ReadResult					update_client(TCPSocket client);
-	void						process(TCPSocket client, const char* request);
+	void add_client(TCPSocket socket);
+	ReadResult update_client(TCPSocket client);
+	void process(TCPSocket client, const char* request);
 
-	void						process_ping(TCPSocket client, const char* msg);
-	void						process_script(TCPSocket client, const char* msg);
-	void						process_stats(TCPSocket client, const char* msg);
-	void						process_command(TCPSocket client, const char* msg);
-	void						processs_filesystem(TCPSocket client, const char* msg);
+	void process_ping(TCPSocket client, const char* msg);
+	void process_script(TCPSocket client, const char* msg);
+	void process_stats(TCPSocket client, const char* msg);
+	void process_command(TCPSocket client, const char* msg);
+	void processs_filesystem(TCPSocket client, const char* msg);
 
 private:
 
-	TCPServer					m_server;
-	ClientArray					m_clients;
+	TCPServer m_server;
+	ClientArray m_clients;
 };
 
 } // namespace crown

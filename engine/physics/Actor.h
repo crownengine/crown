@@ -46,10 +46,8 @@ namespace crown
 
 struct PhysicsResource;
 struct PhysicsConfigResource;
-struct Quaternion;
-struct Matrix4x4;
 struct Unit;
-class SceneGraph;
+struct SceneGraph;
 
 /// Represents a rigid body.
 ///
@@ -164,6 +162,9 @@ struct Actor
 
 	/// Wakes the actor up.
 	void wake_up();
+
+	/// Returns the id of the unit that owns the actor.
+	UnitId unit_id() const;
 
 	/// Returns the unit that owns the actor.
 	Unit* unit();

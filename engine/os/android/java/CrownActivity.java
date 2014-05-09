@@ -26,150 +26,36 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 package crown.android;
 
-import android.app.Activity;
+import android.app.NativeActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.WindowManager;
-import android.view.MotionEvent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.content.Context;
-import android.widget.Toast;
-import android.content.res.AssetManager;
-import android.view.View;
-import android.view.Surface;
-import android.view.SurfaceView;
-import android.view.SurfaceHolder;
-import android.view.KeyEvent;
 
-public class CrownActivity extends Activity
+public class CrownActivity extends NativeActivity
 {
-	// Debug
+	static 
+	{
+		System.loadLibrary("luajit-5.1");
+		System.loadLibrary("crown");
+	}
+
 	public static String TAG = "crown";
 
-	// Resource attributes
-    static AssetManager 		mAssetManager;
-	private CrownSurfaceView 	mView;
+	CrownActivity _activity;
 
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
 
-	//-----------------------------------------------------------------------------
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
+		_activity = this;
 
-        // Initializes low-level systems (memory, os etc.)
-        CrownLib.initCrown();
-
-		// init AssetManager
-		mAssetManager = getAssets();
-		CrownLib.initAssetManager(mAssetManager);
-
-		// init Native Window
-		mView = new CrownSurfaceView(this);
-        setContentView(mView);
-
-		Log.i(TAG, "Crown Activity created");
+		// Init additional stuff here (ads, etc.)
     }
 
-	//-----------------------------------------------------------------------------
-	public void onResume()
-	{
-		super.onResume();
-		CrownLib.pushResumeEvent();
-		Log.i(TAG, "Crown Activity resumed");
-	}
-
-	//-----------------------------------------------------------------------------
-	public void onPause()
-	{
-		super.onPause();
-		CrownLib.pushPauseEvent();
-		Log.i(TAG, "Crown Activity paused");
-	}
-
-	//-----------------------------------------------------------------------------
+	@Override
 	public void onDestroy()
 	{
+		// Destroy additional stuff here (ads, etc)
 		super.onDestroy();
-		CrownLib.pushExitEvent(0);
-		CrownLib.releaseWindow();
-		CrownLib.shutdownCrown();
-		Log.i(TAG, "Crown Activity destroyed");
-	}
-
-	//-----------------------------------------------------------------------------
-	public void onBackPressed()
-	{
-		// Simulate ESCAPE key
-		CrownLib.pushKeyboardEvent(0, 0x1B, 1);
-	}
-
-	//-----------------------------------------------------------------------------
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event)
-	{
-		if ((keyCode == KeyEvent.KEYCODE_BACK))
-		{
-			CrownLib.pushKeyboardEvent(0, 0x1B, 1);
-		}
-		return super.onKeyUp(keyCode, event);
-	}
-
-	//-----------------------------------------------------------------------------
-	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event)
-	{
-		if ((keyCode == KeyEvent.KEYCODE_BACK))
-		{
-			CrownLib.pushKeyboardEvent(0, 0x1B, 0);
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-
-	//-----------------------------------------------------------------------------
-	public boolean onTouchEvent(MotionEvent event)
-	{
-		final int pointerIndex = event.getActionIndex();
-		final int pointerCount = event.getPointerCount();
-
-		final int pointerId = event.getPointerId(pointerIndex);
-		final float x = event.getX(pointerIndex);
-		final float y = event.getY(pointerIndex);
-
-		final int actionMasked = event.getActionMasked();
-
-		switch (actionMasked) 
-		{	
-			case MotionEvent.ACTION_DOWN:
-			case MotionEvent.ACTION_POINTER_DOWN:
-			{
-				CrownLib.pushTouchEventPointer(pointerId, (int) x, (int) y, 1);
-				break;			
-			}
-			case MotionEvent.ACTION_UP:
-			case MotionEvent.ACTION_POINTER_UP:
-			{
-				CrownLib.pushTouchEventPointer(pointerId, (int) x, (int) y, 0);
-				break;
-			}
-			case MotionEvent.ACTION_OUTSIDE:
-			case MotionEvent.ACTION_CANCEL:
-			{
-				CrownLib.pushTouchEventPointer(pointerId, (int)x, (int)y, 0);
-				break;			
-			}
-			case MotionEvent.ACTION_MOVE:
-			{
-				for (int index = 0; index < pointerCount; index++)
-				{
-					CrownLib.pushTouchEventMove(event.getPointerId(index), (int)event.getX(index), (int)event.getY(index));
-				}
-				break;
-			}
-		}
-
-        return super.onTouchEvent(event);
 	}
 }

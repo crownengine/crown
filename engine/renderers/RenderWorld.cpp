@@ -42,43 +42,185 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-static const char* default_vertex =
-	"precision mediump float;"
-	"uniform mat4      	u_model;"
-	"uniform mat4      	u_model_view_projection;"
+namespace render_world_globals
+{
+	static const char* default_vertex =
+		"precision mediump float;\n"
+		"uniform mat4      	u_model_view_projection;\n"
 
-	"attribute vec4    	a_position;"
-	"attribute vec2    	a_tex_coord0;"
-	"attribute vec4    	a_color;"
+		"attribute vec4    	a_position;\n"
+		"attribute vec2    	a_tex_coord0;\n"
+		"attribute vec4		a_color;\n"
 
-	"varying vec2		tex_coord0;"
-	"varying vec4		color;"
+		"varying vec2		tex_coord0;\n"
+		"varying vec4		color;\n"
 
-	"void main(void)"
-	"{"
-	"	tex_coord0 = a_tex_coord0;"
-	"   color = a_color;"
-	"	gl_Position = u_model_view_projection * a_position;"
-	"}";
+		"void main(void)\n"
+		"{\n"
+		"	tex_coord0 = a_tex_coord0;\n"
+		"	color = a_color;\n"
+		"	gl_Position = u_model_view_projection * a_position;\n"
+		"}\n";
 
-static const char* default_fragment = 
-	"precision mediump float;"
-	"void main(void)"
-	"{"
-	"	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);"
-	"}";
+	static const char* default_fragment = 
+		"precision mediump float;\n"
+		"varying vec4 color;\n"
+		"void main(void)\n"
+		"{\n"
+		"	gl_FragColor = color;\n"
+		"}\n";
 
-static const char* texture_fragment = 
-	"precision mediump float;"
-	"varying vec2       tex_coord0;"
-	"varying vec4       color;"
+	static const char* texture_fragment = 
+		"precision mediump float;\n"
+		"varying vec2       tex_coord0;\n"
+		"varying vec4       color;\n"
 
-	"uniform sampler2D  u_albedo_0;"
+		"uniform sampler2D  u_albedo_0;\n"
 
-	"void main(void)"
-	"{"
-	"	gl_FragColor = texture2D(u_albedo_0, tex_coord0);"
-	"}";
+		"void main(void)\n"
+		"{\n"
+		"	gl_FragColor = texture2D(u_albedo_0, tex_coord0);\n"
+		"}\n";
+
+	static const char* sdf_vertex =
+		"precision mediump float;\n"
+		"uniform mat4      	u_model_view_projection;\n"
+
+		"attribute vec4		a_position;\n"
+		"attribute vec2		a_tex_coord0;\n"
+
+		"varying vec2		v_tex_coord;\n"
+		"varying vec4		v_color;\n"
+
+		"void main(void)\n"
+		"{\n"
+		"	gl_Position = u_model_view_projection * a_position;\n"
+		"	v_tex_coord = a_tex_coord0;\n"
+		"	v_color = vec4(1, 1, 1, 1);\n"
+		"}\n";
+
+	static const char* sdf_fragment =
+		"precision mediump float;\n"
+		"uniform sampler2D u_texture;\n"
+		"uniform vec4 u_color;\n"
+
+		"varying vec2 v_tex_coord;\n"
+
+		"const float smoothing = 1.0/16.0;\n"
+
+		"void main() {\n"
+			"float distance = texture2D(u_texture, v_tex_coord).a;\n"
+			"float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, distance);\n"
+			"gl_FragColor = vec4(u_color.rgb, alpha);\n"
+		"}\n";
+
+	static const char* default_color_fragment =
+		"precision mediump float;\n"
+		"uniform vec4 u_color;\n"
+		"void main(void)\n"
+		"{\n"
+		"	gl_FragColor = u_color;\n"
+		"}\n";
+
+	ShaderId default_vs;
+	ShaderId default_fs;
+	ShaderId texture_fs;
+	ShaderId font_vs;
+	ShaderId font_fs;
+	ShaderId color_fs;
+	GPUProgramId texture_program;
+	GPUProgramId def_program;
+	GPUProgramId font_program;
+	GPUProgramId color_program;
+	UniformId u_albedo_0;
+	UniformId u_font;
+	UniformId u_color;
+	uint32_t num_refs = 0;
+
+	void init()
+	{
+		if (num_refs)
+			return;
+
+		num_refs++;
+
+		Renderer* r = device()->renderer();
+
+		u_font = r->create_uniform("u_font", UniformType::INTEGER_1, 1);
+		u_albedo_0 = r->create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
+		u_color = r->create_uniform("u_color", UniformType::FLOAT_4, 1);
+
+		default_vs = r->create_shader(ShaderType::VERTEX, default_vertex);
+		default_fs = r->create_shader(ShaderType::FRAGMENT, default_fragment);
+		texture_fs = r->create_shader(ShaderType::FRAGMENT, texture_fragment);
+		font_vs = r->create_shader(ShaderType::VERTEX, sdf_vertex);
+		font_fs = r->create_shader(ShaderType::FRAGMENT, sdf_fragment);
+		color_fs = r->create_shader(ShaderType::FRAGMENT, default_color_fragment);
+
+		def_program = r->create_gpu_program(default_vs, default_fs);
+		texture_program = r->create_gpu_program(default_vs, texture_fs);
+		font_program = r->create_gpu_program(font_vs, font_fs);
+		color_program = r->create_gpu_program(default_vs, color_fs);
+	}
+
+	void shutdown()
+	{
+		num_refs--;
+
+		if (num_refs)
+			return;
+
+		Renderer* r = device()->renderer();
+		r->destroy_uniform(u_albedo_0);
+		r->destroy_uniform(u_font);
+		r->destroy_uniform(u_color);
+		r->destroy_gpu_program(texture_program);
+		r->destroy_gpu_program(def_program);
+		r->destroy_gpu_program(font_program);
+		r->destroy_gpu_program(color_program);
+		r->destroy_shader(default_vs);
+		r->destroy_shader(default_fs);
+		r->destroy_shader(texture_fs);
+		r->destroy_shader(font_vs);
+		r->destroy_shader(font_fs);
+		r->destroy_shader(color_fs);
+	}
+
+	GPUProgramId default_program()
+	{
+		return def_program;
+	}
+
+	GPUProgramId default_texture_program()
+	{
+		return texture_program;
+	}
+
+	GPUProgramId default_font_program()
+	{
+		return font_program;
+	}
+
+	GPUProgramId default_color_program()
+	{
+		return color_program;
+	}
+
+	UniformId default_albedo_uniform()
+	{
+		return u_albedo_0;
+	}
+
+	UniformId default_font_uniform()
+	{
+		return u_font;
+	}
+
+	UniformId default_color_uniform()
+	{
+		return u_color;
+	}
+};
 
 //-----------------------------------------------------------------------------
 RenderWorld::RenderWorld()
@@ -87,107 +229,81 @@ RenderWorld::RenderWorld()
 	, m_material_pool(default_allocator(), MAX_MATERIALS, sizeof(Material), CE_ALIGNOF(Material))
 	, m_gui_pool(default_allocator(), MAX_GUIS, sizeof(Gui), CE_ALIGNOF(Gui))
 {
-	Renderer* r = device()->renderer();
-
-	m_default_vs = r->create_shader(ShaderType::VERTEX, default_vertex);
-	m_default_fs = r->create_shader(ShaderType::FRAGMENT, default_fragment);
-	m_texture_fs = r->create_shader(ShaderType::FRAGMENT, texture_fragment);
-
-	m_u_albedo_0 = r->create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
-
-	m_default_program = r->create_gpu_program(m_default_vs, m_default_fs);
-	m_texture_program = r->create_gpu_program(m_default_vs, m_texture_fs);
+	render_world_globals::init();
 }
 
 //-----------------------------------------------------------------------------
 RenderWorld::~RenderWorld()
 {
-	Renderer* r = device()->renderer();
-
-	r->destroy_gpu_program(m_texture_program);
-	r->destroy_gpu_program(m_default_program);
-	r->destroy_uniform(m_u_albedo_0);
-	r->destroy_shader(m_default_vs);
-	r->destroy_shader(m_default_fs);
-	r->destroy_shader(m_texture_fs);
+	render_world_globals::shutdown();
 }
 
 //-----------------------------------------------------------------------------
 MeshId RenderWorld::create_mesh(MeshResource* mr, SceneGraph& sg, int32_t node)
 {
 	Mesh* mesh = CE_NEW(m_mesh_pool, Mesh)(sg, node, mr);
-	return m_mesh.create(mesh);
+	return id_array::create(m_mesh, mesh);
 }
 
 //-----------------------------------------------------------------------------
 void RenderWorld::destroy_mesh(MeshId id)
 {
-	CE_ASSERT(m_mesh.has(id), "Mesh does not exist");
-
-	Mesh* mesh = m_mesh.lookup(id);
+	Mesh* mesh = id_array::get(m_mesh, id);
 	CE_DELETE(m_mesh_pool, mesh);
-	m_mesh.destroy(id);
+	id_array::destroy(m_mesh, id);
 }
 
 //-----------------------------------------------------------------------------
-Mesh* RenderWorld::lookup_mesh(MeshId mesh)
+Mesh* RenderWorld::get_mesh(MeshId mesh)
 {
-	CE_ASSERT(m_mesh.has(mesh), "Mesh does not exits");
-
-	return m_mesh.lookup(mesh);
+	return id_array::get(m_mesh, mesh);
 }
 
 //-----------------------------------------------------------------------------
 SpriteId RenderWorld::create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node)
 {
 	Sprite* sprite = CE_NEW(m_sprite_pool, Sprite)(*this, sg, node, sr);
-	return m_sprite.create(sprite);
+	return id_array::create(m_sprite, sprite);
 }
 
 //-----------------------------------------------------------------------------
 void RenderWorld::destroy_sprite(SpriteId id)
 {
-	CE_ASSERT(m_sprite.has(id), "Sprite does not exist");
-
-	Sprite* sprite = m_sprite.lookup(id);
-	CE_DELETE(m_sprite_pool, sprite);
-	m_sprite.destroy(id);
+	CE_DELETE(m_sprite_pool, id_array::get(m_sprite, id));
+	id_array::destroy(m_sprite, id);
 }
 
 //-----------------------------------------------------------------------------
-Sprite*	RenderWorld::lookup_sprite(SpriteId id)
+Sprite*	RenderWorld::get_sprite(SpriteId id)
 {
-	CE_ASSERT(m_sprite.has(id), "Sprite does not exist");
-
-	return m_sprite.lookup(id);
+	return id_array::get(m_sprite, id);
 }
 
 //-----------------------------------------------------------------------------
 MaterialId RenderWorld::create_material(MaterialResource* mr)
 {
 	Material* mat = CE_NEW(m_material_pool, Material)(mr);
-	return m_materials.create(mat);
+	return id_array::create(m_materials, mat);
 }
 
 //-----------------------------------------------------------------------------
 void RenderWorld::destroy_material(MaterialId id)
 {
-	CE_DELETE(m_material_pool, m_materials.lookup(id));
-	m_materials.destroy(id);
+	CE_DELETE(m_material_pool, id_array::get(m_materials, id));
+	id_array::destroy(m_materials, id);
 }
 
 //-----------------------------------------------------------------------------
-Material* RenderWorld::lookup_material(MaterialId id)
+Material* RenderWorld::get_material(MaterialId id)
 {
-	return m_materials.lookup(id);
+	return id_array::get(m_materials, id);
 }
 
 //-----------------------------------------------------------------------------
-GuiId RenderWorld::create_gui(GuiResource* gr)
+GuiId RenderWorld::create_gui(uint16_t width, uint16_t height)
 {
-	Renderer* r = device()->renderer();
-	Gui* gui = CE_NEW(m_gui_pool, Gui)(*this, gr, *r);
-	GuiId id = m_guis.create(gui);
+	Gui* gui = CE_NEW(m_gui_pool, Gui)(*this, width, height);
+	GuiId id = id_array::create(m_guis, gui);
 	gui->set_id(id);
 	return id;
 }
@@ -195,18 +311,14 @@ GuiId RenderWorld::create_gui(GuiResource* gr)
 //-----------------------------------------------------------------------------
 void RenderWorld::destroy_gui(GuiId id)
 {
-	CE_ASSERT(m_guis.has(id), "Gui does not exist");
-
-	CE_DELETE(m_gui_pool, m_guis.lookup(id));
-	m_guis.destroy(id);
+	CE_DELETE(m_gui_pool, id_array::get(m_guis, id));
+	id_array::destroy(m_guis, id);
 }
 
 //-----------------------------------------------------------------------------
-Gui* RenderWorld::lookup_gui(GuiId id)
+Gui* RenderWorld::get_gui(GuiId id)
 {
-	CE_ASSERT(m_guis.has(id), "Gui does not exist");
-	
-	return m_guis.lookup(id);
+	return id_array::get(m_guis, id);
 }
 
 //-----------------------------------------------------------------------------
@@ -215,26 +327,26 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	Renderer* r = device()->renderer();
 
 	Matrix4x4 inv_view = view;
-	inv_view.invert();
+	matrix4x4::invert(inv_view);
 
 	r->set_layer_view(0, inv_view);
 	r->set_layer_projection(0, projection);
 	r->set_layer_viewport(0, x, y, width, height);
-	r->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4::LIGHTBLUE, 1.0f);
+	r->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4(0x353839FF), 1.0f);
 
 	r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_CULL_CCW);
 	r->commit(0);
 
 	// Draw all meshes
-	for (uint32_t m = 0; m < m_mesh.size(); m++)
+	for (uint32_t m = 0; m < id_array::size(m_mesh); m++)
 	{
 		const Mesh* mesh = m_mesh.m_objects[m];
 
 		r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
 		r->set_vertex_buffer(mesh->m_vbuffer);
 		r->set_index_buffer(mesh->m_ibuffer);
-		r->set_program(m_default_program);
-		// r->set_texture(0, m_u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
+		r->set_program(render_world_globals::default_program());
+		// r->set_texture(0, render_world_globals::u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
 		// r->set_uniform(u_brightness, UNIFORM_FLOAT_1, &brightness, 1);
 
 		r->set_pose(mesh->world_pose());
@@ -242,16 +354,11 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	}
 
 	// Draw all sprites
-	for (uint32_t s = 0; s < m_sprite.size(); s++)
+	for (uint32_t s = 0; s < id_array::size(m_sprite); s++)
 	{
-		r->set_program(m_texture_program);
-		m_sprite[s]->render(*r, m_u_albedo_0, dt);
-	}
-
-	// Draw all guis
-	for (uint32_t g = 0; g < m_guis.size(); g++)
-	{
-		m_guis[g]->render();
+		r->set_program(render_world_globals::default_texture_program());
+		// m_sprite[s]->update(dt);
+		m_sprite[s]->render(*r, render_world_globals::u_albedo_0, dt);
 	}
 }
 

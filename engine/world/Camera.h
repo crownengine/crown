@@ -27,9 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "Types.h"
-#include "Frustum.h"
-#include "Matrix4x4.h"
-#include "Vector3.h"
+#include "MathTypes.h"
 #include "WorldTypes.h"
 
 namespace crown
@@ -53,7 +51,7 @@ class SceneGraph;
 /// @ingroup World
 struct Camera
 {
-							Camera(SceneGraph& sg, int32_t node);
+							Camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far);
 
 	Vector3					local_position() const;
 	Quaternion				local_rotation() const;

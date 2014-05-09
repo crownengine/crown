@@ -96,7 +96,7 @@ namespace profiler
 		// 	char* p = t_buffer + cur;
 		// 	uint32_t event_type = *(uint32_t*) p;
 		// 	RecordFloat event = *(RecordFloat*)(p + sizeof(uint32_t));
-		// 	Log::d("ev type = %d, name = %s, value = %f\n", event_type, event.name, 1.0 / event.value);
+		// 	CE_LOGD("ev type = %d, name = %s, value = %f\n", event_type, event.name, 1.0 / event.value);
 		// 	cur += sizeof(uint32_t) + sizeof(RecordFloat);
 		// }
 	}

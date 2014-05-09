@@ -28,8 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaEnvironment.h"
 #include "World.h"
 #include "Gui.h"
-#include "Device.h"
-#include "LuaSystem.h"
+#include "TempAllocator.h"
+#include "Array.h"
 
 namespace crown
 {
@@ -47,7 +47,7 @@ static int world_spawn_unit(lua_State* L)
 
 	UnitId unit = world->spawn_unit(name, pos, rot);
 
-	stack.push_unit(world->lookup_unit(unit));
+	stack.push_unit(world->get_unit(unit));
 	return 1;
 }
 
@@ -71,6 +71,29 @@ static int world_num_units(lua_State* L)
 	World* world = stack.get_world(1);
 
 	stack.push_uint32(world->num_units());
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+static int world_units(lua_State* L)
+{
+	LuaStack stack(L);
+
+	World* world = stack.get_world(1);
+
+	TempAllocator1024 alloc;
+	Array<UnitId> all_units(alloc);
+
+	world->units(all_units);
+
+	stack.push_table();
+	for (uint32_t i = 0; i < array::size(all_units); i++)
+	{
+		stack.push_key_begin((int32_t) i + 1);
+		stack.push_unit(world->get_unit(all_units[i]));
+		stack.push_key_end();
+	}
+
 	return 1;
 }
 
@@ -175,9 +198,9 @@ static int world_create_window_gui(lua_State* L)
 	LuaStack stack(L);
 
 	World* world = stack.get_world(1);
-	GuiId id = world->create_window_gui(stack.get_string(2));
+	GuiId id = world->create_window_gui(stack.get_int(2), stack.get_int(3));
 
-	stack.push_gui(world->lookup_gui(id));
+	stack.push_gui(world->get_gui(id));
 	return 1;
 }
 
@@ -241,6 +264,16 @@ static int world_destroy_debug_line(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int world_load_level(lua_State* L)
+{
+	LuaStack stack(L);
+
+	World* world = stack.get_world(1);
+	world->load_level(stack.get_string(2));
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 static int world_tostring(lua_State* L)
 {
 	LuaStack stack(L);
@@ -255,6 +288,7 @@ void load_world(LuaEnvironment& env)
 	env.load_module_function("World", "spawn_unit",			world_spawn_unit);
 	env.load_module_function("World", "destroy_unit",       world_destroy_unit);
 	env.load_module_function("World", "num_units",          world_num_units);
+	env.load_module_function("World", "units",              world_units);
 
 	env.load_module_function("World", "play_sound",			world_play_sound);
 	env.load_module_function("World", "stop_sound", 		world_stop_sound);
@@ -272,6 +306,8 @@ void load_world(LuaEnvironment& env)
 
 	env.load_module_function("World", "create_debug_line",  world_create_debug_line);
 	env.load_module_function("World", "destroy_debug_line", world_destroy_debug_line);
+
+	env.load_module_function("World", "load_level",			world_load_level);
 
 	env.load_module_function("World", "__index",			"World");
 	env.load_module_function("World", "__tostring",			world_tostring);
