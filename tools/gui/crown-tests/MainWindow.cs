@@ -17,15 +17,13 @@ namespace crown_tests
 
 			twTests.AppendColumn("Name", new Gtk.CellRendererText());
 			twTests.AppendColumn("State", new Gtk.CellRendererText());
-			TreeViewTemplating.AddRowTemplate(twTests, 
-				TreeViewRowTemplate.Create(typeof(TestCategory))
-													 .SetBinding("Name", "Name"));
-			TreeViewTemplating.AddRowTemplate(twTests, 
-				TreeViewRowTemplate.Create(typeof(Test))
-													 .SetBinding("Name", "Name")
-													 .SetBinding("State", "LastResult"));
-			TreeViewTemplating.ApplyTemplating(twTests);
-
+			Templating.ApplyTemplate(twTests,
+				new TreeViewTemplate()
+				  .AddRowTemplate(TreeViewRowTemplate.Create(typeof(TestCategory))
+																						 .SetBinding("Name", "Name"))
+					.AddRowTemplate(TreeViewRowTemplate.Create(typeof(Test))
+																						 .SetBinding("Name", "Name")
+																						 .SetBinding("State", "LastResult")));
 
 			LoadConfigData();
 			LoadTestsData();

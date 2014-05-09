@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace crown_tests
+namespace crown_tests.GtkExt
 {
 	public static class BindingEngine
 	{
@@ -63,9 +63,17 @@ namespace crown_tests
 		}
 	}
 
+	public class BindingTargetValueChangedEventArgs: EventArgs
+	{
+		public Object NewValue;
+	}
+	public delegate void BindingTargetValueChangedEventHandler(object sender, BindingTargetValueChangedEventArgs e);
+
 	public interface IBindingTarget
 	{
+
 		void Update(Binding binding, Object newValue);
+		event BindingTargetValueChangedEventHandler ValueChanged;
 	}
 }
 

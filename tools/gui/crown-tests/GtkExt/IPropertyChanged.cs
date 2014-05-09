@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace crown_tests
+namespace crown_tests.GtkExt
 {
 	public class PropertyChangedEventArgs: EventArgs
 	{

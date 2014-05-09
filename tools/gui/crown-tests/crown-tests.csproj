@@ -70,11 +70,14 @@
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="gtk-gui\crown_tests.MainWindow.cs" />
     <Compile Include="MainWindow.cs" />
-    <Compile Include="GtkExt\TreeViewTemplating.cs" />
     <Compile Include="GtkExt\TreeViewRowTemplate.cs" />
     <Compile Include="GtkExt\IPropertyChanged.cs" />
     <Compile Include="GtkExt\ViewModelBase.cs" />
     <Compile Include="GtkExt\BindingEngine.cs" />
+    <Compile Include="GtkExt\BindingTargets\TreeViewIterBindingTarget.cs" />
+    <Compile Include="GtkExt\BindingTargets\EntryBindingTarget.cs" />
+    <Compile Include="GtkExt\Templating.cs" />
+    <Compile Include="GtkExt\TreeViewTemplate.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -91,5 +94,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GtkExt\" />
+    <Folder Include="GtkExt\BindingTargets\" />
   </ItemGroup>
 </Project>
