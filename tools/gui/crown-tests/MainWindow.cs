@@ -16,12 +16,11 @@ namespace crown_tests
 		{
 			this.Build();
 
-			twTests.AppendColumn("Name", new Gtk.CellRendererText());
-			twTests.AppendColumn("State", new Gtk.CellRendererText());
-
 			var crownTestsViewModel = new CrownTestsViewModel();
 			Templating.ApplyTemplate(twTests,
 				new TreeViewTemplate()
+					.AddColumn("Name", new Gtk.CellRendererText())
+					.AddColumn("State", new Gtk.CellRendererText())
 				  .AddRowTemplate(TreeViewRowTemplate.Create(typeof(TestCategory))
 																						 .SetBinding("Name", "Name"))
 					.AddRowTemplate(TreeViewRowTemplate.Create(typeof(Test))

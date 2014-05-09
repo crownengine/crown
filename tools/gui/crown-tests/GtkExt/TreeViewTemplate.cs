@@ -5,10 +5,17 @@ namespace crown_tests.GtkExt
 {
 	public class TreeViewTemplate: ITemplate
 	{
-		public List<TreeViewRowTemplate> RowTemplates = new List<TreeViewRowTemplate>();
+		private List<TreeViewRowTemplate> RowTemplates = new List<TreeViewRowTemplate>();
+		private List<Tuple<String, Gtk.CellRenderer>> Columns = new List<Tuple<String, Gtk.CellRenderer>>();
 
 		public TreeViewTemplate()
 		{
+		}
+
+		public TreeViewTemplate AddColumn(String Title, Gtk.CellRenderer renderer)
+		{
+			Columns.Add(Tuple.Create(Title, renderer));
+			return this;
 		}
 
 		public TreeViewTemplate AddRowTemplate(TreeViewRowTemplate rowTemplate)
@@ -25,8 +32,8 @@ namespace crown_tests.GtkExt
 				return;
 			}
 
-			foreach (var col in treeView.Columns) {
-				col.SetCellDataFunc(col.CellRenderers[0], ValuePropertyDataFunc);
+			foreach (var col in Columns) {
+				treeView.AppendColumn(col.Item1, col.Item2, ValuePropertyDataFunc);
 			}
 		}
 
