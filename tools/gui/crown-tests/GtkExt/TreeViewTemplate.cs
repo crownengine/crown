@@ -51,7 +51,7 @@ namespace crown_tests.GtkExt
 						return;
 
 					//The actual binding, on the other hand, is specific to the current (row,column) pair.
-					Binding binding = BindingEngine.GetOrCreateBinding(value, new TreeViewIterBindingTarget(treeView, iter, column), bindingInfo);
+					Binding binding = BindingEngine.GetOrCreateBinding(treeView, value, new TreeViewIterBindingTarget(treeView, iter, column), bindingInfo);
 					var propValue = binding.GetSourceValue();
 					textCell.Text = propValue == null ? String.Empty : propValue.ToString();
 					return;

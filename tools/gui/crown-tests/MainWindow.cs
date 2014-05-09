@@ -3,6 +3,7 @@ using Gtk;
 using crown_tests.tests;
 using Newtonsoft.Json;
 using crown_tests.GtkExt;
+using crown_tests.ViewModels;
 
 namespace crown_tests
 {
@@ -17,6 +18,8 @@ namespace crown_tests
 
 			twTests.AppendColumn("Name", new Gtk.CellRendererText());
 			twTests.AppendColumn("State", new Gtk.CellRendererText());
+
+			var crownTestsViewModel = new CrownTestsViewModel();
 			Templating.ApplyTemplate(twTests,
 				new TreeViewTemplate()
 				  .AddRowTemplate(TreeViewRowTemplate.Create(typeof(TestCategory))
@@ -25,7 +28,14 @@ namespace crown_tests
 																						 .SetBinding("Name", "Name")
 																						 .SetBinding("State", "LastResult")));
 
-			LoadConfigData();
+			BindingEngine.SetViewModel(txtTestFolder, crownTestsViewModel);
+			Templating.ApplyTemplate(txtTestFolder,
+				new EntryTemplate().SetTextBinding("TestFolder"));
+
+			BindingEngine.SetViewModel(txtCrownTestsExe, crownTestsViewModel);
+			Templating.ApplyTemplate(txtCrownTestsExe,
+				new EntryTemplate().SetTextBinding("CrownTestsExe"));
+
 			LoadTestsData();
 		}
 
@@ -47,12 +57,6 @@ namespace crown_tests
 		{
 			var executor = new TestExecutor(mContainer, txtCrownTestsExe.Text);
 			executor.ExecuteAll();
-		}
-
-		private void LoadConfigData()
-		{
-			txtTestFolder.Text = @"..\..\..\..\..\tests\";
-			txtCrownTestsExe.Text = @"..\..\..\..\..\build\tests\Debug\crown-tests.exe";
 		}
 
 		private void LoadTestsData()

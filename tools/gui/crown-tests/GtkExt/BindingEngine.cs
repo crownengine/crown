@@ -6,17 +6,36 @@ namespace crown_tests.GtkExt
 	public static class BindingEngine
 	{
 		private static Dictionary<IBindingTarget, Binding> mBindings;
+		private static Dictionary<Gtk.Widget, ViewModelBase> mViewModels;
 
 		static BindingEngine() {
 			mBindings = new Dictionary<IBindingTarget, Binding>();
+			mViewModels = new Dictionary<Gtk.Widget, ViewModelBase>();
 		}
 
-		public static Binding GetOrCreateBinding(Object source, IBindingTarget target, BindingInfo info) {
+		public static void SetViewModel(Gtk.Widget widget, ViewModelBase viewModel)
+		{
+			if (mViewModels.ContainsKey(widget)) {
+				Console.WriteLine("BindingEngine.SetViewModel: ViewModel already set for this widget");
+				return;
+			}
+			mViewModels.Add(widget, viewModel);
+		}
+
+		public static ViewModelBase GetViewModel(Gtk.Widget widget)
+		{
+			ViewModelBase viewModel = null;
+			mViewModels.TryGetValue(widget, out viewModel);
+			return viewModel;
+		}
+
+		public static Binding GetOrCreateBinding(Gtk.Widget widget, Object source, IBindingTarget target, BindingInfo info) 
+		{
 			Binding result = null;
 			if (!mBindings.TryGetValue(target, out result)) {
 				result = new Binding();
 				result.Info = info;
-				result.Connect(source, target);
+				result.Connect(widget, source, target);
 				mBindings[target] = result;
 			}
 			return result;
@@ -41,8 +60,17 @@ namespace crown_tests.GtkExt
 		private Object mSource;
 		private IBindingTarget mTarget;
 
-		public void Connect(Object source, IBindingTarget target) {
-			mSource = source;
+		public void Connect(Gtk.Widget widget, Object source, IBindingTarget target) {
+			if (source == null) {
+				mSource = BindingEngine.GetViewModel(widget);
+				if (mSource == null) {
+					Console.WriteLine("Binding.Connect: ViewModel not set for this widget");
+					return;
+				}
+			} else {
+				mSource = source;
+			}
+
 			mTarget = target;
 
 			var propertyChanged = mSource as IPropertyChanged;

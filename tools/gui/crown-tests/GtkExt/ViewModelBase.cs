@@ -8,6 +8,15 @@ namespace crown_tests.GtkExt
 		{
 		}
 
+		protected Boolean SetAndNotify<T>(ref T field, T newValue, String propertyName) {
+			if (!object.Equals(field, newValue)) {
+				field = newValue;
+				Notify(propertyName);
+				return true;
+			}
+			return false;
+		}
+
 		#region IPropertyChanged implementation
 
 		public event PropertyChangedEventHandler PropertyChanged;
