@@ -75,6 +75,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 		function;
 #endif
 
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+	#define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT 0x83F1
+#endif
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
+	#define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT 0x83F2
+#endif
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
+	#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3
+#endif
+
 #ifdef ANDROID
 	#define GL_DEPTH_STENCIL GL_DEPTH_STENCIL_OES
 	#ifndef GL_DEPTH_STENCIL_ATTACHMENT
@@ -134,44 +144,50 @@ struct TextureFormatInfo
 //-----------------------------------------------------------------------------
 const TextureFormatInfo TEXTURE_FORMAT_TABLE[PixelFormat::COUNT] =
 {
-	{ GL_RGB, GL_RGB },
-	{ GL_RGBA, GL_RGBA},
-	{ GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT},
-	{ GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT},
-	{ GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT},
-	{ GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL}
+	{ GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT },
+	{ GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT },
+	{ GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT },
+	{ GL_RGB,                           GL_RGB                           },
+	{ GL_RGBA,                          GL_RGBA                          },
+	{ GL_DEPTH_COMPONENT16,             GL_DEPTH_COMPONENT               },
+	{ GL_DEPTH_COMPONENT24,             GL_DEPTH_COMPONENT               },
+	{ GL_DEPTH_COMPONENT32,             GL_DEPTH_COMPONENT               },
+	{ GL_DEPTH24_STENCIL8,              GL_DEPTH_STENCIL                 }
 };
 
 //-----------------------------------------------------------------------------
-static bool is_depth(const GLenum format)
+static bool is_compressed(PixelFormat::Enum fmt)
 {
-	switch (format)
-	{
-		case GL_DEPTH_COMPONENT16:
-		case GL_DEPTH_COMPONENT24:
-		case GL_DEPTH_COMPONENT32:
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return fmt < PixelFormat::RGB_8;
 }
 
 //-----------------------------------------------------------------------------
-static bool is_color(const GLenum format)
+static bool is_color(PixelFormat::Enum fmt)
 {
-	switch (format)
-	{
-		case GL_RGB:
-		case GL_RGBA:
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return fmt >= PixelFormat::RGB_8 && fmt < PixelFormat::D16;
 }
+
+//-----------------------------------------------------------------------------
+static bool is_depth(PixelFormat::Enum fmt)
+{
+	return fmt >= PixelFormat::D16 && fmt < PixelFormat::COUNT;
+}
+
+//-----------------------------------------------------------------------------
+static uint32_t PIXEL_FORMAT_SIZES[PixelFormat::COUNT] =
+{
+	8,  // DXT1,
+	16, // DXT3,
+	16, // DXT5,
+
+	3, // RGB_8,
+	4, // RGBA_8,
+
+	2, // D16,
+	3, // D24,
+	4, // D32,
+	4, // D24S8,
+};
 
 //-----------------------------------------------------------------------------
 const GLenum DEPTH_FUNCTION_TABLE[] = 
@@ -400,23 +416,66 @@ struct Texture
 			GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
 		#endif
 
-		GLenum internal_fmt = TEXTURE_FORMAT_TABLE[format].internal_format;
-		GLenum fmt = TEXTURE_FORMAT_TABLE[format].format;
+		const GLenum internal_fmt = TEXTURE_FORMAT_TABLE[format].internal_format;
+		const GLenum fmt = TEXTURE_FORMAT_TABLE[format].format;
 
-		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, internal_fmt, width, height, 0,
-					 			fmt, GL_UNSIGNED_BYTE, data));
+		if (is_compressed(format))
+		{
+			GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_2D,
+						0,
+						internal_fmt,
+						width, height,
+						0,
+					 	width * height * PIXEL_FORMAT_SIZES[format],
+					 	data));
+		}
+		else
+		{
+			GL_CHECK(glTexImage2D(GL_TEXTURE_2D,
+						0,
+						internal_fmt,
+						width, height,
+						0,
+					 	fmt,
+					 	GL_UNSIGNED_BYTE,
+					 	data));
+		}
+
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 
 		m_target = GL_TEXTURE_2D;
+		m_width = width;
+		m_height = height;
 		m_format = format;
+		m_gl_fmt = fmt;
 	}
 
 	//-----------------------------------------------------------------------------
 	void update(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data)
 	{
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_id));
-		GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA,
-									GL_UNSIGNED_BYTE, data));
+
+		if (is_compressed(m_format))
+		{
+			GL_CHECK(glCompressedTexSubImage2D(GL_TEXTURE_2D,
+				0,
+				x, y,
+				width, height,
+				m_gl_fmt,
+				width * height * PIXEL_FORMAT_SIZES[m_format],
+				data));
+		}
+		else
+		{
+			GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D,
+				0,
+				x, y,
+				width, height,
+				GL_RGBA,
+				GL_UNSIGNED_BYTE,
+				data));
+		}
+
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 	}
 
@@ -454,11 +513,12 @@ struct Texture
 
 public:
 
-	GLuint				m_id;
-	GLenum				m_target;      // Always GL_TEXTURE_2D
-	uint32_t			m_width;
-	uint32_t			m_height;
-	PixelFormat::Enum	m_format;
+	GLuint m_id;
+	GLenum m_target;      // Always GL_TEXTURE_2D
+	uint32_t m_width;
+	uint32_t m_height;
+	PixelFormat::Enum m_format;
+	GLenum m_gl_fmt;
 };
 
 //-----------------------------------------------------------------------------
@@ -668,8 +728,8 @@ struct RenderTarget
 		const bool no_texture = (flags & RENDER_TARGET_NO_TEXTURE) >> RENDER_TARGET_SHIFT;
 		const TextureFormatInfo& tif = TEXTURE_FORMAT_TABLE[format];
 
-		const GLenum attachment = is_depth(tif.internal_format) ? GL_DEPTH_ATTACHMENT :
-									is_color(tif.internal_format) ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_STENCIL_ATTACHMENT;
+		const GLenum attachment = is_depth(format) ? GL_DEPTH_ATTACHMENT :
+									is_color(format) ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_STENCIL_ATTACHMENT;
 
 		if (!no_texture)
 		{

@@ -131,8 +131,13 @@ struct PixelFormat
 {
 	enum Enum
 	{
-		RGB_8 = 0,
+		DXT1,
+		DXT3,
+		DXT5,
+
+		RGB_8,
 		RGBA_8,
+
 		D16,
 		D24,
 		D32,
