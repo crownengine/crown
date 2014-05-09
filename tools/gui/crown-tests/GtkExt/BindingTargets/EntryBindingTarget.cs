@@ -30,7 +30,7 @@ namespace crown_tests.GtkExt
 
 		public void Update(Binding binding, object newValue)
 		{
-			mEntry.Text = newValue as String;
+			mEntry.Text = newValue == null ? String.Empty : newValue.ToString();
 		}
 
 		#endregion

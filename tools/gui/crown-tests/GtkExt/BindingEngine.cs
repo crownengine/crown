@@ -24,9 +24,16 @@ namespace crown_tests.GtkExt
 
 		public static ViewModelBase GetViewModel(Gtk.Widget widget)
 		{
-			ViewModelBase viewModel = null;
-			mViewModels.TryGetValue(widget, out viewModel);
-			return viewModel;
+			var currWidget = widget;
+			while (currWidget != null) {
+				ViewModelBase viewModel = null;
+				if (mViewModels.TryGetValue(currWidget, out viewModel))
+					return viewModel;
+
+				currWidget = currWidget.Parent;
+			}
+
+			return null;
 		}
 
 		public static Binding GetOrCreateBinding(Gtk.Widget widget, Object source, IBindingTarget target, BindingInfo info) 
@@ -80,6 +87,9 @@ namespace crown_tests.GtkExt
 		}
 
 		public Object GetSourceValue() {
+			if (mSource == null)
+				return null;
+
 			var propInfo = mSource.GetType().GetProperty(Info.Path);
 			if (propInfo == null)
 				return null;

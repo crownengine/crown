@@ -16,7 +16,12 @@ namespace crown_tests
 		{
 			this.Build();
 
+			//Set the ViewModels for each widget
 			var crownTestsViewModel = new CrownTestsViewModel();
+			BindingEngine.SetViewModel(this, crownTestsViewModel);
+			//txtTestFolder and txtCrownTestsExe automatically inherit the view model of the MainWindow because it has not been not specified
+
+			//Create and Apply templates for each widget
 			Templating.ApplyTemplate(twTests,
 				new TreeViewTemplate()
 					.AddColumn("Name", new Gtk.CellRendererText())
@@ -27,11 +32,9 @@ namespace crown_tests
 																						 .SetBinding("Name", "Name")
 																						 .SetBinding("State", "LastResult")));
 
-			BindingEngine.SetViewModel(txtTestFolder, crownTestsViewModel);
 			Templating.ApplyTemplate(txtTestFolder,
 				new EntryTemplate().SetTextBinding("TestFolder"));
 
-			BindingEngine.SetViewModel(txtCrownTestsExe, crownTestsViewModel);
 			Templating.ApplyTemplate(txtCrownTestsExe,
 				new EntryTemplate().SetTextBinding("CrownTestsExe"));
 
@@ -61,6 +64,10 @@ namespace crown_tests
 		private void LoadTestsData()
 		{
 			var testsJsonFullfileName = System.IO.Path.Combine(txtTestFolder.Text, "tests.json");
+			if (!System.IO.File.Exists(testsJsonFullfileName)) {
+				Console.WriteLine("Could not find test data: " + testsJsonFullfileName);
+				return;
+			}
 			mContainer = JsonConvert.DeserializeObject<TestContainer>(System.IO.File.ReadAllText(testsJsonFullfileName));
 
 			RefreshData();
