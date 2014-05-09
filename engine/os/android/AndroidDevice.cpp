@@ -101,7 +101,7 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	void loop()
+	int32_t loop()
 	{
 		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
 			m_console = CE_NEW(default_allocator(), ConsoleServer)();
@@ -132,6 +132,9 @@ public:
 			m_console->shutdown();
 			CE_DELETE(default_allocator(), m_console);
 		#endif
+
+		exit(EXIT_SUCCESS);
+		return 0;
 	}
 
 	//-----------------------------------------------------------------------------
