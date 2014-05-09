@@ -61,9 +61,9 @@ public:
 
 	virtual ~SoundWorld() {};
 
-	/// Plays the sound @a name at the given @a volume [0 .. 1].
+	/// Plays the sound @a sr at the given @a volume [0 .. 1].
 	/// If loop is true the sound will be played looping.
-	virtual SoundInstanceId play(const char* name, bool loop, float volume, const Vector3& pos) = 0;
+	virtual SoundInstanceId play(SoundResource* sr, bool loop, float volume, const Vector3& pos) = 0;
 
 	/// Stops the sound with the given @a id.
 	/// After this call, the instance will be destroyed.

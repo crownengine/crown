@@ -33,11 +33,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Matrix4x4.h"
 #include "Resource.h"
-#include "Device.h"
-#include "ResourceManager.h"
 #include "SoundResource.h"
 #include "ContainerTypes.h"
 #include "TempAllocator.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -234,12 +233,7 @@ public:
 	{
 	}
 
-	virtual SoundInstanceId play(const char* name, bool loop, float volume, const Vector3& pos)
-	{
-		return play((SoundResource*) device()->resource_manager()->get(SOUND_EXTENSION, name), loop, volume, pos);
-	}
-
-	SoundInstanceId play(SoundResource* sr, bool loop, float volume, const Vector3& pos)
+	virtual SoundInstanceId play(SoundResource* sr, bool loop, float volume, const Vector3& pos)
 	{
 		SoundInstance instance;
 		instance.create(sr, pos);

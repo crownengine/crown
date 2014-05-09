@@ -33,8 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Matrix4x4.h"
 #include "Resource.h"
-#include "Device.h"
-#include "ResourceManager.h"
 #include "SoundResource.h"
 #include "ContainerTypes.h"
 #include "TempAllocator.h"
@@ -376,12 +374,7 @@ public:
 		sles_sound_world::shutdown();
 	}
 
-	virtual SoundInstanceId play(const char* name, bool loop, float volume, const Vector3& /*pos*/)
-	{
-		return play((SoundResource*) device()->resource_manager()->get(SOUND_EXTENSION, name), loop, volume);
-	}
-
-	SoundInstanceId play(SoundResource* sr, bool loop, float volume)
+	virtual SoundInstanceId play(SoundResource* sr, bool loop, float volume, const Vector3& /*pos*/)
 	{
 		SoundInstance dummy;
 		SoundInstanceId id = id_array::create(m_playing_sounds, dummy);
