@@ -42,6 +42,8 @@ struct LevelHeader
 {
 	uint32_t num_units;
 	uint32_t units_offset;
+	uint32_t num_sounds;
+	uint32_t sounds_offset;
 };
 
 struct LevelUnit
@@ -49,6 +51,15 @@ struct LevelUnit
 	ResourceId name;
 	Vector3 position;
 	Quaternion rotation;
+};
+
+struct LevelSound
+{
+	ResourceId name;
+	Vector3 position;
+	float volume;
+	float range;
+	bool loop;
 };
 
 struct LevelResource
@@ -97,6 +108,22 @@ struct LevelResource
 
 		const LevelHeader* h = (LevelHeader*) this;
 		const LevelUnit* begin = (LevelUnit*) (((char*) this) + h->units_offset);
+		return &begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_sounds() const
+	{
+		return ((LevelHeader*) this)->num_sounds;
+	}
+
+	//-----------------------------------------------------------------------------
+	const LevelSound* get_sound(uint32_t i) const
+	{
+		CE_ASSERT(i < num_sounds(), "Index out of bounds");
+
+		const LevelHeader* h = (LevelHeader*) this;
+		const LevelSound* begin = (LevelSound*) (((char*) this) + h->sounds_offset);
 		return &begin[i];
 	}
 };

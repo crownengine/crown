@@ -202,7 +202,21 @@ void World::destroy_camera(CameraId id)
 //-----------------------------------------------------------------------------
 SoundInstanceId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
-	return m_sound_world->play(name, loop, volume, pos);
+	ResourceId id(SOUND_EXTENSION, name);
+	return play_sound(id, loop, volume, pos, range);
+}
+
+//-----------------------------------------------------------------------------
+SoundInstanceId World::play_sound(ResourceId id, const bool loop, const float volume, const Vector3& pos, const float range)
+{
+	SoundResource* sr = (SoundResource*) device()->resource_manager()->get(id);
+	return play_sound(sr, loop, volume, pos, range);
+}
+
+//-----------------------------------------------------------------------------
+SoundInstanceId World::play_sound(SoundResource* sr, const bool loop, const float volume, const Vector3& pos, const float range)
+{
+	return m_sound_world->play(sr, loop, volume, pos);
 }
 
 //-----------------------------------------------------------------------------
@@ -279,6 +293,12 @@ void World::load_level(const char* name)
 	{
 		const LevelUnit* lu = res->get_unit(i);
 		spawn_unit(lu->name, lu->position, lu->rotation);
+	}
+
+	for (uint32_t i = 0; i < res->num_sounds(); i++)
+	{
+		const LevelSound* ls = res->get_sound(i);
+		play_sound(ls->name, ls->loop, ls->volume, ls->position, ls->range);
 	}
 }
 

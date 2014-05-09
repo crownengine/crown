@@ -104,6 +104,8 @@ public:
 	/// Plays the sound with the given @æ name at the given @a position, with the given
 	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
 	SoundInstanceId play_sound(const char* name, bool loop = false, float volume = 1.0f, const Vector3& position = vector3::ZERO, float range = 50.0f);
+	SoundInstanceId play_sound(ResourceId id, const bool loop, const float volume, const Vector3& pos, const float range);
+	SoundInstanceId play_sound(SoundResource* sr, const bool loop, const float volume, const Vector3& pos, const float range);
 
 	/// Stops the sound with the given @a id.
 	void stop_sound(SoundInstanceId id);

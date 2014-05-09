@@ -35,6 +35,7 @@ namespace crown
 namespace level_resource
 {
 
+//-----------------------------------------------------------------------------
 void parse_units(JSONElement root, Array<LevelUnit>& units)
 {
 	JSONElement units_arr = root.key("units");
@@ -59,6 +60,32 @@ void parse_units(JSONElement root, Array<LevelUnit>& units)
 }
 
 //-----------------------------------------------------------------------------
+void parse_sounds(JSONElement root, Array<LevelSound>& sounds)
+{
+	JSONElement sounds_arr = root.key("sounds");
+	const uint32_t size = sounds_arr.size();
+
+	for (uint32_t i = 0; i < size; i++)
+	{
+		JSONElement e = sounds_arr[i];
+
+		LevelSound ls;
+
+		DynamicString name;
+		e.key("name").to_string(name);
+		name += ".sound";
+
+		ls.name = ResourceId(name.c_str());
+		ls.position = e.key("position").to_vector3();
+		ls.volume = e.key("volume").to_float();
+		ls.range = e.key("range").to_float();
+		ls.loop = e.key("loop").to_bool();
+
+		array::push_back(sounds, ls);
+	}
+}
+
+//-----------------------------------------------------------------------------
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
@@ -69,22 +96,31 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONElement root = json.root();
 
 	Array<LevelUnit> units(default_allocator());
+	Array<LevelSound> sounds(default_allocator());
 
 	parse_units(root, units);
+	parse_sounds(root, sounds);
 
 	fs.close(file);
 	default_allocator().deallocate(buf);
 
 	LevelHeader lh;
 	lh.num_units = array::size(units);
+	lh.num_sounds = array::size(sounds);
+
 	uint32_t offt = sizeof(LevelHeader);
-	lh.units_offset = offt;
+	lh.units_offset = offt; offt += sizeof(LevelUnit) * lh.num_units;
+	lh.sounds_offset = offt;
 
 	out_file->write((char*) &lh, sizeof(LevelHeader));
 
 	if (lh.num_units)
 	{
 		out_file->write((char*) array::begin(units), sizeof(LevelUnit) * lh.num_units);
+	}
+	if (lh.num_sounds)
+	{
+		out_file->write((char*) array::begin(sounds), sizeof(LevelSound) * lh.num_sounds);
 	}
 }
 
