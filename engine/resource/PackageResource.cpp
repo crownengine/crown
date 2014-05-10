@@ -39,6 +39,19 @@ namespace package_resource
 {
 
 //-----------------------------------------------------------------------------
+void parse_resources(JSONElement arr, const char* type, Array<ResourceId>& out)
+{
+	const uint32_t num = arr.size();
+
+	for (uint32_t i = 0; i < num; i++)
+	{
+		DynamicString name;
+		arr[i].to_string(name);
+		array::push_back(out, ResourceId(type, name.c_str()));
+	}
+}
+
+//-----------------------------------------------------------------------------
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
@@ -50,261 +63,63 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONParser json(file_buf);
 	JSONElement root = json.root();
 
-	Array<ResourceId> m_texture(default_allocator());
-	Array<ResourceId> m_script(default_allocator());
-	Array<ResourceId> m_sound(default_allocator());
-	Array<ResourceId> m_mesh(default_allocator());
-	Array<ResourceId> m_unit(default_allocator());
-	Array<ResourceId> m_sprite(default_allocator());
-	Array<ResourceId> m_physics(default_allocator());
-	Array<ResourceId> m_materials(default_allocator());
-	Array<ResourceId> m_guis(default_allocator());
-	Array<ResourceId> m_fonts(default_allocator());
-	Array<ResourceId> m_levels(default_allocator());
+	Array<ResourceId> textures(default_allocator());
+	Array<ResourceId> scripts(default_allocator());
+	Array<ResourceId> sounds(default_allocator());
+	Array<ResourceId> meshes(default_allocator());
+	Array<ResourceId> units(default_allocator());
+	Array<ResourceId> sprites(default_allocator());
+	Array<ResourceId> physics(default_allocator());
+	Array<ResourceId> materials(default_allocator());
+	Array<ResourceId> guis(default_allocator());
+	Array<ResourceId> fonts(default_allocator());
+	Array<ResourceId> levels(default_allocator());
 
-	// Check for resource types
 	if (root.has_key("texture"))
-	{
-		JSONElement texture_array = root.key("texture");
-		uint32_t texture_array_size = texture_array.size();
+		parse_resources(root.key("texture"), "texture", textures);
 
-		for (uint32_t i = 0; i < texture_array_size; i++)
-		{
-			DynamicString texture_name;
-			texture_array[i].to_string(texture_name); texture_name += ".texture";
-
-			if (!fs.is_file(texture_name.c_str()))
-			{
-				CE_LOGE("Texture '%s' does not exist.", texture_name.c_str());
-				return;
-			}
-
-			array::push_back(m_texture, ResourceId(texture_name.c_str()));
-		}
-	}
-
-	// Check for scripts
 	if (root.has_key("lua"))
-	{
-		JSONElement lua_array = root.key("lua");
-		//lua_array = root.key("lua");
-		uint32_t lua_array_size = lua_array.size();
+		parse_resources(root.key("lua"), "lua", scripts);
 
-		for (uint32_t i = 0; i < lua_array_size; i++)
-		{
-			DynamicString lua_name;
-			lua_array[i].to_string(lua_name); lua_name += ".lua";
-
-			if (!fs.is_file(lua_name.c_str()))
-			{
-				CE_LOGE("Lua script '%s' does not exist.", lua_name.c_str());
-				return;
-			}
-
-			array::push_back(m_script, ResourceId(lua_name.c_str()));
-		}
-	}
-
-	// Check for sounds
 	if (root.has_key("sound"))
-	{
-		JSONElement sound_array = root.key("sound");
-		uint32_t sound_array_size = sound_array.size();
+		parse_resources(root.key("sound"), "sound", sounds);
 
-		for (uint32_t i = 0; i < sound_array_size; i++)
-		{
-			DynamicString sound_name;
-			sound_array[i].to_string(sound_name); sound_name += ".sound";
-
-			if (!fs.is_file(sound_name.c_str()))
-			{
-				CE_LOGE("Sound '%s' does not exist.", sound_name.c_str());
-				return;
-			}
-
-			array::push_back(m_sound, ResourceId(sound_name.c_str()));
-		}
-	}
-
-	// Check for meshes
 	if (root.has_key("mesh"))
-	{
-		JSONElement mesh_array = root.key("mesh");
-		uint32_t mesh_array_size = mesh_array.size();
+		parse_resources(root.key("mesh"), "mesh", meshes);
 
-		for (uint32_t i = 0; i < mesh_array_size; i++)
-		{
-			DynamicString mesh_name;
-			mesh_array[i].to_string(mesh_name); mesh_name += ".mesh";
-
-			if (!fs.is_file(mesh_name.c_str()))
-			{
-				CE_LOGE("Mesh '%s' does not exist.", mesh_name.c_str());
-				return;
-			}
-
-			array::push_back(m_mesh, ResourceId(mesh_name.c_str()));
-		}
-	}
-
-	// Check for units
 	if (root.has_key("unit"))
-	{
-		JSONElement unit_array = root.key("unit");
-		uint32_t unit_array_size = unit_array.size();
+		parse_resources(root.key("unit"), "unit", units);
 
-		for (uint32_t i = 0; i < unit_array_size; i++)
-		{
-			DynamicString unit_name;
-			unit_array[i].to_string(unit_name); unit_name += ".unit";
-
-			if (!fs.is_file(unit_name.c_str()))
-			{
-				CE_LOGE("Unit '%s' does not exist.", unit_name.c_str());
-			}
-
-			array::push_back(m_unit, ResourceId(unit_name.c_str()));
-		}
-	}
-
-	// Check for meshes
 	if (root.has_key("sprite"))
-	{
-		JSONElement sprite_array = root.key("sprite");
-		uint32_t sprite_array_size = sprite_array.size();
+		parse_resources(root.key("sprite"), "sprite", sprites);
 
-		for (uint32_t i = 0; i < sprite_array_size; i++)
-		{
-			DynamicString sprite_name;
-			sprite_array[i].to_string(sprite_name); sprite_name += ".sprite";
-
-			if (!fs.is_file(sprite_name.c_str()))
-			{
-				CE_LOGE("Sprite '%s' does not exist.", sprite_name.c_str());
-				return;
-			}
-
-			array::push_back(m_sprite, ResourceId(sprite_name.c_str()));
-		}
-	}
-
-	// Check for physics
 	if (root.has_key("physics"))
-	{
-		JSONElement physics_array = root.key("physics");
-		uint32_t physics_array_size = physics_array.size();
+		parse_resources(root.key("physics"), "physics", physics);
 
-		for (uint32_t i = 0; i < physics_array_size; i++)
-		{
-			DynamicString physics_name;
-			physics_array[i].to_string(physics_name); physics_name += ".physics";
-
-			if (!fs.is_file(physics_name.c_str()))
-			{
-				CE_LOGE("Physics '%s' does not exist.", physics_name.c_str());
-				return;
-			}
-
-			array::push_back(m_physics, ResourceId(physics_name.c_str()));
-		}
-	}
-
-	// Check for materials
 	if (root.has_key("material"))
-	{
-		JSONElement materials_array = root.key("material");
-		uint32_t materials_array_size = materials_array.size();
+		parse_resources(root.key("material"), "material", materials);
 
-		for (uint32_t i = 0; i < materials_array_size; i++)
-		{
-			DynamicString materials_name;
-			materials_array[i].to_string(materials_name); materials_name += ".material";
-
-			if (!fs.is_file(materials_name.c_str()))
-			{
-				CE_LOGE("Material '%s' does not exist.", materials_name.c_str());
-				return;
-			}
-
-			array::push_back(m_materials, ResourceId(materials_name.c_str()));
-		}
-	}
-
-	// Check for materials
 	if (root.has_key("gui"))
-	{
-		JSONElement guis_array = root.key("gui");
-		uint32_t guis_array_size = guis_array.size();
+		parse_resources(root.key("gui"), "gui", guis);
 
-		for (uint32_t i = 0; i < guis_array_size; i++)
-		{
-			DynamicString guis_name;
-			guis_array[i].to_string(guis_name); guis_name += ".gui";
-
-			if (!fs.is_file(guis_name.c_str()))
-			{
-				CE_LOGE("gui '%s' does not exist.", guis_name.c_str());
-				return;
-			}
-
-			array::push_back(m_guis, ResourceId(guis_name.c_str()));
-		}
-	}
-
-	// Check for fonts
 	if (root.has_key("font"))
-	{
-		JSONElement fonts_array = root.key("font");
-		uint32_t fonts_array_size = fonts_array.size();
+		parse_resources(root.key("font"), "font", fonts);
 
-		for (uint32_t i = 0; i < fonts_array_size; i++)
-		{
-			DynamicString font_name;
-			fonts_array[i].to_string(font_name); font_name += ".font";
-
-			if (!fs.is_file(font_name.c_str()))
-			{
-				CE_LOGE("font '%s' does not exist.", font_name.c_str());
-				return;				
-			}
-
-			array::push_back(m_fonts, ResourceId(font_name.c_str()));
-		}
-	}
-
-	// Check for fonts
 	if (root.has_key("level"))
-	{
-		JSONElement levels_array = root.key("level");
-		uint32_t levels_array_size = levels_array.size();
-
-		for (uint32_t i = 0; i < levels_array_size; i++)
-		{
-			DynamicString level_name;
-			levels_array[i].to_string(level_name); level_name += ".level";
-
-			if (!fs.is_file(level_name.c_str()))
-			{
-				CE_LOGE("level '%s' does not exist.", level_name.c_str());
-				return;				
-			}
-
-			array::push_back(m_levels, ResourceId(level_name.c_str()));
-		}
-	}
+		parse_resources(root.key("level"), "level", levels);
 
 	PackageHeader header;
-	header.num_textures = array::size(m_texture);
-	header.num_scripts = array::size(m_script);
-	header.num_sounds = array::size(m_sound);
-	header.num_meshes = array::size(m_mesh);
-	header.num_units = array::size(m_unit);
-	header.num_sprites = array::size(m_sprite);
-	header.num_physics = array::size(m_physics);
-	header.num_materials = array::size(m_materials);
-	header.num_guis = array::size(m_guis);
-	header.num_fonts = array::size(m_fonts);
-	header.num_levels = array::size(m_levels);
+	header.num_textures = array::size(textures);
+	header.num_scripts = array::size(scripts);
+	header.num_sounds = array::size(sounds);
+	header.num_meshes = array::size(meshes);
+	header.num_units = array::size(units);
+	header.num_sprites = array::size(sprites);
+	header.num_physics = array::size(physics);
+	header.num_materials = array::size(materials);
+	header.num_guis = array::size(guis);
+	header.num_fonts = array::size(fonts);
+	header.num_levels = array::size(levels);
 
 	header.textures_offset = sizeof(PackageHeader);
 	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
@@ -320,49 +135,49 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	out_file->write((char*) &header, sizeof(PackageHeader));
 
-	if (array::size(m_texture) > 0)
+	if (array::size(textures) > 0)
 	{
-		out_file->write((char*) array::begin(m_texture), sizeof(ResourceId) * header.num_textures);		
+		out_file->write((char*) array::begin(textures), sizeof(ResourceId) * header.num_textures);		
 	}
-	if (array::size(m_script) > 0)
+	if (array::size(scripts) > 0)
 	{
-		out_file->write((char*) array::begin(m_script), sizeof(ResourceId) * header.num_scripts);
+		out_file->write((char*) array::begin(scripts), sizeof(ResourceId) * header.num_scripts);
 	}
-	if (array::size(m_sound) > 0)
+	if (array::size(sounds) > 0)
 	{
-		out_file->write((char*) array::begin(m_sound), sizeof(ResourceId) * header.num_sounds);
+		out_file->write((char*) array::begin(sounds), sizeof(ResourceId) * header.num_sounds);
 	}
-	if (array::size(m_mesh) > 0)
+	if (array::size(meshes) > 0)
 	{
-		out_file->write((char*) array::begin(m_mesh), sizeof(ResourceId) * header.num_meshes);
+		out_file->write((char*) array::begin(meshes), sizeof(ResourceId) * header.num_meshes);
 	}
-	if (array::size(m_unit) > 0)
+	if (array::size(units) > 0)
 	{
-		out_file->write((char*) array::begin(m_unit), sizeof(ResourceId) * header.num_units);	
+		out_file->write((char*) array::begin(units), sizeof(ResourceId) * header.num_units);	
 	}
-	if (array::size(m_sprite) > 0)
+	if (array::size(sprites) > 0)
 	{
-		out_file->write((char*) array::begin(m_sprite), sizeof(ResourceId) * header.num_sprites);
+		out_file->write((char*) array::begin(sprites), sizeof(ResourceId) * header.num_sprites);
 	}
-	if (array::size(m_physics) > 0)
+	if (array::size(physics) > 0)
 	{
-		out_file->write((char*) array::begin(m_physics), sizeof(ResourceId) * header.num_physics);
+		out_file->write((char*) array::begin(physics), sizeof(ResourceId) * header.num_physics);
 	}
-	if (array::size(m_materials) > 0)
+	if (array::size(materials) > 0)
 	{
-		out_file->write((char*) array::begin(m_materials), sizeof(ResourceId) * header.num_materials);
+		out_file->write((char*) array::begin(materials), sizeof(ResourceId) * header.num_materials);
 	}
-	if (array::size(m_guis) > 0)
+	if (array::size(guis) > 0)
 	{
-		out_file->write((char*) array::begin(m_guis), sizeof(ResourceId) * header.num_guis);
+		out_file->write((char*) array::begin(guis), sizeof(ResourceId) * header.num_guis);
 	}
-	if (array::size(m_fonts) > 0)
+	if (array::size(fonts) > 0)
 	{
-		out_file->write((char*) array::begin(m_fonts), sizeof(ResourceId) * header.num_fonts);
+		out_file->write((char*) array::begin(fonts), sizeof(ResourceId) * header.num_fonts);
 	}
-	if (array::size(m_levels) > 0)
+	if (array::size(levels) > 0)
 	{
-		out_file->write((char*) array::begin(m_levels), sizeof(ResourceId) * header.num_levels);
+		out_file->write((char*) array::begin(levels), sizeof(ResourceId) * header.num_levels);
 	}
 }
 
