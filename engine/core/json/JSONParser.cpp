@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Map.h"
 #include "Vector3.h"
 #include "Quaternion.h"
+#include "File.h"
 
 namespace crown
 {
@@ -420,9 +421,30 @@ uint32_t JSONElement::size() const
 
 //--------------------------------------------------------------------------
 JSONParser::JSONParser(const char* s)
-	: m_document(s)
+	: m_file(false)
+	, m_document(s)
 {
 	CE_ASSERT_NOT_NULL(s);
+}
+
+//--------------------------------------------------------------------------
+JSONParser::JSONParser(File& f)
+	: m_file(true)
+	, m_document(NULL)
+{
+	const size_t size = f.size();
+	char* doc = (char*) default_allocator().allocate(size);
+	f.read(doc, size);
+	m_document = doc;
+}
+
+//--------------------------------------------------------------------------
+JSONParser::~JSONParser()
+{
+	if (m_file)
+	{
+		default_allocator().deallocate((void*) m_document);
+	}
 }
 
 //--------------------------------------------------------------------------

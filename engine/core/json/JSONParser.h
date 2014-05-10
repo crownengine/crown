@@ -36,6 +36,7 @@ namespace crown
 
 class JSONParser;
 class DynamicString;
+class File;
 
 /// Represents a JSON element.
 /// The objects of this class are valid until the parser
@@ -49,53 +50,53 @@ public:
 	/// Construct the nil JSONElement.
 	/// Used to forward-instantiate elements or as a special
 	/// nil element.
-						JSONElement();
-	explicit			JSONElement(const char* at);
-						JSONElement(const JSONElement& other);
+	JSONElement();
+	explicit JSONElement(const char* at);
+	JSONElement(const JSONElement& other);
 
-	JSONElement&		operator=(const JSONElement& other);
+	JSONElement& operator=(const JSONElement& other);
 
 	/// Returns the @a i -th item of the current array.
-	JSONElement			operator[](uint32_t i);
+	JSONElement operator[](uint32_t i);
 
 	/// @copydoc JSONElement::operator[]
-	JSONElement			index(uint32_t i);
+	JSONElement index(uint32_t i);
 
 	/// Returns the @a i -th item of the current array or
 	/// the special nil JSONElement() if the index does not exist.
-	JSONElement			index_or_nil(uint32_t i);
+	JSONElement index_or_nil(uint32_t i);
 
 	/// Returns the element corresponding to key @a k of the
 	/// current object.
 	/// @note
 	/// If the key is not unique in the object scope, the last
 	/// key in order of appearance will be selected.
-	JSONElement			key(const char* k);
+	JSONElement key(const char* k);
 
 	/// Returns the element corresponding to key @a k of the current
 	/// object, or the special nil JSONElement() if the key does not exist.
-	JSONElement			key_or_nil(const char* k);
+	JSONElement key_or_nil(const char* k);
 
 	/// Returns whether the element has the @a k key.
-	bool				has_key(const char* k) const;
+	bool has_key(const char* k) const;
 
 	/// Returns true wheter the element is the JSON nil special value.
-	bool				is_nil() const;
+	bool is_nil() const;
 
 	/// Returns true wheter the element is a JSON boolean (true or false).
-	bool				is_bool() const;
+	bool is_bool() const;
 
 	/// Returns true wheter the element is a JSON number.
-	bool				is_number() const;
+	bool is_number() const;
 
 	/// Returns true whether the element is a JSON string.
-	bool				is_string() const;
+	bool is_string() const;
 
 	/// Returns true whether the element is a JSON array.
-	bool				is_array() const;
+	bool is_array() const;
 
 	/// Returns true whether the element is a JSON object.
-	bool				is_object() const;
+	bool is_object() const;
 
 	/// Returns the size of the element based on the
 	/// element's type:
@@ -103,30 +104,30 @@ public:
 	/// * string: length of the string
 	/// * array: number of elements in the array
 	/// * object: number of keys in the object
-	uint32_t			size() const;
+	uint32_t size() const;
 
 	/// Returns the boolean value of the element.
-	bool				to_bool() const;
+	bool to_bool() const;
 
 	/// Returns the integer value of the element.
-	int32_t				to_int() const;
+	int32_t to_int() const;
 
 	/// Returns the float value of the element.
-	float				to_float() const;
+	float to_float() const;
 
 	/// Returns the string value of the element.
-	void				to_string(DynamicString& str) const;
+	void to_string(DynamicString& str) const;
 
 	/// Rerutns the Vector3 value of the element.
 	/// @note Vector3 = [x, y, z]
-	Vector3				to_vector3() const;
+	Vector3 to_vector3() const;
 
 	/// Returns the Quaternion value of the element.
 	/// @note Quaternion = [x, y, z, w]
-	Quaternion			to_quaternion() const;
+	Quaternion to_quaternion() const;
 
 	/// Returns the string id value hashed to string::murmur2_32() of the element.
-	StringId32			to_string_id() const;
+	StringId32 to_string_id() const;
 
 	/// Returns the array value of the element.
 	/// @note
@@ -134,34 +135,34 @@ public:
 	/// array elements by JSONElement::operator[] and it is the very preferred way
 	/// for retrieving array elemets. However, you have to be sure that the array
 	/// contains only items of the given @array type.
-	void				to_array(Array<bool>& array) const;
+	void to_array(Array<bool>& array) const;
 
 	/// @copydoc JSONElement::to_array(Array<bool>&)
-	void				to_array(Array<int16_t>& array) const;
+	void to_array(Array<int16_t>& array) const;
 
 	/// @copydoc JSONElement::to_array(Array<bool>&)
-	void				to_array(Array<uint16_t>& array) const;
+	void to_array(Array<uint16_t>& array) const;
 
 	/// @copydoc JSONElement::to_array(Array<bool>&)
-	void				to_array(Array<int32_t>& array) const;
+	void to_array(Array<int32_t>& array) const;
 
 	/// @copydoc JSONElement::to_array(Array<bool>&)
-	void				to_array(Array<uint32_t>& array) const;
+	void to_array(Array<uint32_t>& array) const;
 
 	/// @copydoc JSONElement::to_array(Array<bool>&)
-	void				to_array(Array<float>& array) const;
+	void to_array(Array<float>& array) const;
 
 	/// @copydoc JSONElement::to_array(Array<bool>&)
-	void				to_array(Vector<DynamicString>& array) const;
+	void to_array(Vector<DynamicString>& array) const;
 
 	/// Returns all the keys of the element.
-	void				to_keys(Vector<DynamicString>& keys) const;
+	void to_keys(Vector<DynamicString>& keys) const;
 
 private:
 
-	const char*			m_at;
+	const char* m_at;
 
-	friend class 		JSONParser;
+	friend class JSONParser;
 };
 
 /// Parses JSON documents.
@@ -171,24 +172,30 @@ class CE_EXPORT JSONParser
 {
 public:
 
-	/// Read the JSON document contained in the non-null @a s string.
+	/// Reads the JSON document contained in the non-null @a s string.
 	/// @note
 	/// The @a s string has to remain valid for the whole parser's
 	/// existence scope.
-						JSONParser(const char* s);
+	JSONParser(const char* s);
+
+	/// Reads the JSON document from file @a f.
+	JSONParser(File& f);
+
+	~JSONParser();
 
 	/// Returns the root element of the JSON document.
-	JSONElement			root();
+	JSONElement root();
 
 private:
 
-	const char* const	m_document;
+	bool m_file;
+	const char* m_document;
 
 private:
 
 	// Disable copying
-						JSONParser(const JSONParser&);
-	JSONParser&			operator=(const JSONParser&);
+	JSONParser(const JSONParser&);
+	JSONParser& operator=(const JSONParser&);
 };
 
 } // namespace crown
