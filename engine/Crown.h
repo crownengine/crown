@@ -76,14 +76,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "PoolAllocator.h"
 
 // Core/Filesystem
-#include "File.h"
 #include "DiskFile.h"
-#include "NullFile.h"
-#include "BinaryReader.h"
-#include "BinaryWriter.h"
-#include "TextReader.h"
-#include "TextWriter.h"
+#include "File.h"
 #include "Filesystem.h"
+#include "NullFile.h"
+#include "ReaderWriter.h"
 
 // Core/Json
 #include "JSON.h"

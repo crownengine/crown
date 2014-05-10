@@ -98,8 +98,6 @@ set (FILESYSTEM_SRC
 )
 
 set (FILESYSTEM_HEADERS
-	core/filesystem/BinaryReader.h
-	core/filesystem/BinaryWriter.h
 	core/filesystem/DiskFile.h
 	core/filesystem/DiskFilesystem.h
 	core/filesystem/File.h
@@ -108,8 +106,7 @@ set (FILESYSTEM_HEADERS
 	core/filesystem/NetworkFile.h
 	core/filesystem/NetworkFilesystem.h
 	core/filesystem/NullFile.h
-	core/filesystem/TextReader.h
-	core/filesystem/TextWriter.h
+	core/filesystem/ReaderWriter.h
 )
 
 set (JSON_SRC

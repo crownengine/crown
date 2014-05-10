@@ -42,59 +42,58 @@ class NetworkFile: public File
 public:
 
 	/// Reads the file named @a filename from the given @a socket.
-					NetworkFile(const NetAddress& addr, uint16_t port, const char* filename);
-	virtual			~NetworkFile();
+	NetworkFile(const NetAddress& addr, uint16_t port, const char* filename);
+	virtual ~NetworkFile();
 
 	/// @copydoc File::seek() 
-	void			seek(size_t position);
+	void seek(size_t position);
 
 	/// @copydoc File::seek_to_end() 
-	void			seek_to_end();
+	void seek_to_end();
 
 	/// @copydoc File::skip() 
-	void			skip(size_t bytes);
+	void skip(size_t bytes);
 
 	/// @copydoc File::read() 
-	void			read(void* buffer, size_t size);
+	void read(void* buffer, size_t size);
 
 	/// @copydoc File::write() 
-	void			write(const void* buffer, size_t size);
+	void write(const void* buffer, size_t size);
 
 	/// @copydoc File::copy_to() 
-	bool			copy_to(File& file, size_t size = 0);
+	bool copy_to(File& file, size_t size = 0);
 
 	/// @copydoc File::flush() 
-	void			flush();
+	void flush();
 
 	/// @copydoc File::end_of_file() 
-	bool			end_of_file();
+	bool end_of_file();
 
 	/// @copydoc File::is_valid() 
-	bool			is_valid();
+	bool is_valid();
 
 	/// @copydoc File::size() 
-	size_t			size();
+	size_t size();
 
 	/// @copydoc File::position() 
-	size_t			position();
+	size_t position();
 
 	/// @copydoc File::can_read() 
-	bool			can_read() const;
+	bool can_read() const;
 
 	/// @copydoc File::can_write() 
-	bool			can_write() const;
+	bool can_write() const;
 
 	/// @copydoc File::can_seek() 
-	bool			can_seek() const;
+	bool can_seek() const;
 
 private:
 
-	char			m_filename[MAX_PATH_LENGTH];
-	NetAddress		m_address;
-	uint16_t		m_port;
-	TCPSocket		m_socket;
-	size_t			m_position;
+	char m_filename[MAX_PATH_LENGTH];
+	NetAddress m_address;
+	uint16_t m_port;
+	TCPSocket m_socket;
+	size_t m_position;
 };
 
 } // namespace crown
-

@@ -53,32 +53,32 @@ class File
 public:
 
 	/// Opens the file with the given @a mode
-						File(FileOpenMode mode) : m_open_mode(mode) {}
-	virtual				~File() {};
+	File(FileOpenMode mode) : m_open_mode(mode) {}
+	virtual ~File() {};
 
 	/// Sets the position indicator of the file to position.
-	virtual void		seek(size_t position) = 0;
+	virtual void seek(size_t position) = 0;
 
 	/// Sets the position indicator to the end of the file
-	virtual void		seek_to_end() = 0;
+	virtual void seek_to_end() = 0;
 
 	/// Sets the position indicator to bytes after current position
-	virtual void		skip(size_t bytes) = 0;
+	virtual void skip(size_t bytes) = 0;
 
 	/// Reads a block of data from the file.
-	virtual void		read(void* buffer, size_t size) = 0;
+	virtual void read(void* buffer, size_t size) = 0;
 
 	/// Writes a block of data to the file.
-	virtual void		write(const void* buffer, size_t size) = 0;
+	virtual void write(const void* buffer, size_t size) = 0;
 
 	/// Copies a chunk of 'size' bytes of data from this to another file.
-	virtual bool		copy_to(File& file, size_t size = 0) = 0;
+	virtual bool copy_to(File& file, size_t size = 0) = 0;
 
 	/// Zips a chunk of 'size' bytes of data from this to another file using compressor.
-	virtual bool		compress_to(File& file, size_t size, size_t& compressed_size, Compressor& compressor);
+	virtual bool compress_to(File& file, size_t size, size_t& compressed_size, Compressor& compressor);
 
 	/// Unzip a zipped file of data from this to another file using compressor.
-	virtual bool		uncompress_to(File& file, size_t& uncompressed_size, Compressor& compressor);
+	virtual bool uncompress_to(File& file, size_t& uncompressed_size, Compressor& compressor);
 
 	/// Forces the previouses write operations to complete.
 	/// Generally, when a File is attached to a file,
@@ -86,38 +86,37 @@ public:
 	/// may be stored to a temporary buffer before making its way to
 	/// the file. This method forces all the pending output operations
 	/// to be written to the file.
-	virtual void		flush() = 0;
+	virtual void flush() = 0;
 
 	/// Returns whether the file is valid.
 	/// A file is valid when the buffer where it operates
 	/// exists. (i.e. a file descriptor is attached to the file, 
 	/// a memory area is attached to the file etc.)
-	virtual bool		is_valid() = 0;
+	virtual bool is_valid() = 0;
 
 	/// Returns whether the position is at end of file.
-	virtual bool		end_of_file() = 0;
+	virtual bool end_of_file() = 0;
 
 	/// Returns the size of file in bytes.
-	virtual size_t		size() = 0;
+	virtual size_t size() = 0;
 
 	/// Returns the current position in file.
 	/// Generally, for binary data, it means the number of bytes
 	/// from the beginning of the file.
-	virtual size_t		position() = 0;
+	virtual size_t position() = 0;
 
 	/// Returns whether the file can be read.
-	virtual bool		can_read() const = 0;
+	virtual bool can_read() const = 0;
 
 	/// Returns whether the file can be wrote.
-	virtual bool		can_write() const = 0;
+	virtual bool can_write() const = 0;
 
 	/// Returns whether the file can be sought.
-	virtual bool		can_seek() const = 0;
+	virtual bool can_seek() const = 0;
 
 protected:
 
-	FileOpenMode		m_open_mode;
+	FileOpenMode m_open_mode;
 };
 
 } // namespace crown
-

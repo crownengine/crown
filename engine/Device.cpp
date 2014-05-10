@@ -45,7 +45,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ResourceManager.h"
 #include "StringSetting.h"
 #include "StringUtils.h"
-#include "TextReader.h"
 #include "Touch.h"
 #include "Types.h"
 #include "Bundle.h"

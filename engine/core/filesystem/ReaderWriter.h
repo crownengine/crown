@@ -24,14 +24,11 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
 #include "Types.h"
+#include "File.h"
 
 namespace crown
 {
-
-class File;
 
 /// A reader that offers a convenient way to read text from a File
 ///
@@ -41,9 +38,7 @@ class TextReader
 public:
 
 	//-----------------------------------------------------------------------------
-	TextReader(File& file) : m_file(file)
-	{
-	}
+	TextReader(File& file) : m_file(file) {}
 
 	/// Reads characters from file and stores them as a C string
 	/// into string until (size-1) characters have been read or
@@ -81,5 +76,80 @@ private:
 	File& m_file;
 };
 
-} // namespace crown
+/// A reader that offers a convenient way to write text to a File
+///
+/// @ingroup Filesystem
+class TextWriter
+{
+public:
 
+	//-----------------------------------------------------------------------------
+	TextWriter(File& file) : m_file(file) {}
+
+	/// Writes the string pointed by string to the file.
+	/// The function begins copying from the address specified (string)
+	/// until it reaches the terminating null character ('\0').
+	/// The final null character is not copied to the file.
+	void write_string(const char* string)
+	{
+		m_file.write(string, string::strlen(string));
+	}
+
+private:
+
+	File& m_file;
+};
+
+/// A writer that offers a convenient way to write to a File
+///
+/// @ingroup Filesystem
+class BinaryWriter
+{
+public:
+
+	//-----------------------------------------------------------------------------
+	BinaryWriter(File& file) : m_file(file) {}
+
+	template <typename T>
+	void write(const T& data)
+	{
+		m_file.write(&data, sizeof(T));
+	}
+
+	void skip(size_t bytes)
+	{
+		m_file.skip(bytes);
+	}
+
+private:
+
+	File& m_file;
+};
+
+/// A reader that offers a convenient way to read from a File
+///
+/// @ingroup Filesystem
+class BinaryReader
+{
+public:
+
+	//-----------------------------------------------------------------------------
+	BinaryReader(File& file) : m_file(file) {}
+
+	template <typename T>
+	void read(T& data)
+	{
+		m_file.read(&data, sizeof(T));
+	}
+
+	void skip(size_t bytes)
+	{
+		m_file.skip(bytes);
+	}
+
+private:
+
+	File& m_file;
+};
+
+} // namespace crown
