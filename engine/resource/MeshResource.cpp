@@ -62,10 +62,9 @@ Array<uint16_t>		m_indices(default_allocator());
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
-	char* buf = (char*)default_allocator().allocate(file->size());
-	file->read(buf, file->size());
+	JSONParser json(*file);
+	fs.close(file);
 
-	JSONParser json(buf);
 	JSONElement root = json.root();
 
 	// Read data arrays
@@ -172,9 +171,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	m_mesh_header.num_meshes = 1;
 	m_mesh_header.num_joints = 0;
 	//m_mesh_header.padding[0] = 0xCECECECE;
-
-	default_allocator().deallocate(buf);
-	fs.close(file);
 
 	MeshData data;
 	data.vertices.num_vertices = array::size(m_vertices);

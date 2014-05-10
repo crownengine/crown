@@ -287,10 +287,9 @@ void parse_joints(JSONElement e, Array<PhysicsJoint>& joints)
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
-	char* buf = (char*)default_allocator().allocate(file->size());
-	file->read(buf, file->size());
+	JSONParser json(*file);
+	fs.close(file);
 
-	JSONParser json(buf);
 	JSONElement root = json.root();
 
 	bool m_has_controller = false;
@@ -315,9 +314,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	if (root.has_key("actors")) parse_actors(root.key("actors"), m_actors, m_shapes, m_shapes_indices);
 	if (root.has_key("joints")) parse_joints(root.key("joints"), m_joints);
-
-	fs.close(file);
-	default_allocator().deallocate(buf);
 
 	PhysicsHeader h;
 	h.version = 1;
@@ -538,10 +534,9 @@ namespace physics_config_resource
 	void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	{
 		File* file = fs.open(resource_path, FOM_READ);
-		char* buf = (char*)default_allocator().allocate(file->size());
-		file->read(buf, file->size());
+		JSONParser json(*file);
+		fs.close(file);
 
-		JSONParser json(buf);
 		JSONElement root = json.root();
 
 		typedef Map<DynamicString, uint32_t> FilterMap;
@@ -561,9 +556,6 @@ namespace physics_config_resource
 		if (root.has_key("materials")) parse_materials(root.key("materials"), material_names, material_objects);
 		if (root.has_key("shapes")) parse_shapes(root.key("shapes"), shape_names, shape_objects);
 		if (root.has_key("actors")) parse_actors(root.key("actors"), actor_names, actor_objects);
-
-		default_allocator().deallocate(buf);
-		fs.close(file);
 
 		// Sort objects by name
 		std::sort(array::begin(material_names), array::end(material_names), ObjectName());

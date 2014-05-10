@@ -55,12 +55,9 @@ void parse_resources(JSONElement arr, const char* type, Array<ResourceId>& out)
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
-
-	char file_buf[4096];
-	file->read(file_buf, file->size());
+	JSONParser json(*file);
 	fs.close(file);
 
-	JSONParser json(file_buf);
 	JSONElement root = json.root();
 
 	Array<ResourceId> textures(default_allocator());

@@ -81,10 +81,9 @@ void parse_frame(JSONElement frame, Array<StringId32>& names, Array<FrameData>& 
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
-	char* buf = (char*)default_allocator().allocate(file->size());
-	file->read(buf, file->size());
+	JSONParser json(*file);
+	fs.close(file);
 
-	JSONParser json(buf);
 	JSONElement root = json.root();
 
 	float width;
@@ -142,9 +141,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		array::push_back(m_indices, uint16_t(num_idx)); array::push_back(m_indices, uint16_t(num_idx + 2)); array::push_back(m_indices, uint16_t(num_idx + 3));
 		num_idx += 4;
 	}
-
-	fs.close(file);
-	default_allocator().deallocate(buf);
 
 	SpriteHeader h;
 	h.num_frames = array::size(m_names);

@@ -40,10 +40,9 @@ namespace material_resource
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
-	char* buf = (char*)default_allocator().allocate(file->size());
-	file->read(buf, file->size());
+	JSONParser json(*file);
+	fs.close(file);
 
-	JSONParser json(buf);
 	JSONElement root = json.root();
 
 	// Read texture layers
@@ -57,9 +56,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 		array::push_back(texture_layers, ResourceId(tex.c_str()));
 	}
-
-	fs.close(file);
-	default_allocator().deallocate(buf);
 
 	// Write resource
 	MaterialHeader mh;

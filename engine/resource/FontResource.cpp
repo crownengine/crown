@@ -64,14 +64,13 @@ void parse_glyph(JSONElement e, FontGlyphData& glyph)
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
-	char* buf = (char*)default_allocator().allocate(file->size());
-	file->read(buf, file->size());
+	JSONParser json(*file);
+	fs.close(file);
 
 	// Out buffer
 	FontHeader h;
 	Array<FontGlyphData> m_glyphs(default_allocator());
 
-	JSONParser json(buf);
 	JSONElement root = json.root();
 
 	JSONElement mat = root.key("material");
@@ -104,9 +103,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	{
 		out_file->write((char*) array::begin(m_glyphs), sizeof(FontGlyphData) * h.num_glyphs);
 	}
-
-	fs.close(file);
-	default_allocator().deallocate(buf);
 }
 
 } // namespace font_resource

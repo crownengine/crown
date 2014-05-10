@@ -85,8 +85,8 @@ void parse_image(JSONElement image, StringId64& material, Array<float>& position
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
-	char* buf = (char*)default_allocator().allocate(file->size());
-	file->read(buf, file->size());
+	JSONParser json(*file);
+	fs.close(file);
 
 	// Out buffer
 	GuiHeader h;
@@ -94,7 +94,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	Array<GuiTriangleData> 	m_gui_triangles(default_allocator());
 	Array<GuiImageData> 		m_gui_images(default_allocator());
 
-	JSONParser json(buf);
 	JSONElement root = json.root();
 
 	Array<float>	m_gui_position(default_allocator());
@@ -191,9 +190,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 			array::clear(m_image_sizes);
 		}
 	}
-
-	fs.close(file);
-	default_allocator().deallocate(buf);
 
 	// Fill resource header
 	h.position[0] = m_gui_position[0];

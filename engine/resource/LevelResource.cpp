@@ -89,10 +89,9 @@ void parse_sounds(JSONElement root, Array<LevelSound>& sounds)
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
 	File* file = fs.open(resource_path, FOM_READ);
-	char* buf = (char*)default_allocator().allocate(file->size());
-	file->read(buf, file->size());
+	JSONParser json(*file);
+	fs.close(file);
 
-	JSONParser json(buf);
 	JSONElement root = json.root();
 
 	Array<LevelUnit> units(default_allocator());
@@ -100,9 +99,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	parse_units(root, units);
 	parse_sounds(root, sounds);
-
-	fs.close(file);
-	default_allocator().deallocate(buf);
 
 	LevelHeader lh;
 	lh.num_units = array::size(units);
