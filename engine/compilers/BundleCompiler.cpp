@@ -102,6 +102,11 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 	// Compile all resources
 	for (uint32_t i = 0; i < vector::size(files); i++)
 	{
+		if (files[i].ends_with(".tga"))
+			continue;
+		if (files[i].ends_with(".dds"))
+			continue;
+
 		const char* filename = files[i].c_str();
 
 		uint64_t filename_hash = string::murmur2_64(filename, string::strlen(filename), 0);
