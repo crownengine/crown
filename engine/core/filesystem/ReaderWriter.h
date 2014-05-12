@@ -110,6 +110,11 @@ public:
 	//-----------------------------------------------------------------------------
 	BinaryWriter(File& file) : m_file(file) {}
 
+	void write(const void* data, size_t size)
+	{
+		m_file.write(data, size);
+	}
+
 	template <typename T>
 	void write(const T& data)
 	{
@@ -135,6 +140,11 @@ public:
 
 	//-----------------------------------------------------------------------------
 	BinaryReader(File& file) : m_file(file) {}
+
+	void read(void* data, size_t size)
+	{
+		m_file.read(data, size);
+	}
 
 	template <typename T>
 	void read(T& data)
