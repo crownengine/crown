@@ -42,11 +42,11 @@ public:
 	{
 		switch (format)
 		{
-			case PixelFormat::RGB_8:
+			case PixelFormat::R8G8B8:
 			{
 				return 3;
 			}
-			case PixelFormat::RGBA_8:
+			case PixelFormat::R8G8B8A8:
 			{
 				return 4;
 			}

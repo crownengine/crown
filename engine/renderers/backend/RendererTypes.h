@@ -135,8 +135,8 @@ struct PixelFormat
 		DXT3,
 		DXT5,
 
-		RGB_8,
-		RGBA_8,
+		R8G8B8,
+		R8G8B8A8,
 
 		D16,
 		D24,

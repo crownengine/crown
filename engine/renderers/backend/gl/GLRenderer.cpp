@@ -158,13 +158,13 @@ const TextureFormatInfo TEXTURE_FORMAT_TABLE[PixelFormat::COUNT] =
 //-----------------------------------------------------------------------------
 static bool is_compressed(PixelFormat::Enum fmt)
 {
-	return fmt < PixelFormat::RGB_8;
+	return fmt < PixelFormat::R8G8B8;
 }
 
 //-----------------------------------------------------------------------------
 static bool is_color(PixelFormat::Enum fmt)
 {
-	return fmt >= PixelFormat::RGB_8 && fmt < PixelFormat::D16;
+	return fmt >= PixelFormat::R8G8B8 && fmt < PixelFormat::D16;
 }
 
 //-----------------------------------------------------------------------------
@@ -180,8 +180,8 @@ static uint32_t PIXEL_FORMAT_SIZES[PixelFormat::COUNT] =
 	16, // DXT3,
 	16, // DXT5,
 
-	3, // RGB_8,
-	4, // RGBA_8,
+	3, // R8G8B8,
+	4, // R8G8B8A8,
 
 	2, // D16,
 	3, // D24,
