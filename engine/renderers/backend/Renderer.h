@@ -68,7 +68,7 @@ public:
 	void update_index_buffer_impl(IndexBufferId id, size_t offset, size_t size, const void* data);
 	void destroy_index_buffer_impl(IndexBufferId id);
 
-	void create_texture_impl(TextureId id, uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data);
+	void create_texture_impl(TextureId id, uint32_t width, uint32_t height, uint8_t num_mips, PixelFormat::Enum format, const void* data);
 	void update_texture_impl(TextureId id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const void* data);
 	void destroy_texture_impl(TextureId id);
 
@@ -317,9 +317,9 @@ public:
 		default_allocator().deallocate(tib);
 	}
 
-	/// Creates a new texture of size @a width and @height.
+	/// Creates a new texture of size @a width and @height with @a num_mips mipmaps.
 	/// The array @a data should contain @a width * @a height elements of the given @a format.
-	TextureId create_texture(uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data)
+	TextureId create_texture(uint32_t width, uint32_t height, uint8_t num_mips, PixelFormat::Enum format, const void* data)
 	{
 		const TextureId id = id_table::create(m_textures);
 
@@ -327,6 +327,7 @@ public:
 		m_submit->m_commands.write(id);
 		m_submit->m_commands.write(width);
 		m_submit->m_commands.write(height);
+		m_submit->m_commands.write(num_mips);
 		m_submit->m_commands.write(format);
 		m_submit->m_commands.write(data);
 
@@ -582,16 +583,18 @@ public:
 					TextureId id;
 					uint32_t width;
 					uint32_t height;
+					uint8_t num_mips;
 					PixelFormat::Enum format;
 					void* data;
 
 					cmds.read(id);
 					cmds.read(width);
 					cmds.read(height);
+					cmds.read(num_mips);
 					cmds.read(format);
 					cmds.read(data);
 
-					create_texture_impl(id, width, height, format, data);
+					create_texture_impl(id, width, height, num_mips, format, data);
 					break;
 				}
 				case CommandType::UPDATE_TEXTURE:

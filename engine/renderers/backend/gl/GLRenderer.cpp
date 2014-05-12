@@ -51,6 +51,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Memory.h"
 #include "VertexFormat.h"
 #include "Hash.h"
+#include "MathUtils.h"
 
 #if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
 
@@ -406,39 +407,52 @@ public:
 struct Texture
 {
 	//-----------------------------------------------------------------------------
-	void create(uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data)
+	void create(uint32_t width, uint32_t height, uint8_t num_mips, PixelFormat::Enum format, const void* data)
 	{
 		GL_CHECK(glGenTextures(1, &m_id));
 		CE_ASSERT(m_id != 0, "Failed to create texture");
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_id));
-
-		#if defined(LINUX) || defined(WINDOWS)
-			GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
-		#endif
 
 		const GLenum internal_fmt = TEXTURE_FORMAT_TABLE[format].internal_format;
 		const GLenum fmt = TEXTURE_FORMAT_TABLE[format].format;
 
 		if (is_compressed(format))
 		{
-			GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_2D,
-						0,
-						internal_fmt,
-						width, height,
-						0,
-					 	width * height * PIXEL_FORMAT_SIZES[format],
-					 	data));
+			const char* src = (const char*) data;
+			uint32_t w = width;
+			uint32_t h = height;
+
+			for (uint8_t i = 0; i < num_mips; i++)
+			{
+				GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_2D,
+							i,
+							internal_fmt,
+							w, h,
+							0,
+						 	w * h * PIXEL_FORMAT_SIZES[format],
+						 	src));
+			}
 		}
 		else
 		{
-			GL_CHECK(glTexImage2D(GL_TEXTURE_2D,
-						0,
-						internal_fmt,
-						width, height,
-						0,
-					 	fmt,
-					 	GL_UNSIGNED_BYTE,
-					 	data));
+			const char* src = (const char*) data;
+			uint32_t w = width;
+			uint32_t h = height;
+
+			for (uint8_t i = 0; i < num_mips; i++)
+			{
+				GL_CHECK(glTexImage2D(GL_TEXTURE_2D,
+							i,
+							internal_fmt,
+							w, h,
+							0,
+						 	fmt,
+						 	GL_UNSIGNED_BYTE,
+						 	src));
+
+				// w = math::max(uint32_t(1), w >> uint32_t(1));
+				// h = math::max(uint32_t(1), h >> uint32_t(1));
+			}
 		}
 
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
@@ -1244,9 +1258,9 @@ void Renderer::destroy_index_buffer_impl(IndexBufferId id)
 }
 
 //-----------------------------------------------------------------------------
-void Renderer::create_texture_impl(TextureId id, uint32_t width, uint32_t height, PixelFormat::Enum format, const void* data)
+void Renderer::create_texture_impl(TextureId id, uint32_t width, uint32_t height, uint8_t num_mips, PixelFormat::Enum format, const void* data)
 {
-	m_impl->m_textures[id.index].create(width, height, format, data);
+	m_impl->m_textures[id.index].create(width, height, num_mips, format, data);
 }
 
 //-----------------------------------------------------------------------------
