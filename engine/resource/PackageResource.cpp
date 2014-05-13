@@ -24,32 +24,17 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Allocator.h"
 #include "File.h"
 #include "Filesystem.h"
-#include "StringUtils.h"
 #include "JSONParser.h"
-#include "Log.h"
 #include "PackageResource.h"
 #include "TempAllocator.h"
+#include "ReaderWriter.h"
 
 namespace crown
 {
 namespace package_resource
 {
-
-//-----------------------------------------------------------------------------
-void parse_resources(JSONElement arr, const char* type, Array<ResourceId>& out)
-{
-	const uint32_t num = arr.size();
-
-	for (uint32_t i = 0; i < num; i++)
-	{
-		DynamicString name;
-		arr[i].to_string(name);
-		array::push_back(out, ResourceId(type, name.c_str()));
-	}
-}
 
 //-----------------------------------------------------------------------------
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
@@ -59,123 +44,90 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	fs.close(file);
 
 	JSONElement root = json.root();
+	BinaryWriter bw(*out_file);
 
-	Array<ResourceId> textures(default_allocator());
-	Array<ResourceId> scripts(default_allocator());
-	Array<ResourceId> sounds(default_allocator());
-	Array<ResourceId> meshes(default_allocator());
-	Array<ResourceId> units(default_allocator());
-	Array<ResourceId> sprites(default_allocator());
-	Array<ResourceId> physics(default_allocator());
-	Array<ResourceId> materials(default_allocator());
-	Array<ResourceId> guis(default_allocator());
-	Array<ResourceId> fonts(default_allocator());
-	Array<ResourceId> levels(default_allocator());
+	const uint32_t num_textures  = root.key("texture").size();
+	const uint32_t num_scripts   = root.key("lua").size();
+	const uint32_t num_sounds    = root.key("sound").size();
+	const uint32_t num_meshes    = root.key("mesh").size();
+	const uint32_t num_units     = root.key("unit").size();
+	const uint32_t num_sprites   = root.key("sprite").size();
+	const uint32_t num_physics   = root.key("physics").size();
+	const uint32_t num_materials = root.key("material").size();
+	const uint32_t num_fonts     = root.key("font").size();
+	const uint32_t num_levels    = root.key("level").size();
 
-	if (root.has_key("texture"))
-		parse_resources(root.key("texture"), "texture", textures);
+	// Write header
+	bw.write(num_textures);
+	uint32_t offt = sizeof(PackageHeader);
+	bw.write(offt);
 
-	if (root.has_key("lua"))
-		parse_resources(root.key("lua"), "lua", scripts);
+	bw.write(num_scripts);
+	offt += sizeof(ResourceId) * num_textures;
+	bw.write(offt);
 
-	if (root.has_key("sound"))
-		parse_resources(root.key("sound"), "sound", sounds);
+	bw.write(num_sounds);
+	offt += sizeof(ResourceId) * num_scripts;
+	bw.write(offt);
 
-	if (root.has_key("mesh"))
-		parse_resources(root.key("mesh"), "mesh", meshes);
+	bw.write(num_meshes);
+	offt += sizeof(ResourceId) * num_sounds;
+	bw.write(offt);
 
-	if (root.has_key("unit"))
-		parse_resources(root.key("unit"), "unit", units);
+	bw.write(num_units);
+	offt += sizeof(ResourceId) * num_meshes;
+	bw.write(offt);
 
-	if (root.has_key("sprite"))
-		parse_resources(root.key("sprite"), "sprite", sprites);
+	bw.write(num_sprites);
+	offt += sizeof(ResourceId) * num_units;
+	bw.write(offt);
 
-	if (root.has_key("physics"))
-		parse_resources(root.key("physics"), "physics", physics);
+	bw.write(num_physics);
+	offt += sizeof(ResourceId) * num_sprites;
+	bw.write(offt);
 
-	if (root.has_key("material"))
-		parse_resources(root.key("material"), "material", materials);
+	bw.write(num_materials);
+	offt += sizeof(ResourceId) * num_physics;
+	bw.write(offt);
 
-	if (root.has_key("gui"))
-		parse_resources(root.key("gui"), "gui", guis);
+	bw.write(num_fonts);
+	offt += sizeof(ResourceId) * num_materials;
+	bw.write(offt);
 
-	if (root.has_key("font"))
-		parse_resources(root.key("font"), "font", fonts);
+	bw.write(num_levels);
+	offt += sizeof(ResourceId) * num_fonts;
+	bw.write(offt);
 
-	if (root.has_key("level"))
-		parse_resources(root.key("level"), "level", levels);
+	// Write resource ids
+	for (uint32_t i = 0; i < num_textures; i++)
+		bw.write(root.key("texture")[i].to_resource_id("texture"));
 
-	PackageHeader header;
-	header.num_textures = array::size(textures);
-	header.num_scripts = array::size(scripts);
-	header.num_sounds = array::size(sounds);
-	header.num_meshes = array::size(meshes);
-	header.num_units = array::size(units);
-	header.num_sprites = array::size(sprites);
-	header.num_physics = array::size(physics);
-	header.num_materials = array::size(materials);
-	header.num_guis = array::size(guis);
-	header.num_fonts = array::size(fonts);
-	header.num_levels = array::size(levels);
+	for (uint32_t i = 0; i < num_scripts; i++)
+		bw.write(root.key("lua")[i].to_resource_id("lua"));
 
-	header.textures_offset = sizeof(PackageHeader);
-	header.scripts_offset  = header.textures_offset + sizeof(ResourceId) * header.num_textures;
-	header.sounds_offset = header.scripts_offset + sizeof(ResourceId) * header.num_scripts;
-	header.meshes_offset = header.sounds_offset + sizeof(ResourceId) * header.num_sounds;
-	header.units_offset = header.meshes_offset + sizeof(ResourceId) * header.num_meshes;
-	header.sprites_offset = header.units_offset + sizeof(ResourceId) * header.num_units;
-	header.physics_offset = header.sprites_offset + sizeof(ResourceId) * header.num_sprites;
-	header.materials_offset = header.physics_offset + sizeof(ResourceId) * header.num_physics;
-	header.guis_offset = header.materials_offset + sizeof(ResourceId) * header.num_materials;
-	header.fonts_offset = header.guis_offset + sizeof(ResourceId) * header.num_guis;
-	header.levels_offset = header.fonts_offset + sizeof(ResourceId) * header.num_fonts;
+	for (uint32_t i = 0; i < num_sounds; i++)
+		bw.write(root.key("sound")[i].to_resource_id("sound"));
 
-	out_file->write((char*) &header, sizeof(PackageHeader));
+	for (uint32_t i = 0; i < num_meshes; i++)
+		bw.write(root.key("mesh")[i].to_resource_id("mesh"));
 
-	if (array::size(textures) > 0)
-	{
-		out_file->write((char*) array::begin(textures), sizeof(ResourceId) * header.num_textures);		
-	}
-	if (array::size(scripts) > 0)
-	{
-		out_file->write((char*) array::begin(scripts), sizeof(ResourceId) * header.num_scripts);
-	}
-	if (array::size(sounds) > 0)
-	{
-		out_file->write((char*) array::begin(sounds), sizeof(ResourceId) * header.num_sounds);
-	}
-	if (array::size(meshes) > 0)
-	{
-		out_file->write((char*) array::begin(meshes), sizeof(ResourceId) * header.num_meshes);
-	}
-	if (array::size(units) > 0)
-	{
-		out_file->write((char*) array::begin(units), sizeof(ResourceId) * header.num_units);	
-	}
-	if (array::size(sprites) > 0)
-	{
-		out_file->write((char*) array::begin(sprites), sizeof(ResourceId) * header.num_sprites);
-	}
-	if (array::size(physics) > 0)
-	{
-		out_file->write((char*) array::begin(physics), sizeof(ResourceId) * header.num_physics);
-	}
-	if (array::size(materials) > 0)
-	{
-		out_file->write((char*) array::begin(materials), sizeof(ResourceId) * header.num_materials);
-	}
-	if (array::size(guis) > 0)
-	{
-		out_file->write((char*) array::begin(guis), sizeof(ResourceId) * header.num_guis);
-	}
-	if (array::size(fonts) > 0)
-	{
-		out_file->write((char*) array::begin(fonts), sizeof(ResourceId) * header.num_fonts);
-	}
-	if (array::size(levels) > 0)
-	{
-		out_file->write((char*) array::begin(levels), sizeof(ResourceId) * header.num_levels);
-	}
+	for (uint32_t i = 0; i < num_units; i++)
+		bw.write(root.key("unit")[i].to_resource_id("unit"));
+
+	for (uint32_t i = 0; i < num_sprites; i++)
+		bw.write(root.key("sprite")[i].to_resource_id("sprite"));
+
+	for (uint32_t i = 0; i < num_physics; i++)
+		bw.write(root.key("physics")[i].to_resource_id("physics"));
+
+	for (uint32_t i = 0; i < num_materials; i++)
+		bw.write(root.key("material")[i].to_resource_id("material"));
+
+	for (uint32_t i = 0; i < num_fonts; i++)
+		bw.write(root.key("font")[i].to_resource_id("font"));
+
+	for (uint32_t i = 0; i < num_levels; i++)
+		bw.write(root.key("level")[i].to_resource_id("level"));
 }
 
 } // namespace package_resource
