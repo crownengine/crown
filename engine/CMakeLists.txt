@@ -212,7 +212,6 @@ set (RENDERERS_HEADERS
 set (RESOURCE_SRC
 	resource/FileBundle.cpp
 	resource/FontResource.cpp
-	resource/GuiResource.cpp
 	resource/LevelResource.cpp
 	resource/LuaResource.cpp
 	resource/MaterialResource.cpp
@@ -232,7 +231,6 @@ set (RESOURCE_HEADERS
 	resource/Bundle.h
 	resource/FontResource.h
 	resource/FontResource.h
-	resource/GuiResource.h
 	resource/LevelResource.h
 	resource/LuaResource.h
 	resource/MaterialResource.h

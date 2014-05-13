@@ -37,7 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Material.h"
 #include "Config.h"
 #include "Gui.h"
-#include "GuiResource.h"
 
 namespace crown
 {

@@ -45,7 +45,6 @@ namespace crown
 #define PACKAGE_EXTENSION			"package"
 #define UNIT_EXTENSION				"unit"
 #define PHYSICS_EXTENSION			"physics"
-#define GUI_EXTENSION				"gui"
 #define PHYSICS_CONFIG_EXTENSION	"physics_config"
 #define FONT_EXTENSION				"font"
 #define LEVEL_EXTENSION				"level"
@@ -61,7 +60,6 @@ namespace crown
 #define PACKAGE_TYPE				0xC0A2212C
 #define UNIT_TYPE					0x516224CF
 #define PHYSICS_TYPE				0xFA32C012
-#define GUI_TYPE					0x2C56149A
 #define PHYSICS_CONFIG_TYPE			0x514F14A1
 #define FONT_TYPE					0x536DC7D4
 #define LEVEL_TYPE					0x349657F7

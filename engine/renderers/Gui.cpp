@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Renderer.h"
 #include "Vector3.h"
 #include "Vector2.h"
-#include "GuiResource.h"
 #include "RenderWorld.h"
 #include "RendererTypes.h"
 #include "Vector3.h"
