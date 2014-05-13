@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "ContainerTypes.h"
 #include "MathTypes.h"
 #include "Macros.h"
+#include "Resource.h"
 
 namespace crown
 {
@@ -128,6 +129,10 @@ public:
 
 	/// Returns the string id value hashed to string::murmur2_32() of the element.
 	StringId32 to_string_id() const;
+
+	/// Returns the resource id value of the element.
+	/// If @a type is NULL then the string element is assumed to already contain extension.
+	ResourceId to_resource_id(const char* type) const;
 
 	/// Returns the array value of the element.
 	/// @note

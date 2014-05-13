@@ -198,6 +198,19 @@ StringId32 JSONElement::to_string_id() const
 }
 
 //--------------------------------------------------------------------------
+ResourceId JSONElement::to_resource_id(const char* type) const
+{
+	TempAllocator1024 alloc;
+	DynamicString str(alloc);
+	json::parse_string(m_at, str);
+
+	if (type == NULL)
+		return ResourceId(str.c_str());
+
+	return ResourceId(type, str.c_str());
+}
+
+//--------------------------------------------------------------------------
 void JSONElement::to_array(Array<bool>& array) const
 {
 	Array<const char*> temp(default_allocator());
