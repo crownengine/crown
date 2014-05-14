@@ -359,8 +359,8 @@ void World::process_physics_events()
 				device()->lua_environment()->call_physics_callback(
 					coll_ev.actors[0],
 					coll_ev.actors[1],
-					coll_ev.actors[0]->unit(),
-					coll_ev.actors[1]->unit(),
+					(id_array::has(m_units, coll_ev.actors[0]->unit_id())) ? coll_ev.actors[0]->unit() : NULL,
+					(id_array::has(m_units, coll_ev.actors[1]->unit_id())) ? coll_ev.actors[1]->unit() : NULL,
 					coll_ev.where,
 					coll_ev.normal,
 					(coll_ev.type == physics_world::CollisionEvent::BEGIN_TOUCH) ? "begin" : "end");

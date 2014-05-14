@@ -173,10 +173,10 @@ void LuaEnvironment::call_physics_callback(Actor* actor_0, Actor* actor_1, Unit*
 	lua_getglobal(m_L, "g_physics_callback");
 
 	stack.push_table();
-	stack.push_key_begin("actor_0"); stack.push_actor(actor_0); stack.push_key_end();
-	stack.push_key_begin("actor_1"); stack.push_actor(actor_1); stack.push_key_end();
-	stack.push_key_begin("unit_0"); stack.push_unit(unit_0); stack.push_key_end();
-	stack.push_key_begin("unit_1"); stack.push_unit(unit_1); stack.push_key_end();
+	stack.push_key_begin("actor_0"); (actor_0 ? stack.push_actor(actor_0) : stack.push_nil()); stack.push_key_end();
+	stack.push_key_begin("actor_1"); (actor_1 ? stack.push_actor(actor_1) : stack.push_nil()); stack.push_key_end();
+	stack.push_key_begin("unit_0"); (unit_0 ? stack.push_unit(unit_0) : stack.push_nil()); stack.push_key_end();
+	stack.push_key_begin("unit_1"); (unit_1 ? stack.push_unit(unit_1) : stack.push_nil()); stack.push_key_end();
 	stack.push_key_begin("where"); stack.push_vector3(where); stack.push_key_end();
 	stack.push_key_begin("normal"); stack.push_vector3(normal); stack.push_key_end();
 	stack.push_key_begin("type"); stack.push_string(type); stack.push_key_end();
