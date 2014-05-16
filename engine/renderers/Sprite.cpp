@@ -45,7 +45,9 @@ Sprite::Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const Sp
 	, m_node(node)
 	, m_resource(sr)
 	, m_frame(0)
-	// , m_animator(this)
+	, m_animation(NULL)
+	, m_time(0)
+	, m_loop(false)
 {
 	m_vb = sr->vertex_buffer();
 	m_ib = sr->index_buffer();
@@ -125,19 +127,46 @@ void Sprite::set_frame(uint32_t i)
 //-----------------------------------------------------------------------------
 void Sprite::play_animation(const char* name, bool loop)
 {
-	// m_animator.play_animation(name, loop);
+	if (m_animation)
+		return;
+
+	m_animation = m_resource->get_animation(name);
+	m_time = 0;
+	m_loop = loop;
+	m_frame = m_resource->get_animation_frame(m_animation, m_animation->start_frame);
 }
 
 //-----------------------------------------------------------------------------
 void Sprite::stop_animation()
 {
-	// m_animator.stop_animation();
+	m_animation = NULL;
+	m_time = 0;
+	m_frame = 0;
 }
 
 //-----------------------------------------------------------------------------
 void Sprite::update(float dt)
 {
-	// m_animator.update(dt);
+	if (!m_animation)
+		return;
+
+	m_time += dt;
+
+	if (m_time >= m_animation->time)
+	{
+		if (m_loop)
+		{
+			m_time = 0;
+		}
+		else
+		{
+			stop_animation();
+			return;
+		}
+	}
+
+	uint32_t frame = m_animation->num_frames * (m_time / m_animation->time);
+	m_frame = m_resource->get_animation_frame(m_animation, frame);
 }
 
 //-----------------------------------------------------------------------------

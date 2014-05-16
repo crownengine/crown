@@ -569,13 +569,13 @@ bool Unit::is_a(const char* name)
 //-----------------------------------------------------------------------------
 void Unit::play_sprite_animation(const char* name, bool loop)
 {
-	// sprite((uint32_t) 0)->play_animation(name, loop);
+	sprite(0u)->play_animation(name, loop);
 }
 
 //-----------------------------------------------------------------------------
 void Unit::stop_sprite_animation()
 {
-	// sprite((uint32_t) 0)->stop_animation();
+	sprite(0u)->stop_animation();
 }
 
 //-----------------------------------------------------------------------------

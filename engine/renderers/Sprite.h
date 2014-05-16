@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Matrix4x4.h"
 #include "Quaternion.h"
-// #include "SpriteAnimator.h"
+#include "SpriteResource.h"
 
 namespace crown
 {
@@ -39,7 +39,6 @@ namespace crown
 class Renderer;
 class RenderWorld;
 class SceneGraph;
-struct SpriteResource;
 struct Unit;
 
 //-----------------------------------------------------------------------------
@@ -76,12 +75,15 @@ public:
 	int32_t					m_node;
 	const SpriteResource*	m_resource;
 
-	uint32_t				m_frame;
 	MaterialId				m_material;
 	VertexBufferId			m_vb;
 	IndexBufferId			m_ib;
 
-	// SpriteAnimator m_animator;
+	uint32_t m_frame;
+
+	const SpriteAnimation* m_animation;
+	float m_time;
+	bool m_loop;
 };
 
 } // namespace crown

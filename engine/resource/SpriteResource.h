@@ -42,24 +42,29 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Renderer.h"
 #include "TextureResource.h"
 
-#define MAX_SPRITE_ANIM_FRAMES 60
-#define SPRITE_FRAME_SIZE 4 * 4 * 4
-
 namespace crown
 {
 
 const uint32_t SPRITE_VERSION = 1;
 
-//-----------------------------------------------------------------------------
 struct SpriteHeader
 {
 	VertexBufferId 	vb;
 	IndexBufferId 	ib;
-	uint32_t 		num_frames;
+	uint32_t		num_animations;
+	uint32_t		animations_offset;
 	uint32_t		num_vertices;
 	uint32_t		vertices_offset;
 	uint32_t		num_indices;
 	uint32_t		indices_offset;
+};
+
+struct SpriteAnimation
+{
+	StringId32 name;
+	float time;
+	uint32_t num_frames;
+	uint32_t start_frame;
 };
 
 //-----------------------------------------------------------------------------
@@ -111,9 +116,27 @@ struct SpriteResource
 	}
 
 	//-----------------------------------------------------------------------------
-	uint32_t num_frames() const
+	const SpriteAnimation* get_animation(const char* name) const
 	{
-		return ((SpriteHeader*) this)->num_frames;
+		SpriteHeader* h = (SpriteHeader*) this;
+		SpriteAnimation* begin = (SpriteAnimation*) (((char*) this) + h->animations_offset);
+
+		const StringId32 name_hash = string::murmur2_32(name, string::strlen(name));
+		const uint32_t num = h->num_animations;
+		for (uint32_t i = 0; i < num; i++)
+		{
+			if (begin[i].name == name_hash)
+				return &begin[i];
+		}
+
+		return NULL;
+	}
+
+	uint32_t get_animation_frame(const SpriteAnimation* a, uint32_t frame) const
+	{
+		SpriteHeader* h = (SpriteHeader*) this;
+		uint32_t* begin = (uint32_t*) (((char*) this) + h->animations_offset + sizeof(SpriteAnimation) * h->num_animations);
+		return begin[a->start_frame + frame];
 	}
 
 	//-----------------------------------------------------------------------------
