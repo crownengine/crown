@@ -119,9 +119,17 @@ public:
 	/// Returns the string value of the element.
 	void to_string(DynamicString& str) const;
 
-	/// Rerutns the Vector3 value of the element.
+	/// Returns the Vector2 value of the element.
+	/// @note Vector2 = [x, y]
+	Vector2 to_vector2() const;
+
+	/// Returns the Vector3 value of the element.
 	/// @note Vector3 = [x, y, z]
 	Vector3 to_vector3() const;
+
+	/// Returns the Vector4 value of the element.
+	/// @note Vector4 = [x, y, z, w]
+	Vector4 to_vector4() const;
 
 	/// Returns the Quaternion value of the element.
 	/// @note Quaternion = [x, y, z, w]

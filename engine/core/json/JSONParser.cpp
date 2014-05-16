@@ -30,7 +30,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "Vector.h"
 #include "Map.h"
+#include "Vector2.h"
 #include "Vector3.h"
+#include "Vector4.h"
 #include "Quaternion.h"
 #include "File.h"
 
@@ -164,6 +166,17 @@ void JSONElement::to_string(DynamicString& str) const
 }
 
 //--------------------------------------------------------------------------
+Vector2 JSONElement::to_vector2() const
+{
+	TempAllocator64 alloc;
+	Array<const char*> array(alloc);
+	json::parse_array(m_at, array);
+
+	return Vector2(json::parse_float(array[0]),
+					json::parse_float(array[1]));
+}
+
+//--------------------------------------------------------------------------
 Vector3 JSONElement::to_vector3() const
 {
 	TempAllocator64 alloc;
@@ -173,6 +186,19 @@ Vector3 JSONElement::to_vector3() const
 	return Vector3(json::parse_float(array[0]),
 					json::parse_float(array[1]),
 					json::parse_float(array[2]));
+}
+
+//--------------------------------------------------------------------------
+Vector4 JSONElement::to_vector4() const
+{
+	TempAllocator64 alloc;
+	Array<const char*> array(alloc);
+	json::parse_array(m_at, array);
+
+	return Vector4(json::parse_float(array[0]),
+					json::parse_float(array[1]),
+					json::parse_float(array[2]),
+					json::parse_float(array[3]));
 }
 
 //--------------------------------------------------------------------------
@@ -407,7 +433,6 @@ uint32_t JSONElement::size() const
 		{
 			Array<const char*> array(default_allocator());
 			json::parse_array(m_at, array);
-
 			return array::size(array);
 		}
 		case JSONType::STRING:
