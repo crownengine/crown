@@ -91,6 +91,9 @@ void* PoolAllocator::allocate(size_t size, size_t align)
 //-----------------------------------------------------------------------------
 void PoolAllocator::deallocate(void* data)
 {
+	if (!data)
+		return;
+
 	CE_ASSERT(m_num_allocations > 0, "Did not allocate");
 
 	uintptr_t* next = (uintptr_t*) data;

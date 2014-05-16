@@ -103,7 +103,8 @@ public:
 	{
 		ScopedMutex sm(m_mutex);
 
-		if (!data) return;
+		if (!data)
+			return;
 
 		Header* h = header(data);
 

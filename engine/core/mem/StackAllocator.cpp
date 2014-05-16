@@ -78,6 +78,9 @@ void* StackAllocator::allocate(size_t size, size_t align)
 //-----------------------------------------------------------------------------
 void StackAllocator::deallocate(void* data)
 {
+	if (!data)
+		return;
+
 	Header* data_header = (Header*) ((char*)data - sizeof(Header));
 
 	CE_ASSERT(data_header->alloc_id == m_allocation_count - 1,
