@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Vector3.h"
 #include "Vector4.h"
 #include "Quaternion.h"
+#include "Matrix4x4.h"
 #include "File.h"
 
 namespace crown
@@ -212,6 +213,16 @@ Quaternion JSONElement::to_quaternion() const
 					json::parse_float(array[1]),
 					json::parse_float(array[2]),
 					json::parse_float(array[3]));
+}
+
+//--------------------------------------------------------------------------
+Matrix4x4 JSONElement::to_matrix4x4() const
+{
+	TempAllocator128 alloc;
+	Array<float> array(alloc);
+	to_array(array);
+
+	return Matrix4x4(array::begin(array));
 }
 
 //--------------------------------------------------------------------------

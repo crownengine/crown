@@ -135,6 +135,10 @@ public:
 	/// @note Quaternion = [x, y, z, w]
 	Quaternion to_quaternion() const;
 
+	/// Returns the Matrix4x4 value of the element.
+	/// @note Matrix4x4 = [x, x, x, x, y, y, y, y, z, z, z, z, t, t, t, t]
+	Matrix4x4 to_matrix4x4() const;
+
 	/// Returns the string id value hashed to string::murmur2_32() of the element.
 	StringId32 to_string_id() const;
 
