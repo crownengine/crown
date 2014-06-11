@@ -58,6 +58,10 @@ struct Gui
 	/// @note Higher values of pos.z make the object appear in front of other objects.
 	void draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color = Color4::WHITE);
 
+	/// Draws an image with the given @a material and @a uv0 and @a uv1 coordinates.
+	/// @note Higher values of pos.z make the object appear in front of other objects.	
+	void draw_image_uv(const char* material, const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Color4& color = Color4::WHITE);
+
 	/// Draws the text @a str with the given @a font and @a font_size.
 	/// @note Higher values of pos.z make the object appear in front of other objects.
 	void draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos, const Color4& color = Color4::WHITE);

@@ -92,6 +92,16 @@ static int gui_draw_image(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int gui_draw_image_uv(lua_State* L)
+{
+	LuaStack stack(L);
+
+	Gui* gui = stack.get_gui(1);
+	gui->draw_image_uv(stack.get_string(2), stack.get_vector3(3), stack.get_vector2(4), stack.get_vector2(5), stack.get_vector2(6), stack.get_color4(7));
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 static int gui_draw_text(lua_State* L)
 {
 	LuaStack stack(L);
@@ -110,6 +120,7 @@ void load_gui(LuaEnvironment& env)
 
 	env.load_module_function("Gui", "draw_rectangle",	gui_draw_rectangle);
 	env.load_module_function("Gui", "draw_image",		gui_draw_image);
+	env.load_module_function("Gui", "draw_image_uv",	gui_draw_image_uv);
 	env.load_module_function("Gui", "draw_text",		gui_draw_text);
 }
 

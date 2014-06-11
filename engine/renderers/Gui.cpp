@@ -189,6 +189,12 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 //-----------------------------------------------------------------------------
 void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color)
 {
+	draw_image_uv(material, pos, size, Vector2(0, 0), Vector2(1, 1), color);
+}
+
+//-----------------------------------------------------------------------------
+void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Color4& color)
+{
 	Renderer* r = device()->renderer();
 	TransientVertexBuffer tvb;
 	TransientIndexBuffer tib;
@@ -199,23 +205,23 @@ void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& si
 	float* verts = (float*) tvb.data;
 	verts[0] = pos.x;
 	verts[1] = pos.y;
-	verts[2] = 0;
-	verts[3] = 0;
+	verts[2] = uv0.x;
+	verts[3] = uv0.y;
 
 	verts[4] = pos.x + size.x;
 	verts[5] = pos.y;
-	verts[6] = 1;
-	verts[7] = 0;
+	verts[6] = uv1.x;
+	verts[7] = uv0.y;
 
 	verts[8] = pos.x + size.x;
 	verts[9] = pos.y + size.y;
-	verts[10] = 1;
-	verts[11] = 1;
+	verts[10] = uv1.x;
+	verts[11] = uv1.y;
 
 	verts[12] = pos.x;
 	verts[13] = pos.y + size.y;
-	verts[14] = 0;
-	verts[15] = 1;
+	verts[14] = uv0.x;
+	verts[15] = uv1.y;
 
 	uint16_t* inds = (uint16_t*) tib.data;
 	inds[0] = 0;
