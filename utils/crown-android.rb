@@ -101,7 +101,6 @@ $engine_src 		= "../engine/."
 $android_src		= "../engine/os/android/java/."
 $android_manifest	= "../engine/os/android/AndroidManifest.xml"
 $luajit				= "../third/ARMv7/luajit"
-$oggvorbis			= "../third/ARMv7/oggvorbis"
 $physx				= "../third/ARMv7/physx"
 
 #------------------------------------------------------------------------------
@@ -253,10 +252,6 @@ def fill_android_project(build, target, res, path)
 	
 	# Copy luajit lib
 	FileUtils.cp($luajit + "/lib/libluajit-5.1.so.2.0.2", engine_dest + "/libluajit-5.1.so")
-
-	# Copy oggvorbis lib
-	FileUtils.cp($oggvorbis + "/lib/libogg.a", engine_dest + "/libogg.a")
-	FileUtils.cp($oggvorbis + "/lib/libvorbis.a", engine_dest + "/libvorbis.a")
 
 	# Copy physx lib
 	FileUtils.cp($physx + "/lib/libPhysX3.a", engine_dest)
