@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <stdio.h>
 #include <limits.h>
 #include <errno.h>
-#include <vorbis/vorbisfile.h>
 
 #include "Allocator.h"
 #include "Config.h"
@@ -104,51 +103,51 @@ size_t compile_if_wav(Filesystem& fs, const char* resource_path)
 	return sizeof(SoundHeader) + m_sound_data_size;
 }
 
-//-----------------------------------------------------------------------------
-size_t compile_if_ogg(Filesystem& fs, const char* resource_path)
-{
-	// Retrieves resource absolute path
-	DynamicString s(default_allocator());
-	fs.get_absolute_path(resource_path, s);
-	const char* abs_path = s.c_str();
+// //-----------------------------------------------------------------------------
+// size_t compile_if_ogg(Filesystem& fs, const char* resource_path)
+// {
+// 	// Retrieves resource absolute path
+// 	DynamicString s(default_allocator());
+// 	fs.get_absolute_path(resource_path, s);
+// 	const char* abs_path = s.c_str();
 
-	OggVorbis_File ogg_stream;
+// 	OggVorbis_File ogg_stream;
 
-	bool result = ov_fopen(os::normalize_path(abs_path), &ogg_stream) == 0;
+// 	bool result = ov_fopen(os::normalize_path(abs_path), &ogg_stream) == 0;
 
-	if (result == false)
-	{
-		return 0;
-	}
+// 	if (result == false)
+// 	{
+// 		return 0;
+// 	}
 
-	vorbis_info* info = ov_info(&ogg_stream, -1);
+// 	vorbis_info* info = ov_info(&ogg_stream, -1);
 
-	int64_t size = ov_raw_total(&ogg_stream, -1);
-	int32_t rate = info->rate;
-	int32_t channels = info->channels;
+// 	int64_t size = ov_raw_total(&ogg_stream, -1);
+// 	int32_t rate = info->rate;
+// 	int32_t channels = info->channels;
 
-	ov_clear(&ogg_stream);
+// 	ov_clear(&ogg_stream);
 
-	File* in_file = fs.open(resource_path, FOM_READ);
+// 	File* in_file = fs.open(resource_path, FOM_READ);
 
-	m_sound_header.version = SOUND_VERSION;
-	m_sound_header.size = size;
-	m_sound_header.sample_rate = rate;
-	m_sound_header.block_size = (channels * 16) / 8;
-	m_sound_header.avg_bytes_ps = rate * ((channels * 16) / 8);
-	m_sound_header.channels = channels;
-	m_sound_header.bits_ps = 16;
-	m_sound_header.sound_type = SoundType::OGG;
+// 	m_sound_header.version = SOUND_VERSION;
+// 	m_sound_header.size = size;
+// 	m_sound_header.sample_rate = rate;
+// 	m_sound_header.block_size = (channels * 16) / 8;
+// 	m_sound_header.avg_bytes_ps = rate * ((channels * 16) / 8);
+// 	m_sound_header.channels = channels;
+// 	m_sound_header.bits_ps = 16;
+// 	m_sound_header.sound_type = SoundType::OGG;
 
-	m_sound_data_size = size;
-	m_sound_data = (uint8_t*)default_allocator().allocate(m_sound_data_size);
+// 	m_sound_data_size = size;
+// 	m_sound_data = (uint8_t*)default_allocator().allocate(m_sound_data_size);
 
-	in_file->read((char*)m_sound_data, m_sound_data_size);
+// 	in_file->read((char*)m_sound_data, m_sound_data_size);
 
-	fs.close(in_file);
+// 	fs.close(in_file);
 
-	return sizeof(SoundHeader) + m_sound_data_size;
-}
+// 	return sizeof(SoundHeader) + m_sound_data_size;
+// }
 
 //-----------------------------------------------------------------------------
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
@@ -159,7 +158,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	if (size == 0)
 	{
-		size = compile_if_ogg(fs, resource_path);
+		size = 0; // compile_if_ogg(fs, resource_path);
 	}
 
 	out_file->write((char*)&m_sound_header, sizeof(SoundHeader));
