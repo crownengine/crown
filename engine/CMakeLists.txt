@@ -527,7 +527,6 @@ if (WINDOWS)
 	)
 
 	list (APPEND CROWN_LIBRARIES
-		zlib
 		OpenGL32
 		glew32
 		lua51

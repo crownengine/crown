@@ -93,8 +93,6 @@ endif (CROWN_ARCH MATCHES "ARMv7")
 set (CROWN_THIRD_INCLUDES
 	${CROWN_THIRD}/luajit/include/luajit-2.0
 	${CROWN_THIRD}/glew-1.9.0/include
-	${CROWN_THIRD}/zlib/include
-	${CROWN_THIRD}/oggvorbis/include
 	${CROWN_THIRD}/openAL/include
 	${CROWN_THIRD}/physx/include
 	${CROWN_THIRD}/physx/include/common
@@ -121,8 +119,6 @@ set (CROWN_THIRD_INCLUDES
 set (CROWN_THIRD_LIBS
 	${CROWN_THIRD}/luajit/lib
 	${CROWN_THIRD}/glew-1.9.0/lib
-	${CROWN_THIRD}/zlib/lib
-	${CROWN_THIRD}/oggvorbis/lib
 	${CROWN_THIRD}/openAL/lib
 	${CROWN_THIRD}/physx/lib
 )
