@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 2.8)
+
+if (LINUX)
+	install (FILES     luajit/${CROWN_ARCH}/lib/libluajit-5.1.so.2.0.3 DESTINATION bin)
+	install (FILES     luajit/${CROWN_ARCH}/lib/libluajit-5.1.so.2 DESTINATION bin)
+	install (FILES     luajit/${CROWN_ARCH}/bin/luajit DESTINATION bin)
+	install (PROGRAMS  luajit/${CROWN_ARCH}/bin/luajit-2.0.3 DESTINATION bin)
+	install (DIRECTORY luajit/${CROWN_ARCH}/share/luajit-2.0.3/jit DESTINATION bin)
+elseif (WINDOWS)
+	install (FILES     luajit/${CROWN_ARCH}/lib/lua51.dll DESTINATION bin)
+	install (FILES     luajit/${CROWN_ARCH}/lib/luajit-5.1.dll DESTINATION bin)
+	install (PROGRAMS  luajit/${CROWN_ARCH}/bin/luajit.exe DESTINATION bin)
+	install (DIRECTORY luajit/${CROWN_ARCH}/share/luajit-2.0.1/jit DESTINATION bin)
+
+	install (FILES     openAL/lib/OpenAL32.dll DESTINATION bin)
+else ()
+	message (FATAL_ERROR "Wrong build configuration")
+endif (LINUX)

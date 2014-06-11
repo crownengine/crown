@@ -100,8 +100,8 @@ $package			= "crown.android"
 $engine_src 		= "../engine/."
 $android_src		= "../engine/os/android/java/."
 $android_manifest	= "../engine/os/android/AndroidManifest.xml"
-$luajit				= "../third/ARMv7/luajit"
-$physx				= "../third/ARMv7/physx"
+$luajit				= "../third/luajit/android"
+$physx				= "../third/physx/android"
 
 #------------------------------------------------------------------------------
 def validate_command_line(args)

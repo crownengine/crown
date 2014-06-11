@@ -23,14 +23,5 @@ test-results
 *.pidb
 
 # Ignore some third party dirs
-/third/ARMv7/physx/include
-/third/ARMv7/physx/lib
-/third/x86_64/physx/include
-/third/x86_64/physx/lib
-/third/win32/physx
-/third/win32/zlib
-/third/win32/freetype/include
-/third/win32/freetype/lib
-
-/third/win32/freetype-2.5.3
-/third/win32/freetype-2.4.9
+/third/physx/*/include
+/third/physx/*/lib

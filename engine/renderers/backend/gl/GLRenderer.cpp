@@ -27,7 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 
 #if defined(LINUX) || defined(WINDOWS)
-	#include <GL/glew.h>
+	#define GL_GLEXT_PROTOTYPES
+	#include <GL/glcorearb.h>
 #elif defined(ANDROID)
 	#include <GLES2/gl2.h>
 	#include <GLES2/gl2ext.h>
@@ -52,6 +53,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexFormat.h"
 #include "Hash.h"
 #include "MathUtils.h"
+#include "PixelFormat.h"
 
 #if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
 
@@ -154,40 +156,6 @@ const TextureFormatInfo TEXTURE_FORMAT_TABLE[PixelFormat::COUNT] =
 	{ GL_DEPTH_COMPONENT24,             GL_DEPTH_COMPONENT               },
 	{ GL_DEPTH_COMPONENT32,             GL_DEPTH_COMPONENT               },
 	{ GL_DEPTH24_STENCIL8,              GL_DEPTH_STENCIL                 }
-};
-
-//-----------------------------------------------------------------------------
-static bool is_compressed(PixelFormat::Enum fmt)
-{
-	return fmt < PixelFormat::R8G8B8;
-}
-
-//-----------------------------------------------------------------------------
-static bool is_color(PixelFormat::Enum fmt)
-{
-	return fmt >= PixelFormat::R8G8B8 && fmt < PixelFormat::D16;
-}
-
-//-----------------------------------------------------------------------------
-static bool is_depth(PixelFormat::Enum fmt)
-{
-	return fmt >= PixelFormat::D16 && fmt < PixelFormat::COUNT;
-}
-
-//-----------------------------------------------------------------------------
-static uint32_t PIXEL_FORMAT_SIZES[PixelFormat::COUNT] =
-{
-	8,  // DXT1,
-	16, // DXT3,
-	16, // DXT5,
-
-	3, // R8G8B8,
-	4, // R8G8B8A8,
-
-	2, // D16,
-	3, // D24,
-	4, // D32,
-	4, // D24S8,
 };
 
 //-----------------------------------------------------------------------------
@@ -416,7 +384,7 @@ struct Texture
 		const GLenum internal_fmt = TEXTURE_FORMAT_TABLE[format].internal_format;
 		const GLenum fmt = TEXTURE_FORMAT_TABLE[format].format;
 
-		if (is_compressed(format))
+		if (pixel_format::is_compressed(format))
 		{
 			const char* src = (const char*) data;
 			uint32_t w = width;
@@ -429,7 +397,7 @@ struct Texture
 							internal_fmt,
 							w, h,
 							0,
-						 	w * h * PIXEL_FORMAT_SIZES[format],
+						 	pixel_format::size(format) * w * h,
 						 	src));
 			}
 		}
@@ -450,8 +418,9 @@ struct Texture
 						 	GL_UNSIGNED_BYTE,
 						 	src));
 
-				// w = math::max(uint32_t(1), w >> uint32_t(1));
-				// h = math::max(uint32_t(1), h >> uint32_t(1));
+				w = math::max(1u, w >> 1);
+				h = math::max(1u, h >> 1);
+				src += pixel_format::size(format) * w * h;
 			}
 		}
 
@@ -469,14 +438,14 @@ struct Texture
 	{
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_id));
 
-		if (is_compressed(m_format))
+		if (pixel_format::is_compressed(m_format))
 		{
 			GL_CHECK(glCompressedTexSubImage2D(GL_TEXTURE_2D,
 				0,
 				x, y,
 				width, height,
 				m_gl_fmt,
-				width * height * PIXEL_FORMAT_SIZES[m_format],
+				pixel_format::size(m_format) * width * height,
 				data));
 		}
 		else
@@ -742,8 +711,8 @@ struct RenderTarget
 		const bool no_texture = (flags & RENDER_TARGET_NO_TEXTURE) >> RENDER_TARGET_SHIFT;
 		const TextureFormatInfo& tif = TEXTURE_FORMAT_TABLE[format];
 
-		const GLenum attachment = is_depth(format) ? GL_DEPTH_ATTACHMENT :
-									is_color(format) ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_STENCIL_ATTACHMENT;
+		const GLenum attachment = pixel_format::is_depth(format) ? GL_DEPTH_ATTACHMENT :
+									pixel_format::is_color(format) ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_STENCIL_ATTACHMENT;
 
 		if (!no_texture)
 		{
@@ -827,12 +796,6 @@ public:
 	{
 		m_gl_context.create_context();
 
-		#if defined(LINUX) || defined(WINDOWS)
-			GLenum err = glewInit();
-			CE_ASSERT(err == GLEW_OK, "Failed to initialize GLEW");
-			CE_UNUSED(err);
-		#endif
-
 		GL_CHECK(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_max_texture_size));
 		GL_CHECK(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &m_max_texture_units));
 		// GL_CHECK(glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &m_max_vertex_indices));
@@ -854,12 +817,6 @@ public:
 		CE_LOGD("Max Texture Units    : %d", m_max_texture_units);
 		CE_LOGD("Max Vertex Indices   : %d", m_max_vertex_indices);
 		CE_LOGD("Max Vertex Vertices  : %d", m_max_vertex_vertices);
-
-		#if defined(LINUX) || defined(WINDOWS)
-			// Point sprites enabled by default
-			GL_CHECK(glEnable(GL_POINT_SPRITE));
-			GL_CHECK(glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE));
-		#endif
 
 		CE_LOGI("OpenGL Renderer initialized.");
 	}

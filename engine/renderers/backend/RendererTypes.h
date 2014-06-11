@@ -117,15 +117,6 @@ struct VertexFormat
 	};
 };
 
-// [0 - 2]		-> 8-bit
-// [3 - 11] 	-> 16-bit
-// [12 - 13]	-> 24-bit
-// [14 - 23]	-> 32-bit
-// [24 - 25]	-> 48-bit
-// [26 - 31]	-> 64-bit
-// [32 - 35]	-> 96-bit
-// [36 - 39]	-> 128-bit
-// 40			-> Unknown (0-bit)
 /// Enumerates pixel formats.
 struct PixelFormat
 {

@@ -213,25 +213,27 @@ LOCAL_C_INCLUDES	:=\
 	$(LOCAL_PATH)/resource\
 	$(LOCAL_PATH)/world\
 \
-	$(LOCAL_PATH)/third/ARMv7/luajit/include/luajit-2.0\
+	$(LOCAL_PATH)/third/luajit/android/include/luajit-2.0\
 \
-	$(LOCAL_PATH)/third/ARMv7/physx/include\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/common\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/characterkinematic\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/cloth\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/common\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/cooking\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/extensions\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/foundation\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/geometry\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/particles\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/physxprofilesdk\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/physxvisualdebuggersdk\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/pvd\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/pxtask\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/RepX\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/RepXUpgrader\
-	$(LOCAL_PATH)/third/ARMv7/physx/include/vehicle\
+	$(LOCAL_PATH)/third/opengl\
+\
+	$(LOCAL_PATH)/third/physx/android/include\
+	$(LOCAL_PATH)/third/physx/android/include/common\
+	$(LOCAL_PATH)/third/physx/android/include/characterkinematic\
+	$(LOCAL_PATH)/third/physx/android/include/cloth\
+	$(LOCAL_PATH)/third/physx/android/include/common\
+	$(LOCAL_PATH)/third/physx/android/include/cooking\
+	$(LOCAL_PATH)/third/physx/android/include/extensions\
+	$(LOCAL_PATH)/third/physx/android/include/foundation\
+	$(LOCAL_PATH)/third/physx/android/include/geometry\
+	$(LOCAL_PATH)/third/physx/android/include/particles\
+	$(LOCAL_PATH)/third/physx/android/include/physxprofilesdk\
+	$(LOCAL_PATH)/third/physx/android/include/physxvisualdebuggersdk\
+	$(LOCAL_PATH)/third/physx/android/include/pvd\
+	$(LOCAL_PATH)/third/physx/android/include/pxtask\
+	$(LOCAL_PATH)/third/physx/android/include/RepX\
+	$(LOCAL_PATH)/third/physx/android/include/RepXUpgrader\
+	$(LOCAL_PATH)/third/physx/android/include/vehicle\
 	
 LOCAL_CPPFLAGS :=\
 	-std=c++03\

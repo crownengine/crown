@@ -68,62 +68,41 @@ endif (CROWN_BUILD MATCHES "linux-debug-32")
 set (CROWN_EXECUTABLE_NAME crown-${CROWN_BUILD})
 set (CROWN_LIBRARY_NAME crown-lib-${CROWN_BUILD})
 
-# detect architecture
-if (CROWN_ARCH MATCHES "x86")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86)
-endif (CROWN_ARCH MATCHES "x86")
-
-if (CROWN_ARCH MATCHES "x86_64")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/x86_64)
-endif (CROWN_ARCH MATCHES "x86_64")
-
-if (CROWN_ARCH MATCHES "win32")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/win32)
-endif (CROWN_ARCH MATCHES "win32")
-
-if (CROWN_ARCH MATCHES "win64")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/win64)
-endif (CROWN_ARCH MATCHES "win64")
-
-if (CROWN_ARCH MATCHES "ARMv7")
-	set (CROWN_THIRD ${CMAKE_SOURCE_DIR}/third/ARMv7)
-endif (CROWN_ARCH MATCHES "ARMv7")
-
 # architecture dependent includes
 set (CROWN_THIRD_INCLUDES
-	${CROWN_THIRD}/luajit/include/luajit-2.0
-	${CROWN_THIRD}/glew-1.9.0/include
-	${CROWN_THIRD}/openAL/include
-	${CROWN_THIRD}/physx/include
-	${CROWN_THIRD}/physx/include/common
-	${CROWN_THIRD}/physx/include/characterkinematic
-	${CROWN_THIRD}/physx/include/cloth
-	${CROWN_THIRD}/physx/include/common
-	${CROWN_THIRD}/physx/include/cooking
-	${CROWN_THIRD}/physx/include/extensions
-	${CROWN_THIRD}/physx/include/foundation
-	${CROWN_THIRD}/physx/include/geometry
-	${CROWN_THIRD}/physx/include/particles
-	${CROWN_THIRD}/physx/include/physxprofilesdk
-	${CROWN_THIRD}/physx/include/physxvisualdebuggersdk
-	${CROWN_THIRD}/physx/include/pvd
-	${CROWN_THIRD}/physx/include/pxtask
-	${CROWN_THIRD}/physx/include/RepX
-	${CROWN_THIRD}/physx/include/RepXUpgrader
-	${CROWN_THIRD}/physx/include/vehicle
+	${CMAKE_SOURCE_DIR}/third/luajit/${CROWN_ARCH}/include/luajit-2.0
+	${CMAKE_SOURCE_DIR}/third/opengl
+	${CMAKE_SOURCE_DIR}/third/openal/include
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/common
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/characterkinematic
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/cloth
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/common
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/cooking
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/extensions
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/foundation
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/geometry
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/particles
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/physxprofilesdk
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/physxvisualdebuggersdk
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/pvd
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/pxtask
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/RepX
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/RepXUpgrader
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/vehicle
 	${CMAKE_SOURCE_DIR}/third/freetype
 	${CMAKE_SOURCE_DIR}/third/stb_image
+	${CMAKE_SOURCE_DIR}/third/stb_vorbis
 )
 
 # architecture dependent libraries
 set (CROWN_THIRD_LIBS
-	${CROWN_THIRD}/luajit/lib
-	${CROWN_THIRD}/glew-1.9.0/lib
-	${CROWN_THIRD}/openAL/lib
-	${CROWN_THIRD}/physx/lib
+	${CMAKE_SOURCE_DIR}/third/luajit/${CROWN_ARCH}/lib
+	${CMAKE_SOURCE_DIR}/third/openal/lib
+	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/lib
 )
 
-add_subdirectory(${CROWN_THIRD})
+add_subdirectory(third)
 
 # always build the engine
 add_subdirectory(engine)

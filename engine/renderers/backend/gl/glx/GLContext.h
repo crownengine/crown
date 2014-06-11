@@ -39,12 +39,12 @@ void set_x11_display_and_window(Display* dpy, Window win);
 class GLContext
 {
 public:
-					GLContext();
+	GLContext();
 
-	void			create_context();
-	void			destroy_context();
+	void create_context();
+	void destroy_context();
 
-	void			swap_buffers();
+	void swap_buffers();
 
 	bool is_valid()
 	{

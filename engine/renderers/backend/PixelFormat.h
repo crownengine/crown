@@ -32,43 +32,47 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-
-class Pixel
+namespace pixel_format
 {
-public:
 
-	/// Returns the bytes occupied by @a format
-	static size_t bytes_per_pixel(PixelFormat::Enum format)
+//-----------------------------------------------------------------------------
+inline uint32_t size(PixelFormat::Enum fmt)
+{
+	switch (fmt)
 	{
-		switch (format)
-		{
-			case PixelFormat::R8G8B8:
-			{
-				return 3;
-			}
-			case PixelFormat::R8G8B8A8:
-			{
-				return 4;
-			}
-			default:
-			{
-				CE_FATAL("Oops, unknown pixel format");
-				return 0;
-			}
-		}
+		case PixelFormat::DXT1: return 8;
+		case PixelFormat::DXT3: return 16;
+		case PixelFormat::DXT5: return 16;
+
+		case PixelFormat::R8G8B8: return 3;
+		case PixelFormat::R8G8B8A8: return 4;
+
+		case PixelFormat::D16: return 2;
+		case PixelFormat::D24: return 3;
+		case PixelFormat::D32: return 4;
+		case PixelFormat::D24S8: return 4;
+
+		default: CE_FATAL("Unknown pixel format"); return 0;
 	}
+}
 
-	/// Returns the bits occupied by @a format
-	static size_t bits_per_pixel(PixelFormat::Enum format)
-	{
-		return bytes_per_pixel(format) * 8;
-	}
+//-----------------------------------------------------------------------------
+inline bool is_compressed(PixelFormat::Enum fmt)
+{
+	return fmt < PixelFormat::R8G8B8;
+}
 
-private:
+//-----------------------------------------------------------------------------
+inline bool is_color(PixelFormat::Enum fmt)
+{
+	return fmt >= PixelFormat::R8G8B8 && fmt < PixelFormat::D16;
+}
 
-	// Disable construction
-	Pixel();
-};
+//-----------------------------------------------------------------------------
+inline bool is_depth(PixelFormat::Enum fmt)
+{
+	return fmt >= PixelFormat::D16 && fmt < PixelFormat::COUNT;
+}
 
+} // namespace pixel_format
 } // namespace crown
-

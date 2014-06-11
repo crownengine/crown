@@ -392,13 +392,10 @@ if (LINUX)
 	)
 
 	list (APPEND CROWN_LIBRARIES
-		rt
-		z
 		X11
 		Xrandr
 		pthread
 		dl
-		GLEW
 		GL
 		openal
 		luajit-5.1
@@ -527,7 +524,6 @@ if (WINDOWS)
 
 	list (APPEND CROWN_LIBRARIES
 		OpenGL32
-		glew32
 		lua51
 		OpenAL32
 	)
