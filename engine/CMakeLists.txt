@@ -402,7 +402,6 @@ if (LINUX)
 		GLEW
 		GL
 		openal
-		vorbisfile
 		luajit-5.1
 	)
 
@@ -533,8 +532,6 @@ if (WINDOWS)
 		glew32
 		lua51
 		OpenAL32
-		libvorbis
-		libvorbisfile
 	)
 
 	set (COMPILER_FLAGS

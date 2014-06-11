@@ -133,4 +133,3 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 // Engine/Audio
 #include "SoundWorld.h"
-#include "OggDecoder.h"

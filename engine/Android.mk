@@ -11,21 +11,6 @@ LOCAL_SRC_FILES := libluajit-5.1.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 ###############################################################################
-# libogg & libvorbis
-###############################################################################
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := ogg
-LOCAL_SRC_FILES := libogg.a
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := vorbis
-LOCAL_SRC_FILES := libvorbis.a
-include $(PREBUILT_STATIC_LIBRARY)
-
-###############################################################################
 # nvidia physx
 ###############################################################################
 include $(CLEAR_VARS)
@@ -230,8 +215,6 @@ LOCAL_C_INCLUDES	:=\
 \
 	$(LOCAL_PATH)/third/ARMv7/luajit/include/luajit-2.0\
 \
-	$(LOCAL_PATH)/third/ARMv7/oggvorbis/include\
-\
 	$(LOCAL_PATH)/third/ARMv7/physx/include\
 	$(LOCAL_PATH)/third/ARMv7/physx/include/common\
 	$(LOCAL_PATH)/third/ARMv7/physx/include/characterkinematic\
@@ -267,7 +250,7 @@ LOCAL_CPPFLAGS :=\
 
 LOCAL_LDLIBS := -L$(LOCAL_PATH) -Wl,--start-group $(addprefix -l, $(PhysX_libraries)) -Wl,--end-group -llog -landroid -lEGL -lGLESv2 -lz -lOpenSLES
 LOCAL_SHARED_LIBRARIES := luajit-5.1
-LOCAL_STATIC_LIBRARIES := android_native_app_glue ogg vorbis
+LOCAL_STATIC_LIBRARIES := android_native_app_glue
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module,android/native_app_glue)
