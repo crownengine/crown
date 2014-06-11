@@ -306,7 +306,6 @@ set (AUDIO_SRC)
 
 set (AUDIO_HEADERS
 	audio/SoundWorld.h
-	audio/OggDecoder.h
 )
 
 set (PHYSICS_SRC
