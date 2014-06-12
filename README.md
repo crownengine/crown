@@ -19,8 +19,6 @@ In order to be able to successfully build the engine, you have to install and/or
 
 Linux:
 
-* zlib
-* GLEW
 * Xlib
 * Xrandr
 * nVidia PhysX 3.3.0+
@@ -32,8 +30,6 @@ Android:
 
 Windows:
 
-* zlib
-* GLEW
 * nVidia PhysX 3.3.0+
 
 ##Building
