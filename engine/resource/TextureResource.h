@@ -86,12 +86,12 @@ namespace crown
 #define DDS_LUMINANCEA				uint32_t(DDPF_LUMINANCE | DDPF_ALPHAPIXELS)
 #define DDS_ALPHA					uint32_t(DDPF_ALPHA)
 
-#define DDFP_FOURCC_DXT1			FOURCC('D', 'X', 'T', '1')
-#define DDFP_FOURCC_DXT2			FOURCC('D', 'X', 'T', '2')
-#define DDFP_FOURCC_DXT3			FOURCC('D', 'X', 'T', '3')
-#define DDFP_FOURCC_DXT4			FOURCC('D', 'X', 'T', '4')
-#define DDFP_FOURCC_DXT5			FOURCC('D', 'X', 'T', '5')
-#define DDFP_FOURCC_DX10			FOURCC('D', 'X', '1', '0')
+#define DDPF_FOURCC_DXT1			FOURCC('D', 'X', 'T', '1')
+#define DDPF_FOURCC_DXT2			FOURCC('D', 'X', 'T', '2')
+#define DDPF_FOURCC_DXT3			FOURCC('D', 'X', 'T', '3')
+#define DDPF_FOURCC_DXT4			FOURCC('D', 'X', 'T', '4')
+#define DDPF_FOURCC_DXT5			FOURCC('D', 'X', 'T', '5')
+#define DDPF_FOURCC_DX10			FOURCC('D', 'X', '1', '0')
 
 struct DdsPixelFormat
 {
@@ -180,9 +180,9 @@ struct TextureResource
 		const uint32_t fmt = ddspf.flags & DDPF_FOURCC ? ddspf.fourcc : ddspf.flags;
 		switch (fmt)
 		{
-			case DDFP_FOURCC_DXT1: return PixelFormat::DXT1; break;
-			case DDFP_FOURCC_DXT3: return PixelFormat::DXT3; break;
-			case DDFP_FOURCC_DXT5: return PixelFormat::DXT5; break;
+			case DDPF_FOURCC_DXT1: return PixelFormat::DXT1; break;
+			case DDPF_FOURCC_DXT3: return PixelFormat::DXT3; break;
+			case DDPF_FOURCC_DXT5: return PixelFormat::DXT5; break;
 			case DDS_RGB: return PixelFormat::R8G8B8; break;
 			case DDS_RGBA: return PixelFormat::R8G8B8A8; break;
 			default: CE_FATAL("Unknown pixel format"); return PixelFormat::COUNT;

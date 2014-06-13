@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TextureResource.h"
 #include "ReaderWriter.h"
 #include "JSONParser.h"
+#include "MathUtils.h"
 
 namespace crown
 {
@@ -40,10 +41,50 @@ struct ImageData
 {
 	uint32_t width;
 	uint32_t height;
+	uint32_t pitch;
 	PixelFormat::Enum format;
 	uint32_t num_mips;
 	char* data;
 };
+
+struct MipData
+{
+	uint32_t width;
+	uint32_t height;
+	PixelFormat::Enum format;
+	uint32_t size;
+	char* data;
+};
+
+//-----------------------------------------------------------------------------
+void read_mip_image(const ImageData& image, uint8_t mip, MipData& data)
+{
+	uint32_t width = image.width;
+	uint32_t height = image.height;
+	//uint32_t pitch = image.pitch;
+	uint32_t cur_mip = 0;
+	char* src = image.data;
+
+	while (1)
+	{
+		const uint32_t size = width * height * pixel_format::size(image.format);
+
+		if (cur_mip == mip)
+		{
+			data.width = width;
+			data.height = height;
+			data.format = image.format;
+			data.size = size;
+			data.data = src;
+			return;
+		}
+		
+		width = math::max(1u, width >> 1);
+		height = math::max(1u, height >> 1);
+		cur_mip++;
+		src += size;
+	}
+}
 
 //-----------------------------------------------------------------------------
 void swap_red_blue(uint32_t width, uint32_t height, uint8_t channels, char* data)
@@ -214,7 +255,7 @@ void parse_tga(BinaryReader& br, ImageData& image)
 		default: CE_FATAL("TGA channels not supported"); break;
 	}
 
-	image.data = (char*) default_allocator().allocate(Pixel::bytes_per_pixel(image.format) * width * height);
+	image.data = (char*) default_allocator().allocate(pixel_format::size(image.format) * width * height);
 
 	if (image_type == 2)
 	{
@@ -227,21 +268,6 @@ void parse_tga(BinaryReader& br, ImageData& image)
 
 	return;
 }
-
-static DdsPixelFormat PIXEL_FORMAT_TO_DDSPF[PixelFormat::COUNT] =
-{
-	{ DDPF_HEADERSIZE, DDS_FOURCC, DDFP_FOURCC_DXT1, 0, 0, 0, 0, 0 }, // DXT1
-	{ DDPF_HEADERSIZE, DDS_FOURCC, DDFP_FOURCC_DXT3, 0, 0, 0, 0, 0 }, // DXT3
-	{ DDPF_HEADERSIZE, DDS_FOURCC, DDFP_FOURCC_DXT5, 0, 0, 0, 0, 0 }, // DXT5
-
-	{ DDPF_HEADERSIZE, DDS_RGB,    0,                24, 0xFF0000, 0xFF00, 0xFF, 0}, // R8G8B8
-	{ DDPF_HEADERSIZE, DDS_RGBA,   0,                32, 0xFF000000, 0xFF0000, 0xFF00, 0xFF}, // R8G8B8A8
-
-	{ 0, 0, 0, 0, 0, 0, 0, 0}, // D16
-	{ 0, 0, 0, 0, 0, 0, 0, 0}, // D24
-	{ 0, 0, 0, 0, 0, 0, 0, 0}, // D32
-	{ 0, 0, 0, 0, 0, 0, 0, 0}, // D24S8
-};
 
 //-----------------------------------------------------------------------------
 void parse_dds(BinaryReader& br, ImageData& image)
@@ -319,30 +345,31 @@ void parse_dds(BinaryReader& br, ImageData& image)
 	uint32_t reserved2;
 	br.read(reserved2);
 
+	CE_LOGD("width = %u", width);
+	CE_LOGD("height = %u", height);
+	CE_LOGD("mips = %u", num_mips);
+	CE_LOGD("pitch = %u (valid = %s)", pitch, flags & DDSD_PITCH ? "yes" : "no");
+	CE_LOGD("pfflags = %.8x", pf_flags);
+
 	image.width = width;
 	image.height = height;
+	image.pitch = pitch;
 	image.num_mips = (flags & DDSD_MIPMAPCOUNT) ? num_mips : 1;
-	image.format = PixelFormat::COUNT;
+	image.data = (char*) (uintptr_t) DDS_DATA_OFFSET;
 
-	DdsPixelFormat ddspf;
-	ddspf.size = pf_hsize;
-	ddspf.flags = pf_flags;
-	ddspf.fourcc = pf_fourcc;
-	ddspf.bitcount = pf_bitcount;
-	ddspf.rmask = pf_rmask;
-	ddspf.gmask = pf_gmask;
-	ddspf.bmask = pf_bmask;
-	ddspf.amask = pf_amask;
-
-	for (uint32_t i = 0; i < PixelFormat::COUNT; i++)
+	const uint32_t raw_fmt = (pf_flags & DDPF_FOURCC) ? pf_fourcc : pf_flags;
+	switch (raw_fmt)
 	{
-		if (memcmp(&ddspf, &PIXEL_FORMAT_TO_DDSPF[(PixelFormat::Enum) i], sizeof(DdsPixelFormat)) == 0)
-		{
-			image.format = (PixelFormat::Enum) i;
-		}
-	}
+		case DDPF_FOURCC_DXT1: image.format = PixelFormat::DXT1; break;
+		case DDPF_FOURCC_DXT3: image.format = PixelFormat::DXT3; break;
+		case DDPF_FOURCC_DXT5: image.format = PixelFormat::DXT5; break;
+		case DDS_RGB: image.format = PixelFormat::R8G8B8; break;
+		case DDS_RGBA: image.format = PixelFormat::R8G8B8A8; break;
+		default: image.format = PixelFormat::COUNT; break;
+	} 
 
 	CE_ASSERT(image.format != PixelFormat::COUNT, "DDS pixel format not supported");
+	CE_LOGD("PixelFormat = %u", image.format);
 }
 
 //-----------------------------------------------------------------------------
@@ -352,10 +379,16 @@ void write_dds(BinaryWriter& bw, const ImageData& image)
 
 	// Header
 	bw.write(DDSD_HEADERSIZE); // dwSize
-	bw.write(DDS_HEADER_FLAGS_TEXTURE | DDSD_PITCH | DDSD_MIPMAPCOUNT); // dwFlags
+	bw.write(DDS_HEADER_FLAGS_TEXTURE
+		| DDSD_MIPMAPCOUNT
+		| (pixel_format::is_compressed(image.format) ? DDSD_LINEARSIZE : DDSD_PITCH)
+		| (image.num_mips ? DDSD_MIPMAPCOUNT : 0)); // dwFlags
 	bw.write(image.height); // dwHeight
 	bw.write(image.width); // dwWidth
-	const uint32_t pitch = uint32_t(( image.width * 32 + 7 ) / 8);
+
+	const uint32_t pitch = pixel_format::is_compressed(image.format) ? 0 // fixme
+							: (image.width * pixel_format::size(image.format) * 8 + 7) / 8;
+
 	bw.write(pitch); // dwPitchOrLinearSize
 	bw.write(DDSD_UNUSED); // dwDepth
 	bw.write(image.num_mips); // dwMipMapCount;
@@ -363,28 +396,42 @@ void write_dds(BinaryWriter& bw, const ImageData& image)
 	for (uint32_t i = 0; i < 11; i++)
 		bw.write(DDSD_UNUSED); // dwReserved1[11];
 
-	// PixelFormat
+	// Pixel format
 	bw.write(DDPF_HEADERSIZE); // dwSize;
-	const uint32_t pf = DDPF_RGB | (image.format == PixelFormat::R8G8B8A8 ? DDPF_ALPHAPIXELS : 0);
-	bw.write(pf); // dwFlags;
-	bw.write(DDSD_UNUSED); // dwFourCC;
-	bw.write(uint32_t(image.format == PixelFormat::R8G8B8A8 ? 32 : 24)); // dwRGBBitCount;
-	bw.write(uint32_t(0x000000FF)); // dwRBitMask;
+	uint32_t pf = 0;
+	switch (image.format)
+	{
+		case PixelFormat::DXT1:     pf = DDPF_FOURCC_DXT1; break;
+		case PixelFormat::DXT3:     pf = DDPF_FOURCC_DXT3; break;
+		case PixelFormat::DXT5:     pf = DDPF_FOURCC_DXT5; break;
+		case PixelFormat::R8G8B8:   pf = DDS_RGB; break;
+		case PixelFormat::R8G8B8A8: pf = DDS_RGBA; break;
+		default: CE_FATAL("Pixel format unknown"); break;
+	}
+	bw.write(pixel_format::is_compressed(image.format) ? DDPF_FOURCC : pf); // dwFlags;
+	bw.write(pixel_format::is_compressed(image.format) ? pf : DDSD_UNUSED); // dwFourCC;
+	bw.write(uint32_t(pixel_format::size(image.format) * 8)); // dwRGBBitCount;
+	bw.write(uint32_t(0x00FF0000)); // dwRBitMask;
 	bw.write(uint32_t(0x0000FF00)); // dwGBitMask;
-	bw.write(uint32_t(0x00FF0000)); // dwBBitMask;
+	bw.write(uint32_t(0x000000FF)); // dwBBitMask;
 	bw.write(uint32_t(0xFF000000)); // dwABitMask;
 
-	bw.write(DDSCAPS_TEXTURE); // dwCaps;
+	bw.write(DDSCAPS_TEXTURE
+		| (image.num_mips > 1 ? DDSCAPS_COMPLEX : DDSD_UNUSED) // also for cubemap, depth mipmap
+		| (image.num_mips > 1 ? DDSCAPS_MIPMAP : DDSD_UNUSED)); // dwCaps;
 	bw.write(DDSD_UNUSED); // dwCaps2;
 	bw.write(DDSD_UNUSED); // dwCaps3;
 	bw.write(DDSD_UNUSED); // dwCaps4;
 	bw.write(DDSD_UNUSED); // dwReserved2;
 
-	const char* data = image.data;
-	for (uint32_t i = 0; i < image.height; i++)
+	// Image data
+	for (uint32_t i = 0; i < image.num_mips; i++)
 	{
-		bw.write((const void*) data, pitch);
-		data += pitch;
+		MipData mip;
+		read_mip_image(image, i, mip);
+
+		CE_LOGD("Writing mip: (%ux%u) byes = %u", mip.width, mip.height, mip.size);
+		bw.write(mip.data, mip.size);
 	}
 }
 
@@ -411,7 +458,14 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	else if (name.ends_with(".dds"))
 	{
 		// parse_dds(br, image);
-		CE_FATAL(".dds not supported");
+		// size_t size = source->size();
+		// image.data = (char*) default_allocator().allocate(size);
+		// source->seek(0);
+		// source->read(image.data, size);
+		// image.data += DDS_DATA_OFFSET;
+
+		// BinaryWriter bw(*out_file);
+		// write_dds(bw, image);
 	}
 	else
 	{
