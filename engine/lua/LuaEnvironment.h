@@ -78,6 +78,7 @@ public:
 
 	// HACK
 	void call_physics_callback(Actor* actor_0, Actor* actor_1, Unit* unit_0, Unit* unit_1, const Vector3& where, const Vector3& normal, const char* type);
+	void call_trigger_callback(Actor* trigger, Actor* other, const char* type);
 
 private:
 

@@ -165,6 +165,7 @@ void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 	lua_pcall(m_L, argc, 0, -argc - 2);
 }
 
+//-----------------------------------------------------------------------------
 void LuaEnvironment::call_physics_callback(Actor* actor_0, Actor* actor_1, Unit* unit_0, Unit* unit_1, const Vector3& where, const Vector3& normal, const char* type)
 {
 	LuaStack stack(m_L);
@@ -179,6 +180,22 @@ void LuaEnvironment::call_physics_callback(Actor* actor_0, Actor* actor_1, Unit*
 	stack.push_key_begin("unit_1"); (unit_1 ? stack.push_unit(unit_1) : stack.push_nil()); stack.push_key_end();
 	stack.push_key_begin("where"); stack.push_vector3(where); stack.push_key_end();
 	stack.push_key_begin("normal"); stack.push_vector3(normal); stack.push_key_end();
+	stack.push_key_begin("type"); stack.push_string(type); stack.push_key_end();
+
+	lua_pcall(m_L, 1, 0, -3);
+}
+
+//-----------------------------------------------------------------------------
+void LuaEnvironment::call_trigger_callback(Actor* trigger, Actor* other, const char* type)
+{
+	LuaStack stack(m_L);
+
+	lua_pushcfunction(m_L, lua_system::error_handler);
+	lua_getglobal(m_L, "g_trigger_callback");
+
+	stack.push_table();
+	stack.push_key_begin("trigger"); (trigger ? stack.push_actor(trigger) : stack.push_nil()); stack.push_key_end();
+	stack.push_key_begin("other"); (other ? stack.push_actor(other) : stack.push_nil()); stack.push_key_end();
 	stack.push_key_begin("type"); stack.push_string(type); stack.push_key_end();
 
 	lua_pcall(m_L, 1, 0, -3);
