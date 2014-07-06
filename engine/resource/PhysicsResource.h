@@ -96,6 +96,8 @@ struct PhysicsShape
 	StringId32 type;			// Type of the shape
 	StringId32 material;		// Material from global.physics_config
 	ResourceId resource;		// Resource such as .mesh or .heightmap
+	Vector3 position;			// In actor space
+	Quaternion rotation;		// In actor space
 	float data_0;
 	float data_1;
 	float data_2;

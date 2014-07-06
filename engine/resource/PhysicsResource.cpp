@@ -104,6 +104,8 @@ void parse_shapes(JSONElement e, Array<PhysicsShape>& shapes)
 		ps.material = material.to_string_id();
 		DynamicString stype; type.to_string(stype);
 		ps.type = shape_type_to_enum(stype.c_str());
+		ps.position = shape.key("position").to_vector3();
+		ps.rotation = shape.key("rotation").to_quaternion();
 
 		switch (ps.type)
 		{

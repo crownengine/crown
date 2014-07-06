@@ -51,18 +51,23 @@ using physx::PxCapsuleGeometry;
 using physx::PxConvexFlag;
 using physx::PxConvexMesh;
 using physx::PxConvexMeshDesc;
+using physx::PxConvexMeshGeometry;
 using physx::PxD6Axis;
 using physx::PxD6Joint;
 using physx::PxD6JointCreate;
 using physx::PxD6Motion;
+using physx::PxDefaultMemoryInputData;
+using physx::PxDefaultMemoryOutputStream;
 using physx::PxFilterData;
 using physx::PxForceMode;
 using physx::PxMat44;
 using physx::PxPlaneGeometry;
+using physx::PxQuat;
 using physx::PxReal;
 using physx::PxRigidActor;
 using physx::PxRigidBody;
 using physx::PxRigidBodyExt;
+using physx::PxRigidBodyFlag;
 using physx::PxRigidDynamic;
 using physx::PxRigidDynamicFlag;
 using physx::PxRigidStatic;
@@ -70,13 +75,9 @@ using physx::PxShape;
 using physx::PxShapeFlag;
 using physx::PxSphereGeometry;
 using physx::PxTransform;
-using physx::PxU32;
 using physx::PxU16;
+using physx::PxU32;
 using physx::PxVec3;
-using physx::PxDefaultMemoryOutputStream;
-using physx::PxDefaultMemoryInputData;
-using physx::PxConvexMeshGeometry;
-using physx::PxRigidBodyFlag;
 
 namespace crown
 {
@@ -192,6 +193,12 @@ void Actor::create_objects()
 			}
 		}
 
+		// Setup shape pose
+		px_shape->setLocalPose(PxTransform(
+								PxVec3(shape.position.x, shape.position.y, shape.position.z),
+								PxQuat(shape.rotation.x, shape.rotation.y, shape.rotation.z, shape.rotation.w)));
+
+		// Setup collision filters
 		PxFilterData filter_data;
 		filter_data.word0 = config->filter(shape_class.collision_filter).me;
 		filter_data.word1 = config->filter(shape_class.collision_filter).mask;
