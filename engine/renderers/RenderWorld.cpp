@@ -44,6 +44,8 @@ namespace crown
 namespace render_world_globals
 {
 	static const char* default_vertex =
+		"#version 130\n"
+		"\n"
 		"precision mediump float;\n"
 		"uniform mat4      	u_model_view_projection;\n"
 
@@ -61,7 +63,9 @@ namespace render_world_globals
 		"	gl_Position = u_model_view_projection * a_position;\n"
 		"}\n";
 
-	static const char* default_fragment = 
+	static const char* default_fragment =
+		"#version 130\n"
+		"\n"
 		"precision mediump float;\n"
 		"varying vec4 color;\n"
 		"void main(void)\n"
@@ -69,7 +73,9 @@ namespace render_world_globals
 		"	gl_FragColor = color;\n"
 		"}\n";
 
-	static const char* texture_fragment = 
+	static const char* texture_fragment =
+		"#version 130\n"
+		"\n"
 		"precision mediump float;\n"
 		"varying vec2       tex_coord0;\n"
 		"varying vec4       color;\n"
@@ -82,6 +88,8 @@ namespace render_world_globals
 		"}\n";
 
 	static const char* sdf_vertex =
+		"#version 130\n"
+		"\n"
 		"precision mediump float;\n"
 		"uniform mat4      	u_model_view_projection;\n"
 
@@ -99,6 +107,8 @@ namespace render_world_globals
 		"}\n";
 
 	static const char* sdf_fragment =
+		"#version 130\n"
+		"\n"
 		"precision mediump float;\n"
 		"uniform sampler2D u_texture;\n"
 		"uniform vec4 u_color;\n"
@@ -114,6 +124,8 @@ namespace render_world_globals
 		"}\n";
 
 	static const char* default_color_fragment =
+		"#version 130\n"
+		"\n"
 		"precision mediump float;\n"
 		"uniform vec4 u_color;\n"
 		"void main(void)\n"
