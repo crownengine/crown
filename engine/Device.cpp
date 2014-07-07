@@ -440,11 +440,6 @@ void Device::destroy_resource_package(ResourcePackage* package)
 }
 
 //-----------------------------------------------------------------------------
-void Device::compile(const char* , const char* , const char* )
-{
-}
-
-//-----------------------------------------------------------------------------
 void Device::reload(const char* type, const char* name)
 {
 	#if defined(LINUX) || defined(WINDOWS)

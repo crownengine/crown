@@ -157,8 +157,6 @@ public:
 	/// ResourcePackage::unload() first.
 	void destroy_resource_package(ResourcePackage* package);
 
-	void compile(const char* bundle_dir, const char* source_dir, const char* resource);
-
 	void reload(const char* type, const char* name);
 
 	Filesystem* filesystem();
