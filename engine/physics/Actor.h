@@ -57,13 +57,13 @@ struct Actor
 	Actor(PhysicsWorld& pw, const PhysicsResource* res, uint32_t actor_idx, SceneGraph& sg, int32_t node, UnitId unit_id);
 	~Actor();
 
-	/// Sets the world position of the actor.
+	/// Returns the world position of the actor.
 	Vector3 world_position() const;
 
-	/// Sets the world rotation of the actor.
+	/// Returns the world rotation of the actor.
 	Quaternion world_rotation() const;
 
-	/// Sets the world pose of the actor.
+	/// Returns the world pose of the actor.
 	Matrix4x4 world_pose() const;
 
 	/// Teleports the actor to the given world position.
