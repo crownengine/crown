@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{1307AAA0-BFB8-494C-83CB-A4171C2E87F1}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>console</RootNamespace>
@@ -52,7 +50,7 @@
     </Reference>
     <Reference Include="Mono.Posix" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\..\..\Desktop\Net35\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\third\jsonnet\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

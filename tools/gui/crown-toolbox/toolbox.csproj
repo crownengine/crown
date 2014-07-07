@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{7FF1E014-7560-481E-B919-080C42F4C6EC}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>crowntoolbox</RootNamespace>

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "console", "console\console.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crown-tests", "crown-tests\crown-tests.csproj", "{4E5F6C4E-8C96-4903-B6AE-5C9ADCFC2C20}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "world-editor", "world-editor\world-editor.csproj", "{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,9 +49,21 @@ Global
 		{7FF1E014-7560-481E-B919-080C42F4C6EC}.Release|Mixed Platforms.Build.0 = Release|x86
 		{7FF1E014-7560-481E-B919-080C42F4C6EC}.Release|x86.ActiveCfg = Release|x86
 		{7FF1E014-7560-481E-B919-080C42F4C6EC}.Release|x86.Build.0 = Release|x86
+		{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}.Debug|Any CPU.Build.0 = Debug|x86
+		{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}.Debug|x86.ActiveCfg = Debug|x86
+		{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}.Debug|x86.Build.0 = Debug|x86
+		{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}.Release|Any CPU.ActiveCfg = Release|x86
+		{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}.Release|Any CPU.Build.0 = Release|x86
+		{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}.Release|Mixed Platforms.Build.0 = Release|x86
+		{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}.Release|x86.ActiveCfg = Release|x86
+		{8B9CA77F-30BD-433E-BB35-6E8618BE9EEB}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = crown-tests\crown-tests.csproj
+		StartupItem = console\console.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
 		$1.inheritsSet = null
@@ -68,11 +82,13 @@ Global
 		$2.scope = text/x-csharp
 		$0.TextStylePolicy = $3
 		$3.FileWidth = 120
-		$3.TabWidth = 2
-		$3.IndentWidth = 2
-		$3.inheritsSet = Mono
+		$3.TabsToSpaces = False
+		$3.inheritsSet = VisualStudio
 		$3.inheritsScope = text/plain
 		$3.scope = text/plain
+		$0.DotNetNamingPolicy = $4
+		$4.DirectoryNamespaceAssociation = None
+		$4.ResourceNamePolicy = FileFormatDefault
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
