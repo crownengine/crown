@@ -51,72 +51,109 @@ class SceneGraph;
 /// @ingroup World
 struct Camera
 {
-							Camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far);
+	Camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far);
 
-	Vector3					local_position() const;
-	Quaternion				local_rotation() const;
-	Matrix4x4				local_pose() const;
+	/// Returns the local position of the camera.
+	Vector3 local_position() const;
 
-	Vector3					world_position() const;
-	Quaternion				world_rotation() const;
-	Matrix4x4				world_pose() const;
+	/// Returns the local rotation of the camera.
+	Quaternion local_rotation() const;
 
-	void					set_local_position(Unit* unit, const Vector3& pos);
-	void					set_local_rotation(Unit* unit, const Quaternion& rot);
-	void					set_local_pose(Unit* unit, const Matrix4x4& pose);
+	/// Returns the local pose of the camera.
+	Matrix4x4 local_pose() const;
 
-	void					set_projection_type(ProjectionType::Enum type);
-	ProjectionType::Enum	projection_type() const;
+	/// Returns the world position of the camera.
+	Vector3 world_position() const;
 
-	const Matrix4x4&		projection_matrix() const;
+	/// Returns the world rotation of the camera.
+	Quaternion world_rotation() const;
 
-	float					fov() const;
-	void					set_fov(float fov);
+	/// Returns the world pose of the camera.
+	Matrix4x4 world_pose() const;
 
-	float					aspect() const;
-	void					set_aspect(float aspect);
+	/// Sets the local position of the camera.
+	void set_local_position(Unit* unit, const Vector3& pos);
 
-	float					near_clip_distance() const;
-	void					set_near_clip_distance(float near);
-	float					far_clip_distance() const;
-	void					set_far_clip_distance(float far);
+	/// Sets the local rotation of the camera.
+	void set_local_rotation(Unit* unit, const Quaternion& rot);
 
-	void					set_orthographic_metrics(float left, float right, float bottom, float top);
-	void 					set_viewport_metrics(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+	/// Sets the local pose of the camera.
+	void set_local_pose(Unit* unit, const Matrix4x4& pose);
 
-	Vector3					screen_to_world(const Vector3& pos);
-	Vector3					world_to_screen(const Vector3& pos);
+	/// Sets the projection type of the camera.
+	void set_projection_type(ProjectionType::Enum type);
+
+	/// Returns the projection type of the camera.
+	ProjectionType::Enum projection_type() const;
+
+	/// Returns the projection matrix of the camera.
+	const Matrix4x4& projection_matrix() const;
+
+	/// Returns the field-of-view of the camera in degrees.
+	float fov() const;
+
+	/// Sets the field-of-view of the camera in degrees.
+	void set_fov(float fov);
+
+	/// Returns the aspect ratio of the camera. (Perspective projection only.)
+	float aspect() const;
+
+	/// Sets the aspect ratio of the camera. (Perspective projection only.)
+	void set_aspect(float aspect);
+
+	/// Returns the near clip distance of the camera.
+	float near_clip_distance() const;
+
+	/// Sets the near clip distance of the camera.
+	void set_near_clip_distance(float near);
+
+	/// Returns the far clip distance of the camera.
+	float far_clip_distance() const;
+
+	/// Sets the far clip distance of the camera.
+	void set_far_clip_distance(float far);
+
+	/// Sets the coordinates for orthographic clipping planes. (Orthographic projection only.)
+	void set_orthographic_metrics(float left, float right, float bottom, float top);
+
+	/// Sets the coordinates for the camera viewport in pixels.
+	void set_viewport_metrics(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+
+	/// Returns @a pos from screen-space to world-space coordinates.
+	Vector3 screen_to_world(const Vector3& pos);
+
+	/// Returns @a pos from world-space to screen-space coordinates.
+	Vector3 world_to_screen(const Vector3& pos);
 
 public:
 
-	void					update_projection_matrix();
-	void					update_frustum();
+	void update_projection_matrix();
+	void update_frustum();
 
 public:
 
-	SceneGraph&				m_scene_graph;
-	int32_t					m_node;
+	SceneGraph& m_scene_graph;
+	int32_t m_node;
 
-	ProjectionType::Enum	m_projection_type;
-	Matrix4x4				m_projection;
+	ProjectionType::Enum m_projection_type;
+	Matrix4x4 m_projection;
 
-	Frustum					m_frustum;
-	float					m_FOV;
-	float					m_aspect;
-	float					m_near;
-	float					m_far;
+	Frustum m_frustum;
+	float m_FOV;
+	float m_aspect;
+	float m_near;
+	float m_far;
 
 	// Orthographic projection only
-	float					m_left;
-	float					m_right;
-	float					m_bottom;
-	float					m_top;
+	float m_left;
+	float m_right;
+	float m_bottom;
+	float m_top;
 
-	uint16_t				m_view_x;
-	uint16_t				m_view_y;
-	uint16_t				m_view_width;
-	uint16_t				m_view_height;
+	uint16_t m_view_x;
+	uint16_t m_view_y;
+	uint16_t m_view_width;
+	uint16_t m_view_height;
 };
 
 } // namespace crown
-
