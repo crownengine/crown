@@ -663,11 +663,6 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
 add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
 target_link_libraries(${CROWN_EXECUTABLE_NAME} crown-lib)
 
-if (CROWN_BUILD_TESTS)
-	add_subdirectory(tests)
-endif (CROWN_BUILD_TESTS)
-
-
 install (TARGETS crown-lib DESTINATION bin)
 install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
 
