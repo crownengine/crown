@@ -1,8 +1,0 @@
-{
-	"renderables" : {
-		"square" : { "node" : "root", "type" : "sprite", "resource" : "sprites/square", "visible" : true }
-	},
-	"nodes" : {
-		"root" : { "parent" : null, "position" : [0, 0, 0], "rotation" : [0, 0, 1, 0] }
-	}
-}

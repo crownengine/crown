@@ -1,8 +1,0 @@
-{
-	"cameras" : {
-		"camera" : { "node" : "root" }
-	},
-	"nodes" : {
-		"root" : { "parent" : null, "position" : [0, 0, 0], "rotation" : [0, 0, 1, 0] }
-	}
-}
