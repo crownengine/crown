@@ -71,7 +71,6 @@ set (CROWN_LIBRARY_NAME crown-lib-${CROWN_BUILD})
 # architecture dependent includes
 set (CROWN_THIRD_INCLUDES
 	${CMAKE_SOURCE_DIR}/third/luajit/${CROWN_ARCH}/include/luajit-2.0
-	${CMAKE_SOURCE_DIR}/third/opengl
 	${CMAKE_SOURCE_DIR}/third/openal/include
 	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include
 	${CMAKE_SOURCE_DIR}/third/physx/${CROWN_ARCH}/include/common
