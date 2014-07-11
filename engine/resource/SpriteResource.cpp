@@ -113,8 +113,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		const float x1 = fd.scale.x * ( w * 0.5) + fd.offset.x;
 		const float y1 = fd.scale.y * ( h * 0.5) + fd.offset.y;
 
-		CE_LOGD("%f %f %f %f", x0, y0, x1, y1);
-
 		array::push_back(vertices, x0); array::push_back(vertices, y0); // position
 		array::push_back(vertices, u0); array::push_back(vertices, v0); // uv
 
