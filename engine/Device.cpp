@@ -55,6 +55,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "WorldManager.h"
 #include "NetworkFilesystem.h"
 #include "LuaSystem.h"
+#include "DebugLine.h"
 
 #if defined(LINUX) || defined(WINDOWS)
 	#include "BundleCompiler.h"
@@ -161,6 +162,7 @@ void Device::init()
 	// Create renderer
 	CE_LOGD("Creating renderer...");
 	graphics_system::init();
+	debug_line::init();
 
 	CE_LOGD("Creating lua system...");
 	lua_system::init();
@@ -217,6 +219,7 @@ void Device::shutdown()
 	CE_DELETE(m_allocator, m_keyboard);
 
 	CE_LOGD("Releasing renderer...");
+	debug_line::shutdown();
 	graphics_system::shutdown();
 
 	CE_LOGD("Releasing world manager...");

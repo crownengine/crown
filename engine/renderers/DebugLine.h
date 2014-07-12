@@ -34,6 +34,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+namespace debug_line
+{
+	void init();
+
+	void shutdown();
+} // namespace debug_line
+
 struct DebugLine
 {
 	/// Whether to enable @a depth_test
@@ -55,10 +62,10 @@ private:
 
 	struct Line
 	{
-		float position_0[3];
-		float color_0[4];
-		float position_1[3];
-		float color_1[4];
+		float p0[3];
+		uint32_t c0;
+		float p1[3];
+		uint32_t c1;
 	};
 
 	bool m_depth_test;
