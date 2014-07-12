@@ -36,6 +36,17 @@ namespace crown
 Material::Material(const MaterialResource* mr)
 	: m_resource(mr)
 {
+	Blob vs_code = mr->get_vertex_shader();
+	Blob fs_code = mr->get_fragment_shader();
+
+	printf("vs: %d, %p\n", vs_code.m_size, (void*) vs_code.m_data);
+	printf("fs: %d, %p\n", fs_code.m_size, (void*) fs_code.m_data);
+
+	bgfx::ShaderHandle vs = bgfx::createShader(bgfx::makeRef((const void*) vs_code.m_data, vs_code.m_size));
+	bgfx::ShaderHandle fs = bgfx::createShader(bgfx::makeRef((const void*) fs_code.m_data, fs_code.m_size));
+
+	m_program = bgfx::createProgram(vs, fs);
+	m_uniform = bgfx::createUniform("u_albedo", bgfx::UniformType::Uniform1iv);
 }
 
 //-----------------------------------------------------------------------------
@@ -50,12 +61,15 @@ const MaterialResource* Material::resource()
 }
 
 //-----------------------------------------------------------------------------
-// void Material::bind(Renderer& r, UniformId uniform)
-// {
-// 	const ResourceId tr_id = m_resource->get_texture_layer(0);
-// 	const TextureResource* tr = (TextureResource*) device()->resource_manager()->get(tr_id);
+void Material::bind()
+{
+	const void* tr = device()->resource_manager()->get("texture", "spaceship");
 
-// 	r.set_texture(0, uniform, tr->texture(), TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);
-// }
+	bgfx::TextureHandle th;
+	th.idx = (uintptr_t) tr;
+
+	bgfx::setTexture(0, m_uniform, th);
+	bgfx::setProgram(m_program);
+}
 
 } // namespace crown

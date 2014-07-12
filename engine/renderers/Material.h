@@ -26,10 +26,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <bgfx.h>
+
 namespace crown
 {
 
-class Renderer;
 struct MaterialResource;
 
 struct Material
@@ -39,11 +40,13 @@ struct Material
 
 	const MaterialResource* resource();
 
-	// void bind(Renderer& r, UniformId uniform);
+	void bind();
 
 private:
 
 	const MaterialResource* m_resource;
+	bgfx::ProgramHandle m_program;
+	bgfx::UniformHandle m_uniform;
 };
 
 } // namespace crown

@@ -180,8 +180,8 @@ void Sprite::update(float dt)
 //-----------------------------------------------------------------------------
 void Sprite::render()
 {
-	// Material* material = m_render_world.get_material(m_material);
-	// material->bind(r, uniform);
+	Material* material = m_render_world.get_material(m_material);
+	material->bind();
 
 	///
 	/// @param _state State flags. Default state for primitive type is
@@ -206,14 +206,8 @@ void Sprite::render()
 	///   2. BGFX_STATE_BLEND_EQUATION_ADD is set when no other blend
 	///      equation is specified.
 	///
-	bgfx::setState(BGFX_STATE_DEFAULT);
-
-	// r.set_state(STATE_DEPTH_WRITE 
-	// 	| STATE_COLOR_WRITE 
-	// 	| STATE_ALPHA_WRITE 
-	// 	| STATE_CULL_CW 
-	// 	| STATE_BLEND_EQUATION_ADD 
-	// 	| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
+	bgfx::setState(BGFX_STATE_DEFAULT
+		| BGFX_STATE_BLEND_ALPHA);
 
 	bgfx::setVertexBuffer(m_vb);
 	bgfx::setIndexBuffer(m_ib, m_frame * 6, 6);
