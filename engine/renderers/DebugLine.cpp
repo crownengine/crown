@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MathUtils.h"
 #include "Color4.h"
 #include "Vector3.h"
+#include <string.h>
 #include <bgfx.h>
 
 namespace crown
