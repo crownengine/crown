@@ -32,7 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Resource.h"
 #include "Matrix4x4.h"
 #include "RenderWorldTypes.h"
-#include "RendererTypes.h"
 
 #define MAX_MESHES 100
 #define MAX_SPRITES 512
@@ -54,19 +53,20 @@ struct Vector2;
 struct Vector3;
 struct GuiResource;
 
-namespace render_world_globals
-{
-	void init();
-	void shutdown();
+/// @defgroup Graphics Graphics
 
-	GPUProgramId default_program();
-	GPUProgramId default_texture_program();
-	GPUProgramId default_font_program();
-	GPUProgramId default_color_program();
-	UniformId default_albedo_uniform();
-	UniformId default_font_uniform();
-	UniformId default_color_uniform();
-};
+/// Global graphics-related functions
+///
+/// @ingroup Graphics
+namespace graphics_system
+{
+	/// Initializes the graphics system.
+	/// This is the place where to create and initialize per-application objects.
+	void init();
+
+	/// It should reverse the actions performed by graphics_system::init().
+	void shutdown();
+}; // namespace graphics_system
 
 /// Manages graphics objects in a World.
 ///
