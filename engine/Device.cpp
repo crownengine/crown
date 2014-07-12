@@ -41,7 +41,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Mouse.h"
 #include "OS.h"
 #include "OsWindow.h"
-#include "Renderer.h"
 #include "ResourceManager.h"
 #include "StringSetting.h"
 #include "StringUtils.h"
@@ -161,8 +160,7 @@ void Device::init()
 
 	// Create renderer
 	CE_LOGD("Creating renderer...");
-	m_renderer = CE_NEW(m_allocator, Renderer)(m_allocator);
-	m_renderer->init();
+	graphics_system::init();
 
 	CE_LOGD("Creating lua system...");
 	lua_system::init();
@@ -219,11 +217,7 @@ void Device::shutdown()
 	CE_DELETE(m_allocator, m_keyboard);
 
 	CE_LOGD("Releasing renderer...");
-	if (m_renderer)
-	{
-		m_renderer->shutdown();
-		CE_DELETE(m_allocator, m_renderer);
-	}
+	graphics_system::shutdown();
 
 	CE_LOGD("Releasing world manager...");
 	CE_DELETE(m_allocator, m_world_manager);
@@ -288,7 +282,7 @@ OsWindow* Device::window()
 //-----------------------------------------------------------------------------
 Renderer* Device::renderer()
 {
-	return m_renderer;
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -383,8 +377,6 @@ void Device::frame()
 		m_resource_manager->poll_resource_loader();
 
 		m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time());
-
-		m_renderer->frame();
 	}
 
 	lua_system::clear_temporaries();

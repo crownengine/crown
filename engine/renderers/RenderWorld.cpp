@@ -26,7 +26,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "RenderWorld.h"
 #include "Device.h"
-#include "Renderer.h"
 #include "Allocator.h"
 #include "Camera.h"
 #include "Resource.h"
@@ -37,199 +36,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Material.h"
 #include "Config.h"
 #include "Gui.h"
+#include <bgfx.h>
 
 namespace crown
 {
 
-namespace render_world_globals
+namespace graphics_system
 {
-	static const char* default_vertex =
-		"#version 130\n"
-		"\n"
-		"precision mediump float;\n"
-		"uniform mat4      	u_model_view_projection;\n"
-
-		"attribute vec4    	a_position;\n"
-		"attribute vec2    	a_tex_coord0;\n"
-		"attribute vec4		a_color;\n"
-
-		"varying vec2		tex_coord0;\n"
-		"varying vec4		color;\n"
-
-		"void main(void)\n"
-		"{\n"
-		"	tex_coord0 = a_tex_coord0;\n"
-		"	color = a_color;\n"
-		"	gl_Position = u_model_view_projection * a_position;\n"
-		"}\n";
-
-	static const char* default_fragment =
-		"#version 130\n"
-		"\n"
-		"precision mediump float;\n"
-		"varying vec4 color;\n"
-		"void main(void)\n"
-		"{\n"
-		"	gl_FragColor = color;\n"
-		"}\n";
-
-	static const char* texture_fragment =
-		"#version 130\n"
-		"\n"
-		"precision mediump float;\n"
-		"varying vec2       tex_coord0;\n"
-		"varying vec4       color;\n"
-
-		"uniform sampler2D  u_albedo_0;\n"
-
-		"void main(void)\n"
-		"{\n"
-		"	gl_FragColor = texture2D(u_albedo_0, tex_coord0);\n"
-		"}\n";
-
-	static const char* sdf_vertex =
-		"#version 130\n"
-		"\n"
-		"precision mediump float;\n"
-		"uniform mat4      	u_model_view_projection;\n"
-
-		"attribute vec4		a_position;\n"
-		"attribute vec2		a_tex_coord0;\n"
-
-		"varying vec2		v_tex_coord;\n"
-		"varying vec4		v_color;\n"
-
-		"void main(void)\n"
-		"{\n"
-		"	gl_Position = u_model_view_projection * a_position;\n"
-		"	v_tex_coord = a_tex_coord0;\n"
-		"	v_color = vec4(1, 1, 1, 1);\n"
-		"}\n";
-
-	static const char* sdf_fragment =
-		"#version 130\n"
-		"\n"
-		"precision mediump float;\n"
-		"uniform sampler2D u_texture;\n"
-		"uniform vec4 u_color;\n"
-
-		"varying vec2 v_tex_coord;\n"
-
-		"const float smoothing = 1.0/16.0;\n"
-
-		"void main() {\n"
-			"float distance = texture2D(u_texture, v_tex_coord).a;\n"
-			"float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, distance);\n"
-			"gl_FragColor = vec4(u_color.rgb, alpha);\n"
-		"}\n";
-
-	static const char* default_color_fragment =
-		"#version 130\n"
-		"\n"
-		"precision mediump float;\n"
-		"uniform vec4 u_color;\n"
-		"void main(void)\n"
-		"{\n"
-		"	gl_FragColor = u_color;\n"
-		"}\n";
-
-	ShaderId default_vs;
-	ShaderId default_fs;
-	ShaderId texture_fs;
-	ShaderId font_vs;
-	ShaderId font_fs;
-	ShaderId color_fs;
-	GPUProgramId texture_program;
-	GPUProgramId def_program;
-	GPUProgramId font_program;
-	GPUProgramId color_program;
-	UniformId u_albedo_0;
-	UniformId u_font;
-	UniformId u_color;
-	uint32_t num_refs = 0;
-
 	void init()
 	{
-		if (num_refs)
-			return;
-
-		num_refs++;
-
-		Renderer* r = device()->renderer();
-
-		u_font = r->create_uniform("u_font", UniformType::INTEGER_1, 1);
-		u_albedo_0 = r->create_uniform("u_albedo_0", UniformType::INTEGER_1, 1);
-		u_color = r->create_uniform("u_color", UniformType::FLOAT_4, 1);
-
-		default_vs = r->create_shader(ShaderType::VERTEX, default_vertex);
-		default_fs = r->create_shader(ShaderType::FRAGMENT, default_fragment);
-		texture_fs = r->create_shader(ShaderType::FRAGMENT, texture_fragment);
-		font_vs = r->create_shader(ShaderType::VERTEX, sdf_vertex);
-		font_fs = r->create_shader(ShaderType::FRAGMENT, sdf_fragment);
-		color_fs = r->create_shader(ShaderType::FRAGMENT, default_color_fragment);
-
-		def_program = r->create_gpu_program(default_vs, default_fs);
-		texture_program = r->create_gpu_program(default_vs, texture_fs);
-		font_program = r->create_gpu_program(font_vs, font_fs);
-		color_program = r->create_gpu_program(default_vs, color_fs);
+		bgfx::init();
 	}
 
 	void shutdown()
 	{
-		num_refs--;
-
-		if (num_refs)
-			return;
-
-		Renderer* r = device()->renderer();
-		r->destroy_uniform(u_albedo_0);
-		r->destroy_uniform(u_font);
-		r->destroy_uniform(u_color);
-		r->destroy_gpu_program(texture_program);
-		r->destroy_gpu_program(def_program);
-		r->destroy_gpu_program(font_program);
-		r->destroy_gpu_program(color_program);
-		r->destroy_shader(default_vs);
-		r->destroy_shader(default_fs);
-		r->destroy_shader(texture_fs);
-		r->destroy_shader(font_vs);
-		r->destroy_shader(font_fs);
-		r->destroy_shader(color_fs);
-	}
-
-	GPUProgramId default_program()
-	{
-		return def_program;
-	}
-
-	GPUProgramId default_texture_program()
-	{
-		return texture_program;
-	}
-
-	GPUProgramId default_font_program()
-	{
-		return font_program;
-	}
-
-	GPUProgramId default_color_program()
-	{
-		return color_program;
-	}
-
-	UniformId default_albedo_uniform()
-	{
-		return u_albedo_0;
-	}
-
-	UniformId default_font_uniform()
-	{
-		return u_font;
-	}
-
-	UniformId default_color_uniform()
-	{
-		return u_color;
+		bgfx::shutdown();
 	}
 };
 
@@ -240,13 +61,11 @@ RenderWorld::RenderWorld()
 	, m_material_pool(default_allocator(), MAX_MATERIALS, sizeof(Material), CE_ALIGNOF(Material))
 	, m_gui_pool(default_allocator(), MAX_GUIS, sizeof(Gui), CE_ALIGNOF(Gui))
 {
-	render_world_globals::init();
 }
 
 //-----------------------------------------------------------------------------
 RenderWorld::~RenderWorld()
 {
-	render_world_globals::shutdown();
 }
 
 //-----------------------------------------------------------------------------
@@ -335,42 +154,46 @@ Gui* RenderWorld::get_gui(GuiId id)
 //-----------------------------------------------------------------------------
 void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height, float dt)
 {
-	Renderer* r = device()->renderer();
+	bgfx::reset(width, height, BGFX_RESET_VSYNC);
 
+	// Enable debug text.
+	bgfx::setDebug(BGFX_DEBUG_TEXT);
+
+	// Set view 0 clear state.
+	bgfx::setViewClear(0
+		, BGFX_CLEAR_COLOR_BIT|BGFX_CLEAR_DEPTH_BIT
+		, 0x353839FF
+		, 1.0f
+		, 0
+		);
+
+	// Set view and projection matrix for view 0.
 	Matrix4x4 inv_view = view;
 	matrix4x4::invert(inv_view);
+	bgfx::setViewTransform(0, matrix4x4::to_float_ptr(inv_view), matrix4x4::to_float_ptr(projection));
 
-	r->set_layer_view(0, inv_view);
-	r->set_layer_projection(0, projection);
-	r->set_layer_viewport(0, x, y, width, height);
-	r->set_layer_clear(0, CLEAR_COLOR | CLEAR_DEPTH, Color4(0x353839FF), 1.0f);
+	bgfx::setViewRect(0, 0, 0, width, height);
 
-	r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_CULL_CCW);
-	r->commit(0);
+	// This dummy draw call is here to make sure that view 0 is cleared
+	// if no other draw calls are submitted to view 0.
+	bgfx::submit(0);
 
-	// Draw all meshes
-	for (uint32_t m = 0; m < id_array::size(m_mesh); m++)
-	{
-		const Mesh* mesh = m_mesh.m_objects[m];
-
-		r->set_state(STATE_DEPTH_WRITE | STATE_COLOR_WRITE | STATE_ALPHA_WRITE | STATE_CULL_CW);
-		r->set_vertex_buffer(mesh->m_vbuffer);
-		r->set_index_buffer(mesh->m_ibuffer);
-		r->set_program(render_world_globals::default_program());
-		// r->set_texture(0, render_world_globals::u_albedo_0, grass_texture, TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_CLAMP_EDGE);
-		// r->set_uniform(u_brightness, UNIFORM_FLOAT_1, &brightness, 1);
-
-		r->set_pose(mesh->world_pose());
-		r->commit(0);
-	}
+	// Use debug font to print information about this example.
+	bgfx::dbgTextClear();
+	bgfx::dbgTextPrintf(0, 1, 0x4f, "bgfx/examples/00-helloworld");
+	bgfx::dbgTextPrintf(0, 2, 0x6f, "Description: Initialization and debug text.");
 
 	// Draw all sprites
 	for (uint32_t s = 0; s < id_array::size(m_sprite); s++)
 	{
-		r->set_program(render_world_globals::default_texture_program());
+		//r->set_program(render_world_globals::default_texture_program());
 		m_sprite[s]->update(dt);
-		m_sprite[s]->render(*r, render_world_globals::u_albedo_0, dt);
+		m_sprite[s]->render();
 	}
+
+	// Advance to next frame. Rendering thread will be kicked to 
+	// process submitted rendering primitives.
+	bgfx::frame();
 }
 
 } // namespace crown
