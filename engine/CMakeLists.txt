@@ -547,65 +547,53 @@ if (WINDOWS)
 	endif (CROWN_ARCH MATCHES "win32")
 
 ##### FIXME FIXME FIXME #####
-#	if (CROWN_DEBUG)
-#		#list (APPEND COMPILER_FLAGS -g -D_DEBUG)
-#		list (APPEND CROWN_LIBRARIES
-#			#LowLevelCHECKED
-#			#LowLevelClothCHECKED
-#			PhysX3CharacterKinematicCHECKED_${WIN_PHYSXARCH}
-#			PhysX3CHECKED_${WIN_PHYSXARCH}
-#			PhysX3CommonCHECKED_${WIN_PHYSXARCH}
-#			PhysX3CookingCHECKED_${WIN_PHYSXARCH}
-#			PhysX3ExtensionsCHECKED
-#			PhysXProfileSDKCHECKED
-#			PhysXVisualDebuggerSDKCHECKED
-#			#PvdRuntimeCHECKED
-#			PxTaskCHECKED
-#			#SceneQueryCHECKED
-#			#SimulationControllerCHECKED
-#		)
-#	elseif (CROWN_DEVELOPMENT)
-#		#list (APPEND COMPILER_FLAGS -O2 -DNDEBUG)
-#		list (APPEND CROWN_LIBRARIES
-#			#LowLevelPROFILE
-#			#LowLevelClothPROFILE
-#			PhysX3CharacterKinematicPROFILE_${WIN_PHYSXARCH}
-#			PhysX3PROFILE_${WIN_PHYSXARCH}
-#			PhysX3CommonPROFILE_${WIN_PHYSXARCH}
-#			PhysX3CookingPROFILE_${WIN_PHYSXARCH}
-#			PhysX3ExtensionsPROFILE
-#			PhysXProfileSDKPROFILE
-#			PhysXVisualDebuggerSDKPROFILE
-#			#PvdRuntimePROFILE
-#			PxTaskPROFILE
-#			#SceneQueryPROFILE
-#			#SimulationControllerPROFILE
-#		)
-#	elseif (CROWN_RELEASE)
-#		list (APPEND COMPILER_FLAGS
-#			#-DNDEBUG
-#			#-O2
-#			#-Wno-maybe-uninitialized
-#			#-Wno-unused-but-set-variable
-#		)
-#		list (APPEND CROWN_LIBRARIES
-#			#LowLevel
-#			#LowLevelCloth
-#			PhysX3CharacterKinematic_${WIN_PHYSXARCH}
-#			PhysX3_${WIN_PHYSXARCH}
-#			PhysX3Common_${WIN_PHYSXARCH}
-#			PhysX3Cooking_${WIN_PHYSXARCH}
-#			PhysX3Extensions
-#			PhysXProfileSDK
-#			PhysXVisualDebuggerSDK
-#			#PvdRuntime
-#			PxTask
-#			#SceneQuery
-#			#SimulationController
-#		)
-#	else ()
-#		message (FATAL_ERROR "Oops, you should not be here")
-#	endif (CROWN_DEBUG)
+	list (APPEND CROWN_DEBUG_LIBRARIES
+		#LowLevelCHECKED
+		#LowLevelClothCHECKED
+		PhysX3CharacterKinematicCHECKED_${WIN_PHYSXARCH}
+		PhysX3CHECKED_${WIN_PHYSXARCH}
+		PhysX3CommonCHECKED_${WIN_PHYSXARCH}
+		PhysX3CookingCHECKED_${WIN_PHYSXARCH}
+		PhysX3ExtensionsCHECKED
+		PhysXProfileSDKCHECKED
+		PhysXVisualDebuggerSDKCHECKED
+		#PvdRuntimeCHECKED
+		PxTaskCHECKED
+		#SceneQueryCHECKED
+		#SimulationControllerCHECKED
+	)
+
+	list (APPEND CROWN_DEVELOPMENT_LIBRARIES
+		#LowLevelPROFILE
+		#LowLevelClothPROFILE
+		PhysX3CharacterKinematicPROFILE_${WIN_PHYSXARCH}
+		PhysX3PROFILE_${WIN_PHYSXARCH}
+		PhysX3CommonPROFILE_${WIN_PHYSXARCH}
+		PhysX3CookingPROFILE_${WIN_PHYSXARCH}
+		PhysX3ExtensionsPROFILE
+		PhysXProfileSDKPROFILE
+		PhysXVisualDebuggerSDKPROFILE
+		#PvdRuntimePROFILE
+		PxTaskPROFILE
+		#SceneQueryPROFILE
+		#SimulationControllerPROFILE
+	)
+
+	list (APPEND CROWN_RELEASE_LIBRARIES
+		#LowLevel
+		#LowLevelCloth
+		PhysX3CharacterKinematic_${WIN_PHYSXARCH}
+		PhysX3_${WIN_PHYSXARCH}
+		PhysX3Common_${WIN_PHYSXARCH}
+		PhysX3Cooking_${WIN_PHYSXARCH}
+		PhysX3Extensions
+		PhysXProfileSDK
+		PhysXVisualDebuggerSDK
+		#PvdRuntime
+		PxTask
+		#SceneQuery
+		#SimulationController
+	)
 
 	set (CROWN_MAIN_SRC os/win/main.cpp)
 endif(WINDOWS)
