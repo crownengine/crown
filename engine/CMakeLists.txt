@@ -354,6 +354,14 @@ set (COMPILER_HEADER
 )
 
 set (CROWN_LIBRARIES)
+set (CROWN_DEBUG_LIBRARIES)
+set (CROWN_DEVELOPMENT_LIBRARIES)
+set (CROWN_RELEASE_LIBRARIES)
+
+set (COMPILER_FLAGS)
+set (COMPILER_DEBUG_FLAGS)
+set (COMPILER_DEVELOPMENT_FLAGS)
+set (COMPILER_RELEASE_FLAGS)
 
 # Platform specific stuff
 if (LINUX)
@@ -408,7 +416,7 @@ if (LINUX)
 		#-pedantic-errors
 		-Wall
 		-Wextra
-		-Werror
+		#-Werror
 		-Wno-long-long
 		-Wno-variadic-macros
 		-Wno-unknown-pragmas
@@ -420,65 +428,64 @@ if (LINUX)
 		-fno-rtti
 	)
 
-	if (CROWN_DEBUG)
-		list (APPEND COMPILER_FLAGS -g -D_DEBUG)
-		list (APPEND CROWN_LIBRARIES
-			LowLevelCHECKED
-			LowLevelClothCHECKED
-			PhysX3CharacterKinematicCHECKED
-			PhysX3CHECKED
-			PhysX3CommonCHECKED
-			PhysX3CookingCHECKED
-			PhysX3ExtensionsCHECKED
-			PhysXProfileSDKCHECKED
-			PhysXVisualDebuggerSDKCHECKED
-			PvdRuntimeCHECKED
-			PxTaskCHECKED
-			SceneQueryCHECKED
-			SimulationControllerCHECKED
-		)
-	elseif (CROWN_DEVELOPMENT)
-		list (APPEND COMPILER_FLAGS -O2 -DNDEBUG)
-		list (APPEND CROWN_LIBRARIES
-			LowLevelPROFILE
-			LowLevelClothPROFILE
-			PhysX3CharacterKinematicPROFILE
-			PhysX3PROFILE
-			PhysX3CommonPROFILE
-			PhysX3CookingPROFILE
-			PhysX3ExtensionsPROFILE
-			PhysXProfileSDKPROFILE
-			PhysXVisualDebuggerSDKPROFILE
-			PvdRuntimePROFILE
-			PxTaskPROFILE
-			SceneQueryPROFILE
-			SimulationControllerPROFILE
-		)
-	elseif (CROWN_RELEASE)
-		list (APPEND COMPILER_FLAGS
-			-DNDEBUG
-			-O2
-			-Wno-maybe-uninitialized
-			-Wno-unused-but-set-variable
-		)
-		list (APPEND CROWN_LIBRARIES
-			LowLevel
-			LowLevelCloth
-			PhysX3CharacterKinematic
-			PhysX3
-			PhysX3Common
-			PhysX3Cooking
-			PhysX3Extensions
-			PhysXProfileSDK
-			PhysXVisualDebuggerSDK
-			PvdRuntime
-			PxTask
-			SceneQuery
-			SimulationController
-		)
-	else ()
-		message (FATAL_ERROR "Oops, you should not be here")
-	endif (CROWN_DEBUG)
+	list (APPEND COMPILER_DEBUG_FLAGS -g -D_DEBUG)
+
+	list (APPEND CROWN_DEBUG_LIBRARIES
+		LowLevelCHECKED
+		LowLevelClothCHECKED
+		PhysX3CharacterKinematicCHECKED
+		PhysX3CHECKED
+		PhysX3CommonCHECKED
+		PhysX3CookingCHECKED
+		PhysX3ExtensionsCHECKED
+		PhysXProfileSDKCHECKED
+		PhysXVisualDebuggerSDKCHECKED
+		PvdRuntimeCHECKED
+		PxTaskCHECKED
+		SceneQueryCHECKED
+		SimulationControllerCHECKED
+	)
+
+	##### FIXME FIXME FIXME: replace -O0 with -O2 #####
+	list (APPEND COMPILER_DEVELOPMENT_FLAGS -O0 -DNDEBUG)
+	
+	list (APPEND CROWN_DEVELOPMENT_LIBRARIES
+		LowLevelPROFILE
+		LowLevelClothPROFILE
+		PhysX3CharacterKinematicPROFILE
+		PhysX3PROFILE
+		PhysX3CommonPROFILE
+		PhysX3CookingPROFILE
+		PhysX3ExtensionsPROFILE
+		PhysXProfileSDKPROFILE
+		PhysXVisualDebuggerSDKPROFILE
+		PvdRuntimePROFILE
+		PxTaskPROFILE
+		SceneQueryPROFILE
+		SimulationControllerPROFILE
+	)
+		
+	list (APPEND COMPILER_RELEASE_FLAGS
+		-DNDEBUG
+		-O0			##### FIXME FIXME FIXME: replace -O0 with -O2 #####
+		-Wno-maybe-uninitialized
+		-Wno-unused-but-set-variable
+	)
+	list (APPEND CROWN_RELEASE_LIBRARIES
+		LowLevel
+		LowLevelCloth
+		PhysX3CharacterKinematic
+		PhysX3
+		PhysX3Common
+		PhysX3Cooking
+		PhysX3Extensions
+		PhysXProfileSDK
+		PhysXVisualDebuggerSDK
+		PvdRuntime
+		PxTask
+		SceneQuery
+		SimulationController
+	)
 
 	set (CROWN_MAIN_SRC os/linux/main.cpp)
 endif (LINUX)
@@ -539,65 +546,66 @@ if (WINDOWS)
     message (FATAL_ERROR "Oops, you should not be here")
 	endif (CROWN_ARCH MATCHES "win32")
 
-	if (CROWN_DEBUG)
-		#list (APPEND COMPILER_FLAGS -g -D_DEBUG)
-		list (APPEND CROWN_LIBRARIES
-			#LowLevelCHECKED
-			#LowLevelClothCHECKED
-			PhysX3CharacterKinematicCHECKED_${WIN_PHYSXARCH}
-			PhysX3CHECKED_${WIN_PHYSXARCH}
-			PhysX3CommonCHECKED_${WIN_PHYSXARCH}
-			PhysX3CookingCHECKED_${WIN_PHYSXARCH}
-			PhysX3ExtensionsCHECKED
-			PhysXProfileSDKCHECKED
-			PhysXVisualDebuggerSDKCHECKED
-			#PvdRuntimeCHECKED
-			PxTaskCHECKED
-			#SceneQueryCHECKED
-			#SimulationControllerCHECKED
-		)
-	elseif (CROWN_DEVELOPMENT)
-		#list (APPEND COMPILER_FLAGS -O2 -DNDEBUG)
-		list (APPEND CROWN_LIBRARIES
-			#LowLevelPROFILE
-			#LowLevelClothPROFILE
-			PhysX3CharacterKinematicPROFILE_${WIN_PHYSXARCH}
-			PhysX3PROFILE_${WIN_PHYSXARCH}
-			PhysX3CommonPROFILE_${WIN_PHYSXARCH}
-			PhysX3CookingPROFILE_${WIN_PHYSXARCH}
-			PhysX3ExtensionsPROFILE
-			PhysXProfileSDKPROFILE
-			PhysXVisualDebuggerSDKPROFILE
-			#PvdRuntimePROFILE
-			PxTaskPROFILE
-			#SceneQueryPROFILE
-			#SimulationControllerPROFILE
-		)
-	elseif (CROWN_RELEASE)
-		list (APPEND COMPILER_FLAGS
-			#-DNDEBUG
-			#-O2
-			#-Wno-maybe-uninitialized
-			#-Wno-unused-but-set-variable
-		)
-		list (APPEND CROWN_LIBRARIES
-			#LowLevel
-			#LowLevelCloth
-			PhysX3CharacterKinematic_${WIN_PHYSXARCH}
-			PhysX3_${WIN_PHYSXARCH}
-			PhysX3Common_${WIN_PHYSXARCH}
-			PhysX3Cooking_${WIN_PHYSXARCH}
-			PhysX3Extensions
-			PhysXProfileSDK
-			PhysXVisualDebuggerSDK
-			#PvdRuntime
-			PxTask
-			#SceneQuery
-			#SimulationController
-		)
-	else ()
-		message (FATAL_ERROR "Oops, you should not be here")
-	endif (CROWN_DEBUG)
+##### FIXME FIXME FIXME #####
+#	if (CROWN_DEBUG)
+#		#list (APPEND COMPILER_FLAGS -g -D_DEBUG)
+#		list (APPEND CROWN_LIBRARIES
+#			#LowLevelCHECKED
+#			#LowLevelClothCHECKED
+#			PhysX3CharacterKinematicCHECKED_${WIN_PHYSXARCH}
+#			PhysX3CHECKED_${WIN_PHYSXARCH}
+#			PhysX3CommonCHECKED_${WIN_PHYSXARCH}
+#			PhysX3CookingCHECKED_${WIN_PHYSXARCH}
+#			PhysX3ExtensionsCHECKED
+#			PhysXProfileSDKCHECKED
+#			PhysXVisualDebuggerSDKCHECKED
+#			#PvdRuntimeCHECKED
+#			PxTaskCHECKED
+#			#SceneQueryCHECKED
+#			#SimulationControllerCHECKED
+#		)
+#	elseif (CROWN_DEVELOPMENT)
+#		#list (APPEND COMPILER_FLAGS -O2 -DNDEBUG)
+#		list (APPEND CROWN_LIBRARIES
+#			#LowLevelPROFILE
+#			#LowLevelClothPROFILE
+#			PhysX3CharacterKinematicPROFILE_${WIN_PHYSXARCH}
+#			PhysX3PROFILE_${WIN_PHYSXARCH}
+#			PhysX3CommonPROFILE_${WIN_PHYSXARCH}
+#			PhysX3CookingPROFILE_${WIN_PHYSXARCH}
+#			PhysX3ExtensionsPROFILE
+#			PhysXProfileSDKPROFILE
+#			PhysXVisualDebuggerSDKPROFILE
+#			#PvdRuntimePROFILE
+#			PxTaskPROFILE
+#			#SceneQueryPROFILE
+#			#SimulationControllerPROFILE
+#		)
+#	elseif (CROWN_RELEASE)
+#		list (APPEND COMPILER_FLAGS
+#			#-DNDEBUG
+#			#-O2
+#			#-Wno-maybe-uninitialized
+#			#-Wno-unused-but-set-variable
+#		)
+#		list (APPEND CROWN_LIBRARIES
+#			#LowLevel
+#			#LowLevelCloth
+#			PhysX3CharacterKinematic_${WIN_PHYSXARCH}
+#			PhysX3_${WIN_PHYSXARCH}
+#			PhysX3Common_${WIN_PHYSXARCH}
+#			PhysX3Cooking_${WIN_PHYSXARCH}
+#			PhysX3Extensions
+#			PhysXProfileSDK
+#			PhysXVisualDebuggerSDK
+#			#PvdRuntime
+#			PxTask
+#			#SceneQuery
+#			#SimulationController
+#		)
+#	else ()
+#		message (FATAL_ERROR "Oops, you should not be here")
+#	endif (CROWN_DEBUG)
 
 	set (CROWN_MAIN_SRC os/win/main.cpp)
 endif(WINDOWS)
@@ -649,36 +657,64 @@ set (CROWN_HEADERS
 )
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h)
-
-include_directories(${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
 link_directories(${CROWN_THIRD_LIBS})
-link_libraries(${CROWN_LIBRARIES})
 
-add_definitions(${COMPILER_FLAGS})
-
-add_library(crown-lib SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
-set_target_properties (crown-lib PROPERTIES OUTPUT_NAME ${CROWN_LIBRARY_NAME})
-
+# Debug target 
+add_library (${CROWN_LIBRARY_DEBUG} SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
+set_target_properties (${CROWN_LIBRARY_DEBUG} PROPERTIES OUTPUT_NAME ${CROWN_LIBRARY_DEBUG})
+target_compile_options(${CROWN_LIBRARY_DEBUG} PUBLIC ${COMPILER_FLAGS} ${COMPILER_DEBUG_FLAGS})
+target_include_directories (${CROWN_LIBRARY_DEBUG} PUBLIC ${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
+target_link_libraries (${CROWN_LIBRARY_DEBUG} PUBLIC ${CROWN_LIBRARIES} ${CROWN_DEBUG_LIBRARIES})
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
-add_executable(${CROWN_EXECUTABLE_NAME} ${CROWN_MAIN_SRC})
-target_link_libraries(${CROWN_EXECUTABLE_NAME} crown-lib)
+add_executable(${CROWN_EXECUTABLE_DEBUG} ${CROWN_MAIN_SRC})
+target_link_libraries(${CROWN_EXECUTABLE_DEBUG} ${CROWN_LIBRARY_DEBUG})
 
-install (TARGETS crown-lib DESTINATION bin)
-install (TARGETS ${CROWN_EXECUTABLE_NAME} DESTINATION bin)
+# Development target
+add_library (${CROWN_LIBRARY_DEVELOPMENT} SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
+set_target_properties (${CROWN_LIBRARY_DEVELOPMENT} PROPERTIES OUTPUT_NAME ${CROWN_LIBRARY_DEVELOPMENT})
+target_compile_options(${CROWN_LIBRARY_DEVELOPMENT} PUBLIC ${COMPILER_FLAGS} ${COMPILER_DEVELOPMENT_FLAGS})
+target_include_directories (${CROWN_LIBRARY_DEVELOPMENT} PUBLIC ${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
+target_link_libraries (${CROWN_LIBRARY_DEVELOPMENT} PUBLIC ${CROWN_LIBRARIES} ${CROWN_DEVELOPMENT_LIBRARIES})
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
+add_executable(${CROWN_EXECUTABLE_DEVELOPMENT} ${CROWN_MAIN_SRC})
+target_link_libraries(${CROWN_EXECUTABLE_DEVELOPMENT} ${CROWN_LIBRARY_DEVELOPMENT})
 
-#install (FILES ${HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
+# Release target
+add_library (${CROWN_LIBRARY_RELEASE} SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
+set_target_properties (${CROWN_LIBRARY_RELEASE} PROPERTIES OUTPUT_NAME ${CROWN_LIBRARY_RELEASE})
+target_compile_options(${CROWN_LIBRARY_RELEASE} PUBLIC ${COMPILER_FLAGS} ${COMPILER_RELEASE_FLAGS})
+target_include_directories (${CROWN_LIBRARY_RELEASE} PUBLIC ${CROWN_INCLUDES} ${CROWN_THIRD_INCLUDES})
+target_link_libraries (${CROWN_LIBRARY_RELEASE} PUBLIC ${CROWN_LIBRARIES} ${CROWN_RELEASE_LIBRARIES})
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")
+add_executable(${CROWN_EXECUTABLE_RELEASE} ${CROWN_MAIN_SRC})
+target_link_libraries(${CROWN_EXECUTABLE_RELEASE} ${CROWN_LIBRARY_RELEASE})
 
-#install (FILES ${CORE_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core)
-#install (FILES ${BV_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/bv)
-#install (FILES ${CONTAINERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/containers)
-#install (FILES ${MATH_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/math)
-#install (FILES ${FILESYSTEM_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/filesystem)
-#install (FILES ${MEM_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/mem)
-#install (FILES ${COMPRESSORS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/compressors)
-#install (FILES ${THREADS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/threads)
-#install (FILES ${SETTINGS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/core/settings)
-#
-#install (FILES ${INPUT_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/input)
-#install (FILES ${RENDERERS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/renderers)
-#install (FILES ${OS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/os)
-#install (FILES ${LUA_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME}/lua)
+# Install executables
+install (TARGETS ${CROWN_LIBRARY_DEBUG} DESTINATION bin)
+install (TARGETS ${CROWN_EXECUTABLE_DEBUG} DESTINATION bin)
+install (TARGETS ${CROWN_LIBRARY_DEVELOPMENT} DESTINATION bin)
+install (TARGETS ${CROWN_EXECUTABLE_DEVELOPMENT} DESTINATION bin)
+install (TARGETS ${CROWN_LIBRARY_RELEASE} DESTINATION bin)
+install (TARGETS ${CROWN_EXECUTABLE_RELEASE} DESTINATION bin)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
