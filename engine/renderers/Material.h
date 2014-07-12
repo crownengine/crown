@@ -26,8 +26,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "RendererTypes.h"
-
 namespace crown
 {
 
@@ -41,7 +39,7 @@ struct Material
 
 	const MaterialResource* resource();
 
-	void bind(Renderer& r, UniformId uniform);
+	// void bind(Renderer& r, UniformId uniform);
 
 private:
 

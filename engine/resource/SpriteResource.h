@@ -38,9 +38,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Bundle.h"
 #include "Device.h"
 #include "ResourceManager.h"
-#include "RendererTypes.h"
-#include "Renderer.h"
 #include "TextureResource.h"
+#include "Blob.h"
+#include <bgfx.h>
 
 namespace crown
 {
@@ -49,8 +49,7 @@ const uint32_t SPRITE_VERSION = 1;
 
 struct SpriteHeader
 {
-	VertexBufferId 	vb;
-	IndexBufferId 	ib;
+	uint32_t		dummy[2];
 	uint32_t		num_animations;
 	uint32_t		animations_offset;
 	uint32_t		num_vertices;
@@ -85,15 +84,8 @@ struct SpriteResource
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* resource)
+	static void online(void* /*resource*/)
 	{
-		SpriteHeader* h = (SpriteHeader*) resource;
-
-		const float* vertices = (float*) (((char*) resource) + h->vertices_offset);
-		const uint16_t* indices = (uint16_t*) (((char*) resource) + h->indices_offset);
-
-		h->vb = device()->renderer()->create_vertex_buffer(h->num_vertices * Vertex::bytes_per_vertex(VertexFormat::P2_T2), vertices, VertexFormat::P2_T2);
-		h->ib = device()->renderer()->create_index_buffer(h->num_indices * sizeof(uint16_t), indices);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -104,15 +96,8 @@ struct SpriteResource
 	}
 
 	//-----------------------------------------------------------------------------
-	static void offline(void* resource)
+	static void offline(void* /*resource*/)
 	{
-		CE_ASSERT_NOT_NULL(resource);
-
-		SpriteResource* sr = (SpriteResource*) resource;
-		SpriteHeader* h = (SpriteHeader*) sr;
-
-		device()->renderer()->destroy_vertex_buffer(h->vb);
-		device()->renderer()->destroy_index_buffer(h->ib);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -139,16 +124,22 @@ struct SpriteResource
 		return begin[a->start_frame + frame];
 	}
 
-	//-----------------------------------------------------------------------------
-	VertexBufferId vertex_buffer() const
+	Blob get_vertices() const
 	{
-		return ((SpriteHeader*) this)->vb;
+		SpriteHeader* h = (SpriteHeader*) this;
+		Blob b;
+		b.m_size = ((SpriteHeader*) this)->num_vertices * 16;
+		b.m_data = (uintptr_t) (((char*) this) + h->vertices_offset);
+		return b;
 	}
 
-	//-----------------------------------------------------------------------------
-	IndexBufferId index_buffer() const
+	Blob get_indices() const
 	{
-		return ((SpriteHeader*) this)->ib;
+		SpriteHeader* h = (SpriteHeader*) this;
+		Blob b;
+		b.m_size = ((SpriteHeader*) this)->num_indices * 2;
+		b.m_data = (uintptr_t) (((char*) this) + h->indices_offset);
+		return b;
 	}
 
 private:

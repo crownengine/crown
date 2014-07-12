@@ -26,11 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Gui.h"
 #include "Assert.h"
-#include "Renderer.h"
 #include "Vector3.h"
 #include "Vector2.h"
 #include "RenderWorld.h"
-#include "RendererTypes.h"
 #include "Vector3.h"
 #include "Vector2.h"
 #include "Color4.h"
@@ -143,47 +141,47 @@ Vector2 Gui::screen_to_gui(const Vector2& pos)
 //-----------------------------------------------------------------------------
 void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& color)
 {
-	Renderer* r = device()->renderer();
-	TransientVertexBuffer tvb;
-	TransientIndexBuffer tib;
+	// Renderer* r = device()->renderer();
+	// TransientVertexBuffer tvb;
+	// TransientIndexBuffer tib;
 
-	r->reserve_transient_vertex_buffer(&tvb, 4, VertexFormat::P2);
-	r->reserve_transient_index_buffer(&tib, 6);
+	// r->reserve_transient_vertex_buffer(&tvb, 4, VertexFormat::P2);
+	// r->reserve_transient_index_buffer(&tib, 6);
 
-	float* verts = (float*) tvb.data;
-	verts[0] = pos.x;
-	verts[1] = pos.y;
+	// float* verts = (float*) tvb.data;
+	// verts[0] = pos.x;
+	// verts[1] = pos.y;
 
-	verts[2] = pos.x + size.x;
-	verts[3] = pos.y;
+	// verts[2] = pos.x + size.x;
+	// verts[3] = pos.y;
 
-	verts[4] = pos.x + size.x;
-	verts[5] = pos.y + size.y;
+	// verts[4] = pos.x + size.x;
+	// verts[5] = pos.y + size.y;
 
-	verts[6] = pos.x;
-	verts[7] = pos.y + size.y;
+	// verts[6] = pos.x;
+	// verts[7] = pos.y + size.y;
 
-	uint16_t* inds = (uint16_t*) tib.data;
-	inds[0] = 0;
-	inds[1] = 1;
-	inds[2] = 2;
-	inds[3] = 0;
-	inds[4] = 2;
-	inds[5] = 3;
+	// uint16_t* inds = (uint16_t*) tib.data;
+	// inds[0] = 0;
+	// inds[1] = 1;
+	// inds[2] = 2;
+	// inds[3] = 0;
+	// inds[4] = 2;
+	// inds[5] = 3;
 
-	r->set_layer_view(1, matrix4x4::IDENTITY);
-	r->set_layer_projection(1, m_projection);
-	r->set_layer_viewport(1, 0, 0, m_width, m_height);
-	r->set_state(STATE_COLOR_WRITE
-					| STATE_CULL_CW
-					| STATE_BLEND_EQUATION_ADD 
-					| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
-	r->set_pose(m_pose);
-	r->set_program(render_world_globals::default_color_program());
-	r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
-	r->set_vertex_buffer(tvb);
-	r->set_index_buffer(tib);
-	r->commit(1, (int32_t) pos.z);
+	// r->set_layer_view(1, matrix4x4::IDENTITY);
+	// r->set_layer_projection(1, m_projection);
+	// r->set_layer_viewport(1, 0, 0, m_width, m_height);
+	// r->set_state(STATE_COLOR_WRITE
+	// 				| STATE_CULL_CW
+	// 				| STATE_BLEND_EQUATION_ADD 
+	// 				| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
+	// r->set_pose(m_pose);
+	// r->set_program(render_world_globals::default_color_program());
+	// r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
+	// r->set_vertex_buffer(tvb);
+	// r->set_index_buffer(tib);
+	// r->commit(1, (int32_t) pos.z);
 }
 
 //-----------------------------------------------------------------------------
@@ -195,187 +193,187 @@ void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& si
 //-----------------------------------------------------------------------------
 void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Color4& color)
 {
-	Renderer* r = device()->renderer();
-	TransientVertexBuffer tvb;
-	TransientIndexBuffer tib;
+	// Renderer* r = device()->renderer();
+	// TransientVertexBuffer tvb;
+	// TransientIndexBuffer tib;
 
-	r->reserve_transient_vertex_buffer(&tvb, 4, VertexFormat::P2_T2);
-	r->reserve_transient_index_buffer(&tib, 6);
+	// r->reserve_transient_vertex_buffer(&tvb, 4, VertexFormat::P2_T2);
+	// r->reserve_transient_index_buffer(&tib, 6);
 
-	float* verts = (float*) tvb.data;
-	verts[0] = pos.x;
-	verts[1] = pos.y;
-	verts[2] = uv0.x;
-	verts[3] = uv0.y;
+	// float* verts = (float*) tvb.data;
+	// verts[0] = pos.x;
+	// verts[1] = pos.y;
+	// verts[2] = uv0.x;
+	// verts[3] = uv0.y;
 
-	verts[4] = pos.x + size.x;
-	verts[5] = pos.y;
-	verts[6] = uv1.x;
-	verts[7] = uv0.y;
+	// verts[4] = pos.x + size.x;
+	// verts[5] = pos.y;
+	// verts[6] = uv1.x;
+	// verts[7] = uv0.y;
 
-	verts[8] = pos.x + size.x;
-	verts[9] = pos.y + size.y;
-	verts[10] = uv1.x;
-	verts[11] = uv1.y;
+	// verts[8] = pos.x + size.x;
+	// verts[9] = pos.y + size.y;
+	// verts[10] = uv1.x;
+	// verts[11] = uv1.y;
 
-	verts[12] = pos.x;
-	verts[13] = pos.y + size.y;
-	verts[14] = uv0.x;
-	verts[15] = uv1.y;
+	// verts[12] = pos.x;
+	// verts[13] = pos.y + size.y;
+	// verts[14] = uv0.x;
+	// verts[15] = uv1.y;
 
-	uint16_t* inds = (uint16_t*) tib.data;
-	inds[0] = 0;
-	inds[1] = 1;
-	inds[2] = 2;
-	inds[3] = 0;
-	inds[4] = 2;
-	inds[5] = 3;
+	// uint16_t* inds = (uint16_t*) tib.data;
+	// inds[0] = 0;
+	// inds[1] = 1;
+	// inds[2] = 2;
+	// inds[3] = 0;
+	// inds[4] = 2;
+	// inds[5] = 3;
 
-	const MaterialResource* mr = (MaterialResource*) device()->resource_manager()->get("material", material);
-	const TextureResource* tr = (TextureResource*) device()->resource_manager()->get(mr->get_texture_layer(0));
+	// const MaterialResource* mr = (MaterialResource*) device()->resource_manager()->get("material", material);
+	// const TextureResource* tr = (TextureResource*) device()->resource_manager()->get(mr->get_texture_layer(0));
 
-	r->set_layer_view(1, matrix4x4::IDENTITY);
-	r->set_layer_projection(1, m_projection);
-	r->set_layer_viewport(1, 0, 0, m_width, m_height);
-	r->set_state(STATE_COLOR_WRITE
-					| STATE_CULL_CW
-					| STATE_BLEND_EQUATION_ADD 
-					| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
-	r->set_pose(m_pose);
-	r->set_program(render_world_globals::default_texture_program());
-	r->set_texture(0, render_world_globals::default_albedo_uniform(), tr->texture(),
-					TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);
-	r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
-	r->set_vertex_buffer(tvb);
-	r->set_index_buffer(tib);
-	r->commit(1, (int32_t) pos.z);
+	// r->set_layer_view(1, matrix4x4::IDENTITY);
+	// r->set_layer_projection(1, m_projection);
+	// r->set_layer_viewport(1, 0, 0, m_width, m_height);
+	// r->set_state(STATE_COLOR_WRITE
+	// 				| STATE_CULL_CW
+	// 				| STATE_BLEND_EQUATION_ADD 
+	// 				| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
+	// r->set_pose(m_pose);
+	// r->set_program(render_world_globals::default_texture_program());
+	// r->set_texture(0, render_world_globals::default_albedo_uniform(), tr->texture(),
+	// 				TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);
+	// r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
+	// r->set_vertex_buffer(tvb);
+	// r->set_index_buffer(tib);
+	// r->commit(1, (int32_t) pos.z);
 }
 
 //-----------------------------------------------------------------------------
 void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos, const Color4& color)
 {
-	Renderer* r = device()->renderer();
+	// Renderer* r = device()->renderer();
 
-	const FontResource* resource = (FontResource*) device()->resource_manager()->get("font", font);
-	Vector2 m_pen;
+	// const FontResource* resource = (FontResource*) device()->resource_manager()->get("font", font);
+	// Vector2 m_pen;
 
-	const float scale = ((float)font_size / (float)resource->font_size());
-	const uint32_t str_len = string::strlen(str);
+	// const float scale = ((float)font_size / (float)resource->font_size());
+	// const uint32_t str_len = string::strlen(str);
 
-	TransientVertexBuffer vb;
-	TransientIndexBuffer ib;
+	// TransientVertexBuffer vb;
+	// TransientIndexBuffer ib;
 
-	r->reserve_transient_vertex_buffer(&vb, 4 * str_len, VertexFormat::P2_T2);
-	r->reserve_transient_index_buffer(&ib, 6 * str_len);
+	// r->reserve_transient_vertex_buffer(&vb, 4 * str_len, VertexFormat::P2_T2);
+	// r->reserve_transient_index_buffer(&ib, 6 * str_len);
 
-	uint16_t index = 0;
-	float x_pen_advance = 0.0f;
-	float y_pen_advance = 0.0f;
+	// uint16_t index = 0;
+	// float x_pen_advance = 0.0f;
+	// float y_pen_advance = 0.0f;
 
-	uint32_t state = 0;
-	uint32_t code_point = 0;
-	for (uint32_t i = 0; i < str_len; i++)
-	{
-		switch (str[i])
-		{
-			case '\n':
-			{
-				x_pen_advance = 0.0f;
-				y_pen_advance -= resource->font_size();
-				continue;
-			}
-			case '\t':
-			{
-				x_pen_advance += font_size * 4;
-				continue;
-			}
-		}
+	// uint32_t state = 0;
+	// uint32_t code_point = 0;
+	// for (uint32_t i = 0; i < str_len; i++)
+	// {
+	// 	switch (str[i])
+	// 	{
+	// 		case '\n':
+	// 		{
+	// 			x_pen_advance = 0.0f;
+	// 			y_pen_advance -= resource->font_size();
+	// 			continue;
+	// 		}
+	// 		case '\t':
+	// 		{
+	// 			x_pen_advance += font_size * 4;
+	// 			continue;
+	// 		}
+	// 	}
 		
-		if (utf8_decode(&state, &code_point, str[i]) == UTF8_ACCEPT)
-		{
-			FontGlyphData g = resource->get_glyph(code_point);
+	// 	if (utf8_decode(&state, &code_point, str[i]) == UTF8_ACCEPT)
+	// 	{
+	// 		FontGlyphData g = resource->get_glyph(code_point);
 
-			const float baseline = g.height - g.y_offset;
+	// 		const float baseline = g.height - g.y_offset;
 
-			// Set pen position
-			m_pen.x = pos.x + g.x_offset;
-			m_pen.y = pos.y - baseline;
+	// 		// Set pen position
+	// 		m_pen.x = pos.x + g.x_offset;
+	// 		m_pen.y = pos.y - baseline;
 
-			// Position coords
-			const float x0 = (m_pen.x + x_pen_advance) * scale;
-			const float y0 = (m_pen.y + y_pen_advance) * scale;
-			const float x1 = (m_pen.x + g.width + x_pen_advance) * scale;
-			const float y1 = (m_pen.y + g.height + y_pen_advance) * scale;
+	// 		// Position coords
+	// 		const float x0 = (m_pen.x + x_pen_advance) * scale;
+	// 		const float y0 = (m_pen.y + y_pen_advance) * scale;
+	// 		const float x1 = (m_pen.x + g.width + x_pen_advance) * scale;
+	// 		const float y1 = (m_pen.y + g.height + y_pen_advance) * scale;
 
-			// Texture coords
-			const float u0 = (float) g.x / 512;
-			const float v0 = (float) g.y / 512;
-			const float u1 = u0 + ((float) g.width) / 512;
-			const float v1 = v0 - ((float) g.height) / 512;
+	// 		// Texture coords
+	// 		const float u0 = (float) g.x / 512;
+	// 		const float v0 = (float) g.y / 512;
+	// 		const float u1 = u0 + ((float) g.width) / 512;
+	// 		const float v1 = v0 - ((float) g.height) / 512;
 
-			// Fill vertex buffer
-			(*(VertexData*)(vb.data)).x		= x0;
-			(*(VertexData*)(vb.data)).y		= y0;
-			(*(VertexData*)(vb.data)).u		= u0;
-			(*(VertexData*)(vb.data)).v		= v1;
-			vb.data += sizeof(VertexData);
+	// 		// Fill vertex buffer
+	// 		(*(VertexData*)(vb.data)).x		= x0;
+	// 		(*(VertexData*)(vb.data)).y		= y0;
+	// 		(*(VertexData*)(vb.data)).u		= u0;
+	// 		(*(VertexData*)(vb.data)).v		= v1;
+	// 		vb.data += sizeof(VertexData);
 
-			(*(VertexData*)(vb.data)).x		= x1;
-			(*(VertexData*)(vb.data)).y		= y0;
-			(*(VertexData*)(vb.data)).u		= u1;
-			(*(VertexData*)(vb.data)).v		= v1;
-			vb.data += sizeof(VertexData);
+	// 		(*(VertexData*)(vb.data)).x		= x1;
+	// 		(*(VertexData*)(vb.data)).y		= y0;
+	// 		(*(VertexData*)(vb.data)).u		= u1;
+	// 		(*(VertexData*)(vb.data)).v		= v1;
+	// 		vb.data += sizeof(VertexData);
 
-			(*(VertexData*)(vb.data)).x		= x1;
-			(*(VertexData*)(vb.data)).y		= y1;
-			(*(VertexData*)(vb.data)).u		= u1;
-			(*(VertexData*)(vb.data)).v		= v0;
-			vb.data += sizeof(VertexData);
+	// 		(*(VertexData*)(vb.data)).x		= x1;
+	// 		(*(VertexData*)(vb.data)).y		= y1;
+	// 		(*(VertexData*)(vb.data)).u		= u1;
+	// 		(*(VertexData*)(vb.data)).v		= v0;
+	// 		vb.data += sizeof(VertexData);
 
-			(*(VertexData*)(vb.data)).x		= x0;
-			(*(VertexData*)(vb.data)).y		= y1;
-			(*(VertexData*)(vb.data)).u		= u0;
-			(*(VertexData*)(vb.data)).v		= v0;
-			vb.data += sizeof(VertexData);
+	// 		(*(VertexData*)(vb.data)).x		= x0;
+	// 		(*(VertexData*)(vb.data)).y		= y1;
+	// 		(*(VertexData*)(vb.data)).u		= u0;
+	// 		(*(VertexData*)(vb.data)).v		= v0;
+	// 		vb.data += sizeof(VertexData);
 
-			// Fill index buffer
-			(*(IndexData*)(ib.data)).a		= index;
-			(*(IndexData*)(ib.data)).b		= index + 1;
-			ib.data += sizeof(IndexData);
+	// 		// Fill index buffer
+	// 		(*(IndexData*)(ib.data)).a		= index;
+	// 		(*(IndexData*)(ib.data)).b		= index + 1;
+	// 		ib.data += sizeof(IndexData);
 
-			(*(IndexData*)(ib.data)).a		= index + 2;
-			(*(IndexData*)(ib.data)).b		= index;
-			ib.data += sizeof(IndexData);
+	// 		(*(IndexData*)(ib.data)).a		= index + 2;
+	// 		(*(IndexData*)(ib.data)).b		= index;
+	// 		ib.data += sizeof(IndexData);
 
-			(*(IndexData*)(ib.data)).a		= index + 2;
-			(*(IndexData*)(ib.data)).b		= index + 3;
-			ib.data += sizeof(IndexData);
+	// 		(*(IndexData*)(ib.data)).a		= index + 2;
+	// 		(*(IndexData*)(ib.data)).b		= index + 3;
+	// 		ib.data += sizeof(IndexData);
 
-			// Advance pen position
-			x_pen_advance += g.x_advance;
+	// 		// Advance pen position
+	// 		x_pen_advance += g.x_advance;
 
-			index += 4;
-		}
-	}
+	// 		index += 4;
+	// 	}
+	// }
 
-	const MaterialResource* mr = (MaterialResource*) device()->resource_manager()->get(resource->material());
-	const TextureResource* tr = (TextureResource*) device()->resource_manager()->get(mr->get_texture_layer(0));
+	// const MaterialResource* mr = (MaterialResource*) device()->resource_manager()->get(resource->material());
+	// const TextureResource* tr = (TextureResource*) device()->resource_manager()->get(mr->get_texture_layer(0));
 
-	r->set_layer_view(1, matrix4x4::IDENTITY);
-	r->set_layer_projection(1, m_projection);
-	r->set_layer_viewport(1, 0, 0, 1000, 625);
-	r->set_state(STATE_COLOR_WRITE
-					| STATE_CULL_CW
-					| STATE_BLEND_EQUATION_ADD 
-					| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
-	r->set_pose(m_pose);
-	r->set_program(render_world_globals::default_font_program());
-	r->set_texture(0, render_world_globals::default_font_uniform(), tr->texture(),
-					TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);
-	r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
-	r->set_vertex_buffer(vb);
-	r->set_index_buffer(ib);
-	r->commit(1, (int32_t) pos.z);
+	// r->set_layer_view(1, matrix4x4::IDENTITY);
+	// r->set_layer_projection(1, m_projection);
+	// r->set_layer_viewport(1, 0, 0, 1000, 625);
+	// r->set_state(STATE_COLOR_WRITE
+	// 				| STATE_CULL_CW
+	// 				| STATE_BLEND_EQUATION_ADD 
+	// 				| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
+	// r->set_pose(m_pose);
+	// r->set_program(render_world_globals::default_font_program());
+	// r->set_texture(0, render_world_globals::default_font_uniform(), tr->texture(),
+	// 				TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);
+	// r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
+	// r->set_vertex_buffer(vb);
+	// r->set_index_buffer(ib);
+	// r->commit(1, (int32_t) pos.z);
 }
 
 } // namespace crown

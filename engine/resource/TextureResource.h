@@ -28,12 +28,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Resource.h"
-#include "PixelFormat.h"
 #include "Bundle.h"
 #include "Allocator.h"
 #include "File.h"
 #include "Device.h"
-#include "Renderer.h"
 
 namespace crown
 {
@@ -126,7 +124,7 @@ struct DdsHeader
 
 struct TextureHeader
 {
-	TextureId id;
+	uint32_t id;
 };
 
 #define DDS_HEADER_OFFSET	uint32_t(sizeof(TextureHeader))
@@ -151,10 +149,10 @@ struct TextureResource
 	//-----------------------------------------------------------------------------
 	static void online(void* resource)
 	{
-		TextureResource* t = (TextureResource*) resource;
-		TextureHeader* h = (TextureHeader*) t;
+		// TextureResource* t = (TextureResource*) resource;
+		// TextureHeader* h = (TextureHeader*) t;
 
-		h->id = device()->renderer()->create_texture(t->width(), t->height(), t->num_mipmaps(), t->format(), t->data());
+		// h->id = device()->renderer()->create_texture(t->width(), t->height(), t->num_mipmaps(), t->format(), t->data());
 	}
 
 	//-----------------------------------------------------------------------------
@@ -168,26 +166,26 @@ struct TextureResource
 	//-----------------------------------------------------------------------------
 	static void offline(void* resource)
 	{
-		TextureResource* t = (TextureResource*) resource;
+		// TextureResource* t = (TextureResource*) resource;
 
-		device()->renderer()->destroy_texture(t->texture());
+		// device()->renderer()->destroy_texture(t->texture());
 	}
 
-	PixelFormat::Enum format() const
-	{
-		const DdsPixelFormat& ddspf = ((DdsHeader*) (((char*) this) + DDS_HEADER_OFFSET))->ddspf;
+	// PixelFormat::Enum format() const
+	// {
+	// 	const DdsPixelFormat& ddspf = ((DdsHeader*) (((char*) this) + DDS_HEADER_OFFSET))->ddspf;
 
-		const uint32_t fmt = ddspf.flags & DDPF_FOURCC ? ddspf.fourcc : ddspf.flags;
-		switch (fmt)
-		{
-			case DDPF_FOURCC_DXT1: return PixelFormat::DXT1; break;
-			case DDPF_FOURCC_DXT3: return PixelFormat::DXT3; break;
-			case DDPF_FOURCC_DXT5: return PixelFormat::DXT5; break;
-			case DDS_RGB: return PixelFormat::R8G8B8; break;
-			case DDS_RGBA: return PixelFormat::R8G8B8A8; break;
-			default: CE_FATAL("Unknown pixel format"); return PixelFormat::COUNT;
-		}
-	}
+	// 	const uint32_t fmt = ddspf.flags & DDPF_FOURCC ? ddspf.fourcc : ddspf.flags;
+	// 	switch (fmt)
+	// 	{
+	// 		case DDPF_FOURCC_DXT1: return PixelFormat::DXT1; break;
+	// 		case DDPF_FOURCC_DXT3: return PixelFormat::DXT3; break;
+	// 		case DDPF_FOURCC_DXT5: return PixelFormat::DXT5; break;
+	// 		case DDS_RGB: return PixelFormat::R8G8B8; break;
+	// 		case DDS_RGBA: return PixelFormat::R8G8B8A8; break;
+	// 		default: CE_FATAL("Unknown pixel format"); return PixelFormat::COUNT;
+	// 	}
+	// }
 
 	uint32_t width() const
 	{
@@ -209,10 +207,10 @@ struct TextureResource
 		return (char*) this + DDS_DATA_OFFSET;
 	}
 
-	TextureId texture() const
-	{
-		return ((TextureHeader*) this)->id;
-	}
+	// TextureId texture() const
+	// {
+	// 	return ((TextureHeader*) this)->id;
+	// }
 
 private:
 

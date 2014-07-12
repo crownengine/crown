@@ -28,12 +28,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "Resource.h"
-#include "PixelFormat.h"
 #include "Allocator.h"
 #include "Bundle.h"
 #include "File.h"
 #include "Device.h"
-#include "Renderer.h"
 
 namespace crown
 {
@@ -43,8 +41,8 @@ const uint32_t MESH_VERSION = 1;
 
 struct MeshHeader
 {
-	VertexBufferId		vbuffer;
-	IndexBufferId		ibuffer;
+	uint32_t			vbuffer;
+	uint32_t			ibuffer;
 	uint32_t			version;
 	uint32_t			num_meshes;
 	uint32_t			num_joints;
@@ -54,7 +52,7 @@ struct MeshHeader
 struct VertexData
 {
 	uint32_t	    	num_vertices;
-	VertexFormat::Enum	format;
+	// VertexFormat::Enum	format;
 	uint32_t			offset;
 };
 
@@ -94,8 +92,8 @@ public:
 		MeshResource* m = (MeshResource*) resource;
 		MeshHeader* h = (MeshHeader*) m;
 
-		h->vbuffer = device()->renderer()->create_vertex_buffer(m->num_vertices() * Vertex::bytes_per_vertex(m->vertex_format()), m->vertices(), m->vertex_format());
-		h->ibuffer = device()->renderer()->create_index_buffer(m->num_indices() * sizeof(uint16_t), m->indices());
+		// h->vbuffer = device()->renderer()->create_vertex_buffer(m->num_vertices() * Vertex::bytes_per_vertex(m->vertex_format()), m->vertices(), m->vertex_format());
+		// h->ibuffer = device()->renderer()->create_index_buffer(m->num_indices() * sizeof(uint16_t), m->indices());
 	}
 
 	//-----------------------------------------------------------------------------
@@ -111,8 +109,8 @@ public:
 		MeshResource* m = (MeshResource*) resource;
 		MeshHeader* h = (MeshHeader*) m;
 
-		device()->renderer()->destroy_index_buffer(h->ibuffer);
-		device()->renderer()->destroy_vertex_buffer(h->vbuffer);
+		// device()->renderer()->destroy_index_buffer(h->ibuffer);
+		// device()->renderer()->destroy_vertex_buffer(h->vbuffer);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -120,13 +118,6 @@ public:
 	{
 		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
 		return data->vertices.num_vertices;
-	}
-
-	//-----------------------------------------------------------------------------
-	VertexFormat::Enum vertex_format() const
-	{
-		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
-		return data->vertices.format;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -148,20 +139,6 @@ public:
 	{
 		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
 		return (uint16_t*) (((char*)this) + data->indices.offset);
-	}
-
-	//-----------------------------------------------------------------------------
-	VertexBufferId vertex_buffer() const
-	{
-		MeshHeader* h = (MeshHeader*) this;
-		return h->vbuffer;
-	}
-
-	//-----------------------------------------------------------------------------
-	IndexBufferId index_buffer() const
-	{
-		MeshHeader* h = (MeshHeader*) this;
-		return h->ibuffer;
 	}
 
 private:

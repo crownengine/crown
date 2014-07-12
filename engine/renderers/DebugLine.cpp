@@ -28,8 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MathUtils.h"
 #include "Color4.h"
 #include "Vector3.h"
-#include "Device.h"
-#include "Renderer.h"
 #include "RenderWorld.h"
 
 namespace crown
@@ -102,30 +100,30 @@ void DebugLine::clear()
 //-----------------------------------------------------------------------------
 void DebugLine::commit()
 {
-	if (!m_num_lines)
-		return;
+	// if (!m_num_lines)
+	// 	return;
 
-	Renderer* r = device()->renderer();
+	// Renderer* r = device()->renderer();
 
-	TransientVertexBuffer tvb;
-	TransientIndexBuffer tib;
-	r->reserve_transient_vertex_buffer(&tvb, m_num_lines * 2, VertexFormat::P3_C4);
-	r->reserve_transient_index_buffer(&tib, m_num_lines * 2);
+	// TransientVertexBuffer tvb;
+	// TransientIndexBuffer tib;
+	// r->reserve_transient_vertex_buffer(&tvb, m_num_lines * 2, VertexFormat::P3_C4);
+	// r->reserve_transient_index_buffer(&tib, m_num_lines * 2);
 
-	memcpy(tvb.data, m_lines, sizeof(Line) * m_num_lines);
+	// memcpy(tvb.data, m_lines, sizeof(Line) * m_num_lines);
 
-	uint16_t* indices = (uint16_t*) tib.data;
-	for (uint32_t i = 0; i < m_num_lines * 2; i++)
-	{
-		indices[i] = i;
-	}
+	// uint16_t* indices = (uint16_t*) tib.data;
+	// for (uint32_t i = 0; i < m_num_lines * 2; i++)
+	// {
+	// 	indices[i] = i;
+	// }
 
-	r->set_state((m_depth_test ? STATE_DEPTH_TEST_LESS : 0) | STATE_COLOR_WRITE | STATE_CULL_CW | STATE_PRIMITIVE_LINES);
-	r->set_vertex_buffer(tvb);
-	r->set_index_buffer(tib);
-	r->set_program(render_world_globals::default_program());
-	r->set_pose(matrix4x4::IDENTITY);
-	r->commit(0);
+	// r->set_state((m_depth_test ? STATE_DEPTH_TEST_LESS : 0) | STATE_COLOR_WRITE | STATE_CULL_CW | STATE_PRIMITIVE_LINES);
+	// r->set_vertex_buffer(tvb);
+	// r->set_index_buffer(tib);
+	// r->set_program(render_world_globals::default_program());
+	// r->set_pose(matrix4x4::IDENTITY);
+	// r->commit(0);
 }
 
 } // namespace crown

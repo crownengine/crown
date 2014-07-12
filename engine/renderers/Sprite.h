@@ -26,12 +26,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "RendererTypes.h"
 #include "RenderWorldTypes.h"
 #include "Vector3.h"
 #include "Matrix4x4.h"
 #include "Quaternion.h"
 #include "SpriteResource.h"
+#include <bgfx.h>
 
 namespace crown
 {
@@ -60,7 +60,7 @@ struct Sprite
 	void set_local_pose(Unit* unit, const Matrix4x4& pose);
 
 	void set_material(MaterialId mat);
-	void render(Renderer& r, UniformId uniform, float dt);
+	void render();
 	void set_frame(uint32_t i);
 
 	void play_animation(const char* name, bool loop);
@@ -71,13 +71,13 @@ struct Sprite
 public:
 
 	RenderWorld&			m_render_world;
-	SceneGraph&				m_scene_graph;	
+	SceneGraph&				m_scene_graph;
 	int32_t					m_node;
 	const SpriteResource*	m_resource;
 
-	MaterialId				m_material;
-	VertexBufferId			m_vb;
-	IndexBufferId			m_ib;
+	MaterialId m_material;
+	bgfx::VertexBufferHandle m_vb;
+	bgfx::IndexBufferHandle m_ib;
 
 	uint32_t m_frame;
 

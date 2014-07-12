@@ -174,7 +174,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	MeshData data;
 	data.vertices.num_vertices = array::size(m_vertices);
-	data.vertices.format = VertexFormat::P3_N3_T2;
+	// data.vertices.format = VertexFormat::P3_N3_T2;
 	data.vertices.offset = sizeof(MeshHeader) + sizeof(MeshData);
 
 	data.indices.num_indices = array::size(m_indices);

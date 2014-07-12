@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "SceneGraph.h"
 #include "Unit.h"
-#include "Renderer.h"
 #include "Material.h"
 #include "RenderWorld.h"
 
@@ -49,8 +48,17 @@ Sprite::Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const Sp
 	, m_time(0)
 	, m_loop(false)
 {
-	m_vb = sr->vertex_buffer();
-	m_ib = sr->index_buffer();
+	Blob vmem = sr->get_vertices();
+	Blob imem = sr->get_indices();
+
+	bgfx::VertexDecl decl;
+	decl.begin()
+		.add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
+		.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, true)
+		.end();
+
+	m_vb = bgfx::createVertexBuffer(bgfx::makeRef((void*) vmem.m_data, vmem.m_size), decl);
+	m_ib = bgfx::createIndexBuffer(bgfx::makeRef((void*) imem.m_data, imem.m_size));
 }
 
 //-----------------------------------------------------------------------------
@@ -170,21 +178,47 @@ void Sprite::update(float dt)
 }
 
 //-----------------------------------------------------------------------------
-void Sprite::render(Renderer& r, UniformId uniform, float dt)
+void Sprite::render()
 {
-	Material* material = m_render_world.get_material(m_material);
-	material->bind(r, uniform);
+	// Material* material = m_render_world.get_material(m_material);
+	// material->bind(r, uniform);
 
-	r.set_state(STATE_DEPTH_WRITE 
-		| STATE_COLOR_WRITE 
-		| STATE_ALPHA_WRITE 
-		| STATE_CULL_CW 
-		| STATE_BLEND_EQUATION_ADD 
-		| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
-	r.set_vertex_buffer(m_vb);
-	r.set_index_buffer(m_ib, m_frame * 6, 6);
-	r.set_pose(world_pose());
-	r.commit(0);
+	///
+	/// @param _state State flags. Default state for primitive type is
+	///   triangles. See: BGFX_STATE_DEFAULT.
+	///
+	///   BGFX_STATE_ALPHA_WRITE - Enable alpha write.
+	///   BGFX_STATE_DEPTH_WRITE - Enable depth write.
+	///   BGFX_STATE_DEPTH_TEST_* - Depth test function.
+	///   BGFX_STATE_BLEND_* - See NOTE 1: BGFX_STATE_BLEND_FUNC.
+	///   BGFX_STATE_BLEND_EQUATION_* - See NOTE 2.
+	///   BGFX_STATE_CULL_* - Backface culling mode.
+	///   BGFX_STATE_RGB_WRITE - Enable RGB write.
+	///   BGFX_STATE_MSAA - Enable MSAA.
+	///   BGFX_STATE_PT_[LINES/POINTS] - Primitive type.
+	///
+	/// @param _rgba Sets blend factor used by BGFX_STATE_BLEND_FACTOR and
+	///   BGFX_STATE_BLEND_INV_FACTOR blend modes.
+	///
+	/// NOTE:
+	///   1. Use BGFX_STATE_ALPHA_REF, BGFX_STATE_POINT_SIZE and
+	///      BGFX_STATE_BLEND_FUNC macros to setup more complex states.
+	///   2. BGFX_STATE_BLEND_EQUATION_ADD is set when no other blend
+	///      equation is specified.
+	///
+	bgfx::setState(BGFX_STATE_DEFAULT);
+
+	// r.set_state(STATE_DEPTH_WRITE 
+	// 	| STATE_COLOR_WRITE 
+	// 	| STATE_ALPHA_WRITE 
+	// 	| STATE_CULL_CW 
+	// 	| STATE_BLEND_EQUATION_ADD 
+	// 	| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
+
+	bgfx::setVertexBuffer(m_vb);
+	bgfx::setIndexBuffer(m_ib, m_frame * 6, 6);
+	bgfx::setTransform(matrix4x4::to_float_ptr(world_pose()));
+	bgfx::submit(0);
 }
 
 } // namespace crown
