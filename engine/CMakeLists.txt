@@ -542,11 +542,10 @@ if (WINDOWS)
 		set (WIN_PHYSXARCH x86)
 	elseif (CROWN_ARCH MATCHES "win64")
 		set (WIN_PHYSXARCH x64)
-  else ()
-    message (FATAL_ERROR "Oops, you should not be here")
+	else ()
+    	message (FATAL_ERROR "Oops, you should not be here")
 	endif (CROWN_ARCH MATCHES "win32")
 
-##### FIXME FIXME FIXME #####
 	list (APPEND CROWN_DEBUG_LIBRARIES
 		#LowLevelCHECKED
 		#LowLevelClothCHECKED
