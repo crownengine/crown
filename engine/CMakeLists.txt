@@ -180,16 +180,6 @@ set (INPUT_HEADERS
 	input/Touch.h
 )
 
-set (RENDERERS_BACKEND_SRC
-)
-
-set (RENDERERS_BACKEND_HEADERS
-	renderers/backend/Renderer.h
-	renderers/backend/RenderContext.h
-	renderers/backend/PixelFormat.h
-	renderers/backend/VertexFormat.h
-)
-
 set (RENDERERS_SRC
 	renderers/DebugLine.cpp
 	renderers/Gui.cpp
@@ -378,15 +368,6 @@ if (LINUX)
 		os/posix/Posix.cpp
 	)
 
-	list (APPEND RENDERERS_SRC
-		renderers/backend/gl/GLRenderer.cpp
-		renderers/backend/gl/glx/GLContext.cpp
-	)
-
-	list (APPEND RENDERERS_HEADERS
-		renderers/backend/gl/glx/GLContext.h
-	)
-
 	list (APPEND AUDIO_SRC
 		audio/backend/ALSoundWorld.cpp
 	)
@@ -408,7 +389,7 @@ if (LINUX)
 		#-pedantic-errors
 		-Wall
 		-Wextra
-		-Werror
+		#-Werror
 		-Wno-long-long
 		-Wno-variadic-macros
 		-Wno-unknown-pragmas
@@ -508,16 +489,6 @@ if (WINDOWS)
 		os/win/OsWindow.cpp
 	)
 
-	list (APPEND RENDERERS_SRC
-		renderers/backend/gl/GLRenderer.cpp
-		renderers/backend/gl/wgl/GLContext.cpp
-	)
-
-	list (APPEND RENDERERS_HEADERS
-		renderers/backend/gl/wgl/GLContext.h
-		renderers/backend/gl/wgl/wglext.h
-	)
-
 	list (APPEND AUDIO_SRC
 		audio/backend/ALSoundWorld.cpp
 	)
@@ -614,7 +585,6 @@ set (CROWN_SOURCES
 	${COMPRESSORS_SRC}
 	${SETTINGS_SRC}
 	${INPUT_SRC}
-	${RENDERERS_BACKEND_SRC}
 	${RENDERERS_SRC}
 	${RESOURCE_SRC}
 	${OS_SRC}
@@ -637,7 +607,6 @@ set (CROWN_HEADERS
 	${COMPRESSORS_HEADERS}
 	${SETTINGS_HEADERS}
 	${INPUT_HEADERS}
-	${RENDERERS_BACKEND_HEADERS}
 	${RENDERERS_HEADERS}
 	${RESOURCE_HEADERS}
 	${OS_HEADERS}
@@ -657,6 +626,7 @@ link_libraries(${CROWN_LIBRARIES})
 add_definitions(${COMPILER_FLAGS})
 
 add_library(crown-lib SHARED ${CROWN_SOURCES} ${CROWN_HEADERS})
+target_link_libraries(crown-lib bgfx)
 set_target_properties (crown-lib PROPERTIES OUTPUT_NAME ${CROWN_LIBRARY_NAME})
 
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN")

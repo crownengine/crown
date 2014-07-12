@@ -93,6 +93,8 @@ set (CROWN_THIRD_INCLUDES
 	${CMAKE_SOURCE_DIR}/third/freetype
 	${CMAKE_SOURCE_DIR}/third/stb_image
 	${CMAKE_SOURCE_DIR}/third/stb_vorbis
+	${CMAKE_SOURCE_DIR}/third/bgfx/include
+	${CMAKE_SOURCE_DIR}/third/bx/include
 )
 
 # architecture dependent libraries
