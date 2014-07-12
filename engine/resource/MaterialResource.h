@@ -33,14 +33,46 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Color4.h"
 #include "Bundle.h"
 #include "Allocator.h"
+#include "Blob.h"
 
 namespace crown
 {
 
 struct MaterialHeader
 {
-	uint32_t num_texture_layers;
-	uint32_t texture_layers_offset;
+	uint32_t vs_size;
+	uint32_t vs_offset;
+	uint32_t fs_size;
+	uint32_t fs_offset;
+};
+
+struct SamplerArray
+{
+	uint32_t num;
+};
+
+struct Sampler
+{
+	char name[32];
+	ResourceId texture;
+};
+
+struct UniformArray
+{
+	uint32_t num;
+};
+
+union UniformValue
+{
+	float float_value;
+	//Vector3 vector3_value;
+};
+
+struct Uniform
+{
+	char name[32];
+	uint32_t type;
+	UniformValue value;
 };
 
 /// A material describes the visual properties of a surface.
@@ -81,19 +113,22 @@ public:
 	{
 	}
 
-	//-----------------------------------------------------------------------------
-	uint32_t num_texture_layers() const
+	Blob get_vertex_shader() const
 	{
-		return ((MaterialHeader*) this)->num_texture_layers;
+		MaterialHeader* h = (MaterialHeader*) this;
+		Blob b;
+		b.m_size = h->vs_size;
+		b.m_data = (uintptr_t) h->vs_offset + (uintptr_t) this;
+		return b;
 	}
 
-	//-----------------------------------------------------------------------------
-	ResourceId get_texture_layer(uint32_t i) const
+	Blob get_fragment_shader() const
 	{
-		CE_ASSERT(i < num_texture_layers(), "Index out of bounds");
 		MaterialHeader* h = (MaterialHeader*) this;
-		ResourceId* begin = (ResourceId*) (((char*) this) + h->texture_layers_offset);
-		return begin[i];
+		Blob b;
+		b.m_size = h->fs_size;
+		b.m_data = (uintptr_t) h->fs_offset + (uintptr_t) this;
+		return b;
 	}
 
 private:

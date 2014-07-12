@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "JSONParser.h"
 #include "Filesystem.h"
+#include "ReaderWriter.h"
 
 namespace crown
 {
@@ -45,31 +46,81 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	JSONElement root = json.root();
 
-	// Read texture layers
-	Array<ResourceId> texture_layers(default_allocator());
+	DynamicString vs_src;
+	DynamicString fs_src;
+	DynamicString varying_src;
 
-	JSONElement tl = root.key("texture_layers");
-	for (uint32_t i = 0; i < tl.size(); i++)
+	root.key("vs_source").to_string(vs_src);
+	root.key("fs_source").to_string(fs_src);
+	root.key("varying_source").to_string(varying_src);
+
+	vs_src += ".sc";
+	fs_src += ".sc";
+	varying_src += ".def.sc";
+
+	DynamicString vs_src_abs;
+	DynamicString fs_src_abs;
+	DynamicString varying_src_abs;
+	DynamicString vs_bin_abs;
+	DynamicString fs_bin_abs;
+
+	fs.get_absolute_path(vs_src.c_str(), vs_src_abs);
+	fs.get_absolute_path(fs_src.c_str(), fs_src_abs);
+	fs.get_absolute_path(varying_src.c_str(), varying_src_abs);
+	fs.get_absolute_path("vs_bin.tmp", vs_bin_abs);
+	fs.get_absolute_path("fs_bin.tmp", fs_bin_abs);
+
+	const char* shaderc_vs[] =
 	{
-		DynamicString tex;
-		tl[i].to_string(tex); tex += ".texture";
+		"./shaderc",
+		"-f", vs_src_abs.c_str(),
+		"-o", vs_bin_abs.c_str(),
+		"--platform", "linux",
+		"--varyingdef", varying_src_abs.c_str(),
+		"--type", "vertex",
+		NULL
+	};
 
-		array::push_back(texture_layers, ResourceId(tex.c_str()));
-	}
-
-	// Write resource
-	MaterialHeader mh;
-	mh.num_texture_layers = array::size(texture_layers);
-
-	uint32_t offt = sizeof(MaterialHeader);
-	mh.texture_layers_offset = offt;
-
-	out_file->write((char*) &mh, sizeof(MaterialHeader));
-
-	if (mh.num_texture_layers)
+	const char* shaderc_fs[] =
 	{
-		out_file->write((char*) array::begin(texture_layers), sizeof(ResourceId) * array::size(texture_layers));
-	}
+		"shaderc",
+		"-f", fs_src_abs.c_str(),
+		"-o", fs_bin_abs.c_str(),
+		"--platform", "linux",
+		"--varyingdef", varying_src_abs.c_str(),
+		"--type", "fragment",
+		NULL
+	};
+
+	os::execute_process(shaderc_vs);
+	os::execute_process(shaderc_fs);
+
+	File* vs_code = fs.open(vs_bin_abs.c_str(), FOM_READ);
+	File* fs_code = fs.open(fs_bin_abs.c_str(), FOM_READ);
+
+	const uint32_t vs_code_size = vs_code->size();
+	const uint32_t fs_code_size = fs_code->size();
+
+	// Write material
+	BinaryWriter bw(*out_file);
+
+	bw.write(vs_code_size);
+	bw.write(uint32_t(16 + 0));
+	bw.write(fs_code_size);
+	bw.write(uint32_t(16 + vs_code_size));
+
+	char* shaders = (char*) default_allocator().allocate(vs_code_size + fs_code_size);
+	vs_code->read(shaders + 0, vs_code_size);
+	fs_code->read(shaders + vs_code_size, fs_code_size);
+
+	bw.write(shaders, vs_code_size + fs_code_size);
+
+	default_allocator().deallocate(shaders);
+
+	fs.close(vs_code);
+	fs.close(fs_code);
+	fs.delete_file(vs_bin_abs.c_str());
+	fs.delete_file(fs_bin_abs.c_str());
 }
 
 } // namespace material_resource
