@@ -36,11 +36,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OsEventQueue.h"
 #include "BundleCompiler.h"
 #include "Memory.h"
+#include <bgfxplatform.h>
+#include <bgfx.h>
 
 namespace crown
 {
-
-extern void set_x11_display_and_window(Display* dpy, Window win);
 
 //-----------------------------------------------------------------------------
 void init()
@@ -253,14 +253,8 @@ public:
 		int depth = DefaultDepth(m_x11_display, screen);
 		Visual* visual = DefaultVisual(m_x11_display, screen);
 
-		if (m_parent_window_handle != 0)
-		{
-			m_x11_parent_window = (Window) m_parent_window_handle;
-		}
-		else
-		{
-			m_x11_parent_window = RootWindow(m_x11_display, screen);
-		}
+		m_x11_parent_window = (m_parent_window_handle == 0) ? RootWindow(m_x11_display, screen) :
+			(Window) m_parent_window_handle;
 
 		// We want to track keyboard and mouse events
 		XSetWindowAttributes win_attribs;
@@ -305,7 +299,7 @@ public:
 		XMapRaised(m_x11_display, m_x11_window);
 
 		oswindow_set_window(m_x11_display, m_x11_window);
-		set_x11_display_and_window(m_x11_display, m_x11_window);
+		bgfx::x11SetDisplayWindow(m_x11_display, m_x11_window);
 
 		// Get screen configuration
 		m_screen_config = XRRGetScreenInfo(m_x11_display, RootWindow(m_x11_display, screen));
