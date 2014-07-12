@@ -105,6 +105,10 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 			continue;
 		if (files[i].ends_with(".dds"))
 			continue;
+		if (files[i].ends_with(".sh"))
+			continue;
+		if (files[i].ends_with(".sc"))
+			continue;
 
 		const char* filename = files[i].c_str();
 
