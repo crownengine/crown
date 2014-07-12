@@ -115,12 +115,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OsWindow.h"
 #include "OsSocket.h"
 
-// Engine/Renderers
-#include "Renderer.h"
-#include "RenderContext.h"
-#include "PixelFormat.h"
-#include "VertexFormat.h"
-
 // Engine/Resource
 #include "Bundle.h"
 #include "ResourceLoader.h"
