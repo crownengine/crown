@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Allocator.h"
 #include "File.h"
 #include "Device.h"
+#include <bgfx.h>
 
 namespace crown
 {
@@ -143,7 +144,9 @@ struct TextureResource
 
 		bundle.close(file);
 
-		return res;
+		bgfx::TextureHandle tex = bgfx::createTexture(bgfx::copy(res, file_size));
+
+		return (void*) (uintptr_t) tex.idx;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -170,22 +173,6 @@ struct TextureResource
 
 		// device()->renderer()->destroy_texture(t->texture());
 	}
-
-	// PixelFormat::Enum format() const
-	// {
-	// 	const DdsPixelFormat& ddspf = ((DdsHeader*) (((char*) this) + DDS_HEADER_OFFSET))->ddspf;
-
-	// 	const uint32_t fmt = ddspf.flags & DDPF_FOURCC ? ddspf.fourcc : ddspf.flags;
-	// 	switch (fmt)
-	// 	{
-	// 		case DDPF_FOURCC_DXT1: return PixelFormat::DXT1; break;
-	// 		case DDPF_FOURCC_DXT3: return PixelFormat::DXT3; break;
-	// 		case DDPF_FOURCC_DXT5: return PixelFormat::DXT5; break;
-	// 		case DDS_RGB: return PixelFormat::R8G8B8; break;
-	// 		case DDS_RGBA: return PixelFormat::R8G8B8A8; break;
-	// 		default: CE_FATAL("Unknown pixel format"); return PixelFormat::COUNT;
-	// 	}
-	// }
 
 	uint32_t width() const
 	{
