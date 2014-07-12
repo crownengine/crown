@@ -163,6 +163,7 @@ void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 
 	va_end(vl);
 	lua_pcall(m_L, argc, 0, -argc - 2);
+	lua_pop(m_L, -1);
 }
 
 //-----------------------------------------------------------------------------
@@ -183,6 +184,7 @@ void LuaEnvironment::call_physics_callback(Actor* actor_0, Actor* actor_1, Unit*
 	stack.push_key_begin("type"); stack.push_string(type); stack.push_key_end();
 
 	lua_pcall(m_L, 1, 0, -3);
+	lua_pop(m_L, -1);
 }
 
 //-----------------------------------------------------------------------------
@@ -199,6 +201,7 @@ void LuaEnvironment::call_trigger_callback(Actor* trigger, Actor* other, const c
 	stack.push_key_begin("type"); stack.push_string(type); stack.push_key_end();
 
 	lua_pcall(m_L, 1, 0, -3);
+	lua_pop(m_L, -1);
 }
 
 } // namespace crown
