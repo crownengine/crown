@@ -121,6 +121,12 @@ solution "crown"
 			CROWN_SOURCE_DIR .. "/engine/world"
 		}
 
+		files
+		{
+			CROWN_SOURCE_DIR .. "engine/**.h", 
+			CROWN_SOURCE_DIR .. "engine/**.cpp"
+		}
+
 		configuration { "linux" }
 			kind "ConsoleApp"
 			location(".build/linux") -- its ok
@@ -164,12 +170,6 @@ solution "crown"
 			{
 				CROWN_SOURCE_DIR .. "/engine/os/linux",
 				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/glx"
-			}
-
-			files
-			{
-				CROWN_SOURCE_DIR .. "engine/**.h", 
-				CROWN_SOURCE_DIR .. "engine/**.cpp"
 			}
 
 			excludes
