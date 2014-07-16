@@ -138,10 +138,20 @@ namespace sort_map
 	template <typename TKey, typename TValue, typename Compare>
 	inline void set(SortMap<TKey, TValue, Compare>& m, const TKey& key, const TValue& val)
 	{
-		typename SortMap<TKey, TValue, Compare>::Entry e;
-		e.key = key;
-		e.value = val;
-		array::push_back(m.m_data, e);
+		sort_map_internal::FindResult result = sort_map_internal::find(m, key);
+
+		if (result.item_i == sort_map_internal::END_OF_LIST)
+		{
+			typename SortMap<TKey, TValue, Compare>::Entry e;
+			e.key = key;
+			e.value = val;
+			array::push_back(m.m_data, e);
+		}
+		else
+		{
+			m.m_data[result.item_i].value = val;
+		}
+
 		m.m_is_sorted = false;
 	}
 
@@ -166,7 +176,7 @@ namespace sort_map
 	inline void clear(SortMap<TKey, TValue, Compare>& m)
 	{
 		array::clear(m.m_data);
-		m.m_is_sorted = false;
+		m.m_is_sorted = true;
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
@@ -184,7 +194,7 @@ namespace sort_map
 
 template <typename TKey, typename TValue, typename Compare>
 inline SortMap<TKey, TValue, Compare>::SortMap(Allocator& a)
-	: m_is_sorted(false), m_data(a)
+	: m_is_sorted(true), m_data(a)
 {
 }
 
