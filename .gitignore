@@ -11,18 +11,18 @@
 __pycache__
 
 # Ignore C# stuff
-bin
-obj
-Obj
-TestResults
-test-results
-*.csproj.user
-*.suo
-*.cache
-*~
-*.swp
-*.userprefs
-*.pidb
+/tools/**/bin
+/tools/**/obj
+/tools/**/Obj
+/tools/**/TestResults
+/tools/**/test-results
+/tools/**/*.csproj.user
+/tools/**/*.suo
+/tools/**/*.cache
+/tools/**/*~
+/tools/**/*.swp
+/tools/**/*.userprefs
+/tools/**/*.pidb
 
 # Ignore some third party dirs
 /third/physx/*/include
