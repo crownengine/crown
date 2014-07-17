@@ -100,7 +100,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	bw.write(offt);
 
 	bw.write(num_phyconfs);
-	offt += sizeof(ResourceId) * num_phyconfs;
+	offt += sizeof(ResourceId) * num_levels;
 	bw.write(offt);
 
 	// Write resource ids
