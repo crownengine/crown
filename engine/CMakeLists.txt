@@ -483,6 +483,7 @@ if (LINUX)
 	set (CROWN_MAIN_SRC os/linux/main.cpp)
 endif (LINUX)
 
+# Windows specific stuff
 if (WINDOWS)
 	list (APPEND CROWN_INCLUDES
 		${CMAKE_SOURCE_DIR}/engine/os/win
@@ -601,6 +602,8 @@ if (WINDOWS)
 
 	set (CROWN_MAIN_SRC os/win/main.cpp)
 endif(WINDOWS)
+
+
 
 set (CROWN_SOURCES
 	${SRC}

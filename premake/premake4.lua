@@ -22,16 +22,15 @@
 -- FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 -- OTHER DEALINGS IN THE SOFTWARE.
 
--------------------------------------------------------------------------------
--- Globals
-
-CROWN_SOURCE_DIR = path.getabsolute("..") .. "/"
-CROWN_THIRD_DIR = CROWN_SOURCE_DIR .. "third/"
-CROWN_BUILD_DIR = "../.build/"
-CROWN_INSTALL_DIR = "../.installation/"
-
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 -- Options
+
+newoption
+{
+	trigger = "install-dir",
+	value = "DIR",
+	description = "Output directory"
+}
 
 newoption
 {
@@ -40,7 +39,7 @@ newoption
 	description = "Choose compiler",
 	allowed =
 	{
-		{ "android-arm", "Android - ARM" },			-- gcc
+		{ "android", "Android (ARM only)" },			-- gcc
 		-- { "android-mips", "Android - MIPS" },			-- gcc
 		-- { "android-x86", "Android - x86" },				-- gcc
 		{ "linux-gcc", "Linux (GCC compiler)" },		-- gcc
@@ -51,44 +50,100 @@ newoption
 	}
 }
 
--- Avoid error invoking premake4 --help
-if _ACTION == nil then return end
+-- if _OPTIONS["install-dir"] == nil then 
+-- 	print("'install-dir' option must be specified")
+-- 	os.exit(1)
+-- end
 
-if _ACTION == "clean" then os.rmdir(CROWN_BUILD_DIR) end
+-- if not path.isabsolute(_OPTIONS["install-dir"]) then
+-- 	print("'install-dir' must be an absolute path")
+-- 	os.exit(1)
+-- end
 
-if _ACTION == "gmake" then
-
-	if _OPTIONS["compiler"] == "linux-gcc" then
-		-- dunno
-	elseif _OPTIONS["compiler"] == "android-arm" then
-		if not os.getenv("ANDROID_NDK_ARM") or not os.getenv("ANDROID_NDK_ROOT") then
-			print("Set ANDROID_NDK_ARM and ANDROID_NDK_ROOT environment variables.")
-		end
-
-		premake.gcc.cc = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-gcc"
-		premake.gcc.cxx = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-g++"
-		premake.gcc.ar = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-ar"
-	end
-
-end
+CROWN_SOURCE_DIR = path.getabsolute("..") .. "/"
+CROWN_THIRD_DIR = CROWN_SOURCE_DIR .. "third/"
+CROWN_BUILD_DIR = CROWN_SOURCE_DIR.. ".build/"
+CROWN_INSTALL_DIR = CROWN_SOURCE_DIR.. ".installation/"-- _OPTIONS["install-dir"]
 
 -------------------------------------------------------------------------------
 -- Solution
 solution "crown"
 	configurations { "debug", "development", "release" }
-	platforms { "x32", "x64" }
+	platforms { "native", "x32", "x64" }
 
 	configuration { "debug" }
-		targetsuffix "-debug"
 		defines { "_DEBUG", "CROWN_DEBUG" }
 	configuration { "development" }
 		flags { "OptimizeSpeed" }
-		targetsuffix "-development"
 		defines { "NDEBUG", "CROWN_DEVELOPMENT" }
 	configuration { "release" }
 		flags { "OptimizeSpeed" }
-		targetsuffix "-release"
 		defines { "NDEBUG", "CROWN_RELEASE" }
+
+	configuration { "debug", "x32" }
+		targetsuffix "-debug-32"
+	configuration { "debug", "x64" }
+		targetsuffix "-debug-64"
+
+	configuration { "development", "x32" }
+		targetsuffix "-development-32"
+	configuration { "development", "x64" }
+		targetsuffix "-development-64"
+
+	configuration { "release", "x32" }
+		targetsuffix "-release-32"
+	configuration { "release", "x64" }
+		targetsuffix "-release-64"
+
+	configuration { "debug", "native" }
+		targetsuffix "-debug"
+	configuration { "debug", "native" }
+		targetsuffix "-debug"
+
+	configuration { "development", "native" }
+		targetsuffix "-development"
+	configuration { "development", "native" }
+		targetsuffix "-development"
+
+	configuration { "release", "native" }
+		targetsuffix "-release"
+	configuration { "release", "native" }
+		targetsuffix "-release"
+
+	-- Avoid error invoking premake4 --help
+	if _ACTION == nil then return end
+
+	if _ACTION == "clean" then os.rmdir(CROWN_BUILD_DIR) end
+
+	if _ACTION == "gmake" then
+
+		if _OPTIONS["compiler"] == "linux-gcc" then
+			location(CROWN_BUILD_DIR .. "linux")
+		elseif _OPTIONS["compiler"] == "android" then
+			if not os.getenv("ANDROID_NDK") then
+				print("Set ANDROID_NDK environment variable.")
+			end
+
+			premake.gcc.cc = "$(ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc"
+			premake.gcc.cxx = "$(ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++"
+			premake.gcc.ar = "$(ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
+
+			location(CROWN_BUILD_DIR .. "android")
+
+		end
+	end
+
+	flags
+	{
+		"StaticRuntime",
+		"NoMinimalRebuild",
+		"NoPCH",
+		"NativeWChar",
+		"NoRTTI",
+		"NoExceptions",
+		"NoEditAndContinue",
+		"Symbols"
+	}
 
 	-------------------------------------------------------------------------------
 	project "crown"
@@ -112,8 +167,6 @@ solution "crown"
 			CROWN_SOURCE_DIR .. "/engine/renderers",
 			CROWN_SOURCE_DIR .. "/engine/renderers/backend",
 			CROWN_SOURCE_DIR .. "/engine/resource",
-			CROWN_SOURCE_DIR .. "/engine/rpc",
-			CROWN_SOURCE_DIR .. "/engine/network",
 			CROWN_SOURCE_DIR .. "/engine/lua",
 			CROWN_SOURCE_DIR .. "/engine/audio",
 			CROWN_SOURCE_DIR .. "/engine/compilers",
@@ -127,10 +180,16 @@ solution "crown"
 			CROWN_SOURCE_DIR .. "engine/**.cpp"
 		}
 
-		configuration { "linux" }
+		configuration { "linux-*" }
 			kind "ConsoleApp"
-			location(".build/linux") -- its ok
-			targetdir(".installation/linux") -- must be specified by user -- tmp
+			targetdir(CROWN_INSTALL_DIR .. "linux") -- must be specified by user -- tmp
+
+			defines { "CROWN_LINUX" }
+
+			includedirs {
+				CROWN_SOURCE_DIR .. "/engine/os/linux",
+				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/glx"
+			}
 
 			buildoptions
 			{
@@ -154,24 +213,6 @@ solution "crown"
 				"luajit-5.1"
 			}
 
-			flags
-			{
-				"StaticRuntime",
-				"NoMinimalRebuild",
-				"NoPCH",
-				"NativeWChar",
-				"NoRTTI",
-				"NoExceptions",
-				"NoEditAndContinue",
-				"Symbols"
-			}
-
-			includedirs
-			{
-				CROWN_SOURCE_DIR .. "/engine/os/linux",
-				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/glx"
-			}
-
 			excludes
 			{
 				CROWN_SOURCE_DIR .. "engine/os/android/*",
@@ -181,7 +222,7 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/audio/backend/SLESSoundWorld.cpp"
 			}
 
-		configuration { "debug", "linux" }
+		configuration { "debug", "linux-*" }
 			linkoptions
 			{ 
 				"-Wl,--start-group $(addprefix -l," ..
@@ -201,7 +242,7 @@ solution "crown"
 				"	SimulationControllerCHECKED" ..
 				") -Wl,--end-group"
 			}
-		configuration { "development", "linux" }
+		configuration { "development", "linux-*" }
 			linkoptions
 			{ 
 				"-Wl,--start-group $(addprefix -l," ..
@@ -221,7 +262,7 @@ solution "crown"
 				"	SimulationControllerPROFILE" ..
 				") -Wl,--end-group"
 			}
-		configuration { "release", "linux" }
+		configuration { "release", "linux-*" }
 			linkoptions
 			{ 
 				"-Wl,--start-group $(addprefix -l," ..
@@ -242,7 +283,14 @@ solution "crown"
 				") -Wl,--end-group"
 			}
 
-		configuration { "linux", "x32" }
+		configuration { "x32", "linux-*" }
+			defines { "CROWN_LINUX" }
+
+			buildoptions
+			{
+				"-m32",
+				"-malign-double"
+			}
 			includedirs {
 				CROWN_THIRD_DIR .. "luajit/x86/include/luajit-2.0",
 				CROWN_THIRD_DIR .. "physx/x86/include",
@@ -274,7 +322,13 @@ solution "crown"
 				CROWN_THIRD_DIR .. "luajit/x86/lib",
 				CROWN_THIRD_DIR .. "physx/x86/lib"
 			}
-		configuration { "linux", "x64" }
+
+		configuration { "x64", "linux-gcc" }
+
+			buildoptions
+			{
+				"-m64"
+			}
 			includedirs {
 				CROWN_THIRD_DIR .. "luajit/x86_64/include/luajit-2.0",
 				CROWN_THIRD_DIR .. "physx/x86_64/include",
@@ -307,3 +361,143 @@ solution "crown"
 				CROWN_THIRD_DIR .. "physx/x86_64/lib"
 			}
 
+		configuration { "android"}
+			kind "SharedLib"
+			targetdir(CROWN_INSTALL_DIR .. "android") -- must be specified by user -- tmp
+
+			defines { "CROWN_ANDROID" }
+
+			buildoptions
+			{
+				"-std=c++03",
+				"--sysroot=$(ANDROID_NDK)/platforms/android-18/arch-arm"
+			}
+			
+			linkoptions
+			{
+				"-Wl,-rpath=\\$$ORIGIN",
+				"-nostdlib",
+				"-static-libgcc",
+				"--sysroot=$(ANDROID_NDK)/platforms/android-18/arch-arm",
+				"$(ANDROID_NDK)/platforms/android-18/arch-arm/usr/lib/crtbegin_so.o",
+				"$(ANDROID_NDK)/platforms/android-18/arch-arm/usr/lib/crtend_so.o",
+			}
+
+			links
+			{
+				"log",
+				"android",
+				"EGL",
+				"GLESv2",
+				"z",
+				"OpenSLES",
+			}
+
+			includedirs {
+				CROWN_SOURCE_DIR .. "engine/os/android",
+				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/egl",
+				CROWN_THIRD_DIR .. "luajit/android/include/luajit-2.0",
+				CROWN_THIRD_DIR .. "physx/android/include",
+				CROWN_THIRD_DIR .. "physx/android/include/common",
+				CROWN_THIRD_DIR .. "physx/android/include/characterkinematic",
+				CROWN_THIRD_DIR .. "physx/android/include/cloth",
+				CROWN_THIRD_DIR .. "physx/android/include/common",
+				CROWN_THIRD_DIR .. "physx/android/include/cooking",
+				CROWN_THIRD_DIR .. "physx/android/include/extensions",
+				CROWN_THIRD_DIR .. "physx/android/include/foundation",
+				CROWN_THIRD_DIR .. "physx/android/include/geometry",
+				CROWN_THIRD_DIR .. "physx/android/include/particles",
+				CROWN_THIRD_DIR .. "physx/android/include/physxprofilesdk",
+				CROWN_THIRD_DIR .. "physx/android/include/physxvisualdebuggersdk",
+				CROWN_THIRD_DIR .. "physx/android/include/pvd",
+				CROWN_THIRD_DIR .. "physx/android/include/pxtask",
+				CROWN_THIRD_DIR .. "physx/android/include/RepX",
+				CROWN_THIRD_DIR .. "physx/android/include/RepXUpgrader",
+				CROWN_THIRD_DIR .. "physx/android/include/vehicle",
+				CROWN_THIRD_DIR .. "opengl",
+				CROWN_THIRD_DIR .. "openal/include",
+				CROWN_THIRD_DIR .. "freetype",
+				CROWN_THIRD_DIR .. "stb_image",
+				CROWN_THIRD_DIR .. "stb_vorbis",
+				"$(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.8/include",
+				"$(ANDROID_NDK)/sources/android/native_app_glue",
+				"$(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/include"
+			}
+
+			libdirs
+			{
+				CROWN_THIRD_DIR .. "luajit/android/lib",
+				CROWN_THIRD_DIR .. "physx/android/lib",
+				"$(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a",
+				"$(ANDROID_NDK)/platforms/android-18/arch-arm/usr/lib"
+			}
+
+			excludes
+			{
+				CROWN_SOURCE_DIR .. "engine/os/linux/*",
+				CROWN_SOURCE_DIR .. "engine/os/win/*",
+				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/glx/*",
+				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/wgl/*",
+				CROWN_SOURCE_DIR .. "engine/audio/backend/ALSoundWorld.cpp"
+			}
+
+		configuration { "debug", "android" }
+			linkoptions
+			{
+				"-Wl,--start-group $(addprefix -l," ..
+				"	LowLevelClothCHECKED" ..
+				"	PhysX3CHECKED " ..
+				"	PhysX3CommonCHECKED" ..
+				"	PxTaskCHECKED" ..
+				"	LowLevelCHECKED" ..
+				"	PhysX3CharacterKinematicCHECKED" ..
+				"	PhysX3CookingCHECKED" ..
+				"	PhysX3ExtensionsCHECKED" ..
+				"	PhysX3VehicleCHECKED" ..
+				"	PhysXProfileSDKCHECKED" ..
+				"	PhysXVisualDebuggerSDKCHECKED" ..
+				"	PvdRuntimeCHECKED" ..
+				"	SceneQueryCHECKED" ..
+				"	SimulationControllerCHECKED" ..
+				") -Wl,--end-group"
+			}
+		configuration { "development", "android"}
+			linkoptions
+			{ 
+				"-Wl,--start-group $(addprefix -l," ..
+				"	LowLevelClothPROFILE" ..
+				"	PhysX3PROFILE " ..
+				"	PhysX3CommonPROFILE" ..
+				"	PxTaskPROFILE" ..
+				"	LowLevelPROFILE" ..
+				"	PhysX3CharacterKinematicPROFILE" ..
+				"	PhysX3CookingPROFILE" ..
+				"	PhysX3ExtensionsPROFILE" ..
+				"	PhysX3VehiclePROFILE" ..
+				"	PhysXProfileSDKPROFILE" ..
+				"	PhysXVisualDebuggerSDKPROFILE" ..
+				"	PvdRuntimePROFILE" ..
+				"	SceneQueryPROFILE" ..
+				"	SimulationControllerPROFILE" ..
+				") -Wl,--end-group"
+			}		
+		configuration { "release", "android"}
+			linkoptions
+			{ 
+				"-Wl,--start-group $(addprefix -l," ..
+				"	LowLevelCloth" ..
+				"	PhysX3 " ..
+				"	PhysX3Common" ..
+				"	PxTask" ..
+				"	LowLevel" ..
+				"	PhysX3CharacterKinematic" ..
+				"	PhysX3Cooking" ..
+				"	PhysX3Extensions" ..
+				"	PhysX3Vehicle" ..
+				"	PhysXProfileSDK" ..
+				"	PhysXVisualDebuggerSDK" ..
+				"	PvdRuntime" ..
+				"	SceneQuery" ..
+				"	SimulationController" ..
+				") -Wl,--end-group"
+			}
