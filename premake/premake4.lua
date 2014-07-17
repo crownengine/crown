@@ -71,6 +71,41 @@ solution "crown"
 	configurations { "debug", "development", "release" }
 	platforms { "native", "x32", "x64" }
 
+	-- Avoid error invoking premake4 --help
+	if _ACTION == nil then return end
+
+	if _ACTION == "clean" then os.rmdir(CROWN_BUILD_DIR) end
+
+	if _ACTION == "gmake" then
+
+		if _OPTIONS["compiler"] == "linux-gcc" then
+			location(CROWN_BUILD_DIR .. "linux")
+		elseif _OPTIONS["compiler"] == "android" then
+			if not os.getenv("ANDROID_NDK") then
+				print("Set ANDROID_NDK environment variable.")
+			end
+
+			premake.gcc.cc = "$(ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc"
+			premake.gcc.cxx = "$(ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++"
+			premake.gcc.ar = "$(ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
+
+			location(CROWN_BUILD_DIR .. "android")
+
+		end
+	end
+
+	flags
+	{
+		"StaticRuntime",
+		"NoMinimalRebuild",
+		"NoPCH",
+		"NativeWChar",
+		"NoRTTI",
+		"NoExceptions",
+		"NoEditAndContinue",
+		"Symbols"
+	}
+
 	configuration { "debug" }
 		defines { "_DEBUG", "CROWN_DEBUG" }
 	configuration { "development" }
@@ -109,41 +144,6 @@ solution "crown"
 		targetsuffix "-release"
 	configuration { "release", "native" }
 		targetsuffix "-release"
-
-	-- Avoid error invoking premake4 --help
-	if _ACTION == nil then return end
-
-	if _ACTION == "clean" then os.rmdir(CROWN_BUILD_DIR) end
-
-	if _ACTION == "gmake" then
-
-		if _OPTIONS["compiler"] == "linux-gcc" then
-			location(CROWN_BUILD_DIR .. "linux")
-		elseif _OPTIONS["compiler"] == "android" then
-			if not os.getenv("ANDROID_NDK") then
-				print("Set ANDROID_NDK environment variable.")
-			end
-
-			premake.gcc.cc = "$(ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc"
-			premake.gcc.cxx = "$(ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++"
-			premake.gcc.ar = "$(ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
-
-			location(CROWN_BUILD_DIR .. "android")
-
-		end
-	end
-
-	flags
-	{
-		"StaticRuntime",
-		"NoMinimalRebuild",
-		"NoPCH",
-		"NativeWChar",
-		"NoRTTI",
-		"NoExceptions",
-		"NoEditAndContinue",
-		"Symbols"
-	}
 
 	-------------------------------------------------------------------------------
 	project "crown"
@@ -194,12 +194,12 @@ solution "crown"
 			buildoptions
 			{
 				"-std=c++03",	
-				"-O0"
 			}
 			
 			linkoptions
 			{
-				"-Wl,-rpath=\\$$ORIGIN"
+				"-Wl,-rpath=\\$$ORIGIN",
+				"-rdynamic"
 			}
 
 			links
@@ -286,7 +286,6 @@ solution "crown"
 
 			buildoptions
 			{
-				"-m32",
 				"-malign-double"
 			}
 			includedirs {
@@ -321,11 +320,7 @@ solution "crown"
 				CROWN_THIRD_DIR .. "physx/x86/lib"
 			}
 		configuration { "x64", "linux-gcc" }
-
-			buildoptions
-			{
-				"-m64"
-			}
+			flags { "Symbols" }
 			includedirs {
 				CROWN_THIRD_DIR .. "luajit/x86_64/include/luajit-2.0",
 				CROWN_THIRD_DIR .. "physx/x86_64/include",
@@ -496,35 +491,4 @@ solution "crown"
 				"	SceneQuery" ..
 				"	SimulationController" ..
 				") -Wl,--end-group"
-			}
-
-		configuration { "vs*" }
-			targetdir (CROWN_INSTALL_DIR .. "windows")
-
-			defines {
-				"WIN32",
-				"_WIN32",
-				"_HAS_EXCEPTIONS=0",
-				"_HAS_ITERATOR_DEBUGGING=0",
-				"_SCL_SECURE=0",
-				"_SECURE_SCL=0",
-				"_SCL_SECURE_NO_WARNINGS",
-				"_CRT_SECURE_NO_WARNINGS",
-				"_CRT_SECURE_NO_DEPRECATE",
-			}
-			buildoptions {
-				"/Oy-", -- Suppresses creation of frame pointers on the call stack.
-				"/Ob2", -- The Inline Function Expansion
-			}
-			linkoptions {
-				"/ignore:4221", -- LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
-			}
-		configuration { "vs*", "x32" }
-			libdirs {
-				"$(DXSDK_DIR)/lib/x86"
-			}
-		configuration { "vs*", "x64" }
-			defines { "_WIN64" }
-			libdirs {
-				"$(DXSDK_DIR)/lib/x64"
 			}
