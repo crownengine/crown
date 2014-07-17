@@ -5,7 +5,7 @@ else ifeq ($(UNAME), $(filter $(UNAME), Windows))
 	OS=windows
 endif
 
-PREMAKE=third/premake/$(OS)/bin/premake4
+PREMAKE=bin/$(OS)/premake4
 
 linux-build:
 	$(PREMAKE) --file=premake/premake4.lua --compiler=linux-gcc gmake
