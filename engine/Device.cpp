@@ -177,9 +177,6 @@ void Device::init()
 	CE_LOGD("Crown Engine initialized.");
 	CE_LOGD("Initializing Game...");
 
-	m_physics_config = m_resource_manager->load(PHYSICS_CONFIG_EXTENSION, "global");
-	m_resource_manager->flush();
-
 	m_is_init = true;
 	start();
 
@@ -197,8 +194,6 @@ void Device::shutdown()
 
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);
-
-	m_resource_manager->unload(m_physics_config);
 
 	CE_LOGD("Releasing audio...");
 	audio_system::shutdown();

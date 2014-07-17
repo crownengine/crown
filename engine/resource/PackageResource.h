@@ -58,6 +58,8 @@ struct PackageHeader
 	uint32_t fonts_offset;
 	uint32_t num_levels;
 	uint32_t levels_offset;
+	uint32_t num_physics_configs;
+	uint32_t physics_configs_offset;
 };
 
 struct PackageResource
@@ -154,6 +156,12 @@ struct PackageResource
 	}
 
 	//-----------------------------------------------------------------------------
+	uint32_t num_physics_configs() const
+	{
+		return ((PackageHeader*) this)->num_physics_configs;
+	}
+
+	//-----------------------------------------------------------------------------
 	ResourceId get_texture_id(uint32_t i) const
 	{
 		CE_ASSERT(i < num_textures(), "Index out of bounds");
@@ -240,6 +248,15 @@ struct PackageResource
 		CE_ASSERT(i < num_levels(), "Index out of bounds");
 
 		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->levels_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_physics_config_id(uint32_t i) const
+	{
+		CE_ASSERT(i < num_physics_configs(), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->physics_configs_offset);
 		return begin[i];
 	}
 
