@@ -221,7 +221,6 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/wgl/*",
 				CROWN_SOURCE_DIR .. "engine/audio/backend/SLESSoundWorld.cpp"
 			}
-
 		configuration { "debug", "linux-*" }
 			linkoptions
 			{ 
@@ -282,7 +281,6 @@ solution "crown"
 				"	SimulationController" ..
 				") -Wl,--end-group"
 			}
-
 		configuration { "x32", "linux-*" }
 			defines { "CROWN_LINUX" }
 
@@ -322,7 +320,6 @@ solution "crown"
 				CROWN_THIRD_DIR .. "luajit/x86/lib",
 				CROWN_THIRD_DIR .. "physx/x86/lib"
 			}
-
 		configuration { "x64", "linux-gcc" }
 
 			buildoptions
@@ -440,7 +437,6 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/wgl/*",
 				CROWN_SOURCE_DIR .. "engine/audio/backend/ALSoundWorld.cpp"
 			}
-
 		configuration { "debug", "android" }
 			linkoptions
 			{
@@ -500,4 +496,35 @@ solution "crown"
 				"	SceneQuery" ..
 				"	SimulationController" ..
 				") -Wl,--end-group"
+			}
+
+		configuration { "vs*" }
+			targetdir (CROWN_INSTALL_DIR .. "windows")
+
+			defines {
+				"WIN32",
+				"_WIN32",
+				"_HAS_EXCEPTIONS=0",
+				"_HAS_ITERATOR_DEBUGGING=0",
+				"_SCL_SECURE=0",
+				"_SECURE_SCL=0",
+				"_SCL_SECURE_NO_WARNINGS",
+				"_CRT_SECURE_NO_WARNINGS",
+				"_CRT_SECURE_NO_DEPRECATE",
+			}
+			buildoptions {
+				"/Oy-", -- Suppresses creation of frame pointers on the call stack.
+				"/Ob2", -- The Inline Function Expansion
+			}
+			linkoptions {
+				"/ignore:4221", -- LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+			}
+		configuration { "vs*", "x32" }
+			libdirs {
+				"$(DXSDK_DIR)/lib/x86"
+			}
+		configuration { "vs*", "x64" }
+			defines { "_WIN64" }
+			libdirs {
+				"$(DXSDK_DIR)/lib/x64"
 			}
