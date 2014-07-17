@@ -31,6 +31,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #cmakedefine LINUX
 #cmakedefine WINDOWS
 
+#define PRId64 "lld"
+#define PRIu64 "llu"
+#define PRIi64 "lli"
+#define PRIx64 "llx"
+
 #cmakedefine CROWN_DEBUG
 #cmakedefine CROWN_DEVELOPMENT
 #cmakedefine CROWN_RELEASE

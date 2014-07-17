@@ -13,6 +13,8 @@ elseif (WINDOWS)
 	install (DIRECTORY luajit/${CROWN_ARCH}/share/luajit-2.0.1/jit DESTINATION bin)
 
 	install (FILES     openAL/lib/OpenAL32.dll DESTINATION bin)
+elseif (ANDROID)
+
 else ()
 	message (FATAL_ERROR "Wrong build configuration")
 endif (LINUX)
