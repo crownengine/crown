@@ -719,20 +719,20 @@ solution "crown"
 				"PhysX3Cooking_x64"
 			}
 
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/bin/luajit-2.0.3", CROWN_INSTALL_DIR .. "bin/linux32")
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/bin/luajit", CROWN_INSTALL_DIR .. "bin/linux32")
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2.0.3", CROWN_INSTALL_DIR .. "bin/linux32")
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2", CROWN_INSTALL_DIR .. "bin/linux32")
-	os.mkdir(CROWN_INSTALL_DIR .. "bin/linux32/jit")
-	os.copyfile(CROWN_THIRD_DIR .. "/luajit/x86/share/luajit-2.0.3/jit/*", CROWN_INSTALL_DIR .. "bin/linux32/jit")
+--	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/bin/luajit-2.0.3", CROWN_INSTALL_DIR .. "bin/linux32/")
+--	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/bin/luajit", CROWN_INSTALL_DIR .. "bin/linux32/")
+--	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2.0.3", CROWN_INSTALL_DIR .. "bin/linux32/")
+--	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2", CROWN_INSTALL_DIR .. "bin/linux32/")
+--	os.mkdir(CROWN_INSTALL_DIR .. "bin/linux32/jit")
+--	os.copyfile(CROWN_THIRD_DIR .. "/luajit/x86/share/luajit-2.0.3/jit/*", CROWN_INSTALL_DIR .. "bin/linux32/jit/")
 
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit-2.0.3", CROWN_INSTALL_DIR .. "bin/linux64")
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit", CROWN_INSTALL_DIR .. "bin/linux64")
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2.0.3", CROWN_INSTALL_DIR .. "bin/linux64")
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2", CROWN_INSTALL_DIR .. "bin/linux64")
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit-2.0.3", CROWN_INSTALL_DIR .. "bin/linux64/")
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit", CROWN_INSTALL_DIR .. "bin/linux64/")
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2.0.3", CROWN_INSTALL_DIR .. "bin/linux64/")
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2", CROWN_INSTALL_DIR .. "bin/linux64/")
 	os.mkdir(CROWN_INSTALL_DIR .. "bin/linux64/jit")
-	os.copyfile(CROWN_THIRD_DIR .. "/luajit/x86_64/share/luajit-2.0.3/jit/*", CROWN_INSTALL_DIR .. "bin/linux64/jit")
+	os.copyfile(CROWN_THIRD_DIR .. "/luajit/x86_64/share/luajit-2.0.3/jit/*", CROWN_INSTALL_DIR .. "bin/linux64/jit/")
 
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so.2.0.2", CROWN_INSTALL_DIR .. "bin/android")
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so", CROWN_INSTALL_DIR .. "bin/android")
+--	os.copyfile(CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so.2.0.2", CROWN_INSTALL_DIR .. "bin/android/")
+--	os.copyfile(CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so", CROWN_INSTALL_DIR .. "bin/android/")
 
