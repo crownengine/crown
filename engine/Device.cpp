@@ -57,11 +57,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "NetworkFilesystem.h"
 #include "LuaSystem.h"
 
-#if defined(LINUX) || defined(WINDOWS)
+#if defined(CROWN_PLATFORM_LINUX) || defined(CROWN_PLATFORM_WINDOWS)
 	#include "BundleCompiler.h"
 #endif
 
-#if defined(ANDROID)
+#if defined(CROWN_PLATFORM_ANDROID)
 	#include "ApkFilesystem.h"
 #endif
 
@@ -426,6 +426,7 @@ void Device::destroy_resource_package(ResourcePackage* package)
 //-----------------------------------------------------------------------------
 void Device::reload(const char* type, const char* name)
 {
+/*
 	#if defined(LINUX) || defined(WINDOWS)
 		TempAllocator4096 temp;
 		DynamicString filename(temp);
@@ -478,6 +479,7 @@ void Device::reload(const char* type, const char* name)
 			}
 		}
 	#endif
+*/
 }
 
 static Device* g_device;

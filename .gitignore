@@ -4,7 +4,6 @@
 /.installation
 
 # Ignore CMake-generated config files
-/engine/Config.h
 /tools/Config.h
 
 # Ignore python stuff
