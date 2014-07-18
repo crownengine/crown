@@ -79,19 +79,29 @@ solution "crown"
 	if _ACTION == "gmake" then
 
 		if _OPTIONS["compiler"] == "linux-gcc" then
-			location(CROWN_BUILD_DIR .. "linux")
-		elseif _OPTIONS["compiler"] == "android" then
-			if not os.getenv("ANDROID_NDK") then
-				print("Set ANDROID_NDK environment variable.")
-			end
 
-			premake.gcc.cc = "$(ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc"
-			premake.gcc.cxx = "$(ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++"
-			premake.gcc.ar = "$(ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
+			if not os.is("linux") then print("Action not valid in current OS.") end
+			location(CROWN_BUILD_DIR .. "linux")
+
+		elseif _OPTIONS["compiler"] == "android" then
+
+			if not os.getenv("ANDROID_NDK_ROOT") then print("Set ANDROID_NDK_ROOT environment variable.") end
+			if not os.getenv("ANDROID_NDK_ARM") then print("Set ANDROID_NDK_ARM environment variables.") end
+
+			premake.gcc.cc = "$(ANDROID_NDK_ARM)/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc"
+			premake.gcc.cxx = "$(ANDROID_NDK_ARM)/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++"
+			premake.gcc.ar = "$(ANDROID_NDK_ARM)/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
 
 			location(CROWN_BUILD_DIR .. "android")
 
 		end
+	end
+
+	if _ACTION == "vs2010" or _ACTION == "vs2008" then
+		if not os.is("windows") then print("Action not valid in current OS.") end
+		if not os.getenv("DXSDK_DIR") then print("Set DXSDK_DIR environment variable.") end
+		location(CROWN_BUILD_DIR .. "windows")
+
 	end
 
 	flags
@@ -362,7 +372,7 @@ solution "crown"
 			buildoptions
 			{
 				"-std=c++03",
-				"--sysroot=$(ANDROID_NDK)/platforms/android-18/arch-arm"
+				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm"
 			}
 			
 			linkoptions
@@ -370,9 +380,9 @@ solution "crown"
 				"-Wl,-rpath=\\$$ORIGIN",
 				"-nostdlib",
 				"-static-libgcc",
-				"--sysroot=$(ANDROID_NDK)/platforms/android-18/arch-arm",
-				"$(ANDROID_NDK)/platforms/android-18/arch-arm/usr/lib/crtbegin_so.o",
-				"$(ANDROID_NDK)/platforms/android-18/arch-arm/usr/lib/crtend_so.o",
+				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm",
+				"$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm/usr/lib/crtbegin_so.o",
+				"$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm/usr/lib/crtend_so.o",
 			}
 
 			links
@@ -411,17 +421,17 @@ solution "crown"
 				CROWN_THIRD_DIR .. "freetype",
 				CROWN_THIRD_DIR .. "stb_image",
 				CROWN_THIRD_DIR .. "stb_vorbis",
-				"$(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.8/include",
-				"$(ANDROID_NDK)/sources/android/native_app_glue",
-				"$(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/include"
+				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/include",
+				"$(ANDROID_NDK_ROOT)/sources/android/native_app_glue",
+				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/include"
 			}
 
 			libdirs
 			{
 				CROWN_THIRD_DIR .. "luajit/android/lib",
 				CROWN_THIRD_DIR .. "physx/android/lib",
-				"$(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a",
-				"$(ANDROID_NDK)/platforms/android-18/arch-arm/usr/lib"
+				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a",
+				"$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm/usr/lib"
 			}
 
 			excludes
