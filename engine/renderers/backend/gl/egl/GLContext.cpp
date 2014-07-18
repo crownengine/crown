@@ -37,7 +37,7 @@ namespace crown
 extern ANativeWindow* g_android_window;
 
 //-----------------------------------------------------------------------------
-#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+#if defined(CROWN_DEBUG)
 	static const char* egl_error_to_string(EGLint error)
 	{
 		switch (error)

@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+#if defined(CROWN_DEBUG)
 	#include "Device.h"
 	#include "ConsoleServer.h"
 	#define CE_LOGI(msg, ...) crown::device()->console()->log_to_all(crown::LogSeverity::INFO, msg, ##__VA_ARGS__)

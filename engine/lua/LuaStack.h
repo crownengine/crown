@@ -37,7 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Color4.h"
 
 //-----------------------------------------------------------------------------
-#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+#if defined(CROWN_DEBUG)
 	static void* checkudata(lua_State* L, int index, const char* expected)
 	{
 		luaL_checktype(L, index, LUA_TUSERDATA);

@@ -55,7 +55,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "MathUtils.h"
 #include "PixelFormat.h"
 
-#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+#if defined(CROWN_DEBUG)
 
 	static const char* gl_error_to_string(GLenum error)
 	{
