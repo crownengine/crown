@@ -41,13 +41,20 @@ class ResourcePackage
 public:
 
 	//-----------------------------------------------------------------------------
-	ResourcePackage(ResourceManager& resman, const ResourceId id, const PackageResource* package)
+	ResourcePackage(const char* name, ResourceManager& resman)
 		: m_resource_manager(&resman)
-		, m_package_id(id)
-		, m_package(package)
+		, m_id("package", name)
+		, m_package(NULL)
 		, m_has_loaded(false)
 	{
-		CE_ASSERT_NOT_NULL(package);
+		resman.load("package", name);
+		resman.flush();
+		m_package = (const PackageResource*) resman.get(m_id);
+	}
+
+	~ResourcePackage()
+	{
+		m_resource_manager->unload(m_id);
 	}
 
 	/// Loads all the resources in the package.
@@ -184,16 +191,10 @@ public:
 		return m_has_loaded;
 	}
 
-	/// Returns the resource id of the package.
-	ResourceId resource_id() const
-	{
-		return m_package_id;
-	}
-
 private:
 
 	ResourceManager* m_resource_manager;
-	const ResourceId m_package_id;
+	const ResourceId m_id;
 	const PackageResource* m_package;
 	bool m_has_loaded;
 };
