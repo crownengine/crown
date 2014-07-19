@@ -1,13 +1,6 @@
 # Ignore build directory
-/build
 /.build
 /.installation
-
-# Ignore CMake-generated config files
-/tools/Config.h
-
-# Ignore python stuff
-__pycache__
 
 # Ignore C# stuff
 /tools/**/bin
