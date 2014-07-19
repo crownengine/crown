@@ -50,20 +50,18 @@ newoption
 	}
 }
 
--- if _OPTIONS["install-dir"] == nil then 
--- 	print("'install-dir' option must be specified")
--- 	os.exit(1)
--- end
-
--- if not path.isabsolute(_OPTIONS["install-dir"]) then
--- 	print("'install-dir' must be an absolute path")
--- 	os.exit(1)
--- end
-
 CROWN_SOURCE_DIR = path.getabsolute("..") .. "/"
 CROWN_THIRD_DIR = CROWN_SOURCE_DIR .. "third/"
-CROWN_BUILD_DIR = CROWN_SOURCE_DIR.. ".build/"
-CROWN_INSTALL_DIR = CROWN_SOURCE_DIR.. ".installation/"-- _OPTIONS["install-dir"]
+CROWN_BUILD_DIR = CROWN_SOURCE_DIR .. ".build/"
+
+CROWN_INSTALL_DIR = os.getenv("CROWN_INSTALL_DIR")
+if not CROWN_INSTALL_DIR then
+	if not path.isabsolute(CROWN_INSTALL_DIR) then
+		CROWN_INSTALL_DIR = CROWN_SOURCE_DIR .. ".install"
+	end
+end
+CROWN_INSTALL_DIR = CROWN_INSTALL_DIR .. "/" -- Add slash to end string
+
 
 -------------------------------------------------------------------------------
 -- Solution
@@ -88,9 +86,9 @@ solution "crown"
 			if not os.getenv("ANDROID_NDK_ROOT") then print("Set ANDROID_NDK_ROOT environment variable.") end
 			if not os.getenv("ANDROID_NDK_ARM") then print("Set ANDROID_NDK_ARM environment variables.") end
 
-			premake.gcc.cc = "$(ANDROID_NDK_ARM)/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc"
-			premake.gcc.cxx = "$(ANDROID_NDK_ARM)/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++"
-			premake.gcc.ar = "$(ANDROID_NDK_ARM)/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar"
+			premake.gcc.cc = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-gcc"
+			premake.gcc.cxx = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-g++"
+			premake.gcc.ar = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-ar"
 
 			location(CROWN_BUILD_DIR .. "android")
 
@@ -105,26 +103,13 @@ solution "crown"
 
 	end
 
-	-- flags
-	-- {
-	-- 	"StaticRuntime",
-	-- 	"NoMinimalRebuild",
-	-- 	"NoPCH",
-	-- 	"NativeWChar",
-	-- 	"NoRTTI",
-	-- 	"NoExceptions",
-	-- 	"NoEditAndContinue",
-	-- 	"Symbols"
-	-- }
 
 	configuration { "debug" }
 		defines { "_DEBUG", "CROWN_DEBUG" }
 	configuration { "development" }
-		-- flags { "OptimizeSpeed" }
-		defines { "NDEBUG", "CROWN_DEVELOPMENT" }
+		defines { "_DEBUG", "CROWN_DEBUG" }
 	configuration { "release" }
-		-- flags { "OptimizeSpeed" }
-		defines { "NDEBUG", "CROWN_RELEASE" }
+		defines { "NDEBUG" }
 
 	configuration { "debug", "x32" }
 		targetsuffix "-debug-32"
@@ -193,7 +178,6 @@ solution "crown"
 
 		configuration { "linux-*" }
 			kind "ConsoleApp"
-			targetdir(CROWN_INSTALL_DIR .. "linux") -- must be specified by user -- tmp
 
 			defines { "CROWN_LINUX" }
 
@@ -237,7 +221,7 @@ solution "crown"
 				"-g",
 				"-pg",
 				"-Wall",
-				"-Werror",
+				-- "-Werror",
 				"-Wno-unknown-pragmas",
 				"-Wno-unused-local-typedefs",
 				"-O0"
@@ -269,7 +253,7 @@ solution "crown"
 				"-g",
 				"-pg",
 				"-Wall",
-				"-Werror",
+				-- "-Werror",
 				"-Wno-unknown-pragmas",
 				"-Wno-unused-local-typedefs",
 				"-O2"
@@ -317,7 +301,10 @@ solution "crown"
 				"	SimulationController" ..
 				") -Wl,--end-group"
 			}
+
 		configuration { "x32", "linux-*" }
+			targetdir(CROWN_INSTALL_DIR .. "bin/linux32")
+		
 			defines { "CROWN_LINUX" }
 
 			buildoptions
@@ -355,7 +342,9 @@ solution "crown"
 				CROWN_THIRD_DIR .. "luajit/x86/lib",
 				CROWN_THIRD_DIR .. "physx/x86/lib"
 			}
-		configuration { "x64", "linux-gcc" }
+		configuration { "x64", "linux-*" }
+			targetdir(CROWN_INSTALL_DIR .. "bin/linux64")
+
 			includedirs {
 				CROWN_THIRD_DIR .. "luajit/x86_64/include/luajit-2.0",
 				CROWN_THIRD_DIR .. "physx/x86_64/include",
@@ -388,9 +377,9 @@ solution "crown"
 				CROWN_THIRD_DIR .. "physx/x86_64/lib"
 			}
 
-		configuration { "android"}
+		configuration { "android" }
 			kind "SharedLib"
-			targetdir(CROWN_INSTALL_DIR .. "android") -- must be specified by user -- tmp
+			targetdir(CROWN_INSTALL_DIR .. "bin/android") -- must be specified by user -- tmp
 
 			defines { "CROWN_ANDROID" }
 
@@ -733,3 +722,21 @@ solution "crown"
 				"PhysX3Common_x64",
 				"PhysX3Cooking_x64"
 			}
+
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/bin/luajit-2.0.3", CROWN_INSTALL_DIR .. "bin/linux32")
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/bin/luajit", CROWN_INSTALL_DIR .. "bin/linux32")
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2.0.3", CROWN_INSTALL_DIR .. "bin/linux32")
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2", CROWN_INSTALL_DIR .. "bin/linux32")
+	os.mkdir(CROWN_INSTALL_DIR .. "bin/linux32/jit")
+	os.copyfile(CROWN_THIRD_DIR .. "/luajit/x86/share/luajit-2.0.3/jit/*", CROWN_INSTALL_DIR .. "bin/linux32/jit")
+
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit-2.0.3", CROWN_INSTALL_DIR .. "bin/linux64")
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit", CROWN_INSTALL_DIR .. "bin/linux64")
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2.0.3", CROWN_INSTALL_DIR .. "bin/linux64")
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2", CROWN_INSTALL_DIR .. "bin/linux64")
+	os.mkdir(CROWN_INSTALL_DIR .. "bin/linux64/jit")
+	os.copyfile(CROWN_THIRD_DIR .. "/luajit/x86_64/share/luajit-2.0.3/jit/*", CROWN_INSTALL_DIR .. "bin/linux64/jit")
+
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so.2.0.2", CROWN_INSTALL_DIR .. "bin/android")
+	os.copyfile(CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so", CROWN_INSTALL_DIR .. "bin/android")
+
