@@ -26,10 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Config.h"
 
-#if defined(LINUX) || defined(WINDOWS)
+#if defined(CROWN_PLATFORM_LINUX) || defined(CROWN_PLATFORM_WINDOWS)
 	#define GL_GLEXT_PROTOTYPES
 	#include <GL/glcorearb.h>
-#elif defined(ANDROID)
+#elif defined(CROWN_PLATFORM_ANDROID)
 	#include <GLES2/gl2.h>
 	#include <GLES2/gl2ext.h>
 #else
@@ -884,9 +884,9 @@ public:
 					GLbitfield gl_clear = (clear.m_flags & CLEAR_COLOR) ? GL_COLOR_BUFFER_BIT : 0;
 					gl_clear |= (clear.m_flags & CLEAR_DEPTH) ? GL_DEPTH_BUFFER_BIT : 0;
 					GL_CHECK(glClearColor(clear.m_color.r, clear.m_color.g, clear.m_color.b, clear.m_color.a));
-					#if defined(LINUX) || defined(WINDOWS)
+					#if defined(CROWN_PLATFORM_LINUX) || defined(CROWN_PLATFORM_WINDOWS)
 						GL_CHECK(glClearDepth(clear.m_depth));
-					#elif defined(ANDROID)
+					#elif defined(CROWN_PLATFORM_ANDROID)
 						GL_CHECK(glClearDepthf(clear.m_depth));
 					#endif
 					GL_CHECK(glClear(gl_clear));
