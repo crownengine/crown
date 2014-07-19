@@ -26,9 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <gl/glcorearb.h>
+#include <wgl/wglext.h>
 #include "Types.h"
 #include "Macros.h"
-#include <wgl/wglext.h>
 
 namespace crown
 {
