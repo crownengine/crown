@@ -179,8 +179,6 @@ solution "crown"
 		configuration { "linux-*" }
 			kind "ConsoleApp"
 
-			defines { "CROWN_LINUX" }
-
 			includedirs {
 				CROWN_SOURCE_DIR .. "/engine/os/linux",
 				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/glx"
@@ -215,6 +213,7 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/wgl/*",
 				CROWN_SOURCE_DIR .. "engine/audio/backend/SLESSoundWorld.cpp"
 			}
+			
 		configuration { "debug", "linux-*" }
 			buildoptions
 			{
@@ -277,6 +276,7 @@ solution "crown"
 				"	SimulationControllerPROFILE" ..
 				") -Wl,--end-group"
 			}
+
 		configuration { "release", "linux-*" }
 			buildoptions
 			{
@@ -305,13 +305,13 @@ solution "crown"
 		configuration { "x32", "linux-*" }
 			targetdir(CROWN_INSTALL_DIR .. "bin/linux32")
 		
-			defines { "CROWN_LINUX" }
-
 			buildoptions
 			{
 				"-malign-double"
 			}
-			includedirs {
+
+			includedirs
+			{
 				CROWN_THIRD_DIR .. "luajit/x86/include/luajit-2.0",
 				CROWN_THIRD_DIR .. "physx/x86/include",
 				CROWN_THIRD_DIR .. "physx/x86/include/common",
@@ -380,8 +380,6 @@ solution "crown"
 		configuration { "android" }
 			kind "SharedLib"
 			targetdir(CROWN_INSTALL_DIR .. "bin/android") -- must be specified by user -- tmp
-
-			defines { "CROWN_ANDROID" }
 
 			buildoptions
 			{
@@ -522,8 +520,6 @@ solution "crown"
 
 		configuration { "vs*" }
 			kind "ConsoleApp"
-
-			defines { "CROWN_WINDOWS" }
 
 			targetdir (CROWN_INSTALL_DIR .. "windows")
 
