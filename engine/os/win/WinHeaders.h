@@ -42,5 +42,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #undef MK_ALT
 #undef min
 #undef max
+#undef rad1
 
 #define __va_copy(dest, src) (dest = src)
