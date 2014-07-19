@@ -188,19 +188,19 @@ public:
 	//-----------------------------------------------------------------------------
 	void display_modes(Array<DisplayMode>& /*modes*/)
 	{
-		#error "Implement me"
+		// #error "Implement me"
 	}
 
 	//-----------------------------------------------------------------------------
 	void set_display_mode(uint32_t /*id*/)
 	{
-		#error "Implement me"
+		// #error "Implement me"
 	}
 
 	//-----------------------------------------------------------------------------
 	void set_fullscreen(bool full)
 	{
-		#error "Implement me"
+		// #error "Implement me"
 	}
 
 	//-----------------------------------------------------------------------------
