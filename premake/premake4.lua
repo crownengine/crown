@@ -105,25 +105,25 @@ solution "crown"
 
 	end
 
-	flags
-	{
-		"StaticRuntime",
-		"NoMinimalRebuild",
-		"NoPCH",
-		"NativeWChar",
-		"NoRTTI",
-		"NoExceptions",
-		"NoEditAndContinue",
-		"Symbols"
-	}
+	-- flags
+	-- {
+	-- 	"StaticRuntime",
+	-- 	"NoMinimalRebuild",
+	-- 	"NoPCH",
+	-- 	"NativeWChar",
+	-- 	"NoRTTI",
+	-- 	"NoExceptions",
+	-- 	"NoEditAndContinue",
+	-- 	"Symbols"
+	-- }
 
 	configuration { "debug" }
 		defines { "_DEBUG", "CROWN_DEBUG" }
 	configuration { "development" }
-		flags { "OptimizeSpeed" }
+		-- flags { "OptimizeSpeed" }
 		defines { "NDEBUG", "CROWN_DEVELOPMENT" }
 	configuration { "release" }
-		flags { "OptimizeSpeed" }
+		-- flags { "OptimizeSpeed" }
 		defines { "NDEBUG", "CROWN_RELEASE" }
 
 	configuration { "debug", "x32" }
@@ -209,8 +209,7 @@ solution "crown"
 			
 			linkoptions
 			{
-				"-Wl,-rpath=\\$$ORIGIN",
-				"-rdynamic"
+				"-Wl,-rpath=\\$$ORIGIN"
 			}
 
 			links
@@ -233,6 +232,17 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/audio/backend/SLESSoundWorld.cpp"
 			}
 		configuration { "debug", "linux-*" }
+			buildoptions
+			{
+				"-g",
+				"-pg",
+				"-Wall",
+				"-Werror",
+				"-Wno-unknown-pragmas",
+				"-Wno-unused-local-typedefs",
+				"-O0"
+			}
+
 			linkoptions
 			{ 
 				"-Wl,--start-group $(addprefix -l," ..
@@ -252,7 +262,18 @@ solution "crown"
 				"	SimulationControllerCHECKED" ..
 				") -Wl,--end-group"
 			}
+
 		configuration { "development", "linux-*" }
+			buildoptions
+			{
+				"-g",
+				"-pg",
+				"-Wall",
+				"-Werror",
+				"-Wno-unknown-pragmas",
+				"-Wno-unused-local-typedefs",
+				"-O2"
+			}
 			linkoptions
 			{ 
 				"-Wl,--start-group $(addprefix -l," ..
@@ -273,6 +294,10 @@ solution "crown"
 				") -Wl,--end-group"
 			}
 		configuration { "release", "linux-*" }
+			buildoptions
+			{
+				"-O2"
+			}
 			linkoptions
 			{ 
 				"-Wl,--start-group $(addprefix -l," ..
@@ -331,7 +356,6 @@ solution "crown"
 				CROWN_THIRD_DIR .. "physx/x86/lib"
 			}
 		configuration { "x64", "linux-gcc" }
-			flags { "Symbols" }
 			includedirs {
 				CROWN_THIRD_DIR .. "luajit/x86_64/include/luajit-2.0",
 				CROWN_THIRD_DIR .. "physx/x86_64/include",
@@ -708,4 +732,4 @@ solution "crown"
 				"PhysX3_x64",
 				"PhysX3Common_x64",
 				"PhysX3Cooking_x64"
-			}           
+			}
