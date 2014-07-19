@@ -42,8 +42,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
-
+#if defined(CROWN_DEBUG)
 	static const char* al_error_to_string(ALenum error)
 	{
 		switch (error)

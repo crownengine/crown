@@ -42,7 +42,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+#if defined(CROWN_DEBUG)
 	static const char* sles_error_to_string(SLresult result)
 	{
 		switch (result)

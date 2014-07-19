@@ -414,23 +414,12 @@ void Device::destroy_world(WorldId world)
 //-----------------------------------------------------------------------------
 ResourcePackage* Device::create_resource_package(const char* name)
 {
-	CE_ASSERT_NOT_NULL(name);
-
-	ResourceId package_id = m_resource_manager->load("package", name);
-	m_resource_manager->flush();
-
-	PackageResource* package_res = (PackageResource*) m_resource_manager->get(package_id);
-	ResourcePackage* package = CE_NEW(default_allocator(), ResourcePackage)(*m_resource_manager, package_id, package_res);
-
-	return package;
+	return CE_NEW(default_allocator(), ResourcePackage)(name, *m_resource_manager);
 }
 
 //-----------------------------------------------------------------------------
 void Device::destroy_resource_package(ResourcePackage* package)
 {
-	CE_ASSERT_NOT_NULL(package);
-
-	m_resource_manager->unload(package->resource_id());
 	CE_DELETE(default_allocator(), package);
 }
 

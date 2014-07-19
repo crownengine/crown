@@ -37,8 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define PRIx64 "llx"
 
 #cmakedefine CROWN_DEBUG
-#cmakedefine CROWN_DEVELOPMENT
-#cmakedefine CROWN_RELEASE
 
 #define CE_PIXELS_PER_METER					32
 
