@@ -430,7 +430,7 @@ void write_dds(BinaryWriter& bw, const ImageData& image)
 		MipData mip;
 		read_mip_image(image, i, mip);
 
-		CE_LOGD("Writing mip: (%ux%u) byes = %u", mip.width, mip.height, mip.size);
+		// CE_LOGD("Writing mip: (%ux%u) byes = %u", mip.width, mip.height, mip.size);
 		bw.write(mip.data, mip.size);
 	}
 }

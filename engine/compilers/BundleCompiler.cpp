@@ -110,14 +110,16 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 
 		const char* filename = files[i].c_str();
 
-		uint64_t filename_hash = string::murmur2_64(filename, string::strlen(filename), 0);
+		char filename_extension[512];
+		char filename_without_extension[512];
+		path::extension(filename, filename_extension, 512);
+		path::filename_without_extension(filename, filename_without_extension, 512);
 
-		char filename_extension[32];
-		path::extension(filename, filename_extension, 32);
-		uint32_t resource_type_hash = string::murmur2_32(filename_extension, string::strlen(filename_extension), 0);
+		ResourceId name(filename_extension, filename_without_extension);
+		char out_name[512];
+		snprintf(out_name, 512, "%.16lx-%.16lx", name.type, name.name);
 
-		char out_name[65];
-		snprintf(out_name, 65, "%.16"PRIx64"", filename_hash);
+		uint64_t resource_type_hash = name.type;
 
 		// Skip crown.config file
 		if (resource_type_hash == CONFIG_TYPE)

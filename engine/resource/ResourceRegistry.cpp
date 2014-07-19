@@ -58,7 +58,7 @@ static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 };
 
 //-----------------------------------------------------------------------------
-static const ResourceCallback* find_callback(uint32_t type)
+static const ResourceCallback* find_callback(uint64_t type)
 {
 	const ResourceCallback* c = RESOURCE_CALLBACK_REGISTRY;
 
@@ -76,7 +76,7 @@ static const ResourceCallback* find_callback(uint32_t type)
 }
 
 //-----------------------------------------------------------------------------
-void* resource_on_load(uint32_t type, Allocator& allocator, Bundle& bundle, ResourceId id)
+void* resource_on_load(uint64_t type, Allocator& allocator, Bundle& bundle, ResourceId id)
 {
 	const ResourceCallback* c = find_callback(type);
 
@@ -86,7 +86,7 @@ void* resource_on_load(uint32_t type, Allocator& allocator, Bundle& bundle, Reso
 }
 
 //-----------------------------------------------------------------------------
-void resource_on_unload(uint32_t type, Allocator& allocator, void* resource)
+void resource_on_unload(uint64_t type, Allocator& allocator, void* resource)
 {
 	const ResourceCallback* c = find_callback(type);
 
@@ -96,7 +96,7 @@ void resource_on_unload(uint32_t type, Allocator& allocator, void* resource)
 }
 
 //-----------------------------------------------------------------------------
-void resource_on_online(uint32_t type, void* resource)
+void resource_on_online(uint64_t type, void* resource)
 {
 	const ResourceCallback* c = find_callback(type);
 
@@ -106,7 +106,7 @@ void resource_on_online(uint32_t type, void* resource)
 }
 
 //-----------------------------------------------------------------------------
-void resource_on_offline(uint32_t type, void* resource)
+void resource_on_offline(uint64_t type, void* resource)
 {
 	const ResourceCallback* c = find_callback(type);
 

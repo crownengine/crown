@@ -39,19 +39,9 @@ namespace crown
 {
 
 ResourceId::ResourceId(const char* type, const char* name)
+	: type(string::murmur2_64(type, string::strlen(type), 0))
+	, name(string::murmur2_64(name, string::strlen(name), 0))
 {
-	TempAllocator256 alloc;
-	DynamicString res_name(alloc);
-	res_name += name;
-	res_name += '.';
-	res_name += type;
-
-	id = string::murmur2_64(res_name.c_str(), res_name.length(), 0);
-}
-
-ResourceId::ResourceId(const char* name)
-{
-	id = string::murmur2_64(name, string::strlen(name), 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -71,24 +61,49 @@ ResourceManager::~ResourceManager()
 }
 
 //-----------------------------------------------------------------------------
-ResourceId ResourceManager::load(const char* type, const char* name)
+void ResourceManager::load(ResourceId id)
 {
-	return load(string::murmur2_32(type, string::strlen(type), 0), ResourceId(type, name));
+	// Search for an already existent resource
+	ResourceEntry* entry = find(id);
+
+	// If resource not found, create a new one
+	if (entry == NULL)
+	{
+		ResourceEntry entry;
+
+		entry.id = id;
+		entry.references = 1;
+		entry.resource = NULL;
+
+		array::push_back(m_resources, entry);
+
+		// Issue request to resource loader
+		PendingRequest pr;
+		pr.resource = id;
+		pr.id = m_loader.load_resource(id);
+
+		queue::push_back(m_pendings, pr);
+
+		return;
+	}
+
+	// Else, increment its reference count
+	entry->references++;
 }
 
 //-----------------------------------------------------------------------------
-void ResourceManager::unload(ResourceId name, bool force)
+void ResourceManager::unload(ResourceId id, bool force)
 {
-	CE_ASSERT(has(name), "Resource not loaded: " "%.16"PRIx64"", name.id);
+	CE_ASSERT(has(id), "Resource not loaded: %.16lx-%16lx", id.type, id.name);
 
-	ResourceEntry* entry = find(name);
+	ResourceEntry* entry = find(id);
 
 	entry->references--;
 
 	if (entry->references == 0 || force)
 	{
-		resource_on_offline(entry->type, entry->resource);
-		resource_on_unload(entry->type, m_resource_heap, entry->resource);
+		resource_on_offline(id.type, entry->resource);
+		resource_on_unload(id.type, m_resource_heap, entry->resource);
 
 		// Swap with last
 		ResourceEntry temp = m_resources[array::size(m_resources) - 1];
@@ -98,9 +113,9 @@ void ResourceManager::unload(ResourceId name, bool force)
 }
 
 //-----------------------------------------------------------------------------
-bool ResourceManager::has(ResourceId name) const
+bool ResourceManager::has(ResourceId id) const
 {
-	ResourceEntry* entry = find(name);
+	ResourceEntry* entry = find(id);
 
 	return entry != NULL;
 }
@@ -117,27 +132,27 @@ const void* ResourceManager::get(const char* type, const char* name) const
 }
 
 //-----------------------------------------------------------------------------
-const void* ResourceManager::get(ResourceId name) const
+const void* ResourceManager::get(ResourceId id) const
 {
-	CE_ASSERT(has(name), "Resource not loaded: " "%.16"PRIx64"", name.id);
+	CE_ASSERT(has(id), "Resource not loaded: %.16lx-%16lx", id.type, id.name);
 
-	return find(name)->resource;
+	return find(id)->resource;
 }
 
 //-----------------------------------------------------------------------------
-bool ResourceManager::is_loaded(ResourceId name) const
+bool ResourceManager::is_loaded(ResourceId id) const
 {
-	CE_ASSERT(has(name), "Resource not loaded: " "%.16"PRIx64"", name.id);
+	CE_ASSERT(has(id), "Resource not loaded: %.16lx-%16lx", id.type, id.name);
 
-	return find(name)->resource != NULL;
+	return find(id)->resource != NULL;
 }
 
 //-----------------------------------------------------------------------------
-uint32_t ResourceManager::references(ResourceId name) const
+uint32_t ResourceManager::references(ResourceId id) const
 {
-	CE_ASSERT(has(name), "Resource not loaded: " "%.16"PRIx64"", name.id);
+	CE_ASSERT(has(id), "Resource not loaded: %.16lx-%16lx", id.type, id.name);
 
-	return find(name)->references;
+	return find(id)->references;
 }
 
 //-----------------------------------------------------------------------------
@@ -175,44 +190,10 @@ void ResourceManager::poll_resource_loader()
 }
 
 //-----------------------------------------------------------------------------
-ResourceId ResourceManager::load(uint32_t type, ResourceId name)
+void ResourceManager::online(ResourceId id, void* resource)
 {
-	// Search for an already existent resource
-	ResourceEntry* entry = find(name);
-
-	// If resource not found, create a new one
-	if (entry == NULL)
-	{
-		ResourceEntry entry;
-
-		entry.id = name;
-		entry.type = type;
-		entry.references = 1;
-		entry.resource = NULL;
-
-		array::push_back(m_resources, entry);
-
-		// Issue request to resource loader
-		PendingRequest pr;
-		pr.resource = name;
-		pr.id = m_loader.load_resource(type, name);
-
-		queue::push_back(m_pendings, pr);
-
-		return name;
-	}
-
-	// Else, increment its reference count
-	entry->references++;
-
-	return entry->id;
-}
-
-//-----------------------------------------------------------------------------
-void ResourceManager::online(ResourceId name, void* resource)
-{
-	ResourceEntry* entry = find(name);
-	resource_on_online(entry->type, resource);
+	ResourceEntry* entry = find(id);
+	resource_on_online(id.type, resource);
 
 	entry->resource = resource;
 }

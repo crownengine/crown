@@ -125,7 +125,8 @@ namespace lua_system
 
 		const char* filename = stack.get_string(1);
 
-		const ResourceId lua_res = device()->resource_manager()->load("lua", filename);
+		const ResourceId lua_res("lua", filename);
+		device()->resource_manager()->load(lua_res);
 		device()->resource_manager()->flush();
 
 		const LuaResource* lr = (LuaResource*) device()->resource_manager()->get(lua_res);

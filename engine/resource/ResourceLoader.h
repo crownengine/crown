@@ -54,7 +54,6 @@ enum LoadResourceStatus
 struct LoadResource
 {
 	LoadResourceId id;
-	uint32_t type;
 	ResourceId resource;
 };
 
@@ -71,19 +70,19 @@ public:
 
 	/// Reads the resources data from the given @a bundle using
 	/// @a resource_heap to allocate memory for them.
-							ResourceLoader(Bundle& bundle, Allocator& resource_heap);
+	ResourceLoader(Bundle& bundle, Allocator& resource_heap);
 
 	/// Loads the @a resource in a background thread.
-	LoadResourceId			load_resource(uint32_t type, ResourceId resource);
+	LoadResourceId load_resource(ResourceId id);
 
 	/// Returns the status of the given load request @a id.
-	LoadResourceStatus		load_resource_status(LoadResourceId id) const;
+	LoadResourceStatus load_resource_status(LoadResourceId id) const;
 
 	/// Returns the data which has been loaded for the given request @a id.
-	void*					load_resource_data(LoadResourceId id) const;
+	void* load_resource_data(LoadResourceId id) const;
 
 	// Loads resources in the loading queue.
-	int32_t					run();
+	int32_t run();
 
 	void start()
 	{
@@ -107,22 +106,22 @@ private:
 
 private:
 
-	OsThread				m_thread;
-	bool					m_should_run;
+	OsThread m_thread;
+	bool m_should_run;
 
 	// Whether to look for resources
-	Bundle&					m_bundle;
+	Bundle& m_bundle;
 
 	// Used to strore resource memory
-	Allocator&				m_resource_heap;
+	Allocator& m_resource_heap;
 
-	uint32_t				m_num_requests;
-	Queue<LoadResource>		m_requests;
-	LoadResourceData		m_results[MAX_LOAD_REQUESTS];
+	uint32_t m_num_requests;
+	Queue<LoadResource> m_requests;
+	LoadResourceData m_results[MAX_LOAD_REQUESTS];
 
-	Mutex					m_requests_mutex;
-	Mutex					m_results_mutex;
-	Cond					m_full;
+	Mutex m_requests_mutex;
+	Mutex m_results_mutex;
+	Cond m_full;
 };
 
 } // namespace crown

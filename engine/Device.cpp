@@ -424,8 +424,9 @@ void Device::destroy_resource_package(ResourcePackage* package)
 }
 
 //-----------------------------------------------------------------------------
-void Device::reload(const char* type, const char* name)
+void Device::reload(const char* , const char* )
 {
+/*
 	#if defined(LINUX) || defined(WINDOWS)
 		TempAllocator4096 temp;
 		DynamicString filename(temp);
@@ -478,6 +479,7 @@ void Device::reload(const char* type, const char* name)
 			}
 		}
 	#endif
+*/
 }
 
 static Device* g_device;

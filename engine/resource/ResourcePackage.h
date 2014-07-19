@@ -47,7 +47,7 @@ public:
 		, m_package(NULL)
 		, m_has_loaded(false)
 	{
-		resman.load("package", name);
+		resman.load(m_id);
 		resman.flush();
 		m_package = (const PackageResource*) resman.get(m_id);
 	}
@@ -65,57 +65,57 @@ public:
 	{
 		for (uint32_t i = 0; i < m_package->num_textures(); i++)
 		{
-			m_resource_manager->load(TEXTURE_TYPE, m_package->get_texture_id(i));
+			m_resource_manager->load(m_package->get_texture_id(i));
 		}
 
 		for (uint32_t i = 0; i < m_package->num_scripts(); i++)
 		{
-			m_resource_manager->load(LUA_TYPE, m_package->get_script_id(i));
+			m_resource_manager->load(m_package->get_script_id(i));
 		}
 
 		for (uint32_t i = 0; i < m_package->num_sounds(); i++)
 		{
-			m_resource_manager->load(SOUND_TYPE, m_package->get_sound_id(i));
+			m_resource_manager->load(m_package->get_sound_id(i));
 		}
 
 		for (uint32_t i = 0; i < m_package->num_meshes(); i++)
 		{
-			m_resource_manager->load(MESH_TYPE, m_package->get_mesh_id(i));
+			m_resource_manager->load(m_package->get_mesh_id(i));
 		}
 
 		for (uint32_t i = 0; i < m_package->num_units(); i++)
 		{
-			m_resource_manager->load(UNIT_TYPE, m_package->get_unit_id(i));
+			m_resource_manager->load(m_package->get_unit_id(i));
 		}
 
 		for (uint32_t i = 0; i < m_package->num_sprites(); i++)
 		{
-			m_resource_manager->load(SPRITE_TYPE, m_package->get_sprite_id(i));
+			m_resource_manager->load(m_package->get_sprite_id(i));
 		}
 
 		for (uint32_t i = 0; i < m_package->num_physics(); i++)
 		{
-			m_resource_manager->load(PHYSICS_TYPE, m_package->get_physics_id(i));
+			m_resource_manager->load(m_package->get_physics_id(i));
 		}
 
 		for (uint32_t i = 0; i < m_package->num_materials(); i++)
 		{
-			m_resource_manager->load(MATERIAL_TYPE, m_package->get_material_id(i));
+			m_resource_manager->load(m_package->get_material_id(i));
 		}
 
 		for (uint32_t i = 0; i < m_package->num_fonts(); i++)
 		{
-			m_resource_manager->load(FONT_TYPE, m_package->get_font_id(i));
+			m_resource_manager->load(m_package->get_font_id(i));
 		}
 
 		for (uint32_t i = 0; i < m_package->num_levels(); i++)
 		{
-			m_resource_manager->load(LEVEL_TYPE, m_package->get_level_id(i));
+			m_resource_manager->load(m_package->get_level_id(i));
 		}
 
 		for (uint32_t i = 0; i < m_package->num_physics_configs(); i++)
 		{
-			m_resource_manager->load(PHYSICS_CONFIG_TYPE, m_package->get_physics_config_id(i));
+			m_resource_manager->load(m_package->get_physics_config_id(i));
 		}
 	}
 

@@ -51,10 +51,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONElement tl = root.key("texture_layers");
 	for (uint32_t i = 0; i < tl.size(); i++)
 	{
-		DynamicString tex;
-		tl[i].to_string(tex); tex += ".texture";
-
-		array::push_back(texture_layers, ResourceId(tex.c_str()));
+		array::push_back(texture_layers, tl[i].to_resource_id("texture"));
 	}
 
 	// Write resource

@@ -237,13 +237,10 @@ StringId32 JSONElement::to_string_id() const
 //--------------------------------------------------------------------------
 ResourceId JSONElement::to_resource_id(const char* type) const
 {
+	CE_ASSERT_NOT_NULL(type);
 	TempAllocator1024 alloc;
 	DynamicString str(alloc);
 	json::parse_string(m_at, str);
-
-	if (type == NULL)
-		return ResourceId(str.c_str());
-
 	return ResourceId(type, str.c_str());
 }
 
