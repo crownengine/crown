@@ -52,7 +52,8 @@ void LuaEnvironment::load_and_execute(const char* res_name)
 	ResourceManager* resman = device()->resource_manager();
 
 	// Load the resource
-	ResourceId res_id = resman->load("lua", res_name);
+	const ResourceId res_id("lua", res_name);
+	resman->load(res_id);
 	resman->flush();
 	LuaResource* lr = (LuaResource*) resman->get(res_id);
 	

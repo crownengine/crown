@@ -49,16 +49,14 @@ ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap) :
 }
 
 //-----------------------------------------------------------------------------
-LoadResourceId ResourceLoader::load_resource(uint32_t type, ResourceId resource)
+LoadResourceId ResourceLoader::load_resource(ResourceId id)
 {
-
 	m_requests_mutex.lock();
 
 	LoadResourceId lr_id = m_num_requests++;
 	LoadResource lr;
 	lr.id = lr_id;
-	lr.type = type;
-	lr.resource = resource;
+	lr.resource = id;
 
 	queue::push_back(m_requests, lr);
 
@@ -113,7 +111,7 @@ int32_t ResourceLoader::run()
 
 			m_results[request.id % MAX_LOAD_REQUESTS].status = LRS_LOADING;
 
-			void* data = resource_on_load(request.type, m_resource_heap, m_bundle, request.resource);
+			void* data = resource_on_load(request.resource.type, m_resource_heap, m_bundle, request.resource);
 
 			m_results[request.id % MAX_LOAD_REQUESTS].data = data;
 			m_results[request.id % MAX_LOAD_REQUESTS].status = LRS_LOADED;

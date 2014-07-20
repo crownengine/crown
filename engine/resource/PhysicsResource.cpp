@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "DynamicString.h"
 #include "Map.h"
+#include "Quaternion.h"
 
 namespace crown
 {
@@ -154,12 +155,7 @@ void parse_shapes(JSONElement e, Array<PhysicsShape>& shapes)
 			}
 			case PhysicsShapeType::CONVEX_MESH:
 			{
-				JSONElement resource = shape.key("mesh");
-				DynamicString mesh_name;
-				resource.to_string(mesh_name);
-				mesh_name += ".mesh";
-
-				ps.resource = ResourceId(mesh_name.c_str());
+				ps.resource = shape.key("mesh").to_resource_id("mesh");
 
 				break;
 			}

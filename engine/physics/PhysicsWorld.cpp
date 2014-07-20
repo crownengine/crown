@@ -218,7 +218,7 @@ namespace physics_system
 		CE_DELETE(default_allocator(), s_px_allocator);
 	}
 
-	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	#if defined(CROWN_DEBUG)
 		void draw_debug_lines(PxScene* scene, DebugLine& line)
 		{
 			const PxRenderBuffer& rb = scene->getRenderBuffer();
@@ -247,7 +247,7 @@ PhysicsWorld::PhysicsWorld(World& world)
 	, m_events(default_allocator())
 	, m_callback(m_events)
 
-	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	#if defined(CROWN_DEBUG)
 		, m_debug_line(NULL)
 	#endif
 {
@@ -282,7 +282,7 @@ PhysicsWorld::PhysicsWorld(World& world)
 
 	m_resource = (PhysicsConfigResource*) device()->resource_manager()->get("physics_config", "global");
 
-	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	#if defined(CROWN_DEBUG)
 		m_scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1);
 		m_scene->setVisualizationParameter(PxVisualizationParameter::eACTOR_AXES, 1);
 		m_scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
@@ -297,7 +297,7 @@ PhysicsWorld::~PhysicsWorld()
 	m_controller_manager->release();
 	m_scene->release();
 
-	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	#if defined(CROWN_DEBUG)
 		m_world.destroy_debug_line(m_debug_line);
 	#endif
 }
@@ -461,7 +461,7 @@ void PhysicsWorld::update(float dt)
 //-----------------------------------------------------------------------------
 void PhysicsWorld::draw_debug()
 {
-	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	#if defined(CROWN_DEBUG)
 		if (g_physics_debug)
 			physics_system::draw_debug_lines(m_scene, *m_debug_line);
 	#endif

@@ -32,13 +32,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "OS.h"
 #include "TempAllocator.h"
 
-#ifdef WINDOWS
+#if CROWN_PLATFORM_WINDOWS
 	#define LUAJIT_EXECUTABLE "luajit.exe"
 #else
 	#define LUAJIT_EXECUTABLE "./luajit"
 #endif
 
-#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+#if defined(CROWN_DEBUG)
 	#define LUAJIT_FLAGS "-bg" // Keep debug info
 #else
 	#define LUAJIT_FLAGS "-b"

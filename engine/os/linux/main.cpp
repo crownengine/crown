@@ -149,7 +149,7 @@ public:
 		parse_command_line(argc, argv);
 		check_preferred_settings();
 
-		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		#if defined(CROWN_DEBUG)
 			m_console = CE_NEW(default_allocator(), ConsoleServer)();
 			m_console->init(m_console_port, (bool) m_wait_console);
 
@@ -180,7 +180,7 @@ public:
 	//-----------------------------------------------------------------------------
 	void shutdown()
 	{
-		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		#if defined(CROWN_DEBUG)
 			CE_DELETE(default_allocator(), m_bundle_compiler);
 
 			m_console->shutdown();
@@ -346,7 +346,7 @@ public:
 
 		while(!process_events() && is_running())
 		{
-			#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+			#if defined(CROWN_DEBUG)
 				m_console->update();
 			#endif
 

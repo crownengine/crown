@@ -33,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <stdio.h>
 #include <stdarg.h>
 
-#if defined __GNUG__ && defined(LINUX)
+#if CROWN_PLATFORM_LINUX && CROWN_COMPILER_GCC
 	#include <cxxabi.h>
 	#include <execinfo.h>
 #endif
@@ -45,7 +45,7 @@ namespace error
 
 inline void log_backtrace()
 {
-	#if defined __GNUG__ && defined(LINUX)
+	#if CROWN_PLATFORM_LINUX && CROWN_COMPILER_GCC
 	void* array[50];
 	int size = backtrace(array, 50);
 

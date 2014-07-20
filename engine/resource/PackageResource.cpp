@@ -56,6 +56,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	const uint32_t num_materials = root.key("material").size();
 	const uint32_t num_fonts     = root.key("font").size();
 	const uint32_t num_levels    = root.key("level").size();
+	const uint32_t num_phyconfs  = root.key("physics_config").size();
 
 	// Write header
 	bw.write(num_textures);
@@ -98,6 +99,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	offt += sizeof(ResourceId) * num_fonts;
 	bw.write(offt);
 
+	bw.write(num_phyconfs);
+	offt += sizeof(ResourceId) * num_levels;
+	bw.write(offt);
+
 	// Write resource ids
 	for (uint32_t i = 0; i < num_textures; i++)
 		bw.write(root.key("texture")[i].to_resource_id("texture"));
@@ -128,6 +133,9 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	for (uint32_t i = 0; i < num_levels; i++)
 		bw.write(root.key("level")[i].to_resource_id("level"));
+
+	for (uint32_t i = 0; i < num_phyconfs; i++)
+		bw.write(root.key("physics_config")[i].to_resource_id("physics_config"));
 }
 
 } // namespace package_resource

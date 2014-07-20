@@ -51,7 +51,7 @@ public:
 	{
 		// Convert name/type into strings
 		char resource_name[512];
-		snprintf(resource_name, 512, "%.16"PRIx64"", name.id);
+		snprintf(resource_name, 512, "%.16lx-%.16lx", name.type, name.name);
 
 		// Open the resource and check magic number/version
 		File* file = m_filesystem.open(resource_name, FOM_READ);

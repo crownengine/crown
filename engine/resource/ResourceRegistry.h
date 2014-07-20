@@ -31,9 +31,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-void* resource_on_load(uint32_t type, Allocator& allocator, Bundle& bundle, ResourceId id);
-void resource_on_online(uint32_t type, void* resource);
-void resource_on_offline(uint32_t type, void* resource);
-void resource_on_unload(uint32_t type, Allocator& allocator, void* resource);
+void* resource_on_load(uint64_t type, Allocator& allocator, Bundle& bundle, ResourceId id);
+void resource_on_online(uint64_t type, void* resource);
+void resource_on_offline(uint64_t type, void* resource);
+void resource_on_unload(uint64_t type, Allocator& allocator, void* resource);
 
 } // namespace crown

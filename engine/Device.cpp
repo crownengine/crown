@@ -57,11 +57,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaSystem.h"
 #include "DebugLine.h"
 
-#if defined(LINUX) || defined(WINDOWS)
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 	#include "BundleCompiler.h"
 #endif
 
-#if defined(ANDROID)
+#if CROWN_PLATFORM_ANDROID
 	#include "ApkFilesystem.h"
 #endif
 
@@ -120,7 +120,7 @@ void Device::init()
 
 	CE_LOGD("Creating filesystem...");
 	// Default bundle filesystem
-	#if defined (LINUX) || defined(WINDOWS)
+	#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 		if (m_fileserver == 1)
 		{
 			m_filesystem = CE_NEW(m_allocator, NetworkFilesystem)(NetAddress(127, 0, 0, 1), 10001);
@@ -129,7 +129,7 @@ void Device::init()
 		{
 			m_filesystem = CE_NEW(m_allocator, DiskFilesystem)(m_bundle_dir);
 		}
-	#elif defined(ANDROID)
+	#elif CROWN_PLATFORM_ANDROID
 		if (m_fileserver == 1)
 		{
 			m_filesystem = CE_NEW(m_allocator, NetworkFilesystem)(NetAddress(192, 168, 0, 7), 10001);
@@ -177,9 +177,6 @@ void Device::init()
 	CE_LOGD("Crown Engine initialized.");
 	CE_LOGD("Initializing Game...");
 
-	m_physics_config = m_resource_manager->load(PHYSICS_CONFIG_EXTENSION, "global");
-	m_resource_manager->flush();
-
 	m_is_init = true;
 	start();
 
@@ -197,8 +194,6 @@ void Device::shutdown()
 
 	// Shutdowns the game
 	m_lua_environment->call_global("shutdown", 0);
-
-	m_resource_manager->unload(m_physics_config);
 
 	CE_LOGD("Releasing audio...");
 	audio_system::shutdown();
@@ -414,29 +409,19 @@ void Device::destroy_world(WorldId world)
 //-----------------------------------------------------------------------------
 ResourcePackage* Device::create_resource_package(const char* name)
 {
-	CE_ASSERT_NOT_NULL(name);
-
-	ResourceId package_id = m_resource_manager->load("package", name);
-	m_resource_manager->flush();
-
-	PackageResource* package_res = (PackageResource*) m_resource_manager->get(package_id);
-	ResourcePackage* package = CE_NEW(default_allocator(), ResourcePackage)(*m_resource_manager, package_id, package_res);
-
-	return package;
+	return CE_NEW(default_allocator(), ResourcePackage)(name, *m_resource_manager);
 }
 
 //-----------------------------------------------------------------------------
 void Device::destroy_resource_package(ResourcePackage* package)
 {
-	CE_ASSERT_NOT_NULL(package);
-
-	m_resource_manager->unload(package->resource_id());
 	CE_DELETE(default_allocator(), package);
 }
 
 //-----------------------------------------------------------------------------
-void Device::reload(const char* type, const char* name)
+void Device::reload(const char* , const char* )
 {
+/*
 	#if defined(LINUX) || defined(WINDOWS)
 		TempAllocator4096 temp;
 		DynamicString filename(temp);
@@ -489,6 +474,7 @@ void Device::reload(const char* type, const char* name)
 			}
 		}
 	#endif
+*/
 }
 
 static Device* g_device;

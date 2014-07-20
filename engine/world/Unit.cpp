@@ -188,7 +188,7 @@ void Unit::create_renderable_objects()
 	}
 
 	// Create materials
-	if (m_resource->material_resource().id != 0)
+	if (m_resource->material_resource().type != 0)
 	{
 		MaterialResource* mr = (MaterialResource*) device()->resource_manager()->get(m_resource->material_resource());
 		add_material(string::murmur2_32("default", string::strlen("default"), 0), m_world.render_world()->create_material(mr));
@@ -198,7 +198,7 @@ void Unit::create_renderable_objects()
 //-----------------------------------------------------------------------------
 void Unit::create_physics_objects()
 {
-	if (m_resource->physics_resource().id != 0)
+	if (m_resource->physics_resource().type != 0)
 	{
 		const PhysicsResource* pr = (PhysicsResource*) device()->resource_manager()->get(m_resource->physics_resource());
 
@@ -560,10 +560,7 @@ Material* Unit::material(uint32_t i)
 //-----------------------------------------------------------------------------
 bool Unit::is_a(const char* name)
 {
-	DynamicString unit(name);
-	unit += ".unit";
-
-	return m_resource_id.id == string::murmur2_64(unit.c_str(), string::strlen(unit.c_str()), 0);
+	return m_resource_id == ResourceId("unit", name);
 }
 
 //-----------------------------------------------------------------------------

@@ -218,9 +218,6 @@ protected:
 	Bundle* m_resource_bundle;
 	WorldManager* m_world_manager;
 
-	// Configuration resources
-	ResourceId m_physics_config;
-
 private:
 
 	// Disable copying

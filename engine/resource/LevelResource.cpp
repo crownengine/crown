@@ -46,12 +46,7 @@ void parse_units(JSONElement root, Array<LevelUnit>& units)
 		JSONElement e = units_arr[i];
 
 		LevelUnit lu;
-
-		DynamicString name;
-		e.key("name").to_string(name);
-		name += ".unit";
-
-		lu.name = ResourceId(name.c_str());
+		lu.name = e.key("name").to_resource_id("unit");
 		lu.position = e.key("position").to_vector3();
 		lu.rotation = e.key("rotation").to_quaternion();
 
@@ -70,12 +65,7 @@ void parse_sounds(JSONElement root, Array<LevelSound>& sounds)
 		JSONElement e = sounds_arr[i];
 
 		LevelSound ls;
-
-		DynamicString name;
-		e.key("name").to_string(name);
-		name += ".sound";
-
-		ls.name = ResourceId(name.c_str());
+		ls.name = e.key("name").to_resource_id("sound");
 		ls.position = e.key("position").to_vector3();
 		ls.volume = e.key("volume").to_float();
 		ls.range = e.key("range").to_float();

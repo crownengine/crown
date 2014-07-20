@@ -24,6 +24,27 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#cmakedefine LINUX
-#cmakedefine WINDOWS
-#cmakedefine CROWN_DEBUG
+#pragma once
+
+namespace crown
+{
+
+template<typename T>
+struct less
+{
+	bool operator()(const T& a, const T& b) const
+	{
+		return a < b;
+	};
+};
+
+template <typename T>
+struct greater
+{
+	bool operator()(const T& a, const T& b) const
+	{
+		return a > b;
+	};
+};
+
+} // namespace crown

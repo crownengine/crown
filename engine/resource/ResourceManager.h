@@ -37,20 +37,18 @@ namespace crown
 
 struct ResourceEntry
 {
-	bool operator==(const ResourceId& resource) const { return id == resource; }
+	bool operator==(const ResourceId& res) const { return id == res; }
 	bool operator==(const ResourceEntry& b) const { return id == b.id; }
 
-	ResourceId		id;
-	uint32_t		type;
-	uint32_t		references;
-	void*			resource;
+	ResourceId id;
+	uint32_t references;
+	void* resource;
 };
 
 struct PendingRequest
 {
 	LoadResourceId id;
 	ResourceId resource;
-	uint32_t type;
 };
 
 class Bundle;
@@ -67,7 +65,7 @@ public:
 	/// Loads the resource by @a type and @a name and returns its ResourceId.
 	/// @note
 	/// You have to call is_loaded() to check if the loading process is actually completed.
-	ResourceId load(const char* type, const char* name);
+	void load(ResourceId id);
 
 	/// Unloads the resource @a name, freeing up all the memory associated by it
 	/// and eventually any global object associated with it.
@@ -75,28 +73,28 @@ public:
 	/// is greater than 1.
 	/// @warning
 	/// Use @a force option only if you know - exactly - what you are doing.
-	void unload(ResourceId name, bool force = false);
+	void unload(ResourceId id, bool force = false);
 
 	/// Returns whether the manager has the @a name resource into
 	/// its list of resources.
 	/// @warning
 	/// Having a resource does not mean that the resource is
 	/// ready to be used; See is_loaded().
-	bool has(ResourceId name) const;
+	bool has(ResourceId id) const;
 
 	/// Returns the resource instance associated to the given @a type and @a name.
 	const void* get(const char* type, const char* name) const;
 
 	/// Returns the data associated with the @a name resource.
 	/// You will have to cast the returned pointer accordingly.
-	const void* get(ResourceId name) const;
+	const void* get(ResourceId id) const;
 
 	/// Returns whether the @a name resource is loaded (i.e. whether
 	/// you can use the data associated with it).
-	bool is_loaded(ResourceId name) const;
+	bool is_loaded(ResourceId id) const;
 
 	/// Returns the number of references to the resource @a name;
-	uint32_t references(ResourceId name) const;
+	uint32_t references(ResourceId id) const;
 
 	/// Forces all of the loading requests to complete before preceeding.
 	void flush();
@@ -110,15 +108,12 @@ private:
 	// Polls the resource loader for loaded resources.
 	void poll_resource_loader();
 
-	// Loads the resource by name and type and returns its ResourceId.
-	ResourceId load(uint32_t type, ResourceId name);
-	void online(ResourceId name, void* resource);
+	void online(ResourceId id, void* resource);
 
 private:
 
 	ProxyAllocator m_resource_heap;
 	ResourceLoader m_loader;
-	uint32_t m_seed;
 
 	Queue<PendingRequest> m_pendings;
 	Array<ResourceEntry> m_resources;

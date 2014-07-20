@@ -220,27 +220,23 @@ void parse_renderables(JSONElement e, Array<UnitRenderable>& renderables, const 
 		rn.node = find_node_index(node_name_hash, node_depths);
 		rn.visible = renderable.key("visible").to_bool();
 
-		DynamicString res_type; renderable.key("type").to_string(res_type);
-		DynamicString resource_name; renderable.key("resource").to_string(resource_name);
-		DynamicString res_name;
+		DynamicString res_type;
+		renderable.key("type").to_string(res_type);
 
 		if (res_type == "mesh")
 		{
 			rn.type = UnitRenderable::MESH;
-			res_name += resource_name;
-			res_name += ".mesh";
+			rn.resource = renderable.key("resource").to_resource_id("mesh");
 		}
 		else if (res_type == "sprite")
 		{
 			rn.type = UnitRenderable::SPRITE;
-			res_name += resource_name;
-			res_name += ".sprite";
+			rn.resource = renderable.key("resource").to_resource_id("sprite");
 		}
 		else
 		{
 			CE_ASSERT(false, "Oops, unknown renderable type: '%s'", res_type.c_str());
 		}
-		rn.resource = ResourceId(res_name.c_str());
 
 		array::push_back(renderables, rn);
 	}
@@ -343,12 +339,12 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	// Check if the unit has a .physics resource
 	DynamicString unit_name(resource_path);
-	unit_name.strip_trailing("unit");
+	unit_name.strip_trailing(".unit");
 	DynamicString physics_name = unit_name;
-	physics_name += "physics";
+	physics_name += ".physics";
 	if (fs.is_file(physics_name.c_str()))
 	{
-		m_physics_resource = ResourceId(physics_name.c_str());
+		m_physics_resource = ResourceId("physics", unit_name.c_str());
 	}
 	else
 	{
@@ -357,10 +353,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	// Check if the unit has a .material resource
 	DynamicString material_name = unit_name;
-	material_name += "material";
+	material_name += ".material";
 	if (fs.is_file(material_name.c_str()))
 	{
-		m_material_resource = ResourceId(material_name.c_str());
+		m_material_resource = ResourceId("material", unit_name.c_str());
 	}
 	else
 	{

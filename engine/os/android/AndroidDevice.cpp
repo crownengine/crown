@@ -49,7 +49,7 @@ public:
 	AndroidDevice()
 		: m_game_thread("game_thread")
 	{
-		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		#if defined(CROWN_DEBUG)
 			m_fileserver = 1;
 		#endif
 	}
@@ -103,7 +103,7 @@ public:
 	//-----------------------------------------------------------------------------
 	int32_t loop()
 	{
-		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		#if defined(CROWN_DEBUG)
 			m_console = CE_NEW(default_allocator(), ConsoleServer)();
 			m_console->init(m_console_port, false);
 		#endif
@@ -117,7 +117,7 @@ public:
 
 		while (is_running() && !process_events())
 		{
-			#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+			#if defined(CROWN_DEBUG)
 				m_console->update();
 			#endif
 
@@ -128,7 +128,7 @@ public:
 
 		Device::shutdown();
 
-		#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+		#if defined(CROWN_DEBUG)
 			m_console->shutdown();
 			CE_DELETE(default_allocator(), m_console);
 		#endif

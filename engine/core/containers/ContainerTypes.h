@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Types.h"
 #include "MemoryTypes.h"
+#include "Functional.h"
 
 namespace crown
 {
@@ -158,6 +159,24 @@ struct Map
 	uint32_t m_root;
 	uint32_t m_sentinel;
 	Vector<Node> m_data;
+};
+
+/// Sorted map from key to POD items.
+/// Items are not automatically sorted, you need to call sort_map::sort().
+/// @ingroup Containers.
+template <typename TKey, typename TValue, class Compare = less<TKey> >
+struct SortMap
+{
+	SortMap(Allocator& a);
+
+	struct Entry
+	{
+		TKey key;
+		TValue value;
+	};
+
+	bool m_is_sorted;
+	Array<Entry> m_data;
 };
 
 } // namespace crown

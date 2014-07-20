@@ -1,26 +1,20 @@
 # Ignore build directory
-/build
-
-# Ignore CMake-generated config files
-/engine/Config.h
-/tools/Config.h
-
-# Ignore python stuff
-__pycache__
+/.build
+/.installation
 
 # Ignore C# stuff
-bin
-obj
-Obj
-TestResults
-test-results
-*.csproj.user
-*.suo
-*.cache
-*~
-*.swp
-*.userprefs
-*.pidb
+/tools/**/bin
+/tools/**/obj
+/tools/**/Obj
+/tools/**/TestResults
+/tools/**/test-results
+/tools/**/*.csproj.user
+/tools/**/*.suo
+/tools/**/*.cache
+/tools/**/*~
+/tools/**/*.swp
+/tools/**/*.userprefs
+/tools/**/*.pidb
 
 # Ignore some third party dirs
 /third/physx/*/include
