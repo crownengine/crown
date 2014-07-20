@@ -57,11 +57,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "NetworkFilesystem.h"
 #include "LuaSystem.h"
 
-#if defined(LINUX) || defined(WINDOWS)
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 	#include "BundleCompiler.h"
 #endif
 
-#if defined(ANDROID)
+#if CROWN_PLATFORM_ANDROID
 	#include "ApkFilesystem.h"
 #endif
 
@@ -120,7 +120,7 @@ void Device::init()
 
 	CE_LOGD("Creating filesystem...");
 	// Default bundle filesystem
-	#if defined (LINUX) || defined(WINDOWS)
+	#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 		if (m_fileserver == 1)
 		{
 			m_filesystem = CE_NEW(m_allocator, NetworkFilesystem)(NetAddress(127, 0, 0, 1), 10001);
@@ -129,7 +129,7 @@ void Device::init()
 		{
 			m_filesystem = CE_NEW(m_allocator, DiskFilesystem)(m_bundle_dir);
 		}
-	#elif defined(ANDROID)
+	#elif CROWN_PLATFORM_ANDROID
 		if (m_fileserver == 1)
 		{
 			m_filesystem = CE_NEW(m_allocator, NetworkFilesystem)(NetAddress(192, 168, 0, 7), 10001);

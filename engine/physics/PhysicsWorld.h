@@ -153,7 +153,7 @@ private:
 
 	const PhysicsConfigResource* m_resource;
 
-	#if defined(CROWN_DEBUG) || defined(CROWN_DEVELOPMENT)
+	#if defined(CROWN_DEBUG)
 		DebugLine* m_debug_line;
 	#endif
 };

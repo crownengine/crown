@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h"
 #include "DynamicString.h"
 #include "Map.h"
+#include "Quaternion.h"
 
 namespace crown
 {

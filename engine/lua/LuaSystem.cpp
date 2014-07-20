@@ -38,6 +38,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "LuaResource.h"
 #include "LuaEnvironment.h"
 #include "LuaStack.h"
+#include "Log.h"
 
 namespace crown
 {
