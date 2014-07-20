@@ -26,10 +26,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Config.h"
 
-#if defined(CROWN_PLATFORM_LINUX) || defined(CROWN_PLATFORM_WINDOWS)
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 	#define GL_GLEXT_PROTOTYPES
 	#include <GL/glcorearb.h>
-#elif defined(CROWN_PLATFORM_ANDROID)
+#elif CROWN_PLATFORM_ANDROID
 	#include <GLES2/gl2.h>
 	#include <GLES2/gl2ext.h>
 #else
@@ -88,7 +88,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3
 #endif
 
-#ifdef ANDROID
+#if CROWN_PLATFORM_ANDROID
 	#define GL_DEPTH_STENCIL GL_DEPTH_STENCIL_OES
 	#ifndef GL_DEPTH_STENCIL_ATTACHMENT
 		#define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
@@ -96,7 +96,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#define GL_DEPTH_COMPONENT24 GL_DEPTH_COMPONENT24_OES
 	#define GL_DEPTH_COMPONENT32 GL_DEPTH_COMPONENT32_OES
 	#define GL_DEPTH24_STENCIL8 GL_DEPTH24_STENCIL8_OES
-#endif // ANDROID
+#endif // CROWN_PLATFORM_ANDROID
 
 namespace crown
 {
@@ -884,9 +884,9 @@ public:
 					GLbitfield gl_clear = (clear.m_flags & CLEAR_COLOR) ? GL_COLOR_BUFFER_BIT : 0;
 					gl_clear |= (clear.m_flags & CLEAR_DEPTH) ? GL_DEPTH_BUFFER_BIT : 0;
 					GL_CHECK(glClearColor(clear.m_color.r, clear.m_color.g, clear.m_color.b, clear.m_color.a));
-					#if defined(CROWN_PLATFORM_LINUX) || defined(CROWN_PLATFORM_WINDOWS)
+					#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 						GL_CHECK(glClearDepth(clear.m_depth));
-					#elif defined(CROWN_PLATFORM_ANDROID)
+					#elif CROWN_PLATFORM_ANDROID
 						GL_CHECK(glClearDepthf(clear.m_depth));
 					#endif
 					GL_CHECK(glClear(gl_clear));

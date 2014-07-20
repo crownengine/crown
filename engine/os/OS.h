@@ -37,14 +37,14 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-#if defined(CROWN_PLATFORM_LINUX)
+#if CROWN_PLATFORM_LINUX
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '/';
-#elif defined(CROWN_PLATFORM_WINDOWS)
+#elif CROWN_PLATFORM_WINDOWS
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '\\';
 	#define snprintf _snprintf
-#elif defined(CROWN_PLATFORM_ANDROID)
+#elif CROWN_PLATFORM_ANDROID
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '/';
 #else
