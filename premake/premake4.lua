@@ -133,16 +133,10 @@ solution "crown"
 
 	configuration { "debug", "native" }
 		targetsuffix "-debug"
-	configuration { "debug", "native" }
-		targetsuffix "-debug"
 
 	configuration { "development", "native" }
 		targetsuffix "-development"
-	configuration { "development", "native" }
-		targetsuffix "-development"
 
-	configuration { "release", "native" }
-		targetsuffix "-release"
 	configuration { "release", "native" }
 		targetsuffix "-release"
 
@@ -394,33 +388,63 @@ solution "crown"
 			}
 
 		configuration { "android" }
-			kind "SharedLib"
+			kind "ConsoleApp"
+			targetprefix "lib"
+			targetextension ".so"
+
 			targetdir(CROWN_INSTALL_DIR .. "bin/android") -- must be specified by user -- tmp
+
+			flags { "NoImportLib" }
+
+			defines { "__STDC_FORMAT_MACROS" }
 
 			buildoptions
 			{
+				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm",
+				"-ffunction-sections",
+				"-fPIC",
+				"-march=armv7-a",
+				"-mfloat-abi=softfp",
+				"-mthumb",
+				"-no-canonical-prefixes",
 				"-std=c++03",
-				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm"
+				"-Wno-psabi", -- note: the mangling of 'va_list' has changed in GCC 4.4.0
+				"-no-canonical-prefixes",
+				"-fstack-protector",
+				"-mfpu=neon",
+				"-Wa,--noexecstack",
 			}
 			
 			linkoptions
 			{
-				"-Wl,-rpath=\\$$ORIGIN",
+				"-shared",
 				"-nostdlib",
 				"-static-libgcc",
 				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm",
 				"$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm/usr/lib/crtbegin_so.o",
 				"$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm/usr/lib/crtend_so.o",
+				"-no-canonical-prefixes",
+				"-Wl,--no-undefined",
+				"-Wl,-z,noexecstack",
+				"-Wl,-z,relro",
+				"-Wl,-z,now",
+				"-march=armv7-a",
+				"-Wl,--fix-cortex-a8",
 			}
 
 			links
 			{
-				"log",
+				":libluajit-5.1.a",
 				"android",
+				"c",
+				"dl",
 				"EGL",
+				"gcc",
 				"GLESv2",
-				"z",
-				"OpenSLES",
+				"gnustl_static",
+				"log",
+				"m",
+				"OpenSLES"
 			}
 
 			includedirs {
@@ -477,45 +501,83 @@ solution "crown"
 			}
 
 		configuration { "debug", "android" }
-			linkoptions
-			{
-				"-Wl,--start-group $(addprefix -l," ..
-				"	LowLevelClothCHECKED" ..
-				"	PhysX3CHECKED " ..
-				"	PhysX3CommonCHECKED" ..
-				"	PxTaskCHECKED" ..
-				"	LowLevelCHECKED" ..
-				"	PhysX3CharacterKinematicCHECKED" ..
-				"	PhysX3CookingCHECKED" ..
-				"	PhysX3ExtensionsCHECKED" ..
-				"	PhysX3VehicleCHECKED" ..
-				"	PhysXProfileSDKCHECKED" ..
-				"	PhysXVisualDebuggerSDKCHECKED" ..
-				"	PvdRuntimeCHECKED" ..
-				"	SceneQueryCHECKED" ..
-				"	SimulationControllerCHECKED" ..
-				") -Wl,--end-group"
-			}
-		configuration { "development", "android"}
+			-- linkoptions
+			-- {
+			-- 	"-Wl,--start-group $(addprefix -l," ..
+			-- 	"	LowLevelClothCHECKED" ..
+			-- 	"	PhysX3CHECKED " ..
+			-- 	"	PhysX3CommonCHECKED" ..
+			-- 	"	PxTaskCHECKED" ..
+			-- 	"	LowLevelCHECKED" ..
+			-- 	"	PhysX3CharacterKinematicCHECKED" ..
+			-- 	"	PhysX3CookingCHECKED" ..
+			-- 	"	PhysX3ExtensionsCHECKED" ..
+			-- 	"	PhysX3VehicleCHECKED" ..
+			-- 	"	PhysXProfileSDKCHECKED" ..
+			-- 	"	PhysXVisualDebuggerSDKCHECKED" ..
+			-- 	"	PvdRuntimeCHECKED" ..
+			-- 	"	SceneQueryCHECKED" ..
+			-- 	"	SimulationControllerCHECKED" ..
+			-- 	") -Wl,--end-group"
+			-- }
 			linkoptions
 			{ 
 				"-Wl,--start-group $(addprefix -l," ..
-				"	LowLevelClothPROFILE" ..
-				"	PhysX3PROFILE " ..
-				"	PhysX3CommonPROFILE" ..
-				"	PxTaskPROFILE" ..
-				"	LowLevelPROFILE" ..
-				"	PhysX3CharacterKinematicPROFILE" ..
-				"	PhysX3CookingPROFILE" ..
-				"	PhysX3ExtensionsPROFILE" ..
-				"	PhysX3VehiclePROFILE" ..
-				"	PhysXProfileSDKPROFILE" ..
-				"	PhysXVisualDebuggerSDKPROFILE" ..
-				"	PvdRuntimePROFILE" ..
-				"	SceneQueryPROFILE" ..
-				"	SimulationControllerPROFILE" ..
+				"	LowLevelCloth" ..
+				"	PhysX3 " ..
+				"	PhysX3Common" ..
+				"	PxTask" ..
+				"	LowLevel" ..
+				"	PhysX3CharacterKinematic" ..
+				"	PhysX3Cooking" ..
+				"	PhysX3Extensions" ..
+				"	PhysX3Vehicle" ..
+				"	PhysXProfileSDK" ..
+				"	PhysXVisualDebuggerSDK" ..
+				"	PvdRuntime" ..
+				"	SceneQuery" ..
+				"	SimulationController" ..
 				") -Wl,--end-group"
-			}		
+			}
+		configuration { "development", "android"}
+			-- linkoptions
+			-- { 
+			-- 	"-Wl,--start-group $(addprefix -l," ..
+			-- 	"	LowLevelClothPROFILE" ..
+			-- 	"	PhysX3PROFILE " ..
+			-- 	"	PhysX3CommonPROFILE" ..
+			-- 	"	PxTaskPROFILE" ..
+			-- 	"	LowLevelPROFILE" ..
+			-- 	"	PhysX3CharacterKinematicPROFILE" ..
+			-- 	"	PhysX3CookingPROFILE" ..
+			-- 	"	PhysX3ExtensionsPROFILE" ..
+			-- 	"	PhysX3VehiclePROFILE" ..
+			-- 	"	PhysXProfileSDKPROFILE" ..
+			-- 	"	PhysXVisualDebuggerSDKPROFILE" ..
+			-- 	"	PvdRuntimePROFILE" ..
+			-- 	"	SceneQueryPROFILE" ..
+			-- 	"	SimulationControllerPROFILE" ..
+			-- 	") -Wl,--end-group"
+			-- }
+			linkoptions
+			{ 
+				"-Wl,--start-group $(addprefix -l," ..
+				"	LowLevelCloth" ..
+				"	PhysX3 " ..
+				"	PhysX3Common" ..
+				"	PxTask" ..
+				"	LowLevel" ..
+				"	PhysX3CharacterKinematic" ..
+				"	PhysX3Cooking" ..
+				"	PhysX3Extensions" ..
+				"	PhysX3Vehicle" ..
+				"	PhysXProfileSDK" ..
+				"	PhysXVisualDebuggerSDK" ..
+				"	PvdRuntime" ..
+				"	SceneQuery" ..
+				"	SimulationController" ..
+				") -Wl,--end-group"
+			}	
 		configuration { "release", "android"}
 			linkoptions
 			{ 

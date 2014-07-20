@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "StringUtils.h" 
 #include "Types.h"
 #include "OS.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -51,7 +52,7 @@ public:
 	{
 		// Convert name/type into strings
 		char resource_name[512];
-		snprintf(resource_name, 512, "%.16lx-%.16lx", name.type, name.name);
+		snprintf(resource_name, 512, "%.16"PRIx64"-%.16"PRIx64, name.type, name.name);
 
 		// Open the resource and check magic number/version
 		File* file = m_filesystem.open(resource_name, FOM_READ);
