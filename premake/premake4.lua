@@ -40,13 +40,7 @@ newoption
 	allowed =
 	{
 		{ "android", "Android (ARM only)" },			-- gcc
-		-- { "android-mips", "Android - MIPS" },			-- gcc
-		-- { "android-x86", "Android - x86" },				-- gcc
 		{ "linux-gcc", "Linux (GCC compiler)" },		-- gcc
-		-- { "linux-clang", "Linux (Clang compiler)" },		-- clang
-		-- { "osx-gcc", "OSX" },							-- gcc
-		-- { "ios-arm", "iOS - ARM" },						-- clang
-		-- { "ios-simulator", "iOS - Simulator" }			-- clang
 	}
 }
 
@@ -103,10 +97,21 @@ solution "crown"
 
 	end
 
+	flags {
+		"StaticRuntime",
+		"NoMinimalRebuild",
+		"NoPCH",
+		"NoRTTI",
+		"NoExceptions",
+		"NoEditAndContinue",
+	}
+
 
 	configuration { "debug" }
+		flags { "Symbols" }
 		defines { "_DEBUG", "CROWN_DEBUG" }
 	configuration { "development" }
+		flags { "Symbols" }
 		defines { "_DEBUG", "CROWN_DEBUG" }
 	configuration { "release" }
 		defines { "NDEBUG" }
@@ -179,11 +184,6 @@ solution "crown"
 		configuration { "linux-*" }
 			kind "ConsoleApp"
 
-			includedirs {
-				CROWN_SOURCE_DIR .. "/engine/os/linux",
-				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/glx"
-			}
-
 			buildoptions
 			{
 				"-std=c++03",	
@@ -191,7 +191,7 @@ solution "crown"
 			
 			linkoptions
 			{
-				"-Wl,-rpath=\\$$ORIGIN"
+				"-Wl,-rpath=\\$$ORIGIN",
 			}
 
 			links
@@ -202,7 +202,12 @@ solution "crown"
 				"GL",
 				"X11",
 				"openal",
-				"luajit-5.1"
+				"luajit-5.1",
+			}
+
+			includedirs {
+				CROWN_SOURCE_DIR .. "/engine/os/linux",
+				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/glx",
 			}
 
 			excludes
@@ -211,19 +216,17 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/os/win/*",
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/egl/*",
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/wgl/*",
-				CROWN_SOURCE_DIR .. "engine/audio/backend/SLESSoundWorld.cpp"
+				CROWN_SOURCE_DIR .. "engine/audio/backend/SLESSoundWorld.cpp",
 			}
 			
 		configuration { "debug", "linux-*" }
 			buildoptions
 			{
-				"-g",
-				"-pg",
+				"-O0",
 				"-Wall",
 				-- "-Werror",
 				"-Wno-unknown-pragmas",
 				"-Wno-unused-local-typedefs",
-				"-O0"
 			}
 
 			linkoptions
@@ -246,7 +249,7 @@ solution "crown"
 				") -Wl,--end-group"
 			}
 
-		configuration { "development", "linux-*" }
+		configuration { "linux-*", "development" }
 			buildoptions
 			{
 				"-g",
@@ -342,6 +345,13 @@ solution "crown"
 				CROWN_THIRD_DIR .. "luajit/x86/lib",
 				CROWN_THIRD_DIR .. "physx/x86/lib"
 			}
+
+			postbuildcommands {
+				"cp " .. CROWN_THIRD_DIR .. "luajit/x86/bin/luajit " .. CROWN_INSTALL_DIR .. "bin/linux32/",
+				"cp " .. CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2 " .. CROWN_INSTALL_DIR .. "bin/linux32/",
+				"cp -r " .. CROWN_THIRD_DIR .. "/luajit/x86/share/luajit-2.0.3/jit " .. CROWN_INSTALL_DIR .. "bin/linux32/"
+			}
+
 		configuration { "x64", "linux-*" }
 			targetdir(CROWN_INSTALL_DIR .. "bin/linux64")
 
@@ -368,13 +378,19 @@ solution "crown"
 				CROWN_THIRD_DIR .. "openal/include",
 				CROWN_THIRD_DIR .. "freetype",
 				CROWN_THIRD_DIR .. "stb_image",
-				CROWN_THIRD_DIR .. "stb_vorbis"
+				CROWN_THIRD_DIR .. "stb_vorbis",
 			}
 
 			libdirs
 			{
 				CROWN_THIRD_DIR .. "luajit/x86_64/lib",
-				CROWN_THIRD_DIR .. "physx/x86_64/lib"
+				CROWN_THIRD_DIR .. "physx/x86_64/lib",
+			}
+
+			postbuildcommands {
+				"cp " .. CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit " .. CROWN_INSTALL_DIR .. "bin/linux64/",
+				"cp " .. CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2 " .. CROWN_INSTALL_DIR .. "bin/linux64/",
+				"cp -r " .. CROWN_THIRD_DIR .. "/luajit/x86_64/share/luajit-2.0.3/jit " .. CROWN_INSTALL_DIR .. "bin/linux64/"
 			}
 
 		configuration { "android" }
@@ -454,6 +470,12 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/wgl/*",
 				CROWN_SOURCE_DIR .. "engine/audio/backend/ALSoundWorld.cpp"
 			}
+
+			postbuildcommands
+			{
+				"cp " .. CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so " .. CROWN_INSTALL_DIR .. "bin/android/"
+			}
+
 		configuration { "debug", "android" }
 			linkoptions
 			{
@@ -719,20 +741,19 @@ solution "crown"
 				"PhysX3Cooking_x64"
 			}
 
---	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/bin/luajit-2.0.3", CROWN_INSTALL_DIR .. "bin/linux32/")
---	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/bin/luajit", CROWN_INSTALL_DIR .. "bin/linux32/")
---	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2.0.3", CROWN_INSTALL_DIR .. "bin/linux32/")
---	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2", CROWN_INSTALL_DIR .. "bin/linux32/")
---	os.mkdir(CROWN_INSTALL_DIR .. "bin/linux32/jit")
---	os.copyfile(CROWN_THIRD_DIR .. "/luajit/x86/share/luajit-2.0.3/jit/*", CROWN_INSTALL_DIR .. "bin/linux32/jit/")
 
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit-2.0.3", CROWN_INSTALL_DIR .. "bin/linux64/")
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit", CROWN_INSTALL_DIR .. "bin/linux64/")
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2.0.3", CROWN_INSTALL_DIR .. "bin/linux64/")
-	os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2", CROWN_INSTALL_DIR .. "bin/linux64/")
-	os.mkdir(CROWN_INSTALL_DIR .. "bin/linux64/jit")
-	os.copyfile(CROWN_THIRD_DIR .. "/luajit/x86_64/share/luajit-2.0.3/jit/*", CROWN_INSTALL_DIR .. "bin/linux64/jit/")
+	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2.0.3", CROWN_INSTALL_DIR .. "bin/linux32/")
+	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2", CROWN_INSTALL_DIR .. "bin/linux32/")
+	-- os.mkdir(CROWN_INSTALL_DIR .. "bin/linux32/jit")
+	-- os.copyfile(CROWN_THIRD_DIR .. "/luajit/x86/share/luajit-2.0.3/jit/*", CROWN_INSTALL_DIR .. "bin/linux32/jit/")
 
---	os.copyfile(CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so.2.0.2", CROWN_INSTALL_DIR .. "bin/android/")
---	os.copyfile(CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so", CROWN_INSTALL_DIR .. "bin/android/")
+	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit-2.0.3", CROWN_INSTALL_DIR .. "bin/linux64/")
+	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit", CROWN_INSTALL_DIR .. "bin/linux64/")
+	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2.0.3", CROWN_INSTALL_DIR .. "bin/linux64/")
+	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2", CROWN_INSTALL_DIR .. "bin/linux64/")
+	-- os.mkdir(CROWN_INSTALL_DIR .. "bin/linux64/jit")
+	-- os.copyfile(CROWN_THIRD_DIR .. "/luajit/x86_64/share/luajit-2.0.3/jit/*", CROWN_INSTALL_DIR .. "bin/linux64/jit/")
+
+	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so.2.0.2", CROWN_INSTALL_DIR .. "bin/android/")
+	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so", CROWN_INSTALL_DIR .. "bin/android/")
 
