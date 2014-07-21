@@ -2,6 +2,9 @@
 /.build
 /.installation
 
+# Ignore Python stuff
+__pycache__
+
 # Ignore C# stuff
 /tools/**/bin
 /tools/**/obj
