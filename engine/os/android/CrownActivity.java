@@ -28,7 +28,6 @@ package crown.android;
 
 import android.app.NativeActivity;
 import android.os.Bundle;
-import android.util.Log;
 
 public class CrownActivity extends NativeActivity
 {
@@ -37,17 +36,13 @@ public class CrownActivity extends NativeActivity
 		System.loadLibrary("crown");
 	}
 
-	public static String TAG = "crown";
-
 	CrownActivity _activity;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-
 		_activity = this;
-
 		// Init additional stuff here (ads, etc.)
     }
 
