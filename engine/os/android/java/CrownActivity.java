@@ -34,7 +34,6 @@ public class CrownActivity extends NativeActivity
 {
 	static 
 	{
-		System.loadLibrary("luajit-5.1");
 		System.loadLibrary("crown");
 	}
 
