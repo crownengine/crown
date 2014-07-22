@@ -180,7 +180,7 @@ solution "crown"
 				"-Wall",
 				"-Wextra",
 				-- "-Werror",
-				"-pedantic",
+				-- "-pedantic",
 				"-Wno-unknown-pragmas",
 				"-Wno-unused-local-typedefs"
 			}
