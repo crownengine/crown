@@ -400,7 +400,7 @@ solution "crown"
 
 			buildoptions
 			{
-				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm",
+				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm",
 				"-ffunction-sections",
 				"-fPIC",
 				"-march=armv7-a",
@@ -420,9 +420,9 @@ solution "crown"
 				"-shared",
 				"-nostdlib",
 				"-static-libgcc",
-				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm",
-				"$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm/usr/lib/crtbegin_so.o",
-				"$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm/usr/lib/crtend_so.o",
+				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm",
+				"$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm/usr/lib/crtbegin_so.o",
+				"$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm/usr/lib/crtend_so.o",
 				"-no-canonical-prefixes",
 				"-Wl,--no-undefined",
 				"-Wl,-z,noexecstack",
@@ -483,7 +483,7 @@ solution "crown"
 				CROWN_THIRD_DIR .. "luajit/android/lib",
 				CROWN_THIRD_DIR .. "physx/android/lib",
 				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a",
-				"$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm/usr/lib"
+				"$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm/usr/lib"
 			}
 
 			excludes
@@ -493,11 +493,6 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/glx/*",
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/wgl/*",
 				CROWN_SOURCE_DIR .. "engine/audio/backend/ALSoundWorld.cpp"
-			}
-
-			postbuildcommands
-			{
-				"cp " .. CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so " .. CROWN_INSTALL_DIR .. "bin/android/"
 			}
 
 		configuration { "debug", "android" }
