@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "File.h"
+#include <sys/types.h>
 #include <android/asset_manager.h>
 
 namespace crown
