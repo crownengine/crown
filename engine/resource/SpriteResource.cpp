@@ -36,6 +36,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Array.h"
 #include "Config.h"
 #include "ReaderWriter.h"
+#include "Vector3.h"
+#include "Vector4.h"
 #include <cfloat>
 
 namespace crown
