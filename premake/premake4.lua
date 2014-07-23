@@ -178,7 +178,7 @@ solution "crown"
 			buildoptions {
 				"-std=c++03",
 				"-Wall",
-				"-Wextra",
+				-- "-Wextra",
 				-- "-Werror",
 				-- "-pedantic",
 				"-Wno-unknown-pragmas",
