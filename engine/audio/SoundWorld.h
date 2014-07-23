@@ -81,14 +81,14 @@ public:
 	/// Resumes all previously paused sounds in the world.
 	virtual void resume_all() = 0;
 
-	/// Sets the @a positions (in world space) of @a count sound instances @a ids.
-	virtual void set_sound_positions(uint32_t count, const SoundInstanceId* ids, const Vector3* positions) = 0;
+	/// Sets the @a positions (in world space) of @a num sound instances @a ids.
+	virtual void set_sound_positions(uint32_t num, const SoundInstanceId* ids, const Vector3* positions) = 0;
 
-	/// Sets the @a ranges (in meters) of @a count sound instances @a ids.
-	virtual void set_sound_ranges(uint32_t count, const SoundInstanceId* ids, const float* ranges) = 0;
+	/// Sets the @a ranges (in meters) of @a num sound instances @a ids.
+	virtual void set_sound_ranges(uint32_t num, const SoundInstanceId* ids, const float* ranges) = 0;
 
-	/// Sets the @a volumes of @a count sound instances @a ids.
-	virtual void set_sound_volumes(uint32_t count, const SoundInstanceId* ids, const float* volumes) = 0;
+	/// Sets the @a volumes of @a num sound instances @a ids.
+	virtual void set_sound_volumes(uint32_t num, const SoundInstanceId* ids, const float* volumes) = 0;
 
 	virtual void reload_sounds(SoundResource* old_sr, SoundResource* new_sr) = 0;
 

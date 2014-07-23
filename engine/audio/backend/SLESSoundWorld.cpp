@@ -421,27 +421,27 @@ public:
 		}
 	}
 
-	virtual void set_sound_positions(uint32_t count, const SoundInstanceId* ids, const Vector3* positions)
+	virtual void set_sound_positions(uint32_t num, const SoundInstanceId* ids, const Vector3* positions)
 	{
-		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
+		for (uint32_t i = 0; i < num; i++)
 		{
-			m_playing_sounds[i].set_position(positions[i]);
+			id_array::get(m_playing_sounds, ids[i]).set_position(positions[i]);
 		}
 	}
 
-	virtual void set_sound_ranges(uint32_t count, const SoundInstanceId* ids, const float* ranges)
+	virtual void set_sound_ranges(uint32_t num, const SoundInstanceId* ids, const float* ranges)
 	{
-		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
+		for (uint32_t i = 0; i < num; i++)
 		{
-			m_playing_sounds[i].set_range(ranges[i]);
+			id_array::get(m_playing_sounds, ids[i]).set_range(ranges[i]);
 		}
 	}
 
-	virtual void set_sound_volumes(uint32_t count, const SoundInstanceId* ids, const float* volumes)
+	virtual void set_sound_volumes(uint32_t num, const SoundInstanceId* ids, const float* volumes)
 	{
-		for (uint32_t i = 0; i < id_array::size(m_playing_sounds); i++)
+		for (uint32_t i = 0; i < num; i++)
 		{
-			m_playing_sounds[i].set_volume(volumes[i]);
+			id_array::get(m_playing_sounds, ids[i]).set_volume(volumes[i]);
 		}
 	}
 
