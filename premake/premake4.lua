@@ -196,7 +196,7 @@ solution "crown"
 				"GL",
 				"X11",
 				"openal",
-				"luajit-5.1"
+				"luajit"
 			}
 
 			includedirs {
@@ -293,7 +293,7 @@ solution "crown"
 			}
 
 			includedirs {
-				CROWN_THIRD_DIR .. "luajit/x86/include/luajit-2.0",
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/x86/include",
 				CROWN_THIRD_DIR .. "physx/x86/include/common",
 				CROWN_THIRD_DIR .. "physx/x86/include/characterkinematic",
@@ -319,21 +319,22 @@ solution "crown"
 			}
 
 			libdirs {
-				CROWN_THIRD_DIR .. "luajit/x86/lib",
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/x86/lib"
 			}
 
 			postbuildcommands {
-				"cp " .. CROWN_THIRD_DIR .. "luajit/x86/bin/luajit " .. CROWN_INSTALL_DIR .. "bin/linux32/",
-				"cp " .. CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2 " .. CROWN_INSTALL_DIR .. "bin/linux32/",
-				"cp -r " .. CROWN_THIRD_DIR .. "/luajit/x86/share/luajit-2.0.3/jit " .. CROWN_INSTALL_DIR .. "bin/linux32/"
+				"cp " .. CROWN_THIRD_DIR .. "luajit/src/luajit " .. CROWN_INSTALL_DIR .. "bin/linux32/",
+				"cp " .. CROWN_THIRD_DIR .. "luajit/src/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux32/",
+				"cp " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. CROWN_INSTALL_DIR .. "bin/linux32/" .. " -r",
+				"ln -s " .. CROWN_INSTALL_DIR .. "bin/linux32/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux32/libluajit-5.1.so.2"
 			}
 
 		configuration { "linux-*", "x64" }
 			targetdir(CROWN_INSTALL_DIR .. "bin/linux64")
 
 			includedirs {
-				CROWN_THIRD_DIR .. "luajit/x86_64/include/luajit-2.0",
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/x86_64/include",
 				CROWN_THIRD_DIR .. "physx/x86_64/include/common",
 				CROWN_THIRD_DIR .. "physx/x86_64/include/characterkinematic",
@@ -359,14 +360,15 @@ solution "crown"
 			}
 
 			libdirs {
-				CROWN_THIRD_DIR .. "luajit/x86_64/lib",
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/x86_64/lib",
 			}
 
 			postbuildcommands {
-				"cp " .. CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit " .. CROWN_INSTALL_DIR .. "bin/linux64/",
-				"cp " .. CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2 " .. CROWN_INSTALL_DIR .. "bin/linux64/",
-				"cp -r " .. CROWN_THIRD_DIR .. "/luajit/x86_64/share/luajit-2.0.3/jit " .. CROWN_INSTALL_DIR .. "bin/linux64/"
+				"cp " .. CROWN_THIRD_DIR .. "luajit/src/luajit " .. CROWN_INSTALL_DIR .. "bin/linux64/",
+				"cp " .. CROWN_THIRD_DIR .. "luajit/src/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux64/",
+				"cp " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. CROWN_INSTALL_DIR .. "bin/linux64/" .. " -r",
+				"ln -s " .. CROWN_INSTALL_DIR .. "bin/linux64/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux64/libluajit-5.1.so.2"
 			}
 
 		configuration { "android" }
@@ -413,7 +415,7 @@ solution "crown"
 			}
 
 			links {
-				":libluajit-5.1.a",
+				":libluajit.a",
 				"android",
 				"c",
 				"dl",
@@ -429,7 +431,7 @@ solution "crown"
 			includedirs {
 				CROWN_SOURCE_DIR .. "engine/os/android",
 				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/egl",
-				CROWN_THIRD_DIR .. "luajit/android/include/luajit-2.0",
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/android/include",
 				CROWN_THIRD_DIR .. "physx/android/include/common",
 				CROWN_THIRD_DIR .. "physx/android/include/characterkinematic",
@@ -458,7 +460,7 @@ solution "crown"
 			}
 
 			libdirs {
-				CROWN_THIRD_DIR .. "luajit/android/lib",
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/android/lib",
 				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a",
 				"$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm/usr/lib"

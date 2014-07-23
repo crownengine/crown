@@ -22,3 +22,17 @@ __pycache__
 # Ignore some third party dirs
 /third/physx/*/include
 /third/physx/*/lib
+/third/luajit/**/*.o
+/third/luajit/src/host/buildvm
+/third/luajit/src/host/buildvm_arch.h
+/third/luajit/src/host/minilua
+/third/luajit/src/jit/vmdef.lua
+/third/luajit/src/libluajit.a
+/third/luajit/src/libluajit.so
+/third/luajit/src/lj_bcdef.h
+/third/luajit/src/lj_ffdef.h
+/third/luajit/src/lj_folddef.h
+/third/luajit/src/lj_libdef.h
+/third/luajit/src/lj_recdef.h
+/third/luajit/src/lj_vm.s
+/third/luajit/src/luajit
