@@ -35,6 +35,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Touch.h"
 #include "OsWindow.h"
 
+extern "C"
+{
+#include <android_native_app_glue.c>
+}
+
 namespace crown
 {
 

@@ -24,6 +24,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <sys/types.h>
 #include <android/asset_manager.h>
 #include "ApkFilesystem.h"
 #include "TempAllocator.h"

@@ -28,17 +28,13 @@ package crown.android;
 
 import android.app.NativeActivity;
 import android.os.Bundle;
-import android.util.Log;
 
 public class CrownActivity extends NativeActivity
 {
 	static 
 	{
-		System.loadLibrary("luajit-5.1");
 		System.loadLibrary("crown");
 	}
-
-	public static String TAG = "crown";
 
 	CrownActivity _activity;
 
@@ -46,9 +42,7 @@ public class CrownActivity extends NativeActivity
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-
 		_activity = this;
-
 		// Init additional stuff here (ads, etc.)
     }
 

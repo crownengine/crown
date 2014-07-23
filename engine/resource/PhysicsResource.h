@@ -170,7 +170,7 @@ struct PhysicsResource
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* resource)
+	static void online(void* /*resource*/)
 	{
 	}
 
@@ -182,7 +182,7 @@ struct PhysicsResource
 	}
 
 	//-----------------------------------------------------------------------------
-	static void offline(void* resource)
+	static void offline(void* /*resource*/)
 	{
 	}
 
@@ -335,7 +335,7 @@ struct PhysicsConfigResource
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* resource)
+	static void online(void* /*resource*/)
 	{
 	}
 
@@ -347,7 +347,7 @@ struct PhysicsConfigResource
 	}
 
 	//-----------------------------------------------------------------------------
-	static void offline(void* resource)
+	static void offline(void* /*resource*/)
 	{
 	}
 
