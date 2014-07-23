@@ -196,7 +196,8 @@ solution "crown"
 				"GL",
 				"X11",
 				"openal",
-				"luajit"
+				"luajit",
+				"bgfxRelease"
 			}
 
 			includedirs {
@@ -294,6 +295,8 @@ solution "crown"
 
 			includedirs {
 				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "bgfx/include",
+				CROWN_THIRD_DIR .. "bx/include",
 				CROWN_THIRD_DIR .. "physx/x86/include",
 				CROWN_THIRD_DIR .. "physx/x86/include/common",
 				CROWN_THIRD_DIR .. "physx/x86/include/characterkinematic",
@@ -320,6 +323,7 @@ solution "crown"
 
 			libdirs {
 				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "bgfx/.build/linux32_gcc/bin",
 				CROWN_THIRD_DIR .. "physx/x86/lib"
 			}
 
@@ -327,6 +331,7 @@ solution "crown"
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/luajit " .. CROWN_INSTALL_DIR .. "bin/linux32/",
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux32/",
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. CROWN_INSTALL_DIR .. "bin/linux32/" .. " -r",
+				"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux32_gcc/bin/shadercRelease " .. CROWN_INSTALL_DIR .. "bin/linux32/shaderc",
 				"ln -s " .. CROWN_INSTALL_DIR .. "bin/linux32/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux32/libluajit-5.1.so.2"
 			}
 
@@ -335,6 +340,8 @@ solution "crown"
 
 			includedirs {
 				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "bgfx/include",
+				CROWN_THIRD_DIR .. "bx/include",
 				CROWN_THIRD_DIR .. "physx/x86_64/include",
 				CROWN_THIRD_DIR .. "physx/x86_64/include/common",
 				CROWN_THIRD_DIR .. "physx/x86_64/include/characterkinematic",
@@ -361,6 +368,7 @@ solution "crown"
 
 			libdirs {
 				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "bgfx/.build/linux64_gcc/bin",
 				CROWN_THIRD_DIR .. "physx/x86_64/lib",
 			}
 
@@ -368,6 +376,7 @@ solution "crown"
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/luajit " .. CROWN_INSTALL_DIR .. "bin/linux64/",
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux64/",
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. CROWN_INSTALL_DIR .. "bin/linux64/" .. " -r",
+				"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux64_gcc/bin/shadercRelease " .. CROWN_INSTALL_DIR .. "bin/linux64/shaderc",
 				"ln -s " .. CROWN_INSTALL_DIR .. "bin/linux64/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux64/libluajit-5.1.so.2"
 			}
 
