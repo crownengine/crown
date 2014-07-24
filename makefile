@@ -20,11 +20,11 @@ luajit-clean:
 	make -R -C third/luajit clean
 
 bgfx-linux32:
-	make -R -C third/bgfx && make -R -C third/bgfx linux-release32
+	make -R -C third/bgfx linux-release32
 bgfx-linux64:
 	make -R -C third/bgfx linux-release64
 bgfx-android-arm:
-	make -R -C third/bgfx && make -R -C third/bgfx android-arm-release
+	make -R -C third/bgfx android-arm-release
 bgfx-clean:
 	make -R -C third/bgfx clean
 
