@@ -226,6 +226,7 @@ Release</property>
             <property name="Label" translatable="yes">Run</property>
             <property name="UseUnderline">True</property>
             <property name="BorderWidth">27</property>
+            <signal name="Clicked" handler="OnRunButtonClicked" />
           </widget>
           <packing>
             <property name="Position">1</property>
