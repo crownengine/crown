@@ -314,7 +314,6 @@ solution "crown"
 				CROWN_THIRD_DIR .. "physx/x86/include/RepX",
 				CROWN_THIRD_DIR .. "physx/x86/include/RepXUpgrader",
 				CROWN_THIRD_DIR .. "physx/x86/include/vehicle",
-				CROWN_THIRD_DIR .. "opengl",
 				CROWN_THIRD_DIR .. "openal/include",
 				CROWN_THIRD_DIR .. "freetype",
 				CROWN_THIRD_DIR .. "stb_image",
@@ -359,7 +358,6 @@ solution "crown"
 				CROWN_THIRD_DIR .. "physx/x86_64/include/RepX",
 				CROWN_THIRD_DIR .. "physx/x86_64/include/RepXUpgrader",
 				CROWN_THIRD_DIR .. "physx/x86_64/include/vehicle",
-				CROWN_THIRD_DIR .. "opengl",
 				CROWN_THIRD_DIR .. "openal/include",
 				CROWN_THIRD_DIR .. "freetype",
 				CROWN_THIRD_DIR .. "stb_image",
@@ -389,7 +387,11 @@ solution "crown"
 
 			flags { "NoImportLib" }
 
-			defines { "__STDC_FORMAT_MACROS" }
+			defines {
+				"__STDC_FORMAT_MACROS",
+				"__STDC_CONSTANT_MACROS",
+				"__STDC_LIMIT_MACROS"
+			}
 
 			buildoptions {
 				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm",
@@ -425,6 +427,7 @@ solution "crown"
 
 			links {
 				":libluajit.a",
+				":libbgfxRelease.a",
 				"android",
 				"c",
 				"dl",
@@ -441,6 +444,8 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/os/android",
 				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/egl",
 				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "bgfx/include",
+				CROWN_THIRD_DIR .. "bx/include",
 				CROWN_THIRD_DIR .. "physx/android/include",
 				CROWN_THIRD_DIR .. "physx/android/include/common",
 				CROWN_THIRD_DIR .. "physx/android/include/characterkinematic",
@@ -458,7 +463,6 @@ solution "crown"
 				CROWN_THIRD_DIR .. "physx/android/include/RepX",
 				CROWN_THIRD_DIR .. "physx/android/include/RepXUpgrader",
 				CROWN_THIRD_DIR .. "physx/android/include/vehicle",
-				CROWN_THIRD_DIR .. "opengl",
 				CROWN_THIRD_DIR .. "openal/include",
 				CROWN_THIRD_DIR .. "freetype",
 				CROWN_THIRD_DIR .. "stb_image",
@@ -470,6 +474,7 @@ solution "crown"
 
 			libdirs {
 				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "bgfx/.build/android-arm/bin",
 				CROWN_THIRD_DIR .. "physx/android/lib",
 				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a",
 				"$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm/usr/lib"
@@ -681,7 +686,6 @@ solution "crown"
 				CROWN_THIRD_DIR .. "physx/win32/include/RepX",
 				CROWN_THIRD_DIR .. "physx/win32/include/RepXUpgrader",
 				CROWN_THIRD_DIR .. "physx/win32/include/vehicle",
-				CROWN_THIRD_DIR .. "opengl",
 				CROWN_THIRD_DIR .. "openal/include",
 				CROWN_THIRD_DIR .. "freetype",
 				CROWN_THIRD_DIR .. "stb_image",
@@ -715,7 +719,6 @@ solution "crown"
 				CROWN_THIRD_DIR .. "physx/win64/include/RepX",
 				CROWN_THIRD_DIR .. "physx/win64/include/RepXUpgrader",
 				CROWN_THIRD_DIR .. "physx/win64/include/vehicle",
-				CROWN_THIRD_DIR .. "opengl",
 				CROWN_THIRD_DIR .. "openal/include",
 				CROWN_THIRD_DIR .. "freetype",
 				CROWN_THIRD_DIR .. "stb_image",
