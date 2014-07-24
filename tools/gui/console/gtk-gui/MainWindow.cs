@@ -4,12 +4,29 @@
 public partial class MainWindow
 {
 	private global::Gtk.UIManager UIManager;
+	
 	private global::Gtk.Action FileAction;
-	private global::Gtk.Action ConnectAction;
+	
+	private global::Gtk.Action FileAction1;
+	
+	private global::Gtk.Action EditAction;
+	
 	private global::Gtk.VBox vbox1;
+	
 	private global::Gtk.MenuBar menubar1;
+	
+	private global::Gtk.HBox hbox1;
+	
+	private global::Gtk.Entry ip_entry;
+	
+	private global::Gtk.Entry port_entry;
+	
+	private global::Gtk.Button connect_button;
+	
 	private global::Gtk.ScrolledWindow scrolledwindow1;
+	
 	private global::Gtk.TextView textview1;
+	
 	private global::Gtk.Entry entry1;
 
 	protected virtual void Build ()
@@ -21,9 +38,12 @@ public partial class MainWindow
 		this.FileAction = new global::Gtk.Action ("FileAction", global::Mono.Unix.Catalog.GetString ("File"), null, null);
 		this.FileAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("File");
 		w1.Add (this.FileAction, null);
-		this.ConnectAction = new global::Gtk.Action ("ConnectAction", global::Mono.Unix.Catalog.GetString ("Connect"), null, null);
-		this.ConnectAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Connect");
-		w1.Add (this.ConnectAction, null);
+		this.FileAction1 = new global::Gtk.Action ("FileAction1", global::Mono.Unix.Catalog.GetString ("File"), null, null);
+		this.FileAction1.ShortLabel = global::Mono.Unix.Catalog.GetString ("File");
+		w1.Add (this.FileAction1, null);
+		this.EditAction = new global::Gtk.Action ("EditAction", global::Mono.Unix.Catalog.GetString ("Edit"), null, null);
+		this.EditAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Edit");
+		w1.Add (this.EditAction, null);
 		this.UIManager.InsertActionGroup (w1, 0);
 		this.AddAccelGroup (this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -34,7 +54,7 @@ public partial class MainWindow
 		this.vbox1.Name = "vbox1";
 		this.vbox1.Spacing = 6;
 		// Container child vbox1.Gtk.Box+BoxChild
-		this.UIManager.AddUiFromString ("<ui><menubar name='menubar1'><menu name='FileAction' action='FileAction'><menuitem name='ConnectAction' action='ConnectAction'/></menu></menubar></ui>");
+		this.UIManager.AddUiFromString ("<ui><menubar name='menubar1'><menu name='FileAction1' action='FileAction1'/><menu name='EditAction' action='EditAction'/></menubar></ui>");
 		this.menubar1 = ((global::Gtk.MenuBar)(this.UIManager.GetWidget ("/menubar1")));
 		this.menubar1.Name = "menubar1";
 		this.vbox1.Add (this.menubar1);
@@ -42,6 +62,49 @@ public partial class MainWindow
 		w2.Position = 0;
 		w2.Expand = false;
 		w2.Fill = false;
+		// Container child vbox1.Gtk.Box+BoxChild
+		this.hbox1 = new global::Gtk.HBox ();
+		this.hbox1.Name = "hbox1";
+		this.hbox1.Spacing = 6;
+		// Container child hbox1.Gtk.Box+BoxChild
+		this.ip_entry = new global::Gtk.Entry ();
+		this.ip_entry.WidthRequest = 261;
+		this.ip_entry.CanFocus = true;
+		this.ip_entry.Name = "ip_entry";
+		this.ip_entry.Text = global::Mono.Unix.Catalog.GetString ("Ip");
+		this.ip_entry.IsEditable = true;
+		this.ip_entry.InvisibleChar = '●';
+		this.hbox1.Add (this.ip_entry);
+		global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.ip_entry]));
+		w3.Position = 0;
+		w3.Expand = false;
+		// Container child hbox1.Gtk.Box+BoxChild
+		this.port_entry = new global::Gtk.Entry ();
+		this.port_entry.CanFocus = true;
+		this.port_entry.Name = "port_entry";
+		this.port_entry.Text = global::Mono.Unix.Catalog.GetString ("Port");
+		this.port_entry.IsEditable = true;
+		this.port_entry.InvisibleChar = '●';
+		this.hbox1.Add (this.port_entry);
+		global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.port_entry]));
+		w4.Position = 1;
+		w4.Expand = false;
+		// Container child hbox1.Gtk.Box+BoxChild
+		this.connect_button = new global::Gtk.Button ();
+		this.connect_button.CanFocus = true;
+		this.connect_button.Name = "connect_button";
+		this.connect_button.UseUnderline = true;
+		this.connect_button.Label = global::Mono.Unix.Catalog.GetString ("Connect");
+		this.hbox1.Add (this.connect_button);
+		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.connect_button]));
+		w5.Position = 2;
+		w5.Expand = false;
+		w5.Fill = false;
+		this.vbox1.Add (this.hbox1);
+		global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+		w6.Position = 1;
+		w6.Expand = false;
+		w6.Fill = false;
 		// Container child vbox1.Gtk.Box+BoxChild
 		this.scrolledwindow1 = new global::Gtk.ScrolledWindow ();
 		this.scrolledwindow1.CanFocus = true;
@@ -54,8 +117,8 @@ public partial class MainWindow
 		this.textview1.Editable = false;
 		this.scrolledwindow1.Add (this.textview1);
 		this.vbox1.Add (this.scrolledwindow1);
-		global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.scrolledwindow1]));
-		w4.Position = 1;
+		global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.scrolledwindow1]));
+		w8.Position = 2;
 		// Container child vbox1.Gtk.Box+BoxChild
 		this.entry1 = new global::Gtk.Entry ();
 		this.entry1.CanFocus = true;
@@ -63,11 +126,11 @@ public partial class MainWindow
 		this.entry1.IsEditable = true;
 		this.entry1.InvisibleChar = '●';
 		this.vbox1.Add (this.entry1);
-		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.entry1]));
-		w5.PackType = ((global::Gtk.PackType)(1));
-		w5.Position = 2;
-		w5.Expand = false;
-		w5.Fill = false;
+		global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.entry1]));
+		w9.PackType = ((global::Gtk.PackType)(1));
+		w9.Position = 3;
+		w9.Expand = false;
+		w9.Fill = false;
 		this.Add (this.vbox1);
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();
@@ -76,7 +139,7 @@ public partial class MainWindow
 		this.DefaultHeight = 474;
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
-		this.ConnectAction.Activated += new global::System.EventHandler (this.OnConnectActivated);
+		this.connect_button.Clicked += new global::System.EventHandler (this.OnConnectClicked);
 		this.entry1.Activated += new global::System.EventHandler (this.OnEntryActivated);
 		this.entry1.KeyPressEvent += new global::Gtk.KeyPressEventHandler (this.OnEntryKeyPressed);
 	}

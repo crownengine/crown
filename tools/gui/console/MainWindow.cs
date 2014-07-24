@@ -342,6 +342,10 @@ public partial class MainWindow: Gtk.Window
 			// Try to connect
 			m_sock = new System.Net.Sockets.Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
+			// TODO: Input check
+			m_server_ip = ip_entry.Text;
+			m_server_port = Convert.ToInt16(port_entry.Text);
+
 			// Define the Server address and port
 			IPEndPoint epServer = new IPEndPoint(IPAddress.Parse(m_server_ip), m_server_port);
 
@@ -511,11 +515,6 @@ public partial class MainWindow: Gtk.Window
 		Send (json);
 	}
 
-	protected void OnConnectActivated (object sender, EventArgs e)
-	{
-		Connect ();
-	}
-
 	protected void OnEntryActivated (object sender, EventArgs e)
 	{
 		string text = entry1.Text;
@@ -585,5 +584,10 @@ public partial class MainWindow: Gtk.Window
 		}
 
 		args.RetVal = true;
+	}
+
+	protected void OnConnectClicked (object sender, EventArgs e)
+	{
+		Connect ();
 	}
 }
