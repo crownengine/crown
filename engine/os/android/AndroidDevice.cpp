@@ -31,9 +31,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Device.h"
 #include "Log.h"
 #include "OsEventQueue.h"
-#include "Renderer.h"
 #include "Touch.h"
 #include "OsWindow.h"
+#include "OsThread.h"
+#include <bgfxplatform.h>
 
 extern "C"
 {
@@ -234,6 +235,7 @@ public:
 			{
 				CE_ASSERT(app->window != NULL, "Android window is NULL");
 				g_android_window = app->window;
+				bgfx::androidSetWindow(app->window);
 				m_game_thread.start(main_loop, (void*)this);
 				break;
 			}
