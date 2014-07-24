@@ -495,11 +495,6 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/audio/backend/ALSoundWorld.cpp"
 			}
 
-			postbuildcommands
-			{
-				"cp " .. CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so " .. CROWN_INSTALL_DIR .. "bin/android/"
-			}
-
 		configuration { "debug", "android" }
 			-- linkoptions
 			-- {
