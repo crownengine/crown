@@ -24,7 +24,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <inttypes.h>
 #include "BundleCompiler.h"
 #include "Vector.h"
 #include "DynamicString.h"
@@ -35,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Path.h"
 #include "DiskFilesystem.h"
 #include "TempAllocator.h"
+#include <inttypes.h>
 
 namespace crown
 {
@@ -107,6 +107,8 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 			continue;
 		if (files[i].starts_with("."))
 			continue;
+		if (files[i].ends_with(".config"))
+			continue;
 
 		const char* filename = files[i].c_str();
 
@@ -115,18 +117,10 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 		path::extension(filename, filename_extension, 512);
 		path::filename_without_extension(filename, filename_without_extension, 512);
 
-		ResourceId name(filename_extension, filename_without_extension);
+		const ResourceId name(filename_extension, filename_without_extension);
+
 		char out_name[512];
-		snprintf(out_name, 512, "%.16lx-%.16lx", name.type, name.name);
-
-		uint64_t resource_type_hash = name.type;
-
-		// Skip crown.config file
-		if (resource_type_hash == CONFIG_TYPE)
-		{
-			continue;
-		}
-
+		snprintf(out_name, 512, "%.16"PRIx64"-%.16"PRIx64, name.type, name.name);
 		CE_LOGI("%s <= %s", out_name, filename);
 
 		DiskFilesystem root_fs(source_dir);
@@ -137,51 +131,51 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 
 		if (out_file)
 		{
-			if (resource_type_hash == MESH_TYPE)
+			if (name.type == MESH_TYPE)
 			{
 				mesh_resource::compile(root_fs, filename, out_file);
 			}
-			else if (resource_type_hash == TEXTURE_TYPE)
+			else if (name.type == TEXTURE_TYPE)
 			{
 				texture_resource::compile(root_fs, filename, out_file);
 			}
-			else if (resource_type_hash == LUA_TYPE)
+			else if (name.type == LUA_TYPE)
 			{
 				lua_resource::compile(root_fs, filename, out_file);
 			}
-			else if(resource_type_hash == SOUND_TYPE)
+			else if(name.type == SOUND_TYPE)
 			{
 				sound_resource::compile(root_fs, filename, out_file);
 			}
-			else if(resource_type_hash == SPRITE_TYPE)
+			else if(name.type == SPRITE_TYPE)
 			{
 				sprite_resource::compile(root_fs, filename, out_file);
 			}
-			else if (resource_type_hash == PACKAGE_TYPE)
+			else if (name.type == PACKAGE_TYPE)
 			{
 				package_resource::compile(root_fs, filename, out_file);
 			}
-			else if (resource_type_hash == UNIT_TYPE)
+			else if (name.type == UNIT_TYPE)
 			{
 				unit_resource::compile(root_fs, filename, out_file);
 			}
-			else if (resource_type_hash == PHYSICS_TYPE)
+			else if (name.type == PHYSICS_TYPE)
 			{
 				physics_resource::compile(root_fs, filename, out_file);
 			}
-			else if (resource_type_hash == MATERIAL_TYPE)
+			else if (name.type == MATERIAL_TYPE)
 			{
 				material_resource::compile(root_fs, filename, out_file);
 			}
-			else if (resource_type_hash == PHYSICS_CONFIG_TYPE)
+			else if (name.type == PHYSICS_CONFIG_TYPE)
 			{
 				physics_config_resource::compile(root_fs, filename, out_file);
 			}
-			else if (resource_type_hash == FONT_TYPE)
+			else if (name.type == FONT_TYPE)
 			{
 				font_resource::compile(root_fs, filename, out_file);
 			}
-			else if (resource_type_hash == LEVEL_TYPE)
+			else if (name.type == LEVEL_TYPE)
 			{
 				level_resource::compile(root_fs, filename, out_file);
 			}

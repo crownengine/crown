@@ -98,7 +98,6 @@ solution "crown"
 	end
 
 	flags {
-		"StaticRuntime",
 		"NoMinimalRebuild",
 		"NoPCH",
 		"NoRTTI",
@@ -144,8 +143,7 @@ solution "crown"
 	project "crown"
 		language "C++"
 
-		includedirs
-		{
+		includedirs {
 			CROWN_SOURCE_DIR .. "/engine",
 			CROWN_SOURCE_DIR .. "/engine/core",
 			CROWN_SOURCE_DIR .. "/engine/core/bv",
@@ -169,8 +167,7 @@ solution "crown"
 			CROWN_SOURCE_DIR .. "/engine/world"
 		}
 
-		files
-		{
+		files {
 			CROWN_SOURCE_DIR .. "engine/**.h", 
 			CROWN_SOURCE_DIR .. "engine/**.cpp"
 		}
@@ -178,25 +175,28 @@ solution "crown"
 		configuration { "linux-*" }
 			kind "ConsoleApp"
 
-			buildoptions
-			{
-				"-std=c++03",	
+			buildoptions {
+				"-std=c++03",
+				"-Wall",
+				-- "-Wextra",
+				-- "-Werror",
+				-- "-pedantic",
+				"-Wno-unknown-pragmas",
+				"-Wno-unused-local-typedefs"
 			}
 			
-			linkoptions
-			{
-				"-Wl,-rpath=\\$$ORIGIN",
+			linkoptions {
+				"-Wl,-rpath=\\$$ORIGIN"
 			}
 
-			links
-			{
+			links {
 				"Xrandr",
 				"pthread",
 				"dl",
 				"GL",
 				"X11",
 				"openal",
-				"luajit-5.1",
+				"luajit"
 			}
 
 			includedirs {
@@ -204,8 +204,7 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/glx",
 			}
 
-			excludes
-			{
+			excludes {
 				CROWN_SOURCE_DIR .. "engine/os/android/*",
 				CROWN_SOURCE_DIR .. "engine/os/win/*",
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/egl/*",
@@ -213,18 +212,12 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/audio/backend/SLESSoundWorld.cpp",
 			}
 			
-		configuration { "debug", "linux-*" }
-			buildoptions
-			{
-				"-O0",
-				"-Wall",
-				-- "-Werror",
-				"-Wno-unknown-pragmas",
-				"-Wno-unused-local-typedefs",
+		configuration { "linux-*", "debug" }
+			buildoptions {
+				"-O0"
 			}
 
-			linkoptions
-			{ 
+			linkoptions { 
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelClothCHECKED" ..
 				"	PhysX3CHECKED " ..
@@ -244,16 +237,10 @@ solution "crown"
 			}
 
 		configuration { "linux-*", "development" }
-			buildoptions
-			{
-				"-g",
-				"-pg",
-				"-Wall",
-				-- "-Werror",
-				"-Wno-unknown-pragmas",
-				"-Wno-unused-local-typedefs",
+			buildoptions {
 				"-O2"
 			}
+
 			linkoptions
 			{ 
 				"-Wl,--start-group $(addprefix -l," ..
@@ -274,13 +261,12 @@ solution "crown"
 				") -Wl,--end-group"
 			}
 
-		configuration { "release", "linux-*" }
-			buildoptions
-			{
+		configuration { "linux-*", "release" }
+			buildoptions {
 				"-O2"
 			}
-			linkoptions
-			{ 
+
+			linkoptions { 
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
 				"	PhysX3 " ..
@@ -299,17 +285,15 @@ solution "crown"
 				") -Wl,--end-group"
 			}
 
-		configuration { "x32", "linux-*" }
+		configuration { "linux-*", "x32" }
 			targetdir(CROWN_INSTALL_DIR .. "bin/linux32")
 		
-			buildoptions
-			{
-				"-malign-double"
+			buildoptions {
+				"-malign-double" -- Required by PhysX
 			}
 
-			includedirs
-			{
-				CROWN_THIRD_DIR .. "luajit/x86/include/luajit-2.0",
+			includedirs {
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/x86/include",
 				CROWN_THIRD_DIR .. "physx/x86/include/common",
 				CROWN_THIRD_DIR .. "physx/x86/include/characterkinematic",
@@ -334,23 +318,23 @@ solution "crown"
 				CROWN_THIRD_DIR .. "stb_vorbis"
 			}
 
-			libdirs
-			{
-				CROWN_THIRD_DIR .. "luajit/x86/lib",
+			libdirs {
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/x86/lib"
 			}
 
 			postbuildcommands {
-				"cp " .. CROWN_THIRD_DIR .. "luajit/x86/bin/luajit " .. CROWN_INSTALL_DIR .. "bin/linux32/",
-				"cp " .. CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2 " .. CROWN_INSTALL_DIR .. "bin/linux32/",
-				"cp -r " .. CROWN_THIRD_DIR .. "/luajit/x86/share/luajit-2.0.3/jit " .. CROWN_INSTALL_DIR .. "bin/linux32/"
+				"cp " .. CROWN_THIRD_DIR .. "luajit/src/luajit " .. CROWN_INSTALL_DIR .. "bin/linux32/",
+				"cp " .. CROWN_THIRD_DIR .. "luajit/src/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux32/",
+				"cp " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. CROWN_INSTALL_DIR .. "bin/linux32/" .. " -r",
+				"ln -s " .. CROWN_INSTALL_DIR .. "bin/linux32/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux32/libluajit-5.1.so.2"
 			}
 
-		configuration { "x64", "linux-*" }
+		configuration { "linux-*", "x64" }
 			targetdir(CROWN_INSTALL_DIR .. "bin/linux64")
 
 			includedirs {
-				CROWN_THIRD_DIR .. "luajit/x86_64/include/luajit-2.0",
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/x86_64/include",
 				CROWN_THIRD_DIR .. "physx/x86_64/include/common",
 				CROWN_THIRD_DIR .. "physx/x86_64/include/characterkinematic",
@@ -375,16 +359,16 @@ solution "crown"
 				CROWN_THIRD_DIR .. "stb_vorbis",
 			}
 
-			libdirs
-			{
-				CROWN_THIRD_DIR .. "luajit/x86_64/lib",
+			libdirs {
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/x86_64/lib",
 			}
 
 			postbuildcommands {
-				"cp " .. CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit " .. CROWN_INSTALL_DIR .. "bin/linux64/",
-				"cp " .. CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2 " .. CROWN_INSTALL_DIR .. "bin/linux64/",
-				"cp -r " .. CROWN_THIRD_DIR .. "/luajit/x86_64/share/luajit-2.0.3/jit " .. CROWN_INSTALL_DIR .. "bin/linux64/"
+				"cp " .. CROWN_THIRD_DIR .. "luajit/src/luajit " .. CROWN_INSTALL_DIR .. "bin/linux64/",
+				"cp " .. CROWN_THIRD_DIR .. "luajit/src/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux64/",
+				"cp " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. CROWN_INSTALL_DIR .. "bin/linux64/" .. " -r",
+				"ln -s " .. CROWN_INSTALL_DIR .. "bin/linux64/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux64/libluajit-5.1.so.2"
 			}
 
 		configuration { "android" }
@@ -398,9 +382,8 @@ solution "crown"
 
 			defines { "__STDC_FORMAT_MACROS" }
 
-			buildoptions
-			{
-				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm",
+			buildoptions {
+				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm",
 				"-ffunction-sections",
 				"-fPIC",
 				"-march=armv7-a",
@@ -415,14 +398,13 @@ solution "crown"
 				"-Wa,--noexecstack",
 			}
 			
-			linkoptions
-			{
+			linkoptions {
 				"-shared",
 				"-nostdlib",
 				"-static-libgcc",
-				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm",
-				"$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm/usr/lib/crtbegin_so.o",
-				"$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm/usr/lib/crtend_so.o",
+				"--sysroot=$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm",
+				"$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm/usr/lib/crtbegin_so.o",
+				"$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm/usr/lib/crtend_so.o",
 				"-no-canonical-prefixes",
 				"-Wl,--no-undefined",
 				"-Wl,-z,noexecstack",
@@ -432,9 +414,8 @@ solution "crown"
 				"-Wl,--fix-cortex-a8",
 			}
 
-			links
-			{
-				":libluajit-5.1.a",
+			links {
+				":libluajit.a",
 				"android",
 				"c",
 				"dl",
@@ -450,7 +431,7 @@ solution "crown"
 			includedirs {
 				CROWN_SOURCE_DIR .. "engine/os/android",
 				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/egl",
-				CROWN_THIRD_DIR .. "luajit/android/include/luajit-2.0",
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/android/include",
 				CROWN_THIRD_DIR .. "physx/android/include/common",
 				CROWN_THIRD_DIR .. "physx/android/include/characterkinematic",
@@ -478,16 +459,14 @@ solution "crown"
 				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/include"
 			}
 
-			libdirs
-			{
-				CROWN_THIRD_DIR .. "luajit/android/lib",
+			libdirs {
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/android/lib",
 				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a",
-				"$(ANDROID_NDK_ROOT)/platforms/android-18/arch-arm/usr/lib"
+				"$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm/usr/lib"
 			}
 
-			excludes
-			{
+			excludes {
 				CROWN_SOURCE_DIR .. "engine/os/linux/*",
 				CROWN_SOURCE_DIR .. "engine/os/win/*",
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/glx/*",
@@ -515,8 +494,7 @@ solution "crown"
 			-- 	"	SimulationControllerCHECKED" ..
 			-- 	") -Wl,--end-group"
 			-- }
-			linkoptions
-			{ 
+			linkoptions { 
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
 				"	PhysX3 " ..
@@ -554,8 +532,7 @@ solution "crown"
 			-- 	"	SimulationControllerPROFILE" ..
 			-- 	") -Wl,--end-group"
 			-- }
-			linkoptions
-			{ 
+			linkoptions { 
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
 				"	PhysX3 " ..
@@ -574,8 +551,7 @@ solution "crown"
 				") -Wl,--end-group"
 			}	
 		configuration { "release", "android"}
-			linkoptions
-			{ 
+			linkoptions { 
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
 				"	PhysX3 " ..
@@ -594,9 +570,7 @@ solution "crown"
 				") -Wl,--end-group"
 			}
 
-
 		-- it's necessary to define DXSDK_DIR env variable to DirectX sdk directory
-
 		configuration { "vs*" }
 			kind "ConsoleApp"
 
@@ -625,8 +599,7 @@ solution "crown"
 				"/Oy-", -- Suppresses creation of frame pointers on the call stack.
 				"/Ob2", -- The Inline Function Expansion
 			}
-			links
-			{
+			links {
 				"OpenGL32",
 				"lua51",
 				"OpenAL32"
@@ -636,13 +609,11 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/wgl"
 			}
 
-			libdirs
-			{
+			libdirs {
 				CROWN_THIRD_DIR .. "openal/lib"
 			}
 
-			excludes
-			{
+			excludes {
 				CROWN_SOURCE_DIR .. "engine/os/android/*",
 				CROWN_SOURCE_DIR .. "engine/os/linux/*",
 				CROWN_SOURCE_DIR .. "engine/os/posix/*",
@@ -658,8 +629,7 @@ solution "crown"
 			}
 
 		configuration { "vs*", "debug" }
-			links
-			{
+			links {
 				"PhysX3ExtensionsCHECKED",
 				"PhysXProfileSDKCHECKED",
 				"PhysXVisualDebuggerSDKCHECKED",
@@ -667,8 +637,7 @@ solution "crown"
 			}
 
 		configuration { "vs*", "development" }
-			links
-			{
+			links {
 				"PhysX3ExtensionsPROFILE",
 				"PhysXProfileSDKPROFILE",
 				"PhysXVisualDebuggerSDKPROFILE",
@@ -676,8 +645,7 @@ solution "crown"
 			}
 
 		configuration { "vs*", "release" }
-			links
-			{
+			links {
 				"PhysX3Extensions",
 				"PhysXProfileSDK",
 				"PhysXVisualDebuggerSDK",
@@ -710,8 +678,8 @@ solution "crown"
 				CROWN_THIRD_DIR .. "stb_image",
 				CROWN_THIRD_DIR .. "stb_vorbis"
 			}
-			libdirs
-			{
+
+			libdirs {
 				CROWN_THIRD_DIR .. "luajit/win32/lib",
 				CROWN_THIRD_DIR .. "physx/win32/lib"
 			}
@@ -797,20 +765,3 @@ solution "crown"
 				"PhysX3Common_x64",
 				"PhysX3Cooking_x64"
 			}
-
-
-	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2.0.3", CROWN_INSTALL_DIR .. "bin/linux32/")
-	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/x86/lib/libluajit-5.1.so.2", CROWN_INSTALL_DIR .. "bin/linux32/")
-	-- os.mkdir(CROWN_INSTALL_DIR .. "bin/linux32/jit")
-	-- os.copyfile(CROWN_THIRD_DIR .. "/luajit/x86/share/luajit-2.0.3/jit/*", CROWN_INSTALL_DIR .. "bin/linux32/jit/")
-
-	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit-2.0.3", CROWN_INSTALL_DIR .. "bin/linux64/")
-	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/bin/luajit", CROWN_INSTALL_DIR .. "bin/linux64/")
-	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2.0.3", CROWN_INSTALL_DIR .. "bin/linux64/")
-	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/x86_64/lib/libluajit-5.1.so.2", CROWN_INSTALL_DIR .. "bin/linux64/")
-	-- os.mkdir(CROWN_INSTALL_DIR .. "bin/linux64/jit")
-	-- os.copyfile(CROWN_THIRD_DIR .. "/luajit/x86_64/share/luajit-2.0.3/jit/*", CROWN_INSTALL_DIR .. "bin/linux64/jit/")
-
-	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so.2.0.2", CROWN_INSTALL_DIR .. "bin/android/")
-	-- os.copyfile(CROWN_THIRD_DIR .. "luajit/android/lib/libluajit-5.1.so", CROWN_INSTALL_DIR .. "bin/android/")
-
