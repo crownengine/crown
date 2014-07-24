@@ -36,6 +36,8 @@ public partial class MainWindow
 	private global::Gtk.Button button6;
 	
 	private global::Gtk.Button run_button;
+	
+	private global::Gtk.Statusbar statusbar1;
 
 	protected virtual void Build ()
 	{
@@ -212,13 +214,23 @@ public partial class MainWindow
 		w16.Position = 1;
 		w16.Expand = false;
 		w16.Fill = false;
+		// Container child vbox4.Gtk.Box+BoxChild
+		this.statusbar1 = new global::Gtk.Statusbar ();
+		this.statusbar1.Name = "statusbar1";
+		this.statusbar1.Spacing = 6;
+		this.vbox4.Add (this.statusbar1);
+		global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.statusbar1]));
+		w17.Position = 2;
+		w17.Expand = false;
+		w17.Fill = false;
 		this.Add (this.vbox4);
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();
 		}
 		this.DefaultWidth = 291;
-		this.DefaultHeight = 213;
+		this.DefaultHeight = 236;
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
+		this.project_button.Clicked += new global::System.EventHandler (this.OnProjectButtonClicked);
 	}
 }
