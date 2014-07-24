@@ -1,8 +1,11 @@
 ﻿using System;
 using Gtk;
+using System;
 
 public partial class MainWindow: Gtk.Window
 {
+	public const string SDK_DIR = Environment.GetEnvironmentVariable ("CROWN_INSTALLATION_DIR");
+
 	public string project_name;
 	public string source_path;
 	public string destination_path;
