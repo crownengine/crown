@@ -19,7 +19,6 @@ luajit-arm:
 luajit-clean:
 	make -R -C third/luajit clean
 
-
 linux-build:
 	$(PREMAKE) --file=premake/premake4.lua --compiler=linux-gcc gmake
 linux-debug32: luajit-linux32 linux-build
@@ -52,6 +51,8 @@ windows-build:
 	$(PREMAKE) --file=premake\premake4.lua vs2008
 windows-debug64: windows-build
 	devenv .build/windows/crown.sln /Build "Debug|x64"
+
+
 # docs:
 # 	doxygen premake/crown.doxygen
 # 	# markdown README.md > .build/docs/readme.html
@@ -60,3 +61,11 @@ clean: luajit-clean
 	@echo Cleaning...
 	@rm -rf .build
 	@rm -rf .installation
+
+
+starter:	
+	xbuild /p:OutputPath=$(CROWN_INSTALL_DIR)/tools tools/gui/starter/starter.sln
+console:
+	xbuild /p:OutputPath=$(CROWN_INSTALL_DIR)/tools tools/gui/console/console.sln
+tools: starter console
+
