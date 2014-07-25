@@ -51,56 +51,66 @@ public partial class MainWindow: Gtk.Window
 		BuildMode build = (BuildMode) build_combobox.Active;
 		// FIXME: Workaround
 		Environment.SetEnvironmentVariable("CROWN_INSTALL_DIR", "/home/mikymod/CrownSDK", EnvironmentVariableTarget.Process);
-		string executable = Environment.GetEnvironmentVariable("CROWN_INSTALL_DIR") + "/";
-		Console.WriteLine (executable);
+		string path = Environment.GetEnvironmentVariable("CROWN_INSTALL_DIR") + "/";
+
+		string executable = "";
+
 		switch (platform)
 		{
 			case Platform.Linux32:
 			{
+				path += "bin/linux32/";
 				switch (build)
 				{
-				case BuildMode.Debug: executable += "crown-linux-debug32"; break;
-				case BuildMode.Development: executable += "crown-linux-development32"; break;
-				case BuildMode.Release: executable += "crown-linux-release32"; break;
+				case BuildMode.Debug: executable = "crown-debug-32"; break;
+				case BuildMode.Development: executable = "crown-development-32"; break;
+				case BuildMode.Release: executable = "crown-release-32"; break;
 				}
 				break;
 			}
 			case Platform.Linux64:
 			{
+				path += "bin/linux64/";
 				switch (build)
 				{
-				case BuildMode.Debug: executable += "crown-linux-debug64"; break;
-				case BuildMode.Development: executable += "crown-linux-development64"; break;
-				case BuildMode.Release: executable += "crown-linux-release64"; break;
+				case BuildMode.Debug: executable = "crown-debug-64"; break;
+				case BuildMode.Development: executable = "crown-development-64"; break;
+				case BuildMode.Release: executable = "crown-release-64"; break;
 				}
 				break;
 			}
 			case Platform.Windows32:
 			{
+				/*
 				switch (build)
 				{
-				case BuildMode.Debug: executable += "crown-windows-debug32"; break;
-				case BuildMode.Development: executable += "crown-windows-development32"; break;
-				case BuildMode.Release: executable += "crown-windows-release32"; break;
-				}
+				case BuildMode.Debug: executable += "bin/windows32/crown-debug-32"; break;
+				case BuildMode.Development: executable += "bin/windows32/crown-development-32"; break;
+				case BuildMode.Release: executable += "bin/windows32/crown-release-32"; break;
+				}*/
 				break;
+
 			}
 			case Platform.Windows64:
 			{
+				/*
 				switch (build)
 				{
-				case BuildMode.Debug: executable += "crown-windows-debug64"; break;
-				case BuildMode.Development: executable += "crown-windows-development64"; break;
-				case BuildMode.Release: executable += "crown-windows-release64"; break;
+				case BuildMode.Debug: executable += "bin/windows64/crown-debug-64"; break;
+				case BuildMode.Development: executable += "bin/windows64/crown-development-64"; break;
+				case BuildMode.Release: executable += "bin/windows64/crown-release-64"; break;
 				}
+				*/
 				break;
 			}
 		}
 
-		executable += " --source-dir " + source_path;
-		executable += " --bundle-dir " + destination_path;
-		executable += " --compile --continue";
-		Console.WriteLine (executable);
+		string args = " --source-dir " + source_path;
+		args += " --bundle-dir " + destination_path;
+		args += " --compile --continue";
+		// Console.WriteLine (executable);
+		System.IO.Directory.SetCurrentDirectory (path);
+		System.Diagnostics.Process.Start (executable, args);
 	}
 
 }
