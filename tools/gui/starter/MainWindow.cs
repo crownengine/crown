@@ -88,9 +88,9 @@ public partial class MainWindow: Gtk.Window
 				path += "bin\\windows32\\";
 				switch (build)
 				{
-				case BuildMode.Debug: executable += "crown-debug-32"; break;
-				case BuildMode.Development: executable += "crown-development-32"; break;
-				case BuildMode.Release: executable += "crown-release-32"; break;
+				case BuildMode.Debug: executable = "crown-debug-32"; break;
+				case BuildMode.Development: executable = "crown-development-32"; break;
+				case BuildMode.Release: executable = "crown-release-32"; break;
 				}
 				break;
 			}
@@ -99,9 +99,9 @@ public partial class MainWindow: Gtk.Window
 				path += "bin\\windows64\\";
 				switch (build)
 				{
-				case BuildMode.Debug: executable += "crown-debug-64"; break;
-				case BuildMode.Development: executable += "crown-development-64"; break;
-				case BuildMode.Release: executable += "crown-release-64"; break;
+				case BuildMode.Debug: executable = "crown-debug-64"; break;
+				case BuildMode.Development: executable = "crown-development-64"; break;
+				case BuildMode.Release: executable = "crown-release-64"; break;
 				}
 				break;
 			}
