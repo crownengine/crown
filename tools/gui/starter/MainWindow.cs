@@ -3,7 +3,7 @@ using Gtk;
 
 public partial class MainWindow: Gtk.Window
 {
-	// public string SDK_DIR = Environment.GetEnvironmentVariable ("CROWN_INSTALLATION_DIR");
+	//--------------------------------------------------------------------------------
 	enum Platform
 	{
 		Linux32 = 0,
@@ -13,6 +13,7 @@ public partial class MainWindow: Gtk.Window
 		Android
 	}
 
+	//--------------------------------------------------------------------------------
 	enum BuildMode
 	{
 		Debug = 0,
@@ -24,18 +25,20 @@ public partial class MainWindow: Gtk.Window
 	public string source_path = null;
 	public string destination_path = null;
 
-
+	//--------------------------------------------------------------------------------
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
 		Build ();
 	}
 
+	//--------------------------------------------------------------------------------
 	protected void OnDeleteEvent (object sender, DeleteEventArgs a)
 	{
 		Application.Quit ();
 		a.RetVal = true;
 	}
 
+	//--------------------------------------------------------------------------------
 	protected void OnProjectButtonClicked (object sender, EventArgs e)
 	{
 		starter.ProjectDialog pd = new starter.ProjectDialog (this);
@@ -45,14 +48,15 @@ public partial class MainWindow: Gtk.Window
 		project_entry.Text = project_name;
 	}
 
+	//--------------------------------------------------------------------------------
 	protected void OnRunButtonClicked (object sender, EventArgs e)
 	{
 		Platform platform = (Platform) platform_combobox.Active;
 		BuildMode build = (BuildMode) build_combobox.Active;
-		// FIXME: Workaround
-		Environment.SetEnvironmentVariable("CROWN_INSTALL_DIR", "/home/mikymod/CrownSDK", EnvironmentVariableTarget.Process);
-		string path = Environment.GetEnvironmentVariable("CROWN_INSTALL_DIR") + "/";
 
+		// Do not use MD for compiling because it cannot retrieve env value even though is specified in target environment.
+		// Use 'xbuild' command instead.
+		string path = Environment.GetEnvironmentVariable("CROWN_INSTALL_DIR") + "/";
 		string executable = "";
 
 		switch (platform)
@@ -81,26 +85,24 @@ public partial class MainWindow: Gtk.Window
 			}
 			case Platform.Windows32:
 			{
-				/*
+				path += "bin\\windows32\\";
 				switch (build)
 				{
-				case BuildMode.Debug: executable += "bin/windows32/crown-debug-32"; break;
-				case BuildMode.Development: executable += "bin/windows32/crown-development-32"; break;
-				case BuildMode.Release: executable += "bin/windows32/crown-release-32"; break;
-				}*/
+				case BuildMode.Debug: executable += "crown-debug-32"; break;
+				case BuildMode.Development: executable += "crown-development-32"; break;
+				case BuildMode.Release: executable += "crown-release-32"; break;
+				}
 				break;
-
 			}
 			case Platform.Windows64:
 			{
-				/*
+				path += "bin\\windows64\\";
 				switch (build)
 				{
-				case BuildMode.Debug: executable += "bin/windows64/crown-debug-64"; break;
-				case BuildMode.Development: executable += "bin/windows64/crown-development-64"; break;
-				case BuildMode.Release: executable += "bin/windows64/crown-release-64"; break;
+				case BuildMode.Debug: executable += "crown-debug-64"; break;
+				case BuildMode.Development: executable += "crown-development-64"; break;
+				case BuildMode.Release: executable += "crown-release-64"; break;
 				}
-				*/
 				break;
 			}
 		}
@@ -108,9 +110,8 @@ public partial class MainWindow: Gtk.Window
 		string args = " --source-dir " + source_path;
 		args += " --bundle-dir " + destination_path;
 		args += " --compile --continue";
-		// Console.WriteLine (executable);
+
 		System.IO.Directory.SetCurrentDirectory (path);
 		System.Diagnostics.Process.Start (executable, args);
 	}
-
 }
