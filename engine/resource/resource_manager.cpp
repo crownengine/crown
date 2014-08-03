@@ -73,12 +73,10 @@ void ResourceManager::load(ResourceId id)
 //-----------------------------------------------------------------------------
 void ResourceManager::unload(ResourceId id, bool force)
 {
-	CE_ASSERT(has(id), "Resource not loaded: %.16lx-%16lx", id.type, id.name);
+	CE_ASSERT(find(id) != NULL, "Resource not loaded: ""%.16"PRIx64"-%.16"PRIx64, id.type, id.name);
 
 	flush();
-
 	ResourceEntry* entry = find(id);
-
 	entry->references--;
 
 	if (entry->references == 0 || force)
@@ -94,45 +92,24 @@ void ResourceManager::unload(ResourceId id, bool force)
 }
 
 //-----------------------------------------------------------------------------
-bool ResourceManager::has(ResourceId id) const
-{
-	ResourceEntry* entry = find(id);
-
-	return entry != NULL;
-}
-
-//-----------------------------------------------------------------------------
 const void* ResourceManager::get(const char* type, const char* name) const
 {
 	ResourceEntry* entry = find(ResourceId(type, name));
-
-	CE_ASSERT(entry != NULL, "Resource not loaded: type = '%s', name = '%s'", type, name);
-	CE_ASSERT(entry->resource != NULL, "Resource not loaded: type = '%s', name = '%s'", type, name);
-
+	CE_ASSERT(entry != NULL, "Resource not loaded: %s.%s", name, type);
 	return entry->resource;
 }
 
 //-----------------------------------------------------------------------------
 const void* ResourceManager::get(ResourceId id) const
 {
-	CE_ASSERT(has(id), "Resource not loaded: %.16lx-%16lx", id.type, id.name);
-
+	CE_ASSERT(find(id) != NULL, "Resource not loaded: ""%.16"PRIx64"-%.16"PRIx64, id.type, id.name);
 	return find(id)->resource;
-}
-
-//-----------------------------------------------------------------------------
-bool ResourceManager::is_loaded(ResourceId id) const
-{
-	CE_ASSERT(has(id), "Resource not loaded: %.16lx-%16lx", id.type, id.name);
-
-	return find(id)->resource != NULL;
 }
 
 //-----------------------------------------------------------------------------
 uint32_t ResourceManager::references(ResourceId id) const
 {
-	CE_ASSERT(has(id), "Resource not loaded: %.16lx-%16lx", id.type, id.name);
-
+	CE_ASSERT(find(id) != NULL, "Resource not loaded: ""%.16"PRIx64"-%.16"PRIx64, id.type, id.name);
 	return find(id)->references;
 }
 
@@ -147,7 +124,6 @@ void ResourceManager::flush()
 ResourceEntry* ResourceManager::find(ResourceId id) const
 {
 	const ResourceEntry* entry = std::find(array::begin(m_resources), array::end(m_resources), id);
-
 	return entry != array::end(m_resources) ? const_cast<ResourceEntry*>(entry) : NULL;
 }
 

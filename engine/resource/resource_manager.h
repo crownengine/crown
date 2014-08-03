@@ -47,7 +47,10 @@ struct ResourceEntry
 
 class Bundle;
 
+/// @defgroup Resource Resource
 /// Keeps track and manages resources loaded by ResourceLoader.
+///
+/// @ingroup Resource
 class ResourceManager
 {
 public:
@@ -55,52 +58,38 @@ public:
 	/// The resources will be loaded from @a bundle.
 	ResourceManager(Bundle& bundle);
 
-	/// Loads the resource by @a type and @a name and returns its ResourceId.
-	/// @note
-	/// You have to call is_loaded() to check if the loading process is actually completed.
+	/// Loads the resource @a id.
+	/// You can check whether the resource is loaded with can_get().
 	void load(ResourceId id);
 
-	/// Unloads the resource @a name, freeing up all the memory associated by it
-	/// and eventually any global object associated with it.
+	/// Unloads the resource @a id.
 	/// If @a force is true, the resource is unloaded even if its reference count
 	/// is greater than 1.
 	/// @warning
-	/// Use @a force option only if you know - exactly - what you are doing.
+	/// Use @a force option only if you know *exactly* what you are doing.
 	void unload(ResourceId id, bool force = false);
 
-	/// Returns whether the manager has the @a name resource into
-	/// its list of resources.
-	/// @warning
-	/// Having a resource does not mean that the resource is
-	/// ready to be used; See is_loaded().
-	bool has(ResourceId id) const;
+	/// Returns whether the manager has the resource @a id.
+	bool can_get(ResourceId id) const;
 
-	/// Returns the resource instance associated to the given @a type and @a name.
+	/// Returns the resource data by @a type and @a name.
 	const void* get(const char* type, const char* name) const;
 
-	/// Returns the data associated with the @a name resource.
-	/// You will have to cast the returned pointer accordingly.
+	/// Returns the resource data by @a id.
 	const void* get(ResourceId id) const;
 
-	/// Returns whether the @a name resource is loaded (i.e. whether
-	/// you can use the data associated with it).
-	bool is_loaded(ResourceId id) const;
-
-	/// Returns the number of references to the resource @a name;
+	/// Returns the number of references to resource @a id;
 	uint32_t references(ResourceId id) const;
 
-	/// Forces all of the loading requests to complete before preceeding.
+	/// Blocks until all load() requests have been completed.
 	void flush();
+
+	/// Completes all load() requests which have been loaded by ResourceLoader.
+	void complete_requests();
 
 private:
 
-
-	// Returns the entry of the given id.
 	ResourceEntry* find(ResourceId id) const;
-
-	// Polls the resource loader for loaded resources.
-	void complete_requests();
-
 	void complete_request(ResourceId id, void* data);
 
 private:
