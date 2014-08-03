@@ -26,12 +26,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cstdarg>
-
 #include "Config.h"
 #include "Types.h"
 #include "Vector.h"
 #include "DynamicString.h"
+#include <cstdarg>
 
 namespace crown
 {
@@ -47,8 +46,6 @@ namespace crown
 #elif CROWN_PLATFORM_ANDROID
 	const size_t	MAX_PATH_LENGTH = 1024;
 	const char		PATH_SEPARATOR = '/';
-#else
-	#error "Oops, invalid platform!"
 #endif
 
 namespace os

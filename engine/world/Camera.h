@@ -44,7 +44,7 @@ struct ProjectionType
 
 struct Quaternion;
 struct Unit;
-class SceneGraph;
+struct SceneGraph;
 
 /// Represents the point of view into the game world.
 ///

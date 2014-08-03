@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class SceneGraph;
+struct SceneGraph;
 
 /// Manages a collection of scene graphs.
 ///

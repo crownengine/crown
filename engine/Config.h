@@ -75,10 +75,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 // http://msdn.microsoft.com/en-us/library/6sehtctf.aspx
 	#if !defined(WINVER) && !defined(_WIN32_WINNT)
 // Windows Server 2003 with SP1, Windows XP with SP2 and above
-		#define WINVER 0x0502
-		#define _WIN32_WINNT 0x0502
+		#define WINVER 0x0600
+		#define _WIN32_WINNT 0x0600
 	#endif // !defined(WINVER) && !defined(_WIN32_WINNT)
-	#define CROWN_PLATFORM_WINDOWS _WIN32_WINNT
+	#define CROWN_PLATFORM_WINDOWS 1
 #elif defined(__ANDROID__)
 // Android compiler defines __linux__
 	#undef CROWN_PLATFORM_ANDROID

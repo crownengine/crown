@@ -117,7 +117,7 @@ static KeyboardButton::Enum win_translate_key(int32_t winKey)
 }
 
 //-----------------------------------------------------------------------------
-class CE_EXPORT WindowsDevice : public Device
+class WindowsDevice : public Device
 {
 public:
 

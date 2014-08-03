@@ -47,7 +47,6 @@ newoption
 CROWN_SOURCE_DIR = path.getabsolute("..") .. "/"
 CROWN_THIRD_DIR = CROWN_SOURCE_DIR .. "third/"
 CROWN_BUILD_DIR = CROWN_SOURCE_DIR .. ".build/"
-
 CROWN_INSTALL_DIR = os.getenv("CROWN_INSTALL_DIR")
 if not CROWN_INSTALL_DIR then
 	if not path.isabsolute(CROWN_INSTALL_DIR) then
@@ -61,7 +60,7 @@ CROWN_INSTALL_DIR = CROWN_INSTALL_DIR .. "/" -- Add slash to end string
 -- Solution
 solution "crown"
 	configurations { "debug", "development", "release" }
-	platforms { "native", "x32", "x64" }
+	platforms { "x32", "x64", "native" }
 
 	-- Avoid error invoking premake4 --help
 	if _ACTION == nil then return end
@@ -92,7 +91,6 @@ solution "crown"
 	if _ACTION == "vs2010" or _ACTION == "vs2008" then
 
 		if not os.is("windows") then print("Action not valid in current OS.") end
-		if not os.getenv("DXSDK_DIR") then print("Environment variable DXSDK_DIR must be set.") end
 		location(CROWN_BUILD_DIR .. "windows")
 
 	end
@@ -604,13 +602,10 @@ solution "crown"
 				"lua51",
 				"OpenAL32"
 			}
+
 			includedirs {
 				CROWN_SOURCE_DIR .. "/engine/os/win",
 				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/wgl"
-			}
-
-			libdirs {
-				CROWN_THIRD_DIR .. "openal/lib"
 			}
 
 			excludes {
@@ -628,33 +623,9 @@ solution "crown"
 				"/DELAYLOAD:\"libGLESv2.dll\""
 			}
 
-		configuration { "vs*", "debug" }
-			links {
-				"PhysX3ExtensionsCHECKED",
-				"PhysXProfileSDKCHECKED",
-				"PhysXVisualDebuggerSDKCHECKED",
-				"PxTaskCHECKED"
-			}
-
-		configuration { "vs*", "development" }
-			links {
-				"PhysX3ExtensionsPROFILE",
-				"PhysXProfileSDKPROFILE",
-				"PhysXVisualDebuggerSDKPROFILE",
-				"PxTaskPROFILE"
-			}
-
-		configuration { "vs*", "release" }
-			links {
-				"PhysX3Extensions",
-				"PhysXProfileSDK",
-				"PhysXVisualDebuggerSDK",
-				"PxTask",
-			}
-
 		configuration { "x32", "vs*" }
 			includedirs {
-				CROWN_THIRD_DIR .. "luajit/win32/include/luajit-2.0",
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/win32/include",
 				CROWN_THIRD_DIR .. "physx/win32/include/common",
 				CROWN_THIRD_DIR .. "physx/win32/include/characterkinematic",
@@ -680,15 +651,16 @@ solution "crown"
 			}
 
 			libdirs {
-				CROWN_THIRD_DIR .. "luajit/win32/lib",
-				CROWN_THIRD_DIR .. "physx/win32/lib"
+				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "physx/win32/lib",
+				CROWN_THIRD_DIR .. "openal/lib"
 			}
 
 		configuration { "x64", "vs*" }
 			defines { "_WIN64" }
 
 			includedirs {
-				CROWN_THIRD_DIR .. "luajit/win64/include/luajit-2.0",
+				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "physx/win64/include",
 				CROWN_THIRD_DIR .. "physx/win64/include/common",
 				CROWN_THIRD_DIR .. "physx/win64/include/characterkinematic",
@@ -714,8 +686,9 @@ solution "crown"
 			}
 
 			libdirs {
-				CROWN_THIRD_DIR .. "luajit/win64/lib",
-				CROWN_THIRD_DIR .. "physx/win64/lib"
+				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "physx/win64/lib",
+				CROWN_THIRD_DIR .. "openal/lib"
 			}
 
 		configuration { "debug", "x32", "vs*"}
@@ -723,7 +696,8 @@ solution "crown"
 				"PhysX3CharacterKinematicCHECKED_x86",
 				"PhysX3CHECKED_x86",
 				"PhysX3CommonCHECKED_x86",
-				"PhysX3CookingCHECKED_x86"
+				"PhysX3CookingCHECKED_x86",
+				"PhysX3ExtensionsCHECKED"
 			}
 
 		configuration { "debug", "x64", "vs*" }
@@ -731,7 +705,8 @@ solution "crown"
 				"PhysX3CharacterKinematicCHECKED_x64",
 				"PhysX3CHECKED_x64",
 				"PhysX3CommonCHECKED_x64",
-				"PhysX3CookingCHECKED_x64"
+				"PhysX3CookingCHECKED_x64",
+				"PhysX3ExtensionsCHECKED"
 			}
 
 		configuration { "development", "x32", "vs*" }
@@ -739,7 +714,8 @@ solution "crown"
 				"PhysX3CharacterKinematicPROFILE_x86",
 				"PhysX3PROFILE_x86",
 				"PhysX3CommonPROFILE_x86",
-				"PhysX3CookingPROFILE_x86"
+				"PhysX3CookingPROFILE_x86",
+				"PhysX3ExtensionsPROFILE"
 			}
 
 		configuration { "development", "x64", "vs*" }
@@ -747,21 +723,24 @@ solution "crown"
 				"PhysX3CharacterKinematicPROFILE_x64",
 				"PhysX3PROFILE_x64",
 				"PhysX3CommonPROFILE_x64",
-				"PhysX3CookingPROFILE_x64"
+				"PhysX3CookingPROFILE_x64",
+				"PhysX3ExtensionsPROFILE"
 			}
 
-		configuration { "debug", "x32", "vs*" }
+		configuration { "release", "x32", "vs*" }
 			links {
 				"PhysX3CharacterKinematic_x86",
 				"PhysX3_x86",
 				"PhysX3Common_x86",
-				"PhysX3Cooking_x86"
+				"PhysX3Cooking_x86",
+				"PhysX3Extensions"
 			}
 			
-		configuration { "debug", "x64", "vs*" }
+		configuration { "release", "x64", "vs*" }
 			links {
 				"PhysX3CharacterKinematic_x64",
 				"PhysX3_x64",
 				"PhysX3Common_x64",
-				"PhysX3Cooking_x64"
+				"PhysX3Cooking_x64",
+				"PhysX3Extensions"
 			}

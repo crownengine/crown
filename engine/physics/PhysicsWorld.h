@@ -71,7 +71,7 @@ namespace physics_system
 } // namespace physics_system
 
 //-----------------------------------------------------------------------------
-class SceneGraph;
+struct SceneGraph;
 class World;
 struct PhysicsResource;
 struct PhysicsConfigResource;

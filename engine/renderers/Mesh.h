@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class SceneGraph;
+struct SceneGraph;
 struct MeshResource;
 struct Quaternion;
 struct Unit;

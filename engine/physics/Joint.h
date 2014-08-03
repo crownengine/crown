@@ -42,7 +42,7 @@ namespace crown
 {
 
 struct PhysicsResource;
-class Actor;
+struct Actor;
 
 ///
 /// @ingroup Physics

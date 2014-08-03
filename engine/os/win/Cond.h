@@ -27,6 +27,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "WinHeaders.h"
+#include <WinBase.h>
+#include <Synchapi.h>
 #include "Types.h"
 #include "Mutex.h"
 #include "OS.h"
