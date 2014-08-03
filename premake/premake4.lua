@@ -568,7 +568,6 @@ solution "crown"
 				") -Wl,--end-group"
 			}
 
-		-- it's necessary to define DXSDK_DIR env variable to DirectX sdk directory
 		configuration { "vs*" }
 			kind "ConsoleApp"
 
@@ -615,12 +614,6 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/egl/*",
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/glx/*",
 				CROWN_SOURCE_DIR .. "engine/audio/backend/SLESSoundWorld.cpp"
-			}
-
-		configuration { "vs2010" }
-			linkoptions { 
-				"/DELAYLOAD:\"libEGL.dll\"", -- this is needed only for testing with GLES2/3 on Windows with VS201x
-				"/DELAYLOAD:\"libGLESv2.dll\""
 			}
 
 		configuration { "x32", "vs*" }
