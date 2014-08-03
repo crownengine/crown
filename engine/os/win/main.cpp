@@ -30,13 +30,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define WM_USER_TOGGLE_WINDOW_FRAME (WM_USER+1)
 #define WM_USER_MOUSE_LOCK          (WM_USER+2)
 
-#include "Crown.h"
-#include "OsTypes.h"
-#include "OsEventQueue.h"
-#include "GLContext.h"
-#include "BundleCompiler.h"
+#include "crown.h"
+#include "os_types.h"
+#include "os_event_queue.h"
+#include "glcontext.h"
+#include "bundle_compiler.h"
 
-#include "OS.h"
+#include "os.h"
 
 #define ENTRY_DEFAULT_WIDTH 1024
 #define ENTRY_DEFAULT_HEIGHT 768
@@ -121,7 +121,7 @@ class WindowsDevice : public Device
 {
 public:
 
-	WindowsDevice() 
+	WindowsDevice()
 		: m_hwnd(0)
 		, m_rect()
 		, m_style(0)
@@ -240,7 +240,7 @@ public:
 		RegisterClassExA(&wnd);
 
 		HWND hwnd = CreateWindowA(
-						"crown_letterbox", 
+						"crown_letterbox",
 						"CrownUnknown",
 						WS_POPUP|WS_SYSMENU,
 						-32000,
@@ -444,7 +444,7 @@ public:
 			m_mouse_lock = lock;
 		}
 	}
-	
+
 	//-----------------------------------------------------------------------------
 	static int32_t main_loop(void* data)
 	{
@@ -509,7 +509,7 @@ public:
 
 	//-----------------------------------------------------------------------------
 	LRESULT bump_events(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
-	{		
+	{
 		if (m_started)
 		{
 			switch (id)
@@ -647,7 +647,7 @@ public:
 
 					set_mouse_pos(m_x, m_y);
 				}
-				
+
 				m_queue.push_mouse_event(m_x, m_y);
 
 				break;
@@ -657,7 +657,7 @@ public:
 			{
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
-				
+
 				m_queue.push_mouse_event(mx, my, MouseButton::LEFT, id == WM_LBUTTONDOWN);
 
 				break;
@@ -705,7 +705,7 @@ public:
 				}
 
 				m_queue.push_keyboard_event(modifier_mask, kb, id == WM_KEYDOWN || id == WM_SYSKEYDOWN);
-		
+
 				break;
 			}
 			default:
@@ -743,7 +743,7 @@ public:
 			"  --console-port             Set the network port of the console server.\n";
 			"  --wait-console             Wait for a console connection before starting up.\n";
 
-		static ArgsOption options[] = 
+		static ArgsOption options[] =
 		{
 			{ "help",             AOA_NO_ARGUMENT,       NULL,           'i' },
 			{ "source-dir",       AOA_REQUIRED_ARGUMENT, NULL,           's' },
@@ -940,7 +940,7 @@ int main(int argc, char** argv)
 
 	engine = CE_NEW(default_allocator(), WindowsDevice)();
 	set_device(engine);
-	
+
 	int32_t ret = ((WindowsDevice*)engine)->run(argc, argv);
 
 	CE_DELETE(default_allocator(), engine);

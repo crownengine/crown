@@ -208,7 +208,7 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/os/win/*",
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/egl/*",
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/wgl/*",
-				CROWN_SOURCE_DIR .. "engine/audio/backend/SLESSoundWorld.cpp",
+				CROWN_SOURCE_DIR .. "engine/audio/backend/sles_sound_world.cpp",
 			}
 			
 		configuration { "linux-*", "debug" }
