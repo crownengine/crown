@@ -51,7 +51,7 @@ struct MouseButton
 /// Interface for accessing mouse input device.
 ///
 /// @ingroup Input
-class Mouse
+struct Mouse
 {
 public:
 

@@ -38,7 +38,7 @@ namespace crown
 
 class Renderer;
 class RenderWorld;
-class SceneGraph;
+struct SceneGraph;
 struct Unit;
 
 //-----------------------------------------------------------------------------

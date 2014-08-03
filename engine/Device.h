@@ -36,19 +36,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-class Accelerometer;
+struct Accelerometer;
 class Bundle;
 class BundleCompiler;
 class ConsoleServer;
 class Filesystem;
-class Keyboard;
+struct Keyboard;
 class LuaEnvironment;
-class Mouse;
+struct Mouse;
 class OsWindow;
 class Renderer;
 class ResourceManager;
-class ResourcePackage;
-class Touch;
+struct ResourcePackage;
+struct Touch;
 class World;
 class WorldManager;
 struct Camera;
@@ -69,7 +69,7 @@ struct DisplayMode
 /// the engine subsystems and related stuff.
 ///
 /// @ingroup Device
-class CE_EXPORT Device
+class Device
 {
 public:
 

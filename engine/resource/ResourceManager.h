@@ -120,7 +120,7 @@ private:
 
 private:
 
-	friend class ResourcePackage;
+	friend struct ResourcePackage;
 	friend class Device;
 };
 

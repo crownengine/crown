@@ -40,7 +40,7 @@ namespace crown
 /// but platform-specific and thus generally not recommended.
 ///
 /// @ingroup Filesystem
-class CE_EXPORT  DiskFilesystem : public Filesystem
+class DiskFilesystem : public Filesystem
 {
 public:
 

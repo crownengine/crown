@@ -37,7 +37,7 @@ namespace crown
 /// so that it is possible to later visit that list for debugging purposes.
 ///
 /// @ingroup Memory
-class CE_EXPORT ProxyAllocator : public Allocator
+class ProxyAllocator : public Allocator
 {
 public:
 

@@ -180,7 +180,7 @@ void Actor::create_objects()
 
 				PxDefaultMemoryOutputStream buf;
 				if(!m_world.physx_cooking()->cookConvexMesh(convex_mesh_desc, buf))
-					CE_FATAL();
+					CE_FATAL("");
 				PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
 				PxConvexMesh* convex_mesh = physics->createConvexMesh(input);
 
