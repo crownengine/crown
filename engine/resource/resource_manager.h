@@ -48,6 +48,7 @@ struct ResourceEntry
 class Bundle;
 
 /// @defgroup Resource Resource
+
 /// Keeps track and manages resources loaded by ResourceLoader.
 ///
 /// @ingroup Resource
@@ -97,10 +98,6 @@ private:
 	ProxyAllocator m_resource_heap;
 	ResourceLoader m_loader;
 	Array<ResourceEntry> m_resources;
-
-private:
-
-	friend class Device;
 };
 
 } // namespace crown
