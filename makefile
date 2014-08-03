@@ -65,9 +65,8 @@ windows-development64: windows-build
 windows-release64: windows-build
 	devenv .build/windows/crown.sln /Build "release|x64"
 
-# docs:
-# 	doxygen premake/crown.doxygen
-# 	# markdown README.md > .build/docs/readme.html
+docs:
+	doxygen Doxyfile.doxygen
 
 clean: luajit-clean
 	@echo Cleaning...
