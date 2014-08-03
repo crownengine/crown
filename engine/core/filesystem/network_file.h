@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "assert.h"
 #include "file.h"
-#include "os_socket.h"
+#include "socket.h"
 #include "file.h"
 
 namespace crown

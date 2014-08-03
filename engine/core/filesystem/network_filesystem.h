@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "filesystem.h"
-#include "os_socket.h"
+#include "socket.h"
 #include "os.h" // for max_path_length
 #include "log.h"
 

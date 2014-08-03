@@ -111,7 +111,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "mutex.h"
 #include "os_file.h"
 #include "os_window.h"
-#include "os_socket.h"
+#include "socket.h"
 
 // Engine/Renderers
 #include "renderer.h"
