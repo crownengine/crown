@@ -43,7 +43,7 @@ namespace crown
 //-----------------------------------------------------------------------------
 void ConsoleServer::init(uint16_t port, bool wait)
 {
-	m_server.open(port);
+	m_server.bind(port);
 	m_server.listen(5);
 
 	if (wait)

@@ -58,6 +58,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+struct ConnectResult
+{
+	enum { NO_ERROR, REFUSED, TIMEOUT, UNKNOWN } error;
+};
+
 struct ReadResult
 {
 	enum { NO_ERROR, REMOTE_CLOSED, TIMEOUT, UNKNOWN } error;
@@ -90,25 +95,112 @@ struct TCPSocket
 	}
 
 	//-----------------------------------------------------------------------------
-	bool connect(const NetAddress& destination, uint16_t port)
+	ConnectResult connect(const NetAddress& destination, uint16_t port)
 	{
+		close();
 		m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		CE_ASSERT(m_socket > 0, "Failed to create socket");
+		CE_ASSERT(m_socket >= 0, "socket: errno = %d", errno);
 
 		sockaddr_in addr_in;
 		addr_in.sin_family = AF_INET;
 		addr_in.sin_addr.s_addr = htonl(destination.address());
 		addr_in.sin_port = htons(port);
 
-		if (::connect(m_socket, (const sockaddr*)&addr_in, sizeof(sockaddr_in)) < 0)
-		{
-			os::printf("Failed to connect socket\n");
-			close();
+		int res = ::connect(m_socket, (const sockaddr*)&addr_in, sizeof(sockaddr_in));
 
-			return false;
-		}
+		ConnectResult cr;
+		cr.error = ConnectResult::NO_ERROR;
+
+		if (res == 0)
+			return cr;
+
+		if (errno == ECONNREFUSED)
+			cr.error = ConnectResult::REFUSED;
+		else if (errno == ETIMEDOUT)
+			cr.error = ConnectResult::TIMEOUT;
+		else
+			cr.error = ConnectResult::UNKNOWN;
+
+		return cr;
+	}
+
+	//-----------------------------------------------------------------------------
+	bool bind(uint16_t port)
+	{
+		close();
+		m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		CE_ASSERT(m_socket >= 0, "socket: errno = %d", errno);
+
+		sockaddr_in address;
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = htonl(INADDR_ANY);
+		address.sin_port = htons(port);
+
+		set_resuse_address(true);
+		int bind_ret = ::bind(m_socket, (const sockaddr*) &address, sizeof(sockaddr_in));
+		CE_ASSERT(bind_ret != -1, "bind: errno = %d", errno);
+		CE_UNUSED(bind_ret);
 
 		return true;
+	}
+
+	//-----------------------------------------------------------------------------
+	void listen(uint32_t max)
+	{
+		int listen_ret = ::listen(m_socket, max);
+		CE_ASSERT(listen_ret != -1, "listen: errno = %d", errno);
+		CE_UNUSED(listen_ret);
+	}
+
+	//-----------------------------------------------------------------------------
+	AcceptResult accept_nonblock(TCPSocket& c)
+	{
+		set_blocking(false);
+
+		sockaddr_in client;
+		size_t client_size = sizeof(client);
+		int sock = ::accept(m_socket, (sockaddr*) &client, (socklen_t*) &client_size);
+
+		AcceptResult result;
+		if (sock == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+		{
+			result.error = AcceptResult::NO_CONNECTION;
+		}
+		else if (sock == -1)
+		{
+			result.error = AcceptResult::UNKNOWN;
+		}
+		else
+		{
+			result.error = AcceptResult::NO_ERROR;
+			c.m_socket = sock;
+		}
+
+		return result;
+	}
+
+	//-----------------------------------------------------------------------------
+	AcceptResult accept(TCPSocket& c)
+	{
+		set_blocking(true);
+
+		sockaddr_in client;
+		size_t client_size = sizeof(client);
+
+		int sock = ::accept(m_socket, (sockaddr*) &client, (socklen_t*) &client_size);
+
+		AcceptResult result;
+		if (sock == -1)
+		{
+			result.error = AcceptResult::UNKNOWN;
+		}
+		else
+		{
+			result.error = AcceptResult::NO_ERROR;
+			c.m_socket = sock;
+		}
+
+		return result;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -127,27 +219,27 @@ struct TCPSocket
 		set_blocking(false);
 		ssize_t read_bytes = ::read(m_socket, (char*) data, size);
 
-		ReadResult result;
+		ReadResult rr;
 		if (read_bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
 		{
-			result.error = ReadResult::NO_ERROR;
-			result.bytes_read = 0;
+			rr.error = ReadResult::NO_ERROR;
+			rr.bytes_read = 0;
 		}
 		else if (read_bytes == -1 && errno == ETIMEDOUT)
 		{
-			result.error = ReadResult::TIMEOUT;
+			rr.error = ReadResult::TIMEOUT;
 		}
 		else if (read_bytes == 0)
 		{
-			result.error = ReadResult::REMOTE_CLOSED;
+			rr.error = ReadResult::REMOTE_CLOSED;
 		}
 		else
 		{
-			result.error = ReadResult::NO_ERROR;
-			result.bytes_read = read_bytes;
+			rr.error = ReadResult::NO_ERROR;
+			rr.bytes_read = read_bytes;
 		}
 
-		return result;
+		return rr;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -158,9 +250,9 @@ struct TCPSocket
 		// Ensure all data is read
 		char* buf = (char*) data;
 		size_t to_read = size;
-		ReadResult result;
-		result.bytes_read = 0;
-		result.error = ReadResult::NO_ERROR;
+		ReadResult rr;
+		rr.bytes_read = 0;
+		rr.error = ReadResult::NO_ERROR;
 
 		while (to_read > 0)
 		{
@@ -169,22 +261,22 @@ struct TCPSocket
 			if (read_bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) continue;
 			else if (read_bytes == -1 && errno == ETIMEDOUT)
 			{
-				result.error = ReadResult::TIMEOUT;
-				return result;
+				rr.error = ReadResult::TIMEOUT;
+				return rr;
 			}
 			else if (read_bytes == 0)
 			{
-				result.error = ReadResult::REMOTE_CLOSED;
-				return result;
+				rr.error = ReadResult::REMOTE_CLOSED;
+				return rr;
 			}
 
 			buf += read_bytes;
 			to_read -= read_bytes;
-			result.bytes_read += read_bytes;
+			rr.bytes_read += read_bytes;
 		}
 
-		result.error = ReadResult::NO_ERROR;
-		return result;
+		rr.error = ReadResult::NO_ERROR;
+		return rr;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -193,26 +285,26 @@ struct TCPSocket
 		set_blocking(false);
 		ssize_t bytes_wrote = ::send(m_socket, data, size, 0);
 
-		WriteResult result;
+		WriteResult wr;
 		if (bytes_wrote == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
 		{
-			result.error = WriteResult::NO_ERROR;
-			result.bytes_wrote = 0;
+			wr.error = WriteResult::NO_ERROR;
+			wr.bytes_wrote = 0;
 		}
 		else if (bytes_wrote == -1 && errno == ETIMEDOUT)
 		{
-			result.error = WriteResult::TIMEOUT;
+			wr.error = WriteResult::TIMEOUT;
 		}
 		else if (bytes_wrote == 0)
 		{
-			result.error = WriteResult::REMOTE_CLOSED;
+			wr.error = WriteResult::REMOTE_CLOSED;
 		}
 		else
 		{
-			result.error = WriteResult::UNKNOWN;
+			wr.error = WriteResult::UNKNOWN;
 		}
 
-		return result;
+		return wr;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -222,9 +314,9 @@ struct TCPSocket
 
 		const char* buf = (const char*) data;
 		size_t to_send = size;
-		WriteResult result;
-		result.bytes_wrote = 0;
-		result.error = WriteResult::NO_ERROR;
+		WriteResult wr;
+		wr.bytes_wrote = 0;
+		wr.error = WriteResult::NO_ERROR;
 
 		// Ensure all data is sent
 		while (to_send > 0)
@@ -242,24 +334,24 @@ struct TCPSocket
 					}
 					case ETIMEDOUT:
 					{
-						result.error = WriteResult::TIMEOUT;
-						return result;
+						wr.error = WriteResult::TIMEOUT;
+						return wr;
 					}
 					default:
 					{
-						result.error = WriteResult::UNKNOWN;
-						return result;
+						wr.error = WriteResult::UNKNOWN;
+						return wr;
 					}
 				}
 			}
 
 			buf += bytes_wrote;
 			to_send -= bytes_wrote;
-			result.bytes_wrote += bytes_wrote;
+			wr.bytes_wrote += bytes_wrote;
 		}
 
-		result.error = WriteResult::NO_ERROR;
-		return result;
+		wr.error = WriteResult::NO_ERROR;
+		return wr;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -284,132 +376,16 @@ struct TCPSocket
 		timeout.tv_usec = 0;
 		int res;
 		res = setsockopt (m_socket, SOL_SOCKET, SO_RCVTIMEO, (char*) &timeout, sizeof(timeout));
-		CE_ASSERT(res == 0, "Failed to set timeout on socket: errno: %d", errno);
+		CE_ASSERT(res == 0, "setsockopt: errno: %d", errno);
 		res = setsockopt (m_socket, SOL_SOCKET, SO_SNDTIMEO, (char*) &timeout, sizeof(timeout));
-		CE_ASSERT(res == 0, "Failed to set timeout on socket: errno: %d", errno);
-	}
-
-public:
-
-	int m_socket;
-};
-
-struct TCPServer
-{
-	//-----------------------------------------------------------------------------
-	bool open(uint16_t port)
-	{
-		m_server.m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		CE_ASSERT(m_server.m_socket > 0, "Failed to create socket");
-
-		m_server.set_resuse_address(true);
-
-		// Bind socket
-		sockaddr_in address;
-		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = htonl(INADDR_ANY);
-		address.sin_port = htons(port);
-
-		int bind_ret = bind(m_server.m_socket, (const sockaddr*) &address, sizeof(sockaddr_in));
-		CE_ASSERT(bind_ret != -1, "Failed to bind socket: errno: %d", errno);
-		CE_UNUSED(bind_ret);
-
-		return true;
-	}
-
-	//-----------------------------------------------------------------------------
-	void close()
-	{
-		m_server.close();
-	}
-
-	//-----------------------------------------------------------------------------
-	void listen(uint32_t max)
-	{
-		int listen_ret = ::listen(m_server.m_socket, max);
-		CE_ASSERT(listen_ret != -1, "Failed to listen on socket: errno: %d", errno);
-		CE_UNUSED(listen_ret);
-	}
-
-	//-----------------------------------------------------------------------------
-	AcceptResult accept_nonblock(TCPSocket& c)
-	{
-		m_server.set_blocking(false);
-
-		sockaddr_in client;
-		size_t client_size = sizeof(client);
-		int sock = ::accept(m_server.m_socket, (sockaddr*) &client, (socklen_t*) &client_size);
-
-		AcceptResult result;
-		if (sock == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
-		{
-			result.error = AcceptResult::NO_CONNECTION;
-		}
-		else if (sock == -1)
-		{
-			result.error = AcceptResult::UNKNOWN;
-		}
-		else
-		{
-			result.error = AcceptResult::NO_ERROR;
-			c.m_socket = sock;
-		}
-
-		return result;
-	}
-
-	//-----------------------------------------------------------------------------
-	AcceptResult accept(TCPSocket& c)
-	{
-		m_server.set_blocking(true);
-
-		sockaddr_in client;
-		size_t client_size = sizeof(client);
-
-		int sock = ::accept(m_server.m_socket, (sockaddr*) &client, (socklen_t*) &client_size);
-
-		AcceptResult result;
-		if (sock == -1)
-		{
-			result.error = AcceptResult::UNKNOWN;
-		}
-		else
-		{
-			result.error = AcceptResult::NO_ERROR;
-			c.m_socket = sock;
-		}
-
-		return result;
-	}
-
-	//-----------------------------------------------------------------------------
-	ReadResult read_nonblock(void* data, size_t size)
-	{
-		return m_server.read_nonblock(data, size);
-	}
-
-	//-----------------------------------------------------------------------------
-	ReadResult read(void* data, size_t size)
-	{
-		return m_server.read(data, size);
-	}
-
-	//-----------------------------------------------------------------------------
-	WriteResult write_nonblock(void* data, size_t size)
-	{
-		return m_server.write_nonblock(data, size);
-	}
-
-	//-----------------------------------------------------------------------------
-	WriteResult write(const void* data, size_t size)
-	{
-		return m_server.write(data, size);
+		CE_ASSERT(res == 0, "setsockopt: errno: %d", errno);
 	}
 
 private:
 
-	TCPSocket m_server;
+	int m_socket;
 };
+
 
 /*
 class TCPSocket

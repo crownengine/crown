@@ -92,7 +92,7 @@ private:
 
 private:
 
-	TCPServer m_server;
+	TCPSocket m_server;
 	ClientArray m_clients;
 };
 
