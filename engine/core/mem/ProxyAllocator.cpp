@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Assert.h"
 #include "ProxyAllocator.h"
 #include "StringUtils.h"
-#include "ScopedMutex.h"
+#include "Mutex.h"
 
 namespace crown
 {

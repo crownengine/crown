@@ -34,7 +34,7 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap) :
-	m_thread("resource-loader"),
+	m_thread(),
 	m_should_run(false),
 	m_bundle(bundle),
 	m_resource_heap(resource_heap),

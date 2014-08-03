@@ -32,7 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "VertexFormat.h"
 #include "StringUtils.h"
 #include "RenderContext.h"
-#include "OsThread.h"
+#include "Thread.h"
 #include "OS.h"
 #include "IdTable.h"
 
@@ -905,7 +905,7 @@ protected:
 	Allocator& m_allocator;
 	RendererImplementation* m_impl;
 
-	OsThread m_thread;
+	Thread m_thread;
 	Semaphore m_render_wait;
 	Semaphore m_main_wait;
 

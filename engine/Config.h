@@ -99,7 +99,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define CROWN_PLATFORM_POSIX (CROWN_PLATFORM_ANDROID \
 						|| CROWN_PLATFORM_IOS \
 						|| CROWN_PLATFORM_LINUX \
-						|| CROWN_PLATFORM_OSX \
+						|| CROWN_PLATFORM_OSX)
 
 // http://sourceforge.net/apps/mediawiki/predef/index.php?title=Architectures
 #if defined(__arm__)

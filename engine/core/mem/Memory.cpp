@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Memory.h"
 #include "Allocator.h"
-#include "ScopedMutex.h"
+#include "Mutex.h"
 
 // //-----------------------------------------------------------------------------
 // void* operator new(size_t) throw (std::bad_alloc)

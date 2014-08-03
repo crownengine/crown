@@ -153,6 +153,7 @@ solution "crown"
 			CROWN_SOURCE_DIR .. "/engine/core/json",
 			CROWN_SOURCE_DIR .. "/engine/core/strings",
 			CROWN_SOURCE_DIR .. "/engine/core/settings",
+			CROWN_SOURCE_DIR .. "/engine/core/thread",
 			CROWN_SOURCE_DIR .. "/engine/os",
 			CROWN_SOURCE_DIR .. "/engine/input",
 			CROWN_SOURCE_DIR .. "/engine/renderers",
@@ -323,9 +324,7 @@ solution "crown"
 
 			postbuildcommands {
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/luajit " .. CROWN_INSTALL_DIR .. "bin/linux32/",
-				"cp " .. CROWN_THIRD_DIR .. "luajit/src/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux32/",
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. CROWN_INSTALL_DIR .. "bin/linux32/" .. " -r",
-				"ln -s " .. CROWN_INSTALL_DIR .. "bin/linux32/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux32/libluajit-5.1.so.2"
 			}
 
 		configuration { "linux-*", "x64" }
@@ -364,9 +363,7 @@ solution "crown"
 
 			postbuildcommands {
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/luajit " .. CROWN_INSTALL_DIR .. "bin/linux64/",
-				"cp " .. CROWN_THIRD_DIR .. "luajit/src/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux64/",
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. CROWN_INSTALL_DIR .. "bin/linux64/" .. " -r",
-				"ln -s " .. CROWN_INSTALL_DIR .. "bin/linux64/libluajit.so " .. CROWN_INSTALL_DIR .. "bin/linux64/libluajit-5.1.so.2"
 			}
 
 		configuration { "android" }

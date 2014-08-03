@@ -26,79 +26,50 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <errno.h>
-#include <semaphore.h>
+#include "Config.h"
 
-#include "Assert.h"
-#include "Mutex.h"
-#include "Cond.h"
-#include "Log.h"
+#if CROWN_PLATFORM_WINDOWS
+	#include "Types.h"
+	#include "WinHeaders.h"
+#endif
 
 namespace crown
 {
 
-class Semaphore
+struct AtomicInt
 {
-public:
+	AtomicInt(int val)
+	{
+		store(val);
+	}
 
-			Semaphore();
-			~Semaphore();
+	int load() const
+	{
+		#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
+		__sync_fetch_and_add(&m_val, 0);
+		return m_val;
+		#elif CROWN_PLATFORM_WINDOWS
+		InterlockedExchangeAdd(&m_val, (int32_t)0);
+		return m_val;
+		#endif
+	}
 
-	void	post(uint32_t count = 1);
-	void	wait();
+	void store(int val)
+	{
+		#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
+		__sync_lock_test_and_set(&m_val, val);
+		#elif CROWN_PLATFORM_WINDOWS
+		InterlockedExchange(&m_val, val);
+		#endif
+	}
 
 private:
 
-	Mutex 	m_mutex;
-	Cond 	m_cond;
-
-	int32_t m_count;
-
-private:
-
-	Semaphore(const Semaphore& s); // no copy constructor
-	Semaphore& operator=(const Semaphore& s); // no assignment operator
+	#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
+	mutable int m_val;
+	#elif CROWN_PLATFORM_WINDOWS
+	mutable LONG m_val;
+	#endif
 };
-
-//-----------------------------------------------------------------------------
-inline Semaphore::Semaphore() : m_count(0)
-{
-}
-
-//-----------------------------------------------------------------------------
-inline Semaphore::~Semaphore()
-{
-}
-
-//-----------------------------------------------------------------------------
-inline void Semaphore::post(uint32_t count)
-{
-	m_mutex.lock();
-
-	for (uint32_t i = 0; i < count; i++)
-	{
-		m_cond.signal();
-	}
-
-	m_count += count;
-
-	m_mutex.unlock();	
-}
-
-//-----------------------------------------------------------------------------
-inline void Semaphore::wait()
-{
-	m_mutex.lock();
-
-	while (m_count <= 0)
-	{
-		m_cond.wait(m_mutex);
-	}
-
-	m_count--;
-
-	m_mutex.unlock();
-}
-
 
 } // namespace crown

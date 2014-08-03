@@ -313,7 +313,7 @@ public:
 		Rotation rr_old_rot;
 		const SizeID rr_old_sizeid = XRRConfigCurrentConfiguration(m_screen_config, &rr_old_rot);
 
-		OsThread game_thread("game-thread");
+		Thread game_thread;
 		game_thread.start(main_loop, (void*)this);
 
 		while (!m_exit)
