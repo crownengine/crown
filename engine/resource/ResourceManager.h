@@ -45,12 +45,6 @@ struct ResourceEntry
 	void* resource;
 };
 
-struct PendingRequest
-{
-	LoadResourceId id;
-	ResourceId resource;
-};
-
 class Bundle;
 
 /// Keeps track and manages resources loaded by ResourceLoader.
@@ -60,7 +54,6 @@ public:
 
 	/// The resources will be loaded from @a bundle.
 	ResourceManager(Bundle& bundle);
-	~ResourceManager();
 
 	/// Loads the resource by @a type and @a name and returns its ResourceId.
 	/// @note
@@ -106,21 +99,18 @@ private:
 	ResourceEntry* find(ResourceId id) const;
 
 	// Polls the resource loader for loaded resources.
-	void poll_resource_loader();
+	void complete_requests();
 
-	void online(ResourceId id, void* resource);
+	void complete_request(ResourceId id, void* data);
 
 private:
 
 	ProxyAllocator m_resource_heap;
 	ResourceLoader m_loader;
-
-	Queue<PendingRequest> m_pendings;
 	Array<ResourceEntry> m_resources;
 
 private:
 
-	friend struct ResourcePackage;
 	friend class Device;
 };
 

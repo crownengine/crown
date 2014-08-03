@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Thread.h"
 #include "ContainerTypes.h"
 #include "Mutex.h"
-#include "Cond.h"
+#include "Semaphore.h"
 #include "OS.h"
 
 namespace crown
@@ -40,26 +40,9 @@ namespace crown
 class Bundle;
 class Allocator;
 
-#define MAX_LOAD_REQUESTS 1024
-typedef uint32_t LoadResourceId;
-
-enum LoadResourceStatus
+struct ResourceData
 {
-	LRS_NO_INFORMATION,
-	LRS_QUEUED,
-	LRS_LOADING,
-	LRS_LOADED
-};
-
-struct LoadResource
-{
-	LoadResourceId id;
-	ResourceId resource;
-};
-
-struct LoadResourceData
-{
-	LoadResourceStatus status;
+	ResourceId id;
 	void* data;
 };
 
@@ -71,57 +54,42 @@ public:
 	/// Reads the resources data from the given @a bundle using
 	/// @a resource_heap to allocate memory for them.
 	ResourceLoader(Bundle& bundle, Allocator& resource_heap);
+	~ResourceLoader();
 
 	/// Loads the @a resource in a background thread.
-	LoadResourceId load_resource(ResourceId id);
+	void load(ResourceId id);
 
-	/// Returns the status of the given load request @a id.
-	LoadResourceStatus load_resource_status(LoadResourceId id) const;
+	/// Blocks until all pending requests have been processed.
+	void flush();
 
-	/// Returns the data which has been loaded for the given request @a id.
-	void* load_resource_data(LoadResourceId id) const;
+	void get_loaded(Array<ResourceData>& loaded);
+
+private:
+
+	void add_request(ResourceId id);
+	uint32_t num_requests();
+	void add_loaded(ResourceData data);
 
 	// Loads resources in the loading queue.
 	int32_t run();
 
-	void start()
+	static int32_t thread_proc(void* thiz)
 	{
-		m_should_run = true;
-		m_thread.start(background_run, this);
-	}
-
-	void stop()
-	{
-		m_should_run = false;
-		m_full.signal();
-		m_thread.stop();
-	}
-
-private:
-
-	static int32_t background_run(void* thiz)
-	{
-		return ((ResourceLoader*)thiz)->run();
+		ResourceLoader* rl = (ResourceLoader*)thiz;
+		return rl->run();
 	}
 
 private:
 
 	Thread m_thread;
-	bool m_should_run;
-
-	// Whether to look for resources
 	Bundle& m_bundle;
-
-	// Used to strore resource memory
 	Allocator& m_resource_heap;
 
-	uint32_t m_num_requests;
-	Queue<LoadResource> m_requests;
-	LoadResourceData m_results[MAX_LOAD_REQUESTS];
-
-	Mutex m_requests_mutex;
-	Mutex m_results_mutex;
-	Cond m_full;
+	Queue<ResourceId> m_requests;
+	Queue<ResourceData> m_loaded;
+	Mutex m_mutex;
+	Mutex m_loaded_mutex;
+	bool m_exit;
 };
 
 } // namespace crown

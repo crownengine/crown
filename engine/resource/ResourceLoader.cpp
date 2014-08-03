@@ -33,94 +33,88 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap) :
-	m_thread(),
-	m_should_run(false),
-	m_bundle(bundle),
-	m_resource_heap(resource_heap),
-	m_num_requests(0),
-	m_requests(default_allocator())
+ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap)
+	: m_thread()
+	, m_bundle(bundle)
+	, m_resource_heap(resource_heap)
+	, m_requests(default_allocator())
+	, m_loaded(default_allocator())
+	, m_exit(false)
 {
-	for (uint32_t i = 0; i < MAX_LOAD_REQUESTS; i++)
-	{
-		m_results[i].status = LRS_NO_INFORMATION;
-		m_results[i].data = NULL;
-	}
+	m_thread.start(ResourceLoader::thread_proc, this);
+}
+
+ResourceLoader::~ResourceLoader()
+{
+	m_exit = true;
 }
 
 //-----------------------------------------------------------------------------
-LoadResourceId ResourceLoader::load_resource(ResourceId id)
-{
-	m_requests_mutex.lock();
-
-	LoadResourceId lr_id = m_num_requests++;
-	LoadResource lr;
-	lr.id = lr_id;
-	lr.resource = id;
-
-	queue::push_back(m_requests, lr);
-
-	m_results[lr_id % MAX_LOAD_REQUESTS].status = LRS_QUEUED;
-
-	m_requests_mutex.unlock();
-
-	m_full.signal();
-
-	return lr_id;
+void ResourceLoader::load(ResourceId id)
+{	
+	add_request(id);
 }
 
 //-----------------------------------------------------------------------------
-LoadResourceStatus ResourceLoader::load_resource_status(LoadResourceId id) const
+void ResourceLoader::flush()
 {
-	if (m_num_requests - id > MAX_LOAD_REQUESTS)
-	{
-		return LRS_NO_INFORMATION;
-	}
-
-	return m_results[id % MAX_LOAD_REQUESTS].status;
+	while (num_requests()) {}
 }
 
 //-----------------------------------------------------------------------------
-void* ResourceLoader::load_resource_data(LoadResourceId id) const
+void ResourceLoader::add_request(ResourceId id)
 {
-	if (m_num_requests - id > MAX_LOAD_REQUESTS)
-	{
-		return NULL;
-	}
+	ScopedMutex sm(m_mutex);
+	queue::push_back(m_requests, id);
+}
 
-	return m_results[id % MAX_LOAD_REQUESTS].data;
+//-----------------------------------------------------------------------------
+uint32_t ResourceLoader::num_requests()
+{
+	ScopedMutex sm(m_mutex);
+	return queue::size(m_requests);
+}
+
+//-----------------------------------------------------------------------------
+void ResourceLoader::add_loaded(ResourceData data)
+{
+	ScopedMutex sm(m_loaded_mutex);
+	queue::push_back(m_loaded, data);
+}
+
+//-----------------------------------------------------------------------------
+void ResourceLoader::get_loaded(Array<ResourceData>& loaded)
+{
+	ScopedMutex sm(m_loaded_mutex);
+	uint32_t num = queue::size(m_loaded);
+	for (uint32_t i = 0; i < num; i++)
+	{
+		array::push_back(loaded, queue::front(m_loaded));
+		queue::pop_front(m_loaded);
+	}
 }
 
 //-----------------------------------------------------------------------------
 int32_t ResourceLoader::run()
 {
-	while (m_should_run)
+	while (!m_exit)
 	{
-		m_requests_mutex.lock();
-		while (queue::empty(m_requests) && m_should_run)
+		m_mutex.lock();
+		if (queue::empty(m_requests))
 		{
-			m_full.wait(m_requests_mutex);
+			m_mutex.unlock();
+			continue;
 		}
+		ResourceId id = queue::front(m_requests);
+		m_mutex.unlock();
 
-		if (m_should_run)
-		{
-			LoadResource request = queue::front(m_requests);
-			queue::pop_front(m_requests);
-
-			m_requests_mutex.unlock();
-
-			m_results[request.id % MAX_LOAD_REQUESTS].status = LRS_LOADING;
-
-			void* data = resource_on_load(request.resource.type, m_resource_heap, m_bundle, request.resource);
-
-			m_results[request.id % MAX_LOAD_REQUESTS].data = data;
-			m_results[request.id % MAX_LOAD_REQUESTS].status = LRS_LOADED;
-		}
-		else
-		{
-			// Release the mutex when exiting
-			m_requests_mutex.unlock();
-		}
+		ResourceData rd;
+		rd.id = id;
+		rd.data = resource_on_load(id.type, m_resource_heap, m_bundle, id);
+		add_loaded(rd);
+		m_mutex.lock();
+		queue::pop_front(m_requests);
+		m_mutex.unlock();
 	}
 
 	return 0;

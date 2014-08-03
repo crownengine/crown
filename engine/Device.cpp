@@ -375,7 +375,7 @@ void Device::frame()
 
 	if (!m_is_paused)
 	{
-		m_resource_manager->poll_resource_loader();
+		m_resource_manager->complete_requests();
 
 		m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time());
 

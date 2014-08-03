@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "Config.h"
 #include "Assert.h"
 #include "Mutex.h"
-#include "Cond.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <pthread.h>

@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "TempAllocator.h"
 #include "DynamicString.h"
 #include "Queue.h"
+#include "Log.h"
 
 namespace crown
 {
@@ -48,16 +49,8 @@ ResourceId::ResourceId(const char* type, const char* name)
 ResourceManager::ResourceManager(Bundle& bundle)
 	: m_resource_heap("resource", default_allocator())
 	, m_loader(bundle, m_resource_heap)
-	, m_pendings(default_allocator())
 	, m_resources(default_allocator())
 {
-	m_loader.start();
-}
-
-//-----------------------------------------------------------------------------
-ResourceManager::~ResourceManager()
-{
-	m_loader.stop();
 }
 
 //-----------------------------------------------------------------------------
@@ -66,24 +59,10 @@ void ResourceManager::load(ResourceId id)
 	// Search for an already existent resource
 	ResourceEntry* entry = find(id);
 
-	// If resource not found, create a new one
+	// If resource not found, post load request
 	if (entry == NULL)
 	{
-		ResourceEntry entry;
-
-		entry.id = id;
-		entry.references = 1;
-		entry.resource = NULL;
-
-		array::push_back(m_resources, entry);
-
-		// Issue request to resource loader
-		PendingRequest pr;
-		pr.resource = id;
-		pr.id = m_loader.load_resource(id);
-
-		queue::push_back(m_pendings, pr);
-
+		m_loader.load(id);
 		return;
 	}
 
@@ -95,6 +74,8 @@ void ResourceManager::load(ResourceId id)
 void ResourceManager::unload(ResourceId id, bool force)
 {
 	CE_ASSERT(has(id), "Resource not loaded: %.16lx-%16lx", id.type, id.name);
+
+	flush();
 
 	ResourceEntry* entry = find(id);
 
@@ -158,10 +139,8 @@ uint32_t ResourceManager::references(ResourceId id) const
 //-----------------------------------------------------------------------------
 void ResourceManager::flush()
 {
-	while (!queue::empty(m_pendings))
-	{
-		poll_resource_loader();
-	}
+	m_loader.flush();
+	complete_requests();
 }
 
 //-----------------------------------------------------------------------------
@@ -173,29 +152,25 @@ ResourceEntry* ResourceManager::find(ResourceId id) const
 }
 
 //-----------------------------------------------------------------------------
-void ResourceManager::poll_resource_loader()
+void ResourceManager::complete_requests()
 {
-	if (!queue::empty(m_pendings))
-	{
-		PendingRequest request = queue::front(m_pendings);
+	TempAllocator1024 ta;
+	Array<ResourceData> loaded(ta);
+	m_loader.get_loaded(loaded);
 
-		if (m_loader.load_resource_status(request.id) == LRS_LOADED)
-		{
-			queue::pop_front(m_pendings);
-
-			void* data = m_loader.load_resource_data(request.id);
-			online(request.resource, data);
-		}
-	}
+	for (uint32_t i = 0; i < array::size(loaded); i++)
+		complete_request(loaded[i].id, loaded[i].data);
 }
 
 //-----------------------------------------------------------------------------
-void ResourceManager::online(ResourceId id, void* resource)
+void ResourceManager::complete_request(ResourceId id, void* data)
 {
-	ResourceEntry* entry = find(id);
-	resource_on_online(id.type, resource);
-
-	entry->resource = resource;
+	resource_on_online(id.type, data);
+	ResourceEntry entry;
+	entry.id = id;
+	entry.references = 1;
+	entry.resource = data;
+	array::push_back(m_resources, entry);
 }
 
 } // namespace crown
