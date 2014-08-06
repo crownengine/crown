@@ -25,7 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "os_window.h"
-#include "glcontext.h"
+#include "gl_context.h"
 #include "assert.h"
 #include "log.h"
 

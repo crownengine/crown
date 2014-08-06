@@ -28,7 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "config.h"
 #include "assert.h"
-#include "glcontext.h"
+#include "gl_context.h"
 #include "log.h"
 
 namespace crown

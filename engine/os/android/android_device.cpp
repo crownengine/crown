@@ -52,7 +52,6 @@ public:
 
 	//-----------------------------------------------------------------------------
 	AndroidDevice()
-		: m_game_thread("game_thread")
 	{
 		#if defined(CROWN_DEBUG)
 			m_fileserver = 1;
@@ -338,7 +337,7 @@ public:
 private:
 
 	OsEventQueue m_queue;
-	OsThread m_game_thread;
+	Thread m_game_thread;
 };
 
 } // namespace crown

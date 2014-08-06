@@ -117,7 +117,7 @@ struct TCPSocket
 		sockaddr_in addr_in;
 		addr_in.sin_family = AF_INET;
 		addr_in.sin_addr.s_addr = htonl(ip.address());
-		addr_in.sin_port = ::htons(port);
+		addr_in.sin_port = htons(port);
 
 		int err = ::connect(m_socket, (const sockaddr*)&addr_in, sizeof(sockaddr_in));
 

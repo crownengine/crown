@@ -466,7 +466,7 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/os/win/*",
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/glx/*",
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/wgl/*",
-				CROWN_SOURCE_DIR .. "engine/audio/backend/ALSoundWorld.cpp"
+				CROWN_SOURCE_DIR .. "engine/audio/backend/al_sound_world.cpp"
 			}
 
 		configuration { "debug", "android" }
@@ -610,7 +610,7 @@ solution "crown"
 				CROWN_SOURCE_DIR .. "engine/os/posix/*",
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/egl/*",
 				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/glx/*",
-				CROWN_SOURCE_DIR .. "engine/audio/backend/SLESSoundWorld.cpp"
+				CROWN_SOURCE_DIR .. "engine/audio/backend/sles_sound_world.cpp"
 			}
 
 		configuration { "x32", "vs*" }

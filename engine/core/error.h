@@ -46,6 +46,7 @@ namespace error
 inline void log_backtrace()
 {
 	#if CROWN_PLATFORM_LINUX && CROWN_COMPILER_GCC
+	printf("Backtrace:\n");
 	void* array[50];
 	int size = backtrace(array, 50);
 
@@ -106,8 +107,6 @@ inline void abort(const char* file, int line, const char* message, ...)
 	vprintf(message, ap);
 	va_end(ap);
 	printf("\tIn: %s:%d\n", file, line);
-	printf("Backtrace:\n");
-	//fflush(0);
 	log_backtrace();
 	exit(EXIT_FAILURE);
 }
