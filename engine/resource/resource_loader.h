@@ -31,8 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "thread.h"
 #include "container_types.h"
 #include "mutex.h"
-#include "semaphore.h"
-#include "os.h"
 
 namespace crown
 {
@@ -47,6 +45,8 @@ struct ResourceData
 };
 
 /// Loads resources in a background thread.
+///
+/// @ingroup Resource
 class ResourceLoader
 {
 public:
