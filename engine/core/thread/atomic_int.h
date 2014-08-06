@@ -45,31 +45,31 @@ struct AtomicInt
 
 	int load() const
 	{
-		#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
+#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
 		__sync_fetch_and_add(&m_val, 0);
 		return m_val;
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		InterlockedExchangeAdd(&m_val, (int32_t)0);
 		return m_val;
-		#endif
+#endif
 	}
 
 	void store(int val)
 	{
-		#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
+#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
 		__sync_lock_test_and_set(&m_val, val);
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		InterlockedExchange(&m_val, val);
-		#endif
+#endif
 	}
 
 private:
 
-	#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
+#if CROWN_PLATFORM_POSIX && CROWN_COMPILER_GCC
 	mutable int m_val;
-	#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 	mutable LONG m_val;
-	#endif
+#endif
 };
 
 } // namespace crown

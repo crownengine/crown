@@ -43,37 +43,37 @@ namespace crown
 struct Semaphore
 {
 	Semaphore()
-		#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 		: m_count(0)
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		: m_handle(INVALID_HANDLE_VALUE)
-		#endif
+#endif
 	{
-		#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 		int result = pthread_cond_init(&m_cond, NULL);
 		CE_ASSERT(result == 0, "pthread_cond_init: errno = %d", result);
 		CE_UNUSED(result);
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		m_handle = CreateSemaphore(NULL, 0, LONG_MAX, NULL);
 		CE_ASSERT(m_handle != NULL, "Unable to create semaphore!");
 		CE_UNUSED(m_handle);
-		#endif
+#endif
 	}
 
 	~Semaphore()
 	{
-		#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 		int result = pthread_cond_destroy(&m_cond);
 		CE_ASSERT(result == 0, "pthread_cond_destroy: errno = %d", result);
 		CE_UNUSED(result);
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		CloseHandle(m_handle);
-		#endif
+#endif
 	}
 
 	void post(uint32_t count = 1)
 	{
-		#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 		m_mutex.lock();
 		for (uint32_t i = 0; i < count; i++)
 		{
@@ -84,14 +84,14 @@ struct Semaphore
 
 		m_count += count;
 		m_mutex.unlock();
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		ReleaseSemaphore(m_handle, count, NULL);
-		#endif
+#endif
 	}
 
 	void wait()
 	{
-		#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 		m_mutex.lock();
 		while (m_count <= 0)
 		{
@@ -102,23 +102,23 @@ struct Semaphore
 
 		m_count--;
 		m_mutex.unlock();
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		DWORD milliseconds = (0 > msecs) ? INFINITE : msecs;
 		DWORD result = WaitForSingleObject(m_handle, milliseconds);
 		CE_ASSERT(result == WAIT_OBJECT_0, "Semaphore can not signal!");
 		CE_UNUSED(result);
-		#endif
+#endif
 	}
 
 private:
 
-	#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 	Mutex m_mutex;
 	pthread_cond_t m_cond;
 	int32_t m_count;
-	#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 	HANDLE m_handle;
-	#endif
+#endif
 
 private:
 

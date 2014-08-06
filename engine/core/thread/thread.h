@@ -47,11 +47,11 @@ typedef int32_t (*ThreadFunction)(void*);
 struct Thread
 {
 	Thread()
-		#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 		: m_handle(0)
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		: m_handle(INVALID_HANDLE_VALUE)
-		#endif
+#endif
 		, m_function(NULL)
 		, m_data(NULL)
 		, m_stack_size(0)
@@ -73,7 +73,7 @@ struct Thread
 		m_data = data;
 		m_stack_size = stack_size;
 
-		#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 		pthread_attr_t attr;
 		int result = pthread_attr_init(&attr);
 		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -92,10 +92,10 @@ struct Thread
 		result = pthread_attr_destroy(&attr);
 		CE_ASSERT(result == 0, "pthread_attr_destroy: errno = %d", result);
 		CE_UNUSED(result);
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		m_handle = CreateThread(NULL, stack_size, Thread::thread_proc, this, 0, NULL);
 		CE_ASSERT(m_handle != NULL, "Failed to create the thread '%s'", m_name);
-		#endif
+#endif
 
 		m_is_running = true;
 		m_sem.wait();
@@ -105,17 +105,17 @@ struct Thread
 	{
 		CE_ASSERT(m_is_running, "Thread is not running");
 
-		#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 		int result = pthread_join(m_handle, NULL);
 		CE_ASSERT(result == 0, "pthread_join: errno = %d", result);
 		CE_UNUSED(result);
 		m_handle = 0;
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		WaitForSingleObject(m_handle, INFINITE);
 		GetExitCodeThread(m_handle, &m_exit_code);
 		CloseHandle(m_handle);
 		m_handle = INVALID_HANDLE_VALUE;
-		#endif
+#endif
 
 		m_is_running = false;
 	}
@@ -133,29 +133,29 @@ private:
 		return m_function(m_data);
 	}
 
-	#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 	static void* thread_proc(void* arg)
 	{
 		static int32_t result = -1;
 		result = ((Thread*)arg)->run();
 		return (void*)&result;
 	}
-	#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 	static DWORD WINAPI OsThread::thread_proc(void* arg)
 	{
 		OsThread* thread = (OsThread*)arg;
 		int32_t result = thread->run();
 		return result;
 	}
-	#endif
+#endif
 
 private:
 
-	#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 	pthread_t m_handle;
-	#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 	HANDLE m_handle;
-	#endif
+#endif
 
 	ThreadFunction m_function;
 	void* m_data;

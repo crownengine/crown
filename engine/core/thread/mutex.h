@@ -43,7 +43,7 @@ struct Mutex
 {
 	Mutex()
 	{
-		#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 		int result = pthread_mutexattr_init(&m_attr);
 		CE_ASSERT(result == 0, "pthread_mutexattr_init: errno = %d", result);
 		result = pthread_mutexattr_settype(&m_attr, PTHREAD_MUTEX_ERRORCHECK);
@@ -51,55 +51,55 @@ struct Mutex
 		result = pthread_mutex_init(&m_mutex, &m_attr);
 		CE_ASSERT(result == 0, "pthread_mutex_init: errno = %d", result);
 		CE_UNUSED(result);
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		InitializeCriticalSection(&m_cs);
-		#endif
+#endif
 	}
 
 	~Mutex()
 	{
-		#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 		int result = pthread_mutex_destroy(&m_mutex);
 		CE_ASSERT(result == 0, "pthread_mutex_destroy: errno = %d", result);
 		result = pthread_mutexattr_destroy(&m_attr);
 		CE_ASSERT(result == 0, "pthread_mutexattr_destroy: errno = %d", result);
 		CE_UNUSED(result);
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		DeleteCriticalSection(&m_cs);
-		#endif
+#endif
 
 	}
 
 	void lock()
 	{
-		#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 		int result = pthread_mutex_lock(&m_mutex);
 		CE_ASSERT(result == 0, "pthread_mutex_lock: errno = %d", result);
 		CE_UNUSED(result);
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		EnterCriticalSection(&m_cs);
-		#endif
+#endif
 	}
 
 	void unlock()
 	{
-		#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 		int result = pthread_mutex_unlock(&m_mutex);
 		CE_ASSERT(result == 0, "pthread_mutex_unlock: errno = %d", result);
 		CE_UNUSED(result);
-		#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 		LeaveCriticalSection(&m_cs);
-		#endif
+#endif
 	}
 
 public:
 
-	#if CROWN_PLATFORM_POSIX
+#if CROWN_PLATFORM_POSIX
 	pthread_mutex_t m_mutex;
 	pthread_mutexattr_t m_attr;
-	#elif CROWN_PLATFORM_WINDOWS
+#elif CROWN_PLATFORM_WINDOWS
 	CRITICAL_SECTION m_cs;
-	#endif
+#endif
 
 private:
 
