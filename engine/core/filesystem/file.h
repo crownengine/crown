@@ -74,12 +74,6 @@ public:
 	/// Copies a chunk of 'size' bytes of data from this to another file.
 	virtual bool copy_to(File& file, size_t size = 0) = 0;
 
-	/// Zips a chunk of 'size' bytes of data from this to another file using compressor.
-	virtual bool compress_to(File& file, size_t size, size_t& compressed_size, Compressor& compressor);
-
-	/// Unzip a zipped file of data from this to another file using compressor.
-	virtual bool uncompress_to(File& file, size_t& uncompressed_size, Compressor& compressor);
-
 	/// Forces the previouses write operations to complete.
 	/// Generally, when a File is attached to a file,
 	/// write operations are not performed instantly, the output data

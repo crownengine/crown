@@ -145,7 +145,6 @@ solution "crown"
 			CROWN_SOURCE_DIR .. "/engine",
 			CROWN_SOURCE_DIR .. "/engine/core",
 			CROWN_SOURCE_DIR .. "/engine/core/bv",
-			CROWN_SOURCE_DIR .. "/engine/core/compressors",
 			CROWN_SOURCE_DIR .. "/engine/core/containers",
 			CROWN_SOURCE_DIR .. "/engine/core/filesystem",
 			CROWN_SOURCE_DIR .. "/engine/core/json",
