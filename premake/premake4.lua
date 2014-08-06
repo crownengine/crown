@@ -55,7 +55,6 @@ if not CROWN_INSTALL_DIR then
 end
 CROWN_INSTALL_DIR = CROWN_INSTALL_DIR .. "/" -- Add slash to end string
 
-
 -------------------------------------------------------------------------------
 -- Solution
 solution "crown"
@@ -72,12 +71,24 @@ solution "crown"
 		if _OPTIONS["compiler"] == "linux-gcc" then
 
 			if not os.is("linux") then print("Action not valid in current OS.") end
+
+			if not os.getenv("PHYSX_SDK_LINUX") then
+				print("Set PHYSX_SDK_LINUX environment variable.")
+			end
+
 			location(CROWN_BUILD_DIR .. "linux")
 
 		elseif _OPTIONS["compiler"] == "android" then
 
-			if not os.getenv("ANDROID_NDK_ROOT") then print("Set ANDROID_NDK_ROOT environment variable.") end
-			if not os.getenv("ANDROID_NDK_ARM") then print("Set ANDROID_NDK_ARM environment variables.") end
+			if not os.getenv("ANDROID_NDK_ROOT") then
+				print("Set ANDROID_NDK_ROOT environment variable.")
+			end
+			if not os.getenv("ANDROID_NDK_ARM") then
+				print("Set ANDROID_NDK_ARM environment variables.")
+			end
+			if not os.getenv("PHYSX_SDK_ANDROID") then
+				print("Set PHYSX_SDK_ANDROID environment variable.")
+			end
 
 			premake.gcc.cc = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-gcc"
 			premake.gcc.cxx = "$(ANDROID_NDK_ARM)/bin/arm-linux-androideabi-g++"
@@ -91,6 +102,11 @@ solution "crown"
 	if _ACTION == "vs2010" or _ACTION == "vs2008" then
 
 		if not os.is("windows") then print("Action not valid in current OS.") end
+
+		if not os.getenv("PHYSX_SDK_WINDOWS") then
+			print("Set PHYSX_SDK_WINDOWS environment variable.")
+		end
+
 		location(CROWN_BUILD_DIR .. "windows")
 
 	end
@@ -199,8 +215,31 @@ solution "crown"
 			}
 
 			includedirs {
+				"$(PHYSX_SDK_LINUX)/Include",
+				"$(PHYSX_SDK_LINUX)/Include/common",
+				"$(PHYSX_SDK_LINUX)/Include/characterkinematic",
+				"$(PHYSX_SDK_LINUX)/Include/cloth",
+				"$(PHYSX_SDK_LINUX)/Include/common",
+				"$(PHYSX_SDK_LINUX)/Include/cooking",
+				"$(PHYSX_SDK_LINUX)/Include/extensions",
+				"$(PHYSX_SDK_LINUX)/Include/foundation",
+				"$(PHYSX_SDK_LINUX)/Include/geometry",
+				"$(PHYSX_SDK_LINUX)/Include/particles",
+				"$(PHYSX_SDK_LINUX)/Include/physxprofilesdk",
+				"$(PHYSX_SDK_LINUX)/Include/physxvisualdebuggersdk",
+				"$(PHYSX_SDK_LINUX)/Include/pvd",
+				"$(PHYSX_SDK_LINUX)/Include/pxtask",
+				"$(PHYSX_SDK_LINUX)/Include/RepX",
+				"$(PHYSX_SDK_LINUX)/Include/RepXUpgrader",
+				"$(PHYSX_SDK_LINUX)/Include/vehicle",
 				CROWN_SOURCE_DIR .. "/engine/os/linux",
 				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/glx",
+				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "opengl",
+				CROWN_THIRD_DIR .. "openal/include",
+				CROWN_THIRD_DIR .. "freetype",
+				CROWN_THIRD_DIR .. "stb_image",
+				CROWN_THIRD_DIR .. "stb_vorbis",
 			}
 
 			excludes {
@@ -291,35 +330,9 @@ solution "crown"
 				"-malign-double" -- Required by PhysX
 			}
 
-			includedirs {
-				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "physx/x86/include",
-				CROWN_THIRD_DIR .. "physx/x86/include/common",
-				CROWN_THIRD_DIR .. "physx/x86/include/characterkinematic",
-				CROWN_THIRD_DIR .. "physx/x86/include/cloth",
-				CROWN_THIRD_DIR .. "physx/x86/include/common",
-				CROWN_THIRD_DIR .. "physx/x86/include/cooking",
-				CROWN_THIRD_DIR .. "physx/x86/include/extensions",
-				CROWN_THIRD_DIR .. "physx/x86/include/foundation",
-				CROWN_THIRD_DIR .. "physx/x86/include/geometry",
-				CROWN_THIRD_DIR .. "physx/x86/include/particles",
-				CROWN_THIRD_DIR .. "physx/x86/include/physxprofilesdk",
-				CROWN_THIRD_DIR .. "physx/x86/include/physxvisualdebuggersdk",
-				CROWN_THIRD_DIR .. "physx/x86/include/pvd",
-				CROWN_THIRD_DIR .. "physx/x86/include/pxtask",
-				CROWN_THIRD_DIR .. "physx/x86/include/RepX",
-				CROWN_THIRD_DIR .. "physx/x86/include/RepXUpgrader",
-				CROWN_THIRD_DIR .. "physx/x86/include/vehicle",
-				CROWN_THIRD_DIR .. "opengl",
-				CROWN_THIRD_DIR .. "openal/include",
-				CROWN_THIRD_DIR .. "freetype",
-				CROWN_THIRD_DIR .. "stb_image",
-				CROWN_THIRD_DIR .. "stb_vorbis"
-			}
-
 			libdirs {
 				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "physx/x86/lib"
+				"$(PHYSX_SDK_LINUX)/Lib/linux32"
 			}
 
 			postbuildcommands {
@@ -330,35 +343,9 @@ solution "crown"
 		configuration { "linux-*", "x64" }
 			targetdir(CROWN_INSTALL_DIR .. "bin/linux64")
 
-			includedirs {
-				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "physx/x86_64/include",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/common",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/characterkinematic",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/cloth",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/common",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/cooking",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/extensions",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/foundation",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/geometry",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/particles",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/physxprofilesdk",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/physxvisualdebuggersdk",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/pvd",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/pxtask",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/RepX",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/RepXUpgrader",
-				CROWN_THIRD_DIR .. "physx/x86_64/include/vehicle",
-				CROWN_THIRD_DIR .. "opengl",
-				CROWN_THIRD_DIR .. "openal/include",
-				CROWN_THIRD_DIR .. "freetype",
-				CROWN_THIRD_DIR .. "stb_image",
-				CROWN_THIRD_DIR .. "stb_vorbis",
-			}
-
 			libdirs {
 				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "physx/x86_64/lib",
+				"$(PHYSX_SDK_LINUX)/Lib/linux64"
 			}
 
 			postbuildcommands {
@@ -424,41 +411,41 @@ solution "crown"
 			}
 
 			includedirs {
+				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/include",
+				"$(ANDROID_NDK_ROOT)/sources/android/native_app_glue",
+				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/include",
+				"$(PHYSX_SDK_ANDROID)/Include",
+				"$(PHYSX_SDK_ANDROID)/Include/common",
+				"$(PHYSX_SDK_ANDROID)/Include/characterkinematic",
+				"$(PHYSX_SDK_ANDROID)/Include/cloth",
+				"$(PHYSX_SDK_ANDROID)/Include/common",
+				"$(PHYSX_SDK_ANDROID)/Include/cooking",
+				"$(PHYSX_SDK_ANDROID)/Include/extensions",
+				"$(PHYSX_SDK_ANDROID)/Include/foundation",
+				"$(PHYSX_SDK_ANDROID)/Include/geometry",
+				"$(PHYSX_SDK_ANDROID)/Include/particles",
+				"$(PHYSX_SDK_ANDROID)/Include/physxprofilesdk",
+				"$(PHYSX_SDK_ANDROID)/Include/physxvisualdebuggersdk",
+				"$(PHYSX_SDK_ANDROID)/Include/pvd",
+				"$(PHYSX_SDK_ANDROID)/Include/pxtask",
+				"$(PHYSX_SDK_ANDROID)/Include/RepX",
+				"$(PHYSX_SDK_ANDROID)/Include/RepXUpgrader",
+				"$(PHYSX_SDK_ANDROID)/Include/vehicle",
 				CROWN_SOURCE_DIR .. "engine/os/android",
 				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/egl",
 				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "physx/android/include",
-				CROWN_THIRD_DIR .. "physx/android/include/common",
-				CROWN_THIRD_DIR .. "physx/android/include/characterkinematic",
-				CROWN_THIRD_DIR .. "physx/android/include/cloth",
-				CROWN_THIRD_DIR .. "physx/android/include/common",
-				CROWN_THIRD_DIR .. "physx/android/include/cooking",
-				CROWN_THIRD_DIR .. "physx/android/include/extensions",
-				CROWN_THIRD_DIR .. "physx/android/include/foundation",
-				CROWN_THIRD_DIR .. "physx/android/include/geometry",
-				CROWN_THIRD_DIR .. "physx/android/include/particles",
-				CROWN_THIRD_DIR .. "physx/android/include/physxprofilesdk",
-				CROWN_THIRD_DIR .. "physx/android/include/physxvisualdebuggersdk",
-				CROWN_THIRD_DIR .. "physx/android/include/pvd",
-				CROWN_THIRD_DIR .. "physx/android/include/pxtask",
-				CROWN_THIRD_DIR .. "physx/android/include/RepX",
-				CROWN_THIRD_DIR .. "physx/android/include/RepXUpgrader",
-				CROWN_THIRD_DIR .. "physx/android/include/vehicle",
 				CROWN_THIRD_DIR .. "opengl",
 				CROWN_THIRD_DIR .. "openal/include",
 				CROWN_THIRD_DIR .. "freetype",
 				CROWN_THIRD_DIR .. "stb_image",
 				CROWN_THIRD_DIR .. "stb_vorbis",
-				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/include",
-				"$(ANDROID_NDK_ROOT)/sources/android/native_app_glue",
-				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/include"
 			}
 
 			libdirs {
-				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "physx/android/lib",
 				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a",
-				"$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm/usr/lib"
+				"$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm/usr/lib",
+				"$(PHYSX_SDK_ANDROID)/Lib/android9_neon",
+				CROWN_THIRD_DIR .. "luajit/src",
 			}
 
 			excludes {
@@ -470,25 +457,6 @@ solution "crown"
 			}
 
 		configuration { "debug", "android" }
-			-- linkoptions
-			-- {
-			-- 	"-Wl,--start-group $(addprefix -l," ..
-			-- 	"	LowLevelClothCHECKED" ..
-			-- 	"	PhysX3CHECKED " ..
-			-- 	"	PhysX3CommonCHECKED" ..
-			-- 	"	PxTaskCHECKED" ..
-			-- 	"	LowLevelCHECKED" ..
-			-- 	"	PhysX3CharacterKinematicCHECKED" ..
-			-- 	"	PhysX3CookingCHECKED" ..
-			-- 	"	PhysX3ExtensionsCHECKED" ..
-			-- 	"	PhysX3VehicleCHECKED" ..
-			-- 	"	PhysXProfileSDKCHECKED" ..
-			-- 	"	PhysXVisualDebuggerSDKCHECKED" ..
-			-- 	"	PvdRuntimeCHECKED" ..
-			-- 	"	SceneQueryCHECKED" ..
-			-- 	"	SimulationControllerCHECKED" ..
-			-- 	") -Wl,--end-group"
-			-- }
 			linkoptions { 
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
@@ -508,25 +476,6 @@ solution "crown"
 				") -Wl,--end-group"
 			}
 		configuration { "development", "android"}
-			-- linkoptions
-			-- { 
-			-- 	"-Wl,--start-group $(addprefix -l," ..
-			-- 	"	LowLevelClothPROFILE" ..
-			-- 	"	PhysX3PROFILE " ..
-			-- 	"	PhysX3CommonPROFILE" ..
-			-- 	"	PxTaskPROFILE" ..
-			-- 	"	LowLevelPROFILE" ..
-			-- 	"	PhysX3CharacterKinematicPROFILE" ..
-			-- 	"	PhysX3CookingPROFILE" ..
-			-- 	"	PhysX3ExtensionsPROFILE" ..
-			-- 	"	PhysX3VehiclePROFILE" ..
-			-- 	"	PhysXProfileSDKPROFILE" ..
-			-- 	"	PhysXVisualDebuggerSDKPROFILE" ..
-			-- 	"	PvdRuntimePROFILE" ..
-			-- 	"	SceneQueryPROFILE" ..
-			-- 	"	SimulationControllerPROFILE" ..
-			-- 	") -Wl,--end-group"
-			-- }
 			linkoptions { 
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
@@ -575,9 +524,11 @@ solution "crown"
 				"/ignore:4221", -- LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
 
 			}
+
 			links { -- this is needed only for testing with GLES2/3 on Windows with VS2008
 				"DelayImp",
 			}
+
 			defines {
 				"WIN32",
 				"_WIN32",
@@ -589,10 +540,12 @@ solution "crown"
 				"_CRT_SECURE_NO_WARNINGS",
 				"_CRT_SECURE_NO_DEPRECATE"
 			}
+
 			buildoptions {
 				"/Oy-", -- Suppresses creation of frame pointers on the call stack.
 				"/Ob2", -- The Inline Function Expansion
 			}
+
 			links {
 				"OpenGL32",
 				"lua51",
@@ -600,6 +553,29 @@ solution "crown"
 			}
 
 			includedirs {
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/common",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/characterkinematic",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/cloth",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/common",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/cooking",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/extensions",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/foundation",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/geometry",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/particles",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/physxprofilesdk",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/physxvisualdebuggersdk",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/pvd",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/pxtask",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/RepX",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/RepXUpgrader",
+				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/vehicle",
+				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "opengl",
+				CROWN_THIRD_DIR .. "openal/include",
+				CROWN_THIRD_DIR .. "freetype",
+				CROWN_THIRD_DIR .. "stb_image",
+				CROWN_THIRD_DIR .. "stb_vorbis",
 				CROWN_SOURCE_DIR .. "/engine/os/win",
 				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/wgl"
 			}
@@ -614,70 +590,18 @@ solution "crown"
 			}
 
 		configuration { "x32", "vs*" }
-			includedirs {
-				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "physx/win32/include",
-				CROWN_THIRD_DIR .. "physx/win32/include/common",
-				CROWN_THIRD_DIR .. "physx/win32/include/characterkinematic",
-				CROWN_THIRD_DIR .. "physx/win32/include/cloth",
-				CROWN_THIRD_DIR .. "physx/win32/include/common",
-				CROWN_THIRD_DIR .. "physx/win32/include/cooking",
-				CROWN_THIRD_DIR .. "physx/win32/include/extensions",
-				CROWN_THIRD_DIR .. "physx/win32/include/foundation",
-				CROWN_THIRD_DIR .. "physx/win32/include/geometry",
-				CROWN_THIRD_DIR .. "physx/win32/include/particles",
-				CROWN_THIRD_DIR .. "physx/win32/include/physxprofilesdk",
-				CROWN_THIRD_DIR .. "physx/win32/include/physxvisualdebuggersdk",
-				CROWN_THIRD_DIR .. "physx/win32/include/pvd",
-				CROWN_THIRD_DIR .. "physx/win32/include/pxtask",
-				CROWN_THIRD_DIR .. "physx/win32/include/RepX",
-				CROWN_THIRD_DIR .. "physx/win32/include/RepXUpgrader",
-				CROWN_THIRD_DIR .. "physx/win32/include/vehicle",
-				CROWN_THIRD_DIR .. "opengl",
-				CROWN_THIRD_DIR .. "openal/include",
-				CROWN_THIRD_DIR .. "freetype",
-				CROWN_THIRD_DIR .. "stb_image",
-				CROWN_THIRD_DIR .. "stb_vorbis"
-			}
-
 			libdirs {
+				"$(PHYSX_SDK_WINDOWS)/Lib/win32",
 				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "physx/win32/lib",
 				CROWN_THIRD_DIR .. "openal/lib"
 			}
 
 		configuration { "x64", "vs*" }
 			defines { "_WIN64" }
 
-			includedirs {
-				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "physx/win64/include",
-				CROWN_THIRD_DIR .. "physx/win64/include/common",
-				CROWN_THIRD_DIR .. "physx/win64/include/characterkinematic",
-				CROWN_THIRD_DIR .. "physx/win64/include/cloth",
-				CROWN_THIRD_DIR .. "physx/win64/include/common",
-				CROWN_THIRD_DIR .. "physx/win64/include/cooking",
-				CROWN_THIRD_DIR .. "physx/win64/include/extensions",
-				CROWN_THIRD_DIR .. "physx/win64/include/foundation",
-				CROWN_THIRD_DIR .. "physx/win64/include/geometry",
-				CROWN_THIRD_DIR .. "physx/win64/include/particles",
-				CROWN_THIRD_DIR .. "physx/win64/include/physxprofilesdk",
-				CROWN_THIRD_DIR .. "physx/win64/include/physxvisualdebuggersdk",
-				CROWN_THIRD_DIR .. "physx/win64/include/pvd",
-				CROWN_THIRD_DIR .. "physx/win64/include/pxtask",
-				CROWN_THIRD_DIR .. "physx/win64/include/RepX",
-				CROWN_THIRD_DIR .. "physx/win64/include/RepXUpgrader",
-				CROWN_THIRD_DIR .. "physx/win64/include/vehicle",
-				CROWN_THIRD_DIR .. "opengl",
-				CROWN_THIRD_DIR .. "openal/include",
-				CROWN_THIRD_DIR .. "freetype",
-				CROWN_THIRD_DIR .. "stb_image",
-				CROWN_THIRD_DIR .. "stb_vorbis"
-			}
-
 			libdirs {
+				"$(PHYSX_SDK_WINDOWS)/Lib/win64",
 				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "physx/win64/lib",
 				CROWN_THIRD_DIR .. "openal/lib"
 			}
 
