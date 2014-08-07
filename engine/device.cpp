@@ -29,7 +29,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "config.h"
 #include "device.h"
-#include "accelerometer.h"
 #include "args.h"
 #include "disk_file.h"
 #include "disk_filesystem.h"

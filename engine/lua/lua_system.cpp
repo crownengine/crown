@@ -44,7 +44,6 @@ namespace crown
 {
 
 // Lua modules
-extern void load_accelerometer(LuaEnvironment& env);
 extern void load_actor(LuaEnvironment& env);
 extern void load_camera(LuaEnvironment& env);
 extern void load_controller(LuaEnvironment& env);
@@ -313,7 +312,6 @@ namespace lua_system
 
 		// Register crown libraries
 		LuaEnvironment env(s_L);
-		load_accelerometer(env);
 		load_actor(env);
 		load_camera(env);
 		load_controller(env);
