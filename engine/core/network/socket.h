@@ -80,6 +80,9 @@ struct AcceptResult
 	enum { NO_ERROR, BAD_SOCKET, NO_CONNECTION, UNKNOWN } error;
 };
 
+/// TCP socket
+///
+/// @ingroup Network
 struct TCPSocket
 {
 	//-----------------------------------------------------------------------------
