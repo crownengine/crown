@@ -1,3 +1,4 @@
+
 /*
 Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
@@ -101,7 +102,7 @@ Device::Device()
 	, m_world_manager(NULL)
 {
 	// Bundle dir is current dir by default.
-	string::strncpy(m_bundle_dir, os::get_cwd(), MAX_PATH_LENGTH);
+	os::getcwd(m_bundle_dir, MAX_PATH_LENGTH);
 	string::strncpy(m_source_dir, "", MAX_PATH_LENGTH);
 	string::strncpy(m_boot_file, "lua/game", MAX_PATH_LENGTH);
 }
@@ -315,7 +316,7 @@ void Device::start()
 	CE_ASSERT(m_is_init, "Cannot start uninitialized engine.");
 
 	m_is_running = true;
-	m_last_time = os::milliseconds();
+	m_last_time = os::clocktime();
 }
 
 //-----------------------------------------------------------------------------
@@ -367,22 +368,21 @@ double Device::time_since_start() const
 //-----------------------------------------------------------------------------
 void Device::frame()
 {
-	m_current_time = os::microseconds();
-	m_last_delta_time = (m_current_time - m_last_time) / 1000000.0f;
+	m_current_time = os::clocktime();
+	const int64_t time = m_current_time - m_last_time;
 	m_last_time = m_current_time;
+	const double freq = (double) os::clockfrequency();
+	m_last_delta_time = time * (1.0 / freq);
 	m_time_since_start += m_last_delta_time;
 
 	if (!m_is_paused)
 	{
 		m_resource_manager->complete_requests();
-
 		m_lua_environment->call_global("frame", 1, ARGUMENT_FLOAT, last_delta_time());
-
 		m_renderer->frame();
 	}
 
 	lua_system::clear_temporaries();
-
 	m_frame_count++;
 }
 

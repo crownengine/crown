@@ -59,6 +59,9 @@ public:
 	/// Closes the given @a file.
 	void close(File* file);
 
+	/// Returns whether @a path exists.
+	bool exists(const char* path);
+
 	/// Returns true if @a path is a directory.
 	bool is_directory(const char* path);
 

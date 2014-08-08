@@ -36,14 +36,13 @@ namespace crown
 //-----------------------------------------------------------------------------
 DiskFilesystem::DiskFilesystem()
 {
-	string::strncpy(m_root_path, os::get_cwd(), MAX_PATH_LENGTH);
+	os::getcwd(m_root_path, MAX_PATH_LENGTH);
 }
 
 //-----------------------------------------------------------------------------
 DiskFilesystem::DiskFilesystem(const char* root_path)
 {
 	CE_ASSERT_NOT_NULL(root_path);
-
 	string::strncpy(m_root_path, root_path, MAX_PATH_LENGTH);
 }
 
@@ -65,6 +64,18 @@ void DiskFilesystem::close(File* file)
 	CE_ASSERT_NOT_NULL(file);
 
 	CE_DELETE(default_allocator(), file);
+}
+
+//-----------------------------------------------------------------------------
+bool DiskFilesystem::exists(const char* path)
+{
+	CE_ASSERT_NOT_NULL(path);
+
+	TempAllocator256 alloc;
+	DynamicString abs_path(alloc);
+	get_absolute_path(path, abs_path);
+
+	return os::exists(abs_path.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -100,7 +111,8 @@ void DiskFilesystem::create_directory(const char* path)
 	DynamicString abs_path(alloc);
 	get_absolute_path(path, abs_path);
 
-	os::create_directory(abs_path.c_str());
+	if (!os::exists(abs_path.c_str()))
+		os::create_directory(abs_path.c_str());
 }
 
 //-----------------------------------------------------------------------------

@@ -39,8 +39,6 @@ namespace crown
 namespace string
 {
 
-const char* const	EMPTY = "";
-
 //-----------------------------------------------------------------------------
 inline bool is_alpha(char c)
 {

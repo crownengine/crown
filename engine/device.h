@@ -194,8 +194,8 @@ protected:
 
 	uint64_t m_frame_count;
 
-	uint64_t m_last_time;
-	uint64_t m_current_time;
+	int64_t m_last_time;
+	int64_t m_current_time;
 	float m_last_delta_time;
 	double m_time_since_start;
 

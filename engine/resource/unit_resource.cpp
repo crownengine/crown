@@ -342,7 +342,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	unit_name.strip_trailing(".unit");
 	DynamicString physics_name = unit_name;
 	physics_name += ".physics";
-	if (fs.is_file(physics_name.c_str()))
+	if (fs.exists(physics_name.c_str()))
 	{
 		m_physics_resource = ResourceId("physics", unit_name.c_str());
 	}
@@ -354,7 +354,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	// Check if the unit has a .material resource
 	DynamicString material_name = unit_name;
 	material_name += ".material";
-	if (fs.is_file(material_name.c_str()))
+	if (fs.exists(material_name.c_str()))
 	{
 		m_material_resource = ResourceId("material", unit_name.c_str());
 	}

@@ -46,7 +46,6 @@ extern void set_x11_display_and_window(Display* dpy, Window win);
 void init()
 {
 	crown::memory::init();
-	crown::os::init_os();
 }
 
 //-----------------------------------------------------------------------------
@@ -637,7 +636,7 @@ public:
 				case '?':
 				default:
 				{
-					os::printf(help_message);
+					printf(help_message);
 					exit(EXIT_FAILURE);
 				}
 			}

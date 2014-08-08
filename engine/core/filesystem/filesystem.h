@@ -95,6 +95,9 @@ public:
 	/// Closes the given @a file.
 	virtual void close(File* file) = 0;
 
+	/// Returns whether @a path exists.
+	virtual bool exists(const char* path) = 0;
+
 	/// Returns true if @a path is a directory.
 	virtual bool is_directory(const char* path) = 0;
 

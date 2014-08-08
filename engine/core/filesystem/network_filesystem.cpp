@@ -61,6 +61,12 @@ void NetworkFilesystem::close(File* file)
 }
 
 //-----------------------------------------------------------------------------
+bool NetworkFilesystem::exists(const char* path)
+{
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 bool NetworkFilesystem::is_directory(const char* path)
 {
   return false;

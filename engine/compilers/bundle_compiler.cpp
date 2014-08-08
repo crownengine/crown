@@ -66,12 +66,8 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 	{
 		BundleCompiler::scan(source_dir, "", files);
 
-		// Create bundle dir if does not exist
 		DiskFilesystem temp;
-		if (!temp.is_directory(bundle_dir) || !temp.is_file(bundle_dir))
-		{
-			temp.create_directory(bundle_dir);
-		}
+		temp.create_directory(bundle_dir);
 
 		// Copy crown.config to bundle dir
 		DiskFilesystem src_fs(source_dir);
