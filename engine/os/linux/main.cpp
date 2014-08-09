@@ -24,18 +24,22 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "config.h"
+#include "device.h"
+#include "os_types.h"
+#include "os_event_queue.h"
+#include "bundle_compiler.h"
+#include "memory.h"
+#include "json_parser.h"
+#include "log.h"
+#include "args.h"
+#include "thread.h"
+#include "os_window.h"
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 #include <X11/extensions/Xrandr.h>
-#include "Config.h"
-#include "Crown.h"
-#include "Device.h"
-#include "OsTypes.h"
-#include "OsEventQueue.h"
-#include "BundleCompiler.h"
-#include "Memory.h"
 #include <bgfxplatform.h>
 #include <bgfx.h>
 
@@ -46,7 +50,6 @@ namespace crown
 void init()
 {
 	crown::memory::init();
-	crown::os::init_os();
 }
 
 //-----------------------------------------------------------------------------
@@ -260,7 +263,7 @@ public:
 		XSetWindowAttributes win_attribs;
 		win_attribs.background_pixmap = 0;
 		win_attribs.border_pixel = 0;
-		win_attribs.event_mask = FocusChangeMask | StructureNotifyMask | KeyPressMask | 
+		win_attribs.event_mask = FocusChangeMask | StructureNotifyMask | KeyPressMask |
 			KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
 
 		m_x11_window = XCreateWindow(
@@ -307,7 +310,7 @@ public:
 		Rotation rr_old_rot;
 		const SizeID rr_old_sizeid = XRRConfigCurrentConfiguration(m_screen_config, &rr_old_rot);
 
-		OsThread game_thread("game-thread");
+		Thread game_thread;
 		game_thread.start(main_loop, (void*)this);
 
 		while (!m_exit)
@@ -563,7 +566,7 @@ public:
 			"  --console-port             Set the network port of the console server.\n"
 			"  --wait-console             Wait for a console connection before starting up.\n";
 
-		static ArgsOption options[] = 
+		static ArgsOption options[] =
 		{
 			{ "help",             AOA_NO_ARGUMENT,       NULL,           'i' },
 			{ "source-dir",       AOA_REQUIRED_ARGUMENT, NULL,           's' },
@@ -631,7 +634,7 @@ public:
 				case '?':
 				default:
 				{
-					os::printf(help_message);
+					printf(help_message);
 					exit(EXIT_FAILURE);
 				}
 			}
@@ -744,7 +747,7 @@ int main(int argc, char** argv)
 
 	crown::LinuxDevice* engine = CE_NEW(crown::default_allocator(), crown::LinuxDevice)();
 	crown::set_device(engine);
-	
+
 	int32_t ret = engine->run(argc, argv);
 
 	CE_DELETE(crown::default_allocator(), engine);

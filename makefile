@@ -8,9 +8,9 @@ endif
 PREMAKE=bin/$(OS)/premake4
 
 luajit-linux32:
-	make -R -C third/luajit CC="gcc -m32"
+	make -R -C third/luajit CC="gcc -m32" BUILDMODE="static"
 luajit-linux64:
-	make -R -C third/luajit
+	make -R -C third/luajit CC="gcc -m64" BUILDMODE="static"
 luajit-windows32:
 	cd third/luajit/src && msvcbuild
 luajit-windows64:
@@ -79,9 +79,8 @@ windows-development64: windows-build
 windows-release64: windows-build
 	devenv .build/windows/crown.sln /Build "release|x64"
 
-# docs:
-# 	doxygen premake/crown.doxygen
-# 	# markdown README.md > .build/docs/readme.html
+docs:
+	doxygen Doxyfile.doxygen
 
 clean: deps-clean
 	@echo Cleaning...
