@@ -36,7 +36,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #elif CROWN_PLATFORM_WINDOWS
 	#include "win_headers.h"
 	#include <process.h>
-	#include <win_base.h>
 #endif
 
 namespace crown
@@ -94,7 +93,7 @@ struct Thread
 		CE_UNUSED(result);
 #elif CROWN_PLATFORM_WINDOWS
 		m_handle = CreateThread(NULL, stack_size, Thread::thread_proc, this, 0, NULL);
-		CE_ASSERT(m_handle != NULL, "Failed to create the thread '%s'", m_name);
+		CE_ASSERT(m_handle != NULL, "CreateThread: GetLastError = %d", GetLastError());
 #endif
 
 		m_is_running = true;
@@ -112,7 +111,7 @@ struct Thread
 		m_handle = 0;
 #elif CROWN_PLATFORM_WINDOWS
 		WaitForSingleObject(m_handle, INFINITE);
-		GetExitCodeThread(m_handle, &m_exit_code);
+		// GetExitCodeThread(m_handle, &m_exit_code);
 		CloseHandle(m_handle);
 		m_handle = INVALID_HANDLE_VALUE;
 #endif
@@ -141,9 +140,9 @@ private:
 		return (void*)&result;
 	}
 #elif CROWN_PLATFORM_WINDOWS
-	static DWORD WINAPI OsThread::thread_proc(void* arg)
+	static DWORD WINAPI thread_proc(void* arg)
 	{
-		OsThread* thread = (OsThread*)arg;
+		Thread* thread = (Thread*) arg;
 		int32_t result = thread->run();
 		return result;
 	}

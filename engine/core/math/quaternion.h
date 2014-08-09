@@ -110,7 +110,7 @@ namespace quaternion
 
 	inline Quaternion inverse(const Quaternion& q)
 	{
-		return conjugate(q) * (1.0 / length(q));
+		return conjugate(q) * (1.0f / length(q));
 	}
 
 	inline Quaternion power(const Quaternion& q, float exp)
@@ -159,10 +159,10 @@ inline Quaternion::Quaternion(float nx, float ny, float nz, float nw)
 
 //-----------------------------------------------------------------------------
 inline Quaternion::Quaternion(const Vector3& axis, float angle)
-	: x(axis.x * math::sin(angle * 0.5))
-	, y(axis.y * math::sin(angle * 0.5))
-	, z(axis.z * math::sin(angle * 0.5))
-	, w(math::cos(angle * 0.5))
+	: x(axis.x * math::sin(angle * 0.5f))
+	, y(axis.y * math::sin(angle * 0.5f))
+	, z(axis.z * math::sin(angle * 0.5f))
+	, w(math::cos(angle * 0.5f))
 {
 }
 

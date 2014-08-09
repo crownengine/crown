@@ -28,9 +28,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "config.h"
 #include "types.h"
-#include "net_address.h"
 #include "assert.h"
-#include "os.h"
+#include "net_address.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <sys/socket.h>
@@ -40,7 +39,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#include <unistd.h>
 	#include <errno.h>
 #elif CROWN_PLATFORM_WINDOWS
-	//Undefined in WinHeaders.h, but winsock2 ecc need it.
+//Undefined in WinHeaders.h, but winsock2 ecc need it.
 	#ifndef NEAR
 	#define NEAR
 	#endif
@@ -48,7 +47,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#define FAR
 	#endif
 	#include <winsock2.h>
-	#include "win_headers.h"
+	#include <win_headers.h>
 	//Re-undef NEAR and FAR after use
 	#undef NEAR
 	#undef FAR
@@ -229,7 +228,7 @@ struct TCPSocket
 		}
 
 		int wsaerr = WSAGetLastError();
-		if (wsaerr == WSAEWOULDBLOCK))
+		if (wsaerr == WSAEWOULDBLOCK)
 			ar.error = AcceptResult::NO_CONNECTION;
 		else
 			ar.error = AcceptResult::UNKNOWN;
@@ -328,7 +327,7 @@ struct TCPSocket
 
 			buf += read_bytes;
 			to_read -= read_bytes;
-			result.bytes_read += read_bytes;
+			rr.bytes_read += read_bytes;
 		}
 
 		return rr;
@@ -393,7 +392,7 @@ struct TCPSocket
 
 		while (to_send > 0)
 		{
-			ssize_t bytes_wrote = ::send(m_socket, (const char*) buf, to_send, 0);
+			int bytes_wrote = ::send(m_socket, (const char*) buf, to_send, 0);
 
 			if (bytes_wrote == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK)
 			{
@@ -460,7 +459,7 @@ struct TCPSocket
 		CE_ASSERT(err == 0, "setsockopt: errno = %d", errno);
 #elif CROWN_PLATFORM_WINDOWS
 		int optval = (int) reuse;
-		int err = setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+		int err = setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, (const char*) &optval, sizeof(optval));
 		CE_ASSERT(err == 0, "setsockopt: WSAGetLastError = %d", WSAGetLastError());
 #endif
 	}

@@ -73,8 +73,8 @@ void DebugLine::add_sphere(const Color4& color, const Vector3& center, const flo
 
 	for (uint32_t deg = 0; deg < 360; deg += deg_step)
 	{
-		const float rad0 = math::deg_to_rad(deg);
-		const float rad1 = math::deg_to_rad(deg + deg_step);
+		const float rad0 = math::deg_to_rad((float) deg);
+		const float rad1 = math::deg_to_rad((float) deg + deg_step);
 
 		// XZ plane
 		const Vector3 start0(math::cos(rad0) * radius, 0, -math::sin(rad0) * radius);

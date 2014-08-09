@@ -230,7 +230,7 @@ inline float parse_float(const char* string)
 }
 
 //-----------------------------------------------------------------------------
-inline float parse_double(const char* string)
+inline double parse_double(const char* string)
 {
 	double val;
 	int ok = sscanf(string, "%lf", &val);

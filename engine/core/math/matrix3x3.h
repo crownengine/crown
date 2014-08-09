@@ -185,7 +185,7 @@ namespace matrix3x3
 		mat.x.y = (m.x.y * m.z.z - m.z.y * m.x.z);
 		mat.x.z = (m.x.y * m.y.z - m.y.y * m.x.z);
 
-		const float inv_det = 1.0 / (m.x.x * mat.x.x - m.y.x * mat.x.y + m.z.x * mat.x.z);
+		const float inv_det = 1.0f / (m.x.x * mat.x.x - m.y.x * mat.x.y + m.z.x * mat.x.z);
 
 		mat.y.x = (m.y.x * m.z.z - m.z.x * m.y.z);
 		mat.y.y = (m.x.x * m.z.z - m.z.x * m.x.z);
@@ -321,9 +321,9 @@ inline Matrix3x3::Matrix3x3(const Vector3& x, const Vector3& y, const Vector3& z
 
 //-----------------------------------------------------------------------------
 inline Matrix3x3::Matrix3x3(const Quaternion& r)
-	: x(1.0 - 2.0 * r.y * r.y - 2.0 * r.z * r.z, 2.0 * r.x * r.y + 2.0 * r.w * r.z, 2.0 * r.x * r.z - 2.0 * r.w * r.y)
-	, y(2.0 * r.x * r.y - 2.0 * r.w * r.z, 1.0 - 2.0 * r.x * r.x - 2.0 * r.z * r.z, 2.0 * r.y * r.z + 2.0 * r.w * r.x)
-	, z(2.0 * r.x * r.z + 2.0 * r.w * r.y, 2.0 * r.y * r.z - 2.0 * r.w * r.x, 1.0 - 2.0 * r.x * r.x - 2.0 * r.y * r.y)
+	: x(1.0f - 2.0f * r.y * r.y - 2.0f * r.z * r.z, 2.0f * r.x * r.y + 2.0f * r.w * r.z, 2.0f * r.x * r.z - 2.0f * r.w * r.y)
+	, y(2.0f * r.x * r.y - 2.0f * r.w * r.z, 1.0f - 2.0f * r.x * r.x - 2.0f * r.z * r.z, 2.0f * r.y * r.z + 2.0f * r.w * r.x)
+	, z(2.0f * r.x * r.z + 2.0f * r.w * r.y, 2.0f * r.y * r.z - 2.0f * r.w * r.x, 1.0f - 2.0f * r.x * r.x - 2.0f * r.y * r.y)
 {
 }
 
@@ -393,7 +393,7 @@ inline Matrix3x3& Matrix3x3::operator*=(float k)
 //-----------------------------------------------------------------------------
 inline Matrix3x3& Matrix3x3::operator/=(float k)
 {
-	const float inv_k = 1.0 / k;
+	const float inv_k = 1.0f / k;
 
 	x *= inv_k;
 	y *= inv_k;

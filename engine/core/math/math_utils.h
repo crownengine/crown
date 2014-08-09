@@ -216,7 +216,7 @@ inline float sqrt(float x)
 //-----------------------------------------------------------------------------
 inline float inv_sqrt(float x)
 {
-	return 1.0 / sqrt(x);
+	return 1.0f / sqrt(x);
 }
 
 //-----------------------------------------------------------------------------
@@ -270,7 +270,7 @@ inline float fmod(float n, float d)
 //-----------------------------------------------------------------------------
 inline bool solve_quadratic_equation(float a, float b, float c, float& x1, float& x2)
 {
-	float delta = (b * b) - (4.0 * a * c);
+	float delta = (b * b) - (4.0f * a * c);
 
 	// If the equation has no float solutions
 	if (delta < 0.0)
@@ -278,8 +278,8 @@ inline bool solve_quadratic_equation(float a, float b, float c, float& x1, float
 		return false;
 	}
 
-	x1 = (-b + sqrt(delta)) / (2.0 * a);
-	x2 = (-b - sqrt(delta)) / (2.0 * a);
+	x1 = (-b + sqrt(delta)) / (2.0f * a);
+	x2 = (-b - sqrt(delta)) / (2.0f * a);
 
 	if (x2 > x1)
 	{

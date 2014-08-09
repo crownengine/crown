@@ -208,7 +208,7 @@ Vector3 Camera::screen_to_world(const Vector3& pos)
 				 (2 * pos.z) - 1, 1);
 
 	Vector4 tmp = mvp * ndc;
-	tmp *= 1.0 / tmp.w;
+	tmp *= 1.0f / tmp.w;
 
 	return Vector3(tmp.x, tmp.y, tmp.z);
 }
@@ -223,9 +223,9 @@ Vector3 Camera::world_to_screen(const Vector3& pos)
 
 	Vector3 ndc = (m_projection * world_inv) * pos;
 
-	return Vector3( (m_view_x + m_view_width * (ndc.x + 1.0)) / 2.0,
-					(m_view_y + m_view_height * (ndc.y + 1.0)) / 2.0,
-					(ndc.z + 1.0) / 2.0);
+	return Vector3( (m_view_x + m_view_width * (ndc.x + 1.0f)) / 2.0f,
+					(m_view_y + m_view_height * (ndc.y + 1.0f)) / 2.0f,
+					(ndc.z + 1.0f) / 2.0f);
 }
 
 //-----------------------------------------------------------------------------

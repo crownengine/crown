@@ -108,10 +108,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		const float w = fd.region.z / CE_PIXELS_PER_METER;
 		const float h = fd.region.w / CE_PIXELS_PER_METER;
 
-		const float x0 = fd.scale.x * (-w * 0.5) + fd.offset.x;
-		const float y0 = fd.scale.y * (-h * 0.5) + fd.offset.y;
-		const float x1 = fd.scale.x * ( w * 0.5) + fd.offset.x;
-		const float y1 = fd.scale.y * ( h * 0.5) + fd.offset.y;
+		const float x0 = fd.scale.x * (-w * 0.5f) + fd.offset.x;
+		const float y0 = fd.scale.y * (-h * 0.5f) + fd.offset.y;
+		const float x1 = fd.scale.x * ( w * 0.5f) + fd.offset.x;
+		const float y1 = fd.scale.y * ( h * 0.5f) + fd.offset.y;
 
 		array::push_back(vertices, x0); array::push_back(vertices, y0); // position
 		array::push_back(vertices, u0); array::push_back(vertices, v0); // uv

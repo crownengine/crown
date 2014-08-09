@@ -223,13 +223,13 @@ void parse_joints(JSONElement e, Array<PhysicsJoint>& joints)
 		pj.actor_1 = actor_1.to_string_id();
 		pj.anchor_0 = Vector3(anchor_0[0].to_float(), anchor_0[1].to_float(), anchor_0[2].to_float());
 		pj.anchor_1 = Vector3(anchor_1[0].to_float(), anchor_1[1].to_float(), anchor_1[2].to_float());
-		pj.restitution = restitution.is_nil() 	? 0.5 : restitution.to_float();
-		pj.spring = spring.is_nil() 			? 100.0 : spring.to_float();
-		pj.damping = damping.is_nil() 			? 0.0 : damping.to_float();
-		pj.distance = distance.is_nil() 		? 1.0 : distance.to_float();
+		pj.restitution = restitution.is_nil() 	? 0.5f : restitution.to_float();
+		pj.spring = spring.is_nil() 			? 100.0f : spring.to_float();
+		pj.damping = damping.is_nil() 			? 0.0f : damping.to_float();
+		pj.distance = distance.is_nil() 		? 1.0f : distance.to_float();
 		pj.breakable = breakable.is_nil() 		? false : breakable.to_bool();
-		pj.break_force = break_force.is_nil() 	? 3000.0 : break_force.to_float();
-		pj.break_torque = break_torque.is_nil() ? 1000.0 : break_torque.to_float();
+		pj.break_force = break_force.is_nil() 	? 3000.0f : break_force.to_float();
+		pj.break_torque = break_torque.is_nil() ? 1000.0f : break_torque.to_float();
 
 		switch (pj.type)
 		{
@@ -245,7 +245,7 @@ void parse_joints(JSONElement e, Array<PhysicsJoint>& joints)
 
 				pj.y_limit_angle = y_limit_angle.is_nil() ? math::HALF_PI : y_limit_angle.to_float();
 				pj.z_limit_angle = z_limit_angle.is_nil() ? math::HALF_PI : z_limit_angle.to_float();
-				pj.contact_dist = contact_dist.is_nil() ? 0.0 : contact_dist.to_float();
+				pj.contact_dist = contact_dist.is_nil() ? 0.0f : contact_dist.to_float();
 
 				break;
 			}
@@ -256,16 +256,16 @@ void parse_joints(JSONElement e, Array<PhysicsJoint>& joints)
 				JSONElement upper_limit = joint.key_or_nil("upper_limit");
 				JSONElement contact_dist = joint.key_or_nil("contact_dist");
 
-				pj.lower_limit = lower_limit.is_nil() ? 0.0 : lower_limit.to_float();
-				pj.upper_limit = upper_limit.is_nil() ? 0.0 : upper_limit.to_float();
-				pj.contact_dist = contact_dist.is_nil() ? 0.0 : contact_dist.to_float();
+				pj.lower_limit = lower_limit.is_nil() ? 0.0f : lower_limit.to_float();
+				pj.upper_limit = upper_limit.is_nil() ? 0.0f : upper_limit.to_float();
+				pj.contact_dist = contact_dist.is_nil() ? 0.0f : contact_dist.to_float();
 
 				break;
 			}
 			case PhysicsJointType::DISTANCE:
 			{
 				JSONElement max_distance = joint.key_or_nil("max_distance");
-				pj.max_distance = max_distance.is_nil() ? 0.0 : max_distance.to_float();
+				pj.max_distance = max_distance.is_nil() ? 0.0f : max_distance.to_float();
 
 				break;
 			}
@@ -447,8 +447,8 @@ namespace physics_config_resource
 
 			// Read actor object
 			PhysicsActor2 pa2;
-			pa2.linear_damping = linear_damping.is_nil() ? 0.0 : linear_damping.to_float();
-			pa2.angular_damping = angular_damping.is_nil() ? 0.05 : angular_damping.to_float();
+			pa2.linear_damping = linear_damping.is_nil() ? 0.0f : linear_damping.to_float();
+			pa2.angular_damping = angular_damping.is_nil() ? 0.05f : angular_damping.to_float();
 			pa2.flags = 0;
 			if (!dynamic.is_nil())
 			{

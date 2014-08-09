@@ -57,18 +57,6 @@ static int device_argv(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-static int device_frame_count(lua_State* L)
-{
-	LuaStack stack(L);
-
-	uint64_t frame = device()->frame_count();
-
-	stack.push_uint64(frame);
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
 static int device_last_delta_time(lua_State* L)
 {
 	LuaStack stack(L);
@@ -203,7 +191,6 @@ static int device_set_fullscreen(lua_State* L)
 void load_device(LuaEnvironment& env)
 {
 	env.load_module_function("Device", "argv",                     device_argv);
-	env.load_module_function("Device", "frame_count",              device_frame_count);
 	env.load_module_function("Device", "last_delta_time",          device_last_delta_time);
 	env.load_module_function("Device", "start",                    device_start);
 	env.load_module_function("Device", "stop",                     device_stop);

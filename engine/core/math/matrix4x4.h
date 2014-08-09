@@ -220,21 +220,21 @@ namespace matrix4x4
 	//-----------------------------------------------------------------------------
 	inline void set_perspective_rh(Matrix4x4& m, float fovy, float aspect, float near, float far)
 	{
-		const double top = math::tan(((double)fovy / 360.0 * math::PI)) * (double)near;
-		const double right = top * aspect;
+		const float top = math::tan(fovy / 360.0f * math::PI) * near;
+		const float right = top * aspect;
 
 		m.x = Vector4(near / right, 0, 0, 0);
 		m.y = Vector4(0, near / top, 0, 0);
 		m.z = Vector4(0, 0, (far + near) / (near - far), -1);
-		m.t = Vector4(0, 0, (2.0 * far * near) / (near - far), 0);
+		m.t = Vector4(0, 0, (2.0f * far * near) / (near - far), 0);
 	}
 
 	//-----------------------------------------------------------------------------
 	inline void set_orthographic_rh(Matrix4x4& m, float left, float right, float bottom, float top, float near, float far)
 	{
-		m.x = Vector4(2.0 / (right - left), 0, 0, 0);
-		m.y = Vector4(0, 2.0 / (top - bottom), 0, 0);
-		m.z = Vector4(0, 0, -2.0 / (far - near), 0);
+		m.x = Vector4(2.0f / (right - left), 0, 0, 0);
+		m.y = Vector4(0, 2.0f / (top - bottom), 0, 0);
+		m.z = Vector4(0, 0, -2.0f / (far - near), 0);
 		m.t = Vector4(-((right + left) / (right - left)), -((top + bottom) / (top - bottom)), -((far + near) / (far - near)), 1.0);
 	}
 
@@ -351,7 +351,7 @@ namespace matrix4x4
 		mat.x.z = (+ m.x.y * m06m15_m14m07 - m.y.y * m02m15_m14m03 + m.t.y * m02m07_m06m03);
 		mat.x.w = (+ m.x.y * m06m11_m10m07 - m.y.y * m02m11_m10m03 + m.z.y * m02m07_m06m03);
 
-		const float inv_det = 1.0 / (m.x.x * mat.x.x - m.y.x * mat.x.y + m.z.x * mat.x.z - m.t.x * mat.x.w);
+		const float inv_det = 1.0f / (m.x.x * mat.x.x - m.y.x * mat.x.y + m.z.x * mat.x.z - m.t.x * mat.x.w);
 
 		mat.y.x = (+ m.y.x * m10m15_m14m11 - m.z.x * m06m15_m14m07 + m.t.x * m06m11_m10m07);
 		mat.y.y = (+ m.x.x * m10m15_m14m11 - m.z.x * m02m15_m14m03 + m.t.x * m02m11_m10m03);
@@ -508,9 +508,9 @@ inline Matrix4x4::Matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1,
 
 //-----------------------------------------------------------------------------
 inline Matrix4x4::Matrix4x4(const Quaternion& r, const Vector3& p)
-	: x(1.0 - 2.0 * r.y * r.y - 2.0 * r.z * r.z, 2.0 * r.x * r.y + 2.0 * r.w * r.z, 2.0 * r.x * r.z - 2.0 * r.w * r.y, 0)
-	, y(2.0 * r.x * r.y - 2.0 * r.w * r.z, 1.0 - 2.0 * r.x * r.x - 2.0 * r.z * r.z, 2.0 * r.y * r.z + 2.0 * r.w * r.x, 0)
-	, z(2.0 * r.x * r.z + 2.0 * r.w * r.y, 2.0 * r.y * r.z - 2.0 * r.w * r.x, 1.0 - 2.0 * r.x * r.x - 2.0 * r.y * r.y, 0)
+	: x(1.0f - 2.0f * r.y * r.y - 2.0f * r.z * r.z, 2.0f * r.x * r.y + 2.0f * r.w * r.z, 2.0f * r.x * r.z - 2.0f * r.w * r.y, 0)
+	, y(2.0f * r.x * r.y - 2.0f * r.w * r.z, 1.0f - 2.0f * r.x * r.x - 2.0f * r.z * r.z, 2.0f * r.y * r.z + 2.0f * r.w * r.x, 0)
+	, z(2.0f * r.x * r.z + 2.0f * r.w * r.y, 2.0f * r.y * r.z - 2.0f * r.w * r.x, 1.0f - 2.0f * r.x * r.x - 2.0f * r.y * r.y, 0)
 	, t(p, 1)
 {
 }
@@ -585,7 +585,7 @@ inline Matrix4x4& Matrix4x4::operator*=(float k)
 //-----------------------------------------------------------------------------
 inline Matrix4x4& Matrix4x4::operator/=(float k)
 {
-	const float inv_k = 1.0 / k;
+	const float inv_k = 1.0f / k;
 
 	x *= inv_k;
 	y *= inv_k;

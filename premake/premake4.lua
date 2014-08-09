@@ -525,10 +525,6 @@ solution "crown"
 
 			}
 
-			links { -- this is needed only for testing with GLES2/3 on Windows with VS2008
-				"DelayImp",
-			}
-
 			defines {
 				"WIN32",
 				"_WIN32",
@@ -553,23 +549,23 @@ solution "crown"
 			}
 
 			includedirs {
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/common",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/characterkinematic",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/cloth",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/common",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/cooking",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/extensions",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/foundation",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/geometry",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/particles",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/physxprofilesdk",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/physxvisualdebuggersdk",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/pvd",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/pxtask",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/RepX",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/RepXUpgrader",
-				"$(PHYSX_SDK_WINDOWS)/physx/win64/include/vehicle",
+				"$(PHYSX_SDK_WINDOWS)/Include",
+				"$(PHYSX_SDK_WINDOWS)/Include/common",
+				"$(PHYSX_SDK_WINDOWS)/Include/characterkinematic",
+				"$(PHYSX_SDK_WINDOWS)/Include/cloth",
+				"$(PHYSX_SDK_WINDOWS)/Include/common",
+				"$(PHYSX_SDK_WINDOWS)/Include/cooking",
+				"$(PHYSX_SDK_WINDOWS)/Include/extensions",
+				"$(PHYSX_SDK_WINDOWS)/Include/foundation",
+				"$(PHYSX_SDK_WINDOWS)/Include/geometry",
+				"$(PHYSX_SDK_WINDOWS)/Include/particles",
+				"$(PHYSX_SDK_WINDOWS)/Include/physxprofilesdk",
+				"$(PHYSX_SDK_WINDOWS)/Include/physxvisualdebuggersdk",
+				"$(PHYSX_SDK_WINDOWS)/Include/pvd",
+				"$(PHYSX_SDK_WINDOWS)/Include/pxtask",
+				"$(PHYSX_SDK_WINDOWS)/Include/RepX",
+				"$(PHYSX_SDK_WINDOWS)/Include/RepXUpgrader",
+				"$(PHYSX_SDK_WINDOWS)/Include/vehicle",
 				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "opengl",
 				CROWN_THIRD_DIR .. "openal/include",

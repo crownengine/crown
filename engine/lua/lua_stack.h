@@ -130,13 +130,13 @@ public:
 	//-----------------------------------------------------------------------------
 	bool is_nil(int32_t index)
 	{
-		return lua_isnil(m_L, index);
+		return lua_isnil(m_L, index) == 1;
 	}
 
 	//-----------------------------------------------------------------------------
 	bool is_number(int32_t index)
 	{
-		return (bool) lua_isnumber(m_L, index);
+		return lua_isnumber(m_L, index) == 1;
 	}
 
 	/// Wraps lua_type.
@@ -165,18 +165,6 @@ public:
 
 	//-----------------------------------------------------------------------------
 	void push_uint32(uint32_t value)
-	{
-		lua_pushinteger(m_L, value);
-	}
-
-	//-----------------------------------------------------------------------------
-	void push_int64(int64_t value)
-	{
-		lua_pushinteger(m_L, value);
-	}
-
-	//-----------------------------------------------------------------------------
-	void push_uint64(uint64_t value)
 	{
 		lua_pushinteger(m_L, value);
 	}
@@ -211,7 +199,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool get_bool(int32_t index)
 	{
-		return (bool) CHECKBOOLEAN(m_L, index);
+		return CHECKBOOLEAN(m_L, index) == 1;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -223,7 +211,7 @@ public:
 	//-----------------------------------------------------------------------------
 	float get_float(int32_t index)
 	{
-		return CHECKNUMBER(m_L, index);
+		return (float) CHECKNUMBER(m_L, index);
 	}
 
 	//-----------------------------------------------------------------------------

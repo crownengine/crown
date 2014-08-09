@@ -30,12 +30,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define WM_USER_TOGGLE_WINDOW_FRAME (WM_USER+1)
 #define WM_USER_MOUSE_LOCK          (WM_USER+2)
 
-#include "crown.h"
 #include "os_types.h"
 #include "os_event_queue.h"
-#include "glcontext.h"
+#include "gl_context.h"
 #include "bundle_compiler.h"
-
+#include "device.h"
+#include "thread.h"
+#include "log.h"
+#include "os_window.h"
+#include "args.h"
+#include "json_parser.h"
 #include "os.h"
 
 #define ENTRY_DEFAULT_WIDTH 1024
@@ -50,7 +54,6 @@ extern void set_win_handle_window(HWND hwnd);
 void init()
 {
 	memory::init();
-	os::init_os();
 }
 
 //-----------------------------------------------------------------------------
@@ -206,13 +209,13 @@ public:
 	//-----------------------------------------------------------------------------
 	int32_t	run(int argc, char** argv)
 	{
-		init(argc, argv);
-
 		WSADATA WsaData;
 		int res = WSAStartup(MAKEWORD(2,2), &WsaData);
 		CE_ASSERT(res == 0, "Unable to initialize socket");
 		CE_UNUSED(WsaData);
 		CE_UNUSED(res);
+
+		init(argc, argv);
 
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
 
@@ -279,7 +282,7 @@ public:
 		m_argc = argc;
 		m_argv = argv;
 
-		OsThread thread("game-loop");
+		Thread thread;
 		thread.start(WindowsDevice::main_loop, this);
 		m_started = true;
 
@@ -811,7 +814,7 @@ public:
 				case '?':
 				default:
 				{
-					os::printf(help_message);
+					printf(help_message);
 					exit(EXIT_FAILURE);
 				}
 			}

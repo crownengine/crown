@@ -33,6 +33,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #if CROWN_PLATFORM_POSIX
 	#include <pthread.h>
 #elif CROWN_PLATFORM_WINDOWS
+	#ifndef WIN32_LEAN_AND_MEAN
+	#define WIN32_LEAN_AND_MEAN 1
+	#endif
 	#include <windows.h>
 #endif
 

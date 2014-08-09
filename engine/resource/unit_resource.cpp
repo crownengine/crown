@@ -193,8 +193,8 @@ void parse_cameras(JSONElement e, Array<UnitCamera>& cameras, const Array<GraphN
 		cn.name = string::murmur2_32(camera_name, string::strlen(camera_name));
 		cn.node = find_node_index(node_name_hash, node_depths);
 		cn.type = projection_name_to_enum(camera_type.c_str());
-		cn.fov = fov.is_nil() ? 16.0 / 9.0 : fov.to_float();
-		cn.near = near.is_nil() ? 0.01 : near.to_float();
+		cn.fov = fov.is_nil() ? 16.0f / 9.0f : fov.to_float();
+		cn.near = near.is_nil() ? 0.01f : near.to_float();
 		cn.far = far.is_nil() ? 1000 : far.to_float();
 
 		array::push_back(cameras, cn);

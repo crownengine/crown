@@ -163,7 +163,7 @@ namespace vector2
 	//-----------------------------------------------------------------------------
 	inline Vector2 normalize(Vector2& a)
 	{
-		float inv_len = 1.0 / length(a);
+		float inv_len = 1.0f / length(a);
 
 		a.x *= inv_len;
 		a.y *= inv_len;

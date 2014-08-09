@@ -49,6 +49,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	#include <unistd.h>
 #elif CROWN_PLATFORM_WINDOWS
 	#include <win_headers.h>
+	#include <io.h>
 #endif
 
 #if CROWN_PLATFORM_ANDROID
@@ -124,7 +125,7 @@ inline bool is_root_path(const char* path)
 	return (path != NULL && string::strlen(path) == 1 && path[0] == PATH_SEPARATOR);
 #elif CROWN_PLATFORM_WINDOWS
 	return (path != NULL && string::strlen(path) == 3 && string::is_alpha(path[0]) &&
-		path[1] == ':' && path[2] == PATH_SEPARATOR;
+		path[1] == ':' && path[2] == PATH_SEPARATOR);
 #endif
 }
 
@@ -135,7 +136,7 @@ inline bool is_absolute_path(const char* path)
 	return (path != NULL && string::strlen(path) >= 1 && path[0] == PATH_SEPARATOR);
 #elif CROWN_PLATFORM_WINDOWS
 	return (path != NULL && string::strlen(path) >= 3 && string::is_alpha(path[0]) &&
-		path[1] == ':' && path[2] == PATH_SEPARATOR;
+		path[1] == ':' && path[2] == PATH_SEPARATOR);
 #endif
 }
 
@@ -144,7 +145,7 @@ inline bool exists(const char* path)
 #if CROWN_PLATFORM_POSIX
 	return access(path, F_OK) != -1;
 #elif CROWN_PLATFORM_WINDOWS
-	#error "impl"
+	return _access(path, 0) != -1;
 #endif
 }
 
@@ -189,12 +190,9 @@ inline void create_file(const char* path)
 	CE_ASSERT(err == 0, "mknod: errno = %d", errno);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	HANDLE hFile = CreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-		return false;
-
-	CloseHandle(hFile);
-	return true;
+	HANDLE hfile = CreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	CE_ASSERT(hfile != INVALID_HANDLE_VALUE, "CreateFile: GetLastError = %d", GetLastError());
+	CloseHandle(hfile);
 #endif
 }
 
@@ -206,7 +204,9 @@ inline void delete_file(const char* path)
 	CE_ASSERT(err == 0, "unlink: errno = %d", errno);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	return DeleteFile(path) == TRUE;
+	BOOL err = DeleteFile(path);
+	CE_ASSERT(err != 0, "DeleteFile: GetLastError = %d", GetLastError());
+	CE_UNUSED(err);
 #endif
 }
 
@@ -219,7 +219,9 @@ inline void create_directory(const char* path)
 	CE_ASSERT(err == 0, "mkdir: errno = %d", errno);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	return CreateDirectory(path, NULL) == TRUE;
+	BOOL err = CreateDirectory(path, NULL);
+	CE_ASSERT(err != 0, "CreateDirectory: GetLastError = %d", GetLastError());
+	CE_UNUSED(err);
 #endif
 }
 
@@ -231,7 +233,9 @@ inline void delete_directory(const char* path)
 	CE_ASSERT(err == 0, "rmdir: errno = %d", errno);
 	CE_UNUSED(err);
 #elif CROWN_PLATFORM_WINDOWS
-	return RemoveDirectory(path) == TRUE;
+	BOOL err = RemoveDirectory(path);
+	CE_ASSERT(err != 0, "RemoveDirectory: GetLastError = %d", GetLastError());
+	CE_UNUSED(err);
 #endif
 }
 

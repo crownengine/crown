@@ -179,7 +179,7 @@ namespace vector3
 	//-----------------------------------------------------------------------------
 	inline Vector3 normalize(Vector3& a)
 	{
-		float inv_len = 1.0 / length(a);
+		float inv_len = 1.0f / length(a);
 
 		a.x *= inv_len;
 		a.y *= inv_len;

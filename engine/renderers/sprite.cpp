@@ -165,7 +165,7 @@ void Sprite::update(float dt)
 		}
 	}
 
-	uint32_t frame = m_animation->num_frames * (m_time / m_animation->time);
+	uint32_t frame = (uint32_t) m_animation->num_frames * (m_time / m_animation->time);
 	m_frame = m_resource->get_animation_frame(m_animation, frame);
 }
 

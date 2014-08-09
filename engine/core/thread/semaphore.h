@@ -103,9 +103,8 @@ struct Semaphore
 		m_count--;
 		m_mutex.unlock();
 #elif CROWN_PLATFORM_WINDOWS
-		DWORD milliseconds = (0 > msecs) ? INFINITE : msecs;
-		DWORD result = WaitForSingleObject(m_handle, milliseconds);
-		CE_ASSERT(result == WAIT_OBJECT_0, "Semaphore can not signal!");
+		DWORD result = WaitForSingleObject(m_handle, INFINITE);
+		CE_ASSERT(result == WAIT_OBJECT_0, "WaitForSingleObject: GetLastError = %d", GetLastError());
 		CE_UNUSED(result);
 #endif
 	}
