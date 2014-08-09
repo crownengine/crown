@@ -136,7 +136,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool is_number(int32_t index)
 	{
-		return lua_isnumber(m_L, index);
+		return (bool) lua_isnumber(m_L, index);
 	}
 
 	/// Wraps lua_type.

@@ -14,11 +14,15 @@
         <property name="Label" translatable="yes">File</property>
         <property name="ShortLabel" translatable="yes">File</property>
       </action>
-      <action id="ConnectAction">
+      <action id="FileAction1">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Connect</property>
-        <property name="ShortLabel" translatable="yes">Connect</property>
-        <signal name="Activated" handler="OnConnectActivated" />
+        <property name="Label" translatable="yes">File</property>
+        <property name="ShortLabel" translatable="yes">File</property>
+      </action>
+      <action id="EditAction">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Edit</property>
+        <property name="ShortLabel" translatable="yes">Edit</property>
       </action>
     </action-group>
     <property name="MemberName" />
@@ -32,14 +36,70 @@
         <child>
           <widget class="Gtk.MenuBar" id="menubar1">
             <property name="MemberName" />
-            <node name="__gtksharp_99_Stetic_Editor_ActionMenuBar" type="Menubar">
-              <node type="Menu" action="FileAction">
-                <node type="Menuitem" action="ConnectAction" />
-              </node>
+            <node name="__gtksharp_125_Stetic_Editor_ActionMenuBar" type="Menubar">
+              <node type="Menu" action="FileAction1" />
+              <node type="Menu" action="EditAction" />
             </node>
           </widget>
           <packing>
             <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.HBox" id="hbox1">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Entry" id="ip_entry">
+                <property name="MemberName" />
+                <property name="WidthRequest">261</property>
+                <property name="CanFocus">True</property>
+                <property name="Text" translatable="yes">Ip</property>
+                <property name="IsEditable">True</property>
+                <property name="InvisibleChar">●</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Entry" id="port_entry">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Text" translatable="yes">Port</property>
+                <property name="IsEditable">True</property>
+                <property name="InvisibleChar">●</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="connect_button">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextOnly</property>
+                <property name="Label" translatable="yes">Connect</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnConnectClicked" />
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
@@ -60,7 +120,7 @@
             </child>
           </widget>
           <packing>
-            <property name="Position">1</property>
+            <property name="Position">2</property>
             <property name="AutoSize">True</property>
           </packing>
         </child>
@@ -75,7 +135,7 @@
           </widget>
           <packing>
             <property name="PackType">End</property>
-            <property name="Position">2</property>
+            <property name="Position">3</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>

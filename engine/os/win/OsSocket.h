@@ -290,7 +290,7 @@ public:
 
 public:
 
-	int m_socket;
+	SOCKET m_socket;
 };
 
 class TCPServer
@@ -543,7 +543,7 @@ public:
 
 public:
 
-	int m_socket;
+	SOCKET m_socket;
 };
 
 } // namespace crown

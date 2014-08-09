@@ -41,7 +41,7 @@ namespace crown
 
 struct PhysicsResource;
 struct Vector3;
-class SceneGraph;
+struct SceneGraph;
 class PhysicsControllerCallback;
 
 ///

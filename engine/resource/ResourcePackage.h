@@ -36,7 +36,7 @@ namespace crown
 {
 
 /// Collection of resources to load in a batch.
-class ResourcePackage
+struct ResourcePackage
 {
 public:
 
