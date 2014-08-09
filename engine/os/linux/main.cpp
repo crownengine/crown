@@ -24,18 +24,22 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <X11/Xutil.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/XKBlib.h>
-#include <X11/extensions/Xrandr.h>
 #include "config.h"
-#include "crown.h"
 #include "device.h"
 #include "os_types.h"
 #include "os_event_queue.h"
 #include "bundle_compiler.h"
 #include "memory.h"
+#include "json_parser.h"
+#include "log.h"
+#include "args.h"
+#include "thread.h"
+#include "os_window.h"
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <X11/XKBlib.h>
+#include <X11/extensions/Xrandr.h>
 
 namespace crown
 {
