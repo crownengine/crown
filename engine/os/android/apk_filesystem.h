@@ -48,6 +48,9 @@ public:
 	void close(File* file);
 
 	/// Returns always false under Android.
+	bool exists(const char* path);
+
+	/// Returns always false under Android.
 	bool is_directory(const char* path);
 
 	/// Returns always false under Android.

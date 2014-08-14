@@ -58,6 +58,12 @@ void ApkFilesystem::close(File* file)
 }
 
 //-----------------------------------------------------------------------------
+bool ApkFilesystem::exists(const char* path)
+{
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 bool ApkFilesystem::is_directory(const char* path)
 {
 	return true;

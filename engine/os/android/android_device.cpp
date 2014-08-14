@@ -28,9 +28,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "device.h"
 #include "log.h"
 #include "os_event_queue.h"
-#include "renderer.h"
 #include "touch.h"
 #include "os_window.h"
+#include "thread.h"
 #include <jni.h>
 #include <android/sensor.h>
 #include <android_native_app_glue.h>
@@ -350,7 +350,6 @@ void android_main(struct android_app* app)
 	app_dummy();
 
 	crown::memory::init();
-	crown::os::init_os();
 	crown::AndroidDevice* engine = CE_NEW(crown::default_allocator(), crown::AndroidDevice)();
 	crown::set_device(engine);
 
