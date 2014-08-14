@@ -79,20 +79,18 @@ struct LevelResource
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* /*resource*/)
+	static void online(StringId64 /*id*/, ResourceManager& /*rm*/)
+	{
+	}
+
+	static void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
 	}
 
 	//-----------------------------------------------------------------------------
 	static void unload(Allocator& allocator, void* resource)
 	{
-		CE_ASSERT_NOT_NULL(resource);
 		allocator.deallocate(resource);
-	}
-
-	//-----------------------------------------------------------------------------
-	static void offline(void* /*resource*/)
-	{
 	}
 
 	//-----------------------------------------------------------------------------

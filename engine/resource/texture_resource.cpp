@@ -540,6 +540,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	BinaryWriter bw(*out_file);
 	// Write DDS
+	bw.write(uint32_t(1)); // Version
+	bw.write(uint32_t(0)); // Size
 	write_dds(bw, image);
 
 	default_allocator().deallocate(image.data);

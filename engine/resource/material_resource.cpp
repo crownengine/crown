@@ -38,6 +38,139 @@ namespace crown
 namespace material_resource
 {
 
+struct Data
+{
+	Array<TextureData> textures;
+	Array<UniformData> uniforms;
+	Array<char> dynamic;
+
+	Data()
+		: textures(default_allocator())
+		, uniforms(default_allocator())
+		, dynamic(default_allocator())
+	{}
+};
+
+// Returns offset to start of data
+template <typename T>
+static uint32_t reserve_dynamic_data(T data, Array<char>& dynamic)
+{
+	uint32_t offt = array::size(dynamic);
+	array::push(dynamic, (char*) &data, sizeof(data));
+	return offt;
+}
+
+static void parse_textures(JSONElement root, Array<TextureData>& textures, Array<char>& dynamic)
+{
+	using namespace vector;
+
+	Vector<DynamicString> keys(default_allocator());
+	root.key("textures").to_keys(keys);
+
+	for (uint32_t i = 0; i < size(keys); i++)
+	{
+		TextureHandle th;
+		th.sampler_handle = 0;
+		th.texture_handle = 0;
+
+		ResourceId texid = root.key("textures").key(keys[i].c_str()).to_resource_id("texture");
+
+		TextureData td;
+		td.id = texid.name;
+		td.data_offset = reserve_dynamic_data(th, dynamic);
+		strncpy(td.sampler_name, keys[i].c_str(), 256);
+
+		array::push_back(textures, td);
+	}
+}
+
+struct UniformTypeInfo
+{
+	const char* name;
+	UniformType::Enum type;
+	uint8_t size;
+};
+
+static const UniformTypeInfo s_uniform_type_info[UniformType::COUNT] =
+{
+	{ "integer", UniformType::INTEGER,  4 },
+	{ "float",   UniformType::FLOAT,    4 },
+	{ "vector2", UniformType::VECTOR3,  8 },
+	{ "vector3", UniformType::VECTOR3, 12 },
+	{ "vector4", UniformType::VECTOR4, 16 }
+};
+
+static UniformType::Enum string_to_uniform_type(const char* str)
+{
+	for (uint32_t i = 0; i < UniformType::COUNT; i++)
+	{
+		if (string::strcmp(str, s_uniform_type_info[i].name) == 0)
+			return s_uniform_type_info[i].type;
+	}
+
+	CE_FATAL("Unknown uniform type");
+}
+
+static void parse_uniforms(JSONElement root, Array<UniformData>& uniforms, Array<char>& dynamic)
+{
+	using namespace vector;
+
+	Vector<DynamicString> keys(default_allocator());
+	root.key("uniforms").to_keys(keys);
+
+	for (uint32_t i = 0; i < size(keys); i++)
+	{
+		UniformHandle uh;
+		uh.uniform_handle = 0;
+
+		DynamicString type;
+		root.key("uniforms").key(keys[i].c_str()).key("type").to_string(type);
+
+		UniformData ud;
+		ud.type = string_to_uniform_type(type.c_str());
+		ud.data_offset = reserve_dynamic_data(uh, dynamic);
+
+		strncpy(ud.name, keys[i].c_str(), 256);
+
+		switch (ud.type)
+		{
+			case UniformType::INTEGER:
+			{
+				int32_t data = root.key("uniforms").key(keys[i].c_str()).key("value").to_int();
+				reserve_dynamic_data(data, dynamic);
+				break;
+			}
+			case UniformType::FLOAT:
+			{
+				float data = root.key("uniforms").key(keys[i].c_str()).key("value").to_int();
+				reserve_dynamic_data(data, dynamic);
+				break;
+			}
+			case UniformType::VECTOR2:
+			{
+				Vector2 data = root.key("uniforms").key(keys[i].c_str()).key("value").to_vector2();
+				reserve_dynamic_data(data, dynamic);
+				break;
+			}
+			case UniformType::VECTOR3:
+			{
+				Vector3 data = root.key("uniforms").key(keys[i].c_str()).key("value").to_vector3();
+				reserve_dynamic_data(data, dynamic);
+				break;
+			}
+			case UniformType::VECTOR4:
+			{
+				Vector4 data = root.key("uniforms").key(keys[i].c_str()).key("value").to_vector4();
+				reserve_dynamic_data(data, dynamic);
+				break;
+			}
+			default: CE_FATAL("Oops"); break;
+		}
+
+		array::push_back(uniforms, ud);
+	}
+}
+
 //-----------------------------------------------------------------------------
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
@@ -47,81 +180,26 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	JSONElement root = json.root();
 
-	DynamicString vs_src;
-	DynamicString fs_src;
-	DynamicString varying_src;
+	Array<TextureData> texdata(default_allocator());
+	Array<UniformData> unidata(default_allocator());
+	Array<char> dynblob(default_allocator());
 
-	root.key("vs_source").to_string(vs_src);
-	root.key("fs_source").to_string(fs_src);
-	root.key("varying_source").to_string(varying_src);
+	parse_textures(root, texdata, dynblob);
+	parse_uniforms(root, unidata, dynblob);
 
-	vs_src += ".sc";
-	fs_src += ".sc";
-	varying_src += ".def.sc";
+	MaterialHeader mh;
+	mh.version = MATERIAL_VERSION;
+	mh.num_textures = array::size(texdata);
+	mh.texture_data_offset = sizeof(mh);
+	mh.num_uniforms = array::size(unidata);
+	mh.uniform_data_offset = sizeof(mh) + sizeof(TextureData) * array::size(texdata);
+	mh.dynamic_data_size = array::size(dynblob);
+	mh.dynamic_data_offset = sizeof(mh) + sizeof(TextureData) * array::size(texdata) + sizeof(UniformData) * array::size(unidata);
 
-	DynamicString vs_src_abs;
-	DynamicString fs_src_abs;
-	DynamicString varying_src_abs;
-	DynamicString vs_bin_abs;
-	DynamicString fs_bin_abs;
-
-	fs.get_absolute_path(vs_src.c_str(), vs_src_abs);
-	fs.get_absolute_path(fs_src.c_str(), fs_src_abs);
-	fs.get_absolute_path(varying_src.c_str(), varying_src_abs);
-	fs.get_absolute_path("vs_bin.tmp", vs_bin_abs);
-	fs.get_absolute_path("fs_bin.tmp", fs_bin_abs);
-
-	const char* shaderc_vs[] =
-	{
-		"./shaderc",
-		"-f", vs_src_abs.c_str(),
-		"-o", vs_bin_abs.c_str(),
-		"--platform", "linux",
-		"--varyingdef", varying_src_abs.c_str(),
-		"--type", "vertex",
-		NULL
-	};
-
-	const char* shaderc_fs[] =
-	{
-		"shaderc",
-		"-f", fs_src_abs.c_str(),
-		"-o", fs_bin_abs.c_str(),
-		"--platform", "linux",
-		"--varyingdef", varying_src_abs.c_str(),
-		"--type", "fragment",
-		NULL
-	};
-
-	os::execute_process(shaderc_vs);
-	os::execute_process(shaderc_fs);
-
-	File* vs_code = fs.open(vs_bin_abs.c_str(), FOM_READ);
-	File* fs_code = fs.open(fs_bin_abs.c_str(), FOM_READ);
-
-	const uint32_t vs_code_size = vs_code->size();
-	const uint32_t fs_code_size = fs_code->size();
-
-	// Write material
-	BinaryWriter bw(*out_file);
-
-	bw.write(vs_code_size);
-	bw.write(uint32_t(16 + 0));
-	bw.write(fs_code_size);
-	bw.write(uint32_t(16 + vs_code_size));
-
-	char* shaders = (char*) default_allocator().allocate(vs_code_size + fs_code_size);
-	vs_code->read(shaders + 0, vs_code_size);
-	fs_code->read(shaders + vs_code_size, fs_code_size);
-
-	bw.write(shaders, vs_code_size + fs_code_size);
-
-	default_allocator().deallocate(shaders);
-
-	fs.close(vs_code);
-	fs.close(fs_code);
-	fs.delete_file(vs_bin_abs.c_str());
-	fs.delete_file(fs_bin_abs.c_str());
+	out_file->write((char*) &mh, sizeof(mh));
+	out_file->write((char*) array::begin(texdata), sizeof(TextureData) * array::size(texdata));
+	out_file->write((char*) array::begin(unidata), sizeof(UniformData) * array::size(unidata));
+	out_file->write((char*) array::begin(dynblob), sizeof(char) * array::size(dynblob));
 }
 
 } // namespace material_resource

@@ -33,6 +33,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "unit.h"
 #include "material.h"
 #include "render_world.h"
+#include "device.h"
+#include "material_manager.h"
 
 namespace crown
 {
@@ -43,6 +45,7 @@ Sprite::Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const Sp
 	, m_scene_graph(sg)
 	, m_node(node)
 	, m_resource(sr)
+	, m_material(0)
 	, m_frame(0)
 	, m_animation(NULL)
 	, m_time(0)
@@ -120,10 +123,9 @@ void Sprite::set_local_pose(Unit* unit, const Matrix4x4& pose)
 	unit->set_local_pose(m_node, pose);
 }
 
-//-----------------------------------------------------------------------------
-void Sprite::set_material(MaterialId mat)
+void Sprite::set_material(StringId64 id)
 {
-	m_material = mat;
+	m_material = id;
 }
 
 //-----------------------------------------------------------------------------
@@ -180,32 +182,10 @@ void Sprite::update(float dt)
 //-----------------------------------------------------------------------------
 void Sprite::render()
 {
-	///
-	/// @param _state State flags. Default state for primitive type is
-	///   triangles. See: BGFX_STATE_DEFAULT.
-	///
-	///   BGFX_STATE_ALPHA_WRITE - Enable alpha write.
-	///   BGFX_STATE_DEPTH_WRITE - Enable depth write.
-	///   BGFX_STATE_DEPTH_TEST_* - Depth test function.
-	///   BGFX_STATE_BLEND_* - See NOTE 1: BGFX_STATE_BLEND_FUNC.
-	///   BGFX_STATE_BLEND_EQUATION_* - See NOTE 2.
-	///   BGFX_STATE_CULL_* - Backface culling mode.
-	///   BGFX_STATE_RGB_WRITE - Enable RGB write.
-	///   BGFX_STATE_MSAA - Enable MSAA.
-	///   BGFX_STATE_PT_[LINES/POINTS] - Primitive type.
-	///
-	/// @param _rgba Sets blend factor used by BGFX_STATE_BLEND_FACTOR and
-	///   BGFX_STATE_BLEND_INV_FACTOR blend modes.
-	///
-	/// NOTE:
-	///   1. Use BGFX_STATE_ALPHA_REF, BGFX_STATE_POINT_SIZE and
-	///      BGFX_STATE_BLEND_FUNC macros to setup more complex states.
-	///   2. BGFX_STATE_BLEND_EQUATION_ADD is set when no other blend
-	///      equation is specified.
-	///
-	bgfx::setState(BGFX_STATE_DEFAULT
-		| BGFX_STATE_BLEND_ALPHA);
+	if (m_material)
+		material_manager::get()->get(m_material).bind();
 
+	bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_BLEND_ALPHA);
 	bgfx::setVertexBuffer(m_vb);
 	bgfx::setIndexBuffer(m_ib, m_frame * 6, 6);
 	bgfx::setTransform(matrix4x4::to_float_ptr(world_pose()));

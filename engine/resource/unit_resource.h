@@ -42,9 +42,10 @@ namespace crown
 struct UnitHeader
 {
 	ResourceId physics_resource;
-	ResourceId material_resource;
 	uint32_t num_renderables;
 	uint32_t renderables_offset;
+	uint32_t num_materials;
+	uint32_t materials_offset;
 	uint32_t num_cameras;
 	uint32_t cameras_offset;
 	uint32_t num_scene_graph_nodes;
@@ -62,6 +63,11 @@ struct UnitRenderable
 	StringId32 name;
 	int32_t node;
 	bool visible;
+};
+
+struct UnitMaterial
+{
+	StringId64 id;
 };
 
 struct UnitCamera
@@ -117,32 +123,24 @@ struct UnitResource
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* /*resource*/)
+	static void online(StringId64 /*id*/, ResourceManager& /*rm*/)
+	{
+	}
+
+	static void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
 	}
 
 	//-----------------------------------------------------------------------------
 	static void unload(Allocator& allocator, void* resource)
 	{
-		CE_ASSERT_NOT_NULL(resource);
 		allocator.deallocate(resource);
-	}
-
-	//-----------------------------------------------------------------------------
-	static void offline(void* /*resource*/)
-	{
 	}
 
 	//-----------------------------------------------------------------------------
 	ResourceId physics_resource() const
 	{
 		return ((UnitHeader*) this)->physics_resource;
-	}
-
-	//-----------------------------------------------------------------------------
-	ResourceId material_resource() const
-	{
-		return ((UnitHeader*) this)->material_resource;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -160,6 +158,22 @@ struct UnitResource
 		UnitRenderable* begin = (UnitRenderable*) (((char*) this) + h->renderables_offset);
 		return begin[i];
 	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_materials() const
+	{
+		return ((UnitHeader*) this)->num_materials;
+	}
+
+	//-----------------------------------------------------------------------------
+	UnitMaterial get_material(uint32_t i) const
+	{
+		CE_ASSERT(i < num_materials(), "Index out of bounds");
+
+		UnitHeader* h = (UnitHeader*) this;
+		UnitMaterial* begin = (UnitMaterial*) (((char*) this) + h->materials_offset);
+		return begin[i];
+	}	
 
 	//-----------------------------------------------------------------------------
 	uint32_t num_cameras() const

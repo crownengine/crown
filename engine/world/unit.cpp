@@ -51,7 +51,6 @@ Unit::Unit(World& w, UnitId unit_id, const ResourceId id, const UnitResource* ur
 	, m_num_meshes(0)
 	, m_num_sprites(0)
 	, m_num_actors(0)
-	, m_num_materials(0)
 	, m_values(NULL)
 {
 	m_controller.component.id = INVALID_ID;
@@ -139,13 +138,6 @@ void Unit::destroy_objects()
 		m_controller.component.id = INVALID_ID;
 	}
 
-	// Destroy materials
-	for (uint32_t i = 0; i < m_num_materials; i++)
-	{
-		m_world.render_world()->destroy_material(m_materials[i].component);
-	}
-	m_num_materials = 0;
-
 	// Destroy scene graph
 	m_scene_graph.destroy();
 }
@@ -185,13 +177,6 @@ void Unit::create_renderable_objects()
 		{
 			CE_FATAL("Oops, bad renderable type");
 		}
-	}
-
-	// Create materials
-	if (m_resource->material_resource().type != 0)
-	{
-		MaterialResource* mr = (MaterialResource*) device()->resource_manager()->get(m_resource->material_resource());
-		add_material(string::murmur2_32("default", string::strlen("default"), 0), m_world.render_world()->create_material(mr));
 	}
 }
 
@@ -233,12 +218,12 @@ void Unit::create_physics_objects()
 //-----------------------------------------------------------------------------
 void Unit::set_default_material()
 {
-	if (m_num_materials == 0) return;
+	if (m_resource->num_materials() == 0) return;
 
 	for (uint32_t i = 0; i < m_num_sprites; i++)
 	{
 		Sprite* s = m_world.render_world()->get_sprite(m_sprites[i].component);
-		s->set_material(m_materials[0].component);
+		s->set_material(m_resource->get_material(0).id);
 	}
 }
 
@@ -422,14 +407,6 @@ void Unit::add_actor(StringId32 name, ActorId actor)
 }
 
 //-----------------------------------------------------------------------------
-void Unit::add_material(StringId32 name, MaterialId material)
-{
-	CE_ASSERT(m_num_materials < CE_MAX_MATERIAL_COMPONENTS, "Max material number reached");
-
-	add_component(name, material, m_num_materials, m_materials);
-}
-
-//-----------------------------------------------------------------------------
 void Unit::set_controller(StringId32 name, ControllerId controller)
 {
 	m_controller.name = name;
@@ -540,21 +517,23 @@ Controller* Unit::controller()
 //-----------------------------------------------------------------------------
 Material* Unit::material(const char* name)
 {
-	MaterialId material = find_component(name, m_num_materials, m_materials);
+/*	MaterialId material = find_component(name, m_num_materials, m_materials);
 
 	CE_ASSERT(material.id != INVALID_ID, "Unit does not have material with name '%s'", name);
 
-	return m_world.render_world()->get_material(material);
+	return m_world.render_world()->get_material(material);*/
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
 Material* Unit::material(uint32_t i)
 {
-	MaterialId material = find_component_by_index(i, m_num_materials, m_materials);
+/*	MaterialId material = find_component_by_index(i, m_num_materials, m_materials);
 
 	CE_ASSERT(material.id != INVALID_ID, "Unit does not have material with name '%d'", i);
 
-	return m_world.render_world()->get_material(material);
+	return m_world.render_world()->get_material(material);*/
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------

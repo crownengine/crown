@@ -32,8 +32,8 @@ namespace crown
 {
 
 void* resource_on_load(uint64_t type, Allocator& allocator, Bundle& bundle, ResourceId id);
-void resource_on_online(uint64_t type, void* resource);
-void resource_on_offline(uint64_t type, void* resource);
+void resource_on_online(uint64_t type, StringId64 id, ResourceManager& rm);
+void resource_on_offline(uint64_t type, StringId64 id, ResourceManager& rm);
 void resource_on_unload(uint64_t type, Allocator& allocator, void* resource);
 
 } // namespace crown

@@ -124,7 +124,8 @@ struct DdsHeader
 
 struct TextureHeader
 {
-	uint32_t id;
+	uint32_t version;
+	uint32_t size;
 };
 
 #define DDS_HEADER_OFFSET	uint32_t(sizeof(TextureHeader))
@@ -143,34 +144,26 @@ struct TextureResource
 
 		bundle.close(file);
 
-		bgfx::TextureHandle tex = bgfx::createTexture(bgfx::copy(res, file_size));
+		// HACK HACK HACK
+		TextureHeader* th = (TextureHeader*) res;
+		th->size = file_size;
 
-		return (void*) (uintptr_t) tex.idx;
+		return res;
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* resource)
+	static void online(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
-		// TextureResource* t = (TextureResource*) resource;
-		// TextureHeader* h = (TextureHeader*) t;
-
-		// h->id = device()->renderer()->create_texture(t->width(), t->height(), t->num_mipmaps(), t->format(), t->data());
 	}
 
+	static void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
+	{
+	}
+	
 	//-----------------------------------------------------------------------------
 	static void unload(Allocator& allocator, void* resource)
 	{
-		CE_ASSERT(resource != NULL, "Resource not loaded");
-
 		allocator.deallocate(resource);
-	}
-
-	//-----------------------------------------------------------------------------
-	static void offline(void* resource)
-	{
-		// TextureResource* t = (TextureResource*) resource;
-
-		// device()->renderer()->destroy_texture(t->texture());
 	}
 
 	uint32_t width() const
@@ -188,15 +181,15 @@ struct TextureResource
 		return (uint8_t) ((DdsHeader*) (((char*) this) + DDS_HEADER_OFFSET))->num_mips;
 	}
 
-	const char* data() const
+	uint32_t size() const
 	{
-		return (char*) this + DDS_DATA_OFFSET;
+		return ((TextureHeader*) this)->size;
 	}
 
-	// TextureId texture() const
-	// {
-	// 	return ((TextureHeader*) this)->id;
-	// }
+	const char* data() const
+	{
+		return (char*) this + DDS_HEADER_OFFSET;
+	}
 
 private:
 

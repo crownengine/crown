@@ -305,6 +305,17 @@ void parse_keys(JSONElement e, Array<Key>& generic_keys, Array<char>& values)
 	}
 }
 
+void parse_materials(JSONElement e, Array<UnitMaterial>& materials)
+{
+	for (uint32_t i = 0; i < e.size(); i++)
+	{
+		ResourceId mat_id = e[i].to_resource_id("material");
+		UnitMaterial um;
+		um.id = mat_id.name;
+		array::push_back(materials, um);
+	}
+}
+
 //-----------------------------------------------------------------------------
 void compile(Filesystem& fs, const char* resource_path, File* out_file)
 {
@@ -315,13 +326,13 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONElement root = json.root();
 
 	ResourceId				m_physics_resource;
-	ResourceId				m_material_resource;
 	Array<GraphNode>		m_nodes(default_allocator());
 	Array<GraphNodeDepth>	m_node_depths(default_allocator());
 	Array<UnitCamera>		m_cameras(default_allocator());
 	Array<UnitRenderable>	m_renderables(default_allocator());
 	Array<Key>				m_keys(default_allocator());
 	Array<char>				m_values(default_allocator());
+	Array<UnitMaterial>		m_materials(default_allocator());
 
 	// Check for nodes
 	if (root.has_key("nodes")) parse_nodes(root.key("nodes"), m_nodes, m_node_depths);
@@ -336,6 +347,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	if (root.has_key("renderables")) parse_renderables(root.key("renderables"), m_renderables, m_node_depths);
 	if (root.has_key("cameras")) parse_cameras(root.key("cameras"), m_cameras, m_node_depths);
 	if (root.has_key("keys")) parse_keys(root.key("keys"), m_keys, m_values);
+	if (root.has_key("materials")) parse_materials(root.key("materials"), m_materials);
 
 	// Check if the unit has a .physics resource
 	DynamicString unit_name(resource_path);
@@ -351,23 +363,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		m_physics_resource = ResourceId();
 	}
 
-	// Check if the unit has a .material resource
-	DynamicString material_name = unit_name;
-	material_name += ".material";
-	if (fs.exists(material_name.c_str()))
-	{
-		m_material_resource = ResourceId("material", unit_name.c_str());
-	}
-	else
-	{
-		m_material_resource = ResourceId();
-	}
-
-
 	UnitHeader h;
 	h.physics_resource = m_physics_resource;
-	h.material_resource = m_material_resource;
 	h.num_renderables = array::size(m_renderables);
+	h.num_materials = array::size(m_materials);
 	h.num_cameras = array::size(m_cameras);
 	h.num_scene_graph_nodes = array::size(m_nodes);
 	h.num_keys = array::size(m_keys);
@@ -375,6 +374,7 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	uint32_t offt = sizeof(UnitHeader);
 	h.renderables_offset         = offt; offt += sizeof(UnitRenderable) * h.num_renderables;
+	h.materials_offset           = offt; offt += sizeof(UnitMaterial) * h.num_materials;
 	h.cameras_offset             = offt; offt += sizeof(UnitCamera) * h.num_cameras;
 	h.scene_graph_nodes_offset   = offt; offt += sizeof(UnitNode) * h.num_scene_graph_nodes;
 	h.keys_offset                = offt; offt += sizeof(Key) * h.num_keys;
@@ -386,6 +386,10 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	// Write renderables
 	if (array::size(m_renderables))
 		out_file->write((char*) array::begin(m_renderables), sizeof(UnitRenderable) * h.num_renderables);
+
+	// Write materials
+	if (array::size(m_materials))
+		out_file->write((char*) array::begin(m_materials), sizeof(UnitMaterial) * h.num_materials);
 
 	// Write cameras
 	if (array::size(m_cameras))

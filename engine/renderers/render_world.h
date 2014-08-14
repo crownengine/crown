@@ -32,10 +32,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "resource.h"
 #include "matrix4x4.h"
 #include "render_world_types.h"
+#include "material_manager.h"
 
 #define MAX_MESHES 100
 #define MAX_SPRITES 512
-#define MAX_MATERIALS 512
 #define MAX_GUIS 8
 
 namespace crown
@@ -94,14 +94,6 @@ public:
 	/// Creates the sprite @a id.
 	Sprite* get_sprite(SpriteId id);
 
-	MaterialId create_material(MaterialResource* mr);
-
-	/// Destroys the material @a id.
-	void destroy_material(MaterialId id);
-
-	/// Returns the material @a id.
-	Material* get_material(MaterialId id);
-
 	GuiId create_gui(uint16_t width, uint16_t height);
 	void destroy_gui(GuiId id);
 	Gui* get_gui(GuiId id);
@@ -112,12 +104,10 @@ private:
 
 	PoolAllocator m_mesh_pool;
 	PoolAllocator m_sprite_pool;
-	PoolAllocator m_material_pool;
 	PoolAllocator m_gui_pool;
 
 	IdArray<MAX_MESHES, Mesh*> m_mesh;
 	IdArray<MAX_SPRITES, Sprite*> m_sprite;
-	IdArray<MAX_MATERIALS, Material*> m_materials;
 	IdArray<MAX_GUIS, Gui*> m_guis;
 };
 

@@ -56,6 +56,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "network_filesystem.h"
 #include "lua_system.h"
 #include "debug_line.h"
+#include "material_manager.h"
 
 #if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 	#include "bundle_compiler.h"
@@ -164,6 +165,9 @@ void Device::init()
 	graphics_system::init();
 	debug_line::init();
 
+	CE_LOGD("Creating material manager...");
+	material_manager::init();
+
 	CE_LOGD("Creating lua system...");
 	lua_system::init();
 	m_lua_environment = CE_NEW(m_allocator, LuaEnvironment)(lua_system::state());
@@ -212,6 +216,9 @@ void Device::shutdown()
 	CE_DELETE(m_allocator, m_touch);
 	CE_DELETE(m_allocator, m_mouse);
 	CE_DELETE(m_allocator, m_keyboard);
+
+	CE_LOGD("Releasing material manager...");
+	material_manager::shutdown();
 
 	CE_LOGD("Releasing renderer...");
 	debug_line::shutdown();

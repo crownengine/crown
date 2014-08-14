@@ -33,7 +33,6 @@ namespace crown
 
 typedef Id MeshId;
 typedef Id SpriteId;
-typedef Id MaterialId;
 typedef Id GuiId;
 
 } // namespace crown

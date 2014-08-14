@@ -86,13 +86,12 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* resource)
+	static void online(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
-		MeshResource* m = (MeshResource*) resource;
-		MeshHeader* h = (MeshHeader*) m;
+	}
 
-		// h->vbuffer = device()->renderer()->create_vertex_buffer(m->num_vertices() * Vertex::bytes_per_vertex(m->vertex_format()), m->vertices(), m->vertex_format());
-		// h->ibuffer = device()->renderer()->create_index_buffer(m->num_indices() * sizeof(uint16_t), m->indices());
+	static void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
+	{
 	}
 
 	//-----------------------------------------------------------------------------
@@ -100,16 +99,6 @@ public:
 	{
 		CE_ASSERT_NOT_NULL(res);
 		a.deallocate(res);
-	}
-
-	//-----------------------------------------------------------------------------
-	static void offline(void* resource)
-	{
-		MeshResource* m = (MeshResource*) resource;
-		MeshHeader* h = (MeshHeader*) m;
-
-		// device()->renderer()->destroy_index_buffer(h->ibuffer);
-		// device()->renderer()->destroy_vertex_buffer(h->vbuffer);
 	}
 
 	//-----------------------------------------------------------------------------

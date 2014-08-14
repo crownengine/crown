@@ -35,18 +35,14 @@ struct MaterialResource;
 
 struct Material
 {
-	Material(const MaterialResource* mr);
-	~Material();
+	void create(const MaterialResource* mr);
+	void destroy() const;
+	void bind() const;
 
-	const MaterialResource* resource();
+	const MaterialResource* resource;
+	char* data;
 
-	void bind();
-
-private:
-
-	const MaterialResource* m_resource;
-	bgfx::ProgramHandle m_program;
-	bgfx::UniformHandle m_uniform;
+	bgfx::ProgramHandle program;
 };
 
 } // namespace crown

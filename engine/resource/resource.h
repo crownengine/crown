@@ -47,6 +47,7 @@ namespace crown
 #define SPRITE_EXTENSION			"sprite"
 #define TEXTURE_EXTENSION			"texture"
 #define UNIT_EXTENSION				"unit"
+#define SHADER_EXTENSION			"shader"
 
 #define CONFIG_TYPE					uint64_t(0x82645835e6b73232)
 #define FONT_TYPE					uint64_t(0x9efe0a916aae7880)
@@ -61,6 +62,7 @@ namespace crown
 #define SPRITE_TYPE					uint64_t(0x8d5871f9ebdb651c)
 #define TEXTURE_TYPE				uint64_t(0xcd4238c6a0c69e32)
 #define UNIT_TYPE					uint64_t(0xe0a48d0be9a7453f)
+#define SHADER_TYPE					uint64_t(0xcce8d5b5f5ae333f)
 
 struct ResourceId
 {
@@ -75,11 +77,12 @@ struct ResourceId
 
 class Allocator;
 class Bundle;
+class ResourceManager;
 
 typedef void*	(*ResourceLoadCallback)(Allocator& a, Bundle& b, ResourceId id);
+typedef void	(*ResourceOnlineCallback)(StringId64 id, ResourceManager& rm);
+typedef void	(*ResourceOfflineCallback)(StringId64 id, ResourceManager& rm);
 typedef void	(*ResourceUnloadCallback)(Allocator& a, void* resource);
-typedef void	(*ResourceOnlineCallback)(void* resource);
-typedef void	(*ResourceOfflineCallback)(void* resource);
 
 struct ResourceCallback
 {

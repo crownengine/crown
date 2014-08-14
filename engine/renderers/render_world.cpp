@@ -38,6 +38,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "gui.h"
 #include <bgfx.h>
 
+#include "material_manager.h"
+
 namespace crown
 {
 
@@ -58,7 +60,6 @@ namespace graphics_system
 RenderWorld::RenderWorld()
 	: m_mesh_pool(default_allocator(), MAX_MESHES, sizeof(Mesh), CE_ALIGNOF(Mesh))
 	, m_sprite_pool(default_allocator(), MAX_SPRITES, sizeof(Sprite), CE_ALIGNOF(Sprite))
-	, m_material_pool(default_allocator(), MAX_MATERIALS, sizeof(Material), CE_ALIGNOF(Material))
 	, m_gui_pool(default_allocator(), MAX_GUIS, sizeof(Gui), CE_ALIGNOF(Gui))
 {
 }
@@ -107,26 +108,6 @@ void RenderWorld::destroy_sprite(SpriteId id)
 Sprite*	RenderWorld::get_sprite(SpriteId id)
 {
 	return id_array::get(m_sprite, id);
-}
-
-//-----------------------------------------------------------------------------
-MaterialId RenderWorld::create_material(MaterialResource* mr)
-{
-	Material* mat = CE_NEW(m_material_pool, Material)(mr);
-	return id_array::create(m_materials, mat);
-}
-
-//-----------------------------------------------------------------------------
-void RenderWorld::destroy_material(MaterialId id)
-{
-	CE_DELETE(m_material_pool, id_array::get(m_materials, id));
-	id_array::destroy(m_materials, id);
-}
-
-//-----------------------------------------------------------------------------
-Material* RenderWorld::get_material(MaterialId id)
-{
-	return id_array::get(m_materials, id);
 }
 
 //-----------------------------------------------------------------------------
@@ -180,14 +161,17 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 
 	// Use debug font to print information about this example.
 	bgfx::dbgTextClear();
-	bgfx::dbgTextPrintf(0, 1, 0x4f, "bgfx/examples/00-helloworld");
-	bgfx::dbgTextPrintf(0, 2, 0x6f, "Description: Initialization and debug text.");
+	bgfx::dbgTextPrintf(0, 2, 0x6f, "dt = %4.7f", dt);
+
+	// Update all sprites
+	for (uint32_t s = 0; s < id_array::size(m_sprite); s++)
+	{
+		m_sprite[s]->update(dt);
+	}	
 
 	// Draw all sprites
 	for (uint32_t s = 0; s < id_array::size(m_sprite); s++)
 	{
-		//r->set_program(render_world_globals::default_texture_program());
-		m_sprite[s]->update(dt);
 		m_sprite[s]->render();
 	}
 

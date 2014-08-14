@@ -59,7 +59,8 @@ struct Sprite
 	void set_local_rotation(Unit* unit, const Quaternion& rot);
 	void set_local_pose(Unit* unit, const Matrix4x4& pose);
 
-	void set_material(MaterialId mat);
+	void set_material(StringId64 id);
+
 	void render();
 	void set_frame(uint32_t i);
 
@@ -70,12 +71,12 @@ struct Sprite
 
 public:
 
-	RenderWorld&			m_render_world;
-	SceneGraph&				m_scene_graph;
-	int32_t					m_node;
-	const SpriteResource*	m_resource;
+	RenderWorld& m_render_world;
+	SceneGraph& m_scene_graph;
+	int32_t m_node;
+	const SpriteResource* m_resource;
+	StringId64 m_material;
 
-	MaterialId m_material;
 	bgfx::VertexBufferHandle m_vb;
 	bgfx::IndexBufferHandle m_ib;
 

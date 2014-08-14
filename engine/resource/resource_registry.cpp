@@ -96,23 +96,23 @@ void resource_on_unload(uint64_t type, Allocator& allocator, void* resource)
 }
 
 //-----------------------------------------------------------------------------
-void resource_on_online(uint64_t type, void* resource)
+void resource_on_online(uint64_t type, StringId64 id, ResourceManager& rm)
 {
 	const ResourceCallback* c = find_callback(type);
 
 	CE_ASSERT_NOT_NULL(c);
 
-	return c->on_online(resource);
+	return c->on_online(id, rm);
 }
 
 //-----------------------------------------------------------------------------
-void resource_on_offline(uint64_t type, void* resource)
+void resource_on_offline(uint64_t type, StringId64 id, ResourceManager& rm)
 {
 	const ResourceCallback* c = find_callback(type);
 
 	CE_ASSERT_NOT_NULL(c);
 
-	return c->on_offline(resource);
+	return c->on_offline(id, rm);
 }
 
 } // namespace crown

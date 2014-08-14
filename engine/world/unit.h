@@ -116,7 +116,6 @@ struct Unit
 	void add_sprite(StringId32 name, SpriteId sprite);
 	void add_actor(StringId32 name, ActorId actor);
 	void set_controller(StringId32 name, ControllerId controller);
-	void add_material(StringId32 name, MaterialId material);
 
 	Camera* camera(const char* name);
 	Camera* camera(uint32_t i);
@@ -181,11 +180,7 @@ public:
 	uint32_t m_num_actors;
 	Component m_actors[CE_MAX_ACTOR_COMPONENTS];
 
-	uint32_t m_num_materials;
-	Component m_materials[CE_MAX_MATERIAL_COMPONENTS];
-
 	Component m_controller;
-
 	char* m_values;
 };
 

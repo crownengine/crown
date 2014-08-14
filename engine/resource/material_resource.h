@@ -27,57 +27,73 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "types.h"
-#include "texture_resource.h"
 #include "resource.h"
 #include "vector3.h"
 #include "color4.h"
 #include "bundle.h"
 #include "allocator.h"
 #include "blob.h"
+#include "device.h"
+#include "file.h"
+#include "resource_manager.h"
+#include "material_manager.h"
 
 namespace crown
 {
 
+const uint32_t MATERIAL_VERSION = 1;
+
+
 struct MaterialHeader
 {
-	uint32_t vs_size;
-	uint32_t vs_offset;
-	uint32_t fs_size;
-	uint32_t fs_offset;
+	uint32_t version;
+	uint32_t num_textures;
+	uint32_t texture_data_offset;
+	uint32_t num_uniforms;
+	uint32_t uniform_data_offset;
+	uint32_t dynamic_data_size;
+	uint32_t dynamic_data_offset;
 };
 
-struct SamplerArray
+struct TextureData
 {
-	uint32_t num;
+	char sampler_name[256];	// Sampler uniform name
+	StringId64 id;			// Resource name
+	uint32_t data_offset;	// Offset into dynamic blob
 };
 
-struct Sampler
+struct TextureHandle
 {
-	char name[32];
-	ResourceId texture;
+	uint32_t sampler_handle;
+	uint32_t texture_handle;
 };
 
-struct UniformArray
+struct UniformType
 {
-	uint32_t num;
+	enum Enum
+	{
+		INTEGER,
+		FLOAT,
+		VECTOR2,
+		VECTOR3,
+		VECTOR4,
+		COUNT
+	};
 };
 
-union UniformValue
+struct UniformData
 {
-	float float_value;
-	//Vector3 vector3_value;
+	char name[256];			// Uniform name
+	uint32_t type;			// UniformType::Enum
+	uint32_t data_offset;	// Offset into dynamic blob
 };
 
-struct Uniform
+struct UniformHandle
 {
-	char name[32];
-	uint32_t type;
-	UniformValue value;
+	uint32_t uniform_handle;
+	// data
 };
 
-/// A material describes the visual properties of a surface.
-/// It is primarly intended for rendering purposes but can
-/// also be used to drive other types of systems such as sounds or physics.
 struct MaterialResource
 {
 public:
@@ -97,38 +113,71 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	static void online(void* /*resource*/)
+	static void online(StringId64 id, ResourceManager& rm)
 	{
+		material_manager::get()->load(id, rm);
+	}
+
+	//-----------------------------------------------------------------------------
+	static void offline(StringId64 id, ResourceManager& rm)
+	{
+		material_manager::get()->unload(id, rm);
 	}
 
 	//-----------------------------------------------------------------------------
 	static void unload(Allocator& a, void* res)
 	{
-		CE_ASSERT_NOT_NULL(res);
 		a.deallocate(res);
 	}
 
-	//-----------------------------------------------------------------------------
-	static void offline(void* /*resource*/)
+	uint32_t dynamic_data_size() const
 	{
+		MaterialHeader* mh = (MaterialHeader*) this;
+		return mh->dynamic_data_size;		
 	}
 
-	Blob get_vertex_shader() const
+	uint32_t dynamic_data_offset() const
 	{
-		MaterialHeader* h = (MaterialHeader*) this;
-		Blob b;
-		b.m_size = h->vs_size;
-		b.m_data = (uintptr_t) h->vs_offset + (uintptr_t) this;
-		return b;
+		MaterialHeader* mh = (MaterialHeader*) this;
+		return mh->dynamic_data_offset;
 	}
 
-	Blob get_fragment_shader() const
+	uint32_t num_textures() const
 	{
-		MaterialHeader* h = (MaterialHeader*) this;
-		Blob b;
-		b.m_size = h->fs_size;
-		b.m_data = (uintptr_t) h->fs_offset + (uintptr_t) this;
-		return b;
+		MaterialHeader* mh = (MaterialHeader*) this;
+		return mh->num_textures;
+	}
+
+	uint32_t num_uniforms() const
+	{
+		MaterialHeader* mh = (MaterialHeader*) this;
+		return mh->num_uniforms;		
+	}
+
+	UniformData* get_uniform_data(uint32_t i) const
+	{
+		MaterialHeader* mh = (MaterialHeader*) this;
+		UniformData* base = (UniformData*) ((char*) mh + mh->uniform_data_offset);
+		return &base[i];
+	}
+
+	TextureData* get_texture_data(uint32_t i) const
+	{
+		MaterialHeader* mh = (MaterialHeader*) this;
+		TextureData* base = (TextureData*) ((char*) mh + mh->texture_data_offset);
+		return &base[i];
+	}
+
+	UniformHandle* get_uniform_handle(uint32_t i, char* dynamic) const
+	{
+		UniformData* ud = get_uniform_data(i);
+		return (UniformHandle*) (dynamic + ud->data_offset);
+	}
+
+	TextureHandle* get_texture_handle(uint32_t i, char* dynamic) const
+	{
+		TextureData* td = get_texture_data(i);
+		return (TextureHandle*) (dynamic + td->data_offset);
 	}
 
 private:
@@ -138,4 +187,3 @@ private:
 };
 
 } // namespace crown
-

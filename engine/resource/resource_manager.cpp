@@ -81,7 +81,7 @@ void ResourceManager::unload(ResourceId id, bool force)
 
 	if (entry->references == 0 || force)
 	{
-		resource_on_offline(id.type, entry->resource);
+		resource_on_offline(id.type, id.name, *this);
 		resource_on_unload(id.type, m_resource_heap, entry->resource);
 
 		// Swap with last
@@ -147,12 +147,13 @@ void ResourceManager::complete_requests()
 //-----------------------------------------------------------------------------
 void ResourceManager::complete_request(ResourceId id, void* data)
 {
-	resource_on_online(id.type, data);
 	ResourceEntry entry;
 	entry.id = id;
 	entry.references = 1;
 	entry.resource = data;
 	array::push_back(m_resources, entry);
+
+	resource_on_online(id.type, id.name, *this);
 }
 
 } // namespace crown
