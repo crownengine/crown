@@ -211,8 +211,7 @@ solution "crown"
 				"GL",
 				"X11",
 				"openal",
-				"luajit",
-				"bgfxRelease"
+				"luajit"
 			}
 
 			includedirs {
@@ -258,7 +257,12 @@ solution "crown"
 				"-O0"
 			}
 
-			linkoptions { 
+			links {
+				"bgfxDebug"
+			}
+
+			linkoptions {
+				"-rdynamic",
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelClothCHECKED" ..
 				"	PhysX3CHECKED " ..
@@ -282,8 +286,13 @@ solution "crown"
 				"-O2"
 			}
 
+			links {
+				"bgfxDebug"
+			}
+
 			linkoptions
-			{ 
+			{
+				"-rdynamic",
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelClothPROFILE" ..
 				"	PhysX3PROFILE " ..
@@ -307,7 +316,11 @@ solution "crown"
 				"-O2"
 			}
 
-			linkoptions { 
+			links {
+				"bgfxRelease"
+			}
+
+			linkoptions {
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
 				"	PhysX3 " ..
@@ -342,7 +355,6 @@ solution "crown"
 			postbuildcommands {
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/luajit " .. CROWN_INSTALL_DIR .. "bin/linux32/",
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. CROWN_INSTALL_DIR .. "bin/linux32/" .. " -r",
-				"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux32_gcc/bin/shadercRelease " .. CROWN_INSTALL_DIR .. "bin/linux32/shaderc",
 			}
 
 		configuration { "linux-*", "x64" }
@@ -357,7 +369,26 @@ solution "crown"
 			postbuildcommands {
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/luajit " .. CROWN_INSTALL_DIR .. "bin/linux64/",
 				"cp " .. CROWN_THIRD_DIR .. "luajit/src/jit " .. CROWN_INSTALL_DIR .. "bin/linux64/" .. " -r",
-				"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux64_gcc/bin/shadercRelease " .. CROWN_INSTALL_DIR .. "bin/linux64/shaderc",
+			}
+
+		configuration { "debug or development", "x32", "linux-*" }
+			postbuildcommands {
+				"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux32_gcc/bin/shadercDebug " .. CROWN_INSTALL_DIR .. "bin/linux32/shaderc"
+			}
+
+		configuration { "release", "x32", "linux-*" }
+			postbuildcommands {
+				"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux32_gcc/bin/shadercRelease " .. CROWN_INSTALL_DIR .. "bin/linux32/shaderc"
+			}
+
+		configuration { "debug or development", "x64", "linux-*" }
+			postbuildcommands {
+				"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux64_gcc/bin/shadercDebug " .. CROWN_INSTALL_DIR .. "bin/linux64/shaderc"
+			}
+
+		configuration { "release", "x64", "linux-*" }
+			postbuildcommands {
+				"cp " .. CROWN_THIRD_DIR .. "bgfx/.build/linux64_gcc/bin/shadercRelease " .. CROWN_INSTALL_DIR .. "bin/linux64/shaderc"
 			}
 
 		configuration { "android" }

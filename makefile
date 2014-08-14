@@ -23,33 +23,39 @@ luajit-arm:
 luajit-clean:
 	make -R -C third/luajit clean
 
-bgfx-linux32:
+bgfx-linux-debug32:
+	make -R -C third/bgfx linux-debug32
+bgfx-linux-debug64:
+	make -R -C third/bgfx linux-debug64
+bgfx-linux-release32:
 	make -R -C third/bgfx linux-release32
-bgfx-linux64:
+bgfx-linux-release64:
 	make -R -C third/bgfx linux-release64
 bgfx-android-arm:
 	make -R -C third/bgfx android-arm-release
 bgfx-clean:
 	make -R -C third/bgfx clean
 
-deps-linux32: luajit-linux32 bgfx-linux32
-deps-linux64: luajit-linux64 bgfx-linux64
+deps-linux-debug32: luajit-linux32 bgfx-linux-debug32
+deps-linux-debug64: luajit-linux64 bgfx-linux-debug64
+deps-linux-release32: luajit-linux32 bgfx-linux-release32
+deps-linux-release64: luajit-linux64 bgfx-linux-release64
 deps-android-arm: luajit-arm bgfx-android-arm
 deps-clean: luajit-clean bgfx-clean
 
 linux-build:
 	$(PREMAKE) --file=premake/premake4.lua --compiler=linux-gcc gmake
-linux-debug32: deps-linux32 linux-build
+linux-debug32: deps-linux-debug32 linux-build
 	make -R -C .build/linux config=debug32
-linux-development32: deps-linux32 linux-build
+linux-development32: deps-linux-debug32 linux-build
 	make -R -C .build/linux config=development32
-linux-release32: deps-linux32 linux-build
+linux-release32: deps-linux-release32 linux-build
 	make -R -C .build/linux config=release32
-linux-debug64: deps-linux64 linux-build
+linux-debug64: deps-linux-debug64 linux-build
 	make -R -C .build/linux config=debug64
-linux-development64: deps-linux64 linux-build	
+linux-development64: deps-linux-debug64 linux-build	
 	make -R -C .build/linux config=development64
-linux-release64: deps-linux64 linux-build
+linux-release64: deps-linux-release64 linux-build
 	make -R -C .build/linux config=release64
 linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
 
