@@ -73,7 +73,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	JSONElement root = json.root();
 
-	JSONElement mat = root.key("material");
 	JSONElement count = root.key("count");
 	JSONElement size = root.key("size");
 	JSONElement font_size = root.key("font_size");
@@ -88,7 +87,6 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		array::push_back(m_glyphs, data);
 	}
 
-	h.material = mat.to_resource_id("material");
 	h.num_glyphs = array::size(m_glyphs);
 	h.texture_size = size.to_int();
 	h.font_size = font_size.to_int();

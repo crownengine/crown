@@ -37,42 +37,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-// Glyph metrics:
-// --------------
-//
-//                   x_min|<-------- width -------->|x_max
-//                        |                         |
-//              |   	  +-------------------------+--------------- y_max
-//              |         |    ggggggggg   ggggg    |     ^        ^
-//              |         |   g:::::::::ggg::::g    |     |        |
-//              |         |  g:::::::::::::::::g    |     |        |
-//              |         | g::::::ggggg::::::gg    |     |        |
-//              |         | g:::::g     g:::::g     |     |        |
-//    x_offset -|-------->| g:::::g     g:::::g     |  y_offset    |
-//              |         | g:::::g     g:::::g     |     |        |
-//              |         | g::::::g    g:::::g     |     |        |
-//              |         | g:::::::ggggg:::::g     |     |        |
-//              |         |  g::::::::::::::::g     |     |      height
-//              |         |   gg::::::::::::::g     |     |        |
-//  baseline ---*---------|---- gggggggg::::::g-----*--------      |
-//            / |         |             g:::::g     |              |
-//     origin   |         | gggggg      g:::::g     |              |
-//              |         | g:::::gg   gg:::::g     |              |
-//              |         |  g::::::ggg:::::::g     |              |
-//              |         |   gg:::::::::::::g      |              |
-//              |         |     ggg::::::ggg        |              |
-//              |         |         gggggg          |              v
-//              |         +-------------------------+--------------- y_min
-//              |                                   |
-//              |------------- x_advance ---------->|
-
-
 //-----------------------------------------------------------------------------
 struct FontHeader
 {
-	ResourceId material;
 	uint32_t num_glyphs;
-	uint32_t texture_size;			// Font texture size -- pow of 2
+	uint32_t texture_size; // Font texture size -- pow of 2
 	uint32_t font_size;
 };
 
@@ -122,12 +91,6 @@ public:
 	static void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);
-	}
-
-	//-----------------------------------------------------------------------------
-	ResourceId material() const
-	{
-		return ((FontHeader*) this)->material;
 	}
 
 	//-----------------------------------------------------------------------------
