@@ -178,18 +178,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #define CE_PIXELS_PER_METER					32
 
-#define CE_MAX_TEXTURE_UNITS				8
-#define CE_MAX_TEXTURES						32
-#define CE_MAX_RENDER_TARGETS				32
-#define CE_MAX_VERTEX_BUFFERS				1024
-#define CE_MAX_INDEX_BUFFERS				1024
-#define CE_MAX_SHADERS						512
-#define CE_MAX_GPU_PROGRAMS					512
-#define CE_MAX_UNIFORMS						128
-#define CE_TRANSIENT_VERTEX_BUFFER_SIZE		6 * 1024 * 1024		// In bytes
-#define CE_TRANSIENT_INDEX_BUFFER_SIZE		2 * 1024 * 1024		// In bytes
-#define CE_MAX_UNIFORM_NAME_LENGTH			64					// Including NUL character
-
 #define CE_MAX_WORLDS						1024
 #define CE_MAX_UNITS						65000				// Per world
 #define CE_MAX_CAMERAS						16					// Per world
