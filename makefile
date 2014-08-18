@@ -67,6 +67,7 @@ windows-release64: windows-build
 
 docs:
 	doxygen Doxyfile.doxygen
+	cp -r .build/documentation $(CROWN_INSTALL_DIR)
 
 clean: luajit-clean
 	@echo Cleaning...
