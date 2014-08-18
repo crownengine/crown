@@ -42,10 +42,12 @@ The steps required for building the engine in a default and pretty safe manner a
 All the commands and/or operations must be performed in the root directory of the project (i.e. the same as this file):
 
 Linux:
+	
+	$ export CROWN_INSTALL_DIR=/path/to/install/dir
+	$ export PHYSX_SDK_LINUX=/path/to/physx/sdk
+	$ make <CROWN_LINUX_BUILD> 
 
-	$ make <CROWN_BUILD> 
-
-'CROWN_BUILD' valid values are:
+'CROWN_LINUX_BUILD' valid values are:
 
 * linux-debug32
 * linux-development32
@@ -56,11 +58,13 @@ Linux:
 * linux
 
 Windows:
-
-	make.exe <CROWN_BUILD>
+	
+	export CROWN_INSTALL_DIR=/path/to/install/dir
+	export PHYSX_SDK_WINDOWS=/path/to/physx/sdk
+	make.exe <CROWN_WINDOWS_BUILD>
 	Open the generated Visual Studio solution and build/install from there
 
-'CROWN_BUILD' valid values are:
+'CROWN_WINDOWS_BUILD' valid values are:
 
 * windows-debug32
 * windows-development32
@@ -71,8 +75,18 @@ Windows:
 
 Android:
 
-	$ cd utils
-	$ ruby crown-android.rb --target <android-target> --name <project-name> --path <project-path> [--res <res-path>]
+	$ export CROWN_INSTALL_DIR=/path/to/install/dir
+	$ export ANDROID_NDK_ROOT=/path/to/android/ndk
+	$ export ANDROID_NDK_ARM=/path/to/android/ndk/arm
+	$ export PHYSX_SDK_ANDROID=/path/to/physx/sdk
+	$ make <CROWN_ANDROID_BUILD>
+
+'CROWN_ANDROID_BUILD' valid values are:
+
+* android-debug
+* android-development
+* android-release
+* android
 
 
 ##System requirements
