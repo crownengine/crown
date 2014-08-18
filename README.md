@@ -42,6 +42,7 @@ The steps required for building the engine in a default and pretty safe manner a
 All the commands and/or operations must be performed in the root directory of the project (i.e. the same as this file):
 
 Linux:
+
 	$ make <CROWN_BUILD> 
 
 'CROWN_BUILD' valid values are:
