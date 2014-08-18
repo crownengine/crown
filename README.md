@@ -23,13 +23,17 @@ Linux:
 * Xrandr
 * nVidia PhysX 3.3.0+
 
+Windows:
+
+* nVidia PhysX 3.3.0+
+* GnuWin32 make (http://gnuwin32.sourceforge.net/packages/make.htm)
+* GnuWin32 coreutils (http://gnuwin32.sourceforge.net/packages/coreutils.htm)
+* GnuWin32 libiconv (http://gnuwin32.sourceforge.net/packages/libiconv.htm)
+* GnuWin32 libintl (http://gnuwin32.sourceforge.net/packages/libintl.htm)
+
 Android:
 
 * Android NDK and SDK
-* nVidia PhysX 3.3.0+
-
-Windows:
-
 * nVidia PhysX 3.3.0+
 
 ##Building
@@ -38,44 +42,52 @@ The steps required for building the engine in a default and pretty safe manner a
 All the commands and/or operations must be performed in the root directory of the project (i.e. the same as this file):
 
 Linux:
+	
+	$ export CROWN_INSTALL_DIR=/path/to/install/dir
+	$ export PHYSX_SDK_LINUX=/path/to/physx/sdk
+	$ make <CROWN_LINUX_BUILD> 
 
-	$ mkdir build
-	$ cd build
-	$ cmake .. -DCMAKE_INSTALL_PREFIX=<install-path> -DCROWN_BUILD=<read-below>
-	$ make install
+'CROWN_LINUX_BUILD' valid values are:
 
-'CROWN_BUILD' valid values are:
-
-* linux-debug-32
-* linux-development-32
-* linux-release-32
-* linux-debug-64
-* linux-development-64
-* linux-release-64
+* linux-debug32
+* linux-development32
+* linux-release32
+* linux-debug64
+* linux-development64
+* linux-release64
+* linux
 
 Windows:
-
-	Create a folder named 'build'
-	Open a terminal and:
-	cd build
-	cmake.exe .. -DCMAKE_INSTALL_PREFIX=<install-path> -DCROWN_BUILD=<read-below>
+	
+	export CROWN_INSTALL_DIR=/path/to/install/dir
+	export PHYSX_SDK_WINDOWS=/path/to/physx/sdk
+	make.exe <CROWN_WINDOWS_BUILD>
 	Open the generated Visual Studio solution and build/install from there
 
-'CROWN_BUILD' valid values are:
+'CROWN_WINDOWS_BUILD' valid values are:
 
-* windows-debug-32
-* windows-development-32
-* windows-release-32
-* windows-debug-64
-* windows-development-64
-* windows-release-64
+* windows-debug32
+* windows-development32
+* windows-release32
+* windows-debug64
+* windows-development64
+* windows-release64
 
 Android:
 
-	$ cd utils
-	$ ruby crown-android.rb --target <android-target> --name <project-name> --path <project-path> [--res <res-path>]
+	$ export CROWN_INSTALL_DIR=/path/to/install/dir
+	$ export ANDROID_NDK_ROOT=/path/to/android/ndk
+	$ export ANDROID_NDK_ARM=/path/to/android/ndk/arm
+	$ export PHYSX_SDK_ANDROID=/path/to/physx/sdk
+	$ make <CROWN_ANDROID_BUILD>
 
-You can also use the GUI front-end of CMake which can, less or more, simplify the overall 'complexity' of building from the terminal.
+'CROWN_ANDROID_BUILD' valid values are:
+
+* android-debug
+* android-development
+* android-release
+* android
+
 
 ##System requirements
 
