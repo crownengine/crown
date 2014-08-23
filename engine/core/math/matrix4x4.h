@@ -220,13 +220,15 @@ namespace matrix4x4
 	//-----------------------------------------------------------------------------
 	inline void set_perspective_rh(Matrix4x4& m, float fovy, float aspect, float near, float far)
 	{
-		const float top = math::tan(fovy / 360.0f * math::PI) * near;
-		const float right = top * aspect;
+		const float height = 1.0f / math::tan(fovy * ((float) math::PI / 180.0f) * 0.5f);
+		const float width = height * 1.0f / aspect;
+		const float aa = far / (far - near);
+		const float bb = -near * aa;
 
-		m.x = Vector4(near / right, 0, 0, 0);
-		m.y = Vector4(0, near / top, 0, 0);
-		m.z = Vector4(0, 0, (far + near) / (near - far), -1);
-		m.t = Vector4(0, 0, (2.0f * far * near) / (near - far), 0);
+		m.x = Vector4(width, 0, 0, 0);
+		m.y = Vector4(0, height, 0, 0);
+		m.z = Vector4(0, 0, aa, 1.0f);
+		m.t = Vector4(0, 0, bb, 0);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -234,8 +236,8 @@ namespace matrix4x4
 	{
 		m.x = Vector4(2.0f / (right - left), 0, 0, 0);
 		m.y = Vector4(0, 2.0f / (top - bottom), 0, 0);
-		m.z = Vector4(0, 0, -2.0f / (far - near), 0);
-		m.t = Vector4(-((right + left) / (right - left)), -((top + bottom) / (top - bottom)), -((far + near) / (far - near)), 1.0);
+		m.z = Vector4(0, 0, 1.0f / (far - near), 0);
+		m.t = Vector4((left + right) / (left - right), (top + bottom) / (bottom - top), near / (near - far), 1.0f);
 	}
 
 	//-----------------------------------------------------------------------------
