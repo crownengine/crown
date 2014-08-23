@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "json_parser.h"
 #include "os.h"
 #include "reader_writer.h"
+#include "config.h"
 
 namespace crown
 {
@@ -70,6 +71,9 @@ namespace shader_resource
 			"--type", "vertex",
 			"--platform", opts.platform(),
 			"--verbose",
+#if CROWN_PLATFORM_WINDOWS
+			"--profile", "vs_3_0",
+#endif
 			NULL
 		};
 		os::execute_process(compile_vs);
@@ -83,6 +87,9 @@ namespace shader_resource
 			"--type", "fragment",
 			"--platform", opts.platform(),
 			"--verbose",
+#if CROWN_PLATFORM_WINDOWS
+			"--profile", "ps_3_0",
+#endif
 			NULL
 		};
 		os::execute_process(compile_fs);
