@@ -37,6 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "config.h"
 #include "gui.h"
 #include <bgfx.h>
+#include <bx/fpumath.h>
 
 #include "material_manager.h"
 
@@ -149,10 +150,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 		);
 
 	// Set view and projection matrix for view 0.
-	Matrix4x4 inv_view = view;
-	matrix4x4::invert(inv_view);
-	bgfx::setViewTransform(0, matrix4x4::to_float_ptr(inv_view), matrix4x4::to_float_ptr(projection));
-
+	bgfx::setViewTransform(0, matrix4x4::to_float_ptr(view), matrix4x4::to_float_ptr(projection));
 	bgfx::setViewRect(0, 0, 0, width, height);
 
 	// This dummy draw call is here to make sure that view 0 is cleared
