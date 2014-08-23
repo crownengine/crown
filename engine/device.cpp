@@ -189,8 +189,6 @@ void Device::init()
 	// Execute lua boot file
 	m_lua_environment->load_and_execute(m_boot_file);
 	m_lua_environment->call_global("init", 0);
-
-	CE_LOGD("Total allocated size: %ld", m_allocator.allocated_size());
 }
 
 //-----------------------------------------------------------------------------
