@@ -166,9 +166,16 @@ Camera* World::get_camera(CameraId id)
 //-----------------------------------------------------------------------------
 void World::update(float dt)
 {
+	m_sprite_animation_player.update(dt);
+
 	m_physics_world.update(dt);
 
 	m_scenegraph_manager.update();
+
+	for (uint32_t i = 0; i < id_array::size(m_units); i++)
+	{
+		m_units[i]->update();
+	}
 
 	m_sound_world->update();
 
@@ -255,9 +262,9 @@ void World::set_sound_volume(SoundInstanceId id, float vol)
 }
 
 //-----------------------------------------------------------------------------
-GuiId World::create_window_gui(uint16_t width, uint16_t height)
+GuiId World::create_window_gui(uint16_t width, uint16_t height, const char* material)
 {
-	return m_render_world.create_gui(width, height);
+	return m_render_world.create_gui(width, height, material);
 }
 
 //-----------------------------------------------------------------------------
@@ -307,6 +314,12 @@ SceneGraphManager* World::scene_graph_manager()
 {
 	return &m_scenegraph_manager;
 }
+
+SpriteAnimationPlayer* World::sprite_animation_player()
+{
+	return &m_sprite_animation_player;
+}
+
 //-----------------------------------------------------------------------------
 RenderWorld* World::render_world()
 {

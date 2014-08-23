@@ -41,6 +41,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "world_types.h"
 #include "sound_world.h"
 #include "event_stream.h"
+#include "sprite_animation_player.h"
 
 namespace crown
 {
@@ -127,7 +128,7 @@ public:
 	void set_sound_volume(SoundInstanceId id, float volume);
 
 	/// Creates a new window-space Gui of size @width and @a height.
-	GuiId create_window_gui(uint16_t width, uint16_t height);
+	GuiId create_window_gui(uint16_t width, uint16_t height, const char* material);
 
 	/// Destroys the gui with the given @a id.
 	void destroy_gui(GuiId id);
@@ -142,6 +143,7 @@ public:
 	void load_level(const char* name);
 
 	SceneGraphManager* scene_graph_manager();
+	SpriteAnimationPlayer* sprite_animation_player();
 
 	/// Returns the rendering sub-world.
 	RenderWorld* render_world();
@@ -158,20 +160,21 @@ private:
 
 private:
 
-	PoolAllocator						m_unit_pool;
-	PoolAllocator						m_camera_pool;
+	PoolAllocator m_unit_pool;
+	PoolAllocator m_camera_pool;
 
-	IdArray<CE_MAX_UNITS, Unit*>		m_units;
-	IdArray<CE_MAX_CAMERAS, Camera*>	m_cameras;
+	IdArray<CE_MAX_UNITS, Unit*> m_units;
+	IdArray<CE_MAX_CAMERAS, Camera*> m_cameras;
 
-	SceneGraphManager					m_scenegraph_manager;
-	RenderWorld							m_render_world;
-	PhysicsWorld						m_physics_world;
-	SoundWorld*							m_sound_world;
+	SceneGraphManager m_scenegraph_manager;
+	SpriteAnimationPlayer m_sprite_animation_player;
+	RenderWorld m_render_world;
+	PhysicsWorld m_physics_world;
+	SoundWorld* m_sound_world;
 
-	WorldId								m_id;
+	WorldId m_id;
 
-	EventStream							m_events;
+	EventStream m_events;
 };
 
 } // namespace crown
