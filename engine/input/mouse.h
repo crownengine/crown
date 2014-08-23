@@ -66,13 +66,13 @@ public:
 	/// Returns whether the @a b button is pressed in the current frame.
 	bool button_pressed(MouseButton::Enum b)
 	{
-		return bool(~m_last_state[b] & m_current_state[b]);
+		return (~m_last_state[b] & m_current_state[b]) != 0;
 	}
 
 	/// Returns whether the @a b button is released in the current frame.
 	bool button_released(MouseButton::Enum b)
 	{
-		return bool(m_last_state[b] & ~m_current_state[b]);
+		return (m_last_state[b] & ~m_current_state[b]) != 0;
 	}
 
 	/// Returns wheter any button is pressed in the current frame.
@@ -119,7 +119,7 @@ public:
 	/// maximum extent of the cosidered axis.
 	Vector2 cursor_relative_xy()
 	{
-		return Vector2(m_x / m_width, m_y / m_height);
+		return Vector2((float) m_x / m_width, (float) m_y / m_height);
 	}
 
 	/// Sets the relative position of the cursor in window space.

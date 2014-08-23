@@ -56,14 +56,14 @@ public:
 	bool pointer_down(uint8_t p)
 	{
 		if (p >= MAX_POINTER_IDS) return false;
-		return bool(~m_last_state[p] & m_current_state[p]);
+		return (~m_last_state[p] & m_current_state[p]) != 0;
 	}
 
 	/// Returns whether the @a p pointer is released in the current frame.
 	bool pointer_up(uint8_t p)
 	{
 		if (p >= MAX_POINTER_IDS) return false;
-		return bool(m_last_state[p] & ~m_current_state[p]);
+		return (m_last_state[p] & ~m_current_state[p]) != 0;
 	}
 
 	/// Returns wheter any pointer is pressed in the current frame.

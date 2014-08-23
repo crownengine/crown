@@ -75,13 +75,13 @@ struct Keyboard
 	/// Returns whether the specified @a b button is pressed in the current frame.
 	bool button_pressed(KeyboardButton::Enum b) const
 	{
-		return bool(~m_last_state[b] & m_current_state[b]);
+		return (~m_last_state[b] & m_current_state[b]) != 0;
 	}
 
 	/// Returns whether the specified @a b button is released in the current frame.
 	bool button_released(KeyboardButton::Enum b) const
 	{
-		return bool(m_last_state[b] & ~m_current_state[b]);
+		return (m_last_state[b] & ~m_current_state[b]) != 0;
 	}
 
 	/// Returns wheter any button is pressed in the current frame.
