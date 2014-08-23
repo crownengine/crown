@@ -33,9 +33,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "array.h"
 #include "config.h"
 #include "reader_writer.h"
+#include "vector2.h"
+#include "vector4.h"
 #include <cfloat>
 #include <cstring>
 #include <inttypes.h>
+#include "log.h"
 
 namespace crown
 {
@@ -241,7 +244,7 @@ namespace sprite_animation_resource
 			sizeof(SpriteAnimationName) * array::size(anim_names) +
 			sizeof(SpriteAnimationData) * array::size(anim_data)));
 
-		if (array::size(anim_names));
+		if (array::size(anim_names))
 			bw.write(array::begin(anim_names), sizeof(SpriteAnimationName) * array::size(anim_names));
 		if (array::size(anim_data))
 			bw.write(array::begin(anim_data), sizeof(SpriteAnimationData) * array::size(anim_data));
