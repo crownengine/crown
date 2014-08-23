@@ -136,7 +136,7 @@ static void parse_uniforms(JSONElement root, Array<UniformData>& uniforms, Array
 		{
 			case UniformType::FLOAT:
 			{
-				float data = root.key("uniforms").key(keys[i].c_str()).key("value").to_int();
+				float data = root.key("uniforms").key(keys[i].c_str()).key("value").to_float();
 				reserve_dynamic_data(data, dynamic);
 				break;
 			}
