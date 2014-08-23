@@ -40,21 +40,21 @@ class SceneGraphManager
 {
 public:
 
-						SceneGraphManager();
-						~SceneGraphManager();
+	SceneGraphManager();
+	~SceneGraphManager();
 
 	/// Creates a new scene graph
-	SceneGraph*			create_scene_graph();
+	SceneGraph* create_scene_graph();
 
 	/// Destroys the @a sg scene graph
-	void				destroy_scene_graph(SceneGraph* sg);
+	void destroy_scene_graph(SceneGraph* sg);
 
 	/// Updates all the scene graphs
-	void				update();
+	void update();
 
 private:
 
-	Array<SceneGraph*>	m_graphs;
+	Array<SceneGraph*> m_graphs;
 };
 
 } // namespace crown
