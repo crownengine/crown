@@ -24,30 +24,43 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "math_types.h"
-#include <bgfx.h>
+#include "lua_stack.h"
+#include "lua_environment.h"
+#include "material.h"
 
 namespace crown
 {
 
-struct MaterialManager;
-struct MaterialResource;
-
-struct Material
+//-----------------------------------------------------------------------------
+static int material_set_float(lua_State* L)
 {
-	void create(const MaterialResource* mr, MaterialManager& mm);
-	void clone(const Material& m);
-	void destroy() const;
-	void bind() const;
+	LuaStack stack(L);
+	stack.get_material(1)->set_float(stack.get_string(2), stack.get_float(3));
+	return 0;
+}
 
-	void set_float(const char* name, float val);
-	void set_vector2(const char* name, const Vector2& val);
-	void set_vector3(const char* name, const Vector3& val);
+//-----------------------------------------------------------------------------
+static int material_set_vector2(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_material(1)->set_vector2(stack.get_string(2), stack.get_vector2(3));
+	return 0;
+}
 
-	const MaterialResource* resource;
-	char* data;
-};
+//-----------------------------------------------------------------------------
+static int material_set_vector3(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_material(1)->set_vector3(stack.get_string(2), stack.get_vector3(3));
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+void load_material(LuaEnvironment& env)
+{
+	env.load_module_function("Material", "set_float", material_set_float);
+	env.load_module_function("Material", "set_vector2", material_set_vector2);
+	env.load_module_function("Material", "set_vector3", material_set_vector3);
+}
 
 } // namespace crown

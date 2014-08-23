@@ -42,6 +42,7 @@ namespace crown
 struct UnitHeader
 {
 	ResourceId physics_resource;
+	StringId64 sprite_animation;
 	uint32_t num_renderables;
 	uint32_t renderables_offset;
 	uint32_t num_materials;
@@ -135,6 +136,14 @@ struct UnitResource
 	static void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);
+	}
+
+	ResourceId sprite_animation() const
+	{
+		ResourceId id;
+		id.type = SPRITE_ANIMATION_TYPE;
+		id.name = ((UnitHeader*) this)->sprite_animation;
+		return id;
 	}
 
 	//-----------------------------------------------------------------------------

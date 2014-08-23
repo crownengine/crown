@@ -29,6 +29,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "math_types.h"
 #include "color4.h"
 #include "render_world_types.h"
+#include "material.h"
+#include <bgfx.h>
 
 namespace crown
 {
@@ -40,7 +42,7 @@ class RenderWorld;
 /// @ingroup Graphics
 struct Gui
 {
-	Gui(RenderWorld& render_world, uint16_t width, uint16_t height);
+	Gui(uint16_t width, uint16_t height, const char* material);
 
 	const GuiId id() const;
 	void set_id(const GuiId id);
@@ -68,14 +70,20 @@ struct Gui
 
 public:
 
-	RenderWorld& m_render_world;
 	GuiId m_id;
-
 	uint16_t m_width;
 	uint16_t m_height;
-
+	typedef Id MaterialId;
+	MaterialId m_material;
 	Matrix4x4 m_projection;
 	Matrix4x4 m_pose;
+
+	static void init();
+
+private:
+
+	static bgfx::VertexDecl s_pos_col;
+	static bgfx::VertexDecl s_pos_col_tex;
 };
 
 } // namespace crown

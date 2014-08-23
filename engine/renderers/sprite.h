@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "matrix4x4.h"
 #include "quaternion.h"
 #include "sprite_resource.h"
+#include "material.h"
 #include <bgfx.h>
 
 namespace crown
@@ -40,12 +41,12 @@ class Renderer;
 class RenderWorld;
 struct SceneGraph;
 struct Unit;
+typedef Id MaterialId;
 
 //-----------------------------------------------------------------------------
 struct Sprite
 {
 	Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const SpriteResource* sr);
-	~Sprite();
 
 	Vector3 local_position() const;
 	Quaternion local_rotation() const;
@@ -59,15 +60,11 @@ struct Sprite
 	void set_local_rotation(Unit* unit, const Quaternion& rot);
 	void set_local_pose(Unit* unit, const Matrix4x4& pose);
 
-	void set_material(StringId64 id);
+	void set_material(MaterialId id);
 
-	void render();
 	void set_frame(uint32_t i);
 
-	void play_animation(const char* name, bool loop);
-	void stop_animation();
-
-	void update(float dt);
+	void render();
 
 public:
 
@@ -75,16 +72,8 @@ public:
 	SceneGraph& m_scene_graph;
 	int32_t m_node;
 	const SpriteResource* m_resource;
-	StringId64 m_material;
-
-	bgfx::VertexBufferHandle m_vb;
-	bgfx::IndexBufferHandle m_ib;
-
+	MaterialId m_material;
 	uint32_t m_frame;
-
-	const SpriteAnimation* m_animation;
-	float m_time;
-	bool m_loop;
 };
 
 } // namespace crown

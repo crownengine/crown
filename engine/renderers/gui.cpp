@@ -24,20 +24,15 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "gui.h"
-#include "assert.h"
-#include "vector3.h"
-#include "vector2.h"
-#include "render_world.h"
-#include "vector3.h"
-#include "vector2.h"
 #include "color4.h"
 #include "font_resource.h"
-#include "device.h"
-#include "os_window.h"
-#include "resource_manager.h"
-#include "texture_resource.h"
+#include "gui.h"
 #include "material_resource.h"
+#include "material_manager.h"
+#include "vector2.h"
+#include "vector3.h"
+#include "matrix4x4.h"
+#include <bgfx.h>
 
 namespace crown
 {
@@ -97,14 +92,35 @@ static uint32_t utf8_decode(uint32_t* state, uint32_t* code_point, uint8_t chara
 	return *state;
 }
 
+bgfx::VertexDecl Gui::s_pos_col;
+bgfx::VertexDecl Gui::s_pos_col_tex;
+
+void Gui::init()
+{
+	Gui::s_pos_col
+		.begin()
+		.add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
+		.add(bgfx::Attrib::Color0,   4, bgfx::AttribType::Uint8, true)
+		.end();
+
+	Gui::s_pos_col_tex
+		.begin()
+		.add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
+		.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, true)
+		.add(bgfx::Attrib::Color0,   4, bgfx::AttribType::Uint8, true)
+		.end();
+}
+
 //-----------------------------------------------------------------------------
-Gui::Gui(RenderWorld& render_world, uint16_t width, uint16_t height)
-	: m_render_world(render_world)
-	, m_width(width)
+Gui::Gui(uint16_t width, uint16_t height, const char* material)
+	: m_width(width)
 	, m_height(height)
 	, m_pose(matrix4x4::IDENTITY)
 {
 	set_orthographic_rh(m_projection, 0, width, 0, height, -0.01f, 100.0f);
+
+	ResourceId id("material", material);
+	m_material = material_manager::get()->create_material(id.name);
 }
 
 //-----------------------------------------------------------------------------
@@ -141,47 +157,36 @@ Vector2 Gui::screen_to_gui(const Vector2& pos)
 //-----------------------------------------------------------------------------
 void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& color)
 {
-	// Renderer* r = device()->renderer();
-	// TransientVertexBuffer tvb;
-	// TransientIndexBuffer tib;
+	bgfx::TransientVertexBuffer tvb;
+	bgfx::TransientIndexBuffer tib;
+	bgfx::allocTransientVertexBuffer(&tvb, 4, Gui::s_pos_col);
+	bgfx::allocTransientIndexBuffer(&tib, 6);
 
-	// r->reserve_transient_vertex_buffer(&tvb, 4, VertexFormat::P2);
-	// r->reserve_transient_index_buffer(&tib, 6);
+	float* verts = (float*) tvb.data;
+	verts[0] = pos.x;
+	verts[1] = pos.y;
+	verts[2] = pos.x + size.x;
+	verts[3] = pos.y;
+	verts[4] = pos.x + size.x;
+	verts[5] = pos.y + size.y;
+	verts[6] = pos.x;
+	verts[7] = pos.y + size.y;
 
-	// float* verts = (float*) tvb.data;
-	// verts[0] = pos.x;
-	// verts[1] = pos.y;
+	uint16_t* inds = (uint16_t*) tib.data;
+	inds[0] = 0;
+	inds[1] = 1;
+	inds[2] = 2;
+	inds[3] = 0;
+	inds[4] = 2;
+	inds[5] = 3;
 
-	// verts[2] = pos.x + size.x;
-	// verts[3] = pos.y;
-
-	// verts[4] = pos.x + size.x;
-	// verts[5] = pos.y + size.y;
-
-	// verts[6] = pos.x;
-	// verts[7] = pos.y + size.y;
-
-	// uint16_t* inds = (uint16_t*) tib.data;
-	// inds[0] = 0;
-	// inds[1] = 1;
-	// inds[2] = 2;
-	// inds[3] = 0;
-	// inds[4] = 2;
-	// inds[5] = 3;
-
-	// r->set_layer_view(1, matrix4x4::IDENTITY);
-	// r->set_layer_projection(1, m_projection);
-	// r->set_layer_viewport(1, 0, 0, m_width, m_height);
-	// r->set_state(STATE_COLOR_WRITE
-	// 				| STATE_CULL_CW
-	// 				| STATE_BLEND_EQUATION_ADD 
-	// 				| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
-	// r->set_pose(m_pose);
-	// r->set_program(render_world_globals::default_color_program());
-	// r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
-	// r->set_vertex_buffer(tvb);
-	// r->set_index_buffer(tib);
-	// r->commit(1, (int32_t) pos.z);
+	material_manager::get()->lookup_material(m_material)->bind();
+	bgfx::setViewTransform(1, matrix4x4::to_float_ptr(matrix4x4::IDENTITY), matrix4x4::to_float_ptr(m_projection));
+	bgfx::setViewRect(1, 0, 0, m_width, m_height);
+	bgfx::setState(BGFX_STATE_DEFAULT);
+	bgfx::setVertexBuffer(&tvb);
+	bgfx::setIndexBuffer(&tib);
+	bgfx::submit(1, (int32_t) pos.z);
 }
 
 //-----------------------------------------------------------------------------
@@ -193,60 +198,50 @@ void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& si
 //-----------------------------------------------------------------------------
 void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Color4& color)
 {
-	// Renderer* r = device()->renderer();
-	// TransientVertexBuffer tvb;
-	// TransientIndexBuffer tib;
+	bgfx::TransientVertexBuffer tvb;
+	bgfx::TransientIndexBuffer tib;
+	bgfx::allocTransientVertexBuffer(&tvb, 4, Gui::s_pos_col_tex);
+	bgfx::allocTransientIndexBuffer(&tib, 6);
 
-	// r->reserve_transient_vertex_buffer(&tvb, 4, VertexFormat::P2_T2);
-	// r->reserve_transient_index_buffer(&tib, 6);
+	float* verts = (float*) tvb.data;
+	verts[0] = pos.x;
+	verts[1] = pos.y;
+	verts[2] = uv0.x;
+	verts[3] = uv0.y;
 
-	// float* verts = (float*) tvb.data;
-	// verts[0] = pos.x;
-	// verts[1] = pos.y;
-	// verts[2] = uv0.x;
-	// verts[3] = uv0.y;
+	verts[4] = pos.x + size.x;
+	verts[5] = pos.y;
+	verts[6] = uv1.x;
+	verts[7] = uv0.y;
 
-	// verts[4] = pos.x + size.x;
-	// verts[5] = pos.y;
-	// verts[6] = uv1.x;
-	// verts[7] = uv0.y;
+	verts[8] = pos.x + size.x;
+	verts[9] = pos.y + size.y;
+	verts[10] = uv1.x;
+	verts[11] = uv1.y;
 
-	// verts[8] = pos.x + size.x;
-	// verts[9] = pos.y + size.y;
-	// verts[10] = uv1.x;
-	// verts[11] = uv1.y;
+	verts[12] = pos.x;
+	verts[13] = pos.y + size.y;
+	verts[14] = uv0.x;
+	verts[15] = uv1.y;
 
-	// verts[12] = pos.x;
-	// verts[13] = pos.y + size.y;
-	// verts[14] = uv0.x;
-	// verts[15] = uv1.y;
+	uint16_t* inds = (uint16_t*) tib.data;
+	inds[0] = 0;
+	inds[1] = 1;
+	inds[2] = 2;
+	inds[3] = 0;
+	inds[4] = 2;
+	inds[5] = 3;
 
-	// uint16_t* inds = (uint16_t*) tib.data;
-	// inds[0] = 0;
-	// inds[1] = 1;
-	// inds[2] = 2;
-	// inds[3] = 0;
-	// inds[4] = 2;
-	// inds[5] = 3;
+/*	ResourceId res_id("material", material);
+	Material* mat = material_manager::get()->lookup_material(res_id.name);
+	mat->bind();*/
 
-	// const MaterialResource* mr = (MaterialResource*) device()->resource_manager()->get("material", material);
-	// const TextureResource* tr = (TextureResource*) device()->resource_manager()->get(mr->get_texture_layer(0));
-
-	// r->set_layer_view(1, matrix4x4::IDENTITY);
-	// r->set_layer_projection(1, m_projection);
-	// r->set_layer_viewport(1, 0, 0, m_width, m_height);
-	// r->set_state(STATE_COLOR_WRITE
-	// 				| STATE_CULL_CW
-	// 				| STATE_BLEND_EQUATION_ADD 
-	// 				| STATE_BLEND_FUNC(STATE_BLEND_FUNC_SRC_ALPHA, STATE_BLEND_FUNC_ONE_MINUS_SRC_ALPHA));
-	// r->set_pose(m_pose);
-	// r->set_program(render_world_globals::default_texture_program());
-	// r->set_texture(0, render_world_globals::default_albedo_uniform(), tr->texture(),
-	// 				TEXTURE_FILTER_LINEAR | TEXTURE_WRAP_U_CLAMP_REPEAT | TEXTURE_WRAP_V_CLAMP_REPEAT);
-	// r->set_uniform(render_world_globals::default_color_uniform(), UniformType::FLOAT_4, color4::to_float_ptr(color), 1);
-	// r->set_vertex_buffer(tvb);
-	// r->set_index_buffer(tib);
-	// r->commit(1, (int32_t) pos.z);
+	bgfx::setViewTransform(1, matrix4x4::to_float_ptr(matrix4x4::IDENTITY), matrix4x4::to_float_ptr(m_projection));
+	bgfx::setViewRect(1, 0, 0, m_width, m_height);
+	bgfx::setState(BGFX_STATE_DEFAULT);
+	bgfx::setVertexBuffer(&tvb);
+	bgfx::setIndexBuffer(&tib);
+	bgfx::submit(1, (int32_t) pos.z);
 }
 
 //-----------------------------------------------------------------------------

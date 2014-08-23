@@ -363,8 +363,15 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 		m_physics_resource = ResourceId();
 	}
 
+	ResourceId sprite_anim;
+	sprite_anim.type = 0;
+	sprite_anim.name = 0;
+	if (root.has_key("sprite_animation"))
+		sprite_anim = root.key("sprite_animation").to_resource_id("sprite_animation");
+
 	UnitHeader h;
 	h.physics_resource = m_physics_resource;
+	h.sprite_animation = sprite_anim.name;
 	h.num_renderables = array::size(m_renderables);
 	h.num_materials = array::size(m_materials);
 	h.num_cameras = array::size(m_cameras);

@@ -57,6 +57,8 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	const uint32_t num_fonts     = root.key("font").size();
 	const uint32_t num_levels    = root.key("level").size();
 	const uint32_t num_phyconfs  = root.key("physics_config").size();
+	const uint32_t num_shaders   = root.key("shader").size();
+	const uint32_t num_sprite_animations = root.key("sprite_animation").size();
 
 	// Write header
 	bw.write(num_textures);
@@ -103,6 +105,14 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	offt += sizeof(ResourceId) * num_levels;
 	bw.write(offt);
 
+	bw.write(num_shaders);
+	offt += sizeof(ResourceId) * num_phyconfs;
+	bw.write(offt);
+
+	bw.write(num_sprite_animations);
+	offt += sizeof(ResourceId) * num_shaders;
+	bw.write(offt);
+
 	// Write resource ids
 	for (uint32_t i = 0; i < num_textures; i++)
 		bw.write(root.key("texture")[i].to_resource_id("texture"));
@@ -136,6 +146,12 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	for (uint32_t i = 0; i < num_phyconfs; i++)
 		bw.write(root.key("physics_config")[i].to_resource_id("physics_config"));
+
+	for (uint32_t i = 0; i < num_shaders; i++)
+		bw.write(root.key("shader")[i].to_resource_id("shader"));
+
+	for (uint32_t i = 0; i < num_sprite_animations; i++)
+		bw.write(root.key("sprite_animation")[i].to_resource_id("sprite_animation"));
 }
 
 } // namespace package_resource

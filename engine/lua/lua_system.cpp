@@ -75,6 +75,7 @@ extern void load_vector3box(LuaEnvironment& env);
 extern void load_window(LuaEnvironment& env);
 extern void load_world(LuaEnvironment& env);
 extern void load_color4(LuaEnvironment& env);
+extern void load_material(LuaEnvironment& env);
 
 namespace lua_system
 {
@@ -342,6 +343,7 @@ namespace lua_system
 		load_window(env);
 		load_world(env);
 		load_color4(env);
+		load_material(env);
 
 		// Register custom loader
 		lua_getfield(s_L, LUA_GLOBALSINDEX, "package");

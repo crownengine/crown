@@ -30,11 +30,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "container_types.h"
 #include "material.h"
 #include "resource_manager.h"
+#include "id_table.h"
 #include <bgfx.h>
 
 namespace crown
 {
 
+typedef Id MaterialId;
 struct MaterialResource;
 
 struct MaterialManager
@@ -43,11 +45,16 @@ struct MaterialManager
 
 	void load(StringId64 id, ResourceManager& rm);
 	void unload(StringId64 id, ResourceManager& rm);
-	const Material& get(StringId64 id);
+
+	MaterialId create_material(StringId64 id);
+	void destroy_material(MaterialId id);
+	Material* lookup_material(MaterialId id);
 
 private:
 
-	SortMap<StringId64, Material> m_materials;
+	SortMap<StringId64, MaterialId> m_materials;
+	IdTable<512> _materials_ids;
+	Material _materials[512];
 };
 
 namespace material_manager

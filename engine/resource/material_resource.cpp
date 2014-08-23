@@ -93,9 +93,8 @@ struct UniformTypeInfo
 
 static const UniformTypeInfo s_uniform_type_info[UniformType::COUNT] =
 {
-	{ "integer", UniformType::INTEGER,  4 },
 	{ "float",   UniformType::FLOAT,    4 },
-	{ "vector2", UniformType::VECTOR3,  8 },
+	{ "vector2", UniformType::VECTOR2,  8 },
 	{ "vector3", UniformType::VECTOR3, 12 },
 	{ "vector4", UniformType::VECTOR4, 16 }
 };
@@ -109,6 +108,7 @@ static UniformType::Enum string_to_uniform_type(const char* str)
 	}
 
 	CE_FATAL("Unknown uniform type");
+	return UniformType::COUNT;
 }
 
 static void parse_uniforms(JSONElement root, Array<UniformData>& uniforms, Array<char>& dynamic)
@@ -134,12 +134,6 @@ static void parse_uniforms(JSONElement root, Array<UniformData>& uniforms, Array
 
 		switch (ud.type)
 		{
-			case UniformType::INTEGER:
-			{
-				int32_t data = root.key("uniforms").key(keys[i].c_str()).key("value").to_int();
-				reserve_dynamic_data(data, dynamic);
-				break;
-			}
 			case UniformType::FLOAT:
 			{
 				float data = root.key("uniforms").key(keys[i].c_str()).key("value").to_int();
@@ -184,11 +178,13 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	Array<UniformData> unidata(default_allocator());
 	Array<char> dynblob(default_allocator());
 
+	ResourceId shader = root.key("shader").to_resource_id("shader");
 	parse_textures(root, texdata, dynblob);
 	parse_uniforms(root, unidata, dynblob);
 
 	MaterialHeader mh;
 	mh.version = MATERIAL_VERSION;
+	mh.shader = shader.name;
 	mh.num_textures = array::size(texdata);
 	mh.texture_data_offset = sizeof(mh);
 	mh.num_uniforms = array::size(unidata);

@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "world_types.h"
 #include "render_world_types.h"
 #include "config.h"
+#include "sprite_animation.h"
 
 namespace crown
 {
@@ -53,6 +54,7 @@ struct ComponentType
 };
 
 typedef	Id ComponentId;
+typedef Id MaterialId;
 
 struct Component
 {
@@ -116,6 +118,7 @@ struct Unit
 	void add_sprite(StringId32 name, SpriteId sprite);
 	void add_actor(StringId32 name, ActorId actor);
 	void set_controller(StringId32 name, ControllerId controller);
+	void add_material(StringId32 name, MaterialId material);
 
 	Camera* camera(const char* name);
 	Camera* camera(uint32_t i);
@@ -164,6 +167,7 @@ public:
 
 	World& m_world;
 	SceneGraph& m_scene_graph;
+	SpriteAnimation* m_sprite_animation;
 	const ResourceId m_resource_id;
 	const UnitResource*	m_resource;
 	UnitId m_id;
@@ -180,7 +184,11 @@ public:
 	uint32_t m_num_actors;
 	Component m_actors[CE_MAX_ACTOR_COMPONENTS];
 
+	uint32_t m_num_materials;
+	Component m_materials[CE_MAX_MATERIAL_COMPONENTS];
+
 	Component m_controller;
+
 	char* m_values;
 };
 

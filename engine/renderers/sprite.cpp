@@ -45,27 +45,7 @@ Sprite::Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const Sp
 	, m_scene_graph(sg)
 	, m_node(node)
 	, m_resource(sr)
-	, m_material(0)
 	, m_frame(0)
-	, m_animation(NULL)
-	, m_time(0)
-	, m_loop(false)
-{
-	Blob vmem = sr->get_vertices();
-	Blob imem = sr->get_indices();
-
-	bgfx::VertexDecl decl;
-	decl.begin()
-		.add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
-		.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float, true)
-		.end();
-
-	m_vb = bgfx::createVertexBuffer(bgfx::makeRef((void*) vmem.m_data, vmem.m_size), decl);
-	m_ib = bgfx::createIndexBuffer(bgfx::makeRef((void*) imem.m_data, imem.m_size));
-}
-
-//-----------------------------------------------------------------------------
-Sprite::~Sprite()
 {
 }
 
@@ -123,7 +103,7 @@ void Sprite::set_local_pose(Unit* unit, const Matrix4x4& pose)
 	unit->set_local_pose(m_node, pose);
 }
 
-void Sprite::set_material(StringId64 id)
+void Sprite::set_material(MaterialId id)
 {
 	m_material = id;
 }
@@ -135,59 +115,14 @@ void Sprite::set_frame(uint32_t i)
 }
 
 //-----------------------------------------------------------------------------
-void Sprite::play_animation(const char* name, bool loop)
-{
-	if (m_animation)
-		return;
-
-	m_animation = m_resource->get_animation(name);
-	m_time = 0;
-	m_loop = loop;
-	m_frame = m_resource->get_animation_frame(m_animation, m_animation->start_frame);
-}
-
-//-----------------------------------------------------------------------------
-void Sprite::stop_animation()
-{
-	m_animation = NULL;
-	m_time = 0;
-	m_frame = 0;
-}
-
-//-----------------------------------------------------------------------------
-void Sprite::update(float dt)
-{
-	if (!m_animation)
-		return;
-
-	m_time += dt;
-
-	if (m_time >= m_animation->time)
-	{
-		if (m_loop)
-		{
-			m_time = 0;
-		}
-		else
-		{
-			stop_animation();
-			return;
-		}
-	}
-
-	uint32_t frame = (uint32_t) m_animation->num_frames * (m_time / m_animation->time);
-	m_frame = m_resource->get_animation_frame(m_animation, frame);
-}
-
-//-----------------------------------------------------------------------------
 void Sprite::render()
 {
-	if (m_material)
-		material_manager::get()->get(m_material).bind();
+	if (m_material.id != INVALID_ID)
+		material_manager::get()->lookup_material(m_material)->bind();
 
 	bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_BLEND_ALPHA);
-	bgfx::setVertexBuffer(m_vb);
-	bgfx::setIndexBuffer(m_ib, m_frame * 6, 6);
+	bgfx::setVertexBuffer(m_resource->vb);
+	bgfx::setIndexBuffer(m_resource->ib, m_frame * 6, 6);
 	bgfx::setTransform(matrix4x4::to_float_ptr(world_pose()));
 	bgfx::submit(0);
 }

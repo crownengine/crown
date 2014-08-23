@@ -42,7 +42,7 @@ public:
 	/// Compiles all the resources found in @a source_dir and puts them in @a bundle_dir.
 	/// If @a resource is not NULL, only that particular resource is compiled.
 	/// Returns true on success, false otherwise.
-	bool compile(const char* bundle_dir, const char* source_dir, const char* resource = NULL);
+	bool compile(const char* bundle_dir, const char* source_dir, const char* platform, const char* resource = NULL);
 
 private:
 

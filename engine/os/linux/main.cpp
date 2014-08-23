@@ -143,6 +143,7 @@ public:
 		, m_compile(0)
 		, m_continue(0)
 		, m_wait_console(0)
+		, m_platform("linux")
 	{
 	}
 
@@ -159,7 +160,7 @@ public:
 			if (m_compile == 1)
 			{
 				m_bundle_compiler = CE_NEW(default_allocator(), BundleCompiler);
-				if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir))
+				if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir, m_platform))
 				{
 					CE_DELETE(default_allocator(), m_bundle_compiler);
 					CE_LOGE("Exiting.");
@@ -561,6 +562,11 @@ public:
 
 			"  --source-dir <path>        Use <path> as the source directory for resource compilation.\n"
 			"  --compile                  Do a full compile of the resources.\n"
+			"  --platform <platform>      Compile resources for the given <platform>.\n"
+			"      Possible values for <platform> are:\n"
+			"          linux\n"
+			"          android\n"
+			"          windows\n"
 			"  --continue                 Continue the execution after the resource compilation step.\n"
 			"  --file-server              Read resources from a remote engine instance.\n"
 			"  --console-port             Set the network port of the console server.\n"
@@ -572,6 +578,7 @@ public:
 			{ "source-dir",       AOA_REQUIRED_ARGUMENT, NULL,           's' },
 			{ "bundle-dir",       AOA_REQUIRED_ARGUMENT, NULL,           'b' },
 			{ "compile",          AOA_NO_ARGUMENT,       &m_compile,       1 },
+			{ "platform",         AOA_REQUIRED_ARGUMENT, NULL,           'r' },
 			{ "continue",         AOA_NO_ARGUMENT,       &m_continue,      1 },
 			{ "width",            AOA_REQUIRED_ARGUMENT, NULL,           'w' },
 			{ "height",           AOA_REQUIRED_ARGUMENT, NULL,           'h' },
@@ -628,6 +635,12 @@ public:
 				case 'c':
 				{
 					m_console_port = string::parse_uint(args.optarg());
+					break;
+				}
+				// Platform
+				case 'r':
+				{
+					m_platform = args.optarg();
 					break;
 				}
 				case 'i':
@@ -735,6 +748,7 @@ private:
 	int32_t m_compile;
 	int32_t m_continue;
 	int32_t m_wait_console;
+	const char* m_platform;
 
 	OsEventQueue m_queue;
 };

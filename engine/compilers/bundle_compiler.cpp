@@ -34,6 +34,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "path.h"
 #include "disk_filesystem.h"
 #include "temp_allocator.h"
+#include "compile_options.h"
 #include <inttypes.h>
 
 namespace crown
@@ -51,7 +52,8 @@ namespace sprite_resource { extern void compile(Filesystem&, const char*, File*)
 namespace material_resource { extern void compile(Filesystem&, const char*, File*); }
 namespace font_resource { extern void compile(Filesystem&, const char*, File*); }
 namespace level_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace shader_resource { extern void compile(Filesystem&, const char*, File*); }
+namespace shader_resource { extern void compile(const char*, CompileOptions&); }
+namespace sprite_animation_resource { extern void compile(Filesystem&, const char*, File*); }
 
 //-----------------------------------------------------------------------------
 BundleCompiler::BundleCompiler()
@@ -59,7 +61,7 @@ BundleCompiler::BundleCompiler()
 }
 
 //-----------------------------------------------------------------------------
-bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, const char* resource)
+bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, const char* platform, const char* resource)
 {
 	Vector<DynamicString> files(default_allocator());
 
@@ -182,7 +184,12 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 			}
 			else if (name.type == SHADER_TYPE)
 			{
-				shader_resource::compile(root_fs, filename, out_file);
+				CompileOptions opts(root_fs, out_file, platform);
+				shader_resource::compile(filename, opts);
+			}
+			else if (name.type == SPRITE_ANIMATION_TYPE)
+			{
+				sprite_animation_resource::compile(root_fs, filename, out_file);
 			}
 			else
 			{

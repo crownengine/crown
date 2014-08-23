@@ -117,11 +117,31 @@ public:
 		{
 			m_resource_manager->load(m_package->get_physics_config_id(i));
 		}
+
+		for (uint32_t i = 0; i < m_package->num_shaders(); i++)
+		{
+			m_resource_manager->load(m_package->get_shader_id(i));
+		}
+
+		for (uint32_t i = 0; i < m_package->num_sprite_animations(); i++)
+		{
+			m_resource_manager->load(m_package->get_sprite_animation_id(i));
+		}
 	}
 
 	/// Unloads all the resources in the package.
 	void unload()
 	{
+		for (uint32_t i = 0; i < m_package->num_sprite_animations(); i++)
+		{
+			m_resource_manager->unload(m_package->get_sprite_animation_id(i));
+		}
+
+		for (uint32_t i = 0; i < m_package->num_shaders(); i++)
+		{
+			m_resource_manager->unload(m_package->get_shader_id(i));
+		}
+
 		for (uint32_t i = 0; i < m_package->num_physics_configs(); i++)
 		{
 			m_resource_manager->unload(m_package->get_physics_config_id(i));

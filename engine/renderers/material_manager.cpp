@@ -62,25 +62,52 @@ void MaterialManager::load(StringId64 id, ResourceManager& rm)
 	res_id.type = MATERIAL_TYPE;
 	res_id.name = id;
 
-	Material mat;
-	mat.create((MaterialResource*) rm.get(res_id));
+	MaterialId mat_id = id_table::create(_materials_ids);
+	_materials[mat_id.index].create((MaterialResource*) rm.get(res_id), *this);
 
-	sort_map::set(m_materials, id, mat);
+	sort_map::set(m_materials, id, mat_id);
 	sort_map::sort(m_materials);
 }
 
 void MaterialManager::unload(StringId64 id, ResourceManager& /*rm*/)
 {
-	Material deff;
-	deff.program.idx = BGFX_INVALID_HANDLE;
-	sort_map::get(m_materials, id, deff).destroy();
+	MaterialId deff_id;
+	deff_id.id = INVALID_ID;
+	deff_id.index = 0;
+
+	MaterialId mat_id = sort_map::get(m_materials, id, deff_id);
+	CE_ASSERT(mat_id.id != INVALID_ID, "Material not loaded");
+
+	_materials[mat_id.index].destroy();
+	id_table::destroy(_materials_ids, mat_id);
+
+	sort_map::remove(m_materials, id);
+	sort_map::sort(m_materials);
 }
 
-const Material& MaterialManager::get(StringId64 id)
+MaterialId MaterialManager::create_material(StringId64 id)
 {
-	Material deff;
-	deff.program.idx = BGFX_INVALID_HANDLE;
-	return sort_map::get(m_materials, id, deff);
+	MaterialId deff_id;
+	deff_id.id = INVALID_ID;
+	deff_id.index = 0;
+
+	MaterialId idd = sort_map::get(m_materials, id, deff_id);
+	CE_ASSERT(idd.id != INVALID_ID, "Material not loaded");
+
+	MaterialId new_id = id_table::create(_materials_ids);
+	_materials[new_id.index].clone(_materials[idd.index]);
+
+	return new_id;
+}
+
+void MaterialManager::destroy_material(MaterialId id)
+{
+	id_table::destroy(_materials_ids, id);
+}
+
+Material* MaterialManager::lookup_material(MaterialId id)
+{
+	return &_materials[id.index];
 }
 
 } // namespace crown

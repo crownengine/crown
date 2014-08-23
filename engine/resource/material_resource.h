@@ -43,10 +43,10 @@ namespace crown
 
 const uint32_t MATERIAL_VERSION = 1;
 
-
 struct MaterialHeader
 {
 	uint32_t version;
+	StringId64 shader;
 	uint32_t num_textures;
 	uint32_t texture_data_offset;
 	uint32_t num_uniforms;
@@ -72,7 +72,6 @@ struct UniformType
 {
 	enum Enum
 	{
-		INTEGER,
 		FLOAT,
 		VECTOR2,
 		VECTOR3,
@@ -142,6 +141,12 @@ public:
 		return mh->dynamic_data_offset;
 	}
 
+	StringId64 shader() const
+	{
+		MaterialHeader* mh = (MaterialHeader*) this;
+		return mh->shader;		
+	}
+
 	uint32_t num_textures() const
 	{
 		MaterialHeader* mh = (MaterialHeader*) this;
@@ -161,6 +166,24 @@ public:
 		return &base[i];
 	}
 
+	UniformData* get_uniform_data_by_string(const char* str) const
+	{
+		MaterialHeader* mh = (MaterialHeader*) this;
+		UniformData* base = (UniformData*) ((char*) mh + mh->uniform_data_offset);
+
+		uint32_t num = num_uniforms();
+		for (uint32_t i = 0; i < num; i++)
+		{
+			if (string::strncmp(base->name, str, 256) == 0)
+				return base;
+
+			base++;
+		}
+
+		CE_FATAL("Oops, bad uniform name");
+		return NULL;
+	}
+
 	TextureData* get_texture_data(uint32_t i) const
 	{
 		MaterialHeader* mh = (MaterialHeader*) this;
@@ -173,6 +196,12 @@ public:
 		UniformData* ud = get_uniform_data(i);
 		return (UniformHandle*) (dynamic + ud->data_offset);
 	}
+
+	UniformHandle* get_uniform_handle_by_string(const char* str, char* dynamic) const
+	{
+		UniformData* ud = get_uniform_data_by_string(str);
+		return (UniformHandle*) (dynamic + ud->data_offset);
+	}	
 
 	TextureHandle* get_texture_handle(uint32_t i, char* dynamic) const
 	{

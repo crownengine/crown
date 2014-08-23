@@ -94,7 +94,7 @@ public:
 	/// Creates the sprite @a id.
 	Sprite* get_sprite(SpriteId id);
 
-	GuiId create_gui(uint16_t width, uint16_t height);
+	GuiId create_gui(uint16_t width, uint16_t height, const char* material);
 	void destroy_gui(GuiId id);
 	Gui* get_gui(GuiId id);
 

@@ -88,10 +88,10 @@ struct Sprite;
 struct Unit;
 struct DebugLine;
 struct Raycast;
+struct Material;
 
 typedef Id SoundInstanceId;
 typedef Id GuiId;
-typedef Id GuiComponentId;
 
 typedef int (*MetamethodFunction)(lua_State*);
 
@@ -362,6 +362,18 @@ public:
 	Sprite* get_sprite(int32_t index)
 	{
 		return (Sprite*) CHECKLIGHTDATA(m_L, index, always_true, "Sprite");
+	}
+
+	//-----------------------------------------------------------------------------
+	void push_material(Material* material)
+	{
+		lua_pushlightuserdata(m_L, material);
+	}
+
+	//-----------------------------------------------------------------------------
+	Material* get_material(int32_t index)
+	{
+		return (Material*) CHECKLIGHTDATA(m_L, index, always_true, "Material");
 	}
 
 	//-----------------------------------------------------------------------------

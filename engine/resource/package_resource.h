@@ -60,6 +60,10 @@ struct PackageHeader
 	uint32_t levels_offset;
 	uint32_t num_physics_configs;
 	uint32_t physics_configs_offset;
+	uint32_t num_shaders;
+	uint32_t shaders_offset;
+	uint32_t num_sprite_animations;
+	uint32_t sprite_animations_offset;
 };
 
 struct PackageResource
@@ -160,6 +164,18 @@ struct PackageResource
 	}
 
 	//-----------------------------------------------------------------------------
+	uint32_t num_shaders() const
+	{
+		return ((PackageHeader*) this)->num_shaders;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_sprite_animations() const
+	{
+		return ((PackageHeader*) this)->num_sprite_animations;
+	}
+
+	//-----------------------------------------------------------------------------
 	ResourceId get_texture_id(uint32_t i) const
 	{
 		CE_ASSERT(i < num_textures(), "Index out of bounds");
@@ -255,6 +271,24 @@ struct PackageResource
 		CE_ASSERT(i < num_physics_configs(), "Index out of bounds");
 
 		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->physics_configs_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_shader_id(uint32_t i) const
+	{
+		CE_ASSERT(i < num_shaders(), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->shaders_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_sprite_animation_id(uint32_t i) const
+	{
+		CE_ASSERT(i < num_sprite_animations(), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*) this + ((PackageHeader*) this)->sprite_animations_offset);
 		return begin[i];
 	}
 

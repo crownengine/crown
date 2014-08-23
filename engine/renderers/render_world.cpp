@@ -111,9 +111,9 @@ Sprite*	RenderWorld::get_sprite(SpriteId id)
 }
 
 //-----------------------------------------------------------------------------
-GuiId RenderWorld::create_gui(uint16_t width, uint16_t height)
+GuiId RenderWorld::create_gui(uint16_t width, uint16_t height, const char* material)
 {
-	Gui* gui = CE_NEW(m_gui_pool, Gui)(*this, width, height);
+	Gui* gui = CE_NEW(m_gui_pool, Gui)(width, height, material);
 	GuiId id = id_array::create(m_guis, gui);
 	gui->set_id(id);
 	return id;
@@ -162,12 +162,6 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	// Use debug font to print information about this example.
 	bgfx::dbgTextClear();
 	bgfx::dbgTextPrintf(0, 2, 0x6f, "dt = %4.7f", dt);
-
-	// Update all sprites
-	for (uint32_t s = 0; s < id_array::size(m_sprite); s++)
-	{
-		m_sprite[s]->update(dt);
-	}	
 
 	// Draw all sprites
 	for (uint32_t s = 0; s < id_array::size(m_sprite); s++)

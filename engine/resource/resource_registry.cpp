@@ -36,6 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "material_resource.h"
 #include "font_resource.h"
 #include "level_resource.h"
+#include "shader.h"
 
 namespace crown
 {
@@ -47,13 +48,15 @@ static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 	{ MESH_TYPE, MeshResource::load, MeshResource::unload, MeshResource::online, MeshResource::offline },
 	{ SOUND_TYPE, SoundResource::load, SoundResource::unload, SoundResource::online, SoundResource::offline },
 	{ UNIT_TYPE, UnitResource::load, UnitResource::unload, UnitResource::online, UnitResource::offline },
-	{ SPRITE_TYPE, SpriteResource::load, SpriteResource::unload, SpriteResource::online, SpriteResource::offline},
+	{ SPRITE_TYPE, sprite_resource::load, sprite_resource::unload, sprite_resource::online, sprite_resource::offline},
 	{ PACKAGE_TYPE, PackageResource::load, PackageResource::unload, PackageResource::online, PackageResource::offline },
 	{ PHYSICS_TYPE, PhysicsResource::load, PhysicsResource::unload, PhysicsResource::online, PhysicsResource::offline },
 	{ MATERIAL_TYPE, MaterialResource::load, MaterialResource::unload, MaterialResource::online, MaterialResource::offline },
 	{ PHYSICS_CONFIG_TYPE, PhysicsConfigResource::load, PhysicsConfigResource::unload, PhysicsConfigResource::online, PhysicsConfigResource::offline },
 	{ FONT_TYPE, FontResource::load, FontResource::unload, FontResource::online, FontResource::offline },
 	{ LEVEL_TYPE, LevelResource::load, LevelResource::unload, LevelResource::online, LevelResource::offline },
+	{ SHADER_TYPE, shader_resource::load, shader_resource::unload, shader_resource::online, shader_resource::offline },
+	{ SPRITE_ANIMATION_TYPE, sprite_animation_resource::load, sprite_animation_resource::unload, sprite_animation_resource::online, sprite_animation_resource::offline },
 	{ 0, NULL, NULL, NULL, NULL }
 };
 

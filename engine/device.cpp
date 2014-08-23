@@ -57,6 +57,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "lua_system.h"
 #include "debug_line.h"
 #include "material_manager.h"
+#include "gui.h"
 
 #if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
 	#include "bundle_compiler.h"
@@ -164,6 +165,7 @@ void Device::init()
 	CE_LOGD("Creating renderer...");
 	graphics_system::init();
 	debug_line::init();
+	Gui::init();
 
 	CE_LOGD("Creating material manager...");
 	material_manager::init();
