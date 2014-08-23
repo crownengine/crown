@@ -32,7 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "os_types.h"
 #include "os_event_queue.h"
-#include "gl_context.h"
 #include "bundle_compiler.h"
 #include "device.h"
 #include "thread.h"
@@ -41,9 +40,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "args.h"
 #include "json_parser.h"
 #include "os.h"
+#include <bgfxplatform.h>
 
-#define ENTRY_DEFAULT_WIDTH 1024
-#define ENTRY_DEFAULT_HEIGHT 768
+#define ENTRY_DEFAULT_WIDTH 1000
+#define ENTRY_DEFAULT_HEIGHT 625
 
 namespace crown
 {
@@ -126,24 +126,14 @@ public:
 
 	WindowsDevice()
 		: m_hwnd(0)
-		, m_rect()
-		, m_style(0)
 		, m_width(0)
 		, m_height(0)
-		, m_old_width(0)
-		, m_old_height(0)
-		, m_frame_width(0)
-		, m_frame_height(0)
-		, m_aspect_ratio(0.0f)
 		, m_x(0)
 		, m_y(0)
-		, m_frame(true)
-		, m_mouse_lock(false)
-		, m_started(false)
 		, m_exit(false)
 		, m_wait_console(0)
+		, m_platform("windows")
 	{
-
 	}
 
 	//-----------------------------------------------------------------------------
@@ -154,12 +144,12 @@ public:
 
 		#if defined(CROWN_DEBUG)
 			m_console = CE_NEW(default_allocator(), ConsoleServer)();
-			m_console->init(m_console_port, (bool) m_wait_console);
+			m_console->init(m_console_port, m_wait_console == 1);
 
 			if (m_compile == 1)
 			{
 				m_bundle_compiler = CE_NEW(default_allocator(), BundleCompiler);
-				if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir))
+				if (!m_bundle_compiler->compile(m_bundle_dir, m_source_dir, m_platform))
 				{
 					CE_DELETE(default_allocator(), m_bundle_compiler);
 					CE_LOGE("Exiting.");
@@ -222,17 +212,6 @@ public:
 		WNDCLASSEX wnd;
 		memset(&wnd, 0, sizeof(wnd));
 		wnd.cbSize = sizeof(wnd);
-		wnd.lpfnWndProc = DefWindowProc;
-		wnd.hInstance = instance;
-		wnd.hIcon = LoadIcon(instance, IDI_APPLICATION);
-		wnd.hCursor = LoadCursor(instance, IDC_ARROW);
-		wnd.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-		wnd.lpszClassName = "crown_letterbox";
-		wnd.hIconSm = LoadIcon(instance, IDI_APPLICATION);
-		RegisterClassExA(&wnd);
-
-		memset(&wnd, 0, sizeof(wnd));
-		wnd.cbSize = sizeof(wnd);
 		wnd.style = CS_HREDRAW | CS_VREDRAW;
 		wnd.lpfnWndProc = window_proc;
 		wnd.hInstance = instance;
@@ -241,20 +220,6 @@ public:
 		wnd.lpszClassName = "crown";
 		wnd.hIconSm = LoadIcon(instance, IDI_APPLICATION);
 		RegisterClassExA(&wnd);
-
-		HWND hwnd = CreateWindowA(
-						"crown_letterbox",
-						"CrownUnknown",
-						WS_POPUP|WS_SYSMENU,
-						-32000,
-						-32000,
-						0,
-						0,
-						NULL,
-						NULL,
-						instance,
-						0
-					);
 
 		m_hwnd = CreateWindowA(
 					"crown",
@@ -271,28 +236,22 @@ public:
 				);
 
 		oswindow_set_window(m_hwnd);
-		glcontext_set_window(m_hwnd);
+		bgfx::winSetHwnd(m_hwnd);
 
-		adjust(ENTRY_DEFAULT_WIDTH, ENTRY_DEFAULT_HEIGHT, true);
 		m_width = ENTRY_DEFAULT_WIDTH;
 		m_height = ENTRY_DEFAULT_HEIGHT;
-		m_old_width = ENTRY_DEFAULT_WIDTH;
-		m_old_height = ENTRY_DEFAULT_HEIGHT;
 
 		m_argc = argc;
 		m_argv = argv;
 
 		Thread thread;
 		thread.start(WindowsDevice::main_loop, this);
-		m_started = true;
 
 		MSG msg;
 		msg.message = WM_NULL;
 
 		while (!m_exit)
 		{
-			WaitMessage();
-
 			while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE) != 0)
 			{
 				TranslateMessage(&msg);
@@ -305,10 +264,7 @@ public:
 		shutdown();
 
 		DestroyWindow(m_hwnd);
-		DestroyWindow(hwnd);
-
 		WSACleanup();
-
 		return 0;
 	}
 
@@ -334,118 +290,6 @@ public:
 		m_exit = true;
 
 		return 0;
-	}
-
-	//-----------------------------------------------------------------------------
-	void adjust(uint32_t width, uint32_t height, bool window_frame)
-	{
-		m_width = width;
-		m_height = height;
-		m_aspect_ratio = float(width) / float(height);
-
-		ShowWindow(m_hwnd, SW_SHOWNORMAL);
-		RECT rect;
-		RECT newrect = {0, 0, (LONG)width, (LONG)height};
-		DWORD style = WS_POPUP|WS_SYSMENU;
-
-		if (m_frame)
-		{
-			GetWindowRect(m_hwnd, &m_rect);
-			m_style = GetWindowLong(m_hwnd, GWL_STYLE);
-		}
-
-		if (window_frame)
-		{
-			rect = m_rect;
-			style = m_style;
-		}
-		else
-		{
-			HMONITOR monitor = MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
-			MONITORINFO mi;
-			mi.cbSize = sizeof(mi);
-			GetMonitorInfo(monitor, &mi);
-			newrect = mi.rcMonitor;
-			rect = mi.rcMonitor;
-		}
-
-		SetWindowLong(m_hwnd, GWL_STYLE, style);
-		uint32_t prewidth = newrect.right - newrect.left;
-		uint32_t preheight = newrect.bottom - newrect.top;
-		AdjustWindowRect(&newrect, style, FALSE);
-		m_frame_width = (newrect.right - newrect.left) - prewidth;
-		m_frame_height = (newrect.bottom - newrect.top) - preheight;
-		UpdateWindow(m_hwnd);
-
-		if (rect.left < 0 || rect.top < 0)
-		{
-			rect.left = 0;
-			rect.top = 0;
-		}
-
-		int32_t left_t = rect.left;
-		int32_t top_t = rect.top;
-		int32_t width_t = (newrect.right-newrect.left);
-		int32_t height_t = (newrect.bottom-newrect.top);
-
-		if (!window_frame)
-		{
-			float aspect_ratio = 1.0f / m_aspect_ratio;
-			width_t = math::max(uint32_t(ENTRY_DEFAULT_WIDTH / 4), width);
-			height_t = uint32_t(float(width) * aspect_ratio);
-
-			left_t = newrect.left+(newrect.right-newrect.left-width) / 2;
-			top_t = newrect.top+(newrect.bottom-newrect.top-height) / 2;
-		}
-
-		HWND parent = GetWindow(m_hwnd, GW_OWNER);
-		if (NULL != parent)
-		{
-			if (window_frame)
-			{
-				SetWindowPos(parent, HWND_TOP, -32000, -32000, 0, 0, SWP_SHOWWINDOW);
-			}
-			else
-			{
-				SetWindowPos(parent, HWND_TOP, newrect.left, newrect.top, newrect.right-newrect.left, newrect.bottom-newrect.top, SWP_SHOWWINDOW);
-			}
-		}
-
-		SetWindowPos(m_hwnd, HWND_TOP, left_t, top_t, width_t, height_t, SWP_SHOWWINDOW);
-
-		ShowWindow(m_hwnd, SW_RESTORE);
-
-		m_frame = window_frame;
-	}
-
-	//-----------------------------------------------------------------------------
-	void set_mouse_pos(int32_t x, int32_t y)
-	{
-		POINT pt = {x, y};
-		ClientToScreen(m_hwnd, &pt);
-		SetCursorPos(pt.x, pt.y);
-	}
-
-	//-----------------------------------------------------------------------------
-	void set_mouse_lock(bool lock)
-	{
-		if (lock != m_mouse_lock)
-		{
-			if (lock)
-			{
-				m_x = m_width / 2;
-				m_y = m_height / 2;
-				ShowCursor(false);
-				set_mouse_pos(m_x, m_y);
-			}
-			else
-			{
-				set_mouse_pos(m_x, m_y);
-				ShowCursor(true);
-			}
-
-			m_mouse_lock = lock;
-		}
 	}
 
 	//-----------------------------------------------------------------------------
@@ -488,10 +332,10 @@ public:
 				{
 					const OsMetricsEvent& ev = event.metrics;
 					m_mouse->set_metrics(ev.width, ev.height);
-					//m_window->m_x = ev.x;
-					//m_window->m_y = ev.y;
-					//m_window->m_width = ev.width;
-					//m_window->m_height = ev.height;
+					m_window->m_x = ev.x;
+					m_window->m_y = ev.y;
+					m_window->m_width = ev.width;
+					m_window->m_height = ev.height;
 					break;
 				}
 				case OsEvent::EXIT:
@@ -511,38 +355,20 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
-	LRESULT bump_events(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
+	LRESULT pump_events(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
 	{
-		if (m_started)
+		switch (id)
 		{
-			switch (id)
-			{
 			case WM_USER_SET_WINDOW_SIZE:
 			{
 				uint32_t width = GET_X_LPARAM(lparam);
 				uint32_t height = GET_Y_LPARAM(lparam);
-				adjust(width, height, true);
-
 				m_queue.push_metrics_event(m_x, m_y, m_width, m_height);
-
 				break;
 			}
 			case WM_USER_TOGGLE_WINDOW_FRAME:
 			{
-				if (m_frame)
-				{
-					m_old_width = m_width;
-					m_old_height = m_height;
-				}
-				adjust(m_old_width, m_old_height, !m_frame);
-
 				m_queue.push_metrics_event(m_x, m_y, m_width, m_height);
-
-				break;
-			}
-			case WM_USER_MOUSE_LOCK:
-			{
-				set_mouse_lock(!!lparam);
 				break;
 			}
 			case WM_DESTROY:
@@ -552,58 +378,8 @@ public:
 			case WM_QUIT:
 			case WM_CLOSE:
 			{
-				m_exit = true;
-
-				OsExitEvent event;
-				event.code = 0;
 				m_queue.push_exit_event(0);
-
 				break;
-			}
-			case WM_SIZING:
-			{
-				RECT& rect = *(RECT*)lparam;
-				uint32_t width = rect.right - rect.left - m_frame_width;
-				uint32_t height = rect.bottom - rect.top - m_frame_height;
-
-				//Recalculate size according to aspect ratio
-				switch (wparam)
-				{
-				case WMSZ_LEFT:
-				case WMSZ_RIGHT:
-					{
-						float aspect_ratio = 1.0f / m_aspect_ratio;
-						width = math::max((uint32_t)ENTRY_DEFAULT_WIDTH / 4, width);
-						height = uint32_t(float(width)*aspect_ratio);
-					}
-					break;
-
-				default:
-					{
-						float aspect_ratio = m_aspect_ratio;
-						height = math::max((uint32_t)ENTRY_DEFAULT_HEIGHT / 4, height);
-						width = uint32_t(float(height)*aspect_ratio);
-					}
-					break;
-				}
-
-				//Recalculate position using different anchor points
-				switch(wparam)
-				{
-				case WMSZ_LEFT:
-				case WMSZ_TOPLEFT:
-				case WMSZ_BOTTOMLEFT:
-					rect.left = rect.right - width - m_frame_width;
-					rect.bottom = rect.top + height + m_frame_height;
-					break;
-
-				default:
-					rect.right = rect.left + width + m_frame_width;
-					rect.bottom = rect.top + height + m_frame_height;
-					break;
-				}
-
-				return 0;
 			}
 			case WM_SIZE:
 			{
@@ -637,22 +413,7 @@ public:
 			{
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
-
-				if (m_mouse_lock)
-				{
-					mx -= m_x;
-					my -= m_y;
-
-					if (mx == 0	&& my == 0)
-					{
-						break;
-					}
-
-					set_mouse_pos(m_x, m_y);
-				}
-
 				m_queue.push_mouse_event(m_x, m_y);
-
 				break;
 			}
 			case WM_LBUTTONDOWN:
@@ -660,9 +421,7 @@ public:
 			{
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
-
 				m_queue.push_mouse_event(mx, my, MouseButton::LEFT, id == WM_LBUTTONDOWN);
-
 				break;
 			}
 			case WM_RBUTTONUP:
@@ -670,9 +429,7 @@ public:
 			{
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
-
 				m_queue.push_mouse_event(mx, my, MouseButton::RIGHT, id == WM_RBUTTONDOWN);
-
 				break;
 			}
 			case WM_MBUTTONDOWN:
@@ -680,9 +437,7 @@ public:
 			{
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
-
 				m_queue.push_mouse_event(mx, my, MouseButton::MIDDLE, id == WM_MBUTTONDOWN);
-
 				break;
 			}
 			case WM_KEYDOWN:
@@ -690,7 +445,7 @@ public:
 			case WM_KEYUP:
 			case WM_SYSKEYUP:
 			{
-				KeyboardButton::Enum kb = win_translate_key(wparam);
+				KeyboardButton::Enum kb = win_translate_key(wparam & 0xff);
 
 				int32_t modifier_mask = 0;
 
@@ -707,15 +462,12 @@ public:
 					(id == WM_KEYDOWN || id == WM_SYSKEYDOWN) ? modifier_mask |= ModifierButton::ALT : modifier_mask &= ~ModifierButton::ALT;
 				}
 
-				m_queue.push_keyboard_event(modifier_mask, kb, id == WM_KEYDOWN || id == WM_SYSKEYDOWN);
-
+				m_queue.push_keyboard_event(modifier_mask, kb, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN));
 				break;
 			}
 			default:
 				break;
-			}
 		}
-
 		return DefWindowProc(hwnd, id, wparam, lparam);
 	}
 
@@ -741,9 +493,14 @@ public:
 
 			"  --source-dir <path>        Use <path> as the source directory for resource compilation.\n"
 			"  --compile                  Do a full compile of the resources.\n"
+			"  --platform <platform>      Compile resources for the given <platform>.\n"
+			"      Possible values for <platform> are:\n"
+			"          linux\n"
+			"          android\n"
+			"          windows\n"
 			"  --continue                 Continue the execution after the resource compilation step.\n"
 			"  --file-server              Read resources from a remote engine instance.\n"
-			"  --console-port             Set the network port of the console server.\n";
+			"  --console-port             Set the network port of the console server.\n"
 			"  --wait-console             Wait for a console connection before starting up.\n";
 
 		static ArgsOption options[] =
@@ -752,6 +509,7 @@ public:
 			{ "source-dir",       AOA_REQUIRED_ARGUMENT, NULL,           's' },
 			{ "bundle-dir",       AOA_REQUIRED_ARGUMENT, NULL,           'b' },
 			{ "compile",          AOA_NO_ARGUMENT,       &m_compile,       1 },
+			{ "platform",         AOA_REQUIRED_ARGUMENT, NULL,           'r' },
 			{ "continue",         AOA_NO_ARGUMENT,       &m_continue,      1 },
 			{ "width",            AOA_REQUIRED_ARGUMENT, NULL,           'w' },
 			{ "height",           AOA_REQUIRED_ARGUMENT, NULL,           'h' },
@@ -810,6 +568,12 @@ public:
 					m_console_port = string::parse_uint(args.optarg());
 					break;
 				}
+				// Platform
+				case 'r':
+				{
+					m_platform = args.optarg();
+					break;
+				}
 				case 'i':
 				case '?':
 				default:
@@ -844,12 +608,6 @@ public:
 			CE_LOGE("The bundle directory must be absolute.");
 			exit(EXIT_FAILURE);
 		}
-
-		// if (m_width == 0 || m_height == 0)
-		// {
-		// 	CE_LOGE("Window width and height must be greater than zero.");
-		// 	exit(EXIT_FAILURE);
-		// }
 	}
 
 	//-------------------------------------------------------------------------
@@ -901,20 +659,10 @@ public:
 
 	HWND m_hwnd;
 	HDC m_hdc;
-	RECT m_rect;
-	DWORD m_style;
 	uint32_t m_width;
 	uint32_t m_height;
-	uint32_t m_old_width;
-	uint32_t m_old_height;
-	uint32_t m_frame_width;
-	uint32_t m_frame_height;
-	float m_aspect_ratio;
 	int32_t m_x;
 	int32_t m_y;
-	bool m_frame;
-	bool m_mouse_lock;
-	bool m_started;
 	bool m_exit;
 
 	uint32_t m_parent_window_handle;
@@ -922,6 +670,7 @@ public:
 	int32_t m_compile;
 	int32_t m_continue;
 	int32_t m_wait_console;
+	const char* m_platform;
 
 	OsEventQueue m_queue;
 };
@@ -930,7 +679,7 @@ WindowsDevice* engine;
 
 LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
 {
-	return ((WindowsDevice*)engine)->bump_events(hwnd, id, wparam, lparam);
+	return ((WindowsDevice*)engine)->pump_events(hwnd, id, wparam, lparam);
 }
 
 } // namespace crown

@@ -61,7 +61,7 @@ public:
 	char*			title();
 	void			set_title(const char* title);
 
-private:
+public:
 
 	char 			m_title[32];
 
