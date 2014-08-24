@@ -110,6 +110,11 @@ void Unit::create_objects(const Matrix4x4& pose)
 //-----------------------------------------------------------------------------
 void Unit::destroy_objects()
 {
+	if (m_sprite_animation)
+	{
+		m_world.sprite_animation_player()->destroy_sprite_animation(m_sprite_animation);
+	}
+
 	default_allocator().deallocate(m_values);
 
 	// Destroy cameras
