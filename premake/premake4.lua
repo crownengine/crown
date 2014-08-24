@@ -99,12 +99,15 @@ solution "crown"
 		end
 	end
 
-	if _ACTION == "vs2010" or _ACTION == "vs2008" then
+	if _ACTION == "vs2012" then
 
 		if not os.is("windows") then print("Action not valid in current OS.") end
 
 		if not os.getenv("PHYSX_SDK_WINDOWS") then
 			print("Set PHYSX_SDK_WINDOWS environment variable.")
+		end
+		if not os.getenv("DXSDK_DIR") then
+			print("Set DXSDK_DIR environment variable.")
 		end
 
 		location(CROWN_BUILD_DIR .. "windows")
@@ -610,6 +613,7 @@ solution "crown"
 				"$(PHYSX_SDK_WINDOWS)/Include/RepX",
 				"$(PHYSX_SDK_WINDOWS)/Include/RepXUpgrader",
 				"$(PHYSX_SDK_WINDOWS)/Include/vehicle",
+				"$(DXSDK_DIR)/Include",
 				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "opengl",
 				CROWN_THIRD_DIR .. "openal/include",
@@ -617,7 +621,10 @@ solution "crown"
 				CROWN_THIRD_DIR .. "stb_image",
 				CROWN_THIRD_DIR .. "stb_vorbis",
 				CROWN_SOURCE_DIR .. "/engine/os/win",
-				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/wgl"
+				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/wgl",
+				CROWN_THIRD_DIR .. "bgfx/src",
+				CROWN_THIRD_DIR .. "bgfx/include",
+				CROWN_THIRD_DIR .. "bx/include"
 			}
 
 			excludes {
@@ -632,8 +639,10 @@ solution "crown"
 		configuration { "x32", "vs*" }
 			libdirs {
 				"$(PHYSX_SDK_WINDOWS)/Lib/win32",
+				"$(DXSDK_DIR)/Lib/x86",
 				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "openal/lib"
+				CROWN_THIRD_DIR .. "openal/lib",
+				CROWN_THIRD_DIR .. "bgfx/.build/win32_vs2012/bin",
 			}
 
 		configuration { "x64", "vs*" }
@@ -641,8 +650,10 @@ solution "crown"
 
 			libdirs {
 				"$(PHYSX_SDK_WINDOWS)/Lib/win64",
+				"$(DXSDK_DIR)/Lib/x64",
 				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "openal/lib"
+				CROWN_THIRD_DIR .. "openal/lib",
+				CROWN_THIRD_DIR .. "bgfx/.build/win64_vs2012/bin",
 			}
 
 		configuration { "debug", "x32", "vs*"}
@@ -651,7 +662,8 @@ solution "crown"
 				"PhysX3CHECKED_x86",
 				"PhysX3CommonCHECKED_x86",
 				"PhysX3CookingCHECKED_x86",
-				"PhysX3ExtensionsCHECKED"
+				"PhysX3ExtensionsCHECKED",
+				"bgfxDebug"
 			}
 
 		configuration { "debug", "x64", "vs*" }
