@@ -91,8 +91,9 @@ struct TextureResource
 	}
 	
 	//-----------------------------------------------------------------------------
-	static void unload(Allocator& /*a*/, void* /*resource*/)
+	static void unload(Allocator& a, void* resource)
 	{
+		a.deallocate(resource);
 	}
 
 private:
