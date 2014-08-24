@@ -122,7 +122,6 @@ solution "crown"
 		"NoEditAndContinue",
 	}
 
-
 	configuration { "debug" }
 		flags { "Symbols" }
 		defines { "_DEBUG", "CROWN_DEBUG" }
@@ -176,7 +175,6 @@ solution "crown"
 			CROWN_SOURCE_DIR .. "/engine/os",
 			CROWN_SOURCE_DIR .. "/engine/input",
 			CROWN_SOURCE_DIR .. "/engine/renderers",
-			CROWN_SOURCE_DIR .. "/engine/renderers/backend",
 			CROWN_SOURCE_DIR .. "/engine/resource",
 			CROWN_SOURCE_DIR .. "/engine/lua",
 			CROWN_SOURCE_DIR .. "/engine/audio",
@@ -218,6 +216,15 @@ solution "crown"
 			}
 
 			includedirs {
+				CROWN_SOURCE_DIR .. "/engine/os/linux",
+				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "openal/include",
+				CROWN_THIRD_DIR .. "freetype",
+				CROWN_THIRD_DIR .. "stb_image",
+				CROWN_THIRD_DIR .. "stb_vorbis",
+				CROWN_THIRD_DIR .. "bgfx/src",
+				CROWN_THIRD_DIR .. "bgfx/include",
+				CROWN_THIRD_DIR .. "bx/include",
 				"$(PHYSX_SDK_LINUX)/Include",
 				"$(PHYSX_SDK_LINUX)/Include/common",
 				"$(PHYSX_SDK_LINUX)/Include/characterkinematic",
@@ -235,23 +242,11 @@ solution "crown"
 				"$(PHYSX_SDK_LINUX)/Include/RepX",
 				"$(PHYSX_SDK_LINUX)/Include/RepXUpgrader",
 				"$(PHYSX_SDK_LINUX)/Include/vehicle",
-				CROWN_SOURCE_DIR .. "/engine/os/linux",
-				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "opengl",
-				CROWN_THIRD_DIR .. "openal/include",
-				CROWN_THIRD_DIR .. "freetype",
-				CROWN_THIRD_DIR .. "stb_image",
-				CROWN_THIRD_DIR .. "stb_vorbis",
-				CROWN_THIRD_DIR .. "bgfx/src",
-				CROWN_THIRD_DIR .. "bgfx/include",
-				CROWN_THIRD_DIR .. "bx/include"
 			}
 
 			excludes {
 				CROWN_SOURCE_DIR .. "engine/os/android/*",
 				CROWN_SOURCE_DIR .. "engine/os/win/*",
-				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/egl/*",
-				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/wgl/*",
 				CROWN_SOURCE_DIR .. "engine/audio/backend/sles_sound_world.cpp",
 			}
 			
@@ -457,6 +452,14 @@ solution "crown"
 			}
 
 			includedirs {
+				CROWN_SOURCE_DIR .. "engine/os/android",
+				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "bgfx/include",
+				CROWN_THIRD_DIR .. "bx/include",
+				CROWN_THIRD_DIR .. "openal/include",
+				CROWN_THIRD_DIR .. "freetype",
+				CROWN_THIRD_DIR .. "stb_image",
+				CROWN_THIRD_DIR .. "stb_vorbis",
 				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/include",
 				"$(ANDROID_NDK_ROOT)/sources/android/native_app_glue",
 				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/include",
@@ -477,29 +480,19 @@ solution "crown"
 				"$(PHYSX_SDK_ANDROID)/Include/RepX",
 				"$(PHYSX_SDK_ANDROID)/Include/RepXUpgrader",
 				"$(PHYSX_SDK_ANDROID)/Include/vehicle",
-				CROWN_SOURCE_DIR .. "engine/os/android",
-				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "bgfx/include",
-				CROWN_THIRD_DIR .. "bx/include",
-				CROWN_THIRD_DIR .. "openal/include",
-				CROWN_THIRD_DIR .. "freetype",
-				CROWN_THIRD_DIR .. "stb_image",
-				CROWN_THIRD_DIR .. "stb_vorbis",
 			}
 
 			libdirs {
+				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "bgfx/.build/android-arm/bin",
 				"$(ANDROID_NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a",
 				"$(ANDROID_NDK_ROOT)/platforms/android-14/arch-arm/usr/lib",
 				"$(PHYSX_SDK_ANDROID)/Lib/android9_neon",
-				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "bgfx/.build/android-arm/bin",
 			}
 
 			excludes {
 				CROWN_SOURCE_DIR .. "engine/os/linux/*",
 				CROWN_SOURCE_DIR .. "engine/os/win/*",
-				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/glx/*",
-				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/wgl/*",
 				CROWN_SOURCE_DIR .. "engine/audio/backend/al_sound_world.cpp"
 			}
 
@@ -596,6 +589,15 @@ solution "crown"
 			}
 
 			includedirs {
+				CROWN_THIRD_DIR .. "luajit/src",
+				CROWN_THIRD_DIR .. "openal/include",
+				CROWN_THIRD_DIR .. "freetype",
+				CROWN_THIRD_DIR .. "stb_image",
+				CROWN_THIRD_DIR .. "stb_vorbis",
+				CROWN_SOURCE_DIR .. "/engine/os/win",
+				CROWN_THIRD_DIR .. "bgfx/src",
+				CROWN_THIRD_DIR .. "bgfx/include",
+				CROWN_THIRD_DIR .. "bx/include",
 				"$(PHYSX_SDK_WINDOWS)/Include",
 				"$(PHYSX_SDK_WINDOWS)/Include/common",
 				"$(PHYSX_SDK_WINDOWS)/Include/characterkinematic",
@@ -614,46 +616,33 @@ solution "crown"
 				"$(PHYSX_SDK_WINDOWS)/Include/RepXUpgrader",
 				"$(PHYSX_SDK_WINDOWS)/Include/vehicle",
 				"$(DXSDK_DIR)/Include",
-				CROWN_THIRD_DIR .. "luajit/src",
-				CROWN_THIRD_DIR .. "opengl",
-				CROWN_THIRD_DIR .. "openal/include",
-				CROWN_THIRD_DIR .. "freetype",
-				CROWN_THIRD_DIR .. "stb_image",
-				CROWN_THIRD_DIR .. "stb_vorbis",
-				CROWN_SOURCE_DIR .. "/engine/os/win",
-				CROWN_SOURCE_DIR .. "/engine/renderers/backend/gl/wgl",
-				CROWN_THIRD_DIR .. "bgfx/src",
-				CROWN_THIRD_DIR .. "bgfx/include",
-				CROWN_THIRD_DIR .. "bx/include"
 			}
 
 			excludes {
 				CROWN_SOURCE_DIR .. "engine/os/android/*",
 				CROWN_SOURCE_DIR .. "engine/os/linux/*",
 				CROWN_SOURCE_DIR .. "engine/os/posix/*",
-				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/egl/*",
-				CROWN_SOURCE_DIR .. "engine/renderers/backend/gl/glx/*",
 				CROWN_SOURCE_DIR .. "engine/audio/backend/sles_sound_world.cpp"
 			}
 
 		configuration { "x32", "vs*" }
 			libdirs {
-				"$(PHYSX_SDK_WINDOWS)/Lib/win32",
-				"$(DXSDK_DIR)/Lib/x86",
 				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "openal/lib",
 				CROWN_THIRD_DIR .. "bgfx/.build/win32_vs2012/bin",
+				"$(PHYSX_SDK_WINDOWS)/Lib/win32",
+				"$(DXSDK_DIR)/Lib/x86",
 			}
 
 		configuration { "x64", "vs*" }
 			defines { "_WIN64" }
 
 			libdirs {
-				"$(PHYSX_SDK_WINDOWS)/Lib/win64",
-				"$(DXSDK_DIR)/Lib/x64",
 				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "openal/lib",
 				CROWN_THIRD_DIR .. "bgfx/.build/win64_vs2012/bin",
+				"$(PHYSX_SDK_WINDOWS)/Lib/win64",
+				"$(DXSDK_DIR)/Lib/x64",
 			}
 
 		configuration { "debug", "x32", "vs*"}
@@ -672,7 +661,8 @@ solution "crown"
 				"PhysX3CHECKED_x64",
 				"PhysX3CommonCHECKED_x64",
 				"PhysX3CookingCHECKED_x64",
-				"PhysX3ExtensionsCHECKED"
+				"PhysX3ExtensionsCHECKED",
+				"bgfxDebug"
 			}
 
 		configuration { "development", "x32", "vs*" }
@@ -681,7 +671,8 @@ solution "crown"
 				"PhysX3PROFILE_x86",
 				"PhysX3CommonPROFILE_x86",
 				"PhysX3CookingPROFILE_x86",
-				"PhysX3ExtensionsPROFILE"
+				"PhysX3ExtensionsPROFILE",
+				"bgfxDebug"
 			}
 
 		configuration { "development", "x64", "vs*" }
@@ -690,7 +681,8 @@ solution "crown"
 				"PhysX3PROFILE_x64",
 				"PhysX3CommonPROFILE_x64",
 				"PhysX3CookingPROFILE_x64",
-				"PhysX3ExtensionsPROFILE"
+				"PhysX3ExtensionsPROFILE",
+				"bgfxDebug"
 			}
 
 		configuration { "release", "x32", "vs*" }
@@ -699,7 +691,8 @@ solution "crown"
 				"PhysX3_x86",
 				"PhysX3Common_x86",
 				"PhysX3Cooking_x86",
-				"PhysX3Extensions"
+				"PhysX3Extensions",
+				"bgfxRelease"
 			}
 			
 		configuration { "release", "x64", "vs*" }
@@ -708,5 +701,6 @@ solution "crown"
 				"PhysX3_x64",
 				"PhysX3Common_x64",
 				"PhysX3Cooking_x64",
-				"PhysX3Extensions"
+				"PhysX3Extensions",
+				"bgfxRelease"
 			}
