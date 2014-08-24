@@ -139,7 +139,7 @@ namespace debug_line
 
 	void shutdown()
 	{
-		// bgfx::destroyProgram(s_prog);
+		bgfx::destroyProgram(s_prog);
 	}
 
 } // namespace debug_line
