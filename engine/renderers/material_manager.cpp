@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "material_manager.h"
 #include "memory.h"
 #include "sort_map.h"
+#include "device.h"
 
 namespace crown
 {
@@ -52,56 +53,22 @@ namespace material_manager
 } // namespace material_manager
 
 MaterialManager::MaterialManager()
-	: m_materials(default_allocator())
 {
-}
-
-void MaterialManager::load(StringId64 id, ResourceManager& rm)
-{
-	ResourceId res_id;
-	res_id.type = MATERIAL_TYPE;
-	res_id.name = id;
-
-	MaterialId mat_id = id_table::create(_materials_ids);
-	_materials[mat_id.index].create((MaterialResource*) rm.get(res_id), *this);
-
-	sort_map::set(m_materials, id, mat_id);
-	sort_map::sort(m_materials);
-}
-
-void MaterialManager::unload(StringId64 id, ResourceManager& /*rm*/)
-{
-	MaterialId deff_id;
-	deff_id.id = INVALID_ID;
-	deff_id.index = 0;
-
-	MaterialId mat_id = sort_map::get(m_materials, id, deff_id);
-	CE_ASSERT(mat_id.id != INVALID_ID, "Material not loaded");
-
-	_materials[mat_id.index].destroy();
-	id_table::destroy(_materials_ids, mat_id);
-
-	sort_map::remove(m_materials, id);
-	sort_map::sort(m_materials);
 }
 
 MaterialId MaterialManager::create_material(StringId64 id)
 {
-	MaterialId deff_id;
-	deff_id.id = INVALID_ID;
-	deff_id.index = 0;
-
-	MaterialId idd = sort_map::get(m_materials, id, deff_id);
-	CE_ASSERT(idd.id != INVALID_ID, "Material not loaded");
-
+	ResourceId res_id;
+	res_id.type = MATERIAL_TYPE;
+	res_id.name = id;
 	MaterialId new_id = id_table::create(_materials_ids);
-	_materials[new_id.index].clone(_materials[idd.index]);
-
+	_materials[new_id.index].create((MaterialResource*) device()->resource_manager()->get(res_id), *this);
 	return new_id;
 }
 
 void MaterialManager::destroy_material(MaterialId id)
 {
+	_materials[id.index].destroy();
 	id_table::destroy(_materials_ids, id);
 }
 

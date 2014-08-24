@@ -43,16 +43,12 @@ struct MaterialManager
 {
 	MaterialManager();
 
-	void load(StringId64 id, ResourceManager& rm);
-	void unload(StringId64 id, ResourceManager& rm);
-
 	MaterialId create_material(StringId64 id);
 	void destroy_material(MaterialId id);
 	Material* lookup_material(MaterialId id);
 
 private:
 
-	SortMap<StringId64, MaterialId> m_materials;
 	IdTable<512> _materials_ids;
 	Material _materials[512];
 };

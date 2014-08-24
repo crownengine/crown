@@ -38,7 +38,6 @@ struct MaterialResource;
 struct Material
 {
 	void create(const MaterialResource* mr, MaterialManager& mm);
-	void clone(const Material& m);
 	void destroy() const;
 	void bind() const;
 
