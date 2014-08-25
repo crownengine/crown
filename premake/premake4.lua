@@ -208,11 +208,11 @@ solution "crown"
 			links {
 				"Xrandr",
 				"pthread",
-				"dl",
 				"GL",
 				"X11",
 				"openal",
-				"luajit"
+				"luajit",
+				"dl",
 			}
 
 			includedirs {

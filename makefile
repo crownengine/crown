@@ -99,6 +99,7 @@ windows-release64: deps-windows-release64 windows-build
 
 docs:
 	doxygen Doxyfile.doxygen
+	cp -r .build/documentation $(CROWN_INSTALL_DIR)
 
 clean: deps-clean
 	@echo Cleaning...
