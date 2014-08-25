@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "resource_loader.h"
+#include "memory.h"
 #include "resource_registry.h"
 #include "log.h"
 #include "queue.h"
