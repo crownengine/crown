@@ -24,29 +24,17 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "config.h"
 
-#include "disk_filesystem.h"
-#include "dynamic_string.h"
-#include "vector.h"
+#if CROWN_PLATFORM_WINDOWS
 
 namespace crown
 {
 
-class BundleCompiler
+void stacktrace()
 {
-public:
-
-	BundleCompiler();
-
-	/// Compiles all the resources found in @a source_dir and puts them in @a bundle_dir.
-	/// If @a resource is not NULL, only that particular resource is compiled.
-	/// Returns true on success, false otherwise.
-	bool compile(const char* bundle_dir, const char* source_dir, const char* platform, const char* resource = NULL);
-
-private:
-
-	static void scan(const char* source_dir, const char* cur_dir, Vector<DynamicString>& files);
-};
+}
 
 } // namespace crown
+
+#endif // CROWN_PLATFORM_WINDOWS

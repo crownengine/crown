@@ -25,16 +25,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "config.h"
-#include "device.h"
-#include "os_types.h"
-#include "os_event_queue.h"
+
+#if CROWN_PLATFORM_LINUX
+
+#include "args.h"
 #include "bundle_compiler.h"
-#include "memory.h"
+#include "device.h"
 #include "json_parser.h"
 #include "log.h"
-#include "args.h"
+#include "memory.h"
+#include "os_event_queue.h"
+#include "os_window_linux.h"
 #include "thread.h"
-#include "os_window.h"
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -313,6 +315,10 @@ public:
 
 		Thread game_thread;
 		game_thread.start(main_loop, (void*)this);
+
+		// Create window
+		CE_LOGD("Creating main window...");
+		m_window = CE_NEW(m_allocator, OsWindow);
 
 		while (!m_exit)
 		{
@@ -769,3 +775,5 @@ int main(int argc, char** argv)
 	crown::shutdown();
 	return ret;
 }
+
+#endif // CROWN_PLATFORM_LINUX

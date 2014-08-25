@@ -225,8 +225,8 @@ private:
 	Device& operator=(const Device&);
 };
 
-CE_EXPORT Device* device();
+Device* device();
 
-CE_EXPORT void set_device(Device* device);
+void set_device(Device* device);
 
 } // namespace crown

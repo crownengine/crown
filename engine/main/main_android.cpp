@@ -24,13 +24,17 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "config.h"
+
+#if CROWN_PLATFORM_ANDROID
+
 #include "allocator.h"
 #include "device.h"
 #include "log.h"
 #include "os_event_queue.h"
-#include "touch.h"
-#include "os_window.h"
+#include "os_window_android.h"
 #include "thread.h"
+#include "touch.h"
 #include <jni.h>
 #include <android/sensor.h>
 #include <android_native_app_glue.h>
@@ -358,3 +362,5 @@ void android_main(struct android_app* app)
 	CE_DELETE(crown::default_allocator(), engine);
 	crown::memory::shutdown();
 }
+
+#endif // CROWN_PLATFORM_ANDROID

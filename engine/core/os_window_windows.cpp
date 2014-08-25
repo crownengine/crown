@@ -1,5 +1,4 @@
 /*
-Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -24,104 +23,114 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <sys/types.h>
-#include <android/asset_manager.h>
-#include "apk_filesystem.h"
-#include "temp_allocator.h"
-#include "apk_file.h"
-#include "os.h"
+#include "config.h"
+
+#if CROWN_PLATFORM_WINDOWS
+
+#include "os_window.h"
+#include "string_utils.h"
 
 namespace crown
 {
 
-extern AAssetManager* get_android_asset_manager();
+HWND m_windows_window = 0;
+
+void oswindow_set_window(HWND handle_win)
+{
+	m_windows_window = handle_win;
+}
 
 //-----------------------------------------------------------------------------
-ApkFilesystem::ApkFilesystem()
+OsWindow::OsWindow()
+	: m_x(0)
+	, m_y(0)
+	, m_width(0)
+	, m_height(0)
+	, m_resizable(true)
+{
+	set_title("");
+}
+
+//-----------------------------------------------------------------------------
+OsWindow::~OsWindow()
 {
 }
 
 //-----------------------------------------------------------------------------
-File* ApkFilesystem::open(const char* path, FileOpenMode mode)
+void OsWindow::show()
 {
-	CE_ASSERT_NOT_NULL(path);
-	CE_ASSERT(mode == FOM_READ, "Cannot open for writing in Android assets folder");
-
-	return CE_NEW(default_allocator(), ApkFile)(path);
+	ShowWindow(m_windows_window, SW_SHOW);
 }
 
 //-----------------------------------------------------------------------------
-void ApkFilesystem::close(File* file)
+void OsWindow::hide()
 {
-	CE_ASSERT_NOT_NULL(file);
-	CE_DELETE(default_allocator(), file);
+	ShowWindow(m_windows_window, SW_HIDE);
 }
 
 //-----------------------------------------------------------------------------
-bool ApkFilesystem::exists(const char* path)
+void OsWindow::get_size(uint32_t& width, uint32_t& height)
 {
-	return false;
+	width = m_width;
+	height = m_height;
 }
 
 //-----------------------------------------------------------------------------
-bool ApkFilesystem::is_directory(const char* path)
+void OsWindow::get_position(uint32_t& x, uint32_t& y)
 {
-	return true;
+	x = m_x;
+	y = m_y;
 }
 
 //-----------------------------------------------------------------------------
-bool ApkFilesystem::is_file(const char* path)
+void OsWindow::resize(uint32_t width, uint32_t height)
 {
-	return true;
+	SetWindowPos(m_windows_window, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
 }
 
 //-----------------------------------------------------------------------------
-void ApkFilesystem::create_directory(const char* /*path*/)
+void OsWindow::move(uint32_t x, uint32_t y)
 {
-	CE_ASSERT(false, "Attempt to create directory in Android assets folder");
+	SetWindowPos(m_windows_window, NULL, x, y, 0, 0, SWP_NOMOVE | SWP_NOZORDER);
 }
 
 //-----------------------------------------------------------------------------
-void ApkFilesystem::delete_directory(const char* /*path*/)
+void OsWindow::minimize()
 {
-	CE_ASSERT(false, "Attempt to delete directory in Android assets folder");
+	ShowWindow(m_windows_window, SW_MINIMIZE);
 }
 
 //-----------------------------------------------------------------------------
-void ApkFilesystem::create_file(const char* /*path*/)
+void OsWindow::restore()
 {
-	CE_ASSERT(false, "Attempt to create file in Android assets folder");
+	ShowWindow(m_windows_window, SW_RESTORE);
 }
 
 //-----------------------------------------------------------------------------
-void ApkFilesystem::delete_file(const char* /*path*/)
+bool OsWindow::is_resizable() const
 {
-	CE_ASSERT(false, "Attempt to delete file in Android assets folder");
+	return m_resizable;
 }
 
 //-----------------------------------------------------------------------------
-void ApkFilesystem::list_files(const char* path, Vector<DynamicString>& files)
+void OsWindow::set_resizable(bool resizable)
 {
-	CE_ASSERT_NOT_NULL(path);
-
-	AAssetDir* root_dir = AAssetManager_openDir(get_android_asset_manager(), path);
-	CE_ASSERT(root_dir != NULL, "Failed to open Android assets folder");
-
-	const char* filename = NULL;
-	while ((filename = AAssetDir_getNextFileName(root_dir)) != NULL)
-	{
-		DynamicString name(default_allocator());
-		name = filename;
-		vector::push_back(files, name);
-	}
-
-	AAssetDir_close(root_dir);
+	m_resizable = resizable;
 }
 
 //-----------------------------------------------------------------------------
-void ApkFilesystem::get_absolute_path(const char* path, DynamicString& os_path)
+char* OsWindow::title()
 {
-	os_path = path;
+	return m_title;
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::set_title(const char* title)
+{
+	string::strncpy(m_title, title, 32);
+	SetWindowText(m_windows_window, m_title);
 }
 
 } // namespace crown
+
+#endif // CROWN_PLATFORM_WINDOWS

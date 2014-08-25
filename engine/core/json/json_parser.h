@@ -44,7 +44,7 @@ class File;
 /// which has generated them, will exist.
 ///
 /// @ingroup JSON
-class CE_EXPORT JSONElement
+class JSONElement
 {
 public:
 
@@ -185,7 +185,7 @@ private:
 /// Parses JSON documents.
 ///
 /// @ingroup JSON
-class CE_EXPORT JSONParser
+class JSONParser
 {
 public:
 

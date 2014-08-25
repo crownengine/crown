@@ -27,13 +27,107 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <cstring>
-#include "os_types.h"
+#include "types.h"
+#include "mouse.h"
+#include "keyboard.h"
 #include "atomic_int.h"
-
-#define MAX_OS_EVENTS 64
 
 namespace crown
 {
+
+struct OsMetricsEvent
+{
+	uint16_t x;
+	uint16_t y;
+	uint16_t width;
+	uint16_t height;
+};
+
+struct OsExitEvent
+{
+	int32_t code;
+};
+
+/// Represents an event fired by mouse.
+struct OsMouseEvent
+{
+	enum Enum
+	{
+		BUTTON,
+		MOVE
+	};
+
+	OsMouseEvent::Enum type;
+	MouseButton::Enum button;
+	uint16_t x;
+	uint16_t y;
+	bool pressed;
+};
+
+/// Represents an event fired by keyboard.
+struct OsKeyboardEvent
+{
+	KeyboardButton::Enum button;
+	uint32_t modifier;
+	bool pressed;
+};
+
+/// Represents an event fired by touch screen.
+struct OsTouchEvent
+{
+	enum Enum
+	{
+		POINTER,
+		MOVE
+	};
+
+	OsTouchEvent::Enum type;
+	uint8_t pointer_id;
+	uint16_t x;
+	uint16_t y;
+	bool pressed;
+};
+
+/// Represents an event fired by accelerometer.
+struct OsAccelerometerEvent
+{
+	float x;
+	float y;
+	float z;
+};
+
+struct OsEvent
+{
+	/// Represents an event fired by the OS
+	enum Enum
+	{
+		NONE			= 0,
+
+		KEYBOARD		= 1,
+		MOUSE			= 2,
+		TOUCH			= 3,
+		ACCELEROMETER	= 4,
+
+		METRICS,
+		PAUSE,
+		RESUME,
+		// Exit from program
+		EXIT
+	};
+
+	OsEvent::Enum type;
+	union
+	{
+		OsMetricsEvent metrics;
+		OsExitEvent exit;
+		OsMouseEvent mouse;
+		OsKeyboardEvent keyboard;
+		OsTouchEvent touch;
+		OsAccelerometerEvent accelerometer;
+	};
+};
+
+#define MAX_OS_EVENTS 64
 
 /// Single Producer Single Consumer event queue.
 /// Used only to pass events from os thread to main thread.

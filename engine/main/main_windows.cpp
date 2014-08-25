@@ -24,22 +24,25 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "config.h"
+
+#if CROWN_PLATFORM_WINDOWS
+
 #include <windowsx.h>
 
 #define WM_USER_SET_WINDOW_SIZE     (WM_USER+0)
 #define WM_USER_TOGGLE_WINDOW_FRAME (WM_USER+1)
 #define WM_USER_MOUSE_LOCK          (WM_USER+2)
 
-#include "os_types.h"
-#include "os_event_queue.h"
+#include "args.h"
 #include "bundle_compiler.h"
 #include "device.h"
-#include "thread.h"
-#include "log.h"
-#include "os_window.h"
-#include "args.h"
 #include "json_parser.h"
+#include "log.h"
 #include "os.h"
+#include "os_event_queue.h"
+#include "os_window_windows.h"
+#include "thread.h"
 #include <bgfxplatform.h>
 
 #define ENTRY_DEFAULT_WIDTH 1000
@@ -701,3 +704,5 @@ int main(int argc, char** argv)
 
 	return ret;
 }
+
+#endif // CROWN_PLATFORM_WINDOWS

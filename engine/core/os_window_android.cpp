@@ -1,4 +1,5 @@
 /*
+Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -23,22 +24,16 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "os_window.h"
+#include "config.h"
+
+#if CROWN_PLATFORM_ANDROID
+
+#include "os_window_android.h"
 #include "assert.h"
-#include "string_utils.h"
 #include "log.h"
 
 namespace crown
 {
-
-Display* m_x11_display = NULL;
-Window m_x11_window = None;
-
-void oswindow_set_window(Display* dpy, Window win)
-{
-	m_x11_display = dpy;
-	m_x11_window = win;
-}
 
 //-----------------------------------------------------------------------------
 OsWindow::OsWindow()
@@ -46,10 +41,7 @@ OsWindow::OsWindow()
 	, m_y(0)
 	, m_width(0)
 	, m_height(0)
-	, m_resizable(true)
-	, m_x11_detectable_autorepeat(false)
 {
-	set_title("");
 }
 
 //-----------------------------------------------------------------------------
@@ -60,13 +52,11 @@ OsWindow::~OsWindow()
 //-----------------------------------------------------------------------------
 void OsWindow::show()
 {
-	XMapRaised(m_x11_display, m_x11_window);
 }
 
 //-----------------------------------------------------------------------------
 void OsWindow::hide()
 {
-	XUnmapWindow(m_x11_display, m_x11_window);
 }
 
 //-----------------------------------------------------------------------------
@@ -84,68 +74,67 @@ void OsWindow::get_position(uint32_t& x, uint32_t& y)
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::resize(uint32_t width, uint32_t height)
+void OsWindow::resize(uint32_t /*width*/, uint32_t /*height*/)
 {
-	XResizeWindow(m_x11_display, m_x11_window, width, height);
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::move(uint32_t x, uint32_t y)
+void OsWindow::move(uint32_t /*x*/, uint32_t /*y*/)
 {
-	XMoveWindow(m_x11_display, m_x11_window, x, y);
 }
 
 //-----------------------------------------------------------------------------
 void OsWindow::minimize()
 {
-	XIconifyWindow(m_x11_display, m_x11_window, DefaultScreen(m_x11_display));
 }
 
 //-----------------------------------------------------------------------------
 void OsWindow::restore()
 {
-	XMapRaised(m_x11_display, m_x11_window);
 }
 
 //-----------------------------------------------------------------------------
 bool OsWindow::is_resizable() const
 {
-	return m_resizable;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::set_resizable(bool resizable)
+void OsWindow::set_resizable(bool /*resizeable*/)
 {
-	XSizeHints hints;
-	hints.flags = PMinSize | PMaxSize;
-	hints.min_width = resizable ? 1 : m_width;
-	hints.min_height = resizable ? 1 : m_height;
-	hints.max_width = resizable ? 65535 : m_width;
-	hints.max_height = resizable ? 65535 : m_height;
+}
 
-	XSetWMNormalHints(m_x11_display, m_x11_window, &hints);
+//-----------------------------------------------------------------------------
+void OsWindow::show_cursor(bool /*show*/)
+{
+}
 
-	m_resizable = resizable;
+//-----------------------------------------------------------------------------
+void OsWindow::get_cursor_xy(int32_t& /*x*/, int32_t& /*y*/)
+{
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::set_cursor_xy(int32_t /*x*/, int32_t /*y*/)
+{
 }
 
 //-----------------------------------------------------------------------------
 char* OsWindow::title()
 {
-	static char title[1024];
-
-	char* tmp_title;
-	XFetchName(m_x11_display, m_x11_window, &tmp_title);
-
-	string::strncpy(title, tmp_title, 1024);
-	XFree(tmp_title);
-
-	return title;
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
-void OsWindow::set_title(const char* title)
+void OsWindow::set_title(const char* /*title*/)
 {
-	XStoreName(m_x11_display, m_x11_window, title);
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::frame()
+{
 }
 
 } // namespace crown
+
+#endif // CROWN_PLATFORM_ANDROID

@@ -40,7 +40,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "memory.h"
 #include "mouse.h"
 #include "os.h"
-#include "os_window.h"
 #include "resource_manager.h"
 #include "string_setting.h"
 #include "string_utils.h"
@@ -151,10 +150,6 @@ void Device::init()
 	// Create world manager
 	CE_LOGD("Creating world manager...");
 	m_world_manager = CE_NEW(m_allocator, WorldManager)();
-
-	// Create window
-	CE_LOGD("Creating main window...");
-	m_window = CE_NEW(m_allocator, OsWindow);
 
 	// Create input devices
 	m_keyboard = CE_NEW(m_allocator, Keyboard);

@@ -1,5 +1,4 @@
 /*
-Copyright (c) 2013 Daniele Bartolini, Michele Rossi
 Copyright (c) 2012 Daniele Bartolini, Simone Boscaratto
 
 Permission is hereby granted, free of charge, to any person
@@ -24,121 +23,133 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <stdio.h>
+#include "config.h"
 
+#if CROWN_PLATFORM_LINUX
+
+#include "os_window_linux.h"
 #include "assert.h"
-#include "os.h"
-#include "os_file.h"
+#include "string_utils.h"
+#include "log.h"
 
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
-OsFile::OsFile(const char* path, FileOpenMode mode) :
-	m_file_handle(NULL)
-{
-	m_file_handle = fopen(path, (mode == FOM_READ) ? "rb" : "wb");
-	CE_ASSERT(m_file_handle != NULL, "Unable to open file: %s", path);
+Display* m_x11_display = NULL;
+Window m_x11_window = None;
 
-	m_mode = mode;
+void oswindow_set_window(Display* dpy, Window win)
+{
+	m_x11_display = dpy;
+	m_x11_window = win;
 }
 
 //-----------------------------------------------------------------------------
-OsFile::~OsFile()
+OsWindow::OsWindow()
+	: m_x(0)
+	, m_y(0)
+	, m_width(0)
+	, m_height(0)
+	, m_resizable(true)
 {
-	close();
 }
 
 //-----------------------------------------------------------------------------
-void OsFile::close()
+OsWindow::~OsWindow()
 {
-	if (m_file_handle != NULL)
-	{
-		fclose(m_file_handle);
-		m_file_handle = NULL;
-	}
 }
 
 //-----------------------------------------------------------------------------
-bool OsFile::is_open() const
+void OsWindow::show()
 {
-	return m_file_handle != NULL;
+	XMapRaised(m_x11_display, m_x11_window);
 }
 
 //-----------------------------------------------------------------------------
-FileOpenMode OsFile::mode()
+void OsWindow::hide()
 {
-	return m_mode;
+	XUnmapWindow(m_x11_display, m_x11_window);
 }
 
 //-----------------------------------------------------------------------------
-size_t OsFile::size() const
+void OsWindow::get_size(uint32_t& width, uint32_t& height)
 {
-	size_t pos = position();
-
-	int fseek_result = fseek(m_file_handle, 0, SEEK_END);
-	CE_ASSERT(fseek_result == 0, "Failed to seek");
-
-	size_t size = position();
-
-	fseek_result = fseek(m_file_handle, (long) pos, SEEK_SET);
-	CE_ASSERT(fseek_result == 0, "Failed to seek");
-	CE_UNUSED(fseek_result);
-
-	return size;
+	width = m_width;
+	height = m_height;
 }
 
 //-----------------------------------------------------------------------------
-size_t OsFile::read(void* data, size_t size)
+void OsWindow::get_position(uint32_t& x, uint32_t& y)
 {
-	CE_ASSERT(data != NULL, "Data must be != NULL");
-
-	return fread(data, 1, size, m_file_handle);
+	x = m_x;
+	y = m_y;
 }
 
 //-----------------------------------------------------------------------------
-size_t OsFile::write(const void* data, size_t size)
+void OsWindow::resize(uint32_t width, uint32_t height)
 {
-	CE_ASSERT(data != NULL, "Data must be != NULL");
-
-	return fwrite(data, 1, size, m_file_handle);
+	XResizeWindow(m_x11_display, m_x11_window, width, height);
 }
 
 //-----------------------------------------------------------------------------
-void OsFile::seek(size_t position)
+void OsWindow::move(uint32_t x, uint32_t y)
 {
-	int fseek_result = fseek(m_file_handle, (long) position, SEEK_SET);
-	CE_ASSERT(fseek_result == 0, "Failed to seek");
-	CE_UNUSED(fseek_result);
+	XMoveWindow(m_x11_display, m_x11_window, x, y);
 }
 
 //-----------------------------------------------------------------------------
-void OsFile::seek_to_end()
+void OsWindow::minimize()
 {
-	int fseek_result = fseek(m_file_handle, 0, SEEK_END);
-	CE_ASSERT(fseek_result == 0, "Failed to seek");
-	CE_UNUSED(fseek_result);
+	XIconifyWindow(m_x11_display, m_x11_window, DefaultScreen(m_x11_display));
 }
 
 //-----------------------------------------------------------------------------
-void OsFile::skip(size_t bytes)
+void OsWindow::restore()
 {
-	int fseek_result = fseek(m_file_handle, bytes, SEEK_CUR);
-	CE_ASSERT(fseek_result == 0, "Failed to seek");
-	CE_UNUSED(fseek_result);
+	XMapRaised(m_x11_display, m_x11_window);
 }
 
 //-----------------------------------------------------------------------------
-size_t OsFile::position() const
+bool OsWindow::is_resizable() const
 {
-	return (size_t) ftell(m_file_handle);
+	return m_resizable;
 }
 
 //-----------------------------------------------------------------------------
-bool OsFile::eof() const
+void OsWindow::set_resizable(bool resizable)
 {
-	return feof(m_file_handle) != 0;
+	XSizeHints hints;
+	hints.flags = PMinSize | PMaxSize;
+	hints.min_width = resizable ? 1 : m_width;
+	hints.min_height = resizable ? 1 : m_height;
+	hints.max_width = resizable ? 65535 : m_width;
+	hints.max_height = resizable ? 65535 : m_height;
+
+	XSetWMNormalHints(m_x11_display, m_x11_window, &hints);
+
+	m_resizable = resizable;
+}
+
+//-----------------------------------------------------------------------------
+char* OsWindow::title()
+{
+	static char title[1024];
+
+	char* tmp_title;
+	XFetchName(m_x11_display, m_x11_window, &tmp_title);
+
+	string::strncpy(title, tmp_title, 1024);
+	XFree(tmp_title);
+
+	return title;
+}
+
+//-----------------------------------------------------------------------------
+void OsWindow::set_title(const char* title)
+{
+	XStoreName(m_x11_display, m_x11_window, title);
 }
 
 } // namespace crown
 
+#endif // CROWN_PLATFORM_LINUX

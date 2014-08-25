@@ -24,7 +24,16 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "os_window.h"
+#include "config.h"
+
+#if CROWN_PLATFORM_LINUX
+	#include "os_window_linux.h"
+#elif CROWN_PLATFORM_WINDOWS
+	#include "os_window_windows.h"
+#elif CROWN_PLATFORM_ANDROID
+	#include "os_window_android.h"
+#endif
+
 #include "device.h"
 #include "lua_stack.h"
 #include "lua_environment.h"

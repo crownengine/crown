@@ -24,6 +24,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "config.h"
+
+#if CROWN_PLATFORM_ANDROID
+
 #include "apk_file.h"
 #include "assert.h"
 #include "macros.h"
@@ -155,3 +159,5 @@ bool ApkFile::can_seek() const
 }
 
 } // namespace crown
+
+#endif // CROWN_PLATFORM_ANDROID

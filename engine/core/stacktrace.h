@@ -26,4 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "../posix/os_file.h"
+namespace crown
+{
+
+void stacktrace();
+
+} // namespace crown

@@ -172,7 +172,7 @@ solution "crown"
 			CROWN_SOURCE_DIR .. "/engine/core/settings",
 			CROWN_SOURCE_DIR .. "/engine/core/strings",
 			CROWN_SOURCE_DIR .. "/engine/core/thread",
-			CROWN_SOURCE_DIR .. "/engine/os",
+			CROWN_SOURCE_DIR .. "/engine/main",
 			CROWN_SOURCE_DIR .. "/engine/input",
 			CROWN_SOURCE_DIR .. "/engine/renderers",
 			CROWN_SOURCE_DIR .. "/engine/resource",
@@ -216,7 +216,6 @@ solution "crown"
 			}
 
 			includedirs {
-				CROWN_SOURCE_DIR .. "/engine/os/linux",
 				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "openal/include",
 				CROWN_THIRD_DIR .. "freetype",
@@ -245,8 +244,6 @@ solution "crown"
 			}
 
 			excludes {
-				CROWN_SOURCE_DIR .. "engine/os/android/*",
-				CROWN_SOURCE_DIR .. "engine/os/win/*",
 				CROWN_SOURCE_DIR .. "engine/audio/backend/sles_sound_world.cpp",
 			}
 			
@@ -452,7 +449,6 @@ solution "crown"
 			}
 
 			includedirs {
-				CROWN_SOURCE_DIR .. "engine/os/android",
 				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "bgfx/include",
 				CROWN_THIRD_DIR .. "bx/include",
@@ -491,8 +487,6 @@ solution "crown"
 			}
 
 			excludes {
-				CROWN_SOURCE_DIR .. "engine/os/linux/*",
-				CROWN_SOURCE_DIR .. "engine/os/win/*",
 				CROWN_SOURCE_DIR .. "engine/audio/backend/al_sound_world.cpp"
 			}
 
@@ -589,12 +583,12 @@ solution "crown"
 			}
 
 			includedirs {
+				CROWN_SOURCE_DIR .. "core/compat/msvc",
 				CROWN_THIRD_DIR .. "luajit/src",
 				CROWN_THIRD_DIR .. "openal/include",
 				CROWN_THIRD_DIR .. "freetype",
 				CROWN_THIRD_DIR .. "stb_image",
 				CROWN_THIRD_DIR .. "stb_vorbis",
-				CROWN_SOURCE_DIR .. "/engine/os/win",
 				CROWN_THIRD_DIR .. "bgfx/src",
 				CROWN_THIRD_DIR .. "bgfx/include",
 				CROWN_THIRD_DIR .. "bx/include",
@@ -619,9 +613,6 @@ solution "crown"
 			}
 
 			excludes {
-				CROWN_SOURCE_DIR .. "engine/os/android/*",
-				CROWN_SOURCE_DIR .. "engine/os/linux/*",
-				CROWN_SOURCE_DIR .. "engine/os/posix/*",
 				CROWN_SOURCE_DIR .. "engine/audio/backend/sles_sound_world.cpp"
 			}
 

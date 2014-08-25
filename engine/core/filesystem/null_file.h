@@ -41,24 +41,24 @@ class NullFile: public File
 public:
 
 	/// @copydoc File::File()
-				NullFile(FileOpenMode mode) : File(mode) {}
+	NullFile(FileOpenMode mode) : File(mode) {}
 
 	/// @copydoc File::~File()
-	virtual		~NullFile() {}
+	virtual ~NullFile() {}
 
 	/// @copydoc File::seek()
-	void		seek(size_t position) { (void)position; }
+	void seek(size_t position) { (void)position; }
 
 	/// @copydoc File::seek_to_end()
-	void		seek_to_end() {}
+	void seek_to_end() {}
 
 	/// @copydoc File::skip()
-	void		skip(size_t bytes) { (void)bytes; }
+	void skip(size_t bytes) { (void)bytes; }
 
 	/// @copydoc File::read()
 	/// @note
 	///	Fills buffer with zeroes
-	void		read(void* buffer, size_t size)
+	void read(void* buffer, size_t size)
 	{
 		for (size_t i = 0; i < size; i++)
 		{
@@ -67,12 +67,12 @@ public:
 	}
 
 	/// @copydoc File::write()
-	void		write(const void* buffer, size_t size) { (void)buffer; (void)size; }
+	void write(const void* buffer, size_t size) { (void)buffer; (void)size; }
 
 	/// @copydoc File::copy_to()
 	/// @note
 	///	Returns always true
-	bool		copy_to(File& file, size_t size = 0)
+	bool copy_to(File& file, size_t size = 0)
 	{
 		char zero = 0;
 		file.write(&zero, size);
@@ -80,43 +80,42 @@ public:
 	}
 
 	/// @copydoc File::flush()
-	void		flush() {};
+	void flush() {};
 
 	/// @copydoc File::is_valid()
 	/// @note
 	///	Returns always true
-	bool		is_valid() { return true; }
+	bool is_valid() { return true; }
 
 	/// @copydoc File::end_of_file()
 	/// @note
 	///	Returns always false
-	bool		end_of_file() { return false; }
+	bool end_of_file() { return false; }
 
 	/// @copydoc File::size()
 	/// @note
 	///	Returns always 0xFFFFFFFF
-	size_t		size() { return ~0; }
+	size_t size() { return ~0; }
 
 	/// @copydoc File::position()
 	/// @note
 	///	Returns always zero
-	size_t		position() { return 0; }
+	size_t position() { return 0; }
 
 	/// @copydoc File::can_read()
 	/// @note
 	///	Returns always true
-	bool		can_read() { return true; }
+	bool can_read() { return true; }
 
 	/// @copydoc File::can_write()
 	/// @note
 	///	Returns always true
-	bool		can_write() { return true; }
+	bool can_write() { return true; }
 
 	/// @copydoc File::can_seek()
 	/// @note
 	///	Returns always true
-	bool		can_seek() { return true; }
+	bool can_seek() { return true; }
 };
 
 } // namespace crown
-
