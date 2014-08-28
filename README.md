@@ -21,7 +21,7 @@ https://developer.nvidia.com/physx-sdk
 
 ### Prerequisites
 
-### Prerequisites for Android:
+### Prerequisites for Android
 
 Download Android NDK from:  
 https://developer.android.com/tools/sdk/ndk/index.html
