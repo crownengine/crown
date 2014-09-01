@@ -70,7 +70,6 @@ namespace shader_resource
 			"--varyingdef", varying_def_path.c_str(),
 			"--type", "vertex",
 			"--platform", opts.platform(),
-			"--verbose",
 #if CROWN_PLATFORM_WINDOWS
 			"--profile", "vs_3_0",
 #endif
@@ -86,7 +85,6 @@ namespace shader_resource
 			"--varyingdef", varying_def_path.c_str(),
 			"--type", "fragment",
 			"--platform", opts.platform(),
-			"--verbose",
 #if CROWN_PLATFORM_WINDOWS
 			"--profile", "ps_3_0",
 #endif
