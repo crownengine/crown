@@ -37,6 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "container_types.h"
 #include "temp_allocator.h"
 #include "log.h"
+#include "audio.h"
 
 namespace crown
 {
@@ -64,7 +65,7 @@ namespace crown
 #endif
 
 /// Global audio-related functions
-namespace audio_system
+namespace audio_globals
 {
 	static ALCdevice* s_al_device;
 	static ALCcontext* s_al_context;

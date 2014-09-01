@@ -31,21 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// @defgroup Audio Audio
-
-/// Global audio-related functions
-///
-/// @ingroup Audio
-namespace audio_system
-{
-	/// Initializes the audio system.
-	/// This is the place where to create and initialize per-application objects.
-	void init();
-
-	/// It should reverse the actions performed by audio_system::init().
-	void shutdown();
-} // namespace audio_system
-
 class Allocator;
 struct Vector3;
 struct Matrix4x4;

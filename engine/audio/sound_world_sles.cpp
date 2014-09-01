@@ -37,6 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "container_types.h"
 #include "temp_allocator.h"
 #include "queue.h"
+#include "audio.h"
 
 namespace crown
 {
@@ -70,7 +71,7 @@ namespace crown
 	#define SL_CHECK(function) function;
 #endif
 
-namespace audio_system
+namespace audio_globals
 {
 	static SLObjectItf s_sl_engine;
 	static SLEngineItf s_sl_engine_itf;
@@ -102,7 +103,7 @@ namespace audio_system
 		(*s_sl_output_mix)->Destroy(s_sl_output_mix);
 		(*s_sl_engine)->Destroy(s_sl_engine);
 	}
-} // namespace audio_system
+} // namespace audio_globals
 
 namespace sles_sound_world
 {
@@ -380,7 +381,7 @@ public:
 		SoundInstanceId id = id_array::create(m_playing_sounds, dummy);
 
 		SoundInstance& instance = id_array::get(m_playing_sounds, id);
-		instance.create(audio_system::s_sl_engine_itf, audio_system::s_sl_output_mix, id, sr);
+		instance.create(audio_globals::s_sl_engine_itf, audio_globals::s_sl_output_mix, id, sr);
 		instance.play(loop, volume);
 
 		return id;
