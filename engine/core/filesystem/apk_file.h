@@ -38,7 +38,7 @@ class ApkFile : public File
 public:
 
 	/// Opens the given @a filename.
-	ApkFile(const char* filename);
+	ApkFile(AAssetManager* asset_manager, const char* filename);
 	~ApkFile();
 
 	/// @copydoc File::seek()

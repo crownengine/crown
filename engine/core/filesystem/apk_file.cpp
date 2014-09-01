@@ -31,26 +31,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "apk_file.h"
 #include "assert.h"
 #include "macros.h"
-#include "log.h"
 #include <android/asset_manager.h>
 
 namespace crown
 {
 
-extern AAssetManager* g_android_asset_manager;
-
 //-----------------------------------------------------------------------------
-AAssetManager* get_android_asset_manager()
+ApkFile::ApkFile(AAssetManager* asset_manager, const char* path)
+	: File(FOM_READ)
+	, m_asset(NULL)
 {
-	return g_android_asset_manager;
-}
-
-//-----------------------------------------------------------------------------
-ApkFile::ApkFile(const char* path)
-	: File(FOM_READ), m_asset(NULL)
-{
-	m_asset = AAssetManager_open(get_android_asset_manager(), path, AASSET_MODE_RANDOM);
-	CE_ASSERT(m_asset != NULL, "Unable to open file: %s", path);
+	m_asset = AAssetManager_open(asset_manager, path, AASSET_MODE_RANDOM);
+	CE_ASSERT(m_asset != NULL, "AAssetManager_open: failed to open %s", path);
 }
 
 //-----------------------------------------------------------------------------
@@ -67,7 +59,7 @@ ApkFile::~ApkFile()
 void ApkFile::seek(size_t position)
 {
 	off_t seek_result = AAsset_seek(m_asset, (off_t)position, SEEK_SET);
-	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek");
+	CE_ASSERT(seek_result != (off_t) -1, "AAsset_seek: error");
 	CE_UNUSED(seek_result);
 }
 
@@ -75,7 +67,7 @@ void ApkFile::seek(size_t position)
 void ApkFile::seek_to_end()
 {
 	off_t seek_result = AAsset_seek(m_asset, 0, SEEK_END);
-	CE_ASSERT(seek_result != (off_t) -1, "Failed to seek to end");
+	CE_ASSERT(seek_result != (off_t) -1, "AAsset_seek: error");
 	CE_UNUSED(seek_result);
 }
 
@@ -83,7 +75,7 @@ void ApkFile::seek_to_end()
 void ApkFile::skip(size_t bytes)
 {
 	off_t seek_result = AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR);
-	CE_ASSERT(seek_result != (off_t) -1, "Failed to skip");
+	CE_ASSERT(seek_result != (off_t) -1, "AAsset_seek: error");
 	CE_UNUSED(seek_result);
 }
 
@@ -91,22 +83,21 @@ void ApkFile::skip(size_t bytes)
 void ApkFile::read(void* buffer, size_t size)
 {
 	CE_ASSERT_NOT_NULL(buffer);
-
 	size_t bytes_read = (size_t) AAsset_read(m_asset, buffer, size);
-	CE_ASSERT(bytes_read == size, "Failed to read from file: requested: %lu, read: %lu", size, bytes_read);
+	CE_ASSERT(bytes_read == size, "AAsset_read: requested: %lu, read: %lu", size, bytes_read);
 	CE_UNUSED(bytes_read);
 }
 
 //-----------------------------------------------------------------------------
 void ApkFile::write(const void* /*buffer*/, size_t /*size*/)
 {
-	CE_ASSERT(false, "Attempt to write to android assets folder!");
+	CE_ASSERT(false, "Apk files are read only!");
 }
 
 //-----------------------------------------------------------------------------
 bool ApkFile::copy_to(File& /*file*/, size_t /*size = 0*/)
 {
-	CE_ASSERT(false, "Not implemented yet :(");
+	CE_ASSERT(false, "Not implemented");
 	return false;
 }
 

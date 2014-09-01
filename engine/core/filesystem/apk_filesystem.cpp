@@ -28,20 +28,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #if CROWN_PLATFORM_ANDROID
 
-#include <sys/types.h>
-#include <android/asset_manager.h>
 #include "apk_filesystem.h"
 #include "temp_allocator.h"
 #include "apk_file.h"
 #include "os.h"
+#include <sys/types.h>
+#include <android/asset_manager.h>
 
 namespace crown
 {
 
-extern AAssetManager* get_android_asset_manager();
-
 //-----------------------------------------------------------------------------
-ApkFilesystem::ApkFilesystem()
+ApkFilesystem::ApkFilesystem(AAssetManager* asset_manager)
+	: _asset_manager(asset_manager)
 {
 }
 
@@ -50,8 +49,7 @@ File* ApkFilesystem::open(const char* path, FileOpenMode mode)
 {
 	CE_ASSERT_NOT_NULL(path);
 	CE_ASSERT(mode == FOM_READ, "Cannot open for writing in Android assets folder");
-
-	return CE_NEW(default_allocator(), ApkFile)(path);
+	return CE_NEW(default_allocator(), ApkFile)(_asset_manager, path);
 }
 
 //-----------------------------------------------------------------------------
@@ -108,7 +106,7 @@ void ApkFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 {
 	CE_ASSERT_NOT_NULL(path);
 
-	AAssetDir* root_dir = AAssetManager_openDir(get_android_asset_manager(), path);
+	AAssetDir* root_dir = AAssetManager_openDir(_asset_manager, path);
 	CE_ASSERT(root_dir != NULL, "Failed to open Android assets folder");
 
 	const char* filename = NULL;

@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "types.h"
 #include "assert.h"
 #include "config.h"
+#include "macros.h"
 #include "file.h" // FileOpenMode
 
 #if CROWN_PLATFORM_WINDOWS

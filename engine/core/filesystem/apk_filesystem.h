@@ -26,7 +26,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include "config.h"
+
+#if CROWN_PLATFORM_ANDROID
+
 #include "filesystem.h"
+#include <android/asset_manager.h>
 
 namespace crown
 {
@@ -37,7 +42,7 @@ class ApkFilesystem : public Filesystem
 {
 public:
 
-	ApkFilesystem();
+	ApkFilesystem(AAssetManager* asset_manager);
 
 	/// @copydoc Filesystem::open()
 	/// @note
@@ -76,6 +81,12 @@ public:
 	/// Assets folder has no concept of "absolute path", all paths are
 	/// relative to the assets folder itself, so, all paths are returned unchanged.
 	void get_absolute_path(const char* path, DynamicString& os_path);
+
+private:
+
+	AAssetManager* _asset_manager;
 };
 
 } // namespace crown
+
+#endif // CROWN_PLATFORM_ANDROID
