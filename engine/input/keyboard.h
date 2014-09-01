@@ -26,16 +26,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cstring>
 #include "types.h"
 #include "key_code.h"
-#include "assert.h"
+#include <cstring> // mem*
 
 namespace crown
 {
-
-/// @defgroup Input Input
-
 /// Enumerates modifier keys.
 ///
 /// @ingroup Input

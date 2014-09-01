@@ -25,22 +25,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "lua_stack.h"
-#include "device.h"
 #include "lua_environment.h"
+#include "input.h"
 #include "touch.h"
 
 namespace crown
 {
+using namespace input_globals;
 
 //-----------------------------------------------------------------------------
 static int touch_pointer_down(lua_State* L)
 {
 	LuaStack stack(L);
-
-	int32_t pointer = stack.get_int(1);
-
-	stack.push_bool(device()->touch()->pointer_down((uint8_t) pointer));
-
+	stack.push_bool(touch().pointer_down((uint8_t) stack.get_int(1)));
 	return 1;
 }
 
@@ -48,11 +45,7 @@ static int touch_pointer_down(lua_State* L)
 static int touch_pointer_up(lua_State* L)
 {
 	LuaStack stack(L);
-
-	int32_t pointer = stack.get_int(1);
-
-	stack.push_bool(device()->touch()->pointer_up((uint8_t) pointer));
-
+	stack.push_bool(touch().pointer_up((uint8_t) stack.get_int(1)));
 	return 1;
 }
 
@@ -60,9 +53,7 @@ static int touch_pointer_up(lua_State* L)
 static int touch_any_down(lua_State* L)
 {
 	LuaStack stack(L);
-
-	stack.push_bool(device()->touch()->any_down());
-
+	stack.push_bool(touch().any_down());
 	return 1;
 }
 
@@ -70,9 +61,7 @@ static int touch_any_down(lua_State* L)
 static int touch_any_up(lua_State* L)
 {
 	LuaStack stack(L);
-
-	stack.push_bool(device()->touch()->any_up());
-
+	stack.push_bool(touch().any_up());
 	return 1;
 }
 
@@ -80,11 +69,7 @@ static int touch_any_up(lua_State* L)
 static int touch_pointer_xy(lua_State* L)
 {
 	LuaStack stack(L);
-
-	int32_t pointer = stack.get_int(1);
-
-	stack.push_vector2(device()->touch()->pointer_xy((uint8_t) pointer));
-
+	stack.push_vector2(touch().pointer_xy((uint8_t) stack.get_int(1)));
 	return 1;
 }
 

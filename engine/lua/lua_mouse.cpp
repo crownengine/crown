@@ -25,23 +25,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "lua_stack.h"
-#include "device.h"
 #include "lua_environment.h"
+#include "input.h"
 #include "mouse.h"
-#include "log.h"
 
 namespace crown
 {
+using namespace input_globals;
 
 //-----------------------------------------------------------------------------
 static int mouse_button_pressed(lua_State* L)
 {
 	LuaStack stack(L);
-
-	int32_t button = stack.get_int(1);
-
-	stack.push_bool(device()->mouse()->button_pressed((MouseButton::Enum) button));
-
+	stack.push_bool(mouse().button_pressed((MouseButton::Enum) stack.get_int(1)));
 	return 1;
 }
 
@@ -49,11 +45,7 @@ static int mouse_button_pressed(lua_State* L)
 static int mouse_button_released(lua_State* L)
 {
 	LuaStack stack(L);
-
-	int32_t button = stack.get_int(1);
-
-	stack.push_bool(device()->mouse()->button_released((MouseButton::Enum) button));
-
+	stack.push_bool(mouse().button_released((MouseButton::Enum) stack.get_int(1)));
 	return 1;
 }
 
@@ -61,9 +53,7 @@ static int mouse_button_released(lua_State* L)
 static int mouse_any_pressed(lua_State* L)
 {
 	LuaStack stack(L);
-
-	stack.push_bool(device()->mouse()->any_pressed());
-
+	stack.push_bool(mouse().any_pressed());
 	return 1;
 }
 
@@ -71,9 +61,7 @@ static int mouse_any_pressed(lua_State* L)
 static int mouse_any_released(lua_State* L)
 {
 	LuaStack stack(L);
-
-	stack.push_bool(device()->mouse()->any_released());
-
+	stack.push_bool(mouse().any_released());
 	return 1;
 }
 
@@ -81,9 +69,7 @@ static int mouse_any_released(lua_State* L)
 static int mouse_cursor_xy(lua_State* L)
 {
 	LuaStack stack(L);
-
-	stack.push_vector2(device()->mouse()->cursor_xy());
-
+	stack.push_vector2(mouse().cursor_xy());
 	return 1;
 }
 
@@ -91,11 +77,7 @@ static int mouse_cursor_xy(lua_State* L)
 static int mouse_set_cursor_xy(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& xy = stack.get_vector2(1);
-
-	device()->mouse()->set_cursor_xy(xy);
-
+	mouse().set_cursor_xy(stack.get_vector2(1));
 	return 0;
 }
 
@@ -103,9 +85,7 @@ static int mouse_set_cursor_xy(lua_State* L)
 static int mouse_cursor_relative_xy(lua_State* L)
 {
 	LuaStack stack(L);
-
-	stack.push_vector2(device()->mouse()->cursor_relative_xy());
-
+	stack.push_vector2(mouse().cursor_relative_xy());
 	return 1;
 }
 
@@ -113,11 +93,7 @@ static int mouse_cursor_relative_xy(lua_State* L)
 static int mouse_set_cursor_relative_xy(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& xy = stack.get_vector2(1);
-
-	device()->mouse()->set_cursor_relative_xy(xy);
-
+	mouse().set_cursor_relative_xy(stack.get_vector2(1));
 	return 0;
 }
 

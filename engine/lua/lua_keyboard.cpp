@@ -25,22 +25,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "lua_stack.h"
-#include "device.h"
 #include "lua_environment.h"
+#include "input.h"
 #include "keyboard.h"
+
 
 namespace crown
 {
+using namespace input_globals;
 
 //-----------------------------------------------------------------------------
 static int keyboard_modifier_pressed(lua_State* L)
 {
 	LuaStack stack(L);
-
-	int32_t modifier = stack.get_int(1);
-
-	stack.push_bool(device()->keyboard()->modifier_pressed((ModifierButton::Enum) modifier));
-
+	stack.push_bool(keyboard().modifier_pressed((ModifierButton::Enum) stack.get_int(1)));
 	return 1;
 }
 
@@ -48,11 +46,7 @@ static int keyboard_modifier_pressed(lua_State* L)
 static int keyboard_button_pressed(lua_State* L)
 {
 	LuaStack stack(L);
-
-	int32_t button = stack.get_int(1);
-
-	stack.push_bool(device()->keyboard()->button_pressed((KeyboardButton::Enum) button));
-
+	stack.push_bool(keyboard().button_pressed((KeyboardButton::Enum) stack.get_int(1)));
 	return 1;
 }
 
@@ -60,11 +54,7 @@ static int keyboard_button_pressed(lua_State* L)
 static int keyboard_button_released(lua_State* L)
 {
 	LuaStack stack(L);
-
-	int32_t button = stack.get_int(1);
-
-	stack.push_bool(device()->keyboard()->button_released((KeyboardButton::Enum) button));
-
+	stack.push_bool(keyboard().button_released((KeyboardButton::Enum) stack.get_int(1)));
 	return 1;
 }
 
@@ -72,9 +62,7 @@ static int keyboard_button_released(lua_State* L)
 static int keyboard_any_pressed(lua_State* L)
 {
 	LuaStack stack(L);
-
-	stack.push_bool(device()->keyboard()->any_pressed());
-
+	stack.push_bool(keyboard().any_pressed());
 	return 1;
 }
 
@@ -82,9 +70,7 @@ static int keyboard_any_pressed(lua_State* L)
 static int keyboard_any_released(lua_State* L)
 {
 	LuaStack stack(L);
-
-	stack.push_bool(device()->keyboard()->any_released());
-
+	stack.push_bool(keyboard().any_released());
 	return 1;
 }
 
