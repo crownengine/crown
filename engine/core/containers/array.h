@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cstring>
 #include "assert.h"
+#include "macros.h"
 #include "container_types.h"
 #include "allocator.h"
 
