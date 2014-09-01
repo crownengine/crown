@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "config.h"
 #include "types.h"
 #include "assert.h"
+#include "macros.h"
 
 #if CROWN_PLATFORM_POSIX
 	#include <pthread.h>
