@@ -3,10 +3,10 @@ function init()
 	Window.set_title("Hello world!")
 end
 
-function frame(dt)
+function update(dt)
 	-- Stop the engine when the 'ESC' key is released
 	if Keyboard.button_released(Keyboard.ESCAPE) then
-		Device.stop()
+		Device.quit()
 	end
 end
 
