@@ -37,7 +37,7 @@ namespace crown
 /// @ingroup Input
 const uint32_t MAX_POINTER_IDS = 4;
 
-/// Interface for accessing mouse input device.
+/// Interface for accessing touch panel input device.
 ///
 /// @ingroup Input
 struct Touch
