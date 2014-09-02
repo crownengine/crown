@@ -55,19 +55,6 @@ struct GuiResource;
 
 /// @defgroup Graphics Graphics
 
-/// Global graphics-related functions
-///
-/// @ingroup Graphics
-namespace graphics_system
-{
-	/// Initializes the graphics system.
-	/// This is the place where to create and initialize per-application objects.
-	void init();
-
-	/// It should reverse the actions performed by graphics_system::init().
-	void shutdown();
-}; // namespace graphics_system
-
 /// Manages graphics objects in a World.
 ///
 /// @ingroup Graphics

@@ -37,25 +37,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "config.h"
 #include "gui.h"
 #include <bgfx.h>
-#include <bx/fpumath.h>
-
-#include "material_manager.h"
 
 namespace crown
 {
-
-namespace graphics_system
-{
-	void init()
-	{
-		bgfx::init();
-	}
-
-	void shutdown()
-	{
-		bgfx::shutdown();
-	}
-};
 
 //-----------------------------------------------------------------------------
 RenderWorld::RenderWorld()
