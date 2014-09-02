@@ -45,6 +45,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "debug_line.h"
 #include "color4.h"
 #include "int_setting.h"
+#include "physics.h"
 
 #include "PxPhysicsAPI.h"
 
@@ -81,7 +82,7 @@ namespace crown
 
 static IntSetting g_physics_debug("physics.debug", "Enable physics debug rendering.", 0, 0, 1);
 
-namespace physics_system
+namespace physics_globals
 {
 	using physx::PxFoundation;
 	using physx::PxPhysics;
@@ -233,7 +234,7 @@ namespace physics_system
 			line.clear();
 		}
 	#endif
-} // namespace physics_system
+} // namespace physics_globals
 
 //-----------------------------------------------------------------------------
 PhysicsWorld::PhysicsWorld(World& world)
@@ -256,10 +257,10 @@ PhysicsWorld::PhysicsWorld(World& world)
 	scene_limits.maxNbActors = CE_MAX_ACTORS;
 	CE_ASSERT(scene_limits.isValid(), "Scene limits is not valid");
 
-	PxSceneDesc scene_desc(physics_system::s_physics->getTolerancesScale());
+	PxSceneDesc scene_desc(physics_globals::s_physics->getTolerancesScale());
 	scene_desc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 	scene_desc.limits = scene_limits;
-	scene_desc.filterShader = physics_system::FilterShader;
+	scene_desc.filterShader = physics_globals::FilterShader;
 	scene_desc.simulationEventCallback = &m_callback;
 	scene_desc.flags = 	PxSceneFlag::eENABLE_ACTIVETRANSFORMS
 					  | PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS
@@ -274,7 +275,7 @@ PhysicsWorld::PhysicsWorld(World& world)
 	}
 
 	CE_ASSERT(scene_desc.isValid(), "Scene is not valid");
-	m_scene = physics_system::s_physics->createScene(scene_desc);
+	m_scene = physics_globals::s_physics->createScene(scene_desc);
 
 	// Create controller manager
 	m_controller_manager = PxCreateControllerManager(*m_scene);
@@ -319,7 +320,7 @@ void PhysicsWorld::destroy_actor(ActorId id)
 //-----------------------------------------------------------------------------
 ControllerId PhysicsWorld::create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node)
 {
-	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, sg, node, physics_system::s_physics, m_controller_manager);
+	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, sg, node, physics_globals::s_physics, m_controller_manager);
 	return id_array::create(m_controllers, controller);
 }
 
@@ -333,7 +334,7 @@ void PhysicsWorld::destroy_controller(ControllerId id)
 //-----------------------------------------------------------------------------
 JointId	PhysicsWorld::create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1)
 {
-	Joint* joint = CE_NEW(m_joints_pool, Joint)(physics_system::s_physics, pr, index, actor_0, actor_1);
+	Joint* joint = CE_NEW(m_joints_pool, Joint)(physics_globals::s_physics, pr, index, actor_0, actor_1);
 	return id_array::create(m_joints, joint);
 }
 
@@ -463,12 +464,12 @@ void PhysicsWorld::draw_debug()
 {
 	#if defined(CROWN_DEBUG)
 		if (g_physics_debug)
-			physics_system::draw_debug_lines(m_scene, *m_debug_line);
+			physics_globals::draw_debug_lines(m_scene, *m_debug_line);
 	#endif
 }
 
-PxPhysics* PhysicsWorld::physx_physics() { return physics_system::s_physics; }
-PxCooking* PhysicsWorld::physx_cooking() { return physics_system::s_cooking; }
+PxPhysics* PhysicsWorld::physx_physics() { return physics_globals::s_physics; }
+PxCooking* PhysicsWorld::physx_cooking() { return physics_globals::s_cooking; }
 PxScene* PhysicsWorld::physx_scene() { return m_scene; }
 
 } // namespace crown
