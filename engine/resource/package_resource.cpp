@@ -46,19 +46,33 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	JSONElement root = json.root();
 	BinaryWriter bw(*out_file);
 
-	const uint32_t num_textures  = root.key("texture").size();
-	const uint32_t num_scripts   = root.key("lua").size();
-	const uint32_t num_sounds    = root.key("sound").size();
-	const uint32_t num_meshes    = root.key("mesh").size();
-	const uint32_t num_units     = root.key("unit").size();
-	const uint32_t num_sprites   = root.key("sprite").size();
-	const uint32_t num_physics   = root.key("physics").size();
-	const uint32_t num_materials = root.key("material").size();
-	const uint32_t num_fonts     = root.key("font").size();
-	const uint32_t num_levels    = root.key("level").size();
-	const uint32_t num_phyconfs  = root.key("physics_config").size();
-	const uint32_t num_shaders   = root.key("shader").size();
-	const uint32_t num_sprite_animations = root.key("sprite_animation").size();
+	JSONElement texture  = root.key_or_nil("texture");
+	JSONElement script   = root.key_or_nil("lua");
+	JSONElement sound    = root.key_or_nil("sound");
+	JSONElement mesh     = root.key_or_nil("mesh");
+	JSONElement unit     = root.key_or_nil("unit");
+	JSONElement sprite   = root.key_or_nil("sprite");
+	JSONElement physics  = root.key_or_nil("physics");
+	JSONElement material = root.key_or_nil("material");
+	JSONElement font     = root.key_or_nil("font");
+	JSONElement level    = root.key_or_nil("level");
+	JSONElement phyconf  = root.key_or_nil("physics_config");
+	JSONElement shader   = root.key_or_nil("shader");
+	JSONElement sprite_animation = root.key_or_nil("sprite_animation");
+
+	const uint32_t num_textures  = texture.is_nil() ? 0 : texture.size();
+	const uint32_t num_scripts   = script.is_nil() ? 0 : script.size();
+	const uint32_t num_sounds    = sound.is_nil() ? 0 : sound.size();
+	const uint32_t num_meshes    = mesh.is_nil() ? 0 : mesh.size();
+	const uint32_t num_units     = unit.is_nil() ? 0 : unit.size();
+	const uint32_t num_sprites   = sprite.is_nil() ? 0 : sprite.size();
+	const uint32_t num_physics   = physics.is_nil() ? 0 : physics.size();
+	const uint32_t num_materials = material.is_nil() ? 0 : material.size();
+	const uint32_t num_fonts     = font.is_nil() ? 0 : font.size();
+	const uint32_t num_levels    = level.is_nil() ? 0 : level.size();
+	const uint32_t num_phyconfs  = phyconf.is_nil() ? 0 : phyconf.size();
+	const uint32_t num_shaders   = shader.is_nil() ? 0 : shader.size();
+	const uint32_t num_sprite_animations = sprite_animation.is_nil() ? 0 : sprite_animation.size();
 
 	// Write header
 	bw.write(num_textures);
@@ -115,43 +129,43 @@ void compile(Filesystem& fs, const char* resource_path, File* out_file)
 
 	// Write resource ids
 	for (uint32_t i = 0; i < num_textures; i++)
-		bw.write(root.key("texture")[i].to_resource_id("texture"));
+		bw.write(texture[i].to_resource_id("texture"));
 
 	for (uint32_t i = 0; i < num_scripts; i++)
-		bw.write(root.key("lua")[i].to_resource_id("lua"));
+		bw.write(script[i].to_resource_id("lua"));
 
 	for (uint32_t i = 0; i < num_sounds; i++)
-		bw.write(root.key("sound")[i].to_resource_id("sound"));
+		bw.write(sound[i].to_resource_id("sound"));
 
 	for (uint32_t i = 0; i < num_meshes; i++)
-		bw.write(root.key("mesh")[i].to_resource_id("mesh"));
+		bw.write(mesh[i].to_resource_id("mesh"));
 
 	for (uint32_t i = 0; i < num_units; i++)
-		bw.write(root.key("unit")[i].to_resource_id("unit"));
+		bw.write(unit[i].to_resource_id("unit"));
 
 	for (uint32_t i = 0; i < num_sprites; i++)
-		bw.write(root.key("sprite")[i].to_resource_id("sprite"));
+		bw.write(sprite[i].to_resource_id("sprite"));
 
 	for (uint32_t i = 0; i < num_physics; i++)
-		bw.write(root.key("physics")[i].to_resource_id("physics"));
+		bw.write(physics[i].to_resource_id("physics"));
 
 	for (uint32_t i = 0; i < num_materials; i++)
-		bw.write(root.key("material")[i].to_resource_id("material"));
+		bw.write(material[i].to_resource_id("material"));
 
 	for (uint32_t i = 0; i < num_fonts; i++)
-		bw.write(root.key("font")[i].to_resource_id("font"));
+		bw.write(font[i].to_resource_id("font"));
 
 	for (uint32_t i = 0; i < num_levels; i++)
-		bw.write(root.key("level")[i].to_resource_id("level"));
+		bw.write(level[i].to_resource_id("level"));
 
 	for (uint32_t i = 0; i < num_phyconfs; i++)
-		bw.write(root.key("physics_config")[i].to_resource_id("physics_config"));
+		bw.write(phyconf[i].to_resource_id("physics_config"));
 
 	for (uint32_t i = 0; i < num_shaders; i++)
-		bw.write(root.key("shader")[i].to_resource_id("shader"));
+		bw.write(shader[i].to_resource_id("shader"));
 
 	for (uint32_t i = 0; i < num_sprite_animations; i++)
-		bw.write(root.key("sprite_animation")[i].to_resource_id("sprite_animation"));
+		bw.write(sprite_animation[i].to_resource_id("sprite_animation"));
 }
 
 } // namespace package_resource
