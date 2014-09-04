@@ -37,22 +37,26 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-static int device_argv(lua_State* L)
+static int device_platform(lua_State* L)
 {
 	LuaStack stack(L);
+	stack.push_string(device()->platform());
+	return 1;
+}
 
-	const int32_t argc = device()->argc();
-	const char** argv = device()->argv();
+//-----------------------------------------------------------------------------
+static int device_architecture(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_string(device()->architecture());
+	return 1;
+}
 
-	stack.push_table();
-	for (int32_t i = 0; i < argc; i++)
-	{
-		// Be friendly to Lua's one-indexed arrays
-		stack.push_key_begin(i + 1);
-			stack.push_string(argv[i]);
-		stack.push_key_end();
-	}
-
+//-----------------------------------------------------------------------------
+static int device_version(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_string(device()->version());
 	return 1;
 }
 
@@ -69,19 +73,21 @@ static int device_last_delta_time(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-static int device_start(lua_State* /*L*/)
+static int device_quit(lua_State* /*L*/)
 {
-	device()->start();
-
+	device()->quit();
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
-static int device_stop(lua_State* /*L*/)
+static int device_resolution(lua_State* L)
 {
-	device()->stop();
-
-	return 0;
+	LuaStack stack(L);
+	uint16_t w, h;
+	device()->resolution(w, h);
+	stack.push_int32(w);
+	stack.push_int32(h);
+	return 2;
 }
 
 //-----------------------------------------------------------------------------
@@ -148,61 +154,20 @@ static int device_destroy_resource_package(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-static int device_display_modes(lua_State* L)
-{
-	LuaStack stack(L);
-
-	TempAllocator512 alloc;
-	Array<DisplayMode> modes(alloc);
-
-	device()->display_modes(modes);
-
-	stack.push_table();
-	for (uint32_t i = 0; i < array::size(modes); i++)
-	{
-		stack.push_key_begin((int32_t) i + 1);
-		stack.push_table();
-		stack.push_key_begin("id"); stack.push_uint32(modes[i].id); stack.push_key_end();
-		stack.push_key_begin("width"); stack.push_uint32(modes[i].width); stack.push_key_end();
-		stack.push_key_begin("height"); stack.push_uint32(modes[i].height); stack.push_key_end();
-		stack.push_key_end();
-	}
-
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-static int device_set_display_mode(lua_State* L)
-{
-	LuaStack stack(L);
-	device()->set_display_mode(stack.get_int(1));
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int device_set_fullscreen(lua_State* L)
-{
-	LuaStack stack(L);
-	device()->set_fullscreen(stack.get_bool(1));
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
 void load_device(LuaEnvironment& env)
 {
-	env.load_module_function("Device", "argv",                     device_argv);
+	env.load_module_function("Device", "platform",                 device_platform);
+	env.load_module_function("Device", "architecture",             device_architecture);
+	env.load_module_function("Device", "version",                  device_version);
 	env.load_module_function("Device", "last_delta_time",          device_last_delta_time);
-	env.load_module_function("Device", "start",                    device_start);
-	env.load_module_function("Device", "stop",                     device_stop);
+	env.load_module_function("Device", "quit",                     device_quit);
+	env.load_module_function("Device", "resolution",               device_resolution);
 	env.load_module_function("Device", "create_world",             device_create_world);
 	env.load_module_function("Device", "destroy_world",            device_destroy_world);
 	env.load_module_function("Device", "update_world",             device_update_world);
 	env.load_module_function("Device", "render_world",             device_render_world);
 	env.load_module_function("Device", "create_resource_package",  device_create_resource_package);
 	env.load_module_function("Device", "destroy_resource_package", device_destroy_resource_package);
-	env.load_module_function("Device", "display_modes",            device_display_modes);
-	env.load_module_function("Device", "set_display_mode",         device_set_display_mode);
-	env.load_module_function("Device", "set_fullscreen",           device_set_fullscreen);
 }
 
 } // namespace crown
