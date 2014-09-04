@@ -24,16 +24,13 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <stdarg.h>
 
-#include "lua_environment.h"
-#include "assert.h"
-#include "string_utils.h"
-#include "lua_stack.h"
-#include "device.h"
-#include "lua_resource.h"
-#include "resource_manager.h"
 #include "config.h"
+#include "assert.h"
+#include "lua_environment.h"
+#include "lua_stack.h"
+#include "lua_resource.h"
+#include <stdarg.h>
 
 namespace crown
 {
@@ -47,22 +44,11 @@ LuaEnvironment::LuaEnvironment(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
-void LuaEnvironment::load_and_execute(const char* res_name)
+void LuaEnvironment::execute(const LuaResource* lr)
 {
-	ResourceManager* resman = device()->resource_manager();
-
-	// Load the resource
-	const ResourceId res_id("lua", res_name);
-	resman->load(res_id);
-	resman->flush();
-	LuaResource* lr = (LuaResource*) resman->get(res_id);
-
 	lua_pushcfunction(m_L, lua_system::error_handler);
-	luaL_loadbuffer(m_L, (const char*) lr->program(), lr->size(), res_name);
+	luaL_loadbuffer(m_L, (const char*) lr->program(), lr->size(), "<unknown>");
 	lua_pcall(m_L, 0, 0, -2);
-
-	// Unloading is OK since the script data has been copied to Lua
-	resman->unload(res_id);
 }
 
 //-----------------------------------------------------------------------------

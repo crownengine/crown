@@ -26,13 +26,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "lua.hpp"
 #include "config.h"
 #include "types.h"
 #include "macros.h"
-
-// HACK
-#include "math_types.h"
+#include "math_types.h" // HACK
+#include "lua.hpp"
 
 namespace crown
 {
@@ -49,14 +47,11 @@ struct Unit;
 
 /// LuaEnvironment is a wrapper of a subset of Lua functions and
 /// provides utilities for extending Lua
-class LuaEnvironment
+struct LuaEnvironment
 {
-public:
-
 	LuaEnvironment(lua_State* L);
 
-	/// Loads and execute the given @a res_name Lua resource.
-	void load_and_execute(const char* res_name);
+	void execute(const LuaResource* lr);
 
 	/// Loads and executes the given @a s lua string.
 	void execute_string(const char* s);
@@ -82,13 +77,13 @@ public:
 
 private:
 
-	// Disable copying
-	LuaEnvironment(const LuaEnvironment&);
-	LuaEnvironment& operator=(const LuaEnvironment&);
+	lua_State* m_L;
 
 private:
 
-	lua_State* m_L;
+	// Disable copying
+	LuaEnvironment(const LuaEnvironment&);
+	LuaEnvironment& operator=(const LuaEnvironment&);
 };
 
 } // namespace crown
