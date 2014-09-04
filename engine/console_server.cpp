@@ -36,6 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "filesystem.h"
 #include "math_utils.h"
 #include "memory.h"
+#include "main.h"
 
 namespace crown
 {
@@ -305,6 +306,7 @@ void ConsoleServer::process_command(TCPSocket /*client*/, const char* msg)
 //-----------------------------------------------------------------------------
 void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
 {
+/*
 	using namespace string_stream;
 
 	JSONParser parser(msg);
@@ -319,9 +321,9 @@ void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
 		DynamicString file_name;
 		root.key("file").to_string(file_name);
 
-		File* file = device()->filesystem()->open(file_name.c_str(), FOM_READ);
+		File* file = crown::filesystem()->open(file_name.c_str(), FOM_READ);
 		size_t file_size = file->size();
-		device()->filesystem()->close(file);
+		crown::filesystem()->close(file);
 
 		TempAllocator64 alloc;
 		StringStream response(alloc);
@@ -338,11 +340,11 @@ void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
 		root.key("file").to_string(file_name);
 
 		// Read the file data
-		File* file = device()->filesystem()->open(file_name.c_str(), FOM_READ);
+		File* file = crown::filesystem()->open(file_name.c_str(), FOM_READ);
 		char* bytes = (char*) default_allocator().allocate((size_t) file_size.to_int());
 		file->seek((size_t) file_position.to_int());
 		file->read(bytes, (size_t) file_size.to_int());
-		device()->filesystem()->close(file);
+		crown::filesystem()->close(file);
 
 		// Encode data to base64
 		size_t dummy;
@@ -361,6 +363,26 @@ void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
 		default_allocator().deallocate(bytes_encoded);
 		default_allocator().deallocate(bytes);
 	}
+*/
 }
 
+namespace console_server_globals
+{
+	ConsoleServer* _console = NULL;
+
+	void init()
+	{
+		_console = CE_NEW(default_allocator(), ConsoleServer);
+	}
+
+	void shutdown()
+	{
+		CE_DELETE(default_allocator(), _console);
+	}
+
+	ConsoleServer& console()
+	{
+		return *_console;
+	}
+} // namespace console_server
 } // namespace crown

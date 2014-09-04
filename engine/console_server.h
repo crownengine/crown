@@ -30,7 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "container_types.h"
 #include "queue.h"
 #include "id_array.h"
-#include "config.h"
+#include <cstdarg>
 
 namespace crown
 {
@@ -96,4 +96,16 @@ private:
 	ClientArray m_clients;
 };
 
+/// Functions for accessing global console.
+namespace console_server_globals
+{
+	// Creates the global console server.
+	void init();
+
+	/// Destroys the global console server.
+	void shutdown();
+
+	/// Returns the global console server object.
+	ConsoleServer& console();
+} // namespace console_server_globals
 } // namespace crown
