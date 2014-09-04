@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #if CROWN_PLATFORM_WINDOWS
 
-#include "os_window.h"
+#include "os_window_windows.h"
 #include "string_utils.h"
 
 namespace crown
