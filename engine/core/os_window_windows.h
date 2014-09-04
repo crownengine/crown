@@ -45,9 +45,6 @@ public:
 	void show();
 	void hide();
 
-	void get_size(uint32_t& width, uint32_t& height);
-	void get_position(uint32_t& x, uint32_t& y);
-
 	void resize(uint32_t width, uint32_t height);
 	void move(uint32_t x, uint32_t y);
 
@@ -62,13 +59,8 @@ public:
 
 public:
 
-	char 			m_title[32];
-
-	uint32_t		m_x;
-	uint32_t		m_y;
-	uint32_t		m_width;
-	uint32_t		m_height;
-	bool			m_resizable;
+	char m_title[32];
+	bool m_resizable;
 };
 
 } // namespace crown

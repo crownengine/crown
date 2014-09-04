@@ -42,11 +42,7 @@ void oswindow_set_window(HWND handle_win)
 
 //-----------------------------------------------------------------------------
 OsWindow::OsWindow()
-	: m_x(0)
-	, m_y(0)
-	, m_width(0)
-	, m_height(0)
-	, m_resizable(true)
+	: m_resizable(true)
 {
 	set_title("");
 }
@@ -66,20 +62,6 @@ void OsWindow::show()
 void OsWindow::hide()
 {
 	ShowWindow(m_windows_window, SW_HIDE);
-}
-
-//-----------------------------------------------------------------------------
-void OsWindow::get_size(uint32_t& width, uint32_t& height)
-{
-	width = m_width;
-	height = m_height;
-}
-
-//-----------------------------------------------------------------------------
-void OsWindow::get_position(uint32_t& x, uint32_t& y)
-{
-	x = m_x;
-	y = m_y;
 }
 
 //-----------------------------------------------------------------------------
