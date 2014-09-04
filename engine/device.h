@@ -36,19 +36,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-struct Accelerometer;
 class Bundle;
-class BundleCompiler;
-class ConsoleServer;
 class Filesystem;
-struct Keyboard;
 class LuaEnvironment;
-struct Mouse;
-class OsWindow;
-class Renderer;
 class ResourceManager;
 struct ResourcePackage;
-struct Touch;
 class World;
 class WorldManager;
 struct Camera;
@@ -69,36 +61,27 @@ struct DisplayMode
 /// the engine subsystems and related stuff.
 ///
 /// @ingroup Device
-class Device
+struct Device
 {
-public:
-
-	Device();
-	~Device();
+	Device(Filesystem& fs, StringId64 boot_package, StringId64 boot_script);
 
 	void init();
 
 	/// Shutdowns the engine freeing all the allocated resources
 	void shutdown();
 
-	/// Returns the number of command line arguments passed to
-	/// the engine executable.
-	int32_t argc() const { return m_argc; }
+	/// Returns a string identifying what platform the engine is running on.
+	const char* platform() const { return CROWN_PLATFORM_NAME; }
 
-	/// Returns the string value of the command line arguments passed
-	/// to the engine executable.
-	/// The size of the returned array is given by Device::argc().
-	const char** argv() const { return (const char**) m_argv; }
+	/// Returns a string identifying what architecture the engine is running on.
+	const char* architecture() const { return CROWN_ARCH_NAME; }
 
-	/// Returns wheter the engine is running (i.e. it is actually
-	/// doing work).
+	/// Returns a string identifying the engine version.
+	const char* version() const { return CROWN_VERSION_MAJOR "." CROWN_VERSION_MINOR "." CROWN_VERSION_MICRO; }
+
+	/// Returns wheter the engine is running (i.e. it is advancing
+	/// the simulation).
 	bool is_running() const;
-
-	/// Returns whether the engine is correctly initialized
-	bool is_init() const;
-
-	/// Returns wheter the engine is paused
-	bool is_paused() const;
 
 	/// Return the number of frames rendered from the first
 	/// call to Device::start()
@@ -110,12 +93,8 @@ public:
 	/// Returns the time in seconds since the first call to start().
 	double time_since_start() const;
 
-	/// Forces the engine to actually start doing work.
-	void start();
-
-	/// Forces the engine to stop all the work it is doing
-	/// and normally terminates the program.
-	void stop();
+	/// Quits the application.
+	void quit();
 
 	/// Pauses the engine
 	void pause();
@@ -123,21 +102,20 @@ public:
 	/// Unpauses the engine
 	void unpause();
 
-	virtual int32_t run(int argc, char** argv) = 0;
+	void update_resolution(uint16_t width, uint16_t height)
+	{
+		_width = width;
+		_height = height;
+	}
 
-	/// Returns an array of video @a modes.
-	/// Each DisplayMode has an id that can be passed to set_video_mode().
-	virtual void display_modes(Array<DisplayMode>& modes) = 0;
-
-	/// Sets the video mode @a id.
-	/// @note See video_modes().
-	virtual void set_display_mode(uint32_t id) = 0;
-
-	/// Sets whether in fullscreen or not.
-	virtual void set_fullscreen(bool full) = 0;
+	void resolution(uint16_t& width, uint16_t& height)
+	{
+		width = _width;
+		height = _height;
+	}
 
 	/// Updates all the subsystems
-	void frame();
+	void update();
 
 	/// Updates the given @a world and renders it from the given @a camera.
 	void update_world(World* world, float dt);
@@ -150,6 +128,7 @@ public:
 
 	/// Returns the resource package with the given @a package_name name.
 	ResourcePackage* create_resource_package(const char* name);
+	ResourcePackage* create_resource_package(StringId64 id);
 
 	/// Destroy a previously created resource @a package.
 	/// @note
@@ -159,64 +138,37 @@ public:
 
 	void reload(const char* type, const char* name);
 
-	Filesystem* filesystem();
 	ResourceManager* resource_manager();
 	LuaEnvironment* lua_environment();
+	WorldManager* world_manager() { return _world_manager; }
 
-	OsWindow* window();
-	Renderer* renderer();
-
-	Keyboard* keyboard();
-	Mouse* mouse();
-	Touch* touch();
-	Accelerometer* accelerometer();
-	ConsoleServer* console() { return m_console; }
-	WorldManager* world_manager() { return m_world_manager; }
-
-protected:
+private:
 
 	// Used to allocate all subsystems
-	LinearAllocator m_allocator;
+	LinearAllocator _allocator;
 
-	int32_t m_argc;
-	char** m_argv;
+	uint16_t _width;
+	uint16_t _height;
 
-	// Preferred settings
-	char m_source_dir[MAX_PATH_LENGTH];
-	char m_bundle_dir[MAX_PATH_LENGTH];
-	char m_boot_file[MAX_PATH_LENGTH];
-	int32_t m_fileserver;
-	uint16_t m_console_port;
+	bool _is_init		: 1;
+	bool _is_running	: 1;
+	bool _is_paused		: 1;
 
-	bool m_is_init		: 1;
-	bool m_is_running	: 1;
-	bool m_is_paused	: 1;
+	uint64_t _frame_count;
+	int64_t _last_time;
+	int64_t _current_time;
+	float _last_delta_time;
+	double _time_since_start;
 
-	uint64_t m_frame_count;
+	Filesystem& _fs;
+	StringId64 _boot_package_id;
+	StringId64 _boot_script_id;
+	ResourcePackage* _boot_package;
 
-	int64_t m_last_time;
-	int64_t m_current_time;
-	float m_last_delta_time;
-	double m_time_since_start;
-
-	// Public subsystems
-	Filesystem* m_filesystem;
-
-	OsWindow* m_window;
-
-	Keyboard* m_keyboard;
-	Mouse* m_mouse;
-	Touch* m_touch;
-
-	LuaEnvironment* m_lua_environment;
-	Renderer* m_renderer;
-
-	// Private subsystems
-	BundleCompiler* m_bundle_compiler;
-	ConsoleServer* m_console;
-	ResourceManager* m_resource_manager;
-	Bundle* m_resource_bundle;
-	WorldManager* m_world_manager;
+	LuaEnvironment* _lua_environment;
+	ResourceManager* _resource_manager;
+	Bundle* _resource_bundle;
+	WorldManager* _world_manager;
 
 private:
 
@@ -225,8 +177,12 @@ private:
 	Device& operator=(const Device&);
 };
 
-Device* device();
+namespace device_globals
+{
+	void init(Filesystem& fs, StringId64 boot_package, StringId64 boot_script);
+	void shutdown();
+} // namespace device_globals
 
-void set_device(Device* device);
+Device* device();
 
 } // namespace crown
