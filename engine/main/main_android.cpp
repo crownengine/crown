@@ -28,13 +28,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #if CROWN_PLATFORM_ANDROID
 
-#include "allocator.h"
-#include "device.h"
-#include "log.h"
 #include "os_event_queue.h"
 #include "os_window_android.h"
 #include "thread.h"
-#include "touch.h"
+#include "main.h"
+#include "apk_filesystem.h"
+#include "crown.h"
 #include <jni.h>
 #include <android/sensor.h>
 #include <android_native_app_glue.h>
@@ -48,45 +47,52 @@ extern "C"
 namespace crown
 {
 
-ANativeWindow* g_android_window;
-AAssetManager* g_android_asset_manager;
+// //-----------------------------------------------------------------------------
+// void display_modes(Array<DisplayMode>& /*modes*/)
+// {
+// 	// Do nothing
+// }
 
-class AndroidDevice : public Device
+// //-----------------------------------------------------------------------------
+// void set_display_mode(uint32_t /*id*/)
+// {
+// 	// Do nothing
+// }
+
+// //-----------------------------------------------------------------------------
+// void set_fullscreen(bool /*full*/)
+// {
+// 	// Do nothing
+// }
+
+static bool s_exit = false;
+
+struct MainThreadArgs
 {
-public:
+	Filesystem* fs;
+	ConfigSettings* cs;
+};
 
-	//-----------------------------------------------------------------------------
-	AndroidDevice()
-	{
-		#if defined(CROWN_DEBUG)
-			m_fileserver = 1;
-		#endif
-	}
+int32_t func(void* data)
+{
+	MainThreadArgs* args = (MainThreadArgs*) data;
+	crown::init(*args->fs, *args->cs);
+	crown::update();
+	crown::shutdown();
+	s_exit = true;
+	return EXIT_SUCCESS;
+}
 
-	//-----------------------------------------------------------------------------
-	void display_modes(Array<DisplayMode>& /*modes*/)
+struct AndroidDevice
+{
+	void run(struct android_app* app, Filesystem& fs, ConfigSettings& cs)
 	{
-		// Do nothing
-	}
+		_margs.fs = &fs;
+		_margs.cs = &cs;
 
-	//-----------------------------------------------------------------------------
-	void set_display_mode(uint32_t /*id*/)
-	{
-		// Do nothing
-	}
-
-	//-----------------------------------------------------------------------------
-	void set_fullscreen(bool /*full*/)
-	{
-		// Do nothing
-	}
-
-	void run(struct android_app* app)
-	{
 		app->userData = this;
 		app->onAppCmd = crown::AndroidDevice::on_app_cmd;
 		app->onInputEvent = crown::AndroidDevice::on_input_event;
-		g_android_asset_manager = app->activity->assetManager;
 
 		while (app->destroyRequested == 0)
 		{
@@ -100,125 +106,7 @@ public:
 			}
 		}
 
-		m_game_thread.stop();
-	}
-
-	//-----------------------------------------------------------------------------
-	int32_t run(int, char**)
-	{
-		return 0;
-	}
-
-	//-----------------------------------------------------------------------------
-	int32_t loop()
-	{
-		#if defined(CROWN_DEBUG)
-			m_console = CE_NEW(default_allocator(), ConsoleServer)();
-			m_console->init(m_console_port, false);
-		#endif
-
-		Device::init();
-
-		// Push metrics here since Android does not trigger APP_CMD_WINDOW_RESIZED
-		const int32_t width = ANativeWindow_getWidth(g_android_window);
-		const int32_t height = ANativeWindow_getHeight(g_android_window);
-		m_queue.push_metrics_event(0, 0, width, height);
-
-		while (is_running() && !process_events())
-		{
-			#if defined(CROWN_DEBUG)
-				m_console->update();
-			#endif
-
-			Device::frame();
-			m_touch->update();
-			m_keyboard->update();
-		}
-
-		Device::shutdown();
-
-		#if defined(CROWN_DEBUG)
-			m_console->shutdown();
-			CE_DELETE(default_allocator(), m_console);
-		#endif
-
-		exit(EXIT_SUCCESS);
-		return 0;
-	}
-
-	//-----------------------------------------------------------------------------
-	static int32_t main_loop(void* thiz)
-	{
-		return ((AndroidDevice*) thiz)->loop();
-	}
-
-	//-----------------------------------------------------------------------------
-	bool process_events()
-	{
-		OsEvent event;
-
-		while (m_queue.pop_event(event))
-		{
-			if (event.type == OsEvent::NONE) continue;
-
-			switch (event.type)
-			{
-				case OsEvent::TOUCH:
-				{
-					const OsTouchEvent& ev = event.touch;
-					switch (ev.type)
-					{
-						case OsTouchEvent::POINTER: m_touch->set_pointer_state(ev.x, ev.y, ev.pointer_id, ev.pressed); break;
-						case OsTouchEvent::MOVE: m_touch->set_position(ev.pointer_id, ev.x, ev.y); break;
-						default: CE_FATAL("Oops, unknown touch event type"); break;
-					}
-
-					break;
-				}
-				case OsEvent::KEYBOARD:
-				{
-					const OsKeyboardEvent& ev = event.keyboard;
-					m_keyboard->set_button_state(ev.button, ev.pressed);
-					break;
-				}
-				case OsEvent::METRICS:
-				{
-					const OsMetricsEvent& ev = event.metrics;
-					m_window->m_x = ev.x;
-					m_window->m_y = ev.y;
-					m_window->m_width = ev.width;
-					m_window->m_height = ev.height;
-					break;
-				}
-				case OsEvent::EXIT:
-				{
-					return true;
-				}
-				case OsEvent::PAUSE:
-				{
-					pause();
-					break;
-				}
-				case OsEvent::RESUME:
-				{
-					unpause();
-					break;
-				}
-				default:
-				{
-					CE_FATAL("Unknown Os Event");
-					break;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	//-----------------------------------------------------------------------------
-	static void on_app_cmd(struct android_app* app, int32_t cmd)
-	{
-		((AndroidDevice*) app->userData)->process_command(app, cmd);
+		_main_thread.stop();
 	}
 
 	//-----------------------------------------------------------------------------
@@ -228,18 +116,17 @@ public:
 		{
 			case APP_CMD_SAVE_STATE:
 			{
-				// // The system has asked us to save our current state.  Do so.
-				// engine->app->savedState = malloc(sizeof(struct saved_state));
-				// *((struct saved_state*)engine->app->savedState) = engine->state;
-				// engine->app->savedStateSize = sizeof(struct saved_state);
 				break;
 			}
 			case APP_CMD_INIT_WINDOW:
 			{
 				CE_ASSERT(app->window != NULL, "Android window is NULL");
-				g_android_window = app->window;
 				bgfx::androidSetWindow(app->window);
-				m_game_thread.start(main_loop, (void*)this);
+				// Push metrics here since Android does not trigger APP_CMD_WINDOW_RESIZED
+				const int32_t width = ANativeWindow_getWidth(app->window);
+				const int32_t height = ANativeWindow_getHeight(app->window);
+				_queue.push_metrics_event(0, 0, width, height);
+				_main_thread.start(func, &_margs);
 				break;
 			}
 			case APP_CMD_TERM_WINDOW:
@@ -262,16 +149,10 @@ public:
 			}
 			case APP_CMD_DESTROY:
 			{
-				m_queue.push_exit_event(0);
+				_queue.push_exit_event(0);
 				break;
 			}
 		}
-	}
-
-	//-----------------------------------------------------------------------------
-	static int32_t on_input_event(struct android_app* app, AInputEvent* event)
-	{
-		return ((AndroidDevice*) app->userData)->process_input(app, event);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -294,19 +175,19 @@ public:
 				case AMOTION_EVENT_ACTION_DOWN:
 				case AMOTION_EVENT_ACTION_POINTER_DOWN:
 				{
-					m_queue.push_touch_event((uint16_t) x, (uint16_t) y, (uint8_t) pointerId, true);
+					_queue.push_touch_event((uint16_t) x, (uint16_t) y, (uint8_t) pointerId, true);
 					break;
 				}
 				case AMOTION_EVENT_ACTION_UP:
 				case AMOTION_EVENT_ACTION_POINTER_UP:
 				{
-					m_queue.push_touch_event((uint16_t) x, (uint16_t) y, (uint8_t) pointerId, false);
+					_queue.push_touch_event((uint16_t) x, (uint16_t) y, (uint8_t) pointerId, false);
 					break;
 				}
 				case AMOTION_EVENT_ACTION_OUTSIDE:
 				case AMOTION_EVENT_ACTION_CANCEL:
 				{
-					m_queue.push_touch_event((uint16_t) x, (uint16_t) y, (uint8_t) pointerId, false);
+					_queue.push_touch_event((uint16_t) x, (uint16_t) y, (uint8_t) pointerId, false);
 					break;
 				}
 				case AMOTION_EVENT_ACTION_MOVE:
@@ -316,7 +197,7 @@ public:
 						const float xx = AMotionEvent_getX(event, index);
 						const float yy = AMotionEvent_getY(event, index);
 						const int32_t id = AMotionEvent_getPointerId(event, index);
-						m_queue.push_touch_event((uint16_t) xx, (uint16_t) yy, (uint8_t) id);
+						_queue.push_touch_event((uint16_t) xx, (uint16_t) yy, (uint8_t) id);
 					}
 					break;
 				}
@@ -331,7 +212,7 @@ public:
 
 			if (keycode == AKEYCODE_BACK)
 			{
-				m_queue.push_keyboard_event(0, KeyboardButton::ESCAPE, keyaction == AKEY_EVENT_ACTION_DOWN ? true : false);
+				_queue.push_keyboard_event(0, KeyboardButton::ESCAPE, keyaction == AKEY_EVENT_ACTION_DOWN ? true : false);
 			}
 
 			return 1;
@@ -340,27 +221,53 @@ public:
 		return 0;
 	}
 
-private:
+	//-----------------------------------------------------------------------------
+	static int32_t on_input_event(struct android_app* app, AInputEvent* event)
+	{
+		return ((AndroidDevice*) app->userData)->process_input(app, event);
+	}
 
-	OsEventQueue m_queue;
-	Thread m_game_thread;
+	//-----------------------------------------------------------------------------
+	static void on_app_cmd(struct android_app* app, int32_t cmd)
+	{
+		((AndroidDevice*) app->userData)->process_command(app, cmd);
+	}
+
+public:
+
+	OsEventQueue _queue;
+	Thread _main_thread;
+	MainThreadArgs _margs;
 };
+
+static AndroidDevice s_advc;
+
+bool next_event(OsEvent& ev)
+{
+	return s_advc._queue.pop_event(ev);
+}
 
 } // namespace crown
 
 void android_main(struct android_app* app)
 {
+	using namespace crown;
+
 	// Make sure glue isn't stripped.
 	app_dummy();
 
-	crown::memory::init();
-	crown::AndroidDevice* engine = CE_NEW(crown::default_allocator(), crown::AndroidDevice)();
-	crown::set_device(engine);
+	memory_globals::init();
+	// DiskFilesystem src_fs(cls.source_dir);
+	ApkFilesystem src_fs(app->activity->assetManager);
+	ConfigSettings cs = parse_config_file(src_fs);
 
-	engine->run(app);
+	console_server_globals::init();
+	console_server_globals::console().init(cs.console_port, false);
 
-	CE_DELETE(crown::default_allocator(), engine);
-	crown::memory::shutdown();
+	crown::s_advc.run(app, src_fs, cs);
+
+	console_server_globals::shutdown();
+	memory_globals::shutdown();
 }
 
 #endif // CROWN_PLATFORM_ANDROID
