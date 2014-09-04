@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "lua_stack.h"
 #include "physics_world.h"
 #include "quaternion.h"
+#include "memory.h"
 
 namespace crown
 {

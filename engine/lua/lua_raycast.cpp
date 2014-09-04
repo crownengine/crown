@@ -27,6 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "lua_stack.h"
 #include "lua_environment.h"
 #include "raycast.h"
+#include "memory.h"
 #include "log.h"
 
 namespace crown
