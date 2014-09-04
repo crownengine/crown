@@ -38,15 +38,14 @@ namespace crown
 /// Collection of resources to load in a batch.
 struct ResourcePackage
 {
-public:
-
 	//-----------------------------------------------------------------------------
-	ResourcePackage(const char* name, ResourceManager& resman)
+	ResourcePackage(StringId64 id, ResourceManager& resman)
 		: m_resource_manager(&resman)
-		, m_id("package", name)
 		, m_package(NULL)
 		, m_has_loaded(false)
 	{
+		m_id.type = PACKAGE_TYPE;
+		m_id.name = id;
 		resman.load(m_id);
 		resman.flush();
 		m_package = (const PackageResource*) resman.get(m_id);
@@ -214,7 +213,7 @@ public:
 private:
 
 	ResourceManager* m_resource_manager;
-	const ResourceId m_id;
+	ResourceId m_id;
 	const PackageResource* m_package;
 	bool m_has_loaded;
 };
