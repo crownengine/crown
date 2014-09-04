@@ -28,25 +28,42 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #if CROWN_PLATFORM_WINDOWS
 
-#include <windowsx.h>
-
-#define WM_USER_SET_WINDOW_SIZE     (WM_USER+0)
-#define WM_USER_TOGGLE_WINDOW_FRAME (WM_USER+1)
-#define WM_USER_MOUSE_LOCK          (WM_USER+2)
-
-#include "device.h"
 #include "os_event_queue.h"
 #include "os_window_windows.h"
 #include "thread.h"
+#include "crown.h"
+#include "command_line.h"
+#include "keyboard.h"
+#include "console_server.h"
+#include "bundle_compiler.h"
+#include "disk_filesystem.h"
 #include <bgfxplatform.h>
-
-#define ENTRY_DEFAULT_WIDTH 1000
-#define ENTRY_DEFAULT_HEIGHT 625
+#include <winsock2.h>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windowsx.h>
 
 namespace crown
 {
 
-extern void set_win_handle_window(HWND hwnd);
+static bool s_exit = false;
+
+struct MainThreadArgs
+{
+	Filesystem* fs;
+	ConfigSettings* cs;
+};
+
+int32_t func(void* data)
+{
+	MainThreadArgs* args = (MainThreadArgs*)data;
+	crown::init(*args->fs, *args->cs);
+	crown::update();
+	crown::shutdown();
+	s_exit = true;
+	return EXIT_SUCCESS;
+}
 
 //-----------------------------------------------------------------------------
 static KeyboardButton::Enum win_translate_key(int32_t winKey)
@@ -105,8 +122,6 @@ static KeyboardButton::Enum win_translate_key(int32_t winKey)
 	}
 }
 
-static bool s_exit = false;
-
 struct WindowsDevice
 {
 	WindowsDevice()
@@ -115,10 +130,9 @@ struct WindowsDevice
 	}
 
 	//-----------------------------------------------------------------------------
-	int32_t	run(int argc, char** argv)
+	int32_t	run(Filesystem* fs, ConfigSettings* cs)
 	{
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
-
 		WNDCLASSEX wnd;
 		memset(&wnd, 0, sizeof(wnd));
 		wnd.cbSize = sizeof(wnd);
@@ -137,22 +151,22 @@ struct WindowsDevice
 					WS_OVERLAPPEDWINDOW|WS_VISIBLE,
 					0,
 					0,
-					ENTRY_DEFAULT_WIDTH,
-					ENTRY_DEFAULT_HEIGHT,
+					cs->window_width,
+					cs->window_height,
 					0,
 					NULL,
 					instance,
-					0
-				);
+					0);
 
-		oswindow_set_window(m_hwnd);
 		bgfx::winSetHwnd(m_hwnd);
 
-		m_argc = argc;
-		m_argv = argv;
+		// Start main thread
+		MainThreadArgs mta;
+		mta.fs = fs;
+		mta.cs = cs;
 
-		Thread thread;
-		thread.start(WindowsDevice::main_loop, this);
+		Thread main_thread;
+		main_thread.start(func, &mta);
 
 		MSG msg;
 		msg.message = WM_NULL;
@@ -166,12 +180,9 @@ struct WindowsDevice
 			}
 		}
 
-		thread.stop();
-
-		shutdown();
-
+		main_thread.stop();
 		DestroyWindow(m_hwnd);
-		return 0;
+		return EXIT_SUCCESS;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -179,18 +190,6 @@ struct WindowsDevice
 	{
 		switch (id)
 		{
-			case WM_USER_SET_WINDOW_SIZE:
-			{
-				uint32_t width = GET_X_LPARAM(lparam);
-				uint32_t height = GET_Y_LPARAM(lparam);
-				m_queue.push_metrics_event(m_x, m_y, m_width, m_height);
-				break;
-			}
-			case WM_USER_TOGGLE_WINDOW_FRAME:
-			{
-				m_queue.push_metrics_event(m_x, m_y, m_width, m_height);
-				break;
-			}
 			case WM_DESTROY:
 			{
 				break;
@@ -205,7 +204,7 @@ struct WindowsDevice
 			{
 				uint32_t width = GET_X_LPARAM(lparam);
 				uint32_t height = GET_Y_LPARAM(lparam);
-				m_queue.push_metrics_event(m_x, m_y, m_width, m_height);
+				m_queue.push_metrics_event(0, 0, width, height);
 				break;
 			}
 			case WM_SYSCOMMAND:
@@ -228,7 +227,7 @@ struct WindowsDevice
 			{
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
-				m_queue.push_mouse_event(m_x, m_y);
+				m_queue.push_mouse_event(mx, my);
 				break;
 			}
 			case WM_LBUTTONDOWN:
@@ -305,22 +304,49 @@ LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, L
 	return s_wdvc.pump_events(hwnd, id, wparam, lparam);
 }
 
+bool next_event(OsEvent& ev)
+{
+	return s_wdvc.m_queue.pop_event(ev);
+}
 } // namespace crown
 
 int main(int argc, char** argv)
 {
+	using namespace crown;
+
 	WSADATA WsaData;
-	int res = WSAStartup(MAKEWORD(2,2), &WsaData);
+	int res = WSAStartup(MAKEWORD(2, 2), &WsaData);
 	CE_ASSERT(res == 0, "Unable to initialize socket");
 	CE_UNUSED(WsaData);
 	CE_UNUSED(res);
 
-	crown::init();
-	int32_t ret = crown::s_wdvc.run(argc, argv);
-	crown::shutdown();
+	CommandLineSettings cls = parse_command_line(argc, argv);
 
+	memory_globals::init();
+	DiskFilesystem src_fs(cls.source_dir);
+	ConfigSettings cs = parse_config_file(src_fs);
+
+	console_server_globals::init();
+	console_server_globals::console().init(cs.console_port, cls.wait_console);
+
+	bundle_compiler_globals::init();
+
+	bool do_continue = true;
+	int exitcode = EXIT_SUCCESS;
+
+	do_continue = bundle_compiler::main(cls);
+
+	if (do_continue)
+	{
+		DiskFilesystem dst_fs(cls.bundle_dir);
+		exitcode = crown::s_wdvc.run(&dst_fs, &cs);
+	}
+
+	bundle_compiler_globals::shutdown();
+	console_server_globals::shutdown();
+	memory_globals::shutdown();
 	WSACleanup();
-	return ret;
+	return exitcode;
 }
 
 #endif // CROWN_PLATFORM_WINDOWS

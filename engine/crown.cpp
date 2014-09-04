@@ -40,6 +40,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "physics.h"
 #include "disk_filesystem.h"
 #include "config.h"
+#include "math_utils.h"
 #include <bgfx.h>
 
 namespace crown
@@ -145,13 +146,13 @@ ConfigSettings parse_config_file(Filesystem& fs)
 	JSONElement window_width = root.key_or_nil("window_width");
 	if (!window_width.is_nil())
 	{
-		cs.window_width = window_width.to_int();
+		cs.window_width = math::max((uint16_t)1, (uint16_t)window_width.to_int());
 	}
 
 	JSONElement window_height = root.key_or_nil("window_height");
 	if (!window_height.is_nil())
 	{
-		cs.window_height = window_height.to_int();
+		cs.window_height = math::max((uint16_t)1, (uint16_t)window_height.to_int());
 	}
 
 	cs.boot_script = root.key("boot_script").to_resource_id("lua").name;
