@@ -26,15 +26,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cstdio>
+#include "file.h" // FileOpenMode
 #include "types.h"
 #include "assert.h"
-#include "config.h"
 #include "macros.h"
-#include "file.h" // FileOpenMode
+#include "config.h"
 
-#if CROWN_PLATFORM_WINDOWS
+#if CROWN_PLATFORM_POSIX
+	#include <cstdio>
+#elif CROWN_PLATFORM_WINDOWS
 	#include "tchar.h"
+	#include "win_headers.h"
 #endif
 
 namespace crown
@@ -147,7 +149,7 @@ public:
 		return fwrite(data, 1, size, _file);
 #elif CROWN_PLATFORM_WINDOWS
 		DWORD bytes_written;
-		bool write = WriteFile(_file, data, size, &bytes_written, NULL);
+		WriteFile(_file, data, size, &bytes_written, NULL);
 		CE_ASSERT(size == bytes_written, "Cannot read from file\n");
 		return size;
 #endif
