@@ -115,6 +115,7 @@ solution "crown"
 	end
 
 	flags {
+		"StaticRuntime",
 		"NoMinimalRebuild",
 		"NoPCH",
 		"NoRTTI",
