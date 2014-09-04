@@ -244,7 +244,7 @@ solution "crown"
 			}
 
 			excludes {
-				CROWN_SOURCE_DIR .. "engine/audio/backend/sles_sound_world.cpp",
+				CROWN_SOURCE_DIR .. "engine/audio/sound_world_sles.cpp",
 			}
 			
 		configuration { "linux-*", "debug" }
@@ -435,7 +435,6 @@ solution "crown"
 
 			links {
 				":libluajit.a",
-				":libbgfxRelease.a",
 				"android",
 				"c",
 				"dl",
@@ -487,11 +486,15 @@ solution "crown"
 			}
 
 			excludes {
-				CROWN_SOURCE_DIR .. "engine/audio/backend/al_sound_world.cpp"
+				CROWN_SOURCE_DIR .. "engine/audio/sound_world_al.cpp"
 			}
 
 		configuration { "debug", "android" }
-			linkoptions { 
+			links {
+				":libbgfxDebug.a",
+			}
+
+			linkoptions {
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
 				"	PhysX3 " ..
@@ -510,6 +513,10 @@ solution "crown"
 				") -Wl,--end-group"
 			}
 		configuration { "development", "android"}
+			links {
+				":libbgfxDebug.a",
+			}
+
 			linkoptions { 
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
@@ -529,6 +536,10 @@ solution "crown"
 				") -Wl,--end-group"
 			}	
 		configuration { "release", "android"}
+			links {
+				":libbgfxRelease.a",
+			}
+
 			linkoptions { 
 				"-Wl,--start-group $(addprefix -l," ..
 				"	LowLevelCloth" ..
@@ -613,7 +624,7 @@ solution "crown"
 			}
 
 			excludes {
-				CROWN_SOURCE_DIR .. "engine/audio/backend/sles_sound_world.cpp"
+				CROWN_SOURCE_DIR .. "engine/audio/sound_world_sles.cpp"
 			}
 
 		configuration { "x32", "vs*" }

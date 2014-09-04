@@ -39,7 +39,9 @@ bgfx-vs2008-debug64:
 	make -R -C third/bgfx && make -R -C third/bgfx vs2008-debug64
 bgfx-vs2008-release64:
 	make -R -C third/bgfx && make -R -C third/bgfx vs2008-release64
-bgfx-android-arm:
+bgfx-android-arm-debug:
+	make -R -C third/bgfx android-arm-debug
+bgfx-android-arm-release:
 	make -R -C third/bgfx android-arm-release
 bgfx-clean:
 	make -R -C third/bgfx clean
@@ -52,7 +54,8 @@ deps-windows-debug32: luajit-windows32 bgfx-vs2008-debug32
 deps-windows-debug64: luajit-windows64 bgfx-vs2008-debug64
 deps-windows-release32: luajit-windows32 bgfx-vs2008-release32
 deps-windows-release64: luajit-windows64 bgfx-vs2008-release64
-deps-android-arm: luajit-arm bgfx-android-arm
+deps-android-arm-debug: luajit-arm bgfx-android-arm-debug
+deps-android-arm-release: luajit-arm bgfx-android-arm-release
 deps-clean: luajit-clean bgfx-clean
 
 linux-build:
@@ -71,14 +74,13 @@ linux-release64: deps-linux-release64 linux-build
 	make -R -C .build/linux config=release64
 linux: linux-debug32 linux-development32 linux-release32 linux-debug64 linux-development64 linux-release64
 
-
 android-build:
 	$(PREMAKE) --file=premake/premake4.lua --compiler=android gmake
-android-debug: deps-android-arm android-build
+android-debug: deps-android-arm-debug android-build
 	make -R -C .build/android config=debug
-android-development: deps-android-arm android-build
+android-development: deps-android-arm-debug android-build
 	make -R -C .build/android config=development
-android-release: deps-android-arm android-build
+android-release: deps-android-arm-release android-build
 	make -R -C .build/android config=release
 android: android-debug android-development android-release
 
