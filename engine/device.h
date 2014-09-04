@@ -38,7 +38,7 @@ namespace crown
 
 class Bundle;
 class Filesystem;
-class LuaEnvironment;
+struct LuaEnvironment;
 class ResourceManager;
 struct ResourcePackage;
 class World;
