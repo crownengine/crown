@@ -26,9 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "disk_filesystem.h"
-#include "dynamic_string.h"
+#include "filesystem.h"
 #include "vector.h"
+#include "crown.h"
 
 namespace crown
 {
@@ -42,11 +42,29 @@ public:
 	/// Compiles all the resources found in @a source_dir and puts them in @a bundle_dir.
 	/// If @a resource is not NULL, only that particular resource is compiled.
 	/// Returns true on success, false otherwise.
-	bool compile(const char* bundle_dir, const char* source_dir, const char* platform, const char* resource = NULL);
+	bool compile(const char* source_dir, const char* bundle_dir, const char* platform, const char* resource = NULL);
 
 private:
 
 	static void scan(const char* source_dir, const char* cur_dir, Vector<DynamicString>& files);
 };
 
+namespace bundle_compiler
+{
+	bool main(const CommandLineSettings& cls);
+} // namespace bundle_compiler
+
+namespace bundle_compiler_globals
+{
+	/// Creates the global resource compiler.
+	void init();
+
+	/// Destroys the global resource compiler.
+	void shutdown();
+
+	/// Returns the global resource compiler.
+	/// Returns NULL if the compiler is not available on the
+	/// running platform.
+	BundleCompiler* compiler();
+} // namespace bundle_compiler_globals
 } // namespace crown

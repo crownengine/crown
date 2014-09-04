@@ -24,6 +24,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "config.h"
 #include "bundle_compiler.h"
 #include "vector.h"
 #include "dynamic_string.h"
@@ -61,7 +62,7 @@ BundleCompiler::BundleCompiler()
 }
 
 //-----------------------------------------------------------------------------
-bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, const char* platform, const char* resource)
+bool BundleCompiler::compile(const char* source_dir, const char* bundle_dir, const char* platform, const char* resource)
 {
 	Vector<DynamicString> files(default_allocator());
 
@@ -72,10 +73,10 @@ bool BundleCompiler::compile(const char* bundle_dir, const char* source_dir, con
 		DiskFilesystem temp;
 		temp.create_directory(bundle_dir);
 
-		// Copy crown.config to bundle dir
 		DiskFilesystem src_fs(source_dir);
 		DiskFilesystem dst_fs(bundle_dir);
 
+		// Copy crown.config to bundle dir
 		if (src_fs.is_file("crown.config"))
 		{
 			File* src = src_fs.open("crown.config", FOM_READ);
@@ -233,4 +234,42 @@ void BundleCompiler::scan(const char* source_dir, const char* cur_dir, Vector<Dy
 	}
 }
 
+namespace bundle_compiler
+{
+	bool main(const CommandLineSettings& cls)
+	{
+		if (cls.do_compile)
+		{
+			bool ok = bundle_compiler_globals::compiler()->compile(cls.source_dir, cls.bundle_dir, cls.platform);
+			if (!ok || !cls.do_continue)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+} // namespace bundle_compiler
+
+namespace bundle_compiler_globals
+{
+	BundleCompiler* _compiler = NULL;
+
+	void init()
+	{
+#if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
+		_compiler = CE_NEW(default_allocator(), BundleCompiler);
+#endif
+	}
+
+	void shutdown()
+	{
+		CE_DELETE(default_allocator(), _compiler);
+	}
+
+	BundleCompiler* compiler()
+	{
+		return _compiler;
+	}
+} // namespace bundle_compiler_globals
 } // namespace crown
