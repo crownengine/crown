@@ -24,14 +24,25 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "error.h"
+#include "stacktrace.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 namespace crown
 {
 namespace error
 {
-	/// Aborts the program execution logging an error message and the stacktrace if
-	/// the platform supports it.
-	void abort(const char* file, int line, const char* message, ...);
+	void abort(const char* file, int line, const char* message, ...)
+	{
+		va_list ap;
+		va_start(ap, message);
+		vprintf(message, ap);
+		va_end(ap);
+		printf("\tIn: %s:%d\n", file, line);
+		stacktrace();
+		exit(EXIT_FAILURE);
+	}
 } // namespace error
 } // namespace crown
