@@ -117,9 +117,6 @@ struct Device
 	/// Updates all the subsystems
 	void update();
 
-	/// Updates the given @a world and renders it from the given @a camera.
-	void update_world(World* world, float dt);
-
 	/// Renders the given @a world from the point of view of the given @æ camera.
 	void render_world(World* world, Camera* camera);
 

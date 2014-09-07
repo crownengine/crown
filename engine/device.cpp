@@ -217,12 +217,6 @@ void Device::update()
 }
 
 //-----------------------------------------------------------------------------
-void Device::update_world(World* world, float dt)
-{
-	world->update(dt);
-}
-
-//-----------------------------------------------------------------------------
 void Device::render_world(World* world, Camera* camera)
 {
 	world->render(camera);

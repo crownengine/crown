@@ -164,9 +164,15 @@ Camera* World::get_camera(CameraId id)
 }
 
 //-----------------------------------------------------------------------------
-void World::update(float dt)
+void World::update_animations(float dt)
 {
 	m_sprite_animation_player.update(dt);
+}
+
+//-----------------------------------------------------------------------------
+void World::update(float dt)
+{
+	update_animations(dt);
 
 	m_physics_world.update(dt);
 

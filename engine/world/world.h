@@ -91,6 +91,9 @@ public:
 	/// Returns the camera @a id.
 	Camera* get_camera(CameraId id);
 
+	/// Update all animations with @a dt.
+	void update_animations(float dt);
+
 	/// Updates all units and sub-systems with the given @a dt delta time.
 	void update(float dt);
 
