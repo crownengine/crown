@@ -81,7 +81,7 @@ void stacktrace()
 			GetCurrentProcess(),
 			GetCurrentThread(),
 			&stack,
-			mtype == IMAGE_FILE_MACHINE_I386 ? NULL : &ctx,
+			&ctx,
 			NULL,
 			SymFunctionTableAccess64,
 			SymGetModuleBase64,
