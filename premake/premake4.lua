@@ -591,7 +591,8 @@ solution "crown"
 			links {
 				"OpenGL32",
 				"lua51",
-				"OpenAL32"
+				"OpenAL32",
+				"dbghelp"
 			}
 
 			includedirs {
