@@ -5,6 +5,12 @@ Lightweight and flexible cross-platform game engine.
 
 It is a general purpose data-driven game engine, written from scratch with a minimalistic and data-oriented design philosophy in mind.
 
+##Screenshots
+
+TCP/IP console with autocomplete and color-coded output highlighting.
+
+![console](https://raw.githubusercontent.com/taylor001/crown/master/shots/console.png)
+
 ##Dependencies
 
 Download PhysX 3.3.x from:  
