@@ -66,14 +66,9 @@ int32_t func(void* data)
 }
 
 //-----------------------------------------------------------------------------
-static KeyboardButton::Enum win_translate_key(int32_t winKey)
+static KeyboardButton::Enum win_translate_key(int32_t winkey)
 {
-	if ((winKey > 0x40 && winKey < 0x5B) || (winKey > 0x60 && winKey < 0x7B) || (winKey > 0x2F && winKey < 0x3A))
-	{
-		return (KeyboardButton::Enum)winKey;
-	}
-
-	switch (winKey)
+	switch (winkey)
 	{
 		case VK_BACK:		return KeyboardButton::BACKSPACE;
 		case VK_TAB:		return KeyboardButton::TAB;
@@ -118,6 +113,42 @@ static KeyboardButton::Enum win_translate_key(int32_t winKey)
 		case VK_NUMPAD7:	return KeyboardButton::KP_7;
 		case VK_NUMPAD8:	return KeyboardButton::KP_8;
 		case VK_NUMPAD9:	return KeyboardButton::KP_9;
+		case '0':			return KeyboardButton::NUM_0;
+		case '1':			return KeyboardButton::NUM_1;
+		case '2':			return KeyboardButton::NUM_2;
+		case '3':			return KeyboardButton::NUM_3;
+		case '4':			return KeyboardButton::NUM_4;
+		case '5':			return KeyboardButton::NUM_5;
+		case '6':			return KeyboardButton::NUM_6;
+		case '7':			return KeyboardButton::NUM_7;
+		case '8':			return KeyboardButton::NUM_8;
+		case '9':			return KeyboardButton::NUM_9;
+		case 'A':			return KeyboardButton::A;
+		case 'B':			return KeyboardButton::B;
+		case 'C':			return KeyboardButton::C;
+		case 'D':			return KeyboardButton::D;
+		case 'E':			return KeyboardButton::E;
+		case 'F':			return KeyboardButton::F;
+		case 'G':			return KeyboardButton::G;
+		case 'H':			return KeyboardButton::H;
+		case 'I':			return KeyboardButton::I;
+		case 'J':			return KeyboardButton::J;
+		case 'K':			return KeyboardButton::K;
+		case 'L':			return KeyboardButton::L;
+		case 'M':			return KeyboardButton::M;
+		case 'N':			return KeyboardButton::N;
+		case 'O':			return KeyboardButton::O;
+		case 'P':			return KeyboardButton::P;
+		case 'Q':			return KeyboardButton::Q;
+		case 'R':			return KeyboardButton::R;
+		case 'S':			return KeyboardButton::S;
+		case 'T':			return KeyboardButton::T;
+		case 'U':			return KeyboardButton::U;
+		case 'V':			return KeyboardButton::V;
+		case 'W':			return KeyboardButton::W;
+		case 'X':			return KeyboardButton::X;
+		case 'Y':			return KeyboardButton::Y;
+		case 'Z':			return KeyboardButton::Z;
 		default:			return KeyboardButton::NONE;
 	}
 }
