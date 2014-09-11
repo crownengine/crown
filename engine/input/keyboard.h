@@ -32,18 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-/// Enumerates modifier keys.
-///
-/// @ingroup Input
-struct ModifierButton
-{
-	enum Enum
-	{
-		SHIFT	= 1,
-		CTRL	= 2,
-		ALT		= 4
-	};
-};
 
 /// Interface for accessing keyboard input device.
 ///

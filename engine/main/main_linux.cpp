@@ -101,11 +101,6 @@ namespace crown
 //-----------------------------------------------------------------------------
 static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 {
-	if ((x11_key > 0x40 && x11_key < 0x5B) || (x11_key > 0x60 && x11_key < 0x7B) || (x11_key > 0x2F && x11_key < 0x3A))
-	{
-		return (KeyboardButton::Enum) x11_key;
-	}
-
 	switch (x11_key)
 	{
 		case XK_BackSpace:	return KeyboardButton::BACKSPACE;
@@ -151,6 +146,42 @@ static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 		case XK_KP_7:		return KeyboardButton::KP_7;
 		case XK_KP_8:		return KeyboardButton::KP_8;
 		case XK_KP_9:		return KeyboardButton::KP_9;
+		case '0':			return KeyboardButton::NUM_0;
+		case '1':			return KeyboardButton::NUM_1;
+		case '2':			return KeyboardButton::NUM_2;
+		case '3':			return KeyboardButton::NUM_3;
+		case '4':			return KeyboardButton::NUM_4;
+		case '5':			return KeyboardButton::NUM_5;
+		case '6':			return KeyboardButton::NUM_6;
+		case '7':			return KeyboardButton::NUM_7;
+		case '8':			return KeyboardButton::NUM_8;
+		case '9':			return KeyboardButton::NUM_9;
+		case 'a':			return KeyboardButton::A;
+		case 'b':			return KeyboardButton::B;
+		case 'c':			return KeyboardButton::C;
+		case 'd':			return KeyboardButton::D;
+		case 'e':			return KeyboardButton::E;
+		case 'f':			return KeyboardButton::F;
+		case 'g':			return KeyboardButton::G;
+		case 'h':			return KeyboardButton::H;
+		case 'i':			return KeyboardButton::I;
+		case 'j':			return KeyboardButton::J;
+		case 'k':			return KeyboardButton::K;
+		case 'l':			return KeyboardButton::L;
+		case 'm':			return KeyboardButton::M;
+		case 'n':			return KeyboardButton::N;
+		case 'o':			return KeyboardButton::O;
+		case 'p':			return KeyboardButton::P;
+		case 'q':			return KeyboardButton::Q;
+		case 'r':			return KeyboardButton::R;
+		case 's':			return KeyboardButton::S;
+		case 't':			return KeyboardButton::T;
+		case 'u':			return KeyboardButton::U;
+		case 'v':			return KeyboardButton::V;
+		case 'w':			return KeyboardButton::W;
+		case 'x':			return KeyboardButton::X;
+		case 'y':			return KeyboardButton::Y;
+		case 'z':			return KeyboardButton::Z;
 		default:			return KeyboardButton::NONE;
 	}
 }
@@ -345,12 +376,8 @@ struct LinuxDevice
 				case KeyPress:
 				case KeyRelease:
 				{
-					char string[4] = {0, 0, 0, 0};
-					KeySym key;
-
-					XLookupString(&event.xkey, string, 4, &key, NULL);
-
-					KeyboardButton::Enum kb = x11_translate_key(key);
+					KeySym keysym = XLookupKeysym(&event.xkey, 0);
+					KeyboardButton::Enum kb = x11_translate_key(keysym);
 
 					// Check if any modifier key is pressed or released
 					int32_t modifier_mask = 0;

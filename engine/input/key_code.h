@@ -29,7 +29,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-/// Uniquely identifies a button on the keyboard.
+/// Enumerates keyboard modifier buttons.
+///
+/// @ingroup Input
+struct ModifierButton
+{
+	enum Enum
+	{
+		SHIFT	= 1,
+		CTRL	= 2,
+		ALT		= 4
+	};
+};
+
+/// Enumerates keyboard buttons.
 ///
 /// @ingroup Input
 struct KeyboardButton
@@ -131,32 +144,6 @@ struct KeyboardButton
 		Z			= 0x5A,
 
 		/* [0x61, 0x7A] reserved for ASCII alphabet */
-		a			= 0x61,
-		b			= 0x62,
-		c			= 0x63,
-		d			= 0x64,
-		e			= 0x65,
-		f			= 0x66,
-		g			= 0x67,
-		h			= 0x68,
-		i			= 0x69,
-		j			= 0x6A,
-		k			= 0x6B,
-		l			= 0x6C,
-		m			= 0x6D,
-		n			= 0x6E,
-		o			= 0x6F,
-		p			= 0x70,
-		q			= 0x71,
-		r			= 0x72,
-		s			= 0x73,
-		t			= 0x74,
-		u			= 0x75,
-		v			= 0x76,
-		w			= 0x77,
-		x			= 0x78,
-		y			= 0x79,
-		z			= 0x7A,
 
 		// The last key _must_ be <= 0xFF
 		COUNT		= 0xFF

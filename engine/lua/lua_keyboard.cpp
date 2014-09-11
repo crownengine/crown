@@ -174,34 +174,6 @@ void load_keyboard(LuaEnvironment& env)
 	env.load_module_enum("Keyboard", "X",			KeyboardButton::X);
 	env.load_module_enum("Keyboard", "Y",			KeyboardButton::Y);
 	env.load_module_enum("Keyboard", "Z",			KeyboardButton::Z);
-
-	/* [0x61, 0x7A] reserved for ASCII alphabet */
-	env.load_module_enum("Keyboard", "a",			KeyboardButton::a);
-	env.load_module_enum("Keyboard", "b",			KeyboardButton::b);
-	env.load_module_enum("Keyboard", "c",			KeyboardButton::c);
-	env.load_module_enum("Keyboard", "d",			KeyboardButton::d);
-	env.load_module_enum("Keyboard", "e",			KeyboardButton::e);
-	env.load_module_enum("Keyboard", "f",			KeyboardButton::f);
-	env.load_module_enum("Keyboard", "g",			KeyboardButton::g);
-	env.load_module_enum("Keyboard", "h",			KeyboardButton::h);
-	env.load_module_enum("Keyboard", "i",			KeyboardButton::i);
-	env.load_module_enum("Keyboard", "j",			KeyboardButton::j);
-	env.load_module_enum("Keyboard", "k",			KeyboardButton::k);
-	env.load_module_enum("Keyboard", "l",			KeyboardButton::l);
-	env.load_module_enum("Keyboard", "m",			KeyboardButton::m);
-	env.load_module_enum("Keyboard", "n",			KeyboardButton::n);
-	env.load_module_enum("Keyboard", "o",			KeyboardButton::o);
-	env.load_module_enum("Keyboard", "p",			KeyboardButton::p);
-	env.load_module_enum("Keyboard", "q",			KeyboardButton::q);
-	env.load_module_enum("Keyboard", "r",			KeyboardButton::r);
-	env.load_module_enum("Keyboard", "s",			KeyboardButton::s);
-	env.load_module_enum("Keyboard", "t",			KeyboardButton::t);
-	env.load_module_enum("Keyboard", "u",			KeyboardButton::u);
-	env.load_module_enum("Keyboard", "v",			KeyboardButton::v);
-	env.load_module_enum("Keyboard", "w",			KeyboardButton::w);
-	env.load_module_enum("Keyboard", "x",			KeyboardButton::x);
-	env.load_module_enum("Keyboard", "y",			KeyboardButton::y);
-	env.load_module_enum("Keyboard", "z",			KeyboardButton::z);
 }
 
 } // namespace crown
