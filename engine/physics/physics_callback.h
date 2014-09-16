@@ -92,8 +92,8 @@ public:
 			const PxContactPair& cp = pairs[pp];
 
 			// We are only interested in touch found or lost
-			if (!cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND ||
-				!cp.events & PxPairFlag::eNOTIFY_TOUCH_LOST) continue;
+			if ((cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND) == (PxPairFlag::Enum)0 &&
+				(cp.events & PxPairFlag::eNOTIFY_TOUCH_LOST) == (PxPairFlag::Enum)0) continue;
 
 			// Skip if either shape0 or shape1 or both have been deleted
 			if (cp.flags & PxContactPairFlag::eDELETED_SHAPE_0 ||
@@ -110,15 +110,13 @@ public:
 				normal = points[i].normal;
 			}
 
-			physics_world::CollisionEvent ev;
-			ev.type = (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND) ?
-						physics_world::CollisionEvent::BEGIN_TOUCH :
-						physics_world::CollisionEvent::END_TOUCH;
-			ev.actors[0] = (Actor*) pair_header.actors[0]->userData;
-			ev.actors[1] = (Actor*) pair_header.actors[1]->userData;
-			ev.where = Vector3(where.x, where.y, where.z);
-			ev.normal = Vector3(normal.x, normal.y, normal.z);
-			event_stream::write(m_events, physics_world::EventType::COLLISION, ev);
+			post_collision_event((Actor*) pair_header.actors[0]->userData,
+				(Actor*) pair_header.actors[1]->userData,
+				Vector3(where.x, where.y, where.z),
+				Vector3(normal.x, normal.y, normal.z),
+				(cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND) ?
+					physics_world::CollisionEvent::Type::BEGIN_TOUCH :
+					physics_world::CollisionEvent::Type::END_TOUCH);
 		}
 	}
 
@@ -133,13 +131,10 @@ public:
 			if (tp.flags & PxTriggerPairFlag::eDELETED_SHAPE_TRIGGER ||
 				tp.flags & PxTriggerPairFlag::eDELETED_SHAPE_OTHER) continue;
 
-			physics_world::TriggerEvent ev;
-			ev.type = (tp.status & PxPairFlag::eNOTIFY_TOUCH_FOUND ?
-						physics_world::TriggerEvent::BEGIN_TOUCH : physics_world::TriggerEvent::END_TOUCH);
-			ev.trigger = (Actor*) tp.triggerActor->userData;
-			ev.other = (Actor*) tp.otherActor->userData;
-
-			event_stream::write(m_events, physics_world::EventType::TRIGGER, ev);
+			post_trigger_event((Actor*)tp.triggerActor->userData,
+				(Actor*)tp.otherActor->userData,
+				(tp.status & PxPairFlag::eNOTIFY_TOUCH_FOUND ?
+				physics_world::TriggerEvent::BEGIN_TOUCH : physics_world::TriggerEvent::END_TOUCH));
 		}
 	}
 
@@ -151,6 +146,28 @@ public:
 	//-----------------------------------------------------------------------------
 	void onSleep(PxActor** /*actors*/, PxU32 /*count*/)
 	{
+	}
+
+private:
+
+	void post_collision_event(Actor* actor0, Actor* actor1, const Vector3& where, const Vector3& normal, physics_world::CollisionEvent::Type type)
+	{
+		physics_world::CollisionEvent ev;
+		ev.type = type;
+		ev.actors[0] = actor0;
+		ev.actors[1] = actor1;
+		ev.where = where;
+		ev.normal = normal;
+		event_stream::write(m_events, physics_world::EventType::COLLISION, ev);
+	}
+
+	void post_trigger_event(Actor* trigger, Actor* other, physics_world::TriggerEvent::Type type)
+	{
+		physics_world::TriggerEvent ev;
+		ev.type = type;
+		ev.trigger = trigger;
+		ev.other = other;
+		event_stream::write(m_events, physics_world::EventType::TRIGGER, ev);
 	}
 
 private:
