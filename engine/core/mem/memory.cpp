@@ -133,7 +133,7 @@ namespace memory
 		// Holds the number of bytes of an allocation
 		struct Header
 		{
-			uint32_t	size;
+			uint32_t size;
 		};
 
 		//-----------------------------------------------------------------------------
