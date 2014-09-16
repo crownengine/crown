@@ -159,6 +159,9 @@ public:
 
 private:
 
+	void post_unit_spawned_event(UnitId id);
+	void post_unit_destroyed_event(UnitId id);
+	void post_level_loaded_event();
 	void process_physics_events();
 
 private:

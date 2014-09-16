@@ -39,21 +39,27 @@ struct EventType
 {
 	enum Enum
 	{
-		SPAWN,
-		DESTROY
+		UNIT_SPAWNED,
+		UNIT_DESTROYED,
+
+		LEVEL_LOADED
 	};
 };
 
-struct SpawnUnitEvent
+struct UnitSpawnedEvent
 {
-	/// The unit being spawned
+	/// The unit spawned
 	UnitId unit;
 };
 
-struct DestroyUnitEvent
+struct UnitDestroyedEvent
 {
-	/// The unit being unspawned
+	/// The unit destroyed
 	UnitId unit;
+};
+
+struct LevelLoadedEvent
+{
 };
 
 } // namespace crown

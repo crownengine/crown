@@ -94,10 +94,7 @@ UnitId World::spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& p
 	const UnitId unit_id = id_array::create(m_units, u);
 	new (u) Unit(*this, unit_id, id, ur, Matrix4x4(rot, pos));
 
-	// SpawnUnitEvent ev;
-	// ev.unit = unit_id;
-	// event_stream::write(m_events, EventType::SPAWN, ev);
-
+	post_unit_spawned_event(unit_id);
 	return unit_id;
 }
 
@@ -106,10 +103,7 @@ void World::destroy_unit(UnitId id)
 {
 	CE_DELETE(m_unit_pool, id_array::get(m_units, id));
 	id_array::destroy(m_units, id);
-
-	// DestroyUnitEvent ev;
-	// ev.unit = id;
-	// event_stream::write(m_events, EventType::DESTROY, ev);
+	post_unit_destroyed_event(id);
 }
 
 //-----------------------------------------------------------------------------
@@ -313,6 +307,8 @@ void World::load_level(const char* name)
 		const LevelSound* ls = res->get_sound(i);
 		play_sound(ls->name, ls->loop, ls->volume, ls->position, ls->range);
 	}
+
+	post_level_loaded_event();
 }
 
 //-----------------------------------------------------------------------------
@@ -342,6 +338,29 @@ PhysicsWorld* World::physics_world()
 SoundWorld* World::sound_world()
 {
 	return m_sound_world;
+}
+
+//-----------------------------------------------------------------------------
+void World::post_unit_spawned_event(UnitId id)
+{
+	UnitSpawnedEvent ev;
+	ev.unit = id;
+	event_stream::write(m_events, EventType::UNIT_SPAWNED, ev);
+}
+
+//-----------------------------------------------------------------------------
+void World::post_unit_destroyed_event(UnitId id)
+{
+	UnitDestroyedEvent ev;
+	ev.unit = id;
+	event_stream::write(m_events, EventType::UNIT_DESTROYED, ev);
+}
+
+//-----------------------------------------------------------------------------
+void World::post_level_loaded_event()
+{
+	LevelLoadedEvent ev;
+	event_stream::write(m_events, EventType::LEVEL_LOADED, ev);
 }
 
 //-----------------------------------------------------------------------------
