@@ -103,19 +103,19 @@ Vector3 Controller::position() const
 //-----------------------------------------------------------------------------
 bool Controller::collides_up() const
 {
-	return m_flags & PxControllerFlag::eCOLLISION_UP;
+	return (m_flags & PxControllerFlag::eCOLLISION_UP) != 0;
 }
 
 //-----------------------------------------------------------------------------
 bool Controller::collides_down() const
 {
-	return m_flags & PxControllerFlag::eCOLLISION_DOWN;
+	return (m_flags & PxControllerFlag::eCOLLISION_DOWN) != 0;
 }
 
 //-----------------------------------------------------------------------------
 bool Controller::collides_sides() const
 {
-	return m_flags & PxControllerFlag::eCOLLISION_SIDES;
+	return (m_flags & PxControllerFlag::eCOLLISION_SIDES) != 0;
 }
 
 //-----------------------------------------------------------------------------
