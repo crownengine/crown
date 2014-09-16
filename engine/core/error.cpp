@@ -41,6 +41,7 @@ namespace error
 		vprintf(message, ap);
 		va_end(ap);
 		printf("\tIn: %s:%d\n", file, line);
+		printf("Stacktrace:\n");
 		stacktrace();
 		exit(EXIT_FAILURE);
 	}

@@ -37,7 +37,6 @@ namespace crown
 
 void stacktrace()
 {
-	printf("Stacktrace:\n");
 	SymInitialize(GetCurrentProcess(), NULL, TRUE);
 	SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME);
 	DWORD mtype;

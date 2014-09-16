@@ -38,7 +38,6 @@ namespace crown
 
 void stacktrace()
 {
-	printf("Stacktrace:\n");
 	void* array[50];
 	int size = backtrace(array, 50);
 
