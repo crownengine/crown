@@ -115,8 +115,8 @@ public:
 				Vector3(where.x, where.y, where.z),
 				Vector3(normal.x, normal.y, normal.z),
 				(cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND) ?
-					physics_world::CollisionEvent::Type::BEGIN_TOUCH :
-					physics_world::CollisionEvent::Type::END_TOUCH);
+					physics_world::CollisionEvent::BEGIN_TOUCH :
+					physics_world::CollisionEvent::END_TOUCH);
 		}
 	}
 
