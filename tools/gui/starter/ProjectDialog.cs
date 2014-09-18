@@ -17,7 +17,7 @@ namespace starter
 		{
 			win.project_name = name_entry.Text;
 			win.source_path = source_entry.Text;
-			win.destination_path = destination_entry.Text;
+			// win.destination_path = destination_entry.Text;
 		}
 
 		protected void OnSourceButtonClicked (object sender, EventArgs e)
@@ -34,7 +34,7 @@ namespace starter
 
 			fc.Destroy ();
 		}
-
+/*
 		protected void OnDestinationButtonClicked (object sender, EventArgs e)
 		{
 			Gtk.FileChooserDialog fc = new Gtk.FileChooserDialog("Choose the file to open",
@@ -49,6 +49,7 @@ namespace starter
 
 			fc.Destroy ();
 		}
+*/
 	}
 }
 
