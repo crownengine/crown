@@ -5,33 +5,19 @@ namespace starter
 	public partial class ProjectDialog
 	{
 		private global::Gtk.HBox hbox4;
-		
 		private global::Gtk.VBox vbox3;
-		
 		private global::Gtk.Label name_label;
-		
 		private global::Gtk.Label source_label;
-		
 		private global::Gtk.Label bundle_label;
-		
 		private global::Gtk.VBox vbox4;
-		
 		private global::Gtk.Entry name_entry;
-		
 		private global::Gtk.HBox hbox5;
-		
 		private global::Gtk.Entry source_entry;
-		
 		private global::Gtk.Button source_button;
-		
 		private global::Gtk.HBox hbox6;
-		
 		private global::Gtk.Entry destination_entry;
-		
 		private global::Gtk.Button destination_button;
-		
 		private global::Gtk.Button buttonCancel;
-		
 		private global::Gtk.Button buttonOk;
 
 		protected virtual void Build ()

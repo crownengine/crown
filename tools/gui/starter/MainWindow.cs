@@ -29,6 +29,29 @@ public partial class MainWindow: Gtk.Window
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
 		Build ();
+
+		// Fill platform combobox
+		PlatformID p_id = Environment.OSVersion.Platform;
+		switch (p_id)
+		{
+		case PlatformID.Unix:
+			platform_combobox.AppendText ("Linux32");
+			platform_combobox.AppendText ("Linux64");
+			break;
+		case PlatformID.Win32NT:
+		case PlatformID.Win32S:
+		case PlatformID.Win32Windows:
+		case PlatformID.WinCE:
+			platform_combobox.AppendText ("Windows32");
+			platform_combobox.AppendText ("Windows64");
+			break;
+		}
+		platform_combobox.AppendText ("Android");
+
+		// Fill debug combobox
+		build_combobox.AppendText ("Debug");
+		build_combobox.AppendText ("Development");
+		build_combobox.AppendText ("Release");
 	}
 
 	//--------------------------------------------------------------------------------

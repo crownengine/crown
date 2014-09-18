@@ -7,7 +7,7 @@
     <widget-library name="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <widget-library name="../bin/Debug/starter.exe" internal="true" />
   </import>
-  <widget class="Gtk.Window" id="MainWindow" design-size="291 236">
+  <widget class="Gtk.Window" id="MainWindow" design-size="301 250">
     <property name="MemberName" />
     <property name="Title" translatable="yes">Starter</property>
     <property name="WindowPosition">CenterOnParent</property>
@@ -131,12 +131,7 @@
                   <widget class="Gtk.ComboBox" id="platform_combobox">
                     <property name="MemberName" />
                     <property name="IsTextCombo">True</property>
-                    <property name="Items" translatable="yes">Linux32
-Linux64
-Windows32
-Windows64
-Android</property>
-                    <property name="Active">0</property>
+                    <property name="Items" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="Position">1</property>
@@ -149,10 +144,7 @@ Android</property>
                   <widget class="Gtk.ComboBox" id="build_combobox">
                     <property name="MemberName" />
                     <property name="IsTextCombo">True</property>
-                    <property name="Items" translatable="yes">Debug
-Development
-Release</property>
-                    <property name="Active">0</property>
+                    <property name="Items" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="Position">2</property>
