@@ -31,6 +31,7 @@ public partial class MainWindow: Gtk.Window
 		Build ();
 
 		// Fill platform combobox
+		Gtk.TreeIter platform_iter;
 		PlatformID p_id = Environment.OSVersion.Platform;
 		switch (p_id)
 		{
@@ -47,11 +48,16 @@ public partial class MainWindow: Gtk.Window
 			break;
 		}
 		platform_combobox.AppendText ("Android");
+		platform_combobox.Model.IterNthChild (out platform_iter, 0);
+		platform_combobox.SetActiveIter (platform_iter);
 
 		// Fill debug combobox
+		Gtk.TreeIter build_iter;
 		build_combobox.AppendText ("Debug");
 		build_combobox.AppendText ("Development");
 		build_combobox.AppendText ("Release");
+		build_combobox.Model.IterNthChild (out build_iter, 0);
+		build_combobox.SetActiveIter (build_iter);
 	}
 
 	//--------------------------------------------------------------------------------
