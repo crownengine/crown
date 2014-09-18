@@ -15,9 +15,8 @@ namespace starter
 
 		protected void OnProjectDialogOkClicked (object sender, EventArgs e)
 		{
-			win.project_name = name_entry.Text;
-			win.source_path = source_entry.Text;
-			// win.destination_path = destination_entry.Text;
+			win.m_project_name = name_entry.Text;
+			win.m_source_path = source_entry.Text;
 		}
 
 		protected void OnSourceButtonClicked (object sender, EventArgs e)
@@ -34,22 +33,6 @@ namespace starter
 
 			fc.Destroy ();
 		}
-/*
-		protected void OnDestinationButtonClicked (object sender, EventArgs e)
-		{
-			Gtk.FileChooserDialog fc = new Gtk.FileChooserDialog("Choose the file to open",
-				this,
-				FileChooserAction.SelectFolder,
-				"Cancel", ResponseType.Cancel,
-				"Open", ResponseType.Accept);
-			if (fc.Run () == (int)ResponseType.Accept) 
-			{
-				destination_entry.Text = fc.Filename;
-			}
-
-			fc.Destroy ();
-		}
-*/
 	}
 }
 
