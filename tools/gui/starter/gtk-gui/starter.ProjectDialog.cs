@@ -8,29 +8,26 @@ namespace starter
 		private global::Gtk.VBox vbox3;
 		private global::Gtk.Label name_label;
 		private global::Gtk.Label source_label;
-		private global::Gtk.Label bundle_label;
 		private global::Gtk.VBox vbox4;
 		private global::Gtk.Entry name_entry;
 		private global::Gtk.HBox hbox5;
 		private global::Gtk.Entry source_entry;
 		private global::Gtk.Button source_button;
-		private global::Gtk.HBox hbox6;
-		private global::Gtk.Entry destination_entry;
-		private global::Gtk.Button destination_button;
-		private global::Gtk.Button buttonCancel;
-		private global::Gtk.Button buttonOk;
+		private global::Gtk.Button cancel_button;
+		private global::Gtk.Button ok_button;
 
 		protected virtual void Build ()
 		{
 			global::Stetic.Gui.Initialize (this);
 			// Widget starter.ProjectDialog
 			this.Name = "starter.ProjectDialog";
+			this.Title = global::Mono.Unix.Catalog.GetString ("Projects");
 			this.WindowPosition = ((global::Gtk.WindowPosition)(4));
 			this.BorderWidth = ((uint)(6));
 			// Internal child starter.ProjectDialog.VBox
 			global::Gtk.VBox w1 = this.VBox;
 			w1.Name = "dialog1_VBox";
-			w1.BorderWidth = ((uint)(8));
+			w1.BorderWidth = ((uint)(10));
 			// Container child dialog1_VBox.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox ();
 			this.hbox4.Name = "hbox4";
@@ -38,7 +35,7 @@ namespace starter
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.vbox3 = new global::Gtk.VBox ();
 			this.vbox3.Name = "vbox3";
-			this.vbox3.Spacing = 6;
+			this.vbox3.Spacing = 4;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.name_label = new global::Gtk.Label ();
 			this.name_label.Name = "name_label";
@@ -57,20 +54,11 @@ namespace starter
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.source_label]));
 			w3.Position = 1;
 			w3.Fill = false;
-			// Container child vbox3.Gtk.Box+BoxChild
-			this.bundle_label = new global::Gtk.Label ();
-			this.bundle_label.Name = "bundle_label";
-			this.bundle_label.Xalign = 0F;
-			this.bundle_label.LabelProp = global::Mono.Unix.Catalog.GetString ("Destination:");
-			this.vbox3.Add (this.bundle_label);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.bundle_label]));
-			w4.Position = 2;
-			w4.Fill = false;
 			this.hbox4.Add (this.vbox3);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.vbox3]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.vbox3]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.vbox4 = new global::Gtk.VBox ();
 			this.vbox4.Name = "vbox4";
@@ -82,10 +70,10 @@ namespace starter
 			this.name_entry.IsEditable = true;
 			this.name_entry.InvisibleChar = '●';
 			this.vbox4.Add (this.name_entry);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.name_entry]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.name_entry]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.hbox5 = new global::Gtk.HBox ();
 			this.hbox5.Name = "hbox5";
@@ -97,8 +85,8 @@ namespace starter
 			this.source_entry.IsEditable = true;
 			this.source_entry.InvisibleChar = '●';
 			this.hbox5.Add (this.source_entry);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.source_entry]));
-			w7.Position = 0;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.source_entry]));
+			w6.Position = 0;
 			// Container child hbox5.Gtk.Box+BoxChild
 			this.source_button = new global::Gtk.Button ();
 			this.source_button.CanFocus = true;
@@ -106,92 +94,61 @@ namespace starter
 			this.source_button.UseUnderline = true;
 			this.source_button.Label = global::Mono.Unix.Catalog.GetString ("...");
 			this.hbox5.Add (this.source_button);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.source_button]));
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.source_button]));
+			w7.Position = 1;
+			w7.Expand = false;
+			w7.Fill = false;
+			this.vbox4.Add (this.hbox5);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.hbox5]));
 			w8.Position = 1;
 			w8.Expand = false;
 			w8.Fill = false;
-			this.vbox4.Add (this.hbox5);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.hbox5]));
+			this.hbox4.Add (this.vbox4);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.vbox4]));
 			w9.Position = 1;
-			w9.Expand = false;
-			w9.Fill = false;
-			// Container child vbox4.Gtk.Box+BoxChild
-			this.hbox6 = new global::Gtk.HBox ();
-			this.hbox6.Name = "hbox6";
-			this.hbox6.Spacing = 6;
-			// Container child hbox6.Gtk.Box+BoxChild
-			this.destination_entry = new global::Gtk.Entry ();
-			this.destination_entry.CanFocus = true;
-			this.destination_entry.Name = "destination_entry";
-			this.destination_entry.IsEditable = true;
-			this.destination_entry.InvisibleChar = '●';
-			this.hbox6.Add (this.destination_entry);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.destination_entry]));
+			w1.Add (this.hbox4);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(w1 [this.hbox4]));
 			w10.Position = 0;
-			// Container child hbox6.Gtk.Box+BoxChild
-			this.destination_button = new global::Gtk.Button ();
-			this.destination_button.CanFocus = true;
-			this.destination_button.Name = "destination_button";
-			this.destination_button.UseUnderline = true;
-			this.destination_button.Label = global::Mono.Unix.Catalog.GetString ("...");
-			this.hbox6.Add (this.destination_button);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.destination_button]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
-			this.vbox4.Add (this.hbox6);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.hbox6]));
-			w12.Position = 2;
+			w10.Fill = false;
+			// Internal child starter.ProjectDialog.ActionArea
+			global::Gtk.HButtonBox w11 = this.ActionArea;
+			w11.Name = "dialog1_ActionArea";
+			w11.Spacing = 10;
+			w11.BorderWidth = ((uint)(5));
+			w11.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
+			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
+			this.cancel_button = new global::Gtk.Button ();
+			this.cancel_button.CanDefault = true;
+			this.cancel_button.CanFocus = true;
+			this.cancel_button.Name = "cancel_button";
+			this.cancel_button.UseStock = true;
+			this.cancel_button.UseUnderline = true;
+			this.cancel_button.Label = "gtk-cancel";
+			this.AddActionWidget (this.cancel_button, -6);
+			global::Gtk.ButtonBox.ButtonBoxChild w12 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w11 [this.cancel_button]));
 			w12.Expand = false;
 			w12.Fill = false;
-			this.hbox4.Add (this.vbox4);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.vbox4]));
+			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
+			this.ok_button = new global::Gtk.Button ();
+			this.ok_button.CanDefault = true;
+			this.ok_button.CanFocus = true;
+			this.ok_button.Name = "ok_button";
+			this.ok_button.UseStock = true;
+			this.ok_button.UseUnderline = true;
+			this.ok_button.Label = "gtk-ok";
+			this.AddActionWidget (this.ok_button, -5);
+			global::Gtk.ButtonBox.ButtonBoxChild w13 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w11 [this.ok_button]));
 			w13.Position = 1;
-			w1.Add (this.hbox4);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(w1 [this.hbox4]));
-			w14.Position = 0;
-			w14.Expand = false;
-			w14.Fill = false;
-			// Internal child starter.ProjectDialog.ActionArea
-			global::Gtk.HButtonBox w15 = this.ActionArea;
-			w15.Name = "dialog1_ActionArea";
-			w15.Spacing = 10;
-			w15.BorderWidth = ((uint)(5));
-			w15.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
-			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonCancel = new global::Gtk.Button ();
-			this.buttonCancel.CanDefault = true;
-			this.buttonCancel.CanFocus = true;
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.UseStock = true;
-			this.buttonCancel.UseUnderline = true;
-			this.buttonCancel.Label = "gtk-cancel";
-			this.AddActionWidget (this.buttonCancel, -6);
-			global::Gtk.ButtonBox.ButtonBoxChild w16 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w15 [this.buttonCancel]));
-			w16.Expand = false;
-			w16.Fill = false;
-			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonOk = new global::Gtk.Button ();
-			this.buttonOk.CanDefault = true;
-			this.buttonOk.CanFocus = true;
-			this.buttonOk.Name = "buttonOk";
-			this.buttonOk.UseStock = true;
-			this.buttonOk.UseUnderline = true;
-			this.buttonOk.Label = "gtk-ok";
-			this.AddActionWidget (this.buttonOk, -5);
-			global::Gtk.ButtonBox.ButtonBoxChild w17 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w15 [this.buttonOk]));
-			w17.Position = 1;
-			w17.Expand = false;
-			w17.Fill = false;
+			w13.Expand = false;
+			w13.Fill = false;
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
 			this.DefaultWidth = 318;
-			this.DefaultHeight = 165;
+			this.DefaultHeight = 166;
 			this.Show ();
 			this.source_button.Clicked += new global::System.EventHandler (this.OnSourceButtonClicked);
-			this.destination_button.Clicked += new global::System.EventHandler (this.OnDestinationButtonClicked);
-			this.buttonOk.Clicked += new global::System.EventHandler (this.OnProjectDialogOkClicked);
+			this.ok_button.Clicked += new global::System.EventHandler (this.OnProjectDialogOkClicked);
 		}
 	}
 }
