@@ -23,7 +23,7 @@ public partial class MainWindow: Gtk.Window
 
 	public string project_name = null;
 	public string source_path = null;
-	public string destination_path = null;
+	public string output_path = Environment.GetEnvironmentVariable("CROWN_OUTPUT_DIR") + "/";
 
 	//--------------------------------------------------------------------------------
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
@@ -93,6 +93,7 @@ public partial class MainWindow: Gtk.Window
 			case Platform.Linux32:
 			{
 				path += "bin/linux32/";
+				output_path = output_path + project_name + "/linux32/";
 				switch (build)
 				{
 				case BuildMode.Debug: executable = "crown-debug-32"; break;
@@ -104,6 +105,7 @@ public partial class MainWindow: Gtk.Window
 			case Platform.Linux64:
 			{
 				path += "bin/linux64/";
+				output_path = output_path + project_name + "/linux64/";
 				switch (build)
 				{
 				case BuildMode.Debug: executable = "crown-debug-64"; break;
@@ -115,6 +117,7 @@ public partial class MainWindow: Gtk.Window
 			case Platform.Windows32:
 			{
 				path += "bin\\windows32\\";
+				output_path = output_path + project_name + "\\windows32\\";
 				switch (build)
 				{
 				case BuildMode.Debug: executable = "crown-debug-32"; break;
@@ -126,6 +129,7 @@ public partial class MainWindow: Gtk.Window
 			case Platform.Windows64:
 			{
 				path += "bin\\windows64\\";
+				output_path = output_path + project_name + "\\windows64\\";
 				switch (build)
 				{
 				case BuildMode.Debug: executable = "crown-debug-64"; break;
@@ -137,8 +141,8 @@ public partial class MainWindow: Gtk.Window
 		}
 
 		string args = " --source-dir " + source_path;
-		args += " --bundle-dir " + destination_path;
-		args += " --compile --continue";
+		args += " --bundle-dir " + output_path;
+		args += " --compile --continue --platform linux";
 
 		System.IO.Directory.SetCurrentDirectory (path);
 		System.Diagnostics.Process.Start (executable, args);
