@@ -210,7 +210,7 @@ inline void delete_file(const char* path)
 #endif
 }
 
-/// Creates a directory. Returns true if success, false if not
+/// Creates a directory.
 inline void create_directory(const char* path)
 {
 #if CROWN_PLATFORM_POSIX
@@ -225,7 +225,7 @@ inline void create_directory(const char* path)
 #endif
 }
 
-/// Deletes a directory. Returns true if success, false if not
+/// Deletes a directory.
 inline void delete_directory(const char* path)
 {
 #if CROWN_PLATFORM_POSIX
