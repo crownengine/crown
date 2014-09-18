@@ -203,7 +203,8 @@ solution "crown"
 			}
 			
 			linkoptions {
-				"-Wl,-rpath=\\$$ORIGIN"
+				"-Wl,-rpath=\\$$ORIGIN",
+				"-Wl,--no-as-needed"
 			}
 
 			links {
