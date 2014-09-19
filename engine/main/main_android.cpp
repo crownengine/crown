@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "thread.h"
 #include "main.h"
 #include "apk_filesystem.h"
+#include "console_server.h"
 #include "crown.h"
 #include <jni.h>
 #include <android/sensor.h>
