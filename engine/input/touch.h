@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "types.h"
 #include "vector2.h"
+#include <cstring> // mem*
 
 namespace crown
 {
@@ -42,8 +43,6 @@ const uint32_t MAX_POINTER_IDS = 4;
 /// @ingroup Input
 struct Touch
 {
-public:
-
 	//-----------------------------------------------------------------------------
 	Touch()
 		: m_last_pointer(0xFF)

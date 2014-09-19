@@ -26,9 +26,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <cstring>
 #include "types.h"
 #include "vector2.h"
+#include <cstring> // mem*
 
 namespace crown
 {
@@ -53,8 +53,6 @@ struct MouseButton
 /// @ingroup Input
 struct Mouse
 {
-public:
-
 	//-----------------------------------------------------------------------------
 	Mouse()
 		: m_last_button(MouseButton::NONE)

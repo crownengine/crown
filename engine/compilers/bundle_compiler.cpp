@@ -34,7 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "resource.h"
 #include "path.h"
 #include "disk_filesystem.h"
-#include "temp_allocator.h"
 #include "compile_options.h"
 #include <inttypes.h>
 

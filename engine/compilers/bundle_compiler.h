@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "filesystem.h"
-#include "vector.h"
+#include "container_types.h"
 #include "crown.h"
 
 namespace crown

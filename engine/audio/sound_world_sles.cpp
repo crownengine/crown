@@ -24,20 +24,16 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <SLES/OpenSLES.h>
-#include <SLES/OpenSLES_Android.h>
-
 #include "sound_world.h"
 #include "id_array.h"
-#include "allocator.h"
 #include "vector3.h"
 #include "matrix4x4.h"
-#include "resource.h"
 #include "sound_resource.h"
-#include "container_types.h"
 #include "temp_allocator.h"
 #include "queue.h"
 #include "audio.h"
+#include <SLES/OpenSLES.h>
+#include <SLES/OpenSLES_Android.h>
 
 namespace crown
 {
