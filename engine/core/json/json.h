@@ -24,11 +24,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "types.h"
+#pragma once
+
 #include "dynamic_string.h"
 #include "container_types.h"
-
-#pragma once
 
 namespace crown
 {
