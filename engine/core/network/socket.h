@@ -160,7 +160,7 @@ struct TCPSocket
 	{
 		close();
 		open();
-		set_resuse_address(true);
+		set_reuse_address(true);
 #if CROWN_PLATFORM_POSIX
 		sockaddr_in address;
 		address.sin_family = AF_INET;
@@ -449,7 +449,7 @@ struct TCPSocket
 	}
 
 	//-----------------------------------------------------------------------------
-	void set_resuse_address(bool reuse)
+	void set_reuse_address(bool reuse)
 	{
 #if CROWN_PLATFORM_POSIX
 		int optval = (int) reuse;
