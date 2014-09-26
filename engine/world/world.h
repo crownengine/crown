@@ -94,6 +94,9 @@ public:
 	/// Update all animations with @a dt.
 	void update_animations(float dt);
 
+	/// Update scene with @a dt.
+	void update_scene(float dt);
+
 	/// Updates all units and sub-systems with the given @a dt delta time.
 	void update(float dt);
 

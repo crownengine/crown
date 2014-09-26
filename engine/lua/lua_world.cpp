@@ -106,6 +106,14 @@ static int world_update_animations(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int world_update_scene(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_world(1)->update_scene(stack.get_float(2));
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 static int world_update(lua_State* L)
 {
 	LuaStack stack(L);
@@ -307,6 +315,7 @@ void load_world(LuaEnvironment& env)
 	env.load_module_function("World", "units",              world_units);
 
 	env.load_module_function("World", "update_animations",  world_update_animations);
+	env.load_module_function("World", "update_scene",       world_update_scene);
 	env.load_module_function("World", "update",             world_update);
 
 	env.load_module_function("World", "play_sound",			world_play_sound);

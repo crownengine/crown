@@ -164,12 +164,9 @@ void World::update_animations(float dt)
 }
 
 //-----------------------------------------------------------------------------
-void World::update(float dt)
+void World::update_scene(float dt)
 {
-	update_animations(dt);
-
 	m_physics_world.update(dt);
-
 	m_scenegraph_manager.update();
 
 	for (uint32_t i = 0; i < id_array::size(m_units); i++)
@@ -180,6 +177,13 @@ void World::update(float dt)
 	m_sound_world->update();
 
 	process_physics_events();
+}
+
+//-----------------------------------------------------------------------------
+void World::update(float dt)
+{
+	update_animations(dt);
+	update_scene(dt);
 }
 
 //-----------------------------------------------------------------------------
