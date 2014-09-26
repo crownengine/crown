@@ -217,11 +217,10 @@ struct LinuxDevice
 		, m_x11_parent_window(None)
 		, m_x11_hidden_cursor(None)
 		, m_screen_config(NULL)
-		, m_parent_window_handle(0)
 	{
 	}
 
-	int32_t run(Filesystem* fs, ConfigSettings* cs)
+	int32_t run(Filesystem* fs, ConfigSettings* cs, CommandLineSettings* cls)
 	{
 		// Create main window
 		XInitThreads();
@@ -234,8 +233,8 @@ struct LinuxDevice
 		int depth = DefaultDepth(m_x11_display, screen);
 		Visual* visual = DefaultVisual(m_x11_display, screen);
 
-		m_x11_parent_window = (m_parent_window_handle == 0) ? RootWindow(m_x11_display, screen) :
-			(Window) m_parent_window_handle;
+		m_x11_parent_window = (cls->parent_window == 0) ? RootWindow(m_x11_display, screen) :
+			(Window) cls->parent_window;
 
 		// Create main window
 		XSetWindowAttributes win_attribs;
@@ -420,7 +419,6 @@ public:
 	Atom m_wm_delete_message;
 	XRRScreenConfiguration* m_screen_config;
 	bool m_x11_detectable_autorepeat;
-	uint32_t m_parent_window_handle;
 	OsEventQueue m_queue;
 };
 
@@ -456,7 +454,7 @@ int main(int argc, char** argv)
 	if (do_continue)
 	{
 		DiskFilesystem dst_fs(cls.bundle_dir);
-		exitcode = crown::s_ldvc.run(&dst_fs, &cs);
+		exitcode = crown::s_ldvc.run(&dst_fs, &cs, &cls);
 	}
 
 	bundle_compiler_globals::shutdown();

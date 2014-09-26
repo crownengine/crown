@@ -47,6 +47,7 @@ namespace crown
 		bool wait_console;
 		bool do_compile;
 		bool do_continue;
+		uint32_t parent_window;
 	};
 
 	CommandLineSettings parse_command_line(int argc, char** argv);

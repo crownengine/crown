@@ -85,6 +85,7 @@ CommandLineSettings parse_command_line(int argc, char** argv)
 	cls.wait_console = false;
 	cls.do_compile = false;
 	cls.do_continue = false;
+	cls.parent_window = 0;
 
 	CommandLine cmd(argc, argv);
 
@@ -119,6 +120,12 @@ CommandLineSettings parse_command_line(int argc, char** argv)
 	cls.wait_console = cmd.has_argument("wait-console");
 	cls.do_compile = cmd.has_argument("compile");
 	cls.do_continue = cmd.has_argument("continue");
+
+	const char* parent = cmd.get_parameter("parent-window");
+	if (parent)
+	{
+		cls.parent_window = string::parse_uint(parent);
+	}
 
 	return cls;
 }
