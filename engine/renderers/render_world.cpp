@@ -123,7 +123,7 @@ void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uin
 	bgfx::reset(width, height, BGFX_RESET_VSYNC);
 
 	// Enable debug text.
-	bgfx::setDebug(BGFX_DEBUG_TEXT);
+	// bgfx::setDebug(BGFX_DEBUG_TEXT);
 
 	// Set view 0 clear state.
 	bgfx::setViewClear(0
