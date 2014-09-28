@@ -46,7 +46,7 @@ struct DebugLine
 	/// Whether to enable @a depth_test
 	DebugLine(bool depth_test);
 
-	/// Adds a line from @start to @end with the given @a color.
+	/// Adds a line from @a start to @a end with the given @a color.
 	void add_line(const Color4& color, const Vector3& start, const Vector3& end);
 
 	/// Adds a sphere at @a center with the given @a radius and @a color.

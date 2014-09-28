@@ -48,16 +48,31 @@ struct Sprite
 {
 	Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const SpriteResource* sr);
 
+	/// Returns the local position of the sprite.
 	Vector3 local_position() const;
+
+	/// Returns the local rotation of the sprite.	
 	Quaternion local_rotation() const;
+
+	/// Returns the local pose of the sprite.
 	Matrix4x4 local_pose() const;
 
+	/// Returns the world position of the sprite.
 	Vector3 world_position() const;
+
+	/// Returns the world rotation of the sprite.
 	Quaternion world_rotation() const;
+
+	/// Returns the world pose of the sprite.
 	Matrix4x4 world_pose() const;
 
+	/// Sets the local position of the sprite.
 	void set_local_position(Unit* unit, const Vector3& pos);
+
+	/// Sets the local rotation of the sprite.
 	void set_local_rotation(Unit* unit, const Quaternion& rot);
+
+	/// Sets the local pose of the sprite.
 	void set_local_pose(Unit* unit, const Matrix4x4& pose);
 
 	void set_material(MaterialId id);

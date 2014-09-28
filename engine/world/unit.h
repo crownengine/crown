@@ -86,23 +86,48 @@ struct Unit
 
 	const UnitResource*	resource() const;
 
+	/// Returns the node @a name.
 	int32_t node(const char* name) const;
+
+	/// Returns whether the unit has the node @a name.
 	bool has_node(const char* name) const;
+
+	/// Returns the number of nodes of the unit.
 	uint32_t num_nodes() const;
 
+	/// Returns the local position of the unit.
 	Vector3 local_position(int32_t node) const;
+
+	/// Returns the local rotation of the unit.
 	Quaternion local_rotation(int32_t node) const;
+
+	/// Returns the local pose of the unit.
 	Matrix4x4 local_pose(int32_t node) const;
 
+	/// Returns the world position of the unit.
 	Vector3 world_position(int32_t node) const;
+
+	/// Returns the world rotation of the unit.
 	Quaternion world_rotation(int32_t node) const;
+
+	/// Returns the world pose of the unit.
 	Matrix4x4 world_pose(int32_t node) const;
 
+	/// Sets the local position of the unit.
 	void set_local_position(int32_t node, const Vector3& pos);
+
+	/// Sets the local rotation of the unit.
 	void set_local_rotation(int32_t node, const Quaternion& rot);
+
+	/// Sets the local pose of the unit.
 	void set_local_pose(int32_t node, const Matrix4x4& pose);
 
+	/// Links the @a child node to the @a parent node.
+	/// After the linking the @a child pose is reset to identity.
+	/// @note The @a parent node must be either -1 (meaning no parent), or an index lesser than child.
 	void link_node(int32_t child, int32_t parent);
+
+	/// Unlinks @a child from its parent, if any.
 	void unlink_node(int32_t child);
 
 	void update();

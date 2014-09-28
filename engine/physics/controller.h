@@ -48,29 +48,38 @@ class PhysicsControllerCallback;
 /// @ingroup Physics
 struct Controller
 {
-							Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxControllerManager* manager);
-							~Controller();
+	Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxControllerManager* manager);
+	~Controller();
 
-	void					move(const Vector3& pos);
-	void					set_height(float height);
+	/// Moves the controller to @a pos.
+	void move(const Vector3& pos);
 
-	bool					collides_up() const;
-	bool					collides_down() const;
-	bool					collides_sides() const;
+	/// Sets the contoller height.
+	void set_height(float height);
 
-	Vector3					position() const;
-	void					update();
+	/// Returns whether the contoller collides upwards.
+	bool collides_up() const;
+
+	/// Returns whether the controller collides downwards.
+	bool collides_down() const;
+
+	/// Returns whether the controller collides sidewards.
+	bool collides_sides() const;
+
+	/// Returns the position of the controller.
+	Vector3 position() const;
+
+	void update();
 
 private:
 
-	const PhysicsResource*	m_resource;
+	const PhysicsResource* m_resource;
 
-	SceneGraph&				m_scene_graph;
-	int32_t					m_node;
-	PxControllerManager*	m_manager;
-	PxController*			m_controller;
-	PxU32					m_flags;
-
+	SceneGraph& m_scene_graph;
+	int32_t m_node;
+	PxControllerManager* m_manager;
+	PxController* m_controller;
+	PxU32 m_flags;
 	PhysicsControllerCallback m_callback;
 };
 

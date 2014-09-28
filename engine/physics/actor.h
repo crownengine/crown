@@ -78,13 +78,16 @@ struct Actor
 	/// Returns the center of mass of the actor.
 	Vector3 center_of_mass() const;
 
-	/// Makes the actor subject to gravity
+	/// Enables gravity for the actor.
 	void enable_gravity();
 
-	/// Makes the actor unsubject to gravity
+	/// Disables gravity for the actor.
 	void disable_gravity();
 
+	/// Enables collision detection for the actor.
 	void enable_collision();
+
+	/// Disables collision detection for the actor.
 	void disable_collision();
 
 	/// Sets the collision filter of the actor.

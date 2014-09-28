@@ -76,7 +76,7 @@ public:
 	/// Returns whether the string starts with the given @a s string.
 	bool starts_with(const char* s) const;
 
-	/// Returns wheterh the string ends with the given @æ s string.
+	/// Returns wheterh the string ends with the given @a s string.
 	bool ends_with(const char* s) const;
 
 	/// Returns the string hashed to string::murmur2_32.

@@ -108,6 +108,7 @@ struct Device
 		_height = height;
 	}
 
+	/// Returns the main window resolution.
 	void resolution(uint16_t& width, uint16_t& height)
 	{
 		width = _width;
@@ -117,10 +118,13 @@ struct Device
 	/// Updates all the subsystems
 	void update();
 
-	/// Renders the given @a world from the point of view of the given @æ camera.
+	/// Renders the given @a world from the point of view of the given @a camera.
 	void render_world(World* world, Camera* camera);
 
+	/// Creates a new world.
 	WorldId create_world();
+
+	/// Destroys the given @a world.
 	void destroy_world(WorldId world);
 
 	/// Returns the resource package with the given @a package_name name.

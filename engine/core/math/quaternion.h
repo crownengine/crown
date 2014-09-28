@@ -37,7 +37,7 @@ namespace crown
 /// Negates the quaternion @a q and returns the result.
 Quaternion operator-(const Quaternion& q);
 
-/// Multiplies the quaternions @a and @a b. (i.e. rotates first by @a a then by @a b).
+/// Multiplies the quaternions @a a and @a b. (i.e. rotates first by @a a then by @a b).
 Quaternion operator*(Quaternion a, const Quaternion& b);
 
 /// Multiplies the quaternion @a a by the scalar @a k.

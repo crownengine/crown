@@ -108,7 +108,7 @@ public:
 	/// Destroys the camera @a id.
 	void destroy_camera(CameraId id);
 
-	/// Plays the sound with the given @æ name at the given @a position, with the given
+	/// Plays the sound with the given @a name at the given @a position, with the given
 	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
 	SoundInstanceId play_sound(const char* name, bool loop = false, float volume = 1.0f, const Vector3& position = vector3::ZERO, float range = 50.0f);
 	SoundInstanceId play_sound(ResourceId id, const bool loop, const float volume, const Vector3& pos, const float range);
@@ -117,8 +117,8 @@ public:
 	/// Stops the sound with the given @a id.
 	void stop_sound(SoundInstanceId id);
 
-	/// Links the sound @a if to the @a node of the given @æ unit.
-	/// After this call, the sound @a id will follow the unit @æ unit.
+	/// Links the sound @a id to the @a node of the given @a unit.
+	/// After this call, the sound @a id will follow the unit @a unit.
 	void link_sound(SoundInstanceId id, Unit* unit, int32_t node);
 
 	/// Sets the @a pose of the listener.
@@ -133,7 +133,7 @@ public:
 	/// Sets the @a volume of the sound @a id.
 	void set_sound_volume(SoundInstanceId id, float volume);
 
-	/// Creates a new window-space Gui of size @width and @a height.
+	/// Creates a new window-space Gui of size @a width and @a height.
 	GuiId create_window_gui(uint16_t width, uint16_t height, const char* material);
 
 	/// Destroys the gui with the given @a id.
@@ -142,7 +142,11 @@ public:
 	/// Returns the gui @a id.
 	Gui* get_gui(GuiId id);
 
+	/// Creates a new DebugLine. @a depth_test controls whether to
+	/// enable depth test when rendering the lines.
 	DebugLine* create_debug_line(bool depth_test);
+
+	/// Destroys the debug @a line.
 	void destroy_debug_line(DebugLine* line);
 
 	/// Loads the level @a name into the world.

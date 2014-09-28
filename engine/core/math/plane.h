@@ -39,7 +39,7 @@ namespace crown
 /// @ingroup Math
 namespace plane
 {
-	/// Normalizes the plane @æ p and returns its result.
+	/// Normalizes the plane @a p and returns its result.
 	Plane& normalize(Plane& p);
 
 	/// Returns the signed distance between plane @a p and point @a point.

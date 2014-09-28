@@ -85,7 +85,10 @@ public:
 	RaycastId create_raycast(CollisionMode::Enum mode, CollisionType::Enum filter);
 	void destroy_raycast(RaycastId id);
 
+	/// Returns the gravity.
 	Vector3 gravity() const;
+
+	/// Sets the gravity.
 	void set_gravity(const Vector3& g);
 
 	/// Finds all actors in the physics world that are in a particular shape (supported: spheres, capsules and boxes)
