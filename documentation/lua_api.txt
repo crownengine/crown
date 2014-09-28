@@ -1,0 +1,805 @@
+.. contents::
+
+Math
+====
+
+Vector3
+-------
+
+	**Vector3** (x, y, z) : Vector3
+		Constructor.
+
+	**x** (v) : float
+		Returns the x value of the vector.
+
+	**y** (v) : float
+		Returns the y value of the vector.
+
+	**z** (v) : float
+		Returns the z value of the vector.
+
+	**.x** : float
+		Returns/assigns the x value of the vector.
+
+	**.y** : float
+		Returns/assigns the y value of the vector.
+
+	**.z** : float
+		Returns/assigns the z value of the vector.
+
+	**set_x** (v, x)
+		Sets the value of the x value of the vector.
+
+	**set_y** (v, y)
+		Sets the value of the y value of the vector.
+
+	**set_z** (v, z)
+		Sets the value of the z value of the vector.
+
+	**values** (v) : float, float, float
+		Returns the x, y and z values of the vector.
+
+	**add** (a, b) : Vector3
+		Adds the vector *a* to *b* and returns the result.
+
+	**subtract** (a, b) : Vector3
+		Subtracts the vector *b* from *a* and returns the result.
+
+	**multiply** (a, k) : Vector3
+		Multiplies the vector *a* by the scalar *k* and returns the result.
+
+	**divide** (a, k) : Vector3
+		Divides the vector *a* by the scalar *k* and returns the result.
+
+	**dot** (a, b) : float
+		Returns the dot product between the vectors *a* and *b*.
+
+	**cross** (a, b) : Vector3
+		Returns the cross product between the vectors *a* and *b*.
+
+	**equal** (a, b) : bool
+		Returns true whether the vectors *a* and *b* are equal.
+
+	**length** (a) : float
+		Returns the lenght of *a*.
+
+	**squared_length** (a) : float
+		Returns the squared length of *a*.
+
+	**set_length** (a, len)
+		Sets the lenght of *a* to *len*.
+
+	**normalize** (a) : Vector3
+		Normalizes *a* and returns the result.
+
+	**distance** (a, b) : float
+		Returns the distance between the points *a* and *b*.
+
+	**angle** (a, b) : float
+		Returns the angle between the vectors *a* and *b*.
+
+Quaternion
+----------
+
+	**Quaternion** (v, w) : Quaternion
+		Constructor.
+
+	**negate** (q) : Quaternion
+		Negates the quaternion *q* and returns the result.
+
+	**identity** () : Quaternion
+		Returns the identity quaternion.
+
+	**multiply** (a, b) : Quaternion
+		Multiplies the quaternions *a* and *b*. (i.e. rotates first by *a* then by *b*).
+
+	**multiply_by_scalar** (a, k) : Quaternion
+		Multiplies the quaternion *a* by the scalar *k*.
+
+	**length** (q) : float
+		Returns the length of *q*.
+
+	**conjugate** (q) : Quaternion
+		Returns the conjugate of quaternion *q*.
+
+	**inverse** (q) : Quaternion
+		Returns the inverse of quaternion *q*.
+
+	**power** (q, exp) : Quaternion
+		Returns the quaternion *q* raised to the power of *exp*.
+
+	**elements** (q) : x, y, z, w
+		Returns the elements of the quaternion.
+
+Matrix4x4
+---------
+
+	**Matrix4x4** (m0, m1, ..., m15) : Matrix4x4
+		Constructor.
+
+	**from_quaternion** (q) : Matrix4x4
+		Returns a new matrix from *q*.
+
+	**from_translation** (t) : Matrix4x4
+		Returns a new matrix from *t*.
+
+	**from_quaternion_translation** (q, t) : Matrix4x4
+		Returns a new matrix from *q* and *t*.
+
+	**from_axes** (x, y, z, t) : Matrix4x4
+		Returns a new matrix from *x*, *y*, *z* and *t*.
+
+	**add** (a, b) : Matrix4x4
+		Adds the matrix *a* to *b* and returns the result.
+
+	**subtract** (a, b) : Matrix4x4
+		Subtracts the matrix *b* from *a* and returns the result.
+
+	**multiply** (a, b) : Matrix4x4
+		Multiplies the matrix *a* by *b* and returns the result. (i.e. transforms first by *b* then by *a*)
+
+	**transpose** (m) : Matrix4x4
+		Transposes the matrix *m* and returns the result.
+
+	**determinant** (m) : float
+		Returns the determinant of the matrix *m*.
+
+	**invert** (m) : Matrix4x4
+		Inverts the matrix *m* and returns the result.
+
+	**x** (m) : Vector3
+		Returns the x asis of the matrix *m*.
+
+	**y** (m) : Vector3
+		Returns the y asis of the matrix *m*.
+
+	**z** (m) : Vector3
+		Returns the z asis of the matrix *m*.
+
+	**set_x** (m, x)
+		Sets the x axis of the matrix *m*.
+
+	**set_y** (m, y)
+		Sets the y axis of the matrix *m*.
+
+	**set_z** (m, z)
+		Sets the z axis of the matrix *m*.
+
+	**translation** (a) : Vector3
+		Returns the translation portion of the matrix *m*.
+
+	**set_translation** (t)
+		Sets the translation portion of the matrix *m*.
+
+	**identity** ()
+		Returns the identity matrix.
+
+	**to_string** (a)
+		Returns a string representing the matrix.
+
+World
+=====
+
+	**spawn_unit** (world, name, [position, rotation]) : Unit
+		Spawns a new instance of the unit *name* at the given *position* and *rotation*.
+
+	**destroy_unit** (world, unit)
+		Destroys the given *unit*.
+
+	**num_units** (world) : int
+		Returns the number of units in the *world*.
+
+	**units** (world) : Table
+		Returns all the the units in the world in a table.
+
+	**update_animations** (world, dt)
+		Update all animations with *dt*.
+
+	**update_scene** (world, dt)
+		Updates the scene with *dt*.
+
+	**update** (world, dt)
+		Updates the world with *dt*.
+
+	**play_sound** (world, name, [loop, volume, position, range]) : SoundInstanceId
+		Plays the sound with the given *name* at the given *position*, with the given
+		*volume* and *range*. *loop* controls whether the sound must loop or not.
+
+	**stop_sound** (world, id)
+		Stops the sound with the given *id*.
+
+	**link_sound** (world, id, unit, node)
+		Links the sound *id* to the *node* of the given *unit*.
+		After this call, the sound *id* will follow the unit *unit*.
+
+	**set_listener_pose** (world, pose)
+		Sets the *pose* of the listener.
+
+	**set_sound_position** (world, position)
+		Sets the *position* of the sound *id*.
+
+	**set_sound_range** (world, range)
+		Sets the *range* of the sound *id*.
+
+	**set_sound_volume** (world, volume)
+		Sets the *volume* of the sound *id*.
+
+	**create_window_gui** (world) : Gui
+		Creates a new window-space Gui of size *width* and *height*.
+
+	**destroy_gui** (world, id)
+		Destroys the gui with the given *id*.
+
+	**create_debug_line** (world, depth_test) : DebugLine
+		Creates a new DebugLine. *depth_test* controls whether to
+		enable depth test when rendering the lines.
+
+	**destroy_debug_line** (world, line)
+		Destroys the debug *line*.
+
+	**load_level** (world, name) : Level
+		Loads the level *name* into the world.
+
+	**physics_world** (world) : PhysicsWorld
+		Returns the physics sub-world.
+
+	**sound_world** (world) : SoundWorld
+		Returns the sound sub-world.
+
+Unit
+----
+
+	**node** (unit, name)
+		Returns the node *name*.
+
+	**has_node** (unit, name) : int
+		Returns whether the unit has the node *name*.
+
+	**num_nodes** (unit) : int
+		Returns the number of nodes of the unit.
+
+	**local_position** (unit) : Vector3
+		Returns the local position of the unit.
+
+	**local_rotation** (unit) : Quaternion
+		Returns the local rotation of the unit.
+
+	**local_pose** (unit) : Matrix4x4
+		Returns the local pose of the unit.
+
+	**world_position** (unit) : Vector3
+		Returns the world position of the unit.
+
+	**world_rotation** (unit) : Quaternion
+		Returns the world rotation of the unit.
+
+	**world_pose** (unit) : Matrix4x4
+		Returns the world pose of the unit.
+
+	**set_local_position** (unit, position)
+		Sets the local position of the unit.
+
+	**set_local_rotation** (unit, rotation)
+		Sets the local rotation of the unit.
+
+	**set_local_pose** (unit, pose)
+		Sets the local pose of the unit.
+
+	**link_node** (unit)
+		Links the *child* node to the *parent* node.
+		After the linking the *child* pose is reset to identity.
+		Note that *parent* node must be either -1 (meaning no parent), or an index lesser than child.
+
+	**unlink_node** (unit, child)
+		Unlinks *child* from its parent, if any.
+
+	**camera** (unit, name)
+		Returns the camera *name*.
+
+	**material** (unit, name)
+		Returns the material *name*.
+
+	**mesh** (unit, name)
+		Returns the mesh *name*.
+
+	**sprite** (unit, name)
+		Returns the sprite *name*.
+
+	**actor** (unit, name)
+		Returns the actor *name*.
+
+	**controller** (unit, name)
+		Returns the controller *name*.
+
+	**is_a** (unit, type)
+		Returns whether the unit is of the given *type*.
+
+	**play_sprite_animation** (unit, name, loop)
+		Plays the sprite animation *name*.
+
+	**stop_sprite_animation** (unit)
+		Stops the current playing animation.
+
+Camera
+------
+
+	**local_position** (camera, position)
+		Returns the local position of the camera.
+
+	**local_rotation** (camera, rotation)
+		Returns the local rotation of the camera.
+
+	**local_pose** (camera, pose)
+		Returns the local pose of the camera.
+
+	**world_position** (camera) : Vector3
+		Returns the world position of the camera.
+
+	**world_rotation** (camera) : Quaternion
+		Returns the world rotation of the camera.
+
+	**world_pose** (camera) : Matrix4x4
+		Returns the world pose of the camera.
+
+	**set_local_position** (camera, unit, position)
+		Sets the local position of the camera.
+
+	**set_local_rotation** (camera, unit, rotation)
+		Sets the local rotation of the camera.
+
+	**set_local_pose** (camera, unit, pose)
+		Sets the local pose of the camera.
+
+	**set_projection_type** (camera, type)
+		Sets the projection type of the camera.
+
+	**projection_type** (camera) : int
+		Returns the projection type of the camera.
+
+	**fov** (camera) : float
+		Returns the field-of-view of the camera in degrees.
+
+	**set_fov** (camera, degrees)
+		Sets the field-of-view of the camera in degrees.
+
+	**aspect** (camera) : float
+		Returns the aspect ratio of the camera. (Perspective projection only.)
+
+	**set_aspect** (camera)
+		Sets the aspect ratio of the camera. (Perspective projection only.)
+
+	**near_clip_distance** (camera) : float
+		Returns the near clip distance of the camera.
+
+	**set_near_clip_distance** (camera, near)
+		Sets the near clip distance of the camera.
+
+	**far_clip_distance** (camera) : float
+		Returns the far clip distance of the camera.
+
+	**set_far_clip_distance** (camera, far)
+		Sets the far clip distance of the camera.
+
+	**set_orthographic_metrics** (camera, left, right, bottom, top)
+		Sets the coordinates for orthographic clipping planes. (Orthographic projection only.)
+
+	**set_viewport_metrics** (camera, x, y, width, height)
+		Sets the coordinates for the camera viewport in pixels.
+
+	**screen_to_world** (camera, pos) : Vector3
+		Returns *pos* from screen-space to world-space coordinates.
+
+	**world_to_screen** (camera, pos) : Vector3
+		Returns *pos* from world-space to screen-space coordinates.
+
+Sprite
+------
+
+	**local_position** (sprite) : Vector3
+		Returns the local position of the sprite.
+
+	**local_rotation** (sprite) : Quaternion
+		Returns the local rotation of the sprite.
+
+	**local_pose** (sprite) : Matrix4x4
+		Returns the local pose of the sprite.
+
+	**set_local_position** (sprite, unit, position)
+		Sets the local position of the sprite.
+
+	**set_local_rotation** (sprite, unit, rotation)
+		Sets the local rotation of the sprite.
+
+	**set_local_pose** (sprite, unit, pose)
+		Sets the local pose of the sprite.
+
+	**set_frame** (sprite, num)
+		Sets the frame of the sprite.
+
+Mesh
+----
+
+	**local_position** (mesh) : Vector3
+		Returns the local position of the mesh.
+
+	**local_rotation** (mesh) : Quaternion
+		Returns the local rotation of the mesh.
+
+	**local_pose** (mesh) : Matrix4x4
+		Returns the local pose of the mesh.
+
+	**set_local_position** (mesh, unit, position)
+		Sets the local position of the mesh.
+
+	**set_local_rotation** (mesh, unit, rotation)
+		Sets the local rotation of the mesh.
+
+	**set_local_pose** (mesh, unit, pose)
+		Sets the local pose of the mesh.
+
+Material
+--------
+
+	set_float
+		TODO
+
+	set_vector2
+		TODO
+
+	set_vector3
+		TODO
+
+Gui
+---
+
+	resolution
+		TODO
+
+	move
+		TODO
+
+	screen_to_gui
+		TODO
+
+	draw_rectangle
+		TODO
+
+	draw_image
+		TODO
+
+	draw_image_uv
+		TODO
+
+	draw_text
+		TODO
+
+Physics World
+=============
+
+	**gravity** (physics_world) : Vector3
+		Returns the gravity.
+
+	**set_gravity** (physics_world, gravity)
+		Sets the gravity.
+
+	**make_raycast** 
+		TODO
+
+	**overlap_test** 
+		TODO
+
+Controller 
+----------
+
+	**move** (controller, position)
+		Moves the controller to *position*.
+
+	**position** (controller) : Vector3
+		Returns the position of the controller.
+
+	**collides_up** (controller) : bool
+		Returns whether the contoller collides upwards.
+
+	**collides_down** (controller) : bool
+		Returns whether the controller collides downwards.
+
+	**collides_sides** (controller) : bool
+		Returns whether the controller collides sidewards.
+
+Actor
+-----
+
+	**world_position** (actor) : Vector3
+		Returns the world position of the actor.
+
+	**world_rotation** (actor) : Quaternion
+		Returns the world rotation of the actor.
+
+	**world_pose** (actor) : Matrix4x4
+		Returns the world pose of the actor.
+
+	**teleport_world_position** (actor, position)
+		Teleports the actor to the given world position.
+
+	**teleport_world_rotation** (actor, rotation)
+		Teleports the actor to the given world rotation.
+
+	**teleport_world_pose** (actor, pose)
+		Teleports the actor to the given world pose.
+
+	**center_of_mass** (actor) : Vector3
+		Returns the center of mass of the actor.
+
+	**enable_gravity** (actor)
+		Enables gravity for the actor.
+
+	**disable_gravity** (actor)
+		Disables gravity for the actor.
+
+	**enable_collision** (actor)
+		Enables collision detection for the actor.
+
+	**disable_collision** (actor)
+		Disables collision detection for the actor.
+
+	**set_collision_filter** (actor, name)
+		Sets the collision filter of the actor.
+
+	**set_kinematic** (actor, kinematic)
+		Sets whether the actor is kinematic or not.
+		Note that this call has no effect on static actors.
+
+	**move** (actor, position)
+		Moves the actor to *pos*
+		Note that this call only affects nonkinematic actors.
+
+	**is_static** (actor) : bool
+		Returns whether the actor is static.
+
+	**is_dynamic** (actor) bool
+		Returns whether the actor is dynamic.
+
+	**is_kinematic** (actor) : bool
+		Returns whether the actor is kinematic (keyframed).
+
+	**is_nonkinematic** (actor) : bool
+		Returns whether the actor is nonkinematic (i.e. dynamic and not kinematic).
+
+	**linear_damping** (actor) : float
+		Returns the linear damping of the actor.
+
+	**set_linear_damping** (actor, damping)
+		Sets the linear damping of the actor.
+
+	**angular_damping** (actor) : float
+		Returns the angular damping of the actor.
+
+	**set_angular_damping** (actor, rate)
+		Sets the angular damping of the actor.
+
+	**linear_velocity** (actor) : Vector3
+		Returns the linear velocity of the actor.
+
+	**set_linear_velocity** (actor, velocity)
+		Sets the linear velocity of the actor.
+		Note that this call only affects nonkinematic actors.
+
+	**angular_velocity** (actor) : Vector3
+		Returns the angular velocity of the actor.
+
+	**set_angular_velocity** (actor, velocity)
+		Sets the angular velocity of the actor.
+		Note that this call only affects nonkinematic actors.
+
+	**add_impulse** (actor, impulse)
+		Adds a linear impulse (acting along the center of mass) to the actor.
+		Note that this call only affects nonkinematic actors.
+
+	**add_impulse_at** (actor, impulse, position)
+		Adds a linear impulse (acting along the world position *pos*) to the actor.
+		Note that this call only affects nonkinematic actors.
+
+	**add_torque_impulse** (actor, impulse)
+		Adds a torque impulse to the actor.
+
+	**push** (actor, velocity, mass)
+		Pushes the actor as if it was hit by a point object with the given *mass*
+		travelling at the given *velocity*.
+		Note that this call only affects nonkinematic actors.
+
+	**push_at** (actor, velocity, mass, position)
+		Like push() but applies the force at the world position *pos*.
+		Note that this call only affects nonkinematic actors.
+
+	**is_sleeping** (actor) : bool
+		Returns whether the actor is sleeping.
+
+	**wake_up** (actor)
+		Wakes the actor up.
+
+	**unit** (actor) : Unit
+		Returns the unit that owns the actor or nil;
+
+Sound World
+===========
+
+	**stop_all** (sound_world)
+		Stops all the sounds in the world.
+
+	**pause_all** (sound_world)
+		Pauses all the sounds in the world
+
+	**resume_all** (sound_world)
+		Resumes all previously paused sounds in the world.
+
+	**is_playing** (sound_world, id) : bool
+		Returns wheter the sound *id* is playing.
+
+Resource Package
+================
+
+	**load** (package)
+		Loads all the resources in the package.
+		Note that the resources are not immediately available after the call is made,
+		instead, you have to poll for completion with has_loaded().
+
+	**unload** (package)
+		Unloads all the resources in the package.
+
+	**flush** (package)
+		Waits until the package has been loaded.
+
+	**has_loaded** (package) : bool
+		Returns whether the package has been loaded.
+
+Device
+======
+
+	**platform** () : string
+		Returns a string identifying what platform the engine is running on.
+
+	**architecture** () : string
+		Returns a string identifying what architecture the engine is running on.
+
+	**version** () : string
+		Returns a string identifying the engine version.
+
+	**last_delta_time** () : float
+		Returns the time in seconds needed to render the last frame
+
+	**quit** ()
+		Quits the application.
+
+	**resolution** () : Table
+		Returns the main window resolution.
+
+	**create_world** () : World
+		Creates a new world.
+
+	**destroy_world** (world)
+		Destroys the given *world*.
+
+	**render_world** (world, camera)
+		Renders the given *world* from the point of view of the given *camera*.
+
+	**create_resource_package** (name) : ResourcePackage
+		Returns the resource package with the given *package_name* name.
+
+	**destroy_resource_package** (package)
+		Destroy a previously created resource *package*.
+		Note that to unload the resources loaded by the package, you have to call
+		ResourcePackage.unload() first.
+
+DebugLine
+=========
+
+	**add_line** (debug_line, start, end)
+		Adds a line from *start* to *end* with the given *color*.
+
+	**add_sphere** (debug_line, center, radius)
+		Adds a sphere at *center* with the given *radius* and *color*.
+
+	**clear** (debug_line)
+		Clears all the lines.
+
+	**commit** (debug_line)
+		Sends the lines to renderer for drawing.
+
+Input
+=====
+
+Keyboard
+--------
+
+	**modifier_pressed** (modifier) : bool
+		Returns whether the specified *modifier* is pressed.
+
+	**button_pressed** (button) : bool
+		Returns whether the specified *b* button is pressed in the current frame.
+
+	**button_released** (button) : bool
+		Returns whether the specified *b* button is released in the current frame.
+
+	**any_pressed** () : bool
+		Returns wheter any button is pressed in the current frame.
+
+	**any_released** () : bool
+		Returns whether any button is released in the current frame.
+
+Mouse
+-----
+
+	**button_pressed** (button) : bool
+		Returns whether the *b* button is pressed in the current frame.
+
+	**button_released** (button) : bool
+		Returns whether the *b* button is released in the current frame.
+
+	**any_pressed** () : bool
+		Returns wheter any button is pressed in the current frame.
+
+	**any_released** () : bool
+		DReturns whether any button is released in the current frame.ef
+
+	**cursor_xy** () : Vector2
+		Returns the position of the cursor in window space.
+
+	**set_cursor_xy** (position)
+		Sets the position of the cursor in window space.
+
+	**cursor_relative_xy** () : Vector2
+		Returns the relative position of the cursor in window space.
+
+	**set_cursor_relative_xy** (position)
+		Sets the relative position of the cursor in window space.
+
+Touch
+-----
+
+	**pointer_down** (pointer) : bool
+		Returns whether the *p* pointer is pressed in the current frame.
+
+	**pointer_up** (pointer) : bool
+		Returns whether the *p* pointer is released in the current frame.
+
+	**any_down** () : bool
+		Returns wheter any pointer is pressed in the current frame.
+
+	**any_up** () : bool
+		Returns whether any pointer is released in the current frame.
+
+	**pointer_xy** () : Vector2
+		Returns the position of the pointer *p* in window space.
+
+Window
+======
+
+	**show** ()
+		Shows the window.
+
+	**hide** ()
+		Hides the window.
+
+	**resize** (width, height)
+		Resizes the window to *width* and *height*.
+
+	**move** (x, y)
+		Moves the window to *x* and *y*.
+
+	**minimize** ()
+		Minimizes the window.
+
+	**restore** ()
+		Restores the window.
+
+	**is_resizable** () : bool
+		Returns whether the window is resizable.
+
+	**set_resizable** (resizable)
+		Sets whether the window is resizable.
+
+	**title** () : string
+		Returns the title of the window.
+
+	**set_title** (title)
+		Sets the title of the window.

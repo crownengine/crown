@@ -100,17 +100,16 @@ windows-release64: deps-windows-release64 windows-build
 	devenv .build/windows/crown.sln /Build "release|x64"
 
 docs:
-	doxygen Doxyfile.doxygen
-	cp -r .build/documentation $(CROWN_INSTALL_DIR)
+	doxygen documentation/Doxyfile.doxygen
+	rst2html2 --stylesheet=html4css1.css,documentation/style.css documentation/lua_api.txt .build/documentation/lua_api.html
 
 clean: deps-clean
 	@echo Cleaning...
 	@rm -rf .build
 	@rm -rf .installation
 
-starter:	
+starter:
 	xbuild /p:OutputPath=$(CROWN_INSTALL_DIR)/tools tools/gui/starter/starter.sln
 console:
 	xbuild /p:OutputPath=$(CROWN_INSTALL_DIR)/tools tools/gui/console/console.sln
 tools: starter console
-
