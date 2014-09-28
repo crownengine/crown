@@ -37,12 +37,7 @@ namespace crown
 static int debug_line_add_line(lua_State* L)
 {
 	LuaStack stack(L);
-
-	DebugLine* line = stack.get_debug_line(1);
-	const Vector3& start = stack.get_vector3(2);
-	const Vector3& end = stack.get_vector3(3);
-
-	line->add_line(Color4::RED, start, end);
+	stack.get_debug_line(1)->add_line(Color4::RED, stack.get_vector3(2), stack.get_vector3(3));
 	return 0;
 }
 
@@ -50,12 +45,7 @@ static int debug_line_add_line(lua_State* L)
 static int debug_line_add_sphere(lua_State* L)
 {
 	LuaStack stack(L);
-
-	DebugLine* line = stack.get_debug_line(1);
-	const Vector3& center = stack.get_vector3(2);
-	const float radius = stack.get_float(3);
-
-	line->add_sphere(Color4::RED, center, radius);
+	stack.get_debug_line(1)->add_sphere(Color4::RED, stack.get_vector3(2), stack.get_float(3));
 	return 0;
 }
 
@@ -63,9 +53,7 @@ static int debug_line_add_sphere(lua_State* L)
 static int debug_line_clear(lua_State* L)
 {
 	LuaStack stack(L);
-
-	DebugLine* line = stack.get_debug_line(1);
-	line->clear();
+	stack.get_debug_line(1)->clear();
 	return 0;
 }
 
@@ -73,9 +61,7 @@ static int debug_line_clear(lua_State* L)
 static int debug_line_commit(lua_State* L)
 {
 	LuaStack stack(L);
-
-	DebugLine* line = stack.get_debug_line(1);
-	line->commit();
+	stack.get_debug_line(1)->commit();
 	return 0;
 }
 
@@ -83,20 +69,19 @@ static int debug_line_commit(lua_State* L)
 static int debug_line_tostring(lua_State* L)
 {
 	LuaStack stack(L);
-	DebugLine* dl = stack.get_debug_line(1);
-	stack.push_fstring("DebugLine (%p)", dl);
+	stack.push_fstring("DebugLine (%p)", stack.get_debug_line(1));
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
 void load_debug_line(LuaEnvironment& env)
 {
-	env.load_module_function("DebugLine", "add_line",    debug_line_add_line);
-	env.load_module_function("DebugLine", "add_sphere",  debug_line_add_sphere);
-	env.load_module_function("DebugLine", "clear",       debug_line_clear);
-	env.load_module_function("DebugLine", "commit",      debug_line_commit);
-	env.load_module_function("DebugLine", "__index",	 "DebugLine");
-	env.load_module_function("DebugLine", "__tostring",  debug_line_tostring);
+	env.load_module_function("DebugLine", "add_line",   debug_line_add_line);
+	env.load_module_function("DebugLine", "add_sphere", debug_line_add_sphere);
+	env.load_module_function("DebugLine", "clear",      debug_line_clear);
+	env.load_module_function("DebugLine", "commit",     debug_line_commit);
+	env.load_module_function("DebugLine", "__index",    "DebugLine");
+	env.load_module_function("DebugLine", "__tostring", debug_line_tostring);
 }
 
 } // namespace crown

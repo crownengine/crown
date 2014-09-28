@@ -136,11 +136,11 @@ static int int_setting_update(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_int_setting(LuaEnvironment& env)
 {
-	env.load_module_function("IntSetting", "value",		int_setting_query_value);
-	env.load_module_function("IntSetting", "synopsis",	int_setting_query_synopsis);
-	env.load_module_function("IntSetting", "min",		int_setting_query_min);
-	env.load_module_function("IntSetting", "max",		int_setting_query_max);
-	env.load_module_function("IntSetting", "update",	int_setting_update);
+	env.load_module_function("IntSetting", "value",    int_setting_query_value);
+	env.load_module_function("IntSetting", "synopsis", int_setting_query_synopsis);
+	env.load_module_function("IntSetting", "min",      int_setting_query_min);
+	env.load_module_function("IntSetting", "max",      int_setting_query_max);
+	env.load_module_function("IntSetting", "update",   int_setting_update);
 }
 
 } // namespace crown

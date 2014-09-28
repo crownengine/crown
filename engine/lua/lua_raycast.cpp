@@ -94,7 +94,7 @@ static int raycast_cast(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_raycast(LuaEnvironment& env)
 {
-	env.load_module_function("Raycast", "cast",	raycast_cast);
+	env.load_module_function("Raycast", "cast", raycast_cast);
 }
 
 } // namespace crown

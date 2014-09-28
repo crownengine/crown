@@ -35,11 +35,7 @@ namespace crown
 static int unit_node(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const char* name = stack.get_string(2);
-
-	stack.push_int32(unit->node(name));
+	stack.push_int32(stack.get_unit(1)->node(stack.get_string(2)));
 	return 1;
 }
 
@@ -47,11 +43,7 @@ static int unit_node(lua_State* L)
 static int unit_has_node(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const char* name = stack.get_string(2);
-
-	stack.push_bool(unit->has_node(name));
+	stack.push_bool(stack.get_unit(1)->has_node(stack.get_string(2)));
 	return 1;
 }
 
@@ -59,10 +51,7 @@ static int unit_has_node(lua_State* L)
 static int unit_num_nodes(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-
-	stack.push_int32(unit->num_nodes());
+	stack.push_int32(stack.get_unit(1)->num_nodes());
 	return 1;
 }
 
@@ -70,11 +59,7 @@ static int unit_num_nodes(lua_State* L)
 static int unit_local_position(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const int32_t node = stack.get_int(2);
-
-	stack.push_vector3(unit->local_position(node));
+	stack.push_vector3(stack.get_unit(1)->local_position(stack.get_int(2)));
 	return 1;
 }
 
@@ -82,11 +67,7 @@ static int unit_local_position(lua_State* L)
 static int unit_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const int32_t node = stack.get_int(2);
-
-	stack.push_quaternion(unit->local_rotation(node));
+	stack.push_quaternion(stack.get_unit(1)->local_rotation(stack.get_int(2)));
 	return 1;
 }
 
@@ -94,11 +75,7 @@ static int unit_local_rotation(lua_State* L)
 static int unit_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const int32_t node = stack.get_int(2);
-
-	stack.push_matrix4x4(unit->local_pose(node));
+	stack.push_matrix4x4(stack.get_unit(1)->local_pose(stack.get_int(2)));
 	return 1;
 }
 
@@ -106,11 +83,7 @@ static int unit_local_pose(lua_State* L)
 static int unit_world_position(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const int32_t node = stack.get_int(2);
-
-	stack.push_vector3(unit->world_position(node));
+	stack.push_vector3(stack.get_unit(1)->world_position(stack.get_int(2)));
 	return 1;
 }
 
@@ -118,11 +91,7 @@ static int unit_world_position(lua_State* L)
 static int unit_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const int32_t node = stack.get_int(2);
-
-	stack.push_quaternion(unit->world_rotation(node));
+	stack.push_quaternion(stack.get_unit(1)->world_rotation(stack.get_int(2)));
 	return 1;
 }
 
@@ -130,11 +99,7 @@ static int unit_world_rotation(lua_State* L)
 static int unit_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const int32_t node = stack.get_int(2);
-
-	stack.push_matrix4x4(unit->world_pose(node));
+	stack.push_matrix4x4(stack.get_unit(1)->world_pose(stack.get_int(2)));
 	return 1;
 }
 
@@ -142,12 +107,7 @@ static int unit_world_pose(lua_State* L)
 static int unit_set_local_position(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const int32_t node = stack.get_int(2);
-	Vector3& pos = stack.get_vector3(3);
-
-	unit->set_local_position(node, pos);
+	stack.get_unit(1)->set_local_position(stack.get_int(2), stack.get_vector3(3));
 	return 0;
 }
 
@@ -155,12 +115,7 @@ static int unit_set_local_position(lua_State* L)
 static int unit_set_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const int32_t node = stack.get_int(2);
-	Quaternion& rot = stack.get_quaternion(3);
-
-	unit->set_local_rotation(node, rot);
+	stack.get_unit(1)->set_local_rotation(stack.get_int(2), stack.get_quaternion(3));
 	return 0;
 }
 
@@ -168,12 +123,7 @@ static int unit_set_local_rotation(lua_State* L)
 static int unit_set_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const int32_t node = stack.get_int(2);
-	Matrix4x4& pose = stack.get_matrix4x4(3);
-
-	unit->set_local_pose(node, pose);
+	stack.get_unit(1)->set_local_pose(stack.get_int(2), stack.get_matrix4x4(3));
 	return 0;
 }
 
@@ -181,12 +131,7 @@ static int unit_set_local_pose(lua_State* L)
 static int unit_link_node(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const int32_t child = stack.get_int(2);
-	const int32_t parent = stack.get_int(3);
-
-	unit->link_node(child, parent);
+	stack.get_unit(1)->link_node(stack.get_int(2), stack.get_int(3));
 	return 0;
 }
 
@@ -194,11 +139,7 @@ static int unit_link_node(lua_State* L)
 static int unit_unlink_node(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const int32_t child = stack.get_int(2);
-
-	unit->unlink_node(child);
+	stack.get_unit(1)->unlink_node(stack.get_int(2));
 	return 0;
 }
 
@@ -291,11 +232,8 @@ static int unit_actor(lua_State* L)
 static int unit_controller(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-
-	Controller* controller = unit->controller();
-	controller ? stack.push_controller(controller) : stack.push_nil();
+	Controller* ctl = stack.get_unit(1)->controller();
+	ctl ? stack.push_controller(ctl) : stack.push_nil();
 	return 1;
 }
 
@@ -303,11 +241,7 @@ static int unit_controller(lua_State* L)
 static int unit_is_a(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const char* name = stack.get_string(2);
-
-	stack.push_bool(unit->is_a(name));
+	stack.push_bool(stack.get_unit(1)->is_a(stack.get_string(2)));
 	return 1;
 }
 
@@ -315,10 +249,7 @@ static int unit_is_a(lua_State* L)
 static int unit_play_sprite_animation(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	const char* anim = stack.get_string(2);
-	unit->play_sprite_animation(anim, stack.get_bool(3));
+	stack.get_unit(1)->play_sprite_animation(stack.get_string(2), stack.get_bool(3));
 	return 0;
 }
 
@@ -326,9 +257,7 @@ static int unit_play_sprite_animation(lua_State* L)
 static int unit_stop_sprite_animation(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	unit->stop_sprite_animation();
+	stack.get_unit(1)->stop_sprite_animation();
 	return 0;
 }
 
@@ -336,9 +265,7 @@ static int unit_stop_sprite_animation(lua_State* L)
 static int unit_has_key(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Unit* unit = stack.get_unit(1);
-	stack.push_bool(unit->has_key(stack.get_string(2)));
+	stack.push_bool(stack.get_unit(1)->has_key(stack.get_string(2)));
 	return 1;
 }
 
@@ -409,37 +336,32 @@ static int unit_set_key(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_unit(LuaEnvironment& env)
 {
-	env.load_module_function("Unit", "node",					unit_node);
-	env.load_module_function("Unit", "has_node",				unit_has_node);
-	env.load_module_function("Unit", "num_nodes",				unit_num_nodes);
-
-	env.load_module_function("Unit", "local_position",			unit_local_position);
-	env.load_module_function("Unit", "local_rotation",			unit_local_rotation);
-	env.load_module_function("Unit", "local_pose",				unit_local_pose);
-	env.load_module_function("Unit", "world_position",			unit_world_position);
-	env.load_module_function("Unit", "world_rotation",			unit_world_rotation);
-	env.load_module_function("Unit", "world_pose",				unit_world_pose);
-	env.load_module_function("Unit", "set_local_position",		unit_set_local_position);
-	env.load_module_function("Unit", "set_local_rotation",		unit_set_local_rotation);
-	env.load_module_function("Unit", "set_local_pose",			unit_set_local_pose);
-	env.load_module_function("Unit", "link_node",				unit_link_node);
-	env.load_module_function("Unit", "unlink_node",				unit_unlink_node);
-
-	env.load_module_function("Unit", "camera",					unit_camera);
-	env.load_module_function("Unit", "material",				unit_material);
-	env.load_module_function("Unit", "mesh",					unit_mesh);
-	env.load_module_function("Unit", "sprite",					unit_sprite);
-	env.load_module_function("Unit", "actor",					unit_actor);
-	env.load_module_function("Unit", "controller",				unit_controller);
-
-	env.load_module_function("Unit", "is_a",					unit_is_a);
-
-	env.load_module_function("Unit", "play_sprite_animation",	unit_play_sprite_animation);
-	env.load_module_function("Unit", "stop_sprite_animation",	unit_stop_sprite_animation);
-
-	env.load_module_function("Unit", "has_key",					unit_has_key);
-	env.load_module_function("Unit", "get_key",					unit_get_key);
-	env.load_module_function("Unit", "set_key",					unit_set_key);
+	env.load_module_function("Unit", "node",                  unit_node);
+	env.load_module_function("Unit", "has_node",              unit_has_node);
+	env.load_module_function("Unit", "num_nodes",             unit_num_nodes);
+	env.load_module_function("Unit", "local_position",        unit_local_position);
+	env.load_module_function("Unit", "local_rotation",        unit_local_rotation);
+	env.load_module_function("Unit", "local_pose",            unit_local_pose);
+	env.load_module_function("Unit", "world_position",        unit_world_position);
+	env.load_module_function("Unit", "world_rotation",        unit_world_rotation);
+	env.load_module_function("Unit", "world_pose",            unit_world_pose);
+	env.load_module_function("Unit", "set_local_position",    unit_set_local_position);
+	env.load_module_function("Unit", "set_local_rotation",    unit_set_local_rotation);
+	env.load_module_function("Unit", "set_local_pose",        unit_set_local_pose);
+	env.load_module_function("Unit", "link_node",             unit_link_node);
+	env.load_module_function("Unit", "unlink_node",           unit_unlink_node);
+	env.load_module_function("Unit", "camera",                unit_camera);
+	env.load_module_function("Unit", "material",              unit_material);
+	env.load_module_function("Unit", "mesh",                  unit_mesh);
+	env.load_module_function("Unit", "sprite",                unit_sprite);
+	env.load_module_function("Unit", "actor",                 unit_actor);
+	env.load_module_function("Unit", "controller",            unit_controller);
+	env.load_module_function("Unit", "is_a",                  unit_is_a);
+	env.load_module_function("Unit", "play_sprite_animation", unit_play_sprite_animation);
+	env.load_module_function("Unit", "stop_sprite_animation", unit_stop_sprite_animation);
+	env.load_module_function("Unit", "has_key",               unit_has_key);
+	env.load_module_function("Unit", "get_key",               unit_get_key);
+	env.load_module_function("Unit", "set_key",               unit_set_key);
 }
 
 } // namespace crown

@@ -35,10 +35,7 @@ namespace crown
 static int resource_package_load(lua_State* L)
 {
 	LuaStack stack(L);
-
-	ResourcePackage* package = stack.get_resource_package(1);
-	package->load();
-
+	stack.get_resource_package(1)->load();
 	return 0;
 }
 
@@ -46,10 +43,7 @@ static int resource_package_load(lua_State* L)
 static int resource_package_unload(lua_State* L)
 {
 	LuaStack stack(L);
-
-	ResourcePackage* package = stack.get_resource_package(1);
-	package->unload();
-
+	stack.get_resource_package(1)->unload();
 	return 0;
 }
 
@@ -57,10 +51,7 @@ static int resource_package_unload(lua_State* L)
 static int resource_package_flush(lua_State* L)
 {
 	LuaStack stack(L);
-
-	ResourcePackage* package = stack.get_resource_package(1);
-	package->flush();
-
+	stack.get_resource_package(1)->flush();
 	return 0;
 }
 
@@ -68,10 +59,7 @@ static int resource_package_flush(lua_State* L)
 static int resource_package_has_loaded(lua_State* L)
 {
 	LuaStack stack(L);
-
-	ResourcePackage* package = stack.get_resource_package(1);
-	stack.push_bool(package->has_loaded());
-
+	stack.push_bool(stack.get_resource_package(1)->has_loaded());
 	return 1;
 }
 

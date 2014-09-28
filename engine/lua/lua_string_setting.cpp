@@ -94,9 +94,9 @@ static int string_setting_update(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_string_setting(LuaEnvironment& env)
 {
-	env.load_module_function("StringSetting", "value",		string_setting_value);
-	env.load_module_function("StringSetting", "synopsis",	string_setting_synopsis);
-	env.load_module_function("StringSetting", "update",		string_setting_update);
+	env.load_module_function("StringSetting", "value",    string_setting_value);
+	env.load_module_function("StringSetting", "synopsis", string_setting_synopsis);
+	env.load_module_function("StringSetting", "update",   string_setting_update);
 }
 
 } // namespace crown

@@ -136,11 +136,11 @@ static int float_setting_update(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_float_setting(LuaEnvironment& env)
 {
-	env.load_module_function("FloatSetting", "value",		float_setting_value);
-	env.load_module_function("FloatSetting", "synopsis",	float_setting_synopsis);
-	env.load_module_function("FloatSetting", "min",			float_setting_min);
-	env.load_module_function("FloatSetting", "max",			float_setting_max);
-	env.load_module_function("FloatSetting", "update",		float_setting_update);
+	env.load_module_function("FloatSetting", "value",    float_setting_value);
+	env.load_module_function("FloatSetting", "synopsis", float_setting_synopsis);
+	env.load_module_function("FloatSetting", "min",      float_setting_min);
+	env.load_module_function("FloatSetting", "max",      float_setting_max);
+	env.load_module_function("FloatSetting", "update",   float_setting_update);
 }
 
 } // namespace crown

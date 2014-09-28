@@ -64,11 +64,7 @@ static int device_version(lua_State* L)
 static int device_last_delta_time(lua_State* L)
 {
 	LuaStack stack(L);
-
-	float delta = device()->last_delta_time();
-
-	stack.push_float(delta);
-
+	stack.push_float(device()->last_delta_time());
 	return 1;
 }
 
@@ -111,11 +107,7 @@ static int device_destroy_world(lua_State* L)
 static int device_render_world(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-	Camera* camera = stack.get_camera(2);
-
-	device()->render_world(world, camera);
+	device()->render_world(stack.get_world(1), stack.get_camera(2));
 	return 0;
 }
 
@@ -123,10 +115,7 @@ static int device_render_world(lua_State* L)
 static int device_create_resource_package(lua_State* L)
 {
 	LuaStack stack(L);
-
-	const char* package = stack.get_string(1);
-	stack.push_resource_package(device()->create_resource_package(package));
-
+	stack.push_resource_package(device()->create_resource_package(stack.get_string(1)));
 	return 1;
 }
 
@@ -134,10 +123,7 @@ static int device_create_resource_package(lua_State* L)
 static int device_destroy_resource_package(lua_State* L)
 {
 	LuaStack stack(L);
-
-	ResourcePackage* package = stack.get_resource_package(1);
-	device()->destroy_resource_package(package);
-
+	device()->destroy_resource_package(stack.get_resource_package(1));
 	return 0;
 }
 

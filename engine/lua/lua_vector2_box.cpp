@@ -149,14 +149,14 @@ static int vector2box_tostring(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_vector2box(LuaEnvironment& env)
 {
-	env.load_module_function("Vector2Box", "new",			vector2box_new);
-	env.load_module_function("Vector2Box", "store",			vector2box_store);
-	env.load_module_function("Vector2Box", "unbox",			vector2box_unbox);
-	env.load_module_function("Vector2Box", "__index",		vector2box_get_value);
-	env.load_module_function("Vector2Box", "__newindex",	vector2box_set_value);
-	env.load_module_function("Vector2Box", "__tostring",	vector2box_tostring);
-
-	env.load_module_constructor("Vector2Box",				vector2box_ctor);
+	env.load_module_function("Vector2Box", "new",        vector2box_new);
+	env.load_module_function("Vector2Box", "store",      vector2box_store);
+	env.load_module_function("Vector2Box", "unbox",      vector2box_unbox);
+	env.load_module_function("Vector2Box", "__index",    vector2box_get_value);
+	env.load_module_function("Vector2Box", "__newindex", vector2box_set_value);
+	env.load_module_function("Vector2Box", "__tostring", vector2box_tostring);
+	
+	env.load_module_constructor("Vector2Box", vector2box_ctor);
 }
 
 } // namespace crown

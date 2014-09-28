@@ -36,10 +36,7 @@ namespace crown
 static int mesh_local_position(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Mesh* mesh = stack.get_mesh(1);
-
-	stack.push_vector3(mesh->local_position());
+	stack.push_vector3(stack.get_mesh(1)->local_position());
 	return 1;
 }
 
@@ -47,10 +44,7 @@ static int mesh_local_position(lua_State* L)
 static int mesh_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Mesh* mesh = stack.get_mesh(1);
-
-	stack.push_quaternion(mesh->local_rotation());
+	stack.push_quaternion(stack.get_mesh(1)->local_rotation());
 	return 1;
 }
 
@@ -58,10 +52,7 @@ static int mesh_local_rotation(lua_State* L)
 static int mesh_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Mesh* mesh = stack.get_mesh(1);
-
-	stack.push_matrix4x4(mesh->local_pose());
+	stack.push_matrix4x4(stack.get_mesh(1)->local_pose());
 	return 1;
 }
 
@@ -69,10 +60,7 @@ static int mesh_local_pose(lua_State* L)
 static int mesh_world_position(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Mesh* mesh = stack.get_mesh(1);
-
-	stack.push_vector3(mesh->world_position());
+	stack.push_vector3(stack.get_mesh(1)->world_position());
 	return 1;
 }
 
@@ -80,10 +68,7 @@ static int mesh_world_position(lua_State* L)
 static int mesh_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Mesh* mesh = stack.get_mesh(1);
-
-	stack.push_quaternion(mesh->world_rotation());
+	stack.push_quaternion(stack.get_mesh(1)->world_rotation());
 	return 1;
 }
 
@@ -91,10 +76,7 @@ static int mesh_world_rotation(lua_State* L)
 static int mesh_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Mesh* mesh = stack.get_mesh(1);
-
-	stack.push_matrix4x4(mesh->world_pose());
+	stack.push_matrix4x4(stack.get_mesh(1)->world_pose());
 	return 1;
 }
 
@@ -102,12 +84,7 @@ static int mesh_world_pose(lua_State* L)
 static int mesh_set_local_position(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Mesh* mesh = stack.get_mesh(1);
-	Unit* unit = stack.get_unit(2);
-	const Vector3 pos = stack.get_vector3(3);
-
-	mesh->set_local_position(unit, pos);
+	stack.get_mesh(1)->set_local_position(stack.get_unit(2), stack.get_vector3(3));
 	return 0;
 }
 
@@ -115,12 +92,7 @@ static int mesh_set_local_position(lua_State* L)
 static int mesh_set_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Mesh* mesh = stack.get_mesh(1);
-	Unit* unit = stack.get_unit(2);
-	const Quaternion rot = stack.get_quaternion(3);
-
-	mesh->set_local_rotation(unit, rot);
+	stack.get_mesh(1)->set_local_rotation(stack.get_unit(2), stack.get_quaternion(3));
 	return 0;
 }
 
@@ -128,27 +100,22 @@ static int mesh_set_local_rotation(lua_State* L)
 static int mesh_set_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Mesh* mesh = stack.get_mesh(1);
-	Unit* unit = stack.get_unit(2);
-	const Matrix4x4 pose = stack.get_matrix4x4(3);
-
-	mesh->set_local_pose(unit, pose);
+	stack.get_mesh(1)->set_local_pose(stack.get_unit(2), stack.get_matrix4x4(3));
 	return 0;
 }
 
 //-----------------------------------------------------------------------------
 void load_mesh(LuaEnvironment& env)
 {
-	env.load_module_function("Mesh", "local_position",         mesh_local_position);
-	env.load_module_function("Mesh", "local_rotation",         mesh_local_rotation);
-	env.load_module_function("Mesh", "local_pose",             mesh_local_pose);
-	env.load_module_function("Mesh", "world_position",         mesh_world_position);
-	env.load_module_function("Mesh", "world_rotation",         mesh_world_rotation);
-	env.load_module_function("Mesh", "world_pose",             mesh_world_pose);
-	env.load_module_function("Mesh", "set_local_position",     mesh_set_local_position);
-	env.load_module_function("Mesh", "set_local_rotation",     mesh_set_local_rotation);
-	env.load_module_function("Mesh", "set_local_pose",         mesh_set_local_pose);
+	env.load_module_function("Mesh", "local_position",     mesh_local_position);
+	env.load_module_function("Mesh", "local_rotation",     mesh_local_rotation);
+	env.load_module_function("Mesh", "local_pose",         mesh_local_pose);
+	env.load_module_function("Mesh", "world_position",     mesh_world_position);
+	env.load_module_function("Mesh", "world_rotation",     mesh_world_rotation);
+	env.load_module_function("Mesh", "world_pose",         mesh_world_pose);
+	env.load_module_function("Mesh", "set_local_position", mesh_set_local_position);
+	env.load_module_function("Mesh", "set_local_rotation", mesh_set_local_rotation);
+	env.load_module_function("Mesh", "set_local_pose",     mesh_set_local_pose);
 }
 
 } // namespace crown

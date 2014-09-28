@@ -117,7 +117,7 @@ void load_quaternionbox(LuaEnvironment& env)
 	env.load_module_function("QuaternionBox", "unbox",      quaternionbox_unbox);
 	env.load_module_function("QuaternionBox", "__tostring", quaternionbox_tostring);
 
-	env.load_module_constructor("QuaternionBox",			quaternionbox_ctor);
+	env.load_module_constructor("QuaternionBox", quaternionbox_ctor);
 }
 
 } // namespace crown

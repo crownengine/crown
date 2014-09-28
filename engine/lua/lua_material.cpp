@@ -58,7 +58,7 @@ static int material_set_vector3(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_material(LuaEnvironment& env)
 {
-	env.load_module_function("Material", "set_float", material_set_float);
+	env.load_module_function("Material", "set_float",   material_set_float);
 	env.load_module_function("Material", "set_vector2", material_set_vector2);
 	env.load_module_function("Material", "set_vector3", material_set_vector3);
 }

@@ -76,11 +76,11 @@ static int touch_pointer_xy(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_touch(LuaEnvironment& env)
 {
-	env.load_module_function("Touch", "pointer_down",	touch_pointer_down);
-	env.load_module_function("Touch", "pointer_up",		touch_pointer_up);
-	env.load_module_function("Touch", "any_down",		touch_any_down);
-	env.load_module_function("Touch", "any_up",			touch_any_up);
-	env.load_module_function("Touch", "pointer_xy",		touch_pointer_xy);
+	env.load_module_function("Touch", "pointer_down", touch_pointer_down);
+	env.load_module_function("Touch", "pointer_up",   touch_pointer_up);
+	env.load_module_function("Touch", "any_down",     touch_any_down);
+	env.load_module_function("Touch", "any_up",       touch_any_up);
+	env.load_module_function("Touch", "pointer_xy",   touch_pointer_xy);
 }
 
 } // namespace crown

@@ -77,103 +77,91 @@ static int keyboard_any_released(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_keyboard(LuaEnvironment& env)
 {
-	env.load_module_function("Keyboard", "modifier_pressed",	keyboard_modifier_pressed);
-	env.load_module_function("Keyboard", "button_pressed",		keyboard_button_pressed);
-	env.load_module_function("Keyboard", "button_released",		keyboard_button_released);
-	env.load_module_function("Keyboard", "any_pressed",			keyboard_any_pressed);
-	env.load_module_function("Keyboard", "any_released",		keyboard_any_released);
-
-	env.load_module_enum("Keyboard", "TAB",			KeyboardButton::TAB);
-	env.load_module_enum("Keyboard", "ENTER",		KeyboardButton::ENTER);
-	env.load_module_enum("Keyboard", "ESCAPE",		KeyboardButton::ESCAPE);
-	env.load_module_enum("Keyboard", "SPACE",		KeyboardButton::SPACE);
-	env.load_module_enum("Keyboard", "BACKSPACE",	KeyboardButton::BACKSPACE);
-
-	/* KeyPad */
-	env.load_module_enum("Keyboard", "KP_0",		KeyboardButton::KP_0);
-	env.load_module_enum("Keyboard", "KP_1",		KeyboardButton::KP_1);
-	env.load_module_enum("Keyboard", "KP_2",		KeyboardButton::KP_2);
-	env.load_module_enum("Keyboard", "KP_3",		KeyboardButton::KP_3);
-	env.load_module_enum("Keyboard", "KP_4",		KeyboardButton::KP_4);
-	env.load_module_enum("Keyboard", "KP_5",		KeyboardButton::KP_5);
-	env.load_module_enum("Keyboard", "KP_6",		KeyboardButton::KP_6);
-	env.load_module_enum("Keyboard", "KP_7",		KeyboardButton::KP_7);
-	env.load_module_enum("Keyboard", "KP_8",		KeyboardButton::KP_8);
-	env.load_module_enum("Keyboard", "KP_9",		KeyboardButton::KP_9);
-
-	/* Function keys */
-	env.load_module_enum("Keyboard", "F1",			KeyboardButton::F1);
-	env.load_module_enum("Keyboard", "F2",			KeyboardButton::F2);
-	env.load_module_enum("Keyboard", "F3",			KeyboardButton::F3);
-	env.load_module_enum("Keyboard", "F4",			KeyboardButton::F4);
-	env.load_module_enum("Keyboard", "F5",			KeyboardButton::F5);
-	env.load_module_enum("Keyboard", "F6",			KeyboardButton::F6);
-	env.load_module_enum("Keyboard", "F7",			KeyboardButton::F7);
-	env.load_module_enum("Keyboard", "F8",			KeyboardButton::F8);
-	env.load_module_enum("Keyboard", "F9",			KeyboardButton::F9);
-	env.load_module_enum("Keyboard", "F10",			KeyboardButton::F10);
-	env.load_module_enum("Keyboard", "F11",			KeyboardButton::F11);
-	env.load_module_enum("Keyboard", "F12",			KeyboardButton::F12);
-
-	/* Other keys */
-	env.load_module_enum("Keyboard", "HOME",		KeyboardButton::HOME);
-	env.load_module_enum("Keyboard", "LEFT",		KeyboardButton::LEFT);
-	env.load_module_enum("Keyboard", "UP",			KeyboardButton::UP);
-	env.load_module_enum("Keyboard", "RIGHT",		KeyboardButton::RIGHT);
-	env.load_module_enum("Keyboard", "DOWN",		KeyboardButton::DOWN);
-	env.load_module_enum("Keyboard", "PAGE_UP",		KeyboardButton::PAGE_UP);
-	env.load_module_enum("Keyboard", "PAGE_DOWN",	KeyboardButton::PAGE_DOWN);
-
-	/* Modifier keys */
-	env.load_module_enum("Keyboard", "LCONTROL",	KeyboardButton::LCONTROL);
-	env.load_module_enum("Keyboard", "RCONTROL",	KeyboardButton::RCONTROL);
-	env.load_module_enum("Keyboard", "LSHIFT",		KeyboardButton::LSHIFT);
-	env.load_module_enum("Keyboard", "RSHIFT",		KeyboardButton::RSHIFT);
-	env.load_module_enum("Keyboard", "CAPS_LOCK",	KeyboardButton::CAPS_LOCK);
-	env.load_module_enum("Keyboard", "LALT",		KeyboardButton::LALT);
-	env.load_module_enum("Keyboard", "RALT",		KeyboardButton::RALT);
-	env.load_module_enum("Keyboard", "LSUPER",		KeyboardButton::LSUPER);
-	env.load_module_enum("Keyboard", "RSUPER",		KeyboardButton::RSUPER);
-
-	/* [0x30, 0x39] reserved for ASCII digits */
-	env.load_module_enum("Keyboard", "NUM_0",		KeyboardButton::NUM_0);
-	env.load_module_enum("Keyboard", "NUM_1",		KeyboardButton::NUM_1);
-	env.load_module_enum("Keyboard", "NUM_2",		KeyboardButton::NUM_2);
-	env.load_module_enum("Keyboard", "NUM_3",		KeyboardButton::NUM_3);
-	env.load_module_enum("Keyboard", "NUM_4",		KeyboardButton::NUM_4);
-	env.load_module_enum("Keyboard", "NUM_5",		KeyboardButton::NUM_5);
-	env.load_module_enum("Keyboard", "NUM_6",		KeyboardButton::NUM_6);
-	env.load_module_enum("Keyboard", "NUM_7",		KeyboardButton::NUM_7);
-	env.load_module_enum("Keyboard", "NUM_8",		KeyboardButton::NUM_8);
-	env.load_module_enum("Keyboard", "NUM_9",		KeyboardButton::NUM_9);
-
-	/* [0x41, 0x5A] reserved for ASCII alph,abet */
-	env.load_module_enum("Keyboard", "A",			KeyboardButton::A);
-	env.load_module_enum("Keyboard", "B",			KeyboardButton::B);
-	env.load_module_enum("Keyboard", "C",			KeyboardButton::C);
-	env.load_module_enum("Keyboard", "D",			KeyboardButton::D);
-	env.load_module_enum("Keyboard", "E",			KeyboardButton::E);
-	env.load_module_enum("Keyboard", "F",			KeyboardButton::F);
-	env.load_module_enum("Keyboard", "G",			KeyboardButton::G);
-	env.load_module_enum("Keyboard", "H",			KeyboardButton::H);
-	env.load_module_enum("Keyboard", "I",			KeyboardButton::I);
-	env.load_module_enum("Keyboard", "J",			KeyboardButton::J);
-	env.load_module_enum("Keyboard", "K",			KeyboardButton::K);
-	env.load_module_enum("Keyboard", "L",			KeyboardButton::L);
-	env.load_module_enum("Keyboard", "M",			KeyboardButton::M);
-	env.load_module_enum("Keyboard", "N",			KeyboardButton::N);
-	env.load_module_enum("Keyboard", "O",			KeyboardButton::O);
-	env.load_module_enum("Keyboard", "P",			KeyboardButton::P);
-	env.load_module_enum("Keyboard", "Q",			KeyboardButton::Q);
-	env.load_module_enum("Keyboard", "R",			KeyboardButton::R);
-	env.load_module_enum("Keyboard", "S",			KeyboardButton::S);
-	env.load_module_enum("Keyboard", "T",			KeyboardButton::T);
-	env.load_module_enum("Keyboard", "U",			KeyboardButton::U);
-	env.load_module_enum("Keyboard", "V",			KeyboardButton::V);
-	env.load_module_enum("Keyboard", "W",			KeyboardButton::W);
-	env.load_module_enum("Keyboard", "X",			KeyboardButton::X);
-	env.load_module_enum("Keyboard", "Y",			KeyboardButton::Y);
-	env.load_module_enum("Keyboard", "Z",			KeyboardButton::Z);
+	env.load_module_function("Keyboard", "modifier_pressed", keyboard_modifier_pressed);
+	env.load_module_function("Keyboard", "button_pressed",   keyboard_button_pressed);
+	env.load_module_function("Keyboard", "button_released",  keyboard_button_released);
+	env.load_module_function("Keyboard", "any_pressed",      keyboard_any_pressed);
+	env.load_module_function("Keyboard", "any_released",     keyboard_any_released);
+	
+	env.load_module_enum("Keyboard", "TAB",       KeyboardButton::TAB);
+	env.load_module_enum("Keyboard", "ENTER",     KeyboardButton::ENTER);
+	env.load_module_enum("Keyboard", "ESCAPE",    KeyboardButton::ESCAPE);
+	env.load_module_enum("Keyboard", "SPACE",     KeyboardButton::SPACE);
+	env.load_module_enum("Keyboard", "BACKSPACE", KeyboardButton::BACKSPACE);
+	env.load_module_enum("Keyboard", "KP_0",      KeyboardButton::KP_0);
+	env.load_module_enum("Keyboard", "KP_1",      KeyboardButton::KP_1);
+	env.load_module_enum("Keyboard", "KP_2",      KeyboardButton::KP_2);
+	env.load_module_enum("Keyboard", "KP_3",      KeyboardButton::KP_3);
+	env.load_module_enum("Keyboard", "KP_4",      KeyboardButton::KP_4);
+	env.load_module_enum("Keyboard", "KP_5",      KeyboardButton::KP_5);
+	env.load_module_enum("Keyboard", "KP_6",      KeyboardButton::KP_6);
+	env.load_module_enum("Keyboard", "KP_7",      KeyboardButton::KP_7);
+	env.load_module_enum("Keyboard", "KP_8",      KeyboardButton::KP_8);
+	env.load_module_enum("Keyboard", "KP_9",      KeyboardButton::KP_9);
+	env.load_module_enum("Keyboard", "F1",        KeyboardButton::F1);
+	env.load_module_enum("Keyboard", "F2",        KeyboardButton::F2);
+	env.load_module_enum("Keyboard", "F3",        KeyboardButton::F3);
+	env.load_module_enum("Keyboard", "F4",        KeyboardButton::F4);
+	env.load_module_enum("Keyboard", "F5",        KeyboardButton::F5);
+	env.load_module_enum("Keyboard", "F6",        KeyboardButton::F6);
+	env.load_module_enum("Keyboard", "F7",        KeyboardButton::F7);
+	env.load_module_enum("Keyboard", "F8",        KeyboardButton::F8);
+	env.load_module_enum("Keyboard", "F9",        KeyboardButton::F9);
+	env.load_module_enum("Keyboard", "F10",       KeyboardButton::F10);
+	env.load_module_enum("Keyboard", "F11",       KeyboardButton::F11);
+	env.load_module_enum("Keyboard", "F12",       KeyboardButton::F12);
+	env.load_module_enum("Keyboard", "HOME",      KeyboardButton::HOME);
+	env.load_module_enum("Keyboard", "LEFT",      KeyboardButton::LEFT);
+	env.load_module_enum("Keyboard", "UP",        KeyboardButton::UP);
+	env.load_module_enum("Keyboard", "RIGHT",     KeyboardButton::RIGHT);
+	env.load_module_enum("Keyboard", "DOWN",      KeyboardButton::DOWN);
+	env.load_module_enum("Keyboard", "PAGE_UP",   KeyboardButton::PAGE_UP);
+	env.load_module_enum("Keyboard", "PAGE_DOWN", KeyboardButton::PAGE_DOWN);
+	env.load_module_enum("Keyboard", "LCONTROL",  KeyboardButton::LCONTROL);
+	env.load_module_enum("Keyboard", "RCONTROL",  KeyboardButton::RCONTROL);
+	env.load_module_enum("Keyboard", "LSHIFT",    KeyboardButton::LSHIFT);
+	env.load_module_enum("Keyboard", "RSHIFT",    KeyboardButton::RSHIFT);
+	env.load_module_enum("Keyboard", "CAPS_LOCK", KeyboardButton::CAPS_LOCK);
+	env.load_module_enum("Keyboard", "LALT",      KeyboardButton::LALT);
+	env.load_module_enum("Keyboard", "RALT",      KeyboardButton::RALT);
+	env.load_module_enum("Keyboard", "LSUPER",    KeyboardButton::LSUPER);
+	env.load_module_enum("Keyboard", "RSUPER",    KeyboardButton::RSUPER);
+	env.load_module_enum("Keyboard", "NUM_0",     KeyboardButton::NUM_0);
+	env.load_module_enum("Keyboard", "NUM_1",     KeyboardButton::NUM_1);
+	env.load_module_enum("Keyboard", "NUM_2",     KeyboardButton::NUM_2);
+	env.load_module_enum("Keyboard", "NUM_3",     KeyboardButton::NUM_3);
+	env.load_module_enum("Keyboard", "NUM_4",     KeyboardButton::NUM_4);
+	env.load_module_enum("Keyboard", "NUM_5",     KeyboardButton::NUM_5);
+	env.load_module_enum("Keyboard", "NUM_6",     KeyboardButton::NUM_6);
+	env.load_module_enum("Keyboard", "NUM_7",     KeyboardButton::NUM_7);
+	env.load_module_enum("Keyboard", "NUM_8",     KeyboardButton::NUM_8);
+	env.load_module_enum("Keyboard", "NUM_9",     KeyboardButton::NUM_9);
+	env.load_module_enum("Keyboard", "A",         KeyboardButton::A);
+	env.load_module_enum("Keyboard", "B",         KeyboardButton::B);
+	env.load_module_enum("Keyboard", "C",         KeyboardButton::C);
+	env.load_module_enum("Keyboard", "D",         KeyboardButton::D);
+	env.load_module_enum("Keyboard", "E",         KeyboardButton::E);
+	env.load_module_enum("Keyboard", "F",         KeyboardButton::F);
+	env.load_module_enum("Keyboard", "G",         KeyboardButton::G);
+	env.load_module_enum("Keyboard", "H",         KeyboardButton::H);
+	env.load_module_enum("Keyboard", "I",         KeyboardButton::I);
+	env.load_module_enum("Keyboard", "J",         KeyboardButton::J);
+	env.load_module_enum("Keyboard", "K",         KeyboardButton::K);
+	env.load_module_enum("Keyboard", "L",         KeyboardButton::L);
+	env.load_module_enum("Keyboard", "M",         KeyboardButton::M);
+	env.load_module_enum("Keyboard", "N",         KeyboardButton::N);
+	env.load_module_enum("Keyboard", "O",         KeyboardButton::O);
+	env.load_module_enum("Keyboard", "P",         KeyboardButton::P);
+	env.load_module_enum("Keyboard", "Q",         KeyboardButton::Q);
+	env.load_module_enum("Keyboard", "R",         KeyboardButton::R);
+	env.load_module_enum("Keyboard", "S",         KeyboardButton::S);
+	env.load_module_enum("Keyboard", "T",         KeyboardButton::T);
+	env.load_module_enum("Keyboard", "U",         KeyboardButton::U);
+	env.load_module_enum("Keyboard", "V",         KeyboardButton::V);
+	env.load_module_enum("Keyboard", "W",         KeyboardButton::W);
+	env.load_module_enum("Keyboard", "X",         KeyboardButton::X);
+	env.load_module_enum("Keyboard", "Y",         KeyboardButton::Y);
+	env.load_module_enum("Keyboard", "Z",         KeyboardButton::Z);
 }
 
 } // namespace crown

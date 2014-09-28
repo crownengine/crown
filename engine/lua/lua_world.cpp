@@ -55,11 +55,7 @@ static int world_spawn_unit(lua_State* L)
 static int world_destroy_unit(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-	Unit* unit = stack.get_unit(2);
-
-	world->destroy_unit(unit->id());
+	stack.get_world(1)->destroy_unit(stack.get_unit(2)->id());
 	return 0;
 }
 
@@ -67,10 +63,7 @@ static int world_destroy_unit(lua_State* L)
 static int world_num_units(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-
-	stack.push_uint32(world->num_units());
+	stack.push_uint32(stack.get_world(1)->num_units());
 	return 1;
 }
 
@@ -80,10 +73,8 @@ static int world_units(lua_State* L)
 	LuaStack stack(L);
 
 	World* world = stack.get_world(1);
-
 	TempAllocator1024 alloc;
 	Array<UnitId> all_units(alloc);
-
 	world->units(all_units);
 
 	stack.push_table();
@@ -128,15 +119,14 @@ static int world_play_sound(lua_State* L)
 
 	World* world = stack.get_world(1);
 	const char* name = stack.get_string(2);
+	int32_t nargs = stack.num_args();
 
-	const bool loop = stack.num_args() > 2 ? stack.get_bool(3) : false;
-	const float volume = stack.num_args() > 3 ? stack.get_float(4) : 1.0f;
-	const Vector3& pos = stack.num_args() > 4 ? stack.get_vector3(5) : vector3::ZERO;
-	const float range = stack.num_args() > 5 ? stack.get_float(6) : 1000.0f;
+	const bool loop = nargs > 2 ? stack.get_bool(3) : false;
+	const float volume = nargs > 3 ? stack.get_float(4) : 1.0f;
+	const Vector3& pos = nargs > 4 ? stack.get_vector3(5) : vector3::ZERO;
+	const float range = nargs > 5 ? stack.get_float(6) : 1000.0f;
 
-	SoundInstanceId id = world->play_sound(name, loop, volume, pos, range);
-
-	stack.push_sound_instance_id(id);
+	stack.push_sound_instance_id(world->play_sound(name, loop, volume, pos, range));
 	return 1;
 }
 
@@ -144,11 +134,7 @@ static int world_play_sound(lua_State* L)
 static int world_stop_sound(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-	const SoundInstanceId id = stack.get_sound_instance_id(2);
-
-	world->stop_sound(id);
+	stack.get_world(1)->stop_sound(stack.get_sound_instance_id(2));
 	return 0;
 }
 
@@ -156,13 +142,9 @@ static int world_stop_sound(lua_State* L)
 static int world_link_sound(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-	const SoundInstanceId id = stack.get_sound_instance_id(2);
-	Unit* unit = stack.get_unit(3);
-	const int32_t node = stack.get_int(4);
-
-	world->link_sound(id, unit, node);
+	stack.get_world(1)->link_sound(stack.get_sound_instance_id(2),
+		stack.get_unit(3),
+		stack.get_int(4));
 	return 0;
 }
 
@@ -170,10 +152,7 @@ static int world_link_sound(lua_State* L)
 static int world_set_listener_pose(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-
-	world->set_listener_pose(stack.get_matrix4x4(2));
+	stack.get_world(1)->set_listener_pose(stack.get_matrix4x4(2));
 	return 0;
 }
 
@@ -181,12 +160,8 @@ static int world_set_listener_pose(lua_State* L)
 static int world_set_sound_position(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-	const SoundInstanceId id = stack.get_sound_instance_id(2);
-	const Vector3& pos = stack.get_vector3(3);
-
-	world->set_sound_position(id, pos);
+	stack.get_world(1)->set_sound_position(stack.get_sound_instance_id(2),
+		stack.get_vector3(3));
 	return 0;
 }
 
@@ -194,12 +169,8 @@ static int world_set_sound_position(lua_State* L)
 static int world_set_sound_range(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-	const SoundInstanceId id = stack.get_sound_instance_id(2);
-	float range = stack.get_float(3);
-
-	world->set_sound_range(id, range);
+	stack.get_world(1)->set_sound_range(stack.get_sound_instance_id(2),
+		stack.get_float(3));
 	return 0;
 }
 
@@ -207,12 +178,8 @@ static int world_set_sound_range(lua_State* L)
 static int world_set_sound_volume(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-	const SoundInstanceId id = stack.get_sound_instance_id(2);
-	float vol = stack.get_float(3);
-
-	world->set_sound_volume(id, vol);
+	stack.get_world(1)->set_sound_volume(stack.get_sound_instance_id(2),
+		stack.get_float(3));
 	return 0;
 }
 
@@ -220,10 +187,8 @@ static int world_set_sound_volume(lua_State* L)
 static int world_create_window_gui(lua_State* L)
 {
 	LuaStack stack(L);
-
 	World* world = stack.get_world(1);
 	GuiId id = world->create_window_gui(stack.get_int(2), stack.get_int(3), stack.get_string(4));
-
 	stack.push_gui(world->get_gui(id));
 	return 1;
 }
@@ -232,46 +197,15 @@ static int world_create_window_gui(lua_State* L)
 static int world_destroy_gui(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-	Gui* gui = stack.get_gui(2);
-
-	world->destroy_gui(gui->id());
-
+	stack.get_world(1)->destroy_gui(stack.get_gui(2)->id());
 	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static int world_physics_world(lua_State* L)
-{
-	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-
-	stack.push_physics_world(world->physics_world());
-	return 1;
-}
-
-//-----------------------------------------------------------------------------
-static int world_sound_world(lua_State* L)
-{
-	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-
-	stack.push_sound_world(world->sound_world());
-	return 1;
 }
 
 //-----------------------------------------------------------------------------
 static int world_create_debug_line(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-	const bool depth_test = stack.get_bool(2);
-
-	stack.push_debug_line(world->create_debug_line(depth_test));
+	stack.push_debug_line(stack.get_world(1)->create_debug_line(stack.get_bool(2)));
 	return 1;
 }
 
@@ -279,11 +213,7 @@ static int world_create_debug_line(lua_State* L)
 static int world_destroy_debug_line(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-	DebugLine* line = stack.get_debug_line(2);
-
-	world->destroy_debug_line(line);
+	stack.get_world(1)->destroy_debug_line(stack.get_debug_line(2));
 	return 0;
 }
 
@@ -291,10 +221,24 @@ static int world_destroy_debug_line(lua_State* L)
 static int world_load_level(lua_State* L)
 {
 	LuaStack stack(L);
-
-	World* world = stack.get_world(1);
-	world->load_level(stack.get_string(2));
+	stack.get_world(1)->load_level(stack.get_string(2));
 	return 0;
+}
+
+//-----------------------------------------------------------------------------
+static int world_physics_world(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_physics_world(stack.get_world(1)->physics_world());
+	return 1;
+}
+
+//-----------------------------------------------------------------------------
+static int world_sound_world(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_sound_world(stack.get_world(1)->sound_world());
+	return 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -309,36 +253,29 @@ static int world_tostring(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_world(LuaEnvironment& env)
 {
-	env.load_module_function("World", "spawn_unit",			world_spawn_unit);
+	env.load_module_function("World", "spawn_unit",         world_spawn_unit);
 	env.load_module_function("World", "destroy_unit",       world_destroy_unit);
 	env.load_module_function("World", "num_units",          world_num_units);
 	env.load_module_function("World", "units",              world_units);
-
 	env.load_module_function("World", "update_animations",  world_update_animations);
 	env.load_module_function("World", "update_scene",       world_update_scene);
 	env.load_module_function("World", "update",             world_update);
-
-	env.load_module_function("World", "play_sound",			world_play_sound);
-	env.load_module_function("World", "stop_sound", 		world_stop_sound);
-	env.load_module_function("World", "link_sound",			world_link_sound);
-	env.load_module_function("World", "set_listener_pose", 	world_set_listener_pose);
+	env.load_module_function("World", "play_sound",         world_play_sound);
+	env.load_module_function("World", "stop_sound",         world_stop_sound);
+	env.load_module_function("World", "link_sound",         world_link_sound);
+	env.load_module_function("World", "set_listener_pose",  world_set_listener_pose);
 	env.load_module_function("World", "set_sound_position", world_set_sound_position);
-	env.load_module_function("World", "set_sound_range", 	world_set_sound_range);
-	env.load_module_function("World", "set_sound_volume", 	world_set_sound_volume);
-
-	env.load_module_function("World", "create_window_gui",	world_create_window_gui);
-	env.load_module_function("World", "destroy_gui",		world_destroy_gui);
-
-	env.load_module_function("World", "physics_world",		world_physics_world);
-	env.load_module_function("World", "sound_world",        world_sound_world);
-
+	env.load_module_function("World", "set_sound_range",    world_set_sound_range);
+	env.load_module_function("World", "set_sound_volume",   world_set_sound_volume);
+	env.load_module_function("World", "create_window_gui",  world_create_window_gui);
+	env.load_module_function("World", "destroy_gui",        world_destroy_gui);
 	env.load_module_function("World", "create_debug_line",  world_create_debug_line);
 	env.load_module_function("World", "destroy_debug_line", world_destroy_debug_line);
-
-	env.load_module_function("World", "load_level",			world_load_level);
-
-	env.load_module_function("World", "__index",			"World");
-	env.load_module_function("World", "__tostring",			world_tostring);
+	env.load_module_function("World", "load_level",         world_load_level);
+	env.load_module_function("World", "physics_world",      world_physics_world);
+	env.load_module_function("World", "sound_world",        world_sound_world);
+	env.load_module_function("World", "__index",            "World");
+	env.load_module_function("World", "__tostring",         world_tostring);
 }
 
 } // namespace crown

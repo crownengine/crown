@@ -100,18 +100,18 @@ static int mouse_set_cursor_relative_xy(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_mouse(LuaEnvironment& env)
 {
-	env.load_module_function("Mouse", "button_pressed",			mouse_button_pressed);
-	env.load_module_function("Mouse", "button_released",		mouse_button_released);
-	env.load_module_function("Mouse", "any_pressed",			mouse_any_pressed);
-	env.load_module_function("Mouse", "any_released",			mouse_any_released);
-	env.load_module_function("Mouse", "cursor_xy",				mouse_cursor_xy);
-	env.load_module_function("Mouse", "set_cursor_xy",			mouse_set_cursor_xy);
-	env.load_module_function("Mouse", "cursor_relative_xy",		mouse_cursor_relative_xy);
-	env.load_module_function("Mouse", "set_cursor_relative_xy",	mouse_set_cursor_relative_xy);
-
-	env.load_module_enum("Mouse", "LEFT",						MouseButton::LEFT);
-	env.load_module_enum("Mouse", "MIDDLE",						MouseButton::MIDDLE);
-	env.load_module_enum("Mouse", "RIGHT", 						MouseButton::RIGHT);
+	env.load_module_function("Mouse", "button_pressed",         mouse_button_pressed);
+	env.load_module_function("Mouse", "button_released",        mouse_button_released);
+	env.load_module_function("Mouse", "any_pressed",            mouse_any_pressed);
+	env.load_module_function("Mouse", "any_released",           mouse_any_released);
+	env.load_module_function("Mouse", "cursor_xy",              mouse_cursor_xy);
+	env.load_module_function("Mouse", "set_cursor_xy",          mouse_set_cursor_xy);
+	env.load_module_function("Mouse", "cursor_relative_xy",     mouse_cursor_relative_xy);
+	env.load_module_function("Mouse", "set_cursor_relative_xy", mouse_set_cursor_relative_xy);
+	
+	env.load_module_enum("Mouse", "LEFT",   MouseButton::LEFT);
+	env.load_module_enum("Mouse", "MIDDLE", MouseButton::MIDDLE);
+	env.load_module_enum("Mouse", "RIGHT",  MouseButton::RIGHT);
 }
 
 } // namespace crown

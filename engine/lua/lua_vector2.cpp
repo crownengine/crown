@@ -35,12 +35,7 @@ namespace crown
 static int vector2_new(lua_State* L)
 {
 	LuaStack stack(L);
-
-	float x = stack.get_float(1);
-	float y = stack.get_float(2);
-
-	stack.push_vector2(Vector2(x, y));
-
+	stack.push_vector2(Vector2(stack.get_float(1), stack.get_float(2)));
 	return 1;
 }
 
@@ -56,10 +51,7 @@ static int vector2_ctor(lua_State* L)
 static int vector2_x(lua_State* L)
 {
 	LuaStack stack(L);
-
-	const Vector2& a = stack.get_vector2(1);
-
-	stack.push_float(a.x);
+	stack.push_float(stack.get_vector2(1).x);
 	return 1;
 }
 
@@ -67,10 +59,7 @@ static int vector2_x(lua_State* L)
 static int vector2_y(lua_State* L)
 {
 	LuaStack stack(L);
-
-	const Vector2& a = stack.get_vector2(1);
-
-	stack.push_float(a.y);
+	stack.push_float(stack.get_vector2(1).y);
 	return 1;
 }
 
@@ -78,11 +67,7 @@ static int vector2_y(lua_State* L)
 static int vector2_set_x(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-	const float val = stack.get_float(2);
-
-	a.x = val;
+	stack.get_vector2(1).x = stack.get_float(2);
 	return 0;
 }
 
@@ -90,11 +75,7 @@ static int vector2_set_x(lua_State* L)
 static int vector2_set_y(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-	const float val = stack.get_float(2);
-
-	a.y = val;
+	stack.get_vector2(1).y = stack.get_float(2);
 	return 0;
 }
 
@@ -102,12 +83,9 @@ static int vector2_set_y(lua_State* L)
 static int vector2_values(lua_State* L)
 {
 	LuaStack stack(L);
-
 	Vector2& a = stack.get_vector2(1);
-
 	stack.push_float(a.x);
 	stack.push_float(a.y);
-
 	return 2;
 }
 
@@ -115,12 +93,7 @@ static int vector2_values(lua_State* L)
 static int vector2_add(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-	Vector2& b = stack.get_vector2(2);
-
-	stack.push_vector2(a + b);
-
+	stack.push_vector2(stack.get_vector2(1) + stack.get_vector2(2));
 	return 1;
 }
 
@@ -128,12 +101,7 @@ static int vector2_add(lua_State* L)
 static int vector2_subtract(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-	Vector2& b = stack.get_vector2(2);
-
-	stack.push_vector2(a - b);
-
+	stack.push_vector2(stack.get_vector2(1) - stack.get_vector2(2));
 	return 1;
 }
 
@@ -141,12 +109,7 @@ static int vector2_subtract(lua_State* L)
 static int vector2_multiply(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-	float k = stack.get_float(2);
-
-	stack.push_vector2(a * k);
-
+	stack.push_vector2(stack.get_vector2(1) * stack.get_float(2));
 	return 1;
 }
 
@@ -154,12 +117,7 @@ static int vector2_multiply(lua_State* L)
 static int vector2_divide(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-	float k = stack.get_float(2);
-
-	stack.push_vector2(a / k);
-
+	stack.push_vector2(stack.get_vector2(1) / stack.get_float(2));
 	return 1;
 }
 
@@ -167,12 +125,7 @@ static int vector2_divide(lua_State* L)
 static int vector2_dot(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-	Vector2& b = stack.get_vector2(2);
-
-	stack.push_float(vector2::dot(a, b));
-
+	stack.push_float(vector2::dot(stack.get_vector2(1), stack.get_vector2(2)));
 	return 1;
 }
 
@@ -180,12 +133,7 @@ static int vector2_dot(lua_State* L)
 static int vector2_equal(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-	Vector2& b = stack.get_vector2(2);
-
-	stack.push_bool(a == b);
-
+	stack.push_bool(stack.get_vector2(1) == stack.get_vector2(2));
 	return 1;
 }
 
@@ -193,11 +141,7 @@ static int vector2_equal(lua_State* L)
 static int vector2_length(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-
-	stack.push_float(vector2::length(a));
-
+	stack.push_float(vector2::length(stack.get_vector2(1)));
 	return 1;
 }
 
@@ -205,11 +149,7 @@ static int vector2_length(lua_State* L)
 static int vector2_squared_length(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-
-	stack.push_float(vector2::squared_length(a));
-
+	stack.push_float(vector2::squared_length(stack.get_vector2(1)));
 	return 1;
 }
 
@@ -217,12 +157,7 @@ static int vector2_squared_length(lua_State* L)
 static int vector2_set_length(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-	float len = stack.get_float(2);
-
-	vector2::set_length(a, len);
-
+	vector2::set_length(stack.get_vector2(1), stack.get_float(2));
 	return 0;
 }
 
@@ -230,11 +165,7 @@ static int vector2_set_length(lua_State* L)
 static int vector2_normalize(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-
-	stack.push_vector2(vector2::normalize(a));
-
+	stack.push_vector2(vector2::normalize(stack.get_vector2(1)));
 	return 1;
 }
 
@@ -242,12 +173,7 @@ static int vector2_normalize(lua_State* L)
 static int vector2_distance(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-	Vector2& b = stack.get_vector2(2);
-
-	stack.push_float(vector2::distance(a, b));
-
+	stack.push_float(vector2::distance(stack.get_vector2(1), stack.get_vector2(2)));
 	return 1;
 }
 
@@ -255,38 +181,33 @@ static int vector2_distance(lua_State* L)
 static int vector2_angle(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Vector2& a = stack.get_vector2(1);
-	Vector2& b = stack.get_vector2(2);
-
-	stack.push_float(vector2::angle(a, b));
-
+	stack.push_float(vector2::angle(stack.get_vector2(1), stack.get_vector2(2)));
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
 void load_vector2(LuaEnvironment& env)
 {
-	env.load_module_function("Vector2", "new",					vector2_new);
-	env.load_module_function("Vector2", "x", 					vector2_x);
-	env.load_module_function("Vector2", "y", 					vector2_y);
-	env.load_module_function("Vector2", "set_x", 				vector2_set_x);
-	env.load_module_function("Vector2", "set_y", 				vector2_set_y);
-	env.load_module_function("Vector2", "values",				vector2_values);
-	env.load_module_function("Vector2", "add",					vector2_add);
-	env.load_module_function("Vector2", "subtract",				vector2_subtract);
-	env.load_module_function("Vector2", "multiply",				vector2_multiply);
-	env.load_module_function("Vector2", "divide",				vector2_divide);
-	env.load_module_function("Vector2", "dot",					vector2_dot);
-	env.load_module_function("Vector2", "equal",				vector2_equal);
-	env.load_module_function("Vector2", "length",				vector2_length);
-	env.load_module_function("Vector2", "squared_length",		vector2_squared_length);
-	env.load_module_function("Vector2", "set_length",			vector2_set_length);
-	env.load_module_function("Vector2", "normalize",			vector2_normalize);
-	env.load_module_function("Vector2", "distance",				vector2_distance);
-	env.load_module_function("Vector2", "angle",				vector2_angle);
+	env.load_module_function("Vector2", "new",            vector2_new);
+	env.load_module_function("Vector2", "x",              vector2_x);
+	env.load_module_function("Vector2", "y",              vector2_y);
+	env.load_module_function("Vector2", "set_x",          vector2_set_x);
+	env.load_module_function("Vector2", "set_y",          vector2_set_y);
+	env.load_module_function("Vector2", "values",         vector2_values);
+	env.load_module_function("Vector2", "add",            vector2_add);
+	env.load_module_function("Vector2", "subtract",       vector2_subtract);
+	env.load_module_function("Vector2", "multiply",       vector2_multiply);
+	env.load_module_function("Vector2", "divide",         vector2_divide);
+	env.load_module_function("Vector2", "dot",            vector2_dot);
+	env.load_module_function("Vector2", "equal",          vector2_equal);
+	env.load_module_function("Vector2", "length",         vector2_length);
+	env.load_module_function("Vector2", "squared_length", vector2_squared_length);
+	env.load_module_function("Vector2", "set_length",     vector2_set_length);
+	env.load_module_function("Vector2", "normalize",      vector2_normalize);
+	env.load_module_function("Vector2", "distance",       vector2_distance);
+	env.load_module_function("Vector2", "angle",          vector2_angle);
 
-	env.load_module_constructor("Vector2",						vector2_ctor);
+	env.load_module_constructor("Vector2", vector2_ctor);
 }
 
 } // namespace crown

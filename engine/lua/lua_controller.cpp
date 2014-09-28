@@ -36,11 +36,7 @@ namespace crown
 static int controller_move(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Controller* controller = stack.get_controller(1);
-	const Vector3& pos = stack.get_vector3(2);
-
-	controller->move(pos);
+	stack.get_controller(1)->move(stack.get_vector3(2));
 	return 0;
 }
 
@@ -48,10 +44,7 @@ static int controller_move(lua_State* L)
 static int controller_position(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Controller* controller = stack.get_controller(1);
-
-	stack.push_vector3(controller->position());
+	stack.push_vector3(stack.get_controller(1)->position());
 	return 1;
 }
 
@@ -59,10 +52,7 @@ static int controller_position(lua_State* L)
 static int controller_collides_up(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Controller* controller = stack.get_controller(1);
-
-	stack.push_bool(controller->collides_up());
+	stack.push_bool(stack.get_controller(1)->collides_up());
 	return 1;
 }
 
@@ -70,10 +60,7 @@ static int controller_collides_up(lua_State* L)
 static int controller_collides_down(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Controller* controller = stack.get_controller(1);
-
-	stack.push_bool(controller->collides_down());
+	stack.push_bool(stack.get_controller(1)->collides_down());
 	return 1;
 }
 
@@ -81,10 +68,7 @@ static int controller_collides_down(lua_State* L)
 static int controller_collides_sides(lua_State* L)
 {
 	LuaStack stack(L);
-
-	Controller* controller = stack.get_controller(1);
-
-	stack.push_bool(controller->collides_sides());
+	stack.push_bool(stack.get_controller(1)->collides_sides());
 	return 1;
 }
 

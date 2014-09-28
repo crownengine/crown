@@ -35,13 +35,10 @@ namespace crown
 static int color4_new(lua_State* L)
 {
 	LuaStack stack(L);
-
-	const float r = stack.get_float(1);
-	const float g = stack.get_float(2);
-	const float b = stack.get_float(3);
-	const float a = stack.get_float(4);
-
-	stack.push_quaternion(Quaternion(r, g, b, a));
+	stack.push_quaternion(Quaternion(stack.get_float(1),
+							stack.get_float(2),
+							stack.get_float(3),
+							stack.get_float(4)));
 	return 1;
 }
 
@@ -57,7 +54,7 @@ static int color4_ctor(lua_State* L)
 void load_color4(LuaEnvironment& env)
 {
 	env.load_module_function("Color4", "new", color4_new);
-	env.load_module_constructor("Color4", color4_ctor);
+	env.load_module_constructor("Color4",     color4_ctor);
 }
 
 } // namespace crown

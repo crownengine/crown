@@ -37,10 +37,7 @@ namespace crown
 static int physics_world_gravity(lua_State* L)
 {
 	LuaStack stack(L);
-
-	PhysicsWorld* world = stack.get_physics_world(1);
-
-	stack.push_vector3(world->gravity());
+	stack.push_vector3(stack.get_physics_world(1)->gravity());
 	return 1;
 }
 
@@ -48,11 +45,7 @@ static int physics_world_gravity(lua_State* L)
 static int physics_world_set_gravity(lua_State* L)
 {
 	LuaStack stack(L);
-
-	PhysicsWorld* world = stack.get_physics_world(1);
-	const Vector3& gravity = stack.get_vector3(2);
-
-	world->set_gravity(gravity);
+	stack.get_physics_world(1)->set_gravity(stack.get_vector3(2));
 	return 0;
 }
 
@@ -112,34 +105,30 @@ static int physics_world_tostring(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_physics_world(LuaEnvironment& env)
 {
-	env.load_module_function("PhysicsWorld", "gravity",				physics_world_gravity);
-	env.load_module_function("PhysicsWorld", "set_gravity",			physics_world_set_gravity);
-	env.load_module_function("PhysicsWorld", "make_raycast",		physics_world_make_raycast);
-	env.load_module_function("PhysicsWorld", "overlap_test",		physics_world_overlap_test);
-	env.load_module_function("PhysicsWorld", "__index",				"PhysicsWorld");
-	env.load_module_function("PhysicsWorld", "__tostring",			physics_world_tostring);
+	env.load_module_function("PhysicsWorld", "gravity",      physics_world_gravity);
+	env.load_module_function("PhysicsWorld", "set_gravity",  physics_world_set_gravity);
+	env.load_module_function("PhysicsWorld", "make_raycast", physics_world_make_raycast);
+	env.load_module_function("PhysicsWorld", "overlap_test", physics_world_overlap_test);
+	env.load_module_function("PhysicsWorld", "__index",      "PhysicsWorld");
+	env.load_module_function("PhysicsWorld", "__tostring",   physics_world_tostring);
+	
+	env.load_module_enum("ActorType", "STATIC",            ActorType::STATIC);
+	env.load_module_enum("ActorType", "DYNAMIC_PHYSICAL",  ActorType::DYNAMIC_PHYSICAL);
+	env.load_module_enum("ActorType", "DYNAMIC_KINEMATIC", ActorType::DYNAMIC_KINEMATIC);
 
-	// Actor types
-	env.load_module_enum("ActorType", "STATIC",						ActorType::STATIC);
-	env.load_module_enum("ActorType", "DYNAMIC_PHYSICAL",			ActorType::DYNAMIC_PHYSICAL);
-	env.load_module_enum("ActorType", "DYNAMIC_KINEMATIC",			ActorType::DYNAMIC_KINEMATIC);
-
-	// Shape types
-	env.load_module_enum("ShapeType", "SPHERE",						ShapeType::SPHERE);
-	env.load_module_enum("ShapeType", "CAPSULE",					ShapeType::CAPSULE);
-	env.load_module_enum("ShapeType", "BOX",						ShapeType::BOX);
-	env.load_module_enum("ShapeType", "PLANE",						ShapeType::PLANE);
-	env.load_module_enum("ShapeType", "CONVEX_MESH",				ShapeType::CONVEX_MESH);
-
-	// SceneQuery modes
-	env.load_module_enum("CollisionMode", "CLOSEST",				CollisionMode::CLOSEST);
-	env.load_module_enum("CollisionMode", "ANY",					CollisionMode::ANY);
-	env.load_module_enum("CollisionMode", "ALL",					CollisionMode::ALL);
-
-	// SceneQuery filters
-	env.load_module_enum("CollisionType", "STATIC",					CollisionType::STATIC);
-	env.load_module_enum("CollisionType", "DYNAMIC",				CollisionType::DYNAMIC);
-	env.load_module_enum("CollisionType", "BOTH",					CollisionType::BOTH);
+	env.load_module_enum("ShapeType", "SPHERE",      ShapeType::SPHERE);
+	env.load_module_enum("ShapeType", "CAPSULE",     ShapeType::CAPSULE);
+	env.load_module_enum("ShapeType", "BOX",         ShapeType::BOX);
+	env.load_module_enum("ShapeType", "PLANE",       ShapeType::PLANE);
+	env.load_module_enum("ShapeType", "CONVEX_MESH", ShapeType::CONVEX_MESH);
+	
+	env.load_module_enum("CollisionMode", "CLOSEST", CollisionMode::CLOSEST);
+	env.load_module_enum("CollisionMode", "ANY",     CollisionMode::ANY);
+	env.load_module_enum("CollisionMode", "ALL",     CollisionMode::ALL);
+	
+	env.load_module_enum("CollisionType", "STATIC",  CollisionType::STATIC);
+	env.load_module_enum("CollisionType", "DYNAMIC", CollisionType::DYNAMIC);
+	env.load_module_enum("CollisionType", "BOTH",    CollisionType::BOTH);
 }
 
 } // namespace crown
