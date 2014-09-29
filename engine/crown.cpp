@@ -110,16 +110,16 @@ CommandLineSettings parse_command_line(int argc, char** argv)
 	}
 
 	cls.platform = cmd.get_parameter("platform");
-	if (!cls.platform)
+	cls.wait_console = cmd.has_argument("wait-console");
+	cls.do_compile = cmd.has_argument("compile");
+	cls.do_continue = cmd.has_argument("continue");
+
+	cls.platform = cmd.get_parameter("platform");
+	if (cls.do_compile && !cls.platform)
 	{
 		help("Platform must be specified.");
 		exit(EXIT_FAILURE);
 	}
-
-	cls.platform = cmd.get_parameter("platform");
-	cls.wait_console = cmd.has_argument("wait-console");
-	cls.do_compile = cmd.has_argument("compile");
-	cls.do_continue = cmd.has_argument("continue");
 
 	const char* parent = cmd.get_parameter("parent-window");
 	if (parent)
