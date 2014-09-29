@@ -77,7 +77,7 @@ struct LuaEnvironment
 
 private:
 
-	lua_State* m_L;
+	lua_State* _L;
 
 private:
 

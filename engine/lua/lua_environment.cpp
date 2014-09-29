@@ -39,30 +39,32 @@ namespace lua_system { extern int error_handler(lua_State*); }
 
 //-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment(lua_State* L)
-	: m_L(L)
+	: _L(L)
 {
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::execute(const LuaResource* lr)
 {
-	lua_pushcfunction(m_L, lua_system::error_handler);
-	luaL_loadbuffer(m_L, (const char*) lr->program(), lr->size(), "<unknown>");
-	lua_pcall(m_L, 0, 0, -2);
+	lua_pushcfunction(_L, lua_system::error_handler);
+	luaL_loadbuffer(_L, (const char*) lr->program(), lr->size(), "<unknown>");
+	lua_pcall(_L, 0, 0, -2);
+	lua_pop(_L, 1);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::execute_string(const char* s)
 {
-	lua_pushcfunction(m_L, lua_system::error_handler);
-	luaL_loadstring(m_L, s);
-	lua_pcall(m_L, 0, 0, -2);
+	lua_pushcfunction(_L, lua_system::error_handler);
+	luaL_loadstring(_L, s);
+	lua_pcall(_L, 0, 0, -2);
+	lua_pop(_L, 1);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_module_function(const char* module, const char* name, const lua_CFunction func)
 {
-	luaL_newmetatable(m_L, module);
+	luaL_newmetatable(_L, module);
 	luaL_Reg entry[2];
 
 	entry[0].name = name;
@@ -70,51 +72,52 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 	entry[1].name = NULL;
 	entry[1].func = NULL;
 
-	luaL_register(m_L, NULL, entry);
-	lua_setglobal(m_L, module);
-	lua_pop(m_L, -1);
+	luaL_register(_L, NULL, entry);
+	lua_setglobal(_L, module);
+	lua_pop(_L, -1);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_module_function(const char* module, const char* name, const char* value)
 {
-	luaL_newmetatable(m_L, module);
-	lua_getglobal(m_L, value);
-	lua_setfield(m_L, -2, name);
-	lua_setglobal(m_L, module);
+	luaL_newmetatable(_L, module);
+	lua_getglobal(_L, value);
+	lua_setfield(_L, -2, name);
+	lua_setglobal(_L, module);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_module_constructor(const char* module, const lua_CFunction func)
 {
 	// Create dummy tables to be used as module's metatable
-	lua_createtable(m_L, 0, 1);
-	lua_pushstring(m_L, "__call");
-	lua_pushcfunction(m_L, func);
-	lua_settable(m_L, 1); // dummy.__call = func
-	lua_getglobal(m_L, module);
-	lua_pushvalue(m_L, -2); // Duplicate dummy metatable
-	lua_setmetatable(m_L, -2); // setmetatable(module, dummy)
-	lua_pop(m_L, -1);
+	lua_createtable(_L, 0, 1);
+	lua_pushstring(_L, "__call");
+	lua_pushcfunction(_L, func);
+	lua_settable(_L, 1); // dummy.__call = func
+	lua_getglobal(_L, module);
+	lua_pushvalue(_L, -2); // Duplicate dummy metatable
+	lua_setmetatable(_L, -2); // setmetatable(module, dummy)
+	lua_pop(_L, -1);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::load_module_enum(const char* module, const char* name, uint32_t value)
 {
 	// Checks table existance
-	lua_pushstring(m_L, module);
-	lua_rawget(m_L, LUA_GLOBALSINDEX);
-	if (!lua_istable(m_L, -1)) // If not exixts
+	lua_pushstring(_L, module);
+	lua_rawget(_L, LUA_GLOBALSINDEX);
+	if (!lua_istable(_L, -1)) // If not exixts
 	{
 		// Creates table
-		lua_newtable(m_L);
-		lua_setglobal(m_L, module);
+		lua_newtable(_L);
+		lua_setglobal(_L, module);
 	}
 
 	// Adds field to table
-	lua_getglobal(m_L, module);
-	lua_pushinteger(m_L, value);
-	lua_setfield(m_L, -2, name);
+	lua_getglobal(_L, module);
+	lua_pushinteger(_L, value);
+	lua_setfield(_L, -2, name);
+	lua_pop(_L, 2);
 }
 
 //-----------------------------------------------------------------------------
@@ -122,13 +125,13 @@ void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 {
 	CE_ASSERT_NOT_NULL(func);
 
-	LuaStack stack(m_L);
+	LuaStack stack(_L);
 
 	va_list vl;
 	va_start(vl, argc);
 
-	lua_pushcfunction(m_L, lua_system::error_handler);
-	lua_getglobal(m_L, func);
+	lua_pushcfunction(_L, lua_system::error_handler);
+	lua_getglobal(_L, func);
 
 	for (uint8_t i = 0; i < argc; i++)
 	{
@@ -149,17 +152,17 @@ void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 	}
 
 	va_end(vl);
-	lua_pcall(m_L, argc, 0, -argc - 2);
-	lua_pop(m_L, -1);
+	lua_pcall(_L, argc, 0, -argc - 2);
+	lua_pop(_L, -1);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::call_physics_callback(Actor* actor_0, Actor* actor_1, Unit* unit_0, Unit* unit_1, const Vector3& where, const Vector3& normal, const char* type)
 {
-	LuaStack stack(m_L);
+	LuaStack stack(_L);
 
-	lua_pushcfunction(m_L, lua_system::error_handler);
-	lua_getglobal(m_L, "g_physics_callback");
+	lua_pushcfunction(_L, lua_system::error_handler);
+	lua_getglobal(_L, "g_physics_callback");
 
 	stack.push_table();
 	stack.push_key_begin("actor_0"); (actor_0 ? stack.push_actor(actor_0) : stack.push_nil()); stack.push_key_end();
@@ -170,25 +173,25 @@ void LuaEnvironment::call_physics_callback(Actor* actor_0, Actor* actor_1, Unit*
 	stack.push_key_begin("normal"); stack.push_vector3(normal); stack.push_key_end();
 	stack.push_key_begin("type"); stack.push_string(type); stack.push_key_end();
 
-	lua_pcall(m_L, 1, 0, -3);
-	lua_pop(m_L, -1);
+	lua_pcall(_L, 1, 0, -3);
+	lua_pop(_L, -1);
 }
 
 //-----------------------------------------------------------------------------
 void LuaEnvironment::call_trigger_callback(Actor* trigger, Actor* other, const char* type)
 {
-	LuaStack stack(m_L);
+	LuaStack stack(_L);
 
-	lua_pushcfunction(m_L, lua_system::error_handler);
-	lua_getglobal(m_L, "g_trigger_callback");
+	lua_pushcfunction(_L, lua_system::error_handler);
+	lua_getglobal(_L, "g_trigger_callback");
 
 	stack.push_table();
 	stack.push_key_begin("trigger"); (trigger ? stack.push_actor(trigger) : stack.push_nil()); stack.push_key_end();
 	stack.push_key_begin("other"); (other ? stack.push_actor(other) : stack.push_nil()); stack.push_key_end();
 	stack.push_key_begin("type"); stack.push_string(type); stack.push_key_end();
 
-	lua_pcall(m_L, 1, 0, -3);
-	lua_pop(m_L, -1);
+	lua_pcall(_L, 1, 0, -3);
+	lua_pop(_L, -1);
 }
 
 } // namespace crown
