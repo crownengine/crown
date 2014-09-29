@@ -59,7 +59,19 @@ GnuWin32 libintl (http://gnuwin32.sourceforge.net/packages/libintl.htm)
 Configuration is `<platform>-<debug/development/release>[32|64]`. E.g.
 
 	linux-debug64, linux-development64, linux-release64, android-debug, windows-debug32 etc.
+## Documentation
 
+There is pretty extensive documentation for both C++ and Lua API.
+
+### Prerequisites
+
+Doxygen (http://www.doxygen.org)  
+Docutils/reStructuredText (http://docutils.sourceforge.net)
+
+### Building
+
+	make docs
+	
 ##Samples
 
 When running a sample your current directory has to be `<install-path>/bin/<platform[32|64]>`.
