@@ -96,10 +96,8 @@ typedef Id GuiId;
 
 typedef int (*MetamethodFunction)(lua_State*);
 
-class LuaStack
+struct LuaStack
 {
-public:
-
 	//-----------------------------------------------------------------------------
 	LuaStack(lua_State* L)
 		: _L(L)
