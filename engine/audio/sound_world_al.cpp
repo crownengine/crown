@@ -24,6 +24,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "config.h"
+
+#if CROWN_SOUND_OPENAL
+
 #include "sound_world.h"
 #include "id_array.h"
 #include "vector3.h"
@@ -363,3 +367,5 @@ void SoundWorld::destroy(Allocator& a, SoundWorld* sw)
 }
 
 } // namespace crown
+
+#endif // CROWN_SOUND_OPENAL

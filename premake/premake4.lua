@@ -244,10 +244,6 @@ solution "crown"
 				"$(PHYSX_SDK_LINUX)/Include/RepXUpgrader",
 				"$(PHYSX_SDK_LINUX)/Include/vehicle",
 			}
-
-			excludes {
-				CROWN_SOURCE_DIR .. "engine/audio/sound_world_sles.cpp",
-			}
 			
 		configuration { "linux-*", "debug" }
 			buildoptions {
@@ -487,10 +483,6 @@ solution "crown"
 				"$(PHYSX_SDK_ANDROID)/Lib/android9_neon",
 			}
 
-			excludes {
-				CROWN_SOURCE_DIR .. "engine/audio/sound_world_al.cpp"
-			}
-
 		configuration { "debug", "android" }
 			links {
 				":libbgfxDebug.a",
@@ -624,10 +616,6 @@ solution "crown"
 				"$(PHYSX_SDK_WINDOWS)/Include/RepXUpgrader",
 				"$(PHYSX_SDK_WINDOWS)/Include/vehicle",
 				"$(DXSDK_DIR)/Include",
-			}
-
-			excludes {
-				CROWN_SOURCE_DIR .. "engine/audio/sound_world_sles.cpp"
 			}
 
 		configuration { "x32", "vs*" }
