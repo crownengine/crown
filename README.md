@@ -70,7 +70,7 @@ Docutils/reStructuredText (http://docutils.sourceforge.net)
 
 ### Building
 
-	make docs
+	$ make docs
 	
 ##Samples
 
