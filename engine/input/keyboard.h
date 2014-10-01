@@ -39,10 +39,10 @@ namespace crown
 struct Keyboard
 {
 	Keyboard()
-		: m_modifier(0), m_last_button(KeyboardButton::NONE)
+		: _modifier(0), _last_button(KeyboardButton::NONE)
 	{
-		memset(m_last_state, 0, KeyboardButton::COUNT);
-		memset(m_current_state, 0, KeyboardButton::COUNT);
+		memset(_last_state, 0, KeyboardButton::COUNT);
+		memset(_current_state, 0, KeyboardButton::COUNT);
 	}
 
 	/// Returns whether the specified @a modifier is pressed.
@@ -53,53 +53,53 @@ struct Keyboard
 	/// Crown currently supports three different modifier keys: Shift, Ctrl and Alt.
 	bool modifier_pressed(ModifierButton::Enum modifier) const
 	{
-		return (m_modifier & (uint8_t) modifier) == modifier;
+		return (_modifier & (uint8_t) modifier) == modifier;
 	}
 
 	/// Returns whether the specified @a b button is pressed in the current frame.
 	bool button_pressed(KeyboardButton::Enum b) const
 	{
-		return (~m_last_state[b] & m_current_state[b]) != 0;
+		return (~_last_state[b] & _current_state[b]) != 0;
 	}
 
 	/// Returns whether the specified @a b button is released in the current frame.
 	bool button_released(KeyboardButton::Enum b) const
 	{
-		return (m_last_state[b] & ~m_current_state[b]) != 0;
+		return (_last_state[b] & ~_current_state[b]) != 0;
 	}
 
 	/// Returns wheter any button is pressed in the current frame.
 	bool any_pressed()
 	{
-		return button_pressed(m_last_button);
+		return button_pressed(_last_button);
 	}
 
 	/// Returns whether any button is released in the current frame.
 	bool any_released()
 	{
-		return button_released(m_last_button);
+		return button_released(_last_button);
 	}
 
 	//-------------------------------------------------------------------------
 	void set_button_state(KeyboardButton::Enum b, bool state)
 	{
-		m_last_button = b;
-		m_current_state[b] = state;
+		_last_button = b;
+		_current_state[b] = state;
 	}
 
 	//-------------------------------------------------------------------------
 	void update()
 	{
-		memcpy(m_last_state, m_current_state, KeyboardButton::COUNT);
+		memcpy(_last_state, _current_state, KeyboardButton::COUNT);
 	}
 
 public:
 
-	uint8_t m_modifier;
+	uint8_t _modifier;
 
-	KeyboardButton::Enum m_last_button;
-	uint8_t m_last_state[KeyboardButton::COUNT];
-	uint8_t m_current_state[KeyboardButton::COUNT];
+	KeyboardButton::Enum _last_button;
+	uint8_t _last_state[KeyboardButton::COUNT];
+	uint8_t _current_state[KeyboardButton::COUNT];
 };
 
 } // namespace crown

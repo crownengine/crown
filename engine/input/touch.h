@@ -45,36 +45,36 @@ struct Touch
 {
 	//-----------------------------------------------------------------------------
 	Touch()
-		: m_last_pointer(0xFF)
+		: _last_pointer(0xFF)
 	{
-		memset(m_last_state, 0, MAX_POINTER_IDS);
-		memset(m_current_state, 0, MAX_POINTER_IDS);
+		memset(_last_state, 0, MAX_POINTER_IDS);
+		memset(_current_state, 0, MAX_POINTER_IDS);
 	}
 
 	/// Returns whether the @a p pointer is pressed in the current frame.
 	bool pointer_down(uint8_t p)
 	{
 		if (p >= MAX_POINTER_IDS) return false;
-		return (~m_last_state[p] & m_current_state[p]) != 0;
+		return (~_last_state[p] & _current_state[p]) != 0;
 	}
 
 	/// Returns whether the @a p pointer is released in the current frame.
 	bool pointer_up(uint8_t p)
 	{
 		if (p >= MAX_POINTER_IDS) return false;
-		return (m_last_state[p] & ~m_current_state[p]) != 0;
+		return (_last_state[p] & ~_current_state[p]) != 0;
 	}
 
 	/// Returns wheter any pointer is pressed in the current frame.
 	bool any_down()
 	{
-		return pointer_down(m_last_pointer);
+		return pointer_down(_last_pointer);
 	}
 
 	/// Returns whether any pointer is released in the current frame.
 	bool any_up()
 	{
-		return pointer_up(m_last_pointer);
+		return pointer_up(_last_pointer);
 	}
 
 	/// Returns the position of the pointer @a p in window space.
@@ -85,22 +85,22 @@ struct Touch
 	Vector2 pointer_xy(uint8_t p)
 	{
 		if (p >= MAX_POINTER_IDS) return vector2::ZERO;
-		return Vector2(m_x[p], m_y[p]);
+		return Vector2(_x[p], _y[p]);
 	}
 
 	//-----------------------------------------------------------------------------
 	void set_position(uint8_t p, uint16_t x, uint16_t y)
 	{
 		if (p >= MAX_POINTER_IDS) return;
-		m_x[p] = x;
-		m_y[p] = y;
+		_x[p] = x;
+		_y[p] = y;
 	}
 
 	//-----------------------------------------------------------------------------
 	void set_metrics(uint16_t width, uint16_t height)
 	{
-		m_width = width;
-		m_height = height;
+		_width = width;
+		_height = height;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -108,28 +108,28 @@ struct Touch
 	{
 		set_position(p, x, y);
 
-		m_last_pointer = p;
-		m_current_state[p] = state;
+		_last_pointer = p;
+		_current_state[p] = state;
 	}
 
 	//-----------------------------------------------------------------------------
 	void update()
 	{
-		memcpy(m_last_state, m_current_state, MAX_POINTER_IDS);
+		memcpy(_last_state, _current_state, MAX_POINTER_IDS);
 	}
 
 public:
 
-	uint8_t m_last_pointer;
-	uint8_t m_last_state[MAX_POINTER_IDS];
-	uint8_t m_current_state[MAX_POINTER_IDS];
+	uint8_t _last_pointer;
+	uint8_t _last_state[MAX_POINTER_IDS];
+	uint8_t _current_state[MAX_POINTER_IDS];
 
-	uint16_t m_x[MAX_POINTER_IDS];
-	uint16_t m_y[MAX_POINTER_IDS];
+	uint16_t _x[MAX_POINTER_IDS];
+	uint16_t _y[MAX_POINTER_IDS];
 
 	// Window size
-	uint16_t m_width;
-	uint16_t m_height;
+	uint16_t _width;
+	uint16_t _height;
 };
 
 } // namespace crown

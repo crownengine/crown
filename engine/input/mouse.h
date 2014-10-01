@@ -55,34 +55,34 @@ struct Mouse
 {
 	//-----------------------------------------------------------------------------
 	Mouse()
-		: m_last_button(MouseButton::NONE)
+		: _last_button(MouseButton::NONE)
 	{
-		memset(m_last_state, 0, MouseButton::COUNT);
-		memset(m_current_state, 0, MouseButton::COUNT);
+		memset(_last_state, 0, MouseButton::COUNT);
+		memset(_current_state, 0, MouseButton::COUNT);
 	}
 
 	/// Returns whether the @a b button is pressed in the current frame.
 	bool button_pressed(MouseButton::Enum b)
 	{
-		return (~m_last_state[b] & m_current_state[b]) != 0;
+		return (~_last_state[b] & _current_state[b]) != 0;
 	}
 
 	/// Returns whether the @a b button is released in the current frame.
 	bool button_released(MouseButton::Enum b)
 	{
-		return (m_last_state[b] & ~m_current_state[b]) != 0;
+		return (_last_state[b] & ~_current_state[b]) != 0;
 	}
 
 	/// Returns wheter any button is pressed in the current frame.
 	bool any_pressed()
 	{
-		return button_pressed(m_last_button);
+		return button_pressed(_last_button);
 	}
 
 	/// Returns whether any button is released in the current frame.
 	bool any_released()
 	{
-		return button_released(m_last_button);
+		return button_released(_last_button);
 	}
 
 	/// Returns the position of the cursor in window space.
@@ -92,7 +92,7 @@ struct Mouse
 	/// to right and +Y extends from top to bottom.
 	Vector2 cursor_xy()
 	{
-		return Vector2(m_x, m_y);
+		return Vector2(_x, _y);
 	}
 
 	/// Sets the position of the cursor in window space.
@@ -102,8 +102,8 @@ struct Mouse
 	/// to right and +Y extends from top to bottom.
 	void set_cursor_xy(const Vector2& position)
 	{
-		m_x = (uint16_t) position.x;
-		m_y = (uint16_t) position.y;
+		_x = (uint16_t) position.x;
+		_y = (uint16_t) position.y;
 	}
 
 	/// Returns the relative position of the cursor in window space.
@@ -117,7 +117,7 @@ struct Mouse
 	/// maximum extent of the cosidered axis.
 	Vector2 cursor_relative_xy()
 	{
-		return Vector2((float) m_x / m_width, (float) m_y / m_height);
+		return Vector2((float) _x / _width, (float) _y / _height);
 	}
 
 	/// Sets the relative position of the cursor in window space.
@@ -131,21 +131,21 @@ struct Mouse
 	/// maximum extent of the cosidered axis.
 	void set_cursor_relative_xy(const Vector2& position)
 	{
-		set_cursor_xy(Vector2(position.x * (float) m_width, position.y * (float) m_height));
+		set_cursor_xy(Vector2(position.x * (float) _width, position.y * (float) _height));
 	}
 
 	//-----------------------------------------------------------------------------
 	void set_position(uint16_t x, uint16_t y)
 	{
-		m_x = x;
-		m_y = y;
+		_x = x;
+		_y = y;
 	}
 
 	//-----------------------------------------------------------------------------
 	void set_metrics(uint16_t width, uint16_t height)
 	{
-		m_width = width;
-		m_height = height;
+		_width = width;
+		_height = height;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -153,29 +153,29 @@ struct Mouse
 	{
 		set_position(x, y);
 
-		m_last_button = b;
-		m_current_state[b] = state;
+		_last_button = b;
+		_current_state[b] = state;
 	}
 
 	//-----------------------------------------------------------------------------
 	void update()
 	{
-		memcpy(m_last_state, m_current_state, MouseButton::COUNT);
+		memcpy(_last_state, _current_state, MouseButton::COUNT);
 	}
 
 public:
 
-	MouseButton::Enum m_last_button;
-	uint8_t m_last_state[MouseButton::COUNT];
-	uint8_t m_current_state[MouseButton::COUNT];
+	MouseButton::Enum _last_button;
+	uint8_t _last_state[MouseButton::COUNT];
+	uint8_t _current_state[MouseButton::COUNT];
 
 	// Position within the window
-	uint16_t m_x;
-	uint16_t m_y;
+	uint16_t _x;
+	uint16_t _y;
 
 	// Window size
-	uint16_t m_width;
-	uint16_t m_height;
+	uint16_t _width;
+	uint16_t _height;
 };
 
 } // namespace crown
