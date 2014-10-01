@@ -125,19 +125,19 @@ void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, 
 }
 
 //-----------------------------------------------------------------------------
-void ConsoleServer::send(TCPSocket client, const char* message)
+void ConsoleServer::send(TCPSocket client, const char* json)
 {
-	uint32_t msg_len = string::strlen(message);
-	client.write((const char*) &msg_len, 4);
-	client.write(message, msg_len);
+	uint32_t len = string::strlen(json);
+	client.write((const char*)&len, 4);
+	client.write(json, len);
 }
 
 //-----------------------------------------------------------------------------
-void ConsoleServer::send_to_all(const char* message)
+void ConsoleServer::send_to_all(const char* json)
 {
 	for (uint32_t i = 0; i < id_array::size(m_clients); i++)
 	{
-		send(m_clients[i].socket, message);
+		send(m_clients[i].socket, json);
 	}
 }
 

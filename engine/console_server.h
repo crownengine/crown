@@ -75,10 +75,12 @@ public:
 	/// Collects requests from clients and processes them all.
 	void update();
 
+	/// Sends the given JSON-encoded string to all clients.
+	void send_to_all(const char* json);
+
 private:
 
 	void send(TCPSocket client, const char* message);
-	void send_to_all(const char* message);
 
 	void add_client(TCPSocket socket);
 	ReadResult update_client(TCPSocket client);
