@@ -35,6 +35,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "matrix4x4.h"
 #include "string_utils.h"
 #include "color4.h"
+#include "string_stream.h"
 
 //-----------------------------------------------------------------------------
 #if defined(CROWN_DEBUG)
@@ -101,14 +102,14 @@ public:
 
 	//-----------------------------------------------------------------------------
 	LuaStack(lua_State* L)
-		: m_L(L)
+		: _L(L)
 	{
 	}
 
 	//-----------------------------------------------------------------------------
 	lua_State* state()
 	{
-		return m_L;
+		return _L;
 	}
 
 	/// Returns the number of elements in the stack.
@@ -116,7 +117,7 @@ public:
 	/// the number of arguments passed to the function itself.
 	int32_t num_args()
 	{
-		return lua_gettop(m_L);
+		return lua_gettop(_L);
 	}
 
 	/// Removes the element at the given valid index, shifting down the elements
@@ -124,61 +125,61 @@ public:
 	/// because a pseudo-index is not an actual stack position.
 	void remove(int32_t index)
 	{
-		lua_remove(m_L, index);
+		lua_remove(_L, index);
 	}
 
 	//-----------------------------------------------------------------------------
 	bool is_nil(int32_t index)
 	{
-		return lua_isnil(m_L, index) == 1;
+		return lua_isnil(_L, index) == 1;
 	}
 
 	//-----------------------------------------------------------------------------
 	bool is_number(int32_t index)
 	{
-		return lua_isnumber(m_L, index) == 1;
+		return lua_isnumber(_L, index) == 1;
 	}
 
 	/// Wraps lua_type.
 	int value_type(uint32_t index)
 	{
-		return lua_type(m_L, index);
+		return lua_type(_L, index);
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_nil()
 	{
-		lua_pushnil(m_L);
+		lua_pushnil(_L);
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_bool(bool value)
 	{
-		lua_pushboolean(m_L, value);
+		lua_pushboolean(_L, value);
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_int32(int32_t value)
 	{
-		lua_pushinteger(m_L, value);
+		lua_pushinteger(_L, value);
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_uint32(uint32_t value)
 	{
-		lua_pushinteger(m_L, value);
+		lua_pushinteger(_L, value);
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_float(float value)
 	{
-		lua_pushnumber(m_L, value);
+		lua_pushnumber(_L, value);
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_string(const char* s)
 	{
-		lua_pushstring(m_L, s);
+		lua_pushstring(_L, s);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -186,38 +187,38 @@ public:
 	{
 		va_list vl;
 		va_start(vl, fmt);
-		lua_pushvfstring(m_L, fmt, vl);
+		lua_pushvfstring(_L, fmt, vl);
 		va_end(vl);
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_literal(const char* s, size_t len)
 	{
-		lua_pushlstring(m_L, s, len);
+		lua_pushlstring(_L, s, len);
 	}
 
 	//-----------------------------------------------------------------------------
 	bool get_bool(int32_t index)
 	{
-		return CHECKBOOLEAN(m_L, index) == 1;
+		return CHECKBOOLEAN(_L, index) == 1;
 	}
 
 	//-----------------------------------------------------------------------------
 	int32_t get_int(int32_t index)
 	{
-		return CHECKINTEGER(m_L, index);
+		return CHECKINTEGER(_L, index);
 	}
 
 	//-----------------------------------------------------------------------------
 	float get_float(int32_t index)
 	{
-		return (float) CHECKNUMBER(m_L, index);
+		return (float) CHECKNUMBER(_L, index);
 	}
 
 	//-----------------------------------------------------------------------------
 	const char* get_string(int32_t index)
 	{
-		return CHECKSTRING(m_L, index);
+		return CHECKSTRING(_L, index);
 	}
 
 	/// Pushes an empty table onto the stack.
@@ -231,198 +232,198 @@ public:
 	/// return 1;
 	void push_table()
 	{
-		lua_newtable(m_L);
+		lua_newtable(_L);
 	}
 
 	/// See Stack::push_table()
 	void push_key_begin(const char* key)
 	{
-		lua_pushstring(m_L, key);
+		lua_pushstring(_L, key);
 	}
 
 	/// See Stack::push_table()
 	void push_key_begin(int32_t i)
 	{
-		lua_pushnumber(m_L, i);
+		lua_pushnumber(_L, i);
 	}
 
 	/// See Stack::push_table()
 	void push_key_end()
 	{
-		lua_settable(m_L, -3);
+		lua_settable(_L, -3);
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_resource_package(ResourcePackage* package)
 	{
-		ResourcePackage** p = (ResourcePackage**) lua_newuserdata(m_L, sizeof(ResourcePackage*));
+		ResourcePackage** p = (ResourcePackage**) lua_newuserdata(_L, sizeof(ResourcePackage*));
 		*p = package;
-		luaL_getmetatable(m_L, "ResourcePackage");
-		lua_setmetatable(m_L, -2);
+		luaL_getmetatable(_L, "ResourcePackage");
+		lua_setmetatable(_L, -2);
 	}
 
 	//-----------------------------------------------------------------------------
 	ResourcePackage* get_resource_package(int32_t index)
 	{
-		ResourcePackage* pkg = *(ResourcePackage**) CHECKUDATA(m_L, index, "ResourcePackage");
+		ResourcePackage* pkg = *(ResourcePackage**) CHECKUDATA(_L, index, "ResourcePackage");
 		return pkg;
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_world(World* world)
 	{
-		World** w = (World**) lua_newuserdata(m_L, sizeof(World*));
+		World** w = (World**) lua_newuserdata(_L, sizeof(World*));
 		*w = world;
-		luaL_getmetatable(m_L, "World");
-		lua_setmetatable(m_L, -2);
+		luaL_getmetatable(_L, "World");
+		lua_setmetatable(_L, -2);
 	};
 
 	//-----------------------------------------------------------------------------
 	World* get_world(int32_t index)
 	{
-		World* w = *(World**) CHECKUDATA(m_L, index, "World");
+		World* w = *(World**) CHECKUDATA(_L, index, "World");
 		return w;
 	};
 
 	//-----------------------------------------------------------------------------
 	void push_physics_world(PhysicsWorld* world)
 	{
-		PhysicsWorld** w = (PhysicsWorld**) lua_newuserdata(m_L, sizeof(PhysicsWorld*));
-		luaL_getmetatable(m_L, "PhysicsWorld");
-		lua_setmetatable(m_L, -2);
+		PhysicsWorld** w = (PhysicsWorld**) lua_newuserdata(_L, sizeof(PhysicsWorld*));
+		luaL_getmetatable(_L, "PhysicsWorld");
+		lua_setmetatable(_L, -2);
 		*w = world;
 	}
 
 	//-----------------------------------------------------------------------------
 	PhysicsWorld* get_physics_world(int32_t index)
 	{
-		PhysicsWorld* w = *(PhysicsWorld**) CHECKUDATA(m_L, index, "PhysicsWorld");
+		PhysicsWorld* w = *(PhysicsWorld**) CHECKUDATA(_L, index, "PhysicsWorld");
 		return w;
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_sound_world(SoundWorld* world)
 	{
-		SoundWorld** w = (SoundWorld**) lua_newuserdata(m_L, sizeof(SoundWorld*));
+		SoundWorld** w = (SoundWorld**) lua_newuserdata(_L, sizeof(SoundWorld*));
 		*w = world;
-		luaL_getmetatable(m_L, "SoundWorld");
-		lua_setmetatable(m_L, -2);
+		luaL_getmetatable(_L, "SoundWorld");
+		lua_setmetatable(_L, -2);
 	}
 
 	//-----------------------------------------------------------------------------
 	SoundWorld* get_sound_world(int32_t index)
 	{
-		SoundWorld* w = *(SoundWorld**) CHECKUDATA(m_L, index, "SoundWorld");
+		SoundWorld* w = *(SoundWorld**) CHECKUDATA(_L, index, "SoundWorld");
 		return w;
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_unit(Unit* unit)
 	{
-		lua_pushlightuserdata(m_L, unit);
+		lua_pushlightuserdata(_L, unit);
 	}
 
 	//-----------------------------------------------------------------------------
 	Unit* get_unit(int32_t index)
 	{
-		return (Unit*) CHECKLIGHTDATA(m_L, index, always_true, "Unit");
+		return (Unit*) CHECKLIGHTDATA(_L, index, always_true, "Unit");
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_camera(Camera* camera)
 	{
-		lua_pushlightuserdata(m_L, camera);
+		lua_pushlightuserdata(_L, camera);
 	}
 
 	//-----------------------------------------------------------------------------
 	Camera* get_camera(int32_t index)
 	{
-		return (Camera*) CHECKLIGHTDATA(m_L, index, always_true, "Camera");
+		return (Camera*) CHECKLIGHTDATA(_L, index, always_true, "Camera");
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_mesh(Mesh* mesh)
 	{
-		lua_pushlightuserdata(m_L, mesh);
+		lua_pushlightuserdata(_L, mesh);
 	}
 
 	//-----------------------------------------------------------------------------
 	Mesh* get_mesh(int32_t index)
 	{
-		return (Mesh*) CHECKLIGHTDATA(m_L, index, always_true, "Mesh");
+		return (Mesh*) CHECKLIGHTDATA(_L, index, always_true, "Mesh");
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_sprite(Sprite* sprite)
 	{
-		lua_pushlightuserdata(m_L, sprite);
+		lua_pushlightuserdata(_L, sprite);
 	}
 
 	//-----------------------------------------------------------------------------
 	Sprite* get_sprite(int32_t index)
 	{
-		return (Sprite*) CHECKLIGHTDATA(m_L, index, always_true, "Sprite");
+		return (Sprite*) CHECKLIGHTDATA(_L, index, always_true, "Sprite");
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_material(Material* material)
 	{
-		lua_pushlightuserdata(m_L, material);
+		lua_pushlightuserdata(_L, material);
 	}
 
 	//-----------------------------------------------------------------------------
 	Material* get_material(int32_t index)
 	{
-		return (Material*) CHECKLIGHTDATA(m_L, index, always_true, "Material");
+		return (Material*) CHECKLIGHTDATA(_L, index, always_true, "Material");
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_actor(Actor* actor)
 	{
-		lua_pushlightuserdata(m_L, actor);
+		lua_pushlightuserdata(_L, actor);
 	}
 
 	//-----------------------------------------------------------------------------
 	Actor* get_actor(int32_t index)
 	{
-		return (Actor*) CHECKLIGHTDATA(m_L, index, always_true, "Actor");
+		return (Actor*) CHECKLIGHTDATA(_L, index, always_true, "Actor");
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_controller(Controller* controller)
 	{
-		lua_pushlightuserdata(m_L, controller);
+		lua_pushlightuserdata(_L, controller);
 	}
 
 	//-----------------------------------------------------------------------------
 	Controller* get_controller(int32_t index)
 	{
-		return (Controller*) CHECKLIGHTDATA(m_L, index, always_true, "Controller");
+		return (Controller*) CHECKLIGHTDATA(_L, index, always_true, "Controller");
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_raycast(Raycast* raycast)
 	{
-		lua_pushlightuserdata(m_L, raycast);
+		lua_pushlightuserdata(_L, raycast);
 	}
 
 	//-----------------------------------------------------------------------------
 	Raycast* get_raycast(int32_t index)
 	{
-		return (Raycast*) CHECKLIGHTDATA(m_L, index, always_true, "Raycast");
+		return (Raycast*) CHECKLIGHTDATA(_L, index, always_true, "Raycast");
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_sound_instance_id(const SoundInstanceId id)
 	{
 		uintptr_t enc = id.encode();
-		lua_pushlightuserdata(m_L, (void*)enc);
+		lua_pushlightuserdata(_L, (void*)enc);
 	}
 
 	//-----------------------------------------------------------------------------
 	SoundInstanceId get_sound_instance_id(int32_t index)
 	{
-		uint32_t enc = (uintptr_t) CHECKLIGHTDATA(m_L, index, always_true, "SoundInstanceId");
+		uint32_t enc = (uintptr_t) CHECKLIGHTDATA(_L, index, always_true, "SoundInstanceId");
 		SoundInstanceId id;
 		id.decode(enc);
 		return id;
@@ -431,63 +432,63 @@ public:
 	//-----------------------------------------------------------------------------
 	void push_gui(Gui* gui)
 	{
-		lua_pushlightuserdata(m_L, gui);
+		lua_pushlightuserdata(_L, gui);
 	}
 
 	//-----------------------------------------------------------------------------
 	Gui* get_gui(int32_t index)
 	{
-		return (Gui*) CHECKLIGHTDATA(m_L, index, always_true, "Gui");
+		return (Gui*) CHECKLIGHTDATA(_L, index, always_true, "Gui");
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_debug_line(DebugLine* line)
 	{
-		DebugLine** l = (DebugLine**) lua_newuserdata(m_L, sizeof(DebugLine*));
+		DebugLine** l = (DebugLine**) lua_newuserdata(_L, sizeof(DebugLine*));
 		*l = line;
-		luaL_getmetatable(m_L, "DebugLine");
-		lua_setmetatable(m_L, -2);
+		luaL_getmetatable(_L, "DebugLine");
+		lua_setmetatable(_L, -2);
 	}
 
 	//-----------------------------------------------------------------------------
 	DebugLine* get_debug_line(int32_t index)
 	{
-		DebugLine* l = *(DebugLine**) CHECKUDATA(m_L, index, "DebugLine");
+		DebugLine* l = *(DebugLine**) CHECKUDATA(_L, index, "DebugLine");
 		return l;
 	}
 
 	//-----------------------------------------------------------------------------
 	Vector2& get_vector2(int32_t index)
 	{
-		void* v = CHECKLIGHTDATA(m_L, index, lua_system::is_vector2, "Vector2");
+		void* v = CHECKLIGHTDATA(_L, index, lua_system::is_vector2, "Vector2");
 		return *(Vector2*)v;
 	}
 
 	//-----------------------------------------------------------------------------
 	Vector3& get_vector3(int32_t index)
 	{
-		void* v = CHECKLIGHTDATA(m_L, index, lua_system::is_vector3, "Vector3");
+		void* v = CHECKLIGHTDATA(_L, index, lua_system::is_vector3, "Vector3");
 		return *(Vector3*)v;
 	}
 
 	//-----------------------------------------------------------------------------
 	Matrix4x4& get_matrix4x4(int32_t index)
 	{
-		void* m = CHECKLIGHTDATA(m_L, index, lua_system::is_matrix4x4, "Matrix4x4");
+		void* m = CHECKLIGHTDATA(_L, index, lua_system::is_matrix4x4, "Matrix4x4");
 		return *(Matrix4x4*)m;
 	}
 
 	//-----------------------------------------------------------------------------
 	Quaternion& get_quaternion(int32_t index)
 	{
-		void* q = CHECKLIGHTDATA(m_L, index, lua_system::is_quaternion, "Quaternion");
+		void* q = CHECKLIGHTDATA(_L, index, lua_system::is_quaternion, "Quaternion");
 		return *(Quaternion*)q;
 	}
 
 	Color4 get_color4(int32_t index)
 	{
 		// Color4 represented as Quaternion
-		void* c = CHECKLIGHTDATA(m_L, index, lua_system::is_quaternion, "Color4");
+		void* c = CHECKLIGHTDATA(_L, index, lua_system::is_quaternion, "Color4");
 		Quaternion& q = *(Quaternion*)c;
 		return Color4(q.x, q.y, q.z, q.w);
 	}
@@ -495,102 +496,102 @@ public:
 	//-----------------------------------------------------------------------------
 	void push_vector2(const Vector2& v)
 	{
-		lua_pushlightuserdata(m_L, lua_system::next_vector2(v));
-		luaL_getmetatable(m_L, "Lightuserdata_mt");
-		lua_setmetatable(m_L, -2);
+		lua_pushlightuserdata(_L, lua_system::next_vector2(v));
+		luaL_getmetatable(_L, "Lightuserdata_mt");
+		lua_setmetatable(_L, -2);
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_vector3(const Vector3& v)
 	{
-		lua_pushlightuserdata(m_L, lua_system::next_vector3(v));
-		luaL_getmetatable(m_L, "Lightuserdata_mt");
-		lua_setmetatable(m_L, -2);
+		lua_pushlightuserdata(_L, lua_system::next_vector3(v));
+		luaL_getmetatable(_L, "Lightuserdata_mt");
+		lua_setmetatable(_L, -2);
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_matrix4x4(const Matrix4x4& m)
 	{
-		lua_pushlightuserdata(m_L, lua_system::next_matrix4x4(m));
-		luaL_getmetatable(m_L, "Lightuserdata_mt");
-		lua_setmetatable(m_L, -2);
+		lua_pushlightuserdata(_L, lua_system::next_matrix4x4(m));
+		luaL_getmetatable(_L, "Lightuserdata_mt");
+		lua_setmetatable(_L, -2);
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_quaternion(const Quaternion& q)
 	{
-		lua_pushlightuserdata(m_L, lua_system::next_quaternion(q));
-		luaL_getmetatable(m_L, "Lightuserdata_mt");
-		lua_setmetatable(m_L, -2);
+		lua_pushlightuserdata(_L, lua_system::next_quaternion(q));
+		luaL_getmetatable(_L, "Lightuserdata_mt");
+		lua_setmetatable(_L, -2);
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_vector2box(const Vector2& v)
 	{
-		Vector2* vec = (Vector2*) lua_newuserdata(m_L, sizeof(Vector2));
-		luaL_getmetatable(m_L, "Vector2Box");
-		lua_setmetatable(m_L, -2);
+		Vector2* vec = (Vector2*) lua_newuserdata(_L, sizeof(Vector2));
+		luaL_getmetatable(_L, "Vector2Box");
+		lua_setmetatable(_L, -2);
 		*vec = v;
 	}
 
 	//-----------------------------------------------------------------------------
 	Vector2& get_vector2box(uint32_t index)
 	{
-		Vector2* v = (Vector2*) CHECKUDATA(m_L, index, "Vector2Box");
+		Vector2* v = (Vector2*) CHECKUDATA(_L, index, "Vector2Box");
 		return *v;
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_vector3box(const Vector3& v)
 	{
-		Vector3* vec = (Vector3*) lua_newuserdata(m_L, sizeof(Vector3));
-		luaL_getmetatable(m_L, "Vector3Box");
-		lua_setmetatable(m_L, -2);
+		Vector3* vec = (Vector3*) lua_newuserdata(_L, sizeof(Vector3));
+		luaL_getmetatable(_L, "Vector3Box");
+		lua_setmetatable(_L, -2);
 		*vec = v;
 	}
 
 	//-----------------------------------------------------------------------------
 	Vector3& get_vector3box(uint32_t index)
 	{
-		Vector3* v = (Vector3*) CHECKUDATA(m_L, index, "Vector3Box");
+		Vector3* v = (Vector3*) CHECKUDATA(_L, index, "Vector3Box");
 		return *v;
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_quaternionbox(const Quaternion& q)
 	{
-		Quaternion* quat = (Quaternion*) lua_newuserdata(m_L, sizeof(Quaternion));
-		luaL_getmetatable(m_L, "QuaternionBox");
-		lua_setmetatable(m_L, -2);
+		Quaternion* quat = (Quaternion*) lua_newuserdata(_L, sizeof(Quaternion));
+		luaL_getmetatable(_L, "QuaternionBox");
+		lua_setmetatable(_L, -2);
 		*quat = q;
 	}
 
 	//-----------------------------------------------------------------------------
 	Quaternion& get_quaternionbox(uint32_t index)
 	{
-		Quaternion* q = (Quaternion*) CHECKUDATA(m_L, index, "QuaternionBox");
+		Quaternion* q = (Quaternion*) CHECKUDATA(_L, index, "QuaternionBox");
 		return *q;
 	}
 
 	//-----------------------------------------------------------------------------
 	void push_matrix4x4box(const Matrix4x4& m)
 	{
-		Matrix4x4* mat = (Matrix4x4*) lua_newuserdata(m_L, sizeof(Matrix4x4));
-		luaL_getmetatable(m_L, "Matrix4x4Box");
-		lua_setmetatable(m_L, -2);
+		Matrix4x4* mat = (Matrix4x4*) lua_newuserdata(_L, sizeof(Matrix4x4));
+		luaL_getmetatable(_L, "Matrix4x4Box");
+		lua_setmetatable(_L, -2);
 		*mat = m;
 	}
 
 	//-----------------------------------------------------------------------------
 	Matrix4x4& get_matrix4x4box(uint32_t index)
 	{
-		Matrix4x4* m = (Matrix4x4*) CHECKUDATA(m_L, index, "Matrix4x4Box");
+		Matrix4x4* m = (Matrix4x4*) CHECKUDATA(_L, index, "Matrix4x4Box");
 		return *m;
 	}
 
 private:
 
-	lua_State* m_L;
+	lua_State* _L;
 };
 
 } // namespace crown
