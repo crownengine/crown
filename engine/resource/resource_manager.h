@@ -70,6 +70,9 @@ public:
 	/// Use @a force option only if you know *exactly* what you are doing.
 	void unload(ResourceId id, bool force = false);
 
+	/// Returns whether the manager has the given resource. 
+	bool can_get(const char* type, const char* name);
+
 	/// Returns whether the manager has the resource @a id.
 	bool can_get(ResourceId id) const;
 

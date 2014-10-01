@@ -92,6 +92,12 @@ void ResourceManager::unload(ResourceId id, bool force)
 }
 
 //-----------------------------------------------------------------------------
+bool ResourceManager::can_get(const char* type, const char* name)
+{
+	return can_get(ResourceId(type, name));
+}
+
+//-----------------------------------------------------------------------------
 bool ResourceManager::can_get(ResourceId id) const
 {
 	return find(id) != NULL;
