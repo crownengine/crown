@@ -37,166 +37,236 @@ namespace crown
 {
 namespace material_resource
 {
-
-struct Data
-{
-	Array<TextureData> textures;
-	Array<UniformData> uniforms;
-	Array<char> dynamic;
-
-	Data()
-		: textures(default_allocator())
-		, uniforms(default_allocator())
-		, dynamic(default_allocator())
-	{}
-};
-
-// Returns offset to start of data
-template <typename T>
-static uint32_t reserve_dynamic_data(T data, Array<char>& dynamic)
-{
-	uint32_t offt = array::size(dynamic);
-	array::push(dynamic, (char*) &data, sizeof(data));
-	return offt;
-}
-
-static void parse_textures(JSONElement root, Array<TextureData>& textures, Array<char>& dynamic)
-{
-	using namespace vector;
-
-	Vector<DynamicString> keys(default_allocator());
-	root.key("textures").to_keys(keys);
-
-	for (uint32_t i = 0; i < size(keys); i++)
+	struct Data
 	{
-		TextureHandle th;
-		th.sampler_handle = 0;
-		th.texture_handle = 0;
+		Array<TextureData> textures;
+		Array<UniformData> uniforms;
+		Array<char> dynamic;
 
-		ResourceId texid = root.key("textures").key(keys[i].c_str()).to_resource_id("texture");
+		Data()
+			: textures(default_allocator())
+			, uniforms(default_allocator())
+			, dynamic(default_allocator())
+		{}
+	};
 
-		TextureData td;
-		td.id = texid.name;
-		td.data_offset = reserve_dynamic_data(th, dynamic);
-		strncpy(td.sampler_name, keys[i].c_str(), 256);
-
-		array::push_back(textures, td);
-	}
-}
-
-struct UniformTypeInfo
-{
-	const char* name;
-	UniformType::Enum type;
-	uint8_t size;
-};
-
-static const UniformTypeInfo s_uniform_type_info[UniformType::COUNT] =
-{
-	{ "float",   UniformType::FLOAT,    4 },
-	{ "vector2", UniformType::VECTOR2,  8 },
-	{ "vector3", UniformType::VECTOR3, 12 },
-	{ "vector4", UniformType::VECTOR4, 16 }
-};
-
-static UniformType::Enum string_to_uniform_type(const char* str)
-{
-	for (uint32_t i = 0; i < UniformType::COUNT; i++)
+	// Returns offset to start of data
+	template <typename T>
+	static uint32_t reserve_dynamic_data(T data, Array<char>& dynamic)
 	{
-		if (string::strcmp(str, s_uniform_type_info[i].name) == 0)
-			return s_uniform_type_info[i].type;
+		uint32_t offt = array::size(dynamic);
+		array::push(dynamic, (char*) &data, sizeof(data));
+		return offt;
 	}
 
-	CE_FATAL("Unknown uniform type");
-	return UniformType::COUNT;
-}
-
-static void parse_uniforms(JSONElement root, Array<UniformData>& uniforms, Array<char>& dynamic)
-{
-	using namespace vector;
-
-	Vector<DynamicString> keys(default_allocator());
-	root.key("uniforms").to_keys(keys);
-
-	for (uint32_t i = 0; i < size(keys); i++)
+	static void parse_textures(JSONElement root, Array<TextureData>& textures, Array<char>& dynamic)
 	{
-		UniformHandle uh;
-		uh.uniform_handle = 0;
+		using namespace vector;
 
-		DynamicString type;
-		root.key("uniforms").key(keys[i].c_str()).key("type").to_string(type);
+		Vector<DynamicString> keys(default_allocator());
+		root.key("textures").to_keys(keys);
 
-		UniformData ud;
-		ud.type = string_to_uniform_type(type.c_str());
-		ud.data_offset = reserve_dynamic_data(uh, dynamic);
-
-		strncpy(ud.name, keys[i].c_str(), 256);
-
-		switch (ud.type)
+		for (uint32_t i = 0; i < size(keys); i++)
 		{
-			case UniformType::FLOAT:
-			{
-				float data = root.key("uniforms").key(keys[i].c_str()).key("value").to_float();
-				reserve_dynamic_data(data, dynamic);
-				break;
-			}
-			case UniformType::VECTOR2:
-			{
-				Vector2 data = root.key("uniforms").key(keys[i].c_str()).key("value").to_vector2();
-				reserve_dynamic_data(data, dynamic);
-				break;
-			}
-			case UniformType::VECTOR3:
-			{
-				Vector3 data = root.key("uniforms").key(keys[i].c_str()).key("value").to_vector3();
-				reserve_dynamic_data(data, dynamic);
-				break;
-			}
-			case UniformType::VECTOR4:
-			{
-				Vector4 data = root.key("uniforms").key(keys[i].c_str()).key("value").to_vector4();
-				reserve_dynamic_data(data, dynamic);
-				break;
-			}
-			default: CE_FATAL("Oops"); break;
+			TextureHandle th;
+			th.sampler_handle = 0;
+			th.texture_handle = 0;
+
+			ResourceId texid = root.key("textures").key(keys[i].c_str()).to_resource_id("texture");
+
+			TextureData td;
+			td.id = texid.name;
+			td.data_offset = reserve_dynamic_data(th, dynamic);
+			strncpy(td.sampler_name, keys[i].c_str(), 256);
+
+			array::push_back(textures, td);
+		}
+	}
+
+	struct UniformTypeInfo
+	{
+		const char* name;
+		UniformType::Enum type;
+		uint8_t size;
+	};
+
+	static const UniformTypeInfo s_uniform_type_info[UniformType::COUNT] =
+	{
+		{ "float",   UniformType::FLOAT,    4 },
+		{ "vector2", UniformType::VECTOR2,  8 },
+		{ "vector3", UniformType::VECTOR3, 12 },
+		{ "vector4", UniformType::VECTOR4, 16 }
+	};
+
+	static UniformType::Enum string_to_uniform_type(const char* str)
+	{
+		for (uint32_t i = 0; i < UniformType::COUNT; i++)
+		{
+			if (string::strcmp(str, s_uniform_type_info[i].name) == 0)
+				return s_uniform_type_info[i].type;
 		}
 
-		array::push_back(uniforms, ud);
+		CE_FATAL("Unknown uniform type");
+		return UniformType::COUNT;
 	}
-}
 
-//-----------------------------------------------------------------------------
-void compile(Filesystem& fs, const char* resource_path, File* out_file)
-{
-	File* file = fs.open(resource_path, FOM_READ);
-	JSONParser json(*file);
-	fs.close(file);
+	static void parse_uniforms(JSONElement root, Array<UniformData>& uniforms, Array<char>& dynamic)
+	{
+		using namespace vector;
 
-	JSONElement root = json.root();
+		Vector<DynamicString> keys(default_allocator());
+		root.key("uniforms").to_keys(keys);
 
-	Array<TextureData> texdata(default_allocator());
-	Array<UniformData> unidata(default_allocator());
-	Array<char> dynblob(default_allocator());
+		for (uint32_t i = 0; i < size(keys); i++)
+		{
+			UniformHandle uh;
+			uh.uniform_handle = 0;
 
-	ResourceId shader = root.key("shader").to_resource_id("shader");
-	parse_textures(root, texdata, dynblob);
-	parse_uniforms(root, unidata, dynblob);
+			DynamicString type;
+			root.key("uniforms").key(keys[i].c_str()).key("type").to_string(type);
 
-	MaterialHeader mh;
-	mh.version = MATERIAL_VERSION;
-	mh.shader = shader.name;
-	mh.num_textures = array::size(texdata);
-	mh.texture_data_offset = sizeof(mh);
-	mh.num_uniforms = array::size(unidata);
-	mh.uniform_data_offset = sizeof(mh) + sizeof(TextureData) * array::size(texdata);
-	mh.dynamic_data_size = array::size(dynblob);
-	mh.dynamic_data_offset = sizeof(mh) + sizeof(TextureData) * array::size(texdata) + sizeof(UniformData) * array::size(unidata);
+			UniformData ud;
+			ud.type = string_to_uniform_type(type.c_str());
+			ud.data_offset = reserve_dynamic_data(uh, dynamic);
 
-	out_file->write((char*) &mh, sizeof(mh));
-	out_file->write((char*) array::begin(texdata), sizeof(TextureData) * array::size(texdata));
-	out_file->write((char*) array::begin(unidata), sizeof(UniformData) * array::size(unidata));
-	out_file->write((char*) array::begin(dynblob), sizeof(char) * array::size(dynblob));
-}
+			strncpy(ud.name, keys[i].c_str(), 256);
 
+			switch (ud.type)
+			{
+				case UniformType::FLOAT:
+				{
+					float data = root.key("uniforms").key(keys[i].c_str()).key("value").to_float();
+					reserve_dynamic_data(data, dynamic);
+					break;
+				}
+				case UniformType::VECTOR2:
+				{
+					Vector2 data = root.key("uniforms").key(keys[i].c_str()).key("value").to_vector2();
+					reserve_dynamic_data(data, dynamic);
+					break;
+				}
+				case UniformType::VECTOR3:
+				{
+					Vector3 data = root.key("uniforms").key(keys[i].c_str()).key("value").to_vector3();
+					reserve_dynamic_data(data, dynamic);
+					break;
+				}
+				case UniformType::VECTOR4:
+				{
+					Vector4 data = root.key("uniforms").key(keys[i].c_str()).key("value").to_vector4();
+					reserve_dynamic_data(data, dynamic);
+					break;
+				}
+				default: CE_FATAL("Oops"); break;
+			}
+
+			array::push_back(uniforms, ud);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void compile(Filesystem& fs, const char* resource_path, File* out_file)
+	{
+		File* file = fs.open(resource_path, FOM_READ);
+		JSONParser json(*file);
+		fs.close(file);
+
+		JSONElement root = json.root();
+
+		Array<TextureData> texdata(default_allocator());
+		Array<UniformData> unidata(default_allocator());
+		Array<char> dynblob(default_allocator());
+
+		ResourceId shader = root.key("shader").to_resource_id("shader");
+		parse_textures(root, texdata, dynblob);
+		parse_uniforms(root, unidata, dynblob);
+
+		MaterialHeader mh;
+		mh.version = MATERIAL_VERSION;
+		mh.shader = shader.name;
+		mh.num_textures = array::size(texdata);
+		mh.texture_data_offset = sizeof(mh);
+		mh.num_uniforms = array::size(unidata);
+		mh.uniform_data_offset = sizeof(mh) + sizeof(TextureData) * array::size(texdata);
+		mh.dynamic_data_size = array::size(dynblob);
+		mh.dynamic_data_offset = sizeof(mh) + sizeof(TextureData) * array::size(texdata) + sizeof(UniformData) * array::size(unidata);
+
+		out_file->write((char*) &mh, sizeof(mh));
+		out_file->write((char*) array::begin(texdata), sizeof(TextureData) * array::size(texdata));
+		out_file->write((char*) array::begin(unidata), sizeof(UniformData) * array::size(unidata));
+		out_file->write((char*) array::begin(dynblob), sizeof(char) * array::size(dynblob));
+	}
+
+	//-----------------------------------------------------------------------------
+	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	{
+		File* file = bundle.open(id);
+		const size_t file_size = file->size();
+
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
+
+		bundle.close(file);
+
+		return res;
+	}
+
+	//-----------------------------------------------------------------------------
+	void online(StringId64 id, ResourceManager& rm)
+	{
+		ResourceId res_id;
+		res_id.type = MATERIAL_TYPE;
+		res_id.name = id;
+		MaterialResource* mr = (MaterialResource*) rm.get(res_id);
+
+		char* base = (char*) mr + mr->dynamic_data_offset();
+
+		for (uint32_t i = 0; i < mr->num_textures(); i++)
+		{
+			TextureData* ud = mr->get_texture_data(i);
+			TextureHandle* th = mr->get_texture_handle(i, base);
+			th->sampler_handle = bgfx::createUniform(ud->sampler_name, bgfx::UniformType::Uniform1iv).idx;
+		}
+
+		for (uint32_t i = 0; i < mr->num_uniforms(); i++)
+		{
+			UniformData* ud = mr->get_uniform_data(i);
+			UniformHandle* uh = mr->get_uniform_handle(i, base);
+			uh->uniform_handle = bgfx::createUniform(ud->name, bgfx::UniformType::Uniform4fv).idx;
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void offline(StringId64 id, ResourceManager& rm)
+	{
+		ResourceId res_id;
+		res_id.type = MATERIAL_TYPE;
+		res_id.name = id;
+		MaterialResource* mr = (MaterialResource*) rm.get(res_id);
+
+		char* base = (char*) mr + mr->dynamic_data_offset();
+
+		for (uint32_t i = 0; i < mr->num_textures(); i++)
+		{
+			TextureHandle* th = mr->get_texture_handle(i, base);
+			bgfx::UniformHandle sh;
+			sh.idx = th->sampler_handle;
+			bgfx::destroyUniform(sh);
+		}
+
+		for (uint32_t i = 0; i < mr->num_uniforms(); i++)
+		{
+			UniformHandle* uh = mr->get_uniform_handle(i, base);
+			bgfx::UniformHandle bgfx_uh;
+			bgfx_uh.idx = uh->uniform_handle;
+			bgfx::destroyUniform(bgfx_uh);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void unload(Allocator& a, void* res)
+	{
+		a.deallocate(res);
+	}
 } // namespace material_resource
 } // namespace crown

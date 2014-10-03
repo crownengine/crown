@@ -26,48 +26,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "types.h"
-#include "resource.h"
-#include "bundle.h"
-#include "allocator.h"
-#include "file.h"
 #include "resource_manager.h"
+#include "bundle.h"
+#include "file.h"
+#include "reader_writer.h"
 #include "memory.h"
-#include <bgfx.h>
+#include "compile_options.h"
 
 namespace crown
 {
-
-struct TextureHeader
+namespace pepper_resource
 {
-	uint32_t version;
-	uint32_t size;
-};
-
-struct TextureImage
-{
-	const bgfx::Memory* mem; // BGFX will take care of deallocation
-	bgfx::TextureHandle handle;
-};
-
-struct TextureResource
-{
-private:
-
-	// Disable construction
-	TextureResource();
-};
-
-namespace texture_resource
-{
-	void compile(Filesystem& fs, const char* resource_path, File* out_file);
-	inline void compile(const char* path, CompileOptions& opts)
-	{
-		compile(opts._fs, path, &opts._bw.m_file);
-	}
+	void compile(const char* path, CompileOptions& opts);
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	void offline(StringId64 id, ResourceManager& rm);
 	void online(StringId64 id, ResourceManager& rm);
+	void offline(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* resource);
-} // namespace texture_resource
+} // namespace pepper_resource
 } // namespace crown

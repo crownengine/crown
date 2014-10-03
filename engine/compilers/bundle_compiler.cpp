@@ -35,181 +35,85 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "path.h"
 #include "disk_filesystem.h"
 #include "compile_options.h"
+#include "resource_registry.h"
 #include <inttypes.h>
 
 namespace crown
 {
 
-namespace mesh_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace texture_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace package_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace lua_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace physics_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace physics_config_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace unit_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace sound_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace sprite_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace material_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace font_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace level_resource { extern void compile(Filesystem&, const char*, File*); }
-namespace shader_resource { extern void compile(const char*, CompileOptions&); }
-namespace sprite_animation_resource { extern void compile(Filesystem&, const char*, File*); }
-
 //-----------------------------------------------------------------------------
-BundleCompiler::BundleCompiler()
+BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
+	: _source_fs(source_dir)
+	, _bundle_fs(bundle_dir)
 {
+	DiskFilesystem temp;
+	temp.create_directory(bundle_dir);
 }
 
 //-----------------------------------------------------------------------------
-bool BundleCompiler::compile(const char* source_dir, const char* bundle_dir, const char* platform, const char* resource)
+bool BundleCompiler::compile(const char* type, const char* name, const char* platform)
+{
+	const ResourceId id(type, name);
+	char out_name[512];
+	snprintf(out_name, 512, "%.16"PRIx64"-%.16"PRIx64, id.type, id.name);
+	char path[512];
+	snprintf(path, 512, "%s.%s", name, type);
+
+	CE_LOGI("%s <= %s.%s", out_name, name, type);
+
+	File* outf = _bundle_fs.open(out_name, FOM_WRITE);
+	CompileOptions opts(_source_fs, outf, platform);
+	resource_on_compile(id.type, path, opts);
+	_bundle_fs.close(outf);
+}
+
+//-----------------------------------------------------------------------------
+bool BundleCompiler::compile_all(const char* platform)
 {
 	Vector<DynamicString> files(default_allocator());
+	BundleCompiler::scan("", files);
 
-	if (resource == NULL)
+	if (!_source_fs.is_file("crown.config"))
 	{
-		BundleCompiler::scan(source_dir, "", files);
-
-		DiskFilesystem temp;
-		temp.create_directory(bundle_dir);
-
-		DiskFilesystem src_fs(source_dir);
-		DiskFilesystem dst_fs(bundle_dir);
-
-		// Copy crown.config to bundle dir
-		if (src_fs.is_file("crown.config"))
-		{
-			File* src = src_fs.open("crown.config", FOM_READ);
-			File* dst = dst_fs.open("crown.config", FOM_WRITE);
-			src->copy_to(*dst, src->size());
-			src_fs.close(src);
-			dst_fs.close(dst);
-		}
-		else
-		{
-			CE_LOGD("'crown.config' does not exist.");
-			return false;
-		}
+		CE_LOGD("'crown.config' does not exist.");
+		return false;
 	}
-	else
-	{
-		DynamicString filename(default_allocator());
-		filename = resource;
-		vector::push_back(files, filename);
-	}
+
+	File* src = _source_fs.open("crown.config", FOM_READ);
+	File* dst = _bundle_fs.open("crown.config", FOM_WRITE);
+	src->copy_to(*dst, src->size());
+	_source_fs.close(src);
+	_bundle_fs.close(dst);
 
 	// Compile all resources
 	for (uint32_t i = 0; i < vector::size(files); i++)
 	{
-		if (files[i].ends_with(".tga"))
-			continue;
-		if (files[i].ends_with(".dds"))
-			continue;
-		if (files[i].ends_with(".sh"))
-			continue;
-		if (files[i].ends_with(".sc"))
-			continue;
-		if (files[i].starts_with("."))
-			continue;
-		if (files[i].ends_with(".config"))
-			continue;
+		if (files[i].ends_with(".tga")
+			|| files[i].ends_with(".dds")
+			|| files[i].ends_with(".sh")
+			|| files[i].ends_with(".sc")
+			|| files[i].starts_with(".")
+			|| files[i].ends_with(".config"))
+		continue;
 
 		const char* filename = files[i].c_str();
+		char type[256];
+		char name[256];
+		path::extension(filename, type, 256);
+		path::filename_without_extension(filename, name, 256);
 
-		char filename_extension[512];
-		char filename_without_extension[512];
-		path::extension(filename, filename_extension, 512);
-		path::filename_without_extension(filename, filename_without_extension, 512);
-
-		const ResourceId name(filename_extension, filename_without_extension);
-
-		char out_name[512];
-		snprintf(out_name, 512, "%.16"PRIx64"-%.16"PRIx64, name.type, name.name);
-		CE_LOGI("%s <= %s", out_name, filename);
-
-		DiskFilesystem root_fs(source_dir);
-		DiskFilesystem dest_fs(bundle_dir);
-
-		// Open destination file
-		File* out_file = dest_fs.open(out_name, FOM_WRITE);
-
-		if (out_file)
-		{
-			if (name.type == MESH_TYPE)
-			{
-				mesh_resource::compile(root_fs, filename, out_file);
-			}
-			else if (name.type == TEXTURE_TYPE)
-			{
-				texture_resource::compile(root_fs, filename, out_file);
-			}
-			else if (name.type == LUA_TYPE)
-			{
-				lua_resource::compile(root_fs, filename, out_file);
-			}
-			else if(name.type == SOUND_TYPE)
-			{
-				sound_resource::compile(root_fs, filename, out_file);
-			}
-			else if(name.type == SPRITE_TYPE)
-			{
-				sprite_resource::compile(root_fs, filename, out_file);
-			}
-			else if (name.type == PACKAGE_TYPE)
-			{
-				package_resource::compile(root_fs, filename, out_file);
-			}
-			else if (name.type == UNIT_TYPE)
-			{
-				unit_resource::compile(root_fs, filename, out_file);
-			}
-			else if (name.type == PHYSICS_TYPE)
-			{
-				physics_resource::compile(root_fs, filename, out_file);
-			}
-			else if (name.type == MATERIAL_TYPE)
-			{
-				material_resource::compile(root_fs, filename, out_file);
-			}
-			else if (name.type == PHYSICS_CONFIG_TYPE)
-			{
-				physics_config_resource::compile(root_fs, filename, out_file);
-			}
-			else if (name.type == FONT_TYPE)
-			{
-				font_resource::compile(root_fs, filename, out_file);
-			}
-			else if (name.type == LEVEL_TYPE)
-			{
-				level_resource::compile(root_fs, filename, out_file);
-			}
-			else if (name.type == SHADER_TYPE)
-			{
-				CompileOptions opts(root_fs, out_file, platform);
-				shader_resource::compile(filename, opts);
-			}
-			else if (name.type == SPRITE_ANIMATION_TYPE)
-			{
-				sprite_animation_resource::compile(root_fs, filename, out_file);
-			}
-			else
-			{
-				CE_LOGE("Oops, unknown resource type!");
-				return false;
-			}
-
-			dest_fs.close(out_file);
-		}
+		compile(type, name, platform);
 	}
 
 	return true;
 }
 
-void BundleCompiler::scan(const char* source_dir, const char* cur_dir, Vector<DynamicString>& files)
+//-----------------------------------------------------------------------------
+void BundleCompiler::scan(const char* cur_dir, Vector<DynamicString>& files)
 {
 	Vector<DynamicString> my_files(default_allocator());
 
-	DiskFilesystem fs(source_dir);
-	fs.list_files(cur_dir, my_files);
+	_source_fs.list_files(cur_dir, my_files);
 
 	for (uint32_t i = 0; i < vector::size(my_files); i++)
 	{
@@ -222,9 +126,9 @@ void BundleCompiler::scan(const char* source_dir, const char* cur_dir, Vector<Dy
 		}
 		file_i += my_files[i];
 
-		if (fs.is_directory(file_i.c_str()))
+		if (_source_fs.is_directory(file_i.c_str()))
 		{
-			BundleCompiler::scan(source_dir, file_i.c_str(), files);
+			BundleCompiler::scan(file_i.c_str(), files);
 		}
 		else // Assume a regular file
 		{
@@ -239,7 +143,7 @@ namespace bundle_compiler
 	{
 		if (cls.do_compile)
 		{
-			bool ok = bundle_compiler_globals::compiler()->compile(cls.source_dir, cls.bundle_dir, cls.platform);
+			bool ok = bundle_compiler_globals::compiler()->compile_all(cls.platform);
 			if (!ok || !cls.do_continue)
 			{
 				return false;
@@ -254,10 +158,10 @@ namespace bundle_compiler_globals
 {
 	BundleCompiler* _compiler = NULL;
 
-	void init()
+	void init(const char* source_dir, const char* bundle_dir)
 	{
 #if CROWN_PLATFORM_LINUX || CROWN_PLATFORM_WINDOWS
-		_compiler = CE_NEW(default_allocator(), BundleCompiler);
+		_compiler = CE_NEW(default_allocator(), BundleCompiler)(source_dir, bundle_dir);
 #endif
 	}
 

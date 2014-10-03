@@ -41,23 +41,54 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+namespace pcr = physics_config_resource;
+namespace phr = physics_resource;
+namespace pkr = package_resource;
+namespace sdr = sound_resource;
+namespace mhr = mesh_resource;
+namespace utr = unit_resource;
+namespace txr = texture_resource;
+namespace mtr = material_resource;
+namespace lur = lua_resource;
+namespace ftr = font_resource;
+namespace lvr = level_resource;
+namespace spr = sprite_resource;
+namespace shr = shader_resource;
+namespace sar = sprite_animation_resource;
+
+typedef void  (*ResourceCompileCallback)(const char* path, CompileOptions& opts);
+typedef void* (*ResourceLoadCallback)(Allocator& a, Bundle& b, ResourceId id);
+typedef void  (*ResourceOnlineCallback)(StringId64 id, ResourceManager& rm);
+typedef void  (*ResourceOfflineCallback)(StringId64 id, ResourceManager& rm);
+typedef void  (*ResourceUnloadCallback)(Allocator& a, void* resource);
+
+struct ResourceCallback
+{
+	uint64_t type;
+	ResourceCompileCallback on_compile;
+	ResourceLoadCallback on_load;
+	ResourceUnloadCallback on_unload;
+	ResourceOnlineCallback on_online;
+	ResourceOfflineCallback on_offline;
+};
+
 static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 {
-	{ LUA_TYPE, LuaResource::load, LuaResource::unload, LuaResource::online, LuaResource::offline },
-	{ TEXTURE_TYPE, TextureResource::load, TextureResource::unload, TextureResource::online, TextureResource::offline },
-	{ MESH_TYPE, MeshResource::load, MeshResource::unload, MeshResource::online, MeshResource::offline },
-	{ SOUND_TYPE, SoundResource::load, SoundResource::unload, SoundResource::online, SoundResource::offline },
-	{ UNIT_TYPE, UnitResource::load, UnitResource::unload, UnitResource::online, UnitResource::offline },
-	{ SPRITE_TYPE, sprite_resource::load, sprite_resource::unload, sprite_resource::online, sprite_resource::offline},
-	{ PACKAGE_TYPE, PackageResource::load, PackageResource::unload, PackageResource::online, PackageResource::offline },
-	{ PHYSICS_TYPE, PhysicsResource::load, PhysicsResource::unload, PhysicsResource::online, PhysicsResource::offline },
-	{ MATERIAL_TYPE, MaterialResource::load, MaterialResource::unload, MaterialResource::online, MaterialResource::offline },
-	{ PHYSICS_CONFIG_TYPE, PhysicsConfigResource::load, PhysicsConfigResource::unload, PhysicsConfigResource::online, PhysicsConfigResource::offline },
-	{ FONT_TYPE, FontResource::load, FontResource::unload, FontResource::online, FontResource::offline },
-	{ LEVEL_TYPE, LevelResource::load, LevelResource::unload, LevelResource::online, LevelResource::offline },
-	{ SHADER_TYPE, shader_resource::load, shader_resource::unload, shader_resource::online, shader_resource::offline },
-	{ SPRITE_ANIMATION_TYPE, sprite_animation_resource::load, sprite_animation_resource::unload, sprite_animation_resource::online, sprite_animation_resource::offline },
-	{ 0, NULL, NULL, NULL, NULL }
+	{ LUA_TYPE,              lur::compile, lur::load, lur::unload, lur::online, lur::offline },
+	{ TEXTURE_TYPE,          txr::compile, txr::load, txr::unload, txr::online, txr::offline },
+	{ MESH_TYPE,             mhr::compile, mhr::load, mhr::unload, mhr::online, mhr::offline },
+	{ SOUND_TYPE,            sdr::compile, sdr::load, sdr::unload, sdr::online, sdr::offline },
+	{ UNIT_TYPE,             utr::compile, utr::load, utr::unload, utr::online, utr::offline },
+	{ SPRITE_TYPE,           spr::compile, spr::load, spr::unload, spr::online, spr::offline },
+	{ PACKAGE_TYPE,          pkr::compile, pkr::load, pkr::unload, pkr::online, pkr::offline },
+	{ PHYSICS_TYPE,          phr::compile, phr::load, phr::unload, phr::online, phr::offline },
+	{ MATERIAL_TYPE,         mtr::compile, mtr::load, mtr::unload, mtr::online, mtr::offline },
+	{ PHYSICS_CONFIG_TYPE,   pcr::compile, pcr::load, pcr::unload, pcr::online, pcr::offline },
+	{ FONT_TYPE,             ftr::compile, ftr::load, ftr::unload, ftr::online, ftr::offline },
+	{ LEVEL_TYPE,            lvr::compile, lvr::load, lvr::unload, lvr::online, lvr::offline },
+	{ SHADER_TYPE,           shr::compile, shr::load, shr::unload, shr::online, shr::offline },
+	{ SPRITE_ANIMATION_TYPE, sar::compile, sar::load, sar::unload, sar::online, sar::offline },
+	{ 0,                     NULL,         NULL,      NULL,        NULL,        NULL         }
 };
 
 //-----------------------------------------------------------------------------
@@ -65,57 +96,42 @@ static const ResourceCallback* find_callback(uint64_t type)
 {
 	const ResourceCallback* c = RESOURCE_CALLBACK_REGISTRY;
 
-	while (c->type != 0)
+	while (c->type != 0 && c->type != type)
 	{
-		if (c->type == type)
-		{
-			return c;
-		}
-
 		c++;
 	}
 
-	return NULL;
+	CE_ASSERT_NOT_NULL(c);
+	return c;
+}
+
+void resource_on_compile(uint64_t type, const char* path, CompileOptions& opts)
+{
+	return find_callback(type)->on_compile(path, opts);
 }
 
 //-----------------------------------------------------------------------------
 void* resource_on_load(uint64_t type, Allocator& allocator, Bundle& bundle, ResourceId id)
 {
-	const ResourceCallback* c = find_callback(type);
-
-	CE_ASSERT_NOT_NULL(c);
-
-	return c->on_load(allocator, bundle, id);
+	return find_callback(type)->on_load(allocator, bundle, id);
 }
 
 //-----------------------------------------------------------------------------
 void resource_on_unload(uint64_t type, Allocator& allocator, void* resource)
 {
-	const ResourceCallback* c = find_callback(type);
-
-	CE_ASSERT_NOT_NULL(c);
-
-	return c->on_unload(allocator, resource);
+	return find_callback(type)->on_unload(allocator, resource);
 }
 
 //-----------------------------------------------------------------------------
 void resource_on_online(uint64_t type, StringId64 id, ResourceManager& rm)
 {
-	const ResourceCallback* c = find_callback(type);
-
-	CE_ASSERT_NOT_NULL(c);
-
-	return c->on_online(id, rm);
+	return find_callback(type)->on_online(id, rm);
 }
 
 //-----------------------------------------------------------------------------
 void resource_on_offline(uint64_t type, StringId64 id, ResourceManager& rm)
 {
-	const ResourceCallback* c = find_callback(type);
-
-	CE_ASSERT_NOT_NULL(c);
-
-	return c->on_offline(id, rm);
+	return find_callback(type)->on_offline(id, rm);
 }
 
 } // namespace crown

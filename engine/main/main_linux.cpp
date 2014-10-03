@@ -444,7 +444,7 @@ int main(int argc, char** argv)
 	console_server_globals::init();
 	console_server_globals::console().init(cs.console_port, cls.wait_console);
 
-	bundle_compiler_globals::init();
+	bundle_compiler_globals::init(cls.source_dir, cls.bundle_dir);
 
 	bool do_continue = true;
 	int exitcode = EXIT_SUCCESS;

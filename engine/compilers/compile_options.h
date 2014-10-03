@@ -70,17 +70,16 @@ struct CompileOptions
 	}
 
 	template <typename T>
-	void write(const T& data)
+	BinaryWriter& write(const T& data)
 	{
 		_bw.write(data);
+		return _bw;
 	}
 
 	const char* platform() const
 	{
 		return _platform;
 	}
-
-private:
 
 	Filesystem& _fs;
 	BinaryWriter _bw;

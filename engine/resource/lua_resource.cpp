@@ -48,55 +48,82 @@ namespace crown
 {
 namespace lua_resource
 {
-
-//-----------------------------------------------------------------------------
-void compile(Filesystem& fs, const char* resource_path, File* out_file)
-{
-	TempAllocator1024 alloc;
-	DynamicString res_abs_path(alloc);
-	TempAllocator1024 alloc2;
-	DynamicString bc_abs_path(alloc2);
-	fs.get_absolute_path(resource_path, res_abs_path);
-	fs.get_absolute_path("bc.tmp", bc_abs_path);
-
-	const char* luajit[] =
+	//-----------------------------------------------------------------------------
+	void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	{
-		LUAJIT_EXECUTABLE,
-		LUAJIT_FLAGS,
-		res_abs_path.c_str(),
-		bc_abs_path.c_str(),
-		NULL
-	};
+		TempAllocator1024 alloc;
+		DynamicString res_abs_path(alloc);
+		TempAllocator1024 alloc2;
+		DynamicString bc_abs_path(alloc2);
+		fs.get_absolute_path(resource_path, res_abs_path);
+		fs.get_absolute_path("bc.tmp", bc_abs_path);
 
-	os::execute_process(luajit);
+		const char* luajit[] =
+		{
+			LUAJIT_EXECUTABLE,
+			LUAJIT_FLAGS,
+			res_abs_path.c_str(),
+			bc_abs_path.c_str(),
+			NULL
+		};
 
-	size_t program_size = 0;
-	char* program = NULL;
+		os::execute_process(luajit);
 
-	File* bc = fs.open(bc_abs_path.c_str(), FOM_READ);
-	if (bc != NULL)
-	{
-		program_size = bc->size();
-		program = (char*) default_allocator().allocate(program_size);
-		bc->read(program, program_size);
-		fs.close(bc);
-		fs.delete_file(bc_abs_path.c_str());
+		size_t program_size = 0;
+		char* program = NULL;
+
+		File* bc = fs.open(bc_abs_path.c_str(), FOM_READ);
+		if (bc != NULL)
+		{
+			program_size = bc->size();
+			program = (char*) default_allocator().allocate(program_size);
+			bc->read(program, program_size);
+			fs.close(bc);
+			fs.delete_file(bc_abs_path.c_str());
+		}
+		else
+		{
+			CE_LOGE("Error while reading luajit bytecode");
+			return;
+		}
+
+		LuaHeader header;
+		header.version = LUA_RESOURCE_VERSION;
+		header.size = program_size;
+
+		out_file->write((char*)&header, sizeof(LuaHeader));
+		out_file->write((char*)program, program_size);
+
+		default_allocator().deallocate(program);
 	}
-	else
+
+	//-----------------------------------------------------------------------------
+	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
-		CE_LOGE("Error while reading luajit bytecode");
-		return;
+		File* file = bundle.open(id);
+		const size_t file_size = file->size();
+
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
+
+		bundle.close(file);
+
+		return res;
 	}
 
-	LuaHeader header;
-	header.version = LUA_RESOURCE_VERSION;
-	header.size = program_size;
+	//-----------------------------------------------------------------------------
+	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
+	{
+	}
 
-	out_file->write((char*)&header, sizeof(LuaHeader));
-	out_file->write((char*)program, program_size);
+	void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
+	{
+	}
 
-	default_allocator().deallocate(program);
-}
-
+	//-----------------------------------------------------------------------------
+	void unload(Allocator& allocator, void* resource)
+	{
+		allocator.deallocate(resource);
+	}
 } // namespace lua_resource
 } // namespace crown

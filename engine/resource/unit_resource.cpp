@@ -45,382 +45,410 @@ namespace crown
 {
 namespace unit_resource
 {
-
-static ProjectionType::Enum projection_name_to_enum(const char* name)
-{
-	if (string::strcmp(name, "perspective") == 0) return ProjectionType::PERSPECTIVE;
-	else if (string::strcmp(name, "orthographic") == 0) return ProjectionType::ORTHOGRAPHIC;
-
-	CE_FATAL("Unknown projection type");
-	return (ProjectionType::Enum) 0;
-}
-
-const StringId32 NO_PARENT = 0xFFFFFFFF;
-
-struct GraphNode
-{
-	StringId32 name;
-	StringId32 parent;
-	Vector3 position;
-	Quaternion rotation;
-};
-
-struct GraphNodeDepth
-{
-	StringId32 name;
-	uint32_t index;
-	uint32_t depth;
-
-	bool operator()(const GraphNodeDepth& a, const GraphNodeDepth& b)
+	static ProjectionType::Enum projection_name_to_enum(const char* name)
 	{
-		return a.depth < b.depth;
+		if (string::strcmp(name, "perspective") == 0) return ProjectionType::PERSPECTIVE;
+		else if (string::strcmp(name, "orthographic") == 0) return ProjectionType::ORTHOGRAPHIC;
+
+		CE_FATAL("Unknown projection type");
+		return (ProjectionType::Enum) 0;
 	}
-};
 
-//-----------------------------------------------------------------------------
-uint32_t compute_link_depth(const GraphNode& node, const Array<GraphNode>& nodes)
-{
-	if (node.parent == NO_PARENT) return 0;
-	else
+	const StringId32 NO_PARENT = 0xFFFFFFFF;
+
+	struct GraphNode
 	{
-		for (uint32_t i = 0; i < array::size(nodes); i++)
+		StringId32 name;
+		StringId32 parent;
+		Vector3 position;
+		Quaternion rotation;
+	};
+
+	struct GraphNodeDepth
+	{
+		StringId32 name;
+		uint32_t index;
+		uint32_t depth;
+
+		bool operator()(const GraphNodeDepth& a, const GraphNodeDepth& b)
 		{
-			if (nodes[i].name == node.parent)
+			return a.depth < b.depth;
+		}
+	};
+
+	//-----------------------------------------------------------------------------
+	uint32_t compute_link_depth(const GraphNode& node, const Array<GraphNode>& nodes)
+	{
+		if (node.parent == NO_PARENT) return 0;
+		else
+		{
+			for (uint32_t i = 0; i < array::size(nodes); i++)
 			{
-				return 1 + compute_link_depth(nodes[i], nodes);
+				if (nodes[i].name == node.parent)
+				{
+					return 1 + compute_link_depth(nodes[i], nodes);
+				}
+			}
+		}
+
+		CE_FATAL("Node not found");
+		return 0;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t find_node_index(StringId32 name, const Array<GraphNodeDepth>& node_depths)
+	{
+		for (uint32_t i = 0; i < array::size(node_depths); i++)
+		{
+			if (node_depths[i].name == name)
+			{
+				return i;
+			}
+		}
+
+		CE_FATAL("Node not found");
+		return 0;
+	}
+
+	//-----------------------------------------------------------------------------
+	int32_t find_node_parent_index(uint32_t node, const Array<GraphNode>& nodes, const Array<GraphNodeDepth>& node_depths)
+	{
+		StringId32 parent_name = nodes[node_depths[node].index].parent;
+
+		if (parent_name == NO_PARENT) return -1;
+		for (uint32_t i = 0; i < array::size(node_depths); i++)
+		{
+			if (parent_name == node_depths[i].name)
+			{
+				return i;
+			}
+		}
+
+		CE_FATAL("Node not found");
+		return 0;
+	}
+
+	//-----------------------------------------------------------------------------
+	void parse_nodes(JSONElement e, Array<GraphNode>& nodes, Array<GraphNodeDepth>& node_depths)
+	{
+		Vector<DynamicString> keys(default_allocator());
+		e.to_keys(keys);
+
+		for (uint32_t k = 0; k < vector::size(keys); k++)
+		{
+			const char* node_name = keys[k].c_str();
+			JSONElement node = e.key(node_name);
+
+			GraphNode gn;
+			gn.name = string::murmur2_32(node_name, string::strlen(node_name));
+			gn.parent = NO_PARENT;
+
+			if (!node.key("parent").is_nil())
+			{
+				DynamicString parent_name;
+				node.key("parent").to_string(parent_name);
+				gn.parent = string::murmur2_32(parent_name.c_str(), parent_name.length(), 0);
+			}
+
+			JSONElement pos = node.key("position");
+			JSONElement rot = node.key("rotation");
+			gn.position = Vector3(pos[0].to_float(), pos[1].to_float(), pos[2].to_float());
+			gn.rotation = Quaternion(Vector3(rot[0].to_float(), rot[1].to_float(), rot[2].to_float()), rot[3].to_float());
+
+			GraphNodeDepth gnd;
+			gnd.name = gn.name;
+			gnd.index = array::size(nodes);
+			gnd.depth = 0;
+
+			array::push_back(nodes, gn);
+			array::push_back(node_depths, gnd);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void parse_cameras(JSONElement e, Array<UnitCamera>& cameras, const Array<GraphNodeDepth>& node_depths)
+	{
+		Vector<DynamicString> keys(default_allocator());
+		e.to_keys(keys);
+
+		for (uint32_t k = 0; k < vector::size(keys); k++)
+		{
+			const char* camera_name = keys[k].c_str();
+			JSONElement camera = e.key(camera_name);
+			JSONElement node = camera.key("node");
+			JSONElement type = camera.key("type");
+			JSONElement fov = camera.key_or_nil("fov");
+			JSONElement near = camera.key_or_nil("near_clip_distance");
+			JSONElement far = camera.key_or_nil("far_clip_distance");
+
+			DynamicString node_name;
+			node.to_string(node_name);
+			DynamicString camera_type;
+			type.to_string(camera_type);
+
+			StringId32 node_name_hash = string::murmur2_32(node_name.c_str(), node_name.length());
+
+			UnitCamera cn;
+			cn.name = string::murmur2_32(camera_name, string::strlen(camera_name));
+			cn.node = find_node_index(node_name_hash, node_depths);
+			cn.type = projection_name_to_enum(camera_type.c_str());
+			cn.fov = fov.is_nil() ? 16.0f / 9.0f : fov.to_float();
+			cn.near = near.is_nil() ? 0.01f : near.to_float();
+			cn.far = far.is_nil() ? 1000 : far.to_float();
+
+			array::push_back(cameras, cn);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void parse_renderables(JSONElement e, Array<UnitRenderable>& renderables, const Array<GraphNodeDepth>& node_depths)
+	{
+		Vector<DynamicString> keys(default_allocator());
+		e.to_keys(keys);
+
+		for (uint32_t k = 0; k < vector::size(keys); k++)
+		{
+			const char* renderable_name = keys[k].c_str();
+			JSONElement renderable = e.key(renderable_name);
+
+			DynamicString node_name; renderable.key("node").to_string(node_name);
+			StringId32 node_name_hash = string::murmur2_32(node_name.c_str(), node_name.length(), 0);
+
+			UnitRenderable rn;
+			rn.name = string::murmur2_32(renderable_name, string::strlen(renderable_name), 0);
+			rn.node = find_node_index(node_name_hash, node_depths);
+			rn.visible = renderable.key("visible").to_bool();
+
+			DynamicString res_type;
+			renderable.key("type").to_string(res_type);
+
+			if (res_type == "mesh")
+			{
+				rn.type = UnitRenderable::MESH;
+				rn.resource = renderable.key("resource").to_resource_id("mesh");
+			}
+			else if (res_type == "sprite")
+			{
+				rn.type = UnitRenderable::SPRITE;
+				rn.resource = renderable.key("resource").to_resource_id("sprite");
+			}
+			else
+			{
+				CE_ASSERT(false, "Oops, unknown renderable type: '%s'", res_type.c_str());
+			}
+
+			array::push_back(renderables, rn);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void parse_keys(JSONElement e, Array<Key>& generic_keys, Array<char>& values)
+	{
+		Vector<DynamicString> keys(default_allocator());
+		e.to_keys(keys);
+
+		for (uint32_t k = 0; k < vector::size(keys); k++)
+		{
+			const char* key = keys[k].c_str();
+			JSONElement value = e.key(key);
+
+			Key out_key;
+			out_key.name = string::murmur2_32(key, string::strlen(key));
+			out_key.offset = array::size(values);
+
+			if (value.is_bool()) out_key.type = ValueType::BOOL;
+			else if (value.is_number()) out_key.type = ValueType::FLOAT;
+			else if (value.is_string()) out_key.type = ValueType::STRING;
+			else if (value.is_array() && value.size() == 3) out_key.type = ValueType::VECTOR3;
+			else CE_FATAL("Value type not supported");
+
+			array::push_back(generic_keys, out_key);
+
+			switch (out_key.type)
+			{
+				case ValueType::BOOL:
+				{
+					uint32_t val = value.to_bool();
+					array::push(values, (char*) &val, sizeof(uint32_t));
+					break;
+				}
+				case ValueType::FLOAT:
+				{
+					float val = value.to_float();
+					array::push(values, (char*) &val, sizeof(float));
+					break;
+				}
+				case ValueType::STRING:
+				{
+					DynamicString val;
+					value.to_string(val);
+					StringId32 val_hash = string::murmur2_32(val.c_str(), val.length());
+					array::push(values, (char*) &val_hash, sizeof(StringId32));
+					break;
+				}
+				case ValueType::VECTOR3:
+				{
+					float val[3];
+					val[0] = value[0].to_float();
+					val[1] = value[1].to_float();
+					val[2] = value[2].to_float();
+					array::push(values, (char*) val, sizeof(float) * 3);
+					break;
+				}
+				default:
+				{
+					CE_FATAL("Oops, you should not be here");
+					return;
+				}
 			}
 		}
 	}
 
-	CE_FATAL("Node not found");
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-uint32_t find_node_index(StringId32 name, const Array<GraphNodeDepth>& node_depths)
-{
-	for (uint32_t i = 0; i < array::size(node_depths); i++)
+	void parse_materials(JSONElement e, Array<UnitMaterial>& materials)
 	{
-		if (node_depths[i].name == name)
+		for (uint32_t i = 0; i < e.size(); i++)
 		{
-			return i;
+			ResourceId mat_id = e[i].to_resource_id("material");
+			UnitMaterial um;
+			um.id = mat_id.name;
+			array::push_back(materials, um);
 		}
 	}
 
-	CE_FATAL("Node not found");
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-int32_t find_node_parent_index(uint32_t node, const Array<GraphNode>& nodes, const Array<GraphNodeDepth>& node_depths)
-{
-	StringId32 parent_name = nodes[node_depths[node].index].parent;
-
-	if (parent_name == NO_PARENT) return -1;
-	for (uint32_t i = 0; i < array::size(node_depths); i++)
+	//-----------------------------------------------------------------------------
+	void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	{
-		if (parent_name == node_depths[i].name)
+		File* file = fs.open(resource_path, FOM_READ);
+		JSONParser json(*file);
+		fs.close(file);
+
+		JSONElement root = json.root();
+
+		ResourceId				m_physics_resource;
+		Array<GraphNode>		m_nodes(default_allocator());
+		Array<GraphNodeDepth>	m_node_depths(default_allocator());
+		Array<UnitCamera>		m_cameras(default_allocator());
+		Array<UnitRenderable>	m_renderables(default_allocator());
+		Array<Key>				m_keys(default_allocator());
+		Array<char>				m_values(default_allocator());
+		Array<UnitMaterial>		m_materials(default_allocator());
+
+		// Check for nodes
+		if (root.has_key("nodes")) parse_nodes(root.key("nodes"), m_nodes, m_node_depths);
+
+		for (uint32_t i = 0; i < array::size(m_nodes); i++)
 		{
-			return i;
-		}
-	}
-
-	CE_FATAL("Node not found");
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-void parse_nodes(JSONElement e, Array<GraphNode>& nodes, Array<GraphNodeDepth>& node_depths)
-{
-	Vector<DynamicString> keys(default_allocator());
-	e.to_keys(keys);
-
-	for (uint32_t k = 0; k < vector::size(keys); k++)
-	{
-		const char* node_name = keys[k].c_str();
-		JSONElement node = e.key(node_name);
-
-		GraphNode gn;
-		gn.name = string::murmur2_32(node_name, string::strlen(node_name));
-		gn.parent = NO_PARENT;
-
-		if (!node.key("parent").is_nil())
-		{
-			DynamicString parent_name;
-			node.key("parent").to_string(parent_name);
-			gn.parent = string::murmur2_32(parent_name.c_str(), parent_name.length(), 0);
+			m_node_depths[i].depth = compute_link_depth(m_nodes[i], m_nodes);
 		}
 
-		JSONElement pos = node.key("position");
-		JSONElement rot = node.key("rotation");
-		gn.position = Vector3(pos[0].to_float(), pos[1].to_float(), pos[2].to_float());
-		gn.rotation = Quaternion(Vector3(rot[0].to_float(), rot[1].to_float(), rot[2].to_float()), rot[3].to_float());
+		std::sort(array::begin(m_node_depths), array::end(m_node_depths), GraphNodeDepth());
 
-		GraphNodeDepth gnd;
-		gnd.name = gn.name;
-		gnd.index = array::size(nodes);
-		gnd.depth = 0;
+		if (root.has_key("renderables")) parse_renderables(root.key("renderables"), m_renderables, m_node_depths);
+		if (root.has_key("cameras")) parse_cameras(root.key("cameras"), m_cameras, m_node_depths);
+		if (root.has_key("keys")) parse_keys(root.key("keys"), m_keys, m_values);
+		if (root.has_key("materials")) parse_materials(root.key("materials"), m_materials);
 
-		array::push_back(nodes, gn);
-		array::push_back(node_depths, gnd);
-	}
-}
-
-//-----------------------------------------------------------------------------
-void parse_cameras(JSONElement e, Array<UnitCamera>& cameras, const Array<GraphNodeDepth>& node_depths)
-{
-	Vector<DynamicString> keys(default_allocator());
-	e.to_keys(keys);
-
-	for (uint32_t k = 0; k < vector::size(keys); k++)
-	{
-		const char* camera_name = keys[k].c_str();
-		JSONElement camera = e.key(camera_name);
-		JSONElement node = camera.key("node");
-		JSONElement type = camera.key("type");
-		JSONElement fov = camera.key_or_nil("fov");
-		JSONElement near = camera.key_or_nil("near_clip_distance");
-		JSONElement far = camera.key_or_nil("far_clip_distance");
-
-		DynamicString node_name;
-		node.to_string(node_name);
-		DynamicString camera_type;
-		type.to_string(camera_type);
-
-		StringId32 node_name_hash = string::murmur2_32(node_name.c_str(), node_name.length());
-
-		UnitCamera cn;
-		cn.name = string::murmur2_32(camera_name, string::strlen(camera_name));
-		cn.node = find_node_index(node_name_hash, node_depths);
-		cn.type = projection_name_to_enum(camera_type.c_str());
-		cn.fov = fov.is_nil() ? 16.0f / 9.0f : fov.to_float();
-		cn.near = near.is_nil() ? 0.01f : near.to_float();
-		cn.far = far.is_nil() ? 1000 : far.to_float();
-
-		array::push_back(cameras, cn);
-	}
-}
-
-//-----------------------------------------------------------------------------
-void parse_renderables(JSONElement e, Array<UnitRenderable>& renderables, const Array<GraphNodeDepth>& node_depths)
-{
-	Vector<DynamicString> keys(default_allocator());
-	e.to_keys(keys);
-
-	for (uint32_t k = 0; k < vector::size(keys); k++)
-	{
-		const char* renderable_name = keys[k].c_str();
-		JSONElement renderable = e.key(renderable_name);
-
-		DynamicString node_name; renderable.key("node").to_string(node_name);
-		StringId32 node_name_hash = string::murmur2_32(node_name.c_str(), node_name.length(), 0);
-
-		UnitRenderable rn;
-		rn.name = string::murmur2_32(renderable_name, string::strlen(renderable_name), 0);
-		rn.node = find_node_index(node_name_hash, node_depths);
-		rn.visible = renderable.key("visible").to_bool();
-
-		DynamicString res_type;
-		renderable.key("type").to_string(res_type);
-
-		if (res_type == "mesh")
+		// Check if the unit has a .physics resource
+		DynamicString unit_name(resource_path);
+		unit_name.strip_trailing(".unit");
+		DynamicString physics_name = unit_name;
+		physics_name += ".physics";
+		if (fs.exists(physics_name.c_str()))
 		{
-			rn.type = UnitRenderable::MESH;
-			rn.resource = renderable.key("resource").to_resource_id("mesh");
-		}
-		else if (res_type == "sprite")
-		{
-			rn.type = UnitRenderable::SPRITE;
-			rn.resource = renderable.key("resource").to_resource_id("sprite");
+			m_physics_resource = ResourceId("physics", unit_name.c_str());
 		}
 		else
 		{
-			CE_ASSERT(false, "Oops, unknown renderable type: '%s'", res_type.c_str());
+			m_physics_resource = ResourceId();
 		}
 
-		array::push_back(renderables, rn);
-	}
-}
+		ResourceId sprite_anim;
+		sprite_anim.type = 0;
+		sprite_anim.name = 0;
+		if (root.has_key("sprite_animation"))
+			sprite_anim = root.key("sprite_animation").to_resource_id("sprite_animation");
 
-//-----------------------------------------------------------------------------
-void parse_keys(JSONElement e, Array<Key>& generic_keys, Array<char>& values)
-{
-	Vector<DynamicString> keys(default_allocator());
-	e.to_keys(keys);
+		UnitHeader h;
+		h.physics_resource = m_physics_resource;
+		h.sprite_animation = sprite_anim.name;
+		h.num_renderables = array::size(m_renderables);
+		h.num_materials = array::size(m_materials);
+		h.num_cameras = array::size(m_cameras);
+		h.num_scene_graph_nodes = array::size(m_nodes);
+		h.num_keys = array::size(m_keys);
+		h.values_size = array::size(m_values);
 
-	for (uint32_t k = 0; k < vector::size(keys); k++)
-	{
-		const char* key = keys[k].c_str();
-		JSONElement value = e.key(key);
+		uint32_t offt = sizeof(UnitHeader);
+		h.renderables_offset         = offt; offt += sizeof(UnitRenderable) * h.num_renderables;
+		h.materials_offset           = offt; offt += sizeof(UnitMaterial) * h.num_materials;
+		h.cameras_offset             = offt; offt += sizeof(UnitCamera) * h.num_cameras;
+		h.scene_graph_nodes_offset   = offt; offt += sizeof(UnitNode) * h.num_scene_graph_nodes;
+		h.keys_offset                = offt; offt += sizeof(Key) * h.num_keys;
+		h.values_offset              = offt;
 
-		Key out_key;
-		out_key.name = string::murmur2_32(key, string::strlen(key));
-		out_key.offset = array::size(values);
+		// Write header
+		out_file->write((char*) &h, sizeof(UnitHeader));
 
-		if (value.is_bool()) out_key.type = ValueType::BOOL;
-		else if (value.is_number()) out_key.type = ValueType::FLOAT;
-		else if (value.is_string()) out_key.type = ValueType::STRING;
-		else if (value.is_array() && value.size() == 3) out_key.type = ValueType::VECTOR3;
-		else CE_FATAL("Value type not supported");
+		// Write renderables
+		if (array::size(m_renderables))
+			out_file->write((char*) array::begin(m_renderables), sizeof(UnitRenderable) * h.num_renderables);
 
-		array::push_back(generic_keys, out_key);
+		// Write materials
+		if (array::size(m_materials))
+			out_file->write((char*) array::begin(m_materials), sizeof(UnitMaterial) * h.num_materials);
 
-		switch (out_key.type)
+		// Write cameras
+		if (array::size(m_cameras))
+			out_file->write((char*) array::begin(m_cameras), sizeof(UnitCamera) * h.num_cameras);
+
+		// Write node poses
+		for (uint32_t i = 0; i < h.num_scene_graph_nodes; i++)
 		{
-			case ValueType::BOOL:
-			{
-				uint32_t val = value.to_bool();
-				array::push(values, (char*) &val, sizeof(uint32_t));
-				break;
-			}
-			case ValueType::FLOAT:
-			{
-				float val = value.to_float();
-				array::push(values, (char*) &val, sizeof(float));
-				break;
-			}
-			case ValueType::STRING:
-			{
-				DynamicString val;
-				value.to_string(val);
-				StringId32 val_hash = string::murmur2_32(val.c_str(), val.length());
-				array::push(values, (char*) &val_hash, sizeof(StringId32));
-				break;
-			}
-			case ValueType::VECTOR3:
-			{
-				float val[3];
-				val[0] = value[0].to_float();
-				val[1] = value[1].to_float();
-				val[2] = value[2].to_float();
-				array::push(values, (char*) val, sizeof(float) * 3);
-				break;
-			}
-			default:
-			{
-				CE_FATAL("Oops, you should not be here");
-				return;
-			}
+			uint32_t node_index = m_node_depths[i].index;
+			GraphNode& node = m_nodes[node_index];
+			UnitNode un;
+			un.name = node.name;
+			un.parent = find_node_parent_index(i, m_nodes, m_node_depths);
+			un.pose = Matrix4x4(node.rotation, node.position);
+			out_file->write((char*) &un, sizeof(UnitNode));
+		}
+
+		// Write key/values
+		if (array::size(m_keys))
+		{
+			out_file->write((char*) array::begin(m_keys), sizeof(Key) * h.num_keys);
+			out_file->write((char*) array::begin(m_values), array::size(m_values));
 		}
 	}
-}
 
-void parse_materials(JSONElement e, Array<UnitMaterial>& materials)
-{
-	for (uint32_t i = 0; i < e.size(); i++)
+	//-----------------------------------------------------------------------------
+	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
-		ResourceId mat_id = e[i].to_resource_id("material");
-		UnitMaterial um;
-		um.id = mat_id.name;
-		array::push_back(materials, um);
-	}
-}
+		File* file = bundle.open(id);
+		const size_t file_size = file->size();
 
-//-----------------------------------------------------------------------------
-void compile(Filesystem& fs, const char* resource_path, File* out_file)
-{
-	File* file = fs.open(resource_path, FOM_READ);
-	JSONParser json(*file);
-	fs.close(file);
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
 
-	JSONElement root = json.root();
+		bundle.close(file);
 
-	ResourceId				m_physics_resource;
-	Array<GraphNode>		m_nodes(default_allocator());
-	Array<GraphNodeDepth>	m_node_depths(default_allocator());
-	Array<UnitCamera>		m_cameras(default_allocator());
-	Array<UnitRenderable>	m_renderables(default_allocator());
-	Array<Key>				m_keys(default_allocator());
-	Array<char>				m_values(default_allocator());
-	Array<UnitMaterial>		m_materials(default_allocator());
-
-	// Check for nodes
-	if (root.has_key("nodes")) parse_nodes(root.key("nodes"), m_nodes, m_node_depths);
-
-	for (uint32_t i = 0; i < array::size(m_nodes); i++)
-	{
-		m_node_depths[i].depth = compute_link_depth(m_nodes[i], m_nodes);
+		return res;
 	}
 
-	std::sort(array::begin(m_node_depths), array::end(m_node_depths), GraphNodeDepth());
-
-	if (root.has_key("renderables")) parse_renderables(root.key("renderables"), m_renderables, m_node_depths);
-	if (root.has_key("cameras")) parse_cameras(root.key("cameras"), m_cameras, m_node_depths);
-	if (root.has_key("keys")) parse_keys(root.key("keys"), m_keys, m_values);
-	if (root.has_key("materials")) parse_materials(root.key("materials"), m_materials);
-
-	// Check if the unit has a .physics resource
-	DynamicString unit_name(resource_path);
-	unit_name.strip_trailing(".unit");
-	DynamicString physics_name = unit_name;
-	physics_name += ".physics";
-	if (fs.exists(physics_name.c_str()))
+	//-----------------------------------------------------------------------------
+	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
-		m_physics_resource = ResourceId("physics", unit_name.c_str());
-	}
-	else
-	{
-		m_physics_resource = ResourceId();
 	}
 
-	ResourceId sprite_anim;
-	sprite_anim.type = 0;
-	sprite_anim.name = 0;
-	if (root.has_key("sprite_animation"))
-		sprite_anim = root.key("sprite_animation").to_resource_id("sprite_animation");
-
-	UnitHeader h;
-	h.physics_resource = m_physics_resource;
-	h.sprite_animation = sprite_anim.name;
-	h.num_renderables = array::size(m_renderables);
-	h.num_materials = array::size(m_materials);
-	h.num_cameras = array::size(m_cameras);
-	h.num_scene_graph_nodes = array::size(m_nodes);
-	h.num_keys = array::size(m_keys);
-	h.values_size = array::size(m_values);
-
-	uint32_t offt = sizeof(UnitHeader);
-	h.renderables_offset         = offt; offt += sizeof(UnitRenderable) * h.num_renderables;
-	h.materials_offset           = offt; offt += sizeof(UnitMaterial) * h.num_materials;
-	h.cameras_offset             = offt; offt += sizeof(UnitCamera) * h.num_cameras;
-	h.scene_graph_nodes_offset   = offt; offt += sizeof(UnitNode) * h.num_scene_graph_nodes;
-	h.keys_offset                = offt; offt += sizeof(Key) * h.num_keys;
-	h.values_offset              = offt;
-
-	// Write header
-	out_file->write((char*) &h, sizeof(UnitHeader));
-
-	// Write renderables
-	if (array::size(m_renderables))
-		out_file->write((char*) array::begin(m_renderables), sizeof(UnitRenderable) * h.num_renderables);
-
-	// Write materials
-	if (array::size(m_materials))
-		out_file->write((char*) array::begin(m_materials), sizeof(UnitMaterial) * h.num_materials);
-
-	// Write cameras
-	if (array::size(m_cameras))
-		out_file->write((char*) array::begin(m_cameras), sizeof(UnitCamera) * h.num_cameras);
-
-	// Write node poses
-	for (uint32_t i = 0; i < h.num_scene_graph_nodes; i++)
+	void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
-		uint32_t node_index = m_node_depths[i].index;
-		GraphNode& node = m_nodes[node_index];
-		UnitNode un;
-		un.name = node.name;
-		un.parent = find_node_parent_index(i, m_nodes, m_node_depths);
-		un.pose = Matrix4x4(node.rotation, node.position);
-		out_file->write((char*) &un, sizeof(UnitNode));
 	}
 
-	// Write key/values
-	if (array::size(m_keys))
+	//-----------------------------------------------------------------------------
+	void unload(Allocator& allocator, void* resource)
 	{
-		out_file->write((char*) array::begin(m_keys), sizeof(Key) * h.num_keys);
-		out_file->write((char*) array::begin(m_values), array::size(m_values));
+		allocator.deallocate(resource);
 	}
-}
 
 } // namespace unit_resource
 } // namespace crown

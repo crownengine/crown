@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "types.h"
 #include "string_utils.h"
 #include "string_utils.h"
+#include "compile_options.h"
 
 namespace crown
 {
@@ -80,20 +81,7 @@ struct ResourceId
 class Allocator;
 class Bundle;
 class ResourceManager;
-
-typedef void*	(*ResourceLoadCallback)(Allocator& a, Bundle& b, ResourceId id);
-typedef void	(*ResourceOnlineCallback)(StringId64 id, ResourceManager& rm);
-typedef void	(*ResourceOfflineCallback)(StringId64 id, ResourceManager& rm);
-typedef void	(*ResourceUnloadCallback)(Allocator& a, void* resource);
-
-struct ResourceCallback
-{
-	uint64_t					type;
-	ResourceLoadCallback		on_load;
-	ResourceUnloadCallback		on_unload;
-	ResourceOnlineCallback		on_online;
-	ResourceOfflineCallback		on_offline;
-};
+class Filesystem;
+class File;
 
 } // namespace crown
-

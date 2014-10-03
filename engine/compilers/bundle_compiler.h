@@ -26,7 +26,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include "filesystem.h"
+#include "disk_filesystem.h"
 #include "container_types.h"
 #include "crown.h"
 
@@ -37,16 +37,20 @@ class BundleCompiler
 {
 public:
 
-	BundleCompiler();
+	BundleCompiler(const char* source_dir, const char* bundle_dir);
+
+	bool compile(const char* type, const char* name, const char* platform = "linux");
 
 	/// Compiles all the resources found in @a source_dir and puts them in @a bundle_dir.
-	/// If @a resource is not NULL, only that particular resource is compiled.
 	/// Returns true on success, false otherwise.
-	bool compile(const char* source_dir, const char* bundle_dir, const char* platform, const char* resource = NULL);
+	bool compile_all(const char* platform);
+
+	void scan(const char* cur_dir, Vector<DynamicString>& files);
 
 private:
 
-	static void scan(const char* source_dir, const char* cur_dir, Vector<DynamicString>& files);
+	DiskFilesystem _source_fs;
+	DiskFilesystem _bundle_fs;
 };
 
 namespace bundle_compiler
@@ -57,7 +61,7 @@ namespace bundle_compiler
 namespace bundle_compiler_globals
 {
 	/// Creates the global resource compiler.
-	void init();
+	void init(const char* source_dir, const char* bundle_dir);
 
 	/// Destroys the global resource compiler.
 	void shutdown();

@@ -95,80 +95,6 @@ struct UniformHandle
 
 struct MaterialResource
 {
-public:
-
-	//-----------------------------------------------------------------------------
-	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
-	{
-		File* file = bundle.open(id);
-		const size_t file_size = file->size();
-
-		void* res = allocator.allocate(file_size);
-		file->read(res, file_size);
-
-		bundle.close(file);
-
-		return res;
-	}
-
-	//-----------------------------------------------------------------------------
-	static void online(StringId64 id, ResourceManager& rm)
-	{
-		ResourceId res_id;
-		res_id.type = MATERIAL_TYPE;
-		res_id.name = id;
-		MaterialResource* mr = (MaterialResource*) rm.get(res_id);
-
-		char* base = (char*) mr + mr->dynamic_data_offset();
-
-		for (uint32_t i = 0; i < mr->num_textures(); i++)
-		{
-			TextureData* ud = mr->get_texture_data(i);
-			TextureHandle* th = mr->get_texture_handle(i, base);
-			th->sampler_handle = bgfx::createUniform(ud->sampler_name, bgfx::UniformType::Uniform1iv).idx;
-		}
-
-		for (uint32_t i = 0; i < mr->num_uniforms(); i++)
-		{
-			UniformData* ud = mr->get_uniform_data(i);
-			UniformHandle* uh = mr->get_uniform_handle(i, base);
-			uh->uniform_handle = bgfx::createUniform(ud->name, bgfx::UniformType::Uniform4fv).idx;
-		}
-	}
-
-	//-----------------------------------------------------------------------------
-	static void offline(StringId64 id, ResourceManager& rm)
-	{
-		ResourceId res_id;
-		res_id.type = MATERIAL_TYPE;
-		res_id.name = id;
-		MaterialResource* mr = (MaterialResource*) rm.get(res_id);
-
-		char* base = (char*) mr + mr->dynamic_data_offset();
-
-		for (uint32_t i = 0; i < mr->num_textures(); i++)
-		{
-			TextureHandle* th = mr->get_texture_handle(i, base);
-			bgfx::UniformHandle sh;
-			sh.idx = th->sampler_handle;
-			bgfx::destroyUniform(sh);
-		}
-
-		for (uint32_t i = 0; i < mr->num_uniforms(); i++)
-		{
-			UniformHandle* uh = mr->get_uniform_handle(i, base);
-			bgfx::UniformHandle bgfx_uh;
-			bgfx_uh.idx = uh->uniform_handle;
-			bgfx::destroyUniform(bgfx_uh);
-		}
-	}
-
-	//-----------------------------------------------------------------------------
-	static void unload(Allocator& a, void* res)
-	{
-		a.deallocate(res);
-	}
-
 	uint32_t dynamic_data_size() const
 	{
 		MaterialHeader* mh = (MaterialHeader*) this;
@@ -255,4 +181,16 @@ private:
 	MaterialResource();
 };
 
+namespace material_resource
+{
+	void compile(Filesystem& fs, const char* resource_path, File* out_file);
+	inline void compile(const char* path, CompileOptions& opts)
+	{
+		compile(opts._fs, path, &opts._bw.m_file);
+	}
+	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
+	void online(StringId64 id, ResourceManager& rm);
+	void offline(StringId64 id, ResourceManager& rm);
+	void unload(Allocator& a, void* res);
+} // namespace material_resource
 } // namespace crown

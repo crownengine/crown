@@ -37,67 +37,95 @@ namespace crown
 {
 namespace font_resource
 {
-
-//-----------------------------------------------------------------------------
-void parse_glyph(JSONElement e, FontGlyphData& glyph)
-{
-	JSONElement id = e.key("id");
-	JSONElement x = e.key("x");
-	JSONElement y = e.key("y");
-	JSONElement width = e.key("width");
-	JSONElement height = e.key("height");
-	JSONElement x_offset = e.key("x_offset");
-	JSONElement y_offset = e.key("y_offset");
-	JSONElement x_advance = e.key("x_advance");
-
-	glyph.id = id.to_int();
-	glyph.x = x.to_int();
-	glyph.y = y.to_int();
-	glyph.width = width.to_int();
-	glyph.height = height.to_int();
-	glyph.x_offset = x_offset.to_float();
-	glyph.y_offset = y_offset.to_float();
-	glyph.x_advance = x_advance.to_float();
-}
-
-//-----------------------------------------------------------------------------
-void compile(Filesystem& fs, const char* resource_path, File* out_file)
-{
-	File* file = fs.open(resource_path, FOM_READ);
-	JSONParser json(*file);
-	fs.close(file);
-
-	// Out buffer
-	FontHeader h;
-	Array<FontGlyphData> m_glyphs(default_allocator());
-
-	JSONElement root = json.root();
-
-	JSONElement count = root.key("count");
-	JSONElement size = root.key("size");
-	JSONElement font_size = root.key("font_size");
-	JSONElement glyphs = root.key("glyphs");
-
-	uint32_t num_glyphs = count.to_int();
-
-	for (uint32_t i = 0; i < num_glyphs; i++)
+	//-----------------------------------------------------------------------------
+	void parse_glyph(JSONElement e, FontGlyphData& glyph)
 	{
-		FontGlyphData data;
-		parse_glyph(glyphs[i], data);
-		array::push_back(m_glyphs, data);
+		JSONElement id = e.key("id");
+		JSONElement x = e.key("x");
+		JSONElement y = e.key("y");
+		JSONElement width = e.key("width");
+		JSONElement height = e.key("height");
+		JSONElement x_offset = e.key("x_offset");
+		JSONElement y_offset = e.key("y_offset");
+		JSONElement x_advance = e.key("x_advance");
+
+		glyph.id = id.to_int();
+		glyph.x = x.to_int();
+		glyph.y = y.to_int();
+		glyph.width = width.to_int();
+		glyph.height = height.to_int();
+		glyph.x_offset = x_offset.to_float();
+		glyph.y_offset = y_offset.to_float();
+		glyph.x_advance = x_advance.to_float();
 	}
 
-	h.num_glyphs = array::size(m_glyphs);
-	h.texture_size = size.to_int();
-	h.font_size = font_size.to_int();
-
-	out_file->write((char*) &h, sizeof(FontHeader));
-
-	if (array::size(m_glyphs) > 0)
+	//-----------------------------------------------------------------------------
+	void compile(Filesystem& fs, const char* resource_path, File* out_file)
 	{
-		out_file->write((char*) array::begin(m_glyphs), sizeof(FontGlyphData) * h.num_glyphs);
-	}
-}
+		File* file = fs.open(resource_path, FOM_READ);
+		JSONParser json(*file);
+		fs.close(file);
 
+		// Out buffer
+		FontHeader h;
+		Array<FontGlyphData> m_glyphs(default_allocator());
+
+		JSONElement root = json.root();
+
+		JSONElement count = root.key("count");
+		JSONElement size = root.key("size");
+		JSONElement font_size = root.key("font_size");
+		JSONElement glyphs = root.key("glyphs");
+
+		uint32_t num_glyphs = count.to_int();
+
+		for (uint32_t i = 0; i < num_glyphs; i++)
+		{
+			FontGlyphData data;
+			parse_glyph(glyphs[i], data);
+			array::push_back(m_glyphs, data);
+		}
+
+		h.num_glyphs = array::size(m_glyphs);
+		h.texture_size = size.to_int();
+		h.font_size = font_size.to_int();
+
+		out_file->write((char*) &h, sizeof(FontHeader));
+
+		if (array::size(m_glyphs) > 0)
+		{
+			out_file->write((char*) array::begin(m_glyphs), sizeof(FontGlyphData) * h.num_glyphs);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	{
+		File* file = bundle.open(id);
+		const size_t file_size = file->size();
+
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
+
+		bundle.close(file);
+
+		return res;
+	}
+
+	//-----------------------------------------------------------------------------
+	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
+	{
+	}
+
+	//-----------------------------------------------------------------------------
+	void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
+	{
+	}
+
+	//-----------------------------------------------------------------------------
+	void unload(Allocator& allocator, void* resource)
+	{
+		allocator.deallocate(resource);
+	}
 } // namespace font_resource
 } // namespace crown

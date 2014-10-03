@@ -64,36 +64,6 @@ class FontResource
 public:
 
 	//-----------------------------------------------------------------------------
-	static void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
-	{
-		File* file = bundle.open(id);
-		const size_t file_size = file->size();
-
-		void* res = allocator.allocate(file_size);
-		file->read(res, file_size);
-
-		bundle.close(file);
-
-		return res;
-	}
-
-	//-----------------------------------------------------------------------------
-	static void online(StringId64 /*id*/, ResourceManager& /*rm*/)
-	{
-	}
-
-	//-----------------------------------------------------------------------------
-	static void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
-	{
-	}
-
-	//-----------------------------------------------------------------------------
-	static void unload(Allocator& allocator, void* resource)
-	{
-		allocator.deallocate(resource);
-	}
-
-	//-----------------------------------------------------------------------------
 	uint32_t num_glyphs() const
 	{
 		return ((FontHeader*)this)->num_glyphs;
@@ -136,5 +106,17 @@ private:
 	FontResource();
 };
 
+namespace font_resource
+{
+	void compile(Filesystem& fs, const char* resource_path, File* out_file);
+	inline void compile(const char* path, CompileOptions& opts)
+	{
+		compile(opts._fs, path, &opts._bw.m_file);
+	}
+	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
+	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
+	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
+	void unload(Allocator& allocator, void* resource);
+} // namespace font_resource
 } // namespace crown
 

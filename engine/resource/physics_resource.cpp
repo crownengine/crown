@@ -39,322 +39,350 @@ namespace crown
 {
 namespace physics_resource
 {
-
-//-----------------------------------------------------------------------------
-static uint32_t shape_type_to_enum(const char* type)
-{
-	if (string::strcmp("sphere", type) == 0) 		return PhysicsShapeType::SPHERE;
-	else if (string::strcmp("capsule", type) == 0) 	return PhysicsShapeType::CAPSULE;
-	else if (string::strcmp("box", type) == 0) 		return PhysicsShapeType::BOX;
-	else if (string::strcmp("plane", type) == 0) 	return PhysicsShapeType::PLANE;
-
-	CE_FATAL("Bad shape type");
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-static uint32_t joint_type_to_enum(const char* type)
-{
-	if (string::strcmp("fixed", type) == 0) 			return PhysicsJointType::FIXED;
-	else if (string::strcmp("spherical", type) == 0) 	return PhysicsJointType::SPHERICAL;
-	else if (string::strcmp("revolute", type) == 0) 	return PhysicsJointType::REVOLUTE;
-	else if (string::strcmp("prismatic", type) == 0) 	return PhysicsJointType::PRISMATIC;
-	else if (string::strcmp("distance", type) == 0) 	return PhysicsJointType::DISTANCE;
-	else if (string::strcmp("d6", type) == 0) 			return PhysicsJointType::D6;
-
-	CE_FATAL("Bad joint type");
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-void parse_controller(JSONElement e, PhysicsController& controller)
-{
-	JSONElement name 				= e.key("name");
-	JSONElement height 				= e.key("height");
-	JSONElement radius 				= e.key("radius");
-	JSONElement slope_limit 		= e.key("slope_limit");
-	JSONElement step_offset 		= e.key("step_offset");
-	JSONElement contact_offset 		= e.key("contact_offset");
-	JSONElement collision_filter 	= e.key("collision_filter");
-
-	controller.name = name.to_string_id();
-	controller.height = height.to_float();
-	controller.radius = radius.to_float();
-	controller.slope_limit = slope_limit.to_float();
-	controller.step_offset = step_offset.to_float();
-	controller.contact_offset = contact_offset.to_float();
-	controller.collision_filter = collision_filter.to_string_id();
-}
-
-//-----------------------------------------------------------------------------
-void parse_shapes(JSONElement e, Array<PhysicsShape>& shapes)
-{
-	Vector<DynamicString> keys(default_allocator());
-	e.to_keys(keys);
-
-	for (uint32_t k = 0; k < vector::size(keys); k++)
+	//-----------------------------------------------------------------------------
+	static uint32_t shape_type_to_enum(const char* type)
 	{
-		JSONElement shape 		= e.key(keys[k].c_str());
-		JSONElement clasz		= shape.key("class");
-		JSONElement type		= shape.key("type");
-		JSONElement material	= shape.key("material");
+		if (string::strcmp("sphere", type) == 0) 		return PhysicsShapeType::SPHERE;
+		else if (string::strcmp("capsule", type) == 0) 	return PhysicsShapeType::CAPSULE;
+		else if (string::strcmp("box", type) == 0) 		return PhysicsShapeType::BOX;
+		else if (string::strcmp("plane", type) == 0) 	return PhysicsShapeType::PLANE;
 
-		PhysicsShape ps;
-		ps.name = keys[k].to_string_id();
-		ps.shape_class = clasz.to_string_id();
-		ps.material = material.to_string_id();
-		DynamicString stype; type.to_string(stype);
-		ps.type = shape_type_to_enum(stype.c_str());
-		ps.position = shape.key("position").to_vector3();
-		ps.rotation = shape.key("rotation").to_quaternion();
+		CE_FATAL("Bad shape type");
+		return 0;
+	}
 
-		switch (ps.type)
+	//-----------------------------------------------------------------------------
+	static uint32_t joint_type_to_enum(const char* type)
+	{
+		if (string::strcmp("fixed", type) == 0) 			return PhysicsJointType::FIXED;
+		else if (string::strcmp("spherical", type) == 0) 	return PhysicsJointType::SPHERICAL;
+		else if (string::strcmp("revolute", type) == 0) 	return PhysicsJointType::REVOLUTE;
+		else if (string::strcmp("prismatic", type) == 0) 	return PhysicsJointType::PRISMATIC;
+		else if (string::strcmp("distance", type) == 0) 	return PhysicsJointType::DISTANCE;
+		else if (string::strcmp("d6", type) == 0) 			return PhysicsJointType::D6;
+
+		CE_FATAL("Bad joint type");
+		return 0;
+	}
+
+	//-----------------------------------------------------------------------------
+	void parse_controller(JSONElement e, PhysicsController& controller)
+	{
+		JSONElement name 				= e.key("name");
+		JSONElement height 				= e.key("height");
+		JSONElement radius 				= e.key("radius");
+		JSONElement slope_limit 		= e.key("slope_limit");
+		JSONElement step_offset 		= e.key("step_offset");
+		JSONElement contact_offset 		= e.key("contact_offset");
+		JSONElement collision_filter 	= e.key("collision_filter");
+
+		controller.name = name.to_string_id();
+		controller.height = height.to_float();
+		controller.radius = radius.to_float();
+		controller.slope_limit = slope_limit.to_float();
+		controller.step_offset = step_offset.to_float();
+		controller.contact_offset = contact_offset.to_float();
+		controller.collision_filter = collision_filter.to_string_id();
+	}
+
+	//-----------------------------------------------------------------------------
+	void parse_shapes(JSONElement e, Array<PhysicsShape>& shapes)
+	{
+		Vector<DynamicString> keys(default_allocator());
+		e.to_keys(keys);
+
+		for (uint32_t k = 0; k < vector::size(keys); k++)
 		{
-			case PhysicsShapeType::SPHERE:
+			JSONElement shape 		= e.key(keys[k].c_str());
+			JSONElement clasz		= shape.key("class");
+			JSONElement type		= shape.key("type");
+			JSONElement material	= shape.key("material");
+
+			PhysicsShape ps;
+			ps.name = keys[k].to_string_id();
+			ps.shape_class = clasz.to_string_id();
+			ps.material = material.to_string_id();
+			DynamicString stype; type.to_string(stype);
+			ps.type = shape_type_to_enum(stype.c_str());
+			ps.position = shape.key("position").to_vector3();
+			ps.rotation = shape.key("rotation").to_quaternion();
+
+			switch (ps.type)
 			{
-				JSONElement radius = shape.key("radius");
-				ps.data_0 = radius.to_float();
+				case PhysicsShapeType::SPHERE:
+				{
+					JSONElement radius = shape.key("radius");
+					ps.data_0 = radius.to_float();
 
-				break;
+					break;
+				}
+				case PhysicsShapeType::CAPSULE:
+				{
+					JSONElement radius = shape.key("radius");
+					JSONElement half_height = shape.key("half_height");
+
+					ps.data_0 = radius.to_float();
+					ps.data_1 = half_height.to_float();
+
+					break;
+				}
+				case PhysicsShapeType::BOX:
+				{
+					JSONElement half_x = shape.key("half_x");
+					JSONElement half_y = shape.key("half_y");
+					JSONElement half_z = shape.key("half_z");
+
+					ps.data_0 = half_x.to_float();
+					ps.data_1 = half_y.to_float();
+					ps.data_2 = half_z.to_float();
+
+					break;
+				}
+				case PhysicsShapeType::PLANE:
+				{
+					JSONElement n_x = shape.key("n_x");
+					JSONElement n_y = shape.key("n_y");
+					JSONElement n_z = shape.key("n_z");
+					JSONElement distance = shape.key("distance");
+
+					ps.data_0 = n_x.to_float();
+					ps.data_1 = n_y.to_float();
+					ps.data_2 = n_z.to_float();
+					ps.data_3 = distance.to_float();
+
+					break;
+				}
+				case PhysicsShapeType::CONVEX_MESH:
+				{
+					ps.resource = shape.key("mesh").to_resource_id("mesh");
+
+					break;
+				}
 			}
-			case PhysicsShapeType::CAPSULE:
+
+			array::push_back(shapes, ps);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void parse_actors(JSONElement e, Array<PhysicsActor>& actors, Array<PhysicsShape>& actor_shapes, Array<uint32_t>& shape_indices)
+	{
+		Vector<DynamicString> keys(default_allocator());
+		e.to_keys(keys);
+
+		for (uint32_t k = 0; k < vector::size(keys); k++)
+		{
+			JSONElement actor 	= e.key(keys[k].c_str());
+			JSONElement node 	= actor.key("node");
+			JSONElement clasz	= actor.key("class");
+			JSONElement shapes	= actor.key("shapes");
+			JSONElement mass	= actor.key("mass");
+
+			PhysicsActor pa;
+			pa.name = keys[k].to_string_id();
+			pa.node = node.to_string_id();
+			pa.actor_class = clasz.to_string_id();
+			pa.mass = mass.to_float();
+			pa.num_shapes = shapes.size();
+
+			array::push_back(actors, pa);
+			array::push_back(shape_indices, array::size(shape_indices));
+
+			parse_shapes(shapes, actor_shapes);
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	void parse_joints(JSONElement e, Array<PhysicsJoint>& joints)
+	{
+		Vector<DynamicString> keys(default_allocator());
+		e.to_keys(keys);
+
+		for (uint32_t k = 0; k < vector::size(keys); k++)
+		{
+			JSONElement joint			= e.key(keys[k].c_str());
+			JSONElement type 			= joint.key("type");
+			JSONElement actor_0 		= joint.key("actor_0");
+			JSONElement actor_1 		= joint.key("actor_1");
+			JSONElement anchor_0 		= joint.key("anchor_0");
+			JSONElement anchor_1 		= joint.key("anchor_1");
+			JSONElement restitution 	= joint.key_or_nil("restitution");
+			JSONElement spring 			= joint.key_or_nil("spring");
+			JSONElement damping 		= joint.key_or_nil("damping");
+			JSONElement distance 		= joint.key_or_nil("distance");
+			JSONElement breakable 		= joint.key_or_nil("breakable");
+			JSONElement break_force 	= joint.key_or_nil("break_force");
+			JSONElement break_torque	= joint.key_or_nil("break_torque");
+
+			PhysicsJoint pj;
+			pj.name = keys[k].to_string_id();
+			DynamicString jtype; type.to_string(jtype);
+			pj.type = joint_type_to_enum(jtype.c_str());
+			pj.actor_0 = actor_0.to_string_id();
+			pj.actor_1 = actor_1.to_string_id();
+			pj.anchor_0 = Vector3(anchor_0[0].to_float(), anchor_0[1].to_float(), anchor_0[2].to_float());
+			pj.anchor_1 = Vector3(anchor_1[0].to_float(), anchor_1[1].to_float(), anchor_1[2].to_float());
+			pj.restitution = restitution.is_nil() 	? 0.5f : restitution.to_float();
+			pj.spring = spring.is_nil() 			? 100.0f : spring.to_float();
+			pj.damping = damping.is_nil() 			? 0.0f : damping.to_float();
+			pj.distance = distance.is_nil() 		? 1.0f : distance.to_float();
+			pj.breakable = breakable.is_nil() 		? false : breakable.to_bool();
+			pj.break_force = break_force.is_nil() 	? 3000.0f : break_force.to_float();
+			pj.break_torque = break_torque.is_nil() ? 1000.0f : break_torque.to_float();
+
+			switch (pj.type)
 			{
-				JSONElement radius = shape.key("radius");
-				JSONElement half_height = shape.key("half_height");
+				case PhysicsJointType::FIXED:
+				{
+					return;
+				}
+				case PhysicsJointType::SPHERICAL:
+				{
+					JSONElement y_limit_angle = joint.key_or_nil("y_limit_angle");
+					JSONElement z_limit_angle = joint.key_or_nil("z_limit_angle");
+					JSONElement contact_dist = joint.key_or_nil("contact_dist");
 
-				ps.data_0 = radius.to_float();
-				ps.data_1 = half_height.to_float();
+					pj.y_limit_angle = y_limit_angle.is_nil() ? math::HALF_PI : y_limit_angle.to_float();
+					pj.z_limit_angle = z_limit_angle.is_nil() ? math::HALF_PI : z_limit_angle.to_float();
+					pj.contact_dist = contact_dist.is_nil() ? 0.0f : contact_dist.to_float();
 
-				break;
+					break;
+				}
+				case PhysicsJointType::REVOLUTE:
+				case PhysicsJointType::PRISMATIC:
+				{
+					JSONElement lower_limit = joint.key_or_nil("lower_limit");
+					JSONElement upper_limit = joint.key_or_nil("upper_limit");
+					JSONElement contact_dist = joint.key_or_nil("contact_dist");
+
+					pj.lower_limit = lower_limit.is_nil() ? 0.0f : lower_limit.to_float();
+					pj.upper_limit = upper_limit.is_nil() ? 0.0f : upper_limit.to_float();
+					pj.contact_dist = contact_dist.is_nil() ? 0.0f : contact_dist.to_float();
+
+					break;
+				}
+				case PhysicsJointType::DISTANCE:
+				{
+					JSONElement max_distance = joint.key_or_nil("max_distance");
+					pj.max_distance = max_distance.is_nil() ? 0.0f : max_distance.to_float();
+
+					break;
+				}
+				case PhysicsJointType::D6:
+				{
+					// Must be implemented
+
+					break;
+				}
 			}
-			case PhysicsShapeType::BOX:
-			{
-				JSONElement half_x = shape.key("half_x");
-				JSONElement half_y = shape.key("half_y");
-				JSONElement half_z = shape.key("half_z");
 
-				ps.data_0 = half_x.to_float();
-				ps.data_1 = half_y.to_float();
-				ps.data_2 = half_z.to_float();
+			array::push_back(joints, pj);
+		}
+	}
 
-				break;
-			}
-			case PhysicsShapeType::PLANE:
-			{
-				JSONElement n_x = shape.key("n_x");
-				JSONElement n_y = shape.key("n_y");
-				JSONElement n_z = shape.key("n_z");
-				JSONElement distance = shape.key("distance");
+	//-----------------------------------------------------------------------------
+	void compile(Filesystem& fs, const char* resource_path, File* out_file)
+	{
+		File* file = fs.open(resource_path, FOM_READ);
+		JSONParser json(*file);
+		fs.close(file);
 
-				ps.data_0 = n_x.to_float();
-				ps.data_1 = n_y.to_float();
-				ps.data_2 = n_z.to_float();
-				ps.data_3 = distance.to_float();
+		JSONElement root = json.root();
 
-				break;
-			}
-			case PhysicsShapeType::CONVEX_MESH:
-			{
-				ps.resource = shape.key("mesh").to_resource_id("mesh");
+		bool m_has_controller = false;
+		PhysicsController m_controller;
 
-				break;
-			}
+		// Read controller
+		JSONElement controller = root.key_or_nil("controller");
+		if (controller.is_nil())
+		{
+			m_has_controller = false;
+		}
+		else
+		{
+			parse_controller(controller, m_controller);
+			m_has_controller = true;
 		}
 
-		array::push_back(shapes, ps);
-	}
-}
+		Array<PhysicsActor> m_actors(default_allocator());
+		Array<uint32_t> m_shapes_indices(default_allocator());
+		Array<PhysicsShape> m_shapes(default_allocator());
+		Array<PhysicsJoint> m_joints(default_allocator());
 
-//-----------------------------------------------------------------------------
-void parse_actors(JSONElement e, Array<PhysicsActor>& actors, Array<PhysicsShape>& actor_shapes, Array<uint32_t>& shape_indices)
-{
-	Vector<DynamicString> keys(default_allocator());
-	e.to_keys(keys);
+		if (root.has_key("actors")) parse_actors(root.key("actors"), m_actors, m_shapes, m_shapes_indices);
+		if (root.has_key("joints")) parse_joints(root.key("joints"), m_joints);
 
-	for (uint32_t k = 0; k < vector::size(keys); k++)
-	{
-		JSONElement actor 	= e.key(keys[k].c_str());
-		JSONElement node 	= actor.key("node");
-		JSONElement clasz	= actor.key("class");
-		JSONElement shapes	= actor.key("shapes");
-		JSONElement mass	= actor.key("mass");
+		PhysicsHeader h;
+		h.version = 1;
+		h.num_controllers = m_has_controller ? 1 : 0;
+		h.num_actors = array::size(m_actors);
+		h.num_shapes_indices = array::size(m_shapes_indices);
+		h.num_shapes = array::size(m_shapes);
+		h.num_joints = array::size(m_joints);
 
-		PhysicsActor pa;
-		pa.name = keys[k].to_string_id();
-		pa.node = node.to_string_id();
-		pa.actor_class = clasz.to_string_id();
-		pa.mass = mass.to_float();
-		pa.num_shapes = shapes.size();
+		uint32_t offt = sizeof(PhysicsHeader);
+		h.controller_offset = offt; offt += sizeof(PhysicsController) * h.num_controllers;
+		h.actors_offset = offt; offt += sizeof(PhysicsActor) * h.num_actors;
+		h.shapes_indices_offset = offt; offt += sizeof(uint32_t) * h.num_shapes_indices;
+		h.shapes_offset = offt; offt += sizeof(PhysicsShape) * h.num_shapes;
+		h.joints_offset = offt;
 
-		array::push_back(actors, pa);
-		array::push_back(shape_indices, array::size(shape_indices));
+		out_file->write((char*) &h, sizeof(PhysicsHeader));
 
-		parse_shapes(shapes, actor_shapes);
-	}
-}
-
-//-----------------------------------------------------------------------------
-void parse_joints(JSONElement e, Array<PhysicsJoint>& joints)
-{
-	Vector<DynamicString> keys(default_allocator());
-	e.to_keys(keys);
-
-	for (uint32_t k = 0; k < vector::size(keys); k++)
-	{
-		JSONElement joint			= e.key(keys[k].c_str());
-		JSONElement type 			= joint.key("type");
-		JSONElement actor_0 		= joint.key("actor_0");
-		JSONElement actor_1 		= joint.key("actor_1");
-		JSONElement anchor_0 		= joint.key("anchor_0");
-		JSONElement anchor_1 		= joint.key("anchor_1");
-		JSONElement restitution 	= joint.key_or_nil("restitution");
-		JSONElement spring 			= joint.key_or_nil("spring");
-		JSONElement damping 		= joint.key_or_nil("damping");
-		JSONElement distance 		= joint.key_or_nil("distance");
-		JSONElement breakable 		= joint.key_or_nil("breakable");
-		JSONElement break_force 	= joint.key_or_nil("break_force");
-		JSONElement break_torque	= joint.key_or_nil("break_torque");
-
-		PhysicsJoint pj;
-		pj.name = keys[k].to_string_id();
-		DynamicString jtype; type.to_string(jtype);
-		pj.type = joint_type_to_enum(jtype.c_str());
-		pj.actor_0 = actor_0.to_string_id();
-		pj.actor_1 = actor_1.to_string_id();
-		pj.anchor_0 = Vector3(anchor_0[0].to_float(), anchor_0[1].to_float(), anchor_0[2].to_float());
-		pj.anchor_1 = Vector3(anchor_1[0].to_float(), anchor_1[1].to_float(), anchor_1[2].to_float());
-		pj.restitution = restitution.is_nil() 	? 0.5f : restitution.to_float();
-		pj.spring = spring.is_nil() 			? 100.0f : spring.to_float();
-		pj.damping = damping.is_nil() 			? 0.0f : damping.to_float();
-		pj.distance = distance.is_nil() 		? 1.0f : distance.to_float();
-		pj.breakable = breakable.is_nil() 		? false : breakable.to_bool();
-		pj.break_force = break_force.is_nil() 	? 3000.0f : break_force.to_float();
-		pj.break_torque = break_torque.is_nil() ? 1000.0f : break_torque.to_float();
-
-		switch (pj.type)
+		if (m_has_controller)
 		{
-			case PhysicsJointType::FIXED:
-			{
-				return;
-			}
-			case PhysicsJointType::SPHERICAL:
-			{
-				JSONElement y_limit_angle = joint.key_or_nil("y_limit_angle");
-				JSONElement z_limit_angle = joint.key_or_nil("z_limit_angle");
-				JSONElement contact_dist = joint.key_or_nil("contact_dist");
-
-				pj.y_limit_angle = y_limit_angle.is_nil() ? math::HALF_PI : y_limit_angle.to_float();
-				pj.z_limit_angle = z_limit_angle.is_nil() ? math::HALF_PI : z_limit_angle.to_float();
-				pj.contact_dist = contact_dist.is_nil() ? 0.0f : contact_dist.to_float();
-
-				break;
-			}
-			case PhysicsJointType::REVOLUTE:
-			case PhysicsJointType::PRISMATIC:
-			{
-				JSONElement lower_limit = joint.key_or_nil("lower_limit");
-				JSONElement upper_limit = joint.key_or_nil("upper_limit");
-				JSONElement contact_dist = joint.key_or_nil("contact_dist");
-
-				pj.lower_limit = lower_limit.is_nil() ? 0.0f : lower_limit.to_float();
-				pj.upper_limit = upper_limit.is_nil() ? 0.0f : upper_limit.to_float();
-				pj.contact_dist = contact_dist.is_nil() ? 0.0f : contact_dist.to_float();
-
-				break;
-			}
-			case PhysicsJointType::DISTANCE:
-			{
-				JSONElement max_distance = joint.key_or_nil("max_distance");
-				pj.max_distance = max_distance.is_nil() ? 0.0f : max_distance.to_float();
-
-				break;
-			}
-			case PhysicsJointType::D6:
-			{
-				// Must be implemented
-
-				break;
-			}
+			out_file->write((char*) &m_controller, sizeof(PhysicsController));
 		}
 
-		array::push_back(joints, pj);
+		if (array::size(m_actors))
+		{
+			out_file->write((char*) array::begin(m_actors), sizeof(PhysicsActor) * array::size(m_actors));
+		}
+
+		if (array::size(m_shapes_indices))
+		{
+			out_file->write((char*) array::begin(m_shapes_indices), sizeof(uint32_t) * array::size(m_shapes_indices));
+		}
+
+		if (array::size(m_shapes))
+		{
+			out_file->write((char*) array::begin(m_shapes), sizeof(PhysicsShape) * array::size(m_shapes));
+		}
+
+		if (array::size(m_joints))
+		{
+			out_file->write((char*) array::begin(m_joints), sizeof(PhysicsJoint) * array::size(m_joints));
+		}
 	}
-}
 
-//-----------------------------------------------------------------------------
-void compile(Filesystem& fs, const char* resource_path, File* out_file)
-{
-	File* file = fs.open(resource_path, FOM_READ);
-	JSONParser json(*file);
-	fs.close(file);
-
-	JSONElement root = json.root();
-
-	bool m_has_controller = false;
-	PhysicsController m_controller;
-
-	// Read controller
-	JSONElement controller = root.key_or_nil("controller");
-	if (controller.is_nil())
+	//-----------------------------------------------------------------------------
+	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
-		m_has_controller = false;
+		File* file = bundle.open(id);
+		const size_t file_size = file->size();
+
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
+
+		bundle.close(file);
+
+		return res;
 	}
-	else
+
+	//-----------------------------------------------------------------------------
+	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
-		parse_controller(controller, m_controller);
-		m_has_controller = true;
 	}
 
-	Array<PhysicsActor> m_actors(default_allocator());
-	Array<uint32_t> m_shapes_indices(default_allocator());
-	Array<PhysicsShape> m_shapes(default_allocator());
-	Array<PhysicsJoint> m_joints(default_allocator());
-
-	if (root.has_key("actors")) parse_actors(root.key("actors"), m_actors, m_shapes, m_shapes_indices);
-	if (root.has_key("joints")) parse_joints(root.key("joints"), m_joints);
-
-	PhysicsHeader h;
-	h.version = 1;
-	h.num_controllers = m_has_controller ? 1 : 0;
-	h.num_actors = array::size(m_actors);
-	h.num_shapes_indices = array::size(m_shapes_indices);
-	h.num_shapes = array::size(m_shapes);
-	h.num_joints = array::size(m_joints);
-
-	uint32_t offt = sizeof(PhysicsHeader);
-	h.controller_offset = offt; offt += sizeof(PhysicsController) * h.num_controllers;
-	h.actors_offset = offt; offt += sizeof(PhysicsActor) * h.num_actors;
-	h.shapes_indices_offset = offt; offt += sizeof(uint32_t) * h.num_shapes_indices;
-	h.shapes_offset = offt; offt += sizeof(PhysicsShape) * h.num_shapes;
-	h.joints_offset = offt;
-
-	out_file->write((char*) &h, sizeof(PhysicsHeader));
-
-	if (m_has_controller)
+	void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
-		out_file->write((char*) &m_controller, sizeof(PhysicsController));
 	}
 
-	if (array::size(m_actors))
+	//-----------------------------------------------------------------------------
+	void unload(Allocator& allocator, void* resource)
 	{
-		out_file->write((char*) array::begin(m_actors), sizeof(PhysicsActor) * array::size(m_actors));
+		allocator.deallocate(resource);
 	}
-
-	if (array::size(m_shapes_indices))
-	{
-		out_file->write((char*) array::begin(m_shapes_indices), sizeof(uint32_t) * array::size(m_shapes_indices));
-	}
-
-	if (array::size(m_shapes))
-	{
-		out_file->write((char*) array::begin(m_shapes), sizeof(PhysicsShape) * array::size(m_shapes));
-	}
-
-	if (array::size(m_joints))
-	{
-		out_file->write((char*) array::begin(m_joints), sizeof(PhysicsJoint) * array::size(m_joints));
-	}
-}
 } // namespace physics_resource
 
 namespace physics_config_resource
@@ -651,5 +679,33 @@ namespace physics_config_resource
 		CE_DELETE(default_allocator(), s_ftm);
 	}
 
+	//-----------------------------------------------------------------------------
+	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	{
+		File* file = bundle.open(id);
+		const size_t file_size = file->size();
+
+		void* res = allocator.allocate(file_size);
+		file->read(res, file_size);
+
+		bundle.close(file);
+
+		return res;
+	}
+
+	//-----------------------------------------------------------------------------
+	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
+	{
+	}
+
+	void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
+	{
+	}
+
+	//-----------------------------------------------------------------------------
+	void unload(Allocator& allocator, void* resource)
+	{
+		allocator.deallocate(resource);
+	}
 } // namespace physics_config_resource
 } // namespace crown

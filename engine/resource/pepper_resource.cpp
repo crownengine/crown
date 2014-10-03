@@ -24,50 +24,58 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "types.h"
-#include "resource.h"
-#include "bundle.h"
-#include "allocator.h"
-#include "file.h"
-#include "resource_manager.h"
-#include "memory.h"
-#include <bgfx.h>
+#include "pepper_resource.h"
+#include "json_parser.h"
 
 namespace crown
 {
-
-struct TextureHeader
+namespace pepper_resource
 {
-	uint32_t version;
-	uint32_t size;
-};
-
-struct TextureImage
-{
-	const bgfx::Memory* mem; // BGFX will take care of deallocation
-	bgfx::TextureHandle handle;
-};
-
-struct TextureResource
-{
-private:
-
-	// Disable construction
-	TextureResource();
-};
-
-namespace texture_resource
-{
-	void compile(Filesystem& fs, const char* resource_path, File* out_file);
-	inline void compile(const char* path, CompileOptions& opts)
+	void compile(const char* path, CompileOptions& opts)
 	{
-		compile(opts._fs, path, &opts._bw.m_file);
+		Buffer buf = opts.read(path);
+		JSONParser json(array::begin(buf));
+		JSONElement root = json.root();
+
+		DynamicString vs_code;
+		DynamicString fs_code;
+		DynamicString varying_def;
+
+		root.key("vs_code").to_string(vs_code);
+		root.key("fs_code").to_string(fs_code);
+		root.key("varying_def").to_string(varying_def);
+
+		DynamicString vs_code_path;
+		DynamicString fs_code_path;
+		DynamicString varying_def_path;
+		DynamicString tmpvs_path;
+		DynamicString tmpfs_path;
+
+		opts.get_absolute_path(vs_code.c_str(), vs_code_path);
+		opts.get_absolute_path(fs_code.c_str(), fs_code_path);
+		opts.get_absolute_path(varying_def.c_str(), varying_def_path);
+		opts.get_absolute_path("tmpvs", tmpvs_path);
+		opts.get_absolute_path("tmpfs", tmpfs_path);
 	}
-	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	void offline(StringId64 id, ResourceManager& rm);
-	void online(StringId64 id, ResourceManager& rm);
-	void unload(Allocator& a, void* resource);
-} // namespace texture_resource
+
+	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	{
+
+	}
+
+	void online(StringId64 id, ResourceManager& rm)
+	{
+
+	}
+
+	void offline(StringId64 id, ResourceManager& rm)
+	{
+
+	}
+
+	void unload(Allocator& a, void* resource)
+	{
+
+	}
+} // namespace pepper_resource
 } // namespace crown
