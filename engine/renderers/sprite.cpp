@@ -120,7 +120,13 @@ void Sprite::render()
 	if (m_material.id != INVALID_ID)
 		material_manager::get()->lookup_material(m_material)->bind();
 
-	bgfx::setState(BGFX_STATE_DEFAULT | BGFX_STATE_BLEND_ALPHA);
+	bgfx::setState(BGFX_STATE_RGB_WRITE
+		| BGFX_STATE_ALPHA_WRITE
+		| BGFX_STATE_DEPTH_TEST_LEQUAL
+		| BGFX_STATE_DEPTH_WRITE
+		| BGFX_STATE_CULL_CW
+		| BGFX_STATE_MSAA
+		| BGFX_STATE_BLEND_ALPHA);
 	bgfx::setVertexBuffer(m_resource->vb);
 	bgfx::setIndexBuffer(m_resource->ib, m_frame * 6, 6);
 	bgfx::setTransform(matrix4x4::to_float_ptr(world_pose()));
