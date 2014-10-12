@@ -32,18 +32,18 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 StackAllocator::StackAllocator(void* start, size_t size)
-	: m_physical_start(start)
-	, m_total_size(size)
-	, m_top(start)
-	, m_allocation_count(0)
+	: _physical_start(start)
+	, _total_size(size)
+	, _top(start)
+	, _allocation_count(0)
 {
 }
 
 //-----------------------------------------------------------------------------
 StackAllocator::~StackAllocator()
 {
-	CE_ASSERT(m_allocation_count == 0 && allocated_size() == 0,
-		"Missing %d deallocations causing a leak of %ld bytes", m_allocation_count, allocated_size());
+	CE_ASSERT(_allocation_count == 0 && allocated_size() == 0,
+		"Missing %d deallocations causing a leak of %ld bytes", _allocation_count, allocated_size());
 }
 
 //-----------------------------------------------------------------------------
@@ -52,25 +52,25 @@ void* StackAllocator::allocate(size_t size, size_t align)
 	const size_t actual_size = sizeof(Header) + size + align;
 
 	// Memory exhausted
-	if ((char*) m_top + actual_size > (char*) m_physical_start + m_total_size)
+	if ((char*) _top + actual_size > (char*) _physical_start + _total_size)
 	{
 		return NULL;
 	}
 
 	// The offset from TOS to the start of the buffer
-	uint32_t offset = (char*) m_top - (char*) m_physical_start;
+	uint32_t offset = (char*) _top - (char*) _physical_start;
 
 	// Align user data only, ignore header alignment
-	m_top = (char*) memory::align_top((char*) m_top + sizeof(Header), align) - sizeof(Header);
+	_top = (char*) memory::align_top((char*) _top + sizeof(Header), align) - sizeof(Header);
 
-	Header* header = (Header*) m_top;
+	Header* header = (Header*) _top;
 	header->offset = offset;
-	header->alloc_id = m_allocation_count;
+	header->alloc_id = _allocation_count;
 
-	void* user_ptr = (char*) m_top + sizeof(Header);
-	m_top = (char*) m_top + actual_size;
+	void* user_ptr = (char*) _top + sizeof(Header);
+	_top = (char*) _top + actual_size;
 
-	m_allocation_count++;
+	_allocation_count++;
 
 	return user_ptr;
 }
@@ -83,18 +83,18 @@ void StackAllocator::deallocate(void* data)
 
 	Header* data_header = (Header*) ((char*)data - sizeof(Header));
 
-	CE_ASSERT(data_header->alloc_id == m_allocation_count - 1,
+	CE_ASSERT(data_header->alloc_id == _allocation_count - 1,
 		"Deallocations must occur in LIFO order");
 
-	m_top = (char*) m_physical_start + data_header->offset;
+	_top = (char*) _physical_start + data_header->offset;
 
-	m_allocation_count--;
+	_allocation_count--;
 }
 
 //-----------------------------------------------------------------------------
 size_t StackAllocator::allocated_size()
 {
-	return (char*) m_top - (char*) m_physical_start;
+	return (char*) _top - (char*) _physical_start;
 }
 
 } // namespace crown

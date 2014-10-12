@@ -75,11 +75,11 @@ public:
 
 private:
 
-	Allocator& m_allocator;
-	const char* m_name;
-	size_t m_total_allocated;
-
-	ProxyAllocator* m_next;
+	Allocator& _allocator;
+	
+	const char* _name;
+	size_t _total_allocated;
+	ProxyAllocator* _next;
 };
 
 } // namespace crown

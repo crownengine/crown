@@ -32,29 +32,32 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 LinearAllocator::LinearAllocator(Allocator& backing, size_t size)
-	: m_backing(&backing)
-	, m_physical_start(NULL)
-	, m_total_size(size)
-	, m_offset(0)
+	: _backing(&backing)
+	, _physical_start(NULL)
+	, _total_size(size)
+	, _offset(0)
 {
-	m_physical_start = backing.allocate(size);
+	_physical_start = backing.allocate(size);
 }
 
 //-----------------------------------------------------------------------------
 LinearAllocator::LinearAllocator(void* start, size_t size)
-	: m_backing(NULL), m_physical_start(start), m_total_size(size), m_offset(0)
+	: _backing(NULL)
+	, _physical_start(start)
+	, _total_size(size)
+	, _offset(0)
 {
 }
 
 //-----------------------------------------------------------------------------
 LinearAllocator::~LinearAllocator()
 {
-	if (m_backing)
+	if (_backing)
 	{
-		m_backing->deallocate(m_physical_start);
+		_backing->deallocate(_physical_start);
 	}
 
-	CE_ASSERT(m_offset == 0, "Memory leak of %ld bytes, maybe you forgot to call clear()?", m_offset);
+	CE_ASSERT(_offset == 0, "Memory leak of %ld bytes, maybe you forgot to call clear()?", _offset);
 }
 
 //-----------------------------------------------------------------------------
@@ -63,14 +66,14 @@ void* LinearAllocator::allocate(size_t size, size_t align)
 	const size_t actual_size = size + align;
 
 	// Memory exhausted
-	if (m_offset + actual_size > m_total_size)
+	if (_offset + actual_size > _total_size)
 	{
 		return NULL;
 	}
 
-	void* user_ptr = memory::align_top((char*) m_physical_start + m_offset, align);
+	void* user_ptr = memory::align_top((char*) _physical_start + _offset, align);
 
-	m_offset += actual_size;
+	_offset += actual_size;
 
 	return user_ptr;
 }
@@ -84,13 +87,13 @@ void LinearAllocator::deallocate(void* /*data*/)
 //-----------------------------------------------------------------------------
 void LinearAllocator::clear()
 {
-	m_offset = 0;
+	_offset = 0;
 }
 
 //-----------------------------------------------------------------------------
 size_t LinearAllocator::allocated_size()
 {
-	return m_offset;
+	return _offset;
 }
 
 } // namespace crown

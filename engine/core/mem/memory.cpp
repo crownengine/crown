@@ -66,21 +66,21 @@ namespace memory
 	public:
 
 		HeapAllocator()
-			: m_allocated_size(0)
-			, m_allocation_count(0)
+			: _allocated_size(0)
+			, _allocation_count(0)
 		{
 		}
 
 		~HeapAllocator()
 		{
-			CE_ASSERT(m_allocation_count == 0 && allocated_size() == 0,
-				"Missing %d deallocations causing a leak of %ld bytes", m_allocation_count, allocated_size());
+			CE_ASSERT(_allocation_count == 0 && allocated_size() == 0,
+				"Missing %d deallocations causing a leak of %ld bytes", _allocation_count, allocated_size());
 		}
 
 		/// @copydoc Allocator::allocate()
 		void* allocate(size_t size, size_t align = Allocator::DEFAULT_ALIGN)
 		{
-			ScopedMutex sm(m_mutex);
+			ScopedMutex sm(_mutex);
 
 			size_t actual_size = actual_allocation_size(size, align);
 
@@ -91,8 +91,8 @@ namespace memory
 
 			pad(h, data);
 
-			m_allocated_size += actual_size;
-			m_allocation_count++;
+			_allocated_size += actual_size;
+			_allocation_count++;
 
 			return data;
 		}
@@ -100,15 +100,15 @@ namespace memory
 		/// @copydoc Allocator::deallocate()
 		void deallocate(void* data)
 		{
-			ScopedMutex sm(m_mutex);
+			ScopedMutex sm(_mutex);
 
 			if (!data)
 				return;
 
 			Header* h = header(data);
 
-			m_allocated_size -= h->size;
-			m_allocation_count--;
+			_allocated_size -= h->size;
+			_allocation_count--;
 
 			free(h);
 		}
@@ -116,14 +116,14 @@ namespace memory
 		/// @copydoc Allocator::allocated_size()
 		size_t allocated_size()
 		{
-			ScopedMutex sm(m_mutex);
-			return m_allocated_size;
+			ScopedMutex sm(_mutex);
+			return _allocated_size;
 		}
 
 		/// Returns the size in bytes of the block of memory pointed by @a data
 		size_t get_size(void* data)
 		{
-			ScopedMutex sm(m_mutex);
+			ScopedMutex sm(_mutex);
 			Header* h = header(data);
 			return h->size;
 		}
@@ -176,9 +176,9 @@ namespace memory
 
 	private:
 
-		Mutex		m_mutex;
-		size_t		m_allocated_size;
-		uint32_t	m_allocation_count;
+		Mutex _mutex;
+		size_t _allocated_size;
+		uint32_t _allocation_count;
 	};
 } // namespace memory
 

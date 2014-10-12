@@ -32,13 +32,13 @@ namespace crown
 
 //-----------------------------------------------------------------------------
 PoolAllocator::PoolAllocator(Allocator& backing, size_t num_blocks, size_t block_size, size_t block_align)
-	: m_backing(backing)
-	, m_start(NULL)
-	, m_freelist(NULL)
-	, m_block_size(block_size)
-	, m_block_align(block_align)
-	, m_num_allocations(0)
-	, m_allocated_size(0)
+	: _backing(backing)
+	, _start(NULL)
+	, _freelist(NULL)
+	, _block_size(block_size)
+	, _block_align(block_align)
+	, _num_allocations(0)
+	, _allocated_size(0)
 {
 	CE_ASSERT(num_blocks > 0, "Unsupported number of blocks");
 	CE_ASSERT(block_size > 0, "Unsupported block size");
@@ -61,29 +61,29 @@ PoolAllocator::PoolAllocator(Allocator& backing, size_t num_blocks, size_t block
 	uintptr_t* end = (uintptr_t*) cur;
 	*end = (uintptr_t) NULL;
 
-	m_start = mem;
-	m_freelist = mem;
+	_start = mem;
+	_freelist = mem;
 }
 
 //-----------------------------------------------------------------------------
 PoolAllocator::~PoolAllocator()
 {
-	m_backing.deallocate(m_start);
+	_backing.deallocate(_start);
 }
 
 //-----------------------------------------------------------------------------
 void* PoolAllocator::allocate(size_t size, size_t align)
 {
-	CE_ASSERT(size == m_block_size, "Size must match block size");
-	CE_ASSERT(align == m_block_align, "Align must match block align");
-	CE_ASSERT(m_freelist != NULL, "Out of memory");
+	CE_ASSERT(size == _block_size, "Size must match block size");
+	CE_ASSERT(align == _block_align, "Align must match block align");
+	CE_ASSERT(_freelist != NULL, "Out of memory");
 
-	uintptr_t next_free = *((uintptr_t*) m_freelist);
-	void* user_ptr = m_freelist;
-	m_freelist = (void*) next_free;
+	uintptr_t next_free = *((uintptr_t*) _freelist);
+	void* user_ptr = _freelist;
+	_freelist = (void*) next_free;
 
-	m_num_allocations++;
-	m_allocated_size += m_block_size;
+	_num_allocations++;
+	_allocated_size += _block_size;
 
 	return user_ptr;
 }
@@ -94,21 +94,21 @@ void PoolAllocator::deallocate(void* data)
 	if (!data)
 		return;
 
-	CE_ASSERT(m_num_allocations > 0, "Did not allocate");
+	CE_ASSERT(_num_allocations > 0, "Did not allocate");
 
 	uintptr_t* next = (uintptr_t*) data;
-	*next = (uintptr_t) m_freelist;
+	*next = (uintptr_t) _freelist;
 
-	m_freelist = data;
+	_freelist = data;
 
-	m_num_allocations--;
-	m_allocated_size -= m_block_size;
+	_num_allocations--;
+	_allocated_size -= _block_size;
 }
 
 //-----------------------------------------------------------------------------
 size_t PoolAllocator::allocated_size()
 {
-	return m_allocated_size;
+	return _allocated_size;
 }
 
 } // namespace crown

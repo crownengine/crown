@@ -60,13 +60,13 @@ public:
 
 private:
 
-	Allocator&	m_backing;
-
-	char* m_begin;
-	char* m_end;
-	char* m_cur;
-	size_t m_chunk_size;
-	char m_buffer[SIZE];
+	Allocator&	_backing;
+	
+	char* _begin;
+	char* _end;
+	char* _cur;
+	size_t _chunk_size;
+	char _buffer[SIZE];
 };
 
 typedef TempAllocator<64> TempAllocator64;
@@ -80,14 +80,14 @@ typedef TempAllocator<4096> TempAllocator4096;
 //-----------------------------------------------------------------------------
 template <size_t SIZE>
 inline TempAllocator<SIZE>::TempAllocator(Allocator& backing)
-	: m_backing(backing)
-	, m_begin(&m_buffer[0])
-	, m_end(&m_buffer[SIZE - 1])
-	, m_cur(&m_buffer[0])
-	, m_chunk_size(4 * 1024)
+	: _backing(backing)
+	, _begin(&_buffer[0])
+	, _end(&_buffer[SIZE - 1])
+	, _cur(&_buffer[0])
+	, _chunk_size(4 * 1024)
 {
-	*(void**) m_begin = 0;
-	m_cur += sizeof(void*);
+	*(void**) _begin = 0;
+	_cur += sizeof(void*);
 }
 
 //-----------------------------------------------------------------------------
@@ -95,13 +95,13 @@ template <size_t SIZE>
 inline TempAllocator<SIZE>::~TempAllocator()
 {
 	union { char* as_char; void** as_dvoid; };
-	as_char = m_buffer;
+	as_char = _buffer;
 
 	void *p = *(void **)as_dvoid;
 	while (p)
 	{
 		void *next = *(void **)p;
-		m_backing.deallocate(p);
+		_backing.deallocate(p);
 		p = next;
 	}
 }
@@ -110,30 +110,30 @@ inline TempAllocator<SIZE>::~TempAllocator()
 template <size_t SIZE>
 inline void* TempAllocator<SIZE>::allocate(size_t size, size_t align)
 {
-	m_cur = (char*) memory::align_top(m_cur, align);
+	_cur = (char*) memory::align_top(_cur, align);
 
-	if (size > size_t(m_end - m_cur))
+	if (size > size_t(_end - _cur))
 	{
 		uint32_t to_allocate = sizeof(void*) + size + align;
 
-		if (to_allocate < m_chunk_size)
+		if (to_allocate < _chunk_size)
 		{
-			to_allocate = m_chunk_size;
+			to_allocate = _chunk_size;
 		}
 
-		m_chunk_size *= 2;
+		_chunk_size *= 2;
 
-		void *p = m_backing.allocate(to_allocate);
-		*(void **)m_begin = p;
-		m_cur = m_begin = (char*) p;
-		m_end = m_begin + to_allocate;
-		*(void**) m_begin = 0;
-		m_cur += sizeof(void*);
+		void *p = _backing.allocate(to_allocate);
+		*(void **)_begin = p;
+		_cur = _begin = (char*) p;
+		_end = _begin + to_allocate;
+		*(void**) _begin = 0;
+		_cur += sizeof(void*);
 		memory::align_top(p, align);
 	}
 
-	void *result = m_cur;
-	m_cur += size;
+	void *result = _cur;
+	_cur += size;
 	return result;
 }
 

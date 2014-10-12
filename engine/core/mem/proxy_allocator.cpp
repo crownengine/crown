@@ -37,10 +37,10 @@ static Mutex g_proxy_allocators_mutex;
 
 //-----------------------------------------------------------------------------
 ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator)
-	: m_allocator(allocator)
-	, m_name(name)
-	, m_total_allocated(0)
-	, m_next(NULL)
+	: _allocator(allocator)
+	, _name(name)
+	, _total_allocated(0)
+	, _next(NULL)
 {
 	ScopedMutex sm(g_proxy_allocators_mutex);
 
@@ -48,7 +48,7 @@ ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator)
 
 	if(g_proxy_allocators_head != NULL)
 	{
-		m_next = g_proxy_allocators_head;
+		_next = g_proxy_allocators_head;
 	}
 
 	g_proxy_allocators_head = this;
@@ -57,27 +57,27 @@ ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator)
 //-----------------------------------------------------------------------------
 void* ProxyAllocator::allocate(size_t size, size_t align)
 {
-	m_total_allocated += size;
+	_total_allocated += size;
 
-	return m_allocator.allocate(size, align);
+	return _allocator.allocate(size, align);
 }
 
 //-----------------------------------------------------------------------------
 void ProxyAllocator::deallocate(void* data)
 {
-	m_allocator.deallocate(data);
+	_allocator.deallocate(data);
 }
 
 //-----------------------------------------------------------------------------
 size_t ProxyAllocator::allocated_size()
 {
-	return m_total_allocated;
+	return _total_allocated;
 }
 
 //-----------------------------------------------------------------------------
 const char* ProxyAllocator::name() const
 {
-	return m_name;
+	return _name;
 }
 
 //-----------------------------------------------------------------------------
@@ -91,7 +91,7 @@ uint32_t ProxyAllocator::count()
 	while (head != NULL)
 	{
 		++count;
-		head = head->m_next;
+		head = head->_next;
 	}
 
 	return count;
@@ -111,7 +111,7 @@ ProxyAllocator* ProxyAllocator::find(const char* name)
 			return head;
 		}
 
-		head = head->m_next;
+		head = head->_next;
 	}
 
 	return NULL;
@@ -131,7 +131,7 @@ ProxyAllocator* ProxyAllocator::next(ProxyAllocator* a)
 		return NULL;
 	}
 
-	return a->m_next;
+	return a->_next;
 }
 
 } // namespace crown

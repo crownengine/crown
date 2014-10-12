@@ -63,12 +63,10 @@ private:
 		uint32_t alloc_id;
 	};
 
-	void* m_physical_start;
-	size_t m_total_size;
-
-	void* m_top;
-
-	uint32_t m_allocation_count;
+	void* _physical_start;
+	size_t _total_size;
+	void* _top;
+	uint32_t _allocation_count;
 };
 
 } // namespace crown

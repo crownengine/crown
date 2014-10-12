@@ -57,15 +57,15 @@ public:
 
 private:
 
-	Allocator&	m_backing;
+	Allocator&	_backing;
 
-	void* m_start;
-	void* m_freelist;
-	size_t m_block_size;
-	size_t m_block_align;
-
-	uint32_t m_num_allocations;
-	size_t m_allocated_size;
+	void* _start;
+	void* _freelist;
+	size_t _block_size;
+	size_t _block_align;
+	
+	uint32_t _num_allocations;
+	size_t _allocated_size;
 };
 
 } // namespace crown

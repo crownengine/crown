@@ -50,7 +50,7 @@ public:
 	/// @note
 	/// The linear allocator does not support deallocating
 	/// individual allocations, rather you have to call
-	/// clear() to free all memory at once.
+	/// clear() to free all allocated memory at once.
 	void deallocate(void* data);
 
 	/// Frees all the allocations made by allocate()
@@ -61,10 +61,11 @@ public:
 
 private:
 
-	Allocator* m_backing;
-	void* m_physical_start;
-	size_t m_total_size;
-	size_t m_offset;
+	Allocator* _backing;
+	
+	void* _physical_start;
+	size_t _total_size;
+	size_t _offset;
 };
 
 } // namespace crown
