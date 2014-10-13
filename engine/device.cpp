@@ -87,6 +87,7 @@ void Device::init()
 
 	CE_LOGD("Creating material manager...");
 	material_manager::init();
+	debug_line::init();
 
 	CE_LOGD("Creating lua system...");
 	lua_system::init();
@@ -126,6 +127,7 @@ void Device::shutdown()
 	CE_DELETE(_allocator, _lua_environment);
 
 	CE_LOGD("Releasing material manager...");
+	debug_line::shutdown();
 	material_manager::shutdown();
 
 	CE_LOGD("Releasing world manager...");
