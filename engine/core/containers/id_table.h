@@ -43,16 +43,16 @@ struct IdTable
 	IdTable();
 
 	// The index of the first unused id.
-	uint16_t m_freelist;
+	uint16_t _freelist;
 
 	// Next available unique id.
-	uint16_t m_next_id;
-	uint16_t m_size;
+	uint16_t _next_id;
+	uint16_t _size;
 
 	// Table of ids.
 	// The last valid id is reserved and cannot be used to
 	// refer to Ids from the outside.
-	Id m_ids[MAX];
+	Id _ids[MAX];
 };
 
 /// Functions to manipulate IdTable.
@@ -84,21 +84,21 @@ namespace id_table
 	{
 		// Obtain a new id
 		Id id;
-		id.id = a.m_next_id++;
+		id.id = a._next_id++;
 
 		// Recycle slot if there are any
-		if (a.m_freelist != INVALID_ID)
+		if (a._freelist != INVALID_ID)
 		{
-			id.index = a.m_freelist;
-			a.m_freelist = a.m_ids[a.m_freelist].index;
+			id.index = a._freelist;
+			a._freelist = a._ids[a._freelist].index;
 		}
 		else
 		{
-			id.index = a.m_size;
+			id.index = a._size;
 		}
 
-		a.m_ids[id.index] = id;
-		a.m_size++;
+		a._ids[id.index] = id;
+		a._size++;
 
 		return id;
 	}
@@ -109,51 +109,51 @@ namespace id_table
 	{
 		CE_ASSERT(has(a, id), "IdTable does not have ID: %d,%d", id.id, id.index);
 
-		a.m_ids[id.index].id = INVALID_ID;
-		a.m_ids[id.index].index = a.m_freelist;
-		a.m_freelist = id.index;
-		a.m_size--;
+		a._ids[id.index].id = INVALID_ID;
+		a._ids[id.index].index = a._freelist;
+		a._freelist = id.index;
+		a._size--;
 	}
 
 	//-----------------------------------------------------------------------------
 	template <uint32_t MAX>
 	inline bool has(const IdTable<MAX>& a, Id id)
 	{
-		return id.index < MAX && a.m_ids[id.index].id == id.id;
+		return id.index < MAX && a._ids[id.index].id == id.id;
 	}
 
 	//-----------------------------------------------------------------------------
 	template <uint32_t MAX>
 	inline uint16_t size(const IdTable<MAX>& a)
 	{
-		return a.m_size;
+		return a._size;
 	}
 
 	//-----------------------------------------------------------------------------
 	template <uint32_t MAX>
 	inline const Id* begin(const IdTable<MAX>& a)
 	{
-		return a.m_ids;
+		return a._ids;
 	}
 
 	//-----------------------------------------------------------------------------
 	template <uint32_t MAX>
 	inline const Id* end(const IdTable<MAX>& a)
 	{
-		return a.m_ids + MAX;
+		return a._ids + MAX;
 	}
 } // namespace id_table
 
 //-----------------------------------------------------------------------------
 template <uint32_t MAX>
 inline IdTable<MAX>::IdTable()
-	: m_freelist(INVALID_ID)
-	, m_next_id(0)
-	, m_size(0)
+	: _freelist(INVALID_ID)
+	, _next_id(0)
+	, _size(0)
 {
 	for (uint32_t i = 0; i < MAX; i++)
 	{
-		m_ids[i].id = INVALID_ID;
+		_ids[i].id = INVALID_ID;
 	}
 }
 

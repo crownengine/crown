@@ -37,8 +37,8 @@ namespace crown
 /// @ingroup Containers
 struct Blob
 {
-	uint32_t m_size;
-	uintptr_t m_data;
+	uint32_t _size;
+	uintptr_t _data;
 };
 
 /// Functions to manipulate Blob.
@@ -60,21 +60,21 @@ namespace blob
 {
 	inline uint32_t size(const Blob& b)
 	{
-		return b.m_size;
+		return b._size;
 	}
 
 	template <typename T>
 	inline const T* get(const Blob& b, uint32_t offset)
 	{
-		CE_ASSERT(offset < b.m_size, "Overflow (size = %d, offset = %d", b.m_size, offset);
-		return (T*) b.m_data + offset;
+		CE_ASSERT(offset < b._size, "Overflow (size = %d, offset = %d", b._size, offset);
+		return (T*) b._data + offset;
 	}
 
 	template <typename T>
 	inline T* get(Blob& b, uint32_t offset)
 	{
-		CE_ASSERT(offset < b.m_size, "Overflow (size = %d, offset = %d", b.m_size, offset);
-		return (T*) b.m_data + offset;
+		CE_ASSERT(offset < b._size, "Overflow (size = %d, offset = %d", b._size, offset);
+		return (T*) b._data + offset;
 	}
 } // namespace blob
 } // namespace crown

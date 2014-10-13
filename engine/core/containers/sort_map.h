@@ -92,17 +92,17 @@ namespace sort_map_internal
 	template <typename TKey, typename TValue, typename Compare>
 	inline FindResult find(const SortMap<TKey, TValue, Compare>& m, const TKey& key)
 	{
-		CE_ASSERT(m.m_is_sorted, "Map not sorted");
+		CE_ASSERT(m._is_sorted, "Map not sorted");
 
 		FindResult result;
 		result.item_i = END_OF_LIST;
 
 		const typename SortMap<TKey, TValue, Compare>::Entry* first =
-			std::lower_bound(array::begin(m.m_data), array::end(m.m_data), key,
+			std::lower_bound(array::begin(m._data), array::end(m._data), key,
 			sort_map_internal::CompareEntry<TKey, TValue, Compare>());
 
-		if (first != array::end(m.m_data) && !(key < first->key))
-		 	result.item_i = first - array::begin(m.m_data);
+		if (first != array::end(m._data) && !(key < first->key))
+		 	result.item_i = first - array::begin(m._data);
 
 		return result;
 	}
@@ -124,15 +124,15 @@ namespace sort_map
 		if (result.item_i == sort_map_internal::END_OF_LIST)
 			return deffault;
 
-		return m.m_data[result.item_i].value;
+		return m._data[result.item_i].value;
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
 	inline void sort(SortMap<TKey, TValue, Compare>& m)
 	{
-		std::sort(array::begin(m.m_data), array::end(m.m_data),
+		std::sort(array::begin(m._data), array::end(m._data),
 			sort_map_internal::CompareEntry<TKey, TValue, Compare>());
-		m.m_is_sorted = true;
+		m._is_sorted = true;
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
@@ -145,14 +145,14 @@ namespace sort_map
 			typename SortMap<TKey, TValue, Compare>::Entry e;
 			e.key = key;
 			e.value = val;
-			array::push_back(m.m_data, e);
+			array::push_back(m._data, e);
 		}
 		else
 		{
-			m.m_data[result.item_i].value = val;
+			m._data[result.item_i].value = val;
 		}
 
-		m.m_is_sorted = false;
+		m._is_sorted = false;
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
@@ -163,38 +163,38 @@ namespace sort_map
 		if (result.item_i == sort_map_internal::END_OF_LIST)
 			return;
 
-		if (array::size(m.m_data))
+		if (array::size(m._data))
 		{
-			m.m_data[result.item_i] = m.m_data[array::size(m.m_data) - 1];
-			array::pop_back(m.m_data);
+			m._data[result.item_i] = m._data[array::size(m._data) - 1];
+			array::pop_back(m._data);
 		}
 
-		m.m_is_sorted = false;
+		m._is_sorted = false;
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
 	inline void clear(SortMap<TKey, TValue, Compare>& m)
 	{
-		array::clear(m.m_data);
-		m.m_is_sorted = true;
+		array::clear(m._data);
+		m._is_sorted = true;
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
 	inline const typename SortMap<TKey, TValue, Compare>::Entry* begin(const SortMap<TKey, TValue, Compare>& m)
 	{
-		return array::begin(m.m_data);
+		return array::begin(m._data);
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
 	inline const typename SortMap<TKey, TValue, Compare>::Entry* end(const SortMap<TKey, TValue, Compare>& m)
 	{
-		return array::end(m.m_data);
+		return array::end(m._data);
 	}
 } // namespace sort_map
 
 template <typename TKey, typename TValue, typename Compare>
 inline SortMap<TKey, TValue, Compare>::SortMap(Allocator& a)
-	: m_is_sorted(true), m_data(a)
+	: _is_sorted(true), _data(a)
 {
 }
 

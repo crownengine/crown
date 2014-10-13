@@ -48,18 +48,18 @@ struct IdArray
 	const T& operator[](uint32_t i) const;
 
 	// The index of the first unused id
-	uint16_t m_freelist;
+	uint16_t _freelist;
 
 	// Next available unique id
-	uint16_t m_next_id;
-	uint16_t m_size;
+	uint16_t _next_id;
+	uint16_t _size;
 
 	// The last valid id is reserved and cannot be used to
 	// refer to Ids from the outside
-	Id m_sparse[MAX];
-	uint16_t m_sparse_to_dense[MAX];
-	uint16_t m_dense_to_sparse[MAX];
-	T m_objects[MAX];
+	Id _sparse[MAX];
+	uint16_t _sparse_to_dense[MAX];
+	uint16_t _dense_to_sparse[MAX];
+	T _objects[MAX];
 };
 
 /// Functions to manipulate IdArray.
@@ -94,28 +94,28 @@ namespace id_array
 	template <uint32_t MAX, typename T>
 	inline Id create(IdArray<MAX, T>& a, const T& object)
 	{
-		CE_ASSERT(a.m_size < MAX, "Object list full");
+		CE_ASSERT(a._size < MAX, "Object list full");
 
 		// Obtain a new id
 		Id id;
-		id.id = a.m_next_id++;
+		id.id = a._next_id++;
 
 		// Recycle slot if there are any
-		if (a.m_freelist != INVALID_ID)
+		if (a._freelist != INVALID_ID)
 		{
-			id.index = a.m_freelist;
-			a.m_freelist = a.m_sparse[a.m_freelist].index;
+			id.index = a._freelist;
+			a._freelist = a._sparse[a._freelist].index;
 		}
 		else
 		{
-			id.index = a.m_size;
+			id.index = a._size;
 		}
 
-		a.m_sparse[id.index] = id;
-		a.m_sparse_to_dense[id.index] = a.m_size;
-		a.m_dense_to_sparse[a.m_size] = id.index;
-		a.m_objects[a.m_size] = object;
-		a.m_size++;
+		a._sparse[id.index] = id;
+		a._sparse_to_dense[id.index] = a._size;
+		a._dense_to_sparse[a._size] = id.index;
+		a._objects[a._size] = object;
+		a._size++;
 
 		return id;
 	}
@@ -126,21 +126,21 @@ namespace id_array
 	{
 		CE_ASSERT(has(a, id), "IdArray does not have ID: %d,%d", id.id, id.index);
 
-		a.m_sparse[id.index].id = INVALID_ID;
-		a.m_sparse[id.index].index = a.m_freelist;
-		a.m_freelist = id.index;
+		a._sparse[id.index].id = INVALID_ID;
+		a._sparse[id.index].index = a._freelist;
+		a._freelist = id.index;
 
 		// Swap with last element
-		const uint32_t last = a.m_size - 1;
-		CE_ASSERT(last >= a.m_sparse_to_dense[id.index], "Swapping with previous item");
-		a.m_objects[a.m_sparse_to_dense[id.index]] = a.m_objects[last];
+		const uint32_t last = a._size - 1;
+		CE_ASSERT(last >= a._sparse_to_dense[id.index], "Swapping with previous item");
+		a._objects[a._sparse_to_dense[id.index]] = a._objects[last];
 
 		// Update tables
-		uint16_t std = a.m_sparse_to_dense[id.index];
-		uint16_t dts = a.m_dense_to_sparse[last];
-		a.m_sparse_to_dense[dts] = std;
-		a.m_dense_to_sparse[std] = dts;
-		a.m_size--;
+		uint16_t std = a._sparse_to_dense[id.index];
+		uint16_t dts = a._dense_to_sparse[last];
+		a._sparse_to_dense[dts] = std;
+		a._dense_to_sparse[std] = dts;
+		a._size--;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -149,62 +149,62 @@ namespace id_array
 	{
 		CE_ASSERT(has(a, id), "IdArray does not have ID: %d,%d", id.id, id.index);
 
-		return a.m_objects[a.m_sparse_to_dense[id.index]];
+		return a._objects[a._sparse_to_dense[id.index]];
 	}
 
 	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline bool has(const IdArray<MAX, T>& a, Id id)
 	{
-		return id.index < MAX && a.m_sparse[id.index].id == id.id;
+		return id.index < MAX && a._sparse[id.index].id == id.id;
 	}
 
 	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline uint32_t size(const IdArray<MAX, T>& a)
 	{
-		return a.m_size;
+		return a._size;
 	}
 
 	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline T* begin(IdArray<MAX, T>& a)
 	{
-		return a.m_objects;
+		return a._objects;
 	}
 
 	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline const T* begin(const IdArray<MAX, T>& a)
 	{
-		return a.m_objects;
+		return a._objects;
 	}
 
 	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline T* end(IdArray<MAX, T>& a)
 	{
-		return a.m_objects + a.m_size;
+		return a._objects + a._size;
 	}
 
 	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline const T* end(const IdArray<MAX, T>& a)
 	{
-		return a.m_objects + a.m_size;
+		return a._objects + a._size;
 	}
 } // namespace id_array
 
 //-----------------------------------------------------------------------------
 template <uint32_t MAX, typename T>
 inline IdArray<MAX, T>::IdArray()
-	: m_freelist(INVALID_ID)
-	, m_next_id(0)
-	, m_size(0)
+	: _freelist(INVALID_ID)
+	, _next_id(0)
+	, _size(0)
 {
 	for (uint32_t i = 0; i < MAX; i++)
 	{
-		m_sparse[i].id = INVALID_ID;
+		_sparse[i].id = INVALID_ID;
 	}
 }
 
@@ -212,16 +212,16 @@ inline IdArray<MAX, T>::IdArray()
 template <uint32_t MAX, typename T>
 inline T& IdArray<MAX, T>::operator[](uint32_t i)
 {
-	CE_ASSERT(i < m_size, "Index out of bounds");
-	return m_objects[i];
+	CE_ASSERT(i < _size, "Index out of bounds");
+	return _objects[i];
 }
 
 //-----------------------------------------------------------------------------
 template <uint32_t MAX, typename T>
 inline const T& IdArray<MAX, T>::operator[](uint32_t i) const
 {
-	CE_ASSERT(i < m_size, "Index out of bounds");
-	return m_objects[i];
+	CE_ASSERT(i < _size, "Index out of bounds");
+	return _objects[i];
 }
 
 } // namespace crown

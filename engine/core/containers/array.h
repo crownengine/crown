@@ -101,36 +101,36 @@ namespace array
 	template <typename T>
 	inline bool empty(const Array<T>& a)
 	{
-		return a.m_size == 0;
+		return a._size == 0;
 	}
 
 	template <typename T>
 	inline uint32_t size(const Array<T>& a)
 	{
-		return a.m_size;
+		return a._size;
 	}
 
 	template <typename T>
 	inline uint32_t capacity(const Array<T>& a)
 	{
-		return a.m_capacity;
+		return a._capacity;
 	}
 
 	template <typename T>
 	inline void resize(Array<T>& a, uint32_t size)
 	{
-		if (size > a.m_capacity)
+		if (size > a._capacity)
 		{
 			set_capacity(a, size);
 		}
 
-		a.m_size = size;
+		a._size = size;
 	}
 
 	template <typename T>
 	inline void reserve(Array<T>& a, uint32_t capacity)
 	{
-		if (capacity > a.m_capacity)
+		if (capacity > a._capacity)
 		{
 			grow(a, capacity);
 		}
@@ -139,28 +139,28 @@ namespace array
 	template <typename T>
 	inline void set_capacity(Array<T>& a, uint32_t capacity)
 	{
-		if (capacity == a.m_capacity)
+		if (capacity == a._capacity)
 		{
 			return;
 		}
 
-		if (capacity < a.m_size)
+		if (capacity < a._size)
 		{
 			resize(a, capacity);
 		}
 
 		if (capacity > 0)
 		{
-			T* tmp = a.m_array;
-			a.m_capacity = capacity;
+			T* tmp = a._array;
+			a._capacity = capacity;
 
-			a.m_array = (T*)a.m_allocator->allocate(capacity * sizeof(T), CE_ALIGNOF(T));
+			a._array = (T*)a._allocator->allocate(capacity * sizeof(T), CE_ALIGNOF(T));
 
-			memcpy(a.m_array, tmp, a.m_size * sizeof(T));
+			memcpy(a._array, tmp, a._size * sizeof(T));
 
 			if (tmp)
 			{
-				a.m_allocator->deallocate(tmp);
+				a._allocator->deallocate(tmp);
 			}
 		}
 	}
@@ -168,7 +168,7 @@ namespace array
 	template <typename T>
 	inline void grow(Array<T>& a, uint32_t min_capacity)
 	{
-		uint32_t new_capacity = a.m_capacity * 2 + 1;
+		uint32_t new_capacity = a._capacity * 2 + 1;
 
 		if (new_capacity < min_capacity)
 		{
@@ -181,123 +181,123 @@ namespace array
 	template <typename T>
 	inline void condense(Array<T>& a)
 	{
-		resize(a, a.m_size);
+		resize(a, a._size);
 	}
 
 	template <typename T>
 	inline uint32_t push_back(Array<T>& a, const T& item)
 	{
-		if (a.m_capacity == a.m_size)
+		if (a._capacity == a._size)
 		{
 			grow(a, 0);
 		}
 
-		a.m_array[a.m_size] = item;
+		a._array[a._size] = item;
 
-		return 	a.m_size++;
+		return 	a._size++;
 	}
 
 	template <typename T>
 	inline void pop_back(Array<T>& a)
 	{
-		CE_ASSERT(a.m_size > 0, "The array is empty");
+		CE_ASSERT(a._size > 0, "The array is empty");
 
-		a.m_size--;
+		a._size--;
 	}
 
 	template <typename T>
 	inline uint32_t push(Array<T>& a, const T* items, uint32_t count)
 	{
-		if (a.m_capacity <= a.m_size + count)
+		if (a._capacity <= a._size + count)
 		{
-			grow(a, a.m_size + count);
+			grow(a, a._size + count);
 		}
 
-		memcpy(&a.m_array[a.m_size], items, sizeof(T) * count);
-		a.m_size += count;
+		memcpy(&a._array[a._size], items, sizeof(T) * count);
+		a._size += count;
 
-		return a.m_size;
+		return a._size;
 	}
 
 	template <typename T>
 	inline void clear(Array<T>& a)
 	{
-		a.m_size = 0;
+		a._size = 0;
 	}
 
 	template <typename T>
 	inline const T* begin(const Array<T>& a)
 	{
-		return a.m_array;
+		return a._array;
 	}
 
 	template <typename T>
 	inline T* begin(Array<T>& a)
 	{
-		return a.m_array;
+		return a._array;
 	}
 
 	template <typename T>
 	inline const T* end(const Array<T>& a)
 	{
-		return a.m_array + a.m_size;
+		return a._array + a._size;
 	}
 
 	template <typename T>
 	inline T* end(Array<T>& a)
 	{
-		return a.m_array + a.m_size;
+		return a._array + a._size;
 	}
 
 	template <typename T>
 	inline T& front(Array<T>& a)
 	{
-		CE_ASSERT(a.m_size > 0, "The array is empty");
+		CE_ASSERT(a._size > 0, "The array is empty");
 
-		return a.m_array[0];
+		return a._array[0];
 	}
 
 	template <typename T>
 	inline const T& front(const Array<T>& a)
 	{
-		CE_ASSERT(a.m_size > 0, "The array is empty");
+		CE_ASSERT(a._size > 0, "The array is empty");
 
-		return a.m_array[0];
+		return a._array[0];
 	}
 
 	template <typename T>
 	inline T& back(Array<T>& a)
 	{
-		CE_ASSERT(a.m_size > 0, "The array is empty");
+		CE_ASSERT(a._size > 0, "The array is empty");
 
-		return a.m_array[a.m_size - 1];
+		return a._array[a._size - 1];
 	}
 
 	template <typename T>
 	inline const T& back(const Array<T>& a)
 	{
-		CE_ASSERT(a.m_size > 0, "The array is empty");
+		CE_ASSERT(a._size > 0, "The array is empty");
 
-		return a.m_array[a.m_size - 1];
+		return a._array[a._size - 1];
 	}
 } // namespace array
 
 template <typename T>
 inline Array<T>::Array(Allocator& allocator)
-	: m_allocator(&allocator), m_capacity(0), m_size(0), m_array(NULL)
+	: _allocator(&allocator), _capacity(0), _size(0), _array(NULL)
 {
 }
 
 template <typename T>
 inline Array<T>::Array(Allocator& allocator, uint32_t capacity)
-	: m_allocator(&allocator), m_capacity(0), m_size(0), m_array(NULL)
+	: _allocator(&allocator), _capacity(0), _size(0), _array(NULL)
 {
 	array::resize(*this, capacity);
 }
 
 template <typename T>
 inline Array<T>::Array(const Array<T>& other)
-	: m_allocator(other.m_allocator), m_capacity(0), m_size(0), m_array(NULL)
+	: _allocator(other._allocator), _capacity(0), _size(0), _array(NULL)
 {
 	*this = other;
 }
@@ -305,34 +305,34 @@ inline Array<T>::Array(const Array<T>& other)
 template <typename T>
 inline Array<T>::~Array()
 {
-	if (m_array)
+	if (_array)
 	{
-		m_allocator->deallocate(m_array);
+		_allocator->deallocate(_array);
 	}
 }
 
 template <typename T>
 inline T& Array<T>::operator[](uint32_t index)
 {
-	CE_ASSERT(index < m_size, "Index out of bounds");
+	CE_ASSERT(index < _size, "Index out of bounds");
 
-	return m_array[index];
+	return _array[index];
 }
 
 template <typename T>
 inline const T& Array<T>::operator[](uint32_t index) const
 {
-	CE_ASSERT(index < m_size, "Index out of bounds");
+	CE_ASSERT(index < _size, "Index out of bounds");
 
-	return m_array[index];
+	return _array[index];
 }
 
 template <typename T>
 inline Array<T>& Array<T>::operator=(const Array<T>& other)
 {
-	const uint32_t size = other.m_size;
+	const uint32_t size = other._size;
 	array::resize(*this, size);
-	memcpy(m_array, other.m_array, sizeof(T) * size);
+	memcpy(_array, other._array, sizeof(T) * size);
 	return *this;
 }
 

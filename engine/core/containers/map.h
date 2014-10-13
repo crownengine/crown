@@ -74,56 +74,56 @@ namespace map_internal
 	template <typename TKey, typename TValue>
 	inline uint32_t root(const Map<TKey, TValue>& m)
 	{
-		return m.m_root;
+		return m._root;
 	}
 
 	template <typename TKey, typename TValue>
 	inline uint32_t parent(const Map<TKey, TValue>& m, uint32_t n)
 	{
-		CE_ASSERT(n < vector::size(m.m_data), "Index out of bounds (size = %d, n = %d)", vector::size(m.m_data), n);
-		return m.m_data[n].parent;
+		CE_ASSERT(n < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), n);
+		return m._data[n].parent;
 	}
 
 	template <typename TKey, typename TValue>
 	inline uint32_t left(const Map<TKey, TValue>& m, uint32_t n)
 	{
-		CE_ASSERT(n < vector::size(m.m_data), "Index out of bounds (size = %d, n = %d)", vector::size(m.m_data), n);
-		return m.m_data[n].left;
+		CE_ASSERT(n < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), n);
+		return m._data[n].left;
 	}
 
 	template <typename TKey, typename TValue>
 	inline uint32_t right(const Map<TKey, TValue>& m, uint32_t n)
 	{
-		CE_ASSERT(n < vector::size(m.m_data), "Index out of bounds (size = %d, n = %d)", vector::size(m.m_data), n);
-		return m.m_data[n].right;
+		CE_ASSERT(n < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), n);
+		return m._data[n].right;
 	}
 
 	template <typename TKey, typename TValue>
 	inline uint32_t color(const Map<TKey, TValue>& m, uint32_t n)
 	{
-		CE_ASSERT(n < vector::size(m.m_data), "Index out of bounds (size = %d, n = %d)", vector::size(m.m_data), n);
-		return m.m_data[n].color;
+		CE_ASSERT(n < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), n);
+		return m._data[n].color;
 	}
 
 	#ifdef RBTREE_VERIFY
 	template<typename TKey, typename TValue>
 	inline int32_t dbg_verify(Map<TKey, TValue>& m, uint32_t n)
 	{
-		if (n == m.m_sentinel)
+		if (n == m._sentinel)
 		{
 			return 0;
 		}
 
-		if (left(m, n) != m.m_sentinel)
+		if (left(m, n) != m._sentinel)
 		{
 			CE_ASSERT(parent(m, left(m, n)) == n, "Bad RBTree");
-			CE_ASSERT(m.m_data[left(m, n)].key < m.m_data[n].key, "Bad RBTree");
+			CE_ASSERT(m._data[left(m, n)].key < m._data[n].key, "Bad RBTree");
 		}
 
-		if (right(m, n) != m.m_sentinel)
+		if (right(m, n) != m._sentinel)
 		{
 			CE_ASSERT(parent(m, right(m, n)) == n, "Bad RBTree");
-			CE_ASSERT(m.m_data[n].key < m.m_data[right(m, n)].key, "Bad RBTree");
+			CE_ASSERT(m._data[n].key < m._data[right(m, n)].key, "Bad RBTree");
 		}
 
 		int32_t bhL = dbg_verify(m, left(m, n));
@@ -148,7 +148,7 @@ namespace map_internal
 	template<typename TKey, typename TValue>
 	inline int32_t dump(Map<TKey, TValue>& m)
 	{
-		for (uint32_t i = 0; i < vector::size(m.m_data); i++)
+		for (uint32_t i = 0; i < vector::size(m._data); i++)
 		{
 			printf("%d = [%d, %d, %d] ", i, parent(m, i), left(m, i), right(m, i));
 		}
@@ -160,12 +160,12 @@ namespace map_internal
 	template <typename TKey, typename TValue>
 	inline uint32_t min(const Map<TKey, TValue>& m, uint32_t x)
 	{
-		if (x == m.m_sentinel)
+		if (x == m._sentinel)
 		{
 			return x;
 		}
 
-		while (left(m, x) != m.m_sentinel)
+		while (left(m, x) != m._sentinel)
 		{
 			x = left(m, x);
 		}
@@ -176,12 +176,12 @@ namespace map_internal
 	template <typename TKey, typename TValue>
 	inline uint32_t max(const Map<TKey, TValue>& m, uint32_t x)
 	{
-		if (x == m.m_sentinel)
+		if (x == m._sentinel)
 		{
 			return x;
 		}
 
-		while (right(m, x) != m.m_sentinel)
+		while (right(m, x) != m._sentinel)
 		{
 			x = right(m, x);
 		}
@@ -192,7 +192,7 @@ namespace map_internal
 	template <typename TKey, typename TValue>
 	inline uint32_t successor(const Map<TKey, TValue>& m, uint32_t x)
 	{
-		if (right(m, x) != m.m_sentinel)
+		if (right(m, x) != m._sentinel)
 		{
 			return min(m, right(m, x));
 		}
@@ -211,7 +211,7 @@ namespace map_internal
 	template <typename TKey, typename TValue>
 	inline uint32_t predecessor(const Map<TKey, TValue>& m, uint32_t x)
 	{
-		if (left(m, x) != m.m_sentinel)
+		if (left(m, x) != m._sentinel)
 		{
 			return max(m, left(m, x));
 		}
@@ -230,90 +230,90 @@ namespace map_internal
 	template <typename TKey, typename TValue>
 	inline void rotate_left(Map<TKey, TValue>& m, uint32_t x)
 	{
-		CE_ASSERT(x < vector::size(m.m_data), "Index out of bounds (size = %d, n = %d)", vector::size(m.m_data), x);
+		CE_ASSERT(x < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), x);
 
 		uint32_t y = right(m, x);
-		m.m_data[x].right = left(m, y);
+		m._data[x].right = left(m, y);
 
-		if (left(m, y) != m.m_sentinel)
+		if (left(m, y) != m._sentinel)
 		{
-			m.m_data[left(m, y)].parent = x;
+			m._data[left(m, y)].parent = x;
 		}
 
-		m.m_data[y].parent = parent(m, x);
+		m._data[y].parent = parent(m, x);
 
 		if (parent(m, x) == NIL)
 		{
-			m.m_root = y;
+			m._root = y;
 		}
 		else
 		{
 			if (x == left(m, parent(m, x)))
 			{
-				m.m_data[parent(m, x)].left = y;
+				m._data[parent(m, x)].left = y;
 			}
 			else
 			{
-				m.m_data[parent(m, x)].right = y;
+				m._data[parent(m, x)].right = y;
 			}
 		}
 
-		m.m_data[y].left = x;
-		m.m_data[x].parent = y;
+		m._data[y].left = x;
+		m._data[x].parent = y;
 	}
 
 	template <typename TKey, typename TValue>
 	inline void rotate_right(Map<TKey, TValue>& m, uint32_t x)
 	{
-		CE_ASSERT(x < vector::size(m.m_data), "Index out of bounds (size = %d, n = %d)", vector::size(m.m_data), x);
+		CE_ASSERT(x < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), x);
 
 		uint32_t y = left(m, x);
-		m.m_data[x].left = right(m, y);
+		m._data[x].left = right(m, y);
 
-		if (right(m, y) != m.m_sentinel)
+		if (right(m, y) != m._sentinel)
 		{
-			m.m_data[right(m, y)].parent = x;
+			m._data[right(m, y)].parent = x;
 		}
 
-		m.m_data[y].parent = parent(m, x);
+		m._data[y].parent = parent(m, x);
 
 		if (parent(m, x) == NIL)
 		{
-			m.m_root = y;
+			m._root = y;
 		}
 		else
 		{
 			if (x == left(m, parent(m, x)))
 			{
-				m.m_data[parent(m, x)].left = y;
+				m._data[parent(m, x)].left = y;
 			}
 			else
 			{
-				m.m_data[parent(m, x)].right = y;
+				m._data[parent(m, x)].right = y;
 			}
 		}
 
-		m.m_data[y].right = x;
-		m.m_data[x].parent = y;
+		m._data[y].right = x;
+		m._data[x].parent = y;
 	}
 
 	template <typename TKey, typename TValue>
 	inline void destroy(Map<TKey, TValue>& m, uint32_t n)
 	{
-		CE_ASSERT(n < vector::size(m.m_data), "Index out of bounds (size = %d, n = %d)", vector::size(m.m_data), n);
+		CE_ASSERT(n < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), n);
 
-		uint32_t x = vector::size(m.m_data) - 1;
+		uint32_t x = vector::size(m._data) - 1;
 
-		if (x == m.m_root)
+		if (x == m._root)
 		{
-			m.m_root = n;
+			m._root = n;
 
 			if (left(m, x) != NIL)
-				m.m_data[left(m, x)].parent = n;
+				m._data[left(m, x)].parent = n;
 			if (right(m, x) != NIL)
-				m.m_data[right(m, x)].parent = n;
+				m._data[right(m, x)].parent = n;
 
-			m.m_data[n] = m.m_data[x];
+			m._data[n] = m._data[x];
 		}
 		else
 		{
@@ -321,33 +321,33 @@ namespace map_internal
 			{
 				if (x == left(m, parent(m, x)))
 				{
-					m.m_data[parent(m, x)].left = n;
+					m._data[parent(m, x)].left = n;
 				}
 				else if (x == right(m, parent(m, x)))
 				{
-					m.m_data[parent(m, x)].right = n;
+					m._data[parent(m, x)].right = n;
 				}
 
 				if (left(m, x) != NIL)
-					m.m_data[left(m, x)].parent = n;
+					m._data[left(m, x)].parent = n;
 				if (right(m, x) != NIL)
-					m.m_data[right(m, x)].parent = n;
+					m._data[right(m, x)].parent = n;
 
-				m.m_data[n] = m.m_data[x];
+				m._data[n] = m._data[x];
 			}
 		}
 
 		#ifdef RBTREE_VERIFY
-			dbg_verify(m, m.m_root);
+			dbg_verify(m, m._root);
 		#endif
 
-		vector::pop_back(m.m_data);
+		vector::pop_back(m._data);
 	}
 
 	template <typename TKey, typename TValue>
 	inline void insert_fixup(Map<TKey, TValue>& m, uint32_t n)
 	{
-		CE_ASSERT(n < vector::size(m.m_data), "Index out of bounds (size = %d, n = %d)", vector::size(m.m_data), n);
+		CE_ASSERT(n < vector::size(m._data), "Index out of bounds (size = %d, n = %d)", vector::size(m._data), n);
 
 		uint32_t x;
 		uint32_t y;
@@ -362,9 +362,9 @@ namespace map_internal
 
 				if (color(m, y) == RED)
 				{
-					m.m_data[x].color = BLACK;
-					m.m_data[y].color = BLACK;
-					m.m_data[parent(m, x)].color = RED;
+					m._data[x].color = BLACK;
+					m._data[y].color = BLACK;
+					m._data[parent(m, x)].color = RED;
 					n = parent(m, x);
 					continue;
 				}
@@ -377,8 +377,8 @@ namespace map_internal
 						x = parent(m, n);
 					}
 
-					m.m_data[x].color = BLACK;
-					m.m_data[parent(m, x)].color = RED;
+					m._data[x].color = BLACK;
+					m._data[parent(m, x)].color = RED;
 					rotate_right(m, parent(m, x));
 				}
 			}
@@ -388,9 +388,9 @@ namespace map_internal
 
 				if (color(m, y) == RED)
 				{
-					m.m_data[x].color = BLACK;
-					m.m_data[y].color = BLACK;
-					m.m_data[parent(m, x)].color = RED;
+					m._data[x].color = BLACK;
+					m._data[y].color = BLACK;
+					m._data[parent(m, x)].color = RED;
 					n = parent(m, x);
 					continue;
 				}
@@ -403,8 +403,8 @@ namespace map_internal
 						x = parent(m, n);
 					}
 
-					m.m_data[x].color = BLACK;
-					m.m_data[parent(m, x)].color = RED;
+					m._data[x].color = BLACK;
+					m._data[parent(m, x)].color = RED;
 					rotate_left(m, parent(m, x));
 				}
 			}
@@ -414,22 +414,22 @@ namespace map_internal
 	template <typename TKey, typename TValue>
 	inline uint32_t inner_find(const Map<TKey, TValue>& m, const TKey key)
 	{
-		uint32_t x = m.m_root;
+		uint32_t x = m._root;
 
-		while (x != m.m_sentinel)
+		while (x != m._sentinel)
 		{
-			if (m.m_data[x].key < key)
+			if (m._data[x].key < key)
 			{
-				if (right(m, x) == m.m_sentinel)
+				if (right(m, x) == m._sentinel)
 				{
 					return x;
 				}
 
 				x = right(m, x);
 			}
-			else if (key < m.m_data[x].key)
+			else if (key < m._data[x].key)
 			{
-				if (left(m, x) == m.m_sentinel)
+				if (left(m, x) == m._sentinel)
 				{
 					return x;
 				}
@@ -450,7 +450,7 @@ namespace map_internal
 	{
 		uint32_t p = inner_find(m, key);
 
-		if (p != m.m_sentinel && m.m_data[p].key == key)
+		if (p != m._sentinel && m._data[p].key == key)
 			return p;
 
 		return NIL;
@@ -461,7 +461,7 @@ namespace map_internal
 	{
 		uint32_t p = inner_find(m, key);
 
-		if (p != m.m_sentinel && m.m_data[p].key == key)
+		if (p != m._sentinel && m._data[p].key == key)
 		{
 			return p;
 		}
@@ -470,32 +470,32 @@ namespace map_internal
 		n.key = key;
 		n.value = TValue();
 		n.color = RED;
-		n.left = m.m_sentinel;
-		n.right = m.m_sentinel;
+		n.left = m._sentinel;
+		n.right = m._sentinel;
 		n.parent = NIL;
 
-		if (p == m.m_sentinel)
+		if (p == m._sentinel)
 		{
-			m.m_root = n;
+			m._root = n;
 		}
 		else
 		{
-			if (key < m.m_data[p].key)
+			if (key < m._data[p].key)
 			{
-				m.m_data[p].left = n;
+				m._data[p].left = n;
 			}
 			else
 			{
-				m.m_data[p].right = n;
+				m._data[p].right = n;
 			}
 
-			m.m_data[n].parent = p;
+			m._data[n].parent = p;
 		}
 
 		add_fixup(m, n);
-		m.m_data[m.m_root].color = BLACK;
+		m._data[m._root].color = BLACK;
 		#ifdef RBTREE_VERIFY
-			dbg_verify(m, m.m_root);
+			dbg_verify(m, m._root);
 		#endif
 		return n;
 	}
@@ -506,8 +506,8 @@ namespace map
 	template <typename TKey, typename TValue>
 	uint32_t size(const Map<TKey, TValue>& m)
 	{
-		CE_ASSERT(vector::size(m.m_data) > 0, "Bad Map"); // There should be at least sentinel
-		return vector::size(m.m_data) - 1;
+		CE_ASSERT(vector::size(m._data) > 0, "Bad Map"); // There should be at least sentinel
+		return vector::size(m._data) - 1;
 	}
 
 	template <typename TKey, typename TValue>
@@ -521,9 +521,9 @@ namespace map
 	{
 		uint32_t p = map_internal::inner_find(m, key);
 
-		if (p != m.m_sentinel && m.m_data[p].key == key)
+		if (p != m._sentinel && m._data[p].key == key)
 		{
-			return m.m_data[p].value;
+			return m._data[p].value;
 		}
 
 		return deffault;
@@ -536,39 +536,39 @@ namespace map
 		node.key = key;
 		node.value = value;
 		node.color = map_internal::RED;
-		node.left = m.m_sentinel;
-		node.right = m.m_sentinel;
+		node.left = m._sentinel;
+		node.right = m._sentinel;
 		node.parent = map_internal::NIL;
-		uint32_t n = vector::push_back(m.m_data, node);
-		uint32_t x = m.m_root;
+		uint32_t n = vector::push_back(m._data, node);
+		uint32_t x = m._root;
 		uint32_t y = map_internal::NIL;
 
-		if (x == m.m_sentinel)
-			m.m_root = n;
+		if (x == m._sentinel)
+			m._root = n;
 		else
 		{
-			while (x != m.m_sentinel)
+			while (x != m._sentinel)
 			{
 				y = x;
 
-				if (key < m.m_data[x].key)
-					x = m.m_data[x].left;
+				if (key < m._data[x].key)
+					x = m._data[x].left;
 				else
-					x = m.m_data[x].right;
+					x = m._data[x].right;
 			}
 
-			if (key < m.m_data[y].key)
-				m.m_data[y].left = n;
+			if (key < m._data[y].key)
+				m._data[y].left = n;
 			else
-				m.m_data[y].right = n;
+				m._data[y].right = n;
 
-			m.m_data[n].parent = y;
+			m._data[n].parent = y;
 		}
 
 		map_internal::insert_fixup(m, n);
-		m.m_data[m.m_root].color = map_internal::BLACK;
+		m._data[m._root].color = map_internal::BLACK;
 		#ifdef RBTREE_VERIFY
-			map_internal::dbg_verify(m, m.m_root);
+			map_internal::dbg_verify(m, m._root);
 		#endif
 	}
 
@@ -579,7 +579,7 @@ namespace map
 
 		uint32_t n = inner_find(m, key);
 
-		if (!(m.m_data[n].key == key))
+		if (!(m._data[n].key == key))
 		{
 			return;
 		}
@@ -587,7 +587,7 @@ namespace map
 		uint32_t x;
 		uint32_t y;
 
-		if (left(m, n) == m.m_sentinel || right(m, n) == m.m_sentinel)
+		if (left(m, n) == m._sentinel || right(m, n) == m._sentinel)
 		{
 			y = n;
 		}
@@ -596,7 +596,7 @@ namespace map
 			y = successor(m, n);
 		}
 
-		if (left(m, y) != m.m_sentinel)
+		if (left(m, y) != m._sentinel)
 		{
 			x = left(m, y);
 		}
@@ -605,28 +605,28 @@ namespace map
 			x = right(m, y);
 		}
 
-		m.m_data[x].parent = parent(m, y);
+		m._data[x].parent = parent(m, y);
 
 		if (parent(m, y) != map_internal::NIL)
 		{
 			if (y == left(m, parent(m, y)))
 			{
-				m.m_data[parent(m, y)].left = x;
+				m._data[parent(m, y)].left = x;
 			}
 			else
 			{
-				m.m_data[parent(m, y)].right = x;
+				m._data[parent(m, y)].right = x;
 			}
 		}
 		else
 		{
-			m.m_root = x;
+			m._root = x;
 		}
 
 		if (y != n)
 		{
-			m.m_data[n].key = m.m_data[y].key;
-			m.m_data[n].value = m.m_data[y].value;
+			m._data[n].key = m._data[y].key;
+			m._data[n].value = m._data[y].value;
 		}
 
 		// Do the fixup
@@ -634,7 +634,7 @@ namespace map
 		{
 			uint32_t y;
 
-			while (x != m.m_root && color(m, x) == map_internal::BLACK)
+			while (x != m._root && color(m, x) == map_internal::BLACK)
 			{
 				if (x == left(m, parent(m, x)))
 				{
@@ -642,32 +642,32 @@ namespace map
 
 					if (color(m, y) == map_internal::RED)
 					{
-						m.m_data[y].color = map_internal::BLACK;
-						m.m_data[parent(m, x)].color = map_internal::RED;
+						m._data[y].color = map_internal::BLACK;
+						m._data[parent(m, x)].color = map_internal::RED;
 						rotate_left(m, parent(m, x));
 						y = right(m, parent(m, x));
 					}
 
 					if (color(m, left(m, y)) == map_internal::BLACK && color(m, right(m, y)) == map_internal::BLACK)
 					{
-						m.m_data[y].color = map_internal::RED;
+						m._data[y].color = map_internal::RED;
 						x = parent(m, x);
 					}
 					else
 					{
 						if (color(m, right(m, y)) == map_internal::BLACK)
 						{
-							m.m_data[left(m, y)].color = map_internal::BLACK;
-							m.m_data[y].color = map_internal::RED;
+							m._data[left(m, y)].color = map_internal::BLACK;
+							m._data[y].color = map_internal::RED;
 							rotate_right(m, y);
 							y = right(m, parent(m, x));
 						}
 
-						m.m_data[y].color = color(m, parent(m, x));
-						m.m_data[parent(m, x)].color = map_internal::BLACK;
-						m.m_data[right(m, y)].color = map_internal::BLACK;
+						m._data[y].color = color(m, parent(m, x));
+						m._data[parent(m, x)].color = map_internal::BLACK;
+						m._data[right(m, y)].color = map_internal::BLACK;
 						rotate_left(m, parent(m, x));
-						x = m.m_root;
+						x = m._root;
 					}
 				}
 				else
@@ -676,52 +676,52 @@ namespace map
 
 					if (color(m, y) == map_internal::RED)
 					{
-						m.m_data[y].color = map_internal::BLACK;
-						m.m_data[parent(m, x)].color = map_internal::RED;
+						m._data[y].color = map_internal::BLACK;
+						m._data[parent(m, x)].color = map_internal::RED;
 						rotate_right(m, parent(m, x));
 						y = left(m, parent(m, x));
 					}
 
 					if (color(m, right(m, y)) == map_internal::BLACK && color(m, left(m, y)) == map_internal::BLACK)
 					{
-						m.m_data[y].color = map_internal::RED;
+						m._data[y].color = map_internal::RED;
 						x = parent(m, x);
 					}
 					else
 					{
 						if (color(m, left(m, y)) == map_internal::BLACK)
 						{
-							m.m_data[right(m, y)].color = map_internal::BLACK;
-							m.m_data[y].color = map_internal::RED;
+							m._data[right(m, y)].color = map_internal::BLACK;
+							m._data[y].color = map_internal::RED;
 							rotate_left(m, y);
 							y = left(m, parent(m, x));
 						}
 
-						m.m_data[y].color = color(m, parent(m, x));
-						m.m_data[parent(m, x)].color = map_internal::BLACK;
-						m.m_data[left(m, y)].color = map_internal::BLACK;
+						m._data[y].color = color(m, parent(m, x));
+						m._data[parent(m, x)].color = map_internal::BLACK;
+						m._data[left(m, y)].color = map_internal::BLACK;
 						rotate_right(m, parent(m, x));
-						x = m.m_root;
+						x = m._root;
 					}
 				}
 			}
 
-			m.m_data[x].color = map_internal::BLACK;
+			m._data[x].color = map_internal::BLACK;
 		}
 
 		destroy(m, y);
 	 	#ifdef RBTREE_VERIFY
-			map_internal::dbg_verify(m, m.m_root);
+			map_internal::dbg_verify(m, m._root);
 	 	#endif
 	}
 
 	template <typename TKey, typename TValue>
 	void clear(Map<TKey, TValue>& m)
 	{
-		vector::clear(m.m_data);
+		vector::clear(m._data);
 
-		m.m_root = 0;
-		m.m_sentinel = 0;
+		m._root = 0;
+		m._sentinel = 0;
 
 		typename Map<TKey, TValue>::Node r;
 		r.key = TKey();
@@ -730,25 +730,25 @@ namespace map
 		r.right = map_internal::NIL;
 		r.parent = map_internal::NIL;
 		r.color = map_internal::BLACK;
-		vector::push_back(m.m_data, r);
+		vector::push_back(m._data, r);
 	}
 
 	template <typename TKey, typename TValue>
 	const typename Map<TKey, TValue>::Node* begin(const Map<TKey, TValue>& m)
 	{
-		return vector::begin(m.m_data) + 1; // Skip sentinel at index 0
+		return vector::begin(m._data) + 1; // Skip sentinel at index 0
 	}
 
 	template <typename TKey, typename TValue>
 	const typename Map<TKey, TValue>::Node* end(const Map<TKey, TValue>& m)
 	{
-		return vector::end(m.m_data);
+		return vector::end(m._data);
 	}
 } // namespace map
 
 template <typename TKey, typename TValue>
 inline Map<TKey, TValue>::Map(Allocator& a)
-	: m_data(a)
+	: _data(a)
 {
 	map::clear(*this);
 }

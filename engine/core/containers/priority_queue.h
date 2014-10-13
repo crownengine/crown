@@ -54,29 +54,29 @@ namespace priority_queue
 	template <typename T>
 	const T& top(const PriorityQueue<T>& q)
 	{
-		return array::front(q.m_queue);
+		return array::front(q._queue);
 	}
 
 	//-----------------------------------------------------------------------------
 	template <typename T>
 	void push(PriorityQueue<T>& q, const T& item)
 	{
-		array::push_back(q.m_queue, item);
-		std::push_heap(array::begin(q.m_queue), array::end(q.m_queue));
+		array::push_back(q._queue, item);
+		std::push_heap(array::begin(q._queue), array::end(q._queue));
 	}
 
 	//-----------------------------------------------------------------------------
 	template <typename T>
 	void pop(PriorityQueue<T>& q)
 	{
-		std::pop_heap(array::begin(q.m_queue), array::end(q.m_queue));
-		array::pop_back(q.m_queue);
+		std::pop_heap(array::begin(q._queue), array::end(q._queue));
+		array::pop_back(q._queue);
 	}
 } // namespace priority_queue
 
 template <typename T>
 PriorityQueue<T>::PriorityQueue(Allocator& a)
-	: m_queue(a)
+	: _queue(a)
 {
 }
 

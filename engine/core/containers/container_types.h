@@ -56,10 +56,10 @@ struct Array
 
 	Array<T>& operator=(const Array<T>& other);
 
-	Allocator* m_allocator;
-	uint32_t m_capacity;
-	uint32_t m_size;
-	T* m_array;
+	Allocator* _allocator;
+	uint32_t _capacity;
+	uint32_t _size;
+	T* _array;
 };
 
 /// Dynamic array of objects.
@@ -82,7 +82,7 @@ struct Vector
 
 	const Vector<T>& operator=(const Vector<T>& other);
 
-	Array<T> m_array;
+	Array<T> _array;
 };
 
 /// Circular buffer double-ended queue of POD items.
@@ -101,9 +101,9 @@ struct Queue
 	/// Random access by index
 	const T& operator[](uint32_t index) const;
 
-	uint32_t m_read;
-	uint32_t m_size;
-	Array<T> m_queue;
+	uint32_t _read;
+	uint32_t _size;
+	Array<T> _queue;
 };
 
 /// Priority queue of POD items.
@@ -114,7 +114,7 @@ struct PriorityQueue
 {
 	PriorityQueue(Allocator& a);
 
-	Array<T> m_queue;
+	Array<T> _queue;
 };
 
 /// Hash from an uint64_t to POD items. If you want to use a generic key
@@ -156,9 +156,9 @@ struct Map
 		uint32_t color;
 	};
 
-	uint32_t m_root;
-	uint32_t m_sentinel;
-	Vector<Node> m_data;
+	uint32_t _root;
+	uint32_t _sentinel;
+	Vector<Node> _data;
 };
 
 /// Sorted map from key to POD items.
@@ -175,8 +175,8 @@ struct SortMap
 		TValue value;
 	};
 
-	bool m_is_sorted;
-	Array<Entry> m_data;
+	bool _is_sorted;
+	Array<Entry> _data;
 };
 
 } // namespace crown
