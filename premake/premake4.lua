@@ -168,7 +168,7 @@ solution "crown"
 			CROWN_SOURCE_DIR .. "/engine/core/filesystem",
 			CROWN_SOURCE_DIR .. "/engine/core/json",
 			CROWN_SOURCE_DIR .. "/engine/core/math",
-			CROWN_SOURCE_DIR .. "/engine/core/mem",
+			CROWN_SOURCE_DIR .. "/engine/core/memory",
 			CROWN_SOURCE_DIR .. "/engine/core/network",
 			CROWN_SOURCE_DIR .. "/engine/core/settings",
 			CROWN_SOURCE_DIR .. "/engine/core/strings",
