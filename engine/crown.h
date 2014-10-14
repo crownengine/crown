@@ -30,6 +30,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+	struct Platform
+	{
+		enum Enum
+		{
+			LINUX = 0,
+			WINDOWS = 1,
+			ANDROID = 2,
+
+			COUNT
+		};
+	};
+
 	struct ConfigSettings
 	{
 		uint16_t console_port;
@@ -43,7 +55,7 @@ namespace crown
 	{
 		const char* source_dir;
 		const char* bundle_dir;
-		const char* platform;
+		Platform::Enum platform;
 		bool wait_console;
 		bool do_compile;
 		bool do_continue;

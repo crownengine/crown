@@ -39,11 +39,11 @@ public:
 
 	BundleCompiler(const char* source_dir, const char* bundle_dir);
 
-	bool compile(const char* type, const char* name, const char* platform = "linux");
+	bool compile(const char* type, const char* name, Platform::Enum platform);
 
 	/// Compiles all the resources found in @a source_dir and puts them in @a bundle_dir.
 	/// Returns true on success, false otherwise.
-	bool compile_all(const char* platform);
+	bool compile_all(Platform::Enum platform);
 
 	void scan(const char* cur_dir, Vector<DynamicString>& files);
 

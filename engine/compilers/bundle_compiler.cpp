@@ -51,7 +51,7 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 }
 
 //-----------------------------------------------------------------------------
-bool BundleCompiler::compile(const char* type, const char* name, const char* platform)
+bool BundleCompiler::compile(const char* type, const char* name, Platform::Enum platform)
 {
 	const ResourceId id(type, name);
 	char out_name[512];
@@ -68,7 +68,7 @@ bool BundleCompiler::compile(const char* type, const char* name, const char* pla
 }
 
 //-----------------------------------------------------------------------------
-bool BundleCompiler::compile_all(const char* platform)
+bool BundleCompiler::compile_all(Platform::Enum platform)
 {
 	Vector<DynamicString> files(default_allocator());
 	BundleCompiler::scan("", files);

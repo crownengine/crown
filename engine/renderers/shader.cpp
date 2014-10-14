@@ -35,6 +35,13 @@ namespace crown
 {
 namespace shader_resource
 {
+	static const char* s_scplatform[Platform::COUNT] =
+	{
+		"linux",
+		"windows",
+		"android"
+	};
+
 	//-----------------------------------------------------------------------------
 	void compile(const char* path, CompileOptions& opts)
 	{
@@ -69,7 +76,7 @@ namespace shader_resource
 			"-o", tmpvs_path.c_str(),
 			"--varyingdef", varying_def_path.c_str(),
 			"--type", "vertex",
-			"--platform", opts.platform(),
+			"--platform", s_scplatform[opts.platform()],
 #if CROWN_PLATFORM_WINDOWS
 			"--profile", "vs_3_0",
 #endif
@@ -84,7 +91,7 @@ namespace shader_resource
 			"-o", tmpfs_path.c_str(),
 			"--varyingdef", varying_def_path.c_str(),
 			"--type", "fragment",
-			"--platform", opts.platform(),
+			"--platform", s_scplatform[opts.platform()],
 #if CROWN_PLATFORM_WINDOWS
 			"--profile", "ps_3_0",
 #endif

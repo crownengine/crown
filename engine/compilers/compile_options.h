@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "filesystem.h"
 #include "reader_writer.h"
+#include "crown.h"
 
 namespace crown
 {
@@ -36,7 +37,7 @@ typedef Array<char> Buffer;
 
 struct CompileOptions
 {
-	CompileOptions(Filesystem& fs, File* out, const char* platform)
+	CompileOptions(Filesystem& fs, File* out, Platform::Enum platform)
 		: _fs(fs)
 		, _bw(*out)
 		, _platform(platform)
@@ -64,9 +65,10 @@ struct CompileOptions
 		_fs.delete_file(path);
 	}
 
-	void write(const void* data, size_t size)
+	BinaryWriter& write(const void* data, size_t size)
 	{
 		_bw.write(data, size);
+		return _bw;
 	}
 
 	template <typename T>
@@ -76,14 +78,22 @@ struct CompileOptions
 		return _bw;
 	}
 
-	const char* platform() const
+	BinaryWriter& write(const Buffer& data)
+	{
+		if (array::size(data))
+			_bw.write(array::begin(data), array::size(data));
+
+		return _bw;
+	}
+
+	Platform::Enum platform() const
 	{
 		return _platform;
 	}
 
 	Filesystem& _fs;
 	BinaryWriter _bw;
-	const char* _platform;
+	Platform::Enum _platform;
 };
 
 } // namespace crown

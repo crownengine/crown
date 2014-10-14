@@ -45,6 +45,30 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
+
+struct PlatformInfo
+{
+	const char* name;
+	Platform::Enum target;
+};
+
+static const PlatformInfo s_platform[Platform::COUNT] =
+{
+	{ "linux",   Platform::LINUX   },
+	{ "windows", Platform::WINDOWS },
+	{ "android", Platform::ANDROID }
+};
+
+static Platform::Enum string_to_platform(const char* platform)
+{
+	for (uint32_t i = 0; platform != NULL && i < Platform::COUNT; i++)
+	{
+		if (string::strcmp(platform, s_platform[i].name) == 0)
+			return s_platform[i].target;
+	}
+	return Platform::COUNT;
+}
+
 static void help(const char* msg = NULL)
 {
 	if (msg)
@@ -68,8 +92,8 @@ static void help(const char* msg = NULL)
 		"  --platform <platform>      Compile resources for the given <platform>.\n"
 		"      Possible values for <platform> are:\n"
 		"          linux\n"
-		"          android\n"
 		"          windows\n"
+		"          android\n"
 		"  --continue                 Continue the execution after the resource compilation step.\n"
 		"  --host                     Read resources from a remote engine instance.\n"
 		"  --wait-console             Wait for a console connection before starting up.\n"
@@ -81,7 +105,7 @@ CommandLineSettings parse_command_line(int argc, char** argv)
 	CommandLineSettings cls;
 	cls.source_dir = NULL;
 	cls.bundle_dir = NULL;
-	cls.platform = NULL;
+	cls.platform = Platform::COUNT;
 	cls.wait_console = false;
 	cls.do_compile = false;
 	cls.do_continue = false;
@@ -109,13 +133,12 @@ CommandLineSettings parse_command_line(int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 
-	cls.platform = cmd.get_parameter("platform");
 	cls.wait_console = cmd.has_argument("wait-console");
 	cls.do_compile = cmd.has_argument("compile");
 	cls.do_continue = cmd.has_argument("continue");
 
-	cls.platform = cmd.get_parameter("platform");
-	if (cls.do_compile && !cls.platform)
+	cls.platform = string_to_platform(cmd.get_parameter("platform"));
+	if (cls.do_compile && cls.platform == Platform::COUNT)
 	{
 		help("Platform must be specified.");
 		exit(EXIT_FAILURE);
