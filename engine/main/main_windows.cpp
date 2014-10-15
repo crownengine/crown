@@ -70,93 +70,94 @@ static KeyboardButton::Enum win_translate_key(int32_t winkey)
 {
 	switch (winkey)
 	{
-		case VK_BACK:		return KeyboardButton::BACKSPACE;
-		case VK_TAB:		return KeyboardButton::TAB;
-		case VK_SPACE:		return KeyboardButton::SPACE;
-		case VK_ESCAPE:		return KeyboardButton::ESCAPE;
-		case VK_RETURN:		return KeyboardButton::ENTER;
-		case VK_F1:			return KeyboardButton::F1;
-		case VK_F2:			return KeyboardButton::F2;
-		case VK_F3:			return KeyboardButton::F3;
-		case VK_F4:			return KeyboardButton::F4;
-		case VK_F5:			return KeyboardButton::F5;
-		case VK_F6:			return KeyboardButton::F6;
-		case VK_F7:			return KeyboardButton::F7;
-		case VK_F8:			return KeyboardButton::F8;
-		case VK_F9:			return KeyboardButton::F9;
-		case VK_F10:		return KeyboardButton::F10;
-		case VK_F11:		return KeyboardButton::F11;
-		case VK_F12:		return KeyboardButton::F12;
-		case VK_HOME:		return KeyboardButton::HOME;
-		case VK_LEFT:		return KeyboardButton::LEFT;
-		case VK_UP:			return KeyboardButton::UP;
-		case VK_RIGHT:		return KeyboardButton::RIGHT;
-		case VK_DOWN:		return KeyboardButton::DOWN;
-		case VK_PRIOR:		return KeyboardButton::PAGE_UP;
-		case VK_NEXT:		return KeyboardButton::PAGE_DOWN;
-		case VK_LSHIFT:		return KeyboardButton::LSHIFT;
-		case VK_RSHIFT:		return KeyboardButton::RSHIFT;
-		case VK_LCONTROL:	return KeyboardButton::LCONTROL;
-		case VK_RCONTROL:	return KeyboardButton::RCONTROL;
-		case VK_CAPITAL:	return KeyboardButton::CAPS_LOCK;
-		case VK_LMENU:		return KeyboardButton::LALT;
-		case VK_RMENU:		return KeyboardButton::RALT;
-		case VK_LWIN:		return KeyboardButton::LSUPER;
-		case VK_RWIN:		return KeyboardButton::RSUPER;
-		case VK_NUMPAD0:	return KeyboardButton::KP_0;
-		case VK_NUMPAD1:	return KeyboardButton::KP_1;
-		case VK_NUMPAD2:	return KeyboardButton::KP_2;
-		case VK_NUMPAD3:	return KeyboardButton::KP_3;
-		case VK_NUMPAD4:	return KeyboardButton::KP_4;
-		case VK_NUMPAD5:	return KeyboardButton::KP_5;
-		case VK_NUMPAD6:	return KeyboardButton::KP_6;
-		case VK_NUMPAD7:	return KeyboardButton::KP_7;
-		case VK_NUMPAD8:	return KeyboardButton::KP_8;
-		case VK_NUMPAD9:	return KeyboardButton::KP_9;
-		case '0':			return KeyboardButton::NUM_0;
-		case '1':			return KeyboardButton::NUM_1;
-		case '2':			return KeyboardButton::NUM_2;
-		case '3':			return KeyboardButton::NUM_3;
-		case '4':			return KeyboardButton::NUM_4;
-		case '5':			return KeyboardButton::NUM_5;
-		case '6':			return KeyboardButton::NUM_6;
-		case '7':			return KeyboardButton::NUM_7;
-		case '8':			return KeyboardButton::NUM_8;
-		case '9':			return KeyboardButton::NUM_9;
-		case 'A':			return KeyboardButton::A;
-		case 'B':			return KeyboardButton::B;
-		case 'C':			return KeyboardButton::C;
-		case 'D':			return KeyboardButton::D;
-		case 'E':			return KeyboardButton::E;
-		case 'F':			return KeyboardButton::F;
-		case 'G':			return KeyboardButton::G;
-		case 'H':			return KeyboardButton::H;
-		case 'I':			return KeyboardButton::I;
-		case 'J':			return KeyboardButton::J;
-		case 'K':			return KeyboardButton::K;
-		case 'L':			return KeyboardButton::L;
-		case 'M':			return KeyboardButton::M;
-		case 'N':			return KeyboardButton::N;
-		case 'O':			return KeyboardButton::O;
-		case 'P':			return KeyboardButton::P;
-		case 'Q':			return KeyboardButton::Q;
-		case 'R':			return KeyboardButton::R;
-		case 'S':			return KeyboardButton::S;
-		case 'T':			return KeyboardButton::T;
-		case 'U':			return KeyboardButton::U;
-		case 'V':			return KeyboardButton::V;
-		case 'W':			return KeyboardButton::W;
-		case 'X':			return KeyboardButton::X;
-		case 'Y':			return KeyboardButton::Y;
-		case 'Z':			return KeyboardButton::Z;
-		default:			return KeyboardButton::NONE;
+		case VK_BACK:     return KeyboardButton::BACKSPACE;
+		case VK_TAB:      return KeyboardButton::TAB;
+		case VK_SPACE:    return KeyboardButton::SPACE;
+		case VK_ESCAPE:   return KeyboardButton::ESCAPE;
+		case VK_RETURN:   return KeyboardButton::ENTER;
+		case VK_F1:       return KeyboardButton::F1;
+		case VK_F2:       return KeyboardButton::F2;
+		case VK_F3:       return KeyboardButton::F3;
+		case VK_F4:       return KeyboardButton::F4;
+		case VK_F5:       return KeyboardButton::F5;
+		case VK_F6:       return KeyboardButton::F6;
+		case VK_F7:       return KeyboardButton::F7;
+		case VK_F8:       return KeyboardButton::F8;
+		case VK_F9:       return KeyboardButton::F9;
+		case VK_F10:      return KeyboardButton::F10;
+		case VK_F11:      return KeyboardButton::F11;
+		case VK_F12:      return KeyboardButton::F12;
+		case VK_HOME:     return KeyboardButton::HOME;
+		case VK_LEFT:     return KeyboardButton::LEFT;
+		case VK_UP:       return KeyboardButton::UP;
+		case VK_RIGHT:    return KeyboardButton::RIGHT;
+		case VK_DOWN:     return KeyboardButton::DOWN;
+		case VK_PRIOR:    return KeyboardButton::PAGE_UP;
+		case VK_NEXT:     return KeyboardButton::PAGE_DOWN;
+		case VK_LSHIFT:   return KeyboardButton::LSHIFT;
+		case VK_RSHIFT:   return KeyboardButton::RSHIFT;
+		case VK_LCONTROL: return KeyboardButton::LCONTROL;
+		case VK_RCONTROL: return KeyboardButton::RCONTROL;
+		case VK_CAPITAL:  return KeyboardButton::CAPS_LOCK;
+		case VK_LMENU:    return KeyboardButton::LALT;
+		case VK_RMENU:    return KeyboardButton::RALT;
+		case VK_LWIN:     return KeyboardButton::LSUPER;
+		case VK_RWIN:     return KeyboardButton::RSUPER;
+		case VK_NUMPAD0:  return KeyboardButton::KP_0;
+		case VK_NUMPAD1:  return KeyboardButton::KP_1;
+		case VK_NUMPAD2:  return KeyboardButton::KP_2;
+		case VK_NUMPAD3:  return KeyboardButton::KP_3;
+		case VK_NUMPAD4:  return KeyboardButton::KP_4;
+		case VK_NUMPAD5:  return KeyboardButton::KP_5;
+		case VK_NUMPAD6:  return KeyboardButton::KP_6;
+		case VK_NUMPAD7:  return KeyboardButton::KP_7;
+		case VK_NUMPAD8:  return KeyboardButton::KP_8;
+		case VK_NUMPAD9:  return KeyboardButton::KP_9;
+		case '0':         return KeyboardButton::NUM_0;
+		case '1':         return KeyboardButton::NUM_1;
+		case '2':         return KeyboardButton::NUM_2;
+		case '3':         return KeyboardButton::NUM_3;
+		case '4':         return KeyboardButton::NUM_4;
+		case '5':         return KeyboardButton::NUM_5;
+		case '6':         return KeyboardButton::NUM_6;
+		case '7':         return KeyboardButton::NUM_7;
+		case '8':         return KeyboardButton::NUM_8;
+		case '9':         return KeyboardButton::NUM_9;
+		case 'A':         return KeyboardButton::A;
+		case 'B':         return KeyboardButton::B;
+		case 'C':         return KeyboardButton::C;
+		case 'D':         return KeyboardButton::D;
+		case 'E':         return KeyboardButton::E;
+		case 'F':         return KeyboardButton::F;
+		case 'G':         return KeyboardButton::G;
+		case 'H':         return KeyboardButton::H;
+		case 'I':         return KeyboardButton::I;
+		case 'J':         return KeyboardButton::J;
+		case 'K':         return KeyboardButton::K;
+		case 'L':         return KeyboardButton::L;
+		case 'M':         return KeyboardButton::M;
+		case 'N':         return KeyboardButton::N;
+		case 'O':         return KeyboardButton::O;
+		case 'P':         return KeyboardButton::P;
+		case 'Q':         return KeyboardButton::Q;
+		case 'R':         return KeyboardButton::R;
+		case 'S':         return KeyboardButton::S;
+		case 'T':         return KeyboardButton::T;
+		case 'U':         return KeyboardButton::U;
+		case 'V':         return KeyboardButton::V;
+		case 'W':         return KeyboardButton::W;
+		case 'X':         return KeyboardButton::X;
+		case 'Y':         return KeyboardButton::Y;
+		case 'Z':         return KeyboardButton::Z;
+		default:          return KeyboardButton::NONE;
 	}
 }
 
 struct WindowsDevice
 {
 	WindowsDevice()
-		: m_hwnd(0)
+		: _hwnd(NULL)
+		, _hdc(NULL)
 	{
 	}
 
@@ -176,7 +177,7 @@ struct WindowsDevice
 		wnd.hIconSm = LoadIcon(instance, IDI_APPLICATION);
 		RegisterClassExA(&wnd);
 
-		m_hwnd = CreateWindowA(
+		_hwnd = CreateWindowA(
 					"crown",
 					"Crown",
 					WS_OVERLAPPEDWINDOW|WS_VISIBLE,
@@ -189,7 +190,7 @@ struct WindowsDevice
 					instance,
 					0);
 
-		bgfx::winSetHwnd(m_hwnd);
+		bgfx::winSetHwnd(_hwnd);
 
 		// Start main thread
 		MainThreadArgs mta;
@@ -212,7 +213,7 @@ struct WindowsDevice
 		}
 
 		main_thread.stop();
-		DestroyWindow(m_hwnd);
+		DestroyWindow(_hwnd);
 		return EXIT_SUCCESS;
 	}
 
@@ -228,14 +229,14 @@ struct WindowsDevice
 			case WM_QUIT:
 			case WM_CLOSE:
 			{
-				m_queue.push_exit_event(0);
+				_queue.push_exit_event(0);
 				break;
 			}
 			case WM_SIZE:
 			{
 				uint32_t width = GET_X_LPARAM(lparam);
 				uint32_t height = GET_Y_LPARAM(lparam);
-				m_queue.push_metrics_event(0, 0, width, height);
+				_queue.push_metrics_event(0, 0, width, height);
 				break;
 			}
 			case WM_SYSCOMMAND:
@@ -258,7 +259,7 @@ struct WindowsDevice
 			{
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
-				m_queue.push_mouse_event(mx, my);
+				_queue.push_mouse_event(mx, my);
 				break;
 			}
 			case WM_LBUTTONDOWN:
@@ -266,7 +267,7 @@ struct WindowsDevice
 			{
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
-				m_queue.push_mouse_event(mx, my, MouseButton::LEFT, id == WM_LBUTTONDOWN);
+				_queue.push_mouse_event(mx, my, MouseButton::LEFT, id == WM_LBUTTONDOWN);
 				break;
 			}
 			case WM_RBUTTONUP:
@@ -274,7 +275,7 @@ struct WindowsDevice
 			{
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
-				m_queue.push_mouse_event(mx, my, MouseButton::RIGHT, id == WM_RBUTTONDOWN);
+				_queue.push_mouse_event(mx, my, MouseButton::RIGHT, id == WM_RBUTTONDOWN);
 				break;
 			}
 			case WM_MBUTTONDOWN:
@@ -282,7 +283,7 @@ struct WindowsDevice
 			{
 				int32_t mx = GET_X_LPARAM(lparam);
 				int32_t my = GET_Y_LPARAM(lparam);
-				m_queue.push_mouse_event(mx, my, MouseButton::MIDDLE, id == WM_MBUTTONDOWN);
+				_queue.push_mouse_event(mx, my, MouseButton::MIDDLE, id == WM_MBUTTONDOWN);
 				break;
 			}
 			case WM_KEYDOWN:
@@ -307,7 +308,7 @@ struct WindowsDevice
 					(id == WM_KEYDOWN || id == WM_SYSKEYDOWN) ? modifier_mask |= ModifierButton::ALT : modifier_mask &= ~ModifierButton::ALT;
 				}
 
-				m_queue.push_keyboard_event(modifier_mask, kb, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN));
+				_queue.push_keyboard_event(modifier_mask, kb, (id == WM_KEYDOWN || id == WM_SYSKEYDOWN));
 				break;
 			}
 			default:
@@ -322,10 +323,9 @@ private:
 
 public:
 
-	HWND m_hwnd;
-	HDC m_hdc;
-	uint32_t m_parent_window_handle;
-	OsEventQueue m_queue;
+	HWND _hwnd;
+	HDC _hdc;
+	OsEventQueue _queue;
 };
 
 static WindowsDevice s_wdvc;
@@ -337,7 +337,7 @@ LRESULT CALLBACK WindowsDevice::window_proc(HWND hwnd, UINT id, WPARAM wparam, L
 
 bool next_event(OsEvent& ev)
 {
-	return s_wdvc.m_queue.pop_event(ev);
+	return s_wdvc._queue.pop_event(ev);
 }
 } // namespace crown
 
