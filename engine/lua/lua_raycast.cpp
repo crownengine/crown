@@ -33,7 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int raycast_cast(lua_State* L)
 {
 	LuaStack stack(L);
@@ -91,7 +90,6 @@ static int raycast_cast(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_raycast(LuaEnvironment& env)
 {
 	env.load_module_function("Raycast", "cast", raycast_cast);

@@ -42,7 +42,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 #if defined(CROWN_DEBUG)
 	static const char* sles_error_to_string(SLresult result)
 	{
@@ -143,7 +142,6 @@ namespace sles_sound_world
 	}
 }
 
-//-----------------------------------------------------------------------------
 struct SoundInstance
 {
 	void create(SLEngineItf engine, SLObjectItf output_mix, SoundInstanceId id, SoundResource* sr)

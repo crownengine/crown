@@ -33,7 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int physics_world_gravity(lua_State* L)
 {
 	LuaStack stack(L);
@@ -41,7 +40,6 @@ static int physics_world_gravity(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int physics_world_set_gravity(lua_State* L)
 {
 	LuaStack stack(L);
@@ -49,7 +47,6 @@ static int physics_world_set_gravity(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int physics_world_make_raycast(lua_State* L)
 {
 	LuaStack stack(L);
@@ -65,7 +62,6 @@ static int physics_world_make_raycast(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int physics_world_overlap_test(lua_State* L)
 {
 	LuaStack stack(L);
@@ -93,7 +89,6 @@ static int physics_world_overlap_test(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int physics_world_tostring(lua_State* L)
 {
 	LuaStack stack(L);
@@ -102,7 +97,6 @@ static int physics_world_tostring(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_physics_world(LuaEnvironment& env)
 {
 	env.load_module_function("PhysicsWorld", "gravity",      physics_world_gravity);

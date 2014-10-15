@@ -41,7 +41,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 RenderWorld::RenderWorld()
 	: m_mesh_pool(default_allocator(), MAX_MESHES, sizeof(Mesh), CE_ALIGNOF(Mesh))
 	, m_sprite_pool(default_allocator(), MAX_SPRITES, sizeof(Sprite), CE_ALIGNOF(Sprite))
@@ -49,19 +48,16 @@ RenderWorld::RenderWorld()
 {
 }
 
-//-----------------------------------------------------------------------------
 RenderWorld::~RenderWorld()
 {
 }
 
-//-----------------------------------------------------------------------------
 MeshId RenderWorld::create_mesh(MeshResource* mr, SceneGraph& sg, int32_t node)
 {
 	Mesh* mesh = CE_NEW(m_mesh_pool, Mesh)(sg, node, mr);
 	return id_array::create(m_mesh, mesh);
 }
 
-//-----------------------------------------------------------------------------
 void RenderWorld::destroy_mesh(MeshId id)
 {
 	Mesh* mesh = id_array::get(m_mesh, id);
@@ -69,33 +65,28 @@ void RenderWorld::destroy_mesh(MeshId id)
 	id_array::destroy(m_mesh, id);
 }
 
-//-----------------------------------------------------------------------------
 Mesh* RenderWorld::get_mesh(MeshId mesh)
 {
 	return id_array::get(m_mesh, mesh);
 }
 
-//-----------------------------------------------------------------------------
 SpriteId RenderWorld::create_sprite(SpriteResource* sr, SceneGraph& sg, int32_t node)
 {
 	Sprite* sprite = CE_NEW(m_sprite_pool, Sprite)(*this, sg, node, sr);
 	return id_array::create(m_sprite, sprite);
 }
 
-//-----------------------------------------------------------------------------
 void RenderWorld::destroy_sprite(SpriteId id)
 {
 	CE_DELETE(m_sprite_pool, id_array::get(m_sprite, id));
 	id_array::destroy(m_sprite, id);
 }
 
-//-----------------------------------------------------------------------------
 Sprite*	RenderWorld::get_sprite(SpriteId id)
 {
 	return id_array::get(m_sprite, id);
 }
 
-//-----------------------------------------------------------------------------
 GuiId RenderWorld::create_gui(uint16_t width, uint16_t height, const char* material)
 {
 	Gui* gui = CE_NEW(m_gui_pool, Gui)(width, height, material);
@@ -104,20 +95,17 @@ GuiId RenderWorld::create_gui(uint16_t width, uint16_t height, const char* mater
 	return id;
 }
 
-//-----------------------------------------------------------------------------
 void RenderWorld::destroy_gui(GuiId id)
 {
 	CE_DELETE(m_gui_pool, id_array::get(m_guis, id));
 	id_array::destroy(m_guis, id);
 }
 
-//-----------------------------------------------------------------------------
 Gui* RenderWorld::get_gui(GuiId id)
 {
 	return id_array::get(m_guis, id);
 }
 
-//-----------------------------------------------------------------------------
 void RenderWorld::update(const Matrix4x4& view, const Matrix4x4& projection, uint16_t x, uint16_t y, uint16_t width, uint16_t height, float dt)
 {
 	bgfx::reset(width, height, BGFX_RESET_VSYNC);

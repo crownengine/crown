@@ -33,7 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int debug_line_add_line(lua_State* L)
 {
 	LuaStack stack(L);
@@ -41,7 +40,6 @@ static int debug_line_add_line(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int debug_line_add_sphere(lua_State* L)
 {
 	LuaStack stack(L);
@@ -49,7 +47,6 @@ static int debug_line_add_sphere(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int debug_line_clear(lua_State* L)
 {
 	LuaStack stack(L);
@@ -57,7 +54,6 @@ static int debug_line_clear(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int debug_line_commit(lua_State* L)
 {
 	LuaStack stack(L);
@@ -65,7 +61,6 @@ static int debug_line_commit(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int debug_line_tostring(lua_State* L)
 {
 	LuaStack stack(L);
@@ -73,7 +68,6 @@ static int debug_line_tostring(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_debug_line(LuaEnvironment& env)
 {
 	env.load_module_function("DebugLine", "add_line",   debug_line_add_line);

@@ -43,7 +43,6 @@ struct SceneGraph;
 struct Unit;
 typedef Id MaterialId;
 
-//-----------------------------------------------------------------------------
 struct Sprite
 {
 	Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const SpriteResource* sr);

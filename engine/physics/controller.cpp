@@ -45,7 +45,6 @@ using physx::PxVec3;
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, PxPhysics* physics, PxControllerManager* manager)
 	: m_resource(pr)
 	, m_scene_graph(sg)
@@ -74,51 +73,43 @@ Controller::Controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node, 
 	CE_ASSERT(m_controller, "Failed to create controller");
 }
 
-//-----------------------------------------------------------------------------
 Controller::~Controller()
 {
 	m_controller->release();
 }
 
-//-----------------------------------------------------------------------------
 void Controller::move(const Vector3& pos)
 {
 	const PxVec3 disp(pos.x, pos.y, pos.z);
 	m_flags = m_controller->move(disp, 0.001, 1.0 / 60.0, PxControllerFilters());
 }
 
-//-----------------------------------------------------------------------------
 void Controller::set_height(float height)
 {
 	m_controller->resize(height);
 }
 
-//-----------------------------------------------------------------------------
 Vector3 Controller::position() const
 {
 	PxExtendedVec3 pos = m_controller->getPosition();
 	return Vector3(pos.x, pos.y, pos.z);
 }
 
-//-----------------------------------------------------------------------------
 bool Controller::collides_up() const
 {
 	return (m_flags & PxControllerFlag::eCOLLISION_UP) != 0;
 }
 
-//-----------------------------------------------------------------------------
 bool Controller::collides_down() const
 {
 	return (m_flags & PxControllerFlag::eCOLLISION_DOWN) != 0;
 }
 
-//-----------------------------------------------------------------------------
 bool Controller::collides_sides() const
 {
 	return (m_flags & PxControllerFlag::eCOLLISION_SIDES) != 0;
 }
 
-//-----------------------------------------------------------------------------
 void Controller::update()
 {
 	m_scene_graph.set_world_position(m_node, position());

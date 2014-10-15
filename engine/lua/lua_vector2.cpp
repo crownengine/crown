@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int vector2_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -39,7 +38,6 @@ static int vector2_new(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_ctor(lua_State* L)
 {
 	LuaStack stack(L);
@@ -47,7 +45,6 @@ static int vector2_ctor(lua_State* L)
 	return vector2_new(L);
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_x(lua_State* L)
 {
 	LuaStack stack(L);
@@ -55,7 +52,6 @@ static int vector2_x(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_y(lua_State* L)
 {
 	LuaStack stack(L);
@@ -63,7 +59,6 @@ static int vector2_y(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_set_x(lua_State* L)
 {
 	LuaStack stack(L);
@@ -71,7 +66,6 @@ static int vector2_set_x(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_set_y(lua_State* L)
 {
 	LuaStack stack(L);
@@ -79,7 +73,6 @@ static int vector2_set_y(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_values(lua_State* L)
 {
 	LuaStack stack(L);
@@ -89,7 +82,6 @@ static int vector2_values(lua_State* L)
 	return 2;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_add(lua_State* L)
 {
 	LuaStack stack(L);
@@ -97,7 +89,6 @@ static int vector2_add(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_subtract(lua_State* L)
 {
 	LuaStack stack(L);
@@ -105,7 +96,6 @@ static int vector2_subtract(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_multiply(lua_State* L)
 {
 	LuaStack stack(L);
@@ -113,7 +103,6 @@ static int vector2_multiply(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_divide(lua_State* L)
 {
 	LuaStack stack(L);
@@ -121,7 +110,6 @@ static int vector2_divide(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_dot(lua_State* L)
 {
 	LuaStack stack(L);
@@ -129,7 +117,6 @@ static int vector2_dot(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_equal(lua_State* L)
 {
 	LuaStack stack(L);
@@ -137,7 +124,6 @@ static int vector2_equal(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_length(lua_State* L)
 {
 	LuaStack stack(L);
@@ -145,7 +131,6 @@ static int vector2_length(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_squared_length(lua_State* L)
 {
 	LuaStack stack(L);
@@ -153,7 +138,6 @@ static int vector2_squared_length(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_set_length(lua_State* L)
 {
 	LuaStack stack(L);
@@ -161,7 +145,6 @@ static int vector2_set_length(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_normalize(lua_State* L)
 {
 	LuaStack stack(L);
@@ -169,7 +152,6 @@ static int vector2_normalize(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_distance(lua_State* L)
 {
 	LuaStack stack(L);
@@ -177,7 +159,6 @@ static int vector2_distance(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector2_angle(lua_State* L)
 {
 	LuaStack stack(L);
@@ -185,7 +166,6 @@ static int vector2_angle(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_vector2(LuaEnvironment& env)
 {
 	env.load_module_function("Vector2", "new",            vector2_new);

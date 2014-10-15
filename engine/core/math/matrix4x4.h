@@ -197,13 +197,11 @@ inline Matrix4x4 operator*(Matrix4x4 a, const Matrix4x4& b)
 
 namespace matrix4x4
 {
-	//-----------------------------------------------------------------------------
 	inline void set_rotation(Matrix4x4& m, const Quaternion& rot)
 	{
 		set_rotation(m, quaternion::to_matrix3x3(rot));
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void set_rotation(Matrix4x4& m, const Matrix3x3& rot)
 	{
 		m.x.x = rot.x.x;
@@ -217,7 +215,6 @@ namespace matrix4x4
 		m.z.z = rot.z.z;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void set_perspective_rh(Matrix4x4& m, float fovy, float aspect, float near, float far)
 	{
 		const float height = 1.0f / math::tan(fovy * ((float) math::PI / 180.0f) * 0.5f);
@@ -231,7 +228,6 @@ namespace matrix4x4
 		m.t = Vector4(0, 0, bb, 0);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void set_orthographic_rh(Matrix4x4& m, float left, float right, float bottom, float top, float near, float far)
 	{
 		m.x = Vector4(2.0f / (right - left), 0, 0, 0);
@@ -240,7 +236,6 @@ namespace matrix4x4
 		m.t = Vector4((left + right) / (left - right), (top + bottom) / (bottom - top), near / (near - far), 1.0f);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Matrix4x4& transpose(Matrix4x4& m)
 	{
 		float tmp;
@@ -272,14 +267,12 @@ namespace matrix4x4
 		return m;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Matrix4x4 get_transposed(Matrix4x4 m)
 	{
 		transpose(m);
 		return m;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void set_look_rh(Matrix4x4& m, const Vector3& pos, const Vector3& target, const Vector3& up)
 	{
 		Vector3 zAxis = pos - target;
@@ -308,7 +301,6 @@ namespace matrix4x4
 		m.t.w= 1;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float determinant(const Matrix4x4& m)
 	{
 		const float m02m07_m06m03 = m.x.z * m.y.w - m.y.z * m.x.w;
@@ -324,7 +316,6 @@ namespace matrix4x4
 				- m.t.x * (m.x.y * m06m11_m10m07 - m.y.y * m02m11_m10m03 + m.z.y * m02m07_m06m03);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Matrix4x4& invert(Matrix4x4& m)
 	{
 		Matrix4x4 mat;
@@ -388,14 +379,12 @@ namespace matrix4x4
 		return m;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Matrix4x4 get_inverted(Matrix4x4 m)
 	{
 		invert(m);
 		return m;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void set_identity(Matrix4x4& m)
 	{
 		m.x = Vector4(1, 0, 0, 0);
@@ -404,25 +393,21 @@ namespace matrix4x4
 		m.t = Vector4(0, 0, 0, 1);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Vector3 x(const Matrix4x4& m)
 	{
 		return Vector3(m.x.x, m.x.y, m.x.z);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Vector3 y(const Matrix4x4& m)
 	{
 		return Vector3(m.y.x, m.y.y, m.y.z);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Vector3 z(const Matrix4x4& m)
 	{
 		return Vector3(m.z.x, m.z.y, m.z.z);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void set_x(Matrix4x4& m, const Vector3& x)
 	{
 		m.x.x = x.x;
@@ -430,7 +415,6 @@ namespace matrix4x4
 		m.x.z = x.z;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void set_y(Matrix4x4& m, const Vector3& y)
 	{
 		m.y.x = y.x;
@@ -438,7 +422,6 @@ namespace matrix4x4
 		m.y.z = y.z;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void set_z(Matrix4x4& m, const Vector3& z)
 	{
 		m.z.x = z.x;
@@ -446,13 +429,11 @@ namespace matrix4x4
 		m.z.z = z.z;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Vector3 translation(const Matrix4x4& m)
 	{
 		return Vector3(m.t.x, m.t.y, m.t.z);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void set_translation(Matrix4x4& m, const Vector3& trans)
 	{
 		m.t.x = trans.x;
@@ -460,32 +441,27 @@ namespace matrix4x4
 		m.t.z = trans.z;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float* to_float_ptr(Matrix4x4& m)
 	{
 		return vector4::to_float_ptr(m.x);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline const float* to_float_ptr(const Matrix4x4& m)
 	{
 		return vector4::to_float_ptr(m.x);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Matrix3x3 to_matrix3x3(const Matrix4x4& m)
 	{
 		return Matrix3x3(x(m), y(m), z(m));
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Quaternion to_quaternion(const Matrix4x4& m)
 	{
 		return matrix3x3::to_quaternion(to_matrix3x3(m));
 	}
 } // namespace matrix4x4
 
-//-----------------------------------------------------------------------------
 inline Matrix4x4::Matrix4x4()
 {
 	// Do not initialize
@@ -496,7 +472,6 @@ inline Matrix4x4::Matrix4x4(const Vector3& x, const Vector3& y, const Vector3& z
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix4x4::Matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1,
 							float r1c2, float r2c2, float r3c2, float r4c2,
 							float r1c3, float r2c3, float r3c3, float r4c3,
@@ -508,7 +483,6 @@ inline Matrix4x4::Matrix4x4(float r1c1, float r2c1, float r3c1, float r4c1,
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix4x4::Matrix4x4(const Quaternion& r, const Vector3& p)
 	: x(1.0f - 2.0f * r.y * r.y - 2.0f * r.z * r.z, 2.0f * r.x * r.y + 2.0f * r.w * r.z, 2.0f * r.x * r.z - 2.0f * r.w * r.y, 0)
 	, y(2.0f * r.x * r.y - 2.0f * r.w * r.z, 1.0f - 2.0f * r.x * r.x - 2.0f * r.z * r.z, 2.0f * r.y * r.z + 2.0f * r.w * r.x, 0)
@@ -517,7 +491,6 @@ inline Matrix4x4::Matrix4x4(const Quaternion& r, const Vector3& p)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix4x4::Matrix4x4(const Matrix3x3& m)
 	: x(m.x, 0)
 	, y(m.y, 0)
@@ -526,7 +499,6 @@ inline Matrix4x4::Matrix4x4(const Matrix3x3& m)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix4x4::Matrix4x4(const float v[16])
 	: x(v[0], v[1], v[2], v[3])
 	, y(v[4], v[5], v[6], v[7])
@@ -535,7 +507,6 @@ inline Matrix4x4::Matrix4x4(const float v[16])
 {
 }
 
-//-----------------------------------------------------------------------------
 inline float& Matrix4x4::operator[](uint32_t i)
 {
 	CE_ASSERT(i < 16, "Index out of bounds");
@@ -543,7 +514,6 @@ inline float& Matrix4x4::operator[](uint32_t i)
 	return vector4::to_float_ptr(x)[i];
 }
 
-//-----------------------------------------------------------------------------
 inline const float& Matrix4x4::operator[](uint32_t i) const
 {
 	CE_ASSERT(i < 16, "Index out of bounds");
@@ -551,7 +521,6 @@ inline const float& Matrix4x4::operator[](uint32_t i) const
 	return vector4::to_float_ptr(x)[i];
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix4x4& Matrix4x4::operator+=(const Matrix4x4& a)
 {
 	x += a.x;
@@ -562,7 +531,6 @@ inline Matrix4x4& Matrix4x4::operator+=(const Matrix4x4& a)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix4x4& Matrix4x4::operator-=(const Matrix4x4& a)
 {
 	x -= a.x;
@@ -573,7 +541,6 @@ inline Matrix4x4& Matrix4x4::operator-=(const Matrix4x4& a)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix4x4& Matrix4x4::operator*=(float k)
 {
 	x *= k;
@@ -584,7 +551,6 @@ inline Matrix4x4& Matrix4x4::operator*=(float k)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix4x4& Matrix4x4::operator/=(float k)
 {
 	const float inv_k = 1.0f / k;
@@ -597,7 +563,6 @@ inline Matrix4x4& Matrix4x4::operator/=(float k)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix4x4& Matrix4x4::operator*=(const Matrix4x4& a)
 {
 	Matrix4x4 tmp;

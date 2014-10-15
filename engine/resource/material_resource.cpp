@@ -163,7 +163,6 @@ namespace material_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void compile(const char* path, CompileOptions& opts)
 	{
 		static const uint32_t VERSION = 1;
@@ -222,7 +221,6 @@ namespace material_resource
 		opts.write(names);
 	}
 
-	//-----------------------------------------------------------------------------
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
@@ -236,7 +234,6 @@ namespace material_resource
 		return res;
 	}
 
-	//-----------------------------------------------------------------------------
 	void online(StringId64 id, ResourceManager& rm)
 	{
 		ResourceId res_id;
@@ -261,7 +258,6 @@ namespace material_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void offline(StringId64 id, ResourceManager& rm)
 	{
 		ResourceId res_id;
@@ -288,7 +284,6 @@ namespace material_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void unload(Allocator& a, void* res)
 	{
 		a.deallocate(res);

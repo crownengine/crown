@@ -99,28 +99,24 @@ namespace queue
 
 namespace queue
 {
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline bool empty(const Queue<T>& q)
 	{
 		return q._size == 0;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline uint32_t size(const Queue<T>& q)
 	{
 		return q._size;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline uint32_t space(const Queue<T>& q)
 	{
 		return array::size(q._queue) - q._size;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline void increase_capacity(Queue<T>& q, uint32_t capacity)
 	{
@@ -136,7 +132,6 @@ namespace queue
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline void grow(Queue<T>& q, uint32_t min_capacity)
 	{
@@ -150,7 +145,6 @@ namespace queue
 		increase_capacity(q, new_capacity);
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline void push_back(Queue<T>& q, const T& item)
 	{
@@ -164,7 +158,6 @@ namespace queue
 		q._size++;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline void pop_back(Queue<T>& q)
 	{
@@ -173,7 +166,6 @@ namespace queue
 		q._size--;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline void push_front(Queue<T>& q, const T& item)
 	{
@@ -189,7 +181,6 @@ namespace queue
 		q._size++;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline void pop_front(Queue<T>& q)
 	{
@@ -199,7 +190,6 @@ namespace queue
 		q._size--;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline void push(Queue<T>& q, const T *items, uint32_t n)
 	{
@@ -227,7 +217,6 @@ namespace queue
 		q._size += n;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline void pop(Queue<T>& q, uint32_t n)
 	{
@@ -237,7 +226,6 @@ namespace queue
 		q._size -= n;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline void clear(Queue<T>& q)
 	{
@@ -245,21 +233,18 @@ namespace queue
 		q._size = 0;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline T* begin(Queue<T>& q)
 	{
 		return array::begin(q._queue) + q._read;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline const T* begin(const Queue<T>& q)
 	{
 		return array::begin(q._queue) + q._read;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline T* end(Queue<T>& q)
 	{
@@ -268,7 +253,6 @@ namespace queue
 		return end >= array::size(q._queue) ? array::end(q._queue) : array::begin(q._queue) + end;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline const T* end(const Queue<T>& q)
 	{
@@ -277,7 +261,6 @@ namespace queue
 		return end >= array::size(q._queue) ? array::end(q._queue) : array::begin(q._queue) + end;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline T& front(Queue<T>& q)
 	{
@@ -286,7 +269,6 @@ namespace queue
 		return q._queue[q._read];
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline const T& front(const Queue<T>& q)
 	{
@@ -295,7 +277,6 @@ namespace queue
 		return q._queue[q._read];
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline T& back(Queue<T>& q)
 	{
@@ -304,7 +285,6 @@ namespace queue
 		return q[q._size - 1];
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline const T& back(const Queue<T>& q)
 	{
@@ -315,7 +295,6 @@ namespace queue
 
 } // namespace queue
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline Queue<T>::Queue(Allocator& allocator)
 	: _read(0)
@@ -324,14 +303,12 @@ inline Queue<T>::Queue(Allocator& allocator)
 {
 }
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline T& Queue<T>::operator[](uint32_t index)
 {
 	return _queue[(_read + index) % array::size(_queue)];
 }
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline const T& Queue<T>::operator[](uint32_t index) const
 {

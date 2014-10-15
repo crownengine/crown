@@ -36,7 +36,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 ApkFile::ApkFile(AAssetManager* asset_manager, const char* path)
 	: File(FOM_READ)
 	, m_asset(NULL)
@@ -45,7 +44,6 @@ ApkFile::ApkFile(AAssetManager* asset_manager, const char* path)
 	CE_ASSERT(m_asset != NULL, "AAssetManager_open: failed to open %s", path);
 }
 
-//-----------------------------------------------------------------------------
 ApkFile::~ApkFile()
 {
 	if (m_asset != NULL)
@@ -55,7 +53,6 @@ ApkFile::~ApkFile()
 	}
 }
 
-//-----------------------------------------------------------------------------
 void ApkFile::seek(size_t position)
 {
 	off_t seek_result = AAsset_seek(m_asset, (off_t)position, SEEK_SET);
@@ -63,7 +60,6 @@ void ApkFile::seek(size_t position)
 	CE_UNUSED(seek_result);
 }
 
-//-----------------------------------------------------------------------------
 void ApkFile::seek_to_end()
 {
 	off_t seek_result = AAsset_seek(m_asset, 0, SEEK_END);
@@ -71,7 +67,6 @@ void ApkFile::seek_to_end()
 	CE_UNUSED(seek_result);
 }
 
-//-----------------------------------------------------------------------------
 void ApkFile::skip(size_t bytes)
 {
 	off_t seek_result = AAsset_seek(m_asset, (off_t) bytes, SEEK_CUR);
@@ -79,7 +74,6 @@ void ApkFile::skip(size_t bytes)
 	CE_UNUSED(seek_result);
 }
 
-//-----------------------------------------------------------------------------
 void ApkFile::read(void* buffer, size_t size)
 {
 	CE_ASSERT_NOT_NULL(buffer);
@@ -88,62 +82,52 @@ void ApkFile::read(void* buffer, size_t size)
 	CE_UNUSED(bytes_read);
 }
 
-//-----------------------------------------------------------------------------
 void ApkFile::write(const void* /*buffer*/, size_t /*size*/)
 {
 	CE_ASSERT(false, "Apk files are read only!");
 }
 
-//-----------------------------------------------------------------------------
 bool ApkFile::copy_to(File& /*file*/, size_t /*size = 0*/)
 {
 	CE_ASSERT(false, "Not implemented");
 	return false;
 }
 
-//-----------------------------------------------------------------------------
 void ApkFile::flush()
 {
 	// Not needed
 }
 
-//-----------------------------------------------------------------------------
 bool ApkFile::is_valid()
 {
 	return m_asset != NULL;
 }
 
-//-----------------------------------------------------------------------------
 bool ApkFile::end_of_file()
 {
 	return AAsset_getRemainingLength(m_asset) == 0;
 }
 
-//-----------------------------------------------------------------------------
 size_t ApkFile::size()
 {
 	return AAsset_getLength(m_asset);
 }
 
-//-----------------------------------------------------------------------------
 size_t ApkFile::position()
 {
 	return (size_t) (AAsset_getLength(m_asset) - AAsset_getRemainingLength(m_asset));
 }
 
-//-----------------------------------------------------------------------------
 bool ApkFile::can_read() const
 {
 	return true;
 }
 
-//-----------------------------------------------------------------------------
 bool ApkFile::can_write() const
 {
 	return false;
 }
 
-//-----------------------------------------------------------------------------
 bool ApkFile::can_seek() const
 {
 	return true;

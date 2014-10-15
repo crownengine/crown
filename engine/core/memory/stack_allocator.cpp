@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 StackAllocator::StackAllocator(void* start, size_t size)
 	: _physical_start(start)
 	, _total_size(size)
@@ -39,14 +38,12 @@ StackAllocator::StackAllocator(void* start, size_t size)
 {
 }
 
-//-----------------------------------------------------------------------------
 StackAllocator::~StackAllocator()
 {
 	CE_ASSERT(_allocation_count == 0 && allocated_size() == 0,
 		"Missing %d deallocations causing a leak of %ld bytes", _allocation_count, allocated_size());
 }
 
-//-----------------------------------------------------------------------------
 void* StackAllocator::allocate(size_t size, size_t align)
 {
 	const size_t actual_size = sizeof(Header) + size + align;
@@ -75,7 +72,6 @@ void* StackAllocator::allocate(size_t size, size_t align)
 	return user_ptr;
 }
 
-//-----------------------------------------------------------------------------
 void StackAllocator::deallocate(void* data)
 {
 	if (!data)
@@ -91,7 +87,6 @@ void StackAllocator::deallocate(void* data)
 	_allocation_count--;
 }
 
-//-----------------------------------------------------------------------------
 size_t StackAllocator::allocated_size()
 {
 	return (char*) _top - (char*) _physical_start;

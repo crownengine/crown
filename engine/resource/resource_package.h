@@ -38,7 +38,6 @@ namespace crown
 /// Collection of resources to load in a batch.
 struct ResourcePackage
 {
-	//-----------------------------------------------------------------------------
 	ResourcePackage(StringId64 id, ResourceManager& resman)
 		: m_resource_manager(&resman)
 		, m_package(NULL)

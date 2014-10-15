@@ -32,7 +32,6 @@ namespace crown
 
 static IntSetting* g_int_settings_head = NULL;
 
-//-----------------------------------------------------------------------------
 IntSetting::IntSetting(const char* name, const char* synopsis, int32_t value, int32_t min, int32_t max) :
 	m_name(name),
 	m_synopsis(synopsis),
@@ -51,43 +50,36 @@ IntSetting::IntSetting(const char* name, const char* synopsis, int32_t value, in
 	g_int_settings_head = this;
 }
 
-//-----------------------------------------------------------------------------
 const char* IntSetting::name() const
 {
 	return m_name;
 }
 
-//-----------------------------------------------------------------------------
 const char* IntSetting::synopsis() const
 {
 	return m_synopsis;
 }
 
-//-----------------------------------------------------------------------------
 int32_t IntSetting::value() const
 {
 	return m_value;
 }
 
-//-----------------------------------------------------------------------------
 int32_t IntSetting::min() const
 {
 	return m_min;
 }
 
-//-----------------------------------------------------------------------------
 int32_t IntSetting::max() const
 {
 	return m_max;
 }
 
-//-----------------------------------------------------------------------------
 IntSetting::operator int()
 {
 	return m_value;
 }
 
-//-----------------------------------------------------------------------------
 IntSetting& IntSetting::operator=(const int32_t value)
 {
 	if (value > m_max)
@@ -106,7 +98,6 @@ IntSetting& IntSetting::operator=(const int32_t value)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 IntSetting*	IntSetting::find_setting(const char* name)
 {
 	IntSetting* head = g_int_settings_head;

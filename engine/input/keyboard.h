@@ -80,14 +80,12 @@ struct Keyboard
 		return button_released(_last_button);
 	}
 
-	//-------------------------------------------------------------------------
 	void set_button_state(KeyboardButton::Enum b, bool state)
 	{
 		_last_button = b;
 		_current_state[b] = state;
 	}
 
-	//-------------------------------------------------------------------------
 	void update()
 	{
 		memcpy(_last_state, _current_state, KeyboardButton::COUNT);

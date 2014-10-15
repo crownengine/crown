@@ -30,7 +30,6 @@ namespace crown
 {
 namespace path
 {
-	//-----------------------------------------------------------------------------
 	bool is_valid_segment(const char* segment)
 	{
 		CE_ASSERT(segment != NULL, "Segment must be != NULL");

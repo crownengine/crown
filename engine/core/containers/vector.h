@@ -261,21 +261,18 @@ namespace vector
 	}
 } // namespace vector
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline Vector<T>::Vector(Allocator& allocator)
 	: _array(allocator)
 {
 }
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline Vector<T>::Vector(Allocator& allocator, uint32_t capacity)
 	: _array(allocator)
 {
 }
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline Vector<T>::Vector(const Vector<T>& other)
 	: _array(other._array)
@@ -283,7 +280,6 @@ inline Vector<T>::Vector(const Vector<T>& other)
 	*this = other;
 }
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline Vector<T>::~Vector()
 {
@@ -293,21 +289,18 @@ inline Vector<T>::~Vector()
 	}
 }
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline T& Vector<T>::operator[](uint32_t index)
 {
 	return _array[index];
 }
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline const T& Vector<T>::operator[](uint32_t index) const
 {
 	return _array[index];
 }
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline const Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 {

@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 LinearAllocator::LinearAllocator(Allocator& backing, size_t size)
 	: _backing(&backing)
 	, _physical_start(NULL)
@@ -40,7 +39,6 @@ LinearAllocator::LinearAllocator(Allocator& backing, size_t size)
 	_physical_start = backing.allocate(size);
 }
 
-//-----------------------------------------------------------------------------
 LinearAllocator::LinearAllocator(void* start, size_t size)
 	: _backing(NULL)
 	, _physical_start(start)
@@ -49,7 +47,6 @@ LinearAllocator::LinearAllocator(void* start, size_t size)
 {
 }
 
-//-----------------------------------------------------------------------------
 LinearAllocator::~LinearAllocator()
 {
 	if (_backing)
@@ -60,7 +57,6 @@ LinearAllocator::~LinearAllocator()
 	CE_ASSERT(_offset == 0, "Memory leak of %ld bytes, maybe you forgot to call clear()?", _offset);
 }
 
-//-----------------------------------------------------------------------------
 void* LinearAllocator::allocate(size_t size, size_t align)
 {
 	const size_t actual_size = size + align;
@@ -78,19 +74,16 @@ void* LinearAllocator::allocate(size_t size, size_t align)
 	return user_ptr;
 }
 
-//-----------------------------------------------------------------------------
 void LinearAllocator::deallocate(void* /*data*/)
 {
 	// Single deallocations not supported. Use clear().
 }
 
-//-----------------------------------------------------------------------------
 void LinearAllocator::clear()
 {
 	_offset = 0;
 }
 
-//-----------------------------------------------------------------------------
 size_t LinearAllocator::allocated_size()
 {
 	return _offset;

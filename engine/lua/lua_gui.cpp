@@ -37,7 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int gui_resolution(lua_State* L)
 {
 	LuaStack stack(L);
@@ -47,7 +46,6 @@ static int gui_resolution(lua_State* L)
 	return 2;
 }
 
-//-----------------------------------------------------------------------------
 static int gui_move(lua_State* L)
 {
 	LuaStack stack(L);
@@ -55,7 +53,6 @@ static int gui_move(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int gui_screen_to_gui(lua_State* L)
 {
 	LuaStack stack(L);
@@ -63,7 +60,6 @@ static int gui_screen_to_gui(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int gui_draw_rectangle(lua_State* L)
 {
 	LuaStack stack(L);
@@ -72,7 +68,6 @@ static int gui_draw_rectangle(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int gui_draw_image(lua_State* L)
 {
 	LuaStack stack(L);
@@ -81,7 +76,6 @@ static int gui_draw_image(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int gui_draw_image_uv(lua_State* L)
 {
 	LuaStack stack(L);
@@ -90,7 +84,6 @@ static int gui_draw_image_uv(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int gui_draw_text(lua_State* L)
 {
 	LuaStack stack(L);
@@ -99,7 +92,6 @@ static int gui_draw_text(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 void load_gui(LuaEnvironment& env)
 {
 	env.load_module_function("Gui", "resolution",     gui_resolution);

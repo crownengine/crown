@@ -91,7 +91,6 @@ namespace unit_resource
 		}
 	};
 
-	//-----------------------------------------------------------------------------
 	uint32_t compute_link_depth(const GraphNode& node, const Array<GraphNode>& nodes)
 	{
 		if (node.parent == NO_PARENT) return 0;
@@ -110,7 +109,6 @@ namespace unit_resource
 		return 0;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t find_node_index(StringId32 name, const Array<GraphNodeDepth>& node_depths)
 	{
 		for (uint32_t i = 0; i < array::size(node_depths); i++)
@@ -125,7 +123,6 @@ namespace unit_resource
 		return 0;
 	}
 
-	//-----------------------------------------------------------------------------
 	int32_t find_node_parent_index(uint32_t node, const Array<GraphNode>& nodes, const Array<GraphNodeDepth>& node_depths)
 	{
 		StringId32 parent_name = nodes[node_depths[node].index].parent;
@@ -143,7 +140,6 @@ namespace unit_resource
 		return 0;
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_nodes(JSONElement e, Array<GraphNode>& nodes, Array<GraphNodeDepth>& node_depths)
 	{
 		Vector<DynamicString> keys(default_allocator());
@@ -180,7 +176,6 @@ namespace unit_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_cameras(JSONElement e, Array<UnitCamera>& cameras, const Array<GraphNodeDepth>& node_depths)
 	{
 		Vector<DynamicString> keys(default_allocator());
@@ -212,7 +207,6 @@ namespace unit_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_renderables(JSONElement e, Array<UnitRenderable>& renderables, const Array<GraphNodeDepth>& node_depths)
 	{
 		Vector<DynamicString> keys(default_allocator());
@@ -253,7 +247,6 @@ namespace unit_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_keys(JSONElement e, Array<Key>& generic_keys, Array<char>& values)
 	{
 		Vector<DynamicString> keys(default_allocator());
@@ -327,7 +320,6 @@ namespace unit_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void compile(const char* path, CompileOptions& opts)
 	{
 		static const uint32_t VERSION = 1;
@@ -480,7 +472,6 @@ namespace unit_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
@@ -494,7 +485,6 @@ namespace unit_resource
 		return res;
 	}
 
-	//-----------------------------------------------------------------------------
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
 	}
@@ -503,7 +493,6 @@ namespace unit_resource
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);
@@ -517,19 +506,16 @@ namespace unit_resource
 		return id;
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId physics_resource(const UnitResource* ur)
 	{
 		return ur->physics_resource;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_renderables(const UnitResource* ur)
 	{
 		return ur->num_renderables;
 	}
 
-	//-----------------------------------------------------------------------------
 	const UnitRenderable* get_renderable(const UnitResource* ur, uint32_t i)
 	{
 		CE_ASSERT(i < num_renderables(ur), "Index out of bounds");
@@ -538,13 +524,11 @@ namespace unit_resource
 		return &begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_materials(const UnitResource* ur)
 	{
 		return ur->num_materials;
 	}
 
-	//-----------------------------------------------------------------------------
 	const UnitMaterial* get_material(const UnitResource* ur, uint32_t i)
 	{
 		CE_ASSERT(i < num_materials(ur), "Index out of bounds");
@@ -553,13 +537,11 @@ namespace unit_resource
 		return &begin[i];
 	}	
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_cameras(const UnitResource* ur)
 	{
 		return ur->num_cameras;
 	}
 
-	//-----------------------------------------------------------------------------
 	const UnitCamera* get_camera(const UnitResource* ur, uint32_t i)
 	{
 		CE_ASSERT(i < num_cameras(ur), "Index out of bounds");
@@ -568,25 +550,21 @@ namespace unit_resource
 		return &begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_scene_graph_nodes(const UnitResource* ur)
 	{
 		return ur->num_scene_graph_nodes;
 	}
 
-	//-----------------------------------------------------------------------------
 	const UnitNode* scene_graph_nodes(const UnitResource* ur)
 	{
 		return (UnitNode*) ((char*)ur + ur->scene_graph_nodes_offset);
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_keys(const UnitResource* ur)
 	{
 		return ur->num_keys;
 	}
 
-	//-----------------------------------------------------------------------------
 	bool has_key(const UnitResource* ur, const char* k)
 	{
 		const uint32_t nk = num_keys(ur);
@@ -603,7 +581,6 @@ namespace unit_resource
 		return false;
 	}
 
-	//-----------------------------------------------------------------------------
 	bool get_key(const UnitResource* ur, const char* k, Key& out_k)
 	{
 		const uint32_t nk = num_keys(ur);
@@ -621,13 +598,11 @@ namespace unit_resource
 		return false;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t values_size(const UnitResource* ur)
 	{
 		return ur->values_size;
 	}
 
-	//-----------------------------------------------------------------------------
 	const char* values(const UnitResource* ur)
 	{
 		return ((char*)ur + ur->values_offset);

@@ -44,10 +44,8 @@ class FileBundle : public Bundle
 public:
 
 
-	//-----------------------------------------------------------------------------
 	FileBundle(Filesystem& fs) : m_filesystem(fs) {}
 
-	//-----------------------------------------------------------------------------
 	File* open(ResourceId name)
 	{
 		// Convert name/type into strings
@@ -61,7 +59,6 @@ public:
 		return file;
 	}
 
-	//-----------------------------------------------------------------------------
 	void close(File* resource)
 	{
 		m_filesystem.close(resource);
@@ -72,13 +69,11 @@ private:
 	Filesystem& m_filesystem;
 };
 
-//-----------------------------------------------------------------------------
 Bundle* Bundle::create(Allocator& a, Filesystem& fs)
 {
 	return CE_NEW(a, FileBundle)(fs);
 }
 
-//-----------------------------------------------------------------------------
 void Bundle::destroy(Allocator& a, Bundle* bundle)
 {
 	CE_DELETE(a, bundle);

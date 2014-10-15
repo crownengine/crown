@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int float_setting_value(lua_State* L)
 {
 	LuaStack stack(L);
@@ -52,7 +51,6 @@ static int float_setting_value(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int float_setting_synopsis(lua_State* L)
 {
 	LuaStack stack(L);
@@ -73,7 +71,6 @@ static int float_setting_synopsis(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int float_setting_min(lua_State* L)
 {
 	LuaStack stack(L);
@@ -94,7 +91,6 @@ static int float_setting_min(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int float_setting_max(lua_State* L)
 {
 	LuaStack stack(L);
@@ -115,7 +111,6 @@ static int float_setting_max(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int float_setting_update(lua_State* L)
 {
 	LuaStack stack(L);
@@ -133,7 +128,6 @@ static int float_setting_update(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 void load_float_setting(LuaEnvironment& env)
 {
 	env.load_module_function("FloatSetting", "value",    float_setting_value);

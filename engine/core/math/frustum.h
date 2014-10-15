@@ -65,7 +65,6 @@ namespace frustum
 
 namespace frustum
 {
-	//-----------------------------------------------------------------------------
 	inline bool contains_point(const Frustum& f, const Vector3& p)
 	{
 		if (plane::distance_to_point(f.left, p) < 0.0) return false;
@@ -78,7 +77,6 @@ namespace frustum
 		return true;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Vector3 vertex(const Frustum& f, uint32_t index)
 	{
 		CE_ASSERT(index < 8, "Index must be < 8");
@@ -111,7 +109,6 @@ namespace frustum
 		return ip;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void from_matrix(Frustum& f, const Matrix4x4& m)
 	{
 		f.left.n.x		= m[3] + m[0];
@@ -152,7 +149,6 @@ namespace frustum
 		plane::normalize(f.far);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline AABB to_aabb(const Frustum& f)
 	{
 		AABB tmp;
@@ -174,7 +170,6 @@ namespace frustum
 	}
 } // namespace frustum
 
-//-----------------------------------------------------------------------------
 inline Frustum::Frustum()
 {
 	// Do not initialize

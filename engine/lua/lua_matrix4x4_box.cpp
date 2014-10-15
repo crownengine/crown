@@ -33,7 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int matrix4x4box_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -41,7 +40,6 @@ static int matrix4x4box_new(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4box_ctor(lua_State* L)
 {
 	LuaStack stack(L);
@@ -49,7 +47,6 @@ static int matrix4x4box_ctor(lua_State* L)
 	return matrix4x4box_new(L);
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4box_store(lua_State* L)
 {
 	LuaStack stack(L);
@@ -57,7 +54,6 @@ static int matrix4x4box_store(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4box_unbox(lua_State* L)
 {
 	LuaStack stack(L);
@@ -65,7 +61,6 @@ static int matrix4x4box_unbox(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4box_tostring(lua_State* L)
 {
 	LuaStack stack(L);
@@ -74,7 +69,6 @@ static int matrix4x4box_tostring(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_matrix4x4box(LuaEnvironment& env)
 {
 	env.load_module_function("Matrix4x4Box", "new",        matrix4x4box_new);

@@ -86,7 +86,6 @@ using physx::PxJointAngularLimitPair;
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1)
 	: m_resource(pr)
 	, m_index(index)
@@ -161,7 +160,6 @@ Joint::Joint(PxPhysics* physics, const PhysicsResource* pr, const uint32_t index
 	if (joint->breakable) m_joint->setBreakForce(joint->break_force, joint->break_torque);
 }
 
-//-----------------------------------------------------------------------------
 Joint::~Joint()
 {
 

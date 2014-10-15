@@ -90,7 +90,6 @@ namespace id_array
 
 namespace id_array
 {
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline Id create(IdArray<MAX, T>& a, const T& object)
 	{
@@ -120,7 +119,6 @@ namespace id_array
 		return id;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline void destroy(IdArray<MAX, T>& a, Id id)
 	{
@@ -143,7 +141,6 @@ namespace id_array
 		a._size--;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline T& get(IdArray<MAX, T>& a, const Id& id)
 	{
@@ -152,42 +149,36 @@ namespace id_array
 		return a._objects[a._sparse_to_dense[id.index]];
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline bool has(const IdArray<MAX, T>& a, Id id)
 	{
 		return id.index < MAX && a._sparse[id.index].id == id.id;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline uint32_t size(const IdArray<MAX, T>& a)
 	{
 		return a._size;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline T* begin(IdArray<MAX, T>& a)
 	{
 		return a._objects;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline const T* begin(const IdArray<MAX, T>& a)
 	{
 		return a._objects;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline T* end(IdArray<MAX, T>& a)
 	{
 		return a._objects + a._size;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX, typename T>
 	inline const T* end(const IdArray<MAX, T>& a)
 	{
@@ -195,7 +186,6 @@ namespace id_array
 	}
 } // namespace id_array
 
-//-----------------------------------------------------------------------------
 template <uint32_t MAX, typename T>
 inline IdArray<MAX, T>::IdArray()
 	: _freelist(INVALID_ID)
@@ -208,7 +198,6 @@ inline IdArray<MAX, T>::IdArray()
 	}
 }
 
-//-----------------------------------------------------------------------------
 template <uint32_t MAX, typename T>
 inline T& IdArray<MAX, T>::operator[](uint32_t i)
 {
@@ -216,7 +205,6 @@ inline T& IdArray<MAX, T>::operator[](uint32_t i)
 	return _objects[i];
 }
 
-//-----------------------------------------------------------------------------
 template <uint32_t MAX, typename T>
 inline const T& IdArray<MAX, T>::operator[](uint32_t i) const
 {

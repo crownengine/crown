@@ -35,7 +35,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int world_spawn_unit(lua_State* L)
 {
 	LuaStack stack(L);
@@ -50,7 +49,6 @@ static int world_spawn_unit(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int world_destroy_unit(lua_State* L)
 {
 	LuaStack stack(L);
@@ -58,7 +56,6 @@ static int world_destroy_unit(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_num_units(lua_State* L)
 {
 	LuaStack stack(L);
@@ -66,7 +63,6 @@ static int world_num_units(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int world_units(lua_State* L)
 {
 	LuaStack stack(L);
@@ -87,7 +83,6 @@ static int world_units(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int world_update_animations(lua_State* L)
 {
 	LuaStack stack(L);
@@ -95,7 +90,6 @@ static int world_update_animations(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_update_scene(lua_State* L)
 {
 	LuaStack stack(L);
@@ -103,7 +97,6 @@ static int world_update_scene(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_update(lua_State* L)
 {
 	LuaStack stack(L);
@@ -111,7 +104,6 @@ static int world_update(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_play_sound(lua_State* L)
 {
 	LuaStack stack(L);
@@ -128,7 +120,6 @@ static int world_play_sound(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int world_stop_sound(lua_State* L)
 {
 	LuaStack stack(L);
@@ -136,7 +127,6 @@ static int world_stop_sound(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_link_sound(lua_State* L)
 {
 	LuaStack stack(L);
@@ -146,7 +136,6 @@ static int world_link_sound(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_set_listener_pose(lua_State* L)
 {
 	LuaStack stack(L);
@@ -154,7 +143,6 @@ static int world_set_listener_pose(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_set_sound_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -163,7 +151,6 @@ static int world_set_sound_position(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_set_sound_range(lua_State* L)
 {
 	LuaStack stack(L);
@@ -172,7 +159,6 @@ static int world_set_sound_range(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_set_sound_volume(lua_State* L)
 {
 	LuaStack stack(L);
@@ -181,7 +167,6 @@ static int world_set_sound_volume(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_create_window_gui(lua_State* L)
 {
 	LuaStack stack(L);
@@ -191,7 +176,6 @@ static int world_create_window_gui(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int world_destroy_gui(lua_State* L)
 {
 	LuaStack stack(L);
@@ -199,7 +183,6 @@ static int world_destroy_gui(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_create_debug_line(lua_State* L)
 {
 	LuaStack stack(L);
@@ -207,7 +190,6 @@ static int world_create_debug_line(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int world_destroy_debug_line(lua_State* L)
 {
 	LuaStack stack(L);
@@ -215,7 +197,6 @@ static int world_destroy_debug_line(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_load_level(lua_State* L)
 {
 	LuaStack stack(L);
@@ -223,7 +204,6 @@ static int world_load_level(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int world_physics_world(lua_State* L)
 {
 	LuaStack stack(L);
@@ -231,7 +211,6 @@ static int world_physics_world(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int world_sound_world(lua_State* L)
 {
 	LuaStack stack(L);
@@ -239,7 +218,6 @@ static int world_sound_world(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int world_tostring(lua_State* L)
 {
 	LuaStack stack(L);
@@ -248,7 +226,6 @@ static int world_tostring(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_world(LuaEnvironment& env)
 {
 	env.load_module_function("World", "spawn_unit",         world_spawn_unit);

@@ -69,28 +69,24 @@ struct MeshData
 
 struct MeshResource
 {
-	//-----------------------------------------------------------------------------
 	uint32_t num_vertices() const
 	{
 		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
 		return data->vertices.num_vertices;
 	}
 
-	//-----------------------------------------------------------------------------
 	float* vertices() const
 	{
 		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
 		return (float*) (((char*)this) + data->vertices.offset);
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_indices() const
 	{
 		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);
 		return data->indices.num_indices;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint16_t* indices() const
 	{
 		MeshData* data = (MeshData*) ((char*) this) + sizeof(MeshHeader);

@@ -57,7 +57,6 @@ namespace mesh_resource
 	Array<MeshVertex>	m_vertices(default_allocator());
 	Array<uint16_t>		m_indices(default_allocator());
 
-	//-----------------------------------------------------------------------------
 	void compile(const char* path, CompileOptions& opts)
 	{
 		// File* file = fs.open(resource_path, FOM_READ);
@@ -196,7 +195,6 @@ namespace mesh_resource
 		// array::clear(m_indices);
 	}
 
-	//-----------------------------------------------------------------------------
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
@@ -210,7 +208,6 @@ namespace mesh_resource
 		return res;
 	}
 
-	//-----------------------------------------------------------------------------
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
 	}
@@ -219,7 +216,6 @@ namespace mesh_resource
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void unload(Allocator& a, void* res)
 	{
 		CE_ASSERT_NOT_NULL(res);

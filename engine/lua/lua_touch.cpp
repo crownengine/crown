@@ -33,7 +33,6 @@ namespace crown
 {
 using namespace input_globals;
 
-//-----------------------------------------------------------------------------
 static int touch_pointer_down(lua_State* L)
 {
 	LuaStack stack(L);
@@ -41,7 +40,6 @@ static int touch_pointer_down(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int touch_pointer_up(lua_State* L)
 {
 	LuaStack stack(L);
@@ -49,7 +47,6 @@ static int touch_pointer_up(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int touch_any_down(lua_State* L)
 {
 	LuaStack stack(L);
@@ -57,7 +54,6 @@ static int touch_any_down(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int touch_any_up(lua_State* L)
 {
 	LuaStack stack(L);
@@ -65,7 +61,6 @@ static int touch_any_up(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int touch_pointer_xy(lua_State* L)
 {
 	LuaStack stack(L);
@@ -73,7 +68,6 @@ static int touch_pointer_xy(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_touch(LuaEnvironment& env)
 {
 	env.load_module_function("Touch", "pointer_down", touch_pointer_down);

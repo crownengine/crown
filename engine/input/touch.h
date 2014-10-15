@@ -43,7 +43,6 @@ const uint32_t MAX_POINTER_IDS = 4;
 /// @ingroup Input
 struct Touch
 {
-	//-----------------------------------------------------------------------------
 	Touch()
 		: _last_pointer(0xFF)
 	{
@@ -88,7 +87,6 @@ struct Touch
 		return Vector2(_x[p], _y[p]);
 	}
 
-	//-----------------------------------------------------------------------------
 	void set_position(uint8_t p, uint16_t x, uint16_t y)
 	{
 		if (p >= MAX_POINTER_IDS) return;
@@ -96,14 +94,12 @@ struct Touch
 		_y[p] = y;
 	}
 
-	//-----------------------------------------------------------------------------
 	void set_metrics(uint16_t width, uint16_t height)
 	{
 		_width = width;
 		_height = height;
 	}
 
-	//-----------------------------------------------------------------------------
 	void set_pointer_state(uint16_t x, uint16_t y, uint8_t p, bool state)
 	{
 		set_position(p, x, y);
@@ -112,7 +108,6 @@ struct Touch
 		_current_state[p] = state;
 	}
 
-	//-----------------------------------------------------------------------------
 	void update()
 	{
 		memcpy(_last_state, _current_state, MAX_POINTER_IDS);

@@ -32,7 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int quaternionbox_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -57,7 +56,6 @@ static int quaternionbox_new(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int quaternionbox_ctor(lua_State* L)
 {
 	LuaStack stack(L);
@@ -65,7 +63,6 @@ static int quaternionbox_ctor(lua_State* L)
 	return quaternionbox_new(L);
 }
 
-//-----------------------------------------------------------------------------
 static int quaternionbox_store(lua_State* L)
 {
 	LuaStack stack(L);
@@ -89,7 +86,6 @@ static int quaternionbox_store(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int quaternionbox_unbox(lua_State* L)
 {
 	LuaStack stack(L);
@@ -100,7 +96,6 @@ static int quaternionbox_unbox(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int quaternionbox_tostring(lua_State* L)
 {
 	LuaStack stack(L);
@@ -109,7 +104,6 @@ static int quaternionbox_tostring(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_quaternionbox(LuaEnvironment& env)
 {
 	env.load_module_function("QuaternionBox", "new",        quaternionbox_new);

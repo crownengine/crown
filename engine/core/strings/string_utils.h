@@ -39,61 +39,51 @@ namespace crown
 namespace string
 {
 
-//-----------------------------------------------------------------------------
 inline bool is_alpha(char c)
 {
 	return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
 }
 
-//-----------------------------------------------------------------------------
 inline bool is_digit(char c)
 {
 	return !(c < '0' || c > '9');
 }
 
-//-----------------------------------------------------------------------------
 inline bool is_upper(char c)
 {
 	return (c >= 'A' && c <= 'Z');
 }
 
-//-----------------------------------------------------------------------------
 inline bool is_lower(char c)
 {
 	return (c >= 'a' && c <= 'z');
 }
 
-//-----------------------------------------------------------------------------
 inline bool is_whitespace(char c)
 {
 	return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
 }
 
-//-----------------------------------------------------------------------------
 inline size_t strlen(const char* str)
 {
 	return ::strlen(str);
 }
 
-//-----------------------------------------------------------------------------
 inline const char* strstr(const char* str1, const char* str2)
 {
 	return ::strstr(str1, str2);
 }
 
-//-----------------------------------------------------------------------------
 inline int32_t strcmp(const char* str1, const char* str2)
 {
 	return ::strcmp(str1, str2);
 }
 
-//-----------------------------------------------------------------------------
 inline int32_t strncmp(const char* s1, const char* s2, size_t len)
 {
 	return ::strncmp(s1, s2, len);
 }
 
-//-----------------------------------------------------------------------------
 inline char* strncpy(char* dest, const char* src, size_t len)
 {
 	char* ret = ::strncpy(dest, src, len);
@@ -102,19 +92,16 @@ inline char* strncpy(char* dest, const char* src, size_t len)
 	return ret;
 }
 
-//-----------------------------------------------------------------------------
 inline char* strcat(char* dest, const char* src)
 {
 	return ::strcat(dest, src);
 }
 
-//-----------------------------------------------------------------------------
 inline char* strncat(char* dest, const char* src, size_t len)
 {
 	return ::strncat(dest, src, len);
 }
 
-//-----------------------------------------------------------------------------
 inline const char* begin(const char* str)
 {
 	CE_ASSERT(str != NULL, "Str must be != NULL");
@@ -122,7 +109,6 @@ inline const char* begin(const char* str)
 	return str;
 }
 
-//-----------------------------------------------------------------------------
 inline const char* end(const char* str)
 {
 	CE_ASSERT(str != NULL, "Str must be != NULL");
@@ -130,7 +116,6 @@ inline const char* end(const char* str)
 	return str + string::strlen(str) + 1;
 }
 
-//-----------------------------------------------------------------------------
 inline const char* find_first(const char* str, char c)
 {
 	CE_ASSERT(str != NULL, "Str must be != NULL");
@@ -150,7 +135,6 @@ inline const char* find_first(const char* str, char c)
 	return string::end(str);
 }
 
-//-----------------------------------------------------------------------------
 inline const char* find_last(const char* str, char c)
 {
 	CE_ASSERT(str != NULL, "Str must be != NULL");
@@ -170,7 +154,6 @@ inline const char* find_last(const char* str, char c)
 	return string::end(str);
 }
 
-//-----------------------------------------------------------------------------
 inline void substring(const char* begin, const char* end, char* out, size_t len)
 {
 	CE_ASSERT(begin != NULL, "Begin must be != NULL");
@@ -193,7 +176,6 @@ inline void substring(const char* begin, const char* end, char* out, size_t len)
 	out[i] = '\0';
 }
 
-//-----------------------------------------------------------------------------
 inline int32_t parse_int(const char* string)
 {
 	int val;
@@ -205,7 +187,6 @@ inline int32_t parse_int(const char* string)
 	return val;
 }
 
-//-----------------------------------------------------------------------------
 inline uint32_t parse_uint(const char* string)
 {
 	unsigned int val;
@@ -217,7 +198,6 @@ inline uint32_t parse_uint(const char* string)
 	return val;
 }
 
-//-----------------------------------------------------------------------------
 inline float parse_float(const char* string)
 {
 	float val;
@@ -229,7 +209,6 @@ inline float parse_float(const char* string)
 	return val;
 }
 
-//-----------------------------------------------------------------------------
 inline double parse_double(const char* string)
 {
 	double val;
@@ -241,7 +220,6 @@ inline double parse_double(const char* string)
 	return val;
 }
 
-//-----------------------------------------------------------------------------
 /// MurmurHash2, by Austin Appleby
 ///
 /// @note

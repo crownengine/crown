@@ -37,13 +37,11 @@ namespace crown
 
 namespace lua_system { extern int error_handler(lua_State*); }
 
-//-----------------------------------------------------------------------------
 LuaEnvironment::LuaEnvironment(lua_State* L)
 	: _L(L)
 {
 }
 
-//-----------------------------------------------------------------------------
 void LuaEnvironment::execute(const LuaResource* lr)
 {
 	using namespace lua_resource;
@@ -53,7 +51,6 @@ void LuaEnvironment::execute(const LuaResource* lr)
 	lua_pop(_L, 1);
 }
 
-//-----------------------------------------------------------------------------
 void LuaEnvironment::execute_string(const char* s)
 {
 	lua_pushcfunction(_L, lua_system::error_handler);
@@ -62,7 +59,6 @@ void LuaEnvironment::execute_string(const char* s)
 	lua_pop(_L, 1);
 }
 
-//-----------------------------------------------------------------------------
 void LuaEnvironment::load_module_function(const char* module, const char* name, const lua_CFunction func)
 {
 	luaL_newmetatable(_L, module);
@@ -78,7 +74,6 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 	lua_pop(_L, -1);
 }
 
-//-----------------------------------------------------------------------------
 void LuaEnvironment::load_module_function(const char* module, const char* name, const char* value)
 {
 	luaL_newmetatable(_L, module);
@@ -87,7 +82,6 @@ void LuaEnvironment::load_module_function(const char* module, const char* name, 
 	lua_setglobal(_L, module);
 }
 
-//-----------------------------------------------------------------------------
 void LuaEnvironment::load_module_constructor(const char* module, const lua_CFunction func)
 {
 	// Create dummy tables to be used as module's metatable
@@ -101,7 +95,6 @@ void LuaEnvironment::load_module_constructor(const char* module, const lua_CFunc
 	lua_pop(_L, -1);
 }
 
-//-----------------------------------------------------------------------------
 void LuaEnvironment::load_module_enum(const char* module, const char* name, uint32_t value)
 {
 	// Checks table existance
@@ -121,7 +114,6 @@ void LuaEnvironment::load_module_enum(const char* module, const char* name, uint
 	lua_pop(_L, 2);
 }
 
-//-----------------------------------------------------------------------------
 void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 {
 	CE_ASSERT_NOT_NULL(func);
@@ -157,7 +149,6 @@ void LuaEnvironment::call_global(const char* func, uint8_t argc, ...)
 	lua_pop(_L, -1);
 }
 
-//-----------------------------------------------------------------------------
 void LuaEnvironment::call_physics_callback(Actor* actor_0, Actor* actor_1, Unit* unit_0, Unit* unit_1, const Vector3& where, const Vector3& normal, const char* type)
 {
 	LuaStack stack(_L);
@@ -178,7 +169,6 @@ void LuaEnvironment::call_physics_callback(Actor* actor_0, Actor* actor_1, Unit*
 	lua_pop(_L, -1);
 }
 
-//-----------------------------------------------------------------------------
 void LuaEnvironment::call_trigger_callback(Actor* trigger, Actor* other, const char* type)
 {
 	LuaStack stack(_L);

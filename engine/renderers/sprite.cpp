@@ -39,7 +39,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 Sprite::Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const SpriteResource* sr)
 	: m_render_world(render_world)
 	, m_scene_graph(sg)
@@ -49,55 +48,46 @@ Sprite::Sprite(RenderWorld& render_world, SceneGraph& sg, int32_t node, const Sp
 {
 }
 
-//-----------------------------------------------------------------------------
 Vector3 Sprite::local_position() const
 {
 	return m_scene_graph.local_position(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Quaternion Sprite::local_rotation() const
 {
 	return m_scene_graph.local_rotation(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Matrix4x4 Sprite::local_pose() const
 {
 	return m_scene_graph.local_pose(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Vector3 Sprite::world_position() const
 {
 	return m_scene_graph.world_position(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Quaternion Sprite::world_rotation() const
 {
 	return m_scene_graph.world_rotation(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Matrix4x4 Sprite::world_pose() const
 {
 	return m_scene_graph.world_pose(m_node);
 }
 
-//-----------------------------------------------------------------------------
 void Sprite::set_local_position(Unit* unit, const Vector3& pos)
 {
 	unit->set_local_position(m_node, pos);
 }
 
-//-----------------------------------------------------------------------------
 void Sprite::set_local_rotation(Unit* unit, const Quaternion& rot)
 {
 	unit->set_local_rotation(m_node, rot);
 }
 
-//-----------------------------------------------------------------------------
 void Sprite::set_local_pose(Unit* unit, const Matrix4x4& pose)
 {
 	unit->set_local_pose(m_node, pose);
@@ -108,13 +98,11 @@ void Sprite::set_material(MaterialId id)
 	m_material = id;
 }
 
-//-----------------------------------------------------------------------------
 void Sprite::set_frame(uint32_t i)
 {
 	m_frame = i;
 }
 
-//-----------------------------------------------------------------------------
 void Sprite::render()
 {
 	if (m_material.id != INVALID_ID)

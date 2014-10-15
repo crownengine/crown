@@ -35,7 +35,6 @@ namespace crown
 {
 namespace package_resource
 {
-	//-----------------------------------------------------------------------------
 	void compile(const char* path, CompileOptions& opts)
 	{
 		static const uint32_t VERSION = 1;
@@ -167,7 +166,6 @@ namespace package_resource
 			opts.write(sprite_animation[i].to_resource_id("sprite_animation"));
 	}
 
-	//-----------------------------------------------------------------------------
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
@@ -181,7 +179,6 @@ namespace package_resource
 		return res;
 	}
 
-	//-----------------------------------------------------------------------------
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
 	}
@@ -190,91 +187,76 @@ namespace package_resource
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_textures(const PackageResource* pr)
 	{
 		return pr->num_textures;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_scripts(const PackageResource* pr)
 	{
 		return pr->num_scripts;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_sounds(const PackageResource* pr)
 	{
 		return pr->num_sounds;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_meshes(const PackageResource* pr)
 	{
 		return pr->num_meshes;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_units(const PackageResource* pr)
 	{
 		return pr->num_units;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_sprites(const PackageResource* pr)
 	{
 		return pr->num_sprites;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_physics(const PackageResource* pr)
 	{
 		return pr->num_physics;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_materials(const PackageResource* pr)
 	{
 		return pr->num_materials;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_fonts(const PackageResource* pr)
 	{
 		return pr->num_fonts;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_levels(const PackageResource* pr)
 	{
 		return pr->num_levels;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_physics_configs(const PackageResource* pr)
 	{
 		return pr->num_physics_configs;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_shaders(const PackageResource* pr)
 	{
 		return pr->num_shaders;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_sprite_animations(const PackageResource* pr)
 	{
 		return pr->num_sprite_animations;
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_texture_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_textures(pr), "Index out of bounds");
@@ -283,7 +265,6 @@ namespace package_resource
 		return begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_script_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_scripts(pr), "Index out of bounds");
@@ -292,7 +273,6 @@ namespace package_resource
 		return begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_sound_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_sounds(pr), "Index out of bounds");
@@ -301,7 +281,6 @@ namespace package_resource
 		return begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_mesh_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_meshes(pr), "Index out of bounds");
@@ -310,7 +289,6 @@ namespace package_resource
 		return begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_unit_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_units(pr), "Index out of bounds");
@@ -319,7 +297,6 @@ namespace package_resource
 		return begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_sprite_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_sprites(pr), "Index out of bounds");
@@ -328,7 +305,6 @@ namespace package_resource
 		return begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_physics_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_physics(pr), "Index out of bounds");
@@ -337,7 +313,6 @@ namespace package_resource
 		return begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_material_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_materials(pr), "Index out of bounds");
@@ -346,7 +321,6 @@ namespace package_resource
 		return begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_font_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_fonts(pr), "Index out of bounds");
@@ -355,7 +329,6 @@ namespace package_resource
 		return begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_level_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_levels(pr), "Index out of bounds");
@@ -364,7 +337,6 @@ namespace package_resource
 		return begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_physics_config_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_physics_configs(pr), "Index out of bounds");
@@ -373,7 +345,6 @@ namespace package_resource
 		return begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_shader_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_shaders(pr), "Index out of bounds");
@@ -382,7 +353,6 @@ namespace package_resource
 		return begin[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	ResourceId get_sprite_animation_id(const PackageResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_sprite_animations(pr), "Index out of bounds");

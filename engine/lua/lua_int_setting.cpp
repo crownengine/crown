@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int int_setting_query_value(lua_State* L)
 {
 	LuaStack stack(L);
@@ -52,7 +51,6 @@ static int int_setting_query_value(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int int_setting_query_synopsis(lua_State* L)
 {
 	LuaStack stack(L);
@@ -73,7 +71,6 @@ static int int_setting_query_synopsis(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int int_setting_query_min(lua_State* L)
 {
 	LuaStack stack(L);
@@ -94,7 +91,6 @@ static int int_setting_query_min(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int int_setting_query_max(lua_State* L)
 {
 	LuaStack stack(L);
@@ -115,7 +111,6 @@ static int int_setting_query_max(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int int_setting_update(lua_State* L)
 {
 	LuaStack stack(L);
@@ -133,7 +128,6 @@ static int int_setting_update(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 void load_int_setting(LuaEnvironment& env)
 {
 	env.load_module_function("IntSetting", "value",    int_setting_query_value);

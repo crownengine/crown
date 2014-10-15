@@ -38,7 +38,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int device_platform(lua_State* L)
 {
 	LuaStack stack(L);
@@ -46,7 +45,6 @@ static int device_platform(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int device_architecture(lua_State* L)
 {
 	LuaStack stack(L);
@@ -54,7 +52,6 @@ static int device_architecture(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int device_version(lua_State* L)
 {
 	LuaStack stack(L);
@@ -62,7 +59,6 @@ static int device_version(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int device_last_delta_time(lua_State* L)
 {
 	LuaStack stack(L);
@@ -70,14 +66,12 @@ static int device_last_delta_time(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int device_quit(lua_State* /*L*/)
 {
 	device()->quit();
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int device_resolution(lua_State* L)
 {
 	LuaStack stack(L);
@@ -88,7 +82,6 @@ static int device_resolution(lua_State* L)
 	return 2;
 }
 
-//-----------------------------------------------------------------------------
 static int device_create_world(lua_State* L)
 {
 	LuaStack stack(L);
@@ -97,7 +90,6 @@ static int device_create_world(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int device_destroy_world(lua_State* L)
 {
 	LuaStack stack(L);
@@ -105,7 +97,6 @@ static int device_destroy_world(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int device_render_world(lua_State* L)
 {
 	LuaStack stack(L);
@@ -113,7 +104,6 @@ static int device_render_world(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int device_create_resource_package(lua_State* L)
 {
 	LuaStack stack(L);
@@ -121,7 +111,6 @@ static int device_create_resource_package(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int device_destroy_resource_package(lua_State* L)
 {
 	LuaStack stack(L);
@@ -129,7 +118,6 @@ static int device_destroy_resource_package(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int device_console_send(lua_State* L)
 {
 	using namespace string_stream;
@@ -156,7 +144,6 @@ static int device_console_send(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 void load_device(LuaEnvironment& env)
 {
 	env.load_module_function("Device", "platform",                 device_platform);

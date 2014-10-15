@@ -206,35 +206,30 @@ struct Color4
 	float r, g, b, a;
 };
 
-//-----------------------------------------------------------------------------
 inline Color4 operator+(Color4 a, const Color4& b)
 {
 	a += b;
 	return a;
 }
 
-//-----------------------------------------------------------------------------
 inline Color4 operator-(Color4 a, const Color4& b)
 {
 	a -= b;
 	return a;
 }
 
-//-----------------------------------------------------------------------------
 inline Color4 operator*(Color4 a, const Color4& b)
 {
 	a *= b;
 	return a;
 }
 
-//-----------------------------------------------------------------------------
 inline Color4 operator*(Color4 a, float k)
 {
 	a *= k;
 	return a;
 }
 
-//-----------------------------------------------------------------------------
 inline Color4 operator*(float k, Color4 a)
 {
 	a *= k;
@@ -267,7 +262,6 @@ namespace color4
 
 namespace color4
 {
-	//-----------------------------------------------------------------------------
 	inline uint32_t to_rgb(const Color4& c)
 	{
 		uint32_t rgba;
@@ -280,7 +274,6 @@ namespace color4
 		return rgba;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline uint32_t to_bgr(const Color4& c)
 	{
 		uint32_t abgr;
@@ -293,7 +286,6 @@ namespace color4
 		return abgr;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline uint32_t to_rgba(const Color4& c)
 	{
 		uint32_t rgba;
@@ -306,7 +298,6 @@ namespace color4
 		return rgba;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline uint32_t to_abgr(const Color4& c)
 	{
 		uint32_t abgr;
@@ -319,32 +310,27 @@ namespace color4
 		return abgr;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float* to_float_ptr(Color4& c)
 	{
 		return &c.r;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline const float* to_float_ptr(const Color4& c)
 	{
 		return &c.r;
 	}
 } // namespace color4
 
-//-----------------------------------------------------------------------------
 inline Color4::Color4()
 {
 	// Do not initialize
 }
 
-//-----------------------------------------------------------------------------
 inline Color4::Color4(float r, float g, float b)
 	: r(r), g(g), b(b), a(1)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Color4::Color4(int r, int g, int b)
 	: r(r * float(1.0/255.0))
 	, g(g * float(1.0/255.0))
@@ -353,7 +339,6 @@ inline Color4::Color4(int r, int g, int b)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Color4::Color4(float r, float g, float b, float a)
 {
 	this->r = r;
@@ -362,7 +347,6 @@ inline Color4::Color4(float r, float g, float b, float a)
 	this->a = a;
 }
 
-//-----------------------------------------------------------------------------
 inline Color4::Color4(int r, int g, int b, int a)
 	: r(r * float(1.0/255.0))
 	, g(g * float(1.0/255.0))
@@ -371,7 +355,6 @@ inline Color4::Color4(int r, int g, int b, int a)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Color4::Color4(float c[4])
 	: r(c[0])
 	, g(c[1])
@@ -380,7 +363,6 @@ inline Color4::Color4(float c[4])
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Color4::Color4(uint32_t rgba)
 	: r(float(1.0/255.0) * ((rgba & 0xFF000000) >> 24))
 	, g(float(1.0/255.0) * ((rgba & 0x00FF0000) >> 16))
@@ -389,19 +371,16 @@ inline Color4::Color4(uint32_t rgba)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline float& Color4::operator[](uint32_t i)
 {
 	return (&r)[i];
 }
 
-//-----------------------------------------------------------------------------
 inline const float& Color4::operator[](uint32_t i) const
 {
 	return (&r)[i];
 }
 
-//-----------------------------------------------------------------------------
 inline Color4& Color4::operator+=(const Color4& c)
 {
 	r += c.r;
@@ -412,7 +391,6 @@ inline Color4& Color4::operator+=(const Color4& c)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Color4& Color4::operator-=(const Color4& c)
 {
 	r -= c.r;
@@ -423,7 +401,6 @@ inline Color4& Color4::operator-=(const Color4& c)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Color4& Color4::operator*=(const Color4& c)
 {
 	r *= c.r;
@@ -434,7 +411,6 @@ inline Color4& Color4::operator*=(const Color4& c)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Color4& Color4::operator*=(float k)
 {
 	r *= k;

@@ -48,19 +48,16 @@ extern "C"
 namespace crown
 {
 
-// //-----------------------------------------------------------------------------
 // void display_modes(Array<DisplayMode>& /*modes*/)
 // {
 // 	// Do nothing
 // }
 
-// //-----------------------------------------------------------------------------
 // void set_display_mode(uint32_t /*id*/)
 // {
 // 	// Do nothing
 // }
 
-// //-----------------------------------------------------------------------------
 // void set_fullscreen(bool /*full*/)
 // {
 // 	// Do nothing
@@ -110,7 +107,6 @@ struct AndroidDevice
 		_main_thread.stop();
 	}
 
-	//-----------------------------------------------------------------------------
 	void process_command(struct android_app* app, int32_t cmd)
 	{
 		switch (cmd)
@@ -156,7 +152,6 @@ struct AndroidDevice
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	int32_t process_input(struct android_app* app, AInputEvent* event)
 	{
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
@@ -222,13 +217,11 @@ struct AndroidDevice
 		return 0;
 	}
 
-	//-----------------------------------------------------------------------------
 	static int32_t on_input_event(struct android_app* app, AInputEvent* event)
 	{
 		return ((AndroidDevice*) app->userData)->process_input(app, event);
 	}
 
-	//-----------------------------------------------------------------------------
 	static void on_app_cmd(struct android_app* app, int32_t cmd)
 	{
 		((AndroidDevice*) app->userData)->process_command(app, cmd);

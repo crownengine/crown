@@ -142,31 +142,26 @@ inline bool operator==(const Vector3& a, const Vector3& b)
 
 namespace vector3
 {
-	//-----------------------------------------------------------------------------
 	inline float dot(const Vector3& a, const Vector3& b)
 	{
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Vector3 cross(const Vector3& a, const Vector3& b)
 	{
 		return Vector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float length(const Vector3& a)
 	{
 		return math::sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float squared_length(const Vector3& a)
 	{
 		return a.x * a.x + a.y * a.y + a.z * a.z;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void set_length(Vector3& a, float len)
 	{
 		normalize(a);
@@ -176,7 +171,6 @@ namespace vector3
 		a.z *= len;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Vector3 normalize(Vector3& a)
 	{
 		float inv_len = 1.0f / length(a);
@@ -188,59 +182,49 @@ namespace vector3
 		return a;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float distance(const Vector3& a, const Vector3& b)
 	{
 		return length(b - a);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float angle(const Vector3& a, const Vector3& b)
 	{
 		return math::acos(dot(a, b) / (length(a) * length(b)));
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float* to_float_ptr(Vector3& a)
 	{
 		return &a.x;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline const float* to_float_ptr(const Vector3& a)
 	{
 		return &a.x;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Vector2 to_vector2(const Vector3& a)
 	{
 		return Vector2(a.x, a.y);
 	}
 } // namespace vector3
 
-//-----------------------------------------------------------------------------
 inline Vector3::Vector3()
 {
 	// Do not initialize
 }
 
-//-----------------------------------------------------------------------------
 inline Vector3::Vector3(float val) : x(val), y(val), z(val)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Vector3::Vector3(float nx, float ny, float nz) : x(nx), y(ny), z(nz)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Vector3::Vector3(const float v[3]) : x(v[0]), y(v[1]), z(v[2])
 {
 }
 
-//-----------------------------------------------------------------------------
 inline const float& Vector3::operator[](uint32_t i) const
 {
 	CE_ASSERT(i < 3, "Index out of bounds");
@@ -248,7 +232,6 @@ inline const float& Vector3::operator[](uint32_t i) const
 	return (&x)[i];
 }
 
-//-----------------------------------------------------------------------------
 inline float& Vector3::operator[](uint32_t i)
 {
 	CE_ASSERT(i < 3, "Index out of bounds");
@@ -256,7 +239,6 @@ inline float& Vector3::operator[](uint32_t i)
 	return (&x)[i];
 }
 
-//-----------------------------------------------------------------------------
 inline Vector3& Vector3::operator+=(const Vector3& a)
 {
 	x += a.x;
@@ -266,7 +248,6 @@ inline Vector3& Vector3::operator+=(const Vector3& a)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Vector3& Vector3::operator-=(const Vector3& a)
 {
 	x -= a.x;
@@ -276,7 +257,6 @@ inline Vector3& Vector3::operator-=(const Vector3& a)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Vector3& Vector3::operator*=(float k)
 {
 	x *= k;
@@ -286,7 +266,6 @@ inline Vector3& Vector3::operator*=(float k)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Vector3& Vector3::operator/=(float k)
 {
 	CE_ASSERT(k != (float)0.0, "Division by zero");

@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int math_to_rad(lua_State* L)
 {
 	LuaStack stack(L);
@@ -39,7 +38,6 @@ static int math_to_rad(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_to_deg(lua_State* L)
 {
 	LuaStack stack(L);
@@ -47,7 +45,6 @@ static int math_to_deg(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_next_pow_2(lua_State* L)
 {
 	LuaStack stack(L);
@@ -55,7 +52,6 @@ static int math_next_pow_2(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_is_pow_2(lua_State* L)
 {
 	LuaStack stack(L);
@@ -63,7 +59,6 @@ static int math_is_pow_2(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_ceil(lua_State* L)
 {
 	LuaStack stack(L);
@@ -71,7 +66,6 @@ static int math_ceil(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_floor(lua_State* L)
 {
 	LuaStack stack(L);
@@ -79,7 +73,6 @@ static int math_floor(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_sqrt(lua_State* L)
 {
 	LuaStack stack(L);
@@ -87,7 +80,6 @@ static int math_sqrt(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_inv_sqrt(lua_State* L)
 {
 	LuaStack stack(L);
@@ -95,7 +87,6 @@ static int math_inv_sqrt(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_sin(lua_State* L)
 {
 	LuaStack stack(L);
@@ -103,7 +94,6 @@ static int math_sin(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_cos(lua_State* L)
 {
 	LuaStack stack(L);
@@ -111,7 +101,6 @@ static int math_cos(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_asin(lua_State* L)
 {
 	LuaStack stack(L);
@@ -119,7 +108,6 @@ static int math_asin(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_acos(lua_State* L)
 {
 	LuaStack stack(L);
@@ -127,7 +115,6 @@ static int math_acos(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_tan(lua_State* L)
 {
 	LuaStack stack(L);
@@ -135,7 +122,6 @@ static int math_tan(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_atan2(lua_State* L)
 {
 	LuaStack stack(L);
@@ -143,7 +129,6 @@ static int math_atan2(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_abs(lua_State* L)
 {
 	LuaStack stack(L);
@@ -151,7 +136,6 @@ static int math_abs(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int math_fmod(lua_State* L)
 {
 	LuaStack stack(L);
@@ -159,7 +143,6 @@ static int math_fmod(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_math(LuaEnvironment& env)
 {
 	env.load_module_function("Math", "to_rad",     math_to_rad);

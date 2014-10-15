@@ -54,7 +54,6 @@ namespace plane
 	const Plane	YAXIS = Plane(vector3::YAXIS, 0.0);
 	const Plane	ZAXIS = Plane(vector3::ZAXIS, 0.0);
 
-	//-----------------------------------------------------------------------------
 	inline Plane& normalize(Plane& p)
 	{
 		float len = vector3::length(p.n);
@@ -72,20 +71,17 @@ namespace plane
 		return p;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float distance_to_point(const Plane& p, const Vector3& point)
 	{
 		return vector3::dot(p.n, point) + p.d;
 	}
 } // namespace plane
 
-//-----------------------------------------------------------------------------
 inline Plane::Plane()
 {
 	// Do not initialize
 }
 
-//-----------------------------------------------------------------------------
 inline Plane::Plane(const Vector3& normal, float dist)
 	: n(normal), d(dist)
 {

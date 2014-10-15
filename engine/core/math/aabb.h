@@ -76,31 +76,26 @@ namespace aabb
 
 namespace aabb
 {
-	//-----------------------------------------------------------------------------
 	inline void reset(AABB& b)
 	{
 		b.min = vector3::ZERO;
 		b.max = vector3::ZERO;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Vector3 center(const AABB& b)
 	{
 		return (b.min + b.max) * 0.5;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float radius(const AABB& b)
 	{
 		return vector3::length(b.max - (b.min + b.max) * 0.5);
 	}
-	//-----------------------------------------------------------------------------
 	inline float volume(const AABB& b)
 	{
 		return (b.max.x - b.min.x) * (b.max.y - b.min.y) * (b.max.z - b.min.z);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void add_points(AABB& b, uint32_t num, const Vector3* points)
 	{
 		for (uint32_t i = 0; i < num; i++)
@@ -116,7 +111,6 @@ namespace aabb
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void add_boxes(AABB& b, uint32_t num, const AABB* boxes)
 	{
 		for (uint32_t i = 0; i < num; i++)
@@ -132,7 +126,6 @@ namespace aabb
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	inline bool contains_point(const AABB& b, const Vector3& p)
 	{
 		return (p.x > b.min.x &&
@@ -143,7 +136,6 @@ namespace aabb
 				p.z < b.max.z);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Vector3 vertex(const AABB& b, uint32_t index)
 	{
 		CE_ASSERT(index < 8, "Index must be < 8");
@@ -161,7 +153,6 @@ namespace aabb
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	inline AABB transformed(const AABB& b, const Matrix4x4& m)
 	{
 		Vector3 vertices[8];
@@ -182,7 +173,6 @@ namespace aabb
 		return res;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void to_vertices(const AABB& b, Vector3 v[8])
 	{
 		// 7 ---- 6
@@ -227,20 +217,17 @@ namespace aabb
 		v[7].z = b.min.z;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Sphere to_sphere(const AABB& b)
 	{
 		return Sphere(center(b), radius(b));
 	}
 } // namespace aabb
 
-//-----------------------------------------------------------------------------
 inline AABB::AABB()
 {
 	// Do not initialize
 }
 
-//-----------------------------------------------------------------------------
 inline AABB::AABB(const Vector3& min, const Vector3& max)
 	: min(min), max(max)
 {

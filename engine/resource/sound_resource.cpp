@@ -57,7 +57,6 @@ namespace sound_resource
 		int32_t			data_size;				// Data dimension
 	};
 
-	// //-----------------------------------------------------------------------------
 	// size_t compile_if_ogg(Filesystem& fs, const char* resource_path)
 	// {
 	// 	// Retrieves resource absolute path
@@ -103,7 +102,6 @@ namespace sound_resource
 	// 	return sizeof(SoundHeader) + m_sound_data_size;
 	// }
 
-	//-----------------------------------------------------------------------------
 	void compile(const char* path, CompileOptions& opts)
 	{
 		const uint32_t VERSION = 1;
@@ -138,7 +136,6 @@ namespace sound_resource
 		opts.write(wavdata, wav->data_size);
 	}
 
-	//-----------------------------------------------------------------------------
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
@@ -152,7 +149,6 @@ namespace sound_resource
 		return res;
 	}
 
-	//-----------------------------------------------------------------------------
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
 	}
@@ -161,7 +157,6 @@ namespace sound_resource
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);

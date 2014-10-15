@@ -35,7 +35,6 @@ namespace crown
 static ProxyAllocator* g_proxy_allocators_head = NULL;
 static Mutex g_proxy_allocators_mutex;
 
-//-----------------------------------------------------------------------------
 ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator)
 	: _allocator(allocator)
 	, _name(name)
@@ -54,7 +53,6 @@ ProxyAllocator::ProxyAllocator(const char* name, Allocator& allocator)
 	g_proxy_allocators_head = this;
 }
 
-//-----------------------------------------------------------------------------
 void* ProxyAllocator::allocate(size_t size, size_t align)
 {
 	_total_allocated += size;
@@ -62,25 +60,21 @@ void* ProxyAllocator::allocate(size_t size, size_t align)
 	return _allocator.allocate(size, align);
 }
 
-//-----------------------------------------------------------------------------
 void ProxyAllocator::deallocate(void* data)
 {
 	_allocator.deallocate(data);
 }
 
-//-----------------------------------------------------------------------------
 size_t ProxyAllocator::allocated_size()
 {
 	return _total_allocated;
 }
 
-//-----------------------------------------------------------------------------
 const char* ProxyAllocator::name() const
 {
 	return _name;
 }
 
-//-----------------------------------------------------------------------------
 uint32_t ProxyAllocator::count()
 {
 	ScopedMutex sm(g_proxy_allocators_mutex);
@@ -97,7 +91,6 @@ uint32_t ProxyAllocator::count()
 	return count;
 }
 
-//-----------------------------------------------------------------------------
 ProxyAllocator* ProxyAllocator::find(const char* name)
 {
 	ScopedMutex sm(g_proxy_allocators_mutex);
@@ -117,13 +110,11 @@ ProxyAllocator* ProxyAllocator::find(const char* name)
 	return NULL;
 }
 
-//-----------------------------------------------------------------------------
 ProxyAllocator* ProxyAllocator::begin()
 {
 	return g_proxy_allocators_head;
 }
 
-//-----------------------------------------------------------------------------
 ProxyAllocator* ProxyAllocator::next(ProxyAllocator* a)
 {
 	if (a == NULL)

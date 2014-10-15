@@ -32,7 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int sprite_local_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -40,7 +39,6 @@ static int sprite_local_position(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int sprite_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -48,7 +46,6 @@ static int sprite_local_rotation(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int sprite_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
@@ -56,7 +53,6 @@ static int sprite_local_pose(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int sprite_set_local_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -64,7 +60,6 @@ static int sprite_set_local_position(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int sprite_set_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -72,7 +67,6 @@ static int sprite_set_local_rotation(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int sprite_set_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
@@ -80,7 +74,6 @@ static int sprite_set_local_pose(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int sprite_set_frame(lua_State* L)
 {
 	LuaStack stack(L);
@@ -88,7 +81,6 @@ static int sprite_set_frame(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 void load_sprite(LuaEnvironment& env)
 {
 	env.load_module_function("Sprite", "local_position",     sprite_local_position);

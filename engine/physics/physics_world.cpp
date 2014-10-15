@@ -93,7 +93,6 @@ namespace physics_globals
 	using physx::PxErrorCallback;
 	using physx::PxErrorCode;
 
-	//-----------------------------------------------------------------------------
 	class PhysXAllocator : public PxAllocatorCallback
 	{
 	public:
@@ -118,7 +117,6 @@ namespace physics_globals
 		ProxyAllocator m_backing;
 	};
 
-	//-----------------------------------------------------------------------------
 	class PhysXError : public PxErrorCallback
 	{
 	public:
@@ -156,7 +154,6 @@ namespace physics_globals
 		}
 	};
 
-	//-----------------------------------------------------------------------------
 	PxFilterFlags FilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0,
 									PxFilterObjectAttributes attributes1, PxFilterData filterData1,
 									PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
@@ -236,7 +233,6 @@ namespace physics_globals
 	#endif
 } // namespace physics_globals
 
-//-----------------------------------------------------------------------------
 PhysicsWorld::PhysicsWorld(World& world)
 	: m_world(world)
 	, m_scene(NULL)
@@ -291,7 +287,6 @@ PhysicsWorld::PhysicsWorld(World& world)
 	#endif
 }
 
-//-----------------------------------------------------------------------------
 PhysicsWorld::~PhysicsWorld()
 {
 	m_cpu_dispatcher->release();
@@ -303,94 +298,80 @@ PhysicsWorld::~PhysicsWorld()
 	#endif
 }
 
-//-----------------------------------------------------------------------------
 ActorId	PhysicsWorld::create_actor(const PhysicsResource* res, const uint32_t index, SceneGraph& sg, int32_t node, UnitId unit_id)
 {
 	Actor* actor = CE_NEW(m_actors_pool, Actor)(*this, res, index, sg, node, unit_id);
 	return id_array::create(m_actors, actor);
 }
 
-//-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_actor(ActorId id)
 {
 	CE_DELETE(m_actors_pool, id_array::get(m_actors, id));
 	id_array::destroy(m_actors, id);
 }
 
-//-----------------------------------------------------------------------------
 ControllerId PhysicsWorld::create_controller(const PhysicsResource* pr, SceneGraph& sg, int32_t node)
 {
 	Controller* controller = CE_NEW(m_controllers_pool, Controller)(pr, sg, node, physics_globals::s_physics, m_controller_manager);
 	return id_array::create(m_controllers, controller);
 }
 
-//-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_controller(ControllerId id)
 {
 	CE_DELETE(m_controllers_pool, id_array::get(m_controllers, id));
 	id_array::destroy(m_controllers, id);
 }
 
-//-----------------------------------------------------------------------------
 JointId	PhysicsWorld::create_joint(const PhysicsResource* pr, const uint32_t index, const Actor& actor_0, const Actor& actor_1)
 {
 	Joint* joint = CE_NEW(m_joints_pool, Joint)(physics_globals::s_physics, pr, index, actor_0, actor_1);
 	return id_array::create(m_joints, joint);
 }
 
-//-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_joint(JointId id)
 {
 	CE_DELETE(m_joints_pool, id_array::get(m_joints, id));
 	id_array::destroy(m_joints, id);
 }
 
-//-----------------------------------------------------------------------------
 RaycastId PhysicsWorld::create_raycast(CollisionMode::Enum mode, CollisionType::Enum filter)
 {
 	Raycast* raycast = CE_NEW(m_raycasts_pool, Raycast)(m_scene, mode, filter);
 	return id_array::create(m_raycasts, raycast);
 }
 
-//-----------------------------------------------------------------------------
 void PhysicsWorld::destroy_raycast(RaycastId id)
 {
 	CE_DELETE(m_raycasts_pool, id_array::get(m_raycasts, id));
 	id_array::destroy(m_raycasts, id);
 }
 
-//-----------------------------------------------------------------------------
 Actor* PhysicsWorld::get_actor(ActorId id)
 {
 	return id_array::get(m_actors, id);
 }
 
-//-----------------------------------------------------------------------------
 Controller* PhysicsWorld::get_controller(ControllerId id)
 {
 	return id_array::get(m_controllers, id);
 }
 
-//-----------------------------------------------------------------------------
 Raycast* PhysicsWorld::get_raycast(RaycastId id)
 {
 	return id_array::get(m_raycasts, id);
 }
 
-//-----------------------------------------------------------------------------
 Vector3 PhysicsWorld::gravity() const
 {
 	PxVec3 g = m_scene->getGravity();
 	return Vector3(g.x, g.y, g.z);
 }
 
-//-----------------------------------------------------------------------------
 void PhysicsWorld::set_gravity(const Vector3& g)
 {
 	m_scene->setGravity(PxVec3(g.x, g.y, g.z));
 }
 
-//-----------------------------------------------------------------------------
 void PhysicsWorld::overlap_test(CollisionType::Enum filter, ShapeType::Enum type,
 								const Vector3& pos, const Quaternion& rot, const Vector3& size, Array<Actor*>& actors)
 {
@@ -427,7 +408,6 @@ void PhysicsWorld::overlap_test(CollisionType::Enum filter, ShapeType::Enum type
 	}
 }
 
-//-----------------------------------------------------------------------------
 void PhysicsWorld::update(float dt)
 {
 	// Run with fixed timestep
@@ -459,7 +439,6 @@ void PhysicsWorld::update(float dt)
 	}
 }
 
-//-----------------------------------------------------------------------------
 void PhysicsWorld::draw_debug()
 {
 	#if defined(CROWN_DEBUG)

@@ -50,7 +50,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-// //-----------------------------------------------------------------------------
 // void display_modes(Array<DisplayMode>& modes)
 // {
 // 	int num_rrsizes = 0;
@@ -66,7 +65,6 @@ namespace crown
 // 	}
 // }
 
-// //-----------------------------------------------------------------------------
 // void set_display_mode(uint32_t id)
 // {
 // 	// Check if id is valid
@@ -85,7 +83,6 @@ namespace crown
 // 		CurrentTime);
 // }
 
-// //-----------------------------------------------------------------------------
 // void set_fullscreen(bool full)
 // {
 // 	XEvent e;
@@ -98,7 +95,6 @@ namespace crown
 // 	XSendEvent(m_x11_display, DefaultRootWindow(m_x11_display), False, SubstructureNotifyMask, &e);
 // }
 
-//-----------------------------------------------------------------------------
 static KeyboardButton::Enum x11_translate_key(KeySym x11_key)
 {
 	switch (x11_key)

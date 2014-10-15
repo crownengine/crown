@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int actor_world_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -39,7 +38,6 @@ static int actor_world_position(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -47,7 +45,6 @@ static int actor_world_rotation(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
@@ -55,7 +52,6 @@ static int actor_world_pose(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_teleport_world_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -63,7 +59,6 @@ static int actor_teleport_world_position(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_teleport_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -71,7 +66,6 @@ static int actor_teleport_world_rotation(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_teleport_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
@@ -79,7 +73,6 @@ static int actor_teleport_world_pose(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_center_of_mass(lua_State* L)
 {
 	LuaStack stack(L);
@@ -87,7 +80,6 @@ static int actor_center_of_mass(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_enable_gravity(lua_State* L)
 {
 	LuaStack stack(L);
@@ -95,7 +87,6 @@ static int actor_enable_gravity(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_disable_gravity(lua_State* L)
 {
 	LuaStack stack(L);
@@ -103,7 +94,6 @@ static int actor_disable_gravity(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_enable_collision(lua_State* L)
 {
 	LuaStack stack(L);
@@ -111,7 +101,6 @@ static int actor_enable_collision(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_disable_collision(lua_State* L)
 {
 	LuaStack stack(L);
@@ -119,7 +108,6 @@ static int actor_disable_collision(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_set_collision_filter(lua_State* L)
 {
 	LuaStack stack(L);
@@ -127,7 +115,6 @@ static int actor_set_collision_filter(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_set_kinematic(lua_State* L)
 {
 	LuaStack stack(L);
@@ -135,7 +122,6 @@ static int actor_set_kinematic(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_move(lua_State* L)
 {
 	LuaStack stack(L);
@@ -143,7 +129,6 @@ static int actor_move(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_is_static(lua_State* L)
 {
 	LuaStack stack(L);
@@ -151,7 +136,6 @@ static int actor_is_static(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_is_dynamic(lua_State* L)
 {
 	LuaStack stack(L);
@@ -159,7 +143,6 @@ static int actor_is_dynamic(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_is_kinematic(lua_State* L)
 {
 	LuaStack stack(L);
@@ -167,7 +150,6 @@ static int actor_is_kinematic(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_is_nonkinematic(lua_State* L)
 {
 	LuaStack stack(L);
@@ -176,7 +158,6 @@ static int actor_is_nonkinematic(lua_State* L)
 }
 
 
-//-----------------------------------------------------------------------------
 static int actor_linear_damping(lua_State* L)
 {
 	LuaStack stack(L);
@@ -184,7 +165,6 @@ static int actor_linear_damping(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_set_linear_damping(lua_State* L)
 {
 	LuaStack stack(L);
@@ -192,7 +172,6 @@ static int actor_set_linear_damping(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_angular_damping(lua_State* L)
 {
 	LuaStack stack(L);
@@ -200,7 +179,6 @@ static int actor_angular_damping(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_set_angular_damping(lua_State* L)
 {
 	LuaStack stack(L);
@@ -208,7 +186,6 @@ static int actor_set_angular_damping(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_linear_velocity(lua_State* L)
 {
 	LuaStack stack(L);
@@ -216,7 +193,6 @@ static int actor_linear_velocity(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_set_linear_velocity(lua_State* L)
 {
 	LuaStack stack(L);
@@ -224,7 +200,6 @@ static int actor_set_linear_velocity(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_angular_velocity(lua_State* L)
 {
 	LuaStack stack(L);
@@ -232,7 +207,6 @@ static int actor_angular_velocity(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_set_angular_velocity(lua_State* L)
 {
 	LuaStack stack(L);
@@ -240,7 +214,6 @@ static int actor_set_angular_velocity(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_add_impulse(lua_State* L)
 {
 	LuaStack stack(L);
@@ -248,7 +221,6 @@ static int actor_add_impulse(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_add_impulse_at(lua_State* L)
 {
 	LuaStack stack(L);
@@ -256,7 +228,6 @@ static int actor_add_impulse_at(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_add_torque_impulse(lua_State* L)
 {
 	LuaStack stack(L);
@@ -264,7 +235,6 @@ static int actor_add_torque_impulse(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_push(lua_State* L)
 {
 	LuaStack stack(L);
@@ -272,7 +242,6 @@ static int actor_push(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_push_at(lua_State* L)
 {
 	LuaStack stack(L);
@@ -280,7 +249,6 @@ static int actor_push_at(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_is_sleeping(lua_State* L)
 {
 	LuaStack stack(L);
@@ -288,7 +256,6 @@ static int actor_is_sleeping(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_wake_up(lua_State* L)
 {
 	LuaStack stack(L);
@@ -296,7 +263,6 @@ static int actor_wake_up(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int actor_unit(lua_State* L)
 {
 	LuaStack stack(L);
@@ -305,7 +271,6 @@ static int actor_unit(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_actor(LuaEnvironment& env)
 {
 	env.load_module_function("Actor", "world_position",          actor_world_position);

@@ -40,25 +40,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//--------------------------------------------------------------------------
 JSONElement::JSONElement()
 	: m_at(NULL)
 {
 }
 
-//--------------------------------------------------------------------------
 JSONElement::JSONElement(const char* at)
 	: m_at(at)
 {
 }
 
-//--------------------------------------------------------------------------
 JSONElement::JSONElement(const JSONElement& other)
 	: m_at(other.m_at)
 {
 }
 
-//--------------------------------------------------------------------------
 JSONElement& JSONElement::operator=(const JSONElement& other)
 {
 	// Our begin is the other's at
@@ -66,7 +62,6 @@ JSONElement& JSONElement::operator=(const JSONElement& other)
 	return *this;
 }
 
-//--------------------------------------------------------------------------
 JSONElement JSONElement::operator[](uint32_t i)
 {
 	Array<const char*> array(default_allocator());
@@ -78,13 +73,11 @@ JSONElement JSONElement::operator[](uint32_t i)
 	return JSONElement(array[i]);
 }
 
-//--------------------------------------------------------------------------
 JSONElement JSONElement::index(uint32_t i)
 {
 	return this->operator[](i);
 }
 
-//--------------------------------------------------------------------------
 JSONElement JSONElement::index_or_nil(uint32_t i)
 {
 	if (m_at != NULL)
@@ -104,7 +97,6 @@ JSONElement JSONElement::index_or_nil(uint32_t i)
 	return JSONElement();
 }
 
-//--------------------------------------------------------------------------
 JSONElement JSONElement::key(const char* k)
 {
 	Map<DynamicString, const char*> object(default_allocator());
@@ -116,7 +108,6 @@ JSONElement JSONElement::key(const char* k)
 	return JSONElement(value);
 }
 
-//--------------------------------------------------------------------------
 JSONElement JSONElement::key_or_nil(const char* k)
 {
 	if (m_at != NULL)
@@ -133,7 +124,6 @@ JSONElement JSONElement::key_or_nil(const char* k)
 	return JSONElement();
 }
 
-//--------------------------------------------------------------------------
 bool JSONElement::has_key(const char* k) const
 {
 	Map<DynamicString, const char*> object(default_allocator());
@@ -142,25 +132,21 @@ bool JSONElement::has_key(const char* k) const
 	return map::has(object, DynamicString(k));
 }
 
-//--------------------------------------------------------------------------
 bool JSONElement::to_bool(bool def) const
 {
 	return is_nil() ? def : json::parse_bool(m_at);
 }
 
-//--------------------------------------------------------------------------
 int32_t JSONElement::to_int(int32_t def) const
 {
 	return is_nil() ? def : json::parse_int(m_at);
 }
 
-//--------------------------------------------------------------------------
 float JSONElement::to_float(float def) const
 {
 	return is_nil() ? def : json::parse_float(m_at);
 }
 
-//--------------------------------------------------------------------------
 void JSONElement::to_string(DynamicString& str, const char* def) const
 {
 	if (is_nil())
@@ -169,7 +155,6 @@ void JSONElement::to_string(DynamicString& str, const char* def) const
 		json::parse_string(m_at, str);
 }
 
-//--------------------------------------------------------------------------
 Vector2 JSONElement::to_vector2(const Vector2& def) const
 {
 	if (is_nil())
@@ -183,7 +168,6 @@ Vector2 JSONElement::to_vector2(const Vector2& def) const
 					json::parse_float(array[1]));
 }
 
-//--------------------------------------------------------------------------
 Vector3 JSONElement::to_vector3(const Vector3& def) const
 {
 	if (is_nil())
@@ -198,7 +182,6 @@ Vector3 JSONElement::to_vector3(const Vector3& def) const
 					json::parse_float(array[2]));
 }
 
-//--------------------------------------------------------------------------
 Vector4 JSONElement::to_vector4(const Vector4& def) const
 {
 	if (is_nil())
@@ -214,7 +197,6 @@ Vector4 JSONElement::to_vector4(const Vector4& def) const
 					json::parse_float(array[3]));
 }
 
-//--------------------------------------------------------------------------
 Quaternion JSONElement::to_quaternion(const Quaternion& def) const
 {
 	if (is_nil())
@@ -230,7 +212,6 @@ Quaternion JSONElement::to_quaternion(const Quaternion& def) const
 					json::parse_float(array[3]));
 }
 
-//--------------------------------------------------------------------------
 Matrix4x4 JSONElement::to_matrix4x4(const Matrix4x4& def) const
 {
 	if (is_nil())
@@ -243,7 +224,6 @@ Matrix4x4 JSONElement::to_matrix4x4(const Matrix4x4& def) const
 	return Matrix4x4(array::begin(array));
 }
 
-//--------------------------------------------------------------------------
 StringId32 JSONElement::to_string_id(const StringId32 def) const
 {
 	if (is_nil())
@@ -255,7 +235,6 @@ StringId32 JSONElement::to_string_id(const StringId32 def) const
 	return str.to_string_id();
 }
 
-//--------------------------------------------------------------------------
 ResourceId JSONElement::to_resource_id(const char* type) const
 {
 	CE_ASSERT_NOT_NULL(type);
@@ -265,7 +244,6 @@ ResourceId JSONElement::to_resource_id(const char* type) const
 	return ResourceId(type, str.c_str());
 }
 
-//--------------------------------------------------------------------------
 void JSONElement::to_array(Array<bool>& array) const
 {
 	Array<const char*> temp(default_allocator());
@@ -278,7 +256,6 @@ void JSONElement::to_array(Array<bool>& array) const
 	}
 }
 
-//--------------------------------------------------------------------------
 void JSONElement::to_array(Array<int16_t>& array) const
 {
 	Array<const char*> temp(default_allocator());
@@ -291,7 +268,6 @@ void JSONElement::to_array(Array<int16_t>& array) const
 	}
 }
 
-//--------------------------------------------------------------------------
 void JSONElement::to_array(Array<uint16_t>& array) const
 {
 	Array<const char*> temp(default_allocator());
@@ -304,7 +280,6 @@ void JSONElement::to_array(Array<uint16_t>& array) const
 	}
 }
 
-//--------------------------------------------------------------------------
 void JSONElement::to_array(Array<int32_t>& array) const
 {
 	Array<const char*> temp(default_allocator());
@@ -317,7 +292,6 @@ void JSONElement::to_array(Array<int32_t>& array) const
 	}
 }
 
-//--------------------------------------------------------------------------
 void JSONElement::to_array(Array<uint32_t>& array) const
 {
 	Array<const char*> temp(default_allocator());
@@ -330,7 +304,6 @@ void JSONElement::to_array(Array<uint32_t>& array) const
 	}
 }
 
-//--------------------------------------------------------------------------
 void JSONElement::to_array(Array<float>& array) const
 {
 	Array<const char*> temp(default_allocator());
@@ -343,7 +316,6 @@ void JSONElement::to_array(Array<float>& array) const
 	}
 }
 
-//--------------------------------------------------------------------------
 void JSONElement::to_array(Vector<DynamicString>& array) const
 {
 	Array<const char*> temp(default_allocator());
@@ -358,7 +330,6 @@ void JSONElement::to_array(Vector<DynamicString>& array) const
 	}
 }
 
-//--------------------------------------------------------------------------
 void JSONElement::to_keys(Vector<DynamicString>& keys) const
 {
 	Map<DynamicString, const char*> object(default_allocator());
@@ -372,7 +343,6 @@ void JSONElement::to_keys(Vector<DynamicString>& keys) const
 	}
 }
 
-//--------------------------------------------------------------------------
 bool JSONElement::is_nil() const
 {
 	if (m_at != NULL)
@@ -383,7 +353,6 @@ bool JSONElement::is_nil() const
 	return true;
 }
 
-//--------------------------------------------------------------------------
 bool JSONElement::is_bool() const
 {
 	if (m_at != NULL)
@@ -394,7 +363,6 @@ bool JSONElement::is_bool() const
 	return false;
 }
 
-//--------------------------------------------------------------------------
 bool JSONElement::is_number() const
 {
 	if (m_at != NULL)
@@ -405,7 +373,6 @@ bool JSONElement::is_number() const
 	return false;
 }
 
-//--------------------------------------------------------------------------
 bool JSONElement::is_string() const
 {
 	if (m_at != NULL)
@@ -416,7 +383,6 @@ bool JSONElement::is_string() const
 	return false;
 }
 
-//--------------------------------------------------------------------------
 bool JSONElement::is_array() const
 {
 	if (m_at != NULL)
@@ -427,7 +393,6 @@ bool JSONElement::is_array() const
 	return false;
 }
 
-//--------------------------------------------------------------------------
 bool JSONElement::is_object() const
 {
 	if (m_at != NULL)
@@ -438,7 +403,6 @@ bool JSONElement::is_object() const
 	return false;
 }
 
-//--------------------------------------------------------------------------
 uint32_t JSONElement::size() const
 {
 	if (m_at == NULL)
@@ -486,7 +450,6 @@ uint32_t JSONElement::size() const
 	}
 }
 
-//--------------------------------------------------------------------------
 JSONParser::JSONParser(const char* s)
 	: m_file(false)
 	, m_document(s)
@@ -494,7 +457,6 @@ JSONParser::JSONParser(const char* s)
 	CE_ASSERT_NOT_NULL(s);
 }
 
-//--------------------------------------------------------------------------
 JSONParser::JSONParser(File& f)
 	: m_file(true)
 	, m_document(NULL)
@@ -505,7 +467,6 @@ JSONParser::JSONParser(File& f)
 	m_document = doc;
 }
 
-//--------------------------------------------------------------------------
 JSONParser::~JSONParser()
 {
 	if (m_file)
@@ -514,7 +475,6 @@ JSONParser::~JSONParser()
 	}
 }
 
-//--------------------------------------------------------------------------
 JSONElement JSONParser::root()
 {
 	const char* ch = m_document;

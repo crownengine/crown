@@ -38,7 +38,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 World::World()
 	: m_unit_pool(default_allocator(), CE_MAX_UNITS, sizeof(Unit), CE_ALIGNOF(Unit))
 	, m_camera_pool(default_allocator(), CE_MAX_CAMERAS, sizeof(Camera), CE_ALIGNOF(Camera))
@@ -49,7 +48,6 @@ World::World()
 	m_sound_world = SoundWorld::create(default_allocator());
 }
 
-//-----------------------------------------------------------------------------
 World::~World()
 {
 	// Destroy all units
@@ -61,26 +59,22 @@ World::~World()
 	SoundWorld::destroy(default_allocator(), m_sound_world);
 }
 
-//-----------------------------------------------------------------------------
 WorldId World::id() const
 {
 	return m_id;
 }
 
-//-----------------------------------------------------------------------------
 void World::set_id(WorldId id)
 {
 	m_id = id;
 }
 
-//-----------------------------------------------------------------------------
 UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion& rot)
 {
 	const ResourceId id(UNIT_EXTENSION, name);
 	return spawn_unit(id, pos, rot);
 }
 
-//-----------------------------------------------------------------------------
 UnitId World::spawn_unit(ResourceId id, const Vector3& pos, const Quaternion& rot)
 {
 	UnitResource* ur = (UnitResource*) device()->resource_manager()->get(id);
@@ -96,7 +90,6 @@ UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& 
 	return spawn_unit(id, ur, pos, rot);
 }
 
-//-----------------------------------------------------------------------------
 UnitId World::spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& pos, const Quaternion& rot)
 {
 	Unit* u = (Unit*) m_unit_pool.allocate(sizeof(Unit), CE_ALIGNOF(Unit));
@@ -107,7 +100,6 @@ UnitId World::spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& p
 	return unit_id;
 }
 
-//-----------------------------------------------------------------------------
 void World::destroy_unit(UnitId id)
 {
 	CE_DELETE(m_unit_pool, id_array::get(m_units, id));
@@ -115,7 +107,6 @@ void World::destroy_unit(UnitId id)
 	post_unit_destroyed_event(id);
 }
 
-//-----------------------------------------------------------------------------
 void World::reload_units(UnitResource* old_ur, UnitResource* new_ur)
 {
 	for (uint32_t i = 0; i < id_array::size(m_units); i++)
@@ -127,13 +118,11 @@ void World::reload_units(UnitResource* old_ur, UnitResource* new_ur)
 	}
 }
 
-//-----------------------------------------------------------------------------
 uint32_t World::num_units() const
 {
 	return id_array::size(m_units);
 }
 
-//-----------------------------------------------------------------------------
 void World::units(Array<UnitId>& units) const
 {
 	for (uint32_t i = 0; i < id_array::size(m_units); i++)
@@ -142,37 +131,31 @@ void World::units(Array<UnitId>& units) const
 	}
 }
 
-//-----------------------------------------------------------------------------
 void World::link_unit(UnitId child, UnitId parent, int32_t node)
 {
 	Unit* parent_unit = get_unit(parent);
 	parent_unit->link_node(0, node);
 }
 
-//-----------------------------------------------------------------------------
 void World::unlink_unit(UnitId /*child*/)
 {
 }
 
-//-----------------------------------------------------------------------------
 Unit* World::get_unit(UnitId id)
 {
 	return id_array::get(m_units, id);
 }
 
-//-----------------------------------------------------------------------------
 Camera* World::get_camera(CameraId id)
 {
 	return id_array::get(m_cameras, id);
 }
 
-//-----------------------------------------------------------------------------
 void World::update_animations(float dt)
 {
 	m_sprite_animation_player.update(dt);
 }
 
-//-----------------------------------------------------------------------------
 void World::update_scene(float dt)
 {
 	m_physics_world.update(dt);
@@ -188,14 +171,12 @@ void World::update_scene(float dt)
 	process_physics_events();
 }
 
-//-----------------------------------------------------------------------------
 void World::update(float dt)
 {
 	update_animations(dt);
 	update_scene(dt);
 }
 
-//-----------------------------------------------------------------------------
 void World::render(Camera* camera)
 {
 	m_render_world.update(camera->world_pose(), camera->m_projection, camera->m_view_x, camera->m_view_y,
@@ -204,7 +185,6 @@ void World::render(Camera* camera)
 	m_physics_world.draw_debug();
 }
 
-//-----------------------------------------------------------------------------
 CameraId World::create_camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far)
 {
 	Camera* camera = CE_NEW(m_camera_pool, Camera)(sg, node, type, near, far);
@@ -212,14 +192,12 @@ CameraId World::create_camera(SceneGraph& sg, int32_t node, ProjectionType::Enum
 	return id_array::create(m_cameras, camera);
 }
 
-//-----------------------------------------------------------------------------
 void World::destroy_camera(CameraId id)
 {
 	CE_DELETE(m_camera_pool, id_array::get(m_cameras, id));
 	id_array::destroy(m_cameras, id);
 }
 
-//-----------------------------------------------------------------------------
 SoundInstanceId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
 	ResourceId id(SOUND_EXTENSION, name);
@@ -234,92 +212,77 @@ SoundInstanceId World::play_sound(StringId64 name, const bool loop, const float 
 	return play_sound(id, loop, volume, pos, range);
 }
 
-//-----------------------------------------------------------------------------
 SoundInstanceId World::play_sound(ResourceId id, const bool loop, const float volume, const Vector3& pos, const float range)
 {
 	SoundResource* sr = (SoundResource*) device()->resource_manager()->get(id);
 	return play_sound(sr, loop, volume, pos, range);
 }
 
-//-----------------------------------------------------------------------------
 SoundInstanceId World::play_sound(SoundResource* sr, const bool loop, const float volume, const Vector3& pos, const float range)
 {
 	return m_sound_world->play(sr, loop, volume, pos);
 }
 
-//-----------------------------------------------------------------------------
 void World::stop_sound(SoundInstanceId id)
 {
 	m_sound_world->stop(id);
 }
 
-//-----------------------------------------------------------------------------
 void World::link_sound(SoundInstanceId id, Unit* unit, int32_t node)
 {
 }
 
-//-----------------------------------------------------------------------------
 void World::set_listener_pose(const Matrix4x4& pose)
 {
 	m_sound_world->set_listener_pose(pose);
 }
 
-//-----------------------------------------------------------------------------
 void World::set_sound_position(SoundInstanceId id, const Vector3& pos)
 {
 	m_sound_world->set_sound_positions(1, &id, &pos);
 }
 
-//-----------------------------------------------------------------------------
 void World::set_sound_range(SoundInstanceId id, float range)
 {
 	m_sound_world->set_sound_ranges(1, &id, &range);
 }
 
-//-----------------------------------------------------------------------------
 void World::set_sound_volume(SoundInstanceId id, float vol)
 {
 	m_sound_world->set_sound_volumes(1, &id, &vol);
 }
 
-//-----------------------------------------------------------------------------
 GuiId World::create_window_gui(uint16_t width, uint16_t height, const char* material)
 {
 	return m_render_world.create_gui(width, height, material);
 }
 
-//-----------------------------------------------------------------------------
 void World::destroy_gui(GuiId id)
 {
 	m_render_world.destroy_gui(id);
 }
 
-//-----------------------------------------------------------------------------
 Gui* World::get_gui(GuiId id)
 {
 	return m_render_world.get_gui(id);
 }
 
-//-----------------------------------------------------------------------------
 DebugLine* World::create_debug_line(bool depth_test)
 {
 	return CE_NEW(default_allocator(), DebugLine)(depth_test);
 }
 
-//-----------------------------------------------------------------------------
 void World::destroy_debug_line(DebugLine* line)
 {
 	CE_DELETE(default_allocator(), line);
 }
 
-//-----------------------------------------------------------------------------
 void World::load_level(const char* name)
 {
 	const LevelResource* lr = (LevelResource*) device()->resource_manager()->get(LEVEL_EXTENSION, name);
 	load_level(lr);
 }
 
-//-----------------------------------------------------------------------------
 void World::load_level(const LevelResource* lr)
 {
 	using namespace level_resource;
@@ -341,7 +304,6 @@ void World::load_level(const LevelResource* lr)
 	post_level_loaded_event();
 }
 
-//-----------------------------------------------------------------------------
 SceneGraphManager* World::scene_graph_manager()
 {
 	return &m_scenegraph_manager;
@@ -352,25 +314,21 @@ SpriteAnimationPlayer* World::sprite_animation_player()
 	return &m_sprite_animation_player;
 }
 
-//-----------------------------------------------------------------------------
 RenderWorld* World::render_world()
 {
 	return &m_render_world;
 }
 
-//-----------------------------------------------------------------------------
 PhysicsWorld* World::physics_world()
 {
 	return &m_physics_world;
 }
 
-//-----------------------------------------------------------------------------
 SoundWorld* World::sound_world()
 {
 	return m_sound_world;
 }
 
-//-----------------------------------------------------------------------------
 void World::post_unit_spawned_event(UnitId id)
 {
 	UnitSpawnedEvent ev;
@@ -378,7 +336,6 @@ void World::post_unit_spawned_event(UnitId id)
 	event_stream::write(m_events, EventType::UNIT_SPAWNED, ev);
 }
 
-//-----------------------------------------------------------------------------
 void World::post_unit_destroyed_event(UnitId id)
 {
 	UnitDestroyedEvent ev;
@@ -386,14 +343,12 @@ void World::post_unit_destroyed_event(UnitId id)
 	event_stream::write(m_events, EventType::UNIT_DESTROYED, ev);
 }
 
-//-----------------------------------------------------------------------------
 void World::post_level_loaded_event()
 {
 	LevelLoadedEvent ev;
 	event_stream::write(m_events, EventType::LEVEL_LOADED, ev);
 }
 
-//-----------------------------------------------------------------------------
 void World::process_physics_events()
 {
 	EventStream& events = m_physics_world.events();

@@ -33,7 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int quaternion_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -41,7 +40,6 @@ static int quaternion_new(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int quaternion_ctor(lua_State* L)
 {
 	LuaStack stack(L);
@@ -49,7 +47,6 @@ static int quaternion_ctor(lua_State* L)
 	return quaternion_new(L);
 }
 
-//-----------------------------------------------------------------------------
 static int quaternion_negate(lua_State* L)
 {
 	LuaStack stack(L);
@@ -57,7 +54,6 @@ static int quaternion_negate(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int quaternion_identity(lua_State* L)
 {
 	LuaStack stack(L);
@@ -65,7 +61,6 @@ static int quaternion_identity(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int quaternion_length(lua_State* L)
 {
 	LuaStack stack(L);
@@ -73,7 +68,6 @@ static int quaternion_length(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int quaternion_conjugate(lua_State* L)
 {
 	LuaStack stack(L);
@@ -81,7 +75,6 @@ static int quaternion_conjugate(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int quaternion_inverse(lua_State* L)
 {
 	LuaStack stack(L);
@@ -89,7 +82,6 @@ static int quaternion_inverse(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int quaternion_multiply(lua_State* L)
 {
 	LuaStack stack(L);
@@ -97,7 +89,6 @@ static int quaternion_multiply(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int quaternion_multiply_by_scalar(lua_State* L)
 {
 	LuaStack stack(L);
@@ -105,7 +96,6 @@ static int quaternion_multiply_by_scalar(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int quaternion_power(lua_State* L)
 {
 	LuaStack stack(L);
@@ -113,7 +103,6 @@ static int quaternion_power(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int quaternion_elements(lua_State* L)
 {
 	LuaStack stack(L);
@@ -125,7 +114,6 @@ static int quaternion_elements(lua_State* L)
 	return 4;
 }
 
-//-----------------------------------------------------------------------------
 void load_quaternion(LuaEnvironment& env)
 {
 	env.load_module_function("Quaternion", "new",                quaternion_new);

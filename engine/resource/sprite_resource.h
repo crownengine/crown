@@ -58,7 +58,6 @@ struct SpriteResource
 	bgfx::IndexBufferHandle ib;
 };
 
-//-----------------------------------------------------------------------------
 namespace sprite_resource
 {
 	void compile(const char* path, CompileOptions& opts);

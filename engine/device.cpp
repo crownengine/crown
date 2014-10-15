@@ -46,7 +46,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 namespace crown
 {
-//-----------------------------------------------------------------------------
 Device::Device(Filesystem& fs, StringId64 boot_package, StringId64 boot_script)
 	: _allocator(default_allocator(), MAX_SUBSYSTEMS_HEAP)
 	, _width(0)
@@ -70,7 +69,6 @@ Device::Device(Filesystem& fs, StringId64 boot_package, StringId64 boot_script)
 {
 }
 
-//-----------------------------------------------------------------------------
 void Device::init()
 {
 	// Initialize
@@ -111,7 +109,6 @@ void Device::init()
 	_lua_environment->call_global("init", 0);
 }
 
-//-----------------------------------------------------------------------------
 void Device::shutdown()
 {
 	CE_ASSERT(_is_init, "Engine is not initialized");
@@ -142,63 +139,53 @@ void Device::shutdown()
 	_is_init = false;
 }
 
-//-----------------------------------------------------------------------------
 ResourceManager* Device::resource_manager()
 {
 	return _resource_manager;
 }
 
-//-----------------------------------------------------------------------------
 LuaEnvironment* Device::lua_environment()
 {
 	return _lua_environment;
 }
 
-//-----------------------------------------------------------------------------
 void Device::quit()
 {
 	_is_running = false;
 }
 
-//-----------------------------------------------------------------------------
 void Device::pause()
 {
 	_is_paused = true;
 	CE_LOGI("Engine paused.");
 }
 
-//-----------------------------------------------------------------------------
 void Device::unpause()
 {
 	_is_paused = false;
 	CE_LOGI("Engine unpaused.");
 }
 
-//-----------------------------------------------------------------------------
 bool Device::is_running() const
 {
 	return _is_running;
 }
 
-//-----------------------------------------------------------------------------
 uint64_t Device::frame_count() const
 {
 	return _frame_count;
 }
 
-//-----------------------------------------------------------------------------
 float Device::last_delta_time() const
 {
 	return _last_delta_time;
 }
 
-//-----------------------------------------------------------------------------
 double Device::time_since_start() const
 {
 	return _time_since_start;
 }
 
-//-----------------------------------------------------------------------------
 void Device::update()
 {
 	_current_time = os::clocktime();
@@ -218,44 +205,37 @@ void Device::update()
 	_frame_count++;
 }
 
-//-----------------------------------------------------------------------------
 void Device::render_world(World* world, Camera* camera)
 {
 	world->render(camera);
 }
 
-//-----------------------------------------------------------------------------
 WorldId Device::create_world()
 {
 	return _world_manager->create_world();
 }
 
-//-----------------------------------------------------------------------------
 void Device::destroy_world(WorldId world)
 {
 	_world_manager->destroy_world(world);
 }
 
-//-----------------------------------------------------------------------------
 ResourcePackage* Device::create_resource_package(const char* name)
 {
 	ResourceId resid("package", name);
 	return create_resource_package((StringId64) resid.name);
 }
 
-//-----------------------------------------------------------------------------
 ResourcePackage* Device::create_resource_package(StringId64 id)
 {
 	return CE_NEW(default_allocator(), ResourcePackage)(id, *_resource_manager);
 }
 
-//-----------------------------------------------------------------------------
 void Device::destroy_resource_package(ResourcePackage* package)
 {
 	CE_DELETE(default_allocator(), package);
 }
 
-//-----------------------------------------------------------------------------
 void Device::reload(const char* , const char* )
 {
 }

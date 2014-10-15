@@ -42,7 +42,6 @@ namespace shader_resource
 		"android"
 	};
 
-	//-----------------------------------------------------------------------------
 	void compile(const char* path, CompileOptions& opts)
 	{
 		Buffer buf = opts.read(path);

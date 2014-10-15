@@ -32,7 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int vector3box_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -54,7 +53,6 @@ static int vector3box_new(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3box_ctor(lua_State* L)
 {
 	LuaStack stack(L);
@@ -62,7 +60,6 @@ static int vector3box_ctor(lua_State* L)
 	return vector3box_new(L);
 }
 
-//-----------------------------------------------------------------------------
 static int vector3box_get_value(lua_State* L)
 {
 	LuaStack stack(L);
@@ -90,7 +87,6 @@ static int vector3box_get_value(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3box_set_value(lua_State* L)
 {
 	LuaStack stack(L);
@@ -115,7 +111,6 @@ static int vector3box_set_value(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3box_store(lua_State* L)
 {
 	LuaStack stack(L);
@@ -137,7 +132,6 @@ static int vector3box_store(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3box_unbox(lua_State* L)
 {
 	LuaStack stack(L);
@@ -148,7 +142,6 @@ static int vector3box_unbox(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3box_tostring(lua_State* L)
 {
 	LuaStack stack(L);
@@ -157,7 +150,6 @@ static int vector3box_tostring(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_vector3box(LuaEnvironment& env)
 {
 	env.load_module_function("Vector3Box", "new",        vector3box_new);

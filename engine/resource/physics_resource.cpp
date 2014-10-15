@@ -69,7 +69,6 @@ namespace physics_resource
 		{ "d6",        PhysicsJointType::D6        }
 	};
 
-	//-----------------------------------------------------------------------------
 	static uint32_t shape_type_to_enum(const char* type)
 	{
 		for (uint32_t i = 0; i < PhysicsShapeType::COUNT; i++)
@@ -82,7 +81,6 @@ namespace physics_resource
 		return 0;
 	}
 
-	//-----------------------------------------------------------------------------
 	static uint32_t joint_type_to_enum(const char* type)
 	{
 		for (uint32_t i = 0; i < PhysicsJointType::COUNT; i++)
@@ -95,7 +93,6 @@ namespace physics_resource
 		return 0;
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_controller(JSONElement e, PhysicsController& controller)
 	{
 		controller.name =             e.key("name").to_string_id();
@@ -107,7 +104,6 @@ namespace physics_resource
 		controller.collision_filter = e.key("collision_filter").to_string_id();
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_shapes(JSONElement e, Array<PhysicsShape>& shapes)
 	{
 		Vector<DynamicString> keys(default_allocator());
@@ -165,7 +161,6 @@ namespace physics_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_actors(JSONElement e, Array<PhysicsActor>& actors, Array<PhysicsShape>& actor_shapes, Array<uint32_t>& shape_indices)
 	{
 		Vector<DynamicString> keys(default_allocator());
@@ -189,7 +184,6 @@ namespace physics_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_joints(JSONElement e, Array<PhysicsJoint>& joints)
 	{
 		Vector<DynamicString> keys(default_allocator());
@@ -253,7 +247,6 @@ namespace physics_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void compile(const char* path, CompileOptions& opts)
 	{
 		static const uint32_t VERSION = 1;
@@ -380,7 +373,6 @@ namespace physics_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
@@ -394,7 +386,6 @@ namespace physics_resource
 		return res;
 	}
 
-	//-----------------------------------------------------------------------------
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
 	}
@@ -403,19 +394,16 @@ namespace physics_resource
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);
 	}
 
-	//-----------------------------------------------------------------------------
 	bool has_controller(const PhysicsResource* pr)
 	{
 		return pr->num_controllers == 1;
 	}
 
-	//-----------------------------------------------------------------------------
 	const PhysicsController* controller(const PhysicsResource* pr)
 	{
 		CE_ASSERT(has_controller(pr), "Controller does not exist");
@@ -423,13 +411,11 @@ namespace physics_resource
 		return controller;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_actors(const PhysicsResource* pr)
 	{
 		return pr->num_actors;
 	}
 
-	//-----------------------------------------------------------------------------
 	const PhysicsActor* actor(const PhysicsResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_actors(pr), "Index out of bounds");
@@ -437,13 +423,11 @@ namespace physics_resource
 		return &actor[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_shapes_indices(const PhysicsResource* pr)
 	{
 		return pr->num_shapes_indices;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t shape_index(const PhysicsResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_shapes_indices(pr), "Index out of bounds");
@@ -451,13 +435,11 @@ namespace physics_resource
 		return index[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_shapes(const PhysicsResource* pr)
 	{
 		return pr->num_shapes;
 	}
 
-	//-----------------------------------------------------------------------------
 	const PhysicsShape* shape(const PhysicsResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_shapes(pr), "Index out of bounds");
@@ -465,13 +447,11 @@ namespace physics_resource
 		return &shape[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_joints(const PhysicsResource* pr)
 	{
 		return pr->num_joints;
 	}
 
-	//-----------------------------------------------------------------------------
 	const PhysicsJoint* joint(const PhysicsResource* pr, uint32_t i)
 	{
 		CE_ASSERT(i < num_joints(pr), "Index out of bounds");
@@ -775,7 +755,6 @@ namespace physics_config_resource
 		CE_DELETE(default_allocator(), s_ftm);
 	}
 
-	//-----------------------------------------------------------------------------
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
@@ -789,7 +768,6 @@ namespace physics_config_resource
 		return res;
 	}
 
-	//-----------------------------------------------------------------------------
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
 	}
@@ -798,13 +776,11 @@ namespace physics_config_resource
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_materials(const PhysicsConfigResource* pcr)
 	{
 		return pcr->num_materials;
@@ -827,13 +803,11 @@ namespace physics_config_resource
 		return &base[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_shapes(const PhysicsConfigResource* pcr)
 	{
 		return pcr->num_shapes;
 	}
 
-	//-----------------------------------------------------------------------------
 	const PhysicsShape2* shape(const PhysicsConfigResource* pcr, StringId32 name)
 	{
 		StringId32* begin = (StringId32*) ((char*)pcr + pcr->shapes_offset);
@@ -843,7 +817,6 @@ namespace physics_config_resource
 		return shape_by_index(pcr, id - begin);
 	}
 
-	//-----------------------------------------------------------------------------
 	const PhysicsShape2* shape_by_index(const PhysicsConfigResource* pcr, uint32_t i)
 	{
 		CE_ASSERT(i < num_shapes(pcr), "Index out of bounds");
@@ -851,7 +824,6 @@ namespace physics_config_resource
 		return &base[i];
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_actors(const PhysicsConfigResource* pcr)
 	{
 		return pcr->num_actors;
@@ -867,7 +839,6 @@ namespace physics_config_resource
 		return actor_by_index(pcr, id - begin);
 	}
 
-	//-----------------------------------------------------------------------------
 	const PhysicsActor2* actor_by_index(const PhysicsConfigResource* pcr, uint32_t i)
 	{
 		CE_ASSERT(i < num_actors(pcr), "Index out of bounds");

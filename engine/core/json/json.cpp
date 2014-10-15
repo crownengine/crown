@@ -34,7 +34,6 @@ namespace crown
 {
 namespace json
 {
-	//-----------------------------------------------------------------------------
 	static const char* next(const char* str, const char c = 0)
 	{
 		CE_ASSERT_NOT_NULL(str);
@@ -47,7 +46,6 @@ namespace json
 		return str + 1;
 	}
 
-	//-----------------------------------------------------------------------------
 	static const char* skip_whites(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -59,7 +57,6 @@ namespace json
 		return ch;
 	}
 
-	//-----------------------------------------------------------------------------
 	static const char* skip_string(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -85,7 +82,6 @@ namespace json
 		return ch;
 	}
 
-	//-----------------------------------------------------------------------------
 	static const char* skip_number(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -102,7 +98,6 @@ namespace json
 		return ch;
 	}
 
-	//-----------------------------------------------------------------------------
 	static const char* skip_object(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -127,7 +122,6 @@ namespace json
 		return ch;
 	}
 
-	//-----------------------------------------------------------------------------
 	static const char* skip_array(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -152,7 +146,6 @@ namespace json
 		return ch;
 	}
 
-	//-----------------------------------------------------------------------------
 	static const char* skip_bool(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -187,7 +180,6 @@ namespace json
 		return ch;
 	}
 
-	//-----------------------------------------------------------------------------
 	static const char* skip_null(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -219,14 +211,12 @@ namespace json
 		return ch;
 	}
 
-	//-----------------------------------------------------------------------------
 	static bool is_escapee(char c)
 	{
 		return c == '"' || c == '\\' || c == '/' || c == '\b' || c == '\f' || c == '\n' ||
 				c == '\r' || c == '\t';
 	}
 
-	//-----------------------------------------------------------------------------
 	JSONType::Enum type(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -243,7 +233,6 @@ namespace json
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_string(const char* s, DynamicString& str)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -288,7 +277,6 @@ namespace json
 		CE_FATAL("Bad string");
 	}
 
-	//-----------------------------------------------------------------------------
 	double parse_number(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -340,7 +328,6 @@ namespace json
 		return string::parse_double(array::begin(str));
 	}
 
-	//-----------------------------------------------------------------------------
 	bool parse_bool(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -374,7 +361,6 @@ namespace json
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	int32_t parse_int(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -382,7 +368,6 @@ namespace json
 		return (int32_t) parse_number(s);
 	}
 
-	//-----------------------------------------------------------------------------
 	float parse_float(const char* s)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -390,7 +375,6 @@ namespace json
 		return (float) parse_number(s);
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_array(const char* s, Array<const char*>& array)
 	{
 		CE_ASSERT_NOT_NULL(s);
@@ -438,7 +422,6 @@ namespace json
 		CE_FATAL("Bad array");
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_object(const char* s, Map<DynamicString, const char*>& object)
 	{
 		CE_ASSERT_NOT_NULL(s);

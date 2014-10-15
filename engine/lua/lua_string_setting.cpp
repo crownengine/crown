@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int string_setting_value(lua_State* L)
 {
 	LuaStack stack(L);
@@ -52,7 +51,6 @@ static int string_setting_value(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int string_setting_synopsis(lua_State* L)
 {
 	LuaStack stack(L);
@@ -73,7 +71,6 @@ static int string_setting_synopsis(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int string_setting_update(lua_State* L)
 {
 	LuaStack stack(L);
@@ -91,7 +88,6 @@ static int string_setting_update(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 void load_string_setting(LuaEnvironment& env)
 {
 	env.load_module_function("StringSetting", "value",    string_setting_value);

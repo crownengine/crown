@@ -35,81 +35,67 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 NetworkFilesystem::NetworkFilesystem()
 {
 }
 
-//-----------------------------------------------------------------------------
 NetworkFilesystem::NetworkFilesystem(const NetAddress& addr, uint16_t port)
 	: m_address(addr)
 	, m_port(port)
 {
 }
 
-//-----------------------------------------------------------------------------
 File* NetworkFilesystem::open(const char* path, FileOpenMode mode)
 {
 	return CE_NEW(default_allocator(), NetworkFile)(m_address, m_port, path);
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFilesystem::close(File* file)
 {
 	CE_ASSERT_NOT_NULL(file);
 	CE_DELETE(default_allocator(), file);
 }
 
-//-----------------------------------------------------------------------------
 bool NetworkFilesystem::exists(const char* path)
 {
 	return false;
 }
 
-//-----------------------------------------------------------------------------
 bool NetworkFilesystem::is_directory(const char* path)
 {
   return false;
 }
 
-//-----------------------------------------------------------------------------
 bool NetworkFilesystem::is_file(const char* path)
 {
   return false;
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFilesystem::create_directory(const char* /*path*/)
 {
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFilesystem::delete_directory(const char* /*path*/)
 {
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFilesystem::create_file(const char* /*path*/)
 {
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFilesystem::delete_file(const char* /*path*/)
 {
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFilesystem::list_files(const char* /*path*/, Vector<DynamicString>& /*files*/)
 {
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFilesystem::get_absolute_path(const char* path, DynamicString& os_path)
 {
 
 }
 
-//-----------------------------------------------------------------------------
 TCPSocket NetworkFilesystem::new_connection()
 {
 	TCPSocket socket;

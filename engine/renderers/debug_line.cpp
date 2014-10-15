@@ -144,14 +144,12 @@ namespace debug_line
 
 } // namespace debug_line
 
-//-----------------------------------------------------------------------------
 DebugLine::DebugLine(bool depth_test)
 	: m_depth_test(depth_test)
 	, m_num_lines(0)
 {
 }
 
-//-----------------------------------------------------------------------------
 void DebugLine::add_line(const Color4& color, const Vector3& start, const Vector3& end)
 {
 	if (m_num_lines >= CE_MAX_DEBUG_LINES)
@@ -170,7 +168,6 @@ void DebugLine::add_line(const Color4& color, const Vector3& start, const Vector
 	m_num_lines++;
 }
 
-//-----------------------------------------------------------------------------
 void DebugLine::add_sphere(const Color4& color, const Vector3& center, const float radius)
 {
 	const uint32_t deg_step = 15;
@@ -197,13 +194,11 @@ void DebugLine::add_sphere(const Color4& color, const Vector3& center, const flo
 	}
 }
 
-//-----------------------------------------------------------------------------
 void DebugLine::clear()
 {
 	m_num_lines = 0;
 }
 
-//-----------------------------------------------------------------------------
 void DebugLine::commit()
 {
 	if (!m_num_lines)

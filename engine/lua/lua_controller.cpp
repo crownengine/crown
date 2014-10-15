@@ -32,7 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int controller_move(lua_State* L)
 {
 	LuaStack stack(L);
@@ -40,7 +39,6 @@ static int controller_move(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int controller_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -48,7 +46,6 @@ static int controller_position(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int controller_collides_up(lua_State* L)
 {
 	LuaStack stack(L);
@@ -56,7 +53,6 @@ static int controller_collides_up(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int controller_collides_down(lua_State* L)
 {
 	LuaStack stack(L);
@@ -64,7 +60,6 @@ static int controller_collides_down(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int controller_collides_sides(lua_State* L)
 {
 	LuaStack stack(L);
@@ -72,7 +67,6 @@ static int controller_collides_sides(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_controller(LuaEnvironment& env)
 {
 	env.load_module_function("Controller", "move",           controller_move);

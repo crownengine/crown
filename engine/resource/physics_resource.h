@@ -37,7 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 struct PhysicsResource
 {
 	uint32_t version;
@@ -53,7 +52,6 @@ struct PhysicsResource
 	uint32_t joints_offset;
 };
 
-//-----------------------------------------------------------------------------
 struct PhysicsController
 {
 	StringId32 name;
@@ -65,7 +63,6 @@ struct PhysicsController
 	StringId32 collision_filter;// Collision filter from global.physics_config
 };
 
-//-----------------------------------------------------------------------------
 struct PhysicsActor
 {
 	StringId32 name;			// Name of the actor
@@ -75,7 +72,6 @@ struct PhysicsActor
 	uint32_t num_shapes;		// Number of shapes
 };
 
-//-----------------------------------------------------------------------------
 struct PhysicsShapeType
 {
 	enum Enum
@@ -90,7 +86,6 @@ struct PhysicsShapeType
 	};
 };
 
-//-----------------------------------------------------------------------------
 struct PhysicsShape
 {
 	StringId32 name;			// Name of the shape
@@ -106,7 +101,6 @@ struct PhysicsShape
 	float data_3;
 };
 
-//-----------------------------------------------------------------------------
 struct PhysicsJointType
 {
 	enum Enum
@@ -122,7 +116,6 @@ struct PhysicsJointType
 	};
 };
 
-//-----------------------------------------------------------------------------
 struct PhysicsJoint
 {
 	StringId32 name;

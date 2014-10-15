@@ -34,7 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int camera_local_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -42,7 +41,6 @@ static int camera_local_position(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -50,7 +48,6 @@ static int camera_local_rotation(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
@@ -58,7 +55,6 @@ static int camera_local_pose(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_world_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -66,7 +62,6 @@ static int camera_world_position(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -74,7 +69,6 @@ static int camera_world_rotation(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
@@ -82,7 +76,6 @@ static int camera_world_pose(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_set_local_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -90,7 +83,6 @@ static int camera_set_local_position(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_set_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -98,7 +90,6 @@ static int camera_set_local_rotation(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_set_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
@@ -106,7 +97,6 @@ static int camera_set_local_pose(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_set_projection_type(lua_State* L)
 {
 	LuaStack stack(L);
@@ -114,7 +104,6 @@ static int camera_set_projection_type(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_projection_type(lua_State* L)
 {
 	LuaStack stack(L);
@@ -122,7 +111,6 @@ static int camera_projection_type(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_fov(lua_State* L)
 {
 	LuaStack stack(L);
@@ -130,7 +118,6 @@ static int camera_fov(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_set_fov(lua_State* L)
 {
 	LuaStack stack(L);
@@ -138,7 +125,6 @@ static int camera_set_fov(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_aspect(lua_State* L)
 {
 	LuaStack stack(L);
@@ -146,7 +132,6 @@ static int camera_aspect(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_set_aspect(lua_State* L)
 {
 	LuaStack stack(L);
@@ -154,7 +139,6 @@ static int camera_set_aspect(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_near_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
@@ -162,7 +146,6 @@ static int camera_near_clip_distance(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_set_near_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
@@ -170,7 +153,6 @@ static int camera_set_near_clip_distance(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_far_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
@@ -178,7 +160,6 @@ static int camera_far_clip_distance(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_set_far_clip_distance(lua_State* L)
 {
 	LuaStack stack(L);
@@ -186,7 +167,6 @@ static int camera_set_far_clip_distance(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_set_orthographic_metrics(lua_State* L)
 {
 	LuaStack stack(L);
@@ -195,7 +175,6 @@ static int camera_set_orthographic_metrics(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_set_viewport_metrics(lua_State* L)
 {
 	LuaStack stack(L);
@@ -204,7 +183,6 @@ static int camera_set_viewport_metrics(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_screen_to_world(lua_State* L)
 {
 	LuaStack stack(L);
@@ -212,7 +190,6 @@ static int camera_screen_to_world(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int camera_world_to_screen(lua_State* L)
 {
 	LuaStack stack(L);
@@ -220,7 +197,6 @@ static int camera_world_to_screen(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_camera(LuaEnvironment& env)
 {
 	env.load_module_function("Camera", "local_position",           camera_local_position);

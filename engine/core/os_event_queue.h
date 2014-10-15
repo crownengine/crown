@@ -133,14 +133,12 @@ struct OsEvent
 /// Used only to pass events from os thread to main thread.
 struct OsEventQueue
 {
-	//-----------------------------------------------------------------------------
 	OsEventQueue()
 		: m_tail(0)
 		, m_head(0)
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void push_mouse_event(uint16_t x, uint16_t y)
 	{
 		OsEvent ev;
@@ -152,7 +150,6 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	//-----------------------------------------------------------------------------
 	void push_mouse_event(uint16_t x, uint16_t y, MouseButton::Enum b, bool pressed)
 	{
 		OsEvent ev;
@@ -166,7 +163,6 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	//-----------------------------------------------------------------------------
 	void push_keyboard_event(uint32_t modifier, KeyboardButton::Enum b, bool pressed)
 	{
 		OsEvent ev;
@@ -178,7 +174,6 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	//-----------------------------------------------------------------------------
 	void push_touch_event(uint16_t x, uint16_t y, uint8_t pointer_id)
 	{
 		OsEvent ev;
@@ -191,7 +186,6 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	//-----------------------------------------------------------------------------
 	void push_touch_event(uint16_t x, uint16_t y, uint8_t pointer_id, bool pressed)
 	{
 		OsEvent ev;
@@ -205,7 +199,6 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	//-----------------------------------------------------------------------------
 	void push_exit_event(int32_t code)
 	{
 		OsEvent ev;
@@ -215,7 +208,6 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	//-----------------------------------------------------------------------------
 	void push_pause_event()
 	{
 		OsEvent ev;
@@ -223,7 +215,6 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	//-----------------------------------------------------------------------------
 	void push_resume_event()
 	{
 		OsEvent ev;
@@ -231,7 +222,6 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	//-----------------------------------------------------------------------------
 	void push_metrics_event(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 	{
 		OsEvent ev;
@@ -244,7 +234,6 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	//-----------------------------------------------------------------------------
 	void push_none_event()
 	{
 		OsEvent ev;
@@ -253,7 +242,6 @@ struct OsEventQueue
 		push_event(ev);
 	}
 
-	//-----------------------------------------------------------------------------
 	bool push_event(const OsEvent& ev)
 	{
 		int cur_tail = m_tail.load();
@@ -268,7 +256,6 @@ struct OsEventQueue
 		return false;
 	}
 
-	//-----------------------------------------------------------------------------
 	bool pop_event(OsEvent& ev)
 	{
 		const int cur_head = m_head.load();
@@ -279,7 +266,6 @@ struct OsEventQueue
 		return true;
 	}
 
-	//-----------------------------------------------------------------------------
 	int increment(int idx) const
 	{
 	  return (idx + 1) % MAX_OS_EVENTS;

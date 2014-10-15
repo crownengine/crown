@@ -46,33 +46,28 @@ const float HALF_PI = PI * 0.5f;
 const float FLOAT_PRECISION = 1.0e-7f;
 const double DOUBLE_PRECISION = 1.0e-9;
 
-//-----------------------------------------------------------------------------
 inline bool equals(float a, float b, float precision = FLOAT_PRECISION)
 {
 	return ((b <= (a + precision)) && (b >= (a - precision)));
 }
 
-//-----------------------------------------------------------------------------
 inline bool equals(double a, double b, double precision = DOUBLE_PRECISION)
 {
 	return ((b <= (a + precision)) && (b >= (a - precision)));
 }
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline T min(const T& a, const T& b)
 {
 	return a < b ? a : b;
 }
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline T max(const T& a, const T& b)
 {
 	return a < b ? b : a;
 }
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline T clamp(const T& min, const T& max, const T& val)
 {
@@ -80,7 +75,6 @@ inline T clamp(const T& min, const T& max, const T& val)
 	return val > max ? max : val < min ? min : val;
 }
 
-//-----------------------------------------------------------------------------
 template <typename T>
 inline void swap(T& a, T& b)
 {
@@ -89,19 +83,16 @@ inline void swap(T& a, T& b)
 	b = tmp;
 }
 
-//-----------------------------------------------------------------------------
 inline float to_rad(float deg)
 {
 	return deg * float(PI / 180.0);
 }
 
-//-----------------------------------------------------------------------------
 inline float to_deg(float rad)
 {
 	return rad * float(180.0 / PI);
 }
 
-//-----------------------------------------------------------------------------
 inline uint32_t next_pow_2(uint32_t x)
 {
 	x--;
@@ -115,79 +106,66 @@ inline uint32_t next_pow_2(uint32_t x)
 	return ++x;
 }
 
-//-----------------------------------------------------------------------------
 inline bool is_pow_2(uint32_t x)
 {
 	return !(x & (x - 1)) && x;
 }
 
-//-----------------------------------------------------------------------------
 inline float ceil(float x)
 {
 	return ceilf(x);
 }
 
-//-----------------------------------------------------------------------------
 inline float floor(float x)
 {
 	return floorf(x);
 }
 
-//-----------------------------------------------------------------------------
 inline float sqrt(float x)
 {
 	return sqrtf(x);
 }
 
-//-----------------------------------------------------------------------------
 inline float inv_sqrt(float x)
 {
 	return 1.0f / sqrt(x);
 }
 
-//-----------------------------------------------------------------------------
 inline float sin(float x)
 {
 	return sinf(x);
 }
 
-//-----------------------------------------------------------------------------
 inline float cos(float x)
 {
 	return cosf(x);
 }
 
-//-----------------------------------------------------------------------------
 inline float asin(float x)
 {
 	return asinf(x);
 }
 
-//-----------------------------------------------------------------------------
 inline float acos(float x)
 {
 	return acosf(x);
 }
 
-//-----------------------------------------------------------------------------
 inline float tan(float x)
 {
 	return tanf(x);
 }
 
-//-----------------------------------------------------------------------------
 inline float atan2(float y, float x)
 {
 	return atan2f(y, x);
 }
 
-//-----------------------------------------------------------------------------
 inline float abs(float x)
 {
 	return fabs(x);
 }
 
-//-----------------------------------------------------------------------------
 inline float fmod(float n, float d)
 {
 	return ::fmod(n, d);

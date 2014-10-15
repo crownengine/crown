@@ -55,7 +55,6 @@ using physx::PxCooking;
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 struct SceneGraph;
 class World;
 struct PhysicsResource;

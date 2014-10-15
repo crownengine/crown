@@ -32,18 +32,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 SceneGraphManager::SceneGraphManager()
 	: m_graphs(default_allocator())
 {
 }
 
-//-----------------------------------------------------------------------------
 SceneGraphManager::~SceneGraphManager()
 {
 }
 
-//-----------------------------------------------------------------------------
 SceneGraph* SceneGraphManager::create_scene_graph()
 {
 	uint32_t index = array::size(m_graphs);
@@ -52,7 +49,6 @@ SceneGraph* SceneGraphManager::create_scene_graph()
 	return sg;
 }
 
-//-----------------------------------------------------------------------------
 void SceneGraphManager::destroy_scene_graph(SceneGraph* sg)
 {
 	CE_ASSERT_NOT_NULL(sg);
@@ -64,7 +60,6 @@ void SceneGraphManager::destroy_scene_graph(SceneGraph* sg)
 	CE_DELETE(default_allocator(), sg);
 }
 
-//-----------------------------------------------------------------------------
 void SceneGraphManager::update()
 {
 	for (uint32_t i = 0; i < array::size(m_graphs); i++)

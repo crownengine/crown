@@ -33,7 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 ResourceLoader::ResourceLoader(Bundle& bundle, Allocator& resource_heap)
 	: m_thread()
 	, m_bundle(bundle)
@@ -50,40 +49,34 @@ ResourceLoader::~ResourceLoader()
 	m_exit = true;
 }
 
-//-----------------------------------------------------------------------------
 void ResourceLoader::load(ResourceId id)
 {
 	add_request(id);
 }
 
-//-----------------------------------------------------------------------------
 void ResourceLoader::flush()
 {
 	while (num_requests()) {}
 }
 
-//-----------------------------------------------------------------------------
 void ResourceLoader::add_request(ResourceId id)
 {
 	ScopedMutex sm(m_mutex);
 	queue::push_back(m_requests, id);
 }
 
-//-----------------------------------------------------------------------------
 uint32_t ResourceLoader::num_requests()
 {
 	ScopedMutex sm(m_mutex);
 	return queue::size(m_requests);
 }
 
-//-----------------------------------------------------------------------------
 void ResourceLoader::add_loaded(ResourceData data)
 {
 	ScopedMutex sm(m_loaded_mutex);
 	queue::push_back(m_loaded, data);
 }
 
-//-----------------------------------------------------------------------------
 void ResourceLoader::get_loaded(Array<ResourceData>& loaded)
 {
 	ScopedMutex sm(m_loaded_mutex);
@@ -95,7 +88,6 @@ void ResourceLoader::get_loaded(Array<ResourceData>& loaded)
 	}
 }
 
-//-----------------------------------------------------------------------------
 int32_t ResourceLoader::run()
 {
 	while (!m_exit)

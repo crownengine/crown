@@ -41,7 +41,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 	: _source_fs(source_dir)
 	, _bundle_fs(bundle_dir)
@@ -50,7 +49,6 @@ BundleCompiler::BundleCompiler(const char* source_dir, const char* bundle_dir)
 	temp.create_directory(bundle_dir);
 }
 
-//-----------------------------------------------------------------------------
 bool BundleCompiler::compile(const char* type, const char* name, Platform::Enum platform)
 {
 	const ResourceId id(type, name);
@@ -67,7 +65,6 @@ bool BundleCompiler::compile(const char* type, const char* name, Platform::Enum 
 	_bundle_fs.close(outf);
 }
 
-//-----------------------------------------------------------------------------
 bool BundleCompiler::compile_all(Platform::Enum platform)
 {
 	Vector<DynamicString> files(default_allocator());
@@ -108,7 +105,6 @@ bool BundleCompiler::compile_all(Platform::Enum platform)
 	return true;
 }
 
-//-----------------------------------------------------------------------------
 void BundleCompiler::scan(const char* cur_dir, Vector<DynamicString>& files)
 {
 	Vector<DynamicString> my_files(default_allocator());

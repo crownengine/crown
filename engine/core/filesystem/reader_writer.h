@@ -39,7 +39,6 @@ class TextReader
 {
 public:
 
-	//-----------------------------------------------------------------------------
 	TextReader(File& file) : m_file(file) {}
 
 	/// Reads characters from file and stores them as a C string
@@ -85,7 +84,6 @@ class TextWriter
 {
 public:
 
-	//-----------------------------------------------------------------------------
 	TextWriter(File& file) : m_file(file) {}
 
 	/// Writes the string pointed by string to the file.
@@ -109,7 +107,6 @@ class BinaryWriter
 {
 public:
 
-	//-----------------------------------------------------------------------------
 	BinaryWriter(File& file) : m_file(file) {}
 
 	void write(const void* data, size_t size)
@@ -140,7 +137,6 @@ class BinaryReader
 {
 public:
 
-	//-----------------------------------------------------------------------------
 	BinaryReader(File& file) : m_file(file) {}
 
 	void read(void* data, size_t size)

@@ -42,7 +42,6 @@ struct Joint;
 struct Raycast;
 class PhysicsWorld;
 
-//-----------------------------------------------------------------------------
 struct ActorType
 {
 	enum Enum
@@ -53,7 +52,6 @@ struct ActorType
 	};
 };
 
-//-----------------------------------------------------------------------------
 struct ShapeType
 {
 	enum Enum
@@ -66,7 +64,6 @@ struct ShapeType
 	};
 };
 
-//-----------------------------------------------------------------------------
 struct JointType
 {
 	enum Enum
@@ -80,7 +77,6 @@ struct JointType
 	};
 };
 
-//-----------------------------------------------------------------------------
 struct CollisionGroup
 {
 	enum Enum
@@ -120,7 +116,6 @@ struct CollisionGroup
 	};
 };
 
-//-----------------------------------------------------------------------------
 struct CollisionType
 {
 	enum Enum
@@ -131,7 +126,6 @@ struct CollisionType
 	};
 };
 
-//-----------------------------------------------------------------------------
 struct CollisionMode
 {
 	enum Enum
@@ -144,7 +138,6 @@ struct CollisionMode
 
 namespace physics_world
 {
-//-----------------------------------------------------------------------------
 struct EventType
 {
 	enum Enum
@@ -154,7 +147,6 @@ struct EventType
 	};
 };
 
-//-----------------------------------------------------------------------------
 struct CollisionEvent
 {
 	enum Type { BEGIN_TOUCH, END_TOUCH } type;
@@ -163,7 +155,6 @@ struct CollisionEvent
 	Vector3 normal;
 };
 
-//-----------------------------------------------------------------------------
 struct TriggerEvent
 {
 	enum Type { BEGIN_TOUCH, END_TOUCH } type;

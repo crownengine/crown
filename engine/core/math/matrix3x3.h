@@ -141,7 +141,6 @@ inline Matrix3x3 operator*(Matrix3x3 a, const Matrix3x3& b)
 
 namespace matrix3x3
 {
-	//-----------------------------------------------------------------------------
 	inline Matrix3x3& transpose(Matrix3x3& m)
 	{
 		float tmp;
@@ -161,14 +160,12 @@ namespace matrix3x3
 		return m;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Matrix3x3 get_transposed(Matrix3x3 m)
 	{
 		transpose(m);
 		return m;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float determinant(const Matrix3x3& m)
 	{
 		return	m.x.x * (m.y.y * m.z.z - m.z.y * m.y.z) -
@@ -176,7 +173,6 @@ namespace matrix3x3
 				m.z.x * (m.x.y * m.y.z - m.y.y * m.x.z);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Matrix3x3& invert(Matrix3x3& m)
 	{
 		Matrix3x3 mat;
@@ -207,14 +203,12 @@ namespace matrix3x3
 		return m;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Matrix3x3 get_inverted(Matrix3x3 m)
 	{
 		invert(m);
 		return m;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void set_identity(Matrix3x3& m)
 	{
 		m.x = Vector3(1, 0, 0);
@@ -222,13 +216,11 @@ namespace matrix3x3
 		m.z = Vector3(0, 0, 1);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Matrix4x4 to_matrix4x4(const Matrix3x3& m)
 	{
 		return Matrix4x4(m);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Quaternion to_quaternion(const Matrix3x3& m)
 	{
 		const float fourWSquaredMinusOne = m.x.x + m.y.y + m.z.z;
@@ -305,13 +297,11 @@ namespace matrix3x3
 	}
 } // namespace matrix3x3
 
-//-----------------------------------------------------------------------------
 inline Matrix3x3::Matrix3x3()
 {
 	// Do not initialize
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix3x3::Matrix3x3(const Vector3& x, const Vector3& y, const Vector3& z)
 	: x(x)
 	, y(y)
@@ -319,7 +309,6 @@ inline Matrix3x3::Matrix3x3(const Vector3& x, const Vector3& y, const Vector3& z
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix3x3::Matrix3x3(const Quaternion& r)
 	: x(1.0f - 2.0f * r.y * r.y - 2.0f * r.z * r.z, 2.0f * r.x * r.y + 2.0f * r.w * r.z, 2.0f * r.x * r.z - 2.0f * r.w * r.y)
 	, y(2.0f * r.x * r.y - 2.0f * r.w * r.z, 1.0f - 2.0f * r.x * r.x - 2.0f * r.z * r.z, 2.0f * r.y * r.z + 2.0f * r.w * r.x)
@@ -327,7 +316,6 @@ inline Matrix3x3::Matrix3x3(const Quaternion& r)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix3x3::Matrix3x3(float r1c1, float r2c1, float r3c1, float r1c2, float r2c2, float r3c2,
 						float r1c3, float r2c3, float r3c3)
 	: x(r1c1, r2c1, r3c1)
@@ -336,7 +324,6 @@ inline Matrix3x3::Matrix3x3(float r1c1, float r2c1, float r3c1, float r1c2, floa
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix3x3::Matrix3x3(const float v[9])
 	: x(v[0], v[1], v[2])
 	, y(v[3], v[4], v[5])
@@ -344,7 +331,6 @@ inline Matrix3x3::Matrix3x3(const float v[9])
 {
 }
 
-//-----------------------------------------------------------------------------
 inline float& Matrix3x3::operator[](uint32_t i)
 {
 	CE_ASSERT(i < 9, "Index out of bounds");
@@ -352,7 +338,6 @@ inline float& Matrix3x3::operator[](uint32_t i)
 	return vector3::to_float_ptr(x)[i];
 }
 
-//-----------------------------------------------------------------------------
 inline const float& Matrix3x3::operator[](uint32_t i) const
 {
 	CE_ASSERT(i < 9, "Index out of bounds");
@@ -360,7 +345,6 @@ inline const float& Matrix3x3::operator[](uint32_t i) const
 	return vector3::to_float_ptr(x)[i];
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix3x3& Matrix3x3::operator+=(const Matrix3x3& a)
 {
 	x += a.x;
@@ -370,7 +354,6 @@ inline Matrix3x3& Matrix3x3::operator+=(const Matrix3x3& a)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix3x3& Matrix3x3::operator-=(const Matrix3x3& a)
 {
 	x -= a.x;
@@ -380,7 +363,6 @@ inline Matrix3x3& Matrix3x3::operator-=(const Matrix3x3& a)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix3x3& Matrix3x3::operator*=(float k)
 {
 	x *= k;
@@ -390,7 +372,6 @@ inline Matrix3x3& Matrix3x3::operator*=(float k)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix3x3& Matrix3x3::operator/=(float k)
 {
 	const float inv_k = 1.0f / k;
@@ -402,7 +383,6 @@ inline Matrix3x3& Matrix3x3::operator/=(float k)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Matrix3x3& Matrix3x3::operator*=(const Matrix3x3& a)
 {
 	Matrix3x3 tmp;

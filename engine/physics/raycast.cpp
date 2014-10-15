@@ -34,7 +34,6 @@ using physx::PxRigidActor;
 namespace crown
 {
 
-//-------------------------------------------------------------------------
 Raycast::Raycast(PxScene* scene, CollisionMode::Enum mode, CollisionType::Enum type)
 	: m_scene(scene)
 	, m_buffer(m_hits, CE_MAX_RAY_INTERSECTIONS)
@@ -56,7 +55,6 @@ Raycast::Raycast(PxScene* scene, CollisionMode::Enum mode, CollisionType::Enum t
 	}
 }
 
-//-------------------------------------------------------------------------
 void Raycast::cast(const Vector3& from, const Vector3& dir, const float length, Array<RaycastHit>& hits)
 {
 	m_scene->raycast(PxVec3(from.x, from.y, from.z), PxVec3(dir.x, dir.y, dir.z), length, m_buffer, PxHitFlags(PxHitFlag::eDEFAULT), m_fd);
@@ -80,13 +78,11 @@ void Raycast::cast(const Vector3& from, const Vector3& dir, const float length, 
 	}
 }
 
-//-------------------------------------------------------------------------
 CollisionMode::Enum Raycast::mode() const
 {
 	return m_mode;
 }
 
-//-------------------------------------------------------------------------
 CollisionType::Enum Raycast::type() const
 {
 	return m_type;

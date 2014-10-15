@@ -145,7 +145,6 @@ struct PixelFormat
 
 namespace pixel_format
 {
-	//-----------------------------------------------------------------------------
 	inline uint32_t size(PixelFormat::Enum fmt)
 	{
 		switch (fmt)
@@ -166,19 +165,16 @@ namespace pixel_format
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	inline bool is_compressed(PixelFormat::Enum fmt)
 	{
 		return fmt < PixelFormat::R8G8B8;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline bool is_color(PixelFormat::Enum fmt)
 	{
 		return fmt >= PixelFormat::R8G8B8 && fmt < PixelFormat::D16;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline bool is_depth(PixelFormat::Enum fmt)
 	{
 		return fmt >= PixelFormat::D16 && fmt < PixelFormat::COUNT;
@@ -206,7 +202,6 @@ namespace texture_resource
 		char* data;
 	};
 
-	//-----------------------------------------------------------------------------
 	void read_mip_image(const ImageData& image, uint8_t mip, MipData& data)
 	{
 		uint32_t width = image.width;
@@ -236,7 +231,6 @@ namespace texture_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void swap_red_blue(uint32_t width, uint32_t height, uint8_t channels, char* data)
 	{
 		uint32_t i = 0;
@@ -254,7 +248,6 @@ namespace texture_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void read_tga_uncompressed(BinaryReader& br, uint32_t width, uint32_t height, uint8_t channels, ImageData& image)
 	{
 		if (channels == 2)
@@ -283,7 +276,6 @@ namespace texture_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void read_tga_compressed(BinaryReader& br, uint32_t width, uint32_t height, uint8_t channels, ImageData& image)
 	{
 		uint8_t rle_id = 0;
@@ -353,7 +345,6 @@ namespace texture_resource
 		swap_red_blue(width, height, channels, image.data);
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_tga(BinaryReader& br, ImageData& image)
 	{
 		uint8_t id;
@@ -421,7 +412,6 @@ namespace texture_resource
 		return;
 	}
 
-	//-----------------------------------------------------------------------------
 	void parse_dds(BinaryReader& br, ImageData& image)
 	{
 		// Read header
@@ -524,7 +514,6 @@ namespace texture_resource
 		CE_LOGD("PixelFormat = %u", image.format);
 	}
 
-	//-----------------------------------------------------------------------------
 	void write_dds(BinaryWriter& bw, const ImageData& image)
 	{
 		bw.write(DDSD_MAGIC);
@@ -587,7 +576,6 @@ namespace texture_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void compile(const char* path, CompileOptions& opts)
 	{
 		static const uint32_t VERSION = 1;
@@ -634,7 +622,6 @@ namespace texture_resource
 		default_allocator().deallocate(image.data);
 	}
 
-	//-----------------------------------------------------------------------------
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
@@ -651,7 +638,6 @@ namespace texture_resource
 		return teximg;
 	}
 
-	//-----------------------------------------------------------------------------
 	void online(StringId64 id, ResourceManager& rm)
 	{
 		ResourceId res_id;
@@ -672,7 +658,6 @@ namespace texture_resource
 		bgfx::destroyTexture(teximg->handle);
 	}
 	
-	//-----------------------------------------------------------------------------
 	void unload(Allocator& a, void* resource)
 	{
 		a.deallocate(resource);

@@ -91,7 +91,6 @@ static const ResourceCallback RESOURCE_CALLBACK_REGISTRY[] =
 	{ 0,                     NULL,         NULL,      NULL,        NULL,        NULL         }
 };
 
-//-----------------------------------------------------------------------------
 static const ResourceCallback* find_callback(uint64_t type)
 {
 	const ResourceCallback* c = RESOURCE_CALLBACK_REGISTRY;
@@ -110,25 +109,21 @@ void resource_on_compile(uint64_t type, const char* path, CompileOptions& opts)
 	return find_callback(type)->on_compile(path, opts);
 }
 
-//-----------------------------------------------------------------------------
 void* resource_on_load(uint64_t type, Allocator& allocator, Bundle& bundle, ResourceId id)
 {
 	return find_callback(type)->on_load(allocator, bundle, id);
 }
 
-//-----------------------------------------------------------------------------
 void resource_on_unload(uint64_t type, Allocator& allocator, void* resource)
 {
 	return find_callback(type)->on_unload(allocator, resource);
 }
 
-//-----------------------------------------------------------------------------
 void resource_on_online(uint64_t type, StringId64 id, ResourceManager& rm)
 {
 	return find_callback(type)->on_online(id, rm);
 }
 
-//-----------------------------------------------------------------------------
 void resource_on_offline(uint64_t type, StringId64 id, ResourceManager& rm)
 {
 	return find_callback(type)->on_offline(id, rm);

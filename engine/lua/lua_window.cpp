@@ -42,7 +42,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int window_show(lua_State* L)
 {
 	LuaStack stack(L);
@@ -50,7 +49,6 @@ static int window_show(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int window_hide(lua_State* L)
 {
 	LuaStack stack(L);
@@ -58,7 +56,6 @@ static int window_hide(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int window_resize(lua_State* L)
 {
 	LuaStack stack(L);
@@ -66,7 +63,6 @@ static int window_resize(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int window_move(lua_State* L)
 {
 	LuaStack stack(L);
@@ -74,21 +70,18 @@ static int window_move(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int window_minimize(lua_State* /*L*/)
 {
 	// window()->minimize();
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int window_restore(lua_State* /*L*/)
 {
 	// window()->restore();
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int window_is_resizable(lua_State* L)
 {
 	LuaStack stack(L);
@@ -96,7 +89,6 @@ static int window_is_resizable(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int window_set_resizable(lua_State* L)
 {
 	LuaStack stack(L);
@@ -104,7 +96,6 @@ static int window_set_resizable(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int window_title(lua_State* L)
 {
 	LuaStack stack(L);
@@ -113,7 +104,6 @@ static int window_title(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int window_set_title(lua_State* L)
 {
 	LuaStack stack(L);
@@ -121,7 +111,6 @@ static int window_set_title(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 void load_window(LuaEnvironment& env)
 {
 	env.load_module_function("Window", "show",          window_show);

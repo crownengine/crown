@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int color4_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -42,7 +41,6 @@ static int color4_new(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int color4_ctor(lua_State* L)
 {
 	LuaStack stack(L);
@@ -50,7 +48,6 @@ static int color4_ctor(lua_State* L)
 	return color4_new(L);
 }
 
-//-----------------------------------------------------------------------------
 void load_color4(LuaEnvironment& env)
 {
 	env.load_module_function("Color4", "new", color4_new);

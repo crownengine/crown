@@ -78,7 +78,6 @@ namespace id_table
 
 namespace id_table
 {
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX>
 	inline Id create(IdTable<MAX>& a)
 	{
@@ -103,7 +102,6 @@ namespace id_table
 		return id;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX>
 	inline void destroy(IdTable<MAX>& a, Id id)
 	{
@@ -115,28 +113,24 @@ namespace id_table
 		a._size--;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX>
 	inline bool has(const IdTable<MAX>& a, Id id)
 	{
 		return id.index < MAX && a._ids[id.index].id == id.id;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX>
 	inline uint16_t size(const IdTable<MAX>& a)
 	{
 		return a._size;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX>
 	inline const Id* begin(const IdTable<MAX>& a)
 	{
 		return a._ids;
 	}
 
-	//-----------------------------------------------------------------------------
 	template <uint32_t MAX>
 	inline const Id* end(const IdTable<MAX>& a)
 	{
@@ -144,7 +138,6 @@ namespace id_table
 	}
 } // namespace id_table
 
-//-----------------------------------------------------------------------------
 template <uint32_t MAX>
 inline IdTable<MAX>::IdTable()
 	: _freelist(INVALID_ID)

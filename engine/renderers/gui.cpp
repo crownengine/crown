@@ -39,7 +39,6 @@ namespace crown
 
 using namespace matrix4x4;
 
-//-------------------------------------------------------------------------
 struct VertexData
 {
 	float x;
@@ -48,7 +47,6 @@ struct VertexData
 	float v;
 };
 
-//-------------------------------------------------------------------------
 struct IndexData
 {
 	uint16_t a;
@@ -57,7 +55,6 @@ struct IndexData
 
 #define UTF8_ACCEPT 0
 
-//-------------------------------------------------------------------------
 static const uint8_t s_utf8d[364] =
 {
 	// The first part of the table maps bytes to character classes that
@@ -80,7 +77,6 @@ static const uint8_t s_utf8d[364] =
 	12,36,12,12,12,12,12,12,12,12,12,12
 };
 
-//-------------------------------------------------------------------------
 static uint32_t utf8_decode(uint32_t* state, uint32_t* code_point, uint8_t character)
 {
 	uint32_t byte = character;
@@ -111,7 +107,6 @@ void Gui::init()
 		.end();
 }
 
-//-----------------------------------------------------------------------------
 Gui::Gui(uint16_t width, uint16_t height, const char* material)
 	: m_width(width)
 	, m_height(height)
@@ -123,38 +118,32 @@ Gui::Gui(uint16_t width, uint16_t height, const char* material)
 	m_material = material_manager::get()->create_material(id.name);
 }
 
-//-----------------------------------------------------------------------------
 const GuiId Gui::id() const
 {
 	return m_id;
 }
 
-//-----------------------------------------------------------------------------
 void Gui::set_id(const GuiId id)
 {
 	m_id = id;
 }
 
-//-----------------------------------------------------------------------------
 Vector2 Gui::resolution() const
 {
 	return Vector2(m_width, m_height);
 }
 
-//-----------------------------------------------------------------------------
 void Gui::move(const Vector2& pos)
 {
 	set_identity(m_pose);
 	set_translation(m_pose, Vector3(pos.x, pos.y, 0));
 }
 
-//-----------------------------------------------------------------------------
 Vector2 Gui::screen_to_gui(const Vector2& pos)
 {
 	return Vector2(pos.x, m_height - pos.y);
 }
 
-//-----------------------------------------------------------------------------
 void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& color)
 {
 	bgfx::TransientVertexBuffer tvb;
@@ -189,13 +178,11 @@ void Gui::draw_rectangle(const Vector3& pos, const Vector2& size, const Color4& 
 	bgfx::submit(1, (int32_t) pos.z);
 }
 
-//-----------------------------------------------------------------------------
 void Gui::draw_image(const char* material, const Vector3& pos, const Vector2& size, const Color4& color)
 {
 	draw_image_uv(material, pos, size, Vector2(0, 0), Vector2(1, 1), color);
 }
 
-//-----------------------------------------------------------------------------
 void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2& size, const Vector2& uv0, const Vector2& uv1, const Color4& color)
 {
 	bgfx::TransientVertexBuffer tvb;
@@ -244,7 +231,6 @@ void Gui::draw_image_uv(const char* material, const Vector3& pos, const Vector2&
 	bgfx::submit(1, (int32_t) pos.z);
 }
 
-//-----------------------------------------------------------------------------
 void Gui::draw_text(const char* str, const char* font, uint32_t font_size, const Vector3& pos, const Color4& color)
 {
 	// Renderer* r = device()->renderer();

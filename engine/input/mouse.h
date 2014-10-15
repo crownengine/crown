@@ -53,7 +53,6 @@ struct MouseButton
 /// @ingroup Input
 struct Mouse
 {
-	//-----------------------------------------------------------------------------
 	Mouse()
 		: _last_button(MouseButton::NONE)
 	{
@@ -134,21 +133,18 @@ struct Mouse
 		set_cursor_xy(Vector2(position.x * (float) _width, position.y * (float) _height));
 	}
 
-	//-----------------------------------------------------------------------------
 	void set_position(uint16_t x, uint16_t y)
 	{
 		_x = x;
 		_y = y;
 	}
 
-	//-----------------------------------------------------------------------------
 	void set_metrics(uint16_t width, uint16_t height)
 	{
 		_width = width;
 		_height = height;
 	}
 
-	//-----------------------------------------------------------------------------
 	void set_button_state(uint16_t x, uint16_t y, MouseButton::Enum b, bool state)
 	{
 		set_position(x, y);
@@ -157,7 +153,6 @@ struct Mouse
 		_current_state[b] = state;
 	}
 
-	//-----------------------------------------------------------------------------
 	void update()
 	{
 		memcpy(_last_state, _current_state, MouseButton::COUNT);

@@ -133,25 +133,21 @@ inline bool operator==(const Vector2& a, const Vector2& b)
 namespace vector2
 {
 
-	//-----------------------------------------------------------------------------
 	inline float dot(const Vector2& a, const Vector2& b)
 	{
 		return a.x * b.x + a.y * b.y;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float length(const Vector2& a)
 	{
 		return math::sqrt(a.x * a.x + a.y * a.y);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float squared_length(const Vector2& a)
 	{
 		return a.x * a.x + a.y * a.y;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void set_length(Vector2& a, float len)
 	{
 		normalize(a);
@@ -160,7 +156,6 @@ namespace vector2
 		a.y *= len;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline Vector2 normalize(Vector2& a)
 	{
 		float inv_len = 1.0f / length(a);
@@ -171,53 +166,44 @@ namespace vector2
 		return a;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float distance(const Vector2& a, const Vector2& b)
 	{
 		return length(b - a);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float angle(const Vector2& a, const Vector2& b)
 	{
 		return math::acos(dot(a, b) / (length(a) * length(b)));
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float* to_float_ptr(Vector2& a)
 	{
 		return &a.x;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline const float* to_float_ptr(const Vector2& a)
 	{
 		return &a.x;
 	}
 } // namespace vector2
 
-//-----------------------------------------------------------------------------
 inline Vector2::Vector2()
 {
 	// Do not initialize
 }
 
-//-----------------------------------------------------------------------------
 inline Vector2::Vector2(float val) : x(val), y(val)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Vector2::Vector2(float nx, float ny) : x(nx), y(ny)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Vector2::Vector2(const float a[2]) : x(a[0]), y(a[1])
 {
 }
 
-//-----------------------------------------------------------------------------
 inline const float& Vector2::operator[](uint32_t i) const
 {
 	CE_ASSERT(i < 2, "Index out of bounds");
@@ -225,7 +211,6 @@ inline const float& Vector2::operator[](uint32_t i) const
 	return (&x)[i];
 }
 
-//-----------------------------------------------------------------------------
 inline float& Vector2::operator[](uint32_t i)
 {
 	CE_ASSERT(i < 2, "Index out of bounds");
@@ -233,7 +218,6 @@ inline float& Vector2::operator[](uint32_t i)
 	return (&x)[i];
 }
 
-//-----------------------------------------------------------------------------
 inline Vector2& Vector2::operator+=(const Vector2& a)
 {
 	x += a.x;
@@ -242,7 +226,6 @@ inline Vector2& Vector2::operator+=(const Vector2& a)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Vector2& Vector2::operator-=(const Vector2& a)
 {
 	x -= a.x;
@@ -251,7 +234,6 @@ inline Vector2& Vector2::operator-=(const Vector2& a)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Vector2& Vector2::operator*=(float k)
 {
 	x *= k;
@@ -260,7 +242,6 @@ inline Vector2& Vector2::operator*=(float k)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 inline Vector2& Vector2::operator/=(float k)
 {
 	CE_ASSERT(k != (float)0.0, "Division by zero");

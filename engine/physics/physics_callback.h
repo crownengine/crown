@@ -63,24 +63,20 @@ namespace crown
 
 class PhysicsWorld;
 
-//-----------------------------------------------------------------------------
 class PhysicsSimulationCallback : public PxSimulationEventCallback
 {
 public:
 
-	//-----------------------------------------------------------------------------
 	PhysicsSimulationCallback(EventStream& stream)
 		: m_events(stream)
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void onConstraintBreak(PxConstraintInfo* /*constraints*/, PxU32 /*count*/)
 	{
 		// printf("COSTRAINTBREAK\n");
 	}
 
-	//-----------------------------------------------------------------------------
 	void onContact(const PxContactPairHeader& pair_header, const PxContactPair* pairs, PxU32 num_pairs)
 	{
 		// Do not report contact if either actor0 or actor1 or both have been deleted
@@ -120,7 +116,6 @@ public:
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void onTrigger(PxTriggerPair* pairs, PxU32 count)
 	{
 		for (PxU32 pp = 0; pp < count; pp++)
@@ -138,12 +133,10 @@ public:
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void onWake(PxActor** /*actors*/, PxU32 /*count*/)
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void onSleep(PxActor** /*actors*/, PxU32 /*count*/)
 	{
 	}
@@ -175,20 +168,16 @@ private:
 	EventStream& m_events;
 };
 
-//-----------------------------------------------------------------------------
 class PhysicsControllerCallback : public PxUserControllerHitReport
 {
-	//-----------------------------------------------------------------------------
 	void onShapeHit(const PxControllerShapeHit& /*hit*/)
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void onControllerHit(const PxControllersHit& /*hit*/)
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void onObstacleHit(const PxControllerObstacleHit& /*hit*/)
 	{
 	}

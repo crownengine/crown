@@ -77,7 +77,6 @@ typedef TempAllocator<1024> TempAllocator1024;
 typedef TempAllocator<2048> TempAllocator2048;
 typedef TempAllocator<4096> TempAllocator4096;
 
-//-----------------------------------------------------------------------------
 template <size_t SIZE>
 inline TempAllocator<SIZE>::TempAllocator(Allocator& backing)
 	: _backing(backing)
@@ -90,7 +89,6 @@ inline TempAllocator<SIZE>::TempAllocator(Allocator& backing)
 	_cur += sizeof(void*);
 }
 
-//-----------------------------------------------------------------------------
 template <size_t SIZE>
 inline TempAllocator<SIZE>::~TempAllocator()
 {
@@ -106,7 +104,6 @@ inline TempAllocator<SIZE>::~TempAllocator()
 	}
 }
 
-//-----------------------------------------------------------------------------
 template <size_t SIZE>
 inline void* TempAllocator<SIZE>::allocate(size_t size, size_t align)
 {
@@ -137,13 +134,11 @@ inline void* TempAllocator<SIZE>::allocate(size_t size, size_t align)
 	return result;
 }
 
-//-----------------------------------------------------------------------------
 template <size_t SIZE>
 inline void TempAllocator<SIZE>::deallocate(void* /*data*/)
 {
 }
 
-//-----------------------------------------------------------------------------
 template <size_t SIZE>
 inline size_t TempAllocator<SIZE>::allocated_size()
 {

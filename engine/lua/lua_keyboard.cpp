@@ -34,7 +34,6 @@ namespace crown
 {
 using namespace input_globals;
 
-//-----------------------------------------------------------------------------
 static int keyboard_modifier_pressed(lua_State* L)
 {
 	LuaStack stack(L);
@@ -42,7 +41,6 @@ static int keyboard_modifier_pressed(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int keyboard_button_pressed(lua_State* L)
 {
 	LuaStack stack(L);
@@ -50,7 +48,6 @@ static int keyboard_button_pressed(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int keyboard_button_released(lua_State* L)
 {
 	LuaStack stack(L);
@@ -58,7 +55,6 @@ static int keyboard_button_released(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int keyboard_any_pressed(lua_State* L)
 {
 	LuaStack stack(L);
@@ -66,7 +62,6 @@ static int keyboard_any_pressed(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int keyboard_any_released(lua_State* L)
 {
 	LuaStack stack(L);
@@ -74,7 +69,6 @@ static int keyboard_any_released(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_keyboard(LuaEnvironment& env)
 {
 	env.load_module_function("Keyboard", "modifier_pressed", keyboard_modifier_pressed);

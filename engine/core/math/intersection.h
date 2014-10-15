@@ -66,7 +66,6 @@ inline float ray_sphere_intersection(const Vector3& from, const Vector3& dir, co
 	return b - math::sqrt(det);
 }
 
-//-----------------------------------------------------------------------------
 inline bool plane_3_intersection(const Plane& p1, const Plane& p2, const Plane& p3, Vector3& ip)
 {
 	const Vector3& n1 = p1.n;
@@ -86,7 +85,6 @@ inline bool plane_3_intersection(const Plane& p1, const Plane& p2, const Plane& 
 	return true;
 }
 
-//-----------------------------------------------------------------------------
 inline bool frustum_sphere_intersection(const Frustum& f, const Sphere& s)
 {
 	if (plane::distance_to_point(f.left, s.center()) < -s.radius() ||
@@ -110,7 +108,6 @@ inline bool frustum_sphere_intersection(const Frustum& f, const Sphere& s)
 	return true;
 }
 
-//-----------------------------------------------------------------------------
 inline bool frustum_box_intersection(const Frustum& f, const AABB& b)
 {
 	uint8_t out;

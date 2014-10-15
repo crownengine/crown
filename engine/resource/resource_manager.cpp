@@ -45,7 +45,6 @@ ResourceId::ResourceId(const char* type, const char* name)
 {
 }
 
-//-----------------------------------------------------------------------------
 ResourceManager::ResourceManager(Bundle& bundle)
 	: m_resource_heap("resource", default_allocator())
 	, m_loader(bundle, m_resource_heap)
@@ -53,7 +52,6 @@ ResourceManager::ResourceManager(Bundle& bundle)
 {
 }
 
-//-----------------------------------------------------------------------------
 void ResourceManager::load(ResourceId id)
 {
 	// Search for an already existent resource
@@ -70,7 +68,6 @@ void ResourceManager::load(ResourceId id)
 	entry->references++;
 }
 
-//-----------------------------------------------------------------------------
 void ResourceManager::unload(ResourceId id, bool force)
 {
 	CE_ASSERT(find(id) != NULL, "Resource not loaded: ""%.16"PRIx64"-%.16"PRIx64, id.type, id.name);
@@ -91,19 +88,16 @@ void ResourceManager::unload(ResourceId id, bool force)
 	}
 }
 
-//-----------------------------------------------------------------------------
 bool ResourceManager::can_get(const char* type, const char* name)
 {
 	return can_get(ResourceId(type, name));
 }
 
-//-----------------------------------------------------------------------------
 bool ResourceManager::can_get(ResourceId id) const
 {
 	return find(id) != NULL;
 }
 
-//-----------------------------------------------------------------------------
 const void* ResourceManager::get(const char* type, const char* name) const
 {
 	ResourceEntry* entry = find(ResourceId(type, name));
@@ -111,35 +105,30 @@ const void* ResourceManager::get(const char* type, const char* name) const
 	return entry->resource;
 }
 
-//-----------------------------------------------------------------------------
 const void* ResourceManager::get(ResourceId id) const
 {
 	CE_ASSERT(find(id) != NULL, "Resource not loaded: ""%.16"PRIx64"-%.16"PRIx64, id.type, id.name);
 	return find(id)->resource;
 }
 
-//-----------------------------------------------------------------------------
 uint32_t ResourceManager::references(ResourceId id) const
 {
 	CE_ASSERT(find(id) != NULL, "Resource not loaded: ""%.16"PRIx64"-%.16"PRIx64, id.type, id.name);
 	return find(id)->references;
 }
 
-//-----------------------------------------------------------------------------
 void ResourceManager::flush()
 {
 	m_loader.flush();
 	complete_requests();
 }
 
-//-----------------------------------------------------------------------------
 ResourceEntry* ResourceManager::find(ResourceId id) const
 {
 	const ResourceEntry* entry = std::find(array::begin(m_resources), array::end(m_resources), id);
 	return entry != array::end(m_resources) ? const_cast<ResourceEntry*>(entry) : NULL;
 }
 
-//-----------------------------------------------------------------------------
 void ResourceManager::complete_requests()
 {
 	TempAllocator1024 ta;
@@ -150,7 +139,6 @@ void ResourceManager::complete_requests()
 		complete_request(loaded[i].id, loaded[i].data);
 }
 
-//-----------------------------------------------------------------------------
 void ResourceManager::complete_request(ResourceId id, void* data)
 {
 	ResourceEntry entry;

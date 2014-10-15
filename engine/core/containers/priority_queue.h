@@ -50,14 +50,12 @@ namespace priority_queue
 
 namespace priority_queue
 {
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	const T& top(const PriorityQueue<T>& q)
 	{
 		return array::front(q._queue);
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	void push(PriorityQueue<T>& q, const T& item)
 	{
@@ -65,7 +63,6 @@ namespace priority_queue
 		std::push_heap(array::begin(q._queue), array::end(q._queue));
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	void pop(PriorityQueue<T>& q)
 	{

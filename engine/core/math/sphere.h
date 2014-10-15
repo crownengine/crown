@@ -69,52 +69,43 @@ private:
 	float			m_radius;
 };
 
-//-----------------------------------------------------------------------------
 inline Sphere::Sphere()
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Sphere::Sphere(const Vector3& center, float radius) : m_center(center), m_radius(radius)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Sphere::Sphere(const Sphere& a) : m_center(a.m_center), m_radius(a.m_radius)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline const Vector3& Sphere::center() const
 {
 	return m_center;
 }
 
-//-----------------------------------------------------------------------------
 inline float Sphere::radius() const
 {
 	return m_radius;
 }
 
-//-----------------------------------------------------------------------------
 inline float Sphere::volume() const
 {
 	return float(4.0 / 3.0 * math::PI) * m_radius * m_radius * m_radius;
 }
 
-//-----------------------------------------------------------------------------
 inline void Sphere::set_center(const Vector3& center)
 {
 	m_center = center;
 }
 
-//-----------------------------------------------------------------------------
 inline void Sphere::set_radius(float radius)
 {
 	m_radius = radius;
 }
 
-//-----------------------------------------------------------------------------
 inline void Sphere::add_points(const Vector3* points, uint32_t count)
 {
 	for (uint32_t i = 0; i < count; i++)
@@ -130,7 +121,6 @@ inline void Sphere::add_points(const Vector3* points, uint32_t count)
 	}
 }
 
-//-----------------------------------------------------------------------------
 inline void Sphere::add_spheres(const Sphere* spheres, uint32_t count)
 {
 	for (uint32_t i = 0; i < count; i++)
@@ -149,7 +139,6 @@ inline void Sphere::add_spheres(const Sphere* spheres, uint32_t count)
 	}
 }
 
-//-----------------------------------------------------------------------------
 inline bool Sphere::contains_point(const Vector3& p) const
 {
 	float dist = vector3::squared_length(p - m_center);

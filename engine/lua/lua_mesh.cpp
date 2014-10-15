@@ -32,7 +32,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int mesh_local_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -40,7 +39,6 @@ static int mesh_local_position(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int mesh_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -48,7 +46,6 @@ static int mesh_local_rotation(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int mesh_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
@@ -56,7 +53,6 @@ static int mesh_local_pose(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int mesh_world_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -64,7 +60,6 @@ static int mesh_world_position(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int mesh_world_rotation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -72,7 +67,6 @@ static int mesh_world_rotation(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int mesh_world_pose(lua_State* L)
 {
 	LuaStack stack(L);
@@ -80,7 +74,6 @@ static int mesh_world_pose(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int mesh_set_local_position(lua_State* L)
 {
 	LuaStack stack(L);
@@ -88,7 +81,6 @@ static int mesh_set_local_position(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int mesh_set_local_rotation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -96,7 +88,6 @@ static int mesh_set_local_rotation(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int mesh_set_local_pose(lua_State* L)
 {
 	LuaStack stack(L);
@@ -104,7 +95,6 @@ static int mesh_set_local_pose(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 void load_mesh(LuaEnvironment& env)
 {
 	env.load_module_function("Mesh", "local_position",     mesh_local_position);

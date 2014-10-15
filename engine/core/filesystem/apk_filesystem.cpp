@@ -38,13 +38,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 ApkFilesystem::ApkFilesystem(AAssetManager* asset_manager)
 	: _asset_manager(asset_manager)
 {
 }
 
-//-----------------------------------------------------------------------------
 File* ApkFilesystem::open(const char* path, FileOpenMode mode)
 {
 	CE_ASSERT_NOT_NULL(path);
@@ -52,56 +50,47 @@ File* ApkFilesystem::open(const char* path, FileOpenMode mode)
 	return CE_NEW(default_allocator(), ApkFile)(_asset_manager, path);
 }
 
-//-----------------------------------------------------------------------------
 void ApkFilesystem::close(File* file)
 {
 	CE_ASSERT_NOT_NULL(file);
 	CE_DELETE(default_allocator(), file);
 }
 
-//-----------------------------------------------------------------------------
 bool ApkFilesystem::exists(const char* path)
 {
 	return false;
 }
 
-//-----------------------------------------------------------------------------
 bool ApkFilesystem::is_directory(const char* path)
 {
 	return true;
 }
 
-//-----------------------------------------------------------------------------
 bool ApkFilesystem::is_file(const char* path)
 {
 	return true;
 }
 
-//-----------------------------------------------------------------------------
 void ApkFilesystem::create_directory(const char* /*path*/)
 {
 	CE_ASSERT(false, "Attempt to create directory in Android assets folder");
 }
 
-//-----------------------------------------------------------------------------
 void ApkFilesystem::delete_directory(const char* /*path*/)
 {
 	CE_ASSERT(false, "Attempt to delete directory in Android assets folder");
 }
 
-//-----------------------------------------------------------------------------
 void ApkFilesystem::create_file(const char* /*path*/)
 {
 	CE_ASSERT(false, "Attempt to create file in Android assets folder");
 }
 
-//-----------------------------------------------------------------------------
 void ApkFilesystem::delete_file(const char* /*path*/)
 {
 	CE_ASSERT(false, "Attempt to delete file in Android assets folder");
 }
 
-//-----------------------------------------------------------------------------
 void ApkFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 {
 	CE_ASSERT_NOT_NULL(path);
@@ -120,7 +109,6 @@ void ApkFilesystem::list_files(const char* path, Vector<DynamicString>& files)
 	AAssetDir_close(root_dir);
 }
 
-//-----------------------------------------------------------------------------
 void ApkFilesystem::get_absolute_path(const char* path, DynamicString& os_path)
 {
 	os_path = path;

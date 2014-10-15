@@ -71,7 +71,6 @@ namespace crown
 
 namespace os
 {
-	//-----------------------------------------------------------------------------
 	inline void log_debug(const char* string, va_list arg)
 	{
 #if CROWN_PLATFORM_ANDROID
@@ -82,7 +81,6 @@ namespace os
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void log_error(const char* string, va_list arg)
 	{
 #if CROWN_PLATFORM_ANDROID
@@ -93,7 +91,6 @@ namespace os
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void log_warning(const char* string, va_list arg)
 	{
 #if CROWN_PLATFORM_ANDROID
@@ -104,7 +101,6 @@ namespace os
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
 	inline void log_info(const char* string, va_list arg)
 	{
 #if CROWN_PLATFORM_ANDROID
@@ -115,7 +111,6 @@ namespace os
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
 	inline bool is_root_path(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -126,7 +121,6 @@ namespace os
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
 	inline bool is_absolute_path(const char* path)
 	{
 #if CROWN_PLATFORM_POSIX

@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int sound_world_stop_all(lua_State* L)
 {
 	LuaStack stack(L);
@@ -39,7 +38,6 @@ static int sound_world_stop_all(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int sound_world_pause_all(lua_State* L)
 {
 	LuaStack stack(L);
@@ -47,7 +45,6 @@ static int sound_world_pause_all(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int sound_world_resume_all(lua_State* L)
 {
 	LuaStack stack(L);
@@ -55,7 +52,6 @@ static int sound_world_resume_all(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int sound_world_is_playing(lua_State* L)
 {
 	LuaStack stack(L);
@@ -63,7 +59,6 @@ static int sound_world_is_playing(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int sound_world_tostring(lua_State* L)
 {
 	LuaStack stack(L);
@@ -72,7 +67,6 @@ static int sound_world_tostring(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_sound_world(LuaEnvironment& env)
 {
 	env.load_module_function("SoundWorld", "stop_all",   sound_world_stop_all);

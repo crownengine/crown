@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int vector3_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -39,7 +38,6 @@ static int vector3_new(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_ctor(lua_State* L)
 {
 	LuaStack stack(L);
@@ -47,7 +45,6 @@ static int vector3_ctor(lua_State* L)
 	return vector3_new(L);
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_x(lua_State* L)
 {
 	LuaStack stack(L);
@@ -55,7 +52,6 @@ static int vector3_x(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_y(lua_State* L)
 {
 	LuaStack stack(L);
@@ -63,7 +59,6 @@ static int vector3_y(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_z(lua_State* L)
 {
 	LuaStack stack(L);
@@ -71,7 +66,6 @@ static int vector3_z(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_set_x(lua_State* L)
 {
 	LuaStack stack(L);
@@ -79,7 +73,6 @@ static int vector3_set_x(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_set_y(lua_State* L)
 {
 	LuaStack stack(L);
@@ -87,7 +80,6 @@ static int vector3_set_y(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_set_z(lua_State* L)
 {
 	LuaStack stack(L);
@@ -95,7 +87,6 @@ static int vector3_set_z(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_values(lua_State* L)
 {
 	LuaStack stack(L);
@@ -106,7 +97,6 @@ static int vector3_values(lua_State* L)
 	return 3;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_add(lua_State* L)
 {
 	LuaStack stack(L);
@@ -114,7 +104,6 @@ static int vector3_add(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_subtract(lua_State* L)
 {
 	LuaStack stack(L);
@@ -122,7 +111,6 @@ static int vector3_subtract(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_multiply(lua_State* L)
 {
 	LuaStack stack(L);
@@ -130,7 +118,6 @@ static int vector3_multiply(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_divide(lua_State* L)
 {
 	LuaStack stack(L);
@@ -138,7 +125,6 @@ static int vector3_divide(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_dot(lua_State* L)
 {
 	LuaStack stack(L);
@@ -146,7 +132,6 @@ static int vector3_dot(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_cross(lua_State* L)
 {
 	LuaStack stack(L);
@@ -154,7 +139,6 @@ static int vector3_cross(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_equal(lua_State* L)
 {
 	LuaStack stack(L);
@@ -162,7 +146,6 @@ static int vector3_equal(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_length(lua_State* L)
 {
 	LuaStack stack(L);
@@ -170,7 +153,6 @@ static int vector3_length(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_squared_length(lua_State* L)
 {
 	LuaStack stack(L);
@@ -178,7 +160,6 @@ static int vector3_squared_length(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_set_length(lua_State* L)
 {
 	LuaStack stack(L);
@@ -186,7 +167,6 @@ static int vector3_set_length(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_normalize(lua_State* L)
 {
 	LuaStack stack(L);
@@ -194,7 +174,6 @@ static int vector3_normalize(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_distance(lua_State* L)
 {
 	LuaStack stack(L);
@@ -202,7 +181,6 @@ static int vector3_distance(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int vector3_angle(lua_State* L)
 {
 	LuaStack stack(L);
@@ -210,7 +188,6 @@ static int vector3_angle(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_vector3(LuaEnvironment& env)
 {
 	env.load_module_function("Vector3", "new",            vector3_new);

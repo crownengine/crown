@@ -41,7 +41,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::init(uint16_t port, bool wait)
 {
 	m_server.bind(port);
@@ -61,7 +60,6 @@ void ConsoleServer::init(uint16_t port, bool wait)
 	}
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::shutdown()
 {
 	for (uint32_t i = 0; i < id_array::size(m_clients); i++)
@@ -72,7 +70,6 @@ void ConsoleServer::shutdown()
 	m_server.close();
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, ...)
 {
 	va_list args;
@@ -81,7 +78,6 @@ void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, 
 	va_end(args);
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, ::va_list arg)
 {
 	using namespace string_stream;
@@ -124,7 +120,6 @@ void ConsoleServer::log_to_all(LogSeverity::Enum severity, const char* message, 
 	send_to_all(c_str(json));
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::send(TCPSocket client, const char* json)
 {
 	uint32_t len = string::strlen(json);
@@ -132,7 +127,6 @@ void ConsoleServer::send(TCPSocket client, const char* json)
 	client.write(json, len);
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::send_to_all(const char* json)
 {
 	for (uint32_t i = 0; i < id_array::size(m_clients); i++)
@@ -141,7 +135,6 @@ void ConsoleServer::send_to_all(const char* json)
 	}
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::update()
 {
 	// Check for new clients only if we have room for them
@@ -173,7 +166,6 @@ void ConsoleServer::update()
 	}
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::add_client(TCPSocket socket)
 {
 	Client client;
@@ -182,7 +174,6 @@ void ConsoleServer::add_client(TCPSocket socket)
 	id_array::get(m_clients, id).id = id;
 }
 
-//-----------------------------------------------------------------------------
 ReadResult ConsoleServer::update_client(TCPSocket client)
 {
 	uint32_t msg_len = 0;
@@ -206,7 +197,6 @@ ReadResult ConsoleServer::update_client(TCPSocket client)
 	return msg_result;
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::process(TCPSocket client, const char* request)
 {
 	JSONParser parser(request);
@@ -222,13 +212,11 @@ void ConsoleServer::process(TCPSocket client, const char* request)
 	else CE_FATAL("Request unknown.");
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::process_ping(TCPSocket client, const char* /*msg*/)
 {
 	send(client, "{\"type\":\"pong\"}");
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::process_script(TCPSocket /*client*/, const char* msg)
 {
 	JSONParser parser(msg);
@@ -239,7 +227,6 @@ void ConsoleServer::process_script(TCPSocket /*client*/, const char* msg)
 	device()->lua_environment()->execute_string(script.c_str());
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::process_stats(TCPSocket client, const char* /*msg*/)
 {
 	using namespace string_stream;
@@ -267,7 +254,6 @@ void ConsoleServer::process_stats(TCPSocket client, const char* /*msg*/)
 	send(client, c_str(response));
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::process_command(TCPSocket /*client*/, const char* msg)
 {
 	JSONParser parser(msg);
@@ -303,7 +289,6 @@ void ConsoleServer::process_command(TCPSocket /*client*/, const char* msg)
 	}
 }
 
-//-----------------------------------------------------------------------------
 void ConsoleServer::processs_filesystem(TCPSocket client, const char* msg)
 {
 /*

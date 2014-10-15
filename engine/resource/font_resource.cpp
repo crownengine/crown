@@ -37,7 +37,6 @@ namespace crown
 {
 namespace font_resource
 {
-	//-----------------------------------------------------------------------------
 	void parse_glyph(JSONElement e, FontGlyphData& glyph)
 	{
 		glyph.id =        e.key("id").to_int();
@@ -50,7 +49,6 @@ namespace font_resource
 		glyph.x_advance = e.key("x_advance").to_float();
 	}
 
-	//-----------------------------------------------------------------------------
 	void compile(const char* path, CompileOptions& opts)
 	{
 		static const uint32_t VERSION = 1;
@@ -98,7 +96,6 @@ namespace font_resource
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
 	{
 		File* file = bundle.open(id);
@@ -112,41 +109,34 @@ namespace font_resource
 		return res;
 	}
 
-	//-----------------------------------------------------------------------------
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void offline(StringId64 /*id*/, ResourceManager& /*rm*/)
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t num_glyphs(const FontResource* fr)
 	{
 		return fr->num_glyphs;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t texture_size(const FontResource* fr)
 	{
 		return fr->texture_size;
 	}
 
-	//-----------------------------------------------------------------------------
 	uint32_t font_size(const FontResource* fr)
 	{
 		return fr->font_size;
 	}
 
-	//-----------------------------------------------------------------------------
 	const FontGlyphData* get_glyph(const FontResource* fr, uint32_t i)
 	{
 		CE_ASSERT(i < num_glyphs(fr), "Index out of bounds");

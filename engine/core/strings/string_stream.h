@@ -62,62 +62,52 @@ namespace string_stream
 
 namespace string_stream
 {
-	//-----------------------------------------------------------------------------
 	inline StringStream& operator<<(StringStream& s, int16_t val)
 	{
 		return stream_printf(s, "%hd", val);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline StringStream& operator<<(StringStream& s, uint16_t val)
 	{
 		return stream_printf(s, "%hu", val);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline StringStream& operator<<(StringStream& s, int32_t val)
 	{
 		return stream_printf(s, "%d", val);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline StringStream& operator<<(StringStream& s, uint32_t val)
 	{
 		return stream_printf(s, "%u", val);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline StringStream& operator<<(StringStream& s, int64_t val)
 	{
 		return stream_printf(s, "%lld", val);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline StringStream& operator<<(StringStream& s, uint64_t val)
 	{
 		return stream_printf(s, "%llu", val);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline StringStream& operator<<(StringStream& s, float val)
 	{
 		return stream_printf(s, "%g", val);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline StringStream& operator<<(StringStream& s, double val)
 	{
 		return stream_printf(s, "%g", val);
 	}
 
-	//-----------------------------------------------------------------------------
 	inline StringStream& operator<<(StringStream& s, const char* string)
 	{
 		array::push(s, string, string::strlen(string));
 		return s;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline const char* c_str(StringStream& s)
 	{
 		array::push_back(s, '\0');
@@ -125,7 +115,6 @@ namespace string_stream
 		return array::begin(s);
 	}
 
-	//-----------------------------------------------------------------------------
 	template <typename T>
 	inline StringStream& stream_printf(StringStream& s, const char* format, T& val)
 	{

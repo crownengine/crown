@@ -37,7 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 Camera::Camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float near, float far)
 	: m_scene_graph(sg)
 	, m_node(node)
@@ -48,132 +47,111 @@ Camera::Camera(SceneGraph& sg, int32_t node, ProjectionType::Enum type, float ne
 	update_projection_matrix();
 }
 
-//-----------------------------------------------------------------------------
 Vector3 Camera::local_position() const
 {
 	return m_scene_graph.local_position(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Quaternion Camera::local_rotation() const
 {
 	return m_scene_graph.local_rotation(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Matrix4x4 Camera::local_pose() const
 {
 	return m_scene_graph.local_pose(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Vector3 Camera::world_position() const
 {
 	return m_scene_graph.world_position(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Quaternion Camera::world_rotation() const
 {
 	return m_scene_graph.world_rotation(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Matrix4x4 Camera::world_pose() const
 {
 	return m_scene_graph.world_pose(m_node);
 }
 
-//-----------------------------------------------------------------------------
 void Camera::set_local_position(Unit* unit, const Vector3& pos)
 {
 	unit->set_local_position(m_node, pos);
 }
 
-//-----------------------------------------------------------------------------
 void Camera::set_local_rotation(Unit* unit, const Quaternion& rot)
 {
 	unit->set_local_rotation(m_node, rot);
 }
 
-//-----------------------------------------------------------------------------
 void Camera::set_local_pose(Unit* unit, const Matrix4x4& pose)
 {
 	unit->set_local_pose(m_node, pose);
 }
 
-//-----------------------------------------------------------------------
 void Camera::set_projection_type(ProjectionType::Enum type)
 {
 	m_projection_type = type;
 	update_projection_matrix();
 }
 
-//-----------------------------------------------------------------------
 ProjectionType::Enum Camera::projection_type() const
 {
 	return m_projection_type;
 }
 
-//-----------------------------------------------------------------------
 const Matrix4x4& Camera::projection_matrix() const
 {
 	return m_projection;
 }
 
-//-----------------------------------------------------------------------------
 float Camera::fov() const
 {
 	return m_FOV;
 }
 
-//-----------------------------------------------------------------------------
 void Camera::set_fov(float fov)
 {
 	m_FOV = fov;
 	update_projection_matrix();
 }
 
-//-----------------------------------------------------------------------------
 float Camera::aspect() const
 {
 	return m_aspect;
 }
 
-//-----------------------------------------------------------------------------
 void Camera::set_aspect(float aspect)
 {
 	m_aspect = aspect;
 	update_projection_matrix();
 }
 
-//-----------------------------------------------------------------------------
 float Camera::near_clip_distance() const
 {
 	return m_near;
 }
 
-//-----------------------------------------------------------------------------
 void Camera::set_near_clip_distance(float near)
 {
 	m_near = near;
 	update_projection_matrix();
 }
 
-//-----------------------------------------------------------------------------
 float Camera::far_clip_distance() const
 {
 	return m_far;
 }
 
-//-----------------------------------------------------------------------------
 void Camera::set_far_clip_distance(float far)
 {
 	m_far = far;
 	update_projection_matrix();
 }
 
-//-----------------------------------------------------------------------------
 void Camera::set_orthographic_metrics(float left, float right, float bottom, float top)
 {
 	m_left = left;
@@ -184,7 +162,6 @@ void Camera::set_orthographic_metrics(float left, float right, float bottom, flo
 	update_projection_matrix();
 }
 
-//-----------------------------------------------------------------------------
 void Camera::set_viewport_metrics(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
 	m_view_x = x;
@@ -193,7 +170,6 @@ void Camera::set_viewport_metrics(uint16_t x, uint16_t y, uint16_t width, uint16
 	m_view_height = height;
 }
 
-//-----------------------------------------------------------------------------
 Vector3 Camera::screen_to_world(const Vector3& pos)
 {
 	using namespace matrix4x4;
@@ -213,7 +189,6 @@ Vector3 Camera::screen_to_world(const Vector3& pos)
 	return Vector3(tmp.x, tmp.y, tmp.z);
 }
 
-//-----------------------------------------------------------------------------
 Vector3 Camera::world_to_screen(const Vector3& pos)
 {
 	using namespace matrix4x4;
@@ -228,7 +203,6 @@ Vector3 Camera::world_to_screen(const Vector3& pos)
 					(ndc.z + 1.0f) / 2.0f);
 }
 
-//-----------------------------------------------------------------------------
 void Camera::update_projection_matrix()
 {
 	switch (m_projection_type)
@@ -251,7 +225,6 @@ void Camera::update_projection_matrix()
 	}
 }
 
-//-----------------------------------------------------------------------------
 void Camera::update_frustum()
 {
 	// TODO

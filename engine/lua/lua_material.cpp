@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int material_set_float(lua_State* L)
 {
 	LuaStack stack(L);
@@ -39,7 +38,6 @@ static int material_set_float(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int material_set_vector2(lua_State* L)
 {
 	LuaStack stack(L);
@@ -47,7 +45,6 @@ static int material_set_vector2(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int material_set_vector3(lua_State* L)
 {
 	LuaStack stack(L);
@@ -55,7 +52,6 @@ static int material_set_vector3(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 void load_material(LuaEnvironment& env)
 {
 	env.load_module_function("Material", "set_float",   material_set_float);

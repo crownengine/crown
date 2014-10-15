@@ -37,7 +37,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 struct FontResource
 {
 	uint32_t version;
@@ -46,7 +45,6 @@ struct FontResource
 	uint32_t font_size;
 };
 
-//-----------------------------------------------------------------------------
 struct FontGlyphData
 {
 	uint32_t id;

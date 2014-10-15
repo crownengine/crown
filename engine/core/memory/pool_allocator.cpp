@@ -30,7 +30,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 PoolAllocator::PoolAllocator(Allocator& backing, size_t num_blocks, size_t block_size, size_t block_align)
 	: _backing(backing)
 	, _start(NULL)
@@ -65,13 +64,11 @@ PoolAllocator::PoolAllocator(Allocator& backing, size_t num_blocks, size_t block
 	_freelist = mem;
 }
 
-//-----------------------------------------------------------------------------
 PoolAllocator::~PoolAllocator()
 {
 	_backing.deallocate(_start);
 }
 
-//-----------------------------------------------------------------------------
 void* PoolAllocator::allocate(size_t size, size_t align)
 {
 	CE_ASSERT(size == _block_size, "Size must match block size");
@@ -88,7 +85,6 @@ void* PoolAllocator::allocate(size_t size, size_t align)
 	return user_ptr;
 }
 
-//-----------------------------------------------------------------------------
 void PoolAllocator::deallocate(void* data)
 {
 	if (!data)
@@ -105,7 +101,6 @@ void PoolAllocator::deallocate(void* data)
 	_allocated_size -= _block_size;
 }
 
-//-----------------------------------------------------------------------------
 size_t PoolAllocator::allocated_size()
 {
 	return _allocated_size;

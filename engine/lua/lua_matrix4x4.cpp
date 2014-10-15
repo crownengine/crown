@@ -34,7 +34,6 @@ namespace crown
 
 using namespace matrix4x4;
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_new(lua_State* L)
 {
 	LuaStack stack(L);
@@ -58,7 +57,6 @@ static int matrix4x4_new(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_ctor(lua_State* L)
 {
 	LuaStack stack(L);
@@ -66,7 +64,6 @@ static int matrix4x4_ctor(lua_State* L)
 	return matrix4x4_new(L);
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_from_quaternion(lua_State* L)
 {
 	LuaStack stack(L);
@@ -74,7 +71,6 @@ static int matrix4x4_from_quaternion(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_from_translation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -82,7 +78,6 @@ static int matrix4x4_from_translation(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_from_quaternion_translation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -90,7 +85,6 @@ static int matrix4x4_from_quaternion_translation(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_from_axes(lua_State* L)
 {
 	LuaStack stack(L);
@@ -98,7 +92,6 @@ static int matrix4x4_from_axes(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_add(lua_State* L)
 {
 	LuaStack stack(L);
@@ -106,7 +99,6 @@ static int matrix4x4_add(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_subtract(lua_State* L)
 {
 	LuaStack stack(L);
@@ -114,7 +106,6 @@ static int matrix4x4_subtract(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_multiply(lua_State* L)
 {
 	LuaStack stack(L);
@@ -122,7 +113,6 @@ static int matrix4x4_multiply(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_transpose(lua_State* L)
 {
 	LuaStack stack(L);
@@ -130,7 +120,6 @@ static int matrix4x4_transpose(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_determinant(lua_State* L)
 {
 	LuaStack stack(L);
@@ -138,7 +127,6 @@ static int matrix4x4_determinant(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_invert(lua_State* L)
 {
 	LuaStack stack(L);
@@ -146,7 +134,6 @@ static int matrix4x4_invert(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_x(lua_State* L)
 {
 	LuaStack stack(L);
@@ -154,7 +141,6 @@ static int matrix4x4_x(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_y(lua_State* L)
 {
 	LuaStack stack(L);
@@ -162,7 +148,6 @@ static int matrix4x4_y(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_z(lua_State* L)
 {
 	LuaStack stack(L);
@@ -170,7 +155,6 @@ static int matrix4x4_z(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_set_x(lua_State* L)
 {
 	LuaStack stack(L);
@@ -178,7 +162,6 @@ static int matrix4x4_set_x(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_set_y(lua_State* L)
 {
 	LuaStack stack(L);
@@ -186,7 +169,6 @@ static int matrix4x4_set_y(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_set_z(lua_State* L)
 {
 	LuaStack stack(L);
@@ -194,7 +176,6 @@ static int matrix4x4_set_z(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_translation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -202,7 +183,6 @@ static int matrix4x4_translation(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_set_translation(lua_State* L)
 {
 	LuaStack stack(L);
@@ -210,7 +190,6 @@ static int matrix4x4_set_translation(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_identity(lua_State* L)
 {
 	LuaStack stack(L);
@@ -218,7 +197,6 @@ static int matrix4x4_identity(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int matrix4x4_to_string(lua_State* L)
 {
 	LuaStack stack(L);
@@ -228,7 +206,6 @@ static int matrix4x4_to_string(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_matrix4x4(LuaEnvironment& env)
 {
 	env.load_module_function("Matrix4x4", "new",                         matrix4x4_new);

@@ -33,7 +33,6 @@ namespace crown
 {
 using namespace input_globals;
 
-//-----------------------------------------------------------------------------
 static int mouse_button_pressed(lua_State* L)
 {
 	LuaStack stack(L);
@@ -41,7 +40,6 @@ static int mouse_button_pressed(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int mouse_button_released(lua_State* L)
 {
 	LuaStack stack(L);
@@ -49,7 +47,6 @@ static int mouse_button_released(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int mouse_any_pressed(lua_State* L)
 {
 	LuaStack stack(L);
@@ -57,7 +54,6 @@ static int mouse_any_pressed(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int mouse_any_released(lua_State* L)
 {
 	LuaStack stack(L);
@@ -65,7 +61,6 @@ static int mouse_any_released(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int mouse_cursor_xy(lua_State* L)
 {
 	LuaStack stack(L);
@@ -73,7 +68,6 @@ static int mouse_cursor_xy(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int mouse_set_cursor_xy(lua_State* L)
 {
 	LuaStack stack(L);
@@ -81,7 +75,6 @@ static int mouse_set_cursor_xy(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int mouse_cursor_relative_xy(lua_State* L)
 {
 	LuaStack stack(L);
@@ -89,7 +82,6 @@ static int mouse_cursor_relative_xy(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int mouse_set_cursor_relative_xy(lua_State* L)
 {
 	LuaStack stack(L);
@@ -97,7 +89,6 @@ static int mouse_set_cursor_relative_xy(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 void load_mouse(LuaEnvironment& env)
 {
 	env.load_module_function("Mouse", "button_pressed",         mouse_button_pressed);

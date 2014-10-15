@@ -40,7 +40,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 struct ComponentType
 {
 	enum Enum

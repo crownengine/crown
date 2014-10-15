@@ -91,13 +91,11 @@ inline Quaternion operator*(const Quaternion& a, float k)
 
 namespace quaternion
 {
-	//-----------------------------------------------------------------------------
 	inline float dot(const Quaternion& a, const Quaternion& b)
 	{
 		return a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
-	//-----------------------------------------------------------------------------
 	inline float length(const Quaternion& q)
 	{
 		return math::sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
@@ -142,13 +140,11 @@ namespace quaternion
 	}
 } // namespace quaternion
 
-//-----------------------------------------------------------------------------
 inline Quaternion::Quaternion()
 {
 	// Do not initialize
 }
 
-//-----------------------------------------------------------------------------
 inline Quaternion::Quaternion(float nx, float ny, float nz, float nw)
 	: x(nx)
 	, y(ny)
@@ -157,7 +153,6 @@ inline Quaternion::Quaternion(float nx, float ny, float nz, float nw)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline Quaternion::Quaternion(const Vector3& axis, float angle)
 	: x(axis.x * math::sin(angle * 0.5f))
 	, y(axis.y * math::sin(angle * 0.5f))
@@ -166,21 +161,18 @@ inline Quaternion::Quaternion(const Vector3& axis, float angle)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline float& Quaternion::operator[](uint32_t i)
 {
 	CE_ASSERT(i < 4, "Index out of bounds");
 	return (&x)[i];
 }
 
-//-----------------------------------------------------------------------------
 inline const float& Quaternion::operator[](uint32_t i) const
 {
 	CE_ASSERT(i < 4, "Index out of bounds");
 	return (&x)[i];
 }
 
-//-----------------------------------------------------------------------------
 inline Quaternion& Quaternion::operator*=(const Quaternion& a)
 {
 	const float t_x = w * a.x + x * a.w + z * a.y - y * a.z;

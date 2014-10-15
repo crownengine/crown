@@ -42,7 +42,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 #if defined(CROWN_DEBUG)
 	static const char* al_error_to_string(ALenum error)
 	{
@@ -96,7 +95,6 @@ namespace audio_globals
 	}
 }
 
-//-----------------------------------------------------------------------------
 struct SoundInstance
 {
 	void create(SoundResource* sr, const Vector3& pos)

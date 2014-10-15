@@ -32,7 +32,6 @@ namespace crown
 
 static StringSetting* g_string_settings_head = NULL;
 
-//-----------------------------------------------------------------------------
 StringSetting::StringSetting(const char* name, const char* synopsis, const char* value) :
 	m_name(name),
 	m_synopsis(synopsis),
@@ -49,25 +48,21 @@ StringSetting::StringSetting(const char* name, const char* synopsis, const char*
 	g_string_settings_head = this;
 }
 
-//-----------------------------------------------------------------------------
 const char* StringSetting::name() const
 {
 	return m_name;
 }
 
-//-----------------------------------------------------------------------------
 const char* StringSetting::synopsis() const
 {
 	return m_synopsis;
 }
 
-//-----------------------------------------------------------------------------
 const char*	StringSetting::value() const
 {
 	return m_value;
 }
 
-//-----------------------------------------------------------------------------
 StringSetting& StringSetting::operator=(const char* value)
 {
 	m_value = value;
@@ -75,7 +70,6 @@ StringSetting& StringSetting::operator=(const char* value)
 	return *this;
 }
 
-//-----------------------------------------------------------------------------
 StringSetting* StringSetting::find_setting(const char* name)
 {
 	StringSetting* head = g_string_settings_head;

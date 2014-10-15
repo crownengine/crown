@@ -43,7 +43,6 @@ namespace crown
 
 using namespace unit_resource;
 
-//-----------------------------------------------------------------------------
 Unit::Unit(World& w, UnitId unit_id, const ResourceId id, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)
 	, m_scene_graph(*w.scene_graph_manager()->create_scene_graph())
@@ -62,32 +61,27 @@ Unit::Unit(World& w, UnitId unit_id, const ResourceId id, const UnitResource* ur
 	create_objects(pose);
 }
 
-//-----------------------------------------------------------------------------
 Unit::~Unit()
 {
 	destroy_objects();
 	m_world.scene_graph_manager()->destroy_scene_graph(&m_scene_graph);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::set_id(const UnitId id)
 {
 	m_id = id;
 }
 
-//-----------------------------------------------------------------------------
 UnitId Unit::id()
 {
 	return m_id;
 }
 
-//-----------------------------------------------------------------------------
 const UnitResource*	Unit::resource() const
 {
 	return m_resource;
 }
 
-//-----------------------------------------------------------------------------
 void Unit::create_objects(const Matrix4x4& pose)
 {
 	using namespace unit_resource;
@@ -109,7 +103,6 @@ void Unit::create_objects(const Matrix4x4& pose)
 	}
 }
 
-//-----------------------------------------------------------------------------
 void Unit::destroy_objects()
 {
 	if (m_sprite_animation)
@@ -165,7 +158,6 @@ void Unit::destroy_objects()
 	m_scene_graph.destroy();
 }
 
-//-----------------------------------------------------------------------------
 void Unit::create_camera_objects()
 {
 	for (uint32_t i = 0; i < num_cameras(m_resource); i++)
@@ -176,7 +168,6 @@ void Unit::create_camera_objects()
 	}
 }
 
-//-----------------------------------------------------------------------------
 void Unit::create_renderable_objects()
 {
 	// Create renderables
@@ -209,7 +200,6 @@ void Unit::create_renderable_objects()
 	}
 }
 
-//-----------------------------------------------------------------------------
 void Unit::create_physics_objects()
 {
 	using namespace unit_resource;
@@ -246,7 +236,6 @@ void Unit::create_physics_objects()
 	}
 }
 
-//-----------------------------------------------------------------------------
 void Unit::set_default_material()
 {
 	if (m_num_materials == 0) return;
@@ -258,91 +247,76 @@ void Unit::set_default_material()
 	}
 }
 
-//-----------------------------------------------------------------------------
 int32_t Unit::node(const char* name) const
 {
 	return m_scene_graph.node(name);
 }
 
-//-----------------------------------------------------------------------------
 bool Unit::has_node(const char* name) const
 {
 	return m_scene_graph.has_node(name);
 }
 
-//-----------------------------------------------------------------------------
 uint32_t Unit::num_nodes() const
 {
 	return m_scene_graph.num_nodes();
 }
 
-//-----------------------------------------------------------------------------
 Vector3 Unit::local_position(int32_t node) const
 {
 	return m_scene_graph.local_position(node);
 }
 
-//-----------------------------------------------------------------------------
 Quaternion Unit::local_rotation(int32_t node) const
 {
 	return m_scene_graph.local_rotation(node);
 }
 
-//-----------------------------------------------------------------------------
 Matrix4x4 Unit::local_pose(int32_t node) const
 {
 	return m_scene_graph.local_pose(node);
 }
 
-//-----------------------------------------------------------------------------
 Vector3 Unit::world_position(int32_t node) const
 {
 	return m_scene_graph.world_position(node);
 }
 
-//-----------------------------------------------------------------------------
 Quaternion Unit::world_rotation(int32_t node) const
 {
 	return m_scene_graph.world_rotation(node);
 }
 
-//-----------------------------------------------------------------------------
 Matrix4x4 Unit::world_pose(int32_t node) const
 {
 	return m_scene_graph.world_pose(node);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::set_local_position(int32_t node, const Vector3& pos)
 {
 	m_scene_graph.set_local_position(node, pos);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::set_local_rotation(int32_t node, const Quaternion& rot)
 {
 	m_scene_graph.set_local_rotation(node, rot);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::set_local_pose(int32_t node, const Matrix4x4& pose)
 {
 	m_scene_graph.set_local_pose(node, pose);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::link_node(int32_t child, int32_t parent)
 {
 	m_scene_graph.link(child, parent);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::unlink_node(int32_t child)
 {
 	m_scene_graph.unlink(child);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::update()
 {
 	if (m_sprite_animation)
@@ -351,7 +325,6 @@ void Unit::update()
 	}
 }
 
-//-----------------------------------------------------------------------------
 void Unit::reload(UnitResource* new_ur)
 {
 	Matrix4x4 m = m_scene_graph.world_pose(0);
@@ -360,7 +333,6 @@ void Unit::reload(UnitResource* new_ur)
 	create_objects(m);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::add_component(StringId32 name, Id component, uint32_t& size, Component* array)
 {
 	Component comp;
@@ -371,14 +343,12 @@ void Unit::add_component(StringId32 name, Id component, uint32_t& size, Componen
 	size++;
 }
 
-//-----------------------------------------------------------------------------
 Id Unit::find_component(const char* name, uint32_t size, Component* array)
 {
 	const uint32_t name_hash = string::murmur2_32(name, string::strlen(name), 0);
 	return find_component_by_name(name_hash, size, array);
 }
 
-//-----------------------------------------------------------------------------
 Id Unit::find_component_by_index(uint32_t index, uint32_t size, Component* array)
 {
 	Id comp;
@@ -392,7 +362,6 @@ Id Unit::find_component_by_index(uint32_t index, uint32_t size, Component* array
 	return comp;
 }
 
-//-----------------------------------------------------------------------------
 Id Unit::find_component_by_name(StringId32 name, uint32_t size, Component* array)
 {
 	Id comp;
@@ -409,7 +378,6 @@ Id Unit::find_component_by_name(StringId32 name, uint32_t size, Component* array
 	return comp;
 }
 
-//-----------------------------------------------------------------------------
 void Unit::add_camera(StringId32 name, CameraId camera)
 {
 	CE_ASSERT(m_num_cameras < CE_MAX_CAMERA_COMPONENTS, "Max camera number reached");
@@ -417,7 +385,6 @@ void Unit::add_camera(StringId32 name, CameraId camera)
 	add_component(name, camera, m_num_cameras, m_cameras);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::add_mesh(StringId32 name, MeshId mesh)
 {
 	CE_ASSERT(m_num_meshes < CE_MAX_MESH_COMPONENTS, "Max mesh number reached");
@@ -425,7 +392,6 @@ void Unit::add_mesh(StringId32 name, MeshId mesh)
 	add_component(name, mesh, m_num_meshes, m_meshes);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::add_sprite(StringId32 name, SpriteId sprite)
 {
 	CE_ASSERT(m_num_sprites < CE_MAX_SPRITE_COMPONENTS, "Max sprite number reached");
@@ -433,7 +399,6 @@ void Unit::add_sprite(StringId32 name, SpriteId sprite)
 	add_component(name, sprite, m_num_sprites, m_sprites);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::add_actor(StringId32 name, ActorId actor)
 {
 	CE_ASSERT(m_num_actors < CE_MAX_ACTOR_COMPONENTS, "Max actor number reached");
@@ -441,7 +406,6 @@ void Unit::add_actor(StringId32 name, ActorId actor)
 	add_component(name, actor, m_num_actors, m_actors);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::add_material(StringId32 name, MaterialId material)
 {
 	CE_ASSERT(m_num_materials < CE_MAX_MATERIAL_COMPONENTS, "Max material number reached");
@@ -449,14 +413,12 @@ void Unit::add_material(StringId32 name, MaterialId material)
 	add_component(name, material, m_num_materials, m_materials);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::set_controller(StringId32 name, ControllerId controller)
 {
 	m_controller.name = name;
 	m_controller.component = controller;
 }
 
-//-----------------------------------------------------------------------------
 Camera* Unit::camera(const char* name)
 {
 	CameraId cam = find_component(name, m_num_cameras, m_cameras);
@@ -466,7 +428,6 @@ Camera* Unit::camera(const char* name)
 	return m_world.get_camera(cam);
 }
 
-//-----------------------------------------------------------------------------
 Camera* Unit::camera(uint32_t i)
 {
 	CameraId cam = find_component_by_index(i, m_num_cameras, m_cameras);
@@ -476,7 +437,6 @@ Camera* Unit::camera(uint32_t i)
 	return m_world.get_camera(cam);
 }
 
-//-----------------------------------------------------------------------------
 Mesh* Unit::mesh(const char* name)
 {
 	MeshId mesh = find_component(name, m_num_meshes, m_meshes);
@@ -486,7 +446,6 @@ Mesh* Unit::mesh(const char* name)
 	return m_world.render_world()->get_mesh(mesh);
 }
 
-//-----------------------------------------------------------------------------
 Mesh* Unit::mesh(uint32_t i)
 {
 	MeshId mesh = find_component_by_index(i, m_num_meshes, m_meshes);
@@ -496,7 +455,6 @@ Mesh* Unit::mesh(uint32_t i)
 	return m_world.render_world()->get_mesh(mesh);
 }
 
-//-----------------------------------------------------------------------------
 Sprite*	Unit::sprite(const char* name)
 {
 	SpriteId sprite = find_component(name, m_num_sprites, m_sprites);
@@ -506,7 +464,6 @@ Sprite*	Unit::sprite(const char* name)
 	return m_world.render_world()->get_sprite(sprite);
 }
 
-//-----------------------------------------------------------------------------
 Sprite*	Unit::sprite(uint32_t i)
 {
 	SpriteId sprite = find_component_by_index(i, m_num_sprites, m_sprites);
@@ -516,7 +473,6 @@ Sprite*	Unit::sprite(uint32_t i)
 	return m_world.render_world()->get_sprite(sprite);
 }
 
-//-----------------------------------------------------------------------------
 Actor* Unit::actor(const char* name)
 {
 	ActorId actor = find_component(name, m_num_actors, m_actors);
@@ -526,7 +482,6 @@ Actor* Unit::actor(const char* name)
 	return m_world.physics_world()->get_actor(actor);
 }
 
-//-----------------------------------------------------------------------------
 Actor* Unit::actor(uint32_t i)
 {
 	ActorId actor = find_component_by_index(i, m_num_actors, m_actors);
@@ -536,7 +491,6 @@ Actor* Unit::actor(uint32_t i)
 	return m_world.physics_world()->get_actor(actor);
 }
 
-//-----------------------------------------------------------------------------
 Actor* Unit::actor_by_index(StringId32 name)
 {
 	ActorId actor = find_component_by_name(name, m_num_actors, m_actors);
@@ -546,7 +500,6 @@ Actor* Unit::actor_by_index(StringId32 name)
 	return m_world.physics_world()->get_actor(actor);
 }
 
-//-----------------------------------------------------------------------------
 Controller* Unit::controller()
 {
 	if (m_controller.component.id != INVALID_ID)
@@ -557,7 +510,6 @@ Controller* Unit::controller()
 	return NULL;
 }
 
-//-----------------------------------------------------------------------------
 Material* Unit::material(const char* name)
 {
 	MaterialId material = find_component(name, m_num_materials, m_materials);
@@ -565,7 +517,6 @@ Material* Unit::material(const char* name)
 	return material_manager::get()->lookup_material(material);
 }
 
-//-----------------------------------------------------------------------------
 Material* Unit::material(uint32_t i)
 {
 	MaterialId material = find_component_by_index(i, m_num_materials, m_materials);
@@ -573,34 +524,29 @@ Material* Unit::material(uint32_t i)
 	return material_manager::get()->lookup_material(material);
 }
 
-//-----------------------------------------------------------------------------
 bool Unit::is_a(const char* name)
 {
 	return m_resource_id == ResourceId("unit", name);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::play_sprite_animation(const char* name, bool loop)
 {
 	if (m_sprite_animation)
 		m_sprite_animation->play(string::murmur2_32(name, string::strlen(name), 0), loop);
 }
 
-//-----------------------------------------------------------------------------
 void Unit::stop_sprite_animation()
 {
 	if (m_sprite_animation)
 		m_sprite_animation->stop();
 }
 
-//-----------------------------------------------------------------------------
 bool Unit::has_key(const char* k) const
 {
 	using namespace unit_resource;
 	return unit_resource::has_key(m_resource, k);
 }
 
-//-----------------------------------------------------------------------------
 ValueType::Enum Unit::value_type(const char* k)
 {
 	using namespace unit_resource;
@@ -609,7 +555,6 @@ ValueType::Enum Unit::value_type(const char* k)
 	return (ValueType::Enum) key.type;
 }
 
-//-----------------------------------------------------------------------------
 bool Unit::get_key(const char* k, bool& v) const
 {
 	using namespace unit_resource;
@@ -619,7 +564,6 @@ bool Unit::get_key(const char* k, bool& v) const
 	return has;
 }
 
-//-----------------------------------------------------------------------------
 bool Unit::get_key(const char* k, float& v) const
 {
 	using namespace unit_resource;
@@ -629,7 +573,6 @@ bool Unit::get_key(const char* k, float& v) const
 	return has;
 }
 
-//-----------------------------------------------------------------------------
 bool Unit::get_key(const char* k, StringId32& v) const
 {
 	using namespace unit_resource;
@@ -639,7 +582,6 @@ bool Unit::get_key(const char* k, StringId32& v) const
 	return has;
 }
 
-//-----------------------------------------------------------------------------
 bool Unit::get_key(const char* k, Vector3& v) const
 {
 	using namespace unit_resource;
@@ -649,7 +591,6 @@ bool Unit::get_key(const char* k, Vector3& v) const
 	return has;
 }
 
-//-----------------------------------------------------------------------------
 void Unit::set_key(const char* k, bool v)
 {
 	using namespace unit_resource;
@@ -658,7 +599,6 @@ void Unit::set_key(const char* k, bool v)
 	*(uint32_t*)(m_values + key.offset) = v;
 }
 
-//-----------------------------------------------------------------------------
 void Unit::set_key(const char* k, float v)
 {
 	using namespace unit_resource;
@@ -667,7 +607,6 @@ void Unit::set_key(const char* k, float v)
 	*(float*)(m_values + key.offset) = v;
 }
 
-//-----------------------------------------------------------------------------
 void Unit::set_key(const char* k, const char* v)
 {
 	using namespace unit_resource;
@@ -676,7 +615,6 @@ void Unit::set_key(const char* k, const char* v)
 	*(StringId32*)(m_values + key.offset) = string::murmur2_32(v, string::strlen(v));
 }
 
-//-----------------------------------------------------------------------------
 void Unit::set_key(const char* k, const Vector3& v)
 {
 	using namespace unit_resource;

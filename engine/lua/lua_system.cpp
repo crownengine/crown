@@ -137,7 +137,6 @@ namespace lua_system
 		return 1;
 	}
 
-	//-----------------------------------------------------------------------------
 	static int lightuserdata_add(lua_State* L)
 	{
 		LuaStack stack(L);
@@ -156,7 +155,6 @@ namespace lua_system
 		return 1;
 	}
 
-	//-----------------------------------------------------------------------------
 	static int lightuserdata_sub(lua_State* L)
 	{
 		LuaStack stack(L);
@@ -175,7 +173,6 @@ namespace lua_system
 		return 1;
 	}
 
-	//-----------------------------------------------------------------------------
 	static int lightuserdata_mul(lua_State* L)
 	{
 		LuaStack stack(L);
@@ -194,7 +191,6 @@ namespace lua_system
 		return 1;
 	}
 
-	//-----------------------------------------------------------------------------
 	static int lightuserdata_div(lua_State* L)
 	{
 		LuaStack stack(L);
@@ -213,7 +209,6 @@ namespace lua_system
 		return 1;
 	}
 
-	//-----------------------------------------------------------------------------
 	static int lightuserdata_unm(lua_State* L)
 	{
 		LuaStack stack(L);
@@ -227,7 +222,6 @@ namespace lua_system
 		return 1;
 	}
 
-	//-----------------------------------------------------------------------------
 	static int lightuserdata_index(lua_State* L)
 	{
 		LuaStack stack(L);
@@ -273,7 +267,6 @@ namespace lua_system
 		return 0;
 	}
 
-	//-----------------------------------------------------------------------------
 	static int lightuserdata_newindex(lua_State* L)
 	{
 		LuaStack stack(L);
@@ -397,19 +390,16 @@ namespace lua_system
 		CE_ASSERT(lua_gettop(s_L) == 0, "Stack not clean");
 	}
 
-	//-----------------------------------------------------------------------------
 	void shutdown()
 	{
 		lua_close(s_L);
 	}
 
-	//-----------------------------------------------------------------------------
 	lua_State* state()
 	{
 		return s_L;
 	}
 
-	//-----------------------------------------------------------------------------
 	Vector2* next_vector2(const Vector2& v)
 	{
 		CE_ASSERT(s_vec2_used < CE_MAX_LUA_VECTOR2, "Maximum number of Vector2 reached");
@@ -417,7 +407,6 @@ namespace lua_system
 		return &(s_vec2_buffer[s_vec2_used++] = v);
 	}
 
-	//-----------------------------------------------------------------------------
 	Vector3* next_vector3(const Vector3& v)
 	{
 		CE_ASSERT(s_vec3_used < CE_MAX_LUA_VECTOR3, "Maximum number of Vector3 reached");
@@ -425,7 +414,6 @@ namespace lua_system
 		return &(s_vec3_buffer[s_vec3_used++] = v);
 	}
 
-	//-----------------------------------------------------------------------------
 	Matrix4x4* next_matrix4x4(const Matrix4x4& m)
 	{
 		CE_ASSERT(s_mat4_used < CE_MAX_LUA_MATRIX4X4, "Maximum number of Matrix4x4 reached");
@@ -433,42 +421,36 @@ namespace lua_system
 		return &(s_mat4_buffer[s_mat4_used++] = m);
 	}
 
-	//-----------------------------------------------------------------------------
 	Quaternion* next_quaternion(const Quaternion& q)
 	{
 		CE_ASSERT(s_quat_used < CE_MAX_LUA_QUATERNION, "Maximum number of Quaternion reached");
 		return &(s_quat_buffer[s_quat_used++] = q);
 	}
 
-	//-----------------------------------------------------------------------------
 	bool is_vector2(int32_t index)
 	{
 		void* type = lua_touserdata(s_L, index);
 		return (type >= &s_vec2_buffer[0] && type <= &s_vec2_buffer[CE_MAX_LUA_VECTOR2 - 1]);
 	}
 
-	//-----------------------------------------------------------------------------
 	bool is_vector3(int32_t index)
 	{
 		void* type = lua_touserdata(s_L, index);
 		return (type >= &s_vec3_buffer[0] && type <= &s_vec3_buffer[CE_MAX_LUA_VECTOR3 - 1]);
 	}
 
-	//-----------------------------------------------------------------------------
 	bool is_matrix4x4(int32_t index)
 	{
 		void* type = lua_touserdata(s_L, index);
 		return (type >= &s_mat4_buffer[0] && type <= &s_mat4_buffer[CE_MAX_LUA_MATRIX4X4 - 1]);
 	}
 
-	//-----------------------------------------------------------------------------
 	bool is_quaternion(int32_t index)
 	{
 		void* type = lua_touserdata(s_L, index);
 		return (type >= &s_quat_buffer[0] && type <= &s_quat_buffer[CE_MAX_LUA_QUATERNION - 1]);
 	}
 
-	//-----------------------------------------------------------------------------
 	void clear_temporaries()
 	{
 		s_vec2_used = 0;

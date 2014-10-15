@@ -35,7 +35,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 Mesh::Mesh(SceneGraph& sg, int32_t node, const MeshResource* mr)
 	: m_scene_graph(sg)
 	, m_node(node)
@@ -43,55 +42,46 @@ Mesh::Mesh(SceneGraph& sg, int32_t node, const MeshResource* mr)
 {
 }
 
-//-----------------------------------------------------------------------------
 Vector3 Mesh::local_position() const
 {
 	return m_scene_graph.local_position(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Quaternion Mesh::local_rotation() const
 {
 	return m_scene_graph.local_rotation(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Matrix4x4 Mesh::local_pose() const
 {
 	return m_scene_graph.local_pose(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Vector3 Mesh::world_position() const
 {
 	return m_scene_graph.world_position(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Quaternion Mesh::world_rotation() const
 {
 	return m_scene_graph.world_rotation(m_node);
 }
 
-//-----------------------------------------------------------------------------
 Matrix4x4 Mesh::world_pose() const
 {
 	return m_scene_graph.world_pose(m_node);
 }
 
-//-----------------------------------------------------------------------------
 void Mesh::set_local_position(Unit* unit, const Vector3& pos)
 {
 	unit->set_local_position(m_node, pos);
 }
 
-//-----------------------------------------------------------------------------
 void Mesh::set_local_rotation(Unit* unit, const Quaternion& rot)
 {
 	unit->set_local_rotation(m_node, rot);
 }
 
-//-----------------------------------------------------------------------------
 void Mesh::set_local_pose(Unit* unit, const Matrix4x4& pose)
 {
 	unit->set_local_pose(m_node, pose);

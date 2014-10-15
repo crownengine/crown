@@ -53,12 +53,10 @@ private:
 	int32_t		m_seed;
 };
 
-//-----------------------------------------------------------------------------
 inline Random::Random(int32_t seed) : m_seed(seed)
 {
 }
 
-//-----------------------------------------------------------------------------
 inline int32_t Random::integer()
 {
 	m_seed = 214013 * m_seed + 13737667;
@@ -66,13 +64,11 @@ inline int32_t Random::integer()
 	return (m_seed >> 16) & 0x7FFF;
 }
 
-//-----------------------------------------------------------------------------
 inline int32_t Random::integer(int32_t max)
 {
 	return (max == 0) ? 0 : integer() % max;
 }
 
-//-----------------------------------------------------------------------------
 inline float Random::unit_float()
 {
 	return integer() / (float) 0x7FFF;

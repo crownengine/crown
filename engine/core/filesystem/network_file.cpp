@@ -39,7 +39,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 NetworkFile::NetworkFile(const NetAddress& addr, uint16_t port, const char* filename)
 	: File(FOM_READ)
 	, m_address(addr)
@@ -50,31 +49,26 @@ NetworkFile::NetworkFile(const NetAddress& addr, uint16_t port, const char* file
 	m_socket.connect(addr, port);
 }
 
-//-----------------------------------------------------------------------------
 NetworkFile::~NetworkFile()
 {
 	m_socket.close();
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFile::seek(size_t position)
 {
 	m_position = position;
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFile::seek_to_end()
 {
 	m_position = size();
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFile::skip(size_t bytes)
 {
 	m_position += bytes;
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFile::read(void* buffer, size_t size)
 {
 	using namespace string_stream;
@@ -107,43 +101,36 @@ void NetworkFile::read(void* buffer, size_t size)
 	// default_allocator().deallocate(data);
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFile::write(const void* /*buffer*/, size_t /*size*/)
 {
 	CE_FATAL("Cannot write to a network file");
 }
 
-//-----------------------------------------------------------------------------
 bool NetworkFile::copy_to(File& file, size_t size)
 {
 	return true;
 }
 
-//-----------------------------------------------------------------------------
 bool NetworkFile::end_of_file()
 {
 	return position() == size();
 }
 
-//-----------------------------------------------------------------------------
 bool NetworkFile::is_valid()
 {
 	return true;
 }
 
-//-----------------------------------------------------------------------------
 void NetworkFile::flush()
 {
 	// Do nothing
 }
 
-//-----------------------------------------------------------------------------
 size_t NetworkFile::position()
 {
 	return m_position;
 }
 
-//-----------------------------------------------------------------------------
 size_t NetworkFile::size()
 {
 	using namespace string_stream;
@@ -167,19 +154,16 @@ size_t NetworkFile::size()
 	return (size_t) root.key("size").to_int();
 }
 
-//-----------------------------------------------------------------------------
 bool NetworkFile::can_read() const
 {
 	return true;
 }
 
-//-----------------------------------------------------------------------------
 bool NetworkFile::can_write() const
 {
 	return false;
 }
 
-//-----------------------------------------------------------------------------
 bool NetworkFile::can_seek() const
 {
 	return true;

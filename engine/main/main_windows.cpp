@@ -65,7 +65,6 @@ int32_t func(void* data)
 	return EXIT_SUCCESS;
 }
 
-//-----------------------------------------------------------------------------
 static KeyboardButton::Enum win_translate_key(int32_t winkey)
 {
 	switch (winkey)
@@ -161,7 +160,6 @@ struct WindowsDevice
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	int32_t	run(Filesystem* fs, ConfigSettings* cs)
 	{
 		HINSTANCE instance = (HINSTANCE)GetModuleHandle(NULL);
@@ -217,7 +215,6 @@ struct WindowsDevice
 		return EXIT_SUCCESS;
 	}
 
-	//-----------------------------------------------------------------------------
 	LRESULT pump_events(HWND hwnd, UINT id, WPARAM wparam, LPARAM lparam)
 	{
 		switch (id)

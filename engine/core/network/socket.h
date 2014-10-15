@@ -82,7 +82,6 @@ struct AcceptResult
 /// @ingroup Network
 struct TCPSocket
 {
-	//-----------------------------------------------------------------------------
 	TCPSocket()
 #if CROWN_PLATFORM_POSIX
 		: m_socket(0)
@@ -92,7 +91,6 @@ struct TCPSocket
 	{
 	}
 
-	//-----------------------------------------------------------------------------
 	void open()
 	{
 #if CROWN_PLATFORM_POSIX
@@ -104,7 +102,6 @@ struct TCPSocket
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
 	ConnectResult connect(const NetAddress& ip, uint16_t port)
 	{
 		close();
@@ -155,7 +152,6 @@ struct TCPSocket
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
 	bool bind(uint16_t port)
 	{
 		close();
@@ -184,7 +180,6 @@ struct TCPSocket
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
 	void listen(uint32_t max)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -235,21 +230,18 @@ struct TCPSocket
 #endif		
 	}
 
-	//-----------------------------------------------------------------------------
 	AcceptResult accept_nonblock(TCPSocket& c)
 	{
 		set_blocking(false);
 		return accept_internal(c);
 	}
 
-	//-----------------------------------------------------------------------------
 	AcceptResult accept(TCPSocket& c)
 	{
 		set_blocking(true);
 		return accept_internal(c);
 	}
 
-	//-----------------------------------------------------------------------------
 	void close()
 	{
 #if CROWN_PLATFORM_POSIX
@@ -332,14 +324,12 @@ struct TCPSocket
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
 	ReadResult read_nonblock(void* data, size_t size)
 	{
 		set_blocking(false);
 		return read_internal(data, size);
 	}
 
-	//-----------------------------------------------------------------------------
 	ReadResult read(void* data, size_t size)
 	{
 		set_blocking(true);
@@ -421,21 +411,18 @@ struct TCPSocket
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
 	WriteResult write_nonblock(const void* data, size_t size)
 	{
 		set_blocking(false);
 		return write_internal(data, size);
 	}
 
-	//-----------------------------------------------------------------------------
 	WriteResult write(const void* data, size_t size)
 	{
 		set_blocking(true);
 		return write_internal(data, size);
 	}
 
-	//-----------------------------------------------------------------------------
 	void set_blocking(bool blocking)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -448,7 +435,6 @@ struct TCPSocket
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
 	void set_reuse_address(bool reuse)
 	{
 #if CROWN_PLATFORM_POSIX
@@ -462,7 +448,6 @@ struct TCPSocket
 #endif
 	}
 
-	//-----------------------------------------------------------------------------
 	void set_timeout(uint32_t seconds)
 	{
 #if CROWN_PLATFORM_POSIX

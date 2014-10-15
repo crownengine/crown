@@ -31,7 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 static int resource_package_load(lua_State* L)
 {
 	LuaStack stack(L);
@@ -39,7 +38,6 @@ static int resource_package_load(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int resource_package_unload(lua_State* L)
 {
 	LuaStack stack(L);
@@ -47,7 +45,6 @@ static int resource_package_unload(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int resource_package_flush(lua_State* L)
 {
 	LuaStack stack(L);
@@ -55,7 +52,6 @@ static int resource_package_flush(lua_State* L)
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
 static int resource_package_has_loaded(lua_State* L)
 {
 	LuaStack stack(L);
@@ -63,7 +59,6 @@ static int resource_package_has_loaded(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 static int resource_package_tostring(lua_State* L)
 {
 	LuaStack stack(L);
@@ -72,7 +67,6 @@ static int resource_package_tostring(lua_State* L)
 	return 1;
 }
 
-//-----------------------------------------------------------------------------
 void load_resource_package(LuaEnvironment& env)
 {
 	env.load_module_function("ResourcePackage", "load",       resource_package_load);

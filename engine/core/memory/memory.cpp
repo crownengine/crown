@@ -28,7 +28,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "allocator.h"
 #include "mutex.h"
 
-// //-----------------------------------------------------------------------------
 // void* operator new(size_t) throw (std::bad_alloc)
 // {
 // 	CE_ASSERT(false, "operator new forbidden");
@@ -36,7 +35,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 // 	return NULL;
 // }
 
-// //-----------------------------------------------------------------------------
 // void* operator new[](size_t) throw (std::bad_alloc)
 // {
 // 	CE_ASSERT(false, "operator new[] forbidden");
@@ -44,13 +42,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 // 	return NULL;
 // }
 
-// //-----------------------------------------------------------------------------
 // void operator delete(void*) throw ()
 // {
 // 	CE_ASSERT(false, "operator delete forbidden");
 // }
 
-// //-----------------------------------------------------------------------------
 // void operator delete[](void*) throw ()
 // {
 // 	CE_ASSERT(false, "operator delete[] forbidden");
@@ -136,13 +132,11 @@ namespace memory
 			uint32_t size;
 		};
 
-		//-----------------------------------------------------------------------------
 		size_t actual_allocation_size(size_t size, size_t align)
 		{
 			return size + align + sizeof(Header);
 		}
 
-		//-----------------------------------------------------------------------------
 		Header* header(void* data)
 		{
 			uint32_t* ptr = (uint32_t*)data;
@@ -156,13 +150,11 @@ namespace memory
 			return (Header*)ptr;
 		}
 
-		//-----------------------------------------------------------------------------
 		void* data(Header* header, size_t align)
 		{
 			return memory::align_top(header + 1, align);
 		}
 
-		//-----------------------------------------------------------------------------
 		void pad(Header* header, void* data)
 		{
 			uint32_t* p = (uint32_t*)(header + 1);
