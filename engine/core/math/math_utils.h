@@ -40,32 +40,20 @@ namespace math
 {
 
 // Constants
-const float		PI							= (float)3.1415926535897932;
-const float		TWO_PI						= PI * (float)2.0;
-const float		HALF_PI						= PI * (float)0.5;
-const float		ONEFOURTH_PI				= PI * (float)0.25;
-
-const float		DEG_TO_RAD					= PI / (float)180.0;
-const float		RAD_TO_DEG					= (float)1.0 / DEG_TO_RAD;
-
-const float		FOUR_OVER_THREE				= (float)(4.0 / 3.0);
-const float		FOUR_OVER_THREE_TIMES_PI	= FOUR_OVER_THREE * PI;
-
-const float		ONE_OVER_THREE				= (float)(1.0 / 3.0);
-const float		ONE_OVER_FOUR				= (float)(1.0 / 4.0);
-const float		ONE_OVER_255				= (float)(1.0 / 255.0);
-
-const float		FLOAT_PRECISION				= (float)1.0e-7f;
-const double	DOUBLE_PRECISION			= (float)1.0e-9;
+const float PI = 3.1415926535897932f;
+const float TWO_PI = PI * 2.0f;
+const float HALF_PI = PI * 0.5f;
+const float FLOAT_PRECISION = 1.0e-7f;
+const double DOUBLE_PRECISION = 1.0e-9;
 
 //-----------------------------------------------------------------------------
-inline bool equals(float a, float b, float precision  = FLOAT_PRECISION)
+inline bool equals(float a, float b, float precision = FLOAT_PRECISION)
 {
 	return ((b <= (a + precision)) && (b >= (a - precision)));
 }
 
 //-----------------------------------------------------------------------------
-inline bool equals(double a, double b, double precision  = DOUBLE_PRECISION)
+inline bool equals(double a, double b, double precision = DOUBLE_PRECISION)
 {
 	return ((b <= (a + precision)) && (b >= (a - precision)));
 }
@@ -123,14 +111,14 @@ inline T avg(const T& a, const T& b)
 template <typename T>
 inline T avg(const T& a, const T& b, const T& c)
 {
-	return (a + b + c) * ONE_OVER_THREE;
+	return (a + b + c) * float(1.0 / 3.0);
 }
 
 //-----------------------------------------------------------------------------
 template <typename T>
 inline T avg(const T& a, const T& b, const T& c, const T& d)
 {
-	return (a + b + c + d) * ONE_OVER_FOUR;
+	return (a + b + c + d) * float(1.0 / 4.0);
 }
 
 //-----------------------------------------------------------------------------
@@ -164,13 +152,13 @@ inline void swap(T& a, T& b)
 //-----------------------------------------------------------------------------
 inline float deg_to_rad(float deg)
 {
-	return deg * DEG_TO_RAD;
+	return deg * float(PI / 180.0);
 }
 
 //-----------------------------------------------------------------------------
 inline float rad_to_deg(float rad)
 {
-	return rad * RAD_TO_DEG;
+	return rad * float(180.0 / PI);
 }
 
 //-----------------------------------------------------------------------------
@@ -293,7 +281,6 @@ inline T linear(const T& p0, const T& p1, float t)
 {
 	return p0 + (t * (p1 - p0));
 }
-
 
 /// Returns the cosine interpolated value between @a p0 and @a p1 at time @a t
 template <typename T>

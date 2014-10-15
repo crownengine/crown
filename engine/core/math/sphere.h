@@ -33,7 +33,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-
 /// Sphere.
 ///
 /// Used mainly for collision detection and intersection tests.
@@ -100,7 +99,7 @@ inline float Sphere::radius() const
 //-----------------------------------------------------------------------------
 inline float Sphere::volume() const
 {
-	return math::FOUR_OVER_THREE_TIMES_PI * m_radius * m_radius * m_radius;
+	return float(4.0 / 3.0 * math::PI) * m_radius * m_radius * m_radius;
 }
 
 //-----------------------------------------------------------------------------

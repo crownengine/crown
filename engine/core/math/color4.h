@@ -27,7 +27,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "types.h"
-#include "math_utils.h"
 
 namespace crown
 {
@@ -347,9 +346,9 @@ inline Color4::Color4(float r, float g, float b)
 
 //-----------------------------------------------------------------------------
 inline Color4::Color4(int r, int g, int b)
-	: r(r * math::ONE_OVER_255)
-	, g(g * math::ONE_OVER_255)
-	, b(b * math::ONE_OVER_255)
+	: r(r * float(1.0/255.0))
+	, g(g * float(1.0/255.0))
+	, b(b * float(1.0/255.0))
 	, a(1)
 {
 }
@@ -365,10 +364,10 @@ inline Color4::Color4(float r, float g, float b, float a)
 
 //-----------------------------------------------------------------------------
 inline Color4::Color4(int r, int g, int b, int a)
-	: r(r * math::ONE_OVER_255)
-	, g(g * math::ONE_OVER_255)
-	, b(b * math::ONE_OVER_255)
-	, a(a * math::ONE_OVER_255)
+	: r(r * float(1.0/255.0))
+	, g(g * float(1.0/255.0))
+	, b(b * float(1.0/255.0))
+	, a(a * float(1.0/255.0))
 {
 }
 
@@ -383,10 +382,10 @@ inline Color4::Color4(float c[4])
 
 //-----------------------------------------------------------------------------
 inline Color4::Color4(uint32_t rgba)
-	: r(math::ONE_OVER_255 * ((rgba & 0xFF000000) >> 24))
-	, g(math::ONE_OVER_255 * ((rgba & 0x00FF0000) >> 16))
-	, b(math::ONE_OVER_255 * ((rgba & 0x0000FF00) >> 8))
-	, a(math::ONE_OVER_255 * (rgba & 0x000000FF))
+	: r(float(1.0/255.0) * ((rgba & 0xFF000000) >> 24))
+	, g(float(1.0/255.0) * ((rgba & 0x00FF0000) >> 16))
+	, b(float(1.0/255.0) * ((rgba & 0x0000FF00) >> 8))
+	, a(float(1.0/255.0) * (rgba & 0x000000FF))
 {
 }
 
