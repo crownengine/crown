@@ -67,20 +67,6 @@ inline T min(const T& a, const T& b)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T min(const T& a, const T& b, const T& c)
-{
-	return math::min(math::min(a, b), math::min(a, c));
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline T min(const T& a, const T& b, const T& c, const T& d)
-{
-	return math::min(math::min(a, b, c), math::min(a, b, d), math::min(a, c, d));
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
 inline T max(const T& a, const T& b)
 {
 	return a < b ? b : a;
@@ -88,56 +74,10 @@ inline T max(const T& a, const T& b)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-inline T max(const T& a, const T& b, const T& c)
-{
-	return math::max(math::max(a, b), math::max(a, c));
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline T max(const T& a, const T& b, const T& c, const T& d)
-{
-	return math::max(math::max(a, b, c), math::max(a, b, d), math::max(a, c, d));
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline T avg(const T& a, const T& b)
-{
-	return (a + b) * 0.5;
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline T avg(const T& a, const T& b, const T& c)
-{
-	return (a + b + c) * float(1.0 / 3.0);
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline T avg(const T& a, const T& b, const T& c, const T& d)
-{
-	return (a + b + c + d) * float(1.0 / 4.0);
-}
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline T clamp_to_range(const T& min, const T& max, const T& value)
+inline T clamp(const T& min, const T& max, const T& val)
 {
 	CE_ASSERT(min < max, "Min must be < max");
-
-	if (value > max)
-	{
-		return max;
-	}
-
-	if (value < min)
-	{
-		return min;
-	}
-
-	return value;
+	return val > max ? max : val < min ? min : val;
 }
 
 //-----------------------------------------------------------------------------
@@ -150,13 +90,13 @@ inline void swap(T& a, T& b)
 }
 
 //-----------------------------------------------------------------------------
-inline float deg_to_rad(float deg)
+inline float to_rad(float deg)
 {
 	return deg * float(PI / 180.0);
 }
 
 //-----------------------------------------------------------------------------
-inline float rad_to_deg(float rad)
+inline float to_deg(float rad)
 {
 	return rad * float(180.0 / PI);
 }
@@ -251,28 +191,6 @@ inline float abs(float x)
 inline float fmod(float n, float d)
 {
 	return ::fmod(n, d);
-}
-
-//-----------------------------------------------------------------------------
-inline bool solve_quadratic_equation(float a, float b, float c, float& x1, float& x2)
-{
-	float delta = (b * b) - (4.0f * a * c);
-
-	// If the equation has no float solutions
-	if (delta < 0.0)
-	{
-		return false;
-	}
-
-	x1 = (-b + sqrt(delta)) / (2.0f * a);
-	x2 = (-b - sqrt(delta)) / (2.0f * a);
-
-	if (x2 > x1)
-	{
-		swap(x1, x2);
-	}
-
-	return true;
 }
 
 /// Returns the linear interpolated value between @a p0 and @a p1 at time @a t

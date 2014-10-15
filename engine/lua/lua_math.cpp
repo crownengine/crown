@@ -32,18 +32,18 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-static int math_deg_to_rad(lua_State* L)
+static int math_to_rad(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::deg_to_rad(stack.get_float(1)));
+	stack.push_float(math::to_rad(stack.get_float(1)));
 	return 1;
 }
 
 //-----------------------------------------------------------------------------
-static int math_rad_to_deg(lua_State* L)
+static int math_to_deg(lua_State* L)
 {
 	LuaStack stack(L);
-	stack.push_float(math::rad_to_deg(stack.get_float(1)));
+	stack.push_float(math::to_deg(stack.get_float(1)));
 	return 1;
 }
 
@@ -162,8 +162,8 @@ static int math_fmod(lua_State* L)
 //-----------------------------------------------------------------------------
 void load_math(LuaEnvironment& env)
 {
-	env.load_module_function("Math", "deg_to_rad", math_deg_to_rad);
-	env.load_module_function("Math", "rad_to_deg", math_rad_to_deg);
+	env.load_module_function("Math", "to_rad",     math_to_rad);
+	env.load_module_function("Math", "to_deg",     math_to_deg);
 	env.load_module_function("Math", "next_pow_2", math_next_pow_2);
 	env.load_module_function("Math", "is_pow_2",   math_is_pow_2);
 	env.load_module_function("Math", "ceil",       math_ceil);
