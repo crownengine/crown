@@ -690,6 +690,10 @@ Device
 		Note that to unload the resources loaded by the package, you have to call
 		ResourcePackage.unload() first.
 
+	**console_send** (table)
+		Sends the given lua *table* to clients connected to the engine.
+		Note that the current version only supports explicitly escaped strings as key/value pairs.
+
 DebugLine
 =========
 
