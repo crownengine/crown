@@ -31,6 +31,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "lua_resource.h"
 #include "os.h"
 #include "temp_allocator.h"
+#include "array.h"
+#include "compile_options.h"
 
 #if CROWN_PLATFORM_WINDOWS
 	#define LUAJIT_EXECUTABLE "luajit.exe"
@@ -49,14 +51,16 @@ namespace crown
 namespace lua_resource
 {
 	//-----------------------------------------------------------------------------
-	void compile(Filesystem& fs, const char* resource_path, File* out_file)
+	void compile(const char* path, CompileOptions& opts)
 	{
+		static const uint32_t VERSION = 1;
+
 		TempAllocator1024 alloc;
 		DynamicString res_abs_path(alloc);
 		TempAllocator1024 alloc2;
 		DynamicString bc_abs_path(alloc2);
-		fs.get_absolute_path(resource_path, res_abs_path);
-		fs.get_absolute_path("bc.tmp", bc_abs_path);
+		opts.get_absolute_path(path, res_abs_path);
+		opts.get_absolute_path("bc.tmp", bc_abs_path);
 
 		const char* luajit[] =
 		{
@@ -68,33 +72,16 @@ namespace lua_resource
 		};
 
 		os::execute_process(luajit);
+		Buffer blob = opts.read(bc_abs_path.c_str());
+		opts.delete_file(bc_abs_path.c_str());
 
-		size_t program_size = 0;
-		char* program = NULL;
+		LuaResource lr;
+		lr.version = VERSION;
+		lr.size = array::size(blob);
 
-		File* bc = fs.open(bc_abs_path.c_str(), FOM_READ);
-		if (bc != NULL)
-		{
-			program_size = bc->size();
-			program = (char*) default_allocator().allocate(program_size);
-			bc->read(program, program_size);
-			fs.close(bc);
-			fs.delete_file(bc_abs_path.c_str());
-		}
-		else
-		{
-			CE_LOGE("Error while reading luajit bytecode");
-			return;
-		}
-
-		LuaHeader header;
-		header.version = LUA_RESOURCE_VERSION;
-		header.size = program_size;
-
-		out_file->write((char*)&header, sizeof(LuaHeader));
-		out_file->write((char*)program, program_size);
-
-		default_allocator().deallocate(program);
+		opts.write(lr.version);
+		opts.write(lr.size);
+		opts.write(blob);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -124,6 +111,16 @@ namespace lua_resource
 	void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);
+	}
+
+	uint32_t size(const LuaResource* lr)
+	{
+		return lr->size;
+	}
+
+	const char* program(const LuaResource* lr)
+	{
+		return (char*)lr + sizeof(LuaResource);
 	}
 } // namespace lua_resource
 } // namespace crown

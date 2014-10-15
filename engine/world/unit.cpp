@@ -41,6 +41,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+using namespace unit_resource;
+
 //-----------------------------------------------------------------------------
 Unit::Unit(World& w, UnitId unit_id, const ResourceId id, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)
@@ -88,8 +90,8 @@ const UnitResource*	Unit::resource() const
 //-----------------------------------------------------------------------------
 void Unit::create_objects(const Matrix4x4& pose)
 {
-	// Create the scene graph
-	m_scene_graph.create(pose, m_resource->num_scene_graph_nodes(), m_resource->scene_graph_nodes());
+	using namespace unit_resource;
+	m_scene_graph.create(pose, num_scene_graph_nodes(m_resource), scene_graph_nodes(m_resource));
 
 	create_camera_objects();
 	create_renderable_objects();
@@ -97,10 +99,10 @@ void Unit::create_objects(const Matrix4x4& pose)
 
 	set_default_material();
 
-	m_values = (char*) default_allocator().allocate(m_resource->values_size());
-	memcpy(m_values, m_resource->values(), m_resource->values_size());
+	m_values = (char*) default_allocator().allocate(values_size(m_resource));
+	memcpy(m_values, values(m_resource), values_size(m_resource));
 
-	ResourceId anim_id = m_resource->sprite_animation();
+	ResourceId anim_id = sprite_animation(m_resource);
 	if (anim_id.name != 0)
 	{
 		m_sprite_animation = m_world.sprite_animation_player()->create_sprite_animation((SpriteAnimationResource*) device()->resource_manager()->get(anim_id));
@@ -166,11 +168,11 @@ void Unit::destroy_objects()
 //-----------------------------------------------------------------------------
 void Unit::create_camera_objects()
 {
-	for (uint32_t i = 0; i < m_resource->num_cameras(); i++)
+	for (uint32_t i = 0; i < num_cameras(m_resource); i++)
 	{
-		const UnitCamera cam = m_resource->get_camera(i);
-		const CameraId id = m_world.create_camera(m_scene_graph, cam.node, cam.type, cam.near, cam.far);
-		add_camera(cam.name, id);
+		const UnitCamera* cam = get_camera(m_resource, i);
+		const CameraId id = m_world.create_camera(m_scene_graph, cam->node, (ProjectionType::Enum)cam->type, cam->near, cam->far);
+		add_camera(cam->name, id);
 	}
 }
 
@@ -178,21 +180,21 @@ void Unit::create_camera_objects()
 void Unit::create_renderable_objects()
 {
 	// Create renderables
-	for (uint32_t i = 0; i < m_resource->num_renderables(); i++)
+	for (uint32_t i = 0; i < num_renderables(m_resource); i++)
 	{
-		const UnitRenderable renderable = m_resource->get_renderable(i);
+		const UnitRenderable* ur = get_renderable(m_resource, i);
 
-		if (renderable.type == UnitRenderable::MESH)
+		if (ur->type == UnitRenderable::MESH)
 		{
-			MeshResource* mr = (MeshResource*) device()->resource_manager()->get(renderable.resource);
-			MeshId mesh = m_world.render_world()->create_mesh(mr, m_scene_graph, renderable.node);
-			add_mesh(renderable.name, mesh);
+			MeshResource* mr = (MeshResource*) device()->resource_manager()->get(ur->resource);
+			MeshId mesh = m_world.render_world()->create_mesh(mr, m_scene_graph, ur->node);
+			add_mesh(ur->name, mesh);
 		}
-		else if (renderable.type == UnitRenderable::SPRITE)
+		else if (ur->type == UnitRenderable::SPRITE)
 		{
-			SpriteResource* sr = (SpriteResource*) device()->resource_manager()->get(renderable.resource);
-			SpriteId sprite = m_world.render_world()->create_sprite(sr, m_scene_graph, renderable.node);
-			add_sprite(renderable.name, sprite);
+			SpriteResource* sr = (SpriteResource*) device()->resource_manager()->get(ur->resource);
+			SpriteId sprite = m_world.render_world()->create_sprite(sr, m_scene_graph, ur->node);
+			add_sprite(ur->name, sprite);
 		}
 		else
 		{
@@ -200,42 +202,44 @@ void Unit::create_renderable_objects()
 		}
 	}
 
-	for (uint32_t i = 0; i < m_resource->num_materials(); i++)
+	for (uint32_t i = 0; i < num_materials(m_resource); i++)
 	{
-		const UnitMaterial material = m_resource->get_material(i);
-		add_material(string::murmur2_32("default", string::strlen("default"), 0), material_manager::get()->create_material(material.id));
+		const UnitMaterial* mat = get_material(m_resource, i);
+		add_material(string::murmur2_32("default", string::strlen("default"), 0), material_manager::get()->create_material(mat->id));
 	}
 }
 
 //-----------------------------------------------------------------------------
 void Unit::create_physics_objects()
 {
-	if (m_resource->physics_resource().type != 0)
+	using namespace unit_resource;
+	using namespace physics_resource;
+	if (unit_resource::physics_resource(m_resource).type != 0)
 	{
-		const PhysicsResource* pr = (PhysicsResource*) device()->resource_manager()->get(m_resource->physics_resource());
+		const PhysicsResource* pr = (PhysicsResource*) device()->resource_manager()->get(unit_resource::physics_resource(m_resource));
 
 		// Create controller if any
-		if (pr->has_controller())
+		if (has_controller(pr))
 		{
-			set_controller(pr->controller().name, m_world.physics_world()->create_controller(pr, m_scene_graph, 0));
+			set_controller(physics_resource::controller(pr)->name, m_world.physics_world()->create_controller(pr, m_scene_graph, 0));
 		}
 
 		// Create actors if any
-		for (uint32_t i = 0; i < pr->num_actors(); i++)
+		for (uint32_t i = 0; i < num_actors(pr); i++)
 		{
-			const PhysicsActor& actor = pr->actor(i);
+			const PhysicsActor* actor = physics_resource::actor(pr, i);
 
-			ActorId id = m_world.physics_world()->create_actor(pr, i, m_scene_graph, m_scene_graph.node(actor.node), m_id);
-			add_actor(actor.name, id);
+			ActorId id = m_world.physics_world()->create_actor(pr, i, m_scene_graph, m_scene_graph.node(actor->node), m_id);
+			add_actor(actor->name, id);
 		}
 
 		// Create joints if any
-		for (uint32_t i = 0; i < pr->num_joints(); i++)
+		for (uint32_t i = 0; i < num_joints(pr); i++)
 		{
-			const PhysicsJoint& joint = pr->joint(i);
+			const PhysicsJoint* joint = physics_resource::joint(pr, i);
 
-			Actor* a1 = actor_by_index(joint.actor_0);
-			Actor* a2 = actor_by_index(joint.actor_1);
+			Actor* a1 = actor_by_index(joint->actor_0);
+			Actor* a2 = actor_by_index(joint->actor_1);
 
 			m_world.physics_world()->create_joint(pr, i, *a1, *a2);
 		}
@@ -592,22 +596,25 @@ void Unit::stop_sprite_animation()
 //-----------------------------------------------------------------------------
 bool Unit::has_key(const char* k) const
 {
-	return m_resource->has_key(k);
+	using namespace unit_resource;
+	return unit_resource::has_key(m_resource, k);
 }
 
 //-----------------------------------------------------------------------------
 ValueType::Enum Unit::value_type(const char* k)
 {
+	using namespace unit_resource;
 	Key key;
-	m_resource->get_key(k, key);
+	unit_resource::get_key(m_resource, k, key);
 	return (ValueType::Enum) key.type;
 }
 
 //-----------------------------------------------------------------------------
 bool Unit::get_key(const char* k, bool& v) const
 {
+	using namespace unit_resource;
 	Key key;
-	bool has = m_resource->get_key(k, key);
+	bool has = unit_resource::get_key(m_resource, k, key);
 	v = *(uint32_t*)(m_values + key.offset);
 	return has;
 }
@@ -615,8 +622,9 @@ bool Unit::get_key(const char* k, bool& v) const
 //-----------------------------------------------------------------------------
 bool Unit::get_key(const char* k, float& v) const
 {
+	using namespace unit_resource;
 	Key key;
-	bool has = m_resource->get_key(k, key);
+	bool has = unit_resource::get_key(m_resource, k, key);
 	v = *(float*)(m_values + key.offset);
 	return has;
 }
@@ -624,8 +632,9 @@ bool Unit::get_key(const char* k, float& v) const
 //-----------------------------------------------------------------------------
 bool Unit::get_key(const char* k, StringId32& v) const
 {
+	using namespace unit_resource;
 	Key key;
-	bool has = m_resource->get_key(k, key);
+	bool has = unit_resource::get_key(m_resource, k, key);
 	v = *(StringId32*)(m_values + key.offset);
 	return has;
 }
@@ -633,8 +642,9 @@ bool Unit::get_key(const char* k, StringId32& v) const
 //-----------------------------------------------------------------------------
 bool Unit::get_key(const char* k, Vector3& v) const
 {
+	using namespace unit_resource;
 	Key key;
-	bool has = m_resource->get_key(k, key);
+	bool has = unit_resource::get_key(m_resource, k, key);
 	v = *(Vector3*)(m_values + key.offset);
 	return has;
 }
@@ -642,32 +652,36 @@ bool Unit::get_key(const char* k, Vector3& v) const
 //-----------------------------------------------------------------------------
 void Unit::set_key(const char* k, bool v)
 {
+	using namespace unit_resource;
 	Key key;
-	m_resource->get_key(k, key);
+	unit_resource::get_key(m_resource, k, key);
 	*(uint32_t*)(m_values + key.offset) = v;
 }
 
 //-----------------------------------------------------------------------------
 void Unit::set_key(const char* k, float v)
 {
+	using namespace unit_resource;
 	Key key;
-	m_resource->get_key(k, key);
+	unit_resource::get_key(m_resource, k, key);
 	*(float*)(m_values + key.offset) = v;
 }
 
 //-----------------------------------------------------------------------------
 void Unit::set_key(const char* k, const char* v)
 {
+	using namespace unit_resource;
 	Key key;
-	m_resource->get_key(k, key);
+	unit_resource::get_key(m_resource, k, key);
 	*(StringId32*)(m_values + key.offset) = string::murmur2_32(v, string::strlen(v));
 }
 
 //-----------------------------------------------------------------------------
 void Unit::set_key(const char* k, const Vector3& v)
 {
+	using namespace unit_resource;
 	Key key;
-	m_resource->get_key(k, key);
+	unit_resource::get_key(m_resource, k, key);
 	*(Vector3*)(m_values + key.offset) = v;
 }
 

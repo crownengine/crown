@@ -41,11 +41,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-const uint32_t MATERIAL_VERSION = 1;
-
-struct MaterialHeader
+struct MaterialResource
 {
 	uint32_t version;
+	uint32_t _pad;
 	StringId64 shader;
 	uint32_t num_textures;
 	uint32_t texture_data_offset;
@@ -57,9 +56,11 @@ struct MaterialHeader
 
 struct TextureData
 {
-	char sampler_name[256];	// Sampler uniform name
-	StringId64 id;			// Resource name
-	uint32_t data_offset;	// Offset into dynamic blob
+	uint32_t sampler_name_offset;	// Sampler uniform name
+	uint32_t _pad;
+	StringId64 id;					// Resource name
+	uint32_t data_offset;			// Offset into dynamic blob
+	uint32_t _pad1;
 };
 
 struct TextureHandle
@@ -82,7 +83,7 @@ struct UniformType
 
 struct UniformData
 {
-	char name[256];			// Uniform name
+	uint32_t name_offset;	// Uniform name
 	uint32_t type;			// UniformType::Enum
 	uint32_t data_offset;	// Offset into dynamic blob
 };
@@ -93,104 +94,26 @@ struct UniformHandle
 	// data
 };
 
-struct MaterialResource
-{
-	uint32_t dynamic_data_size() const
-	{
-		MaterialHeader* mh = (MaterialHeader*) this;
-		return mh->dynamic_data_size;		
-	}
-
-	uint32_t dynamic_data_offset() const
-	{
-		MaterialHeader* mh = (MaterialHeader*) this;
-		return mh->dynamic_data_offset;
-	}
-
-	StringId64 shader() const
-	{
-		MaterialHeader* mh = (MaterialHeader*) this;
-		return mh->shader;		
-	}
-
-	uint32_t num_textures() const
-	{
-		MaterialHeader* mh = (MaterialHeader*) this;
-		return mh->num_textures;
-	}
-
-	uint32_t num_uniforms() const
-	{
-		MaterialHeader* mh = (MaterialHeader*) this;
-		return mh->num_uniforms;		
-	}
-
-	UniformData* get_uniform_data(uint32_t i) const
-	{
-		MaterialHeader* mh = (MaterialHeader*) this;
-		UniformData* base = (UniformData*) ((char*) mh + mh->uniform_data_offset);
-		return &base[i];
-	}
-
-	UniformData* get_uniform_data_by_string(const char* str) const
-	{
-		MaterialHeader* mh = (MaterialHeader*) this;
-		UniformData* base = (UniformData*) ((char*) mh + mh->uniform_data_offset);
-
-		uint32_t num = num_uniforms();
-		for (uint32_t i = 0; i < num; i++)
-		{
-			if (string::strncmp(base->name, str, 256) == 0)
-				return base;
-
-			base++;
-		}
-
-		CE_FATAL("Oops, bad uniform name");
-		return NULL;
-	}
-
-	TextureData* get_texture_data(uint32_t i) const
-	{
-		MaterialHeader* mh = (MaterialHeader*) this;
-		TextureData* base = (TextureData*) ((char*) mh + mh->texture_data_offset);
-		return &base[i];
-	}
-
-	UniformHandle* get_uniform_handle(uint32_t i, char* dynamic) const
-	{
-		UniformData* ud = get_uniform_data(i);
-		return (UniformHandle*) (dynamic + ud->data_offset);
-	}
-
-	UniformHandle* get_uniform_handle_by_string(const char* str, char* dynamic) const
-	{
-		UniformData* ud = get_uniform_data_by_string(str);
-		return (UniformHandle*) (dynamic + ud->data_offset);
-	}	
-
-	TextureHandle* get_texture_handle(uint32_t i, char* dynamic) const
-	{
-		TextureData* td = get_texture_data(i);
-		return (TextureHandle*) (dynamic + td->data_offset);
-	}
-
-private:
-
-	// Disable construction
-	MaterialResource();
-};
-
 namespace material_resource
 {
-	void compile(Filesystem& fs, const char* resource_path, File* out_file);
-	inline void compile(const char* path, CompileOptions& opts)
-	{
-		compile(opts._fs, path, &opts._bw.m_file);
-	}
+	void compile(const char* path, CompileOptions& opts);
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	void online(StringId64 id, ResourceManager& rm);
 	void offline(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* res);
+
+	uint32_t dynamic_data_size(const MaterialResource* mr);
+	uint32_t dynamic_data_offset(const MaterialResource* mr);
+	StringId64 shader(const MaterialResource* mr);
+	uint32_t num_textures(const MaterialResource* mr);
+	uint32_t num_uniforms(const MaterialResource* mr);
+	UniformData* get_uniform_data(const MaterialResource* mr, uint32_t i);
+	UniformData* get_uniform_data_by_string(const MaterialResource* mr, const char* str);
+	const char* get_uniform_name(const MaterialResource* mr, const UniformData* ud);
+	TextureData* get_texture_data(const MaterialResource* mr, uint32_t i);
+	const char* get_texture_name(const MaterialResource* mr, const TextureData* td);
+	UniformHandle* get_uniform_handle(const MaterialResource* mr, uint32_t i, char* dynamic);
+	UniformHandle* get_uniform_handle_by_string(const MaterialResource* mr, const char* str, char* dynamic);
+	TextureHandle* get_texture_handle(const MaterialResource* mr, uint32_t i, char* dynamic);
 } // namespace material_resource
 } // namespace crown

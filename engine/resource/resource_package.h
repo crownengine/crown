@@ -62,138 +62,142 @@ struct ResourcePackage
 	/// instead, you have to poll for completion with has_loaded()
 	void load()
 	{
-		for (uint32_t i = 0; i < m_package->num_textures(); i++)
+		using namespace package_resource;
+
+		for (uint32_t i = 0; i < num_textures(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_texture_id(i));
+			m_resource_manager->load(get_texture_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_scripts(); i++)
+		for (uint32_t i = 0; i < num_scripts(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_script_id(i));
+			m_resource_manager->load(get_script_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_sounds(); i++)
+		for (uint32_t i = 0; i < num_sounds(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_sound_id(i));
+			m_resource_manager->load(get_sound_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_meshes(); i++)
+		for (uint32_t i = 0; i < num_meshes(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_mesh_id(i));
+			m_resource_manager->load(get_mesh_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_units(); i++)
+		for (uint32_t i = 0; i < num_units(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_unit_id(i));
+			m_resource_manager->load(get_unit_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_sprites(); i++)
+		for (uint32_t i = 0; i < num_sprites(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_sprite_id(i));
+			m_resource_manager->load(get_sprite_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_physics(); i++)
+		for (uint32_t i = 0; i < num_physics(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_physics_id(i));
+			m_resource_manager->load(get_physics_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_materials(); i++)
+		for (uint32_t i = 0; i < num_materials(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_material_id(i));
+			m_resource_manager->load(get_material_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_fonts(); i++)
+		for (uint32_t i = 0; i < num_fonts(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_font_id(i));
+			m_resource_manager->load(get_font_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_levels(); i++)
+		for (uint32_t i = 0; i < num_levels(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_level_id(i));
+			m_resource_manager->load(get_level_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_physics_configs(); i++)
+		for (uint32_t i = 0; i < num_physics_configs(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_physics_config_id(i));
+			m_resource_manager->load(get_physics_config_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_shaders(); i++)
+		for (uint32_t i = 0; i < num_shaders(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_shader_id(i));
+			m_resource_manager->load(get_shader_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_sprite_animations(); i++)
+		for (uint32_t i = 0; i < num_sprite_animations(m_package); i++)
 		{
-			m_resource_manager->load(m_package->get_sprite_animation_id(i));
+			m_resource_manager->load(get_sprite_animation_id(m_package, i));
 		}
 	}
 
 	/// Unloads all the resources in the package.
 	void unload()
 	{
-		for (uint32_t i = 0; i < m_package->num_sprite_animations(); i++)
+		using namespace package_resource;
+		
+		for (uint32_t i = 0; i < num_sprite_animations(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_sprite_animation_id(i));
+			m_resource_manager->unload(get_sprite_animation_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_shaders(); i++)
+		for (uint32_t i = 0; i < num_shaders(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_shader_id(i));
+			m_resource_manager->unload(get_shader_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_physics_configs(); i++)
+		for (uint32_t i = 0; i < num_physics_configs(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_physics_config_id(i));
+			m_resource_manager->unload(get_physics_config_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_levels(); i++)
+		for (uint32_t i = 0; i < num_levels(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_level_id(i));
+			m_resource_manager->unload(get_level_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_fonts(); i++)
+		for (uint32_t i = 0; i < num_fonts(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_font_id(i));
+			m_resource_manager->unload(get_font_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_materials(); i++)
+		for (uint32_t i = 0; i < num_materials(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_material_id(i));
+			m_resource_manager->unload(get_material_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_physics(); i++)
+		for (uint32_t i = 0; i < num_physics(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_physics_id(i));
+			m_resource_manager->unload(get_physics_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_sprites(); i++)
+		for (uint32_t i = 0; i < num_sprites(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_sprite_id(i));
+			m_resource_manager->unload(get_sprite_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_units(); i++)
+		for (uint32_t i = 0; i < num_units(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_unit_id(i));
+			m_resource_manager->unload(get_unit_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_meshes(); i++)
+		for (uint32_t i = 0; i < num_meshes(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_mesh_id(i));
+			m_resource_manager->unload(get_mesh_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_sounds(); i++)
+		for (uint32_t i = 0; i < num_sounds(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_sound_id(i));
+			m_resource_manager->unload(get_sound_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_scripts(); i++)
+		for (uint32_t i = 0; i < num_scripts(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_script_id(i));
+			m_resource_manager->unload(get_script_id(m_package, i));
 		}
 
-		for (uint32_t i = 0; i < m_package->num_textures(); i++)
+		for (uint32_t i = 0; i < num_textures(m_package); i++)
 		{
-			m_resource_manager->unload(m_package->get_texture_id(i));
+			m_resource_manager->unload(get_texture_id(m_package, i));
 		}
 	}
 

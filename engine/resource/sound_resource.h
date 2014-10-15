@@ -36,7 +36,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-//-----------------------------------------------------------------------------
 struct SoundType
 {
 	enum Enum
@@ -46,79 +45,34 @@ struct SoundType
 	};
 };
 
-const uint32_t SOUND_VERSION = 1;
-
-//-----------------------------------------------------------------------------
-struct SoundHeader
-{
-	uint32_t		version;	// Sound file version
-	uint32_t		size;
-	uint32_t		sample_rate;
-	uint32_t		avg_bytes_ps;
-	uint32_t		channels;
-	uint16_t		block_size;
-	uint16_t 		bits_ps;
-	uint8_t			sound_type;
-};
-
 struct SoundResource
 {
-	uint32_t size() const
-	{
-		return ((SoundHeader*) this)->size;
-	}
-
-	uint32_t sample_rate() const
-	{
-		return ((SoundHeader*) this)->sample_rate;
-	}
-
-	uint32_t avg_bytes_ps() const
-	{
-		return ((SoundHeader*) this)->avg_bytes_ps;
-	}
-
-	uint32_t channels() const
-	{
-		return ((SoundHeader*) this)->channels;
-	}
-
-	uint16_t block_size() const
-	{
-		return ((SoundHeader*) this)->block_size;
-	}
-
-	uint16_t bits_ps() const
-	{
-		return ((SoundHeader*) this)->bits_ps;
-	}
-
-	uint8_t sound_type() const
-	{
-		return ((SoundHeader*) this)->sound_type;
-	}
-
-	const char* data() const
-	{
-		return ((char*) this) + sizeof(SoundHeader);
-	}
-
-private:
-
-	// Disable construction
-	SoundResource();
+	uint32_t version;
+	uint32_t size;
+	uint32_t sample_rate;
+	uint32_t avg_bytes_ps;
+	uint32_t channels;
+	uint16_t block_size;
+	uint16_t bits_ps;
+	uint8_t sound_type;
+	char _pad[3];
 };
 
 namespace sound_resource
 {
-	void compile(Filesystem& fs, const char* resource_path, File* out_file);
-	inline void compile(const char* path, CompileOptions& opts)
-	{
-		compile(opts._fs, path, &opts._bw.m_file);
-	}
+	void compile(const char* path, CompileOptions& opts);
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void unload(Allocator& allocator, void* resource);
+
+	uint32_t size(const SoundResource* sr);
+	uint32_t sample_rate(const SoundResource* sr);
+	uint32_t avg_bytes_ps(const SoundResource* sr);
+	uint32_t channels(const SoundResource* sr);
+	uint16_t block_size(const SoundResource* sr);
+	uint16_t bits_ps(const SoundResource* sr);
+	uint8_t sound_type(const SoundResource* sr);
+	const char* data(const SoundResource* sr);
 } // namespace sound_resource
 } // namespace crown

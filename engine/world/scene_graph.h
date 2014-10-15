@@ -45,7 +45,7 @@ struct SceneGraph
 	/// @a name, @a local and @parent are the array containing the name of the nodes,
 	/// the local poses of the nodes and the links between the nodes respectively.
 	/// A parent of -1 means "no parent".
-	void create(const Matrix4x4& root, uint32_t count, UnitNode* nodes);
+	void create(const Matrix4x4& root, uint32_t count, const UnitNode* nodes);
 
 	/// Destroys the graph deallocating memory if necessary.
 	void destroy();

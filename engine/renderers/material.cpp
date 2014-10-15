@@ -37,10 +37,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
+using namespace material_resource;
+
 void Material::create(const MaterialResource* mr, MaterialManager& mm)
 {
-	uint32_t size = mr->dynamic_data_size();
-	uint32_t offt = mr->dynamic_data_offset();
+	uint32_t size = dynamic_data_size(mr);
+	uint32_t offt = dynamic_data_offset(mr);
 	char* base = (char*) mr + offt;
 	data = (char*) default_allocator().allocate(size);
 	memcpy(data, base, size);
@@ -56,15 +58,15 @@ void Material::bind() const
 {
 	ResourceId shader_id;
 	shader_id.type = SHADER_TYPE;
-	shader_id.name = resource->shader();
+	shader_id.name = shader(resource);
 	Shader* shader = (Shader*) device()->resource_manager()->get(shader_id);
 	bgfx::setProgram(shader->program);
 
 	// Set samplers
-	for (uint32_t i = 0; i < resource->num_textures(); i++)
+	for (uint32_t i = 0; i < num_textures(resource); i++)
 	{
-		TextureData* td = resource->get_texture_data(i);
-		TextureHandle* th = resource->get_texture_handle(i, data);
+		TextureData* td = get_texture_data(resource, i);
+		TextureHandle* th = get_texture_handle(resource, i, data);
 
 		bgfx::UniformHandle sampler;
 		bgfx::TextureHandle texture;
@@ -73,16 +75,16 @@ void Material::bind() const
 		ResourceId texid;
 		texid.type = TEXTURE_TYPE;
 		texid.name = td->id;
-		TextureImage* teximg = (TextureImage*) device()->resource_manager()->get(texid);
+		TextureResource* teximg = (TextureResource*) device()->resource_manager()->get(texid);
 		texture.idx = teximg->handle.idx;
 
 		bgfx::setTexture(i, sampler, texture);
 	}
 
 	// Set uniforms
-	for (uint32_t i = 0; i < resource->num_uniforms(); i++)
+	for (uint32_t i = 0; i < num_uniforms(resource); i++)
 	{
-		UniformHandle* uh = resource->get_uniform_handle(i, data);
+		UniformHandle* uh = get_uniform_handle(resource, i, data);
 
 		bgfx::UniformHandle buh;
 		buh.idx = uh->uniform_handle;
@@ -92,19 +94,19 @@ void Material::bind() const
 
 void Material::set_float(const char* name, float val)
 {
-	char* p = (char*) resource->get_uniform_handle_by_string(name, data);
+	char* p = (char*) get_uniform_handle_by_string(resource, name, data);
 	*((float*)(p + sizeof(uint32_t))) = val;
 }
 
 void Material::set_vector2(const char* name, const Vector2& val)
 {
-	char* p = (char*) resource->get_uniform_handle_by_string(name, data);
+	char* p = (char*) get_uniform_handle_by_string(resource, name, data);
 	*((Vector2*)(p + sizeof(uint32_t))) = val;
 }
 
 void Material::set_vector3(const char* name, const Vector3& val)
 {
-	char* p = (char*) resource->get_uniform_handle_by_string(name, data);
+	char* p = (char*) get_uniform_handle_by_string(resource, name, data);
 	*((Vector3*)(p + sizeof(uint32_t))) = val;
 }
 

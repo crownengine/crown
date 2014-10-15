@@ -42,6 +42,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "sound_world.h"
 #include "event_stream.h"
 #include "sprite_animation_player.h"
+#include "resource_types.h"
 
 namespace crown
 {
@@ -63,6 +64,7 @@ public:
 
 	/// Spawns a new instance of the unit @a name at the given @a position and @a rotation.
 	UnitId spawn_unit(const char* name, const Vector3& position = vector3::ZERO, const Quaternion& rotation = quaternion::IDENTITY);
+	UnitId spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot);
 	UnitId spawn_unit(ResourceId id, const Vector3& pos, const Quaternion& rot);
 	UnitId spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& pos, const Quaternion& rot);
 
@@ -111,6 +113,7 @@ public:
 	/// Plays the sound with the given @a name at the given @a position, with the given
 	/// @a volume and @a range. @a loop controls whether the sound must loop or not.
 	SoundInstanceId play_sound(const char* name, bool loop = false, float volume = 1.0f, const Vector3& position = vector3::ZERO, float range = 50.0f);
+	SoundInstanceId play_sound(StringId64 name, const bool loop, const float volume, const Vector3& pos, const float range);
 	SoundInstanceId play_sound(ResourceId id, const bool loop, const float volume, const Vector3& pos, const float range);
 	SoundInstanceId play_sound(SoundResource* sr, const bool loop, const float volume, const Vector3& pos, const float range);
 
@@ -151,6 +154,7 @@ public:
 
 	/// Loads the level @a name into the world.
 	void load_level(const char* name);
+	void load_level(const LevelResource* lr);
 
 	SceneGraphManager* scene_graph_manager();
 	SpriteAnimationPlayer* sprite_animation_player();

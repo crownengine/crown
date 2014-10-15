@@ -87,6 +87,15 @@ UnitId World::spawn_unit(ResourceId id, const Vector3& pos, const Quaternion& ro
 	return spawn_unit(id, ur, pos, rot);
 }
 
+UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot)
+{
+	ResourceId id;
+	id.type = UNIT_TYPE;
+	id.name = name;
+	UnitResource* ur = (UnitResource*) device()->resource_manager()->get(id);
+	return spawn_unit(id, ur, pos, rot);
+}
+
 //-----------------------------------------------------------------------------
 UnitId World::spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& pos, const Quaternion& rot)
 {
@@ -217,6 +226,14 @@ SoundInstanceId World::play_sound(const char* name, const bool loop, const float
 	return play_sound(id, loop, volume, pos, range);
 }
 
+SoundInstanceId World::play_sound(StringId64 name, const bool loop, const float volume, const Vector3& pos, const float range)
+{
+	ResourceId id;
+	id.type = SOUND_TYPE;
+	id.name = name;
+	return play_sound(id, loop, volume, pos, range);
+}
+
 //-----------------------------------------------------------------------------
 SoundInstanceId World::play_sound(ResourceId id, const bool loop, const float volume, const Vector3& pos, const float range)
 {
@@ -298,17 +315,26 @@ void World::destroy_debug_line(DebugLine* line)
 //-----------------------------------------------------------------------------
 void World::load_level(const char* name)
 {
-	const LevelResource* res = (LevelResource*) device()->resource_manager()->get(LEVEL_EXTENSION, name);
+	const LevelResource* lr = (LevelResource*) device()->resource_manager()->get(LEVEL_EXTENSION, name);
+	load_level(lr);
+}
 
-	for (uint32_t i = 0; i < res->num_units(); i++)
+//-----------------------------------------------------------------------------
+void World::load_level(const LevelResource* lr)
+{
+	using namespace level_resource;
+
+	uint32_t num = level_resource::num_units(lr);
+	for (uint32_t i = 0; i < num; i++)
 	{
-		const LevelUnit* lu = res->get_unit(i);
+		const LevelUnit* lu = level_resource::get_unit(lr, i);
 		spawn_unit(lu->name, lu->position, lu->rotation);
 	}
 
-	for (uint32_t i = 0; i < res->num_sounds(); i++)
+	num = level_resource::num_sounds(lr);
+	for (uint32_t i = 0; i < num; i++)
 	{
-		const LevelSound* ls = res->get_sound(i);
+		const LevelSound* ls = level_resource::get_sound(lr, i);
 		play_sound(ls->name, ls->loop, ls->volume, ls->position, ls->range);
 	}
 

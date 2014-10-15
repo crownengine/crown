@@ -38,7 +38,7 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-struct PhysicsHeader
+struct PhysicsResource
 {
 	uint32_t version;
 	uint32_t num_controllers;		// 0 or 1, ATM
@@ -84,7 +84,9 @@ struct PhysicsShapeType
 		CAPSULE,
 		BOX,
 		PLANE,
-		CONVEX_MESH
+		CONVEX_MESH,
+
+		COUNT
 	};
 };
 
@@ -114,7 +116,9 @@ struct PhysicsJointType
 		REVOLUTE,
 		PRISMATIC,
 		DISTANCE,
-		D6
+		D6,
+
+		COUNT
 	};
 };
 
@@ -129,6 +133,7 @@ struct PhysicsJoint
 	Vector3 anchor_1;
 
 	bool breakable;
+	char _pad[3];
 	float break_force;
 	float break_torque;
 
@@ -152,108 +157,29 @@ struct PhysicsJoint
 	float distance;
 };
 
-//-----------------------------------------------------------------------------
-struct PhysicsResource
-{
-	//-----------------------------------------------------------------------------
-	bool has_controller() const
-	{
-		return ((PhysicsHeader*) this)->num_controllers == 1;
-	}
-
-	//-----------------------------------------------------------------------------
-	PhysicsController controller() const
-	{
-		CE_ASSERT(has_controller(), "Controller does not exist");
-		const PhysicsHeader* ph = (PhysicsHeader*) this;
-		PhysicsController* controller = (PhysicsController*) (((char*) this) + ph->controller_offset);
-		return *controller;
-	}
-
-	//-----------------------------------------------------------------------------
-	uint32_t num_actors() const
-	{
-		return ((PhysicsHeader*) this)->num_actors;
-	}
-
-	//-----------------------------------------------------------------------------
-	PhysicsActor actor(uint32_t i) const
-	{
-		CE_ASSERT(i < num_actors(), "Index out of bounds");
-		const PhysicsHeader* ph = (PhysicsHeader*) this;
-		PhysicsActor* actor = (PhysicsActor*) (((char*) this) + ph->actors_offset);
-		return actor[i];
-	}
-
-	//-----------------------------------------------------------------------------
-	uint32_t num_shapes_indices() const
-	{
-		return ((PhysicsHeader*) this)->num_shapes_indices;
-	}
-
-	//-----------------------------------------------------------------------------
-	uint32_t shape_index(uint32_t i) const
-	{
-		CE_ASSERT(i < num_shapes_indices(), "Index out of bounds");
-
-		const PhysicsHeader* ph = (PhysicsHeader*) this;
-		uint32_t* index = (uint32_t*) (((char*) this) + ph->shapes_indices_offset);
-		return index[i];
-	}
-
-	//-----------------------------------------------------------------------------
-	uint32_t num_shapes() const
-	{
-		return ((PhysicsHeader*) this)->num_shapes;
-	}
-
-	//-----------------------------------------------------------------------------
-	PhysicsShape shape(uint32_t i) const
-	{
-		CE_ASSERT(i < num_shapes(), "Index out of bounds");
-
-		const PhysicsHeader* ph = (PhysicsHeader*) this;
-		PhysicsShape* shape = (PhysicsShape*) (((char*) this) + ph->shapes_offset);
-		return shape[i];
-	}
-
-	//-----------------------------------------------------------------------------
-	uint32_t num_joints() const
-	{
-		return ((PhysicsHeader*) this)->num_joints;
-	}
-
-	//-----------------------------------------------------------------------------
-	PhysicsJoint joint(uint32_t i) const
-	{
-		CE_ASSERT(i < num_joints(), "Index out of bounds");
-
-		const PhysicsHeader* ph = (PhysicsHeader*) this;
-		PhysicsJoint* joint = (PhysicsJoint*) (((char*) this) + ph->joints_offset);
-		return joint[i];
-	}
-
-private:
-
-	// Disable construction
-	PhysicsResource();
-};
-
 namespace physics_resource
 {
-	void compile(Filesystem& fs, const char* resource_path, File* out_file);
-	inline void compile(const char* path, CompileOptions& opts)
-	{
-		compile(opts._fs, path, &opts._bw.m_file);
-	}
+	void compile(const char* path, CompileOptions& opts);
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void unload(Allocator& allocator, void* resource);
+
+	bool has_controller(const PhysicsResource* pr);
+	const PhysicsController* controller(const PhysicsResource* pr);
+	uint32_t num_actors(const PhysicsResource* pr);
+	const PhysicsActor* actor(const PhysicsResource* pr, uint32_t i);
+	uint32_t num_shapes_indices(const PhysicsResource* pr);
+	uint32_t shape_index(const PhysicsResource* pr, uint32_t i);
+	uint32_t num_shapes(const PhysicsResource* pr);
+	const PhysicsShape* shape(const PhysicsResource* pr, uint32_t i);
+	uint32_t num_joints(const PhysicsResource* pr);
+	const PhysicsJoint* joint(const PhysicsResource* pr, uint32_t i);
 } // namespace physics_resource
 
-struct PhysicsConfigHeader
+struct PhysicsConfigResource
 {
+	uint32_t version;
 	uint32_t num_materials;
 	uint32_t materials_offset;
 	uint32_t num_shapes;
@@ -283,6 +209,7 @@ struct PhysicsShape2
 {
 	StringId32 collision_filter;
 	bool trigger;
+	char _pad[3];
 };
 
 struct PhysicsActor2
@@ -296,128 +223,28 @@ struct PhysicsActor2
 
 	float linear_damping;
 	float angular_damping;
-	uint8_t flags;
-};
-
-//-----------------------------------------------------------------------------
-struct PhysicsConfigResource
-{
-	//-----------------------------------------------------------------------------
-	uint32_t num_materials() const
-	{
-		return ((PhysicsConfigHeader*) this)->num_materials;
-	}
-
-	/// Returns the material with the given @a name
-	PhysicsMaterial material(StringId32 name) const
-	{
-		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
-		StringId32* begin = (StringId32*) (((char*) this) + h->materials_offset);
-		StringId32* end = begin + num_materials();
-		StringId32* id = std::find(begin, end, name);
-		CE_ASSERT(id != end, "Material not found");
-		return material_by_index(id - begin);
-	}
-
-	PhysicsMaterial material_by_index(uint32_t i) const
-	{
-		CE_ASSERT(i < num_materials(), "Index out of bounds");
-		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
-		const PhysicsMaterial* base = (PhysicsMaterial*) (((char*) this) + h->materials_offset + sizeof(StringId32) * num_materials());
-		return base[i];
-	}
-
-	//-----------------------------------------------------------------------------
-	uint32_t num_shapes() const
-	{
-		return ((PhysicsConfigHeader*) this)->num_shapes;
-	}
-
-	//-----------------------------------------------------------------------------
-	PhysicsShape2 shape(StringId32 name) const
-	{
-		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
-		StringId32* begin = (StringId32*) (((char*) this) + h->shapes_offset);
-		StringId32* end = begin + num_shapes();
-		StringId32* id = std::find(begin, end, name);
-		CE_ASSERT(id != end, "Shape not found");
-		return shape_by_index(id - begin);
-	}
-
-	//-----------------------------------------------------------------------------
-	PhysicsShape2 shape_by_index(uint32_t i) const
-	{
-		CE_ASSERT(i < num_shapes(), "Index out of bounds");
-		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
-		const PhysicsShape2* base = (PhysicsShape2*) (((char*) this) + h->shapes_offset + sizeof(StringId32) * num_shapes());
-		return base[i];
-	}
-
-	//-----------------------------------------------------------------------------
-	uint32_t num_actors() const
-	{
-		return ((PhysicsConfigHeader*) this)->num_actors;
-	}
-
-	/// Returns the actor with the given @a name
-	PhysicsActor2 actor(StringId32 name) const
-	{
-		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
-		StringId32* begin = (StringId32*) (((char*) this) + h->actors_offset);
-		StringId32* end = begin + num_actors();
-		StringId32* id = std::find(begin, end, name);
-		CE_ASSERT(id != end, "Actor not found");
-		return actor_by_index(id - begin);
-	}
-
-	//-----------------------------------------------------------------------------
-	PhysicsActor2 actor_by_index(uint32_t i) const
-	{
-		CE_ASSERT(i < num_actors(), "Index out of bounds");
-		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
-		const PhysicsActor2* base = (PhysicsActor2*) (((char*) this) + h->actors_offset + sizeof(StringId32) * num_actors());
-		return base[i];
-	}
-
-	uint32_t num_filters() const
-	{
-		return ((PhysicsConfigHeader*) this)->num_filters;
-	}
-
-	PhysicsCollisionFilter filter(StringId32 name) const
-	{
-		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
-		StringId32* begin = (StringId32*) (((char*) this) + h->filters_offset);
-		StringId32* end = begin + num_filters();
-		StringId32* id = std::find(begin, end, name);
-		CE_ASSERT(id != end, "Filter not found");
-		return filter_by_index(id - begin);
-	}
-
-	PhysicsCollisionFilter filter_by_index(uint32_t i) const
-	{
-		CE_ASSERT(i < num_filters(), "Index out of bounds");
-		const PhysicsConfigHeader* h = (PhysicsConfigHeader*) this;
-		const PhysicsCollisionFilter* base = (PhysicsCollisionFilter*) (((char*) this) + h->filters_offset + sizeof(StringId32) * num_filters());
-		return base[i];
-	}
-
-private:
-
-	// Disable construction
-	PhysicsConfigResource();
+	uint32_t flags;
 };
 
 namespace physics_config_resource
 {
-	void compile(Filesystem& fs, const char* resource_path, File* out_file);
-	inline void compile(const char* path, CompileOptions& opts)
-	{
-		compile(opts._fs, path, &opts._bw.m_file);
-	}
+	void compile(const char* path, CompileOptions& opts);
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void unload(Allocator& allocator, void* resource);
+
+	uint32_t num_materials(const PhysicsConfigResource* pcr);
+	const PhysicsMaterial* material(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsMaterial* material_by_index(const PhysicsConfigResource* pcr, uint32_t i);
+	uint32_t num_shapes(const PhysicsConfigResource* pcr);
+	const PhysicsShape2* shape(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsShape2* shape_by_index(const PhysicsConfigResource* pcr, uint32_t i);
+	uint32_t num_actors(const PhysicsConfigResource* pcr);
+	const PhysicsActor2* actor(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsActor2* actor_by_index(const PhysicsConfigResource* pcr, uint32_t i);
+	uint32_t num_filters(const PhysicsConfigResource* pcr);
+	const PhysicsCollisionFilter* filter(const PhysicsConfigResource* pcr, StringId32 name);
+	const PhysicsCollisionFilter* filter_by_index(const PhysicsConfigResource* pcr, uint32_t i);
 } // namespace physics_resource
 } // namespace crown

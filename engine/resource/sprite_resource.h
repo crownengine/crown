@@ -43,13 +43,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-const uint32_t SPRITE_VERSION = 1;
-
-struct SpriteHeader
-{
-	uint32_t version;
-};
-
 // header
 // num_verts
 // verts[num_verts]
@@ -58,6 +51,7 @@ struct SpriteHeader
 
 struct SpriteResource
 {
+	uint32_t version;
 	const bgfx::Memory* vbmem;
 	const bgfx::Memory* ibmem;
 	bgfx::VertexBufferHandle vb;
@@ -67,11 +61,7 @@ struct SpriteResource
 //-----------------------------------------------------------------------------
 namespace sprite_resource
 {
-	void compile(Filesystem& fs, const char* resource_path, File* out_file);
-	inline void compile(const char* path, CompileOptions& opts)
-	{
-		compile(opts._fs, path, &opts._bw.m_file);
-	}
+	void compile(const char* path, CompileOptions& opts);
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	void online(StringId64 id, ResourceManager& rm);
 	void offline(StringId64 id, ResourceManager& rm);
@@ -100,11 +90,7 @@ struct SpriteAnimationData
 
 namespace sprite_animation_resource
 {
-	void compile(Filesystem& fs, const char* resource_path, File* out_file);
-	inline void compile(const char* path, CompileOptions& opts)
-	{
-		compile(opts._fs, path, &opts._bw.m_file);
-	}
+	void compile(const char* path, CompileOptions& opts);
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	void online(StringId64 id, ResourceManager& rm);
 	void offline(StringId64 id, ResourceManager& rm);

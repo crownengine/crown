@@ -105,11 +105,7 @@ private:
 
 namespace mesh_resource
 {
-	void compile(Filesystem& fs, const char* resource_path, File* out_file);
-	inline void compile(const char* path, CompileOptions& opts)
-	{
-		compile(opts._fs, path, &opts._bw.m_file);
-	}
+	void compile(const char* path, CompileOptions& opts);
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);

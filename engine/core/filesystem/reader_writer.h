@@ -128,7 +128,7 @@ public:
 		m_file.skip(bytes);
 	}
 
-//private:
+private:
 
 	File& m_file;
 };

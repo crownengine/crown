@@ -24,58 +24,9 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include "allocator.h"
-#include "assert.h"
-#include "bundle.h"
-#include "file.h"
-#include "resource.h"
-#include "types.h"
-#include "vector3.h"
-#include "quaternion.h"
-
 namespace crown
 {
-
-struct LevelResource
-{
-	uint32_t version;
-	uint32_t num_units;
-	uint32_t units_offset;
-	uint32_t num_sounds;
-	uint32_t sounds_offset;
-};
-
-struct LevelUnit
-{
-	StringId64 name;
-	Vector3 position;
-	Quaternion rotation;
-	uint32_t _pad;
-};
-
-struct LevelSound
-{
-	StringId64 name;
-	Vector3 position;
-	float volume;
-	float range;
-	bool loop;
-	char _pad[3];
-};
-
-namespace level_resource
-{
-	void compile(const char* path, CompileOptions& opts);
-	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
-	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
-	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
-	void unload(Allocator& allocator, void* resource);
-
-	uint32_t num_units(const LevelResource* lr);
-	const LevelUnit* get_unit(const LevelResource* lr, uint32_t i);
-	uint32_t num_sounds(const LevelResource* lr);
-	const LevelSound* get_sound(const LevelResource* lr, uint32_t i);
-} // namespace level_resource
+	struct LevelResource;
+	struct UnitResource;
+	struct SoundResource;
 } // namespace crown

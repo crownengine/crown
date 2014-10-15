@@ -143,32 +143,38 @@ bool JSONElement::has_key(const char* k) const
 }
 
 //--------------------------------------------------------------------------
-bool JSONElement::to_bool() const
+bool JSONElement::to_bool(bool def) const
 {
-	return json::parse_bool(m_at);
+	return is_nil() ? def : json::parse_bool(m_at);
 }
 
 //--------------------------------------------------------------------------
-int32_t JSONElement::to_int() const
+int32_t JSONElement::to_int(int32_t def) const
 {
-	return json::parse_int(m_at);
+	return is_nil() ? def : json::parse_int(m_at);
 }
 
 //--------------------------------------------------------------------------
-float JSONElement::to_float() const
+float JSONElement::to_float(float def) const
 {
-	return json::parse_float(m_at);
+	return is_nil() ? def : json::parse_float(m_at);
 }
 
 //--------------------------------------------------------------------------
-void JSONElement::to_string(DynamicString& str) const
+void JSONElement::to_string(DynamicString& str, const char* def) const
 {
-	json::parse_string(m_at, str);
+	if (is_nil())
+		str = def;
+	else
+		json::parse_string(m_at, str);
 }
 
 //--------------------------------------------------------------------------
-Vector2 JSONElement::to_vector2() const
+Vector2 JSONElement::to_vector2(const Vector2& def) const
 {
+	if (is_nil())
+		return def;
+
 	TempAllocator64 alloc;
 	Array<const char*> array(alloc);
 	json::parse_array(m_at, array);
@@ -178,8 +184,11 @@ Vector2 JSONElement::to_vector2() const
 }
 
 //--------------------------------------------------------------------------
-Vector3 JSONElement::to_vector3() const
+Vector3 JSONElement::to_vector3(const Vector3& def) const
 {
+	if (is_nil())
+		return def;
+
 	TempAllocator64 alloc;
 	Array<const char*> array(alloc);
 	json::parse_array(m_at, array);
@@ -190,8 +199,11 @@ Vector3 JSONElement::to_vector3() const
 }
 
 //--------------------------------------------------------------------------
-Vector4 JSONElement::to_vector4() const
+Vector4 JSONElement::to_vector4(const Vector4& def) const
 {
+	if (is_nil())
+		return def;
+
 	TempAllocator64 alloc;
 	Array<const char*> array(alloc);
 	json::parse_array(m_at, array);
@@ -203,8 +215,11 @@ Vector4 JSONElement::to_vector4() const
 }
 
 //--------------------------------------------------------------------------
-Quaternion JSONElement::to_quaternion() const
+Quaternion JSONElement::to_quaternion(const Quaternion& def) const
 {
+	if (is_nil())
+		return def;
+
 	TempAllocator64 alloc;
 	Array<const char*> array(alloc);
 	json::parse_array(m_at, array);
@@ -216,8 +231,11 @@ Quaternion JSONElement::to_quaternion() const
 }
 
 //--------------------------------------------------------------------------
-Matrix4x4 JSONElement::to_matrix4x4() const
+Matrix4x4 JSONElement::to_matrix4x4(const Matrix4x4& def) const
 {
+	if (is_nil())
+		return def;
+
 	TempAllocator128 alloc;
 	Array<float> array(alloc);
 	to_array(array);
@@ -226,8 +244,11 @@ Matrix4x4 JSONElement::to_matrix4x4() const
 }
 
 //--------------------------------------------------------------------------
-StringId32 JSONElement::to_string_id() const
+StringId32 JSONElement::to_string_id(const StringId32 def) const
 {
+	if (is_nil())
+		return def;
+
 	TempAllocator1024 alloc;
 	DynamicString str(alloc);
 	json::parse_string(m_at, str);

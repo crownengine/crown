@@ -45,13 +45,28 @@ namespace crown
 {
 namespace unit_resource
 {
+	struct Projection
+	{
+		const char* name;
+		ProjectionType::Enum type;
+	};
+
+	static const Projection s_projection[]
+	{
+		{ "perspective",  ProjectionType::PERSPECTIVE  },
+		{ "orthographic", ProjectionType::ORTHOGRAPHIC }
+	};
+
 	static ProjectionType::Enum projection_name_to_enum(const char* name)
 	{
-		if (string::strcmp(name, "perspective") == 0) return ProjectionType::PERSPECTIVE;
-		else if (string::strcmp(name, "orthographic") == 0) return ProjectionType::ORTHOGRAPHIC;
+		for (uint32_t i = 0; i < ProjectionType::COUNT; i++)
+		{
+			if (string::strcmp(name, s_projection[i].name) == 0)
+				return s_projection[i].type;
+		}
 
-		CE_FATAL("Unknown projection type");
-		return (ProjectionType::Enum) 0;
+		CE_FATAL("Bad projection type");
+		return (ProjectionType::Enum)0;
 	}
 
 	const StringId32 NO_PARENT = 0xFFFFFFFF;
@@ -177,9 +192,6 @@ namespace unit_resource
 			JSONElement camera = e.key(camera_name);
 			JSONElement node = camera.key("node");
 			JSONElement type = camera.key("type");
-			JSONElement fov = camera.key_or_nil("fov");
-			JSONElement near = camera.key_or_nil("near_clip_distance");
-			JSONElement far = camera.key_or_nil("far_clip_distance");
 
 			DynamicString node_name;
 			node.to_string(node_name);
@@ -192,9 +204,9 @@ namespace unit_resource
 			cn.name = string::murmur2_32(camera_name, string::strlen(camera_name));
 			cn.node = find_node_index(node_name_hash, node_depths);
 			cn.type = projection_name_to_enum(camera_type.c_str());
-			cn.fov = fov.is_nil() ? 16.0f / 9.0f : fov.to_float();
-			cn.near = near.is_nil() ? 0.01f : near.to_float();
-			cn.far = far.is_nil() ? 1000 : far.to_float();
+			cn.fov =  camera.key_or_nil("fov").to_float(16.0f / 9.0f);
+			cn.near = camera.key_or_nil("near_clip_distance").to_float(0.01f);
+			cn.far =  camera.key_or_nil("far_clip_distance").to_float(1000.0f);
 
 			array::push_back(cameras, cn);
 		}
@@ -316,12 +328,12 @@ namespace unit_resource
 	}
 
 	//-----------------------------------------------------------------------------
-	void compile(Filesystem& fs, const char* resource_path, File* out_file)
+	void compile(const char* path, CompileOptions& opts)
 	{
-		File* file = fs.open(resource_path, FOM_READ);
-		JSONParser json(*file);
-		fs.close(file);
+		static const uint32_t VERSION = 1;
 
+		Buffer buf = opts.read(path);
+		JSONParser json(array::begin(buf));
 		JSONElement root = json.root();
 
 		ResourceId				m_physics_resource;
@@ -349,11 +361,11 @@ namespace unit_resource
 		if (root.has_key("materials")) parse_materials(root.key("materials"), m_materials);
 
 		// Check if the unit has a .physics resource
-		DynamicString unit_name(resource_path);
+		DynamicString unit_name(path);
 		unit_name.strip_trailing(".unit");
 		DynamicString physics_name = unit_name;
 		physics_name += ".physics";
-		if (fs.exists(physics_name.c_str()))
+		if (opts._fs.exists(physics_name.c_str()))
 		{
 			m_physics_resource = ResourceId("physics", unit_name.c_str());
 		}
@@ -368,41 +380,79 @@ namespace unit_resource
 		if (root.has_key("sprite_animation"))
 			sprite_anim = root.key("sprite_animation").to_resource_id("sprite_animation");
 
-		UnitHeader h;
-		h.physics_resource = m_physics_resource;
-		h.sprite_animation = sprite_anim.name;
-		h.num_renderables = array::size(m_renderables);
-		h.num_materials = array::size(m_materials);
-		h.num_cameras = array::size(m_cameras);
-		h.num_scene_graph_nodes = array::size(m_nodes);
-		h.num_keys = array::size(m_keys);
-		h.values_size = array::size(m_values);
+		UnitResource ur;
+		ur.version = VERSION;
+		ur.physics_resource = m_physics_resource;
+		ur.sprite_animation = sprite_anim.name;
+		ur.num_renderables = array::size(m_renderables);
+		ur.num_materials = array::size(m_materials);
+		ur.num_cameras = array::size(m_cameras);
+		ur.num_scene_graph_nodes = array::size(m_nodes);
+		ur.num_keys = array::size(m_keys);
+		ur.values_size = array::size(m_values);
 
-		uint32_t offt = sizeof(UnitHeader);
-		h.renderables_offset         = offt; offt += sizeof(UnitRenderable) * h.num_renderables;
-		h.materials_offset           = offt; offt += sizeof(UnitMaterial) * h.num_materials;
-		h.cameras_offset             = offt; offt += sizeof(UnitCamera) * h.num_cameras;
-		h.scene_graph_nodes_offset   = offt; offt += sizeof(UnitNode) * h.num_scene_graph_nodes;
-		h.keys_offset                = offt; offt += sizeof(Key) * h.num_keys;
-		h.values_offset              = offt;
+		uint32_t offt = sizeof(UnitResource);
+		ur.renderables_offset         = offt; offt += sizeof(UnitRenderable) * ur.num_renderables;
+		ur.materials_offset           = offt; offt += sizeof(UnitMaterial) * ur.num_materials;
+		ur.cameras_offset             = offt; offt += sizeof(UnitCamera) * ur.num_cameras;
+		ur.scene_graph_nodes_offset   = offt; offt += sizeof(UnitNode) * ur.num_scene_graph_nodes;
+		ur.keys_offset                = offt; offt += sizeof(Key) * ur.num_keys;
+		ur.values_offset              = offt;
 
-		// Write header
-		out_file->write((char*) &h, sizeof(UnitHeader));
+		opts.write(ur.version);
+		opts.write(ur._pad);
+		opts.write(ur.physics_resource);
+		opts.write(ur.sprite_animation);
+		opts.write(ur.num_renderables);
+		opts.write(ur.renderables_offset);
+		opts.write(ur.num_materials);
+		opts.write(ur.materials_offset);
+		opts.write(ur.num_cameras);
+		opts.write(ur.cameras_offset);
+		opts.write(ur.num_scene_graph_nodes);
+		opts.write(ur.scene_graph_nodes_offset);
+		opts.write(ur.num_keys);
+		opts.write(ur.keys_offset);
+		opts.write(ur.values_size);
+		opts.write(ur.values_offset);
 
-		// Write renderables
-		if (array::size(m_renderables))
-			out_file->write((char*) array::begin(m_renderables), sizeof(UnitRenderable) * h.num_renderables);
+		// Renderables
+		for (uint32_t i = 0; i < array::size(m_renderables); i++)
+		{
+			opts.write(m_renderables[i].type);
+			opts.write(m_renderables[i]._pad);
+			opts.write(m_renderables[i].resource);
+			opts.write(m_renderables[i].name);
+			opts.write(m_renderables[i].node);
+			opts.write(m_renderables[i].visible);
+			opts.write(m_renderables[i]._pad1[0]);
+			opts.write(m_renderables[i]._pad1[1]);
+			opts.write(m_renderables[i]._pad1[2]);
+			opts.write(m_renderables[i]._pad2[0]);
+			opts.write(m_renderables[i]._pad2[1]);
+			opts.write(m_renderables[i]._pad2[2]);
+			opts.write(m_renderables[i]._pad2[3]);
+		}
 
-		// Write materials
-		if (array::size(m_materials))
-			out_file->write((char*) array::begin(m_materials), sizeof(UnitMaterial) * h.num_materials);
+		// Materials
+		for (uint32_t i = 0; i < array::size(m_materials); i++)
+		{
+			opts.write(m_materials[i]);
+		}
 
-		// Write cameras
-		if (array::size(m_cameras))
-			out_file->write((char*) array::begin(m_cameras), sizeof(UnitCamera) * h.num_cameras);
+		// Cameras
+		for (uint32_t i = 0; i < array::size(m_cameras); i++)
+		{
+			opts.write(m_cameras[i].name);
+			opts.write(m_cameras[i].node);
+			opts.write(m_cameras[i].type);
+			opts.write(m_cameras[i].fov);
+			opts.write(m_cameras[i].near);
+			opts.write(m_cameras[i].far);
+		}
 
 		// Write node poses
-		for (uint32_t i = 0; i < h.num_scene_graph_nodes; i++)
+		for (uint32_t i = 0; i < ur.num_scene_graph_nodes; i++)
 		{
 			uint32_t node_index = m_node_depths[i].index;
 			GraphNode& node = m_nodes[node_index];
@@ -410,14 +460,23 @@ namespace unit_resource
 			un.name = node.name;
 			un.parent = find_node_parent_index(i, m_nodes, m_node_depths);
 			un.pose = Matrix4x4(node.rotation, node.position);
-			out_file->write((char*) &un, sizeof(UnitNode));
+
+			opts.write(un.name);
+			opts.write(un.pose);
+			opts.write(un.parent);
 		}
 
-		// Write key/values
-		if (array::size(m_keys))
+		// Key/values
+		for (uint32_t i = 0; i < array::size(m_keys); i++)
 		{
-			out_file->write((char*) array::begin(m_keys), sizeof(Key) * h.num_keys);
-			out_file->write((char*) array::begin(m_values), array::size(m_values));
+			opts.write(m_keys[i].name);
+			opts.write(m_keys[i].type);
+			opts.write(m_keys[i].offset);
+		}
+
+		for (uint32_t i = 0; i < array::size(m_values); i++)
+		{
+			opts.write(m_values[i]);
 		}
 	}
 
@@ -450,5 +509,128 @@ namespace unit_resource
 		allocator.deallocate(resource);
 	}
 
+	ResourceId sprite_animation(const UnitResource* ur)
+	{
+		ResourceId id;
+		id.type = SPRITE_ANIMATION_TYPE;
+		id.name = ur->sprite_animation;
+		return id;
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId physics_resource(const UnitResource* ur)
+	{
+		return ur->physics_resource;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_renderables(const UnitResource* ur)
+	{
+		return ur->num_renderables;
+	}
+
+	//-----------------------------------------------------------------------------
+	const UnitRenderable* get_renderable(const UnitResource* ur, uint32_t i)
+	{
+		CE_ASSERT(i < num_renderables(ur), "Index out of bounds");
+
+		UnitRenderable* begin = (UnitRenderable*) ((char*)ur + ur->renderables_offset);
+		return &begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_materials(const UnitResource* ur)
+	{
+		return ur->num_materials;
+	}
+
+	//-----------------------------------------------------------------------------
+	const UnitMaterial* get_material(const UnitResource* ur, uint32_t i)
+	{
+		CE_ASSERT(i < num_materials(ur), "Index out of bounds");
+
+		UnitMaterial* begin = (UnitMaterial*) ((char*)ur + ur->materials_offset);
+		return &begin[i];
+	}	
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_cameras(const UnitResource* ur)
+	{
+		return ur->num_cameras;
+	}
+
+	//-----------------------------------------------------------------------------
+	const UnitCamera* get_camera(const UnitResource* ur, uint32_t i)
+	{
+		CE_ASSERT(i < num_cameras(ur), "Index out of bounds");
+
+		UnitCamera* begin = (UnitCamera*) ((char*)ur + ur->cameras_offset);
+		return &begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_scene_graph_nodes(const UnitResource* ur)
+	{
+		return ur->num_scene_graph_nodes;
+	}
+
+	//-----------------------------------------------------------------------------
+	const UnitNode* scene_graph_nodes(const UnitResource* ur)
+	{
+		return (UnitNode*) ((char*)ur + ur->scene_graph_nodes_offset);
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_keys(const UnitResource* ur)
+	{
+		return ur->num_keys;
+	}
+
+	//-----------------------------------------------------------------------------
+	bool has_key(const UnitResource* ur, const char* k)
+	{
+		const uint32_t nk = num_keys(ur);
+		Key* begin = (Key*) ((char*)ur + ur->keys_offset);
+
+		for (uint32_t i = 0; i < nk; i++)
+		{
+			if (begin[i].name == string::murmur2_32(k, string::strlen(k)))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	//-----------------------------------------------------------------------------
+	bool get_key(const UnitResource* ur, const char* k, Key& out_k)
+	{
+		const uint32_t nk = num_keys(ur);
+		Key* begin = (Key*) ((char*)ur + ur->keys_offset);
+
+		for (uint32_t i = 0; i < nk; i++)
+		{
+			if (begin[i].name == string::murmur2_32(k, string::strlen(k)))
+			{
+				out_k = begin[i];
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t values_size(const UnitResource* ur)
+	{
+		return ur->values_size;
+	}
+
+	//-----------------------------------------------------------------------------
+	const char* values(const UnitResource* ur)
+	{
+		return ((char*)ur + ur->values_offset);
+	}
 } // namespace unit_resource
 } // namespace crown

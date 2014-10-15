@@ -60,21 +60,18 @@ namespace sprite_resource
 		frame.scale  = e.key("scale" ).to_vector2();
 	}
 
-	void compile(Filesystem& fs, const char* resource_path, File* out_file)
+	void compile(const char* path, CompileOptions& opts)
 	{
-		File* file = fs.open(resource_path, FOM_READ);
-		JSONParser json(*file);
-		fs.close(file);
+		static const uint32_t VERSION = 1;
 
+		Buffer buf = opts.read(path);
+		JSONParser json(array::begin(buf));
 		JSONElement root = json.root();
 
 		// Read width/height
 		const float width  = root.key("width" ).to_float();
 		const float height = root.key("height").to_float();
 		const uint32_t num_frames = root.key("frames").size();
-
-
-		BinaryWriter bw(*out_file);
 
 		Array<float> vertices(default_allocator());
 		Array<uint16_t> indices(default_allocator());
@@ -124,13 +121,19 @@ namespace sprite_resource
 		const uint32_t num_indices = array::size(indices);
 
 		// Write header
-		bw.write(SPRITE_VERSION);
-		bw.write(num_vertices);
-		if (array::size(vertices))
-			bw.write(array::begin(vertices), sizeof(float) * array::size(vertices));
-		bw.write(num_indices);
-		if (array::size(indices))
-			bw.write(array::begin(indices), sizeof(uint16_t) * array::size(indices));
+		opts.write(VERSION);
+
+		opts.write(num_vertices);
+		for (uint32_t i = 0; i < array::size(vertices); i++)
+		{
+			opts.write(vertices[i]);
+		}
+
+		opts.write(num_indices);
+		for (uint32_t i = 0; i < array::size(indices); i++)
+		{
+			opts.write(indices[i]);
+		}
 	}
 
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
@@ -223,33 +226,49 @@ namespace sprite_animation_resource
 		}
 	}
 
-	void compile(Filesystem& fs, const char* resource_path, File* out_file)
+	void compile(const char* path, CompileOptions& opts)
 	{
-		File* file = fs.open(resource_path, FOM_READ);
-		JSONParser json(*file);
-		fs.close(file);
+		static const uint32_t VERSION = 1;
+
+		Buffer buf = opts.read(path);
+		JSONParser json(array::begin(buf));
+		JSONElement root = json.root();
 
 		Array<SpriteAnimationName> anim_names(default_allocator());
 		Array<SpriteAnimationData> anim_data(default_allocator());
 		Array<uint32_t> anim_frames(default_allocator());
 
-		parse_animations(json.root(), anim_names, anim_data, anim_frames);
+		parse_animations(root, anim_names, anim_data, anim_frames);
 
-		BinaryWriter bw(*out_file);
-		bw.write(uint32_t(1)); // version
-		bw.write(uint32_t(array::size(anim_names)));
-		bw.write(uint32_t(array::size(anim_frames)));
-		bw.write(uint32_t(
-			sizeof(SpriteAnimationResource) +
-			sizeof(SpriteAnimationName) * array::size(anim_names) +
-			sizeof(SpriteAnimationData) * array::size(anim_data)));
+		SpriteAnimationResource sar;
+		sar.version = VERSION;
+		sar.num_animations = array::size(anim_names);
+		sar.num_frames = array::size(anim_frames);
+		sar.frames_offset = uint32_t(sizeof(SpriteAnimationResource) +
+					sizeof(SpriteAnimationName) * array::size(anim_names) +
+					sizeof(SpriteAnimationData) * array::size(anim_data));
 
-		if (array::size(anim_names))
-			bw.write(array::begin(anim_names), sizeof(SpriteAnimationName) * array::size(anim_names));
-		if (array::size(anim_data))
-			bw.write(array::begin(anim_data), sizeof(SpriteAnimationData) * array::size(anim_data));
-		if (array::size(anim_frames))
-			bw.write(array::begin(anim_frames), sizeof(uint32_t) * array::size(anim_frames));
+		opts.write(sar.version);
+		opts.write(sar.num_animations);
+		opts.write(sar.num_frames);
+		opts.write(sar.frames_offset);
+
+		for (uint32_t i = 0; i < array::size(anim_names); i++)
+		{
+			opts.write(anim_names[i].id);
+		}
+
+		for (uint32_t i = 0; i < array::size(anim_data); i++)
+		{
+			opts.write(anim_data[i].num_frames);
+			opts.write(anim_data[i].first_frame);
+			opts.write(anim_data[i].time);
+		}
+
+		for (uint32_t i = 0; i < array::size(anim_frames); i++)
+		{
+			opts.write(anim_frames[i]);
+		}
 	}
 
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)

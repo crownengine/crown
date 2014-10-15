@@ -36,14 +36,13 @@ namespace crown
 namespace package_resource
 {
 	//-----------------------------------------------------------------------------
-	void compile(Filesystem& fs, const char* resource_path, File* out_file)
+	void compile(const char* path, CompileOptions& opts)
 	{
-		File* file = fs.open(resource_path, FOM_READ);
-		JSONParser json(*file);
-		fs.close(file);
+		static const uint32_t VERSION = 1;
 
+		Buffer buf = opts.read(path);
+		JSONParser json(array::begin(buf));
 		JSONElement root = json.root();
-		BinaryWriter bw(*out_file);
 
 		JSONElement texture  = root.key_or_nil("texture");
 		JSONElement script   = root.key_or_nil("lua");
@@ -74,97 +73,98 @@ namespace package_resource
 		const uint32_t num_sprite_animations = sprite_animation.is_nil() ? 0 : sprite_animation.size();
 
 		// Write header
-		bw.write(num_textures);
-		uint32_t offt = sizeof(PackageHeader);
-		bw.write(offt);
+		opts.write(VERSION);
+		opts.write(num_textures);
+		uint32_t offt = sizeof(PackageResource);
+		opts.write(offt);
 
-		bw.write(num_scripts);
+		opts.write(num_scripts);
 		offt += sizeof(ResourceId) * num_textures;
-		bw.write(offt);
+		opts.write(offt);
 
-		bw.write(num_sounds);
+		opts.write(num_sounds);
 		offt += sizeof(ResourceId) * num_scripts;
-		bw.write(offt);
+		opts.write(offt);
 
-		bw.write(num_meshes);
+		opts.write(num_meshes);
 		offt += sizeof(ResourceId) * num_sounds;
-		bw.write(offt);
+		opts.write(offt);
 
-		bw.write(num_units);
+		opts.write(num_units);
 		offt += sizeof(ResourceId) * num_meshes;
-		bw.write(offt);
+		opts.write(offt);
 
-		bw.write(num_sprites);
+		opts.write(num_sprites);
 		offt += sizeof(ResourceId) * num_units;
-		bw.write(offt);
+		opts.write(offt);
 
-		bw.write(num_physics);
+		opts.write(num_physics);
 		offt += sizeof(ResourceId) * num_sprites;
-		bw.write(offt);
+		opts.write(offt);
 
-		bw.write(num_materials);
+		opts.write(num_materials);
 		offt += sizeof(ResourceId) * num_physics;
-		bw.write(offt);
+		opts.write(offt);
 
-		bw.write(num_fonts);
+		opts.write(num_fonts);
 		offt += sizeof(ResourceId) * num_materials;
-		bw.write(offt);
+		opts.write(offt);
 
-		bw.write(num_levels);
+		opts.write(num_levels);
 		offt += sizeof(ResourceId) * num_fonts;
-		bw.write(offt);
+		opts.write(offt);
 
-		bw.write(num_phyconfs);
+		opts.write(num_phyconfs);
 		offt += sizeof(ResourceId) * num_levels;
-		bw.write(offt);
+		opts.write(offt);
 
-		bw.write(num_shaders);
+		opts.write(num_shaders);
 		offt += sizeof(ResourceId) * num_phyconfs;
-		bw.write(offt);
+		opts.write(offt);
 
-		bw.write(num_sprite_animations);
+		opts.write(num_sprite_animations);
 		offt += sizeof(ResourceId) * num_shaders;
-		bw.write(offt);
+		opts.write(offt);
 
 		// Write resource ids
 		for (uint32_t i = 0; i < num_textures; i++)
-			bw.write(texture[i].to_resource_id("texture"));
+			opts.write(texture[i].to_resource_id("texture"));
 
 		for (uint32_t i = 0; i < num_scripts; i++)
-			bw.write(script[i].to_resource_id("lua"));
+			opts.write(script[i].to_resource_id("lua"));
 
 		for (uint32_t i = 0; i < num_sounds; i++)
-			bw.write(sound[i].to_resource_id("sound"));
+			opts.write(sound[i].to_resource_id("sound"));
 
 		for (uint32_t i = 0; i < num_meshes; i++)
-			bw.write(mesh[i].to_resource_id("mesh"));
+			opts.write(mesh[i].to_resource_id("mesh"));
 
 		for (uint32_t i = 0; i < num_units; i++)
-			bw.write(unit[i].to_resource_id("unit"));
+			opts.write(unit[i].to_resource_id("unit"));
 
 		for (uint32_t i = 0; i < num_sprites; i++)
-			bw.write(sprite[i].to_resource_id("sprite"));
+			opts.write(sprite[i].to_resource_id("sprite"));
 
 		for (uint32_t i = 0; i < num_physics; i++)
-			bw.write(physics[i].to_resource_id("physics"));
+			opts.write(physics[i].to_resource_id("physics"));
 
 		for (uint32_t i = 0; i < num_materials; i++)
-			bw.write(material[i].to_resource_id("material"));
+			opts.write(material[i].to_resource_id("material"));
 
 		for (uint32_t i = 0; i < num_fonts; i++)
-			bw.write(font[i].to_resource_id("font"));
+			opts.write(font[i].to_resource_id("font"));
 
 		for (uint32_t i = 0; i < num_levels; i++)
-			bw.write(level[i].to_resource_id("level"));
+			opts.write(level[i].to_resource_id("level"));
 
 		for (uint32_t i = 0; i < num_phyconfs; i++)
-			bw.write(phyconf[i].to_resource_id("physics_config"));
+			opts.write(phyconf[i].to_resource_id("physics_config"));
 
 		for (uint32_t i = 0; i < num_shaders; i++)
-			bw.write(shader[i].to_resource_id("shader"));
+			opts.write(shader[i].to_resource_id("shader"));
 
 		for (uint32_t i = 0; i < num_sprite_animations; i++)
-			bw.write(sprite_animation[i].to_resource_id("sprite_animation"));
+			opts.write(sprite_animation[i].to_resource_id("sprite_animation"));
 	}
 
 	//-----------------------------------------------------------------------------
@@ -194,6 +194,201 @@ namespace package_resource
 	void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_textures(const PackageResource* pr)
+	{
+		return pr->num_textures;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_scripts(const PackageResource* pr)
+	{
+		return pr->num_scripts;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_sounds(const PackageResource* pr)
+	{
+		return pr->num_sounds;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_meshes(const PackageResource* pr)
+	{
+		return pr->num_meshes;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_units(const PackageResource* pr)
+	{
+		return pr->num_units;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_sprites(const PackageResource* pr)
+	{
+		return pr->num_sprites;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_physics(const PackageResource* pr)
+	{
+		return pr->num_physics;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_materials(const PackageResource* pr)
+	{
+		return pr->num_materials;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_fonts(const PackageResource* pr)
+	{
+		return pr->num_fonts;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_levels(const PackageResource* pr)
+	{
+		return pr->num_levels;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_physics_configs(const PackageResource* pr)
+	{
+		return pr->num_physics_configs;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_shaders(const PackageResource* pr)
+	{
+		return pr->num_shaders;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_sprite_animations(const PackageResource* pr)
+	{
+		return pr->num_sprite_animations;
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_texture_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_textures(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->textures_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_script_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_scripts(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->scripts_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_sound_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_sounds(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->sounds_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_mesh_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_meshes(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->meshes_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_unit_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_units(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->units_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_sprite_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_sprites(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->sprites_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_physics_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_physics(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->physics_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_material_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_materials(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->materials_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_font_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_fonts(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->fonts_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_level_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_levels(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->levels_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_physics_config_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_physics_configs(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->physics_configs_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_shader_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_shaders(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->shaders_offset);
+		return begin[i];
+	}
+
+	//-----------------------------------------------------------------------------
+	ResourceId get_sprite_animation_id(const PackageResource* pr, uint32_t i)
+	{
+		CE_ASSERT(i < num_sprite_animations(pr), "Index out of bounds");
+
+		ResourceId* begin = (ResourceId*) ((char*)pr + pr->sprite_animations_offset);
+		return begin[i];
 	}
 } // namespace package_resource
 } // namespace crown

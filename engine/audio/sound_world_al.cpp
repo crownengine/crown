@@ -101,6 +101,8 @@ struct SoundInstance
 {
 	void create(SoundResource* sr, const Vector3& pos)
 	{
+		using namespace sound_resource;
+		
 		AL_CHECK(alGenSources(1, &m_source));
 		CE_ASSERT(alIsSource(m_source), "Bad OpenAL source");
 
@@ -113,13 +115,13 @@ struct SoundInstance
 		CE_ASSERT(alIsBuffer(m_buffer), "Bad OpenAL buffer");
 
 		ALenum format;
-		switch (sr->bits_ps())
+		switch (bits_ps(sr))
 		{
-			case 8: format = sr->channels() > 1 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8; break;
-			case 16: format = sr->channels() > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
+			case 8: format = channels(sr) > 1 ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8; break;
+			case 16: format = channels(sr) > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16; break;
 			default: CE_FATAL("Number of bits per sample not supported."); break;
 		}
-		AL_CHECK(alBufferData(m_buffer, format, sr->data(), sr->size(), sr->sample_rate()));
+		AL_CHECK(alBufferData(m_buffer, format, data(sr), size(sr), sample_rate(sr)));
 
 		m_resource = sr;
 		set_position(pos);

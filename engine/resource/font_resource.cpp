@@ -40,38 +40,26 @@ namespace font_resource
 	//-----------------------------------------------------------------------------
 	void parse_glyph(JSONElement e, FontGlyphData& glyph)
 	{
-		JSONElement id = e.key("id");
-		JSONElement x = e.key("x");
-		JSONElement y = e.key("y");
-		JSONElement width = e.key("width");
-		JSONElement height = e.key("height");
-		JSONElement x_offset = e.key("x_offset");
-		JSONElement y_offset = e.key("y_offset");
-		JSONElement x_advance = e.key("x_advance");
-
-		glyph.id = id.to_int();
-		glyph.x = x.to_int();
-		glyph.y = y.to_int();
-		glyph.width = width.to_int();
-		glyph.height = height.to_int();
-		glyph.x_offset = x_offset.to_float();
-		glyph.y_offset = y_offset.to_float();
-		glyph.x_advance = x_advance.to_float();
+		glyph.id =        e.key("id").to_int();
+		glyph.x =         e.key("x").to_int();
+		glyph.y =         e.key("y").to_int();
+		glyph.width =     e.key("width").to_int();
+		glyph.height =    e.key("height").to_int();
+		glyph.x_offset =  e.key("x_offset").to_float();
+		glyph.y_offset =  e.key("y_offset").to_float();
+		glyph.x_advance = e.key("x_advance").to_float();
 	}
 
 	//-----------------------------------------------------------------------------
-	void compile(Filesystem& fs, const char* resource_path, File* out_file)
+	void compile(const char* path, CompileOptions& opts)
 	{
-		File* file = fs.open(resource_path, FOM_READ);
-		JSONParser json(*file);
-		fs.close(file);
+		static const uint32_t VERSION = 1;
 
-		// Out buffer
-		FontHeader h;
-		Array<FontGlyphData> m_glyphs(default_allocator());
-
+		Buffer buf = opts.read(path);
+		JSONParser json(array::begin(buf));
 		JSONElement root = json.root();
 
+		Array<FontGlyphData> m_glyphs(default_allocator());
 		JSONElement count = root.key("count");
 		JSONElement size = root.key("size");
 		JSONElement font_size = root.key("font_size");
@@ -86,15 +74,27 @@ namespace font_resource
 			array::push_back(m_glyphs, data);
 		}
 
-		h.num_glyphs = array::size(m_glyphs);
-		h.texture_size = size.to_int();
-		h.font_size = font_size.to_int();
+		FontResource fr;
+		fr.version = VERSION;
+		fr.num_glyphs = array::size(m_glyphs);
+		fr.texture_size = size.to_int();
+		fr.font_size = font_size.to_int();
 
-		out_file->write((char*) &h, sizeof(FontHeader));
+		opts.write(fr.version);
+		opts.write(fr.num_glyphs);
+		opts.write(fr.texture_size);
+		opts.write(fr.font_size);
 
-		if (array::size(m_glyphs) > 0)
+		for (uint32_t i = 0; i < array::size(m_glyphs); i++)
 		{
-			out_file->write((char*) array::begin(m_glyphs), sizeof(FontGlyphData) * h.num_glyphs);
+			opts.write(m_glyphs[i].id);
+			opts.write(m_glyphs[i].x);
+			opts.write(m_glyphs[i].y);
+			opts.write(m_glyphs[i].width);
+			opts.write(m_glyphs[i].height);
+			opts.write(m_glyphs[i].x_offset);
+			opts.write(m_glyphs[i].y_offset);
+			opts.write(m_glyphs[i].x_advance);
 		}
 	}
 
@@ -126,6 +126,41 @@ namespace font_resource
 	void unload(Allocator& allocator, void* resource)
 	{
 		allocator.deallocate(resource);
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t num_glyphs(const FontResource* fr)
+	{
+		return fr->num_glyphs;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t texture_size(const FontResource* fr)
+	{
+		return fr->texture_size;
+	}
+
+	//-----------------------------------------------------------------------------
+	uint32_t font_size(const FontResource* fr)
+	{
+		return fr->font_size;
+	}
+
+	//-----------------------------------------------------------------------------
+	const FontGlyphData* get_glyph(const FontResource* fr, uint32_t i)
+	{
+		CE_ASSERT(i < num_glyphs(fr), "Index out of bounds");
+
+		FontGlyphData* begin = (FontGlyphData*)((char*)fr + sizeof(FontResource));
+
+		for (uint32_t i = 0; i < num_glyphs(fr); i++)
+		{
+			if (begin[i].id == i)
+				return &begin[i];
+		}
+
+		CE_FATAL("Glyph not found");
+		return NULL;
 	}
 } // namespace font_resource
 } // namespace crown

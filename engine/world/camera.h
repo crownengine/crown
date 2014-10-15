@@ -38,7 +38,9 @@ struct ProjectionType
 	enum Enum
 	{
 		ORTHOGRAPHIC,
-		PERSPECTIVE
+		PERSPECTIVE,
+
+		COUNT
 	};
 };
 

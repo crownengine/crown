@@ -35,45 +35,24 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-// Bump the version whenever a change in the header is made
-const uint32_t LUA_RESOURCE_VERSION = 1;
-
-struct LuaHeader
-{
-	uint32_t	version;	// Lua resource version
-	uint32_t	size;		// Size of lua code
-};
-
 struct LuaResource
 {
-	/// Returns the size in bytes of the lua program.
-	uint32_t size() const
-	{
-		return ((LuaHeader*) this)->size;
-	}
-
-	/// Returns the lua program.
-	const char* program() const
-	{
-		return ((char*) this) + sizeof(LuaHeader);
-	}
-
-private:
-
-	// Disable construction
-	LuaResource();
+	uint32_t version;
+	uint32_t size;    // Size of lua code
 };
 
 namespace lua_resource
 {
-	void compile(Filesystem& fs, const char* resource_path, File* out_file);
-	inline void compile(const char* path, CompileOptions& opts)
-	{
-		compile(opts._fs, path, &opts._bw.m_file);
-	}
+	void compile(const char* path, CompileOptions& opts);
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void unload(Allocator& allocator, void* resource);
+
+	/// Returns the size in bytes of the lua program.
+	uint32_t size(const LuaResource* lr);
+
+	/// Returns the lua program.
+	const char* program(const LuaResource* lr);
 } // namespace lua_resource
 } // namespace crown

@@ -56,7 +56,7 @@ SceneGraph::SceneGraph(Allocator& a, uint32_t index)
 }
 
 //-----------------------------------------------------------------------------
-void SceneGraph::create(const Matrix4x4& root, uint32_t count, UnitNode* nodes)
+void SceneGraph::create(const Matrix4x4& root, uint32_t count, const UnitNode* nodes)
 {
 	m_num_nodes = count;
 

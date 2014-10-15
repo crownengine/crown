@@ -103,20 +103,20 @@ Actor::~Actor()
 //-----------------------------------------------------------------------------
 void Actor::create_objects()
 {
-	const PhysicsActor& actor = m_resource->actor(m_index);
+	const PhysicsActor* actor = physics_resource::actor(m_resource, m_index);
 
 	PxScene* scene = m_world.physx_scene();
 	PxPhysics* physics = m_world.physx_physics();
 	const PhysicsConfigResource* config = m_world.resource();
-	const PhysicsActor2& actor_class = config->actor(actor.actor_class);
+	const PhysicsActor2* actor_class = physics_config_resource::actor(config, actor->actor_class);
 
 	// Create rigid body
 	const PxMat44 pose((PxReal*) matrix4x4::to_float_ptr(m_scene_graph.world_pose(m_node)));
 
-	if (actor_class.flags & PhysicsActor2::DYNAMIC)
+	if (actor_class->flags & PhysicsActor2::DYNAMIC)
 	{
 		m_actor = physics->createRigidDynamic(PxTransform(pose));
-		if (actor_class.flags & PhysicsActor2::KINEMATIC)
+		if (actor_class->flags & PhysicsActor2::KINEMATIC)
 		{
 			static_cast<PxRigidDynamic*>(m_actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, true);
 		}
@@ -132,31 +132,31 @@ void Actor::create_objects()
 	}
 
 	// Create shapes
-	uint32_t shape_index = m_resource->shape_index(m_index);
-	for (uint32_t i = 0; i < actor.num_shapes; i++)
+	uint32_t shape_index = physics_resource::shape_index(m_resource, m_index);
+	for (uint32_t i = 0; i < actor->num_shapes; i++)
 	{
-		const PhysicsShape& shape = m_resource->shape(shape_index);
-		const PhysicsShape2& shape_class = config->shape(shape.shape_class);
-		const PhysicsMaterial& material = config->material(shape.material);
+		const PhysicsShape* shape = physics_resource::shape(m_resource, shape_index);
+		const PhysicsShape2* shape_class = physics_config_resource::shape(config, shape->shape_class);
+		const PhysicsMaterial* material = physics_config_resource::material(config, shape->material);
 
-		PxMaterial* mat = physics->createMaterial(material.static_friction, material.dynamic_friction, material.restitution);
+		PxMaterial* mat = physics->createMaterial(material->static_friction, material->dynamic_friction, material->restitution);
 
 		PxShape* px_shape = NULL;
-		switch(shape.type)
+		switch(shape->type)
 		{
 			case PhysicsShapeType::SPHERE:
 			{
-				px_shape = m_actor->createShape(PxSphereGeometry(shape.data_0), *mat);
+				px_shape = m_actor->createShape(PxSphereGeometry(shape->data_0), *mat);
 				break;
 			}
 			case PhysicsShapeType::CAPSULE:
 			{
-				px_shape = m_actor->createShape(PxCapsuleGeometry(shape.data_0, shape.data_1), *mat);
+				px_shape = m_actor->createShape(PxCapsuleGeometry(shape->data_0, shape->data_1), *mat);
 				break;
 			}
 			case PhysicsShapeType::BOX:
 			{
-				px_shape = m_actor->createShape(PxBoxGeometry(shape.data_0, shape.data_1, shape.data_2), *mat);
+				px_shape = m_actor->createShape(PxBoxGeometry(shape->data_0, shape->data_1, shape->data_2), *mat);
 				break;
 			}
 			case PhysicsShapeType::PLANE:
@@ -166,7 +166,7 @@ void Actor::create_objects()
 			}
 			case PhysicsShapeType::CONVEX_MESH:
 			{
-				MeshResource* resource = (MeshResource*) device()->resource_manager()->get(shape.resource);
+				MeshResource* resource = (MeshResource*) device()->resource_manager()->get(shape->resource);
 
 				PxConvexMeshDesc convex_mesh_desc;
 				convex_mesh_desc.points.count		= resource->num_vertices();
@@ -195,16 +195,16 @@ void Actor::create_objects()
 
 		// Setup shape pose
 		px_shape->setLocalPose(PxTransform(
-								PxVec3(shape.position.x, shape.position.y, shape.position.z),
-								PxQuat(shape.rotation.x, shape.rotation.y, shape.rotation.z, shape.rotation.w)));
+								PxVec3(shape->position.x, shape->position.y, shape->position.z),
+								PxQuat(shape->rotation.x, shape->rotation.y, shape->rotation.z, shape->rotation.w)));
 
 		// Setup collision filters
 		PxFilterData filter_data;
-		filter_data.word0 = config->filter(shape_class.collision_filter).me;
-		filter_data.word1 = config->filter(shape_class.collision_filter).mask;
+		filter_data.word0 = physics_config_resource::filter(config, shape_class->collision_filter)->me;
+		filter_data.word1 = physics_config_resource::filter(config, shape_class->collision_filter)->mask;
 		px_shape->setSimulationFilterData(filter_data);
 
-		if (shape_class.trigger)
+		if (shape_class->trigger)
 		{
 			px_shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
 			px_shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
@@ -215,7 +215,7 @@ void Actor::create_objects()
 
 	if (is_dynamic())
 	{
-		PxRigidBodyExt::updateMassAndInertia(*static_cast<PxRigidBody*>(m_actor), actor.mass);
+		PxRigidBodyExt::updateMassAndInertia(*static_cast<PxRigidBody*>(m_actor), actor->mass);
 	}
 	m_actor->userData = this;
 	scene->addActor(*m_actor);
@@ -344,7 +344,7 @@ void Actor::set_collision_filter(const char* name)
 //-----------------------------------------------------------------------------
 void Actor::set_collision_filter(StringId32 filter)
 {
-	const PhysicsCollisionFilter& pcf = m_world.resource()->filter(filter);
+	const PhysicsCollisionFilter* pcf = physics_config_resource::filter(m_world.resource(), filter);
 
 	const PxU32 num_shapes = m_actor->getNbShapes();
 	PxU32 idx = 0;
@@ -357,8 +357,8 @@ void Actor::set_collision_filter(StringId32 filter)
 		for (PxU32 i = 0; i < written; i++)
 		{
 			PxFilterData fdata;
-			fdata.word0 = pcf.me;
-			fdata.word1 = pcf.mask;
+			fdata.word0 = pcf->me;
+			fdata.word1 = pcf->mask;
 			shapes[i]->setSimulationFilterData(fdata);
 		}
 

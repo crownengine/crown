@@ -67,6 +67,22 @@ namespace crown
 #define TEXTURE_TYPE				uint64_t(0xcd4238c6a0c69e32)
 #define UNIT_TYPE					uint64_t(0xe0a48d0be9a7453f)
 
+/*#define CONFIG_VERSION				uint32_t(1)
+#define FONT_VERSION				uint32_t(1)
+#define LEVEL_VERSION				uint32_t(1)
+#define LUA_VERSION					uint32_t(1)
+#define MATERIAL_VERSION			uint32_t(1)
+#define MESH_VERSION				uint32_t(1)
+#define PACKAGE_VERSION				uint32_t(1)
+#define PHYSICS_CONFIG_VERSION		uint32_t(1)
+#define PHYSICS_VERSION				uint32_t(1)
+#define SHADER_VERSION				uint32_t(1)
+#define SOUND_VERSION				uint32_t(1)
+#define SPRITE_ANIMATION_VERSION	uint32_t(1)
+#define SPRITE_VERSION				uint32_t(1)
+#define TEXTURE_VERSION				uint32_t(1)
+#define UNIT_VERSION				uint32_t(1)*/
+
 struct ResourceId
 {
 	ResourceId() : type(0), name(0) {}

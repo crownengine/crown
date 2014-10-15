@@ -38,8 +38,9 @@ namespace crown
 {
 
 //-----------------------------------------------------------------------------
-struct FontHeader
+struct FontResource
 {
+	uint32_t version;
 	uint32_t num_glyphs;
 	uint32_t texture_size; // Font texture size -- pow of 2
 	uint32_t font_size;
@@ -58,65 +59,17 @@ struct FontGlyphData
 	float x_advance;
 };
 
-//-----------------------------------------------------------------------------
-class FontResource
-{
-public:
-
-	//-----------------------------------------------------------------------------
-	uint32_t num_glyphs() const
-	{
-		return ((FontHeader*)this)->num_glyphs;
-	}
-
-	//-----------------------------------------------------------------------------
-	uint32_t texture_size() const
-	{
-		return ((FontHeader*)this)->texture_size;
-	}
-
-	//-----------------------------------------------------------------------------
-	uint32_t font_size() const
-	{
-		return ((FontHeader*)this)->font_size;
-	}
-
-	//-----------------------------------------------------------------------------
-	FontGlyphData get_glyph(const uint32_t index) const
-	{
-		CE_ASSERT(index < num_glyphs(), "Index out of bounds");
-
-		FontGlyphData* begin = (FontGlyphData*) (((char*) this) + sizeof(FontHeader));
-
-		for (uint32_t i = 0; i < num_glyphs(); i++)
-		{
-			if (begin[i].id == index)
-			{
-				return begin[i];
-			}
-		}
-
-		CE_FATAL("Glyph not found");
-		return FontGlyphData();
-	}
-
-private:
-
-	// Disable construction
-	FontResource();
-};
-
 namespace font_resource
 {
-	void compile(Filesystem& fs, const char* resource_path, File* out_file);
-	inline void compile(const char* path, CompileOptions& opts)
-	{
-		compile(opts._fs, path, &opts._bw.m_file);
-	}
+	void compile(const char* path, CompileOptions& opts);
 	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void unload(Allocator& allocator, void* resource);
+
+	uint32_t num_glyphs(const FontResource* fr);
+	uint32_t texture_size(const FontResource* fr);
+	uint32_t font_size(const FontResource* fr);
+	const FontGlyphData* get_glyph(const FontResource* fr, uint32_t i);
 } // namespace font_resource
 } // namespace crown
-

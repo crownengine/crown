@@ -588,18 +588,18 @@ namespace texture_resource
 	}
 
 	//-----------------------------------------------------------------------------
-	void compile(Filesystem& fs, const char* resource_path, File* out_file)
+	void compile(const char* path, CompileOptions& opts)
 	{
-		File* in_file = fs.open(resource_path, FOM_READ);
-		JSONParser json(*in_file);
-		fs.close(in_file);
+		static const uint32_t VERSION = 1;
 
-		// Read source file
+		Buffer buf = opts.read(path);
+		JSONParser json(array::begin(buf));
 		JSONElement root = json.root();
+
 		DynamicString name;
 		root.key("source").to_string(name);
 
-		File* source = fs.open(name.c_str(), FOM_READ);
+		File* source = opts._fs.open(name.c_str(), FOM_READ);
 		BinaryReader br(*source);
 		ImageData image;
 
@@ -624,13 +624,12 @@ namespace texture_resource
 			CE_FATAL("Source image not supported");
 		}
 
-		fs.close(source);
+		opts._fs.close(source);
 
-		BinaryWriter bw(*out_file);
 		// Write DDS
-		bw.write(uint32_t(1)); // Version
-		bw.write(uint32_t(0)); // Size
-		write_dds(bw, image);
+		opts.write(VERSION); // Version
+		opts.write(uint32_t(0)); // Size
+		write_dds(opts._bw, image);
 
 		default_allocator().deallocate(image.data);
 	}
@@ -645,7 +644,7 @@ namespace texture_resource
 		file->read(mem->data, file_size - sizeof(TextureHeader));
 		bundle.close(file);
 
-		TextureImage* teximg = (TextureImage*) default_allocator().allocate(sizeof(TextureImage));
+		TextureResource* teximg = (TextureResource*) default_allocator().allocate(sizeof(TextureResource));
 		teximg->mem = mem;
 		teximg->handle.idx = bgfx::invalidHandle;
 
@@ -659,7 +658,7 @@ namespace texture_resource
 		res_id.type = TEXTURE_TYPE;
 		res_id.name = id;
 
-		TextureImage* teximg = (TextureImage*) rm.get(res_id);
+		TextureResource* teximg = (TextureResource*) rm.get(res_id);
 		teximg->handle = bgfx::createTexture(teximg->mem);
 	}
 
@@ -669,7 +668,7 @@ namespace texture_resource
 		res_id.type = TEXTURE_TYPE;
 		res_id.name = id;
 
-		TextureImage* teximg = (TextureImage*) rm.get(res_id);
+		TextureResource* teximg = (TextureResource*) rm.get(res_id);
 		bgfx::destroyTexture(teximg->handle);
 	}
 	

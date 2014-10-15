@@ -29,6 +29,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "types.h"
 #include "container_types.h"
 #include "math_types.h"
+#include "matrix4x4.h"
+#include "quaternion.h"
 #include "macros.h"
 #include "resource.h"
 
@@ -108,39 +110,39 @@ public:
 	uint32_t size() const;
 
 	/// Returns the boolean value of the element.
-	bool to_bool() const;
+	bool to_bool(bool def = false) const;
 
 	/// Returns the integer value of the element.
-	int32_t to_int() const;
+	int32_t to_int(int32_t def = 0) const;
 
 	/// Returns the float value of the element.
-	float to_float() const;
+	float to_float(float def = 0) const;
 
 	/// Returns the string value of the element.
-	void to_string(DynamicString& str) const;
+	void to_string(DynamicString& str, const char* def = "") const;
 
 	/// Returns the Vector2 value of the element.
 	/// @note Vector2 = [x, y]
-	Vector2 to_vector2() const;
+	Vector2 to_vector2(const Vector2& def = Vector2(0, 0)) const;
 
 	/// Returns the Vector3 value of the element.
 	/// @note Vector3 = [x, y, z]
-	Vector3 to_vector3() const;
+	Vector3 to_vector3(const Vector3& def = Vector3(0, 0, 0)) const;
 
 	/// Returns the Vector4 value of the element.
 	/// @note Vector4 = [x, y, z, w]
-	Vector4 to_vector4() const;
+	Vector4 to_vector4(const Vector4& def = Vector4(0, 0, 0, 0)) const;
 
 	/// Returns the Quaternion value of the element.
 	/// @note Quaternion = [x, y, z, w]
-	Quaternion to_quaternion() const;
+	Quaternion to_quaternion(const Quaternion& def = quaternion::IDENTITY) const;
 
 	/// Returns the Matrix4x4 value of the element.
 	/// @note Matrix4x4 = [x, x, x, x, y, y, y, y, z, z, z, z, t, t, t, t]
-	Matrix4x4 to_matrix4x4() const;
+	Matrix4x4 to_matrix4x4(const Matrix4x4& def = matrix4x4::IDENTITY) const;
 
 	/// Returns the string id value hashed to string::murmur2_32() of the element.
-	StringId32 to_string_id() const;
+	StringId32 to_string_id(const StringId32 def = 0) const;
 
 	/// Returns the resource id value of the element.
 	/// If @a type is NULL then the string element is assumed to already contain extension.

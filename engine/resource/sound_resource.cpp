@@ -40,67 +40,22 @@ namespace crown
 {
 namespace sound_resource
 {
-	//-----------------------------------------------------------------------------
 	struct WAVHeader
 	{
-		char 			riff[4];				// Should contains 'RIFF'
+		char 			riff[4];				// Should contain 'RIFF'
 		int32_t			chunk_size;				// Not Needed
-		char 			wave[4];				// Should contains 'WAVE'
-		char 			fmt[4];					// Should contains 'fmt '
+		char 			wave[4];				// Should contain 'WAVE'
+		char 			fmt[4];					// Should contain 'fmt '
 		int32_t			fmt_size;				// Size of format chunk
 		int16_t			fmt_tag;				// Identifies way data is stored, 1 means no compression
 		int16_t			fmt_channels;			// Channel, 1 means mono, 2 means stereo
-		int32_t			fmt_sample_rate;		// Sample per second
+		int32_t			fmt_sample_rate;		// Samples per second
 		int32_t			fmt_avarage;			// Avarage bytes per sample
 		int16_t			fmt_block_align;		// Block alignment
 		int16_t			fmt_bits_ps;			// Number of bits per sample
-		char 			data[4];				// Should contains 'data'
+		char 			data[4];				// Should contain 'data'
 		int32_t			data_size;				// Data dimension
 	};
-
-	SoundHeader			m_sound_header;
-	size_t				m_sound_data_size = 0;
-	uint8_t*			m_sound_data = NULL;
-
-	//-----------------------------------------------------------------------------
-	size_t compile_if_wav(Filesystem& fs, const char* resource_path)
-	{
-		File* in_file = fs.open(resource_path, FOM_READ);
-
-		WAVHeader header;
-
-		in_file->read((char*)&header, sizeof(WAVHeader));
-
-		if (header.riff[0] != 'R' && header.riff[1] != 'I' && header.riff[2] != 'F' && header.riff[3] != 'F')
-		{
-			if (header.wave[0] != 'W' && header.wave[1] != 'A' && header.wave[2] != 'V' && header.wave[3] != 'E')
-			{
-				if (header.fmt[0] != 'f' && header.fmt[1] != 'm' && header.fmt[2] != 't' && header.fmt[3] != ' ')
-				{
-					fs.close(in_file);
-					return 0;
-				}
-			}
-		}
-
-		m_sound_header.version = SOUND_VERSION;
-		m_sound_header.size = header.data_size;
-		m_sound_header.sample_rate = header.fmt_sample_rate;
-		m_sound_header.avg_bytes_ps = header.fmt_avarage;
-		m_sound_header.channels = header.fmt_channels;
-		m_sound_header.block_size = header.fmt_block_align;
-		m_sound_header.bits_ps = header.fmt_bits_ps;
-		m_sound_header.sound_type = SoundType::WAV;
-
-		m_sound_data_size = header.data_size;
-		m_sound_data = (uint8_t*)default_allocator().allocate(m_sound_data_size);
-
-		in_file->read((char*)m_sound_data, m_sound_data_size);
-
-		fs.close(in_file);
-
-		return sizeof(SoundHeader) + m_sound_data_size;
-	}
 
 	// //-----------------------------------------------------------------------------
 	// size_t compile_if_ogg(Filesystem& fs, const char* resource_path)
@@ -149,27 +104,38 @@ namespace sound_resource
 	// }
 
 	//-----------------------------------------------------------------------------
-	void compile(Filesystem& fs, const char* resource_path, File* out_file)
+	void compile(const char* path, CompileOptions& opts)
 	{
-		size_t size = 0;
+		const uint32_t VERSION = 1;
 
-		size = compile_if_wav(fs, resource_path);
+		Buffer sound = opts.read(path);
+		const WAVHeader* wav = (const WAVHeader*)array::begin(sound);
+		const char* wavdata = (const char*) (wav + 1);
 
-		if (size == 0)
-		{
-			size = 0; // compile_if_ogg(fs, resource_path);
-		}
+		// Write
+		SoundResource sr;
+		sr.version = VERSION;
+		sr.size = wav->data_size;
+		sr.sample_rate = wav->fmt_sample_rate;
+		sr.avg_bytes_ps = wav->fmt_avarage;
+		sr.channels = wav->fmt_channels;
+		sr.block_size = wav->fmt_block_align;
+		sr.bits_ps = wav->fmt_bits_ps;
+		sr.sound_type = SoundType::WAV;
 
-		out_file->write((char*)&m_sound_header, sizeof(SoundHeader));
-		out_file->write((char*)m_sound_data, m_sound_data_size);
+		opts.write(sr.version);
+		opts.write(sr.size);
+		opts.write(sr.sample_rate);
+		opts.write(sr.avg_bytes_ps);
+		opts.write(sr.channels);
+		opts.write(sr.block_size);
+		opts.write(sr.bits_ps);
+		opts.write(sr.sound_type);
+		opts.write(sr._pad[0]);
+		opts.write(sr._pad[1]);
+		opts.write(sr._pad[2]);
 
-		if (m_sound_data)
-		{
-
-			default_allocator().deallocate(m_sound_data);
-			m_sound_data_size = 0;
-			m_sound_data = NULL;
-		}
+		opts.write(wavdata, wav->data_size);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -201,5 +167,44 @@ namespace sound_resource
 		allocator.deallocate(resource);
 	}
 
+	uint32_t size(const SoundResource* sr)
+	{
+		return sr->size;
+	}
+
+	uint32_t sample_rate(const SoundResource* sr)
+	{
+		return sr->sample_rate;
+	}
+
+	uint32_t avg_bytes_ps(const SoundResource* sr)
+	{
+		return sr->avg_bytes_ps;
+	}
+
+	uint32_t channels(const SoundResource* sr)
+	{
+		return sr->channels;
+	}
+
+	uint16_t block_size(const SoundResource* sr)
+	{
+		return sr->block_size;
+	}
+
+	uint16_t bits_ps(const SoundResource* sr)
+	{
+		return sr->bits_ps;
+	}
+
+	uint8_t sound_type(const SoundResource* sr)
+	{
+		return sr->sound_type;
+	}
+
+	const char* data(const SoundResource* sr)
+	{
+		return (char*)sr + sizeof(SoundResource);
+	}
 } // namespace sound_resource
 } // namespace crown

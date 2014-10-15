@@ -148,6 +148,8 @@ struct SoundInstance
 {
 	void create(SLEngineItf engine, SLObjectItf output_mix, SoundInstanceId id, SoundResource* sr)
 	{
+		using namespace sound_resource;
+		
 		m_resource = sr;
 		m_finished = false;
 		m_id = id;
@@ -160,7 +162,7 @@ struct SoundInstance
 		format_pcm.formatType = SL_DATAFORMAT_PCM;
 
 		// Sets channels
-		switch (sr->channels())
+		switch (channels(sr))
 		{
 			case 1:
 			{
@@ -182,7 +184,7 @@ struct SoundInstance
 		}
 
 		// Sets sample rate
-		switch (sr->sample_rate())
+		switch (sample_rate(sr))
 		{
 			case 8000: format_pcm.samplesPerSec = SL_SAMPLINGRATE_8; break;
 			case 11025: format_pcm.samplesPerSec = SL_SAMPLINGRATE_11_025; break;
@@ -232,18 +234,18 @@ struct SoundInstance
 		(*play_itf())->RegisterCallback(play_itf(), sles_sound_world::player_callback, (void*) id.encode());
 
 		// Manage simple sound or stream
-		// m_streaming = sr->sound_type() == SoundType::OGG;
+		// m_streaming = sound_type(sr) == SoundType::OGG;
 
 		// if (m_streaming)
 		// {
-		// 	m_decoder.init((char*)sr->data(), sr->size());
+		// 	m_decoder.init((char*)data(sr), size(sr));
 
 		// 	m_decoder.stream();
 		// 	(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, m_decoder.data(), m_decoder.size());
 		// }
 		// else
 		{
-			(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, sr->data(), sr->size());
+			(*m_player_bufferqueue)->Enqueue(m_player_bufferqueue, data(sr), size(sr));
 		}
 	}
 
