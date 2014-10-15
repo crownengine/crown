@@ -122,16 +122,15 @@ namespace lua_system
 	// Redirects require to the resource manager.
 	static int require(lua_State* L)
 	{
+		using namespace lua_resource;
 		LuaStack stack(L);
-
 		const char* filename = stack.get_string(1);
-
 		const ResourceId lua_res("lua", filename);
 		device()->resource_manager()->load(lua_res);
 		device()->resource_manager()->flush();
 
 		const LuaResource* lr = (LuaResource*) device()->resource_manager()->get(lua_res);
-		luaL_loadbuffer(L, (const char*) lr->program(), lr->size(), "");
+		luaL_loadbuffer(L, program(lr), size(lr), "");
 
 		device()->resource_manager()->unload(lua_res);
 

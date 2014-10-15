@@ -46,8 +46,9 @@ LuaEnvironment::LuaEnvironment(lua_State* L)
 //-----------------------------------------------------------------------------
 void LuaEnvironment::execute(const LuaResource* lr)
 {
+	using namespace lua_resource;
 	lua_pushcfunction(_L, lua_system::error_handler);
-	luaL_loadbuffer(_L, (const char*) lr->program(), lr->size(), "<unknown>");
+	luaL_loadbuffer(_L, program(lr), size(lr), "<unknown>");
 	lua_pcall(_L, 0, 0, -2);
 	lua_pop(_L, 1);
 }
