@@ -32,6 +32,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "lua_stack.h"
 #include "temp_allocator.h"
 #include "array.h"
+#include "string_stream.h"
+#include "console_server.h"
 
 namespace crown
 {
@@ -128,6 +130,33 @@ static int device_destroy_resource_package(lua_State* L)
 }
 
 //-----------------------------------------------------------------------------
+static int device_console_send(lua_State* L)
+{
+	using namespace string_stream;
+	LuaStack stack(L);
+
+	TempAllocator1024 alloc;
+	StringStream json(alloc);
+
+	json << "{";
+	/* table is in the stack at index 'i' */
+	stack.push_nil();  /* first key */
+	while (stack.next(1) != 0)
+	{
+		/* uses 'key' (at index -2) and 'value' (at index -1) */
+		json << "\"" << stack.get_string(-2) << "\":\"" << stack.get_string(-1) << "\",";
+		/* removes 'value'; keeps 'key' for next iteration */
+		stack.pop(1);
+	}
+	/* pop key */
+	stack.pop(1);
+	json << "}";
+
+	console_server_globals::console().send_to_all(c_str(json));
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
 void load_device(LuaEnvironment& env)
 {
 	env.load_module_function("Device", "platform",                 device_platform);
@@ -141,6 +170,7 @@ void load_device(LuaEnvironment& env)
 	env.load_module_function("Device", "render_world",             device_render_world);
 	env.load_module_function("Device", "create_resource_package",  device_create_resource_package);
 	env.load_module_function("Device", "destroy_resource_package", device_destroy_resource_package);
+	env.load_module_function("Device", "console_send",             device_console_send);
 }
 
 } // namespace crown

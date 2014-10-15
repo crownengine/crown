@@ -35,7 +35,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "matrix4x4.h"
 #include "string_utils.h"
 #include "color4.h"
-#include "string_stream.h"
 
 //-----------------------------------------------------------------------------
 #if defined(CROWN_DEBUG)
@@ -126,6 +125,11 @@ struct LuaStack
 		lua_remove(_L, index);
 	}
 
+	/// Pops @a n elements from the stack.
+	void pop(int32_t n)
+	{
+		lua_pop(_L, n);
+	}
 	//-----------------------------------------------------------------------------
 	bool is_nil(int32_t index)
 	{
@@ -249,6 +253,11 @@ struct LuaStack
 	void push_key_end()
 	{
 		lua_settable(_L, -3);
+	}
+
+	int next(int32_t i)
+	{
+		return lua_next(_L, i);
 	}
 
 	//-----------------------------------------------------------------------------
