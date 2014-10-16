@@ -144,6 +144,13 @@ static int device_console_send(lua_State* L)
 	return 0;
 }
 
+static int device_can_get(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.push_bool(device()->resource_manager()->can_get(stack.get_string(1), stack.get_string(2)));
+	return 1;
+}
+
 void load_device(LuaEnvironment& env)
 {
 	env.load_module_function("Device", "platform",                 device_platform);
@@ -158,6 +165,7 @@ void load_device(LuaEnvironment& env)
 	env.load_module_function("Device", "create_resource_package",  device_create_resource_package);
 	env.load_module_function("Device", "destroy_resource_package", device_destroy_resource_package);
 	env.load_module_function("Device", "console_send",             device_console_send);
+	env.load_module_function("Device", "can_get",                  device_can_get);
 }
 
 } // namespace crown
