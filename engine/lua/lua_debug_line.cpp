@@ -47,6 +47,13 @@ static int debug_line_add_sphere(lua_State* L)
 	return 0;
 }
 
+static int debug_line_add_obb(lua_State* L)
+{
+	LuaStack stack(L);
+	stack.get_debug_line(1)->add_obb(Color4::RED, stack.get_matrix4x4(2), stack.get_vector3(3));
+	return 0;
+}
+
 static int debug_line_clear(lua_State* L)
 {
 	LuaStack stack(L);
@@ -72,6 +79,7 @@ void load_debug_line(LuaEnvironment& env)
 {
 	env.load_module_function("DebugLine", "add_line",   debug_line_add_line);
 	env.load_module_function("DebugLine", "add_sphere", debug_line_add_sphere);
+	env.load_module_function("DebugLine", "add_obb",    debug_line_add_obb);
 	env.load_module_function("DebugLine", "clear",      debug_line_clear);
 	env.load_module_function("DebugLine", "commit",     debug_line_commit);
 	env.load_module_function("DebugLine", "__index",    "DebugLine");

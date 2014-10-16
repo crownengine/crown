@@ -52,6 +52,10 @@ struct DebugLine
 	/// Adds a sphere at @a center with the given @a radius and @a color.
 	void add_sphere(const Color4& color, const Vector3& center, const float radius);
 
+	/// Adds an orientd bounding box. @a tm describes the position and orientation of
+	/// the box. @a extents describes the size of the box along the axis.
+	void add_obb(const Color4& color, const Matrix4x4& tm, const Vector3& extents);
+
 	/// Clears all the lines.
 	void clear();
 

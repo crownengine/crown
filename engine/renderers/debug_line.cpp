@@ -28,6 +28,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "math_utils.h"
 #include "color4.h"
 #include "vector3.h"
+#include "matrix4x4.h"
 #include "config.h"
 #include <string.h>
 #include <bgfx.h>
@@ -192,6 +193,30 @@ void DebugLine::add_sphere(const Color4& color, const Vector3& center, const flo
 		const Vector3 end2  (0, math::sin(rad1) * radius, -math::cos(rad1) * radius);
 		add_line(color, center + start2, center + end2);
 	}
+}
+
+void DebugLine::add_obb(const Color4& color, const Matrix4x4& tm, const Vector3& extents)
+{
+	const Vector3 o = Vector3(tm.t.x, tm.t.y, tm.t.z);
+	const Vector3 x = Vector3(tm.x.x, tm.x.y, tm.x.z) * (extents.x * 0.5);
+	const Vector3 y = Vector3(tm.y.x, tm.y.y, tm.y.z) * (extents.y * 0.5);
+	const Vector3 z = Vector3(tm.z.x, tm.z.y, tm.z.z) * (extents.z * 0.5);
+
+	// Back face
+	add_line(color, o - x - y - z, o + x - y - z);
+	add_line(color, o + x - y - z, o + x + y - z);
+	add_line(color, o + x + y - z, o - x + y - z);
+	add_line(color, o - x + y - z, o - x - y - z);
+
+	add_line(color, o - x - y + z, o + x - y + z);
+	add_line(color, o + x - y + z, o + x + y + z);
+	add_line(color, o + x + y + z, o - x + y + z);
+	add_line(color, o - x + y + z, o - x - y + z);
+
+	add_line(color, o - x - y - z, o - x - y + z);
+	add_line(color, o + x - y - z, o + x - y + z);
+	add_line(color, o + x + y - z, o + x + y + z);
+	add_line(color, o - x + y - z, o - x + y + z);
 }
 
 void DebugLine::clear()
