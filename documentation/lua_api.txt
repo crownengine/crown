@@ -165,10 +165,10 @@ Matrix4x4
 	**set_z** (m, z)
 		Sets the z axis of the matrix *m*.
 
-	**translation** (a) : Vector3
+	**translation** (m, a) : Vector3
 		Returns the translation portion of the matrix *m*.
 
-	**set_translation** (t)
+	**set_translation** (m, t)
 		Sets the translation portion of the matrix *m*.
 
 	**identity** ()
