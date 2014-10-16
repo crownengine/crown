@@ -169,6 +169,13 @@ struct AABB
 	Vector3 max;
 };
 
+/// @ingroup Math
+struct OBB
+{
+	Matrix4x4 tm;
+	AABB aabb;
+};
+
 /// 3D Plane.
 /// The form is ax + by + cz + d = 0
 /// where: d = -vector3::dot(n, p)
