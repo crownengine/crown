@@ -177,6 +177,13 @@ Matrix4x4
 	**to_string** (a)
 		Returns a string representing the matrix.
 
+Math
+----
+
+	**ray_obb_intersection** (from, dir, tm, extents) : float
+		Returns the distance along ray (from, dir) to intersection point with the oriented
+		bounding box (tm, extents) or -1.0 if no intersection.
+
 World
 =====
 
