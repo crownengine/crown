@@ -703,6 +703,10 @@ DebugLine
 	**add_sphere** (debug_line, center, radius)
 		Adds a sphere at *center* with the given *radius* and *color*.
 
+	**add_obb** (debug_line, tm, extents)
+		Adds an orientd bounding box. *tm* describes the position and orientation of
+		the box. *extents* describes the size of the box along the axis.
+
 	**clear** (debug_line)
 		Clears all the lines.
 
