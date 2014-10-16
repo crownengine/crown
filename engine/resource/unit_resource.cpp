@@ -51,7 +51,7 @@ namespace unit_resource
 		ProjectionType::Enum type;
 	};
 
-	static const Projection s_projection[]
+	static const Projection s_projection[] =
 	{
 		{ "perspective",  ProjectionType::PERSPECTIVE  },
 		{ "orthographic", ProjectionType::ORTHOGRAPHIC }
