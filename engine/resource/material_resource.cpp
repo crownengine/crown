@@ -236,10 +236,7 @@ namespace material_resource
 
 	void online(StringId64 id, ResourceManager& rm)
 	{
-		ResourceId res_id;
-		res_id.type = MATERIAL_TYPE;
-		res_id.name = id;
-		MaterialResource* mr = (MaterialResource*) rm.get(res_id);
+		MaterialResource* mr = (MaterialResource*) rm.get(MATERIAL_TYPE, id);
 
 		char* base = (char*)mr + dynamic_data_offset(mr);
 
@@ -260,10 +257,7 @@ namespace material_resource
 
 	void offline(StringId64 id, ResourceManager& rm)
 	{
-		ResourceId res_id;
-		res_id.type = MATERIAL_TYPE;
-		res_id.name = id;
-		MaterialResource* mr = (MaterialResource*) rm.get(res_id);
+		MaterialResource* mr = (MaterialResource*) rm.get(MATERIAL_TYPE, id);
 
 		char* base = (char*) mr + dynamic_data_offset(mr);
 

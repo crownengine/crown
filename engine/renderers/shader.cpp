@@ -141,11 +141,7 @@ namespace shader_resource
 
 	void online(StringId64 id, ResourceManager& rm)
 	{
-		ResourceId res_id;
-		res_id.type = SHADER_TYPE;
-		res_id.name = id;
-
-		Shader* shader = (Shader*) rm.get(res_id);
+		Shader* shader = (Shader*) rm.get(SHADER_TYPE, id);
 		bgfx::ShaderHandle vs = bgfx::createShader(shader->vs);
 		bgfx::ShaderHandle fs = bgfx::createShader(shader->fs);
 		shader->program = bgfx::createProgram(vs, fs, true);
@@ -153,11 +149,7 @@ namespace shader_resource
 
 	void offline(StringId64 id, ResourceManager& rm)
 	{
-		ResourceId res_id;
-		res_id.type = SHADER_TYPE;
-		res_id.name = id;
-
-		Shader* shader = (Shader*) rm.get(res_id);
+		Shader* shader = (Shader*) rm.get(SHADER_TYPE, id);
 		bgfx::destroyProgram(shader->program);
 	}
 

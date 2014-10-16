@@ -165,11 +165,7 @@ namespace sprite_resource
 
 	void online(StringId64 id, ResourceManager& rm)
 	{
-		ResourceId res_id;
-		res_id.type = SPRITE_TYPE;
-		res_id.name = id;
-
-		SpriteResource* so = (SpriteResource*) rm.get(res_id);
+		SpriteResource* so = (SpriteResource*) rm.get(SPRITE_TYPE, id);
 
 		bgfx::VertexDecl decl;
 		decl.begin()
@@ -183,11 +179,7 @@ namespace sprite_resource
 
 	void offline(StringId64 id, ResourceManager& rm)
 	{
-		ResourceId res_id;
-		res_id.type = SPRITE_TYPE;
-		res_id.name = id;
-
-		SpriteResource* so = (SpriteResource*) rm.get(res_id);
+		SpriteResource* so = (SpriteResource*) rm.get(SPRITE_TYPE, id);
 
 		bgfx::destroyVertexBuffer(so->vb);
 		bgfx::destroyIndexBuffer(so->ib);

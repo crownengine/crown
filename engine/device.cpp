@@ -102,10 +102,7 @@ void Device::init()
 	_boot_package->load();
 	_boot_package->flush();
 
-	ResourceId bootid;
-	bootid.type = LUA_TYPE;
-	bootid.name = _boot_script_id;
-	_lua_environment->execute((LuaResource*) _resource_manager->get(bootid));
+	_lua_environment->execute((LuaResource*)_resource_manager->get(LUA_TYPE, _boot_script_id));
 	_lua_environment->call_global("init", 0);
 }
 

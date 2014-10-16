@@ -640,21 +640,13 @@ namespace texture_resource
 
 	void online(StringId64 id, ResourceManager& rm)
 	{
-		ResourceId res_id;
-		res_id.type = TEXTURE_TYPE;
-		res_id.name = id;
-
-		TextureResource* teximg = (TextureResource*) rm.get(res_id);
+		TextureResource* teximg = (TextureResource*) rm.get(TEXTURE_TYPE, id);
 		teximg->handle = bgfx::createTexture(teximg->mem);
 	}
 
 	void offline(StringId64 id, ResourceManager& rm)
 	{
-		ResourceId res_id;
-		res_id.type = TEXTURE_TYPE;
-		res_id.name = id;
-
-		TextureResource* teximg = (TextureResource*) rm.get(res_id);
+		TextureResource* teximg = (TextureResource*) rm.get(TEXTURE_TYPE, id);
 		bgfx::destroyTexture(teximg->handle);
 	}
 	

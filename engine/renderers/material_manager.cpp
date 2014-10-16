@@ -58,11 +58,8 @@ MaterialManager::MaterialManager()
 
 MaterialId MaterialManager::create_material(StringId64 id)
 {
-	ResourceId res_id;
-	res_id.type = MATERIAL_TYPE;
-	res_id.name = id;
 	MaterialId new_id = id_table::create(_materials_ids);
-	_materials[new_id.index].create((MaterialResource*) device()->resource_manager()->get(res_id), *this);
+	_materials[new_id.index].create((MaterialResource*) device()->resource_manager()->get(MATERIAL_TYPE, id), *this);
 	return new_id;
 }
 

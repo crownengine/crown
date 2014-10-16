@@ -124,16 +124,8 @@ namespace lua_system
 	{
 		using namespace lua_resource;
 		LuaStack stack(L);
-		const char* filename = stack.get_string(1);
-		const ResourceId lua_res("lua", filename);
-		device()->resource_manager()->load(lua_res);
-		device()->resource_manager()->flush();
-
-		const LuaResource* lr = (LuaResource*) device()->resource_manager()->get(lua_res);
+		const LuaResource* lr = (LuaResource*)device()->resource_manager()->get("lua", stack.get_string(1));
 		luaL_loadbuffer(L, program(lr), size(lr), "");
-
-		device()->resource_manager()->unload(lua_res);
-
 		return 1;
 	}
 

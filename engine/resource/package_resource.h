@@ -87,18 +87,18 @@ namespace package_resource
 	uint32_t num_physics_configs(const PackageResource* pr);
 	uint32_t num_shaders(const PackageResource* pr);
 	uint32_t num_sprite_animations(const PackageResource* pr);
-	ResourceId get_texture_id(const PackageResource* pr, uint32_t i);
-	ResourceId get_script_id(const PackageResource* pr, uint32_t i);
-	ResourceId get_sound_id(const PackageResource* pr, uint32_t i);
-	ResourceId get_mesh_id(const PackageResource* pr, uint32_t i);
-	ResourceId get_unit_id(const PackageResource* pr, uint32_t i);
-	ResourceId get_sprite_id(const PackageResource* pr, uint32_t i);
-	ResourceId get_physics_id(const PackageResource* pr, uint32_t i);
-	ResourceId get_material_id(const PackageResource* pr, uint32_t i);
-	ResourceId get_font_id(const PackageResource* pr, uint32_t i);
-	ResourceId get_level_id(const PackageResource* pr, uint32_t i);
-	ResourceId get_physics_config_id(const PackageResource* pr, uint32_t i);
-	ResourceId get_shader_id(const PackageResource* pr, uint32_t i);
-	ResourceId get_sprite_animation_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_texture_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_script_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_sound_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_mesh_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_unit_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_sprite_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_physics_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_material_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_font_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_level_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_physics_config_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_shader_id(const PackageResource* pr, uint32_t i);
+	StringId64 get_sprite_animation_id(const PackageResource* pr, uint32_t i);
 } // namespace package_resource
 } // namespace crown

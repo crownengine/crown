@@ -231,12 +231,12 @@ namespace unit_resource
 			if (res_type == "mesh")
 			{
 				rn.type = UnitRenderable::MESH;
-				rn.resource = renderable.key("resource").to_resource_id("mesh");
+				rn.resource = renderable.key("resource").to_resource_id("mesh").name;
 			}
 			else if (res_type == "sprite")
 			{
 				rn.type = UnitRenderable::SPRITE;
-				rn.resource = renderable.key("resource").to_resource_id("sprite");
+				rn.resource = renderable.key("resource").to_resource_id("sprite").name;
 			}
 			else
 			{
@@ -374,7 +374,7 @@ namespace unit_resource
 
 		UnitResource ur;
 		ur.version = VERSION;
-		ur.physics_resource = m_physics_resource;
+		ur.physics_resource = m_physics_resource.name;
 		ur.sprite_animation = sprite_anim.name;
 		ur.num_renderables = array::size(m_renderables);
 		ur.num_materials = array::size(m_materials);
@@ -498,15 +498,12 @@ namespace unit_resource
 		allocator.deallocate(resource);
 	}
 
-	ResourceId sprite_animation(const UnitResource* ur)
+	StringId64 sprite_animation(const UnitResource* ur)
 	{
-		ResourceId id;
-		id.type = SPRITE_ANIMATION_TYPE;
-		id.name = ur->sprite_animation;
-		return id;
+		return ur->sprite_animation;
 	}
 
-	ResourceId physics_resource(const UnitResource* ur)
+	StringId64 physics_resource(const UnitResource* ur)
 	{
 		return ur->physics_resource;
 	}

@@ -56,10 +56,7 @@ void Material::destroy() const
 
 void Material::bind() const
 {
-	ResourceId shader_id;
-	shader_id.type = SHADER_TYPE;
-	shader_id.name = shader(resource);
-	Shader* shader = (Shader*) device()->resource_manager()->get(shader_id);
+	Shader* shader = (Shader*) device()->resource_manager()->get(SHADER_TYPE, material_resource::shader(resource));
 	bgfx::setProgram(shader->program);
 
 	// Set samplers
@@ -72,10 +69,7 @@ void Material::bind() const
 		bgfx::TextureHandle texture;
 		sampler.idx = th->sampler_handle;
 
-		ResourceId texid;
-		texid.type = TEXTURE_TYPE;
-		texid.name = td->id;
-		TextureResource* teximg = (TextureResource*) device()->resource_manager()->get(texid);
+		TextureResource* teximg = (TextureResource*) device()->resource_manager()->get(TEXTURE_TYPE, td->id);
 		texture.idx = teximg->handle.idx;
 
 		bgfx::setTexture(i, sampler, texture);

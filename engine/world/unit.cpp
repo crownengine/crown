@@ -43,11 +43,11 @@ namespace crown
 
 using namespace unit_resource;
 
-Unit::Unit(World& w, UnitId unit_id, const ResourceId id, const UnitResource* ur, const Matrix4x4& pose)
+Unit::Unit(World& w, UnitId unit_id, StringId64 resid, const UnitResource* ur, const Matrix4x4& pose)
 	: m_world(w)
 	, m_scene_graph(*w.scene_graph_manager()->create_scene_graph())
 	, m_sprite_animation(NULL)
-	, m_resource_id(id)
+	, m_resource_id(resid)
 	, m_resource(ur)
 	, m_id(unit_id)
 	, m_num_cameras(0)
@@ -96,10 +96,10 @@ void Unit::create_objects(const Matrix4x4& pose)
 	m_values = (char*) default_allocator().allocate(values_size(m_resource));
 	memcpy(m_values, values(m_resource), values_size(m_resource));
 
-	ResourceId anim_id = sprite_animation(m_resource);
-	if (anim_id.name != 0)
+	StringId64 anim_id = sprite_animation(m_resource);
+	if (anim_id != 0)
 	{
-		m_sprite_animation = m_world.sprite_animation_player()->create_sprite_animation((SpriteAnimationResource*) device()->resource_manager()->get(anim_id));
+		m_sprite_animation = m_world.sprite_animation_player()->create_sprite_animation((SpriteAnimationResource*) device()->resource_manager()->get(SPRITE_ANIMATION_TYPE, anim_id));
 	}
 }
 
@@ -177,13 +177,13 @@ void Unit::create_renderable_objects()
 
 		if (ur->type == UnitRenderable::MESH)
 		{
-			MeshResource* mr = (MeshResource*) device()->resource_manager()->get(ur->resource);
+			MeshResource* mr = (MeshResource*) device()->resource_manager()->get(MESH_TYPE, ur->resource);
 			MeshId mesh = m_world.render_world()->create_mesh(mr, m_scene_graph, ur->node);
 			add_mesh(ur->name, mesh);
 		}
 		else if (ur->type == UnitRenderable::SPRITE)
 		{
-			SpriteResource* sr = (SpriteResource*) device()->resource_manager()->get(ur->resource);
+			SpriteResource* sr = (SpriteResource*) device()->resource_manager()->get(SPRITE_TYPE, ur->resource);
 			SpriteId sprite = m_world.render_world()->create_sprite(sr, m_scene_graph, ur->node);
 			add_sprite(ur->name, sprite);
 		}
@@ -204,9 +204,9 @@ void Unit::create_physics_objects()
 {
 	using namespace unit_resource;
 	using namespace physics_resource;
-	if (unit_resource::physics_resource(m_resource).type != 0)
+	if (unit_resource::physics_resource(m_resource) != 0)
 	{
-		const PhysicsResource* pr = (PhysicsResource*) device()->resource_manager()->get(unit_resource::physics_resource(m_resource));
+		const PhysicsResource* pr = (PhysicsResource*) device()->resource_manager()->get(PHYSICS_TYPE, unit_resource::physics_resource(m_resource));
 
 		// Create controller if any
 		if (has_controller(pr))
@@ -526,7 +526,7 @@ Material* Unit::material(uint32_t i)
 
 bool Unit::is_a(const char* name)
 {
-	return m_resource_id == ResourceId("unit", name);
+	return m_resource_id == ResourceId("unit", name).name;
 }
 
 void Unit::play_sprite_animation(const char* name, bool loop)

@@ -72,29 +72,16 @@ void World::set_id(WorldId id)
 UnitId World::spawn_unit(const char* name, const Vector3& pos, const Quaternion& rot)
 {
 	const ResourceId id(UNIT_EXTENSION, name);
-	return spawn_unit(id, pos, rot);
-}
-
-UnitId World::spawn_unit(ResourceId id, const Vector3& pos, const Quaternion& rot)
-{
-	UnitResource* ur = (UnitResource*) device()->resource_manager()->get(id);
-	return spawn_unit(id, ur, pos, rot);
+	return spawn_unit(id.name, pos, rot);
 }
 
 UnitId World::spawn_unit(StringId64 name, const Vector3& pos, const Quaternion& rot)
 {
-	ResourceId id;
-	id.type = UNIT_TYPE;
-	id.name = name;
-	UnitResource* ur = (UnitResource*) device()->resource_manager()->get(id);
-	return spawn_unit(id, ur, pos, rot);
-}
+	UnitResource* ur = (UnitResource*)device()->resource_manager()->get(UNIT_TYPE, name);
 
-UnitId World::spawn_unit(const ResourceId id, UnitResource* ur, const Vector3& pos, const Quaternion& rot)
-{
 	Unit* u = (Unit*) m_unit_pool.allocate(sizeof(Unit), CE_ALIGNOF(Unit));
 	const UnitId unit_id = id_array::create(m_units, u);
-	new (u) Unit(*this, unit_id, id, ur, Matrix4x4(rot, pos));
+	new (u) Unit(*this, unit_id, name, ur, Matrix4x4(rot, pos));
 
 	post_unit_spawned_event(unit_id);
 	return unit_id;
@@ -201,25 +188,12 @@ void World::destroy_camera(CameraId id)
 SoundInstanceId World::play_sound(const char* name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
 	ResourceId id(SOUND_EXTENSION, name);
-	return play_sound(id, loop, volume, pos, range);
+	return play_sound(id.name, loop, volume, pos, range);
 }
 
 SoundInstanceId World::play_sound(StringId64 name, const bool loop, const float volume, const Vector3& pos, const float range)
 {
-	ResourceId id;
-	id.type = SOUND_TYPE;
-	id.name = name;
-	return play_sound(id, loop, volume, pos, range);
-}
-
-SoundInstanceId World::play_sound(ResourceId id, const bool loop, const float volume, const Vector3& pos, const float range)
-{
-	SoundResource* sr = (SoundResource*) device()->resource_manager()->get(id);
-	return play_sound(sr, loop, volume, pos, range);
-}
-
-SoundInstanceId World::play_sound(SoundResource* sr, const bool loop, const float volume, const Vector3& pos, const float range)
-{
+	SoundResource* sr = (SoundResource*)device()->resource_manager()->get(SOUND_TYPE, name);
 	return m_sound_world->play(sr, loop, volume, pos);
 }
 

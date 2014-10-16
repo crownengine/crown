@@ -52,6 +52,14 @@ ResourceManager::ResourceManager(Bundle& bundle)
 {
 }
 
+void ResourceManager::load(StringId64 type, StringId64 name)
+{
+	ResourceId id;
+	id.type = type;
+	id.name = name;
+	load(id);
+}
+
 void ResourceManager::load(ResourceId id)
 {
 	// Search for an already existent resource
@@ -68,7 +76,23 @@ void ResourceManager::load(ResourceId id)
 	entry->references++;
 }
 
-void ResourceManager::unload(ResourceId id, bool force)
+bool ResourceManager::can_get(StringId64 type, StringId64 name)
+{
+	ResourceId id;
+	id.type = type;
+	id.name = name;
+	return can_get(id);
+}
+
+void ResourceManager::unload(StringId64 type, StringId64 name)
+{
+	ResourceId id;
+	id.type = type;
+	id.name = name;
+	unload(id);
+}
+
+void ResourceManager::unload(ResourceId id)
 {
 	CE_ASSERT(find(id) != NULL, "Resource not loaded: ""%.16"PRIx64"-%.16"PRIx64, id.type, id.name);
 
@@ -76,7 +100,7 @@ void ResourceManager::unload(ResourceId id, bool force)
 	ResourceEntry* entry = find(id);
 	entry->references--;
 
-	if (entry->references == 0 || force)
+	if (entry->references == 0)
 	{
 		resource_on_offline(id.type, id.name, *this);
 		resource_on_unload(id.type, m_resource_heap, entry->resource);
@@ -103,6 +127,14 @@ const void* ResourceManager::get(const char* type, const char* name) const
 	ResourceEntry* entry = find(ResourceId(type, name));
 	CE_ASSERT(entry != NULL, "Resource not loaded: %s.%s", name, type);
 	return entry->resource;
+}
+
+const void* ResourceManager::get(StringId64 type, StringId64 name)
+{
+	ResourceId id;
+	id.type = type;
+	id.name = name;
+	return get(id);
 }
 
 const void* ResourceManager::get(ResourceId id) const

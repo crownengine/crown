@@ -77,7 +77,7 @@ struct UnitResource;
 /// @ingroup World
 struct Unit
 {
-	Unit(World& w, UnitId unit_id, const ResourceId id, const UnitResource* ur, const Matrix4x4& pose);
+	Unit(World& w, UnitId unit_id, StringId64 resid, const UnitResource* ur, const Matrix4x4& pose);
 	~Unit();
 
 	void set_id(const UnitId id);
@@ -192,7 +192,7 @@ public:
 	World& m_world;
 	SceneGraph& m_scene_graph;
 	SpriteAnimation* m_sprite_animation;
-	const ResourceId m_resource_id;
+	const StringId64 m_resource_id;
 	const UnitResource*	m_resource;
 	UnitId m_id;
 

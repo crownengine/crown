@@ -43,7 +43,7 @@ struct UnitResource
 {
 	uint32_t version;
 	uint32_t _pad;
-	ResourceId physics_resource;
+	StringId64 physics_resource;
 	StringId64 sprite_animation;
 	uint32_t num_renderables;
 	uint32_t renderables_offset;
@@ -64,7 +64,7 @@ struct UnitRenderable
 	enum Enum { MESH, SPRITE };
 	uint32_t type;
 	uint32_t _pad;
-	ResourceId resource;
+	StringId64 resource;
 	StringId32 name;
 	int32_t node;
 	bool visible;
@@ -120,8 +120,8 @@ namespace unit_resource
 	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void unload(Allocator& allocator, void* resource);
 
-	ResourceId sprite_animation(const UnitResource* ur);
-	ResourceId physics_resource(const UnitResource* ur);
+	StringId64 sprite_animation(const UnitResource* ur);
+	StringId64 physics_resource(const UnitResource* ur);
 	uint32_t num_renderables(const UnitResource* ur);
 	const UnitRenderable* get_renderable(const UnitResource* ur, uint32_t i);
 	uint32_t num_materials(const UnitResource* ur);

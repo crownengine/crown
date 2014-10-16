@@ -39,20 +39,19 @@ namespace crown
 struct ResourcePackage
 {
 	ResourcePackage(StringId64 id, ResourceManager& resman)
-		: m_resource_manager(&resman)
-		, m_package(NULL)
-		, m_has_loaded(false)
+		: _resman(&resman)
+		, _id(id)
+		, _package(NULL)
+		, _has_loaded(false)
 	{
-		m_id.type = PACKAGE_TYPE;
-		m_id.name = id;
-		resman.load(m_id);
+		resman.load(PACKAGE_TYPE, _id);
 		resman.flush();
-		m_package = (const PackageResource*) resman.get(m_id);
+		_package = (const PackageResource*) resman.get(PACKAGE_TYPE, _id);
 	}
 
 	~ResourcePackage()
 	{
-		m_resource_manager->unload(m_id);
+		_resman->unload(PACKAGE_TYPE, _id);
 	}
 
 	/// Loads all the resources in the package.
@@ -63,69 +62,69 @@ struct ResourcePackage
 	{
 		using namespace package_resource;
 
-		for (uint32_t i = 0; i < num_textures(m_package); i++)
+		for (uint32_t i = 0; i < num_textures(_package); i++)
 		{
-			m_resource_manager->load(get_texture_id(m_package, i));
+			_resman->load(TEXTURE_TYPE, get_texture_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_scripts(m_package); i++)
+		for (uint32_t i = 0; i < num_scripts(_package); i++)
 		{
-			m_resource_manager->load(get_script_id(m_package, i));
+			_resman->load(LUA_TYPE, get_script_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_sounds(m_package); i++)
+		for (uint32_t i = 0; i < num_sounds(_package); i++)
 		{
-			m_resource_manager->load(get_sound_id(m_package, i));
+			_resman->load(SOUND_TYPE, get_sound_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_meshes(m_package); i++)
+		for (uint32_t i = 0; i < num_meshes(_package); i++)
 		{
-			m_resource_manager->load(get_mesh_id(m_package, i));
+			_resman->load(MESH_TYPE, get_mesh_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_units(m_package); i++)
+		for (uint32_t i = 0; i < num_units(_package); i++)
 		{
-			m_resource_manager->load(get_unit_id(m_package, i));
+			_resman->load(UNIT_TYPE, get_unit_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_sprites(m_package); i++)
+		for (uint32_t i = 0; i < num_sprites(_package); i++)
 		{
-			m_resource_manager->load(get_sprite_id(m_package, i));
+			_resman->load(SPRITE_TYPE, get_sprite_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_physics(m_package); i++)
+		for (uint32_t i = 0; i < num_physics(_package); i++)
 		{
-			m_resource_manager->load(get_physics_id(m_package, i));
+			_resman->load(PHYSICS_TYPE, get_physics_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_materials(m_package); i++)
+		for (uint32_t i = 0; i < num_materials(_package); i++)
 		{
-			m_resource_manager->load(get_material_id(m_package, i));
+			_resman->load(MATERIAL_TYPE, get_material_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_fonts(m_package); i++)
+		for (uint32_t i = 0; i < num_fonts(_package); i++)
 		{
-			m_resource_manager->load(get_font_id(m_package, i));
+			_resman->load(FONT_TYPE, get_font_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_levels(m_package); i++)
+		for (uint32_t i = 0; i < num_levels(_package); i++)
 		{
-			m_resource_manager->load(get_level_id(m_package, i));
+			_resman->load(LEVEL_TYPE, get_level_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_physics_configs(m_package); i++)
+		for (uint32_t i = 0; i < num_physics_configs(_package); i++)
 		{
-			m_resource_manager->load(get_physics_config_id(m_package, i));
+			_resman->load(PHYSICS_CONFIG_TYPE, get_physics_config_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_shaders(m_package); i++)
+		for (uint32_t i = 0; i < num_shaders(_package); i++)
 		{
-			m_resource_manager->load(get_shader_id(m_package, i));
+			_resman->load(SHADER_TYPE, get_shader_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_sprite_animations(m_package); i++)
+		for (uint32_t i = 0; i < num_sprite_animations(_package); i++)
 		{
-			m_resource_manager->load(get_sprite_animation_id(m_package, i));
+			_resman->load(SPRITE_ANIMATION_TYPE, get_sprite_animation_id(_package, i));
 		}
 	}
 
@@ -134,91 +133,91 @@ struct ResourcePackage
 	{
 		using namespace package_resource;
 		
-		for (uint32_t i = 0; i < num_sprite_animations(m_package); i++)
+		for (uint32_t i = 0; i < num_sprite_animations(_package); i++)
 		{
-			m_resource_manager->unload(get_sprite_animation_id(m_package, i));
+			_resman->unload(SPRITE_ANIMATION_TYPE, get_sprite_animation_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_shaders(m_package); i++)
+		for (uint32_t i = 0; i < num_shaders(_package); i++)
 		{
-			m_resource_manager->unload(get_shader_id(m_package, i));
+			_resman->unload(SHADER_TYPE, get_shader_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_physics_configs(m_package); i++)
+		for (uint32_t i = 0; i < num_physics_configs(_package); i++)
 		{
-			m_resource_manager->unload(get_physics_config_id(m_package, i));
+			_resman->unload(PHYSICS_CONFIG_TYPE, get_physics_config_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_levels(m_package); i++)
+		for (uint32_t i = 0; i < num_levels(_package); i++)
 		{
-			m_resource_manager->unload(get_level_id(m_package, i));
+			_resman->unload(LEVEL_TYPE, get_level_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_fonts(m_package); i++)
+		for (uint32_t i = 0; i < num_fonts(_package); i++)
 		{
-			m_resource_manager->unload(get_font_id(m_package, i));
+			_resman->unload(FONT_TYPE, get_font_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_materials(m_package); i++)
+		for (uint32_t i = 0; i < num_materials(_package); i++)
 		{
-			m_resource_manager->unload(get_material_id(m_package, i));
+			_resman->unload(MATERIAL_TYPE, get_material_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_physics(m_package); i++)
+		for (uint32_t i = 0; i < num_physics(_package); i++)
 		{
-			m_resource_manager->unload(get_physics_id(m_package, i));
+			_resman->unload(PHYSICS_TYPE, get_physics_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_sprites(m_package); i++)
+		for (uint32_t i = 0; i < num_sprites(_package); i++)
 		{
-			m_resource_manager->unload(get_sprite_id(m_package, i));
+			_resman->unload(SPRITE_TYPE, get_sprite_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_units(m_package); i++)
+		for (uint32_t i = 0; i < num_units(_package); i++)
 		{
-			m_resource_manager->unload(get_unit_id(m_package, i));
+			_resman->unload(UNIT_TYPE, get_unit_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_meshes(m_package); i++)
+		for (uint32_t i = 0; i < num_meshes(_package); i++)
 		{
-			m_resource_manager->unload(get_mesh_id(m_package, i));
+			_resman->unload(MESH_TYPE, get_mesh_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_sounds(m_package); i++)
+		for (uint32_t i = 0; i < num_sounds(_package); i++)
 		{
-			m_resource_manager->unload(get_sound_id(m_package, i));
+			_resman->unload(SOUND_TYPE, get_sound_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_scripts(m_package); i++)
+		for (uint32_t i = 0; i < num_scripts(_package); i++)
 		{
-			m_resource_manager->unload(get_script_id(m_package, i));
+			_resman->unload(LUA_TYPE, get_script_id(_package, i));
 		}
 
-		for (uint32_t i = 0; i < num_textures(m_package); i++)
+		for (uint32_t i = 0; i < num_textures(_package); i++)
 		{
-			m_resource_manager->unload(get_texture_id(m_package, i));
+			_resman->unload(TEXTURE_TYPE, get_texture_id(_package, i));
 		}
 	}
 
 	/// Waits until the package has been loaded.
 	void flush()
 	{
-		m_resource_manager->flush();
-		m_has_loaded = true;
+		_resman->flush();
+		_has_loaded = true;
 	}
 
 	/// Returns whether the package has been loaded.
 	bool has_loaded() const
 	{
-		return m_has_loaded;
+		return _has_loaded;
 	}
 
 private:
 
-	ResourceManager* m_resource_manager;
-	ResourceId m_id;
-	const PackageResource* m_package;
-	bool m_has_loaded;
+	ResourceManager* _resman;
+	StringId64 _id;
+	const PackageResource* _package;
+	bool _has_loaded;
 };
 
 } // namespace crown
