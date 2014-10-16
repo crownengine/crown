@@ -701,6 +701,9 @@ Device
 		Sends the given lua *table* to clients connected to the engine.
 		Note that the current version only supports explicitly escaped strings as key/value pairs.
 
+	**can_get** (type, name) : bool
+		Returns whether the resource (type, name) is loaded.
+
 DebugLine
 =========
 
