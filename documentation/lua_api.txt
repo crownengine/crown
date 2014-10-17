@@ -707,13 +707,13 @@ Device
 DebugLine
 =========
 
-	**add_line** (debug_line, start, end)
+	**add_line** (debug_line, start, end, color)
 		Adds a line from *start* to *end* with the given *color*.
 
-	**add_sphere** (debug_line, center, radius)
+	**add_sphere** (debug_line, center, radius, color)
 		Adds a sphere at *center* with the given *radius* and *color*.
 
-	**add_obb** (debug_line, tm, extents)
+	**add_obb** (debug_line, tm, extents, color)
 		Adds an orientd bounding box. *tm* describes the position and orientation of
 		the box. *extents* describes the size of the box along the axis.
 
