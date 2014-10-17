@@ -44,6 +44,10 @@ namespace sort_map
 	/// the key does not exist in the map.
 	template <typename TKey, typename TValue, typename Compare> const TValue& get(const SortMap<TKey, TValue, Compare>& m, const TKey& key, const TValue& deffault);
 
+	/// Returns the value for the given @a key or @a deffault if
+	/// the key does not exist in the map.
+	template <typename TKey, typename TValue, typename Compare> TValue& get(SortMap<TKey, TValue, Compare>& m, const TKey& key, const TValue& deffault);
+
 	/// Sorts the keys in the map.
 	template <typename TKey, typename TValue, typename Compare> void sort(SortMap<TKey, TValue, Compare>& m);
 
@@ -128,11 +132,19 @@ namespace sort_map
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
+	TValue& get(SortMap<TKey, TValue, Compare>& m, const TKey& key, const TValue& deffault)
+	{
+		return const_cast<TValue&>(get(static_cast<const SortMap<TKey, TValue, Compare>&>(m), key, deffault));
+	}
+
+	template <typename TKey, typename TValue, typename Compare>
 	inline void sort(SortMap<TKey, TValue, Compare>& m)
 	{
 		std::sort(array::begin(m._data), array::end(m._data),
 			sort_map_internal::CompareEntry<TKey, TValue, Compare>());
+#ifdef CROWN_DEBUG
 		m._is_sorted = true;
+#endif // CROWN_DEBUG
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
@@ -151,8 +163,9 @@ namespace sort_map
 		{
 			m._data[result.item_i].value = val;
 		}
-
+#ifdef CROWN_DEBUG
 		m._is_sorted = false;
+#endif // CROWN_DEBUG
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
@@ -168,15 +181,18 @@ namespace sort_map
 			m._data[result.item_i] = m._data[array::size(m._data) - 1];
 			array::pop_back(m._data);
 		}
-
+#ifdef CROWN_DEBUG
 		m._is_sorted = false;
+#endif // CROWN_DEBUG
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
 	inline void clear(SortMap<TKey, TValue, Compare>& m)
 	{
 		array::clear(m._data);
+#ifdef CROWN_DEBUG
 		m._is_sorted = true;
+#endif // CROWN_DEBUG
 	}
 
 	template <typename TKey, typename TValue, typename Compare>
@@ -194,7 +210,10 @@ namespace sort_map
 
 template <typename TKey, typename TValue, typename Compare>
 inline SortMap<TKey, TValue, Compare>::SortMap(Allocator& a)
-	: _is_sorted(true), _data(a)
+	: _data(a)
+#ifdef CROWN_DEBUG
+	, _is_sorted(true)
+#endif // CROWN_DEBUG
 {
 }
 

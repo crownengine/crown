@@ -175,8 +175,10 @@ struct SortMap
 		TValue value;
 	};
 
-	bool _is_sorted;
 	Array<Entry> _data;
+#ifdef CROWN_DEBUG
+	bool _is_sorted;
+#endif
 };
 
 } // namespace crown
