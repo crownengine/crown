@@ -622,16 +622,14 @@ namespace texture_resource
 		default_allocator().deallocate(image.data);
 	}
 
-	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	void* load(File& file, Allocator& a)
 	{
-		File* file = bundle.open(id);
-		const size_t file_size = file->size();
-		file->skip(sizeof(TextureHeader));
+		const size_t file_size = file.size();
+		file.skip(sizeof(TextureHeader));
 		const bgfx::Memory* mem = bgfx::alloc(file_size);
-		file->read(mem->data, file_size - sizeof(TextureHeader));
-		bundle.close(file);
+		file.read(mem->data, file_size - sizeof(TextureHeader));
 
-		TextureResource* teximg = (TextureResource*) default_allocator().allocate(sizeof(TextureResource));
+		TextureResource* teximg = (TextureResource*) a.allocate(sizeof(TextureResource));
 		teximg->mem = mem;
 		teximg->handle.idx = bgfx::invalidHandle;
 

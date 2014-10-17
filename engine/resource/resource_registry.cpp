@@ -57,7 +57,7 @@ namespace shr = shader_resource;
 namespace sar = sprite_animation_resource;
 
 typedef void  (*ResourceCompileCallback)(const char* path, CompileOptions& opts);
-typedef void* (*ResourceLoadCallback)(Allocator& a, Bundle& b, ResourceId id);
+typedef void* (*ResourceLoadCallback)(File& file, Allocator& a);
 typedef void  (*ResourceOnlineCallback)(StringId64 id, ResourceManager& rm);
 typedef void  (*ResourceOfflineCallback)(StringId64 id, ResourceManager& rm);
 typedef void  (*ResourceUnloadCallback)(Allocator& a, void* resource);
@@ -109,9 +109,9 @@ void resource_on_compile(uint64_t type, const char* path, CompileOptions& opts)
 	return find_callback(type)->on_compile(path, opts);
 }
 
-void* resource_on_load(uint64_t type, Allocator& allocator, Bundle& bundle, ResourceId id)
+void* resource_on_load(uint64_t type, File& file, Allocator& a)
 {
-	return find_callback(type)->on_load(allocator, bundle, id);
+	return find_callback(type)->on_load(file, a);
 }
 
 void resource_on_unload(uint64_t type, Allocator& allocator, void* resource)

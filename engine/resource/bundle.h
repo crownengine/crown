@@ -31,24 +31,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 namespace crown
 {
 
-const uint32_t ARCHIVE_VERSION	= 1;	// Version of the archive
-
-struct ArchiveHeader
-{
-	uint32_t	version;			// The version number of the archive
-	uint32_t	entries_count;		// Number of resource entries in the archive
-	uint32_t	checksum;			// MD5 checksum of the archive
-	uint8_t		padding[64];		// Padding for additional data
-};
-
-struct ArchiveEntry
-{
-	uint32_t	name;				// Name of the resource (fnv1a hash)
-	uint32_t	type;				// Type of the resource (fnv1a hash)
-	uint64_t	offset;				// First byte of the resource (as absolute offset)
-	uint32_t	size;				// Size of the resource data (in bytes)
-};
-
 class Filesystem;
 class File;
 

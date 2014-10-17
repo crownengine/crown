@@ -153,7 +153,7 @@ struct PhysicsJoint
 namespace physics_resource
 {
 	void compile(const char* path, CompileOptions& opts);
-	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
+	void* load(File& file, Allocator& a);
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void unload(Allocator& allocator, void* resource);
@@ -222,7 +222,7 @@ struct PhysicsActor2
 namespace physics_config_resource
 {
 	void compile(const char* path, CompileOptions& opts);
-	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
+	void* load(File& file, Allocator& a);
 	void online(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void offline(StringId64 /*id*/, ResourceManager& /*rm*/);
 	void unload(Allocator& allocator, void* resource);

@@ -111,11 +111,9 @@ namespace shader_resource
 		opts.delete_file(tmpfs_path.c_str());
 	}
 
-	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	void* load(File& file, Allocator& a)
 	{
-		File* file = bundle.open(id);
-
-		BinaryReader br(*file);
+		BinaryReader br(file);
 		uint32_t version;
 		br.read(version);
 
@@ -129,9 +127,7 @@ namespace shader_resource
 		const bgfx::Memory* fsmem = bgfx::alloc(fs_code_size);
 		br.read(fsmem->data, fs_code_size);
 
-		bundle.close(file);
-
-		Shader* shader = (Shader*) default_allocator().allocate(sizeof(Shader));
+		Shader* shader = (Shader*) a.allocate(sizeof(Shader));
 		shader->vs = vsmem;
 		shader->fs = fsmem;
 		shader->program.idx = bgfx::invalidHandle;

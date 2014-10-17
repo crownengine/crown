@@ -96,16 +96,11 @@ namespace font_resource
 		}
 	}
 
-	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	void* load(File& file, Allocator& a)
 	{
-		File* file = bundle.open(id);
-		const size_t file_size = file->size();
-
-		void* res = allocator.allocate(file_size);
-		file->read(res, file_size);
-
-		bundle.close(file);
-
+		const size_t file_size = file.size();
+		void* res = a.allocate(file_size);
+		file.read(res, file_size);
 		return res;
 	}
 

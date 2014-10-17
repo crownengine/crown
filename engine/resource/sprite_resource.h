@@ -61,7 +61,7 @@ struct SpriteResource
 namespace sprite_resource
 {
 	void compile(const char* path, CompileOptions& opts);
-	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
+	void* load(File& file, Allocator& a);
 	void online(StringId64 id, ResourceManager& rm);
 	void offline(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* resource);
@@ -90,7 +90,7 @@ struct SpriteAnimationData
 namespace sprite_animation_resource
 {
 	void compile(const char* path, CompileOptions& opts);
-	void* load(Allocator& allocator, Bundle& bundle, ResourceId id);
+	void* load(File& file, Allocator& a);
 	void online(StringId64 id, ResourceManager& rm);
 	void offline(StringId64 id, ResourceManager& rm);
 	void unload(Allocator& a, void* resource);

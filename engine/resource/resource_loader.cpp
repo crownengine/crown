@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "resource_registry.h"
 #include "log.h"
 #include "queue.h"
+#include "bundle.h"
 
 namespace crown
 {
@@ -103,7 +104,9 @@ int32_t ResourceLoader::run()
 
 		ResourceData rd;
 		rd.id = id;
-		rd.data = resource_on_load(id.type, m_resource_heap, m_bundle, id);
+		File* file = m_bundle.open(id);
+		rd.data = resource_on_load(id.type, *file, m_resource_heap);
+		m_bundle.close(file);
 		add_loaded(rd);
 		m_mutex.lock();
 		queue::pop_front(m_requests);

@@ -136,10 +136,9 @@ namespace sprite_resource
 		}
 	}
 
-	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	void* load(File& file, Allocator& a)
 	{
-		File* file = bundle.open(id);
-		BinaryReader br(*file);
+		BinaryReader br(file);
 
 		uint32_t version;
 		br.read(version);
@@ -154,9 +153,7 @@ namespace sprite_resource
 		const bgfx::Memory* ibmem = bgfx::alloc(num_inds * sizeof(uint16_t));
 		br.read(ibmem->data, num_inds * sizeof(uint16_t));
 
-		bundle.close(file);
-
-		SpriteResource* so = (SpriteResource*) default_allocator().allocate(sizeof(SpriteResource));
+		SpriteResource* so = (SpriteResource*) a.allocate(sizeof(SpriteResource));
 		so->vbmem = vbmem;
 		so->ibmem = ibmem;
 
@@ -263,13 +260,11 @@ namespace sprite_animation_resource
 		}
 	}
 
-	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	void* load(File& file, Allocator& a)
 	{
-		File* file = bundle.open(id);
-		const size_t file_size = file->size();
-		void* res = allocator.allocate(file_size);
-		file->read(res, file_size);
-		bundle.close(file);
+		const size_t file_size = file.size();
+		void* res = a.allocate(file_size);
+		file.read(res, file_size);
 		return res;
 	}
 

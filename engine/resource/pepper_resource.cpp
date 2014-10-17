@@ -58,7 +58,7 @@ namespace pepper_resource
 		opts.get_absolute_path("tmpfs", tmpfs_path);
 	}
 
-	void* load(Allocator& allocator, Bundle& bundle, ResourceId id)
+	void* load(File& file, Allocator& a)
 	{
 
 	}
